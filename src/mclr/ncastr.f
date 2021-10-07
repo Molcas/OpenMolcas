@@ -43,7 +43,6 @@ C          write(6,*) ' NOBATP = ',NOBATP(IOBTP)
           ELSE
             NENTRY = NOBATP(IOBTP)-IELPTP(IOBTP,ISTTP)
           END IF
-C     if (nentry.lt.0) cycle
 C          write(6,*) ' NENTRY = ',NENTRY
           IF(ITPO.GT.0) THEN
             LCA = LCA + NENTRY*NSTTPI(ISTTP)

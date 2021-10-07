@@ -266,7 +266,7 @@
 
         if (IFDORTHO) then
           write(6,Fmt1)'Unscaled orthornormalization will be used '//
-     &     'to generated internally contracted basis'
+     &     'to generate internally contracted basis'
         end if
 
         call CollapseOutput(0,'CASPT2 specifications:')

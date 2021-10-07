@@ -23,6 +23,8 @@ C initialize global common-block variables appropriately.
 #include "SysDef.fh"
 #include "ofembed.fh"
 #include "para_info.fh"
+#include "caspt2_grad.fh"
+#include "nadc.fh"
 
       Integer iDummy
 
@@ -537,6 +539,28 @@ C           DoGrdt=.true.
       Else
         IFDENS = .False.
         IFGRDT = .False.
+      End If
+C
+      isNAC = .False.
+      If (IFGRDT) Then
+        isNAC = Input%NAC .or. EDiffZero
+        If (Input%iNACRoot1.eq.0.and.Input%iNACRoot2.eq.0) Then
+          If (EDiffZero) Then
+            iRoot1 = iState(1)
+            iRoot2 = iState(2)
+          Else
+            iRoot1 = iRlxRoot
+            iRoot2 = iRlxRoot
+          End If
+        Else
+          iRoot1 = Input%iNACRoot1
+          iRoot2 = Input%iNACRoot2
+        End If
+      End If
+C
+      isCSF = .False.
+      If (isNAC) Then
+        isCSF = Input%CSF
       End If
 C
       IFSADREF = Input%SADREF

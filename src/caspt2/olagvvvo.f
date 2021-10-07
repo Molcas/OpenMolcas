@@ -61,11 +61,25 @@ C    *        File=RealName(1:lRealName),
 C    *        Status='REPLACE',
 C    *        Form='UNFORMATTED')
 C       call molcas_Open(LuCMOPT2,RealName(1:lRealName))
-        Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
-     &                        'DIRECT','UNFORMATTED',
-     &                        iost,.FALSE.,
-     &                        1,'REPLACE',is_error)
-C      write(6,*) "write...",numcho
+        If (IFMSCOUP.and.jState.ne.1) Then
+          Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
+     &                          'DIRECT','UNFORMATTED',
+     &                          iost,.FALSE.,
+     &                          1,'OLD',is_error)
+          Call GetMem('WRK3','ALLO','Real',ipWRK3,NumCho*NumCho)
+          Do i = 1, NumCho*NumCho
+            Read (LuCMOPT2) Work(ipWRK3+i-1)
+          End Do
+          Call DaXpY_(NumCho*NumCho,1.0D+00,Work(ipWRK3),1,A_PT2,1)
+          Call GetMem('WRK3','FREE','Real',ipWRK3,NumCho*NumCho)
+          REWIND LuCMOPT2
+        Else
+          Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
+     &                          'DIRECT','UNFORMATTED',
+     &                          iost,.FALSE.,
+     &                          1,'REPLACE',is_error)
+        End If
+C       write(6,*) "write...",numcho,lucmopt2
         Do i = 1, NumCho*NumCho
 C       write(6,*) "i = ", i
           Write (LuCMOPT2) A_PT2(i)
@@ -80,10 +94,17 @@ C    *        Form='UNFORMATTED',
 C    *        Access='DIRECT',
 C    *        Recl=nBas(iSym)*nBas(iSym)*8)
 C       call molcas_Open(LuGamma,RealName(1:lRealName))
+        If (IFMSCOUP.and.jState.ne.1) Then
+        Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
+     &                        'DIRECT','UNFORMATTED',
+     &                        iost,.TRUE.,
+     &                        nBas(iSym)**2*8,'OLD',is_error)
+        Else
         Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
      &                        'DIRECT','UNFORMATTED',
      &                        iost,.TRUE.,
      &                        nBas(iSym)**2*8,'REPLACE',is_error)
+        End If
       End If
       !! 2) Compute ERI (mu rho | nu sigma)
       !! 3) Quarter-transformation of ERI
@@ -181,6 +202,9 @@ C         Write (LuCMOPT2) Work(LCMO+i-1)
         If (.not.IFSADREF) Then
           If (nState.eq.1) Then
             nSSDM = 0
+          Else If (IFDW) Then
+            !! For (X)DW, use nState density matrix
+            nSSDM = nState
           Else If (IFXMS) Then
             !! For XMS, use SA density matrix
             nSSDM = 0
@@ -216,10 +240,17 @@ C    *        Form='UNFORMATTED',
 C    *        Access='DIRECT',
 C    *        Recl=nOcc*nOcc*8)
 C       call molcas_Open(LuGamma,RealName(1:lRealName))
+        if (ifmscoup.and.jstate.ne.1) then
+        Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
+     &                        'DIRECT','UNFORMATTED',
+     &                        iost,.TRUE.,
+     &                        nOcc*nOcc*8,'OLD',is_error)
+        else
         Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
      &                        'DIRECT','UNFORMATTED',
      &                        iost,.TRUE.,
      &                        nOcc*nOcc*8,'REPLACE',is_error)
+        end if
         if (is_error) then
          write (6,*) "Something is wrong in opening LuGamma in olagvvvo"
           call abend
@@ -281,6 +312,11 @@ C       end if
                   End Do
                 End Do
                 iRec = iBas+nBasT*(jBas-1)
+      if (ifmscoup.and.jstate.ne.1) then
+        read (lugamma,rec=irec) (work(ipwrk2+i-1),i=1,nocc*nocc)
+        call daxpy_(nocc*nocc,1.0d+00,work(ipwrk2),1,
+     *                                t_hbf(1,1,ibas0,jbas0),1)
+      end if
                 Write (LuGamma,Rec=iRec)
      *            (T_hbf(i,1,iBas0,jBas0),i=1,nOcc*nOcc)
               End Do
@@ -434,7 +470,7 @@ C     Real*8 CMO_DUMMY(1)
           SUBROUTINE VVVOX2(nAux,KEEP,iSym0,iSymI,iSymJ,iSymK,iSymL,
      *                      vLag,CMO,WRK,
      *                      DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
-     *                      DIA,DI,FIFA,FIMO,BraAI,BraSI,BraAA,BraSA)
+     *                      FIFA,FIMO,BraAI,BraSI,BraAA,BraSA)
 C    *                      DIA,DI,FIFA,FIMO,BraD)
           USE CHOVEC_IO
           IMPLICIT REAL*8 (A-H,O-Z)
@@ -443,7 +479,7 @@ C    *                      DIA,DI,FIFA,FIMO,BraD)
           Real*8 vLag(nBasT,*),CMO(nBasT,*),
      *           WRK(nBasT,nBasT)
           Dimension DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*)
-          Dimension DIA(*),DI(*),FIFA(*),FIMO(*)
+          Dimension FIFA(*),FIMO(*)
           Integer nAux(8),KEEP(8)
 C         Dimension BraAI(*),BraSI(*),BraAA(*),BraSA(*)
          Dimension BraAI(nAsh(iSym0),nIsh(iSym0),NVLOC_CHOBATCH(iSym0)),
@@ -504,7 +540,7 @@ C       write(6,*) "calling vvvox2"
         Call VVVOX2(nAux,Keep,iSym,iSymI,iSymJ,iSymK,iSymL,
      *              vLag,CMO,Work(LWRK),
      *              DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
-     *              DIA,DI,FIFA,FIMO,BraAI,BraSI,BraAA,BraSA)
+     *              FIFA,FIMO,BraAI,BraSI,BraAA,BraSA)
 C    *              DIA,DI,FIFA,FIMO,DBra)
 C       write(6,*) "finished vvvox2"
       Else
@@ -843,7 +879,7 @@ C
       SUBROUTINE VVVOX2(nAux,KEEP,iSym0,iSymI,iSymJ,iSymK,iSymL,
      *                  vLag,CMO,WRK,
      *                  DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
-     *                  DIA,DI,FIFA,FIMO,BraAI,BraSI,BraAA,BraSA)
+     *                  FIFA,FIMO,BraAI,BraSI,BraAA,BraSA)
 C    *                  DIA,DI,FIFA,FIMO,BraD)
 C
       USE CHOVEC_IO
@@ -863,7 +899,7 @@ C
 C
       Real*8 vLag(nBasT,*),CMO(nBasT,*),WRK(nBasT,nBasT)
       Dimension DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*)
-      Dimension DIA(*),DI(*),FIFA(*),FIMO(*)
+      Dimension FIFA(*),FIMO(*)
       Integer ISTLT(8),ISTSQ(8),nAux(8),KEEP(8),ipWRK(8)
 C
       Dimension BraAI(nAsh(iSym0),nIsh(iSym0),NVLOC_CHOBATCH(iSym0)),
@@ -1176,10 +1212,15 @@ C           A_PT2(iVec) = DDot_(nBasI**2,WRK,1,Work(ipWRK),1)
 C
             !! For derivative (3c-2e derivative; construct B_PT2)
             NSEQ = 0
+            If (IFMSCOUP.and.jState.ne.1) Then
+              Read (LuGamma,Rec=iVec) (Work(ipHTVec+i-1),i=1,nBasI**2)
+            Else
+              Call DCopy_(nBasI**2,[0.0D+00],0,Work(ipHTVec),1)
+            End If
             Do i = 1, nBasI
               Do j = 1, nBasI
                 tmp = (WRK(i,j)+WRK(j,i))*0.5d+00
-                Work(ipHTVec+NSEQ) = tmp
+                Work(ipHTVec+NSEQ) = Work(ipHTVec+NSEQ) + tmp
                 NSEQ = NSEQ + 1
               End Do
             End Do
@@ -1193,8 +1234,8 @@ C
               Call FDGTRF(Work(ipWRK(iSym)),DPT2CAO,FPT2CAO)
             End If
             If (nFroT.ne.0) Then
-              Call FDGTRF(Work(ipWRK(iSym)),DIA,FIFA)
-              Call FDGTRF(Work(ipWRK(iSym)),DI ,FIMO)
+C             Call FDGTRF(Work(ipWRK(iSym)),DIA,FIFA)
+C             Call FDGTRF(Work(ipWRK(iSym)),DI ,FIMO)
             End If
           End Do
 C

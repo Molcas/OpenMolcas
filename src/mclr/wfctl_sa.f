@@ -188,227 +188,82 @@
 ************************************************************************
 *                                                                      *
       If (PT2) Then
-        Call Getmem('SLag  ','ALLO','Real',ipSLag ,nRoots*(nRoots-1)/2)
-        Call DCopy_(nRoots*(nRoots-1)/2,[0.0d+00],0,Work(ipSLag),1)
+        Call Getmem('SLag  ','ALLO','Real',ipSLag ,nRoots*nRoots)
+        Call DCopy_(nRoots*nRoots,[0.0d+00],0,Work(ipSLag),1)
         Call RHS_PT2(Work(ipKap),ipST,Work(ipIn(ipST)),Work(ipSLag))
-        ! Call Dcopy_(ndens2,[Zero],0,Work(ipKap),1)
-        ! Call Dcopy_(nRoots*(nRoots-1)/2,[Zero],0,Work(ipSLag),1)
       End If
+*
       If (isNAC) Then
-        Call RHS_NAC(Work(ipTemp4))
+        Call RHS_NAC(Work(ipTemp4),Work(ipSLag))
       Else
         Call RHS_SA(Work(ipTemp4),Work(ipSLag))
       End If
-C     write(6,*) "casscf lag"
-C     call sqprt(work(iptemp4),norb(1))
+*
       If (PT2) Then
-C       write(6,*) "pt2 lag"
-C       call sqprt(work(ipKap),norb(1))
-        Call Getmem('SLag  ','FREE','Real',ipSLag ,nRoots*(nRoots-1)/2)
+        Call Getmem('SLag  ','FREE','Real',ipSLag ,nRoots*nRoots2)
         Call DaXpY_(nDens2,1.0D+00,Work(ipKap),1,Work(ipTemp4),1)
         Call DCopy_(nDens2,[0.0D+00],0,Work(ipKap),1)
       End If
-      ! Call Dcopy_(ndens2,[Zero],0,Work(ipTemp4),1)
-C     write(6,*) "casscf+pt2 lag"
-C     call sqprt(work(iptemp4),norb(1))
 *
       irc=opOut(ipci)
 *
       If (lprint) Write(6,*)
      &      '       Iteration       Delta           Res(kappa)     '//
      &      '  Res(CI)          DeltaK           DeltaC'
-      iLen=nDensC !! number of independent rotations
+      iLen=nDensC
       iRHSDisp(iDisp)=iDis
-      !! orbital rotation: maybe square to indepdent
       Call Compress(Work(ipTemp4),Work(ipSigma),iSym)
-C     write(6,*) "compressed orbital Lagrangian"
-C     do i = 1, ndensc
-C       write(6,'(i3,f20.10)') i,work(ipsigma+i-1)
-C     end do
-C     write(6,*) "Work(ipIn(ipST))"
-C     do i = 1, nconf3
-C       write(6,'(i3,f20.10)') i,work(ipin(ipST)+i-1)
-C     end do
-C     Call RecPrt('RHS',' ',Work(ipSigma),nDensc,1)
       r1=ddot_(nDensc,Work(ipSigma),1,Work(ipSigma),1)
       If (PT2) R1 = R1 + DDot_(nConf1*nRoots,Work(ipIn(ipST)),1,
      *                                       Work(ipIn(ipST)),1)
-C      write(6,*) "r1"
-C     write(6,*)ddot_(nDensc,Work(ipSigma),1,Work(ipSigma),1)
-C     write(*,*) DDot_(nConf1*nRoots,Work(ipIn(ipST)),1,
-C    *                                       Work(ipIn(ipST)),1)
       If(debug)Write(6,*) 'Hi how about r1',r1
-C     Write(6,*) 'Hi how about r1',r1
       Call dDaFile(LuTemp,1,Work(ipSigma),iLen,iDis)
 *
       call dcopy_(nConf1*nroots,[Zero],0,Work(ipIn(ipCIT)),1)
       If (PT2) then
         Call DSCAL_(nConf1*nRoots,-One,Work(ipIn(ipST)),1)
-* Naming System:
-* ipKap: accumulates Lagrange multiplier orbital parts (ipdKap * ralpha)
-* ipdKap: orbital input of Hessian matrix-vector;
-* ipTemp4: orbital output of Hessian matrix-vector
-* ipSigma: accumulates error vector orbital part
-* ipCIT: accumulates Lagrange multiplier CI parts (ipCId * ralpha)
-* ipCId: CI input of Hessian matrix-vector;
-* ipS1: CI output of Hessian matrix-vector
-* ipST: accumulates error vector CI part
-        !! Some post-process are required
-        !! the CI Lagrangian has to be projected out
-        !! (although not required)
-        !! Also, state rotations are to be included
-C       call slag(Work(ipIn(ipST)),slag)
-        !! initial residue is r = b - Ax, where we have b.
-        !! The Ax part has to be computed.
         If (CI) Then
-       !  write(6,*) "Work(ipIn(ipST)) in CSF?"
-       !  write(6,'(5f20.10)') (work(ipin(ipST)+i-1),i=1,nconf1)
-       !  Call DCopy_(nConf3*nRoots,0.0D+00,0,Work(ipIn(ipS2)),1)
-       !  Call CSF2SD(Work(ipIn(ipST)),Work(ipIn(ipS2)),iSym)
-C     write(6,*) "Work(ipIn(ipS2)) in det."
-C     do i = 1, nconf3
-C       write(6,'(i3,f20.10)') i,work(ipin(ipS2)+i-1)
-C     end do
-       !  write(6,*) "Work(ipIn(ipS2)) in determinant?"
-       !  write(6,'(5f20.10)') (work(ipin(ipS2)+i-1),i=1,nconf3)
-       !  Call DCopy_(nConf3*nRoots,Work(ipIn(ipS2)),1,
-     * !                            Work(ipIn(ipST)),1)
-       !  !! input : ipST
-       !  !! output: ipS2
-       !  Call DMinvCI_sa(ipST,Work(ipIn(ipS2)),rdum,isym,work(ipS))
-       !  Call DCopy_(nConf3*nRoots,Work(ipIn(ipS2)),1,
-     * !                            Work(ipIn(ipST)),1)
-C         Call DMinvCI_sa(ipST,Work(ipIn(ipS2)),rdum,isym,work(ipS))
-C         Call DCopy_(nConf3*nRoots,Work(ipIn(ipS2)),1,
-C    *                              Work(ipIn(ipST)),1)
-C         Call CSF2SD(Work(ipIn(ipST)),Work(ipIn(ipS2)),iSym)
-C         Call DCopy_(nConf3*nRoots,Work(ipIn(ipS2)),1,
-C    *                              Work(ipIn(ipST)),1)
-C         Call DCopy_(nConf3*nRoots,Work(ipIn(ipS2)),1,
-C    *                              Work(ipIn(ipCID)),1)
           !! The order of CSF coefficients in CASPT2 and MCLR is somehow
           !! different, so the CI lagrangian computed in CASPT2 must be
           !! reordered so that it can be used here.
           Call Getmem('WRK   ','ALLO','Real',ipWRK  ,nConf1)
           Do iR = 1, nRoots
-C         write(6,*) "Work(ipIn(ipST)) in CSF, Root =",ir
-C         do i = 1, nconf1
-C         write(6,'(i3,f20.10)') i,work(ipin(ipST)+i-1+nConf1*(iR-1))
-C         end do
             Call DCopy_(nConf1,Work(ipIn(ipST)+nConf1*(iR-1)),1,
      *                  Work(ipWRK),1)
             Call GugaCtl_MCLR(ipWRK,1)
             Call DCopy_(nConf1,Work(ipWRK),1,
      *                  Work(ipIn(ipST)+nConf1*(iR-1)),1)
-C         write(6,*) "Work(ipIn(ipST)) in CSF, Root =",ir
-C         do i = 1, nconf1
-C         write(6,'(i3,f20.10)') i,work(ipin(ipST)+i-1+nConf1*(iR-1))
-C         end do
           End Do
           Call Getmem('WRK   ','FREE','Real',ipWRK  ,nConf1)
-          if (.false.) then
-          Call DaXpY_(nConf1*nRoots,-1.0D+00,
-     *                Work(ipIn(ipS1)),1,Work(ipIn(ipST)),1)
-          end if
 C
-C         call dcopy_(nconf1*nroots,0.0d+00,0,work(ipin(ipst)),1)
-C         Call DScal_(nConf1*nRoots,-1.0D+00,Work(ipIn(ipST)),1)
           !! precondition (z0 = M^{-1}*r0)
           Call DMinvCI_sa(ipST,Work(ipIn(ipS2)),rdum,isym,work(ipS))
          irc=opOut(ipci)
          irc=opOut(ipdia)
-       !!!Call DMinvCI(ipST,Work(ipIn(ipS2)),rdum,isym)
-C         Call SD2CSF(ipS2,Work(ipIn(ipST)),iSym)
-          !   ovl = ddot_(nconf1,work(ipin(ips2)),1,work(ipin(ipci)),1)
-          !   call daxpy_(nconf1,-ovl,work(ipci),1,work(ipin(ips2)),1)
           !! z0 <= p0
           Call DCopy_(nConf1*nRoots,Work(ipIn(ipS2)),1,
      *                              Work(ipIn(ipCId)),1)
-C         Call DCopy_(nConf1*nRoots,Work(ipIn(ipST)),1,
-C    *                              Work(ipIn(ipCId)),1)
-C         Call DCopy_(nConf1*nRoots,Work(ipIn(ipST)),1,
-C    *                              Work(ipIn(ipS2 )),1)
         End If
-C       write(6,*) "after preconditioning?"
-C       write(6,*) "Work(ipIn(ipST))"
-C       write(6,'(5f20.10)') (work(ipin(ipST)+i-1),i=1,nconf1)
-C       write(6,*) "Work(ipIn(ipCIT))"
-C       write(6,'(5f20.10)') (work(ipin(ipCIT)+i-1),i=1,nconf1)
-C       write(6,*) "Work(ipIn(ipCId))"
-C       write(6,'(5f20.10)') (work(ipin(ipCId)+i-1),i=1,nconf1)
-C       write(6,*) "Work(ipIn(ipS2))"
-C       write(6,'(5f20.10)') (work(ipin(ipS2)+i-1),i=1,nconf1)
-C       Call TimesE2(Work(ipdKap),ipCId,1,reco,jspin,ipS2,
-C    &              Work(ipTemp4),ipS1,0)
-C       irc=ipout(ipcid)
-C       Call DaXpY_(nConf1*nroots,-1.0D+00,
-C    *              Work(ipIn(ipS1)),1,
-C    *              Work(ipIn(ipST)),1)
-C       Call DaXpY_(nConf1*nRoots,1.0D+00,
-C    *              Work(ipIn(ipCId)),1,
-C    *              Work(ipIn(ipCIT)),1)
-C
-C       Call DCopy_(nConf1*nRoots,Work(ipIn(ipST)),1,
-C    *                            Work(ipIn(ipCID)),1)
       Else
         call dcopy_(nConf1*nroots,[Zero],0,Work(ipIn(ipST)),1)
         call dcopy_(nConf1*nroots,[Zero],0,Work(ipIn(ipCID)),1)
       End If
       irc=ipOut(ipCIT)
-C     weight = 0.99331749869259100549d+00
       Call DSCAL_(nDensC,-One,Work(ipSigma),1)
 *
-      !! set x0 = 0
-      !! r0 = b = RHS    // ipST  // ipSigma
-      !! z0 = M^{-1}*r0  // ipS2  // ipKap
-      !! p0 = z0         // ipCId // ipdKap
       Call DMInvKap(Work(ipIn(ipPre2)),Work(ipSigma),nDens2+6,
      &              Work(ipKap),nDens2+6,work(ipTemp3),nDens2+6,
      &              isym,iter)
-C      write(6,*) "M^{-1}*r0"
-C      do i = 1, ndensc
-C       write(6,'(i3,f20.10)') i,work(ipkap+i-1)
-C      end do
-C
-      IF (PT2) THEN
-      END IF
 
-      !! z0^T*z0
       irc=opOut(ippre2)
-C     write(6,*) "r2"
-C     write(6,*) ddot_(ndensc,Work(ipKap),1,Work(ipKap),1)
-C     write(*,*) DDot_(nConf1*nRoots,Work(ipIn(ipS2)),1,
-C    *                                       Work(ipIn(ipS2)),1)
       r2=ddot_(ndensc,Work(ipKap),1,Work(ipKap),1)
       If (PT2) R2 = R2 + DDot_(nConf1*nRoots,Work(ipIn(ipS2)),1,
      *                                       Work(ipIn(ipS2)),1)
       If(debug)Write(6,*) 'In that case I think that r2 should be:',r2
-C     Write(6,*) 'In that case I think that r2 should be:',r2
       If (r2.gt.r1) Write(6,*) 'Warning ',
      &    ' perturbation number ',idisp,' might diverge'
 *
-      !! define p0 <- z0
       call dcopy_(ndensC,Work(ipKap),1,Work(ipdKap),1)
-C       write(6,*) "CI, r0,z0,p0"
-C       do i = 1, nconf1
-C         write(6,'(i3,3f20.10)')
-C    *    i,Work(ipIn(ipST)+i-1),Work(ipIn(ipS2)+i-1),
-C    *    Work(ipIn(ipCId)+i-1)
-C       end do
-C       write(6,*) "ORB, r0,z0,p0"
-C       do i = 1, ndensc
-C         write(6,'(i3,3f20.10)')
-C    *    i,Work(ipSigma+i-1),Work(ipKap+i-1),
-C    *    Work(ipdKap+i-1)
-C       end do
-*
-      ! r^T dot z
-      ! r (residue) = ipST (det?)
-      ! z (prec. r) = ipS2 (det?)  // ipSc2
-      ! p (...)     = ipCId (CSF)  // ipdKap
-      ! x (solution)= ipCIT (CSF)  // ipKap
-      ! Ap          = ipS1 (det?)  // ipTemp4
-      ! r_{k}z_{k}  = ipST*ipS2 = deltaC
       deltaC=Zero
       If (PT2) deltaC=ddot_(nConf1*nroots,Work(ipin(ipST)),1,
      &                                    Work(ipin(ipS2)),1)
@@ -423,9 +278,8 @@ C       end do
 *
 200   Continue
 *
-         ! Compute Ap
          Call TimesE2(Work(ipdKap),ipCId,1,reco,jspin,ipS2,
-     &                Work(ipTemp4),ipS1,0)
+     &                Work(ipTemp4),ipS1)
 *
 *-----------------------------------------------------------------------------
 *
@@ -444,24 +298,16 @@ C       end do
 *
 *-------------------------------------------------------------------*
 *
-         !! new x  // x_{k+1} = x_{k} + alpha_{k}*p_{k}
-         !! new r // r_{k+1} = r_{k} - alpha_{k}*A*p_{k}
 *        Kappa=Kappa+rAlpha*dKappa
-         !  new x of orbital
          Call DaxPy_(nDensC,ralpha,Work(ipdKap),1,Work(ipKap),1)
 *        Sigma=Sigma-rAlpha*dSigma       Sigma=RHS-Akappa
-         !  new r of orbital
          Call DaxPy_(nDensC,-ralpha,Work(ipTemp4),1,Work(ipSigma),1)
          resk=sqrt(ddot_(nDensC,Work(ipSigma),1,Work(ipSigma),1))
-C        resk = resk - 7.921473959d-04
-         !!
          resci=Zero
-         !  new x of CI
          Call DaXpY_(nConf1*nroots,ralpha,Work(ipIn(ipCId)),1,
      &                                   Work(ipIn(ipCIT)),1)
          irc=ipOut(ipcit)
 *        ipST =ipST -rAlpha*ipS1         ipST=RHS-A*ipCIT
-         !  new r of CI
          Call DaXpY_(nConf1*nroots,-ralpha,Work(ipIn(ipS1)),1,
      &                                    Work(ipIn(ipST)),1)
          irc=opOut(ipS1)
@@ -478,13 +324,10 @@ C        resk = resk - 7.921473959d-04
 *
          irc=opOut(ipcid)
 
-         !! new z for orbital // z_{k+1} = M^{-1}*r_{k+1}
-         !! ipS2 = M^{-1}*ipST
          Call DMinvCI_SA(ipST,Work(ipIn(ipS2)),rdum,isym,work(ipS))
          irc=opOut(ipci)
          irc=opOut(ipdia)
 
-C          write(6,*) "calling dminvkap in iter",iter
          Call DMInvKap(Work(ipIn(ipPre2)),Work(ipSigma),nDens2+6,
      &                 Work(ipSc2),nDens2+6,Work(ipSc1),nDens2+6,
      &                 iSym,iter)
@@ -499,8 +342,6 @@ C          write(6,*) "calling dminvkap in iter",iter
 *
 *        dKappa=s+Beta*dKappa
 *
-         !! beta_{k} = r_{k+1}^T*z_{k+1} / r_{k}^T*z_{k}
-         !  where r_{k+1} = ipST*ipS2/
          deltaC=ddot_(nConf1*nroots,Work(ipIn(ipST)),1,
      &                             Work(ipIn(ipS2)),1)
          irc=ipOut(ipST)
@@ -576,42 +417,12 @@ C          write(6,*) "calling dminvkap in iter",iter
       iLen=ndensC
       iKapDisp(iDisp)=iDis
       Call dDaFile(LuTemp,1,Work(ipKap),iLen,iDis)
-C       write(6,*) "Work(ipKap)"
-C       do i = 1, ilen
-C         write(6,'(i3,f20.10)') i,work(ipkap+i-1)
-C       end do
       iSigDisp(iDisp)=iDis
       Call dDaFile(LuTemp,1,Work(ipSigma),iLen,iDis)
-        !! Work(ipSigma) is the orbital residue
-C       write(6,*) "Work(ipSigma)"
-C       do i = 1, ilen
-C         write(6,'(i3,f20.10)') i,work(ipSigma+i-1)
-C       end do
       ilen=nconf1*nroots
       iCIDisp(iDisp)=iDis
 *
       Call dDaFile(LuTemp,1,Work(ipin(ipCIT)),iLen,iDis)
-C       write(6,*) "Work(ipin(ipCIT))"
-C       do i = 1, ilen
-C         write(6,'(i3,f20.10)') i,work(ipin(ipCIT)+i-1)
-C       end do
-C       ovl = ddot_(nconf1,work(ipin(ipcit)),1,work(ipin(ipci)),1)
-C       write(6,*) "overlap",ovl
-      !!------------
-C       write(6,*) "Check A*Z-L"
-       ! Call TimesE2(Work(ipKap),ipCIT,1,reco,jspin,ipS2,
-     & !              Work(ipTemp4),ipS1,0)
-         Call TimesE2(Work(ipKap),ipCIT,1,reco,jspin,ipS2,
-     &                Work(ipTemp4),ipS1,2)
-C       write(6,*) "A*Z for orbital"
-C       do i = 1, ndensc
-C         write(6,'(i3,f20.10)') i,work(iptemp4+i-1)
-C       end do
-C       write(6,*) "A*Z for CI"
-C       do i = 1, nconf1*nroots
-C         write(6,'(i3,f20.10)') i,work(ipIn(ipS1)+i-1)
-C       end do
-      !!------------
 *
 **MGD This last call seems unused, so I comment it
 *
@@ -663,8 +474,7 @@ C       end do
       Return
       End
 
-      Subroutine TimesE2(Kap,ipCId,isym,reco,jspin,ipS2,KapOut,ipCiOut,
-     *                   mode)
+      Subroutine TimesE2(Kap,ipCId,isym,reco,jspin,ipS2,KapOut,ipCiOut)
 
       Implicit Real*8(a-h,o-z)
 #include "WrkSpc.fh"
@@ -690,11 +500,7 @@ C       end do
         call dmrg_spc_change_mclr(RGras2(1:8),nash)
         call dmrg_spc_change_mclr(RGras2(1:8),nrs2)
       end if
-      If (Mode.eq.0) Then
-        Call Uncompress(Kap,Work(ipSC1),isym)
-      Else If (Mode.eq.1) Then
-        Call DCopy_(ndens2,Kap,1,Work(ipSC1),1)
-      End If
+      Call Uncompress(Kap,Work(ipSC1),isym)
 
 ! Integral derivative !yma
       Call RInt_generic(Work(ipSC1),Work(iprmoaa),rdum,
@@ -709,11 +515,7 @@ C       end do
       Call DZaXpY(nDens,One,Work(ipSc2),1,
      &            Work(ipSc3),1,Work(ipSc1),1)
 *
-      If (Mode.eq.0) Then
-        Call Compress(Work(ipSc1),KapOut,isym)   ! ds
-      Else If (Mode.eq.1) Then
-        Call DaXpY_(ndens2,1.0D+00,Work(ipSc1),1,KapOut,1)
-      End If
+      Call Compress(Work(ipSc1),KapOut,isym)   ! ds
 *     Call RecPrt('Ex',' ',KapOut,ndensC,1)
 *
       Call DaXpY_(nConf1*nroots,One,
@@ -743,48 +545,6 @@ C       end do
       if(doDMRG)then  ! yma
         call dmrg_spc_change_mclr(LRras2(1:8),nash)
       end if
-*
-      Return
-      End
-      Subroutine SD2CSF(SD,CSF,is)
-*
-*  Transforms a CSF vector to slater determinants
-*
-      implicit Real*8(a-h,o-z)
-#include "detdim.fh"
-#include "csfbas_mclr.fh"
-#include "WrkSpc.fh"
-#include "cicisp_mclr.fh"
-#include "Input.fh"
-#include "spinfo_mclr.fh"
-#include "ippage.fh"
-*
-      Real*8 CSF(*),SD(*)
-*
-
-      iiCOPY=0
-      iprdia=0
-C     nConf=Max(ncsf(is),ndtasm(iS))
-      nConf=nint(Max(xispsm(State_SYM,1),xispsm(State_SYM,1)))
-      write(6,*) "nconf in sd2csf = ", nconf
-      isym=iEor(is-1,State_Sym-1)+1
-      i=2
-      If (isym.eq.1) i=1
-      write(6,*) "diskbased = ", diskbased
-      If (diskbased) Then
-         CALL CSDTVC_MCLR(SD,CSF,1,wORK(KDTOC),
-     &                    iWORK(KICTS(i)),
-     &                    IS,iiCOPY,IPRDIA)
-      Else
-         Call GetMem('CITEMP','ALLO','REAL',ipCTM,nConf)
-         Call FZero(Work(ipCTM),nConf)
-C        call dcopy_(ncsf(is),SD,1,Work(ipCTM),1)
-         call dcopy_(nconf,SD,1,Work(ipCTM),1)
-         CALL CSDTVC_MCLR(Work(ipCTM),CSF,2,WORK(KDTOC),
-     &                    iWORK(KICTS(i)),
-     &                    IS,iiCOPY,IPRDIA)
-         Call GetMem('CITEMP','FREE','REAL',ipCTM,nConf)
-      End If
 *
       Return
       End

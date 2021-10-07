@@ -16,6 +16,7 @@
 #include "output.fh"
 #include "WrkSpc.fh"
 #include "intgrl.fh"
+#include "caspt2_grad.fh"
 
       LOGICAL IF_TRNSF
 
@@ -40,6 +41,14 @@
       END IF
 * All extra allocations inside tracho2 should now be gone.
 
+* For gradient calculation, it is good to have FIAO and FAAO
+      IF (IFGRDT.or.nStpGrd.eq.2) THEN
+        !! FFAO has one-electron Hamiltonian
+        CALL DCOPY_(NBTRI,WORK(LFFAO),1,WORK(ipFIMO),1)
+        CALL DAXPY_(NBTRI,1.0D+00,WORK(LFIAO),1,WORK(ipFIMO),1)
+        CALL DCOPY_(NBTRI,WORK(ipFIMO),1,WORK(ipFIFA),1)
+        CALL DAXPY_(NBTRI,1.0D+00,WORK(LFAAO),1,WORK(ipFIFA),1)
+      END IF
 * Transform them to MO basis:
       CALL DCOPY_(notri,[0.0D0],0,WORK(LHONE),1)
       CALL DCOPY_(notri,[0.0D0],0,WORK(LFIMO),1)

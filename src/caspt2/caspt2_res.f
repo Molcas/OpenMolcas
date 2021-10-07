@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2021, Yoshio Nishimoto                                 *
 ************************************************************************
-      Subroutine CASPT2_Res
+      Subroutine CASPT2_Res(VECROT)
 C
       Implicit Real*8 (A-H,O-Z)
 C
@@ -19,112 +19,64 @@ C
 #include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
-
+#include "caspt2_grad.fh"
+C
 C#include "SysDef.fh"
+C
+      DIMENSION VECROT(*)
 C
       !! 1) Calculate the derivative of the CASPT2 energy with respect
       !!    to the amplitude.
       !! 2) In the standard CASPT2, solve the CASPT2 equation. In the
       !!    diagonal CASPT2, compute the lambda directly.
+      !!
+      !! L_S = U_{TS}*H_{TU}*U_{US}
+      !!     + U_{SS}*(H_{SS} + <\Psi_S|H0-E0|\Psi_S>)*U_{SS}
+      !!     + <lambda|H|\Psi0> + <lambda|H0-E0+Eshift|\Psi_S>
 C
 C     write(6,*) "in CASPT2_res"
-      If (MAXIT.ne.0) THEN
-C          .and. (SHIFT.NE.0.0D+00.or.SHIFTI.ne.0.0D+00)) Then
-        iRHS2  = 7
-      End If
+      IRHS2  = 7
+      CALL PSCAVEC(1.0D+00,IRHS,IRHS2)
 C
-      !! Copy the solution vector to the residual space
-      Do iCase = 1, 13
-C       write(6,*) "icase=",icase
-C       if (icase.ne.12.and.icase.ne.13) cycle
-C       if (icase.ne.10.and.icase.ne.11) cycle
-C       if (icase.ne. 8.and.icase.ne. 9) cycle
-        Do iSym = 1, nSym
-          nIN = nINDEP(iSym,iCase)
-          IF(NIN.EQ.0) Cycle
-          nAS = nASUP(iSym,iCase)
-          nIS = nISUP(iSym,iCase)
-C Remember: NIN values in BDIAG, but must read NAS for correct
-C positioning.
-          Call GETMEM('LBD','ALLO','REAL',LBD,nAS)
-          Call GETMEM('LID','ALLO','REAL',LID,nIS)
-          iD = iDBMat(iSym,iCase)
-          Call dDaFile(LUSBT,2,Work(LBD),nAS,iD)
-          Call dDaFile(LUSBT,2,Work(LID),nIS,iD)
-C         if (icase.eq.4) then
-C           do i = 1, nis
-C             write(6,*) "ir = ",i
-C             do j = 1, nin
-C               write(6,'(i3,3f20.10)') i,work(lbd+j-1),work(lid+i-1),
-C    *          1.0d+00/(work(lbd+j-1)+work(lid+i-1))
-C             end do
-C           end do
-C         end if
-
-          Call RHS_ALLO(nIN,nIS,lg_V1)
-          Call RHS_ALLO(nIN,nIS,lg_V2)
-          !! Read the solution vector
-          Call RHS_Read(nIN,nIS,lg_V2,iCase,iSym,iVecX)
-          !! Save it in the residual vector space immediately
-C         Call RHS_Save(nIN,nIS,lg_V2,iCase,iSym,iVecR)
-          !! Read the RHS vector
-          Call RHS_Read(nIN,nIS,lg_V1,iCase,iSym,iRHS)
-          !! Scale the RHS vector appropriately (compute lambda)
-          Call CASPT2_ResD(1,nIN,nIS,lg_V1,Work(LBD),Work(LID))
-          !! T <- T + lambda
-          Call DScal_(nIN*nIS,2.0D+00,Work(lg_V1),1)
-          If (MaxIt.eq.0) Then
-C           call dcopy_(nin*nis,[0.0d+00],0,work(lg_v2),1)
-C           Call DaXpY_(nIN*nIS,2.0D+00,Work(lg_V1),1,Work(lg_V2),1)
-            !! Save the modified T in the original T
-C           Call RHS_Save(nIN,nIS,lg_V2,iCase,iSym,iVecX)
-C           write(6,*) "lambda"
-C       do i = 1, nin*nis
-C       write(6,'(i3,f20.10)') i,work(lg_v1+i-1)
-C       end do
-C       do i = 1, 10
-C       write(6,*) i,work(lg_v1)
-C       end do
-            Call RHS_Save(nIN,nIS,lg_V1,iCase,iSym,iVecR)
-          Else
-C           Call RHS_Save(nIN,nIS,lg_V1,iCase,iSym,iRHS2)
-              Call RHS_ALLO(NAS,NIS,lg_V3)
-              CALL RHS_READ(NAS,NIS,lg_V3,ICASE,ISYM,iRHS)
-              CALL RHS_SAVE(NAS,NIS,lg_V3,ICASE,ISYM,iRHS2)
-              Call RHS_FREE(NAS,NIS,lg_V3)
-          End If
-          Call RHS_Free(nIN,nIS,lg_V1)
-          Call RHS_Free(nIN,nIS,lg_V2)
-
-          Call GETMEM('LBD','FREE','REAL',LBD,nAS)
-          Call GETMEM('LID','FREE','REAL',LID,nIS)
-        End Do
-      End Do
-C
-C     Now, going to solve the Lambda for non-variational CASPT2, i.e.
-C     with real/imaginary shift, without the diagonal approximation.
-C     The following is just a copy-and-paste of eqctl2.f and pcg.f,
-C     but some unnecessary lines (comuptation of energy etc.) are
-C     omitted.
-C
-C Transform RHS of CASPT2 equations to eigenbasis for H0:
-C     CALL PTRTOSR(1,IVECW,IRHS)
-C
-      !! We need IRHS,IVECR,IVECX,IVECC,IVECC2
-      !! The original IRHS is no longer needed (?),
-      !! but has to be modified for (X)MS
-      !! IVECR is also not needed
-      !! IVECX is needed, so use a different array
-      !! IVECC and IVECC2 are later transformed
-      If (MAXIT.ne.0) THEN
-C          .and. SHIFT.NE.0.0D+00.or.SHIFTI.ne.0.0D+00) Then
+      !! Construct the partial derivative of the target state
+      !! The derivative is constructed in IRHS2
+      !! The shift parameters are set to zero, because the actual energy
+      !! is computed without them. The reference state has to be
+      !! multiplied by two, from the above equation for L_S.
+      !! For MS-CASPT2, the rotation is mutiplied later.
       SAV=SHIFT
       SAVI=SHIFTI
       SHIFT=0.0d0
       SHIFTI=0.0d0
-      CALL SIGMA_CASPT2(2.0d+00,2.0d+00,IVECX,iRHS2)
+      CALL SIGMA_CASPT2(2.0D+00,2.0D+00,IVECX,IRHS2)
       SHIFT=SAV
       SHIFTI=SAVI
+C
+      !! Add the partial derivative contribution for MS-CASPT2
+      !! (off-diagonal elements). The derivative is taken with IVECW
+      !! and put in IVECC.
+C     write (*,*) "Ifmscoup = ", ifmscoup, nstlag
+      IF (IFMSCOUP) Then
+        Call RHS_ZERO(IVECC)
+        Call PSCAVEC(VECROT(jStLag),IRHS2,IRHS2)
+        Do iStLag = 1, nStLag
+          Scal = VECROT(iStLag)
+          If (iStLag.eq.jStLag) Scal = 0.0d+00
+          If (ABS(VECROT(iStLag)).le.1.0d-12) Cycle
+          Call MS_Res(1,iStLag,jStLag,Scal)
+        End Do
+        !! Transform to SR representatin (IRHS).
+        CALL PTRTOSR(0,IVECC,IRHS)
+        !! Add to IRHS2
+        Call PLCVEC(1.0D+00,1.0D+00,IRHS,IRHS2)
+      End If
+C
+      !! Finally, solve the lambda equation.
+      !! The following is just a copy-and-paste of eqctl2.f and pcg.f,
+      !! but some unnecessary lines (comuptation of energy etc.) are
+      !! omitted.
+      !! The lambda equation is solved with the shift parameters,
+      !! as is the case for the T-amplitude.
 C
       iVecXbk = iVecX
       iVecRbk = iVecR
@@ -132,23 +84,34 @@ C
       iVecX   = iVecR
       iRHS    = 7
       iVecR   = 8
-
+C
       Call PCG_RES(ICONV)
-C          CALL PCOLLVEC(IVECX,0)
-C          CALL PCOLLVEC(IVECR,0)
       IF (ICONV .NE. 0) THEN
         WRITE (6,'(" Lambda equation did not converge...")')
         WRITE (6,'(" Continue anyway?")')
       END IF
 C
-      !! Restore contravariant and covariant representations of the
-      !! non-variational T-amplitude
       iVecX   = iVecXbk
       iVecR   = iVecRbk
       iRHS    = iRHSbk
+C
+      !! For implicit derivative of S
+      IF (IFMSCOUP) THEN
+        CALL PTRTOSR(1,IVECW,IRHS)
+        Call RHS_ZERO(IVECC)
+        Do iStLag = 1, nStLag
+          Scal = VECROT(iStLag)*0.5d+00
+          If (iStLag.eq.jStLag) Scal = Scal*2.0d+00
+          If (ABS(VECROT(iStLag)).le.1.0d-12) Cycle
+          Call MS_Res(1,iStLag,jStLag,Scal)
+        End Do
+        CALL PTRTOSR(0,IVECC,IRHS2)
+      END IF
+C
+      !! Restore contravariant and covariant representations of the
+      !! non-variational T-amplitude
       CALL PTRTOC(0,IVECX,IVECC)
       CALL PTRTOC(1,IVECX,IVECC2)
-      End If
 C     Do iCase = 1, 13
 C       write(6,*) "icase=",icase
 C       Do iSym = 1, nSym
@@ -170,6 +133,7 @@ C
 C
 C
       RETURN
+C
       END
 C
 C-----------------------------------------------------------------------
@@ -318,7 +282,8 @@ C R <- R - (H0-E0)*X
       IF(RNORM.LT.THRCONV) GOTO 900
       IF(IPRGLB.GE.USUAL) THEN
        WRITE(6,*)
-       WRITE(6,*) "RASPT2 with level shift is non-variational,"
+       WRITE(6,*) "CASPT2/RASPT2 with level-shift and ",
+     *            "(X)MS-CASPT2/RASPT2 are non-variational,"
        WRITE(6,*) "so the Lambda equation has to be solved"//
      *            " for analytic gradients"
        WRITE(6,*) "Following values are nonsense (or I just don't"//

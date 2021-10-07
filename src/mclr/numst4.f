@@ -27,26 +27,18 @@
       END IF
 *
       ITPMAX = 0
-C     write (*,*) "RAS1 loop=", nel1mn,MIN(NEL1MX,NORB1,NEL)
-C       write (*,'("ior1,ior2,ior3=",3i3)')
-C    *    norb1,norb2,norb3
       DO 100 IEL1 = NEL1MN,MIN(NEL1MX,NORB1,NEL)
         NSTIN1 = IBION(NORB1,IEL1)
         IEL3MN = MAX ( NEL3MN,NEL-(IEL1+NORB2) )
         IEL3MX = MIN ( NEL3MX,NEL-IEL1)
-C     write (*,*) "RAS3 loop=",iel3mn,iel3mx
         DO 80 IEL3 = IEL3MN, IEL3MX
          IEL2 = NEL - IEL1-IEL3
-C       write (*,'("iel1,iel2,iel3=",3i3)') iel1,iel2,iel3
          NSTINT = NSTIN1*IBION(NORB2,IEL2)*IBION(NORB3,IEL3)
-C       write (*,'("icn1,icn2,icn3=",3i3)')
-C    *    nstin1,ibion(norb2,iel2),ibion(norb3,iel3)
          NSTRIN = NSTRIN + NSTINT
          ITP = (NEL1MX-IEL1)
      &         * (NEL3MX-NEL3MN+1)
      &         + IEL3-NEL3MN + 1
          NSTTP(ITP) = NSTINT
-C       write (*,*) "nstint,itp=", nstint,itp
          ITPMAX= MAX(ITPMAX,ITP)
   80   CONTINUE
  100  CONTINUE

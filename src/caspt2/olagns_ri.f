@@ -68,7 +68,7 @@ C     D(tP,tQ) = tD_{pq} * C_{mu p} C_{nu q} * (mu nu|tP)
 C     then saved.
 C
 C     Subroutine OLagNS_RI(iSym0,WRK1,WRK2,DPT2C,BRAD,A_PT2,nChoVec)
-      Subroutine OLagNS_RI(iSym0,WRK1,WRK2,DPT2C,
+      Subroutine OLagNS_RI(iSym0,WRK1,WRK2,DPT2C,DPT2Canti,
      *                     BraAI,BraSI,BraAA,BraSA,A_PT2,nChoVec)
 C
       Use CHOVEC_IO
@@ -93,7 +93,8 @@ C
       DATA NUMERR / 0 /
 #endif
 C
-      Dimension WRK1(*),WRK2(*),DPT2C(*),A_PT2(nChoVec,nChoVec)
+      Dimension WRK1(*),WRK2(*),DPT2C(*),DPT2Canti(*),
+     *          A_PT2(nChoVec,nChoVec)
       Dimension BraAI(nAsh(iSym0),nIsh(iSym0),nChoVec),
      *          BraSI(nSsh(iSym0),nIsh(iSym0),nChoVec),
      *          BraAA(nAsh(iSym0),nAsh(iSym0),nChoVec),
@@ -442,6 +443,7 @@ C
       End Do
 C
       Call DScal_(nBasSq,SCLNEL,DPT2C,1)
+      If (isCSF) Call DScal_(nBasSq,SCLNEL,DPT2Canti,1)
 C
       Call QExit('OLagNS_RI')
 C
@@ -605,6 +607,10 @@ C
         If (nVec.ne.0) Then
           Call RHS_ALLO(nAS,nIS,ipT)
           CALL RHS_READ_C(ipT,iCase,iSym,iVecC2)
+          If (isCSF) Then
+            Call RHS_ALLO(nAS,nIS,ipTanti)
+            CALL RHS_READ_C(ipTanti,iCase,iSym,7)
+          End If
         End If
       End If
 C
@@ -629,6 +635,11 @@ C
               ValAF = Work(ipT+IW-1)*2.0D+00
               DPT2C(iTtot+nOrbT*(iJtot-1))
      *          = DPT2C(iTtot+nOrbT*(iJtot-1)) + ValAF
+              If (isCSF) Then
+                ValAFanti = Work(ipTanti+IW-1)*2.0D+00
+                DPT2Canti(iTtot+nOrbT*(iJtot-1))
+     *            = DPT2Canti(iTtot+nOrbT*(iJtot-1)) + ValAFanti
+              End If
             END IF
             DO IX=1,NX
               IXABS=IX+NAES(ISYX)
@@ -672,6 +683,7 @@ C             End Do
       END DO
 C
       CALL RHS_FREE(nAS,nIS,ipT)
+      If (isCSF) CALL RHS_FREE(nAS,nIS,ipTanti)
 C
       RETURN
 C
@@ -932,6 +944,10 @@ C
         If (nVec.ne.0) Then
           Call RHS_ALLO(nAS,nIS,ipT)
           CALL RHS_READ_C(ipT,iCase,iSym,iVecC2)
+          If (isCSF) Then
+            Call RHS_ALLO(nAS,nIS,ipTanti)
+            CALL RHS_READ_C(ipTanti,iCase,iSym,7)
+          End If
         End If
       End If
 C
@@ -960,6 +976,11 @@ C
               ValCF = Work(ipT+IW-1)*2.0D+00
               DPT2C(iAtot+nOrbA*(iUtot-1))
      *          = DPT2C(iAtot+nOrbA*(iUtot-1)) + ValCF
+              If (isCSF) Then
+                ValCFanti = Work(ipTanti+IW-1)*2.0D+00
+                DPT2Canti(iAtot+nOrbA*(iUtot-1))
+     *            = DPT2Canti(iAtot+nOrbA*(iUtot-1)) + ValCFanti
+              End If
               ValCF = ValCF*SCLNEL
             END IF
             DO IX=1,NX
@@ -1037,6 +1058,7 @@ C
       END DO
 C
       CALL RHS_FREE(nAS,nIS,ipT)
+      If (isCSF) CALL RHS_FREE(nAS,nIS,ipTanti)
 C
       RETURN
 C
@@ -1089,6 +1111,10 @@ C
         If (nVec.ne.0) Then
           Call RHS_ALLO(nAS,nIS,ipT)
           CALL RHS_READ_C(ipT,iCase,iSym,iVecC2)
+          If (isCSF) Then
+            Call RHS_ALLO(nAS,nIS,ipTanti)
+            CALL RHS_READ_C(ipTanti,iCase,iSym,7)
+          End If
         End If
       End If
 C
@@ -1124,6 +1150,11 @@ C
               If (iVtot.eq.iXtot) Then
                 DPT2C(iAtot+nOrbA*(iJtot-1))
      *            = DPT2C(iAtot+nOrbA*(iJtot-1)) + ValD
+                If (isCSF) Then
+                  ValDanti = Work(ipTanti+IW-1)*2.0D+00
+                  DPT2Canti(iAtot+nOrbA*(iJtot-1))
+     *              = DPT2Canti(iAtot+nOrbA*(iJtot-1)) + ValDanti
+                End If
               End If
               WRK1(iV+NV*(iX-1)) = ValD
               WRK2(iVabs+nAsh(iSym)*(iXabs-1)) = ValD
@@ -1163,6 +1194,7 @@ C
       ENDDO
 C
       CALL RHS_FREE(nAS,nIS,ipT)
+      If (isCSF) CALL RHS_FREE(nAS,nIS,ipTanti)
 C
       RETURN
 C
@@ -2014,8 +2046,8 @@ C
         nISP = nISup(iSym,iCase)
         nVec = nINP*nISP
         If (nVec.ne.0) Then
-          Call RHS_ALLO(nINP,nISP,ipTP)
-          Call RHS_READ_SR(ipTP,iCase,iSym,iVec)
+          Call RHS_ALLO(nASP,nISP,ipTP)
+          CALL RHS_READ_C(ipTP,iCase,iSym,iVecC2)
         End If
       End If
 C
@@ -2113,8 +2145,8 @@ C
         nISM = nISup(iSym,iCase)
         nVec = nINM*nISM
         If (nVec.ne.0) Then
-          Call RHS_ALLO(nINM,nISM,ipTM)
-          Call RHS_READ_SR(ipTM,iCase,iSym,iVec)
+          Call RHS_ALLO(nASM,nISM,ipTM)
+          CALL RHS_READ_C(ipTM,iCase,iSym,iVecC2)
         End If
       End If
 C

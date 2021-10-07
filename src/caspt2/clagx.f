@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2021, Yoshio Nishimoto                                 *
 ************************************************************************
-      Subroutine CLagX(IFF,CLag,trf,DEPSA)
+      Subroutine CLagX(IFF,CLag,trf,DEPSA,VECROT)
 C
       Implicit Real*8 (A-H,O-Z)
 C
@@ -23,7 +23,7 @@ C#include "sigma.fh"
 #include "pt2_guga.fh"
 C
       DIMENSION CLag(nConf,nState)
-      dimension trf(nbast,nbast),DEPSA(nAshT,nAshT)
+      dimension trf(nbast,nbast),DEPSA(nAshT,nAshT),VECROT(*)
 C
       !! reduced density matrix and fock-weighted RDM
       CALL GETMEM('G1'   ,'ALLO','REAL',LG1 ,NG1)
@@ -66,7 +66,7 @@ C
       Call CLagD(Work(LG1),Work(LG2),Work(LG3),
      *           Work(LDG1),Work(LDG2),Work(LDG3),
      *           Work(LDF1),Work(LDF2),Work(LDF3),DEASUM,
-     *           DEPSA)
+     *           DEPSA,VECROT)
       CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
       CPUT =CPTF10-CPTF0
       WALLT=TIOTF10-TIOTF0
@@ -119,7 +119,7 @@ C     write(6,*) "dg1"
 C     call sqprt(work(ldg1),5)
 C     write(6,*) "df1"
 C     call sqprt(work(ldf1),5)
-      Call DCopy_(nConf*nState,[0.0D+00],0,CLag,1)
+C     Call DCopy_(nConf*nState,[0.0D+00],0,CLag,1)
       !! Is this needed? To be verified...
 C     Call DGemm_('N','N',nAshT,nAshT,nAshT,
 C    *            1.0D+00,Trf(6,6),nBasT,Work(LDG1),nAshT,
@@ -137,7 +137,8 @@ C     write(6,*) "CLag for jState = ", jState
       !!  Call DCopy_(nG1,[0.0D+00],0,Work(LDF1),1)
       !!  Call DCopy_(nG2,[0.0D+00],0,Work(LDF2),1)
       !!  Call DCopy_(nG3,[0.0D+00],0,Work(LDF3),1)
-C     !!  call cnst_SA_CLag(Work(LG1),Work(LG2),Work(LDG1),Work(LDG2),eee)
+C     !!  call cnst_SA_CLag(.true.,Work(LG1),Work(LG2),
+      !!                    Work(LDG1),Work(LDG2),eee)
       if (.false.) then
         if (.false.) then
         delta = 1.0d-05
@@ -160,7 +161,7 @@ C     !!  call cnst_SA_CLag(Work(LG1),Work(LG2),Work(LDG1),Work(LDG2),eee)
 C
 C             CALL STINI
               Call TraCtl(0)
-              call cnst_SA_CLag(Work(LG1),Work(LG2),
+              call cnst_SA_CLag(.true.,Work(LG1),Work(LG2),
      *                          Work(LDG1),Work(LDG2),eee)
 C
               If (iVib.eq.1) Then
@@ -210,7 +211,10 @@ C
           Call DCopy_(nG1,[0.0D+00],0,Work(LDF1),1)
           Call DCopy_(nG2,[0.0D+00],0,Work(LDF2),1)
           Call DCopy_(nG3,[0.0D+00],0,Work(LDF3),1)
-        call cnst_SA_CLag(Work(LG1),Work(LG2),Work(LDG1),Work(LDG2),eee)
+        call cnst_SA_CLag(.true.,Work(LG1),Work(LG2),
+     *                    Work(LDG1),Work(LDG2),eee)
+C      call sqprt(work(ldg1),nasht)
+C      call sqprt(work(ldg2),nasht**2)
         end if
       end if
       !!  write(6,*) "after cnst"
@@ -242,7 +246,8 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      SUBROUTINE CLagD(G1,G2,G3,DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA)
+      SUBROUTINE CLagD(G1,G2,G3,DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
+     *                 VECROT)
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -257,7 +262,7 @@ C
 #endif
 
       DIMENSION G1(*),G2(*),G3(*),DG1(*),DG2(*),DG3(*),
-     *          DF1(*),DF2(*),DF3(*),DEPSA(*)
+     *          DF1(*),DF2(*),DF3(*),DEPSA(*),VECROT(*)
 
       Do iCase = 1, 13
 C       cycle
@@ -296,6 +301,13 @@ C
             !! lg_V4 = RHS (in MO basis)
             Call RHS_ALLO(nAS,nIS,lg_V4)
             Call RHS_READ_C (lg_V4,iCase,iSym,iVecW)
+            !! lg_V5 = RHS2 (in IC basis)
+            If (IFMSCOUP) Then
+              Call RHS_ALLO(nIN,nIS,lg_V5)
+              Call RHS_READ_SR(lg_V5,iCase,iSym,7)
+            Else
+              lg_V5 = lg_V3
+            End If
           Else
             Go To 100
           End If
@@ -326,7 +338,8 @@ C             END IF
               CALL CLagDX(0,ISYM,ICASE,WORK(LVEC1),WORK(LVEC2),
      *                    WORK(LVEC3),WORK(LVEC4),
      *                    nIN,nIS,nAS,G1,G2,G3,
-     *                    DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA)
+     *                    DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
+     *                    VECROT,Work(lg_V5))
 
               ! free local buffer
               CALL GETMEM('VEC1','FREE','REAL',LVEC1,nVec)
@@ -337,15 +350,16 @@ C             END IF
             CALL CLagDX(0,ISYM,ICASE,WORK(lg_V1),WORK(lg_V2),
      *                  Work(lg_V3),Work(lg_V4),
      *                  nIN,nIS,nAS,G1,G2,G3,
-     *                  DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA)
+     *                  DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
+     *                  VECROT,Work(lg_V5))
           END IF
 #else
 C          write(6,*) "calling clagdx for icase = ", icase
           CALL CLagDX(0,iSym,iCase,Work(lg_V1),WORK(lg_V2),
      *                Work(lg_V3),Work(lg_V4),
      *                nIN,nIS,nAS,G1,G2,G3,
-     *                DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA)
-     *
+     *                DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
+     *                VECROT,Work(lg_V5))
 #endif
 C
           If (SHIFTI.ne.0) Then
@@ -389,7 +403,8 @@ C             END IF
               CALL CLagDX(1,ISYM,ICASE,WORK(LVEC1),WORK(LVEC2),
      *                    WORK(LVEC3),WORK(LVEC4),
      *                    nIN,nIS,nAS,G1,G2,G3,
-     *                    DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA)
+     *                    DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
+     *                    VECROT,Work(lg_V5))
 
               ! free local buffer
               CALL GETMEM('VEC1','FREE','REAL',LVEC1,nVec)
@@ -400,14 +415,16 @@ C             END IF
             CALL CLagDX(1,ISYM,ICASE,WORK(lg_V1),WORK(lg_V2),
      *                  Work(lg_V3),Work(lg_V4),
      *                  nIN,nIS,nAS,G1,G2,G3,
-     *                  DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA)
+     *                  DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
+     *                  VECROT,Work(lg_V5))
           END IF
 #else
 C          write(6,*) "calling clagdx for icase = ", icase
           CALL CLagDX(1,iSym,iCase,Work(lg_V1),WORK(lg_V2),
      *                Work(lg_V3),Work(lg_V4),
      *                nIN,nIS,nAS,G1,G2,G3,
-     *                DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA)
+     *                DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
+     *                VECROT,Work(lg_V5))
 #endif
 C
             Call DScal_(NG1,-1.0D+00,DG1,1)
@@ -427,14 +444,15 @@ C
           !! for non-separable density/derivative
           CALL RHS_READ_SR(lg_V1,ICASE,ISYM,iVecX)
           CALL RHS_READ_SR(lg_V2,ICASE,ISYM,iVecR)
-          Call DaXpY_(nIN*nIS,0.5D+00,Work(lg_V2),1,Work(lg_V1),1)
-          Call RHS_Save(nIN,nIS,lg_V1,iCase,iSym,iVecX)
+C         Call DaXpY_(nIN*nIS,0.5D+00,Work(lg_V2),1,Work(lg_V1),1)
+C         Call RHS_Save(nIN,nIS,lg_V1,iCase,iSym,iVecX)
 
           CALL RHS_FREE(nIN,nIS,lg_V1)
           CALL RHS_FREE(nIN,nIS,lg_V2)
           If (iCase.ne.12.and.iCase.ne.13) Then
             CALL RHS_FREE(nIN,nIS,lg_V3)
             CALL RHS_FREE(nAS,nIS,lg_V4)
+            If (IFMSCOUP) CALL RHS_FREE(nIN,nIS,lg_V5)
           End If
         End Do
       End Do
@@ -452,7 +470,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine CLagDX(Mode,iSym,iCase,VEC1,VEC2,VEC3,VEC4,nIN,nIS,nAS,
      *                  G1,G2,G3,DG1,DG2,DG3,DF1,DF2,DF3,
-     *                  DEASUM,DEPSA)
+     *                  DEASUM,DEPSA,VECROT,VEC5)
 C
       USE SUPERINDEX
 C
@@ -467,11 +485,11 @@ C
 #include "SysDef.fh"
 #include "caspt2_grad.fh"
 C
-      DIMENSION VEC1(*),VEC2(*),VEC3(*),VEC4(*)
+      DIMENSION VEC1(*),VEC2(*),VEC3(*),VEC4(*),VEC5(*)
       DIMENSION G1(nAshT,nAshT),G2(nAshT,nAshT,nAshT,nAshT),G3(*),
      *          DG1(nAshT,nAshT),DG2(nAshT,nAshT,nAshT,nAshT),DG3(*),
      *          DF1(nAshT,nAshT),DF2(nAshT,nAshT,nAshT,nAshT),DF3(*),
-     *          DEPSA(nAshT,nAshT)
+     *          DEPSA(nAshT,nAshT),VECROT(*)
 C
       Real*8, Allocatable :: WrkBbf(:,:,:,:),WrkSbf(:,:,:,:)
 C
@@ -486,6 +504,9 @@ C
       Call DDAFILE(LUSBT,2,Work(LTRANS),nAS*nIN,idT)
       idB  = idBMAT(iSym,iCase)
       Call DDAFILE(LUSBT,2,WORK(LEIG),nIN,idB)
+C
+      SCAL = 1.0D+00
+      IF (IFMSCOUP) SCAL = VECROT(jState)
 C
       !! VEC1: solution in IC basis
       !! VEC2: lambda   in IC basis
@@ -506,13 +527,13 @@ C
       If (Mode.eq.0) Then
         !! Work(LWRK1) = T*T
         Call DGEMM_('N','T',nIN,nIN,nIS,
-     *              1.0D+00,VEC1,nIN,VEC1,nIN,
+     *              SCAL,VEC1,nIN,VEC1,nIN,
      *              0.0D+00,Work(LWRK1),nIN)
       Else
         Call DCopy_(nIN*nIN,[0.0D+0],0,Work(LWRK1),1)
       End If
 C
-      If (SHIFT.NE.0.0D+00.OR.SHIFTI.NE.0.0D+00) Then
+      If (SHIFT.NE.0.0D+00.OR.SHIFTI.NE.0.0D+00.OR.IFMSCOUP) Then
         !! Work(LWRK1) = T*T + (T*lambda+lambda*T)/2
         Call DGEMM_('N','T',nIN,nIN,nIS,
      *              0.5D+00,VEC2,nIN,VEC1,nIN,
@@ -594,9 +615,9 @@ C
       If (Mode.eq.0) Then
         !! Work(LWRK1) = -RHS*T
         Call DGEMM_('N','T',nIN,nIN,nIS,
-     *             -1.0D+00,VEC3,nIN,VEC1,nIN,
+     *             -1.0D+00,VEC5,nIN,VEC1,nIN,
      *              1.0D+00,Work(LWRK1),nIN)
-        If (SHIFT.NE.0.0D+00.OR.SHIFTI.NE.0.0D+00) Then
+        If (SHIFT.NE.0.0D+00.OR.SHIFTI.NE.0.0D+00.OR.IFMSCOUP) Then
           !! Work(LWRK1) = -RHS*(T+lambda/2)
           Call DGEMM_('N','T',nIN,nIN,nIS,
      *               -0.5D+00,VEC3,nIN,VEC2,nIN,
@@ -622,9 +643,9 @@ C
       If (Mode.eq.0) Then
         !! E = 2<0|H|1> - <1|H0-E0|1>
         Call DGEMM_('N','N',nAS,nIS,nIN,
-     *              1.0D+00,Work(LTRANS),nAS,VEC1,nIN,
+     *              SCAL,Work(LTRANS),nAS,VEC1,nIN,
      *              0.0D+00,Work(LWRK2),nAS)
-        If (SHIFT.NE.0.0D+00.OR.SHIFTI.NE.0.0D+00) THEN
+        If (SHIFT.NE.0.0D+00.OR.SHIFTI.NE.0.0D+00.OR.IFMSCOUP) THEN
           Call DGEMM_('N','N',nAS,nIS,nIN,
      *                0.5D+00,Work(LTRANS),nAS,VEC2,nIN,
      *                1.0D+00,Work(LWRK2),nAS)
@@ -1289,11 +1310,15 @@ C-SVC20100831: allocate local G3 matrices
 
       CALL GETMEM('LCI','ALLO','REAL',LCI,NCONF)
       If (ISCF.EQ.0) Then
+        if (iff.eq.1) then
         IDCI=IDTCEX
         DO J=1,JSTATE-1
           CALL DDAFILE(LUCIEX,0,WORK(LCI),NCONF,IDCI)
         END DO
         CALL DDAFILE(LUCIEX,2,WORK(LCI),NCONF,IDCI)
+        else
+        Call LoadCI_XMS('C',1,Work(LCI),JSTATE,U0)
+        end if
         IF (IPRGLB.GE.VERBOSE) THEN
           WRITE(6,*)
           IF (NSTATE.GT.1) THEN
@@ -1361,7 +1386,7 @@ C
 C-----------------------------------------------------------------------
 C
       !! From poly3
-      SUBROUTINE CLagEig(CLag,RDMEIG)
+      SUBROUTINE CLagEig(IFSSDMloc,CLag,RDMEIG)
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -1372,14 +1397,20 @@ C
 #include "pt2_guga.fh"
 #include "SysDef.fh"
 C
+#include "caspt2_grad.fh"
+C
       DIMENSION CLag(nConf,nState),RDMEIG(*)
+      Logical   IFSSDMloc
+C
+C     MODE=0: Either state-averaged or LDWGT matrix
+C     MODE=1: XMS-specific term, always state-averaged DM
 C
       !! RDMEIG
       Call GetMem('LCI','ALLO','REAL',LCI,nConf)
 C     write(6,*) "nconf = ", nconf
 C     call docpy_50,0.0d+00,0,clag,1)
       Do iState = 1, nState
-        If (IFSADREF) Then
+        If (.not.IFSSDMloc) Then
           If (ISCF.EQ.0) Then
             Call LoadCI(Work(LCI),iState)
           Else
@@ -1390,13 +1421,38 @@ C         Wgt = Work(LDWgt+iState-1+nState*(iState-1))
           Call DScal_(NLEV*NLEV,WGT,RDMEIG,1)
           Call Poly1_CLag(Work(LCI),CLag(1,iState),RDMEIG)
           Call DScal_(NLEV*NLEV,1.0D+00/WGT,RDMEIG,1)
-        Else If (iState.eq.jState) Then
-          If (ISCF.EQ.0) Then
-            Call LoadCI(Work(LCI),jState)
-          Else
-            Work(LCI) = 1.0D+00
+        Else
+          Wgt = Work(LDWgt+iState-1+nState*(jState-1))
+C         write (*,*) "istate,wgt=",istate,wgt
+          If (abs(wgt).gt.1.0d-09) Then
+            If (ISCF.EQ.0) Then
+              Call LoadCI(Work(LCI),iState)
+            Else
+              Work(LCI) = 1.0D+00
+            End If
+            !! how is the numerical precision?
+            Call DScal_(NLEV*NLEV,WGT,RDMEIG,1)
+            Call Poly1_CLag(Work(LCI),CLag(1,iState),RDMEIG)
+            Call DScal_(NLEV*NLEV,1.0D+00/WGT,RDMEIG,1)
+          ENd If
+          !! Derivative of omega for dynamically weighted density
+          IF (IFDW) Then
+            If (ISCF.EQ.0) Then
+              Call LoadCI(Work(LCI),iState)
+            Else
+              Work(LCI) = 1.0D+00
+            End If
+            Call GetMem('WRK','ALLO','REAL',LWRK,nAshT**2)
+        call POLY1(WORK(LCI))
+        call GETDREF(WORK(LDREF))
+        Call SQUARE(Work(LDREF),Work(LWRK),1,nAshT,nAshT)
+            !! probably it is doubled somewhere, so should half
+            Scal = DDOT_(nAshT**2,RDMEIG,1,Work(LWRK),1)*0.5d+00
+C           write (*,*) "scal = ", scal
+            Call GetMem('WRK','FREE','REAL',LWRK,nAshT**2)
+            WORK(ipOMGDER+iState-1+nState*(jState-1))
+     *      = WORK(ipOMGDER+iState-1+nState*(jState-1)) + Scal
           End If
-          Call Poly1_CLag(Work(LCI),CLag(1,jState),RDMEIG)
         End If
       End Do
 C     write(6,*) "clag before projection"
@@ -1453,18 +1509,18 @@ C
         Else
           Work(LCI1) = 1.0D+00
         End If
-        do jlStat = 1, ilStat-1
+        Do jlStat = 1, ilStat !! -1
+          ijst = ilStat + nState*(jlStat-1)
+          If (ilStat.eq.jlStat) Cycle
           If (ISCF.EQ.0) Then
             Call LoadCI(Work(LCI2),jlStat)
           Else
             Work(LCI2) = 1.0D+00
           End If
-          ijst = ijst + 1
-          SLag(ijst) = SLag(ijst)
-     *      + DDOT_(nConf,Work(LCI1),1,CLag(1,jlStat),1)
-     *      - DDOT_(nConf,Work(LCI2),1,CLag(1,ilStat),1)
-C           write(6,*)DDOT_(nConf,Work(LCI1),1,CLag(1,jlStat),1)
-C           write(6,*)DDOT_(nConf,Work(LCI2),1,CLag(1,ilStat),1)
+          Scal = DDOT_(nConf,Work(LCI1),1,CLag(1,jlStat),1)
+     *         - DDOT_(nConf,Work(LCI2),1,CLag(1,ilStat),1)
+          Scal = Scal/(REFENE(jlStat)-REFENE(ilStat))
+          SLag(ijst) = SLag(ijst) + Scal
             write(6,'("SLag for State ",i1,"-",i1," = ",f20.10)')
      *         ilstat,jlstat,slag(ijst)
         end do
@@ -1483,7 +1539,6 @@ C       end do
             Work(LCI2) = 1.0D+00
           End If
           Ovl = DDot_(nConf,Work(LCI1),1,Work(LCI2),1)
-C         Ovl = DDot_(nConf,CLag(1,ilStat),1,Work(LCI2),1)
 C         write(6,*) "projection coeff = ",ovl
           Call DaXpY_(nConf,-Ovl,Work(LCI2),1,CLag(1,ilStat),1)
         End Do
@@ -2769,7 +2824,9 @@ C
       Return
 C
       End Subroutine CLagDXC_DP
-      Subroutine cnst_SA_CLag(G1,G2,DG1,DG2,eee)
+      Subroutine cnst_SA_CLag(same,G1,G2,DG1,DG2,eee)
+C
+      Use CHOVEC_IO
 C
       Implicit Real*8 (A-H,O-Z)
 C
@@ -2780,6 +2837,10 @@ C
       Dimension  G1(nAshT,nAshT), G2(nAshT,nAshT,nAshT,nAshT)
       Dimension DG1(nAshT,nAshT),DG2(nAshT,nAshT,nAshT,nAshT)
       Dimension wrk1(nbast,nbast),wrk2(nbast,nbast)
+      Logical   Same
+C
+      Integer Active, Inactive, Virtual
+      Parameter (Inactive=1, Active=2, Virtual=3)
 C
       iSym = 1
 C
@@ -2808,9 +2869,11 @@ C
      *            1.0D+00,WRK2,nBasT,Work(LCMOPT2),nBasT,
      *            0.0D+00,WRK1,nBasT)
       !! Put in DG1
-      Do iCorI = 1, nCorI
-        eee = eee + 2.0d+00*WRK1(iCorI,iCorI)
-      End Do
+      If (SAME) Then
+        Do iCorI = 1, nCorI
+          eee = eee + 2.0d+00*WRK1(iCorI,iCorI)
+        End Do
+      End If
       Do iAshI = 1, nAsh(iSym)
         Do jAshI = 1, nAsh(iSym)
           Val = WRK1(nCorI+iAshI,nCorI+jAshI)
@@ -2826,51 +2889,65 @@ C
       iSymI = 1
       iSymB = 1
       iSymJ = 1
-      Do iCorI = 1, nCorI
-        iOrb = iCorI
-        jOrb = iCorI
-        Call Coul(iSymA,iSymI,iSymB,iSymJ,iOrb,jOrb,WRK1,WRK2)
-        Do jCorI = 1, nCorI
-          eee = eee + 2.0d+00*WRK1(jCorI,jCorI)
-        End Do
-        Call Exch(iSymA,iSymI,iSymB,iSymJ,iOrb,jOrb,WRK1,WRK2)
-        Do jCorI = 1, nCorI
-          eee = eee - 1.0d+00*WRK1(jCorI,jCorI)
-        End Do
-      End Do
-C
-      Do iAshI = 1, nAsh(iSym)
-        iOrb = nCorI+iAshI
-        Do jAshI = 1, nAsh(iSym)
-          jOrb = nCorI+jAshI
-C
+      If (Same) Then
+        Do iCorI = 1, nCorI
+          iOrb = iCorI
+          jOrb = iCorI
           Call Coul(iSymA,iSymI,iSymB,iSymJ,iOrb,jOrb,WRK1,WRK2)
-          !! DG1
-          Do iCorI = 1, nCorI
-            DG1(iAshI,jAshI) = DG1(iAshI,jAshI)
-     *        + 2.0d+00*WRK1(iCorI,iCorI)
-            eee = eee + 2.0d+00*WRK1(iCorI,iCorI)*G1(iAshI,jAshI)
+          Do jCorI = 1, nCorI
+            eee = eee + 2.0d+00*WRK1(jCorI,jCorI)
           End Do
-          !! DG2
-          Do kAshI = 1, nAsh(iSym)
-            Do lAshI = 1, nAsh(iSym)
-              DG2(iAshI,jAshI,kAshI,lAshI)
-     *      = DG2(iAshI,jAshI,kAshI,lAshI)
-     *      + WRK1(nCorI+kAshI,nCorI+lAshI)*0.5d+00
-              eee = eee + 0.5d+00*G2(iAshI,jAshI,kAshI,lAshI)
-     *                           *WRK1(nCorI+kAshI,nCorI+lAshI)
-            End Do
-          End Do
-C
           Call Exch(iSymA,iSymI,iSymB,iSymJ,iOrb,jOrb,WRK1,WRK2)
-          !! DG1
-          Do iCorI = 1, nCorI
-            DG1(iAshI,jAshI) = DG1(iAshI,jAshI)
-     *        - 1.0D+00*WRK1(iCorI,iCorI)
-            eee = eee - 1.0d+00*WRK1(iCorI,iCorI)*G1(iAshI,jAshI)
+          Do jCorI = 1, nCorI
+            eee = eee - 1.0d+00*WRK1(jCorI,jCorI)
           End Do
         End Do
-      End Do
+      End If
+C
+      If (IfChol) Then
+        Do JSYM=1,NSYM
+          Call Get_Cholesky_Vectors(Anactive,Active,JSYM,
+     &                              Work(LBRA),nBra,
+     &                              IBSTA,IBEND)
+        END DO
+      Else
+        Do iAshI = 1, nAsh(iSym)
+          iOrb = nCorI+iAshI
+          Do jAshI = 1, nAsh(iSym)
+            jOrb = nCorI+jAshI
+C
+            Call Coul(iSymA,iSymI,iSymB,iSymJ,iOrb,jOrb,WRK1,WRK2)
+            !! DG1
+C           If (Same) Then
+              Do iCorI = 1, nCorI
+                DG1(iAshI,jAshI) = DG1(iAshI,jAshI)
+     *            + 2.0d+00*WRK1(iCorI,iCorI)
+                eee = eee + 2.0d+00*WRK1(iCorI,iCorI)*G1(iAshI,jAshI)
+              End Do
+C           End If
+            !! DG2
+            Do kAshI = 1, nAsh(iSym)
+              Do lAshI = 1, nAsh(iSym)
+                DG2(iAshI,jAshI,kAshI,lAshI)
+     *        = DG2(iAshI,jAshI,kAshI,lAshI)
+     *        + WRK1(nCorI+kAshI,nCorI+lAshI)*0.5d+00
+                eee = eee + 0.5d+00*G2(iAshI,jAshI,kAshI,lAshI)
+     *                             *WRK1(nCorI+kAshI,nCorI+lAshI)
+              End Do
+            End Do
+C
+C           If (Same) Then
+              Call Exch(iSymA,iSymI,iSymB,iSymJ,iOrb,jOrb,WRK1,WRK2)
+              !! DG1
+              Do iCorI = 1, nCorI
+                DG1(iAshI,jAshI) = DG1(iAshI,jAshI)
+     *            - 1.0D+00*WRK1(iCorI,iCorI)
+                eee = eee - 1.0d+00*WRK1(iCorI,iCorI)*G1(iAshI,jAshI)
+              End Do
+C           End If
+          End Do
+        End Do
+      End If
 C
       write(6,*) "energy = ", eee
 C

@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine RHS_NAC(Fock)
+      Subroutine RHS_NAC(Fock,SLag)
       Implicit None
 #include "Input.fh"
 #include "Pointers.fh"
@@ -18,12 +18,14 @@
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
 #include "cands.fh"
-      Real*8 Fock(*)
+      Real*8 Fock(*),SLag(*)
       Integer ng1,ng2,i,j,k,l,ij,kl,ijkl,ij2,kl2,ijkl2
       Integer ipG1q,ipG2q,ipG1m,ipG1r,ipG2r,ipF,ipT,iTri
       Integer ipIn,opOut,ipnOut,nConfL,nConfR,ipL,ipR,iRC,LuDens
       Real*8 factor
       External ipIn,opOut,ipnOut
+*
+      Integer iSLag,jR,kR
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -33,8 +35,13 @@
 *                                                                      *
       ng1=ntAsh*(ntAsh+1)/2
       ng2=ng1*(ng1+1)/2
-      Call Getmem('ONED','ALLO','REAL',ipG1q,ng1)
-      Call Getmem('TWOD','ALLO','REAL',ipG2q,ng2)
+      If (PT2) Then
+        Call Getmem('ONED','ALLO','REAL',ipG1q,n1dens)
+        Call Getmem('TWOD','ALLO','REAL',ipG2q,n2dens)
+      Else
+        Call Getmem('ONED','ALLO','REAL',ipG1q,ng1)
+        Call Getmem('TWOD','ALLO','REAL',ipG2q,ng2)
+      End If
       Call Getmem('ONED-','ALLO','REAL',ipG1m,ng1)
       Call Allocate_Work(ipG1r,n1dens)
       Call Allocate_Work(ipG2r,n2dens)
@@ -49,15 +56,20 @@
       nConfR=Max(nconf1,nint(xispsm(1,1)))
       Call GetMem('CIL','ALLO','REAL',ipL,nConfL)
       Call GetMem('CIR','ALLO','REAL',ipR,nConfR)
-      Call CSF2SD(Work(ipIn(ipCI)+(NSSA(2)-1)*nconf1),Work(ipL),1)
-      iRC=opout(ipCI)
-      Call CSF2SD(Work(ipIn(ipCI)+(NSSA(1)-1)*nconf1),Work(ipR),1)
-      iRC=opout(ipCI)
-      iRC=ipnout(-1)
-      icsm=1
-      issm=1
-      Call Densi2(2,Work(ipG1r),Work(ipG2r),
-     &              Work(ipL),Work(ipR),0,0,0,n1dens,n2dens)
+      If (PT2) Then
+        Call PT2_SLag
+      Else
+        Call CSF2SD(Work(ipIn(ipCI)+(NSSA(2)-1)*nconf1),Work(ipL),1)
+        iRC=opout(ipCI)
+        Call CSF2SD(Work(ipIn(ipCI)+(NSSA(1)-1)*nconf1),Work(ipR),1)
+        iRC=opout(ipCI)
+        iRC=ipnout(-1)
+        icsm=1
+        issm=1
+        Call Densi2(2,Work(ipG1r),Work(ipG2r),
+     &                Work(ipL),Work(ipR),0,0,0,n1dens,n2dens)
+      End If
+*
       Call GetMem('CIL','FREE','REAL',ipL,nConfL)
       Call GetMem('CIR','FREE','REAL',ipR,nConfR)
 *
@@ -80,6 +92,10 @@
         Work(ipG1m+ij)=Zero
         ij=ij+1
       End Do
+*
+      !! The anti-symmetric RDM is contructed somewhere in the CASPT2
+      !! module. It will be read from disk in out_pt2.f.
+      If (PT2) Call DCopy_(ng1,[zero],0,work(ipG1m),1)
 *
       Do i=1,ntAsh**2
         j=itri(i,i)-1
@@ -198,9 +214,67 @@
       Call Free_Work(ipF)
       Call Free_Work(ipG1r)
       Call Free_Work(ipG2r)
-      Call Getmem('ONED','FREE','REAL',ipG1q,ng1)
-      Call Getmem('TWOD','FREE','REAL',ipG2q,ng2)
+      If (PT2) Then
+        Call Getmem('ONED','FREE','REAL',ipG1q,n1dens)
+        Call Getmem('TWOD','FREE','REAL',ipG2q,n2dens)
+      Else
+        Call Getmem('ONED','FREE','REAL',ipG1q,ng1)
+        Call Getmem('TWOD','FREE','REAL',ipG2q,ng2)
+      End If
       Call Getmem('ONED-','FREE','REAL',ipG1m,ng1)
 *
       Return
+
+       Contains
+
+      Subroutine PT2_SLag
+C
+C     Almost the same to the subroutine in rhs_sa.f,
+C     but slightly modified
+C
+      Implicit Real*8 (A-H,O-Z)
+      integer opout
+C
+      !! iR = iRLXRoot
+      Do jR = 1, nRoots
+        Do kR = 1, jR
+          vSLag = 0.0D+00
+C         write (*,*) "jr,kr= ", jr,kr
+C         write (*,*) vslag
+          iSLag = jR + nRoots*(kR-1)
+          vSLag = SLag(iSLag)
+C         write (*,*) vslag
+C
+          Call CSF2SD(Work(ipIn(ipCI)+(jR-1)*nconf1),Work(ipL),1)
+          iRC=opout(ipCI)
+          Call CSF2SD(Work(ipIn(ipCI)+(kR-1)*nconf1),Work(ipR),1)
+          iRC=opout(ipCI)
+          iRC=ipnout(-1)
+          icsm=1
+          issm=1
+C
+          If (abs(vSLag).gt.1.0d-10) Then
+            Call Densi2(2,Work(ipG1q),Work(ipG2q),
+     &                    Work(ipL),Work(ipR),0,0,0,n1dens,n2dens)
+            Call DaXpY_(n1dens,vSLag,Work(ipG1q),1,Work(ipG1r),1)
+            Call DaXpY_(n2dens,vSLag,Work(ipG2q),1,Work(ipG2r),1)
+          End If
+C
+          If (kR.ne.jR) Then
+            iSLag = kR + nRoots*(jR-1)
+            vSLag = SLag(iSLag)
+            If (abs(vSLag).gt.1.0d-10) Then
+              Call Densi2(2,Work(ipG1q),Work(ipG2q),
+     &                      Work(ipR),Work(ipL),0,0,0,n1dens,n2dens)
+              Call DaXpY_(n1dens,vSLag,Work(ipG1q),1,Work(ipG1r),1)
+              Call DaXpY_(n2dens,vSLag,Work(ipG2q),1,Work(ipG2r),1)
+            End If
+          End If
+        End Do
+      End Do
+      nConf=ncsf(1) !! nconf is overwritten somewhere in densi2
+C
+      Return
+C
+      End Subroutine PT2_SLag
       End

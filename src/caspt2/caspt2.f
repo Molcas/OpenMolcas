@@ -93,21 +93,22 @@ C
       REAL*8  RELAU,RELEV,RELCM,RELKJ
 
 * Effective Hamiltonian
-      REAL*8, ALLOCATABLE :: Heff(:,:), Ueff(:,:)
+      REAL*8, ALLOCATABLE :: Heff(:,:), Ueff(:,:),UeffSav(:,:)
 
 * Zeroth-order Hamiltonian
-      REAL*8, ALLOCATABLE :: H0(:,:), U0(:,:)
+      REAL*8, ALLOCATABLE :: H0(:,:), U0(:,:),U0Sav(:,:),H0Sav(:,:)
+      REAL*8, ALLOCATABLE :: ESav(:)
 
 
       !! for debug
-      Logical,parameter ::  DerMO=.false.,
-     *                      DerCI=.false.,
-     *                      DerGen=.false.,
-     *                      DerICB=.false.
-      Integer iOrb,jOrb,iAO,iMO,iVib,ipWRK1,ipWRK2,ipWRK3,indCI,idCI,
-     *        idT,iRoots,jRoots,ijRoots,ipFIMO,ipFIFA,nAS,nIN,icase,isym
-      Real*8  Delta,EForward,EBackward,EigI,EigJ,SCAL,SLagV
-      Real*8, External :: DDot_
+C     Logical,parameter ::  DerMO=.false.,
+C    *                      DerCI=.false.,
+C    *                      DerGen=.false.,
+C    *                      DerICB=.false.
+C     Integer iOrb,jOrb,iAO,iMO,iVib,ipWRK1,ipWRK2,ipWRK3,indCI,idCI,
+C    *        idT,iRoots,jRoots,ijRoots,ipFIMO,ipFIFA,nAS,nIN,icase,isym
+C     Real*8  Delta,EForward,EBackward,EigI,EigJ,SCAL,SLagV
+C     Real*8, External :: DDot_
 
       Call StatusLine('CASPT2:','Just starting')
 
@@ -152,7 +153,9 @@ C
           ENERGY(I)=INPUT%HEFF(I,I)
         END DO
         HEFF(:,:)=INPUT%HEFF(:,:)
-        GOTO 1000
+        !! May not work for gradient
+        !! Have to check
+C       GOTO 1000
       ELSE
         DO I=1,NSTATE
           HEFF(I,I) = REFENE(I)
@@ -162,6 +165,16 @@ C
           call prettyprint(Heff,Nstate,Nstate)
         END IF
       END IF
+C
+      !! Some preparations for gradient calculation
+      IF (IFDENS.OR.IFGRDT) CALL GrdIni
+      IF ((IFDENS.OR.IFGRDT).AND.IFMSCOUP.AND.nFroT.ne.0.and.
+     *    .NOT.IfChol) Then
+        write(6,*) "At present, gradient with MS-type CASPT2 can be"
+        write(6,*) "performed with density-fitting or Cholesky"
+        write(6,*) "decomposition"
+        call abend()
+      End If
 
 * In case of a XDW-CASPT2 calculation we first rotate the CASSCF
 * states according to the XMS prescription in xdwinit
@@ -180,6 +193,27 @@ C
 * the 1-RDMs for all states and mix them according to the type of
 * calculation: MS, XMS, DW or XDW.
       call rdminit
+
+      !! loop for multistate CASPT2 gradient
+      !! In the first step (iStpGrd=1), effective Hamiltonian and the
+      !! rotation vector is computed. In the second step (iStpGrd=2),
+      !! quantities needed for gradient are computed
+      nStpGrd = 1
+      If ((IFDENS.OR.IFGRDT).AND.IfChol) CALL CNSTFIFAFIMO(0)
+      IF ((IFDENS.OR.IFGRDT).AND.IFMSCOUP) Then
+        nStpGrd = 2
+        !! avoid doing a lot of calculations in dens.f in the first loop
+        IFGRDT = .false.
+        CALL MMA_ALLOCATE(ESav,Nstate)
+        CALL MMA_ALLOCATE(UeffSav,Nstate,Nstate)
+        CALL MMA_ALLOCATE(U0Sav,Nstate,Nstate)
+        If (IFXMS.and.IFDW) Then
+          CALL MMA_ALLOCATE(H0Sav,Nstate,Nstate)
+          Call DCopy_(Nstate*Nstate,H0,1,H0Sav,1)
+        End IF
+      End If
+      GRADLOOP: Do iStpGrd = 1, nStpGrd
+      IF (INPUT%JMS) GOTO 1000
 
 * For (X)Multi-State, a long loop over root states.
 * The states are ordered by group, with each group containing a number
@@ -203,6 +237,14 @@ C
        CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
 C      write(6,*) "before grpini"
        CALL GRPINI(IGROUP,NGROUPSTATE(IGROUP),JSTATE_OFF,HEFF,H0,U0)
+       If (IFGRDT) CALL CNSTFIFAFIMO(1)
+       If (IFXMS.and.iStpGrd.eq.2)
+     *      Call DCopy_(nState*nState,U0Sav,1,U0,1)
+       !! Somehow H0 is wrong for XDW-CASPT2
+       !! Maybe, H0(1,1) is computed with rotated basis with DW-density,
+       !! while the true value is computed with SA-density
+       If ((IFDENS.OR.IFGRDT).AND.IFMSCOUP.and.IFXMS.and.IFDW)
+     *   Call DCopy_(nState*nState,H0Sav,1,H0,1)
 C      write(6,*) "after grpini"
        CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
        CPUGIN=CPTF10-CPTF0
@@ -244,484 +286,6 @@ C            CALL GETMEM('WRK1','FREE','REAL',ipWRK1,nConf*nRoots)
      &                               MSTATE(JSTATE)
          Call StatusLine('CASPT2:',TRIM(STLNE2))
          CALL EQCTL2(ICONV)
-C
-C     if (.not.ifdens) then
-C     write(6,*) "quit for numerical derivatives"
-C     call abend()
-C     end if
-
-        DoPT2NUM = .false.
-         If (DerMO.and.iRLXroot.eq.jstate) Then
-           IPRGLB = SILENT
-           Delta = 1.0d-05
-           write(6,*) "Numerical Orbital Lagrangian"
-           write(6,*) "norbt,nbast = ", norbt,nbast
-           write(6,*) "Delta = ", Delta
-           CALL GETMEM('WRK1','ALLO','REAL',ipWRK1,nBasT*nBasT)
-           CALL GETMEM('WRK2','ALLO','REAL',ipWRK2,nBasT*nBasT)
-           CALL GETMEM('LCMO','ALLO','REAL',LCMO,nBasT*nBasT)
-           CALL GETMEM('LFMO','ALLO','REAL',ipFIMO,NFIMO)
-           CALL GETMEM('LFMO','ALLO','REAL',ipFIFA,NFIFA)
-           Call DCopy_(nBasT*nBasT,[0.0D+00],0,Work(ipWRK1),1)
-           Call DCopy_(NFIMO,Work(LFIMO),1,Work(ipFIMO),1)
-           Call DCopy_(NFIFA,Work(LFIFA),1,Work(ipFIFA),1)
-           Do iMO = nFro(1)+1, nFro(1)+nOrbT
-             Do iAO = 1, nBasT
-               Do iVib = 1, 2
-                 If (iVib.eq.1) Then
-                   Work(LCMOPT2+iAO-1+nBast*(iMO-1))
-     *               = Work(LCMOPT2+iAO-1+nBast*(iMO-1)) + Delta
-                 Else If (iVib.eq.2) Then
-                   Work(LCMOPT2+iAO-1+nBasT*(iMO-1))
-     *               = Work(LCMOPT2+iAO-1+nBasT*(iMO-1)) - Delta
-                 End If
-                 Call DCopy_(nBasT*nBasT,Work(LCMOPT2),1,Work(LCMO),1)
-C
-                 CALL STINI
-                 Call TraCtl(0)
-C                Call DCopy_(NFIMO,Work(ipFIMO),1,Work(LFIMO),1)
-                 Call DCopy_(NFIFA,Work(ipFIFA),1,Work(LFIFA),1)
-                 Call EqCtl2(iConv)
-C
-                 If (iVib.eq.1) Then
-                   EForward = E2Tot
-                   Work(LCMOPT2+iAO-1+nBasT*(iMO-1))
-     *               = Work(LCMOPT2+iAO-1+nBasT*(iMO-1)) - Delta
-                 Else If (iVib.eq.2) Then
-                   EBackward = E2Tot
-                   Work(LCMOPT2+iAO-1+nBasT*(iMO-1))
-     *               = Work(LCMOPT2+iAO-1+nBasT*(iMO-1)) + Delta
-                 End If
-                 Call DCopy_(nBasT*nBasT,Work(LCMOPT2),1,Work(LCMO),1)
-               End Do
-               Work(ipWRK1+iAO-1+nBasT*(iMO-1))
-     *           = (EForward-EBackward)/(2.0D+00*Delta)
-             End Do
-           End Do
-C
-           Call DGEMM_('T','N',nFro(1)+nOrbT,nFro(1)+nOrbT,nBasT,
-     *                 1.0D+00,Work(LCMOPT2),nBasT,Work(ipWRK1),nBasT,
-     *                 0.0D+00,Work(ipWRK2),nFro(1)+nOrbT)
-           write(6,*) "Orbital Lagrangian"
-           Call SqPrt(Work(ipWRK2),nFro(1)+nOrbT)
-C
-           write(6,*) "Anti-Symmetrized Orbital Lagrangian"
-           Call DGeSub(Work(ipWRK2),nFro(1)+nOrbT,'N',
-     *                 Work(ipWRK2),nFro(1)+nOrbT,'T',
-     *                 Work(ipWRK1),nFro(1)+nOrbT,
-     *                 nFro(1)+nOrbT,nFro(1)+nOrbT)
-           Call SqPrt(Work(ipWRK1),nFro(1)+nOrbT)
-C
-           write(6,*) "Anti-Symmetrized Orbital Lagrangian/Eigenvalues"
-           write(6,*) "This should be DPT2 in MO"
-           Do iOrb = 1, nFro(1)+nOrbT
-             If (iOrb.le.nFro(1)) Then
-               call getfdiag(iorb,eigi,nfro(1)+norbt)
-             Else
-               EigI = EPS(iOrb-nFro(1))
-             End If
-             write(6,'("EPS(",i2,") = ",f20.10)') iorb,eigi
-             Do jOrb = 1, iOrb-1
-               If (jOrb.le.nFro(1)) Then
-                 call getfdiag(jorb,eigj,nfro(1)+norbt)
-               Else
-                 EigJ = EPS(jOrb-nFro(1))
-               End If
-               Work(ipWRK1+iOrb-1+(nFro(1)+nOrbT)*(jOrb-1))
-     *        = Work(ipWRK1+iOrb-1+(nFro(1)+nOrbT)*(jOrb-1))/(EigJ-EigI)
-               Work(ipWRK1+jOrb-1+(nFro(1)+nOrbT)*(iOrb-1))
-     *        =-Work(ipWRK1+jOrb-1+(nFro(1)+nOrbT)*(iOrb-1))/(EigJ-EigI)
-             End Do
-           End Do
-           Call DScal_((nFro(1)+nOrbT)**2,0.5D+00,Work(ipWRK1),1)
-           !! Orbital energy derivative
-           Call TraCtl(0)
-           Do iMO = 1, nOrbT
-C            If (iMO.gt.nIsh(1).and.iMO.le.nIsh(1)+nAsh(1)) Cycle
-             Do iVib = 1, 2
-               If (iVib.eq.1) Then
-                 EPS(iMO) = EPS(iMO) + Delta
-                 If (iMO.le.nIsh(1)) Then
-                   EPSI(iMO) = EPSI(iMO) + Delta
-                 Else If (iMO.le.nIsh(1)+nAsh(1)) Then
-                   EPSA(iMO-nIsh(1)) = EPSA(iMO-nIsh(1)) + Delta
-                 Else If (iMO.le.nIsh(1)+nAsh(1)+nSsh(1)) Then
-                   EPSE(iMO-nIsh(1)-nAsh(1))
-     *               = EPSE(iMO-nIsh(1)-nAsh(1)) + Delta
-                 End If
-               Else If (iVib.eq.2) Then
-                 EPS(iMO) = EPS(iMO) - Delta
-                 If (iMO.le.nIsh(1)) Then
-                   EPSI(iMO) = EPSI(iMO) - Delta
-                 Else If (iMO.le.nIsh(1)+nAsh(1)) Then
-                   EPSA(iMO-nIsh(1)) = EPSA(iMO-nIsh(1)) - Delta
-                 Else If (iMO.le.nIsh(1)+nAsh(1)+nSsh(1)) Then
-                   EPSE(iMO-nIsh(1)-nAsh(1))
-     *               = EPSE(iMO-nIsh(1)-nAsh(1)) - Delta
-                 End If
-               End If
-C
-               CALL STINI
-               Call EqCtl2(iConv)
-C              if (imo.eq.12) then
-C                write(6,*) "asdf"
-C                write(6,*) e2tot
-C              end if
-C                write(6,*) "nin = ",nindep(1,4)
-C
-               If (iVib.eq.1) Then
-                 EForward = E2Tot
-                 EPS(iMO) = EPS(iMO) - Delta
-                 If (iMO.le.nIsh(1)) Then
-                   EPSI(iMO) = EPSI(iMO) - Delta
-                 Else If (iMO.le.nIsh(1)+nAsh(1)) Then
-                   EPSA(iMO-nIsh(1)) = EPSA(iMO-nIsh(1)) - Delta
-                 Else If (iMO.le.nIsh(1)+nAsh(1)+nSsh(1)) Then
-                   EPSE(iMO-nIsh(1)-nAsh(1))
-     *               = EPSE(iMO-nIsh(1)-nAsh(1)) - Delta
-                 End If
-               Else If (iVib.eq.2) Then
-                 EBackward = E2Tot
-                 EPS(iMO) = EPS(iMO) + Delta
-                 If (iMO.le.nIsh(1)) Then
-                   EPSI(iMO) = EPSI(iMO) + Delta
-                 Else If (iMO.le.nIsh(1)+nAsh(1)) Then
-                   EPSA(iMO-nIsh(1)) = EPSA(iMO-nIsh(1)) + Delta
-                 Else If (iMO.le.nIsh(1)+nAsh(1)+nSsh(1)) Then
-                   EPSE(iMO-nIsh(1)-nAsh(1))
-     *               = EPSE(iMO-nIsh(1)-nAsh(1)) + Delta
-                 End If
-               End If
-             End Do
-             Work(ipWRK1+nFro(1)+iMO-1+nBasT*(nFro(1)+iMO-1))
-     *         = (EForward-EBackward)/(2.0D+00*Delta)
-           End Do
-           Call SqPrt(Work(ipWRK1),nFro(1)+nOrbT)
-C
-           write(6,*) "ipWRK1,ipWRK2,nBasT"
-           write(6,*) ipWRK1,ipWRK2,nBasT
-           CALL GETMEM('WRK1','FREE','REAL',ipWRK1,nBasT*nBasT)
-           CALL GETMEM('WRK2','FREE','REAL',ipWRK2,nBasT*nBasT)
-           CALL GETMEM('LCMO','FREE','REAL',LCMO,nBasT*nBasT)
-           CALL GETMEM('LFMO','FREE','REAL',ipFIMO,NFIMO)
-           CALL GETMEM('LFMO','FREE','REAL',ipFIFA,NFIFA)
-           Call AbEnd()
-         End If
-
-
-
-
-
-         If (DerCI.and.iRLXroot.eq.jstate) Then
-           IPRGLB = SILENT
-           Delta = 1.0d-06
-           write(6,*) "Numerical Configuration Lagrangian"
-           write(6,*) "nConf, nRoots = ", nConf,nRoots
-           write(6,*) "Delta = ", Delta
-           CALL GETMEM('WRK1','ALLO','REAL',ipWRK1,nConf*nRoots)
-           CALL GETMEM('WRK2','ALLO','REAL',ipWRK2,nConf*nRoots)
-           CALL GETMEM('LCMO','ALLO','REAL',LCMO,nBasT*nBasT)
-           If (ISCF.EQ.0) Then
-             idCI = idTCEX
-             Call dDaFile(LUCIEX,2,Work(ipWRK1),nConf*nRoots,idCI)
-           Else
-             Work(ipWRK1)=1.0D+00
-           End If
-           Call DCopy_(nBasT*nBasT,Work(LCMOPT2),1,Work(LCMO),1)
-           Do indCI = 1, Min(nConf*nRoots,500)
-             Do iVib = 1, 2
-C              Call GRPINI
-               If (iVib.eq.1) Then
-                 Work(ipWRK1+indCI-1) = Work(ipWRK1+indCI-1) + Delta
-               Else If (iVib.eq.2) Then
-                 Work(ipWRK1+indCI-1) = Work(ipWRK1+indCI-1) - Delta
-               End If
-               idCI = idTCEX
-               Call dDaFile(LUCIEX,1,Work(ipWRK1),nConf*nRoots,idCI)
-C
-               CALL STINI
-C              Call TraCtl(0)
-               Call EqCtl2(iConv)
-C              write(6,*) e2tot
-C              write(6,*) "nin = ",nindep(1,4)
-C
-               If (iVib.eq.1) Then
-                 EForward  = E2Tot
-                 Work(ipWRK1+indCI-1) = Work(ipWRK1+indCI-1) - Delta
-               Else If (iVib.eq.2) Then
-                 EBackward = E2Tot
-                 Work(ipWRK1+indCI-1) = Work(ipWRK1+indCI-1) + Delta
-               End If
-C              Call dDaFile(LUCIEX,1,Work(ipWRK1),nConf*nRoots,idCI)
-             End DO
-             Work(ipWRK2+indCI-1) = (EForward-EBackward)/(2.0D+00*Delta)
-             write(6,'(i5,f20.10)') indCI,Work(ipWRK2+indCI-1)
-           End Do
-C
-C          write(6,*) "Configuration Lagrangian"
-C          Do indCI = 1, nConf*nRoots
-C            write(6,'(i5,f20.10)') indCI,Work(ipWRK2+indCI-1)
-C          End Do
-           If (nRoots.ne.1) Then
-             write(6,*) "Numerical State Lagrangian when nRoots > 1"
-             ijRoots = 0
-             Do iRoots = 1, nRoots
-               Do jRoots = 1, iRoots-1
-                 ijRoots = ijRoots + 1
-                 SLagV = DDot_(nConf,Work(ipWRK1+nConf*(iRoots-1)),1,
-     *                               Work(ipWRK2+nConf*(jRoots-1)),1)
-     *                 - DDot_(nConf,Work(ipWRK1+nConf*(jRoots-1)),1,
-     *                               Work(ipWRK2+nConf*(iRoots-1)),1)
-                 write(6,'(2i3,f20.10)') iRoots,jRoots,SLagV
-               End Do
-             End Do
-           End If
-C          write(6,*) "After Projection"
-C          Do iRoots = 1, nRoots
-C            write(6,*) "iRoots = ", iRoots
-C            Do jRoots = 1, nRoots
-C              Scal = DDot_(nConf,Work(ipWRK1+nConf*(jRoots-1)),1,
-C    *                            Work(ipWRK2+nConf*(iRoots-1)),1)
-C              Call DaXpY_(nConf,-Scal,Work(ipWRK1+nConf*(jRoots-1)),1,
-C    *                                 Work(ipWRK2+nConf*(iRoots-1)),1)
-C            End Do
-C            Do indCI = 1, nConf
-C              write(6,'(i5,f20.10)') indCI,Work(ipWRK2+indCI-1)
-C            End Do
-C          End Do
-C
-           write(6,*)
-           write(6,*) "Numerical EASUM"
-           If (ISCF.EQ.0) Then
-             idCI = idTCEX
-             Call dDaFile(LUCIEX,1,Work(ipWRK1),nConf,idCI)
-           Else
-             Work(ipWRK1)=1.0D+00
-           End If
-           CALL STINI
-           !! Forward
-           EASUM = EASUM + Delta
-           Call EqCtl2(iConv)
-           EASUM = EASUM - Delta
-           EForward = E2Tot
-           !! Backward
-           CALL STINI
-           EASUM = EASUM - Delta
-           Call EqCtl2(iConv)
-           EASUM = EASUM + Delta
-           EBackward = E2Tot
-           write(6,'("DEASUM = ",f20.10)')
-     *       (EForward-EBackward)/(2.0D+00*delta)
-C
-           write(6,*)
-           write(6,*) "Numerical DEPSA"
-           Do iMO = 1, nAshT
-             Do iVib = 1, 2
-               If (iVib.eq.1) Then
-                 EPSA(iMO) = EPSA(iMO) + Delta
-               Else If (iVib.eq.2) Then
-                 EPSA(iMO) = EPSA(iMO) - Delta
-               End If
-C
-               CALL STINI
-               Call EqCtl2(iConv)
-C
-               If (iVib.eq.1) Then
-                 EForward  = E2Tot
-                 EPSA(iMO) = EPSA(iMO) - Delta
-               Else If (iVib.eq.2) Then
-                 EBackward = E2Tot
-                 EPSA(iMO) = EPSA(iMO) + Delta
-               End If
-             End Do
-             write(6,'(i3,f20.10)') iMO,
-     *         (EForward-EBackward)/(2.0D+00*Delta)
-           End Do
-C
-           CALL GETMEM('WRK1','FREE','REAL',ipWRK1,nConf*nRoots)
-           CALL GETMEM('WRK2','FREE','REAL',ipWRK2,nConf*nRoots)
-           CALL GETMEM('LCMO','FREE','REAL',LCMO,nBasT*nBasT)
-           Call AbEnd()
-         End If
-
-
-
-         If (DerGen) Then
-           IPRGLB = SILENT
-           write(6,*) "Numerical ... Something"
-           write(6,*) "TITLE: diagonal B derivative"
-           Delta = 1.0d-05
-           PT2Delta = Delta
-           DoPT2Num = .true.
-
-           CALL GETMEM('LFMO','ALLO','REAL',ipFIMO,NFIMO)
-           Call DCopy_(NFIMO,Work(LFIMO),1,Work(ipFIMO),1)
-
-           DoTriPT2 = .true.
-           Do iDiffPT2 = 1, nbast*(nbast+1)/2
-             Do iVibPT2 = 1, 2
-C     !! template
-C     If (DoPT2Num) Then
-C       If (iVibPT2.eq.1) Then
-C         Work(ipTEST+iDiffPT2-1) = Work(ipTEST+iDiffPT2-1) + PT2Delta
-C       Else
-C         Work(ipTEST+iDiffPT2-1) = Work(ipTEST+iDiffPT2-1) - PT2Delta
-C       End If
-C     End If
-C
-C              CALL STINI
-C              Call TraCtl(0)
-      If (DoPT2Num) Then
-        Call DCopy_(NFIMO,Work(ipFIMO),1,Work(LFIMO),1)
-        If (iVibPT2.eq.1) Then
-          Work(LFIMO+iDiffPT2-1) = Work(LFIMO+iDiffPT2-1) + PT2Delta
-        Else
-          Work(LFIMO+iDiffPT2-1) = Work(LFIMO+iDiffPT2-1) - PT2Delta
-        End If
-      End If
-               Call EqCtl2(iConv)
-C
-               If (iVibPT2.eq.1) EForward  = E2Tot
-               If (iVibPT2.eq.2) EBackward = E2Tot
-             End DO
-             SCAL = (EForward-EBackward)/(2.0D+00*Delta)
-             !! i*(i+1)/2 = ind
-             !! i^2 + i - 2*ind = 0
-             !! (-1 \pm sqrt(4*ind*ind-1))/2
-             SLagV = (sqrt(1.0d+00+dble(8*iDiffPT2))-1.0d+00)*0.5d+00
-C     write(6,'(i3,3f20.10)') idiffpt2,SLagV, floor(slagv+1.0d-03),
-C    *    abs(slagv-floor(slagv+1.0d-03))
-             If (DoTriPT2.and.
-     *         abs(SLagV-floor(SLagV+1.0d-05)).gt.1.0d-08) Then
-               SCAL = SCAL*0.5d+00
-               write(6,'(i3,f20.10," *")') iDiffPT2,SCAL
-             Else
-               write(6,'(i3,f20.10)') iDiffPT2,SCAL
-             End If
-           End Do
-           CALL GETMEM('LFMO','FREE','REAL',ipFIMO,NFIMO)
-           Call AbEnd()
-         End If
-
-
-
-         If (DerICB) Then
-           IPRGLB = SILENT
-           write(6,*) "Numerical ICB derivative"
-           Delta = 1.0d-05
-           PT2Delta = Delta
-           DoPT2Num = .true.
-
-           iCase = 1
-           iSym  = 1
-           nIN = nINDEP(iSym,iCase)
-           nAS = nASUP(iSym,iCase)
-
-           !! derivative
-           CALL GETMEM('WRK1','ALLO','REAL',ipWRK1,nAS*nAS)
-           !! trans
-           CALL GETMEM('WRK2','ALLO','REAL',ipWRK2,nAS*nAS)
-           !! wrk
-           CALL GETMEM('WRK3','ALLO','REAL',ipWRK3,nAS*nAS)
-
-           Call DCopy_(nAS*nAS,[0.0D+00],0,Work(ipWRK1),1)
-           idT  = idTMAT(iSym,iCase)
-           CALL DDAFILE(LUSBT,2,Work(ipWRK2),nAS*nIN,idT)
-           iDiffPT2 = 0
-           Do iMO = 1, nIN
-             Do iAO = 1, nAS
-               iDiffPT2 = iDiffPT2 + 1
-               Do iVibPT2 = 1, 2
-C     !! template
-C     If (DoPT2Num) Then
-C       If (iVibPT2.eq.1) Then
-C         Work(ipTEST+iDiffPT2-1) = Work(ipTEST+iDiffPT2-1) + PT2Delta
-C       Else
-C         Work(ipTEST+iDiffPT2-1) = Work(ipTEST+iDiffPT2-1) - PT2Delta
-C       End If
-C     End If
-C
-                 Call EqCtl2(iConv)
-C
-                 If (iVibPT2.eq.1) EForward  = E2Tot
-                 If (iVibPT2.eq.2) EBackward = E2Tot
-               End Do
-               Work(ipWRK1+iAO-1+nAS*(iMO-1))
-     *           = (EForward-EBackward)/(2.0D+00*Delta)
-             End Do
-           End Do
-C
-           !! Restore the original eigenvalues and vectors
-           Call MKBMAT
-           Call SBDIAG
-C
-           Call DGEMM_('T','N',nIN,nIN,nAS,
-     *                 1.0D+00,Work(ipWRK2),nAS,Work(ipWRK1),nAS,
-     *                 0.0D+00,Work(ipWRK3),nIN)
-           write(6,*) "Orbital Lagrangian in ICB"
-           Call SqPrt(Work(ipWRK3),nIN)
-C
-           write(6,*) "Anti-Symmetrized Orbital Lagrangian"
-           Call DGeSub(Work(ipWRK3),nIN,'N',
-     *                 Work(ipWRK3),nIN,'T',
-     *                 Work(ipWRK1),nIN,nIN,nIN)
-           Call SqPrt(Work(ipWRK1),nIN)
-C
-           write(6,*) "Anti-Symmetrized Orbital Lagrangian/Eigenvalues"
-           write(6,*) "This should be density in ICB"
-           idT  = idBMAT(iSym,iCase)
-           CALL DDAFILE(LUSBT,2,Work(ipWRK2),nIN,idT)
-           Do iOrb = 1, nIN
-             EigI = Work(ipWRK2+iOrb-1)
-             write(6,'("EPS(",i2,") = ",f20.10)') iorb,eigi
-             Do jOrb = 1, iOrb-1
-               EigJ = Work(ipWRK2+jOrb-1)
-               Work(ipWRK1+iOrb-1+nIN*(jOrb-1))
-     *        = Work(ipWRK1+iOrb-1+nIN*(jOrb-1))/(EigJ-EigI)
-               Work(ipWRK1+jOrb-1+nIN*(iOrb-1))
-     *        =-Work(ipWRK1+jOrb-1+nIN*(iOrb-1))/(EigJ-EigI)
-             End Do
-           End Do
-           Call DScal_(nIN**2,0.5D+00,Work(ipWRK1),1)
-C
-           Do iMO = 1, nIN
-             Do iVib = 1, 2
-               If (iVib.eq.1) Then
-                 Work(ipWRK2+iMO-1) = Work(ipWRK2+iMO-1) + Delta
-               Else If (iVib.eq.2) Then
-                 Work(ipWRK2+iMO-1) = Work(ipWRK2+iMO-1) - Delta
-               End If
-C
-               idT  = idBMAT(iSym,iCase)
-               CALL DDAFILE(LUSBT,1,Work(ipWRK2),nIN,idT)
-               CALL NADIAG
-               CALL RHS_INIT
-               CALL MKRHS(IVECW)
-               CALL PTRTOSR(1,IVECW,IRHS)
-               CALL PCG(ICONV)
-C
-               If (iVib.eq.1) Then
-                 EForward = E2Tot
-                 Work(ipWRK2+iMO-1) = Work(ipWRK2+iMO-1) - Delta
-               Else If (iVib.eq.2) Then
-                 EBackward = E2Tot
-                 Work(ipWRK2+iMO-1) = Work(ipWRK2+iMO-1) + Delta
-               End If
-             End Do
-             Work(ipWRK1+iMO-1+nIN*(iMO-1))
-     *         = (EForward-EBackward)/(2.0D+00*Delta)
-           End Do
-C
-           Call SqPrt(Work(ipWRK1),nIN)
-
-           !! derivative
-           CALL GETMEM('WRK1','FREE','REAL',ipWRK1,nAS*nAS)
-           !! trans
-           CALL GETMEM('WRK2','FREE','REAL',ipWRK2,nAS*nAS)
-           !! wrk
-           CALL GETMEM('WRK3','FREE','REAL',ipWRK3,nAS*nAS)
-           Call AbEnd()
-         End If
 
 * Save the final caspt2 energy in the global array ENERGY():
          ENERGY(JSTATE)=E2TOT
@@ -741,24 +305,24 @@ C     Orbitals, properties:
          ! if the dens keyword is used, need accurate density and
          ! for that the serial LUSOLV file is needed, in that case copy
          ! the distributed LURHS() to LUSOLV here.
-         IF((IFDENS.OR.IFGRDT).and.iRLXroot.eq.MSTATE(JSTATE)) THEN
+         IF((IFDENS.OR.IFGRDT).and.
+     *      (iRLXroot.eq.MSTATE(JSTATE).or.IFMSCOUP)) THEN
            CALL PCOLLVEC(IRHS,0)
            CALL PCOLLVEC(IVECX,0)
            CALL PCOLLVEC(IVECR,0)
            CALL PCOLLVEC(IVECC,1)
            CALL PCOLLVEC(IVECC2,1)
            CALL PCOLLVEC(IVECW,1)
-
-           CALL GrdIni
          END IF
 
-         IF ((IFPROP.OR.IFGRDT).and.IRLXroot.eq.MSTATE(JSTATE)) THEN
+         IF ((IFPROP.OR.IFGRDT).and.
+     *       (IRLXroot.eq.MSTATE(JSTATE).or.IFMSCOUP)) THEN
            IF (IPRGLB.GE.USUAL) THEN
              WRITE(6,*)
              WRITE(6,'(20A4)')('****',I=1,20)
              WRITE(6,*)' CASPT2 PROPERTY SECTION'
            END IF
-           CALL PRPCTL
+           CALL PRPCTL(UEFF)
          ELSE
            IF (IPRGLB.GE.USUAL) THEN
              WRITE(6,*)
@@ -788,21 +352,20 @@ C     NOTE: atm the MS-CASPT2 couplings computed here are wrong!
            Call StatusLine('CASPT2:','Multi-State couplings')
 C-SVC: for now, this part is only performed on the master node
 #ifdef _MOLCAS_MPP_
-           IF (Is_Real_Par()) THEN
-             Call Set_Do_Parallel(.False.)
-             IF (KING()) CALL GRDCTL(HEFF)
-             Call Set_Do_Parallel(.True.)
-             CALL GASync
-           ELSE
-             CALL GRDCTL(HEFF)
-           END IF
+C          IF (Is_Real_Par()) THEN
+C            Call Set_Do_Parallel(.False.)
+C            IF (KING()) CALL GRDCTL(HEFF)
+C            Call Set_Do_Parallel(.True.)
+C            CALL GASync
+C          ELSE
+C            CALL GRDCTL(HEFF)
+C          END IF
 #else
-           CALL GRDCTL(HEFF)
+C          CALL GRDCTL(HEFF)
 #endif
-           Call GrdCls
          END IF
 
-         IF((.NOT.IFDENS) .AND. IFMSCOUP) THEN
+         IF(IFMSCOUP.and.istpgrd.eq.1) THEN
 C     If this was NOT a gradient, calculation, then the multi-state
 C     couplings are more efficiently computed via three-body
 C     transition density matrices.
@@ -890,8 +453,8 @@ C End of long loop over groups
        If(IFNOPT2) then  !XMS Skip multistate calculation.
         write(6,*)'PT2 calculation skipped with XROH keyword'
         write(6,*)
-        CALL MMA_DEALLOCATE(UEFF)
-        CALL MMA_DEALLOCATE(U0)
+C       CALL MMA_DEALLOCATE(UEFF)
+C       CALL MMA_DEALLOCATE(U0)
        Else
       IF(IPRGLB.GE.TERSE) THEN
        WRITE(6,*)' Total CASPT2 energies:'
@@ -928,7 +491,7 @@ C End of long loop over groups
       END IF
 
       IF(NLYROOT.NE.0) IFMSCOUP=.FALSE.
-      IF(IFMSCOUP) THEN
+      IF(IFMSCOUP.and.istpgrd.eq.1) THEN
         Call StatusLine('CASPT2:','Effective Hamiltonian')
         CALL MLTCTL(HEFF,UEFF,U0)
 
@@ -947,10 +510,24 @@ C End of long loop over groups
          WRITE(6,*)
         END IF
       END IF
+      If (nStpGrd.eq.2.and.iStpGrd.eq.1) Then
+        IFGRDT = .true.
+        Call DCopy_(nState,ENERGY,1,Esav,1)
+        Call DCopy_(nState**2,Ueff,1,UeffSav,1)
+        !! For iStpGrd=2, the CI coefficient is already makes H0
+        !! diagonal
+        If (IFXMS) Call DCopy_(nState**2,U0,1,U0Sav,1)
+      Else
 
 * Back-transform the effective Hamiltonian and the transformation matrix
 * to the basis of original CASSCF states
+      if (nstpgrd.eq.2) then
+      CALL Backtransform(Heff,UeffSav,U0sav)
+      Call DCopy_(nState*nState,UeffSav,1,Ueff,1)
+      Call DCopy_(nState,ESav,1,ENERGY,1)
+      else
       CALL Backtransform(Heff,Ueff,U0)
+      end if
 
 * create a JobMix file
 * (note that when using HDF5 for the PT2 wavefunction, IFMIX is false)
@@ -966,14 +543,29 @@ C End of long loop over groups
       Call Put_iScalar('NumGradRoot',iRlxRoot)
       Call Store_Energies(NSTATE,ENERGY,iRlxRoot)
 
-      CALL MMA_DEALLOCATE(UEFF)
-      CALL MMA_DEALLOCATE(U0)
+C     CALL MMA_DEALLOCATE(UEFF)
+C     CALL MMA_DEALLOCATE(U0)
+      End If  !Skipping MultiState calculation in the first loop
+              !for gradient calculation
       End If  !Skipping MultiState calculation when IFNOPT2=true
+
+      END DO GRADLOOP
 9000  CONTINUE
 
+      !! Finishing for gradient calculation
+      IF (IFDENS.OR.IFGRDT) Call GrdCls(UEFFSav,U0Sav,H0)
+      IF ((IFDENS.OR.IFGRDT).AND.IFMSCOUP) Then
+        CALL MMA_DEALLOCATE(ESav)
+        CALL MMA_DEALLOCATE(UeffSav)
+        CALL MMA_DEALLOCATE(U0Sav)
+        If (IFXMS.AND.IFDW) CALL MMA_DEALLOCATE(H0Sav)
+      End If
 C Free resources, close files
       CALL PT2CLS
 C     If (nRoots.ne.lRoots) Call ModDip
+
+      CALL MMA_DEALLOCATE(UEFF)
+      CALL MMA_DEALLOCATE(U0)
 
       CALL MMA_DEALLOCATE(HEFF)
       CALL MMA_DEALLOCATE(H0)
@@ -988,11 +580,3 @@ C     PRINT I/O AND SUBROUTINE CALL STATISTICS
       CALL QEXIT('CASPT2')
       RETURN
       END
-      subroutine getfdiag(iorb,eig,nbas)
-      implicit real*8 (a-h,o-z)
-      dimension tmp(nbas)
-      Call Get_dArray('RASSCF OrbE',tmp,nbas)
-C     if (iorb.eq.1) eig = -20.4907280456d+00
-C     if (iorb.eq.2) eig = -11.1340416978D+00
-      eig=tmp(iorb)
-      end

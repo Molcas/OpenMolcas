@@ -187,6 +187,11 @@ C types, which are not supported with stdalloc. Hence, the infraction.
       Logical :: INVAR  = .True.
 !     GRDT      used for single-point gradient calculation
       Logical :: GRDT   = .False.
+!     isNAC     Compute NAC or interstate coupling vectors
+      Logical :: NAC  = .False.
+      Integer :: iNACRoot1=0, iNACRoot2=0
+!     isCSF     Compute CSF contributions in derivative coupling
+      Logical :: CSF  = .False.
       End Type
 
 #ifdef ALLOC_SCAL
@@ -631,6 +636,14 @@ c      call Quit_OnInstError
 
       Case('GRAD') !! is it intended use?
       Input%GRDT  = .TRUE.
+
+      Case('NAC ')
+      Input%NAC = .TRUE.
+      If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
+      Read(Line,*,Err=9920,End=9920) Input%iNACRoot1,Input%iNACRoot2
+
+      Case('CSF ')
+      Input%CSF = .TRUE.
 
 
       ! OBSOLETE KEYWORDS

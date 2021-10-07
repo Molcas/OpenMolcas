@@ -127,11 +127,8 @@ CMS: Be aware that IEL13 is also called in STRINF
         END IF
       END DO
 *. Mappings between different string types
-C     write (*,*) "nsttyp=",nsttyp
       DO ITYP = 1, NSTTYP
 c          write(6,*) nelec(ityp),nstrin
-C     write (*,*) "ityp = ", ityp
-C     write (*,*) "nelec,strin=",nelec(ityp),nstrin
           NSTRIN = NSTFTP(ITYP)
           IF(ISTAC(ITYP,2).NE.0.AND.ISTAC(ITYP,1).NE.0) THEN
 *.creation on string allowed , use full orbital notation
@@ -150,27 +147,12 @@ CMS: New else block
           ELSE IF (ISTAC(ITYP,1).EQ.0.AND.ISTAC(ITYP,2).NE.0) THEN
 *. Only creation allowed, use compact scheme with offsets
 *
-C           DO I = 1, MXPNSMST
-C             IF (iWORK(KNSTSO(ITYP)+I-1).lt.0)
-C    *        iWORK(KNSTSO(ITYP)+I-1) = 1
-C           END DO
-            DO I = 1, NOCTYP(ITYP) ! NSMST !  NSTTYP! MXPNSMST
+            DO I = 1, NOCTYP(ITYP)
               iWORK(KNSTSO(ITYP)+I-1) = 0
             END DO
           CALL NUMST4_MCLR(NELEC(ITYP),NORB1,MNRS1(ITYP),MXRS1(ITYP),
      &                NORB2,NORB3,MNRS3(ITYP),MXRS3(ITYP),
      &                iWORK(KNSTSO(ITYP))   )
-C          write (*,*) "nstmst,etc"
-C          write (*,*) nsmst,nsttyp,mxpnsmst,noctyp(ityp)
-            DO I = 1, noctyp(ityp) ! MXPNSMST
-C             IF (iWORK(KNSTSO(ITYP)+I-1).lt.0)
-C    *        iWORK(KNSTSO(ITYP)+I-1) = 0
-C             IF (abs(iWORK(KNSTSO(ITYP)+I-1)).gt.1000000)
-C    *        iWORK(KNSTSO(ITYP)+I-1) = 0
-C       write (*,*) i,iWORK(KNSTSO(ITYP)+I-1),ip_idummy
-C             IF (iWORK(KNSTSO(ITYP)+I-1).eq.ip_iDummy)
-C    *        iWORK(KNSTSO(ITYP)+I-1) = 0
-            END DO
             LENGTH = NCASTR_MCLR(2,iWORK(KNSTSO(ITYP)),NOCTYP(ITYP),
      &                      ITYP,NOBPT,3,iWORK(KEL123(ITYP)))
 *. Explicit offsets and lengths

@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
 C     SUBROUTINE TRDNS2O(IVEC,JVEC,DPT2)
-      SUBROUTINE SIGDER(IVEC,JVEC)
+      SUBROUTINE SIGDER(IVEC,JVEC,SCAL)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -299,6 +299,7 @@ C
       CALL RHS_READ(nAS_,nIS_,lVec_,iCase_,iSym_,iVec_)
       If (IVEC.NE.JVEC.and.ADDLAM) Then
         !! T = T + \lambda
+        If (SCAL.ne.1.0D+00) Call DScal_(nAS_*nIS_,SCAL,Work(lVec_),1)
         CALL RHS_ALLO(nAS_,nIS_,LTMP)
         CALL RHS_READ(nAS_,nIS_,LTMP,iCase_,iSym_,JVEC)
         Call DaXpY_(nAS_*nIS_,1.0D+00,Work(LTMP),1,Work(lVec_),1)

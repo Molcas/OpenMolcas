@@ -49,19 +49,39 @@ C     END DO
 !!    NINDEP(nSym,13) : number of independent IC basis
 !!    NEXC(nSym,13)   : ?
 !!    NEXCES(nSym,13) : ?
+
+!!    IVECX : T-amplitude in the internally contracted basis (NIN*NIS)
+!!    IVECC : T*C (NAS*NIS)
+!!    IVECC2: T*C*S (NAS*NIS)
+!!    IVECW : (pq|rs) (NAS*NIS)
+!!    IRHS  : (pq|rs)*S*C (NIN*NIS)
+!!    IVECR : residue (NIN*NIS)
       INTEGER ipDPT2,ipDPT2C,ipDPT2AO,ipDPT2CAO,
-     *        ipCLag,ipOLag,ipSLag,ipWLag,
+     *        ipCLag,ipCLagFull,ipOLag,ipOLagFull,
+     *        ipSLag,ipWLag,
      *        nCLag,nOLag,nSLag,nWLag,
-     *        nBasTr,nBasSq
+     *        nBasTr,nBasSq,nStLag,jStLag,iStpGrd,nStpGrd,
+     *        ipDPT20,ipDPT2C0,ipCLag0,ipOLag0,ipSLag0,ipWLag0,
+     *        ipOMGDER,ipFIFA,ipFIMO,ipFIFASA,ipDPT2Canti
+      LOGICAL INVAR,IFSSDM
       !! maybe the dimension can be defined with 11 not 13,
       !! but tentatively 13
       INTEGER idSDMat
       COMMON /CASPT2_GRAD/ ipDPT2,ipDPT2C,ipDPT2AO,ipDPT2CAO,
-     *                     ipCLag,ipOLag,ipSLag,ipWLag,
+     *                     ipCLag,ipCLagFull,ipOLag,ipOLagFull,
+     *                     ipSLag,ipWLag,
      *                     nCLag,nOLag,nSLag,nWLag,
-     *                     nBasTr,nBasSq,
+     *                     nBasTr,nBasSq,nStLag,jStLag,iStpGrd,nStpGrd,
+     *                     ipDPT20,ipDPT2C0,ipCLag0,
+     *                     ipOLag0,ipSLag0,ipWLag0,
+     *                     ipOMGDER,ipFIFA,ipFIMO,ipFIFASA,ipDPT2Canti,
 C    *                     idSDMat(8,MXCASE)
-     *                     idSDMat(8,13)
+     *                     idSDMat(8,13),
+     *                     INVAR,IFSSDM
+C
+      INTEGER iRoot1,iRoot2
+      LOGICAL isNAC,isCSF
+      COMMON /CASPT2_NAC/  iRoot1,iRoot2,isNAC,isCSF
       !! For MCLR
       INTEGER, PARAMETER :: LuPT2    = 17
       !! For ERI derivatives in ALASKA

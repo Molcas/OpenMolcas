@@ -280,8 +280,6 @@ c
        iDisk=iKapDisp(1)
        Call dDaFile(LuTemp,2,Work(ipK1),nDensC,iDisk) ! Read \bar{kappa}
        Call Uncompress(work(ipK1),Work(ipK2),1)
-C      write (*,*) "uncompressed kappa in out_pt2"
-C      call sqprt(work(ipk2),nbas(1))
 c
 c If we want to estimate the error
 c
@@ -303,10 +301,8 @@ c
        If (PT2) Then
          !! Add the WLag term (will be contracted with overlap
          !! derivative) computed in CASPT2
-C        write (*,*) "WLag"
          Do i = 1, nTot1
            Read(LuPT2,*) Val
-C          write (*,*) "val = ", val
            Work(ipF+i-1) = Work(ipF+i-1) + Val
          End Do
        End If
@@ -321,30 +317,16 @@ C          write (*,*) "val = ", val
          !! For gradient calculation. D^var couples with inactive
          !! orbitals only, so D0(1,4) (in integral_util/prepp.f), which
          !! couples with active orbitals has to be modified,
-C        write (*,*) "dpt2?"
          Do iSym = 1, nSym
            nBasI = nBas(iSym)
            Do iI = 1, nBasI
              Do iJ = 1, nBasI
                Read(LuPT2,*) Val
-C              write (*,*) "val = ", val
                Work(ipDAO+ipMat(iSym,iSym)-1+iI-1+(iJ-1)*nBasI)
      *       = Work(ipDAO+ipMat(iSym,iSym)-1+iI-1+(iJ-1)*nBasI)
      *       + Val
              End Do
            End Do
-C          Do iI = 1, nBasI
-C            Do iJ = 1, nBasI
-C              Read(LuPT2,*) Val
-C              write (*,*) "val = ", val
-C              Work(ipDAO+ipMat(iSym,iSym)-1+iI-1+(iJ-1)*nBasI)
-C    *       = Work(ipDAO+ipMat(iSym,iSym)-1+iI-1+(iJ-1)*nBasI)
-C    *       + Val*0.5d+00
-C              Work(ipDAO+ipMat(iSym,iSym)-1+iJ-1+(iI-1)*nBasI)
-C    *       = Work(ipDAO+ipMat(iSym,iSym)-1+iJ-1+(iI-1)*nBasI)
-C    *       + Val*0.5d+00
-C            End Do
-C          End Do
          End Do
          !! The PT2 density will be used later again.
          Do iSym = 1, nSym
@@ -352,7 +334,6 @@ C          End Do
            Do iI = 1, nBasI
              Do iJ = 1, nBasI
                Backspace LuPT2
-C              Backspace LuPT2
              End Do
            End Do
          End Do
@@ -375,8 +356,6 @@ c Mult all terms that are not diag by 2
 *
 !      gives \tilde{D}
        Call OITD(Work(ipK2),1,Work(ipD_K),Work(ipDtmp),.True.)
-C      write (*,*) "orbital density in MO"
-C      call sqprt(work(ipD_k),nbas(1))
 *
        Do iS=1,nsym
 c
@@ -389,8 +368,6 @@ c
      &                   Work(ipK2+ipmat(is,is)-1),NBAS(is),
      &                   Zero,Work(ipDAO+ipCM(is)-1),NBAS(is))
        End Do
-C      write (*,*) "orbital density in AO"
-C      call sqprt(work(ipDAO),12)
 *
        Call Put_LCMO(Work(ipDAO),nLCMO)
 *
@@ -418,7 +395,6 @@ c
            Call dDaFile(LUJOB ,0,rdum,ng2,jDisk)
          End Do
          Call dDaFile(LUJOB ,2,Work(ipG1q),ng1,jDisk)
-C        If (PT2.and.nRoots.gt.1) Call Get_D1MO(ipG1q,ng1)
          If (PT2.and.nRoots.gt.1)
      *     Call Get_dArray("D1mo",Work(ipG1q),ng1)
        EndIf
@@ -428,9 +404,6 @@ c
 c D_eff = D^j + \tilde{D} +\bar{D}
 c ipD_K = (ipG1q + inact) + ipD_K + ipD_CI
 *
-C
-C       call dcopy_(ndens2, [Zero], 0, Work(ipD_K), 1)  !DEBUG
-C
        If (isNAC) Then
 *
 ** For NAC, first build DAO and then DAO_var
@@ -450,6 +423,36 @@ c Note: no inactive part for transition densities
            End Do
           End Do
          End Do
+C
+         If (PT2) Then
+           !! PT2 density (in MO)
+           Do iSym = 1, nSym
+             nBasI = nBas(iSym)
+             Do iI = 1, nBasI
+               Do iJ = 1, nBasI
+                 Read(LuPT2,*) Val
+                 Work(ipD_K+ipMat(iSym,iSym)-1+iI-1+(iJ-1)*nBasI)
+     *         = Work(ipD_K+ipMat(iSym,iSym)-1+iI-1+(iJ-1)*nBasI)
+     *         + Val
+               End Do
+             End Do
+           End Do
+           !! PT2C density (in MO)
+           Do iSym = 1, nSym
+             nBasI = nBas(iSym)
+             Do iI = 1, nBasI
+               Do iJ = 1, nBasI
+                 Read(LuPT2,*) Val
+                 Work(ipD_K+ipMat(iSym,iSym)-1+iI-1+(iJ-1)*nBasI)
+     *         = Work(ipD_K+ipMat(iSym,iSym)-1+iI-1+(iJ-1)*nBasI)
+     *         + Val*0.25d+00
+                 Work(ipD_K+ipMat(iSym,iSym)-1+iJ-1+(iI-1)*nBasI)
+     *         = Work(ipD_K+ipMat(iSym,iSym)-1+iJ-1+(iI-1)*nBasI)
+     *         + Val*0.25d+00
+               End Do
+             End Do
+           End Do
+         End If
          Call Getmem('TMP', 'ALLO','Real',ipT,nBuf/2)
          Call NatOrb(Work(ipD_K),Work(ipCMO),Work(ipCMON),Work(ipO))
          Call dmat_MCLR(Work(ipCMON),Work(ipO),Work(ipT))
@@ -482,6 +485,20 @@ c Note: no inactive part for transition densities
            Work(ipG1m+ipmat(is,is)-1+i-1+(i-1)*nbas(is))=Zero
           End Do
          End Do
+*
+         If (PT2) Then
+           !! PT2C density (in MO) for CSF derivative
+           Do iSym = 1, nSym
+             nBasI = nBas(iSym)
+             Do iI = 1, nBasI
+               Do iJ = 1, nBasI
+                 Read(LuPT2,*) Val
+                 Work(ipG1m+ipMat(iSym,iSym)-1+iJ-1+(iI-1)*nBasI)
+     *         = Work(ipG1m+ipMat(iSym,iSym)-1+iJ-1+(iI-1)*nBasI) + Val
+               End Do
+             End Do
+           End Do
+         End If
 * Transform
          Call TCMO(Work(ipG1m),1,-2)
 * Save the triangular form
@@ -503,11 +520,6 @@ c Note: no inactive part for transition densities
 *
 ** Normal SA gradient (no NAC)
 *
-C      call dcopy_(12*12,0.0d+00,0,work(ipd_k),1)
-C        write (*,*) "orbital density"
-C        call sqprt(work(ipd_k),12)
-C        write (*,*) "CI density"
-C        call sqprt(work(ipd_ci),5)
          Do is=1,nSym
           Do i=1,nish(is)
 c
@@ -535,15 +547,11 @@ c
 C
          If (PT2) Then
            !! Add PT2 density (in MO)
-C          write (*,*) "mo density before PT2"
-C          call sqprt(work(ipd_k),nbas(1))
-C     write (*,*) "dpt2?"
            Do iSym = 1, nSym
              nBasI = nBas(iSym)
              Do iI = 1, nBasI
                Do iJ = 1, nBasI
                  Read(LuPT2,*) Val
-C         write (*,*) "val = ", val
                  Work(ipD_K+ipMat(iSym,iSym)-1+iI-1+(iJ-1)*nBasI)
      *         = Work(ipD_K+ipMat(iSym,iSym)-1+iI-1+(iJ-1)*nBasI)
      *         + Val
@@ -554,13 +562,11 @@ C         write (*,*) "val = ", val
            !! This density couples with inactive orbitals only,
            !! while the above PT2 density couples with inactive+active
            !! orbitals.
-C     write (*,*) "dpt2c?"
            Do iSym = 1, nSym
              nBasI = nBas(iSym)
              Do iI = 1, nBasI
                Do iJ = 1, nBasI
                  Read(LuPT2,*) Val
-C         write (*,*) "val = ", val
                  Work(ipD_K+ipMat(iSym,iSym)-1+iI-1+(iJ-1)*nBasI)
      *         = Work(ipD_K+ipMat(iSym,iSym)-1+iI-1+(iJ-1)*nBasI)
      *         + Val*0.25d+00
@@ -570,8 +576,6 @@ C         write (*,*) "val = ", val
                End Do
              End Do
            End Do
-C        write (*,*) "mo density after PT2"
-C        call sqprt(work(ipd_k),nbas(1))
          End If
 c
 c Diagonalize the effective density to be able to use Prpt
@@ -579,37 +583,11 @@ c ipO eigenvalues of eff dens
 c ipCMON eigenvectors (new orb coef)
 c
          Call Getmem('TMP', 'ALLO','Real',ipT,nBuf/2)
-C        write (*,*) "mo density"
-C        call sqprt(work(ipd_k),12)
-C        write (*,*) "ipcmo before natorb"
-C        call sqprt(work(ipcmo),12)
          Call NatOrb(Work(ipD_K),Work(ipCMO),Work(ipCMON),Work(ipO))
-C        write (*,*) "ipcmo after natorb"
-C        call sqprt(work(ipcmo),12)
-C        write (*,*) "ipcmon after natorb"
-C        call sqprt(work(ipcmon),12)
          Call dmat_MCLR(Work(ipCMON),Work(ipO),Work(ipT))
-C        call prtril(work(ipg1q),5)
-C        write (*,*) "density"
-C        call prtril(work(ipt),12,1)
-C        If (PT2) Then
-C          !! Add PT2 density (already transformed to AO)
-C          !  First, DPT2AO
-C          Do i = 1, nTot1
-C            Read (LuPT2,*) Val
-C            Work(ipT+i-1) = Work(ipT+i-1) + Val
-C          End Do
-C          !  Second, DPT2CAO
-C          Do i = 1, nTot1
-C            Read (LuPT2,*) Val
-C            Work(ipT+i-1) = Work(ipT+i-1) + Val
-C          End Do
-C        End If
-C        write (*,*) "variational density"
-C        call prtril(work(ipt),12,1)
          Call Put_D1ao_Var(Work(ipT),nTot1)
-         !! What use?
          Call Getmem('TMP', 'FREE','Real',ipT,nBuf/2)
+
          Call get_D1MO(ipT,nTot1)
          Call get_DLMO(ipTt,nTot1)
          Call DaxPy_(nTot1,1.0d0,Work(ipTt),1,Work(ipT),1)

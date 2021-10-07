@@ -33,40 +33,30 @@
 #include "detdim.fh"
 #include "csfbas_mclr.fh"
 #endif
-C     #include "caspt2.fh"
       Real*8 rKappa(*),CLag(*),SLag(*)
       Half=0.5d0
 
 *
 *     Read in a and b part of effective gradient from CASPT2
 *
-C     write(6,*) "Lugamma = ", lugamma
       nOLag = 0
       nCLag = 0
       DO i = 1, nSym
         nOLag = nOLag + nOrb(i)*nOrb(i)
         nCLag = nCLag + nRoots*nCSF(i)
       END DO
-      nSLag = nRoots*(nRoots-1)/2
-C     Call Get_dArray('CLAG',Work(ipCLag),nClag)
-C          LUTMP = 88
-           Do i = 1, nCLag
-             Read (LUPT2,*,END=200) CLag(i)
-           End Do
-           Do i = 1, nOLag
-             Read (LUPT2,*,END=200) tmp ! rKappa(i)
-             rKappa(i) = rKappa(i) + tmp
-           End Do
-           Do i = 1, nSLag
-             Read (LUPT2,*,END=200) SLag(i)
-           End Do
-C       call sqprt(rkappa,12)
-C       call dscal_(nclag,-2.00d+00,clag,1)
-C       call dcopy_(nclag,0.0d+00,0,clag,1)
-C       call dcopy_(nolag,0.0d+00,0,rKappa,1)
-C       call dcopy_(nslag,0.0d+00,0,slag,1)
-C       call dcopy_(nclag,clag,1,clag2,1)
-C     Call Get_dArray('SLAG',Work(ipSLag),nSlag)
+      nSLag = nRoots*nRoots
+C
+      Do i = 1, nCLag
+        Read (LUPT2,*,END=200) CLag(i)
+      End Do
+      Do i = 1, nOLag
+        Read (LUPT2,*,END=200) tmp ! rKappa(i)
+        rKappa(i) = rKappa(i) + tmp
+      End Do
+      Do i = 1, nSLag
+        Read (LUPT2,*,END=200) SLag(i)
+      End Do
 
       return
 

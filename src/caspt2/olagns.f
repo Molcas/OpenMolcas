@@ -155,20 +155,12 @@ C
         nISP = nISup(iSym,iCase)
         If (nINP.ne.0) Then
           nVec = nINP*nISP
-          If (nVec.ne.0) Then
-            Call RHS_ALLO(nINP,nISP,ipTP)
-            Call RHS_READ_SR(ipTP,iCase,iSym,iVec)
-          End If
         End If
         nINM = nINDEP(iSym,iCase+1)
         nASM = nASup(iSym,iCase+1)
         nISM = nISup(iSym,iCase+1)
         If (nINM.ne.0) Then
           nVec = nINM*nISM
-          If (nVec.ne.0) Then
-            Call RHS_ALLO(nINM,nISM,ipTM)
-            Call RHS_READ_SR(ipTM,iCase+1,iSym,iVec)
-          End If
         End If
         If (nASP*nISP.ne.0) Then
           Call RHS_ALLO(nASP,nISP,ipTCP)
@@ -184,10 +176,6 @@ C
         nIS = nISup(iSym,iCase)
         If (nIN.ne.0) Then
           nVec = nIN*nIS
-          If (nVec.ne.0) Then
-            Call RHS_ALLO(nIN,nIS,ipT)
-            Call RHS_READ_SR(ipT,iCase,iSym,iVec)
-          End If
         End If
         If (nAS*nIS.ne.0) Then
           Call RHS_ALLO(nAS,nIS,ipTC)
@@ -293,12 +281,9 @@ C
 C
 C   1 CONTINUE
       If (PM) Then
-        If (nINP*nISP.ne.0) CALL RHS_FREE(nINP,nISP,ipTP)
-        If (nINM*nISM.ne.0) CALL RHS_FREE(nINM,nISM,ipTM)
         If (nASP*nISP.ne.0) Call RHS_FREE(nASP,nISP,ipTCP)
         If (nASM*nISM.ne.0) Call RHS_FREE(nASM,nISM,ipTCM)
       Else
-        If (nIN*nIS.ne.0) CALL RHS_FREE(nIN,nIS,ipT)
         If (nAS*nIS.ne.0) Call RHS_FREE(nAS,nIS,ipTC)
       End If
 C
@@ -1027,14 +1012,14 @@ C
               iVaHP = kAgeB(iAabs,iBabs) - nAgeBes(iSym)
               iVHP  = iVaHP + iViHP !! nAgeB(iSym)*(iViP-1)
 C
-              ValHP = Work(ipTP+iVHP-1)
+              ValHP = Work(ipTCP+iVHP-1)
               ValHM = 0.0D+00
               If (iIabs.ne.iJabs) Then
                 If (iAabs.ne.iBabs) Then
                   ValHP = ValHP * 2.0D+00
                   iVaHM = kAgtB(iAabs,iBabs) - nAgtBes(iSym)
                   iVHM  = iVaHM + iViHM !! nAgtB(iSym)*(iViM-1)
-                  ValHM = Work(ipTM+iVHM-1) * 2.0D+00*SQ3
+                  ValHM = Work(ipTCM+iVHM-1) * 2.0D+00*SQ3
                 Else
                   ValHP = ValHP * SQ2
                 End If

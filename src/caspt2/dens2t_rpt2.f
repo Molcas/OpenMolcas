@@ -129,7 +129,7 @@ C         LTU=LTU+1
           NSGM=NCSF(ISSG)
 C         IF(NSGM.EQ.0) GOTO 130
           IF(NSGM.EQ.0) GOTO 500
-          CALL GETSGM2(LT,LU,LSYM,CI1,SGM1)
+C         CALL GETSGM2(LT,LU,LSYM,CI1,SGM1)
 C         write(6,*) "LT,LU=",lt,lu
 C         do ix = 1, nsgm
 C         write(6,'(i3,f20.10)') ix,sgm1(ix)

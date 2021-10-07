@@ -31,16 +31,16 @@ C     real*8 df2bk(nlev,nlev,nlev,nlev)
       INTEGER IT,IU,IV,IX,IY,IZ
       INTEGER ITLEV,IULEV,IVLEV,IXLEV,IYLEV,IZLEV
       INTEGER LBUF1,LBUF2,LBUFD,LBUFT,LBUF3,LBUF4,LBUF5,LBUF6,LBUFE,
-     *        LBUFA
+     *        LBUFF,LBUFA,LBUFB
       INTEGER NBUF1,NBUF2,NBUFD,NBUFT,NBUF3,NBUF4,NBUF5,NBUF6,NBUFE,
-     *        NBUFA
+     *        NBUFF,NBUFA,NBUFB
       INTEGER LIBUF1,LIP1STA,LIP1END,LOFFSET,IOFFSET
       INTEGER ISSG1,ISSG2,ISP1
       INTEGER ITASK,ISUBTASK,ID,NTASKS,NSUBTASKS,
      &        LTASK_LIST,MXTASK,MYTASK,MYBUFFER
       INTEGER NSGM1,NSGM2
       INTEGER NTRI1,NTRI2
-      INTEGER L1,LTO,LFROM
+      INTEGER L,L1,LTO,LFROM
       INTEGER MEMMAX, MEMMAX_SAFE
       INTEGER NLEV2
       INTEGER LDUM,NDUM
@@ -498,8 +498,11 @@ C
       nbuft= 1
       nbufd= 1
       nbufe= 1
-      nbuf1=max(1,min(nlev2,(memmax_safe-8*mxci)/mxci/2))
-      nbufa=max(1,min(nlev2,(memmax_safe-8*mxci)/mxci/2))
+      nbuff= nasht*nasht
+      !! still thinking how to implement
+      nbuf1=max(1,min(nlev2,(memmax_safe-(8+nasht)*mxci)/mxci/3))
+      nbufa=max(1,min(nlev2,(memmax_safe-(8+nasht)*mxci)/mxci/3))
+      nbufb=max(1,min(nlev2,(memmax_safe-(8+nasht)*mxci)/mxci/3))
       if (nbufa.ne.nlev2) then
         write(6,*) "nlev2.ne.nbufa..."
         write(6,*) "need more memory?"
@@ -514,7 +517,10 @@ C
       CALL GETMEM('BUFT','ALLO','REAL',LBUFT,NBUFT*MXCI)
       CALL GETMEM('BUFD','ALLO','REAL',LBUFD,NBUFD*MXCI)
       CALL GETMEM('BUFE','ALLO','REAL',LBUFE,NBUFE*MXCI)
+      CALL GETMEM('BUFF','ALLO','REAL',LBUFF,NBUFF*MXCI)
       CALL GETMEM('BUFA','ALLO','REAL',LBUFA,NBUFA*MXCI)
+      CALL GETMEM('BUFB','ALLO','REAL',LBUFB,NBUFB*MXCI)
+      Call DCopy_(MXCI*NBUFB,[0.0D+00],0,Work(LBUFB),1)
 
       !! For the derivative of the Fock-contracted portion
 C     CALL GETMEM('FCDER1','ALLO','REAL',LFCDer1,NBUFD*MXCI)
@@ -916,10 +922,12 @@ C
           End If
 C
           !! Complete the left derivative
-          CALL SIGMA1_CP2(ITLEV,IULEV,1.0D+00,LSYM,Work(LBUFT),CLAG,
-     &         IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-     &         IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &         WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+          ibuf = LBUFB + MXCI*(ITLEV-1+NLEV*(IULEV-1))
+          Call DaXpY_(nsgm1,1.0d+00,Work(LBUFT),1,Work(ibuf),1)
+C         CALL SIGMA1_CP2(ITLEV,IULEV,1.0D+00,LSYM,Work(LBUFT),CLAG,
+C    &         IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
+C    &         IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
+C    &         WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
           If (RASSPE) Then
             If (iY.GT.iZ) Then
             CALL SIGMA1_CP2(IYLEV,IZLEV,1.0D+00,LSYM,Work(LBUFE),CLAG,
@@ -1031,10 +1039,12 @@ C
                 End Do
               End If
             End If
-            CALL SIGMA1_CP2(IULEV,ITLEV,1.0D+00,LSYM,Work(LBUFT),CLAG,
-     &           IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-     &           IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &           WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+            ibuf = LBUFB + MXCI*(IULEV-1+NLEV*(ITLEV-1))
+            Call DaXpY_(nsgm1,1.0d+00,Work(LBUFT),1,Work(ibuf),1)
+C           CALL SIGMA1_CP2(IULEV,ITLEV,1.0D+00,LSYM,Work(LBUFT),CLAG,
+C    &           IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
+C    &           IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
+C    &           WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
             !! right derivative of EutEyz and EutEzy
             !! <0|EutEyz|I> = <I|EzyEtu|0>
             !! For special RAS, EzyEtu = EtuEzy
@@ -1099,15 +1109,19 @@ C           end do
 C           F2(it,iu,iy,iz)=F2sum
 C         END IF
         end do
-        CALL SIGMA1_CP2(IZLEV,IYLEV,1.0D00,LSYM,WORK(LBUF3),CLAG,
-     &       IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-     &       IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &       WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+        ibuf = LBUFB + MXCI*(IZLEV-1+NLEV*(IYLEV-1))
+        Call DaXpY_(nsgm1,1.0d+00,Work(LBUF3),1,Work(ibuf),1)
+C       CALL SIGMA1_CP2(IZLEV,IYLEV,1.0D00,LSYM,WORK(LBUF3),CLAG,
+C    &       IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
+C    &       IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
+C    &       WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
         If (IYLEV.NE.IZLEV) Then
-          CALL SIGMA1_CP2(IYLEV,IZLEV,1.0D00,LSYM,WORK(LBUF5),CLAG,
-     &         IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-     &         IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &         WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+          ibuf = LBUFB + MXCI*(IYLEV-1+NLEV*(IZLEV-1))
+          Call DaXpY_(nsgm1,1.0d+00,Work(LBUF5),1,Work(ibuf),1)
+C         CALL SIGMA1_CP2(IYLEV,IZLEV,1.0D00,LSYM,WORK(LBUF5),CLAG,
+C    &         IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
+C    &         IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
+C    &         WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
         End If
       end if
       nbtot=0
@@ -1121,6 +1135,18 @@ C
 C
       !! Work(LBUF4) is the temporary storage for <I|ExvEut|0>*Dtuvxyz
       call dcopy_(nsgm1,[0.0D0],0,work(lbuf4),1)
+        !! Prepare for DEPSA for the -epsa(iv) term with square
+        lfrom=lbuf2
+        Do ialev = 1, nlev
+        Do iblev = 1, nlev
+          L = LBUFF + MXCI*(IALEV-1+NLEV*(IBLEV-1))
+          Call DCopy_(nsgm1,[0.0D0],0,Work(L),1)
+          CALL SIGMA1_CP2(IALEV,IBLEV,1.0D+00,LSYM,Work(LFROM),Work(L),
+     &         IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
+     &         IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
+     &         WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+        End Do
+        End Do
       do ip2=ip3,ntri2
         ivlev=idx2ij(1,ip2)
         ixlev=idx2ij(2,ip2)
@@ -1132,10 +1158,15 @@ C
         lto=lbuft
         call dcopy_(nsgm1,[0.0D0],0,work(lto),1)
         !! <0|E_{vx}E_{yz}|I>
+        If (.true.) Then
+          L = LBUFF + MXCI*(IVLEV-1+NLEV*(IXLEV-1))
+          Call DCopy_(nsgm1,Work(L),1,Work(LTO),1)
+        Else
         CALL SIGMA1_CP2(IVLEV,IXLEV,1.0D00,ISSG2,WORK(LFROM),WORK(LTO),
      &       IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
      &       IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
      &       WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+        End If
 *-----------
 * Max and min values of index p1:
         ip1mx=ntri2
@@ -1185,32 +1216,52 @@ C         idxG3(6,iG3)=int(iZ,I1)
 C
           !! left derivative
           !! <I|EtuEvxEyz|0>
+          ibuf = lbufb + mxci*(itlev-1+nlev*(iulev-1))
           Do icsf=1,nsgm1
-            work(lbuf5-1+icsf)=
-     &        DG3(iG3)*work(lbuft-1+icsf)
+            work(ibuf-1+icsf)=work(ibuf-1+icsf)
+     &      + DG3(iG3)*work(lbuft-1+icsf)
      &      + DF3(iG3)*(work(lbufd-1+icsf)-epsa(iv))*work(lbuft-1+icsf)
           End Do
-          CALL SIGMA1_CP2(ITLEV,IULEV,1.0D+00,LSYM,WORK(LBUF5),CLAG,
-     &         IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-     &         IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &         WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+C         CALL SIGMA1_CP2(ITLEV,IULEV,1.0D+00,LSYM,WORK(LBUF5),CLAG,
+C    &         IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
+C    &         IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
+C    &         WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
           !! right derivative (1): just construct <I|Eut|0>*Dtuvxyz
           !! <0|EtuEvxEyz|I> -> <I|EzyExvEut|0>
           If (idx.ge.ip1sta.and.idx.le.ip1end) Then
             ibuf = lbuf1+mxci*(idx-ip1sta)
-            Call DCopy_(nsgm1,Work(ibuf),1,Work(LBUF5),1)
+C           Call DCopy_(nsgm1,Work(ibuf),1,Work(LBUF5),1)
+          Do icsf=1,nsgm1
+            Work(lbuf3-1+icsf)=work(lbuf3-1+icsf)
+     &       + DG3(iG3)*work(ibuf-1+icsf)
+     &       + DF3(iG3)*(work(lbufd-1+icsf)-epsa(iv))*work(ibuf-1+icsf)
+          End Do
+          !! DEPSA for the -EPSA(iv) term
+          Do IALEV = 1, NLEV
+            !! matrix format
+            L = LBUFF + MXCI*(IALEV-1+NLEV*(IXLEV-1))
+            DEPSA(IALEV,IVLEV) = DEPSA(IALEV,IVLEV)
+     *        - DDot_(nsgm1,Work(ibuf),1,Work(L),1)*DF3(iG3)
+          End Do
           Else
             Call DCopy_(nsgm1,[0.0D0],0,Work(LBUF5),1)
             CALL SIGMA1_CP2(IULEV,ITLEV,1.0D+00,LSYM,CI,WORK(LBUF5),
      &           IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
      &           IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
      &           WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
-          End If
-          Do icsf=1,nsgm1
-            Work(lbuf3-1+icsf)=work(lbuf3-1+icsf)
-     &       + DG3(iG3)*work(LBUF5-1+icsf)
+            Do icsf=1,nsgm1
+              Work(lbuf3-1+icsf)=work(lbuf3-1+icsf)
+     &         + DG3(iG3)*work(LBUF5-1+icsf)
      &       + DF3(iG3)*(work(lbufd-1+icsf)-epsa(iv))*work(lbuf5-1+icsf)
+            End Do
+          !! DEPSA for the -EPSA(iv) term
+          Do IALEV = 1, NLEV
+            !! matrix format
+            L = LBUFF + MXCI*(IALEV-1+NLEV*(IXLEV-1))
+            DEPSA(IALEV,IVLEV) = DEPSA(IALEV,IVLEV)
+     *        - DDot_(nsgm1,Work(LBUF5),1,Work(L),1)*DF3(iG3)
           End Do
+          End If
           !! DEPSA for the Work(LBUFD) term
           ibuf = lbufa + mxci*(itlev-1+nlev*(iulev-1))
           Call DaXpY_(nsgm1,DF3(iG3),Work(LBUFT),1,Work(ibuf),1)
@@ -1222,31 +1273,31 @@ C
      &      WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
 C
         !! DEPSA for the -epsa(iv) term
-        do ialev = 1, nlev
-            Call DCopy_(nsgm1,[0.0D0],0,Work(LBUFE),1)
-       CALL SIGMA1_CP2(IALEV,IXLEV,1.0D+00,LSYM,Work(LFROM),Work(LBUFE),
-     &      IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-     &      IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &      WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
-          do ib = 1, nb
-            iG3=iG3OFF+ib
-            idx=ip1_buf(ibmn-1+ib)
-            itlev=idx2ij(1,idx)
-            iulev=idx2ij(2,idx)
-            if (idx.ge.ip1sta.and.idx.le.ip1end) then
-              ibuf = lbuf1+mxci*(idx-ip1sta)
-            else
-              ibuf = lbuf5
-              Call DCopy_(nsgm1,[0.0D0],0,Work(LBUF5),1)
-              CALL SIGMA1_CP2(IULEV,ITLEV,1.0D+00,LSYM,CI,WORK(LBUF5),
-     &             IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-     &             IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &             WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
-            end if
-            DEPSA(IALEV,IVLEV) = DEPSA(IALEV,IVLEV)
-     *        - DDot_(nsgm1,Work(ibuf),1,Work(LBUFE),1)*DF3(iG3)
-          end do
-        end do
+      ! do ialev = 1, nlev
+      !     Call DCopy_(nsgm1,[0.0D0],0,Work(LBUFE),1)
+      !CALL SIGMA1_CP2(IALEV,IXLEV,1.0D+00,LSYM,Work(LFROM),Work(LBUFE),
+     &!     IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
+     &!     IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
+     &!     WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+      !   do ib = 1, nb
+      !     iG3=iG3OFF+ib
+      !     idx=ip1_buf(ibmn-1+ib)
+      !     itlev=idx2ij(1,idx)
+      !     iulev=idx2ij(2,idx)
+      !     if (idx.ge.ip1sta.and.idx.le.ip1end) then
+      !       ibuf = lbuf1+mxci*(idx-ip1sta)
+      !     else
+      !       ibuf = lbuf5
+      !       Call DCopy_(nsgm1,[0.0D0],0,Work(LBUF5),1)
+      !       CALL SIGMA1_CP2(IULEV,ITLEV,1.0D+00,LSYM,CI,WORK(LBUF5),
+     &!            IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
+     &!            IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
+     &!            WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+      !     end if
+      !     DEPSA(IALEV,IVLEV) = DEPSA(IALEV,IVLEV)
+     *!       - DDot_(nsgm1,Work(ibuf),1,Work(LBUFE),1)*DF3(iG3)
+      !   end do
+      ! end do
 C       IF(IFF.ne.0) THEN
 * Elementwise multiplication of Tau with H0 diagonal - EPSA(IV):
 C         do icsf=1,nsgm1
@@ -1263,10 +1314,12 @@ C       END IF
  99     continue
       end do
       !! right derivative (3): finally, <I|EzyExvEut|0>*Dtuvxyz
-      CALL SIGMA1_CP2(IZLEV,IYLEV,1.0D+00,LSYM,WORK(LBUF4),CLAG,
-     &     IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-     &     IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &     WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+      ibuf = LBUFB + MXCI*(IZLEV-1+NLEV*(IYLEV-1))
+      Call DaXpY_(nsgm1,1.0d+00,Work(LBUF4),1,Work(ibuf),1)
+C     CALL SIGMA1_CP2(IZLEV,IYLEV,1.0D+00,LSYM,WORK(LBUF4),CLAG,
+C    &     IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
+C    &     IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
+C    &     WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
 C     CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
 C     CPUT =CPTF10-CPTF0
 C     WALLT=TIOTF10-TIOTF0
@@ -1321,6 +1374,16 @@ C     CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
           Call DCopy_(nsgm1,Work(LBUF5),1,Work(IBUF),1)
         End Do
       End Do
+      !! left derivative of DG3 and DF3
+      Do ITLEV = 1, NLEV
+        DO IULEV = 1, NLEV
+          IBUF = LBUFB + MXCI*(ITLEV-1+NLEV*(IULEV-1))
+          CALL SIGMA1_CP2(ITLEV,IULEV,1.0D+00,LSYM,WORK(IBUF),CLAG,
+     &      IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
+     &      IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
+     &      WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+        End Do
+      End Do
 C     CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
 C     CPUT =CPTF10-CPTF0
 C     WALLT=TIOTF10-TIOTF0
@@ -1358,7 +1421,9 @@ C
       CALL GETMEM('BUFT','FREE','REAL',LBUFT,NBUFT*MXCI)
       CALL GETMEM('BUFD','FREE','REAL',LBUFD,NBUFD*MXCI)
       CALL GETMEM('BUFE','FREE','REAL',LBUFE,NBUFE*MXCI)
+      CALL GETMEM('BUFF','FREE','REAL',LBUFF,NBUFF*MXCI)
       CALL GETMEM('BUFA','FREE','REAL',LBUFA,NBUFA*MXCI)
+      CALL GETMEM('BUFB','FREE','REAL',LBUFB,NBUFB*MXCI)
 C
 C     CALL GETMEM('FCDER1','FREE','REAL',LFCDer1,NBUFD*MXCI)
 C     CALL GETMEM('FCDER2','FREE','REAL',LFCDer2,NLEV*NLEV)

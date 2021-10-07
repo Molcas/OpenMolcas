@@ -16,7 +16,7 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE PRPCTL
+      SUBROUTINE PRPCTL(UEFF)
       USE PT2WFN
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -35,6 +35,7 @@
       Character(80) Note
       Integer IndType(56)
       Real*8 Dummy(2),DUM(1)
+      Dimension UEFF(*)
 
       CALL QENTER('PRPCTL')
 
@@ -94,7 +95,7 @@ C This density matrix may be approximated in several ways, see DENS.
       CALL DCOPY_(NDMAT,[0.0D0],0,WORK(LDMAT),1)
       CALL GETMEM('LISTS','ALLO','INTE',LLISTS,NLSTOT)
       CALL MKLIST(iWORK(LLISTS))
-      CALL DENS(IVECX,IVECR,WORK(LDMAT))
+      CALL DENS(IVECX,WORK(LDMAT),UEFF)
       CALL GETMEM('LISTS','FREE','INTE',LLISTS,NLSTOT)
 
 C Compute natural orbitals of CASPT2 wave function.

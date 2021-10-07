@@ -192,16 +192,17 @@ C
       nConfR=Max(nconf1,nint(xispsm(1,1)))
       Call GetMem('CIL','ALLO','REAL',ipL,nConfL)
       Call GetMem('CIR','ALLO','REAL',ipR,nConfR)
-      iSLag = 0
-      Do iR = 1, nRoots
-        Do jR = 1, iR-1
-          iSLag = iSLag + 1
-          !! Treatment for equal-weighted combination
-          vSLag =  SLag(iSLag)/(ERASSCF(jR)-ERASSCF(iR))
-          If (abs(vSLag).le.1.0d-12) Cycle
-          Call CSF2SD(Work(ipIn(ipCI)+(iR-1)*nconf1),Work(ipL),1)
+      !! iR = iRLXRoot
+      Do jR = 1, nRoots
+        Call CSF2SD(Work(ipIn(ipCI)+(jR-1)*nconf1),Work(ipL),1)
+        Do kR = 1, jR !! jR-1
+          iSLag = jR + nRoots*(kR-1)
+          vSLag = SLag(iSLag)
+          If (abs(vSLag).le.1.0d-10) Cycle
+C
+          Call CSF2SD(Work(ipIn(ipCI)+(jR-1)*nconf1),Work(ipL),1)
           iRC=opout(ipCI)
-          Call CSF2SD(Work(ipIn(ipCI)+(jR-1)*nconf1),Work(ipR),1)
+          Call CSF2SD(Work(ipIn(ipCI)+(kR-1)*nconf1),Work(ipR),1)
           iRC=opout(ipCI)
           iRC=ipnout(-1)
           icsm=1

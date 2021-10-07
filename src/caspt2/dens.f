@@ -16,7 +16,7 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE DENS(IVEC,JVEC,DMAT)
+      SUBROUTINE DENS(IVEC,DMAT,UEFF)
 C
       USE CHOVEC_IO
 C
@@ -36,27 +36,22 @@ C
 #include "pt2_guga.fh"
 C
 #include "chocaspt2.fh"
-      DIMENSION DMAT(*)
-      Logical   INVAR
+      DIMENSION DMAT(*),UEFF(nState,nState)
       Character*4096 RealName
+      Dimension VECROT(nStLag)
+
 
       CALL QENTER('DENS')
 C
       IF (IFGRDT) THEN
-        !! CASPT2 is invariant with respect to rotations in active?
-        INVAR=.TRUE.
-        If (BSHIFT.NE.0.0d+00) INVAR=.FALSE.
-        IF (.not.IFINVAR)      INVAR=.FALSE.
-C
-        If (.not.INVAR .and. IPRGLB.GE.USUAL) Then
-          Write (6,*)
-          Write (6,'(3X,"This is a non-invariant CASPT2 calculation")')
-          If (BSHIFT.NE.0.0D+00)
-     *      Write (6,'(3X,"- IPEA shift is employed")')
-          Write (6,'(3X,"A linear equation will be solved to obtain ",
-     *                  "off-diagonal active density")')
-          Write (6,*)
+        !! Print out some information for the first time only
+        If (iStpGrd.eq.nStpGrd) Then
+          If (.not.IFMSCOUP.or.(IFMSCOUP.and.jState.eq.1))
+     *      Call GradStart
         End If
+        !! Set indices for densities and partial derivatives
+        Call GradPrep(UEFF,VECROT)
+C
 C Compute total density matrix as symmetry-blocked array of
 C triangular matrices in DMAT. Size of a triangular submatrix is
 C  (NORB(ISYM)*(NORB(ISYM)+1))/2.
@@ -111,12 +106,18 @@ C
         !! obtained by a direct summation only if CASPT2-D.
         !! iVecX remains unchanged (iVecX = T)
         !! iVecR will be 2\lambda
-        Call CASPT2_Res
+
+        !! For MS-CASPT2, calling this subroutine is required.
+        !! The lambda-equation is solved without iteration only when
+        !! MS-CASPT2-D (shift?). Otherwise, solved iteratively.
+        !! After this subroutine, iVecR has multi-state weighted (?)
+        !! contributions.
+        Call CASPT2_Res(VECROT)
 C
 C
 C
         !! Diagonal part
-        CALL TRDNS2D(IVEC,JVEC,WORK(LDPT),NDPT)
+        CALL TRDNS2D(iVecX,iVecR,WORK(LDPT),NDPT,VECROT(JSTATE))
         CALL DAXPY_(NDPT,1.0D00,WORK(LDPT),1,WORK(LDSUM),1)
 *       write(6,*)' DPT after TRDNS2D.'
 *       WRITE(*,'(1x,8f16.8)')(work(ldpt-1+i),i=1,ndpt)
@@ -124,28 +125,11 @@ C
         IF (MAXIT.NE.0) THEN
           !! off-diagonal are ignored for CASPT2-D
           CALL DCOPY_(NDPT,[0.0D0],0,WORK(LDPT),1)
-          CALL TRDNS2O(iVecX,iVecR,WORK(LDPT))
+          CALL TRDNS2O(iVecX,iVecR,WORK(LDPT),VECROT(JSTATE))
           CALL DAXPY_(NDPT,1.0D00,WORK(LDPT),1,WORK(LDSUM),1)
         END IF
 *       write(6,*)' DPT after TRDNS2O.'
 *       WRITE(*,'(1x,8f16.8)')(work(ldpt-1+i),i=1,ndpt)
-C
-        IF (.not.IFSADREF.and.nState.ge.2) Then
-          write(6,*)
-     *      "Please add SADREF keyword in CASPT2 section",
-     *      "This keyword is recommended with state-averaged reference"
-C         call abend
-        End If
-        IF (.not.IFDORTHO.and.BSHIFT.ne.0.0D+00) Then
-          write(6,*)
-     *      "It seems that DORT keyword is not used, ",
-     *      "even though this calculation uses the IPEA shift"
-          write(6,*)
-     *      "Sometimes, analytic gradients do not agree ",
-     *      "with numerical gradients"
-          write(6,*)
-     *      "(which are correct?)"
-        End If
 C
         !! D^PT in MO
         CALL GETMEM('DPT   ','ALLO','REAL',ipDPT   ,nDPTAO)
@@ -173,8 +157,8 @@ C
         CALL GETMEM('WRK1  ','ALLO','REAL',ipWRK1  ,Max(nBasT**2,nch))
         CALL GETMEM('WRK2  ','ALLO','REAL',ipWRK2  ,Max(nBasT**2,nch))
         !! FIFA and FIMO (due to frozen orbitals)
-        CALL GETMEM('FIFA  ','ALLO','REAL',ipFIFA  ,nBsqT)
-        CALL GETMEM('FIMO  ','ALLO','REAL',ipFIMO  ,nBsqT)
+C       CALL GETMEM('FIFA  ','ALLO','REAL',ipFIFA  ,nBsqT)
+C       CALL GETMEM('FIMO  ','ALLO','REAL',ipFIMO  ,nBsqT)
         !! state-averaged density
         CALL GETMEM('RDMSA ','ALLO','REAL',ipRDMSA ,nAshT*nAshT)
         !! Derivative of state-averaged density
@@ -190,14 +174,24 @@ C
         Call DCopy_(nDPTAO,[0.0D+00],0,Work(ipFPTC),1)
         Call DCopy_(nDPTAO,[0.0D+00],0,Work(ipFPTAO),1)
         Call DCopy_(nDPTAO,[0.0D+00],0,Work(ipFPTCAO),1)
+        If (.not.IfChol) Then
         Call DCopy_(nBsqT ,[0.0D+00],0,Work(ipFIFA),1)
         Call DCopy_(nBsqT ,[0.0D+00],0,Work(ipFIMO),1)
+        End If
         Call DCopy_(nAshT*nAshT,[0.0D+00],0,Work(ipRDMSA),1)
         Call DCopy_(nAshT*nAshT,[0.0D+00],0,Work(ipRDMEIG),1)
+C
+        Call DCopy_(nCLag,[0.0D+00],0,Work(ipCLag),1)
+        Call DCopy_(nOLag,[0.0D+00],0,Work(ipOLag),1)
 C
         If (nFroT.ne.0) Then
           CALL GETMEM('DIA   ','ALLO','REAL',ipDIA ,nBsqT)
           CALL GETMEM('DI    ','ALLO','REAL',ipDI  ,nBsqT)
+        End If
+C
+        If (isCSF) Then
+          CALL GETMEM('DPTCanti','ALLO','REAL',ipDPTCanti,nDPTAO)
+          Call DCopy_(nDPTAO,[0.0d+00],0,Work(ipDPTCanti),1)
         End If
 C
         !! Work(LDPT) -> Work(ipDPT2)
@@ -225,15 +219,14 @@ C
         !! Construct state-averaged density matrix
         Call DCopy_(nDRef,[0.0D+00],0,Work(ipWRK1),1)
         Do iState = 1, nState
-          If (IFSADREF) Then
-C           Wgt  = Work(LDWgt+iState-1+nState*(iState-1))
+          If (.not.IFSSDM) Then
             Wgt  = 1.0D+00/nState
-            Call DaXpY_(nDRef,Wgt,Work(LDMix+nDRef*(iState-1)),1,
-     *                  Work(ipWRK1),1)
-          Else If (iState.eq.jState) Then
-            Call DaXpY_(nDRef,1.0D+00,Work(LDMix+nDRef*(iState-1)),1,
-     *                  Work(ipWRK1),1)
+          Else
+            Wgt = Work(LDWgt+iState-1+nState*(jState-1))
           End If
+          If (abs(Wgt).le.1.0D-09) Cycle
+          Call DaXpY_(nDRef,Wgt,Work(LDMix+nDRef*(iState-1)),1,
+     *                Work(ipWRK1),1)
         End Do
         Call SQUARE(Work(ipWRK1),Work(ipRDMSA),1,nAshT,nAshT)
 C       write(6,*) "state-averaged density matrix"
@@ -243,12 +236,12 @@ C       ----- Construct configuration Lagrangian -----
 C
         !! For CI coefficient derivatives (CLag)
         !! Calculate the configuration Lagrangian
-        !! Already transformed to natural (CASSCF) orbital basis
+        !! This is done in the quasi-canonical basis
         CALL GETMEM('DEPSA ','ALLO','REAL',ipDEPSA,nAshT*nAshT)
         Call DCopy_(nAshT*nAshT,[0.0D+00],0,Work(ipDEPSA),1)
         !! Derivative of off-diagonal H0 of <Psi1|H0|Psi1>
-        IF (MAXIT.NE.0) Call SIGDER(iVecX,iVecR)
-        Call CLagX(1,Work(ipCLag),Work(ipTRF),Work(ipDEPSA))
+        IF (MAXIT.NE.0) Call SIGDER(iVecX,iVecR,VECROT(jState))
+        Call CLagX(1,Work(ipCLag),Work(ipTRF),Work(ipDEPSA),VECROT)
 C       call test3_dens(work(ipclag))
         write(6,*) "original depsa"
         call sqprt(work(ipdepsa),nasht)
@@ -286,6 +279,22 @@ C
           call sqprt(work(ipdepsa),nasht)
         End If
 C
+        !! Configuration Lagrangian for MS-CASPT2
+        !! This is the partial derivative of the transition reduced
+        !! density matrices
+        If (IFMSCOUP) Then
+          CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
+          Call DerHEff(Work(ipCLag),VECROT)
+          CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
+          CPUT =CPTF10-CPTF0
+          WALLT=TIOTF10-TIOTF0
+          write(6,*) "DerHEff: CPU/WALL TIME=", cput,wallt
+        End If
+C
+        !! I need to add the derivative of the effective Hamiltonian
+        !! for MS-CASPT2, but this is done after orbital Lagrangian.
+        !! I just have to have IVECC = T + lambda.
+C
         !! If CASPT2 energy is not invariant to rotations in active
         !! orbitals, off-diagonal elements of the density obtained
         !! as DEPSA is incorrect, so remove them. The true density
@@ -302,9 +311,43 @@ C       call sqprt(work(ipdepsa),nasht)
 C
         !! Transform the quasi-variational amplitude (T+\lambda/2?)
         !! in SR (iVecX) to C (iVecC2)
-        If (SHIFT.ne.0.0D+00.or.SHIFTI.ne.0.0D+00) Then
-          CALL PTRTOC(1,iVecX,iVecC2)
+        !! Note that the contribution is multiplied by two
+        !! somewhere else (maybe in olagns?)
+        If (SHIFT.ne.0.0D+00.or.SHIFTI.ne.0.0D+00.OR.IFMSCOUP) Then
+          !! Have to weight the T-amplitude for MS-CASPT2
+          IF (IFMSCOUP) THEN
+            !! add lambda
+            CALL PLCVEC(VECROT(jState),0.50d+00,IVECX,IVECR)
+            CALL PTRTOC(1,IVECR,IVECC2)
+            !! T-amplitude
+            Do iStLag = 1, nStLag
+              If (iStLag.eq.jState) Cycle
+              Scal = VECROT(iStLag)
+              If (ABS(Scal).LE.1.0D-12) Cycle
+              Call MS_Res(2,jStLag,iStLag,Scal*0.5d+00)
+            End Do
+            If (isCSF) Then
+              !! Prepare for something <\Phi_K^{(1)}|Ers|L>
+              Call RHS_ZERO(7)
+              ibk = ivecc2
+              ivecc2 = 7
+              Do iStLag = 1, nStLag
+                If (iStLag.eq.jState) Cycle
+                Scal = UEFF(iStLag,iRoot1)*UEFF(jStLag,iRoot2)
+     *               - UEFF(jStLag,iRoot1)*UEFF(iStLag,iRoot2)
+                Scal = Scal*0.5d+00
+                If (ABS(Scal).LE.1.0D-12) Cycle
+                Call MS_Res(2,jStLag,iStLag,Scal)
+              End Do
+              ivecc2 = ibk
+            End If
+          ELSE
+            !! Add lambda to the T-amplitude
+            CALL PLCVEC(0.5D+00,1.0D+00,IVECR,IVECX)
+            CALL PTRTOC(1,IVECX,IVECC2)
+          END IF
         End If
+C
 C         ipTrfL = ipTrf+nAshT*nBasT+nAshT
 C         Call DGemm_('n','N',nAshT,nAshT,nAshT,
 C    *                1.0D+00,Work(ipTrfL),nBasT,Work(ipDEPSA),nAshT,
@@ -381,7 +424,8 @@ C    *                     NVLOC_CHOBATCH(1))
             ipAA = ipSI + nSsh(iSym)*nIsh(iSym)*NVLOC_CHOBATCH(1)
             ipSA = ipAA + nAsh(iSym)*nAsh(iSym)*NVLOC_CHOBATCH(1)
             CALL OLagNS_RI(iSym,Work(ipWRK1),Work(ipWRK2),
-     *                     Work(ipDPTC),Work(ipAI),Work(ipSI),
+     *                     Work(ipDPTC),Work(ipDPTCanti),
+     *                     Work(ipAI),Work(ipSI),
      *                     Work(ipAA),Work(ipSA),Work(ipA_PT2),
      *                     NVLOC_CHOBATCH(1))
 C           do i = 1, nchobuf
@@ -484,20 +528,46 @@ C
           !! Compute DPT2 density for frozen-inactive
 C         write(6,*) "dpt before frozen"
 C         call sqprt(work(ipdpt),nbast)
+      if (.not.ifchol) then
           !! Construct FIFA and FIMO
           Call OLagFro3(Work(ipFIFA),Work(ipFIMO),Work(ipWRK1),
      *                  Work(ipWRK2))
-          !! Add the FIMO contributions (other eigenvalue derivative
-          !! etc. contributions are symmetric in inactive orbitals, so
-          !! they do not contribute to frozen density)
+      end if
+          !! Add explicit FIMO and FIFA contributions. Implicit
+          !! contributions are all symmetric in frozen + inactive
+          !! orbitals, so they do not contribute to frozen density
           CALL DGEMM_('N','T',nBasT,nBasT,nBasT,
      *                1.0D+00,Work(ipFIMO),nBasT,Work(ipDPTC),nBasT,
      *                1.0D+00,Work(ipOLAG),nBasT)
           CALL DGEMM_('T','N',nBasT,nBasT,nBasT,
      *                1.0D+00,Work(ipFIMO),nBasT,Work(ipDPTC),nBasT,
      *                1.0D+00,Work(ipOLAG),nBasT)
-
+          CALL DGEMM_('N','T',nBasT,nBasT,nBasT,
+     *                1.0D+00,Work(ipFIFA),nBasT,Work(ipDPT),nBasT,
+     *                1.0D+00,Work(ipOLAG),nBasT)
+          CALL DGEMM_('T','N',nBasT,nBasT,nBasT,
+     *                1.0D+00,Work(ipFIFA),nBasT,Work(ipDPT),nBasT,
+     *                1.0D+00,Work(ipOLAG),nBasT)
+          !! Save DPT in order to subtract later
+          Call DCopy_(nDPTAO,Work(ipDPT),1,Work(ipWRK1),1)
+C
+          !! Now, compute pseudo-density using orbital Lagrangian
           Call OLagFro1(Work(ipDPT),Work(ipOLag),Work(ipTrf))
+C
+          !! Subtract the orbital Lagrangian added above.
+          !! It is computed again in EigDer
+          CALL DGEMM_('N','T',nBasT,nBasT,nBasT,
+     *               -1.0D+00,Work(ipFIMO),nBasT,Work(ipDPTC),nBasT,
+     *                1.0D+00,Work(ipOLAG),nBasT)
+          CALL DGEMM_('T','N',nBasT,nBasT,nBasT,
+     *               -1.0D+00,Work(ipFIMO),nBasT,Work(ipDPTC),nBasT,
+     *                1.0D+00,Work(ipOLAG),nBasT)
+          CALL DGEMM_('N','T',nBasT,nBasT,nBasT,
+     *               -1.0D+00,Work(ipFIFA),nBasT,Work(ipWRK1),nBasT,
+     *                1.0D+00,Work(ipOLAG),nBasT)
+          CALL DGEMM_('T','N',nBasT,nBasT,nBasT,
+     *               -1.0D+00,Work(ipFIFA),nBasT,Work(ipWRK1),nBasT,
+     *                1.0D+00,Work(ipOLAG),nBasT)
 C         write(6,*) "dpt after frozen"
 C         call sqprt(work(ipdpt),nbast)
           !! Fock transformation for frozen-inactive density
@@ -550,9 +620,9 @@ C
             iTR = iTR + nOrbI*(nOrbI+1)/2
           End Do
         End If
-C         write(6,*) "ipfifa"
+C         write(6,*) "ipfifa in dens"
 C         call sqprt(work(ipfifa),nbast)
-C         write(6,*) "ipfimo"
+C         write(6,*) "ipfimo in dens"
 C         call sqprt(work(ipfimo),nbast)
 C        write(6,*) "FIFA in quasi-canonical"
 C         call sqprt(work(ipfifa),12)
@@ -606,9 +676,16 @@ C    *              0.0D+00,Work(ipRDMEIG),nAshT)
         ISAV = IDCIEX
         IDCIEX = IDTCEX
         !! Now, compute the configuration Lagrangian
-        Call CLagEig(Work(ipCLag),Work(ipRDMEIG))
-        !! Now, compute the state Lagrangian and do some projections
-        Call CLagFinal(Work(ipCLag),Work(ipSLag))
+        If (IFDW) Then
+        ipTrfL = ipTrf+nIshT*nBasT+nIshT
+        Call DGemm_('N','N',nAshT,nAshT,nAshT,
+     *              1.0D+00,Work(ipTrfL),nBasT,Work(ipRDMEIG),nAshT,
+     *              0.0D+00,Work(ipWRK1),nAshT)
+        Call DGemm_('N','T',nAshT,nAshT,nAshT,
+     *              1.0D+00,Work(ipWRK1),nAshT,Work(ipTrfL),nBasT,
+     *              0.0D+00,Work(ipWRK2),nAshT)
+        End If
+        Call CLagEig(IFSSDM,Work(ipCLag),Work(ipRDMEIG))
 C
         !! Now, here is the best place to compute the true off-diagonal
         !! active density for non-invariant CASPT2
@@ -662,7 +739,7 @@ C
           !! RDMEIG contributions
           !! Use canonical CSFs rather than natural CSFs
           !! Now, compute the configuration Lagrangian
-          Call CLagEig(Work(ipCLag),Work(ipRDMEIG))
+          Call CLagEig(IFSSDM,Work(ipCLag),Work(ipRDMEIG))
           !! Now, compute the state Lagrangian and do some projections
           Call CLagFinal(Work(ipCLag),Work(ipSLag))
         End If
@@ -678,6 +755,7 @@ C
             Call CLagX_TrfCI(Work(ipCLag+nConf*(iState-1)))
           End Do
         End If
+        Call DaXpY_(nCLag,1.0D+00,Work(ipCLag),1,Work(ipCLagFull),1)
 C       Call CLagFinal(Work(ipCLag),Work(ipSLag))
 C
         !! Transformations of DPT2 in quasi-canonical to natural orbital
@@ -687,6 +765,10 @@ C
      *                     Work(ipTrf),Work(ipWRK1))
         Call DPT2_TrfStore(2.0D+00,Work(ipDPTC),Work(ipDPT2C),
      *                     Work(ipTrf),Work(ipWRK1))
+        If (isCSF) Then
+          Call DPT2_TrfStore(1.0D+00,Work(ipDPTCanti),Work(ipDPT2Canti),
+     *                       Work(ipTrf),Work(ipWRK1))
+        End If
 C       !! Save MO densities for post MCLR
 C       Call DGemm_('N','N',nBasT,nBasT,nBasT,
 C    *              1.0D+00,Work(ipTrf),nBasT,Work(LDPT),nBasT,
@@ -753,7 +835,7 @@ C
         !! difference between the SS and SA density matrix. because the
         !! SA density-contribution will be added and should be
         !! subtracted
-        If (.not.IFSADREF.and.nState.ne.1.and..not.IFXMS) Then
+        If (IFSSDM) Then
           If (.not.INVAR) Then
             write(6,*) "SS density matrix with BSHIFT is not yet"
             Call abend()
@@ -781,6 +863,12 @@ C           Wgt  = Work(LDWgt+iState-1+nState*(iState-1))
             !! Well, it is not working any more. I need to use
             !! Position='APPEND', but it is not possible if I need to
             !! use molcas_open or molcas_open_ext2
+            write(6,*) "It is not possible to perform this calculation"
+            write(6,*) "(non-state averaged density without"
+            write(6,*) "density-fitting or Cholesky decomposition)"
+            write(6,*) "Mainly because the coding issue"
+            write(6,*) "Please use DF or CD"
+            write(6,*) "I may fix in the future"
             call abend()
             Call PrgmTranslate('CMOPT2',RealName,lRealName)
 C           Open (Unit=LuCMOPT2,
@@ -812,8 +900,11 @@ C
         CALL GETMEM('FPTC  ','FREE','REAL',ipFPTC  ,nDPTAO)
         CALL GETMEM('FPTAO ','FREE','REAL',ipFPTAO ,nDPTAO)
         CALL GETMEM('FPTCAO','FREE','REAL',ipFPTCAO,nDPTAO)
-        CALL GETMEM('FIFA  ','FREE','REAL',ipFIFA  ,nBsqT)
-        CALL GETMEM('FIMO  ','FREE','REAL',ipFIMO  ,nBsqT)
+C       CALL GETMEM('FIFA  ','FREE','REAL',ipFIFA  ,nBsqT)
+C       CALL GETMEM('FIMO  ','FREE','REAL',ipFIMO  ,nBsqT)
+        If (isCSF) Then
+          CALL GETMEM('DPTCanti','FREE','REAL',ipDPTCanti,nDPTAO)
+        End If
 C
 C       call test_dens(work(ipolag),work(ipclag),work(iptrf),
 C    *                 work(ipwrk1),work(ipwrk2))
@@ -841,22 +932,27 @@ C       call sqprt(work(ipolag),12)
 C       Do iSym = 1, nSym
 C       write(6,*) "olag before"
 C       call sqprt(work(ipolag),nbast)
+      if (.false.) then
+      Call OLagFinal(Work(ipOLag),Work(ipTrf))
+      else
 C
-        Call DaXpY_(nBasSq,0.5D+00,Work(ipOLag),1,Work(ipWLag),1)
+        CALL GETMEM('WLAGL  ','ALLO','REAL',ipWLagL  ,nWLag)
+        Call DCopy_(nWLag,[0.0d+00],0,Work(ipWLagL),1)
+        Call DaXpY_(nWLag,0.5D+00,Work(ipOLag),1,Work(ipWLagL),1)
 C       write(6,*) "Wlag square"
 C       call sqprt(work(ipwlag),nbast)
 C
         !! W(MO) -> W(AO) using the quasi-canonical orbitals
         !! No need to back transform to natural orbital basis
         Call DGemm_('N','N',nBasT,nBasT,nBasT,
-     *              1.0D+00,Work(LCMOPT2),nBasT,Work(ipWLag),nBasT,
+     *              1.0D+00,Work(LCMOPT2),nBasT,Work(ipWLagL),nBasT,
      *              0.0D+00,Work(ipWRK1),nBasT)
         Call DGemm_('N','T',nBasT,nBasT,nBasT,
      *              1.0D+00,Work(ipWRK1),nBasT,Work(LCMOPT2),nBasT,
-     *              0.0D+00,Work(ipWLag),nBasT)
+     *              0.0D+00,Work(ipWLagL),nBasT)
 C
         !! square -> triangle for WLag(AO)
-        Call DCopy_(nBasT*nBasT,Work(ipWLag),1,Work(ipWRK1),1)
+        Call DCopy_(nBasT*nBasT,Work(ipWLagL),1,Work(ipWRK1),1)
         iBasTr = 1
         iBasSq = 1
         Do iSym = 1, nSym
@@ -867,10 +963,10 @@ C
             Do jBasI = 1, iBasI
               liBasSq = iBasSq + iBasI-1 + nBasI*(jBasI-1)
               If (iBasI.eq.jBasI) Then
-                Work(ipWLag   +liBasTr-1) = Work(ipWRK1  +liBasSq-1)
+                Work(ipWLagL  +liBasTr-1) = Work(ipWRK1  +liBasSq-1)
               Else
               liBasSq2 = iBasSq + jBasI-1 + nBasI*(iBasI-1)
-                Work(ipWLag   +liBasTr-1)
+                Work(ipWLagL  +liBasTr-1)
      *            = Work(ipWRK1  +liBasSq-1)
      *            + Work(ipWRK1  +liBasSq2-1)
               End If
@@ -880,6 +976,8 @@ C
           iBasTr = iBasTr + nBasI*(nBasI+1)/2
           iBasSq = iBasSq + nBasI*nBasI
         End Do
+        Call DaXpY_(nBasSq,1.0D+00,Work(ipWLagL),1,Work(ipWLag),1)
+        CALL GETMEM('WLAGL  ','FREE','REAL',ipWLagL  ,nWLag)
 C
 C
 C
@@ -904,6 +1002,8 @@ C       call sqprt(work(ipolag),12)
      &              Work(ipWRK1),nBas(1),'T',
      &              Work(ipOLag),nBas(1),
      &              nBas(1),nBas(1))
+        Call DaXpY_(nOLag,1.0D+00,Work(ipOLag),1,Work(ipOLagFull),1)
+      end if
 C
         CALL GETMEM('TRFMAT','FREE','REAL',ipTRF   ,nBsqT)
         CALL GETMEM('WRK1  ','FREE','REAL',ipWRK1,nBasT*nBasT)
@@ -961,7 +1061,7 @@ C The 1st order contribution to the density matrix
 *       WRITE(6,*)' DPT after TRDNS1.'
 *       WRITE(6,'(1x,8f16.8)')(work(ldpt-1+i),i=1,ndpt)
         CALL DCOPY_(NDPT,[0.0D0],0,WORK(LDPT),1)
-        CALL TRDNS2D(IVEC,IVEC,WORK(LDPT),NDPT)
+        CALL TRDNS2D(IVEC,IVEC,WORK(LDPT),NDPT,1.0D+00)
         IF(IFDENS) THEN
 C The exact density matrix evaluation:
           CALL TRDTMP(WORK(LDPT))
@@ -973,7 +1073,7 @@ C The approximate density matrix evaluation:
 *       WRITE(6,*)' DPT after TRDNS2D.'
 *       WRITE(6,'(1x,8f16.8)')(work(ldpt-1+i),i=1,ndpt)
         CALL DCOPY_(NDPT,[0.0D0],0,WORK(LDPT),1)
-        CALL TRDNS2O(IVEC,IVEC,WORK(LDPT))
+        CALL TRDNS2O(IVEC,IVEC,WORK(LDPT),1.0D+00)
         CALL DAXPY_(NDPT,1.0D00,WORK(LDPT),1,WORK(LDSUM),1)
 *       WRITE(6,*)' DPT after TRDNS2O.'
 *       WRITE(6,'(1x,8f16.8)')(work(ldpt-1+i),i=1,ndpt)
@@ -1550,7 +1650,7 @@ C
 C       Call SQUARE(Work(LFIMO+iSQ-1),Work(ipWRK1),1,nOrbI,nOrbI)
 C       write(6,*) "effective fock in MO"
 C       call sqprt(FIMO(iSQ),norbi)
-        If (nFroT.eq.0) Then
+C       If (nFroT.eq.0) Then
         CALL DGEMM_('N','T',nOrbI,nOrbI,nOrbI,
 C    *              1.0D+00,Work(ipWRK1),nOrbI,DPT2C(iSQ),nOrbI,
      *              1.0D+00,FIMO(iSQ),nOrbI,DPT2C(iSQ),nOrbI,
@@ -1559,7 +1659,7 @@ C    *              1.0D+00,Work(ipWRK1),nOrbI,DPT2C(iSQ),nOrbI,
 C    *              1.0D+00,Work(ipWRK1),nOrbI,DPT2C(iSQ),nOrbI,
      *              1.0D+00,FIMO(iSQ),nOrbI,DPT2C(iSQ),nOrbI,
      *              1.0D+00,Work(ipOLAG),nOrbI)
-        End If
+C       End If
         !! Implicit derivative of inactive orbitals (DPT2C)
         Call DaXpY_(nOrbI*nCor,2.0D+00,Work(ipFPT2C+iSQ-1),1,
      *              Work(ipOLAG+iSQ-1),1)
@@ -1707,7 +1807,8 @@ C
       iSymB= 1
       iSymJ= 1
 C
-      If (nFroT.ne.0.and.IfChol) Then
+C     If (nFroT.ne.0.and.IfChol) Then
+      If (IfChol) Then
         !! DEPSA(MO) -> DEPSA(AO) -> G(D) in AO -> G(D) in MO
         !! The Cholesky vectors do not contain frozen orbitals...
         Call GetMem('DAO ','ALLO','REAL',ipDAO ,nBsqT)
@@ -1846,7 +1947,7 @@ C     call molcas_Open(LuCMOPT2,RealName(1:lRealName))
       Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
      &                      'DIRECT','UNFORMATTED',
      &                      iost,.FALSE.,
-     &                        1,'REPLACE',is_error)
+     &                        1,'OLD',is_error)
       Do i = 1, NumChoTot*NumChoTot
         Read (LuCMOPT2) Work(ipA_PT2+i-1)
       End Do
@@ -2029,7 +2130,7 @@ C     call molcas_Open(LuGamma,RealName(1:lRealName))
       Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
      &                      'DIRECT','UNFORMATTED',
      &                      iost,.TRUE.,
-     &                      nBas(iSym)**2*8,'REPLACE',is_error)
+     &                      nBas(iSym)**2*8,'OLD',is_error)
       Do iVec = 1, NumCho
         Read  (Unit=LuGAMMA,Rec=iVec)
      *    (Work(ipWRK(iSym)+i-1),i=1,nBasT**2)
