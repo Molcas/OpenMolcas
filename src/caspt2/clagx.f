@@ -1311,13 +1311,13 @@ C-SVC20100831: allocate local G3 matrices
       CALL GETMEM('LCI','ALLO','REAL',LCI,NCONF)
       If (ISCF.EQ.0) Then
         if (iff.eq.1) then
-        IDCI=IDTCEX
-        DO J=1,JSTATE-1
-          CALL DDAFILE(LUCIEX,0,WORK(LCI),NCONF,IDCI)
-        END DO
-        CALL DDAFILE(LUCIEX,2,WORK(LCI),NCONF,IDCI)
+          IDCI=IDTCEX
+          DO J=1,JSTATE-1
+            CALL DDAFILE(LUCIEX,0,WORK(LCI),NCONF,IDCI)
+          END DO
+          CALL DDAFILE(LUCIEX,2,WORK(LCI),NCONF,IDCI)
         else
-        Call LoadCI_XMS('C',1,Work(LCI),JSTATE,U0)
+C         Call LoadCI_XMS('C',1,Work(LCI),JSTATE,U0)
         end if
         IF (IPRGLB.GE.VERBOSE) THEN
           WRITE(6,*)
@@ -2906,9 +2906,9 @@ C
 C
       If (IfChol) Then
         Do JSYM=1,NSYM
-          Call Get_Cholesky_Vectors(Anactive,Active,JSYM,
-     &                              Work(LBRA),nBra,
-     &                              IBSTA,IBEND)
+C         Call Get_Cholesky_Vectors(Aactive,Active,JSYM,
+C    &                              Work(LBRA),nBra,
+C    &                              IBSTA,IBEND)
         END DO
       Else
         Do iAshI = 1, nAsh(iSym)
