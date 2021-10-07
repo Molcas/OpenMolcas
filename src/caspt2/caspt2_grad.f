@@ -246,7 +246,7 @@ C
       End If
 C
       !! Now, compute the state Lagrangian and do some projections
-      Call CLagFinal(Work(ipCLagFull),Work(ipSLag),U0)
+      Call CLagFinal(Work(ipCLagFull),Work(ipSLag))
 C
       !! Add MS-CASPT2 contributions
       If (IFMSCOUP) Then
@@ -772,85 +772,3 @@ C
       Return
 C
       End Subroutine CnstFIFAFIMO
-C
-C-----------------------------------------------------------------------
-C
-      Subroutine GDGRAD(MODE,DD,FF,CMO)
-C
-      Implicit Real*8 (A-H,O-Z)
-C
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "WrkSpc.fh"
-C
-      Dimension DD(*),FF(*),CMO(*)
-      Logical lSquare
-C
-C     Compute F = G(D)
-C     DD and FF may include the frozen orbital, and in the square form
-C     With MODE = 0, DD in AO and FF in AO
-C               = 1, DD in AO and FF in MO
-C               = 2, DD in MO and FF in AO
-C               = 3, DD in MO and FF in MO
-C
-      CALL GETMEM('WRK    ','ALLO','REAL',ipWRK    ,nBasT**2)
-      CALL GETMEM('DD     ','ALLO','REAL',ipDD     ,nBasT**2)
-      CALL GETMEM('FF     ','ALLO','REAL',ipFF     ,nBasT**2)
-C
-      !! MO -> AO transformation of DD if needed
-      If (MODE.eq.2.or.MODE.eq.3) Then
-        CALL GETMEM('WRK    ','ALLO','REAL',ipWRK    ,nBasT**2)
-        Call DGEMM_('N','N',nBasT,nBasT,nBasT,
-     *              1.0D+00,CMO,nBasT,DD,nBasT,
-     *              0.0D+00,Work(ipWRK),nBasT)
-        Call DGEMM_('N','T',nBasT,nBasT,nBasT,
-     *              1.0D+00,Work(ipWRK),nBasT,CMO,nBasT,
-     *              0.0D+00,Work(ipDD),nBasT)
-        CALL GETMEM('WRK    ','FREE','REAL',ipWRK    ,nBasT**2)
-      Else
-        Call DCopy_(nBasT**2,DD,1,Work(ipDD),1)
-      End If
-C
-      !! Compute FF = G(DD)
-      nfint = nasht**4 !?
-      Call GetMem('TUVX','Allo','Real',LTUVX,NFINT)
-C     If (.not.DoCholesky .or. ALGO.eq.1) Then
-C       Call GetMem('PUVX','Allo','Real',LPUVX,NFINT)
-C       Call FZero(Work(LPUVX),NFINT)
-C     EndIf
-      IPR=0
-      lSquare = .false. !?
-      ExFac = 1.0D+00
-      !! fock_util/tractl2.f
-      !! PUVX is obtained in vain
-      CALL TRACTL2(CMO,WORK(LPUVX),WORK(LTUVX),WORK(ipWRK),
-     &             WORK(ipWRK),WORK(ipDD),WORK(ipFF),IPR,lSquare,ExFac)
-C
-      Call GetMem('TUVX','Free','Real',LTUVX,NFINT)
-C     If (.not.DoCholesky .or. ALGO.eq.1) Then
-C        Call GetMem('PUVX','Free','Real',LPUVX,NFINT)
-C     EndIf
-C
-      !! Add one-electron Hamiltonian part
-C
-      !! AO -> MO transformation of FF if needed
-      If (MODE.eq.1.or.MODE.eq.3) Then
-        CALL GETMEM('WRK    ','ALLO','REAL',ipWRK    ,nBasT**2)
-        Call DGEMM_('T','N',nBasT,nBasT,nBasT,
-     *              1.0D+00,CMO,nBasT,Work(ipFF),nBasT,
-     *              0.0D+00,Work(ipWRK),nBasT)
-        Call DGEMM_('N','N',nBasT,nBasT,nBasT,
-     *              1.0D+00,Work(ipWRK),nBasT,CMO,nBasT,
-     *              0.0D+00,FF,nBasT)
-        CALL GETMEM('WRK    ','FREE','REAL',ipWRK    ,nBasT**2)
-      Else
-        Call DCopy_(nBasT**2,Work(ipFF),1,FF,1)
-      End If
-C
-      CALL GETMEM('WRK    ','FREE','REAL',ipWRK    ,nBasT**2)
-      CALL GETMEM('DD     ','FREE','REAL',ipDD     ,nBasT**2)
-      CALL GETMEM('FF     ','FREE','REAL',ipFF     ,nBasT**2)
-C
-      Return
-C
-      End Subroutine GDGRAD

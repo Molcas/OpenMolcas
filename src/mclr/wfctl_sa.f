@@ -200,7 +200,7 @@
       End If
 *
       If (PT2) Then
-        Call Getmem('SLag  ','FREE','Real',ipSLag ,nRoots*nRoots2)
+        Call Getmem('SLag  ','FREE','Real',ipSLag ,nRoots*nRoots)
         Call DaXpY_(nDens2,1.0D+00,Work(ipKap),1,Work(ipTemp4),1)
         Call DCopy_(nDens2,[0.0D+00],0,Work(ipKap),1)
       End If
