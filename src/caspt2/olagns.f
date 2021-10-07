@@ -149,6 +149,9 @@ C
 C
       !! Some setup
       !! Read T-amplitude, hopefully in contravariant form
+      nINP = 0
+      nINM = 0
+      nIN  = 0
       If (PM) Then
         nINP = nINDEP(iSym,iCase)
         nASP = nASup(iSym,iCase)
