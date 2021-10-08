@@ -243,8 +243,8 @@ C
         IF (MAXIT.NE.0) Call SIGDER(iVecX,iVecR,VECROT(jState))
         Call CLagX(1,Work(ipCLag),Work(ipTRF),Work(ipDEPSA),VECROT)
 C       call test3_dens(work(ipclag))
-        write(6,*) "original depsa"
-        call sqprt(work(ipdepsa),nasht)
+C       write(6,*) "original depsa"
+C       call sqprt(work(ipdepsa),nasht)
         write(6,*) "original depsa (sym)"
           do i = 1, nasht
           do j = 1, i-1
@@ -412,8 +412,8 @@ C         write(6,*) "ialgo = ", ialgo
      *                +nSsh(iSym)*nIsh(iSym)
      *                +nAsh(iSym)*nAsh(iSym)
      *                +nSsh(iSym)*nAsh(iSym))*NVLOC_CHOBATCH(1)
-       write(6,*) "nChoBuf = ", nchobuf,isym
-       write(6,*) nish(isym),nash(isym),nssh(isym),NVLOC_CHOBATCH(1)
+C      write(6,*) "nChoBuf = ", nchobuf,isym
+C      write(6,*) nish(isym),nash(isym),nssh(isym),NVLOC_CHOBATCH(1)
             Call GetMem('DENBRA','ALLO','REAL',ipDBra,nChoBuf)
             Call dcopy_(nChoBuf,[0.0D+00],0,Work(ipDBra),1)
 C           CALL OLagNS_RI(iSym,Work(ipWRK1),Work(ipWRK2),
@@ -1153,13 +1153,13 @@ C     write(6,*) "nbast = ", nbast
         NR1   = nRAS1(iSym)
         NR2   = nRAS2(iSym)
         NR3   = nRAS3(iSym)
-        write(6,*) "nBasI",nBas(iSym)
-        write(6,*) "nOrbI",nOrb(iSym)
-        write(6,*) "nFroI",nFro(iSym)
-        write(6,*) "nIshI",nIsh(iSym)
-        write(6,*) "nAshI",nAsh(iSym)
-        write(6,*) "nSshI",nSsh(iSym)
-        write(6,*) "nDelI",nDel(iSym)
+C       write(6,*) "nBasI",nBas(iSym)
+C       write(6,*) "nOrbI",nOrb(iSym)
+C       write(6,*) "nFroI",nFro(iSym)
+C       write(6,*) "nIshI",nIsh(iSym)
+C       write(6,*) "nAshI",nAsh(iSym)
+C       write(6,*) "nSshI",nSsh(iSym)
+C       write(6,*) "nDelI",nDel(iSym)
         nCor  = nFroI + nIshI
         nOcc  = nCor  + nAshI
         nVir  = nSshI + nDelI

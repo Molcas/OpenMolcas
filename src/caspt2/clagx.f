@@ -1347,10 +1347,11 @@ C    &              WORK(LF2),WORK(LG3),WORK(LF3),i1WORK(LidxG3))
       WALLT=TIOTF10-TIOTF0
       write(6,*) "DERFG3: CPU/WALL TIME=", cput,wallt
 C
-      write(6,*) "clag after DERFG3"
-      do i = 1, min(50,nconf)
-        write(6,'(i3,2f20.10)') i,clag(i),work(lci+i-1)
-      end do
+C     write(6,*) "clag after DERFG3"
+C     do i = 1, min(50,nconf)
+C       write(6,'(i3,2f20.10)') i,clag(i),work(lci+i-1)
+C     end do
+
 C     call abend
 C     ovl = ddot_(nconf,work(lci),1,clag,1)
 C     write(6,*) "ovl = ", ovl

@@ -167,13 +167,16 @@ C       GOTO 1000
       END IF
 C
       !! Some preparations for gradient calculation
-      IF (IFDENS.OR.IFGRDT) CALL GrdIni
-      IF ((IFDENS.OR.IFGRDT).AND.IFMSCOUP.AND.nFroT.ne.0.and.
-     *    .NOT.IfChol) Then
-        write(6,*) "At present, gradient with MS-type CASPT2 can be"
-        write(6,*) "performed with density-fitting or Cholesky"
-        write(6,*) "decomposition"
-        call abend()
+      IF (IFDENS.OR.IFGRDT) Then
+        CALL GrdIni
+        CALL MMA_ALLOCATE(UeffSav,Nstate,Nstate)
+        CALL MMA_ALLOCATE(U0Sav,Nstate,Nstate)
+        IF (IFMSCOUP.AND.nFroT.ne.0.and..NOT.IfChol) Then
+          write(6,*) "At present, gradient with MS-type CASPT2 can be"
+          write(6,*) "performed with density-fitting or Cholesky"
+          write(6,*) "decomposition"
+          call abend()
+        End If
       End If
 
 * In case of a XDW-CASPT2 calculation we first rotate the CASSCF
@@ -205,8 +208,6 @@ C
         !! avoid doing a lot of calculations in dens.f in the first loop
         IFGRDT = .false.
         CALL MMA_ALLOCATE(ESav,Nstate)
-        CALL MMA_ALLOCATE(UeffSav,Nstate,Nstate)
-        CALL MMA_ALLOCATE(U0Sav,Nstate,Nstate)
         If (IFXMS.and.IFDW) Then
           CALL MMA_ALLOCATE(H0Sav,Nstate,Nstate)
           Call DCopy_(Nstate*Nstate,H0,1,H0Sav,1)
@@ -553,12 +554,14 @@ C     CALL MMA_DEALLOCATE(U0)
 9000  CONTINUE
 
       !! Finishing for gradient calculation
-      IF (IFDENS.OR.IFGRDT) Call GrdCls(UEFFSav,U0Sav,H0)
-      IF ((IFDENS.OR.IFGRDT).AND.IFMSCOUP) Then
-        CALL MMA_DEALLOCATE(ESav)
+      IF (IFDENS.OR.IFGRDT) Then
+        Call GrdCls(UEFFSav,U0Sav,H0)
         CALL MMA_DEALLOCATE(UeffSav)
         CALL MMA_DEALLOCATE(U0Sav)
-        If (IFXMS.AND.IFDW) CALL MMA_DEALLOCATE(H0Sav)
+        IF (IFMSCOUP) Then
+          CALL MMA_DEALLOCATE(ESav)
+          If (IFXMS.AND.IFDW) CALL MMA_DEALLOCATE(H0Sav)
+        End If
       End If
 C Free resources, close files
       CALL PT2CLS

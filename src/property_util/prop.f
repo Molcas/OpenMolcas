@@ -224,11 +224,6 @@
             tmp=Sqrt(Work(ipPrTot  )**2
      &              +Work(ipPrTot+1)**2
      &              +Work(ipPrTot+2)**2)
-       write(6,*) "until I finish the debug"
-       write(6,'(f20.10)') work(ipprtot+0)*fact
-       write(6,'(f20.10)') work(ipprtot+1)*fact
-       write(6,'(f20.10)') work(ipprtot+2)*fact
-       write(6,'("factor = ",f20.10)') fact
             Write (6,'(4X,4(A,A,ES12.4))')
      &                       labs(1),'=',Work(ipPrTot  )*Fact,
      &                       labs(2),'=',Work(ipPrTot+1)*Fact,

@@ -381,7 +381,7 @@
       Call CWTime(tc0,tw0)
       Call Drvg1_2center_RI(Temp,Work(ipTemp),nGrad,ip_ij2,nij_Eff)
       Call CWTime(tc1,tw1)
-      write (6,*) 'CPU/Wall Time for 2center_RI = ',tc1-tc0,tw1-tw0
+C     write (6,*) 'CPU/Wall Time for 2center_RI = ',tc1-tc0,tw1-tw0
       Call GADGOP(Work(ipTemp),nGrad,'+')
       If (iPrint.ge.15) Call PrGrad(
      &    ' RI-Two-electron contribution - 2-center term',
@@ -399,7 +399,7 @@
       Call CWTime(tc0,tw0)
       Call Drvg1_3center_RI(Temp,Work(ipTemp),nGrad,ip_ij2,nij_Eff)
       Call CWTime(tc1,tw1)
-      write (6,*) "CPU/Wall Time for 3center_RI = ",tc1-tc0,tw1-tw0
+C     write (6,*) "CPU/Wall Time for 3center_RI = ",tc1-tc0,tw1-tw0
       Call GADGOP(Work(ipTemp),nGrad,'+')
       If (iPrint.ge.15) Call PrGrad(
      &    ' RI-Two-electron contribution - 3-center term',

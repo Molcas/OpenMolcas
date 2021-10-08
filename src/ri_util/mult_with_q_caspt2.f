@@ -231,8 +231,8 @@ C    *      Recl=nBas2*8)
       End Do ! iSym
 *
       CALL CWTime(TotCPU1,TotWall1)
-      write (6,*) 'CPU/Wall Time for mult_with_q_caspt2:',
-     *  totcpu1-totcpu0, totwall1-totwall0
+C     write (6,*) 'CPU/Wall Time for mult_with_q_caspt2:',
+C    *  totcpu1-totcpu0, totwall1-totwall0
       Return
 C
   100 continue
