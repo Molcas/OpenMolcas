@@ -577,8 +577,8 @@ C     & IState,' is ',Vee(IState)
       END IF
       write(6,*)('-',i=1,71)
       ICMSIter=0
-        write(6,'(6X,I4,8X,F16.8,8X,ES16.4E3)')
-     &  ICMSIter,VeeSumOld,0.0d0
+*        write(6,'(6X,I4,8X,F16.8,8X,ES16.4E3)')
+*     &  ICMSIter,VeeSumOld,0.0d0
       DO WHILE(.not.Converged)
        Do IPair=1,NPairs
         theta(IPair)=0.0d0
@@ -731,7 +731,6 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
 
       INTEGER t,u,v,x,i11,i22,i12
       INTEGER J,I1J,I2J
-      Real*8  doub1
       IF(Update) THEN
        CALL mma_allocate(D1J,lRoots,NAC,NAC)
        CALL mma_allocate(D2J,lRoots,NAC,NAC)
