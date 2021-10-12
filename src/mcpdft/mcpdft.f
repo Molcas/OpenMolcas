@@ -724,6 +724,9 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
      &'::    ',MSPDFTMethod,' Root',
      &     Jroot,'Total energy:',Work(LRState+Jroot-1)
          End Do
+      Call Put_iScalar('Number of roots',nroots)
+      Call Put_dArray('Last energies',WORK(LRState),nroots)
+      Call Put_dScalar('Last energy',WORK(iRlxRoot-1))
          Write(6,*)
          CALL mma_allocate(VecStat,lRoots)
          Do Jroot=1,lRoots

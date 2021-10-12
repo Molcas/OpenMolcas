@@ -915,7 +915,6 @@ do i=1,nDisp
       ! directions. In that case compute the gradient with the
       ! one-point equation. The one with the lowest gradient is
       ! the one which is most likely to be correct.
-
       if (abs(Grad(iR)) > 0.1_wp) then
         Energy_Ref = Energies_Ref(iR)
         Grada = (EPlus-Energy_Ref)/Dsp
