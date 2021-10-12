@@ -186,7 +186,7 @@ C        write(6,*)'GDMat for states',jRoot,kRoot
          dO IOrb=1,NAC
           do JOrb=1,NAC
           NIJ2=jRoot*(jRoot-1)/2+kRoot
-          GDMat(NIJ2,IOrb,JOrb)=WORK(LW6+JOrb-1+(IOrb-1)*NAC)
+          GDMat(NIJ2,JOrb,IOrb)=WORK(LW6+JOrb-1+(IOrb-1)*NAC)
           end do
 C          write(6,'(10(F8.4,2X))')(GDMat(NIJ2,IOrb,JOrb),JOrb=1,NAC)
          eND dO
