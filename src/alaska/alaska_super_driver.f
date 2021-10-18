@@ -75,6 +75,8 @@
      &                      //' calculation!'
             Call Abend()
          End If
+      Else If (Method .eq. 'CASPT2') Then
+         Call Get_iScalar('mp2prpt',iMp2Prpt)
       End If
 *
       Do_Numerical_Cholesky = Do_Cholesky .or. Do_DF
@@ -132,7 +134,7 @@
 C    &    Method .eq. 'RASSCFSA' .OR.
      &    Method .eq. 'GASSCFSA' .OR.
      &  ((Method .eq. 'DMRGSCFS').and.(iGo.ne.2)) .OR.
-C    &    Method .eq. 'CASPT2'   .OR.
+     &  ((Method .eq. 'CASPT2').and.(iMp2Prpt.ne.2)) .OR.
      &  ((Method .eq. 'MBPT2').and.(iMp2Prpt.ne.2)) .OR.
      &    Method .eq. 'CCSDT'    ) Then
          If (isNAC) Then

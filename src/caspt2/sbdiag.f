@@ -199,7 +199,7 @@ C Extremely small values give scale factor exactly zero.
         Else
           IF(SD.GT.THRSHN) THEN
 * Small variations of the scale factor were beneficial
-              WORK(LSCA-1+I)=(1.0D00+DBLE(I)*3.0D-6*0)/SQRT(SD)
+              WORK(LSCA-1+I)=(1.0D00+DBLE(I)*3.0D-6)/SQRT(SD)
           ELSE
             WORK(LSCA-1+I)=0.0D0
           END IF

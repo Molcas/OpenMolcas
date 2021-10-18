@@ -83,22 +83,24 @@ C Set up various offset arrays:
       END DO
 
 C Core contribution:
-      OVL=DDOT_(NVEC,VEC1,1,VEC2,1)
-C     write (*,*) "diadns for icase = ", icase
-C     write (*,*) "nvec = ", nvec
-C     do i = 1, nvec
-C       write (*,'(i3,2f20.10)') i,vec1(i),vec2(i)
-C     end do
-C     write (*,*) "ovl = ", ovl
-      DO IS=1,NSYM
-        NI=NISH(IS)
-        NO=NORB(IS)
-        IDII=IOFDIJ(IS)+1
-        DO III=1,NI
-C         DPT2(IDII)=DPT2(IDII)+2.0D0*OVL
-          IDII=IDII+NO+1
+      IF (.NOT.IFGRDT) THEN
+        OVL=DDOT_(NVEC,VEC1,1,VEC2,1)
+C       write (*,*) "diadns for icase = ", icase
+C       write (*,*) "nvec = ", nvec
+C       do i = 1, nvec
+C         write (*,'(i3,2f20.10)') i,vec1(i),vec2(i)
+C       end do
+C       write (*,*) "ovl = ", ovl
+        DO IS=1,NSYM
+          NI=NISH(IS)
+          NO=NORB(IS)
+          IDII=IOFDIJ(IS)+1
+          DO III=1,NI
+            DPT2(IDII)=DPT2(IDII)+2.0D0*OVL
+            IDII=IDII+NO+1
+          END DO
         END DO
-      END DO
+      END IF
 *
       LLST1 = 0 ! dummy initialize
       NLST1 = 0 ! dummy initialize

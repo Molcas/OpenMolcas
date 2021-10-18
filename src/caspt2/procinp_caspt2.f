@@ -498,6 +498,7 @@ C Consistency of these demands:
 *
       IFGRDT   = Input%GRDT
       If(IFGRDT) IFDENS=.true.
+      Call Put_iScalar('mp2prpt',0)
 *
 *     Check if the calculation is inside a loop and make analytical
 *     gradients default in this case
@@ -516,7 +517,7 @@ C     DNG=NoGrdt.or.DNG
 *
 *     Inside NUMERICAL_GRADIENT override input!
       If (ProgName(1:18).eq.'numerical_gradient') Then
-C        Call Put_iScalar('mp2prpt',0)
+         Call Put_iScalar('mp2prpt',0)
          DNG=.true.
 C        DoDens=.false.
          IFDENS=.false.
@@ -540,6 +541,7 @@ C           DoGrdt=.true.
         IFDENS = .False.
         IFGRDT = .False.
       End If
+      If (IFGRDT) Call Put_iScalar('mp2prpt',2)
 C
       isNAC = .False.
       If (IFGRDT) Then

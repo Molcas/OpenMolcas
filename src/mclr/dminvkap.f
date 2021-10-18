@@ -31,6 +31,7 @@
 #include "standard_iounits.fh"
 #include "Pointers.fh"
 #include "dmrginfo_mclr.fh"
+#include "sa.fh"
       Real*8 rOut(nrOut),rMFact(*),rIn(nrIn),rtemp(nrTemp)
 *                                                                      *
 ************************************************************************
@@ -100,13 +101,15 @@ C     call abend
             If (ActRot) Then
                nD=nOrb(is)
             Else
-C              nD=nOrb(is)-nAsh(is)
-               If (iI.le.nRs1(jS)) THen
-                 nD=nOrb(is)-nRs1(js)
-               Else If (iI.le.nRs1(jS)+nRs2(jS)) Then
-                 nD=nOrb(is)-nRs2(js)
-               Else If (iI.le.nRs1(jS)+nRs2(jS)+nRs3(jS)) Then
-                 nD=nOrb(is)-nRs3(js)
+               nD=nOrb(is)-nAsh(is)
+               If (SA.or.PT2) Then
+                  If (iI.le.nRs1(jS)) THen
+                    nD=nOrb(is)-nRs1(js)
+                  Else If (iI.le.nRs1(jS)+nRs2(jS)) Then
+                    nD=nOrb(is)-nRs2(js)
+                  Else If (iI.le.nRs1(jS)+nRs2(jS)+nRs3(jS)) Then
+                    nD=nOrb(is)-nRs3(js)
+                  End If
                End If
             End If
             If (nd.ne.0) Then
