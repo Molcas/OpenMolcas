@@ -92,10 +92,10 @@ C     write (*,*) "i in precaii (1) = ", i
                      cdij=A_J(icd)
                      cidj=A_K(icd)
                      !! is the coefficient opposite?
-C                    rout(i) = rout(i) + 2.0d0*(rDens2*cidj
-C    &                                 + 2.0d0* rDens1*cdij)
-                     rout(i) = rout(i) + 2.0d0*(rDens1*cdij
-     &                                 + 2.0d0* rDens2*cidj)
+                     rout(i) = rout(i) + 2.0d0*(rDens2*cidj
+     &                                 + 2.0d0* rDens1*cdij)
+C                    rout(i) = rout(i) + 2.0d0*(rDens1*cdij
+C    &                                 + 2.0d0* rDens2*cidj)
                   End Do
                End Do
             End Do
