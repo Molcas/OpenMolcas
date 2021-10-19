@@ -829,12 +829,8 @@ cnf
 *
 *     Save the list of dipole moments on the run file.
 *
-      !! Is it really LROOTS? I think it is NROOTS...
-      !! This modification is tentative and for my own purpose only
-      !! Maybe for numerical gradients with CASSCF, here is LROOTS
-      !! For MCLR and CASPT2 numerical gradients, here is NROOTS
       If (Do_DM)
-     &   Call Put_dArray('Last Dipole Moments',Work(ipDMs),3*NROOTS)
+     &   Call Put_dArray('Last Dipole Moments',Work(ipDMs),3*LROOTS)
 *     Call RecPrt('Last Dipole Moments',' ',Work(ipDMs),3,NROOTS)
       Call GetMem('DipM', 'Free','Real',ipDM, 3)
       Call GetMem('DipMs','Free','Real',ipDMs,3*LROOTS)

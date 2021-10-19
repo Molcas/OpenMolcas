@@ -3102,6 +3102,7 @@ C     Call DMinvCI_sa(ipST,Work(ipIn(ipS2)),rdum,isym,work(ipS))
       !! p0 = z0
       Call DCopy_(nConf*nState,Work(ipS2),1,Work(ipCId),1)
       MaxIter = 100
+      Iter    = 1
       iSym    = 1
       jspin   = 0
       ! r^T dot z
@@ -3120,6 +3121,7 @@ C     Call DMinvCI_sa(ipST,Work(ipIn(ipS2)),rdum,isym,work(ipS))
      &      ' Iteration       Delta           Res(CI)        '//
      &      '  DeltaC'
       Call DCopy_(nConf*nState,[0.0D+00],0,Work(ipCIT),1)
+      If (Delta0.le.Abs(Thres)) Go To 100
       Do Iter = 1, MaxIter
         If (nConf.EQ.1) Then
           Do iState = 1, nState
@@ -3164,6 +3166,8 @@ C
      *  "CI iteration for non-invariant CASPT2 did not converge..."
         call abend
       End If
+C
+  100 CONTINUE
 C
       If (IPRGLB.GE.USUAL) Then
         CALL TIMING(CPTF1,CPE,TIOTF1,TIOE)

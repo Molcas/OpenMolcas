@@ -306,8 +306,8 @@ C     Orbitals, properties:
          ! if the dens keyword is used, need accurate density and
          ! for that the serial LUSOLV file is needed, in that case copy
          ! the distributed LURHS() to LUSOLV here.
-         IF((IFDENS.OR.IFGRDT).and.
-     *      (iRLXroot.eq.MSTATE(JSTATE).or.IFMSCOUP)) THEN
+         IF (IFDENS.OR.(IFGRDT.and.
+     *      (iRLXroot.eq.MSTATE(JSTATE).or.IFMSCOUP))) THEN
            CALL PCOLLVEC(IRHS,0)
            CALL PCOLLVEC(IVECX,0)
            CALL PCOLLVEC(IVECR,0)
@@ -316,8 +316,8 @@ C     Orbitals, properties:
            CALL PCOLLVEC(IVECW,1)
          END IF
 
-         IF ((IFPROP.OR.IFGRDT).and.
-     *       (IRLXroot.eq.MSTATE(JSTATE).or.IFMSCOUP)) THEN
+         IF (IFPROP.OR.(IFGRDT.and.
+     *       (IRLXroot.eq.MSTATE(JSTATE).or.IFMSCOUP))) THEN
            IF (IPRGLB.GE.USUAL) THEN
              WRITE(6,*)
              WRITE(6,'(20A4)')('****',I=1,20)
@@ -340,7 +340,7 @@ C     Gradients.
 C     Note: Quantities computed in gradients section can also
 C     be used efficiently for computing Multi-State HEFF.
 C     NOTE: atm the MS-CASPT2 couplings computed here are wrong!
-         IF((IFDENS.OR.IFGRDT).and.IRLXroot.eq.MSTATE(JSTATE)) THEN
+         IF (IFDENS.OR.(IFGRDT.and.IRLXroot.eq.MSTATE(JSTATE))) THEN
            IF (IPRGLB.GE.VERBOSE) THEN
               WRITE(6,*)
               WRITE(6,'(20A4)')('****',I=1,20)

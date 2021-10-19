@@ -541,6 +541,7 @@ C           DoGrdt=.true.
         IFDENS = .False.
         IFGRDT = .False.
       End If
+      If (BSHIFT.ne.0.0D+00) IFGRDT = 0.0D+00
       If (IFGRDT) Call Put_iScalar('mp2prpt',2)
 C
       isNAC = .False.
