@@ -1354,7 +1354,7 @@ do LRI=NORB_FRZ+1,NORB_DZ
       if (LIST1 /= 0) call PRODAB_2(3,JPEL,IWDL,IWDR,JWL,JWR,WL1,JPER,LIST1)
     end do
     if ((LMIJ == JML) .and. (LMIJ == JMR)) then
-     ! T1S(5-5)   (11)Drl(12)-
+      ! T1S(5-5)   (11)Drl(12)-
       VLOP1 = W1*W1T1S5
       VLOP0 = Zero
       if (LINE == 26) then    !LRJ,LRA

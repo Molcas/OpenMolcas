@@ -571,18 +571,22 @@ subroutine SS5_EXT(LRI,LRJ,NK)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
                          mhlp, mtype, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
 use Symmetry_Info, only: mul_tab => Mul
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: lri, lrj
 integer(kind=iwp), intent(out) :: nk
-integer(kind=iwp) :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
+integer(kind=iwp) :: iwal, iwar, k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
 real(kind=wp) :: w0ss5, w1ss5
+integer(kind=iwp), allocatable :: iwdl(:), iwdr(:)
 integer(kind=iwp), external :: iwalk_ad
 
 NK = 0
 LMI = LSM_INN(LRI)
 LMJ = LSM_INN(LRJ)
+call mma_allocate(iwdl,max_innorb,label='iwdl')
+call mma_allocate(iwdr,max_innorb,label='iwdr')
 do LRK=NORB_FRZ+1,LRI-1
   LMK = LSM_INN(LRK)
   LMKI = MUL_TAB(LMK,LMI)
@@ -592,29 +596,32 @@ do LRK=NORB_FRZ+1,LRI-1
   IWDL(NK) = JUST(LRK,LRI)
   IWDR(NK) = JUST(LRK,LRJ)
 end do
-if (NK == 0) return
 
-W0SS5 = W0_SS(5)
-W1SS5 = W1_SS(5)
-NI = mod(LRJ-LRI,2)
-if (NI == 0) then
-  W0SS5 = -W0SS5
-  W1SS5 = -W1SS5
-end if
-do MPL=1,MTYPE
-  VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS5
-  VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1SS5
-end do
-NPL = 0
-do MPL=1,MHLP
-  IWAL = LPNEW_LWEI(MPL)
-  IWAR = LPNEW_RWEI(MPL)
-  do K=1,NK
-    NPL = NPL+1
-    LP_LWEI(NPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL(K))
-    LP_RWEI(NPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR(K))
+if (NK /= 0) then
+  W0SS5 = W0_SS(5)
+  W1SS5 = W1_SS(5)
+  NI = mod(LRJ-LRI,2)
+  if (NI == 0) then
+    W0SS5 = -W0SS5
+    W1SS5 = -W1SS5
+  end if
+  do MPL=1,MTYPE
+    VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS5
+    VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1SS5
   end do
-end do
+  NPL = 0
+  do MPL=1,MHLP
+    IWAL = LPNEW_LWEI(MPL)
+    IWAR = LPNEW_RWEI(MPL)
+    do K=1,NK
+      NPL = NPL+1
+      LP_LWEI(NPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL(K))
+      LP_RWEI(NPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR(K))
+    end do
+  end do
+end if
+call mma_deallocate(iwdl)
+call mma_deallocate(iwdr)
 
 return
 
@@ -626,18 +633,22 @@ subroutine SS10_EXT(LRI,LRJ,NK)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
                          mhlp, mtype, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
 use Symmetry_Info, only: mul_tab => Mul
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: lri, lrj
 integer(kind=iwp), intent(out) :: nk
-integer(kind=iwp) :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
+integer(kind=iwp) :: iwal, iwar, k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
 real(kind=wp) :: w0ss10, w1ss10
+integer(kind=iwp), allocatable :: iwdl(:), iwdr(:)
 integer(kind=iwp), external :: iwalk_ad
 
 NK = 0
 LMI = LSM_INN(LRI)
 LMJ = LSM_INN(LRJ)
+call mma_allocate(iwdl,max_innorb,label='iwdl')
+call mma_allocate(iwdr,max_innorb,label='iwdr')
 do LRK=LRI+1,LRJ-1
   LMK = LSM_INN(LRK)
   LMKI = MUL_TAB(LMK,LMI)
@@ -647,29 +658,32 @@ do LRK=LRI+1,LRJ-1
   IWDL(NK) = JUST(LRI,LRK)
   IWDR(NK) = JUST(LRK,LRJ)
 end do
-if (NK == 0) return
 
-W0SS10 = -W0_SS(10)
-W1SS10 = -W1_SS(10)
-NI = mod(LRJ-LRI,2)
-if (NI == 0) then
-  W0SS10 = -W0SS10
-  W1SS10 = -W1SS10
-end if
-do MPL=1,MTYPE
-  VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS10
-  VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1SS10
-end do
-NPL = 0
-do MPL=1,MHLP
-  IWAL = LPNEW_LWEI(MPL)
-  IWAR = LPNEW_RWEI(MPL)
-  do K=1,NK
-    NPL = NPL+1
-    LP_LWEI(NPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL(K))
-    LP_RWEI(NPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR(K))
+if (NK /= 0) then
+  W0SS10 = -W0_SS(10)
+  W1SS10 = -W1_SS(10)
+  NI = mod(LRJ-LRI,2)
+  if (NI == 0) then
+    W0SS10 = -W0SS10
+    W1SS10 = -W1SS10
+  end if
+  do MPL=1,MTYPE
+    VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS10
+    VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1SS10
   end do
-end do
+  NPL = 0
+  do MPL=1,MHLP
+    IWAL = LPNEW_LWEI(MPL)
+    IWAR = LPNEW_RWEI(MPL)
+    do K=1,NK
+      NPL = NPL+1
+      LP_LWEI(NPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL(K))
+      LP_RWEI(NPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR(K))
+    end do
+  end do
+end if
+call mma_deallocate(iwdl)
+call mma_deallocate(iwdr)
 
 return
 
@@ -681,18 +695,22 @@ subroutine SS14_EXT(LRI,LRJ,NK)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
                          mhlp, mtype, norb_dz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_ss, w1_ss
 use Symmetry_Info, only: mul_tab => Mul
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: lri, lrj
 integer(kind=iwp), intent(out) :: nk
-integer(kind=iwp) :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
+integer(kind=iwp) :: iwal, iwar, k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
 real(kind=wp) :: w0ss14, w1ss14
+integer(kind=iwp), allocatable :: iwdl(:), iwdr(:)
 integer(kind=iwp), external :: iwalk_ad
 
 NK = 0
 LMI = LSM_INN(LRI)
 LMJ = LSM_INN(LRJ)
+call mma_allocate(iwdl,max_innorb,label='iwdl')
+call mma_allocate(iwdr,max_innorb,label='iwdr')
 do LRK=LRJ+1,NORB_DZ
   LMK = LSM_INN(LRK)
   LMKI = MUL_TAB(LMK,LMI)
@@ -702,29 +720,32 @@ do LRK=LRJ+1,NORB_DZ
   IWDL(NK) = JUST(LRI,LRK)
   IWDR(NK) = JUST(LRJ,LRK)
 end do
-if (NK == 0) return
 
-W0SS14 = W0_SS(14)
-W1SS14 = W1_SS(14)
-NI = mod(LRJ-LRI,2)
-if (NI == 0) then
-  W0SS14 = -W0SS14
-  W1SS14 = -W1SS14
-end if
-do MPL=1,MTYPE
-  VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS14
-  VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1SS14
-end do
-NPL = 0
-do MPL=1,MHLP
-  IWAL = LPNEW_LWEI(MPL)
-  IWAR = LPNEW_RWEI(MPL)
-  do K=1,NK
-    NPL = NPL+1
-    LP_LWEI(NPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL(K))
-    LP_RWEI(NPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR(K))
+if (NK /= 0) then
+  W0SS14 = W0_SS(14)
+  W1SS14 = W1_SS(14)
+  NI = mod(LRJ-LRI,2)
+  if (NI == 0) then
+    W0SS14 = -W0SS14
+    W1SS14 = -W1SS14
+  end if
+  do MPL=1,MTYPE
+    VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0SS14
+    VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1SS14
   end do
-end do
+  NPL = 0
+  do MPL=1,MHLP
+    IWAL = LPNEW_LWEI(MPL)
+    IWAR = LPNEW_RWEI(MPL)
+    do K=1,NK
+      NPL = NPL+1
+      LP_LWEI(NPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL(K))
+      LP_RWEI(NPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR(K))
+    end do
+  end do
+end if
+call mma_deallocate(iwdl)
+call mma_deallocate(iwdr)
 
 return
 
@@ -736,18 +757,22 @@ subroutine TT1_EXT(LRI,LRJ,NK,IGF)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
                          mhlp, mtype, norb_dz, norb_frz, vplp_w0, vplp_w1, vplpnew_w0, vplpnew_w1, w0_tt, w1_tt
 use Symmetry_Info, only: mul_tab => Mul
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: lri, lrj, igf
 integer(kind=iwp), intent(out) :: nk
-integer(kind=iwp) :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
+integer(kind=iwp) :: iwal, iwar, k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
 real(kind=wp) :: w0tt1, w1tt1
+integer(kind=iwp), allocatable :: iwdl(:), iwdr(:)
 integer(kind=iwp), external :: iwalk_ad
 
 NK = 0
 LMI = LSM_INN(LRI)
 LMJ = LSM_INN(LRJ)
+call mma_allocate(iwdl,max_innorb,label='iwdl')
+call mma_allocate(iwdr,max_innorb,label='iwdr')
 if (IGF == -1) then
   ! TT(11-1) Ar(23)-C'(22)-Bl(32)-
   do LRK=LRI+1,LRJ-1
@@ -785,27 +810,30 @@ else
   W0TT1 = W0_TT(1)
   W1TT1 = W1_TT(1)
 end if
-if (NK == 0) return
 
-NI = mod(LRJ-LRI,2)
-if (NI == 0) then
-  W0TT1 = -W0TT1
-  W1TT1 = -W1TT1
-end if
-do MPL=1,MTYPE
-  VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0TT1
-  VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1TT1
-end do
-NPL = 0
-do MPL=1,MHLP
-  IWAL = LPNEW_LWEI(MPL)
-  IWAR = LPNEW_RWEI(MPL)
-  do K=1,NK
-    NPL = NPL+1
-    LP_LWEI(NPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL(K))
-    LP_RWEI(NPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR(K))
+if (NK /= 0) then
+  NI = mod(LRJ-LRI,2)
+  if (NI == 0) then
+    W0TT1 = -W0TT1
+    W1TT1 = -W1TT1
+  end if
+  do MPL=1,MTYPE
+    VPLP_W0(MPL) = VPLPNEW_W0(MPL)*W0TT1
+    VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1TT1
   end do
-end do
+  NPL = 0
+  do MPL=1,MHLP
+    IWAL = LPNEW_LWEI(MPL)
+    IWAR = LPNEW_RWEI(MPL)
+    do K=1,NK
+      NPL = NPL+1
+      LP_LWEI(NPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL(K))
+      LP_RWEI(NPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR(K))
+    end do
+  end do
+end if
+call mma_deallocate(iwdl)
+call mma_deallocate(iwdr)
 
 return
 
@@ -821,7 +849,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: lri, lrj
-integer(kind=iwp), intent(out) ::  nk
+integer(kind=iwp), intent(out) :: nk
 integer(kind=iwp) :: iwal, iwar, iwdl, iwdr, lmi, lmij, lmj, mpl, ni
 real(kind=wp) :: w1ts1
 integer(kind=iwp), external :: iwalk_ad
@@ -858,19 +886,23 @@ subroutine TS2_EXT(LRI,LRJ,NK,IGF)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
                          mhlp, mtype, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_ts
 use Symmetry_Info, only: mul_tab => Mul
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: lri, lrj, igf
 integer(kind=iwp), intent(out) :: nk
-integer(kind=iwp) :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
+integer(kind=iwp) :: iwal, iwar, k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
 real(kind=wp) :: w1ts2
+integer(kind=iwp), allocatable :: iwdl(:), iwdr(:)
 integer(kind=iwp), external :: iwalk_ad
 
 NK = 0
 LMI = LSM_INN(LRI)
 LMJ = LSM_INN(LRJ)
+call mma_allocate(iwdl,max_innorb,label='iwdl')
+call mma_allocate(iwdr,max_innorb,label='iwdr')
 if (IGF == -1) then
   ! TS(3-2) Ar(23)-C'(22)-Bl(31)-   ACT -C"-
   do LRK=LRI+1,LRJ-1
@@ -896,25 +928,28 @@ else
   end do
   W1TS2 = W1_TS(2)
 end if
-if (NK == 0) return
-NI = mod(LRJ-LRI,2)
-if (NI == 0) then
-  W1TS2 = -W1TS2
-end if
-do MPL=1,MTYPE
-  VPLP_W0(MPL) = Zero
-  VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1TS2
-end do
-NPL = 0
-do MPL=1,MHLP
-  IWAL = LPNEW_LWEI(MPL)
-  IWAR = LPNEW_RWEI(MPL)
-  do K=1,NK
-    NPL = NPL+1
-    LP_LWEI(NPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL(K))
-    LP_RWEI(NPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR(K))
+if (NK /= 0) then
+  NI = mod(LRJ-LRI,2)
+  if (NI == 0) then
+    W1TS2 = -W1TS2
+  end if
+  do MPL=1,MTYPE
+    VPLP_W0(MPL) = Zero
+    VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1TS2
   end do
-end do
+  NPL = 0
+  do MPL=1,MHLP
+    IWAL = LPNEW_LWEI(MPL)
+    IWAR = LPNEW_RWEI(MPL)
+    do K=1,NK
+      NPL = NPL+1
+      LP_LWEI(NPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL(K))
+      LP_RWEI(NPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR(K))
+    end do
+  end do
+end if
+call mma_deallocate(iwdl)
+call mma_deallocate(iwdr)
 
 return
 
@@ -925,20 +960,24 @@ subroutine TS4_EXT(LRI,LRJ,NK)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
                          mhlp, mtype, norb_dz, vplp_w0, vplp_w1, vplpnew_w1, w1_ts
 use Symmetry_Info, only: mul_tab => Mul
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: lri, lrj
 integer(kind=iwp), intent(out) :: nk
-integer(kind=iwp) :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
+integer(kind=iwp) :: iwal, iwar, k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
 real(kind=wp) :: w1ts4
+integer(kind=iwp), allocatable :: iwdl(:), iwdr(:)
 integer(kind=iwp), external :: iwalk_ad
 
 LMI = LSM_INN(LRI)
 LMJ = LSM_INN(LRJ)
 NK = 0
 ! TS(3-4) Ar(23)-Bl(32)-C"(21)-
+call mma_allocate(iwdl,max_innorb,label='iwdl')
+call mma_allocate(iwdr,max_innorb,label='iwdr')
 do LRK=LRJ+1,NORB_DZ
   LMK = LSM_INN(LRK)
   LMKI = MUL_TAB(LMK,LMI)
@@ -948,26 +987,29 @@ do LRK=LRJ+1,NORB_DZ
   IWDL(NK) = JUST(LRI,LRK)
   IWDR(NK) = JUST(LRJ,LRK)
 end do
-if (NK == 0) return
-W1TS4 = W1_TS(4)
-NI = mod(LRJ-LRI,2)
-if (NI == 0) then
-  W1TS4 = -W1TS4
-end if
-do MPL=1,MTYPE
-  VPLP_W0(MPL) = Zero
-  VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1TS4
-end do
-NPL = 0
-do MPL=1,MHLP
-  IWAL = LPNEW_LWEI(MPL)
-  IWAR = LPNEW_RWEI(MPL)
-  do K=1,NK
-    NPL = NPL+1
-    LP_LWEI(NPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL(K))
-    LP_RWEI(NPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR(K))
+if (NK /= 0) then
+  W1TS4 = W1_TS(4)
+  NI = mod(LRJ-LRI,2)
+  if (NI == 0) then
+    W1TS4 = -W1TS4
+  end if
+  do MPL=1,MTYPE
+    VPLP_W0(MPL) = Zero
+    VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1TS4
   end do
-end do
+  NPL = 0
+  do MPL=1,MHLP
+    IWAL = LPNEW_LWEI(MPL)
+    IWAR = LPNEW_RWEI(MPL)
+    do K=1,NK
+      NPL = NPL+1
+      LP_LWEI(NPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL(K))
+      LP_RWEI(NPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR(K))
+    end do
+  end do
+end if
+call mma_deallocate(iwdl)
+call mma_deallocate(iwdr)
 
 return
 
@@ -1020,20 +1062,24 @@ subroutine ST2_EXT(LRI,LRJ,NK)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
                          mhlp, mtype, norb_frz, vplp_w0, vplp_w1, vplpnew_w1, w1_st
 use Symmetry_Info, only: mul_tab => Mul
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: lri, lrj
 integer(kind=iwp), intent(out) :: nk
-integer(kind=iwp) :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
+integer(kind=iwp) :: iwal, iwar, k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
 real(kind=wp) :: w1st2
+integer(kind=iwp), allocatable :: iwdl(:), iwdr(:)
 integer(kind=iwp), external :: iwalk_ad
 
 LMI = LSM_INN(LRI)
 LMJ = LSM_INN(LRJ)
 NK = 0
 ! ST(2-2) (22)Ar(13)-Bl(32)-
+call mma_allocate(iwdl,max_innorb,label='iwdl')
+call mma_allocate(iwdr,max_innorb,label='iwdr')
 do LRK=NORB_FRZ+1,LRI-1
   LMK = LSM_INN(LRK)
   LMKI = MUL_TAB(LMK,LMI)
@@ -1043,27 +1089,30 @@ do LRK=NORB_FRZ+1,LRI-1
   IWDL(NK) = JUST(LRK,LRI)
   IWDR(NK) = JUST(LRK,LRJ)
 end do
-if (NK == 0) return
 
-W1ST2 = W1_ST(2)
-NI = mod(LRJ-LRI,2)
-if (NI == 0) then
-  W1ST2 = -W1ST2
-end if
-do MPL=1,MTYPE
-  VPLP_W0(MPL) = Zero
-  VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1ST2
-end do
-NPL = 0
-do MPL=1,MHLP
-  IWAL = LPNEW_LWEI(MPL)
-  IWAR = LPNEW_RWEI(MPL)
-  do K=1,NK
-    NPL = NPL+1
-    LP_LWEI(NPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL(K))
-    LP_RWEI(NPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR(K))
+if (NK /= 0) then
+  W1ST2 = W1_ST(2)
+  NI = mod(LRJ-LRI,2)
+  if (NI == 0) then
+    W1ST2 = -W1ST2
+  end if
+  do MPL=1,MTYPE
+    VPLP_W0(MPL) = Zero
+    VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1ST2
   end do
-end do
+  NPL = 0
+  do MPL=1,MHLP
+    IWAL = LPNEW_LWEI(MPL)
+    IWAR = LPNEW_RWEI(MPL)
+    do K=1,NK
+      NPL = NPL+1
+      LP_LWEI(NPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL(K))
+      LP_RWEI(NPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR(K))
+    end do
+  end do
+end if
+call mma_deallocate(iwdl)
+call mma_deallocate(iwdr)
 
 return
 
@@ -1074,19 +1123,23 @@ subroutine ST4_EXT(LRI,LRJ,NK,IGF)
 use gugaci_global, only: ipae, ipael, jml, jmr, jpad, jpadl, just, lp_lwei, lp_rwei, lpnew_lwei, lpnew_rwei, lsm_inn, max_innorb, &
                          mhlp, mtype, norb_dz, vplp_w0, vplp_w1, vplpnew_w1, w1_st
 use Symmetry_Info, only: mul_tab => Mul
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: lri, lrj, igf
 integer(kind=iwp), intent(out) :: nk
-integer(kind=iwp) :: iwal, iwar, iwdl(max_innorb), iwdr(max_innorb), k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
+integer(kind=iwp) :: iwal, iwar, k, lmi, lmj, lmk, lmki, lmkj, lrk, mpl, ni, npl
 real(kind=wp) :: w1st4
+integer(kind=iwp), allocatable :: iwdl(:), iwdr(:)
 integer(kind=iwp), external :: iwalk_ad
 
 NK = 0
 LMI = LSM_INN(LRI)
 LMJ = LSM_INN(LRJ)
+call mma_allocate(iwdl,max_innorb,label='iwdl')
+call mma_allocate(iwdr,max_innorb,label='iwdr')
 if (IGF == -1) then
   ! ST(2-4) Ar(23)-C'(12)-Bl(32)-
   do LRK=LRI+1,LRJ-1
@@ -1113,25 +1166,28 @@ else
   W1ST4 = W1_ST(4)
 end if
 
-if (NK == 0) return
-NI = mod(LRJ-LRI,2)
-if (NI == 0) then
-  W1ST4 = -W1ST4
-end if
-do MPL=1,MTYPE
-  VPLP_W0(MPL) = Zero
-  VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1ST4
-end do
-NPL = 0
-do MPL=1,MHLP
-  IWAL = LPNEW_LWEI(MPL)
-  IWAR = LPNEW_RWEI(MPL)
-  do K=1,NK
-    NPL = NPL+1
-    LP_LWEI(NPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL(K))
-    LP_RWEI(NPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR(K))
+if (NK /= 0) then
+  NI = mod(LRJ-LRI,2)
+  if (NI == 0) then
+    W1ST4 = -W1ST4
+  end if
+  do MPL=1,MTYPE
+    VPLP_W0(MPL) = Zero
+    VPLP_W1(MPL) = VPLPNEW_W1(MPL)*W1ST4
   end do
-end do
+  NPL = 0
+  do MPL=1,MHLP
+    IWAL = LPNEW_LWEI(MPL)
+    IWAR = LPNEW_RWEI(MPL)
+    do K=1,NK
+      NPL = NPL+1
+      LP_LWEI(NPL) = IWALK_AD(JPADL,IpaeL,IWAL,IWDL(K))
+      LP_RWEI(NPL) = IWALK_AD(JPAD,Ipae,IWAR,IWDR(K))
+    end do
+  end do
+end if
+call mma_deallocate(iwdl)
+call mma_deallocate(iwdr)
 
 return
 

@@ -305,16 +305,19 @@ end subroutine lp9_drlbl_ext_calcuvalue_wyb
 
 subroutine lp8_drlbr_sum_calcuvalue_wyb(lri,lrp,lrq,isma,nv)
 
-use gugaci_global, only: ibsm_ext, intind_iaqq, max_extorb, max_innorb, nlsm_ext, norb_ext, norb_inn, value_lpext, viasum_0, &
-                         viasum_1, vint_ci, w0_sdplp, w0_sdplp25, w0g25, w1_sdplp25
+use gugaci_global, only: ibsm_ext, intind_iaqq, nlsm_ext, norb_ext, norb_inn, value_lpext, viasum_0, viasum_1, vint_ci, w0_sdplp, &
+                         w0_sdplp25, w0g25, w1_sdplp25
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: lri, lrp, lrq, isma
 integer(kind=iwp), intent(out) :: nv
 integer(kind=iwp) :: ia, ia0, idorbint_p, idorbint_q, ilpvalue, intpos, intposbase, ira, m_ia, next_sta
-real(kind=wp) :: vint_0(max_innorb,max_extorb), vint_1(max_innorb,max_extorb)
+real(kind=wp), allocatable :: vint_0(:,:), vint_1(:,:)
 
+call mma_allocate(vint_0,norb_inn,norb_ext,label='vint_0')
+call mma_allocate(vint_1,norb_inn,norb_ext,label='vint_1')
 vint_0(1:norb_inn,1:norb_ext) = viasum_0(1:norb_inn,1:norb_ext)
 vint_1(1:norb_inn,1:norb_ext) = viasum_1(1:norb_inn,1:norb_ext)
 
@@ -349,13 +352,16 @@ do m_ia=1,nlsm_ext(isma)
   value_lpext(ilpvalue) = w0_sdplp25*vint_0(lri,ira)-w1_sdplp25*vint_1(lri,ira) !value_lptm
 end do
 nv = ilpvalue
+call mma_deallocate(vint_0)
+call mma_deallocate(vint_1)
 
 end subroutine lp8_drlbr_sum_calcuvalue_wyb
 
 subroutine lp9_drlbl_sum_calcuvalue_wyb(lri,lrp,lrq,isma,nv)
 
-use gugaci_global, only: ibsm_ext, intind_iaqq, max_extorb, max_innorb, nlsm_ext, norb_ext, norb_inn, value_lpext, viasum_0, &
-                         viasum_1, vint_ci, w0_sdplp, w0_sdplp25, w0g25, w1_sdplp25
+use gugaci_global, only: ibsm_ext, intind_iaqq, nlsm_ext, norb_ext, norb_inn, value_lpext, viasum_0, viasum_1, vint_ci, w0_sdplp, &
+                         w0_sdplp25, w0g25, w1_sdplp25
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Two
 use Definitions, only: wp, iwp
 
@@ -363,8 +369,10 @@ implicit none
 integer(kind=iwp), intent(in) :: lri, lrp, lrq, isma
 integer(kind=iwp), intent(out) :: nv
 integer(kind=iwp) :: ia, ia0, idorbint_p, idorbint_q, ilpvalue, intpos, intposbase, ira, m_ia, next_sta
-real(kind=wp) :: vint_0(max_innorb,max_extorb), vint_1(max_innorb,max_extorb)
+real(kind=wp), allocatable :: vint_0(:,:), vint_1(:,:)
 
+call mma_allocate(vint_0,norb_inn,norb_ext,label='vint_0')
+call mma_allocate(vint_1,norb_inn,norb_ext,label='vint_1')
 vint_0(1:norb_inn,1:norb_ext) = viasum_0(1:norb_inn,1:norb_ext)
 vint_1(1:norb_inn,1:norb_ext) = viasum_1(1:norb_inn,1:norb_ext)
 
@@ -400,6 +408,8 @@ do m_ia=1,nlsm_ext(isma)
   value_lpext(ilpvalue) = w0_sdplp25*vint_0(lri,ira)+w1_sdplp25*vint_1(lri,ira)
 end do
 nv = ilpvalue
+call mma_deallocate(vint_0)
+call mma_deallocate(vint_1)
 
 end subroutine lp9_drlbl_sum_calcuvalue_wyb
 
@@ -832,17 +842,21 @@ end subroutine lp_drl_ext_SS_calcuvalue
 
 subroutine lp_drl_sum_SS_calcuvalue(lri,lrj,nlp_value)
 
-use gugaci_global, only: intind_abkk, intspace_abkk, logic_g2g4a, norb_ext, value_lpext, vijkk_0sum, vijkk_1sum, vint_ci, w0_plp, &
-                         w0g2a, w0g36a, w1_plp, w1g2a, w1g36a
+use gugaci_global, only: intind_abkk, intspace_abkk, logic_g2g4a, value_lpext, vijkk_0sum, vijkk_1sum, vint_ci, w0_plp, w0g2a, &
+                         w0g36a, w1_plp, w1g2a, w1g36a
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: lri, lrj
 integer(kind=iwp), intent(out) :: nlp_value
 integer(kind=iwp) :: i, intpos, intspace, ivalue
-real(kind=wp) :: vint_0(norb_ext*norb_ext), vint_1(norb_ext*norb_ext), w0lp, w1lp
+real(kind=wp) :: w0lp, w1lp
+real(kind=wp), allocatable :: vint_0(:), vint_1(:)
 
 intspace = intspace_abkk(1)
+call mma_allocate(vint_0,intspace,label='vint_0')
+call mma_allocate(vint_1,intspace,label='vint_1')
 vint_0(1:intspace) = vijkk_0sum(1:intspace)
 vint_1(1:intspace) = vijkk_1sum(1:intspace)
 
@@ -893,6 +907,8 @@ do I=1,intspace
   value_lpext(ivalue) = vint_1(i)*w0lp-vint_0(i)*w1lp
 end do
 nlp_value = ivalue
+call mma_deallocate(vint_0)
+call mma_deallocate(vint_1)
 
 end subroutine lp_drl_sum_SS_calcuvalue
 
@@ -1026,8 +1042,9 @@ end subroutine lp_drl_ext_TT_calcuvalue
 
 subroutine lp_drl_sum_TT_calcuvalue(lri,lrj,n1415,nlp_value)
 
-use gugaci_global, only: ibsm_ext, iesm_ext, intind_abkk, intspace_abkk, ism_g1415, logic_g1415, ng_sm, norb_dz, norb_ext, &
-                         norb_number, value_lpext, vijkk_0sum, vijkk_1sum, vint_ci, voint, w0_plp, w0g14a, w0g15a, w0g36a
+use gugaci_global, only: ibsm_ext, iesm_ext, intind_abkk, intspace_abkk, ism_g1415, logic_g1415, ng_sm, norb_dz, norb_number, &
+                         value_lpext, vijkk_0sum, vijkk_1sum, vint_ci, voint, w0_plp, w0g14a, w0g15a, w0g36a
+use stdalloc, only: mma_allocate, mma_deallocate
 use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: wp, iwp
 
@@ -1035,9 +1052,12 @@ implicit none
 integer(kind=iwp), intent(in) :: lri, lrj
 integer(kind=iwp), intent(out) :: n1415, nlp_value
 integer(kind=iwp) :: i, ia, iaend, iasta, ib, ibend, ibsta, intpos, intspace, isma, ismb, ivalue, lra, lrb, lrk, lrk0
-real(kind=wp) :: vint_0(norb_ext*norb_ext), vint_1(norb_ext*norb_ext), w014, w015, w0lp, w14lp, w15lp
+real(kind=wp) :: w014, w015, w0lp, w14lp, w15lp
+real(kind=wp), allocatable :: vint_0(:), vint_1(:)
 
 intspace = intspace_abkk(1)
+call mma_allocate(vint_0,intspace,label='vint_0')
+call mma_allocate(vint_1,intspace,label='vint_1')
 vint_0(1:intspace) = vijkk_0sum(1:intspace)
 vint_1(1:intspace) = vijkk_1sum(1:intspace)
 
@@ -1103,6 +1123,8 @@ do I=1,intspace
   value_lpext(ivalue) = vint_1(I)*w0lp
 end do
 nlp_value = ivalue
+call mma_deallocate(vint_0)
+call mma_deallocate(vint_1)
 
 end subroutine lp_drl_sum_TT_calcuvalue
 
@@ -1201,7 +1223,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: lri, lrj
 integer(kind=iwp), intent(out) :: nlp_value
-integer(kind=iwp) :: i, ia, iaend, iasta, ib, ibend, ibsta, ij, intpos, intpos13, intposia,intposib, intspace, isma, ismb, ivalue
+integer(kind=iwp) :: i, ia, iaend, iasta, ib, ibend, ibsta, ij, intpos, intpos13, intposia, intposib, intspace, isma, ismb, ivalue
 real(kind=wp) :: valp, valuelpib, valuelptmp1, w0lp, w1lp, ww0lp, ww1lp
 
 ivalue = 0

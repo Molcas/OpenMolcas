@@ -204,19 +204,22 @@ end function iwalk_ad
 subroutine ajphy(jp,in_,jpihy)
 
 use gugaci_global, only: iy, jj, jj_sub, jpad, kk, max_node, max_wei, no, norb_dz
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: jp
 integer(kind=iwp), intent(inout) :: in_, jpihy(max_wei)
-integer(kind=iwp) :: i, idr, iin(0:max_node), j, jpe, jpn, jy, l, lr, nn
+integer(kind=iwp) :: i, idr, j, jpe, jpn, jy, l, lr, nn
+integer(kind=iwp), allocatable :: iin(:)
 
-iin(0) = 0
 if (jp == jpad) then
   in_ = 1
   jpihy(1) = 0
   return
 end if
+call mma_allocate(iin,[0,max_node],label='iin')
+iin(0) = 0
 lr = kk(jp)
 !write(u6,*) '  ajphy,jp,start,end',jp,no(nst-lr)+1,no(nst-lr+1)
 jpe = no(lr+1)
@@ -244,6 +247,7 @@ do l=1,in_
     nn = jj_sub(idr,nn)
   end do
 end do
+call mma_deallocate(iin)
 
 return
 

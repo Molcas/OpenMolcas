@@ -12,17 +12,18 @@
 ! generate and print csfs
 subroutine found_a_config(ndl,de,npr)
 
-use gugaci_global, only: ipae, iseg_downwei, iw_downwei, iw_sta, jd, jpad, jpad_upwei, jpae, js, jt, jv, map_orb_order, max_orb, &
-                         mxnode, ndim, ndr, ng_sm, nlsm_frz, noidx, norb_act, norb_all, norb_dz, norb_ext, nu_ad, nu_ae, nwalk
+use gugaci_global, only: ipae, iseg_downwei, iw_downwei, iw_sta, jd, jpad, jpad_upwei, jpae, js, jt, jv, map_orb_order, mxnode, &
+                         ndim, ndr, ng_sm, nlsm_frz, noidx, norb_act, norb_all, norb_dz, norb_ext, nu_ad, nu_ae, nwalk
                          !, lsmorb, norb_frz
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: ndl, npr
 real(kind=wp), intent(in) :: de
-integer(kind=iwp) :: i, im, iwupwei, j, jaedownwei, jpad_, l, ndimsum, ne, no_dz, noi, norbindex(max_orb), norbsymm(max_orb), &
-                     norbwalk(max_orb), ns, nst, nwalk_gamess(max_orb)
+integer(kind=iwp) :: i, im, iwupwei, j, jaedownwei, jpad_, l, ndimsum, ne, no_dz, noi, ns, nst
 real(kind=wp) :: sqde
+integer(kind=iwp), allocatable :: norbindex(:), norbsymm(:), norbwalk(:), nwalk_gamess(:)
 character(len=18) :: form1
 
 ndr = ndl
@@ -117,6 +118,11 @@ end if
 
 if (npr == 0) return
 
+call mma_allocate(norbindex,norb_all,label='norbindex')
+call mma_allocate(norbsymm,norb_all,label='norbsymm')
+call mma_allocate(norbwalk,norb_all,label='norbwalk')
+call mma_allocate(nwalk_gamess,norb_all,label='nwalk_gamess')
+
 nwalk_gamess(1:norb_all) = 0
 do i=1,nst
   nwalk_gamess(i) = nwalk(nst-i+1)
@@ -172,6 +178,10 @@ write(u6,form1) 'norb',(norbindex(i),i=1,j)
 write(u6,form1) 'sym ',(norbsymm(i),i=1,j)
 write(u6,form1) 'walk',(norbwalk(i),i=1,j)
 !end if
+call mma_deallocate(norbindex)
+call mma_deallocate(norbsymm)
+call mma_deallocate(norbwalk)
+call mma_deallocate(nwalk_gamess)
 
 return
 
@@ -188,7 +198,6 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: idl, jp, jp0, jp1, jw, lr, lr0, mpe
-!integer(kind=iwp) :: ndr(max_innorb)
 
 !write(u6,*) '               ***** start h-diaelm *****'
 !write(u6,*) '   diagonal_act_d:',jpad,ipae

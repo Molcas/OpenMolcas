@@ -11,6 +11,7 @@
 
 subroutine natureorb(nsbas,nsall,nsdel,ngsm,den1,lden,cmo,lcmo,bsbl,lenb,cno,occ,nmo,pror)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
@@ -18,9 +19,11 @@ implicit none
 integer(kind=iwp), intent(in) :: nsbas(8), nsall(8), nsdel(8), ngsm, lden, lcmo, lenb, nmo
 real(kind=wp), intent(in) :: den1(lden), cmo(lcmo), pror
 real(kind=wp), intent(out) :: cno(lcmo), occ(nmo)
-character :: bsbl(lenb)
-integer(kind=iwp) :: i, im, j, nc, nc0, nc1, nc2, nc3, nc4, nc5, nsfrz(8), nsort(nmo)
-real(kind=wp) :: buff(nmo**2), val
+character, intent(in) :: bsbl(lenb)
+integer(kind=iwp) :: i, im, j, nc, nc0, nc1, nc2, nc3, nc4, nc5, nsfrz(8)
+real(kind=wp) :: val
+integer(kind=iwp), allocatable :: nsort(:)
+real(kind=wp), allocatable :: buff(:)
 character(len=128), parameter :: header = 'MRCISD Natural orbital'
 
 nc0 = 1
@@ -38,6 +41,9 @@ end do
 !close(100)
 !close(200)
 
+call mma_allocate(buff,nmo**2,label='buff')
+call mma_allocate(nsort,nmo,label='nsort')
+
 val = 0
 cno(:) = cmo(:)
 nc0 = 1
@@ -47,7 +53,7 @@ do im=1,ngsm
   if (nsbas(im) == 0) cycle
   nsfrz(im) = nsbas(im)-nsall(im)-nsdel(im)
   ! For density matrix, we only have correlated orbital density matrix
-  buff = Zero
+  buff(:) = Zero
   nc = nsall(im)*(nsall(im)+1)/2
   ! Diagonalize density matrix in symmetry block im and transform MO
   ! Copy density matrix
@@ -65,7 +71,6 @@ do im=1,ngsm
   end do
 
   ! Sort natural orbital in OCC num decreasing order
-  buff = Zero
   ! Sort and copy correlated natural orb
   do i=1,nsall(im)
     nsort(i) = i
@@ -84,7 +89,7 @@ do im=1,ngsm
     nsort(i) = nc3
   end do
 
-  buff = Zero
+  buff(:) = Zero
   nc3 = nsbas(im)**2
   buff(1:nc3) = cno(nc1:nc1+nc3-1)
   ! Copy sorted orbital
@@ -106,6 +111,9 @@ do im=1,ngsm
   nc1 = nc1+nsbas(im)**2
   nc2 = nc2+nsall(im)*(nsall(im)+1)/2
 end do
+
+call mma_deallocate(buff)
+call mma_deallocate(nsort)
 
 !nc0 = 1
 !do im=1,ngsm

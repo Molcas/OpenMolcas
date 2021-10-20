@@ -18,19 +18,19 @@ subroutine hymat_2(maxroot,minspace,ndim,kval,mroot,dcrita,eval,vcm,indx,th,nxh,
 ! in Computers & Chemistry, 4, 55 (1980).
 !***********************************************************************
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-!integer(kind=iwp), parameter :: maxroot = 10, minspace = 40)
 integer(kind=iwp), intent(in) :: maxroot, minspace, ndim, mroot, indx(minspace), nxh, nxb
 integer(kind=iwp), intent(inout) :: kval
 real(kind=wp), intent(in) :: dcrita, th(nxh), vad(ndim)
 real(kind=wp), intent(inout) :: eval(maxroot), vb1(nxb), vb2(nxb)
 real(kind=wp), intent(out) :: vcm(ndim*mroot)
 integer(kind=iwp) :: i, ijb, ijm, ijmb1, indxm, iterat, jib1, jib2, jicm, k, l, m, mmspace, mn, mrsta, mrsta0, mval, nroot
-real(kind=wp) :: deff(maxroot), depcc, ecrita(maxroot), eeval(maxroot), residvb(maxroot), tm, valpha(maxroot), vd(minspace), &
-                 ve(minspace), vp(minspace*(minspace+1)/2), vu(minspace,minspace), vukm
+real(kind=wp) :: depcc, tm, vukm
+real(kind=wp), allocatable :: deff(:), ecrita(:), eeval(:), residvb(:), valpha(:), vd(:), ve(:), vp(:), vu(:,:)
 real(kind=wp), parameter :: depc = 1.0e-7_wp
 
 !**************************************************************
@@ -49,7 +49,17 @@ real(kind=wp), parameter :: depc = 1.0e-7_wp
 !end do
 !call abend()
 
-ecrita = 1.0e-8_wp
+call mma_allocate(deff,maxroot,label='deff')
+call mma_allocate(ecrita,maxroot,label='ecrita')
+call mma_allocate(eeval,maxroot,label='eeval')
+call mma_allocate(residvb,maxroot,label='residvb')
+call mma_allocate(valpha,maxroot,label='valpha')
+call mma_allocate(vd,minspace,label='vd')
+call mma_allocate(ve,minspace,label='ve')
+call mma_allocate(vp,minspace*(minspace+1)/2,label='vp')
+call mma_allocate(vu,minspace,minspace,label='vu')
+
+ecrita(:) = 1.0e-8_wp
 iterat = 1
 mrsta = 1
 call abprod2(ndim,1,kval,th,nxh,vb1,vb2,nxb,vad)
@@ -236,6 +246,15 @@ do
   !=====  write out p_matrix ===========================================
 
 end do
+call mma_deallocate(deff)
+call mma_deallocate(ecrita)
+call mma_deallocate(eeval)
+call mma_deallocate(residvb)
+call mma_deallocate(valpha)
+call mma_deallocate(vd)
+call mma_deallocate(ve)
+call mma_deallocate(vp)
+call mma_deallocate(vu)
 
 ! copy ci vector to VB1
 do m=1,mroot

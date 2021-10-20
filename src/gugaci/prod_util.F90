@@ -14,12 +14,14 @@
 subroutine jl_ne_jr(mp,jl,jr,jwl,jwr,lopu)
 
 use gugaci_global, only: iy, iyl, jj_sub, jjl_sub, loputmp
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(out) :: mp, lopu(4,loputmp)
 integer(kind=iwp), intent(in) :: jl, jr, jwl, jwr
-integer(kind=iwp) :: i, idlr, jlp, jrp, jwlp, jwrp, lopi(4,loputmp), lopj(4,loputmp), lpi, lpj, ml, mr, nlp
+integer(kind=iwp) :: i, idlr, jlp, jrp, jwlp, jwrp, lpi, lpj, ml, mr, nlp
+integer(kind=iwp), allocatable :: lopi(:,:), lopj(:,:)
 
 !-----------------------------------------------------------------------
 ! on entry:
@@ -36,6 +38,8 @@ integer(kind=iwp) :: i, idlr, jlp, jrp, jwlp, jwrp, lopi(4,loputmp), lopj(4,lopu
 
 ! lopu(1,*)=jwl lopu(2,*)=jwr,lopu(3,*)=jl,lopu(4,*)=jr
 !write(u6,*) 'in subroutine jl_ne_jr',jl,jr
+call mma_allocate(lopi,4,loputmp,label='lopi')
+call mma_allocate(lopj,4,loputmp,label='lopj')
 mp = 0
 lpi = 1
 lopi(1,1) = jwl
@@ -74,6 +78,8 @@ do
     lopi(1:4,i) = lopj(1:4,i)
   end do
 end do
+call mma_deallocate(lopi)
+call mma_deallocate(lopj)
 
 return
 
@@ -90,13 +96,15 @@ subroutine prodab_h0(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr)
 ! vector2
 
 use gugaci_global, only: ihy, ipae, ipael, iseg_downwei, iw_downwei, iy, jpad, jpad_upwei, jpadl, jphy, loputmp, vector2
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: idb, mg1, mg2, mg3, mg4, mg5, jpr
 real(kind=wp), intent(in) :: wl
 integer(kind=iwp) :: ii, in_, isegdownwei, iwa, iwadl, iwadr, iwal, iwar, iwd, iwdl, iwdown, iwdr, iwe, iwl, iwr, iwupwei, jpe, &
-                     jph, jpl, jpy, jwd, jwnu, jwu, lopu(4,loputmp), lp, lwnu, m, mm, mntmp, mp, nn
+                     jph, jpl, jpy, jwd, jwnu, jwu, lp, lwnu, m, mm, mntmp, mp, nn
+integer(kind=iwp), allocatable :: lopu(:,:)
 integer(kind=iwp), external :: iwalk_ad
 
 !write(u6,*) 'prodab_02 '
@@ -140,6 +148,7 @@ select case (idb)
     jpy = jphy(jph)
     in_ = ihy(jpy)
 
+    call mma_allocate(lopu,4,loputmp,label='lopu')
     call jl_ne_jr(mp,jpl,jpr,mg3,mg4,lopu)
     do lp=1,mp
       iwl = lopu(1,lp)-1
@@ -172,6 +181,7 @@ select case (idb)
         end do
       end do
     end do
+    call mma_deallocate(lopu)
 
   case (3)
     ! between act and dbl
@@ -180,6 +190,7 @@ select case (idb)
     iwdr = mg3
     isegdownwei = iseg_downwei(ipae)
 
+    call mma_allocate(lopu,4,loputmp,label='lopu')
     call jl_ne_jr(mp,jpl,jpr,mg4,mg5,lopu)
     do lp=1,mp
       iwal = lopu(1,lp)-1
@@ -204,6 +215,7 @@ select case (idb)
         end do
       end do
     end do
+    call mma_deallocate(lopu)
 end select
 
 return
@@ -217,13 +229,15 @@ subroutine prodab_h(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr)
 
 use gugaci_global, only: ihy, indx, ipae, ipael, iseg_downwei, iw_downwei, iy, jpad, jpad_upwei, jpadl, jphy, loputmp, mcroot, &
                          nu_ae, vector1, vector2
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: idb, mg1, mg2, mg3, mg4, mg5, jpr
 real(kind=wp), intent(in) :: wl
 integer(kind=iwp) :: ii, in_, ipae_, ipaeend, irot, irtidx, isegdownwei, iwa, iwadl, iwadr, iwal, iwar, iwd, iwdl, iwdown, iwdr, &
-                     iwe, iwl, iwr, iwupwei, jpe, jph, jpl, jpy, jwd, jwnu, jwu, lopu(4,loputmp), lp, lwnu, m, mm, mp, nn
+                     iwe, iwl, iwr, iwupwei, jpe, jph, jpl, jpy, jwd, jwnu, jwu, lp, lwnu, m, mm, mp, nn
+integer(kind=iwp), allocatable :: lopu(:,:)
 integer(kind=iwp), external :: iwalk_ad
 
 !write(u6,*) 'prodab_02 ',mcroot,indx(1),iw_downwei(jpad,ipae)
@@ -271,6 +285,7 @@ select case (idb)
     jpy = jphy(jph)
     in_ = ihy(jpy)
 
+    call mma_allocate(lopu,4,loputmp,label='lopu')
     call jl_ne_jr(mp,jpl,jpr,mg3,mg4,lopu)
     do lp=1,mp
       iwl = lopu(1,lp)-1
@@ -301,6 +316,7 @@ select case (idb)
         end do
       end do
     end do
+    call mma_deallocate(lopu)
 
   case (3)
     ! between act and dbl
@@ -309,6 +325,7 @@ select case (idb)
     iwdr = mg3
     isegdownwei = iseg_downwei(ipae)
 
+    call mma_allocate(lopu,4,loputmp,label='lopu')
     call jl_ne_jr(mp,jpl,jpr,mg4,mg5,lopu)
 
     do lp=1,mp
@@ -334,6 +351,7 @@ select case (idb)
         end do
       end do
     end do
+    call mma_deallocate(lopu)
 end select
 
 return
@@ -369,13 +387,15 @@ subroutine prodab_h0_d(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr)
 
 use gugaci_global, only: ihy, indx, ipae, ipael, iw_downwei, iy, jpad, jpad_upwei, jpadl, jpae_downwei, jphy, loputmp, mcroot, &
                          vector1, vector2
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: idb, mg1, mg2, mg3, mg4, mg5, jpr
 real(kind=wp), intent(in) :: wl
 integer(kind=iwp) :: ii, in_, irot, irtidx, iwa, iwadl, iwadr, iwal, iwar, iwd, iwdl, iwdown, iwdr, iwe, iwl, iwr, iwupwei, &
-                     jpaedownwei, jpe, jph, jpl, jpy, jwd, jwnu, jwu, lopu(4,loputmp), lp, lwnu, m, mm, mp, nn
+                     jpaedownwei, jpe, jph, jpl, jpy, jwd, jwnu, jwu, lp, lwnu, m, mm, mp, nn
+integer(kind=iwp), allocatable :: lopu(:,:)
 integer(kind=iwp), external :: iwalk_ad
 
 ! log_prod=2:directly no_formh0
@@ -424,6 +444,7 @@ select case (idb)
     jpy = jphy(jph)
     in_ = ihy(jpy)
 
+    call mma_allocate(lopu,4,loputmp,label='lopu')
     call jl_ne_jr(mp,jpl,jpr,mg3,mg4,lopu)
     do lp=1,mp
       iwl = lopu(1,lp)-1
@@ -460,6 +481,7 @@ select case (idb)
         end do
       end do
     end do
+    call mma_deallocate(lopu)
 
   case (3)
     ! between act and dbl
@@ -468,6 +490,7 @@ select case (idb)
     iwdr = mg3
     jpaedownwei = jpae_downwei(ipae)
 
+    call mma_allocate(lopu,4,loputmp,label='lopu')
     call jl_ne_jr(mp,jpl,jpr,mg4,mg5,lopu)
     do lp=1,mp
       iwal = lopu(1,lp)-1
@@ -492,6 +515,7 @@ select case (idb)
         end do
       end do
     end do
+    call mma_deallocate(lopu)
 end select
 
 return
@@ -501,13 +525,15 @@ end subroutine prodab_h0_d
 subroutine prodab_h0_t(idb,mg1,mg2,mg3,mg4,mg5,wl,jpr)
 
 use gugaci_global, only: ihy, ipae, ipael, iw_downwei, iy, jpad, jpad_upwei, jpadl, jpae_downwei, jphy, loputmp, vector2
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: idb, mg1, mg2, mg3, mg4, mg5, jpr
 real(kind=wp), intent(in) :: wl
 integer(kind=iwp) :: ii, in_, iwa, iwadl, iwadr, iwal, iwar, iwd, iwdl, iwdown, iwdr, iwe, iwl, iwr, iwupwei, jpaedownwei, jpe, &
-                     jph, jpl, jpy, jwd, jwnu, jwu, lopu(4,loputmp), lp, lwnu, m, mm, mnh0, mp, nn
+                     jph, jpl, jpy, jwd, jwnu, jwu, lp, lwnu, m, mm, mnh0, mp, nn
+integer(kind=iwp), allocatable :: lopu(:,:)
 integer(kind=iwp), external :: iwalk_ad
 
 ! log_prod=1:traditional formh0
@@ -546,6 +572,7 @@ select case (idb)
     jpy = jphy(jph)
     in_ = ihy(jpy)
 
+    call mma_allocate(lopu,4,loputmp,label='lopu')
     call jl_ne_jr(mp,jpl,jpr,mg3,mg4,lopu)
     do lp=1,mp
       iwl = lopu(1,lp)-1
@@ -574,6 +601,7 @@ select case (idb)
         end do
       end do
     end do
+    call mma_deallocate(lopu)
 
   case (3)
     ! between act and dbl
@@ -582,6 +610,7 @@ select case (idb)
     iwdr = mg3
     jpaedownwei = jpae_downwei(ipae)
 
+    call mma_allocate(lopu,4,loputmp,label='lopu')
     call jl_ne_jr(mp,jpl,jpr,mg4,mg5,lopu)
     do lp=1,mp
       iwal = lopu(1,lp)-1
@@ -604,6 +633,7 @@ select case (idb)
         end do
       end do
     end do
+    call mma_deallocate(lopu)
 end select
 
 return

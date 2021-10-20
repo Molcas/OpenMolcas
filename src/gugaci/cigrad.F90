@@ -160,13 +160,15 @@ end subroutine trans_ijkl_intpos
 !subroutine lagran_act(x1e)
 !
 !use gugaci_global, only: dm1, ican_a, ican_b, norb_all, vector1, vector2, xlgrn
+!use stdalloc, only: mma_allocate, mma_deallocate
 !use Constants, only: Zero, Two
 !use Definitions, only: wp, iwp
 !
 !implicit none
 !real(kind=wp), intent(in) :: x1e(50000)
 !integer(kind=iwp) :: i, i0, j, j0, k, k0, kl, l, l0, m, mik, mjk, nik, nil, niljk, nimkl, nji, njikl, njk, njmkl, nkl, norbf
-!real(kind=wp) :: dum, dumtmp, fock(n_all,n_all)
+!real(kind=wp) :: dum, dumtmp
+!real(kind=wp), allocatable :: fock(:,:)
 !
 !!================================================
 !! lyb
@@ -177,6 +179,7 @@ end subroutine trans_ijkl_intpos
 !
 !xlgrn(1:n_all,1:n_all) = Zero
 !
+!call mma_allocate(fock,n_all,n_all,label='fock')
 !call lagran_fock(x1e,fock)
 !
 !! form two electron contributions to the lagrangian with frozen mo
@@ -391,6 +394,7 @@ end subroutine trans_ijkl_intpos
 !    !write(2,'(a9,2i4,f18.10)') 'xlgrn_all',i,j,xlgrn(i,j)
 !  end do
 !end do
+!call mma_deallocate(fock)
 !
 !end subroutine lagran_act
 
@@ -530,203 +534,6 @@ end subroutine trans_ijkl_intpos
 !
 !end subroutine readdm2
 
-!subroutine backtransmo()
-!
-!use gugaci_global, only: cf, ican_a, ican_b, naorbs, norb_all, norb_frz, p, vector1, vector2 !, len_str, tmpdir
-!use Constants, only: Zero, Two, Half, Quart
-!use Definitions, only: wp, iwp, r8
-!
-!implicit none
-!integer(kind=iwp) :: i, i0, ican_ab(norb_all), ij, inl, j, j0, k, k0, l, l0, l0max, l1, mx, ncase, nij, nij0, nijkl, nijkl0, nkl, &
-!                     nkl0, norbe, norbf, norbs1, norbs2, norbs3, nsym, nx
-!real(kind=wp) :: c(70000), dm1_act(naorbs,naorbs), time0, time1, val, valtmp
-!logical(kind=iwp) :: resina
-!!character(len=256) :: filename
-!real(kind=r8), external :: c_time
-!
-!!***********************************************************************
-!!
-!!   program transmo transfers the one and two electronic ao integrals to
-!!   integrals.
-!!          on input
-!! cf      = all m.o.'s coefficient
-!! naorbs  = number of atomic orbitals
-!! maxao   = the number of ao integrals
-!! h       = the one electronic ao integrals
-!! vector1 = the two electronic ao density matrix
-!! norb    = the start mo wanted to be transfered
-!! norbs   = the end mo wanted to be transfered
-!! c       = the m.o.'s coefficient with the order that is different from
-!!           this is need by the transformation subroutine c4itd
-!!
-!!          on output
-!! tmoint1 = the one electronic mo integrals
-!! vector2 = the two electronic mo density matrix
-!!
-!! c4itd   = the subroutine to transfer aos to mos
-!!           copy right by carlos f. bunge. annik vivier bunge. gerardo c
-!!           and jean-pierre daudey, 1987.
-!!           reference: c. f. bunge, a. v. bunge, g. cisneros and j.-p. d
-!!                      comput. chem. vol 12, page 91, year 1988.
-!! iteifd  = the subroutine to scale the aos by a factor 1/2
-!!***********************************************************************
-!
-!time0 = c_time()
-!
-!!write(nf2,*) 'start of backtransform'
-!
-!norbf = norb_frz
-!
-!norbs1 = naorbs*(naorbs+1)/2
-!norbe = norb_all-norbf
-!norbs2 = norbe*(norbe+1)/2
-!norbs3 = (norbe-norbf+1)*naorbs
-!nx = (naorbs*naorbs+naorbs)*(naorbs*naorbs+naorbs+2)/8
-!mx = (norbe*norbe+norbe)*(norbe*norbe+norbe+2)/8
-!
-!vector1(1:nx) = Zero
-!
-!l1 = norbe
-!do i=1,l1
-!  i0 = i-1
-!  ican_ab(i) = i0*l1-(i0*i0-i0)/2
-!end do
-!
-!ij = 0
-!do i=norbf+1,norb_all
-!  do j=1,naorbs
-!    ij = ij+1
-!    c(ij) = cf(j,i)
-!    !write(nf2,'(2i4,2f18.10)') i,j,c(ij),cf(j,i)
-!  end do
-!end do
-!
-!do i0=norbf+1,norb_all
-!  do j0=norbf+1,i0
-!    do k0=norbf+1,i0
-!      l0max = k0
-!      if (i0 == k0) l0max = j0
-!      do l0=norbf+1,l0max
-!        if (l0 <= norbf) cycle
-!        nij0 = ican_a(i0)+j0
-!        nkl0 = ican_a(k0)+l0
-!        nijkl0 = ican_b(nij0)+nkl0
-!        val = vector2(nijkl0)
-!        i = i0-norbf
-!        j = j0-norbf
-!        k = k0-norbf
-!        l = l0-norbf
-!
-!        nij = ican_ab(j)+i-j+1
-!        nkl = ican_ab(l)+k-l+1
-!        if (nij >= nkl) then
-!          nijkl = ican_b(nij)+nkl
-!        else
-!          nijkl = ican_b(nkl)+nij
-!        end if
-!        vector1(nijkl) = val
-!        !write(nf2,'(8i4,2i8,f18.10)') i0,j0,k0,l0,i,j,k,l,nijkl0,nijkl,val
-!
-!      end do
-!    end do
-!  end do
-!end do
-!
-!!***********************************************************************
-!! the aoints should be saved as the order the following
-!! provided.
-!!
-!! nijkl = 0
-!! do i=1,naorbs
-!!   do j=i,naorbs
-!!     do k=1,i
-!!       if (k == i) then
-!!         inl = j
-!!       else
-!!         inl = naorbs
-!!       end if
-!!       do l=k,inl
-!!         nijkl = nijkl+1
-!!         read(naoint) vector1(nijkl)
-!!
-!!         write(u6,'(4i3,i8,f18.10)') i,j,k,l,nijkl,vector1(nijkl)
-!!         write(nf2,'(5i8)') i,j,k,l,nijkl
-!!
-!!       end do
-!!     end do
-!!   end do
-!! end do
-!!***********************************************************************
-!
-!vector2(1:nx) = Zero
-!resina = .false.
-!nsym = 1
-!ncase = 1
-!
-!call iteifd(ncase,nsym,norbe,norbe,norbe,norbe,vector1)
-!
-!call c4itd(norbe,norbe,norbe,norbe,naorbs,naorbs,naorbs,naorbs,nsym,ncase,c,c,c,c,vector1,resina,vector2)
-!
-!vector2(1:nx) = Zero
-!
-!!-----------------------------------------------------------------------
-!dm1_act(1:naorbs,1:naorbs) = Zero
-!
-!call density_ci_one(dm1_act)
-!
-!!do i=1,naorbs
-!!  do j=1,naorbs
-!!    write(nf2,'(2i4,f18.10)') i,j,dm1_act(i,j)
-!!  end do
-!!end do
-!
-!nijkl = 0
-!do i=1,naorbs
-!  do j=1,i
-!    do k=1,i
-!      if (k == i) then
-!        inl = j
-!      else
-!        inl = k
-!      end if
-!      do l=1,inl
-!        nijkl = nijkl+1
-!
-!        valtmp = Two*p(i,j)*p(k,l)-Half*p(i,l)*p(j,k)-Half*p(i,k)*p(j,l)+p(i,j)*dm1_act(k,l)+p(k,l)*dm1_act(i,j)- &
-!                 Quart*(p(j,k)*dm1_act(i,l)+p(j,l)*dm1_act(i,k)+p(i,k)*dm1_act(j,l)+p(i,l)*dm1_act(j,k))
-!
-!        vector1(nijkl) = vector1(nijkl)+valtmp
-!        !write(nf2,'(4i3,i8,f18.10)') i,j,k,l,nijkl,vector1(nijkl)
-!        !write(nf2,'(5i8)') i,j,k,l,nijkl
-!
-!      end do
-!    end do
-!  end do
-!end do
-!
-!!write(nf2,*) 'the new dm2'
-!
-!!do i=1,nx
-!!  write(nf2,'(i8,f18.10)')i, vector1(i)
-!!end do
-!
-!!filename = tmpdir(1:len_str)//'/backdm2'
-!!len = len_str+8
-!
-!!open(20,file=filename(1:len),form='unformatted')
-!
-!!open(20,file='backdm2',form='unformatted')
-!!write(20) (vector1(i),i=1,nx)
-!!close(20)
-!
-!time1 = c_time()-time0
-!!write(nf2,'(4x,"trans run time =",f8.3,2x,"seconds")') time1
-!!write(nf2,*) 'end of backtransform'
-!
-!return
-!
-!end subroutine backtransmo
-
 !subroutine backtrans_test()
 !
 !use gugaci_global, only: cf, ican_a, ican_b, norb_all, norb_frz, vector2
@@ -781,18 +588,26 @@ end subroutine trans_ijkl_intpos
 !subroutine grad_two()
 !
 !use gugaci_global, only: dxyz, ican_a, ican_b, numat, vector1 !, len_str, tmpdir
+!use stdalloc, only: mma_allocate, mma_deallocate
 !use Constants, only: Zero, One, Two, auTokcalmol
 !use Definitions, only: wp, iwp, u6
 !
 !implicit none
-!integer(kind=iwp) :: i, i0, ind, index_atom(3,numat*(numat+1)/2), j, j0, k, k0, l, l0, ncon, ndi0(ndao), ndj0(ndao), ndk0(ndao), &
-!                     ndl0(ndao), nij, nijkl, nkl, nnij, npat
-!real(kind=wp) :: aa, bb, daoint1(ndao), daoxyz(3,numat), dgxyz(3,numat), val, val1, val2
+!integer(kind=iwp) :: i, i0, ind, j, j0, k, k0, l, l0, ncon, nij, nijkl, nkl, nnij, npat
+!real(kind=wp) :: aa, bb, val, val1, val2
 !!character(len=256) :: filename
+!integer(kind=iwp), allocatable :: index_atom(:,:), ndi0(:), ndj0(:), ndk0(:), ndl0(:)
+!real(kind=wp), allocatable :: daoint1(:), daoxyz(:,:), dgxyz(:,:)
 !
 !npat = numat*(numat+1)/2
+!call mma_allocate(index_atom,3,npat,label='index_atom')
 !index_atom(1:3,1:npat) = 0
 !
+!call mma_allocate(ndi0,ndao,label='ndi0')
+!call mma_allocate(ndj0,ndao,label='ndj0')
+!call mma_allocate(ndk0,ndao,label='ndk0')
+!call mma_allocate(ndl0,ndao,label='ndl0')
+!call mma_allocate(daoint1,ndao,label='daoint1')
 !ndi0(:) = 0
 !ndj0(:) = 0
 !ndk0(:) = 0
@@ -820,6 +635,7 @@ end subroutine trans_ijkl_intpos
 !
 !ncon=0
 !
+!call mma_allocate(daoxyz,3,numat,label='daoxyz')
 !do i=1,numat
 !  do j=1,i-1
 !    nnij = ican_a(i)+j
@@ -860,13 +676,21 @@ end subroutine trans_ijkl_intpos
 !    end do
 !  end do
 !end do
+!call mma_deallocate(index_atom)
+!call mma_deallocate(ndi0)
+!call mma_deallocate(ndj0)
+!call mma_deallocate(ndk0)
+!call mma_deallocate(ndl0)
+!call mma_deallocate(daoint1)
 !
+!call mma_allocate(dgxyz,3,numat,label='dgxyz')
 !!dgxyz(1:3,1:numat) = Zero
 !!do i=1,numat
 !!  do j=1,3
 !!    dgxyz(j,i) = daoxyz(j,i)*auTokcalmol
 !!  end do
 !!end do
+!call mma_deallocate(daoxyz)
 !
 !
 !!write(nf2,'(//10x,'cartesian coordinate derivatives',//3x,'number  atom ',5x,'x',12x,'y',12x,'z',/)')
@@ -887,20 +711,23 @@ end subroutine trans_ijkl_intpos
 !do i=1,numat
 !  write(u6,'(6x,i6,3f13.6)') i,(dgxyz(j,i),j=1,3)
 !end do
+!call mma_deallocate(dgxyz)
 !
 !end subroutine grad_two
 
 !subroutine grad_one_ao()
 !
 !use gugaci_global, only: dxyz, ican_a, naorbs, numat, p !, len_str, tmpdir
+!use stdalloc, only: mma_allocate, mma_deallocate
 !use Constants, only: Zero, Two, auTokcalmol
 !use Definitions, only: wp, iwp, u6
 !
 !implicit none
 !integer(kind=iwp) :: i, j, k, l, nkl
-!real(kind=wp) :: dgxyz(3,numat), dm1_act(naorbs,naorbs), dmo1xyz(3,numat), dsaos(3,numat,naorbs*(naorbs+1)/2)
 !!character(len=256) :: filename
+!real(kind=wp), allocatable :: dgxyz(:,:), dm1_act(:,:), dmo1xyz(:,:), dsaos(:,:,:)
 !
+!call mma_allocate(dsaos,3,numat,naorbs*(naorbs+1)/2,label='dsaos')
 !dsaos(1:3,1:numat,1:naorbs*(naorbs+1)/2) = Zero
 !
 !!filename = tmpdir(1:len_str)//'/dfock1'
@@ -916,11 +743,13 @@ end subroutine trans_ijkl_intpos
 !!end do
 !!close(500)
 !
+!call mma_allocate(dmo1xyz,3,numat,label='dmo1xyz')
 !dmo1xyz(1:3,1:numat) = Zero
 !
 !!---------------------------------------------------
 !! partial backtransform one electron density matrix
 !
+!call mma_allocate(dm1_act,naorbs,naorbs,label='dm1_act')
 !dm1_act(1:naorbs,1:naorbs) = Zero
 !call density_ci_one(dm1_act)
 !
@@ -957,13 +786,17 @@ end subroutine trans_ijkl_intpos
 !    end do
 !  end do
 !end do
+!call mma_deallocate(dsaos)
+!call mma_deallocate(dm1_act)
 !
+!call mma_allocate(dgxyz,3,numat,label='dgxyz')
 !!dgxyz(1:3,1:numat) = Zero
 !!do i=1,numat
 !!  do j=1,3
 !!    dgxyz(j,i) = dmo1xyz(j,i)*auTokcalmol
 !!  end do
 !!end do
+!call mma_deallocate(dmo1xyz)
 !
 !!write(nf2,'(//10x,"cartesian coordinate derivatives",//3x,"number  atom ",5x,"x",12x,"y",12x,"z",/)')
 !!write(nf2,*) 'the one electron gradient'
@@ -983,6 +816,7 @@ end subroutine trans_ijkl_intpos
 !do i=1,numat
 !  write(u6,'(6x,i6,3f13.6)') i,(dgxyz(j,i),j=1,3)
 !end do
+!call mma_deallocate(dgxyz)
 !
 !return
 !
@@ -993,15 +827,18 @@ end subroutine trans_ijkl_intpos
 !subroutine grad_one_mo()
 !
 !use gugaci_global, only: cf, dm1, dxyz, ican_a, naorbs, norb_all, numat
+!use stdalloc, only: mma_allocate, mma_deallocate
 !use Constants, only: Zero, Two, auTokcalmol
 !use Definitions, only: wp, iwp, u6
 !
 !implicit none
 !integer(kind=iwp) :: i, i0, j, j0, k, l, nkl
-!real(kind=wp) :: dgxyz(3,numat), dmo1xyz(3,numat), dsaos(3,numat,naorbs*(naorbs+1)/2), val
+!real(kind=wp) :: val
+!real(kind=wp), allocatable :: dgxyz(:,:), dmo1xyz(:,:), dsaos(:,:,:)
 !
 !return
 !
+!call mma_allocate(dsaos,3,numat,naorbs*(naorbs+1)/2,label='dsaos')
 !dsaos(1:3,1:numat,1:naorbs*(naorbs+1)/2) = Zero
 !
 !!open(500,file='dfock1',form='unformatted')
@@ -1014,6 +851,7 @@ end subroutine trans_ijkl_intpos
 !!end do
 !!close(500)
 !
+!call mma_allocate(dmo1xyz,3,numat,label='dmo1xyz')
 !dmo1xyz(1:3,1:numat) = Zero
 !
 !do i=1,3
@@ -1048,13 +886,16 @@ end subroutine trans_ijkl_intpos
 !    end do
 !  end do
 !end do
+!call mma_deallocate(dsaos)
 !
+!call mma_allocate(dgxyz,3,numat,label='dgxyz')
 !dgxyz(1:3,1:numat) = Zero
 !do i=1,numat
 !  do j=1,3
 !    dgxyz(j,i) = dmo1xyz(j,i)*auTokcalmol
 !  end do
 !end do
+!call mma_deallocate(dmo1xyz)
 !
 !write(u6,1000)
 !
@@ -1074,6 +915,7 @@ end subroutine trans_ijkl_intpos
 !do i=1,numat
 !  write(u6,'(6x,i6,3f13.6)') i,(dgxyz(j,i),j=1,3)
 !end do
+!call mma_deallocate(dgxyz)
 !
 !return
 !

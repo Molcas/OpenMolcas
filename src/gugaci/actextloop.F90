@@ -1062,17 +1062,20 @@ subroutine ar_dv_ext_ar(idtu,isma,lri,lrj)
 use gugaci_global, only: ihy, ihyl, ilsegdownwei, ipae, ipael, irsegdownwei, iseg_downwei, jpad, jpad_upwei, jpadl, jphy, jphyl, &
                          log_prod, logic_dh, logic_grad, lp_lwei, lp_rwei, lpnew_coe, lpnew_head, lpnew_lwei, lpnew_rwei, mtype, &
                          ndim, norb_dz, norb_inn, nstaval, nvalue, vplp_w0, vplpnew_w0, w0_sdplp
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: idtu, isma, lri, lrj
 integer(kind=iwp) :: ihypos, ihyposl, ihyposr, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, &
-                     lpcoe(norb_dz+1:norb_inn), lphead, nlp_value, norb, nvalue1
+                     lphead, nlp_value, norb, nvalue1
+integer(kind=iwp), allocatable :: lpcoe(:)
 integer(kind=iwp), external :: iwalk_ad
 
 iwuplwei = jpad_upwei(jpadl)
 ilsegdownwei = iseg_downwei(ipael)
 irsegdownwei = iseg_downwei(ipae)
+call mma_allocate(lpcoe,[norb_dz+1,norb_inn],label='lpcoe')
 do iw0=1,mtype
   w0_sdplp = vplpnew_w0(iw0)
   if (logic_dh) w0_sdplp = vplp_w0(iw0)
@@ -1138,6 +1141,7 @@ do iw0=1,mtype
     end if
   end do
 end do
+call mma_deallocate(lpcoe)
 
 return
 
@@ -1148,17 +1152,20 @@ subroutine ar_sd_ext_ar(idtu,lri,lrj,isma)
 use gugaci_global, only: ihy, ihyl, ilsegdownwei, ipae, ipael, irsegdownwei, iseg_downwei, jpad, jpad_upwei, jpadl, jphy, &
                          logic_dh, logic_grad, lp_lwei, lp_rwei, lpnew_coe, lpnew_lwei, lpnew_rwei, mtype, ndim, norb_dz, &
                          norb_inn, nstaval, nvalue, vplp_w0, vplpnew_w0, w0_sdplp
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: idtu, lri, lrj, isma
-integer(kind=iwp) :: ihypos, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, &
-                     lpcoe(norb_dz+1:norb_inn), nlp_value, norb, nvalue1
+integer(kind=iwp) :: ihypos, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, nlp_value, norb, &
+                     nvalue1
+integer(kind=iwp), allocatable :: lpcoe(:)
 integer(kind=iwp), external :: iwalk_ad
 
 iwuplwei = jpad_upwei(jpadl)
 ilsegdownwei = iseg_downwei(ipael)
 irsegdownwei = iseg_downwei(ipae)
+call mma_allocate(lpcoe,[norb_dz+1,norb_inn],label='lpcoe')
 do iw0=1,mtype
   w0_sdplp = vplpnew_w0(iw0)
   if (logic_dh) w0_sdplp = vplp_w0(iw0)
@@ -1215,6 +1222,7 @@ do iw0=1,mtype
     end if
   end do
 end do
+call mma_deallocate(lpcoe)
 
 return
 
@@ -1225,17 +1233,20 @@ subroutine ar_td_ext_ar(idtu,lri,lrj,isma)
 use gugaci_global, only: ihy, ihyl, ilsegdownwei, ipae, ipael, irsegdownwei, iseg_downwei, jpad, jpad_upwei, jpadl, jphy, &
                          logic_dh, logic_grad, lp_lwei, lp_rwei, lpnew_coe, lpnew_lwei, lpnew_rwei, mtype, ndim, norb_dz, &
                          norb_inn, nstaval, nvalue, vplp_w0, vplpnew_w0, w0_sdplp
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: idtu, lri, lrj, isma
-integer(kind=iwp) :: ihypos, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, &
-                     lpcoe(norb_dz+1:norb_inn), nlp_value, norb, nvalue1
+integer(kind=iwp) :: ihypos, ilpend, ilpsta, ilw, in_, iplp, irw, iw0, iwal, iwal0, iwar, iwar0, iwd, iwuplwei, nlp_value, norb, &
+                     nvalue1
+integer(kind=iwp), allocatable :: lpcoe(:)
 integer(kind=iwp), external :: iwalk_ad
 
 iwuplwei = jpad_upwei(jpadl)
 ilsegdownwei = iseg_downwei(ipael)
 irsegdownwei = iseg_downwei(ipae)
+call mma_allocate(lpcoe,[norb_dz+1,norb_inn],label='lpcoe')
 do iw0=1,mtype
   w0_sdplp = vplpnew_w0(iw0)
   if (logic_dh) w0_sdplp = vplp_w0(iw0)
@@ -1292,6 +1303,7 @@ do iw0=1,mtype
     end if
   end do
 end do
+call mma_deallocate(lpcoe)
 
 return
 
@@ -1390,7 +1402,7 @@ use gugaci_global, only: logic_g49a, logic_g49b, logic_g50
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: ilnodesm, irnodesm
+integer(kind=iwp), intent(in) :: ilnodesm, irnodesm
 
 logic_g50 = .false.
 logic_g49a = .false.

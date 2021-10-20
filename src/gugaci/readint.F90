@@ -16,14 +16,17 @@
 
 subroutine intrd()
 
-use gugaci_global, only: lsmorb, LuTwoMO, map_orb_order, max_orb, nlsm_all, nlsm_bas, ng_sm, noidx, voint, vpotnuc
+use gugaci_global, only: lsmorb, LuTwoMO, map_orb_order, nlsm_all, nlsm_bas, ng_sm, noidx, voint, vpotnuc
 use file_qininit, only: maxrecord
 use Symmetry_Info, only: mul_tab => Mul
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: i, idx, lrcii, lrcij, lri, lrj, lrt, noffset(maxrecord), nc, ni, nidx, nintone, nism, nmob, nsmint
-real(kind=wp) :: ecor, xfock(max_orb*(max_orb+1)/2)
+integer(kind=iwp) :: i, idx, lrcii, lrcij, lri, lrj, lrt, nc, ni, nidx, nintone, nism, nmob, nsmint
+real(kind=wp) :: ecor
+integer(kind=iwp), allocatable :: noffset(:)
+real(kind=wp), allocatable :: xfock(:)
 
 nintone = 0
 nmob = 0
@@ -40,7 +43,8 @@ do i=1,ng_sm
   ni = nidx
 end do
 
-noffset = 0
+call mma_allocate(noffset,maxrecord,label='noffset')
+noffset(:) = 0
 ni = 0
 call idafile(Lutwomo,2,noffset,maxrecord,ni)
 ! 2nd record in file traint, nuclear repulsive energy
@@ -51,6 +55,7 @@ write(u6,'(a,1x,f14.8)') ' Nuclear repulsive energy:',vpotnuc
 write(u6,'(a,1x,f14.8)') ' Frozen  core energy:     ',ecor
 vpotnuc = vpotnuc+ecor
 ! 4th record, 1e int
+call mma_allocate(xfock,nintone,label='xfock')
 call ddafile(Lutwomo,2,xfock,nintone,ni) ! 1e integrals
 
 ! write one electron fock matrix into voint
@@ -77,6 +82,8 @@ do i=1,ng_sm
   nidx = nidx+nsmint
 end do
 call readtwoeint_molpro(lutwomo,maxrecord,noffset,nlsm_all,ng_sm,mul_tab,map_orb_order,noidx)
+call mma_deallocate(noffset)
+call mma_deallocate(xfock)
 
 !write(u6,*)
 !write(u6,*) 'MRCI integrals'
@@ -91,16 +98,19 @@ end subroutine intrd
 subroutine readtwoeint_molpro(nft,maxrecord,noffset,norb,ngsm,multab,maporb,noidx)
 
 use gugaci_global, only: max_orb, ntrabuf
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nft, maxrecord, noffset(maxrecord), norb(8), ngsm, multab(8,8), maporb(max_orb), noidx(8)
 integer(kind=iwp) :: idisk, idx, iout, ityp, li, lj, lk, ll, lri, lrj, lrk, lrl, nbpq, nbrs, nintb, nop, noq, nor, nos, nsp, nspq, &
                      nspqr, nsq, nsr, nss, nssm, ntj, ntk, ntl
-real(kind=wp) :: buff(ntrabuf), val
+real(kind=wp) :: val
+real(kind=wp), allocatable :: buff(:)
 
 idisk = noffset(5)
 write(u6,2000)
+call mma_allocate(buff,ntrabuf,label='buff')
 do nsp=1,ngsm
   nop = norb(nsp)
   do nsq=1,nsp
@@ -193,6 +203,7 @@ do nsp=1,ngsm
     end do
   end do
 end do
+call mma_deallocate(buff)
 
 return
 
@@ -205,16 +216,15 @@ end subroutine readtwoeint_molpro
 
 subroutine intrd_molcas()
 
-use gugaci_global, only: FnOneMO, FnTwoMO, lsmorb, LuOneMO, LuTwoMO, map_orb_order, max_orb, ng_sm, nlsm_all, nlsm_bas, noidx, &
-                         voint, vpotnuc
+use gugaci_global, only: FnOneMO, FnTwoMO, lsmorb, LuOneMO, LuTwoMO, map_orb_order, ng_sm, nlsm_all, nlsm_bas, noidx, voint, vpotnuc
 use Symmetry_Info, only: mul_tab => Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: i, idisk, idx, lrcii, lrcij, lri, lrj, lrt, nc, ni, nidx, nintone, nism, nmob, nsmint
-real(kind=wp) :: ecor, xfock(max_orb*(max_orb+1)/2)
-real(kind=wp), allocatable :: x(:)
+real(kind=wp) :: ecor
+real(kind=wp), allocatable :: x(:), xfock(:)
 
 nintone = 0
 nmob = 0
@@ -240,6 +250,7 @@ vpotnuc = ecor
 call ddafile(luonemo,2,x,nmob,idisk)
 
 ! read one electron fock matrix
+call mma_allocate(xfock,nintone,label='xfock')
 call ddafile(luonemo,2,xfock,nintone,idisk)
 !call ddatard(nft,xfock,nintone,idisk)
 call daclos(luonemo)
@@ -269,6 +280,7 @@ do i=1,ng_sm
   end do
   nidx = nidx+nsmint
 end do
+call mma_deallocate(xfock)
 
 call daname(lutwomo,fntwomo)
 call readtwoeint(lutwomo,nlsm_all,ng_sm,mul_tab,map_orb_order,noidx)
@@ -283,6 +295,7 @@ end subroutine intrd_molcas
 subroutine readtwoeint(nft,norb,ngsm,multab,maporb,noidx)
 
 use gugaci_global, only: lenintegral, max_orb, ntrabuf, ntratoc
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -290,15 +303,18 @@ integer(kind=iwp), intent(in) :: nft, norb(8), ngsm, multab(8,8), maporb(max_orb
 integer(kind=iwp) :: idisk, idx, iout, lenrd, li, lj, lk, ll, lri, lrj, lrk, lrl, nbpq, nbrs, nintb, nop, noq, nor, nos, nsp, &
                      nspq, nspqr, nsq, nsr, nss, nssm, ntj, ntk, numax, numin
 real(kind=wp) :: val
-integer(kind=iwp) :: itratoc(ntratoc)
-real(kind=wp) :: buff(ntrabuf)
+integer(kind=iwp), allocatable :: itratoc(:)
+real(kind=wp), allocatable :: buff(:)
 
 idisk = 0
 lenrd = ntratoc*lenintegral
 write(u6,*) lenrd
+call mma_allocate(itratoc,ntratoc,label='itratoc')
 !call idatard(nft,itratoc,lenrd,idisk)
 call idafile(nft,2,itratoc,ntratoc,idisk)
 !write(u6,'(10(1x,i8))') itratoc(1:10)
+call mma_deallocate(itratoc)
+call mma_allocate(buff,ntrabuf,label='buff')
 write(u6,2000)
 do nsp=1,ngsm
   nop = norb(nsp)
@@ -379,6 +395,7 @@ do nsp=1,ngsm
     end do
   end do
 end do
+call mma_deallocate(buff)
 
 return
 
@@ -389,6 +406,7 @@ end subroutine readtwoeint
 
 subroutine readtraonehead(nft,ecor,idisk)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
@@ -398,7 +416,7 @@ real(kind=wp), intent(out) :: ecor
 integer(kind=iwp), intent(out) :: idisk
 integer(kind=iwp) :: idum(1), lenrd, nbas(8), ncone(64), ndel(8), nfro(8), norb(8)
 real(kind=wp) :: dum(1)
-character(len=LenIn8) :: bsbl(maxbfn)
+character(len=LenIn8), allocatable :: bsbl(:)
 
 idisk = 0
 call idafile(nft,2,ncone,64,idisk)
@@ -410,8 +428,10 @@ call idafile(nft,2,nbas,8,idisk)
 call idafile(nft,2,norb,8,idisk)
 call idafile(nft,2,nfro,8,idisk)
 call idafile(nft,2,ndel,8,idisk)
+call mma_allocate(bsbl,maxbfn,label='bsbl')
 lenrd = LenIn8*maxbfn
 call cdafile(nft,2,bsbl,lenrd,idisk)
+call mma_deallocate(bsbl)
 
 !#ifdef debug
 !write(u6,'(a4,1x,8(2x,i8))') 'ncon',ncone(1:8)
@@ -438,7 +458,6 @@ end subroutine readtraonehead
 !integer(kind=iwp), intent(in) :: nft, lend
 !integer(kind=iwp), intent(inout) :: idisk
 !real(kind=wp), intent(out) :: xbuff(lend)
-!integer(kind=iwp) :: nbas(mxsym), ncone(64), ndel(mxsym), nfro(mxsym), norb(mxsym)
 !
 !lenrd = lend*lendbl
 !call idatard(nft,xbuff,lenrd,idisk)

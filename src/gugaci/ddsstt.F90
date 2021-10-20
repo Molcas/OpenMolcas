@@ -1899,7 +1899,7 @@ select case (LPOK)
           call AR_BL_EXT_TS(LRI,LRJ,NK)
         end do
       end do
-    endif
+    end if
 
   case (12)
     !===================================================================
@@ -2522,7 +2522,7 @@ select case (LPOK)
       W0DV1 = W0_DV(1)
       NI = mod(NORB_DZ-LRI,2)
       if (NI == 1) W0DV1 = -W0DV1
-    !DV(23-1) A&r(23)-
+      ! DV(23-1) A&r(23)-
       IWDL = JUD(LRI)
       IWDR = 0
       do MPL=1,MHLP
@@ -2607,7 +2607,7 @@ use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: ilnodesm, irnodesm, iltype, irtype
+integer(kind=iwp), intent(in) :: ilnodesm, irnodesm, iltype, irtype
 integer(kind=iwp) :: iii, ilrsm
 
 ilrsm = mul_tab(ilnodesm,irnodesm)

@@ -112,20 +112,20 @@ end subroutine diagonal_loop_wyb_g
 
 subroutine diagonal_act_c_g()
 
-use gugaci_global, only: iy, jb, jeh, jj_sub, jpad, jph, jwh, max_innorb, maxpl, norb_act, norb_dz, norb_inn, th, thh
+use gugaci_global, only: iy, jb, jeh, jj_sub, jpad, jph, jwh, maxpl, norb_act, norb_dz, norb_inn, th, thh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: idl, ind1, isq, iwa, je, jeb, jp, jpb, lr, m, me, mh, mp, mpe, mw, ndr(max_innorb)
+integer(kind=iwp) :: idl, ind1, isq, iwa, je, jeb, jp, jpb, lr, m, me, mh, mp, mpe, mw
 real(kind=wp) :: vlop0, vlop1, w, ww
 integer(kind=iwp), allocatable :: jee(:), jpe(:), jwe(:)
 real(kind=wp), allocatable :: te(:), tee(:)
 
 !write(u6,*) '               ***** start h-diaelm *****'
 !write(u6,*) jpad,jpae
-ndr = 0
+!ndr(:) = 0
 if (norb_act == 0) then
   mh = 1
   th(1) = One
@@ -225,7 +225,7 @@ do
     jpe(m) = 0
   end do
   mh = me
-  if (ndr(lr) < mh) ndr(lr) = mh
+  !if (ndr(lr) < mh) ndr(lr) = mh
 end do
 !do m=1,mh
 !  th(m) = Zero
@@ -247,20 +247,20 @@ end subroutine diagonal_act_c_g
 
 subroutine diagonal_act_d_g()
 
-use gugaci_global, only: iy, jb, jeh, jj_sub, jph, jwh, max_innorb, maxpl, no, norb_dz, norb_inn, th, thh
+use gugaci_global, only: iy, jb, jeh, jj_sub, jph, jwh, maxpl, no, norb_dz, norb_inn, th, thh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: idl, ind1, isq, iwa, jbl, je, jeb, jp, jp0, jp1, jw, lr, lr0, m, me, mh, mp, mpe, mw, ndr(max_innorb), nxo
+integer(kind=iwp) :: idl, ind1, isq, iwa, jbl, je, jeb, jp, jp0, jp1, jw, lr, lr0, m, me, mh, mp, mpe, mw, nxo
 real(kind=wp) :: vlop0, vlop1, w, wt, ww
 integer(kind=iwp), allocatable :: jee(:), jpe(:), jwe(:)
 real(kind=wp), allocatable :: te(:), tee(:)
 
 !write(u6,*) '               ***** start h-diaelm *****'
 !write(u6,*) '   diagonal_act_d:',jpad,ipae
-ndr = 0
+!ndr(:) = 0
 do lr=norb_dz+1,norb_inn
   jp0 = no(lr-1)+1
   jp1 = no(lr)
@@ -322,7 +322,7 @@ do lr0=norb_dz+1,norb_inn
   !write(u6,*) ad(i)
   !*********************************************************************
   lr = lr0
-  if (ndr(lr) < mh) ndr(lr) = mh
+  !if (ndr(lr) < mh) ndr(lr) = mh
   do
     if (lr == norb_inn) then
       call diagonal_link_ae_g(mh)
@@ -388,7 +388,7 @@ do lr0=norb_dz+1,norb_inn
       jpe(m) = 0
     end do
     mh = me
-    if (ndr(lr) < mh) ndr(lr) = mh
+    !if (ndr(lr) < mh) ndr(lr) = mh
   end do
   !do m=1,mh
   !  th(m) = Zero
@@ -637,7 +637,7 @@ select case (ityad)
         call prodel_2(4,wld,mpe,iwd,iwa,nxo)
       end do
 
-    !call prodel(4,wld,mpe,iwd,iwa)
+      !call prodel(4,wld,mpe,iwd,iwa)
     end do
 
   case (3)

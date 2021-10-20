@@ -382,12 +382,15 @@ subroutine lp_act_tail(lin,mh,lrg0,lrs0)
 
 use gugaci_global, only: jpel, jper, jph_, jwl, jwr, line, lpnew_coe, lpnew_ltail, lpnew_lwei, lpnew_rtail, lpnew_rwei, lrg, lrs, &
                          mhlp, norb_dz, norb_inn, vplpnew_w0, vplpnew_w1, w0, w1
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: lin, mh, lrg0, lrs0
-integer(kind=iwp) :: iorb, lpcoe(norb_dz+1:norb_inn), mhlp_
+integer(kind=iwp) :: iorb, mhlp_
+integer(kind=iwp), allocatable :: lpcoe(:)
 
+call mma_allocate(lpcoe,[norb_dz+1,norb_inn],label='lpcoe')
 line = lin
 lrg = lrg0
 lrs = lrs0
@@ -407,6 +410,7 @@ do mhlp_=1,mh
   end if
   call dbl_head_act_tail(lpcoe)
 end do
+call mma_deallocate(lpcoe)
 
 return
 
@@ -493,13 +497,15 @@ subroutine act_cloop(lin,mh,lr0,lr,lrg0,lrs0)
 
 use gugaci_global, only: jpel, jper, jph_, jwl, jwr, line, lpnew_coe, lpnew_head, lpnew_ltail, lpnew_lwei, lpnew_rtail, &
                          lpnew_rwei, lrg, lrs, mhlp, norb_dz, norb_inn, vint_ci, voint, vplpnew_w0, vplpnew_w1
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: lin, mh, lr0, lr, lrg0, lrs0
-integer(kind=iwp) :: l, list, lpcoe(norb_dz+1:norb_inn), kcoe, mhlp_, nocc
+integer(kind=iwp) :: l, list, kcoe, mhlp_, nocc
 real(kind=wp) :: tcoe, vlop0, vlop1, wl
+integer(kind=iwp), allocatable :: lpcoe(:)
 integer(kind=iwp), external :: list3, list4
 
 line = lin
@@ -517,6 +523,7 @@ do mhlp_=1,mh
 
   select case (line)
     case default ! (1)
+      call mma_allocate(lpcoe,[norb_dz+1,norb_inn],label='lpcoe')
       do l=norb_dz+1,lr
         lpcoe(l) = lpnew_coe(l,mhlp)
       end do
@@ -528,6 +535,7 @@ do mhlp_=1,mh
         wl = wl+nocc*(vint_ci(list+1)+tcoe*vint_ci(list))
       end do
       wl = wl*vlop0
+      call mma_deallocate(lpcoe)
 
     case (2)
       list = list3(lr0,lr,lrg)

@@ -11,13 +11,14 @@
 
 subroutine paras_calculate()
 
-use gugaci_global, only: ibsm_ext, iesm_ext, iwt_orb_ext, iwt_sm_s_ext, jb_sys, jroute_sys, maxgdm, ng_sm, nlsm_dbl, nlsm_ext, spin
+use gugaci_global, only: ibsm_ext, iesm_ext, iwt_orb_ext, iwt_sm_s_ext, jb_sys, jroute_sys, ng_sm, nlsm_dbl, nlsm_ext, spin
                          !, n_electron, norb_all, norb_dbl, norb_dz, norb_ext
 use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iaend, iaorb, iasta, ibend, iborb, ibsta, icnttmp, ijsm, isma, ismb, isumtmp, iwt_sm_sab(maxgdm), iwttmp, ni, &
+#include "Molcas.fh"
+integer(kind=iwp) :: iaend, iaorb, iasta, ibend, iborb, ibsta, icnttmp, ijsm, isma, ismb, isumtmp, iwt_sm_sab(mxSym), iwttmp, ni, &
                      nij, nj
 !integer(kind=iwp), parameter :: inlptb_new(156) = [ &
 !                                                  ! 1  2  3  4  5  6  7  8  9  10  11  12 13

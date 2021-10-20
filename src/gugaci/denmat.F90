@@ -72,8 +72,8 @@ end subroutine cidenmat
 
 !subroutine ci_dentest(iroot)
 !
-!use gugaci_global, only: denm1, denm2, FnOneMO, FnTwoMO, lenintegral, LuCiDen, LuOneMO, LuTwoMO, max_orb, max_root, ng_sm, &
-!                         nlsm_all, nlsm_bas, ntrabuf, ntratoc
+!use gugaci_global, only: denm1, denm2, FnOneMO, FnTwoMO, lenintegral, LuCiDen, LuOneMO, LuTwoMO, max_root, ng_sm, nlsm_all, &
+!                         nlsm_bas, ntrabuf, ntratoc
 !use Symmetry_Info, only: mul_tab => Mul
 !use stdalloc, only: mma_allocate, mma_deallocate
 !use Constants, only: Zero, Two, Half
@@ -81,11 +81,12 @@ end subroutine cidenmat
 !
 !implicit none
 !integer(kind=iwp), intent(in) :: iroot
-!integer(kind=iwp) :: i, idisk, idisk0, idisk_array(max_root+1), idx, iout, itratoc(ntratoc), lenrd, li, lj, lk, ll, lri, lrj, &
-!                     nbpq, nbrs, nc, nc1, nc2, nidx, nintb, nintone, nism, nmob, noidx(8), nop, noq, nor, norb(8), nos, nsmint, &
-!                     nsp, nspq, nspqr, nsq, nsr, nss, nssm, ntj, ntk, numax, numin
-!real(kind=wp) :: buff(ntrabuf), cienergy, ecor, val, vnuc, xfock(max_orb*(max_orb+1)/2) !, x(1024*1024)
-!real(kind=wp), allocatable :: x(:)
+!integer(kind=iwp) :: i, idisk, idisk0, idx, iout, lenrd, li, lj, lk, ll, lri, lrj, nbpq, nbrs, nc, nc1, nc2, nidx, nintb, nintone, &
+!                     nism, nmob, noidx(8), nop, noq, nor, norb(8), nos, nsmint, nsp, nspq, nspqr, nsq, nsr, nss, nssm, ntj, ntk, &
+!                     numax, numin
+!real(kind=wp) :: buff(ntrabuf), cienergy, ecor, val, vnuc !, x(1024*1024)
+!integer(kind=iwp), allocatable :: idisk_array(:), itratoc(:)
+!real(kind=wp), allocatable :: x(:), xfock(:)
 !integer(kind=iwp), external :: ipair
 !
 !#ifndef MOLPRO
@@ -93,6 +94,7 @@ end subroutine cidenmat
 !nintone = 0
 !nmob = 0
 !nidx = 0
+!call mma_allocate(itratoc,ntratoc,label='itratoc')
 !do i=1,ng_sm
 !  nism = nlsm_all(i)
 !  nsmint = nism*(nism+1)/2
@@ -116,6 +118,7 @@ end subroutine cidenmat
 !call mma_deallocate(x)
 !
 !! read one electron fock matrix
+!call mma_allocate(xfock,nintone,label='xfock')
 !call ddafile(luonemo,2,xfock,nintone,idisk)
 !!call ddatard(nft,xfock,nintone,idisk)
 !call daclos(luonemo)
@@ -141,10 +144,13 @@ end subroutine cidenmat
 !  end do
 !  nidx = nidx+nsmint
 !end do
+!call mma_deallocate(xfock)
 !
 !idisk0 = 0
+!call mma_allocate(idisk_array,max_root+1,label='idisk_array')
 !call idafile(luciden,2,idisk_array,max_root+1,idisk0)
 !idisk0 = idisk_array(iroot)
+!call mma_deallocate(idisk_array)
 !call ddafile(luciden,2,denm1,nc,idisk0)
 !
 !call daname(lutwomo,fntwomo)
@@ -154,6 +160,7 @@ end subroutine cidenmat
 !lenrd = ntratoc*lenintegral
 !write(u6,*) lenrd
 !call idafile(lutwomo,2,itratoc,ntratoc,idisk)
+!call mma_deallocate(itratoc)
 !write(u6,2000)
 !do nsp=1,ng_sm
 !  nop = norb(nsp)
@@ -396,16 +403,17 @@ end subroutine matrix_vector_multi_parallel_drt_g
 
 subroutine ci_density_label_sm(iroot)
 
-use gugaci_global, only: denm1, denm2, dm1tmp, LuCiDen, map_orb_order, max_root, maxgdm, ng_sm, nlsm_all, vector2
+use gugaci_global, only: denm1, denm2, dm1tmp, LuCiDen, map_orb_order, max_root, ng_sm, nlsm_all, vector2
 use Symmetry_Info, only: mul_tab => Mul
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: iroot
-integer(kind=iwp) :: i, ic, idisk, ii, ij, ijm, im, indx_m(maxgdm), idisk_array(max_root+1), j, jc, je, jj, jm, k, kk, kl, klm, &
-                     km, l, lc, le, ll, lm, nc0, nc1
+integer(kind=iwp) :: i, ic, idisk, ii, ij, ijm, im, j, jc, je, jj, jm, k, kk, kl, klm, km, l, lc, le, ll, lm, nc0, nc1
 real(kind=wp) :: val
+integer(kind=iwp), allocatable :: indx_m(:), idisk_array(:)
 integer(kind=iwp), external :: ipair
 
 !=======================================================================
@@ -418,6 +426,7 @@ integer(kind=iwp), external :: ipair
 denm1 = Zero
 nc0 = 1
 nc1 = 0
+call mma_allocate(indx_m,ng_sm,label='indx_m')
 do im=1,ng_sm
   if (nlsm_all(im) == 0) cycle
   do i=1,nlsm_all(im)
@@ -433,8 +442,9 @@ do im=1,ng_sm
   nc1 = nc1+nlsm_all(im)
 end do
 idisk = 0
+call mma_allocate(idisk_array,max_root+1,label='idisk_array')
 if (iroot == 1) then
-  idisk_array = 0
+  idisk_array(:) = 0
   call idafile(luciden,1,idisk_array,max_root+1,idisk)
   idisk_array(1) = idisk
 else
@@ -503,10 +513,12 @@ do im=1,ng_sm
     end do
   end do
 end do
+call mma_deallocate(indx_m)
 
 idisk_array(iroot+1) = idisk
 idisk = 0
 call idafile(luciden,1,idisk_array,max_root+1,idisk)
+call mma_deallocate(idisk_array)
 
 return
 

@@ -462,7 +462,7 @@ if (jb_sys > 0) then
 end if
 
 if ((jml == 1) .and. (jmr == 1)) then
- ! ss(1-20) drl(33)-c"(00)-                          ! ipl(r)ad=1 or =ns
+  ! ss(1-20) drl(33)-c"(00)-                          ! ipl(r)ad=1 or =ns
   do lr0=norb_frz+1,norb_dz
     iwdl = just(lr0,lr0)
     iwdr = iwdl
@@ -875,7 +875,7 @@ do lri=norb_frz+1,norb_dz
       iwds = just(lrk,lrj)
       call prodab(3,jpel,iwdt,iwds,jwl,jwr,wl,jper)
     end do
-   ! ts(3-2) ar(23)-c'(22)-bl(31)-
+    ! ts(3-2) ar(23)-c'(22)-bl(31)-
     do lrk=lri+1,lrj-1
       lmk = lsm_inn(lrk)
       if ((mul_tab(lmk,lmi) /= jml) .or. (mul_tab(lmk,lmj) /= jmr)) cycle
@@ -2633,7 +2633,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: lra, lpcoe(norb_dz+1:norb_inn)
-integer(kind=iwp) :: iwdl, iwdr, jmlr, kcoe, list, lmd, lmi, lmij, lmj, lr, lrd, lri, lrj, lrk,  ni, nocc
+integer(kind=iwp) :: iwdl, iwdr, jmlr, kcoe, list, lmd, lmi, lmij, lmj, lr, lrd, lri, lrj, lrk, ni, nocc
 real(kind=wp) :: tcoe, vlop0, vlop1, w0td1, w0td2, w0td3, w0td4, w0td5, w1td2, w1td3, wl
 integer(kind=iwp), external :: list3, list4
 

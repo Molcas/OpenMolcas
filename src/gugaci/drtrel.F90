@@ -15,10 +15,12 @@ subroutine active_drt()
 
 use gugaci_global, only: iseg_downwei, iseg_sta, iseg_upwei, jd, jj, jpad_upwei, js, jt, jv, LuDrt, max_node, mxnode, nci_dim, &
                          ng_sm, no, norb_act, norb_inn, nu_ad, nu_ae !, logic_mr, logic_mrelcas
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: i, iin(0:max_node), im, iseg_dim(25), jde, jdim, jdn, jds, jji, jp, jpe, jpn, jsim, jtim, ndi
+integer(kind=iwp) :: i, im, iseg_dim(25), jde, jdim, jdn, jds, jji, jp, jpe, jpn, jsim, jtim, ndi
+integer(kind=iwp), allocatable :: iin(:)
 
 nci_dim = 0
 iseg_dim(:) = 0
@@ -81,6 +83,7 @@ else
   jpe = no(norb_inn+1)
 
   jp = jv
+  call mma_allocate(iin,[0,max_node],label='iin')
   !iin(1:jpe) = 0
   !iin(0) = 0
   iin(:) = 0
@@ -163,6 +166,7 @@ else
       iseg_dim(17+im) = iseg_dim(17+im)+ndi
     end do
   end do
+  call mma_deallocate(iin)
   do jp=2,25
     iseg_sta(jp) = iseg_sta(jp-1)+iseg_dim(jp-1)
     !write(nf2,'(3i10)') jp-1,iseg_sta(jp-1),iseg_dim(jp-1)      !to
@@ -223,13 +227,15 @@ end subroutine active_drt
 !
 !use gugaci_global, only: lsm_inn, max_ref, norb_dz, norb_inn, nstart_act, spin
 !use Symmetry_Info, only: mul_tab => Mul
+!use stdalloc, only: mma_allocate, mma_deallocate
 !use Definitions, only: iwp, u6
 !
 !implicit none
 !integer(kind=iwp), intent(in) :: nel, nm
 !integer(kind=iwp), intent(out) :: ndj, locu(8,max_ref)
-!integer(kind=iwp) :: i, l1, l2, l3, l4, l5, l6, l7, l8, ldj, lh, lhe, lhs, lhsm(8), lm, lpsum, lscu(0:8,max_ref), m, m1, m2, m3, &
-!                     m4, m5, m6, m7, m8, mdj, mys, ne_act, ne_s, nes, npair, nre
+!integer(kind=iwp) :: i, l1, l2, l3, l4, l5, l6, l7, l8, ldj, lh, lhe, lhs, lhsm(8), lm, lpsum, m, m1, m2, m3, m4, m5, m6, m7, m8, &
+!                     mdj, mys, ne_act, ne_s, nes, npair, nre
+!integer(kind=iwp), allocatable :: lscu(:,:)
 !
 !ne_act = nel-2*norb_dz
 !ne_s = nint(spin*2)
@@ -241,6 +247,7 @@ end subroutine active_drt
 !  lhsm(lm) = lhsm(lm)+1
 !end do
 !mdj = 0
+!call mma_allocate(lscu,[0,8],[1,max_ref],label='lscu')
 !do nes=ne_s,ne_act,2
 !  do l1=0,lhsm(1)
 !    do l2=0,lhsm(2)
@@ -326,6 +333,7 @@ end subroutine active_drt
 !    end do
 !  end do
 !end do
+!call mma_deallocate(lscu)
 !
 !do nre=1,ndj
 !  write(u6,'(5x,i6,8i3)') nre,(locu(i,nre),i=1,8)
@@ -364,12 +372,14 @@ end subroutine active_drt
 !subroutine check_rcas3(jk,ind,inb,ndj,locu)
 !
 !use gugaci_global, only: ja, jb, max_node
+!use stdalloc, only: mma_allocate, mma_deallocate
 !use Definitions, only: iwp
 !
 !implicit none
 !integer(kind=iwp), intent(in) :: jk, ind(8,max_node), ndj, locu(8,ndj)
 !integer(kind=iwp), intent(out) :: inb
-!integer(kind=iwp) :: i, iex, iexcit(ndj), lsym(8), m, nsumel
+!integer(kind=iwp) :: i, iex, lsym(8), m, nsumel
+!integer(kind=iwp), allocatable :: iexcit(:)
 !
 !inb = 0
 !nsumel = 0
@@ -377,6 +387,7 @@ end subroutine active_drt
 !  lsym(i) = ind(i,jk)
 !  nsumel = nsumel+lsym(i)
 !end do
+!call mma_allocate(iexcit,ndj,label='iexcit')
 !do i=1,ndj
 !  iexcit(i) = 0
 !  do m=1,8
@@ -390,6 +401,7 @@ end subroutine active_drt
 !do i=2,ndj
 !  inb = min(inb,iexcit(i))
 !end do
+!call mma_deallocate(iexcit)
 !inb = inb+ja(jk)*2+jb(jk)
 !
 !return
@@ -400,16 +412,19 @@ subroutine irfrst()
 ! ifrno(j)=i
 ! irfno(i)=j no. i ref is no. j cfs in h0
 
-use gugaci_global, only: ifrno, iref_occ, irf, irfno, max_orb, n_ref, nci_h0, norb_act, norb_all, norb_dz, nwalk
+use gugaci_global, only: ifrno, iref_occ, irf, irfno, n_ref, nci_h0, norb_act, norb_all, norb_dz, nwalk
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: i, icount, icsfocc, icsfwlk, ii, ij, im, iwalktmp(max_orb), j, ndimh0
+integer(kind=iwp) :: i, icount, icsfocc, icsfwlk, ii, ij, im, j, ndimh0
+integer(kind=iwp), allocatable :: iwalktmp(:)
 
 icsfwlk = 0
 ndimh0 = nci_h0 !iw_sta(2,1)
 icount = 0
+call mma_allocate(iwalktmp,norb_all,label='iwalktmp')
 do i=1,n_ref
   outer: do j=1,ndimh0
     call found_a_config(j,One,0)
@@ -441,6 +456,7 @@ do i=1,n_ref
     !write(u6,*) 'icount',icount,j
   end do outer
 end do
+call mma_deallocate(iwalktmp)
 
 irf = icount
 write(u6,3000) irf
@@ -456,15 +472,17 @@ end subroutine irfrst
 
 !subroutine irfrst_bak(iselcsf_occ)
 !
-!use gugaci_global, only: ifrno, iref_occ, irf, irfno, max_innorb, max_orb, max_ref, mjn, mroot, n_ref, nci_h0, norb_act, norb_all, &
-!                         norb_dz, nwalk
+!use gugaci_global, only: ifrno, iref_occ, irf, irfno, max_innorb, max_ref, mjn, mroot, n_ref, nci_h0, norb_act, norb_all, norb_dz, &
+!                         nwalk
+!use stdalloc, only: mma_allocate, mma_deallocate
 !use Constants, only: One
 !use Definitions, only: iwp, u6
 !
 !implicit none
 !integer(kind=iwp), intent(in) :: iselcsf_occ(max_innorb,max_ref)
-!integer(kind=iwp) :: i, icount, icsfocc, icsfwlk, ii, ij, im, io, iocsf, ire, iwalktmp(max_orb), j, ndimh0, nocc
+!integer(kind=iwp) :: i, icount, icsfocc, icsfwlk, ii, ij, im, io, iocsf, ire, j, ndimh0, nocc
 !logical(kind=iwp) :: log_exist
+!integer(kind=iwp), allocatable :: iwalktmp(:)
 !
 !nocc = 0
 !do i=1,mroot
@@ -491,6 +509,7 @@ end subroutine irfrst
 !icsfocc = 0
 !ndimh0 = nci_h0 !iw_sta(2,1)
 !icount = 0
+!call mma_allocate(iwalktmp,norb_all,label='iwalktmp')
 !do i=1,n_ref
 !  outer2: do j=1,ndimh0
 !    call found_a_config(j,One,0)
@@ -517,6 +536,7 @@ end subroutine irfrst
 !    !write(u6,*) 'icount',icount,j
 !  end do outer2
 !end do
+!call mma_deallocate(iwalktmp)
 !
 !irf = icount
 !do i=1,2*mroot

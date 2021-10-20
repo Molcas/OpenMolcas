@@ -1202,7 +1202,6 @@ end subroutine external_space_plpmode_value_ds
 subroutine external_space_plpmode_value_dt()
 
 use gugaci_global, only: v_sqthreevsqtwo, w0g25, w0g25b, w0g26b, w0g28b, w1g25b, w1g26b, w1g28b
-
 use Constants, only: Zero
 
 implicit none

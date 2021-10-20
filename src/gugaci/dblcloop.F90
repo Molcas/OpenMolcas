@@ -220,7 +220,7 @@ do lri=norb_frz+1,norb_dz-1           !frz
           wl = -vl_0*vint_ci(list)
           call prodab(1,0,jpds0,iwdl,iwdr,0,wl,0)
           if (jb_sys > 0) then
-          ! ar(13)-drl(30)-al(23)   w0=sqrt(db/(db+1)) w1=0
+            ! ar(13)-drl(30)-al(23)   w0=sqrt(db/(db+1)) w1=0
             iwdl = just(lrj,lri)
             wl = -vl_1*vint_ci(list)
             call prodab(1,0,jpds0,iwdl,iwdr,0,wl,0)

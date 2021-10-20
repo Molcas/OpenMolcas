@@ -21,16 +21,18 @@ subroutine cidiagonalize(mxvec)
 
 use gugaci_global, only: indx, LuCiDia, LuCiTv1, LuCiTv2, LuCiVec, max_iter, max_kspace, max_root, maxciiter, mcroot, mjn, mroot, &
                          mth_eigen, nci_dim, vd, ve, vector1, vector2, vint_ci, vp, vthrealp, vthreen, vthreresid, vu
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: mxvec
-integer(kind=iwp) :: i, iciter, id, idxvec(max_iter), iiter, irot, irset, irte, irts, itidx, jiter, kval, l, m, mi, mid, mn, mt, &
-                     mtid, mtidx, mtsta, mtsta0, nd, nda, ni, numroot
-real(kind=wp) :: depff, difeci(max_root), sc0, sc1, sct, scvp, sechc, valpha(max_root), valpha_criterion, vcien(max_root), &
-                 vcienold(max_root), venergy, venergy_criterion, vet, vresid(max_root), vresid_criterion, vuim !, vad(max_vector)
+integer(kind=iwp) :: i, iciter, id, iiter, irot, irset, irte, irts, itidx, jiter, kval, l, m, mi, mid, mn, mt, mtid, mtidx, mtsta, &
+                     mtsta0, nd, nda, ni, numroot
+real(kind=wp) :: depff, sc0, sc1, sct, scvp, sechc, valpha_criterion, venergy, venergy_criterion, vet, vresid_criterion, vuim
 logical(kind=iwp) :: log_convergence, log_muliter, restart
+integer(kind=iwp), allocatable :: idxvec(:)
+real(kind=wp), allocatable :: difeci(:), valpha(:), vcien(:), vcienold(:), vresid(:)
 real(kind=wp), parameter :: depc = 1.0e-7_wp
                             !, valpha_criterion = 1.0e-7_wp, venergy_criterion = 1.0e-8_wp, vresid_criterion = 1.0e-8_wp
 real(kind=wp), external :: c_time
@@ -73,7 +75,13 @@ end if
 
 mth_eigen = 0
 numroot = mroot
-do
+call mma_allocate(idxvec,max_iter,label='idxvec')
+call mma_allocate(difeci,max_root,label='difeci')
+call mma_allocate(valpha,max_root,label='valpha')
+call mma_allocate(vcien,max_root,label='vcien')
+call mma_allocate(vcienold,max_root,label='vcienold')
+call mma_allocate(vresid,max_root,label='vresid')
+outer: do
   restart = .false.
   sc0 = c_time()
   vector1(:) = Zero
@@ -156,7 +164,7 @@ do
           if (log_muliter) then
             log_convergence = .true.
             call get_eigvector(mtsta0,vcien,log_muliter)
-            return
+            exit outer
           else
             if (mth_eigen < numroot) then
               call get_eigvector(mtsta0,vcien,log_muliter)
@@ -165,7 +173,7 @@ do
             else
               log_convergence = .true.
               call get_eigvector(mtsta0,vcien,log_muliter)
-              return
+              exit outer
             end if
           end if
         end if
@@ -177,7 +185,7 @@ do
       write(u6,'(a30,1x,i3)') ' number of converged roots is=',mtsta0
       mtsta0 = mroot
       call get_eigvector(mtsta0,vcien,log_muliter)
-      return
+      exit outer
     end if
 
     if (mtsta /= mtsta0) then
@@ -386,7 +394,13 @@ do
 
   end do
   if (.not. restart) exit
-end do
+end do outer
+call mma_deallocate(idxvec)
+call mma_deallocate(difeci)
+call mma_deallocate(valpha)
+call mma_deallocate(vcien)
+call mma_deallocate(vcienold)
+call mma_deallocate(vresid)
 
 return
 
@@ -546,6 +560,7 @@ subroutine mrcibasis(ndim,mroot,mjn,indx,vb1,vb2,vcien,mth_eigen,ncivec)
 !     vb1   - trial vectors
 
 use gugaci_global, only: logic_inivec_read, LuCiDia, LuCiTv1, LuCiTv2, max_kspace, max_root !, logic_tdav
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -554,14 +569,17 @@ integer(kind=iwp), intent(in) :: ndim, mjn(2*max_root), mth_eigen, ncivec
 integer(kind=iwp), intent(out) :: indx(max_kspace)
 integer(kind=iwp), intent(inout) :: mroot
 real(kind=wp), intent(out) :: vb1(ncivec*ndim), vb2(ncivec*ndim), vcien(mroot)
-integer(kind=iwp) :: i, idx, ij, im, indx0, j, jdx, k, kk, l, m, mjntmp(mroot*2), nf23, numdim
-real(kind=wp) :: sechc, vad, vdia(2*mroot), vdiatmp(2*mroot), vsum
+integer(kind=iwp) :: i, idx, ij, im, indx0, j, jdx, k, kk, l, m, nf23, numdim
+real(kind=wp) :: sechc, vad, vsum
+integer(kind=iwp), allocatable :: mjntmp(:)
+real(kind=wp), allocatable :: vdia(:), vdiatmp(:)
 
 call read_ml(lucidia,vb2,ndim,1)
 
 !call read_ml(nf8,vb2,ndim,1)
 indx(1:max_kspace) = 0
 indx0 = 0
+call mma_allocate(vdia,2*mroot,label='vdia')
 do i=1,mroot
   indx(i) = indx0
   indx0 = indx0+ndim
@@ -571,6 +589,7 @@ end do
 do i=1,mroot
   write(u6,'(2x,2i8,f18.8)') i,mjn(i),vb2(mjn(i))
 end do
+call mma_allocate(mjntmp,2*mroot,label='mjntmp')
 mjntmp(1:mroot) = mjn(1:mroot)
 
 ! initialize vb1-vector1 and th-vector2 to zero
@@ -663,6 +682,7 @@ call write_ml(lucitv2,vb2,ndim*mroot,1)
 
 call read_ml(lucidia,vb1,ndim,1)
 !call read_ml(nf8,vb1,ndim,1)
+call mma_allocate(vdiatmp,2*mroot,label='vdiatmp')
 if (mth_eigen == 0) then
   do kk=mroot+1,2*mroot
     ij = indx(kk-mroot)
@@ -705,6 +725,7 @@ numdim = ndim*mroot
 vb1(1:numdim) = Zero
 vb2(1:numdim) = Zero
 !write(u6,*) ' initial vector 3',vdia(2),mroot
+call mma_deallocate(vdia)
 
 if (mth_eigen == 0) then
   do m=mroot+1,2*mroot
@@ -738,6 +759,8 @@ else
     call norm_a(ndim,vb1)
   end if
 end if
+call mma_deallocate(mjntmp)
+call mma_deallocate(vdiatmp)
 
 if (logic_inivec_read) then
   call read_ml(lucidia,vb2,ndim,1)
@@ -805,8 +828,8 @@ end subroutine mrcibasis
 !integer(kind=iwp), intent(out) :: indx(max_kspace)
 !real(kind=wp), intent(out) :: vb1(ncivec*ndim), vb2(ncivec*ndim), vcien(mroot)
 !integer(kind=iwp) :: i, ij, indx0, ioff, j, kk, m, n, numdim
-!real(kind=wp) :: fenmu, sechc, vadi, vdia(2*mroot)
-!real(kind=wp), allocatable :: diagelement(:)
+!real(kind=wp) :: fenmu, sechc, vadi
+!real(kind=wp), allocatable :: diagelement(:), vdia(:)
 !real(kind=wp), parameter :: epc = 5.0e-3_wp
 !
 !call mma_allocate(diagelement,ndim,label='diagelement')
@@ -816,6 +839,7 @@ end subroutine mrcibasis
 !!call read_ml(nf8,vb2,ndim,1)
 !indx(1:max_kspace) = 0
 !indx0 = 0
+!call mma_allocate(vdia,2*mroot,label='vdia')
 !do i=1,mroot
 !  indx(i) = indx0
 !  indx0 = indx0+ndim
@@ -846,6 +870,7 @@ end subroutine mrcibasis
 !  vcien(1) = vdia(j)
 !  mroot = 1
 !end if
+!call mma_deallocate(vdia)
 !
 !!write(u6,*) ' initial basis vector 0',nf23
 !call matrix_vector_multi_parallel_drt(sechc)
@@ -924,6 +949,7 @@ use gugaci_global, only: cm_cri, ecih0, irfno, logic_mr, LuCiDia, LuCiVec, max_r
 #ifdef _XIANEST_
 use control, only: toptask
 #endif
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -932,7 +958,8 @@ integer(kind=iwp), intent(in) :: mtsta0
 real(kind=wp), intent(in) :: vcien(max_root)
 logical(kind=iwp), intent(in) :: log_muliter
 integer(kind=iwp) :: i, j, jr, mt, nc, nd
-real(kind=wp) :: dav1(max_root), de, dedav1, vcml(max_root), vcof !, dav2(max_root), dav3(max_root), remei(max_root)
+real(kind=wp) :: de, dedav1, vcof
+real(kind=wp), allocatable :: dav1(:), vcml(:) !, dav2(:), dav3(:), remei(:)
 
 vector1(:) = Zero
 nd = nci_dim*(mroot-mtsta0+1)
@@ -961,6 +988,11 @@ end if
 !rewind(nf7)
 
 call memcidiag_alloc()
+call mma_allocate(dav1,max_root,label='dav1')
+call mma_allocate(vcml,max_root,label='vcml')
+!call mma_allocate(dav2,max_root,label='dav2')
+!call mma_allocate(dav3,max_root,label='dav3')
+!call mma_allocate(remei,max_root,label='remei')
 do mt=1,mroot
   !*********************************************************************
   ! do davidson correction
@@ -1006,6 +1038,9 @@ do mt=1,mroot
   end do
 end do
 call memcidiag_dealloc()
+!call mma_deallocate(dev2)
+!call mma_deallocate(dev3)
+!call mma_deallocate(remei)
 
 if (log_muliter) then
   write(u6,800)
@@ -1028,6 +1063,8 @@ end if
 call add_info('ECI',vcien,mroot,8)
 call add_info('ECI_DAV',dav1,mroot,8)
 #endif
+call mma_deallocate(dav1)
+call mma_deallocate(vcml)
 
 return
 

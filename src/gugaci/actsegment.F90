@@ -154,7 +154,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(inout) :: mh
-integer(kind=iwp) :: iactploop, idb, idocc, ilc, ilstep ,ind0, irc, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, &
+integer(kind=iwp) :: iactploop, idb, idocc, ilc, ilstep, ind0, irc, irstep, jbr, lphead, lpltail, lplwei, lplwei0, lpnew, &
                      lpnextltail, lpnextrtail, lprtail, lprwei, lprwei0, ni
 real(kind=wp) :: w, w0, w1, ww
 integer(kind=iwp), parameter :: ismb3(8) = [21,25,30,31,53,57,62,63]

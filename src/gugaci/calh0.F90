@@ -19,12 +19,14 @@ use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: i, ijm, iselcsf_occ(max_innorb,max_ref), kval, l, m, mmspace, mn, ndim0, nxb, nxh
+integer(kind=iwp) :: i, ijm, kval, l, m, mmspace, mn, ndim0, nxb, nxh
 real(kind=wp) :: vad0(max_h0)
 !character(len=256) :: filename
+integer(kind=iwp), allocatable :: iselcsf_occ(:,:)
 real(kind=wp), allocatable :: vb1(:), vb2(:)
 real(kind=wp), parameter :: dcrita = 5.0e-6_wp
 
+call mma_allocate(iselcsf_occ,max_innorb,max_ref,label='iselcsf_occ')
 if (.not. logic_mr) then
   call minevalue(iselcsf_occ)
 end if
@@ -64,6 +66,7 @@ else
     call minevalue(iselcsf_occ)
   end if
 end if
+call mma_deallocate(iselcsf_occ)
 
 !=======================================================================
 !if (logic_mr) ndim_h0 = irf
@@ -265,6 +268,7 @@ end subroutine formh0
 subroutine basis_2(ndim,vb1,nxb,vad,th,nxh)
 
 use gugaci_global, only: ifrno, indx, logic_mr, max_kspace, mjn, mroot
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -272,8 +276,9 @@ implicit none
 integer(kind=iwp), intent(in) :: ndim, nxb, nxh
 real(kind=wp), intent(out) :: vb1(max_kspace*ndim)
 real(kind=wp), intent(in) :: vad(ndim), th(nxh)
-integer(kind=iwp) :: i, ib, ij, ijb1(mroot), ijh, j, l, m, m0, mief, mjnj
+integer(kind=iwp) :: i, ib, ij, ijh, j, l, m, m0, mief, mjnj
 real(kind=wp) :: fenmu, vadi
+integer(kind=iwp), allocatable :: ijb1(:)
 real(kind=wp), parameter :: dcrita = 1.0e-6_wp, epc = 5.0e-3_wp
 
 vb1(:) = Zero
@@ -292,6 +297,7 @@ do j=1,mroot
 end do
 
 !=======================================================================
+call mma_allocate(ijb1,mroot,label='ijb1')
 j = mroot
 do m=1,mroot
   i = mjn(m)
@@ -315,6 +321,7 @@ do m=1,mroot
     vb1(ijb1(m)+l) = th(ijh+i)/fenmu
   end do
 end do
+call mma_deallocate(ijb1)
 
 !-----------------------------------------------------------------------
 ! write out basis
@@ -337,14 +344,16 @@ end subroutine basis_2
 
 subroutine minevalue(iselcsf_occ)
 
-use gugaci_global, only: escf, irf, irfno, logic_mr, LuCiDia, max_innorb, max_orb, max_ref, mjn, mroot, nci_dim, nci_h0, norb_act, &
+use gugaci_global, only: escf, irf, irfno, logic_mr, LuCiDia, max_innorb, max_ref, mjn, mroot, nci_dim, nci_h0, norb_act, &
                          norb_all, norb_dz, nwalk, vector1, vector2
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(inout) :: iselcsf_occ(max_innorb,max_ref)
-integer(kind=iwp) :: i, ij, io, iwalktmp(0:max_orb), j, jm, l, m, ndimh0
+integer(kind=iwp), intent(out) :: iselcsf_occ(max_innorb,max_ref)
+integer(kind=iwp) :: i, ij, io, j, jm, l, m, ndimh0
+integer(kind=iwp), allocatable :: iwalktmp(:)
 real(kind=wp) :: am
 
 call read_ml(lucidia,vector1,nci_dim,1)
@@ -385,6 +394,7 @@ do m=1,mroot
   escf(m) = vector1(mjn(m))
 end do
 
+call mma_allocate(iwalktmp,norb_all,label='iwalktmp')
 write(u6,*) '   mjn(k) :',mroot
 do m=1,mroot
   call found_a_config(mjn(m),escf(m),1)
@@ -406,6 +416,7 @@ do m=1,mroot
   !write(nf2,'(2x,2i8,f18.8)') m,mjn(m),escf(m)
 end do
 write(u6,*)
+call mma_deallocate(iwalktmp)
 
 end subroutine minevalue
 

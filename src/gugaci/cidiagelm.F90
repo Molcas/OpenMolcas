@@ -124,20 +124,20 @@ end subroutine diagonal_loop_wyb
 
 subroutine diagonal_act_c()
 
-use gugaci_global, only: iy, jb, jeh, jj_sub, jpad, jph, jwh, max_innorb, maxpl, norb_act, norb_dz, norb_inn, th, thh
+use gugaci_global, only: iy, jb, jeh, jj_sub, jpad, jph, jwh, maxpl, norb_act, norb_dz, norb_inn, th, thh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: idl, ind1, isq, iwa, je, jeb, jp, jpb, lr, m, me, mh, mp, mpe, mw, ndr(max_innorb)
+integer(kind=iwp) :: idl, ind1, isq, iwa, je, jeb, jp, jpb, lr, m, me, mh, mp, mpe, mw
 real(kind=wp) :: vlop0, vlop1, w, ww
 integer(kind=iwp), allocatable :: jee(:), jpe(:), jwe(:)
 real(kind=wp), allocatable :: te(:), tee(:)
 
 !write(u6,*) '               ***** start h-diaelm *****'
 !write(u6,*) jpad,jpae
-ndr = 0
+!ndr(:) = 0
 if (norb_act == 0) then
   mh = 1
   th(1) = One
@@ -238,7 +238,7 @@ do
     jpe(m) = 0
   end do
   mh = me
-  if (ndr(lr) < mh) ndr(lr) = mh
+  !if (ndr(lr) < mh) ndr(lr) = mh
 end do
 !do m=1,mh
 !  th(m) = Zero
@@ -260,20 +260,20 @@ end subroutine diagonal_act_c
 
 subroutine diagonal_act_d()
 
-use gugaci_global, only: iy, jb, jeh, jj_sub, jph, jwh, max_innorb, maxpl, no, norb_dz, norb_inn, th, thh, vdint, voint
+use gugaci_global, only: iy, jb, jeh, jj_sub, jph, jwh, maxpl, no, norb_dz, norb_inn, th, thh, vdint, voint
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: idl, ind1, isq, iwa, jbl, je, jeb, jp, jp0, jp1, jw, lr, lr0, m, me, mh, mp, mpe, mw, ndr(max_innorb)
+integer(kind=iwp) :: idl, ind1, isq, iwa, jbl, je, jeb, jp, jp0, jp1, jw, lr, lr0, m, me, mh, mp, mpe, mw
 real(kind=wp) :: vlop0, vlop1, w, wt, ww
 integer(kind=iwp), allocatable :: jee(:), jpe(:), jwe(:)
 real(kind=wp), allocatable :: te(:), tee(:)
 
 !write(u6,*) '               ***** start h-diaelm *****'
 !write(u6,*) '   diagonal_act_d:',jpad,ipae
-ndr = 0
+!ndr(:) = 0
 do lr=norb_dz+1,norb_inn
   jp0 = no(lr-1)+1
   jp1 = no(lr)
@@ -330,7 +330,7 @@ do lr0=norb_dz+1,norb_inn
   !write(u6,*) ad(i)
   !*********************************************************************
   lr = lr0
-  if (ndr(lr) < mh) ndr(lr) = mh
+  !if (ndr(lr) < mh) ndr(lr) = mh
   do
     if (lr == norb_inn) then
       call diagonal_link_ae(mh)
@@ -389,7 +389,7 @@ do lr0=norb_dz+1,norb_inn
       jpe(m) = 0
     end do
     mh = me
-    if (ndr(lr) < mh) ndr(lr) = mh
+    !if (ndr(lr) < mh) ndr(lr) = mh
   end do
   !do m=1,mh
   !  th(m) = Zero
@@ -527,7 +527,7 @@ subroutine diagonal_link_ad(mpe,iwa,vlop0,vlop1)
 use gugaci_global, only: fg, jb_sys, jpad, jud, just, kk, lsm_inn, norb_dz, norb_frz, ns_sm, pd, pdd, ps1, ps2, ps3, ps4, pt, ptt, &
                          v_onevsqtwo, v_sqtwo, vdint, voint
 use Symmetry_Info, only: mul_tab => Mul
-Use Constants, only: Zero, Two
+use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
 implicit none

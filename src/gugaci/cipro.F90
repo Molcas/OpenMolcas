@@ -11,20 +11,21 @@
 
 subroutine cipro()
 
-use gugaci_global, only: denm1, LuCiDen, LuCiMO, max_root, maxgdm, mroot, ng_sm, nlsm_all, nlsm_bas, pror
+use gugaci_global, only: denm1, LuCiDen, LuCiMO, max_root, mroot, ng_sm, nlsm_all, nlsm_bas, pror
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
+#include "Molcas.fh"
 integer(kind=iwp), parameter :: maxmolcasorb = 5000, maxpro = 50
-integer(kind=iwp) :: i, icall, idisk, idummy(1), idx_idisk0(64), idx_idisk1(max_root+1), iend, im, iopt, ipc, ipcom(maxpro), &
-                     iprop, irec, iroot, irtc, ista, isymlb, nc, nc0, nc1, nc2, nlsm_del(maxgdm), nmo, npro, nsiz
-real(kind=wp) :: pgauge(3,maxpro), pnuc(maxpro)
-character :: bsbl(2*4*maxmolcasorb)
-character(len=8) :: label, pname(maxpro), ptyp(maxpro)
-real(kind=wp), allocatable :: cmo(:), cno(:), occ(:)
-real(kind=wp), allocatable :: denao(:), omat(:), vprop(:,:,:)
+integer(kind=iwp) :: i, icall, idisk, idummy(1), idx_idisk0(64), iend, im, iopt, ipc, iprop, irec, iroot, irtc, ista, isymlb, nc, &
+                     nc0, nc1, nc2, nlsm_del(mxSym), nmo, npro, nsiz
+character(len=8) :: label
+integer(kind=iwp), allocatable :: idx_idisk1(:), ipcom(:)
+real(kind=wp), allocatable :: cmo(:), cno(:), denao(:), occ(:), omat(:), pgauge(:,:), pnuc(:), vprop(:,:,:)
+character, allocatable :: bsbl(:)
+character(len=8), allocatable :: pname(:), ptyp(:)
 
 ! mrci nature orbital
 idisk = 0
@@ -32,6 +33,7 @@ call idafile(lucimo,2,idx_idisk0,64,idisk)
 !write(u6,*) 'read head'
 idisk = idx_idisk0(2)
 nc = 2*4*maxmolcasorb
+call mma_allocate(bsbl,nc,label='bsbl')
 call cdafile(lucimo,2,bsbl,nc,idisk)
 
 !open(100,file='dat1')
@@ -48,6 +50,9 @@ end do
 ! read property labels
 iopt = 8
 npro = 0
+call mma_allocate(ipcom,maxpro,label='ipcom')
+call mma_allocate(pname,maxpro,label='pname')
+call mma_allocate(ptyp,maxpro,label='ptyp')
 do i=1,100
   label = 'undef'
   call irdone(irec,iopt+1,label,ipc,idummy,isymlb)
@@ -80,10 +85,13 @@ call ddafile(lucimo,2,cmo,nc0,idisk)
 ! read overlap matrix
 call rdone(irec,6,'MLTPL  0',1,omat,idummy(1))
 idisk = 0
+call mma_allocate(idx_idisk1,max_root+1,label='idx_idisk1')
 call idafile(luciden,2,idx_idisk1,max_root+1,idisk)
 
 icall = 0
 nlsm_del(:) = 0
+call mma_allocate(pgauge,3,maxpro,label='pgauge')
+call mma_allocate(pnuc,maxpro,label='pnuc')
 do iroot=1,mroot
   ! read density matrix
   idisk = idx_idisk1(iroot)
@@ -105,6 +113,8 @@ do iroot=1,mroot
   call calprop(ng_sm,nlsm_bas,mroot,iroot,iroot,nc2,npro,pname,ipcom,ptyp,denao,nc0,vprop,pgauge,pnuc,icall)
   ! print property
 end do
+call mma_deallocate(idx_idisk1)
+call mma_deallocate(bsbl)
 call mma_deallocate(cmo)
 call mma_deallocate(cno)
 call mma_deallocate(occ)
@@ -131,6 +141,8 @@ if (npro > 0) then
   end do
   write(u6,*)
 end if
+call mma_deallocate(pgauge)
+call mma_deallocate(pnuc)
 
 iopt = 8
 npro = 0
@@ -172,6 +184,9 @@ do i=1,npro
   write(110) omat(1:nsiz)
 end do
 close(110)
+call mma_deallocate(ipcom)
+call mma_deallocate(pname)
+call mma_deallocate(ptyp)
 call mma_deallocate(omat)
 call mma_deallocate(denao)
 call mma_deallocate(vprop)
@@ -182,6 +197,7 @@ end subroutine cipro
 
 subroutine calprop(ngsm,nsbas,mroot,istate,jstate,nsi,npro,pname,ipcom,ptyp,aden,lmo,vprop,pgauge,pnuc,icall)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
@@ -195,7 +211,8 @@ real(kind=wp), intent(inout) :: vprop(mroot,mroot,npro)
 real(kind=wp), intent(inout) :: pgauge(3,npro), pnuc(npro)
 integer(kind=iwp), intent(inout) :: icall
 integer(kind=iwp) :: i, idummy(1), im, irtc, isymlb, j, nc, nc0, nc1, nsiz
-real(kind=wp) :: amat(nsi), pint(nsi+4), sgn, smat(nsi), val
+real(kind=wp) :: sgn, val
+real(kind=wp), allocatable :: amat(:), pint(:), smat(:)
 real(kind=r8), external :: ddot_
 
 ! we have two kind of density matrix, symm or anti-symm
@@ -203,6 +220,8 @@ real(kind=r8), external :: ddot_
 nc0 = 0
 nc1 = 1
 nc = 0
+call mma_allocate(smat,nsi,label='smat')
+call mma_allocate(amat,nsi,label='amat')
 do im=1,ngsm
   if (nsbas(im) == 0) cycle
   do i=1,nsbas(im)
@@ -230,6 +249,7 @@ end do
 
 nsiz = nsi
 ! read property int and calculated property
+call mma_allocate(pint,nsiz+4,label='pint')
 do i=1,npro
   call irdone(irtc,1,pname(i),ipcom(i),idummy,isymlb)
   if (irtc == 0) nsiz = idummy(1)
@@ -264,6 +284,9 @@ do i=1,npro
   end if
   !write(u6,*) nsiz,'val=',val
 end do
+call mma_deallocate(pint)
+call mma_deallocate(smat)
+call mma_deallocate(amat)
 
 icall = 1
 
