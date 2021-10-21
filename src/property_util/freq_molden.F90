@@ -74,6 +74,7 @@ call Get_Coord_All(Coord,nCoord)
 call RecPrt('Coord(all)',' ',Coord,3,nCoord)
 #endif
 call mma_allocate(Element,nCoord,label='Element')
+call Get_Name_All(Element)
 write(Lu_9,*) '[NATOM]'
 write(Lu_9,*) nCoord
 
