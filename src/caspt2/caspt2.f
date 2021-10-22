@@ -93,11 +93,14 @@ C
       REAL*8  RELAU,RELEV,RELCM,RELKJ
 
 * Effective Hamiltonian
-      REAL*8, ALLOCATABLE :: Heff(:,:), Ueff(:,:),UeffSav(:,:)
+      REAL*8, ALLOCATABLE :: Heff(:,:), Ueff(:,:)
 
 * Zeroth-order Hamiltonian
-      REAL*8, ALLOCATABLE :: H0(:,:), U0(:,:),U0Sav(:,:),H0Sav(:,:)
-      REAL*8, ALLOCATABLE :: ESav(:)
+      REAL*8, ALLOCATABLE :: H0(:,:), U0(:,:)
+
+* Gradient stuff
+      REAL*8, ALLOCATABLE :: UeffSav(:,:),U0Sav(:,:),H0Sav(:,:),ESav(:)
+      LOGICAL :: IFGRDT0
 
 
       !! for debug
@@ -167,7 +170,7 @@ C       GOTO 1000
       END IF
 C
       !! Some preparations for gradient calculation
-      IF (IFDENS.OR.IFGRDT) Then
+      IF (IFGRDT) Then
         CALL GrdIni
         CALL MMA_ALLOCATE(UeffSav,Nstate,Nstate)
         CALL MMA_ALLOCATE(U0Sav,Nstate,Nstate)
@@ -202,8 +205,9 @@ C
       !! rotation vector is computed. In the second step (iStpGrd=2),
       !! quantities needed for gradient are computed
       nStpGrd = 1
-      If ((IFDENS.OR.IFGRDT).AND.IfChol) CALL CNSTFIFAFIMO(0)
-      IF ((IFDENS.OR.IFGRDT).AND.IFMSCOUP) Then
+      IFGRDT0 = IFGRDT
+      If (IFGRDT.AND.IfChol) CALL CNSTFIFAFIMO(0)
+      IF (IFGRDT.AND.IFMSCOUP) Then
         nStpGrd = 2
         !! avoid doing a lot of calculations in dens.f in the first loop
         IFGRDT = .false.
@@ -244,7 +248,7 @@ C      write(6,*) "before grpini"
        !! Somehow H0 is wrong for XDW-CASPT2
        !! Maybe, H0(1,1) is computed with rotated basis with DW-density,
        !! while the true value is computed with SA-density
-       If ((IFDENS.OR.IFGRDT).AND.IFMSCOUP.and.IFXMS.and.IFDW)
+       If (IFGRDT.AND.IFMSCOUP.and.IFXMS.and.IFDW)
      *   Call DCopy_(nState*nState,H0Sav,1,H0,1)
 C      write(6,*) "after grpini"
        CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
@@ -340,7 +344,7 @@ C     Gradients.
 C     Note: Quantities computed in gradients section can also
 C     be used efficiently for computing Multi-State HEFF.
 C     NOTE: atm the MS-CASPT2 couplings computed here are wrong!
-         IF (IFDENS.OR.(IFGRDT.and.IRLXroot.eq.MSTATE(JSTATE))) THEN
+         IF (IFDENS.AND..NOT.IFGRDT0) THEN
            IF (IPRGLB.GE.VERBOSE) THEN
               WRITE(6,*)
               WRITE(6,'(20A4)')('****',I=1,20)
@@ -353,20 +357,21 @@ C     NOTE: atm the MS-CASPT2 couplings computed here are wrong!
            Call StatusLine('CASPT2:','Multi-State couplings')
 C-SVC: for now, this part is only performed on the master node
 #ifdef _MOLCAS_MPP_
-C          IF (Is_Real_Par()) THEN
-C            Call Set_Do_Parallel(.False.)
-C            IF (KING()) CALL GRDCTL(HEFF)
-C            Call Set_Do_Parallel(.True.)
-C            CALL GASync
-C          ELSE
-C            CALL GRDCTL(HEFF)
-C          END IF
+           IF (Is_Real_Par()) THEN
+             Call Set_Do_Parallel(.False.)
+             IF (KING()) CALL GRDCTL(HEFF)
+             Call Set_Do_Parallel(.True.)
+             CALL GASync
+           ELSE
+             CALL GRDCTL(HEFF)
+           END IF
 #else
-C          CALL GRDCTL(HEFF)
+           CALL GRDCTL(HEFF)
 #endif
          END IF
 
-         IF(IFMSCOUP.and.istpgrd.eq.1) THEN
+         IF((.NOT.IFDENS.OR.IFGRDT0).AND.
+     *      (IFMSCOUP.and.iStpGrd.eq.1))THEN
 C     If this was NOT a gradient, calculation, then the multi-state
 C     couplings are more efficiently computed via three-body
 C     transition density matrices.
@@ -554,7 +559,7 @@ C     CALL MMA_DEALLOCATE(U0)
 9000  CONTINUE
 
       !! Finishing for gradient calculation
-      IF (IFDENS.OR.IFGRDT) Then
+      IF (IFGRDT) Then
         Call GrdCls(UEFFSav,U0Sav,H0)
         CALL MMA_DEALLOCATE(UeffSav)
         CALL MMA_DEALLOCATE(U0Sav)

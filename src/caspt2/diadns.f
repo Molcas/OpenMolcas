@@ -487,15 +487,15 @@ C Unfold VEC1 and VEC2 into X1(MU,K,I), X2(MU,K,I):
 C D(I,J) := Add contraction -X2(MU,K,I)*X1(MU,K,J):
        IDIJ=1+IOFDIJ(ISYMI)
        NOI=NORB(ISYMI)
-C      CALL DGEMM_('T','N',NI,NI,NAS*NK,-1.0D00,
-C    &            WORK(LX2),NAS*NK,WORK(LX1),NAS*NK,
-C    &            1.0D00,DPT2(IDIJ),NOI)
-       CALL DGEMM_('T','N',NI,NI,NAS*NK,-0.5D00,
+       CALL DGEMM_('T','N',NI,NI,NAS*NK,-1.0D00,
      &            WORK(LX2),NAS*NK,WORK(LX1),NAS*NK,
      &            1.0D00,DPT2(IDIJ),NOI)
-       CALL DGEMM_('T','N',NI,NI,NAS*NK,-0.5D00,
-     &            WORK(LX1),NAS*NK,WORK(LX2),NAS*NK,
-     &            1.0D00,DPT2(IDIJ),NOI)
+C      CALL DGEMM_('T','N',NI,NI,NAS*NK,-0.5D00,
+C    &            WORK(LX2),NAS*NK,WORK(LX1),NAS*NK,
+C    &            1.0D00,DPT2(IDIJ),NOI)
+C      CALL DGEMM_('T','N',NI,NI,NAS*NK,-0.5D00,
+C    &            WORK(LX1),NAS*NK,WORK(LX2),NAS*NK,
+C    &            1.0D00,DPT2(IDIJ),NOI)
  813   CONTINUE
       END DO
       CALL GETMEM('DIA_X1','FREE','REAL',LX1,NX)
@@ -535,15 +535,15 @@ C Unfold VEC1 and VEC2 into X1(A,C,IJ), X2(A,C,IJ):
 C D(A,B) := Add contraction  X1(A,C,IJ)*X2(B,C,IJ):
        IDAB=1+IOFDAB(ISYMA)
        NOA=NORB(ISYMA)
-C      CALL DGEMM_('N','T',NA,NA,NIS*NC,+1.0D00,
-C    &            WORK(LX1),NA,WORK(LX2),NA,
-C    &            1.0D00,DPT2(IDAB),NOA)
-       CALL DGEMM_('N','T',NA,NA,NIS*NC,+0.5D00,
+       CALL DGEMM_('N','T',NA,NA,NIS*NC,+1.0D00,
      &            WORK(LX1),NA,WORK(LX2),NA,
      &            1.0D00,DPT2(IDAB),NOA)
-       CALL DGEMM_('N','T',NA,NA,NIS*NC,+0.5D00,
-     &            WORK(LX2),NA,WORK(LX1),NA,
-     &            1.0D00,DPT2(IDAB),NOA)
+C      CALL DGEMM_('N','T',NA,NA,NIS*NC,+0.5D00,
+C    &            WORK(LX1),NA,WORK(LX2),NA,
+C    &            1.0D00,DPT2(IDAB),NOA)
+C      CALL DGEMM_('N','T',NA,NA,NIS*NC,+0.5D00,
+C    &            WORK(LX2),NA,WORK(LX1),NA,
+C    &            1.0D00,DPT2(IDAB),NOA)
  913   CONTINUE
       END DO
       CALL GETMEM('DIA_X1','FREE','REAL',LX1,NX)

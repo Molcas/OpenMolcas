@@ -33,14 +33,14 @@ C as operating on the CASSCF space.
       CALL DCOPY_(NASHT**2,[0.0D0],0,OP1,1)
       CALL DCOPY_(NOP2,[0.0D0],0,OP2,1)
       CALL DCOPY_(NOP3,[0.0D0],0,OP3,1)
-C     CALL MKWWOPA(IVEC,JVEC,OP1,NOP2,OP2,NOP3,OP3)
-C     CALL MKWWOPB(IVEC,JVEC,OP0,OP1,NOP2,OP2)
-C     CALL MKWWOPC(IVEC,JVEC,OP1,NOP2,OP2,NOP3,OP3)
-C     CALL MKWWOPD(IVEC,JVEC,OP1,NOP2,OP2)
-C     CALL MKWWOPE(IVEC,JVEC,OP0,OP1)
+      CALL MKWWOPA(IVEC,JVEC,OP1,NOP2,OP2,NOP3,OP3)
+      CALL MKWWOPB(IVEC,JVEC,OP0,OP1,NOP2,OP2)
+      CALL MKWWOPC(IVEC,JVEC,OP1,NOP2,OP2,NOP3,OP3)
+      CALL MKWWOPD(IVEC,JVEC,OP1,NOP2,OP2)
+      CALL MKWWOPE(IVEC,JVEC,OP0,OP1)
       CALL MKWWOPF(IVEC,JVEC,NOP2,OP2)
-C     CALL MKWWOPG(IVEC,JVEC,OP1)
-C     CALL MKWWOPH(IVEC,JVEC,OP0)
+      CALL MKWWOPG(IVEC,JVEC,OP1)
+      CALL MKWWOPH(IVEC,JVEC,OP0)
 
       RETURN
       END
@@ -923,8 +923,6 @@ C Multiply WProd = (W1 sect )*(W2 sect transpose)
      &              WORK(LW2),NAS,
      &              1.0d0,WORK(LWPROD),NAS)
          END DO
-C     write(6,*) "WPROD in MKWWOPF"
-C     call sqprt(work(lwprod),nas)
 C Deallocate W1 and W2
         CALL GETMEM('WWW1','FREE','REAL',LW1,NAS*MDVEC)
         IF(JVEC.NE.IVEC) CALL GETMEM('WWW2','FREE','REAL',LW2,NAS*MDVEC)
@@ -1035,14 +1033,14 @@ C Contrib to 2-particle operator, from 2 Etxuy:
             ELSE
               JTXUY=(IUY*(IUY-1))/2+ITX
             END IF
-         !  OP2(JTXUY)=OP2(JTXUY)+2.0D0*WPROD
+            OP2(JTXUY)=OP2(JTXUY)+2.0D0*WPROD
 C Contrib to 2-particle operator, from -2 Etyux:
             IF(ITY.GE.IUX) THEN
               JTYUX=(ITY*(ITY-1))/2+IUX
             ELSE
               JTYUX=(IUX*(IUX-1))/2+ITY
             END IF
-         !  OP2(JTYUX)=OP2(JTYUX)-2.0D0*WPROD
+            OP2(JTYUX)=OP2(JTYUX)-2.0D0*WPROD
           END DO
         END DO
 C Deallocate matrix product:
@@ -1108,12 +1106,6 @@ C Multiply WProd = (W1)*(W2 transpose)
 C Deallocate space for this block of excitation amplitudes:
         CALL GETMEM('WWW1','FREE','REAL',LW1,NAS*MDVEC)
         CALL GETMEM('WWW2','FREE','REAL',LW2,NAS*MDVEC)
-      write(6,*) "WPROD in MKWWOPG"
-      call sqprt(work(lwprod),nas)
-C     do i = 1, 25
-C       write(6,'(i3,f20.10)') i,work(lwprod+i-1)
-C     end do
-C     call docpy_nasht*nasht,0.0d+00,0,op1,1)
 
 C Loop over (T)
           DO IT=1,NAS
@@ -1128,11 +1120,6 @@ C Loop over (X)
             OP1(ITABS,IXABS)=OP1(ITABS,IXABS)+WPROD
           END DO
         END DO
-C     write(6,*) "OP1 in MKWWOPG"
-C     call sqprt(op1,nasht)
-C     do i = 1, 25
-C       write(6,'(i3,f20.10)') i,op1(i,1)
-C     end do
 C Deallocate matrix product
         CALL GETMEM('WWPROD','FREE','REAL',LWPROD,NWPROD)
  999    CONTINUE

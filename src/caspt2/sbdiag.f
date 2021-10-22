@@ -151,7 +151,7 @@ C for temporary storage.
       END IF
 
       IDTMP0 = 0
-      If (IFDENS.OR.IFGRDT) Then
+      If (IFGRDT) Then
         !! correct?
         iPad = ItoB - Mod(6*NG3,ItoB)
         IDTMP0=6*NG3+iPad

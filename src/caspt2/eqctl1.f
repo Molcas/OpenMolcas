@@ -109,7 +109,7 @@ C sigma routines now use the full RHS size.
 #endif
 
       IDV=0
-      If (IFDENS) Then
+      If (IFGRDT) Then
         !! idxG3 matrix is needed for computing Lagrangian. Here, the
         !! shift avoids the matrix overwritten in PCOLLVEC -> SOLV2DRA
         NG3MAX=iPARDIV(NG3TOT,NG2)

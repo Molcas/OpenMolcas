@@ -538,7 +538,7 @@ C           DoGrdt=.true.
             IFGRDT=.true.
          End If
       Else
-        IFDENS = .False.
+C       IFDENS = .False.
         IFGRDT = .False.
       End If
       If (BSHIFT.ne.0.0D+00) IFGRDT = .False.
