@@ -1,26 +1,26 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Francesco Aquilante                                    *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Francesco Aquilante                                    *
+!***********************************************************************
       SUBROUTINE CHO_FOCK_DFT_RED(irc,DLT,FLT)
 
-C********************************************************
-C
-C Author:  F. Aquilante
-C
-C Coulomb fock matrix  (level 2 BLAS)
-C
-C --- F(ab) = 2 * sum_J  Lab,J * sum_gd  D(gd) * Lgd,J
-C
-C********************************************************
+!********************************************************
+!
+! Author:  F. Aquilante
+!
+! Coulomb fock matrix  (level 2 BLAS)
+!
+! --- F(ab) = 2 * sum_J  Lab,J * sum_gd  D(gd) * Lgd,J
+!
+!********************************************************
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
       use Data_Structures, only: DSBA_Type
@@ -51,7 +51,7 @@ C********************************************************
 
       FactC = one
 
-C --- For Coulomb only, the vectors symmetry is restricted to 1
+! --- For Coulomb only, the vectors symmetry is restricted to 1
       JSYM=1
       If (NumCho(JSYM).lt.1) Return
 
@@ -69,8 +69,8 @@ C --- For Coulomb only, the vectors symmetry is restricted to 1
 
       Do JRED=JRED1,JRED2
 
-C --- Memory management section -----------------------------
-C ---
+! --- Memory management section -----------------------------
+! ---
       CALL Cho_X_nVecRS(JRED,JSYM,iVrs,nVrs)
 
       if (nVrs.eq.0) goto 999
@@ -111,13 +111,13 @@ C ---
       Call mma_allocate(Lrs,nRS,nVec,Label='Lrs')
       Call mma_allocate(VJ,nVec,Label='VJ')
 
-C --- Transform the density to reduced storage
+! --- Transform the density to reduced storage
       mode = 'toreds'
       add  = .false.
       nDen=1
       Call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,[DLT],Drs,mode,add)
 
-C --- BATCH over the vectors in JSYM=1 ----------------------------
+! --- BATCH over the vectors in JSYM=1 ----------------------------
 
       nBatch = (nVrs-1)/nVec + 1
 
@@ -145,28 +145,28 @@ C --- BATCH over the vectors in JSYM=1 ----------------------------
          tread(1) = tread(1) + (TCR2 - TCR1)
          tread(2) = tread(2) + (TWR2 - TWR1)
 
-C ************ BEGIN COULOMB CONTRIBUTION  ****************
-C
-C---- Computing the intermediate vector V(J)
-C
-C --- Contraction with the density matrix
-C ---------------------------------------
-C --- V{#J} <- V{#J}  +  sum_rs  L(rs,{#J}) * D(rs)
-C==========================================================
-C
+! ************ BEGIN COULOMB CONTRIBUTION  ****************
+!
+!---- Computing the intermediate vector V(J)
+!
+! --- Contraction with the density matrix
+! ---------------------------------------
+! --- V{#J} <- V{#J}  +  sum_rs  L(rs,{#J}) * D(rs)
+!==========================================================
+!
          CALL CWTIME(TCC1,TWC1)
 
-         CALL DGEMV_('T',nRS,JNUM,
-     &              ONE,Lrs,nRS,
+         CALL DGEMV_('T',nRS,JNUM,                                      &
+     &              ONE,Lrs,nRS,                                        &
      &              Drs,1,ZERO,VJ,1)
 
-C --- Frs{#J} <- Frs{#J} + sum_J L(rs,{#J})*V{#J}
-C==========================================================
+! --- Frs{#J} <- Frs{#J} + sum_J L(rs,{#J})*V{#J}
+!==========================================================
 
          xfac = dble(min(jVec-iVrs,1))
 
-         CALL DGEMV_('N',nRS,JNUM,
-     &              FactC,Lrs,nRS,
+         CALL DGEMV_('N',nRS,JNUM,                                      &
+     &              FactC,Lrs,nRS,                                      &
      &              VJ,1,xfac,Frs,1)
 
 
@@ -178,13 +178,13 @@ C==========================================================
       END DO  !end batch loop
 
       if (nVrs.gt.0) then
-c --- backtransform fock matrix in full storage
+! --- backtransform fock matrix in full storage
          mode = 'tofull'
          add  = JRED.gt.JRED1
          Call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,[FLT],Frs,mode,add)
       endif
 
-C --- free memory
+! --- free memory
       Call mma_deallocate(VJ)
       Call mma_deallocate(Lrs)
       Call mma_deallocate(Frs)
@@ -200,8 +200,8 @@ C --- free memory
       TOTCPU = TOTCPU2 - TOTCPU1
       TOTWALL= TOTWALL2 - TOTWALL1
 
-*
-*---- Write out timing information
+!
+!---- Write out timing information
       if(timings)then
 
       CFmt='(2x,A)'
@@ -213,11 +213,11 @@ C --- free memory
       Write(6,CFmt)'Fock matrix construction        CPU       WALL   '
       Write(6,CFmt)'- - - - - - - - - - - - - - - - - - - - - - - - -'
 
-         Write(6,'(2x,A26,2f10.2)')'READ VECTORS                     '
+         Write(6,'(2x,A26,2f10.2)')'READ VECTORS                     '  &
      &                           //'         ',tread(1),tread(2)
-         Write(6,'(2x,A26,2f10.2)')'COULOMB                          '
+         Write(6,'(2x,A26,2f10.2)')'COULOMB                          '  &
      &                           //'         ',tcoul(1),tcoul(2)
-         Write(6,'(2x,A26,2f10.2)')'TOTAL                            '
+         Write(6,'(2x,A26,2f10.2)')'TOTAL                            '  &
      &                           //'         ',TOTCPU,TOTWALL
       Write(6,CFmt)'- - - - - - - - - - - - - - - - - - - - - - - - -'
       Write(6,*)
@@ -225,7 +225,7 @@ C --- free memory
       endif
 
 
-c Print the Fock-matrix
+! Print the Fock-matrix
 #ifdef _DEBUGPRINT_
       if(Debug) then !to avoid double printing in SCF-debug
 

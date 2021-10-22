@@ -1,52 +1,52 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2007, Mark A. Watson                                   *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2007, Mark A. Watson                                   *
+!***********************************************************************
       Subroutine FMMFck(Dens,TwoHam,ndim)
-************************************************************************
-*                                                                      *
-*     purpose: Generate FMM interface file and call FMM driver         *
-*              to update Fock matrix with multipole-derived            *
-*              Coulomb matrix elements                                 *
-*                                                                      *
-*     called from: Drv2El_dscf                                         *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by: Mark A. Watson (maw)                                 *
-*     University of Tokyo, 2007                                        *
-*                                                                      *
-************************************************************************
-*
+!***********************************************************************
+!                                                                      *
+!     purpose: Generate FMM interface file and call FMM driver         *
+!              to update Fock matrix with multipole-derived            *
+!              Coulomb matrix elements                                 *
+!                                                                      *
+!     called from: Drv2El_dscf                                         *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by: Mark A. Watson (maw)                                 *
+!     University of Tokyo, 2007                                        *
+!                                                                      *
+!***********************************************************************
+!
       Implicit Real*8 (a-h,o-z)
-*
+!
 
 #include "mxdm.fh"
 #include "real.fh"
       Parameter(LMAX = 12)
       Real*8 Dens(ndim), TwoHam(ndim)
 #ifdef _NOT_ACTIVE_
-*
-*---- Define local variables
+!
+!---- Define local variables
       Integer nBas(8)
       Real*8 CarMoms( ndim, (LMAX+1)*(LMAX+2)/2 , LMAX+1 )
       Real*8 SphMoms( ndim, 2*LMAX+1 , LMAX+1 )
       Real*8 Moms_batch( ndim+4 )
       Real*8 CntrX(ndim+4), CntrY(ndim+4), CntrZ(ndim+4)
       Character*8 Label
-*
+!
       Call Get_iScalar('nSym',nSym)
       Call Get_iArray('nBas',nBas,nSym)
-*
-*---- Compute lengths of matrices
+!
+!---- Compute lengths of matrices
       lDens = 0
       nBasTot = 0
       Do iSym = 1, nSym
@@ -58,13 +58,13 @@
          Call Abend()
       End If
 
-C      call dcopy_(ndim,Zero,0,Moments,1)
-C      call dcopy_(ndim,Zero,0,CntrX,1)
-C      call dcopy_(ndim,Zero,0,CntrY,1)
-C      call dcopy_(ndim,Zero,0,CntrZ,1)
-*
-*---- Read centres
-*
+!      call dcopy_(ndim,Zero,0,Moments,1)
+!      call dcopy_(ndim,Zero,0,CntrX,1)
+!      call dcopy_(ndim,Zero,0,CntrY,1)
+!      call dcopy_(ndim,Zero,0,CntrZ,1)
+!
+!---- Read centres
+!
       iRc=-1
       iOpt=2
       iComp=1
@@ -90,9 +90,9 @@ C      call dcopy_(ndim,Zero,0,CntrZ,1)
          Write (6,'(A,A)') 'Label=',Label
          Call Abend()
       End If
-*
-*---- Read moments from one-electron files
-*
+!
+!---- Read moments from one-electron files
+!
       Do L = 0, LMAX
       Do iComp = 1, (L+1)*(L+2)/2
          iRc=-1
@@ -110,19 +110,19 @@ C      call dcopy_(ndim,Zero,0,CntrZ,1)
          End Do
       End Do
       End Do
-*
-*---- Transform cartesian to spherical components
-*
-C     CALL fmm_call_car_to_sph(CarMoms,SphMoms,ndim,LMAX)
-*
-*---- Write to FMM interface file
-*
-*     Write array lengths in header file
+!
+!---- Transform cartesian to spherical components
+!
+!     CALL fmm_call_car_to_sph(CarMoms,SphMoms,ndim,LMAX)
+!
+!---- Write to FMM interface file
+!
+!     Write array lengths in header file
       OPEN(98,FILE='MM_DATA_HEADER',FORM='UNFORMATTED',STATUS='REPLACE')
       WRITE (98) LMAX, nBasTot, ndim, 0
       CLOSE(98,STATUS='KEEP')
 
-*     Write multipole moments and density information
+!     Write multipole moments and density information
       OPEN(98,FILE='MM_DATA',FORM='UNFORMATTED',STATUS='REPLACE')
 
       ij = 0
@@ -132,37 +132,37 @@ C     CALL fmm_call_car_to_sph(CarMoms,SphMoms,ndim,LMAX)
          Do L = 0, LMAX
             Do M = -L, L
                iM = M+L+1
-C               WRITE (6,'(5I3,2X, 3F10.6,2E15.4)') L,M, ij,1,ij,
-C     &                    CntrX(ij), CntrY(ij), CntrZ(ij),
-C     &                    SphMoms(ij,iM,L+1), Dens(ij)
-               WRITE (98) L,M, I,J,ij,
-     &                    CntrX(ij), CntrY(ij), CntrZ(ij),
+!               WRITE (6,'(5I3,2X, 3F10.6,2E15.4)') L,M, ij,1,ij,
+!     &                    CntrX(ij), CntrY(ij), CntrZ(ij),
+!     &                    SphMoms(ij,iM,L+1), Dens(ij)
+               WRITE (98) L,M, I,J,ij,                                  &
+     &                    CntrX(ij), CntrY(ij), CntrZ(ij),              &
      &                    SphMoms(ij,iM,L+1), Dens(ij)
             End Do
          End Do
       End Do
       End Do
 
-*     Mark end of file with negative angular momentum
+!     Mark end of file with negative angular momentum
       WRITE (98) -1,0, 0,0,0, 0d0,0d0,0d0, 0d0,0d0
       CLOSE(98,STATUS='KEEP')
-*
-*---- Now call multipole code to update the Fock matrix with the
-*     long-range multipole-computed Coulomb matrix elements.
-*
-C     CALL fmm_call_get_J_matrix(TwoHam,ndim,nBasTot,LMAX)
-*
-*     Coulomb contributions of TwoHam should now be complete!
-*
+!
+!---- Now call multipole code to update the Fock matrix with the
+!     long-range multipole-computed Coulomb matrix elements.
+!
+!     CALL fmm_call_get_J_matrix(TwoHam,ndim,nBasTot,LMAX)
+!
+!     Coulomb contributions of TwoHam should now be complete!
+!
 #else
       Call Untested('FMMFck')
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(Dens)
          Call Unused_integer(ndim)
       End If
 #endif
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_real_array(TwoHam)
       Return
       End

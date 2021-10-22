@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Francesco Aquilante                                    *
-*               2021, Roland Lindh                                     *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Francesco Aquilante                                    *
+!               2021, Roland Lindh                                     *
+!***********************************************************************
 
-      SUBROUTINE CHO_GetShFull(LabJ,lLabJ,JNUM,JSYM,IREDC,ChoV,
+      SUBROUTINE CHO_GetShFull(LabJ,lLabJ,JNUM,JSYM,IREDC,ChoV,         &
      &                         SvShp,mmShl,iShp_rs,mmShl_tot)
       use ChoArr, only: iSOShl, iShlSO, iBasSh, iRS2F, nDimRS
       use ChoSwp, only: IndRSh, IndRed
@@ -29,18 +29,18 @@
 
       Type (L_Full_Type) ChoV
 
-************************************************************************
+!***********************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
-************************************************************************
+!***********************************************************************
 
-**********************************************************
-C
-C    From Reduced sets to full storage
-C    ---------------------------------
-C
-C     L{a,b,J} ---> L(a,J,b)
-C
-**********************************************************
+!*********************************************************
+!
+!    From Reduced sets to full storage
+!    ---------------------------------
+!
+!     L{a,b,J} ---> L(a,J,b)
+!
+!*********************************************************
 
       iLoc = 3 ! use scratch location in reduced index arrays
 
@@ -79,23 +79,23 @@ C
 
              kLabJ  = kLabJ + 1
 
-             ChoV%SPB(iSyma,iShp_rs(iShp),1)%A3(ias,JVEC,ibs)
+             ChoV%SPB(iSyma,iShp_rs(iShp),1)%A3(ias,JVEC,ibs)           &
      &        = LabJ(kLabJ)
 
              i1=1
              If (ibSh/=iaSh) i1=2
 
-             ChoV%SPB(iSyma,iShp_rs(iShp),i1)%A3(ibs,JVEC,ias)
+             ChoV%SPB(iSyma,iShp_rs(iShp),i1)%A3(ibs,JVEC,ias)          &
      &        = LabJ(kLabJ)
 
-             SvShp(iShp_rs(iShp),2) = SvShp(iShp_rs(iShp),2)
+             SvShp(iShp_rs(iShp),2) = SvShp(iShp_rs(iShp),2)            &
      &                                  + LabJ(kLabJ)**2
 
             End Do
 
             Do jShp=1,nnShl_tot ! Maximize over vectors
                If (iShp_rs(jShp).gt.0) Then
-                  SvShp(iShp_rs(jShp),1) = Max( SvShp(iShp_rs(jShp),1),
+                  SvShp(iShp_rs(jShp),1) = Max( SvShp(iShp_rs(jShp),1), &
      &                                          SvShp(iShp_rs(jShp),2) )
                   SvShp(iShp_rs(jShp),2) = zero
                End If
@@ -140,17 +140,17 @@ C
 
               kLabJ  = kLabJ + 1
 
-              ChoV%SPB(iSyma,iShp_rs(iShp),i1)%A3(ias,JVEC,ibs)
+              ChoV%SPB(iSyma,iShp_rs(iShp),i1)%A3(ias,JVEC,ibs)         &
      &        = LabJ(kLabJ)
 
-              SvShp(iShp_rs(iShp),2) = SvShp(iShp_rs(iShp),2)
+              SvShp(iShp_rs(iShp),2) = SvShp(iShp_rs(iShp),2)           &
      &                                   + LabJ(kLabJ)**2
 
             End Do
 
             Do jShp=1,nnShl_tot
                If (iShp_rs(jShp).gt.0) Then
-                  SvShp(iShp_rs(jShp),1) = Max( SvShp(iShp_rs(jShp),1),
+                  SvShp(iShp_rs(jShp),1) = Max( SvShp(iShp_rs(jShp),1), &
      &                                          SvShp(iShp_rs(jShp),2) )
                   SvShp(iShp_rs(jShp),2) = zero
                EndIf
@@ -165,4 +165,4 @@ C
       Return
       END
 
-**************************************************************
+!*************************************************************

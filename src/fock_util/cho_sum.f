@@ -1,25 +1,25 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Francesco Aquilante                                    *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Francesco Aquilante                                    *
+!***********************************************************************
       SUBROUTINE CHO_SUM(rc,nSym,nBas,iUHF,DoExchange,FLT,FSQ)
 
-*****************************************************************
-*  Author : F. Aquilante
-*
-*  Purpose:
-*           Accumulates the Coulomb and Exchange contribution
-*           to the frozen AO-Fock matrices for alpha and beta
-*           spin as defined in the calling routine
-******************************************************************
+!****************************************************************
+!  Author : F. Aquilante
+!
+!  Purpose:
+!           Accumulates the Coulomb and Exchange contribution
+!           to the frozen AO-Fock matrices for alpha and beta
+!           spin as defined in the calling routine
+!*****************************************************************
       use Data_Structures, only: DSBA_Type
       Implicit Real*8 (a-h,o-z)
       Integer   rc,nBas(8),nSym,iUHF
@@ -27,9 +27,9 @@
       Type (DSBA_Type) FLT(*), FSQ(*)
       Logical DoExchange(*)
 
-**************************************************
+!*************************************************
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-**************************************************
+!*************************************************
 
       if (iUHF.eq.1)then
          nDen=3
@@ -37,12 +37,12 @@
          nDen=1
       endif
 
-c Accumulate the contributions and Square the final matrix
-c FLT is in lower triangular storage
-c FSQ is in squared storage
-c
-c the lower triangular part of FSQ is added to FLT
-c
+! Accumulate the contributions and Square the final matrix
+! FLT is in lower triangular storage
+! FSQ is in squared storage
+!
+! the lower triangular part of FSQ is added to FLT
+!
       IF(nDen.eq.1) THEN
 
       DO ISYM=1,NSYM
@@ -52,7 +52,7 @@ c
         DO IB=1,NB
           DO JB=IB,NB
              IJB=iTri(JB,IB)
-             FLT(1)%SB(ISYM)%A1(IJB)= FLT(1)%SB(ISYM)%A1(IJB)
+             FLT(1)%SB(ISYM)%A1(IJB)= FLT(1)%SB(ISYM)%A1(IJB)           &
      &                              + FSQ(1)%SB(ISYM)%A2(JB,IB)
           END DO
         END DO
@@ -71,9 +71,9 @@ c
         DO IB=1,NB
           DO JB=IB,NB
             IJB=iTri(JB,IB)
-            FLT(1)%SB(ISYM)%A1(IJB) = FLT(1)%SB(ISYM)%A1(IJB)
+            FLT(1)%SB(ISYM)%A1(IJB) = FLT(1)%SB(ISYM)%A1(IJB)           &
      &                              + FSQ(2)%SB(ISYM)%A2(JB,IB)
-            FLT(2)%SB(ISYM)%A1(IJB) = FLT(2)%SB(ISYM)%A1(IJB)
+            FLT(2)%SB(ISYM)%A1(IJB) = FLT(2)%SB(ISYM)%A1(IJB)           &
      &                              + FSQ(3)%SB(ISYM)%A2(JB,IB)
           END DO
         END DO
@@ -88,7 +88,7 @@ c
       ENDIF  ! nDen=3
 
 
-c Print the Fock-matrix
+! Print the Fock-matrix
 #ifdef _DEBUGPRINT_
       WRITE(6,'(6X,A)')'TEST PRINT FROM CHO_SUM.'
       WRITE(6,'(6X,A)')'FROZEN FOCK MATRIX IN AO BASIS.'
@@ -126,4 +126,4 @@ c Print the Fock-matrix
       Return
       END
 
-**************************************************************
+!*************************************************************

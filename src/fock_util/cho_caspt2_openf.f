@@ -1,25 +1,25 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Cho_CASPT2_OpenF(iOpt,iTyp,iSym,nBatch)
-C
-C
-C     Purpose: open (iOpt=1), close and keep (iOpt=2), or close and
-C              delete (iOpt=3) Cholesky vector files for CASPT2 program
-C              (full vectors).
-C              For iOpt=0, the units are initialized (to -1).
-C              iTyp=1: transformed Cholesky vectors (Inactive).
-C              iTyp=2: transformed Cholesky vectors (Active).
-C              iTyp=3: vectors from (pi|qj) decomposition (Not
-C                      implemented yet!)
-C
+!
+!
+!     Purpose: open (iOpt=1), close and keep (iOpt=2), or close and
+!              delete (iOpt=3) Cholesky vector files for CASPT2 program
+!              (full vectors).
+!              For iOpt=0, the units are initialized (to -1).
+!              iTyp=1: transformed Cholesky vectors (Inactive).
+!              iTyp=2: transformed Cholesky vectors (Active).
+!              iTyp=3: vectors from (pi|qj) decomposition (Not
+!                      implemented yet!)
+!
 #include "implicit.fh"
 #include "WrkSpc.fh"
       Character*16 SecNam
@@ -33,9 +33,9 @@ C
       Integer NCALLS
       Data NCALLS /0/
 
-*******************************************************************
+!******************************************************************
       lUnit_F(j,k,l) = iWork(ipUnit_F(j)+(l-1)*nIsplit(j)+k-1)
-*******************************************************************
+!******************************************************************
 
       If (nBatch .gt. 999) Then
          Call Cho_x_Quit(SecNam,' nBatch limited to 999 !!!',' ')
@@ -49,8 +49,8 @@ C
         End Do
       End If
 
-C     Initialize units and return for iOpt=0.
-C     ---------------------------------------
+!     Initialize units and return for iOpt=0.
+!     ---------------------------------------
 
       If (iOpt .eq. 0) Then
          Do iB=1,nBatch
@@ -59,8 +59,8 @@ C     ---------------------------------------
          Return
       End If
 
-C     Open or close files.
-C     --------------------
+!     Open or close files.
+!     --------------------
       If (iTyp.lt.1 .or. iTyp.gt.2) Then
          Call Cho_x_Quit(SecNam,'iTyp error',' ')
       End If

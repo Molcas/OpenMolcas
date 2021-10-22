@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Francesco Aquilante                                    *
-*               2021, Roland Lindh                                     *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Francesco Aquilante                                    *
+!               2021, Roland Lindh                                     *
+!***********************************************************************
       SUBROUTINE swap_tosqrt(irc,iLoc,nRS,JSYM,XLT,Xab)
       use ChoArr, only: iRS2F
       use Data_Structures, only: NDSBA_Type
@@ -26,15 +26,15 @@
 #include "choorb.fh"
 
       Integer i, j, MulD2h
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       If (JSYM.ne.1) then
-c      ! NON TOTAL-SYMMETRIC
+!      ! NON TOTAL-SYMMETRIC
 
          Do jRab=1,nnBstR(jSym,iLoc)
 

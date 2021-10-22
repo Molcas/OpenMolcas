@@ -1,17 +1,17 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      SUBROUTINE CHORAS_DRV(nSym,nBas,nOcc,W_DSQ,W_DLT,W_FLT,ExFac,FSQ,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      SUBROUTINE CHORAS_DRV(nSym,nBas,nOcc,W_DSQ,W_DLT,W_FLT,ExFac,FSQ, &
      &                      W_CMO)
 
-      use Data_Structures, only: DSBA_Type, Allocate_DSBA,
+      use Data_Structures, only: DSBA_Type, Allocate_DSBA,              &
      &                           Deallocate_DSBA, Integer_Pointer
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -34,9 +34,9 @@
 
 #include "chounit.fh"
 #include "choras.fh"
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       rc=0
 
       Lunit(:)=-1
@@ -57,51 +57,51 @@
       iUHF=0
 
        IF (DECO) THEN !use decomposed density
-* ==============  Alternative A: Use decomposed density matrix =====
+! ==============  Alternative A: Use decomposed density matrix =====
        Call mma_allocate(nVec,nSym,Label='nVec')
 
-* Allocate vectors representing decomposed density matrix:
+! Allocate vectors representing decomposed density matrix:
        Call Allocate_DSBA(Vec,nBas,nBas,nSym)
 
-* ------------------------------------------------------------------
+! ------------------------------------------------------------------
        Call Allocate_DSBA(Ddec,nBas,nBas,nSym)
        DDec%A0(:) = DSQ%A0(:)
        Do i=1,nSym
-* Loop over symmetries
+! Loop over symmetries
           if(nBas(i).gt.0)then
             Ymax=0.0d0
             do ja=1,nBas(i)
                Ymax=Max(Ymax,DDec%SB(i)%A2(ja,ja))
             end do
             Thr = 1.0d-13*Ymax
-* Call for decomposition:
-            CALL CD_InCore(DDec%SB(i)%A2,nBas(i),Vec%SB(i)%A2,nBas(i),
+! Call for decomposition:
+            CALL CD_InCore(DDec%SB(i)%A2,nBas(i),Vec%SB(i)%A2,nBas(i),  &
      &                     NumV,Thr,rc)
             If (rc.ne.0) GOTO 999
             nVec(i) = NumV
 
             if ( NumV .ne. nOcc(i) ) then
-               write(6,*)'Warning! The number of occupied from the dec',
+               write(6,*)'Warning! The number of occupied from the dec',&
      &'omposition of the density matrix is ',numV,' in symm. ',i
                write(6,*)'Expected value = ',nOcc(i)
-               write(6,*)'Max diagonal of the density in symm. ',i,
+               write(6,*)'Max diagonal of the density in symm. ',i,     &
      &' is equal to ',Ymax
             endif
 
           else
             nVec(i) = 0
           endif
-* End of loop over symmetries
+! End of loop over symmetries
        End Do
        Call Deallocate_DSBA(DDec)
-* ------------------------------------------------------------------
+! ------------------------------------------------------------------
 
 
        pNocc(1)%I1(1:)=>nVec(1:)
 
        Call Allocate_DSBA(MSQ(1),nBas,nBas,nSym,Ref=Vec%A0)
 
-* ========End of  Alternative A: Use decomposed density matrix =====
+! ========End of  Alternative A: Use decomposed density matrix =====
       ELSE
 
        pNocc(1)%I1(1:)=>nOcc(1:)
@@ -110,22 +110,22 @@
 
       ENDIF
 
-      Call CHOSCF_MEM(nSym,nBas,iUHF,DoExchange,pNocc,
+      Call CHOSCF_MEM(nSym,nBas,iUHF,DoExchange,pNocc,                  &
      &                ALGO,REORD,MinMem,loff1)
 
-* Here follows a long if nest with six combinations:
-* ALGO is 1 ,  REORD is .true. or .false., or
-* ALGO is 2,  REORD is .true. or .false., DECO is .true.or .false.
+! Here follows a long if nest with six combinations:
+! ALGO is 1 ,  REORD is .true. or .false., or
+! ALGO is 2,  REORD is .true. or .false., DECO is .true.or .false.
       if (ALGO.eq.1) then
         if (REORD) then
-* ALGO.eq.1.and.REORD:
-      Call CHO_FOCKTWO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,FactC,
+! ALGO.eq.1.and.REORD:
+      Call CHO_FOCKTWO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,FactC,    &
      &                FactX,[DLT],[DSQ],[FLT],[FSQ],pNocc,MinMem)
            If (rc.ne.0) GOTO 999
 
         else
-* ALGO.eq.1.and. .not.REORD:
-        CALL CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,
+! ALGO.eq.1.and. .not.REORD:
+        CALL CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,         &
      &           FactC,FactX,[DLT],[DSQ],[FLT],[FSQ],pNocc,MinMem)
            If (rc.ne.0) GOTO 999
         end if
@@ -135,16 +135,16 @@
 
           FactX(1) = 0.5D0*ExFac ! vectors are scaled by construction
           if (REORD)then
-* ALGO.eq.2.and.DECO.and.REORD:
-            Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,
-     &                  lOff1,FactC,FactX,[DLT],[DSQ],[FLT],[FSQ],
+! ALGO.eq.2.and.DECO.and.REORD:
+            Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,    &
+     &                  lOff1,FactC,FactX,[DLT],[DSQ],[FLT],[FSQ],      &
      &                  MinMem,MSQ,pNocc)
             If (rc.ne.0) GOTO 999
 
           else
-* ALGO.eq.2.and.DECO.and. .not.REORD:
-            CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
-     &                  lOff1,FactC,FactX,[DLT],[DSQ],[FLT],[FSQ],
+! ALGO.eq.2.and.DECO.and. .not.REORD:
+            CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,              &
+     &                  lOff1,FactC,FactX,[DLT],[DSQ],[FLT],[FSQ],      &
      &                  MinMem,MSQ,pNocc)
             If (rc.ne.0) GOTO 999
           endif
@@ -152,17 +152,17 @@
 
         else
           if (REORD) then
-* ALGO.eq.2.and. ..not.DECO.and.REORD:
+! ALGO.eq.2.and. ..not.DECO.and.REORD:
             FactX(1) = 1.0D0*ExFac ! because MOs coeff. are not scaled
-            Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,
-     &                lOff1,FactC,FactX,[DLT],[DSQ],[FLT],[FSQ],
+            Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,    &
+     &                lOff1,FactC,FactX,[DLT],[DSQ],[FLT],[FSQ],        &
      &                MinMem,MSQ,pNocc)
             if (rc.ne.0) GOTO 999
           else
-* ALGO.eq.2.and. ..not.DECO.and.REORD:
+! ALGO.eq.2.and. ..not.DECO.and.REORD:
             FactX(1) = 1.0D0*ExFac ! because MOs coeff. are not scaled
-            CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
-     &                lOff1,FactC,FactX,[DLT],[DSQ],[FLT],[FSQ],
+            CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,              &
+     &                lOff1,FactC,FactX,[DLT],[DSQ],[FLT],[FSQ],        &
      &                MinMem,MSQ,pNocc)
             if (rc.ne.0) GOTO 999
           end if

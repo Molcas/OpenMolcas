@@ -1,39 +1,39 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996, Markus P. Fuelscher                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996, Markus P. Fuelscher                              *
+!***********************************************************************
       Subroutine Get_TUVX(PUVX,TUVX)
-************************************************************************
-*                                                                      *
-*     extract the subset of ERIs (tu!vx) from the set (pu!vx)          *
-*                                                                      *
-*     calling arguments:                                               *
-*     PUVX    : input, array of real                                   *
-*               ERIs with indices (pu!vx)                              *
-*               (three active, one general)                            *
-*     TUVX    : output, array of real                                  *
-*               ERIs with indices (tu!vx)                              *
-*               (four active)                                          *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M.P. Fuelscher                                                   *
-*     University of Lund, Sweden, 1996                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     extract the subset of ERIs (tu!vx) from the set (pu!vx)          *
+!                                                                      *
+!     calling arguments:                                               *
+!     PUVX    : input, array of real                                   *
+!               ERIs with indices (pu!vx)                              *
+!               (three active, one general)                            *
+!     TUVX    : output, array of real                                  *
+!               ERIs with indices (tu!vx)                              *
+!               (four active)                                          *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     M.P. Fuelscher                                                   *
+!     University of Lund, Sweden, 1996                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -47,7 +47,7 @@
 
       iTri(i) = (i*i-i)/2
 
-*     generate offsets
+!     generate offsets
       iStack = 0
       Do iSym = 1,nSym
         off_Ash(iSym) = iStack
@@ -76,7 +76,7 @@
         End Do
       End Do
 
-*     select integrals with all 4 indices active
+!     select integrals with all 4 indices active
 
       Do iSym = 1,nSym
         iOrb = nOrb(iSym)
@@ -91,13 +91,13 @@
             lSym = 1 + ieor(ijSym-1,kSym-1)
             lAsh = nAsh(lSym)
 
-            If ( lSym.le.kSym .and.
+            If ( lSym.le.kSym .and.                                     &
      &           iAsh*jAsh*kAsh*lAsh.ne.0 ) then
 
 
-c           Write(LF,*)'sym(p,w,x,y),offset= ',isym,jsym,ksym,lsym,iPUVX
-c           call recprt('(pw|xy)','(1P,5D16.8)',PUVX(iPUVX+1),iorb*jAsh,
-c     &                    kAsh*lAsh+Min(ijSym-2,0)*kAsh*(lAsh-1)/2)
+!           Write(LF,*)'sym(p,w,x,y),offset= ',isym,jsym,ksym,lsym,iPUVX
+!           call recprt('(pw|xy)','(1P,5D16.8)',PUVX(iPUVX+1),iorb*jAsh,
+!     &                    kAsh*lAsh+Min(ijSym-2,0)*kAsh*(lAsh-1)/2)
 
               Do iV = 1,kAsh
                 lMax = lAsh
@@ -114,7 +114,7 @@ c     &                    kAsh*lAsh+Min(ijSym-2,0)*kAsh*(lAsh-1)/2)
                           iiT = iU + off_Ash(jSym)
                           iiU = iT + off_Ash(iSym)
                         End If
-*
+!
                         iTU = iiU + iTri(iiT)
                         iiV = iV + off_Ash(kSym)
                         iiX = iX + off_Ash(lSym)

@@ -1,74 +1,74 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996, Markus P. Fuelscher                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996, Markus P. Fuelscher                              *
+!***********************************************************************
 
       Subroutine Tra_Ctl2(CMO,PUVX,TUVX,D1I,FI,D1A,FA,IPR,lSquare,ExFac)
 
-************************************************************************
-*                                                                      *
-*     main control section for:                                        *
-*     - transformation of ERIs from AO to MO basis                     *
-*     - Fock matrix generation                                         *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M.P. Fuelscher                                                   *
-*     University of Lund, Sweden, 1996                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     main control section for:                                        *
+!     - transformation of ERIs from AO to MO basis                     *
+!     - Fock matrix generation                                         *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     M.P. Fuelscher                                                   *
+!     University of Lund, Sweden, 1996                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
       Implicit Real*8 (A-H,O-Z)
       Parameter ( Zero=0.0d0 )
 
 #include "rasdim.fh"
 #include "general.fh"
-*
+!
       Dimension CMO(*), PUVX(*), TUVX(*)
       Dimension D1I(*), D1A(*), FI(*), FA(*)
       Integer SymProd
-      Integer off_PUVX(mxSym,mxSym,mxSym),
+      Integer off_PUVX(mxSym,mxSym,mxSym),                              &
      &        off_sqMat(mxSym), off_ltMat(mxSym)
       Logical lSquare
-*
+!
       SymProd(i,j)=1+iEor(i-1,j-1)
-*
-*
+!
+!
       If ( IPR.gt.1 ) then
         Write(6,*)
         Write(6,*) ' Enter transformation section'
         Write(6,*) ' ============================'
         Write(6,*)
       End If
-*
-*     generate offsets
-*
+!
+!     generate offsets
+!
       iStack = 0
       Do iSym = 1,nSym
          off_sqMat(iSym) = iStack
          iBas = nBas(iSym)
          iStack = iStack+ iBas*iBas
       End Do
-*
+!
       iStack = 0
       Do iSym = 1,nSym
          off_ltMat(iSym) = iStack
          iBas = nBas(iSym)
          iStack = iStack+ (iBas*iBas+iBas)/2
       End Do
-*
+!
       iStack = 0
       Do iSym = 1,nSym
         iOrb = nOrb(iSym)
@@ -89,17 +89,17 @@
         End Do
       End Do
       nPUVX=iStack
-*
-*     Init Fock matrices
+!
+!     Init Fock matrices
       Call dCopy_(nTot1,[Zero],0,FI,1)
       Call dCopy_(nTot1,[Zero],0,FA,1)
-*
-*     start transformation section
-*
+!
+!     start transformation section
+!
       If ( IPR.ge.5 ) then
-        Write(6,*)
+        Write(6,*)                                                      &
      &  ' Symmetry  Basis functions   total orbitals    active orbitals'
-        Write(6,*)
+        Write(6,*)                                                      &
      &  ' -------------------------------------------------------------'
       End If
       Do iSym = 1,nSym
@@ -130,7 +130,7 @@
               lFro = nFro(lSym)
               lIsh = nIsh(lSym)
               lAsh = nAsh(lSym)
-*
+!
               If (iBas*jBas*kBas*lBas.ne.0 ) then
                 ij_Bas_pairs = iBas*jBas
                 ij_Orb_pairs = iAsh*jAsh
@@ -144,34 +144,34 @@
                   kl_Bas_pairs = (kBas*kBas+kBas)/2
                   kl_Orb_pairs = (kAsh*kAsh+kAsh)/2
                 End If
-                Call TraDrv(IPR,lSquare,
-     &                      iSym,jSym,kSym,lSym,
-     &                      iBas,jBas,kBas,lBas,
-     &                      iOrb,jOrb,kOrb,lOrb,
-     &                      iFro,jFro,kFro,lFro,
-     &                      iIsh,jIsh,kIsh,lIsh,
-     &                      iAsh,jAsh,kAsh,lAsh,
-     &                      ij_Bas_pairs,kl_Bas_pairs,
-     &                      ij_Orb_pairs,kl_Orb_pairs,
-     &                      off_PUVX,off_sqMat,off_ltMat,
-     &                      mxSym,CMO,PUVX,
+                Call TraDrv(IPR,lSquare,                                &
+     &                      iSym,jSym,kSym,lSym,                        &
+     &                      iBas,jBas,kBas,lBas,                        &
+     &                      iOrb,jOrb,kOrb,lOrb,                        &
+     &                      iFro,jFro,kFro,lFro,                        &
+     &                      iIsh,jIsh,kIsh,lIsh,                        &
+     &                      iAsh,jAsh,kAsh,lAsh,                        &
+     &                      ij_Bas_pairs,kl_Bas_pairs,                  &
+     &                      ij_Orb_pairs,kl_Orb_pairs,                  &
+     &                      off_PUVX,off_sqMat,off_ltMat,               &
+     &                      mxSym,CMO,PUVX,                             &
      &                      D1I,FI,D1A,FA,ExFac)
               End If
-*
+!
             End If
           End Do
         End Do
       End Do
       If ( IPR.ge.5 ) then
-        Write(6,*)
+        Write(6,*)                                                      &
      &  ' -------------------------------------------------------------'
       End If
 
-C  Synchronize Fock matrices if running parallel:
+!  Synchronize Fock matrices if running parallel:
       Call GADsum(FI,nTot1)
       Call GADsum(FA,nTot1)
 
-*     print FI and FA
+!     print FI and FA
       If ( IPR.ge.10 ) then
         Write(6,*)
         Write(6,*) ' FI in AO-basis'
@@ -195,13 +195,13 @@ C  Synchronize Fock matrices if running parallel:
         End Do
       End If
 
-C  Synchronize PUVX if running parallel:
+!  Synchronize PUVX if running parallel:
       Call GAdsum(PUVX,nPUVX)
 
-*     select integrals TUVX
+!     select integrals TUVX
       Call Get_TUVX(PUVX,TUVX)
 
-*     save integrals on disk
+!     save integrals on disk
       iDisk=0
       Call DDaFile(LUINTM,1,PUVX,nPUVX,iDisk)
 

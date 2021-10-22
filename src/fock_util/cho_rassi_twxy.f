@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
 
-      SUBROUTINE CHO_rassi_twxy(irc,Scr,ChoV,TUVX,nAorb,JSYM,NUMV,
+      SUBROUTINE CHO_rassi_twxy(irc,Scr,ChoV,TUVX,nAorb,JSYM,NUMV,      &
      &                          DoReord)
 
       use Data_Structures, only: SBA_Type, twxy_type
@@ -24,19 +24,19 @@
 #include "cholesky.fh"
 #include "choorb.fh"
 
-C ************************************************
+! ************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
-C ************************************************
+! ************************************************
       iTri(i,j) = Max(i,j)*(Max(i,j)-3)/2 + i + j
-C ************************************************
+! ************************************************
 
 
       If (NumV .lt. 1) Return
 
-C --- Computing the integrals (TT|TT),(TW,TW) and (TW|XY)
-C ---------------------------------------------------------
-C --- (tw|xy)  <-  (tw|xy)  +  sum_J  L(tw,#J) * L(xy,#J)
-C==========================================================
+! --- Computing the integrals (TT|TT),(TW,TW) and (TW|XY)
+! ---------------------------------------------------------
+! --- (tw|xy)  <-  (tw|xy)  +  sum_J  L(tw,#J) * L(xy,#J)
+!==========================================================
 
       Do iSymy=1,nSym
 
@@ -54,9 +54,9 @@ C==========================================================
 
                If (Ntw.gt.0) then
 
-                  CALL DGEMM_('N','T',Ntw,Nxy,NumV,
-     &                       ONE,ChoV%SB(iSymt)%A3,Ntw,
-     &                           ChoV%SB(iSymx)%A3,Nxy,
+                  CALL DGEMM_('N','T',Ntw,Nxy,NumV,                     &
+     &                       ONE,ChoV%SB(iSymt)%A3,Ntw,                 &
+     &                           ChoV%SB(iSymx)%A3,Nxy,                 &
      &                       One,Scr%SB(iSymw,iSymy)%A,Ntw)
 
 
@@ -69,11 +69,11 @@ C==========================================================
       End Do
 
 
-C --- Reorder to the storage required by the RASSI program
-C ---
-C --- There is no permutational symmetry but only particle
-C --- symmetry in the (tw|xy) integrals
-C ------------------------------------------------------------
+! --- Reorder to the storage required by the RASSI program
+! ---
+! --- There is no permutational symmetry but only particle
+! --- symmetry in the (tw|xy) integrals
+! ------------------------------------------------------------
       IF (DoReord) THEN
 
          iAorb(1)= 0
@@ -148,4 +148,4 @@ C ------------------------------------------------------------
       Return
       END
 
-**************************************************************
+!*************************************************************

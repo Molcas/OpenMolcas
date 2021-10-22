@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Thouless_T1(CMO,nSym,nBas,nFro,nOcc,nSsh,T1amp)
 
       Implicit Real*8 (a-h,o-z)
@@ -21,9 +21,9 @@
       Real*8, Allocatable:: S(:), X(:), Scr(:), U(:)
       Real*8, Allocatable:: W(:), Y(:), Z(:), R(:)
 
-C
-C     Compute the T1 amplitudes according to Thouless formula
-C     --------------------------------------------------------
+!
+!     Compute the T1 amplitudes according to Thouless formula
+!     --------------------------------------------------------
 
       l_S = nBas(1)**2
       lScr=nBas(1)*(nFro(1)+nOcc(1))
@@ -49,7 +49,7 @@ C     --------------------------------------------------------
       Call GetOvlp_Localisation(S,'Sqr',nBas,nSym)
 
       Lu=12
-      Call RdVec('INPORB',Lu,'C',nSym,nBas,nBas,X,Dummy,Dummy,
+      Call RdVec('INPORB',Lu,'C',nSym,nBas,nBas,X,Dummy,Dummy,          &
      &                    iDummy,OrbTit,1,iErr)
 
       write(6,*)
@@ -65,8 +65,8 @@ C     --------------------------------------------------------
          jp_X = 1 + iOff + nBas(iSym)*nFro(iSym)
          nOrb=nOcc(iSym)+nSsh(iSym)
 
-         Call GetUmat_T1(U,CMO(jp_C),S(jp_S),X(jp_X),
-     &                   Scr,lScr,nBas(iSym),
+         Call GetUmat_T1(U,CMO(jp_C),S(jp_S),X(jp_X),                   &
+     &                   Scr,lScr,nBas(iSym),                           &
      &                   nOrb,nOcc(iSym))
 
          iU=1
@@ -82,9 +82,9 @@ C     --------------------------------------------------------
             End Do
          End Do
 
-c --- SVD of U in the oo space:   U = Y * w * Z'
+! --- SVD of U in the oo space:   U = Y * w * Z'
 
-         Call SVD(nOcc(iSym),nOcc(iSym),nOcc(iSym),Scr,
+         Call SVD(nOcc(iSym),nOcc(iSym),nOcc(iSym),Scr,                 &
      &            W,.true.,Y,.true.,Z,ierr,R)
 
          If (ierr.ne.0) Then
@@ -104,22 +104,22 @@ c --- SVD of U in the oo space:   U = Y * w * Z'
             EndIf
          End Do
 
-c --- Compute U^-1 = Z * w^-1 * Y'
+! --- Compute U^-1 = Z * w^-1 * Y'
 
-         Call DGEMM_('N','T',nOcc(iSym),nOcc(iSym),nOcc(iSym),
-     &                           1.0d0,R,nOcc(iSym),
-     &                                 Y,nOcc(iSym),
+         Call DGEMM_('N','T',nOcc(iSym),nOcc(iSym),nOcc(iSym),          &
+     &                           1.0d0,R,nOcc(iSym),                    &
+     &                                 Y,nOcc(iSym),                    &
      &                           0.0d0,W ,nOcc(iSym))
 
-         Call DGEMM_('N','N',nOcc(iSym),nOcc(iSym),nOcc(iSym),
-     &                           1.0d0,Z,nOcc(iSym),
-     &                                 W,nOcc(iSym),
+         Call DGEMM_('N','N',nOcc(iSym),nOcc(iSym),nOcc(iSym),          &
+     &                           1.0d0,Z,nOcc(iSym),                    &
+     &                                 W,nOcc(iSym),                    &
      &                           0.0d0,Scr,nOcc(iSym))
 
          jp_T = 1 + kOff
-         Call DGEMM_('T','T',nOcc(iSym),nSsh(iSym),nOcc(iSym),
-     &                           1.0d0,Scr,nOcc(iSym),
-     &                                 U,nSsh(iSym),
+         Call DGEMM_('T','T',nOcc(iSym),nSsh(iSym),nOcc(iSym),          &
+     &                           1.0d0,Scr,nOcc(iSym),                  &
+     &                                 U,nSsh(iSym),                    &
      &                           0.0d0,T1amp(jp_T),nOcc(iSym))
 
          iOff = iOff + nBas(iSym)**2
@@ -139,9 +139,9 @@ c --- Compute U^-1 = Z * w^-1 * Y'
 
 
       SubRoutine GetUmat_T1(U,C,S,X,Scr,lScr,nBas,nOrb1,nOrb2)
-C
-C     Purpose: compute transformation matrix U=C^TSX.
-C
+!
+!     Purpose: compute transformation matrix U=C^TSX.
+!
       Implicit None
       Real*8  U(*), C(*), S(*), X(*)
       Integer lScr
@@ -161,19 +161,19 @@ C
 
       Need = nBas*nOrb2
       If (lScr .lt. Need) Then
-         Write(Txt,'(A,I9,A,I9)')
+         Write(Txt,'(A,I9,A,I9)')                                       &
      &   'lScr =',lScr,'     Need =',Need
-         Call SysAbendMsg(SecNam,
+         Call SysAbendMsg(SecNam,                                       &
      &                   'Insufficient dimension of scratch array!',Txt)
       End If
 
-      Call DGEMM_('N','N',nBas,nOrb2,nBas,
-     &                 d1,S,nBas,
-     &                    X,nBas,
+      Call DGEMM_('N','N',nBas,nOrb2,nBas,                              &
+     &                 d1,S,nBas,                                       &
+     &                    X,nBas,                                       &
      &                 d0,Scr,nBas)
-      Call DGEMM_('T','N',nOrb1,nOrb2,nBas,
-     &                 d1,C,nBas,
-     &                    Scr,nBas,
+      Call DGEMM_('T','N',nOrb1,nOrb2,nBas,                             &
+     &                 d1,C,nBas,                                       &
+     &                    Scr,nBas,                                     &
      &                 d0,U,nOrb1)
 
       End

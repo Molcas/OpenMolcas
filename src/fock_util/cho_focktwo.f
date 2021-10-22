@@ -1,66 +1,66 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Francesco Aquilante                                    *
-************************************************************************
-      SUBROUTINE CHO_FOCKTWO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Francesco Aquilante                                    *
+!***********************************************************************
+      SUBROUTINE CHO_FOCKTWO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,    &
      &           FactC,FactX,DLT,DSQ,FLT,FSQ,pNocc,MinMem)
 
-************************************************************************
-*  Author : F. Aquilante
-*
-*  Purpose:
-*          For a given set of total symmetric AO-densities
-*          (hermitian matrix representation) this routine
-*          computes the Coulomb and Exchange contributions
-*          to the Fock matrix from Cholesky vectors in full storage
-*
-*          Coulomb term (Drs is the lower triangular matrix
-*                        of r=s symmetry block. The diagonals
-*                        are scaled by a factor 1/2 already in
-*                        the packed density DLT, given as input)
-*
-*    F(pq) = F(pq) + FactC * Sum_J Lpq,J * (Sum_rs Drs*Lrs,J)
-*
-*
-*          Exchange term (Drs is the squared matrix
-*                        of r=s symmetry block.)
-*
-*    F(pq) = F(pq) - FactX * Sum_rJ  Lpr,J * (Sum_s Drs*Lqs,J)
-*
-*
-*    Integral-fashion formula:
-*
-*    F(pq) =  Sum_rs Drs * [(pq|rs)  - 0.5 (ps|rq)]
-*
-*----------------------------------------------------------------------
-*  DoCoulomb(nDen) :  specifies the densities for which coulomb term
-*                     has to be computed
-*
-*  DoExchange(nDen) : specifies the densities for which exchange term
-*                     has to be computed
-*
-*  FactC(nDen) : factor for the coulomb of the corresponding density
-*  FactX(nDen) : factor for the exchange of the corresponding density
-*
-*  ip{X}LT(nDen) : pointer to the array containing {X} in LT storage
-*  ip{X}FS(nDen) : pointer to the array containing {X} in SQ storage
-*    {X=D,F --- Density, Fock matrix}
-*
-*  pNocc(nDen) : pointer to the array of the Occupation numbers
-*                 for the corresponding density
-*
-*  MinMem(nSym) : minimum amount of memory required to read
-*                 a single Cholesky vector in full storage
-*
-************************************************************************
+!***********************************************************************
+!  Author : F. Aquilante
+!
+!  Purpose:
+!          For a given set of total symmetric AO-densities
+!          (hermitian matrix representation) this routine
+!          computes the Coulomb and Exchange contributions
+!          to the Fock matrix from Cholesky vectors in full storage
+!
+!          Coulomb term (Drs is the lower triangular matrix
+!                        of r=s symmetry block. The diagonals
+!                        are scaled by a factor 1/2 already in
+!                        the packed density DLT, given as input)
+!
+!    F(pq) = F(pq) + FactC * Sum_J Lpq,J * (Sum_rs Drs*Lrs,J)
+!
+!
+!          Exchange term (Drs is the squared matrix
+!                        of r=s symmetry block.)
+!
+!    F(pq) = F(pq) - FactX * Sum_rJ  Lpr,J * (Sum_s Drs*Lqs,J)
+!
+!
+!    Integral-fashion formula:
+!
+!    F(pq) =  Sum_rs Drs * [(pq|rs)  - 0.5 (ps|rq)]
+!
+!----------------------------------------------------------------------
+!  DoCoulomb(nDen) :  specifies the densities for which coulomb term
+!                     has to be computed
+!
+!  DoExchange(nDen) : specifies the densities for which exchange term
+!                     has to be computed
+!
+!  FactC(nDen) : factor for the coulomb of the corresponding density
+!  FactX(nDen) : factor for the exchange of the corresponding density
+!
+!  ip{X}LT(nDen) : pointer to the array containing {X} in LT storage
+!  ip{X}FS(nDen) : pointer to the array containing {X} in SQ storage
+!    {X=D,F --- Density, Fock matrix}
+!
+!  pNocc(nDen) : pointer to the array of the Occupation numbers
+!                 for the corresponding density
+!
+!  MinMem(nSym) : minimum amount of memory required to read
+!                 a single Cholesky vector in full storage
+!
+!***********************************************************************
       use Data_Structures, only: SBA_Type, Deallocate_SBA
       use Data_Structures, only: DSBA_Type, Integer_Pointer
       Implicit Real*8 (a-h,o-z)
@@ -92,16 +92,16 @@
 #include "stdalloc.fh"
 
       Type (SBA_Type), Target:: Wab, LqJs
-      Real*8, Pointer :: VJ(:)=>Null(), LrJs(:,:,:)=>Null(),
+      Real*8, Pointer :: VJ(:)=>Null(), LrJs(:,:,:)=>Null(),            &
      &                   XpJs(:)=>Null(), XdJb(:)=>Null()
 
-**************************************************
+!*************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
-******
+!*****
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-******
+!*****
       nOcc(k,jDen)= pNocc(jDen)%I1(k)
-**************************************************
+!*************************************************
 
 #ifdef _DEBUGPRINT_
       Debug=.false.! to avoid double printing in SCF-debug
@@ -114,11 +114,11 @@
       tcoul(:) = zero  !time for computing Coulomb
       texch(:) = zero  !time for computing Exchange
 
-C --- Tests on the type of calculation
+! --- Tests on the type of calculation
       DoSomeC=.false.
       DoSomeX=.false.
       MaxSym=0
-c
+!
       jD=0
       do while (jD.lt.nDen .and. .not.DoSomeX)
          jD=jD+1
@@ -143,12 +143,12 @@ c
       Call get_iarray('NumCho',NumCho,nSym)
 
 
-C *************** BIG LOOP OVER VECTORS SYMMETRY *****************
+! *************** BIG LOOP OVER VECTORS SYMMETRY *****************
       DO jSym=1,MaxSym
 
       If (NumCho(jSym).lt.1) Cycle
 
-C Open Files
+! Open Files
        LUnit(:) = -1
        Do ksym=1,nSym
         if (nBas(ksym).ne.0) then
@@ -163,27 +163,27 @@ C Open Files
         End If
        End Do
 
-C SET UP THE READING
-C ------------------
+! SET UP THE READING
+! ------------------
       Call mma_maxDBLE(LWORK)
 
       If (MinMem(jSym) .gt. 0) Then
          nVec = Min(LWORK/MinMem(jSym),NumCho(jSym))
       Else
-C         ***QUIT*** bad initialization
+!         ***QUIT*** bad initialization
          WRITE(6,*) 'Cho_FockTwo: bad initialization'
          rc=99
          CALL Abend()
          nVec = -9999  ! dummy assignment - avoid compiler warnings
       End If
 
-C...this is ONLY for debug:
-c      nVec = min(nVec,1)
+!...this is ONLY for debug:
+!      nVec = min(nVec,1)
 
       If (nVec .gt. 0) Then
          nBatch = (NumCho(jSym) - 1)/nVec + 1
       Else
-C         ***QUIT*** insufficient memory
+!         ***QUIT*** insufficient memory
          WRITE(6,*) 'Cho_FockTwo: Insufficient memory for batch'
          WRITE(6,*) 'LWORK= ',LWORK
          WRITE(6,*) 'min. mem. need= ',MinMem(jSym)
@@ -195,7 +195,7 @@ C         ***QUIT*** insufficient memory
       End If
 
 
-C *************** BATCHING  *****************
+! *************** BATCHING  *****************
       DO iBatch = 1,nBatch
         Write (6,*) 'iBatch=',iBatch
 
@@ -207,15 +207,15 @@ C *************** BATCHING  *****************
 
          iVec = nVec*(iBatch - 1) + 1
 
-C --- Allocate memory for reading the vectors
-C     We allocate the array as an element of a SBA_type.
+! --- Allocate memory for reading the vectors
+!     We allocate the array as an element of a SBA_type.
          kRdMem = MinMem(jSym)*NumV
          Call mma_allocate(Wab%A0,kRdMem,Label='Wab%A0')
          Wab%nsym=nSym
          Wab%isym=jSym
          Wab%icase=7
 
-c--- setup the skipping flags according to # of Occupied
+!--- setup the skipping flags according to # of Occupied
       do k=1,nSym
          iSkip(k)=0
          l=Muld2h(k,jsym) !L(kl) returned if nOcc(k or l) .ne.0
@@ -228,7 +228,7 @@ c--- setup the skipping flags according to # of Occupied
          endif
       end do
 
-C Max dimension of a symmetry block
+! Max dimension of a symmetry block
         Nmax=0
         Do iSym=1,nSym
            if(NBAS(iSym).gt.Nmax .and. iSkip(iSym).ne.0)then
@@ -251,7 +251,7 @@ C Max dimension of a symmetry block
 
          If (iSymp.eq.ksym .and. iSkip(iSymp).ne.0) then
            NumB = nk*(nk+1)/2
-C --- Special trick for the vector L11 ; used to store X(a,Jb)
+! --- Special trick for the vector L11 ; used to store X(a,Jb)
            if(ksym.eq.1.and.jSym.eq.1.and.DoSomeX)then
               iE = iE + (Nmax**2) * NumV
               Wab%SB(iSymp)%A1(1:Nmax**2 * NumV) => Wab%A0(iS:iE)
@@ -292,24 +292,24 @@ C --- Special trick for the vector L11 ; used to store X(a,Jb)
        write(6,*) 'JSYM:                ',JSYM
 #endif
 
-C
-C --- Reading Done!
-C
+!
+! --- Reading Done!
+!
 
-C ********************************************************************
+! ********************************************************************
       DO jDen=1,nDen
 
        IF (jSym.eq.1.and.DoCoulomb(jDen)) THEN
-C
-C *************** BEGIN COULOMB CONTRIBUTION  ****************
-C
-C---- Computing the intermediate vector V(J)
-C
-C --- Contraction with the density matrix
-C ---------------------------------------
-C --- V{#J} <- V{#J} + sum_rr L(rr,{#J})*D(rr)
-C==========================================================
-C
+!
+! *************** BEGIN COULOMB CONTRIBUTION  ****************
+!
+!---- Computing the intermediate vector V(J)
+!
+! --- Contraction with the density matrix
+! ---------------------------------------
+! --- V{#J} <- V{#J} + sum_rr L(rr,{#J})*D(rr)
+!==========================================================
+!
          CALL CWTIME(TCC1,TWC1)
 
          VJ(1:NumV) => Wab%A0(iS:iE+NumV)
@@ -320,27 +320,27 @@ C
 
          Naa = nBas(iSymr)*(nBas(iSymr)+1)/2
 
-         CALL DGEMV_('T',Naa,NumV,
-     &              ONE,Wab%SB(iSymr)%A2,Naa,
-     &                  DLT(jDen)%SB(ISYMR)%A1,1,
+         CALL DGEMV_('T',Naa,NumV,                                      &
+     &              ONE,Wab%SB(iSymr)%A2,Naa,                           &
+     &                  DLT(jDen)%SB(ISYMR)%A1,1,                       &
      &              ONE,VJ,1)
 
          ENDIF
          End DO
 
-C --- Contraction with the 2nd vector
-C ---------------------------------------
-C --- Fss{#J} <- Fss{#J} + FactC * sum_J L(ss,{#J})*V{#J}
-C==========================================================
-C
+! --- Contraction with the 2nd vector
+! ---------------------------------------
+! --- Fss{#J} <- Fss{#J} + FactC * sum_J L(ss,{#J})*V{#J}
+!==========================================================
+!
           DO iSyms=1,nSym
           IF(nBas(iSyms).ne.0)THEN
 
            Naa = nBas(iSyms)*(nBas(iSyms)+1)/2
 
-           CALL DGEMV_('N',Naa,NumV,
-     &              FactC(jDen),Wab%SB(iSyms)%A2,Naa,
-     &                          VJ,1,
+           CALL DGEMV_('N',Naa,NumV,                                    &
+     &              FactC(jDen),Wab%SB(iSyms)%A2,Naa,                   &
+     &                          VJ,1,                                   &
      &                      ONE,FLT(jDen)%SB(ISYMS)%A1,1)
 
 
@@ -357,14 +357,14 @@ C
 
       END DO ! loop over densities for the Coulomb term
 
-C *************** END COULOMB CONTRIBUTION  ****************
+! *************** END COULOMB CONTRIBUTION  ****************
 
        IF (jSym.eq.1.and.DoSomeX) THEN
-C WE INCLUDE THE DIAGONAL PART OF THE EXCHANGE HERE!!!!
-C
-C ********** REORDER AND SQUARE ONE VECTOR AT THE TIME *****
-C     Reorder: L(rs,J) -> L(r,J,s).
-C     CHOVEC(nrs,numv) ---> CHOVEC(nr,numv,ns)
+! WE INCLUDE THE DIAGONAL PART OF THE EXCHANGE HERE!!!!
+!
+! ********** REORDER AND SQUARE ONE VECTOR AT THE TIME *****
+!     Reorder: L(rs,J) -> L(r,J,s).
+!     CHOVEC(nrs,numv) ---> CHOVEC(nr,numv,ns)
 
          DO iSymr=1,nSym
 
@@ -376,7 +376,7 @@ C     CHOVEC(nrs,numv) ---> CHOVEC(nr,numv,ns)
 
              CALL CWTIME(TCREO1,TWREO1)
 
-             LrJs(1:nBas(iSymr),1:NUMV,1:nBas(iSymr)) =>
+             LrJs(1:nBas(iSymr),1:NUMV,1:nBas(iSymr)) =>                &
      &           Wab%A0(iS:iE+nBas(iSymr)**2*NUMV)
 
              Do JVEC=1,NUMV
@@ -409,25 +409,25 @@ C     CHOVEC(nrs,numv) ---> CHOVEC(nr,numv,ns)
                ndim3=NBAS(ISYMR)*NUMV*NBAS(ISYMR)
                XpJs(1:nDim3) => Wab%A0(1:nDim3)
 
-C              Calculate intermediate:
-C              X(p,Js) = Sum(q) D(p,q) * L(q,Js).
-C              -----------------------------------
+!              Calculate intermediate:
+!              X(p,Js) = Sum(q) D(p,q) * L(q,Js).
+!              -----------------------------------
 
 
-               CALL DGEMM_('N','N',
-     &               NBAS(ISYMR),NUMV*NBAS(ISYMR),NBAS(ISYMR),
-     &               ONE,DSQ(jDen)%SB(ISYMR)%A2,NBAS(ISYMR),
-     &                   LrJs, NBAS(ISYMR),
+               CALL DGEMM_('N','N',                                     &
+     &               NBAS(ISYMR),NUMV*NBAS(ISYMR),NBAS(ISYMR),          &
+     &               ONE,DSQ(jDen)%SB(ISYMR)%A2,NBAS(ISYMR),            &
+     &                   LrJs, NBAS(ISYMR),                             &
      &               ZERO,XpJs,NBAS(ISYMR))
 
-C              Calculate exchange contribution:
-C              F(p,q) = F(p,q) - FactX Sum(sJ) L(sJ,p) * X(sJ,q).
-C              --------------------------------------------------
+!              Calculate exchange contribution:
+!              F(p,q) = F(p,q) - FactX Sum(sJ) L(sJ,p) * X(sJ,q).
+!              --------------------------------------------------
 
-               CALL DGEMM_('T','N',
-     &                NBAS(ISYMR),NBAS(ISYMR),NBAS(ISYMR)*NUMV,
-     &             -FactX(jDen),LrJs,NBAS(ISYMR)*NUMV,
-     &                          XpJs,NBAS(ISYMR)*NUMV,
+               CALL DGEMM_('T','N',                                     &
+     &                NBAS(ISYMR),NBAS(ISYMR),NBAS(ISYMR)*NUMV,         &
+     &             -FactX(jDen),LrJs,NBAS(ISYMR)*NUMV,                  &
+     &                          XpJs,NBAS(ISYMR)*NUMV,                  &
      &                      One,FSQ(jDen)%SB(ISYMR)%A2,NBAS(ISYMR))
 
 
@@ -451,18 +451,18 @@ C              --------------------------------------------------
 
        END IF  ! jSym=1 and DoSomeX
 
-C ****************** END DIAGONAL EXCHANGE **********************
-C
-C ************ "OFF-DIAGONAL" EXCHANGE CONTRIBUTION  ************
-C
+! ****************** END DIAGONAL EXCHANGE **********************
+!
+! ************ "OFF-DIAGONAL" EXCHANGE CONTRIBUTION  ************
+!
        IF (jSym.ne.1) THEN
 
-C  Reordering of the Cholesky vectors (ALL AT ONCE)
-C
-C              Reorder: L(qs,J) -> L(qJ,s).
-C
-C     CHOVEC(nq,ns,numv) ---> CHOVEC(nq,numv,ns)
-C     ------------------------------------------
+!  Reordering of the Cholesky vectors (ALL AT ONCE)
+!
+!              Reorder: L(qs,J) -> L(qJ,s).
+!
+!     CHOVEC(nq,ns,numv) ---> CHOVEC(nq,numv,ns)
+!     ------------------------------------------
             CALL CWTIME(TCREO3,TWREO3)
 
             jE = iE
@@ -476,14 +476,14 @@ C     ------------------------------------------
 
                   jS = jE + 1
                   jE = jE + nBas(iSymq)*NumV*nBas(iSyms)
-                  LqJs%SB(ISYMQ)%A3(1:nBas(iSymq),1:NumV,1:nBas(iSyms))
+                  LqJs%SB(ISYMQ)%A3(1:nBas(iSymq),1:NumV,1:nBas(iSyms)) &
      &             => Wab%A0(jS:jE)
 
               DO JVEC = 1,NUMV
 
                 DO jS=1,NBAS(iSyms)
 
-                   LqJs%SB(ISYMQ)%A3(:,JVEC,jS) =
+                   LqJs%SB(ISYMQ)%A3(:,JVEC,jS) =                       &
      &               Wab%SB(ISYMQ)%A3(:,jS,JVEC)
 
                 END DO
@@ -499,12 +499,12 @@ C     ------------------------------------------
             tread(1) = tread(1) + (TCREO4 - TCREO3)
             tread(2) = tread(2) + (TWREO4 - TWREO3)
 
-C     -------------- REORDERING DONE !! --------
+!     -------------- REORDERING DONE !! --------
 
        DO jDen=1,nDen
 
        IF (DoExchange(jDen)) THEN
-C --- COMPUTE EXCHANGE FOR OFF-DIAGONAL VECTORS
+! --- COMPUTE EXCHANGE FOR OFF-DIAGONAL VECTORS
 
             CALL CWTIME(TC2X1,TW2X1)
 
@@ -525,55 +525,55 @@ C --- COMPUTE EXCHANGE FOR OFF-DIAGONAL VECTORS
              IF (ISYMG.gt.ISYMB .and. iSkip(iSymg).ne.0) THEN
 
 
-C -------------------------------
-C --- F(a,b) = - D(g,d) * (ad|gb)
-C -------------------------------
+! -------------------------------
+! --- F(a,b) = - D(g,d) * (ad|gb)
+! -------------------------------
                if (nOcc(iSymg,jDen).ne.0) then
 
-C              Calculate intermediate:
-C              X(d,Jb) = Sum(g) D(d,g) * L(g,Jb).
-C              ----------------------------------
+!              Calculate intermediate:
+!              X(d,Jb) = Sum(g) D(d,g) * L(g,Jb).
+!              ----------------------------------
 
-               CALL DGEMM_('N','N',
-     &                    NBAS(ISYMD),NUMV*NBAS(ISYMB),NBAS(ISYMG),
-     &                    ONE,DSQ(jDen)%SB(ISYMG)%A2,NBAS(ISYMD),
-     &                        LqJs%SB(ISYMG)%A3,NBAS(ISYMG),
+               CALL DGEMM_('N','N',                                     &
+     &                    NBAS(ISYMD),NUMV*NBAS(ISYMB),NBAS(ISYMG),     &
+     &                    ONE,DSQ(jDen)%SB(ISYMG)%A2,NBAS(ISYMD),       &
+     &                        LqJs%SB(ISYMG)%A3,NBAS(ISYMG),            &
      &                   ZERO,XdJb,NBAS(ISYMD))
 
 
-C              F(a,b) = F(a,b) - Sum(dJ) L(dJ,a) * X(dJ,b).
-C              -------------------------------------------
+!              F(a,b) = F(a,b) - Sum(dJ) L(dJ,a) * X(dJ,b).
+!              -------------------------------------------
 
-              CALL DGEMM_('T','N',
-     &              NBAS(ISYMA),NBAS(ISYMB),NBAS(ISYMD)*NUMV,
-     &              -FactX(jDen),LqJs%SB(ISYMG)%A3,NBAS(ISYMD)*NUMV,
-     &                          XdJb,NBAS(ISYMD)*NUMV,
+              CALL DGEMM_('T','N',                                      &
+     &              NBAS(ISYMA),NBAS(ISYMB),NBAS(ISYMD)*NUMV,           &
+     &              -FactX(jDen),LqJs%SB(ISYMG)%A3,NBAS(ISYMD)*NUMV,    &
+     &                          XdJb,NBAS(ISYMD)*NUMV,                  &
      &                      ONE,FSQ(jDen)%SB(ISYMB)%A2,NBAS(ISYMA))
 
               endif
-C -------------------------------
-C --- F(g,d) = - D(a,b) * (ad|gb)
-C -------------------------------
+! -------------------------------
+! --- F(g,d) = - D(a,b) * (ad|gb)
+! -------------------------------
                if (nOcc(iSyma,jDen).ne.0) then
 
-C              Calculate intermediate:
-C              X(gJ,b) = Sum(a) L(gJ,a)* D(a,b).
-C              ----------------------------------
+!              Calculate intermediate:
+!              X(gJ,b) = Sum(a) L(gJ,a)* D(a,b).
+!              ----------------------------------
 
-               CALL DGEMM_('N','N',
-     &                  NBAS(ISYMG)*NUMV,NBAS(ISYMB),NBAS(ISYMA),
-     &                  ONE,LqJs%SB(ISYMG)%A3,NBAS(ISYMG)*NUMV,
-     &                      DSQ(jDen)%SB(ISYMB)%A2,NBAS(ISYMA),
+               CALL DGEMM_('N','N',                                     &
+     &                  NBAS(ISYMG)*NUMV,NBAS(ISYMB),NBAS(ISYMA),       &
+     &                  ONE,LqJs%SB(ISYMG)%A3,NBAS(ISYMG)*NUMV,         &
+     &                      DSQ(jDen)%SB(ISYMB)%A2,NBAS(ISYMA),         &
      &                 ZERO,XdJb,NBAS(ISYMG)*NUMV)
 
 
-C              F(g,d) = F(g,d) - Sum(Jb) X(g,Jb) * L(d,Jb).
-C              -------------------------------------------
+!              F(g,d) = F(g,d) - Sum(Jb) X(g,Jb) * L(d,Jb).
+!              -------------------------------------------
 
-              CALL DGEMM_('N','T',
-     &              NBAS(ISYMG),NBAS(ISYMD),NUMV*NBAS(ISYMB),
-     &             -FactX(jDen),XdJb,NBAS(ISYMG),
-     &                      LqJs%SB(ISYMG)%A3,NBAS(ISYMD),
+              CALL DGEMM_('N','T',                                      &
+     &              NBAS(ISYMG),NBAS(ISYMD),NUMV*NBAS(ISYMB),           &
+     &             -FactX(jDen),XdJb,NBAS(ISYMG),                       &
+     &                      LqJs%SB(ISYMG)%A3,NBAS(ISYMD),              &
      &               ONE,FSQ(jDen)%SB(ISYMG)%A2,NBAS(ISYMG))
 
               endif
@@ -591,7 +591,7 @@ C              -------------------------------------------
             texch(1) = texch(1) + (TC2X2 - TC2X1)
             texch(2) = texch(2) + (TW2X2 - TW2X1)
 
-C ************ END "OFF-DIAGONAL" EXCHANGE CONTRIBUTION  ***********
+! ************ END "OFF-DIAGONAL" EXCHANGE CONTRIBUTION  ***********
 
 
        END IF  ! DoExchange section
@@ -601,12 +601,12 @@ C ************ END "OFF-DIAGONAL" EXCHANGE CONTRIBUTION  ***********
       ENDIF ! jSym.ne.1
 
 
-C --- Free the memory
+! --- Free the memory
          Call Deallocate_SBA(Wab)
 
       END DO  ! end of the batch procedure
 
-C -- Close Files
+! -- Close Files
       Do ksym=1,nSym
        if (Lunit(ksym).ne.-1) then
          Call DACLOS(Lunit(ksym))
@@ -620,8 +620,8 @@ C -- Close Files
       TOTCPU = TOTCPU2 - TOTCPU1
       TOTWALL= TOTWALL2 - TOTWALL1
 
-*
-*---- Write out timing information
+!
+!---- Write out timing information
       if(timings)then
 
       CFmt='(2x,A)'
@@ -633,15 +633,15 @@ C -- Close Files
       Write(6,CFmt)'Fock matrix construction        CPU       WALL   '
       Write(6,CFmt)'- - - - - - - - - - - - - - - - - - - - - - - - -'
 
-         Write(6,'(2x,A26,2f10.2)')'READ/REORDER VECTORS             '
+         Write(6,'(2x,A26,2f10.2)')'READ/REORDER VECTORS             '  &
      &                           //'         ',tread(1),tread(2)
-         Write(6,'(2x,A26,2f10.2)')'COULOMB                          '
+         Write(6,'(2x,A26,2f10.2)')'COULOMB                          '  &
      &                           //'         ',tcoul(1),tcoul(2)
-         Write(6,'(2x,A26,2f10.2)')'EXCHANGE                         '
+         Write(6,'(2x,A26,2f10.2)')'EXCHANGE                         '  &
      &                           //'         ',texch(1),texch(2)
 
          Write(6,*)
-         Write(6,'(2x,A26,2f10.2)')'TOTAL                            '
+         Write(6,'(2x,A26,2f10.2)')'TOTAL                            '  &
      &                           //'         ',TOTCPU,TOTWALL
       Write(6,CFmt)'- - - - - - - - - - - - - - - - - - - - - - - - -'
       Write(6,*)
@@ -649,7 +649,7 @@ C -- Close Files
       endif
 
 
-c Print the Fock-matrix
+! Print the Fock-matrix
 #ifdef _DEBUGPRINT_
       if(Debug) then !to avoid double printing in SCF-debug
 
@@ -680,4 +680,4 @@ c Print the Fock-matrix
       Return
       END
 
-**************************************************************
+!*************************************************************
