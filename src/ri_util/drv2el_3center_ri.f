@@ -252,7 +252,7 @@
 *                                                                      *
 *     During this phase we will have three memory sections
 *
-*     1) the three center intergrals for a fixed {kl}
+*     1) the three center integrals for a fixed {kl}
 *     2) a similar block for the R-vectors
 *     3) a buffer to contain subsets of the Q-vectors
 *

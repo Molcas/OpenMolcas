@@ -68,7 +68,7 @@
          DTot=Two*d_alpha
          If (DTot.le.T_X) Go To 100
 *
-*------- Accumulate Correlation contributions to the AO intergrals
+*------- Accumulate Correlation contributions to the AO integrals
 *
          r_s=(Three/(DTot*Pi*Four))**THIRD
          x=Sqrt(r_s)
@@ -236,7 +236,7 @@ c      If(.False.) Then
       Else
 
 *
-*------- Accumulate Correlation contributions to the AO intergrals
+*------- Accumulate Correlation contributions to the AO integrals
 *
          r_s=(Three/(DTot*Pi*Four))**THIRD
          x=Sqrt(r_s)

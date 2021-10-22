@@ -148,13 +148,13 @@
          RepNuc = PotNuc -
      &            Half * DDot_(nComp,Q_solute(1,1),1,Vs(1,1),1)
 *
-*------- Add contibutions due to slow counter charges
+*------- Add contributions due to slow counter charges
 *
          If (NonEq) RepNuc=RepNuc+E_0_NN
          If (iPrint.ge.99) Write (6,*) ' RepNuc=',RepNuc
 *2)
 *
-*--------Compute contibution to the one-electron hamiltonian
+*--------Compute contribution to the one-electron hamiltonian
 *
 *        hpq = hpq + Sum(nl) E(nuc,nl)*<p|M(nl)|q>
 *

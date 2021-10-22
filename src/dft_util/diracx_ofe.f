@@ -54,7 +54,7 @@ C-Ajitha Modifying the kernel output structure
          functional=-Three/Two*CVX*d_alpha**FTHIRD
          F_xc(iGrid)=F_xc(iGrid)+functional
 *
-*------- Exchange contributions to the AO intergrals
+*------- Exchange contributions to the AO integrals
 *
          func_d_rho_alpha=-CVX*d_alpha**THIRD
 *
@@ -84,7 +84,7 @@ C-Ajitha Modifying the kernel output structure
          functional=-Three/Four*CVX*(d_alpha**FTHIRD+d_beta**FTHIRD)
          F_xc(iGrid)=F_xc(iGrid)+functional
 *
-*------- Exchange contributions to the AO intergrals
+*------- Exchange contributions to the AO integrals
 *
          func_d_rho_alpha=-CVX*d_alpha**THIRD
          func_d_rho_beta =-CVX*d_beta **THIRD

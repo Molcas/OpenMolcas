@@ -11,7 +11,8 @@
 
 subroutine gugadrt_ext_downwalk()
 
-use gugadrt_global, only: iseg_downwei, mul_tab, ng_sm, nlsm_ext, norb_ext, nu_ae
+use gugadrt_global, only: iseg_downwei, ng_sm, nlsm_ext, norb_ext, nu_ae
+use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: iwp
 
 implicit none

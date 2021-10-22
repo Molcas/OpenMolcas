@@ -38,9 +38,6 @@
 *     Local variables
       Integer iDCRT(0:7), Index(3,4)
       Logical EQ,IfG(0:3),Tr(0:3)
-#ifdef _PATHSCALE_
-      Save Fact
-#endif
 *
 *     Local arrrays
 *
