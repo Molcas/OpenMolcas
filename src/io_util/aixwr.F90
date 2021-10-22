@@ -113,11 +113,11 @@ rc = c_write_wrapper(desc,Buf,nBuf)
 if (rc < 0) then
   call FASTIO('STATUS')
   AixWr = AixErr(ErrTxt)
-  call SysQuitFileMsg(_RC_IO_ERROR_WRITE_,TheName,FCtlBlk(nFile),'Premature abort while writing buffer to disk:',ErrTxt)
+  call SysQuitFileMsg(_RC_IO_ERROR_WRITE_,TheName,FCtlBlk(nFile),'Premature abort while writing buffer to disk: ',ErrTxt)
 else if (rc /= nBuf) then
   call FASTIO('STATUS')
   AixWr = eEof
-  call SysQuitFileMsg(_RC_IO_ERROR_WRITE_,TheName,FCtlBlk(nFile),'Premature abort while writing buffer to disk:','Disk full? ')
+  call SysQuitFileMsg(_RC_IO_ERROR_WRITE_,TheName,FCtlBlk(nFile),'Premature abort while writing buffer to disk: ','Disk full? ')
 end if
 CtlBlk(pWhere,nFile) = CtlBlk(pWhere,nFile)+nBuf
 iDisk = iDisk+nBuf

@@ -27,7 +27,6 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#define _USE_WP_
 #include "grd_interface.fh"
 integer(kind=iwp), parameter :: lproju = 9, imax = 100, kcrs = 1
 integer(kind=iwp) :: i, ia, iAlpha, ib, iBeta, iCar, iCmp, iCnttp, iDCRT(0:7), iExp, iIrrep, iOff, iplalbm, iplalbp, iplamlb, &
@@ -256,16 +255,16 @@ do iCnttp=1,nCnttp
                         zcr,nkcrl,nkcru,lcr,ncr,TC(1),TC(2),TC(3),npot)
           end if
 
-          ! Assemble gradient and store in Final.
+          ! Assemble gradient and store in rFinal.
 
-          call Assemble_PPGrd(Final,nZeta,la,lb,iZeta,Alpha(iAlpha),Beta(iBeta),Array(iplaplb),Array(iplamlb),Array(iplalbp), &
+          call Assemble_PPGrd(rFinal,nZeta,la,lb,iZeta,Alpha(iAlpha),Beta(iBeta),Array(iplaplb),Array(iplamlb),Array(iplalbp), &
                               Array(iplalbm),JfGrad)
 
         end do ! iAlpha
       end do   ! iBeta
 
       !AOM<
-      if (abs(Fact-One) > 1.0e-7_wp) call dscal_(nAlpha*nBeta*nTri0Elem(la)*nTri0Elem(lb)*mGrad,Fact,Final,1)
+      if (abs(Fact-One) > 1.0e-7_wp) call dscal_(nAlpha*nBeta*nTri0Elem(la)*nTri0Elem(lb)*mGrad,Fact,rFinal,1)
       !AOM>
       if (iPrint >= 99) then
         write(u6,*) ' Result in PPGrd'
@@ -273,8 +272,8 @@ do iCnttp=1,nCnttp
         do ia=1,nTri0Elem(la)
           do ib=1,nTri0Elem(lb)
             do iVec=1,mGrad
-              write(Label,'(A,I2,A,I2,A)') ' Final(',ia,',',ib,')'
-              call RecPrt(Label,' ',Final(1,ia,ib,iVec),nAlpha,nBeta)
+              write(Label,'(A,I2,A,I2,A)') ' rFinal(',ia,',',ib,')'
+              call RecPrt(Label,' ',rFinal(1,ia,ib,iVec),nAlpha,nBeta)
             end do
           end do
         end do
@@ -284,7 +283,7 @@ do iCnttp=1,nCnttp
       !                                                                *
       ! Distribute contributions to the gradient
 
-      call Distg1X(Final,DAO,nZeta,nDAO,mGrad,Grad,nGrad,JfGrad,JndGrd,iuvwx,lOp)
+      call Distg1X(rFinal,DAO,nZeta,nDAO,mGrad,Grad,nGrad,JfGrad,JndGrd,iuvwx,lOp)
 
     end do ! lDCRT
 !                                                                      *

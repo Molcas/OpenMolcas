@@ -26,7 +26,7 @@
      &                  tfact,iCar,iCent,pert,indgrd,ipdisp)
 ************************************************************************
 *                                                                      *
-*  Object: to accumulate contibutions from the AO integrals directly   *
+*  Object: to accumulate contributions from the AO integrals directly  *
 *          to the symmatry adapted Fock matrix.                        *
 *                                                                      *
 *          The indices has been scrambled before calling this routine. *
@@ -650,7 +650,7 @@ C                 Call RecPrt('Fjk',' ',FT(ipFjk1),jBas,kBas)
      &                  tfact,iCar,iCent,pert,indgrd,ipdisp)
 ************************************************************************
 *                                                                      *
-*  Object: to accumulate contibutions from the AO integrals directly   *
+*  Object: to accumulate contributions from the AO integrals directly  *
 *          to the symmatry adapted Fock matrix.                        *
 *                                                                      *
 *          The indices has been scrambled before calling this routine. *

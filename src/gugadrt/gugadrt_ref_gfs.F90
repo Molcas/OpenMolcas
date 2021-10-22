@@ -11,7 +11,8 @@
 
 subroutine gugadrt_ref_gfs(nel,ndj,locu,nm)
 
-use gugadrt_global, only: lsm_inn, max_ref, mul_tab, norb_dz, norb_inn, nstart_act, spin
+use gugadrt_global, only: lsm_inn, max_ref, norb_dz, norb_inn, nstart_act, spin
+use Symmetry_Info, only: mul_tab => Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 

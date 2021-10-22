@@ -148,10 +148,10 @@
 *----------------------------------------------------------------------*
       i_run_IS_used(item)=i_run_IS_used(item)+1
       If(item.eq.-1) Then
-         Call SysAbendMsg('get_iScalar','Could not locate',Label)
+         Call SysAbendMsg('get_iScalar','Could not locate: ',Label)
       End If
       If(RecIdx(item).eq.0) Then
-         Call SysAbendMsg('get_iScalar','Data not defined',Label)
+         Call SysAbendMsg('get_iScalar','Data not defined: ',Label)
       End If
       Data=RecVal(item)
 *----------------------------------------------------------------------*

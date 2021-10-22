@@ -34,7 +34,7 @@
       Call Get_Grad(Grad,nGrad)
       lMMHess = .False.
       If (iPL.ge.3) Call PrGrad(' Molecular gradients, entering ESPF',
-     &                          Grad,lDisp(0),ChDisp,4)
+     &                          Grad,lDisp(0),ChDisp)
 *
 *     Recover MM gradient and hessian, if any, in QMMM file
 *
@@ -146,7 +146,7 @@ c            Write (6,'(A,4f10.5)') 'HOff read ',(FX(j),j=1,iStep)
       If (((Exist.and.DoTinker).or.DoGromacs) .and. .not.isNAC) Then
          Call Put_iScalar('No of Internal coordinates',3*natom)
          If (iPL.ge.3) Call PrGrad(' Molecular gradients, after MM',
-     &                          Grad,lDisp(0),ChDisp,4)
+     &                          Grad,lDisp(0),ChDisp)
       End If
 *
 *     External field acting on nuclear charges
@@ -165,7 +165,7 @@ c            Write (6,'(A,4f10.5)') 'HOff read ',(FX(j),j=1,iStep)
          EndDo
          Call GetMem('XCharge','Free','Real',ipXC,natom)
          If (iPL.ge.3) Call PrGrad(' Molecular grad, after nuc ESPF',
-     &                             Grad,lDisp(0),ChDisp,4)
+     &                             Grad,lDisp(0),ChDisp)
       End If
 *
 *     Here I need the integral derivatives, weighted by B and contracted
@@ -192,7 +192,7 @@ c            Write (6,'(A,4f10.5)') 'HOff read ',(FX(j),j=1,iStep)
       Call Drvespf(Grad,Work(ipTemp),3*natom,Work(ipGrdI))
       Call GetMem('GridInfo','Free','Real',ipGrdI,4*nGrdPt)
       If (iPL.ge.3) Call PrGrad(' Molecular gradients, after P*B*dV',
-     &                          Grad,lDisp(0),ChDisp,4)
+     &                          Grad,lDisp(0),ChDisp)
       Call GetMem('Temp','Free','Real',ipTemp,3*natom)
 *
 *     Here I need the integrals contracted with the density matrix and weighted
@@ -235,7 +235,7 @@ c            Write (6,'(A,4f10.5)') 'HOff read ',(FX(j),j=1,iStep)
       Call Put_Grad(Grad,3*natom)
       Call GetMem('dESPF2','Free','Real',ipD2,nGrdPt)
       If (iPL.ge.2) Call PrGrad(' Molecular gradients, after ESPF',
-     &                          Grad,lDisp(0),ChDisp,4)
+     &                          Grad,lDisp(0),ChDisp)
       Call Add_Info('Grad',Grad,3*natom,6)
       Call mma_deallocate(Grad)
 *

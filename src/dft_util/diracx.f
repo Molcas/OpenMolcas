@@ -57,7 +57,7 @@ cGLM     &           F_xca(mGrid),F_xcb(mGrid)
          functional=-Three/Two*CVX*d_alpha**FTHIRD
          F_xc(iGrid)=F_xc(iGrid)+Coeff*functional
 *
-*------- Exchange contributions to the AO intergrals
+*------- Exchange contributions to the AO integrals
 *
          func_d_rho_alpha=-CVX*d_alpha**THIRD
 *
@@ -91,7 +91,7 @@ cGLM     &           F_xca(mGrid),F_xcb(mGrid)
          F_xca(iGrid)=F_xca(iGrid)+Coeff*functionala
          F_xcb(iGrid)=F_xcb(iGrid)+Coeff*functionalb
 *
-*------- Exchange contributions to the AO intergrals
+*------- Exchange contributions to the AO integrals
 *
          func_d_rho_alpha=-CVX*d_alpha**THIRD
          func_d_rho_beta =-CVX*d_beta **THIRD
