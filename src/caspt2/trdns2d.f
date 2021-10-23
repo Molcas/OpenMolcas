@@ -41,7 +41,6 @@ C CASPT2 wave functions in vectors nr IVEC, JVEC on LUSOLV.
       CALL QENTER('TRDNS2D')
 
 C Inact/Inact and Virt/Virt blocks:
-C     if (iprglb.ne.silent) write(6,*) "skip density in TRDNS2D"
       DO 101 ICASE=1,13
         DO 100 ISYM=1,NSYM
           NIN=NINDEP(ISYM,ICASE)

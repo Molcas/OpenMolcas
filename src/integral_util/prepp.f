@@ -260,7 +260,6 @@
             Call DecideOnCholesky(DoCholesky)
 C           If(.not.DoCholesky) Then
                Gamma_On=.True.
-C              LuGamma=isfreeunit(LuGamma)
                !! It is opened, but not used actually. I just want to
                !! use the Gamma_On flag.
                !! Just to avoid error termination.
@@ -286,15 +285,11 @@ C           End If
 *
 *...  Read the (non) variational 1st order density matrix
 *...  density matrix in AO/SO basis
-         !! D0  : CASSCF density
-         !! Dvar: CASSCF+PT2 variational density
          nsa=1
          If (lsa) nsa=4
          If ( Method.eq.'MCPDFT  ') nsa=4
-C        If ( Method.eq.'CASPT2  ') nsa=4 !?
 !AMS modification: add a fifth density slot
          mDens=nsa+1
-         !! D0 and DVar are defined in Modules/pso_stuff.f
          Call mma_allocate(D0,nDens,mDens,Label='D0')
          D0(:,:)=Zero
          Call mma_allocate(DVar,nDens,nsa,Label='DVar')
@@ -530,15 +525,6 @@ C        If ( Method.eq.'CASPT2  ') nsa=4 !?
 *
 *       G1 = <i|e_ab|i>
 *       G2 = sum i <i|e_ab|i>
-*        !! couples 1-2 and 3-4
-*        !! D0(1,1) :: Dref of inactive part? (D^I)
-*        !! D0(1,2) :: Dvar - Dref/2 = D^eff - D^I/2
-*        !! D0(1,3) :: Dref of active   part? (D^SA,A)
-*        !! D0(1,4) :: D^orb,I
-*        !! For CASPT2, D0(1,2) and D0(1,4) has to be explicitly modified.
-*        !!    D0(1,2) := D^eff - D^I/2 + D(PT2C)
-*        !!    D0(1,4) := D^orb,I + D(PT2)
-*        !! However, this is already done in mclr/out_pt2.f
 *
 !************************
          RlxLbl='D1AO    '
@@ -548,20 +534,12 @@ C        If ( Method.eq.'CASPT2  ') nsa=4 !?
            Call Getmem('TMP','ALLO','REAL',ipT,2*ndens)
            Call Get_D1I(CMO(1,1),D0(1,1),Work(ipT),
      &                  nish,nbas,nIrrep)
-C     write (*,*) "cmo"
-C     call sqprt(cmo,12)
-C     write (*,*) "1"
-C     call prtril(d0(1,1),12,0)
-C     write (*,*) "nfro = ", nfro(1)
-C     write (*,*) "nish = ", nish(1)
            Call Getmem('TMP','FREE','REAL',ipT,2*ndens)
 
 !************************
          RlxLbl='D1AO    '
 !         Call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0)
 *
-C         write (*,*) "Dvar"
-C          call prtril(dvar,12,0)
            Call dcopy_(ndens,DVar,1,D0(1,2),1)
            If (.not.isNAC) call daxpy_(ndens,-Half,D0(1,1),1,D0(1,2),1)
 !         RlxLbl='D1COMBO  '
@@ -570,8 +548,6 @@ C          call prtril(dvar,12,0)
 *   This is necessary for the kap-lag
 *
            Call Get_D1AV(ipD1AV,Length)
-C          write (*,*) "ipD1AV"
-C          call sqprt(Work(ipD1AV),nash(1))
            nG1 = nAct*(nAct+1)/2
            If (ng1.ne.Length) Then
               Call WarningMessage(2,'PrepP: D1AV, nG1.ne.Length!')
@@ -590,17 +566,8 @@ C          call sqprt(Work(ipD1AV),nash(1))
          RlxLbl='D1AOA   '
 !         Call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(1,3))
 *
-           !! D0(1,4): constructed in mclr/out_pt2.f
            Call Get_DLAO(ipDLAO,Length)
            call dcopy_(Length,Work(ipDLAO),1,D0(1,4),1)
-C         write (*,*) "D0(1,1)"
-C          call prtril(d0(1,1),12,0)
-C         write (*,*) "D0(1,2)"
-C          call prtril(d0(1,2),12,0)
-C         write (*,*) "D0(1,3)"
-C          call prtril(d0(1,3),12,0)
-C         write (*,*) "D0(1,4)"
-C          call prtril(d0(1,4),12,0)
 
 !ANDREW - modify D2: should contain only the correction pieces
 

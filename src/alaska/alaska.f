@@ -232,10 +232,6 @@
       Call GR_DArray(Work(ipGrad),lDisp(0))
       Call DaXpY_(lDisp(0),One,Work(ipTemp),1,
      &                        Work(ipGrad),1)
-      !! test
-C     Do i = 1, lDisp(0)
-C       If (ABS(Work(ipGrad+i-1)).le.3.0d-08) Work(ipGrad+i-1) = 0.0D+00
-C     End Do
 *
 *                                                                      *
 ************************************************************************

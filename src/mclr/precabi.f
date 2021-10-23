@@ -72,7 +72,6 @@
 *
                Do jB=1,nIsh(jS)
                   ip=itri1(jB,nd-jVert+1)
-C     if (ka.eq.1.and.la.eq.1) write (*,*) "i in precabi (1) = ", ip
 *
                   Fact1=-2.0d0*Work(ipG2-1+itri(itAA,itri(kAA,lAA)))
                   Fact2=-4.0d0*
@@ -103,7 +102,6 @@ C     if (ka.eq.1.and.la.eq.1) write (*,*) "i in precabi (1) = ", ip
 *                                                                      *
       Do jB=1,nIsh(jS)
          ip=itri1(jB,nd-jVert+1)
-C     write (*,*) "i in precabi (2) = ", ip,jvert
          Fact=(2.0d0-2.0d0*Work(ipG1-1+itAA))
          Call DaxPy_(jVert,Sign*Fact,FockI(nO+1,jB),1,rOut(ip),1)
          Fact=2.0d0

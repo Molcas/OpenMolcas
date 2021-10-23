@@ -67,7 +67,6 @@
 *
       PT2 = .FALSE.
       Call Get_cArray('Relax Method',Method,8)
-C     write (*,'("method = ", a8)') method
       If (Method.eq.'CASPT2  ') PT2 = .TRUE.
 *
 C     write(6,*) "iMethod:",iMethod,iCASSCF
@@ -156,10 +155,6 @@ C     write(6,*) "iMethod:",iMethod,iCASSCF
 C        Write (*,*) 'iState,SA,nroots=',iState,SA,nroots
          If (SA.or.iMCPD.or.PT2) Then
             ipcii=ipget(nconf*nroots)
-C         write (*,*) "ci coeff in inpctl_mclr"
-C         do k = 1, nconf
-C           write (*,'(i3,f20.10)') k,work(ipci+k-1)
-C         end do
             call dcopy_(nconf*nroots,Work(ipCI),1,Work(ipin(ipcii)),1)
             nDisp=1
          Else
@@ -180,14 +175,7 @@ C        Call RecPrt('CI vector',' ',Work(ipin(ipcii)),1,nConf)
 ************************************************************************
 *                                                                      *
          If (ngp) Call rdciv
-         If (PT2) Then
          If (PT2) Call Molcas_Open(LuPT2,'PT2_Lag')
-C          write (*,*) "pt2 = ", pt2
-C          Read (LuPT2,*) BSHIFT
-C          write (*,*) "bshift = ", bshift
-C          If (BSHIFT.ne.0.0D+00) ActRot=.True.
-C          write (*,*) "actrot=" ,actrot
-         End If
       End If
 *                                                                      *
 ************************************************************************

@@ -102,17 +102,6 @@ C
       REAL*8, ALLOCATABLE :: UeffSav(:,:),U0Sav(:,:),H0Sav(:,:),ESav(:)
       LOGICAL :: IFGRDT0
 
-
-      !! for debug
-C     Logical,parameter ::  DerMO=.false.,
-C    *                      DerCI=.false.,
-C    *                      DerGen=.false.,
-C    *                      DerICB=.false.
-C     Integer iOrb,jOrb,iAO,iMO,iVib,ipWRK1,ipWRK2,ipWRK3,indCI,idCI,
-C    *        idT,iRoots,jRoots,ijRoots,ipFIMO,ipFIFA,nAS,nIN,icase,isym
-C     Real*8  Delta,EForward,EBackward,EigI,EigJ,SCAL,SLagV
-C     Real*8, External :: DDot_
-
       Call StatusLine('CASPT2:','Just starting')
 
       IRETURN = 0
@@ -240,7 +229,6 @@ C
        END IF
 
        CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
-C      write(6,*) "before grpini"
        CALL GRPINI(IGROUP,NGROUPSTATE(IGROUP),JSTATE_OFF,HEFF,H0,U0)
        If (IFGRDT) CALL CNSTFIFAFIMO(1)
        If (IFXMS.and.iStpGrd.eq.2)
@@ -250,7 +238,6 @@ C      write(6,*) "before grpini"
        !! while the true value is computed with SA-density
        If (IFGRDT.AND.IFMSCOUP.and.IFXMS.and.IFDW)
      *   Call DCopy_(nState*nState,H0Sav,1,H0,1)
-C      write(6,*) "after grpini"
        CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
        CPUGIN=CPTF10-CPTF0
        TIOGIN=TIOTF10-TIOTF0
@@ -267,14 +254,6 @@ CProducing XMS Rotated States
          IF ((NLYROOT.NE.0).AND.(JSTATE.NE.NLYROOT)) CYCLE
 
          CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
-C      write(6,*) "before stini"
-C            CALL GETMEM('WRK1','ALLO','REAL',ipWRK1,nConf*nRoots)
-C            idCI = idTCEX
-C            Call dDaFile(LUCIEX,2,Work(ipWRK1),nConf,idCI)
-C            Work(ipWRK1) = Work(ipWRK1) + 1.0D-05
-C            idCI = idTCEX
-C            Call dDaFile(LUCIEX,1,Work(ipWRK1),nConf,idCI)
-C            CALL GETMEM('WRK1','FREE','REAL',ipWRK1,nConf*nRoots)
          CALL STINI
          CALL TIMING(CPTF11,CPE,TIOTF11,TIOE)
          CPUSIN=CPTF11-CPTF0
@@ -404,8 +383,7 @@ C     transition density matrices.
            TIOINT=0.0D0
          END IF
 
-C       IF (IPRGLB.GE.VERBOSE) THEN
-        IF (IPRGLB.GE.USUAL) THEN
+        IF (IPRGLB.GE.VERBOSE) THEN
           WRITE(6,*)
           WRITE(6,'(A,I6)')    '  CASPT2 TIMING INFO FOR STATE ',
      &                         MSTATE(JSTATE)
@@ -497,7 +475,7 @@ C       CALL MMA_DEALLOCATE(U0)
       END IF
 
       IF(NLYROOT.NE.0) IFMSCOUP=.FALSE.
-      IF(IFMSCOUP.and.istpgrd.eq.1) THEN
+      IF(IFMSCOUP.and.iStpGrd.eq.1) THEN
         Call StatusLine('CASPT2:','Effective Hamiltonian')
         CALL MLTCTL(HEFF,UEFF,U0)
 
@@ -527,13 +505,13 @@ C       CALL MMA_DEALLOCATE(U0)
 
 * Back-transform the effective Hamiltonian and the transformation matrix
 * to the basis of original CASSCF states
-      if (nstpgrd.eq.2) then
-      CALL Backtransform(Heff,UeffSav,U0sav)
-      Call DCopy_(nState*nState,UeffSav,1,Ueff,1)
-      Call DCopy_(nState,ESav,1,ENERGY,1)
-      else
-      CALL Backtransform(Heff,Ueff,U0)
-      end if
+      If (nStpGrd.eq.2) Then
+        CALL Backtransform(Heff,UeffSav,U0sav)
+        Call DCopy_(nState*nState,UeffSav,1,Ueff,1)
+        Call DCopy_(nState,ESav,1,ENERGY,1)
+      Else
+        CALL Backtransform(Heff,Ueff,U0)
+      End If
 
 * create a JobMix file
 * (note that when using HDF5 for the PT2 wavefunction, IFMIX is false)
@@ -570,7 +548,6 @@ C     CALL MMA_DEALLOCATE(U0)
       End If
 C Free resources, close files
       CALL PT2CLS
-C     If (nRoots.ne.lRoots) Call ModDip
 
       CALL MMA_DEALLOCATE(UEFF)
       CALL MMA_DEALLOCATE(U0)

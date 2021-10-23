@@ -169,19 +169,7 @@ C     end do
 C     end do
 C     call sqprt(a_j,5)
 C     write (*,*) "ir = ", ir
-      If (ActRot) Then
-        Do jB = 1, nAsh(jS)
-          jBB=jB+nA(jS)
-          jjB=jB+nIsh(jS)
-          Do jD = 1, jB
-            jDD=jD+nA(jS)
-            jjD=jD+nIsh(jS)
-            i=itri(jBB,jDD)
-            j=itri1(jjB,jjD)
-            rOut(j) = rOut(j) + Scr(i)
-          End Do
-        End Do
-      Else If (iR.eq.1) Then
+      If (iR.eq.1) Then
         Do jB = nRs1(jS)+1, nAsh(jS)
           jBB=jB+nA(jS)
           jjB=jB-nRs1(jS)+nIsh(jS)

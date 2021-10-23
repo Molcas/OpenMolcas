@@ -475,8 +475,7 @@
                      temp=temp+temp2
 *
                      If (Gamma_On) Then !! For CASPT2
-                       temp = temp + A_PT2(lSOl,jSOj)!*0.5d+00
-C                   write (*,'(2i3,f20.10)') lsol,jsoj,a_pt2(lsol,jsoj)
+                       temp = temp + A_PT2(lSOl,jSOj)
                      End If
 *
                      PMax = Max(PMax,Abs(temp))

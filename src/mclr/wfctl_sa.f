@@ -123,8 +123,6 @@
 *
 *     opOut will release the memory area without update the disk
 *
-      ! nconf1: CSF
-      ! nconf3: determinant
       ipS1 =ipGet(nconf3*nroots)
       ipS2 =ipGet(nconf3*nroots)
       ipST =ipGet(nconf3*nroots)
@@ -213,6 +211,7 @@
       iLen=nDensC
       iRHSDisp(iDisp)=iDis
       Call Compress(Work(ipTemp4),Work(ipSigma),iSym)
+*     Call RecPrt('RHS',' ',Work(ipSigma),nDensc,1)
       r1=ddot_(nDensc,Work(ipSigma),1,Work(ipSigma),1)
       If (PT2) R1 = R1 + DDot_(nConf1*nRoots,Work(ipIn(ipST)),1,
      *                                       Work(ipIn(ipST)),1)
@@ -264,6 +263,7 @@ C
      &    ' perturbation number ',idisp,' might diverge'
 *
       call dcopy_(ndensC,Work(ipKap),1,Work(ipdKap),1)
+*
       deltaC=Zero
       If (PT2) deltaC=ddot_(nConf1*nroots,Work(ipin(ipST)),1,
      &                                    Work(ipin(ipS2)),1)
@@ -315,7 +315,6 @@ C
          resci=sqrt(ddot_(nconf1*nroots,Work(ip),1,
      &                                 Work(ip),1))
 
-
 *-------------------------------------------------------------------*
 *
 *        Precondition......
@@ -355,8 +354,6 @@ C
          Else
             rbeta=(deltac+deltaK)/delta
             delta=deltac+deltaK
-            !! p_{k+1} = z_{k+1} + beta_{k}*p_{k}
-            !  ipCId   = ipS2 + beta*ipCId
             Call DScal_(nConf1*nroots,rBeta,Work(ipIn(ipCID)),1)
             Call DScal_(nDensC,rBeta,Work(ipdKap),1)
             Call DaXpY_(nConf1*nroots,One,Work(ipIn(ipS2)),1,
@@ -492,9 +489,6 @@ C
       Call GetMem('SCR3','ALLO','REAL',ipSc3,ndens2)
       Call GetMem('SCR4','ALLO','REAL',ipTemp4,ndens2)
       Call GetMem('SCR3','ALLO','REAL',ipTemp3,ndens2)
-      If (ActRot) Then
-      Call GetMem('SCR5','ALLO','REAL',ipTemp5,ntash*ntash)
-      End If
 *
       if(doDMRG)then ! yma
         call dmrg_spc_change_mclr(RGras2(1:8),nash)
@@ -522,14 +516,15 @@ C
      &               Work(ipin(ipS2)),1,
      &               Work(ipin(ipCIOUT)),1)
       irc=opOut(ipCId)
-       do iR = 1, nroots
-         do jR = 1, nroots
-           ovl = ddot_(nconf1,work(ipin(ipciout)+(iR-1)*nconf1),1,
-     *                        work(ipin(ipci)+(jR-1)*nconf1),1)
-           call daxpy_(nconf1,-ovl,work(ipin(ipci)+(jR-1)*nconf1),1,
-     *                             work(ipin(ipciout)+(iR-1)*nconf1),1)
-         end do
-        end do
+      !! This is also orthogonalization of the solution vector
+C     do iR = 1, nroots
+C       do jR = 1, nroots
+C         ovl = ddot_(nconf1,work(ipin(ipciout)+(iR-1)*nconf1),1,
+C    *                       work(ipin(ipci)+(jR-1)*nconf1),1)
+C         call daxpy_(nconf1,-ovl,work(ipin(ipci)+(jR-1)*nconf1),1,
+C    *                            work(ipin(ipciout)+(iR-1)*nconf1),1)
+C       end do
+C     end do
 
 *
       Call GetMem('RMOAA','FREE','REAL',iprmoaa,n2dens)
@@ -538,9 +533,6 @@ C
       Call GetMem('SCR3','FREE','REAL',ipSc3,ndens2)
       Call GetMem('SCR4','FREE','REAL',ipTemp4,ndens2)
       Call GetMem('SCR5','FREE','REAL',ipTemp3,ndens2)
-      If (ActRot) Then
-      Call GetMem('SCR5','FREE','REAL',ipTemp5,ntash*ntash)
-      End If
 
       if(doDMRG)then  ! yma
         call dmrg_spc_change_mclr(LRras2(1:8),nash)

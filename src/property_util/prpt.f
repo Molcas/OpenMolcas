@@ -372,8 +372,6 @@ c
      &               nIrrep,nBas,
      &               nBlock,Scr(iadDen),nDim,Occ,Thrs,
      &               nblock,Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim))
-C         write (*,*) scr(iadel+(icomp-1)*mdim),scr(iadnuc+icomp-1),
-C    *            scr(iadnuc+icomp-1)-scr(iadel+(icomp-1)*mdim)
           If (.Not.Short.and.iUHF.eq.1) Call Xprop(short,ifallorb,
      &               nIrrep,nBas,
      &               nBlock,Scr(iadDen_ab),nDim,Occ(iOcc_ab),Thrs,

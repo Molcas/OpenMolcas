@@ -28,11 +28,6 @@
 
       Call CIDens_SA(.true.,ipCI,ipCid,State_sym,State_Sym,
      &                Work(ipP),Work(ipde))
-C     write (*,*) "n2dens=",n2dens
-C     write (*,*) "Work(ipde) (RDM1)"
-C     call sqprt(Work(ipde),ntash)
-C     write (*,*) "Work(ipP) (RDM2)"
-C     write (*,'(5f15.10)') (work(ipp+i-1),i=1,n2dens)
 
 ! ====================================================================
       If(doDMRG)then

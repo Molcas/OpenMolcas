@@ -119,7 +119,6 @@
                   Call Abend()
                End If
             Else
-               ! D0: AO density. It is used in ptrans_sa, actually
                Call PGet3(PSO,ijkl,nPSO,iCmp,
      &                    iShell,iAO,iAOst,Shijij,
      &                    iBas,jBas,kBas,lBas,kOp,D0,nDens,

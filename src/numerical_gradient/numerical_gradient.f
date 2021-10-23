@@ -198,9 +198,7 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
       If (nAtMM .eq. 0) Call GenCxCTL(iRC,NMCart,rDelta)
 *
       Call qpg_dArray('CList',Found,nCList)
-      If (rDelta.lt.0.0d+00) Then
-        Found=.false.
-      End If
+      If (rDelta.lt.0.0d+00) Found=.false.
       If (Found) Then
          External_Coor_List=.True.
          Call Get_iScalar('No of Internal Coordinates',mInt)
@@ -289,7 +287,6 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      write(6,*) "External_Coor_List=",External_Coor_List
       If (External_Coor_List) Then
 *
 *        Externally define displacement list
@@ -458,11 +455,6 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
 *     externally defined coordinates or not.
 *
       If (iPL.ge.3) Then
-C        call dcopy_(nDisp,Work(ipDisp),1,Work(ipTemp),1)
-C        Call dGeMV_('N',nDisp,nDisp,
-C    &              1.0D+00,Work(ipAm),nDisp,
-C    &              Work(ipTemp),1,
-C    &              0.0D+00,Work(ipDisp),1)
 #ifdef _HIDE_
          Write (LuWr,'(1x,A)')
      &                 '---------------------------------------------'
@@ -569,8 +561,6 @@ C    &              0.0D+00,Work(ipDisp),1)
 *
          jpXYZ = ipXYZ + (iDisp-1)*3*nAtoms
          call dcopy_(3*nAtoms,Work(jpxyz),1,Work(ipC),1)
-C        write(6,*) "debug print"
-C        Call RecPrt('Work(ipC)',' ',Work(ipC),3*nAtoms,1)
 *        Call RecPrt('Work(ipC)',' ',Work(ipC),3*nAtoms,1)
          Call Put_Coord_New(Work(ipC),nAtoms)
 *
@@ -654,7 +644,7 @@ C        Call RecPrt('Work(ipC)',' ',Work(ipC),3*nAtoms,1)
                Write(LuWr,*) 'RASSCF returned with return code, rc = ',
      &                     iReturn
                Write(LuWr,*) 'for the perturbation iDisp = ',iDisp
-C              Call Abend()
+               Call Abend()
             End If
          End If
 *
@@ -768,7 +758,6 @@ C              Call Abend()
          Else
             Call Get_dScalar('Last energy',EnergyArray(iRoot,iDisp))
          End If
-         write(6,'(f25.15)') energyarray(iroot,idisp)
 *
 *        Restore directory and prgm database
 *
@@ -1030,7 +1019,7 @@ C_MPP End Do
                TempY = Work(ipTmp+3*(iAtom-1)+1)
                TempZ = Work(ipTmp+3*(iAtom-1)+2)
                Namei = AtomLbl(iAtom)
-               Write (LuWr,'(2X,A,3X,3F14.8)')
+               Write (LuWr,'(2X,A,3X,3F12.6)')
      &               Namei, TempX, TempY, TempZ
             End Do
             Write (LuWr,'(2x,A)')

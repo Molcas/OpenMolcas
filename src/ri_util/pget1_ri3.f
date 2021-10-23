@@ -940,7 +940,6 @@
                              !! Not sure why scaled with 1/2
                              !! It may be done in Mult_with_Q_CASPT2
                              temp = temp + B_PT2(kSOk,lSOl,jSOj)*0.5d+00
-C         write (*,'(3i4,f20.10)') ksok,lsol,jsoj,b_pt2(ksok,lsol,jsoj)
                            End If
 *
                            PMax=Max(PMax,Abs(temp))

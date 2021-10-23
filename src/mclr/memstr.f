@@ -54,7 +54,6 @@
       Call ICopy(MXPSTT,[ip_iDummy],0,KEL123,1)
       Call ICopy(MXPSTT,[ip_iDummy],0,KACTP ,1)
       Call ICopy(MXPSTT,[ip_iDummy],0,KZ    ,1)
-C     write (*,*) "ip_iDummy= ", ip_iDummy
 * =====================================================================
 *
 * 1 : String information

@@ -119,11 +119,9 @@
       rho=sign*2.0d0*Work(ipg1-1+itri(iib,iib))
       Do iI=nAsh(js)+nIsh(js)+1,nOrb(js)
        rOut(ip)=rout(ip)-2.0d0*rF+Rho*FockI(iI,ii)+Temp2(ii,ii)
-C      write (*,*) "in precabb_2 (1) = ", ip
        ip=ip+1
        Do iJ=iI+1,NOrb(js)
         rOut(ip)=Rho*FockI(iI,iJ)+Temp2(ii,ij)
-C      write (*,*) "in precabb_2 (2) = ", ip
         ip=ip+1
        End Do
       End Do

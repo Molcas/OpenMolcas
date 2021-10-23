@@ -594,7 +594,6 @@ cVV: ifort 11 can't handle the code without this dummy print.
 *
       If (Method.eq.'CASPT2  ') Then
         !! Just read A_{JK} type matrix constructed in CASPT2
-C       write (*,*) "nBasT,nBasA = ", nBasT,nBasA
         Call MMA_Allocate(B_PT2,nBasT,nBasT,nBasA,Label='B_PT2')
 C       B_PT2(:,:,:)=Zero
         !! Now, read
@@ -736,10 +735,6 @@ C    *        Recl=nBasT*nBasT*8)
          End If
          If (AInt.lt.CutInt) Go To 14
          If (iPrint.ge.15) Write (6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
-         !! jS is the shell index of auxiliary basis
-         !! kS and lS are shell indices of the original basis
-         !! jS runs over first, and kS >= lS
-C        Write (6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -18,19 +18,23 @@
      &                    idum,ipCId,ips2,'N')
       Do i=0,nroots-1
          EC=(rin_ene+potnuc-ERASSCF(i+1))*Weight(i+1)
-C        write (*,*) "ec=",ec
        Call Daxpy_(ncsf(State_Sym),EC,
      &            Work(ipin(ipCId)+i*ncsf(state_sym)),1,
      &            Work(ipin(ipS2)+i*ncsf(state_sym)),1)
-        EC=0.0D+00
-        Do j=0,nroots-1
-          EC=EC+DDot_(ncsf(State_Sym),
-     *          Work(ipin(ipCId)+j*ncsf(State_Sym)),1,
-     *          Work(ipin(ipCI)+j*ncsf(State_Sym)),1)*Weight(i+1)
-        End Do
-        Call Daxpy_(ncsf(State_Sym),EC,
-     &             Work(ipin(ipCId)+i*ncsf(state_sym)),1,
-     &             Work(ipin(ipS2)+i*ncsf(state_sym)),1)
+        !! This is the orthogonalization of the solution vector
+        !! with respect to the reference CI vector.
+        !! The orthogonalization does not affect the final result
+        !! as long as (tightly) converged, but may affect the
+        !! convergence. For the moment, it should be commented out?
+C       EC=0.0D+00
+C       Do j=0,nroots-1
+C         EC=EC+DDot_(ncsf(State_Sym),
+C    *          Work(ipin(ipCId)+j*ncsf(State_Sym)),1,
+C    *          Work(ipin(ipCI)+j*ncsf(State_Sym)),1)*Weight(i+1)
+C       End Do
+C       Call Daxpy_(ncsf(State_Sym),EC,
+C    &             Work(ipin(ipCId)+i*ncsf(state_sym)),1,
+C    &             Work(ipin(ipS2)+i*ncsf(state_sym)),1)
       End Do
       Call DSCAL_(nroots*ncsf(state_SYM),2.0d0,Work(ipin(ipS2)),1)
       Return

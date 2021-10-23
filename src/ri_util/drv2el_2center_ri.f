@@ -208,11 +208,6 @@ c      Call RecPrt('ip_Tmp',' ',Work(ip_Tmp),nSkal,nSkal)
             If (AInt.lt.CutInt) Go To 14
             Call Eval_IJKL(iS,jS,kS,lS,Work(ipTInt),nTInt_,
      &                    Integral_WrOut)
-C       write (*,*) "generating 2c-2e"
-C       write (*,*) "jS,lS = ", jS,lS
-C       do iiii = 1, nTInt_
-C         write (*,'(i3,f20.10)') iiii,Work(ipTInt+iiii-1)
-C       end do
  14         Continue
 *
 *           Use a time slot to save the number of tasks and shell

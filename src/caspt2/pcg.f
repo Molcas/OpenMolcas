@@ -175,7 +175,7 @@ CPAM End of insert.
       ESHIFT=E2CORR-E2NONV
       E2TOT=EREF+E2CORR
 
-      IF(IPRGLB.GT.USUAL.or.iprglb.ne.silent) THEN
+      IF(IPRGLB.GT.USUAL) THEN
         WRITE(6,*)
         WRITE(6,*)' Correlation energy /Case, /Symm, and sums:'
         DO IC=1,13
@@ -190,19 +190,14 @@ CPAM End of insert.
          WRITE(6,*)
 
          If (.not.Input % LovCASPT2) Then
-C           WRITE(6,'(6x,a,f18.10)')'Reference energy:     ',EREF
-            WRITE(6,'(6x,a,f30.20)')'Reference energy:     ',EREF
-C           WRITE(6,'(6x,a,f18.10)')'E2 (Non-variational): ',E2NONV
-            WRITE(6,'(6x,a,f30.20)')'E2 (Non-variational): ',E2NONV
+            WRITE(6,'(6x,a,f18.10)')'Reference energy:     ',EREF
+            WRITE(6,'(6x,a,f18.10)')'E2 (Non-variational): ',E2NONV
             IF(SHIFT.NE.0.0d0.or.SHIFTI.ne.0.0d0) THEN
-C             WRITE(6,'(6x,a,f18.10)')'Shift correction:     ',ESHIFT
-              WRITE(6,'(6x,a,f30.20)')'Shift correction:     ',ESHIFT
+              WRITE(6,'(6x,a,f18.10)')'Shift correction:     ',ESHIFT
             END IF
-C           WRITE(6,'(6x,a,f18.10)')'E2 (Variational):     ',E2CORR
-            WRITE(6,'(6x,a,f30.20)')'E2 (Variational):     ',E2CORR
+            WRITE(6,'(6x,a,f18.10)')'E2 (Variational):     ',E2CORR
             If (.not.Input % FnoCASPT2) Then
-C              WRITE(6,'(6x,a,f18.10)')'Total energy:         ',E2TOT
-               WRITE(6,'(6x,a,f30.20)')'Total energy:         ',E2TOT
+               WRITE(6,'(6x,a,f18.10)')'Total energy:         ',E2TOT
             Else
                WRITE(6,'(6x,a,f18.10,a)')'FNO correction:       ',EMP2,
      &              '   (estimate)   '
@@ -212,8 +207,7 @@ C              WRITE(6,'(6x,a,f18.10)')'Total energy:         ',E2TOT
      &              '   (FNO-CASPT2) '
             EndIf
             WRITE(6,'(6x,a,f18.10)')'Residual norm:        ',RNORM
-C           WRITE(6,'(6x,a,f13.5)') 'Reference weight:     ',REFWGT
-            WRITE(6,'(6x,a,f30.20)') 'Reference weight:     ',REFWGT
+            WRITE(6,'(6x,a,f13.5)') 'Reference weight:     ',REFWGT
          Else
             WRITE(6,'(6x,a,f18.10)')
      &              'Reference energy:                 ',EREF

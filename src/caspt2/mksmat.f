@@ -955,7 +955,6 @@ C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
         CALL MKSC_DP(DREF,PREF,ISYM,WORK(lg_SC),1,NAS,1,NAS,0)
 #endif
 
-
         CALL PSBMAT_WRITE('S',iCase,iSYM,lg_SC,NAS)
 
         IF(IPRGLB.GE.DEBUG) THEN
@@ -1900,13 +1899,6 @@ C Loop over superindex symmetry.
               S11=S11+2.0D0*DUY
               S22=S22+2.0D0*DUY
             END IF
-        if (itu.eq.ixy) then
-C         s11=1.0d+00
-C         s22=1.0d+00
-        else
-C         s11=0.0d+00
-C         s22=0.0d+00
-        end if
 C    SD(tu1,xy1)=2*(Gutxy + dtx Duy)
             WORK(LSD-1+IS11)= S11
 C    SD(tu2,xy1)= -(Gutxy + dtx Duy)
@@ -1916,13 +1908,6 @@ C    SD(tu2,xy2)= -Gxtuy +2*dtx Duy
             WORK(LSD-1+IS22)= S22
  101      CONTINUE
  100    CONTINUE
-C     If (DoPT2Num) Then
-C       If (iVibPT2.eq.1) Then
-C         Work(LSD+iDiffPT2-1) = Work(LSD+iDiffPT2-1) + PT2Delta
-C       Else
-C         Work(LSD+iDiffPT2-1) = Work(LSD+iDiffPT2-1) - PT2Delta
-C       End If
-C     End If
 
 C Write to disk
         IF(NSD.GT.0) THEN
@@ -2093,12 +2078,6 @@ C Loop over superindex symmetry.
         IF(NSF.GT.0) THEN
           CALL GETMEM('SF','FREE','REAL',LSF,NSF)
         END IF
-C       call docpy_nasp*(nasp+1)/2,0.0d+00,0,work(lsfp),1)
-C       nseq = 0
-C       do i = 1, nasp
-C         nseq = i*(i-1)/2+i
-C         work(lsfp+nseq-1) = 1.0d+00
-C       end do
 
 C Write to disk
         IF(NSFP.GT.0.and.NINDEP(ISYM,8).GT.0) THEN
@@ -2153,17 +2132,8 @@ C    SG(t,x)= Dtx
             ISG=(IT*(IT-1))/2+IX
             ID=(ITABS*(ITABS-1))/2+IXABS
             WORK(LSG-1+ISG)= DREF(ID)
-C           if (it.eq.ix) then
-C             work(lsg-1+isg) = 1.0d+00
-C           else
-C             work(lsg-1+isg) = 0.0d+00
-C           end if
  101      CONTINUE
  100    CONTINUE
-C         write (*,*) "Overlap in mksmat"
-C       do i = 1, nsg
-C         write (*,'(i3,f20.10)') i,work(lsg+i-1)
-C       end do
 
 C Write to disk
         IF(NSG.GT.0.and.NINDEP(ISYM,10).GT.0) THEN

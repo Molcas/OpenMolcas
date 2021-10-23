@@ -49,25 +49,6 @@
       Fact=-1.0d0
       One=1.0d0
       call dcopy_(ndens2,[0.0d0],0,Fock,1)
-      If (ActRot) Then
-        Call GetMem('DAct','ALLO','REAL',ipDAct,ntash*ntash)
-        Call GetMem('DAct','ALLO','REAL',ipFAct,nmba)
-C       Call DCopy_(ntash*ntash,0.0d+00,0,Work(ipDAct),1)
-C       do iash = 1, nash(idsym)
-C         iorb = nish(idsym)+iash
-C         do jash = 1, iash-1 !! nash(idsym)
-C           jorb = nish(idsym)+jash
-C           Work(ipDAct+iAsh-1+nAsh(idSym)*(jAsh-1))
-C    *        = rkappa(iorb+nOrb(idSym)*(jorb-1))*0.5d+00
-C           Work(ipDAct+jAsh-1+nAsh(idSym)*(iAsh-1))
-C    *        = rkappa(iorb+nOrb(idSym)*(jorb-1))*0.5d+00
-C           rkappa(iorb+nOrb(idSym)*(jorb-1)) = 0.0D+00
-C         end do
-C       end do
-        !! F(D)pq = ((pq|tu)-(pt|qu)/2)*Dtu, then
-        !! Fpq = F(D)pr*Drq(SA)
-C       Call DActTrf(Work(ipDAct),Work(ipFAct),Fock,idSym)
-      End If
 *
       If (.not.newCho) Then
         Call GetMem('MOTemp2','ALLO','REAL',ipMT1,nmba)
@@ -365,30 +346,6 @@ C       Call DActTrf(Work(ipDAct),Work(ipFAct),Fock,idSym)
 *      F  = F  - Q
 *       ap   ap   ap
 *
-C        call sqprt(focki,12)
-         If (ActRot) Then
-C          ipF  = ipMat(jS,iS)+nOrb(jS)*nIsh(iS)
-C          ipFI = ipFIMO+ipMat(jS,iS)+nOrb(jS)*nIsh(iS)
-C          Call DGEMM_(nOrb(jS),nAsh(iS),2.0d0,
-C    &                Work(ipFI),nOrb(js),Work(ipDAct),nAsh(iS),
-C    &                Fock(ipF),nOrb(jS))
-C          ipFA = ipFAMO+ipMat(jS,iS)+nOrb(jS)*nIsh(iS)
-C          Call DGEMM_(nOrb(jS),nAsh(iS),2.0d0,
-C    &                Work(ipFA),nOrb(jS),Work(ipDAct),nAsh(iS),
-C    &                Fock(ipF),nOrb(jS))
-           !! For output, put F(D) into Focki for active-active
-C          do iash = 1, nash(idsym)
-C            iorb = nish(idsym)+iash
-C            do jash = 1, iash-1 !! nash(idsym)
-C              jorb = nish(idsym)+jash
-C              val = work(ipFAct+iorb-1+nOrb(1)*(jorb-1))
-C              Focki(jorb+norb(idSym)*(iorb-1))
-C                = Focki(iorb+norb(idSym)*(jorb-1)) + val
-C              Focki(jorb+norb(idSym)*(iorb-1))
-C                = Focki(jorb+norb(idSym)*(iorb-1)) + val
-C            end do
-C          end do
-         End If
       End Do
 #ifdef _DEBUG_
       Write (LuWr,*) 'Fock=',DDot_(nDens2,Fock,1,Fock,1)
@@ -423,103 +380,8 @@ C          end do
         Call GetMem('MOTemp2','FREE','REAL',ipMT2,nmba)
         Call GetMem('MOTemp1','FREE','REAL',ipMT1,nmba)
       EndIf
-      If (ActRot) Then
-        Call GetMem('DAct','FREE','REAL',ipDAct,ntash*ntash)
-        Call GetMem('DAct','FREE','REAL',ipFAct,norb(1)*norb(1))
-      End If
 #ifdef _DEBUG_
       Write (LuWr,*) 'Exit RInt_Generic'
 #endif
       Return
       End
-C
-C
-C
-      Subroutine DActTrf(DAct,FAct,Fock,idSym)
-C
-      Implicit Real*8 (A-H,O-Z)
-C
-#include "Input.fh"
-#include "Pointers.fh"
-#include "WrkSpc.fh"
-C
-      Dimension DAct(nAsh(idSym),nAsh(idSym)),FAct(*),Fock(*)
-C
-      Call GetMem('WRK1','ALLO','REAL',ipWRK1,nmba)
-      Call GetMem('WRK2','ALLO','REAL',ipWRK2,nmba)
-C
-C     F(D)pq = ((pq|tu)-(pt|qu)/2)*Dtu, then
-C
-      Call DCopy_(nOrb(idSym)**2,[0.0D+00],0,FAct,1)
-C
-      Do iS=1,nSym
-       Do jS=1,iS
-*
-        If (nOrb(iS)*nOrb(jS).ne.0) Then
-*
-        ijS=iEOr(iS-1,jS-1)+1
-        Do kS=1,nSym
-         Do lS=1,ks
-          If (nOrb(kS)*nOrb(lS).ne.0) Then
-*
-*
-           If (iEOr(kS-1,lS-1).eq.ijS-1) Then
-            Do iB=nIsh(iS)+1,nIsh(iS)+nAsh(iS)
-             nnB=nB(jS)
-C            If (iS.eq.jS) nnB=iB
-             Do jB=nIsh(iS)+1,nnB
-*
-              Call COUL(lS,kS,IS,jS,IB,JB,Work(ipWRK1),Work(ipWRK2))
-              Call DaXpY_(nOrb(iS)*nOrb(jS),DAct(iB,jB),
-     *                    Work(ipWRK1),1,FAct,1)
-              Call EXCH(lS,kS,IS,jS,IB,JB,Work(ipWRK1),Work(ipWRK2))
-              Call DaXpY_(nOrb(iS)*nOrb(jS),-0.5D+00*DAct(iB,jB),
-     *                    Work(ipWRK1),1,FAct,1)
-             End Do
-            End Do
-           End If
-          End If
-         End Do
-        End Do
-*
-        End If
-*
-       End Do
-      End Do
-C
-C     Fpq = F(D)pr*Drq(SA)
-C
-      !! construct D(SA)
-      Call DCopy_(nOrb(idSym)**2,[0.0D+00],0,work(ipWRK1),1)
-      Do iS=1,nSym
-      Do iB=1,nIsh(iS)
-      ip=ipCM(iS)+(ib-1)*nOrb(is)+ib-1
-      Work(ipWRK1+ip-1)=2.0d0
-      End Do
-      End Do
-      If (iMethod.eq.2) Then
-       Do iS=1,nSym
-        Do iB=1,nAsh(iS)
-         Do jB=1,nAsh(iS)
-          ip=ipCM(iS)+ib+nIsh(is)+(jB+nIsh(is)-1)*nOrb(is)-1
-          iA=nA(is)+ib
-          jA=nA(is)+jb
-          ip2=Max(iA,jA)*(Max(iA,jA)-1)/2+Min(iA,jA)
-          Work(ipWRK1+ip-1)=Work(ipG1t+ip2-1)
-         End Do
-        End Do
-       End Do
-      End If
-C
-      !! Then multiply
-      is = 1
-      Call DGEMM_('N','N',nOrb(iS),nOrb(iS),nOrb(iS),
-     *            1.0D+00,FAct,nOrb(iS),Work(ipWRK1),nOrb(iS),
-     *            1.0D+00,Fock,nOrb(iS))
-C
-      Call GetMem('WRK1','FREE','REAL',ipWRK1,nmba)
-      Call GetMem('WRK2','FREE','REAL',ipWRK2,nmba)
-C
-      Return
-C
-      End Subroutine DActTrf

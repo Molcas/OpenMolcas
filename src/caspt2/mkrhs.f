@@ -329,7 +329,6 @@ C First, just the two-electron integrals. Later, add correction.
                       IW=IW1+NAS*(IW2-1)
                       IBUF=IATOT+NORB(ISYM)*(ITTOT-1)
                       WORK(LW-1+IW)=ERI(IBUF)
-C     write (*,'(4i3,f20.10)') ia,itabs,iuabs,ivabs,eri(ibuf)
  315                CONTINUE
  314              CONTINUE
  313            CONTINUE
@@ -337,7 +336,6 @@ C     write (*,'(4i3,f20.10)') ia,itabs,iuabs,ivabs,eri(ibuf)
  311        CONTINUE
  310      CONTINUE
 
-C             write (*,*) "oneadd = "
           DO IT=1,NASH(ISYM)
             ITTOT=IT+NISH(ISYM)
             ITABS=IT+NAES(ISYM)
@@ -351,8 +349,6 @@ C             write (*,*) "oneadd = "
                 SUM=SUM-WORK(LW-1+IYYWA)
               END DO
               ONEADD=SUM/DBLE(MAX(1,NACTEL))
-C             write (*,'(2i3,f20.10)') it,ia,oneadd
-
               DO ISYMU=1,NSYM
                 DO IU=1,NASH(ISYMU)
                   IUABS=IU+NAES(ISYMU)
@@ -369,9 +365,6 @@ C   Put W on disk
           ICASE=4
           CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LW)
 
-C         do i = 1, Nv
-C           write (*,'(i4,1f20.10)') i,work(lw+i-1)
-C         end do
           CALL GETMEM('WC','FREE','REAL',LW,NV)
  390    CONTINUE
 
@@ -437,7 +430,6 @@ C Compute W2(tu,ai)=(ti,au)
                     IF(ISYM.EQ.1) THEN
                       FAI=FIMO(NFIMOES+(IATOT*(IATOT-1))/2+II)
                       ONEADD=FAI/DBLE(MAX(1,NACTEL))
-C     oneadd=0.0d+00
                     END IF
                     DO 415 IT=1,NASH(ISYMT)
                       ITABS=IT+NAES(ISYMT)
@@ -452,10 +444,6 @@ C     oneadd=0.0d+00
                       IF(ITABS.EQ.IUABS) WAITU=WAITU+ONEADD
                       WORK(LW-1+IW1)=WAITU
                       WORK(LW-1+IW2)=ERI2(IBUF2)
-        if (ii.le.4) then
-C       work(lw-1+iw1)=0.0d+00
-C       work(lw-1+iw2)=0.0d+00
-        end if
  415                CONTINUE
  414              CONTINUE
  413            CONTINUE
@@ -465,11 +453,6 @@ C       work(lw-1+iw2)=0.0d+00
 C   Put W on disk.
           ICASE=5
           CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LW)
-C         open (999,file="fort.999")
-C       do i = 1, nas*nis
-C         write (999,'(f20.10)') work(lw+i-1)
-C       end do
-C       close (999)
           CALL GETMEM('WD','FREE','REAL',LW,NV)
  490    CONTINUE
 

@@ -73,28 +73,12 @@
              ArrayOut(Index1)=Fact*ArrayIn(indexC)
             End If
            Else
-            If (ActRot) Then
-             If (iT.gt.jT.or.(iT.eq.jT.and.iBas.gt.jBas.and.
-     *          (iT.eq.1.or.iT.eq.2.or.iT.eq.3))) Then
-              indexC=indexc+1
-              Index1=ipMat(iSym,jSym)+(jBas-1)*nOrb(iSym)+iBas-1
-              Index2=ipMat(jSym,iSym)+(iBas-1)*nOrb(jSym)+jBas-1
-C       if (it.eq.jt) then
-C             ArrayOut(Index1)=-Fact*ArrayIn(indexC)
-C             ArrayOut(Index2)=Fact*ArrayIn(indexC)
-C       else
-              ArrayOut(Index1)=Fact*ArrayIn(indexC)
-              ArrayOut(Index2)=-Fact*ArrayIn(indexC)
-C       end if
-             End If
-            Else
-             If (iT.gt.jT) Then
-              indexC=indexc+1
-              Index1=ipMat(iSym,jSym)+(jBas-1)*nOrb(iSym)+iBas-1
-              Index2=ipMat(jSym,iSym)+(iBas-1)*nOrb(jSym)+jBas-1
-              ArrayOut(Index1)=Fact*ArrayIn(indexC)
-              ArrayOut(Index2)=-Fact*ArrayIn(indexC)
-             End If
+            If (iT.gt.jT) Then
+             indexC=indexc+1
+             Index1=ipMat(iSym,jSym)+(jBas-1)*nOrb(iSym)+iBas-1
+             Index2=ipMat(jSym,iSym)+(iBas-1)*nOrb(jSym)+jBas-1
+             ArrayOut(Index1)=Fact*ArrayIn(indexC)
+             ArrayOut(Index2)=-Fact*ArrayIn(indexC)
             End If
            End If
           End Do

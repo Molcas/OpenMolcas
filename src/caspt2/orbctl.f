@@ -32,7 +32,6 @@
       INTEGER I1,I2,LORBE
       INTEGER IDISK
       REAL*8  OCC_DUM(1)
-C     REAL*8 CMO2(NCMO)
 
 C Calculate transformation matrix to PT2 orbitals, defined as those
 C that have standard Fock matrix FIFA diagonal within inactive,
@@ -55,10 +54,7 @@ c Determine PT2 orbitals, and transform CI coeffs.
 * The CI arrays are on file with unit number LUCIEX. There is NSTATE
 * CI arrays, stored sequentially. The original set starts at disk address
 * IDCIEX, the transformed ones are written after IDTCEX.
-C      call dcopy_(ncmo,cmo,1,cmo2,1)
       CALL MKRPTORB(WORK(LFIFA),WORK(LTORB),CMO)
-C      call dcopy_(ncmo,cmo2,1,cmo,1)
-
       IF(IPRGLB.GE.DEBUG) THEN
        WRITE(6,*)' ORBCTL back from MKRPTORB.'
       END IF
@@ -90,13 +86,6 @@ C      call dcopy_(ncmo,cmo2,1,cmo,1)
       END IF
 
 C Save new MO coeffs, and the transformation matrices:
-C     write (*,*) "in orbctl, cmo"
-C     call sqprt(work(lcmo),12)
-C     write (*,*) "ltorb"
-C     call sqprt(work(ltorb),12)
-C     call sqprt(work(ltorb),5)
-C     call sqprt(work(ltorb+25),5)
-C     call sqprt(work(ltorb+25+25),2)
       IDISK=IAD1M(2)
       CALL DDAFILE(LUONEM,1,WORK(LCMO),NCMO,IDISK)
       IAD1M(4)=IEOF1M

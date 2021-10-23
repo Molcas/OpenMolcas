@@ -68,28 +68,18 @@
 *     with the number of basis functions in nPam.
 *
       Call ICopy(4,[0],0,nPam,1)
-C     write (*,*) "aaaaa"
       in1 = 0
       Do 9 jPam = 1, 4
          in2 = 0
-         Do 11 i1 = 1, iCmp(jPam) !! azimuthal number loop (1,3,5,...)
+         Do 11 i1 = 1, iCmp(jPam)
             iSO = iAOtSO(iAO(jPam)+i1,0)
      &          + iAOst(jPam)
             nPam(jPam) = nPam(jPam) + iiBas(jPam)
-C        if (jpam.eq.1) then
-C          write (*,*) "i1 = ", i1
-C         write (*,*)iAOtSO(iAO(jPam)+i1,0),iAOst(jPam),iso
-C         write (*,*) "number =", iibas(jpam)
-C        end if
-            Do 12 iAOi = 0, iiBas(jPam)-1 !! duplicated AO loop
+            Do 12 iAOi = 0, iiBas(jPam)-1
                iSOi = iSO + iAOi
                in2 = in2 + 1
                iPam(in1+in2) = DBLE(iSOi)
                MapPam(jPam,iSOi) = DBLE(in2)
-C           if (jpam.eq.1) then
-C             write (*,*) "iaoi = ", iaoi
-C             write (*,*) "isoi = ",isoi
-C           end if
  12         Continue
  11      Continue
          in1 = in1 + in2
@@ -107,10 +97,6 @@ C           end if
      &            DAO,PAOPam,nPSOPam,G1,nG1,G2,nG2,
      &            Cred,nCred,Scr1,nScr1,Scr2,nScr2)
       End If
-*
-      If (Gamma_On) Then
-      End If
-C     write (*,*) "in pget3: ijkl, nPAO = ", ijkl,nPAO
 *
 *     Quadruple loop over elements of the basis functions angular
 *     description.
@@ -149,34 +135,11 @@ C     write (*,*) "in pget3: ijkl, nPAO = ", ijkl,nPAO
                             PMax=Max(PMax,Abs(PAOPam(k1,k2,k3,k4)))
                             PAO(nijkl,iPAO) = PAOPam(k1,k2,k3,k4)
                             If (Gamma_On) Then
-C                             Loc = k2+n2*(k4-1+n4*(k1-1+n1*(k3-1)))
-C    *                            + n1*n2*n3*n4*(iPAO-1)
-C                             Loc =     jAOj + jBas*(i2-1)
-C    *                            + n2*(lAOl + lBas*(i4-1)
-C    *                            + n4*(iAOi + iBas*(i1-1)
-C    *                            + n1*(kAOk + kBas*(i3-1))))
-                              Loc =     i2-1 + iCmp(2)*jAOj
-     *                            + n2*(i4-1 + iCmp(4)*lAOl
-     *                            + n4*(i1-1 + iCmp(1)*iAOi
-     *                            + n1*(i3-1 + iCmp(3)*kAOk)))
                               Loc =     k2-1
      *                            + n2*(k4-1
      *                            + n4*(k1-1
      *                            + n1*(k3-1)))
                               Val = G_Toc(Loc+1)
-C                             Loc1=     k2-1
-C    *                            + n2*(k4-1
-C    *                            + n4*(k1-1
-C    *                            + n1*(k3-1)))
-C                             Loc2=     k2-1
-C    *                            + n2*(k4-1
-C    *                            + n4*(k3-1
-C    *                            + n3*(k1-1)))
-C                             Val = G_Toc(Loc1+1)+G_Toc(Loc2+1)
-C               write (*,'(4i4,f20.10)')
-C    *jaoj+jbas*(i2-1)+1,laol+lbas*(i4-1)+1,
-C    * iaoi+ibas*(i1-1)+1,kaok+kbas*(i3-1)+1,val
-C       write (*,'(4i3,f20.10)') k1,k2,k3,k4,val*8.0d+00
                               PAO(nijkl,iPAO) = PAO(nijkl,iPAO)*1 + Val
                             End If
 *

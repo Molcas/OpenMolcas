@@ -461,10 +461,6 @@ C   FOR RAMAN SPECTRA
                PSOPam(ipso)=PSOPam(ipso)
      *            -Quart*SSDM(ioDs+ips,1,iSSDM)*SSDM(ioDr+irq,2,iSSDM)
      *            -Quart*SSDM(ioDs+ips,2,iSSDM)*SSDM(ioDr+irq,1,iSSDM)
-C    *            +Quart*SSDM(ioDs+ips,1,iSSDM)*DSO(ioDr+irq,1)
-C    *            +Quart*SSDM(ioDs+ips,1,iSSDM)*DSO(ioDr+irq,3)
-C    *            +Quart*DSO(ioDs+ips,1)*SSDM(ioDr+irq,1,iSSDM)
-C    *            +Quart*DSO(ioDs+ips,3)*SSDM(ioDr+irq,1,iSSDM)
              End Do
            End If
           end if
@@ -485,10 +481,6 @@ C    *            +Quart*DSO(ioDs+ips,3)*SSDM(ioDr+irq,1,iSSDM)
                PSOPam(ipso)=PSOPam(ipso)
      *            -Quart*SSDM(ioDr+ipr,1,iSSDM)*SSDM(ioDs+isq,2,iSSDM)
      *            -Quart*SSDM(ioDr+ipr,2,iSSDM)*SSDM(ioDs+isq,1,iSSDM)
-C    *            +Quart*SSDM(ioDr+ipr,1,iSSDM)*DSO(ioDs+isq,1)
-C    *            +Quart*SSDM(ioDr+ipr,1,iSSDM)*DSO(ioDs+isq,3)
-C    *            +Quart*DSO(ioDr+ipr,1)*SSDM(ioDs+isq,1,iSSDM)
-C    *            +Quart*DSO(ioDr+ipr,3)*SSDM(ioDs+isq,1,iSSDM)
              End Do
            End If
           end if
@@ -506,10 +498,6 @@ C    *            +Quart*DSO(ioDr+ipr,3)*SSDM(ioDs+isq,1,iSSDM)
                PSOPam(ipso)=PSOPam(ipso)
      *            +SSDM(ioDq+ipq,1,iSSDM)*SSDM(ioDs+irs,2,iSSDM)
      *            +SSDM(ioDq+ipq,2,iSSDM)*SSDM(ioDs+irs,1,iSSDM)
-C    *            -SSDM(ioDq+ipq,1,iSSDM)*DSO(ioDs+irs,1)
-C    *            -SSDM(ioDq+ipq,1,iSSDM)*DSO(ioDs+irs,3)
-C    *            -DSO(ioDq+ipq,1)*SSDM(ioDr+irs,1,iSSDM)
-C    *            -DSO(ioDq+ipq,3)*SSDM(ioDr+irs,1,iSSDM)
              End Do
            End If
           end if

@@ -268,7 +268,6 @@ C LTAU  will be start element of Tau=E(VX) Sigma2=E(VX) E(YZ) Psi2
      &     IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
      &     WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
           IF(ISTAU.EQ.LSYM1) THEN
-C     write (*,'(4i3)') iv,ix,iy,iz
            TG2(IV,IX,IY,IZ)=DDOT_(NTAU,WORK(LTAU),1,CI1,1)
           END IF
           DO IP1=MAX(IP2,IP1STA),IP1END

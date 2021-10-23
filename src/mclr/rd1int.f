@@ -43,7 +43,7 @@
      &          Method.eq.'CASSCFSA' ) then
        iMethod=2
       Else if ( Method.eq.'CASPT2  ' ) then
-       iMethod=3
+C      iMethod=3
        iMethod=2 ! tentative
       Else If ( Method.eq.'MBPT2   ' ) then
        iMethod=4

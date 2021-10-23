@@ -63,7 +63,6 @@
 #include "temptime.fh"
 #endif
 #include "para_info.fh"
-C#include "caspt2_grad.fh"
 *     Local arrays
       Real*8  Coor(3,4), Grad(nGrad), Temp(nGrad)
       Integer iAnga(4), iCmpa(4), iShela(4),iShlla(4),
@@ -145,7 +144,6 @@ C#include "caspt2_grad.fh"
 *                                                                      *
 *-----Prepare handling of two-particle density.
 *
-      !! integral_util/prepp.f
       Call PrepP
       If (Method_chk.eq.'CASPT2  ') Then
         nBasT = 0
@@ -189,8 +187,6 @@ C       call molcas_Open(LuCMOPT2,RealName(1:lRealName))
         Read (LuCMOPT2) nFro(8)
         Read (LuCMOPT2) nSSDM
 C
-C       read (lucmopt2) val
-C       write(6,*) "val=",val
         If (nSSDM.ne.0) Then
           Call mma_allocate(SSDM,nBas(0)*(nBas(0)+1)/2,2,nSSDM,
      *                      Label='SSDM')
@@ -200,8 +196,6 @@ C       write(6,*) "val=",val
             End Do
           End Do
         End If
-C       Read (LuCMOPT2) (nOcc(iSym),iSym=1,8)
-C       Read (LuCMOPT2) (nFro(iSym),iSym=1,8)
         Close (LuCMOPT2)
         write(6,*) "Number of Non-Frozen Occupied Orbitals = ", nOcc(1)
         write(6,*) "Number of     Frozen          Orbitals = ", nFro(1)
@@ -213,15 +207,9 @@ C
           nBasI = iSD(2,iSh)*iSD(3,iSh)
           If (nBasI.gt.MaxShlAO) MaxShlAO = nBasI
           iOffAO(iSh+1) = iOffAO(iSh)+nBasI
-C         write(6,*) ish,nbasi
         End Do
-C       write(6,*) "ioffao"
-C       do i = 1, nskal
-C         write(6,*) i,ioffao(i)
-C       end do
         Call mma_allocate(G_toc,MaxShlAO**4,Label='GtocCASPT2')
 C
-C       nOcc = 10 ! nIsh(1) + nAsh(1)
         Call PrgmTranslate('GAMMA',RealName,lRealName)
         LuGamma = 60
 C       Open (Unit=LuGamma,
@@ -279,13 +267,7 @@ C       call molcas_Open(LuGamma,RealName(1:lRealName))
             End If
          End Do
       End Do
-      !! For efficient back-transformation of the amplitude,
-      !! CASPT2 gradient uses a different shell indexing.
-C     If (Method_chk.ne.'CASPT2  ') Then
-        P_Eff=Dble(nij)
-C     Else
-C       P_Eff=nSkal*(nSkal+1)/2
-C     End If
+      P_Eff=Dble(nij)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -384,23 +366,13 @@ C     End If
          Aint=TMax(iS,jS)*TMax(kS,lS)
          If (AInt.lt.CutInt) Go To 14
          If (iPrint.ge.15) Write (6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
-C        write(6,*) "-------------------------"
-C        Write (6,'("iS,jS,kS,lS=",4i8)') iS,jS,kS,lS
 *
 ************************************************************************
 *                                                                      *
-         !! integral_util/gen_isd4.f
-         !! construct jQuad and iSD4
-         !! the latter is copied from iSD
-         !! The definition of iSD is in integral_util/def_shells.f
          Call Gen_iSD4(iS, jS, kS, lS,iSD,nSD,iSD4)
-         !! alaska_util/size_sob_g.f
-         !! nSO: Number of AOs of the shell
          Call Size_SO_block_g(iSD4,nSD,Petite,nSO,No_batch)
-C        write(6,*) "nso = ", nso
          If (No_batch) Go To 140
 *
-         !! alaska_util/int_prep_g.f
          Call Int_Prep_g(iSD4,nSD,Coor,Shijij,iAOV,iStabs)
 
 *
@@ -417,11 +389,9 @@ C        write(6,*) "nso = ", nso
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         !! coordinate (atom to be differentiated) is the same?
          ABCDeq=EQ(Coor(1,1),Coor(1,2)) .and.
      &          EQ(Coor(1,1),Coor(1,3)) .and.
      &          EQ(Coor(1,1),Coor(1,4))
-         !! sum of the angular momentum
          ijklA=iSD4(1,1)+iSD4(1,2)
      &        +iSD4(1,3)+iSD4(1,4)
          If (nIrrep.eq.1.and.ABCDeq.and.Mod(ijklA,2).eq.1)
@@ -435,7 +405,7 @@ C        write(6,*) "nso = ", nso
 *        Now check if all blocks can be computed and stored at
 *        once.
 *
-         !! alaska_util/soao_g.f and alaska_util/psoao1.f
+
          Call SOAO_g(iSD4,nSD,nSO,
      &               MemPrm, MemMax,
      &               nExp,nBasis,MxShll,
@@ -443,22 +413,13 @@ C        write(6,*) "nso = ", nso
      &               iPrInc,jPrInc,kPrInc,lPrInc,
      &               ipMem1,ipMem2, Mem1,  Mem2,
      &               iPrint,iFnc, MemPSO)
-         !! this is the number of contracted functions
          iBasi    = iSD4(3,1)
          jBasj    = iSD4(3,2)
          kBask    = iSD4(3,3)
          lBasl    = iSD4(3,4)
-C     write(6,'("iBasi,jBasj,kBask,lBasl = ",4i5)')
-C    *   ibasi,jbasj,kbask,lbasl
-C     write(6,'("iBasInc,jBasInc,kBasInc,lBasInc = ",4i5)')
-C    *   ibasInc,jbasInc,kbasInc,lbasInc
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         !! iAnga : angular momentum of the shell
-         !! iCmpa : number of AOs of the shell
-         !! iShlla: unique shell index (?)
-         !! iShl  : equal to iS,jS,kS,lS?
          Call Int_Parm_g(iSD4,nSD,iAnga,
      &                 iCmpa,iShlla,iShela,
      &                 iPrimi,jPrimj,kPrimk,lPriml,
@@ -503,10 +464,6 @@ C    *   ibasInc,jbasInc,kbasInc,lbasInc
 *
 *----------Get the 2nd order density matrix in SO basis.
 *
-C       write(6,'("iBasn,jBasn,kBasn,lBasn=",4i4)')
-C    *    ibasn,jbasn,kbasn,lbasn
-C       write(6,'("iFnc(1),iFnc(2),iFnc(3),iFnc(4)=",4i4)')
-C    *    iFnc(1),iFnc(2),iFnc(3),iFnc(4)
            nijkl = iBasn*jBasn*kBasn*lBasn
 
 
@@ -516,29 +473,13 @@ C    *    iFnc(1),iFnc(2),iFnc(3),iFnc(4)
 #ifdef _CD_TIMING_
            CALL CWTIME(Pget0CPU1,Pget0WALL1)
 #endif
-           !! get the density
-           !! integral_util/pget0.f
-           !! PSO(nIJKL,nSO) = Sew_Scr(ipMem1) (2-body AO density?)
-C          write(6,*) "nIJKL, nSO = ", nIJKL, nSO
-C         write(6,'(4i3)') ifnc(1)*ibasn,ifnc(2)*jbasn,
-C    *                      ifnc(3)*kbasn,ifnc(4)*lbasn
            If (Method_chk.eq.'CASPT2  ') Then
-C            write(6,*) "ikS,jlS = ", ikS,jls
-C            if (ikS.ge.jlS) then
-C            if (jS.ne.lS) then
               Call CASPT2_BTAMP(iS,jS,kS,lS,
      *                         iFnc(1)*iBasn,iFnc(2)*jBasn,
      *                         iFnc(3)*kBasn,iFnc(4)*lBasn,
      *                         iOffAO,nBasT,
      *                         nOcc(1),CMOPT2(1+nbast*nfro(1)),
      *                         WRK1,WRK2,G_Toc)
-C            else
-C            Call CASPT2_BTAMP(jS,iS,lS,kS,
-C    *                         iFnc(2)*jBasn,iFnc(1)*iBasn,
-C    *                         iFnc(4)*lBasn,iFnc(3)*kBasn,
-C    *                         iOffAO,nBasT,
-C    *                         CMOPT2,WRK1,WRK2,G_Toc)
-C            end if
            End If
            Call PGet0(iCmpa,iShela,
      &                iBasn,jBasn,kBasn,lBasn,Shijij,
@@ -559,8 +500,6 @@ C            end if
 #ifdef _CD_TIMING_
            Call CWTIME(TwoelCPU1,TwoelWall1) ! timing_cdscf
 #endif
-C            write(6,'("shell(i,j,k,l) = ", 4i3)') is,js,ks,ls
-C      call dcopy_(ngrad,0.0d+00,0,temp,1)
            Call TwoEl_g(Coor,
      &          iAnga,iCmpa,iShela,iShlla,iAOV,
      &          mdci,mdcj,mdck,mdcl,nRys,
@@ -578,12 +517,6 @@ C      call dcopy_(ngrad,0.0d+00,0,temp,1)
      &          Mem_DBLE(ipxG),Mem_DBLE(ipxD),Temp,nGrad,
      &          JfGrad,JndGrd,Sew_Scr(ipMem1), nSO,Sew_Scr(ipMem2),Mem2,
      &          Aux,nAux,Shijij)
-C             do i = 1, 4
-C             write(6,'(i3,3f20.10)') i,(temp(j+3*(i-1)),j=1,3)
-C             end do
-C             write(6,*) "---------------------------"
-C     call cpu_time(t8)
-C     ttt(6) = ttt(6) + t8-t7
 #ifdef _CD_TIMING_
            Call CWTIME(TwoelCPU2,TwoelWall2)
            Twoel_CPU = Twoel_CPU + TwoelCPU2-TwoelCPU1
@@ -592,8 +525,6 @@ C     ttt(6) = ttt(6) + t8-t7
             If (iPrint.ge.15)
      &         Call PrGrad(' In Drvg1: Grad',
      &                  Temp,nGrad,lIrrep,ChDisp,5)
-C              Call PrGrad(' In Drvg1: Grad',
-C    *                  Temp,nGrad,lIrrep,ChDisp,5)
 *
  430     Continue
  420     Continue
@@ -783,7 +714,6 @@ C       write(6,*) "closep finished"
 #include "stdalloc.fh"
 *
       Dimension iOffAO(*),CMOPT2(*),
-C    *          G_toc(MaxShlAO,MaxShlAO,MaxShlAO,MaxShlAO)
      *          G_Toc(*)
       Dimension WRK1(*),WRK2(*)
 *
@@ -796,19 +726,7 @@ C    *          G_toc(MaxShlAO,MaxShlAO,MaxShlAO,MaxShlAO)
 *     can be postponed until j-shell varies.
 *
       LuGamma = 60
-C     nOcc = 10 ! nIsh(1) + nAsh(1)
-*
-C     nBasI = iSD4(2,1)*iSD4(3,1)
-C     nBasJ = iSD4(2,2)*iSD4(3,2)
-C     nBasK = iSD4(2,3)*iSD4(3,3)
-C     nBasL = iSD4(2,4)*iSD4(3,4)
-C         write(6,'(4i3)') nbasi,nbasj,nbask,nbasl
-C     write(6,'(4i3)') (isd4(2,i)*isd4(3,i),i=1,4)
-*
-      scal = 0.1250d+00!*0.5d+00*0.5d+00
-C     scal = 0.250d+00
-C     scal = 0.500d+00
-C     scal = 0.1357D+00 !!! aaaaa
+      scal = 0.1250d+00
 *
       Do kBas0 = 1, nBasK
         kBas = iOffAO(kS) + kBas0
@@ -816,68 +734,18 @@ C     scal = 0.1357D+00 !!! aaaaa
           iBas = iOffAO(iS) + iBas0
           iRec = iBas + nBasT*(kBas-1)
           !! Read the half-transformed-amplitude
-C         write(6,*) "going to read"
           Read (Unit=LuGamma,Rec=iRec) (WRK1(i),i=1,nOcc*nOcc)
-C         if (irec.eq.1) then
-C         write(6,*) "the first hbt amplitude"
-C          write(6,*) "ibas0,kbas0=",ibas0,kbas0
-C          write(6,*) "ibas ,kbas =",ibas,kbas
-C           call sqprt(wrk1,nocc)
-C           call abend
-C         end if
           !! do the remaining (third and fourth) transformation
           Call DGemm_('N','N',nBasJ,nOcc,nOcc,
      *                1.0D+00,CMOPT2(1+iOffAO(jS)),nBasT,WRK1,nOcc,
      *                0.0D+00,WRK2,nBasJ)
-C     if (is.ne.ks)
-C     call dgemm_('n','t',nbasj,nocc,nocc,
-C    *            1.0d+00,cmopt2(1+ioffao(js)),nbast,wrk1,nocc,
-C    *            1.0d+00,wrk2,nbasj)
           Loc = nBasJ*nBasL*(iBas0-1+nBasI*(kBas0-1))
           Call DGemm_('N','T',nBasJ,nBasL,nOcc,
      *                SCAL   ,WRK2,nBasJ,CMOPT2(1+iOffAO(lS)),nBasT,
      *                0.0D+00,G_toc(1+Loc),nBasJ)
-C      if (ibas.eq.6.and.kbas.eq.1) then
-C        write(6,*) "show the AO transformed for ibas,kbas=6,1"
-C        call sqprt(g_toc(1+loc),nbasj)
-C      end if
-C         if (is.ne.ks) then
-C         Call DGemm_('N','T',nBasJ,nOcc,nOcc,
-C    *                1.0D+00,CMOPT2(1+iOffAO(jS)),nBasT,WRK1,nOcc,
-C    *                0.0D+00,WRK2,nBasJ)
-C         Call DGemm_('N','T',nBasJ,nBasL,nOcc,
-C    *           SCAL*0.5d+00   ,WRK2,nBasJ,CMOPT2(1+iOffAO(lS)),nBasT,
-C    *                0.5D+00,G_toc(1+Loc),nBasJ)
-C         end if
-C      write(6,*) "ibas,kbas = ", ibas0,kbas0
-C      do i = 1, nbasj
-C      do j = 1, nbasl
-C      write(6,'(2i3,f20.10)') i,j,g_toc(i+nbasj*(j-1)+loc)
-C      end do
-C      end do
         End Do
       End Do
-C     write(6,*) "after transformation"
-C     do kbas0 = 1, nbask
-C       kbas = ioffao(ks)+kbas0
-C       do ibas0 = 1, nbasi
-C         ibas = ioffao(is)+ibas0
-C         do lbas0 = 1, nbasl
-C           lbas = ioffao(ls)+lbas0
-C           do jbas0 = 1, nbasj
-C             jbas = ioffao(js)+jbas0
-C     loc = jbas0-1+nbasj*(lbas0-1+nbasl*(ibas0-1+nbasi*(kbas0-1)))
-C      write(6,'("asdf",4i3,f20.10)')
-C    *  ibas,jbas,kbas,lbas,g_toc(1+loc)*8.0d+00
-C           end do
-C         end do
-C       end do
-C     end do
 C
-C     if (is.eq.ks .and. js.eq.ls) return
-C     If (jS.lt.iS.and.lS.lt.iS) Then
-C     If (jS.eq.lS) Then
-C     call dcopy_(maxshlao**4,0.0d+00,0,g_toc,1)
       Do lBas0 = 1, nBasL
         lBas = iOffAO(lS) + lBas0
         Do jBas0 = 1, nBasJ
@@ -889,10 +757,6 @@ C     call dcopy_(maxshlao**4,0.0d+00,0,g_toc,1)
           Call DGemm_('N','N',nBasI,nOcc,nOcc,
      *                1.0D+00,CMOPT2(1+iOffAO(iS)),nBasT,WRK1,nOcc,
      *                0.0D+00,WRK2,nBasI)
-C     if (js.ne.ls)
-C     call dgemm_('n','t',nbasi,nocc,nocc,
-C    *            1.0d+00,cmopt2(1+ioffao(is)),nbast,wrk1,nocc,
-C    *            1.0d+00,wrk2,nbasi)
           Call DGemm_('N','T',nBasI,nBasK,nOcc,
      *                SCAL   ,WRK2,nBasI,CMOPT2(1+iOffAO(kS)),nBasT,
      *                0.0D+00,WRK1,nBasI)
@@ -902,22 +766,18 @@ C    *            1.0d+00,wrk2,nbasi)
           ibas = ioffao(is)+ibas0
               Loc = jBas0-1 + nBasJ*(lBas0-1
      *            + nBasL*(iBas0-1 + nBasI*(kBas0-1)))
-C      write(6,'("asdf",4i3,f20.10)')
-C    *  ibas,jbas,kbas,lbas,wrk1(ibas0+nbasi*(kbas0-1))*8.0d+00
               G_toc(1+Loc) = G_toc(1+Loc) + WRK1(iBas0+nBasI*(kBas0-1))
             End Do
           End Do
         End Do
       End Do
-C     End If
-C     call dscal_(maxshlao**4,0.5d+00,g_toc,1)
+C
       Do lBas0 = 1, nBasL
         lBas = iOffAO(lS) + lBas0
         Do iBas0 = 1, nBasI
           iBas = iOffAO(iS) + iBas0
           iRec = iBas + nBasT*(lBas-1)
           !! Read the half-transformed-amplitude
-C         write(6,*) "going to read"
           Read (Unit=LuGamma,Rec=iRec) (WRK1(i),i=1,nOcc*nOcc)
           !! do the remaining (third and fourth) transformation
           Call DGemm_('N','N',nBasJ,nOcc,nOcc,
@@ -946,7 +806,6 @@ C         write(6,*) "going to read"
             iRec = kBas + nBasT*(jBas-1)
           End If
           !! Read the half-transformed-amplitude
-C         write(6,*) "going to read"
           Read (Unit=LuGamma,Rec=iRec) (WRK1(i),i=1,nOcc*nOcc)
           !! do the remaining (third and fourth) transformation
           if (jbas.ge.kbas) then

@@ -341,6 +341,7 @@ c
 *
 *      Transformation to AO basis (covariant)
 *
+c
 c Transforms to AO differently dep on last arg.
 c
        Call TCMO(Work(ipDAO),1,-2)
@@ -350,7 +351,7 @@ c Mult all terms that are not diag by 2
 *
        Call FOLD2(nsym,nbas,Work(ipDAO),Work(ipK1))
 *
-       Call Put_DLAO(Work(ipk1),ntot1) !  -> D0(1,4)
+       Call Put_DLAO(Work(ipk1),ntot1)
 *
 *      Now with active density too, to form the variational density
 *
@@ -404,6 +405,9 @@ c
 c D_eff = D^j + \tilde{D} +\bar{D}
 c ipD_K = (ipG1q + inact) + ipD_K + ipD_CI
 *
+C
+C       call dcopy_(ndens2, [Zero], 0, Work(ipD_K), 1)  !DEBUG
+C
        If (isNAC) Then
 *
 ** For NAC, first build DAO and then DAO_var
@@ -587,7 +591,6 @@ c
          Call dmat_MCLR(Work(ipCMON),Work(ipO),Work(ipT))
          Call Put_D1ao_Var(Work(ipT),nTot1)
          Call Getmem('TMP', 'FREE','Real',ipT,nBuf/2)
-
          Call get_D1MO(ipT,nTot1)
          Call get_DLMO(ipTt,nTot1)
          Call DaxPy_(nTot1,1.0d0,Work(ipTt),1,Work(ipT),1)

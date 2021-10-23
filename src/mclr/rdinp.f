@@ -28,7 +28,7 @@
 #include "WrkSpc.fh"
 #include "negpre.fh"
 #include "sa.fh"
-      Parameter ( nCom=39 )
+      Parameter ( nCom=38 )
       Character*72 Line
       Character*4 Command,ComTab(nCom)
       Character*8 Label
@@ -42,7 +42,7 @@
      &            'EXPD','NEGP','LOWM','ELHE','SAVE',
      &            'RASS','DISO','CASI','SALA','NODE',
      &            'ESTE','MOUT','MASS','NAC ','$$$$',
-     &            'THER','NEWC','TWOS','ACTR'/
+     &            'THER','NEWC','TWOS'/
       Dimension idum(1)
 *----------------------------------------------------------------------*
 *     Locate "start of input"                                          *
@@ -102,7 +102,6 @@
       Update=.true.
       Estimate=.false.
       TwoStep=.false.
-      ActRot=.false.
       StepType='xxxx'
 *----------------------------------------------------------------------*
 *     Read the input stream line by line and identify key command      *
@@ -199,8 +198,6 @@
           Go to 210
         Case (38)
           Go to 220
-        Case (39)
-          Go to 230
       End Select
 *---  TITL ------------------------------------------------------------*
 10    Continue
@@ -492,9 +489,6 @@
       End If
       TwoStep=.true.
       If (debug) Write(6,*) 'TWOSTEP kind: '//StepType
-      Goto 100
-*---  Process the "ACTRot" input card ---------------------------------*
-230   ActRot=.True.
       Goto 100
 *----------------------------------------------------------------------*
 *     "End of input"                                                   *

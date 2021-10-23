@@ -62,7 +62,6 @@
          Do jB=1,jA
 *
             i=itri1(ja,jb)
-C     write (*,*) "i in precaii (1) = ", i
 *
             Do kS=1,nSym
 *
@@ -120,7 +119,6 @@ C    &                                 + 2.0d0* rDens2*cidj)
          Do jA=1,nIsh(jS)
             Do jB=1,jA
                i=itri1(jA,jB)
-C     if (ic.eq.1) write (*,*) "i in precaii (2) = ",  i
 *
 *              (ci|bj)
 *              (bi|cj)
@@ -153,7 +151,6 @@ C     if (ic.eq.1) write (*,*) "i in precaii (2) = ",  i
          Do jB=1,jA
 *
             i=itri1(ja,jb)
-C      write (*,*) "i in precaii (3) = ",  i
 *
             rout(i) = rout(i) - sign*4.0d0*( Focka(jA,jB)
      &                                      +Focki(jA,jB) )

@@ -78,18 +78,18 @@ C
       Call Getmem('TEMPCI','ALLO','REAL',ipT,nconf1)
       Call Getmem('TEMPCI','ALLO','REAL',ipT2,nconf1)
       Call Getmem('TEMPKAP','ALLO','REAL',ipK,ndens2)
-      !! Call dDaFile(LuPT2,2,Work(ipK),ndens2,i)
+      Call dDaFile(LuPT2,2,Work(ipK),ndens2,i)
 #ifdef _DEBUGED_
 *
 *    CASPT2 mode
 *
-      !! Call dDaFile(LuPT2,2,Work(ipT),nconf1,i)
+      Call dDaFile(LuPT2,2,Work(ipT),nconf1,i)
 #else
 *
 * lucia mode
 *
-      !! n=1 !! nint(xispsm(State_SYM,1))
-      !! Call dDaFile(LuPT2,2,Work(ipT),n,i)
+C     n=nint(xispsm(State_SYM,1))
+C     Call dDaFile(LuPT2,2,Work(ipT),n,i)
 #endif
 *
 *---- Transform from split GUGA to symmetric group
@@ -98,16 +98,16 @@ C
 *
 *    CASPT2 mode (split graph)
 *
-      !! Call Gugactl_MCLR(ipT,1)
+      Call Gugactl_MCLR(ipT,1)
 #else
 *
 * lucia mode (Symmetric group)
 *
-      !!iprdia=0
-      !!Call INCSFSD(STATE_SYM,STATE_SYM,.false.)
-      !!CALL CSDTVC_MCLR(Work(ipT2),Work(ipT),2,
-     &!!                 WORK(KDTOC),iWORK(KICTS(1)),
-     &!!                 State_SYM,1,IPRDIA)
+      iprdia=0
+      Call INCSFSD(STATE_SYM,STATE_SYM,.false.)
+      CALL CSDTVC_MCLR(Work(ipT2),Work(ipT),2,
+     &                 WORK(KDTOC),iWORK(KICTS(1)),
+     &                 State_SYM,1,IPRDIA)
 #endif
 *
       Else
@@ -135,25 +135,9 @@ C
       Call GetMem('Kappa2','ALLO','REAL',ipK2,ndens2)
       Call GetMem('Dens5','ALLO','REAL',ipD,ndens2)
 *
-      !! Density matrices generated in caspt2 module
-      !! They are rotated according to the (X)MS rotation matrix
-      !! They are just state-specific (unrelaxed) for SS-CASPT2
-C     Call Getmem('ONED','ALLO','REAL',ipG1q,ng1)
-C     Call Getmem('TWOD','ALLO','REAL',ipG2q,ng2)
-C     Call Getmem('ONED','ALLO','REAL',ipG1r,ntash**2)
-C     Call Getmem('TWOD','ALLO','REAL',ipG2r,itri(ntash**2,ntash**2))
-*
 *---  Read in necessary densities.
 *
-      write(6,*) "calling get_d1ao"
-      !! runfile_util/get_d1ao.f
-      write(6,*) "ipdcas,ndens,ndens2 = ", ipdcas,ndens,ndens2,ndenslt
-      Call Get_D1ao(ipDCAS,nDensLT) ! nDens2)
-        write(6,*) "ipt1"
-        do i = 1, ndensLT ! ndens2
-          write(6,'(i4,f20.10)') i,work(ipdcas+i-1)
-        end do
-        write(6,*) "a"
+      Call Get_D1ao(ipDCAS,nDens)
       irc=-1
       iopt=0
 C     Call RdRlx(irc,iopt,'D1PT22',Work(ipDP))
@@ -165,13 +149,9 @@ C     Call RdRlx(irc,iopt,'OVLP',rovlp)
 *
 *--- Squared density
 *
-        write(6,*) "b"
       Call UnFold_MCLR(Work(ipDP),Work(ipDP2))
+*
       Call UnFold_MCLR(Work(ipDCAS),Work(ipDCAS2))
-        write(6,*) "ipdcas2: ndens=",ndens
-        do i = 1, ndens
-          write(6,'(i4,f20.10)') i,work(ipDCAS2+i-1)
-        end do
 *
 *==============================================================================*
 *
@@ -184,55 +164,28 @@ C     Call RdRlx(irc,iopt,'OVLP',rovlp)
 *
       nFlt=0
       nBMX=0
-      nBasT=0
       Do iSym = 1, nSym
          nFlt=nFlt+nBas(iSym)*(nBas(iSym)+1)/2
          nBMX=Max(nBMX,nBas(iSym))
-         nBasT = nBasT + nBas(iSym)
       End Do
-C         write(6,*) "transformed to AO"
-C         call prtril(work(ipDCAS),nbast)
 *
       Call FZero(Work(ipFAO1),nDens2)
       Call FockTwo_Drv(nSym,nBas,nBas,nSkip,
      &                 Work(ipDP),Work(ipDP2),Work(ipFAO1),nFlt,
      &                 ExFac,nDens2,nBMX)
       Call AO2MO(Work(ipFAO1),Work(ipFMO1))
-C     write(6,*) "ipFMO1"
-C     call sqprt(work(ipFMO1),nbast)
 *
 *  2) P(CAS)
 *
-      write(6,*) "ndens2 = ", ndens2
-      write(6,*) "nbast  = ", nbast
-      write(6,*) "ipdcas2"
-      call sqprt(work(ipdcas2),nbast)
       Call FZero(Work(ipFAO2),nDens2)
-      !! G_{\mu \nu} (D)
-      !!   = \sum_{\rho \sigma} (\mu \nu || \rho \sigma) D_{\rho \sigma}
-      !! The input of D in AO is
-      !!   - Work(ipDCAS)  (triangular, but the off-diagonal is doubled)
-      !!   - Work(ipDCAS2) (square)
-      !! The output of G(D) is in the AO basis (triangular)
       Call FockTwo_Drv(nSym,nBas,nBas,nSkip,
      &                 Work(ipDCAS),Work(ipDCAS2),Work(ipFAO2),nFlt,
      &                 ExFac,nDens2,nBMX)
-      !! ipFAO2: in triangular
-C     write(6,*) "ipFAO2"
-C     call prtril(work(ipFAO2),nbast)
       Call AO2MO(Work(ipFAO2),Work(ipFMO2))
-      CALL DSCAL_(nDens2,2.0D+00,Work(ipFMO2),1)
-      !! ipFMO2: MO basis, square form
-      write(6,*) "ipFMO2"
-      call sqprt(work(ipFMO2),nbast)
-      write(6,*) "finish after FockTwo_Drv"
-C     call abend()
 *
 *-- Add one particle hamiltonian here ???
 *
-      !! Call DaXpY_(ndens2,-rovlp,Work(kint1),1,Work(ipFMO1),1)
-      write(6,*) "finish after P(CAS)"
-C     call abend()
+C ??? Call DaXpY_(ndens2,-rovlp,Work(kint1),1,Work(ipFMO1),1)
 *
 *==============================================================================*
 *
@@ -271,8 +224,6 @@ C     call abend()
 *---  Calculate efficent Fock matrix in AO basis (contravariant,folded)
 *     and write to disk. Woba
 *
-      !! This is likely antisymmetrization of the orbital Lagrangian
-      !! In fockgen.f, this is realized with DGeSub
       Do iS=1,nSym
         If (nbas(is).ne.0)
      *  Call DGEadd(Work(ipK1-1+ipMat(is,is)),nBas(is),'N',
@@ -280,7 +231,6 @@ C     call abend()
      *              Work(ipK2-1+ipMat(is,is)),nBas(is),
      *              nBas(is),nBas(is))
       End Do
-      !! MO -> AO transformation ... why needed?
       Do iS=1,nSym
         If (nBas(is).ne.0) Then
            Call DGEMM_('N','N',
@@ -295,8 +245,6 @@ C     call abend()
      &                 0.0d0,Work(ipFAO1-1+ipMat(iS,iS)),nBas(is))
         End If
       End Do
-      !! in integral_util/prepp.f
-      !! maybe square (ipFAO1) -> triangular (ipFAO2) conversion
       Call Fold2(nsym,nbas,Work(ipFAO1),Work(ipFAO2))
       Call Put_Fock_Occ(Work(ipFAO2),nDens2)
 *
@@ -312,9 +260,7 @@ C     call abend()
      *              rKappa(ipMat(is,is)),nBas(is),
      *              nBas(is),nBas(is))
       End Do
-*
-      !! zeroth- and first-order (CASSCF) part
-      ! Call FockGen(One,Work(ipG1r),Work(ipG2r),Work(ipT),Fock,1)
+
 *
 *    OK Thats all folks!!
 *
@@ -333,11 +279,6 @@ C     call abend()
       Call GetMem('Kappa','FREE','REAL',ipK,ndens2)
       Call GetMem('Dens5','FREE','REAL',ipD,ndens2)
       Call Getmem('TEMPCI','FREE','REAL',ipT,nconf1)
-*
-C     Call Getmem('ONED','FREE','REAL',ipG1r,ntash**2)
-C     Call Getmem('TWOD','FREE','REAL',ipG2r,itri(ntash**2,ntash**2))
-C     Call Getmem('TEMP','FREE','REAL',ipT,ndens2)
-C     Call Getmem('TEMP','FREE','REAL',ipF,ndens2)
 *
 *............
       return

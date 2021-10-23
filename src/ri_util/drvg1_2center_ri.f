@@ -273,15 +273,11 @@
         nBasT   = 0
         nBasA   = 0
         nBasASQ = 0
-C       do i = 0,7
-C        write (*,*) i,nbas(i),nbas_aux(i)-1
-C       end do
         Do iSym = 0, nIrrep-1
           nBasT   = nBasT   + nBas(iSym)
           nBasA   = nBasA   + nBas_Aux(iSym)-1
           nBasASQ = nBasASQ + (nBas_Aux(iSym)-1)**2
         End Do
-C       write (*,*) nbast,nbasa,nbasasq
         Call MMA_Allocate(A_PT2,nBasA,nBasA,Label='A_PT2')
         !! Now, read
         Call PrgmTranslate('CMOPT2',RealName,lRealName)
@@ -385,9 +381,6 @@ C           iPrint=nPrint(iRout)
 C           nPrint(39)=5
 C        End If
          If (iPrint.ge.15) Write (6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
-         !! jS and lS are the actual shell indices of auxiliary basis
-         !! jS >= lS
-C        Write (6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -509,7 +502,6 @@ C        Write (6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
 #ifdef _CD_TIMING_
            Call CWTIME(TwoelCPU1,TwoelWall1)
 #endif
-C     call dcopy_(ngrad,0.0d+00,0,temp,1)
            Call TwoEl_g(Coor,
      &          iAnga,iCmpa,iShela,iShlla,iAOV,
      &          mdci,mdcj,mdck,mdcl,nRys,
@@ -527,8 +519,6 @@ C     call dcopy_(ngrad,0.0d+00,0,temp,1)
      &          Mem_DBLE(ipxG),Mem_DBLE(ipxD),Temp,nGrad,
      &          JfGrad,JndGrd,Sew_Scr(ipMem1), nSO,Sew_Scr(ipMem2),Mem2,
      &          Aux,nAux,Shijij)
-C              Call PrGrad(' In Drvg1_2Center_RI: Grad',
-C    &                  Temp,nGrad,lIrrep,ChDisp,iPrint)
 #ifdef _CD_TIMING_
            Call CWTIME(TwoelCPU2,TwoelWall2)
            Twoel2_CPU = Twoel2_CPU + TwoelCPU2-TwoelCPU1

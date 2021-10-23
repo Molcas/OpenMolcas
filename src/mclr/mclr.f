@@ -203,9 +203,6 @@ c      idp=rtoi
      &                 iWork(ifpSC),iWork(ifpRHS),
      &                 converged,iPL)
       Else if (SA.or.PT2) Then
-C     write (*,*) "tractl start"
-C       if (pt2) call tractl_mclr
-C     write (*,*) "tractl finish"
          Call WfCtl_SA(iWork(ifpK),iWork(ifpS),iWork(ifpCI),
      &                 iWork(ifpSC),iWork(ifpRHS),
      &                 converged,iPL)

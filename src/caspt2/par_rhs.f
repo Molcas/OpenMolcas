@@ -1329,10 +1329,6 @@ C-SVC: get the local vertical stripes of the lg_W vector
         DELTA=SHIFT+DIN(I)+DIS(J)
         DELINV=DELTA/(DELTA**2+SHIFTI**2)
         TMP=DELINV*W(I,J)
-C       if (nrow.eq.75.and.ncol.eq.2) then
-C       if (nrow.eq.120.and.ncol.eq.2) then
-C         write (*,'(2i4,3f20.10)') i,j,delta,delinv,w(i,j)
-C       end if
         DOVL=DOVL+TMP*W(I,J)
         W(I,J)=TMP
         END DO

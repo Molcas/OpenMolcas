@@ -831,7 +831,7 @@ cnf
 *
       If (Do_DM)
      &   Call Put_dArray('Last Dipole Moments',Work(ipDMs),3*LROOTS)
-*     Call RecPrt('Last Dipole Moments',' ',Work(ipDMs),3,NROOTS)
+*     Call RecPrt('Last Dipole Moments',' ',Work(ipDMs),3,LROOTS)
       Call GetMem('DipM', 'Free','Real',ipDM, 3)
       Call GetMem('DipMs','Free','Real',ipDMs,3*LROOTS)
 *                                                                      *

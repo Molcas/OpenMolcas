@@ -187,7 +187,6 @@ C Write natural orbitals to standard output.
          ELSE IF ( OUTFMT.EQ.'DEFAULT ' ) THEN
            THRENE=5.0d+00
            THROCC=5.0d-04
-      throcc = 0.0d+00
          END IF
          CALL PRIMO('Output orbitals from CASPT2',
      &           .TRUE.,.FALSE.,THROCC,THRENE,NSYM,NBAS,
@@ -240,10 +239,6 @@ C Write natural orbitals to standard output.
       Call GetMem('Scr2','Allo','Real',LXXX,NDENS)
 *
       Call DOne_Caspt2(WORK(LCNAT),WORK(LOCC),Work(LXXX))
-C     write (*,*) "writing D1AO: ndens=",ndens
-C     do i = 1, ndens
-C       write (*,'(i4,f20.10)') i,work(lxxx+i-1)
-C     end do
       Call Put_D1AO(WORK(LXXX),nDens)
 *
       Note='Temporary orbital file used by prpt.'

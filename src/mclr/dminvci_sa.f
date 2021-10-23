@@ -39,10 +39,6 @@
            k=k+1
           End Do
        End Do
-C       do i = 1, ncsf(1)
-C         write (*,'(i3,3f20.10)')
-C    *     i,work(ip+i-1),rout(i),work(ipin(ipci)+i-1)
-C       end do
        Do iR=1,nroots
 
         W=weight(iR)
@@ -69,14 +65,6 @@ C       end do
         End Do
 
        End Do
-C      do iR = 1, nroots
-C        do jR = 1, nroots
-C          ovl = ddot_(nconf1,rout(1+(iR-1)*nconf1),1,
-C    *                        work(ipin(ipci)+(jR-1)*nconf1),1)
-C          call daxpy_(nconf1,-ovl,work(ipin(ipci)+(jR-1)*nconf1),1,
-C    *                             rout(1+(iR-1)*nconf1),1)
-C        end do
-C       end do
       Else
        call dcopy_(nconf1*nroots,[0.0d0],0,rout,1)
       End If
