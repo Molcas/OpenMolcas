@@ -10,12 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1996, Markus P. Fuelscher                              *
 !***********************************************************************
-      Subroutine Tra2A(ij_pair,ij_Bas_pairs,kl_Orb_pairs,               &
-     &                 kSym,lSym,                                       &
-     &                 kBas,lBas,                                       &
-     &                 kAsh,lAsh,                                       &
-     &                 CMO_k,CMO_l,                                     &
-     &                 IJKL,IJKX,IJVX,VXIJ)
+
+subroutine Tra2A(ij_pair,ij_Bas_pairs,kl_Orb_pairs,kSym,lSym,kBas,lBas,kAsh,lAsh,CMO_k,CMO_l,IJKL,IJKX,IJVX,VXIJ)
 !***********************************************************************
 !                                                                      *
 !     run the first two quarter AO --> MO transformations with         *
@@ -33,40 +29,27 @@
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
-      Real*8 CMO_k(kBas,kAsh),  CMO_l(lBas,lAsh),                       &
-     &       IJKL(lBas*kBas), IJKX(kBas*lAsh),                          &
-     &       IJVX(lAsh*kAsh), VXIJ(ij_bas_pairs,kl_Orb_pairs)
-!
-!
-!     (ij|kl) -> (ij|kx)
-      Call DGEMM_('T','N',                                              &
-     &            kBas,lAsh,lBas,                                       &
-     &            1.0d0,IJKL,lBas,                                      &
-     &            CMO_l,lBas,                                           &
-     &            0.0d0,IJKX,kBas)
-!
-!     (ij|kx) -> (ij|vx)
-      If ( kSym.eq.lSym ) then
-!------ Triangular storage of target
-        Call MxMt(IJKX,kBas,1,                                          &
-     &            CMO_k,1,kBas,                                         &
-     &            IJVX,kAsh,kBas)
-      Else
-!------ Rectangular storage of target
-        Call DGEMM_('T','N',                                            &
-     &              lAsh,kAsh,kBas,                                     &
-     &              1.0d0,IJKX,kBas,                                    &
-     &              CMO_k,kBas,                                         &
-     &              0.0d0,IJVX,lAsh)
-      End If
-!
-!     Scatter result onto half-transformed integral
-!     list
-      Do kl = 1,kl_Orb_pairs
-        VXIJ(ij_pair,kl) = IJVX(kl)
-      End Do
-!
-!
-      Return
-      End
+
+implicit real*8(A-H,O-Z)
+real*8 CMO_k(kBas,kAsh), CMO_l(lBas,lAsh), IJKL(lBas*kBas), IJKX(kBas*lAsh), IJVX(lAsh*kAsh), VXIJ(ij_bas_pairs,kl_Orb_pairs)
+
+! (ij|kl) -> (ij|kx)
+call DGEMM_('T','N',kBas,lAsh,lBas,1.0d0,IJKL,lBas,CMO_l,lBas,0.0d0,IJKX,kBas)
+
+! (ij|kx) -> (ij|vx)
+if (kSym == lSym) then
+  ! Triangular storage of target
+  call MxMt(IJKX,kBas,1,CMO_k,1,kBas,IJVX,kAsh,kBas)
+else
+  ! Rectangular storage of target
+  call DGEMM_('T','N',lAsh,kAsh,kBas,1.0d0,IJKX,kBas,CMO_k,kBas,0.0d0,IJVX,lAsh)
+end if
+
+! Scatter result onto half-transformed integral list
+do kl=1,kl_Orb_pairs
+  VXIJ(ij_pair,kl) = IJVX(kl)
+end do
+
+return
+
+end subroutine Tra2A

@@ -9,143 +9,132 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-      SUBROUTINE CHO_rassi_twxy(irc,Scr,ChoV,TUVX,nAorb,JSYM,NUMV,      &
-     &                          DoReord)
+subroutine CHO_rassi_twxy(irc,Scr,ChoV,TUVX,nAorb,JSYM,NUMV,DoReord)
 
-      use Data_Structures, only: SBA_Type, twxy_type
-      Implicit Real*8 (a-h,o-z)
-      Integer irc,nAorb(*),JSYM,NUMV,iAorb(8)
-      Real*8 TUVX(*)
-      Type (SBA_Type) ChoV
-      Type (twxy_type) Scr
-      Logical DoReord
+use Data_Structures, only: SBA_Type, twxy_type
 
+implicit real*8(a-h,o-z)
+integer irc, nAorb(*), JSYM, NUMV, iAorb(8)
+real*8 TUVX(*)
+type(SBA_Type) ChoV
+type(twxy_type) Scr
+logical DoReord
 #include "real.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-
 ! ************************************************
-      MulD2h(i,j) = iEOR(i-1,j-1) + 1
+!Statement functions
+MulD2h(i,j) = ieor(i-1,j-1)+1
+iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 ! ************************************************
-      iTri(i,j) = Max(i,j)*(Max(i,j)-3)/2 + i + j
-! ************************************************
 
+if (NumV < 1) return
 
-      If (NumV .lt. 1) Return
+! Computing the integrals (TT|TT),(TW,TW) and (TW|XY)
+!------------------------------------------------------
+! (tw|xy)  <-  (tw|xy)  +  sum_J  L(tw,#J) * L(xy,#J)
+!======================================================
 
-! --- Computing the integrals (TT|TT),(TW,TW) and (TW|XY)
-! ---------------------------------------------------------
-! --- (tw|xy)  <-  (tw|xy)  +  sum_J  L(tw,#J) * L(xy,#J)
-!==========================================================
+do iSymy=1,nSym
 
-      Do iSymy=1,nSym
+  iSymx = MulD2h(iSymy,JSYM)
 
-         iSymx=MulD2h(iSymy,JSYM)
+  Nxy = nAorb(iSymx)*nAorb(iSymy)
 
-         Nxy  = nAorb(iSymx)*nAorb(iSymy)
+  if (Nxy > 0) then
 
-         If (Nxy.gt.0) then
+    do iSymw=iSymy,nSym ! iSymw >= iSymy (particle symmetry)
 
-            Do iSymw=iSymy,nSym   ! iSymw.ge.iSymy (particle symmetry)
+      iSymt = MulD2h(iSymw,JSYM)
 
-               iSymt=MulD2h(iSymw,JSYM)
+      Ntw = nAorb(iSymt)*nAorb(iSymw)
 
-               Ntw  = nAorb(iSymt)*nAorb(iSymw)
+      if (Ntw > 0) then
 
-               If (Ntw.gt.0) then
+        call DGEMM_('N','T',Ntw,Nxy,NumV,ONE,ChoV%SB(iSymt)%A3,Ntw,ChoV%SB(iSymx)%A3,Nxy,One,Scr%SB(iSymw,iSymy)%A,Ntw)
 
-                  CALL DGEMM_('N','T',Ntw,Nxy,NumV,                     &
-     &                       ONE,ChoV%SB(iSymt)%A3,Ntw,                 &
-     &                           ChoV%SB(iSymx)%A3,Nxy,                 &
-     &                       One,Scr%SB(iSymw,iSymy)%A,Ntw)
+      end if
 
+    end do
 
-               End If
+  end if
 
-            End Do
+end do
 
-         End If
+! Reorder to the storage required by the RASSI program
+!
+! There is no permutational symmetry but only particle
+! symmetry in the (tw|xy) integrals
+!---------------------------------------------------------
+if (DoReord) then
 
-      End Do
+  iAorb(1) = 0
+  do iSym=2,nSym
+    iAorb(iSym) = iAorb(iSym-1)+nAorb(iSym-1)
+  end do
 
+  nTA = iAorb(nSym)+nAorb(nSym) ! total # active orbitals
 
-! --- Reorder to the storage required by the RASSI program
-! ---
-! --- There is no permutational symmetry but only particle
-! --- symmetry in the (tw|xy) integrals
-! ------------------------------------------------------------
-      IF (DoReord) THEN
+  do iSymy=1,nSym
 
-         iAorb(1)= 0
-         Do iSym = 2,nSym
-            iAorb(iSym) = iAorb(iSym-1) + nAorb(iSym-1)
-         End Do
+    iSymx = MulD2h(iSymy,JSYM)
 
-         nTA = iAorb(nSym) + nAorb(nSym) ! total # active orbitals
+    Nxy = nAorb(iSymx)*nAorb(iSymy)
 
+    if (Nxy <= 0) cycle
 
-         Do iSymy=1,nSym
+    do iSymw=iSymy,nSym
 
-            iSymx=MulD2h(iSymy,JSYM)
+      iSymt = MulD2h(iSymw,JSYM)
 
-            Nxy = nAorb(iSymx)*nAorb(iSymy)
+      Ntw = nAorb(iSymt)*nAorb(iSymw)
 
-            If (Nxy<=0) Cycle
+      if (Ntw <= 0) cycle
 
-            Do iSymw=iSymy,nSym
+      do iy=1,nAorb(iSymy)
 
-               iSymt=MulD2h(iSymw,JSYM)
+        iyG = iAorb(iSymy)+iy ! global index
 
-               Ntw = nAorb(iSymt)*nAorb(iSymw)
+        do ix=1,nAorb(iSymx)
 
-               If (Ntw<=0) Cycle
+          ixG = iAorb(iSymx)+ix
 
-               Do iy=1,nAorb(iSymy)
+          ixy = ix+nAorb(iSymx)*(iy-1)
 
-                   iyG = iAorb(iSymy) + iy  !global index
+          ixyG = nTA*(iyG-1)+ixG ! global index
 
-                   Do ix=1,nAorb(iSymx)
+          do iw=1,nAorb(iSymw)
 
-                    ixG  = iAorb(iSymx) + ix
+            iwG = iAorb(iSymw)+iw
 
-                    ixy  = ix + nAorb(iSymx)*(iy-1)
+            do it=1,nAorb(iSymt)
 
-                    ixyG = nTA*(iyG-1) + ixG ! global index
+              itG = iAorb(iSymt)+it
 
-                    Do iw=1,nAorb(iSymw)
+              itw = it+nAorb(iSymt)*(iw-1)
 
-                     iwG  = iAorb(iSymw) + iw
+              itwG = nTA*(iwG-1)+itG ! global index
 
-                     Do it=1,nAorb(iSymt)
+              iRes = iTri(itwG,ixyG)
 
-                        itG  = iAorb(iSymt) + it
+              TUVX(iRes) = Scr%SB(iSymw,iSymy)%A(itw,ixy)
 
-                        itw  = it + nAorb(iSymt)*(iw-1)
+            end do
 
-                        itwG = nTA*(iwG-1) + itG ! global index
+          end do
 
-                        iRes = iTri(itwG,ixyG)
+        end do
 
-                        TUVX(iRes) = Scr%SB(iSymw,iSymy)%A(itw,ixy)
+      end do
 
-                     End Do
+    end do
 
-                    End Do
+  end do
 
-                   End Do
+end if
 
-               End Do
+irc = 0
 
-            End Do
+return
 
-         End Do
-
-
-      ENDIF
-
-      irc=0
-
-      Return
-      END
-
-!*************************************************************
+end subroutine CHO_rassi_twxy

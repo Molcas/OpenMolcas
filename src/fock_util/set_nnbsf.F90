@@ -9,30 +9,28 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-      SUBROUTINE set_nnBSF(nSym,Nbas,nnBSF,n2BSF)
+subroutine set_nnBSF(nSym,Nbas,nnBSF,n2BSF)
 
-      Implicit Real*8 (a-h,o-z)
-      Integer nSym,nBas(8)
-      Integer nnBSF(8,8),n2BSF(8,8)
+implicit real*8(a-h,o-z)
+integer nSym, nBas(8)
+integer nnBSF(8,8), n2BSF(8,8)
 
+do j=1,nSym
+  do i=j,nSym
 
+    kSym = ieor(i-1,j-1)+1
 
-      do j=1,nSym
-         do i=j,nSym
+    nnBSF(i,j) = nBas(i)*nBas(j)+min(0,kSym-2)*nBas(i)*(nBas(i)-1)/2
 
-            kSym = iEOR(i-1,j-1) + 1
+    nnBSF(j,i) = nnBSF(i,j)
 
-            nnBSF(i,j) = nBas(i)*nBas(j)                                &
-     &                 + Min(0,kSym-2)*nBas(i)*(nBas(i)-1)/2
+    n2BSF(i,j) = nBas(i)*nBas(j)
 
-            nnBSF(j,i) = nnBSF(i,j)
+    n2BSF(j,i) = n2BSF(i,j)
 
-            n2BSF(i,j) = nBas(i)*nBas(j)
+  end do
+end do
 
-            n2BSF(j,i) = n2BSF(i,j)
+return
 
-         end do
-      end do
-
-      Return
-      END
+end subroutine set_nnBSF

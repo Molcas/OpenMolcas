@@ -8,158 +8,140 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_eval_waxy(irc,Scr,ChoV1,ChoV2,W_PWXY,nAorb,        &
-     &                         JSYM,NUMV,DoTraInt,CMO)
 
-      Use Data_structures, only: SBA_Type, twxy_Type, DSBA_Type
-      Implicit Real*8 (a-h,o-z)
-      Real*8 W_PWXY(*)
-      Integer nAorb(*)
-      Type (DSBA_Type) CMO
-      Type (SBA_Type) ChoV1, ChoV2
-      Type (twxy_type) Scr
-      Integer off_PWXY(8,8,8)
-      Logical DoTraInt
+subroutine CHO_eval_waxy(irc,Scr,ChoV1,ChoV2,W_PWXY,nAorb,JSYM,NUMV,DoTraInt,CMO)
 
+use Data_structures, only: SBA_Type, twxy_Type, DSBA_Type
+
+implicit real*8(a-h,o-z)
+real*8 W_PWXY(*)
+integer nAorb(*)
+type(DSBA_Type) CMO
+type(SBA_Type) ChoV1, ChoV2
+type(twxy_type) Scr
+integer off_PWXY(8,8,8)
+logical DoTraInt
 #include "real.fh"
 #include "Molcas.fh"
 #include "general.fh"
 #include "wadr.fh"
+!************************************************
+!Statement function
+MulD2h(i,j) = ieor(i-1,j-1)+1
+!************************************************
 
-! ************************************************
-      MulD2h(i,j) = iEOR(i-1,j-1) + 1
-! ************************************************
+if (NumV < 1) return
 
-      If (NumV .lt. 1) Return
+! Computing the integrals
+! -----------------------------------------------------
+! (wa|xy)  <-  (wa|xy)  +  sum_J  L(wa,#J) * L(xy,#J)
+!======================================================
 
-! --- Computing the integrals
-! ---------------------------------------------------------
-! --- (wa|xy)  <-  (wa|xy)  +  sum_J  L(wa,#J) * L(xy,#J)
-!==========================================================
+do iSymy=1,nSym
 
-      Do iSymy=1,nSym
+  iSymx = MulD2h(iSymy,JSYM)
 
-         iSymx=MulD2h(iSymy,JSYM)
+  Nxy = size(ChoV2%SB(iSymx)%A2,1)
 
-         Nxy=SIZE(ChoV2%SB(iSymx)%A2,1)
+  if ((iSymx <= iSymy) .and. (Nxy > 0)) then
 
-         If (iSymx.le.iSymy.and.Nxy.gt.0) then
+    do iSyma=1,nSym
 
-            Do iSyma=1,nSym
+      iSymw = MulD2h(iSyma,JSYM)
 
-               iSymw=MulD2h(iSyma,JSYM)
+      Nwa = size(ChoV1%SB(iSymw)%A3,1)*size(ChoV1%SB(iSymw)%A3,2)
 
-               Nwa  = SIZE(ChoV1%SB(iSymw)%A3,1)*                       &
-     &                SIZE(ChoV1%SB(iSymw)%A3,2)
+      if (Nwa <= 0) cycle
 
-               If (Nwa<=0) Cycle
+      call DGEMM_('N','T',Nwa,Nxy,NumV,ONE,ChoV1%SB(iSymw)%A3,Nwa,ChoV2%SB(iSymx)%A2,Nxy,ONE,Scr%SB(iSymw,iSymx)%A,Nwa)
 
-               CALL DGEMM_('N','T',Nwa,Nxy,NumV,                        &
-     &                    ONE,ChoV1%SB(iSymw)%A3,Nwa,                   &
-     &                        ChoV2%SB(iSymx)%A2,Nxy,ONE,               &
-     &                    Scr%SB(iSymw,iSymx)%A,Nwa)
+    end do
 
+  end if
 
-            End Do
+end do
 
-         End If
-
-      End Do
-
-
-! --- MO-transformation to build the (pw|xy) integrals
-! --- is performed (p is a general index).
-! --- The storage of the result is the one required by
-! --- the RASSCF program : LT-storage in xy, with sym(x)<=sym(y)
-! ---
-! ---       (pw|xy)  =  sum_a  C(a,p) * (wa|xy)
-! ---
-! ------------------------------------------------------------
-      IF (DoTraInt) THEN
-
+! MO-transformation to build the (pw|xy) integrals
+! is performed (p is a general index).
+! The storage of the result is the one required by
+! the RASSCF program : LT-storage in xy, with sym(x)<=sym(y)
 !
-!     generate offsets to (pw|xy)
+!       (pw|xy)  =  sum_a  C(a,p) * (wa|xy)
 !
-!     Important: the way GET_TUVX is written requires
-!                a strict loop structure for the definition
-!                of the offsets
-!
-         iStack = 0
-         Do iSymp = 1,nSym
-            iOrb = nOrb(iSymp)
-            Do iSymw = 1,nSym
-               jAsh = nAorb(iSymw)
-               ijSym=MulD2h(iSymp,iSymw)
-               Do iSymy = 1,nSym
-                 kAsh = nAorb(iSymy)
-                 iSymx=MulD2h(ijSym,iSymy)
-                 If (iSymx.le.iSymy) Then
-                  lAsh = nAorb(iSymx)
-                   kl_Orb_pairs = kAsh*lAsh                             &
-     &                          + Min(0,ijSym-2)*kAsh*(lAsh-1)/2
-                   off_PWXY(iSymp,iSymw,iSymx)=iStack
-                   iStack = iStack + iOrb*jAsh*kl_Orb_pairs
-                 End If
-               End Do
-            End Do
-         End Do
-         nPWXY=iStack
-!
-!        Reordering and MO-transformation
-!
-         Do iSymy=1,nSym
+!---------------------------------------------------------
+if (DoTraInt) then
 
-            iSymx=MulD2h(iSymy,JSYM)
+  ! generate offsets to (pw|xy)
+  !
+  ! Important: the way GET_TUVX is written requires
+  !            a strict loop structure for the definition
+  !            of the offsets
 
-            If (iSymx.le.iSymy) then
+  iStack = 0
+  do iSymp=1,nSym
+    iOrb = nOrb(iSymp)
+    do iSymw=1,nSym
+      jAsh = nAorb(iSymw)
+      ijSym = MulD2h(iSymp,iSymw)
+      do iSymy=1,nSym
+        kAsh = nAorb(iSymy)
+        iSymx = MulD2h(ijSym,iSymy)
+        if (iSymx <= iSymy) then
+          lAsh = nAorb(iSymx)
+          kl_Orb_pairs = kAsh*lAsh+min(0,ijSym-2)*kAsh*(lAsh-1)/2
+          off_PWXY(iSymp,iSymw,iSymx) = iStack
+          iStack = iStack+iOrb*jAsh*kl_Orb_pairs
+        end if
+      end do
+    end do
+  end do
+  nPWXY = iStack
+  !
+  ! Reordering and MO-transformation
+  !
+  do iSymy=1,nSym
 
-               Nxy  = nAorb(iSymx)*nAorb(iSymy)                         &
-     &              + Min(0,JSYM-2)*nAorb(iSymx)*(nAorb(iSymy)-1)/2
+    iSymx = MulD2h(iSymy,JSYM)
 
+    if (iSymx <= iSymy) then
 
-               Do iSymw=1,nSym
+      Nxy = nAorb(iSymx)*nAorb(iSymy)+min(0,JSYM-2)*nAorb(iSymx)*(nAorb(iSymy)-1)/2
 
-                  iSyma = MulD2h(iSymw,JSYM) ! =iSymp
+      do iSymw=1,nSym
 
-                  Nwa = nAorb(iSymw)*nBas(iSyma)
-                  Npw = nOrb(iSyma)*nAorb(iSymw)
+        iSyma = MulD2h(iSymw,JSYM) ! =iSymp
 
-                  iS = 1 + nBas(iSyma)*nFro(iSyma)
+        Nwa = nAorb(iSymw)*nBas(iSyma)
+        Npw = nOrb(iSyma)*nAorb(iSymw)
 
-                  Do ixy = 1,Nxy
+        iS = 1+nBas(iSyma)*nFro(iSyma)
 
-                        ipMpw = off_PWXY(iSyma,iSymw,iSymx)             &
-     &                        +  1 + Npw*(ixy-1)
+        do ixy=1,Nxy
 
-! --------------------------------------------------------
-! ---       M(p,w)[xy]  =  sum_a  C(a,p) * M(w,a)[xy]
-! --------------------------------------------------------
-                        nBas_a = max(nBas(iSyma),1)
-                        nAob_w = max(nAorb(iSymw),1)
-                        nOrb_a = max(nOrb(iSyma),1)
+          ipMpw = off_PWXY(iSyma,iSymw,iSymx)+1+Npw*(ixy-1)
 
-                        CALL DGEMM_('T','T',                            &
-     &                             nOrb(iSyma),nAorb(iSymw),nBas(iSyma),&
-     &                             ONE,CMO%SB(iSyma)%A1(iS:),nBas_a,    &
-     &                              Scr%SB(iSymw,iSymx)%A(:,ixy),nAob_w,&
-     &                            ZERO,W_PWXY(ipMpw),nOrb_a)
+          ! --------------------------------------------------------
+          !       M(p,w)[xy]  =  sum_a  C(a,p) * M(w,a)[xy]
+          ! --------------------------------------------------------
+          nBas_a = max(nBas(iSyma),1)
+          nAob_w = max(nAorb(iSymw),1)
+          nOrb_a = max(nOrb(iSyma),1)
 
+          call DGEMM_('T','T',nOrb(iSyma),nAorb(iSymw),nBas(iSyma),ONE,CMO%SB(iSyma)%A1(iS:),nBas_a,Scr%SB(iSymw,iSymx)%A(:,ixy), &
+                      nAob_w,ZERO,W_PWXY(ipMpw),nOrb_a)
 
-                  End Do
+        end do
 
-               End Do
+      end do
 
-            End If
+    end if
 
-         End Do
+  end do
 
+end if
 
-      ENDIF
+irc = 0
 
+return
 
-      irc=0
-
-      Return
-      END
-
-!*************************************************************
+end subroutine CHO_eval_waxy

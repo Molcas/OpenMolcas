@@ -11,98 +11,97 @@
 ! Copyright (C) Francesco Aquilante                                    *
 !               2021, Roland Lindh                                     *
 !***********************************************************************
-      SUBROUTINE swap_rs2full(irc,iLoc,nRS,nDen,JSYM,XLT,Xab,mode,add)
-      use ChoArr, only: iRS2F
-      use ChoSwp, only: IndRed
-      use Data_Structures, only: DSBA_Type
-      Implicit Real*8 (a-h,o-z)
-      Integer  irc, iLoc, nDen, JSYM
-      Type (DSBA_Type) XLT(nDen)
-      Real*8 Xab(nRS,nDen)
-      Logical add
-      Character*6 mode
 
-      Integer, External:: cho_isao
+subroutine swap_rs2full(irc,iLoc,nRS,nDen,JSYM,XLT,Xab,mode,add)
 
+use ChoArr, only: iRS2F
+use ChoSwp, only: IndRed
+use Data_Structures, only: DSBA_Type
+
+implicit real*8(a-h,o-z)
+integer irc, iLoc, nDen, JSYM
+type(DSBA_Type) XLT(nDen)
+real*8 Xab(nRS,nDen)
+logical add
+character*6 mode
+integer, external :: cho_isao
 #include "real.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-
-      Integer i, j, iTri
+integer i, j, iTri
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
+!Statement function
+iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (mode.eq.'toreds'.and.JSYM.eq.1) then ! TOTAL SYMMETRIC
 
-         Do jRab=1,nnBstR(jSym,iLoc)
+if ((mode == 'toreds') .and. (JSYM == 1)) then ! TOTAL SYMMETRIC
 
-            kRab = iiBstr(jSym,iLoc) + jRab
-            iRab = IndRed(kRab,iLoc)
+  do jRab=1,nnBstR(jSym,iLoc)
 
-            iag   = iRS2F(1,iRab)  !global address
-            ibg   = iRS2F(2,iRab)
+    kRab = iiBstr(jSym,iLoc)+jRab
+    iRab = IndRed(kRab,iLoc)
 
-            iSyma = cho_isao(iag)  !symmetry block; Sym(b)=Sym(a)
+    iag = iRS2F(1,iRab) ! global address
+    ibg = iRS2F(2,iRab)
 
-            ias   = iag - ibas(iSyma)
-!           !address within that symm block
-            ibs   = ibg - ibas(iSyma)
-            iab   = iTri(ias,ibs)
+    iSyma = cho_isao(iag) ! symmetry block; Sym(b)=Sym(a)
 
-            Do jDen=1,nDen
+    ias = iag-ibas(iSyma) ! address within that symm block
+    ibs = ibg-ibas(iSyma)
+    iab = iTri(ias,ibs)
 
-               Xab(jRab,jDen) =  XLT(jDen)%SB(iSyma)%A1(iab)
+    do jDen=1,nDen
 
-            End Do
+      Xab(jRab,jDen) = XLT(jDen)%SB(iSyma)%A1(iab)
 
-         End Do  ! jRab loop
+    end do
 
+  end do ! jRab loop
 
-      ElseIf (mode.eq.'tofull'.and.JSYM.eq.1) then
-!      ! TOTAL SYMMETRIC
+else if ((mode == 'tofull') .and. (JSYM == 1)) then ! TOTAL SYMMETRIC
 
-         If (.NOT.add) Then
-            Do jDen = 1, nDen
-               XLT(jDen)%A0(:)=Zero
-            End Do
-         End If
+  if (.not. add) then
+    do jDen=1,nDen
+      XLT(jDen)%A0(:) = Zero
+    end do
+  end if
 
-         Do jRab=1,nnBstR(jSym,iLoc)
+  do jRab=1,nnBstR(jSym,iLoc)
 
-            kRab = iiBstr(jSym,iLoc) + jRab
-            iRab = IndRed(kRab,iLoc)
+    kRab = iiBstr(jSym,iLoc)+jRab
+    iRab = IndRed(kRab,iLoc)
 
-            iag   = iRS2F(1,iRab)  !global address
-            ibg   = iRS2F(2,iRab)
+    iag = iRS2F(1,iRab) ! global address
+    ibg = iRS2F(2,iRab)
 
-            iSyma = cho_isao(iag)  !symmetry block; Sym(b)=Sym(a)
+    iSyma = cho_isao(iag) ! symmetry block; Sym(b)=Sym(a)
 
-            ias   = iag - ibas(iSyma)  !address within that symm block
-            ibs   = ibg - ibas(iSyma)
-            iab   = iTri(ias,ibs)
+    ias = iag-ibas(iSyma) ! address within that symm block
+    ibs = ibg-ibas(iSyma)
+    iab = iTri(ias,ibs)
 
-            Do jDen=1,nDen
+    do jDen=1,nDen
 
-               XLT(jDen)%SB(iSyma)%A1(iab) = XLT(jDen)%SB(iSyma)%A1(iab)&
-     &                                     + Xab(jRab,jDen)
+      XLT(jDen)%SB(iSyma)%A1(iab) = XLT(jDen)%SB(iSyma)%A1(iab)+Xab(jRab,jDen)
 
-            End Do
+    end do
 
-         End Do  ! jRab loop
+  end do ! jRab loop
 
-      Else
+else
 
-         write(6,*)'Wrong input parameters. JSYM,mode = ',JSYM,mode
-         irc = 66
-         Call abend()
+  write(6,*) 'Wrong input parameters. JSYM,mode = ',JSYM,mode
+  irc = 66
+  call abend()
 
-      EndIf
+end if
 
-      irc = 0
+irc = 0
 
-      Return
-      End
+return
+
+end subroutine swap_rs2full

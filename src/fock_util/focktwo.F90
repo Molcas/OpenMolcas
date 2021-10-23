@@ -12,21 +12,24 @@
 !               1992,1994, Per Ake Malmqvist                           *
 !               2002, Roland Lindh                                     *
 !***********************************************************************
+
 !--------------------------------------------*
 ! 1994  PER-AAKE MALMQUIST                   *
 ! DEPARTMENT OF THEORETICAL CHEMISTRY        *
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE FOCKTWO(NSYM,NBAS,NFRO,KEEP,                           &
-     &                   W_DLT,W_DSQ,W_FLT,nFlt,W_FSQ,LBUF,X1,X2,ExFac)
-      use Data_Structures, Only: DSBA_Type, Allocate_DSBA,              &
-     &                           Deallocate_DSBA
-      IMPLICIT REAL*8 (A-H,O-Z)
-      Real*8 W_FSQ(*),W_FLT(nFlt),W_DSQ(*),W_DLT(*),X1(*),X2(*)
-      Integer KEEP(8),NBAS(8),NFRO(8)
+subroutine FOCKTWO(NSYM,NBAS,NFRO,KEEP,W_DLT,W_DSQ,W_FLT,nFlt,W_FSQ,LBUF,X1,X2,ExFac)
 
-      Type (DSBA_Type) DLT, FLT, DSQ, FSQ
+use Data_Structures, only: DSBA_Type, Allocate_DSBA, Deallocate_DSBA
+
+implicit real*8(A-H,O-Z)
+real*8 W_FSQ(*), W_FLT(nFlt), W_DSQ(*), W_DLT(*), X1(*), X2(*)
+integer KEEP(8), NBAS(8), NFRO(8)
+type(DSBA_Type) DLT, FLT, DSQ, FSQ
+!***********************************************************************
+!Statement function
+MUL(I,J) = ieor(I-1,J-1)+1
 !
 ! This routine has been nicked from the MOTRA package. It was
 ! originally written by Marcus Fuelscher, and has been slightly
@@ -43,179 +46,166 @@
 ! call to this routine.
 !
 !***********************************************************************
-!                                                                      *
-      MUL(I,J)=IEOR(I-1,J-1)+1
-!                                                                      *
-!***********************************************************************
-      Call Allocate_DSBA(DLT,nBas,nBas,nSym,aCase='TRI',Ref=W_DLT)
-      Call Allocate_DSBA(FLT,nBas,nBas,nSym,aCase='TRI',Ref=W_FLT)
-      Call Allocate_DSBA(DSQ,nBas,nBas,nSym,Ref=W_DSQ)
-      Call Allocate_DSBA(FSQ,nBas,nBas,nSym,Ref=W_FSQ)
 
-      DO 110 IS=1,NSYM
-        IB=NBAS(IS)
-        IK=KEEP(IS)
-        NFI=NFRO(IS)
-        DO 120 JS=1,IS
-          JB=NBAS(JS)
-          JK=KEEP(JS)
-          NFJ=NFRO(JS)
-          IJS=MUL(IS,JS)
-          IJB=IB*JB
-          IF( IS.EQ.JS ) IJB=(IB*(IB+1))/2
-          DO 130 KS=1,IS
-            KB=NBAS(KS)
-            KK=KEEP(KS)
-            NFK=NFRO(KS)
-            LSMAX=KS
-            IF ( KS.EQ.IS ) LSMAX=JS
-            LS=MUL(IJS,KS)
-            IF(LS.GT.LSMAX) GOTO 130
-            LB=NBAS(LS)
-            LK=KEEP(LS)
-            NFL=NFRO(LS)
-            KLB=KB*LB
-            IF( KS.EQ.LS ) KLB=(KB*(KB+1))/2
-! INTEGRAL BLOCK EXCLUDED BY SETTING KEEP PARAMETERS?
-            IF((IK+JK+KK+LK).NE.0) GOTO 130
-! NO FROZEN ORBITALS?
-            IF((NFI+NFJ+NFK+NFL).EQ.0) GOTO 130
-! NO BASIS FUNCTIONS?
-            IF((IJB*KLB).EQ.0 ) GOTO 130
+call Allocate_DSBA(DLT,nBas,nBas,nSym,aCase='TRI',Ref=W_DLT)
+call Allocate_DSBA(FLT,nBas,nBas,nSym,aCase='TRI',Ref=W_FLT)
+call Allocate_DSBA(DSQ,nBas,nBas,nSym,Ref=W_DSQ)
+call Allocate_DSBA(FSQ,nBas,nBas,nSym,Ref=W_FSQ)
 
-            IF ( IS.EQ.JS .AND. IS.EQ.KS ) THEN
-! CASE 1: Integrals are of symmetry type (II/II)
-! Coulomb and exchange terms need to be accumulated
-! Option code 1: Begin reading at first integral.
-! NPQ: Nr of submatrices in buffer X1.
-                IOPT=1
-                LPQ=0
-                IPQ=0
-                NPQ=0
-                DO 200 IP=1,IB
-                  DO 201 JQ=1,IP
-                    IPQ=IPQ+1
-                    LPQ=LPQ+1
-                    IF ( IPQ.GT.NPQ ) THEN
-                      CALL RDORD(IRC,IOPT,IS,JS,KS,LS,X1,LBUF,NPQ)
-                      IF(IRC.GT.1) GOTO 999
-! Option code 2: Continue reading at next integral.
-                      IOPT=2
-                      IPQ=1
-                    ENDIF
-                    ISX=(IPQ-1)*KLB+1
-                    TEMP=DDOT_(KLB,X1(ISX),1,DLT%SB(IS)%A1,1)
-                    FLT%SB(IS)%A1(LPQ)=FLT%SB(IS)%A1(LPQ)+TEMP
-                    CALL SQUARE (X1(ISX),X2(1),1,KB,LB)
-                    CALL DGEMV_('N',KB,LB,                              &
-     &                        (-0.5D0*ExFac),X2(1),KB,                  &
-     &                                       DSQ%SB(IS)%A2(1:,IP),1,    &
-     &                                 1.0D0,FSQ%SB(IS)%A2(1:,JQ),1)
-                    IF ( IP.NE.JQ ) THEN
-                      CALL DGEMV_('N',KB,LB,                            &
-     &                          (-0.5D0*ExFac),X2(1),KB,                &
-     &                                         DSQ%SB(IS)%A2(1:,JQ),1,  &
-     &                                   1.0D0,FSQ%SB(IS)%A2(1:,IP),1)
-                    ENDIF
-201               CONTINUE
-200             CONTINUE
-              ELSE IF ( IS.EQ.JS .AND. IS.NE.KS ) THEN
-! CASE 2: Integrals are of symmetry type (II/JJ)
-! Coulomb terms need to be accumulated only
-                IOPT=1
-                LPQ=0
-                IPQ=0
-                NPQ=0
-                DO 210 IP=1,IB
-                  DO 211 JQ=1,IP
-                    IPQ=IPQ+1
-                    LPQ=LPQ+1
-                    IF ( IPQ.GT.NPQ ) THEN
-                      CALL RDORD(IRC,IOPT,IS,JS,KS,LS,X1,LBUF,NPQ)
-                      IF(IRC.GT.1) GOTO 999
-                      IOPT=2
-                      IPQ=1
-                    ENDIF
-                    ISX=(IPQ-1)*KLB+1
-                    IF ( NFI.NE.0 ) THEN
-                      TEMP=DLT%SB(IS)%A1(LPQ)
-                      CALL DAXPY_(KLB,TEMP,X1(ISX),1,FLT%SB(KS)%A1,1)
-                    ENDIF
-                    IF ( NFK.NE.0 ) THEN
-                      TEMP=DDOT_(KLB,X1(ISX),1,DLT%SB(KS)%A1,1)
-                      FLT%SB(IS)%A1(LPQ)=FLT%SB(IS)%A1(LPQ)+TEMP
-                    ENDIF
-211               CONTINUE
-210             CONTINUE
-              ELSE IF ( IS.EQ.KS .AND. JS.EQ.LS ) THEN
-! CASE 3: Integrals are of symmetry type (IJ/IJ)
-! Exchange terms need to be accumulated only
-                IOPT=1
-                LPQ=0
-                IPQ=0
-                NPQ=0
-                DO 220 IP=1,IB
-                  DO 221 JQ=1,JB
-                    IPQ=IPQ+1
-                    LPQ=LPQ+1
-                    IF ( IPQ.GT.NPQ ) THEN
-                      CALL RDORD(IRC,IOPT,IS,JS,KS,LS,X1,LBUF,NPQ)
-                      IF(IRC.GT.1) GOTO 999
-                      IOPT=2
-                      IPQ=1
-                    ENDIF
-                    ISX=(IPQ-1)*KLB+1
-                    IF ( NFI.NE.0 ) THEN
-                      CALL DGEMV_('N',LB,KB,                            &
-     &                          (-0.5D0*ExFac),X1(ISX),LB,              &
-     &                                         DSQ%SB(IS)%A2(1:,IP),1,  &
-     &                                   1.0D0,FSQ%SB(JS)%A2(1:,JQ),1)
-                    ENDIF
-                    IF ( NFJ.NE.0 ) THEN
-                      CALL DGEMV_('T',LB,KB,                            &
-     &                          (-0.5D0*ExFac),X1(ISX),LB,              &
-     &                                         DSQ%SB(JS)%A2(1:,JQ),1,  &
-     &                                   1.0D0,FSQ%SB(IS)%A2(1:,IP),1)
-                    ENDIF
-221               CONTINUE
-220             CONTINUE
-            ENDIF
-130       CONTINUE
-120     CONTINUE
-110   CONTINUE
+do IS=1,NSYM
+  IB = NBAS(IS)
+  IK = KEEP(IS)
+  NFI = NFRO(IS)
+  do JS=1,IS
+    JB = NBAS(JS)
+    JK = KEEP(JS)
+    NFJ = NFRO(JS)
+    IJS = MUL(IS,JS)
+    IJB = IB*JB
+    if (IS == JS) IJB = (IB*(IB+1))/2
+    do KS=1,IS
+      KB = NBAS(KS)
+      KK = KEEP(KS)
+      NFK = NFRO(KS)
+      LSMAX = KS
+      if (KS == IS) LSMAX = JS
+      LS = MUL(IJS,KS)
+      if (LS > LSMAX) goto 130
+      LB = NBAS(LS)
+      LK = KEEP(LS)
+      NFL = NFRO(LS)
+      KLB = KB*LB
+      if (KS == LS) KLB = (KB*(KB+1))/2
+      ! INTEGRAL BLOCK EXCLUDED BY SETTING KEEP PARAMETERS?
+      if ((IK+JK+KK+LK) /= 0) goto 130
+      ! NO FROZEN ORBITALS?
+      if ((NFI+NFJ+NFK+NFL) == 0) goto 130
+      ! NO BASIS FUNCTIONS?
+      if ((IJB*KLB) == 0) goto 130
+
+      if ((IS == JS) .and. (IS == KS)) then
+        ! CASE 1: Integrals are of symmetry type (II/II)
+        ! Coulomb and exchange terms need to be accumulated
+        ! Option code 1: Begin reading at first integral.
+        ! NPQ: Nr of submatrices in buffer X1.
+        IOPT = 1
+        LPQ = 0
+        IPQ = 0
+        NPQ = 0
+        do IP=1,IB
+          do JQ=1,IP
+            IPQ = IPQ+1
+            LPQ = LPQ+1
+            if (IPQ > NPQ) then
+              call RDORD(IRC,IOPT,IS,JS,KS,LS,X1,LBUF,NPQ)
+              if (IRC > 1) goto 999
+              ! Option code 2: Continue reading at next integral.
+              IOPT = 2
+              IPQ = 1
+            end if
+            ISX = (IPQ-1)*KLB+1
+            TEMP = DDOT_(KLB,X1(ISX),1,DLT%SB(IS)%A1,1)
+            FLT%SB(IS)%A1(LPQ) = FLT%SB(IS)%A1(LPQ)+TEMP
+            call SQUARE(X1(ISX),X2(1),1,KB,LB)
+            call DGEMV_('N',KB,LB,(-0.5d0*ExFac),X2(1),KB,DSQ%SB(IS)%A2(1:,IP),1,1.0d0,FSQ%SB(IS)%A2(1:,JQ),1)
+            if (IP /= JQ) then
+              call DGEMV_('N',KB,LB,(-0.5d0*ExFac),X2(1),KB,DSQ%SB(IS)%A2(1:,JQ),1,1.0d0,FSQ%SB(IS)%A2(1:,IP),1)
+            end if
+          end do
+        end do
+      else if ((IS == JS) .and. (IS /= KS)) then
+        ! CASE 2: Integrals are of symmetry type (II/JJ)
+        ! Coulomb terms need to be accumulated only
+        IOPT = 1
+        LPQ = 0
+        IPQ = 0
+        NPQ = 0
+        do IP=1,IB
+          do JQ=1,IP
+            IPQ = IPQ+1
+            LPQ = LPQ+1
+            if (IPQ > NPQ) then
+              call RDORD(IRC,IOPT,IS,JS,KS,LS,X1,LBUF,NPQ)
+              if (IRC > 1) goto 999
+              IOPT = 2
+              IPQ = 1
+            end if
+            ISX = (IPQ-1)*KLB+1
+            if (NFI /= 0) then
+              TEMP = DLT%SB(IS)%A1(LPQ)
+              call DAXPY_(KLB,TEMP,X1(ISX),1,FLT%SB(KS)%A1,1)
+            end if
+            if (NFK /= 0) then
+              TEMP = DDOT_(KLB,X1(ISX),1,DLT%SB(KS)%A1,1)
+              FLT%SB(IS)%A1(LPQ) = FLT%SB(IS)%A1(LPQ)+TEMP
+            end if
+          end do
+        end do
+      else if ((IS == KS) .and. (JS == LS)) then
+        ! CASE 3: Integrals are of symmetry type (IJ/IJ)
+        ! Exchange terms need to be accumulated only
+        IOPT = 1
+        LPQ = 0
+        IPQ = 0
+        NPQ = 0
+        do IP=1,IB
+          do JQ=1,JB
+            IPQ = IPQ+1
+            LPQ = LPQ+1
+            if (IPQ > NPQ) then
+              call RDORD(IRC,IOPT,IS,JS,KS,LS,X1,LBUF,NPQ)
+              if (IRC > 1) goto 999
+              IOPT = 2
+              IPQ = 1
+            end if
+            ISX = (IPQ-1)*KLB+1
+            if (NFI /= 0) then
+              call DGEMV_('N',LB,KB,(-0.5d0*ExFac),X1(ISX),LB,DSQ%SB(IS)%A2(1:,IP),1,1.0d0,FSQ%SB(JS)%A2(1:,JQ),1)
+            end if
+            if (NFJ /= 0) then
+              call DGEMV_('T',LB,KB,(-0.5d0*ExFac),X1(ISX),LB,DSQ%SB(JS)%A2(1:,JQ),1,1.0d0,FSQ%SB(IS)%A2(1:,IP),1)
+            end if
+          end do
+        end do
+      end if
+130   continue
+    end do
+  end do
+end do
 
 ! Accumulate the contributions
-      DO 300 ISYM=1,NSYM
-        NB=NBAS(ISYM)
-        DO 310 IB=1,NB
-          DO 315 JB=1,IB
-            IJ = IB*(IB-1)/2 + JB
-            FLT%SB(ISYM)%A1(IJ)=FLT%SB(ISYM)%A1(IJ)                     &
-     &                         +FSQ%SB(ISYM)%A2(IB,JB)
-315       CONTINUE
-310     CONTINUE
-300   CONTINUE
-!
-      Call GADSum(W_FLT,nFlt)
-!
-#ifdef _DEBUGPRINT_
-      WRITE(6,'(6X,A)')'FROZEN FOCK MATRIX IN AO BASIS:'
-      DO ISYM=1,NSYM
-        NB=NBAS(ISYM)
-        IF ( NB.GT.0 ) THEN
-          WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
-          CALL TRIPRT(' ',' ',FLT%SB(ISYM)%A1,NB)
-        END IF
-      END DO
-#endif
-      Call deallocate_DSBA(FSQ)
-      Call deallocate_DSBA(DSQ)
-      Call deallocate_DSBA(FLT)
-      Call deallocate_DSBA(DLT)
+do ISYM=1,NSYM
+  NB = NBAS(ISYM)
+  do IB=1,NB
+    do JB=1,IB
+      IJ = IB*(IB-1)/2+JB
+      FLT%SB(ISYM)%A1(IJ) = FLT%SB(ISYM)%A1(IJ)+FSQ%SB(ISYM)%A2(IB,JB)
+    end do
+  end do
+end do
 
-      RETURN
- 999  CONTINUE
-      WRITE(6,*)' Error return code IRC=',IRC
-      WRITE(6,*)' from RDORD call, in FTWOI.'
-      CALL Abend
-      END
+call GADSum(W_FLT,nFlt)
+
+#ifdef _DEBUGPRINT_
+write(6,'(6X,A)') 'FROZEN FOCK MATRIX IN AO BASIS:'
+do ISYM=1,NSYM
+  NB = NBAS(ISYM)
+  if (NB > 0) then
+    write(6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
+    call TRIPRT(' ',' ',FLT%SB(ISYM)%A1,NB)
+  end if
+end do
+#endif
+call deallocate_DSBA(FSQ)
+call deallocate_DSBA(DSQ)
+call deallocate_DSBA(FLT)
+call deallocate_DSBA(DLT)
+
+return
+
+999 continue
+write(6,*) ' Error return code IRC=',IRC
+write(6,*) ' from RDORD call, in FTWOI.'
+call Abend()
+
+end subroutine FOCKTWO

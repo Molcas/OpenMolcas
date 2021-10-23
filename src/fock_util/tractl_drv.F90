@@ -11,6 +11,7 @@
 ! Copyright (C) 2004, Giovanni Ghigo                                   *
 !               2005, Francesco Aquilante                              *
 !***********************************************************************
+
 !***********************************************************************
 ! This Driver precedes the standard (TraCtl) and Cholesky (Cho_TraCtl) *
 ! AO/MO two-electrons transformation programs.                         *
@@ -46,48 +47,49 @@
 !> @param[in] DoExch2 Flag for the generation of Exch-2 integrals
 !> @param[in] iPart   Partitioning of temp files
 !***********************************************************************
-      SUBROUTINE TraCtl_Drv(iType,DoExch2,iPart)
-      Implicit Real*8 (a-h,o-z)
-      Integer iType
+subroutine TraCtl_Drv(iType,DoExch2,iPart)
+
+implicit real*8(a-h,o-z)
+integer iType
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-      Logical DoCholesky, DoExch2
+logical DoCholesky, DoExch2
 #include "chocaspt2.fh"
-      Character*10 SECNAM
+character*10 SECNAM
 
-      SECNAM='TraCtl_Drv'
+SECNAM = 'TraCtl_Drv'
 
-      Call DecideOnCholesky(DoCholesky)
+call DecideOnCholesky(DoCholesky)
 
-      If (DoCholesky) then
+if (DoCholesky) then
 
-        If (iType.EQ.1) then
+  if (iType == 1) then
 
-          Call ChoMP2_TraCtl(LUINTM,Work(LCMO),NCMO)
+    call ChoMP2_TraCtl(LUINTM,Work(LCMO),NCMO)
 
-        elseIf (iALGO.eq.0) Then
+  else if (iALGO == 0) then
 
-          Call Cho_TraCtl(iType,LUINTM,Work(LCMO),NCMO,DoExch2)
+    call Cho_TraCtl(iType,LUINTM,Work(LCMO),NCMO,DoExch2)
 
-        elseIf (iALGO.eq.1) Then
+  else if (iALGO == 1) then
 
-! caspt2 with cholesky does no longer use call to tractl_drv/cho_caspt2_drv
-!          Call Cho_caspt2_drv(Work(LCMO))
+    ! caspt2 with cholesky does no longer use call to tractl_drv/cho_caspt2_drv
+    !call Cho_caspt2_drv(Work(LCMO))
 
-        else
+  else
 
-          Call Cho_x_Quit(SecNam,' !!! Unknown algorithm !!! ',' ')
+    call Cho_x_Quit(SecNam,' !!! Unknown algorithm !!! ',' ')
 
-        EndIf
+  end if
 
-      Else
+else
 
-        Call TRACTL(iPart)
+  call TRACTL(iPart)
 
-      EndIf
+end if
 
+return
 
-      RETURN
-      END
+end subroutine TraCtl_Drv

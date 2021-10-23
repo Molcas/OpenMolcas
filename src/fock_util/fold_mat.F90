@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) Francesco Aquilante                                    *
 !***********************************************************************
-      Subroutine Fold_Mat(nSym,nBas,A,B)
+
+subroutine Fold_Mat(nSym,nBas,A,B)
 !***********************************************************************
 !                                                                      *
 !     purpose:                                                         *
@@ -32,42 +33,38 @@
 !     Author:   F. Aquilante                                           *
 !***********************************************************************
 
-      Implicit Real*8 (A-H,O-Z)
-
-      Dimension nBas(*) , A(*) , B(*)
+implicit real*8(A-H,O-Z)
+dimension nBas(*), A(*), B(*)
 !************************************
-      iit(j) = j*(j+1)/2
-!************************************
-      ijt(i,j) = i*(i-1)/2 + j
-!************************************
-      iis(n,j) = n*(j-1) + j
-!************************************
-      ijs(n,i,j) = n*(j-1) + i
+!Statement functions
+iit(j) = j*(j+1)/2
+ijt(i,j) = i*(i-1)/2+j
+iis(n,j) = n*(j-1)+j
+ijs(n,i,j) = n*(j-1)+i
 !************************************
 
+iOff1 = 0
+iOff2 = 0
 
-      iOff1 = 0
-      iOff2 = 0
+do iSym=1,nSym
 
-      Do iSym=1,nSym
+  do j=1,nBas(iSym)
 
-        Do j=1,nBas(iSym)
+    B(iOff1+iit(j)) = A(iOff2+iis(nBas(iSym),j))
 
-          B( iOff1 + iit(j) ) =  A( iOff2 + iis(nBas(iSym),j) )
+    do i=j+1,nBas(iSym)
 
-          Do i=j+1,nBas(iSym)
+      B(iOff1+ijt(i,j)) = A(iOff2+ijs(nBas(iSym),i,j))+A(iOff2+ijs(nBas(iSym),j,i))
 
-            B( iOff1 + ijt(i,j) ) = A( iOff2 + ijs(nBas(iSym),i,j) )    &
-     &                            + A( iOff2 + ijs(nBas(iSym),j,i) )
+    end do
 
-          End Do
+  end do
 
-        End Do
+  iOff1 = iOff1+iit(nBas(iSym))
+  iOff2 = iOff2+nBas(iSym)**2
 
-        iOff1 = iOff1 + iit(nBas(iSym))
-        iOff2 = iOff2 + nBas(iSym)**2
+end do
 
-      End Do
+return
 
-      Return
-      End
+end subroutine Fold_Mat

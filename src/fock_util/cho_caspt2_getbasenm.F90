@@ -7,30 +7,22 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
-!                                                                      *
-! Copyright (C) Francesco Aquilante                                    *
-!               2021, Roland Lindh                                     *
 !***********************************************************************
-Subroutine Mk_iShp_rs(iShp_rs,nShell)
-Implicit None
-Integer nShell
-Integer iShp_rs( nShell*(nShell+1)/2 )
 
-Integer iaSh, ibSh, iShp
-Integer, External:: Cho_F2SP
+subroutine Cho_caspt2_GetBaseNm(BaseNm,iTyp)
 
-! *** Mapping shell pairs from the full to the reduced set
+implicit none
+character*3 BaseNm
+integer iTyp
 
-Do iaSh=1,nShell
-   Do ibSh=1,iaSh
-      iShp = iaSh*(iaSh-1)/2 + ibSh
-      iShp_rs(iShp) = Cho_F2SP(iShp)
-  End Do
-End Do
+if (iTyp == 1) then
+  BaseNm = '_PI'
+else if (iTyp == 2) then
+  BaseNm = '_PW'
+else if (iTyp == 3) then
+  BaseNm = '_CD'
+else
+  BaseNm = '_un'
+end if
 
-End Subroutine Mk_iShp_rs
-
-
-
-
-
+end subroutine Cho_caspt2_GetBaseNm

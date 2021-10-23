@@ -11,18 +11,16 @@
 ! Copyright (C) Francesco Aquilante                                    *
 !***********************************************************************
 
-subroutine CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,FactC,FactX,DLT,DSQ,FLT,FSQ,pNocc,MinMem)
+subroutine CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,MinMem,MSQ,pNocc)
 !***********************************************************************
 !  Author : F. Aquilante
 !
 !  Purpose:
 !          For a given set of total symmetric AO-densities
-!          (hermitian matrix representation) this routine
+!          (hermitian matrix representation) and MO coefficients
+!          this routine
 !          computes the Coulomb and Exchange contributions
 !          to the Fock matrix from Cholesky vectors in full storage
-!
-!          The vectors are indeed read in reduced set storage
-!          and then reordered.
 !
 !          Coulomb term (Drs is the lower triangular matrix
 !                        of r=s symmetry block. The diagonals
@@ -31,10 +29,10 @@ subroutine CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,FactC,FactX,DLT,DSQ
 !
 !    F(pq) = F(pq) + FactC * Sum_J Lpq,J * (Sum_rs Drs*Lrs,J)
 !
-!          Exchange term (Drs is the squared matrix
-!                        of r=s symmetry block.)
+!          Exchange term (Crk is the squared matrix of MO coeff.
+!                             of r=s symmetry block)
 !
-!    F(pq) = F(pq) - FactX * Sum_rJ  Lpr,J * (Sum_s Drs*Lqs,J)
+!    F(pq) = F(pq) - FactX * Sum_Jk [(Sum_r Crk * Lpr,J) * (Sum_s Csk * Lqs,J)]
 !
 !    Integral-fashion formula:
 !
@@ -50,60 +48,96 @@ subroutine CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,FactC,FactX,DLT,DSQ
 !  FactC(nDen) : factor for the coulomb of the corresponding density
 !  FactX(nDen) : factor for the exchange of the corresponding density
 !
-!  ip{X}LT(nDen) : pointer to the array containing {X} in LT storage
-!  ip{X}FS(nDen) : pointer to the array containing {X} in SQ storage
-!    {X=D,F --- Density, Fock matrix}
-!
-!  pNocc(nDen) : pointer to the array of the Occupation numbers
-!                 for the corresponding density
+!  ip{X}SQ(nDen) : pointer to the array containing {X} in SQ storage
+!    {X=D,F,M --- Density, Fock matrix, MOs coeff.}
 !
 !  MinMem(nSym) : minimum amount of memory required to read
 !                 a single Cholesky vector in full storage
 !
 !***********************************************************************
 
-use Data_Structures, only: SBA_type, Deallocate_SBA, Map_to_SBA
-use Data_Structures, only: DSBA_type, Integer_Pointer
+use Data_Structures, only: SBA_Type, Deallocate_SBA
+use Data_Structures, only: DSBA_Type, Integer_Pointer
 
 implicit real*8(a-h,o-z)
-integer rc, nDen, nBas(*)
+integer rc, nDen, nSym, nBas(nSym), NumCho(nSym), kOcc(nSym)
 real*8 FactC(nDen), FactX(nDen)
-integer KSQ1(8), iSkip(8), MinMem(*)
-type(DSBA_Type) DLT(nDen), FLT(nDen), FSQ(nDen), DSQ(nDen)
+integer Lunit, lOff1
+integer MinMem(nSym), iSkip(nSym)
+type(DSBA_Type) DLT(nDen), FLT(nDen), FSQ(nDen), DSQ(nDen), MSQ(nDen)
 type(Integer_Pointer) :: pNocc(nDen)
+real*8 tread(2), tcoul(2), texch(2)
+#include "chounit.fh"
+logical DoExchange(nDen), DoCoulomb(nDen), DoSomeX, DoSomeC
 #ifdef _DEBUGPRINT_
 logical Debug
 #endif
-logical DoExchange(nDen), DoCoulomb(nDen), DoSomeX, DoSomeC
-real*8 tread(2), tcoul(2), texch(2)
+logical Square
 #include "chotime.fh"
+#include "chodensity.fh"
+#include "choscf.fh"
 #include "real.fh"
 character*50 CFmt
-character(LEN=15), parameter :: SECNAM = 'CHO_FOCKTWO_RED'
-logical, parameter :: DoRead = .true.
-#include "cholesky.fh"
+character(LEN=11), parameter :: SECNAM = 'CHO_FTWO_MO'
+character(LEN=4), parameter :: BaseNm = 'CHFV'
+character*6 Fname
+real*8, parameter :: xone = -One
 #include "stdalloc.fh"
-type(SBA_Type), target :: Wab
-real*8, pointer :: VJ(:) => null(), LrJs(:,:,:) => null(), XpJs(:,:,:) => null(), XdJb(:,:,:) => null(), XgJb(:,:,:) => null(), &
-                   Scr(:) => null()
+type(SBA_Type), target :: Wab, LqJs
+real*8, allocatable :: Dchk(:)
+real*8, pointer :: VJ(:) => null(), LrJs(:,:,:) => null(), XkJs(:) => null(), XdJb(:) => null(), XgJk(:) => null()
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+interface
+  subroutine dgemv_(TRANS,M,N,ALPHA,A,LDA,X,INCX,BETA,Y,INCY)
+    character(LEN=1) TRANS
+    integer M, N
+    real*8 ALPHA, BETA
+    integer LDA, INCX, INCY
+    real*8 A(lda,*), X(*), Y(*)
+  end subroutine dgemv_
+end interface
 !*************************************************
 !Statement functions
 MulD2h(i,j) = ieor(i-1,j-1)+1
 iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 nOcc(jSym,jDen) = pNocc(jDen)%I1(jSym)
-!*************************************************
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 
 #ifdef _DEBUGPRINT_
 Debug = .false. ! to avoid double printing in SCF-debug
 #endif
-IREDC = -1 ! unknown reduced set in core
 
-call CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
+call CWTIME(TOTCPU1,TOTWALL1) ! start clock for total time
 
 ! 1 --> CPU   2 --> Wall
 tread(:) = zero ! time read/rreorder vectors
 tcoul(:) = zero ! time for computing Coulomb
 texch(:) = zero ! time for computing Exchange
+
+if (DensityCheck) then
+  Thr = 1.0d-12
+  Square = .true.
+  xf = 2.0d0
+  if (DECO) xf = 1.0d0
+  do jDen=1,nDen
+    do jSym=1,nSym
+      if ((nBas(jSym) /= 0) .and. (nOcc(jSym,jDen) /= 0)) then
+        call mma_allocate(Dchk,nBas(jSym)**2,Label='Dchk')
+        call Cho_X_Test(DSQ(jDen)%SB(jSym)%A2,nBas(jSym),Square,MSQ(jDen)%SB(jSym)%A2,nOcc(jSym,jDen),xf,Dchk,nBas(jSym)**2,Thr,irc)
+        call mma_deallocate(Dchk)
+        if (irc == 0) then
+          write(6,*) '*** DENSITY CHECK : OK! *** SYMM= ',jSym
+        else
+          write(6,*) '*** DENSITY CHECK FAILED IN SYMMETRY: ',jSym,'FOR THE DENSITY NR. ',jDen
+        end if
+      end if
+    end do
+  end do
+end if
 
 ! Tests on the type of calculation
 DoSomeC = .false.
@@ -131,15 +165,30 @@ else
   end if
 end if
 
+! ********* Data from the Runfile
+call get_iarray('NumCho',NumCho,nSym)
+
 ! *************** BIG LOOP OVER VECTORS SYMMETRY *****************
 do jSym=1,MaxSym
 
-  if (NumCho(jSym) < 1) goto 1000
+  if (NumCho(jSym) < 1) cycle
+
+  ! Reading of the vectors is done in the full dimension
+  Lunit(:) = -1
+
+  ! Open Files
+  do ksym=1,nSym
+    if (nBas(ksym) /= 0) then
+      iSymp = MulD2h(ksym,jSym)
+      if (iSymp >= ksym) then
+        Lunit(iSymp) = 7
+        write(Fname,'(A4,I1,I1)') BaseNm,iSymp,ksym
+        call DANAME_MF_WA(Lunit(iSymp),Fname)
+      end if
+    end if
+  end do
 
   ! ------------------------------------------------------
-
-  ! Pointers to be used for the vectors
-  KSQ1(:) = -6666
 
   ! SET UP THE READING
   ! ------------------
@@ -149,20 +198,20 @@ do jSym=1,MaxSym
     nVec = min(LWORK/MinMem(jSym),NumCho(jSym))
   else
     ! ***QUIT*** bad initialization
-    write(6,*) 'Cho_FockTwo_RED: bad initialization'
+    write(6,*) 'Cho_FTwo_MO: bad initialization'
     rc = 99
     call Abend()
     nVec = -9999 ! dummy assignment - avoid compiler warnings
   end if
 
   !...this is ONLY for debug:
-  !      nVec = min(nVec,1)
+  !nVec = min(nVec,1)
 
   if (nVec > 0) then
     nBatch = (NumCho(jSym)-1)/nVec+1
   else
     ! ***QUIT*** insufficient memory
-    write(6,*) 'Cho_FockTwo_RED: Insufficient memory for batch'
+    write(6,*) 'Cho_FTwo_MO: Insufficient memory for batch'
     write(6,*) 'LWORK= ',LWORK
     write(6,*) 'min. mem. need= ',MinMem(jSym)
     write(6,*) 'NumCho= ',NumCho(jsym)
@@ -173,6 +222,7 @@ do jSym=1,MaxSym
   end if
 
   ! *************** BATCHING  *****************
+
   do iBatch=1,nBatch
 
     if (iBatch == nBatch) then
@@ -184,13 +234,13 @@ do jSym=1,MaxSym
     iVec = nVec*(iBatch-1)+1
 
     ! Allocate memory for reading the vectors
-    kTOT = MinMem(jSym)*NumV
-    call mma_allocate(Wab%A0,kTOT,Label='Wab%A0')
+    kRdMem = MinMem(jSym)*NumV
+    call mma_allocate(Wab%A0,kRdMem,Label='Wab%A0')
     Wab%iSym = JSYM
     Wab%nSym = nSym
     Wab%iCase = 7
 
-    ! setup the skipping flags according to # Occupied
+    !setup the skipping flags according to # of Occupied
     do k=1,nSym
       iSkip(k) = 0
       l = Muld2h(k,jsym) ! L(kl) returned if nOcc(k or l) .ne.0
@@ -203,7 +253,7 @@ do jSym=1,MaxSym
       end if
     end do
 
-    ! Max dimension of a read symmetry block
+    ! Max dimension of a symmetry block
     Nmax = 0
     do iSym=1,nSym
       if ((NBAS(iSym) > Nmax) .and. (iSkip(iSym) /= 0)) then
@@ -211,65 +261,55 @@ do jSym=1,MaxSym
       end if
     end do
 
-    ! Compute the total amount of memory needed to have the
-    ! vectors in core (full storage)
-    iE = 0
-    do iSymq=1,nSym
-      iSymp = muld2h(jSym,iSymq)
-      nq = nBas(iSymq)
-      np = nBas(iSymp)
-      if (nq*np <= 0) cycle
-
-      iS = iE+1
-      if ((iSymp > iSymq) .and. (iSkip(iSymp) /= 0)) then
-        NumB = np*nq
-        iE = iE+NumB*NumV
-        Wab%SB(iSymp)%A3(1:np,1:nq,1:NumV) => Wab%A0(iS:iE)
-        Wab%SB(iSymp)%A2(1:NumB,1:NumV) => Wab%A0(iS:iE)
-      else
-        if ((iSymp == iSymq) .and. (iSkip(iSymp) /= 0)) then
-          NumB = np*(np+1)/2
-          ! Special trick for the vector L11 ; used to store X(a,Jb)
-          if ((iSymp == 1) .and. (jSym == 1) .and. DoSomeX) then
-            iE = iE+(Nmax**2)*NumV
-            Wab%SB(iSymp)%A1(1:Nmax**2*NumV) => Wab%A0(iS:iE)
-          else
-            iE = iE+NumB*NumV
-          end if
-          Wab%SB(iSymp)%A2(1:NumB,1:NumV) => Wab%A0(iS:iS-1+NumB*NumV)
-        end if
-      end if
-    end do
-
-    call Map_to_SBA(Wab,KSQ1)
-
-    lScr = kTOT-iE
-
-    ! Reading of the vectors is done in Reduced sets
-
-    iSwap = min(1,(jSym-1)) ! L(ab,J) --> L(a,J,b) iff jSym.ne.1
-
     call CWTIME(TCR1,TWR1)
 
-    Scr(1:lScr) => Wab%A0(iE+1:iE+lScr)
-    call CHO_X_getVfull(irc,Scr,lscr,iVEC,NumV,jSym,iSwap,IREDC,KSQ1,iSkip,DoRead)
-    Scr => null()
+    iE = 0
+    do ksym=1,nSym
 
-    if (irc /= 0) then
-      rc = irc
-      return
-    end if
+      iSymp = MulD2h(ksym,jSym)
+
+      nk = nBas(kSym)
+      np = nBas(iSymp)
+
+      if (nk*np <= 0) cycle
+      iS = iE+1
+
+      if ((iSymp == ksym) .and. (iSkip(iSymp) /= 0)) then
+        NumB = nk*(nk+1)/2
+        ! Special trick for the vector L11 ; used to store X(a,Jb)
+        if ((ksym == 1) .and. (jSym == 1) .and. DoSomeX) then
+          iE = iE+lOff1*NumV
+        else
+          iE = iE+NumB*NumV
+        end if
+        Wab%SB(iSymp)%A2(1:NumB,1:NumV) => Wab%A0(iS:iS-1+NumB*NumV)
+      else
+        if ((iSymp > ksym) .and. (iSkip(iSymp) /= 0)) then
+          NumB = nk*np
+          iE = iE+NumB*NumV
+          Wab%SB(iSymp)%A3(1:np,1:nk,1:NumV) => Wab%A0(iS:iE)
+          Wab%SB(iSymp)%A2(1:NumB,1:NumV) => Wab%A0(iS:iE)
+        end if
+      end if
+
+    end do ! ends the loop over symmetries
+
+    do kSym=1,nSym
+      iSymp = MulD2h(ksym,jSym)
+      if (.not. associated(Wab%SB(iSymp)%A2)) cycle
+      NumB = size(Wab%SB(iSymp)%A2,1)
+      call RdChoVec(Wab%SB(iSymp)%A2,NumB,NumV,iVec,Lunit(iSymp))
+    end do
 
     call CWTIME(TCR2,TWR2)
     tread(1) = tread(1)+(TCR2-TCR1)
     tread(2) = tread(2)+(TWR2-TWR1)
 
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'Batch ',iBatch,' of   ',nBatch,': NumV = ',NumV
-    write(6,*) 'Total allocated :     ',kTOT
-    write(6,*) 'Memory pointers KSQ1: ',(KSQ1(i),i=1,nSym)
-    write(6,*) 'lScr:                 ',lScr
-    write(6,*) 'JSYM:                 ',jSym
+    write(6,*) 'Batch ',iBatch,' of ',nBatch,': NumV = ',NumV
+    write(6,*) 'Total allocated:     ',kRdMem
+    write(6,*) 'iE:              ',iE
+    write(6,*) 'JSYM:                ',jSym
 #   endif
 
     ! Reading Done!
@@ -284,7 +324,7 @@ do jSym=1,MaxSym
         ! Computing the intermediate vector V(J)
         !
         ! Contraction with the density matrix
-        !------------------------------------
+        ! -----------------------------------
         ! V{#J} <- V{#J} + sum_rr L(rr,{#J})*D(rr)
         !==========================================================
 
@@ -298,14 +338,14 @@ do jSym=1,MaxSym
 
             Naa = nBas(iSymr)*(nBas(iSymr)+1)/2
 
-            call DGEMV_('T',Naa,NumV,ONE,Wab%SB(iSymr)%A2,Naa,DLT(jDen)%SB(ISYMR)%A1,1,ONE,VJ,1)
+            call DGEMV_('T',Naa,NumV,ONE,Wab%SB(iSymr)%A2,Naa,DLT(jDen)%SB(iSYMR)%A1,1,ONE,VJ,1)
 
           end if
         end do
 
         ! Contraction with the 2nd vector
         ! -----------------------------------
-        ! Fpp{#J} <- Fpp{#J} + FactC * sum_J L(pp,{#J})*V{#J}
+        ! Fss{#J} <- Fss{#J} + FactC * sum_J L(ss,{#J})*V{#J}
         !==========================================================
 
         do iSyms=1,nSym
@@ -318,37 +358,37 @@ do jSym=1,MaxSym
           end if
         end do
 
+        VJ => null()
+
         call CWTIME(TCC2,TWC2)
         tcoul(1) = tcoul(1)+(TCC2-TCC1)
         tcoul(2) = tcoul(2)+(TWC2-TWC1)
 
-        VJ => null()
-
-      end if !jSym=1 & DoCoulomb
+      end if ! jSym=1 & DoCoulomb
 
     end do ! loop over densities for the Coulomb term
 
     ! *************** END COULOMB CONTRIBUTION  ****************
+    !
+    ! WE INCLUDE THE DIAGONAL PART OF THE EXCHANGE HERE!!!!
+    !
+    ! ********** REORDER and SQUARE ONE VECTOR AT THE TIME *****
+    !
+    !     CHOVEC(nrs,numv) ---> CHOVEC(nr,numv,ns)
 
     if ((jSym == 1) .and. DoSomeX) then
-      ! WE INCLUDE THE DIAGONAL PART OF THE EXCHANGE HERE!!!!
-      !
-      ! ********** REORDER AND SQUARE ONE VECTOR AT THE TIME *****
-      !     Reorder: L(rs,J) -> L(r,J,s).
-      !     CHOVEC(nrs,numv) ---> CHOVEC(nr,numv,ns)
-
       do iSymr=1,nSym
 
         iSymr_Occ = 0
         do jDen=1,nDen
           iSymr_Occ = iSymr_Occ+nOcc(iSymr,jDen)
         end do
-        if ((nBas(iSymr) /= 0) .and. (iSymr_Occ > 0)) then
+        nr = NBAS(iSymr)
+        if ((nr /= 0) .and. (iSymr_Occ > 0)) then
 
           call CWTIME(TCREO1,TWREO1)
 
-          nr = NBAS(iSymr)
-          LrJs(1:nr,1:NUMV,1:nr) => Wab%A0(iE+1:iE+nr*NUMV*nr)
+          LrJs(1:nr,1:NumV,1:nr) => Wab%A0(iE+1:iE+nr*NumV*nr)
 
           do JVEC=1,NUMV
 
@@ -357,9 +397,9 @@ do jSym=1,MaxSym
 
                 jSR = iTri(jS,jR)
 
-                LrJs(jR,JVEC,jS) = Wab%SB(ISYMR)%A2(jSR,jVEC)
+                LrJs(jR,JVEC,jS) = Wab%SB(ISYMR)%A2(jSR,JVEC)
 
-                LrJs(jS,JVEC,jR) = Wab%SB(ISYMR)%A2(jSR,jVEC)
+                LrJs(jS,JVEC,jR) = Wab%SB(ISYMR)%A2(jSR,JVEC)
 
               end do
             end do
@@ -373,56 +413,116 @@ do jSym=1,MaxSym
 
             if (DoExchange(jDen)) then
 
-              if (nOcc(iSymr,jDen) /= 0) then
+              kOcc(iSymr) = nOcc(iSymr,jDen)
+
+              if (kOcc(iSymr) /= 0) then
 
                 call CWTIME(TC1X1,TW1X1)
 
                 ! Calculate intermediate:
-                ! X(p,Js) = Sum(q) D(p,q) * L(q,Js).
+                ! X(k,Js) = Sum(r) C(r,k) * L(r,Js).
                 ! -----------------------------------
+                iSyms = iSymr
+                NK = kOcc(iSymr)
 
-                NR = NBAS(ISYMR)
-                XpJs(1:NR,1:NUMV,1:NR) => Wab%A0(1:NR*NUMV*NR)
+                XkJs(1:NK*NumV*nr) => Wab%A0(1:NK*NumV*nr)
 
-                call DGEMM_('N','N',NBAS(ISYMR),NUMV*NBAS(ISYMR),NBAS(ISYMR),ONE,DSQ(jDen)%SB(ISYMR)%A2,NBAS(ISYMR),LrJs, &
-                            NBAS(ISYMR),ZERO,XpJs,NBAS(ISYMR))
+                call DGEMM_('T','N',NK,NUMV*NBAS(ISYMR),NBAS(iSYMR),ONE,MSQ(jDen)%SB(ISYMR)%A2,NBAS(ISYMR),LrJs,NBAS(ISYMR),ZERO, &
+                            XkJs,NK)
 
                 ! Calculate exchange contribution:
-                ! F(p,q) = F(p,q) - FactX Sum(sJ) L(sJ,p) * X(sJ,q).
-                ! --------------------------------------------------
+                ! F(r,s) = F(r,s) - FactX * Sum(kJ) X(kJ,r) * X(kJ,s).
+                ! ----------------------------------------------------
+                !CALL DGEMM_('T','N',NBAS(ISYMR),NBAS(ISYMS),NK*NUMV,-FactX(jDen),XkJs,NK*NUMV,XkJs,NK*NUMV,One, &
+                !            FSQ(jDen)%SB(ISYMR)%A2,NBAS(ISYMR))
 
-                call DGEMM_('T','N',NBAS(ISYMR),NBAS(ISYMR),NBAS(ISYMR)*NUMV,-FactX(jDen),LrJs,NBAS(ISYMR)*NUMV,XpJs, &
-                            NBAS(ISYMR)*NUMV,One,FSQ(jDen)%SB(ISYMR)%A2,NBAS(ISYMR))
+                ! *** Compute only the LT part of the exchange matrix ***************
+                LKV = NK*NUMV
+                do jS=1,NBAS(iSymS)
+                  NBL = NBAS(iSymR)-(jS-1)
+                  jjS = 1+LKV*(jS-1)
+
+                  call DGEMV_('T',LKV,NBL,-FactX(jDen),XkJs(jjS:),LKV,XkJs(jjS:),1,ONE,FSQ(jDen)%SB(ISYMR)%A2(jS:,jS),1)
+
+                end do
 
                 call CWTIME(TC1X2,TW1X2)
                 texch(1) = texch(1)+(TC1X2-TC1X1)
                 texch(2) = texch(2)+(TW1X2-TW1X1)
 
-                XpJs => null()
+                XkJs => null()
 
-              end if
+              end if ! if kocc.ne.0
 
-            end if ! DoExchange(jDen)
+            end if ! Do Exchange(jDen)
 
           end do ! loop over the densities
           LrJs => null()
 
-        end if ! nbas.ne.0 & nOcc.ne.0
+        end if ! nbas.ne.0
 
       end do ! loop over Fock mat symmetries
 
-    end if ! jSym=1 and DoSomeX
+    end if ! jSym=1 & DoSomeX
 
     ! ****************** END DIAGONAL EXCHANGE **********************
-    !
+
     ! ************ "OFF-DIAGONAL" EXCHANGE CONTRIBUTION  ************
 
     if (jSym /= 1) then
 
+      ! Reordering of the Cholesky vectors (ALL AT ONCE)
+      !
+      !          Reorder: L(qs,J) -> L(qJ,s).
+      !
+      ! CHOVEC(nq,ns,numv) ---> CHOVEC(nq,numv,ns)
+      ! ------------------------------------------
+      call CWTIME(TCREO3,TWREO3)
+
+      jE = iE
+      do ISYMS=1,NSYM
+
+        ISYMQ = MULD2H(ISYMS,JSYM)
+
+        ns = nBas(iSyms)
+        nq = nBas(iSymq)
+        if (ns*nq <= 0) cycle
+
+        if ((ISYMQ > ISYMS) .and. (iSkip(iSymq) /= 0)) then
+
+          jS = JE+1
+          jE = JE+nq*NumV*ns
+          LqJs%SB(ISYMQ)%A3(1:nq,1:NumV,1:ns) => Wab%A0(jS:jE)
+
+          do JVEC=1,NUMV
+
+            do jS=1,NBAS(iSyms)
+
+              LqJs%SB(ISYMQ)%A3(:,jVec,jS) = Wab%SB(ISYMQ)%A3(:,jS,jVEC)
+
+            end do
+
+          end do ! loop over the vectors
+
+        end if ! sym(Q) > sym(S)
+
+      end do ! loop over symmetry blocks
+
+      call CWTIME(TCREO4,TWREO4)
+      tread(1) = tread(1)+(TCREO4-TCREO3)
+      tread(2) = tread(2)+(TWREO4-TWREO3)
+
+      ! -------------- REORDERING DONE !! --------
+
       do jDen=1,nDen
 
         if (DoExchange(jDen)) then
-          ! COMPUTE EXCHANGE FOR OFF-DIAGONAL VECTORS
+          ! **** Occupation numbers needed for the Exchange term *****
+          do iSym=1,nsym
+            kOcc(iSym) = nOcc(iSym,jDen)
+          end do
+          ! **********************************************************
+          ! --- COMPUTE EXCHANGE FOR OFF-DIAGONAL VECTORS
 
           call CWTIME(TC2X1,TW2X1)
 
@@ -430,64 +530,87 @@ do jSym=1,MaxSym
 
             ISYMB = MULD2H(ISYMG,JSYM)
 
-            if (nBas(iSymb)*nBas(iSymg) <= 0) cycle
+            nb = nBas(iSymb)
+            ng = nBas(iSymg)
+            if (nb*ng <= 0) cycle
 
-            ISYMD = ISYMG ! only total symmetric Density
             ISYMA = ISYMB ! block diagonal Fock Matrix
+            ISYMD = ISYMG ! total symmetric densities
 
             if ((ISYMG > ISYMB) .and. (iSkip(iSymg) /= 0)) then
 
               ! ---------------------------
               ! F(a,b) = - D(g,d) * (ad|gb)
               ! ---------------------------
-              if (nOcc(iSymg,jDen) /= 0) then
+              NK = kOcc(iSymG)
 
-                nD = NBAS(ISYMD)
-                nB = NBAS(ISYMB)
-                XdJb(1:nD,1:NumV,1:nB) => Wab%A0(iE+1:iE+nD*NumV*nB)
+              XdJb(1:NK*NumV*nb) => Wab%A0(1:NK*NumV*nb)
+
+              if (NK /= 0) then
 
                 ! Calculate intermediate:
-                ! X(d,Jb) = Sum(g) D(d,g) * L(g,Jb).
+                ! X(k,Jb) = Sum(g) C(g,k) * L(g,Jb).
                 ! ----------------------------------
 
-                call DGEMM_('N','N',NBAS(ISYMD),NUMV*NBAS(ISYMB),NBAS(ISYMG),ONE,DSQ(jDen)%SB(ISYMG)%A2,NBAS(ISYMD), &
-                            Wab%SB(ISYMG)%A2,NBAS(ISYMG),ZERO,XdJb,NBAS(ISYMD))
+                call DGEMM_('T','N',NK,NUMV*NBAS(ISYMB),NBAS(ISYMG),ONE,MSQ(jDen)%SB(ISYMG)%A2,NBAS(ISYMG),LqJs%SB(ISYMG)%A3, &
+                            NBAS(ISYMG),ZERO,XdJb,NK)
 
-                ! F(a,b) = F(a,b) - Sum(dJ) L(dJ,a) * X(dJ,b).
+                ! F(a,b) = F(a,b) - Sum(kJ) X(kJ,a) * X(kJ,b).
                 ! -------------------------------------------
 
-                call DGEMM_('T','N',NBAS(ISYMA),NBAS(ISYMB),NBAS(ISYMD)*NUMV,-FactX(jDen),Wab%SB(ISYMG)%A2,NBAS(ISYMD)*NUMV,XdJb, &
-                            NBAS(ISYMD)*NUMV,ONE,FSQ(jDen)%SB(ISYMB)%A2,NBAS(ISYMA))
+                !CALL DGEMM_('T','N',NBAS(ISYMA),NBAS(ISYMB),NK*NUMV,-FactX(jDen),XdJb,NK*NUMV,XdJb,NK*NUMV,ONE, &
+                !            FSQ(jDen)%SB(iSYMB)%A2,NBAS(ISYMA))
 
+                ! *** Compute only the LT part of the exchange matrix ***************
+                LKV = NK*NUMV
+                do jB=1,NBAS(iSymB)
+                  NBL = NBAS(iSymA)-(jB-1)
+                  jjB = 1+LKV*(jB-1)
+
+                  call DGEMV_('T',LKV,NBL,-FactX(jDen),XdJb(jjB:),LKV,XdJb(jjB:),1,ONE,FSQ(jDEN)%SB(ISYMB)%A2(jB:,jB),1)
+
+                end do
                 XdJb => null()
+                ! ******************************************************************
 
               end if
+
               ! ---------------------------
               ! F(g,d) = - D(a,b) * (ad|gb)
               ! ---------------------------
-              if (nOcc(iSyma,jDen) /= 0) then
+              NK = kOcc(iSymB)
 
-                nG = NBAS(ISYMG)
-                nB = NBAS(ISYMB)
-                XgJb(1:nG,1:NumV,1:nB) => Wab%A0(iE+1:iE+nG*NumV*nB)
+              if (NK /= 0) then
+
+                XgJk(1:ng*NumV*NK) => Wab%A0(1:ng*NumV*NK)
 
                 ! Calculate intermediate:
-                ! X(gJ,b) = Sum(a) L(gJ,a)* D(a,b).
+                ! X(gJ,k) = Sum(a) L(gJ,a) * C(a,k).
                 ! ----------------------------------
 
-                call DGEMM_('N','N',NBAS(ISYMG)*NUMV,NBAS(ISYMB),NBAS(ISYMA),ONE,Wab%SB(ISYMG)%A2,NBAS(ISYMG)*NUMV, &
-                            DSQ(jDen)%SB(ISYMB)%A2,NBAS(ISYMA),ZERO,XgJb,NBAS(ISYMG)*NUMV)
+                call DGEMM_('N','N',NBAS(ISYMG)*NUMV,NK,NBAS(ISYMA),ONE,LqJs%SB(ISYMG)%A3,NBAS(ISYMG)*NUMV,MSQ(jDen)%SB(ISYMB)%A2, &
+                            NBAS(ISYMA),ZERO,XgJk,NBAS(ISYMG)*NUMV)
 
-                ! F(g,d) = F(g,d) - Sum(Jb) X(g,Jb) * L(d,Jb).
+                ! F(g,d) = F(g,d) - Sum(Jk) X(g,Jk) * X(d,Jk).
                 ! -------------------------------------------
 
-                call DGEMM_('N','T',NBAS(ISYMG),NBAS(ISYMD),NUMV*NBAS(ISYMB),-FactX(jDen),XgJb,NBAS(ISYMG),Wab%SB(ISYMG)%A2, &
-                            NBAS(ISYMD),ONE,FSQ(jDen)%SB(ISYMG)%A2,NBAS(ISYMG))
+                !CALL DGEMM_('N','T',NBAS(ISYMG),NBAS(ISYMD),NUMV*NK,-FactX(jDen),XgJk,NBAS(ISYMG),XgJk,NBAS(ISYMD),ONE, &
+                !            FSQ(jDen)%SB(ISYMG)%A2,NBAS(ISYMG))
 
-                XgJb => null()
+                ! *** Compute only the LT part of the exchange matrix ***************
+                LVK = NUMV*NK
+                do jD=1,NBAS(iSymD)
+                  NBL = NBAS(iSymG)-(jD-1)
 
+                  call DGEMV_('N',NBL,LVK,-FactX(jDen),XgJk(jD:),NBAS(iSymG),XgJk(jD:),NBAS(iSymD),ONE, &
+                              FSQ(jDen)%SB(ISYMG)%A2(jD:,jD),1)
+                end do
+
+                XgJk => null()
               end if
+
             end if
+            LqJs%SB(ISYMG)%A3 => null()
 
           end do ! loop over orbital symmetries
 
@@ -508,7 +631,13 @@ do jSym=1,MaxSym
 
   end do ! end of the batch procedure
 
-1000 continue
+  ! Close Files
+  do ksym=1,nSym
+    if (Lunit(ksym) /= -1) then
+      call DACLOS(Lunit(ksym))
+      Lunit(ksym) = -1
+    end if
+  end do
 
 end do ! loop over JSYM
 
@@ -522,7 +651,7 @@ if (timings) then
   CFmt = '(2x,A)'
   write(6,*)
   write(6,CFmt) 'Cholesky SCF timing from '//SECNAM
-  write(6,CFmt) '-----------------------------------------'
+  write(6,CFmt) '------------------------------------'
   write(6,*)
   write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
   write(6,CFmt) 'Fock matrix construction        CPU       WALL   '
@@ -543,7 +672,7 @@ end if
 #ifdef _DEBUGPRINT_
 if (Debug) then ! to avoid double printing in SCF-debug
 
-  write(6,'(6X,A)') 'TEST PRINT FROM CHO_FOCKTWO_RED.'
+  write(6,'(6X,A)') 'TEST PRINT FROM CHO_FTWO_MO.'
   write(6,'(6X,A)') '***** EXCHANGE MATRIX ***** '
   do jDen=1,nDen
     write(6,'(6X,A,I2)') 'DENSITY TYPE: ',jDen
@@ -567,4 +696,4 @@ rc = 0
 
 return
 
-end subroutine CHO_FOCKTWO_RED
+end subroutine CHO_FTWO_MO

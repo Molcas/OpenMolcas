@@ -8,47 +8,46 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_GETH1(nBtri,H1,RFpert,ERFNuc)
 
-      IMPLICIT REAL*8 (A-H,O-Z)
+subroutine CHO_GETH1(nBtri,H1,RFpert,ERFNuc)
 
+implicit real*8(A-H,O-Z)
 #include "real.fh"
 #include "stdalloc.fh"
-      Integer nBTri
-      Real*8 H1(nBTri)
-      Logical RFpert
-      Real*8 ERFNuc
+integer nBTri
+real*8 H1(nBTri)
+logical RFpert
+real*8 ERFNuc
+character*8 OneLbl
+real*8, allocatable :: Tmp(:)
 
-      Character*8 OneLbl
-      Real*8, Allocatable:: Tmp(:)
+iRc = -1
+iOpt = 6
+iCmp = 1
+iSyLab = 1
+OneLbl = 'OneHam  '
 
-      iRc=-1
-      iOpt=6
-      iCmp=1
-      iSyLab=1
-      OneLbl='OneHam  '
+call RdOne(iRc,iOpt,OneLbl,iCmp,H1,iSyLab)
 
-      Call RdOne(iRc,iOpt,OneLbl,iCmp,H1,iSyLab)
+if (IRC /= 0) then
+  write(6,*)
+  write(6,*) '    *** ERROR IN SUBROUTINE  CHO_GETH1 *** '
+  write(6,*) '   BARE NUCLEI HAMILTONIAN IS NOT AVAILABLE'
+  write(6,*)
+  call Abend()
+end if
 
-      IF ( IRC.NE.0 ) THEN
-        WRITE(6,*)
-        WRITE(6,*)'    *** ERROR IN SUBROUTINE  CHO_GETH1 *** '
-        WRITE(6,*)'   BARE NUCLEI HAMILTONIAN IS NOT AVAILABLE'
-        WRITE(6,*)
-        CALL Abend
-      ENDIF
+ERFNuc = Zero
+if (RFpert) then
+  call mma_allocate(Tmp,nBTri,Label='Tmp')
+  call Get_dScalar('RF Self Energy',ERFNuc)
+  call Get_dArray('Reaction field',Tmp,nBtri)
 
-      ERFNuc=Zero
-      If ( RFpert ) then
-         Call mma_allocate(Tmp,nBTri,Label='Tmp')
-         Call Get_dScalar('RF Self Energy',ERFNuc)
-         Call Get_dArray('Reaction field',Tmp,nBtri)
+  H1(:) = H1(:)+Tmp(:)
 
-         H1(:) = H1(:) + Tmp(:)
+  call mma_deallocate(Tmp)
+end if
 
-         Call mma_deallocate(Tmp)
-      End If
+return
 
-
-      RETURN
-      END
+end subroutine CHO_GETH1

@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1996, Markus P. Fuelscher                              *
 !***********************************************************************
-      Subroutine Fold(nSym,nBas,A,B)
+
+subroutine Fold(nSym,nBas,A,B)
 !***********************************************************************
 !                                                                      *
 !     purpose:                                                         *
@@ -41,25 +42,24 @@
 !                                                                      *
 !***********************************************************************
 
-      Implicit Real*8 (A-H,O-Z)
+implicit real*8(A-H,O-Z)
+dimension nBas(*), A(*), B(*)
+parameter(Two=2.0d0)
 
-      Dimension nBas(*) , A(*) , B(*)
+iOff1 = 0
+iOff2 = 0
+do iSym=1,nSym
+  mBas = nBas(iSym)
+  do iBas=1,mBas
+    do jBas=1,iBas-1
+      B(iOff2+jBas) = Two*A(iOff1+jBas)
+    end do
+    B(iOff2+iBas) = A(iOff1+iBas)
+    iOff1 = iOff1+mBas
+    iOff2 = iOff2+iBas
+  end do
+end do
 
-      Parameter ( Two=2.0d0 )
+return
 
-      iOff1 = 0
-      iOff2 = 0
-      Do iSym = 1, nSym
-        mBas = nBas(iSym)
-        Do iBas= 1, mBas
-          Do jBas = 1 , iBas-1
-            B(iOff2+jBas) =  Two * A(iOff1+jBas)
-          End Do
-          B(iOff2+iBas) =  A(iOff1+iBas)
-          iOff1 = iOff1 + mBas
-          iOff2 = iOff2 + iBas
-        End Do
-      End Do
-
-      Return
-      End
+end subroutine Fold

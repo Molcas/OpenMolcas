@@ -12,157 +12,145 @@
 !               2021, Roland Lindh                                     *
 !***********************************************************************
 
-      SUBROUTINE CHO_GetShFull(LabJ,lLabJ,JNUM,JSYM,IREDC,ChoV,         &
-     &                         SvShp,mmShl,iShp_rs,mmShl_tot)
-      use ChoArr, only: iSOShl, iShlSO, iBasSh, iRS2F, nDimRS
-      use ChoSwp, only: IndRSh, IndRed
-      use Data_Structures, only: L_Full_Type
-      Implicit Real*8 (a-h,o-z)
-      Real*8  LabJ(lLabJ)
-      Real*8  SvShp(mmShl , 2)
-      Integer iShp_rs( mmShl_tot )
-      Integer, External :: cho_isao
+subroutine CHO_GetShFull(LabJ,lLabJ,JNUM,JSYM,IREDC,ChoV,SvShp,mmShl,iShp_rs,mmShl_tot)
 
+use ChoArr, only: iSOShl, iShlSO, iBasSh, iRS2F, nDimRS
+use ChoSwp, only: IndRSh, IndRed
+use Data_Structures, only: L_Full_Type
+
+implicit real*8(a-h,o-z)
+real*8 LabJ(lLabJ)
+real*8 SvShp(mmShl,2)
+integer iShp_rs(mmShl_tot)
+integer, external :: cho_isao
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "real.fh"
-
-      Type (L_Full_Type) ChoV
-
+type(L_Full_Type) ChoV
 !***********************************************************************
-      MulD2h(i,j) = iEOR(i-1,j-1) + 1
+!Statement function
+MulD2h(i,j) = ieor(i-1,j-1)+1
 !***********************************************************************
 
 !*********************************************************
 !
-!    From Reduced sets to full storage
-!    ---------------------------------
+! From Reduced sets to full storage
+! ---------------------------------
 !
-!     L{a,b,J} ---> L(a,J,b)
+!  L{a,b,J} ---> L(a,J,b)
 !
 !*********************************************************
 
-      iLoc = 3 ! use scratch location in reduced index arrays
+iLoc = 3 ! use scratch location in reduced index arrays
 
-      ChoV%A0(:)=Zero
-      SvShp(:,:)=Zero
+ChoV%A0(:) = Zero
+SvShp(:,:) = Zero
 
-      IF (JSYM.eq.1) THEN
+if (JSYM == 1) then
 
-         NREAD = 0
+  NREAD = 0
 
-         DO JVEC=1,JNUM
+  do JVEC=1,JNUM
 
-            kLabJ = NREAD
-            NREAD= NREAD + nDimRS(jSym,IREDC)
+    kLabJ = NREAD
+    NREAD = NREAD+nDimRS(jSym,IREDC)
 
-            Do jRab=1,nnBstR(jSym,iLoc)
+    do jRab=1,nnBstR(jSym,iLoc)
 
-             kRab = iiBstr(jSym,iLoc) + jRab
-             iRab = IndRed(kRab,iLoc) ! addr in 1st red set
+      kRab = iiBstr(jSym,iLoc)+jRab
+      iRab = IndRed(kRab,iLoc) ! addr in 1st red set
 
-             iShp = IndRSh(iRab) ! shell pair to which it belongs
+      iShp = IndRSh(iRab) ! shell pair to which it belongs
 
-             iag  = iRS2F(1,iRab)  !global address
-             ibg  = iRS2F(2,iRab)
+      iag = iRS2F(1,iRab) ! global address
+      ibg = iRS2F(2,iRab)
 
-             iaSh = iSOShl(iag) ! shell to which it belongs
-             ibSh = iSOShl(ibg) ! iaSh >= ibSh !!!!!!
+      iaSh = iSOShl(iag) ! shell to which it belongs
+      ibSh = iSOShl(ibg) ! iaSh >= ibSh !!!!!!
 
-             iaSg = iShlSO(iag) !index of SO within its shell
-             ibSg = iShlSO(ibg)
+      iaSg = iShlSO(iag) ! index of SO within its shell
+      ibSg = iShlSO(ibg)
 
-             iSyma = cho_isao(iag)  !symmetry block sym(a)=sym(b)
+      iSyma = cho_isao(iag) ! symmetry block sym(a)=sym(b)
 
-             ias = iaSg - iBasSh(iSyma,iaSh) ! addr within its shell
-             ibs = ibSg - iBasSh(isyma,ibSh)
+      ias = iaSg-iBasSh(iSyma,iaSh) ! addr within its shell
+      ibs = ibSg-iBasSh(isyma,ibSh)
 
-             kLabJ  = kLabJ + 1
+      kLabJ = kLabJ+1
 
-             ChoV%SPB(iSyma,iShp_rs(iShp),1)%A3(ias,JVEC,ibs)           &
-     &        = LabJ(kLabJ)
+      ChoV%SPB(iSyma,iShp_rs(iShp),1)%A3(ias,JVEC,ibs) = LabJ(kLabJ)
 
-             i1=1
-             If (ibSh/=iaSh) i1=2
+      i1 = 1
+      if (ibSh /= iaSh) i1 = 2
 
-             ChoV%SPB(iSyma,iShp_rs(iShp),i1)%A3(ibs,JVEC,ias)          &
-     &        = LabJ(kLabJ)
+      ChoV%SPB(iSyma,iShp_rs(iShp),i1)%A3(ibs,JVEC,ias) = LabJ(kLabJ)
 
-             SvShp(iShp_rs(iShp),2) = SvShp(iShp_rs(iShp),2)            &
-     &                                  + LabJ(kLabJ)**2
+      SvShp(iShp_rs(iShp),2) = SvShp(iShp_rs(iShp),2)+LabJ(kLabJ)**2
 
-            End Do
+    end do
 
-            Do jShp=1,nnShl_tot ! Maximize over vectors
-               If (iShp_rs(jShp).gt.0) Then
-                  SvShp(iShp_rs(jShp),1) = Max( SvShp(iShp_rs(jShp),1), &
-     &                                          SvShp(iShp_rs(jShp),2) )
-                  SvShp(iShp_rs(jShp),2) = zero
-               End If
-            End Do
+    do jShp=1,nnShl_tot ! Maximize over vectors
+      if (iShp_rs(jShp) > 0) then
+        SvShp(iShp_rs(jShp),1) = max(SvShp(iShp_rs(jShp),1),SvShp(iShp_rs(jShp),2))
+        SvShp(iShp_rs(jShp),2) = zero
+      end if
+    end do
 
-         END DO
+  end do
 
+else
 
-      ELSE
+  NREAD = 0
 
-         NREAD = 0
+  do JVEC=1,JNUM
 
-         DO JVEC=1,JNUM
+    kLabJ = NREAD
+    NREAD = NREAD+nDimRS(jSym,IREDC)
 
-            kLabJ = NREAD
-            NREAD= NREAD + nDimRS(jSym,IREDC)
+    do jRab=1,nnBstR(jSym,iLoc)
 
-            Do jRab=1,nnBstR(jSym,iLoc)
+      kRab = iiBstr(jSym,iLoc)+jRab
+      iRab = IndRed(kRab,iLoc) ! addr in 1st red set
 
-              kRab = iiBstr(jSym,iLoc) + jRab
-              iRab = IndRed(kRab,iLoc) ! addr in 1st red set
+      iShp = IndRSh(iRab) ! shell pair to which it belongs
 
-              iShp = IndRSh(iRab) ! shell pair to which it belongs
+      iag = iRS2F(1,iRab) ! global address
+      ibg = iRS2F(2,iRab)
 
-              iag  = iRS2F(1,iRab)  !global address
-              ibg  = iRS2F(2,iRab)
+      iaSh = iSOShl(iag) ! shell to which it belongs
+      ibSh = iSOShl(ibg) ! ibsh<=>iaSh
 
-              iaSh = iSOShl(iag) ! shell to which it belongs
-              ibSh = iSOShl(ibg) ! ibsh<=>iaSh
+      iaSg = iShlSO(iag) ! index of SO within its shell
+      ibSg = iShlSO(ibg)
 
-              iaSg = iShlSO(iag) !index of SO within its shell
-              ibSg = iShlSO(ibg)
+      iSyma = cho_isao(iag) ! symmetry block
+      iSymb = muld2h(jSym,iSyma) ! iSyma >= iSymb
 
-              iSyma = cho_isao(iag)  !symmetry block
-              iSymb = muld2h(jSym,iSyma) ! iSyma >= iSymb
+      i1 = 1
+      if (iaSh < ibSh) i1 = 2
 
-              i1=1
-              If (iaSh<ibSh) i1=2
+      ias = iaSg-iBasSh(iSyma,iaSh) ! addr within its shell
+      ibs = ibSg-iBasSh(iSymb,ibSh)
 
-              ias = iaSg - iBasSh(iSyma,iaSh) !addr within its shell
-              ibs = ibSg - iBasSh(iSymb,ibSh)
+      kLabJ = kLabJ+1
 
-              kLabJ  = kLabJ + 1
+      ChoV%SPB(iSyma,iShp_rs(iShp),i1)%A3(ias,JVEC,ibs) = LabJ(kLabJ)
 
-              ChoV%SPB(iSyma,iShp_rs(iShp),i1)%A3(ias,JVEC,ibs)         &
-     &        = LabJ(kLabJ)
+      SvShp(iShp_rs(iShp),2) = SvShp(iShp_rs(iShp),2)+LabJ(kLabJ)**2
 
-              SvShp(iShp_rs(iShp),2) = SvShp(iShp_rs(iShp),2)           &
-     &                                   + LabJ(kLabJ)**2
+    end do
 
-            End Do
+    do jShp=1,nnShl_tot
+      if (iShp_rs(jShp) > 0) then
+        SvShp(iShp_rs(jShp),1) = max(SvShp(iShp_rs(jShp),1),SvShp(iShp_rs(jShp),2))
+        SvShp(iShp_rs(jShp),2) = zero
+      end if
+    end do
 
-            Do jShp=1,nnShl_tot
-               If (iShp_rs(jShp).gt.0) Then
-                  SvShp(iShp_rs(jShp),1) = Max( SvShp(iShp_rs(jShp),1), &
-     &                                          SvShp(iShp_rs(jShp),2) )
-                  SvShp(iShp_rs(jShp),2) = zero
-               EndIf
-            End Do
+  end do
 
-         END DO
+end if
 
+return
 
-      ENDIF
-
-
-      Return
-      END
-
-!*************************************************************
+end subroutine CHO_GetShFull

@@ -8,15 +8,13 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_x_Quit(SecNam,Str1,Str2)
-!
-!
-!     Purpose: stop execution using and print the trace
-!              stack.
-!
-      Implicit None
-      Character*(*) SecNam, Str1, Str2
 
-      Call SysAbendMsg(SecNam,Str1,Str2)
+subroutine Cho_x_Quit(SecNam,Str1,Str2)
+!     Purpose: stop execution using and print the trace stack.
 
-      End
+implicit none
+character*(*) SecNam, Str1, Str2
+
+call SysAbendMsg(SecNam,Str1,Str2)
+
+end subroutine Cho_x_Quit

@@ -8,53 +8,54 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Coul_DMB(GetFM,nDM,Rep_EN,FM,DMA,DMB,lFDM)
-      use Data_Structures, only: DSBA_Type, Allocate_DSBA,              &
-     &                           Deallocate_DSBA
-      Implicit Real*8 (a-h,o-z)
-      Logical GetFM
-      Integer nDM, lFDM
-      Real*8  FM(lFDM), DMA(lFDM), DMB(lFDM)
 
-      Type (DSBA_Type) DLT, FLT
+subroutine Coul_DMB(GetFM,nDM,Rep_EN,FM,DMA,DMB,lFDM)
 
+use Data_Structures, only: DSBA_Type, Allocate_DSBA, Deallocate_DSBA
+
+implicit real*8(a-h,o-z)
+logical GetFM
+integer nDM, lFDM
+real*8 FM(lFDM), DMA(lFDM), DMB(lFDM)
+type(DSBA_Type) DLT, FLT
 #include "real.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-      Character(LEN=16) NamRfil
-!
-      If (nDM.gt.2 .or. nDM.lt.1) Then
-         write(6,*) ' In Coul_DMB: wrong value of nDM= ',nDM
-         Call SysAbendMsg('Coul_DMB ',' nDM must be 1 or 2 ',' ')
-      EndIf
-!
-      If (.not.GetFM) Go To 99
-!
-       Call Allocate_DSBA(FLT,nBas,nBas,nSym,aCase='TRI',Ref=FM)
+character(LEN=16) NamRfil
 
-      Call Get_NameRun(NamRfil) ! save the old RUNFILE name
-      Call NameRun('AUXRFIL')   ! switch RUNFILE name
-!
-       Call Allocate_DSBA(DLT,nBas,nBas,nSym,aCase='TRI')
-      Call get_dArray('D1ao',DLT%A0,lFDM)
-!
-      FLT%A0(:)=Zero
-      Call CHO_FOCK_DFT_RED(irc,DLT,FLT)
-      If (irc.ne.0) Then
-         Call SysAbendMsg('Coul_DMB ',' non-zero rc ',' ')
-      EndIf
-      Call GADSum(FM,lFDM)
-!
-      Call deallocate_DSBA(DLT)
-      Call deallocate_DSBA(FLT)
-!
-      Call NameRun(NamRfil)   ! switch back RUNFILE name
-!
-99    Continue
-      Rep_EN = ddot_(lFDM,DMA,1,FM,1)
-      If (nDM.eq.2) Then
-         Rep_EN = Rep_EN + ddot_(lFDM,DMB,1,FM,1)
-      EndIf
-!
-      Return
-      End
+if ((nDM > 2) .or. (nDM < 1)) then
+  write(6,*) ' In Coul_DMB: wrong value of nDM= ',nDM
+  call SysAbendMsg('Coul_DMB ',' nDM must be 1 or 2 ',' ')
+end if
+
+if (.not. GetFM) Go To 99
+
+call Allocate_DSBA(FLT,nBas,nBas,nSym,aCase='TRI',Ref=FM)
+
+call Get_NameRun(NamRfil) ! save the old RUNFILE name
+call NameRun('AUXRFIL')   ! switch RUNFILE name
+
+call Allocate_DSBA(DLT,nBas,nBas,nSym,aCase='TRI')
+call get_dArray('D1ao',DLT%A0,lFDM)
+
+FLT%A0(:) = Zero
+call CHO_FOCK_DFT_RED(irc,DLT,FLT)
+if (irc /= 0) then
+  call SysAbendMsg('Coul_DMB ',' non-zero rc ',' ')
+end if
+call GADSum(FM,lFDM)
+
+call deallocate_DSBA(DLT)
+call deallocate_DSBA(FLT)
+
+call NameRun(NamRfil) ! switch back RUNFILE name
+
+99 continue
+Rep_EN = ddot_(lFDM,DMA,1,FM,1)
+if (nDM == 2) then
+  Rep_EN = Rep_EN+ddot_(lFDM,DMB,1,FM,1)
+end if
+
+return
+
+end subroutine Coul_DMB

@@ -8,43 +8,45 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Order_Arrays(mode,A1,N1,N2,P2,SCR1)
 
-      Implicit Real*8 (a-h,o-z)
-      Character*4 mode
-      Integer N1, N2
-      Real*8  A1(N1,N2), P2(N2), SCR1(N1)
+subroutine Order_Arrays(mode,A1,N1,N2,P2,SCR1)
 
-      If (mode.eq.'decr') Then
-         Do j=1,N2-1
-            Do k=j+1,N2
-               If (P2(j).lt.P2(k)) Then
-                  tmp=P2(j)
-                  P2(j)=P2(k)
-                  P2(k)=tmp
-                  call dcopy_(N1,A1(1,j),1,SCR1(1),1)
-                  call dcopy_(N1,A1(1,k),1,A1(1,j),1)
-                  call dcopy_(N1,SCR1(1),1,A1(1,k),1)
-               EndIf
-            End Do
-         End Do
-      ElseIf (mode.eq.'incr') Then
-         Do j=1,N2-1
-            Do k=j+1,N2
-               If (P2(j).gt.P2(k)) Then
-                  tmp=P2(j)
-                  P2(j)=P2(k)
-                  P2(k)=tmp
-                  call dcopy_(N1,A1(1,j),1,SCR1(1),1)
-                  call dcopy_(N1,A1(1,k),1,A1(1,j),1)
-                  call dcopy_(N1,SCR1(1),1,A1(1,k),1)
-               EndIf
-            End Do
-         End Do
-      Else
-         write(6,*) ' In routine Order_Arrays: wrong mode! '
-         Call Abend
-      EndIf
+implicit real*8(a-h,o-z)
+character*4 mode
+integer N1, N2
+real*8 A1(N1,N2), P2(N2), SCR1(N1)
 
-      Return
-      End
+if (mode == 'decr') then
+  do j=1,N2-1
+    do k=j+1,N2
+      if (P2(j) < P2(k)) then
+        tmp = P2(j)
+        P2(j) = P2(k)
+        P2(k) = tmp
+        call dcopy_(N1,A1(1,j),1,SCR1(1),1)
+        call dcopy_(N1,A1(1,k),1,A1(1,j),1)
+        call dcopy_(N1,SCR1(1),1,A1(1,k),1)
+      end if
+    end do
+  end do
+else if (mode == 'incr') then
+  do j=1,N2-1
+    do k=j+1,N2
+      if (P2(j) > P2(k)) then
+        tmp = P2(j)
+        P2(j) = P2(k)
+        P2(k) = tmp
+        call dcopy_(N1,A1(1,j),1,SCR1(1),1)
+        call dcopy_(N1,A1(1,k),1,A1(1,j),1)
+        call dcopy_(N1,SCR1(1),1,A1(1,k),1)
+      end if
+    end do
+  end do
+else
+  write(6,*) ' In routine Order_Arrays: wrong mode! '
+  call Abend()
+end if
+
+return
+
+end subroutine Order_Arrays

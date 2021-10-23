@@ -10,8 +10,8 @@
 !                                                                      *
 ! Copyright (C) Francesco Aquilante                                    *
 !***********************************************************************
-      SUBROUTINE CHO_SUM(rc,nSym,nBas,iUHF,DoExchange,FLT,FSQ)
 
+subroutine CHO_SUM(rc,nSym,nBas,iUHF,DoExchange,FLT,FSQ)
 !****************************************************************
 !  Author : F. Aquilante
 !
@@ -20,22 +20,22 @@
 !           to the frozen AO-Fock matrices for alpha and beta
 !           spin as defined in the calling routine
 !*****************************************************************
-      use Data_Structures, only: DSBA_Type
-      Implicit Real*8 (a-h,o-z)
-      Integer   rc,nBas(8),nSym,iUHF
 
-      Type (DSBA_Type) FLT(*), FSQ(*)
-      Logical DoExchange(*)
-
+use Data_Structures, only: DSBA_Type
+implicit real*8(a-h,o-z)
+integer rc, nBas(8), nSym, iUHF
+type(DSBA_Type) FLT(*), FSQ(*)
+logical DoExchange(*)
 !*************************************************
-      iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
+!Statement function
+iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 !*************************************************
 
-      if (iUHF.eq.1)then
-         nDen=3
-      else
-         nDen=1
-      endif
+if (iUHF == 1) then
+  nDen = 3
+else
+  nDen = 1
+end if
 
 ! Accumulate the contributions and Square the final matrix
 ! FLT is in lower triangular storage
@@ -43,87 +43,80 @@
 !
 ! the lower triangular part of FSQ is added to FLT
 !
-      IF(nDen.eq.1) THEN
+if (nDen == 1) then
 
-      DO ISYM=1,NSYM
-       NB = NBAS(ISYM)
-       IF (NB.gt.0) THEN
-       If (DoExchange(1)) Then
-        DO IB=1,NB
-          DO JB=IB,NB
-             IJB=iTri(JB,IB)
-             FLT(1)%SB(ISYM)%A1(IJB)= FLT(1)%SB(ISYM)%A1(IJB)           &
-     &                              + FSQ(1)%SB(ISYM)%A2(JB,IB)
-          END DO
-        END DO
-       End If
-       CALL SQUARE(FLT(1)%SB(ISYM)%A1,FSQ(1)%SB(ISYM)%A2,1,NB,NB)
-       ENDIF
-      END DO
+  do ISYM=1,NSYM
+    NB = NBAS(ISYM)
+    if (NB > 0) then
+      if (DoExchange(1)) then
+        do IB=1,NB
+          do JB=IB,NB
+            IJB = iTri(JB,IB)
+            FLT(1)%SB(ISYM)%A1(IJB) = FLT(1)%SB(ISYM)%A1(IJB)+FSQ(1)%SB(ISYM)%A2(JB,IB)
+          end do
+        end do
+      end if
+      call SQUARE(FLT(1)%SB(ISYM)%A1,FSQ(1)%SB(ISYM)%A2,1,NB,NB)
+    end if
+  end do
 
+else ! nDen=3
 
-      ELSE  ! nDen=3
+  do ISYM=1,NSYM
+    NB = NBAS(ISYM)
+    if (NB > 0) then
+      if (DoExchange(2)) then
+        do IB=1,NB
+          do JB=IB,NB
+            IJB = iTri(JB,IB)
+            FLT(1)%SB(ISYM)%A1(IJB) = FLT(1)%SB(ISYM)%A1(IJB)+FSQ(2)%SB(ISYM)%A2(JB,IB)
+            FLT(2)%SB(ISYM)%A1(IJB) = FLT(2)%SB(ISYM)%A1(IJB)+FSQ(3)%SB(ISYM)%A2(JB,IB)
+          end do
+        end do
+      end if
 
-      DO ISYM=1,NSYM
-       NB = NBAS(ISYM)
-       IF (NB.gt.0) THEN
-       If (DoExchange(2)) Then
-        DO IB=1,NB
-          DO JB=IB,NB
-            IJB=iTri(JB,IB)
-            FLT(1)%SB(ISYM)%A1(IJB) = FLT(1)%SB(ISYM)%A1(IJB)           &
-     &                              + FSQ(2)%SB(ISYM)%A2(JB,IB)
-            FLT(2)%SB(ISYM)%A1(IJB) = FLT(2)%SB(ISYM)%A1(IJB)           &
-     &                              + FSQ(3)%SB(ISYM)%A2(JB,IB)
-          END DO
-        END DO
-       End If
+      call SQUARE(FLT(1)%SB(ISYM)%A1,FSQ(2)%SB(ISYM)%A2,1,NB,NB)
+      call SQUARE(FLT(2)%SB(ISYM)%A1,FSQ(3)%SB(ISYM)%A2,1,NB,NB)
 
-       CALL SQUARE(FLT(1)%SB(ISYM)%A1,FSQ(2)%SB(ISYM)%A2,1,NB,NB)
-       CALL SQUARE(FLT(2)%SB(ISYM)%A1,FSQ(3)%SB(ISYM)%A2,1,NB,NB)
+    end if
+  end do
 
-       ENDIF
-      END DO
-
-      ENDIF  ! nDen=3
-
+end if ! nDen=3
 
 ! Print the Fock-matrix
 #ifdef _DEBUGPRINT_
-      WRITE(6,'(6X,A)')'TEST PRINT FROM CHO_SUM.'
-      WRITE(6,'(6X,A)')'FROZEN FOCK MATRIX IN AO BASIS.'
+write(6,'(6X,A)') 'TEST PRINT FROM CHO_SUM.'
+write(6,'(6X,A)') 'FROZEN FOCK MATRIX IN AO BASIS.'
 
-      if (nDen.gt.1) then
+if (nDen > 1) then
 
-      do jDen=1,2
-      if(jDen.eq.1)WRITE(6,'(6X,A)')'SPIN ALPHA'
-      if(jDen.eq.2)WRITE(6,'(6X,A)')'SPIN BETA'
-      DO ISYM=1,NSYM
-        NB=NBAS(ISYM)
-        IF ( NB.GT.0 ) THEN
-          WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
-          CALL TRIPRT(' ',' ',FLT(jDen)%SB(ISYM)%A1,NB)
-        END IF
-      END DO
-      end do
+  do jDen=1,2
+    if (jDen == 1) write(6,'(6X,A)') 'SPIN ALPHA'
+    if (jDen == 2) write(6,'(6X,A)') 'SPIN BETA'
+    do ISYM=1,NSYM
+      NB = NBAS(ISYM)
+      if (NB > 0) then
+        write(6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
+        call TRIPRT(' ',' ',FLT(jDen)%SB(ISYM)%A1,NB)
+      end if
+    end do
+  end do
 
-      else ! nDen=1
+else ! nDen=1
 
-      DO ISYM=1,NSYM
-        NB=NBAS(ISYM)
-        IF ( NB.GT.0 ) THEN
-          WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
-          CALL TRIPRT(' ',' ',FLT(1)%SB(ISYM)%A1,NB)
-        END IF
-      END DO
+  do ISYM=1,NSYM
+    NB = NBAS(ISYM)
+    if (NB > 0) then
+      write(6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
+      call TRIPRT(' ',' ',FLT(1)%SB(ISYM)%A1,NB)
+    end if
+  end do
 
-      endif
-
+end if
 #endif
 
-      rc=0
+rc = 0
 
-      Return
-      END
+return
 
-!*************************************************************
+end subroutine CHO_SUM

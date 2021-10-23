@@ -8,7 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Fold_tMat(nSym,nBas,A,B)
+
+subroutine Fold_tMat(nSym,nBas,A,B)
 !***********************************************************************
 !                                                                      *
 !     purpose:                                                         *
@@ -31,51 +32,47 @@
 !                                                                      *
 !***********************************************************************
 
-      Implicit Real*8 (A-H,O-Z)
-
-      Dimension nBas(*) , A(*) , B(*)
-
-      Parameter (two = 2.0d0)
-
+implicit real*8(A-H,O-Z)
+dimension nBas(*), A(*), B(*)
+parameter(two=2.0d0)
 !************************************
-      iit(j) = j*(j+1)/2
-!************************************
-      ijt(i,j) = i*(i-1)/2 + j
+!Statement functions
+iit(j) = j*(j+1)/2
+ijt(i,j) = i*(i-1)/2+j
 !************************************
 
+iOff = 0
 
-      iOff = 0
+do iSym=1,nSym
 
-      Do iSym=1,nSym
+  do j=1,nBas(iSym)
 
-        Do j=1,nBas(iSym)
+    do i=j+1,nBas(iSym)
 
-          Do i=j+1,nBas(iSym)
+      B(iOff+ijt(i,j)) = two*A(iOff+ijt(i,j))
 
-            B( iOff + ijt(i,j) ) = two*A( iOff + ijt(i,j) )
+    end do
 
-          End Do
+    B(iOff+iit(j)) = A(iOff+iit(j))
 
-          B( iOff + iit(j) ) =  A( iOff + iit(j) )
+  end do
 
-        End Do
+  iOff = iOff+iit(nBas(iSym))
 
-        iOff = iOff + iit(nBas(iSym))
+end do
 
-      End Do
+!ij = 0
+!do isym=1,nsym
+!  do i=1,nbas(isym)
+!    do j=1,i-1
+!      ij = ij+1
+!      B(ij) = 2.0d0*A(ij)
+!    end do
+!    ij = ij+1
+!    B(ij) = A(ij)
+!  end do
+!end do
 
-!      ij=0
-!      do isym=1,nsym
-!       do i=1,nbas(isym)
-!        do j=1,i-1
-!         ij=ij+1
-!         B(ij)=2*A(ij)
-!        end do
-!        ij=ij+1
-!        B(ij)=A(ij)
-!       end do
-!      end do
+return
 
-
-      Return
-      End
+end subroutine Fold_tMat

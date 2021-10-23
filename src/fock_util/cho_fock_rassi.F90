@@ -10,8 +10,8 @@
 !                                                                      *
 ! Copyright (C) Francesco Aquilante                                    *
 !***********************************************************************
-      SUBROUTINE CHO_FOCK_RASSI(DLT,MO1,MO2,FLT,TUVX)
 
+subroutine CHO_FOCK_RASSI(DLT,MO1,MO2,FLT,TUVX)
 !*********************************************************************
 !  Author : F. Aquilante
 !
@@ -23,7 +23,6 @@
 !
 !        Please, for that purpose, use CHO_FOCK_RASSI_X instead!
 !
-!
 ! *************** INACTIVE AO-BASIS FOCK MATRIX **********************
 !
 !   FI(ab) = 2 * sum_J  Lab,J * U(J)  -  sum_Jk  Yka,J * Xkb,J
@@ -32,471 +31,427 @@
 !
 !      a,b,g,d:  AO-index
 !      k:        MO-index   belonging to (Inactive)
-!      v,w,x,y:  MO-indeces belonging to (Active)
+!      v,w,x,y:  MO-indices belonging to (Active)
 !
 !*********************************************************************
-      use ChoArr, only: nDimRS
-      use ChoSwp, only: InfVec
-      use Data_Structures, only: DSBA_Type
-      use Data_Structures, only: SBA_Type
-      use Data_Structures, only: Allocate_SBA, Deallocate_SBA
-      use Data_Structures, only: twxy_Type
-      use Data_Structures, only: Allocate_twxy, Deallocate_twxy
-      Implicit Real*8 (a-h,o-z)
 
-      Type (DSBA_Type) DLT, MO1(2), MO2(2), FLT
-      Real*8 TUVX(*)
-      Type (SBA_Type), Target:: Laq(2)
-      Type (twxy_type) Scr
+use ChoArr, only: nDimRS
+use ChoSwp, only: InfVec
+use Data_Structures, only: DSBA_Type
+use Data_Structures, only: SBA_Type
+use Data_Structures, only: Allocate_SBA, Deallocate_SBA
+use Data_Structures, only: twxy_Type
+use Data_Structures, only: Allocate_twxy, Deallocate_twxy
 
-      Integer   rc
-      Integer   iSkip(8)
-      Real*8    tread(2),tcoul(2),texch(2),tintg(2)
+implicit real*8(a-h,o-z)
+type(DSBA_Type) DLT, MO1(2), MO2(2), FLT
+real*8 TUVX(*)
+type(SBA_Type), target :: Laq(2)
+type(twxy_type) Scr
+integer rc
+integer iSkip(8)
+real*8 tread(2), tcoul(2), texch(2), tintg(2)
 #ifdef _DEBUGPRINT_
-      Logical   Debug
+logical Debug
 #endif
-      Logical  DoReord, add
-      Logical, Parameter:: DoRead = .false.
-      Character*50 CFmt
-      Character(LEN=14), Parameter:: SECNAM = 'CHO_FOCK_RASSI'
+logical DoReord, add
+logical, parameter :: DoRead = .false.
+character*50 CFmt
+character(LEN=14), parameter :: SECNAM = 'CHO_FOCK_RASSI'
 #include "chotime.fh"
 #include "real.fh"
-
-      Real*8, Parameter:: FactCI = One, FactXI = -One
-      Character*6 mode
+real*8, parameter :: FactCI = One, FactXI = -One
+character*6 mode
 #include "cho_jobs.fh"
-
 #include "rassi.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "stdalloc.fh"
-
-      Real*8, Allocatable:: Lrs(:,:), Drs(:), Frs(:)
-
-      Real*8, Pointer:: VJ(:)=>Null()
-
+real*8, allocatable :: Lrs(:,:), Drs(:), Frs(:)
+real*8, pointer :: VJ(:) => null()
 !*************************************************
-      MulD2h(i,j) = iEOR(i-1,j-1) + 1
+!Statement function
+MulD2h(i,j) = ieor(i-1,j-1)+1
 !*************************************************
-
 
 #ifdef _DEBUGPRINT_
-      Debug=.false.! to avoid double printing in CASSCF-debug
+Debug = .false. ! to avoid double printing in CASSCF-debug
 #endif
 
-      DoReord = .false.
-      IREDC = -1  ! unknown reduced set in core
+DoReord = .false.
+IREDC = -1 ! unknown reduced set in core
 
-      nDen=2
-      If (Fake_CMO2) nDen = 1  ! MO1 = MO2
-      kDen=nDen
+nDen = 2
+if (Fake_CMO2) nDen = 1 ! MO1 = MO2
+kDen = nDen
 
-      CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
+call CWTIME(TOTCPU1,TOTWALL1) ! start clock for total time
 
-      ! 1 --> CPU   2 --> Wall
-      tread(:) = zero  !time read/transform vectors
-      tcoul(:) = zero  !time for computing Coulomb
-      texch(:) = zero  !time for computing Exchange
-      tintg(:) = zero  !time for computing (tw|xy) integrals
+! 1 --> CPU   2 --> Wall
+tread(:) = zero ! time read/transform vectors
+tcoul(:) = zero ! time for computing Coulomb
+texch(:) = zero ! time for computing Exchange
+tintg(:) = zero ! time for computing (tw|xy) integrals
 
 ! *************** BIG LOOP OVER VECTORS SYMMETRY *******************
-      DO jSym=1,nSym
+do jSym=1,nSym
 
-        If (NumCho(jSym).lt.1) GOTO 1000
+  if (NumCho(jSym) < 1) goto 1000
 
-      iCase = 0 ! twxy
-      Call Allocate_twxy(Scr,nAsh,nAsh,JSYM,nSym,iCase)
+  iCase = 0 ! twxy
+  call Allocate_twxy(Scr,nAsh,nAsh,JSYM,nSym,iCase)
 
-      iLoc = 3 ! use scratch location in reduced index arrays
+  iLoc = 3 ! use scratch location in reduced index arrays
 
-! ****************     MEMORY MANAGEMENT SECTION    *****************
-! ------------------------------------------------------------------
-! --- compute memory needed to store at least 1 vector of JSYM
-! --- and do all the subsequent calculations
-! ------------------------------------------------------------------
-         mTvec = 0  ! mem for storing the half-transformed vec
-         mTTvec= 0  ! mem for Lvb,J and Lvw,J
-         do l=1,nSym
-            k=Muld2h(l,JSYM)
-            mTvec = mTvec + nDen*nBas(l)*nIsh(k)
-            mTTvec = mTTvec + (nBas(l)+nAsh(l))*nAsh(k)
-         end do
+  ! ****************     MEMORY MANAGEMENT SECTION    *****************
+  ! --------------------------------------------------------------
+  ! compute memory needed to store at least 1 vector of JSYM
+  ! and do all the subsequent calculations
+  ! --------------------------------------------------------------
+  mTvec = 0 ! mem for storing the half-transformed vec
+  mTTvec = 0 ! mem for Lvb,J and Lvw,J
+  do l=1,nSym
+    k = Muld2h(l,JSYM)
+    mTvec = mTvec+nDen*nBas(l)*nIsh(k)
+    mTTvec = mTTvec+(nBas(l)+nAsh(l))*nAsh(k)
+  end do
 
-         mTvec=Max(mTvec,mTTvec,1)
+  mTvec = max(mTvec,mTTvec,1)
 
-! ------------------------------------------------------------------
-! ------------------------------------------------------------------
+  ! ------------------------------------------------------------------
+  ! ------------------------------------------------------------------
 
-         JRED1 = InfVec(1,2,jSym)  ! red set of the 1st vec
-         JRED2 = InfVec(NumCho(jSym),2,jSym) !red set of the last vec
+  JRED1 = InfVec(1,2,jSym)            ! red set of the 1st vec
+  JRED2 = InfVec(NumCho(jSym),2,jSym) ! red set of the last vec
 
-         Do JRED=JRED1,JRED2
+  do JRED=JRED1,JRED2
 
-            CALL Cho_X_nVecRS(JRED,JSYM,iVrs,nVrs)
+    call Cho_X_nVecRS(JRED,JSYM,iVrs,nVrs)
 
-            If (nVrs.eq.0) GOTO 999  ! no vectors in that (jred,jsym)
+    if (nVrs == 0) goto 999 ! no vectors in that (jred,jsym)
 
-            if (nVrs.lt.0) then
-               Write(6,*)SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
-               call abend()
-            endif
+    if (nVrs < 0) then
+      write(6,*) SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
+      call abend()
+    end if
 
-            Call Cho_X_SetRed(irc,iLoc,JRED) !set index arrays at iLoc
-            if(irc.ne.0)then
-              Write(6,*)SECNAM//'cho_X_setred non-zero return code.',   &
-     &                        '   rc= ',irc
-              call abend()
-            endif
+    call Cho_X_SetRed(irc,iLoc,JRED) ! set index arrays at iLoc
+    if (irc /= 0) then
+      write(6,*) SECNAM//'cho_X_setred non-zero return code.   rc= ',irc
+      call abend()
+    end if
 
-            IREDC=JRED
+    IREDC = JRED
 
-            nRS = nDimRS(JSYM,JRED)
+    nRS = nDimRS(JSYM,JRED)
 
-            If(JSYM.eq.1)Then
+    if (JSYM == 1) then
 
-               Call mma_allocate(Drs,nRS,Label='Drs')
-               Call mma_allocate(Frs,nRS,Label='Frs')
-               Drs(:)=Zero
-               Frs(:)=Zero
-            EndIf
+      call mma_allocate(Drs,nRS,Label='Drs')
+      call mma_allocate(Frs,nRS,Label='Frs')
+      Drs(:) = Zero
+      Frs(:) = Zero
+    end if
 
-            Call mma_MaxDBLE(LWORK)
+    call mma_MaxDBLE(LWORK)
 
-            nVec  = Min(LWORK/(nRS+mTvec),nVrs)
+    nVec = min(LWORK/(nRS+mTvec),nVrs)
 
-            If (nVec.lt.1) Then
-               WRITE(6,*) SECNAM//': Insufficient memory for batch'
-               WRITE(6,*) 'LWORK= ',LWORK
-               WRITE(6,*) 'min. mem. need= ',nRS+mTvec
-               WRITE(6,*) 'jsym= ',jsym
-               rc = 33
-               CALL Abend()
-               nBatch = -9999  ! dummy assignment
-            End If
+    if (nVec < 1) then
+      write(6,*) SECNAM//': Insufficient memory for batch'
+      write(6,*) 'LWORK= ',LWORK
+      write(6,*) 'min. mem. need= ',nRS+mTvec
+      write(6,*) 'jsym= ',jsym
+      rc = 33
+      call Abend()
+      nBatch = -9999 ! dummy assignment
+    end if
 
-            LREAD = nRS*nVec
+    LREAD = nRS*nVec
 
-            Call mma_allocate(Lrs,nRS,nVec,Label='Lrs')
+    call mma_allocate(Lrs,nRS,nVec,Label='Lrs')
 
-            If(JSYM.eq.1)Then
-! --- Transform the density to reduced storage
-               mode = 'toreds'
-               add =.False.
-               mDen=1
-               Call swap_rs2full(irc,iLoc,nRS,mDen,JSYM,[DLT],Drs,      &
-     &                           mode,add)
-            EndIf
+    if (JSYM == 1) then
+      ! Transform the density to reduced storage
+      mode = 'toreds'
+      add = .false.
+      mDen = 1
+      call swap_rs2full(irc,iLoc,nRS,mDen,JSYM,[DLT],Drs,mode,add)
+    end if
 
-! --- BATCH over the vectors ----------------------------
+    ! BATCH over the vectors ----------------------------
 
-            nBatch = (nVrs-1)/nVec + 1
+    nBatch = (nVrs-1)/nVec+1
 
-            DO iBatch=1,nBatch
+    do iBatch=1,nBatch
 
-               iSwap = 2  ! LpJ,b are returned
-               Do jDen=1,nDen
-                  Call Allocate_SBA(Laq(jDen),nIsh,nBas,nVec,JSYM,nSYm, &
-     &                              iSwap)
-               End Do
+      iSwap = 2 ! LpJ,b are returned
+      do jDen=1,nDen
+        call Allocate_SBA(Laq(jDen),nIsh,nBas,nVec,JSYM,nSYm,iSwap)
+      end do
 
-               If (iBatch.eq.nBatch) Then
-                  JNUM = nVrs - nVec*(nBatch-1)
-               else
-                  JNUM = nVec
-               endif
+      if (iBatch == nBatch) then
+        JNUM = nVrs-nVec*(nBatch-1)
+      else
+        JNUM = nVec
+      end if
 
-               JVEC = nVec*(iBatch-1) + iVrs
-               IVEC2 = JVEC - 1 + JNUM
+      JVEC = nVec*(iBatch-1)+iVrs
+      IVEC2 = JVEC-1+JNUM
 
-               CALL CWTIME(TCR1,TWR1)
+      call CWTIME(TCR1,TWR1)
 
-               CALL CHO_VECRD(Lrs,LREAD,JVEC,IVEC2,JSYM,                &
-     &                        NUMV,IREDC,MUSED)
+      call CHO_VECRD(Lrs,LREAD,JVEC,IVEC2,JSYM,NUMV,IREDC,MUSED)
 
-               If (NUMV.le.0 .or.NUMV.ne.JNUM ) then
-                  rc=77
-                  write(6,*)'return code = ',rc
-                  RETURN
-               End If
+      if ((NUMV <= 0) .or. (NUMV /= JNUM)) then
+        rc = 77
+        write(6,*) 'return code = ',rc
+        return
+      end if
 
-               CALL CWTIME(TCR2,TWR2)
-               tread(1) = tread(1) + (TCR2 - TCR1)
-               tread(2) = tread(2) + (TWR2 - TWR1)
+      call CWTIME(TCR2,TWR2)
+      tread(1) = tread(1)+(TCR2-TCR1)
+      tread(2) = tread(2)+(TWR2-TWR1)
 
-               If(JSYM.eq.1)Then
-! ************ (alpha+beta) COULOMB CONTRIBUTION  ****************
-!
-! --- Contraction with the density matrix
-! ---------------------------------------
-! --- V{#J} <- V{#J}  +  sum_rs  L(rs,{#J}) * DI(rs)
-!==========================================================
-!
-                  CALL CWTIME(TCC1,TWC1)
+      if (JSYM == 1) then
+        ! ************ (alpha+beta) COULOMB CONTRIBUTION  ****************
+        !
+        ! Contraction with the density matrix
+        ! -----------------------------------
+        ! V{#J} <- V{#J}  +  sum_rs  L(rs,{#J}) * DI(rs)
+        !==========================================================
 
-                  VJ(1:JNUM) => Laq(1)%A0(1:JNUM)
+        call CWTIME(TCC1,TWC1)
 
-                  CALL DGEMV_('T',nRS,JNUM,                             &
-     &                 ONE,Lrs,nRS,                                     &
-     &                 Drs,1,ZERO,VJ,1)
+        VJ(1:JNUM) => Laq(1)%A0(1:JNUM)
 
-! --- FI(rs){#J} <- FI(rs){#J} + FactCI * sum_J L(rs,{#J})*V{#J}
-!===============================================================
+        call DGEMV_('T',nRS,JNUM,ONE,Lrs,nRS,Drs,1,ZERO,VJ,1)
 
-                  Fact = dble(min(jVec-iVrs,1))
+        ! FI(rs){#J} <- FI(rs){#J} + FactCI * sum_J L(rs,{#J})*V{#J}
+        !===========================================================
 
-                  CALL DGEMV_('N',nRS,JNUM,                             &
-     &                 FactCI,Lrs,nRS,                                  &
-     &                 VJ,1,Fact,Frs,1)
+        Fact = dble(min(jVec-iVrs,1))
 
+        call DGEMV_('N',nRS,JNUM,FactCI,Lrs,nRS,VJ,1,Fact,Frs,1)
 
-                  CALL CWTIME(TCC2,TWC2)
-                  tcoul(1) = tcoul(1) + (TCC2 - TCC1)
-                  tcoul(2) = tcoul(2) + (TWC2 - TWC1)
+        call CWTIME(TCC2,TWC2)
+        tcoul(1) = tcoul(1)+(TCC2-TCC1)
+        tcoul(2) = tcoul(2)+(TWC2-TWC1)
 
-                  VJ => Null()
+        VJ => null()
 
-               EndIf  ! Coulomb contribution
+      end if ! Coulomb contribution
 
+      ! *************** EXCHANGE CONTRIBUTIONS  ***********************
 
-! *************** EXCHANGE CONTRIBUTIONS  ***********************
+      call CWTIME(TCR3,TWR3)
 
-               CALL CWTIME(TCR3,TWR3)
+      kMOs = 1
+      nMOs = nDen
 
-               kMOs = 1
-               nMOs = nDen
+      ! Set up the skipping flags
+      ! ---------------------------------------------------------
+      do i=1,nSym
 
-! --- Set up the skipping flags
-! -------------------------------------------------------------
-               Do i=1,nSym
+        k = Muld2h(i,JSYM)
+        iSkip(k) = min(1,NBAS(i)*nIsh(k))
 
-                  k = Muld2h(i,JSYM)
-                  iSkip(k) = Min(1,NBAS(i)*nIsh(k))
+      end do
+      ! -------------------------------------------------------------
 
-               End Do
-! -------------------------------------------------------------
+      ! *********************** HALF-TRANSFORMATION  ****************
 
+      call CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,JSYM,iSwap,IREDC,nMOs,kMOs,MO1,Laq,DoRead)
 
-! *********************** HALF-TRANSFORMATION  ****************
+      call CWTIME(TCR4,TWR4)
+      tread(1) = tread(1)+(TCR4-TCR3)
+      tread(2) = tread(2)+(TWR4-TWR3)
 
-               CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,              &
-     &                            JSYM,iSwap,IREDC,nMOs,kMOs,MO1,       &
-     &                            Laq,DoRead)
+      if (irc /= 0) then
+        rc = irc
+        write(6,*) 'CHO_X_getVtra failed! '
+        return
+      end if
 
+      call CWTIME(TCX1,TWX1)
 
-               CALL CWTIME(TCR4,TWR4)
-               tread(1) = tread(1) + (TCR4 - TCR3)
-               tread(2) = tread(2) + (TWR4 - TWR3)
+      do iSyma=1,nSym
 
-               if (irc.ne.0) then
-                  rc = irc
-                  write(6,*)'CHO_X_getVtra failed! '
-                  RETURN
-               endif
+        iSymk = MulD2h(JSYM,iSyma)
 
-               CALL CWTIME(TCX1,TWX1)
+        ! ---------------------------------------------------------------------
+        ! *** Compute the InActive exchange matrix
+        !
+        !     FI(ab) = FI(ab) + FactXI * sum_Jk  X(2)kJ,a * X(1)kJ,b
+        ! ---------------------------------------------------------------------
+        NK = nIsh(iSymk)
 
-               Do iSyma=1,nSym
+        if (iSkip(iSymk) /= 0) then
 
-                  iSymk = MulD2h(JSYM,iSyma)
+          call DGEMM_Tri('T','N',NBAS(iSyma),NBAS(iSyma),NK*JNUM,FactXI,Laq(kDen)%SB(iSymk)%A3,NK*JNUM,Laq(kDen)%SB(iSymk)%A3, &
+                         NK*JNUM,One,FLT%SB(iSyma)%A1,NBAS(iSyma))
 
-! ---------------------------------------------------------------------
-! *** Compute the InActive exchange matrix
-!
-!     FI(ab) = FI(ab) + FactXI * sum_Jk  X(2)kJ,a * X(1)kJ,b
-! ---------------------------------------------------------------------
-                  NK = nIsh(iSymk)
+        end if
 
-                  If (iSkip(iSymk).ne.0) Then
+        ! --------------------------------------------------------------------
+      end do ! loop over MOs symmetries
 
-                     CALL DGEMM_Tri('T','N',NBAS(iSyma),NBAS(iSyma),    &
-     &                         NK*JNUM,FactXI,Laq(kDen)%SB(iSymk)%A3,   &
-     &                         NK*JNUM,Laq(kDen)%SB(iSymk)%A3,NK*JNUM,  &
-     &                             One,FLT%SB(iSyma)%A1,NBAS(iSyma))
+      call CWTIME(TCX2,TWX2)
+      texch(1) = texch(1)+(TCX2-TCX1)
+      texch(2) = texch(2)+(TWX2-TWX1)
 
-                  EndIf
+      ! ************  END EXCHANGE CONTRIBUTION  ****************
 
-! --------------------------------------------------------------------
-               End Do  !loop over MOs symmetries
+      do jDen=1,nDen
+        call Deallocate_SBA(Laq(jDen))
+      end do
 
-               CALL CWTIME(TCX2,TWX2)
-               texch(1) = texch(1) + (TCX2 - TCX1)
-               texch(2) = texch(2) + (TWX2 - TWX1)
+      iSwap = 0  ! Lvb,J are returned
+      call Allocate_SBA(Laq(1),nAsh,nBas,JNUM,JSYM,nSym,iSwap)
+      call Allocate_SBA(Laq(2),nAsh,nAsh,JNUM,JSYM,nSym,iSwap)
+      ! ----------------------------------------------------------------
+      ! First half Active transformation  Lvb,J = sum_a  C1(v,a) * Lab,J
+      ! ----------------------------------------------------------------
 
+      call CWTIME(TCR7,TWR7)
 
-! ************  END EXCHANGE CONTRIBUTION  ****************
+      ! Set up the skipping flags
+      ! ---------------------------------------------------------
+      do i=1,nSym
 
-               Do jDen=1,nDen
-                  Call Deallocate_SBA(Laq(jDen))
-               End Do
+        k = Muld2h(i,JSYM)
+        iSkip(k) = min(1,NBAS(i)*nAsh(k))
 
-               iSwap = 0  ! Lvb,J are returned
-               Call Allocate_SBA(Laq(1),nAsh,nBas,JNUM,JSYM,nSym,iSwap)
-               Call Allocate_SBA(Laq(2),nAsh,nAsh,JNUM,JSYM,nSym,iSwap)
-! --------------------------------------------------------------------
-! --- First half Active transformation  Lvb,J = sum_a  C1(v,a) * Lab,J
-! --------------------------------------------------------------------
+      end do
 
-               CALL CWTIME(TCR7,TWR7)
+      kMOs = 1  !
+      nMOs = 1  ! Active MOs (1st set)
 
-! --- Set up the skipping flags
-! -------------------------------------------------------------
-               Do i=1,nSym
+      call CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,JSYM,iSwap,IREDC,nMOs,kMOs,MO2,Laq,DoRead)
 
-                  k = Muld2h(i,JSYM)
-                  iSkip(k) = Min(1,NBAS(i)*nAsh(k))
+      if (irc /= 0) then
+        rc = irc
+        return
+      end if
 
-               End Do
+      ! ----------------------------------------------------------------
+      ! Active-Active transformation  Lvw,J = sum_b  Lvb,J * C2(w,b)
+      ! ----------------------------------------------------------------
+      do iSymb=1,nSym
 
-               kMOs = 1  !
-               nMOs = 1  ! Active MOs (1st set)
+        iSymv = MulD2h(JSYM,iSymb)
+        NAv = nAsh(iSymv)
+        NAw = nAsh(iSymb) ! iSymb=iSymw
 
-               CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,              &
-     &                           JSYM,iSwap,IREDC,nMOs,kMOs,MO2,        &
-     &                           Laq,DoRead)
+        if (NAv*NAw /= 0) then
 
-               if (irc.ne.0) then
-                  rc = irc
-                  RETURN
-               endif
+          do JVC=1,JNUM
 
+            call DGEMM_('N','T',NAv,NAw,NBAS(iSymb),One,Laq(1)%SB(iSymv)%A3(:,:,JVC),NAv,MO2(kDen)%SB(iSymb)%A2,NAw,Zero, &
+                        Laq(2)%SB(iSymv)%A3(:,:,JVC),NAv)
 
-! --------------------------------------------------------------------
-! --- Active-Active transformation  Lvw,J = sum_b  Lvb,J * C2(w,b)
-! --------------------------------------------------------------------
-                  Do iSymb=1,nSym
+          end do
 
-                     iSymv = MulD2h(JSYM,iSymb)
-                     NAv = nAsh(iSymv)
-                     NAw = nAsh(iSymb) ! iSymb=iSymw
+        end if
 
-                     If(NAv*NAw.ne.0)Then
+      end do
 
-                      Do JVC=1,JNUM
+      ! *************** EVALUATION OF THE (TW|XY) INTEGRALS ***********
 
-                       CALL DGEMM_('N','T',NAv,NAw,NBAS(iSymb),         &
-     &                            One,Laq(1)%SB(iSymv)%A3(:,:,JVC),NAv, &
-     &                                MO2(kDen)%SB(iSymb)%A2,NAw,       &
-     &                           Zero,Laq(2)%SB(iSymv)%A3(:,:,JVC),NAv)
+      call CWTIME(TCINT1,TWINT1)
 
-                      End Do
+      DoReord = (JRED == JRED2) .and. (iBatch == nBatch)
 
-                     EndIf
+      call CHO_rassi_twxy(irc,Scr,Laq(2),TUVX,nAsh,JSYM,JNUM,DoReord)
 
-                  End Do
+      call CWTIME(TCINT2,TWINT2)
+      tintg(1) = tintg(1)+(TCINT2-TCINT1)
+      tintg(2) = tintg(2)+(TWINT2-TWINT1)
 
-!
-!
-! *************** EVALUATION OF THE (TW|XY) INTEGRALS ***********
+      if (irc /= 0) then
+        rc = irc
+        return
+      end if
 
-               CALL CWTIME(TCINT1,TWINT1)
+      ! ---------------- END (TW|XY) EVALUATION -----------------------
 
-               DoReord = JRED.eq.JRED2.and.iBatch.eq.nBatch
+      call Deallocate_SBA(Laq(2))
+      call Deallocate_SBA(Laq(1))
+    end do ! end batch loop
 
-               CALL CHO_rassi_twxy(irc,Scr,Laq(2),TUVX,nAsh,JSYM,JNUM,  &
-     &                             DoReord)
+    if (JSYM == 1) then
+      ! backtransform fock matrix to full storage
+      mode = 'tofull'
+      add = .true.
+      mDen = 1
+      call swap_rs2full(irc,iLoc,nRS,mDen,JSYM,[FLT],Frs,mode,add)
+    end if
 
-               CALL CWTIME(TCINT2,TWINT2)
-               tintg(1) = tintg(1) + (TCINT2 - TCINT1)
-               tintg(2) = tintg(2) + (TWINT2 - TWINT1)
+    ! free memory
+    call mma_deallocate(Lrs)
 
-               if (irc.ne.0) then
-                  rc = irc
-                  RETURN
-               endif
+    if (JSYM == 1) then
+      call mma_deallocate(Frs)
+      call mma_deallocate(Drs)
+    end if
 
-! ---------------- END (TW|XY) EVALUATION -----------------------
+999 continue
 
+  end do ! loop over red sets
 
-               Call Deallocate_SBA(Laq(2))
-               Call Deallocate_SBA(Laq(1))
-            END DO  ! end batch loop
+  call Deallocate_twxy(Scr)
 
+1000 continue
 
-            If(JSYM.eq.1)Then
-! --- backtransform fock matrix to full storage
-               mode = 'tofull'
-               add = .True.
-               mDen=1
-               Call swap_rs2full(irc,iLoc,nRS,mDen,JSYM,[FLT],Frs,      &
-     &                           mode,add)
-            EndIf
+end do ! loop over JSYM
 
-! --- free memory
-            Call mma_deallocate(Lrs)
+call CWTIME(TOTCPU2,TOTWALL2)
+TOTCPU = TOTCPU2-TOTCPU1
+TOTWALL = TOTWALL2-TOTWALL1
 
-            If(JSYM.eq.1)Then
-              Call mma_deallocate(Frs)
-              Call mma_deallocate(Drs)
-            EndIf
+! Write out timing information
+if (timings) then
 
+  CFmt = '(2x,A)'
+  write(6,*)
+  write(6,CFmt) 'Cholesky RASSI timing from '//SECNAM
+  write(6,CFmt) '----------------------------------------'
+  write(6,*)
+  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(6,CFmt) 'Fock matrix construction        CPU       WALL   '
+  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
 
-999         Continue
+  write(6,'(2x,A26,2f10.2)') 'READ/TRANSFORM VECTORS                    ',tread(1),tread(2)
+  write(6,'(2x,A26,2f10.2)') 'COULOMB                                   ',tcoul(1),tcoul(2)
+  write(6,'(2x,A26,2f10.2)') 'EXCHANGE                                  ',texch(1),texch(2)
+  write(6,'(2x,A26,2f10.2)') '(TW|XY) INTEGRALS                         ',tintg(1),tintg(2)
+  write(6,*)
+  write(6,'(2x,A26,2f10.2)') 'TOTAL                                     ',TOTCPU,TOTWALL
+  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(6,*)
 
-         END DO   ! loop over red sets
-
-         Call Deallocate_twxy(Scr)
-
-1000  CONTINUE
-
-
-      END DO  ! loop over JSYM
-
-
-      CALL CWTIME(TOTCPU2,TOTWALL2)
-      TOTCPU = TOTCPU2 - TOTCPU1
-      TOTWALL= TOTWALL2 - TOTWALL1
-
-
-!
-!---- Write out timing information
-      if(timings)then
-
-      CFmt='(2x,A)'
-      Write(6,*)
-      Write(6,CFmt)'Cholesky RASSI timing from '//SECNAM
-      Write(6,CFmt)'----------------------------------------'
-      Write(6,*)
-      Write(6,CFmt)'- - - - - - - - - - - - - - - - - - - - - - - - -'
-      Write(6,CFmt)'Fock matrix construction        CPU       WALL   '
-      Write(6,CFmt)'- - - - - - - - - - - - - - - - - - - - - - - - -'
-
-         Write(6,'(2x,A26,2f10.2)')'READ/TRANSFORM VECTORS           '  &
-     &                           //'         ',tread(1),tread(2)
-         Write(6,'(2x,A26,2f10.2)')'COULOMB                          '  &
-     &                           //'         ',tcoul(1),tcoul(2)
-         Write(6,'(2x,A26,2f10.2)')'EXCHANGE                         '  &
-     &                           //'         ',texch(1),texch(2)
-         Write(6,'(2x,A26,2f10.2)')'(TW|XY) INTEGRALS                '  &
-     &                           //'         ',tintg(1),tintg(2)
-         Write(6,*)
-         Write(6,'(2x,A26,2f10.2)')'TOTAL                            '  &
-     &                           //'         ',TOTCPU,TOTWALL
-      Write(6,CFmt)'- - - - - - - - - - - - - - - - - - - - - - - - -'
-      Write(6,*)
-
-      endif
-
+end if
 
 ! Print the Fock-matrix
 #ifdef _DEBUGPRINT_
-      if(Debug) then !to avoid double printing in RASSI-debug
+if (Debug) then ! to avoid double printing in RASSI-debug
 
-      WRITE(6,'(6X,A)')'TEST PRINT FROM '//SECNAM
-      WRITE(6,'(6X,A)')
-      DO ISYM=1,NSYM
-        IF( NBAS(ISYM).GT.0 ) THEN
-          WRITE(6,'(6X,A)')'***** INACTIVE FOCK MATRIX ***** '
-          WRITE(6,'(6X,A)')
-          WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
-          call TRIPRT('','',FLT%SB(ISYM)%A1,NBAS(ISYM))
-        ENDIF
-      END DO
+  write(6,'(6X,A)') 'TEST PRINT FROM '//SECNAM
+  write(6,'(6X,A)')
+  do ISYM=1,NSYM
+    if (NBAS(ISYM) > 0) then
+      write(6,'(6X,A)') '***** INACTIVE FOCK MATRIX ***** '
+      write(6,'(6X,A)')
+      write(6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
+      call TRIPRT('','',FLT%SB(ISYM)%A1,NBAS(ISYM))
+    end if
+  end do
 
-      endif
-
+end if
 #endif
 
-      rc  = 0
+rc = 0
 
-      Return
-      END
+return
+
+end subroutine CHO_FOCK_RASSI

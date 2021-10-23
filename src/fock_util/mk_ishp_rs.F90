@@ -7,22 +7,26 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Francesco Aquilante                                    *
+!               2021, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine set_nnA(nSym,nAorb,nnA)
+subroutine Mk_iShp_rs(iShp_rs,nShell)
 
-implicit real*8(a-h,o-z)
-integer nSym, nAorb(8)
-integer nnA(8,8)
+implicit none
+integer nShell
+integer iShp_rs(nShell*(nShell+1)/2)
+integer iaSh, ibSh, iShp
+integer, external :: Cho_F2SP
 
-do j=1,nSym
-  do i=1,j-1
-    nnA(i,j) = nAorb(i)*nAorb(j)
-    nnA(j,i) = nnA(i,j)
+! *** Mapping shell pairs from the full to the reduced set
+
+do iaSh=1,nShell
+  do ibSh=1,iaSh
+    iShp = iaSh*(iaSh-1)/2+ibSh
+    iShp_rs(iShp) = Cho_F2SP(iShp)
   end do
-  nnA(j,j) = nAorb(j)*(nAorb(j)+1)/2
 end do
 
-return
-
-end subroutine set_nnA
+end subroutine Mk_iShp_rs

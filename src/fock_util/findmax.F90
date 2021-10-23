@@ -9,24 +9,24 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-       Real*8 Function FindMax(LaJ,numA)
+real*8 function FindMax(LaJ,numA)
 
-       Implicit Real*8 (a-h,o-z)
-       Integer numA
-       Real*8 LaJ(NumA)
+implicit real*8(a-h,o-z)
+integer numA
+real*8 LaJ(NumA)
+real*8 XMax
+integer ia
 
-       Real*8 XMax
-       Integer ia
+XMax = abs(LaJ(1))
 
-          XMax = Abs(LaJ(1))
+do ia=2,numA
 
-          Do ia=2,numA
+  XMax = max(XMax,abs(LaJ(ia)))
 
-             XMax = Max(XMax,Abs(LaJ(ia)))
+end do
 
-          End Do
+FindMax = XMax
 
-          FindMax = XMax
+return
 
-       Return
-       End
+end function FindMax

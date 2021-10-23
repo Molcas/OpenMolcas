@@ -8,51 +8,45 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Tra2c(i,iSym,iBas,iAsh,                                &
-     &                 j,jSym,jBas,jAsh,                                &
-     &                 kl_Bas_pairs,ij_Orb_pairs,                       &
-     &                 CMO_i,CMO_j,IJKL,C,TUKL)
-      Real*8 CMO_i(iBas,iAsh), CMO_j(jBas,jAsh),                        &
-     &       C(ij_Orb_pairs), IJKL(kl_Bas_pairs),                       &
-     &       TUKL(kl_Bas_pairs,ij_Orb_pairs)
-!
-!     Call RecPrt('IJKL',' ',IJKL,1,kl_Bas_Pairs)
-!
-      If (iSym.eq.jSym.and.i.ne.j) Then
-         ijA = 0
-         Do iA = 1, iAsh
-            Do jA = 1, iA
-               ijA = ijA + 1
-               C(ijA)=CMO_i(i,iA)*CMO_i(j,jA)                           &
-     &               +CMO_i(j,iA)*CMO_i(i,jA)
-            End Do
-         End Do
-!        Call TriPrt('C',' ',C,iAsh)
-      ElseIf (iSym.eq.jSym) Then
-         ijA = 0
-         Do iA = 1, iAsh
-            Do jA = 1, iA
-               ijA = ijA + 1
-               C(ijA)=CMO_i(i,iA)*CMO_i(i,jA)
-            End Do
-         End Do
-!        Call TriPrt('C',' ',C,iAsh)
-      Else
-         ijA = 0
-         Do iA = 1, iAsh
-            Do jA = 1, jAsh
-               ijA = ijA + 1
-               C(ijA)=CMO_i(i,iA)*CMO_j(j,jA)
-            End Do
-         End Do
-!        Call RecPrt('C',' ',C,jAsh,iAsh)
-      End If
-!     Write(6,*) ' ij_Orb_Pairs=',ij_Orb_Pairs
-!
-      Call DNaXpY(ij_Orb_pairs,kl_Bas_pairs,                            &
-     &            C,1,                                                  &
-     &            IJKL,1,0,                                             &
-     &            TUKL,1,kl_Bas_pairs)
-!
-      Return
-      End
+
+subroutine Tra2c(i,iSym,iBas,iAsh,j,jSym,jBas,jAsh,kl_Bas_pairs,ij_Orb_pairs,CMO_i,CMO_j,IJKL,C,TUKL)
+
+real*8 CMO_i(iBas,iAsh), CMO_j(jBas,jAsh), C(ij_Orb_pairs), IJKL(kl_Bas_pairs), TUKL(kl_Bas_pairs,ij_Orb_pairs)
+
+!call RecPrt('IJKL',' ',IJKL,1,kl_Bas_Pairs)
+
+if ((iSym == jSym) .and. (i /= j)) then
+  ijA = 0
+  do iA=1,iAsh
+    do jA=1,iA
+      ijA = ijA+1
+      C(ijA) = CMO_i(i,iA)*CMO_i(j,jA)+CMO_i(j,iA)*CMO_i(i,jA)
+    end do
+  end do
+  !call TriPrt('C',' ',C,iAsh)
+else if (iSym == jSym) then
+  ijA = 0
+  do iA=1,iAsh
+    do jA=1,iA
+      ijA = ijA+1
+      C(ijA) = CMO_i(i,iA)*CMO_i(i,jA)
+    end do
+  end do
+  !call TriPrt('C',' ',C,iAsh)
+else
+  ijA = 0
+  do iA=1,iAsh
+    do jA=1,jAsh
+      ijA = ijA+1
+      C(ijA) = CMO_i(i,iA)*CMO_j(j,jA)
+    end do
+  end do
+  !call RecPrt('C',' ',C,jAsh,iAsh)
+end if
+!write(6,*) ' ij_Orb_Pairs=',ij_Orb_Pairs
+
+call DNaXpY(ij_Orb_pairs,kl_Bas_pairs,C,1,IJKL,1,0,TUKL,1,kl_Bas_pairs)
+
+return
+
+end subroutine Tra2c

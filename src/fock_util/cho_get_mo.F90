@@ -8,124 +8,111 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_get_MO(iOK,nDen,nSym,nBas,nIsh,CM,MSQ)
-      use Data_Structures, only: DSBA_Type, Allocate_DSBA,              &
-     &                           Deallocate_DSBA
-      Implicit Real*8 (a-h,o-z)
-      Integer  iOK, nDen, nSym
-      Integer  nBas(nSym), nIsh(nSym)
-      Type (DSBA_Type)  CM(nDen), MSQ(nDen), SMat
 
+subroutine CHO_get_MO(iOK,nDen,nSym,nBas,nIsh,CM,MSQ)
+
+use Data_Structures, only: DSBA_Type, Allocate_DSBA, Deallocate_DSBA
+
+implicit real*8(a-h,o-z)
+integer iOK, nDen, nSym
+integer nBas(nSym), nIsh(nSym)
+type(DSBA_Type) CM(nDen), MSQ(nDen), SMat
 #include "stdalloc.fh"
-
-      Real*8, Allocatable:: SXMat(:)
-      Real*8, Allocatable, Target:: Dmat0(:)
-      Real*8, Pointer:: Dmat(:,:)
+real*8, allocatable :: SXMat(:)
+real*8, allocatable, target :: Dmat0(:)
+real*8, pointer :: Dmat(:,:)
 !***********************************************************************
 
-      irc=0
-      ikc=0
+irc = 0
+ikc = 0
 
-      nBm=nBas(1)
-      Do iSym=2,nSym
-         nBm=Max(nBm,nBas(iSym))
-      End Do
-      Call mma_allocate(Dmat0,nBm**2,Label='Dmat')
+nBm = nBas(1)
+do iSym=2,nSym
+  nBm = max(nBm,nBas(iSym))
+end do
+call mma_allocate(Dmat0,nBm**2,Label='Dmat')
 
-      iSym=1
-      Do while (iSym .le. nSym)
+iSym = 1
+do while (iSym <= nSym)
 
-        DMat(1:nBas(iSym),1:nBas(iSym)) => DMat0(1:nBas(iSym)**2)
+  DMat(1:nBas(iSym),1:nBas(iSym)) => DMat0(1:nBas(iSym)**2)
 
-        If (nBas(iSym).gt.0 .and. nIsh(iSym).gt.0) then
+  if ((nBas(iSym) > 0) .and. (nIsh(iSym) > 0)) then
 
-! --- Inactive D(a,b) = sum_i C(a,i)*C(b,i)
+    ! Inactive D(a,b) = sum_i C(a,i)*C(b,i)
 
-         Call DGEMM_('N','T',nBas(iSym),nBas(iSym),nIsh(iSym),          &
-     &                      1.0d0,CM(1)%SB(iSYm)%A2,nBas(iSym),         &
-     &                            CM(1)%SB(iSYm)%A2,nBas(iSym),         &
-     &                      0.0d0,DMat,nBas(iSym))
+    call DGEMM_('N','T',nBas(iSym),nBas(iSym),nIsh(iSym),1.0d0,CM(1)%SB(iSYm)%A2,nBas(iSym),CM(1)%SB(iSYm)%A2,nBas(iSym),0.0d0, &
+                DMat,nBas(iSym))
 
-         Ymax=0.0d0
-         do ja=1,nBas(iSym)
-            Ymax=Max(Ymax,DMat(ja,ja))
-         end do
-         Thr=1.0d-13*Ymax
+    Ymax = 0.0d0
+    do ja=1,nBas(iSym)
+      Ymax = max(Ymax,DMat(ja,ja))
+    end do
+    Thr = 1.0d-13*Ymax
 
-         CALL CD_InCore(DMat,nBas(iSym),MSQ(1)%SB(iSym)%A2,nBas(iSym),  &
-     &                  NumV,Thr,irc)
+    call CD_InCore(DMat,nBas(iSym),MSQ(1)%SB(iSym)%A2,nBas(iSym),NumV,Thr,irc)
 
-         If (NumV.ne.nIsh(iSym)) ikc=1
+    if (NumV /= nIsh(iSym)) ikc = 1
 
-        EndIf
+  end if
 
-        If (irc.ne.0 .or. ikc.ne.0) iSym=nSym
+  if ((irc /= 0) .or. (ikc /= 0)) iSym = nSym
 
-        iSym=iSym+1
+  iSym = iSym+1
 
-        DMat=>Null()
+  DMat => null()
 
-      End Do
+end do
 
+if ((nDen == 2) .and. (irc == 0) .and. (ikc == 0)) then
 
-      If (nDen.eq.2 .and. irc.eq.0 .and. ikc.eq.0) Then
+  call Allocate_DSBA(SMat,nBas,nBas,nSym,aCase='TRI')
+  call mma_allocate(SXMat,nBm**2,Label='SXMat')
 
-         Call Allocate_DSBA(SMat,nBas,nBas,nSym,aCase='TRI')
-         Call mma_allocate(SXMat,nBm**2,Label='SXMat')
+  !  Read overlap integrals (LT-storage) and get Square-storage
+  iRc = -1
+  iOpt = 2
+  iComp = 1
+  iSyLbl = 1
+  call RdOne(iRc,iOpt,'Mltpl  0',iComp,SMat%A0,iSyLbl)
 
-!        Read overlap integrals (LT-storage) and get Square-storage
-         iRc=-1
-         iOpt=2
-         iComp=1
-         iSyLbl=1
-         Call RdOne(iRc,iOpt,'Mltpl  0',iComp,SMat%A0,iSyLbl)
+  ! Compute  X_b[a] = C_b U_a   where  U_a = C_a^T S X_a
+  ! ----------------------------------------------------
+  do i=1,nSym
 
-!        Compute  X_b[a] = C_b U_a   where  U_a = C_a^T S X_a
-!        ----------------------------------------------------
-         Do i=1,nSym
+    DMat(1:nBas(iSym),1:nBas(iSym)) => DMat0(1:nBas(iSym)**2)
 
-           DMat(1:nBas(iSym),1:nBas(iSym)) => DMat0(1:nBas(iSym)**2)
+    if ((nBas(i) > 0) .and. (nIsh(i) > 0)) then
 
-           If (nBas(i).gt.0 .and. nIsh(i).gt.0) then
+      call SQUARE(SMat%SB(i)%A1,DMat,1,NBas(i),NBas(i))
 
-              CALL SQUARE(SMat%SB(i)%A1,DMat,1,NBas(i),NBas(i))
+      call DGEMM_('N','N',nBas(i),nIsh(i),nBas(i),1.0d0,DMat,nBas(i),MSQ(1)%SB(i)%A2,nBas(i),0.0d0,SXMat,nBas(i))
 
-              call DGEMM_('N','N',nBas(i),nIsh(i),nBas(i),              &
-     &                     1.0d0,DMat,nBas(i),                          &
-     &                           MSQ(1)%SB(i)%A2,nBas(i),               &
-     &                     0.0d0,SXMat,nBas(i))
+      DMat(1:nIsh(iSym),1:nIsh(iSym)) => DMat0(1:nIsh(iSym)**2)
 
-              DMat(1:nIsh(iSym),1:nIsh(iSym)) => DMat0(1:nIsh(iSym)**2)
+      call DGEMM_('T','N',nIsh(i),nIsh(i),nBas(i),1.0d0,CM(1)%SB(i)%A2,nBas(i),SXMat,nBas(i),0.0d0,DMat,nIsh(i))
 
-              call DGEMM_('T','N',nIsh(i),nIsh(i),nBas(i),              &
-     &                     1.0d0,CM(1)%SB(i)%A2,nBas(i),                &
-     &                           SXMat,nBas(i),                         &
-     &                     0.0d0,DMat,nIsh(i))
+      !write(6,*) ' U_a = C_a^T S X_a   for symmetry block: ',i
+      !call cho_output(DMat,1,nIsh(i),1,nIsh(i),nIsh(i),nIsh(i),1,6)
 
-!           write(6,*) ' U_a = C_a^T S X_a   for symmetry block: ',i
-!           call cho_output(DMat,1,nIsh(i),1,nIsh(i),
-!     &                               nIsh(i),nIsh(i),1,6)
+      call DGEMM_('N','N',nBas(i),nIsh(i),nIsh(i),1.0d0,CM(2)%SB(i)%A2,nBas(i),DMat,nIsh(i),0.0d0,MSQ(2)%SB(i)%A2,nBas(i))
 
-              call DGEMM_('N','N',nBas(i),nIsh(i),nIsh(i),              &
-     &                     1.0d0,CM(2)%SB(i)%A2,nBas(i),                &
-     &                           DMat,nIsh(i),                          &
-     &                     0.0d0,MSQ(2)%SB(i)%A2,nBas(i))
+    end if
 
-           EndIf
+    DMat => null()
 
-           DMat=>Null()
+  end do
 
-         End Do
+  call mma_deallocate(SXMat)
+  call Deallocate_DSBA(SMat)
 
-         Call mma_deallocate(SXMat)
-         Call Deallocate_DSBA(SMat)
+end if
 
-      EndIf
+call mma_deallocate(DMat0)
 
-      Call mma_deallocate(DMat0)
+iOK = 0
+if ((irc /= 0) .or. (ikc /= 0)) iOK = 1
 
-      iOK=0
-      If (irc.ne.0 .or. ikc.ne.0) iOK=1
+return
 
-      Return
-      End
+end subroutine CHO_get_MO

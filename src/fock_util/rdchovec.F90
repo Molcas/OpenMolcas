@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
+
 !  RdChoVec
 !
 !> @brief
@@ -32,16 +33,16 @@
 !> @param[in]  iVec1 Index of first vector
 !> @param[in]  Lunit Logical unit number
 !***********************************************************************
-      SubRoutine RdChoVec(Vec,nDim,nVec,iVec1,Lunit)
-      Implicit None
-      Integer nDim, nVec, iVec1, Lunit
-      Real*8 Vec(nDim,nVec)
+subroutine RdChoVec(Vec,nDim,nVec,iVec1,Lunit)
 
-      Integer iOpt, iAdr, nTot
+implicit none
+integer nDim, nVec, iVec1, Lunit
+real*8 Vec(nDim,nVec)
+integer iOpt, iAdr, nTot
 
-      iOpt = 2
-      iAdr = nDim*(iVec1 - 1) + 1
-      nTot = nDim*nVec
-      Call dDaFile(Lunit,iOpt,Vec,nTot,iAdr)
+iOpt = 2
+iAdr = nDim*(iVec1-1)+1
+nTot = nDim*nVec
+call dDaFile(Lunit,iOpt,Vec,nTot,iAdr)
 
-      End
+end subroutine RdChoVec

@@ -8,9 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_CASPT2_OpenF(iOpt,iTyp,iSym,nBatch)
-!
-!
+
+subroutine Cho_CASPT2_OpenF(iOpt,iTyp,iSym,nBatch)
 !     Purpose: open (iOpt=1), close and keep (iOpt=2), or close and
 !              delete (iOpt=3) Cholesky vector files for CASPT2 program
 !              (full vectors).
@@ -20,106 +19,88 @@
 !              iTyp=3: vectors from (pi|qj) decomposition (Not
 !                      implemented yet!)
 !
+
 #include "implicit.fh"
 #include "WrkSpc.fh"
-      Character*16 SecNam
-      Parameter (SecNam = 'Cho_CASPT2_OpenF')
-      Character*3 BaseNm
-      Character*7 FullNm
+character*16 SecNam
+parameter(SecNam='Cho_CASPT2_OpenF')
+character*3 BaseNm
+character*7 FullNm
 #include "chocaspt2.fh"
-      DIMENSION NUMCHO(8)
-
-      Save NCALLS
-      Integer NCALLS
-      Data NCALLS /0/
-
+dimension NUMCHO(8)
+save NCALLS
+integer NCALLS
+data NCALLS/0/
 !******************************************************************
-      lUnit_F(j,k,l) = iWork(ipUnit_F(j)+(l-1)*nIsplit(j)+k-1)
+!Statement function
+lUnit_F(j,k,l) = iWork(ipUnit_F(j)+(l-1)*nIsplit(j)+k-1)
 !******************************************************************
 
-      If (nBatch .gt. 999) Then
-         Call Cho_x_Quit(SecNam,' nBatch limited to 999 !!!',' ')
-      End If
-      Call Get_iScalar('nSym',nSym)
-      Call Get_iArray('NumCho',NumCho,nSym)
+if (nBatch > 999) then
+  call Cho_x_Quit(SecNam,' nBatch limited to 999 !!!',' ')
+end if
+call Get_iScalar('nSym',nSym)
+call Get_iArray('NumCho',NumCho,nSym)
 
-      If (NCALLS.EQ.0) THEN
-        Do iB=1,nBatch
-          iWork(ipUnit_F(iSym)+(iTyp-1)*nIsplit(iSym)+iB-1) = -1
-        End Do
-      End If
+if (NCALLS == 0) then
+  do iB=1,nBatch
+    iWork(ipUnit_F(iSym)+(iTyp-1)*nIsplit(iSym)+iB-1) = -1
+  end do
+end if
 
-!     Initialize units and return for iOpt=0.
-!     ---------------------------------------
+! Initialize units and return for iOpt=0.
+! ---------------------------------------
 
-      If (iOpt .eq. 0) Then
-         Do iB=1,nBatch
-            iWork(ipUnit_F(iSym)+(iTyp-1)*nIsplit(iSym)+iB-1) = -1
-         End Do
-         Return
-      End If
+if (iOpt == 0) then
+  do iB=1,nBatch
+    iWork(ipUnit_F(iSym)+(iTyp-1)*nIsplit(iSym)+iB-1) = -1
+  end do
+  return
+end if
 
-!     Open or close files.
-!     --------------------
-      If (iTyp.lt.1 .or. iTyp.gt.2) Then
-         Call Cho_x_Quit(SecNam,'iTyp error',' ')
-      End If
+! Open or close files.
+! --------------------
+if ((iTyp < 1) .or. (iTyp > 2)) then
+  call Cho_x_Quit(SecNam,'iTyp error',' ')
+end if
 
-      If (iOpt .eq. 1) Then
-         If (NumCho(iSym).gt.0) Then
-            Do iB=1,nBatch
-               If(lUnit_F(iSym,iB,iTyp) .lt. 1) Then
-                 Call Cho_caspt2_GetBaseNm(BaseNm,iTyp)
-                 Write(FullNm,'(A3,I1,I3)') BaseNm,iSym,iB
-                 LuV=7 ! initial guess
-                 Call daName_MF_WA(LuV,FullNm)!handle inquire/free unit
-                 iWork(ipUnit_F(iSym)+(iTyp-1)*nIsplit(iSym)+iB-1) = LuV
-      write(6,*)' Opened file ''',FullNm,''' as unit nr LuV=',LuV
-      iaddr=ipUnit_F(iSym)+(iTyp-1)*nIsplit(iSym)+iB-1
-      write(6,*)' Unit number LuV is stored at address ',iaddr
-               End If
-            End Do
-         Else
-            Do iB=1,nBatch
-               iWork(ipUnit_F(iSym)+(iTyp-1)*nIsplit(iSym)+iB-1) = -1
-            End Do
-         End If
-      Else If (iOpt .eq. 2) Then
-         Do iB=1,nBatch
-            If (lUnit_F(iSym,iB,iTyp) .gt. 0) Then
-      write(6,*)' Closing lUnit_F(iSym,iB,iTyp)=',lUnit_F(iSym,iB,iTyp)
-               Call daClos(lUnit_F(iSym,iB,iTyp))
-               iWork(ipUnit_F(iSym)+(iTyp-1)*nIsplit(iSym)+iB-1) = -1
-            End If
-         End Do
-      Else If (iOpt .eq. 3) Then
-         Do iB=1,nBatch
-            If (lUnit_F(iSym,iB,iTyp) .gt. 0) Then
-      write(6,*)' Erasing lUnit_F(iSym,iB,iTyp)=',lUnit_F(iSym,iB,iTyp)
-               Call daEras(lUnit_F(iSym,iB,iTyp))
-               iWork(ipUnit_F(iSym)+(iTyp-1)*nIsplit(iSym)+iB-1) = -1
-            End If
-         End Do
-      Else
-         Call Cho_x_Quit(SecNam,'iOpt out of bounds',' ')
-      End If
+if (iOpt == 1) then
+  if (NumCho(iSym) > 0) then
+    do iB=1,nBatch
+      if (lUnit_F(iSym,iB,iTyp) < 1) then
+        call Cho_caspt2_GetBaseNm(BaseNm,iTyp)
+        write(FullNm,'(A3,I1,I3)') BaseNm,iSym,iB
+        LuV = 7 ! initial guess
+        call daName_MF_WA(LuV,FullNm) ! handle inquire/free unit
+        iWork(ipUnit_F(iSym)+(iTyp-1)*nIsplit(iSym)+iB-1) = LuV
+        write(6,*) ' Opened file "',FullNm,'" as unit nr LuV=',LuV
+        iaddr = ipUnit_F(iSym)+(iTyp-1)*nIsplit(iSym)+iB-1
+        write(6,*) ' Unit number LuV is stored at address ',iaddr
+      end if
+    end do
+  else
+    do iB=1,nBatch
+      iWork(ipUnit_F(iSym)+(iTyp-1)*nIsplit(iSym)+iB-1) = -1
+    end do
+  end if
+else if (iOpt == 2) then
+  do iB=1,nBatch
+    if (lUnit_F(iSym,iB,iTyp) > 0) then
+      write(6,*) ' Closing lUnit_F(iSym,iB,iTyp)=',lUnit_F(iSym,iB,iTyp)
+      call daClos(lUnit_F(iSym,iB,iTyp))
+      iWork(ipUnit_F(iSym)+(iTyp-1)*nIsplit(iSym)+iB-1) = -1
+    end if
+  end do
+else if (iOpt == 3) then
+  do iB=1,nBatch
+    if (lUnit_F(iSym,iB,iTyp) > 0) then
+      write(6,*) ' Erasing lUnit_F(iSym,iB,iTyp)=',lUnit_F(iSym,iB,iTyp)
+      call daEras(lUnit_F(iSym,iB,iTyp))
+      iWork(ipUnit_F(iSym)+(iTyp-1)*nIsplit(iSym)+iB-1) = -1
+    end if
+  end do
+else
+  call Cho_x_Quit(SecNam,'iOpt out of bounds',' ')
+end if
 
-      End
-
-
-      SubRoutine Cho_caspt2_GetBaseNm(BaseNm,iTyp)
-      Implicit None
-      Character*3 BaseNm
-      Integer     iTyp
-
-      If (iTyp .eq. 1) Then
-         BaseNm = '_PI'
-      Else If (iTyp .eq. 2) Then
-         BaseNm = '_PW'
-      Else If (iTyp .eq. 3) Then
-         BaseNm = '_CD'
-      Else
-         BaseNm = '_un'
-      End If
-
-      End
+end subroutine Cho_CASPT2_OpenF

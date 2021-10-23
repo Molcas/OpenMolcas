@@ -11,11 +11,8 @@
 ! Copyright (C) 1996, Markus P. Fuelscher                              *
 !               1998, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine Ftwo(case,ExFac,                                       &
-     &                iSym,kSym,                                        &
-     &                iBas,kBas,                                        &
-     &                off_sqMat,off_ltMat,                              &
-     &                D1I,FI,D1A,FA,PQRS)
+
+subroutine Ftwo(case,ExFac,iSym,kSym,iBas,kBas,off_sqMat,off_ltMat,D1I,FI,D1A,FA,PQRS)
 !***********************************************************************
 !                                                                      *
 !     Assemble Fock matrices FI and FA (in AO-basis)                   *
@@ -62,160 +59,115 @@
 !     March '98.                                                       *
 !                                                                      *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
-      Parameter ( Zero=0.0D0, Half=-0.5d0 , One=1.0D0, Two=2.0d0)
+
+implicit real*8(A-H,O-Z)
+parameter(Zero=0.0d0,Half=-0.5d0,One=1.0d0,Two=2.0d0)
 #include "rasdim.fh"
 #include "general.fh"
-!
-      Integer   case, off_sqMat, off_ltMat
-      Dimension off_sqMat(*), off_ltMat(*)
-      Dimension D1I(*), FI(*), D1A(*), FA(*), PQRS(*)
-!
-      iTri(i)=(i*i-i)/2
-      iSqr(i)=(i-1)*nBas(iSym)
-      kSqr(i)=(i-1)*nBas(kSym)
-!
-!
+integer case, off_sqMat, off_ltMat
+dimension off_sqMat(*), off_ltMat(*)
+dimension D1I(*), FI(*), D1A(*), FA(*), PQRS(*)
+!Statement functions
+iTri(i) = (i*i-i)/2
+iSqr(i) = (i-1)*nBas(iSym)
+kSqr(i) = (i-1)*nBas(kSym)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     symmetry case (II|II)
-!     Both Coulomb and Exchange contributions
+! symmetry case (II|II)
+! Both Coulomb and Exchange contributions
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If ( case.eq.1 ) Then
-!
-!------- Coulombic contribution
-!
-         iOff=off_ltMat(iSym)+iTri(iBas)+kBas
-         kOff=off_sqMat(kSym)+1
-         FI(iOff) = FI(iOff)                                            &
-     &            + dDot_(nBas(kSym)*nBas(kSym),D1I(kOff),1,PQRS,1)
-         FA(iOff) = FA(iOff)                                            &
-     &            + dDot_(nBas(kSym)*nBas(kSym),D1A(kOff),1,PQRS,1)
-!
-!------- Exchange contribution
-!
-         If (ExFac.ne.Zero) Then
-            iOff=off_sqMat(iSym)+iSqr(iBas)+1
-            kOff=off_ltMat(kSym)+iTri(kBas)+1
-!            Call DGeMX (kBas,nBas(iSym),Half*ExFac,
-!     &                  PQRS,nBas(iSym),
-!     &                  D1I(iOff),1,
-!     &                  FI(kOff),1)
-!            Call DGeMX (kBas,nBas(iSym),Half*ExFac,
-!     &                  PQRS,nBas(iSym),
-!     &                  D1A(iOff),1,
-!     &                  FA(kOff),1)
-            CALL DGEMV_('N',kBas,nBas(iSym),(Half*ExFac),               &
-     &                  PQRS,nBas(iSym),                                &
-     &                  D1I(iOff),1,1.0D0,FI(kOff),1)
-            CALL DGEMV_('N',kBas,nBas(iSym),(Half*ExFac),               &
-     &                  PQRS,nBas(iSym),                                &
-     &                  D1A(iOff),1,1.0D0,FA(kOff),1)
-            If ( iBas.ne.kBas ) then
-               iOff=off_ltMat(iSym)+iTri(iBas)+1
-               kOff=off_sqMat(kSym)+kSqr(kBas)+1
-!               Call DGeMX (iBas,nBas(iSym),Half*ExFac,
-!     &                     PQRS,nBas(iSym),
-!     &                     D1I(kOff),1,
-!     &                     FI(iOff),1)
-!               Call DGeMX (iBas,nBas(iSym),Half*ExFac,
-!     &                     PQRS,nBas(iSym),
-!     &                     D1A(kOff),1,
-!     &                     FA(iOff),1)
-               CALL DGEMV_('N',iBas,nBas(iSym),(Half*ExFac),            &
-     &                     PQRS,nBas(iSym),                             &
-     &                     D1I(kOff),1,1.0D0,FI(iOff),1)
-               CALL DGEMV_('N',iBas,nBas(iSym),(Half*ExFac),            &
-     &                     PQRS,nBas(iSym),                             &
-     &                     D1A(kOff),1,1.0D0,FA(iOff),1)
-            End If
-         End If
-      End If
+if (case == 1) then
+
+  ! Coulombic contribution
+
+  iOff = off_ltMat(iSym)+iTri(iBas)+kBas
+  kOff = off_sqMat(kSym)+1
+  FI(iOff) = FI(iOff)+dDot_(nBas(kSym)*nBas(kSym),D1I(kOff),1,PQRS,1)
+  FA(iOff) = FA(iOff)+dDot_(nBas(kSym)*nBas(kSym),D1A(kOff),1,PQRS,1)
+
+  ! Exchange contribution
+
+  if (ExFac /= Zero) then
+    iOff = off_sqMat(iSym)+iSqr(iBas)+1
+    kOff = off_ltMat(kSym)+iTri(kBas)+1
+    !call DGeMX(kBas,nBas(iSym),Half*ExFac,PQRS,nBas(iSym),D1I(iOff),1,FI(kOff),1)
+    !call DGeMX(kBas,nBas(iSym),Half*ExFac,PQRS,nBas(iSym),D1A(iOff),1,FA(kOff),1)
+    call DGEMV_('N',kBas,nBas(iSym),(Half*ExFac),PQRS,nBas(iSym),D1I(iOff),1,1.0d0,FI(kOff),1)
+    call DGEMV_('N',kBas,nBas(iSym),(Half*ExFac),PQRS,nBas(iSym),D1A(iOff),1,1.0d0,FA(kOff),1)
+    if (iBas /= kBas) then
+      iOff = off_ltMat(iSym)+iTri(iBas)+1
+      kOff = off_sqMat(kSym)+kSqr(kBas)+1
+      !call DGeMX(iBas,nBas(iSym),Half*ExFac,PQRS,nBas(iSym),D1I(kOff),1,FI(iOff),1)
+      !call DGeMX(iBas,nBas(iSym),Half*ExFac,PQRS,nBas(iSym),D1A(kOff),1,FA(iOff),1)
+      call DGEMV_('N',iBas,nBas(iSym),(Half*ExFac),PQRS,nBas(iSym),D1I(kOff),1,1.0d0,FI(iOff),1)
+      call DGEMV_('N',iBas,nBas(iSym),(Half*ExFac),PQRS,nBas(iSym),D1A(kOff),1,1.0d0,FA(iOff),1)
+    end if
+  end if
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     symmetry case (II|KK) and (KK|II)
-!     Only Coulomb contributions
-!     This is limited to iBas >= jBas
-!     Code modified to only require uniqe symmetry blocks of
-!     two-electron integrals. R. Lindh, March '98.
+! symmetry case (II|KK) and (KK|II)
+! Only Coulomb contributions
+! This is limited to iBas >= jBas
+! Code modified to only require uniqe symmetry blocks of
+! two-electron integrals. R. Lindh, March '98.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If ( case.eq.2 .and. iSym.gt.kSym) then
-         jBas=kBas    ! To avoid confusion.
-         iOff_ij=off_ltMat(iSym)+iTri(iBas)+jBas
-         kOff=off_sqMat(kSym)+1
-!
-         FI(iOff_ij) = FI(iOff_ij)                                      &
-     &               + DDot_(nBas(kSym)**2,D1I(kOff),1,PQRS,1)
-         FA(iOff_ij) = FA(iOff_ij)                                      &
-     &               + DDot_(nBas(kSym)**2,D1A(kOff),1,PQRS,1)
-!
-         D1I_ij=D1I(off_sqMat(iSym)+(jBas-1)*nBas(iSym)+iBas)
-         D1A_ij=D1A(off_sqMat(iSym)+(jBas-1)*nBas(iSym)+iBas)
-         If (iBas.ne.jBas) Then
-            D1I_ij=D1I_ij*Two
-            D1A_ij=D1A_ij*Two
-         End If
-         Do k = 1, nBas(kSym)
-            Do l = 1, k
-               kl = (l-1)*nBas(kSym)+k
-               iOff_kl = off_ltMat(kSym)+iTri(k)+l
-               FI(iOff_kl)=FI(iOff_kl)+D1I_ij*PQRS(kl)
-               FA(iOff_kl)=FA(iOff_kl)+D1A_ij*PQRS(kl)
-            End Do
-         End Do
-!
-      End If
+if ((case == 2) .and. (iSym > kSym)) then
+  jBas = kBas ! To avoid confusion.
+  iOff_ij = off_ltMat(iSym)+iTri(iBas)+jBas
+  kOff = off_sqMat(kSym)+1
+
+  FI(iOff_ij) = FI(iOff_ij)+DDot_(nBas(kSym)**2,D1I(kOff),1,PQRS,1)
+  FA(iOff_ij) = FA(iOff_ij)+DDot_(nBas(kSym)**2,D1A(kOff),1,PQRS,1)
+
+  D1I_ij = D1I(off_sqMat(iSym)+(jBas-1)*nBas(iSym)+iBas)
+  D1A_ij = D1A(off_sqMat(iSym)+(jBas-1)*nBas(iSym)+iBas)
+  if (iBas /= jBas) then
+    D1I_ij = D1I_ij*Two
+    D1A_ij = D1A_ij*Two
+  end if
+  do k=1,nBas(kSym)
+    do l=1,k
+      kl = (l-1)*nBas(kSym)+k
+      iOff_kl = off_ltMat(kSym)+iTri(k)+l
+      FI(iOff_kl) = FI(iOff_kl)+D1I_ij*PQRS(kl)
+      FA(iOff_kl) = FA(iOff_kl)+D1A_ij*PQRS(kl)
+    end do
+  end do
+
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     symmetry case (IK!IK)
-!     Only Exchange contributions
+! symmetry case (IK!IK)
+! Only Exchange contributions
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If ( case.eq.3 .and. ExFac.ne.Zero) then
-         iOff=off_sqMat(iSym)+iSqr(iBas)+1
-         kOff=off_ltMat(kSym)+iTri(kBas)+1
-!         Call DGeMX  (kBas,nBas(iSym),Half*ExFac,
-!     &                PQRS,nBas(kSym),
-!     &                D1I(iOff),1,
-!     &                FI(kOff),1)
-!         Call DGeMX  (kBas,nBas(iSym),Half*ExFac,
-!     &                PQRS,nBas(kSym),
-!     &                D1A(iOff),1,
-!     &                FA(kOff),1)
-         CALL DGEMV_('N',kBas,nBas(iSym),(Half*ExFac),                  &
-     &                PQRS,nBas(kSym),                                  &
-     &                D1I(iOff),1,1.0D0,FI(kOff),1)
-         CALL DGEMV_('N',kBas,nBas(iSym),(Half*ExFac),                  &
-     &                PQRS,nBas(kSym),                                  &
-     &                D1A(iOff),1,1.0D0,FA(kOff),1)
-         iOff=off_ltMat(iSym)+iTri(iBas)+1
-         kOff=off_sqMat(kSym)+kSqr(kBas)+1
-!         Call DGeMTX (nBas(kSym),iBas,Half*ExFac,
-!     &                PQRS,nBas(kSym),
-!     &                D1I(kOff),1,
-!     &                FI(iOff),1)
-!         Call DGeMTX (nBas(kSym),iBas,Half*ExFac,
-!     &                PQRS,nBas(kSym),
-!     &                D1A(kOff),1,
-!     &                FA(iOff),1)
-         CALL DGEMV_('T',nBas(kSym),iBas,(Half*ExFac),                  &
-     &                PQRS,nBas(kSym),                                  &
-     &                D1I(kOff),1,1.0D0,FI(iOff),1)
-         CALL DGEMV_('T',nBas(kSym),iBas,(Half*ExFac),                  &
-     &                PQRS,nBas(kSym),                                  &
-     &                D1A(kOff),1,1.0D0,FA(iOff),1)
-      End If
+if ((case == 3) .and. (ExFac /= Zero)) then
+  iOff = off_sqMat(iSym)+iSqr(iBas)+1
+  kOff = off_ltMat(kSym)+iTri(kBas)+1
+  !call DGeMX(kBas,nBas(iSym),Half*ExFac,PQRS,nBas(kSym),D1I(iOff),1,FI(kOff),1)
+  !call DGeMX(kBas,nBas(iSym),Half*ExFac,PQRS,nBas(kSym),D1A(iOff),1,FA(kOff),1)
+  call DGEMV_('N',kBas,nBas(iSym),(Half*ExFac),PQRS,nBas(kSym),D1I(iOff),1,1.0d0,FI(kOff),1)
+  call DGEMV_('N',kBas,nBas(iSym),(Half*ExFac),PQRS,nBas(kSym),D1A(iOff),1,1.0d0,FA(kOff),1)
+  iOff = off_ltMat(iSym)+iTri(iBas)+1
+  kOff = off_sqMat(kSym)+kSqr(kBas)+1
+  !call DGeMTX(nBas(kSym),iBas,Half*ExFac,PQRS,nBas(kSym),D1I(kOff),1,FI(iOff),1)
+  !call DGeMTX(nBas(kSym),iBas,Half*ExFac,PQRS,nBas(kSym),D1A(kOff),1,FA(iOff),1)
+  call DGEMV_('T',nBas(kSym),iBas,(Half*ExFac),PQRS,nBas(kSym),D1I(kOff),1,1.0d0,FI(iOff),1)
+  call DGEMV_('T',nBas(kSym),iBas,(Half*ExFac),PQRS,nBas(kSym),D1A(kOff),1,1.0d0,FA(iOff),1)
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!
-      Return
-      End
+return
+
+end subroutine Ftwo

@@ -10,8 +10,8 @@
 !                                                                      *
 ! Copyright (C) Francesco Aquilante                                    *
 !***********************************************************************
-      SUBROUTINE CHO_FOCK_DFT_RED(irc,DLT,FLT)
 
+subroutine CHO_FOCK_DFT_RED(irc,DLT,FLT)
 !********************************************************
 !
 ! Author:  F. Aquilante
@@ -21,230 +21,213 @@
 ! --- F(ab) = 2 * sum_J  Lab,J * sum_gd  D(gd) * Lgd,J
 !
 !********************************************************
-      use ChoArr, only: nDimRS
-      use ChoSwp, only: InfVec
-      use Data_Structures, only: DSBA_Type
-      Implicit Real*8 (a-h,o-z)
+
+use ChoArr, only: nDimRS
+use ChoSwp, only: InfVec
+use Data_Structures, only: DSBA_Type
+
+implicit real*8(a-h,o-z)
 #ifdef _DEBUGPRINT_
-      Logical Debug
+logical Debug
 #endif
-      Logical add
-      Type (DSBA_Type) DLT, FLT
-      Real*8  tread(2),tcoul(2)
-      Character*16  SECNAM
-      Character*6   mode
-      Character*50 CFmt
+logical add
+type(DSBA_Type) DLT, FLT
+real*8 tread(2), tcoul(2)
+character*16 SECNAM
+character*6 mode
+character*50 CFmt
 #include "chotime.fh"
-
-      parameter (SECNAM = 'CHO_FOCK_DFT_RED')
-
+parameter(SECNAM='CHO_FOCK_DFT_RED')
 #include "real.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "stdalloc.fh"
-
-      Real*8, Allocatable :: Lrs(:,:), Drs(:), Frs(:), VJ(:)
-
+real*8, allocatable :: Lrs(:,:), Drs(:), Frs(:), VJ(:)
 #ifdef _DEBUGPRINT_
-      Debug=.true.
+Debug = .true.
 #endif
 
-      FactC = one
+FactC = one
 
-! --- For Coulomb only, the vectors symmetry is restricted to 1
-      JSYM=1
-      If (NumCho(JSYM).lt.1) Return
+! For Coulomb only, the vectors symmetry is restricted to 1
+JSYM = 1
+if (NumCho(JSYM) < 1) return
 
-        CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
+call CWTIME(TOTCPU1,TOTWALL1) ! start clock for total time
 
-        do i=1,2            ! 1 --> CPU   2 --> Wall
-           tread(i) = zero  !time for reading the vectors
-           tcoul(i) = zero  !time for computing Coulomb
-        end do
+do i=1,2          ! 1 --> CPU   2 --> Wall
+  tread(i) = zero ! time for reading the vectors
+  tcoul(i) = zero ! time for computing Coulomb
+end do
 
-      iLoc = 3 ! use scratch location in reduced index arrays
+iLoc = 3 ! use scratch location in reduced index arrays
 
-      JRED1 = InfVec(1,2,jSym)  ! red set of the 1st vec
-      JRED2 = InfVec(NumCho(jSym),2,jSym) !red set of the last vec
+JRED1 = InfVec(1,2,jSym)            ! red set of the 1st vec
+JRED2 = InfVec(NumCho(jSym),2,jSym) ! red set of the last vec
 
-      Do JRED=JRED1,JRED2
+do JRED=JRED1,JRED2
 
-! --- Memory management section -----------------------------
-! ---
-      CALL Cho_X_nVecRS(JRED,JSYM,iVrs,nVrs)
+  ! Memory management section -----------------------------
+  call Cho_X_nVecRS(JRED,JSYM,iVrs,nVrs)
 
-      if (nVrs.eq.0) goto 999
+  if (nVrs == 0) goto 999
 
-      if (nVrs.lt.0) then
-         Write(6,*)SECNAM//': Cho_X_nVecRS returned nVrs < 0. STOP!!'
-         call abend()
-      endif
+  if (nVrs < 0) then
+    write(6,*) SECNAM//': Cho_X_nVecRS returned nVrs < 0. STOP!!'
+    call abend()
+  end if
 
-      Call Cho_X_SetRed(irc,iLoc,JRED) !set index arrays at iLoc
-      if(irc.ne.0)then
-        Write(6,*)SECNAM//'cho_X_setred non-zero return code. rc= ',irc
-        call abend()
-      endif
+  call Cho_X_SetRed(irc,iLoc,JRED) ! set index arrays at iLoc
+  if (irc /= 0) then
+    write(6,*) SECNAM//'cho_X_setred non-zero return code. rc= ',irc
+    call abend()
+  end if
 
-      nRS = nDimRS(JSYM,JRED)
+  nRS = nDimRS(JSYM,JRED)
 
-      Call mma_allocate(Drs,nRS,Label='Drs')
-      Call mma_allocate(Frs,nRS,Label='Frs')
-      Drs(:)=Zero
-      Frs(:)=Zero
+  call mma_allocate(Drs,nRS,Label='Drs')
+  call mma_allocate(Frs,nRS,Label='Frs')
+  Drs(:) = Zero
+  Frs(:) = Zero
 
-      Call mma_maxDBLE(LWork)
+  call mma_maxDBLE(LWork)
 
-      nVec  = Min(LWORK/(nRS+1),nVrs)
+  nVec = min(LWORK/(nRS+1),nVrs)
 
-      If (nVec.lt.1) Then
-         WRITE(6,*) SECNAM//': Insufficient memory for batch'
-         WRITE(6,*) 'LWORK= ',LWORK
-         WRITE(6,*) 'min. mem. need= ',nRS+1
-         irc = 33
-         CALL Abend()
-         nBatch = -9999  ! dummy assignment
-      End If
+  if (nVec < 1) then
+    write(6,*) SECNAM//': Insufficient memory for batch'
+    write(6,*) 'LWORK= ',LWORK
+    write(6,*) 'min. mem. need= ',nRS+1
+    irc = 33
+    call Abend()
+    nBatch = -9999 ! dummy assignment
+  end if
 
-      LREAD = nRS*nVec
+  LREAD = nRS*nVec
 
-      Call mma_allocate(Lrs,nRS,nVec,Label='Lrs')
-      Call mma_allocate(VJ,nVec,Label='VJ')
+  call mma_allocate(Lrs,nRS,nVec,Label='Lrs')
+  call mma_allocate(VJ,nVec,Label='VJ')
 
-! --- Transform the density to reduced storage
-      mode = 'toreds'
-      add  = .false.
-      nDen=1
-      Call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,[DLT],Drs,mode,add)
+  ! Transform the density to reduced storage
+  mode = 'toreds'
+  add = .false.
+  nDen = 1
+  call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,[DLT],Drs,mode,add)
 
-! --- BATCH over the vectors in JSYM=1 ----------------------------
+  ! BATCH over the vectors in JSYM=1 ----------------------------
 
-      nBatch = (nVrs-1)/nVec + 1
+  nBatch = (nVrs-1)/nVec+1
 
-      DO iBatch=1,nBatch
+  do iBatch=1,nBatch
 
-         If (iBatch.eq.nBatch) Then
-            JNUM = nVrs - nVec*(nBatch-1)
-         else
-            JNUM = nVec
-         endif
+    if (iBatch == nBatch) then
+      JNUM = nVrs-nVec*(nBatch-1)
+    else
+      JNUM = nVec
+    end if
 
-         JVEC = nVec*(iBatch-1) + iVrs
-         IVEC2 = JVEC - 1 + JNUM
+    JVEC = nVec*(iBatch-1)+iVrs
+    IVEC2 = JVEC-1+JNUM
 
-         CALL CWTIME(TCR1,TWR1)
+    call CWTIME(TCR1,TWR1)
 
-         CALL CHO_VECRD(Lrs,LREAD,JVEC,IVEC2,JSYM,NUMV,JRED,MUSED)
+    call CHO_VECRD(Lrs,LREAD,JVEC,IVEC2,JSYM,NUMV,JRED,MUSED)
 
-         If (NUMV.le.0 .or. NUMV.ne.JNUM) then
-            irc=77
-            RETURN
-         End If
+    if ((NUMV <= 0) .or. (NUMV /= JNUM)) then
+      irc = 77
+      return
+    end if
 
-         CALL CWTIME(TCR2,TWR2)
-         tread(1) = tread(1) + (TCR2 - TCR1)
-         tread(2) = tread(2) + (TWR2 - TWR1)
+    call CWTIME(TCR2,TWR2)
+    tread(1) = tread(1)+(TCR2-TCR1)
+    tread(2) = tread(2)+(TWR2-TWR1)
 
-! ************ BEGIN COULOMB CONTRIBUTION  ****************
-!
-!---- Computing the intermediate vector V(J)
-!
-! --- Contraction with the density matrix
-! ---------------------------------------
-! --- V{#J} <- V{#J}  +  sum_rs  L(rs,{#J}) * D(rs)
-!==========================================================
-!
-         CALL CWTIME(TCC1,TWC1)
+    ! ************ BEGIN COULOMB CONTRIBUTION  ****************
+    !
+    !-Computing the intermediate vector V(J)
+    !
+    ! Contraction with the density matrix
+    ! -----------------------------------
+    ! V{#J} <- V{#J}  +  sum_rs  L(rs,{#J}) * D(rs)
+    !==========================================================
 
-         CALL DGEMV_('T',nRS,JNUM,                                      &
-     &              ONE,Lrs,nRS,                                        &
-     &              Drs,1,ZERO,VJ,1)
+    call CWTIME(TCC1,TWC1)
 
-! --- Frs{#J} <- Frs{#J} + sum_J L(rs,{#J})*V{#J}
-!==========================================================
+    call DGEMV_('T',nRS,JNUM,ONE,Lrs,nRS,Drs,1,ZERO,VJ,1)
 
-         xfac = dble(min(jVec-iVrs,1))
+    ! Frs{#J} <- Frs{#J} + sum_J L(rs,{#J})*V{#J}
+    !======================================================
 
-         CALL DGEMV_('N',nRS,JNUM,                                      &
-     &              FactC,Lrs,nRS,                                      &
-     &              VJ,1,xfac,Frs,1)
+    xfac = dble(min(jVec-iVrs,1))
 
+    call DGEMV_('N',nRS,JNUM,FactC,Lrs,nRS,VJ,1,xfac,Frs,1)
 
-         CALL CWTIME(TCC2,TWC2)
-         tcoul(1) = tcoul(1) + (TCC2 - TCC1)
-         tcoul(2) = tcoul(2) + (TWC2 - TWC1)
+    call CWTIME(TCC2,TWC2)
+    tcoul(1) = tcoul(1)+(TCC2-TCC1)
+    tcoul(2) = tcoul(2)+(TWC2-TWC1)
 
+  end do  !end batch loop
 
-      END DO  !end batch loop
+  if (nVrs > 0) then
+    ! backtransform fock matrix in full storage
+    mode = 'tofull'
+    add = JRED > JRED1
+    call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,[FLT],Frs,mode,add)
+  end if
 
-      if (nVrs.gt.0) then
-! --- backtransform fock matrix in full storage
-         mode = 'tofull'
-         add  = JRED.gt.JRED1
-         Call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,[FLT],Frs,mode,add)
-      endif
+  ! free memory
+  call mma_deallocate(VJ)
+  call mma_deallocate(Lrs)
+  call mma_deallocate(Frs)
+  call mma_deallocate(Drs)
 
-! --- free memory
-      Call mma_deallocate(VJ)
-      Call mma_deallocate(Lrs)
-      Call mma_deallocate(Frs)
-      Call mma_deallocate(Drs)
+999 continue
 
+end do ! loop over red sets
 
-999   Continue
+call CWTIME(TOTCPU2,TOTWALL2)
+TOTCPU = TOTCPU2-TOTCPU1
+TOTWALL = TOTWALL2-TOTWALL1
 
-      END DO   ! loop over red sets
+! Write out timing information
+if (timings) then
 
+  CFmt = '(2x,A)'
+  write(6,*)
+  write(6,CFmt) 'Cholesky SCF timing from '//SECNAM
+  write(6,CFmt) '-----------------------------------------'
+  write(6,*)
+  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(6,CFmt) 'Fock matrix construction        CPU       WALL   '
+  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
 
-      CALL CWTIME(TOTCPU2,TOTWALL2)
-      TOTCPU = TOTCPU2 - TOTCPU1
-      TOTWALL= TOTWALL2 - TOTWALL1
+  write(6,'(2x,A26,2f10.2)') 'READ VECTORS                              ',tread(1),tread(2)
+  write(6,'(2x,A26,2f10.2)') 'COULOMB                                   ',tcoul(1),tcoul(2)
+  write(6,'(2x,A26,2f10.2)') 'TOTAL                                     ',TOTCPU,TOTWALL
+  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(6,*)
 
-!
-!---- Write out timing information
-      if(timings)then
-
-      CFmt='(2x,A)'
-      Write(6,*)
-      Write(6,CFmt)'Cholesky SCF timing from '//SECNAM
-      Write(6,CFmt)'-----------------------------------------'
-      Write(6,*)
-      Write(6,CFmt)'- - - - - - - - - - - - - - - - - - - - - - - - -'
-      Write(6,CFmt)'Fock matrix construction        CPU       WALL   '
-      Write(6,CFmt)'- - - - - - - - - - - - - - - - - - - - - - - - -'
-
-         Write(6,'(2x,A26,2f10.2)')'READ VECTORS                     '  &
-     &                           //'         ',tread(1),tread(2)
-         Write(6,'(2x,A26,2f10.2)')'COULOMB                          '  &
-     &                           //'         ',tcoul(1),tcoul(2)
-         Write(6,'(2x,A26,2f10.2)')'TOTAL                            '  &
-     &                           //'         ',TOTCPU,TOTWALL
-      Write(6,CFmt)'- - - - - - - - - - - - - - - - - - - - - - - - -'
-      Write(6,*)
-
-      endif
-
+end if
 
 ! Print the Fock-matrix
 #ifdef _DEBUGPRINT_
-      if(Debug) then !to avoid double printing in SCF-debug
+if (Debug) then ! to avoid double printing in SCF-debug
 
-      WRITE(6,'(6X,A)')'TEST PRINT FROM '//SECNAM
-      WRITE(6,'(6X,A)')
-      DO ISYM=1,NSYM
-        NB=NBAS(ISYM)
-        IF ( NB.GT.0 ) THEN
-          WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
-          CALL TRIPRT('Coulomb Fmat',' ',FLT%SB(ISYM)%A1,NB)
-        END IF
-      END DO
+  write(6,'(6X,A)') 'TEST PRINT FROM '//SECNAM
+  write(6,'(6X,A)')
+  do ISYM=1,NSYM
+    NB = NBAS(ISYM)
+    if (NB > 0) then
+      write(6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
+      call TRIPRT('Coulomb Fmat',' ',FLT%SB(ISYM)%A1,NB)
+    end if
+  end do
 
-      endif
-
+end if
 #endif
 
+irc = 0
 
-      irc=0
+return
 
-      Return
-      End
+end subroutine CHO_FOCK_DFT_RED

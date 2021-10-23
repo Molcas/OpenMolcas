@@ -10,9 +10,8 @@
 !                                                                      *
 ! Copyright (C) Francesco Aquilante                                    *
 !***********************************************************************
-      SUBROUTINE CHOSCF_MEM(nSym,nBas,iUHF,DoExchange,pNocc,            &
-     &                      ALGO,REORD,MinMem,lOff1)
 
+subroutine CHOSCF_MEM(nSym,nBas,iUHF,DoExchange,pNocc,ALGO,REORD,MinMem,lOff1)
 !****************************************************************
 !  Author : F. Aquilante
 !
@@ -31,151 +30,147 @@
 !                 only in connection with the truth table defined
 !                 in the calling routine
 !*****************************************************************
-      use ChoArr, only: nDimRS
-      use Data_Structures, only: Integer_Pointer
-      Implicit Real*8 (a-h,o-z)
-      Integer nSym,nBas(nSym),MinMem(nSym),iUHF,ALGO
-      Integer Moccmx(nSym),Mabmx(nSym),MxBas(nSym)
-      Logical REORD,xToDo,DoExchange(*)
-      Type (Integer_Pointer) :: pNocc(*)
 
-      Integer Nocc, i, j
+use ChoArr, only: nDimRS
+use Data_Structures, only: Integer_Pointer
 
+implicit real*8(a-h,o-z)
+integer nSym, nBas(nSym), MinMem(nSym), iUHF, ALGO
+integer Moccmx(nSym), Mabmx(nSym), MxBas(nSym)
+logical REORD, xToDo, DoExchange(*)
+type(Integer_Pointer) :: pNocc(*)
+integer Nocc, i, j
 !*************************************************
-      MulD2h(i,j) = iEOR(i-1,j-1) + 1
-      Nocc(i,j) = pNocc(j)%I1(i)
+!Statement functions
+MulD2h(i,j) = ieor(i-1,j-1)+1
+Nocc(i,j) = pNocc(j)%I1(i)
 !*************************************************
 
-
-
-      If (iUHF .eq. 0) Then
-         nDen = 1
-         xToDo=DoExChange(1)
-      Else
-         nDen = 3
-         xToDo=DoExChange(2)
-      End If
+if (iUHF == 0) then
+  nDen = 1
+  xToDo = DoExChange(1)
+else
+  nDen = 3
+  xToDo = DoExChange(2)
+end if
 
 !============================
-      lOff1=0
-      Do i=1,nDen
-         Do j=1,nSym
-            lOff1=Max(lOff1,Nocc(j,i))
-         End Do
-      End Do
+lOff1 = 0
+do i=1,nDen
+  do j=1,nSym
+    lOff1 = max(lOff1,Nocc(j,i))
+  end do
+end do
 
-      do j=1,nSym
-         Moccmx(j)=0
-         do i=1,nDen
-            Moccmx(j)=Max(Moccmx(j),Nocc(j,i))
-         end do
-      end do
+do j=1,nSym
+  Moccmx(j) = 0
+  do i=1,nDen
+    Moccmx(j) = max(Moccmx(j),Nocc(j,i))
+  end do
+end do
 
 ! Max dimension of a read symmetry block
-        Nmax=0
-        Do iSym=1,nSym
-           if(NBAS(iSym).gt.Nmax .and. Moccmx(isym).ne.0 )then
-           Nmax = NBAS(iSym)
-           endif
-        End Do
+Nmax = 0
+do iSym=1,nSym
+  if ((NBAS(iSym) > Nmax) .and. (Moccmx(isym) /= 0)) then
+    Nmax = NBAS(iSym)
+  end if
+end do
 
-        lOff1 = Nmax*lOff1
+lOff1 = Nmax*lOff1
 
 !============================
-      Do jSym=1,nSym
+do jSym=1,nSym
 
-! Total length of a vector
-       Mabmx(jSym)=0
-       MxBas(jSym)=0
-       Nab=0
-       NSab=0
-       Do ksym=1,nSym
-          iSymp=MulD2h(ksym,jSym)
-          If (iSymp.gt.ksym .and. (Moccmx(iSymp).ne.0 .or.              &
-     &                             Moccmx(ksym).ne.0) )  Then
-             Nab = Nab + nBas(ksym)*nBas(iSymp)
-             Mabmx(jSym)= Max(Mabmx(jSym),Max(nBas(ksym)*Moccmx(iSymp), &
-     &                        nBas(iSymp)*Moccmx(ksym)))
-             MxBas(jSym)= Max(MxBas(jSym),nBas(ksym)*nBas(iSymp))
-          Else
-               If (iSymp.eq.ksym) Then ! all are needed for the Coulomb
-                  Nab = Nab + nBas(ksym)*(nBas(ksym)+1)/2
-                  NSab= NSab + nBas(ksym)**2
-               End If
-          End If
-       End Do
+  ! Total length of a vector
+  Mabmx(jSym) = 0
+  MxBas(jSym) = 0
+  Nab = 0
+  NSab = 0
+  do ksym=1,nSym
+    iSymp = MulD2h(ksym,jSym)
+    if ((iSymp > ksym) .and. ((Moccmx(iSymp) /= 0) .or. (Moccmx(ksym) /= 0))) then
+      Nab = Nab+nBas(ksym)*nBas(iSymp)
+      Mabmx(jSym) = max(Mabmx(jSym),max(nBas(ksym)*Moccmx(iSymp),nBas(iSymp)*Moccmx(ksym)))
+      MxBas(jSym) = max(MxBas(jSym),nBas(ksym)*nBas(iSymp))
+    else
+      if (iSymp == ksym) then ! all are needed for the Coulomb
+        Nab = Nab+nBas(ksym)*(nBas(ksym)+1)/2
+        NSab = NSab+nBas(ksym)**2
+      end if
+    end if
+  end do
 
-! ====================================================================
-! === The following memory management is bound to the truth table  ===
-! === assigned in the calling routine
-!=====================================================================
+  !============================================================
+  ! The following memory management is bound to the truth table
+  ! assigned in the calling routine
+  !============================================================
 
-        IF(.not.xToDo) THEN
+  if (.not. xToDo) then
 
-         MinMem(jSym) = Nab + 1  ! to store 1 vector of L(rJ),s + V(J)
-         if(.not.REORD) then
-           MinMem(jSym)=Nab+nDimRS(jSym,1)
-!           ! L + read 1 vect reduced set1
-         end if
+    MinMem(jSym) = Nab+1 ! to store 1 vector of L(rJ),s + V(J)
+    if (.not. REORD) then
+      MinMem(jSym) = Nab+nDimRS(jSym,1)
+      ! L + read 1 vect reduced set1
+    end if
 
-        ELSE ! Memory for "off-diagonal" exchange only (jSym.ne.1)
+  else ! Memory for "off-diagonal" exchange only (jSym.ne.1)
 
-             if (REORD) then
-               MinMem(jSym) = 2*Nab ! 1 vector of L(rJ),s + W(rJ),s
-             else
-                if(ALGO.eq.2)then
-                  MinMem(jSym) = Nab + Max(nDimRS(jSym,1),Mabmx(jSym))
-                else
-                  MinMem(jSym) = Nab + Max(nDimRS(jSym,1),MxBas(jSym))
-                endif
-             endif
+    if (REORD) then
+      MinMem(jSym) = 2*Nab ! 1 vector of L(rJ),s + W(rJ),s
+    else
+      if (ALGO == 2) then
+        MinMem(jSym) = Nab+max(nDimRS(jSym,1),Mabmx(jSym))
+      else
+        MinMem(jSym) = Nab+max(nDimRS(jSym,1),MxBas(jSym))
+      end if
+    end if
 
-        END IF
+  end if
 
-!-----
-        IF(xToDo.and.jSym.eq.1) THEN  ! jSym=1 is a special case
+  !-----
+  if (xToDo .and. (jSym == 1)) then ! jSym=1 is a special case
 
-           If(nSym.eq.1) then
+    if (nSym == 1) then
 
-               if (ALGO.eq.2) then
-                   if (lOff1.gt.Nab) then
-                      MinMem(jSym) = lOff1 + NSab
-                   else
-                      MinMem(jSym) = Nab + NSab
-                      lOff1 = Nab
-                   endif
-               else
+      if (ALGO == 2) then
+        if (lOff1 > Nab) then
+          MinMem(jSym) = lOff1+NSab
+        else
+          MinMem(jSym) = Nab+NSab
+          lOff1 = Nab
+        end if
+      else
 
-                   MinMem(jSym) = 2*NSab
-                   lOff1 = NSab
+        MinMem(jSym) = 2*NSab
+        lOff1 = NSab
 
-               endif
+      end if
 
-           Else  ! nSym > 1   jSym=1
+    else  ! nSym > 1   jSym=1
 
-               if (ALGO.eq.2) then
-                   if (lOff1.gt.nBas(1)*(nBas(1)+1)/2) then
-                      MinMem(jSym) = Nab - nBas(1)*(nBas(1)+1)/2        &
-     &                             + lOff1 + Nmax**2
-                   else
-                      MinMem(jSym) = Nab + Nmax**2
-                      lOff1 = nBas(1)*(nBas(1)+1)/2
-                   endif
-               else
+      if (ALGO == 2) then
+        if (lOff1 > nBas(1)*(nBas(1)+1)/2) then
+          MinMem(jSym) = Nab-nBas(1)*(nBas(1)+1)/2+lOff1+Nmax**2
+        else
+          MinMem(jSym) = Nab+Nmax**2
+          lOff1 = nBas(1)*(nBas(1)+1)/2
+        end if
+      else
 
-                   MinMem(jSym) = 2*(Nmax**2)                           &
-     &                          + (Nab-nBas(1)*(nBas(1)+1)/2)
-                   lOff1 = Nmax**2
+        MinMem(jSym) = 2*(Nmax**2)+(Nab-nBas(1)*(nBas(1)+1)/2)
+        lOff1 = Nmax**2
 
-               endif
+      end if
 
-           EndIf
+    end if
 
-        ENDIF   ! JSYM=1  special case
+  end if ! JSYM=1  special case
 
 ! ====================================================================
 
-      End Do  ! loop over jSym
+end do ! loop over jSym
 
-      Return
-      END
+return
+
+end subroutine CHOSCF_MEM

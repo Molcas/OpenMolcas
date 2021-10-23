@@ -11,71 +11,71 @@
 ! Copyright (C) Francesco Aquilante                                    *
 !               2021, Roland Lindh                                     *
 !***********************************************************************
-      SUBROUTINE swap_tosqrt(irc,iLoc,nRS,JSYM,XLT,Xab)
-      use ChoArr, only: iRS2F
-      use Data_Structures, only: NDSBA_Type
 
-      Implicit Real*8 (a-h,o-z)
-      Integer  irc, iLoc, JSYM
-      Type (NDSBA_Type) XLT
-      Real*8 Xab(nRS)
+subroutine swap_tosqrt(irc,iLoc,nRS,JSYM,XLT,Xab)
 
-      Integer, External:: cho_isao
+use ChoArr, only: iRS2F
+use Data_Structures, only: NDSBA_Type
 
+implicit real*8(a-h,o-z)
+integer irc, iLoc, JSYM
+type(NDSBA_Type) XLT
+real*8 Xab(nRS)
+integer, external :: cho_isao
 #include "cholesky.fh"
 #include "choorb.fh"
-
-      Integer i, j, MulD2h
+integer i, j, MulD2h
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      MulD2h(i,j) = iEOR(i-1,j-1) + 1
+!Statement function
+MulD2h(i,j) = ieor(i-1,j-1)+1
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (JSYM.ne.1) then
-!      ! NON TOTAL-SYMMETRIC
 
-         Do jRab=1,nnBstR(jSym,iLoc)
+if (JSYM /= 1) then ! NON TOTAL-SYMMETRIC
 
-            kRab = iiBstr(jSym,iLoc) + jRab ! already in 1st red set
+  do jRab=1,nnBstR(jSym,iLoc)
 
-            iag   = iRS2F(1,kRab)  !global address
-            ibg   = iRS2F(2,kRab)
+    kRab = iiBstr(jSym,iLoc)+jRab ! already in 1st red set
 
-            iSyma = cho_isao(iag)  !symmetry block
-            iSymb = MulD2h(jSym,iSyma) ! sym(a) .gt. sym(b)
+    iag = iRS2F(1,kRab) ! global address
+    ibg = iRS2F(2,kRab)
 
-            ias   = iag - ibas(iSyma)
-            ibs   = ibg - ibas(iSymb)
+    iSyma = cho_isao(iag) ! symmetry block
+    iSymb = MulD2h(jSym,iSyma) ! sym(a) > sym(b)
 
-            XLT%SB(iSyma,iSymb)%A2(ias,ibs) = sqrt(abs(Xab(kRab)))
+    ias = iag-ibas(iSyma)
+    ibs = ibg-ibas(iSymb)
 
-         End Do  ! jRab loop
+    XLT%SB(iSyma,iSymb)%A2(ias,ibs) = sqrt(abs(Xab(kRab)))
 
+  end do ! jRab loop
 
-      ElseIf (JSYM.eq.1) then
+else if (JSYM == 1) then
 
-         Do jRab=1,nnBstR(jSym,iLoc)
+  do jRab=1,nnBstR(jSym,iLoc)
 
-            kRab = iiBstr(jSym,iLoc) + jRab ! already in 1st red set
+    kRab = iiBstr(jSym,iLoc)+jRab ! already in 1st red set
 
-            iag   = iRS2F(1,kRab)  !global address
-            ibg   = iRS2F(2,kRab)
+    iag = iRS2F(1,kRab) ! global address
+    ibg = iRS2F(2,kRab)
 
-            iSyma = cho_isao(iag)  ! sym(a)=sym(b)
+    iSyma = cho_isao(iag) ! sym(a)=sym(b)
 
-            ias   = iag - ibas(iSyma)  !address within that symm block
-            ibs   = ibg - ibas(iSyma)
+    ias = iag-ibas(iSyma) ! address within that symm block
+    ibs = ibg-ibas(iSyma)
 
-            XLT%SB(iSyma,iSyma)%A2(ias,ibs) = sqrt(abs(Xab(kRab)))
-            XLT%SB(iSyma,iSyma)%A2(ibs,ias) = sqrt(abs(Xab(kRab)))
+    XLT%SB(iSyma,iSyma)%A2(ias,ibs) = sqrt(abs(Xab(kRab)))
+    XLT%SB(iSyma,iSyma)%A2(ibs,ias) = sqrt(abs(Xab(kRab)))
 
-         End Do  ! jRab loop
+  end do ! jRab loop
 
-      EndIf
+end if
 
-      irc = 0
+irc = 0
 
-      Return
-      End
+return
+
+end subroutine swap_tosqrt
