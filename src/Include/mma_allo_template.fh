@@ -84,6 +84,7 @@
 #include "cptr2loff.fh"
         integer :: ntot,mma_avail,bufsize,loffset
         if (_MMA_FUNC_(buffer)) then
+          if (present(label)) write(6,*) label
           call mma_double_allo
         end if
         call mma_maxbytes(mma_avail)

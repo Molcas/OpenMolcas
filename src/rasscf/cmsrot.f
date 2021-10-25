@@ -42,11 +42,23 @@ C     Allocating Memory
       CALL LoadGtuvx(TUVX,Gtuvx)
 
       CALL GetGDMat(GDMat)
-
-      CALL GetDDgMat(DDg,GDMat,Gtuvx)
-
-      CALL NStateOpt(RotMat,DDg)
-
+      IF(lRoots.lt.NAC) THEN
+C       write(6,*)"Optimization Approach 1"
+      DO I=1,lRoots
+       Do J=1,lRoots
+       if (I.eq.J) then
+        RotMat(I,I)=1.0d0
+       else
+        RotMat(I,J)=0.0d0
+       end if
+       End Do
+      END DO
+       CALL GetDDgMat(DDg,GDMat,Gtuvx)
+       CALL NStateOpt(RotMat,DDg)
+      ELSE
+C       write(6,*)"Optimization Approach 2"
+       CALL NStateOpt2(RotMat,GDMat,Gtuvx)
+      END IF
       VecName='CMS-PDFT'
       CALL PrintMat('ROT_VEC',VecName,RotMat,lroots,lroots,7,16,'N')
 
@@ -502,3 +514,500 @@ C     & IState,' is ',Vee(IState)
       RETURN
       End Subroutine
 ***********************************************************************
+      Subroutine NStateOpt2(RotMat,GDMat,Gtuvx)
+      use stdalloc, only : mma_allocate, mma_deallocate
+#include "rasdim.fh"
+#include "rasscf.fh"
+#include "general.fh"
+#include "WrkSpc.fh"
+#include "SysDef.fh"
+#include "input_ras.fh"
+#include "warnings.h"
+#include "rasscf_lucia.fh"
+
+      Real*8,DIMENSION(LRoots*(LRoots+1)/2,NAC,NAC)::GDMat
+      Real*8,DIMENSION(lRoots,lRoots)::RotMat
+      Real*8,DIMENSION(NAC,NAC,NAC,NAC)::Gtuvx
+
+      INTEGER IState,JState,NPairs,IPair,ICMSIter
+      Real*8 VeeSumOld,VeeSumNew,Threshold,VeeSumChange
+      INTEGER,DIMENSION(:,:),Allocatable::StatePair
+      Real*8,DIMENSION(:),Allocatable::theta
+      Real*8,DIMENSION(:),Allocatable::Vee
+      Real*8,DIMENSION(:,:),Allocatable::FRot
+      Logical Converged
+      Real*8 SumArray
+      External SumArray
+
+      CALL mma_allocate(StatePair,LRoots*(LRoots-1)/2,2)
+      CALL mma_allocate(theta,LRoots*(LRoots-1)/2)
+      CALL mma_allocate(Vee,LRoots)
+      CALL mma_allocate(FRot,lRoots,lRoots)
+      Threshold=CMSThreshold
+      NPairs=lRoots*(lRoots-1)/2
+      IPair=0
+      DO IState=1,lRoots
+       Do JState=1,IState-1
+        IPair=IPair+1
+        StatePair(IPair,1)=IState
+        StatePair(IPair,2)=JState
+       End Do
+      END DO
+      Converged=.false.
+      CALL Copy2DMat(FRot,RotMat,lRoots,lRoots)
+      CALL RotGDMat(FRot,GDMat)
+      CALL CalcVee2(Vee,GDMat,Gtuvx)
+      VeeSumOld=SumArray(Vee,lRoots)
+      write(6,*)
+      write(6,*)
+      write(6,*) '    CMS INTERMEDIATE STATES OPTIMIZATION'
+      write(6,'(4X,A12,2X,ES8.2E2)')
+     &'THRESHOLD',Threshold
+      write(6,'(4X,A12,2X,I8)')
+     &'MAX CYCLES',ICMSIterMax
+      write(6,'(4X,A12,2X,I8)')
+     &'MIN CYCLES',ICMSIterMin
+      write(6,*)('=',i=1,71)
+      IF(lRoots.gt.2) THEN
+      write(6,'(4X,A8,2X,2(A16,11X))')
+     &'Cycle','Q_a-a','Difference'
+      ELSE
+      write(6,'(4X,A8,2X,A18,6X,A8,12X,A12)')
+     &'Cycle','Rot. Angle (deg.)','Q_a-a','Q_a-a Diff.'
+      END IF
+      write(6,*)('-',i=1,71)
+      ICMSIter=0
+*        write(6,'(6X,I4,8X,F16.8,8X,ES16.4E3)')
+*     &  ICMSIter,VeeSumOld,0.0d0
+      DO WHILE(.not.Converged)
+       Do IPair=1,NPairs
+        theta(IPair)=0.0d0
+       End Do
+       ICMSIter=ICMSIter+1
+       CALL ThetaOpt2
+     & (FRot,theta,VeeSumChange,StatePair,NPairs,GDMat,Vee,Gtuvx)
+       VeeSumNew=VeeSumOld+VeeSumChange
+       IF(lRoots.gt.2) THEN
+        write(6,'(6X,I4,8X,F16.8,8X,ES16.4E3)')
+     &  ICMSIter,VeeSumNew,VeeSumChange
+*        CALL RecPrt(' ',' ',Vee,lRoots,1)
+*        write(6,*) SumArray(Vee,lRoots)
+       ELSE
+       write(6,'(6X,I4,8X,F6.1,9X,F16.8,5X,ES16.4E3)')
+     & ICMSIter,asin(FRot(2,1))/atan(1.0d0)*45.0d0,VeeSumNew
+     & ,VeeSumChange
+*       CALL RecPrt(' ',' ',Vee,lRoots,1)
+*       write(6,*) SumArray(Vee,lRoots)
+       END IF
+       IF(ABS(VeeSumChange).lt.Threshold) THEN
+        If(ICMSIter.ge.ICMSIterMin) Then
+         Converged=.true.
+         write(6,'(4X,A)')'CONVERGENCE REACHED'
+        End If
+       ELSE
+        if(ICMSIter.ge.ICMSIterMax) then
+         Converged=.true.
+         write(6,'(4X,A)')'NOT CONVERGED AFTER MAX NUMBER OF CYCLES'
+        end if
+       END IF
+*         Converged=.true.
+       VeeSumOld=VeeSumNew
+      END DO
+      write(6,*)('=',i=1,71)
+
+      CALL Copy2DMat(RotMat,FRot,lRoots,lRoots)
+      CALL mma_deallocate(StatePair)
+      CALL mma_deallocate(theta)
+      CALL mma_deallocate(Vee)
+      CALL mma_deallocate(FRot)
+      RETURN
+      END SUBROUTINE
+
+***********************************************************************
+
+      SubRoutine OptOneAngle2(ang,change,R,GD,I1,I2,Vee,G)
+      use stdalloc, only : mma_allocate, mma_deallocate
+#include "rasdim.fh"
+#include "rasscf.fh"
+#include "general.fh"
+#include "WrkSpc.fh"
+#include "SysDef.fh"
+#include "input_ras.fh"
+#include "warnings.h"
+      Real*8 ang,change
+      Integer I1,I2
+      Real*8,DIMENSION(lRoots,lRoots)::R
+      Real*8,DIMENSION(LRoots*(LRoots+1)/2,NAC,NAC)::GD
+      Real*8,DIMENSION(lRoots)::Vee
+      Real*8,DIMENSION(NAC,NAC,NAC,NAC)::G
+
+      Logical Converged
+      INTEGER Itera,Itermax,IA,IMax
+      Real*8 Threshold,StepSize,SumOld,Vee1,Vee2,SumOld2
+      Real*8,DIMENSION(:),Allocatable::Angles,Sums
+      Real*8,DIMENSION(:),Allocatable::ScanA,ScanS
+
+      INTEGER RMax
+      External RMax
+
+      CALL mma_allocate(Angles,4)
+      CALL mma_allocate(Sums,4)
+      CALL mma_allocate(ScanA,31)
+      CALL mma_allocate(ScanS,31)
+
+      Converged=.false.
+      stepsize=dble(atan(1.0d0))/15
+      Threshold=1.0d-8
+
+      Angles(2)=0.0d0
+      DO Itera=1,31
+       ScanA(Itera)=(Itera-16)*stepsize*2
+       CALL
+     &SumVeeNew(ScanS(Itera),ScanA(Itera),GD,I1,I2,G,Vee1,Vee2,.false.)
+C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
+      END DO
+
+      IMax=RMax(ScanS,21)
+
+      Itera=0
+      IterMax=100
+      SumOld=Vee(I1)+Vee(I2)
+      SumOld2=SumOld
+      Angles(2)=ScanA(IMax)
+      DO WHILE(.not.Converged)
+       Itera=Itera+1
+       Angles(1)=Angles(2)-stepsize
+       Angles(3)=Angles(2)+stepsize
+       Do iA=1,3
+       CALL SumVeeNew(Sums(iA),Angles(iA),GD,I1,I2,G,Vee1,Vee2,.false.)
+       End Do
+       CALL CMSFitTrigonometric(Angles,Sums)
+       CALL SumVeeNew(Sums(4),Angles(4),GD,I1,I2,G,Vee1,Vee2,.false.)
+       change=Sums(4)-SumOld
+       IF(ABS(change).lt.Threshold) THEN
+        Converged=.true.
+        Ang=Angles(4)
+        Vee(I1)=Vee1
+        Vee(I2)=Vee2
+        CALL SumVeeNew(Sums(4),Ang,GD,I1,I2,G,Vee1,Vee2,.true.)
+        CALL CMSMatRot(R,Ang,I1,I2,lRoots)
+       ELSE
+        If(Itera.eq.IterMax) Then
+         Converged=.true.
+        write(6,'(A,I3,A)')
+     &'No convergence reached after ',Itera,' micro cycles'
+        Else
+         Angles(2)=Angles(4)
+         SumOld=Sums(4)
+        End If
+       END IF
+      END DO
+      change=Vee(I1)+Vee(I2)-SumOld2
+      CALL mma_deallocate(Angles)
+      CALL mma_deallocate(Sums)
+      CALL mma_deallocate(ScanA)
+      CALL mma_deallocate(ScanS)
+      RETURN
+      End Subroutine
+
+***********************************************************************
+      Subroutine SumVeeNew(SV,A,GD,I1,I2,G,V1,V2,Update)
+      use stdalloc, only : mma_allocate, mma_deallocate
+#include "rasdim.fh"
+#include "rasscf.fh"
+#include "general.fh"
+#include "WrkSpc.fh"
+#include "SysDef.fh"
+#include "input_ras.fh"
+#include "warnings.h"
+
+      Real*8 SV,A,V1,V2
+      INTEGER I1,I2
+      Real*8,DIMENSION(LRoots*(LRoots+1)/2,NAC,NAC)::GD
+      Real*8,DIMENSION(NAC,NAC,NAC,NAC)::G
+      Real*8,DIMENSION(:,:),Allocatable::D11,D22
+      Real*8,DIMENSION(:,:,:),Allocatable::D1J,D2J
+      Logical Update
+
+      INTEGER t,u,v,x,i11,i22,i12
+      INTEGER J,I1J,I2J
+      IF(Update) THEN
+       CALL mma_allocate(D1J,lRoots,NAC,NAC)
+       CALL mma_allocate(D2J,lRoots,NAC,NAC)
+*      calculating
+       DO J=1,I2-1                           !(J<I2<I1)
+        I1J=(I1-1)*I1/2+J
+        I2J=(I2-1)*I2/2+J
+        Do t=1,NAC
+        Do u=1,NAC
+         D2J(J,t,u)= cos(A)*GD(I2J,t,u)+sin(A)*GD(I1J,t,u)
+         D1J(J,t,u)=-sin(A)*GD(I2J,t,u)+cos(A)*GD(I1J,t,u)
+        End Do
+        End Do
+       END DO
+       J=I2                                  !(J=I2<I1)
+      i11=(I1+1)*I1/2
+      i22=(I2+1)*I2/2
+      i12=(I1-1)*I1/2+I2
+        Do t=1,NAC
+        Do u=1,NAC
+         D2J(i2,t,u)=GD(i11,t,u)*sin(A)**2+GD(i22,t,u)*cos(A)**2
+     &+cos(A)*sin(A)*(GD(i12,u,t)+GD(i12,t,u))
+         D1J(i2,t,u)=cos(A)*sin(A)*(GD(i11,t,u)-GD(i22,t,u))
+     &+GD(i12,t,u)*cos(A)**2-GD(i12,u,t)*sin(A)**2
+        End Do
+        End Do
+       DO J=I2+1,I1-1                        !(I2<J<I1)
+        I1J=(I1-1)*I1/2+J
+        I2J=(J-1)*J/2+I2
+        Do t=1,NAC
+        Do u=1,NAC
+         D2J(J,t,u)= cos(A)*GD(I2J,u,t)+sin(A)*GD(I1J,t,u)
+         D1J(J,t,u)=-sin(A)*GD(I2J,u,t)+cos(A)*GD(I1J,t,u)
+        End Do
+        End Do
+       END DO
+       J=I1                                  !(I2<J=I1)
+      i11=(I1+1)*I1/2
+      i22=(I2+1)*I2/2
+      i12=(I1-1)*I1/2+I2
+        Do t=1,NAC
+        Do u=1,NAC
+         D1J(i1,t,u)=GD(i11,t,u)*cos(A)**2+GD(i22,t,u)*sin(A)**2
+     &   -cos(A)*sin(A)*(GD(i12,t,u)+GD(i12,u,t))
+        End Do
+        End Do
+
+       DO J=I1+1,lRoots                      !(I2<I1<J)
+        I1J=(J-1)*J/2+I1
+        I2J=(J-1)*J/2+I2
+        Do t=1,NAC
+        Do u=1,NAC
+         D2J(J,t,u)= cos(A)*GD(I2J,u,t)+sin(A)*GD(I1J,u,t)
+         D1J(J,t,u)=-sin(A)*GD(I2J,u,t)+cos(A)*GD(I1J,u,t)
+        End Do
+        End Do
+       END DO
+*      updating
+       DO J=1,I2-1                           !(J<I2<I1)
+        I1J=(I1-1)*I1/2+J
+        I2J=(I2-1)*I2/2+J
+        Do t=1,NAC
+        Do u=1,NAC
+         GD(I2J,t,u)=D2J(J,t,u)
+         GD(I1J,t,u)=D1J(J,t,u)
+        End Do
+        End Do
+       END DO
+       J=I2                                  !(J=I2<I1)
+*      i11=(I1+1)*I1/2
+      i22=(I2+1)*I2/2
+      i12=(I1-1)*I1/2+I2
+        Do t=1,NAC
+        Do u=1,NAC
+         GD(I22,t,u)=D2J(I2,t,u)
+         GD(I12,t,u)=D1J(I2,t,u)
+        End Do
+        End Do
+       DO J=I2+1,I1-1                        !(I2<J<I1)
+        I1J=(I1-1)*I1/2+J
+        I2J=(J-1)*J/2+I2
+        Do t=1,NAC
+        Do u=1,NAC
+         GD(I2J,t,u)=D2J(J,u,t)
+         GD(I1J,t,u)=D1J(J,t,u)
+        End Do
+        End Do
+       END DO
+       J=I1                                  !(I2<J=I1)
+       i11=(I1+1)*I1/2
+        Do t=1,NAC
+        Do u=1,NAC
+         GD(i11,t,u)=D1J(I1,t,u)
+        End Do
+        End Do
+
+       DO J=I1+1,lRoots                      !(I2<I1<J)
+        I1J=(J-1)*J/2+I1
+        I2J=(J-1)*J/2+I2
+        Do t=1,NAC
+        Do u=1,NAC
+         GD(I2J,t,u)=D2J(J,u,t)
+         GD(I1J,t,u)=D1J(J,u,t)
+        End Do
+        End Do
+       END DO
+       Call mma_deallocate(D1J)
+       Call mma_deallocate(D2J)
+      ELSE
+       CALL mma_allocate(D11,NAC,NAC)
+       CALL mma_allocate(D22,NAC,NAC)
+       i11=(I1+1)*I1/2
+       i22=(I2+1)*I2/2
+       i12=(I1-1)*I1/2+I2
+       V1=0.0d0
+       V2=V1
+       DO t=1,NAC
+        Do u=1,NAC
+         D11(t,u)=GD(i11,t,u)*cos(A)**2+GD(i22,t,u)*sin(A)**2
+     &   -cos(A)*sin(A)*(GD(i12,t,u)+GD(i12,u,t))
+         D22(t,u)=GD(i11,t,u)*sin(A)**2+GD(i22,t,u)*cos(A)**2
+     &   +cos(A)*sin(A)*(GD(i12,u,t)+GD(i12,t,u))
+        End Do
+       END DO
+       DO t=1,NAC
+       DO u=1,NAC
+        Do v=1,NAC
+        Do x=1,NAC
+         V1=V1+D11(t,u)*D11(v,x)*G(t,u,v,x)
+         V2=V2+D22(t,u)*D22(v,x)*G(t,u,v,x)
+        End Do
+        End Do
+       END DO
+       END DO
+       V1=V1/2.0d0
+       V2=V2/2.0d0
+       SV=V1+V2
+       Call mma_deallocate(D11)
+       Call mma_deallocate(D22)
+      END IF
+      RETURN
+      End Subroutine
+***********************************************************************
+
+***********************************************************************
+
+
+      Subroutine ThetaOpt2(R,theta,deltaQ,SPair,NP,GD,Vee,G)
+#include "rasdim.fh"
+#include "rasscf.fh"
+#include "general.fh"
+#include "WrkSpc.fh"
+#include "SysDef.fh"
+#include "input_ras.fh"
+#include "warnings.h"
+      INTEGER NP
+      Real*8,DIMENSION(NP)::theta
+      Real*8 Change,deltaQ
+      INTEGER,DIMENSION(NP,2)::SPair
+      Real*8,DIMENSION(lroots,lroots)::R
+      Real*8,DIMENSION(lroots)::Vee
+      Real*8,DIMENSION(LRoots*(LRoots+1)/2,NAC,NAC)::GD
+      Real*8,DIMENSION(NAC,NAC,NAC,NAC)::G
+
+      INTEGER IP,I,J
+      deltaQ=0.0d0
+      DO IP=1,NP
+       I=SPair(IP,1)
+       J=SPair(IP,2)
+       CALL OptOneAngle2(theta(iP),change,R,GD,I,J,Vee,G)
+       deltaQ=deltaQ+change
+      END DO
+
+      DO IP=NP-1,1,-1
+       I=SPair(IP,1)
+       J=SPair(IP,2)
+       CALL OptOneAngle2(theta(iP),change,R,GD,I,J,Vee,G)
+       deltaQ=deltaQ+change
+      END DO
+
+      RETURN
+      END SUBROUTINE
+
+***********************************************************************
+      Function SumArray(A,N)
+      INTEGER N,I
+      Real*8,DIMENSION(N)::A
+      Real*8 SumArray
+      SumArray=0.0d0
+      DO I=1, N
+       SumArray=SumArray+A(I)
+      END DO
+      RETURN
+      End Function
+
+
+***********************************************************************
+      Subroutine CalcVee2(Vee,GD,Gtuvx)
+#include "rasdim.fh"
+#include "rasscf.fh"
+#include "general.fh"
+#include "WrkSpc.fh"
+#include "SysDef.fh"
+#include "input_ras.fh"
+#include "warnings.h"
+      Real*8,DIMENSION(LRoots*(LRoots+1)/2,NAC,NAC)::GD
+      Real*8,DIMENSION(lRoots)::Vee
+      Real*8,DIMENSION(NAC,NAC,NAC,NAC)::Gtuvx
+
+      INTEGER I,t,u,v,x,III
+      DO I=1,lRoots
+       Vee(I)=0.0d0
+       III=I*(I+1)/2
+       Do t=1,nac
+       Do u=1,nac
+       Do v=1,nac
+       Do x=1,nac
+        Vee(I)=Vee(I)+GD(III,t,u)*GD(III,v,x)*Gtuvx(t,u,v,x)
+       End Do
+       End Do
+       End Do
+       End Do
+       Vee(I)=Vee(I)/2.0d0
+      END DO
+      RETURN
+      END SUBROUTINE
+
+***********************************************************************
+      Subroutine RotGDMat(R,GD)
+#include "rasdim.fh"
+#include "rasscf.fh"
+#include "general.fh"
+#include "WrkSpc.fh"
+#include "SysDef.fh"
+#include "input_ras.fh"
+#include "warnings.h"
+
+      Real*8,DIMENSION(LRoots*(LRoots+1)/2,NAC,NAC)::GD,GD2
+      Real*8,DIMENSION(lRoots,lRoots)::R
+
+      INTEGER I,J,K,L,p,q,iIJ,iKL,ip,iq
+
+      DO p=1,nac
+      DO q=1,nac
+       Do I=1,lRoots
+       Do J=1,I
+        iIJ=(I-1)*I/2+J
+        GD2(iIJ,p,q)=0.0d0
+        do K=1,lRoots
+        do L=1,lRoots
+         IF(K.gt.L) THEN
+          iKL=(K-1)*K/2+L
+          ip=p
+          iq=q
+         ELSE
+          iKL=(L-1)*L/2+K
+          ip=q
+          iq=p
+         END IF
+         GD2(iIJ,p,q)=GD2(iIJ,p,q)+GD(iKL,ip,iq)*R(I,K)*R(J,L)
+        end do
+        end do
+       End Do
+       End Do
+      END DO
+      END DO
+
+      DO p=1,nac
+      DO q=1,nac
+       Do I=1,lRoots
+       Do J=1,I
+        iIJ=(I-1)*I/2+J
+        GD(iIJ,p,q)=GD2(iIJ,p,q)
+       End Do
+       End Do
+      END DO
+      END DO
+      RETURN
+      END SUBROUTINE
+

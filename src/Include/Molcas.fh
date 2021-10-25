@@ -22,8 +22,8 @@
       Integer, Parameter :: Mxdbsc=10
       Integer, Parameter :: MxShll=20
 #endif
-       Integer, Parameter :: mxact  =  100
-       Integer, Parameter :: mxina  = maxbfn
+       Integer, Parameter :: mxact = 100
+       Integer, Parameter :: mxina = maxbfn
        Integer, Parameter :: mxbas = maxbfn
        Integer, Parameter :: mxOrb = maxbfn
        Integer, Parameter :: mxSym = 8

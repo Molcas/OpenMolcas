@@ -11,7 +11,8 @@
 
 subroutine Wr_Prop(nAtoms,nCenters,nBas,nMltPl,NOCOB,NOCOB_b,orbe,orbe_b,iPol,LAllCenters)
 
-use MPProp_globals, only: Alloc_MltPlArr, AtBoMltPl, AtBoMltPlTot, AtMltPl, AtMltPlTot, BondMat, Cen_Lab, Cor, Free_MltPlArr, Labe
+use MPProp_globals, only: AtBoMltPl, AtBoMltPlTot, AtMltPl, AtMltPlTot, BondMat, Cen_Lab, Cor, Labe
+use Data_Structures, only: Alloc_Alloc1DArray, Free_Alloc1DArray
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -40,17 +41,17 @@ do i=1,nAtoms
   end do
 end do
 
-call Alloc_MltPlArr(AtMltPlTot,[0,nMltPl],'AtMltPlTot')
-call Alloc_MltPlArr(AtBoMltPlTot,[0,nMltPl],'AtBoMltPlTot')
+call Alloc_Alloc1DArray(AtMltPlTot,[0,nMltPl],'AtMltPlTot')
+call Alloc_Alloc1DArray(AtBoMltPlTot,[0,nMltPl],'AtBoMltPlTot')
 do iMltpl=0,nMltPl
   iComp = 0
   nComp = (iMltPl+1)*(iMltPl+2)/2
   write(MemLabel,'(a4,i4.4)') 'AtTo',iMltPl
-  call mma_allocate(AtMltPlTot(iMltPl)%M,nComp,1,label=MemLabel)
-  AtMltPlTot(iMltPl)%M(:,:) = Zero
+  call mma_allocate(AtMltPlTot(iMltPl)%A,nComp,label=MemLabel)
+  AtMltPlTot(iMltPl)%A(:) = Zero
   write(MemLabel,'(a4,i4.4)') 'BoTo',iMltPl
-  call mma_allocate(AtBoMltPlTot(iMltPl)%M,nComp,1,label=MemLabel)
-  AtBoMltPlTot(iMltPl)%M(:,:) = Zero
+  call mma_allocate(AtBoMltPlTot(iMltPl)%A,nComp,label=MemLabel)
+  AtBoMltPlTot(iMltPl)%A(:) = Zero
   do np=iMltpl,0,-1
     do nq=iMltpl-np,0,-1
       nl = iMltpl-np-nq
@@ -78,8 +79,8 @@ do iMltpl=0,nMltPl
               else
                 zfac = rnloveril*(Cor(3,nA,nA))**(nl-il)
               end if
-              fac = xfac*yfac*zfac*AtMltPl(ip+iq+il)%M(iCompMat(ip,iq,il),nA)
-              AtMltPlTot(iMltpl)%M(iComp,1) = AtMltPlTot(iMltpl)%M(iComp,1)+fac
+              fac = xfac*yfac*zfac*AtMltPl(ip+iq+il)%A(iCompMat(ip,iq,il),nA)
+              AtMltPlTot(iMltpl)%A(iComp) = AtMltPlTot(iMltpl)%A(iComp)+fac
             end do
           end do
         end do
@@ -106,8 +107,8 @@ do iMltpl=0,nMltPl
                   else
                     zfac = rnloveril*(Cor(3,nA,nB))**(nl-il)
                   end if
-                  fac = xfac*yfac*zfac*AtBoMltPl(ip+iq+il)%M(iCompMat(ip,iq,il),nA*(nA-1)/2+nB)
-                  AtBoMltPlTot(iMltpl)%M(iComp,1) = AtBoMltPlTot(iMltpl)%M(iComp,1)+fac
+                  fac = xfac*yfac*zfac*AtBoMltPl(ip+iq+il)%A(iCompMat(ip,iq,il),nA*(nA-1)/2+nB)
+                  AtBoMltPlTot(iMltpl)%A(iComp) = AtBoMltPlTot(iMltpl)%A(iComp)+fac
                 end do
               end do
             end do
@@ -124,8 +125,8 @@ call Wr_MpProp(nAtoms,nCenters,nMltPl,iPol)
 !EB call Wr_Files(nAtoms,nCenters,nMltPl,nBas,NOCOB,orbe,iBond,
 call Wr_Files(nAtoms,nCenters,nMltPl,nBas,NOCOB,NOCOB_b,orbe,orbe_b,LAllCenters)
 
-call Free_MltPlArr(AtMltPlTot)
-call Free_MltPlArr(AtBoMltPlTot)
+call Free_Alloc1DArray(AtMltPlTot)
+call Free_Alloc1DArray(AtBoMltPlTot)
 
 call mma_deallocate(Cen_Lab)
 

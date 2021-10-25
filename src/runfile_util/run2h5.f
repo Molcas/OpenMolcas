@@ -105,7 +105,7 @@
       dsetid = mh5_create_dset_int(fileid,
      $        'CENTER_ATNUMS', 1, [nAtoms])
       call mh5_init_attr(dsetid, 'DESCRIPTION',
-     $        'Atomic numbers, storead as '//
+     $        'Atomic numbers, stored as '//
      $        'array of size [NATOMS_UNIQUE]')
       call mma_allocate(atnums,nAtoms)
       Call Get_iArray('Un_cen Charge',atnums,nAtoms)
@@ -117,7 +117,7 @@
       dsetid = mh5_create_dset_real(fileid,
      $        'CENTER_CHARGES', 1, [nAtoms])
       call mh5_init_attr(dsetid, 'DESCRIPTION',
-     $        'Nuclear charges, storead as '//
+     $        'Nuclear charges, stored as '//
      $        'array of size [NATOMS_UNIQUE]')
       call mma_allocate(charges,nAtoms)
       Call Get_dArray('Un_cen Effective Charge',charges,nAtoms)

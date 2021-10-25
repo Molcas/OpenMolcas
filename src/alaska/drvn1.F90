@@ -203,7 +203,7 @@ do iCnttp=1,nCnttp
 end do
 if (iPrint >= 15) then
   Lab = ' The Nuclear Repulsion Contribution'
-  call PrGrad(Lab,Temp,nGrad,ChDisp,5)
+  call PrGrad(Lab,Temp,nGrad,ChDisp)
 end if
 
 call DaXpY_(nGrad,One,Temp,1,Grad,1)
@@ -318,7 +318,7 @@ if (allocated(XF)) then
   end do           ! End of centers of the external field, iFD
   if (iPrint >= 15) then
     Lab = ' The Nuclear External Electric Field Contribution'
-    call PrGrad(Lab,Temp,nGrad,ChDisp,5)
+    call PrGrad(Lab,Temp,nGrad,ChDisp)
   end if
 
   call DaXpY_(nGrad,One,Temp,1,Grad,1)
@@ -424,7 +424,7 @@ if (lRF .and. (.not. lLangevin) .and. (.not. PCM)) then
   end do
   if (iPrint >= 15) then
     Lab = ' The Nuclear Reaction Field (KirkWood) Contribution'
-    call PrGrad(Lab,Temp,nGrad,ChDisp,5)
+    call PrGrad(Lab,Temp,nGrad,ChDisp)
   end if
 
   call DaXpY_(nGrad,One,Temp,1,Grad,1)
@@ -530,7 +530,7 @@ else if (lRF .and. PCM) then
 
   if (iPrint >= 15) then
     Lab = ' The Nuclear Reaction Field (PCM) Contribution'
-    call PrGrad(Lab,Temp,nGrad,ChDisp,5)
+    call PrGrad(Lab,Temp,nGrad,ChDisp)
   end if
 
   call DaXpY_(nGrad,One,Temp,1,Grad,1)
@@ -541,7 +541,7 @@ else if (lRF .and. PCM) then
   call PCM_Cav_grd(Temp,nGrad)
   if (iPrint >= 15) then
     Lab = ' The Cavity PCM Contribution'
-    call PrGrad(Lab,Temp,nGrad,ChDisp,5)
+    call PrGrad(Lab,Temp,nGrad,ChDisp)
   end if
   call DaXpY_(nGrad,One,Temp,1,Grad,1)
 
@@ -552,7 +552,7 @@ else if (lRF .and. PCM) then
     call PCM_EF_grd(Temp,nGrad)
     if (iPrint >= 15) then
       Lab = ' The EF PCM Contribution'
-      call PrGrad(Lab,Temp,nGrad,ChDisp,5)
+      call PrGrad(Lab,Temp,nGrad,ChDisp)
     end if
     call DaXpY_(nGrad,-One,Temp,1,Grad,1)
   end if

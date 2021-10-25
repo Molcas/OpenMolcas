@@ -328,7 +328,7 @@ c     iPrint = nPrint(iRout)
          End If
          Go To 999
       End If
-*-----Subtracte one additional word for getmem's internal error check
+*-----Subtract one additional word for getmem's internal error check
       Mem0 = Mem0 - Mem2 - 1
       MemX = 9*mabcd * iBsInc*jBsInc*kBsInc*lBsInc
       MemFck=MemFck-MemX
@@ -389,7 +389,7 @@ c     iPrint = nPrint(iRout)
          End If
          Go To 999
       End If
-*-----Subtracte one additional word for getmem's internal error check
+*-----Subtract one additional word for getmem's internal error check
       Mem0 = Mem0 - Mem3 - 1
 *
 *-----Work4, if used, is placed at the end of Work2

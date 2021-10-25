@@ -321,7 +321,7 @@
 *                                                                      *
 *     Now compute the total two-electron contribution
 *
-*     Generate the two-electron contibution corresponding to the total
+*     Generate the two-electron contribution corresponding to the total
 *     density.
 *
       If(MiniDn.and. Max(0,nIter(nIterP)-1).gt.0) Then

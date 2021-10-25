@@ -120,7 +120,7 @@ C                    Write (*,*) CCoMx, CCoMy, CCoMz, temp
 *     Contributions due to the charges and dipoles of the
 *     static external electric field.
 *
-*     Write (*,*) ' Adding contibutions from esef!'
+*     Write (*,*) ' Adding contributions from esef!'
 
       iq = 0
       Do ix = ir, 0, -1
@@ -211,7 +211,7 @@ C                    Write (*,*) CCoMx, CCoMy, CCoMz, temp
 
 *                 Write (*,*) CCoMx, CCoMy, CCoMz, temp
 *
-*---------------- The charge contibution
+*---------------- The charge contribution
 *
                   temp = temp + ZA * CCoMx * CCoMy * CCoMz
 *

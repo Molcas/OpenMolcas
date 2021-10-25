@@ -401,7 +401,7 @@ C     Write (6,*) 'Reduction=',DBLE(nAOs_Eff**2)/DBLE(nAOs**2)
                      iTab(4,nGrad_Eff)=-dc(mdci)%nStab
                   End If
 *
-*---------------- Find all other shells which contibute to the same
+*---------------- Find all other shells which contribute to the same
 *                 gradient.
 *
                   Do jlist_s = ilist_s+1, nlist_s
@@ -429,7 +429,7 @@ C     Write (6,*) 'Reduction=',DBLE(nAOs_Eff**2)/DBLE(nAOs**2)
                        iTab(3,nGrad_Eff)=iNQ
                        iTab(4,nGrad_Eff)=dc(mdci)%nStab
 *
-*--------------------- Find all other shells which contibute to the same
+*--------------------- Find all other shells which contribute to the same
 *                      gradient.
 *
                        Do jlist_s = ilist_s+1, nlist_s
@@ -487,7 +487,7 @@ C     Write (6,*) 'Reduction=',DBLE(nAOs_Eff**2)/DBLE(nAOs**2)
 *
 *------- Select which gradient contributions that should be computed.
 *        For basis functions which have the center common with the grid
-*        do not compute any contibution.
+*        do not compute any contribution.
 *
          If (Do_Grad) Then
             Call ICopy(nGrad_Eff,[On],0,iTab(2,1),4)

@@ -23,7 +23,7 @@
      &                  FT,nFT,DoCoul,DoExch,ExFac)
 ************************************************************************
 *                                                                      *
-*  Object: to accumulate contibutions from the AO integrals directly   *
+*  Object: to accumulate contributions from the AO integrals directly  *
 *          to the symmetry adapted Fock matrix.                        *
 *                                                                      *
 *          The indices has been scrambled before calling this routine. *

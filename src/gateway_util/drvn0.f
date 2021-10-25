@@ -13,7 +13,7 @@
       SubRoutine DrvN0()
 ************************************************************************
 *                                                                      *
-* Object: to compute the nuclear contibutions to the nuclear potential *
+* Object: to compute the nuclear contributions to the nuclear potential*
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
@@ -164,7 +164,7 @@
 *
       If (Allocated(XF).and.(nOrd_XF.ge.0)) Then
 *
-*--------Add contibution for interaction external field and nuclear
+*--------Add contribution for interaction external field and nuclear
 *        charges. Here we will have charge-charge, and charge-dipole
 *        inteaction.
 *
@@ -305,7 +305,7 @@
 *
          PotNuc=PotNuc+PNX
 *
-*--------Add contibution for self interaction of the external field.
+*--------Add contribution for self interaction of the external field.
 *        Here we will have charge-charge, charge-dipole, and dipole-
 *        dipole inteaction. This term will only be computed but not
 *        added to the acutual nuclear potential energy.

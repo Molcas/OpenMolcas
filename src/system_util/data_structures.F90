@@ -35,9 +35,6 @@ public :: Lab_Type, Allocate_Lab, Deallocate_Lab
 public :: Integer_Pointer
 public :: Alloc1DArray_Type, Alloc2DArray_Type
 
-!#include "stdalloc.fh"
-!#include "real.fh"
-
 type Integer_Pointer
   integer(kind=iwp), contiguous, pointer :: I1(:) => null()
 end type Integer_Pointer
@@ -137,6 +134,19 @@ end type Alloc1DArray_Type
 type Alloc2DArray_Type
   real(kind=wp), allocatable :: A(:,:)
 end type Alloc2DArray_Type
+
+! Private extensions to mma interfaces
+interface cptr2loff
+  module procedure :: a1da_cptr2loff, a2da_cptr2loff
+end interface
+interface mma_allocate
+  module procedure :: a1da_mma_allo_1D, a1da_mma_allo_1D_lim, a2da_mma_allo_1D, a2da_mma_allo_1D_lim
+end interface
+interface mma_deallocate
+  module procedure :: a1da_mma_free_1D, a2da_mma_free_1D
+end interface
+
+public :: Alloc_Alloc1DArray, Alloc_Alloc2DArray, Free_Alloc1DArray, Free_Alloc2DArray
 
 contains
 
@@ -1048,5 +1058,104 @@ subroutine Deallocate_Lab(Lab)
   deallocate(Lab%SB)
 
 end subroutine Deallocate_Lab
+
+! Define a1da_cptr2loff, a1da_mma_allo_1D, a1da_mma_allo_1D_lim, a1da_mma_free_1D
+!        a2da_cptr2loff, a2da_mma_allo_1D, a2da_mma_allo_1D_lim, a2da_mma_free_1D
+#define _TYPE_ type(Alloc1DArray_Type)
+#  define _FUNC_NAME_ a1da_cptr2loff
+#  include "cptr2loff_template.fh"
+#  undef _FUNC_NAME_
+#  define _SUBR_NAME_ a1da_mma
+#  define _DIMENSIONS_ 1
+#  define _DEF_LABEL_ 'a1da_mma'
+#  include "mma_allo_template.fh"
+#  undef _SUBR_NAME_
+#  undef _DIMENSIONS_
+#  undef _DEF_LABEL_
+#undef _TYPE_
+
+#define _TYPE_ type(Alloc2DArray_Type)
+#  define _FUNC_NAME_ a2da_cptr2loff
+#  include "cptr2loff_template.fh"
+#  undef _FUNC_NAME_
+#  define _SUBR_NAME_ a2da_mma
+#  define _DIMENSIONS_ 1
+#  define _DEF_LABEL_ 'a2da_mma'
+#  include "mma_allo_template.fh"
+#  undef _SUBR_NAME_
+#  undef _DIMENSIONS_
+#  undef _DEF_LABEL_
+#undef _TYPE_
+
+subroutine Alloc_Alloc1DArray(Array,N,Label)
+  type(Alloc1DArray_Type), allocatable, intent(inout) :: Array(:)
+  integer(kind=iwp), intent(in) :: N(2)
+  character(len=*), intent(in) :: Label
+# ifdef _GARBLE_
+  interface
+    subroutine c_null_alloc(A)
+      import :: wp
+      real(kind=wp), allocatable :: A(:)
+    end subroutine c_null_alloc
+  end interface
+  integer(kind=iwp) :: i
+# endif
+  call mma_allocate(Array,N,label=Label)
+# ifdef _GARBLE_
+  ! Garbling corrupts the allocation status of allocatable components, use a hack to reset it
+  do i=N(1),N(2)
+    call c_null_alloc(Array(i)%A)
+  end do
+# endif
+
+# include "macros.fh"
+  unused_proc(mma_allocate(Array,0))
+
+end subroutine Alloc_Alloc1DArray
+
+subroutine Alloc_Alloc2DArray(Array,N,Label)
+  type(Alloc2DArray_Type), allocatable, intent(inout) :: Array(:)
+  integer(kind=iwp), intent(in) :: N(2)
+  character(len=*), intent(in) :: Label
+# ifdef _GARBLE_
+  interface
+    subroutine c_null_alloc2(A)
+      import :: wp
+      real(kind=wp), allocatable :: A(:,:)
+    end subroutine c_null_alloc2
+  end interface
+  integer(kind=iwp) :: i
+# endif
+  call mma_allocate(Array,N,label=Label)
+# ifdef _GARBLE_
+  ! Garbling corrupts the allocation status of allocatable components, use a hack to reset it
+  ! (note c_null_alloc2 is just the same as c_null_alloc)
+  do i=N(1),N(2)
+    call c_null_alloc2(Array(i)%A)
+  end do
+# endif
+
+# include "macros.fh"
+  unused_proc(mma_allocate(Array,0))
+
+end subroutine Alloc_Alloc2DArray
+
+subroutine Free_Alloc1DArray(Array)
+  type(Alloc1DArray_Type), allocatable, intent(inout) :: Array(:)
+  integer(kind=iwp) :: i
+  do i=lbound(Array,1),ubound(Array,1)
+    if (allocated(Array(i)%A)) call mma_deallocate(Array(i)%A)
+  end do
+  call mma_deallocate(Array)
+end subroutine Free_Alloc1DArray
+
+subroutine Free_Alloc2DArray(Array)
+  type(Alloc2DArray_Type), allocatable, intent(inout) :: Array(:)
+  integer(kind=iwp) :: i
+  do i=lbound(Array,1),ubound(Array,1)
+    if (allocated(Array(i)%A)) call mma_deallocate(Array(i)%A)
+  end do
+  call mma_deallocate(Array)
+end subroutine Free_Alloc2DArray
 
 end module Data_Structures

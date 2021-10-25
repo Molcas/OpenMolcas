@@ -10,6 +10,8 @@
 ************************************************************************
       module BLAS_MOD
 
+      use BLAS_MOD_F90
+
       contains
 
 #include "blas.fh"
