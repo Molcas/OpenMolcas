@@ -61,7 +61,6 @@
       Integer LU, isfreeunit
 c start Phase factor stuff
 c trace of transition dipole real and imaginary (x,y,and z)
-      LOGICAL minimize_i
       REAL*8 ttdr(3),ttdi(3)
       REAL*8 phi,sd
       Integer LTMPR,LTMPI
@@ -70,11 +69,11 @@ c end
       CHARACTER(LEN=7) STATENAME,STATENAMETMP
       CHARACTER(LEN=128) FNAME
       CHARACTER(LEN=72) NOTE
-      Logical TestPrint
+c      Logical TestPrint
 c Test variables
       Integer LBUFF1
 c End test variables
-      TestPrint=.TRUE.
+c      TestPrint=.TRUE.
 c      TestPrint=.FALSE.
       Zero=0.0D0
       Two=2.0D0
@@ -107,7 +106,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C we can do testing here we calculate the oscillator strength
 c by dot with dipole moment AO matrix and trace
 c do the test before the Lowdin orthogonalization
-      If (TestPrint) then
+c      If (TestPrint) then
       Call MMA_ALLOCATE(BUFF,nb2,LABEL="LBUFF")
       Call MMA_ALLOCATE(TDMZZC,nb2,LABEL="TDMZZC")
       do di=1, 3
@@ -128,14 +127,14 @@ c do the test before the Lowdin orthogonalization
 c Get complex matrices
         Call MMA_ALLOCATE(DIPsC,nb2,LABEL="LDIPsC")
         do i=1,nb2
-          TDMZZC(i)=cmplx(TDMZZ(di,i),TDMZZ(di+3,i))
-          DIPsC(i)=cmplx(WORK(LDIPs+i-1),zero)
+          TDMZZC(i)=cmplx(TDMZZ(di,i),TDMZZ(di+3,i),16)
+          DIPsC(i)=cmplx(WORK(LDIPs+i-1),zero,16)
         enddo
 c TDM
         Call ZGEMM_('N','N',nb,nb,nb,(1.0D0,0.0D0),DIPsC,nb,
      &              TDMZZC,nb,(0.0D0,0.0D0),BUFF,nb)
 C Trace the resulting matrix
-        Transition_Dipole = cmplx(zero,zero)
+        Transition_Dipole = cmplx(zero,zero,16)
         do i=1, nb
           Transition_Dipole = Transition_Dipole +
      &    BUFF((i-1)*nb+i)
@@ -149,7 +148,7 @@ C Trace the resulting matrix
       enddo
       Call MMA_DEALLOCATE(BUFF)
       Call MMA_DEALLOCATE(TDMZZC)
-      Endif
+c      Endif
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c phase factor = cos phi + i * sin phi
 c phi = 1/2 * arc tan (2*(x_r*x_i + y_r*y_i + z_r*z_i)/
@@ -243,7 +242,7 @@ C Trace the resulting matrix
           endif
         enddo
       enddo
-      write(6,*) 'NumOfEc ',NumOfEc
+c      write(6,*) 'NumOfEc ',NumOfEc
       Call GETMEM('BUFF1','FREE','REAL',LBUFF1,nb2)
 **************
 
@@ -255,7 +254,7 @@ c free and reallocate memory for LRESI using that length
       LWORK=-1
       call DSYEV_('V','U',nb,WORK(LSZZs),nb,WORK(LEIG),
      &            WORK(LRESI),LWORK,INFO)
-      LWORK=WORK(LRESI)
+      LWORK=INT(WORK(LRESI))
       call GETMEM('RESI  ','FREE','REAL',LRESI,1)
       call GETMEM('RESI  ','ALLO','REAL',LRESI,LWORK)
 c WORK(LSZZs) in as the AO overlap sqaure matrix
@@ -300,7 +299,7 @@ c free and reallocate memory for LRESI using that length
       call GETMEM('RESI  ','ALLO','REAL',LRESI,1)
       LWORK=-1
       call DGETRI_(nb,WORK(LSMI),nb,WORK(LP),WORK(LRESI),LWORK,INFO)
-      LWORK=WORK(LRESI)
+      LWORK=INT(WORK(LRESI))
       call GETMEM('RESI  ','FREE','REAL',LRESI,1)
       call GETMEM('RESI  ','ALLO','REAL',LRESI,LWORK)
       call DGETRI_(nb,WORK(LSMI),nb,WORK(LP),WORK(LRESI),LWORK,INFO)
@@ -339,7 +338,7 @@ c and TDMZZL(6,:) as a complex matrix
       Call MMA_ALLOCATE(TDMZZLC,nb2,LABEL='LTDMZZLC')
       SumofTDMZZLC = (0.0D0,0.0D0)
       do i=1, nb2
-        TDMZZLC(i) = cmplx(TDMZZL(3,i),TDMZZL(6,i))
+        TDMZZLC(i) = cmplx(TDMZZL(3,i),TDMZZL(6,i),16)
         SumofTDMZZLC = SumofTDMZZLC+abs(TDMZZLC(i))
       enddo
 C Do SVD by using ZGESVD, see lapack for documentation
@@ -402,8 +401,8 @@ c They transform as S^-1/2 P S^-1/2
 c ZGESVD destroys TDMZZLC after it finishes
 c reconstruct TDMZZLC and DIPsC
         do i=1, nb2
-          TDMZZLC(i) = cmplx(TDMZZL(3,i),TDMZZL(6,i))
-          DIPsC(i)=cmplx(WORK(LDIPs+i-1),zero)
+          TDMZZLC(i) = cmplx(TDMZZL(3,i),TDMZZL(6,i),16)
+          DIPsC(i)=cmplx(WORK(LDIPs+i-1),zero,16)
         enddo
 c Do U^H TDMZZLC DIP U = Y, Diagonal of Y contains the partition
         Call ZGEMM_('N','N',nb,nb,nb,(1.0D0,0.0D0),TDMZZLC(:),nb,
@@ -412,7 +411,7 @@ c Do U^H TDMZZLC DIP U = Y, Diagonal of Y contains the partition
      &              SVDU(:),nb,(0.0D0,0.0D0),BUFF2(:),nb)
         Call ZGEMM_('C','N',nb,nb,nb,(1.0D0,0.0D0),SVDU(:),nb,
      &              BUFF2(:),nb,(0.0D0,0.0D0),YMAT(di,:),nb)
-        SumofYdiag(di) = cmplx(zero,zero)
+        SumofYdiag(di) = cmplx(zero,zero,16)
         do i=1, nb
           SumofYdiag(di)=SumofYdiag(di) + YMAT(di,(i-1)*nb+i)
         enddo
@@ -485,6 +484,9 @@ c imaginary part takes a negative sign
       enddo
       call GETMEM('LSVDVHR','FREE','REAL',LSVDVHR,nb2)
       call GETMEM('LSVDVHI','FREE','REAL',LSVDVHI,nb2)
+c tests
+      CALL ADD_INFO("LAMBDA",SVDS,5,4)
+
 c singular values
       Sumofeigen=zero
       do i=0, nb-1
