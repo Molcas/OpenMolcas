@@ -40,10 +40,10 @@
 #include "Files.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
+      Integer ISTATE,JSTATE,nb,nb2
       REAL*8 TDMZZ(6,nb2)
       REAL*8 TSDMZZ(6,nb2)
       REAL*8 ANTSIN(6,nb2)
-      Integer ISTATE,JSTATE,nb,nb2
       REAL*8, ALLOCATABLE:: TDMZZL(:,:), TSDMZZL(:,:)
       COMPLEX*16, ALLOCATABLE:: TSDMZZLC(:,:),YMAT(:,:)
       COMPLEX*16, ALLOCATABLE:: TDMZZLC(:),TDMZZC(:),BUFF(:),DIPsC(:)
@@ -56,9 +56,9 @@
       Integer LSVDUI,LSVDVHR,LSVDVHI,LSVDVR,LSVDVI
       REAL*8 NumofEc, Sumofeigen, eigen_print_limit,Zero,Two,pi
       REAL*8 SumofTDMZZLC
-      REAL*8 Dummy,iDummy
+      REAL*8 Dummy(1)
       Integer, DIMENSION(1)::SIZ
-      Integer LU, isfreeunit
+      Integer LU, isfreeunit, iDummy(7,8)
 c start Phase factor stuff
 c trace of transition dipole real and imaginary (x,y,and z)
       REAL*8 ttdr(3),ttdi(3)
@@ -117,24 +117,25 @@ c      If (TestPrint) then
         ISYLAB = 1
         IOPT = 1 ! Only read the size of the array
         CALL IRDONE(IRC,IOPT,LABEL,ICMP,SIZ,ISYLAB)
-        IOPT = 6 ! 6 is 110 in binary, means no nuclear contrib, no origin of operator
-        Call GETMEM('MLTPL  1','ALLO','REAL',LDIP,SIZ)
+        !6 is 110 in binary, no nuclear contrib, no origin of operator
+        IOPT = 6
+        Call GETMEM('MLTPL  1','ALLO','REAL',LDIP,SIZ(1))
         CALL RDONE(IRC,IOPT,LABEL,ICMP,WORK(LDIP),ISYLAB)
-        Call DESYM_SONTO(WORK(LDIP),SIZ,WORK(LDIPs),ISYLAB)
-        Call GETMEM('MLTPL  1','FREE','REAL',LDIP,SIZ)
+        Call DESYM_SONTO(WORK(LDIP),SIZ(1),WORK(LDIPs),ISYLAB)
+        Call GETMEM('MLTPL  1','FREE','REAL',LDIP,SIZ(1))
         write(6,*) '  For istate ', ISTATE, ' jstate ',JSTATE
         write(6,*) '  Component ',ICMP
 c Get complex matrices
         Call MMA_ALLOCATE(DIPsC,nb2,LABEL="LDIPsC")
         do i=1,nb2
-          TDMZZC(i)=cmplx(TDMZZ(di,i),TDMZZ(di+3,i),16)
-          DIPsC(i)=cmplx(WORK(LDIPs+i-1),zero,16)
+          TDMZZC(i)=cmplx(TDMZZ(di,i),TDMZZ(di+3,i),8)
+          DIPsC(i)=cmplx(WORK(LDIPs+i-1),zero,8)
         enddo
 c TDM
         Call ZGEMM_('N','N',nb,nb,nb,(1.0D0,0.0D0),DIPsC,nb,
      &              TDMZZC,nb,(0.0D0,0.0D0),BUFF,nb)
 C Trace the resulting matrix
-        Transition_Dipole = cmplx(zero,zero,16)
+        Transition_Dipole = cmplx(zero,zero,8)
         do i=1, nb
           Transition_Dipole = Transition_Dipole +
      &    BUFF((i-1)*nb+i)
@@ -294,7 +295,7 @@ c free and reallocate memory for LRESI using that length
       do i=0,nb2-1
         WORK(LSMI+i)=WORK(LSM+i)
       enddo
-      call GETMEM('PIV   ','ALLO','REAL',LP,nb)
+      call GETMEM('PIV   ','ALLO','INTE',LP,nb)
       call DGETRF_(nb,nb,WORK(LSMI),nb,WORK(LP),INFO)
       call GETMEM('RESI  ','ALLO','REAL',LRESI,1)
       LWORK=-1
@@ -303,7 +304,7 @@ c free and reallocate memory for LRESI using that length
       call GETMEM('RESI  ','FREE','REAL',LRESI,1)
       call GETMEM('RESI  ','ALLO','REAL',LRESI,LWORK)
       call DGETRI_(nb,WORK(LSMI),nb,WORK(LP),WORK(LRESI),LWORK,INFO)
-      call GETMEM('PIV   ','FREE','REAL',LP,nb)
+      call GETMEM('PIV   ','FREE','INTE',LP,nb)
       call GETMEM('RESI  ','FREE','REAL',LRESI,LWORK)
 
 c Note: The density matrix should transform as S^1/2 D S^1/2
@@ -338,7 +339,7 @@ c and TDMZZL(6,:) as a complex matrix
       Call MMA_ALLOCATE(TDMZZLC,nb2,LABEL='LTDMZZLC')
       SumofTDMZZLC = (0.0D0,0.0D0)
       do i=1, nb2
-        TDMZZLC(i) = cmplx(TDMZZL(3,i),TDMZZL(6,i),16)
+        TDMZZLC(i) = cmplx(TDMZZL(3,i),TDMZZL(6,i),8)
         SumofTDMZZLC = SumofTDMZZLC+abs(TDMZZLC(i))
       enddo
 C Do SVD by using ZGESVD, see lapack for documentation
@@ -347,7 +348,7 @@ C Get work space for U, SIGMA, and V^dagger, VH
       Call MMA_ALLOCATE(SVDU,nb2,LABEL='SVDU')
       Call MMA_ALLOCATE(SVDS,nb,LABEL='SVDS')
       Call MMA_ALLOCATE(SVDVH,nb2,LABEL='SVDVH')
-      call GETMEM('SVDRESI','ALLO','REAL',LRESI,1)
+      call GETMEM('SVDRESI','ALLO','INTE',LRESI,1)
       call GETMEM('SVDRESIR','ALLO','REAL',LRESIR,5*nb)
 c Set LWORK=-1 to get the optimal scratch space in WORK(LRESI)
 c then let LWORK equal to length of scratch space
@@ -357,7 +358,7 @@ c free and reallocate memory for LRESI using that length
      &            SVDU,NB,SVDVH,NB,WORK(LRESI),
      &            LWORK,WORK(LRESIR),INFO)
       LWORK=max(1,int(WORK(LRESI)))
-      call GETMEM('SVDRESI','FREE','REAL',LRESI,1)
+      call GETMEM('SVDRESI','FREE','INTE',LRESI,1)
       Call MMA_ALLOCATE(RESI,LWORK,LABEL='RESI')
 c Do SVD for TDMZZLC
       call ZCOPY_(nb2,[(0.0d0,0.0d0)],0,SVDU,1)
@@ -386,12 +387,12 @@ c The three components of dipole
         ICMP = di
         ISYLAB = 1
         IOPT =1
-        CALL RDONE(IRC,IOPT,LABEL,ICMP,SIZ,ISYLAB)
+        CALL IRDONE(IRC,IOPT,LABEL,ICMP,SIZ,ISYLAB)
         IOPT = 6
-        Call GETMEM('MLTPL  1','ALLO','REAL',LDIP,SIZ)
+        Call GETMEM('MLTPL  1','ALLO','REAL',LDIP,SIZ(1))
         CALL RDONE(IRC,IOPT,LABEL,ICMP,WORK(LDIP),ISYLAB)
-        Call DESYM_SONTO(WORK(LDIP),SIZ,WORK(LDIPs),ISYLAB)
-        Call GETMEM('MLTPL  1','FREE','REAL',LDIP,SIZ)
+        Call DESYM_SONTO(WORK(LDIP),SIZ(1),WORK(LDIPs),ISYLAB)
+        Call GETMEM('MLTPL  1','FREE','REAL',LDIP,SIZ(1))
 c Perform Lowdin orthogonalization on operator matrix
 c They transform as S^-1/2 P S^-1/2
         Call DGEMM_('N','N',nb,nb,nb,1.0D0,WORK(LDIPs),nb,
@@ -401,8 +402,8 @@ c They transform as S^-1/2 P S^-1/2
 c ZGESVD destroys TDMZZLC after it finishes
 c reconstruct TDMZZLC and DIPsC
         do i=1, nb2
-          TDMZZLC(i) = cmplx(TDMZZL(3,i),TDMZZL(6,i),16)
-          DIPsC(i)=cmplx(WORK(LDIPs+i-1),zero,16)
+          TDMZZLC(i) = cmplx(TDMZZL(3,i),TDMZZL(6,i),8)
+          DIPsC(i)=cmplx(WORK(LDIPs+i-1),zero,8)
         enddo
 c Do U^H TDMZZLC DIP U = Y, Diagonal of Y contains the partition
         Call ZGEMM_('N','N',nb,nb,nb,(1.0D0,0.0D0),TDMZZLC(:),nb,
@@ -411,7 +412,7 @@ c Do U^H TDMZZLC DIP U = Y, Diagonal of Y contains the partition
      &              SVDU(:),nb,(0.0D0,0.0D0),BUFF2(:),nb)
         Call ZGEMM_('C','N',nb,nb,nb,(1.0D0,0.0D0),SVDU(:),nb,
      &              BUFF2(:),nb,(0.0D0,0.0D0),YMAT(di,:),nb)
-        SumofYdiag(di) = cmplx(zero,zero,16)
+        SumofYdiag(di) = cmplx(zero,zero,8)
         do i=1, nb
           SumofYdiag(di)=SumofYdiag(di) + YMAT(di,(i-1)*nb+i)
         enddo
@@ -549,7 +550,7 @@ c U real
      & trim(STATENAME),
      & ' ARE WRITTEN ONTO FILE ',
      & FNAME
-      call WRVEC(FNAME,LU,'CO',1,NB,NB,WORK(LSVDUR),
+      call WRVEC(FNAME,LU,'CO',1,[NB],[NB],WORK(LSVDUR),
      &           SVDS ,Dummy,iDummy,Note)
 c U imaginary
       write(FNAME,'(6(a))')
@@ -559,7 +560,7 @@ c U imaginary
      & trim(STATENAME),
      & ' ARE WRITTEN ONTO FILE ',
      & FNAME
-      call WRVEC(FNAME,LU,'CO',1,NB,NB,WORK(LSVDUI),
+      call WRVEC(FNAME,LU,'CO',1,[NB],[NB],WORK(LSVDUI),
      &           SVDS ,Dummy,iDummy,Note)
 c V real
       write(FNAME,'(6(a))')
@@ -569,7 +570,7 @@ c V real
      & trim(STATENAME),
      & ' ARE WRITTEN ONTO FILE ',
      & FNAME
-      call WRVEC(FNAME,LU,'CO',1,NB,NB,WORK(LSVDVR),
+      call WRVEC(FNAME,LU,'CO',1,[NB],[NB],WORK(LSVDVR),
      &           SVDS ,Dummy,iDummy,Note)
 c V imaginary
       write(FNAME,'(6(a))')
@@ -579,7 +580,7 @@ c V imaginary
      & trim(STATENAME),
      & ' ARE WRITTEN ONTO FILE ',
      & FNAME
-      call WRVEC(FNAME,LU,'CO',1,NB,NB,WORK(LSVDVI),
+      call WRVEC(FNAME,LU,'CO',1,[NB],[NB],WORK(LSVDVI),
      &           SVDS ,Dummy,iDummy,Note)
 c End of output
       write(6,*)
