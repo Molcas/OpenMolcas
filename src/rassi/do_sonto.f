@@ -32,8 +32,6 @@
       PARAMETER (ROUTINE='DO_SONTO')
       Real*8 USOR(NSS,NSS), USOI(NSS,NSS)
       Real*8 IDENTMAT(3,3)
-      character*8 label
-      character*16 nome
 
 c Calculates natural orbitals, including spinorbit effects
       WRITE(6,*)
@@ -58,20 +56,20 @@ c This was taken from smmat.f and modified slightly
       DO ISTATE=1,NSTATE
        JOB1=JBNUM(ISTATE)
        MPLET1=MLTPLT(JOB1)
-       S1=0.5D0*DBLE(MPLET1-1)
+c       S1=0.5D0*DBLE(MPLET1-1)
 
        DO MSPROJ1=-MPLET1+1,MPLET1-1,2
-        SM1=0.5D0*DBLE(MSPROJ1)
+c        SM1=0.5D0*DBLE(MSPROJ1)
         ISS=ISS+1
         JSS=0
 
         DO JSTATE=1,NSTATE
          JOB2=JBNUM(JSTATE)
          MPLET2=MLTPLT(JOB2)
-         S2=0.5D0*DBLE(MPLET2-1)
+c         S2=0.5D0*DBLE(MPLET2-1)
 
          DO MSPROJ2=-MPLET2+1,MPLET2-1,2
-          SM2=0.5D0*DBLE(MSPROJ2)
+c          SM2=0.5D0*DBLE(MSPROJ2)
           JSS=JSS+1
 
           IF (MPLET1.EQ.MPLET2 .AND. MSPROJ1.EQ.MSPROJ2) THEN

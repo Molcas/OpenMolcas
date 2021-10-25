@@ -39,19 +39,14 @@
       Dimension IZMR(3),IZMI(3)
       Dimension IZMR2(3),IZMI2(3)
       DIMENSION IOFF(8)
-      CHARACTER*8 CHARTYPE,LABEL
+      CHARACTER*8 CHARTYPE!,LABEL
       Dimension ROTMAT(3,3)
-      INTEGER ASS,BSS,ASF,BSF
-C Rulin start
-      INTEGER, DIMENSION(1)::SIZ
-      INTEGER jm,count_i
-      character*15 afmt
-      Logical RulinPrint
+      INTEGER ASS,BSS
+c      INTEGER ASF,BSF
+c      INTEGER, DIMENSION(1)::SIZ
+c      INTEGER jm,count_i
       nbsts=nbst**2
-      count_i = 0
-      RulinPrint=.TRUE.
-c      RulinPrint=.FALSE.
-C Rulin end
+c      count_i = 0
 
 c VV: dummy initialization
       CGY=-1
@@ -158,8 +153,8 @@ C WRITTEN AS IN PRPROP
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C CORRESPONDING SPIN-FREE STATES OF THE
 C REQUESTED SPIN STATES
-      ASF=IWORK(LMAPST-1+ASS)
-      BSF=IWORK(LMAPST-1+BSS)
+c      ASF=IWORK(LMAPST-1+ASS)
+c      BSF=IWORK(LMAPST-1+BSS)
 
       DO KSS=1,NSS
        KSF=IWORK(LMAPST-1+KSS)
@@ -420,7 +415,6 @@ C END MAIN LOOP OVER STATES (KSS,LSS)
 
 C Store this density to DENSOUT
       IF(ITYPE.EQ.3.OR.ITYPE.EQ.4) THEN
-c        write(6,*) 'Rulin here is itype 3 or 4'
         DO I=1,nbsts
           DENSOUT(1,I)=WORK(LSDMXR2-1+I)
           DENSOUT(2,I)=WORK(LSDMYR2-1+I)
@@ -430,7 +424,6 @@ c        write(6,*) 'Rulin here is itype 3 or 4'
           DENSOUT(6,I)=WORK(LSDMZI2-1+I)
         END DO
       ELSE
-c        write(6,*) 'Rulin here is itype 1 or 2'
         DO I=1,nbsts
           DENSOUT(1,I)=WORK(LSDMZR2-1+I)
           DENSOUT(2,I)=WORK(LSDMZR2-1+I)

@@ -45,13 +45,13 @@
       REAL*8 TSDMZZ(6,nb2)
       REAL*8 ANTSIN(6,nb2)
       REAL*8, ALLOCATABLE:: TDMZZL(:,:), TSDMZZL(:,:)
-      COMPLEX*16, ALLOCATABLE:: TSDMZZLC(:,:),YMAT(:,:)
+      COMPLEX*16, ALLOCATABLE:: YMAT(:,:)
       COMPLEX*16, ALLOCATABLE:: TDMZZLC(:),TDMZZC(:),BUFF(:),DIPsC(:)
-      COMPLEX*16, ALLOCATABLE:: SVDU(:),SVDVH(:),SVDV(:),RESI(:)
+      COMPLEX*16, ALLOCATABLE:: SVDU(:),SVDVH(:),RESI(:)
       REAL*8, ALLOCATABLE:: SVDS(:)
       COMPLEX*16, ALLOCATABLE:: BUFF1(:),BUFF2(:),SumofYdiag(:)
       COMPLEX*16  Transition_Dipole
-      Integer i,j,k,info,lwork,di,icmp,iopt,irc,isylab,LDIP,LDIPs,LEIG
+      Integer i,j,info,lwork,di,icmp,iopt,irc,isylab,LDIP,LDIPs,LEIG
       Integer LEIGM,LP,LRESI,LRESIR,LSM,LSMI,LSZZ,LSZZs,LTMP,LSVDUR
       Integer LSVDUI,LSVDVHR,LSVDVHI,LSVDVR,LSVDVI
       REAL*8 NumofEc, Sumofeigen, eigen_print_limit,Zero,Two,pi
@@ -337,7 +337,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c In order to use zgesvd first we combine TDMZZL(3,:)
 c and TDMZZL(6,:) as a complex matrix
       Call MMA_ALLOCATE(TDMZZLC,nb2,LABEL='LTDMZZLC')
-      SumofTDMZZLC = (0.0D0,0.0D0)
+      SumofTDMZZLC = 0.0D0
       do i=1, nb2
         TDMZZLC(i) = cmplx(TDMZZL(3,i),TDMZZL(6,i),8)
         SumofTDMZZLC = SumofTDMZZLC+abs(TDMZZLC(i))
@@ -602,7 +602,6 @@ c Free up workspace
       Call MMA_DEALLOCATE(TDMZZL)
       Call MMA_DEALLOCATE(TSDMZZL)
       Call MMA_DEALLOCATE(TDMZZLC)
-c      Call MMA_DEALLOCATE(TSDMZZLC)
       Call MMA_DEALLOCATE(YMAT)
       Call MMA_DEALLOCATE(SumofYdiag)
       call GETMEM('SsqrtM','FREE','REAL',LSM,nb2)
