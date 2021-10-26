@@ -58,6 +58,7 @@
       REAL*8 SumofTDMZZLC
       REAL*8 Dummy(1)
       Integer, DIMENSION(1)::SIZ
+      COMPLEX*16, ALLOCATABLE:: SIZC(:)
       Integer LU, isfreeunit, iDummy(7,8)
 c start Phase factor stuff
 c trace of transition dipole real and imaginary (x,y,and z)
@@ -348,17 +349,21 @@ C Get work space for U, SIGMA, and V^dagger, VH
       Call MMA_ALLOCATE(SVDU,nb2,LABEL='SVDU')
       Call MMA_ALLOCATE(SVDS,nb,LABEL='SVDS')
       Call MMA_ALLOCATE(SVDVH,nb2,LABEL='SVDVH')
-      call GETMEM('SVDRESI','ALLO','INTE',LRESI,1)
+      Call MMA_ALLOCATE(SIZC,1,LABEL='RESI')
+c      call GETMEM('SVDRESI','ALLO','REAL',LRESI,1)
       call GETMEM('SVDRESIR','ALLO','REAL',LRESIR,5*nb)
-c Set LWORK=-1 to get the optimal scratch space in WORK(LRESI)
+c Set LWORK=-1 to get the optimal scratch space in SIZC
 c then let LWORK equal to length of scratch space
-c free and reallocate memory for LRESI using that length
+c free and reallocate memory for SIZC using that length
       LWORK=-1
       Call ZGESVD_('A','A',NB,NB,TDMZZLC,NB,SVDS,
-     &            SVDU,NB,SVDVH,NB,IWORK(LRESI),
+c     &            SVDU,NB,SVDVH,NB,WORK(LRESI),
+     &            SVDU,NB,SVDVH,NB,SIZC,
      &            LWORK,WORK(LRESIR),INFO)
-      LWORK=max(1,int(WORK(LRESI)))
-      call GETMEM('SVDRESI','FREE','INTE',LRESI,1)
+c      LWORK=max(1,int(WORK(LRESI)))
+      LWORK=max(1,int(SIZC(1)))
+      Call MMA_DEALLOCATE(SIZC)
+c      call GETMEM('SVDRESI','FREE','INTE',LRESI,1)
       Call MMA_ALLOCATE(RESI,LWORK,LABEL='RESI')
 c Do SVD for TDMZZLC
       call ZCOPY_(nb2,[(0.0d0,0.0d0)],0,SVDU,1)
