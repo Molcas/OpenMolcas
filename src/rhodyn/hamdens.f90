@@ -16,8 +16,9 @@ subroutine hamdens()
   use definitions, only: u6
   implicit none
 !
-! Purpose : Get the initial Hamiltonian in required basis as well as
-! the initial density matrix for dynamics
+! Purpose : Transform initial Hamiltonian to required basis as well as
+! the initial density matrix, which are currently present
+! in CSF basis
 !
   if (ipglob>2) then
     call dashes()
@@ -89,20 +90,33 @@ subroutine hamdens()
     endif
 
 ! contrust the dipole matrix in required basis (with dyson matrix)
-
-    if (basis=='CSF') then
-      do i=1,3
+! here dipole presumably in SO basis (if SO is on)
+!                     or in SF basis (is SO is off)
+!
+    if (flag_so) then
+      if (basis=='CSF') then
+        do i=1,3
         call transform(dipole(:,:,i),CSF2SO,dipole_basis(:,:,i),.False.)
-      enddo
-    elseif (basis=='SF')then
-      do i=1,3
+        enddo
+      elseif (basis=='SF')then
+        do i=1,3
         call transform(dipole(:,:,i),SO_CI,dipole_basis(:,:,i),.False.)
-      enddo
-    elseif (basis=='SO') then
-      dipole_basis=dipole
-      if (flag_dyson) then
-        call mult(SO_CI,dysamp_bas,tmp,.True.,.False.)
-        call mult(tmp,SO_CI,dysamp_bas)
+        enddo
+      elseif (basis=='SO') then
+        dipole_basis=dipole
+        if (flag_dyson) then
+          call mult(SO_CI,dysamp_bas,tmp,.True.,.False.)
+          call mult(tmp,SO_CI,dysamp_bas)
+        endif
+      endif
+    else ! flag_so is off
+      if (basis=='CSF') then
+        do i=1,3
+          call transform(dipole(:,:,i),U_CI_compl, &
+                         dipole_basis(:,:,i),.False.)
+        enddo
+      elseif (basis=='SF') then
+        dipole_basis = dipole
       endif
     endif
 

@@ -16,59 +16,16 @@ subroutine get_dipole
 !
   use rhodyn_data
   use rhodyn_utils, only: transform, dashes
-  use definitions, only: wp, iwp, u6
-  use mh5, only: mh5_open_file_r, mh5_exists_dset, mh5_fetch_dset, &
-                 mh5_close_file, mh5_put_dset
+  use definitions, only: u6
+  use mh5, only: mh5_put_dset
   use stdalloc, only: mma_allocate, mma_deallocate
   implicit none
-  integer(kind=iwp) :: fileid
-  real(kind=wp),allocatable,dimension(:,:,:) :: DIPR, DIPI
 
   if (ipglob>2) then
     call dashes()
     write(u6,*) 'Begin get_dipole'
     call dashes()
   endif
-
-  call mma_allocate (DIPR,lrootstot,lrootstot,3)
-  call mma_allocate (DIPI,lrootstot,lrootstot,3)
-
-! Read in the components dipole matrix (X,Y,Z) from the MOLCAS output
-! probably better move that to read_rassisd.f90
-  fileid = mh5_open_file_r('RASSISD')
-  if (flag_so) then
-    if (mh5_exists_dset(fileid,'SOS_EDIPMOM_REAL').and. &
-      mh5_exists_dset(fileid,'SOS_EDIPMOM_IMAG')) then
-      call mh5_fetch_dset(fileid,'SOS_EDIPMOM_REAL',DIPR)
-      call mh5_fetch_dset(fileid,'SOS_EDIPMOM_IMAG',DIPI)
-    else
-      write(u6,*) 'Error in reading RASSISD file, no dipole matrix in SO basis'
-      call abend()
-    endif
-  else ! to read SFS_EDIPMOM (flag_so = off)
-    if (mh5_exists_dset(fileid,'SFS_EDIPMOM')) then
-      call mh5_fetch_dset(fileid,'SFS_EDIPMOM',DIPR)
-      DIPI=0d0
-    else
-      write(u6,*) 'Error in reading RASSISD file, no dipole matrix in SF basis'
-      call abend()
-    endif
-  endif
-  !write(u6,*) 'dysorb read'
-  if (mh5_exists_dset(fileid,'DYSORB').and.flag_dyson) then
-    call mh5_fetch_dset(fileid,'DYSORB',dysamp)
-  else if (mh5_exists_dset(fileid,'DYSAMP').and.flag_dyson) then
-    call mh5_fetch_dset(fileid,'DYSAMP',dysamp)
-  else
-    if (ipglob>2) then
-      write(u6,*)'Ionization is not taken into account (set flag DYSO)'
-      write(u6,*)' and/or RASSI file does not contain Dyson amplitudes'
-      flag_dyson=.False.
-    endif
-  endif
-  !write(u6,*) 'dysorb has been read'
-  call mh5_close_file(fileid)
-  dipole = dcmplx(DIPR,DIPI)
 
 ! To put the imaginary part of diagonal elements to 0 just in case
   do j=1,lrootstot
@@ -137,9 +94,6 @@ subroutine get_dipole
       call mh5_put_dset(prep_do, dble(dysamp_bas))
     endif
   endif
-
-  call mma_deallocate (DIPR)
-  call mma_deallocate (DIPI)
 
   if (ipglob>2) write(u6,*) 'End get_dipole'
 

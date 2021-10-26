@@ -15,8 +15,7 @@ subroutine soci
     use rhodyn_utils, only: transform, mult, dashes
     use definitions, only: wp, iwp, u6
     use stdalloc, only: mma_allocate, mma_deallocate
-    use mh5, only: mh5_open_file_r, mh5_exists_dset, mh5_fetch_dset, &
-                   mh5_close_file, mh5_put_dset
+    use mh5, only: mh5_put_dset
     implicit none
 !
 ! Purpose: Read in the SO Coefficient from MOLCAS output, The prepare
@@ -33,8 +32,7 @@ subroutine soci
 !
   complex(kind=wp),dimension(:,:),allocatable:: SO_CI2,Hfull,hdiag, &
                                                 Hfull2
-  real(kind=wp),dimension(lrootstot,lrootstot) :: SO_CI_R,  SO_CI_I
-  integer(kind=iwp)::INFO,LWORK,fileid
+  integer(kind=iwp)::INFO,LWORK
   complex(kind=wp),dimension(:),allocatable::WORK
   real(kind=wp)::RWORK(3*nconftot-2),W(nconftot)
 
@@ -145,33 +143,6 @@ subroutine soci
     enddo
     call dashes()
   endif
-
-  if (ipglob>2) then
-    write(u6,*)'Begin read SO Coeffs to SO_CI'
-    call dashes()
-!   write(*,sint)'Nr of Spin-free States (spin-degeneracy):',Nstate
-    write(u6,sint)'Nr of Spin-orbit States:',lrootstot
-    call dashes()
-  endif
-
-  ! reading SO coefficients (probably better move to read_rassisd.f90)
-  fileid = mh5_open_file_r('RASSISD')
-  if (mh5_exists_dset(fileid,'SOCOEFF_REAL').and. &
-        mh5_exists_dset(fileid,'SOCOEFF_IMAG')) then
-    call mh5_fetch_dset(fileid,'SOCOEFF_REAL',SO_CI_R)
-    call mh5_fetch_dset(fileid,'SOCOEFF_IMAG',SO_CI_I)
-  else if &! if using standard rassi dsets of rassi.h5
-     (mh5_exists_dset(fileid,'SOS_COEFFICIENTS_REAL').and.&
-      mh5_exists_dset(fileid,'SOS_COEFFICIENTS_IMAG')) then
-    call mh5_fetch_dset(fileid,'SOS_COEFFICIENTS_REAL',SO_CI_R)
-    call mh5_fetch_dset(fileid,'SOS_COEFFICIENTS_IMAG',SO_CI_I)
-  else
-    write(u6,*) 'Error in reading RASSISD file, no SOCOEFF matrix'
-    call abend()
-  endif
-  call mh5_close_file(fileid)
-
-  SO_CI = dcmplx(SO_CI_R,SO_CI_I)
 
   if (ipglob>4) then
     call dashes(72)

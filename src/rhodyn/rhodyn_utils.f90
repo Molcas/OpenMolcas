@@ -13,6 +13,7 @@
 #include "macros.fh"
 
 module rhodyn_utils
+  use linalg_mod, only: abort_
   implicit none
 !
 ! module contains some auxiliary routines

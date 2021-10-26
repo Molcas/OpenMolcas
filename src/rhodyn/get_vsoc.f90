@@ -11,26 +11,27 @@
 ! Copyright (C) 2021, Vladislav Kochetov                               *
 !***********************************************************************
 subroutine get_vsoc
-  use rhodyn_data
+  use rhodyn_data, only: lrootstot, nconftot, ipglob, i, j, threshold, &
+                         V_SO, V_CSF, U_CI, prep_vcsfr, prep_vcsfi, &
+                         int2real
   use rhodyn_utils, only: transform, dashes
-  use definitions, only: wp, iwp, u6
+  use definitions, only: wp, u6
   use stdalloc, only: mma_allocate, mma_deallocate
-  use mh5
+  use mh5, only: mh5_put_dset
   implicit none
 !
 !***********************************************************************
-! Purpose:  reading and transformation of V(SOC) matrix from the basis
+! Purpose:  transformation of V(SOC) matrix from the basis
 !           of spin-free states to the basis of CSFs
 !***********************************************************************
 ! V_SO    : SO-Hamiltonian matrix
 ! REV_SO  : Real part of V_SO
-! IMV_SO  : Imagnary part of V_SO
+! IMV_SO  : Imaginary part of V_SO
 ! REV_CSF : U_CI*REV_SO*U_CI**T
 ! IMV_CSF : U_CI*IMV_SO*U_CI**T
 !
   real(kind=wp),dimension(:,:),allocatable::REV_SO,REV_CSF, &
                                             IMV_SO,IMV_CSF
-  integer(kind=iwp) :: fileid
 
   if (ipglob>2) write(u6,*) 'Begin of get_vsoc'
   if (ipglob>2) call dashes()
@@ -40,17 +41,8 @@ subroutine get_vsoc
   call mma_allocate(REV_CSF,nconftot,nconftot)
   call mma_allocate(IMV_CSF,nconftot,nconftot)
 
-! reading V_SO matrix
-  fileid = mh5_open_file_r('RASSISD')
-  if (mh5_exists_dset(fileid,'V_SO_REAL').and. &
-      mh5_exists_dset(fileid,'V_SO_IMAG')) then
-    call mh5_fetch_dset(fileid,'V_SO_REAL',REV_SO)
-    call mh5_fetch_dset(fileid,'V_SO_IMAG',IMV_SO)
-  else
-    write(u6,*) 'Error in reading RASSISD file, no V_SO matrix'
-    call abend()
-  endif
-  call mh5_close_file(fileid)
+  REV_SO = dble(V_SO)
+  IMV_SO = aimag(V_SO)
 
 ! check whether V_SO in SF basis is hermitian.
   if (ipglob>3) then
@@ -72,7 +64,6 @@ subroutine get_vsoc
     call dashes()
   endif
 
-  V_SO = dcmplx(REV_SO,IMV_SO)
   if (ipglob>3) then
     call dashes()
     write(u6,*) 'Printout the Spin-orbit Hamiltonian in SF basis'

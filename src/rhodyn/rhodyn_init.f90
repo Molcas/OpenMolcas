@@ -71,7 +71,7 @@ subroutine rhodyn_init()
 ! reallocation of all corresponding arrays
   flag_pulse    = .True.
   flag_acorrection=.False.
-  pulse_type    = 'GAUSSIAN'
+  pulse_type    = 'GAUSS'
   N_pulse       = 1
   call mma_allocate(amp,N_pulse)
   call mma_allocate(taushift,N_pulse)

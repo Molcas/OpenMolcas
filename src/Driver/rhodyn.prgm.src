@@ -22,5 +22,6 @@
  (file)  SODENS   "$WorkDir/$Project."so_den.dat     rws
  (file)  SFDENS   "$WorkDir/$Project."sf_den.dat     rws
  (file)  CSFDEN   "$WorkDir/$Project."csf_den.dat    rws
+ (file)  DIPOLE   "$WorkDir/$Project."dipole.dat     rws
  (file)  RDPREP   "$WorkDir/$Project."rdprep.h5      rws
  (file)  RDOUT    "$WorkDir/$Project."rhodyn.h5      rws

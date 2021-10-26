@@ -25,11 +25,17 @@ subroutine get_dm0()
   implicit none
 
   complex(kind=wp),dimension(:,:),allocatable:: DET2CSF, DM0_bas
-  complex(kind=wp),dimension(lrootstot) :: E_SF
   complex(kind=wp) :: Z
 !  integer(kind=iwp) :: lu !temporary io unit
 
   if (ipglob>3) write(u6,*) 'Begin get_dm0'
+
+  if (p_style=='SO_THERMAL'.and.T==0) then
+    p_style='SO'
+  endif
+  if (p_style=='SF_THERMAL'.and.T==0) then
+    p_style='SF'
+  endif
 
   if (preparation/=4) then
     call mma_allocate(DM0,nconftot, nconftot)
@@ -165,7 +171,7 @@ subroutine get_dm0()
 
   else
 !     SO is off
-!     have not checked yet
+!     has not checked yet
     select case (p_style)
     case ('CSF')
       if ((N_Populated>nconftot).or.(N_populated<=0)) then
@@ -175,8 +181,16 @@ subroutine get_dm0()
         call dashes()
         call abend()
       endif
-      DM0(N_Populated,N_Populated)=one
-      write(u6,*) 'DM element ',N_populated,' set to 1'
+      if (preparation/=4) then
+        DM0(N_Populated,N_Populated)=one
+      else
+        call mma_allocate(DM0_bas,nconftot,nconftot)
+        DM0_bas=zero
+        DM0_bas(N_Populated,N_Populated)=one
+        write(u6,*) 'DM element ',N_populated,' set to 1'
+        ! transform right to SF basis for propagation
+        call transform(DM0_bas,dcmplx(U_CI,0d0),DM0)
+      endif
 
     case ('DET')
       call mma_allocate(DM0_bas,ndet_tot,ndet_tot)

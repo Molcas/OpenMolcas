@@ -81,10 +81,12 @@ subroutine pop(time,popcount)
         (DM_basis=='CSF_SO').or.(DM_basis=='ALL')) then
 ! transform the density from SF to CSF states basis
       call transform(densityt,U_CI_compl,density_csf,.False.)
-      dgl_csf = dble((/(density_csf(i,i),i=1,d)/))
+      dgl_csf = dble((/(density_csf(i,i),i=1,nconftot)/))
       norm= sum(dgl_csf)
-      write(lu_csf,out_fmt) time*auToFs,(dgl_csf(i),i=1,d),norm
-      call mh5_put_dset(out_dm_csf, dgl_csf,[1,d],[popcount-1,0])
+      write(lu_csf,out_fmt_csf) time*auToFs, &
+            (dgl_csf(i),i=1,nconftot),norm
+      call mh5_put_dset(out_dm_csf, &
+                        dgl_csf,[1,nconftot],[popcount-1,0])
     endif
 
     if ((DM_basis=='SF').or.(DM_basis=='CSF_SF').or. &

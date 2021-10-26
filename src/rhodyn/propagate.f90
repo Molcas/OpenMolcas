@@ -28,96 +28,58 @@ subroutine propagate()
 ! transferred to f90 standard
 !  integer :: ihh, imm, iss
   real(kind=wp) :: time, error_rk, oldstep, t_temp
-  integer(kind=iwp), external :: isfreeunit
   procedure(rk_fixed_step) :: classic_rk4,rk4,rk5
   procedure(rk_adapt_step) :: rk45,rkck
   procedure(pulse_func)    :: pulse
-  character(len=64) :: out2_fmt, out3_fmt
-
 ! timers are commented out now, should be again switched on, once it is
 ! transferred to f90 standard
 !#include "timers.fh"
 
   call dashes()
   write(u6,*) 'Propagation starts'
+  write(u6,*) 'Dimension: ', d
   call dashes()
 
-! write formats for output files SFDENS, SODENS, CSFDENS
-  ! header format
-  write(out1_fmt,"(a,i5,a)") "(a22,",Nstate,"(i8,14x),a)"
-  write(out1_fmt_csf,"(a,i5,a)") "(a22,",nconftot,"(i8,14x),a)"
-  ! line format
-  write(out_fmt, "(a,i5,a)") "(x,",Nstate+2,"(f22.16))"
-  write(out_fmt_csf, "(a,i5,a)") "(x,",nconftot+2,"(f22.16))"
-  out2_fmt='(2x,a,28x,a,28x,a,28x,a)'
-  out3_fmt='(2x,f22.16,1x,f22.16,1x,f22.16,1x,i1,a1,i2.2,a1,i2.2)'
-
-! this file is for the diagonal density matrix in SO basis
-  if ((DM_basis=='SO').or.(DM_basis=='CSF_SO').or. &
-      (DM_basis=='SF_SO').or.(DM_basis=='ALL')) then
-    lu_so=isfreeunit(lu_so)
-    call molcas_open (lu_so,'SODENS')
-    write(lu_so,out1_fmt) '#time(fs)',(j,j=1,Nstate),'Norm'
-  endif
-! this file is for the diagonal density matrix in SF basis
-  if ((DM_basis=='SF').or.(DM_basis=='CSF_SF').or. &
-      (DM_basis=='SF_SO').or.(DM_basis=='ALL')) then
-    lu_sf=isfreeunit(lu_sf)
-    call molcas_open (lu_sf,'SFDENS')
-    write(lu_sf,out1_fmt) '#time(fs)',(j,j=1,Nstate),'Norm'
-  endif
-! this file is for the diagonal density matrix in CSF basis
-  if ((DM_basis=='CSF').or.(DM_basis=='CSF_SF').or. &
-      (DM_basis=='CSF_SO').or.(DM_basis=='ALL')) then
-    lu_csf=isfreeunit(lu_csf)
-    call molcas_open (lu_csf,'CSFDEN')
-    write(lu_csf,out1_fmt_csf) '#time(fs)',(j,j=1,nconftot),'Norm'
-  endif
-! this file is for the pulse data
-  if (flag_pulse) then
-    lu_pls=isfreeunit(lu_pls)
-    call molcas_open(lu_pls,'PULSE')
-  endif
-! this file is for the TD-dipole moment data
-  if (flag_dipole) then
-    lu_dip=isfreeunit(lu_dip)
-    call molcas_open(lu_dip,'DIPOLE.dat')
-  endif
-
 ! initialize parameters for solution of Liouville equation
+  ii = 1 ! counts output of populations
+  Ntime=1 !counts steps
   Nstep   = int((finaltime-initialtime)/timestep)+1
   Npop    = int((finaltime-initialtime)/tout)+1
   Noutstep= int(tout/timestep)
-  if (flag_fdm) Ntime_tmp_dm=int(finaltime/time_fdm)+1
+  Ntime_tmp_dm=int(finaltime/time_fdm)+1 !fdm
   time    = initialtime
   oldstep = timestep
   densityt= density0
+! create and initialize h5 output file
   call cre_out()
   call mh5_put_dset(out_ham_r,dble(hamiltonian))
   call mh5_put_dset(out_ham_i,aimag(hamiltonian))
-  call mh5_put_dset(out_decay_r,dble(decay))
-  call mh5_put_dset(out_decay_i,aimag(decay))
+  if (flag_decay) then
+    call mh5_put_dset(out_decay_r,dble(decay))
+    call mh5_put_dset(out_decay_i,aimag(decay))
+  endif
   if (flag_emiss) then
     call mh5_put_dset(out_freq, emiss)
 !   write(*,*) 'frequencies have been written to hdf5 file'
     emiss = 0d0
   endif
-  ii = 1 ! counts output of populations
-  jj = 1 ! counts output of full density matrix (flag_fdm)
-  Ntime=1 !counts steps
-  call mma_allocate(dgl,d)
-  call pop(time,ii)
   if (flag_fdm) then
+    jj = 1 ! counts output of full density matrix
+
     ! store full density matrix
     call mh5_put_dset(out_tfdm, [time*auToFs], [1], [0])
     call mh5_put_dset(out_fdm,abs(density0),[1,d,d],[0,0,0])
   endif
+
+  call mma_allocate(dgl,d)
   call mma_allocate(ak1,d,d)
   call mma_allocate(ak2,d,d)
   call mma_allocate(ak3,d,d)
   call mma_allocate(ak4,d,d)
   call mma_allocate(ak5,d,d)
   call mma_allocate(ak6,d,d)
+
+  call pop(time,ii) ! write 0th iteration (initial values)
 
 !***********************************************************************
 !     methods with adaptive step size
@@ -149,7 +111,6 @@ subroutine propagate()
 ! run loop to find the step with acceptable accuracy
 ! use density0 as storage for initial value
       loopstep: do
-!       call dcopy_(d**2,densityt,1,density0,1)
         density0=densityt
         if (method=='RKCK') then
           call rkck(time,densityt,error_rk)
@@ -159,7 +120,6 @@ subroutine propagate()
         if (error_rk<=errorthreshold) exit loopstep
 ! then step rejected, try new smaller step
         densityt=density0
-!        call dcopy_(d**2,density0,1,densityt,1)
         t_temp=safety*dt*(errorthreshold/error_rk)**0.25
         dt=max(t_temp,0.2*dt)
         if (ipglob>2) write(u6,*) ' ------',error_rk,dt*auToFs
@@ -176,7 +136,9 @@ subroutine propagate()
       if (flag_fdm.and.time>=time_fdm*jj) then
         ! should be moved to procedure pop
         call mh5_put_dset(out_tfdm,[time*auToFs],[1],[jj])
-        call mh5_put_dset(out_fdm,abs(densityt), &
+        ! density0 is stored as temporary storage for dm in required
+        ! basis in pop.f90
+        call mh5_put_dset(out_fdm,abs(density0), &
                                   [1,d,d],[jj,0,0])
             jj = jj + 1
       endif
@@ -193,6 +155,7 @@ subroutine propagate()
       elseif (method=='RK45') then
         dt=safety*dt*(errorthreshold/error_rk)**0.25
       endif
+      ! stepsize cannot decrease faster than by 5x
       dt=min(dt,5*oldstep)
       Ntime=Ntime+1
       if (dt<1d-8) then
@@ -207,21 +170,22 @@ subroutine propagate()
 !***********************************************************************
     do Ntime=1,(Nstep-1)
       if (flag_pulse) then
+        ! update hamiltonian with dipole term
         call pulse(hamiltonian,hamiltoniant,time,Ntime)
       else
         hamiltoniant=hamiltonian
       endif
       select case (method)
-      case ('CLASSIC_RK4')
-        call classic_rk4(time,densityt)
-      case ('RK4')
-        call rk4(time,densityt)
-      case ('RK5')
-        call rk5(time,densityt)
-      case default
-        ! check has already been done in read_input.f90
-        write(6,*)'Integration method ',method, ' is not known'
-        call abend()
+        case ('CLASSIC_RK4')
+          call classic_rk4(time,densityt)
+        case ('RK4')
+          call rk4(time,densityt)
+        case ('RK5')
+          call rk5(time,densityt)
+        case default
+          ! check has already been done in read_input.f90
+          write(6,*)'Integration method ',method, ' is not known'
+          call abend()
       end select
 !!vk!!    call test_rho(densityt,time)
       time=initialtime+timestep*Ntime
@@ -232,6 +196,7 @@ subroutine propagate()
     enddo
   endif
 
+! deallocation of matrices needed for propagation
   call mma_deallocate(ak1)
   call mma_deallocate(ak2)
   call mma_deallocate(ak3)

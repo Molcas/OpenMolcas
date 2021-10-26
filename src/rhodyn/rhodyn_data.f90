@@ -103,7 +103,6 @@ module rhodyn_data
 !                        Debyetoau = 0.393456
 !                        autoev = 27.211396132
 !                        cmtoau    = 4.5563d-6
-!                        pi        = 4.0d0*ATAN(1.0d0)
 !                        fstoau    = 41.3393964d0
   complex(kind=wp),parameter:: zero = (0.0d0,0.0d0)    ,&
                                one  = (1.0d0,0.0d0)    ,&
@@ -122,7 +121,7 @@ module rhodyn_data
                                               HTOT_CSF,CSF2SO,DM0,&
                                               U_SO,SO_CI,HSOCX,&
                                               U_CI_compl,dysamp_bas
-  complex(kind=wp), dimension(:), allocatable :: E_SO
+  complex(kind=wp), dimension(:), allocatable :: E_SF, E_SO
 ! ---------------------------------------------------------------------
   logical :: flag_so, flag_decay, flag_diss, flag_fdm, &
              flag_dyson, flag_emiss, flag_test, flag_dipole
@@ -134,7 +133,8 @@ module rhodyn_data
                                 scmp='(x,a,t45,f5.2,sp,f5.2,"i")',&
                                 slog='(x,a,t45,l8)'              ,&
                                 int2real='(a,2i5,2f16.8)'
-  character(len=32) :: out_fmt, out1_fmt, out_fmt_csf, out1_fmt_csf
+  character(len=64) :: out_fmt, out1_fmt, out_fmt_csf, out1_fmt_csf,&
+                       out2_fmt, out3_fmt
 ! ---------------------------------------------------------------------
 ! prep, out hdf5 files (description in cre_prep.f, cre_out.f)
   integer(kind=iwp) :: prep_id, &

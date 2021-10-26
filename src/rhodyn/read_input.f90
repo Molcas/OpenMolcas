@@ -262,6 +262,7 @@ subroutine read_input()
     write(u6,sint)     'Number of states:',Nstate
     write(u6,sdbl)     'Initial time:',   initialtime*auToFs
     write(u6,sdbl)     'Final time:',     finaltime*auToFs
+    write(u6,slog)     'SO coupling:',    flag_so
     write(u6,slog)     'Auger Decay:',    flag_decay
     write(u6,slog)     'Dissipation:',    flag_diss
     write(u6,slog)     'Ionization: ',    flag_dyson

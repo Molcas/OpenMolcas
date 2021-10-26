@@ -17,7 +17,7 @@ subroutine rhodyn()
 !     responsible for dynamics itself
 !***********************************************************************
   use rhodyn_data
-  use rhodyn_utils, only: mult, dashes, sortci
+  use rhodyn_utils, only: mult, dashes, sortci, transform
   use definitions, only: wp, iwp, u6
   use constants, only: auToeV
   use stdalloc, only: mma_allocate, mma_deallocate
@@ -43,11 +43,12 @@ subroutine rhodyn()
   maxlroots= maxval(lroots)
   nconftot =0
   lrootstot=0
-  if (p_style=='DET') ndet_tot=sum(NDET)   ! Nr of DETs
+  if (p_style=='DET') ndet_tot=sum(ndet)   ! Nr of DETs
   do i=1,N
     if (flag_so) then
-      nconftot=nconftot+nconf(i)*ispin(i)    ! Nr of CSFs
-      lrootstot=lrootstot+lroots(i)*ispin(i) ! Nr of SF States
+      ! total number of CSF confs and SF roots including SO splitting
+      nconftot=nconftot+nconf(i)*ispin(i)
+      lrootstot=lrootstot+lroots(i)*ispin(i)
     else
       lrootstot=lrootstot+lroots(i)
       nconftot=nconftot+nconf(i)
@@ -70,16 +71,18 @@ subroutine rhodyn()
     call mma_allocate(CI, maxnconf, maxlroots, N)
     call mma_allocate(E, maxlroots,N)
     call mma_allocate(U_CI, nconftot, lrootstot)
-    call mma_allocate(SO_CI, lrootstot, lrootstot)
     call mma_allocate(DTOC, maxnum, maxnconf, N)
     call mma_allocate(V_CSF, nconftot, nconftot)
-    call mma_allocate(V_SO, lrootstot, lrootstot)
-    call mma_allocate(CSF2SO, nconftot, lrootstot)
-    call mma_allocate(E_SO, lrootstot)
     call mma_allocate(HTOTRE_CSF, nconftot, nconftot)
     call mma_allocate(HTOT_CSF, nconftot, nconftot)
     call mma_allocate(a_einstein, lrootstot, lrootstot)
     call mma_allocate(emiss, n_freq)
+    if (flag_so) then
+      call mma_allocate(SO_CI, lrootstot, lrootstot)
+      call mma_allocate(V_SO, lrootstot, lrootstot)
+      call mma_allocate(CSF2SO, nconftot, lrootstot)
+      call mma_allocate(E_SO, lrootstot)
+    endif
 
 ! Create PREP file for storage of intermediate data
     call cre_prep()
@@ -130,21 +133,20 @@ subroutine rhodyn()
                   H_CSF(1:nconf(i),1:nconf(i),i),.False.,.True.)
         call mma_deallocate(Ham)
       enddo
-
     endif
 
     call mh5_put_dset(prep_ci, CI)
     call mh5_put_dset(prep_hcsf, H_CSF)
-
 ! construct CI transformation matrix U_CI
     call uci()
 ! obtain pure SOC contribution to Hamiltonian
+    call read_rassisd()
     if (flag_so) call get_vsoc()
     call get_hcsf()
     if (flag_so) then
 ! construct transformation matrices between bases
       call soci()
-! read dipole moment
+! process dipole moment
       call get_dipole()
     endif
 ! construct initial density matrix
@@ -173,16 +175,21 @@ subroutine rhodyn()
 ! only SO hamiltonian from RASSI is read
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   else if (preparation==4) then
-! only SO basis allowed
+! only SF/SO basis allowed
   !basis = 'SO'
     call mma_allocate(HSOCX, Nstate, Nstate)
-    call mma_allocate(E_SO, Nstate)
-    call get_dipole()
-    if (DM_basis=='CSF_SO') then
-      call mma_allocate(CI, maxnconf, maxlroots,N)
-      call mma_allocate(E, maxlroots, N)
-      call mma_allocate(U_CI, nconftot, lrootstot)
+    call mma_allocate(CI, maxnconf, maxlroots,N)
+    call mma_allocate(E, maxlroots, N)
+    call mma_allocate(U_CI, nconftot, lrootstot)
+    if (flag_so) then
+      call mma_allocate(E_SO, Nstate)
       call mma_allocate(CSF2SO, nconftot, lrootstot)
+    else
+      call mma_allocate(E_SF, Nstate)
+    endif
+    call get_dipole()
+    if (DM_basis=='CSF_SO'.or.DM_basis=='SF'.or.DM_basis=='ALL'&
+        .or.DM_basis=='CSF_SF') then
       CI=0.0d0
       ! Determine file names
       ! Expected N rassd files and 1 rassisd file
@@ -197,10 +204,16 @@ subroutine rhodyn()
       call mma_deallocate(rassd_list)
       ! construct CI transformation matrix
       call uci()
-      ! SO hamiltonian from RASSI is read
+      ! V_SOC hamiltonian from RASSI is read (in SF basis)
       call read_rassisd()
       ! construct the transformation matrix CSF2SO from SO to CSF
-      call mult(dcmplx(U_CI),SO_CI,CSF2SO)
+      if (flag_so) call mult(dcmplx(U_CI),SO_CI,CSF2SO)
+    else
+      ! this is just caution condition to make sure that CM case
+      ! was tested with given DM basis
+      write(u6,*)'WARNING!!! Take care of bases in CM case'
+        call dashes()
+        call abend()
     endif
 !  call read_rassisd()
     call get_dm0()
@@ -233,7 +246,8 @@ subroutine rhodyn()
       call hamdens()
     else
     ! charge migration case
-      hamiltonian = HSOCX
+      !hamiltonian = HSOCX ! transform Hamiltonian to SO basis
+      if (flag_so) call transform(HSOCX,SO_CI,hamiltonian)
       density0 = DM0
       dipole_basis= dipole
       U_CI_compl =dcmplx(U_CI,0d0)
@@ -242,19 +256,18 @@ subroutine rhodyn()
           dipole_basis(:,:,i) = dipole_basis(:,:,i) + alpha*dysamp_bas
         enddo
       endif
-    ! dynamics will be performed internally using matrices
-    ! of dimension d
-      if (basis=='CSF') then
-         ! call assert(nconftot==Nstate)
-        d = nconftot
-      elseif (basis=='SF'.or.basis=='SO') then
-        if (Nstate==lrootstot) then
-          d = lrootstot
-        elseif (Nstate<lrootstot) then
-          ! not all states were requested for dynamics
-          d = Nstate
-          call cut_matrices()
-        endif
+    endif
+! dynamics will be performed internally using matrices
+! of dimension d
+    if (basis=='CSF') then
+      d = nconftot
+    elseif (basis=='SF'.or.basis=='SO') then
+      if (Nstate==lrootstot) then
+        d = lrootstot
+      elseif (Nstate<lrootstot) then
+        ! not all states were requested for dynamics
+        d = Nstate
+        call cut_matrices()
       endif
     endif
 
@@ -290,6 +303,7 @@ subroutine rhodyn()
   endif
 
 ! closing and deallocation
+  call StatusLine('RhoDyn:','Close files and deallocate memory')
 
   call mh5_close_file(out_id)
 

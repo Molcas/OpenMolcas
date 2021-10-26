@@ -25,8 +25,8 @@ subroutine cut_matrices()
   complex(kind=wp), dimension(:,:), allocatable :: d1, d2, d3
 
   if (ipglob>2) then
-  call dashes()
-  write(u6,*) 'Begin cut_matrices'
+    call dashes()
+    write(u6,*) 'Begin cut_matrices'
   endif
 
   ! cut dynamics matrices
@@ -34,9 +34,9 @@ subroutine cut_matrices()
   call removeLineAndColumn(density0, istates)
   if (flag_dyson) call removeLineAndColumn(dysamp_bas,istates)
   ! cut dipole moment
-  call mma_allocate(d1,lrootstot,lrootstot)
-  call mma_allocate(d2,lrootstot,lrootstot)
-  call mma_allocate(d3,lrootstot,lrootstot)
+  allocate(d1(lrootstot,lrootstot))
+  allocate(d2(lrootstot,lrootstot))
+  allocate(d3(lrootstot,lrootstot))
   d1 = dipole_basis(:,:,1)
   d2 = dipole_basis(:,:,2)
   d3 = dipole_basis(:,:,3)
@@ -48,9 +48,9 @@ subroutine cut_matrices()
   dipole_basis(:,:,1) = d1
   dipole_basis(:,:,2) = d2
   dipole_basis(:,:,3) = d3
-  call mma_deallocate(d1)
-  call mma_deallocate(d2)
-  call mma_deallocate(d3)
+  deallocate(d1)
+  deallocate(d2)
+  deallocate(d3)
 
   ! cut transform marices
   call removeColumn(U_CI,istates)
