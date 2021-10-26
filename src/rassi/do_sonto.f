@@ -116,7 +116,7 @@ c Currently only HERMISING TDMs are dealt with here
         call GETMEM('ANTSIN','ALLO','REAL',LANTSIN,6*NBST**2)
         Call MAKETDMAO('HERMSING',WORK(LUMATR),WORK(LUMATI),
      &                        INTOSTATE,JNTOSTATE,NSS,iOpt,IDENTMAT,
-     &                        WORK(LTDMAO),NBST)
+     &                        WORK(LTDMAO))
 c Following codes are left for other types of SO-TDMs
 c        Call print_matrixt('TDM after MAKETDMAO 1',nbst,nbst**2,1,
 c     &                    WORK(LTDMAO))
