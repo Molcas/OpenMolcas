@@ -11,18 +11,20 @@
 
 subroutine FockTwo_Drv(nSym,nBas,nAux,Keep,DLT,DSQ,FLT,nFLT,ExFac,nBMX)
 
-use Data_Structures, only: DSBA_Type, Allocate_DSBA, Deallocate_DSBA
+use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
-real*8 DLT(*), DSQ(*), FLT(nFLT)
-integer nBas(8), nAux(8), Keep(8)
-logical DoCholesky, GenInt
-real*8 CMO_DUMMY(1)
-type(DSBA_Type) WFSQ
-real*8, allocatable :: W1(:), W2(:), Temp(:)
+implicit none
+integer(kind=iwp) :: nSym, nBas(8), nAux(8), Keep(8), nFLT, nBMX
+real(kind=wp) :: DLT(*), DSQ(*), FLT(nFLT), ExFac
 #include "choras.fh"
+integer(kind=iwp) :: LBUF
+real(kind=wp) :: CMO_DUMMY(1)
+logical(kind=iwp) :: DoCholesky, GenInt
+type(DSBA_Type) ::WFSQ
+real(kind=wp), allocatable :: Temp(:), W1(:), W2(:)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -71,11 +73,11 @@ if (.not. DoCholesky) then
   call mma_allocate(W1,LBUF,Label='W1')
 
   if (LBUF < 1+NBMX**2) then
-    write(6,*) ' FockTwo_Drv Error: Too little memory remains for the call to FOCKTWO.'
-    write(6,*) ' Largest allocatable array size LBUF=',LBUF
-    write(6,*) ' Max nr of bf in any symmetry,  NBMX=',NBMX
-    write(6,*) ' Required minimum size     1+NBMX**2=',1+NBMX**2
-    write(6,*) '    (All in Real*8-size words)'
+    write(u6,*) ' FockTwo_Drv Error: Too little memory remains for the call to FOCKTWO.'
+    write(u6,*) ' Largest allocatable array size LBUF=',LBUF
+    write(u6,*) ' Max nr of bf in any symmetry,  NBMX=',NBMX
+    write(u6,*) ' Required minimum size     1+NBMX**2=',1+NBMX**2
+    write(u6,*) '    (All in Real*8-size words)'
     call ABEND()
   end if
 
@@ -94,11 +96,11 @@ else if (DoCholesky .and. GenInt) then ! save some space for GenInt
   call mma_allocate(W1,LBUF,Label='W1')
 
   if (LBUF < 1+NBMX**2) then
-    write(6,*) ' FockTwo_Drv Error: Too little memory remains for the call to FOCKTWO.'
-    write(6,*) ' Largest allocatable array size LBUF=',LBUF
-    write(6,*) ' Max nr of bf in any symmetry,  NBMX=',NBMX
-    write(6,*) ' Required minimum size     1+NBMX**2=',1+NBMX**2
-    write(6,*) '    (All in Real*8-size words)'
+    write(u6,*) ' FockTwo_Drv Error: Too little memory remains for the call to FOCKTWO.'
+    write(u6,*) ' Largest allocatable array size LBUF=',LBUF
+    write(u6,*) ' Max nr of bf in any symmetry,  NBMX=',NBMX
+    write(u6,*) ' Required minimum size     1+NBMX**2=',1+NBMX**2
+    write(u6,*) '    (All in Real*8-size words)'
     call ABEND()
   end if
 

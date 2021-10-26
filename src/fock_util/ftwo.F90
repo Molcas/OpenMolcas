@@ -12,13 +12,13 @@
 !               1998, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine Ftwo(case,ExFac,iSym,kSym,iBas,kBas,off_sqMat,off_ltMat,D1I,FI,D1A,FA,PQRS)
+subroutine Ftwo(icase,ExFac,iSym,kSym,iBas,kBas,off_sqMat,off_ltMat,D1I,FI,D1A,FA,PQRS)
 !***********************************************************************
 !                                                                      *
 !     Assemble Fock matrices FI and FA (in AO-basis)                   *
 !                                                                      *
 !     calling arguments:                                               *
-!     case    : input, integer                                         *
+!     icase   : input, integer                                         *
 !               symmetry case number; (II!II)=1, (II!KK)=2, (IK!IK)=3  *
 !     ExFac   : input, real*8                                          *
 !               coefficient of "exact exchange"                        *
@@ -60,14 +60,19 @@ subroutine Ftwo(case,ExFac,iSym,kSym,iBas,kBas,off_sqMat,off_ltMat,D1I,FI,D1A,FA
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-parameter(Zero=0.0d0,Half=-0.5d0,One=1.0d0,Two=2.0d0)
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, r8
+
+implicit none
+integer(kind=iwp) :: icase, iSym, kSym, iBas, kBas, off_sqMat(*), off_ltMat(*)
+real(kind=wp) :: Exfac, D1I(*), FI(*), D1A(*), FA(*), PQRS(*)
 #include "rasdim.fh"
 #include "general.fh"
-integer case, off_sqMat, off_ltMat
-dimension off_sqMat(*), off_ltMat(*)
-dimension D1I(*), FI(*), D1A(*), FA(*), PQRS(*)
+integer(kind=iwp) :: iOff, iOff_ij, iOff_kl, jBas, k, kl, kOff, l
+real(kind=wp) :: D1A_ij, D1I_ij
+real(kind=r8), external :: dDot_
 !Statement functions
+integer(kind=iwp) :: iTri, iSqr, kSqr, i
 iTri(i) = (i*i-i)/2
 iSqr(i) = (i-1)*nBas(iSym)
 kSqr(i) = (i-1)*nBas(kSym)
@@ -80,7 +85,7 @@ kSqr(i) = (i-1)*nBas(kSym)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if (case == 1) then
+if (icase == 1) then
 
   ! Coulombic contribution
 
@@ -94,17 +99,17 @@ if (case == 1) then
   if (ExFac /= Zero) then
     iOff = off_sqMat(iSym)+iSqr(iBas)+1
     kOff = off_ltMat(kSym)+iTri(kBas)+1
-    !call DGeMX(kBas,nBas(iSym),Half*ExFac,PQRS,nBas(iSym),D1I(iOff),1,FI(kOff),1)
-    !call DGeMX(kBas,nBas(iSym),Half*ExFac,PQRS,nBas(iSym),D1A(iOff),1,FA(kOff),1)
-    call DGEMV_('N',kBas,nBas(iSym),(Half*ExFac),PQRS,nBas(iSym),D1I(iOff),1,1.0d0,FI(kOff),1)
-    call DGEMV_('N',kBas,nBas(iSym),(Half*ExFac),PQRS,nBas(iSym),D1A(iOff),1,1.0d0,FA(kOff),1)
+    !call DGeMX(kBas,nBas(iSym),-Half*ExFac,PQRS,nBas(iSym),D1I(iOff),1,FI(kOff),1)
+    !call DGeMX(kBas,nBas(iSym),-Half*ExFac,PQRS,nBas(iSym),D1A(iOff),1,FA(kOff),1)
+    call DGEMV_('N',kBas,nBas(iSym),-Half*ExFac,PQRS,nBas(iSym),D1I(iOff),1,One,FI(kOff),1)
+    call DGEMV_('N',kBas,nBas(iSym),-Half*ExFac,PQRS,nBas(iSym),D1A(iOff),1,One,FA(kOff),1)
     if (iBas /= kBas) then
       iOff = off_ltMat(iSym)+iTri(iBas)+1
       kOff = off_sqMat(kSym)+kSqr(kBas)+1
-      !call DGeMX(iBas,nBas(iSym),Half*ExFac,PQRS,nBas(iSym),D1I(kOff),1,FI(iOff),1)
-      !call DGeMX(iBas,nBas(iSym),Half*ExFac,PQRS,nBas(iSym),D1A(kOff),1,FA(iOff),1)
-      call DGEMV_('N',iBas,nBas(iSym),(Half*ExFac),PQRS,nBas(iSym),D1I(kOff),1,1.0d0,FI(iOff),1)
-      call DGEMV_('N',iBas,nBas(iSym),(Half*ExFac),PQRS,nBas(iSym),D1A(kOff),1,1.0d0,FA(iOff),1)
+      !call DGeMX(iBas,nBas(iSym),-Half*ExFac,PQRS,nBas(iSym),D1I(kOff),1,FI(iOff),1)
+      !call DGeMX(iBas,nBas(iSym),-Half*ExFac,PQRS,nBas(iSym),D1A(kOff),1,FA(iOff),1)
+      call DGEMV_('N',iBas,nBas(iSym),-Half*ExFac,PQRS,nBas(iSym),D1I(kOff),1,One,FI(iOff),1)
+      call DGEMV_('N',iBas,nBas(iSym),-Half*ExFac,PQRS,nBas(iSym),D1A(kOff),1,One,FA(iOff),1)
     end if
   end if
 end if
@@ -119,7 +124,7 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if ((case == 2) .and. (iSym > kSym)) then
+if ((icase == 2) .and. (iSym > kSym)) then
   jBas = kBas ! To avoid confusion.
   iOff_ij = off_ltMat(iSym)+iTri(iBas)+jBas
   kOff = off_sqMat(kSym)+1
@@ -151,19 +156,19 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if ((case == 3) .and. (ExFac /= Zero)) then
+if ((icase == 3) .and. (ExFac /= Zero)) then
   iOff = off_sqMat(iSym)+iSqr(iBas)+1
   kOff = off_ltMat(kSym)+iTri(kBas)+1
-  !call DGeMX(kBas,nBas(iSym),Half*ExFac,PQRS,nBas(kSym),D1I(iOff),1,FI(kOff),1)
-  !call DGeMX(kBas,nBas(iSym),Half*ExFac,PQRS,nBas(kSym),D1A(iOff),1,FA(kOff),1)
-  call DGEMV_('N',kBas,nBas(iSym),(Half*ExFac),PQRS,nBas(kSym),D1I(iOff),1,1.0d0,FI(kOff),1)
-  call DGEMV_('N',kBas,nBas(iSym),(Half*ExFac),PQRS,nBas(kSym),D1A(iOff),1,1.0d0,FA(kOff),1)
+  !call DGeMX(kBas,nBas(iSym),-Half*ExFac,PQRS,nBas(kSym),D1I(iOff),1,FI(kOff),1)
+  !call DGeMX(kBas,nBas(iSym),-Half*ExFac,PQRS,nBas(kSym),D1A(iOff),1,FA(kOff),1)
+  call DGEMV_('N',kBas,nBas(iSym),-Half*ExFac,PQRS,nBas(kSym),D1I(iOff),1,One,FI(kOff),1)
+  call DGEMV_('N',kBas,nBas(iSym),-Half*ExFac,PQRS,nBas(kSym),D1A(iOff),1,One,FA(kOff),1)
   iOff = off_ltMat(iSym)+iTri(iBas)+1
   kOff = off_sqMat(kSym)+kSqr(kBas)+1
-  !call DGeMTX(nBas(kSym),iBas,Half*ExFac,PQRS,nBas(kSym),D1I(kOff),1,FI(iOff),1)
-  !call DGeMTX(nBas(kSym),iBas,Half*ExFac,PQRS,nBas(kSym),D1A(kOff),1,FA(iOff),1)
-  call DGEMV_('T',nBas(kSym),iBas,(Half*ExFac),PQRS,nBas(kSym),D1I(kOff),1,1.0d0,FI(iOff),1)
-  call DGEMV_('T',nBas(kSym),iBas,(Half*ExFac),PQRS,nBas(kSym),D1A(kOff),1,1.0d0,FA(iOff),1)
+  !call DGeMTX(nBas(kSym),iBas,-Half*ExFac,PQRS,nBas(kSym),D1I(kOff),1,FI(iOff),1)
+  !call DGeMTX(nBas(kSym),iBas,-Half*ExFac,PQRS,nBas(kSym),D1A(kOff),1,FA(iOff),1)
+  call DGEMV_('T',nBas(kSym),iBas,-Half*ExFac,PQRS,nBas(kSym),D1I(kOff),1,One,FI(iOff),1)
+  call DGEMV_('T',nBas(kSym),iBas,-Half*ExFac,PQRS,nBas(kSym),D1A(kOff),1,One,FA(iOff),1)
 end if
 !                                                                      *
 !***********************************************************************

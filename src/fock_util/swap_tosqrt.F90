@@ -16,19 +16,21 @@ subroutine swap_tosqrt(irc,iLoc,nRS,JSYM,XLT,Xab)
 
 use ChoArr, only: iRS2F
 use Data_Structures, only: NDSBA_Type
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-integer irc, iLoc, JSYM
-type(NDSBA_Type) XLT
-real*8 Xab(nRS)
-integer, external :: cho_isao
+implicit none
+integer(kind=iwp) :: irc, iLoc, nRS, JSYM
+type(NDSBA_Type) :: XLT
+real(kind=wp) :: Xab(nRS)
 #include "cholesky.fh"
 #include "choorb.fh"
-integer i, j, MulD2h
+integer(kind=iwp) :: iag, ias, ibg, ibs, iSyma, iSymb, jRab, kRab
+integer(kind=iwp), external :: cho_isao
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 !Statement function
+integer(kind=iwp) :: MulD2h, i, j
 MulD2h(i,j) = ieor(i-1,j-1)+1
 !                                                                      *
 !***********************************************************************

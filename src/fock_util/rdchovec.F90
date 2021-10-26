@@ -35,10 +35,12 @@
 !***********************************************************************
 subroutine RdChoVec(Vec,nDim,nVec,iVec1,Lunit)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer nDim, nVec, iVec1, Lunit
-real*8 Vec(nDim,nVec)
-integer iOpt, iAdr, nTot
+integer(kind=iwp) :: nDim, nVec, iVec1, Lunit
+real(kind=wp) :: Vec(nDim,nVec)
+integer(kind=iwp) :: iOpt, iAdr, nTot
 
 iOpt = 2
 iAdr = nDim*(iVec1-1)+1

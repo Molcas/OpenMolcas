@@ -42,80 +42,75 @@ subroutine CHO_LK_CASSCF(DLT,FLT,MSQ,W_PWXY,FactXI,nFIorb,nAorb,nChM,Ash,DoActiv
 !
 !*********************************************************************
 
-#ifdef _MOLCAS_MPP_
-use Para_Info, only: nProcs, Is_Real_Par
-#endif
 use ChoArr, only: nBasSh, nDimRS
-use ChoSwp, only: nnBstRSh, InfVec, IndRed
-use Data_Structures, only: SBA_Type, Allocate_SBA, Deallocate_SBA
-use Data_Structures, only: DSBA_Type, Allocate_DSBA, Deallocate_DSBA
-use Data_Structures, only: twxy_Type
-use Data_Structures, only: Allocate_twxy, Deallocate_twxy
-use Data_Structures, only: NDSBA_Type, Allocate_NDSBA, Deallocate_NDSBA
-use Data_Structures, only: Allocate_L_Full, Deallocate_L_Full
-use Data_Structures, only: L_Full_Type
-use Data_Structures, only: Allocate_Lab, Deallocate_Lab, Lab_Type
-
-implicit real*8(a-h,o-z)
-real*8 W_PWXY(*)
-integer kOff(8,2), nnA(8,8)
-real*8 tread(2), tcoul(2), texch(2), tintg(2)
-real*8 tmotr(2), tscrn(2)
-type(DSBA_Type) MSQ, CMO
-type(DSBA_Type) FLT(2), DLT(2), Ash(2)
-type(SBA_Type) Laq(1), Lxy
-type(twxy_Type) Scr
-type(NDSBA_Type) DIAH
-type(L_Full_Type) L_Full
-type(Lab_Type) Lab
-integer nFIorb(8), nAorb(8), nChM(8)
-#ifdef _DEBUGPRINT_
-logical Debug
+use ChoSwp, only: IndRed, InfVec, nnBstRSh
+use Data_Structures, only: Allocate_DSBA, Allocate_L_Full, Allocate_Lab, Allocate_NDSBA, Allocate_SBA, Allocate_twxy, &
+                           Deallocate_DSBA, Deallocate_L_Full, Deallocate_Lab, Deallocate_NDSBA, Deallocate_SBA, Deallocate_twxy, &
+                           DSBA_Type, L_Full_Type, Lab_Type, NDSBA_Type, SBA_Type, twxy_Type
+#ifdef _MOLCAS_MPP_
+use Para_Info, only: Is_Real_Par, nProcs
 #endif
-logical DoTraInt, DoActive, DoScreen
-real*8 FactC(2), FactX(2), tau(2), xtau(2), thrv(2)
-real*8 dmpK, dFmat, ExFac
-character*50 CFmt
-character(LEN=13), parameter :: SECNAM = 'CHO_LK_CASSCF'
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6, r8
+
+implicit none
+type(DSBA_Type) :: DLT(2), FLT(2), MSQ, Ash(2), CMO
+real(kind=wp) :: W_PWXY(*), FactXI, dmpk, dFmat, ExFac
+integer(kind=iwp) :: nFIorb(8), nAorb(8), nChM(8), nScreen
+logical(kind=iwp) :: DoActive
 #include "chotime.fh"
 #include "choscreen.fh"
-logical, parameter :: DoRead = .false.
-#include "real.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "stdalloc.fh"
-real*8, parameter :: xone = -one
-type(DSBA_Type) :: KLT(2)
-logical add
-character(LEN=6) mode
-real*8 LKThr
-real*8, external :: Cho_LK_ScreeningThreshold
-integer, external :: Cho_LK_MaxVecPerBatch
-real*8, allocatable :: Lrs(:,:), Drs(:,:), Frs(:,:)
-real*8, allocatable :: VJ(:)
-integer, allocatable :: nnBfShp(:,:), kOffSh(:,:), iShp_rs(:), Indx(:,:)
-real*8, allocatable :: SvShp(:,:), Diag(:), AbsC(:), SumAClk(:,:), Ylk(:,:), MLk(:,:), Faa(:), Fia(:)
-#ifdef _MOLCAS_MPP_
-real*8, allocatable :: DiagJ(:)
+integer(kind=iwp) :: ia, iab, iag, iaSh, iaSkip, ib, iBatch, ibcount, ibg, ibs, ibSh, ibSkip, iCase, iE, ik, iLoc, iml, Inc, &
+                     ioffa, iOffAB,ioffb, iOffShb, irc, ired1, IREDC, iS, ish, iShp, iSwap, ISYM, iSyma, iSymb, iSymv, iTmp, &
+                     IVEC2, iVrs, jDen, jK, jK_a, jml, jmlmax, JNUM, JRED, JRED1, JRED2, jrs, jSym, jvc, JVEC, k, kMOs, kOff(8,2), &
+                     krs, kscreen, kSym, l, l1, LFMAX, LFULL, LKsh, LKshp, LREAD, lSh, lSym, LWORK, MaxB, MaxRedT, MaxVecPerBatch, &
+                     mDen, mrs, mSh, mTvec, mTvec1, mTvec2, MUSED, MxB, MxBasSh, myJRED2, n1, n2, nAt, NAv, NAw, nBatch, nBs, &
+                     nBsa, nBsb, nDen, nIt, nkOrb, nMOs, nnA(8,8), nnO, nRS, NumCV, numSh, NUMV, NumVT, nVec, nVrs
+real(kind=wp) :: Fact, FactC(2), FactX(2), fcorr, LKThr, SKsh, tau(2), TCC1, TCC2, TCINT1, TCINT2, tcoul(2), TCR1, TCR2, TCS1, &
+                 TCS2, TCT1, TCT2, TCX1, TCX2, texch(2), thrv(2), tintg(2), tmotr(2), Tmp, tread(2), TOTCPU, TOTCPU1, TOTCPU2, &
+                 TOTWALL, TOTWALL1, TOTWALL2, tscrn(2), TWC1, TWC2, TWINT1, TWINT2, TWR1, TWR2, TWS1, TWS2, TWT1, TWT2, TWX1, &
+                 TWX2, xFab, xtau(2), xTmp, YMax, YshMax
+logical(kind=iwp) :: add, DoScreen, DoTraInt
+#ifdef _DEBUGPRINT_
+logical(kind=iwp) :: Debug
 #endif
+type(DSBA_Type) :: KLT(2)
+type(SBA_Type) :: Laq(1), Lxy
+type(twxy_Type) :: Scr
+type(NDSBA_Type) :: DIAH
+type(L_Full_Type) :: L_Full
+type(Lab_Type) :: Lab
+character(len=50) :: CFmt
+character(len=6) mode
+integer(kind=iwp), allocatable :: Indx(:,:), iShp_rs(:), kOffSh(:,:), nnBfShp(:,:)
+real(kind=wp), allocatable :: AbsC(:), Diag(:), Drs(:,:), Faa(:), Fia(:), Frs(:,:), Lrs(:,:), MLk(:,:), SumAClk(:,:), SvShp(:,:), &
+                              VJ(:), Ylk(:,:)
+#ifdef _MOLCAS_MPP_
+integer(kind=iwp) :: myJRED1, NNBSTMX, ntv0
+real(kind=wp), allocatable :: DiagJ(:)
+#endif
+logical(kind=iwp), parameter :: DoRead = .false.
+character(len=*), parameter :: SECNAM = 'CHO_LK_CASSCF'
+real(kind=wp), external :: Cho_LK_ScreeningThreshold
+real(kind=r8), external :: ddot_
+integer(kind=iwp), external :: Cho_LK_MaxVecPerBatch
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 interface
-
   subroutine Cho_X_getVtra(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,iSwap,IREDC,nDen,kDen,MOs,ChoT,DoRead)
     use Data_Structures, only: DSBA_Type, SBA_Type
     integer irc, lRedVec
     real*8 RedVec(lRedVec)
     integer IVEC1, NUMV, ISYM, iSwap, IREDC
     integer nDen, kDen
-
     type(DSBA_Type) MOs(nDen)
     type(SBA_Type) Chot(nDen)
-
     logical DoRead
   end subroutine Cho_X_getVtra
-
   subroutine dgemv_(TRANS,M,N,ALPHA,A,LDA,X,INCX,BETA,Y,INCY)
     character(LEN=1) TRANS
     integer M, N
@@ -123,10 +118,10 @@ interface
     integer LDA, INCX, INCY
     real*8 A(lda,*), X(*), Y(*)
   end subroutine dgemv_
-
 end interface
 !***********************************************************************
 !Statement functions
+integer(kind=iwp) :: MulD2h, iTri, i, j
 MulD2h(i,j) = ieor(i-1,j-1)+1
 iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 !                                                                      *
@@ -141,7 +136,7 @@ DoTraInt = .false.
 IREDC = -1 ! unknown reduced set in core
 
 FactC(:) = [one,one]
-FactX(:) = [FactXI*ExFac,-0.5d0*ExFac]
+FactX(:) = [FactXI*ExFac,-Half*ExFac]
 
 nDen = 2 ! inactive and active density, respectively
 
@@ -203,10 +198,10 @@ LKThr = Cho_LK_ScreeningThreshold(dFmat)
 !tbp, may 2013: adjustment moved to Cho_LK_ScreeningThreshold
 fcorr = dmpK
 !tbp if (dFmat > zero) then
-!tbp   if (dFmat < 1.0d3*LKThr) then
-!tbp     fcorr = dmpk*1.0d-2
+!tbp   if (dFmat < 1.0e3_wp*LKThr) then
+!tbp     fcorr = dmpk*1.0e-2_wp
 !tbp   end if
-!tbp   if (dFmat <= LKThr) fcorr = fcorr*1.0d-2
+!tbp   if (dFmat <= LKThr) fcorr = fcorr*1.0e-2_wp
 !tbp end if
 
 tau(1) = (LKThr/max(1,nIt))*fcorr ! Inactive fock matrix screening
@@ -438,14 +433,14 @@ do jSym=1,nSym
     if (nVrs == 0) goto 999 ! no vectors in that (jred,jsym)
 
     if (nVrs < 0) then
-      write(6,*) SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
+      write(u6,*) SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
       call Abend()
     end if
 
     call Cho_X_SetRed(irc,iLoc,JRED)
     ! set index arrays at iLoc
     if (irc /= 0) then
-      write(6,*) SECNAM//'cho_X_setred non-zero rc = ',irc
+      write(u6,*) SECNAM//'cho_X_setred non-zero rc = ',irc
       call Abend()
     end if
 
@@ -465,13 +460,13 @@ do jSym=1,nSym
     nVec = min(LWORK/(nRS+mTvec+LFMAX),min(nVrs,MaxVecPerBatch))
 
     if (nVec < 1) then
-      write(6,*) SECNAM//': Insufficient memory for batch'
-      write(6,*) 'LWORK= ',LWORK
-      write(6,*) 'min. mem. need= ',nRS+mTvec+LFMAX
-      write(6,*) 'jsym= ',jsym
-      write(6,*) ' nRS = ',nRS
-      write(6,*) ' mTvec = ',mTvec
-      write(6,*) ' LFMAX = ',LFMAX
+      write(u6,*) SECNAM//': Insufficient memory for batch'
+      write(u6,*) 'LWORK= ',LWORK
+      write(u6,*) 'min. mem. need= ',nRS+mTvec+LFMAX
+      write(u6,*) 'jsym= ',jsym
+      write(u6,*) ' nRS = ',nRS
+      write(u6,*) ' mTvec = ',mTvec
+      write(u6,*) ' LFMAX = ',LFMAX
       call Abend()
       nBatch = -9999 ! dummy assignment
     end if
@@ -520,7 +515,7 @@ do jSym=1,nSym
 
         call mma_allocate(VJ,JNUM,Label='VJ')
 
-        Fact = dble(min(jVec-iVrs,1))
+        Fact = real(min(jVec-iVrs,1),kind=wp)
 
         do jDen=1,nDen
           ! ************ COULOMB CONTRIBUTIONS  *********************
@@ -1140,7 +1135,7 @@ do jSym=1,nSym
 #   ifdef _MOLCAS_MPP_
     if ((nProcs > 1) .and. Update .and. DoScreen .and. Is_Real_Par()) then
       call GaDsum(DiagJ,nnBSTR(JSYM,1))
-      call Daxpy_(nnBSTR(JSYM,1),xone,DiagJ,1,Diag(1+iiBstR(JSYM,1)),1)
+      call Daxpy_(nnBSTR(JSYM,1),-One,DiagJ,1,Diag(1+iiBstR(JSYM,1)),1)
       call Fzero(DiagJ,nnBSTR(JSYM,1))
     end if
     ! Need to activate the screening to setup the contributing shell
@@ -1250,24 +1245,24 @@ TOTWALL = TOTWALL2-TOTWALL1
 if (timings) then
 
   CFmt = '(2x,A)'
-  write(6,*)
-  write(6,CFmt) 'Cholesky RASSCF timing from '//SECNAM
-  write(6,CFmt) '----------------------------------------'
-  write(6,*)
-  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(6,CFmt) 'Fock matrix construction        CPU       WALL   '
-  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,*)
+  write(u6,CFmt) 'Cholesky RASSCF timing from '//SECNAM
+  write(u6,CFmt) '----------------------------------------'
+  write(u6,*)
+  write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,CFmt) 'Fock matrix construction        CPU       WALL   '
+  write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
 
-  write(6,'(2x,A26,2f10.2)') 'READ VECTORS                              ',tread(1),tread(2)
-  write(6,'(2x,A26,2f10.2)') 'COULOMB                                   ',tcoul(1),tcoul(2)
-  write(6,'(2x,A26,2f10.2)') 'SCREENING OVERHEAD                        ',tscrn(1),tscrn(2)
-  write(6,'(2x,A26,2f10.2)') 'MO HALF-TRANSFORM VECTORS                 ',tmotr(1),tmotr(2)
-  write(6,'(2x,A26,2f10.2)') 'EXCHANGE                                  ',texch(1),texch(2)
-  write(6,'(2x,A26,2f10.2)') '(PU|VX) INTEGRALS                         ',tintg(1),tintg(2)
-  write(6,*)
-  write(6,'(2x,A26,2f10.2)') 'TOTAL                                     ',TOTCPU,TOTWALL
-  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(6,*)
+  write(u6,'(2x,A26,2f10.2)') 'READ VECTORS                              ',tread(1),tread(2)
+  write(u6,'(2x,A26,2f10.2)') 'COULOMB                                   ',tcoul(1),tcoul(2)
+  write(u6,'(2x,A26,2f10.2)') 'SCREENING OVERHEAD                        ',tscrn(1),tscrn(2)
+  write(u6,'(2x,A26,2f10.2)') 'MO HALF-TRANSFORM VECTORS                 ',tmotr(1),tmotr(2)
+  write(u6,'(2x,A26,2f10.2)') 'EXCHANGE                                  ',texch(1),texch(2)
+  write(u6,'(2x,A26,2f10.2)') '(PU|VX) INTEGRALS                         ',tintg(1),tintg(2)
+  write(u6,*)
+  write(u6,'(2x,A26,2f10.2)') 'TOTAL                                     ',TOTCPU,TOTWALL
+  write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,*)
 
 end if
 
@@ -1275,23 +1270,23 @@ end if
 #ifdef _DEBUGPRINT_
 if (Debug) then ! to avoid double printing in CASSCF-debug
 
-  write(6,'(6X,A)') 'TEST PRINT FROM '//SECNAM
-  write(6,'(6X,A)')
-  write(6,'(6X,A)') '***** INACTIVE FOCK MATRIX ***** '
+  write(u6,'(6X,A)') 'TEST PRINT FROM '//SECNAM
+  write(u6,'(6X,A)')
+  write(u6,'(6X,A)') '***** INACTIVE FOCK MATRIX ***** '
   do ISYM=1,NSYM
     if (NBAS(ISYM) > 0) then
-      write(6,'(6X,A)')
-      write(6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
+      write(u6,'(6X,A)')
+      write(u6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
       call TRIPRT('','',FLT(1)%SB(ISYM)%A1,NBAS(ISYM))
     end if
   end do
   if (DoActive) then
-    write(6,'(6X,A)')
-    write(6,'(6X,A)') '***** ACTIVE FOCK MATRIX ***** '
+    write(u6,'(6X,A)')
+    write(u6,'(6X,A)') '***** ACTIVE FOCK MATRIX ***** '
     do ISYM=1,NSYM
       if (NBAS(ISYM) > 0) then
-        write(6,'(6X,A)')
-        write(6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
+        write(u6,'(6X,A)')
+        write(u6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
         call TRIPRT('','',FLT(2)%SB(ISYM)%A2,NBAS(ISYM))
       end if
     end do

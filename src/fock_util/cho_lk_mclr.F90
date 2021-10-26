@@ -11,7 +11,7 @@
 ! Copyright (C) Mickael G. Delcey                                      *
 !***********************************************************************
 
-subroutine CHO_LK_MCLR(DLT,DI,DA,G2,Kappa,JI,KI,JA,KA,FkI,FkA,MO_Int,QVec,Ash,CMO,CMO_inv,nOrb,nAsh,nIsh,doAct,Fake_CMO2, &
+subroutine CHO_LK_MCLR(DLT,DI,DA,G2,Kappa,JI,KI,JA,KA,FkI,FkA,MO_Int,QVec,Ash,CMO,CMO_Inv,nOrb,nAsh,nIsh,DoAct,Fake_CMO2, &
                        LuAChoVec,LuIChoVec,iAChoVec)
 !*********************************************************************
 !  Author : M. G. Delcey based on cho_LK_rassi_x
@@ -33,64 +33,67 @@ subroutine CHO_LK_MCLR(DLT,DI,DA,G2,Kappa,JI,KI,JA,KA,FkI,FkA,MO_Int,QVec,Ash,CM
 !*********************************************************************
 
 use ChoArr, only: nBasSh, nDimRS
-use ChoSwp, only: nnBstRSh, InfVec, IndRed
-use Data_Structures, only: DSBA_Type, Allocate_DSBA, Deallocate_DSBA
-use Data_Structures, only: SBA_Type
-use Data_Structures, only: Allocate_SBA, Deallocate_SBA
-use Data_Structures, only: NDSBA_Type, Allocate_NDSBA, Deallocate_NDSBA
-use Data_Structures, only: G2_Type, Allocate_G2, Deallocate_G2
-use Data_Structures, only: Allocate_L_Full, Deallocate_L_Full, L_Full_Type
-use Data_Structures, only: Allocate_Lab, Deallocate_Lab, Lab_Type
+use ChoSwp, only: IndRed, InfVec, nnBstRSh
+use Data_Structures, only: Allocate_DSBA, Allocate_G2, Allocate_L_Full, Allocate_Lab, Allocate_NDSBA, Allocate_SBA, &
+                           Deallocate_DSBA, Deallocate_G2, Deallocate_L_Full, Deallocate_Lab, Deallocate_NDSBA, Deallocate_SBA, &
+                           DSBA_Type, G2_Type, L_Full_Type, Lab_Type, NDSBA_Type, SBA_Type
 #ifdef _MOLCAS_MPP_
-use Para_Info, only: nProcs, Is_Real_Par
+use Para_Info, only: Is_Real_Par, nProcs
 #endif
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, u6, r8
 
-implicit real*8(a-h,o-z)
+implicit none
+type(DSBA_Type) :: DLT, DI, DA, Kappa, JI, KI, JA, KA, FkI, FkA, QVec, Ash(2), CMO, CMO_Inv
+real(kind=wp) :: G2(*), MO_Int(*)
+integer(kind=iwp) :: nOrb(8), nAsh(8), nIsh(8), LuAChoVec(8), LuIChoVec(8), iAChoVec
+logical(kind=iwp) :: DoAct, Fake_CMO2
 #include "warnings.h"
-real*8 G2(*), MO_Int(*)
-integer kOff(8), kaOff(8)
-integer iASQ(8,8,8)
-integer LuAChoVec(8), LuIChoVec(8)
-real*8 tread(2), tcoul(2), texch(2), tintg(2), tact(2)
-real*8 tint1(2), tint2(2), tint3(2), tQmat(2)
-real*8 tmotr(2), tscrn(2)
-integer nChMo(8)
-type(DSBA_Type) DLT, DI, DA, Kappa, JI, KI, JA, KA, FkI, FkA, QVec, Ash(2), CMO, CMO_Inv, Tmp(2), QTmp(2), CM(2)
-type(DSBA_Type) JALT
-type(SBA_Type) Lpq(3)
-type(NDSBA_Type) DiaH
-type(G2_Type) MOScr
-type(L_Full_Type) L_Full
-type(Lab_Type) Lab
-#ifdef _DEBUGPRINT_
-logical Debug
-#endif
-logical timings, DoScreen, add
-real*8 thrv(2), xtau(2), norm
-character*50 CFmt
-character(LEN=14), parameter :: SECNAM = 'CHO_LK_MCLR'
 #include "chomclr.fh"
-#include "real.fh"
-logical Fake_CMO2, DoAct, ReadInter
-save nVec_
 #include "cholesky.fh"
-integer nOrb(8), nAsh(8), nIsh(8)
-logical, parameter :: DoRead = .false.
-real*8, parameter :: FactCI = -Two, FactXI = Half, xone = -One
 #include "choorb.fh"
-#include "stdalloc.fh"
-real*8 LKThr
-character*6 mode
-integer, external :: Cho_LK_MaxVecPerBatch
-real*8, external :: Cho_LK_ScreeningThreshold
-real*8, allocatable :: Lrs(:,:), VJ(:), Drs(:), Frs(:,:)
-integer, allocatable :: nnBfShp(:,:), kOffSh(:,:), iShp_rs(:), Indx(:,:,:)
-real*8, allocatable :: SvShp(:,:), Diag(:), AbsC(:), SumAClk(:,:,:), Ylk(:,:,:), MLk(:,:,:), Faa(:), Fia(:)
-#ifdef _MOLCAS_MPP_
-real*8, allocatable :: DiagJ(:)
+integer(kind=iwp) :: ia, iab, iabg, iAdr, iAdr2, iag, iaSh, iaSkip, iASQ(8,8,8), ib, iBatch, ibcount, ibg, ibs, ibSh, ibSkip, &
+                     iCase, iE, iij, ijS, ijsym, ik, ikl, iLoc, iml, Inc, ioff, ioffa, iOffAB, ioffb, iOffShb, ipG, irc, ired1, &
+                     IREDC, iS, ish, iShp, iSwap, ISYM, iSyma, iSymb, iSymv, isymx, iSymy, iTmp, IVEC2, iVrs, jab, jAsh, jaSkip, &
+                     jDen, jK, jK_a, jml, jmlmax, JNUM, jOffAB, JRED, JRED1, JRED2, jrs, jS, jsym, jvc, JVEC, k, kaOff(8), kAsh, &
+                     kDen, kMOs, kOff(8), krs, kS, kscreen, kSym, l, l1, lAsh, LFMAX, LFULL, LKsh, LKshp, LREAD, ls, lSh, lSym, &
+                     lvec, LWORK, MaxAct, MaxB, MaxRedT, MaxVecPerBatch, Mmax, mrs, mSh, mTvec, mTvec1, MUSED, MxB, MxBasSh, &
+                     n1, n2, nA2, NAv, NAw, Nax, Nay, nBatch, nBsa, nChMo(8), nDen, nMat, nMOs, nnA, nnO, nnShl_2, nRS, NumCV, &
+                     numSh1, numSh2, NUMV, NumVT, nVec, nVrs
+integer(kind=iwp), save :: nVec_
+real(kind=wp) :: Fac1, Fac2, Fact, LKThr, norm, SKsh, tact(2), tau, TCC1, TCC2, TCINT1, TCINT2, TCINT3, TCINT4, tcoul(2), TCR1, &
+                 TCR2, TCS1, TCS2, TCT1, TCT2, TCX1, TCX2, Temp, texch(2), thrv(2), tint1(2), tint2(2), tint3(2), tintg(2), &
+                 tmotr(2), TOTCPU, TOTCPU1, TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, tQmat(2), tread(2), tscrn(2), TWC1, TWC2, &
+                 TWINT1, TWINT2, TWINT3, TWINT4, TWR1, TWR2, TWS1, TWS2, TWT1, TWT2, TWX1, TWX2, xFab, xtau(2), xTmp, YMax, YshMax
+logical(kind=iwp) :: add, DoScreen, ReadInter, timings
+#ifdef _DEBUGPRINT_
+logical(kind=iwp) :: Debug
 #endif
+character(len=50) CFmt
+character(len=6) :: mode
+type(DSBA_Type) :: CM(2), JALT, QTmp(2), Tmp(2)
+type(SBA_Type) :: Lpq(3)
+type(NDSBA_Type) :: DiaH
+type(G2_Type) :: MOScr
+type(L_Full_Type) :: L_Full
+type(Lab_Type) :: Lab
+integer(kind=iwp), allocatable :: Indx(:,:,:), iShp_rs(:), kOffSh(:,:), nnBfShp(:,:)
+real(kind=wp), allocatable :: AbsC(:), Diag(:), Drs(:), Faa(:), Fia(:), Frs(:,:), Lrs(:,:), MLk(:,:,:), SumAClk(:,:,:), &
+                              SvShp(:,:), VJ(:), Ylk(:,:,:)
+#ifdef _MOLCAS_MPP_
+integer(kind=iwp) :: myJRED1, NNBSTMX, ntv0
+real(kind=wp), allocatable :: DiagJ(:)
+#endif
+real(kind=wp), parameter :: FactCI = -Two, FactXI = Half
+logical(kind=iwp), parameter :: DoRead = .false.
+character(len=*), parameter :: SECNAM = 'CHO_LK_MCLR'
+integer(kind=iwp), external :: Cho_LK_MaxVecPerBatch
+real(kind=wp), external :: Cho_LK_ScreeningThreshold
+real(kind=r8), external :: ddot_
 !***********************************************************************
 !Statement functions
+integer(kind=iwp) :: MulD2h, iTri, i, j
 MulD2h(i,j) = ieor(i-1,j-1)+1
 iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 !***********************************************************************
@@ -185,31 +188,31 @@ if (Deco) then
 
     !* Create Cholesky orbitals from DI
 
-    call CD_InCore(DI%SB(iS)%A2,nBas(iS),CM(1)%SB(iS)%A2,nBas(iS),nChMO(iS),1.0d-12,irc)
+    call CD_InCore(DI%SB(iS)%A2,nBas(iS),CM(1)%SB(iS)%A2,nBas(iS),nChMO(iS),1.0e-12_wp,irc)
     if (.not. Fake_CMO2) then
 
       !* MO transform
 
 
-      call DGEMM_('T','T',nChMO(iS),nBas(iS),nBas(iS),1.0d0,CM(1)%SB(iS)%A2,nBas(iS),CMO_inv%SB(iS)%A2,nBas(iS),0.0d0, &
+      call DGEMM_('T','T',nChMO(iS),nBas(iS),nBas(iS),One,CM(1)%SB(iS)%A2,nBas(iS),CMO_inv%SB(iS)%A2,nBas(iS),Zero, &
                   Tmp(2)%SB(iS)%A2,nChMO(iS))
 
       !* Create one-index transformed Cholesky orbitals
 
-      call DGEMM_('N','N',nChMO(iS),nBas(iS),nBas(iS),1.0d0,Tmp(2)%SB(iS)%A2,nChMO(iS),Kappa%SB(is)%A2,nBas(iS),0.0d0, &
+      call DGEMM_('N','N',nChMO(iS),nBas(iS),nBas(iS),One,Tmp(2)%SB(iS)%A2,nChMO(iS),Kappa%SB(is)%A2,nBas(iS),Zero, &
                   Tmp(1)%SB(iS)%A2,nChMO(iS))
 
       !* AO transform
 
-      call DGEMM_('N','T',nBas(iS),nChMO(iS),nBas(iS),1.0d0,CMO%SB(iS)%A2,nBas(iS),Tmp(1)%SB(iS)%A2,nChMO(iS),0.0d0, &
-                  CM(2)%SB(iS)%A2,nBas(iS))
+      call DGEMM_('N','T',nBas(iS),nChMO(iS),nBas(iS),One,CMO%SB(iS)%A2,nBas(iS),Tmp(1)%SB(iS)%A2,nChMO(iS),Zero,CM(2)%SB(iS)%A2, &
+                  nBas(iS))
     end if
   end do
   call Deallocate_DSBA(Tmp(2))
   call Deallocate_DSBA(Tmp(1))
 else
 
-  write(6,*) 'Cho_LK_MCLR: this will not work'
+  write(u6,*) 'Cho_LK_MCLR: this will not work'
   call Abend()
 
 end if
@@ -222,9 +225,9 @@ MaxVecPerBatch = Cho_LK_MaxVecPerBatch()
 
 ! Define the screening threshold
 
-LKThr = Cho_LK_ScreeningThreshold(-1.0d0)
-dmpk = 1.0d-2
-!dmpk = 0.0d0
+LKThr = Cho_LK_ScreeningThreshold(-One)
+dmpk = 1.0e-2_wp
+!dmpk = Zero
 
 ! Vector MO transformation screening thresholds
 NumVT = NumChT
@@ -236,7 +239,7 @@ xtau(2) = xtau(1) ! dummy init
 if (.not. Fake_CMO2) then
   norm = sqrt(ddot_(size(Kappa%A0),Kappa%A0,1,Kappa%A0,1))
   xtau(2) = sqrt((LKThr/max(1,nnO))*dmpk)*norm
-  dmpk = min(norm,1.0d-2)
+  dmpk = min(norm,1.0e-2_wp)
   thrv(2) = (LKThr/(max(1,nnO)*NumVT))*dmpk**2
 end if
 tau = (LKThr/max(1,nnO))*dmpk
@@ -245,8 +248,8 @@ MaxRedT = MaxRed
 call GAIGOP_SCAL(MaxRedT,'+')
 
 if (Estimate) then
-  xtau(1) = xtau(1)/sqrt(1.0d0*MaxRedT)
-  if (.not. Fake_CMO2) xtau(2) = xtau(2)/sqrt(1.0d0*MaxRedT)
+  xtau(1) = xtau(1)/sqrt(real(MaxRedT,kind=wp))
+  if (.not. Fake_CMO2) xtau(2) = xtau(2)/sqrt(real(MaxRedT,kind=wp))
   tau = tau/MaxRedT
 end if
 
@@ -434,14 +437,14 @@ do jSym=1,nSym
     if (nVrs == 0) goto 999 ! no vectors in that (jred,jsym)
 
     if (nVrs < 0) then
-      write(6,*) SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!',nVrs
+      write(u6,*) SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!',nVrs
       call Abend()
     end if
 
     call Cho_X_SetRed(irc,iLoc,JRED)
     ! set index arrays at iLoc
     if (irc /= 0) then
-      write(6,*) SECNAM//'cho_X_setred non-zero return code. rc= ',irc
+      write(u6,*) SECNAM//'cho_X_setred non-zero return code. rc= ',irc
       call Abend()
     end if
 
@@ -469,17 +472,17 @@ do jSym=1,nSym
     ! Store nVec to make sure the routine always uses the same
     if (iAChoVec == 1) nVec_ = nVec
     ReadInter = (iAChoVec == 2) .and. (nVec == nVec_)
-    ! nVec.ne.nVec_ should happen only if lack of memory
+    ! nVec /= nVec_ should happen only if lack of memory
     !ReadInter = .false.
 
     if (nVec < 1) then
-      write(6,*) SECNAM//': Insufficient memory for batch'
-      write(6,*) 'LWORK= ',LWORK
-      write(6,*) 'min. mem. need= ',nRS+mTvec+LFMAX
-      write(6,*) 'nRS= ',nRS
-      write(6,*) 'mTvec= ',mTvec
-      write(6,*) 'LFMAX= ',LFMAX
-      write(6,*) 'jsym= ',jsym
+      write(u6,*) SECNAM//': Insufficient memory for batch'
+      write(u6,*) 'LWORK= ',LWORK
+      write(u6,*) 'min. mem. need= ',nRS+mTvec+LFMAX
+      write(u6,*) 'nRS= ',nRS
+      write(u6,*) 'mTvec= ',mTvec
+      write(u6,*) 'LFMAX= ',LFMAX
+      write(u6,*) 'jsym= ',jsym
       call Quit(_RC_MEMORY_ERROR_)
       nBatch = -9999 ! dummy assignment
     end if
@@ -540,7 +543,7 @@ do jSym=1,nSym
         ! FI(rs){#J} <- FI(rs){#J} + FactCI * sum_J L(rs,{#J})*V{#J}
         !===========================================================
 
-        Fact = dble(min(jVec-iVrs,1))
+        Fact = real(min(jVec-iVrs,1),kind=wp)
 
         call DGEMV_('N',nRS,JNUM,FactCI,Lrs,nRS,VJ,1,Fact,Frs(:,1),1)
 
@@ -703,7 +706,7 @@ do jSym=1,nSym
               Indx(jmlmax,jk_a,1) = iTmp
             end if
 
-            ! **** Sort the list for the MO set 2   iff  MOs1.ne.MOs2
+            ! **** Sort the list for the MO set 2   iff  MOs1 /= MOs2
             if (.not. Fake_CMO2) then
               numSh2 = 0 ! # of significant shells in MO set 2
               jml = 1
@@ -1250,7 +1253,7 @@ do jSym=1,nSym
             end if
           end do
 
-          call DGEMV_('N',nRS,JNUM,-FactCI,Lrs,nRS,VJ,1,1.0d0,Frs(:,2),1)
+          call DGEMV_('N',nRS,JNUM,-FactCI,Lrs,nRS,VJ,1,One,Frs(:,2),1)
 
           call mma_deallocate(VJ)
 
@@ -1420,7 +1423,7 @@ do jSym=1,nSym
 #   ifdef _MOLCAS_MPP_
     if ((nProcs > 1) .and. Update .and. DoScreen .and. Is_Real_Par()) then
       call GaDsum(DiagJ,nnBSTR(JSYM,1))
-      call Daxpy_(nnBSTR(JSYM,1),xone,DiagJ,1,Diag(1+iiBstR(JSYM,1)),1)
+      call Daxpy_(nnBSTR(JSYM,1),-One,DiagJ,1,Diag(1+iiBstR(JSYM,1)),1)
       call Fzero(DiagJ,nnBSTR(JSYM,1))
     end if
     ! Need to activate the screening to setup the contributing shell
@@ -1497,15 +1500,15 @@ if (DoAct) then
         do iAsh=1,nAsh(is)
           do jAsh=1,nAsh(js)
             iij = itri(iAsh+kAOff(is),jAsh+kAOff(jS))
-            Fac1 = 1.0d0
-            if (iAsh+kAOff(is) == jAsh+kAoff(jS)) Fac1 = 2.0d0
+            Fac1 = One
+            if (iAsh+kAOff(is) == jAsh+kAoff(jS)) Fac1 = Two
 
             do kAsh=1,nAsh(ks)
               do lAsh=1,nAsh(ls)
                 ikl = itri(lAsh+kAOff(lS),kAsh+kAOff(kS))
-                Fac2 = 1.0d0
-                if (lAsh+kAOff(lS) == kAsh+kAOff(kS)) Fac2 = 2.0d0
-                if (iij /= ikl) Fac2 = Fac2*0.5d0
+                Fac2 = One
+                if (lAsh+kAOff(lS) == kAsh+kAOff(kS)) Fac2 = Two
+                if (iij /= ikl) Fac2 = Fac2*Half
 
                 ipG = itri(iij,ikl)
 
@@ -1526,23 +1529,21 @@ do iS=1,nSym
   jS = iS
   if (nBas(iS) /= 0) then
     if (DoAct) then
-      call DGEMM_('T','N',nBas(jS),nBas(iS),nBas(iS),1.0d0,FkA%SB(iS)%A2,nBas(iS),CMO%SB(iS)%A2,nBas(iS),0.0d0,JA%SB(iS)%A2, &
-                  nBas(jS))
-      call DGEMM_('T','N',nBas(jS),nBas(jS),nBas(iS),1.0d0,JA%SB(iS)%A2,nBas(iS),CMO%SB(jS)%A2,nBas(jS),0.0d0,FkA%SB(iS)%A2, &
-                  nBas(jS))
+      call DGEMM_('T','N',nBas(jS),nBas(iS),nBas(iS),One,FkA%SB(iS)%A2,nBas(iS),CMO%SB(iS)%A2,nBas(iS),Zero,JA%SB(iS)%A2,nBas(jS))
+      call DGEMM_('T','N',nBas(jS),nBas(jS),nBas(iS),One,JA%SB(iS)%A2,nBas(iS),CMO%SB(jS)%A2,nBas(jS),Zero,FkA%SB(iS)%A2,nBas(jS))
     end if
-    call DGEMM_('T','N',nBas(jS),nBas(iS),nBas(iS),1.0d0,FkI%SB(iS)%A2,nBas(iS),CMO%SB(iS)%A2,nBas(iS),0.0d0,JA%SB(iS)%A2,nBas(jS))
-    call DGEMM_('T','N',nBas(jS),nBas(jS),nBas(iS),1.0d0,JA%SB(iS)%A2,nBas(iS),CMO%SB(jS)%A2,nBas(jS),0.0d0,FkI%SB(iS)%A2,nBas(jS))
+    call DGEMM_('T','N',nBas(jS),nBas(iS),nBas(iS),One,FkI%SB(iS)%A2,nBas(iS),CMO%SB(iS)%A2,nBas(iS),Zero,JA%SB(iS)%A2,nBas(jS))
+    call DGEMM_('T','N',nBas(jS),nBas(jS),nBas(iS),One,JA%SB(iS)%A2,nBas(iS),CMO%SB(jS)%A2,nBas(jS),Zero,FkI%SB(iS)%A2,nBas(jS))
     if (DoAct) then
       if (Fake_CMO2) then
-        call DGEMM_('T','N',nBas(jS),nAsh(iS),nBas(jS),1.0d0,CMO%SB(iS)%A2,nBas(jS),QTmp(1)%SB(js)%A2,nBas(jS),0.0d0, &
-                    QVec%SB(js)%A2,nBas(jS))
+        call DGEMM_('T','N',nBas(jS),nAsh(iS),nBas(jS),One,CMO%SB(iS)%A2,nBas(jS),QTmp(1)%SB(js)%A2,nBas(jS),Zero,QVec%SB(js)%A2, &
+                    nBas(jS))
       else
-        call DGEMM_('T','N',nBas(jS),nAsh(iS),nBas(jS),1.0d0,CMO%SB(iS)%A2,nBas(jS),QTmp(2)%SB(jS)%A2,nBas(jS),0.0d0, &
-                    QVec%SB(jS)%A2,nBas(jS))
-        call DGEMM_('T','N',nBas(jS),nAsh(iS),nBas(jS),1.0d0,CMO%SB(iS)%A2,nBas(jS),QTmp(1)%SB(jS)%A2,nBas(jS),0.0d0, &
+        call DGEMM_('T','N',nBas(jS),nAsh(iS),nBas(jS),One,CMO%SB(iS)%A2,nBas(jS),QTmp(2)%SB(jS)%A2,nBas(jS),Zero,QVec%SB(jS)%A2, &
+                    nBas(jS))
+        call DGEMM_('T','N',nBas(jS),nAsh(iS),nBas(jS),One,CMO%SB(iS)%A2,nBas(jS),QTmp(1)%SB(jS)%A2,nBas(jS),Zero, &
                     QTmp(2)%SB(jS)%A2,nBas(jS))
-        call DGEMM_('N','N',nBas(jS),nAsh(iS),nBas(jS),-1.0d0,Kappa%SB(iS)%A2,nBas(jS),QTmp(2)%SB(jS)%A2,nBas(jS),1.0d0, &
+        call DGEMM_('N','N',nBas(jS),nAsh(iS),nBas(jS),-One,Kappa%SB(iS)%A2,nBas(jS),QTmp(2)%SB(jS)%A2,nBas(jS),One, &
                     QVec%SB(jS)%A2,nBas(jS))
       end if
     end if
@@ -1589,31 +1590,31 @@ TOTWALL = TOTWALL2-TOTWALL1
 if (timings) then
 
   CFmt = '(2x,A)'
-  write(6,*)
-  write(6,CFmt) 'Cholesky MCLR timing from '//SECNAM
-  write(6,CFmt) '----------------------------------------'
-  write(6,*)
-  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(6,CFmt) 'Fock matrix construction        CPU       WALL   '
-  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,*)
+  write(u6,CFmt) 'Cholesky MCLR timing from '//SECNAM
+  write(u6,CFmt) '----------------------------------------'
+  write(u6,*)
+  write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,CFmt) 'Fock matrix construction        CPU       WALL   '
+  write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
 
-  write(6,'(2x,A26,2f10.2)') 'READ VECTORS                              ',tread(1),tread(2)
-  write(6,'(2x,A26,2f10.2)') 'COULOMB                                   ',tcoul(1),tcoul(2)
-  write(6,'(2x,A26,2f10.2)') 'EXCHANGE                                  ',tscrn(1)+tmotr(1)+texch(1),tscrn(2)+tmotr(2)+texch(2)
-  write(6,'(2x,A26,2f10.2)') '  SCREENING                               ',tscrn(1),tscrn(2)
-  write(6,'(2x,A26,2f10.2)') '  MO TRANSFORM                            ',tmotr(1),tmotr(2)
-  write(6,'(2x,A26,2f10.2)') '  FORMATION                               ',texch(1),texch(2)
-  write(6,'(2x,A26,2f10.2)') 'ACTIVE INT, Q AND FOCK MATRIX             ',tint1(1)+tint2(1)+tint3(1)+tQmat(1)+tact(1), &
-                             tint1(2)+tint2(2)+tint3(2)+tQmat(2)+tact(2)
-  write(6,'(2x,A26,2f10.2)') '  MO TRANSFORM                            ',tint1(1),tint1(2)
-  write(6,'(2x,A26,2f10.2)') '  INTEGRAL                                ',tint2(1),tint2(2)
-  write(6,'(2x,A26,2f10.2)') '  Q MATRIX                                ',tQmat(1),tQmat(2)
-  write(6,'(2x,A26,2f10.2)') '  ACTIVE FOCK MATRIX                      ',tact(1),tact(2)
-  write(6,'(2x,A26,2f10.2)') '  MO BACK TRANSFORM                       ',tint3(1),tint3(2)
-  write(6,*)
-  write(6,'(2x,A26,2f10.2)') 'TOTAL                                     ',TOTCPU,TOTWALL
-  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(6,*)
+  write(u6,'(2x,A26,2f10.2)') 'READ VECTORS                              ',tread(1),tread(2)
+  write(u6,'(2x,A26,2f10.2)') 'COULOMB                                   ',tcoul(1),tcoul(2)
+  write(u6,'(2x,A26,2f10.2)') 'EXCHANGE                                  ',tscrn(1)+tmotr(1)+texch(1),tscrn(2)+tmotr(2)+texch(2)
+  write(u6,'(2x,A26,2f10.2)') '  SCREENING                               ',tscrn(1),tscrn(2)
+  write(u6,'(2x,A26,2f10.2)') '  MO TRANSFORM                            ',tmotr(1),tmotr(2)
+  write(u6,'(2x,A26,2f10.2)') '  FORMATION                               ',texch(1),texch(2)
+  write(u6,'(2x,A26,2f10.2)') 'ACTIVE INT, Q AND FOCK MATRIX             ',tint1(1)+tint2(1)+tint3(1)+tQmat(1)+tact(1), &
+                              tint1(2)+tint2(2)+tint3(2)+tQmat(2)+tact(2)
+  write(u6,'(2x,A26,2f10.2)') '  MO TRANSFORM                            ',tint1(1),tint1(2)
+  write(u6,'(2x,A26,2f10.2)') '  INTEGRAL                                ',tint2(1),tint2(2)
+  write(u6,'(2x,A26,2f10.2)') '  Q MATRIX                                ',tQmat(1),tQmat(2)
+  write(u6,'(2x,A26,2f10.2)') '  ACTIVE FOCK MATRIX                      ',tact(1),tact(2)
+  write(u6,'(2x,A26,2f10.2)') '  MO BACK TRANSFORM                       ',tint3(1),tint3(2)
+  write(u6,*)
+  write(u6,'(2x,A26,2f10.2)') 'TOTAL                                     ',TOTCPU,TOTWALL
+  write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,*)
 
 end if
 
@@ -1621,14 +1622,14 @@ end if
 #ifdef _DEBUGPRINT_
 if (Debug) then ! to avoid double printing in RASSI-debug
 
-  write(6,'(6X,A)') 'TEST PRINT FROM '//SECNAM
-  write(6,'(6X,A)')
-  write(6,'(6X,A)') '***** INACTIVE FOCK MATRIX ***** '
+  write(u6,'(6X,A)') 'TEST PRINT FROM '//SECNAM
+  write(u6,'(6X,A)')
+  write(u6,'(6X,A)') '***** INACTIVE FOCK MATRIX ***** '
   do ISYM=1,NSYM
     if (NBAS(ISYM) > 0) then
-      write(6,'(6X,A)')
-      write(6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
-      call CHO_OUTPUT(FkI%SB(ISYM)%A2,1,NBAS(ISYM),1,NBAS(ISYM),NBAS(ISYM),NBAS(ISYM),1,6)
+      write(u6,'(6X,A)')
+      write(u6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
+      call CHO_OUTPUT(FkI%SB(ISYM)%A2,1,NBAS(ISYM),1,NBAS(ISYM),NBAS(ISYM),NBAS(ISYM),1,u6)
     end if
   end do
 

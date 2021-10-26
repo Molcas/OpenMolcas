@@ -17,22 +17,24 @@ subroutine swap_rs2full(irc,iLoc,nRS,nDen,JSYM,XLT,Xab,mode,add)
 use ChoArr, only: iRS2F
 use ChoSwp, only: IndRed
 use Data_Structures, only: DSBA_Type
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-integer irc, iLoc, nDen, JSYM
-type(DSBA_Type) XLT(nDen)
-real*8 Xab(nRS,nDen)
-logical add
-character*6 mode
-integer, external :: cho_isao
-#include "real.fh"
+implicit none
+integer(kind=iwp) :: irc, iLoc, nRS, nDen, JSYM
+type(DSBA_Type) :: XLT(nDen)
+real(kind=wp) :: Xab(nRS,nDen)
+character(len=6) :: mode
+logical(kind=iwp) :: add
 #include "cholesky.fh"
 #include "choorb.fh"
-integer i, j, iTri
+integer(kind=iwp) :: iab, iag, ias, ibg, ibs, iRab, iSyma, jDen, jRab, kRab
+integer(kind=iwp), external :: cho_isao
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 !Statement function
+integer(kind=iwp) :: iTri, i, j
 iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 !                                                                      *
 !***********************************************************************
@@ -94,7 +96,7 @@ else if ((mode == 'tofull') .and. (JSYM == 1)) then ! TOTAL SYMMETRIC
 
 else
 
-  write(6,*) 'Wrong input parameters. JSYM,mode = ',JSYM,mode
+  write(u6,*) 'Wrong input parameters. JSYM,mode = ',JSYM,mode
   irc = 66
   call abend()
 

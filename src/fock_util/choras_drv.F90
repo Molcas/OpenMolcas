@@ -11,23 +11,25 @@
 
 subroutine CHORAS_DRV(nSym,nBas,nOcc,W_DSQ,W_DLT,W_FLT,ExFac,FSQ,W_CMO)
 
-use Data_Structures, only: DSBA_Type, Allocate_DSBA, Deallocate_DSBA, Integer_Pointer
+use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type, Integer_Pointer
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
-type(DSBA_Type) FSQ
-integer nBas(8), MinMem(8), rc
-real*8 W_FLT(*), W_CMO(*), W_DSQ(*), W_DLT(*)
-parameter(MaxDs=1)
-logical DoCoulomb(MaxDs), DoExchange(MaxDs)
-real*8 FactC(MaxDs), FactX(MaxDs), ExFac
-integer, target :: nOcc(nSym)
-integer, allocatable, target :: nVec(:)
-type(Integer_Pointer) :: pNocc(1)
-type(DSBA_Type) Vec, DDec, DLT, FLT, DSQ, CMO, MSQ(MaxDs)
+implicit none
+integer(kind=iwp) :: nSym, nBas(8)
+integer(kind=iwp), target :: nOcc(nSym)
+real(kind=wp) :: W_DSQ(*), W_DLT(*), W_FLT(*), ExFac, W_CMO(*)
+type(DSBA_Type) :: FSQ
 #include "chounit.fh"
 #include "choras.fh"
+integer(kind=iwp), parameter :: MaxDs = 1
+integer(kind=iwp) :: i, iUHF, ja, loff1, MinMem(8), nDen, NumV, rc
+real(kind=wp) :: FactC(MaxDs), FactX(MaxDs), Thr, Ymax
+logical(kind=iwp) :: DoCoulomb(MaxDs), DoExchange(MaxDs)
+type(DSBA_Type) :: CMO, DDec, DLT, DSQ, FLT, MSQ(MaxDs), Vec
+type(Integer_Pointer) :: pNocc(1)
+integer(kind=iwp), allocatable, target :: nVec(:)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -64,20 +66,20 @@ if (DECO) then ! use decomposed density
   do i=1,nSym
     ! Loop over symmetries
     if (nBas(i) > 0) then
-      Ymax = 0.0d0
+      Ymax = Zero
       do ja=1,nBas(i)
         Ymax = max(Ymax,DDec%SB(i)%A2(ja,ja))
       end do
-      Thr = 1.0d-13*Ymax
+      Thr = 1.0e-13_wp*Ymax
       ! Call for decomposition:
       call CD_InCore(DDec%SB(i)%A2,nBas(i),Vec%SB(i)%A2,nBas(i),NumV,Thr,rc)
       if (rc /= 0) goto 999
       nVec(i) = NumV
 
       if (NumV /= nOcc(i)) then
-        write(6,*) 'Warning! The number of occupied from the decomposition of the density matrix is ',numV,' in symm. ',i
-        write(6,*) 'Expected value = ',nOcc(i)
-        write(6,*) 'Max diagonal of the density in symm. ',i,' is equal to ',Ymax
+        write(u6,*) 'Warning! The number of occupied from the decomposition of the density matrix is ',numV,' in symm. ',i
+        write(u6,*) 'Expected value = ',nOcc(i)
+        write(u6,*) 'Max diagonal of the density in symm. ',i,' is equal to ',Ymax
       end if
 
     else
@@ -121,7 +123,7 @@ if (ALGO == 1) then
 else if (ALGO == 2) then
   if (DECO) then ! use decomposed density
 
-    FactX(1) = 0.5d0*ExFac ! vectors are scaled by construction
+    FactX(1) = Half*ExFac ! vectors are scaled by construction
     if (REORD) then
       ! (ALGO == 2) .and. DECO .and. REORD:
       call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,FactC,FactX,[DLT],[DSQ],[FLT],[FSQ],MinMem,MSQ,pNocc)
@@ -136,12 +138,12 @@ else if (ALGO == 2) then
   else
     if (REORD) then
       ! (ALGO == 2) .and. (.not. DECO) .and. REORD:
-      FactX(1) = 1.0d0*ExFac ! because MOs coeff. are not scaled
+      FactX(1) = One*ExFac ! because MOs coeff. are not scaled
       call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,FactC,FactX,[DLT],[DSQ],[FLT],[FSQ],MinMem,MSQ,pNocc)
       if (rc /= 0) goto 999
     else
       ! (ALGO == 2) .and. (.not. DECO) .and. (.not. REORD):
-      FactX(1) = 1.0d0*ExFac ! because MOs coeff. are not scaled
+      FactX(1) = One*ExFac ! because MOs coeff. are not scaled
       call CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,lOff1,FactC,FactX,[DLT],[DSQ],[FLT],[FSQ],MinMem,MSQ,pNocc)
       if (rc /= 0) goto 999
     end if
@@ -149,7 +151,7 @@ else if (ALGO == 2) then
 
 else
   rc = 99
-  write(6,*) 'Illegal Input. Specified Cholesky Algorithm= ',ALGO
+  write(u6,*) 'Illegal Input. Specified Cholesky Algorithm= ',ALGO
   call QUIT(rc)
 end if
 
@@ -157,7 +159,7 @@ call CHO_SUM(rc,nSym,nBas,iUHF,DoExchange,[FLT],[FSQ])
 
 999 continue
 if (rc /= 0) then
-  write(6,*) 'CHORAS_DRV. Non-zero return code. rc= ',rc
+  write(u6,*) 'CHORAS_DRV. Non-zero return code. rc= ',rc
   call QUIT(rc)
 end if
 

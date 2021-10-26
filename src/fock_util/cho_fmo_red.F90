@@ -65,36 +65,41 @@ subroutine CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,lOff1,FactC,FactX,DLT,DSQ,FL
 !
 !***********************************************************************
 
-use Data_structures, only: SBA_Type, Deallocate_SBA, Map_to_SBA
-use Data_structures, only: DSBA_Type, Integer_Pointer
+use Data_structures, only: DSBA_Type, Deallocate_SBA, Integer_Pointer, Map_to_SBA, SBA_Type
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp, u6, r8
 
-implicit real*8(a-h,o-z)
-integer rc, nDen, kOcc(8), KSQ1(8)
-real*8 FactC(nDen), FactX(nDen)
-integer iSkip(8), lOff1
-real*8 tread(2), tcoul(2), texch(2)
-integer MinMem(*)
-type(DSBA_Type) DLT(nDen), FLT(nDen), FSQ(nDen), DSQ(nDen), MSQ(nDen)
-logical DoExchange(nDen), DoCoulomb(nDen), DoSomeX, DoSomeC
-#ifdef _DEBUGPRINT_
-logical Debug
-#endif
-logical Square
-character*50 CFmt
-character(LEN=11), parameter :: SECNAM = 'CHO_FMO_RED'
+implicit none
+integer(kind=iwp) :: rc, nDen, lOff1, MinMem(*)
+logical(kind=iwp) :: DoCoulomb(nDen), DoExchange(nDen)
+real(kind=wp) :: FactC(nDen), FactX(nDen)
+type(DSBA_Type) :: DLT(nDen), DSQ(nDen), FLT(nDen), FSQ(nDen), MSQ(nDen)
+type(Integer_Pointer) :: pNocc(nDen)
 #include "chodensity.fh"
 #include "chotime.fh"
 #include "choscf.fh"
-#include "real.fh"
-real*8, parameter :: xone = -One
-logical, parameter :: DoRead = .true.
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "stdalloc.fh"
-type(Integer_Pointer) :: pNocc(nDen)
-real*8, allocatable :: DChk(:)
+integer(kind=iwp) :: iBatch, iE, irc, IREDC, iS, iSkip(8), iSwap, iSym, ISYMA, ISYMB, ISYMD, ISYMG, iSymp, iSymq, iSymr, &
+                     iSymr_Occ, iSyms, iVec, jB, jD, jjB, jjS, jR, jS, jSR, JVEC, k, kOcc(8), KSQ1(8), KTOT, l, lChoV, LKV, lScr, &
+                     LVK, LWORK, MaxSym, Naa, nBatch, NBL, NK, np, npp, nq, nr, NumV, nVec
+real(kind=wp) :: TC1X1, TC1X2, TC2X1, TC2X2, TCC1, TCC2, tcoul(2), TCR1, TCR2, TCREO1, TCREO2, texch(2), TOTCPU, TOTCPU1, TOTCPU2, &
+                 TOTWALL, TOTWALL1, TOTWALL2, tread(2), TW1X1, TW1X2, TW2X1, TW2X2, TWC1, TWC2, TWR1, TWR2, TWREO1, TWREO2, xf, &
+                 xnormY
+logical(kind=iwp) :: DoSomeC, DoSomeX, Square
+#ifdef _DEBUGPRINT_
+logical(kind=iwp) :: Debug
+#endif
+character(len=50) :: CFmt
 type(SBA_Type), target :: Wab
-real*8, pointer :: LrJs(:,:,:) => null(), VJ(:) => null(), Scr(:) => null(), XkJb(:) => null(), XgJk(:) => null(), XkJs(:) => null()
+real(kind=wp), allocatable :: DChk(:)
+real(kind=wp), pointer :: LrJs(:,:,:) => null(), Scr(:) => null(), VJ(:) => null(), XgJk(:) => null(), XkJb(:) => null(), &
+                          XkJs(:) => null()
+real(kind=wp), parameter :: Thr = 1.0e-12_wp
+logical(kind=iwp), parameter :: DoRead = .true.
+character(len=*), parameter :: SECNAM = 'CHO_FMO_RED'
+real(kind=r8), external :: ddot_
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -109,6 +114,7 @@ interface
 end interface
 !*************************************************
 !Statement functions
+integer(kind=iwp) :: MulD2h, iTri, nOcc, i, j, jSym, jDen
 MulD2h(i,j) = ieor(i-1,j-1)+1
 iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 nOcc(jSym,jDen) = pNocc(jDen)%I1(jSym)
@@ -130,21 +136,20 @@ tcoul(:) = zero ! time for computing Coulomb
 texch(:) = zero ! time for computing Exchange
 
 if (DensityCheck) then
-  Thr = 1.0d-12
   Square = .true.
-  xf = 2.0d0
-  if (DECO) xf = 1.0d0
+  xf = Two
+  if (DECO) xf = One
   do jDen=1,nDen
     do jSym=1,nSym
       if ((nBas(jSym) /= 0) .and. (nOcc(jSym,jDen) /= 0)) then
         call mma_allocate(Dchk,nBas(jSym)**2,Label='Dchk')
         call Cho_X_Test(DSQ(jDen)%SB(jSym)%A2,nBas(jSym),Square,MSQ(jDen)%SB(jSym)%A2,nOcc(jSym,jDen),xf,Dchk,nBas(jSym)**2,Thr,irc)
         if (irc == 0) then
-          write(6,*) '*** DENSITY CHECK : OK! *** SYMM= ',jSym
+          write(u6,*) '*** DENSITY CHECK : OK! *** SYMM= ',jSym
         else
-          write(6,*) '*** DENSITY CHECK FAILED IN SYMMETRY: ',jSym,'FOR THE DENSITY NR. ',jDen
+          write(u6,*) '*** DENSITY CHECK FAILED IN SYMMETRY: ',jSym,'FOR THE DENSITY NR. ',jDen
           xnormY = sqrt(ddot_(nBas(jSym)**2,Dchk,1,Dchk,1))
-          write(6,*) '    Norm of the residual vector = ',xnormY
+          write(u6,*) '    Norm of the residual vector = ',xnormY
         end if
         call mma_deallocate(Dchk)
       end if
@@ -197,7 +202,7 @@ do jSym=1,MaxSym
     nVec = min(LWORK/MinMem(jSym),NumCho(jSym))
   else
     ! ***QUIT*** bad initialization
-    write(6,*) 'Cho_FMO_red: bad initialization'
+    write(u6,*) 'Cho_FMO_red: bad initialization'
     rc = 99
     call Abend()
     nVec = -9999 ! dummy assignment - avoid compiler warnings
@@ -210,11 +215,11 @@ do jSym=1,MaxSym
     nBatch = (NumCho(jSym)-1)/nVec+1
   else
     ! ***QUIT*** insufficient memory
-    write(6,*) 'Cho_FMO_red: Insufficient memory for batch'
-    write(6,*) 'LWORK= ',LWORK
-    write(6,*) 'min. mem. need= ',MinMem(jSym)
-    write(6,*) 'NumCho= ',NumCho(jsym)
-    write(6,*) 'jsym= ',jsym
+    write(u6,*) 'Cho_FMO_red: Insufficient memory for batch'
+    write(u6,*) 'LWORK= ',LWORK
+    write(u6,*) 'min. mem. need= ',MinMem(jSym)
+    write(u6,*) 'NumCho= ',NumCho(jsym)
+    write(u6,*) 'jsym= ',jsym
     rc = 33
     call Abend()
     nBatch = -9999 ! dummy assignment
@@ -241,7 +246,7 @@ do jSym=1,MaxSym
     ! setup the skipping flags according to # of Occupied
     do k=1,nSym
       iSkip(k) = 0
-      l = Muld2h(k,jsym) ! L(kl) returned if nOcc(k or l) .ne.0
+      l = Muld2h(k,jsym) ! L(kl) returned if nOcc(k or l) /= 0
       if (k == l) then
         iSkip(k) = 666 ! always contribute to Coulomb
       else
@@ -287,7 +292,7 @@ do jSym=1,MaxSym
     Scr(1:lScr) => Wab%A0(iE+1:iE+lScr)
 
     ! Reading of the vectors is done in Reduced sets
-    iSwap = min(1,(jSym-1)) ! L(ab,J) --> L(a,J,b) iff jSym.ne.1
+    iSwap = min(1,(jSym-1)) ! L(ab,J) --> L(a,J,b) iff jSym /= 1
 
     call CWTIME(TCR1,TWR1)
 
@@ -300,12 +305,12 @@ do jSym=1,MaxSym
     Scr => null()
 
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'Batch ',iBatch,' of   ',nBatch,': NumV = ',NumV
-    write(6,*) 'Total allocated :     ',kTOT
-    write(6,*) 'Memory pointers KSQ1: ',(KSQ1(i),i=1,nSym)
-    write(6,*) 'lScr:                 ',lScr
-    write(6,*) 'lOff1:                ',lOff1
-    write(6,*) 'JSYM:                 ',jSym
+    write(u6,*) 'Batch ',iBatch,' of   ',nBatch,': NumV = ',NumV
+    write(u6,*) 'Total allocated :     ',kTOT
+    write(u6,*) 'Memory pointers KSQ1: ',(KSQ1(i),i=1,nSym)
+    write(u6,*) 'lScr:                 ',lScr
+    write(u6,*) 'lOff1:                ',lOff1
+    write(u6,*) 'JSYM:                 ',jSym
 #   endif
     if (irc /= 0) then
       rc = irc
@@ -454,14 +459,14 @@ do jSym=1,MaxSym
 
                 XkJs => null()
 
-              end if ! if kocc.ne.0
+              end if ! if kocc /= 0
 
             end if ! DoExchange(jDen)
 
           end do ! end of the loop over densities
           LrJs => null()
 
-        end if ! if nbas.ne.0 & iSymr_nOcc.ne.0
+        end if ! if nbas /= 0 & iSymr_nOcc /= 0
 
       end do ! loop over Fock mat symmetries
 
@@ -585,7 +590,7 @@ do jSym=1,MaxSym
 
       end do ! end of the loop over densities
 
-    end if ! jSym.ne.1
+    end if ! jSym /= 1
 
     ! Free the memory
     call Deallocate_SBA(Wab)
@@ -604,22 +609,22 @@ TOTWALL = TOTWALL2-TOTWALL1
 if (timings) then
 
   CFmt = '(2x,A)'
-  write(6,*)
-  write(6,CFmt) 'Cholesky SCF timing from '//SECNAM
-  write(6,CFmt) '------------------------------------'
-  write(6,*)
-  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(6,CFmt) 'Fock matrix construction        CPU       WALL   '
-  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,*)
+  write(u6,CFmt) 'Cholesky SCF timing from '//SECNAM
+  write(u6,CFmt) '------------------------------------'
+  write(u6,*)
+  write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,CFmt) 'Fock matrix construction        CPU       WALL   '
+  write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
 
-  write(6,'(2x,A26,2f10.2)') 'READ/REORDER VECTORS                      ',tread(1),tread(2)
-  write(6,'(2x,A26,2f10.2)') 'COULOMB                                   ',tcoul(1),tcoul(2)
-  write(6,'(2x,A26,2f10.2)') 'EXCHANGE                                  ',texch(1),texch(2)
+  write(u6,'(2x,A26,2f10.2)') 'READ/REORDER VECTORS                      ',tread(1),tread(2)
+  write(u6,'(2x,A26,2f10.2)') 'COULOMB                                   ',tcoul(1),tcoul(2)
+  write(u6,'(2x,A26,2f10.2)') 'EXCHANGE                                  ',texch(1),texch(2)
 
-  write(6,*)
-  write(6,'(2x,A26,2f10.2)') 'TOTAL                                     ',TOTCPU,TOTWALL
-  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(6,*)
+  write(u6,*)
+  write(u6,'(2x,A26,2f10.2)') 'TOTAL                                     ',TOTCPU,TOTWALL
+  write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,*)
 
 end if
 
@@ -627,18 +632,18 @@ end if
 #ifdef _DEBUGPRINT_
 if (Debug) then ! to avoid double printing in SCF-debug
 
-  write(6,'(6X,A)') 'TEST PRINT FROM '//SECNAM
-  write(6,'(6X,A)') '***** EXCHANGE MATRIX ***** '
+  write(u6,'(6X,A)') 'TEST PRINT FROM '//SECNAM
+  write(u6,'(6X,A)') '***** EXCHANGE MATRIX ***** '
   do jDen=1,nDen
-    write(6,'(6X,A,I2)') 'DENSITY TYPE: ',jDen
-    write(6,'(6X,A,I2)') 'DoExchange: ',DoExchange(jDen)
-    write(6,*)
+    write(u6,'(6X,A,I2)') 'DENSITY TYPE: ',jDen
+    write(u6,'(6X,A,I2)') 'DoExchange: ',DoExchange(jDen)
+    write(u6,*)
     if (DoExchange(jDen)) then
       do ISYM=1,NSYM
         NB = NBAS(ISYM)
         if (NB > 0) then
-          write(6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
-          call cho_output(FSQ(jDen)%SB(ISYM)%A2,1,NB,1,NB,NB,NB,1,6)
+          write(u6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
+          call cho_output(FSQ(jDen)%SB(ISYM)%A2,1,NB,1,NB,NB,NB,1,u6)
         end if
       end do
     end if

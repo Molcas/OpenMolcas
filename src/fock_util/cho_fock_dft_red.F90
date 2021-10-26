@@ -25,24 +25,29 @@ subroutine CHO_FOCK_DFT_RED(irc,DLT,FLT)
 use ChoArr, only: nDimRS
 use ChoSwp, only: InfVec
 use Data_Structures, only: DSBA_Type
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-#ifdef _DEBUGPRINT_
-logical Debug
-#endif
-logical add
-type(DSBA_Type) DLT, FLT
-real*8 tread(2), tcoul(2)
-character*16 SECNAM
-character*6 mode
-character*50 CFmt
+implicit none
+integer(kind=iwp) :: irc
+type(DSBA_Type) :: DLT, FLT
 #include "chotime.fh"
-parameter(SECNAM='CHO_FOCK_DFT_RED')
-#include "real.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "stdalloc.fh"
-real*8, allocatable :: Lrs(:,:), Drs(:), Frs(:), VJ(:)
+integer(kind=iwp) :: i, iBatch, iLoc, IVEC2, iVrs, JNUM, JRED, JRED1, JRED2, JSYM, JVEC, LREAD, LWork, MUSED, nBatch, nDen, nRS, &
+                     NUMV, nVec, nVrs
+real(kind=wp) :: FactC, TCC1, TCC2, tcoul(2), TCR1, TCR2, TOTCPU, TOTCPU1, TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, tread(2), TWC1, &
+                 TWC2, TWR1, TWR2, xfac
+logical(kind=iwp) :: add
+#ifdef _DEBUGPRINT_
+logical(kind=iwp) :: Debug
+#endif
+character(len=50) :: CFmt
+character(len=6) :: mode
+real(kind=wp), allocatable :: Drs(:), Frs(:), Lrs(:,:), VJ(:)
+character(len=*), parameter :: SECNAM = 'CHO_FOCK_DFT_RED'
+
 #ifdef _DEBUGPRINT_
 Debug = .true.
 #endif
@@ -73,13 +78,13 @@ do JRED=JRED1,JRED2
   if (nVrs == 0) goto 999
 
   if (nVrs < 0) then
-    write(6,*) SECNAM//': Cho_X_nVecRS returned nVrs < 0. STOP!!'
+    write(u6,*) SECNAM//': Cho_X_nVecRS returned nVrs < 0. STOP!!'
     call abend()
   end if
 
   call Cho_X_SetRed(irc,iLoc,JRED) ! set index arrays at iLoc
   if (irc /= 0) then
-    write(6,*) SECNAM//'cho_X_setred non-zero return code. rc= ',irc
+    write(u6,*) SECNAM//'cho_X_setred non-zero return code. rc= ',irc
     call abend()
   end if
 
@@ -95,9 +100,9 @@ do JRED=JRED1,JRED2
   nVec = min(LWORK/(nRS+1),nVrs)
 
   if (nVec < 1) then
-    write(6,*) SECNAM//': Insufficient memory for batch'
-    write(6,*) 'LWORK= ',LWORK
-    write(6,*) 'min. mem. need= ',nRS+1
+    write(u6,*) SECNAM//': Insufficient memory for batch'
+    write(u6,*) 'LWORK= ',LWORK
+    write(u6,*) 'min. mem. need= ',nRS+1
     irc = 33
     call Abend()
     nBatch = -9999 ! dummy assignment
@@ -158,7 +163,7 @@ do JRED=JRED1,JRED2
     ! Frs{#J} <- Frs{#J} + sum_J L(rs,{#J})*V{#J}
     !======================================================
 
-    xfac = dble(min(jVec-iVrs,1))
+    xfac = real(min(jVec-iVrs,1),kind=wp)
 
     call DGEMV_('N',nRS,JNUM,FactC,Lrs,nRS,VJ,1,xfac,Frs,1)
 
@@ -193,19 +198,19 @@ TOTWALL = TOTWALL2-TOTWALL1
 if (timings) then
 
   CFmt = '(2x,A)'
-  write(6,*)
-  write(6,CFmt) 'Cholesky SCF timing from '//SECNAM
-  write(6,CFmt) '-----------------------------------------'
-  write(6,*)
-  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(6,CFmt) 'Fock matrix construction        CPU       WALL   '
-  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,*)
+  write(u6,CFmt) 'Cholesky SCF timing from '//SECNAM
+  write(u6,CFmt) '-----------------------------------------'
+  write(u6,*)
+  write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,CFmt) 'Fock matrix construction        CPU       WALL   '
+  write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
 
-  write(6,'(2x,A26,2f10.2)') 'READ VECTORS                              ',tread(1),tread(2)
-  write(6,'(2x,A26,2f10.2)') 'COULOMB                                   ',tcoul(1),tcoul(2)
-  write(6,'(2x,A26,2f10.2)') 'TOTAL                                     ',TOTCPU,TOTWALL
-  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(6,*)
+  write(u6,'(2x,A26,2f10.2)') 'READ VECTORS                              ',tread(1),tread(2)
+  write(u6,'(2x,A26,2f10.2)') 'COULOMB                                   ',tcoul(1),tcoul(2)
+  write(u6,'(2x,A26,2f10.2)') 'TOTAL                                     ',TOTCPU,TOTWALL
+  write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,*)
 
 end if
 
@@ -213,12 +218,12 @@ end if
 #ifdef _DEBUGPRINT_
 if (Debug) then ! to avoid double printing in SCF-debug
 
-  write(6,'(6X,A)') 'TEST PRINT FROM '//SECNAM
-  write(6,'(6X,A)')
+  write(u6,'(6X,A)') 'TEST PRINT FROM '//SECNAM
+  write(u6,'(6X,A)')
   do ISYM=1,NSYM
     NB = NBAS(ISYM)
     if (NB > 0) then
-      write(6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
+      write(u6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
       call TRIPRT('Coulomb Fmat',' ',FLT%SB(ISYM)%A1,NB)
     end if
   end do

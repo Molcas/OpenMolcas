@@ -37,40 +37,41 @@ subroutine CHO_FOCK_RASSI(DLT,MO1,MO2,FLT,TUVX)
 
 use ChoArr, only: nDimRS
 use ChoSwp, only: InfVec
-use Data_Structures, only: DSBA_Type
-use Data_Structures, only: SBA_Type
-use Data_Structures, only: Allocate_SBA, Deallocate_SBA
-use Data_Structures, only: twxy_Type
-use Data_Structures, only: Allocate_twxy, Deallocate_twxy
+use Data_Structures, only: Allocate_SBA, Allocate_twxy, Deallocate_SBA, Deallocate_twxy, DSBA_Type, SBA_Type, twxy_Type
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-type(DSBA_Type) DLT, MO1(2), MO2(2), FLT
-real*8 TUVX(*)
-type(SBA_Type), target :: Laq(2)
-type(twxy_type) Scr
-integer rc
-integer iSkip(8)
-real*8 tread(2), tcoul(2), texch(2), tintg(2)
-#ifdef _DEBUGPRINT_
-logical Debug
-#endif
-logical DoReord, add
-logical, parameter :: DoRead = .false.
-character*50 CFmt
-character(LEN=14), parameter :: SECNAM = 'CHO_FOCK_RASSI'
+implicit none
+type(DSBA_Type) :: DLT, MO1(2), MO2(2), FLT
+real(kind=wp) :: TUVX(*)
 #include "chotime.fh"
-#include "real.fh"
-real*8, parameter :: FactCI = One, FactXI = -One
-character*6 mode
 #include "cho_jobs.fh"
 #include "rassi.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "stdalloc.fh"
-real*8, allocatable :: Lrs(:,:), Drs(:), Frs(:)
-real*8, pointer :: VJ(:) => null()
+integer(kind=iwp) :: iBatch, iCase, iLoc, irc, IREDC, iSkip(8), iSwap, iSyma, iSymb, iSymk, iSymv, IVEC2, iVrs, jDen, JNUM, JRED, &
+                     JRED1, JRED2, jSym, JVC, JVEC, k, kDen, kMOs, l, LREAD, LWORK, mDen, mTTvec, mTvec, MUSED, NAv, NAw, nBatch, &
+                     nDen, NK, nMOs, nRS, NUMV, nVec, nVrs, rc
+real(kind=wp) :: Fact, TCC1, TCC2, TCINT1, TCINT2, tcoul(2), TCR1, TCR2, TCR3, TCR4, TCR7, TCX1, TCX2, texch(2), tintg(2), TOTCPU, &
+                 TOTCPU1, TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, tread(2), TWC1, TWC2, TWINT1, TWINT2, TWR1, TWR2, TWR3, TWR4, &
+                 TWR7, TWX1, TWX2
+logical(kind=iwp) :: add, DoReord
+#ifdef _DEBUGPRINT_
+logical(kind=iwp) :: Debug
+#endif
+character(len=50) :: CFmt
+character(len=6) :: mode
+type(SBA_Type), target :: Laq(2)
+type(twxy_type) :: Scr
+real(kind=wp), allocatable :: Drs(:), Frs(:), Lrs(:,:)
+real(kind=wp), pointer :: VJ(:) => null()
+real(kind=wp), parameter :: FactCI = One, FactXI = -One
+logical(kind=iwp), parameter :: DoRead = .false.
+character(len=*), parameter :: SECNAM = 'CHO_FOCK_RASSI'
 !*************************************************
 !Statement function
+integer(kind=iwp) :: MulD2h, i, j
 MulD2h(i,j) = ieor(i-1,j-1)+1
 !*************************************************
 
@@ -131,13 +132,13 @@ do jSym=1,nSym
     if (nVrs == 0) goto 999 ! no vectors in that (jred,jsym)
 
     if (nVrs < 0) then
-      write(6,*) SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
+      write(u6,*) SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
       call abend()
     end if
 
     call Cho_X_SetRed(irc,iLoc,JRED) ! set index arrays at iLoc
     if (irc /= 0) then
-      write(6,*) SECNAM//'cho_X_setred non-zero return code.   rc= ',irc
+      write(u6,*) SECNAM//'cho_X_setred non-zero return code.   rc= ',irc
       call abend()
     end if
 
@@ -158,10 +159,10 @@ do jSym=1,nSym
     nVec = min(LWORK/(nRS+mTvec),nVrs)
 
     if (nVec < 1) then
-      write(6,*) SECNAM//': Insufficient memory for batch'
-      write(6,*) 'LWORK= ',LWORK
-      write(6,*) 'min. mem. need= ',nRS+mTvec
-      write(6,*) 'jsym= ',jsym
+      write(u6,*) SECNAM//': Insufficient memory for batch'
+      write(u6,*) 'LWORK= ',LWORK
+      write(u6,*) 'min. mem. need= ',nRS+mTvec
+      write(u6,*) 'jsym= ',jsym
       rc = 33
       call Abend()
       nBatch = -9999 ! dummy assignment
@@ -205,7 +206,7 @@ do jSym=1,nSym
 
       if ((NUMV <= 0) .or. (NUMV /= JNUM)) then
         rc = 77
-        write(6,*) 'return code = ',rc
+        write(u6,*) 'return code = ',rc
         return
       end if
 
@@ -230,7 +231,7 @@ do jSym=1,nSym
         ! FI(rs){#J} <- FI(rs){#J} + FactCI * sum_J L(rs,{#J})*V{#J}
         !===========================================================
 
-        Fact = dble(min(jVec-iVrs,1))
+        Fact = real(min(jVec-iVrs,1),kind=wp)
 
         call DGEMV_('N',nRS,JNUM,FactCI,Lrs,nRS,VJ,1,Fact,Frs,1)
 
@@ -269,7 +270,7 @@ do jSym=1,nSym
 
       if (irc /= 0) then
         rc = irc
-        write(6,*) 'CHO_X_getVtra failed! '
+        write(u6,*) 'CHO_X_getVtra failed! '
         return
       end if
 
@@ -413,22 +414,22 @@ TOTWALL = TOTWALL2-TOTWALL1
 if (timings) then
 
   CFmt = '(2x,A)'
-  write(6,*)
-  write(6,CFmt) 'Cholesky RASSI timing from '//SECNAM
-  write(6,CFmt) '----------------------------------------'
-  write(6,*)
-  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(6,CFmt) 'Fock matrix construction        CPU       WALL   '
-  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,*)
+  write(u6,CFmt) 'Cholesky RASSI timing from '//SECNAM
+  write(u6,CFmt) '----------------------------------------'
+  write(u6,*)
+  write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,CFmt) 'Fock matrix construction        CPU       WALL   '
+  write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
 
-  write(6,'(2x,A26,2f10.2)') 'READ/TRANSFORM VECTORS                    ',tread(1),tread(2)
-  write(6,'(2x,A26,2f10.2)') 'COULOMB                                   ',tcoul(1),tcoul(2)
-  write(6,'(2x,A26,2f10.2)') 'EXCHANGE                                  ',texch(1),texch(2)
-  write(6,'(2x,A26,2f10.2)') '(TW|XY) INTEGRALS                         ',tintg(1),tintg(2)
-  write(6,*)
-  write(6,'(2x,A26,2f10.2)') 'TOTAL                                     ',TOTCPU,TOTWALL
-  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(6,*)
+  write(u6,'(2x,A26,2f10.2)') 'READ/TRANSFORM VECTORS                    ',tread(1),tread(2)
+  write(u6,'(2x,A26,2f10.2)') 'COULOMB                                   ',tcoul(1),tcoul(2)
+  write(u6,'(2x,A26,2f10.2)') 'EXCHANGE                                  ',texch(1),texch(2)
+  write(u6,'(2x,A26,2f10.2)') '(TW|XY) INTEGRALS                         ',tintg(1),tintg(2)
+  write(u6,*)
+  write(u6,'(2x,A26,2f10.2)') 'TOTAL                                     ',TOTCPU,TOTWALL
+  write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,*)
 
 end if
 
@@ -436,13 +437,13 @@ end if
 #ifdef _DEBUGPRINT_
 if (Debug) then ! to avoid double printing in RASSI-debug
 
-  write(6,'(6X,A)') 'TEST PRINT FROM '//SECNAM
-  write(6,'(6X,A)')
+  write(u6,'(6X,A)') 'TEST PRINT FROM '//SECNAM
+  write(u6,'(6X,A)')
   do ISYM=1,NSYM
     if (NBAS(ISYM) > 0) then
-      write(6,'(6X,A)') '***** INACTIVE FOCK MATRIX ***** '
-      write(6,'(6X,A)')
-      write(6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
+      write(u6,'(6X,A)') '***** INACTIVE FOCK MATRIX ***** '
+      write(u6,'(6X,A)')
+      write(u6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
       call TRIPRT('','',FLT%SB(ISYM)%A1,NBAS(ISYM))
     end if
   end do

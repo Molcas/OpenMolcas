@@ -30,15 +30,19 @@ subroutine Tra2B(iSym,jSym,iBas,jBas,iAsh,jAsh,iOrb,jOrb,ikl,nkl,CMO_ip,CMO_jp,C
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-real*8 VXIJ(*), X2(*)
-real*8 CMO_ip(iBas*iOrb), CMO_ia(iBas*iAsh), CMO_jp(jBas*jOrb), CMO_ja(jBas*jAsh), X3_jp(jAsh,iOrb), X3_ip(iAsh,jOrb), &
-       PUVX_jp(iOrb,jAsh,nkl), PUVX_ip(jOrb,iAsh,nkl)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: iSym, jSym, iBas, jBas, iAsh, jAsh, iOrb, jOrb, ikl, nkl
+real(kind=wp) :: CMO_ip(iBas*iOrb), CMO_jp(jBas*jOrb), CMO_ia(iBas*iAsh), CMO_ja(jBas*jAsh), VXIJ(*), X2(*), X3_ip(iAsh,jOrb), &
+                 X3_jp(jAsh,iOrb), PUVX_jp(iOrb,jAsh,nkl), PUVX_ip(jOrb,iAsh,nkl)
+integer(kind=iwp) :: i, j
 
 if (jAsh*iOrb /= 0) then
-  call DGEMM_('T','N',iBas,jAsh,jBas,1.0d0,VXIJ,jBas,CMO_ja,jBas,0.0d0,X2,iBas)
+  call DGEMM_('T','N',iBas,jAsh,jBas,One,VXIJ,jBas,CMO_ja,jBas,Zero,X2,iBas)
 
-  call DGEMM_('T','N',jAsh,iOrb,iBas,1.0d0,X2,iBas,CMO_ip,iBas,0.0d0,X3_jp,jAsh)
+  call DGEMM_('T','N',jAsh,iOrb,iBas,One,X2,iBas,CMO_ip,iBas,Zero,X3_jp,jAsh)
 
   do i=1,jAsh
     do j=1,iOrb
@@ -48,9 +52,9 @@ if (jAsh*iOrb /= 0) then
 end if
 
 if ((iSym /= jSym) .and. (iAsh*jOrb /= 0)) then
-  call DGEMM_('N','N',jBas,iAsh,iBas,1.0d0,VXIJ,jBas,CMO_ia,iBas,0.0d0,X2,jBas)
+  call DGEMM_('N','N',jBas,iAsh,iBas,One,VXIJ,jBas,CMO_ia,iBas,Zero,X2,jBas)
 
-  call DGEMM_('T','N',iAsh,jOrb,jBas,1.0d0,X2,jBas,CMO_jp,jBas,0.0d0,X3_ip,iAsh)
+  call DGEMM_('T','N',iAsh,jOrb,jBas,One,X2,jBas,CMO_jp,jBas,Zero,X3_ip,iAsh)
 
   do i=1,iAsh
     do j=1,jOrb

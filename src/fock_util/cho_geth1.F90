@@ -9,17 +9,19 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine CHO_GETH1(nBtri,H1,RFpert,ERFNuc)
+subroutine CHO_GETH1(nBTri,H1,RFpert,ERFNuc)
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "stdalloc.fh"
-integer nBTri
-real*8 H1(nBTri)
-logical RFpert
-real*8 ERFNuc
-character*8 OneLbl
-real*8, allocatable :: Tmp(:)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nBTri
+real(kind=wp) :: H1(nBTri), ERFNuc
+logical(kind=iwp) :: RFpert
+integer(kind=iwp) :: iCmp, iOpt, iRc, iSyLab
+character(len=8) :: OneLbl
+real(kind=wp), allocatable :: Tmp(:)
 
 iRc = -1
 iOpt = 6
@@ -30,10 +32,10 @@ OneLbl = 'OneHam  '
 call RdOne(iRc,iOpt,OneLbl,iCmp,H1,iSyLab)
 
 if (IRC /= 0) then
-  write(6,*)
-  write(6,*) '    *** ERROR IN SUBROUTINE  CHO_GETH1 *** '
-  write(6,*) '   BARE NUCLEI HAMILTONIAN IS NOT AVAILABLE'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) '    *** ERROR IN SUBROUTINE  CHO_GETH1 ***'
+  write(u6,*) '   BARE NUCLEI HAMILTONIAN IS NOT AVAILABLE'
+  write(u6,*)
   call Abend()
 end if
 

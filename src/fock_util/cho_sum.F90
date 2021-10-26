@@ -22,12 +22,19 @@ subroutine CHO_SUM(rc,nSym,nBas,iUHF,DoExchange,FLT,FSQ)
 !*****************************************************************
 
 use Data_Structures, only: DSBA_Type
-implicit real*8(a-h,o-z)
-integer rc, nBas(8), nSym, iUHF
-type(DSBA_Type) FLT(*), FSQ(*)
-logical DoExchange(*)
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
+implicit none
+integer(kind=iwp) :: rc, nSym, nBas(8), iUHF
+logical(kind=iwp) :: DoExchange(*)
+type(DSBA_Type) :: FLT(*), FSQ(*)
+integer(kind=iwp) :: IB, IJB, ISYM, JB, NB, nDen
 !*************************************************
 !Statement function
+integer(kind=iwp) :: iTri, i, j
 iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 !*************************************************
 
@@ -42,7 +49,7 @@ end if
 ! FSQ is in squared storage
 !
 ! the lower triangular part of FSQ is added to FLT
-!
+
 if (nDen == 1) then
 
   do ISYM=1,NSYM
@@ -85,18 +92,18 @@ end if ! nDen=3
 
 ! Print the Fock-matrix
 #ifdef _DEBUGPRINT_
-write(6,'(6X,A)') 'TEST PRINT FROM CHO_SUM.'
-write(6,'(6X,A)') 'FROZEN FOCK MATRIX IN AO BASIS.'
+write(u6,'(6X,A)') 'TEST PRINT FROM CHO_SUM.'
+write(u6,'(6X,A)') 'FROZEN FOCK MATRIX IN AO BASIS.'
 
 if (nDen > 1) then
 
   do jDen=1,2
-    if (jDen == 1) write(6,'(6X,A)') 'SPIN ALPHA'
-    if (jDen == 2) write(6,'(6X,A)') 'SPIN BETA'
+    if (jDen == 1) write(u6,'(6X,A)') 'SPIN ALPHA'
+    if (jDen == 2) write(u6,'(6X,A)') 'SPIN BETA'
     do ISYM=1,NSYM
       NB = NBAS(ISYM)
       if (NB > 0) then
-        write(6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
+        write(u6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
         call TRIPRT(' ',' ',FLT(jDen)%SB(ISYM)%A1,NB)
       end if
     end do
@@ -107,7 +114,7 @@ else ! nDen=1
   do ISYM=1,NSYM
     NB = NBAS(ISYM)
     if (NB > 0) then
-      write(6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
+      write(u6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
       call TRIPRT(' ',' ',FLT(1)%SB(ISYM)%A1,NB)
     end if
   end do

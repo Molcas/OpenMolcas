@@ -12,18 +12,21 @@
 subroutine CHO_rassi_twxy(irc,Scr,ChoV,TUVX,nAorb,JSYM,NUMV,DoReord)
 
 use Data_Structures, only: SBA_Type, twxy_type
+use Constants, only: One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-integer irc, nAorb(*), JSYM, NUMV, iAorb(8)
-real*8 TUVX(*)
-type(SBA_Type) ChoV
-type(twxy_type) Scr
-logical DoReord
-#include "real.fh"
+implicit none
+integer(kind=iwp) :: irc, nAorb(*), JSYM, NUMV
+type(twxy_type) :: Scr
+type(SBA_Type) :: ChoV
+real(kind=wp) :: TUVX(*)
+logical(kind=iwp) :: DoReord
 #include "cholesky.fh"
-#include "choorb.fh"
+integer(kind=iwp) :: iAorb(8), iRes, iSym, iSymt, iSymw, iSymx, iSymy, it, itG, itw, itwG, iw, iwG, ix, ixG, ixy, ixyG, iy, iyG, &
+                     nTA, Ntw, Nxy
 ! ************************************************
 !Statement functions
+integer(kind=iwp) :: MulD2h, iTri, i, j
 MulD2h(i,j) = ieor(i-1,j-1)+1
 iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 ! ************************************************

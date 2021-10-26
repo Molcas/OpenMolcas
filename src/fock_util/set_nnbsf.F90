@@ -9,11 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine set_nnBSF(nSym,Nbas,nnBSF,n2BSF)
+subroutine set_nnBSF(nSym,nBas,nnBSF,n2BSF)
 
-implicit real*8(a-h,o-z)
-integer nSym, nBas(8)
-integer nnBSF(8,8), n2BSF(8,8)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: nSym, nBas(8), nnBSF(8,8), n2BSF(8,8)
+integer(kind=iwp) :: i, j, kSym
 
 do j=1,nSym
   do i=j,nSym

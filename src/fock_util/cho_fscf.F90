@@ -30,36 +30,35 @@ subroutine CHO_FSCF(rc,nDen,FLT,nForb,nIorb,Porb,DLT,ExFac)
 
 use ChoArr, only: nDimRS
 use ChoSwp, only: InfVec
-use Data_structures, only: DSBA_Type, SBA_Type
-use Data_structures, only: Allocate_SBA, Deallocate_SBA
+use Data_structures, only: Allocate_SBA, Deallocate_SBA, DSBA_Type, SBA_Type
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-integer rc, nDen
-integer iSkip(8)
-real*8 tread(2), tcoul(2), texch(2)
-real*8 FactCI, FactXI, ExFac
-type(DSBA_Type) Porb(nDen), DLT(nDen), FLT(nDen)
-integer nForb(8,nDen), nIorb(8,nDen)
-#ifdef _DEBUGPRINT_
-logical Debug
-#endif
-logical DoRead
-character*50 CFmt
-character(LEN=8), parameter :: SECNAM = 'CHO_FSCF'
+implicit none
+integer(kind=iwp) :: rc, nDen, nForb(8,nDen), nIorb(8,nDen)
+type(DSBA_Type) :: FLT(nDen), Porb(nDen), DLT(nDen)
+real(kind=wp) :: ExFac
 #include "chotime.fh"
-#include "real.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "stdalloc.fh"
-real*8, parameter :: xone = -one
-logical add
-character*6 mode
-real*8, allocatable :: Lrs(:,:), Drs(:), Frs(:)
-real*8, allocatable :: VJ(:)
-integer :: nAux(8)
-type(SBA_Type) Laq(2)
+integer(kind=iwp) :: iBatch, iDen, iLoc, irc, IREDC, iSkip(8), iSwap, iSyma, iSymk, IVEC2, iVrs, jDen, JNUM, JRED, JRED1, JRED2, &
+                     jSym, JVEC, k, kMOs, l, LREAD, LWORK, Mmax, mTvec, MUSED, nAux(8), nBatch, NK, nMat, nMOs, nRS, NUMV, nVec, &
+                     nVrs
+real(kind=wp) :: Fact, FactCI, FactXI, TCC1, TCC2, tcoul(2), TCR1, TCR2, TCR3, TCR4, TCX1, TCX2, texch(2), TOTCPU, TOTCPU1, &
+                 TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, tread(2), TWC1, TWC2, TWR1, TWR2, TWR3, TWR4, TWX1, TWX2
+logical(kind=iwp) :: add, DoRead
+#ifdef _DEBUGPRINT_
+logical(kind=iwp) :: Debug
+#endif
+character(len=50) :: CFmt
+character(len=6) :: mode
+type(SBA_Type) :: Laq(2)
+real(kind=wp), allocatable :: Drs(:), Frs(:), Lrs(:,:), VJ(:)
+character(len=*), parameter :: SECNAM = 'CHO_FSCF'
 !***********************************************************************
 !Statement function
+integer(kind=iwp) :: MulD2h, i, j
 MulD2h(i,j) = ieor(i-1,j-1)+1
 !***********************************************************************
 
@@ -67,14 +66,14 @@ MulD2h(i,j) = ieor(i-1,j-1)+1
 Debug = .false. ! to avoid double printing in CASSCF-debug
 #endif
 
-FactCI = one
-FactXI = xone*ExFac
+FactCI = One
+FactXI = -ExFac
 
 DoRead = .false.
 IREDC = -1 ! unknown reduced set
 
 if ((nDen /= 1) .and. (nDen /= 2)) then
-  write(6,*) SECNAM//'Invalid parameter nDen= ',nDen
+  write(u6,*) SECNAM//'Invalid parameter nDen= ',nDen
   call abend()
 end if
 
@@ -125,13 +124,13 @@ do jSym=1,nSym
     if (nVrs == 0) goto 999 ! no vectors in that (jred,jsym)
 
     if (nVrs < 0) then
-      write(6,*) SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
+      write(u6,*) SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
       call abend()
     end if
 
     call Cho_X_SetRed(irc,iLoc,JRED) ! set index arrays at iLoc
     if (irc /= 0) then
-      write(6,*) SECNAM//'cho_X_setred non-zero return code.   rc= ',irc
+      write(u6,*) SECNAM//'cho_X_setred non-zero return code.   rc= ',irc
       call abend()
     end if
 
@@ -151,10 +150,10 @@ do jSym=1,nSym
     nVec = min(LWORK/(nRS+mTvec),nVrs)
 
     if (nVec < 1) then
-      write(6,*) SECNAM//': Insufficient memory for batch'
-      write(6,*) 'LWORK= ',LWORK
-      write(6,*) 'min. mem. need= ',nRS+mTvec
-      write(6,*) 'jsym= ',jsym
+      write(u6,*) SECNAM//': Insufficient memory for batch'
+      write(u6,*) 'LWORK= ',LWORK
+      write(u6,*) 'min. mem. need= ',nRS+mTvec
+      write(u6,*) 'jsym= ',jsym
       rc = 33
       call Abend()
       nBatch = -9999 ! dummy assignment
@@ -217,7 +216,7 @@ do jSym=1,nSym
         ! FI(rs){#J} <- FI(rs){#J} + FactCI * sum_J L(rs,{#J})*V{#J}
         !===============================================================
 
-        Fact = dble(min(jVec-iVrs,1))
+        Fact = real(min(jVec-iVrs,1),kind=wp)
 
         call DGEMV_('N',nRS,JNUM,FactCI,Lrs,nRS,VJ,1,Fact,Frs,1)
 
@@ -334,21 +333,21 @@ TOTWALL = TOTWALL2-TOTWALL1
 if (timings) then
 
   CFmt = '(2x,A)'
-  write(6,*)
-  write(6,CFmt) 'Cholesky SCF timing from '//SECNAM
-  write(6,CFmt) '------------------------------------'
-  write(6,*)
-  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(6,CFmt) 'Fock matrix construction        CPU       WALL   '
-  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,*)
+  write(u6,CFmt) 'Cholesky SCF timing from '//SECNAM
+  write(u6,CFmt) '------------------------------------'
+  write(u6,*)
+  write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,CFmt) 'Fock matrix construction        CPU       WALL   '
+  write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
 
-  write(6,'(2x,A26,2f10.2)') 'READ/TRANSFORM VECTORS                    ',tread(1),tread(2)
-  write(6,'(2x,A26,2f10.2)') 'COULOMB                                   ',tcoul(1),tcoul(2)
-  write(6,'(2x,A26,2f10.2)') 'EXCHANGE                                  ',texch(1),texch(2)
-  write(6,*)
-  write(6,'(2x,A26,2f10.2)') 'TOTAL                                     ',TOTCPU,TOTWALL
-  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(6,*)
+  write(u6,'(2x,A26,2f10.2)') 'READ/TRANSFORM VECTORS                    ',tread(1),tread(2)
+  write(u6,'(2x,A26,2f10.2)') 'COULOMB                                   ',tcoul(1),tcoul(2)
+  write(u6,'(2x,A26,2f10.2)') 'EXCHANGE                                  ',texch(1),texch(2)
+  write(u6,*)
+  write(u6,'(2x,A26,2f10.2)') 'TOTAL                                     ',TOTCPU,TOTWALL
+  write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,*)
 
 end if
 
@@ -356,18 +355,18 @@ end if
 #ifdef _DEBUGPRINT_
 if (Debug) then ! to avoid double printing in SCF-debug
 
-  write(6,'(6X,A)') 'TEST PRINT FROM '//SECNAM
-  write(6,'(6X,A)')
-  write(6,'(6X,A)') '***** FOCK MATRIX AO-BASIS ***** '
+  write(u6,'(6X,A)') 'TEST PRINT FROM '//SECNAM
+  write(u6,'(6X,A)')
+  write(u6,'(6X,A)') '***** FOCK MATRIX AO-BASIS ***** '
   do jDen=1,nDen
     if (nDen == 2) then
-      if (jden == 1) write(6,'(6X,A)') '******** ALPHA SPIN ******** '
-      if (jden == 2) write(6,'(6X,A)') '******** BETA SPIN ********* '
+      if (jden == 1) write(u6,'(6X,A)') '******** ALPHA SPIN ******** '
+      if (jden == 2) write(u6,'(6X,A)') '******** BETA SPIN ********* '
     end if
     do ISYM=1,NSYM
       if (NBAS(ISYM) > 0) then
-        write(6,'(6X,A)')
-        write(6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
+        write(u6,'(6X,A)')
+        write(u6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
         call TRIPRT('','',FLT(jDen)%SB(ISYM)%A1,NBAS(ISYM))
       end if
     end do

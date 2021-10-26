@@ -30,23 +30,27 @@ subroutine Tra_Ctl2(CMO,PUVX,TUVX,D1I,FI,D1A,FA,IPR,lSquare,ExFac)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-parameter(Zero=0.0d0)
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp) :: CMO(*), PUVX(*), TUVX(*), D1I(*), FI(*), D1A(*), FA(*), ExFac
+integer(kind=iwp) :: IPR
+logical(kind=iwp) :: lSquare
 #include "rasdim.fh"
 #include "general.fh"
-dimension CMO(*), PUVX(*), TUVX(*)
-dimension D1I(*), D1A(*), FI(*), FA(*)
-integer SymProd
-integer off_PUVX(mxSym,mxSym,mxSym), off_sqMat(mxSym), off_ltMat(mxSym)
-logical lSquare
-
+integer(kind=iwp) :: iAsh, iBas, iDisk, iFro, iIsh, ij_Bas_pairs, ij_Orb_pairs, ijSym, iOff, iOrb, iStack, iSym, jAsh, jBas, jFro, &
+                     jIsh, jOrb, jSym, kAsh, kBas, kFro, kIsh, kl_bas_pairs, kl_Orb_pairs, kOrb, kSym, kSymMax, lAsh, lBas, lFro, &
+                     lIsh, lOrb, lSym, nPUVX, off_ltMat(mxSym), off_PUVX(mxSym,mxSym,mxSym), off_sqMat(mxSym)
+!Statement function
+integer(kind=iwp) :: SymProd, i, j
 SymProd(i,j) = 1+ieor(i-1,j-1)
 
 if (IPR > 1) then
-  write(6,*)
-  write(6,*) ' Enter transformation section'
-  write(6,*) ' ============================'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) ' Enter transformation section'
+  write(u6,*) ' ============================'
+  write(u6,*)
 end if
 
 ! generate offsets
@@ -93,8 +97,8 @@ call dCopy_(nTot1,[Zero],0,FA,1)
 ! start transformation section
 
 if (IPR >= 5) then
-  write(6,*) ' Symmetry  Basis functions   total orbitals    active orbitals'
-  write(6,*) ' -------------------------------------------------------------'
+  write(u6,*) ' Symmetry  Basis functions   total orbitals    active orbitals'
+  write(u6,*) ' -------------------------------------------------------------'
 end if
 do iSym=1,nSym
   iBas = nBas(iSym)
@@ -148,7 +152,7 @@ do iSym=1,nSym
   end do
 end do
 if (IPR >= 5) then
-  write(6,*) ' -------------------------------------------------------------'
+  write(u6,*) ' -------------------------------------------------------------'
 end if
 
 ! Synchronize Fock matrices if running parallel:
@@ -157,20 +161,20 @@ call GADsum(FA,nTot1)
 
 ! print FI and FA
 if (IPR >= 10) then
-  write(6,*)
-  write(6,*) ' FI in AO-basis'
-  write(6,*) ' --------------'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) ' FI in AO-basis'
+  write(u6,*) ' --------------'
+  write(u6,*)
   iOff = 1
   do iSym=1,nSym
     iOrb = nOrb(iSym)
     if (iOrb > 0) call TriPrt(' ',' ',FI(iOff),iOrb)
     iOff = iOff+(iOrb*iOrb+iOrb)/2
   end do
-  write(6,*)
-  write(6,*) ' FA in AO-basis'
-  write(6,*) ' --------------'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) ' FA in AO-basis'
+  write(u6,*) ' --------------'
+  write(u6,*)
   iOff = 1
   do iSym=1,nSym
     iOrb = nOrb(iSym)

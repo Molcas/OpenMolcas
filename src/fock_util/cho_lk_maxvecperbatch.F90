@@ -11,7 +11,7 @@
 ! Copyright (C) 2013, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-integer function Cho_LK_MaxVecPerBatch()
+function Cho_LK_MaxVecPerBatch()
 ! Thomas Bondo Pedersen, May 2013.
 !
 ! Return the max number of vectors to be handled in core in the LK
@@ -23,11 +23,17 @@ integer function Cho_LK_MaxVecPerBatch()
 ! with the one-step algorithm. This should make the LK algorithm
 ! (nearly) independent of available memory.
 
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
 implicit none
+integer(kind=iwp) :: Cho_LK_MaxVecPerBatch
 
 Cho_LK_MaxVecPerBatch = 25
 #ifdef _DEBUGPRINT_
-write(6,'(A,I10)') 'Cho_LK_MaxVecPerBatch=',Cho_LK_MaxVecPerBatch
+write(u6,'(A,I10)') 'Cho_LK_MaxVecPerBatch=',Cho_LK_MaxVecPerBatch
 #endif
 
 end function Cho_LK_MaxVecPerBatch

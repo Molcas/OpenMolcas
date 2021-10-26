@@ -27,19 +27,23 @@ subroutine FMMFck(Dens,TwoHam,ndim)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-#include "mxdm.fh"
-#include "real.fh"
-parameter(LMAX=12)
-real*8 Dens(ndim), TwoHam(ndim)
+use Definitions, only: wp, iwp
+#ifdef _NOT_ACTIVE_
+use Constants, only: Zero
+use Definitions, only: u6
+#endif
+
+implicit none
+integer(kind=iwp) :: ndim
+real(kind=wp) :: Dens(ndim), TwoHam(ndim)
 #ifdef _NOT_ACTIVE_
 ! Define local variables
-integer nBas(8)
-real*8 CarMoms(ndim,(LMAX+1)*(LMAX+2)/2,LMAX+1)
-real*8 SphMoms(ndim,2*LMAX+1,LMAX+1)
-real*8 Moms_batch(ndim+4)
-real*8 CntrX(ndim+4), CntrY(ndim+4), CntrZ(ndim+4)
-character*8 Label
+!#include "mxdm.fh"
+integer(kind=iwp), parameter :: LMAX = 12
+integer(kind=iwp) :: I, iComp, ij, iM, iOpt, iRc, iSyLbl, iSym, J, L, lDens, M, nBas(8), nBasTot, nSym
+real(kind=wp) :: CarMoms(ndim,(LMAX+1)*(LMAX+2)/2,LMAX+1), CntrX(ndim+4), CntrY(ndim+4), CntrZ(ndim+4), Moms_batch(ndim+4), &
+                 SphMoms(ndim,2*LMAX+1,LMAX+1)
+character(len=8) :: Label
 
 call Get_iScalar('nSym',nSym)
 call Get_iArray('nBas',nBas,nSym)
@@ -52,7 +56,7 @@ do iSym=1,nSym
   nBasTot = nBasTot+nBas(iSym)
 end do
 if (lDens /= ndim) then
-  write(6,*) 'ERROR in FMMFck',lDens,ndim
+  write(u6,*) 'ERROR in FMMFck',lDens,ndim
   call Abend()
 end if
 
@@ -70,22 +74,22 @@ iSyLbl = 1
 Label = 'FMMCnX'
 call RdOne(iRc,iOpt,Label,iComp,CntrX,iSyLbl)
 if (iRc /= 0) then
-  write(6,*) 'FMMFck: Error readin ONEINT'
-  write(6,'(A,A)') 'Label=',Label
+  write(u6,*) 'FMMFck: Error readin ONEINT'
+  write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 Label = 'FMMCnY'
 call RdOne(iRc,iOpt,Label,iComp,CntrY,iSyLbl)
 if (iRc /= 0) then
-  write(6,*) 'FMMFck: Error readin ONEINT'
-  write(6,'(A,A)') 'Label=',Label
+  write(u6,*) 'FMMFck: Error readin ONEINT'
+  write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 Label = 'FMMCnZ'
 call RdOne(iRc,iOpt,Label,iComp,CntrZ,iSyLbl)
 if (iRc /= 0) then
-  write(6,*) 'FMMFck: Error readin ONEINT'
-  write(6,'(A,A)') 'Label=',Label
+  write(u6,*) 'FMMFck: Error readin ONEINT'
+  write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 
@@ -99,8 +103,8 @@ do L=0,LMAX
     write(Label,'(A,I2)') 'FMMInt',L
     call RdOne(iRc,iOpt,Label,iComp,Moms_batch,iSyLbl)
     if (iRc /= 0) then
-      write(6,*) 'FMMFck: Error readin ONEINT'
-      write(6,'(A,A)') 'Label=',Label
+      write(u6,*) 'FMMFck: Error readin ONEINT'
+      write(u6,'(A,A)') 'Label=',Label
       call Abend()
     end if
     do ij=1,ndim
@@ -130,7 +134,7 @@ do J=1,nBasTot
     do L=0,LMAX
       do M=-L,L
         iM = M+L+1
-        !write (6,'(5I3,2X,3F10.6,2E15.4)') L,M,ij,1,ij,CntrX(ij),CntrY(ij),CntrZ(ij),SphMoms(ij,iM,L+1),Dens(ij)
+        !write (u6,'(5I3,2X,3F10.6,2E15.4)') L,M,ij,1,ij,CntrX(ij),CntrY(ij),CntrZ(ij),SphMoms(ij,iM,L+1),Dens(ij)
         write(98) L,M,I,J,ij,CntrX(ij),CntrY(ij),CntrZ(ij),SphMoms(ij,iM,L+1),Dens(ij)
       end do
     end do
@@ -138,7 +142,7 @@ do J=1,nBasTot
 end do
 
 ! Mark end of file with negative angular momentum
-write(98)-1,0,0,0,0,0d0,0d0,0d0,0d0,0d0
+write(98)-1,0,0,0,0,Zero,Zero,Zero,Zero,Zero
 close(98,STATUS='KEEP')
 
 ! Now call multipole code to update the Fock matrix with the

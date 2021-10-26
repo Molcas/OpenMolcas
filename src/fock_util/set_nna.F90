@@ -11,9 +11,11 @@
 
 subroutine set_nnA(nSym,nAorb,nnA)
 
-implicit real*8(a-h,o-z)
-integer nSym, nAorb(8)
-integer nnA(8,8)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: nSym, nAorb(8), nnA(8,8)
+integer(kind=iwp) :: i, j
 
 do j=1,nSym
   do i=1,j-1

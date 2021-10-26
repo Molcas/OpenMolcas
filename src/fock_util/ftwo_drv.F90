@@ -11,18 +11,18 @@
 
 subroutine FTwo_Drv(nSym,nBas,nAsh,nSkipX,DI,D1A,FA,nTot1,ExFac,nBMX,CMO)
 
-use Data_Structures, only: DSBA_Type, Allocate_DSBA, Deallocate_DSBA
+use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-#include "rasdim.fh"
-#include "stdalloc.fh"
-#include "real.fh"
-integer nBas(8), nAsh(8), nSkipX(8)
-real*8 CMO(*), D1A(*), DI(*), FA(*)
-logical DoCholesky
-type(DSBA_Type) :: WFSQ
-real*8, allocatable :: Temp(:)
+implicit none
+integer(kind=iwp) :: nSym, nBas(8), nAsh(8), nSkipX(8), nTot1, nBMX
+real(kind=wp) :: DI(*), D1A(*), FA(*), CMO(*), ExFac
 #include "choras.fh"
+logical(kind=iwp) :: DoCholesky
+type(DSBA_Type) :: WFSQ
+real(kind=wp), allocatable :: Temp(:)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

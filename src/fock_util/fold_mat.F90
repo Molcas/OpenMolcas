@@ -33,10 +33,15 @@ subroutine Fold_Mat(nSym,nBas,A,B)
 !     Author:   F. Aquilante                                           *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-dimension nBas(*), A(*), B(*)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nSym, nBas(nSym)
+real(kind=wp) :: A(*), B(*)
+integer(kind=iwp) :: iOff1, iOff2, iSym
 !************************************
 !Statement functions
+integer(kind=iwp) :: iit, ijt, iis, ijs, j, i, n
 iit(j) = j*(j+1)/2
 ijt(i,j) = i*(i-1)/2+j
 iis(n,j) = n*(j-1)+j

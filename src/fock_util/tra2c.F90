@@ -11,7 +11,12 @@
 
 subroutine Tra2c(i,iSym,iBas,iAsh,j,jSym,jBas,jAsh,kl_Bas_pairs,ij_Orb_pairs,CMO_i,CMO_j,IJKL,C,TUKL)
 
-real*8 CMO_i(iBas,iAsh), CMO_j(jBas,jAsh), C(ij_Orb_pairs), IJKL(kl_Bas_pairs), TUKL(kl_Bas_pairs,ij_Orb_pairs)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: i, iSym, iBas, iAsh, j, jSym, jBas, jAsh, kl_Bas_pairs, ij_Orb_pairs
+real(kind=wp) :: CMO_i(iBas,iAsh), CMO_j(jBas,jAsh), IJKL(kl_Bas_pairs), C(ij_Orb_pairs), TUKL(kl_Bas_pairs,ij_Orb_pairs)
+integer(kind=iwp) :: iA, ijA, jA
 
 !call RecPrt('IJKL',' ',IJKL,1,kl_Bas_Pairs)
 
@@ -43,7 +48,7 @@ else
   end do
   !call RecPrt('C',' ',C,jAsh,iAsh)
 end if
-!write(6,*) ' ij_Orb_Pairs=',ij_Orb_Pairs
+!write(u6,*) ' ij_Orb_Pairs=',ij_Orb_Pairs
 
 call DNaXpY(ij_Orb_pairs,kl_Bas_pairs,C,1,IJKL,1,0,TUKL,1,kl_Bas_pairs)
 

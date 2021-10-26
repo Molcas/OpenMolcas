@@ -12,17 +12,15 @@
 subroutine GetUmat_T1(U,C,S,X,Scr,lScr,nBas,nOrb1,nOrb2)
 ! Purpose: compute transformation matrix U=C^TSX.
 
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
 implicit none
-real*8 U(*), C(*), S(*), X(*)
-integer lScr
-real*8 Scr(lScr)
-integer nBas, nOrb1, nOrb2
-character*80 Txt
-character*10 SecNam
-parameter(SecNam='GetUmat_T1')
-real*8 d0, d1
-parameter(d0=0.0d0,d1=1.0d0)
-integer Need
+integer(kind=iwp) :: lScr, nBas, nOrb1, nOrb2
+real(kind=wp) :: U(*), C(*), S(*), X(*), Scr(lScr)
+integer(kind=iwp) :: Need
+character(len=80) :: Txt
+character(len=*), parameter :: SecNam = 'GetUmat_T1'
 
 if ((nOrb1*nOrb2 < 1) .or. (nBas < 1)) return
 
@@ -32,7 +30,7 @@ if (lScr < Need) then
   call SysAbendMsg(SecNam,'Insufficient dimension of scratch array!',Txt)
 end if
 
-call DGEMM_('N','N',nBas,nOrb2,nBas,d1,S,nBas,X,nBas,d0,Scr,nBas)
-call DGEMM_('T','N',nOrb1,nOrb2,nBas,d1,C,nBas,Scr,nBas,d0,U,nOrb1)
+call DGEMM_('N','N',nBas,nOrb2,nBas,One,S,nBas,X,nBas,Zero,Scr,nBas)
+call DGEMM_('T','N',nOrb1,nOrb2,nBas,One,C,nBas,Scr,nBas,Zero,U,nOrb1)
 
 end subroutine GetUmat_T1

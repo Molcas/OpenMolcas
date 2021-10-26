@@ -14,11 +14,12 @@
 
 subroutine Mk_iShp_rs(iShp_rs,nShell)
 
+use Definitions, only: iwp
+
 implicit none
-integer nShell
-integer iShp_rs(nShell*(nShell+1)/2)
-integer iaSh, ibSh, iShp
-integer, external :: Cho_F2SP
+integer(kind=iwp) :: nShell, iShp_rs(nShell*(nShell+1)/2)
+integer(kind=iwp) :: iaSh, ibSh, iShp
+integer(kind=iwp), external :: Cho_F2SP
 
 ! *** Mapping shell pairs from the full to the reduced set
 

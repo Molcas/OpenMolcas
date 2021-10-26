@@ -9,13 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-real*8 function FindMax(LaJ,numA)
+function FindMax(LaJ,numA)
 
-implicit real*8(a-h,o-z)
-integer numA
-real*8 LaJ(NumA)
-real*8 XMax
-integer ia
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: FindMax
+integer(kind=iwp) :: numA
+real(kind=wp) :: LaJ(NumA)
+integer(kind=iwp) :: ia
+real(kind=wp) :: XMax
 
 XMax = abs(LaJ(1))
 

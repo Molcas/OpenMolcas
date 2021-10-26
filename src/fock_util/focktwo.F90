@@ -22,14 +22,23 @@
 subroutine FOCKTWO(NSYM,NBAS,NFRO,KEEP,W_DLT,W_DSQ,W_FLT,nFlt,W_FSQ,LBUF,X1,X2,ExFac)
 
 use Data_Structures, only: DSBA_Type, Allocate_DSBA, Deallocate_DSBA
+use Constants, only: One, Half
+use Definitions, only: wp, iwp, u6, r8
 
-implicit real*8(A-H,O-Z)
-real*8 W_FSQ(*), W_FLT(nFlt), W_DSQ(*), W_DLT(*), X1(*), X2(*)
-integer KEEP(8), NBAS(8), NFRO(8)
-type(DSBA_Type) DLT, FLT, DSQ, FSQ
+implicit none
+integer(kind=iwp) :: NSYM, NBAS(8), NFRO(8), KEEP(8), nFlt, LBUF
+real(kind=wp) :: W_DLT(*), W_DSQ(*), W_FLT(nFlt), W_FSQ(*), X1(*), X2(*), ExFac
+integer(kind=iwp) :: IB, IJ, IJB, IJS, IK, IOPT, IP, IPQ, IRC, IS, ISX, ISYM, JB, JK, JQ, JS, KB, KK, KLB, KS, LB, LK, LPQ, LS, &
+                     LSMAX, NB, NFI, NFJ, NFK, NFL, NPQ
+real(kind=wp) :: TEMP
+type(DSBA_Type) :: DLT, DSQ, FLT, FSQ
+real(kind=r8), external :: DDOT_
 !***********************************************************************
 !Statement function
+integer(kind=iwp) :: MUL, I, J
 MUL(I,J) = ieor(I-1,J-1)+1
+
+!***********************************************************************
 !
 ! This routine has been nicked from the MOTRA package. It was
 ! originally written by Marcus Fuelscher, and has been slightly
@@ -107,9 +116,9 @@ do IS=1,NSYM
             TEMP = DDOT_(KLB,X1(ISX),1,DLT%SB(IS)%A1,1)
             FLT%SB(IS)%A1(LPQ) = FLT%SB(IS)%A1(LPQ)+TEMP
             call SQUARE(X1(ISX),X2(1),1,KB,LB)
-            call DGEMV_('N',KB,LB,(-0.5d0*ExFac),X2(1),KB,DSQ%SB(IS)%A2(1:,IP),1,1.0d0,FSQ%SB(IS)%A2(1:,JQ),1)
+            call DGEMV_('N',KB,LB,-Half*ExFac,X2(1),KB,DSQ%SB(IS)%A2(1:,IP),1,One,FSQ%SB(IS)%A2(1:,JQ),1)
             if (IP /= JQ) then
-              call DGEMV_('N',KB,LB,(-0.5d0*ExFac),X2(1),KB,DSQ%SB(IS)%A2(1:,JQ),1,1.0d0,FSQ%SB(IS)%A2(1:,IP),1)
+              call DGEMV_('N',KB,LB,-Half*ExFac,X2(1),KB,DSQ%SB(IS)%A2(1:,JQ),1,One,FSQ%SB(IS)%A2(1:,IP),1)
             end if
           end do
         end do
@@ -160,10 +169,10 @@ do IS=1,NSYM
             end if
             ISX = (IPQ-1)*KLB+1
             if (NFI /= 0) then
-              call DGEMV_('N',LB,KB,(-0.5d0*ExFac),X1(ISX),LB,DSQ%SB(IS)%A2(1:,IP),1,1.0d0,FSQ%SB(JS)%A2(1:,JQ),1)
+              call DGEMV_('N',LB,KB,-Half*ExFac,X1(ISX),LB,DSQ%SB(IS)%A2(1:,IP),1,One,FSQ%SB(JS)%A2(1:,JQ),1)
             end if
             if (NFJ /= 0) then
-              call DGEMV_('T',LB,KB,(-0.5d0*ExFac),X1(ISX),LB,DSQ%SB(JS)%A2(1:,JQ),1,1.0d0,FSQ%SB(IS)%A2(1:,IP),1)
+              call DGEMV_('T',LB,KB,-Half*ExFac,X1(ISX),LB,DSQ%SB(JS)%A2(1:,JQ),1,One,FSQ%SB(IS)%A2(1:,IP),1)
             end if
           end do
         end do
@@ -187,11 +196,11 @@ end do
 call GADSum(W_FLT,nFlt)
 
 #ifdef _DEBUGPRINT_
-write(6,'(6X,A)') 'FROZEN FOCK MATRIX IN AO BASIS:'
+write(u6,'(6X,A)') 'FROZEN FOCK MATRIX IN AO BASIS:'
 do ISYM=1,NSYM
   NB = NBAS(ISYM)
   if (NB > 0) then
-    write(6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
+    write(u6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
     call TRIPRT(' ',' ',FLT%SB(ISYM)%A1,NB)
   end if
 end do
@@ -204,8 +213,8 @@ call deallocate_DSBA(DLT)
 return
 
 999 continue
-write(6,*) ' Error return code IRC=',IRC
-write(6,*) ' from RDORD call, in FTWOI.'
+write(u6,*) ' Error return code IRC=',IRC
+write(u6,*) ' from RDORD call, in FTWOI.'
 call Abend()
 
 end subroutine FOCKTWO

@@ -42,9 +42,13 @@ subroutine Fold(nSym,nBas,A,B)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-dimension nBas(*), A(*), B(*)
-parameter(Two=2.0d0)
+use Constants, only: Two
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nSym, nBas(nSym)
+real(kind=wp) :: A(*), B(*)
+integer(kind=iwp) :: iBas, iOff1, iOff2, iSym, jBas, mBas
 
 iOff1 = 0
 iOff2 = 0

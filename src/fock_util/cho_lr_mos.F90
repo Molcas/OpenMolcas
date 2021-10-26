@@ -33,18 +33,18 @@ subroutine CHO_LR_MOs(iOK,nDen,nSym,nBas,nIsh,CM,MSQ)
 !***********************************************************************
 
 use Data_Structures, only: DSBA_Type
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-integer iOK, nDen, nSym
-integer nBas(nSym), nIsh(nSym)
-type(DSBA_Type) CM(nDen)
+implicit none
+integer(kind=iwp) :: iOK, nDen, nSym, nBas(nSym), nIsh(nSym)
+type(DSBA_Type) :: CM(nDen)
 type(DSBA_Type), target :: MSQ(nDen)
-#include "stdalloc.fh"
-real*8, allocatable, target :: DMat0(:), PMat0(:)
-real*8, pointer :: DMat(:,:) => null()
-real*8, pointer :: PMat(:,:,:,:) => null()
-real*8, pointer :: V(:,:) => null()
-
+integer(kind=iwp) :: ia, ib, ikc, irc, iSym, iv, ja, jden, jv, k, l, n2b, nBm, NumV
+real(kind=wp) :: Thr, Ymax
+real(kind=wp), allocatable, target :: DMat0(:), PMat0(:)
+real(kind=wp), pointer :: DMat(:,:) => null(), PMat(:,:,:,:) => null(), V(:,:) => null()
 !***********************************************************************
 
 irc = 0
@@ -79,8 +79,8 @@ do while (iSym <= nSym)
 
       do l=1,nDen
 
-        call DGEMM_('N','T',nBas(iSym),nBas(iSym),nIsh(iSym),1.0d0,CM(k)%SB(iSym)%A2,nBas(iSym),CM(l)%SB(iSym)%A2,nBas(iSym), &
-                    0.0d0,DMat,nBas(iSym))
+        call DGEMM_('N','T',nBas(iSym),nBas(iSym),nIsh(iSym),One,CM(k)%SB(iSym)%A2,nBas(iSym),CM(l)%SB(iSym)%A2,nBas(iSym),Zero, &
+                    DMat,nBas(iSym))
 
         do ib=1,nBas(iSym)
           PMat(:,k,ib,l) = DMat(:,ib)
@@ -90,13 +90,13 @@ do while (iSym <= nSym)
 
     end do
 
-    Ymax = 0.0d0
+    Ymax = Zero
     do ja=1,n2b ! Loop over the compound index
       k = (ja-1)/nBas(iSym)+1
       ia = ja-(k-1)*nBas(iSym)
       Ymax = max(Ymax,PMat(ia,k,ia,k))
     end do
-    Thr = 1.0d-13*Ymax
+    Thr = 1.0e-13_wp*Ymax
 
     if (nDen == 1) then
       V(1:,1:) => MSQ(1)%SB(iSym)%A2(:,:)

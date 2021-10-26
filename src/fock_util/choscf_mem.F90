@@ -33,15 +33,17 @@ subroutine CHOSCF_MEM(nSym,nBas,iUHF,DoExchange,pNocc,ALGO,REORD,MinMem,lOff1)
 
 use ChoArr, only: nDimRS
 use Data_Structures, only: Integer_Pointer
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-integer nSym, nBas(nSym), MinMem(nSym), iUHF, ALGO
-integer Moccmx(nSym), Mabmx(nSym), MxBas(nSym)
-logical REORD, xToDo, DoExchange(*)
+implicit none
+integer(kind=iwp) :: nSym, nBas(nSym), iUHF, ALGO, MinMem(nSym), lOff1
+logical(kind=iwp) :: DoExchange(*), REORD
 type(Integer_Pointer) :: pNocc(*)
-integer Nocc, i, j
+integer(kind=iwp) :: iSym, iSymp, jSym, ksym, Nab, nDen, Nmax, NSab, Mabmx(nSym), Moccmx(nSym), MxBas(nSym)
+logical(kind=iwp) :: xToDo
 !*************************************************
 !Statement functions
+integer(kind=iwp) :: MulD2h, Nocc, i, j
 MulD2h(i,j) = ieor(i-1,j-1)+1
 Nocc(i,j) = pNocc(j)%I1(i)
 !*************************************************
@@ -114,7 +116,7 @@ do jSym=1,nSym
       ! L + read 1 vect reduced set1
     end if
 
-  else ! Memory for "off-diagonal" exchange only (jSym.ne.1)
+  else ! Memory for "off-diagonal" exchange only (jSym /= 1)
 
     if (REORD) then
       MinMem(jSym) = 2*Nab ! 1 vector of L(rJ),s + W(rJ),s

@@ -30,11 +30,17 @@ subroutine Tra2A(ij_pair,ij_Bas_pairs,kl_Orb_pairs,kSym,lSym,kBas,lBas,kAsh,lAsh
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-real*8 CMO_k(kBas,kAsh), CMO_l(lBas,lAsh), IJKL(lBas*kBas), IJKX(kBas*lAsh), IJVX(lAsh*kAsh), VXIJ(ij_bas_pairs,kl_Orb_pairs)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: ij_pair, ij_Bas_pairs, kl_Orb_pairs, kSym, lSym, kBas, lBas, kAsh, lAsh
+real(kind=wp) :: CMO_k(kBas,kAsh), CMO_l(lBas,lAsh), IJKL(lBas*kBas), IJKX(kBas*lAsh), IJVX(lAsh*kAsh), &
+                 VXIJ(ij_bas_pairs,kl_Orb_pairs)
+integer(kind=iwp) :: kl
 
 ! (ij|kl) -> (ij|kx)
-call DGEMM_('T','N',kBas,lAsh,lBas,1.0d0,IJKL,lBas,CMO_l,lBas,0.0d0,IJKX,kBas)
+call DGEMM_('T','N',kBas,lAsh,lBas,One,IJKL,lBas,CMO_l,lBas,Zero,IJKX,kBas)
 
 ! (ij|kx) -> (ij|vx)
 if (kSym == lSym) then
@@ -42,7 +48,7 @@ if (kSym == lSym) then
   call MxMt(IJKX,kBas,1,CMO_k,1,kBas,IJVX,kAsh,kBas)
 else
   ! Rectangular storage of target
-  call DGEMM_('T','N',lAsh,kAsh,kBas,1.0d0,IJKX,kBas,CMO_k,kBas,0.0d0,IJVX,lAsh)
+  call DGEMM_('T','N',lAsh,kAsh,kBas,One,IJKX,kBas,CMO_k,kBas,Zero,IJVX,lAsh)
 end if
 
 ! Scatter result onto half-transformed integral list

@@ -11,15 +11,18 @@
 
 subroutine Thouless_T1(CMO,nSym,nBas,nFro,nOcc,nSsh,T1amp)
 
-implicit real*8(a-h,o-z)
-integer nSym, nBas(nSym), nFro(nSym), nOcc(nSym), nSsh(nSym)
-real*8 CMO(*), T1amp(*)
-character(LEN=40) OrbTit
-real*8 Dummy(1)
-integer iDummy(1)
-#include "stdalloc.fh"
-real*8, allocatable :: S(:), X(:), Scr(:), U(:)
-real*8, allocatable :: W(:), Y(:), Z(:), R(:)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp) :: CMO(*), T1amp(*)
+integer(kind=iwp) :: nSym, nBas(nSym), nFro(nSym), nOcc(nSym), nSsh(nSym)
+integer(kind=iwp) :: i, iDummy(1), iErr, ifr, iOff, iSym, ito, iU, j, jp_C, jp_S, jp_T, jp_X, jU, k, kk, kOff, l_O, l_O2, l_S, &
+                     lScr, Lu, nOrb
+real(kind=wp) :: Dummy(1), omega
+character(len=40) :: OrbTit
+real(kind=wp), allocatable :: R(:), S(:), Scr(:), U(:), W(:), X(:), Y(:), Z(:)
 
 ! Compute the T1 amplitudes according to Thouless formula
 ! -------------------------------------------------------
@@ -50,10 +53,10 @@ call GetOvlp_Localisation(S,'Sqr',nBas,nSym)
 Lu = 12
 call RdVec('INPORB',Lu,'C',nSym,nBas,nBas,X,Dummy,Dummy,iDummy,OrbTit,1,iErr)
 
-write(6,*)
-write(6,*) '      Thouless singles amplitudes from: '
-write(6,*) '      '//OrbTit
-write(6,*)
+write(u6,*)
+write(u6,*) '      Thouless singles amplitudes from: '
+write(u6,*) '      '//OrbTit
+write(u6,*)
 
 iOff = 0
 kOff = 0
@@ -83,30 +86,30 @@ do iSym=1,nSym
   call SVD(nOcc(iSym),nOcc(iSym),nOcc(iSym),Scr,W,.true.,Y,.true.,Z,ierr,R)
 
   if (ierr /= 0) then
-    write(6,*)
-    write(6,*) ' *** Warning: SVD failed to get singval: ',ierr
-    write(6,*) ' *** Located in Thouless_T1 -- call to SVD .'
-    write(6,*)
-    write(6,*) ' omega= ',(W(k),k=1,nOcc(iSym))
+    write(u6,*)
+    write(u6,*) ' *** Warning: SVD failed to get singval: ',ierr
+    write(u6,*) ' *** Located in Thouless_T1 -- call to SVD .'
+    write(u6,*)
+    write(u6,*) ' omega= ',(W(k),k=1,nOcc(iSym))
   end if
 
   call FZero(R,nOcc(iSym)**2)
   do k=1,nOcc(iSym)
     omega = W(k)
     kk = nOcc(iSym)*(k-1)+k
-    if (omega > 1.0d-8) then
-      R(kk) = 1.0d0/omega
+    if (omega > 1.0e-8_wp) then
+      R(kk) = One/omega
     end if
   end do
 
   ! Compute U^-1 = Z * w^-1 * Y'
 
-  call DGEMM_('N','T',nOcc(iSym),nOcc(iSym),nOcc(iSym),1.0d0,R,nOcc(iSym),Y,nOcc(iSym),0.0d0,W,nOcc(iSym))
+  call DGEMM_('N','T',nOcc(iSym),nOcc(iSym),nOcc(iSym),One,R,nOcc(iSym),Y,nOcc(iSym),Zero,W,nOcc(iSym))
 
-  call DGEMM_('N','N',nOcc(iSym),nOcc(iSym),nOcc(iSym),1.0d0,Z,nOcc(iSym),W,nOcc(iSym),0.0d0,Scr,nOcc(iSym))
+  call DGEMM_('N','N',nOcc(iSym),nOcc(iSym),nOcc(iSym),One,Z,nOcc(iSym),W,nOcc(iSym),Zero,Scr,nOcc(iSym))
 
   jp_T = 1+kOff
-  call DGEMM_('T','T',nOcc(iSym),nSsh(iSym),nOcc(iSym),1.0d0,Scr,nOcc(iSym),U,nSsh(iSym),0.0d0,T1amp(jp_T),nOcc(iSym))
+  call DGEMM_('T','T',nOcc(iSym),nSsh(iSym),nOcc(iSym),One,Scr,nOcc(iSym),U,nSsh(iSym),Zero,T1amp(jp_T),nOcc(iSym))
 
   iOff = iOff+nBas(iSym)**2
   kOff = kOff+nOcc(iSym)*nSsh(iSym)

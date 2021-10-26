@@ -14,21 +14,23 @@
 
 subroutine CHO_GetShFull(LabJ,lLabJ,JNUM,JSYM,IREDC,ChoV,SvShp,mmShl,iShp_rs,mmShl_tot)
 
-use ChoArr, only: iSOShl, iShlSO, iBasSh, iRS2F, nDimRS
-use ChoSwp, only: IndRSh, IndRed
+use ChoArr, only: iBasSh, iRS2F, iShlSO, iSOShl, nDimRS
+use ChoSwp, only: IndRed, IndRSh
 use Data_Structures, only: L_Full_Type
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 LabJ(lLabJ)
-real*8 SvShp(mmShl,2)
-integer iShp_rs(mmShl_tot)
-integer, external :: cho_isao
+implicit none
+integer(kind=iwp) :: lLabJ, JNUM, JSYM, IREDC, mmShl, mmShl_tot, iShp_rs(mmShl_tot)
+real(kind=wp) :: LabJ(lLabJ), SvShp(mmShl,2)
+type(L_Full_Type) :: ChoV
 #include "cholesky.fh"
-#include "choorb.fh"
-#include "real.fh"
-type(L_Full_Type) ChoV
+integer(kind=iwp) :: i1, iag, ias, iaSg, iaSh, ibg, ibs, ibSg, ibSh, iLoc, iRab, iShp, iSyma, iSymb, jRab, jShp, JVEC, kLabJ, &
+                     kRab, NREAD
+integer(kind=iwp), external :: cho_isao
 !***********************************************************************
 !Statement function
+integer(kind=iwp) :: MulD2h, i, j
 MulD2h(i,j) = ieor(i-1,j-1)+1
 !***********************************************************************
 

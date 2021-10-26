@@ -10,29 +10,28 @@
 !***********************************************************************
 
 subroutine Cho_CASPT2_OpenF(iOpt,iTyp,iSym,nBatch)
-!     Purpose: open (iOpt=1), close and keep (iOpt=2), or close and
-!              delete (iOpt=3) Cholesky vector files for CASPT2 program
-!              (full vectors).
-!              For iOpt=0, the units are initialized (to -1).
-!              iTyp=1: transformed Cholesky vectors (Inactive).
-!              iTyp=2: transformed Cholesky vectors (Active).
-!              iTyp=3: vectors from (pi|qj) decomposition (Not
-!                      implemented yet!)
-!
+! Purpose: open (iOpt=1), close and keep (iOpt=2), or close and
+!          delete (iOpt=3) Cholesky vector files for CASPT2 program
+!          (full vectors).
+!          For iOpt=0, the units are initialized (to -1).
+!          iTyp=1: transformed Cholesky vectors (Inactive).
+!          iTyp=2: transformed Cholesky vectors (Active).
+!          iTyp=3: vectors from (pi|qj) decomposition (Not
+!                  implemented yet!)
 
-#include "implicit.fh"
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: iOpt, iTyp, iSym, nBatch
 #include "WrkSpc.fh"
-character*16 SecNam
-parameter(SecNam='Cho_CASPT2_OpenF')
-character*3 BaseNm
-character*7 FullNm
 #include "chocaspt2.fh"
-dimension NUMCHO(8)
-save NCALLS
-integer NCALLS
-data NCALLS/0/
+integer(kind=iwp) :: iaddr, iB, LuV, nSym, NCALLS = 0, NUMCHO(8)
+character(len=3) :: BaseNm
+character(len=7) :: FullNm
+character(len=*), parameter :: SecNam = 'Cho_CASPT2_OpenF'
 !******************************************************************
 !Statement function
+integer(kind=iwp) :: lUnit_F, j, k, l
 lUnit_F(j,k,l) = iWork(ipUnit_F(j)+(l-1)*nIsplit(j)+k-1)
 !******************************************************************
 
@@ -73,9 +72,9 @@ if (iOpt == 1) then
         LuV = 7 ! initial guess
         call daName_MF_WA(LuV,FullNm) ! handle inquire/free unit
         iWork(ipUnit_F(iSym)+(iTyp-1)*nIsplit(iSym)+iB-1) = LuV
-        write(6,*) ' Opened file "',FullNm,'" as unit nr LuV=',LuV
+        write(u6,*) ' Opened file "',FullNm,'" as unit nr LuV=',LuV
         iaddr = ipUnit_F(iSym)+(iTyp-1)*nIsplit(iSym)+iB-1
-        write(6,*) ' Unit number LuV is stored at address ',iaddr
+        write(u6,*) ' Unit number LuV is stored at address ',iaddr
       end if
     end do
   else
@@ -86,7 +85,7 @@ if (iOpt == 1) then
 else if (iOpt == 2) then
   do iB=1,nBatch
     if (lUnit_F(iSym,iB,iTyp) > 0) then
-      write(6,*) ' Closing lUnit_F(iSym,iB,iTyp)=',lUnit_F(iSym,iB,iTyp)
+      write(u6,*) ' Closing lUnit_F(iSym,iB,iTyp)=',lUnit_F(iSym,iB,iTyp)
       call daClos(lUnit_F(iSym,iB,iTyp))
       iWork(ipUnit_F(iSym)+(iTyp-1)*nIsplit(iSym)+iB-1) = -1
     end if
@@ -94,7 +93,7 @@ else if (iOpt == 2) then
 else if (iOpt == 3) then
   do iB=1,nBatch
     if (lUnit_F(iSym,iB,iTyp) > 0) then
-      write(6,*) ' Erasing lUnit_F(iSym,iB,iTyp)=',lUnit_F(iSym,iB,iTyp)
+      write(u6,*) ' Erasing lUnit_F(iSym,iB,iTyp)=',lUnit_F(iSym,iB,iTyp)
       call daEras(lUnit_F(iSym,iB,iTyp))
       iWork(ipUnit_F(iSym)+(iTyp-1)*nIsplit(iSym)+iB-1) = -1
     end if

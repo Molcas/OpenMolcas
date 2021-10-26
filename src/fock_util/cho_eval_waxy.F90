@@ -11,22 +11,25 @@
 
 subroutine CHO_eval_waxy(irc,Scr,ChoV1,ChoV2,W_PWXY,nAorb,JSYM,NUMV,DoTraInt,CMO)
 
-use Data_structures, only: SBA_Type, twxy_Type, DSBA_Type
+use Data_structures, only: DSBA_Type, SBA_Type, twxy_Type
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 W_PWXY(*)
-integer nAorb(*)
-type(DSBA_Type) CMO
-type(SBA_Type) ChoV1, ChoV2
-type(twxy_type) Scr
-integer off_PWXY(8,8,8)
-logical DoTraInt
-#include "real.fh"
+implicit none
+integer(kind=iwp) :: irc, nAorb(*), JSYM, NUMV
+type(twxy_type) :: Scr
+type(SBA_Type) :: ChoV1, ChoV2
+real(kind=wp) :: W_PWXY(*)
+logical(kind=iwp) :: DoTraInt
+type(DSBA_Type) :: CMO
 #include "Molcas.fh"
 #include "general.fh"
 #include "wadr.fh"
+integer(kind=iwp) :: ijSym, iOrb, ipMpw, iS, iStack, iSyma, iSymp, iSymw, iSymx, iSymy, ixy, jAsh, kAsh, kl_Orb_pairs, lAsh, &
+                     nAob_w, nBas_a, nOrb_a, Npw, Nwa, Nxy, off_PWXY(8,8,8)
 !************************************************
 !Statement function
+integer(kind=iwp) :: MulD2h, i, j
 MulD2h(i,j) = ieor(i-1,j-1)+1
 !************************************************
 
@@ -96,9 +99,9 @@ if (DoTraInt) then
     end do
   end do
   nPWXY = iStack
-  !
+
   ! Reordering and MO-transformation
-  !
+
   do iSymy=1,nSym
 
     iSymx = MulD2h(iSymy,JSYM)

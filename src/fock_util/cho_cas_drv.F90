@@ -11,49 +11,47 @@
 
 subroutine CHO_CAS_DRV(rc,W_CMO,DI,FI,DA1,FA,W_PWXY,TraOnly)
 
-use Data_Structures, only: DSBA_Type, Allocate_DSBA, Deallocate_DSBA
+use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-integer rc
-real*8 W_PWXY(*)
-real*8 DA1(*), DI(*), FI(*), FA(*), W_CMO(*)
-integer nForb(8), nIorb(8), nAorb(8), nChM(8), nChI(8)
-logical TraOnly
-#include "real.fh"
+implicit none
+integer(kind=iwp) :: rc
+real(kind=wp) :: W_CMO(*), DI(*), FI(*), DA1(*), FA(*), W_PWXY(*)
+logical(kind=iwp) :: TraOnly
 #include "chotodo.fh"
 #include "chlcas.fh"
 #include "cholk.fh"
-character(LEN=11), parameter :: SECNAM = 'CHO_CAS_DRV'
 #include "rasdim.fh"
 #include "wadr.fh"
 #include "general.fh"
 #include "rasscf.fh"
-#include "stdalloc.fh"
-type(DSBA_Type) CVa(2), POrb(3), Ddec, ChoIn, CMO, DLT(2), FLT(2), MSQ, FLT_MO(2)
-real*8, allocatable :: Tmp1(:), Tmp2(:)
+integer(kind=iwp) :: i, iBas, iFro, ikk, incs, iOrb, iSym, ja, jkk, nAorb(8), nChI(8), nChM(8), nForb(8), nIorb(8), NumV
+real(kind=wp) :: dmpk_old, FactXI, Ymax
+type(DSBA_Type) :: ChoIn, CMO, CVa(2), Ddec, DLT(2), FLT(2), FLT_MO(2), MSQ, POrb(3)
+real(kind=wp), allocatable :: Tmp1(:), Tmp2(:)
+real(kind=wp), parameter :: Thr = 1.0e-12_wp
+character(len=*), parameter :: SECNAM = 'CHO_CAS_DRV'
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 interface
-
   subroutine DGEMM_(TRANSA,TRANSB,M,N,K,ALPHA,A,LDA,B,LDB,BETA,C,LDC)
-
     character*1 TRANSA, TRANSB
     integer M, N, K, LDA, LDB, LDC
     real*8 ALPHA, BETA
     real*8 A(LDA,*), B(LDB,*), C(LDC,*)
   end subroutine DGEMM_
-
   subroutine MXMT(A,ICA,IRA,B,ICB,IRB,C,NROW,NSUM)
     integer ICA, IRA, ICB, IRB, NROW, NSUM
     real*8 A(*), B(*), C(*)
   end subroutine MXMT
-
 end interface
-
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+
 rc = 0
 
 call Allocate_DSBA(FLT(1),nBas,nBas,nSym,aCase='TRI',Ref=FI)
@@ -86,7 +84,7 @@ if (TraOnly) then
       call mma_allocate(Tmp1,iBas*iBas,Label='Tmp1')
       call mma_allocate(Tmp2,iOrb*iBas,Label='Tmp1')
       call Square(FLT(i)%SB(iSym)%A1,Tmp1,1,iBas,iBas)
-      call DGEMM_('N','N',iBas,iOrb,iBas,1.0d0,Tmp1,iBas,CMO%SB(iSym)%A1(1+iFro*iBas:),iBas,0.0d0,Tmp2,iBas)
+      call DGEMM_('N','N',iBas,iOrb,iBas,One,Tmp1,iBas,CMO%SB(iSym)%A1(1+iFro*iBas:),iBas,Zero,Tmp2,iBas)
       call MXMT(Tmp2,iBas,1,CMO%SB(iSym)%A1(1+iFro*iBas:),1,iBas,FLT_MO(i)%SB(iSym)%A1,iOrb,iBas)
       call mma_deallocate(Tmp2)
       call mma_deallocate(Tmp1)
@@ -121,17 +119,17 @@ else
   call Fold(nSym,nBas,DI,DLT(1)%A0)
   call Fold(nSym,nBas,DA1,DLT(2)%A0)
 
-  FactXI = -1.0d0
+  FactXI = -One
 
-  !AMS - should this be set differently for ExFac.ne.1?
+  !AMS - should this be set differently for ExFac /= 1?
   !      FactXI = 0-ExFac
 
   if (Deco) then
 
-    FactXI = -0.5d0
+    FactXI = -Half
 
-    !AMS - should this be set differently for ExFac.ne.1?
-    !      FactXI = 0-(ExFac*0.5)
+    !AMS - should this be set differently for ExFac /= 1?
+    !      FactXI = 0-(ExFac*Half)
 
     ! --- decompose the Inactive density on request
     call Allocate_DSBA(ChoIn,nBas,nBas,nSym)
@@ -140,26 +138,26 @@ else
 
     call Allocate_DSBA(MSQ,nBas,nBas,nSym,Ref=ChoIn%A0)
 
-    Thr = 1.0d-12
     incs = 0
     do i=1,nSym
       if ((nForb(i)+nIorb(i)) > 0) then
         call CD_InCore(DDec%SB(i)%A2,nBas(i),ChoIn%SB(i)%A2,nBas(i),NumV,Thr,rc)
         if (rc /= 0) then
-          write(6,*) SECNAM//': ill-defined dens decomp for Inact'
-          write(6,*) 'rc value produced = ',rc
+          write(u6,*) SECNAM//': ill-defined dens decomp for Inact'
+          write(u6,*) 'rc value produced = ',rc
           call abend()
         end if
         nChI(i) = NumV
         if (NumV /= nIsh(i)+nForb(i)) then
-          write(6,*) 'Warning! The number of occupied from the decomposition of the Inactive density matrix is ',numV,' in symm. ',i
-          write(6,*) 'Expected value = ',nIsh(i)+nForb(i)
+          write(u6,*) 'Warning! The number of occupied from the decomposition of the Inactive density matrix is ',numV, &
+                      ' in symm. ',i
+          write(u6,*) 'Expected value = ',nIsh(i)+nForb(i)
           incs = incs+1
-          Ymax = 0.0d0
+          Ymax = Zero
           do ja=1,nBas(i)
             Ymax = max(Ymax,DDec%SB(i)%A2(ja,ja))
           end do
-          write(6,*) 'Max diagonal of the density in symm. ',i,' is equal to ',Ymax
+          write(u6,*) 'Max diagonal of the density in symm. ',i,' is equal to ',Ymax
         end if
       else
         nChI(i) = 0
@@ -168,8 +166,8 @@ else
 
     if ((incs > 0) .and. DoLocK) then
       dmpk_old = dmpk
-      dmpk = 1.0d-2*dmpk
-      write(6,*) 'LK-damping decreased from ',dmpk_old,' to ',dmpk
+      dmpk = 1.0e-2_wp*dmpk
+      write(u6,*) 'LK-damping decreased from ',dmpk_old,' to ',dmpk
     end if
 
     call Deallocate_DSBA(DDEc)
@@ -228,7 +226,7 @@ else
 #   ifdef _DEBUGPRINT_
     do i=1,nSym
       call CD_TESTER(rc,DLT(2)%SB(i)%A1,nBas(i),.true.)
-      write(6,*) 'DALT for sym=',i
+      write(u6,*) 'DALT for sym=',i
       call TRIPRT('DALT',' ',DLT(2)%SB(i)%A1,nBas(i))
     end do
 #   endif
@@ -237,15 +235,14 @@ else
     call Allocate_DSBA(DDec,nBas,nBas,nSym)
     DDec%A0(1:NTot2) = DA1(1:NTot2)
 
-    Thr = 1.0d-12
     do i=1,nSym
       if (nAorb(i) > 0) then
         ! NOTE(Giovanni): CD will proceed with approx. decompos for QMC
-        !                 This will avoid warnings for negative-definit
+        !                 This will avoid warnings for negative-definite
         call CD_InCore(DDec%SB(i)%A2,nBas(i),CVa(2)%SB(i)%A2,nBas(i),NumV,Thr,rc)
         if (rc /= 0) then
-          write(6,*) SECNAM//': ill-defined dens decomp for active'
-          write(6,*) 'rc value produced = ',rc
+          write(u6,*) SECNAM//': ill-defined dens decomp for active'
+          write(u6,*) 'rc value produced = ',rc
           call abend()
         end if
         nChM(i) = NumV
@@ -308,7 +305,7 @@ else
 
     !)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
 
-    write(6,*) SECNAM//': wrong input parameter. ALGO= ',ALGO
+    write(u6,*) SECNAM//': wrong input parameter. ALGO= ',ALGO
     rc = 55
     return
 

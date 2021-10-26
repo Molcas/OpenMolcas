@@ -11,30 +11,36 @@
 ! Copyright (C) 2013, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-real*8 function Cho_LK_ScreeningThreshold(delta)
+function Cho_LK_ScreeningThreshold(delta)
 ! Thomas Bondo Pedersen, May 2013.
 !
 ! Return the basic LK screening threshold. Input is a damping
 ! parameter, f.ex. the max. Fock matrix element in the previous
-! iteration. Use delta<0.0d0 or delta>1.0d0 to avoid damping.
+! iteration. Use delta < 0 or delta > 1 to avoid damping.
 !
 ! The Cholesky environment must have been set up prior to calling
 ! this function [by calling Cho_X_Init(..)]
 
+use Constants, only: Zero, One
+use Definitions, only: wp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
 implicit none
-real*8 delta
+real(kind=wp) :: Cho_LK_ScreeningThreshold
+real(kind=wp) :: delta
 #include "cholesky.fh"
-real*8 thr0
-parameter(thr0=1.0d-6)
-real*8 thr
+real(kind=wp) :: thr
+real(kind=wp), parameter :: thr0 = 1.0e-6_wp
 
 thr = min(ThrCom,thr0)
-if ((delta >= 0.0d0) .and. (delta <= 1.0d0)) then
+if ((delta >= Zero) .and. (delta <= One)) then
   thr = thr*delta
 end if
-Cho_LK_ScreeningThreshold = max(thr,1.0d-15)
+Cho_LK_ScreeningThreshold = max(thr,1.0e-15_wp)
 #ifdef _DEBUGPRINT_
-write(6,'(1P,4(A,D15.6))') 'ThrCom=',ThrCom,' thr0=',thr0,' delta=',delta,' Cho_LK_ScreeningThreshold=',Cho_LK_ScreeningThreshold
+write(u6,'(1P,4(A,ES15.6))') 'ThrCom=',ThrCom,' thr0=',thr0,' delta=',delta,' Cho_LK_ScreeningThreshold=',Cho_LK_ScreeningThreshold
 #endif
 
 end function Cho_LK_ScreeningThreshold

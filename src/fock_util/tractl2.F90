@@ -19,18 +19,20 @@ subroutine TraCtl2(CMO,PUVX,TUVX,D1I,FI,D1A,FA,IPR,lSquare,ExFac)
 !***********************************************************************
 
 #ifdef _MOLCAS_MPP_
-use Para_Info, only: nProcs, Is_Real_Par
+use Para_Info, only: Is_Real_Par, nProcs
 #endif
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-parameter(Zero=0.0d0)
+implicit none
+real(kind=wp) :: CMO(*), PUVX(*), TUVX(*), D1I(*), FI(*), D1A(*), FA(*), ExFac
+integer(kind=iwp) :: IPR
+logical(kind=iwp) :: lSquare
 #include "rasdim.fh"
 #include "general.fh"
 #include "wadr.fh"
-dimension CMO(*), PUVX(*), TUVX(*)
-dimension D1I(*), D1A(*), FI(*), FA(*)
-logical lSquare, TraOnly
 #include "chlcas.fh"
+integer(kind=iwp) :: iDisk, irc
+logical(kind=iwp) :: TraOnly
 
 !call DecideOnCholesky(DoCholesky)
 
@@ -79,7 +81,7 @@ else if (ALGO == 2) then
   call CHO_CAS_DRV(irc,CMO,D1I,FI,D1A,FA,PUVX,TraOnly)
 
   if (irc /= 0) then
-    write(6,*) 'TRACTL2: Cho_cas_drv non-Zero return code. rc= ',irc
+    write(u6,*) 'TRACTL2: Cho_cas_drv non-Zero return code. rc= ',irc
     call Abend()
   end if
 

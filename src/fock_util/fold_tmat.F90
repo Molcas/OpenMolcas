@@ -32,10 +32,15 @@ subroutine Fold_tMat(nSym,nBas,A,B)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-dimension nBas(*), A(*), B(*)
-parameter(two=2.0d0)
+use Constants, only: Two
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nSym, nBas(nSym)
+real(kind=wp) :: A(*), B(*)
+integer(kind=iwp) :: iOff, iSym
 !************************************
+integer(kind=iwp) :: iit, ijt, j, i
 !Statement functions
 iit(j) = j*(j+1)/2
 ijt(i,j) = i*(i-1)/2+j
@@ -66,7 +71,7 @@ end do
 !  do i=1,nbas(isym)
 !    do j=1,i-1
 !      ij = ij+1
-!      B(ij) = 2.0d0*A(ij)
+!      B(ij) = Two*A(ij)
 !    end do
 !    ij = ij+1
 !    B(ij) = A(ij)

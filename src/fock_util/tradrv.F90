@@ -35,20 +35,25 @@ subroutine TraDrv(IPR,lSquare,iSym,jSym,kSym,lSym,iBas,jBas,kBas,lBas,iOrb,jOrb,
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "stdalloc.fh"
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: IPR, iSym, jSym, kSym, lSym, iBas, jBas, kBas, lBas, iOrb, jOrb, kOrb, lOrb, iFro, jFro, kFro, lFro, iIsh, &
+                     jIsh, kIsh, lIsh, iAsh, jAsh, kAsh, lAsh, ij_Bas_pairs, kl_Bas_pairs, ij_Orb_pairs, kl_Orb_pairs, mxSym, &
+                     off_PUVX(mxSym,mxSym,mxSym), off_sqMat(*), off_ltMat(*)
+logical(kind=iwp) :: lSquare
+real(kind=wp) :: CMO(*), PUVX(*), D1I(*), FI(*), D1A(*), FA(*), ExFac
 #include "timers.fh"
-integer off_PUVX(mxSym,mxSym,mxSym), off_sqMat(*), off_ltMat(*)
-real*8 CMO(*), PUVX(*)
-real*8 D1I(*), D1A(*), FI(*), FA(*)
-integer case1, case2
-logical Process_Twice, lSquare
-real*8, allocatable, target :: Scrt1(:), PQVX(:), TURS(:), InBuf(:)
-real*8, allocatable :: Buf2(:), Buf3(:)
-real*8, pointer :: Buf9(:) => null()
-real*8, pointer :: PQRS(:) => null(), PQRS_(:) => null()
+integer(kind=iwp) :: case1, case2, i1, i2, iiiOff, iiOff, ij_pair, iOff, iOpt, iRc, jjjOff, jjOff, jMax, kkkOff, kkOff, kl_pair, &
+                     klBas, lllOff, llOff, nBuf2, nBuf3, nInBuf, nOff, nPairs, nPQVX, nScrt1, nTURS
+logical(kind=iwp) :: Process_Twice
+real(kind=wp), allocatable :: Buf2(:), Buf3(:)
+real(kind=wp), allocatable, target :: InBuf(:), PQVX(:), Scrt1(:), TURS(:)
+real(kind=wp), pointer :: Buf9(:) => null(), PQRS(:) => null(), PQRS_(:) => null()
 !Statement function
+integer(kind=iwp) :: iTri, i, j
 iTri(i,j) = i*(i-1)/2+j
 
 ! generate offsets
@@ -109,7 +114,7 @@ nInBuf = max(nInBuf,(kl_Bas_pairs+1))
 call mma_allocate(InBuf,nInBuf,Label='InBuf')
 
 if ((IPR >= 5) .and. (case2 /= 0)) then
-  write(6,'(1X,4I2,2X,4I4,2X,4I4,2X,4I4)') iSym,jSym,kSym,lSym,iBas,jBas,kBas,lBas,iOrb,jOrb,kOrb,lOrb,iAsh,jAsh,kAsh,lAsh
+  write(u6,'(1X,4I2,2X,4I4,2X,4I4,2X,4I4)') iSym,jSym,kSym,lSym,iBas,jBas,kBas,lBas,iOrb,jOrb,kOrb,lOrb,iAsh,jAsh,kAsh,lAsh
 end if
 
 nPairs = 0

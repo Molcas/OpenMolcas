@@ -11,10 +11,14 @@
 
 subroutine Order_Arrays(mode,A1,N1,N2,P2,SCR1)
 
-implicit real*8(a-h,o-z)
-character*4 mode
-integer N1, N2
-real*8 A1(N1,N2), P2(N2), SCR1(N1)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+character(len=4) :: mode
+integer(kind=iwp) :: N1, N2
+real(kind=wp) :: A1(N1,N2), P2(N2), SCR1(N1)
+integer(kind=iwp) :: j, k
+real(kind=wp) :: tmp
 
 if (mode == 'decr') then
   do j=1,N2-1
@@ -43,7 +47,7 @@ else if (mode == 'incr') then
     end do
   end do
 else
-  write(6,*) ' In routine Order_Arrays: wrong mode! '
+  write(u6,*) ' In routine Order_Arrays: wrong mode! '
   call Abend()
 end if
 

@@ -11,16 +11,20 @@
 
 subroutine CHO_get_MO(iOK,nDen,nSym,nBas,nIsh,CM,MSQ)
 
-use Data_Structures, only: DSBA_Type, Allocate_DSBA, Deallocate_DSBA
+use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type
+use Constants, only: Zero, One
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-integer iOK, nDen, nSym
-integer nBas(nSym), nIsh(nSym)
-type(DSBA_Type) CM(nDen), MSQ(nDen), SMat
-#include "stdalloc.fh"
-real*8, allocatable :: SXMat(:)
-real*8, allocatable, target :: Dmat0(:)
-real*8, pointer :: Dmat(:,:)
+implicit none
+integer(kind=iwp) :: iOK, nDen, nSym, nBas(nSym), nIsh(nSym)
+type(DSBA_Type) :: CM(nDen), MSQ(nDen)
+integer(kind=iwp) :: i, iComp, ikc, iOpt, irc, iSyLbl, iSym, ja, nBm, NumV
+real(kind=wp) :: Thr, Ymax
+type(DSBA_Type) :: SMat
+real(kind=wp), allocatable :: SXMat(:)
+real(kind=wp), allocatable, target :: Dmat0(:)
+real(kind=wp), pointer :: Dmat(:,:) => null()
 !***********************************************************************
 
 irc = 0
@@ -41,14 +45,14 @@ do while (iSym <= nSym)
 
     ! Inactive D(a,b) = sum_i C(a,i)*C(b,i)
 
-    call DGEMM_('N','T',nBas(iSym),nBas(iSym),nIsh(iSym),1.0d0,CM(1)%SB(iSYm)%A2,nBas(iSym),CM(1)%SB(iSYm)%A2,nBas(iSym),0.0d0, &
-                DMat,nBas(iSym))
+    call DGEMM_('N','T',nBas(iSym),nBas(iSym),nIsh(iSym),One,CM(1)%SB(iSYm)%A2,nBas(iSym),CM(1)%SB(iSYm)%A2,nBas(iSym),Zero,DMat, &
+                nBas(iSym))
 
-    Ymax = 0.0d0
+    Ymax = Zero
     do ja=1,nBas(iSym)
       Ymax = max(Ymax,DMat(ja,ja))
     end do
-    Thr = 1.0d-13*Ymax
+    Thr = 1.0e-13_wp*Ymax
 
     call CD_InCore(DMat,nBas(iSym),MSQ(1)%SB(iSym)%A2,nBas(iSym),NumV,Thr,irc)
 
@@ -86,16 +90,16 @@ if ((nDen == 2) .and. (irc == 0) .and. (ikc == 0)) then
 
       call SQUARE(SMat%SB(i)%A1,DMat,1,NBas(i),NBas(i))
 
-      call DGEMM_('N','N',nBas(i),nIsh(i),nBas(i),1.0d0,DMat,nBas(i),MSQ(1)%SB(i)%A2,nBas(i),0.0d0,SXMat,nBas(i))
+      call DGEMM_('N','N',nBas(i),nIsh(i),nBas(i),One,DMat,nBas(i),MSQ(1)%SB(i)%A2,nBas(i),Zero,SXMat,nBas(i))
 
       DMat(1:nIsh(iSym),1:nIsh(iSym)) => DMat0(1:nIsh(iSym)**2)
 
-      call DGEMM_('T','N',nIsh(i),nIsh(i),nBas(i),1.0d0,CM(1)%SB(i)%A2,nBas(i),SXMat,nBas(i),0.0d0,DMat,nIsh(i))
+      call DGEMM_('T','N',nIsh(i),nIsh(i),nBas(i),One,CM(1)%SB(i)%A2,nBas(i),SXMat,nBas(i),Zero,DMat,nIsh(i))
 
-      !write(6,*) ' U_a = C_a^T S X_a   for symmetry block: ',i
-      !call cho_output(DMat,1,nIsh(i),1,nIsh(i),nIsh(i),nIsh(i),1,6)
+      !write(u6,*) ' U_a = C_a^T S X_a   for symmetry block: ',i
+      !call cho_output(DMat,1,nIsh(i),1,nIsh(i),nIsh(i),nIsh(i),1,u6)
 
-      call DGEMM_('N','N',nBas(i),nIsh(i),nIsh(i),1.0d0,CM(2)%SB(i)%A2,nBas(i),DMat,nIsh(i),0.0d0,MSQ(2)%SB(i)%A2,nBas(i))
+      call DGEMM_('N','N',nBas(i),nIsh(i),nIsh(i),One,CM(2)%SB(i)%A2,nBas(i),DMat,nIsh(i),Zero,MSQ(2)%SB(i)%A2,nBas(i))
 
     end if
 

@@ -11,20 +11,23 @@
 
 subroutine Coul_DMB(GetFM,nDM,Rep_EN,FM,DMA,DMB,lFDM)
 
-use Data_Structures, only: DSBA_Type, Allocate_DSBA, Deallocate_DSBA
+use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type
+use Definitions, only: wp, iwp, u6, r8
 
-implicit real*8(a-h,o-z)
-logical GetFM
-integer nDM, lFDM
-real*8 FM(lFDM), DMA(lFDM), DMB(lFDM)
-type(DSBA_Type) DLT, FLT
+implicit none
+logical(kind=iwp) :: GetFM
+integer(kind=iwp) :: nDM, lFDM
+real(kind=wp) :: Rep_EN, FM(lFDM), DMA(lFDM), DMB(lFDM)
 #include "real.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-character(LEN=16) NamRfil
+integer(kind=iwp) :: irc
+character(len=16) :: NamRfil
+type(DSBA_Type) :: DLT, FLT
+real(kind=r8), external :: ddot_
 
 if ((nDM > 2) .or. (nDM < 1)) then
-  write(6,*) ' In Coul_DMB: wrong value of nDM= ',nDM
+  write(u6,*) ' In Coul_DMB: wrong value of nDM= ',nDM
   call SysAbendMsg('Coul_DMB ',' nDM must be 1 or 2 ',' ')
 end if
 

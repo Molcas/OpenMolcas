@@ -49,17 +49,17 @@
 !***********************************************************************
 subroutine TraCtl_Drv(iType,DoExch2,iPart)
 
-implicit real*8(a-h,o-z)
-integer iType
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: iType, iPart
+logical(kind=iwp) :: DoExch2
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
-logical DoCholesky, DoExch2
 #include "chocaspt2.fh"
-character*10 SECNAM
-
-SECNAM = 'TraCtl_Drv'
+logical(kind=iwp) :: DoCholesky
+character(len=*), parameter :: SECNAM = 'TraCtl_Drv'
 
 call DecideOnCholesky(DoCholesky)
 
