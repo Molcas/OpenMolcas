@@ -296,14 +296,14 @@ c free and reallocate memory for LRESI using that length
         WORK(LSMI+i)=WORK(LSM+i)
       enddo
       call GETMEM('PIV   ','ALLO','INTE',LP,nb)
-      call DGETRF_(nb,nb,WORK(LSMI),nb,WORK(LP),INFO)
+      call DGETRF_(nb,nb,WORK(LSMI),nb,IWORK(LP),INFO)
       call GETMEM('RESI  ','ALLO','REAL',LRESI,1)
       LWORK=-1
-      call DGETRI_(nb,WORK(LSMI),nb,WORK(LP),WORK(LRESI),LWORK,INFO)
+      call DGETRI_(nb,WORK(LSMI),nb,IWORK(LP),WORK(LRESI),LWORK,INFO)
       LWORK=INT(WORK(LRESI))
       call GETMEM('RESI  ','FREE','REAL',LRESI,1)
       call GETMEM('RESI  ','ALLO','REAL',LRESI,LWORK)
-      call DGETRI_(nb,WORK(LSMI),nb,WORK(LP),WORK(LRESI),LWORK,INFO)
+      call DGETRI_(nb,WORK(LSMI),nb,IWORK(LP),WORK(LRESI),LWORK,INFO)
       call GETMEM('PIV   ','FREE','INTE',LP,nb)
       call GETMEM('RESI  ','FREE','REAL',LRESI,LWORK)
 
@@ -355,7 +355,7 @@ c then let LWORK equal to length of scratch space
 c free and reallocate memory for LRESI using that length
       LWORK=-1
       Call ZGESVD_('A','A',NB,NB,TDMZZLC,NB,SVDS,
-     &            SVDU,NB,SVDVH,NB,WORK(LRESI),
+     &            SVDU,NB,SVDVH,NB,IWORK(LRESI),
      &            LWORK,WORK(LRESIR),INFO)
       LWORK=max(1,int(WORK(LRESI)))
       call GETMEM('SVDRESI','FREE','INTE',LRESI,1)
