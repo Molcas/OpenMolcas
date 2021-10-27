@@ -26,7 +26,9 @@ subroutine get_dm0()
 
   complex(kind=wp),dimension(:,:),allocatable:: DET2CSF, DM0_bas
   complex(kind=wp) :: Z
-!  integer(kind=iwp) :: lu !temporary io unit
+  complex(kind=wp), dimension(:), allocatable:: temp_dm
+  integer(kind=iwp) :: lu !temporary io unit
+  integer(kind=iwp), external :: isFreeUnit
 
   if (ipglob>3) write(u6,*) 'Begin get_dm0'
 
@@ -259,18 +261,21 @@ subroutine get_dm0()
     end select
   endif !ifso
 
-! ADD HERE DENSITY MATRIX READING FROM FILE, think of transformations
-! if (p_style=='FROMFILE') then
-!   lu = isFreeUnit(11)
-!   call molcas_open(lu,'INDENS')
-!   do i=1,NState
-!     do j=1,Nstate
-!       read(lu,'(E16.8)',advance='no') temp(j)
-!       DM0(i,j) = dcmplx(temp(j))
-!     enddo
-!   enddo
-!   close(lu) ! close INDENS file
-! endif
+! it will be transformed as usual further
+  if (p_style=='FROMFILE') then
+   call mma_allocate(temp_dm, NState)
+   lu = isFreeUnit(11)
+   call molcas_open(lu,'INDENS')
+   do i=1,NState
+     do j=1,Nstate
+       read(lu,'(E16.8)',advance='no') temp_dm(j)
+     enddo
+     DM0(i,:) = dcmplx(temp_dm)
+     read(lu,*)
+   enddo
+   close(lu) ! close INDENS file
+   call mma_deallocate(temp_dm)
+ endif
 
   if (allocated(DM0_bas)) call mma_deallocate(DM0_bas)
 
