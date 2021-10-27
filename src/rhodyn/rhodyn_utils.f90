@@ -108,15 +108,6 @@ contains
                       (0.0d0,0.0d0), c, size(c, 1))
   end subroutine multZ_2D
 
-!  subroutine assert(x)
-!    implicit none
-!    logical, intent(in):: x
-!    if (.not.x) then
-!      write(6,*) 'assertion ', x, ' failed'
-!      call abend()
-!    endif
-!  end subroutine assert
-
   subroutine removeLineAndColumnZ(a,remLCarray)
     implicit none
     complex(8), dimension(:,:), allocatable, intent(inout) :: a
@@ -143,14 +134,14 @@ contains
     enddo
     allocate(b(l))
   ! copy remaining elements into temp b
-    b = pack(a,mask)
+    b(:) = pack(a,mask)
     deallocate(a)
     allocate(a(k,k))
   ! copy back
-    a = reshape(b,(/k,k/))
+    a(:,:) = reshape(b,(/k,k/))
     deallocate(b)
     deallocate(mask)
-  end
+  end subroutine removeLineAndColumnZ
 
   subroutine removeLineAndColumnR(a,remLCarray)
     implicit none
@@ -178,14 +169,14 @@ contains
     enddo
     allocate(b(l))
     ! copy remaining elements into temp b
-    b = pack(a,mask)
+    b(:) = pack(a,mask)
     deallocate(a)
     allocate(a(k,k))
     ! copy back
-    a = reshape(b,(/k,k/))
+    a(:,:) = reshape(b,(/k,k/))
     deallocate(b)
     deallocate(mask)
-  end
+  end subroutine removeLineAndColumnR
 
   subroutine removeColumnZ(a,remCarray)
     implicit none
@@ -211,14 +202,14 @@ contains
     enddo
     allocate(b(l))
     ! copy remaining elements into temp b
-    b = pack(a,mask)
+    b(:) = pack(a,mask)
     deallocate(a)
     allocate(a(n,k))
     ! copy back
-    a = reshape(b,(/n,k/))
+    a(:,:) = reshape(b,(/n,k/))
     deallocate(b)
     deallocate(mask)
-  end
+  end subroutine removeColumnZ
 
   subroutine removeColumnR(a,remCarray)
     implicit none
@@ -248,10 +239,10 @@ contains
     deallocate(a)
     allocate(a(n,k))
     ! copy back
-    a = reshape(b,(/n,k/))
+    a(:,:) = reshape(b,(/n,k/))
     deallocate(b)
     deallocate(mask)
-  end
+  end subroutine removeColumnR
 
   subroutine transformZ(a,u,b,order)
     implicit none
@@ -283,7 +274,7 @@ contains
       call multZ_2D(temp,u,b,.False.,.True.)
     endif
     deallocate(temp)
-  end
+  end subroutine transformZ
 
   subroutine transformR(a,u,b,order)
     implicit none
@@ -315,7 +306,7 @@ contains
       call mult_2D(temp,u,b,.False.,.True.)
     endif
     deallocate(temp)
-  end
+  end subroutine transformR
 
   subroutine sortci(N1,A,WR,C,print_level)
     !use rhodyn_data
