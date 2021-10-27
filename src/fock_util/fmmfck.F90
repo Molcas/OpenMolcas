@@ -40,10 +40,11 @@ real(kind=wp) :: Dens(ndim), TwoHam(ndim)
 ! Define local variables
 !#include "mxdm.fh"
 integer(kind=iwp), parameter :: LMAX = 12
-integer(kind=iwp) :: I, iComp, ij, iM, iOpt, iRc, iSyLbl, iSym, J, L, lDens, M, nBas(8), nBasTot, nSym
+integer(kind=iwp) :: f_iostat, I, iComp, ij, iM, iOpt, iRc, iSyLbl, iSym, J, L, lDens, M, nBas(8), nBasTot, nSym
 real(kind=wp) :: CarMoms(ndim,(LMAX+1)*(LMAX+2)/2,LMAX+1), CntrX(ndim+4), CntrY(ndim+4), CntrZ(ndim+4), Moms_batch(ndim+4), &
                  SphMoms(ndim,2*LMAX+1,LMAX+1)
 character(len=8) :: Label
+logical(kind=iwp) :: is_error
 
 call Get_iScalar('nSym',nSym)
 call Get_iArray('nBas',nBas,nSym)
@@ -120,12 +121,12 @@ end do
 ! Write to FMM interface file
 
 ! Write array lengths in header file
-open(98,FILE='MM_DATA_HEADER',FORM='UNFORMATTED',STATUS='REPLACE')
+call molcas_open_ext2(98,'MM_DATA_HEADER','SEQUENTIAL','UNFORMATTED',f_iostat,.false.,1,'REPLACE',is_error)
 write(98) LMAX,nBasTot,ndim,0
-close(98,STATUS='KEEP')
+close(98)
 
 ! Write multipole moments and density information
-open(98,FILE='MM_DATA',FORM='UNFORMATTED',STATUS='REPLACE')
+call molcas_open_ext2(98,'MM_DATA','SEQUENTIAL','UNFORMATTED',f_iostat,.false.,1,'REPLACE',is_error)
 
 ij = 0
 do J=1,nBasTot
@@ -143,7 +144,7 @@ end do
 
 ! Mark end of file with negative angular momentum
 write(98)-1,0,0,0,0,Zero,Zero,Zero,Zero,Zero
-close(98,STATUS='KEEP')
+close(98)
 
 ! Now call multipole code to update the Fock matrix with the
 ! long-range multipole-computed Coulomb matrix elements.
