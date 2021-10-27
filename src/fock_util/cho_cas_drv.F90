@@ -36,21 +36,6 @@ character(len=*), parameter :: SECNAM = 'CHO_CAS_DRV'
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-interface
-  subroutine DGEMM_(TRANSA,TRANSB,M,N,K,ALPHA,A,LDA,B,LDB,BETA,C,LDC)
-    character*1 TRANSA, TRANSB
-    integer M, N, K, LDA, LDB, LDC
-    real*8 ALPHA, BETA
-    real*8 A(LDA,*), B(LDB,*), C(LDC,*)
-  end subroutine DGEMM_
-  subroutine MXMT(A,ICA,IRA,B,ICB,IRB,C,NROW,NSUM)
-    integer ICA, IRA, ICB, IRB, NROW, NSUM
-    real*8 A(*), B(*), C(*)
-  end subroutine MXMT
-end interface
-!                                                                      *
-!***********************************************************************
-!                                                                      *
 
 rc = 0
 

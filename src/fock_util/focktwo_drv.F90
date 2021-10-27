@@ -11,6 +11,7 @@
 
 subroutine FockTwo_Drv(nSym,nBas,nAux,Keep,DLT,DSQ,FLT,nFLT,ExFac,nBMX)
 
+use fock_util_interface, only: CHOras_drv
 use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -25,20 +26,6 @@ real(kind=wp) :: CMO_DUMMY(1)
 logical(kind=iwp) :: DoCholesky, GenInt
 type(DSBA_Type) ::WFSQ
 real(kind=wp), allocatable :: Temp(:), W1(:), W2(:)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine CHORAS_DRV(nSym,nBas,nOcc,W_DSQ,W_DLT,W_FLT,ExFac,FSQ,W_CMO)
-    use Data_Structures, only: DSBA_Type
-    integer nSym, nBas(8)
-    integer, target :: nOcc(nSym)
-    real*8 W_FLT(*), W_DSQ(*), W_DLT(*)
-    real*8 ExFac
-    type(DSBA_Type) FSQ
-    real*8 W_CMO(*)
-  end subroutine CHORAS_DRV
-end interface
 !                                                                      *
 !***********************************************************************
 !                                                                      *

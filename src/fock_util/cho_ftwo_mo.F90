@@ -88,18 +88,6 @@ real(kind=wp), allocatable :: Dchk(:)
 real(kind=wp), pointer :: LrJs(:,:,:) => null(), XdJb(:) => null(), XgJk(:) => null(), XkJs(:) => null(), VJ(:) => null()
 real(kind=wp), parameter :: Thr = 1.0e-12_wp
 character(len=*), parameter :: BaseNm = 'CHFV', SECNAM = 'CHO_FTWO_MO'
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine dgemv_(TRANS,M,N,ALPHA,A,LDA,X,INCX,BETA,Y,INCY)
-    character(LEN=1) TRANS
-    integer M, N
-    real*8 ALPHA, BETA
-    integer LDA, INCX, INCY
-    real*8 A(lda,*), X(*), Y(*)
-  end subroutine dgemv_
-end interface
 !*************************************************
 !Statement functions
 integer(kind=iwp) :: MulD2h, iTri, nOcc, i, j, jSym, jDen

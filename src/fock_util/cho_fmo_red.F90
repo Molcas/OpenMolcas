@@ -100,18 +100,6 @@ real(kind=wp), parameter :: Thr = 1.0e-12_wp
 logical(kind=iwp), parameter :: DoRead = .true.
 character(len=*), parameter :: SECNAM = 'CHO_FMO_RED'
 real(kind=r8), external :: ddot_
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine dgemv_(TRANS,M,N,ALPHA,A,LDA,X,INCX,BETA,Y,INCY)
-    character(LEN=1) TRANS
-    integer M, N
-    real*8 ALPHA, BETA
-    integer LDA, INCX, INCY
-    real*8 A(lda,*), X(*), Y(*)
-  end subroutine dgemv_
-end interface
 !*************************************************
 !Statement functions
 integer(kind=iwp) :: MulD2h, iTri, nOcc, i, j, jSym, jDen

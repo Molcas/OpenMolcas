@@ -97,28 +97,6 @@ character(len=*), parameter :: SECNAM = 'CHO_LK_CASSCF'
 real(kind=wp), external :: Cho_LK_ScreeningThreshold
 real(kind=r8), external :: ddot_
 integer(kind=iwp), external :: Cho_LK_MaxVecPerBatch
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine Cho_X_getVtra(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,iSwap,IREDC,nDen,kDen,MOs,ChoT,DoRead)
-    use Data_Structures, only: DSBA_Type, SBA_Type
-    integer irc, lRedVec
-    real*8 RedVec(lRedVec)
-    integer IVEC1, NUMV, ISYM, iSwap, IREDC
-    integer nDen, kDen
-    type(DSBA_Type) MOs(nDen)
-    type(SBA_Type) Chot(nDen)
-    logical DoRead
-  end subroutine Cho_X_getVtra
-  subroutine dgemv_(TRANS,M,N,ALPHA,A,LDA,X,INCX,BETA,Y,INCY)
-    character(LEN=1) TRANS
-    integer M, N
-    real*8 ALPHA, BETA
-    integer LDA, INCX, INCY
-    real*8 A(lda,*), X(*), Y(*)
-  end subroutine dgemv_
-end interface
 !***********************************************************************
 !Statement functions
 integer(kind=iwp) :: MulD2h, iTri, i, j
