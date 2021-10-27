@@ -97,7 +97,7 @@ tintg(:) = zero ! time for computing (tw|xy) integrals
 ! *************** BIG LOOP OVER VECTORS SYMMETRY *******************
 do jSym=1,nSym
 
-  if (NumCho(jSym) < 1) goto 1000
+  if (NumCho(jSym) < 1) cycle
 
   iCase = 0 ! twxy
   call Allocate_twxy(Scr,nAsh,nAsh,JSYM,nSym,iCase)
@@ -129,7 +129,7 @@ do jSym=1,nSym
 
     call Cho_X_nVecRS(JRED,JSYM,iVrs,nVrs)
 
-    if (nVrs == 0) goto 999 ! no vectors in that (jred,jsym)
+    if (nVrs == 0) cycle ! no vectors in that (jred,jsym)
 
     if (nVrs < 0) then
       write(u6,*) SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
@@ -396,13 +396,9 @@ do jSym=1,nSym
       call mma_deallocate(Drs)
     end if
 
-999 continue
-
   end do ! loop over red sets
 
   call Deallocate_twxy(Scr)
-
-1000 continue
 
 end do ! loop over JSYM
 

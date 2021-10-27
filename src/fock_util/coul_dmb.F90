@@ -31,29 +31,30 @@ if ((nDM > 2) .or. (nDM < 1)) then
   call SysAbendMsg('Coul_DMB ',' nDM must be 1 or 2 ',' ')
 end if
 
-if (.not. GetFM) Go To 99
+if (GetFM) Then
 
-call Allocate_DSBA(FLT,nBas,nBas,nSym,aCase='TRI',Ref=FM)
+  call Allocate_DSBA(FLT,nBas,nBas,nSym,aCase='TRI',Ref=FM)
 
-call Get_NameRun(NamRfil) ! save the old RUNFILE name
-call NameRun('AUXRFIL')   ! switch RUNFILE name
+  call Get_NameRun(NamRfil) ! save the old RUNFILE name
+  call NameRun('AUXRFIL')   ! switch RUNFILE name
 
-call Allocate_DSBA(DLT,nBas,nBas,nSym,aCase='TRI')
-call get_dArray('D1ao',DLT%A0,lFDM)
+  call Allocate_DSBA(DLT,nBas,nBas,nSym,aCase='TRI')
+  call get_dArray('D1ao',DLT%A0,lFDM)
 
-FLT%A0(:) = Zero
-call CHO_FOCK_DFT_RED(irc,DLT,FLT)
-if (irc /= 0) then
-  call SysAbendMsg('Coul_DMB ',' non-zero rc ',' ')
+  FLT%A0(:) = Zero
+  call CHO_FOCK_DFT_RED(irc,DLT,FLT)
+  if (irc /= 0) then
+    call SysAbendMsg('Coul_DMB ',' non-zero rc ',' ')
+  end if
+  call GADSum(FM,lFDM)
+
+  call deallocate_DSBA(DLT)
+  call deallocate_DSBA(FLT)
+
+  call NameRun(NamRfil) ! switch back RUNFILE name
+
 end if
-call GADSum(FM,lFDM)
 
-call deallocate_DSBA(DLT)
-call deallocate_DSBA(FLT)
-
-call NameRun(NamRfil) ! switch back RUNFILE name
-
-99 continue
 Rep_EN = ddot_(lFDM,DMA,1,FM,1)
 if (nDM == 2) then
   Rep_EN = Rep_EN+ddot_(lFDM,DMB,1,FM,1)

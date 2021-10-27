@@ -139,7 +139,7 @@ end if
 ! *************** BIG LOOP OVER VECTORS SYMMETRY *****************
 do jSym=1,MaxSym
 
-  if (NumCho(jSym) < 1) goto 1000
+  if (NumCho(jSym) < 1) cycle
 
   ! ------------------------------------------------------
 
@@ -512,8 +512,6 @@ do jSym=1,MaxSym
     call Deallocate_SBA(Wab)
 
   end do ! end of the batch procedure
-
-1000 continue
 
 end do ! loop over JSYM
 

@@ -73,7 +73,7 @@ if (DECO) then ! use decomposed density
       Thr = 1.0e-13_wp*Ymax
       ! Call for decomposition:
       call CD_InCore(DDec%SB(i)%A2,nBas(i),Vec%SB(i)%A2,nBas(i),NumV,Thr,rc)
-      if (rc /= 0) goto 999
+      if (rc /= 0) call Error(rc)
       nVec(i) = NumV
 
       if (NumV /= nOcc(i)) then
@@ -112,12 +112,12 @@ if (ALGO == 1) then
   if (REORD) then
     ! (ALGO == 1) .and. REORD:
     call CHO_FOCKTWO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,FactC,FactX,[DLT],[DSQ],[FLT],[FSQ],pNocc,MinMem)
-    if (rc /= 0) goto 999
+    if (rc /= 0) call Error(rc)
 
   else
     ! (ALGO == 1) .and. (.not. REORD):
     call CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,FactC,FactX,[DLT],[DSQ],[FLT],[FSQ],pNocc,MinMem)
-    if (rc /= 0) goto 999
+    if (rc /= 0) call Error(rc)
   end if
 
 else if (ALGO == 2) then
@@ -127,12 +127,12 @@ else if (ALGO == 2) then
     if (REORD) then
       ! (ALGO == 2) .and. DECO .and. REORD:
       call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,FactC,FactX,[DLT],[DSQ],[FLT],[FSQ],MinMem,MSQ,pNocc)
-      if (rc /= 0) goto 999
+      if (rc /= 0) call Error(rc)
 
     else
       ! (ALGO == 2) .and. DECO .and. (.not. REORD):
       call CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,lOff1,FactC,FactX,[DLT],[DSQ],[FLT],[FSQ],MinMem,MSQ,pNocc)
-      if (rc /= 0) goto 999
+      if (rc /= 0) call Error(rc)
     end if
 
   else
@@ -140,12 +140,12 @@ else if (ALGO == 2) then
       ! (ALGO == 2) .and. (.not. DECO) .and. REORD:
       FactX(1) = One*ExFac ! because MOs coeff. are not scaled
       call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,FactC,FactX,[DLT],[DSQ],[FLT],[FSQ],MinMem,MSQ,pNocc)
-      if (rc /= 0) goto 999
+      if (rc /= 0) call Error(rc)
     else
       ! (ALGO == 2) .and. (.not. DECO) .and. (.not. REORD):
       FactX(1) = One*ExFac ! because MOs coeff. are not scaled
       call CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,lOff1,FactC,FactX,[DLT],[DSQ],[FLT],[FSQ],MinMem,MSQ,pNocc)
-      if (rc /= 0) goto 999
+      if (rc /= 0) call Error(rc)
     end if
   end if
 
@@ -157,11 +157,7 @@ end if
 
 call CHO_SUM(rc,nSym,nBas,iUHF,DoExchange,[FLT],[FSQ])
 
-999 continue
-if (rc /= 0) then
-  write(u6,*) 'CHORAS_DRV. Non-zero return code. rc= ',rc
-  call QUIT(rc)
-end if
+if (rc /= 0) call Error(rc)
 
 pNocc(1)%I1 => null()
 call Deallocate_DSBA(MSQ(1))
@@ -175,5 +171,16 @@ call Deallocate_DSBA(FLT)
 call Deallocate_DSBA(CMO)
 
 return
+
+contains
+
+subroutine Error(rc)
+
+  integer(kind=iwp), intent(in) :: rc
+
+  write(u6,*) 'CHORAS_DRV. Non-zero return code. rc= ',rc
+  call QUIT(rc)
+
+end subroutine Error
 
 end subroutine CHORAS_DRV

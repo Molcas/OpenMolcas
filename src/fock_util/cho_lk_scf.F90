@@ -348,547 +348,128 @@ do jSym=1,nSym
 
     call Cho_X_nVecRS(JRED,JSYM,iVrs,nVrs)
 
-    if (nVrs == 0) goto 999 ! no vectors in that (jred,jsym)
+    if (nVrs /= 0) then ! otherwise no vectors in that (jred,jsym)
 
-    if (nVrs < 0) then
-      write(u6,*) SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
-      write(u6,*) 'nVrs=',nVrs
-      call Abend()
-    end if
-
-    call Cho_X_SetRed(irc,iLoc,JRED)
-    ! set index arrays at iLoc
-    if (irc /= 0) then
-      write(u6,*) SECNAM//'cho_X_setred non-zero return code.   rc= ',irc
-      call Abend()
-    end if
-
-    IREDC = JRED
-
-    nRS = nDimRS(JSYM,JRED)
-
-    if (JSYM == 1) then
-
-      call mma_allocate(Drs,nRS,Label='Drs')
-      call mma_allocate(Frs,nRS,Label='Frs')
-      Drs(:) = Zero
-      Frs(:) = Zero
-
-    end if
-
-    call mma_maxDBLE(LWORK)
-
-    nVec = min(LWORK/(nRS+mTvec+LFULL),min(nVrs,MaxVecPerBatch))
-
-    if (nVec < 1) then
-      write(u6,*) SECNAM//': Insufficient memory for batch'
-      write(u6,*) ' LWORK= ',LWORK
-      write(u6,*) ' jsym= ',jsym
-      write(u6,*) ' min. mem. need= ',nRS+mTvec+LFULL
-      write(u6,*) ' nRS = ',nRS
-      write(u6,*) ' mTvec = ',mTvec
-      write(u6,*) ' LFULL = ',LFULL
-      call Quit(_RC_MEMORY_ERROR_)
-      nBatch = -9999 ! dummy assignment
-    end if
-
-    LREAD = nRS*nVec
-
-    call mma_allocate(Lrs,nRS,nVec,Label='Lrs')
-
-    if (JSYM == 1) then
-      ! Transform the density to reduced storage
-      mode = 'toreds'
-      add = .false.
-      nMat = 1
-      call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,PLT,Drs,mode,add)
-    end if
-
-    ! BATCH over the vectors ----------------------------
-
-    nBatch = (nVrs-1)/nVec+1
-
-    do iBatch=1,nBatch
-
-      if (iBatch == nBatch) then
-        JNUM = nVrs-nVec*(nBatch-1)
-      else
-        JNUM = nVec
+      if (nVrs < 0) then
+        write(u6,*) SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
+        write(u6,*) 'nVrs=',nVrs
+        call Abend()
       end if
 
-      JVEC = nVec*(iBatch-1)+iVrs
-      IVEC2 = JVEC-1+JNUM
-
-      call CWTIME(TCR1,TWR1)
-
-      call CHO_VECRD(Lrs,LREAD,JVEC,IVEC2,JSYM,NUMV,IREDC,MUSED)
-
-      if ((NUMV <= 0) .or. (NUMV /= JNUM)) then
-        rc = 77
-        return
+      call Cho_X_SetRed(irc,iLoc,JRED)
+      ! set index arrays at iLoc
+      if (irc /= 0) then
+        write(u6,*) SECNAM//'cho_X_setred non-zero return code.   rc= ',irc
+        call Abend()
       end if
 
-      call CWTIME(TCR2,TWR2)
-      tread(1) = tread(1)+(TCR2-TCR1)
-      tread(2) = tread(2)+(TWR2-TWR1)
+      IREDC = JRED
+
+      nRS = nDimRS(JSYM,JRED)
 
       if (JSYM == 1) then
-        ! ************ (alpha+beta) COULOMB CONTRIBUTION  ****************
-        !
-        ! Contraction with the density matrix
-        ! -----------------------------------
-        ! V{#J} <- V{#J}  +  sum_rs  L(rs,{#J}) * P(rs)
-        !==========================================================
 
-        call CWTIME(TCC1,TWC1)
-
-        call mma_allocate(VJ,JNUM,Label='VJ')
-
-        call DGEMV_('T',nRS,JNUM,ONE,Lrs,nRS,Drs,1,ZERO,VJ,1)
-
-        ! FI(rs){#J} <- FI(rs){#J} + FactCI * sum_J L(rs,{#J})*V{#J}
-        !===========================================================
-
-        Fact = real(min(jVec-iVrs,1),kind=wp)
-
-        call DGEMV_('N',nRS,JNUM,FactCI,Lrs,nRS,VJ,1,Fact,Frs,1)
-
-        call mma_deallocate(VJ)
-
-        call CWTIME(TCC2,TWC2)
-        tcoul(1) = tcoul(1)+(TCC2-TCC1)
-        tcoul(2) = tcoul(2)+(TWC2-TWC1)
-
-      end if  ! Coulomb contribution
-
-      ! *************** EXCHANGE CONTRIBUTIONS  ***********************
-
-      call CWTIME(TCS1,TWS1)
-      ! -----------------------------------------------------------------
-      ! Estimate the diagonals :   D(a,b) = sum_J (Lab,J)^2
-
-      if (Estimate) then
-
-        call Fzero(DIAG(1+iiBstR(jSym,1)),NNBSTR(jSym,1))
-
-        do krs=1,nRS
-
-          mrs = iiBstR(JSYM,iLoc)+krs
-          jrs = IndRed(mrs,iLoc) ! address in 1st red set
-
-          do jvc=1,JNUM
-
-            Diag(jrs) = Diag(jrs)+Lrs(krs,jvc)**2
-
-          end do
-
-        end do
+        call mma_allocate(Drs,nRS,Label='Drs')
+        call mma_allocate(Frs,nRS,Label='Frs')
+        Drs(:) = Zero
+        Frs(:) = Zero
 
       end if
 
-      call CWTIME(TCS2,TWS2)
-      tscrn(1) = tscrn(1)+(TCS2-TCS1)
-      tscrn(2) = tscrn(2)+(TWS2-TWS1)
+      call mma_maxDBLE(LWORK)
 
-      !                                                                *
-      !*****************************************************************
-      !*****************************************************************
-      !*****************************************************************
-      !                                                                *
-      call Allocate_L_Full(L_Full,nShell,iShp_rs,JNUM,JSYM,nSym)
-      mDen = 1
-      call Allocate_Lab(Lab,JNUM,nBasSh,nBas,nShell,nSym,mDen)
+      nVec = min(LWORK/(nRS+mTvec+LFULL),min(nVrs,MaxVecPerBatch))
 
-      call CWTIME(TCX1,TWX1)
-
-      ! Reorder vectors to Full-dimensions
-      !
-      ! Vectors are returned in the storage LaJ,b with the restriction:
-      !
-      !    Sym(a) >= Sym(b)
-      !
-      ! and blocked in shell pairs
-
-      call CHO_getShFull(Lrs,lread,JNUM,JSYM,IREDC,L_Full,SvShp,nnShl,iShp_rs,nnShl_tot)
-
-      call CWTIME(TCX2,TWX2)
-      texch(1) = texch(1)+(TCX2-TCX1)
-      texch(2) = texch(2)+(TWX2-TWX1)
-
-      if (DoScreen) then
-
-        call CWTIME(TCS1,TWS1)
-
-        ! Compute DH(a,b)=sqrt(D(a,b)) from the updated diagonals.
-        !                              Only the symmetry blocks with
-        !                              compound symmetry JSYM are computed
-        ! ----------------------------------------------------------------
-        ired1 = 1 ! location of the 1st red set
-        call swap_tosqrt(irc,ired1,NNBSTRT(1),JSYM,DIAH,DIAG)
-
-        call CWTIME(TCS2,TWS2)
-        tscrn(1) = tscrn(1)+(TCS2-TCS1)
-        tscrn(2) = tscrn(2)+(TWS2-TWS1)
-
+      if (nVec < 1) then
+        write(u6,*) SECNAM//': Insufficient memory for batch'
+        write(u6,*) ' LWORK= ',LWORK
+        write(u6,*) ' jsym= ',jsym
+        write(u6,*) ' min. mem. need= ',nRS+mTvec+LFULL
+        write(u6,*) ' nRS = ',nRS
+        write(u6,*) ' mTvec = ',mTvec
+        write(u6,*) ' LFULL = ',LFULL
+        call Quit(_RC_MEMORY_ERROR_)
+        nBatch = -9999 ! dummy assignment
       end if
 
-      do jDen=1,nDen
-
-        do kSym=1,nSym
-
-          lSym = MulD2h(JSYM,kSym)
-
-          do jK=1,nOrb(kSym,jDen)
-            jK_a = jK+kOff(kSym,jDen)
-
-            Lab%A0(1:nBas(lSym)*JNUM) = Zero
-
-            if (DoScreen) then
-
-              call CWTIME(TCS1,TWS1)
-              !--------------------------------------------------------------
-              ! Setup the screening
-              !--------------------------------------------------------------
-              do ik=1,nBas(kSym)
-                AbsC(ik) = abs(POrb(jDen)%SB(kSym)%A2(ik,jK))
-              end do
-
-              if (lSym >= kSym) then
-                !-----------------------------------------------------------
-                ! Y(l)[k] = sum_n  DH(l,n) * |C(n)[k]|
-                !===========================================================
-                Mode(1:1) = 'N'
-                n1 = nBas(lSym)
-                n2 = nBas(kSym)
+      LREAD = nRS*nVec
 
-              else
-                !-----------------------------------------------------------
-                ! Y(l)[k] = sum_n  DH(n,l) * |C(n)[k]|
-                !===========================================================
-                Mode(1:1) = 'T'
-                n1 = nBas(kSym)
-                n2 = nBas(lSym)
+      call mma_allocate(Lrs,nRS,nVec,Label='Lrs')
 
-              end if
+      if (JSYM == 1) then
+        ! Transform the density to reduced storage
+        mode = 'toreds'
+        add = .false.
+        nMat = 1
+        call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,PLT,Drs,mode,add)
+      end if
 
-              if (n1 > 0) call DGEMV_(Mode(1:1),n1,n2,ONE,DiaH%SB(lSym,kSym)%A2,n1,AbsC,1,ZERO,Ylk(1,jK_a),1)
+      ! BATCH over the vectors ----------------------------
 
-              ! List the shells present in Y(l)[k] by the largest element
-              do ish=1,nShell
-                YshMax = zero
-                do ibs=1,nBasSh(lSym,ish)
-                  YshMax = max(YshMax,Ylk(koffSh(ish,lSym)+ibs,jK_a))
-                end do
-                MLk(ish,jK_a) = YshMax
-              end do
+      nBatch = (nVrs-1)/nVec+1
 
-              ! Sort the list ML[k]
-              numSh = 0 ! # of significant shells
-              jml = 1
+      do iBatch=1,nBatch
 
-              do ish=1,nShell
-                Indx(ish,jK_a) = ish
-              end do
+        if (iBatch == nBatch) then
+          JNUM = nVrs-nVec*(nBatch-1)
+        else
+          JNUM = nVec
+        end if
 
-              do while (jml <= nShell)
+        JVEC = nVec*(iBatch-1)+iVrs
+        IVEC2 = JVEC-1+JNUM
 
-                YMax = MLk(jml,jK_a)
-                jmlmax = jml
+        call CWTIME(TCR1,TWR1)
 
-                do iml=jml+1,nShell ! get the max
-                  if (MLk(iml,jK_a) > YMax) then
-                    YMax = MLk(iml,jK_a)
-                    jmlmax = iml
-                  end if
-                end do
+        call CHO_VECRD(Lrs,LREAD,JVEC,IVEC2,JSYM,NUMV,IREDC,MUSED)
 
-                if (jmlmax /= jml) then ! swap positions
-                  xTmp = MLk(jml,jK_a)
-                  iTmp = Indx(jml,jK_a)
-                  MLk(jml,jK_a) = YMax
-                  Indx(jml,jK_a) = Indx(jmlmax,jK_a)
-                  MLk(jmlmax,jK_a) = xTmp
-                  Indx(jmlmax,jK_a) = iTmp
-                end if
+        if ((NUMV <= 0) .or. (NUMV /= JNUM)) then
+          rc = 77
+          return
+        end if
 
-                ! Exact bounds (quadratic scaling of the MO transformation)
-                !tbp, may 2013: reintroduce exact bound
-                if (MLk(jml,jK_a)*MLk(1,jK_a) >= tau(jDen)) then
-                !
-                ! Here we use a non-exact bound for the exchange matrix
-                ! The positive definiteness of the exchange matrix
-                ! combined with the structure of the density matrix makes this
-                ! bound acceptable and likely to be almost exact for what concerns
-                ! the exchange energy
-                !tbp if (MLk(jml,jK_a) >= xtau(jDen)) then
-                  numSh = numSh+1
-                else
-                  jml = nShell  ! exit the loop
-                end if
+        call CWTIME(TCR2,TWR2)
+        tread(1) = tread(1)+(TCR2-TCR1)
+        tread(2) = tread(2)+(TWR2-TWR1)
 
-                jml = jml+1
+        if (JSYM == 1) then
+          ! ************ (alpha+beta) COULOMB CONTRIBUTION  ****************
+          !
+          ! Contraction with the density matrix
+          ! -----------------------------------
+          ! V{#J} <- V{#J}  +  sum_rs  L(rs,{#J}) * P(rs)
+          !==========================================================
 
-              end do
+          call CWTIME(TCC1,TWC1)
 
-              Indx(0,jk_a) = numSh
+          call mma_allocate(VJ,JNUM,Label='VJ')
 
-              call CWTIME(TCS2,TWS2)
-              tscrn(1) = tscrn(1)+(TCS2-TCS1)
-              tscrn(2) = tscrn(2)+(TWS2-TWS1)
-              !------------------------------------------------------------------
-            end if ! Screening setup
+          call DGEMV_('T',nRS,JNUM,ONE,Lrs,nRS,Drs,1,ZERO,VJ,1)
 
-            ! Transform vectors for shells in the list ML[k]
-            !
-            ! Screening based on the Frobenius norm: sqrt(sum_ij  A(i,j)^2)
-            !
-            !   || La,J[k] ||  <=  || Lab,J || * || Cb[k] ||
+          ! FI(rs){#J} <- FI(rs){#J} + FactCI * sum_J L(rs,{#J})*V{#J}
+          !===========================================================
 
-            call CWTIME(TCT1,TWT1)
+          Fact = real(min(jVec-iVrs,1),kind=wp)
 
-            do iSh=1,Indx(0,jk_a)
+          call DGEMV_('N',nRS,JNUM,FactCI,Lrs,nRS,VJ,1,Fact,Frs,1)
 
-              iaSh = Indx(iSh,jK_a)
+          call mma_deallocate(VJ)
 
-              Lab%Keep(iaSh,1) = .true.
+          call CWTIME(TCC2,TWC2)
+          tcoul(1) = tcoul(1)+(TCC2-TCC1)
+          tcoul(2) = tcoul(2)+(TWC2-TWC1)
 
-              ibcount = 0
+        end if  ! Coulomb contribution
 
-              do ibSh=1,nShell
-
-                iOffShb = kOffSh(ibSh,kSym)
-
-                iShp = iTri(iaSh,ibSh)
-
-                if (iShp_rs(iShp) <= 0) cycle
-
-                if ((nnBstRSh(JSym,iShp_rs(iShp),iLoc)*nBasSh(lSym,iaSh)*nBasSh(kSym,ibSh) > 0) .and. &
-                    (sqrt(abs(SumAClk(ibSh,jK_a)*SvShp(iShp_rs(iShp),1))) >= thrv(jDen))) then
-
-                  ibcount = ibcount+1
-
-                  if (lSym >= kSym) then
-
-                    i1 = 1
-                    if (iaSh < ibSh) i1 = 2
-
-                    ! LaJ,[k] = sum_b  L(aJ,b) * C(b)[k]
-                    ! ----------------------------------
-                    Mode(1:1) = 'N'
-                    n1 = nBasSh(lSym,iaSh)*JNUM
-                    n2 = nBasSh(kSym,ibSh)
-
-                    call DGEMV_(Mode(1:1),n1,n2,ONE,L_Full%SPB(lSym,iShp_rs(iShp),i1)%A21,n1, &
-                                POrb(jDen)%SB(kSym)%A2(iOffShb+1:,jK),1,ONE,Lab%SB(iaSh,lSym,1)%A,1)
-
-                  else ! lSym < kSym
-
-                    i1 = 1
-                    if (ibSh < iaSh) i1 = 2
-
-                    ! LJa,[k] = sum_b  L(b,Ja) * C(b)[k]
-                    ! ----------------------------------
-                    Mode(1:1) = 'T'
-                    n1 = nBasSh(kSym,ibSh)
-                    n2 = JNUM*nBasSh(lSym,iaSh)
-
-                    call DGEMV_(Mode(1:1),n1,n2,ONE,L_Full%SPB(kSym,iShp_rs(iShp),i1)%A12,n1, &
-                                POrb(jDen)%SB(kSym)%A2(iOffShb+1:,jK),1,ONE,Lab%SB(iaSh,lSym,1)%A,1)
-
-                  end if
-
-                end if
-
-              end do
-
-              ! The following re-assignement is used later on to check if the
-              ! iaSh vector LaJ[k] can be neglected because identically zero
-
-              if (ibcount == 0) Lab%Keep(iaSh,1) = .false.
-
-            end do
-
-            call CWTIME(TCT2,TWT2)
-            tmotr(1) = tmotr(1)+(TCT2-TCT1)
-            tmotr(2) = tmotr(2)+(TWT2-TWT1)
-
-            ! Prepare the J-screening
-
-            call CWTIME(TCS1,TWS1)
-
-            do iSh=1,Indx(0,jk_a)
-
-              iaSh = Indx(iSh,jK_a)
-
-              if (.not. Lab%Keep(iaSh,1)) cycle
-
-              if (lSym >= kSym) then
-
-                ! Faa,[k] = sum_J  (LaJ[k])**2
-                ! ------------------------------
-                Inc = nBasSh(lSym,iaSh)
-                n1 = 1
-
-              else ! lSym < kSym
-
-                ! Faa,[k] = sum_J  (LJa[k])**2
-                ! -----------------------------
-                Inc = 1
-                n1 = JNUM
-
-              end if
-
-              Tmp = Zero
-              do ia=1,nBasSh(lSym,iaSh)
-                Fia(ia) = DDot_(JNUM,Lab%SB(iash,lSym,1)%A(1+n1*(ia-1):),Inc,Lab%SB(iash,lSym,1)%A(1+n1*(ia-1):),Inc)
-                Tmp = max(abs(Fia(ia)),Tmp)
-              end do
-
-              Faa(iaSh) = Tmp
-
-            end do
-
-            call CWTIME(TCS2,TWS2)
-            tscrn(1) = tscrn(1)+(TCS2-TCS1)
-            tscrn(2) = tscrn(2)+(TWS2-TWS1)
-
-            !--------------------------------------------------------
-            ! Compute exchange matrix for the interacting shell pairs
-            !--------------------------------------------------------
-
-            call CWTIME(TCX1,TWX1)
-
-            do lSh=1,Indx(0,jK_a)
-
-              iaSh = Indx(lSh,jK_a)
-
-              iaSkip = merge(1,0,Lab%Keep(iaSh,1))
-
-              mSh = 1
-
-              do while (mSh <= Indx(0,jK_a))
-
-                ibSh = Indx(mSh,jK_a)
-
-                ibSkip = merge(1,0,Lab%Keep(ibSh,1))
-
-                iShp = iTri(iaSh,ibSh)
-
-                iOffShb = kOffSh(ibSh,lSym)
-
-                iOffAB = nnBfShp(iShp,lSym)
-
-                xFab = sqrt(abs(Faa(iaSh)*Faa(ibSh)))
-
-                if (MLk(lSh,jK_a)*MLk(mSh,jK_a) < tau(jDen)) then
-
-                  mSh = Indx(0,jK_a)  ! skip the rest
-
-                else if ((iaSh == ibSh) .and. (xFab >= tau(jDen)/MaxRedT) .and. (iaSkip == 1)) then
-
-                  if (lSym >= kSym) then
-
-                    ! F(a,b)[k] = F(a,b)[k] - FactXI * sum_J  L(a,J)[k] * L(b,J)[k]
-                    ! --------------------------------------------------------------
-                    Mode(1:1) = 'N'
-                    Mode(2:2) = 'T'
-                    n1 = nBasSh(lSym,iaSh)
-                    nBs = nBasSh(lSym,iaSh)
-
-                  else ! lSym < kSym
-
-                    ! F(a,b)[k] = F(a,b)[k] - FactXI * sum_J  L(J,a)[k] * L(J,b)[k]
-                    ! --------------------------------------------------------------
-                    Mode(1:1) = 'T'
-                    Mode(2:2) = 'N'
-                    n1 = JNUM
-                    nBs = nBasSh(lSym,iaSh)
-
-                  end if
-
-                  call DGEMM_Tri(Mode(1:1),Mode(2:2),nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,-FActXI,Lab%SB(iaSh,lSym,1)%A,n1, &
-                                 Lab%SB(ibSh,lSym,1)%A,n1,ONE,KLT(jDen)%SB(lSym)%A1(iOffAB+1:),nBs)
-
-                else if ((iaSh > ibSh) .and. (xFab >= tau(jDen)/MaxRedT) .and. (iaSkip*ibSkip == 1)) then
-
-                  if (lSym >= kSym) then
-
-                    ! F(a,b)[k] = F(a,b)[k] - FactXI * sum_J  L(a,J)[k] * L(b,J)[k]
-                    ! --------------------------------------------------------------
-                    Mode(1:1) = 'N'
-                    Mode(2:2) = 'T'
-                    nBs = nBasSh(lSym,iaSh)
-                    n1 = nBasSh(lSym,iaSh)
-                    n2 = nBasSh(lSym,ibSh)
-
-                  else ! lSym < kSym
-
-                    ! F(a,b)[k] = F(a,b)[k] - FactXI * sum_J  L(J,a)[k] * L(J,b)[k]
-                    ! --------------------------------------------------------------
-                    Mode(1:1) = 'T'
-                    Mode(2:2) = 'N'
-                    n1 = JNUM
-                    n2 = JNUM
-                    nBs = nBasSh(lSym,iaSh)
-
-                  end if
-
-                  call DGEMM_(Mode(1:1),Mode(2:2),nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,-FactXI,Lab%SB(iaSh,lSym,1)%A,n1, &
-                              Lab%SB(ibSh,lSym,1)%A,n2,ONE,KLT(jDen)%SB(lSym)%A1(iOffAB+1:),nBs)
-
-                end if
-
-                mSh = mSh+1 ! update shell counter
-
-              end do
-
-            end do
-
-            call CWTIME(TCX2,TWX2)
-            texch(1) = texch(1)+(TCX2-TCX1)
-            texch(2) = texch(2)+(TWX2-TWX1)
-
-          end do ! loop over k MOs
-
-        end do ! loop over MOs symmetry
-
-      end do ! loop over densities
-
-      call Deallocate_L_Full(L_Full)
-      call Deallocate_Lab(Lab)
-      !                                                                *
-      !*****************************************************************
-      !*****************************************************************
-      !*****************************************************************
-      !                                                                *
-      DoScreen = .false. ! avoid redo screening inside batch loop
-
-      ! Diagonals updating. It only makes sense if Nscreen > 0
-
-      if (Update .and. (Nscreen > 0)) then
+        ! *************** EXCHANGE CONTRIBUTIONS  ***********************
 
         call CWTIME(TCS1,TWS1)
         ! -----------------------------------------------------------------
-        ! update the diagonals :   D(a,b) = D(a,b) - sum_J (Lab,J)^2
-        !
-        ! subtraction is done in the 1st reduced set
-#       ifdef _MOLCAS_MPP_
-        if ((nProcs > 1) .and. Is_Real_Par()) then
+        ! Estimate the diagonals :   D(a,b) = sum_J (Lab,J)^2
 
-          do krs=1,nRS
+        if (Estimate) then
 
-            mrs = iiBstR(JSYM,iLoc)+krs
-            jrs = IndRed(mrs,iLoc)-iiBstR(JSYM,1)
-
-            do jvc=1,JNUM
-
-              DiagJ(jrs) = DiagJ(jrs)+Lrs(krs,jvc)**2
-            end do
-
-          end do
-
-        else
-#       endif
+          call Fzero(DIAG(1+iiBstR(jSym,1)),NNBSTR(jSym,1))
 
           do krs=1,nRS
 
@@ -897,45 +478,464 @@ do jSym=1,nSym
 
             do jvc=1,JNUM
 
-              Diag(jrs) = Diag(jrs)-Lrs(krs,jvc)**2
+              Diag(jrs) = Diag(jrs)+Lrs(krs,jvc)**2
+
             end do
 
           end do
 
-#       ifdef _MOLCAS_MPP_
         end if
-#       endif
 
         call CWTIME(TCS2,TWS2)
         tscrn(1) = tscrn(1)+(TCS2-TCS1)
         tscrn(2) = tscrn(2)+(TWS2-TWS1)
 
+        !                                                              *
+        !***************************************************************
+        !***************************************************************
+        !***************************************************************
+        !                                                              *
+        call Allocate_L_Full(L_Full,nShell,iShp_rs,JNUM,JSYM,nSym)
+        mDen = 1
+        call Allocate_Lab(Lab,JNUM,nBasSh,nBas,nShell,nSym,mDen)
+
+        call CWTIME(TCX1,TWX1)
+
+        ! Reorder vectors to Full-dimensions
+        !
+        ! Vectors are returned in the storage LaJ,b with the restriction:
+        !
+        !    Sym(a) >= Sym(b)
+        !
+        ! and blocked in shell pairs
+
+        call CHO_getShFull(Lrs,lread,JNUM,JSYM,IREDC,L_Full,SvShp,nnShl,iShp_rs,nnShl_tot)
+
+        call CWTIME(TCX2,TWX2)
+        texch(1) = texch(1)+(TCX2-TCX1)
+        texch(2) = texch(2)+(TWX2-TWX1)
+
+        if (DoScreen) then
+
+          call CWTIME(TCS1,TWS1)
+
+          ! Compute DH(a,b)=sqrt(D(a,b)) from the updated diagonals.
+          !                              Only the symmetry blocks with
+          !                              compound symmetry JSYM are computed
+          ! ----------------------------------------------------------------
+          ired1 = 1 ! location of the 1st red set
+          call swap_tosqrt(irc,ired1,NNBSTRT(1),JSYM,DIAH,DIAG)
+
+          call CWTIME(TCS2,TWS2)
+          tscrn(1) = tscrn(1)+(TCS2-TCS1)
+          tscrn(2) = tscrn(2)+(TWS2-TWS1)
+
+        end if
+
+        do jDen=1,nDen
+
+          do kSym=1,nSym
+
+            lSym = MulD2h(JSYM,kSym)
+
+            do jK=1,nOrb(kSym,jDen)
+              jK_a = jK+kOff(kSym,jDen)
+
+              Lab%A0(1:nBas(lSym)*JNUM) = Zero
+
+              if (DoScreen) then
+
+                call CWTIME(TCS1,TWS1)
+                !--------------------------------------------------------------
+                ! Setup the screening
+                !--------------------------------------------------------------
+                do ik=1,nBas(kSym)
+                  AbsC(ik) = abs(POrb(jDen)%SB(kSym)%A2(ik,jK))
+                end do
+
+                if (lSym >= kSym) then
+                  !-----------------------------------------------------------
+                  ! Y(l)[k] = sum_n  DH(l,n) * |C(n)[k]|
+                  !===========================================================
+                  Mode(1:1) = 'N'
+                  n1 = nBas(lSym)
+                  n2 = nBas(kSym)
+
+                else
+                  !-----------------------------------------------------------
+                  ! Y(l)[k] = sum_n  DH(n,l) * |C(n)[k]|
+                  !===========================================================
+                  Mode(1:1) = 'T'
+                  n1 = nBas(kSym)
+                  n2 = nBas(lSym)
+
+                end if
+
+                if (n1 > 0) call DGEMV_(Mode(1:1),n1,n2,ONE,DiaH%SB(lSym,kSym)%A2,n1,AbsC,1,ZERO,Ylk(1,jK_a),1)
+
+                ! List the shells present in Y(l)[k] by the largest element
+                do ish=1,nShell
+                  YshMax = zero
+                  do ibs=1,nBasSh(lSym,ish)
+                    YshMax = max(YshMax,Ylk(koffSh(ish,lSym)+ibs,jK_a))
+                  end do
+                  MLk(ish,jK_a) = YshMax
+                end do
+
+                ! Sort the list ML[k]
+                numSh = 0 ! # of significant shells
+                jml = 1
+
+                do ish=1,nShell
+                  Indx(ish,jK_a) = ish
+                end do
+
+                do while (jml <= nShell)
+
+                  YMax = MLk(jml,jK_a)
+                  jmlmax = jml
+
+                  do iml=jml+1,nShell ! get the max
+                    if (MLk(iml,jK_a) > YMax) then
+                      YMax = MLk(iml,jK_a)
+                      jmlmax = iml
+                    end if
+                  end do
+
+                  if (jmlmax /= jml) then ! swap positions
+                    xTmp = MLk(jml,jK_a)
+                    iTmp = Indx(jml,jK_a)
+                    MLk(jml,jK_a) = YMax
+                    Indx(jml,jK_a) = Indx(jmlmax,jK_a)
+                    MLk(jmlmax,jK_a) = xTmp
+                    Indx(jmlmax,jK_a) = iTmp
+                  end if
+
+                  ! Exact bounds (quadratic scaling of the MO transformation)
+                  !tbp, may 2013: reintroduce exact bound
+                  if (MLk(jml,jK_a)*MLk(1,jK_a) >= tau(jDen)) then
+                  !
+                  ! Here we use a non-exact bound for the exchange matrix
+                  ! The positive definiteness of the exchange matrix
+                  ! combined with the structure of the density matrix makes this
+                  ! bound acceptable and likely to be almost exact for what concerns
+                  ! the exchange energy
+                  !tbp if (MLk(jml,jK_a) >= xtau(jDen)) then
+                    numSh = numSh+1
+                  else
+                    jml = nShell  ! exit the loop
+                  end if
+
+                  jml = jml+1
+
+                end do
+
+                Indx(0,jk_a) = numSh
+
+                call CWTIME(TCS2,TWS2)
+                tscrn(1) = tscrn(1)+(TCS2-TCS1)
+                tscrn(2) = tscrn(2)+(TWS2-TWS1)
+                !------------------------------------------------------------------
+              end if ! Screening setup
+
+              ! Transform vectors for shells in the list ML[k]
+              !
+              ! Screening based on the Frobenius norm: sqrt(sum_ij  A(i,j)^2)
+              !
+              !   || La,J[k] ||  <=  || Lab,J || * || Cb[k] ||
+
+              call CWTIME(TCT1,TWT1)
+
+              do iSh=1,Indx(0,jk_a)
+
+                iaSh = Indx(iSh,jK_a)
+
+                Lab%Keep(iaSh,1) = .true.
+
+                ibcount = 0
+
+                do ibSh=1,nShell
+
+                  iOffShb = kOffSh(ibSh,kSym)
+
+                  iShp = iTri(iaSh,ibSh)
+
+                  if (iShp_rs(iShp) <= 0) cycle
+
+                  if ((nnBstRSh(JSym,iShp_rs(iShp),iLoc)*nBasSh(lSym,iaSh)*nBasSh(kSym,ibSh) > 0) .and. &
+                      (sqrt(abs(SumAClk(ibSh,jK_a)*SvShp(iShp_rs(iShp),1))) >= thrv(jDen))) then
+
+                    ibcount = ibcount+1
+
+                    if (lSym >= kSym) then
+
+                      i1 = 1
+                      if (iaSh < ibSh) i1 = 2
+
+                      ! LaJ,[k] = sum_b  L(aJ,b) * C(b)[k]
+                      ! ----------------------------------
+                      Mode(1:1) = 'N'
+                      n1 = nBasSh(lSym,iaSh)*JNUM
+                      n2 = nBasSh(kSym,ibSh)
+
+                      call DGEMV_(Mode(1:1),n1,n2,ONE,L_Full%SPB(lSym,iShp_rs(iShp),i1)%A21,n1, &
+                                  POrb(jDen)%SB(kSym)%A2(iOffShb+1:,jK),1,ONE,Lab%SB(iaSh,lSym,1)%A,1)
+
+                    else ! lSym < kSym
+
+                      i1 = 1
+                      if (ibSh < iaSh) i1 = 2
+
+                      ! LJa,[k] = sum_b  L(b,Ja) * C(b)[k]
+                      ! ----------------------------------
+                      Mode(1:1) = 'T'
+                      n1 = nBasSh(kSym,ibSh)
+                      n2 = JNUM*nBasSh(lSym,iaSh)
+
+                      call DGEMV_(Mode(1:1),n1,n2,ONE,L_Full%SPB(kSym,iShp_rs(iShp),i1)%A12,n1, &
+                                  POrb(jDen)%SB(kSym)%A2(iOffShb+1:,jK),1,ONE,Lab%SB(iaSh,lSym,1)%A,1)
+
+                    end if
+
+                  end if
+
+                end do
+
+                ! The following re-assignement is used later on to check if the
+                ! iaSh vector LaJ[k] can be neglected because identically zero
+
+                if (ibcount == 0) Lab%Keep(iaSh,1) = .false.
+
+              end do
+
+              call CWTIME(TCT2,TWT2)
+              tmotr(1) = tmotr(1)+(TCT2-TCT1)
+              tmotr(2) = tmotr(2)+(TWT2-TWT1)
+
+              ! Prepare the J-screening
+
+              call CWTIME(TCS1,TWS1)
+
+              do iSh=1,Indx(0,jk_a)
+
+                iaSh = Indx(iSh,jK_a)
+
+                if (.not. Lab%Keep(iaSh,1)) cycle
+
+                if (lSym >= kSym) then
+
+                  ! Faa,[k] = sum_J  (LaJ[k])**2
+                  ! ------------------------------
+                  Inc = nBasSh(lSym,iaSh)
+                  n1 = 1
+
+                else ! lSym < kSym
+
+                  ! Faa,[k] = sum_J  (LJa[k])**2
+                  ! -----------------------------
+                  Inc = 1
+                  n1 = JNUM
+
+                end if
+
+                Tmp = Zero
+                do ia=1,nBasSh(lSym,iaSh)
+                  Fia(ia) = DDot_(JNUM,Lab%SB(iash,lSym,1)%A(1+n1*(ia-1):),Inc,Lab%SB(iash,lSym,1)%A(1+n1*(ia-1):),Inc)
+                  Tmp = max(abs(Fia(ia)),Tmp)
+                end do
+
+                Faa(iaSh) = Tmp
+
+              end do
+
+              call CWTIME(TCS2,TWS2)
+              tscrn(1) = tscrn(1)+(TCS2-TCS1)
+              tscrn(2) = tscrn(2)+(TWS2-TWS1)
+
+              !--------------------------------------------------------
+              ! Compute exchange matrix for the interacting shell pairs
+              !--------------------------------------------------------
+
+              call CWTIME(TCX1,TWX1)
+
+              do lSh=1,Indx(0,jK_a)
+
+                iaSh = Indx(lSh,jK_a)
+
+                iaSkip = merge(1,0,Lab%Keep(iaSh,1))
+
+                mSh = 1
+
+                do while (mSh <= Indx(0,jK_a))
+
+                  ibSh = Indx(mSh,jK_a)
+
+                  ibSkip = merge(1,0,Lab%Keep(ibSh,1))
+
+                  iShp = iTri(iaSh,ibSh)
+
+                  iOffShb = kOffSh(ibSh,lSym)
+
+                  iOffAB = nnBfShp(iShp,lSym)
+
+                  xFab = sqrt(abs(Faa(iaSh)*Faa(ibSh)))
+
+                  if (MLk(lSh,jK_a)*MLk(mSh,jK_a) < tau(jDen)) then
+
+                    mSh = Indx(0,jK_a)  ! skip the rest
+
+                  else if ((iaSh == ibSh) .and. (xFab >= tau(jDen)/MaxRedT) .and. (iaSkip == 1)) then
+
+                    if (lSym >= kSym) then
+
+                      ! F(a,b)[k] = F(a,b)[k] - FactXI * sum_J  L(a,J)[k] * L(b,J)[k]
+                      ! --------------------------------------------------------------
+                      Mode(1:1) = 'N'
+                      Mode(2:2) = 'T'
+                      n1 = nBasSh(lSym,iaSh)
+                      nBs = nBasSh(lSym,iaSh)
+
+                    else ! lSym < kSym
+
+                      ! F(a,b)[k] = F(a,b)[k] - FactXI * sum_J  L(J,a)[k] * L(J,b)[k]
+                      ! --------------------------------------------------------------
+                      Mode(1:1) = 'T'
+                      Mode(2:2) = 'N'
+                      n1 = JNUM
+                      nBs = nBasSh(lSym,iaSh)
+
+                    end if
+
+                    call DGEMM_Tri(Mode(1:1),Mode(2:2),nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,-FActXI,Lab%SB(iaSh,lSym,1)%A,n1, &
+                                   Lab%SB(ibSh,lSym,1)%A,n1,ONE,KLT(jDen)%SB(lSym)%A1(iOffAB+1:),nBs)
+
+                  else if ((iaSh > ibSh) .and. (xFab >= tau(jDen)/MaxRedT) .and. (iaSkip*ibSkip == 1)) then
+
+                    if (lSym >= kSym) then
+
+                      ! F(a,b)[k] = F(a,b)[k] - FactXI * sum_J  L(a,J)[k] * L(b,J)[k]
+                      ! --------------------------------------------------------------
+                      Mode(1:1) = 'N'
+                      Mode(2:2) = 'T'
+                      nBs = nBasSh(lSym,iaSh)
+                      n1 = nBasSh(lSym,iaSh)
+                      n2 = nBasSh(lSym,ibSh)
+
+                    else ! lSym < kSym
+
+                      ! F(a,b)[k] = F(a,b)[k] - FactXI * sum_J  L(J,a)[k] * L(J,b)[k]
+                      ! --------------------------------------------------------------
+                      Mode(1:1) = 'T'
+                      Mode(2:2) = 'N'
+                      n1 = JNUM
+                      n2 = JNUM
+                      nBs = nBasSh(lSym,iaSh)
+
+                    end if
+
+                    call DGEMM_(Mode(1:1),Mode(2:2),nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,-FactXI,Lab%SB(iaSh,lSym,1)%A,n1, &
+                                Lab%SB(ibSh,lSym,1)%A,n2,ONE,KLT(jDen)%SB(lSym)%A1(iOffAB+1:),nBs)
+
+                  end if
+
+                  mSh = mSh+1 ! update shell counter
+
+                end do
+
+              end do
+
+              call CWTIME(TCX2,TWX2)
+              texch(1) = texch(1)+(TCX2-TCX1)
+              texch(2) = texch(2)+(TWX2-TWX1)
+
+            end do ! loop over k MOs
+
+          end do ! loop over MOs symmetry
+
+        end do ! loop over densities
+
+        call Deallocate_L_Full(L_Full)
+        call Deallocate_Lab(Lab)
+        !                                                              *
+        !***************************************************************
+        !***************************************************************
+        !***************************************************************
+        !                                                              *
+        DoScreen = .false. ! avoid redo screening inside batch loop
+
+        ! Diagonals updating. It only makes sense if Nscreen > 0
+
+        if (Update .and. (Nscreen > 0)) then
+
+          call CWTIME(TCS1,TWS1)
+          ! -----------------------------------------------------------------
+          ! update the diagonals :   D(a,b) = D(a,b) - sum_J (Lab,J)^2
+          !
+          ! subtraction is done in the 1st reduced set
+#         ifdef _MOLCAS_MPP_
+          if ((nProcs > 1) .and. Is_Real_Par()) then
+
+            do krs=1,nRS
+
+              mrs = iiBstR(JSYM,iLoc)+krs
+              jrs = IndRed(mrs,iLoc)-iiBstR(JSYM,1)
+
+              do jvc=1,JNUM
+
+                DiagJ(jrs) = DiagJ(jrs)+Lrs(krs,jvc)**2
+              end do
+
+            end do
+
+          else
+#         endif
+
+            do krs=1,nRS
+
+              mrs = iiBstR(JSYM,iLoc)+krs
+              jrs = IndRed(mrs,iLoc) ! address in 1st red set
+
+              do jvc=1,JNUM
+
+                Diag(jrs) = Diag(jrs)-Lrs(krs,jvc)**2
+              end do
+
+            end do
+
+#         ifdef _MOLCAS_MPP_
+          end if
+#         endif
+
+          call CWTIME(TCS2,TWS2)
+          tscrn(1) = tscrn(1)+(TCS2-TCS1)
+          tscrn(2) = tscrn(2)+(TWS2-TWS1)
+
+        end if
+
+        ! --------------------------------------------------------------------
+        ! --------------------------------------------------------------------
+
+      end do ! end batch loop
+
+      if (JSYM == 1) then
+        ! backtransform fock matrix to full storage
+        mode = 'tofull'
+        add = .true.
+        nMat = 1
+        do jDen=1,nDen
+          call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,[FLT(jDen)],Frs,mode,add)
+        end do
       end if
 
-      ! --------------------------------------------------------------------
-      ! --------------------------------------------------------------------
+      ! free memory
+      call mma_deallocate(Lrs)
 
-    end do ! end batch loop
+      if (JSYM == 1) then
+        call mma_deallocate(Frs)
+        call mma_deallocate(Drs)
+      end if
 
-    if (JSYM == 1) then
-      ! backtransform fock matrix to full storage
-      mode = 'tofull'
-      add = .true.
-      nMat = 1
-      do jDen=1,nDen
-        call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,[FLT(jDen)],Frs,mode,add)
-      end do
     end if
-
-    ! free memory
-    call mma_deallocate(Lrs)
-
-    if (JSYM == 1) then
-      call mma_deallocate(Frs)
-      call mma_deallocate(Drs)
-    end if
-
-999 continue
 
     ! Screening control section
     DoScreen = kscreen == Nscreen

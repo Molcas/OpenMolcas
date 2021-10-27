@@ -79,18 +79,18 @@ do IS=1,NSYM
       LSMAX = KS
       if (KS == IS) LSMAX = JS
       LS = MUL(IJS,KS)
-      if (LS > LSMAX) goto 130
+      if (LS > LSMAX) cycle
       LB = NBAS(LS)
       LK = KEEP(LS)
       NFL = NFRO(LS)
       KLB = KB*LB
       if (KS == LS) KLB = (KB*(KB+1))/2
       ! INTEGRAL BLOCK EXCLUDED BY SETTING KEEP PARAMETERS?
-      if ((IK+JK+KK+LK) /= 0) goto 130
+      if ((IK+JK+KK+LK) /= 0) cycle
       ! NO FROZEN ORBITALS?
-      if ((NFI+NFJ+NFK+NFL) == 0) goto 130
+      if ((NFI+NFJ+NFK+NFL) == 0) cycle
       ! NO BASIS FUNCTIONS?
-      if ((IJB*KLB) == 0) goto 130
+      if ((IJB*KLB) == 0) cycle
 
       if ((IS == JS) .and. (IS == KS)) then
         ! CASE 1: Integrals are of symmetry type (II/II)
@@ -107,7 +107,7 @@ do IS=1,NSYM
             LPQ = LPQ+1
             if (IPQ > NPQ) then
               call RDORD(IRC,IOPT,IS,JS,KS,LS,X1,LBUF,NPQ)
-              if (IRC > 1) goto 999
+              if (IRC > 1) call Error(IRC)
               ! Option code 2: Continue reading at next integral.
               IOPT = 2
               IPQ = 1
@@ -135,7 +135,7 @@ do IS=1,NSYM
             LPQ = LPQ+1
             if (IPQ > NPQ) then
               call RDORD(IRC,IOPT,IS,JS,KS,LS,X1,LBUF,NPQ)
-              if (IRC > 1) goto 999
+              if (IRC > 1) call Error(IRC)
               IOPT = 2
               IPQ = 1
             end if
@@ -163,7 +163,7 @@ do IS=1,NSYM
             LPQ = LPQ+1
             if (IPQ > NPQ) then
               call RDORD(IRC,IOPT,IS,JS,KS,LS,X1,LBUF,NPQ)
-              if (IRC > 1) goto 999
+              if (IRC > 1) call Error(IRC)
               IOPT = 2
               IPQ = 1
             end if
@@ -177,7 +177,6 @@ do IS=1,NSYM
           end do
         end do
       end if
-130   continue
     end do
   end do
 end do
@@ -212,9 +211,16 @@ call deallocate_DSBA(DLT)
 
 return
 
-999 continue
-write(u6,*) ' Error return code IRC=',IRC
-write(u6,*) ' from RDORD call, in FTWOI.'
-call Abend()
+contains
+
+subroutine Error(IRC)
+
+  integer(kind=iwp), intent(in) :: IRC
+
+  write(u6,*) ' Error return code IRC=',IRC
+  write(u6,*) ' from RDORD call, in FTWOI.'
+  call Abend()
+
+end subroutine Error
 
 end subroutine FOCKTWO
