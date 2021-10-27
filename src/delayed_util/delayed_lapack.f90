@@ -2134,3 +2134,13 @@ subroutine zunmtr(side,uplo,trans,m,n,a,lda,tau,c,ldc,work,lwork,info)
   call lb_zunmtr(side,uplo,trans,m,n,a,lda,tau,c,ldc,work,lwork,info)
 end subroutine zunmtr
 
+subroutine zgesvd( jobu, jobvt, m, n, a, lda, s, u, ldu, vt, ldvt, work, lwork, rwork, info )
+  use link_blas
+  implicit none
+  character :: jobu, jobvt
+  integer :: info, lda, ldu, ldvt, lwork, m, n
+  real*8 :: rwork( * ), s( * )
+  complex*16 :: a( lda, * ), u( ldu, * ), vt( ldvt, * ), work( * )
+  call lb_zgesvd( jobu, jobvt, m, n, a, lda, s, u, ldu, vt, ldvt, work, lwork, rwork, info )
+end subroutine zgesvd
+
