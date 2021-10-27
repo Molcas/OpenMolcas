@@ -30,6 +30,7 @@ subroutine Tra_Ctl2(CMO,PUVX,TUVX,D1I,FI,D1A,FA,IPR,lSquare,ExFac)
 !                                                                      *
 !***********************************************************************
 
+use Symmetry_Info, only: MulD2h => Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -42,9 +43,6 @@ logical(kind=iwp) :: lSquare
 integer(kind=iwp) :: iAsh, iBas, iDisk, iFro, iIsh, ij_Bas_pairs, ij_Orb_pairs, ijSym, iOff, iOrb, iStack, iSym, jAsh, jBas, jFro, &
                      jIsh, jOrb, jSym, kAsh, kBas, kFro, kIsh, kl_bas_pairs, kl_Orb_pairs, kOrb, kSym, kSymMax, lAsh, lBas, lFro, &
                      lIsh, lOrb, lSym, nPUVX, off_ltMat(mxSym), off_PUVX(mxSym,mxSym,mxSym), off_sqMat(mxSym)
-!Statement function
-integer(kind=iwp) :: SymProd, i, j
-SymProd(i,j) = 1+ieor(i-1,j-1)
 
 if (IPR > 1) then
   write(u6,*)
@@ -74,10 +72,10 @@ do iSym=1,nSym
   iOrb = nOrb(iSym)
   do jSym=1,nSym
     jAsh = nAsh(jSym)
-    ijSym = SymProd(iSym,jSym)
+    ijSym = MulD2h(iSym,jSym)
     do kSym=1,nSym
       kAsh = nAsh(kSym)
-      lSym = SymProd(ijSym,kSym)
+      lSym = MulD2h(ijSym,kSym)
       if (lSym <= kSym) then
         lAsh = nAsh(lSym)
         kl_Orb_pairs = kAsh*lAsh
@@ -112,7 +110,7 @@ do iSym=1,nSym
     jFro = nFro(jSym)
     jIsh = nIsh(jSym)
     jAsh = nAsh(jSym)
-    ijSym = SymProd(iSym,jSym)
+    ijSym = MulD2h(iSym,jSym)
     kSymMax = nSym
     if (.not. lSquare) kSymMax = iSym
     do kSym=1,kSymMax
@@ -121,14 +119,14 @@ do iSym=1,nSym
       kFro = nFro(kSym)
       kIsh = nIsh(kSym)
       kAsh = nAsh(kSym)
-      lSym = SymProd(ijSym,kSym)
+      lSym = MulD2h(ijSym,kSym)
       if (lSym <= kSym) then
         lBas = nBas(lSym)
         lOrb = nOrb(lSym)
         lFro = nFro(lSym)
         lIsh = nIsh(lSym)
         lAsh = nAsh(lSym)
-!
+
         if (iBas*jBas*kBas*lBas /= 0) then
           ij_Bas_pairs = iBas*jBas
           ij_Orb_pairs = iAsh*jAsh

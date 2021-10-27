@@ -56,6 +56,8 @@ subroutine CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,FactC,FactX,
 !
 !***********************************************************************
 
+use Symmetry_Info, only: MulD2h => Mul
+use Index_Functions, only: iTri
 use Data_Structures, only: Deallocate_SBA, DSBA_Type, Integer_Pointer, SBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
@@ -72,8 +74,8 @@ type(Integer_Pointer) :: pNocc(nDen)
 #include "chodensity.fh"
 #include "choscf.fh"
 integer(kind=iwp) :: iBatch, iE, irc, iS, iSkip(nSym), iSym, ISYMA, ISYMB, ISYMD, ISYMG, iSymp, ISYMQ, iSymr, iSymr_Occ, iSyms, &
-                     iVec, jB, jD, jE, jjB, jjS, jR, jS, jSR, JVEC, k, kOcc(nSym), kRdMem, kSym, l, LKV, LVK, LWORK, MaxSym, Naa, &
-                     nb, nBatch, NBL, ng, nk, nMax, np, nq, nr, ns, NumB, NumCho(nSym), NumV, nVec
+                     iVec, jB, jD, jDen, jE, jjB, jjS, jR, jS, jSR, jSym, JVEC, k, kOcc(nSym), kRdMem, kSym, l, LKV, LVK, LWORK, &
+                     MaxSym, Naa, nb, nBatch, NBL, ng, nk, nMax, np, nq, nr, ns, NumB, NumCho(nSym), NumV, nVec
 real(kind=wp) :: TC1X1, TC1X2, TC2X1, TC2X2, TCC1, TCC2, tcoul(2), TCR1, TCR2, TCREO1, TCREO2, TCREO3, TCREO4, texch(2), TOTCPU, &
                  TOTCPU1, TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, tread(2), TW1X1, TW1X2, TW2X1, TW2X2, TWC1, TWC2, TWR1, TWR2, &
                  TWREO1, TWREO2, TWREO3, TWREO4, xf
@@ -88,12 +90,6 @@ real(kind=wp), allocatable :: Dchk(:)
 real(kind=wp), pointer :: LrJs(:,:,:) => null(), XdJb(:) => null(), XgJk(:) => null(), XkJs(:) => null(), VJ(:) => null()
 real(kind=wp), parameter :: Thr = 1.0e-12_wp
 character(len=*), parameter :: BaseNm = 'CHFV', SECNAM = 'CHO_FTWO_MO'
-!*************************************************
-!Statement functions
-integer(kind=iwp) :: MulD2h, iTri, nOcc, i, j, jSym, jDen
-MulD2h(i,j) = ieor(i-1,j-1)+1
-iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
-nOcc(jSym,jDen) = pNocc(jDen)%I1(jSym)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -115,9 +111,10 @@ if (DensityCheck) then
   if (DECO) xf = One
   do jDen=1,nDen
     do jSym=1,nSym
-      if ((nBas(jSym) /= 0) .and. (nOcc(jSym,jDen) /= 0)) then
+      if ((nBas(jSym) /= 0) .and. (pNocc(jDen)%I1(jSym) /= 0)) then
         call mma_allocate(Dchk,nBas(jSym)**2,Label='Dchk')
-        call Cho_X_Test(DSQ(jDen)%SB(jSym)%A2,nBas(jSym),Square,MSQ(jDen)%SB(jSym)%A2,nOcc(jSym,jDen),xf,Dchk,nBas(jSym)**2,Thr,irc)
+        call Cho_X_Test(DSQ(jDen)%SB(jSym)%A2,nBas(jSym),Square,MSQ(jDen)%SB(jSym)%A2,pNocc(jDen)%I1(jSym),xf,Dchk,nBas(jSym)**2, &
+                        Thr,irc)
         call mma_deallocate(Dchk)
         if (irc == 0) then
           write(u6,*) '*** DENSITY CHECK : OK! *** SYMM= ',jSym
@@ -238,7 +235,7 @@ do jSym=1,MaxSym
         iSkip(k) = 666 ! always contribute to Coulomb
       else
         do jDen=1,nDen
-          iSkip(k) = iSkip(k)+nOcc(k,jDen)+nOcc(l,jDen)
+          iSkip(k) = iSkip(k)+pNocc(jDen)%I1(k)+pNocc(jDen)%I1(l)
         end do
       end if
     end do
@@ -324,7 +321,7 @@ do jSym=1,MaxSym
         VJ(:) = Zero
 
         do iSymr=1,nSym
-          if ((nBas(iSymr) /= 0) .and. (nOcc(iSymr,jDen) /= 0)) then
+          if ((nBas(iSymr) /= 0) .and. (pNocc(jDen)%I1(iSymr) /= 0)) then
 
             Naa = nBas(iSymr)*(nBas(iSymr)+1)/2
 
@@ -371,7 +368,7 @@ do jSym=1,MaxSym
 
         iSymr_Occ = 0
         do jDen=1,nDen
-          iSymr_Occ = iSymr_Occ+nOcc(iSymr,jDen)
+          iSymr_Occ = iSymr_Occ+pNocc(jDen)%I1(iSymr)
         end do
         nr = NBAS(iSymr)
         if ((nr /= 0) .and. (iSymr_Occ > 0)) then
@@ -403,7 +400,7 @@ do jSym=1,MaxSym
 
             if (DoExchange(jDen)) then
 
-              kOcc(iSymr) = nOcc(iSymr,jDen)
+              kOcc(iSymr) = pNocc(jDen)%I1(iSymr)
 
               if (kOcc(iSymr) /= 0) then
 
@@ -509,7 +506,7 @@ do jSym=1,MaxSym
         if (DoExchange(jDen)) then
           ! **** Occupation numbers needed for the Exchange term *****
           do iSym=1,nsym
-            kOcc(iSym) = nOcc(iSym,jDen)
+            kOcc(iSym) = pNocc(jDen)%I1(iSym)
           end do
           ! **********************************************************
           ! --- COMPUTE EXCHANGE FOR OFF-DIAGONAL VECTORS

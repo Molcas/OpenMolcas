@@ -11,6 +11,7 @@
 
 subroutine CHO_eval_waxy(irc,Scr,ChoV1,ChoV2,W_PWXY,nAorb,JSYM,NUMV,DoTraInt,CMO)
 
+use Symmetry_Info, only: MulD2h => Mul
 use Data_structures, only: DSBA_Type, SBA_Type, twxy_Type
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -27,10 +28,6 @@ type(DSBA_Type) :: CMO
 #include "wadr.fh"
 integer(kind=iwp) :: ijSym, iOrb, ipMpw, iS, iStack, iSyma, iSymp, iSymw, iSymx, iSymy, ixy, jAsh, kAsh, kl_Orb_pairs, lAsh, &
                      nAob_w, nBas_a, nOrb_a, Npw, Nwa, Nxy, off_PWXY(8,8,8)
-!************************************************
-!Statement function
-integer(kind=iwp) :: MulD2h, i, j
-MulD2h(i,j) = ieor(i-1,j-1)+1
 !************************************************
 
 if (NumV < 1) return

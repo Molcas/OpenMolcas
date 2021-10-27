@@ -16,6 +16,7 @@ subroutine swap_rs2full(irc,iLoc,nRS,nDen,JSYM,XLT,Xab,mode,add)
 
 use ChoArr, only: iRS2F
 use ChoSwp, only: IndRed
+use Index_Functions, only: iTri
 use Data_Structures, only: DSBA_Type
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -30,12 +31,6 @@ logical(kind=iwp) :: add
 #include "choorb.fh"
 integer(kind=iwp) :: iab, iag, ias, ibg, ibs, iRab, iSyma, jDen, jRab, kRab
 integer(kind=iwp), external :: cho_isao
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!Statement function
-integer(kind=iwp) :: iTri, i, j
-iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 !                                                                      *
 !***********************************************************************
 !                                                                      *

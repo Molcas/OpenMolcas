@@ -33,19 +33,13 @@ subroutine Fold_Mat(nSym,nBas,A,B)
 !     Author:   F. Aquilante                                           *
 !***********************************************************************
 
+use Index_Functions, only: iTri, nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: nSym, nBas(nSym)
 real(kind=wp) :: A(*), B(*)
-integer(kind=iwp) :: iOff1, iOff2, iSym
-!************************************
-!Statement functions
-integer(kind=iwp) :: iit, ijt, iis, ijs, j, i, n
-iit(j) = j*(j+1)/2
-ijt(i,j) = i*(i-1)/2+j
-iis(n,j) = n*(j-1)+j
-ijs(n,i,j) = n*(j-1)+i
+integer(kind=iwp) :: i, iOff1, iOff2, iSym, j
 !************************************
 
 iOff1 = 0
@@ -55,17 +49,17 @@ do iSym=1,nSym
 
   do j=1,nBas(iSym)
 
-    B(iOff1+iit(j)) = A(iOff2+iis(nBas(iSym),j))
+    B(iOff1+nTri_Elem(j)) = A(iOff2+nBas(iSym)*(j-1)+j)
 
     do i=j+1,nBas(iSym)
 
-      B(iOff1+ijt(i,j)) = A(iOff2+ijs(nBas(iSym),i,j))+A(iOff2+ijs(nBas(iSym),j,i))
+      B(iOff1+iTri(i,j)) = A(iOff2+nBas(iSym)*(j-1)+i)+A(iOff2+nBas(iSym)*(i-1)+j)
 
     end do
 
   end do
 
-  iOff1 = iOff1+iit(nBas(iSym))
+  iOff1 = iOff1+nTri_Elem(nBas(iSym))
   iOff2 = iOff2+nBas(iSym)**2
 
 end do

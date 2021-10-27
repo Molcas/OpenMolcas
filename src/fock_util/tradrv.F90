@@ -35,14 +35,15 @@ subroutine TraDrv(IPR,lSquare,iSym,jSym,kSym,lSym,iBas,jBas,kBas,lBas,iOrb,jOrb,
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: iTri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: IPR, iSym, jSym, kSym, lSym, iBas, jBas, kBas, lBas, iOrb, jOrb, kOrb, lOrb, iFro, jFro, kFro, lFro, iIsh, &
-                     jIsh, kIsh, lIsh, iAsh, jAsh, kAsh, lAsh, ij_Bas_pairs, kl_Bas_pairs, ij_Orb_pairs, kl_Orb_pairs, mxSym, &
-                     off_PUVX(mxSym,mxSym,mxSym), off_sqMat(*), off_ltMat(*)
+integer(kind=iwp) :: i, IPR, iSym, j, jSym, kSym, lSym, iBas, jBas, kBas, lBas, iOrb, jOrb, kOrb, lOrb, iFro, jFro, kFro, lFro, &
+                     iIsh, jIsh, kIsh, lIsh, iAsh, jAsh, kAsh, lAsh, ij_Bas_pairs, kl_Bas_pairs, ij_Orb_pairs, kl_Orb_pairs, &
+                     mxSym, off_PUVX(mxSym,mxSym,mxSym), off_sqMat(*), off_ltMat(*)
 logical(kind=iwp) :: lSquare
 real(kind=wp) :: CMO(*), PUVX(*), D1I(*), FI(*), D1A(*), FA(*), ExFac
 #include "timers.fh"
@@ -52,9 +53,6 @@ logical(kind=iwp) :: Process_Twice
 real(kind=wp), allocatable :: Buf2(:), Buf3(:)
 real(kind=wp), allocatable, target :: InBuf(:), PQVX(:), Scrt1(:), TURS(:)
 real(kind=wp), pointer :: Buf9(:) => null(), PQRS(:) => null(), PQRS_(:) => null()
-!Statement function
-integer(kind=iwp) :: iTri, i, j
-iTri(i,j) = i*(i-1)/2+j
 
 ! generate offsets
 iiOff = off_sqMat(iSym)+iFro*iBas+1

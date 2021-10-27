@@ -21,6 +21,7 @@
 !--------------------------------------------*
 subroutine FOCKTWO(NSYM,NBAS,NFRO,KEEP,W_DLT,W_DSQ,W_FLT,nFlt,W_FSQ,LBUF,X1,X2,ExFac)
 
+use Symmetry_Info, only: Mul
 use Data_Structures, only: DSBA_Type, Allocate_DSBA, Deallocate_DSBA
 use Constants, only: One, Half
 use Definitions, only: wp, iwp, u6, r8
@@ -33,10 +34,6 @@ integer(kind=iwp) :: IB, IJ, IJB, IJS, IK, IOPT, IP, IPQ, IRC, IS, ISX, ISYM, JB
 real(kind=wp) :: TEMP
 type(DSBA_Type) :: DLT, DSQ, FLT, FSQ
 real(kind=r8), external :: DDOT_
-!***********************************************************************
-!Statement function
-integer(kind=iwp) :: MUL, I, J
-MUL(I,J) = ieor(I-1,J-1)+1
 
 !***********************************************************************
 !

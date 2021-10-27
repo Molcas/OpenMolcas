@@ -30,6 +30,7 @@ subroutine CHO_FSCF(rc,nDen,FLT,nForb,nIorb,Porb,DLT,ExFac)
 
 use ChoArr, only: nDimRS
 use ChoSwp, only: InfVec
+use Symmetry_Info, only: MulD2h => Mul
 use Data_structures, only: Allocate_SBA, Deallocate_SBA, DSBA_Type, SBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -42,9 +43,9 @@ real(kind=wp) :: ExFac
 #include "chotime.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-integer(kind=iwp) :: iBatch, iDen, iLoc, irc, IREDC, iSkip(8), iSwap, iSyma, iSymk, IVEC2, iVrs, jDen, JNUM, JRED, JRED1, JRED2, &
-                     jSym, JVEC, k, kMOs, l, LREAD, LWORK, Mmax, mTvec, MUSED, nAux(8), nBatch, NK, nMat, nMOs, nRS, NUMV, nVec, &
-                     nVrs
+integer(kind=iwp) :: i, iBatch, iDen, iLoc, irc, IREDC, iSkip(8), iSwap, iSyma, iSymk, IVEC2, iVrs, jDen, JNUM, JRED, JRED1, &
+                     JRED2, jSym, JVEC, k, kMOs, l, LREAD, LWORK, Mmax, mTvec, MUSED, nAux(8), nBatch, NK, nMat, nMOs, nRS, NUMV, &
+                     nVec, nVrs
 real(kind=wp) :: Fact, FactCI, FactXI, TCC1, TCC2, tcoul(2), TCR1, TCR2, TCR3, TCR4, TCX1, TCX2, texch(2), TOTCPU, TOTCPU1, &
                  TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, tread(2), TWC1, TWC2, TWR1, TWR2, TWR3, TWR4, TWX1, TWX2
 logical(kind=iwp) :: add, DoRead
@@ -56,10 +57,6 @@ character(len=6) :: mode
 type(SBA_Type) :: Laq(2)
 real(kind=wp), allocatable :: Drs(:), Frs(:), Lrs(:,:), VJ(:)
 character(len=*), parameter :: SECNAM = 'CHO_FSCF'
-!***********************************************************************
-!Statement function
-integer(kind=iwp) :: MulD2h, i, j
-MulD2h(i,j) = ieor(i-1,j-1)+1
 !***********************************************************************
 
 #ifdef _DEBUGPRINT_

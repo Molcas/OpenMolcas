@@ -33,6 +33,7 @@ subroutine CHO_FOCK_RASSI_X(DLT,MO1,MO2,FLT,FSQ,TUVX)
 
 use ChoArr, only: nDimRS
 use ChoSwp, only: InfVec
+use Symmetry_Info, only: MulD2h => Mul
 use Data_Structures, only: Allocate_SBA, Allocate_twxy, Deallocate_SBA, Deallocate_twxy, DSBA_Type, SBA_Type, twxy_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -46,7 +47,7 @@ real(kind=wp) :: TUVX(*)
 #include "rassi.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-integer(kind=iwp) :: ia, iabt, ib, iBatch, iCase, iLoc, irc, iREDC, iSkip(8), iSwap, iSym, iSyma, iSymb, iSymk, iSymv, IVEC2, &
+integer(kind=iwp) :: i, ia, iabt, ib, iBatch, iCase, iLoc, irc, iREDC, iSkip(8), iSwap, iSym, iSyma, iSymb, iSymk, iSymv, IVEC2, &
                      iVrs, jDen, JNUM, JRED, JRED1, JRED2, jSym, JVC, JVEC, k, kDen, kMOs, l, LREAD, LWORK, mDen, mTTvec, mTvec, &
                      MUSED, NAv, NAw, nBatch, nDen, NK, nMOs, nRS, NUMV, nVec, nVrs, rc
 real(kind=wp) :: Fact, TCC1, TCC2, TCINT1, TCINT2, tcoul(2), TCR1, TCR2, TCR3, TCR4, TCR7, TCX1, TCX2, texch(2), tintg(2), TOTCPU, &
@@ -65,10 +66,6 @@ real(kind=wp), pointer :: VJ(:) => null()
 real(kind=wp), parameter :: FactCI = One, FactXI = -One
 character(len=*), parameter :: SECNAM = 'CHO_FOCK_RASSI_X'
 logical(kind=iwp), parameter :: DoRead = .false.
-!*************************************************
-!Statement function
-integer(kind=iwp) :: MulD2h, i, j
-MulD2h(i,j) = ieor(i-1,j-1)+1
 !*************************************************
 
 #ifdef _DEBUGPRINT_

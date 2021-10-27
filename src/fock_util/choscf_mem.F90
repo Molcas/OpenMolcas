@@ -32,6 +32,7 @@ subroutine CHOSCF_MEM(nSym,nBas,iUHF,DoExchange,pNocc,ALGO,REORD,MinMem,lOff1)
 !*****************************************************************
 
 use ChoArr, only: nDimRS
+use Symmetry_Info, only: MulD2h => Mul
 use Data_Structures, only: Integer_Pointer
 use Definitions, only: iwp
 
@@ -39,13 +40,8 @@ implicit none
 integer(kind=iwp) :: nSym, nBas(nSym), iUHF, ALGO, MinMem(nSym), lOff1
 logical(kind=iwp) :: DoExchange(*), REORD
 type(Integer_Pointer) :: pNocc(*)
-integer(kind=iwp) :: iSym, iSymp, jSym, ksym, Nab, nDen, Nmax, NSab, Mabmx(nSym), Moccmx(nSym), MxBas(nSym)
+integer(kind=iwp) :: i, iSym, iSymp, j, jSym, ksym, Nab, nDen, Nmax, NSab, Mabmx(nSym), Moccmx(nSym), MxBas(nSym)
 logical(kind=iwp) :: xToDo
-!*************************************************
-!Statement functions
-integer(kind=iwp) :: MulD2h, Nocc, i, j
-MulD2h(i,j) = ieor(i-1,j-1)+1
-Nocc(i,j) = pNocc(j)%I1(i)
 !*************************************************
 
 if (iUHF == 0) then
@@ -60,14 +56,14 @@ end if
 lOff1 = 0
 do i=1,nDen
   do j=1,nSym
-    lOff1 = max(lOff1,Nocc(j,i))
+    lOff1 = max(lOff1,pNocc(i)%I1(j))
   end do
 end do
 
 do j=1,nSym
   Moccmx(j) = 0
   do i=1,nDen
-    Moccmx(j) = max(Moccmx(j),Nocc(j,i))
+    Moccmx(j) = max(Moccmx(j),pNocc(i)%I1(j))
   end do
 end do
 

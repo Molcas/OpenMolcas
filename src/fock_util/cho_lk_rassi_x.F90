@@ -34,6 +34,8 @@ subroutine CHO_LK_RASSI_X(DLT,MSQ,FLT,KSQ,FSQ,TUVX,Ash,nScreen,dmpk)
 use ChoArr, only: nBasSh, nDimRS
 use ChoSwp, only: IndRed, InfVec, nnBstRSh
 use fock_util_interface, only: cho_lr_MOs
+use Symmetry_Info, only: MulD2h => Mul
+use Index_Functions, only: iTri
 use Data_Structures, only: Allocate_DSBA, Allocate_L_Full, Allocate_Lab, Allocate_NDSBA, Allocate_SBA, Allocate_twxy, &
                            Deallocate_DSBA, Deallocate_L_Full, Deallocate_Lab, Deallocate_NDSBA, Deallocate_SBA, Deallocate_twxy, &
                            DSBA_Type, L_Full_Type, Lab_Type, NDSBA_Type, SBA_Type, twxy_Type
@@ -78,7 +80,7 @@ integer(kind=iwp), allocatable :: Indx(:,:,:), iShp_rs(:), kOffSh(:,:), nnBfShp(
 real(kind=wp), allocatable :: AbsC(:), Diag(:), Drs(:), Faa(:), Fia(:), Frs(:), Lrs(:,:), MLk(:,:,:), SumAClk(:,:,:), SvShp(:,:), &
                               VJ(:), Ylk(:,:,:)
 #ifdef _MOLCAS_MPP_
-integer(kind=iwp) :: myJRED1, NNBSTMX, ntv0
+integer(kind=iwp) :: i, myJRED1, NNBSTMX, ntv0
 real(kind=wp), allocatable :: DiagJ(:)
 #endif
 character(LEN=14), parameter :: SECNAM = 'CHO_LK_RASSI_X'
@@ -87,11 +89,6 @@ real(kind=wp), parameter :: FactCI = One, FactXI = -One
 integer(kind=iwp), external :: Cho_LK_MaxVecPerBatch
 real(kind=wp), external :: Cho_LK_ScreeningThreshold
 real(kind=r8), external :: ddot_
-!***********************************************************************
-!Statement functions
-integer(kind=iwp) :: MulD2h, iTri, i, j
-MulD2h(i,j) = ieor(i-1,j-1)+1
-iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 !                                                                      *
 !***********************************************************************
 !                                                                      *

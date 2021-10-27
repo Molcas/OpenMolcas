@@ -21,6 +21,7 @@ subroutine CHO_SUM(rc,nSym,nBas,iUHF,DoExchange,FLT,FSQ)
 !           spin as defined in the calling routine
 !*****************************************************************
 
+use Index_Functions, only: iTri
 use Data_Structures, only: DSBA_Type
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
@@ -32,10 +33,6 @@ integer(kind=iwp) :: rc, nSym, nBas(8), iUHF
 logical(kind=iwp) :: DoExchange(*)
 type(DSBA_Type) :: FLT(*), FSQ(*)
 integer(kind=iwp) :: IB, IJB, ISYM, JB, NB, nDen
-!*************************************************
-!Statement function
-integer(kind=iwp) :: iTri, i, j
-iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 !*************************************************
 
 if (iUHF == 1) then

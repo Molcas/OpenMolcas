@@ -36,6 +36,7 @@ subroutine Get_TUVX(PUVX,TUVX)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
@@ -44,9 +45,6 @@ real(kind=wp) :: PUVX(*), TUVX(*)
 #include "general.fh"
 integer(kind=iwp) :: iAsh, iIsh, iiT, iiU, iiV, iiX, ijSym, iOrb, iP, iPUVX, iStack, iSym, iT, iTemp, iTU, iTUVX, iU, iV, iVX, iX, &
                     jAsh, jSym, kAsh, kl_Orb_pairs, klSym, kSym, lAsh, lMax, lSym, off_Ash(mxSym), off_PUVX(mxSym)
-!Statement function
-integer(kind=iwp) :: iTri, i
-iTri(i) = (i*i-i)/2
 
 ! generate offsets
 iStack = 0
@@ -113,20 +111,20 @@ do iSym=1,nSym
                     iiU = iT+off_Ash(iSym)
                   end if
 
-                  iTU = iiU+iTri(iiT)
+                  iTU = iiU+nTri_Elem(iiT-1)
                   iiV = iV+off_Ash(kSym)
                   iiX = iX+off_Ash(lSym)
                   if (iiX > iiV) then
                     iiV = iX+off_Ash(lSym)
                     iiX = iV+off_Ash(kSym)
                   end if
-                  iVX = iiX+iTri(iiV)
+                  iVX = iiX+nTri_Elem(iiV-1)
                   if (iVX > iTU) then
                     iTemp = iTU
                     iTU = iVX
                     iVX = iTemp
                   end if
-                  iTUVX = iVX+iTri(iTU)
+                  iTUVX = iVX+nTri_Elem(iTU-1)
                   TUVX(iTUVX) = PUVX(iPUVX)
                 end if
 

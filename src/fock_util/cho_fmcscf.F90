@@ -40,6 +40,7 @@ subroutine CHO_FMCSCF(rc,FLT,nForb,nIorb,nAorb,FactXI,DLT,DoActive,POrb,nChM,W_P
 
 use ChoArr, only: nDimRS
 use ChoSwp, only: InfVec
+use Symmetry_Info, only: MulD2h => Mul
 use Data_structures, only: Allocate_SBA, Allocate_twxy, Deallocate_SBA, Deallocate_twxy, DSBA_Type, SBA_Type, twxy_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
@@ -53,9 +54,9 @@ logical(kind=iwp) :: DoActive
 #include "chotime.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-integer(kind=iwp) :: iBatch, iCase, iLoc, irc, IREDC, iSkip(8), iSwap, iSyma, iSymb, iSymk, iSymv, iSymw, IVEC2, iVrs, JNUM, JRED, &
-                     JRED1, JRED2, jSym, JVC, JVEC, k, kMOs, l, LREAD, LWORK, mTvec, mTvec1, mTvec2, mTvec3, mTvec4, MUSED, NAch, &
-                     nAux(8), nAv, nAw, nBatch, nDen, NK, nMOs, nnA(8,8), nPorb(8), nRS, NUMV, nVec, nVrs
+integer(kind=iwp) :: i, iBatch, iCase, iLoc, irc, IREDC, iSkip(8), iSwap, iSyma, iSymb, iSymk, iSymv, iSymw, IVEC2, iVrs, JNUM, &
+                     JRED, JRED1, JRED2, jSym, JVC, JVEC, k, kMOs, l, LREAD, LWORK, mTvec, mTvec1, mTvec2, mTvec3, mTvec4, MUSED, &
+                     NAch, nAux(8), nAv, nAw, nBatch, nDen, NK, nMOs, nnA(8,8), nPorb(8), nRS, NUMV, nVec, nVrs
 real(kind=wp) :: TCC1, TCC2, TCINT1, TCINT2, tcoul(2), TCR1, TCR2, TCR3, TCR4, TCR5, TCR6, TCR7, TCR8, TCX1, TCX2, TCX3, TCX4, &
                  texch(2), tintg(2), TOTCPU, TOTCPU1, TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, tread(2), TWC1, TWC2, TWINT1, TWINT2, &
                  TWR1, TWR2, TWR3, TWR4, TWR5, TWR6, TWR7, TWR8, TWX1, TWX2, TWX3, TWX4, xfac
@@ -71,10 +72,6 @@ real(kind=wp), allocatable :: Lrs(:,:), Drs(:,:), Frs(:,:)
 real(kind=wp), pointer :: VJ(:) => null()
 real(kind=wp), parameter :: FactCI = One, FactCA = One, FactXA = -Half
 character(len=*), parameter :: SECNAM = 'CHO_FMCSCF'
-!***********************************************************************
-!Statement function
-integer(kind=iwp) :: MulD2h, i, j
-MulD2h(i,j) = ieor(i-1,j-1)+1
 !***********************************************************************
 
 #ifdef _DEBUGPRINT_

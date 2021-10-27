@@ -59,6 +59,8 @@ subroutine CHO_FOCKTWO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,FactC,FactX,DLT,DS
 !
 !***********************************************************************
 
+use Symmetry_Info, only: MulD2h => Mul
+use Index_Functions, only: iTri
 use Data_Structures, only: DSBA_Type, Deallocate_SBA, Integer_Pointer, SBA_Type
 use stdalloc, only: mma_allocate
 use Constants, only: Zero, One
@@ -73,8 +75,8 @@ type(Integer_Pointer) :: pNocc(nDen)
 #include "chounit.fh"
 #include "chotime.fh"
 integer(kind=iwp) :: iBatch, iE, iS, iSkip(nSym), iSym, ISYMA, ISYMB, ISYMD, ISYMG, iSymp, ISYMQ, iSymr, iSymr_Occ, iSyms, iVec, &
-                     jD, jE, jR, jS, jSR, jSym, JVEC, kRdMem, kSym, l, lu, LWORK, MaxSym, Naa, nb, nBatch, nd, ndim3, nk, Nmax, &
-                     np, NumB, NumCho(nSym), NumV, nVec
+                     jD, jDen, jE, jR, jS, jSR, jSym, JVEC, k, kRdMem, kSym, l, lu, LWORK, MaxSym, Naa, nb, nBatch, nd, ndim3, nk, &
+                     Nmax, np, NumB, NumCho(nSym), NumV, nVec
 real(kind=wp) :: TC1X1, TC1X2, TC2X1, TC2X2, TCC1, TCC2, tcoul(2), TCR1, TCR2, TCREO1, TCREO2, TCREO3, TCREO4, texch(2), TOTCPU, &
                  TOTCPU1, TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, tread(2), TW1X1, TW1X2, TW2X1, TW2X2, TWC1, TWC2, TWR1, TWR2, &
                  TWREO1, TWREO2, TWREO3, TWREO4
@@ -88,12 +90,6 @@ type(SBA_Type), target :: LqJs, Wab
 real(kind=wp), pointer :: LrJs(:,:,:) => null(), VJ(:) => null(), XdJb(:) => null(), XpJs(:) => null()
 character(len=*), parameter :: BaseNm = 'CHFV', SECNAM = 'CHO_FOCKTWO'
 integer(kind=iwp), external :: isfreeunit
-!*************************************************
-!Statement functions
-integer(kind=iwp) :: MulD2h, iTri, nOcc, i, j, k, jDen
-MulD2h(i,j) = ieor(i-1,j-1)+1
-iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
-nOcc(k,jDen) = pNocc(jDen)%I1(k)
 !*************************************************
 
 #ifdef _DEBUGPRINT_
@@ -214,7 +210,7 @@ do jSym=1,MaxSym
         iSkip(k) = 666 ! always contribute to Coulomb
       else
         do jDen=1,nDen
-          iSkip(k) = iSkip(k)+nOcc(k,jDen)+nOcc(l,jDen)
+          iSkip(k) = iSkip(k)+pNocc(jDen)%I1(k)+pNocc(jDen)%I1(l)
         end do
       end if
     end do
@@ -305,7 +301,7 @@ do jSym=1,MaxSym
         VJ(:) = Zero
 
         do iSymr=1,nSym
-          if ((nBas(iSymr) /= 0) .and. (nOcc(iSymr,jDen) /= 0)) then
+          if ((nBas(iSymr) /= 0) .and. (pNocc(jDen)%I1(iSymr) /= 0)) then
 
             Naa = nBas(iSymr)*(nBas(iSymr)+1)/2
 
@@ -352,7 +348,7 @@ do jSym=1,MaxSym
 
         iSymr_Occ = 0
         do jDen=1,nDen
-          iSymr_Occ = iSymr_Occ+nOcc(iSymr,jDen)
+          iSymr_Occ = iSymr_Occ+pNocc(jDen)%I1(iSymr)
         end do
         if ((nBas(iSymr) /= 0) .and. (iSymr_Occ > 0)) then
 
@@ -383,7 +379,7 @@ do jSym=1,MaxSym
 
             if (DoExchange(jDen)) then
 
-              if (nOcc(iSymr,jDen) /= 0) then
+              if (pNocc(jDen)%I1(iSymr) /= 0) then
 
                 call CWTIME(TC1X1,TW1X1)
 
@@ -497,7 +493,7 @@ do jSym=1,MaxSym
                 ! ---------------------------
                 ! F(a,b) = - D(g,d) * (ad|gb)
                 ! ---------------------------
-                if (nOcc(iSymg,jDen) /= 0) then
+                if (pNocc(jDen)%I1(iSymg) /= 0) then
 
                   ! Calculate intermediate:
                   ! X(d,Jb) = Sum(g) D(d,g) * L(g,Jb).
@@ -516,7 +512,7 @@ do jSym=1,MaxSym
                 ! ---------------------------
                 ! F(g,d) = - D(a,b) * (ad|gb)
                 ! ---------------------------
-                if (nOcc(iSyma,jDen) /= 0) then
+                if (pNocc(jDen)%I1(iSyma) /= 0) then
 
                   ! Calculate intermediate:
                   ! X(gJ,b) = Sum(a) L(gJ,a)* D(a,b).

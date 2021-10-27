@@ -32,6 +32,8 @@ subroutine CHO_LK_SCF(rc,nDen,FLT,KLT,nForb,nIorb,Porb,PLT,FactXI,nScreen,dmpk,d
 
 use ChoArr, only: nBasSh, nDimRS
 use ChoSwp, only: IndRed, InfVec, nnBstRSh
+use Symmetry_Info, only: MulD2h => Mul
+use Index_Functions, only: iTri
 use Data_Structures, only: Allocate_L_Full, Allocate_Lab, Allocate_NDSBA, Deallocate_L_Full, Deallocate_Lab, Deallocate_NDSBA, &
                            DSBA_Type, L_Full_Type, Lab_Type, NDSBA_Type
 #ifdef _MOLCAS_MPP_
@@ -50,7 +52,7 @@ real(kind=wp) :: FactXI, dmpk, dFmat
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "warnings.h"
-integer(kind=iwp) :: i1, ia, iab, iabg, iag, iaSh, iaSkip, ib, iBatch, ibcount, ibg, ibs, ibSh, ibSkip, iE, ik, iLoc, iml, Inc, &
+integer(kind=iwp) :: i, i1, ia, iab, iabg, iag, iaSh, iaSkip, ib, iBatch, ibcount, ibg, ibs, ibSh, ibSkip, iE, ik, iLoc, iml, Inc, &
                      ioffa, iOffAB, ioffb, iOffShb, irc, ired1, IREDC, iS, ish, iShp, ISYM, iSyma, iTmp, IVEC2, iVrs, jDen, jK, &
                      jK_a, jml, jmlmax, JNUM, JRED, JRED1, JRED2, jrs, jSym, jvc, JVEC, k, kOff(8,2), krs, kscreen, kSym, l, &
                      LFULL, LKsh, LKshp, LREAD, lSh, lSym, LWORK, MaxB, MaxRedT, MaxVecPerBatch, mDen, Mmax, mrs, mSh, mTvec, &
@@ -79,11 +81,6 @@ character(len=*), parameter :: SECNAM = 'CHO_LK_SCF'
 integer(kind=iwp), external :: Cho_LK_MaxVecPerBatch
 real(kind=wp), external :: Cho_LK_ScreeningThreshold
 real(kind=r8), external :: ddot_
-!***********************************************************************
-!Statement function
-integer(kind=iwp) :: MulD2h, iTri, i, j
-MulD2h(i,j) = ieor(i-1,j-1)+1
-iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 !***********************************************************************
 
 #ifdef _DEBUGPRINT_

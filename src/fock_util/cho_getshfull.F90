@@ -16,6 +16,7 @@ subroutine CHO_GetShFull(LabJ,lLabJ,JNUM,JSYM,IREDC,ChoV,SvShp,mmShl,iShp_rs,mmS
 
 use ChoArr, only: iBasSh, iRS2F, iShlSO, iSOShl, nDimRS
 use ChoSwp, only: IndRed, IndRSh
+use Symmetry_Info, only: MulD2h => Mul
 use Data_Structures, only: L_Full_Type
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -28,10 +29,6 @@ type(L_Full_Type) :: ChoV
 integer(kind=iwp) :: i1, iag, ias, iaSg, iaSh, ibg, ibs, ibSg, ibSh, iLoc, iRab, iShp, iSyma, iSymb, jRab, jShp, JVEC, kLabJ, &
                      kRab, NREAD
 integer(kind=iwp), external :: cho_isao
-!***********************************************************************
-!Statement function
-integer(kind=iwp) :: MulD2h, i, j
-MulD2h(i,j) = ieor(i-1,j-1)+1
 !***********************************************************************
 
 !*********************************************************

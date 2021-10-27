@@ -32,18 +32,14 @@ subroutine Fold_tMat(nSym,nBas,A,B)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: iTri, nTri_Elem
 use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: nSym, nBas(nSym)
 real(kind=wp) :: A(*), B(*)
-integer(kind=iwp) :: iOff, iSym
-!************************************
-integer(kind=iwp) :: iit, ijt, j, i
-!Statement functions
-iit(j) = j*(j+1)/2
-ijt(i,j) = i*(i-1)/2+j
+integer(kind=iwp) :: i, iOff, iSym, j
 !************************************
 
 iOff = 0
@@ -54,15 +50,15 @@ do iSym=1,nSym
 
     do i=j+1,nBas(iSym)
 
-      B(iOff+ijt(i,j)) = two*A(iOff+ijt(i,j))
+      B(iOff+iTri(i,j)) = two*A(iOff+iTri(i,j))
 
     end do
 
-    B(iOff+iit(j)) = A(iOff+iit(j))
+    B(iOff+nTri_Elem(j)) = A(iOff+nTri_Elem(j))
 
   end do
 
-  iOff = iOff+iit(nBas(iSym))
+  iOff = iOff+nTri_Elem(nBas(iSym))
 
 end do
 

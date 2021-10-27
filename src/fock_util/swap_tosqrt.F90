@@ -15,6 +15,7 @@
 subroutine swap_tosqrt(irc,iLoc,nRS,JSYM,XLT,Xab)
 
 use ChoArr, only: iRS2F
+use Symmetry_Info, only: MulD2h => Mul
 use Data_Structures, only: NDSBA_Type
 use Definitions, only: wp, iwp
 
@@ -26,12 +27,6 @@ real(kind=wp) :: Xab(nRS)
 #include "choorb.fh"
 integer(kind=iwp) :: iag, ias, ibg, ibs, iSyma, iSymb, jRab, kRab
 integer(kind=iwp), external :: cho_isao
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!Statement function
-integer(kind=iwp) :: MulD2h, i, j
-MulD2h(i,j) = ieor(i-1,j-1)+1
 !                                                                      *
 !***********************************************************************
 !                                                                      *

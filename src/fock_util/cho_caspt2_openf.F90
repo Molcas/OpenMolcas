@@ -25,14 +25,10 @@ implicit none
 integer(kind=iwp) :: iOpt, iTyp, iSym, nBatch
 #include "WrkSpc.fh"
 #include "chocaspt2.fh"
-integer(kind=iwp) :: iaddr, iB, LuV, nSym, NCALLS = 0, NUMCHO(8)
+integer(kind=iwp) :: iaddr, iB, iUnit_F, LuV, nSym, NCALLS = 0, NUMCHO(8)
 character(len=3) :: BaseNm
 character(len=7) :: FullNm
 character(len=*), parameter :: SecNam = 'Cho_CASPT2_OpenF'
-!******************************************************************
-!Statement function
-integer(kind=iwp) :: lUnit_F, j, k, l
-lUnit_F(j,k,l) = iWork(ipUnit_F(j)+(l-1)*nIsplit(j)+k-1)
 !******************************************************************
 
 if (nBatch > 999) then
@@ -66,7 +62,8 @@ end if
 if (iOpt == 1) then
   if (NumCho(iSym) > 0) then
     do iB=1,nBatch
-      if (lUnit_F(iSym,iB,iTyp) < 1) then
+      iUnit_F = ipUnit_F(iSym)+(iTyp-1)*nIsplit(iSym)+iB-1
+      if (iWork(iUnit_F) < 1) then
         call Cho_caspt2_GetBaseNm(BaseNm,iTyp)
         write(FullNm,'(A3,I1,I3)') BaseNm,iSym,iB
         LuV = 7 ! initial guess
@@ -84,18 +81,20 @@ if (iOpt == 1) then
   end if
 else if (iOpt == 2) then
   do iB=1,nBatch
-    if (lUnit_F(iSym,iB,iTyp) > 0) then
-      write(u6,*) ' Closing lUnit_F(iSym,iB,iTyp)=',lUnit_F(iSym,iB,iTyp)
-      call daClos(lUnit_F(iSym,iB,iTyp))
-      iWork(ipUnit_F(iSym)+(iTyp-1)*nIsplit(iSym)+iB-1) = -1
+    iUnit_F = ipUnit_F(iSym)+(iTyp-1)*nIsplit(iSym)+iB-1
+    if (iWork(iUnit_F) > 0) then
+      write(u6,*) ' Closing lUnit_F=',iWork(iUnit_F)
+      call daClos(iWork(iUnit_F))
+      iWork(iUnit_F) = -1
     end if
   end do
 else if (iOpt == 3) then
   do iB=1,nBatch
-    if (lUnit_F(iSym,iB,iTyp) > 0) then
-      write(u6,*) ' Erasing lUnit_F(iSym,iB,iTyp)=',lUnit_F(iSym,iB,iTyp)
-      call daEras(lUnit_F(iSym,iB,iTyp))
-      iWork(ipUnit_F(iSym)+(iTyp-1)*nIsplit(iSym)+iB-1) = -1
+    iUnit_F = ipUnit_F(iSym)+(iTyp-1)*nIsplit(iSym)+iB-1
+    if (iWork(iUnit_F) > 0) then
+      write(u6,*) ' Erasing lUnit_F=',iWork(iUnit_F)
+      call daEras(iWork(iUnit_F))
+      iWork(iUnit_F) = -1
     end if
   end do
 else

@@ -34,6 +34,8 @@ subroutine CHO_LK_MCLR(DLT,DI,DA,G2,Kappa,JI,KI,JA,KA,FkI,FkA,MO_Int,QVec,Ash,CM
 
 use ChoArr, only: nBasSh, nDimRS
 use ChoSwp, only: IndRed, InfVec, nnBstRSh
+use Symmetry_Info, only: MulD2h => Mul
+use Index_Functions, only: iTri
 use Data_Structures, only: Allocate_DSBA, Allocate_G2, Allocate_L_Full, Allocate_Lab, Allocate_NDSBA, Allocate_SBA, &
                            Deallocate_DSBA, Deallocate_G2, Deallocate_L_Full, Deallocate_Lab, Deallocate_NDSBA, Deallocate_SBA, &
                            DSBA_Type, G2_Type, L_Full_Type, Lab_Type, NDSBA_Type, SBA_Type
@@ -53,7 +55,7 @@ logical(kind=iwp) :: DoAct, Fake_CMO2
 #include "chomclr.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-integer(kind=iwp) :: ia, iab, iabg, iAdr, iAdr2, iag, iaSh, iaSkip, iASQ(8,8,8), ib, iBatch, ibcount, ibg, ibs, ibSh, ibSkip, &
+integer(kind=iwp) :: i, ia, iab, iabg, iAdr, iAdr2, iag, iaSh, iaSkip, iASQ(8,8,8), ib, iBatch, ibcount, ibg, ibs, ibSh, ibSkip, &
                      iCase, iE, iij, ijS, ijsym, ik, ikl, iLoc, iml, Inc, ioff, ioffa, iOffAB, ioffb, iOffShb, ipG, irc, ired1, &
                      IREDC, iS, ish, iShp, iSwap, ISYM, iSyma, iSymb, iSymv, isymx, iSymy, iTmp, IVEC2, iVrs, jab, jAsh, jaSkip, &
                      jDen, jK, jK_a, jml, jmlmax, JNUM, jOffAB, JRED, JRED1, JRED2, jrs, jS, jsym, jvc, JVEC, k, kaOff(8), kAsh, &
@@ -91,11 +93,6 @@ character(len=*), parameter :: SECNAM = 'CHO_LK_MCLR'
 integer(kind=iwp), external :: Cho_LK_MaxVecPerBatch
 real(kind=wp), external :: Cho_LK_ScreeningThreshold
 real(kind=r8), external :: ddot_
-!***********************************************************************
-!Statement functions
-integer(kind=iwp) :: MulD2h, iTri, i, j
-MulD2h(i,j) = ieor(i-1,j-1)+1
-iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 !***********************************************************************
 
 #ifdef _DEBUGPRINT_

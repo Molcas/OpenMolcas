@@ -11,6 +11,8 @@
 
 subroutine CHO_rassi_twxy(irc,Scr,ChoV,TUVX,nAorb,JSYM,NUMV,DoReord)
 
+use Symmetry_Info, only: MulD2h => Mul
+use Index_Functions, only: iTri
 use Data_Structures, only: SBA_Type, twxy_type
 use Constants, only: One
 use Definitions, only: wp, iwp
@@ -24,11 +26,6 @@ logical(kind=iwp) :: DoReord
 #include "cholesky.fh"
 integer(kind=iwp) :: iAorb(8), iRes, iSym, iSymt, iSymw, iSymx, iSymy, it, itG, itw, itwG, iw, iwG, ix, ixG, ixy, ixyG, iy, iyG, &
                      nTA, Ntw, Nxy
-! ************************************************
-!Statement functions
-integer(kind=iwp) :: MulD2h, iTri, i, j
-MulD2h(i,j) = ieor(i-1,j-1)+1
-iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 ! ************************************************
 
 if (NumV < 1) return
