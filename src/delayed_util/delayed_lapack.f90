@@ -1964,6 +1964,16 @@ subroutine zgeqrf(m,n,a,lda,tau,work,lwork,info)
   call lb_zgeqrf(m,n,a,lda,tau,work,lwork,info)
 end subroutine zgeqrf
 
+subroutine zgesvd( jobu, jobvt, m, n, a, lda, s, u, ldu, vt, ldvt, work, lwork, rwork, info )
+  use link_blas
+  implicit none
+  character :: jobu, jobvt
+  integer :: info, lda, ldu, ldvt, lwork, m, n
+  real*8 :: rwork( * ), s( * )
+  complex*16 :: a( lda, * ), u( ldu, * ), vt( ldvt, * ), work( * )
+  call lb_zgesvd( jobu, jobvt, m, n, a, lda, s, u, ldu, vt, ldvt, work, lwork, rwork, info )
+end subroutine zgesvd
+
 subroutine zlabrd(m,n,nb,a,lda,d,e,tauq,taup,x,ldx,y,ldy)
   use link_blas
   implicit none
@@ -2133,14 +2143,4 @@ subroutine zunmtr(side,uplo,trans,m,n,a,lda,tau,c,ldc,work,lwork,info)
   complex*16    ::     a( lda, * ), c( ldc, * ), tau( * ), work( * )
   call lb_zunmtr(side,uplo,trans,m,n,a,lda,tau,c,ldc,work,lwork,info)
 end subroutine zunmtr
-
-subroutine zgesvd( jobu, jobvt, m, n, a, lda, s, u, ldu, vt, ldvt, work, lwork, rwork, info )
-  use link_blas
-  implicit none
-  character :: jobu, jobvt
-  integer :: info, lda, ldu, ldvt, lwork, m, n
-  real*8 :: rwork( * ), s( * )
-  complex*16 :: a( lda, * ), u( ldu, * ), vt( ldvt, * ), work( * )
-  call lb_zgesvd( jobu, jobvt, m, n, a, lda, s, u, ldu, vt, ldvt, work, lwork, rwork, info )
-end subroutine zgesvd
 
