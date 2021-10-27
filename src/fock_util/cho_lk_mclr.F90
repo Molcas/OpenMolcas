@@ -11,8 +11,8 @@
 ! Copyright (C) Mickael G. Delcey                                      *
 !***********************************************************************
 
-subroutine CHO_LK_MCLR(DLT,DI,DA,G2,Kappa,JI,KI,JA,KA,FkI,FkA,MO_Int,QVec,Ash,CMO,CMO_Inv,nOrb,nAsh,nIsh,DoAct,Fake_CMO2, &
-                       LuAChoVec,LuIChoVec,iAChoVec)
+subroutine CHO_LK_MCLR(DLT,DI,DA,G2,Kappa,JI,KI,JA,KA,FkI,FkA,MO_Int,QVec,Ash,CMO,CMO_Inv,nOrb,nAsh,DoAct,Fake_CMO2,LuAChoVec, &
+                       LuIChoVec,iAChoVec)
 !*********************************************************************
 !  Author : M. G. Delcey based on cho_LK_rassi_x
 !
@@ -47,7 +47,7 @@ use Definitions, only: wp, iwp, u6, r8
 implicit none
 type(DSBA_Type) :: DLT, DI, DA, Kappa, JI, KI, JA, KA, FkI, FkA, QVec, Ash(2), CMO, CMO_Inv
 real(kind=wp) :: G2(*), MO_Int(*)
-integer(kind=iwp) :: nOrb(8), nAsh(8), nIsh(8), LuAChoVec(8), LuIChoVec(8), iAChoVec
+integer(kind=iwp) :: nOrb(8), nAsh(8), LuAChoVec(8), LuIChoVec(8), iAChoVec
 logical(kind=iwp) :: DoAct, Fake_CMO2
 #include "warnings.h"
 #include "chomclr.fh"
@@ -1630,7 +1630,5 @@ end if
 #endif
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer_array(nIsh)
 
 end subroutine CHO_LK_MCLR

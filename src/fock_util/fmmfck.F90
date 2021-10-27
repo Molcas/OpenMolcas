@@ -148,21 +148,19 @@ close(98,STATUS='KEEP')
 ! Now call multipole code to update the Fock matrix with the
 ! long-range multipole-computed Coulomb matrix elements.
 
+#include "macros.fh"
+unused_var(TwoHam)
 !call fmm_call_get_J_matrix(TwoHam,ndim,nBasTot,LMAX)
 
 ! Coulomb contributions of TwoHam should now be complete!
 
 #else
+#include "macros.fh"
 call Untested('FMMFck')
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(Dens)
-  call Unused_integer(ndim)
-end if
+unused_var(Dens)
+unused_var(TwoHam)
 #endif
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_real_array(TwoHam)
 
 end subroutine FMMFck

@@ -42,13 +42,13 @@
         SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,kappa,
      &                         JI,KI,JA,KA,FkI,FkA,
      &                         MO_Int,QVec,Ash,CMO,CMO_inv,
-     &                         nOrb,nAsh,nIsh,doAct,Fake_CMO2,
+     &                         nOrb,nAsh,doAct,Fake_CMO2,
      &                         LuAChoVec,LuIChoVec,iAChoVec)
         use Data_Structures, only: DSBA_Type
         Type (DSBA_Type) DLT, DI, DA, Kappa, JI, KI, JA, KA, FkI, FkA,
      &                   QVec, Ash(2), CMO, CMO_Inv
         Real*8 G2(*), MO_Int(*)
-        Integer nOrb(8),nAsh(8),nIsh(8)
+        Integer nOrb(8),nAsh(8)
         Logical doAct,Fake_CMO2
         Integer LuAChoVec(8),LuIChoVec(8)
         Integer iAChoVec
@@ -290,7 +290,7 @@
 
         Call CHO_LK_MCLR(DLT,DI,DA,G2x,Kappa,JI,KI,JA,KA,FkI,FkA,
      &                   rMOs,QVec,CVa,CMO,CMO_inv,
-     &                   nIsh, nAsh,nIsh,DoAct,Fake_CMO2,
+     &                   nIsh, nAsh,DoAct,Fake_CMO2,
      &                   LuAChoVec,LuIChoVec,iread)
 
         Call Deallocate_DSBA(CMO_Inv)
