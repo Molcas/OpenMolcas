@@ -39,7 +39,7 @@ R02O02
 &SCF
 
 &RASSCF
-Title = The CASSCF of ptrazine with an active space of (10,8)
+Title = The CASSCF of pyrazine with an active space of (10,8)
 Spin
 1
 Symmetry
@@ -61,7 +61,7 @@ End of input
 >>> COPY $Project.JobIph $Project.JobIph.s0
 
 &RASSCF
-Title = The CASSCF of ptrazine with an active space of (10,8)
+Title = The CASSCF of pyrazine with an active space of (10,8)
 Spin
 1
 Symmetry
@@ -83,7 +83,7 @@ End of input
 >>> COPY $Project.JobIph $Project.JobIph.s3
 
 &RASSCF
-Title = The CASSCF of ptrazine with an active space of (10,8)
+Title = The CASSCF of pyrazine with an active space of (10,8)
 Spin
 1
 Symmetry
@@ -105,7 +105,7 @@ End of input
 >>> COPY $Project.JobIph $Project.JobIph.s1
 
 &RASSCF
-Title = The CASSCF of ptrazine with an active space of (10,8)
+Title = The CASSCF of pyrazine with an active space of (10,8)
 Spin
 1
 Symmetry
@@ -127,7 +127,7 @@ End of input
 >>> COPY $Project.JobIph $Project.JobIph.s2
 
 &RASSCF
-Title = The CASSCF of ptrazine with an active space of (10,8)
+Title = The CASSCF of pyrazine with an active space of (10,8)
 Spin
 3
 Symmetry
@@ -149,7 +149,7 @@ End of input
 >>> COPY $Project.JobIph $Project.JobIph.t1
 
 &RASSCF
-Title = The CASSCF of ptrazine with an active space of (10,8)
+Title = The CASSCF of pyrazine with an active space of (10,8)
 Spin
 3
 Symmetry
@@ -171,7 +171,7 @@ End of input
 >>> COPY $Project.JobIph $Project.JobIph.t2
 
 &RASSCF
-Title = The CASSCF of ptrazine with an active space of (10,8)
+Title = The CASSCF of pyrazine with an active space of (10,8)
 Spin
 3
 Symmetry
