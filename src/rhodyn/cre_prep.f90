@@ -13,13 +13,13 @@
 subroutine cre_prep
 
   use rhodyn_data
-  use mh5
+  use mh5, only: mh5_create_file, mh5_create_dset_real, mh5_init_attr
   implicit none
 
 ! creating intermediate preparation file
   prep_id = mh5_create_file('RDPREP')
 
-  call mh5_init_attr (prep_id,'MOLCAS_MODULE','RHODYN')
+  call mh5_init_attr(prep_id,'MOLCAS_MODULE','RHODYN')
 
 ! CI coefficients
   prep_ci = mh5_create_dset_real (prep_id, &

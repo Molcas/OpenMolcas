@@ -235,7 +235,7 @@ contains
     enddo
     allocate(b(l))
     ! copy remaining elements into temp b
-    b = pack(a,mask)
+    b(:) = pack(a,mask)
     deallocate(a)
     allocate(a(n,k))
     ! copy back

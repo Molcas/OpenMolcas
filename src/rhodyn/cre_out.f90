@@ -13,7 +13,7 @@
 subroutine cre_out
 
   use rhodyn_data
-  use mh5
+  use mh5, only: mh5_create_file, mh5_create_dset_real, mh5_init_attr
   use definitions, only: iwp
   implicit none
 !***********************************************************************
@@ -36,7 +36,7 @@ subroutine cre_out
 ! creating main output file of rhodyn
   out_id = mh5_create_file('RDOUT')
 
-  call mh5_init_attr (out_id,'MOLCAS_MODULE','RHODYN')
+  call mh5_init_attr(out_id,'MOLCAS_MODULE','RHODYN')
 
 ! PULSE
   if (flag_pulse) then
