@@ -114,6 +114,11 @@ c Currently only HERMISING TDMs are dealt with here
         call GETMEM('TDMAO','ALLO','REAL',LTDMAO,6*NBST**2)
         call GETMEM('TSDMAO','ALLO','REAL',LTSDMAO,6*NBST**2)
         call GETMEM('ANTSIN','ALLO','REAL',LANTSIN,6*NBST**2)
+c Initialization is important
+        call DCOPY_(6*NBST**2,[0.0D0],0,WORK(LTDMAO),1)
+        call DCOPY_(6*NBST**2,[0.0D0],0,WORK(LTSDMAO),1)
+        call DCOPY_(6*NBST**2,[0.0D0],0,WORK(LANTSIN),1)
+c
         Call MAKETDMAO('HERMSING',WORK(LUMATR),WORK(LUMATI),
      &                        INTOSTATE,JNTOSTATE,NSS,iOpt,IDENTMAT,
      &                        WORK(LTDMAO))
