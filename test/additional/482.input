@@ -1,3 +1,10 @@
+* Molecule: LiF
+* Basis: 6-31G
+* Symmetry: C1
+* Features tested: CMS-PDFT gradient calculation
+* Responsible person: Jie J. Bao, 2021
+* Comments:
+*-------------------------------------------------------------------------------
 &GATEWAY
  coord
 2
