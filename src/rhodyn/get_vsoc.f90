@@ -41,8 +41,8 @@ subroutine get_vsoc
   call mma_allocate(REV_CSF,nconftot,nconftot)
   call mma_allocate(IMV_CSF,nconftot,nconftot)
 
-  REV_SO = dble(V_SO)
-  IMV_SO = aimag(V_SO)
+  REV_SO(:,:) = dble(V_SO)
+  IMV_SO(:,:) = aimag(V_SO)
 
 ! check whether V_SO in SF basis is hermitian.
   if (ipglob>3) then
@@ -100,7 +100,7 @@ subroutine get_vsoc
     call dashes()
   endif
 
-  V_CSF = dcmplx(REV_CSF,IMV_CSF)
+  V_CSF(:,:) = dcmplx(REV_CSF,IMV_CSF)
 
 ! Store pure SOC matrix in CSF basis to PREP file
   call mh5_put_dset(prep_vcsfr, REV_CSF)

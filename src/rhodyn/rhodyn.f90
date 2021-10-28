@@ -248,9 +248,9 @@ subroutine rhodyn()
     ! charge migration case
       !hamiltonian = HSOCX ! transform Hamiltonian to SO basis
       if (flag_so) call transform(HSOCX,SO_CI,hamiltonian)
-      density0 = DM0
-      dipole_basis= dipole
-      U_CI_compl =dcmplx(U_CI,0d0)
+      density0(:,:) = DM0
+      dipole_basis(:,:,:) = dipole
+      U_CI_compl(:,:) = dcmplx(U_CI,0d0)
       if (flag_dyson) then
         do i=1,3
           dipole_basis(:,:,i) = dipole_basis(:,:,i) + alpha*dysamp_bas

@@ -164,7 +164,7 @@ subroutine get_dm0()
       if (runmode/=4) then
         call transform(DM0_bas,CSF2SO,DM0,.False.)
       else
-        DM0 = DM0_bas
+        DM0(:,:) = DM0_bas
       endif
     case default
       write(6,*)'Population style ',p_style, ' is not recognized'

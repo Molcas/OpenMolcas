@@ -75,9 +75,9 @@ subroutine get_hcsf()
 ! Computing the total Hamiltonian H(RASSCF)+H(SO) in CSF basis
 ! to HTOT_CSF
   if (.not.flag_so) then
-    HTOT_CSF = HTOTRE_CSF
+    HTOT_CSF(:,:) = HTOTRE_CSF
   else
-    HTOT_CSF = HTOTRE_CSF + V_CSF
+    HTOT_CSF(:,:) = HTOTRE_CSF + V_CSF
   endif
   if (ipglob>2) write(u6,*) 'end contructing full Hamiltonian'
 

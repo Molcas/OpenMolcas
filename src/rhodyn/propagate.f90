@@ -45,11 +45,11 @@ subroutine propagate()
   Ntime=1 !counts steps
   Nstep   = int((finaltime-initialtime)/timestep)+1
   Npop    = int((finaltime-initialtime)/tout)+1
-  Noutstep= int(tout/timestep)
-  Ntime_tmp_dm=int(finaltime/time_fdm)+1 !fdm
+  Noutstep = int(tout/timestep)
+  Ntime_tmp_dm = int(finaltime/time_fdm)+1 !fdm
   time    = initialtime
   oldstep = timestep
-  densityt= density0
+  densityt(:,:) = density0
 ! create and initialize h5 output file
   call cre_out()
   call mh5_put_dset(out_ham_r,dble(hamiltonian))
@@ -106,12 +106,12 @@ subroutine propagate()
           call pulse(hamiltonian,hamiltoniant,time)
         endif
       else
-        hamiltoniant=hamiltonian
+        hamiltoniant(:,:) = hamiltonian
       endif
 ! run loop to find the step with acceptable accuracy
 ! use density0 as storage for initial value
       loopstep: do
-        density0=densityt
+        density0(:,:) = densityt
         if (method=='RKCK') then
           call rkck(time,densityt,error_rk)
         elseif (method=='RK45') then
@@ -119,7 +119,7 @@ subroutine propagate()
         endif
         if (error_rk<=errorthreshold) exit loopstep
 ! then step rejected, try new smaller step
-        densityt=density0
+        densityt(:,:) = density0
         t_temp=safety*dt*(errorthreshold/error_rk)**0.25
         dt=max(t_temp,0.2*dt)
         if (ipglob>2) write(u6,*) ' ------',error_rk,dt*auToFs
@@ -173,7 +173,7 @@ subroutine propagate()
         ! update hamiltonian with dipole term
         call pulse(hamiltonian,hamiltoniant,time,Ntime)
       else
-        hamiltoniant=hamiltonian
+        hamiltoniant(:,:) = hamiltonian
       endif
       select case (method)
         case ('CLASSIC_RK4')

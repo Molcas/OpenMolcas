@@ -79,7 +79,7 @@ subroutine read_input()
         call mma_allocate(istates,Nstate)
         call UpCase(tryname)
         if (tryname=='ALL') then
-          istates=(/(i,i=1,Nstate)/)
+          istates(:) = (/(i,i=1,Nstate)/)
         else
           backspace(luin)
           read(luin,*) Nstate, (istates(i),i=1,Nstate)

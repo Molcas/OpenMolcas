@@ -27,7 +27,7 @@ subroutine hamdens()
   endif
 
   if (.not.flag_test) then
-    U_CI_compl =dcmplx(U_CI,0d0)
+    U_CI_compl(:,:) =dcmplx(U_CI,0d0)
   endif
   hamiltonian=zero
   density0=zero
@@ -37,8 +37,8 @@ subroutine hamdens()
   write(u6,*) 'Basis: ', basis
   if (initialtime==0d0) then
     if (basis=='CSF') then
-      hamiltonian = HTOT_CSF
-      density0 = DM0
+      hamiltonian(:,:) = HTOT_CSF
+      density0(:,:) = DM0
     elseif (basis=='SF') then
       ! Hamiltonian CSF->SF
       call transform(HTOT_CSF,U_CI_compl,hamiltonian)
@@ -58,19 +58,19 @@ subroutine hamdens()
 ! in density matrix.
     if (basis=='CSF') then
       ! Hamiltonian CSF
-      hamiltonian=HTOT_CSF
+      hamiltonian(:,:) = HTOT_CSF
       ! density SF->CSF
       call transform(DM0,U_CI_compl,density0,.False.)
     elseif (basis=='SF') then
       ! Hamiltonian CSF->SF
       call transform(HTOT_CSF,U_CI_compl,hamiltonian)
       ! density SF
-      density0=DM0
+      density0(:,:) = DM0
     elseif (basis=='SO') then
       ! Hamiltonian CSF->SO
       call transform(HTOT_CSF,CSF2SO,hamiltonian)
       ! density SO
-      density0=DM0
+      density0(:,:) = DM0
     endif
   endif
 
@@ -103,7 +103,7 @@ subroutine hamdens()
         call transform(dipole(:,:,i),SO_CI,dipole_basis(:,:,i),.False.)
         enddo
       elseif (basis=='SO') then
-        dipole_basis=dipole
+        dipole_basis(:,:,:) = dipole
         if (flag_dyson) then
           call mult(SO_CI,dysamp_bas,tmp,.True.,.False.)
           call mult(tmp,SO_CI,dysamp_bas)
@@ -116,7 +116,7 @@ subroutine hamdens()
                          dipole_basis(:,:,i),.False.)
         enddo
       elseif (basis=='SF') then
-        dipole_basis = dipole
+        dipole_basis(:,:,:) = dipole
       endif
     endif
 
@@ -160,7 +160,7 @@ subroutine hamdens()
   endif
 
   if (flag_test .and. flag_pulse) then
-    dipole_basis=dipole
+    dipole_basis(:,:,:) = dipole
     if (ipglob>4) then
       do i=1,3
         call dashes()

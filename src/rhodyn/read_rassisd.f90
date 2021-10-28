@@ -60,7 +60,7 @@ subroutine read_rassisd
       write(u6,*) 'nor HSO_MATRIX_REAL/IMAG datasets'
       call abend()
     endif
-    HSOCX = dcmplx(tmpr,tmpi)
+    HSOCX(:,:) = dcmplx(tmpr,tmpi)
     if (allocated (tmpr)) call mma_deallocate(tmpr)
     if (allocated (tmpi)) call mma_deallocate(tmpi)
     ! filling in energies
@@ -72,7 +72,7 @@ subroutine read_rassisd
       if (mh5_exists_dset(fileid,'SFS_ENERGIES')) then
         call mma_allocate(tmpe,Nstate)
         call mh5_fetch_dset(fileid,'SFS_ENERGIES',tmpe)
-        E_SF = tmpe
+        E_SF(:) = tmpe
         call mma_deallocate(tmpe)
       else
         write(u6,*) 'Error in reading RASSI file, no SFS_ENERGIES'
@@ -96,7 +96,7 @@ subroutine read_rassisd
       write(u6,*) 'Error in reading RASSISD file, no V_SO matrix'
       call abend()
     endif
-    V_SO = dcmplx(tmpr,tmpi)
+    V_SO(:,:) = dcmplx(tmpr,tmpi)
     if (allocated (tmpr)) call mma_deallocate(tmpr)
     if (allocated (tmpi)) call mma_deallocate(tmpi)
   endif
@@ -118,7 +118,7 @@ subroutine read_rassisd
     write(u6,*) 'Error in reading RASSI file, no SOCOEFF matrix'
     call abend()
   endif
-  SO_CI = dcmplx(tmpr,tmpi)
+  SO_CI(:,:) = dcmplx(tmpr,tmpi)
   if (allocated (tmpr)) call mma_deallocate(tmpr)
   if (allocated (tmpi)) call mma_deallocate(tmpi)
   endif
@@ -157,7 +157,7 @@ subroutine read_rassisd
     endif
   endif
   !write(u6,*) 'dysorb has been read'
-  dipole = dcmplx(DIPR,DIPI)
+  dipole(:,:,:) = dcmplx(DIPR,DIPI)
   if (allocated(DIPR)) call mma_deallocate(DIPR)
   if (allocated(DIPI)) call mma_deallocate(DIPI)
 

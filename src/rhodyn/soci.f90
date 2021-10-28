@@ -44,8 +44,8 @@ subroutine soci
   call mma_allocate(SO_CI2,lrootstot,lrootstot)
   call mma_allocate(Work,1)
 
-  Hfull=0d0
-  Hfull=HTOT_CSF
+  Hfull = 0d0
+  Hfull(:,:) = HTOT_CSF
   if (ipglob>4) then
     call dashes()
     write(u6,*) 'Printout Hfull matrix'
@@ -93,7 +93,7 @@ subroutine soci
   endif
 
 ! eigenvalue of SO states E_SO
-  E_SO = W
+  E_SO(:) = W
 
   call mult(Hfull,Hfull,Hfull2,.True.,.False.)
 

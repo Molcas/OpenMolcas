@@ -230,8 +230,8 @@ subroutine kab
     call transform(gamma_pd,SO_CI,gamma_pd_basis,.False.)
     ! Kab_basis = dble(Kab_basis)
   case ('SO')
-    kab_basis=k_ab
-    gamma_pd_basis=gamma_pd
+    kab_basis(:,:) = k_ab
+    gamma_pd_basis(:,:) = gamma_pd
   end select
 
 ! print out the bigger kab_basis
@@ -344,7 +344,7 @@ subroutine kab
     enddo
   enddo
 
-  K_bar_basis=K_bar_basis+gamma_pd_basis
+  K_bar_basis(:,:) = K_bar_basis + gamma_pd_basis
   lu = isFreeUnit(23)
   call molcas_open (lu,'r_ab_SO.dat')
 

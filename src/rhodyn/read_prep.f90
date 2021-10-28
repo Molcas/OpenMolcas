@@ -40,7 +40,7 @@ subroutine read_prep()
       mh5_exists_dset(prep_id,'FULL_H_I')) then
     call mh5_fetch_dset(prep_id,'FULL_H_R',tmpr)
     call mh5_fetch_dset(prep_id,'FULL_H_I',tmpi)
-    HTOT_CSF=dcmplx(tmpr,tmpi)
+    HTOT_CSF(:,:) = dcmplx(tmpr,tmpi)
   else
     write(u6,*) 'RDPREP does not contain Hamiltonian'
     call abend()
@@ -51,7 +51,7 @@ subroutine read_prep()
         mh5_exists_dset(prep_id,'DM0_I')) then
     call mh5_fetch_dset(prep_id, 'DM0_R',tmpr)
     call mh5_fetch_dset(prep_id,'DM0_I',tmpi)
-    DM0=dcmplx(tmpr,tmpi)
+    DM0(:,:) = dcmplx(tmpr,tmpi)
   else
     write(u6,*) 'RDPREP does not contain density matrix'
     call abend()
@@ -62,7 +62,7 @@ subroutine read_prep()
         mh5_exists_dset(prep_id,'CSF2SO_I')) then
     call mh5_fetch_dset(prep_id, 'CSF2SO_R',tmpr)
     call mh5_fetch_dset(prep_id,'CSF2SO_I',tmpi)
-    CSF2SO=dcmplx(tmpr,tmpi)
+    CSF2SO(:,:) = dcmplx(tmpr,tmpi)
   else
     write(u6,*) 'RDPREP does not contain CSF2SO matrix'
     write(u6,*) 'Propagation will be performed in the given basis!'
@@ -77,7 +77,7 @@ subroutine read_prep()
     call mma_allocate (DIPI,Nstate,Nstate,3)
     call mh5_fetch_dset(prep_id,'SOS_EDIPMOM_REAL',DIPR)
     call mh5_fetch_dset(prep_id,'SOS_EDIPMOM_IMAG',DIPI)
-    dipole = dcmplx(DIPR,DIPI)
+    dipole(:,:,:) = dcmplx(DIPR,DIPI)
     call mma_deallocate (DIPR)
     call mma_deallocate (DIPI)
     flag_pulse=.True.

@@ -128,7 +128,7 @@ subroutine k_external
   case ('SO')
     call transform(k_ab,SO_CI,kab_basis)
   case ('SF')
-      kab_basis=k_ab
+      kab_basis(:,:) = k_ab
   end select
 
 ! print out the bigger kab_basis

@@ -50,7 +50,7 @@ subroutine pop(time,popcount)
          (DM_basis=='CSF_SO').or.(DM_basis=='ALL')) then
 ! the density in CSF basis
       dgl_csf = dble((/(densityt(i,i),i=1,d)/))
-      norm=sum(dgl_csf)
+      norm = sum(dgl_csf)
       write(lu_csf,out_fmt)time*auToFs,(dgl_csf(i),i=1,d),norm
       call mh5_put_dset(out_dm_csf, dgl_csf, [1,d], [popcount-1,0])
     endif
@@ -59,8 +59,8 @@ subroutine pop(time,popcount)
        (DM_basis=='SF_SO').or.(DM_basis=='ALL')) then
 ! transform the density from CSF to SF states basis
       call transform(densityt,U_CI_compl,density0)
-      dgl = dble((/(density0(i,i),i=1,d)/))
-      norm= sum(dgl)
+      dgl(:) = dble((/(density0(i,i),i=1,d)/))
+      norm = sum(dgl)
       write(lu_sf,out_fmt) time*auToFs,(dgl(i),i=1,d),norm
       call mh5_put_dset(out_dm_sf, dgl, [1,d], [popcount-1,0])
     endif
@@ -69,8 +69,8 @@ subroutine pop(time,popcount)
        (DM_basis=='SF_SO').or.(DM_basis=='ALL')) then
 ! transform the density from CSF to SO states basis
       call transform(densityt,CSF2SO,density0)
-      dgl = dble((/(density0(i,i),i=1,d)/))
-      norm= sum(dgl)
+      dgl(:) = dble((/(density0(i,i),i=1,d)/))
+      norm = sum(dgl)
       write(lu_so,out_fmt) time*auToFs,(dgl(i),i=1,d),norm
       call mh5_put_dset(out_dm_so, dgl,[1,d],[popcount-1,0])
     endif
@@ -92,8 +92,8 @@ subroutine pop(time,popcount)
     if ((DM_basis=='SF').or.(DM_basis=='CSF_SF').or. &
          (DM_basis=='SF_SO').or.(DM_basis=='ALL')) then
 ! the density in SF basis
-      dgl = dble((/(densityt(i,i),i=1,d)/))
-      norm= sum(dgl)
+      dgl(:) = dble((/(densityt(i,i),i=1,d)/))
+      norm = sum(dgl)
       write(lu_sf,out_fmt) time*auToFs,(dgl(i),i=1,d),norm
       call mh5_put_dset(out_dm_sf, dgl, [1,d],[popcount-1,0])
     endif
@@ -102,8 +102,8 @@ subroutine pop(time,popcount)
        (DM_basis=='SF_SO').or.(DM_basis=='ALL')) then
 ! transform the density from SF to SO states basis
       call transform(densityt,SO_CI,density0)
-      dgl = dble((/(density0(i,i),i=1,d)/))
-      norm =sum(dgl)
+      dgl(:) = dble((/(density0(i,i),i=1,d)/))
+      norm = sum(dgl)
       write(lu_so,out_fmt) time*auToFs,(dgl(i),i=1,d),norm
       call mh5_put_dset(out_dm_so, dgl, [1,d],[popcount-1,0])
     endif
@@ -126,8 +126,8 @@ subroutine pop(time,popcount)
       (DM_basis=='SF_SO').or.(DM_basis=='ALL'))then
 ! transform the density from SO to SF states basis
       call transform(densityt,SO_CI,density0,.False.)
-      dgl = dble((/(density0(i,i),i=1,d)/))
-      norm= sum(dgl)
+      dgl(:) = dble((/(density0(i,i),i=1,d)/))
+      norm = sum(dgl)
       write(lu_sf,out_fmt) time*auToFs,(dgl(i),i=1,d),norm
       call mh5_put_dset(out_dm_sf, dgl, [1,d], [popcount-1,0])
     endif
@@ -135,8 +135,8 @@ subroutine pop(time,popcount)
     if ((DM_basis=='SO').or.(DM_basis=='CSF_SO').or. &
         (DM_basis=='SF_SO').or.(DM_basis=='ALL')) then
 ! the density in SO basis
-      dgl = dble((/(densityt(i,i),i=1,d)/))
-      norm= sum(dgl)
+      dgl(:) = dble((/(densityt(i,i),i=1,d)/))
+      norm = sum(dgl)
       write(lu_so,out_fmt) time*auToFs,(dgl(i),i=1,d),norm
       call mh5_put_dset(out_dm_so, dgl, [1,d], [popcount-1,0])
     endif
@@ -147,7 +147,7 @@ subroutine pop(time,popcount)
   if (flag_dipole) then
     do i=1,3
       call mult(densityt,dipole_basis(:,:,i),tmp)
-      dgl = dble((/(tmp(i,i),i=1,d)/))
+      dgl(:) = dble((/(tmp(i,i),i=1,d)/))
       pulse_vec(i) = sum(dgl)
     enddo
     write(lu_dip,'(7(G25.15E3,2X))') time*auToFs, &

@@ -54,10 +54,10 @@ subroutine get_dipole
       jj=0
     enddo
   else if (flag_dyson) then
-    dysamp_bas = dysamp
+    dysamp_bas(:,:) = dysamp
   endif
   if (flag_dyson) then
-    dysamp_bas=abs(dysamp_bas**2)
+    dysamp_bas = abs(dysamp_bas**2)
     if (ipglob>2) write(u6,*)'dysamp processing successfully finished'
   endif
 
