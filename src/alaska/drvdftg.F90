@@ -152,6 +152,7 @@ if (btest(iDFT,6)) then
     END IF
     Call FZero(Temp2,nGrad)
     Call DrvDFT(Dummy1,Dummy2,Dummy3,Dummy4,nDens,First,Dff,lRF,KSDFT,ExFac,Do_Grad,Temp2,nGrad,iSpin,Dumm0,Dumm1,iDumm,DFTFOCK)
+    jPrint = nPrint(112)
     if (jPrint >= 15) then
      Label='DFT Int Contribution'
      write(6,*) 'state, coeff',IK,R((II-1)*nRoots+IK)
