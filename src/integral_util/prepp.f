@@ -46,7 +46,6 @@
 ************************************************************************
       Integer nFro(0:7)
       Integer Columbus
-      Integer nRoots
       Character*8 RlxLbl,Method, KSDFT*16
       Logical lPrint
       Logical DoCholesky
