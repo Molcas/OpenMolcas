@@ -138,6 +138,9 @@ C     updating final energies as those for rotated states
         ENER(I,ITER)=WORK(LHRot+(I-1)*(lRoots+1))
         LRCItmp=LRCItmp+NConf
       End Do
+      IAD15 = IADR15(6)
+      CALL DDAFILE(JOBIPH,1,ENER,mxRoot*mxIter,IAD15)
+
 
       IF(IPRLEV.GE.DEBUG) Then
       write(LF,'(2A)')'Printing the coeff of the first CSF',

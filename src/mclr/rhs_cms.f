@@ -45,8 +45,6 @@
 *      INTEGER,DIMENSION(:,:,:,:),Allocatable::IndPUVX,IndTUVX
       INTEGER NPUVX,NTri
 
-      write(6,*)'Entering RHS_CMS'
-
 ******MEMORY ALLOCATION
       CALL mma_allocate(AXkzx,nDens2)
       CALL mma_allocate(AXPzx,NConf1*nRoots)
@@ -66,15 +64,12 @@
       CALL mma_allocate(FMO1t,nRoots*nTri)
       NACPAR=(nnA+1)*nnA/2
       NAcPr2=(nacpar+1)*nacpar/2
-      write(6,*)'nacpar=',nacpar
-      write(6,*)'nacpr2=',nacpr2
       CALL mma_allocate(FMO2t,nRoots*nacpr2)
       irc=ipin(ipCI)
 ******MAIN COURSE
 ******First, read results printed in MCPDFT module
       CALL CMSRdMat(H,nRoots,nRoots,'ROT_HAM',7)
       CALL Get_DArray('MS_FINAL_ROT    ',R,nRoots**2)
-      Call RecPrt('CMS Eigenvectors',' ',R,lroots,lroots)
       Call Read_PUVX(PUVX,NPUVX)
       CALL Get_Two_Ind(IndPUVX,IndTUVX)
       CALL GetPDFTFocks(FMO1t,FMO2t,nTri)
@@ -172,7 +167,6 @@
         eND dO
        End Do
       END DO
-      write(6,*) 'nPUVX from calculation',NPUVX
 
       RETURN
       End Subroutine

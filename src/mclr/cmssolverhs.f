@@ -83,19 +83,19 @@
       CALL mma_allocate(Ainv,Nelem)
       CALL DCopy_(Nelem,AXX,1,Ainv,1)
 
-      write(6,*) 'AXX matrix'
-      CALL RecPrt(' ',' ',AXX,nDim,nDim)
+C      write(6,*) 'AXX matrix'
+C      CALL RecPrt(' ',' ',AXX,nDim,nDim)
       CALL MatInvert(Ainv,nDim)
-      write(6,*) 'AXX inverse'
-      CALL RecPrt(' ',' ',Ainv,nDim,nDim)
-      write(6,*) 'bX'
-      CALL RecPrt(' ',' ',bX,1,nDim)
+C      write(6,*) 'AXX inverse'
+C      CALL RecPrt(' ',' ',Ainv,nDim,nDim)
+C      write(6,*) 'bX'
+C      CALL RecPrt(' ',' ',bX,1,nDim)
 
       CALL DGEMM_('n','n',nDim,1,nDim,-1.0d0,Ainv,nDim,bX,nDim,
      &0.0d0,zX,nDim)
 
-      write(6,*) 'zX'
-      CALL RecPrt(' ',' ',zX,1,nDim)
+C      write(6,*) 'zX'
+C      CALL RecPrt(' ',' ',zX,1,nDim)
 
       CALL mma_deallocate(Ainv)
       RETURN
