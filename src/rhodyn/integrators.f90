@@ -16,12 +16,13 @@
 
 subroutine classic_rk4(t0,y)
   use rhodyn_data, only: equation_func, timestep, ak1, ak2, ak3, ak4
+  use definitions, only: wp
   implicit none
 !***********************************************************************
 !     convenient Runge Kutta method of 4th order
 !***********************************************************************
-  real(8), intent(in) :: t0
-  complex(8), dimension(:,:), intent(inout) :: y
+  real(kind=wp), intent(in) :: t0
+  complex(kind=wp), dimension(:,:), intent(inout) :: y
   procedure(equation_func)  :: equation
   call equation(t0,y,ak1)
   call equation(t0+0.5*timestep,y+0.5*timestep*ak1,ak2)
@@ -32,31 +33,32 @@ end
 
 subroutine rk4(t0,y)
   use rhodyn_data, only: equation_func,timestep,ak1,ak2,ak3,ak4,ak5
+  use definitions, only: wp
   implicit none
 !***********************************************************************
 ! Runge Kutta method of 4th order with proper adjusted midpoints
 !***********************************************************************
-  real(8), intent(in) :: t0
-  real(8) :: x
-  complex(8),dimension(:,:), intent(inout) :: y
+  real(kind=wp), intent(in) :: t0
+  real(kind=wp) :: x
+  complex(kind=wp),dimension(:,:), intent(inout) :: y
   procedure(equation_func)  :: equation
-  real(8),parameter :: a2  = 0.25,&
-                       a3  = 0.375d0,&
-                       a4  = 0.92307692307692313d0,&
-                       c21 = 0.25d0,&
-                       c31 = 0.09375d0,&
-                       c32 = 0.28125d0,&
-                       c41 = 0.87938097405553028d0,&
-                       c42 =-3.2771961766044608d0,&
-                       c43 = 3.3208921256258535d0,&
-                       c51 = 2.0324074074074074d0,&
+  real(kind=wp),parameter :: a2  = 0.25,&
+                       a3  = 0.375,&
+                       a4  = 0.92307692307692313,&
+                       c21 = 0.25,&
+                       c31 = 0.09375,&
+                       c32 = 0.28125,&
+                       c41 = 0.87938097405553028,&
+                       c42 =-3.2771961766044608,&
+                       c43 = 3.3208921256258535,&
+                       c51 = 2.0324074074074074,&
                        c52 =-8,&
-                       c53 = 7.1734892787524362d0,&
-                       c54 =-0.20589668615984405d0,&
-                       c1  = 0.11574074074074074d0,&
-                       c3  = 0.54892787524366471d0,&
-                       c4  = 0.53533138401559455d0,&
-                       c5  =-0.2d0
+                       c53 = 7.1734892787524362,&
+                       c54 =-0.20589668615984405,&
+                       c1  = 0.11574074074074074,&
+                       c3  = 0.54892787524366471,&
+                       c4  = 0.53533138401559455,&
+                       c5  =-0.2
   x=t0
   call equation(x,y,ak1)
   x=t0+a2*timestep
@@ -72,15 +74,16 @@ end
 
 subroutine rk5(t0,y)
   use rhodyn_data, only: equation_func,timestep,ak1,ak2,ak3,ak4,ak5,ak6
+  use definitions, only: wp
   implicit none
 !***********************************************************************
 ! Runge Kutta method of 5th order
 !***********************************************************************
-  real(8), intent(in) :: t0
-  complex(8),dimension(:,:), intent(inout) :: y
-  real(8) :: x
+  real(kind=wp), intent(in) :: t0
+  complex(kind=wp),dimension(:,:), intent(inout) :: y
+  real(kind=wp) :: x
   procedure(equation_func) :: equation
-  real(8),parameter :: a2  = 0.25d0,&
+  real(kind=wp),parameter :: a2  = 0.25d0,&
                       a3  = 0.375d0,&
                       a4  = 0.92307692307692313d0,&
                       c21 = 0.25d0,&
@@ -121,16 +124,17 @@ end
 
 subroutine rk45(t0,y,err)
   use rhodyn_data, only: equation_func,dt,ak1,ak2,ak3,ak4,ak5,ak6
+  use definitions, only: wp
   implicit none
 !***********************************************************************
 ! Runge-Kutta-Fehlberg 4(5) integration algorithm
 !***********************************************************************
-  real(8), intent(in) :: t0
-  real(8), intent(out):: err
-  complex(8),dimension(:,:), intent(inout) :: y
-  real(8) :: x
+  real(kind=wp), intent(in) :: t0
+  real(kind=wp), intent(out):: err
+  complex(kind=wp),dimension(:,:), intent(inout) :: y
+  real(kind=wp) :: x
   procedure(equation_func)  :: equation
-  real(8), parameter ::a2  = 0.25,&
+  real(kind=wp), parameter ::a2  = 0.25,&
                        a3  = 3.0/8.0,&
                        a4  = 12.0/13.0,&
                        a6  = 0.5,&
@@ -184,6 +188,7 @@ end
 
 subroutine rkck(t0,y,err)
   use rhodyn_data, only: equation_func,dt,ak1,ak2,ak3,ak4,ak5,ak6
+  use definitions, only: wp
   implicit none
 !***********************************************************************
 !     Runge-Kutta-Cash-Karp integration algorithm
@@ -192,12 +197,12 @@ subroutine rkck(t0,y,err)
 !     Also, a clear ansatz can be found in the book
 !     Numerical computations with GPUs by V. Kindratenko
 !***********************************************************************
-  real(8), intent(in) :: t0
-  real(8), intent(out):: err
-  complex(8),dimension(:,:), intent(inout) :: y
-  real(8) :: x
+  real(kind=wp), intent(in) :: t0
+  real(kind=wp), intent(out):: err
+  complex(kind=wp),dimension(:,:), intent(inout) :: y
+  real(kind=wp) :: x
   procedure(equation_func)  :: equation
-  real(8), parameter :: a2  = 0.2,&
+  real(kind=wp), parameter :: a2  = 0.2,&
                         a3  = 0.3,&
                         a4  = 0.6,&
                         a6  = 0.875,&

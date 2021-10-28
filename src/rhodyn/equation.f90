@@ -15,6 +15,7 @@ subroutine equation (time,rhot,res)
                          flag_decay, ion_diss, flag_diss, decay, &
                          hamiltonian, hamiltoniant, &
                          K_bar_basis, kab_basis, i, j
+  use definitions, only: wp
   implicit none
 !
 !***********************************************************************
@@ -26,9 +27,9 @@ subroutine equation (time,rhot,res)
 !  rhot   : density matrix at current time
 !  res    : obtained left part of Liouville equation d(rhot)/d(time)
 !
-  real(8), intent(in) :: time
-  complex(8), dimension(:,:), intent(in) :: rhot
-  complex(8), dimension(:,:), intent(out):: res
+  real(kind=wp), intent(in) :: time
+  complex(kind=wp), dimension(:,:), intent(in) :: rhot
+  complex(kind=wp), dimension(:,:), intent(out):: res
   procedure(pulse_func) :: pulse
 
 ! if pulse in enableb, modify hamiltonian at time t:

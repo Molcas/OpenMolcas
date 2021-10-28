@@ -14,11 +14,12 @@
 
 module rhodyn_utils
   use linalg_mod, only: abort_
+  use definitions, only: wp, iwp
   implicit none
 !
 ! module contains some auxiliary routines
 !
-  public:: removeLineAndColumn, mult, dashes
+  public:: removeLineAndColumn, dashes, transform
   interface mult
     module procedure mult_2D, multZ_2D
   end interface
@@ -36,8 +37,8 @@ contains
   subroutine dashes(length)
 !   print the line of dashes of length 'length'
 !   to the standard output fileunit 6
-    integer :: i, l, fileunit
-    integer, intent(in), optional :: length
+    integer(kind=iwp) :: i, l, fileunit
+    integer(kind=iwp), intent(in), optional :: length
     if (present(length)) then
       l = length
     else
@@ -51,11 +52,11 @@ contains
   end subroutine dashes
 
   subroutine mult_2D(a,b,c,transpA, transpB)
-    real(8), intent(in) :: a(:,:), b(:,:)
-    real(8), intent(out):: c(:,:)
+    real(kind=wp), intent(in) :: a(:,:), b(:,:)
+    real(kind=wp), intent(out):: c(:,:)
     logical, intent(in), optional :: transpA, transpB
     logical :: transpA_, transpB_
-    integer :: m, n, k, k1, k2
+    integer(kind=iwp) :: m, n, k, k1, k2
     if (present(transpA)) then
         transpA_ = transpA
     else
@@ -80,11 +81,11 @@ contains
   end subroutine mult_2D
 
   subroutine multZ_2D(a,b,c,transpA, transpB)
-      complex(8), intent(in) :: a(:,:), b(:,:)
-      complex(8), intent(out):: c(:,:)
+      complex(kind=wp), intent(in) :: a(:,:), b(:,:)
+      complex(kind=wp), intent(out):: c(:,:)
       logical, intent(in), optional :: transpA, transpB
       logical :: transpA_, transpB_
-      integer :: m, n, k, k1, k2
+      integer(kind=iwp) :: m, n, k, k1, k2
       if (present(transpA)) then
           transpA_ = transpA
       else
@@ -109,13 +110,12 @@ contains
   end subroutine multZ_2D
 
   subroutine removeLineAndColumnZ(a,remLCarray)
-    implicit none
-    complex(8), dimension(:,:), allocatable, intent(inout) :: a
-    integer, dimension(:), intent(in) :: remLCarray
+    complex(kind=wp), dimension(:,:), allocatable, intent(inout) :: a
+    integer(kind=iwp), dimension(:), intent(in) :: remLCarray
   ! temp variables
-    complex(8), dimension(:), allocatable :: b
+    complex(kind=wp), dimension(:), allocatable :: b
     logical, dimension(:,:), allocatable :: mask
-    integer :: i, j, l, m, n, k
+    integer(kind=iwp) :: i, j, l, m, n, k
   ! sizes
     n = size(a,1)
     m = size(a,2)
@@ -144,13 +144,12 @@ contains
   end subroutine removeLineAndColumnZ
 
   subroutine removeLineAndColumnR(a,remLCarray)
-    implicit none
-    real(8), dimension(:,:), allocatable, intent(inout) :: a
-    integer, dimension(:), intent(in) :: remLCarray
+    real(kind=wp), dimension(:,:), allocatable, intent(inout) :: a
+    integer(kind=iwp), dimension(:), intent(in) :: remLCarray
     ! temp variables
-    real(8), dimension(:), allocatable :: b
+    real(kind=wp), dimension(:), allocatable :: b
     logical, dimension(:,:), allocatable :: mask
-    integer :: i, j, l, m, n, k
+    integer(kind=iwp) :: i, j, l, m, n, k
     ! sizes
     n = size(a,1)
     m = size(a,2)
@@ -179,13 +178,12 @@ contains
   end subroutine removeLineAndColumnR
 
   subroutine removeColumnZ(a,remCarray)
-    implicit none
-    complex(8), dimension(:,:), allocatable, intent(inout) :: a
-    integer, dimension(:), intent(in) :: remCarray
+    complex(kind=wp), dimension(:,:), allocatable, intent(inout) :: a
+    integer(kind=iwp), dimension(:), intent(in) :: remCarray
     ! temp variables
-    complex(8), dimension(:), allocatable :: b
+    complex(kind=wp), dimension(:), allocatable :: b
     logical, dimension(:,:), allocatable :: mask
-    integer :: j, l, m, n, k
+    integer(kind=iwp) :: j, l, m, n, k
     ! sizes
     n = size(a,1)
     m = size(a,2)
@@ -212,13 +210,12 @@ contains
   end subroutine removeColumnZ
 
   subroutine removeColumnR(a,remCarray)
-    implicit none
-    real(8), dimension(:,:), allocatable, intent(inout) :: a
-    integer, dimension(:), intent(in) :: remCarray
+    real(kind=wp), dimension(:,:), allocatable, intent(inout) :: a
+    integer(kind=iwp), dimension(:), intent(in) :: remCarray
     ! temp variables
-    real(8), dimension(:), allocatable :: b
+    real(kind=wp), dimension(:), allocatable :: b
     logical, dimension(:,:), allocatable :: mask
-    integer :: j, l, m, n, k
+    integer(kind=iwp) :: j, l, m, n, k
     ! sizes
     n = size(a,1)
     m = size(a,2)
@@ -245,16 +242,15 @@ contains
   end subroutine removeColumnR
 
   subroutine transformZ(a,u,b,order)
-    implicit none
 !   perform orthogonal transformation with transformation matrix
 !   order = True (default): direct transform : b = u^C * a * u
 !   order = False       : inverse transform: b = u   * a * u^C
-    complex(8), dimension(:,:), intent(in) :: a, u
-    complex(8), dimension(:,:), intent(out) :: b
-    complex(8), dimension(:,:), allocatable :: temp
+    complex(kind=wp), dimension(:,:), intent(in) :: a, u
+    complex(kind=wp), dimension(:,:), intent(out) :: b
+    complex(kind=wp), dimension(:,:), allocatable :: temp
     logical, optional, intent(in) :: order
     logical :: order_
-    integer :: m, n
+    integer(kind=iwp) :: m, n
     if (present(order)) then
       order_ = order
     else
@@ -277,16 +273,15 @@ contains
   end subroutine transformZ
 
   subroutine transformR(a,u,b,order)
-    implicit none
 !   perform orthogonal transformation with transformation matrix
 !   order = True (default): direct transform : b = u^T * a * u
 !   order = False       : inverse transform: b = u   * a * u^T
-    real(8), dimension(:,:), intent(in) :: a, u
-    real(8), dimension(:,:), intent(out) :: b
-    real(8), dimension(:,:), allocatable :: temp
+    real(kind=wp), dimension(:,:), intent(in) :: a, u
+    real(kind=wp), dimension(:,:), intent(out) :: b
+    real(kind=wp), dimension(:,:), allocatable :: temp
     logical, optional, intent(in) :: order
     logical :: order_
-    integer :: m, n
+    integer(kind=iwp) :: m, n
     if (present(order)) then
       order_ = order
     else
@@ -309,15 +304,12 @@ contains
   end subroutine transformR
 
   subroutine sortci(N1,A,WR,C,print_level)
-    !use rhodyn_data
-    !use rhodyn_utils, only: dashes, transform
-    implicit none
-    integer::N1,INFO,LWORK
-    integer,intent(in) :: print_level
-    real(8), dimension(N1,N1) :: A, C, diag, B
-    real(8), dimension(N1) :: WR
-    real(8), dimension (2*N1)::WORK
-    integer :: k, l
+    integer(kind=iwp)::N1,INFO,LWORK
+    integer(kind=iwp),intent(in) :: print_level
+    real(kind=wp), dimension(N1,N1) :: A, C, diag, B
+    real(kind=wp), dimension(N1) :: WR
+    real(kind=wp), dimension (2*N1)::WORK
+    integer(kind=iwp) :: k, l
     B=A
     LWORK=2*N1
     call dsyev_('V', 'U', N1, A, N1, WR, WORK, LWORK, INFO)

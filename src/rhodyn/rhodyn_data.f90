@@ -73,25 +73,29 @@ module rhodyn_data
 ! some abstract interfaces, which fit to several subroutines
   abstract interface
     subroutine rk_fixed_step(t0,y)
-      real(8), intent(in) :: t0
-      complex(8), dimension(:,:), intent(inout) :: y
-    end subroutine
+      import :: wp
+      real(kind=wp), intent(in) :: t0
+      complex(kind=wp), dimension(:,:), intent(inout) :: y
+    end subroutine rk_fixed_step
     subroutine rk_adapt_step(t0,y,err)
-      real(8), intent(in) :: t0
-      real(8), intent(out) :: err
-      complex(8), dimension(:,:), intent(inout) :: y
-    end subroutine
+      import :: wp
+      real(kind=wp), intent(in) :: t0
+      real(kind=wp), intent(out) :: err
+      complex(kind=wp), dimension(:,:), intent(inout) :: y
+    end subroutine rk_adapt_step
     subroutine pulse_func(h0,ht,time,count)
-      complex(8), dimension(:,:), intent(in) :: h0
-      complex(8), dimension(:,:), intent(out) ::ht
-      real(8), intent(in) :: time
-      integer, intent(in), optional :: count
+      import :: wp, iwp
+      complex(kind=wp), dimension(:,:), intent(in) :: h0
+      complex(kind=wp), dimension(:,:), intent(out) ::ht
+      real(kind=wp), intent(in) :: time
+      integer(kind=iwp), intent(in), optional :: count
     end subroutine pulse_func
     subroutine equation_func(time,rho_t,res)
-      real(8), intent(in) :: time
-      complex(8), dimension(:,:), intent(in) :: rho_t
-      complex(8), dimension(:,:), intent(out) :: res
-    end subroutine
+      import :: wp
+      real(kind=wp), intent(in) :: time
+      complex(kind=wp), dimension(:,:), intent(in) :: rho_t
+      complex(kind=wp), dimension(:,:), intent(out) :: res
+    end subroutine equation_func
   end interface
   ! list of dummy integers
   integer(kind=iwp) :: i,j,k,l,ii,jj,kk,ll
@@ -167,12 +171,13 @@ module rhodyn_data
               time_fdm, errorthreshold, alpha, safety, ion_diss
   real(kind=wp),dimension(:),allocatable :: dgl, emiss
   real(kind=wp),dimension(6) :: temp_vec
-  complex(8),dimension(:,:),allocatable :: decay, pulse_vector,&
+  complex(kind=wp),dimension(:,:),allocatable :: decay, pulse_vector,&
                                  density0,densityt            ,&
                                  hamiltonian,hamiltoniant     ,&
                                  kab_basis, k_bar_basis
 ! Runge-Kutta midpoints
-  complex(8),dimension(:,:),allocatable::ak1,ak2,ak3,ak4,ak5,ak6,y5
+  complex(kind=wp),dimension(:,:),allocatable::ak1,ak2,ak3,ak4,ak5,&
+                                               ak6,y5
 ! pulse characteristics
   logical :: flag_pulse, flag_acorrection
   integer(kind=iwp) :: N_pulse, power_shape

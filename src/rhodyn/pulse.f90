@@ -25,11 +25,12 @@ subroutine pulse(H0,Ht,time,count)
                          linear_chirp, flag_acorrection
   use mh5, only: mh5_put_dset
   use constants, only: pi, auToFs
+  use definitions, only: iwp, wp
   implicit none
-  complex(8), dimension(:,:), intent(in) :: H0
-  complex(8), dimension(:,:), intent(out) :: Ht
-  real(8), intent(in)       :: time
-  integer, intent(in), optional :: count
+  complex(kind=wp), dimension(:,:), intent(in) :: H0
+  complex(kind=wp), dimension(:,:), intent(out) :: Ht
+  real(kind=wp), intent(in)       :: time
+  integer(kind=iwp), intent(in), optional :: count
 
   E_field = zero
 
