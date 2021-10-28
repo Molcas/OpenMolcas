@@ -115,7 +115,6 @@ if (btest(iDFT,6)) then
    Call Get_iArray('nAsh',nAct,nIrrep)
    nasht=0
    DO iIrrep=1,nIrrep
-    write(6,*)'sym,nash',iIrrep,nAct(IIrrep)
     NASHT=NASHT+nAct(IIrrep)
    END DO
    NG1=NASHT*(NASHT+1)/2
@@ -133,8 +132,6 @@ if (btest(iDFT,6)) then
     CALL mma_allocate(D1SAOt,nDens)
    END IF
    CALL Get_DArray('MS_FINAL_ROT    ',R,nRoots**2)
-   write(6,*)'MS-PDFT Final Rotation'
-   Call RecPrt(' ',' ',R,nRoots,nRoots)
    CALL FZero(Temp,nGrad)
    CALL Get_D1MO(G1qt,nG1)
    CALL Get_P2MO(G2qt,nG2)

@@ -97,8 +97,6 @@
        bX(IKL)=bX(IKL)*2.0d0
       END DO
       END DO
-      write(6,*)'bX matrix'
-      CALL RecPrt(' ',' ',bX,1,(nRoots-1)*nRoots/2)
       RETURN
       END SUBROUTINE
 ******************************************************
