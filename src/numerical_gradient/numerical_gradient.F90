@@ -730,7 +730,7 @@ do
     end if
   end if
 
-  if ((Method(1:6) == 'MCPDFT').or.(Method(1:6) == 'MSPDFT')) then
+  if ((Method(1:6) == 'MCPDFT') .or. (Method(1:6) == 'MSPDFT')) then
     call StartLight('mcpdft')
     call init_run_use()
     call Disable_Spool()

@@ -1302,7 +1302,7 @@ Keywords
 
   .. [#fn1] https://comp.chem.umn.edu/openmolcas/
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NTOC" APPEAR="Natural transition orbitals" KIND="SINGLE" LEVEL="ADVANCED" >
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NTOC" APPEAR="Natural transition orbitals" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: NTOC <advanced>
               <HELP>
               Enables natural transition orbital calculation from two JobIph files.
@@ -1315,7 +1315,7 @@ Keywords
   specifying the number of requested SO-NTO pairs, followed by the same number of lines. Each line contains two integers
   for the two spin--orbit (SO) coupled states. An input example has been shown below.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="SONT" APPEAR="Spin-orbit natural transition orbitals" KIND="INTS_COMPUTED" SIZE="2" LEVEL="ADVANCED" >
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="SONT" APPEAR="Spin-orbit natural transition orbitals" KIND="INTS_COMPUTED" SIZE="2" LEVEL="ADVANCED">
               %%Keyword: SONT <advanced>
               <HELP>
               This computes the spin--orbit natural transition orbitals (SO-NTOs) for two spin--orbit coupled states, and it also

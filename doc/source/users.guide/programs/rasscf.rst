@@ -2272,7 +2272,7 @@ A list of these keywords is given below:
 :kword:`CMTHreshold`
    This keyword defines the threshold for the change in the sum over states of the classical Coulomb energy for CMS intermediate states to converge (see :kword:`CMSInter`). The default value is 1.0d-6.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CMTH" APPEAR="CMS Threshold" LEVEL="ADVANCED" KIND="REAL" DEFAULT_VALUE="1.0d-6" >
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CMTH" APPEAR="CMS Threshold" LEVEL="ADVANCED" KIND="REAL" DEFAULT_VALUE="1.0d-6">
               %%Keyword: CMTH <advanced>
               <HELP>
               This keyword specifies the threshold for the change of sum over states of the classical Coulomb energy for CMS intermediate states to converge.
