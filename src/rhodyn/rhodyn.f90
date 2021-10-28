@@ -63,7 +63,7 @@ subroutine rhodyn()
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !     start from rassf/rassi output
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  if (preparation/=2.and.preparation/=4) then
+  if (runmode/=2.and.runmode/=4) then
 
     n_freq = Nstate*(Nstate-1)/2
 
@@ -166,7 +166,7 @@ subroutine rhodyn()
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! start from intermediate preparation file PREP
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  else if (preparation==2) then
+  else if (runmode==2) then
     call mma_allocate(HTOT_CSF, nconftot, nconftot)
     call read_prep()
 
@@ -174,7 +174,7 @@ subroutine rhodyn()
 ! charge migration case
 ! only SO hamiltonian from RASSI is read
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  else if (preparation==4) then
+  else if (runmode==4) then
 ! only SF/SO basis allowed
   !basis = 'SO'
     call mma_allocate(HSOCX, Nstate, Nstate)
@@ -222,7 +222,7 @@ subroutine rhodyn()
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! dynamics part starts
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  if (preparation/=3) then
+  if (runmode/=3) then
     ! determine preliminary dimension d of propagated matrices
     select case (basis)
     case ('CSF')
@@ -240,7 +240,7 @@ subroutine rhodyn()
     call mma_allocate(decay,       Nstate,Nstate)
     call mma_allocate(U_CI_compl,  nconftot,lrootstot)
 
-    if (preparation/=4) then
+    if (runmode/=4) then
       ! prepare density and hamiltonian in required basis to propagate with.
       ! here supposed that these matrices are prepared in CSF basis
       call hamdens()
@@ -341,7 +341,7 @@ subroutine rhodyn()
   if (allocated(HSOCX)) call mma_deallocate(HSOCX)
 
 ! allocated in dynamics part
-  if (preparation/=3) then
+  if (runmode/=3) then
     if (allocated(U_CI_compl)) call mma_deallocate(U_CI_compl)
     if (allocated(dipole)) call mma_deallocate(dipole)
     if (allocated(hamiltonian)) call mma_deallocate(hamiltonian)

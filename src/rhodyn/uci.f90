@@ -77,7 +77,7 @@ subroutine uci
     enddo
   endif
 
-  if (preparation/=2.and.preparation/=4) &
+  if (runmode/=2.and.runmode/=4) &
      call mh5_put_dset(prep_uci, U_CI)
 
 ! Check whether the transformation matrix U_CI is orthonormalized
@@ -105,7 +105,7 @@ subroutine uci
     write(u6,*)'If there is no error info printout'
     write(u6,*)'CI coeffs are orthonormalized'
 
-    if (preparation/=2.and.preparation/=4) then
+    if (runmode/=2.and.runmode/=4) then
       prep_utu = mh5_create_dset_real (prep_id, &
           'UTU', 2, [lrootstot,lrootstot])
       call mh5_init_attr(prep_utu, 'description', &

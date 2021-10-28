@@ -18,7 +18,7 @@ subroutine read_rassisd
 !
 !***********************************************************************
   use rhodyn_data, only: Nstate, lrootstot, ipglob, HSOCX, E_SO, i, &
-                         SO_CI, preparation, V_SO, dipole, flag_so, &
+                         SO_CI, runmode, V_SO, dipole, flag_so, &
                          flag_dyson, dysamp, E_SF
   use rhodyn_utils, only: dashes
   use definitions, only: wp, iwp, u6
@@ -39,7 +39,7 @@ subroutine read_rassisd
 
   fileid = mh5_open_file_r('RASSISD')
 
-  if (preparation==4) then
+  if (runmode==4) then
     if (flag_so) then
     ! reading complex Hamiltonian (already with SOC included)
     ! so far needed only for charge migration case
@@ -85,7 +85,7 @@ subroutine read_rassisd
   endif
 
 ! reading pure SOC matrix in SF basis
-  if (preparation/=4.and.flag_so) then
+  if (runmode/=4.and.flag_so) then
     call mma_allocate(tmpr,lrootstot,lrootstot)
     call mma_allocate(tmpi,lrootstot,lrootstot)
     if (mh5_exists_dset(fileid,'V_SO_REAL').and. &

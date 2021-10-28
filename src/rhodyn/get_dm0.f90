@@ -39,7 +39,7 @@ subroutine get_dm0()
     p_style='SF'
   endif
 
-  if (preparation/=4) then
+  if (runmode/=4) then
     call mma_allocate(DM0,nconftot, nconftot)
   else ! in charge migration case prepare DM in SF/SO basis
     call mma_allocate(DM0,lrootstot,lrootstot)
@@ -81,7 +81,7 @@ subroutine get_dm0()
         call dashes()
         call abend()
       endif
-      if (preparation/=4) then
+      if (runmode/=4) then
         DM0(N_Populated,N_Populated)=one
       else
         call mma_allocate(DM0_bas,nconftot,nconftot)
@@ -161,7 +161,7 @@ subroutine get_dm0()
       do i=1,lrootstot
         DM0_bas(i,i)=exp(-(E_SO(i)-E_SO(1))/(k_B*T))/Z
       enddo
-      if (preparation/=4) then
+      if (runmode/=4) then
         call transform(DM0_bas,CSF2SO,DM0,.False.)
       else
         DM0 = DM0_bas
@@ -183,7 +183,7 @@ subroutine get_dm0()
         call dashes()
         call abend()
       endif
-      if (preparation/=4) then
+      if (runmode/=4) then
         DM0(N_Populated,N_Populated)=one
       else
         call mma_allocate(DM0_bas,nconftot,nconftot)
@@ -281,7 +281,7 @@ subroutine get_dm0()
 
 ! Printout the initial density matrix to SDPREP in CSF basis
   ! not CM case
-  if (preparation/=4) then
+  if (runmode/=4) then
     if (ipglob>3) then
       call dashes()
       write(u6,*) 'The initial density matrix is saved in SDPREP'

@@ -22,7 +22,7 @@ module rhodyn_data
 !                  = 1 - from RASSCF the spin-free H obtained
 !                  = 2 - from RASSCF the CIs and Es obtained
 !                  = 3 - from CASPT2 CIs and Es
-!  preparation     integer key in input file:
+!  runmode         integer key in input file:
 !                  = 1 - start from rasscf/rassi input to propagation
 !                  = 2 - start with sdprep.h5 file to propagation
 !                  = 3 - just prepare sdprep.h5 file without propagation
@@ -108,7 +108,7 @@ module rhodyn_data
                                one  = (1.0d0,0.0d0)    ,&
                                onei = (0.0d0,1.0d0)
   integer(kind=iwp) :: ireturn, ipglob, error, i_rasscf ,&
-                       preparation ,N, Nstate, d, n_freq,&
+                       runmode ,N, Nstate, d, n_freq,&
                        ndet_tot, nconftot, lrootstot    ,&
                        maxnum, maxnconf, maxlroots
   integer(kind=iwp), dimension(:), allocatable :: ndet,nconf,lroots,&

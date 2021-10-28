@@ -137,7 +137,7 @@ Output files
   matrices from one basis to another, full and spin-orbit coupling
   Hamiltonians, transition dipole matrix, initial density matrix, and
   Dyson amplitudes. Once created this file can be used as an input file
-  with keyword :kword:`PREP` set to 2.
+  with keyword :kword:`RUNMode` set to 2.
 
 :file:`RDOUT`
   Main output file. Here, almost all relevant information is stored in

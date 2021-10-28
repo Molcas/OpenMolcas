@@ -86,7 +86,7 @@ subroutine get_dipole
     enddo
   endif
 
-  if (preparation/=4) then
+  if (runmode/=4) then
     ! not CM case
     call mh5_put_dset(prep_dipoler, dble(dipole))
     call mh5_put_dset(prep_dipolei, aimag(dipole))

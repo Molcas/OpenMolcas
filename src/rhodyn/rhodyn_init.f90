@@ -22,8 +22,8 @@ subroutine rhodyn_init()
   use constants, only: auToFs, auToCm, auToeV
   implicit none
 
-! preparation 1 means standard program workflow (see rhodyn_data)
-  preparation   = 1
+! runmode 1 means standard program workflow (see rhodyn_data)
+  runmode       = 1
   flag_test     = .False.
   p_style       = 'SF'
   N_Populated   = 1

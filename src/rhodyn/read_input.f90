@@ -84,8 +84,8 @@ subroutine read_input()
           backspace(luin)
           read(luin,*) Nstate, (istates(i),i=1,Nstate)
         endif
-      case('PREP')
-        read(luin,'(I8)') preparation
+      case('RUNM')
+        read(luin,'(I8)') runmode
       case('TOUT')
         read(luin,*) tout
         tout=tout/auToFs
