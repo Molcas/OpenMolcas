@@ -28,7 +28,11 @@
       INTEGER                      NTSTEP,NBSTEP,LOOPDIVIDE
       INTEGER DYSEXPSF,DYSEXPSO
 c BP - SO Natural orbital information
+c RF - SO Natural transition orbital infomation
 c    SONATNSTATE      Number of states to calculate
+c    SONTOSTATES      Number of state pairs to calculate
+c    IFARGU           Do phase factor for SO-NTOs
+c    LSONTO           Pointer to IWORK array SO state pairs
 c    LSONAT           Pointer to IWORK array of states
 c    SODIAGNSTATE     Number of states to diagonalize
 c    LSONAT           Pointer to IWORK array of states
@@ -42,8 +46,9 @@ c    Do_Pol           Specify a polarization vector direction
 c    DOCD             Regular circular dichroism - velocity and mixed gauge
 c    SaveDens         Save input-state transition densities in temp. file
       INTEGER SONATNSTATE,LSONAT,SODIAGNSTATE,LSODIAG
+      INTEGER SONTOSTATES,LSONTO
       LOGICAL IFCURD, Do_TMOM, Do_SK, Do_Pol, DOCD, Force_NON_AO_TDM,
-     &        SaveDens
+     &        SaveDens, IFARGU
       REAL*8 TDIPMIN,SOTHR_PRT,TMGr_thrs
       INTEGER NSOTHR_PRT, ISMGRD, LDISP, NDISP, NTDISP
       INTEGER IFJ2, IFJZ
@@ -67,7 +72,8 @@ c    SaveDens         Save input-state transition densities in temp. file
      &                             LIPAIR,
      &     IFJ2,IFJZ,
      &     SONATNSTATE,LSONAT,SODIAGNSTATE,LSODIAG,IFCURD,Do_TMOM,
-     &     TMGr_thrs,Do_SK,Do_Pol,DOCD, Force_NON_AO_TDM, SaveDens
+     &     TMGr_thrs,Do_SK,Do_Pol,DOCD, Force_NON_AO_TDM, SaveDens,
+     &     SONTOSTATES,LSONTO,IFARGU
 C CITHR  - THRESHOLD FOR PRINTING CI COEFFICIENTS.
 C ESHFT  - OPTIONAL ENERGY SHIFT OF EACH INPUT STATE.
 C LROOT  - ORDERING NUMBER, ON ITS JOBIPH FILE, OF EACH INPUT STATE.

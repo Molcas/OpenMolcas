@@ -90,7 +90,8 @@ C HOWEVER, MAX POSSIBLE SIZE IS WHEN LSYM1=LSYM2.
       NTDMA=NTDMS
       NTDMAB=NTRA
       SaveDens=(IFTRD1.OR.IFTRD2).OR.
-     &         (SONATNSTATE.GT.0).OR.NATO.OR.Do_TMOM
+     &         (SONATNSTATE.GT.0).OR.(SONTOSTATES.GT.0)
+     &         .OR.NATO.OR.Do_TMOM
       IF(SaveDens) THEN
         WRITE(6,*)
         WRITE(6,*) ' Info: creating TDMFILE'
