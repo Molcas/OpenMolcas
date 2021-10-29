@@ -47,7 +47,7 @@
 
 ****** State-CSF Rotation Part
       nRow=nRoots*nConf1
-      CALL FZero(nRow,CICSF)
+      CALL FZero(CICSF,nRow)
       CALL DCopy_(nRow,AXPzx,1,CICSF,1)
       CALL DAXPY_(nRow,-1.0d0,bP,1,CICSF,1)
 
