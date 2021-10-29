@@ -1,4 +1,3 @@
-      subroutine CalcAXkzx(AXkzx,GDMat,PUVX,NPUVX,IndPUVX,zx)
 ************************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
@@ -9,12 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) Jie J. Bao                                             *
+* Copyright (C) 2021, Jie J. Bao                                       *
 ************************************************************************
 * ****************************************************************
 * history:                                                       *
 * Jie J. Bao, on Aug. 06, 2020, created this file.               *
 * ****************************************************************
+      subroutine CalcAXkzx(AXkzx,GDMat,PUVX,NPUVX,IndPUVX,zx)
 #include "Input.fh"
 #include "Pointers.fh"
 #include "stdalloc.fh"

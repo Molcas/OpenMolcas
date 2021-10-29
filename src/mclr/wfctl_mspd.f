@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) Anders Bernhardsson                                    *
+* Copyright (C) 2021, Jie J. Bao                                       *
 ************************************************************************
       SubRoutine WfCtl_MSPD(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,
      &                    iRHSDisp,converged,iPL)
@@ -131,7 +131,6 @@
       ipST =ipGet(nconf3*nroots)
       ipCIT=ipGet(nconf1*nroots)
       ipCId=ipGet(nconf1*nroots)
-      ipST2 =ipGet(nconf3*nroots)
 *
       npre2=npre(isym)
       ipPre2=ipGet(npre2)

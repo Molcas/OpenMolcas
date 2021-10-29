@@ -1,4 +1,3 @@
-      Subroutine Calcbk(bk,R,nTri,GDMat,zX)
 ************************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
@@ -9,12 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) Jie J. Bao                                             *
+* Copyright (C) 2021, Jie J. Bao                                       *
 ************************************************************************
 * ****************************************************************
 * history:                                                       *
 * Jie J. Bao, on Aug. 06, 2020, created this file.               *
 * ****************************************************************
+      Subroutine Calcbk(bk,R,nTri,GDMat,zX)
       use stdalloc, only : mma_allocate, mma_deallocate
 #include "Input.fh"
 #include "disp_mclr.fh"
@@ -74,11 +74,6 @@
 ******Auxiliaries
       Real*8,DIMENSION(:),Allocatable::F,T,F_n
       INTEGER I,J,ijb,iS,iB,jB
-************************************************************************
-*                                                                      *
-       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
-*                                                                      *
-************************************************************************
       I=irlxroot
       CALL mma_allocate(F,nDens2)
       CALL mma_allocate(T,nDens2)
@@ -126,11 +121,6 @@
 ******Auxiliaries
       Real*8,DIMENSION(:),Allocatable::T,FT99,bktmp
       INTEGER I,J,IS,JS
-************************************************************************
-*                                                                      *
-       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
-*                                                                      *
-************************************************************************
       CALL mma_allocate(FT99,nDens2)
       CALL mma_allocate(bktmp,nDens2)
       CALL mma_allocate(T,nDens2)

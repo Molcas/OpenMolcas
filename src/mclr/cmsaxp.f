@@ -1,4 +1,3 @@
-      subroutine CalcAXPzx(AXPzx,GDMat,PUVX,NPUVX,IndTUVX,DDg,zx)
 ************************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
@@ -9,12 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) Jie J. Bao                                             *
+* Copyright (C) 2021, Jie J. Bao                                       *
 ************************************************************************
 * ****************************************************************
 * history:                                                       *
 * Jie J. Bao, on Aug. 06, 2020, created this file.               *
 * ****************************************************************
+      subroutine CalcAXPzx(AXPzx,GDMat,PUVX,NPUVX,IndTUVX,DDg,zx)
 ***************************************************************************
 *  Some notes from the author:
 *
@@ -106,7 +106,6 @@
 *
 *************************************************************************
       use ipPage, only: W
-      use Exp, Only: Exp_Close
       Implicit Real*8 (a-h,o-z)
 
 #include "stdalloc.fh"
@@ -203,7 +202,7 @@
         CALL CalcWop(Wop,Ddiff,PUVX,NPUVX,IndTUVX,Coeff,off_Ash)
         CALL CISigma_SA(0,State_Sym,State_Sym,Wop,nDens2,tempda,1,
      &  tempda,1,ipci,ipwslam,.false.)
-        irc=ipin(ipwslam)
+*        irc=ipin(ipwslam)
         CALL dAXpY_(nConf1,dRoots,W(ipwslam)%Vec((K-1)*nConf1+1),1,
      &  AXPzx((M-1)*nConf1+1),1)
        End Do

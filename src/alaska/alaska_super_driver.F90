@@ -301,7 +301,7 @@ else if ((Method == 'CASSCFSA') .or. ((Method == 'DMRGSCFS') .and. (iGo /= 2))) 
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-else if ((Method == 'MCPDFT').or.(Method.eq.'MSPDFT')) then
+else if ((Method == 'MCPDFT').or.(Method == 'MSPDFT')) then
   !                                                                    *
   !*********************************************************************
   !                                                                    *

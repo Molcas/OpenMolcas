@@ -1,4 +1,3 @@
-        Subroutine MSPDFTGrad_Misc(LHRot)
 ************************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
@@ -9,8 +8,9 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C)    2021, Jie J. Bao                                    *
+* Copyright (C) 2021, Jie J. Bao                                       *
 ************************************************************************
+        Subroutine MSPDFTGrad_Misc(LHRot)
 ********This subroutine does miscellaneous things needed
 ********in MS-PDFT gradient calculation.
 #include "WrkSpc.fh"
