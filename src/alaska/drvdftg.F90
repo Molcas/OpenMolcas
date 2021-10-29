@@ -156,7 +156,7 @@ if (btest(iDFT,6)) then
     if (jPrint >= 15) then
      Label='DFT Int Contribution'
      write(6,*) 'state, coeff',IK,R((II-1)*nRoots+IK)
-     Call PrGrad(Label,Temp2,nGrad,ChDisp,5)
+     Call PrGrad(Label,Temp2,nGrad,ChDisp)
     end if
      Call DAXPY_(nGrad,R((II-1)*nRoots+IK)**2,Temp2,1,Temp,1)
    END DO
