@@ -1,4 +1,3 @@
-      subroutine CalcbXbP(bX,bP,FMO1t,FMO2t,R,H,nTri)
 ************************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
@@ -9,12 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) Jie J. Bao                                             *
+* Copyright (C) 2021, Jie J. Bao                                       *
 ************************************************************************
 * ****************************************************************
 * history:                                                       *
 * Jie J. Bao, on Aug. 06, 2020, created this file.               *
 * ****************************************************************
+      subroutine CalcbXbP(bX,bP,FMO1t,FMO2t,R,H,nTri)
       use stdalloc, only : mma_allocate, mma_deallocate
 #include "Input.fh"
 #include "disp_mclr.fh"
@@ -104,7 +104,6 @@
 
 ******************************************************
       subroutine CalcbP(bP,CSFOK,LOK,R)
-      use Exp, Only: Exp_Close
       use ipPage, only: W
 #include "stdalloc.fh"
 #include "Input.fh"
@@ -151,7 +150,6 @@
 
 ******************************************************
       subroutine CalcOMat(CSFOK,LOK,FMO1t,FMO2t,nTri)
-      use Exp, Only: Exp_Close
       use ipPage, only: W
       Implicit Real*8 (a-h,o-z)
 #include "stdalloc.fh"
@@ -179,7 +177,6 @@
       Real*8,DIMENSION(:),Allocatable::FMO1
       INTEGER ILoc1,ILoc2,ILoc3,iOff,iS,jS,iB,jB,ji,ij,I,iK
       INTEGER ILoc4,iptmp,nConf3
-      Real*8 rE
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -226,12 +223,11 @@
           end do
          END IF
        End do
-       irc=ipin(ipCI)
+*       irc=ipin(ipCI)
        CALL CISigma_SA(0,State_Sym,State_Sym,FMO1,nDens2,
      & FMO2t(iLoc2),NACPR2,rdum,1,ipci,iptmp,.True.)
        CALL Daxpy_(nConf1,Real(nRoots,8),W(iptmp)%Vec(iLoc3),1,
      &                                          CSFOK(iLoc3),1)
-       rE=ddot_(nConf1,CSFOK(iLoc3),1,W(ipCI)%Vec(iLoc3),1)
 
        Do L=1,nRoots
         ILoc4=(L-1)*NConf1+1

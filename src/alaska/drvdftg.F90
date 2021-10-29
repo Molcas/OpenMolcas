@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 2002, Roland Lindh                                     *
+!               2021, Jie J. Bao                                       *
 !***********************************************************************
 
 subroutine DrvDFTg(Grad,Temp,nGrad)
@@ -41,17 +42,15 @@ real(kind=wp), intent(out) :: Temp(nGrad)
 #include "rctfld.fh"
 #include "disp.fh"
 #include "nq_info.fh"
-integer(kind=iwp) :: iDFT, iDumm, iEnd, iIrrep, iOpt, iPrint, iRout, iSpin, jPrint, LuWr, nDens
+integer(kind=iwp) :: iDFT, iDumm, iEnd, iIrrep, iOpt, iPrint, iRout, iSpin, jPrint, LuWr, nDens, IK, ng1, ng2, nAsht, nRoots, iI, nAct(nIrrep)
 real(kind=wp) :: Dummy1(1), Dummy2(1), Dummy3(1), Dummy4, Dumm0(1), Dumm1(1), ExFac, TCpu1, TCpu2, TWall1, TWall2
 logical(kind=iwp) :: First, Dff, Do_Grad, l_casdft
 character(len=80) :: Label
 character(len=16) :: KSDFT
 character(len=4) :: DFTFOCK
 !Following declarations for MS-PDFT gradient calculations
-Character*8 Method
-Real*8,DIMENSION(:),Allocatable::Temp2,R,G1qs,G2qs,G1qt,G2qt,D1AOMS,D1SAOMS,D1AOt,D1SAOt
-INTEGER,DIMENSION(nIrrep)::nAct
-INTEGER IK,ng1,ng2,nAshT,nRoots,iI
+Character(len=8) Method
+Real(kind=wp),DIMENSION(:),Allocatable::Temp2,R,G1qs,G2qs,G1qt,G2qt,D1AOMS,D1SAOMS,D1AOt,D1SAOt
 !End of declarations for MS-PDFT gradient
 !                                                                      *
 !***********************************************************************
@@ -106,7 +105,7 @@ if (btest(iDFT,6)) then
   !write(LuWr,*) 'DrvDFTg: ExFac=',ExFac
   iDumm = 1
   Call Get_cArray('Relax Method',Method,8)
-  if(Method.ne.'MSPDFT') then
+  if(Method /= 'MSPDFT') then
   call DrvDFT(Dummy1,Dummy2,Dummy3,Dummy4,nDens,First,Dff,lRF,KSDFT,ExFac,Do_Grad,Temp,nGrad,iSpin,Dumm0,Dumm1,iDumm,DFTFOCK)
   else
 ! modifications for MS-PDFT gradient starting here
@@ -127,7 +126,7 @@ if (btest(iDFT,6)) then
    CALL mma_allocate(G2qs,nG2*nRoots)
    CALL mma_allocate(D1AOMS,nDens*nRoots)
    CALL mma_allocate(D1AOt,nDens)
-   IF(iSpin.ne.1) THEN
+   IF(iSpin /= 1) THEN
     CALL mma_allocate(D1SAOMS,nDens*nRoots)
     CALL mma_allocate(D1SAOt,nDens)
    END IF
@@ -139,7 +138,7 @@ if (btest(iDFT,6)) then
    Call Get_DArray('P2INTER         ',G2qs,ng2*nRoots)
    CALL Get_DArray('D1AO_MS         ',D1AOMS,nDens*nRoots)
    Call Get_D1AO(D1AOt,nDens)
-   IF(iSpin.ne.1)  THEN
+   IF(iSpin /= 1)  THEN
     CALL Get_DArray('D1SAO_MS        ',D1SAOMS,nDens*nRoots)
     Call Get_D1SAO(D1SAOt,nDens)
    END IF
@@ -147,7 +146,7 @@ if (btest(iDFT,6)) then
     Call Put_D1MO(G1qs((IK-1)*nG1+1),nG1)
     Call Put_P2MO(G2qs((IK-1)*nG2+1),nG2)
     Call Put_D1AO(D1AOMS((IK-1)*nDens+1),nDens)
-    IF (iSpin.ne.1) THEN
+    IF (iSpin /= 1) THEN
      Call Put_D1SAO(D1SAOMS((IK-1)*nDens+1),nDens)
     END IF
     Call FZero(Temp2,nGrad)
@@ -163,7 +162,7 @@ if (btest(iDFT,6)) then
    CALL Put_D1MO(G1qt,nG1)
    CALL Put_P2MO(G2qt,nG2)
    Call Put_D1AO(D1AOt,nDens)
-   IF(ISpin.ne.1) Call Put_D1SAO(D1SAOt,nDens)
+   IF(ISpin /= 1) Call Put_D1SAO(D1SAOt,nDens)
    Call mma_deallocate(R)
    Call mma_deallocate(Temp2)
    Call mma_deallocate(G1qt)
@@ -172,7 +171,7 @@ if (btest(iDFT,6)) then
    Call mma_deallocate(G2qs)
    CALL mma_deallocate(D1AOMS)
    CALL mma_deallocate(D1AOt)
-   IF(iSpin.ne.1) THEN
+   IF(iSpin /= 1) THEN
     CALL mma_deallocate(D1SAOMS)
     CALL mma_deallocate(D1SAOt)
    END IF

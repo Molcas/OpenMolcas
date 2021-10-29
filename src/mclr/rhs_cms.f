@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) Jie J. Bao                                             *
+* Copyright (C) 2021, Jie J. Bao                                       *
 ************************************************************************
 * ****************************************************************
 * history:                                                       *
@@ -65,7 +65,6 @@
       NACPAR=(nnA+1)*nnA/2
       NAcPr2=(nacpar+1)*nacpar/2
       CALL mma_allocate(FMO2t,nRoots*nacpr2)
-      irc=ipin(ipCI)
 ******MAIN COURSE
 ******First, read results printed in MCPDFT module
       CALL CMSRdMat(H,nRoots,nRoots,'ROT_HAM',7)
@@ -132,7 +131,7 @@
       Subroutine Get_PUVXLen(NPUVX)
 ******Rewritten from mcpdft/alloc.f
       INTEGER NPUVX
-      INTEGER iSp,iSq,iSr,iSs,nAp,nAq,iSpq,iSpqr,nAr,nAs,nOp
+      INTEGER iSp,iSq,iSr,iSs,nAq,iSpq,iSpqr,nAr,nAs,nOp
 #include "stdalloc.fh"
 #include "Input.fh"
 #include "disp_mclr.fh"
@@ -148,7 +147,6 @@
 
       NPUVX=0
       DO iSp=1,nSym
-       nAp=NASH(iSp)
        nOp=NORB(iSp)
        Do iSq=1,nSym
         nAq=NASH(iSq)
@@ -174,8 +172,7 @@
 
 ******************************************************
       Subroutine Read_PUVX(PUVX,NPUVX)
-      INTEGER NPUVX,IsFreeUnit
-      External IsFreeUnit
+      INTEGER NPUVX
       Real*8,DIMENSION(NPUVX)::PUVX
       CALL Get_Darray('TwoEIntegral    ',PUVX,nPUVX)
       RETURN
@@ -301,7 +298,6 @@
                           iTU = iVX
                           iVX = iTemp
                         End If
-                        iTUVX = iVX + iTri(iTU)
                         IndTUVX(iiT,iiU,iiV,iiX)=iPUVX
                         IndTUVX(iiT,iiU,iiX,iiV)=iPUVX
                         IndTUVX(iiU,iiT,iiV,iiX)=iPUVX

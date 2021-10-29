@@ -1,4 +1,3 @@
-      Subroutine SolveforRHS(Fock,CICSF,AXkzx,AXPzx,bk,bP)
 ************************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
@@ -9,12 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) Jie J. Bao                                             *
+* Copyright (C) 2021, Jie J. Bao                                       *
 ************************************************************************
 * ****************************************************************
 * history:                                                       *
 * Jie J. Bao, on Aug. 06, 2020, created this file.               *
 * ****************************************************************
+      Subroutine SolveforRHS(Fock,CICSF,AXkzx,AXPzx,bk,bP)
 #include "Input.fh"
 #include "disp_mclr.fh"
 #include "Pointers.fh"
@@ -35,12 +35,10 @@
       Real*8,DIMENSION(nDens2)::bk
       Real*8,DIMENSION(nConf1*nRoots)::bP
 ****** Assistants
-      INTEGER nRow,nCol
-****** nRow and nCol are M and K in DGEMM
+      INTEGER nRow
 
 *****  Orbital Rotation Part
       nRow=nDens2
-      nCol=(nRoots-1)*nRoots/2
       CALL FZero(Fock,nDens2)
       CALL DCopy_(nRow,Axkzx,1,Fock,1)
       CALL DAXPY_(nRow,1.0d0,bk,1,Fock,1)
@@ -103,7 +101,6 @@ C      CALL RecPrt(' ',' ',zX,1,nDim)
 ******************************************************
 ******************************************************
       Subroutine GetQaaFock(FOccMO,P2MOt,GDMat,zX,nP2)
-      use Exp, Only: Exp_Close
       use stdalloc, only : mma_allocate, mma_deallocate
 #include "Input.fh"
 #include "disp_mclr.fh"
@@ -257,7 +254,6 @@ C      CALL RecPrt(' ',' ',zX,1,nDim)
       dQdX=0.0d0
       do i=1,nna
         do j=1,i
-          ij = iTri(i,j)
           do k=1,i
             if(i.eq.k) then
               lmax = j
@@ -265,7 +261,6 @@ C      CALL RecPrt(' ',' ',zX,1,nDim)
               lmax = k
             end if
             do l=1,lmax
-              kl = iTri(k,l)
               ijkl = ijkl + 1
               dQdX=dQdX+G2q(ijkl)*PUVX(IndTUVX(I,J,K,L))
             end do
