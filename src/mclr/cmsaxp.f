@@ -144,6 +144,22 @@
 
       INTEGER I
       Real*8,DIMENSION(:),Allocatable:: ovrlp
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+       SubRoutine CISigma_sa(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,
+     &                       Int2a,nInt2a,ipCI1,ipCI2, Have_2_el)
+       Integer iispin, iCsym, iSSym
+       Integer nInt1, nInt2s, nInt2a
+       Real*8, Target:: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
+       Integer ipCI1, ipCI2
+       Logical Have_2_el
+       End SubRoutine CISigma_sa
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
 
 
       CALL FZero(AXPzx,nConf1*nRoots)
@@ -160,7 +176,7 @@
       nConf3=nint(Max(xispsm(State_SYM,1),xispsm(State_SYM,1)))
       ipwslam=ipGet(nConf3*nRoots)
 
-      CALL mma_allocate(Wop  ,nDens2)
+      CALL mma_allocate(Wop,nDens2)
       CALL mma_allocate(Ddiff,nnA**2)
       CALL mma_allocate(D_acc,nnA**2)
 
@@ -195,7 +211,7 @@
        CALL FZero(D_acc,nnA**2)
        CALL CalcDacc(D_acc,GDMat,M,nnA,nRoots,zx)
        CALL CalcWop(Wop,D_acc,PUVX,NPUVX,IndTUVX,1.0d0,off_Ash)
-       CALL CISigma_SA(0,State_Sym,State_Sym,Wop,nDens2,tempda1,1,
+       CALL CISigma_SA(0,State_Sym,State_Sym,Wop,nDens2,tempda,1,
      & tempda,1,ipci,ipwslam,.false.)
        CALL dAXpY_(nConf1,dRoots,W(ipwslam)%Vec((M-1)*nConf1+1),1,
      & AXPzx((M-1)*nConf1+1),1)
@@ -224,7 +240,7 @@
       END DO
 
 ***** memory deallocation
-      CALL mma_deallocate(Wop  )
+      CALL mma_deallocate(Wop)
       CALL mma_deallocate(Ddiff)
       CALL mma_deallocate(D_acc)
 
