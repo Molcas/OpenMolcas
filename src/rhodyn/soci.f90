@@ -33,6 +33,7 @@ subroutine soci
   complex(kind=wp),dimension(:,:),allocatable:: SO_CI2,Hfull,hdiag, &
                                                 Hfull2
   integer(kind=iwp)::INFO,LWORK
+  integer(kind=iwp) :: i, j
   complex(kind=wp),dimension(:),allocatable::WORK
   real(kind=wp)::RWORK(3*nconftot-2),W(nconftot)
 

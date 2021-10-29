@@ -20,9 +20,10 @@ subroutine get_hcsf()
 !***********************************************************************
   use rhodyn_data
   use rhodyn_utils, only: dashes
-  use definitions, only: u6
+  use definitions, only: iwp, u6
   use mh5, only: mh5_put_dset
   implicit none
+  integer(kind=iwp) :: i, j, k, l, ii, jj, kk
 
   if (ipglob>2) then
     call dashes()

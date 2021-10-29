@@ -23,12 +23,13 @@ subroutine k_external
   use stdalloc, only: mma_allocate, mma_deallocate
   implicit none
 
-  integer(kind=iwp) :: max_i, max_j, iii, jjj, n_sf, lu
+  integer(kind=iwp) :: max_i, max_j, n_sf, lu
+  integer(kind=iwp) :: i, j, k, l, ii, jj, kk, ll, iii, jjj
   integer(kind=iwp), external :: isFreeUnit
   real(kind=wp) ::  max_k
   real(kind=wp), dimension(:,:), allocatable :: omega_ab,kab_real
   complex(kind=wp), dimension(:,:),allocatable :: k_ab
-  character(len=256):: format1 = '(2(I8),2(G15.8,X))'
+  character(len=256):: format1 = '(2(i8),2(g15.8,1x))'
 
   n_sf = sum(lroots)
 
@@ -146,11 +147,11 @@ subroutine k_external
     enddo
   enddo
   write(lu,*)'the maximum of Kab in ', basis
-  write(lu,'(2(I8),G15.8,A)')Max_I,Max_J,Max_K*autoev,' eV'
+  write(lu,'(2(i8),g15.8,a)')Max_I,Max_J,Max_K*autoev,' eV'
   do i=1,Nstate
     do j=1,Nstate
       if(abs(Kab_basis(i,j))>=(0.01/autoeV))then
-        write(lu,'(2(I8),3(G15.8,X))')i,j,abs(kab_basis(i,j)), &
+        write(lu,'(2(i8),3(g15.8,1x))')i,j,abs(kab_basis(i,j)), &
       dble(Kab_basis(i,j))*autoev,aimag(Kab_basis(i,j))*autoev
       endif
     enddo

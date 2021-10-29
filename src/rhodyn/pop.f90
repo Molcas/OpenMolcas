@@ -18,7 +18,7 @@ subroutine pop(time,popcount)
                          lu_csf, lu_sf, lu_so, lu_dip, tmp, pulse_vec, &
                          flag_emiss, flag_dipole, dipole_basis, &
                          SO_CI, CSF2SO, U_CI_compl, &
-                         i, j, l, Nstate, nconftot
+                         Nstate, nconftot
   use rhodyn_utils, only: mult, transform
   use definitions, only: wp, iwp
   use constants, only: auToFs
@@ -36,6 +36,7 @@ subroutine pop(time,popcount)
   real(kind=wp), dimension(nconftot) :: dgl_csf
   complex(kind=wp),dimension(nconftot,nconftot) :: density_csf
   character(len=64) :: sline
+  integer(kind=iwp) :: i, j, l
 !     here notation d is dimension of all the basis matrices
 !!!   density0 (can't be) used as a temporary storage for dm in required basis
 
@@ -150,7 +151,7 @@ subroutine pop(time,popcount)
       dgl(:) = dble((/(tmp(i,i),i=1,d)/))
       pulse_vec(i) = sum(dgl)
     enddo
-    write(lu_dip,'(7(G25.15E3,2X))') time*auToFs, &
+    write(lu_dip,'(7(g25.15e3,2x))') time*auToFs, &
          (dble(pulse_vec(i)),aimag(pulse_vec(i)), i=1,3)
   endif
 

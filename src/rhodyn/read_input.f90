@@ -18,14 +18,13 @@ subroutine read_input()
   use stdalloc, only: mma_allocate, mma_deallocate
   implicit none
 !
-!
+! Purpose: process input file and print summary at the end
 !
   integer(kind=iwp)    :: luin
+  integer(kind=iwp)    :: i, j
   character(len=8)     :: input_id = '&RHODYN'
   character(len=32)    :: tryname
   character(len=256)   :: line
-
-!  call qEnter('read_input') ! deprecated
 
   call SpoolInp(luin)
 ! Find beginning of input:
@@ -117,8 +116,6 @@ subroutine read_input()
       case ('VCOU')
         read (luin,*) V
         V=V/auToCm
-!       case ('Out_fmt')
-!         read(11,'(A)') Out_fmt
       case ('AUGE')
         flag_decay=.True.
       case ('NVAL')
@@ -162,7 +159,9 @@ subroutine read_input()
         flag_dipole=.True.
       case ('EMIS')
         flag_emiss=.True.
-! reading pulse characteristic
+! reading pulse characteristic.
+! take care that NPULses keyword should be first one in input file
+! otherwise further arrays for pulse are not allocated correctly
       case ('NPUL')
         read(luin,'(I8)') N_pulse
         if (N_pulse>1) then
@@ -212,7 +211,7 @@ subroutine read_input()
         endif
       case ('TAUS')
         read(luin,*) (taushift(i),i=1,N_pulse)
-        taushift=taushift/auToFs
+        taushift(:) = taushift/auToFs
       case ('AMPL')
         read(luin,*) (amp(i),i=1,N_pulse)
       case ('POLA')
@@ -221,14 +220,14 @@ subroutine read_input()
         enddo
       case ('SIGM')
         read(luin,*) (sigma(i),i=1,N_pulse)
-        sigma=sigma/auToFs
+        sigma(:) = sigma/auToFs
         ! old value of sigma was underestimated by factor of pi/2
       case ('OMEG')
         read(luin,*) (omega(i),i=1,N_pulse)
-        omega=omega/autoev
+        omega(:) = omega/autoev
       case ('PHAS')
         read(luin,*) (phi(i),i=1,N_pulse)
-        phi=phi*pi
+        phi(:) = phi*pi
       case ('CHIR')
         read(luin,*) linear_chirp
       case ('ACOR')
@@ -290,6 +289,6 @@ subroutine read_input()
     call dashes()
   endif
   call close_luSpool(luin)
-!  call qExit('read_input')! deprecated
+
   return
 end

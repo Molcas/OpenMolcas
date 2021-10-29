@@ -13,13 +13,15 @@
 subroutine hamdens()
   use rhodyn_data
   use rhodyn_utils, only: transform, mult, dashes
-  use definitions, only: u6
+  use definitions, only: iwp, u6
   implicit none
 !
 ! Purpose : Transform initial Hamiltonian to required basis as well as
 ! the initial density matrix, which are currently present
 ! in CSF basis
 !
+  integer(kind=iwp) :: i, j, k, ii
+
   if (ipglob>2) then
     call dashes()
     write(u6,*) 'Begin get_hamiltonian'

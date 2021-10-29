@@ -11,8 +11,8 @@
 ! Copyright (C) 2021, Vladislav Kochetov                               *
 !***********************************************************************
 subroutine test_rho (densityt_time, time)
-  use rhodyn_data, only: Nstate, threshold, i, j
-  use definitions, only: wp
+  use rhodyn_data, only: Nstate, threshold
+  use definitions, only: wp, iwp
   use constants, only: auToFs
   implicit none
 !
@@ -24,6 +24,7 @@ subroutine test_rho (densityt_time, time)
   complex(kind=wp), dimension(:,:), intent(in) :: densityt_time
   real(kind=wp), intent(in) :: time
   real(kind=wp) :: abserror
+  integer(kind=iwp) :: i, j
 
   abserror=0d0
   do i=1,Nstate

@@ -19,7 +19,7 @@ module rhodyn_utils
 !
 ! module contains some auxiliary routines
 !
-  public:: removeLineAndColumn, dashes, transform
+  public:: mult, removeColumn, removeLineAndColumn, dashes, transform
   interface mult
     module procedure mult_2D, multZ_2D
   end interface

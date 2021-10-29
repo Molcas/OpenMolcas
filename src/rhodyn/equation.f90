@@ -14,8 +14,8 @@ subroutine equation (time,rhot,res)
   use rhodyn_data, only: pulse_func, flag_pulse, d, onei, zero, one, &
                          flag_decay, ion_diss, flag_diss, decay, &
                          hamiltonian, hamiltoniant, &
-                         K_bar_basis, kab_basis, i, j
-  use definitions, only: wp
+                         K_bar_basis, kab_basis
+  use definitions, only: wp, iwp
   implicit none
 !
 !***********************************************************************
@@ -31,6 +31,7 @@ subroutine equation (time,rhot,res)
   complex(kind=wp), dimension(:,:), intent(in) :: rhot
   complex(kind=wp), dimension(:,:), intent(out):: res
   procedure(pulse_func) :: pulse
+  integer(kind=iwp) :: i, j
 
 ! if pulse is enabled, modify hamiltonian at time t:
   if (flag_pulse) call pulse(hamiltonian,hamiltoniant,time,-1)

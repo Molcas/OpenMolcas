@@ -23,7 +23,8 @@ subroutine kab
 !
 !***********************************************************************
 
-  integer(kind=iwp) :: max_i, max_j, iii, jjj, n_sf, lu
+  integer(kind=iwp) :: max_i, max_j, n_sf, lu
+  integer(kind=iwp) :: i, j, k, ii, jj, iii, jjj
   integer(kind=iwp), external :: isFreeUnit
   real(kind=wp) ::  max_k
   real(kind=wp), dimension(:,:), allocatable :: G,G_SF,omega_ab,n_w,&
@@ -32,9 +33,8 @@ subroutine kab
   complex(kind=wp), dimension(:,:),allocatable ::k_ab,gamma_pd,&
                                                  gamma_pd_basis
   complex(kind=wp), dimension(:,:,:),allocatable :: G_SO
-  character(len=256):: format1
+  character(len=256):: format1 = '(2(i8),4(g15.8,1x))'
 
-  format1='(2(I8),4(G15.8,X))'
   n_sf = sum(nconf)
 
   write(u6,*) 'N_SF=', n_sf
@@ -251,12 +251,12 @@ subroutine kab
   enddo
 
   write(lu,*)'the maximum of Kab in ', basis
-  write(lu,'(2(I8),G15.8,A)') max_i,max_j,max_k*autoev,' eV'
+  write(lu,'(2(i8),g15.8,a)') max_i,max_j,max_k*autoev,' eV'
 
   do i=1,d
     do j=1,d
       if(abs(kab_basis(i,j))>=(0.01/autoeV))then
-        write(lu,'(2(I8),3(G15.8,X))')i,j,abs(kab_basis(i,j)), &
+        write(lu,'(2(i8),3(g15.8,1x))')i,j,abs(kab_basis(i,j)), &
         dble(kab_basis(I,J))*autoev,aimag(kab_basis(I,J))*autoev
       endif
     enddo

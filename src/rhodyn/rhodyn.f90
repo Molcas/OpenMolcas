@@ -24,6 +24,7 @@ subroutine rhodyn()
   use mh5, only: mh5_put_dset, mh5_close_file
   implicit none
   integer(kind=iwp) :: lu !temporary io unit
+  integer(kind=iwp) :: i, j, k
   integer(kind=iwp), external :: iPrintLevel, isFreeUnit
   real(kind=wp), dimension(:,:), allocatable :: Ham ! auxiliary matrix
 

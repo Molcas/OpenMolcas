@@ -98,7 +98,7 @@ module rhodyn_data
     end subroutine equation_func
   end interface
   ! list of dummy integers
-  integer(kind=iwp) :: i,j,k,l,ii,jj,kk,ll
+  ! integer(kind=iwp) :: i,j,k,l,ii,jj,kk,ll
   ! list of constants
   real(kind=wp), parameter :: k_B = kBoltzmann/(auTokJ*1.0e3_wp) ,&
                               threshold = 1.0d-06                ,&
@@ -131,11 +131,11 @@ module rhodyn_data
              flag_dyson, flag_emiss, flag_test, flag_dipole
   character(len=256) :: pulse_type, dm_basis, p_style, method, basis
   character(len=6),dimension(:),allocatable:: rassd_list, hr_list
-  character(len=*),parameter :: sint='(x,a,t45,i8)'              ,&
-                                scha='(x,a,t52,a)'               ,&
-                                sdbl='(x,a,t45,f9.3)'            ,&
-                                scmp='(x,a,t45,f5.2,sp,f5.2,"i")',&
-                                slog='(x,a,t45,l8)'              ,&
+  character(len=*),parameter :: sint='(1x,a,t45,i8)'              ,&
+                                scha='(1x,a,t52,a)'               ,&
+                                sdbl='(1x,a,t45,f9.3)'            ,&
+                                scmp='(1x,a,t45,f5.2,sp,f5.2,"i")',&
+                                slog='(1x,a,t45,l8)'              ,&
                                 int2real='(a,2i5,2f16.8)'
   character(len=64) :: out_fmt, out1_fmt, out_fmt_csf, out1_fmt_csf,&
                        out2_fmt, out3_fmt

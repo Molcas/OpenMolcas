@@ -16,7 +16,8 @@ subroutine read_rassd(nfile)
 !***********************************************************************
   use rhodyn_data
   use definitions, only: iwp, u6
-  use mh5
+  use mh5, only: mh5_open_file_r, mh5_exists_attr, mh5_fetch_attr,&
+                 mh5_fetch_dset, mh5_exists_dset, mh5_close_file
   implicit none
   integer(kind=iwp),intent(in):: nfile
   integer(kind=iwp) :: fileid

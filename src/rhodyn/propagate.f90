@@ -24,6 +24,7 @@ subroutine propagate()
 !
 !***********************************************************************
   integer(kind=iwp) :: Ntime,Noutstep
+  integer(kind=iwp) :: ii, jj, kk
 ! timers are commented out now, should be again switched on, once it is
 ! transferred to f90 standard
 !  integer :: ihh, imm, iss

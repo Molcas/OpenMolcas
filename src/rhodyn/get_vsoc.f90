@@ -11,11 +11,11 @@
 ! Copyright (C) 2021, Vladislav Kochetov                               *
 !***********************************************************************
 subroutine get_vsoc
-  use rhodyn_data, only: lrootstot, nconftot, ipglob, i, j, threshold, &
+  use rhodyn_data, only: lrootstot, nconftot, ipglob, threshold, &
                          V_SO, V_CSF, U_CI, prep_vcsfr, prep_vcsfi, &
                          int2real
   use rhodyn_utils, only: transform, dashes
-  use definitions, only: wp, u6
+  use definitions, only: wp, iwp, u6
   use stdalloc, only: mma_allocate, mma_deallocate
   use mh5, only: mh5_put_dset
   implicit none
@@ -32,6 +32,7 @@ subroutine get_vsoc
 !
   real(kind=wp),dimension(:,:),allocatable::REV_SO,REV_CSF, &
                                             IMV_SO,IMV_CSF
+  integer(kind=iwp) :: i, j
 
   if (ipglob>2) write(u6,*) 'Begin of get_vsoc'
   if (ipglob>2) call dashes()

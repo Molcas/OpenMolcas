@@ -17,7 +17,7 @@ subroutine pulse(H0,Ht,time,count)
 !            argument 'count' is for storage of pulse
 !            if count=-1 then current value of pulse is not stored
 !***********************************************************************
-  use rhodyn_data, only: zero, i, E_field, N_pulse, pulse_type,&
+  use rhodyn_data, only: zero, E_field, N_pulse, pulse_type,&
                          pulse_vec, pulse_vector, amp, taushift,&
                          sigma, power_shape, omega, phi,&
                          lu_pls, temp_vec, out_t, out_pulse,&
@@ -31,6 +31,7 @@ subroutine pulse(H0,Ht,time,count)
   complex(kind=wp), dimension(:,:), intent(out) :: Ht
   real(kind=wp), intent(in)       :: time
   integer(kind=iwp), intent(in)   :: count
+  integer(kind=iwp) :: i
 
   E_field = zero
 
@@ -136,7 +137,7 @@ subroutine pulse(H0,Ht,time,count)
 !
 ! saving pulse to files
   if (count>=0) then
-    write(lu_pls,'(7(G25.15E3,2X))') time*auToFs, &
+    write(lu_pls,'(7(g25.15e3,2x))') time*auToFs, &
                   (dble(E_field(i)),aimag(E_field(i)), i=1,3)
     do i=1,3
       temp_vec(2*i-1) = dble (E_field(i))

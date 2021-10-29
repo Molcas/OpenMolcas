@@ -19,7 +19,7 @@ subroutine get_dm0()
 !***********************************************************************
   use rhodyn_data
   use rhodyn_utils, only: transform, dashes
-  use definitions, only: wp, u6
+  use definitions, only: wp, iwp, u6
   use stdalloc, only: mma_allocate, mma_deallocate
   use mh5, only: mh5_put_dset
   implicit none
@@ -28,6 +28,7 @@ subroutine get_dm0()
   complex(kind=wp) :: Z
   complex(kind=wp), dimension(:), allocatable:: temp_dm
   integer(kind=iwp) :: lu !temporary io unit
+  integer(kind=iwp) :: i, j, k, ii, jj, kk
   integer(kind=iwp), external :: isFreeUnit
 
   if (ipglob>3) write(u6,*) 'Begin get_dm0'

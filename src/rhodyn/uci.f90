@@ -13,7 +13,7 @@
 subroutine uci
   use rhodyn_data
   use rhodyn_utils, only: mult, dashes
-  use definitions, only: wp, u6
+  use definitions, only: wp, iwp, u6
   use stdalloc, only: mma_allocate, mma_deallocate
   use mh5, only: mh5_put_dset, mh5_create_dset_real, mh5_init_attr
   implicit none
@@ -27,6 +27,7 @@ subroutine uci
 !  UTU    : overlap matrix UTU=U_CI**T*U_CI for the spin-free states
 !
   real(kind=wp),dimension(:,:),allocatable :: UTU
+  integer(kind=iwp) :: i, j, k, l, ii, jj, kk, ll
 
   if (ipglob>2) then
     call dashes()

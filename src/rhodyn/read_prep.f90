@@ -16,7 +16,8 @@ subroutine read_prep()
   use rhodyn_utils, only: dashes
   use definitions, only: wp, u6
   use stdalloc, only: mma_allocate, mma_deallocate
-  use mh5
+  use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_exists_dset,&
+                 mh5_fetch_dset, mh5_put_dset, mh5_close_file
   implicit none
   real(kind=wp),allocatable,dimension(:,:,:) :: DIPR, DIPI
   real(kind=wp),dimension(:,:),allocatable :: tmpr, tmpi

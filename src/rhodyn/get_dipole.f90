@@ -16,10 +16,10 @@ subroutine get_dipole
 !
   use rhodyn_data
   use rhodyn_utils, only: transform, dashes
-  use definitions, only: u6
+  use definitions, only: iwp, u6
   use mh5, only: mh5_put_dset
-  use stdalloc, only: mma_allocate, mma_deallocate
   implicit none
+  integer(kind=iwp) :: i, j, k, l, ii, jj
 
   if (ipglob>2) then
     call dashes()

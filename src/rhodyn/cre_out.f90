@@ -22,14 +22,15 @@ subroutine cre_out
 !
 !***********************************************************************
   integer(kind=iwp), external :: isfreeunit
+  integer(kind=iwp) :: i
 
 ! write formats for output files SFDENS, SODENS, CSFDENS
   ! header formats
   write(out1_fmt,"(a,i5,a)") "(a22,",Nstate,"(i8,14x),a)"
   write(out1_fmt_csf,"(a,i5,a)") "(a22,",nconftot,"(i8,14x),a)"
   ! line formats
-  write(out_fmt, "(a,i5,a)") "(x,",Nstate+2,"(f22.16))"
-  write(out_fmt_csf, "(a,i5,a)") "(x,",nconftot+2,"(f22.16))"
+  write(out_fmt, "(a,i5,a)") "(1x,",Nstate+2,"(f22.16))"
+  write(out_fmt_csf, "(a,i5,a)") "(1x,",nconftot+2,"(f22.16))"
   out2_fmt='(2x,a,28x,a,28x,a,28x,a)'
   out3_fmt='(2x,f22.16,1x,f22.16,1x,f22.16,1x,i1,a1,i2.2,a1,i2.2)'
 
@@ -61,7 +62,7 @@ subroutine cre_out
     ! ascii file
     lu_csf=isfreeunit(lu_csf)
     call molcas_open (lu_csf,'CSFDEN')
-    write(lu_csf,out1_fmt_csf) '#time(fs)',(j,j=1,nconftot),'Norm'
+    write(lu_csf,out1_fmt_csf) '#time(fs)',(i,i=1,nconftot),'Norm'
   endif
 
 ! this set/file is for the diagonal of density matrix in SO basis
@@ -74,7 +75,7 @@ subroutine cre_out
     ! ascii file
     lu_so=isfreeunit(lu_so)
     call molcas_open (lu_so,'SODENS')
-    write(lu_so,out1_fmt) '#time(fs)',(j,j=1,Nstate),'Norm'
+    write(lu_so,out1_fmt) '#time(fs)',(i,i=1,Nstate),'Norm'
   endif
 
 ! this set/file is for the diagonal density matrix in SF basis
@@ -86,7 +87,7 @@ subroutine cre_out
     ! ascii file
     lu_sf=isfreeunit(lu_sf)
     call molcas_open (lu_sf,'SFDENS')
-    write(lu_sf,out1_fmt) '#time(fs)',(j,j=1,Nstate),'Norm'
+    write(lu_sf,out1_fmt) '#time(fs)',(i,i=1,Nstate),'Norm'
   endif
 
 ! TIME FOR DENSITY OUT

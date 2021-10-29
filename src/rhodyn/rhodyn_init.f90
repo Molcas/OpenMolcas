@@ -18,7 +18,7 @@ subroutine rhodyn_init()
 !
 !***********************************************************************
   use rhodyn_data
-  use stdalloc, only: mma_allocate, mma_deallocate
+  use stdalloc, only: mma_allocate
   use constants, only: auToFs, auToCm, auToeV
   implicit none
 
@@ -46,9 +46,9 @@ subroutine rhodyn_init()
   V             = 100d0/auToCm
   Nval          = 160
   N_L3          = 175
-  tau_L3        = 0.4d0/autoev
+  tau_L3        = 0.4d0/autoev ! Auger decay rate for Fe L3
   N_L2          = 585
-  tau_L2        = 1.04d0/autoev
+  tau_L2        = 1.04d0/autoev ! Auger decay rate for Fe L2
   flag_dyson    = .False.
   alpha         = 1d-3
   ion_diss      = 0d0

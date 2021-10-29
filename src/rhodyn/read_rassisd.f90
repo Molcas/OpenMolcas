@@ -17,7 +17,7 @@ subroutine read_rassisd
 !            hamiltonian from the MOLCAS output rassisd file (SO)
 !
 !***********************************************************************
-  use rhodyn_data, only: Nstate, lrootstot, ipglob, HSOCX, E_SO, i, &
+  use rhodyn_data, only: Nstate, lrootstot, ipglob, HSOCX, E_SO, &
                          SO_CI, runmode, V_SO, dipole, flag_so, &
                          flag_dyson, dysamp, E_SF
   use rhodyn_utils, only: dashes
@@ -30,6 +30,7 @@ subroutine read_rassisd
   real(kind=wp),dimension(:,:),allocatable :: tmpr, tmpi
   real(kind=wp),allocatable,dimension(:,:,:) :: DIPR, DIPI
   integer(kind=iwp):: fileid
+  integer(kind=iwp) :: i
 
   if (ipglob>3) then
     call dashes()
