@@ -32,8 +32,8 @@ subroutine equation (time,rhot,res)
   complex(kind=wp), dimension(:,:), intent(out):: res
   procedure(pulse_func) :: pulse
 
-! if pulse in enableb, modify hamiltonian at time t:
-  if (flag_pulse) call pulse(hamiltonian,hamiltoniant,time)
+! if pulse is enabled, modify hamiltonian at time t:
+  if (flag_pulse) call pulse(hamiltonian,hamiltoniant,time,-1)
 
 ! get right part of Liouville equation
   call zgemm_('N','N',d,d,d,-onei,hamiltoniant,d,rhot,d,zero,res,d)

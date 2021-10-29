@@ -125,7 +125,7 @@ subroutine kab
   close(lu) ! close HRFACT file
 
 ! change the unit to au
-  Freq=Freq/auToCm
+  Freq(:) = Freq/auToCm
 
   call dashes()
   write(u6,*)' End read data '

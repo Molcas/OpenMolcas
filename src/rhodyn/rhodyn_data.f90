@@ -88,7 +88,7 @@ module rhodyn_data
       complex(kind=wp), dimension(:,:), intent(in) :: h0
       complex(kind=wp), dimension(:,:), intent(out) ::ht
       real(kind=wp), intent(in) :: time
-      integer(kind=iwp), intent(in), optional :: count
+      integer(kind=iwp), intent(in) :: count
     end subroutine pulse_func
     subroutine equation_func(time,rho_t,res)
       import :: wp

@@ -103,7 +103,7 @@ subroutine propagate()
           call pulse(hamiltonian,hamiltoniant,time,kk)
           kk=kk+1
         else
-          call pulse(hamiltonian,hamiltoniant,time)
+          call pulse(hamiltonian,hamiltoniant,time,-1)
         endif
       else
         hamiltoniant(:,:) = hamiltonian

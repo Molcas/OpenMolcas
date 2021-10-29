@@ -12,10 +12,10 @@
 !***********************************************************************
 subroutine pulse(H0,Ht,time,count)
 !***********************************************************************
-!
 ! Purpose :  construct the time-dependent hamiltonian
-!                                       H_field=dipole*E_field
-!
+!                        Ht = H0 + dipole*E_field(time)
+!            argument 'count' is for storage of pulse
+!            if count=-1 then current value of pulse is not stored
 !***********************************************************************
   use rhodyn_data, only: zero, i, E_field, N_pulse, pulse_type,&
                          pulse_vec, pulse_vector, amp, taushift,&
@@ -30,7 +30,7 @@ subroutine pulse(H0,Ht,time,count)
   complex(kind=wp), dimension(:,:), intent(in) :: H0
   complex(kind=wp), dimension(:,:), intent(out) :: Ht
   real(kind=wp), intent(in)       :: time
-  integer(kind=iwp), intent(in), optional :: count
+  integer(kind=iwp), intent(in)   :: count
 
   E_field = zero
 
@@ -135,7 +135,7 @@ subroutine pulse(H0,Ht,time,count)
   enddo
 !
 ! saving pulse to files
-  if (present(count)) then
+  if (count>=0) then
     write(lu_pls,'(7(G25.15E3,2X))') time*auToFs, &
                   (dble(E_field(i)),aimag(E_field(i)), i=1,3)
     do i=1,3
