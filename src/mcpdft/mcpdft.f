@@ -739,7 +739,7 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
          End Do
       Call Put_iScalar('Number of roots',nroots)
       Call Put_dArray('Last energies',WORK(LRState),nroots)
-      Call Put_dScalar('Last energy',WORK(iRlxRoot-1))
+      Call Put_dScalar('Last energy',WORK(LRState+iRlxRoot-1))
          Write(6,*)
          CALL mma_allocate(VecStat,lRoots)
          Do Jroot=1,lRoots
@@ -807,9 +807,7 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
 *        Gradient part
          if(DoGradMSPD) then
           Call Put_iScalar('Number of roots',nroots)
-          Call Put_dArray('Last energies',Work(LRState),nroots)
           Call Put_cArray('Relax Method','MSPDFT  ',8)
-          Call Put_dScalar('Last energy',Work(LRState+iRlxRoot-1))
           Call Put_cArray('MCLR Root','****************',16)
           Call Put_iScalar('Relax CASSCF root',irlxroot)
          end if
