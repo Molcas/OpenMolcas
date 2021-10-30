@@ -73,8 +73,7 @@
       Real*8,DIMENSION(nDens2)::FOccMO
 ******Auxiliaries
       Real*8,DIMENSION(:),Allocatable::F,T,F_n
-      INTEGER I,J,ijb,iS,iB,jB
-      I=irlxroot
+      INTEGER ijb,iS,iB,jB
       CALL mma_allocate(F,nDens2)
       CALL mma_allocate(T,nDens2)
       CALL mma_allocate(F_n,nDens2)
@@ -120,12 +119,11 @@
 ******Input
 ******Auxiliaries
       Real*8,DIMENSION(:),Allocatable::T,FT99,bktmp
-      INTEGER I,J,IS,JS
+      INTEGER IS,JS
       CALL mma_allocate(FT99,nDens2)
       CALL mma_allocate(bktmp,nDens2)
       CALL mma_allocate(T,nDens2)
       CALL Get_DArray('FxyMS           ',FT99 ,nDens2)
-      I=irlxroot
       CALL dcopy_(nDens2,FT99,1,T,1)
       DO IS=1,nSym
          jS=iEOR(iS-1,0)+1

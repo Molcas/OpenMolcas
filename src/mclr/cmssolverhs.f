@@ -246,9 +246,8 @@ C      CALL RecPrt(' ',' ',zX,1,nDim)
       Real*8,DIMENSION(nG2)::G2q
       Real*8,DIMENSION(NPUVX)::PUVX
       INTEGER,DIMENSION(ntAsh,ntAsh,ntAsh,ntAsh)::IndTUVX
-      INTEGER I,J,K,L,IJKL,lMax,ij,kl
+      INTEGER I,J,K,L,IJKL,lMax
       Real*8 dQdX
-      iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 
       ijkl=0
       dQdX=0.0d0
