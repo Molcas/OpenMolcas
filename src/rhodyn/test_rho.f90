@@ -43,6 +43,6 @@ subroutine test_rho (densityt_time, time)
     enddo
   enddo
   if (abserror>=threshold) then
-    write(6,'(2(A,X,G28.16,X))')'time=',time*auToFs,'error=',abserror
+    write(6,'(2(a,1x,g28.16,1x))')'time=',time*auToFs,'error=',abserror
   endif
 end

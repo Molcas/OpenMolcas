@@ -249,7 +249,7 @@ subroutine read_input()
     call dashes()
     write(u6,*) '      N       DET      CSF     STATES     SPIN'
     do i=1,N
-      write(u6,'(5(i8,x))') i,ndet(i),nconf(i),lroots(i),ispin(i)
+      write(u6,'(5(i8,1x))') i,ndet(i),nconf(i),lroots(i),ispin(i)
     enddo
     call dashes()
     write(u6,scha) 'State basis to be populated:', trim(p_style)
