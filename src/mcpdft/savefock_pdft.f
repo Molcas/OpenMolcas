@@ -24,7 +24,6 @@
 * Ref2: Scott, et al. JCP,  2020, 153, 014106.
       Implicit Real*8 (A-H,O-Z)
       DIMENSION CMO(*)
-
 #include "rasdim.fh"
 #include "general.fh"
 #include "input_ras_mcpdft.fh"
@@ -42,6 +41,12 @@
 #include "rasscf_lucia.fh"
 #include "ksdft.fh"
 #include "mspdft.fh"
+!      Logical TraOnly
+
+#include "chotodo.fh"
+#include "chlcas.fh"
+
+
 
       INTEGER IFockI,IFockA,iD1Act,LP,NQ,LQ,LPUVX,ip2d,istate,LFock
 
