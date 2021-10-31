@@ -110,6 +110,7 @@ contains
   end subroutine multZ_2D
 
   subroutine removeLineAndColumnZ(a,remLCarray)
+    use stdalloc, only: mma_allocate, mma_deallocate
     complex(kind=wp), dimension(:,:), allocatable, intent(inout) :: a
     integer(kind=iwp), dimension(:), intent(in) :: remLCarray
   ! temp variables
@@ -120,7 +121,7 @@ contains
     n = size(a,1)
     m = size(a,2)
     k = size(remLCarray)
-    allocate(mask(n,m))
+    call mma_allocate(mask,n,m,label='mask')
   ! mask creation
     l = 0
     mask=.False.
@@ -132,18 +133,19 @@ contains
         endif
       enddo
     enddo
-    allocate(b(l))
+    call mma_allocate(b,l,label='b')
   ! copy remaining elements into temp b
     b(:) = pack(a,mask)
-    deallocate(a)
-    allocate(a(k,k))
+    call mma_deallocate(a)
+    call mma_allocate(a,k,k,label='a')
   ! copy back
     a(:,:) = reshape(b,(/k,k/))
-    deallocate(b)
-    deallocate(mask)
+    call mma_deallocate(b)
+    call mma_deallocate(mask)
   end subroutine removeLineAndColumnZ
 
   subroutine removeLineAndColumnR(a,remLCarray)
+    use stdalloc, only: mma_allocate, mma_deallocate
     real(kind=wp), dimension(:,:), allocatable, intent(inout) :: a
     integer(kind=iwp), dimension(:), intent(in) :: remLCarray
     ! temp variables
@@ -154,7 +156,7 @@ contains
     n = size(a,1)
     m = size(a,2)
     k = size(remLCarray)
-    allocate(mask(n,m))
+    call mma_allocate(mask,n,m,label='a')
     ! mask creation
     l = 0
     mask=.False.
@@ -166,18 +168,19 @@ contains
         endif
       enddo
     enddo
-    allocate(b(l))
+    call mma_allocate(b,l,label='b')
     ! copy remaining elements into temp b
     b(:) = pack(a,mask)
-    deallocate(a)
-    allocate(a(k,k))
+    call mma_deallocate(a)
+    call mma_allocate(a,k,k,label='a')
     ! copy back
     a(:,:) = reshape(b,(/k,k/))
-    deallocate(b)
-    deallocate(mask)
+    call mma_deallocate(b)
+    call mma_deallocate(mask)
   end subroutine removeLineAndColumnR
 
   subroutine removeColumnZ(a,remCarray)
+    use stdalloc, only: mma_allocate, mma_deallocate
     complex(kind=wp), dimension(:,:), allocatable, intent(inout) :: a
     integer(kind=iwp), dimension(:), intent(in) :: remCarray
     ! temp variables
@@ -188,7 +191,7 @@ contains
     n = size(a,1)
     m = size(a,2)
     k = size(remCarray)
-    allocate(mask(n,m))
+    call mma_allocate(mask,n,m,label='mask')
     ! mask creation
     l = 0
     mask=.False.
@@ -198,18 +201,19 @@ contains
         l = l + n
       endif
     enddo
-    allocate(b(l))
+    call mma_allocate(b,l,label='b')
     ! copy remaining elements into temp b
     b(:) = pack(a,mask)
-    deallocate(a)
-    allocate(a(n,k))
+    call mma_deallocate(a)
+    call mma_allocate(a,n,k,label='a')
     ! copy back
     a(:,:) = reshape(b,(/n,k/))
-    deallocate(b)
-    deallocate(mask)
+    call mma_deallocate(b)
+    call mma_deallocate(mask)
   end subroutine removeColumnZ
 
   subroutine removeColumnR(a,remCarray)
+    use stdalloc, only: mma_allocate, mma_deallocate
     real(kind=wp), dimension(:,:), allocatable, intent(inout) :: a
     integer(kind=iwp), dimension(:), intent(in) :: remCarray
     ! temp variables
@@ -220,7 +224,7 @@ contains
     n = size(a,1)
     m = size(a,2)
     k = size(remCarray)
-    allocate(mask(n,m))
+    call mma_allocate(mask,n,m,label='mask')
     ! mask creation
     l = 0
     mask=.False.
@@ -230,21 +234,22 @@ contains
         l = l + n
       endif
     enddo
-    allocate(b(l))
+    call mma_allocate(b,l,label='b')
     ! copy remaining elements into temp b
     b(:) = pack(a,mask)
-    deallocate(a)
-    allocate(a(n,k))
+    call mma_deallocate(a)
+    call mma_allocate(a,n,k,label='a')
     ! copy back
     a(:,:) = reshape(b,(/n,k/))
-    deallocate(b)
-    deallocate(mask)
+    call mma_deallocate(b)
+    call mma_deallocate(mask)
   end subroutine removeColumnR
 
   subroutine transformZ(a,u,b,order)
 !   perform orthogonal transformation with transformation matrix
 !   order = True (default): direct transform : b = u^C * a * u
 !   order = False       : inverse transform: b = u   * a * u^C
+    use stdalloc, only: mma_allocate, mma_deallocate
     complex(kind=wp), dimension(:,:), intent(in) :: a, u
     complex(kind=wp), dimension(:,:), intent(out) :: b
     complex(kind=wp), dimension(:,:), allocatable :: temp
@@ -260,22 +265,23 @@ contains
     n = size(u,2)
     if (order_) then
       ASSERT(m==size(a,1))
-      allocate(temp(n,m))
+      call mma_allocate(temp,n,m,label='temp')
       call multZ_2D(u,a,temp,.True.,.False.)
       call multZ_2D(temp,u,b,.False.,.False.)
     else
       ASSERT(n==size(a,1))
-      allocate(temp(m,n))
+      call mma_allocate(temp,m,n,label='temp')
       call multZ_2D(u,a,temp,.False.,.False.)
       call multZ_2D(temp,u,b,.False.,.True.)
     endif
-    deallocate(temp)
+    call mma_deallocate(temp)
   end subroutine transformZ
 
   subroutine transformR(a,u,b,order)
 !   perform orthogonal transformation with transformation matrix
 !   order = True (default): direct transform : b = u^T * a * u
 !   order = False       : inverse transform: b = u   * a * u^T
+    use stdalloc, only: mma_allocate, mma_deallocate
     real(kind=wp), dimension(:,:), intent(in) :: a, u
     real(kind=wp), dimension(:,:), intent(out) :: b
     real(kind=wp), dimension(:,:), allocatable :: temp
@@ -291,16 +297,16 @@ contains
     n = size(u,2)
     if (order_) then
       ASSERT(m==size(a,1))
-      allocate(temp(n,m))
+      call mma_allocate(temp,n,m,label='temp')
       call mult_2D(u,a,temp,.True.,.False.)
       call mult_2D(temp,u,b,.False.,.False.)
     else
       ASSERT(n==size(a,1))
-      allocate(temp(m,n))
+      call mma_allocate(temp,m,n,label='temp')
       call mult_2D(u,a,temp,.False.,.False.)
       call mult_2D(temp,u,b,.False.,.True.)
     endif
-    deallocate(temp)
+    call mma_deallocate(temp)
   end subroutine transformR
 
   subroutine sortci(N1,A,WR,C,print_level)

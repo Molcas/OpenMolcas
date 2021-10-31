@@ -111,7 +111,7 @@ module rhodyn_data
   complex(kind=wp),parameter:: zero = (0.0d0,0.0d0)    ,&
                                one  = (1.0d0,0.0d0)    ,&
                                onei = (0.0d0,1.0d0)
-  integer(kind=iwp) :: ireturn, ipglob, error, i_rasscf ,&
+  integer(kind=iwp) :: ipglob, error, i_rasscf ,&
                        runmode ,N, Nstate, d, n_freq,&
                        ndet_tot, nconftot, lrootstot    ,&
                        maxnum, maxnconf, maxlroots

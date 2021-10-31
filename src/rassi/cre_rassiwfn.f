@@ -273,17 +273,17 @@
             wfn_sos_vsor = mh5_create_dset_real(wfn_fileid,
      $         'V_SO_REAL',2,[NSS,NSS])
             call mh5_init_attr(wfn_sos_vsor,'description',
-     $          'real part of matrix V_SOC')
+     $          'real part of matrix V_SOC as [NSS,NSS]')
             wfn_sos_vsoi = mh5_create_dset_real(wfn_fileid,
      $         'V_SO_IMAG',2,[NSS,NSS])
             call mh5_init_attr(wfn_sos_vsoi,'description',
-     $          'imaginary part of matrix V_SOC')
+     $          'imaginary part of matrix V_SOC as [NSS,NSS]')
 * Dyson amplitudes
             if (DYSO) then
                   wfn_sos_dys = mh5_create_dset_real(wfn_fileid,
      $          'DYSAMP',2,[NSS,NSS])
                   call mh5_init_attr(wfn_sos_dys,'description',
-     $          'Dyson amplitudes matrix (not square!)')
+     $          'Dyson amplitudes matrix (not square!) as [NSS,NSS]')
             end if
       end if
 

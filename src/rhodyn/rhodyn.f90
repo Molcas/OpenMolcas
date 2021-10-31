@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2021, Vladislav Kochetov                               *
 !***********************************************************************
-subroutine rhodyn()
+subroutine rhodyn(ireturn)
 !***********************************************************************
 !     this routine performs the calls to other subroutines that
 !     collect all data needed for dynamics and the second part is
@@ -23,6 +23,7 @@ subroutine rhodyn()
   use stdalloc, only: mma_allocate, mma_deallocate
   use mh5, only: mh5_put_dset, mh5_close_file
   implicit none
+  integer(kind=iwp) :: ireturn
   integer(kind=iwp) :: lu !temporary io unit
   integer(kind=iwp) :: i, j, k
   integer(kind=iwp), external :: iPrintLevel, isFreeUnit

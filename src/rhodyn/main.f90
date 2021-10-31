@@ -7,16 +7,19 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
-!                                                                      *
-! Copyright (C) 2021, Vladislav Kochetov                               *
 !***********************************************************************
 program main
-  use rhodyn_data
+#ifdef _FPE_TRAP_
+  use, intrinsic :: IEEE_Exceptions
+#endif
   implicit none
-  character(len=8), parameter :: module_name = 'rhodyn'
+  integer :: ireturn
+  character(len=*), parameter :: module_name = 'rhodyn'
+#ifdef _FPE_TRAP_
+  call IEEE_Set_Halting_Mode(IEEE_Usual,.true._4)
+#endif
 
   call start(module_name)
-  call rhodyn()
-! is ireturn defined in rhodyn_data?
+  call rhodyn(ireturn)
   call finish(ireturn)
-end
+end program main
