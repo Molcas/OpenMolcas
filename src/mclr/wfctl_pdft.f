@@ -48,7 +48,7 @@
       Integer iRHSDisp(nDisp)
       Integer iCIDisp(nDisp),iCIsigDisp(nDisp)
       Integer opOut
-      Integer nacpar,nacpr2
+*      Integer nacpar,nacpr2
       Logical lPrint,converged(8)
       Real*8 rchc(mxroot)
       Real*8 rDum(1)

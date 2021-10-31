@@ -351,6 +351,20 @@ c mess started here :)
          Reclab(192)='ESO_LOW         '
          Reclab(193)='SFS_HAM         '
          Reclab(194)='SFS_OVLP        '
+*Arrays 195-207 for computing MS-PDFT gradient
+         RecLab(195)='FocMS           '
+         RecLab(196)='MSPDFTD5        '
+         RecLab(197)='MSPDFTD6        '
+         RecLab(198)='TwoEIntegral    '
+         RecLab(199)='D1MOt           '
+         RecLab(200)='D1INTER         '
+         RecLab(201)='P2INTER         '
+         RecLab(202)='D1AO_MS         '
+         RecLab(203)='D1SAO_MS        '
+         RecLab(204)='MS_FINAL_ROT    '
+         RecLab(205)='F1MS            '
+         RecLab(206)='F2MS            '
+         RecLab(207)='FxyMS           '
 *                     1234567890123456
 *
 *        If you go beyond 256: update pg_da_info.fh and this line!

@@ -99,5 +99,4 @@
      &           NRS3_I(8),NDEL_I(8),ISPIN_I,LSYM_I,
      &           NACTEL_I,NHOLE_I,NELEC_I,NChrg_I,NROOTS_I,
      &           LROOTS_I,IRLXROOT_I
-      Common /InputReal_M/ cCI_I(mxRoot,mxRef),WEIGHT_I(mxRoot)
 

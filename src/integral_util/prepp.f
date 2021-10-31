@@ -35,6 +35,7 @@
 #include "nsd.fh"
 #include "dmrginfo_mclr.fh"
 #include "nac.fh"
+#include "mspdft.fh"
 *#define _CD_TIMING_
 #ifdef _CD_TIMING_
 #include "temptime.fh"
@@ -87,6 +88,7 @@
       mCMo = S%n2Tot
       If (Method.eq. 'KS-DFT  ' .or.
      &    Method.eq. 'MCPDFT  ' .or.
+     &    Method.eq. 'MSPDFT  ' .or.
      &    Method.eq. 'CASDFT  ' ) Then
          Call Get_iScalar('Multiplicity',iSpin)
          Call Get_cArray('DFT functional',KSDFT,16)
@@ -195,6 +197,7 @@
      &          Method.eq.'CASSCF  ' .or.
      &          Method.eq.'GASSCF  ' .or.
      &          Method.eq.'MCPDFT  ' .or.
+     &          Method.eq.'MSPDFT  ' .or.
      &          Method.eq.'DMRGSCF ' .or.
      &          Method.eq.'CASDFT  ') then
 *
@@ -213,9 +216,15 @@
             Write (6,'(2A)') ' Wavefunction type: ', Method
             If (Method.eq.'CASDFT  ' .or. Method.eq.'MCPDFT  ')
      &         Write (6,'(2A)') ' Functional type:   ',KSDFT
+            If (Method.eq.'MSPDFT  ')
+     &         Write (6,'(2A)') ' MS-PDFT Functional type:   ',KSDFT
             Write (6,*)
          End If
          If (method.eq.'MCPDFT  ') lSA=.true.
+         If (method.eq.'MSPDFT  ') then
+          lSA=.true.
+          dogradmspd=.true.
+         End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -259,8 +268,9 @@
 *...  Read the (non) variational 1st order density matrix
 *...  density matrix in AO/SO basis
          nsa=1
-         If (lsa) nsa=4
-         If ( Method.eq.'MCPDFT  ') nsa=4
+         If (lsa) nsa=5
+         If ( Method.eq.'MCPDFT  ') nsa=5
+         If ( Method.eq.'MSPDFT  ') nsa=5
 !AMS modification: add a fifth density slot
          mDens=nsa+1
          Call mma_allocate(D0,nDens,mDens,Label='D0')
@@ -394,7 +404,7 @@
          mG2=nsa
          Call mma_allocate(G2,nG2,mG2,Label='G2')
 !       write(*,*) 'got the 2rdm, Ithink.'
-         if(Method.eq.'MCPDFT  ') then
+         if(Method.eq.'MCPDFT  '.or.Method.eq.'MSPDFT  ') then
            Call Get_P2MOt(G2,nG2)!PDFT-modified 2-RDM
          else
            Call Get_P2MO(G2,nG2)
@@ -518,6 +528,10 @@
             call daxpy_(ndens,0.5d0,D0(1,1),1,D0(1,5),1)
             call daxpy_(ndens,1.0d0,D1ao,1,D0(1,5),1)
             Call mma_deallocate(D1ao)
+          else If (Method.eq.'MSPDFT  ') Then
+            Call Get_DArray('MSPDFTD5        ',D0(1,5),nDens)
+            Call Get_DArray('MSPDFTD6        ',D0(1,6),nDens)
+            call daxpy_(ndens,-1.0d0,D0(1,5),1,D0(1,2),1)
           end if
 
 !          call dcopy_(ndens*5,0.0d0,0,D0,1)
