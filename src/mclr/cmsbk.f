@@ -78,6 +78,8 @@
       CALL mma_allocate(T,nDens2)
       CALL mma_allocate(F_n,nDens2)
 
+      CALL FZero(F,nDens2)
+      CALL FZero(F_n,nDens2)
       CALL Get_Fock_Occ(F,nTri)
 ***** WF Part
       CALL DCopy_(nDens2,FOccMO,1,T,1)
