@@ -1282,13 +1282,13 @@ Keywords
               </KEYWORD>
 
 :kword:`RHODyn`
-  Required to run :program:`RHODYN` program. Enable saving pure spin-orbit coupling Hamiltonian and SO Dyson amplitudes (not squared!) to hdf5 file of :program:`RASSI`.
+  Required to run :program:`RHODYN` program. Enable saving pure spin--orbit coupling Hamiltonian and SO Dyson amplitudes (not squared!) to HDF5 file of :program:`RASSI`.
   Keywords :kword:`SPINorbit`, :kword:`MESO`, :kword:`XVES`, :kword:`XVSO`, :kword:`DYSOn` are required to print corresponding properties.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="RHOD" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: RHODyn <advanced>
               <HELP>
-              Enables saving :math:`V_{SOC}` and Dyson amplitudes to hdf5.
+              Enables saving V_SOC and Dyson amplitudes to HDF5.
               </HELP>
               </KEYWORD>
 

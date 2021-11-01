@@ -2512,9 +2512,6 @@ if (HDF5 AND HDF5_FOUND)
       list (APPEND ${util}_deps qcmaquis-hdf5-interface)
     endforeach ()
   endif ()
-else ()
-  message ("RHODYN program requires HDF5 interface, disabled")
-  list (REMOVE_ITEM progs rhodyn)
 endif ()
 
 if (NEVPT2)
@@ -2614,6 +2611,7 @@ if (HDF5 AND HDF5_FOUND)
     poly_aniso
     rasscf
     rassi
+    rhodyn
     scf
     single_aniso
     slapaf
@@ -2630,6 +2628,9 @@ if (HDF5 AND HDF5_FOUND)
       list (APPEND ${prog}_deplibs qcmaquis-hdf5-interface)
     endforeach ()
   endif ()
+else ()
+  message (WARNING "RHODYN program requires HDF5 interface, disabled")
+  list (REMOVE_ITEM progs rhodyn)
 endif ()
 
 # Libraries that require QCMaquis-OpenMolcas interface
