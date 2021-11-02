@@ -238,7 +238,7 @@ C Addition of ANGMOM to Runfile.
          ENDIF
 c add dipole moment integrals:
          IF(PNAME(IPROP).EQ.'MLTPL  1'.AND.
-     &      SOPRTP(IPROP).EQ.'HERMSING') THEN
+     &      PTYPE(IPROP).EQ.'HERMSING') THEN
             IFDIP1=.TRUE.
             DO I=1,NSTATE
                DO J=1,NSTATE

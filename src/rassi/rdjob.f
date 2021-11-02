@@ -55,7 +55,7 @@
 #endif
 
       Real*8 Weight(MxRoot), ENUCDUMMY, AEMAX, E, HIJ
-      Integer IAD, IAD15, IDISK, IERR
+      Integer IAD, IAD15, IDISK, IERR, IDUM(1)
       Integer IPT2
       Integer ISY, IT
       Integer I, J, ISTATE, JSTATE, ISNUM, JSNUM, iAdr
@@ -110,7 +110,7 @@
       call mh5_fetch_attr (refwfn_id,'NELEC3', ref_nelec3)
       call mh5_fetch_attr (refwfn_id,'NCONF',  ref_nconf)
       call mh5_fetch_attr (refwfn_id,'NSTATES', ref_nstates)
-      If (mh5_exists_dset(refwfn_id, 'NROOTS')) Then
+      If (mh5_exists_attr(refwfn_id, 'NROOTS')) Then
         call mh5_fetch_attr (refwfn_id,'NROOTS', ref_nroots)
       Else
         ref_nroots = ref_nstates
@@ -143,7 +143,7 @@
         Call AbEnd()
       End If
 
-      call mh5_fetch_attr (refwfn_id,'L2ACT', L2ACT)
+*     call mh5_fetch_attr (refwfn_id,'L2ACT', L2ACT)
       call mh5_fetch_attr (refwfn_id,'A2LEV', LEVEL)
 
       call mma_allocate(ref_rootid,ref_nstates)
@@ -152,7 +152,7 @@
       If (mh5_exists_attr(refwfn_id, 'ROOT2STATE')) Then
          call mh5_fetch_attr (refwfn_id,'ROOT2STATE', root2state)
       Else
-        Do i=1,ref_nstates
+        Do i=1,ref_nroots
           root2state(i)=i
         End Do
       End if
@@ -526,7 +526,7 @@ C If both EJOB and HEFF are given, read only the diagonal
       END IF
 C Read the level to orbital translations
       IDISK=ITOC15(18)
-      CALL IDAFILE(LUIPH,2,L2ACT,MXLEV,IDISK)
+      CALL IDAFILE(LUIPH,0,IDUM,MXLEV,IDISK) ! L2ACT
       CALL IDAFILE(LUIPH,2,LEVEL,MXLEV,IDISK)
 C Close JobIph file
       CALL DACLOS(LUIPH)
