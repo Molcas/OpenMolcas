@@ -14,8 +14,10 @@ subroutine Tra2c(i,iSym,iBas,iAsh,j,jSym,jBas,jAsh,kl_Bas_pairs,ij_Orb_pairs,CMO
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: i, iSym, iBas, iAsh, j, jSym, jBas, jAsh, kl_Bas_pairs, ij_Orb_pairs
-real(kind=wp) :: CMO_i(iBas,iAsh), CMO_j(jBas,jAsh), IJKL(kl_Bas_pairs), C(ij_Orb_pairs), TUKL(kl_Bas_pairs,ij_Orb_pairs)
+integer(kind=iwp), intent(in) :: i, iSym, iBas, iAsh, j, jSym, jBas, jAsh, kl_Bas_pairs, ij_Orb_pairs
+real(kind=wp), intent(in) :: CMO_i(iBas,iAsh), CMO_j(jBas,jAsh), IJKL(kl_Bas_pairs)
+real(kind=wp), intent(out) :: C(ij_Orb_pairs)
+real(kind=wp), intent(inout) :: TUKL(kl_Bas_pairs,ij_Orb_pairs)
 integer(kind=iwp) :: iA, ijA, jA
 
 !call RecPrt('IJKL',' ',IJKL,1,kl_Bas_Pairs)

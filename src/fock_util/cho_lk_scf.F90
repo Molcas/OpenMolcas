@@ -44,9 +44,11 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-integer(kind=iwp) :: rc, nDen, nForb(8,nDen), nIorb(8,nDen), nScreen
-type(DSBA_Type) :: FLT(nDen), KLT(nDen), Porb(nDen), PLT(nDen)
-real(kind=wp) :: FactXI, dmpk, dFmat
+integer(kind=iwp), intent(out) :: rc
+integer(kind=iwp), intent(in) :: nDen, nForb(8,nDen), nIorb(8,nDen), nScreen
+type(DSBA_Type), intent(inout) :: FLT(nDen), KLT(nDen)
+type(DSBA_Type), intent(in) :: Porb(nDen), PLT(nDen)
+real(kind=wp), intent(in) :: FactXI, dmpk, dFmat
 #include "chotime.fh"
 #include "choscreen.fh"
 #include "cholesky.fh"
@@ -65,7 +67,7 @@ logical(kind=iwp) :: add, DoScreen
 logical(kind=iwp) :: Debug
 #endif
 character(len=50) :: CFmt
-character(len=6) :: mode
+character :: mode, mode2
 type(NDSBA_type) :: DiaH
 type(L_Full_Type) :: L_Full
 type(Lab_Type) :: Lab
@@ -81,8 +83,8 @@ character(len=*), parameter :: SECNAM = 'CHO_LK_SCF'
 integer(kind=iwp), external :: Cho_LK_MaxVecPerBatch
 real(kind=wp), external :: Cho_LK_ScreeningThreshold
 real(kind=r8), external :: ddot_
-!***********************************************************************
 
+!***********************************************************************
 #ifdef _DEBUGPRINT_
 Debug = .false. ! to avoid double printing in SCF-debug
 #endif
@@ -395,10 +397,9 @@ do jSym=1,nSym
 
       if (JSYM == 1) then
         ! Transform the density to reduced storage
-        mode = 'toreds'
         add = .false.
         nMat = 1
-        call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,PLT,Drs,mode,add)
+        call swap_full2rs(irc,iLoc,nRS,nMat,JSYM,PLT,Drs,add)
       end if
 
       ! BATCH over the vectors ----------------------------
@@ -554,7 +555,7 @@ do jSym=1,nSym
                   !-----------------------------------------------------------
                   ! Y(l)[k] = sum_n  DH(l,n) * |C(n)[k]|
                   !===========================================================
-                  Mode(1:1) = 'N'
+                  Mode = 'N'
                   n1 = nBas(lSym)
                   n2 = nBas(kSym)
 
@@ -562,13 +563,13 @@ do jSym=1,nSym
                   !-----------------------------------------------------------
                   ! Y(l)[k] = sum_n  DH(n,l) * |C(n)[k]|
                   !===========================================================
-                  Mode(1:1) = 'T'
+                  Mode = 'T'
                   n1 = nBas(kSym)
                   n2 = nBas(lSym)
 
                 end if
 
-                if (n1 > 0) call DGEMV_(Mode(1:1),n1,n2,ONE,DiaH%SB(lSym,kSym)%A2,n1,AbsC,1,ZERO,Ylk(1,jK_a),1)
+                if (n1 > 0) call DGEMV_(Mode,n1,n2,ONE,DiaH%SB(lSym,kSym)%A2,n1,AbsC,1,ZERO,Ylk(1,jK_a),1)
 
                 ! List the shells present in Y(l)[k] by the largest element
                 do ish=1,nShell
@@ -671,12 +672,12 @@ do jSym=1,nSym
 
                       ! LaJ,[k] = sum_b  L(aJ,b) * C(b)[k]
                       ! ----------------------------------
-                      Mode(1:1) = 'N'
+                      Mode = 'N'
                       n1 = nBasSh(lSym,iaSh)*JNUM
                       n2 = nBasSh(kSym,ibSh)
 
-                      call DGEMV_(Mode(1:1),n1,n2,ONE,L_Full%SPB(lSym,iShp_rs(iShp),i1)%A21,n1, &
-                                  POrb(jDen)%SB(kSym)%A2(iOffShb+1:,jK),1,ONE,Lab%SB(iaSh,lSym,1)%A,1)
+                      call DGEMV_(Mode,n1,n2,ONE,L_Full%SPB(lSym,iShp_rs(iShp),i1)%A21,n1,POrb(jDen)%SB(kSym)%A2(iOffShb+1:,jK),1, &
+                                  ONE,Lab%SB(iaSh,lSym,1)%A,1)
 
                     else ! lSym < kSym
 
@@ -685,12 +686,12 @@ do jSym=1,nSym
 
                       ! LJa,[k] = sum_b  L(b,Ja) * C(b)[k]
                       ! ----------------------------------
-                      Mode(1:1) = 'T'
+                      Mode = 'T'
                       n1 = nBasSh(kSym,ibSh)
                       n2 = JNUM*nBasSh(lSym,iaSh)
 
-                      call DGEMV_(Mode(1:1),n1,n2,ONE,L_Full%SPB(kSym,iShp_rs(iShp),i1)%A12,n1, &
-                                  POrb(jDen)%SB(kSym)%A2(iOffShb+1:,jK),1,ONE,Lab%SB(iaSh,lSym,1)%A,1)
+                      call DGEMV_(Mode,n1,n2,ONE,L_Full%SPB(kSym,iShp_rs(iShp),i1)%A12,n1,POrb(jDen)%SB(kSym)%A2(iOffShb+1:,jK),1, &
+                                  ONE,Lab%SB(iaSh,lSym,1)%A,1)
 
                     end if
 
@@ -787,8 +788,8 @@ do jSym=1,nSym
 
                       ! F(a,b)[k] = F(a,b)[k] - FactXI * sum_J  L(a,J)[k] * L(b,J)[k]
                       ! --------------------------------------------------------------
-                      Mode(1:1) = 'N'
-                      Mode(2:2) = 'T'
+                      Mode = 'N'
+                      Mode2 = 'T'
                       n1 = nBasSh(lSym,iaSh)
                       nBs = nBasSh(lSym,iaSh)
 
@@ -796,14 +797,14 @@ do jSym=1,nSym
 
                       ! F(a,b)[k] = F(a,b)[k] - FactXI * sum_J  L(J,a)[k] * L(J,b)[k]
                       ! --------------------------------------------------------------
-                      Mode(1:1) = 'T'
-                      Mode(2:2) = 'N'
+                      Mode = 'T'
+                      Mode2 = 'N'
                       n1 = JNUM
                       nBs = nBasSh(lSym,iaSh)
 
                     end if
 
-                    call DGEMM_Tri(Mode(1:1),Mode(2:2),nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,-FActXI,Lab%SB(iaSh,lSym,1)%A,n1, &
+                    call DGEMM_Tri(Mode,Mode2,nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,-FActXI,Lab%SB(iaSh,lSym,1)%A,n1, &
                                    Lab%SB(ibSh,lSym,1)%A,n1,ONE,KLT(jDen)%SB(lSym)%A1(iOffAB+1:),nBs)
 
                   else if ((iaSh > ibSh) .and. (xFab >= tau(jDen)/MaxRedT) .and. (iaSkip*ibSkip == 1)) then
@@ -812,8 +813,8 @@ do jSym=1,nSym
 
                       ! F(a,b)[k] = F(a,b)[k] - FactXI * sum_J  L(a,J)[k] * L(b,J)[k]
                       ! --------------------------------------------------------------
-                      Mode(1:1) = 'N'
-                      Mode(2:2) = 'T'
+                      Mode = 'N'
+                      Mode2 = 'T'
                       nBs = nBasSh(lSym,iaSh)
                       n1 = nBasSh(lSym,iaSh)
                       n2 = nBasSh(lSym,ibSh)
@@ -822,15 +823,15 @@ do jSym=1,nSym
 
                       ! F(a,b)[k] = F(a,b)[k] - FactXI * sum_J  L(J,a)[k] * L(J,b)[k]
                       ! --------------------------------------------------------------
-                      Mode(1:1) = 'T'
-                      Mode(2:2) = 'N'
+                      Mode = 'T'
+                      Mode2 = 'N'
                       n1 = JNUM
                       n2 = JNUM
                       nBs = nBasSh(lSym,iaSh)
 
                     end if
 
-                    call DGEMM_(Mode(1:1),Mode(2:2),nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,-FactXI,Lab%SB(iaSh,lSym,1)%A,n1, &
+                    call DGEMM_(Mode,Mode2,nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,-FactXI,Lab%SB(iaSh,lSym,1)%A,n1, &
                                 Lab%SB(ibSh,lSym,1)%A,n2,ONE,KLT(jDen)%SB(lSym)%A1(iOffAB+1:),nBs)
 
                   end if
@@ -916,11 +917,10 @@ do jSym=1,nSym
 
       if (JSYM == 1) then
         ! backtransform fock matrix to full storage
-        mode = 'tofull'
         add = .true.
         nMat = 1
         do jDen=1,nDen
-          call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,[FLT(jDen)],Frs,mode,add)
+          call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,FLT(jDen),Frs,add)
         end do
       end if
 

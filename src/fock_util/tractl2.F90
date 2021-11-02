@@ -23,10 +23,14 @@ use Para_Info, only: Is_Real_Par, nProcs
 #endif
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: CMO(*), PUVX(*), TUVX(*), D1I(*), FI(*), D1A(*), FA(*), ExFac
-integer(kind=iwp) :: IPR
-logical(kind=iwp) :: lSquare
+real(kind=wp), intent(in) :: CMO(*), D1I(*), D1A(*), ExFac
+real(kind=wp), intent(inout) :: PUVX(*), FI(*), FA(*)
+real(kind=wp), intent(_OUT_) :: TUVX(*)
+integer(kind=iwp), intent(in) :: IPR
+logical(kind=iwp), intent(in) :: lSquare
 #include "rasdim.fh"
 #include "general.fh"
 #include "wadr.fh"

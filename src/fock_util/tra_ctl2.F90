@@ -34,10 +34,15 @@ use Symmetry_Info, only: MulD2h => Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: CMO(*), PUVX(*), TUVX(*), D1I(*), FI(*), D1A(*), FA(*), ExFac
-integer(kind=iwp) :: IPR
-logical(kind=iwp) :: lSquare
+real(kind=wp), intent(in) :: CMO(*), D1I(*), D1A(*), ExFac
+real(kind=wp), intent(inout) :: PUVX(*)
+real(kind=wp), intent(_OUT_) :: TUVX(*)
+real(kind=wp), intent(out) :: FI(*), FA(*)
+integer(kind=iwp), intent(in) :: IPR
+logical(kind=iwp), intent(in) :: lSquare
 #include "rasdim.fh"
 #include "general.fh"
 integer(kind=iwp) :: iAsh, iBas, iDisk, iFro, iIsh, ij_Bas_pairs, ij_Orb_pairs, ijSym, iOff, iOrb, iStack, iSym, jAsh, jBas, jFro, &
@@ -89,8 +94,8 @@ end do
 nPUVX = iStack
 
 ! Init Fock matrices
-call dCopy_(nTot1,[Zero],0,FI,1)
-call dCopy_(nTot1,[Zero],0,FA,1)
+FI(1:nTot1) = Zero
+FA(1:nTot1) = Zero
 
 ! start transformation section
 

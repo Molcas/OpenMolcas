@@ -28,21 +28,21 @@ subroutine FMMFck(Dens,TwoHam,ndim)
 !***********************************************************************
 
 use Definitions, only: wp, iwp
+#define _NOT_ACTIVE_
 #ifdef _NOT_ACTIVE_
+use Index_Functions, only: nTri_Elem1
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: ndim
-real(kind=wp) :: Dens(ndim), TwoHam(ndim)
+integer(kind=iwp), intent(in) :: ndim
+real(kind=wp), intent(in) :: Dens(ndim), TwoHam(ndim)
 #ifdef _NOT_ACTIVE_
-! Define local variables
-!#include "mxdm.fh"
 integer(kind=iwp), parameter :: LMAX = 12
 integer(kind=iwp) :: f_iostat, I, iComp, ij, iM, iOpt, iRc, iSyLbl, iSym, J, L, lDens, M, nBas(8), nBasTot, nSym
-real(kind=wp) :: CarMoms(ndim,(LMAX+1)*(LMAX+2)/2,LMAX+1), CntrX(ndim+4), CntrY(ndim+4), CntrZ(ndim+4), Moms_batch(ndim+4), &
-                 SphMoms(ndim,2*LMAX+1,LMAX+1)
+real(kind=wp), allocatable :: CarMoms(:,:,:), CntrX(:), CntrY(:), CntrZ(:), Moms_batch(:), SphMoms(:,:,:)
 character(len=8) :: Label
 logical(kind=iwp) :: is_error
 
@@ -61,10 +61,12 @@ if (lDens /= ndim) then
   call Abend()
 end if
 
-!call dcopy_(ndim,Zero,0,Moments,1)
-!call dcopy_(ndim,Zero,0,CntrX,1)
-!call dcopy_(ndim,Zero,0,CntrY,1)
-!call dcopy_(ndim,Zero,0,CntrZ,1)
+call mma_allocate(CntrX,ndim+4,label='CntrX')
+call mma_allocate(CntrY,ndim+4,label='CntrY')
+call mma_allocate(CntrZ,ndim+4,label='CntrZ')
+!CntrX(:) = Zero
+!CntrY(:) = Zero
+!CntrZ(:) = Zero
 
 ! Read centres
 
@@ -96,6 +98,8 @@ end if
 
 ! Read moments from one-electron files
 
+call mma_allocate(CarMoms,ndim,nTri_Elem1(LMAX),LMAX+1,label='CarMoms')
+call mma_allocate(Moms_batch,ndim+4,label='Moms_batch')
 do L=0,LMAX
   do iComp=1,(L+1)*(L+2)/2
     iRc = -1
@@ -113,10 +117,13 @@ do L=0,LMAX
     end do
   end do
 end do
+call mma_deallocate(Moms_batch)
 
 ! Transform cartesian to spherical components
 
+call mma_allocate(SphMoms,ndim,2*LMAX+1,LMAX+1,label='SphMoms')
 !call fmm_call_car_to_sph(CarMoms,SphMoms,ndim,LMAX)
+call mma_deallocate(CarMoms)
 
 ! Write to FMM interface file
 
@@ -141,6 +148,11 @@ do J=1,nBasTot
     end do
   end do
 end do
+
+call mma_deallocate(CntrX)
+call mma_deallocate(CntrY)
+call mma_deallocate(CntrZ)
+call mma_deallocate(SphMoms)
 
 ! Mark end of file with negative angular momentum
 write(98)-1,0,0,0,0,Zero,Zero,Zero,Zero,Zero

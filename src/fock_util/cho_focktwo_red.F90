@@ -70,11 +70,13 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: rc, nBas(*), nDen, MinMem(*)
-logical(kind=iwp) :: DoCoulomb(nDen), DoExchange(nDen)
-real(kind=wp) :: FactC(nDen), FactX(nDen)
-type(DSBA_Type) :: DLT(nDen), DSQ(nDen), FLT(nDen), FSQ(nDen)
-type(Integer_Pointer) :: pNocc(nDen)
+integer(kind=iwp), intent(inout) :: rc
+integer(kind=iwp), intent(in) :: nBas(*), nDen, MinMem(*)
+logical(kind=iwp), intent(in) :: DoCoulomb(nDen), DoExchange(nDen)
+real(kind=wp), intent(in) :: FactC(nDen), FactX(nDen)
+type(DSBA_Type), intent(in) :: DLT(nDen), DSQ(nDen)
+type(DSBA_Type), intent(inout) :: FLT(nDen), FSQ(nDen)
+type(Integer_Pointer), intent(in) :: pNocc(nDen)
 #include "chotime.fh"
 #include "cholesky.fh"
 integer(kind=iwp) :: iBatch, iE, irc, IREDC, iS, iSkip(8), iSwap, iSym, ISYMA, ISYMB, ISYMD, ISYMG, iSymp, iSymq, iSymr, &
@@ -92,8 +94,8 @@ real(kind=wp), pointer :: LrJs(:,:,:) => null(), Scr(:) => null(), VJ(:) => null
                           XpJs(:,:,:) => null()
 logical(kind=iwp), parameter :: DoRead = .true.
 character(len=*), parameter :: SECNAM = 'CHO_FOCKTWO_RED'
-!*************************************************
 
+!*************************************************
 #ifdef _DEBUGPRINT_
 Debug = .false. ! to avoid double printing in SCF-debug
 #endif

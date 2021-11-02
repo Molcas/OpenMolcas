@@ -17,17 +17,20 @@ use Data_Structures, only: SBA_Type, twxy_type
 use Constants, only: One
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: irc, nAorb(*), JSYM, NUMV
-type(twxy_type) :: Scr
-type(SBA_Type) :: ChoV
-real(kind=wp) :: TUVX(*)
-logical(kind=iwp) :: DoReord
+integer(kind=iwp), intent(inout) :: irc
+integer(kind=iwp), intent(in) :: nAorb(*), JSYM, NUMV
+type(twxy_type), intent(inout) :: Scr
+type(SBA_Type), intent(in) :: ChoV
+real(kind=wp), intent(_OUT_) :: TUVX(*)
+logical(kind=iwp), intent(in) :: DoReord
 #include "cholesky.fh"
 integer(kind=iwp) :: iAorb(8), iRes, iSym, iSymt, iSymw, iSymx, iSymy, it, itG, itw, itwG, iw, iwG, ix, ixG, ixy, ixyG, iy, iyG, &
                      nTA, Ntw, Nxy
-! ************************************************
 
+! ************************************************
 if (NumV < 1) return
 
 ! Computing the integrals (TT|TT),(TW,TW) and (TW|XY)

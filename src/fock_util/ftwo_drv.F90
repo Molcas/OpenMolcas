@@ -18,24 +18,25 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nSym, nBas(8), nAsh(8), nSkipX(8), nTot1, nBMX
-real(kind=wp) :: DI(*), D1A(*), FA(*), CMO(*), ExFac
+integer(kind=iwp), intent(in) :: nSym, nBas(8), nAsh(8), nSkipX(8), nTot1, nBMX
+real(kind=wp), intent(in) :: DI(*), D1A(*), CMO(*), ExFac
+real(kind=wp), intent(inout) :: FA(*)
 #include "choras.fh"
 logical(kind=iwp) :: DoCholesky
-type(DSBA_Type) :: WFSQ
+type(DSBA_Type) :: WFSQ(1)
 real(kind=wp), allocatable :: Temp(:)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-
 call DecideOncholesky(DoCholesky)
 
 if (DoCholesky .and. (ALGO == 2)) then
 
   ! Building of the Fock matrix directly from Cholesky vectors
 
-  call Allocate_DSBA(WFSQ,nBas,nBas,nSym)
-  WFSQ%A0(:) = Zero
+  call Allocate_DSBA(WFSQ(1),nBas,nBas,nSym)
+  WFSQ(1)%A0(:) = Zero
 
   call mma_allocate(Temp,nTot1,Label='nTot1')
   Temp(:) = Zero
@@ -45,7 +46,7 @@ if (DoCholesky .and. (ALGO == 2)) then
   FA(1:nTot1) = FA(1:nTot1)+Temp(1:nTot1)
 
   call mma_deallocate(Temp)
-  call Deallocate_DSBA(WFSQ)
+  call Deallocate_DSBA(WFSQ(1))
 
 else
 

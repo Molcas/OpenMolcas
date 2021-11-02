@@ -39,9 +39,12 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-type(DSBA_Type) :: DLT, MO1(2), MO2(2), FLT, FSQ
-real(kind=wp) :: TUVX(*)
+type(DSBA_Type), intent(in) :: DLT, MO1(2), MO2(2)
+type(DSBA_Type), intent(inout) :: FLT(1), FSQ
+real(kind=wp), intent(_OUT_) :: TUVX(*)
 #include "chotime.fh"
 #include "cho_jobs.fh"
 #include "rassi.fh"
@@ -58,7 +61,6 @@ logical(kind=iwp) :: add, DoReord
 logical(kind=iwp) :: Debug
 #endif
 character(len=50) :: CFmt
-character(len=6) :: mode
 type(SBA_Type), target :: Laq(2)
 type(twxy_Type) :: Scr
 real(kind=wp), allocatable :: Drs(:), Frs(:), Lrs(:,:)
@@ -66,8 +68,8 @@ real(kind=wp), pointer :: VJ(:) => null()
 real(kind=wp), parameter :: FactCI = One, FactXI = -One
 character(len=*), parameter :: SECNAM = 'CHO_FOCK_RASSI_X'
 logical(kind=iwp), parameter :: DoRead = .false.
-!*************************************************
 
+!*************************************************
 #ifdef _DEBUGPRINT_
 Debug = .false. ! to avoid double printing in CASSCF-debug
 #endif
@@ -165,10 +167,9 @@ do jSym=1,nSym
 
     if (JSYM == 1) then
       ! Transform the density to reduced storage
-      mode = 'toreds'
       add = .false.
       mDen = 1
-      call swap_rs2full(irc,iLoc,nRS,mDen,JSYM,[DLT],Drs,mode,add)
+      call swap_full2rs(irc,iLoc,nRS,mDen,JSYM,[DLT],Drs,add)
     end if
 
     ! BATCH over the vectors ----------------------------
@@ -374,10 +375,9 @@ do jSym=1,nSym
 
     if (JSYM == 1) then
       ! backtransform fock matrix to full storage
-      mode = 'tofull'
       add = .true.
       mDen = 1
-      call swap_rs2full(irc,iLoc,nRS,mDen,JSYM,[FLT],Frs,mode,add)
+      call swap_rs2full(irc,iLoc,nRS,mDen,JSYM,FLT,Frs,add)
     end if
 
     ! free memory
@@ -400,11 +400,11 @@ do iSym=1,nSym
   do ia=1,nBas(iSym)
     do ib=1,ia-1
       iabt = ia*(ia-1)/2+ib
-      FSQ%SB(iSym)%A2(ib,ia) = FSQ%SB(iSym)%A2(ib,ia)+FLT%SB(iSym)%A1(iabt)
-      FSQ%SB(iSym)%A2(ia,ib) = FSQ%SB(iSym)%A2(ia,ib)+FLT%SB(iSym)%A1(iabt)
+      FSQ%SB(iSym)%A2(ib,ia) = FSQ%SB(iSym)%A2(ib,ia)+FLT(1)%SB(iSym)%A1(iabt)
+      FSQ%SB(iSym)%A2(ia,ib) = FSQ%SB(iSym)%A2(ia,ib)+FLT(1)%SB(iSym)%A1(iabt)
     end do
     iabt = ia*(ia+1)/2
-    FSQ%SB(iSym)%A2(ia,ia) = FSQ%SB(iSym)%A2(ia,ia)+FLT%SB(iSym)%A1(iabt)
+    FSQ%SB(iSym)%A2(ia,ia) = FSQ%SB(iSym)%A2(ia,ia)+FLT(1)%SB(iSym)%A1(iabt)
   end do
 
 end do

@@ -36,12 +36,15 @@ use Index_Functions, only: iTri, nTri_Elem
 use Constants, only: Two
 use Definitions, only: wp, iwp
 
-implicit none
-integer(kind=iwp) :: nSym, nBas(nSym)
-real(kind=wp) :: A(*), B(*)
-integer(kind=iwp) :: i, iOff, iSym, j
-!************************************
+#include "intent.fh"
 
+implicit none
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym)
+real(kind=wp), intent(in) :: A(*)
+real(kind=wp), intent(_OUT_) :: B(*)
+integer(kind=iwp) :: i, iOff, iSym, j
+
+!************************************
 iOff = 0
 
 do iSym=1,nSym

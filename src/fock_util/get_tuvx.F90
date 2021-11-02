@@ -39,8 +39,11 @@ subroutine Get_TUVX(PUVX,TUVX)
 use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: PUVX(*), TUVX(*)
+real(kind=wp), intent(in) :: PUVX(*)
+real(kind=wp), intent(_OUT_) :: TUVX(*)
 #include "rasdim.fh"
 #include "general.fh"
 integer(kind=iwp) :: iAsh, iIsh, iiT, iiU, iiV, iiX, ijSym, iOrb, iP, iPUVX, iStack, iSym, iT, iTemp, iTU, iTUVX, iU, iV, iVX, iX, &

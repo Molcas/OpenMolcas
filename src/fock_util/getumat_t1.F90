@@ -15,9 +15,13 @@ subroutine GetUmat_T1(U,C,S,X,Scr,lScr,nBas,nOrb1,nOrb2)
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: lScr, nBas, nOrb1, nOrb2
-real(kind=wp) :: U(*), C(*), S(*), X(*), Scr(lScr)
+integer(kind=iwp), intent(in) :: lScr, nBas, nOrb1, nOrb2
+real(kind=wp), intent(_OUT_) :: U(*)
+real(kind=wp), intent(in) :: C(*), S(*), X(*)
+real(kind=wp), intent(out) :: Scr(lScr)
 integer(kind=iwp) :: Need
 character(len=80) :: Txt
 character(len=*), parameter :: SecNam = 'GetUmat_T1'

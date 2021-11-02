@@ -13,7 +13,7 @@ subroutine Cho_x_Quit(SecNam,Str1,Str2)
 ! Purpose: stop execution using and print the trace stack.
 
 implicit none
-character(len=*) :: SecNam, Str1, Str2
+character(len=*), intent(in) :: SecNam, Str1, Str2
 
 call SysAbendMsg(SecNam,Str1,Str2)
 

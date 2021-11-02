@@ -190,7 +190,7 @@ C!---- Transform three dimensional array S into two dimensional array Bnew.
 C!
 C!---- Given Hess and G, calculate the eigenvalues and eigenvectors of G*Hess.
 C!D Write(6,*)' VIBFREQ, calling Freq.'
-      Call Freq(Hess,G,Work(ipV),Work(ipLambda),Work(ipB),
+      Call Freq_mula(Hess,G,Work(ipV),Work(ipLambda),Work(ipB),
      &  Work(ipBnew),qMat,nOsc,NumOfAt)
 C!D Write(6,*)' VIBFREQ, back from Freq.'
 C!D Write(6,*)' Lambda:'

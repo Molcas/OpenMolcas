@@ -41,14 +41,15 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: i, IPR, iSym, j, jSym, kSym, lSym, iBas, jBas, kBas, lBas, iOrb, jOrb, kOrb, lOrb, iFro, jFro, kFro, lFro, &
-                     iIsh, jIsh, kIsh, lIsh, iAsh, jAsh, kAsh, lAsh, ij_Bas_pairs, kl_Bas_pairs, ij_Orb_pairs, kl_Orb_pairs, &
-                     mxSym, off_PUVX(mxSym,mxSym,mxSym), off_sqMat(*), off_ltMat(*)
-logical(kind=iwp) :: lSquare
-real(kind=wp) :: CMO(*), PUVX(*), D1I(*), FI(*), D1A(*), FA(*), ExFac
+integer(kind=iwp), intent(in) :: IPR, iSym, jSym, kSym, lSym, iBas, jBas, kBas, lBas, iOrb, jOrb, kOrb, lOrb, iFro, jFro, kFro, &
+                                 lFro, iIsh, jIsh, kIsh, lIsh, iAsh, jAsh, kAsh, lAsh, ij_Bas_pairs, kl_Bas_pairs, ij_Orb_pairs, &
+                                 kl_Orb_pairs, mxSym, off_PUVX(mxSym,mxSym,mxSym), off_sqMat(*), off_ltMat(*)
+logical(kind=iwp), intent(in) :: lSquare
+real(kind=wp), intent(in) :: CMO(*), D1I(*), D1A(*), ExFac
+real(kind=wp), intent(inout) :: PUVX(*), FI(*), FA(*)
 #include "timers.fh"
-integer(kind=iwp) :: case1, case2, i1, i2, iiiOff, iiOff, ij_pair, iOff, iOpt, iRc, jjjOff, jjOff, jMax, kkkOff, kkOff, kl_pair, &
-                     klBas, lllOff, llOff, nBuf2, nBuf3, nInBuf, nOff, nPairs, nPQVX, nScrt1, nTURS
+integer(kind=iwp) :: case1, case2, i, i1, i2, iiiOff, iiOff, ij_pair, iOff, iOpt, iRc, j, jjjOff, jjOff, jMax, kkkOff, kkOff, &
+                     kl_pair, klBas, lllOff, llOff, nBuf2, nBuf3, nInBuf, nOff, nPairs, nPQVX, nScrt1, nTURS
 logical(kind=iwp) :: Process_Twice
 real(kind=wp), allocatable :: Buf2(:), Buf3(:)
 real(kind=wp), allocatable, target :: InBuf(:), PQVX(:), Scrt1(:), TURS(:)

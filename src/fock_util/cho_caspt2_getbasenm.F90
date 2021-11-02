@@ -14,8 +14,8 @@ subroutine Cho_caspt2_GetBaseNm(BaseNm,iTyp)
 use Definitions, only: iwp
 
 implicit none
-character(len=3) :: BaseNm
-integer(kind=iwp) :: iTyp
+character(len=3), intent(out) :: BaseNm
+integer(kind=iwp), intent(in) :: iTyp
 
 if (iTyp == 1) then
   BaseNm = '_PI'

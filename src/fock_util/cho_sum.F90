@@ -29,12 +29,13 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: rc, nSym, nBas(8), iUHF
-logical(kind=iwp) :: DoExchange(*)
-type(DSBA_Type) :: FLT(*), FSQ(*)
+integer(kind=iwp), intent(out) :: rc
+integer(kind=iwp), intent(in) :: nSym, nBas(8), iUHF
+logical(kind=iwp), intent(in) :: DoExchange(*)
+type(DSBA_Type), intent(inout) :: FLT(*), FSQ(*)
 integer(kind=iwp) :: IB, IJB, ISYM, JB, NB, nDen
-!*************************************************
 
+!*************************************************
 if (iUHF == 1) then
   nDen = 3
 else

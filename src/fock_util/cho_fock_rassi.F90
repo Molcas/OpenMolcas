@@ -43,9 +43,12 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-type(DSBA_Type) :: DLT, MO1(2), MO2(2), FLT
-real(kind=wp) :: TUVX(*)
+type(DSBA_Type), intent(in) :: DLT, MO1(2), MO2(2)
+type(DSBA_Type), intent(inout) :: FLT(1)
+real(kind=wp), intent(_OUT_) :: TUVX(*)
 #include "chotime.fh"
 #include "cho_jobs.fh"
 #include "rassi.fh"
@@ -62,7 +65,6 @@ logical(kind=iwp) :: add, DoReord
 logical(kind=iwp) :: Debug
 #endif
 character(len=50) :: CFmt
-character(len=6) :: mode
 type(SBA_Type), target :: Laq(2)
 type(twxy_type) :: Scr
 real(kind=wp), allocatable :: Drs(:), Frs(:), Lrs(:,:)
@@ -70,8 +72,8 @@ real(kind=wp), pointer :: VJ(:) => null()
 real(kind=wp), parameter :: FactCI = One, FactXI = -One
 logical(kind=iwp), parameter :: DoRead = .false.
 character(len=*), parameter :: SECNAM = 'CHO_FOCK_RASSI'
-!*************************************************
 
+!*************************************************
 #ifdef _DEBUGPRINT_
 Debug = .false. ! to avoid double printing in CASSCF-debug
 #endif
@@ -171,10 +173,9 @@ do jSym=1,nSym
 
     if (JSYM == 1) then
       ! Transform the density to reduced storage
-      mode = 'toreds'
       add = .false.
       mDen = 1
-      call swap_rs2full(irc,iLoc,nRS,mDen,JSYM,[DLT],Drs,mode,add)
+      call swap_full2rs(irc,iLoc,nRS,mDen,JSYM,[DLT],Drs,add)
     end if
 
     ! BATCH over the vectors ----------------------------
@@ -287,7 +288,7 @@ do jSym=1,nSym
         if (iSkip(iSymk) /= 0) then
 
           call DGEMM_Tri('T','N',NBAS(iSyma),NBAS(iSyma),NK*JNUM,FactXI,Laq(kDen)%SB(iSymk)%A3,NK*JNUM,Laq(kDen)%SB(iSymk)%A3, &
-                         NK*JNUM,One,FLT%SB(iSyma)%A1,NBAS(iSyma))
+                         NK*JNUM,One,FLT(1)%SB(iSyma)%A1,NBAS(iSyma))
 
         end if
 
@@ -379,10 +380,9 @@ do jSym=1,nSym
 
     if (JSYM == 1) then
       ! backtransform fock matrix to full storage
-      mode = 'tofull'
       add = .true.
       mDen = 1
-      call swap_rs2full(irc,iLoc,nRS,mDen,JSYM,[FLT],Frs,mode,add)
+      call swap_rs2full(irc,iLoc,nRS,mDen,JSYM,FLT,Frs,add)
     end if
 
     ! free memory
@@ -437,7 +437,7 @@ if (Debug) then ! to avoid double printing in RASSI-debug
       write(u6,'(6X,A)') '***** INACTIVE FOCK MATRIX ***** '
       write(u6,'(6X,A)')
       write(u6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
-      call TRIPRT('','',FLT%SB(ISYM)%A1,NBAS(ISYM))
+      call TRIPRT('','',FLT(1)%SB(ISYM)%A1,NBAS(ISYM))
     end if
   end do
 

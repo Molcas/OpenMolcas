@@ -30,8 +30,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: irc
-type(DSBA_Type) :: DLT, FLT
+integer(kind=iwp), intent(inout) :: irc
+type(DSBA_Type), intent(in) :: DLT
+type(DSBA_Type), intent(inout) :: FLT(1)
 #include "chotime.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
@@ -44,7 +45,6 @@ logical(kind=iwp) :: add
 logical(kind=iwp) :: Debug
 #endif
 character(len=50) :: CFmt
-character(len=6) :: mode
 real(kind=wp), allocatable :: Drs(:), Frs(:), Lrs(:,:), VJ(:)
 character(len=*), parameter :: SECNAM = 'CHO_FOCK_DFT_RED'
 
@@ -114,10 +114,9 @@ do JRED=JRED1,JRED2
   call mma_allocate(VJ,nVec,Label='VJ')
 
   ! Transform the density to reduced storage
-  mode = 'toreds'
   add = .false.
   nDen = 1
-  call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,[DLT],Drs,mode,add)
+  call swap_full2rs(irc,iLoc,nRS,nDen,JSYM,[DLT],Drs,add)
 
   ! BATCH over the vectors in JSYM=1 ----------------------------
 
@@ -175,9 +174,8 @@ do JRED=JRED1,JRED2
 
   if (nVrs > 0) then
     ! backtransform fock matrix in full storage
-    mode = 'tofull'
     add = JRED > JRED1
-    call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,[FLT],Frs,mode,add)
+    call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,FLT,Frs,add)
   end if
 
   ! free memory
@@ -222,7 +220,7 @@ if (Debug) then ! to avoid double printing in SCF-debug
     NB = NBAS(ISYM)
     if (NB > 0) then
       write(u6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
-      call TRIPRT('Coulomb Fmat',' ',FLT%SB(ISYM)%A1,NB)
+      call TRIPRT('Coulomb Fmat',' ',FLT(1)%SB(ISYM)%A1,NB)
     end if
   end do
 

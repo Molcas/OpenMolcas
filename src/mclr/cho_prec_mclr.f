@@ -49,7 +49,6 @@
 #include "stdalloc.fh"
       Character*50 CFmt
       Real*8, parameter:: xone=-One
-      Character*6 mode
       Logical taskleft, add
       Logical, Parameter :: DoRead = .false.
       Integer, External::  Cho_LK_MaxVecPerBatch
@@ -57,7 +56,7 @@
       Real*8, Allocatable, Target:: iirs(:), turs(:)
       Real*8, Pointer :: piirs(:,:)=>Null(), pturs(:,:)=>Null()
 
-      Type (DSBA_Type) CMOt, Tmp
+      Type (DSBA_Type) CMOt, Tmp(1)
       Type (SBA_Type) Lpq(1)
 
       Real*8, Allocatable, Target :: Lii(:), Lij(:)
@@ -601,21 +600,20 @@ c         !set index arrays at iLoc
 *
           If (jsym.eq.1) Then
             add = .True.
-            mode = 'tofull'
             nMat = 1
             Do i=1,ntotie
-              Call Allocate_DSBA(Tmp,nBas,nBas,nSym,aCase='TRI',
+              Call Allocate_DSBA(Tmp(1),nBas,nBas,nSym,aCase='TRI',
      &                           Ref=iiab(1+nab*(i-1):))
               Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
-     &                          [Tmp],piirs(:,i),mode,add)
-              Call Deallocate_DSBA(Tmp)
+     &                          Tmp,piirs(:,i),add)
+              Call Deallocate_DSBA(Tmp(1))
             End Do
             Do i=1,ntue
-              Call Allocate_DSBA(Tmp,nBas,nBas,nSym,aCase='TRI',
+              Call Allocate_DSBA(Tmp(1),nBas,nBas,nSym,aCase='TRI',
      &                           Ref=tupq(1+npq*(i-1):))
               Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
-     &                          [Tmp],pturs(:,i),mode,add)
-              Call Deallocate_DSBA(Tmp)
+     &                          Tmp,pturs(:,i),add)
+              Call Deallocate_DSBA(Tmp(1))
             End Do
           EndIf
 *

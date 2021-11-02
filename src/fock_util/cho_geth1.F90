@@ -16,9 +16,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nBTri
-real(kind=wp) :: H1(nBTri), ERFNuc
-logical(kind=iwp) :: RFpert
+integer(kind=iwp), intent(in) :: nBTri
+real(kind=wp), intent(out) :: H1(nBTri), ERFNuc
+logical(kind=iwp), intent(in) :: RFpert
 integer(kind=iwp) :: iCmp, iOpt, iRc, iSyLab
 character(len=8) :: OneLbl
 real(kind=wp), allocatable :: Tmp(:)

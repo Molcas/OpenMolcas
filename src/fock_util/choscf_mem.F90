@@ -37,13 +37,14 @@ use Data_Structures, only: Integer_Pointer
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nSym, nBas(nSym), iUHF, ALGO, MinMem(nSym), lOff1
-logical(kind=iwp) :: DoExchange(*), REORD
-type(Integer_Pointer) :: pNocc(*)
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), iUHF, ALGO
+logical(kind=iwp), intent(in) :: DoExchange(*), REORD
+type(Integer_Pointer), intent(in) :: pNocc(*)
+integer(kind=iwp), intent(out) :: MinMem(nSym), lOff1
 integer(kind=iwp) :: i, iSym, iSymp, j, jSym, ksym, Nab, nDen, Nmax, NSab, Mabmx(nSym), Moccmx(nSym), MxBas(nSym)
 logical(kind=iwp) :: xToDo
-!*************************************************
 
+!*************************************************
 if (iUHF == 0) then
   nDen = 1
   xToDo = DoExChange(1)

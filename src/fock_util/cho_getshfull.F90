@@ -21,15 +21,17 @@ use Data_Structures, only: L_Full_Type
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: lLabJ, JNUM, JSYM, IREDC, mmShl, mmShl_tot, iShp_rs(mmShl_tot)
-real(kind=wp) :: LabJ(lLabJ), SvShp(mmShl,2)
-type(L_Full_Type) :: ChoV
+integer(kind=iwp), intent(in) :: lLabJ, JNUM, JSYM, IREDC, mmShl, mmShl_tot, iShp_rs(mmShl_tot)
+real(kind=wp), intent(in) :: LabJ(lLabJ)
+type(L_Full_Type), intent(_OUT_) :: ChoV
+real(kind=wp), intent(out) :: SvShp(mmShl,2)
 #include "cholesky.fh"
 integer(kind=iwp) :: i1, iag, ias, iaSg, iaSh, ibg, ibs, ibSg, ibSh, iLoc, iRab, iShp, iSyma, iSymb, jRab, jShp, JVEC, kLabJ, &
                      kRab, NREAD
 integer(kind=iwp), external :: cho_isao
-!***********************************************************************
 
 !*********************************************************
 !

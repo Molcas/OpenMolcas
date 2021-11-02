@@ -38,8 +38,8 @@ subroutine RdChoVec(Vec,nDim,nVec,iVec1,Lunit)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nDim, nVec, iVec1, Lunit
-real(kind=wp) :: Vec(nDim,nVec)
+integer(kind=iwp), intent(in) :: nDim, nVec, iVec1, Lunit
+real(kind=wp), intent(out) :: Vec(nDim,nVec)
 integer(kind=iwp) :: iOpt, iAdr, nTot
 
 iOpt = 2

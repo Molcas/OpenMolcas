@@ -14,7 +14,8 @@ subroutine set_nnA(nSym,nAorb,nnA)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nSym, nAorb(8), nnA(8,8)
+integer(kind=iwp), intent(in) :: nSym, nAorb(8)
+integer(kind=iwp), intent(inout) :: nnA(8,8)
 integer(kind=iwp) :: i, j
 
 do j=1,nSym

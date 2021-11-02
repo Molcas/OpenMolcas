@@ -18,18 +18,19 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nSym, nBas(8), nAux(8), Keep(8), nFLT, nBMX
-real(kind=wp) :: DLT(*), DSQ(*), FLT(nFLT), ExFac
+integer(kind=iwp), intent(in) :: nSym, nBas(8), nAux(8), Keep(8), nFLT, nBMX
+real(kind=wp), intent(in) :: DLT(*), DSQ(*), ExFac
+real(kind=wp), intent(inout) :: FLT(nFLT)
 #include "choras.fh"
 integer(kind=iwp) :: LBUF
 real(kind=wp) :: CMO_DUMMY(1)
 logical(kind=iwp) :: DoCholesky, GenInt
-type(DSBA_Type) ::WFSQ
+type(DSBA_Type) :: WFSQ(1)
 real(kind=wp), allocatable :: Temp(:), W1(:), W2(:)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-
 ! nAux is the number of occupied orbitals
 GenInt = .false.
 DoCholesky = .false.
@@ -37,8 +38,8 @@ if (ALGO == 0) GenInt = .true. ! use GenInt to regenerate integrals
 
 call DecideOnCholesky(DoCholesky)
 
-call Allocate_DSBA(WFSQ,nBas,nBas,nSym)
-WFSQ%A0(:) = Zero
+call Allocate_DSBA(WFSQ(1),nBas,nBas,nSym)
+WFSQ(1)%A0(:) = Zero
 
 if ((.not. DoCholesky) .or. GenInt) then
   call mma_allocate(W2,NBMX**2,Label='W2')
@@ -68,7 +69,7 @@ if (.not. DoCholesky) then
     call ABEND()
   end if
 
-  call FOCKTWO(nSym,nBas,nAux,Keep,DLT,DSQ,Temp,nFlt,WFSQ%A0,LBUF,W1,W2,ExFac)
+  call FOCKTWO(nSym,nBas,nAux,Keep,DLT,DSQ,Temp,nFlt,WFSQ(1)%A0,LBUF,W1,W2,ExFac)
 
   !                                                                    *
   !*********************************************************************
@@ -91,7 +92,7 @@ else if (DoCholesky .and. GenInt) then ! save some space for GenInt
     call ABEND()
   end if
 
-  call FOCKTWO(nSym,nBas,nAux,Keep,DLT,DSQ,Temp,nFlt,WFSQ%A0,LBUF,W1,W2,ExFac)
+  call FOCKTWO(nSym,nBas,nAux,Keep,DLT,DSQ,Temp,nFlt,WFSQ(1)%A0,LBUF,W1,W2,ExFac)
 
   !                                                                    *
   !*********************************************************************
@@ -118,7 +119,7 @@ call DaXpY_(nFlt,One,Temp,1,FLT,1)
 call mma_deallocate(Temp)
 if (allocated(W1)) call mma_deallocate(W1)
 if (allocated(W2)) call mma_deallocate(W2)
-call Deallocate_DSBA(WFSQ)
+call Deallocate_DSBA(WFSQ(1))
 
 return
 

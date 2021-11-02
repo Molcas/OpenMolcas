@@ -27,8 +27,10 @@ use Constants, only: One, Half
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-integer(kind=iwp) :: NSYM, NBAS(8), NFRO(8), KEEP(8), nFlt, LBUF
-real(kind=wp) :: W_DLT(*), W_DSQ(*), W_FLT(nFlt), W_FSQ(*), X1(*), X2(*), ExFac
+integer(kind=iwp), intent(in) :: NSYM, NBAS(8), NFRO(8), KEEP(8), nFlt, LBUF
+real(kind=wp), intent(in) :: W_DLT(*), W_DSQ(*), ExFac
+real(kind=wp), intent(inout) :: W_FLT(nFlt), W_FSQ(*)
+real(kind=wp), intent(out) :: X1(*), X2(*)
 integer(kind=iwp) :: IB, IJ, IJB, IJS, IK, IOPT, IP, IPQ, IRC, IS, ISX, ISYM, JB, JK, JQ, JS, KB, KK, KLB, KS, LB, LK, LPQ, LS, &
                      LSMAX, NB, NFI, NFJ, NFK, NFL, NPQ
 real(kind=wp) :: TEMP

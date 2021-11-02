@@ -38,15 +38,16 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iOK, nDen, nSym, nBas(nSym), nIsh(nSym)
-type(DSBA_Type) :: CM(nDen)
-type(DSBA_Type), target :: MSQ(nDen)
+integer(kind=iwp), intent(out) :: iOK
+integer(kind=iwp), intent(in) :: nDen, nSym, nBas(nSym), nIsh(nSym)
+type(DSBA_Type), intent(in) :: CM(nDen)
+type(DSBA_Type), target, intent(inout) :: MSQ(nDen)
 integer(kind=iwp) :: ia, ib, ikc, irc, iSym, iv, ja, jden, jv, k, l, n2b, nBm, NumV
 real(kind=wp) :: Thr, Ymax
 real(kind=wp), allocatable, target :: DMat0(:), PMat0(:)
 real(kind=wp), pointer :: DMat(:,:) => null(), PMat(:,:,:,:) => null(), V(:,:) => null()
-!***********************************************************************
 
+!***********************************************************************
 irc = 0
 ikc = 0
 

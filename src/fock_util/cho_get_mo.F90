@@ -16,17 +16,21 @@ use Constants, only: Zero, One
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: iOK, nDen, nSym, nBas(nSym), nIsh(nSym)
-type(DSBA_Type) :: CM(nDen), MSQ(nDen)
+integer(kind=iwp), intent(out) :: iOK
+integer(kind=iwp), intent(in) :: nDen, nSym, nBas(nSym), nIsh(nSym)
+type(DSBA_Type), intent(in) :: CM(nDen)
+type(DSBA_Type), intent(_OUT_) :: MSQ(nDen)
 integer(kind=iwp) :: i, iComp, ikc, iOpt, irc, iSyLbl, iSym, ja, nBm, NumV
 real(kind=wp) :: Thr, Ymax
 type(DSBA_Type) :: SMat
 real(kind=wp), allocatable :: SXMat(:)
 real(kind=wp), allocatable, target :: Dmat0(:)
 real(kind=wp), pointer :: Dmat(:,:) => null()
-!***********************************************************************
 
+!***********************************************************************
 irc = 0
 ikc = 0
 
@@ -73,7 +77,7 @@ if ((nDen == 2) .and. (irc == 0) .and. (ikc == 0)) then
   call Allocate_DSBA(SMat,nBas,nBas,nSym,aCase='TRI')
   call mma_allocate(SXMat,nBm**2,Label='SXMat')
 
-  !  Read overlap integrals (LT-storage) and get Square-storage
+  ! Read overlap integrals (LT-storage) and get Square-storage
   iRc = -1
   iOpt = 2
   iComp = 1

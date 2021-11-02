@@ -46,11 +46,16 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: rc, nForb(8), nIorb(8), nAorb(8), nChM(8)
-type(DSBA_Type) :: FLT(2), DLT(2), POrb(3), CMO
-real(kind=wp) :: FactXI, W_PWXY(*), ExFac
-logical(kind=iwp) :: DoActive
+integer(kind=iwp), intent(out) :: rc
+type(DSBA_Type), intent(inout) :: FLT(2)
+integer(kind=iwp), intent(in) :: nForb(8), nIorb(8), nAorb(8), nChM(8)
+real(kind=wp), intent(in) :: FactXI, ExFac
+type(DSBA_Type), intent(in) :: DLT(2), POrb(3), CMO
+logical(kind=iwp), intent(in) :: DoActive
+real(kind=wp), intent(_OUT_) :: W_PWXY(*)
 #include "chotime.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
@@ -65,15 +70,14 @@ logical(kind=iwp) :: add, DoRead, DoTraInt
 logical(kind=iwp) :: Debug
 #endif
 character(len=50) :: CFmt
-character(len=6) :: mode
 type(SBA_Type), target :: Laq(3), Lxy
 type(twxy_type) :: Scr
 real(kind=wp), allocatable :: Lrs(:,:), Drs(:,:), Frs(:,:)
 real(kind=wp), pointer :: VJ(:) => null()
 real(kind=wp), parameter :: FactCI = One, FactCA = One, FactXA = -Half
 character(len=*), parameter :: SECNAM = 'CHO_FMCSCF'
-!***********************************************************************
 
+!***********************************************************************
 #ifdef _DEBUGPRINT_
 Debug = .false. ! to avoid double printing in CASSCF-debug
 #endif
@@ -211,9 +215,8 @@ do jSym=1,nSym
 
     if (JSYM == 1) then
       ! Transform the density to reduced storage
-      mode = 'toreds'
       add = .false.
-      call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,[DLT],Drs,mode,add)
+      call swap_full2rs(irc,iLoc,nRS,nDen,JSYM,DLT,Drs,add)
     end if
 
     ! BATCH over the vectors ----------------------------
@@ -504,9 +507,8 @@ do jSym=1,nSym
 
     if (JSYM == 1) then
       ! backtransform fock matrix in full storage
-      mode = 'tofull'
       add = .true.
-      call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,[FLT],Frs,mode,add)
+      call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,FLT,Frs,add)
     end if
 
       ! free memory

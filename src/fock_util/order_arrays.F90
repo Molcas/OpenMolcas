@@ -14,9 +14,10 @@ subroutine Order_Arrays(mode,A1,N1,N2,P2,SCR1)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=4) :: mode
-integer(kind=iwp) :: N1, N2
-real(kind=wp) :: A1(N1,N2), P2(N2), SCR1(N1)
+character(len=4), intent(in) :: mode
+integer(kind=iwp), intent(in) :: N1, N2
+real(kind=wp), intent(inout) :: A1(N1,N2), P2(N2)
+real(kind=wp), intent(out) :: SCR1(N1)
 integer(kind=iwp) :: j, k
 real(kind=wp) :: tmp
 
@@ -27,9 +28,9 @@ if (mode == 'decr') then
         tmp = P2(j)
         P2(j) = P2(k)
         P2(k) = tmp
-        call dcopy_(N1,A1(1,j),1,SCR1(1),1)
-        call dcopy_(N1,A1(1,k),1,A1(1,j),1)
-        call dcopy_(N1,SCR1(1),1,A1(1,k),1)
+        SCR1(:) = A1(:,j)
+        A1(:,j) = A1(:,k)
+        A1(:,k) = SCR1(:)
       end if
     end do
   end do
@@ -40,14 +41,14 @@ else if (mode == 'incr') then
         tmp = P2(j)
         P2(j) = P2(k)
         P2(k) = tmp
-        call dcopy_(N1,A1(1,j),1,SCR1(1),1)
-        call dcopy_(N1,A1(1,k),1,A1(1,j),1)
-        call dcopy_(N1,SCR1(1),1,A1(1,k),1)
+        SCR1(:) = A1(:,j)
+        A1(:,j) = A1(:,k)
+        A1(:,k) = SCR1(:)
       end if
     end do
   end do
 else
-  write(u6,*) ' In routine Order_Arrays: wrong mode! '
+  write(u6,*) ' In routine Order_Arrays: wrong mode!'
   call Abend()
 end if
 

@@ -37,6 +37,8 @@ subroutine CHO_LK_RASSI(DLT,MSQ,FLT,FSQ,TUVX,Ash,nScreen,dmpk)
 
 use ChoArr, only: nBasSh, nDimRS
 use ChoSwp, only: IndRed, InfVec, nnBstRSh
+use Symmetry_Info, only: MulD2h => Mul
+use Index_Functions, only: iTri
 use fock_util_interface, only: cho_lr_MOs
 use Data_Structures, only: Allocate_DSBA, Allocate_L_Full, Allocate_Lab, Allocate_NDSBA, Allocate_SBA, Allocate_twxy, &
                            Deallocate_DSBA, Deallocate_Lab, Deallocate_L_Full, Deallocate_NDSBA, Deallocate_SBA, Deallocate_twxy, &
@@ -48,10 +50,14 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
+#include "intent.fh"
+
 implicit none
-type(DSBA_Type) :: DLT, MSQ(2), FLT, FSQ, Ash(2)
-real(kind=wp) :: TUVX(*), dmpk
-integer(kind=iwp) :: nScreen
+type(DSBA_Type), intent(in) :: DLT, Ash(2)
+type(DSBA_Type), intent(inout) :: MSQ(2), FLT(1), FSQ
+real(kind=wp), intent(_OUT_) :: TUVX(*)
+integer(kind=iwp), intent(in) :: nScreen
+real(kind=wp), intent(in) :: dmpk
 #include "warnings.h"
 #include "chotime.fh"
 #include "lkscreen.fh"
@@ -74,7 +80,7 @@ logical(kind=iwp) :: add, DoScreen, DoReord
 logical(kind=iwp) :: Debug
 #endif
 character(len=50) :: CFmt
-character(len=6) :: mode
+character :: mode, mode2
 type(NDSBA_Type) :: DiaH
 type(DSBA_Type) :: CM(2), KLT, MO(2)
 type(SBA_Type) :: Laq(2)
@@ -85,7 +91,7 @@ integer(kind=iwp), allocatable :: Indx(:,:,:), iShp_rs(:), kOffSh(:,:), nnBfShp(
 real(kind=wp), allocatable :: AbsC(:), Diag(:), Drs(:), Faa(:), Fia(:), Frs(:), Lrs(:,:), MLk(:,:,:), SumAClk(:,:,:), SvShp(:,:), &
                               VJ(:), Ylk(:,:,:)
 #ifdef _MOLCAS_MPP_
-integer(kind=iwp) :: myJRED1, NNBSTMX, ntv0
+integer(kind=iwp) :: i, myJRED1, NNBSTMX, ntv0
 real(kind=wp), allocatable :: DiagJ(:)
 #endif
 real(kind=wp), parameter :: FactCI = One, FactXI = -One
@@ -94,15 +100,10 @@ character(len=*), parameter :: SECNAM = 'CHO_LK_RASSI'
 integer(kind=iwp), external :: Cho_LK_MaxVecPerBatch
 real(kind=wp), external :: Cho_LK_ScreeningThreshold
 real(kind=r8), external :: ddot_
-!***********************************************************************
-!Statemet functions
-integer(kind=iwp) :: MulD2h, iTri, i, j
-MulD2h(i,j) = ieor(i-1,j-1)+1
-iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
-!                                                                      *
-!***********************************************************************
-!                                                                      *
 
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 #ifdef _DEBUGPRINT_
 Debug = .false. ! to avoid double printing in CASSCF-debug
 #endif
@@ -427,10 +428,9 @@ do jSym=1,nSym
 
       if (JSYM == 1) then
         ! Transform the density to reduced storage
-        mode = 'toreds'
         add = .false.
         nMat = 1
-        call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,[DLT],Drs,mode,add)
+        call swap_full2rs(irc,iLoc,nRS,nMat,JSYM,[DLT],Drs,add)
       end if
 
       ! BATCH over the vectors ----------------------------
@@ -583,7 +583,7 @@ do jSym=1,nSym
                   ! ----------------------------------------------------------
                   ! Y(l)[k] = sum_n  DH(l,n) * |C(n)[k]|
                   !===========================================================
-                  Mode(1:1) = 'N'
+                  Mode = 'N'
                   n1 = nBas(lSym)
                   n2 = nBas(kSym)
 
@@ -591,13 +591,13 @@ do jSym=1,nSym
                   ! ----------------------------------------------------------
                   ! Y(l)[k] = sum_n  DH(n,l) * |C(n)[k]|
                   !===========================================================
-                  Mode(1:1) = 'T'
+                  Mode = 'T'
                   n1 = nBas(kSym)
                   n2 = nBas(lSym)
 
                 end if
 
-                if (n1 > 0) call DGEMV_(Mode(1:1),n1,n2,ONE,DiaH%SB(lSym,kSym)%A2,n1,AbsC,1,ZERO,Ylk(1,jK_a,jDen),1)
+                if (n1 > 0) call DGEMV_(Mode,n1,n2,ONE,DiaH%SB(lSym,kSym)%A2,n1,AbsC,1,ZERO,Ylk(1,jK_a,jDen),1)
 
               end do
 
@@ -775,12 +775,12 @@ do jSym=1,nSym
 
                       ! LaJ,[k] = sum_b  L(aJ,b) * C(b)[k]
                       ! ----------------------------------
-                      Mode(1:1) = 'N'
+                      Mode = 'N'
                       n1 = nBasSh(lSym,iaSh)*JNUM
                       n2 = nBasSh(kSym,ibSh)
 
-                      call DGEMV_(Mode(1:1),n1,n2,One,L_Full%SPB(lSym,iShp_rs(iShp),l1)%A21,n1, &
-                                  MO(jDen)%SB(kSym)%A2(iOffShb+1:,jK),1,ONE,Lab%SB(iaSh,lSym,jDen)%A,1)
+                      call DGEMV_(Mode,n1,n2,One,L_Full%SPB(lSym,iShp_rs(iShp),l1)%A21,n1,MO(jDen)%SB(kSym)%A2(iOffShb+1:,jK),1, &
+                                  ONE,Lab%SB(iaSh,lSym,jDen)%A,1)
 
                     else   ! lSym < kSym
 
@@ -789,12 +789,12 @@ do jSym=1,nSym
 
                       ! LJa,[k] = sum_b  L(b,Ja) * C(b)[k]
                       ! -----------------------------------
-                      Mode(1:1) = 'T'
+                      Mode = 'T'
                       n1 = nBasSh(kSym,ibSh)
                       n2 = JNUM*nBasSh(lSym,iaSh)
 
-                      call DGEMV_(Mode(1:1),n1,n2,One,L_Full%SPB(kSym,iShp_rs(iShp),l1)%A12,n1, &
-                                  MO(jDen)%SB(kSym)%A2(iOffShb+1:,jK),1,ONE,Lab%SB(iaSh,lSym,jDen)%A,1)
+                      call DGEMV_(Mode,n1,n2,One,L_Full%SPB(kSym,iShp_rs(iShp),l1)%A12,n1,MO(jDen)%SB(kSym)%A2(iOffShb+1:,jK),1, &
+                                  ONE,Lab%SB(iaSh,lSym,jDen)%A,1)
 
                     end if
 
@@ -900,8 +900,8 @@ do jSym=1,nSym
                     ! F(a,b)[k] = F(a,b)[k] + FactXI * sum_J  X1(a,J)[k] * X2(b,J)[k]
                     ! ---------------------------------------------------------------
 
-                    Mode(1:1) = 'N'
-                    Mode(2:2) = 'T'
+                    Mode = 'N'
+                    Mode2 = 'T'
                     n2 = nBs
 
                   else
@@ -909,13 +909,13 @@ do jSym=1,nSym
                     ! F(a,b)[k] = F(a,b)[k] + FactXI * sum_J  X1(J,a)[k] * X2(J,b)[k]
                     ! ---------------------------------------------------------------
 
-                    Mode(1:1) = 'T'
-                    Mode(2:2) = 'N'
+                    Mode = 'T'
+                    Mode2 = 'N'
                     n2 = JNUM
 
                   end if
 
-                  call DGEMM_Tri(Mode(1:1),Mode(2:2),nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,FActXI,Lab%SB(iaSh,lsym,1)%A,n2, &
+                  call DGEMM_Tri(Mode,Mode2,nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,FActXI,Lab%SB(iaSh,lsym,1)%A,n2, &
                                  Lab%SB(ibSh,lsym,kDen)%A,n2,One,KLT%SB(lSym)%A1(iOffAB+1:),nBs)
 
                 else if ((iaSh > ibSh) .and. (xFab >= tau/MaxRedT) .and. (iaSkip*ibSkip == 1)) then
@@ -927,8 +927,8 @@ do jSym=1,nSym
                     ! ---------------------------------------------------------------
                     n1 = nBasSh(lSym,iaSh)
                     n2 = max(1,nBasSh(lSym,ibSh))
-                    Mode(1:1) = 'N'
-                    Mode(2:2) = 'T'
+                    Mode = 'N'
+                    Mode2 = 'T'
 
                   else
 
@@ -937,12 +937,12 @@ do jSym=1,nSym
 
                     n1 = JNUM
                     n2 = JNUM
-                    Mode(1:1) = 'T'
-                    Mode(2:2) = 'N'
+                    Mode = 'T'
+                    Mode2 = 'N'
 
                   end if
 
-                  call DGEMM_(Mode(1:1),Mode(2:2),nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,FActXI,Lab%SB(iaSh,lsym,1)%A,n1, &
+                  call DGEMM_(Mode,Mode2,nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,FActXI,Lab%SB(iaSh,lsym,1)%A,n1, &
                               Lab%SB(ibSh,lsym,kDen)%A,n2,ONE,KLT%SB(lSym)%A1(iOffAB+1:),nBsa)
 
                 end if
@@ -1085,10 +1085,9 @@ do jSym=1,nSym
 
       if (JSYM == 1) then
         ! backtransform fock matrix to full storage
-        mode = 'tofull'
         add = .true.
         nMat = 1
-        call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,[FLT],Frs,mode,add)
+        call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,FLT,Frs,add)
       end if
 
       ! free memory
@@ -1160,7 +1159,7 @@ do iSym=1,nSym
 
           iabg = iTri(iag,ibg)
 
-          FLT%SB(iSym)%A1(iabg) = FLT%SB(iSym)%A1(iabg)+KLT%SB(iSym)%A1(iOffAB+iab)
+          FLT(1)%SB(iSym)%A1(iabg) = FLT(1)%SB(iSym)%A1(iabg)+KLT%SB(iSym)%A1(iOffAB+iab)
 
         end do
 
@@ -1185,7 +1184,7 @@ do iSym=1,nSym
 
         iabg = iag*(iag-1)/2+ibg
 
-        FLT%SB(iSym)%A1(iabg) = FLT%SB(iSym)%A1(iabg)+KLT%SB(iSym)%A1(iOffAB+iab)
+        FLT(1)%SB(iSym)%A1(iabg) = FLT(1)%SB(iSym)%A1(iabg)+KLT%SB(iSym)%A1(iOffAB+iab)
 
       end do
 
@@ -1258,7 +1257,7 @@ if (Debug) then ! to avoid double printing in RASSI-debug
     if (NBAS(ISYM) > 0) then
       write(u6,'(6X,A)')
       write(u6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
-      call TRIPRT('','',FLT%SB(ISYM)%A1,NBAS(ISYM))
+      call TRIPRT('','',FLT(1)%SB(ISYM)%A1,NBAS(ISYM))
     end if
   end do
 

@@ -37,9 +37,11 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: rc, nDen, nForb(8,nDen), nIorb(8,nDen)
-type(DSBA_Type) :: FLT(nDen), Porb(nDen), DLT(nDen)
-real(kind=wp) :: ExFac
+integer(kind=iwp), intent(out) :: rc
+integer(kind=iwp), intent(in) :: nDen, nForb(8,nDen), nIorb(8,nDen)
+type(DSBA_Type), intent(inout) :: FLT(nDen)
+type(DSBA_Type), intent(in) :: Porb(nDen), DLT(nDen)
+real(kind=wp), intent(in) :: ExFac
 #include "chotime.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
@@ -53,12 +55,11 @@ logical(kind=iwp) :: add, DoRead
 logical(kind=iwp) :: Debug
 #endif
 character(len=50) :: CFmt
-character(len=6) :: mode
 type(SBA_Type) :: Laq(2)
 real(kind=wp), allocatable :: Drs(:), Frs(:), Lrs(:,:), VJ(:)
 character(len=*), parameter :: SECNAM = 'CHO_FSCF'
-!***********************************************************************
 
+!***********************************************************************
 #ifdef _DEBUGPRINT_
 Debug = .false. ! to avoid double printing in CASSCF-debug
 #endif
@@ -162,10 +163,9 @@ do jSym=1,nSym
 
     if (JSYM == 1) then
       ! Transform the density to reduced storage
-      mode = 'toreds'
       add = .false.
       nMat = 1
-      call Swap_rs2full(irc,iLoc,nRS,nMat,JSYM,DLT,Drs,mode,add)
+      call Swap_full2rs(irc,iLoc,nRS,nMat,JSYM,DLT,Drs,add)
     end if
 
     ! BATCH over the vectors ----------------------------
@@ -298,11 +298,10 @@ do jSym=1,nSym
 
     if (JSYM == 1) then
       ! backtransform fock matrix to full storage
-      mode = 'tofull'
       add = .true.
       nMat = 1
       do iDen=1,nDen
-        call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,FLT(iDen),Frs,mode,add)
+        call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,FLT(iDen),Frs,add)
       end do
     end if
 

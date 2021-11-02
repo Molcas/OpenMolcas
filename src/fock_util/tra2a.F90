@@ -34,9 +34,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ij_pair, ij_Bas_pairs, kl_Orb_pairs, kSym, lSym, kBas, lBas, kAsh, lAsh
-real(kind=wp) :: CMO_k(kBas,kAsh), CMO_l(lBas,lAsh), IJKL(lBas*kBas), IJKX(kBas*lAsh), IJVX(lAsh*kAsh), &
-                 VXIJ(ij_bas_pairs,kl_Orb_pairs)
+integer(kind=iwp), intent(in) :: ij_pair, ij_Bas_pairs, kl_Orb_pairs, kSym, lSym, kBas, lBas, kAsh, lAsh
+real(kind=wp), intent(in) :: CMO_k(kBas,kAsh), CMO_l(lBas,lAsh), IJKL(lBas*kBas)
+real(kind=wp), intent(out) :: IJKX(kBas*lAsh), IJVX(lAsh*kAsh)
+real(kind=wp), intent(inout) :: VXIJ(ij_bas_pairs,kl_Orb_pairs)
 integer(kind=iwp) :: kl
 
 ! (ij|kl) -> (ij|kx)

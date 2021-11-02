@@ -17,7 +17,8 @@ subroutine Mk_iShp_rs(iShp_rs,nShell)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nShell, iShp_rs(nShell*(nShell+1)/2)
+integer(kind=iwp), intent(in) :: nShell
+integer(kind=iwp), intent(out) :: iShp_rs(nShell*(nShell+1)/2)
 integer(kind=iwp) :: iaSh, ibSh, iShp
 integer(kind=iwp), external :: Cho_F2SP
 

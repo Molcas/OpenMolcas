@@ -16,20 +16,23 @@ use Data_structures, only: DSBA_Type, SBA_Type, twxy_Type
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: irc, nAorb(*), JSYM, NUMV
-type(twxy_type) :: Scr
-type(SBA_Type) :: ChoV1, ChoV2
-real(kind=wp) :: W_PWXY(*)
-logical(kind=iwp) :: DoTraInt
-type(DSBA_Type) :: CMO
+integer(kind=iwp), intent(inout) :: irc
+type(twxy_type), intent(_OUT_) :: Scr
+type(SBA_Type), intent(in) :: ChoV1, ChoV2
+real(kind=wp), intent(_OUT_) :: W_PWXY(*)
+integer(kind=iwp), intent(in) :: nAorb(*), JSYM, NUMV
+logical(kind=iwp), intent(in) :: DoTraInt
+type(DSBA_Type), intent(in) :: CMO
 #include "Molcas.fh"
 #include "general.fh"
 #include "wadr.fh"
 integer(kind=iwp) :: ijSym, iOrb, ipMpw, iS, iStack, iSyma, iSymp, iSymw, iSymx, iSymy, ixy, jAsh, kAsh, kl_Orb_pairs, lAsh, &
                      nAob_w, nBas_a, nOrb_a, Npw, Nwa, Nxy, off_PWXY(8,8,8)
-!************************************************
 
+!************************************************
 if (NumV < 1) return
 
 ! Computing the integrals

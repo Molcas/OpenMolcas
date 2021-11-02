@@ -36,12 +36,15 @@ subroutine Fold_Mat(nSym,nBas,A,B)
 use Index_Functions, only: iTri, nTri_Elem
 use Definitions, only: wp, iwp
 
-implicit none
-integer(kind=iwp) :: nSym, nBas(nSym)
-real(kind=wp) :: A(*), B(*)
-integer(kind=iwp) :: i, iOff1, iOff2, iSym, j
-!************************************
+#include "intent.fh"
 
+implicit none
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym)
+real(kind=wp), intent(in) :: A(*)
+real(kind=wp), intent(_OUT_) :: B(*)
+integer(kind=iwp) :: i, iOff1, iOff2, iSym, j
+
+!************************************
 iOff1 = 0
 iOff2 = 0
 

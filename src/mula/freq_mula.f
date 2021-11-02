@@ -12,7 +12,7 @@
 ************************************************************************
 C!-----------------------------------------------------------------------!
 C!
-      Subroutine Freq(Hess,G,V,Lambda,B,Bnew,qMat,nOsc,NumOfAt)
+      Subroutine Freq_mula(Hess,G,V,Lambda,B,Bnew,qMat,nOsc,NumOfAt)
 C!
 C!  Purpose:
 C!    Find eigenvalues and eigenvectors of FG matrix.

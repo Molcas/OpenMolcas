@@ -12,36 +12,32 @@
 !               2021, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine swap_rs2full(irc,iLoc,nRS,nDen,JSYM,XLT,Xab,add)
+subroutine swap_full2rs(irc,iLoc,nRS,nDen,JSYM,XLT,Xab,add)
 
 use ChoArr, only: iRS2F
 use ChoSwp, only: IndRed
 use Index_Functions, only: iTri
 use Data_Structures, only: DSBA_Type
-use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp), intent(in) :: iLoc, nRS, nDen, JSYM
-type(DSBA_Type), intent(inout) :: XLT(nDen)
-real(kind=wp), intent(in) :: Xab(nRS,nDen)
+type(DSBA_Type), intent(in) :: XLT(nDen)
+real(kind=wp), intent(out) :: Xab(nRS,nDen)
 logical(kind=iwp), intent(in) :: add
 #include "cholesky.fh"
 #include "choorb.fh"
 integer(kind=iwp) :: iab, iag, ias, ibg, ibs, iRab, iSyma, jDen, jRab, kRab
 integer(kind=iwp), external :: cho_isao
 
+#include "macros.fh"
+unused_var(add)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 if (JSYM == 1) then ! TOTAL SYMMETRIC
-
-  if (.not. add) then
-    do jDen=1,nDen
-      XLT(jDen)%A0(:) = Zero
-    end do
-  end if
 
   do jRab=1,nnBstR(jSym,iLoc)
 
@@ -59,7 +55,7 @@ if (JSYM == 1) then ! TOTAL SYMMETRIC
 
     do jDen=1,nDen
 
-      XLT(jDen)%SB(iSyma)%A1(iab) = XLT(jDen)%SB(iSyma)%A1(iab)+Xab(jRab,jDen)
+      Xab(jRab,jDen) = XLT(jDen)%SB(iSyma)%A1(iab)
 
     end do
 
@@ -77,4 +73,4 @@ irc = 0
 
 return
 
-end subroutine swap_rs2full
+end subroutine swap_full2rs

@@ -65,8 +65,9 @@ use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, r8
 
 implicit none
-integer(kind=iwp) :: icase, iSym, kSym, iBas, kBas, off_sqMat(*), off_ltMat(*)
-real(kind=wp) :: Exfac, D1I(*), FI(*), D1A(*), FA(*), PQRS(*)
+integer(kind=iwp), intent(in) :: icase, iSym, kSym, iBas, kBas, off_sqMat(*), off_ltMat(*)
+real(kind=wp), intent(in) :: Exfac, D1I(*), D1A(*), PQRS(*)
+real(kind=wp), intent(inout) :: FI(*), FA(*)
 #include "rasdim.fh"
 #include "general.fh"
 integer(kind=iwp) :: iOff, iOff_ij, iOff_kl, jBas, k, kl, kOff, l

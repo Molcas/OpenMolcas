@@ -29,7 +29,7 @@ use Definitions, only: u6
 
 implicit none
 real(kind=wp) :: Cho_LK_ScreeningThreshold
-real(kind=wp) :: delta
+real(kind=wp), intent(in) :: delta
 #include "cholesky.fh"
 real(kind=wp) :: thr
 real(kind=wp), parameter :: thr0 = 1.0e-6_wp

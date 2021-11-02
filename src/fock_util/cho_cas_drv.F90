@@ -16,10 +16,14 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: rc
-real(kind=wp) :: W_CMO(*), DI(*), FI(*), DA1(*), FA(*), W_PWXY(*)
-logical(kind=iwp) :: TraOnly
+integer(kind=iwp), intent(out) :: rc
+real(kind=wp), intent(in) :: W_CMO(*), DI(*), DA1(*)
+real(kind=wp), intent(inout) :: FI(*), FA(*)
+real(kind=wp), intent(_OUT_) :: W_PWXY(*)
+logical(kind=iwp), intent(in) :: TraOnly
 #include "chotodo.fh"
 #include "chlcas.fh"
 #include "cholk.fh"
@@ -33,10 +37,10 @@ type(DSBA_Type) :: ChoIn, CMO, CVa(2), Ddec, DLT(2), FLT(2), FLT_MO(2), MSQ, POr
 real(kind=wp), allocatable :: Tmp1(:), Tmp2(:)
 real(kind=wp), parameter :: Thr = 1.0e-12_wp
 character(len=*), parameter :: SECNAM = 'CHO_CAS_DRV'
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-
 rc = 0
 
 call Allocate_DSBA(FLT(1),nBas,nBas,nSym,aCase='TRI',Ref=FI)

@@ -19,18 +19,20 @@ use Symmetry_Info, only: MulD2h => Mul
 use Data_Structures, only: NDSBA_Type
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
 implicit none
-integer(kind=iwp) :: irc, iLoc, nRS, JSYM
-type(NDSBA_Type) :: XLT
-real(kind=wp) :: Xab(nRS)
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: iLoc, nRS, JSYM
+type(NDSBA_Type), intent(_OUT_) :: XLT
+real(kind=wp), intent(in) :: Xab(nRS)
 #include "cholesky.fh"
 #include "choorb.fh"
 integer(kind=iwp) :: iag, ias, ibg, ibs, iSyma, iSymb, jRab, kRab
 integer(kind=iwp), external :: cho_isao
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-
 if (JSYM /= 1) then ! NON TOTAL-SYMMETRIC
 
   do jRab=1,nnBstR(jSym,iLoc)

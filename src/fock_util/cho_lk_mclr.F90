@@ -46,11 +46,16 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6, r8
 
+#include "intent.fh"
+
 implicit none
-type(DSBA_Type) :: DLT, DI, DA, Kappa, JI, KI, JA, KA, FkI, FkA, QVec, Ash(2), CMO, CMO_Inv
-real(kind=wp) :: G2(*), MO_Int(*)
-integer(kind=iwp) :: nOrb(8), nAsh(8), LuAChoVec(8), LuIChoVec(8), iAChoVec
-logical(kind=iwp) :: DoAct, Fake_CMO2
+type(DSBA_Type), intent(in) :: DLT, DA, Kappa, Ash(2), CMO, CMO_Inv
+type(DSBA_Type), intent(inout) :: DI, JI(1), KI, JA, KA
+real(kind=wp), intent(in) :: G2(*)
+type(DSBA_Type), intent(_OUT_) :: FkI, FkA, QVec
+real(kind=wp), intent(inout) :: MO_Int(*)
+integer(kind=iwp), intent(in) :: nOrb(8), nAsh(8), LuAChoVec(8), LuIChoVec(8), iAChoVec
+logical(kind=iwp), intent(in) :: DoAct, Fake_CMO2
 #include "warnings.h"
 #include "chomclr.fh"
 #include "cholesky.fh"
@@ -73,8 +78,8 @@ logical(kind=iwp) :: add, DoScreen, ReadInter, timings
 logical(kind=iwp) :: Debug
 #endif
 character(len=50) CFmt
-character(len=6) :: mode
-type(DSBA_Type) :: CM(2), JALT, QTmp(2), Tmp(2)
+character :: mode, mode2
+type(DSBA_Type) :: CM(2), JALT(1), QTmp(2), Tmp(2)
 type(SBA_Type) :: Lpq(3)
 type(NDSBA_Type) :: DiaH
 type(G2_Type) :: MOScr
@@ -93,14 +98,14 @@ character(len=*), parameter :: SECNAM = 'CHO_LK_MCLR'
 integer(kind=iwp), external :: Cho_LK_MaxVecPerBatch
 real(kind=wp), external :: Cho_LK_ScreeningThreshold
 real(kind=r8), external :: ddot_
-!***********************************************************************
 
+!***********************************************************************
 #ifdef _DEBUGPRINT_
 Debug = .false. ! to avoid double printing in CASSCF-debug
 #endif
 
 ! Allow LT-format access to JA although it is in SQ-format
-call Allocate_DSBA(JALT,nBas,nBas,nSym,aCase='TRI',Ref=JA%A0)
+call Allocate_DSBA(JALT(1),nBas,nBas,nSym,aCase='TRI',Ref=JA%A0)
 timings = .false.
 
 IREDC = -1 ! unknown reduced set in core
@@ -490,10 +495,9 @@ do jSym=1,nSym
 
       if (JSYM == 1) then
         ! Transform the density to reduced storage
-        mode = 'toreds'
         add = .false.
         nMat = 1
-        call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,[DLT],Drs,mode,add)
+        call swap_full2rs(irc,iLoc,nRS,nMat,JSYM,[DLT],Drs,add)
       end if
 
       ! BATCH over the vectors ----------------------------
@@ -646,7 +650,7 @@ do jSym=1,nSym
                   ! ----------------------------------------------------------
                   ! Y(l)[k] = sum_n  DH(l,n) * |C(n)[k]|
                   !===========================================================
-                  Mode(1:1) = 'N'
+                  Mode = 'N'
                   n1 = nBas(lSym)
                   n2 = nBas(kSym)
 
@@ -654,13 +658,13 @@ do jSym=1,nSym
                   ! ----------------------------------------------------------
                   ! Y(l)[k] = sum_n  DH(n,l) * |C(n)[k]|
                   !===========================================================
-                  Mode(1:1) = 'T'
+                  Mode = 'T'
                   n1 = nBas(kSym)
                   n2 = nBas(lSym)
 
                 end if
 
-                if (n1 > 0) call DGEMV_(Mode(1:1),n1,n2,ONE,DiaH%SB(lSym,kSym)%A2,n1,AbsC,1,ZERO,Ylk(1,jK_a,jDen),1)
+                if (n1 > 0) call DGEMV_(Mode,n1,n2,ONE,DiaH%SB(lSym,kSym)%A2,n1,AbsC,1,ZERO,Ylk(1,jK_a,jDen),1)
 
               end do
 
@@ -1002,8 +1006,8 @@ do jSym=1,nSym
                     ! ----------------------------------------------------------------
                     n1 = nBasSh(lSym,iaSh)
                     n2 = nBasSh(lSym,ibSh)
-                    Mode(1:1) = 'N'
-                    Mode(2:2) = 'T'
+                    Mode = 'N'
+                    Mode2 = 'T'
 
                   else ! lSym < kSym
 
@@ -1011,12 +1015,12 @@ do jSym=1,nSym
                     ! ----------------------------------------------------------------
                     n1 = JNUM
                     n2 = JNUM
-                    Mode(1:1) = 'T'
-                    Mode(2:2) = 'N'
+                    Mode = 'T'
+                    Mode2 = 'N'
 
                   end if
 
-                  call DGEMM_(Mode(1:1),Mode(2:2),nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,FactXI,Lab%SB(iaSh,lSym,kDen)%A,n1, &
+                  call DGEMM_(Mode,Mode2,nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,FactXI,Lab%SB(iaSh,lSym,kDen)%A,n1, &
                               Lab%SB(ibSh,lSym,1)%A,n2,ONE,KI%SB(lSym)%A1(1+iOffAB:),nBsa)
 
                 end if
@@ -1382,12 +1386,11 @@ do jSym=1,nSym
 
       if (JSYM == 1) then
         ! backtransform fock matrix to full storage
-        mode = 'tofull'
         add = .true.
         nMat = 1
-        call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,[JI],Frs(:,1),mode,add)
+        call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,JI,Frs(:,1),add)
         if (DoAct) then
-          call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,[JALT],Frs(:,2),mode,add)
+          call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,JALT,Frs(:,2),add)
         end if
       end if
 
@@ -1460,9 +1463,9 @@ do iSym=1,nSym
 
           iabg = iTri(iag,ibg)
 
-          FkI%SB(iSym)%A2(iag,ibg) = JI%SB(iSym)%A1(iabg)+KI%SB(iSym)%A1(iOffAB+iab)+KI%SB(iSym)%A1(jOffAB+jab)
+          FkI%SB(iSym)%A2(iag,ibg) = JI(1)%SB(iSym)%A1(iabg)+KI%SB(iSym)%A1(iOffAB+iab)+KI%SB(iSym)%A1(jOffAB+jab)
 
-          FkA%SB(iSym)%A2(iag,ibg) = JALT%SB(iSym)%A1(iabg)+KA%SB(iSym)%A2(iag,ibg)+KA%SB(iSym)%A2(ibg,iag)
+          FkA%SB(iSym)%A2(iag,ibg) = JALT(1)%SB(iSym)%A1(iabg)+KA%SB(iSym)%A2(iag,ibg)+KA%SB(iSym)%A2(ibg,iag)
 
         end do
 
@@ -1475,7 +1478,7 @@ do iSym=1,nSym
 end do
 call CWTIME(TCINT1,TWINT1)
 
-call Deallocate_DSBA(JALT)
+call Deallocate_DSBA(JALT(1))
 
 if (DoAct) then
 

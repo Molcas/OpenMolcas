@@ -67,11 +67,13 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: rc, nSym, nBas(nSym), nDen, MinMem(nSym)
-logical(kind=iwp) :: DoCoulomb(nDen), DoExchange(nDen)
-real(kind=wp) :: FactC(nDen), FactX(nDen)
-type(DSBA_Type) :: DLT(nDen), DSQ(nDen), FLT(nDen), FSQ(nDen)
-type(Integer_Pointer) :: pNocc(nDen)
+integer(kind=iwp), intent(inout) :: rc
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nDen, MinMem(nSym)
+logical(kind=iwp), intent(in) :: DoCoulomb(nDen), DoExchange(nDen)
+real(kind=wp), intent(in) :: FactC(nDen), FactX(nDen)
+type(DSBA_Type), intent(in) :: DLT(nDen), DSQ(nDen)
+type(DSBA_Type), intent(inout) :: FLT(nDen), FSQ(nDen)
+type(Integer_Pointer), intent(in) :: pNocc(nDen)
 #include "chounit.fh"
 #include "chotime.fh"
 integer(kind=iwp) :: iBatch, iE, iS, iSkip(nSym), iSym, ISYMA, ISYMB, ISYMD, ISYMG, iSymp, ISYMQ, iSymr, iSymr_Occ, iSyms, iVec, &
@@ -90,8 +92,8 @@ type(SBA_Type), target :: LqJs, Wab
 real(kind=wp), pointer :: LrJs(:,:,:) => null(), VJ(:) => null(), XdJb(:) => null(), XpJs(:) => null()
 character(len=*), parameter :: BaseNm = 'CHFV', SECNAM = 'CHO_FOCKTWO'
 integer(kind=iwp), external :: isfreeunit
-!*************************************************
 
+!*************************************************
 #ifdef _DEBUGPRINT_
 Debug = .false. ! to avoid double printing in SCF-debug
 #endif

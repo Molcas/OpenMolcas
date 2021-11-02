@@ -15,8 +15,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: FindMax
-integer(kind=iwp) :: numA
-real(kind=wp) :: LaJ(NumA)
+integer(kind=iwp), intent(in) :: numA
+real(kind=wp), intent(in) :: LaJ(NumA)
 integer(kind=iwp) :: ia
 real(kind=wp) :: XMax
 

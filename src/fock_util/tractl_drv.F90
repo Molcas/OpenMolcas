@@ -52,8 +52,8 @@ subroutine TraCtl_Drv(iType,DoExch2,iPart)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iType, iPart
-logical(kind=iwp) :: DoExch2
+integer(kind=iwp), intent(in) :: iType, iPart
+logical(kind=iwp), intent(in) :: DoExch2
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"

@@ -73,11 +73,13 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-integer(kind=iwp) :: rc, nDen, lOff1, MinMem(*)
-logical(kind=iwp) :: DoCoulomb(nDen), DoExchange(nDen)
-real(kind=wp) :: FactC(nDen), FactX(nDen)
-type(DSBA_Type) :: DLT(nDen), DSQ(nDen), FLT(nDen), FSQ(nDen), MSQ(nDen)
-type(Integer_Pointer) :: pNocc(nDen)
+integer(kind=iwp), intent(inout) :: rc
+integer(kind=iwp), intent(in) :: nDen, lOff1, MinMem(*)
+logical(kind=iwp), intent(in) :: DoCoulomb(nDen), DoExchange(nDen)
+real(kind=wp), intent(in) :: FactC(nDen), FactX(nDen)
+type(DSBA_Type), intent(in) :: DLT(nDen), DSQ(nDen), MSQ(nDen)
+type(DSBA_Type), intent(inout) :: FLT(nDen), FSQ(nDen)
+type(Integer_Pointer), intent(in) :: pNocc(nDen)
 #include "chodensity.fh"
 #include "chotime.fh"
 #include "choscf.fh"
@@ -102,10 +104,10 @@ real(kind=wp), parameter :: Thr = 1.0e-12_wp
 logical(kind=iwp), parameter :: DoRead = .true.
 character(len=*), parameter :: SECNAM = 'CHO_FMO_RED'
 real(kind=r8), external :: ddot_
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-
 #ifdef _DEBUGPRINT_
 Debug = .false. ! to avoid double printing in SCF-debug
 DensityCheck = .true.

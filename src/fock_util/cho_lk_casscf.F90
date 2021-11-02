@@ -56,11 +56,15 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6, r8
 
+#include "intent.fh"
+
 implicit none
-type(DSBA_Type) :: DLT(2), FLT(2), MSQ, Ash(2), CMO
-real(kind=wp) :: W_PWXY(*), FactXI, dmpk, dFmat, ExFac
-integer(kind=iwp) :: nFIorb(8), nAorb(8), nChM(8), nScreen
-logical(kind=iwp) :: DoActive
+type(DSBA_Type), intent(in) :: DLT(2), MSQ, Ash(2), CMO
+type(DSBA_Type), intent(inout) :: FLT(2)
+real(kind=wp), intent(_OUT_) :: W_PWXY(*)
+real(kind=wp), intent(in) :: FactXI, dmpk, dFmat, ExFac
+integer(kind=iwp), intent(in) :: nFIorb(8), nAorb(8), nChM(8), nScreen
+logical(kind=iwp), intent(in) :: DoActive
 #include "chotime.fh"
 #include "choscreen.fh"
 #include "cholesky.fh"
@@ -86,7 +90,7 @@ type(NDSBA_Type) :: DIAH
 type(L_Full_Type) :: L_Full
 type(Lab_Type) :: Lab
 character(len=50) :: CFmt
-character(len=6) mode
+character :: mode
 integer(kind=iwp), allocatable :: Indx(:,:), iShp_rs(:), kOffSh(:,:), nnBfShp(:,:)
 real(kind=wp), allocatable :: AbsC(:), Diag(:), Drs(:,:), Faa(:), Fia(:), Frs(:,:), Lrs(:,:), MLk(:,:), SumAClk(:,:), SvShp(:,:), &
                               VJ(:), Ylk(:,:)
@@ -99,10 +103,10 @@ character(len=*), parameter :: SECNAM = 'CHO_LK_CASSCF'
 real(kind=wp), external :: Cho_LK_ScreeningThreshold
 real(kind=r8), external :: ddot_
 integer(kind=iwp), external :: Cho_LK_MaxVecPerBatch
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-
 #ifdef _DEBUGPRINT_
 Debug = .false. ! to avoid double printing in CASSCF-debug
 #endif
@@ -452,9 +456,8 @@ do jSym=1,nSym
 
       if (JSYM == 1) then
         ! Transform the densities to reduced set storage
-        mode = 'toreds'
         add = .false.
-        call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,DLT,Drs,mode,add)
+        call swap_full2rs(irc,iLoc,nRS,nDen,JSYM,DLT,Drs,add)
       end if
 
       ! BATCH over the vectors ----------------------------
@@ -624,7 +627,7 @@ do jSym=1,nSym
                   ! ----------------------------------------------------------
                   ! Y(l)[k] = sum_n  DH(l,n) * |C(n)[k]|
                   !===========================================================
-                  Mode(1:1) = 'N'
+                  Mode = 'N'
                   n1 = nBas(lSym)
                   n2 = nBas(kSym)
 
@@ -632,13 +635,13 @@ do jSym=1,nSym
                   ! ----------------------------------------------------------
                   ! Y(l)[k] = sum_n  DH(n,l) * |C(n)[k]|
                   !===========================================================
-                  Mode(1:1) = 'T'
+                  Mode = 'T'
                   n1 = nBas(kSym)
                   n2 = nBas(lSym)
 
                 end if
 
-                if (n1 > 0) call DGEMV_(Mode(1:1),n1,n2,ONE,DIAH%SB(lSym,kSym)%A2,n1,AbsC,1,ZERO,Ylk(1,jK_a),1)
+                if (n1 > 0) call DGEMV_(Mode,n1,n2,ONE,DIAH%SB(lSym,kSym)%A2,n1,AbsC,1,ZERO,Ylk(1,jK_a),1)
 
                 ! List the shells present in Y(l)[k] by the largest element
                 do ish=1,nShell
@@ -741,16 +744,16 @@ do jSym=1,nSym
 
                       ! LaJ,[k] = sum_b  L(aJ,b) * C(b)[k]
                       ! ----------------------------------
-                      Mode(1:1) = 'N'
+                      Mode = 'N'
                       n1 = nBasSh(lSym,iaSh)*JNUM
                       n2 = nBasSh(kSym,ibSh)
 
                       if (JDen == 2) then
-                        call DGEMV_(Mode(1:1),n1,n2,One,L_Full%SPB(lSym,iShp_rs(iShp),l1)%A21,n1, &
-                                    Ash(2)%SB(kSym)%A2(1+ioffShb:,jK),1,One,Lab%SB(iaSh,lSym,1)%A,1)
-                      else
-                        call DGEMV_(Mode(1:1),n1,n2,One,L_Full%SPB(lSym,iShp_rs(iShp),l1)%A21,n1,MSQ%SB(kSym)%A2(1+ioffShb:,jK),1, &
+                        call DGEMV_(Mode,n1,n2,One,L_Full%SPB(lSym,iShp_rs(iShp),l1)%A21,n1,Ash(2)%SB(kSym)%A2(1+ioffShb:,jK),1, &
                                     One,Lab%SB(iaSh,lSym,1)%A,1)
+                      else
+                        call DGEMV_(Mode,n1,n2,One,L_Full%SPB(lSym,iShp_rs(iShp),l1)%A21,n1,MSQ%SB(kSym)%A2(1+ioffShb:,jK),1,One, &
+                                    Lab%SB(iaSh,lSym,1)%A,1)
                       end if
 
                     else ! lSym < kSym
@@ -760,16 +763,16 @@ do jSym=1,nSym
 
                       ! LJa,[k] = sum_b  L(b,Ja) * C(b)[k]
                       ! ----------------------------------
-                      Mode(1:1) = 'T'
+                      Mode = 'T'
                       n1 = nBasSh(kSym,ibSh)
                       n2 = JNUM*nBasSh(lSym,iaSh)
 
                       if (JDen == 2) then
-                        call DGEMV_(Mode(1:1),n1,n2,One,L_Full%SPB(kSym,iShp_rs(iShp),l1)%A12,n1, &
-                                    Ash(2)%SB(kSym)%A2(1+ioffShb:,jK),1,One,Lab%SB(iaSh,lSym,1)%A,1)
-                      else
-                        call DGEMV_(Mode(1:1),n1,n2,One,L_Full%SPB(kSym,iShp_rs(iShp),l1)%A12,n1,MSQ%SB(kSym)%A2(1+ioffShb:,jK),1, &
+                        call DGEMV_(Mode,n1,n2,One,L_Full%SPB(kSym,iShp_rs(iShp),l1)%A12,n1,Ash(2)%SB(kSym)%A2(1+ioffShb:,jK),1, &
                                     One,Lab%SB(iaSh,lSym,1)%A,1)
+                      else
+                        call DGEMV_(Mode,n1,n2,One,L_Full%SPB(kSym,iShp_rs(iShp),l1)%A12,n1,MSQ%SB(kSym)%A2(1+ioffShb:,jK),1,One, &
+                                    Lab%SB(iaSh,lSym,1)%A,1)
                       end if
                     end if
 
@@ -1077,9 +1080,8 @@ do jSym=1,nSym
 
       if (JSYM == 1) then
         ! backtransform fock matrix to full storage
-        mode = 'tofull'
         add = .true.
-        call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,FLT,Frs,mode,add)
+        call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,FLT,Frs,add)
       end if
 
       ! free memory

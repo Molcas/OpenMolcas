@@ -14,7 +14,8 @@ subroutine set_nnBSF(nSym,nBas,nnBSF,n2BSF)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nSym, nBas(8), nnBSF(8,8), n2BSF(8,8)
+integer(kind=iwp), intent(in) :: nSym, nBas(8)
+integer(kind=iwp), intent(out) :: nnBSF(8,8), n2BSF(8,8)
 integer(kind=iwp) :: i, j, kSym
 
 do j=1,nSym

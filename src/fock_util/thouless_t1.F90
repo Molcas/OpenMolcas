@@ -15,9 +15,12 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: CMO(*), T1amp(*)
-integer(kind=iwp) :: nSym, nBas(nSym), nFro(nSym), nOcc(nSym), nSsh(nSym)
+real(kind=wp), intent(in) :: CMO(*)
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nFro(nSym), nOcc(nSym), nSsh(nSym)
+real(kind=wp), intent(_OUT_) :: T1amp(*)
 integer(kind=iwp) :: i, iDummy(1), iErr, ifr, iOff, iSym, ito, iU, j, jp_C, jp_S, jp_T, jp_X, jU, k, kk, kOff, l_O, l_O2, l_S, &
                      lScr, Lu, nOrb
 real(kind=wp) :: Dummy(1), omega

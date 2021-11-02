@@ -64,11 +64,13 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: rc, nSym, nBas(nSym), nDen, lOff1, MinMem(nSym)
-logical(kind=iwp) :: DoCoulomb(nDen), DoExchange(nDen)
-real(kind=wp) :: FactC(nDen), FactX(nDen)
-type(DSBA_Type) :: DLT(nDen), DSQ(nDen), FLT(nDen), FSQ(nDen), MSQ(nDen)
-type(Integer_Pointer) :: pNocc(nDen)
+integer(kind=iwp), intent(inout) :: rc
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nDen, lOff1, MinMem(nSym)
+logical(kind=iwp), intent(in) :: DoCoulomb(nDen), DoExchange(nDen)
+real(kind=wp), intent(in) :: FactC(nDen), FactX(nDen)
+type(DSBA_Type), intent(in) :: DLT(nDen), DSQ(nDen), MSQ(nDen)
+type(DSBA_Type), intent(inout) :: FLT(nDen), FSQ(nDen)
+type(Integer_Pointer), intent(in) :: pNocc(nDen)
 #include "chounit.fh"
 #include "chotime.fh"
 #include "chodensity.fh"
@@ -90,10 +92,10 @@ real(kind=wp), allocatable :: Dchk(:)
 real(kind=wp), pointer :: LrJs(:,:,:) => null(), XdJb(:) => null(), XgJk(:) => null(), XkJs(:) => null(), VJ(:) => null()
 real(kind=wp), parameter :: Thr = 1.0e-12_wp
 character(len=*), parameter :: BaseNm = 'CHFV', SECNAM = 'CHO_FTWO_MO'
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-
 #ifdef _DEBUGPRINT_
 Debug = .false. ! to avoid double printing in SCF-debug
 #endif

@@ -15,15 +15,17 @@ use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-logical(kind=iwp) :: GetFM
-integer(kind=iwp) :: nDM, lFDM
-real(kind=wp) :: Rep_EN, FM(lFDM), DMA(lFDM), DMB(lFDM)
+logical(kind=iwp), intent(in) :: GetFM
+integer(kind=iwp), intent(in) :: nDM, lFDM
+real(kind=wp), intent(out) :: Rep_EN
+real(kind=wp), intent(inout) :: FM(lFDM)
+real(kind=wp), intent(in) :: DMA(lFDM), DMB(lFDM)
 #include "real.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
 integer(kind=iwp) :: irc
 character(len=16) :: NamRfil
-type(DSBA_Type) :: DLT, FLT
+type(DSBA_Type) :: DLT, FLT(1)
 real(kind=r8), external :: ddot_
 
 if ((nDM > 2) .or. (nDM < 1)) then
@@ -33,7 +35,7 @@ end if
 
 if (GetFM) Then
 
-  call Allocate_DSBA(FLT,nBas,nBas,nSym,aCase='TRI',Ref=FM)
+  call Allocate_DSBA(FLT(1),nBas,nBas,nSym,aCase='TRI',Ref=FM)
 
   call Get_NameRun(NamRfil) ! save the old RUNFILE name
   call NameRun('AUXRFIL')   ! switch RUNFILE name
@@ -41,7 +43,7 @@ if (GetFM) Then
   call Allocate_DSBA(DLT,nBas,nBas,nSym,aCase='TRI')
   call get_dArray('D1ao',DLT%A0,lFDM)
 
-  FLT%A0(:) = Zero
+  FLT(1)%A0(:) = Zero
   call CHO_FOCK_DFT_RED(irc,DLT,FLT)
   if (irc /= 0) then
     call SysAbendMsg('Coul_DMB ',' non-zero rc ',' ')
@@ -49,7 +51,7 @@ if (GetFM) Then
   call GADSum(FM,lFDM)
 
   call deallocate_DSBA(DLT)
-  call deallocate_DSBA(FLT)
+  call deallocate_DSBA(FLT(1))
 
   call NameRun(NamRfil) ! switch back RUNFILE name
 
