@@ -255,6 +255,7 @@ if ((Method(5:7) == 'SCF') .or. &
     (Method(1:5) == 'CCSDT') .or. &
     (Method(1:4) == 'CHCC') .or. &
     (Method(1:6) == 'MCPDFT') .or. &
+    (Method(1:6) == 'MSPDFT') .or. &
     (Method(1:4) == 'CHT3') .or. &
     (Method(1:8) == 'EXTERNAL')) then
   if (iPL_Save >= 3) then
@@ -618,6 +619,7 @@ do
            (Method(1:6) == 'GASSCF') .or. &
            (Method(1:6) == 'CASSCF') .or. &
            (Method(1:6) == 'MCPDFT') .or. &
+           (Method(1:6) == 'MSPDFT') .or. &
            (Method(1:6) == 'CASPT2') .or. &
            (Method(1:5) == 'CCSDT')) then
     call StartLight('rasscf')
@@ -728,7 +730,7 @@ do
     end if
   end if
 
-  if (Method(1:6) == 'MCPDFT') then
+  if ((Method(1:6) == 'MCPDFT').or.(Method(1:6) == 'MSPDFT')) then
     call StartLight('mcpdft')
     call init_run_use()
     call Disable_Spool()
