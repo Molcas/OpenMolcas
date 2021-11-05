@@ -1,126 +1,126 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1995,1998, Niclas Forsberg                             *
-*               1995,1998, Anders Bernhardsson                         *
-************************************************************************
-C!-----------------------------------------------------------------------!
-C!
-c       Module TabMod
-C!
-C!  Contains:
-C!    MakeTab   (m_max,maxOrd,maxIncOrd,mMat,mInc,mDec)
-C!    TabDim    (nDim,nOsc) Result(nTabDim)
-C!    iDetNr    (iocc,graph,nosc,m_max)  Result(iDetNr)
-C!
-C!  Written by:
-C!    Niclas Forsberg & Anders Bernhardsson,
-C!    Dept. of Theoretical Chemistry, Lund University, 1995&1998.
-C!
-C!-----------------------------------------------------------------------!
-C!
-Cvv       Private
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1995,1998, Niclas Forsberg                             *
+!               1995,1998, Anders Bernhardsson                         *
+!***********************************************************************
+!!-----------------------------------------------------------------------!
+!!
+!       Module TabMod
+!!
+!!  Contains:
+!!    MakeTab   (m_max,maxOrd,maxIncOrd,mMat,mInc,mDec)
+!!    TabDim    (nDim,nOsc) Result(nTabDim)
+!!    iDetNr    (iocc,graph,nosc,m_max)  Result(iDetNr)
+!!
+!!  Written by:
+!!    Niclas Forsberg & Anders Bernhardsson,
+!!    Dept. of Theoretical Chemistry, Lund University, 1995&1998.
+!!
+!!-----------------------------------------------------------------------!
+!!
+!vv       Private
 
-c       Contains
+!       Contains
 
-C!-----------------------------------------------------------------------!
+!!-----------------------------------------------------------------------!
 
-C!-----------------------------------------------------------------------!
-C!
-      Subroutine MakeTab2(
+!!-----------------------------------------------------------------------!
+!!
+      Subroutine MakeTab2(                                              &
      &      m_max,maxOrd,maxIncOrd,msiz,mMat,mInc,mDec,nOsc)
-C!
-C!  Purpose:
-C!    Create tables used in FCval.
-C!
-C!  Input:
-C!    nOsc      : Integer - the the number of oscillators.
-C!    m_max     : Integer - the maximum sum of the quantum numbers.
-C!    maxOrd    : Integer - number of rows in mMat.
-C!    nTabDim   : Integer
-C!    Osc_Shift : Integer array
-C!
-C!  Output:
-C!    mMat      : Two dimensional integer array
-C!    mInc      : Two dimensional integer array
-C!    mDec      : Two dimensional integer array
-C!
-C!  Calls:
-C!    none
-C!
-C!  Written by:
-C!    Niclas Forsberg Anders Bernhardsson,
-C!    Dept. of Theoretical Chemistry, Lund University, 1995&1998
-C!
+!!
+!!  Purpose:
+!!    Create tables used in FCval.
+!!
+!!  Input:
+!!    nOsc      : Integer - the the number of oscillators.
+!!    m_max     : Integer - the maximum sum of the quantum numbers.
+!!    maxOrd    : Integer - number of rows in mMat.
+!!    nTabDim   : Integer
+!!    Osc_Shift : Integer array
+!!
+!!  Output:
+!!    mMat      : Two dimensional integer array
+!!    mInc      : Two dimensional integer array
+!!    mDec      : Two dimensional integer array
+!!
+!!  Calls:
+!!    none
+!!
+!!  Written by:
+!!    Niclas Forsberg Anders Bernhardsson,
+!!    Dept. of Theoretical Chemistry, Lund University, 1995&1998
+!!
       Implicit Real*8 ( a-h,o-z )
-      Integer mInc (0:msiz,nosc),mDec (0:msiz,nosc),
+      Integer mInc (0:msiz,nosc),mDec (0:msiz,nosc),                    &
      &  mmat (0:msiz,nosc) !  (0:msiz,nosc)
-c       Integer iocc(10)  ! test
-c       Integer  nTabDim,nvTabDim
+!       Integer iocc(10)  ! test
+!       Integer  nTabDim,nvTabDim
 #include "WrkSpc.fh"
 
-      Call GetMem('Graph1','Allo','Inte',
+      Call GetMem('Graph1','Allo','Inte',                               &
      &  ipGraph1,(m_max+1)*(nOsc+1))
-      Call GetMem('Graph2','Allo','Inte',
+      Call GetMem('Graph2','Allo','Inte',                               &
      &  ipGraph2,(m_max+1)*(m_max+1)*nOsc)
 
-      Call MakeTab2_a(
-     &      m_max,maxOrd,maxIncOrd,msiz,mMat,mInc,mDec,
+      Call MakeTab2_a(                                                  &
+     &      m_max,maxOrd,maxIncOrd,msiz,mMat,mInc,mDec,                 &
      & nOsc,iWork(ipgraph1),iWork(ipgraph2))
 
-      Call GetMem('Graph1','Free','Inte',
+      Call GetMem('Graph1','Free','Inte',                               &
      &  ipGraph1,(m_max+1)*(nOsc+1))
-      Call GetMem('Graph2','Free','Inte',
+      Call GetMem('Graph2','Free','Inte',                               &
      &  ipGraph2,(m_max+1)*(m_max+1)*nOsc)
 
       End
 
 
-C!-----------------------------------------------------------------------!
-C!
-      Subroutine MakeTab2_a(
-     &      m_max,maxOrd,maxIncOrd,msiz,mMat,mInc,mDec,
+!!-----------------------------------------------------------------------!
+!!
+      Subroutine MakeTab2_a(                                            &
+     &      m_max,maxOrd,maxIncOrd,msiz,mMat,mInc,mDec,                 &
      &  nOsc,graph1,graph2)
-C!
-C!  Purpose:
-C!    Create tables used in FCval.
-C!
-C!  Input:
-C!    nOsc      : Integer - the the number of oscillators.
-C!    m_max     : Integer - the maximum sum of the quantum numbers.
-C!    maxOrd    : Integer - number of rows in mMat.
-C!    nTabDim   : Integer
-C!    Osc_Shift : Integer array
-C!
-C!  Output:
-C!    mMat      : Two dimensional integer array
-C!    mInc      : Two dimensional integer array
-C!    mDec      : Two dimensional integer array
-C!
-C!  Calls:
-C!    none
-C!
-C!  Written by:
-C!    Niclas Forsberg Anders Bernhardsson,
-C!    Dept. of Theoretical Chemistry, Lund University, 1995&1998
-C!
+!!
+!!  Purpose:
+!!    Create tables used in FCval.
+!!
+!!  Input:
+!!    nOsc      : Integer - the the number of oscillators.
+!!    m_max     : Integer - the maximum sum of the quantum numbers.
+!!    maxOrd    : Integer - number of rows in mMat.
+!!    nTabDim   : Integer
+!!    Osc_Shift : Integer array
+!!
+!!  Output:
+!!    mMat      : Two dimensional integer array
+!!    mInc      : Two dimensional integer array
+!!    mDec      : Two dimensional integer array
+!!
+!!  Calls:
+!!    none
+!!
+!!  Written by:
+!!    Niclas Forsberg Anders Bernhardsson,
+!!    Dept. of Theoretical Chemistry, Lund University, 1995&1998
+!!
       Implicit Real*8 ( a-h,o-z )
-      Integer mInc (0:msiz,nosc),mDec (0:msiz,nosc),
+      Integer mInc (0:msiz,nosc),mDec (0:msiz,nosc),                    &
      &  mmat (0:msiz,nosc) !  (0:msiz,nosc)
       Integer Graph1 (m_max+1,nOsc+1)
       Integer Graph2 (m_max+1,m_max+1,nOsc)
-c       Integer iocc(10)  ! test
+!       Integer iocc(10)  ! test
       Integer  nTabDim,nvTabDim
 #include "WrkSpc.fh"
-C!
-C!---- Initialize.
+!!
+!!---- Initialize.
 
       do iv=0,msiz
       do jv=1,nosc
@@ -132,8 +132,8 @@ C!---- Initialize.
       If ( m_max.eq.0 ) Return
       Call TabDim_drv(m_max,nOsc,nTabDim)
       maxOrd = nTabDim-1
-C!
-C!---- Set up the vertex table
+!!
+!!---- Set up the vertex table
       do iv=1,m_max+1
       do jv=1,nOsc+1
       Graph1(iv,jv) = 0
@@ -154,8 +154,8 @@ C!---- Set up the vertex table
       End Do
       End Do
       End If
-C!
-C!---- set up the arc table
+!!
+!!---- set up the arc table
       Call GetMem('Number','Allo','INTE',ipNumber,m_max+1)
       do iv=0,m_max
       iWork(ipNumber+iv) = 0
@@ -176,23 +176,23 @@ C!---- set up the arc table
       Do iQ1 = 0,m_max         ! Where we are going
       Do iQ2 = 0,iQ1-1      ! Where we came from
       Do i = iQ2+1,iq1   ! Sum over preceding paths
-      Graph2(iQ1+1,iQ2+1,iOsc) = Graph1(i+1,iOsc)+
+      Graph2(iQ1+1,iQ2+1,iOsc) = Graph1(i+1,iOsc)+                      &
      &             Graph2(iQ1+1,iQ2+1,iOsc)
       End Do
       End Do
       End Do
       End Do
-C!
+!!
       Do iQ1 = 0,m_max            ! Where we are going
       Do iQ2 = 0,iq1           ! Where we came from
-      Graph2(iQ1+1,iQ2+1,nOsc) = Graph2(iQ1+1,iQ2+1,nOsc)+
+      Graph2(iQ1+1,iQ2+1,nOsc) = Graph2(iQ1+1,iQ2+1,nOsc)+              &
      &       iWork(ipNumber+iQ1)
       End Do
       End Do
-C!
+!!
       Call GetMem('Number','Free','INTE',ipNumber,m_max+1)
-C!
-C!
+!!
+!!
       Call GetMem('ivec','Allo','INTE',ipivec,nOsc)
       Do iQuanta=1,m_max
         do iv=1,nOsc
@@ -225,9 +225,9 @@ C!
       enddo
       End Do
       End Do
-C!
-C!---- Create mInc.
-c       minc=-1
+!!
+!!---- Create mInc.
+!       minc=-1
       do iv=0,msiz
       do jv=1,nosc
       mInc(iv,jv) = -1
@@ -246,8 +246,8 @@ c       minc=-1
       iWork(ipivec+j-1) = iWork(ipivec+j-1)-1
       End Do
       End Do
-C!
-C!---- Create mDec.
+!!
+!!---- Create mDec.
 
       do iv=1,nOsc
       mdec(0,iv)=-1
@@ -268,7 +268,7 @@ C!---- Create mDec.
       End IF
       End Do
       End Do
-C!
+!!
 
       Call GetMem('ivec','Free','INTE',ipivec,nOsc)
       End

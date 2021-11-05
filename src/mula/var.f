@@ -1,28 +1,28 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1995, Niclas Forsberg                                  *
-************************************************************************
-C!-----------------------------------------------------------------------!
-C!
-      Subroutine var_to_qvar(var,qvar,ref,qref,alpha,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1995, Niclas Forsberg                                  *
+!***********************************************************************
+!!-----------------------------------------------------------------------!
+!!
+      Subroutine var_to_qvar(var,qvar,ref,qref,alpha,                   &
      &  trfName,ndata,nvar)
-C!
-C!  Purpose:
-C!    Transform coordinates given in input using tranformation
-C!    specified in input.
-C!
-C!  Written by:
-C!    Niclas Forsberg,
-C!    Dept. of Theoretical Chemistry, Lund University, 1995.
-C!
+!!
+!!  Purpose:
+!!    Transform coordinates given in input using tranformation
+!!    specified in input.
+!!
+!!  Written by:
+!!    Niclas Forsberg,
+!!    Dept. of Theoretical Chemistry, Lund University, 1995.
+!!
       Implicit Real*8 ( a-h,o-z )
 #include "Constants_mula.fh"
       Real*8 var  (ndata, nvar)
@@ -33,8 +33,8 @@ C!
       Character*80 trfName (nvar)
       Character*32  trfCode
       Character*32  Inline
-C!
-C!
+!!
+!!
       Do ivar = 1,nvar
       trfcode = trfName(ivar)(1:32)
       ix = index(trfcode,'AS IT IS')
@@ -60,8 +60,8 @@ C!
       call abend()
       End if
       End Do
-C!
-C!---- Calculate refrence value.
+!!
+!!---- Calculate refrence value.
       sum = 0.0d0
       Do idata = 1,ndata
       sum = sum+var(idata,ivar)
@@ -72,8 +72,8 @@ C!---- Calculate refrence value.
       Else If ( is.gt.0 ) Then
       ref(ivar) = sin(angsc*ref(ivar))
       End If
-C!
-C!---- Subtract reference value if requested.
+!!
+!!---- Subtract reference value if requested.
       If ( ia.gt.0 ) Then
       Do idata = 1,ndata
       v = par(idata,ivar)
@@ -85,8 +85,8 @@ C!---- Subtract reference value if requested.
       End Do
       End If
       End Do
-C!
-C!---- Transform coordinates.
+!!
+!!---- Transform coordinates.
       Do ivar = 1,nvar
       trfcode = trfName(ivar)(1:32)
       ie   = index(trfcode,'EXP')
@@ -102,15 +102,15 @@ C!---- Transform coordinates.
       End If
       Do idata = 1,ndata
       If ( ie.gt.0 ) Then
-      qvar(idata,ivar) = 1.0d0-exp(-alpha(ivar)*
+      qvar(idata,ivar) = 1.0d0-exp(-alpha(ivar)*                        &
      &          par(idata,ivar))
       Else
       qvar(idata,ivar) = par(idata,ivar)
       End If
       End Do
       End Do
-C!
-C!---- Calculate refrence value of transformed coordinates.
+!!
+!!---- Calculate refrence value of transformed coordinates.
       Do ivar = 1,nvar
       sum = 0.0d0
       Do idata = 1,ndata
@@ -118,28 +118,28 @@ C!---- Calculate refrence value of transformed coordinates.
       End Do
       qref(ivar) = sum/ndata
       End Do
-C!
-C!---- Subtract reference value from transformed coordinates.
+!!
+!!---- Subtract reference value from transformed coordinates.
       Do ivar = 1,nvar
       Do idata = 1,ndata
       qvar(idata,ivar) = qvar(idata,ivar)-qref(ivar)
       End Do
       End Do
-C!
+!!
       End
-C!
-C!-----------------------------------------------------------------------!
-C!-----------------------------------------------------------------------!
-C!
+!!
+!!-----------------------------------------------------------------------!
+!!-----------------------------------------------------------------------!
+!!
       Subroutine x_to_qvar(x,ref,qref,alpha,trfName,nDimX)
-C!
-C!  Purpose:
-C!    Transform the coordinates of a given point.
-C!
-C!  Written by:
-C!    Niclas Forsberg,
-C!    Dept. of Theoretical Chemistry, Lund University, 1995.
-C!
+!!
+!!  Purpose:
+!!    Transform the coordinates of a given point.
+!!
+!!  Written by:
+!!    Niclas Forsberg,
+!!    Dept. of Theoretical Chemistry, Lund University, 1995.
+!!
       Implicit Real*8 ( a-h,o-z )
       Real*8  x (nDimX)
       Real*8 par (nDimX)
@@ -148,8 +148,8 @@ C!
       Character*80 trfName (nDimX)
       Character*32  trfCode
       Character*32  Inline
-C!
-C!
+!!
+!!
       Do ivar = 1,nDimX
       trfcode = trfName(ivar)(1:32)
       ia = index(trfcode,'-AVG')
@@ -171,8 +171,8 @@ C!
       End If
       End If
       End Do
-C!
-C!---- Transform coordinates.
+!!
+!!---- Transform coordinates.
       Do ivar = 1,nDimX
       trfcode = trfName(ivar)(1:32)
       ie = index(trfcode,'EXP')
@@ -191,10 +191,10 @@ C!---- Transform coordinates.
       x(ivar) = par(ivar)
       End If
       End Do
-C!
-C!---- Subtract reference value from transformed coordinates.
+!!
+!!---- Subtract reference value from transformed coordinates.
       Do ivar = 1,nDimX
       x(ivar) = x(ivar)-qref(ivar)
       End Do
-C!
+!!
       End

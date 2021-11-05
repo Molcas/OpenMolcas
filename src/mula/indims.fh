@@ -1,14 +1,14 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-       common /indims/ ipipow,ipm_plot, l_m_plot, ipn_plot, l_n_plot,
-     &  ipNormModes, l_NormModes, ipvar, ipyin1, ipyin2,
-     &  ipt_dipin1,ipt_dipin2,ipt_dipin3, ipHess1, l_Hess1, ipHess2,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+       common /indims/ ipipow,ipm_plot, l_m_plot, ipn_plot, l_n_plot,   &
+     &  ipNormModes, l_NormModes, ipvar, ipyin1, ipyin2,                &
+     &  ipt_dipin1,ipt_dipin2,ipt_dipin3, ipHess1, l_Hess1, ipHess2,    &
      &  ipAtCoord1, ipAtCoord2, ipTranDipGrad

@@ -1,62 +1,62 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1983, Per Ake Malmqvist                                *
-*               1994,1995, Niclas Forsberg                             *
-************************************************************************
-C!-----------------------------------------------------------------------!
-C!
-C!
-C!  Contains:
-C!    Cholesky    : Performs a Cholesky factorization of a positive
-C!                  definite matrix A.
-C!    Dool_MULA   : Solves the system of linear equations A*X = B.
-C!    SolveSecEq  : Solves the seqular equation A*C = S*C*D.
-C!    Polfit      : Fit a polynomial of requested dimension to the input
-C!                  data.
-C!    calcNorm    : Calculates norm of a vector.
-C!
-C!  Written by:
-C!    Niclas Forsberg,
-C!    Dept. of Theoretical Chemistry, Lund University, 1995.
-C!
-C!-----------------------------------------------------------------------!
-C!
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1983, Per Ake Malmqvist                                *
+!               1994,1995, Niclas Forsberg                             *
+!***********************************************************************
+!!-----------------------------------------------------------------------!
+!!
+!!
+!!  Contains:
+!!    Cholesky    : Performs a Cholesky factorization of a positive
+!!                  definite matrix A.
+!!    Dool_MULA   : Solves the system of linear equations A*X = B.
+!!    SolveSecEq  : Solves the seqular equation A*C = S*C*D.
+!!    Polfit      : Fit a polynomial of requested dimension to the input
+!!                  data.
+!!    calcNorm    : Calculates norm of a vector.
+!!
+!!  Written by:
+!!    Niclas Forsberg,
+!!    Dept. of Theoretical Chemistry, Lund University, 1995.
+!!
+!!-----------------------------------------------------------------------!
+!!
 
-C!
+!!
       Subroutine Dool_MULA(A,LA1,LA2,B,LB1,LB2,det)
-C!
-C!  Purpose:
-C!    Solve A*X = B
-C!
-C!  Input:
-C!    A      : Real*8 two dimensional array
-C!    B      : Real*8 two dimensional array
-C!
-C!  Output:
-C!    B      : Real*8 two dimensional array - contains
-C!             the solution X.
-C!  Written by:
-C!    Per-AAke Malmquist
-C!    Dept. of Theoretical Chemistry, Lund University, 1983.
-C!
-C!  Modified by:
-C!    Niclas Forsberg,
-C!    Dept. of Theoretical Chemistry, Lund University, 1995.
-C!
+!!
+!!  Purpose:
+!!    Solve A*X = B
+!!
+!!  Input:
+!!    A      : Real*8 two dimensional array
+!!    B      : Real*8 two dimensional array
+!!
+!!  Output:
+!!    B      : Real*8 two dimensional array - contains
+!!             the solution X.
+!!  Written by:
+!!    Per-AAke Malmquist
+!!    Dept. of Theoretical Chemistry, Lund University, 1983.
+!!
+!!  Modified by:
+!!    Niclas Forsberg,
+!!    Dept. of Theoretical Chemistry, Lund University, 1995.
+!!
       Implicit Real*8 ( a-h,o-z )
       Real*8 A(LA1,LA2)
       Real*8 B(LB1,LB2)
 #include "WrkSpc.fh"
-C!
-C!---- Initialize.
+!!
+!!---- Initialize.
       ip=-9999999
       jp=-9999999
       n=LA2
@@ -64,14 +64,14 @@ C!---- Initialize.
       Call GetMem('Buf','Allo','Real',ipBuf,n)
       Call GetMem('iPiv','Allo','Inte',ipiPiv,n)
       Call GetMem('jPiv','Allo','Inte',ipjPiv,n)
-C!
+!!
       Do i = 1,n
       iWork(ipiPiv+i-1) = i
       iWork(ipjPiv+i-1) = i
       End Do
       det = 1.0d0
       Do i = 1,n
-C!---- Now find better pivot element.
+!!---- Now find better pivot element.
       Amax = -1.0d0
       Do k = i,n
       Do l = i,n
@@ -98,7 +98,7 @@ C!---- Now find better pivot element.
       ip = iWork(ipiPiv+i-1)
       jp = iWork(ipjPiv+i-1)
       diag = A(ip,jp)
-c          Buf(i) = diag
+!          Buf(i) = diag
       Work(ipBuf+i-1) = diag
       det = det*diag
       Do k = i+1,n
@@ -111,34 +111,34 @@ c          Buf(i) = diag
       End Do
       End Do
       End Do
-C!
-C!---- First resubstitution step.
+!!
+!!---- First resubstitution step.
       Do j = 1,m
       Do i = 2,n
       ip = iWork(ipiPiv+i-1)
       sum = B(ip,j)
       Do k = 1,i-1
-      sum = sum-A(ip,iWork(ipjPiv+k-1))*
+      sum = sum-A(ip,iWork(ipjPiv+k-1))*                                &
      &          B(iWork(ipiPiv+k-1),j)
       End Do
       B(ip,j) = sum
       End Do
       End Do
-C!
-C!---- Second resubstitution step.
+!!
+!!---- Second resubstitution step.
       Do j = 1,m
       Do i = n,1,-1
       ip = iWork(ipiPiv+i-1)
       sum = B(ip,j)
       Do k = i+1,n
-      sum = sum-A(ip,iWork(ipjPiv+k-1))*
+      sum = sum-A(ip,iWork(ipjPiv+k-1))*                                &
      &          B(iWork(ipiPiv+k-1),j)
       End Do
       B(ip,j) = sum/Work(ipBuf+i-1)
       End Do
       End Do
-C!
-C!---- Reorganization part.
+!!
+!!---- Reorganization part.
       Do j = 1,m
       Do i = 1,n
       Work(ipBuf+i-1) = B(iWork(ipiPiv+i-1),j)
@@ -147,61 +147,61 @@ C!---- Reorganization part.
       B(iWork(ipjPiv+i-1),j) = Work(ipBuf+i-1)
       End Do
       End Do
-C!
+!!
       Call GetMem('Buf','Free','Real',ipBuf,n)
       Call GetMem('iPiv','Free','Real',ipiPiv,n)
       Call GetMem('jPiv','Free','Real',ipjPiv,n)
-C!
+!!
       End
-C!
-C!-----------------------------------------------------------------------!
+!!
+!!-----------------------------------------------------------------------!
 
-C!-----------------------------------------------------------------------!
-C!
+!!-----------------------------------------------------------------------!
+!!
       Subroutine SolveSecEq(A,n,C,S,D)
-C!
-C!  Purpose:
-C!    Solve the secular equation SAC = CD.
-C!
-C!  Input:
-C!    A        : Real*8 two dimensional array
-C!    S        : Real*8 two dimensional array
-C!
-C!  Output:
-C!    C        : Real*8 two dimensional array
-C!    D        : Real*8 array
-C!
-C!  Calls:
-C!    Jacob
-C!
-C!  Written by:
-C!    Niclas Forsberg,
-C!    Dept. of Theoretical Chemistry, Lund University, 1994.
-C!
+!!
+!!  Purpose:
+!!    Solve the secular equation SAC = CD.
+!!
+!!  Input:
+!!    A        : Real*8 two dimensional array
+!!    S        : Real*8 two dimensional array
+!!
+!!  Output:
+!!    C        : Real*8 two dimensional array
+!!    D        : Real*8 array
+!!
+!!  Calls:
+!!    Jacob
+!!
+!!  Written by:
+!!    Niclas Forsberg,
+!!    Dept. of Theoretical Chemistry, Lund University, 1994.
+!!
       Implicit Real*8 ( a-h,o-z )
       Integer n
       Real*8 A(n,n),S(n,n),C(n,n), D(n)
-C!---- Local declarations.
+!!---- Local declarations.
 #include "WrkSpc.fh"
 
-C!
-C!---- Initialize.
+!!
+!!---- Initialize.
       nSqr = n**2
       nSqrTri = n*(n+1)/2
-C!D Write(6,*)'SolveSecEq test prints.'
-C!D Write(6,*)'Matrix A:'
-C!D do i=1,n
-C!D Write(6,'(1x,5F16.8)')(A(i,j),j=1,n)
-C!D end do
-C!
-C!---- get memory for temporary matrices.
+!!D Write(6,*)'SolveSecEq test prints.'
+!!D Write(6,*)'Matrix A:'
+!!D do i=1,n
+!!D Write(6,'(1x,5F16.8)')(A(i,j),j=1,n)
+!!D end do
+!!
+!!---- get memory for temporary matrices.
       Call GetMem('Scr','Allo','Real',ipScr,nSqrTri)
       Call GetMem('T','Allo','Real',ipT,nSqr)
       Call GetMem('Temp','Allo','Real',ipTemp,nSqr)
       Call GetMem('Asymm','Allo','Real',ipAsymm,nSqr)
 
-C!
-C!---- Transform S to lower packed storage in Scratch.
+!!
+!!---- Transform S to lower packed storage in Scratch.
       k = 1
       Do i = 1,n
       Do j = 1,i
@@ -209,16 +209,16 @@ C!---- Transform S to lower packed storage in Scratch.
       k = k+1
       End Do
       End Do
-C!
-C!---- Turn T into a unit matrix.
-cvv       T = 0.0d0
+!!
+!!---- Turn T into a unit matrix.
+!vv       T = 0.0d0
       call dcopy_(nSqr,[0.0D0],0,Work(ipT),1)
       Do i = 1,n
       Work(ipT+i+n*(i-1)-1) = 1.0d0
       End Do
-C!
-C!---- Diagonalize Scratch and scale each column of T with the square
-C!     root of the corresponding eigenvalue.
+!!
+!!---- Diagonalize Scratch and scale each column of T with the square
+!!     root of the corresponding eigenvalue.
       Call Jacob(Work(ipScr),Work(ipT),n,n)
       Do j = 1,n
       jj = j*(j+1)/2
@@ -227,18 +227,18 @@ C!     root of the corresponding eigenvalue.
       Work(ipT+i+n*(j-1)-1) = Work(ipT+i+n*(j-1)-1)*Scale
       End Do
       End Do
-C!
-C!---- Make A symmetric and transform it to lower packed storage in
-C!     Scratch.
-      Call DGEMM_('N','N',
-     &            n,n,n,
-     &            1.0d0,A,n,
-     &            Work(ipT),n,
+!!
+!!---- Make A symmetric and transform it to lower packed storage in
+!!     Scratch.
+      Call DGEMM_('N','N',                                              &
+     &            n,n,n,                                                &
+     &            1.0d0,A,n,                                            &
+     &            Work(ipT),n,                                          &
      &            0.0d0,Work(ipTemp),n)
-      Call DGEMM_('T','N',
-     &            n,n,n,
-     &            1.0d0,Work(ipT),n,
-     &            Work(ipTemp),n,
+      Call DGEMM_('T','N',                                              &
+     &            n,n,n,                                                &
+     &            1.0d0,Work(ipT),n,                                    &
+     &            Work(ipTemp),n,                                       &
      &            0.0d0,Work(ipAsymm),n)
       k = 1
       Do i = 1,n
@@ -247,41 +247,41 @@ C!     Scratch.
       k = k+1
       End Do
       End Do
-C!
-C!---- Diagonalize Scratch.
+!!
+!!---- Diagonalize Scratch.
       Call Jacob(Work(ipScr),Work(ipT),n,n)
       Call JacOrd(Work(ipScr),Work(ipT),n,n)
-C!
-C!---- Store the eigenvalues in array D.
+!!
+!!---- Store the eigenvalues in array D.
       Do i = 1,n
       ii = i*(i+1)/2
       D(i) = Work(ipScr+ii-1)
       End Do
-cvv       C = T
+!vv       C = T
       call dcopy_(nSqr,Work(ipT),1,C,1)
-C!
-C!---- Free memory of temporary matrices.
+!!
+!!---- Free memory of temporary matrices.
       Call GetMem('Scr','Free','Real',ipScr,nSqrTri)
       Call GetMem('T','Free','Real',ipT,nSqr)
       Call GetMem('Temp','Free','Real',ipTemp,nSqr)
       Call GetMem('Asymm','Free','Real',ipAsymm,nSqr)
-C!
+!!
       End
-C!
-C!-----------------------------------------------------------------------!
-      Subroutine PolFit(ipow,nvar,var,yin,ndata,
-     &       coef,nterm,stand_dev,max_err,diff_vec,
+!!
+!!-----------------------------------------------------------------------!
+      Subroutine PolFit(ipow,nvar,var,yin,ndata,                        &
+     &       coef,nterm,stand_dev,max_err,diff_vec,                     &
      &       use_weight)
-C!
-C!  Purpose:
-C!    Fit a polynomial to yin.
-C!
-C!  Written by:
-C!    P-AA Malmquist
-C!
-C!  Modified by:
-C!    Niclas Forsberg
-C!
+!!
+!!  Purpose:
+!!    Fit a polynomial to yin.
+!!
+!!  Written by:
+!!    P-AA Malmquist
+!!
+!!  Modified by:
+!!    Niclas Forsberg
+!!
       Implicit Real*8 ( a-h,o-z )
       Parameter (mxdeg = 6)
       Integer ipow(nvar,nterm)
@@ -294,22 +294,22 @@ C!
       Real*8 vpow ( 0:mxdeg,nvar )
       Real*8 equmat( nterm,nterm )
       Real*8 rhs( nterm ),term( nterm )
-C!
+!!
       Real*8 diff_vec(ndata)
       Logical  use_weight
 #include "WrkSpc.fh"
-C!
-C!---- Initialize.
+!!
+!!---- Initialize.
       NrOfVar   = nvar
       nPolyTerm  = nterm
       myCoef2= 1
-cvv       rhs    = 0.0d0
+!vv       rhs    = 0.0d0
       call dcopy_(nterm,[0.0D0],0,rhs,1)
-cvv       equmat = 0.0d0
+!vv       equmat = 0.0d0
       call dcopy_(nterm*nterm,[0.0D0],0,equmat,1)
 
-C!
-C!---- Set up weight vector.
+!!
+!!---- Set up weight vector.
       Call GetMem('weight','Allo','Real',ipweight,ndata)
       If ( use_weight ) Then
       e_min = yin(1)
@@ -320,15 +320,15 @@ C!---- Set up weight vector.
       End Do
       e_range = e_max-e_min
       Do idata = 1,ndata
-      Work(ipweight+idata-1) = 1.0d0/(1.0d0+1000.0d0*
+      Work(ipweight+idata-1) = 1.0d0/(1.0d0+1000.0d0*                   &
      &       ((yin(idata)-e_min)/e_range))
       End Do
       Else
-cvv          weight = 1.0d0
+!vv          weight = 1.0d0
       call dcopy_(ndata,[0.1D0],0,Work(ipweight),1)
       End If
-C!
-C!---- Accumulate equation matrix and right-hand-side.
+!!
+!!---- Accumulate equation matrix and right-hand-side.
       Do idata = 1,ndata
       !---- Calculate powers of individual variable values.
       Do ivar = 1,NrOfVar
@@ -339,7 +339,7 @@ C!---- Accumulate equation matrix and right-hand-side.
       vpow(i,ivar) = pow
       End Do
       End Do
-C!---- Calculate value of each polynomial term at this point.
+!!---- Calculate value of each polynomial term at this point.
       Do iterm = 1,nPolyTerm
       ip = ipow(iterm,1)
       t = vpow(ip,1)
@@ -349,36 +349,36 @@ C!---- Calculate value of each polynomial term at this point.
       End Do
       term(iterm) = t
       End Do
-C!---- Accumulate equmat and rhs.
+!!---- Accumulate equmat and rhs.
       Do iterm = 1,nPolyTerm
-      rhs(iterm) = rhs(iterm)+yin(idata)*
+      rhs(iterm) = rhs(iterm)+yin(idata)*                               &
      &       term(iterm)*Work(ipweight+idata-1)
       Do jterm = 1,iterm
-      equmat(iterm,jterm) = equmat(iterm,jterm)+
+      equmat(iterm,jterm) = equmat(iterm,jterm)+                        &
      &          term(iterm)*term(jterm)*Work(ipweight+idata-1)
       End Do
       End Do
       End Do
-C!
-C!---- Set upper triangle of equmat by symmetry.
+!!
+!!---- Set upper triangle of equmat by symmetry.
       Do iterm = 1,nPolyTerm-1
       Do jterm = iterm+1,nPolyTerm
       equmat(iterm,jterm) = equmat(jterm,iterm)
       End Do
       End Do
-C!
-C!---- Solve the resulting equation system.
+!!
+!!---- Solve the resulting equation system.
       Do i=1,nterm
       coef(i,1) = rhs(i)
       End do
-      Call Dool_MULA(equmat,nPolyTerm,nPolyTerm,coef,
+      Call Dool_MULA(equmat,nPolyTerm,nPolyTerm,coef,                   &
      &  nPolyTerm,MyCoef2,det)
-      If ( abs(det).eq.0.0 ) Write(6,*)
+      If ( abs(det).eq.0.0 ) Write(6,*)                                 &
      &       'WARNING!! Determinant=0 in PolFit'
-C!
-C!---- Calculate fitted result.
+!!
+!!---- Calculate fitted result.
       Do idata = 1,ndata
-C!---- Calculate powers of individual variable values.
+!!---- Calculate powers of individual variable values.
       Do ivar = 1,NrOfVar
       pow = 1.0d0
       vpow(0,ivar) = 1.0d0
@@ -387,7 +387,7 @@ C!---- Calculate powers of individual variable values.
       vpow(i,ivar) = pow
       End Do
       End Do
-C!---- Calculate value of each polynomial term. Add to yfit.
+!!---- Calculate value of each polynomial term. Add to yfit.
       pol = 0.0d0
       Do iterm = 1,nPolyTerm
       ip = ipow(iterm,1)
@@ -400,8 +400,8 @@ C!---- Calculate value of each polynomial term. Add to yfit.
       End Do
       yfit(idata) = pol
       End Do
-C!
-C!---- Calculate standard deviation and maximum error.
+!!
+!!---- Calculate standard deviation and maximum error.
       sum = 0.0d0
       Do idata = 1,ndata
       diff = abs(yin(idata)-yfit(idata))
@@ -414,25 +414,25 @@ C!---- Calculate standard deviation and maximum error.
       sum = sum+diff**2
       End Do
       stand_dev = sqrt(sum/ndata)
-C!
+!!
       Call GetMem('weight','Free','Real',ipweight,ndata)
-C!
+!!
       End
-C!
-C!-----------------------------------------------------------------------!
+!!
+!!-----------------------------------------------------------------------!
 
-C!-----------------------------------------------------------------------!
-C!
+!!-----------------------------------------------------------------------!
+!!
       Subroutine factor(exponent,nder,rfactor)
-C!
-C!  Purpose:
-C!    Calculate coefficient for n'th derivative.
-C!
+!!
+!!  Purpose:
+!!    Calculate coefficient for n'th derivative.
+!!
       Implicit none
       Integer exponent,nder
       Integer i,isum,ntot
       Real*8 rfactor
-C!
+!!
       isum = 1
       ntot = nder+exponent
       If ( nder.gt.0 ) Then
@@ -443,53 +443,53 @@ C!
       isum = 0
       End If
       rfactor = dble(isum)
-C!
+!!
       End
-C!
-C!-----------------------------------------------------------------------!
+!!
+!!-----------------------------------------------------------------------!
 
 
-C!-----------------------------------------------------------------------!
-C!
+!!-----------------------------------------------------------------------!
+!!
 
 
 
-C!
+!!
       Subroutine Cholesky(A,L,nd)
-C!
-C!  Purpose:
-C!    Perform a Cholesky factorization of the matrix A:
-C!
-C!                       A = L~ * L
-C!
-C!    where L is a lower triangular matrix and L~ is L transposed.
-C!
-C!  Input:
-C!    A      : real*8 two dimensional array - positive
-C!             definite matrix.
-C!
-C!  Output:
-C!    L      : real*8 two dimensional array - lower
-C!             triangular matrix.
-C!
-C!  Calls:
-C!
-c       Implicit None
-cVV: all calls use nxn
+!!
+!!  Purpose:
+!!    Perform a Cholesky factorization of the matrix A:
+!!
+!!                       A = L~ * L
+!!
+!!    where L is a lower triangular matrix and L~ is L transposed.
+!!
+!!  Input:
+!!    A      : real*8 two dimensional array - positive
+!!             definite matrix.
+!!
+!!  Output:
+!!    L      : real*8 two dimensional array - lower
+!!             triangular matrix.
+!!
+!!  Calls:
+!!
+!       Implicit None
+!VV: all calls use nxn
       Real*8 A(nd,nd), L(nd,nd),dd
-C!
+!!
       Integer n,j
       Integer iRow,jRow
 #include "WrkSpc.fh"
-C!
-C!---- Initialize.
+!!
+!!---- Initialize.
       n=nd
       n2= n*n
       Call GetMem('D','Allo','Real',ipD,n)
       call dcopy_(n2,A,1,L,1)
-cvv       L = A
-C!
-C!---- Take care of the n-1 last rows.
+!vv       L = A
+!!
+!!---- Take care of the n-1 last rows.
       If ( n.gt.1 ) Then
       Do iRow = n,2,-1
       work(ipd+iRow-1) = L(iRow,iRow)
@@ -503,15 +503,15 @@ C!---- Take care of the n-1 last rows.
       End Do
       End Do
       End If
-C!
-C!---- Take care of the first row.
+!!
+!!---- Take care of the first row.
       work(ipd) = L(1,1)
       L(1,1) = 1.0d0
-C!
-C!---- Multiply Llow with the square root of d.
+!!
+!!---- Multiply Llow with the square root of d.
       Do iRow = 1,n
       If ( work(ipd+iRow-1).lt.0.0 ) Then
-      Write(6,*)
+      Write(6,*)                                                        &
      &       'Error in Cholesky!!! Matrix not positive definite.'
       Call Abend
       End If
@@ -521,8 +521,8 @@ C!---- Multiply Llow with the square root of d.
       End do
       End Do
       Call GetMem('D','Free','Real',ipD,n)
-C!
-c       call dcopy_(n2,L,1,Llow,1)
-c       Llow = L
-C!
+!!
+!       call dcopy_(n2,L,1,Llow,1)
+!       Llow = L
+!!
       End

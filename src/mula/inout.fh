@@ -1,14 +1,14 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-C Common stuff, originally from inoutmod
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+! Common stuff, originally from inoutmod
       Real*8   hbarcm
       parameter (hbarcm=5.30882d-12)
       parameter (MaxNumAt=50)
@@ -16,9 +16,9 @@ C Common stuff, originally from inoutmod
       Common / InOutI / nPolyTerm,nvar,ndata
       Real*8   energy1,energy2,cmstart,cmend,LifeTime,FWHM
       Common / InOutR / energy1,energy2,cmstart,cmend,LifeTime,FWHM
-      Logical   cont,Huge_Print,broadplot,plotwindow,WriteVibLevels,
+      Logical   cont,Huge_Print,broadplot,plotwindow,WriteVibLevels,    &
      &             VibModPlot,OscStr,Use_nm,Use_cm
-      Common / InOutL / cont,Huge_Print,broadplot,plotwindow,
+      Common / InOutL / cont,Huge_Print,broadplot,plotwindow,           &
      &             WriteVibLevels,VibModPlot,OscStr,Use_nm,Use_cm
       Character*80   InLine,OutLine
       Common / InOutC / InLine,OutLine

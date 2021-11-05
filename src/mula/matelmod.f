@@ -1,81 +1,81 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996,1999, Niclas Forsberg                             *
-*               1996,1999, Anders Bernhardsson                         *
-************************************************************************
-C!-----------------------------------------------------------------------!
-C!
-c       Module MatElMod
-C!
-C!  Contains:
-C!    MatrixElements (L,U,FC00,Hmat,C,W,r_diff,mMat,nMat,
-C!                    max_nOrd,energy,grad,Hess,D3,D4,G,
-C!                    Gprime,Gdbleprime,alpha1,alpha2,beta,max_term)
-C!    LSPotFit       (r01,energy1,grad1,Hess1,D3_1,D4_1,
-C!                    r02,energy2,grad2,Hess2,D3_2,D4_2,
-C!                    r00,energy0,r_min,FitCoef,mMat,stand_dev,max_err,
-C!                    use_weight,max_term,pot)
-C!    SetUpHmat      (energy0,r_min,ipow,var,yin,coef,r00,trfName,max_term,
-C!                    C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,
-C!                    max_nOrd2,max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,
-C!                    nInc,mDec,nDec,L,U,H,S,G1,G2,G0,Gprime1,Gprime2,
-C!                    Gprime0,Gdbleprime1,Gdbleprime2,Gdbleprime0,
-C!                    C0,W0,det0,Mass,rOrigin)
-C!
-C!  Written by:
-C!    Niclas Forsberg & Anders Bernhardsson,
-C!    Dept. of Theoretical Chemistry, Lund University, 1996.
-C!    Dept. of Theoretical Chemistry, Lund University, 1999.
-C!
-C!-----------------------------------------------------------------------!
-C!
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996,1999, Niclas Forsberg                             *
+!               1996,1999, Anders Bernhardsson                         *
+!***********************************************************************
+!!-----------------------------------------------------------------------!
+!!
+!       Module MatElMod
+!!
+!!  Contains:
+!!    MatrixElements (L,U,FC00,Hmat,C,W,r_diff,mMat,nMat,
+!!                    max_nOrd,energy,grad,Hess,D3,D4,G,
+!!                    Gprime,Gdbleprime,alpha1,alpha2,beta,max_term)
+!!    LSPotFit       (r01,energy1,grad1,Hess1,D3_1,D4_1,
+!!                    r02,energy2,grad2,Hess2,D3_2,D4_2,
+!!                    r00,energy0,r_min,FitCoef,mMat,stand_dev,max_err,
+!!                    use_weight,max_term,pot)
+!!    SetUpHmat      (energy0,r_min,ipow,var,yin,coef,r00,trfName,max_term,
+!!                    C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,
+!!                    max_nOrd2,max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,
+!!                    nInc,mDec,nDec,L,U,H,S,G1,G2,G0,Gprime1,Gprime2,
+!!                    Gprime0,Gdbleprime1,Gdbleprime2,Gdbleprime0,
+!!                    C0,W0,det0,Mass,rOrigin)
+!!
+!!  Written by:
+!!    Niclas Forsberg & Anders Bernhardsson,
+!!    Dept. of Theoretical Chemistry, Lund University, 1996.
+!!    Dept. of Theoretical Chemistry, Lund University, 1999.
+!!
+!!-----------------------------------------------------------------------!
+!!
 
-Cvv       Private
-C!
-c       Contains
+!vv       Private
+!!
+!       Contains
 
-C!-----------------------------------------------------------------------!
-C!
-      Subroutine SetUpHmat(energy0,r_min,ipow,var,yin,r00,
-     &       trfName,max_term,
-     &        C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,
-     &        max_nOrd2,max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,
-     &        nInc,mDec,nDec,H,S,G1,G2,G0,Gprime1,Gprime2,Gprime0,
-     &        Gdbleprime1,Gdbleprime2,Gdbleprime0,C0,W0,det0,Mass,
-     &        rOrigin,Base,r0,r1,r2,nnsiz,
+!!-----------------------------------------------------------------------!
+!!
+      Subroutine SetUpHmat(energy0,r_min,ipow,var,yin,r00,              &
+     &       trfName,max_term,                                          &
+     &        C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,          &
+     &        max_nOrd2,max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,     &
+     &        nInc,mDec,nDec,H,S,G1,G2,G0,Gprime1,Gprime2,Gprime0,      &
+     &        Gdbleprime1,Gdbleprime2,Gdbleprime0,C0,W0,det0,Mass,      &
+     &        rOrigin,Base,r0,r1,r2,nnsiz,                              &
      &  nterm,nvar,ndata,nosc,ndimtot,numofat)
-C!
-C!  Purpose:
-C!    Set up Hamilton matrix.
-C!
-C!  Input:
-C!
-C!   Energy
-C!   r_min
-C!   ipow
-C!   var
-C!   yin
-C!  coeff
-C!   r00
-C!   trfname
-C!   Max_term
-C!   C1,W1,det1,r01
-C!   C2,W2,det2,r02
-C!   H S
-C!   G1 G2 G0 1' G2' g0' g0'' g1'' g2''
-C!   C0 W0 det0
-C!   mass rorigin
-C!
-C!
-C!  The expansion point for lspotfit is r00!!!!!
+!!
+!!  Purpose:
+!!    Set up Hamilton matrix.
+!!
+!!  Input:
+!!
+!!   Energy
+!!   r_min
+!!   ipow
+!!   var
+!!   yin
+!!  coeff
+!!   r00
+!!   trfname
+!!   Max_term
+!!   C1,W1,det1,r01
+!!   C2,W2,det2,r02
+!!   H S
+!!   G1 G2 G0 1' G2' g0' g0'' g1'' g2''
+!!   C0 W0 det0
+!!   mass rorigin
+!!
+!!
+!!  The expansion point for lspotfit is r00!!!!!
       Implicit Real*8 ( a-h,o-z )
 #include "Constants_mula.fh"
 #include "dims.fh"
@@ -86,7 +86,7 @@ C!  The expansion point for lspotfit is r00!!!!!
       Real*8 r1(nOsc),r2(nOsc),r0(nOsc)
       Real*8 rOrigin(nOsc)
       Character*80 trfName (nvar)
-      Real*8 C1(nOsc,nOsc),C2(nOsc,nOsc),
+      Real*8 C1(nOsc,nOsc),C2(nOsc,nOsc),                               &
      &  W1(nOsc,nOsc),W2(nOsc,nOsc),C0(nOsc,nOsc),W0(nOsc,nOsc)
       Real*8 G1(nOsc,nOsc),G2(nOsc,nOsc),G0(nOsc,nOsc)
       Real*8 Gprime1(ngdim,ngdim,ngdim)
@@ -95,28 +95,28 @@ C!  The expansion point for lspotfit is r00!!!!!
       Real*8 Gdbleprime1(ngdim,ngdim,ngdim,ngdim)
       Real*8 Gdbleprime2(ngdim,ngdim,ngdim,ngdim)
       Real*8 Gdbleprime0(ngdim,ngdim,ngdim,ngdim)
-      Integer mMat(0:mdim1,mdim2),mInc(0:mdim1,mdim2),
+      Integer mMat(0:mdim1,mdim2),mInc(0:mdim1,mdim2),                  &
      &  mDec(0:mdim1,mdim2)
-      Integer nMat(0:ndim1,ndim2),nInc(0:ndim1,ndim2),
+      Integer nMat(0:ndim1,ndim2),nInc(0:ndim1,ndim2),                  &
      &  nDec(0:ndim1,ndim2)
       Real*8 H(ndimtot,ndimtot),S (ndimtot,ndimtot)
       Real*8 Mass (numOfAt)
       Real*8 Base (nosc,nosc)
-c       Logical   find_minimum,use_weight
-c       Real*8    stand_dev,max_err
-c       Logical   pot
+!       Logical   find_minimum,use_weight
+!       Real*8    stand_dev,max_err
+!       Logical   pot
 
 #include "WrkSpc.fh"
 
       nOscOld = nOsc
 
-      Call GetMem('Hij','Allo','Real',
+      Call GetMem('Hij','Allo','Real',                                  &
      &  ipHij,(max_mOrd+1)*(max_nOrd+1))
-      Call GetMem('Hijtrans','Allo','Real',
+      Call GetMem('Hijtrans','Allo','Real',                             &
      &  ipHijTrans,(max_nOrd+1)*(max_mOrd+1))
-      Call GetMem('Sij','Allo','Real',
+      Call GetMem('Sij','Allo','Real',                                  &
      &  ipSij,(max_mOrd+1)*(max_nOrd+1))
-      Call GetMem('Sijtrans','Allo','Real',
+      Call GetMem('Sijtrans','Allo','Real',                             &
      &  ipSijTrans,(max_nOrd+1)*(max_mOrd+1))
       Call GetMem('r0vec','Allo','Real',ipr0vec,nOscOld)
       Call GetMem('r_diff','Allo','Real',ipr_diff,nOscOld)
@@ -132,53 +132,53 @@ c       Logical   pot
 
       Call GetMem('D3','Allo','Real',ipD3,nOscOld*nOscOld*nOscOld)
 
-      Call GetMem('D3_1','Allo','Real',
+      Call GetMem('D3_1','Allo','Real',                                 &
      &  ipD3_1,nOscOld*nOscOld*nOscOld)
-      Call GetMem('D3_2','Allo','Real',
+      Call GetMem('D3_2','Allo','Real',                                 &
      &  ipD3_2,nOscOld*nOscOld*nOscOld)
-      Call GetMem('D4','Allo','Real',
+      Call GetMem('D4','Allo','Real',                                   &
      &  ipD4,nOscOld*nOscOld*nOscOld*nOscOld)
-      Call GetMem('D4_1','Allo','Real',
+      Call GetMem('D4_1','Allo','Real',                                 &
      &  ipD4_1,nOscOld*nOscOld*nOscOld*nOscOld)
-      Call GetMem('D4_2','Allo','Real',
+      Call GetMem('D4_2','Allo','Real',                                 &
      &  ipD4_2,nOscOld*nOscOld*nOscOld*nOscOld)
       Call GetMem('GTemp','Allo','Real',ipGtemp,nOsc*nOsc)
-      Call GetMem('GprimeTemp','Allo','Real',
+      Call GetMem('GprimeTemp','Allo','Real',                           &
      &  ipGprimetemp,nOsc*nOsc*nOsc)
-      Call GetMem('GdbleprimeTemp','Allo','Real',
+      Call GetMem('GdbleprimeTemp','Allo','Real',                       &
      &  ipGdbleprimetemp,nOsc*nOsc*nOsc*nOsc)
       Call GetMem('alpha1','Allo','Real',ipalpha1,nOsc*nOsc)
       Call GetMem('alpha2','Allo','Real',ipalpha2,nOsc*nOsc)
       Call GetMem('beta','Allo','Real',ipbeta,nOsc*nOsc)
       Call GetMem('L','Allo','Real',ipL,(max_mOrd+1)*(max_mOrd+1))
       Call GetMem('U','Allo','Real',ipU,(max_nOrd+1)*(max_nOrd+1))
-C!
+!!
 
-      Call SetUpHmat_a(energy0,r_min,ipow,var,yin,r00,
-     &       trfName,max_term,
-     &        C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,
-     &        max_nOrd2,max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,
-     &        nInc,mDec,nDec,H,S,G1,G2,G0,Gprime1,Gprime2,Gprime0,
-     &        Gdbleprime1,Gdbleprime2,Gdbleprime0,C0,W0,det0,Mass,
-     &        rOrigin,Base,r0,r1,r2,nnsiz,
-     &  nterm,nvar,ndata,nosc,ndimtot,numofat,nOscOld,
-     & Work(ipL),Work(ipU),Work(ipr_diff),Work(ipr0vec),
-     & Work(ipC),Work(ipW),
-     & Work(ipgrad),Work(ipHess),Work(ipD3),Work(ipD4),
-     & Work(ipgrad1),Work(ipHess1),Work(ipD3_1),Work(ipD4_1),
-     & Work(ipgrad2),Work(ipHess2),Work(ipD3_2),Work(ipD4_2),
-     & Work(ipHij),Work(ipHijTrans),Work(ipSij),Work(ipSijTrans),
-     & Work(ipGtemp),Work(ipGprimeTemp),Work(ipGdbleprimeTemp),
+      Call SetUpHmat_a(energy0,r_min,ipow,var,yin,r00,                  &
+     &       trfName,max_term,                                          &
+     &        C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,          &
+     &        max_nOrd2,max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,     &
+     &        nInc,mDec,nDec,H,S,G1,G2,G0,Gprime1,Gprime2,Gprime0,      &
+     &        Gdbleprime1,Gdbleprime2,Gdbleprime0,C0,W0,det0,Mass,      &
+     &        rOrigin,Base,r0,r1,r2,nnsiz,                              &
+     &  nterm,nvar,ndata,nosc,ndimtot,numofat,nOscOld,                  &
+     & Work(ipL),Work(ipU),Work(ipr_diff),Work(ipr0vec),                &
+     & Work(ipC),Work(ipW),                                             &
+     & Work(ipgrad),Work(ipHess),Work(ipD3),Work(ipD4),                 &
+     & Work(ipgrad1),Work(ipHess1),Work(ipD3_1),Work(ipD4_1),           &
+     & Work(ipgrad2),Work(ipHess2),Work(ipD3_2),Work(ipD4_2),           &
+     & Work(ipHij),Work(ipHijTrans),Work(ipSij),Work(ipSijTrans),       &
+     & Work(ipGtemp),Work(ipGprimeTemp),Work(ipGdbleprimeTemp),         &
      & Work(ipalpha1),Work(ipalpha2),Work(ipbeta))
 
 
-      Call GetMem('Hij','Free','Real',
+      Call GetMem('Hij','Free','Real',                                  &
      &  ipHij,(max_mOrd+1)*(max_nOrd+1))
-      Call GetMem('Hijtrans','Free','Real',
+      Call GetMem('Hijtrans','Free','Real',                             &
      &  ipHijTrans,(max_nOrd+1)*(max_mOrd+1))
-      Call GetMem('Sij','Free','Real',
+      Call GetMem('Sij','Free','Real',                                  &
      &  ipSij,(max_mOrd+1)*(max_nOrd+1))
-      Call GetMem('Sijtrans','Free','Real',
+      Call GetMem('Sijtrans','Free','Real',                             &
      &  ipSijTrans,(max_nOrd+1)*(max_mOrd+1))
       Call GetMem('r0vec','Free','Real',ipr0vec,nOscOld)
       Call GetMem('r_diff','Free','Real',ipr_diff,nOscOld)
@@ -194,68 +194,68 @@ C!
 
       Call GetMem('D3','Free','Real',ipD3,nOscOld*nOscOld*nOscOld)
 
-      Call GetMem('D3_1','Free','Real',
+      Call GetMem('D3_1','Free','Real',                                 &
      &  ipD3_1,nOscOld*nOscOld*nOscOld)
-      Call GetMem('D3_2','Free','Real',
+      Call GetMem('D3_2','Free','Real',                                 &
      &  ipD3_2,nOscOld*nOscOld*nOscOld)
-      Call GetMem('D4','Free','Real',
+      Call GetMem('D4','Free','Real',                                   &
      &  ipD4,nOscOld*nOscOld*nOscOld*nOscOld)
-      Call GetMem('D4_1','Free','Real',
+      Call GetMem('D4_1','Free','Real',                                 &
      &  ipD4_1,nOscOld*nOscOld*nOscOld*nOscOld)
-      Call GetMem('D4_2','Free','Real',
+      Call GetMem('D4_2','Free','Real',                                 &
      &  ipD4_2,nOscOld*nOscOld*nOscOld*nOscOld)
       Call GetMem('GTemp','Free','Real',ipGtemp,nOsc*nOsc)
-      Call GetMem('GprimeTemp','Free','Real',
+      Call GetMem('GprimeTemp','Free','Real',                           &
      &  ipGprimetemp,nOsc*nOsc*nOsc)
-      Call GetMem('GdbleprimeTemp','Free','Real',
+      Call GetMem('GdbleprimeTemp','Free','Real',                       &
      &  ipGdbleprimetemp,nOsc*nOsc*nOsc*nOsc)
       Call GetMem('alpha1','Free','Real',ipalpha1,nOsc*nOsc)
       Call GetMem('alpha2','Free','Real',ipalpha2,nOsc*nOsc)
       Call GetMem('beta','Free','Real',ipbeta,nOsc*nOsc)
       Call GetMem('L','Free','Real',ipL,(max_mOrd+1)*(max_mOrd+1))
       Call GetMem('U','Free','Real',ipU,(max_nOrd+1)*(max_nOrd+1))
-C!
+!!
       End
 
 
-C!-----------------------------------------------------------------------!
-C!
-      Subroutine SetUpHmat_a(energy0,r_min,ipow,var,yin,r00,
-     &       trfName,max_term,
-     &        C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,
-     &        max_nOrd2,max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,
-     &        nInc,mDec,nDec,H,S,G1,G2,G0,Gprime1,Gprime2,Gprime0,
-     &        Gdbleprime1,Gdbleprime2,Gdbleprime0,C0,W0,det0,Mass,
-     &        rOrigin,Base,r0,r1,r2,nnsiz,
-     &  nterm,nvar,ndata,nosc,ndimtot,numofat,nOscOld,
-     & L,U,r_diff,r0vec,C,W,
-     & grad,Hess,D3,D4,grad1,Hess1,D3_1,D4_1,
-     & grad2,Hess2,D3_2,D4_2,Hij,HijTrans,Sij,SijTrans,
+!!-----------------------------------------------------------------------!
+!!
+      Subroutine SetUpHmat_a(energy0,r_min,ipow,var,yin,r00,            &
+     &       trfName,max_term,                                          &
+     &        C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,          &
+     &        max_nOrd2,max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,     &
+     &        nInc,mDec,nDec,H,S,G1,G2,G0,Gprime1,Gprime2,Gprime0,      &
+     &        Gdbleprime1,Gdbleprime2,Gdbleprime0,C0,W0,det0,Mass,      &
+     &        rOrigin,Base,r0,r1,r2,nnsiz,                              &
+     &  nterm,nvar,ndata,nosc,ndimtot,numofat,nOscOld,                  &
+     & L,U,r_diff,r0vec,C,W,                                            &
+     & grad,Hess,D3,D4,grad1,Hess1,D3_1,D4_1,                           &
+     & grad2,Hess2,D3_2,D4_2,Hij,HijTrans,Sij,SijTrans,                 &
      & Gtemp,GprimeTemp,GdbleprimeTemp,alpha1,alpha2,beta)
-C!
-C!  Purpose:
-C!    Set up Hamilton matrix.
-C!
-C!  Input:
-C!
-C!   Energy
-C!   r_min
-C!   ipow
-C!   var
-C!   yin
-C!  coeff
-C!   r00
-C!   trfname
-C!   Max_term
-C!   C1,W1,det1,r01
-C!   C2,W2,det2,r02
-C!   H S
-C!   G1 G2 G0 1' G2' g0' g0'' g1'' g2''
-C!   C0 W0 det0
-C!   mass rorigin
-C!
-C!
-C!  The expansion point for lspotfit is r00!!!!!
+!!
+!!  Purpose:
+!!    Set up Hamilton matrix.
+!!
+!!  Input:
+!!
+!!   Energy
+!!   r_min
+!!   ipow
+!!   var
+!!   yin
+!!  coeff
+!!   r00
+!!   trfname
+!!   Max_term
+!!   C1,W1,det1,r01
+!!   C2,W2,det2,r02
+!!   H S
+!!   G1 G2 G0 1' G2' g0' g0'' g1'' g2''
+!!   C0 W0 det0
+!!   mass rorigin
+!!
+!!
+!!  The expansion point for lspotfit is r00!!!!!
       Implicit Real*8 ( a-h,o-z )
 #include "Constants_mula.fh"
 #include "dims.fh"
@@ -266,7 +266,7 @@ C!  The expansion point for lspotfit is r00!!!!!
       Real*8 r1(nOsc),r2(nOsc),r0(nOsc)
       Real*8 rOrigin(nOsc)
       Character*80 trfName (nvar)
-      Real*8 C1(nOsc,nOsc),C2(nOsc,nOsc),
+      Real*8 C1(nOsc,nOsc),C2(nOsc,nOsc),                               &
      &  W1(nOsc,nOsc),W2(nOsc,nOsc),C0(nOsc,nOsc),W0(nOsc,nOsc)
       Real*8 G1(nOsc,nOsc),G2(nOsc,nOsc),G0(nOsc,nOsc)
       Real*8 Gprime1(ngdim,ngdim,ngdim)
@@ -275,9 +275,9 @@ C!  The expansion point for lspotfit is r00!!!!!
       Real*8 Gdbleprime1(ngdim,ngdim,ngdim,ngdim)
       Real*8 Gdbleprime2(ngdim,ngdim,ngdim,ngdim)
       Real*8 Gdbleprime0(ngdim,ngdim,ngdim,ngdim)
-      Integer mMat(0:mdim1,mdim2),mInc(0:mdim1,mdim2),
+      Integer mMat(0:mdim1,mdim2),mInc(0:mdim1,mdim2),                  &
      &  mDec(0:mdim1,mdim2)
-      Integer nMat(0:ndim1,ndim2),nInc(0:ndim1,ndim2),
+      Integer nMat(0:ndim1,ndim2),nInc(0:ndim1,ndim2),                  &
      &  nDec(0:ndim1,ndim2)
       Real*8 H(ndimtot,ndimtot),S (ndimtot,ndimtot)
       Real*8 Mass (numOfAt)
@@ -310,183 +310,183 @@ C!  The expansion point for lspotfit is r00!!!!!
       Real*8  U(0:max_nOrd,0:max_nOrd)
 
 #include "WrkSpc.fh"
-C!
-C!---- Initialize.
+!!
+!!---- Initialize.
       l_r2=nOsc
       find_minimum = .false.
       use_weight = .false.
 
       call GetMem('Coef','Allo','Real',ipCoef,nPolyTerm)
-C!
-C!---- Fit polynomial and calculate energy, gradient, Hessian and third
-C!     and fourth order force constants around r01 and r02.
-      Call PotFit(nterm,nvar,ndata,ipow,var,yin,
-     &  Work(ipcoef),r1,nOscOld,energy1,
-     &       grad1,Hess1,D3_1,D4_1,trfName,
-     &       stand_dev,max_err,find_minimum,max_term,use_weight,
+!!
+!!---- Fit polynomial and calculate energy, gradient, Hessian and third
+!!     and fourth order force constants around r01 and r02.
+      Call PotFit(nterm,nvar,ndata,ipow,var,yin,                        &
+     &  Work(ipcoef),r1,nOscOld,energy1,                                &
+     &       grad1,Hess1,D3_1,D4_1,trfName,                             &
+     &       stand_dev,max_err,find_minimum,max_term,use_weight,        &
      &     nOscOld,nOscOld,nOscOld)
-      Call PotFit(nterm,nvar,ndata,ipow,var,yin,
-     &  Work(ipcoef),r2,l_r2,energy2,
-     &       grad2,Hess2,D3_2,D4_2,trfName,
-     &       stand_dev,max_err,find_minimum,max_term,use_weight,
+      Call PotFit(nterm,nvar,ndata,ipow,var,yin,                        &
+     &  Work(ipcoef),r2,l_r2,energy2,                                   &
+     &       grad2,Hess2,D3_2,D4_2,trfName,                             &
+     &       stand_dev,max_err,find_minimum,max_term,use_weight,        &
      &     nOscOld,nOscOld,nOscOld)
       call GetMem('Coef','Allo','Real',ipCoef,nPolyTerm)
-C!
-C!---- Perform a least squares fit.
+!!
+!!---- Perform a least squares fit.
       Call TabDim_drv(max_term,nOsc,numCoef)
       Call GetMem('FitCoef','Allo','Real',ipFitCoef,numCoef)
 
       Call GetMem('jPow','Allo','Inte',ipjPow,numCoef*nOsc)
       pot = .true.
-      Call LSPotFit(r1,energy1,grad1,Hess1,D3_1,D4_1,
-     &    r2,energy2,grad2,Hess2,D3_2,D4_2,
-     &    r0,energy0,r_min,Work(ipFitCoef),iWork(ipjPow),
-     &    stand_dev,max_err,
+      Call LSPotFit(r1,energy1,grad1,Hess1,D3_1,D4_1,                   &
+     &    r2,energy2,grad2,Hess2,D3_2,D4_2,                             &
+     &    r0,energy0,r_min,Work(ipFitCoef),iWork(ipjPow),               &
+     &    stand_dev,max_err,                                            &
      &    use_weight,max_term,pot,nosc,numcoef)
       Call GetMem('kPow','Allo','Inte',ipkPow,numCoef*nOsc)
-c       kPow = jPow
+!       kPow = jPow
       do iv=0,numCoef*nOsc
       iWork(ipkPow+iv)=iWork(ipjPow+iv)
       enddo
-c       call dcopy_(numCoef*nOsc,iWork(ipjPow),1,iWork(ipkPow),1)
-C!
-C!
-C!---- For each of the centers:
-C!     - Call Franck-Condon routine.
-C!     - Calculate matrix elements.
-C!
-C!---- Block 11.
+!       call dcopy_(numCoef*nOsc,iWork(ipjPow),1,iWork(ipkPow),1)
+!!
+!!
+!!---- For each of the centers:
+!!     - Call Franck-Condon routine.
+!!     - Calculate matrix elements.
+!!
+!!---- Block 11.
       l_C1=nOsc
-      Call Calc_r00(C1,C1,W1,W1,C,W,alpha1,alpha2,r0vec,r01,
+      Call Calc_r00(C1,C1,W1,W1,C,W,alpha1,alpha2,r0vec,r01,            &
      &       r01,det0,det1,det1,FC00,l_C1)
-      Call FCval(C1,W1,det1,r01,C1,W1,det1,r01,Sij,
-     &       max_mOrd,max_nOrd,max_nOrd2,
-     &       max_mInc,max_nInc,max_nInc2,mMat,
-     &       nMat,mInc,nInc,mDec,nDec,
-     &       C,W,det1,r0vec,L,U,FC00,alpha1,alpha2,beta,
+      Call FCval(C1,W1,det1,r01,C1,W1,det1,r01,Sij,                     &
+     &       max_mOrd,max_nOrd,max_nOrd2,                               &
+     &       max_mInc,max_nInc,max_nInc2,mMat,                          &
+     &       nMat,mInc,nInc,mDec,nDec,                                  &
+     &       C,W,det1,r0vec,L,U,FC00,alpha1,alpha2,beta,                &
      &       l_C1,nnsiz)
       do iv=1,nOsc
       r0vec(iv)  = r1(iv)-r0(iv)
       enddo
-      call funcval(r0vec,Work(ipFitCoef),iWork(ipkPow),
+      call funcval(r0vec,Work(ipFitCoef),iWork(ipkPow),                 &
      &  energy,nterm,nvar)
-      call gradient(r0vec,Work(ipFitCoef),iWork(ipkPow),
+      call gradient(r0vec,Work(ipFitCoef),iWork(ipkPow),                &
      &  grad,nterm,nvar)
-      call Hessian(r0vec,Work(ipFitCoef),iWork(ipkPow),
+      call Hessian(r0vec,Work(ipFitCoef),iWork(ipkPow),                 &
      &  Hess,nterm,nvar)
-      call thirdDer(r0vec,Work(ipFitCoef),iWork(ipkPow),
+      call thirdDer(r0vec,Work(ipFitCoef),iWork(ipkPow),                &
      &  D3,nterm,nvar)
-      call fourthDer(r0vec,Work(ipFitCoef),iWork(ipkPow),
+      call fourthDer(r0vec,Work(ipFitCoef),iWork(ipkPow),               &
      &  D4,nterm,nvar)
       energy = energy-energy0
       call dcopy_(nOsc,[0.0d0],0,r0vec,1)
-c       r0vec = 0.0d0
+!       r0vec = 0.0d0
       call dcopy_(nOsc,[0.0d0],0,r_diff,1)
-c              r_diff = 0.0d0
-c       Gtemp = G1
+!              r_diff = 0.0d0
+!       Gtemp = G1
       call dcopy_(nOsc*nOsc,G1,1,Gtemp,1)
-c              GprimeTemp = Gprime1
+!              GprimeTemp = Gprime1
       call dcopy_(nOsc*nOsc*nOsc,Gprime1,1,GprimeTemp,1)
 
-c              GdbleprimeTemp = Gdbleprime1
+!              GdbleprimeTemp = Gdbleprime1
       call dcopy_(nOsc**4,Gdbleprime1,1,GdbleprimeTemp,1)
-      Call MatrixElements(L,U,FC00,Hij,C,W,r_diff,mMat,nMat,
-     &       ninc,ndec,max_nOrd, max_mOrd,nOsc,
-     &       energy,grad,Hess,D3,D4,Gtemp,GprimeTemp,
+      Call MatrixElements(L,U,FC00,Hij,C,W,r_diff,mMat,nMat,            &
+     &       ninc,ndec,max_nOrd, max_mOrd,nOsc,                         &
+     &       energy,grad,Hess,D3,D4,Gtemp,GprimeTemp,                   &
      &       GdbleprimeTemp,alpha1,alpha2,beta,max_term,Base)
 
-c       H(1:max_mOrd+1,1:max_nOrd+1) = Hij
-c       S(1:max_mOrd+1,1:max_nOrd+1) = Sij
+!       H(1:max_mOrd+1,1:max_nOrd+1) = Hij
+!       S(1:max_mOrd+1,1:max_nOrd+1) = Sij
       call dcopy_((max_mOrd+1)*(max_nOrd+1),Hij,1,H,1)
       call dcopy_((max_mOrd+1)*(max_nOrd+1),Sij,1,S,1)
-C!
-C!---- Block 22.
+!!
+!!---- Block 22.
       l_C2=nOsc
-      Call Calc_r00(C2,C2,W2,W2,C,W,alpha1,alpha2,r0vec,r02,
+      Call Calc_r00(C2,C2,W2,W2,C,W,alpha1,alpha2,r0vec,r02,            &
      &       r02,det0,det2,det2,FC00,l_C2)
-      Call FCval(C2,W2,det2,r02,C2,W2,det2,r02,Sij,max_mOrd,
-     &       max_nOrd,max_nOrd2,
-     &       max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,nInc,
-     &       mDec,nDec,
-     &       C,W,det2,r0vec,L,U,FC00,alpha1,alpha2,beta,
+      Call FCval(C2,W2,det2,r02,C2,W2,det2,r02,Sij,max_mOrd,            &
+     &       max_nOrd,max_nOrd2,                                        &
+     &       max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,nInc,           &
+     &       mDec,nDec,                                                 &
+     &       C,W,det2,r0vec,L,U,FC00,alpha1,alpha2,beta,                &
      &       l_C2,nnsiz)
       do iv=1,nOsc
       r0vec(iv)  = r2(iv)-r0(iv)
       enddo
-      call funcval(r0vec,Work(ipFitCoef),iWork(ipkPow),
+      call funcval(r0vec,Work(ipFitCoef),iWork(ipkPow),                 &
      &  energy,nterm,nvar)
-      call gradient(r0vec,Work(ipFitCoef),iWork(ipkPow),
+      call gradient(r0vec,Work(ipFitCoef),iWork(ipkPow),                &
      &  grad,nterm,nvar)
-      call Hessian(r0vec,Work(ipFitCoef),iWork(ipkPow),
+      call Hessian(r0vec,Work(ipFitCoef),iWork(ipkPow),                 &
      &  Hess,nterm,nvar)
-      call thirdDer(r0vec,Work(ipFitCoef),iWork(ipkPow),
+      call thirdDer(r0vec,Work(ipFitCoef),iWork(ipkPow),                &
      &  D3,nterm,nvar)
-      call fourthDer(r0vec,Work(ipFitCoef),iWork(ipkPow),
+      call fourthDer(r0vec,Work(ipFitCoef),iWork(ipkPow),               &
      &  D4,nterm,nvar)
       energy = energy-energy0
-c       r0vec = 0.0d0
-c              r_diff = 0.0d0
+!       r0vec = 0.0d0
+!              r_diff = 0.0d0
       call dcopy_(nOsc,[0.0d0],0,r0vec,1)
       call dcopy_(nOsc,[0.0d0],0,r_diff,1)
-c       Gtemp = G2
+!       Gtemp = G2
       call dcopy_(nOsc*nOsc,G2,1,Gtemp,1)
-c              GprimeTemp = Gprime2
+!              GprimeTemp = Gprime2
       call dcopy_(nOsc*nOsc*nOsc,Gprime2,1,GprimeTemp,1)
-c              GdbleprimeTemp = Gdbleprime2
+!              GdbleprimeTemp = Gdbleprime2
       call dcopy_(nOsc*nOsc*nOsc*nOsc,Gprime2,1,GprimeTemp,1)
-      Call MatrixElements(L,U,FC00,Hij,C,W,r_diff,mMat,nMat,ninc,
-     &       ndec,max_nOrd, max_mOrd,nOsc,
-     &        energy,grad,Hess,D3,D4,Gtemp,GprimeTemp,
+      Call MatrixElements(L,U,FC00,Hij,C,W,r_diff,mMat,nMat,ninc,       &
+     &       ndec,max_nOrd, max_mOrd,nOsc,                              &
+     &        energy,grad,Hess,D3,D4,Gtemp,GprimeTemp,                  &
      &        GdbleprimeTemp,alpha1,alpha2,beta,max_term,Base)
-c       H(max_mOrd+2:2*max_mOrd+2,max_nOrd+2:2*max_nOrd+2) = Hij
-c       S(max_mOrd+2:2*max_mOrd+2,max_nOrd+2:2*max_nOrd+2) = Sij
+!       H(max_mOrd+2:2*max_mOrd+2,max_nOrd+2:2*max_nOrd+2) = Hij
+!       S(max_mOrd+2:2*max_mOrd+2,max_nOrd+2:2*max_nOrd+2) = Sij
       do iv=max_mOrd+2,2*max_mOrd+2
       do jv=max_nOrd+2,2*max_nOrd+2
       H(iv,jv)=Hij(iv-max_mOrd-2,jv-max_nOrd-2)
       S(iv,jv)=Sij(iv-max_mOrd-2,jv-max_nOrd-2)
       enddo
       enddo
-C!
-C!---- Block 12 and 21.
+!!
+!!---- Block 12 and 21.
       l_C1=nOsc
-      Call Calc_r00(C1,C2,W1,W2,C,W,alpha1,alpha2,r0vec,r01,r02,
+      Call Calc_r00(C1,C2,W1,W2,C,W,alpha1,alpha2,r0vec,r01,r02,        &
      &       det0,det1,det2,FC00,l_C1)
-      Call FCval(C1,W1,det1,r01,C2,W2,det2,r02,Sij,max_mOrd,
-     &       max_nOrd,max_nOrd2,
-     &       max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,
-     &       nInc,mDec,nDec,
-     &         C,W,det0,r0vec,L,U,FC00,alpha1,alpha2,beta,
+      Call FCval(C1,W1,det1,r01,C2,W2,det2,r02,Sij,max_mOrd,            &
+     &       max_nOrd,max_nOrd2,                                        &
+     &       max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,                &
+     &       nInc,mDec,nDec,                                            &
+     &         C,W,det0,r0vec,L,U,FC00,alpha1,alpha2,beta,              &
      &       l_C1,nnsiz)
-c       r0vec  = r0-r0
+!       r0vec  = r0-r0
       call dcopy_(nOsc,[0.0d0],0, r0vec,1)
-      call funcval(r0vec,Work(ipFitCoef),iWork(ipkPow),
+      call funcval(r0vec,Work(ipFitCoef),iWork(ipkPow),                 &
      &  energy,nterm,nvar)
-      call gradient(r0vec,Work(ipFitCoef),iWork(ipkPow),
+      call gradient(r0vec,Work(ipFitCoef),iWork(ipkPow),                &
      &  grad,nterm,nvar)
-      Call Hessian(r0vec,Work(ipFitCoef),iWork(ipkPow),
+      Call Hessian(r0vec,Work(ipFitCoef),iWork(ipkPow),                 &
      &  Hess,nterm,nvar)
-      call thirdDer(r0vec,Work(ipFitCoef),iWork(ipkPow),
+      call thirdDer(r0vec,Work(ipFitCoef),iWork(ipkPow),                &
      &  D3,nterm,nvar)
-      call fourthDer(r0vec,Work(ipFitCoef),iWork(ipkPow),
+      call fourthDer(r0vec,Work(ipFitCoef),iWork(ipkPow),               &
      &  D4,nterm,nvar)
       energy = energy-energy0
       call dcopy_(nOsc,[0.0d0],0, r0vec,1)
-c       r0vec = 0.0d0
+!       r0vec = 0.0d0
       do iv=1,nOsc
       r_diff(iv) = r01(iv)-r02(iv)
       enddo
-c       Gtemp = G0
+!       Gtemp = G0
       call dcopy_(nOsc*nOsc,G0,1, Gtemp,1)
-c              GprimeTemp = Gprime0
+!              GprimeTemp = Gprime0
       call dcopy_(nOsc*nOsc*nOsc,Gprime0,1, GprimeTemp,1)
-c              GdbleprimeTemp = Gdbleprime0
+!              GdbleprimeTemp = Gdbleprime0
       call dcopy_(nOsc*nOsc*nOsc*nOsc,Gdbleprime0,1,GdbleprimeTemp,1)
-      Call MatrixElements(L,U,FC00,Hij,C,W,r_diff,mMat,nMat,nInc,
-     &       nDec,max_nOrd, max_mOrd,nOsc,
-     &       energy,grad,Hess,D3,D4,Gtemp,GprimeTemp,
+      Call MatrixElements(L,U,FC00,Hij,C,W,r_diff,mMat,nMat,nInc,       &
+     &       nDec,max_nOrd, max_mOrd,nOsc,                              &
+     &       energy,grad,Hess,D3,D4,Gtemp,GprimeTemp,                   &
      &       GdbleprimeTemp,alpha1,alpha2,beta,max_term,Base)
-c       H(1:max_mOrd+1,max_nOrd+2:2*max_nOrd+2) = Hij
-c       S(1:max_mOrd+1,max_nOrd+2:2*max_nOrd+2) = Sij
+!       H(1:max_mOrd+1,max_nOrd+2:2*max_nOrd+2) = Hij
+!       S(1:max_mOrd+1,max_nOrd+2:2*max_nOrd+2) = Sij
 
       do iv=1,max_mOrd+1
       do jv=max_nOrd+2,2*max_nOrd+2
@@ -502,8 +502,8 @@ c       S(1:max_mOrd+1,max_nOrd+2:2*max_nOrd+2) = Sij
       SijTrans(j,i) = Sij(i,j)
       End Do
       End Do
-c       H(max_mOrd+2:2*max_mOrd+2,1:max_nOrd+1) = HijTrans
-c       S(max_mOrd+2:2*max_mOrd+2,1:max_nOrd+1) = SijTrans
+!       H(max_mOrd+2:2*max_mOrd+2,1:max_nOrd+1) = HijTrans
+!       S(max_mOrd+2:2*max_mOrd+2,1:max_nOrd+1) = SijTrans
 
       do iv=max_mOrd+2,2*max_mOrd+2
       do jv=1,max_nOrd+1
@@ -513,12 +513,12 @@ c       S(max_mOrd+2:2*max_mOrd+2,1:max_nOrd+1) = SijTrans
       enddo
 
 
-C!
+!!
       Call GetMem('jPow','Free','Inte',ipjPow,numCoef*nOsc)
       Call GetMem('kPow','Free','Inte',ipkPow,numCoef*nOsc)
       Call GetMem('FitCoef','Free','Real',ipFitCoef,numCoef)
-C!
-c Avoid unused argument warnings
+!!
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(r00)
          Call Unused_real_array(Gdbleprime2)

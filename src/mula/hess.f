@@ -1,42 +1,42 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1995, Niclas Forsberg                                  *
-************************************************************************
-C!-----------------------------------------------------------------------!
-C!
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1995, Niclas Forsberg                                  *
+!***********************************************************************
+!!-----------------------------------------------------------------------!
+!!
       Subroutine ShiftHess(Hess,shift,nDim,nDim2)
-C!
-C!  Purpose:
-C!    Shifts Hessian to make it positive definite.
-C!
-C!  Written by:
-C!    Niclas Forsberg,
-C!    Dept. of Theoretical Chemistry, Lund University, 1995.
-C!
+!!
+!!  Purpose:
+!!    Shifts Hessian to make it positive definite.
+!!
+!!  Written by:
+!!    Niclas Forsberg,
+!!    Dept. of Theoretical Chemistry, Lund University, 1995.
+!!
       Real*8 Hess (nDim,nDim2)
-c       Real*8 U(nDim,nDim2)
-c       Real*8 Hess_lowT( nDim*(nDim+1)/2 )
+!       Real*8 U(nDim,nDim2)
+!       Real*8 Hess_lowT( nDim*(nDim+1)/2 )
       Real*8  epsilon
       Real*8  eigen_min
       Logical  shift
 #include "WrkSpc.fh"
       Call GetMem('U','Allo','Real',ipU,nDim*nDim2)
-      Call GetMem('Hess_low','Allo','Real',
+      Call GetMem('Hess_low','Allo','Real',                             &
      &  ipHess_lowT,nDim*(nDim+1)/2)
 
-C!
-C!---- Initialize.
+!!
+!!---- Initialize.
       nDim1 = nDim+1
       nDimSqr = nDim**2
-C!
+!!
       k = 0
       Do i = 1,nDim
       Do j = 1,i
@@ -57,7 +57,7 @@ C!
       End Do
       End If
       Call GetMem('U','Free','Real',ipU,nDim*nDim2)
-      Call GetMem('Hess_low','Free','Real',
+      Call GetMem('Hess_low','Free','Real',                             &
      &  ipHess_lowT,nDim*(nDim+1)/2)
-C!
+!!
       End

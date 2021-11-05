@@ -1,38 +1,38 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996, Niclas Forsberg                                  *
-************************************************************************
-C!-----------------------------------------------------------------------!
-C!
-      Subroutine LSPotFit(r01,energy1,grad1,Hess1,D3_1,D4_1,
-     &     r02,energy2,grad2,Hess2,D3_2,D4_2,
-     &     r00,energy0,r_min,FitCoef,mMat,stand_dev,max_err,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996, Niclas Forsberg                                  *
+!***********************************************************************
+!!-----------------------------------------------------------------------!
+!!
+      Subroutine LSPotFit(r01,energy1,grad1,Hess1,D3_1,D4_1,            &
+     &     r02,energy2,grad2,Hess2,D3_2,D4_2,                           &
+     &     r00,energy0,r_min,FitCoef,mMat,stand_dev,max_err,            &
      &     use_weight,max_term,pot,nosc,numcoef)
-C!
-C!  Purpose:
-C!    Perform a least squares fit of the potentiag at two different
-C!    centra, r01 and r02.
-C!
-C!  Uses:
-C!    Constants
-C!    Linalg
-C!    FCMod
-C!
-C!  Written by:
-C!    Niclas Forsberg,
-C!    Dept. of Theoretical Chemistry, Lund University, 1996.
-C!
-c       Use Linalg
-c       Use FCMod
-c       Use TabMod
+!!
+!!  Purpose:
+!!    Perform a least squares fit of the potentiag at two different
+!!    centra, r01 and r02.
+!!
+!!  Uses:
+!!    Constants
+!!    Linalg
+!!    FCMod
+!!
+!!  Written by:
+!!    Niclas Forsberg,
+!!    Dept. of Theoretical Chemistry, Lund University, 1996.
+!!
+!       Use Linalg
+!       Use FCMod
+!       Use TabMod
       Implicit Real*8 ( a-h,o-z )
 #include "Constants_mula.fh"
       Parameter ( mxdeg = 6)
@@ -48,8 +48,8 @@ c       Use TabMod
       Logical   use_weight,pot
       Integer  nTabDim
 #include "WrkSpc.fh"
-C!
-C!---- Initialize.
+!!
+!!---- Initialize.
       nvar = nosc
       mTabDim = numcoef-1
       Call TabDim_drv(max_term,nOsc,nTabDim)
@@ -60,12 +60,12 @@ C!---- Initialize.
       Call GetMem('mDec','Allo','Inte',ipmDec,n_mDec*nvar)
       Call GetMem('mInc','Allo','Inte',ipmInc,n_mDec*nvar)
       l_mMat=nOsc
-      Call MakeTab(max_term,max_mOrd,max_mInc,mMat,iWork(ipmInc),
-     &  iWork(ipmDec),
+      Call MakeTab(max_term,max_mOrd,max_mInc,mMat,iWork(ipmInc),       &
+     &  iWork(ipmDec),                                                  &
      &  l_mMat )
       nterm = max_mOrd+1
-C!
-C!---- Set up weight matrix and right hand side.
+!!
+!!---- Set up weight matrix and right hand side.
       nDim = 2*nterm
       !nDim = nVar*nterm !!!!
       If ( pot ) nDim = nDim+1
@@ -103,7 +103,7 @@ C!---- Set up weight matrix and right hand side.
       Do j = i,nvar
       Do k = j,nvar
       Work(ipweight+n+nDim*(n-1)-1) = 1.0d1
-      Work(ipweight+n+nterm+nDim*(n+nterm-1)-1) =
+      Work(ipweight+n+nterm+nDim*(n+nterm-1)-1) =                       &
      &                                                         1.0d1
       Work(iprhs+n-1) = D3_1(i,j,k)
       Work(iprhs+n+nterm-1) = D3_2(i,j,k)
@@ -117,7 +117,7 @@ C!---- Set up weight matrix and right hand side.
       Do k = j,nvar
       Do l = k,nvar
       Work(ipweight+n+nDim*(n-1)-1) = 1.0d0
-      Work(ipweight+n+nterm+
+      Work(ipweight+n+nterm+                                            &
      &                               nDim*(n+nterm-1)-1) = 1.0d0
       Work(iprhs+n-1) = D4_1(i,j,k,l)
       Work(iprhs+n+nterm-1) = D4_2(i,j,k,l)
@@ -134,13 +134,13 @@ C!---- Set up weight matrix and right hand side.
       Work(iprhs+nDim-1) = energy0+20000.0d0/HarToRcm
       Work(ipweight+nDim+nDim*(nDim-1)-1) = 1.0d4
       End If
-C!
-C!----
+!!
+!!----
       l_vpow=mxdeg+1
       Call GetMem('vpow','Allo','Real',ipvpow,l_vpow*nvar)
       Call GetMem('Tmat','Allo','Real',ipTmat,nDim*nterm)
       call dcopy_(nDim*nterm,[0.0d0],0,work(ipTmat),1)
-c       Tmat = 0.0d0
+!       Tmat = 0.0d0
       Call GetMem('x','Allo','Real',ipx,nvar)
 
       nrow = 1
@@ -154,10 +154,10 @@ c       Tmat = 0.0d0
       do iv=1,nvar
       Work(ipx+iv-1) = r02(iv)-r00(iv)
       enddo
-c             x = r02-r00
+!             x = r02-r00
       End If
-C!
-C!---- Calculate powers of individual variable values.
+!!
+!!---- Calculate powers of individual variable values.
       Do ivar = 1,nvar
       pow = 1.0d0
       work(ipvpow+1+l_vpow*(ivar-1)-1) = 1.0d0
@@ -166,8 +166,8 @@ C!---- Calculate powers of individual variable values.
       Work(ipvpow+i+1+l_vpow*(ivar-1)-1) = pow
       End Do
       End Do
-C!
-C!---- Calculate value of each polynomial term at this point.
+!!
+!!---- Calculate value of each polynomial term at this point.
       Do iterm = 1,nterm
       ip = mMat(iterm-1,1)
       t = Work(ipvpow+ip)
@@ -179,26 +179,26 @@ C!---- Calculate value of each polynomial term at this point.
       End Do
       mrow = mrow+1
       nrow = nrow+1
-C!
-C!--- First derivatives.
+!!
+!!--- First derivatives.
       If ( max_term.gt.0 ) Then
       Do ivar = 1,nvar
       Do iterm = 2,nterm
-      irow =
-     &             iWork(ipmDec+mrow+n_mDec*(ivar-1)-1)+1+((m-1)*
+      irow =                                                            &
+     &             iWork(ipmDec+mrow+n_mDec*(ivar-1)-1)+1+((m-1)*       &
      &             (nDim/2))
       jvar = nvar
-      Do While (( mMat(iterm-1,jvar).eq.0 ).and.
+      Do While (( mMat(iterm-1,jvar).eq.0 ).and.                        &
      &             ( jvar.gt.1 ))
       jvar = jvar-1
       End Do
       jterm = iWork(ipmDec+iterm+n_mDec*(jvar-1)-1)+1
-      Work(ipTmat+nrow+nDim*(iterm-1)-1) =
-     &             work(ipx+jvar-1)*
+      Work(ipTmat+nrow+nDim*(iterm-1)-1) =                              &
+     &             work(ipx+jvar-1)*                                    &
      &             Work(ipTmat+nrow+nDim*(jterm-1)-1)
       If ( ivar.eq.jvar ) Then
-      Work(ipTmat+nrow+nDim*(iterm-1)-1) =
-     &                Work(ipTmat+nrow+nDim*(iterm-1)-1)+
+      Work(ipTmat+nrow+nDim*(iterm-1)-1) =                              &
+     &                Work(ipTmat+nrow+nDim*(iterm-1)-1)+               &
      &                Work(ipTmat+irow+nDim*(jterm-1)-1)
       End If
       End Do
@@ -206,33 +206,33 @@ C!--- First derivatives.
       nrow = nrow+1
       End Do
       End If
-C!
-C!--- Second derivatives.
+!!
+!!--- Second derivatives.
       If ( max_term.gt.1 ) Then
       Do ivar = 1,nvar
       Do jvar = ivar,nvar
       Do iterm = 2,nterm
-      irow = iWork(ipmDec+mrow+n_mDec*(ivar-1)-1)+1+
+      irow = iWork(ipmDec+mrow+n_mDec*(ivar-1)-1)+1+                    &
      &                       ((m-1)*(nDim/2))
-      jrow = iWork(ipmDec+mrow+n_mDec*(jvar-1)-1)+1+
+      jrow = iWork(ipmDec+mrow+n_mDec*(jvar-1)-1)+1+                    &
      &                       ((m-1)*(nDim/2))
       kvar = nvar
-      Do While (( mMat(iterm-1,kvar).eq.0 ).and.
+      Do While (( mMat(iterm-1,kvar).eq.0 ).and.                        &
      &                ( kvar.gt.1 ))
       kvar = kvar-1
       End Do
       jterm = iWork(ipmDec+iterm+n_mDec*(kvar-1)-1)+1
-      Work(ipTmat+nrow+nDim*(iterm-1)-1) =
-     &                Work(ipx+kvar-1)*
+      Work(ipTmat+nrow+nDim*(iterm-1)-1) =                              &
+     &                Work(ipx+kvar-1)*                                 &
      &                Work(ipTmat+nrow+nDim*(jterm-1)-1)
       If ( ivar.eq.kvar ) Then
-      Work(ipTmat+nrow+nDim*(iterm-1)-1) =
-     &                   Work(ipTmat+nrow+nDim*(iterm-1)-1)+
+      Work(ipTmat+nrow+nDim*(iterm-1)-1) =                              &
+     &                   Work(ipTmat+nrow+nDim*(iterm-1)-1)+            &
      &                   Work(ipTmat+irow+nDim*(jterm-1)-1)
       End If
       If ( jvar.eq.kvar ) Then
-      Work(ipTmat+nrow+nDim*(iterm-1)-1) =
-     &                   Work(ipTmat+nrow+nDim*(iterm-1)-1)+
+      Work(ipTmat+nrow+nDim*(iterm-1)-1) =                              &
+     &                   Work(ipTmat+nrow+nDim*(iterm-1)-1)+            &
      &                   Work(ipTmat+jrow+nDim*(jterm-1)-1)
       End If
       End Do
@@ -241,42 +241,42 @@ C!--- Second derivatives.
       End Do
       End Do
       End If
-C!
-C!--- Third derivatives.
+!!
+!!--- Third derivatives.
       If ( max_term.gt.2 ) Then
       Do ivar = 1,nvar
       Do jvar = ivar,nvar
       Do kvar = jvar,nvar
       Do iterm = 2,nterm
-      irow = iWork(ipmDec+mrow+
-     &                   n_mDec*(ivar-1)-1)+1+
+      irow = iWork(ipmDec+mrow+                                         &
+     &                   n_mDec*(ivar-1)-1)+1+                          &
      &                          ((m-1)*(nDim/2))
-      jrow = iWork(ipmDec+mrow+n_mDec*(jvar-1)-1)+1+
+      jrow = iWork(ipmDec+mrow+n_mDec*(jvar-1)-1)+1+                    &
      &                          ((m-1)*(nDim/2))
-      krow = iWork(ipmDec+mrow+n_mDec*(kvar-1)-1)+1+
+      krow = iWork(ipmDec+mrow+n_mDec*(kvar-1)-1)+1+                    &
      &                          ((m-1)*(nDim/2))
       lvar = nvar
-      Do While (( mMat(iterm-1,lvar).eq.0 ).and.
+      Do While (( mMat(iterm-1,lvar).eq.0 ).and.                        &
      &                   ( lvar.gt.1 ))
       lvar = lvar-1
       End Do
       jterm = iWork(ipmDec+iterm+n_mDec*(lvar-1)-1)+1
-      Work(ipTmat+nrow+nDim*(iterm-1)-1) =
-     &                   Work(ipx+lvar-1)*
+      Work(ipTmat+nrow+nDim*(iterm-1)-1) =                              &
+     &                   Work(ipx+lvar-1)*                              &
      &                   Work(ipTmat+nrow+nDim*(jterm-1)-1)
       If ( ivar.eq.lvar ) Then
-      Work(ipTmat+nrow+nDim*(iterm-1)-1) =
-     &                      Work(ipTmat+nrow+nDim*(iterm-1)-1)+
+      Work(ipTmat+nrow+nDim*(iterm-1)-1) =                              &
+     &                      Work(ipTmat+nrow+nDim*(iterm-1)-1)+         &
      &                      Work(ipTmat+irow+nDim*(jterm-1)-1)
       End If
       If ( jvar.eq.lvar ) Then
-      Work(ipTmat+nrow+nDim*(iterm-1)-1) =
-     &                      Work(ipTmat+nrow+nDim*(iterm-1)-1)+
+      Work(ipTmat+nrow+nDim*(iterm-1)-1) =                              &
+     &                      Work(ipTmat+nrow+nDim*(iterm-1)-1)+         &
      &                      Work(ipTmat+jrow+nDim*(jterm-1)-1)
       End If
       If ( kvar.eq.lvar ) Then
-      Work(ipTmat+nrow+nDim*(iterm-1)-1) =
-     &                      Work(ipTmat+nrow+nDim*(iterm-1)-1)+
+      Work(ipTmat+nrow+nDim*(iterm-1)-1) =                              &
+     &                      Work(ipTmat+nrow+nDim*(iterm-1)-1)+         &
      &                      Work(ipTmat+krow+nDim*(jterm-1)-1)
       End If
       End Do
@@ -286,51 +286,51 @@ C!--- Third derivatives.
       End Do
       End Do
       End If
-C!
-C!--- Fourth derivatives.
+!!
+!!--- Fourth derivatives.
       If ( max_term.gt.3 ) Then
       Do ivar = 1,nvar
       Do jvar = ivar,nvar
       Do kvar = jvar,nvar
       Do lvar = kvar,nvar
       Do iterm = 2,nterm
-      irow =
+      irow =                                                            &
      &  iWork(ipmDec+mrow+n_mDec*(ivar-1)-1)+1+((m-1)*(nDim/2))
-      jrow =
+      jrow =                                                            &
      &  iWork(ipmDec+mrow+n_mDec*(jvar-1)-1)+1+((m-1)*(nDim/2))
-      krow =
+      krow =                                                            &
      &  iWork(ipmDec+mrow+n_mDec*(kvar-1)-1)+1+((m-1)*(nDim/2))
-      lrow =
+      lrow =                                                            &
      &  iWork(ipmDec+mrow+n_mDec*(lvar-1)-1)+1+((m-1)*(nDim/2))
       mvar = nvar
-      Do While
-     &                      (( mMat(iterm-1,mvar).eq.0 ).and.
+      Do While                                                          &
+     &                      (( mMat(iterm-1,mvar).eq.0 ).and.           &
      &                      ( mvar.gt.1 ))
       mvar = mvar-1
       End Do
-      jterm =
+      jterm =                                                           &
      &                      iWork(ipmDec+iterm+n_mDec*(mvar-1)-1)+1
-      Work(ipTmat+nrow+nDim*(iterm-1)-1) =
-     &                      Work(ipx+mvar-1)*
+      Work(ipTmat+nrow+nDim*(iterm-1)-1) =                              &
+     &                      Work(ipx+mvar-1)*                           &
      &                   Work(ipTmat+nrow+nDim*(jterm-1)-1)
       If ( ivar.eq.mvar ) Then
-      Work(ipTmat+nrow+nDim*(iterm-1)-1) =
-     &                         Work(ipTmat+nrow+nDim*(iterm-1)-1)+
+      Work(ipTmat+nrow+nDim*(iterm-1)-1) =                              &
+     &                         Work(ipTmat+nrow+nDim*(iterm-1)-1)+      &
      &                         Work(ipTmat+irow+ndim*(jterm-1)-1)
       End If
       If ( jvar.eq.mvar ) Then
-      work(ipTmat+nrow+nDim*(iterm-1)-1) =
-     &                         Work(ipTmat+nrow+nDim*(iterm-1)-1)+
+      work(ipTmat+nrow+nDim*(iterm-1)-1) =                              &
+     &                         Work(ipTmat+nrow+nDim*(iterm-1)-1)+      &
      &                         Work(ipTmat+jrow+nDim*(jterm-1)-1)
       End If
       If ( kvar.eq.mvar ) Then
-      Work(ipTmat+nrow+nDim*(iterm-1)-1) =
-     &                         Work(ipTmat+nrow+nDim*(iterm-1)-1)+
+      Work(ipTmat+nrow+nDim*(iterm-1)-1) =                              &
+     &                         Work(ipTmat+nrow+nDim*(iterm-1)-1)+      &
      &                         Work(ipTmat+krow+nDim*(jterm-1)-1)
       End If
       If ( lvar.eq.mvar ) Then
-      Work(ipTmat+nrow+nDim*(iterm-1)-1) =
-     &                         Work(ipTmat+nrow+nDim*(iterm-1)-1)+
+      Work(ipTmat+nrow+nDim*(iterm-1)-1) =                              &
+     &                         Work(ipTmat+nrow+nDim*(iterm-1)-1)+      &
      &                         Work(ipTmat+lrow+nDim*(jterm-1)-1)
       End If
       End Do
@@ -342,13 +342,13 @@ C!--- Fourth derivatives.
       End Do
       End If
       End Do
-C!
+!!
       If ( pot ) Then
       Work(ipx) = r_min(1)-r00(1)
       Work(ipx+1) = r_min(2)-r00(2)
       Work(ipx+2) = 2.0d0*rpi-r_min(3)-r00(3)
-C!
-C!---- Calculate powers of individual variable values.
+!!
+!!---- Calculate powers of individual variable values.
       Do ivar = 1,nvar
       pow = 1.0d0
       Work(ipvpow+1+l_vpow*(ivar-1)-1) = 1.0d0
@@ -357,8 +357,8 @@ C!---- Calculate powers of individual variable values.
       Work(ipvpow+i+1+l_vpow*(ivar-1)-1) = pow
       End Do
       End Do
-C!
-C!---- Calculate value of each polynomial term at this point.
+!!
+!!---- Calculate value of each polynomial term at this point.
       Do iterm = 1,nterm
       ip = mMat(iterm-1,1)
       t = Work(ipvpow+ip)
@@ -369,22 +369,22 @@ C!---- Calculate value of each polynomial term at this point.
       Work(ipTmat+nrow+nDim*(iterm-1)-1) = t
       End Do
       End If
-C!
-C!---- Calculate equation matrix, T(t)*weight*T, and T(t)*weight*rhs.
+!!
+!!---- Calculate equation matrix, T(t)*weight*T, and T(t)*weight*rhs.
       Call GetMem('Temp','Allo','Real',ipTemp,nterm*nDim)
       Call GetMem('Equmat','Allo','Real',ipEqumat,nterm*nterm)
 
-      Call DGEMM_('T','N',
-     &            nterm,nDim,nDim,
-     &            1.0d0,Work(ipTmat),nDim,
-     &            Work(ipweight),nDim,
+      Call DGEMM_('T','N',                                              &
+     &            nterm,nDim,nDim,                                      &
+     &            1.0d0,Work(ipTmat),nDim,                              &
+     &            Work(ipweight),nDim,                                  &
      &            0.0d0,Work(ipTemp),nterm)
-      Call DGEMM_('N','N',
-     &            nterm,nterm,nDim,
-     &            1.0d0,Work(ipTemp),nterm,
-     &            Work(ipTmat),nDim,
+      Call DGEMM_('N','N',                                              &
+     &            nterm,nterm,nDim,                                     &
+     &            1.0d0,Work(ipTemp),nterm,                             &
+     &            Work(ipTmat),nDim,                                    &
      &            0.0d0,Work(ipEqumat),nterm)
-C!
+!!
       n = 2
       If ( max_term.gt.0 ) Then
       Do i = 1,nvar
@@ -400,7 +400,7 @@ C!
       Do i = 1,nvar
       Do j = i,nvar
       Do k = j,nvar
-      Work(ipEqumat+n+nterm*(n-1)-1) =
+      Work(ipEqumat+n+nterm*(n-1)-1) =                                  &
      &                   Work(ipEqumat+n+nterm*(n-1)-1)+1.0d-1
       n = n+1
       End Do
@@ -411,7 +411,7 @@ C!
       Do j = i,nvar
       Do k = j,nvar
       Do l = k,nvar
-      Work(ipEqumat+n+nterm*(n-1)-1) =
+      Work(ipEqumat+n+nterm*(n-1)-1) =                                  &
      &                         Work(ipEqumat+n+nterm*(n-1)-1)+1.0d-1
       n = n+1
       End Do
@@ -422,16 +422,16 @@ C!
       End If
       End If
       End If
-C!
-      Call DGEMM_('N','N',
-     &            nterm,1,nDim,
-     &            1.0d0,Work(ipTemp),nterm,
-     &            Work(iprhs),nDim,
+!!
+      Call DGEMM_('N','N',                                              &
+     &            nterm,1,nDim,                                         &
+     &            1.0d0,Work(ipTemp),nterm,                             &
+     &            Work(iprhs),nDim,                                     &
      &            0.0d0,FitCoef,nterm)
-C!
-C!---- Solve the resulting equation system.
+!!
+!!---- Solve the resulting equation system.
       Call Dool_MULA(Work(ipEqumat),nterm,nterm,FitCoef,nterm,nterm,det)
-C!
+!!
       Call GetMem('weight','Free','Real',ipweight,nDim*nDim)
       Call GetMem('mDec','Free','Inte',ipmDec,n_mDec*nvar)
       Call GetMem('mInc','Free','Inte',ipmInc,n_mDec*nvar)
@@ -441,8 +441,8 @@ C!
       Call GetMem('rhs','Free','Real',iprhs,nDim)
       Call GetMem('Equmat','Free','Real',ipEqumat,nterm*nterm)
       Call GetMem('Temp','Free','Real',ipTemp,nterm*nDim)
-C!
-c Avoid unused argument warnings
+!!
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real(stand_dev)
          Call Unused_real(max_err)

@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2009, Giovanni Ghigo                                   *
-************************************************************************
-      Subroutine ISCD_LogEVec(iPrint,nOsc,max_nOrd,minQ,nYes,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2009, Giovanni Ghigo                                   *
+!***********************************************************************
+      Subroutine ISCD_LogEVec(iPrint,nOsc,max_nOrd,minQ,nYes,           &
      &              lNMAT,lnTabDim, nTabDim,nMaxQ,nMat0,lVec)
-C!
-C!    Generate Logical Vector of useful States
-C!
+!!
+!!    Generate Logical Vector of useful States
+!!
       Implicit Real*8 ( a-h,o-z )
       Implicit Integer (i-n)
       Dimension nMat0(nOsc)
@@ -37,26 +37,26 @@ C!
           EndDo
           If (nSumQ.LT.minQ) lVec(iOrd) = 0
       EndDo
-C!
+!!
       nYes = 0
       Do iOrd = 0,max_nOrd
         If (lVec(iOrd).EQ.1) nYes = nYes + 1
       EndDo
-C!
+!!
       If (iPrint.GE.3) then
         Write(6,*) ' Selected number of States=',nYes
       EndIf
-C!
+!!
       Return
       End
 
 
-      Subroutine ISCD_Ene(iPrint,nOsc,max_nOrd,nYes,lNMAT,lnTabDim,
-     & GE1,GE2,harmfreq1,harmfreq2,x_anharm1,x_anharm2,
+      Subroutine ISCD_Ene(iPrint,nOsc,max_nOrd,nYes,lNMAT,lnTabDim,     &
+     & GE1,GE2,harmfreq1,harmfreq2,x_anharm1,x_anharm2,                 &
      & dMinWind,dRho, nMat0,nTabDim,lVec,lTVec,EneMat)
-C!
-C!    Calculate Energy of Levels  GG 30-Dec-08 - 08-Jan-09
-C!
+!!
+!!    Calculate Energy of Levels  GG 30-Dec-08 - 08-Jan-09
+!!
       Implicit Real*8 ( a-h,o-z )
       Implicit Integer (i-n)
 #include "Constants_mula.fh"
@@ -78,15 +78,15 @@ C!
       Do iOrd = 0, max_nOrd
         lTVec(iOrd) = lVec(iOrd)
       EndDo
-C!
-C!    Energy calculation
-C!
+!!
+!!    Energy calculation
+!!
       If (iPrint.GE.4) then
         Write(6,*)
         Write(6,*) ' States in the preliminar window :'
         If (nOsc.LE.24) then
           Write(6,'(a,108a)') '  ',('=',i=1,108)
-          Write(6,*)'     jOrd    ene/au    ene/cm-1 '//
+          Write(6,*)'     jOrd    ene/au    ene/cm-1 '//                &
      &    'Vibrational quantum numbers'
           Write(6,'(a,108a)') '  ',('-',i=1,108)
         else
@@ -96,7 +96,7 @@ C!
         EndIf
         Call XFlush(6)
       EndIf
-C!
+!!
       Call GetMem('level1','Allo','Inte',iplevel1,nOsc)
       Call GetMem('level2','Allo','Inte',iplevel2,nOsc)
       Do iv=1,nOsc
@@ -111,9 +111,9 @@ C!
             iWork(iplevel2+iv-1) = nMat0(iv)
           EndDo
           l_harm=nOsc
-          Call TransEnergy(
-     &    GE1,x_anharm1,harmfreq1,iWork(iplevel1),
-     &    GE2,x_anharm2,harmfreq2,iWork(iplevel2),
+          Call TransEnergy(                                             &
+     &    GE1,x_anharm1,harmfreq1,iWork(iplevel1),                      &
+     &    GE2,x_anharm2,harmfreq2,iWork(iplevel2),                      &
      &    dEne,l_harm)
           EneMat(iOrd) = dEne
           If (iPrint.GE.4) then
@@ -122,24 +122,24 @@ C!
               Do j=1,nOsc
                 loc_n_max = loc_n_max + nMat0(j)
               EndDo
-              Write(6,'(a2,i8,f11.6,f11.4,i4,a2,24i3)') ' ',iOrd,dEne,
+              Write(6,'(a2,i8,f11.6,f11.4,i4,a2,24i3)') ' ',iOrd,dEne,  &
      &            dEne*HarToRcm,loc_n_max,': ',(nMat0(j),j=1,nOsc)
             else
-               Write(6,'(a2,i8,f11.6,f11.4,i4        )') ' ',iOrd,dEne,
+               Write(6,'(a2,i8,f11.6,f11.4,i4        )') ' ',iOrd,dEne, &
      &            dEne*HarToRcm,loc_n_max
             EndIf
           EndIf
         EndIf
       End Do
-C!
-C!    Energy selection
-C!
+!!
+!!    Energy selection
+!!
       If (iPrint.GE.3) then
         Write(6,*)
         Write(6,*) ' States in the window :'
         If (nOsc.LE.24) then
           Write(6,'(a,108a)') '  ',('=',i=1,108)
-          Write(6,*)'     jOrd    ene/au    ene/cm-1 '//
+          Write(6,*)'     jOrd    ene/au    ene/cm-1 '//                &
      &    'Vibrational quantum numbers'
           Write(6,'(a,108a)') '  ',('-',i=1,108)
         else
@@ -149,7 +149,7 @@ C!
         EndIf
         Call XFlush(6)
       EndIf
-C!
+!!
       nYes_start = nYes
  100  Continue
       dWlow = 0.5d0*dMinWind/dRho
@@ -171,10 +171,10 @@ C!
                 Do j=1,nOsc
                   loc_n_max = loc_n_max + nMat0(j)
                 EndDo
-                Write(6,'(a2,i8,f11.6,f11.4,i4,a2,24i3)') ' ',iOrd,dEne,
+                Write(6,'(a2,i8,f11.6,f11.4,i4,a2,24i3)') ' ',iOrd,dEne,&
      &              dEne*HarToRcm,loc_n_max,': ',(nMat0(j),j=1,nOsc)
               else
-                Write(6,'(a2,i8,f11.6,f11.4,i4        )') ' ',iOrd,dEne,
+                Write(6,'(a2,i8,f11.6,f11.4,i4        )') ' ',iOrd,dEne,&
      &              dEne*HarToRcm,loc_n_max
               EndIf
             EndIf
@@ -186,16 +186,16 @@ C!
         nYes = nYes_start
         GoTo 100
       EndIf
-C!
+!!
       Call GetMem('level2','Free','Inte',iplevel2,nOsc)
       Call GetMem('level1','Free','Inte',iplevel1,nOsc)
 
       If (iPrint.GE.3) then
         If (nOsc.LE.30) Write(6,'(a,108a)') '  ',('-',i=1,108)
         If (nOsc.GT.30) Write(6,'(a,36a)') '  ',('-',i=1,36)
-        Write(6,'(a,f12.9,a,f12.9,a)')'  Window: ',
+        Write(6,'(a,f12.9,a,f12.9,a)')'  Window: ',                     &
      &   -dWlow,         ' / ',dWup,         ' (au)'
-        Write(6,'(a,f12.6,a,f12.6,a)')'  Window: ',
+        Write(6,'(a,f12.6,a,f12.6,a)')'  Window: ',                     &
      &   -dWlow*HarToRcm,' / ',dWup*HarToRcm,' (cm-1)'
       EndIf
       If (iPrint.GE.2) then
@@ -203,7 +203,7 @@ C!
       EndIf
       If (dMinWind.GT.1.0d0 .and. lUpDate .and. iPrint.GE.1) then
         Write(6,*)
-        Write(6,*) ' *** Warning: Expansion factor has been set to ',
+        Write(6,*) ' *** Warning: Expansion factor has been set to ',   &
      &                                                     dMinWind
         Write(6,*)
       EndIf

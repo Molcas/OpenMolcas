@@ -1,14 +1,14 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine ISCD_MakenMat(n_max,nOsc,lNMAT,lnTabDim,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine ISCD_MakenMat(n_max,nOsc,lNMAT,lnTabDim,               &
      &                         Graph2,nTabDim,nMat0)
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
@@ -17,8 +17,8 @@
       Integer nvTabDim
 #include "WrkSpc.fh"
 #include "io_mula.fh"
-C!
-C!---- Initialize.
+!!
+!!---- Initialize.
       Do i=1,nOsc
         nMat0(i)=0
       EndDo
@@ -26,8 +26,8 @@ C!---- Initialize.
       nTabDim(0) = iIndex
       Call iDaFile(lNMAT,1,nMat0,nOsc,iIndex)
       Call GetMem('iVec','Allo','INTE',ipiVec,nOsc)
-C!
-C! -- Macrocycle on iQuanta
+!!
+!! -- Macrocycle on iQuanta
       nD_0 = 0
       Do iQuanta=1,n_max
         do jv=1,nOsc
@@ -38,8 +38,8 @@ C! -- Macrocycle on iQuanta
         Call TabDim2_drv(iQuanta,nOsc,nd)
         Call TabDim2_drv(iQuanta-1,nOsc,nvTabDim)
         nd=nd-nvTabDim
-C!
-C! ---  Microcycle on iDet
+!!
+!! ---  Microcycle on iDet
         Do iDet=1,nD
           iWork(ipiVec)=iWork(ipiVec)+1
           iQ=iQ+1
