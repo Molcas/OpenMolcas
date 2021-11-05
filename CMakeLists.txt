@@ -2813,6 +2813,10 @@ foreach (util ${utils})
   endif ()
   list (APPEND utils_obj ${util}_obj)
   list (APPEND ALL_SOURCES ${${util}_sources} ${${util}_mods})
+  # get the list of "public" include directories, since these may be needed
+  # when compiling programs, and not just for linking
+  get_target_property(inc ${util}_obj INTERFACE_INCLUDE_DIRECTORIES)
+  list (APPEND public_incs ${inc})
 endforeach (util)
 
 # build an actual libmolcas library

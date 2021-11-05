@@ -11,4 +11,4 @@
       Logical REORD
       Real*8 dmpk,dFKmat
       Integer ALGO,NSCREEN
-      Common /CHOSCF / REORD,DECO,dmpk,dFKmat,ALGO,NSCREEN
+      Common /CHOSCF / REORD,dmpk,dFKmat,ALGO,NSCREEN

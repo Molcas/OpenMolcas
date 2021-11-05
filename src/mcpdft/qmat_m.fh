@@ -10,4 +10,4 @@
 !***********************************************************************
       Logical DoQmat
       Integer ipQmat
-      COMMON /QMAT_M/ DoActive,DoQmat,ipQmat
+      COMMON /QMAT_M/ DoQmat,ipQmat
