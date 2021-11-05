@@ -28,6 +28,7 @@
 *     GLM, Minneapolis,   May 2013
 *     AMS, Minneapolis,   Feb 2016
 *
+      Use Fock_util_global, only: ALGO, DoCholesky
       Implicit Real*8 (A-H,O-Z)
       Dimension CMO(*) ,F(*) , FI(*), FA(*), Ref_Ener(*)
 *
@@ -48,9 +49,6 @@
 #include "rasscf_lucia.fh"
 #include "ksdft.fh"
 !      Logical TraOnly
-
-#include "chotodo.fh"
-#include "chlcas.fh"
 
 *
       Character*8 Label

@@ -18,6 +18,7 @@ subroutine TraCtl2(CMO,PUVX,TUVX,D1I,FI,D1A,FA,IPR,lSquare,ExFac)
 !                                                                      *
 !***********************************************************************
 
+use Fock_util_global, only: ALGO, DoCholesky
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, nProcs
 #endif
@@ -34,7 +35,6 @@ logical(kind=iwp), intent(in) :: lSquare
 #include "rasdim.fh"
 #include "general.fh"
 #include "wadr.fh"
-#include "chlcas.fh"
 integer(kind=iwp) :: iDisk, irc
 logical(kind=iwp) :: TraOnly
 

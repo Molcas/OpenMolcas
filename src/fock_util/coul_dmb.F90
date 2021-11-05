@@ -12,6 +12,7 @@
 subroutine Coul_DMB(GetFM,nDM,Rep_EN,FM,DMA,DMB,lFDM)
 
 use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
@@ -20,7 +21,6 @@ integer(kind=iwp), intent(in) :: nDM, lFDM
 real(kind=wp), intent(out) :: Rep_EN
 real(kind=wp), intent(inout) :: FM(lFDM)
 real(kind=wp), intent(in) :: DMA(lFDM), DMB(lFDM)
-#include "real.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
 integer(kind=iwp) :: irc
@@ -33,7 +33,7 @@ if ((nDM > 2) .or. (nDM < 1)) then
   call SysAbendMsg('Coul_DMB ',' nDM must be 1 or 2 ',' ')
 end if
 
-if (GetFM) Then
+if (GetFM) then
 
   call Allocate_DSBA(FLT(1),nBas,nBas,nSym,aCase='TRI',Ref=FM)
 

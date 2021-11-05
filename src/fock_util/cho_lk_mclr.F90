@@ -36,6 +36,7 @@ use ChoArr, only: nBasSh, nDimRS
 use ChoSwp, only: IndRed, InfVec, nnBstRSh
 use Symmetry_Info, only: MulD2h => Mul
 use Index_Functions, only: iTri
+use Fock_util_global, only: Deco, dmpk, Estimate, Nscreen, Update
 use Data_Structures, only: Allocate_DSBA, Allocate_G2, Allocate_L_Full, Allocate_Lab, Allocate_NDSBA, Allocate_SBA, &
                            Deallocate_DSBA, Deallocate_G2, Deallocate_L_Full, Deallocate_Lab, Deallocate_NDSBA, Deallocate_SBA, &
                            DSBA_Type, G2_Type, L_Full_Type, Lab_Type, NDSBA_Type, SBA_Type
@@ -57,7 +58,6 @@ real(kind=wp), intent(inout) :: MO_Int(*)
 integer(kind=iwp), intent(in) :: nOrb(8), nAsh(8), LuAChoVec(8), LuIChoVec(8), iAChoVec
 logical(kind=iwp), intent(in) :: DoAct, Fake_CMO2
 #include "warnings.h"
-#include "chomclr.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
 integer(kind=iwp) :: i, ia, iab, iabg, iAdr, iAdr2, iag, iaSh, iaSkip, iASQ(8,8,8), ib, iBatch, ibcount, ibg, ibs, ibSh, ibSkip, &
@@ -195,7 +195,6 @@ if (Deco) then
 
       !* MO transform
 
-
       call DGEMM_('T','T',nChMO(iS),nBas(iS),nBas(iS),One,CM(1)%SB(iS)%A2,nBas(iS),CMO_inv%SB(iS)%A2,nBas(iS),Zero, &
                   Tmp(2)%SB(iS)%A2,nChMO(iS))
 
@@ -228,7 +227,7 @@ MaxVecPerBatch = Cho_LK_MaxVecPerBatch()
 ! Define the screening threshold
 
 LKThr = Cho_LK_ScreeningThreshold(-One)
-dmpk = 1.0e-2_wp
+!dmpk = 1.0e-2_wp
 !dmpk = Zero
 
 ! Vector MO transformation screening thresholds

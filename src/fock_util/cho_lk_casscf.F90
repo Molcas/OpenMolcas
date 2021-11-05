@@ -46,6 +46,7 @@ use ChoArr, only: nBasSh, nDimRS
 use ChoSwp, only: IndRed, InfVec, nnBstRSh
 use Symmetry_Info, only: MulD2h => Mul
 use Index_Functions, only: iTri
+use Fock_util_global, only: Estimate, Update
 use Data_Structures, only: Allocate_DSBA, Allocate_L_Full, Allocate_Lab, Allocate_NDSBA, Allocate_SBA, Allocate_twxy, &
                            Deallocate_DSBA, Deallocate_L_Full, Deallocate_Lab, Deallocate_NDSBA, Deallocate_SBA, Deallocate_twxy, &
                            DSBA_Type, L_Full_Type, Lab_Type, NDSBA_Type, SBA_Type, twxy_Type
@@ -66,11 +67,10 @@ real(kind=wp), intent(in) :: FactXI, dmpk, dFmat, ExFac
 integer(kind=iwp), intent(in) :: nFIorb(8), nAorb(8), nChM(8), nScreen
 logical(kind=iwp), intent(in) :: DoActive
 #include "chotime.fh"
-#include "choscreen.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
 integer(kind=iwp) :: i, ia, iab, iag, iaSh, iaSkip, ib, iBatch, ibcount, ibg, ibs, ibSh, ibSkip, iCase, iE, ik, iLoc, iml, Inc, &
-                     ioffa, iOffAB,ioffb, iOffShb, irc, ired1, IREDC, iS, ish, iShp, iSwap, ISYM, iSyma, iSymb, iSymv, iTmp, &
+                     ioffa, iOffAB, ioffb, iOffShb, irc, ired1, IREDC, iS, ish, iShp, iSwap, ISYM, iSyma, iSymb, iSymv, iTmp, &
                      IVEC2, iVrs, jDen, jK, jK_a, jml, jmlmax, JNUM, JRED, JRED1, JRED2, jrs, jSym, jvc, JVEC, k, kMOs, kOff(8,2), &
                      krs, kscreen, kSym, l, l1, LFMAX, LFULL, LKsh, LKshp, LREAD, lSh, lSym, LWORK, MaxB, MaxRedT, MaxVecPerBatch, &
                      mDen, mrs, mSh, mTvec, mTvec1, mTvec2, MUSED, MxB, MxBasSh, myJRED2, n1, n2, nAt, NAv, NAw, nBatch, nBs, &

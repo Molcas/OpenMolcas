@@ -38,6 +38,7 @@ subroutine CHO_FOCK_RASSI(DLT,MO1,MO2,FLT,TUVX)
 use ChoArr, only: nDimRS
 use ChoSwp, only: InfVec
 use Symmetry_Info, only: MulD2h => Mul
+use Fock_util_global, only: Fake_CMO2
 use Data_Structures, only: Allocate_SBA, Allocate_twxy, Deallocate_SBA, Deallocate_twxy, DSBA_Type, SBA_Type, twxy_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -50,7 +51,6 @@ type(DSBA_Type), intent(in) :: DLT, MO1(2), MO2(2)
 type(DSBA_Type), intent(inout) :: FLT(1)
 real(kind=wp), intent(_OUT_) :: TUVX(*)
 #include "chotime.fh"
-#include "cho_jobs.fh"
 #include "rassi.fh"
 #include "cholesky.fh"
 #include "choorb.fh"

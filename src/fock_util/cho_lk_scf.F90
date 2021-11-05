@@ -34,6 +34,7 @@ use ChoArr, only: nBasSh, nDimRS
 use ChoSwp, only: IndRed, InfVec, nnBstRSh
 use Symmetry_Info, only: MulD2h => Mul
 use Index_Functions, only: iTri
+use Fock_util_global, only: Estimate, Update
 use Data_Structures, only: Allocate_L_Full, Allocate_Lab, Allocate_NDSBA, Deallocate_L_Full, Deallocate_Lab, Deallocate_NDSBA, &
                            DSBA_Type, L_Full_Type, Lab_Type, NDSBA_Type
 #ifdef _MOLCAS_MPP_
@@ -50,7 +51,6 @@ type(DSBA_Type), intent(inout) :: FLT(nDen), KLT(nDen)
 type(DSBA_Type), intent(in) :: Porb(nDen), PLT(nDen)
 real(kind=wp), intent(in) :: FactXI, dmpk, dFmat
 #include "chotime.fh"
-#include "choscreen.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "warnings.h"
@@ -612,7 +612,6 @@ do jSym=1,nSym
                   ! Exact bounds (quadratic scaling of the MO transformation)
                   !tbp, may 2013: reintroduce exact bound
                   if (MLk(jml,jK_a)*MLk(1,jK_a) >= tau(jDen)) then
-                  !
                   ! Here we use a non-exact bound for the exchange matrix
                   ! The positive definiteness of the exchange matrix
                   ! combined with the structure of the density matrix makes this

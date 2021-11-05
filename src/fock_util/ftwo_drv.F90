@@ -11,7 +11,8 @@
 
 subroutine FTwo_Drv(nSym,nBas,nAsh,nSkipX,DI,D1A,FA,nTot1,ExFac,nBMX,CMO)
 
-use fock_util_interface, only: CHORAS_DRV
+use Fock_util_interface, only: CHORAS_DRV
+use Fock_util_global, only: ALGO
 use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -21,7 +22,6 @@ implicit none
 integer(kind=iwp), intent(in) :: nSym, nBas(8), nAsh(8), nSkipX(8), nTot1, nBMX
 real(kind=wp), intent(in) :: DI(*), D1A(*), CMO(*), ExFac
 real(kind=wp), intent(inout) :: FA(*)
-#include "choras.fh"
 logical(kind=iwp) :: DoCholesky
 type(DSBA_Type) :: WFSQ(1)
 real(kind=wp), allocatable :: Temp(:)

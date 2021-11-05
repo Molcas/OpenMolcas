@@ -8,5 +8,6 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Integer Lunit
-      Common /CHOUNIT / Lunit(8)
+      Logical DoQmat
+      Integer ipQmat
+      COMMON /QMAT/ DoQmat,ipQmat

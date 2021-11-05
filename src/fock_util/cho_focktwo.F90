@@ -61,6 +61,7 @@ subroutine CHO_FOCKTWO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,FactC,FactX,DLT,DS
 
 use Symmetry_Info, only: MulD2h => Mul
 use Index_Functions, only: iTri
+use Fock_util_global, only: Lunit
 use Data_Structures, only: DSBA_Type, Deallocate_SBA, Integer_Pointer, SBA_Type
 use stdalloc, only: mma_allocate
 use Constants, only: Zero, One
@@ -74,7 +75,6 @@ real(kind=wp), intent(in) :: FactC(nDen), FactX(nDen)
 type(DSBA_Type), intent(in) :: DLT(nDen), DSQ(nDen)
 type(DSBA_Type), intent(inout) :: FLT(nDen), FSQ(nDen)
 type(Integer_Pointer), intent(in) :: pNocc(nDen)
-#include "chounit.fh"
 #include "chotime.fh"
 integer(kind=iwp) :: iBatch, iE, iS, iSkip(nSym), iSym, ISYMA, ISYMB, ISYMD, ISYMG, iSymp, ISYMQ, iSymr, iSymr_Occ, iSyms, iVec, &
                      jD, jDen, jE, jR, jS, jSR, jSym, JVEC, k, kRdMem, kSym, l, lu, LWORK, MaxSym, Naa, nb, nBatch, nd, ndim3, nk, &

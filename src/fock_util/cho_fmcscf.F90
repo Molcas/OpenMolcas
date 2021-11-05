@@ -511,7 +511,7 @@ do jSym=1,nSym
       call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,FLT,Frs,add)
     end if
 
-      ! free memory
+    ! free memory
     call mma_deallocate(Lrs)
 
     if (JSYM == 1) then

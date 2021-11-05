@@ -12,6 +12,7 @@
 subroutine CHO_CAS_DRV(rc,W_CMO,DI,FI,DA1,FA,W_PWXY,TraOnly)
 
 use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type
+use Fock_util_global, only: ALGO, Deco, dmpk, DoActive, DoLocK, Nscreen
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
@@ -24,9 +25,6 @@ real(kind=wp), intent(in) :: W_CMO(*), DI(*), DA1(*)
 real(kind=wp), intent(inout) :: FI(*), FA(*)
 real(kind=wp), intent(_OUT_) :: W_PWXY(*)
 logical(kind=iwp), intent(in) :: TraOnly
-#include "chotodo.fh"
-#include "chlcas.fh"
-#include "cholk.fh"
 #include "rasdim.fh"
 #include "wadr.fh"
 #include "general.fh"

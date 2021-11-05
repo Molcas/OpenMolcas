@@ -62,6 +62,7 @@
 #ifdef _HDF5_
       use mh5, only: mh5_put_dset
 #endif
+      use Fock_util_global, only: ALGO, DoCholesky
       Implicit Real*8 (A-H,O-Z)
 
       Dimension CMO(*),OCC(*),D(*),P(*),PA(*),FI(*),FA(*),D1A(*)
@@ -83,9 +84,6 @@
       Save nCall
       Logical TraOnly
       Dimension P2act(1),CIDUMMY(1)
-
-#include "chotodo.fh"
-#include "chlcas.fh"
 
 C PAM01 The SXCI part has been slightly modified by P-AA M Jan 15, 2001:
 C Changes affect several of the subroutines of this part.

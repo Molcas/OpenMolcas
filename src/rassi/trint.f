@@ -10,6 +10,7 @@
 ************************************************************************
 
       SUBROUTINE TRINT(CMO1,CMO2,ECORE,NGAM1,FOCKMO,NGAM2,TUVX)
+      USE Fock_util_global, only: Fake_CMO2
 #if defined (_MOLCAS_MPP_)
       USE Para_Info, ONLY: nProcs
 #endif
@@ -32,7 +33,6 @@
 
       Real*8, Dimension(:), Allocatable:: Prod
 
-#include "cho_jobs.fh"
 #include "chorassi.fh"
 
 *****************************************************************

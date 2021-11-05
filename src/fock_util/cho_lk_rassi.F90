@@ -39,7 +39,8 @@ use ChoArr, only: nBasSh, nDimRS
 use ChoSwp, only: IndRed, InfVec, nnBstRSh
 use Symmetry_Info, only: MulD2h => Mul
 use Index_Functions, only: iTri
-use fock_util_interface, only: cho_lr_MOs
+use Fock_util_interface, only: cho_lr_MOs
+use Fock_util_global, only: Deco, Estimate, Fake_CMO2, PseudoChoMOs, Update
 use Data_Structures, only: Allocate_DSBA, Allocate_L_Full, Allocate_Lab, Allocate_NDSBA, Allocate_SBA, Allocate_twxy, &
                            Deallocate_DSBA, Deallocate_Lab, Deallocate_L_Full, Deallocate_NDSBA, Deallocate_SBA, Deallocate_twxy, &
                            DSBA_Type, L_Full_Type, Lab_Type, NDSBA_Type, SBA_Type, twxy_Type
@@ -60,8 +61,6 @@ integer(kind=iwp), intent(in) :: nScreen
 real(kind=wp), intent(in) :: dmpk
 #include "warnings.h"
 #include "chotime.fh"
-#include "lkscreen.fh"
-#include "cho_jobs.fh"
 #include "rassi.fh"
 #include "cholesky.fh"
 #include "choorb.fh"

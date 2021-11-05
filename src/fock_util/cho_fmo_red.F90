@@ -67,6 +67,7 @@ subroutine CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,lOff1,FactC,FactX,DLT,DSQ,FL
 
 use Symmetry_Info, only: MulD2h => Mul
 use Index_Functions, only: iTri
+use Fock_util_global, only: Deco, DensityCheck
 use Data_structures, only: DSBA_Type, Deallocate_SBA, Integer_Pointer, Map_to_SBA, SBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
@@ -80,9 +81,7 @@ real(kind=wp), intent(in) :: FactC(nDen), FactX(nDen)
 type(DSBA_Type), intent(in) :: DLT(nDen), DSQ(nDen), MSQ(nDen)
 type(DSBA_Type), intent(inout) :: FLT(nDen), FSQ(nDen)
 type(Integer_Pointer), intent(in) :: pNocc(nDen)
-#include "chodensity.fh"
 #include "chotime.fh"
-#include "choscf.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
 integer(kind=iwp) :: i, iBatch, iE, irc, IREDC, iS, iSkip(8), iSwap, iSym, ISYMA, ISYMB, ISYMD, ISYMG, iSymp, iSymq, iSymr, &

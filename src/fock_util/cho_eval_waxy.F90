@@ -26,7 +26,7 @@ real(kind=wp), intent(_OUT_) :: W_PWXY(*)
 integer(kind=iwp), intent(in) :: nAorb(*), JSYM, NUMV
 logical(kind=iwp), intent(in) :: DoTraInt
 type(DSBA_Type), intent(in) :: CMO
-#include "Molcas.fh"
+#include "rasdim.fh"
 #include "general.fh"
 #include "wadr.fh"
 integer(kind=iwp) :: ijSym, iOrb, ipMpw, iS, iStack, iSyma, iSymp, iSymw, iSymx, iSymy, ixy, jAsh, kAsh, kl_Orb_pairs, lAsh, &

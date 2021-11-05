@@ -11,7 +11,7 @@
 
 ! Wrapper module to allow using the subroutines without explicit interface
 
-module fock_util_interface
+module Fock_util_interface
 
 implicit none
 private
@@ -23,4 +23,4 @@ contains
 #include "cho_lr_mos.F90"
 #include "choras_drv.F90"
 
-end module fock_util_interface
+end module Fock_util_interface

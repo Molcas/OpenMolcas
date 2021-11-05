@@ -11,6 +11,7 @@
 
 subroutine CHORAS_DRV(nSym,nBas,nOcc,W_DSQ,W_DLT,W_FLT,ExFac,FSQ,W_CMO)
 
+use Fock_util_global, only: ALGO, Deco, Lunit, REORD
 use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type, Integer_Pointer
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
@@ -22,8 +23,6 @@ integer(kind=iwp), target, intent(in) :: nOcc(nSym)
 real(kind=wp), intent(in) :: W_DSQ(*), W_DLT(*), ExFac, W_CMO(*)
 real(kind=wp), intent(inout) :: W_FLT(*)
 type(DSBA_Type), intent(inout) :: FSQ(1)
-#include "chounit.fh"
-#include "choras.fh"
 integer(kind=iwp), parameter :: MaxDs = 1
 integer(kind=iwp) :: i, iUHF, ja, loff1, MinMem(8), nDen, NumV, rc
 real(kind=wp) :: FactC(MaxDs), FactX(MaxDs), Thr, Ymax
@@ -84,7 +83,7 @@ if (DECO) then ! use decomposed density
     else
       nVec(i) = 0
     end if
-  ! End of loop over symmetries
+    ! End of loop over symmetries
   end do
   call Deallocate_DSBA(DDec)
   ! ------------------------------------------------------------------

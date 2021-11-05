@@ -11,7 +11,8 @@
 
 subroutine FockTwo_Drv(nSym,nBas,nAux,Keep,DLT,DSQ,FLT,nFLT,ExFac,nBMX)
 
-use fock_util_interface, only: CHOras_drv
+use Fock_util_interface, only: CHOras_drv
+use Fock_util_global, only: ALGO
 use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -21,7 +22,6 @@ implicit none
 integer(kind=iwp), intent(in) :: nSym, nBas(8), nAux(8), Keep(8), nFLT, nBMX
 real(kind=wp), intent(in) :: DLT(*), DSQ(*), ExFac
 real(kind=wp), intent(inout) :: FLT(nFLT)
-#include "choras.fh"
 integer(kind=iwp) :: LBUF
 real(kind=wp) :: CMO_DUMMY(1)
 logical(kind=iwp) :: DoCholesky, GenInt

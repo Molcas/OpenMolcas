@@ -33,7 +33,8 @@ subroutine CHO_LK_RASSI_X(DLT,MSQ,FLT,KSQ,FSQ,TUVX,Ash,nScreen,dmpk)
 
 use ChoArr, only: nBasSh, nDimRS
 use ChoSwp, only: IndRed, InfVec, nnBstRSh
-use fock_util_interface, only: cho_lr_MOs
+use Fock_util_interface, only: cho_lr_MOs
+use Fock_util_global, only: Deco, Estimate, Fake_CMO2, PseudoChoMOs, Update
 use Symmetry_Info, only: MulD2h => Mul
 use Index_Functions, only: iTri
 use Data_Structures, only: Allocate_DSBA, Allocate_L_Full, Allocate_Lab, Allocate_NDSBA, Allocate_SBA, Allocate_twxy, &
@@ -57,21 +58,19 @@ integer(kind=iwp), intent(in) :: nScreen
 real(kind=wp), intent(in) :: dmpk
 #include "warnings.h"
 #include "chotime.fh"
-#include "lkscreen.fh"
-#include "cho_jobs.fh"
 #include "rassi.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
 integer(kind=iwp) :: ia, iab, iabg, iag, iaSh, iaSkip, ib, iBatch, ibcount, ibg, ibs, ibSh, ibSkip, iCase, iE, ik, iLoc, iml, Inc, &
                      ioffa, iOffAB, ioffb, iOffShb, iOK, irc, ired1, IREDC, iS, ish, iShp, iSwap, ISYM, iSyma, iSymb, iSymv, iTmp, &
                      IVEC2, iVrs, jaSkip, jden, jK, jK_a, jml, jmlmax, JNUM, JRED, JRED1, JRED2, jrs, jSym, jvc, JVEC, k, kDen, &
-                     kMOs, kOff(8), krs, kscreen, kSym, l, l1, LFMAX, LFULL, LKsh, LKshp, LREAD,  lSh, lSym, LWORK, MaxB, MaxRedT, &
+                     kMOs, kOff(8), krs, kscreen, kSym, l, l1, LFMAX, LFULL, LKsh, LKshp, LREAD, lSh, lSym, LWORK, MaxB, MaxRedT, &
                      MaxVecPerBatch, Mmax, mrs, mSh, mTVec, mTvec1, mTvec2, MUSED, MxB, MxBasSh, myJRED2, n1, n2, nAux(8), NAv, &
                      NAw, nBatch, nBsa, nDen, nMat, nMOs, nnO, nnShl_2, nRS, NumCV, numSh1, numSh2, NUMV, NumVT, nVec, nVrs
 real(kind=wp) :: Fact, LKThr, SKsh, tau, TCC1, TCC2, TCINT1, TCINT2, tcoul(2), TCR1, TCR2, TCS1, TCS2, TCT1, TCT2, TCX1, TCX2, &
-                     texch(2), THRSX, thrv, tintg(2), tmotr(2), Tmp, TOTCPU, TOTCPU1, TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, &
-                     tread(2), tscrn(2), TWC1, TWC2, TWINT1, TWINT2, TWR1, TWR2, TWS1, TWS2, TWT1, TWT2, TWX1, TWX2, xFab, xtau, &
-                     xTmp, YMax, YshMax
+                 texch(2), THRSX, thrv, tintg(2), tmotr(2), Tmp, TOTCPU, TOTCPU1, TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, tread(2), &
+                 tscrn(2), TWC1, TWC2, TWINT1, TWINT2, TWR1, TWR2, TWS1, TWS2, TWT1, TWT2, TWX1, TWX2, xFab, xtau, xTmp, YMax, &
+                 YshMax
 logical(kind=iwp) :: add, DoScreen, DoReord
 character(len=50) :: CFmt
 character :: mode, mode2
@@ -1078,7 +1077,7 @@ do jSym=1,nSym
 #   ifdef _MOLCAS_MPP_
     if ((nProcs > 1) .and. Update .and. DoScreen .and. Is_Real_Par()) then
       call GaDsum(DiagJ,nnBSTR(JSYM,1))
-      call Daxpy_(nnBSTR(JSYM,1),-One,DiagJ,1, Diag(1+iiBstR(JSYM,1)),1)
+      call Daxpy_(nnBSTR(JSYM,1),-One,DiagJ,1,Diag(1+iiBstR(JSYM,1)),1)
       call Fzero(DiagJ,nnBSTR(JSYM,1))
     end if
     ! Need to activate the screening to setup the contributing shell

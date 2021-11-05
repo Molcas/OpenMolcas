@@ -21,7 +21,7 @@
 ! Written:  August-September 2004                                      *
 ! Modified for Cholesky-MP2 May 2005                                   *
 !***********************************************************************
-!  TraCtl
+!  TraCtl_Drv
 !
 !> @brief
 !>   Driver that calls the Cholesky or the Conventional routine for the
@@ -57,7 +57,6 @@ logical(kind=iwp), intent(in) :: DoExch2
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "chocaspt2.fh"
 logical(kind=iwp) :: DoCholesky
 character(len=*), parameter :: SECNAM = 'TraCtl_Drv'
 
@@ -69,18 +68,19 @@ if (DoCholesky) then
 
     call ChoMP2_TraCtl(LUINTM,Work(LCMO),NCMO)
 
-  else if (iALGO == 0) then
+  ! caspt2 with cholesky does no longer use call to tractl_drv/cho_caspt2_drv
+  !else if (iALGO == 0) then
+  else
 
     call Cho_TraCtl(iType,LUINTM,Work(LCMO),NCMO,DoExch2)
 
-  else if (iALGO == 1) then
-
-    ! caspt2 with cholesky does no longer use call to tractl_drv/cho_caspt2_drv
-    !call Cho_caspt2_drv(Work(LCMO))
-
-  else
-
-    call Cho_x_Quit(SecNam,' !!! Unknown algorithm !!! ',' ')
+  !else if (iALGO == 1) then
+  !
+  !  call Cho_caspt2_drv(Work(LCMO))
+  !
+  !else
+  !
+  !  call Cho_x_Quit(SecNam,' !!! Unknown algorithm !!! ',' ')
 
   end if
 

@@ -58,6 +58,7 @@ subroutine CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,FactC,FactX,
 
 use Symmetry_Info, only: MulD2h => Mul
 use Index_Functions, only: iTri
+use Fock_util_global, only: Deco, DensityCheck, Lunit
 use Data_Structures, only: Deallocate_SBA, DSBA_Type, Integer_Pointer, SBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
@@ -71,10 +72,7 @@ real(kind=wp), intent(in) :: FactC(nDen), FactX(nDen)
 type(DSBA_Type), intent(in) :: DLT(nDen), DSQ(nDen), MSQ(nDen)
 type(DSBA_Type), intent(inout) :: FLT(nDen), FSQ(nDen)
 type(Integer_Pointer), intent(in) :: pNocc(nDen)
-#include "chounit.fh"
 #include "chotime.fh"
-#include "chodensity.fh"
-#include "choscf.fh"
 integer(kind=iwp) :: iBatch, iE, irc, iS, iSkip(nSym), iSym, ISYMA, ISYMB, ISYMD, ISYMG, iSymp, ISYMQ, iSymr, iSymr_Occ, iSyms, &
                      iVec, jB, jD, jDen, jE, jjB, jjS, jR, jS, jSR, jSym, JVEC, k, kOcc(nSym), kRdMem, kSym, l, LKV, LVK, LWORK, &
                      MaxSym, Naa, nb, nBatch, NBL, ng, nk, nMax, np, nq, nr, ns, NumB, NumCho(nSym), NumV, nVec
