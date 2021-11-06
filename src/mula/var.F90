@@ -10,191 +10,180 @@
 !                                                                      *
 ! Copyright (C) 1995, Niclas Forsberg                                  *
 !***********************************************************************
-!!-----------------------------------------------------------------------!
-!!
-      Subroutine var_to_qvar(var,qvar,ref,qref,alpha,                   &
-     &  trfName,ndata,nvar)
-!!
-!!  Purpose:
-!!    Transform coordinates given in input using tranformation
-!!    specified in input.
-!!
-!!  Written by:
-!!    Niclas Forsberg,
-!!    Dept. of Theoretical Chemistry, Lund University, 1995.
-!!
-      Implicit Real*8 ( a-h,o-z )
+
+subroutine var_to_qvar(var,qvar,ref,qref,alpha,trfName,ndata,nvar)
+!  Purpose:
+!    Transform coordinates given in input using tranformation
+!    specified in input.
+!
+!  Written by:
+!    Niclas Forsberg,
+!    Dept. of Theoretical Chemistry, Lund University, 1995.
+
+implicit real*8(a-h,o-z)
 #include "Constants_mula.fh"
-      Real*8 var  (ndata, nvar)
-      Real*8 par  (ndata, nvar)
-      Real*8 qvar  (ndata, nvar)
-      Real*8 ref(nvar),qref (nvar)
-      Real*8 alpha (nvar)
-      Character*80 trfName (nvar)
-      Character*32  trfCode
-      Character*32  Inline
-!!
-!!
-      Do ivar = 1,nvar
-      trfcode = trfName(ivar)(1:32)
-      ix = index(trfcode,'AS IT IS')
-      ia = index(trfcode,'-AVG')
-      ie = index(trfcode,'EXP')
-      ir = index(trfcode,'RAD')
-      id = index(trfcode,'DEG')
-      ic = index(trfcode,'COS')
-      is = index(trfcode,'SIN')
-      angsc = 1.0d0
-      If ( ir.gt.0 ) angsc = 1.0d0
-      If ( id.gt.0 ) angsc = rpi/180.0d0
-      Do idata = 1,ndata
-      v = var(idata,ivar)
-      If ( ic.gt.0 ) Then
+real*8 var(ndata,nvar)
+real*8 par(ndata,nvar)
+real*8 qvar(ndata,nvar)
+real*8 ref(nvar), qref(nvar)
+real*8 alpha(nvar)
+character*80 trfName(nvar)
+character*32 trfCode
+character*32 Inline
+
+do ivar=1,nvar
+  trfcode = trfName(ivar)(1:32)
+  ix = index(trfcode,'AS IT IS')
+  ia = index(trfcode,'-AVG')
+  ie = index(trfcode,'EXP')
+  ir = index(trfcode,'RAD')
+  id = index(trfcode,'DEG')
+  ic = index(trfcode,'COS')
+  is = index(trfcode,'SIN')
+  angsc = 1.0d0
+  if (ir > 0) angsc = 1.0d0
+  if (id > 0) angsc = rpi/180.0d0
+  do idata=1,ndata
+    v = var(idata,ivar)
+    if (ic > 0) then
       par(idata,ivar) = cos(angsc*v)
-      Else If ( is.gt.0 ) Then
+    else if (is > 0) then
       par(idata,ivar) = sin(angsc*v)
-      Else If (( ix.gt.0 ).or.( ie.gt.0 )) Then
+    else if ((ix > 0) .or. (ie > 0)) then
       par(idata,ivar) = v
-      Else
-      Write(6,*)' TRFCODE ERROR.'
+    else
+      write(6,*) ' TRFCODE ERROR.'
       call abend()
-      End if
-      End Do
-!!
-!!---- Calculate refrence value.
-      sum = 0.0d0
-      Do idata = 1,ndata
-      sum = sum+var(idata,ivar)
-      End Do
-      ref(ivar) = sum/ndata
-      If ( ic.gt.0 ) Then
-      ref(ivar) = cos(angsc*ref(ivar))
-      Else If ( is.gt.0 ) Then
-      ref(ivar) = sin(angsc*ref(ivar))
-      End If
-!!
-!!---- Subtract reference value if requested.
-      If ( ia.gt.0 ) Then
-      Do idata = 1,ndata
+    end if
+  end do
+  ! Calculate refrence value.
+  sum = 0.0d0
+  do idata=1,ndata
+    sum = sum+var(idata,ivar)
+  end do
+  ref(ivar) = sum/ndata
+  if (ic > 0) then
+    ref(ivar) = cos(angsc*ref(ivar))
+  else if (is > 0) then
+    ref(ivar) = sin(angsc*ref(ivar))
+  end if
+
+  ! Subtract reference value if requested.
+  if (ia > 0) then
+    do idata=1,ndata
       v = par(idata,ivar)
-      If (( ic.gt.0 ).or.( is.gt.0 )) Then
-      par(idata,ivar) = ref(ivar)-v
-      Else
-      par(idata,ivar) = v-ref(ivar)
-      End If
-      End Do
-      End If
-      End Do
-!!
-!!---- Transform coordinates.
-      Do ivar = 1,nvar
-      trfcode = trfName(ivar)(1:32)
-      ie   = index(trfcode,'EXP')
-      ifit = index(trfcode,'FIT')
-      If (( ie.gt.0 ).and.( ifit.eq.0 )) Then
-      Inline = trfName(ivar)(1:32)
-      istart = index(Inline,'ALPHA=')
-      istart = istart+6
-      Inline = trfCode(istart:len(trfCode))
-      istop = index(Inline,' ')
-      istop = istop-1
-      Read(Inline(1:istop),*) alpha(ivar)
-      End If
-      Do idata = 1,ndata
-      If ( ie.gt.0 ) Then
-      qvar(idata,ivar) = 1.0d0-exp(-alpha(ivar)*                        &
-     &          par(idata,ivar))
-      Else
+      if ((ic > 0) .or. (is > 0)) then
+        par(idata,ivar) = ref(ivar)-v
+      else
+        par(idata,ivar) = v-ref(ivar)
+      end if
+    end do
+  end if
+end do
+
+! Transform coordinates.
+do ivar=1,nvar
+  trfcode = trfName(ivar)(1:32)
+  ie = index(trfcode,'EXP')
+  ifit = index(trfcode,'FIT')
+  if ((ie > 0) .and. (ifit == 0)) then
+    Inline = trfName(ivar)(1:32)
+    istart = index(Inline,'ALPHA=')
+    istart = istart+6
+    Inline = trfCode(istart:len(trfCode))
+    istop = index(Inline,' ')
+    istop = istop-1
+    read(Inline(1:istop),*) alpha(ivar)
+  end if
+  do idata=1,ndata
+    if (ie > 0) then
+      qvar(idata,ivar) = 1.0d0-exp(-alpha(ivar)*par(idata,ivar))
+    else
       qvar(idata,ivar) = par(idata,ivar)
-      End If
-      End Do
-      End Do
-!!
-!!---- Calculate refrence value of transformed coordinates.
-      Do ivar = 1,nvar
-      sum = 0.0d0
-      Do idata = 1,ndata
-      sum = sum+qvar(idata,ivar)
-      End Do
-      qref(ivar) = sum/ndata
-      End Do
-!!
-!!---- Subtract reference value from transformed coordinates.
-      Do ivar = 1,nvar
-      Do idata = 1,ndata
-      qvar(idata,ivar) = qvar(idata,ivar)-qref(ivar)
-      End Do
-      End Do
-!!
-      End
-!!
-!!-----------------------------------------------------------------------!
-!!-----------------------------------------------------------------------!
-!!
-      Subroutine x_to_qvar(x,ref,qref,alpha,trfName,nDimX)
-!!
-!!  Purpose:
-!!    Transform the coordinates of a given point.
-!!
-!!  Written by:
-!!    Niclas Forsberg,
-!!    Dept. of Theoretical Chemistry, Lund University, 1995.
-!!
-      Implicit Real*8 ( a-h,o-z )
-      Real*8  x (nDimX)
-      Real*8 par (nDimX)
-      Real*8 ref(nDimX),qref (nDimX)
-      Real*8 alpha (nDimx)
-      Character*80 trfName (nDimX)
-      Character*32  trfCode
-      Character*32  Inline
-!!
-!!
-      Do ivar = 1,nDimX
-      trfcode = trfName(ivar)(1:32)
-      ia = index(trfcode,'-AVG')
-      ic = index(trfcode,'COS')
-      is = index(trfcode,'SIN')
-      If ( ic.gt.0 ) Then
-      par(ivar) = cos(x(ivar))
-      Else If ( is.gt.0 ) Then
-      par(ivar) = sin(x(ivar))
-      Else
-      par(ivar) = x(ivar)
-      End If
-      If ( ia.gt.0 ) Then
-      v = par(ivar)
-      If (( ic.gt.0 ).or.( is.gt.0 )) Then
+    end if
+  end do
+end do
+
+! Calculate refrence value of transformed coordinates.
+do ivar=1,nvar
+  sum = 0.0d0
+  do idata=1,ndata
+    sum = sum+qvar(idata,ivar)
+  end do
+  qref(ivar) = sum/ndata
+end do
+
+! Subtract reference value from transformed coordinates.
+do ivar=1,nvar
+  do idata=1,ndata
+    qvar(idata,ivar) = qvar(idata,ivar)-qref(ivar)
+  end do
+end do
+
+end subroutine var_to_qvar
+!####
+subroutine x_to_qvar(x,ref,qref,alpha,trfName,nDimX)
+!  Purpose:
+!    Transform the coordinates of a given point.
+!
+!  Written by:
+!    Niclas Forsberg,
+!    Dept. of Theoretical Chemistry, Lund University, 1995.
+
+implicit real*8(a-h,o-z)
+real*8 x(nDimX)
+real*8 par(nDimX)
+real*8 ref(nDimX), qref(nDimX)
+real*8 alpha(nDimx)
+character*80 trfName(nDimX)
+character*32 trfCode
+character*32 Inline
+
+do ivar=1,nDimX
+  trfcode = trfName(ivar)(1:32)
+  ia = index(trfcode,'-AVG')
+  ic = index(trfcode,'COS')
+  is = index(trfcode,'SIN')
+  if (ic > 0) then
+    par(ivar) = cos(x(ivar))
+  else if (is > 0) then
+    par(ivar) = sin(x(ivar))
+  else
+    par(ivar) = x(ivar)
+  end if
+  if (ia > 0) then
+    v = par(ivar)
+    if ((ic > 0) .or. (is > 0)) then
       par(ivar) = ref(ivar)-v
-      Else
+    else
       par(ivar) = v-ref(ivar)
-      End If
-      End If
-      End Do
-!!
-!!---- Transform coordinates.
-      Do ivar = 1,nDimX
-      trfcode = trfName(ivar)(1:32)
-      ie = index(trfcode,'EXP')
-      If ( ie.gt.0 ) Then
-      Inline = trfName(ivar)(1:32)
-      istart = index(Inline,'ALPHA=')
-      istart = istart+6
-      Inline = trfCode(istart:len(trfCode))
-      istop = index(Inline,' ')
-      istop = istop-1
-      Read(Inline(1:istop),*) alpha(ivar)
-      End If
-      If ( ie.gt.0 ) Then
-      x(ivar) = 1.0d0-exp(-alpha(ivar)*par(ivar))
-      Else
-      x(ivar) = par(ivar)
-      End If
-      End Do
-!!
-!!---- Subtract reference value from transformed coordinates.
-      Do ivar = 1,nDimX
-      x(ivar) = x(ivar)-qref(ivar)
-      End Do
-!!
-      End
+    end if
+  end if
+end do
+
+! Transform coordinates.
+do ivar=1,nDimX
+  trfcode = trfName(ivar)(1:32)
+  ie = index(trfcode,'EXP')
+  if (ie > 0) then
+    Inline = trfName(ivar)(1:32)
+    istart = index(Inline,'ALPHA=')
+    istart = istart+6
+    Inline = trfCode(istart:len(trfCode))
+    istop = index(Inline,' ')
+    istop = istop-1
+    read(Inline(1:istop),*) alpha(ivar)
+  end if
+  if (ie > 0) then
+    x(ivar) = 1.0d0-exp(-alpha(ivar)*par(ivar))
+  else
+    x(ivar) = par(ivar)
+  end if
+end do
+
+! Subtract reference value from transformed coordinates.
+do ivar=1,nDimX
+  x(ivar) = x(ivar)-qref(ivar)
+end do
+
+end subroutine x_to_qvar

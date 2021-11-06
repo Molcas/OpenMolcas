@@ -10,246 +10,222 @@
 !                                                                      *
 ! Copyright (C) 1995, Niclas Forsberg                                  *
 !***********************************************************************
-!!-----------------------------------------------------------------------!
-!!
-      Subroutine qvar_to_var(var,x,grad,Hess,D3,D4,ref,qref,trfName,    &
-     &  alpha, max_term,ndata,nvar)
-!!
-!!  Purpose:
-!!    Tranform coordinates, gradient, Hessian, third derivatives and
-!!    fourth derivates back to the coordinates originally specified.
-!!
-!!  Written by:
-!!    Niclas Forsberg,
-!!    Dept. of Theoretical Chemistry, Lund University, 1995.
-!!
-      Implicit Real*8 ( a-h,o-z )
-      Real*8 var (ndata,nvar)
-      Real*8 x (nvar)
-      Real*8 q (nvar)
-      Real*8 t(nvar),u(nvar),v(nvar),s(nvar)
-      Real*8 alpha (nvar)
-      Real*8 grad(nvar),tempgrad(nvar)
-      Real*8 Hess (nvar,nvar)
-      Real*8 Temp (nvar,nvar)
-      Real*8 D3  (nvar,nvar,nvar)
-      Real*8 D3trans (nvar,nvar,nvar)
-      Real*8 D4 (nvar,nvar,nvar,nvar)
-      Real*8 D4trans (nvar,nvar,nvar,nvar)
-      Real*8 ref(nvar),qref (nvar)
-!       Integer nOrd( 4 )
-      Character*80 trfName (nvar)
-      Character*32  trfCode
-      Logical  ijEq,jkEq,klEq
-!!
-!!
-      do iv=1,nvar
-      x(iv) = x(iv)+qref(iv)
-      enddo
-      Do ivar = 1,nvar
-      trfcode = trfName(ivar)(1:32)
-      ix = index(trfcode,'AS IT IS')
-      ia = index(trfcode,'-AVG')
-      ie = index(trfcode,'EXP')
-      ic = index(trfcode,'COS')
-      is = index(trfcode,'SIN')
-      If ( ic.gt.0 ) Then
-      If ( ia.gt.0 ) Then
+
+subroutine qvar_to_var(var,x,grad,Hess,D3,D4,ref,qref,trfName,alpha,max_term,ndata,nvar)
+!  Purpose:
+!    Tranform coordinates, gradient, Hessian, third derivatives and
+!    fourth derivates back to the coordinates originally specified.
+!
+!  Written by:
+!    Niclas Forsberg,
+!    Dept. of Theoretical Chemistry, Lund University, 1995.
+
+implicit real*8(a-h,o-z)
+real*8 var(ndata,nvar)
+real*8 x(nvar)
+real*8 q(nvar)
+real*8 t(nvar), u(nvar), v(nvar), s(nvar)
+real*8 alpha(nvar)
+real*8 grad(nvar), tempgrad(nvar)
+real*8 Hess(nvar,nvar)
+real*8 Temp(nvar,nvar)
+real*8 D3(nvar,nvar,nvar)
+real*8 D3trans(nvar,nvar,nvar)
+real*8 D4(nvar,nvar,nvar,nvar)
+real*8 D4trans(nvar,nvar,nvar,nvar)
+real*8 ref(nvar), qref(nvar)
+!integer nOrd(4)
+character*80 trfName(nvar)
+character*32 trfCode
+logical ijEq, jkEq, klEq
+
+do iv=1,nvar
+  x(iv) = x(iv)+qref(iv)
+end do
+do ivar=1,nvar
+  trfcode = trfName(ivar)(1:32)
+  ix = index(trfcode,'AS IT IS')
+  ia = index(trfcode,'-AVG')
+  ie = index(trfcode,'EXP')
+  ic = index(trfcode,'COS')
+  is = index(trfcode,'SIN')
+  if (ic > 0) then
+    if (ia > 0) then
       x(ivar) = x(ivar)-ref(ivar)
-      End If
-      q(ivar) = acos(-x(ivar))
-      t(ivar) = sin(q(ivar))
-      u(ivar) = cos(q(ivar))
-      v(ivar) =-sin(q(ivar))
-      s(ivar) =-cos(q(ivar))
-      Else If ( is.gt.0 ) Then
-      If ( ia.gt.0 ) Then
+    end if
+    q(ivar) = acos(-x(ivar))
+    t(ivar) = sin(q(ivar))
+    u(ivar) = cos(q(ivar))
+    v(ivar) = -sin(q(ivar))
+    s(ivar) = -cos(q(ivar))
+  else if (is > 0) then
+    if (ia > 0) then
       x(ivar) = x(ivar)-ref(ivar)
-      End If
-      q(ivar) = asin(-x(ivar))
-      t(ivar) =-cos(q(ivar))
-      u(ivar) = sin(q(ivar))
-      v(ivar) = cos(q(ivar))
-      s(ivar) =-sin(q(ivar))
-      Else If ( ie.gt.0 ) Then
-      q(ivar) = -log(1.0d0-x(ivar))/alpha(ivar)
-      t(ivar) = alpha(ivar)*(1.0d0-x(ivar))
-      u(ivar) =-alpha(ivar)**2*(1.0d0-x(ivar))
-      v(ivar) = alpha(ivar)**3*(1.0d0-x(ivar))
-      s(ivar) =-alpha(ivar)**4*(1.0d0-x(ivar))
-      If ( ia.gt.0 ) Then
+    end if
+    q(ivar) = asin(-x(ivar))
+    t(ivar) = -cos(q(ivar))
+    u(ivar) = sin(q(ivar))
+    v(ivar) = cos(q(ivar))
+    s(ivar) = -sin(q(ivar))
+  else if (ie > 0) then
+    q(ivar) = -log(1.0d0-x(ivar))/alpha(ivar)
+    t(ivar) = alpha(ivar)*(1.0d0-x(ivar))
+    u(ivar) = -alpha(ivar)**2*(1.0d0-x(ivar))
+    v(ivar) = alpha(ivar)**3*(1.0d0-x(ivar))
+    s(ivar) = -alpha(ivar)**4*(1.0d0-x(ivar))
+    if (ia > 0) then
       q(ivar) = q(ivar)+ref(ivar)
-      End If
-      Else If ( ix.gt.0 ) Then
-      If ( ia.gt.0 ) Then
+    end if
+  else if (ix > 0) then
+    if (ia > 0) then
       x(ivar) = x(ivar)+ref(ivar)
-      End If
-      q(ivar) = x(ivar)
-      t(ivar) = 1.0d0
-      u(ivar) = 0.0d0
-      v(ivar) = 0.0d0
-      s(ivar) = 0.0d0
-      Else
-      Write(6,*)' TRFCODE ERROR.'
-      call abend()
-      End if
-      End Do
-!!
-!!---- Transform gradient.
-      Do i = 1,nvar
-      tempgrad(i) = t(i)*grad(i)
-      End Do
-!!
-!!---- Transform Hessian.
-      Do i = 1,nvar
-      Do j = i,nvar
-      If ( i.eq.j ) Then
+    end if
+    q(ivar) = x(ivar)
+    t(ivar) = 1.0d0
+    u(ivar) = 0.0d0
+    v(ivar) = 0.0d0
+    s(ivar) = 0.0d0
+  else
+    write(6,*) ' TRFCODE ERROR.'
+    call abend()
+  end if
+end do
+
+! Transform gradient.
+do i=1,nvar
+  tempgrad(i) = t(i)*grad(i)
+end do
+
+! Transform Hessian.
+do i=1,nvar
+  do j=i,nvar
+    if (i == j) then
       Temp(i,i) = t(i)**2*Hess(i,i)+u(i)*grad(i)
-      Else
+    else
       Temp(i,j) = t(i)*t(j)*Hess(i,j)
-      End If
-      End Do
-      End Do
-      Do i = 1,nvar
-      Do j = i,nvar
-      Temp(j,i) = Temp(i,j)
-      End Do
-      End Do
-!!
-!!---- Transform third derivatives.
-      Do i = 1,nvar
-      Do j = i,nvar
-      ijEq = ( i.eq.j )
-      Do k = j,nvar
-      jkEq = ( j.eq.k )
-      If ( ijEq.and.jkEq ) Then
-      D3trans(i,i,i) = t(i)*t(i)*t(i)*D3(i,i,i)+                        &
-     &                        3.0d0*u(i)*t(i)*Hess(i,i)+v(i)*grad(i)
-      Else If ( ijEq.and.( .not.jkEq )) Then
-      D3trans(i,i,k) = t(i)*t(i)*t(k)*D3(i,i,k)+                        &
-     &                        u(i)*t(k)*Hess(i,k)
-      Else If (( .not.ijEq ).and.jkEq ) Then
-      D3trans(i,j,j) = t(i)*t(j)*t(j)*D3(i,j,j)+                        &
-     &                        t(i)*u(j)*Hess(i,j)
-      Else If (( .not.ijEq ).and.( .not.jkEq )) Then
-      D3trans(i,j,k) = t(i)*t(j)*t(k)*D3(i,j,k)
-      End If
-      End Do
-      End Do
-      End Do
-      Do i = 1,nvar
-      Do j = i,nvar
-      Do k = j,nvar
+    end if
+  end do
+end do
+do i=1,nvar
+  do j=i,nvar
+    Temp(j,i) = Temp(i,j)
+  end do
+end do
+
+! Transform third derivatives.
+do i=1,nvar
+  do j=i,nvar
+    ijEq = (i == j)
+    do k=j,nvar
+      jkEq = (j == k)
+      if (ijEq .and. jkEq) then
+        D3trans(i,i,i) = t(i)*t(i)*t(i)*D3(i,i,i)+3.0d0*u(i)*t(i)*Hess(i,i)+v(i)*grad(i)
+      else if (ijEq .and. (.not. jkEq)) then
+        D3trans(i,i,k) = t(i)*t(i)*t(k)*D3(i,i,k)+u(i)*t(k)*Hess(i,k)
+      else if ((.not. ijEq) .and. jkEq) then
+        D3trans(i,j,j) = t(i)*t(j)*t(j)*D3(i,j,j)+t(i)*u(j)*Hess(i,j)
+      else if ((.not. ijEq) .and. (.not. jkEq)) then
+        D3trans(i,j,k) = t(i)*t(j)*t(k)*D3(i,j,k)
+      end if
+    end do
+  end do
+end do
+do i=1,nvar
+  do j=i,nvar
+    do k=j,nvar
       D3trans(i,k,j) = D3trans(i,j,k)
       D3trans(j,i,k) = D3trans(i,j,k)
       D3trans(j,k,i) = D3trans(i,j,k)
       D3trans(k,i,j) = D3trans(i,j,k)
       D3trans(k,j,i) = D3trans(i,j,k)
-      End Do
-      End Do
-      End Do
-!!
-!!---- Transform fourth derivatives.
-      Do i = 1,nvar
-      Do j = i,nvar
-      ijEq = ( i.eq.j )
-      Do k = j,nvar
-      jkEq = ( j.eq.k )
-      Do l = k,nvar
-      klEq = ( k.eq.l )
-      If ( ijEq.and.jkEq.and.klEq ) Then
-      D4trans(i,i,i,i) = t(i)**4*D4(i,i,i,i)+                           &
-     &                           6.0d0*u(i)*t(i)**2*D3(i,i,i)+          &
-     &                           4.0d0*v(i)*t(i)*Hess(i,i)+             &
-     &                           3.0d0*u(i)*u(i)*Hess(i,i)+s(i)*grad(i)
-      Else If ( ijEq.and.jkEq.and.( .not.klEq )) Then
-      D4trans(i,i,i,l) = (t(i)*t(i)*t(i)*D4(i,i,i,l)+                   &
-     &                           3.0d0*u(i)*t(i)*D3(i,i,l)+v(i)*        &
-     &                           Hess(i,l))*t(l)
-      Else If (( .not.ijEq ).and.jkEq.and.klEq ) Then
-      D4trans(i,j,j,j) = t(i)*(t(j)*t(j)*t(j)*                          &
-     &                D4(i,j,j,j)+                                      &
-     &                3.0d0*u(j)*t(j)*D3(i,j,j)+v(j)*Hess(i,j))
-      Else If (( .not.ijEq).and.jkEq.and.                               &
-     &             ( .not.klEq )) Then
-      D4trans(i,j,j,l) = t(i)*(t(j)*t(j)*D4(i,j,j,l)+                   &
-     &                           u(j)*D3(i,j,l))*t(l)
-      Else If ( ijEq.and.( .not.jkEq ).and.                             &
-     &             ( .not.klEq )) Then
-      D4trans(i,i,k,l) = (t(i)*t(i)*D4(i,i,k,l)+                        &
-     &                           u(i)*D3(i,k,l))*t(k)*t(l)
-      Else If (( .not.ijEq ).and.                                       &
-     &             ( .not.jkEq ).and.klEq ) Then
-      D4trans(i,j,k,k) = (t(k)*t(k)*D4(i,j,k,k)+                        &
-     &                           u(k)*D3(i,j,k))*t(i)*t(j)
-      Else If ( ijEq.and.klEq ) Then
-      D4trans(i,i,k,k) = t(i)*t(i)*t(k)*t(k)*                           &
-     &                D4(i,i,k,k)+                                      &
-     &                t(i)*t(i)*u(k)*D3(i,i,k)+u(i)*t(k)*t(k)*          &
-     &                D3(i,k,k)+                                        &
-     &                u(i)*u(k)*Hess(i,k)
-      Else If (( .not.ijEq ).and.( .not.jkEq ).and.                     &
-     &             ( .not.klEq )) Then
-      D4trans(i,j,k,l) = t(i)*t(j)*t(k)*t(l)*                           &
-     &                D4(i,j,k,l)
-      End If
-      End Do
-      End Do
-      End Do
-      End Do
-      Do i = 1,nvar
-      Do j = i,nvar
-      Do k = j,nvar
-      Do l = k,nvar
-      D4trans(i,k,j,l) = D4trans(i,j,k,l)
-      D4trans(i,j,l,k) = D4trans(i,j,k,l)
-      D4trans(i,l,k,j) = D4trans(i,j,k,l)
-      D4trans(i,l,j,k) = D4trans(i,j,k,l)
-      D4trans(i,k,l,j) = D4trans(i,j,k,l)
-!!
-      D4trans(j,i,k,l) = D4trans(i,j,k,l)
-      D4trans(j,k,i,l) = D4trans(i,j,k,l)
-      D4trans(j,i,l,k) = D4trans(i,j,k,l)
-      D4trans(j,l,k,i) = D4trans(i,j,k,l)
-      D4trans(j,l,i,k) = D4trans(i,j,k,l)
-      D4trans(j,k,l,i) = D4trans(i,j,k,l)
-!!
-      D4trans(k,i,j,l) = D4trans(i,j,k,l)
-      D4trans(k,j,i,l) = D4trans(i,j,k,l)
-      D4trans(k,i,l,j) = D4trans(i,j,k,l)
-      D4trans(k,l,j,i) = D4trans(i,j,k,l)
-      D4trans(k,l,i,j) = D4trans(i,j,k,l)
-      D4trans(k,j,l,i) = D4trans(i,j,k,l)
-!!
-      D4trans(l,i,j,k) = D4trans(i,j,k,l)
-      D4trans(l,j,i,k) = D4trans(i,j,k,l)
-      D4trans(l,k,j,i) = D4trans(i,j,k,l)
-      D4trans(l,i,k,j) = D4trans(i,j,k,l)
-      D4trans(l,k,i,j) = D4trans(i,j,k,l)
-      D4trans(l,j,k,i) = D4trans(i,j,k,l)
-      End Do
-      End Do
-      End Do
-      End Do
-!!
-!!---- Assign transformed values.
-!       x = q
-      call dcopy_(nvar,q,1,x,1)
-!       grad = tempgrad
-      call dcopy_(nvar,tempgrad,1,grad,1)
+    end do
+  end do
+end do
 
-!       Hess = Temp
-      call dcopy_(nvar*nvar,temp,1,Hess,1)
+! Transform fourth derivatives.
+do i=1,nvar
+  do j=i,nvar
+    ijEq = (i == j)
+    do k=j,nvar
+      jkEq = (j == k)
+      do l=k,nvar
+        klEq = (k == l)
+        if (ijEq .and. jkEq .and. klEq) then
+          D4trans(i,i,i,i) = t(i)**4*D4(i,i,i,i)+6.0d0*u(i)*t(i)**2*D3(i,i,i)+4.0d0*v(i)*t(i)*Hess(i,i)+3.0d0*u(i)*u(i)*Hess(i,i)+ &
+                             s(i)*grad(i)
+        else if (ijEq .and. jkEq .and. (.not. klEq)) then
+          D4trans(i,i,i,l) = (t(i)*t(i)*t(i)*D4(i,i,i,l)+3.0d0*u(i)*t(i)*D3(i,i,l)+v(i)*Hess(i,l))*t(l)
+        else if ((.not. ijEq) .and. jkEq .and. klEq) then
+          D4trans(i,j,j,j) = t(i)*(t(j)*t(j)*t(j)*D4(i,j,j,j)+3.0d0*u(j)*t(j)*D3(i,j,j)+v(j)*Hess(i,j))
+        else if ((.not. ijEq) .and. jkEq .and. (.not. klEq)) then
+          D4trans(i,j,j,l) = t(i)*(t(j)*t(j)*D4(i,j,j,l)+u(j)*D3(i,j,l))*t(l)
+        else if (ijEq .and. (.not. jkEq) .and. (.not. klEq)) then
+          D4trans(i,i,k,l) = (t(i)*t(i)*D4(i,i,k,l)+u(i)*D3(i,k,l))*t(k)*t(l)
+        else if ((.not. ijEq) .and. (.not. jkEq) .and. klEq) then
+          D4trans(i,j,k,k) = (t(k)*t(k)*D4(i,j,k,k)+u(k)*D3(i,j,k))*t(i)*t(j)
+        else if (ijEq .and. klEq) then
+          D4trans(i,i,k,k) = t(i)*t(i)*t(k)*t(k)*D4(i,i,k,k)+t(i)*t(i)*u(k)*D3(i,i,k)+u(i)*t(k)*t(k)*D3(i,k,k)+u(i)*u(k)*Hess(i,k)
+        else if ((.not. ijEq) .and. (.not. jkEq) .and. (.not. klEq)) then
+          D4trans(i,j,k,l) = t(i)*t(j)*t(k)*t(l)*D4(i,j,k,l)
+        end if
+      end do
+    end do
+  end do
+end do
+do i=1,nvar
+  do j=i,nvar
+    do k=j,nvar
+      do l=k,nvar
+        D4trans(i,k,j,l) = D4trans(i,j,k,l)
+        D4trans(i,j,l,k) = D4trans(i,j,k,l)
+        D4trans(i,l,k,j) = D4trans(i,j,k,l)
+        D4trans(i,l,j,k) = D4trans(i,j,k,l)
+        D4trans(i,k,l,j) = D4trans(i,j,k,l)
 
-!       D3 = D3trans
-      call dcopy_(nvar*nvar*nvar,D3trans,1,D3,1)
+        D4trans(j,i,k,l) = D4trans(i,j,k,l)
+        D4trans(j,k,i,l) = D4trans(i,j,k,l)
+        D4trans(j,i,l,k) = D4trans(i,j,k,l)
+        D4trans(j,l,k,i) = D4trans(i,j,k,l)
+        D4trans(j,l,i,k) = D4trans(i,j,k,l)
+        D4trans(j,k,l,i) = D4trans(i,j,k,l)
 
-!       D4 = D4trans
-      call dcopy_(nvar*nvar*nvar*nvar,D4trans,1,D4,1)
-!!
+        D4trans(k,i,j,l) = D4trans(i,j,k,l)
+        D4trans(k,j,i,l) = D4trans(i,j,k,l)
+        D4trans(k,i,l,j) = D4trans(i,j,k,l)
+        D4trans(k,l,j,i) = D4trans(i,j,k,l)
+        D4trans(k,l,i,j) = D4trans(i,j,k,l)
+        D4trans(k,j,l,i) = D4trans(i,j,k,l)
+
+        D4trans(l,i,j,k) = D4trans(i,j,k,l)
+        D4trans(l,j,i,k) = D4trans(i,j,k,l)
+        D4trans(l,k,j,i) = D4trans(i,j,k,l)
+        D4trans(l,i,k,j) = D4trans(i,j,k,l)
+        D4trans(l,k,i,j) = D4trans(i,j,k,l)
+        D4trans(l,j,k,i) = D4trans(i,j,k,l)
+      end do
+    end do
+  end do
+end do
+
+! Assign transformed values.
+!x = q
+call dcopy_(nvar,q,1,x,1)
+!grad = tempgrad
+call dcopy_(nvar,tempgrad,1,grad,1)
+
+!Hess = Temp
+call dcopy_(nvar*nvar,temp,1,Hess,1)
+
+!D3 = D3trans
+call dcopy_(nvar*nvar*nvar,D3trans,1,D3,1)
+
+!D4 = D4trans
+call dcopy_(nvar*nvar*nvar*nvar,D4trans,1,D4,1)
+
 ! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_real_array(var)
-         Call Unused_integer(max_term)
-      End If
-      End
+if (.false.) then
+  call Unused_real_array(var)
+  call Unused_integer(max_term)
+end if
+
+end subroutine qvar_to_var

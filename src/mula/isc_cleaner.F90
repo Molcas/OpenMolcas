@@ -10,65 +10,63 @@
 !                                                                      *
 ! Copyright (C) 2009, Giovanni Ghigo                                   *
 !***********************************************************************
-!!-----------------------------------------------------------------------!
-!!
-!!    InterSystem Crossing rate evaluation: Reduction of States
-!!    Author: Giovanni Ghigo
-!!            Dip. Chimica Generale e Chimica Organica, Torino (ITALY)
-!!            07 Jan-09 - XX Jan-09
-!!
-      Subroutine LogEVec(iPrint,nOsc,max_nOrd,minQ,                     &
-     &                        nMaxQ,nMat,lVec,nYes)
-!!
-!!    Generate Logical Vector of usefull States
-!!
-      Implicit Real*8 ( a-h,o-z )
-      Integer nMat(0:max_nOrd,nOsc), lVec(0:max_nOrd)
-      Integer nMaxQ(nOsc)
 
-      If (iPrint.GE.3) then
-        Write(6,*) ' Original number of States=',max_nOrd+1
-      EndIf
+!  InterSystem Crossing rate evaluation: Reduction of States
+!  Author: Giovanni Ghigo
+!          Dip. Chimica Generale e Chimica Organica, Torino (ITALY)
+!          07 Jan-09 - XX Jan-09
 
-      Do iOrd = 0,max_nOrd
-        lVec(iOrd) = 1
-        nSumQ = 0
-        Do iOsc=1,nOsc
-          If (nMat(iOrd,iOsc).GT.nMaxQ(iOsc)) lVec(iOrd) = 0
-          nSumQ = nSumQ + nMat(iOrd,iOsc)
-        EndDo
-        If (nSumQ.LT.minQ) lVec(iOrd) = 0
-      EndDo
-      nYes = 0
-      Do iOrd = 0,max_nOrd
-        nYes = nYes + lVec(iOrd)
-      EndDo
-!!
-      If (iPrint.GE.3) then
-        Write(6,*) ' Selected number of States=',nYes
-      EndIf
-!!
-      Return
-      End
+subroutine LogEVec(iPrint,nOsc,max_nOrd,minQ,nMaxQ,nMat,lVec,nYes)
+! Generate Logical Vector of useful States
 
+implicit real*8(a-h,o-z)
+integer nMat(0:max_nOrd,nOsc), lVec(0:max_nOrd)
+integer nMaxQ(nOsc)
 
-      Subroutine MkVibWind2(iPrint,nYes,iMaxYes,max_nOrd,               &
-     &                      lVec,VibWind2)
-!!
-      Implicit Real*8 ( a-h,o-z )
-      Integer VibWind2(nYes), lVec(0:max_nOrd)
+if (iPrint >= 3) then
+  write(6,*) ' Original number of States=',max_nOrd+1
+end if
 
-      iMaxYes = 0
-      iYes = 1
-      Do iOrd = 0, max_nOrd
-        If (lVec(iOrd).EQ.1) then
-          VibWind2(iYes) = iOrd
-          iYes = iYes + 1
-          iMaxYes = Max(iMaxYes,iOrd)
-        EndIf
-      EndDo
-!!
-      Return
+do iOrd=0,max_nOrd
+  lVec(iOrd) = 1
+  nSumQ = 0
+  do iOsc=1,nOsc
+    if (nMat(iOrd,iOsc) > nMaxQ(iOsc)) lVec(iOrd) = 0
+    nSumQ = nSumQ+nMat(iOrd,iOsc)
+  end do
+  if (nSumQ < minQ) lVec(iOrd) = 0
+end do
+nYes = 0
+do iOrd=0,max_nOrd
+  nYes = nYes+lVec(iOrd)
+end do
+
+if (iPrint >= 3) then
+  write(6,*) ' Selected number of States=',nYes
+end if
+
+return
+
+end subroutine LogEVec
+!####
+subroutine MkVibWind2(iPrint,nYes,iMaxYes,max_nOrd,lVec,VibWind2)
+
+implicit real*8(a-h,o-z)
+integer VibWind2(nYes), lVec(0:max_nOrd)
+
+iMaxYes = 0
+iYes = 1
+do iOrd=0,max_nOrd
+  if (lVec(iOrd) == 1) then
+    VibWind2(iYes) = iOrd
+    iYes = iYes+1
+    iMaxYes = max(iMaxYes,iOrd)
+  end if
+end do
+
+return
+
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_integer(iPrint)
-      End
+if (.false.) call Unused_integer(iPrint)
+
+end subroutine MkVibWind2

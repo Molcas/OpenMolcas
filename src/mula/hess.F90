@@ -10,54 +10,50 @@
 !                                                                      *
 ! Copyright (C) 1995, Niclas Forsberg                                  *
 !***********************************************************************
-!!-----------------------------------------------------------------------!
-!!
-      Subroutine ShiftHess(Hess,shift,nDim,nDim2)
-!!
-!!  Purpose:
-!!    Shifts Hessian to make it positive definite.
-!!
-!!  Written by:
-!!    Niclas Forsberg,
-!!    Dept. of Theoretical Chemistry, Lund University, 1995.
-!!
-      Real*8 Hess (nDim,nDim2)
-!       Real*8 U(nDim,nDim2)
-!       Real*8 Hess_lowT( nDim*(nDim+1)/2 )
-      Real*8  epsilon
-      Real*8  eigen_min
-      Logical  shift
-#include "WrkSpc.fh"
-      Call GetMem('U','Allo','Real',ipU,nDim*nDim2)
-      Call GetMem('Hess_low','Allo','Real',                             &
-     &  ipHess_lowT,nDim*(nDim+1)/2)
 
-!!
-!!---- Initialize.
-      nDim1 = nDim+1
-      nDimSqr = nDim**2
-!!
-      k = 0
-      Do i = 1,nDim
-      Do j = 1,i
-      k = k+1
-      Work(ipHess_lowT+k-1) = Hess(i,j)
-      End Do
-      End Do
-      call dcopy_(nDimSqr,[0.0d0],0,Work(ipU),1)
-      call dcopy_(nDim,[1.0d0],0,Work(ipU),nDim1)
-      Call Jacob(Work(ipHess_lowT),Work(ipU),nDim,nDim)
-      Call Jacord(Work(ipHess_lowT),Work(ipU),nDim,nDim)
-      eigen_min = Work(ipHess_lowT)
-      shift = eigen_min.lt.0.0d0
-      If ( shift ) Then
-      epsilon = 2*eigen_min
-      Do i = 1,nDim
-      Hess(i,i) = Hess(i,i)-epsilon
-      End Do
-      End If
-      Call GetMem('U','Free','Real',ipU,nDim*nDim2)
-      Call GetMem('Hess_low','Free','Real',                             &
-     &  ipHess_lowT,nDim*(nDim+1)/2)
-!!
-      End
+subroutine ShiftHess(Hess,shift,nDim,nDim2)
+!  Purpose:
+!    Shifts Hessian to make it positive definite.
+!
+!  Written by:
+!    Niclas Forsberg,
+!    Dept. of Theoretical Chemistry, Lund University, 1995.
+
+real*8 Hess(nDim,nDim2)
+!real*8 U(nDim,nDim2)
+!real*8 Hess_lowT(nDim*(nDim+1)/2)
+real*8 epsilon
+real*8 eigen_min
+logical shift
+#include "WrkSpc.fh"
+
+call GetMem('U','Allo','Real',ipU,nDim*nDim2)
+call GetMem('Hess_low','Allo','Real',ipHess_lowT,nDim*(nDim+1)/2)
+
+! Initialize.
+nDim1 = nDim+1
+nDimSqr = nDim**2
+
+k = 0
+do i=1,nDim
+  do j=1,i
+    k = k+1
+    Work(ipHess_lowT+k-1) = Hess(i,j)
+  end do
+end do
+call dcopy_(nDimSqr,[0.0d0],0,Work(ipU),1)
+call dcopy_(nDim,[1.0d0],0,Work(ipU),nDim1)
+call Jacob(Work(ipHess_lowT),Work(ipU),nDim,nDim)
+call Jacord(Work(ipHess_lowT),Work(ipU),nDim,nDim)
+eigen_min = Work(ipHess_lowT)
+shift = eigen_min < 0.0d0
+if (shift) then
+  epsilon = 2*eigen_min
+  do i=1,nDim
+    Hess(i,i) = Hess(i,i)-epsilon
+  end do
+end if
+call GetMem('U','Free','Real',ipU,nDim*nDim2)
+call GetMem('Hess_low','Free','Real',ipHess_lowT,nDim*(nDim+1)/2)
+
+end subroutine ShiftHess

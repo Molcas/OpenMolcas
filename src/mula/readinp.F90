@@ -11,1829 +11,1771 @@
 ! Copyright (C) 1995, Niclas Forsberg                                  *
 !               2017, Ignacio Fdez. Galvan                             *
 !***********************************************************************
-!!-----------------------------------------------------------------------!
-!!
-      Subroutine ReadInp(Title,AtomLbl,Mass,InterVec,Bond,nBond,        &
-     &   NumInt,NumOfAt,                                                &
-     &   trfName1,trfName2,m_max,n_max,max_dip,max_term,MatEl,          &
-     &   ForceField,Cartesian,lExpan,lISC,iCode,dMinWind)
-!!
-!!  Purpose:
-!!    Read the input file.
-!!
-!!  Output:
-!!    Title    : String - title of the project.
-!!    AtomLbl  : Array of character - contains the labels for the
-!!               atoms.
-!!    Mass     : Real*8 array - contains the mass of the
-!!               atoms.
-!!    InterVec : Integer array - containis the atoms that are used
-!!               in the calculations of each internal coordinate.
-!!    Bond     : Integer array - contains atom pairs that are to be
-!!               bonded together in a plot.
-!!    nBond    : Integer - dim of Bond, i.e. 2*(number of bonds).
-!!    NumInt   : Integer - the total number of internal coordinates.
-!!    NumOfAt  : Integer - the number of atoms.
-!!    trfName  : Character array - type of transformation of variables.
-!!    m_max    : Integer - maximum level for the first state.
-!!    n_max    : Integer - maximum level for the second state.
-!!    m_plot   : Integer array - level(s) to plot for the first state.
-!!    n_plot   : Integer array - level(s) to plot for the second state.
-!!    max_dip  : Integer - highest order of term in transition dipole.
-!!    max_term : Integer - highest power of a term in polynomial fitted
-!!               to energy values.
-!!    MatEl    : Logical
-!!    lISC     : Logical to calculate InterSystem Crossing
-!!
-!!  Uses:
-!!    IOTools
-!!
-!!  Written by:
-!!    Niclas Forsberg,
-!!    Dept. of Theoretical Chemistry, Lund University, 1995.
-!!
-!!  Modified to use isotopes module
-!!    Ignacio Fdez. Galvan, 2017
-!!
-      Use Isotopes
-      Implicit Real*8 ( a-h,o-z )
+
+subroutine ReadInp(Title,AtomLbl,Mass,InterVec,Bond,nBond,NumInt,NumOfAt,trfName1,trfName2,m_max,n_max,max_dip,max_term,MatEl, &
+                   ForceField,Cartesian,lExpan,lISC,iCode,dMinWind)
+!  Purpose:
+!    Read the input file.
+!
+!  Output:
+!    Title    : String - title of the project.
+!    AtomLbl  : Array of character - contains the labels for the
+!               atoms.
+!    Mass     : Real*8 array - contains the mass of the
+!               atoms.
+!    InterVec : Integer array - containis the atoms that are used
+!               in the calculations of each internal coordinate.
+!    Bond     : Integer array - contains atom pairs that are to be
+!               bonded together in a plot.
+!    nBond    : Integer - dim of Bond, i.e. 2*(number of bonds).
+!    NumInt   : Integer - the total number of internal coordinates.
+!    NumOfAt  : Integer - the number of atoms.
+!    trfName  : Character array - type of transformation of variables.
+!    m_max    : Integer - maximum level for the first state.
+!    n_max    : Integer - maximum level for the second state.
+!    m_plot   : Integer array - level(s) to plot for the first state.
+!    n_plot   : Integer array - level(s) to plot for the second state.
+!    max_dip  : Integer - highest order of term in transition dipole.
+!    max_term : Integer - highest power of a term in polynomial fitted
+!               to energy values.
+!    MatEl    : Logical
+!    lISC     : Logical to calculate InterSystem Crossing
+!
+!  Uses:
+!    IOTools
+!
+!  Written by:
+!    Niclas Forsberg,
+!    Dept. of Theoretical Chemistry, Lund University, 1995.
+!
+!  Modified to use isotopes module
+!    Ignacio Fdez. Galvan, 2017
+
+use Isotopes
+implicit real*8(a-h,o-z)
 #include "inout.fh"
 #include "Constants_mula.fh"
 #include "inputdata.fh"
 #include "indims.fh"
-      Integer InterVec(MaxNumAt*15)
-      Character*80  trfName1(MaxNumAt),trfName2(MaxNumAt)
-      Real*8  Mass(MaxNumAt)
-      Character*4  AtomLbl(MaxNumAt)
-      Integer Bond(MaxNumAt*2)
-      Character*80   Title
-!       Logical   Plot
-      Character*9  CoordType
-      Character*1  c
-      Character*7  AtInp
-      Character*2  AtName
-      Character*2  Eunit
-      Character*3  DegOrRad
-      Character*2  AAOrAu
-      Character*4  Atom
-      Character*6  PlUnit
-      Character*4  Atom1,Atom2, Atom3,Atom4
-!      Character*2 AtList( 0:120 )
-!      Integer AtData( 120,4 )
-!      Real*8 MassData (400)
-      Real*8 coord(1000,10)
-      Real*8 GrdVal(1000,10)
-      Logical  MatEl,ForceField,lISC
-      Logical  Cartesian
-      Logical  exist
-      Logical  lExpan
-      Real*8   m1,m2,m3,m12,m23
-      Real*8 TmpCoord(3)
-      parameter (max_len_xvec=150)
-      Real*8 xvec(max_len_xvec)
-      parameter (max_plot_temp=100)
-      Integer plot_temp(max_plot_temp), iCode
-
-      Logical  XnotFound, YnotFound,ZnotFound
-!!- Format declarations.
-      Character*8 Format
-!!- User-defined functions called:
-      External StrToDble, iStrToInt
-!!
+integer InterVec(MaxNumAt*15)
+character*80 trfName1(MaxNumAt), trfName2(MaxNumAt)
+real*8 Mass(MaxNumAt)
+character*4 AtomLbl(MaxNumAt)
+integer Bond(MaxNumAt*2)
+character*80 Title
+!logical Plot
+character*9 CoordType
+character*1 c
+character*7 AtInp
+character*2 AtName
+character*2 Eunit
+character*3 DegOrRad
+character*2 AAOrAu
+character*4 Atom
+character*6 PlUnit
+character*4 Atom1, Atom2, Atom3, Atom4
+!character*2 AtList(0:120)
+!integer AtData(120,4)
+!real*8 MassData(400)
+real*8 coord(1000,10)
+real*8 GrdVal(1000,10)
+logical MatEl, ForceField, lISC
+logical Cartesian
+logical exist
+logical lExpan
+real*8 m1, m2, m3, m12, m23
+real*8 TmpCoord(3)
+parameter(max_len_xvec=150)
+real*8 xvec(max_len_xvec)
+parameter(max_plot_temp=100)
+integer plot_temp(max_plot_temp), iCode
+logical XnotFound, YnotFound, ZnotFound
+! Format declarations.
+character*8 format
+! User-defined functions called:
+external StrToDble, iStrToInt
 #include "WrkSpc.fh"
-!!
-      Format='(A80)'
-!!
-!!---- Read from MassFile:
-!!     - name of atoms into array of string - AtList.
-!!     - atomic number, default mass number, smallest mass number and
-!!       table offset into two dimensional array - AtData.
-!!     - masses of all isotopes into array - MassData.
-!!
-!     i = 0
-!     Call Molcas_Open(massUnit,'MASSUNIT')
-!     Read(massUnit,Format) InLine
+
+format = '(A80)'
+
+! Read from MassFile:
+! - name of atoms into array of string - AtList.
+! - atomic number, default mass number, smallest mass number and
+!   table offset into two dimensional array - AtData.
+! - masses of all isotopes into array - MassData.
+
+!i = 0
+!call Molcas_Open(massUnit,'MASSUNIT')
+!read(massUnit,Format) InLine
 ! Read sequential lines from atomic data file.
-!     Call Normalize(InLine,OutLine)
-!     Do While ( OutLine(1:4) .ne. 'END ')
-!     l = Index(OutLine,'*')
-!     If ( l .eq. 0 ) Then
-!     i = i+1
-!     AtList(i)=OutLine(1:2)
-!     Read(OutLine(3:80),*) (AtData(i,j),j=1,4)
-!     End If
-!     Read(massUnit,Format) InLine
-!     Call Normalize(InLine,OutLine)
-!     End Do
-!     iAtList=i
-!!
-!     i = 0
-!     Read(massUnit,Format) InLine
-!     Call Normalize(InLine,OutLine)
-!     Do While ( OutLine(1:4) .ne. 'END ')
-!     l = Index(OutLine,'*')
-!     If ( l .eq. 0 ) Then
-!     i = i+1
-!     Read(OutLine,*) MassData(i)
-!     End If
-!     Read(massUnit,Format) InLine
-!     Call Normalize(InLine,OutLine)
-!     End Do
-!     close(massUnit)
-      iPrint = iPrintLevel(-1)
+!call Normalize(InLine,OutLine)
+!do while (OutLine(1:4) /= 'END ')
+!  l = Index(OutLine,'*')
+!  if (l == 0) then
+!    i = i+1
+!    AtList(i) = OutLine(1:2)
+!    read(OutLine(3:80),*) (AtData(i,j),j=1,4)
+!  end if
+!  read(massUnit,Format) InLine
+!  call Normalize(InLine,OutLine)
+!end do
+!iAtList = i
+
+!i = 0
+!read(massUnit,Format) InLine
+!call Normalize(InLine,OutLine)
+!do while (OutLine(1:4) /= 'END ')
+!  l = Index(OutLine,'*')
+!  if (l == 0) then
+!    i = i+1
+!    read(OutLine,*) MassData(i)
+!  end if
+!  read(massUnit,Format) InLine
+!  call Normalize(InLine,OutLine)
+!end do
+!close(massUnit)
+iPrint = iPrintLevel(-1)
 
 ! ----------------------------------------------------------------------
-! --- TITLe: Read the title into a string - Title
-!
-      Title=' '
-      Call KeyWord(inpUnit,'TITL',.true.,exist)
-      If (exist) Read(inpUnit,Format) Title
+! TITLe: Read the title into a string - Title
+
+Title = ' '
+call KeyWord(inpUnit,'TITL',.true.,exist)
+if (exist) read(inpUnit,format) Title
+
+! TITLe: End -----------------------------------------------------------
 
 ! ----------------------------------------------------------------------
-! --- ATOMs:  Process ATOMS
-!
-      Call KeyWord(inpUnit,'ATOM',.true.,exist)
-      NumOfAt = 0
-      Read(inpUnit,Format) InLine
-      Call Normalize(InLine,OutLine)
-      Do While ( OutLine(1:4) .ne. 'END ')
-        NumOfAt = NumOfAt+1
-        Read(inpUnit,Format) InLine
-        Call Normalize(InLine,OutLine)
-      End Do
-!!
-!! Read the labels of atoms into an array - AtomLbl.
-!!
-      Call KeyWord(inpUnit,'ATOM',.true.,exist)
-      Do nAtom = 1,NumOfAt
-        Read(inpUnit,Format) InLine
-        Call Normalize(InLine,OutLine)
-        k = 1
-        Call WordPos(k,OutLine,iStart,iStop)
-        k = iStop+1
-        AtInp = '       '
-        AtInp = OutLine(iStart:iStop)
-!! ---- Check if a massnumber is given.
-        Num = 0
-        Do i=1,7
-          c = AtInp(i:i)
-          IntVal = Index('0123456789',c)-1
-          If( IntVal .ge. 0 ) then
-            Num = 10*Num+IntVal
-          Else
-            goto 600
-          Endif
-        End Do
-600     If ( (iStart+i-1) .gt. iStop ) Then
-          Call WordPos(k,OutLine,iStart,iStop)
-          AtInp = '      '
-          AtInp = OutLine(iStart:iStop)
-          i = 1
-          c = AtInp(i:i)
-        End If
-!! ---- Extract atomic name and possible label.
-        AtName = '  '
-        AtomLbl(nAtom) = '    '
-        j = 1
-        do ii=i,7
-          IntVal = Index('0123456789',c)-1
-          if (( IntVal .lt. 0 ).and.( c .ne. ' ' )) then
-            AtName(j:j) = c
-            AtomLbl(nAtom)(j:j) = c
-            j = j+1
-            i = i+1
-            c = AtInp(i:i)
-          endif
-        End Do
-        do ii=i,7
-          IntVal = Index('0123456789',c)-1
-          if (( (iStart+i-1) .le. iStop ).and.( IntVal .ge. 0 )) then
-            AtomLbl(nAtom)(j:j) = c
-            j = j+1
-            i = i+1
-            c = AtInp(i:i)
-          endif
-        End Do
-!! ---- Remove massnumber, atom and label from OutLine.
-        Length = Len(OutLine)
-        OutLine = OutLine(iStop+1:Length)
-!!
-!! ---- If mass is given in input, then read mass, else use MassData.
-        k = 1
-        Call WordPos(k,OutLine,iStart,iStop)
-        k = iStop
-        If ( k .ne. Length ) Then
-          Read(OutLine,*) Mass(nAtom)
-        Else
-!          Do i=1,iAtList
-!            if (AtList(i) .eq. AtName ) goto 1111
-!          End Do
-!1111      continue
-!          If ( Num .eq. 0 ) Then
-!            Num = AtData(i,2)
-!          End If
-!          Mass(nAtom) = MassData(AtData(i,4)+Num+1-AtData(i,3))
-          Call Isotope(Num,AtName,Mass(nAtom))
-          Mass(nAtom)=Mass(nAtom)/uToau
-!!  ----  Print error message if the isotope is not listed in
-!!        MassFile.
-!          nOffset = AtData(i+1,4)
-!          If (( Num .gt. nOffset ).or.(Mass(nAtom) .eq. (-1.0d0))) Then
-!            Write(6,*)
-!            Write(6,*) ' *************** ERROR *****************'
-!            Write(6,'(A,A2,A,I3,A)') ' The isotope of ',AtName,
-!     &                               ' with mass number ',Num
-!            Write(6,*) ' is not listed in MassFile.             '
-!            Write(6,*) '****************************************'
-!            Call Quit_OnUserError()
-!          End If
-        End If
-      End Do
-!
-! --- ATOMs: End -------------------------------------------------------
+! ATOMs:  Process ATOMS
+
+call KeyWord(inpUnit,'ATOM',.true.,exist)
+NumOfAt = 0
+read(inpUnit,format) InLine
+call Normalize(InLine,OutLine)
+do while (OutLine(1:4) /= 'END ')
+  NumOfAt = NumOfAt+1
+  read(inpUnit,format) InLine
+  call Normalize(InLine,OutLine)
+end do
+
+! Read the labels of atoms into an array - AtomLbl.
+
+call KeyWord(inpUnit,'ATOM',.true.,exist)
+do nAtom=1,NumOfAt
+  read(inpUnit,format) InLine
+  call Normalize(InLine,OutLine)
+  k = 1
+  call WordPos(k,OutLine,iStart,iStop)
+  k = iStop+1
+  AtInp = '       '
+  AtInp = OutLine(iStart:iStop)
+  !- Check if a massnumber is given.
+  Num = 0
+  do i=1,7
+    c = AtInp(i:i)
+    IntVal = index('0123456789',c)-1
+    if (IntVal >= 0) then
+      Num = 10*Num+IntVal
+    else
+      goto 600
+    end if
+  end do
+600 if ((iStart+i-1) > iStop) then
+    call WordPos(k,OutLine,iStart,iStop)
+    AtInp = '      '
+    AtInp = OutLine(iStart:iStop)
+    i = 1
+    c = AtInp(i:i)
+  end if
+  ! Extract atomic name and possible label.
+  AtName = '  '
+  AtomLbl(nAtom) = '    '
+  j = 1
+  do ii=i,7
+    IntVal = index('0123456789',c)-1
+    if ((IntVal < 0) .and. (c /= ' ')) then
+      AtName(j:j) = c
+      AtomLbl(nAtom)(j:j) = c
+      j = j+1
+      i = i+1
+      c = AtInp(i:i)
+    end if
+  end do
+  do ii=i,7
+    IntVal = index('0123456789',c)-1
+    if (((iStart+i-1) <= iStop) .and. (IntVal >= 0)) then
+      AtomLbl(nAtom)(j:j) = c
+      j = j+1
+      i = i+1
+      c = AtInp(i:i)
+    end if
+  end do
+  ! Remove massnumber, atom and label from OutLine.
+  Length = len(OutLine)
+  OutLine = OutLine(iStop+1:Length)
+
+  ! If mass is given in input, then read mass, else use MassData.
+  k = 1
+  call WordPos(k,OutLine,iStart,iStop)
+  k = iStop
+  if (k /= Length) then
+    read(OutLine,*) Mass(nAtom)
+  else
+    !do i=1,iAtList
+    !  if (AtList(i) == AtName ) exit
+    !end do
+    !if (Num == 0) then
+    !  Num = AtData(i,2)
+    !end if
+    !Mass(nAtom) = MassData(AtData(i,4)+Num+1-AtData(i,3))
+    call Isotope(Num,AtName,Mass(nAtom))
+    Mass(nAtom) = Mass(nAtom)/uToau
+    ! Print error message if the isotope is not listed in MassFile.
+    !nOffset = AtData(i+1,4)
+    !if ((Num > nOffset) .or. (Mass(nAtom) == -1.0d0)) then
+    !  write(6,*)
+    !  write(6,*) ' *************** ERROR *****************'
+    !  write(6,'(A,A2,A,I3,A)') ' The isotope of ',AtName,' with mass number ',Num
+    !  write(6,*) ' is not listed in MassFile.             '
+    !  write(6,*) '****************************************'
+    !  call Quit_OnUserError()
+    !end if
+  end if
+end do
+
+! ATOMs: End -----------------------------------------------------------
 
 ! ----------------------------------------------------------------------
-! --- INTErnal: Resolve the different internal coordinates specified
-!               in the input.
-!
-      Call KeyWord(inpUnit,'INTE',.true.,exist)
-      j = 1
-      NumInt = 0
-      nBond = 0
-      Read(inpUnit,Format) InLine
-      Call Normalize(InLine,OutLine)
+! INTErnal: Resolve the different internal coordinates specified in the input.
 
-      DO WHILE ( OutLine(1:4) .ne. 'END ')
+call KeyWord(inpUnit,'INTE',.true.,exist)
+j = 1
+NumInt = 0
+nBond = 0
+read(inpUnit,format) InLine
+call Normalize(InLine,OutLine)
 
-!!---- Bond Stretching.
-      l = Index(OutLine,'BOND')
-      If ( l .ne. 0 ) Then
-      k = l+Len('BOND')
-      Call WordPos(k,OutLine,iStart,iStop)
-      Atom1 = OutLine(iStart:iStop)
-      k = iStop+1
-      Call WordPos(k,OutLine,iStart,iStop)
-      Atom2 = OutLine(iStart:iStop)
-      InterVec(j) = 1
-      Do i = 1,NumOfAt
-        If ( Atom1 .eq. AtomLbl(i) ) Then
-          InterVec(j+1) = i
-        Else If ( Atom2 .eq. AtomLbl(i) ) Then
-          InterVec(j+2) = i
-        End If
-      End Do
-      Bond(nBond+1) = InterVec(j+1)
-      Bond(nBond+2) = InterVec(j+2)
-      nBond = nBond+2
-      j = j+3
-      NumInt = NumInt+1
-      End If
-!!---- Valence Angle Bending.
-      l = Index(OutLine,'ANGLE')
-      If ( l .ne. 0 ) Then
-      k = l+Len('ANGLE')
-      Call WordPos(k,OutLine,iStart,iStop)
-      Atom1 = OutLine(iStart:iStop)
-      k = iStop+1
-      Call WordPos(k,OutLine,iStart,iStop)
-      Atom2 = OutLine(iStart:iStop)
-      k = iStop+1
-      Call WordPos(k,OutLine,iStart,iStop)
-      Atom3 = OutLine(iStart:iStop)
-      InterVec(j) = 2
-      Do i = 1,NumOfAt
-        If ( Atom1 .eq. AtomLbl(i) ) Then
-          InterVec(j+1) = i
-        Else If ( Atom2 .eq. AtomLbl(i) ) Then
-          InterVec(j+2) = i
-        Else If ( Atom3 .eq. AtomLbl(i) ) Then
-          InterVec(j+3) = i
-        End If
-      End Do
-      j = j+4
-      NumInt = NumInt+1
-      End If
-!!---- Linear Valence Angle.
-      l = Index(OutLine,'LINANG')
-      If ( l .ne. 0 ) Then
-      k = l+Len('LINANG')
-      Call WordPos(k,OutLine,iStart,iStop)
-      Atom1 = OutLine(iStart:iStop)
-      k = iStop+1
-      Call WordPos(k,OutLine,iStart,iStop)
-      Atom2 = OutLine(iStart:iStop)
-      k = iStop+1
-      Call WordPos(k,OutLine,iStart,iStop)
-      Atom3 = OutLine(iStart:iStop)
-      InterVec(j) = 3
-      Do i = 1,NumOfAt
-        If ( Atom1 .eq. AtomLbl(i) ) Then
-          InterVec(j+1) = i
-        Else If ( Atom2 .eq. AtomLbl(i) ) Then
-          InterVec(j+2) = i
-        Else If ( Atom3 .eq. AtomLbl(i) ) Then
-          InterVec(j+3) = i
-        End If
-      End Do
-      j = j+4
-      NumInt = NumInt+2
-      End If
-!!---- Torsion.
-      l = Index(OutLine,'TORSION')
-      If ( l .ne. 0 ) Then
-      k = l+Len('TORSION')
-      Call WordPos(k,OutLine,iStart,iStop)
-      Atom1 = OutLine(iStart:iStop)
-      Call WordPos(k,OutLine,iStart,iStop)
-      Atom2 = OutLine(iStart:iStop)
-      Call WordPos(k,OutLine,iStart,iStop)
-      Atom3 = OutLine(iStart:iStop)
-      Call WordPos(k,OutLine,iStart,iStop)
-      Atom4 = OutLine(iStart:iStop)
-      InterVec(j) = 4
-      Do i = 1,NumOfAt
-        If ( Atom1 .eq. AtomLbl(i) ) Then
-          InterVec(j+1) = i
-        Else If ( Atom2 .eq. AtomLbl(i) ) Then
-          InterVec(j+2) = i
-        Else If ( Atom3 .eq. AtomLbl(i) ) Then
-          InterVec(j+3) = i
-        Else If ( Atom4 .eq. AtomLbl(i) ) Then
-          InterVec(j+4) = i
-        End If
-      End Do
-      j = j+5
-      NumInt = NumInt+1
-      End If
-!!---- Out of Plane Angle.
-      l = Index(OutLine,'OUTOFPL')
-      If ( l .ne. 0 ) Then
-      k = l+Len('OUTOFPL')
-      Call WordPos(k,OutLine,iStart,iStop)
-      Atom1 = OutLine(iStart:iStop)
-      Call WordPos(k,OutLine,iStart,iStop)
-      Atom2 = OutLine(iStart:iStop)
-      Call WordPos(k,OutLine,iStart,iStop)
-      Atom3 = OutLine(iStart:iStop)
-      Call WordPos(k,OutLine,iStart,iStop)
-      Atom4 = OutLine(iStart:iStop)
-      InterVec(j) = 5
-      Do i = 1,NumOfAt
-        If ( Atom1 .eq. AtomLbl(i) ) Then
-          InterVec(j+1) = i
-        Else If ( Atom2 .eq. AtomLbl(i) ) Then
-          InterVec(j+2) = i
-        Else If ( Atom3 .eq. AtomLbl(i) ) Then
-          InterVec(j+3) = i
-        Else If ( Atom4 .eq. AtomLbl(i) ) Then
-          InterVec(j+4) = i
-        End If
-      End Do
-      j = j+5
-      NumInt = NumInt+1
-      End If
+do while (OutLine(1:4) /= 'END ')
 
-      Read(inpUnit,Format) InLine
-      Call Normalize(InLine,OutLine)
-      END DO
+  ! Bond Stretching.
+  l = index(OutLine,'BOND')
+  if (l /= 0) then
+    k = l+len('BOND')
+    call WordPos(k,OutLine,iStart,iStop)
+    Atom1 = OutLine(iStart:iStop)
+    k = iStop+1
+    call WordPos(k,OutLine,iStart,iStop)
+    Atom2 = OutLine(iStart:iStop)
+    InterVec(j) = 1
+    do i=1,NumOfAt
+      if (Atom1 == AtomLbl(i)) then
+        InterVec(j+1) = i
+      else if (Atom2 == AtomLbl(i)) then
+        InterVec(j+2) = i
+      end if
+    end do
+    Bond(nBond+1) = InterVec(j+1)
+    Bond(nBond+2) = InterVec(j+2)
+    nBond = nBond+2
+    j = j+3
+    NumInt = NumInt+1
+  end if
+  ! Valence Angle Bending.
+  l = index(OutLine,'ANGLE')
+  if (l /= 0) then
+    k = l+len('ANGLE')
+    call WordPos(k,OutLine,iStart,iStop)
+    Atom1 = OutLine(iStart:iStop)
+    k = iStop+1
+    call WordPos(k,OutLine,iStart,iStop)
+    Atom2 = OutLine(iStart:iStop)
+    k = iStop+1
+    call WordPos(k,OutLine,iStart,iStop)
+    Atom3 = OutLine(iStart:iStop)
+    InterVec(j) = 2
+    do i=1,NumOfAt
+      if (Atom1 == AtomLbl(i)) then
+        InterVec(j+1) = i
+      else if (Atom2 == AtomLbl(i)) then
+        InterVec(j+2) = i
+      else if (Atom3 == AtomLbl(i)) then
+        InterVec(j+3) = i
+      end if
+    end do
+    j = j+4
+    NumInt = NumInt+1
+  end if
+  ! Linear Valence Angle.
+  l = index(OutLine,'LINANG')
+  if (l /= 0) then
+    k = l+len('LINANG')
+    call WordPos(k,OutLine,iStart,iStop)
+    Atom1 = OutLine(iStart:iStop)
+    k = iStop+1
+    call WordPos(k,OutLine,iStart,iStop)
+    Atom2 = OutLine(iStart:iStop)
+    k = iStop+1
+    call WordPos(k,OutLine,iStart,iStop)
+    Atom3 = OutLine(iStart:iStop)
+    InterVec(j) = 3
+    do i=1,NumOfAt
+      if (Atom1 == AtomLbl(i)) then
+        InterVec(j+1) = i
+      else if (Atom2 == AtomLbl(i)) then
+        InterVec(j+2) = i
+      else if (Atom3 == AtomLbl(i)) then
+        InterVec(j+3) = i
+      end if
+    end do
+    j = j+4
+    NumInt = NumInt+2
+  end if
+  ! Torsion.
+  l = index(OutLine,'TORSION')
+  if (l /= 0) then
+    k = l+len('TORSION')
+    call WordPos(k,OutLine,iStart,iStop)
+    Atom1 = OutLine(iStart:iStop)
+    call WordPos(k,OutLine,iStart,iStop)
+    Atom2 = OutLine(iStart:iStop)
+    call WordPos(k,OutLine,iStart,iStop)
+    Atom3 = OutLine(iStart:iStop)
+    call WordPos(k,OutLine,iStart,iStop)
+    Atom4 = OutLine(iStart:iStop)
+    InterVec(j) = 4
+    do i=1,NumOfAt
+      if (Atom1 == AtomLbl(i)) then
+        InterVec(j+1) = i
+      else if (Atom2 == AtomLbl(i)) then
+        InterVec(j+2) = i
+      else if (Atom3 == AtomLbl(i)) then
+        InterVec(j+3) = i
+      else if (Atom4 == AtomLbl(i)) then
+        InterVec(j+4) = i
+      end if
+    end do
+    j = j+5
+    NumInt = NumInt+1
+  end if
+  ! Out of Plane Angle.
+  l = index(OutLine,'OUTOFPL')
+  if (l /= 0) then
+    k = l+len('OUTOFPL')
+    call WordPos(k,OutLine,iStart,iStop)
+    Atom1 = OutLine(iStart:iStop)
+    call WordPos(k,OutLine,iStart,iStop)
+    Atom2 = OutLine(iStart:iStop)
+    call WordPos(k,OutLine,iStart,iStop)
+    Atom3 = OutLine(iStart:iStop)
+    call WordPos(k,OutLine,iStart,iStop)
+    Atom4 = OutLine(iStart:iStop)
+    InterVec(j) = 5
+    do i=1,NumOfAt
+      if (Atom1 == AtomLbl(i)) then
+        InterVec(j+1) = i
+      else if (Atom2 == AtomLbl(i)) then
+        InterVec(j+2) = i
+      else if (Atom3 == AtomLbl(i)) then
+        InterVec(j+3) = i
+      else if (Atom4 == AtomLbl(i)) then
+        InterVec(j+4) = i
+      end if
+    end do
+    j = j+5
+    NumInt = NumInt+1
+  end if
 
-      Call GetMem('AtCoord1','Allo','Real',ipAtCoord1,3*NumOfAt)
-      Call GetMem('AtCoord2','Allo','Real',ipAtCoord2,3*NumOfAt)
-      l_Hess1=NumInt
-      Call GetMem('Hess1','Allo','Real',ipHess1,l_Hess1*l_Hess1)
-      Call GetMem('Hess2','Allo','Real',ipHess2,l_Hess1*l_Hess1)
-      n = 3*NumOfAt
-      Call GetMem('TranDipGrad','Allo','Real',ipTranDipGrad,3*n)
-!
-! --- INTErnal: End ----------------------------------------------------
+  read(inpUnit,format) InLine
+  call Normalize(InLine,OutLine)
+end do
 
-! ----------------------------------------------------------------------
-! --- ISC: InterSystem Crossing. GG-30-Dec-08                     ! CGGn
-!
-      lISC=.False.
-      dMinWind = 0.0d0
-      Call KeyWord(inpUnit,'ISC ',.true.,lISC)
-      If (lISC) then
-         Call KeyWord(inpUnit,'EXPF',.true.,exist)
-         If (exist) then
-           Read(InpUnit,Format) InLine
-           Call Normalize(InLine,Outline)
-           Read(OutLine,*) dMinWind
-         EndIf
-         Call KeyWord(inpUnit,'OLDC',.true.,exist)
-         If (exist) iCode = iCode  +  1
-         Call KeyWord(inpUnit,'DISK',.true.,exist)
-         If (exist) iCode = iCode  + 10
-      EndIf
-! --- ISC: End ---------------------------------------------------------
+call GetMem('AtCoord1','Allo','Real',ipAtCoord1,3*NumOfAt)
+call GetMem('AtCoord2','Allo','Real',ipAtCoord2,3*NumOfAt)
+l_Hess1 = NumInt
+call GetMem('Hess1','Allo','Real',ipHess1,l_Hess1*l_Hess1)
+call GetMem('Hess2','Allo','Real',ipHess2,l_Hess1*l_Hess1)
+n = 3*NumOfAt
+call GetMem('TranDipGrad','Allo','Real',ipTranDipGrad,3*n)
+
+! INTErnal: End --------------------------------------------------------
 
 ! ----------------------------------------------------------------------
-! --- MODEs: Chose which modes to use in intensity calculations.
-!
-      Call KeyWord(inpUnit,'MODE',.true.,exist)
-      If ( exist ) Then
-      Call GetMem('tempmodes','Allo','Inte',iptempModes,NumInt)
-      Read(inpUnit,Format) InLine
-      Call Normalize(InLine,OutLine)
-      i = 1
-      Do While ( OutLine(1:4) .ne. 'END ')
-        k = 1
-        Call WordPos(k,OutLine,iStart,iStop)
-        Do While ( iStop .lt. len(OutLine) )
-          iWork(iptempModes+i-1) =                                      &
-     &          iStrToInt(OutLine(iStart:iStop))
-          If ( iWork(iptempModes+i-1) .gt. NumInt ) Then
-            Write(6,*)
-            Write(6,*) ' *********** ERROR *************'
-            Write(6,*) ' Too many normal modes specified'
-            Write(6,*) ' *******************************'
-            Call Quit_OnUserError()
-          End If
-          i = i+1
-          Call WordPos(k,OutLine,iStart,iStop)
-        End Do
-        Read(inpUnit,Format) InLine
-        Call Normalize(InLine,OutLine)
-      End Do
-      n = i-1
-      l_NormModes=n
-      Call GetMem('NormModes','Allo','Inte',                            &
-     &    ipNormModes,l_NormModes)
-      do iv=1,n
-        iWork(ipNormModes+iv-1) = iWork(iptempModes+iv-1)
-      enddo
-      Call GetMem('tempmodes','Free','Inte',iptempModes,NumInt)
-      Do i = 1,n-1
-        Do j = i+1,n
-          If ( iWork(ipNormModes+j-1) .lt.                              &
-     &          iWork(ipNormModes+i-1) ) Then
-            modeTemp     = iWork(ipNormModes+i-1)
-            iWork(ipNormModes+i-1) = iWork(ipNormModes+j-1)
-            iWork(ipNormModes+j-1) = modeTemp
-          End If
-        End Do
-      End Do
-      Else
-! --- No MODEs specified
-        l_NormModes=NumInt
-        Call GetMem('NormModes','Allo','Inte',                          &
-     &    ipNormModes,l_NormModes)
-        Do i = 1,NumInt
-          iWork(ipNormModes+i-1) = i
-        End Do
-        If (iPrint.GE.1) then
-          Write(6,*) ' *** Warning: MODEs not specified !'
-          Write(6,*) '     All ',l_NormModes,' will be calculated.'
-          Write(6,*)
-        EndIf
-      End If
-!
-! --- MODEs: End -------------------------------------------------------
+! ISC: InterSystem Crossing. GG-30-Dec-08
+
+lISC = .false.
+dMinWind = 0.0d0
+call KeyWord(inpUnit,'ISC ',.true.,lISC)
+if (lISC) then
+  call KeyWord(inpUnit,'EXPF',.true.,exist)
+  if (exist) then
+    read(InpUnit,format) InLine
+    call Normalize(InLine,Outline)
+    read(OutLine,*) dMinWind
+  end if
+  call KeyWord(inpUnit,'OLDC',.true.,exist)
+  if (exist) iCode = iCode+1
+  call KeyWord(inpUnit,'DISK',.true.,exist)
+  if (exist) iCode = iCode+10
+end if
+
+! ISC: End -------------------------------------------------------------
 
 ! ----------------------------------------------------------------------
-! --- MXLEvels: Maximun number of vibr. quanta in first and second state
-!
-      Call KeyWord(inpUnit,'MXLE',.true.,exist)
-      m_max = 0 ! Defaul
-      n_max = 1 ! Defaul
-      If(.NOT.exist) then
-        If (iPrint.GE.1) then
-          Write(6,*) ' *** Warning: MXLEvels not specified !'
-          Write(6,*) '     Default values are 0 and 1.      '
-          Write(6,*)
-        EndIf
-      else
-        Read(inpUnit,*) m_max,n_max
-      Endif
-!
-! --- MXLEvels: End ----------------------------------------------------
+! MODEs: Chose which modes to use in intensity calculations.
+
+call KeyWord(inpUnit,'MODE',.true.,exist)
+if (exist) then
+  call GetMem('tempmodes','Allo','Inte',iptempModes,NumInt)
+  read(inpUnit,format) InLine
+  call Normalize(InLine,OutLine)
+  i = 1
+  do while (OutLine(1:4) /= 'END ')
+    k = 1
+    call WordPos(k,OutLine,iStart,iStop)
+    do while (iStop < len(OutLine))
+      iWork(iptempModes+i-1) = iStrToInt(OutLine(iStart:iStop))
+      if (iWork(iptempModes+i-1) > NumInt) then
+        write(6,*)
+        write(6,*) ' *********** ERROR *************'
+        write(6,*) ' Too many normal modes specified'
+        write(6,*) ' *******************************'
+        call Quit_OnUserError()
+      end if
+      i = i+1
+      call WordPos(k,OutLine,iStart,iStop)
+    end do
+    read(inpUnit,format) InLine
+    call Normalize(InLine,OutLine)
+  end do
+  n = i-1
+  l_NormModes = n
+  call GetMem('NormModes','Allo','Inte',ipNormModes,l_NormModes)
+  do iv=1,n
+    iWork(ipNormModes+iv-1) = iWork(iptempModes+iv-1)
+  end do
+  call GetMem('tempmodes','Free','Inte',iptempModes,NumInt)
+  do i=1,n-1
+    do j=i+1,n
+      if (iWork(ipNormModes+j-1) < iWork(ipNormModes+i-1)) then
+        modeTemp = iWork(ipNormModes+i-1)
+        iWork(ipNormModes+i-1) = iWork(ipNormModes+j-1)
+        iWork(ipNormModes+j-1) = modeTemp
+      end if
+    end do
+  end do
+else
+  ! No MODEs specified
+  l_NormModes = NumInt
+  call GetMem('NormModes','Allo','Inte',ipNormModes,l_NormModes)
+  do i=1,NumInt
+    iWork(ipNormModes+i-1) = i
+  end do
+  if (iPrint >= 1) then
+    write(6,*) ' *** Warning: MODEs not specified !'
+    write(6,*) '     All ',l_NormModes,' will be calculated.'
+    write(6,*)
+  end if
+end if
+
+! MODEs: End -----------------------------------------------------------
 
 ! ----------------------------------------------------------------------
-! --- VARIational: Check if a full matrix element calculation or a
-!                  simpler harmonic approximation is wanted.
-!
-      MatEl = .false.
-      Call KeyWord(inpUnit,'VARI',.true.,MatEl)
-!
-! --- VARIational: End -------------------------------------------------
+! MXLEvels: Maximun number of vibr. quanta in first and second state
+
+call KeyWord(inpUnit,'MXLE',.true.,exist)
+m_max = 0 ! Defaul
+n_max = 1 ! Defaul
+if (.not. exist) then
+  if (iPrint >= 1) then
+    write(6,*) ' *** Warning: MXLEvels not specified !'
+    write(6,*) '     Default values are 0 and 1.      '
+    write(6,*)
+  end if
+else
+  read(inpUnit,*) m_max,n_max
+end if
+
+! MXLEvels: End --------------------------------------------------------
 
 ! ----------------------------------------------------------------------
-! --- TRANsitions: Check which transitions that are wanted in the
-!                  output.
-      Call KeyWord(inpUnit,'TRAN',.true.,exist)
-      If(.NOT.exist) then
-        If (.NOT.lISC) then
-          Write(6,*) ' *** Warning: TRANsitions not specified!'
-          Write(6,*) '     All Levels will be printed.        '
-          Write(6,*)
-        EndIf
-        n = m_max + 1
-        Do i = 1, n
-          plot_temp(i) = i-1
-        EndDo
-      else
-        Call KeyWord(inpUnit,'FIRS',.false.,exist)
-        Read(inpUnit,Format) InLine
-        Call Normalize(InLine,OutLine)
-        k = 1
-        i = 1
-        Call WordPos(k,OutLine,iStart,iStop)
-        Do While ( iStop .lt. len(OutLine) )
-          if(i .gt. max_plot_temp) then
-            Write(6,*)
-            Write(6,*) ' ************* ERROR **************'
-            write(6,*) ' TRANsitions: i .gt. max_plot_temp '
-            Write(6,*) ' **********************************'
-            Call Quit_OnUserError()
-          endif
-          plot_temp(i) = iStrToInt(OutLine(iStart:iStop))
-          If ( plot_temp(i) .gt. m_max ) Then
-            Write(6,*)
-            Write(6,*) ' ************* ERROR **************'
-            Write(6,*) ' A quantum specified for the output'
-            Write(6,*) ' is larger than max quantum.       '
-            Write(6,*) ' **********************************'
-            Call Quit_OnUserError()
-          End If
-          i = i+1
-          Call WordPos(k,OutLine,iStart,iStop)
-        End Do
-        n = i-1
-      EndIf
-      l_m_plot=n
-      Call GetMem('m_plot','Allo','Inte',ipm_plot,l_m_plot)
-      do iv=1,n
-        iWork(ipm_plot+iv-1) = plot_temp(iv)
-      enddo
+! VARIational: Check if a full matrix element calculation or a
+!              simpler harmonic approximation is wanted.
 
-      Call KeyWord(inpUnit,'TRAN',.true.,exist)
-      If(.NOT.exist) then
-        n = n_max + 1
-        Do i = 1, n
-          plot_temp(i) = i-1
-        EndDo
-      else
-        Call KeyWord(inpUnit,'SECO',.false.,exist)
-        Read(inpUnit,Format) InLine
-        Call Normalize(InLine,OutLine)
-        k = 1
-        i = 1
-        Call WordPos(k,OutLine,iStart,iStop)
-        Do While ( iStop .lt. len(OutLine) )
-          If(i .gt. max_plot_temp) then
-            Write(6,*)
-            Write(6,*) ' ************* ERROR **************'
-            write(6,*) ' TRANsitions: i .gt. max_plot_temp '
-            Write(6,*) ' **********************************'
-            Call Quit_OnUserError
-          EndIf
-          plot_temp(i) = iStrToInt(OutLine(iStart:iStop))
-          If ( plot_temp(i) .gt. n_max ) Then
-            Write(6,*)
-            Write(6,*) ' ************* ERROR **************'
-            Write(6,*) ' A quantum specified for the output'
-            Write(6,*) ' is larger than max quantum.'
-            Write(6,*) ' **********************************'
-            Call Quit_OnUserError()
-          EndIf
-          i = i+1
-          Call WordPos(k,OutLine,iStart,iStop)
-        End Do
-        n = i-1
-      EndIf
-      l_n_plot=n
-      Call GetMem('n_plot','Allo','Inte',ipn_plot,l_n_plot)
-      do iv=1,n
-        iWork(ipn_plot+iv-1) = plot_temp(iv)
-      enddo
-!
-! --- TRANsitions: End -------------------------------------------------
+MatEl = .false.
+call KeyWord(inpUnit,'VARI',.true.,MatEl)
 
-! -----------------------------------------------------------------------!
+! VARIational: End -----------------------------------------------------
+
+! ----------------------------------------------------------------------
+! TRANsitions: Check which transitions that are wanted in the output.
+
+call KeyWord(inpUnit,'TRAN',.true.,exist)
+if (.not. exist) then
+  if (.not. lISC) then
+    write(6,*) ' *** Warning: TRANsitions not specified!'
+    write(6,*) '     All Levels will be printed.        '
+    write(6,*)
+  end if
+  n = m_max+1
+  do i=1,n
+    plot_temp(i) = i-1
+  end do
+else
+  call KeyWord(inpUnit,'FIRS',.false.,exist)
+  read(inpUnit,format) InLine
+  call Normalize(InLine,OutLine)
+  k = 1
+  i = 1
+  call WordPos(k,OutLine,iStart,iStop)
+  do while (iStop < len(OutLine))
+    if (i > max_plot_temp) then
+      write(6,*)
+      write(6,*) ' ************ ERROR *************'
+      write(6,*) ' TRANsitions: i  >  max_plot_temp'
+      write(6,*) ' ********************************'
+      call Quit_OnUserError()
+    end if
+    plot_temp(i) = iStrToInt(OutLine(iStart:iStop))
+    if (plot_temp(i) > m_max) then
+      write(6,*)
+      write(6,*) ' ************* ERROR **************'
+      write(6,*) ' A quantum specified for the output'
+      write(6,*) ' is larger than max quantum.       '
+      write(6,*) ' **********************************'
+      call Quit_OnUserError()
+    end if
+    i = i+1
+    call WordPos(k,OutLine,iStart,iStop)
+  end do
+  n = i-1
+end if
+l_m_plot = n
+call GetMem('m_plot','Allo','Inte',ipm_plot,l_m_plot)
+do iv=1,n
+  iWork(ipm_plot+iv-1) = plot_temp(iv)
+end do
+
+call KeyWord(inpUnit,'TRAN',.true.,exist)
+if (.not. exist) then
+  n = n_max+1
+  do i=1,n
+    plot_temp(i) = i-1
+  end do
+else
+  call KeyWord(inpUnit,'SECO',.false.,exist)
+  read(inpUnit,format) InLine
+  call Normalize(InLine,OutLine)
+  k = 1
+  i = 1
+  call WordPos(k,OutLine,iStart,iStop)
+  do while (iStop < len(OutLine))
+    if (i > max_plot_temp) then
+      write(6,*)
+      write(6,*) ' *********** ERROR ************'
+      write(6,*) ' TRANsitions: i > max_plot_temp'
+      write(6,*) ' ******************************'
+      call Quit_OnUserError()
+    end if
+    plot_temp(i) = iStrToInt(OutLine(iStart:iStop))
+    if (plot_temp(i) > n_max) then
+      write(6,*)
+      write(6,*) ' ************* ERROR **************'
+      write(6,*) ' A quantum specified for the output'
+      write(6,*) ' is larger than max quantum.'
+      write(6,*) ' **********************************'
+      call Quit_OnUserError()
+    end if
+    i = i+1
+    call WordPos(k,OutLine,iStart,iStop)
+  end do
+  n = i-1
+end if
+l_n_plot = n
+call GetMem('n_plot','Allo','Inte',ipn_plot,l_n_plot)
+do iv=1,n
+  iWork(ipn_plot+iv-1) = plot_temp(iv)
+end do
+
+! TRANsitions: End -----------------------------------------------------
+
+!----------------------------------------------------------------------!
 !
 !                            Forcefield part
 !
-! -----------------------------------------------------------------------!
-!
-      Call KeyWord(inpUnit,'FORC',.true.,Forcefield)
-      If ( .not.Forcefield ) then
-        Write(6,*) ' Forcefield not found. Will use Energy Surface.'
-        Goto 10
-      EndIf
+!----------------------------------------------------------------------!
+
+call KeyWord(inpUnit,'FORC',.true.,Forcefield)
+if (.not. Forcefield) then
+  write(6,*) ' Forcefield not found. Will use Energy Surface.'
+  goto 10
+end if
 
 ! ----------------------------------------------------------------------
-! --- ENERgy: Read minimum energies for the two surfaces.
-!
-      Call KeyWord(inpUnit,'ENER',.true.,exist)
-      If(.NOT.exist) then
-        Write(6,*)
-        Write(6,*) ' ************** ERROR *************'
-        Write(6,*) ' Electronic T_e energies not given.'
-        Write(6,*) ' **********************************'
-        Call Quit_OnUserError()
-      EndIf
-      Call KeyWord(inpUnit,'FIRS',.false.,exist)
-      If(.NOT.exist) then
-        Write(6,*)
-        Write(6,*) ' ******************** ERROR *********************'
-        Write(6,*) ' Electronic T_e energy for first state not given.'
-        Write(6,*) ' ************************************************'
-        Call Quit_OnUserError()
-      EndIf
-!      Read(inpUnit,*) energy1,Eunit
-!      Call Upcase(Eunit)
+! ENERgy: Read minimum energies for the two surfaces.
+
+call KeyWord(inpUnit,'ENER',.true.,exist)
+if (.not. exist) then
+  write(6,*)
+  write(6,*) ' ************** ERROR *************'
+  write(6,*) ' Electronic T_e energies not given.'
+  write(6,*) ' **********************************'
+  call Quit_OnUserError()
+end if
+call KeyWord(inpUnit,'FIRS',.false.,exist)
+if (.not. exist) then
+  write(6,*)
+  write(6,*) ' ******************** ERROR *********************'
+  write(6,*) ' Electronic T_e energy for first state not given.'
+  write(6,*) ' ************************************************'
+  call Quit_OnUserError()
+end if
+!read(inpUnit,*) energy1,Eunit
+!call Upcase(Eunit)
 ! Replace above two lines with:
-      Read(InpUnit,Format) InLine
-      Call Normalize(InLine,Outline)
-      Read(OutLine,*) Energy1
-      EUnit='AU'
-      If(Index(OutLine,'EV') .gt. 0) EUnit='EV'
-      If(Index(OutLine,'CM') .gt. 0) EUnit='CM'
+read(InpUnit,format) InLine
+call Normalize(InLine,Outline)
+read(OutLine,*) Energy1
+EUnit = 'AU'
+if (index(OutLine,'EV') > 0) EUnit = 'EV'
+if (index(OutLine,'CM') > 0) EUnit = 'CM'
 ! End of replacement.
 
-      rfact=1.0d0
-      If ( Eunit .eq. 'AU' ) rfact = 1.0d0
-      If ( Eunit .eq. 'EV' ) rfact = 1.0d0/27.2114d0
-      If ( Eunit .eq. 'CM' ) rfact = 1.0d0/HarToRcm
-      energy1 = energy1*rfact
-      Call KeyWord(inpUnit,'SECO',.false.,exist)
-      If(.NOT.exist) then
-        Write(6,*)
-        Write(6,*) ' ******************** ERROR **********************'
-        Write(6,*) ' Electronic T_e energy for second state not given.'
-        Write(6,*) ' *************************************************'
-        Call Quit_OnUserError()
-      EndIf
-!      Read(inpUnit,*) energy2,Eunit
-!      Call Upcase(Eunit)
+rfact = 1.0d0
+if (Eunit == 'AU') rfact = 1.0d0
+if (Eunit == 'EV') rfact = 1.0d0/27.2114d0
+if (Eunit == 'CM') rfact = 1.0d0/HarToRcm
+energy1 = energy1*rfact
+call KeyWord(inpUnit,'SECO',.false.,exist)
+if (.not. exist) then
+  write(6,*)
+  write(6,*) ' ******************** ERROR **********************'
+  write(6,*) ' Electronic T_e energy for second state not given.'
+  write(6,*) ' *************************************************'
+  call Quit_OnUserError()
+end if
+!read(inpUnit,*) energy2,Eunit
+!call Upcase(Eunit)
 ! Replace above two lines with:
-      Read(InpUnit,Format) InLine
-      Call Normalize(InLine,Outline)
-      Read(OutLine,*) Energy2
-      EUnit='AU'
-      If(Index(OutLine,'EV') .gt. 0) EUnit='EV'
-      If(Index(OutLine,'CM') .gt. 0) EUnit='CM'
+read(InpUnit,format) InLine
+call Normalize(InLine,Outline)
+read(OutLine,*) Energy2
+EUnit = 'AU'
+if (index(OutLine,'EV') > 0) EUnit = 'EV'
+if (index(OutLine,'CM') > 0) EUnit = 'CM'
 ! End of replacement.
-      If ( Eunit .eq. 'AU' ) rfact = 1.0d0
-      If ( Eunit .eq. 'EV' ) rfact = 1.0d0/27.2114d0
-      If ( Eunit .eq. 'CM' ) rfact = 1.0d0/HarToRcm
-      energy2 = energy2*rfact
-!
-! --- ENERgy: : End ----------------------------------------------------
+if (Eunit == 'AU') rfact = 1.0d0
+if (Eunit == 'EV') rfact = 1.0d0/27.2114d0
+if (Eunit == 'CM') rfact = 1.0d0/HarToRcm
+energy2 = energy2*rfact
+
+! ENERgy: : End --------------------------------------------------------
 
 ! ----------------------------------------------------------------------
-! --- GEOMetries: Read geometries for the two surfaces.
-!
-      Call KeyWord(inpUnit,'GEOM',.true.,exist)
-      If(.NOT.exist) then
-        Write(6,*)
-        Write(6,*) ' ***** ERROR *******'
-        Write(6,*) ' GEOMetry not found.'
-        Write(6,*) ' *******************'
-        Call Quit_OnUserError()
-      EndIf
-!!D Write(6,*)' READINP: Read geometry (''GEOMETRY'').'
-!      Read(inpUnit,*) CoordType
-!      Call UpCase(CoordType)
+! GEOMetries: Read geometries for the two surfaces.
+
+call KeyWord(inpUnit,'GEOM',.true.,exist)
+if (.not. exist) then
+  write(6,*)
+  write(6,*) ' ***** ERROR *******'
+  write(6,*) ' GEOMetry not found.'
+  write(6,*) ' *******************'
+  call Quit_OnUserError()
+end if
+!D write(6,*) ' READINP: Read geometry ("GEOMETRY").'
+!read(inpUnit,*) CoordType
+!call UpCase(CoordType)
 ! Replace above two lines with:
-      Read(InpUnit,Format) InLine
-      Call Normalize(InLine,Outline)
-      iend=Index(OutLine,' ')
-      CoordType=OutLine(1:iend-1)
+read(InpUnit,format) InLine
+call Normalize(InLine,Outline)
+iend = index(OutLine,' ')
+CoordType = OutLine(1:iend-1)
 ! End of replacement.
 
-      If (CoordType .eq. 'FILE') Then
-        Coordtype='CARTESIAN'
-        inpUnit1 = 31
-        inpUnit2 = 32
-        call molcas_open(31,'UNSYM1')
-!      Open (unit=31,file='UNSYM1')
-        Call KeyWord(inpUnit1,'*LABEL COORDINATES CHARGE',              &
-     &    .false.,exist)
-        call molcas_open(32,'UNSYM2')
-!      Open (unit=32,file='UNSYM2')
-        Call KeyWord(inpUnit2,'*LABEL COORDINATES CHARGE',              &
-     &    .false.,exist)
-      Else
-        inpUnit1 = inpunit
-        inpUnit2 = inpunit
-      End If
-!!
-      If ( CoordType .eq. 'CARTESIAN' ) Then
-        Cartesian = .true.
-!!D Write(6,*)' READINP: Read cartesian coordinates for first state.'
-        Call KeyWord(inpUnit,'FIRS',.false.,exist)
-        If(.NOT.exist) then
-          Write(6,*)
-          Write(6,*) ' ****** ERROR ********'
-          Write(6,*) ' Wrong geometry input.'
-          Write(6,*) ' *********************'
-          Call Quit_OnUserError()
-        EndIf
-        ierror=0
-        Do iAtom = 1,NumOfAt
-          Read(inpUnit1,Format) InLine
-          Call UpCase(InLine)
-          Atom=InLine(1:4)
-          Read(InLine(5:80),*) (TmpCoord(i),i=1,3)
-          j=10000000
-          Do i=1,NumOfAt
-            If (Atom .eq. AtomLbl(i)) j=i
-          End Do
-          If(j .gt. NumOfAt) then
-            Write(6,*)
-            Write(6,*)'*********** ERROR ***********'
-            Write(6,*)' Unrecognized atom label '''//Atom//''''
-            Write(6,*)'*****************************'
-            ierror=ierror+1
-          else
-            do iv=1,3
-              Work(ipAtCoord1+iv+3*(j-1)-1) = TmpCoord(iv)
-            enddo
-          End if
-        End Do
-!!D Write(6,*)' READINP: Read cartesian coordinates for second state.'
-        Call KeyWord(inpUnit,'SECO',.false.,exist)
-        If(.NOT.exist) then
-          Write(6,*)
-          Write(6,*) ' ****** ERROR ********'
-          Write(6,*) ' Wrong geometry input.'
-          Write(6,*) ' *********************'
-          Call Quit_OnUserError()
-        EndIf
-        Do iAtom = 1,NumOfAt
-          Read(inpUnit2,Format) InLine
-          Call UpCase(InLine)
-          Atom=InLine(1:4)
-          Read(InLine(5:80),*) (TmpCoord(i),i=1,3)
-          j = 1
-          Do While ( Atom .ne. AtomLbl(j) )
-            j = j+1
-          End Do
-          If(j .gt. NumOfAt) then
-            Write(6,*)
-            Write(6,*)'*********** ERROR ***********'
-            Write(6,*)' Unrecognized atom label '''//Atom//''''
-            Write(6,*)'*****************************'
-            ierror=ierror+1
-          else
-            do iv=1,3
-              Work(ipAtCoord2+iv+3*(j-1)-1) = TmpCoord(iv)
-            enddo
-          end if
-        End Do
+if (CoordType == 'FILE') then
+  Coordtype = 'CARTESIAN'
+  inpUnit1 = 31
+  inpUnit2 = 32
+  call molcas_open(31,'UNSYM1')
+  !open(unit=31,file='UNSYM1')
+  call KeyWord(inpUnit1,'*LABEL COORDINATES CHARGE',.false.,exist)
+  call molcas_open(32,'UNSYM2')
+  !open(unit=32,file='UNSYM2')
+  call KeyWord(inpUnit2,'*LABEL COORDINATES CHARGE',.false.,exist)
+else
+  inpUnit1 = inpunit
+  inpUnit2 = inpunit
+end if
 
-      Else If ( CoordType .eq. 'INTERNAL' ) Then
+if (CoordType == 'CARTESIAN') then
+  Cartesian = .true.
+  !D write(6,*) ' READINP: Read cartesian coordinates for first state.'
+  call KeyWord(inpUnit,'FIRS',.false.,exist)
+  if (.not. exist) then
+    write(6,*)
+    write(6,*) ' ****** ERROR ********'
+    write(6,*) ' Wrong geometry input.'
+    write(6,*) ' *********************'
+    call Quit_OnUserError()
+  end if
+  ierror = 0
+  do iAtom=1,NumOfAt
+    read(inpUnit1,format) InLine
+    call UpCase(InLine)
+    Atom = InLine(1:4)
+    read(InLine(5:80),*) (TmpCoord(i),i=1,3)
+    j = 10000000
+    do i=1,NumOfAt
+      if (Atom == AtomLbl(i)) j = i
+    end do
+    if (j > NumOfAt) then
+      write(6,*)
+      write(6,*) '*********** ERROR ***********'
+      write(6,*) ' Unrecognized atom label "'//Atom//'"'
+      write(6,*) '*****************************'
+      ierror = ierror+1
+    else
+      do iv=1,3
+        Work(ipAtCoord1+iv+3*(j-1)-1) = TmpCoord(iv)
+      end do
+    end if
+  end do
+  !D write(6,*) ' READINP: Read cartesian coordinates for second state.'
+  call KeyWord(inpUnit,'SECO',.false.,exist)
+  if (.not. exist) then
+    write(6,*)
+    write(6,*) ' ****** ERROR ********'
+    write(6,*) ' Wrong geometry input.'
+    write(6,*) ' *********************'
+    call Quit_OnUserError()
+  end if
+  do iAtom=1,NumOfAt
+    read(inpUnit2,format) InLine
+    call UpCase(InLine)
+    Atom = InLine(1:4)
+    read(InLine(5:80),*) (TmpCoord(i),i=1,3)
+    j = 1
+    do while (Atom /= AtomLbl(j))
+      j = j+1
+    end do
+    if (j > NumOfAt) then
+      write(6,*)
+      write(6,*) '*********** ERROR ***********'
+      write(6,*) ' Unrecognized atom label "'//Atom//'"'
+      write(6,*) '*****************************'
+      ierror = ierror+1
+    else
+      do iv=1,3
+        Work(ipAtCoord2+iv+3*(j-1)-1) = TmpCoord(iv)
+      end do
+    end if
+  end do
 
-      Cartesian = .false.
-      Call KeyWord(inpUnit,'FIRS',.false.,exist)
-!!D Write(6,*)' READINP: Read internal coordinates for first state.'
-      n = 5*(3*NumOfAt-5)
-!         ! Largest possible necessary GeoVec
-      Call GetMem('GeoVec','Allo','Inte',ipGeoVec,5*(3*NumOfAt-5))
-      iInt = 1
-      j = 1
-      Read(inpUnit,Format) InLine
-      Call Normalize(InLine,OutLine)
-      Do While ( OutLine(1:4) .ne. 'END ')
-      !---- Bond distance.
-      l = Index(OutLine,'BOND')
-      If ( l .ne. 0 ) Then
-      k = l+Len('BOND')
-      Call WordPos(k,OutLine,iStart,iStop)
+else if (CoordType == 'INTERNAL') then
+
+  Cartesian = .false.
+  call KeyWord(inpUnit,'FIRS',.false.,exist)
+  !D write(6,*) ' READINP: Read internal coordinates for first state.'
+  n = 5*(3*NumOfAt-5)
+  ! Largest possible necessary GeoVec
+  call GetMem('GeoVec','Allo','Inte',ipGeoVec,5*(3*NumOfAt-5))
+  iInt = 1
+  j = 1
+  read(inpUnit,format) InLine
+  call Normalize(InLine,OutLine)
+  do while (OutLine(1:4) /= 'END ')
+    ! Bond distance.
+    l = index(OutLine,'BOND')
+    if (l /= 0) then
+      k = l+len('BOND')
+      call WordPos(k,OutLine,iStart,iStop)
       Atom1 = OutLine(iStart:iStop)
       k = iStop+1
-      Call WordPos(k,OutLine,iStart,iStop)
+      call WordPos(k,OutLine,iStart,iStop)
       Atom2 = OutLine(iStart:iStop)
       iwork(ipGeoVec+j-1) = 1
-      Do i = 1,NumOfAt
-      If ( Atom1 .eq. AtomLbl(i) ) Then
-      iWork(ipGeoVec+j) = i
-      Else If ( Atom2 .eq. AtomLbl(i) ) Then
-      iWork(ipGeoVec+j+1) = i
-      End If
-      End Do
-      Call WordPos(k,OutLine,iStart,iStop)
+      do i=1,NumOfAt
+        if (Atom1 == AtomLbl(i)) then
+          iWork(ipGeoVec+j) = i
+        else if (Atom2 == AtomLbl(i)) then
+          iWork(ipGeoVec+j+1) = i
+        end if
+      end do
+      call WordPos(k,OutLine,iStart,iStop)
       xvec(iInt) = StrToDble(OutLine(iStart:iStop))
       k = iStop+1
-      Call WordPos(k,OutLine,iStart,iStop)
+      call WordPos(k,OutLine,iStart,iStop)
       AAOrAu = OutLine(iStart:iStop)
-      If ( AAOrAu .eq. 'AA' ) Then
-      xvec(iInt) = xvec(iInt)/Angstrom
-      End If
+      if (AAOrAu == 'AA') then
+        xvec(iInt) = xvec(iInt)/Angstrom
+      end if
       j = j+3
-      End If
-      !---- Valence Angle.
-      l = Index(OutLine,'ANGLE')
-      If ( l .ne. 0 ) Then
-      k = l+Len('ANGLE')
-      Call WordPos(k,OutLine,iStart,iStop)
+    end if
+    ! Valence Angle.
+    l = index(OutLine,'ANGLE')
+    if (l /= 0) then
+      k = l+len('ANGLE')
+      call WordPos(k,OutLine,iStart,iStop)
       Atom1 = OutLine(iStart:iStop)
       k = iStop+1
-      Call WordPos(k,OutLine,iStart,iStop)
+      call WordPos(k,OutLine,iStart,iStop)
       Atom2 = OutLine(iStart:iStop)
       k = iStop+1
-      Call WordPos(k,OutLine,iStart,iStop)
+      call WordPos(k,OutLine,iStart,iStop)
       Atom3 = OutLine(iStart:iStop)
       iWork(ipGeoVec+j-1) = 2
-      Do i = 1,NumOfAt
-      If ( Atom1 .eq. AtomLbl(i) ) Then
-      iWOrk(ipGeoVec+j) = i
-      Else If ( Atom2 .eq. AtomLbl(i) ) Then
-      iWOrk(ipGeoVec+j+1) = i
-      Else If ( Atom3 .eq. AtomLbl(i) ) Then
-      iWOrk(ipGeoVec+j+2) = i
-      End If
-      End Do
-      Call WordPos(k,OutLine,iStart,iStop)
+      do i=1,NumOfAt
+        if (Atom1 == AtomLbl(i)) then
+          iWOrk(ipGeoVec+j) = i
+        else if (Atom2 == AtomLbl(i)) then
+          iWOrk(ipGeoVec+j+1) = i
+        else if (Atom3 == AtomLbl(i)) then
+          iWOrk(ipGeoVec+j+2) = i
+        end if
+      end do
+      call WordPos(k,OutLine,iStart,iStop)
       xvec(iInt) = StrToDble(OutLine(iStart:iStop))
       k = iStop+1
-      Call WordPos(k,OutLine,iStart,iStop)
+      call WordPos(k,OutLine,iStart,iStop)
       DegOrRad = OutLine(iStart:iStop)
-      If ( DegOrRad .eq. 'DEG' ) Then
-      xvec(iInt) = xvec(iInt)*rpi/180.0d0
-      End If
+      if (DegOrRad == 'DEG') then
+        xvec(iInt) = xvec(iInt)*rpi/180.0d0
+      end if
       j = j+4
-      End If
-      !---- Linear Valence Angle.
-      l = Index(OutLine,'LINANG')
-      If ( l .ne. 0 ) Then
-      k = l+Len('LINANG')
-      Call WordPos(k,OutLine,iStart,iStop)
+    end if
+    ! Linear Valence Angle.
+    l = index(OutLine,'LINANG')
+    if (l /= 0) then
+      k = l+len('LINANG')
+      call WordPos(k,OutLine,iStart,iStop)
       Atom1 = OutLine(iStart:iStop)
       k = iStop+1
-      Call WordPos(k,OutLine,iStart,iStop)
+      call WordPos(k,OutLine,iStart,iStop)
       Atom2 = OutLine(iStart:iStop)
       k = iStop+1
-      Call WordPos(k,OutLine,iStart,iStop)
+      call WordPos(k,OutLine,iStart,iStop)
       Atom3 = OutLine(iStart:iStop)
       iWork(ipGeoVec+j-1) = 3
-      Do i = 1,NumOfAt
-      If ( Atom1 .eq. AtomLbl(i) ) Then
-      iWork(ipGeoVec+j) = i
-      Else If ( Atom2 .eq. AtomLbl(i) ) Then
-      iWOrk(ipGeoVec+j+1) = i
-      Else If ( Atom3 .eq. AtomLbl(i) ) Then
-      iWork(ipGeoVec+j+2) = i
-      End If
-      End Do
-      Call WordPos(k,OutLine,iStart,iStop)
+      do i=1,NumOfAt
+        if (Atom1 == AtomLbl(i)) then
+          iWork(ipGeoVec+j) = i
+        else if (Atom2 == AtomLbl(i)) then
+          iWOrk(ipGeoVec+j+1) = i
+        else if (Atom3 == AtomLbl(i)) then
+          iWork(ipGeoVec+j+2) = i
+        end if
+      end do
+      call WordPos(k,OutLine,iStart,iStop)
       xvec(iInt) = StrToDble(OutLine(iStart:iStop))
       k = iStop+1
-      Call WordPos(k,OutLine,iStart,iStop)
+      call WordPos(k,OutLine,iStart,iStop)
       DegOrRad = OutLine(iStart:iStop)
-      If ( DegOrRad .eq. 'DEG' ) Then
-      xvec(iInt) = xvec(iInt)*rpi/180.0d0
-      End If
+      if (DegOrRad == 'DEG') then
+        xvec(iInt) = xvec(iInt)*rpi/180.0d0
+      end if
       j = j+4
-      End If
-      !---- Dihedral angle.
-      l = Index(OutLine,'TORSION')
-      If ( l .ne. 0 ) Then
-      k = l+Len('TORSION')
-      Call WordPos(k,OutLine,iStart,iStop)
+    end if
+    ! Dihedral angle.
+    l = index(OutLine,'TORSION')
+    if (l /= 0) then
+      k = l+len('TORSION')
+      call WordPos(k,OutLine,iStart,iStop)
       Atom1 = OutLine(iStart:iStop)
-      Call WordPos(k,OutLine,iStart,iStop)
+      call WordPos(k,OutLine,iStart,iStop)
       Atom2 = OutLine(iStart:iStop)
-      Call WordPos(k,OutLine,iStart,iStop)
+      call WordPos(k,OutLine,iStart,iStop)
       Atom3 = OutLine(iStart:iStop)
-      Call WordPos(k,OutLine,iStart,iStop)
+      call WordPos(k,OutLine,iStart,iStop)
       Atom4 = OutLine(iStart:iStop)
       iWork(ipGeoVec+j-1) = 4
-      Do i = 1,NumOfAt
-      If ( Atom1 .eq. AtomLbl(i) ) Then
-      iWork(ipGeoVec+j) = i
-      Else If ( Atom2 .eq. AtomLbl(i) ) Then
-      iWork(ipGeoVec+j+1) = i
-      Else If ( Atom3 .eq. AtomLbl(i) ) Then
-      iWork(ipGeoVec+j+2) = i
-      Else If ( Atom4 .eq. AtomLbl(i) ) Then
-      iWOrk(ipGeoVec+j+3) = i
-      End If
-      End Do
-      Call WordPos(k,OutLine,iStart,iStop)
+      do i=1,NumOfAt
+        if (Atom1 == AtomLbl(i)) then
+          iWork(ipGeoVec+j) = i
+        else if (Atom2 == AtomLbl(i)) then
+          iWork(ipGeoVec+j+1) = i
+        else if (Atom3 == AtomLbl(i)) then
+          iWork(ipGeoVec+j+2) = i
+        else if (Atom4 == AtomLbl(i)) then
+          iWOrk(ipGeoVec+j+3) = i
+        end if
+      end do
+      call WordPos(k,OutLine,iStart,iStop)
       xvec(iInt) = StrToDble(OutLine(iStart:iStop))
       k = iStop+1
-      Call WordPos(k,OutLine,iStart,iStop)
+      call WordPos(k,OutLine,iStart,iStop)
       DegOrRad = OutLine(iStart:iStop)
-      If ( DegOrRad .eq. 'DEG' ) Then
-      xvec(iInt) = xvec(iInt)*rpi/180.0d0
-      End If
+      if (DegOrRad == 'DEG') then
+        xvec(iInt) = xvec(iInt)*rpi/180.0d0
+      end if
       j = j+5
-      End If
-      !---- Out of Plane Angle.
-      l = Index(OutLine,'OUTOFPL')
-      If ( l .ne. 0 ) Then
-      k = l+Len('OUTOFPL')
-      Call WordPos(k,OutLine,iStart,iStop)
+    end if
+    ! Out of Plane Angle.
+    l = index(OutLine,'OUTOFPL')
+    if (l /= 0) then
+      k = l+len('OUTOFPL')
+      call WordPos(k,OutLine,iStart,iStop)
       Atom1 = OutLine(iStart:iStop)
-      Call WordPos(k,OutLine,iStart,iStop)
+      call WordPos(k,OutLine,iStart,iStop)
       Atom2 = OutLine(iStart:iStop)
-      Call WordPos(k,OutLine,iStart,iStop)
+      call WordPos(k,OutLine,iStart,iStop)
       Atom3 = OutLine(iStart:iStop)
-      Call WordPos(k,OutLine,iStart,iStop)
+      call WordPos(k,OutLine,iStart,iStop)
       Atom4 = OutLine(iStart:iStop)
       iWork(ipGeoVec+j-1) = 5
-      Do i = 1,NumOfAt
-      If ( Atom1 .eq. AtomLbl(i) ) Then
-      iWork(ipGeoVec+j) = i
-      Else If ( Atom2 .eq. AtomLbl(i) ) Then
-      iWork(ipGeoVec+j+1) = i
-      Else If ( Atom3 .eq. AtomLbl(i) ) Then
-      iWork(ipGeoVec+j+2) = i
-      Else If ( Atom4 .eq. AtomLbl(i) ) Then
-      iWork(ipGeoVec+j+3) = i
-      End If
-      End Do
-      Call WordPos(k,OutLine,iStart,iStop)
+      do i=1,NumOfAt
+        if (Atom1 == AtomLbl(i)) then
+          iWork(ipGeoVec+j) = i
+        else if (Atom2 == AtomLbl(i)) then
+          iWork(ipGeoVec+j+1) = i
+        else if (Atom3 == AtomLbl(i)) then
+          iWork(ipGeoVec+j+2) = i
+        else if (Atom4 == AtomLbl(i)) then
+          iWork(ipGeoVec+j+3) = i
+        end if
+      end do
+      call WordPos(k,OutLine,iStart,iStop)
       xvec(iInt) = StrToDble(OutLine(iStart:iStop))
       k = iStop+1
-      Call WordPos(k,OutLine,iStart,iStop)
+      call WordPos(k,OutLine,iStart,iStop)
       DegOrRad = OutLine(iStart:iStop)
-      If ( DegOrRad .eq. 'DEG' ) Then
-      xvec(iInt) = xvec(iInt)*rpi/180.0d0
-      End If
+      if (DegOrRad == 'DEG') then
+        xvec(iInt) = xvec(iInt)*rpi/180.0d0
+      end if
       j = j+5
-      End If
-      iInt = iInt+1
-      Read(inpUnit,Format) InLine
-      Call Normalize(InLine,OutLine)
-      End Do
-      iInt = iInt-1
-!!    Call Int_to_Cart(GeoVec,xvec,AtCoord1,NumOfAt,iInt,Mass)
-      l_a=NumOfAt
-      l_n=max_len_xvec
-      Call Int_to_Cart1(iWork(ipGeoVec),xvec,Work(ipAtCoord1),          &
-     &    l_a,l_n)
+    end if
+    iInt = iInt+1
+    read(inpUnit,format) InLine
+    call Normalize(InLine,OutLine)
+  end do
+  iInt = iInt-1
+  !call Int_to_Cart(GeoVec,xvec,AtCoord1,NumOfAt,iInt,Mass)
+  l_a = NumOfAt
+  l_n = max_len_xvec
+  call Int_to_Cart1(iWork(ipGeoVec),xvec,Work(ipAtCoord1),l_a,l_n)
 
-      Call GetMem('GeoVec','Free','Inte',ipGeoVec,5*(3*NumOfAt-5))
-!!
-      Call KeyWord(inpUnit,'SECO',.false.,exist)
-!!D Write(6,*)' READINP: Read internal coordinates for second state.'
-      n = 5*(3*NumOfAt-5)
-      Call GetMem('GeoVec','Allo','Inte',ipGeoVec,5*(3*NumOfAt-5))
-      iInt = 1
-      j = 1
-      Read(inpUnit,Format) InLine
-      Call Normalize(InLine,OutLine)
-      Do While ( OutLine(1:4) .ne. 'END ')
-      !---- Bond distance.
-      l = Index(OutLine,'BOND')
-      If ( l .ne. 0 ) Then
-      k = l+Len('BOND')
-      Call WordPos(k,OutLine,iStart,iStop)
+  call GetMem('GeoVec','Free','Inte',ipGeoVec,5*(3*NumOfAt-5))
+
+  call KeyWord(inpUnit,'SECO',.false.,exist)
+  !D write(6,*) ' READINP: Read internal coordinates for second state.'
+  n = 5*(3*NumOfAt-5)
+  call GetMem('GeoVec','Allo','Inte',ipGeoVec,5*(3*NumOfAt-5))
+  iInt = 1
+  j = 1
+  read(inpUnit,format) InLine
+  call Normalize(InLine,OutLine)
+  do while (OutLine(1:4) /= 'END ')
+    ! Bond distance.
+    l = index(OutLine,'BOND')
+    if (l /= 0) then
+      k = l+len('BOND')
+      call WordPos(k,OutLine,iStart,iStop)
       Atom1 = OutLine(iStart:iStop)
       k = iStop+1
-      Call WordPos(k,OutLine,iStart,iStop)
+      call WordPos(k,OutLine,iStart,iStop)
       Atom2 = OutLine(iStart:iStop)
       iWork(ipGeoVec+j-1) = 1
-      Do i = 1,NumOfAt
-      If ( Atom1 .eq. AtomLbl(i) ) Then
-      iWork(ipGeoVec+j) = i
-      Else If ( Atom2 .eq. AtomLbl(i) ) Then
-      iWork(ipGeoVec+j+1) = i
-      End If
-      End Do
-      Call WordPos(k,OutLine,iStart,iStop)
+      do i=1,NumOfAt
+        if (Atom1 == AtomLbl(i)) then
+          iWork(ipGeoVec+j) = i
+        else if (Atom2 == AtomLbl(i)) then
+          iWork(ipGeoVec+j+1) = i
+        end if
+      end do
+      call WordPos(k,OutLine,iStart,iStop)
       xvec(iInt) = StrToDble(OutLine(iStart:iStop))
       k = iStop+1
-      Call WordPos(k,OutLine,iStart,iStop)
+      call WordPos(k,OutLine,iStart,iStop)
       AAOrAu = OutLine(iStart:iStop)
-      If ( AAOrAu .eq. 'AA' ) Then
-      xvec(iInt) = xvec(iInt)/Angstrom
-      End If
+      if (AAOrAu == 'AA') then
+        xvec(iInt) = xvec(iInt)/Angstrom
+      end if
       j = j+3
-      End If
-      !---- Valence Angle.
-      l = Index(OutLine,'ANGLE')
-      If ( l .ne. 0 ) Then
-      k = l+Len('ANGLE')
-      Call WordPos(k,OutLine,iStart,iStop)
+    end if
+    ! Valence Angle.
+    l = index(OutLine,'ANGLE')
+    if (l /= 0) then
+      k = l+len('ANGLE')
+      call WordPos(k,OutLine,iStart,iStop)
       Atom1 = OutLine(iStart:iStop)
       k = iStop+1
-      Call WordPos(k,OutLine,iStart,iStop)
+      call WordPos(k,OutLine,iStart,iStop)
       Atom2 = OutLine(iStart:iStop)
       k = iStop+1
-      Call WordPos(k,OutLine,iStart,iStop)
+      call WordPos(k,OutLine,iStart,iStop)
       Atom3 = OutLine(iStart:iStop)
       iWork(ipGeoVec+j-1) = 2
-      Do i = 1,NumOfAt
-      If ( Atom1 .eq. AtomLbl(i) ) Then
-      iWork(ipGeoVec+j) = i
-      Else If ( Atom2 .eq. AtomLbl(i) ) Then
-      iWOrk(ipGeoVec+j+1) = i
-      Else If ( Atom3 .eq. AtomLbl(i) ) Then
-      iWork(ipGeoVec+j+2) = i
-      End If
-      End Do
-      Call WordPos(k,OutLine,iStart,iStop)
+      do i=1,NumOfAt
+        if (Atom1 == AtomLbl(i)) then
+          iWork(ipGeoVec+j) = i
+        else if (Atom2 == AtomLbl(i)) then
+          iWOrk(ipGeoVec+j+1) = i
+        else if (Atom3 == AtomLbl(i)) then
+          iWork(ipGeoVec+j+2) = i
+        end if
+      end do
+      call WordPos(k,OutLine,iStart,iStop)
       xvec(iInt) = StrToDble(OutLine(iStart:iStop))
       k = iStop+1
-      Call WordPos(k,OutLine,iStart,iStop)
+      call WordPos(k,OutLine,iStart,iStop)
       DegOrRad = OutLine(iStart:iStop)
-      If ( DegOrRad .eq. 'DEG' ) Then
-      xvec(iInt) = xvec(iInt)*rpi/180.0d0
-      End If
+      if (DegOrRad == 'DEG') then
+        xvec(iInt) = xvec(iInt)*rpi/180.0d0
+      end if
       j = j+4
-      End If
-      !---- Linear Valence Angle.
-      l = Index(OutLine,'LINANG')
-      If ( l .ne. 0 ) Then
-      k = l+Len('LINANG')
-      Call WordPos(k,OutLine,iStart,iStop)
+    end if
+    ! Linear Valence Angle.
+    l = index(OutLine,'LINANG')
+    if (l /= 0) then
+      k = l+len('LINANG')
+      call WordPos(k,OutLine,iStart,iStop)
       Atom1 = OutLine(iStart:iStop)
       k = iStop+1
-      Call WordPos(k,OutLine,iStart,iStop)
+      call WordPos(k,OutLine,iStart,iStop)
       Atom2 = OutLine(iStart:iStop)
       k = iStop+1
-      Call WordPos(k,OutLine,iStart,iStop)
+      call WordPos(k,OutLine,iStart,iStop)
       Atom3 = OutLine(iStart:iStop)
       iWork(ipGeoVec+j-1) = 3
-      Do i = 1,NumOfAt
-      If ( Atom1 .eq. AtomLbl(i) ) Then
-      iWork(ipGeoVec+j) = i
-      Else If ( Atom2 .eq. AtomLbl(i) ) Then
-      iWork(ipGeoVec+j+1) = i
-      Else If ( Atom3 .eq. AtomLbl(i) ) Then
-      iWork(ipGeoVec+j+2) = i
-      End If
-      End Do
-      Call WordPos(k,OutLine,iStart,iStop)
+      do i=1,NumOfAt
+        if (Atom1 == AtomLbl(i)) then
+          iWork(ipGeoVec+j) = i
+        else if (Atom2 == AtomLbl(i)) then
+          iWork(ipGeoVec+j+1) = i
+        else if (Atom3 == AtomLbl(i)) then
+          iWork(ipGeoVec+j+2) = i
+        end if
+      end do
+      call WordPos(k,OutLine,iStart,iStop)
       xvec(iInt) = StrToDble(OutLine(iStart:iStop))
       k = iStop+1
-      Call WordPos(k,OutLine,iStart,iStop)
+      call WordPos(k,OutLine,iStart,iStop)
       DegOrRad = OutLine(iStart:iStop)
-      If ( DegOrRad .eq. 'DEG' ) Then
-      xvec(iInt) = xvec(iInt)*rpi/180.0d0
-      End If
+      if (DegOrRad == 'DEG') then
+        xvec(iInt) = xvec(iInt)*rpi/180.0d0
+      end if
       j = j+4
-      End If
-      !---- Dihedral angle.
-      l = Index(OutLine,'TORSION')
-      If ( l .ne. 0 ) Then
-      k = l+Len('TORSION')
-      Call WordPos(k,OutLine,iStart,iStop)
+    end if
+    ! Dihedral angle.
+    l = index(OutLine,'TORSION')
+    if (l /= 0) then
+      k = l+len('TORSION')
+      call WordPos(k,OutLine,iStart,iStop)
       Atom1 = OutLine(iStart:iStop)
-      Call WordPos(k,OutLine,iStart,iStop)
+      call WordPos(k,OutLine,iStart,iStop)
       Atom2 = OutLine(iStart:iStop)
-      Call WordPos(k,OutLine,iStart,iStop)
+      call WordPos(k,OutLine,iStart,iStop)
       Atom3 = OutLine(iStart:iStop)
-      Call WordPos(k,OutLine,iStart,iStop)
+      call WordPos(k,OutLine,iStart,iStop)
       Atom4 = OutLine(iStart:iStop)
       iWork(ipGeoVec+j-1) = 4
-      Do i = 1,NumOfAt
-      If ( Atom1 .eq. AtomLbl(i) ) Then
-      iWork(ipGeoVec+j) = i
-      Else If ( Atom2 .eq. AtomLbl(i) ) Then
-      iWork(ipGeoVec+j+1) = i
-      Else If ( Atom3 .eq. AtomLbl(i) ) Then
-      iWork(ipGeoVec+j+2) = i
-      Else If ( Atom4 .eq. AtomLbl(i) ) Then
-      iWOrk(ipGeoVec+j+3) = i
-      End If
-      End Do
-      Call WordPos(k,OutLine,iStart,iStop)
+      do i=1,NumOfAt
+        if (Atom1 == AtomLbl(i)) then
+          iWork(ipGeoVec+j) = i
+        else if (Atom2 == AtomLbl(i)) then
+          iWork(ipGeoVec+j+1) = i
+        else if (Atom3 == AtomLbl(i)) then
+          iWork(ipGeoVec+j+2) = i
+        else if (Atom4 == AtomLbl(i)) then
+          iWOrk(ipGeoVec+j+3) = i
+        end if
+      end do
+      call WordPos(k,OutLine,iStart,iStop)
       xvec(iInt) = StrToDble(OutLine(iStart:iStop))
       k = iStop+1
-      Call WordPos(k,OutLine,iStart,iStop)
+      call WordPos(k,OutLine,iStart,iStop)
       DegOrRad = OutLine(iStart:iStop)
-      If ( DegOrRad .eq. 'DEG' ) Then
-      xvec(iInt) = xvec(iInt)*rpi/180.0d0
-      End If
+      if (DegOrRad == 'DEG') then
+        xvec(iInt) = xvec(iInt)*rpi/180.0d0
+      end if
       j = j+5
-      End If
-      !---- Out of Plane Angle.
-      l = Index(OutLine,'OUTOFPL')
-      If ( l .ne. 0 ) Then
-      k = l+Len('OUTOFPL')
-      Call WordPos(k,OutLine,iStart,iStop)
+    end if
+    ! Out of Plane Angle.
+    l = index(OutLine,'OUTOFPL')
+    if (l /= 0) then
+      k = l+len('OUTOFPL')
+      call WordPos(k,OutLine,iStart,iStop)
       Atom1 = OutLine(iStart:iStop)
-      Call WordPos(k,OutLine,iStart,iStop)
+      call WordPos(k,OutLine,iStart,iStop)
       Atom2 = OutLine(iStart:iStop)
-      Call WordPos(k,OutLine,iStart,iStop)
+      call WordPos(k,OutLine,iStart,iStop)
       Atom3 = OutLine(iStart:iStop)
-      Call WordPos(k,OutLine,iStart,iStop)
+      call WordPos(k,OutLine,iStart,iStop)
       Atom4 = OutLine(iStart:iStop)
       iWOrk(ipGeoVec+j-1) = 5
-      Do i = 1,NumOfAt
-      If ( Atom1 .eq. AtomLbl(i) ) Then
-      iWork(ipGeoVec+j) = i
-      Else If ( Atom2 .eq. AtomLbl(i) ) Then
-      iWork(ipGeoVec+j+1) = i
-      Else If ( Atom3 .eq. AtomLbl(i) ) Then
-      iWork(ipGeoVec+j+2) = i
-      Else If ( Atom4 .eq. AtomLbl(i) ) Then
-      iWork(ipGeoVec+j+3) = i
-      End If
-      End Do
-      Call WordPos(k,OutLine,iStart,iStop)
+      do i=1,NumOfAt
+        if (Atom1 == AtomLbl(i)) then
+          iWork(ipGeoVec+j) = i
+        else if (Atom2 == AtomLbl(i)) then
+          iWork(ipGeoVec+j+1) = i
+        else if (Atom3 == AtomLbl(i)) then
+          iWork(ipGeoVec+j+2) = i
+        else if (Atom4 == AtomLbl(i)) then
+          iWork(ipGeoVec+j+3) = i
+        end if
+      end do
+      call WordPos(k,OutLine,iStart,iStop)
       xvec(iInt) = StrToDble(OutLine(iStart:iStop))
       k = iStop+1
-      Call WordPos(k,OutLine,iStart,iStop)
+      call WordPos(k,OutLine,iStart,iStop)
       DegOrRad = OutLine(iStart:iStop)
-      If ( DegOrRad .eq. 'DEG' ) Then
-      xvec(iInt) = xvec(iInt)*rpi/180.0d0
-      End If
+      if (DegOrRad == 'DEG') then
+        xvec(iInt) = xvec(iInt)*rpi/180.0d0
+      end if
       j = j+5
-      End If
-      iInt = iInt+1
-      Read(inpUnit,Format) InLine
-      Call Normalize(InLine,OutLine)
-      End Do
-      iInt = iInt-1
-!!    Call Int_to_Cart(GeoVec,xvec,AtCoord2,NumOfAt,iInt,Mass)
-      l_a=NumOfAt
-      l_n=max_len_xvec
-      Call Int_to_Cart1(iWork(ipGeoVec),xvec,Work(ipAtCoord2),          &
-     &    l_a,l_n)
-      Call GetMem('GeoVec','Free','Inte',ipGeoVec,5*(3*NumOfAt-5))
-      End If
+    end if
+    iInt = iInt+1
+    read(inpUnit,format) InLine
+    call Normalize(InLine,OutLine)
+  end do
+  iInt = iInt-1
+  !call Int_to_Cart(GeoVec,xvec,AtCoord2,NumOfAt,iInt,Mass)
+  l_a = NumOfAt
+  l_n = max_len_xvec
+  call Int_to_Cart1(iWork(ipGeoVec),xvec,Work(ipAtCoord2),l_a,l_n)
+  call GetMem('GeoVec','Free','Inte',ipGeoVec,5*(3*NumOfAt-5))
+end if
 
-      If ( inpunit1 .eq. 31 ) Then
-        close(inpUnit1)
-        close(inpUnit2)
-      End If
-!
-! --- GEOMetries: End --------------------------------------------------
+if (inpunit1 == 31) then
+  close(inpUnit1)
+  close(inpUnit2)
+end if
 
-! ----------------------------------------------------------------------
-! --- MXORder: Read maximum order for the transition dipole moment.
-!
-      Call KeyWord(inpUnit,'MXOR',.true.,exist)
-      If (.NOT.exist) then
-        If (.NOT.lISC) then
-          Write(6,*) ' *** Warning: MXORder not specified !'
-          Write(6,*) '     Transition Dipole is assumed as constant.'
-          Write(6,*)
-        EndIf
-        max_dip = 0
-      else
-        Read(inpUnit,*) max_dip
-      EndIf
-!
-! --- MXORder: End -----------------------------------------------------
+! GEOMetries: End ------------------------------------------------------
 
 ! ----------------------------------------------------------------------
-! --- OSCStr: Determines if you get the oscillator strength
-!     or the transition intensity in the output.
-!
-      OscStr=.False.
-      If (.NOT.lISC) then
-        Call KeyWord(inpUnit,'OSCS',.true.,OscStr)
-        If (OscStr) then
-          Write(6,*) '     The Oscillator Strength will be calculated.'
-          Write(6,*)
-        else
-          Write(6,*) '     The Intensity will be calculated.'
-          Write(6,*)
-        EndIf
-      EndIf
-!
-! --- OSCStr: End ------------------------------------------------------
+! MXORder: Read maximum order for the transition dipole moment.
+
+call KeyWord(inpUnit,'MXOR',.true.,exist)
+if (.not. exist) then
+  if (.not. lISC) then
+    write(6,*) ' *** Warning: MXORder not specified !'
+    write(6,*) '     Transition Dipole is assumed as constant.'
+    write(6,*)
+  end if
+  max_dip = 0
+else
+  read(inpUnit,*) max_dip
+end if
+
+! MXORder: End ---------------------------------------------------------
 
 ! ----------------------------------------------------------------------
-! --- NANOmeters: Generate plot file in nanometers.
-      Use_nm=.False.
-      If (.NOT.lISC) Call KeyWord(inpUnit,'NANO',.true.,Use_nm)
-!
-! ----------------------------------------------------------------------
-! --- CM-1: Generate plot file in cm-1.
-      Use_cm=.False.
-      If (.NOT.lISC) Call KeyWord(inpUnit,'CM-1',.true.,Use_cm)
-!
-! ----------------------------------------------------------------------
+! OSCStr: Determines if you get the oscillator strength
+! or the transition intensity in the output.
+
+OscStr = .false.
+if (.not. lISC) then
+  call KeyWord(inpUnit,'OSCS',.true.,OscStr)
+  if (OscStr) then
+    write(6,*) '     The Oscillator Strength will be calculated.'
+    write(6,*)
+  else
+    write(6,*) '     The Intensity will be calculated.'
+    write(6,*)
+  end if
+end if
+
+! OSCStr: End ----------------------------------------------------------
 
 ! ----------------------------------------------------------------------
-! --- PLOT: Enter the limits (in eV, cm-1 or in nm) for the plot file.
-!
-      cmstart=0.0d0
-      cmend  =0.0d0
-      plotwindow=.False.
-      If (.NOT.lISC) then
-        Call KeyWord(inpUnit,'PLOT',.true.,plotwindow)
-        If(plotwindow) then
-          read(inpunit,*) cmstart,cmend
-        end if
-      EndIf
-!
-! --- PLOT : End -------------------------------------------------------
+! NANOmeters: Generate plot file in nanometers.
 
-      PlUnit='      '
-      broadplot=.False.
-      LifeTime = 130.0d-15
-      If (lISC) GoTo 900
-      If (Use_nm .AND. Use_cm) then
-        Write(6,*)
-        Write(6,*) ' ***************** ERROR *******************'
-        Write(6,*) ' NANOmeters and CM-1 are mutually exclusive.'
-        Write(6,*) ' *******************************************'
-        Call Quit_OnUserError()
-      EndIf
-      If (Use_nm) then
-        PlUnit=' nm.  '
-        Write(6,*) '     The plot file will be in nanometers and the '
-      else If (Use_cm) then
-        PlUnit=' cm-1.'
-        Write(6,*) '     The plot file will be in cm-1 and the'
-      else
-        PlUnit=' eV.  '
-        Write(6,*) '     The plot file will be in eV and the'
-      EndIf
-      If(plotwindow) then
-        Write(6,*) '     interval is from ',cmstart,' to ',cmend,PlUnit
-      else
-        Write(6,*) '     interval automatically defined.'
-      EndIf
-      Write(6,*)
-! ----------------------------------------------------------------------
-! --- BROAplot: Gives the peaks in the spectrum an artificial halfwidth.
-!
-      Call KeyWord(inpUnit,'BROA',.true.,broadplot)
-      Call KeyWord(inpUnit,'LIFE',.true.,exist)
-      If (exist) Read(inpunit,*) LifeTime
-      Write(6,*) '     Life time : ',LifeTime,' sec'
- 900  FWHM = hbarcm/(2.0d0*LifeTime)
-      If (.NOT.lISC) Write(6,'(1X,A,F8.1,A,F9.6,A)')                    &
-     &    '     FWHM : ',FWHM,' cm-1 /',FWHM/8065.5D0,' eV'
+Use_nm = .false.
+if (.not. lISC) call KeyWord(inpUnit,'NANO',.true.,Use_nm)
 
-!
-! --- BROAplot: End ----------------------------------------------------
+! NANOmeters: End ------------------------------------------------------
 
 ! ----------------------------------------------------------------------
-! --- VIBWrite: Writes vibrational levels to logfile.
-!
-      WriteVibLevels=.False.
-      Call KeyWord(inpUnit,'VIBW',.true.,WriteVibLevels)
-!
-! ----------------------------------------------------------------------
-! --- VibPlot: Check for keyword VibPlot.
-!
-      VibModPlot=.False.
-      Call KeyWord(inpUnit,'VIBP',.true.,VibModPlot)
-      If ( VibModPlot ) Then
-        Call KeyWord(inpUnit,'CYCL',.false.,exist)
-        If ( exist ) Then
-          Call KeyWord(inpUnit,'VIBP',.true.,exist)
-          Read(inpUnit,Format) InLine
-          Call Normalize(InLine,OutLine)
-          k = 1
-          Call WordPos(k,OutLine,iStart,iStop)
-          Call WordPos(k,OutLine,iStart,iStop)
-          Bond(nBond+1) = iStrToInt(OutLine(iStart:iStop))
-          Call WordPos(k,OutLine,iStart,iStop)
-          Bond(nBond+2) = iStrToInt(OutLine(iStart:iStop))
-          nBond = nBond+2
-        End If
-      End If
-!
-! --- VibPlot: End -----------------------------------------------------
+! CM-1: Generate plot file in cm-1.
+
+Use_cm = .false.
+if (.not. lISC) call KeyWord(inpUnit,'CM-1',.true.,Use_cm)
+
+! CM-1: End ------------------------------------------------------------
 
 ! ----------------------------------------------------------------------
+! PLOT: Enter the limits (in eV, cm-1 or in nm) for the plot file.
 
-! --- HUGElog: If exists, then the logfile will be more detailed.
-!
-      Huge_Print=.False.
-      Call KeyWord(inpUnit,'HUGE',.true.,Huge_Print)
-!
-! --- HUGElog: End -----------------------------------------------------
+cmstart = 0.0d0
+cmend = 0.0d0
+plotwindow = .false.
+if (.not. lISC) then
+  call KeyWord(inpUnit,'PLOT',.true.,plotwindow)
+  if (plotwindow) then
+    read(inpunit,*) cmstart,cmend
+  end if
+end if
+
+! PLOT : End -----------------------------------------------------------
+
+PlUnit = '      '
+broadplot = .false.
+LifeTime = 130.0d-15
+if (lISC) goto 900
+if (Use_nm .and. Use_cm) then
+  write(6,*)
+  write(6,*) ' ***************** ERROR *******************'
+  write(6,*) ' NANOmeters and CM-1 are mutually exclusive.'
+  write(6,*) ' *******************************************'
+  call Quit_OnUserError()
+end if
+if (Use_nm) then
+  PlUnit = ' nm.  '
+  write(6,*) '     The plot file will be in nanometers and the '
+else if (Use_cm) then
+  PlUnit = ' cm-1.'
+  write(6,*) '     The plot file will be in cm-1 and the'
+else
+  PlUnit = ' eV.  '
+  write(6,*) '     The plot file will be in eV and the'
+end if
+if (plotwindow) then
+  write(6,*) '     interval is from ',cmstart,' to ',cmend,PlUnit
+else
+  write(6,*) '     interval automatically defined.'
+end if
+write(6,*)
 
 ! ----------------------------------------------------------------------
-! --- EXPAnsion: Program will be aborted after expansion point geometry
-!                is calculated.
-      lExpan=.False.
-      Call KeyWord(inpUnit,'EXPA',.true.,lExpan)
-!
-! --- HUGElog: End -----------------------------------------------------
+! BROAplot: Gives the peaks in the spectrum an artificial halfwidth.
+
+call KeyWord(inpUnit,'BROA',.true.,broadplot)
+call KeyWord(inpUnit,'LIFE',.true.,exist)
+if (exist) read(inpunit,*) LifeTime
+write(6,*) '     Life time : ',LifeTime,' sec'
+900 FWHM = hbarcm/(2.0d0*LifeTime)
+if (.not. lISC) write(6,'(1X,A,F8.1,A,F9.6,A)') '     FWHM : ',FWHM,' cm-1 /',FWHM/8065.5d0,' eV'
+
+! BROAplot: End --------------------------------------------------------
 
 ! ----------------------------------------------------------------------
-! --- FORCe: Here really read force constants.
-      Call KeyWord(inpUnit,'FORC',.true.,exist)
-      max_term = 2
-      Call KeyWord(inpUnit,'FIRS',.false.,exist)
-!!D Write(6,*)' READINP: Read force constants for first state.'
-      Read(InpUnit,Format) InLine
-      Call Normalize(InLine,Outline)
-      iend=Index(OutLine,' ')
-      CoordType=OutLine(1:iend-1)
-!!D Write(6,*)' READINP: CoordType=',CoordType
-!!
-!!---- Read Hessian. If Hessian is given in cartesian coordinates,
-!!     first remove total translation and total rotation and then
-!!     transform it to internal coordinates.
-      If ( CoordType .eq. 'FILE' ) Then
-        Coordtype = 'CARTESIAN'
-        inpUnit1 = 31
-        call molcas_open(31,'UNSYM1')
-!        Open (unit=31,file='UNSYM1')
-        Call KeyWord(inpUnit1,'UNSYMMETRIZED HESSIAN',.false.,exist)
-        Read(inpUnit1,'(a17)') Inline
-        Read(inpUnit1,'(a17)') Inline
-      Else
-        inpUnit1 = inpUnit
-      End If
-!!
-      If ( CoordType .eq. 'INTERNAL' ) Then
-        Do i = 1,NumInt
-          Read(inpUnit,*)                                               &
-     &       (Work(ipHess1+i+l_Hess1*(j-1)-1),j=1,NumInt)
-        End Do
-      Else If ( CoordType .eq. 'CARTESIAN' ) Then
-        Call GetMem('SS','Allo','Real',ipSS,3*NumOfAt*NumInt)
-        call dcopy_(3*NumOfAt*NumInt,[0.0d0],0,Work(ipSS),1)
-!          SS = 0.0d0
-        Call CalcS(Work(ipAtCoord1),InterVec,Work(ipSS),NumInt,NumOfAt)
-!!---- Invert S matrix and remove total translation and
-!!     total rotation.
-        Call GetMem('Sinv','Allo','Real',ipSinv,3*NumOfAt*NumInt)
-        Call RotTranRem(Work(ipSinv),Work(ipSS),Mass,                   &
-     &    Work(ipAtCoord1),NumOfAt,NumInt)
-!!
-!!---- Read cartesian force constant matrix.
-        n = 3*NumOfAt
-        nFcart=n
-        Call GetMem('Fcart','Allo','Real',ipFcart,nFcart*nFcart)
-        Do m = 1,(3*NumOfAt)
-          Read(inpUnit1,'(a17)',err=999) Inline
-          Read(inpUnit1,*,err=999)                                      &
-     &       (Work(ipFcart+m+nFcart*(n-1)-1),                           &
-     &                 n=1,(3*NumOfAt))
-          GoTo 998
-  999     Continue
-          Write(6,*)
-          Write(6,*) ' ***************** ERROR *******************'
-          Write(6,*) ' Error trying to read cartesian force cnsts.'
-          Write(6,*) ' for the first state. Probably wrong input  '
-          Write(6,*) ' structure, perhaps too few values.         '
-          Write(6,*) ' *******************************************'
-          Call Quit_OnUserError()
-  998     Continue
-        End Do
-!!
-!!---- Check if Hessian is symmetric.
-        error = 0.0d0
-        Do m = 1,(3*NumOfAt)
-          Do n = 1,(3*NumOfAt)
-            error = error+(Work(ipFcart+m+nFcart*(n-1)-1)-              &
-     &          Work(ipFcart+n+nFcart*(m-1)-1))**2
-          End Do
-        End Do
-        If ( error .gt. 1.0d-10) Then
-          Write(6,*)
-          Write(6,*)' ******************** ERROR **********************'
-          Write(6,*) ' Non-symmetric error in cartesian Hessian:',error
-          Write(6,*)' *************************************************'
-          Call Quit_OnUserError()
-        End If
-!!
-!!---- Transform cartesian F matrix to internal coordinates.
-!!PAM01: Here follows an n**4-scaling 2-index transformation
-!!It has been replaced by two n**3 matrix multiplies
-!!    Do j = 1,NumInt
-!!       Do i = 1,NumInt
-!!          Fsum = 0.0d0
-!!          Do n = 1,(3*NumOfAt)
-!!             Do m = 1,(3*NumOfAt)
-!!                Fsum = Fsum+Fcart(m,n)* &
-!!                   Sinv(1+Mod((m+2),3),Int((m+2)/3),i)*  &
-!!                   Sinv(1+Mod((n+2),3),Int((n+2)/3),j)
-!!             End Do
-!!          End Do
-!!          Hess1(i,j) = Fsum
-!!       End Do
-!!    End Do
-!!PAM01 Here follows replacement code:
-        Call GetMem('Temp','Allo','Real',ipTemp,3*NumOfAt*NumInt)
-        Call DGEMM_('N','N',                                            &
-     &            3*NumOfAt,NumInt,3*NumOfAt,                           &
-     &            1.0d0,Work(ipFCart),3*NumOfAt,                        &
-     &            work(ipSInv),3*NumOfAt,                               &
-     &            0.0d0,Work(ipTemp),3*NumOfAt)
-        Call DGEMM_('T','N',                                            &
-     &            NumInt,NumInt,3*NumOfAt,                              &
-     &            1.0d0,Work(ipSInv),3*NumOfAt,                         &
-     &            Work(ipTemp),3*NumOfAt,                               &
-     &            0.0d0,Work(ipHess1),NumInt)
-        Call GetMem('Temp','Free','Real',ipTemp,3*NumOfAt*NumInt)
-        Call GetMem('Sinv','Free','Real',ipSinv,3*NumOfAt*NumInt)
-        Call GetMem('SS','Free','Real',ipSS,3*NumOfAt*NumInt)
-        call GetMem('Fcart','Free','Real',ipFcart,nFcart*nFcart)
+! VIBWrite: Writes vibrational levels to logfile.
 
-      End If
-!!
-!!---- Scale Hessian if scaling factors were given.
-      Call KeyWord(inpUnit,'SCAL',.true.,exist)
-      If ( exist ) Then
-      Call GetMem('Scale1','Allo','Real',ipScaleParam1,NumInt)
+WriteVibLevels = .false.
+call KeyWord(inpUnit,'VIBW',.true.,WriteVibLevels)
 
-      Call KeyWord(inpUnit,'FIRS',.false.,exist)
-      Do i = 1,NumInt
-      Read(inpUnit,*) Work(ipScaleParam1+i-1)
-      Work(ipScaleParam1+i-1) = sqrt(Work(ipScaleParam1+i-1))
-      End Do
-      Do j = 1,Numint
-      Do i = 1,NumInt
-      Work(ipHess1+i+l_Hess1*(j-1)-1) =                                 &
-     &          Work(ipHess1+i+l_Hess1*(j-1)-1)*                        &
-     &          Work(ipScaleParam1+i-1)*                                &
-     &          Work(ipScaleParam1+j-1)
-      End Do
-      End Do
-      Call GetMem('Scale1','Free','Real',ipScaleParam1,NumInt)
-      End if
-!!D Write(6,*)' Scaled.'
-!!
-!!---- Hessian for second surface.
-      Call KeyWord(inpUnit,'FORC',.true.,exist)
-      Call KeyWord(inpUnit,'SECO',.false.,exist)
-!!D Write(6,*)' READINP: Read force constants for second state.'
-!      Read(inpUnit,*) CoordType
-!      Call UpCase(CoordType)
+! VIBWrite: End --------------------------------------------------------
+
+! ----------------------------------------------------------------------
+! VibPlot: Check for keyword VibPlot.
+
+VibModPlot = .false.
+call KeyWord(inpUnit,'VIBP',.true.,VibModPlot)
+if (VibModPlot) then
+  call KeyWord(inpUnit,'CYCL',.false.,exist)
+  if (exist) then
+    call KeyWord(inpUnit,'VIBP',.true.,exist)
+    read(inpUnit,format) InLine
+    call Normalize(InLine,OutLine)
+    k = 1
+    call WordPos(k,OutLine,iStart,iStop)
+    call WordPos(k,OutLine,iStart,iStop)
+    Bond(nBond+1) = iStrToInt(OutLine(iStart:iStop))
+    call WordPos(k,OutLine,iStart,iStop)
+    Bond(nBond+2) = iStrToInt(OutLine(iStart:iStop))
+    nBond = nBond+2
+  end if
+end if
+
+! VibPlot: End ---------------------------------------------------------
+
+! ----------------------------------------------------------------------
+! HUGElog: If exists, then the logfile will be more detailed.
+
+Huge_Print = .false.
+call KeyWord(inpUnit,'HUGE',.true.,Huge_Print)
+
+! HUGElog: End ---------------------------------------------------------
+
+! ----------------------------------------------------------------------
+! EXPAnsion: Program will be aborted after expansion point geometry
+!            is calculated.
+
+lExpan = .false.
+call KeyWord(inpUnit,'EXPA',.true.,lExpan)
+
+! HUGElog: End ---------------------------------------------------------
+
+! ----------------------------------------------------------------------
+! FORCe: Here really read force constants.
+
+call KeyWord(inpUnit,'FORC',.true.,exist)
+max_term = 2
+call KeyWord(inpUnit,'FIRS',.false.,exist)
+!D write(6,*) ' READINP: Read force constants for first state.'
+read(InpUnit,format) InLine
+call Normalize(InLine,Outline)
+iend = index(OutLine,' ')
+CoordType = OutLine(1:iend-1)
+!D write(6,*) ' READINP: CoordType=',CoordType
+
+! Read Hessian. If Hessian is given in cartesian coordinates,
+! first remove total translation and total rotation and then
+! transform it to internal coordinates.
+if (CoordType == 'FILE') then
+  Coordtype = 'CARTESIAN'
+  inpUnit1 = 31
+  call molcas_open(31,'UNSYM1')
+  !open(unit=31,file='UNSYM1')
+  call KeyWord(inpUnit1,'UNSYMMETRIZED HESSIAN',.false.,exist)
+  read(inpUnit1,'(a17)') Inline
+  read(inpUnit1,'(a17)') Inline
+else
+  inpUnit1 = inpUnit
+end if
+
+if (CoordType == 'INTERNAL') then
+  do i=1,NumInt
+    read(inpUnit,*) (Work(ipHess1+i+l_Hess1*(j-1)-1),j=1,NumInt)
+  end do
+else if (CoordType == 'CARTESIAN') then
+  call GetMem('SS','Allo','Real',ipSS,3*NumOfAt*NumInt)
+  call dcopy_(3*NumOfAt*NumInt,[0.0d0],0,Work(ipSS),1)
+  !SS = 0.0d0
+  call CalcS(Work(ipAtCoord1),InterVec,Work(ipSS),NumInt,NumOfAt)
+  ! Invert S matrix and remove total translation and total rotation.
+  call GetMem('Sinv','Allo','Real',ipSinv,3*NumOfAt*NumInt)
+  call RotTranRem(Work(ipSinv),Work(ipSS),Mass,Work(ipAtCoord1),NumOfAt,NumInt)
+
+  ! Read cartesian force constant matrix.
+  n = 3*NumOfAt
+  nFcart = n
+  call GetMem('Fcart','Allo','Real',ipFcart,nFcart*nFcart)
+  do m=1,(3*NumOfAt)
+    read(inpUnit1,'(a17)',err=999) Inline
+    read(inpUnit1,*,err=999) (Work(ipFcart+m+nFcart*(n-1)-1),n=1,(3*NumOfAt))
+    goto 998
+999 continue
+    write(6,*)
+    write(6,*) ' ***************** ERROR *******************'
+    write(6,*) ' Error trying to read cartesian force cnsts.'
+    write(6,*) ' for the first state. Probably wrong input  '
+    write(6,*) ' structure, perhaps too few values.         '
+    write(6,*) ' *******************************************'
+    call Quit_OnUserError()
+998 continue
+  end do
+
+  ! Check if Hessian is symmetric.
+  error = 0.0d0
+  do m=1,(3*NumOfAt)
+    do n=1,(3*NumOfAt)
+      error = error+(Work(ipFcart+m+nFcart*(n-1)-1)-Work(ipFcart+n+nFcart*(m-1)-1))**2
+    end do
+  end do
+  if (error > 1.0d-10) then
+    write(6,*)
+    write(6,*) ' ******************** ERROR **********************'
+    write(6,*) ' Non-symmetric error in cartesian Hessian:',error
+    write(6,*) ' *************************************************'
+    call Quit_OnUserError()
+  end if
+
+  ! Transform cartesian F matrix to internal coordinates.
+  !PAM01: Here follows an n**4-scaling 2-index transformation
+  !       It has been replaced by two n**3 matrix multiplies
+  !do j=1,NumInt
+  !  do i=1,NumInt
+  !    Fsum = 0.0d0
+  !    do n=1,(3*NumOfAt)
+  !      do m=1,(3*NumOfAt)
+  !        Fsum = Fsum+Fcart(m,n)*Sinv(1+Mod((m+2),3),Int((m+2)/3),i)*Sinv(1+Mod((n+2),3),Int((n+2)/3),j)
+  !      end do
+  !    end do
+  !    Hess1(i,j) = Fsum
+  !  end do
+  !end do
+  !PAM01 Here follows replacement code:
+  call GetMem('Temp','Allo','Real',ipTemp,3*NumOfAt*NumInt)
+  call DGEMM_('N','N',3*NumOfAt,NumInt,3*NumOfAt,1.0d0,Work(ipFCart),3*NumOfAt,work(ipSInv),3*NumOfAt,0.0d0,Work(ipTemp),3*NumOfAt)
+  call DGEMM_('T','N',NumInt,NumInt,3*NumOfAt,1.0d0,Work(ipSInv),3*NumOfAt,Work(ipTemp),3*NumOfAt,0.0d0,Work(ipHess1),NumInt)
+  call GetMem('Temp','Free','Real',ipTemp,3*NumOfAt*NumInt)
+  call GetMem('Sinv','Free','Real',ipSinv,3*NumOfAt*NumInt)
+  call GetMem('SS','Free','Real',ipSS,3*NumOfAt*NumInt)
+  call GetMem('Fcart','Free','Real',ipFcart,nFcart*nFcart)
+
+end if
+
+! Scale Hessian if scaling factors were given.
+call KeyWord(inpUnit,'SCAL',.true.,exist)
+if (exist) then
+  call GetMem('Scale1','Allo','Real',ipScaleParam1,NumInt)
+
+  call KeyWord(inpUnit,'FIRS',.false.,exist)
+  do i=1,NumInt
+    read(inpUnit,*) Work(ipScaleParam1+i-1)
+    Work(ipScaleParam1+i-1) = sqrt(Work(ipScaleParam1+i-1))
+  end do
+  do j=1,Numint
+    do i=1,NumInt
+      Work(ipHess1+i+l_Hess1*(j-1)-1) = Work(ipHess1+i+l_Hess1*(j-1)-1)*Work(ipScaleParam1+i-1)*Work(ipScaleParam1+j-1)
+    end do
+  end do
+  call GetMem('Scale1','Free','Real',ipScaleParam1,NumInt)
+end if
+!D write(6,*) ' Scaled.'
+
+! Hessian for second surface.
+call KeyWord(inpUnit,'FORC',.true.,exist)
+call KeyWord(inpUnit,'SECO',.false.,exist)
+!D write(6,*) ' READINP: Read force constants for second state.'
+!read(inpUnit,*) CoordType
+!call UpCase(CoordType)
 ! Replace above two lines with:
-      Read(InpUnit,Format) InLine
-      Call Normalize(InLine,Outline)
-      iend=Index(OutLine,' ')
-      CoordType=OutLine(1:iend-1)
+read(InpUnit,format) InLine
+call Normalize(InLine,Outline)
+iend = index(OutLine,' ')
+CoordType = OutLine(1:iend-1)
 ! End of replacement
-      If ( CoordType .eq. 'FILE' ) Then
-        Coordtype = 'CARTESIAN'
-        inpUnit2 = 32
-        Call molcas_open(32,'UNSYM2')
-!      Open (unit=32,file='UNSYM2')
-        Call KeyWord(inpUnit2,'UNSYMMETRIZED HESSIAN',.false.,exist)
-        Read(inpUnit2,'(a17)') Inline
-        Read(inpUnit2,'(a17)') Inline
-      Else
-        inpUnit2 = inpUnit
-      End If
-!!
-      If ( CoordType .eq. 'INTERNAL' ) Then
-        Do i = 1,NumInt
-        Read(inpUnit,*)                                                 &
-     &       (Work(ipHess2+i+l_Hess1*(j-1)-1),j=1,NumInt)
-        End Do
-      Else If ( CoordType .eq. 'CARTESIAN' ) Then
-        Call GetMem('SS','Allo','Real',ipSS,3*NumOfAt*NumInt)
+if (CoordType == 'FILE') then
+  Coordtype = 'CARTESIAN'
+  inpUnit2 = 32
+  call molcas_open(32,'UNSYM2')
+  !open (unit=32,file='UNSYM2')
+  call KeyWord(inpUnit2,'UNSYMMETRIZED HESSIAN',.false.,exist)
+  read(inpUnit2,'(a17)') Inline
+  read(inpUnit2,'(a17)') Inline
+else
+  inpUnit2 = inpUnit
+end if
 
-        call dcopy_(3*NumOfAt*NumInt,[0.0d0],0,Work(ipSS),1)
-!          SS = 0.0d0
-        Call CalcS(Work(ipAtCoord2),InterVec,Work(ipSS),NumInt,NumofAt)
-!!
-!!---- Invert S matrix and remove total translation and
-!!     total rotation.
-        Call GetMem('Sinv','Allo','Real',ipSinv,3*NumOfAt*NumInt)
+if (CoordType == 'INTERNAL') then
+  do i=1,NumInt
+    read(inpUnit,*) (Work(ipHess2+i+l_Hess1*(j-1)-1),j=1,NumInt)
+  end do
+else if (CoordType == 'CARTESIAN') then
+  call GetMem('SS','Allo','Real',ipSS,3*NumOfAt*NumInt)
 
-        Call RotTranRem(Work(ipSinv),Work(ipSS),Mass,                   &
-     &    Work(ipAtCoord2),NumOfAt,NumInt)
-!!
-!!---- Read cartesian force constant matrix.
-        n = 3*NumOfAt
-        nFcart=n
-        call GetMem('Fcart','Allo','Real',ipFcart,nFcart*nFcart)
+  call dcopy_(3*NumOfAt*NumInt,[0.0d0],0,Work(ipSS),1)
+  !SS = 0.0d0
+  call CalcS(Work(ipAtCoord2),InterVec,Work(ipSS),NumInt,NumofAt)
 
-        Do m = 1,(3*NumOfAt)
-          Read(inpUnit2,'(a17)',err=997) Inline
-          Read(inpUnit2,*,err=997) (Work(ipFcart+m+nFcart*(n-1)-1),     &
-     &              n=1,(3*NumOfAt))
-          GoTo 996
- 997      Continue
-          Write(6,*)
-          Write(6,*) ' ***************** ERROR *******************'
-          Write(6,*) ' Error trying to read cartesian force cnsts.'
-          Write(6,*) ' for the second state. Probably wrong input '
-          Write(6,*) ' structure, perhaps too few values.         '
-          Write(6,*) ' *******************************************'
-          Call Quit_OnUserError()
- 996      Continue
-        End Do
-!!
-!!---- Check if Hessian is symmetric.
-        error = 0.0d0
-        Do n = 1,(3*NumOfAt)
-          Do m = 1,(3*NumOfAt)
-          error = error+(Work(ipFcart+m+nFcart*(n-1)-1)-                &
-     &          Work(ipFcart+n+nFcart*(m-1)-1))**2
-          End Do
-        End Do
-        If ( error .gt. 1.0d-2 ) Then
-          Write(6,*)
-          Write(6,*)' ******************** ERROR **********************'
-          Write(6,*)' Non-symmetric error in cartesian Hessian:',error
-          Write(6,*)' *************************************************'
-          Call Quit_OnUserError()
-        End If
-!!
-!!---- Transform cartesian F matrix to internal coordinates.
-!!PAM01: Here follows an n**4-scaling 2-index transformation
-!!It has been replaced by two n**3 matrix multiplies
-!!    Do j = 1,NumInt
-!!       Do i = 1,NumInt
-!!          Fsum = 0.0d0
-!!          Do n = 1,(3*NumOfAt)
-!!             Do m = 1,(3*NumOfAt)
-!!                Fsum = Fsum+Fcart(m,n)* &
-!!                    Sinv(1+Mod((m+2),3),Int((m+2)/3),i)*  &
-!!                    Sinv(1+Mod((n+2),3),Int((n+2)/3),j)
-!!             End Do
-!!          End Do
-!!          Hess2(i,j) = Fsum
-!!       End Do
-!!    End Do
-!!PAM01 Here follows replacement code:
-      Call GetMem('Temp','Allo','Real',ipTemp,3*NumOfAt*NumInt)
-      Call DGEMM_('N','N',                                              &
-     &            3*NumOfAt,NumInt,3*NumOfAt,                           &
-     &            1.0d0,Work(ipFCart),3*NumOfAt,                        &
-     &            work(ipSInv),3*NumOfAt,                               &
-     &            0.0d0,Work(ipTemp),3*NumOfAt)
-      Call DGEMM_('T','N',                                              &
-     &            NumInt,NumInt,3*NumOfAt,                              &
-     &            1.0d0,Work(ipSInv),3*NumOfAt,                         &
-     &            Work(ipTemp),3*NumOfAt,                               &
-     &            0.0d0,Work(ipHess2),NumInt)
-      Call GetMem('Temp','Free','Real',ipTemp,3*NumOfAt*NumInt)
-      Call GetMem('Sinv','Free','Real',ipSinv,3*NumOfAt*NumInt)
-      Call GetMem('SS','Free','Real',ipSS,3*NumOfAt*NumInt)
-      call GetMem('Fcart','Free','Real',ipFcart,nFcart*nFcart)
+  ! Invert S matrix and remove total translation and total rotation.
+  call GetMem('Sinv','Allo','Real',ipSinv,3*NumOfAt*NumInt)
 
-      End If
-!!
-      If ( inpunit1 .eq. 31) Then
-        Close(inpunit1)
-        Close(inpunit2)
-      End If
-!
-! --- FORCe: End -------------------------------------------------------
+  call RotTranRem(Work(ipSinv),Work(ipSS),Mass,Work(ipAtCoord2),NumOfAt,NumInt)
+
+  ! Read cartesian force constant matrix.
+  n = 3*NumOfAt
+  nFcart = n
+  call GetMem('Fcart','Allo','Real',ipFcart,nFcart*nFcart)
+
+  do m=1,(3*NumOfAt)
+    read(inpUnit2,'(a17)',err=997) Inline
+    read(inpUnit2,*,err=997) (Work(ipFcart+m+nFcart*(n-1)-1),n=1,(3*NumOfAt))
+    goto 996
+997 continue
+    write(6,*)
+    write(6,*) ' ***************** ERROR *******************'
+    write(6,*) ' Error trying to read cartesian force cnsts.'
+    write(6,*) ' for the second state. Probably wrong input '
+    write(6,*) ' structure, perhaps too few values.         '
+    write(6,*) ' *******************************************'
+    call Quit_OnUserError()
+996 continue
+  end do
+
+  ! Check if Hessian is symmetric.
+  error = 0.0d0
+  do n=1,(3*NumOfAt)
+    do m=1,(3*NumOfAt)
+      error = error+(Work(ipFcart+m+nFcart*(n-1)-1)-Work(ipFcart+n+nFcart*(m-1)-1))**2
+    end do
+  end do
+  if (error > 1.0d-2) then
+    write(6,*)
+    write(6,*) ' ******************** ERROR **********************'
+    write(6,*) ' Non-symmetric error in cartesian Hessian:',error
+    write(6,*) ' *************************************************'
+    call Quit_OnUserError()
+  end if
+
+  ! Transform cartesian F matrix to internal coordinates.
+  !PAM01: Here follows an n**4-scaling 2-index transformation
+  !       It has been replaced by two n**3 matrix multiplies
+  !do j=1,NumInt
+  !  do i=1,NumInt
+  !    Fsum = 0.0d0
+  !    do n=1,(3*NumOfAt)
+  !      do m=1,(3*NumOfAt)
+  !        Fsum = Fsum+Fcart(m,n)*Sinv(1+Mod((m+2),3),Int((m+2)/3),i)*Sinv(1+Mod((n+2),3),Int((n+2)/3),j)
+  !      end do
+  !    end do
+  !    Hess2(i,j) = Fsum
+  !  end do
+  !end do
+  !PAM01 Here follows replacement code:
+  call GetMem('Temp','Allo','Real',ipTemp,3*NumOfAt*NumInt)
+  call DGEMM_('N','N',3*NumOfAt,NumInt,3*NumOfAt,1.0d0,Work(ipFCart),3*NumOfAt,work(ipSInv),3*NumOfAt,0.0d0,Work(ipTemp),3*NumOfAt)
+  call DGEMM_('T','N',NumInt,NumInt,3*NumOfAt,1.0d0,Work(ipSInv),3*NumOfAt,Work(ipTemp),3*NumOfAt,0.0d0,Work(ipHess2),NumInt)
+  call GetMem('Temp','Free','Real',ipTemp,3*NumOfAt*NumInt)
+  call GetMem('Sinv','Free','Real',ipSinv,3*NumOfAt*NumInt)
+  call GetMem('SS','Free','Real',ipSS,3*NumOfAt*NumInt)
+  call GetMem('Fcart','Free','Real',ipFcart,nFcart*nFcart)
+
+end if
+
+if (inpunit1 == 31) then
+  close(inpunit1)
+  close(inpunit2)
+end if
+
+! FORCe: End -----------------------------------------------------------
 
 ! ----------------------------------------------------------------------
-! --- SCALe: Scale Hessian if scaling factors were given.
-      Call KeyWord(inpUnit,'SCAL',.true.,exist)
-      If ( exist ) Then
-        Call GetMem('Scale2','Allo','Real',ipScaleParam2,NumInt)
+! SCALe: Scale Hessian if scaling factors were given.
 
-        Call KeyWord(inpUnit,'SECO',.false.,exist)
-        Do i = 1,NumInt
-          Read(inpUnit,*) Work(ipScaleParam2+i-1)
-          Work(ipScaleParam2+i-1) = sqrt(Work(ipScaleParam2+i-1))
-        End Do
-        Do j = 1,NumInt
-          Do i = 1,NumInt
-            Work(ipHess2+i+l_Hess1*(j-1)-1) =                           &
-     &      Work(ipHess2+i+l_Hess1*(j-1)-1)*                            &
-     &      Work(ipScaleParam2+i-1)*                                    &
-     &      Work(ipScaleParam2+j-1)
-          End Do
-        End Do
-        Call GetMem('Scale2','Allo','Real',ipScaleParam2,NumInt)
-      End If
-!
-! --- SCALe: End -------------------------------------------------------
+call KeyWord(inpUnit,'SCAL',.true.,exist)
+if (exist) then
+  call GetMem('Scale2','Allo','Real',ipScaleParam2,NumInt)
+
+  call KeyWord(inpUnit,'SECO',.false.,exist)
+  do i=1,NumInt
+    read(inpUnit,*) Work(ipScaleParam2+i-1)
+    Work(ipScaleParam2+i-1) = sqrt(Work(ipScaleParam2+i-1))
+  end do
+  do j=1,NumInt
+    do i=1,NumInt
+      Work(ipHess2+i+l_Hess1*(j-1)-1) = Work(ipHess2+i+l_Hess1*(j-1)-1)*Work(ipScaleParam2+i-1)*Work(ipScaleParam2+j-1)
+    end do
+  end do
+  call GetMem('Scale2','Allo','Real',ipScaleParam2,NumInt)
+end if
+
+! SCALe: End -----------------------------------------------------------
 
 ! ----------------------------------------------------------------------
-! --- DIPOles: Read Transition Dipoles or Spin-Orbit Coupling.
-      Call KeyWord(inpUnit,'DIPO',.true.,exist)
-      If (.NOT.exist) Call KeyWord(inpUnit,'SOC ',.true.,exist)
-      If(.not.exist) then
-        Write(6,*)
-        Write(6,*) ' ************ ERROR ****************'
-        Write(6,*) ' The DIPOLES/SOC keyword is missing.'
-        Write(6,*) ' ***********************************'
-        Call Quit_OnUserError()
-      End if
-!!D Write(6,*)' READINP: Read dipoles (''DIPOLES'').'
-      Read(inpUnit,Format) Inline
-      Call Normalize(InLine,OutLine)
-      If ( OutLine(1:4) .eq. 'FILE' ) Then
-!!D  Write(6,*)' Read trans dips from file UNSYM21'
-        call molcas_open(31,'UNSYM21')
-!      Open (unit=31,file='UNSYM21')
-        If ( max_dip .eq. 1 ) then
-          Call KeyWord(31,'*BEGIN TRANSDIPDER FOR COMPONENT X',         &
-     &      .false.,exist)
-          Read(31,*) (Work(ipTranDipGrad+3*(i-1)),i=1,3*NumOfAt)
-          Call KeyWord(31,'*BEGIN TRANSDIPDER FOR COMPONENT Y',         &
-     &      .false.,exist)
-          Read(31,*) (Work(ipTranDipGrad+1+3*(i-1)),i=1,3*NumOfAt)
-          Call KeyWord(31,'*BEGIN TRANSDIPDER FOR COMPONENT Z',         &
-     &      .false.,exist)
-          Read(31,*) (Work(ipTranDipGrad+2+3*(i-1)),i=1,3*NumOfAt)
-        End If
-        XnotFound=.true.
-        YnotFound=.true.
-        ZnotFound=.true.
-        Call KeyWord(31,'*BEGIN TRANSITION PROPERTIES',.false.,exist)
-        Do While(XnotFound.or.YnotFound.or.ZnotFound)
-          Read(31,'(A37)') InLine
-          If ( InLine(1:20) .eq. 'MLTPL  1 COMPONENT1 ' ) Then
-            XnotFound = .false.
-            Read(InLine(22:37),*) TranDip(1)
-          End If
-          If ( InLine(1:20) .eq. 'MLTPL  1 COMPONENT2 ' ) Then
-            YnotFound = .false.
-            Read(InLine(22:37),*) TranDip(2)
-          End If
-          If ( InLine(1:20) .eq. 'MLTPL  1 COMPONENT3 ' ) Then
-            ZnotFound = .false.
-            Read(InLine(22:37),*) TranDip(3)
-          End If
-        End Do
-        Close(31)
-      Else
-        Call KeyWord(inpUnit,'DIPO',.true.,exist)
-!!D Write(6,*)' READINP: Read dipoles (''DIPOLES'').'
-        Read(inpUnit,*) (TranDip(i),i=1,3)
-        If ( max_dip .eq. 1 ) Then
-          Read(inpUnit,*)                                               &
-     &       (Work(ipTranDipGrad+3*(i-1)),i=1,3*NumOfAt)
-          Read(inpUnit,*)                                               &
-     &       (Work(ipTranDipGrad+1+3*(i-1)),i=1,3*NumOfAt)
-          Read(inpUnit,*)                                               &
-     &       (Work(ipTranDipGrad+2+3*(i-1)),i=1,3*NumOfAt)
-        End If
-      End If
+! DIPOles: Read Transition Dipoles or Spin-Orbit Coupling.
 
-      Goto 20
-!
+call KeyWord(inpUnit,'DIPO',.true.,exist)
+if (.not. exist) call KeyWord(inpUnit,'SOC ',.true.,exist)
+if (.not. exist) then
+  write(6,*)
+  write(6,*) ' ************ ERROR ****************'
+  write(6,*) ' The DIPOLES/SOC keyword is missing.'
+  write(6,*) ' ***********************************'
+  call Quit_OnUserError()
+end if
+!D write(6,*) ' READINP: Read dipoles ("DIPOLES").'
+read(inpUnit,format) Inline
+call Normalize(InLine,OutLine)
+if (OutLine(1:4) == 'FILE') then
+  !D write(6,*) ' Read trans dips from file UNSYM21'
+  call molcas_open(31,'UNSYM21')
+  !open(unit=31,file='UNSYM21')
+  if (max_dip == 1) then
+    call KeyWord(31,'*BEGIN TRANSDIPDER FOR COMPONENT X',.false.,exist)
+    read(31,*) (Work(ipTranDipGrad+3*(i-1)),i=1,3*NumOfAt)
+    call KeyWord(31,'*BEGIN TRANSDIPDER FOR COMPONENT Y',.false.,exist)
+    read(31,*) (Work(ipTranDipGrad+1+3*(i-1)),i=1,3*NumOfAt)
+    call KeyWord(31,'*BEGIN TRANSDIPDER FOR COMPONENT Z',.false.,exist)
+    read(31,*) (Work(ipTranDipGrad+2+3*(i-1)),i=1,3*NumOfAt)
+  end if
+  XnotFound = .true.
+  YnotFound = .true.
+  ZnotFound = .true.
+  call KeyWord(31,'*BEGIN TRANSITION PROPERTIES',.false.,exist)
+  do while (XnotFound .or. YnotFound .or. ZnotFound)
+    read(31,'(A37)') InLine
+    if (InLine(1:20) == 'MLTPL  1 COMPONENT1 ') then
+      XnotFound = .false.
+      read(InLine(22:37),*) TranDip(1)
+    end if
+    if (InLine(1:20) == 'MLTPL  1 COMPONENT2 ') then
+      YnotFound = .false.
+      read(InLine(22:37),*) TranDip(2)
+    end if
+    if (InLine(1:20) == 'MLTPL  1 COMPONENT3 ') then
+      ZnotFound = .false.
+      read(InLine(22:37),*) TranDip(3)
+    end if
+  end do
+  close(31)
+else
+  call KeyWord(inpUnit,'DIPO',.true.,exist)
+  !D write(6,*) ' READINP: Read dipoles ("DIPOLES").'
+  read(inpUnit,*) (TranDip(i),i=1,3)
+  if (max_dip == 1) then
+    read(inpUnit,*) (Work(ipTranDipGrad+3*(i-1)),i=1,3*NumOfAt)
+    read(inpUnit,*) (Work(ipTranDipGrad+1+3*(i-1)),i=1,3*NumOfAt)
+    read(inpUnit,*) (Work(ipTranDipGrad+2+3*(i-1)),i=1,3*NumOfAt)
+  end if
+end if
+
+goto 20
+
 !                         End of Forcefield part
 ! ----------------------------------------------------------------------
 
- 10    Continue
+10 continue
 
-!!-----------------------------------------------------------------------!
-!!
-!!                       Energy surface input part
-!!
-!!-----------------------------------------------------------------------!
-!!
-      ForceField = .false.
-!!
-!!---- Read transformations.
-      Call KeyWord(inpUnit,'NONL',.true.,exist)
-      If(.not.Exist) Then
-        Write(6,*)
-        Write(6,*) ' *********** ERROR **************'
-        Write(6,*) ' Cannot find keyword  NONLINEAR !'
-        Write(6,*) ' ********************************'
-        Call Quit_OnUserError()
-      End If
-      Do icoord = 1,NumInt
-        Read(inpUnit,Format) InLine
-        Call Normalize(InLine,OutLine)
-        trfName1(icoord) = OutLine
-      End Do
-      Do icoord = 1,NumInt
-        Read(inpUnit,Format) InLine
-        Call Normalize(InLine,OutLine)
-        trfName2(icoord) = OutLine
-      End Do
-!!
-!!---- Read terms in polynomial.
-      Call KeyWord(inpUnit,'POLY',.true.,exist)
-      If(.not.Exist) Then
-        Write(6,*)
-        Write(6,*) ' ************ ERROR **************'
-        Write(6,*) ' Cannot find keyword  POLYNOMIAL !'
-        Write(6,*) ' *********************************'
-        Call Quit_OnUserError()
-      End If
-!!D Write(6,*)' READINP: Read polynomial.'
-      k = 1
-      nvar = 0
-      Read(inpUnit,Format) InLine
-      Call WordPos(k,InLine,iStart,iStop)
-      Do While ( iStop .lt. Len(Inline) )
-        k = iStop+1
-        nvar = nvar+1
-        Call WordPos(k,InLine,iStart,iStop)
-      End Do
-      nPolyTerm = 1
-      Read(inpUnit,Format) InLine
-      Call Normalize(InLine,OutLine)
-      Do While ( OutLine(1:4) .ne. 'END ')
-        nPolyTerm = nPolyTerm+1
-        Read(inpUnit,Format) InLine
-        Call Normalize(InLine,OutLine)
-      End Do
-      Call KeyWord(inpUnit,'POLY',.true.,exist)
-      If(.not.Exist) Then
-        Write(6,*)
-        Write(6,*) ' ************ ERROR **************'
-        Write(6,*) ' Cannot find keyword  POLYNOMIAL !'
-        Write(6,*) ' *********************************'
-        Call Quit_OnUserError()
-      End If
-
-      Call GetMem('ipow','Allo','Inte',ipipow,nPolyTerm*nvar)
-      Do iterm = 1,nPolyTerm
-      Read(inpUnit,*)                                                   &
-     &    (iWork(ipipow+iterm+nPolyTerm*(ivar-1)-1),ivar=1,nvar)
-      End Do
-!!
-!!---- Find highest power of term in polynomial.
-      max_term = 0
-      Do iterm = 1,nPolyTerm
-        nsum = 0
-        Do jvar = 1,nvar
-          nsum = nsum+iWork(ipipow+iterm+nPolyTerm*(jvar-1)-1)
-          If ( nsum .gt. max_term ) max_term = nsum
-        End Do
-      End Do
-!!
-!!---- Read grid points and energies.
-      CoordType = 'INTERNAL'
-      Call KeyWord(inpUnit,'DATA',.true.,exist)
-      If(.not.Exist) Then
-        Write(6,*)
-        Write(6,*) ' ********* ERROR ***********'
-        Write(6,*) ' Cannot find keyword  DATA !'
-        Write(6,*) ' ***************************'
-        Call Quit_OnUserError()
-      End If
-!!D Write(6,*)' READINP: Read grid points (Key word ''DATA'').'
-      idata = 0
-      Do while(.true.)
-      idata = idata+1
-      Read(inpUnit,*,end=30) (coord(idata,jvar),jvar=1,nvar),           &
-     &   (GrdVal(idata,j),j=1,10)
-      End Do
- 30    Continue
-!!
-      ndata = idata-1
-      Call GetMem('var','Allo','Real',ipvar,ndata*nvar)
-      Do idata = 1,ndata
-      Do jvar = 1,nvar
-      Work(ipvar+idata+ndata*(jvar-1)-1) = coord(idata,jvar)
-      End Do
-      End Do
-!!
-!!---- CASPT2 energies for ground state.
-      Call GetMem('yin1','Allo','Real',ipyin1,ndata)
-
-      Do idata = 1,ndata
-      Work(ipyin1+idata-1) = GrdVal(idata,2)
-      End Do
-!!
-!!---- CASPT2 energies for excited state.
-      Call GetMem('yin2','Allo','Real',ipyin2,ndata)
-      Do idata = 1,ndata
-      Work(ipyin2+idata-1) = GrdVal(idata,6)
-      End Do
-!!
-!!---- If three atomic molecule, add Watson correction to energy values.
-      If ( NumOfAt .eq. 3 ) Then
-      m1 = Mass(1)*uToAu
-      m2 = Mass(2)*uToAu
-      m3 = Mass(3)*uToAu
-      m12 = (m1*m2)/(m1+m2)
-      m23 = (m2*m3)/(m2+m3)
-      Do i = 1,ndata
-      r1 = Work(ipvar+i-1)
-      r2 = Work(ipvar+i+ndata -1)
-      theta = Work(ipvar+i+ndata*2 -1)*(rpi/180.0d0)
-      const = -(1.0d0/8.0d0)*(1.0d0/(m12*r1**2)+1.0d0/(m23*r2**2))*     &
-     &       (1.0d0+(1.0d0/(sin(theta)**2)))
-      const = const+0.25d0*(cos(theta)/(m2*r1*r2))*                     &
-     &       (cos(theta)/sin(theta))**2
-      Work(ipyin1+i-1) = Work(ipyin1+i-1)+const
-      Work(ipyin2+i-1) = Work(ipyin2+i-1)+const
-      End Do
-      End If
-!!
-      Call GetMem('t_dipin1','Allo','Real',ipt_dipin1,ndata)
-      Do idata = 1,ndata
-      Work(ipt_dipin1+idata-1) = GrdVal(idata,9)
-      End Do
-!!
-      Call GetMem('t_dipin2','Allo','Real',ipt_dipin2,ndata)
-      Do idata = 1,ndata
-      Work(ipt_dipin2+idata-1) = GrdVal(idata,10)
-      End Do
-      Call GetMem('t_dipin3','Allo','Real',ipt_dipin3,ndata)
-      call dcopy_(ndata,[0.0d0],0,Work(ipt_dipin3),1)
-!       t_dipin3 = 0.0d0
-!!
-!!---- Make sure that all transition dipole values have the same sign.
-      sign1_1 = Work(ipt_dipin1)/abs(Work(ipt_dipin1))
-      sign2_1 = Work(ipt_dipin2)/abs(Work(ipt_dipin2))
-      Do idata = 2,ndata
-      sign1_2 =                                                         &
-     &    Work(ipt_dipin1+idata-1)/abs(Work(ipt_dipin1+idata-1))
-      sign2_2 =                                                         &
-     &    Work(ipt_dipin2+idata-1)/abs(Work(ipt_dipin2+idata-1))
-      If ( int(sign1_1*sign2_1) .ne. int(sign1_2*sign2_2) ) Then
-      Write(6,*) 'Sign shift in transition dipole data:',idata
-      End If
-      Work(ipt_dipin1+idata-1) =                                        &
-     &    sign1_1*sign1_2*Work(ipt_dipin1+idata-1)
-      Work(ipt_dipin2+idata-1) =                                        &
-     &    sign2_1*sign2_2*Work(ipt_dipin2+idata-1)
-      End Do
-!!D Write(6,*)' READINP: Transition dipoles finished.'
-
- 20     Continue
+!----------------------------------------------------------------------!
 !
+!                       Energy surface input part
+!
+!----------------------------------------------------------------------!
+
+ForceField = .false.
+
+! Read transformations.
+call KeyWord(inpUnit,'NONL',.true.,exist)
+if (.not. Exist) then
+  write(6,*)
+  write(6,*) ' *********** ERROR **************'
+  write(6,*) ' Cannot find keyword  NONLINEAR !'
+  write(6,*) ' ********************************'
+  call Quit_OnUserError()
+end if
+do icoord=1,NumInt
+  read(inpUnit,format) InLine
+  call Normalize(InLine,OutLine)
+  trfName1(icoord) = OutLine
+end do
+do icoord=1,NumInt
+  read(inpUnit,format) InLine
+  call Normalize(InLine,OutLine)
+  trfName2(icoord) = OutLine
+end do
+
+! Read terms in polynomial.
+call KeyWord(inpUnit,'POLY',.true.,exist)
+if (.not. Exist) then
+  write(6,*)
+  write(6,*) ' ************ ERROR **************'
+  write(6,*) ' Cannot find keyword  POLYNOMIAL !'
+  write(6,*) ' *********************************'
+  call Quit_OnUserError()
+end if
+!D write(6,*) ' READINP: Read polynomial.'
+k = 1
+nvar = 0
+read(inpUnit,format) InLine
+call WordPos(k,InLine,iStart,iStop)
+do while (iStop < len(Inline))
+  k = iStop+1
+  nvar = nvar+1
+  call WordPos(k,InLine,iStart,iStop)
+end do
+nPolyTerm = 1
+read(inpUnit,format) InLine
+call Normalize(InLine,OutLine)
+do while (OutLine(1:4) /= 'END ')
+  nPolyTerm = nPolyTerm+1
+  read(inpUnit,format) InLine
+  call Normalize(InLine,OutLine)
+end do
+call KeyWord(inpUnit,'POLY',.true.,exist)
+if (.not. Exist) then
+  write(6,*)
+  write(6,*) ' ************ ERROR **************'
+  write(6,*) ' Cannot find keyword  POLYNOMIAL !'
+  write(6,*) ' *********************************'
+  call Quit_OnUserError()
+end if
+
+call GetMem('ipow','Allo','Inte',ipipow,nPolyTerm*nvar)
+do iterm=1,nPolyTerm
+  read(inpUnit,*) (iWork(ipipow+iterm+nPolyTerm*(ivar-1)-1),ivar=1,nvar)
+end do
+
+! Find highest power of term in polynomial.
+max_term = 0
+do iterm=1,nPolyTerm
+  nsum = 0
+  do jvar=1,nvar
+    nsum = nsum+iWork(ipipow+iterm+nPolyTerm*(jvar-1)-1)
+    if (nsum > max_term) max_term = nsum
+  end do
+end do
+
+! Read grid points and energies.
+CoordType = 'INTERNAL'
+call KeyWord(inpUnit,'DATA',.true.,exist)
+if (.not. Exist) then
+  write(6,*)
+  write(6,*) ' ********* ERROR ***********'
+  write(6,*) ' Cannot find keyword  DATA !'
+  write(6,*) ' ***************************'
+  call Quit_OnUserError()
+end if
+!D write(6,*) ' READINP: Read grid points (Key word "DATA").'
+idata = 0
+do while (.true.)
+  idata = idata+1
+  read(inpUnit,*,end=30) (coord(idata,jvar),jvar=1,nvar),(GrdVal(idata,j),j=1,10)
+end do
+30 continue
+
+ndata = idata-1
+call GetMem('var','Allo','Real',ipvar,ndata*nvar)
+do idata=1,ndata
+  do jvar=1,nvar
+    Work(ipvar+idata+ndata*(jvar-1)-1) = coord(idata,jvar)
+  end do
+end do
+
+! CASPT2 energies for ground state.
+call GetMem('yin1','Allo','Real',ipyin1,ndata)
+
+do idata=1,ndata
+  Work(ipyin1+idata-1) = GrdVal(idata,2)
+end do
+
+! CASPT2 energies for excited state.
+call GetMem('yin2','Allo','Real',ipyin2,ndata)
+do idata=1,ndata
+  Work(ipyin2+idata-1) = GrdVal(idata,6)
+end do
+
+! If three atomic molecule, add Watson correction to energy values.
+if (NumOfAt == 3) then
+  m1 = Mass(1)*uToAu
+  m2 = Mass(2)*uToAu
+  m3 = Mass(3)*uToAu
+  m12 = (m1*m2)/(m1+m2)
+  m23 = (m2*m3)/(m2+m3)
+  do i=1,ndata
+    r1 = Work(ipvar+i-1)
+    r2 = Work(ipvar+i+ndata-1)
+    theta = Work(ipvar+i+ndata*2-1)*(rpi/180.0d0)
+    const = -(1.0d0/8.0d0)*(1.0d0/(m12*r1**2)+1.0d0/(m23*r2**2))*(1.0d0+(1.0d0/(sin(theta)**2)))
+    const = const+0.25d0*(cos(theta)/(m2*r1*r2))*(cos(theta)/sin(theta))**2
+    Work(ipyin1+i-1) = Work(ipyin1+i-1)+const
+    Work(ipyin2+i-1) = Work(ipyin2+i-1)+const
+  end do
+end if
+
+call GetMem('t_dipin1','Allo','Real',ipt_dipin1,ndata)
+do idata=1,ndata
+  Work(ipt_dipin1+idata-1) = GrdVal(idata,9)
+end do
+
+call GetMem('t_dipin2','Allo','Real',ipt_dipin2,ndata)
+do idata=1,ndata
+  Work(ipt_dipin2+idata-1) = GrdVal(idata,10)
+end do
+call GetMem('t_dipin3','Allo','Real',ipt_dipin3,ndata)
+call dcopy_(ndata,[0.0d0],0,Work(ipt_dipin3),1)
+!t_dipin3 = 0.0d0
+
+! Make sure that all transition dipole values have the same sign.
+sign1_1 = Work(ipt_dipin1)/abs(Work(ipt_dipin1))
+sign2_1 = Work(ipt_dipin2)/abs(Work(ipt_dipin2))
+do idata=2,ndata
+  sign1_2 = Work(ipt_dipin1+idata-1)/abs(Work(ipt_dipin1+idata-1))
+  sign2_2 = Work(ipt_dipin2+idata-1)/abs(Work(ipt_dipin2+idata-1))
+  if (int(sign1_1*sign2_1) /= int(sign1_2*sign2_2)) then
+    write(6,*) 'Sign shift in transition dipole data:',idata
+  end if
+  Work(ipt_dipin1+idata-1) = sign1_1*sign1_2*Work(ipt_dipin1+idata-1)
+  Work(ipt_dipin2+idata-1) = sign2_1*sign2_2*Work(ipt_dipin2+idata-1)
+end do
+!D write(6,*) ' READINP: Transition dipoles finished.'
+
+20 continue
+
 !                         End of Energy surface input part
 ! ----------------------------------------------------------------------
 
-!!D Write(6,*)' Ending READINP.'
-!!
-      End
+!D write(6,*) ' Ending READINP.'
+
+end subroutine ReadInp

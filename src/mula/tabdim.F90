@@ -11,628 +11,569 @@
 ! Copyright (C) 1995, Niclas Forsberg                                  *
 !               1999, Anders Bernhardsson                              *
 !***********************************************************************
-      Subroutine TabDim_drv(nDim,nOsc,nTabDim)
-!!
-      Integer   nDim,nOsc
-      Integer   nTabDim
 
+subroutine TabDim_drv(nDim,nOsc,nTabDim)
+
+integer nDim, nOsc
+integer nTabDim
 #include "WrkSpc.fh"
-      call GetMem('binomCoef','Allo','INTE',                            &
-     &  ipbinomCoef,(nDim+1)*nOsc)
-      call TabDim(nDim,nOsc,nTabDim,iWork(ipbinomCoef))
-      call GetMem('binomCoef','Free','INTE',                            &
-     &  ipbinomCoef,(nDim+1)*nOsc)
-      Return
-      End
-!!-----------------------------------------------------------------------!
-!!
-      Subroutine TabDim(nDim,nOsc,nTabDim,binomCoef)
-!!
-!!  Purpose:
-!!    Fill a nDim*nOsc matrix with binomial coefficients.
-!!    This matrix is then used to calculate the dimension
-!!    of a table containing excitations for nOsc oscillators.
-!!    nDim is the maximum sum of the oscillator quanta.
-!!
-!!  Input:
-!!    nDim    : Integer variable - maximun excitation.
-!!    nOsc    : Integer variable - number of dimensions.
-!!
-!!  Result:
-!!
-!!  Written by:
-!!    Niclas Forsberg,
-!!    Dept. of Theoretical Chemistry, Lund University, 1995.
-!!
-      Implicit None
-      Integer   iRow,jCol,nDim,nOsc
-      Integer   nTabDim
-      Integer binomCoef(0:nDim,nOsc)
-!!
-!!---- Initialize.
-!!
-!!---- Calculate binomial coefficients.
-      If ( nDim .gt. 0 ) Then
-      Do jCol = 1,nOsc
-      binomCoef(0,jCol) = 1
-      End Do
-      Do iRow = 0,nDim
-      binomCoef(iRow,1) = 1
-      End Do
-      Do jCol = 2,nOsc
-      Do iRow = 1,nDim
-      binomCoef(iRow,jCol) = binomCoef(iRow-1,jCol)+                    &
-     &          binomCoef(iRow,jCol-1)
-      End Do
-      End Do
-!!
-!!---- Sum all elements of the nOsc'th column.
-      nTabDim = 0
-      Do iRow = 0,nDim
-      nTabDim = nTabDim+binomCoef(iRow,nOsc)
-      End Do
-      Else
-      nTabDim = 1
-      End If
-!!
-!!
-      End
-!!
-!!-----------------------------------------------------------------------!
-!!
-      Subroutine TabDim2_drv(nDim,nOsc,nTabDim)
-!!
-      Integer   nDim,nOsc
-      Integer   nTabDim
 
+call GetMem('binomCoef','Allo','INTE',ipbinomCoef,(nDim+1)*nOsc)
+call TabDim(nDim,nOsc,nTabDim,iWork(ipbinomCoef))
+call GetMem('binomCoef','Free','INTE',ipbinomCoef,(nDim+1)*nOsc)
+
+return
+
+end subroutine TabDim_drv
+!####
+subroutine TabDim(nDim,nOsc,nTabDim,binomCoef)
+!  Purpose:
+!    Fill a nDim*nOsc matrix with binomial coefficients.
+!    This matrix is then used to calculate the dimension
+!    of a table containing excitations for nOsc oscillators.
+!    nDim is the maximum sum of the oscillator quanta.
+!
+!  Input:
+!    nDim    : Integer variable - maximun excitation.
+!    nOsc    : Integer variable - number of dimensions.
+!
+!  Result:
+!
+!  Written by:
+!    Niclas Forsberg,
+!    Dept. of Theoretical Chemistry, Lund University, 1995.
+
+implicit none
+integer iRow, jCol, nDim, nOsc
+integer nTabDim
+integer binomCoef(0:nDim,nOsc)
+
+! Initialize.
+
+! Calculate binomial coefficients.
+if (nDim > 0) then
+  do jCol=1,nOsc
+    binomCoef(0,jCol) = 1
+  end do
+  do iRow=0,nDim
+    binomCoef(iRow,1) = 1
+  end do
+  do jCol=2,nOsc
+    do iRow=1,nDim
+      binomCoef(iRow,jCol) = binomCoef(iRow-1,jCol)+binomCoef(iRow,jCol-1)
+    end do
+  end do
+
+  ! Sum all elements of the nOsc'th column.
+  nTabDim = 0
+  do iRow=0,nDim
+    nTabDim = nTabDim+binomCoef(iRow,nOsc)
+  end do
+else
+  nTabDim = 1
+end if
+
+end subroutine TabDim
+!####
+subroutine TabDim2_drv(nDim,nOsc,nTabDim)
+
+integer nDim, nOsc
+integer nTabDim
 #include "WrkSpc.fh"
-      call GetMem('binomCoef','Allo','INTE',                            &
-     &  ipbinomCoef,(nDim+1)*nOsc)
-      call TabDim(nDim,nOsc,nTabDim,iWork(ipbinomCoef))
-      call GetMem('binomCoef','Free','INTE',                            &
-     &  ipbinomCoef,(nDim+1)*nOsc)
-      Return
-      End
 
-!!-----------------------------------------------------------------------!
-!!
-      Integer Function iDetNr(iocc,graph2,nosc,m)
-      implicit integer(a-z)
-      integer iocc(nosc),graph2(0:m,0:m,nosc)
-!!
-!! iocc:occupation vector
-!! graph2:vertex graph table
-!! nosc number of nodes
-!! m  number of quantas
-!! number of determinants in with lower number of quantas.
-!!
-!! Calculate the index of occupation string iocc
-!!
-      iqnew=0
-      iqold=0
-      n=0
-      Do i=1,nosc
-      iqnew=iqnew+iocc(i)
-      n=n+graph2(iqnew,iqold,i)
-      iqold=iqnew
-      End Do
-!!
-      idetnr=n
-!!
-      End
+call GetMem('binomCoef','Allo','INTE',ipbinomCoef,(nDim+1)*nOsc)
+call TabDim(nDim,nOsc,nTabDim,iWork(ipbinomCoef))
+call GetMem('binomCoef','Free','INTE',ipbinomCoef,(nDim+1)*nOsc)
 
-!! Muln  is a set of subroutines that calculates
-!! <i|H|j> where H is a operator described
-!! M_1,2..,n(a_1+a^t_1)*(a_2+a^t_2)...(a_n+a^t_n)
-!! you can find n=1,2,3,4 in this file.
-!!
-!! nmat : Occupation of slater det.
-!! F    : Output <i|A|j>
-!! iCre,iAnn : Gives the resulting slater determinant if a^t (a) is acticting on SD
-!! mat  : Matrix describing the operator expanded in Normal modes
-!! m_ord: Number of slater determinants.
-!!
-!! Anders Bernhardsson Friday the 13th august 1999
-!!
-!!-----------------------------------------------------------------------!
-!!
-      Subroutine Mul1(nMat,F,iCre,iAnn,mat,m_ord,nosc,rdx)
-!!
+return
+
+end subroutine TabDim2_drv
+!####
+integer function iDetNr(iocc,graph2,nosc,m)
+
+implicit integer(a-z)
+integer iocc(nosc), graph2(0:m,0:m,nosc)
+! iocc:occupation vector
+! graph2:vertex graph table
+! nosc number of nodes
+! m  number of quantas
+! number of determinants in with lower number of quantas.
+
+! Calculate the index of occupation string iocc
+
+iqnew = 0
+iqold = 0
+n = 0
+do i=1,nosc
+  iqnew = iqnew+iocc(i)
+  n = n+graph2(iqnew,iqold,i)
+  iqold = iqnew
+end do
+
+idetnr = n
+
+end function iDetNr
+
+! Muln  is a set of subroutines that calculates
+! <i|H|j> where H is a operator described
+! M_1,2..,n(a_1+a^t_1)*(a_2+a^t_2)...(a_n+a^t_n)
+! you can find n=1,2,3,4 in this file.
+!
+! nmat : Occupation of slater det.
+! F    : Output <i|A|j>
+! iCre,iAnn : Gives the resulting slater determinant if a^t (a) is acticting on SD
+! mat  : Matrix describing the operator expanded in Normal modes
+! m_ord: Number of slater determinants.
+!
+! Anders Bernhardsson Friday the 13th august 1999
+
+subroutine Mul1(nMat,F,iCre,iAnn,mat,m_ord,nosc,rdx)
+
 #include "dims.fh"
-      Integer nMat (0:m_ord,nosc)
-      Real*8 Mat(nOsc)
-      Real*8 F( 0:mdim1,0:ndim1)
-      Real*8 rdx ( 1)
-      Real*8 sqr( 0:50 )
-      Real*8 fact
-      Integer iAnn  (0:ndim1,ndim2)
-      Integer iCre  (0:ndim1,ndim2)
-!!
-      Do i = 0,50
-      sqr(i) = sqrt(dble(i)/2.0d0)
-      End Do
-      Do iOrd = 0,m_Ord
-      Do iOsc=1,nOsc
-      jOrd = iAnn(iOrd,iOsc)
-      If (jOrd .ge. 0) Then
-      Fact=sqr(nmat(iord,iosc))*rdx(1)
+integer nMat(0:m_ord,nosc)
+real*8 Mat(nOsc)
+real*8 F(0:mdim1,0:ndim1)
+real*8 rdx(1)
+real*8 sqr(0:50)
+real*8 fact
+integer iAnn(0:ndim1,ndim2)
+integer iCre(0:ndim1,ndim2)
+
+do i=0,50
+  sqr(i) = sqrt(dble(i)/2.0d0)
+end do
+do iOrd=0,m_Ord
+  do iOsc=1,nOsc
+    jOrd = iAnn(iOrd,iOsc)
+    if (jOrd >= 0) then
+      Fact = sqr(nmat(iord,iosc))*rdx(1)
       F(iOrd,jOrd) = F(iOrd,jOrd)+Fact*Mat(iOsc)
-      End If
-      End Do
-      End Do
-      Do iOrd = 0,m_Ord
-      Do iOsc=1,nOsc
-      jOrd = iCre(iOrd,iOsc)
-      If (jOrd .ge. 0) Then
-      Fact=sqr(nmat(jord,iosc))
+    end if
+  end do
+end do
+do iOrd=0,m_Ord
+  do iOsc=1,nOsc
+    jOrd = iCre(iOrd,iOsc)
+    if (jOrd >= 0) then
+      Fact = sqr(nmat(jord,iosc))
       F(iOrd,jOrd) = F(iOrd,jOrd)+Fact*Mat(iOsc)
-      End If
-      End Do
-      End Do
+    end if
+  end do
+end do
 
+end subroutine Mul1
+!####
+subroutine Mul2(nMat,F,iCre,iAnn,mat,m_ord,nosc,rdx)
 
-      End
-!!
-!!-----------------------------------------------------------------------!
-
-!!-----------------------------------------------------------------------!
-!!
-      Subroutine Mul2(nMat,F,iCre,iAnn,mat,m_ord,nosc,rdx)
-!!
 #include "dims.fh"
-      Integer nMat (0:m_ord,nosc)
-      Real*8 Mat(nOsc,nOsc)
-      Real*8 F(0:mdim1,0:ndim1)
-      Real*8 sqr( 0:50 )
-      Real*8 fact,r,rsym
-      Integer iAnn  (0:ndim1,ndim2)
-      Integer iCre  (0:ndim1,ndim2)
-      Real*8 rdx(2)
-!!
-      rsym=1/2.0d0
-      Do i = 0,50
-      sqr(i) = sqrt(dble(i)/2.0d0)
-      End Do
-      r=rdx(1)*rdx(2)
-      Do iOrd = 0,m_Ord
-      Do iOsc=1,nOsc
-      jOrd = iAnn(iOrd,iOsc)
-      If (jOrd .ge. 0) Then
-      Do jOsc=1,nOsc
-      kOrd = iAnn(jOrd,jOsc)
-      If ( kOrd .ge. 0 ) Then
-      Fact=sqr(nmat(iord,iosc))*sqr(nmat(jord,josc))*r*rsym
-      F(iOrd,kOrd) = F(iOrd,kOrd)+Fact*Mat(iOsc,josc)
-      End If
-      End Do
-      End If
-      End Do
-      End Do
-      If (r .ne. 0.0d0) Then
-      Do iOrd = 0,m_Ord
-      Do iOsc = 1,nOsc
+integer nMat(0:m_ord,nosc)
+real*8 Mat(nOsc,nOsc)
+real*8 F(0:mdim1,0:ndim1)
+real*8 sqr(0:50)
+real*8 fact, r, rsym
+integer iAnn(0:ndim1,ndim2)
+integer iCre(0:ndim1,ndim2)
+real*8 rdx(2)
+
+rsym = 1/2.0d0
+do i=0,50
+  sqr(i) = sqrt(dble(i)/2.0d0)
+end do
+r = rdx(1)*rdx(2)
+do iOrd=0,m_Ord
+  do iOsc=1,nOsc
+    jOrd = iAnn(iOrd,iOsc)
+    if (jOrd >= 0) then
+      do jOsc=1,nOsc
+        kOrd = iAnn(jOrd,jOsc)
+        if (kOrd >= 0) then
+          Fact = sqr(nmat(iord,iosc))*sqr(nmat(jord,josc))*r*rsym
+          F(iOrd,kOrd) = F(iOrd,kOrd)+Fact*Mat(iOsc,josc)
+        end if
+      end do
+    end if
+  end do
+end do
+if (r /= 0.0d0) then
+  do iOrd=0,m_Ord
+    do iOsc=1,nOsc
       jOrd = iann(iord,iosc)
-      If (jOrd .ge. 0) Then
-      Do jOsc = 1,nOsc
-      kOrd = iCre(jord,josc)
-      If ( kOrd .ge. 0 ) Then
-      r=rdx(1)*Mat(iosc,jOsc)+rdx(2)*Mat(josc,iOsc)
-      Fact=sqr(nmat(iord,iosc))*sqr(nmat(kord,josc))*                   &
-     &              r*rsym
-      F(iOrd,kOrd) = F(iOrd,kOrd)+Fact
-      End If
-      End Do
-      End If
-      End Do
-      End Do
-      End If
-      Do iOrd = 0,m_Ord
-      Do iOsc = 1,nOsc
-      jOrd = iCre(iord,iosc)
-      If (jOrd .ge. 0) Then
-      Do jOsc = 1,nOsc
-      kOrd = iCre(jord,josc)
-      If ( kOrd .ge. 0 ) Then
-      Fact=sqr(nmat(jord,iosc))*sqr(nmat(kord,josc))*rsym
-      F(iOrd,kOrd) = F(iOrd,kOrd)+Fact*Mat(iosc,jOsc)
-      End If
-      End Do
-      End If
-      End Do
-      End Do
-      r=rdx(2)
-      Do iOrd = 0,m_Ord
-      Do iOsc = 1,nOsc
-      F(iOrd,iOrd) = F(iOrd,iOrd)+Mat(iosc,iOsc)*r*rsym/2.0d0
-      End Do
-      End Do
+      if (jOrd >= 0) then
+        do jOsc=1,nOsc
+          kOrd = iCre(jord,josc)
+          if (kOrd >= 0) then
+            r = rdx(1)*Mat(iosc,jOsc)+rdx(2)*Mat(josc,iOsc)
+            Fact = sqr(nmat(iord,iosc))*sqr(nmat(kord,josc))*r*rsym
+            F(iOrd,kOrd) = F(iOrd,kOrd)+Fact
+          end if
+        end do
+      end if
+    end do
+  end do
+end if
+do iOrd=0,m_Ord
+  do iOsc=1,nOsc
+    jOrd = iCre(iord,iosc)
+    if (jOrd >= 0) then
+      do jOsc=1,nOsc
+        kOrd = iCre(jord,josc)
+        if (kOrd >= 0) then
+          Fact = sqr(nmat(jord,iosc))*sqr(nmat(kord,josc))*rsym
+          F(iOrd,kOrd) = F(iOrd,kOrd)+Fact*Mat(iosc,jOsc)
+        end if
+      end do
+    end if
+  end do
+end do
+r = rdx(2)
+do iOrd=0,m_Ord
+  do iOsc=1,nOsc
+    F(iOrd,iOrd) = F(iOrd,iOrd)+Mat(iosc,iOsc)*r*rsym/2.0d0
+  end do
+end do
 
-!!
-      End
-!!
-!!-----------------------------------------------------------------------!
-!!-----------------------------------------------------------------------!
-!!
-      Subroutine Mul3(nMat,F,iCre,iAnn,mat,m_ord,nosc,rdx)
-!!
+end subroutine Mul2
+!####
+subroutine Mul3(nMat,F,iCre,iAnn,mat,m_ord,nosc,rdx)
+
 #include "dims.fh"
-      Integer nMat (0:m_ord,nosc)
-      Real*8 Mat(nOsc,nOsc,nOsc)
-      Real*8 F(0:mdim1,0:ndim1)
-      Real*8 sqr( 0:50 )
-      Real*8 rdx( 3 )
-      Real*8 fact,r,rsym,relem
-      Integer iAnn  (0:ndim1,ndim2)
-      Integer iCre  (0:ndim1,ndim2)
-!!
-      rsym=1.0d0/6.0d0
-      Do i = 0,50
-      sqr(i) = sqrt(dble(i)/2.0d0)
-      End Do
-      Do iOrd = 0,m_Ord
-      Do iOsc=1,nOsc
-      jOrd = iAnn(iOrd,iOsc)
-      If (jOrd .ge. 0) Then
-      Do jOsc=1,nOsc
-      kOrd = iAnn(jOrd,jOsc)
-      If ( kOrd .ge. 0 ) Then
-      Do kOsc=1,nOsc
-      lOrd = iAnn(kOrd,kOsc)
-      If (lOrd .ge. 0) Then
-      r=rdx(1)*rdx(2)*rdx(3)
-      Fact=sqr(nmat(iord,iosc))*sqr(nmat(jord,josc))*                   &
-     &          sqr(nmat(kord,kosc))*r*rsym
-      F(iOrd,lOrd) = F(iOrd,lOrd)+Fact*Mat(iOsc,josc,kosc)
-      End If
-      End Do
-      End If
-      End Do
-      End If
-      End Do
-      End Do
+integer nMat(0:m_ord,nosc)
+real*8 Mat(nOsc,nOsc,nOsc)
+real*8 F(0:mdim1,0:ndim1)
+real*8 sqr(0:50)
+real*8 rdx(3)
+real*8 fact, r, rsym, relem
+integer iAnn(0:ndim1,ndim2)
+integer iCre(0:ndim1,ndim2)
 
-      Do iOrd = 0,m_Ord
-      Do iOsc=1,nOsc
-      jOrd = iAnn(iOrd,iOsc)
-      If (jOrd .ge. 0) Then
-      Do jOsc=1,nOsc
-      kOrd = iAnn(jOrd,jOsc)
-      If ( kOrd .ge. 0 ) Then
-      Do kOsc=1,nOsc
-      lOrd = iCre(kOrd,kOsc)
-      If (lOrd .ge. 0) Then
-      r=rdx(1)*rdx(2)*Mat(iOsc,josc,kosc)+rdx(2)*rdx(3)*                &
-     &          Mat(kOsc,iosc,josc)+rdx(3)*rdx(1)*Mat(iOsc,kosc,josc)
-      Fact=sqr(nmat(iord,iosc))*sqr(nmat(jord,josc))*                   &
-     &          sqr(nmat(lord,kosc))*r*rsym
-      F(iOrd,lOrd) = F(iOrd,lOrd)+Fact
-      End If
-      End Do
-      End If
-      End Do
-      End If
-      End Do
-      End Do
+rsym = 1.0d0/6.0d0
+do i=0,50
+  sqr(i) = sqrt(dble(i)/2.0d0)
+end do
+do iOrd=0,m_Ord
+  do iOsc=1,nOsc
+    jOrd = iAnn(iOrd,iOsc)
+    if (jOrd >= 0) then
+      do jOsc=1,nOsc
+        kOrd = iAnn(jOrd,jOsc)
+        if (kOrd >= 0) then
+          do kOsc=1,nOsc
+            lOrd = iAnn(kOrd,kOsc)
+            if (lOrd >= 0) then
+              r = rdx(1)*rdx(2)*rdx(3)
+              Fact = sqr(nmat(iord,iosc))*sqr(nmat(jord,josc))*sqr(nmat(kord,kosc))*r*rsym
+              F(iOrd,lOrd) = F(iOrd,lOrd)+Fact*Mat(iOsc,josc,kosc)
+            end if
+          end do
+        end if
+      end do
+    end if
+  end do
+end do
 
-      Do iOrd = 0,m_Ord
-      Do iOsc=1,nOsc
-      jOrd = iAnn(iOrd,iOsc)
-      If (jOrd .ge. 0) Then
-      Do jOsc=1,nOsc
-      kOrd = iCre(jOrd,jOsc)
-      If ( kOrd .ge. 0 ) Then
-      Do kOsc=1,nOsc
-      lOrd = iCre(kOrd,kOsc)
-      If (lOrd .ge. 0) Then
-      r=rdx(1)*mat(iosc,josc,kosc)+rdx(2)*                              &
-     &          mat(josc,iosc,kosc)+rdx(3)*mat(josc,kosc,iosc)
-      Fact=sqr(nmat(iord,iosc))*sqr(nmat(kord,josc))*                   &
-     &          sqr(nmat(lord,kosc))*rsym*r
-      F(iOrd,lOrd) = F(iOrd,lOrd)+Fact
-      End If
-      End Do
-      End If
-      End Do
-      End If
-      End Do
-      End Do
+do iOrd=0,m_Ord
+  do iOsc=1,nOsc
+    jOrd = iAnn(iOrd,iOsc)
+    if (jOrd >= 0) then
+      do jOsc=1,nOsc
+        kOrd = iAnn(jOrd,jOsc)
+        if (kOrd >= 0) then
+          do kOsc=1,nOsc
+            lOrd = iCre(kOrd,kOsc)
+            if (lOrd >= 0) then
+              r = rdx(1)*rdx(2)*Mat(iOsc,josc,kosc)+rdx(2)*rdx(3)*Mat(kOsc,iosc,josc)+rdx(3)*rdx(1)*Mat(iOsc,kosc,josc)
+              Fact = sqr(nmat(iord,iosc))*sqr(nmat(jord,josc))*sqr(nmat(lord,kosc))*r*rsym
+              F(iOrd,lOrd) = F(iOrd,lOrd)+Fact
+            end if
+          end do
+        end if
+      end do
+    end if
+  end do
+end do
 
-      Do iOrd = 0,m_Ord
-      Do iOsc=1,nOsc
-      jOrd = iCre(iOrd,iOsc)
-      If (jOrd .ge. 0) Then
-      Do jOsc=1,nOsc
-      kOrd = iCre(jOrd,jOsc)
-      If ( kOrd .ge. 0 ) Then
-      Do kOsc=1,nOsc
-      lOrd = iCre(kOrd,kOsc)
-      If (lOrd .ge. 0) Then
-      Fact=sqr(nmat(jord,iosc))*sqr(nmat(kord,josc))*                   &
-     &          sqr(nmat(lord,kosc))*rsym
-      F(iOrd,lOrd) = F(iOrd,lOrd)+Fact*Mat(iOsc,josc,kosc)
-      End If
-      End Do
-      End If
-      End Do
-      End If
-      End Do
-      End Do
+do iOrd=0,m_Ord
+  do iOsc=1,nOsc
+    jOrd = iAnn(iOrd,iOsc)
+    if (jOrd >= 0) then
+      do jOsc=1,nOsc
+        kOrd = iCre(jOrd,jOsc)
+        if (kOrd >= 0) then
+          do kOsc=1,nOsc
+            lOrd = iCre(kOrd,kOsc)
+            if (lOrd >= 0) then
+              r = rdx(1)*mat(iosc,josc,kosc)+rdx(2)*mat(josc,iosc,kosc)+rdx(3)*mat(josc,kosc,iosc)
+              Fact = sqr(nmat(iord,iosc))*sqr(nmat(kord,josc))*sqr(nmat(lord,kosc))*rsym*r
+              F(iOrd,lOrd) = F(iOrd,lOrd)+Fact
+            end if
+          end do
+        end if
+      end do
+    end if
+  end do
+end do
 
-      Do iOrd = 0,m_Ord
-      Do iOsc=1,nOsc
-      jOrd = iCre(iOrd,iOsc)
-      If (jOrd .ge. 0) Then
-      Do jOsc=1,nosc
-      Fact=sqr(nmat(jord,iosc))
-      relem=Mat(josc,josc,iosc)*rdx(2)+rdx(3)*                          &
-     &         (mat(iosc,josc,josc)+mat(josc,iosc,josc))
-      F(iOrd,jOrd) = F(iOrd,jOrd)+Fact*relem*rsym*0.5d0
-      End Do
-      End If
-      End Do
-      End Do
+do iOrd=0,m_Ord
+  do iOsc=1,nOsc
+    jOrd = iCre(iOrd,iOsc)
+    if (jOrd >= 0) then
+      do jOsc=1,nOsc
+        kOrd = iCre(jOrd,jOsc)
+        if (kOrd >= 0) then
+          do kOsc=1,nOsc
+            lOrd = iCre(kOrd,kOsc)
+            if (lOrd >= 0) then
+              Fact = sqr(nmat(jord,iosc))*sqr(nmat(kord,josc))*sqr(nmat(lord,kosc))*rsym
+              F(iOrd,lOrd) = F(iOrd,lOrd)+Fact*Mat(iOsc,josc,kosc)
+            end if
+          end do
+        end if
+      end do
+    end if
+  end do
+end do
 
-      Do iOrd = 0,m_Ord
-      Do iOsc=1,nOsc
-      jOrd = iann(iOrd,iOsc)
-      If (jOrd .ge. 0) Then
-      Do jOsc=1,nosc
-      Fact=sqr(nmat(iord,iosc))
-      relem=Mat(iosc,josc,josc)*rdx(1)*rdx(3)+rdx(2)*rdx(3)*            &
-     &         (mat(josc,josc,iosc)+mat(josc,iosc,josc))
-      F(iOrd,jOrd) = F(iOrd,jOrd)+Fact*relem*rsym*0.5d0
-      End Do
-      End If
-      End Do
-      End Do
+do iOrd=0,m_Ord
+  do iOsc=1,nOsc
+    jOrd = iCre(iOrd,iOsc)
+    if (jOrd >= 0) then
+      do jOsc=1,nosc
+        Fact = sqr(nmat(jord,iosc))
+        relem = Mat(josc,josc,iosc)*rdx(2)+rdx(3)*(mat(iosc,josc,josc)+mat(josc,iosc,josc))
+        F(iOrd,jOrd) = F(iOrd,jOrd)+Fact*relem*rsym*0.5d0
+      end do
+    end if
+  end do
+end do
 
+do iOrd=0,m_Ord
+  do iOsc=1,nOsc
+    jOrd = iann(iOrd,iOsc)
+    if (jOrd >= 0) then
+      do jOsc=1,nosc
+        Fact = sqr(nmat(iord,iosc))
+        relem = Mat(iosc,josc,josc)*rdx(1)*rdx(3)+rdx(2)*rdx(3)*(mat(josc,josc,iosc)+mat(josc,iosc,josc))
+        F(iOrd,jOrd) = F(iOrd,jOrd)+Fact*relem*rsym*0.5d0
+      end do
+    end if
+  end do
+end do
 
+end subroutine Mul3
+!####
+subroutine Mul4(nMat,F,iCre,iAnn,mat,m_ord,nosc,rdx)
 
-      End
-!!
-!!-----------------------------------------------------------------------!
-!!-----------------------------------------------------------------------!
-!!
-      Subroutine Mul4(nMat,F,iCre,iAnn,mat,m_ord,nosc,rdx)
-!!
 #include "dims.fh"
-      Integer nMat (0:m_ord,nosc)
-      Real*8 Mat(nOsc,nOsc,nOsc,nOsc)
-      Real*8 F(0:mdim1,0:ndim1)
-      Real*8 sqr( 0:50 )
-      Real*8 rdx( 4 )
-      Real*8 fact,r,rsym,relem
-      Integer iAnn  (0:ndim1,ndim2)
-      Integer iCre  (0:ndim1,ndim2)
-!!
-      Do i = 0,50
-      sqr(i) = sqrt(dble(i)/2.0d0)
-      End Do
-      rsym=1.0d0/24.0d0
-      r=Rdx(1)*rdx(2)*rdx(3)*rdx(4)
-      Do iOrd = 0,m_Ord
-      Do iOsc=1,nOsc
-      jOrd = iAnn(iOrd,iOsc)
-      If (jOrd .ge. 0) Then
-      Do jOsc=1,nOsc
-      kOrd = iAnn(jOrd,jOsc)
-      If ( kOrd .ge. 0 ) Then
-      Do kOsc=1,nOsc
-      lOrd = iAnn(kOrd,kOsc)
-      If (lOrd .ge. 0) Then
-      Do lOsc=1,nOsc
-      mOrd = iAnn(lOrd,lOsc)
-      If (mOrd .ge. 0) Then
-      Fact=sqr(nmat(iord,iosc))*sqr(nmat(jord,josc))*                   &
-     &            sqr(nmat(kord,kosc))*sqr(nmat(lord,losc))*r*rsym
-      F(iOrd,mOrd) = F(iOrd,mOrd)+Fact*                                 &
-     &            Mat(iOsc,josc,kosc,losc)
-      End If
-      End Do
-      End If
-      End Do
-      End If
-      End Do
-      End If
-      End Do
-      End Do
-      Do iOrd = 0,m_Ord
-      Do iOsc=1,nOsc
-      jOrd = iAnn(iOrd,iOsc)
-      If (jOrd .ge. 0) Then
-      Do jOsc=1,nOsc
-      kOrd = iAnn(jOrd,jOsc)
-      If ( kOrd .ge. 0 ) Then
-      Do kOsc=1,nOsc
-      lOrd = iAnn(kOrd,kOsc)
-      If (lOrd .ge. 0) Then
-      Do lOsc=1,nOsc
-      mOrd = iCre(lOrd,lOsc)
-      If (mOrd .ge. 0) Then
-      r=rdx(1)*rdx(2)*rdx(3)*mat(iosc,josc,kosc,losc)+                  &
-     &            rdx(2)*rdx(3)*rdx(4)*mat(losc,iosc,josc,kosc)+        &
-     &                      rdx(3)*rdx(4)*rdx(1)*                       &
-     &     mat(iosc,losc,josc,kosc)+rdx(4)*rdx(1)*                      &
-     &     rdx(2)*mat(iosc,josc,losc,kosc)
-      Fact=sqr(nmat(iord,iosc))*sqr(nmat(jord,josc))*                   &
-     &            sqr(nmat(kord,kosc))*sqr(nmat(mord,losc))*r*rsym
-      F(iOrd,mOrd) = F(iOrd,mOrd)+Fact
-      End If
-      End Do
-      End If
-      End Do
-      End If
-      End Do
-      End If
-      End Do
-      End Do
-      Do iOrd = 0,m_Ord
-      Do iOsc=1,nOsc
-      jOrd = iAnn(iOrd,iOsc)
-      If (jOrd .ge. 0) Then
-      Do jOsc=1,nOsc
-      kOrd = iAnn(jOrd,jOsc)
-      If ( kOrd .ge. 0 ) Then
-      Do kOsc=1,nOsc
-      lOrd = iCre(kOrd,kOsc)
-      If (lOrd .ge. 0) Then
-      Do lOsc=1,nOsc
-      mOrd = iCre(lOrd,lOsc)
-      If (mOrd .ge. 0) Then
-      r=rdx(1)*rdx(2)*mat(iosc,josc,kosc,losc)+rdx(2)*rdx(3)*           &
-     &   mat(kosc,iosc,josc,losc)+                                      &
-     &             rdx(3)*rdx(4)*mat(kosc,losc,iosc,josc)+rdx(4)*       &
-     &     rdx(1)*mat(iosc,kosc,losc,josc)+                             &
-     &                   rdx(1)*rdx(3)*mat(iosc,kosc,josc,losc)+        &
-     &     rdx(4)*rdx(2)*mat(kosc,iosc,losc,josc)
-      Fact=sqr(nmat(iord,iosc))*sqr(nmat(jord,josc))*                   &
-     &            sqr(nmat(lord,kosc))*sqr(nmat(mord,losc))*r*rsym
-      F(iOrd,mOrd) = F(iOrd,mOrd)+Fact
-      End If
-      End Do
-      End If
-      End Do
-      End If
-      End Do
-      End If
-      End Do
-      End Do
-      Do iOrd = 0,m_Ord
-      Do iOsc=1,nOsc
-      jOrd = iAnn(iOrd,iOsc)
-      If (jOrd .ge. 0) Then
-      Do jOsc=1,nOsc
-      kOrd = iCre(jOrd,jOsc)
-      If ( kOrd .ge. 0 ) Then
-      Do kOsc=1,nOsc
-      lOrd = icre(kOrd,kOsc)
-      If (lOrd .ge. 0) Then
-      Do lOsc=1,nOsc
-      mOrd = iCre(lOrd,lOsc)
-      If (mOrd .ge. 0) Then
-      r=rdx(1)*mat(iosc,josc,kosc,losc)+rdx(2)*                         &
-     &            mat(josc,iosc,kosc,losc)+rdx(3)*                      &
-     &     mat(josc,kosc,iosc,losc)                                     &
-     &                       +rdx(4)*mat(josc,kosc,losc,iosc)
-      Fact=sqr(nmat(iord,iosc))*sqr(nmat(kord,josc))*                   &
-     &            sqr(nmat(lord,kosc))*sqr(nmat(mord,losc))*r*rsym
-      F(iOrd,mOrd) = F(iOrd,mOrd)+Fact
-      End If
-      End Do
-      End If
-      End Do
-      End If
-      End Do
-      End If
-      End Do
-      End Do
-      Do iOrd = 0,m_Ord
-      Do iOsc=1,nOsc
-      jOrd = iCre(iOrd,iOsc)
-      If (jOrd .ge. 0) Then
-      Do jOsc=1,nOsc
-      kOrd = iCre(jOrd,jOsc)
-      If ( kOrd .ge. 0 ) Then
-      Do kOsc=1,nOsc
-      lOrd = iCre(kOrd,kOsc)
-      If (lOrd .ge. 0) Then
-      Do lOsc=1,nOsc
-      mOrd = iCre(lOrd,lOsc)
-      If (mOrd .ge. 0) Then
-      Fact=sqr(nmat(jord,iosc))*sqr(nmat(kord,josc))*                   &
-     &            sqr(nmat(lord,kosc))*sqr(nmat(mord,losc))*rsym
-      F(iOrd,mOrd) = F(iOrd,mOrd)+Fact*                                 &
-     &            Mat(iOsc,josc,kosc,losc)
-      End If
-      End Do
-      End If
-      End Do
-      End If
-      End Do
-      End If
-      End Do
-      End Do
-      Do iOrd = 0,m_Ord
-      Do iOsc=1,nOsc
-      jOrd = iann(iOrd,iOsc)
-      If (jOrd .ge. 0) Then
-      Do jOsc=1,nOsc
-      kOrd = iann(jOrd,jOsc)
-      If ( kOrd .ge. 0 ) Then
-      Do kOsc=1,nOsc
-      Fact=sqr(nmat(iord,iosc))*sqr(nmat(jord,josc))*rsym
-      relem=rdx(1)*rdx(2)*rdx(4)*mat(iosc,josc,kosc,kosc)
-      relem=relem+rdx(1)*rdx(3)*rdx(4)*                                 &
-     &          (mat(iosc,kosc,kosc,josc)+mat(iosc,kosc,josc,kosc))
-      relem=relem+rdx(2)*rdx(3)*rdx(4)*                                 &
-     &          (mat(kosc,kosc,josc,iosc)+mat(kosc,iosc,kosc,josc)+     &
-     &     mat(kosc,josc,iosc,kosc))
-      F(iOrd,kOrd) = F(iOrd,kOrd)+Fact*relem*0.5d0
-      End Do
-      End If
-      End Do
-      End If
-      End Do
-      End Do
+integer nMat(0:m_ord,nosc)
+real*8 Mat(nOsc,nOsc,nOsc,nOsc)
+real*8 F(0:mdim1,0:ndim1)
+real*8 sqr(0:50)
+real*8 rdx(4)
+real*8 fact, r, rsym, relem
+integer iAnn(0:ndim1,ndim2)
+integer iCre(0:ndim1,ndim2)
 
-      Do iOrd = 0,m_Ord
-      Do iOsc=1,nOsc
-      jOrd = icre(iOrd,iOsc)
-      If (jOrd .ge. 0) Then
-      Do jOsc=1,nOsc
-      kOrd = icre(jOrd,jOsc)
-      If ( kOrd .ge. 0 ) Then
-      Do kOsc=1,nOsc
-      Fact=sqr(nmat(jord,iosc))*sqr(nmat(kord,josc))*rsym
-      relem=rdx(2)*mat(kosc,kosc,iosc,josc)
-      relem=relem+rdx(3)*(mat(iosc,kosc,kosc,josc)+                     &
-     &          mat(kosc,iosc,kosc,josc))
-      relem=relem+rdx(4)*(mat(iosc,josc,kosc,kosc)+                     &
-     &          mat(iosc,kosc,josc,kosc)+mat(kosc,iosc,josc,kosc))
-      F(iOrd,kOrd) = F(iOrd,kOrd)+Fact*relem*0.5d0
-      End Do
-      End If
-      End Do
-      End If
-      End Do
-      End Do
-      Do iOrd = 0,m_Ord
-      Do iOsc=1,nOsc
-      jOrd = iann(iOrd,iOsc)
-      If (jOrd .ge. 0) Then
-      Do jOsc=1,nOsc
-      kOrd = iCre(jOrd,jOsc)
-      If ( kOrd .ge. 0 ) Then
-      Do kOsc=1,nOsc
-      Fact=sqr(nmat(iord,iosc))*sqr(nmat(kord,josc))*rsym
-      relem=(Mat(jOsc,kosc,kosc,iosc)+                                  &
-     &          Mat(kOsc,josc,kosc,iosc)+Mat(jOsc,kosc,iosc,kosc)+      &
-     &     Mat(kOsc,josc,iosc,kosc))*rdx(3)*rdx(4)
-      relem=relem+(Mat(kOsc,kosc,josc,iosc)+                            &
-     &          Mat(jOsc,iosc,kosc,kosc)+Mat(kOsc,iosc,josc,kosc))*     &
-     &     rdx(2)*rdx(4)
-      relem=relem+(Mat(kOsc,kosc,iosc,josc)+                            &
-     &          Mat(kOsc,iosc,kosc,josc))*rdx(2)*rdx(3)
-      relem=relem+(Mat(iOsc,kosc,josc,kosc)+                            &
-     &          Mat(iOsc,josc,kosc,kosc))*rdx(1)*rdx(4)
-      relem=relem+Mat(iOsc,kosc,kosc,josc)*rdx(1)*rdx(3)
-      F(iOrd,kOrd) = F(iOrd,kOrd)+Fact*relem*0.5d0
-      End Do
-      End If
-      End Do
-      End If
-      End Do
-      End Do
-      Do iOrd = 0,m_Ord
-      Do iOsc=1,nOsc
-      Do jOsc=1,nOsc
-      relem=rdx(4)*rdx(3)*(mat(iosc,josc,josc,iosc)+                    &
-     &          mat(iosc,josc,iosc,josc))
-      relem=relem+rdx(2)*rdx(4)*mat(iosc,iosc,josc,josc)
+do i=0,50
+  sqr(i) = sqrt(dble(i)/2.0d0)
+end do
+rsym = 1.0d0/24.0d0
+r = Rdx(1)*rdx(2)*rdx(3)*rdx(4)
+do iOrd=0,m_Ord
+  do iOsc=1,nOsc
+    jOrd = iAnn(iOrd,iOsc)
+    if (jOrd >= 0) then
+      do jOsc=1,nOsc
+        kOrd = iAnn(jOrd,jOsc)
+        if (kOrd >= 0) then
+          do kOsc=1,nOsc
+            lOrd = iAnn(kOrd,kOsc)
+            if (lOrd >= 0) then
+              do lOsc=1,nOsc
+                mOrd = iAnn(lOrd,lOsc)
+                if (mOrd >= 0) then
+                  Fact = sqr(nmat(iord,iosc))*sqr(nmat(jord,josc))*sqr(nmat(kord,kosc))*sqr(nmat(lord,losc))*r*rsym
+                  F(iOrd,mOrd) = F(iOrd,mOrd)+Fact*Mat(iOsc,josc,kosc,losc)
+                end if
+              end do
+            end if
+          end do
+        end if
+      end do
+    end if
+  end do
+end do
+do iOrd=0,m_Ord
+  do iOsc=1,nOsc
+    jOrd = iAnn(iOrd,iOsc)
+    if (jOrd >= 0) then
+      do jOsc=1,nOsc
+        kOrd = iAnn(jOrd,jOsc)
+        if (kOrd >= 0) then
+          do kOsc=1,nOsc
+            lOrd = iAnn(kOrd,kOsc)
+            if (lOrd >= 0) then
+              do lOsc=1,nOsc
+                mOrd = iCre(lOrd,lOsc)
+                if (mOrd >= 0) then
+                  r = rdx(1)*rdx(2)*rdx(3)*mat(iosc,josc,kosc,losc)+rdx(2)*rdx(3)*rdx(4)*mat(losc,iosc,josc,kosc)+ &
+                      rdx(3)*rdx(4)*rdx(1)*mat(iosc,losc,josc,kosc)+rdx(4)*rdx(1)*rdx(2)*mat(iosc,josc,losc,kosc)
+                  Fact = sqr(nmat(iord,iosc))*sqr(nmat(jord,josc))*sqr(nmat(kord,kosc))*sqr(nmat(mord,losc))*r*rsym
+                  F(iOrd,mOrd) = F(iOrd,mOrd)+Fact
+                end if
+              end do
+            end if
+          end do
+        end if
+      end do
+    end if
+  end do
+end do
+do iOrd=0,m_Ord
+  do iOsc=1,nOsc
+    jOrd = iAnn(iOrd,iOsc)
+    if (jOrd >= 0) then
+      do jOsc=1,nOsc
+        kOrd = iAnn(jOrd,jOsc)
+        if (kOrd >= 0) then
+          do kOsc=1,nOsc
+            lOrd = iCre(kOrd,kOsc)
+            if (lOrd >= 0) then
+              do lOsc=1,nOsc
+                mOrd = iCre(lOrd,lOsc)
+                if (mOrd >= 0) then
+                  r = rdx(1)*rdx(2)*mat(iosc,josc,kosc,losc)+rdx(2)*rdx(3)*mat(kosc,iosc,josc,losc)+ &
+                      rdx(3)*rdx(4)*mat(kosc,losc,iosc,josc)+rdx(4)*rdx(1)*mat(iosc,kosc,losc,josc)+ &
+                      rdx(1)*rdx(3)*mat(iosc,kosc,josc,losc)+rdx(4)*rdx(2)*mat(kosc,iosc,losc,josc)
+                  Fact = sqr(nmat(iord,iosc))*sqr(nmat(jord,josc))*sqr(nmat(lord,kosc))*sqr(nmat(mord,losc))*r*rsym
+                  F(iOrd,mOrd) = F(iOrd,mOrd)+Fact
+                end if
+              end do
+            end if
+          end do
+        end if
+      end do
+    end if
+  end do
+end do
+do iOrd=0,m_Ord
+  do iOsc=1,nOsc
+    jOrd = iAnn(iOrd,iOsc)
+    if (jOrd >= 0) then
+      do jOsc=1,nOsc
+        kOrd = iCre(jOrd,jOsc)
+        if (kOrd >= 0) then
+          do kOsc=1,nOsc
+            lOrd = icre(kOrd,kOsc)
+            if (lOrd >= 0) then
+              do lOsc=1,nOsc
+                mOrd = iCre(lOrd,lOsc)
+                if (mOrd >= 0) then
+                  r = rdx(1)*mat(iosc,josc,kosc,losc)+rdx(2)*mat(josc,iosc,kosc,losc)+rdx(3)*mat(josc,kosc,iosc,losc)+ &
+                      rdx(4)*mat(josc,kosc,losc,iosc)
+                  Fact = sqr(nmat(iord,iosc))*sqr(nmat(kord,josc))*sqr(nmat(lord,kosc))*sqr(nmat(mord,losc))*r*rsym
+                  F(iOrd,mOrd) = F(iOrd,mOrd)+Fact
+                end if
+              end do
+            end if
+          end do
+        end if
+      end do
+    end if
+  end do
+end do
+do iOrd=0,m_Ord
+  do iOsc=1,nOsc
+    jOrd = iCre(iOrd,iOsc)
+    if (jOrd >= 0) then
+      do jOsc=1,nOsc
+        kOrd = iCre(jOrd,jOsc)
+        if (kOrd >= 0) then
+          do kOsc=1,nOsc
+            lOrd = iCre(kOrd,kOsc)
+            if (lOrd >= 0) then
+              do lOsc=1,nOsc
+                mOrd = iCre(lOrd,lOsc)
+                if (mOrd >= 0) then
+                  Fact = sqr(nmat(jord,iosc))*sqr(nmat(kord,josc))*sqr(nmat(lord,kosc))*sqr(nmat(mord,losc))*rsym
+                  F(iOrd,mOrd) = F(iOrd,mOrd)+Fact*Mat(iOsc,josc,kosc,losc)
+                end if
+              end do
+            end if
+          end do
+        end if
+      end do
+    end if
+  end do
+end do
+do iOrd=0,m_Ord
+  do iOsc=1,nOsc
+    jOrd = iann(iOrd,iOsc)
+    if (jOrd >= 0) then
+      do jOsc=1,nOsc
+        kOrd = iann(jOrd,jOsc)
+        if (kOrd >= 0) then
+          do kOsc=1,nOsc
+            Fact = sqr(nmat(iord,iosc))*sqr(nmat(jord,josc))*rsym
+            relem = rdx(1)*rdx(2)*rdx(4)*mat(iosc,josc,kosc,kosc)
+            relem = relem+rdx(1)*rdx(3)*rdx(4)*(mat(iosc,kosc,kosc,josc)+mat(iosc,kosc,josc,kosc))
+            relem = relem+rdx(2)*rdx(3)*rdx(4)*(mat(kosc,kosc,josc,iosc)+mat(kosc,iosc,kosc,josc)+mat(kosc,josc,iosc,kosc))
+            F(iOrd,kOrd) = F(iOrd,kOrd)+Fact*relem*0.5d0
+          end do
+        end if
+      end do
+    end if
+  end do
+end do
+
+do iOrd=0,m_Ord
+  do iOsc=1,nOsc
+    jOrd = icre(iOrd,iOsc)
+    if (jOrd >= 0) then
+      do jOsc=1,nOsc
+        kOrd = icre(jOrd,jOsc)
+        if (kOrd >= 0) then
+          do kOsc=1,nOsc
+            Fact = sqr(nmat(jord,iosc))*sqr(nmat(kord,josc))*rsym
+            relem = rdx(2)*mat(kosc,kosc,iosc,josc)
+            relem = relem+rdx(3)*(mat(iosc,kosc,kosc,josc)+mat(kosc,iosc,kosc,josc))
+            relem = relem+rdx(4)*(mat(iosc,josc,kosc,kosc)+mat(iosc,kosc,josc,kosc)+mat(kosc,iosc,josc,kosc))
+            F(iOrd,kOrd) = F(iOrd,kOrd)+Fact*relem*0.5d0
+          end do
+        end if
+      end do
+    end if
+  end do
+end do
+do iOrd=0,m_Ord
+  do iOsc=1,nOsc
+    jOrd = iann(iOrd,iOsc)
+    if (jOrd >= 0) then
+      do jOsc=1,nOsc
+        kOrd = iCre(jOrd,jOsc)
+        if (kOrd >= 0) then
+          do kOsc=1,nOsc
+            Fact = sqr(nmat(iord,iosc))*sqr(nmat(kord,josc))*rsym
+            relem = (Mat(jOsc,kosc,kosc,iosc)+Mat(kOsc,josc,kosc,iosc)+Mat(jOsc,kosc,iosc,kosc)+ &
+                    Mat(kOsc,josc,iosc,kosc))*rdx(3)*rdx(4)
+            relem = relem+(Mat(kOsc,kosc,josc,iosc)+Mat(jOsc,iosc,kosc,kosc)+Mat(kOsc,iosc,josc,kosc))*rdx(2)*rdx(4)
+            relem = relem+(Mat(kOsc,kosc,iosc,josc)+Mat(kOsc,iosc,kosc,josc))*rdx(2)*rdx(3)
+            relem = relem+(Mat(iOsc,kosc,josc,kosc)+Mat(iOsc,josc,kosc,kosc))*rdx(1)*rdx(4)
+            relem = relem+Mat(iOsc,kosc,kosc,josc)*rdx(1)*rdx(3)
+            F(iOrd,kOrd) = F(iOrd,kOrd)+Fact*relem*0.5d0
+          end do
+        end if
+      end do
+    end if
+  end do
+end do
+do iOrd=0,m_Ord
+  do iOsc=1,nOsc
+    do jOsc=1,nOsc
+      relem = rdx(4)*rdx(3)*(mat(iosc,josc,josc,iosc)+mat(iosc,josc,iosc,josc))
+      relem = relem+rdx(2)*rdx(4)*mat(iosc,iosc,josc,josc)
       F(iOrd,iOrd) = F(iOrd,iOrd)+relem*rsym*0.25d0
-      End Do
-      End Do
-      End Do
+    end do
+  end do
+end do
 
-
-      End
+end subroutine Mul4

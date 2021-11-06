@@ -8,43 +8,38 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!!-----------------------------------------------------------------------!
-!!
-      Subroutine FGenerator(nMat,F,iCre,iAnn,trgrd,m_ord,mx_ord,nosc)
-!!
 
-      Integer nMat ( 0:m_Ord,nOsc)
-      Real*8 trgrd (3,nOsc)
-      Real*8 F (0:m_ord,0:mx_ord,3)
-      Real*8 sqr (0:50)
-      integer iCre (0:m_ord,nosc)
-      integer iAnn (0:m_ord,nosc)
-!!
+subroutine FGenerator(nMat,F,iCre,iAnn,trgrd,m_ord,mx_ord,nosc)
 
-!       F = 0.0d0
-      call dcopy_((m_ord+1)*(mx_ord+1)*3,[0.0d0],0,F,1)
-      Do i = 0,50
-      sqr(i) = sqrt(dble(i)/2.0d0)
-      End Do
-      Do iCar = 1,3
-      Do iOsc=1,nOsc
-      Do iOrd = 1,m_Ord
+integer nMat(0:m_Ord,nOsc)
+real*8 trgrd(3,nOsc)
+real*8 F(0:m_ord,0:mx_ord,3)
+real*8 sqr(0:50)
+integer iCre(0:m_ord,nosc)
+integer iAnn(0:m_ord,nosc)
+
+!F = 0.0d0
+call dcopy_((m_ord+1)*(mx_ord+1)*3,[0.0d0],0,F,1)
+do i=0,50
+  sqr(i) = sqrt(dble(i)/2.0d0)
+end do
+do iCar=1,3
+  do iOsc=1,nOsc
+    do iOrd=1,m_Ord
       jOrd = iAnn(iOrd,iOsc)
-      If ( jOrd.ge.0 ) Then
-      F(iOrd,jOrd,iCar) = F(iOrd,jOrd,iCar)+                            &
-     &             sqr(nMat(iOrd,iOsc))*trgrd(iCar,iOsc)
-      End If
-      End Do
-      End Do
-      Do iOsc = 1,nOsc
-      Do iOrd = 0,m_Ord
+      if (jOrd >= 0) then
+        F(iOrd,jOrd,iCar) = F(iOrd,jOrd,iCar)+sqr(nMat(iOrd,iOsc))*trgrd(iCar,iOsc)
+      end if
+    end do
+  end do
+  do iOsc=1,nOsc
+    do iOrd=0,m_Ord
       jOrd = iCre(iord,iosc)
-      If ( jOrd.ge.0 ) Then
-      F(iOrd,jOrd,iCar) = F(iOrd,jOrd,iCar)+                            &
-     &             sqr(nMat(jOrd,iOsc))*trgrd(iCar,iOsc)
-      End If
-      End Do
-      End Do
-      End Do
-!!
-      End
+      if (jOrd >= 0) then
+        F(iOrd,jOrd,iCar) = F(iOrd,jOrd,iCar)+sqr(nMat(jOrd,iOsc))*trgrd(iCar,iOsc)
+      end if
+    end do
+  end do
+end do
+
+end subroutine FGenerator
