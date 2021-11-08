@@ -250,6 +250,7 @@ c      end if
 !We loop over the number of states.  For each state, we read the density
 !matrices from the JOBIPH file.
        do jroot=1,lroots
+        iIntS=jRoot
 !       do d_off=1,1!100!,43!33,33!1,43
 
        !Load a fresh FockI and FockA
@@ -298,6 +299,8 @@ c      end if
 *        end do
         Call Put_P2MOt(Work(iP2dt1),NACPR2)
         Call GetMem('P2t','free','Real',iP2dt1,NACPR2)
+      else if(dogradmspd) then
+        Call P2_contraction(Work(iD1Act),Work(iP2MOt+(jroot-1)*NACPR2))
       end if
 
       IF(IPRLEV.ge.DEBUG) THEN
@@ -343,7 +346,7 @@ c      end if
 *         end do
 
 !ANDREW _ RIGHT HERE
-      if(DoGradPDFT.and.jroot.eq.irlxroot) then
+      if((DoGradPDFT.and.jroot.eq.irlxroot).or.DoGradMSPD) then
         Call GetMem('DtmpA_g','Allo','Real',iTmp_grd,nTot1)
         Call Fold_pdft(nSym,nBas,Work(iD1ActAO),Work(iTmp_grd))
         Call put_darray('d1activeao',Work(iTmp_grd),ntot1)
@@ -354,11 +357,20 @@ c      end if
          Call Fold(nSym,nBas,Work(iD1I),Work(iTmp3))
          Call Fold(nSym,nBas,Work(iD1ActAO),Work(iTmp4))
 *
+      if(DoGradMSPD) then
+         Call Dcopy_(nTot1,Work(iTmp4),1,Work(iDIDA+(iIntS-1)*nTot1),1)
+         if (iIntS.eq.lRoots)
+     &   Call Dcopy_(ntot1,Work(iTmp3),1,Work(iDIDA+lRoots*nTot1),1)
+      end if
          Call Daxpy_(nTot1,1.0D0,Work(iTmp4),1,Work(iTmp3),1)
 !Maybe I can write all of these matrices to file, then modify stuff in
 !the nq code to read in the needed density.  In other words, I need to
 !replace the next call with something that supports multistates.
          Call Put_D1ao(Work(iTmp3),nTot1)
+         IF(DoGradMSPD)THEN
+          Call DCopy_(nTot1,Work(iTmp3),1,
+     &        Work(D1AOMS+(jRoot-1)*nTot1),1)
+         END IF
       IF(IPRLEV.ge.DEBUG) THEN
          write(6,*) 'd1ao'
          do i=1,ntot1
@@ -380,6 +392,10 @@ cPS         call xflush(6)
          Call GetMem('DtmpS','Allo','Real',iTmp7,nTot1)
          Call Fold(nSym,nBas,Work(iD1SpinAO),Work(iTmp7))
          Call Put_D1Sao(Work(iTmp7),nTot1)
+         IF(iSpin.ne.1.and.DoGradMSPD) THEN
+         Call DCopy_(nTot1,Work(iTmp7),1,
+     &       Work(D1SAOMS+(jRoot-1)*nTot1),1)
+         END IF
       IF(IPRLEV.ge.DEBUG) THEN
          write(6,*) 'd1so'
          do i=1,ntot1
@@ -432,7 +448,7 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
                     End Do
 
       do_pdftPot=.false.
-      if(DoGradPDFT.and.jroot.eq.irlxroot) then
+      if((DoGradPDFT.and.jroot.eq.irlxroot).or.DoGradMSPD) then
 
         do_pdftPot=.true.
 
@@ -1207,6 +1223,16 @@ cPS         call xflush(6)
 
       end if !DoGradPDFT
 
+      if (dogradmspd) then
+*      doing exactly the same thing as done in the previous chunck
+*      starting from 'BUILDING OF THE NEW FOCK MATRIX'
+*      Hopefully this code will be neater.
+       call savefock_pdft(CMO,IFockI,IFockA,iD1Act,LFock,
+     &                    LP,NQ,LQ,LPUVX,ip2d,jroot)
+      end if
+
+
+
       !if (jroot.eq.iRlxRoot) then
       Call Put_iScalar('Number of roots',nroots)
       Call Put_dArray('Last energies',Energies,nroots)
@@ -1223,7 +1249,7 @@ cPS         call xflush(6)
          END IF
       end do !loop over roots
 
-      if(DoGradPDFT) then
+      if(DoGradPDFT.or.DoGradMSPD) then
         dmDisk = IADR19(3)
         do jroot=1,irlxroot-1
           Call DDaFile(JOBOLD,0,Work(iD1Act),NACPAR,dmDisk)

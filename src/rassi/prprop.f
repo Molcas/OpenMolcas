@@ -238,7 +238,7 @@ C Addition of ANGMOM to Runfile.
          ENDIF
 c add dipole moment integrals:
          IF(PNAME(IPROP).EQ.'MLTPL  1'.AND.
-     &      SOPRTP(IPROP).EQ.'HERMSING') THEN
+     &      PTYPE(IPROP).EQ.'HERMSING') THEN
             IFDIP1=.TRUE.
             DO I=1,NSTATE
                DO J=1,NSTATE
@@ -2822,6 +2822,12 @@ C printing threshold
         END DO ! I
         WRITE(6,*)
         WRITE(6,*)
+! VKochetov 2021 put SO Dyson amplitudes to hdf5
+#ifdef _HDF5_
+        if (rhodyn) then
+            call mh5_put_dset(wfn_sos_dys, SODYSAMPS)
+        endif
+#endif
        END IF
 ! +++ J. Norell
 

@@ -35,6 +35,7 @@
 #include "output_ras.fh"
 #include "orthonormalize_mcpdft.fh"
 #include "ksdft.fh"
+#include "mspdft.fh"
 #include "casvb.fh"
 #include "pamint.fh"
 *Chen write JOBIPH
@@ -120,6 +121,7 @@ C   No changing about read in orbital information from INPORB yet.
       DoDMRG = .false.
 
       doGradPDFT = .false.
+      doGradMSPD = .false.
       doNOGRad = .false.
       DoGSOR=.false.
 
@@ -887,6 +889,10 @@ CGG This part will be removed. (PAM 2009: What on earth does he mean??)
        iMSPDFT=1
        Call SetPos_m(LUInput,'MSPD',Line,iRc)
        Call ChkIfKey_m()
+       if(dogradpdft) then
+        dogradmspd=.true.
+        dogradpdft=.false.
+       end if
       End If
 *---  Process WJOB command --------------------------------------------*
       If (DBG) Write(6,*) ' Check if write JOBIPH case.'
@@ -2519,6 +2525,10 @@ c       write(6,*)          '  --------------------------------------'
       If (KeyGRAD) Then
        If (DBG) Write(6,*) ' GRADient keyword was used.'
        DoGradPDFT=.true.
+       if(iMSPDFT==1) then
+        dogradmspd=.true.
+        dogradpdft=.false.
+       end if
        Call SetPos_m(LUInput,'GRAD',Line,iRc)
        Call ChkIfKey_m()
 *TRS - Adding else statement to make nograd the default if the grad
@@ -2614,6 +2624,9 @@ c       write(6,*)          '  --------------------------------------'
 *
       If (DNG) Then
          DoGradPDFT=.false.
+         if(iMSPDFT==1) then
+          dogradmspd=.false.
+         end if
       End If
 *
 *     Check to see if we are in a Do While loop
@@ -2623,6 +2636,10 @@ c       write(6,*)          '  --------------------------------------'
       If ((emiloop(1:1).ne.'0') .and. inGeo(1:1) .ne. 'Y'
      &    .and. .not.DNG) Then
          DoGradPDFT=.true.
+         if(iMSPDFT==1) then
+          dogradmspd=.true.
+          dogradpdft=.false.
+         end if
       End If
 *                                                                      *
 ************************************************************************

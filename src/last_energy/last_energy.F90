@@ -44,6 +44,7 @@ if (Method(5:7) == 'SCF'     .or. &
     Method(1:5) == 'CCSDT'   .or. &
     Method(1:4) == 'CHCC'    .or. &
     Method(1:6) == 'MCPDFT'  .or. &
+    Method(1:6) == 'MSPDFT'  .or. &
 #   ifdef _DMRG_
     Method(1:7) == 'DMRGSCF' .or. &
 #   endif
@@ -56,6 +57,7 @@ else
 end if
 
 if (Method(1:6) == 'MCPDFT') Do_ESPF = .false.
+if (Method(1:6) == 'MSPDFT') Do_ESPF = .false.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -105,6 +107,7 @@ else if (Method(1:6) == 'RASSCF' .or. &
          Method(1:6) == 'CASSCF' .or. &
          Method(1:6) == 'CASPT2' .or. &
          Method(1:6) == 'MCPDFT' .or. &
+         Method(1:6) == 'MSPDFT' .or. &
          Method(1:5) == 'CCSDT') then
   call StartLight('rasscf')
   call Disable_Spool()
@@ -202,6 +205,17 @@ if (Method(1:6) == 'CASPT2') then
 end if
 
 if (Method(1:6) == 'MCPDFT') then
+  call StartLight('mcpdft')
+  call Disable_Spool()
+  call MCPDFT(iReturn)
+  if (iReturn /= 0) then
+    write(u6,*) 'Last_Energy failed ...'
+    write(u6,*) 'MCPDFT returned with return code, rc = ',iReturn
+    call Abend()
+  end if
+end if
+
+if (Method(1:6) == 'MSPDFT') then
   call StartLight('mcpdft')
   call Disable_Spool()
   call MCPDFT(iReturn)

@@ -1281,6 +1281,17 @@ Keywords
               </HELP>
               </KEYWORD>
 
+:kword:`RHODyn`
+  Required to run :program:`RHODYN` program. Enable saving pure spin--orbit coupling Hamiltonian and SO Dyson amplitudes (not squared!) to HDF5 file of :program:`RASSI`.
+  Keywords :kword:`SPINorbit`, :kword:`MESO`, :kword:`XVES`, :kword:`XVSO`, :kword:`DYSOn` are required to print corresponding properties.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="RHOD" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: RHODyn <advanced>
+              <HELP>
+              Enables saving V_SOC and Dyson amplitudes to HDF5.
+              </HELP>
+              </KEYWORD>
+
 :kword:`NTOCalc`
   Enables natural transition orbital (NTO) calculation of two states from two JobIph files (which can be identical to each other).
   The NTO calculations can be performed for states with different spatial symmetries.
