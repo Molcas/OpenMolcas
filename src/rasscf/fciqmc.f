@@ -16,6 +16,7 @@
       module fciqmc
 #ifdef _MOLCAS_MPP_
       use mpi
+      use fciqmc_cons, only: stdout
       use definitions, only: MPIInt
       use Para_Info, only: Is_Real_Par
 #endif
@@ -77,9 +78,9 @@
         logical, intent(in) :: tGUGA
         type(fciqmc_solver_t) :: res
         res%tGUGA = tGUGA
-        write(6,*) ' NECI activated. List of Confs might get lengthy.'
-        write(6,*) ' Number of Configurations computed by GUGA: ', nConf
-        write(6,*) ' nConf variable is set to zero to avoid JOBIPH i/o'
+        write(stdout,*) ' NECI activated. List of Confs might get lengthy.'
+        write(stdout,*) ' Number of Configurations computed by GUGA: ', nConf
+        write(stdout,*) ' nConf variable is set to zero to avoid JOBIPH i/o'
         nConf= 0
       end function
 
@@ -229,7 +230,7 @@
             call make_inp(input_name, readpops=reuse_pops, tGUGA=tGUGA,
      &          GAS_spaces=GAS_spaces, GAS_particles=GAS_particles)
 #ifdef _NECI_
-            write(6,*) 'NECI called automatically within Molcas!'
+            write(stdout,*) 'NECI called automatically within Molcas!'
             if (myrank /= 0) call chdir_('..')
             call necimain(real_path(ascii_fcidmp),
      &                    real_path(input_name),
@@ -290,38 +291,38 @@
         integer :: err
 
         call getcwd_(WorkDir, err)
-        if (err /= 0) write(6, *) strerror_(get_errno_())
+        if (err /= 0) write(stdout, *) strerror_(get_errno_())
 
         if (tGUGA) then
-            write(6,'(A)')'Run spin-free GUGA NECI externally.'
+            write(stdout,'(A)')'Run spin-free GUGA NECI externally.'
         else
-            write(6,'(A)')'Run NECI externally.'
+            write(stdout,'(A)')'Run NECI externally.'
         end if
-        write(6,'(A)')'Get the (example) NECI input:'
-        write(6,'(4x, A, 1x, A, 1x, A)')
+        write(stdout,'(A)')'Get the (example) NECI input:'
+        write(stdout,'(4x, A, 1x, A, 1x, A)')
      &    'cp', real_path(input_name), '$NECI_RUN_DIR'
-        write(6,'(A)')'Get the ASCII formatted FCIDUMP:'
-        write(6,'(4x, A, 1x, A, 1x, A)')
+        write(stdout,'(A)')'Get the ASCII formatted FCIDUMP:'
+        write(stdout,'(4x, A, 1x, A, 1x, A)')
      &    'cp', real_path(ascii_fcidmp), '$NECI_RUN_DIR'
-        write(6,'(A)')'Or the HDF5 FCIDUMP:'
-        write(6,'(4x, A, 1x, A, 1x, A)')
+        write(stdout,'(A)')'Or the HDF5 FCIDUMP:'
+        write(stdout,'(4x, A, 1x, A, 1x, A)')
      &    'cp', real_path(h5_fcidmp), '$NECI_RUN_DIR'
-        write(6, *)
-        write(6,'(A)') "When finished do:"
+        write(stdout, *)
+        write(stdout,'(A)') "When finished do:"
         if (tGUGA) then
-          write(6,'(4x, A)') 'cp PSMAT PAMAT DMAT '//trim(WorkDir)
+          write(stdout,'(4x, A)') 'cp PSMAT PAMAT DMAT '//trim(WorkDir)
         else
-          write(6,'(4x, A)')
+          write(stdout,'(4x, A)')
      &      'cp TwoRDM_aaaa.1 TwoRDM_abab.1 TwoRDM_abba.1 '//
      &      'TwoRDM_bbbb.1 TwoRDM_baba.1 TwoRDM_baab.1 '//trim(WorkDir)
         end if
-        write(6,'(4x, A)')
+        write(stdout,'(4x, A)')
      &    'echo $your_RDM_Energy > '//real_path(energy_file)
         call xflush(6)
       end subroutine write_ExNECI_message
 
 !> Generate density matrices for Molcas
-!>   Neci density matrices are stored in Files TwoRDM_**** (in spacial orbital basis).
+!>   Neci density matrices are stored in Files TwoRDM_**** (in spatial orbital basis).
 !>   I will be reading them from those formatted files for the time being.
 !>   Next it will be nice if NECI prints them out already in Molcas format.
       subroutine get_neci_RDM(D1S_MO, DMAT, PSMAT, PAMAT, tGUGA)
