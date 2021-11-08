@@ -49,5 +49,5 @@ C     iXStruct(14)=NT5MX
 C Dimensions of structures.
       INTEGER NSGSIZE,NCISIZE,NXSIZE,MXLEV
       Parameter (nSGSize=12,nCISize=9,nXSize=14,mxlev=100)
-      INTEGER L2ACT(mxlev), LEVEL(mxlev)
-      COMMON /ORBTRA/ L2ACT,LEVEL
+      INTEGER LEVEL(mxlev)
+      COMMON /ORBTRA/ LEVEL

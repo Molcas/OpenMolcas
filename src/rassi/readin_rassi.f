@@ -781,8 +781,15 @@ C--------------------------------------------
         Read(LuIn,*,ERR=997) (e_Vector(i),i=1,3)
         GoTo 100
       Endif
-#ifdef _DMRG_
 C--------------------------------------------
+C VKochetov 2021 enable saving more data to hdf5
+      if (Line(1:4).eq.'RHOD') then
+        rhodyn=.true.
+        Linenr=Linenr+1
+        GoTo 100
+      endif
+C--------------------------------------------
+#ifdef _DMRG_
       if (Line(1:4).eq.'QDSC') then
         QDPT2SC = .true.
         goto 100

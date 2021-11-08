@@ -160,8 +160,10 @@ C
       Call Get_iScalar('Relax CASSCF root',irlxroot)
       Call Get_cArray('Relax Method',Method,8)
       iMCPD=.False.
-      if(Method.eq.'MCPDFT  ') then
+      iMSPD=.False.
+      if((Method.eq.'MCPDFT  ').or.(Method.eq.'MSPDFT  ')) then
         iMCPD=.True.
+        if(Method.eq.'MSPDFT  ') iMSPD=.True.
         Do i=1,lroots
           if(iroot(i).eq.irlxroot)istate=i
         end do
