@@ -499,83 +499,84 @@ call GetMem('xvectmp','Allo','Real',ipxvectmp,NumInt)
 !write(u6,*) ' Int_to_Cart1 has been called with target internal coordinates:'
 !write(u6,'(1x,5F16.8)') xvec
 iter = 0
-10 continue
-iter = iter+1
-if (iter > 50) then
-  write(u6,*) ' Int_to_Cart1 fails to converge.'
-  call abend()
-end if
-! Find the current internal coordinates and B matrix:
-!xvectmp = xvec
-call dcopy_(NumInt,xvec,1,Work(ipxvectmp),1)
-call Cart_to_Int1(InterVec,AtCoord,Work(ipxvectmp),BMatrix,NumOfAt,NumInt)
+RMSErr = huge(RMSErr)
+do while (RMSErr > 1.0e-12_wp)
+  iter = iter+1
+  if (iter > 50) then
+    write(u6,*) ' Int_to_Cart1 fails to converge.'
+    call abend()
+  end if
+  ! Find the current internal coordinates and B matrix:
+  !xvectmp = xvec
+  call dcopy_(NumInt,xvec,1,Work(ipxvectmp),1)
+  call Cart_to_Int1(InterVec,AtCoord,Work(ipxvectmp),BMatrix,NumOfAt,NumInt)
 
-! Present error:
-sum = Zero
-do k=1,NumInt
-  sum = sum+(Work(ipxvectmp+k-1)-xvec(k))**2
-end do
-RMSErr = sqrt(sum)
-! The B matrix is the matrix of partial derivatives of xvectmp with
-! respect to AtCoord.
-! Form the matrix B(transpose)*B -- This will be the matrix of the
-! linearized equation system.
-jj = 0
-do j1=1,NumOfAt
-  do j2=1,3
-    jj = jj+1
-    ii = 0
-    do i1=1,NumOfAt
-      do i2=1,3
-        ii = ii+1
-        sum = Zero
-        do k=1,NumInt
-          sum = sum+BMatrix(i2,i1,k)*BMatrix(j2,j1,k)
+  ! Present error:
+  sum = Zero
+  do k=1,NumInt
+    sum = sum+(Work(ipxvectmp+k-1)-xvec(k))**2
+  end do
+  RMSErr = sqrt(sum)
+  ! The B matrix is the matrix of partial derivatives of xvectmp with
+  ! respect to AtCoord.
+  ! Form the matrix B(transpose)*B -- This will be the matrix of the
+  ! linearized equation system.
+  jj = 0
+  do j1=1,NumOfAt
+    do j2=1,3
+      jj = jj+1
+      ii = 0
+      do i1=1,NumOfAt
+        do i2=1,3
+          ii = ii+1
+          sum = Zero
+          do k=1,NumInt
+            sum = sum+BMatrix(i2,i1,k)*BMatrix(j2,j1,k)
+          end do
+          Work(ipEqMat+ii+ncart*(jj-1)-1) = sum
         end do
-        Work(ipEqMat+ii+ncart*(jj-1)-1) = sum
       end do
     end do
   end do
-end do
-! The right-hand side of the equation system:
-ii = 0
-do i1=1,NumOfAt
-  do i2=1,3
-    ii = ii+1
-    sum = Zero
-    do k=1,NumInt
-      sum = sum+BMatrix(i2,i1,k)*(xvec(k)-Work(ipxvectmp+k-1))
+  ! The right-hand side of the equation system:
+  ii = 0
+  do i1=1,NumOfAt
+    do i2=1,3
+      ii = ii+1
+      sum = Zero
+      do k=1,NumInt
+        sum = sum+BMatrix(i2,i1,k)*(xvec(k)-Work(ipxvectmp+k-1))
+      end do
+      Work(ipEqRHS+ii-1) = sum
     end do
-    Work(ipEqRHS+ii-1) = sum
   end do
-end do
-!D write(u6,*) ' EqRHS:'
-!D write(u6,'(1x,5f16.8)') EqRHS
-! Automatic step limitation, and in fact ensuring that we go in the
-! direction of minimization always, is achieved indirectly:
-do j=1,ncart
-  Work(ipEqMat+j+ncart*(j-1)-1) = Work(ipEqMat+j+ncart*(j-1)-1)+1.0e-12_wp
-end do
-! Solve the linear equation system:
-call Dool_MULA(Work(ipEqMat),ncart,ncart,Work(ipEqRHS),ncart,1,det)
-!D write(u6,*) ' Solution vector:'
-!D write(u6,'(1x,5f16.8)') EqRHS
-! After return from dool, EqMat is destroyed and EqRHS is solution.
-! Update the cartesian coordinates:
-ii = 0
-do i1=1,NumOfAt
-  do i2=1,3
-    ii = ii+1
-    AtCoord(i2,i1) = AtCoord(i2,i1)+Work(ipEqRHS+ii-1)
+  !D write(u6,*) ' EqRHS:'
+  !D write(u6,'(1x,5f16.8)') EqRHS
+  ! Automatic step limitation, and in fact ensuring that we go in the
+  ! direction of minimization always, is achieved indirectly:
+  do j=1,ncart
+    Work(ipEqMat+j+ncart*(j-1)-1) = Work(ipEqMat+j+ncart*(j-1)-1)+1.0e-12_wp
   end do
+  ! Solve the linear equation system:
+  call Dool_MULA(Work(ipEqMat),ncart,ncart,Work(ipEqRHS),ncart,1,det)
+  !D write(u6,*) ' Solution vector:'
+  !D write(u6,'(1x,5f16.8)') EqRHS
+  ! After return from dool, EqMat is destroyed and EqRHS is solution.
+  ! Update the cartesian coordinates:
+  ii = 0
+  do i1=1,NumOfAt
+    do i2=1,3
+      ii = ii+1
+      AtCoord(i2,i1) = AtCoord(i2,i1)+Work(ipEqRHS+ii-1)
+    end do
+  end do
+  !write(u6,*) ' Iteration iter=',iter
+  !write(u6,*) ' AtCoord array:'
+  !do i1=1,NumOfAt
+  !  write(u6,'(1x,3f16.8)') (AtCoord(i2,i1),i2=1,3)
+  !end do
+  !write(u6,*) 'RMSErr:',RMSErr
 end do
-!write(u6,*) ' Iteration iter=',iter
-!write(u6,*) ' AtCoord array:'
-!do i1=1,NumOfAt
-!  write(u6,'(1x,3f16.8)') (AtCoord(i2,i1),i2=1,3)
-!end do
-!write(u6,*) 'RMSErr:',RMSErr
-if (RMSErr > 1.0e-12_wp) goto 10
 call GetMem('EqMat','Free','Real',ipEqMat,ncart*ncart)
 call GetMem('EqRHS','Free','Real',ipEqRHS,ncart)
 call GetMem('xvectmp','Free','Real',ipxvectmp,NumInt)

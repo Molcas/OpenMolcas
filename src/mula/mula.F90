@@ -969,399 +969,398 @@ if (lISC) then
 
   lISC = .false.
   !call GetMem('Test_F','LIST','INTE',iDum,iDum)
-  goto 999
 
-end if
-!GGn -------------------------------------------------------------------
+else
+  !GGn -----------------------------------------------------------------
 
-!----------------------------------------------------------------------!
+  !--------------------------------------------------------------------!
 
-! Set up excitation matrices
+  ! Set up excitation matrices
 
-!----------------------------------------------------------------------!
+  !--------------------------------------------------------------------!
 
-! Calculate dimensions given max level of excitation for the different states.
-call TabDim2_drv(m_max,nOsc,nvTabDim)
-mTabDim = nvTabDim-1
-call TabDim2_drv(n_max,nOsc,nvTabDim)
-nTabDim = nvTabDim-1
+  ! Calculate dimensions given max level of excitation for the different states.
+  call TabDim2_drv(m_max,nOsc,nvTabDim)
+  mTabDim = nvTabDim-1
+  call TabDim2_drv(n_max,nOsc,nvTabDim)
+  nTabDim = nvTabDim-1
 
-! Set up mMat for L.
-max_mOrd = mTabDim
-call TabDim2_drv(m_max-1,nOsc,nvTabDim)
-max_mInc = nvTabDim-1
-call GetMem('mMat','Allo','Inte',ipmMat,(mTabDim+1)*nOsc)
+  ! Set up mMat for L.
+  max_mOrd = mTabDim
+  call TabDim2_drv(m_max-1,nOsc,nvTabDim)
+  max_mInc = nvTabDim-1
+  call GetMem('mMat','Allo','Inte',ipmMat,(mTabDim+1)*nOsc)
 
-call GetMem('mInc','Allo','Inte',ipmInc,(mTabDim+1)*nOsc)
-call GetMem('mDec','Allo','Inte',ipmDec,(mTabDim+1)*nOsc)
-! Put dimensions into common block:
-mdim1 = mTabDim
-mdim2 = nOsc
-call MakeTab2(m_max,max_mOrd,max_mInc,mTabDim,iWork(ipmMat),iWork(ipmInc),iWork(ipmDec),nOsc)
+  call GetMem('mInc','Allo','Inte',ipmInc,(mTabDim+1)*nOsc)
+  call GetMem('mDec','Allo','Inte',ipmDec,(mTabDim+1)*nOsc)
+  ! Put dimensions into common block:
+  mdim1 = mTabDim
+  mdim2 = nOsc
+  call MakeTab2(m_max,max_mOrd,max_mInc,mTabDim,iWork(ipmMat),iWork(ipmInc),iWork(ipmDec),nOsc)
 
-! Set up nMat for U.
-max_nOrd = nTabDim
-call TabDim2_drv(n_max-1,nOsc,nvTabDim)
-max_nInc = nvTabDim-1
-call GetMem('nMat','Allo','Inte',ipnMat,(nTabDim+1)*nOsc)
+  ! Set up nMat for U.
+  max_nOrd = nTabDim
+  call TabDim2_drv(n_max-1,nOsc,nvTabDim)
+  max_nInc = nvTabDim-1
+  call GetMem('nMat','Allo','Inte',ipnMat,(nTabDim+1)*nOsc)
 
-call GetMem('nInc','Allo','Inte',ipnInc,(nTabDim+1)*nOsc)
-call GetMem('nDec','Allo','Inte',ipnDec,(nTabDim+1)*nOsc)
-! Put dimensions into common block:
-ndim1 = nTabDim
-ndim2 = nOsc
-nnsiz = ndim1
-call MakeTab2(n_max,max_nOrd,max_nInc,nTabDim,iWork(ipnMat),iWork(ipnInc),iWork(ipnDec),nOsc)
+  call GetMem('nInc','Allo','Inte',ipnInc,(nTabDim+1)*nOsc)
+  call GetMem('nDec','Allo','Inte',ipnDec,(nTabDim+1)*nOsc)
+  ! Put dimensions into common block:
+  ndim1 = nTabDim
+  ndim2 = nOsc
+  nnsiz = ndim1
+  call MakeTab2(n_max,max_nOrd,max_nInc,nTabDim,iWork(ipnMat),iWork(ipnInc),iWork(ipnDec),nOsc)
 
-if (.not. MatEl) then
-  l_TermMat_1 = max_mOrd
-  l_TermMat_2 = max_nOrd
-  call GetMem('TermMat','Allo','Real',ipTermMat,(l_TermMat_1+1)*(l_TermMat_2+1))
-  call GetMem('level1','Allo','Inte',iplevel1,nOsc)
-  call GetMem('level2','Allo','Inte',iplevel2,nOsc)
-  do jOrd=0,max_nOrd
-    do iv=1,nOsc
-      iWork(iplevel2+iv-1) = iWork(ipnMat+jOrd+(nTabDim+1)*(iv-1))
-    end do
-    do iOrd=0,max_mOrd
+  if (.not. MatEl) then
+    l_TermMat_1 = max_mOrd
+    l_TermMat_2 = max_nOrd
+    call GetMem('TermMat','Allo','Real',ipTermMat,(l_TermMat_1+1)*(l_TermMat_2+1))
+    call GetMem('level1','Allo','Inte',iplevel1,nOsc)
+    call GetMem('level2','Allo','Inte',iplevel2,nOsc)
+    do jOrd=0,max_nOrd
       do iv=1,nOsc
-        iWork(iplevel1+iv-1) = iWork(ipmMat+iOrd+(mTabDim+1)*(iv-1))
+        iWork(iplevel2+iv-1) = iWork(ipnMat+jOrd+(nTabDim+1)*(iv-1))
       end do
-      l_harm = nOsc
-      call TransEnergy(GE1,Work(ipx_anharm1),Work(ipharmfreq1),iWork(iplevel1),GE2,Work(ipx_anharm2),Work(ipharmfreq2), &
-                       iWork(iplevel2),Work(ipTermMat+iOrd+(l_TermMat_1+1)*jOrd),l_harm)
+      do iOrd=0,max_mOrd
+        do iv=1,nOsc
+          iWork(iplevel1+iv-1) = iWork(ipmMat+iOrd+(mTabDim+1)*(iv-1))
+        end do
+        l_harm = nOsc
+        call TransEnergy(GE1,Work(ipx_anharm1),Work(ipharmfreq1),iWork(iplevel1),GE2,Work(ipx_anharm2),Work(ipharmfreq2), &
+                         iWork(iplevel2),Work(ipTermMat+iOrd+(l_TermMat_1+1)*jOrd),l_harm)
+      end do
     end do
-  end do
-  call GetMem('level1','Free','Inte',iplevel1,nOsc)
-  call GetMem('level2','Free','Inte',iplevel2,nOsc)
+    call GetMem('level1','Free','Inte',iplevel1,nOsc)
+    call GetMem('level2','Free','Inte',iplevel2,nOsc)
 
-end if
-
-!----------------------------------------------------------------------!
-
-! Calculate vibrational Hessian if a variational calculation is chosen
-
-!----------------------------------------------------------------------!
-
-l_l = 1
-call GetMem('U1','Allo','Real',ipU1,l_l*l_l)
-call GetMem('E1','Allo','Real',ipE1,l_l)
-call GetMem('U2','Allo','Real',ipU2,l_l*l_l)
-call GetMem('E2','Allo','Real',ipE2,l_l)
-!l_l = 1
-call GetMem('OccNumMat1','Allo','Real',ipOccNumMat1,l_l*3)
-call GetMem('OccNumMat2','Allo','Real',ipOccNumMat2,l_l*3)
-if (MatEl) then  ! START: Vibrational Hessian (variational)
-
-  call GetMem('U2','Free','Real',ipU2,l_l*l_l)
-  call GetMem('E2','Free','Real',ipE2,l_l)
-  call GetMem('U1','Free','Real',ipU1,l_l*l_l)
-  call GetMem('E1','Free','Real',ipE1,l_l)
-
-  call GetMem('OccNumMat1','Free','Real',ipOccNumMat1,l_l*3)
-  call GetMem('OccNumMat2','Free','Real',ipOccNumMat2,l_l*3)
-
-  if (Forcefield) then
-    nDimTot = max_mOrd+1
-  else
-    nDimTot = 2*max_mOrd+2
   end if
-  l_l = nDimTot
+
+  !--------------------------------------------------------------------!
+
+  ! Calculate vibrational Hessian if a variational calculation is chosen
+
+  !--------------------------------------------------------------------!
+
+  l_l = 1
   call GetMem('U1','Allo','Real',ipU1,l_l*l_l)
   call GetMem('E1','Allo','Real',ipE1,l_l)
   call GetMem('U2','Allo','Real',ipU2,l_l*l_l)
   call GetMem('E2','Allo','Real',ipE2,l_l)
-
-  call GetMem('H1','Allo','Real',ipH1,nDimTot*nDimTot)
-  call GetMem('H2','Allo','Real',ipH2,nDimTot*nDimTot)
-  call GetMem('S1','Allo','Real',ipS1,nDimTot*nDimTot)
-  call GetMem('S2','Allo','Real',ipS2,nDimTot*nDimTot)
+  !l_l = 1
   call GetMem('OccNumMat1','Allo','Real',ipOccNumMat1,l_l*3)
   call GetMem('OccNumMat2','Allo','Real',ipOccNumMat2,l_l*3)
+  if (MatEl) then  ! START: Vibrational Hessian (variational)
 
-  !H1 = Zero
-  call dcopy_(nDimTot*nDimTot,[Zero],0,Work(ipH1),1)
-  call dcopy_(nDimTot*nDimTot,[Zero],0,Work(ipS1),1)
-  call dcopy_(nDimTot*nDimTot,[Zero],0,Work(ipH2),1)
-  call dcopy_(nDimTot*nDimTot,[Zero],0,Work(ipS2),1)
-  !S1 = Zero
-  !H2 = Zero
-  !S2 = Zero
+    call GetMem('U2','Free','Real',ipU2,l_l*l_l)
+    call GetMem('E2','Free','Real',ipE2,l_l)
+    call GetMem('U1','Free','Real',ipU1,l_l*l_l)
+    call GetMem('E1','Free','Real',ipE1,l_l)
 
-  ! Calculate inverse mass tensor and its derivatives in r0.
-  call GetMem('Smat','Allo','Real',ipSmat,3*NumOfAt*nOscOld)
-  call dcopy_(3*NumOfAt*nOscOld,[Zero],0,Work(ipSmat),1)
-  !call Int_To_Cart(InterVec,r0,AtCoord,NumOfAt,nOscOld,Mass)
-  l_a = NumOfAt
-  call Int_To_Cart1(InterVec,Work(ipr0),Work(ipAtCoord),l_a,nOsc)
-  call CalcS(Work(ipAtCoord),InterVec,Work(ipSmat),nOscold,NumOfAt)
-  call CalcG(Work(ipG0),Mass,Work(ipSmat),nOscold,NumOfAt)
-  if (max_term > 2) then
-    dh = 1.0e-3_wp
-    call CalcGprime(work(ip_gprm0),Mass,Work(ipr0),InterVec,Work(ipAtCoord),NumOfAt,dh,nOsc)
-    dh = 1.0e-2_wp
-    call CalcGdblePrime(work(ip_gbis0),Mass,Work(ipr0),InterVec,Work(ipAtCoord),NumOfAt,dh,nOsc)
+    call GetMem('OccNumMat1','Free','Real',ipOccNumMat1,l_l*3)
+    call GetMem('OccNumMat2','Free','Real',ipOccNumMat2,l_l*3)
 
-    call GetMem('T4','Allo','Real',ipT4,nOscOld**4)
-    call DGEMM_('T','T',nOscOld**2,nOsc,nOscOld,One,work(ip_gprm2),nOscOld,Work(ipBaseInv),nOsc,Zero,Work(ipT4),nOscOld**2)
-    call DGEMM_('T','T',nOsc*nOscOld,nOsc,nOscOld,One,Work(ipT4),nOscOld,Work(ipBaseInv),nOsc,Zero,work(ip_gprm2),nOsc*nOscOld)
-    call DGEMM_('T','N',nOsc**2,nOsc,nOscOld,One,work(ip_gprm2),nOscOld,Work(ipBase),nOscOld,Zero,Work(ipT4),nOsc**2)
-    call getmem('Gprm2','Free','Real',ip_Gprm2,ngdim**3)
+    if (Forcefield) then
+      nDimTot = max_mOrd+1
+    else
+      nDimTot = 2*max_mOrd+2
+    end if
+    l_l = nDimTot
+    call GetMem('U1','Allo','Real',ipU1,l_l*l_l)
+    call GetMem('E1','Allo','Real',ipE1,l_l)
+    call GetMem('U2','Allo','Real',ipU2,l_l*l_l)
+    call GetMem('E2','Allo','Real',ipE2,l_l)
 
-    call getmem('Gprm2','Allo','Real',ip_Gprm2,ngdim**3)
-    call dcopy_(nOsc**3,Work(ipT4),1,work(ip_gprm2),1)
+    call GetMem('H1','Allo','Real',ipH1,nDimTot*nDimTot)
+    call GetMem('H2','Allo','Real',ipH2,nDimTot*nDimTot)
+    call GetMem('S1','Allo','Real',ipS1,nDimTot*nDimTot)
+    call GetMem('S2','Allo','Real',ipS2,nDimTot*nDimTot)
+    call GetMem('OccNumMat1','Allo','Real',ipOccNumMat1,l_l*3)
+    call GetMem('OccNumMat2','Allo','Real',ipOccNumMat2,l_l*3)
 
-    call DGEMM_('T','T',nOscOld**3,nOsc,nOscOld,One,work(ip_gbis2),nOscOld,Work(ipBaseInv),nOsc,Zero,Work(ipT4),nOscOld**3)
-    call DGEMM_('T','T',nOsc*nOscOld**2,nOsc,nOscOld,One,Work(ipT4),nOscOld,Work(ipBaseInv),nOsc,Zero,work(ip_gbis2), &
-                nOsc*nOscOld**2)
-    call DGEMM_('T','N',nOsc**2*nOscOld,nOsc,nOscOld,One,work(ip_gbis2),nOscOld,Work(ipBase),nOscOld,Zero,Work(ipT4), &
-                nOsc**2*nOscOld)
-    call DGEMM_('T','N',nOsc**3,nOsc,nOscOld,One,Work(ipT4),nOscOld,Work(ipBase),nOscOld,Zero,work(ip_gbis2),nOsc**3)
-    call DGEMM_('T','T',nOscOld**2,nOsc,nOscOld,One,work(ip_gprm1),nOscOld,Work(ipBaseInv),nOsc,Zero,Work(ipT4),nOscOld**2)
-    call DGEMM_('T','T',nOsc*nOscOld,nOsc,nOscOld,One,Work(ipT4),nOscOld,Work(ipBaseInv),nOsc,Zero,work(ip_gprm1),nOsc*nOscOld)
-    call DGEMM_('T','N',nOsc**2,nOsc,nOscOld,One,work(ip_gprm1),nOscOld,Work(ipBase),nOscOld,Zero,Work(ipT4),nOsc**2)
-    call getmem('Gprm1','Free','Real',ip_Gprm1,ngdim**3)
-    call getmem('Gprm1','Allo','Real',ip_Gprm1,ngdim**3)
-    call dcopy_(nOsc**3,Work(ipT4),1,work(ip_gprm1),1)
+    !H1 = Zero
+    call dcopy_(nDimTot*nDimTot,[Zero],0,Work(ipH1),1)
+    call dcopy_(nDimTot*nDimTot,[Zero],0,Work(ipS1),1)
+    call dcopy_(nDimTot*nDimTot,[Zero],0,Work(ipH2),1)
+    call dcopy_(nDimTot*nDimTot,[Zero],0,Work(ipS2),1)
+    !S1 = Zero
+    !H2 = Zero
+    !S2 = Zero
 
-    call DGEMM_('T','T',nOscOld**3,nOsc,nOscOld,One,work(ip_gbis1),nOscOld,Work(ipBaseInv),nOsc,Zero,Work(ipT4),nOscOld**3)
-    call DGEMM_('T','T',nOsc*nOscOld**2,nOsc,nOscOld,One,Work(ipT4),nOscOld,Work(ipBaseInv),nOsc,Zero,work(ip_gbis1), &
-                nOsc*nOscOld**2)
-    call DGEMM_('T','N',nOsc**2*nOscOld,nOsc,nOscOld,One,work(ip_gbis1),nOscOld,Work(ipBase),nOscOld,Zero,Work(ipT4), &
-                nOsc**2*nOscOld)
-    call getmem('Gbis1','Free','Real',ip_Gbis1,ngdim**4)
-    call getmem('Gbis1','Allo','Real',ip_Gbis1,ngdim**4)
-    call DGEMM_('T','N',nOsc**3,nOsc,nOscOld,One,Work(ipT4),nOscOld,Work(ipBase),nOscOld,Zero,work(ip_gbis1),nOsc**3)
-    call DGEMM_('T','T',nOscOld**2,nOsc,nOscOld,One,work(ip_gprm0),nOscOld,Work(ipBaseInv),nOsc,Zero,Work(ipT4),nOscOld**2)
-    call DGEMM_('T','T',nOsc*nOscOld,nOsc,nOscOld,One,Work(ipT4),nOscOld,Work(ipBaseInv),nOsc,Zero,work(ip_gprm0),nOsc*nOscOld)
-    call DGEMM_('T','N',nOsc**2,nOsc,nOscOld,One,work(ip_gprm0),nOscOld,Work(ipBase),nOscOld,Zero,Work(ipT4),nOsc**2)
-    call getmem('Gprm0','Free','Real',ip_Gprm0,ngdim**3)
-    ngdim = nosc
-    call getmem('Gprm0','Allo','Real',ip_Gprm0,ngdim**3)
-    call dcopy_(nOsc**3,Work(ipT4),1,work(ip_gprm0),1)
+    ! Calculate inverse mass tensor and its derivatives in r0.
+    call GetMem('Smat','Allo','Real',ipSmat,3*NumOfAt*nOscOld)
+    call dcopy_(3*NumOfAt*nOscOld,[Zero],0,Work(ipSmat),1)
+    !call Int_To_Cart(InterVec,r0,AtCoord,NumOfAt,nOscOld,Mass)
+    l_a = NumOfAt
+    call Int_To_Cart1(InterVec,Work(ipr0),Work(ipAtCoord),l_a,nOsc)
+    call CalcS(Work(ipAtCoord),InterVec,Work(ipSmat),nOscold,NumOfAt)
+    call CalcG(Work(ipG0),Mass,Work(ipSmat),nOscold,NumOfAt)
+    if (max_term > 2) then
+      dh = 1.0e-3_wp
+      call CalcGprime(work(ip_gprm0),Mass,Work(ipr0),InterVec,Work(ipAtCoord),NumOfAt,dh,nOsc)
+      dh = 1.0e-2_wp
+      call CalcGdblePrime(work(ip_gbis0),Mass,Work(ipr0),InterVec,Work(ipAtCoord),NumOfAt,dh,nOsc)
 
-    call DGEMM_('T','T',nOscOld**3,nOsc,nOscOld,One,work(ip_gbis0),nOscOld,Work(ipBaseInv),nOsc,Zero,Work(ipT4),nOscOld**3)
-    call DGEMM_('T','T',nOsc*nOscOld**2,nOsc,nOscOld,One,Work(ipT4),nOscOld,Work(ipBaseInv),nOsc,Zero,work(ip_gbis0), &
-                nOsc*nOscOld**2)
-    call DGEMM_('T','N',nOsc**2*nOscOld,nOsc,nOscOld,One,work(ip_gbis0),nOscOld,Work(ipBase),nOscOld,Zero,Work(ipT4), &
-                nOsc**2*nOscOld)
-    call getmem('Gbis0','Free','Real',ip_Gbis0,ngdim**4)
-    call getmem('Gbis0','Allo','Real',ip_Gbis0,ngdim**4)
-    call DGEMM_('T','N',nOsc**3,nOsc,nOscOld,One,Work(ipT4),nOscOld,Work(ipBase),nOscOld,Zero,work(ip_gbis0),nOsc**3)
-    call GetMem('T4','Free','Real',ipT4,nOscOld**4)
-  end if
-  call GetMem('temp','Allo','Real',iptemp,nOscOld*nOscOld)
-  call GetMem('temp2','Allo','Real',iptemp2,nOscOld*nOscOld)
+      call GetMem('T4','Allo','Real',ipT4,nOscOld**4)
+      call DGEMM_('T','T',nOscOld**2,nOsc,nOscOld,One,work(ip_gprm2),nOscOld,Work(ipBaseInv),nOsc,Zero,Work(ipT4),nOscOld**2)
+      call DGEMM_('T','T',nOsc*nOscOld,nOsc,nOscOld,One,Work(ipT4),nOscOld,Work(ipBaseInv),nOsc,Zero,work(ip_gprm2),nOsc*nOscOld)
+      call DGEMM_('T','N',nOsc**2,nOsc,nOscOld,One,work(ip_gprm2),nOscOld,Work(ipBase),nOscOld,Zero,Work(ipT4),nOsc**2)
+      call getmem('Gprm2','Free','Real',ip_Gprm2,ngdim**3)
 
-  call dcopy_(nOscOld*nOscOld,Work(ipG0),1,Work(iptemp),1)
-  call dcopy_(nOscOld**2,[Zero],0,Work(iptemp2),1)
-  call dcopy_(nOscOld,[One],0,Work(iptemp2),nOscOld+1)
-  call Dool_MULA(Work(iptemp),nOscOld,nOscOld,Work(iptemp2),nOscOld,nOscOld,det)
-  call DGEMM_('N','N',nOscOld,nOsc,nOscOld,One,Work(iptemp2),nOscOld,Work(ipBase),nOscOld,Zero,Work(iptemp),nOscOld)
-  call GetMem('temp2','Free','Real',iptemp2,nOscOld*nOscOld)
-  call GetMem('temp2','Allo','Real',iptemp2,nOsc*nOsc)
-  call DGEMM_('T','N',nOsc,nOsc,nOscOld,One,Work(ipBase),nOscOld,Work(iptemp),nOscOld,Zero,Work(iptemp2),nOsc)
-  call dcopy_(nOsc**2,[Zero],0,Work(ipG0),1)
-  call dcopy_(nOsc,[One],0,Work(ipG0),nOsc+1)
-  call Dool_MULA(Work(iptemp2),nOsc,nOsc,Work(ipG0),nOsc,nOsc,det)
+      call getmem('Gprm2','Allo','Real',ip_Gprm2,ngdim**3)
+      call dcopy_(nOsc**3,Work(ipT4),1,work(ip_gprm2),1)
 
-  call GetMem('temp','Free','Real',iptemp,nOscOld*nOscOld)
-  call GetMem('temp2','Free','Real',iptemp2,nOsc*nOsc)
+      call DGEMM_('T','T',nOscOld**3,nOsc,nOscOld,One,work(ip_gbis2),nOscOld,Work(ipBaseInv),nOsc,Zero,Work(ipT4),nOscOld**3)
+      call DGEMM_('T','T',nOsc*nOscOld**2,nOsc,nOscOld,One,Work(ipT4),nOscOld,Work(ipBaseInv),nOsc,Zero,work(ip_gbis2), &
+                  nOsc*nOscOld**2)
+      call DGEMM_('T','N',nOsc**2*nOscOld,nOsc,nOscOld,One,work(ip_gbis2),nOscOld,Work(ipBase),nOscOld,Zero,Work(ipT4), &
+                  nOsc**2*nOscOld)
+      call DGEMM_('T','N',nOsc**3,nOsc,nOscOld,One,Work(ipT4),nOscOld,Work(ipBase),nOscOld,Zero,work(ip_gbis2),nOsc**3)
+      call DGEMM_('T','T',nOscOld**2,nOsc,nOscOld,One,work(ip_gprm1),nOscOld,Work(ipBaseInv),nOsc,Zero,Work(ipT4),nOscOld**2)
+      call DGEMM_('T','T',nOsc*nOscOld,nOsc,nOscOld,One,Work(ipT4),nOscOld,Work(ipBaseInv),nOsc,Zero,work(ip_gprm1),nOsc*nOscOld)
+      call DGEMM_('T','N',nOsc**2,nOsc,nOscOld,One,work(ip_gprm1),nOscOld,Work(ipBase),nOscOld,Zero,Work(ipT4),nOsc**2)
+      call getmem('Gprm1','Free','Real',ip_Gprm1,ngdim**3)
+      call getmem('Gprm1','Allo','Real',ip_Gprm1,ngdim**3)
+      call dcopy_(nOsc**3,Work(ipT4),1,work(ip_gprm1),1)
 
-  call GetMem('Smat','Free','Real',ipSmat,3*NumOfAt*nOscOld)
+      call DGEMM_('T','T',nOscOld**3,nOsc,nOscOld,One,work(ip_gbis1),nOscOld,Work(ipBaseInv),nOsc,Zero,Work(ipT4),nOscOld**3)
+      call DGEMM_('T','T',nOsc*nOscOld**2,nOsc,nOscOld,One,Work(ipT4),nOscOld,Work(ipBaseInv),nOsc,Zero,work(ip_gbis1), &
+                  nOsc*nOscOld**2)
+      call DGEMM_('T','N',nOsc**2*nOscOld,nOsc,nOscOld,One,work(ip_gbis1),nOscOld,Work(ipBase),nOscOld,Zero,Work(ipT4), &
+                  nOsc**2*nOscOld)
+      call getmem('Gbis1','Free','Real',ip_Gbis1,ngdim**4)
+      call getmem('Gbis1','Allo','Real',ip_Gbis1,ngdim**4)
+      call DGEMM_('T','N',nOsc**3,nOsc,nOscOld,One,Work(ipT4),nOscOld,Work(ipBase),nOscOld,Zero,work(ip_gbis1),nOsc**3)
+      call DGEMM_('T','T',nOscOld**2,nOsc,nOscOld,One,work(ip_gprm0),nOscOld,Work(ipBaseInv),nOsc,Zero,Work(ipT4),nOscOld**2)
+      call DGEMM_('T','T',nOsc*nOscOld,nOsc,nOscOld,One,Work(ipT4),nOscOld,Work(ipBaseInv),nOsc,Zero,work(ip_gprm0),nOsc*nOscOld)
+      call DGEMM_('T','N',nOsc**2,nOsc,nOscOld,One,work(ip_gprm0),nOscOld,Work(ipBase),nOscOld,Zero,Work(ipT4),nOsc**2)
+      call getmem('Gprm0','Free','Real',ip_Gprm0,ngdim**3)
+      ngdim = nosc
+      call getmem('Gprm0','Allo','Real',ip_Gprm0,ngdim**3)
+      call dcopy_(nOsc**3,Work(ipT4),1,work(ip_gprm0),1)
 
-  ! Set up Hamilton matrix for the first state.
-  if (Forcefield) then
-    !Base2 = Zero
-    call dcopy_(nOsc*nOsc,[Zero],0,Work(ipBase2),1)
-    do i=1,nOsc
-      Work(ipBase2+i-1+nOsc*(i-1)) = One
+      call DGEMM_('T','T',nOscOld**3,nOsc,nOscOld,One,work(ip_gbis0),nOscOld,Work(ipBaseInv),nOsc,Zero,Work(ipT4),nOscOld**3)
+      call DGEMM_('T','T',nOsc*nOscOld**2,nOsc,nOscOld,One,Work(ipT4),nOscOld,Work(ipBaseInv),nOsc,Zero,work(ip_gbis0), &
+                  nOsc*nOscOld**2)
+      call DGEMM_('T','N',nOsc**2*nOscOld,nOsc,nOscOld,One,work(ip_gbis0),nOscOld,Work(ipBase),nOscOld,Zero,Work(ipT4), &
+                  nOsc**2*nOscOld)
+      call getmem('Gbis0','Free','Real',ip_Gbis0,ngdim**4)
+      call getmem('Gbis0','Allo','Real',ip_Gbis0,ngdim**4)
+      call DGEMM_('T','N',nOsc**3,nOsc,nOscOld,One,Work(ipT4),nOscOld,Work(ipBase),nOscOld,Zero,work(ip_gbis0),nOsc**3)
+      call GetMem('T4','Free','Real',ipT4,nOscOld**4)
+    end if
+    call GetMem('temp','Allo','Real',iptemp,nOscOld*nOscOld)
+    call GetMem('temp2','Allo','Real',iptemp2,nOscOld*nOscOld)
+
+    call dcopy_(nOscOld*nOscOld,Work(ipG0),1,Work(iptemp),1)
+    call dcopy_(nOscOld**2,[Zero],0,Work(iptemp2),1)
+    call dcopy_(nOscOld,[One],0,Work(iptemp2),nOscOld+1)
+    call Dool_MULA(Work(iptemp),nOscOld,nOscOld,Work(iptemp2),nOscOld,nOscOld,det)
+    call DGEMM_('N','N',nOscOld,nOsc,nOscOld,One,Work(iptemp2),nOscOld,Work(ipBase),nOscOld,Zero,Work(iptemp),nOscOld)
+    call GetMem('temp2','Free','Real',iptemp2,nOscOld*nOscOld)
+    call GetMem('temp2','Allo','Real',iptemp2,nOsc*nOsc)
+    call DGEMM_('T','N',nOsc,nOsc,nOscOld,One,Work(ipBase),nOscOld,Work(iptemp),nOscOld,Zero,Work(iptemp2),nOsc)
+    call dcopy_(nOsc**2,[Zero],0,Work(ipG0),1)
+    call dcopy_(nOsc,[One],0,Work(ipG0),nOsc+1)
+    call Dool_MULA(Work(iptemp2),nOsc,nOsc,Work(ipG0),nOsc,nOsc,det)
+
+    call GetMem('temp','Free','Real',iptemp,nOscOld*nOscOld)
+    call GetMem('temp2','Free','Real',iptemp2,nOsc*nOsc)
+
+    call GetMem('Smat','Free','Real',ipSmat,3*NumOfAt*nOscOld)
+
+    ! Set up Hamilton matrix for the first state.
+    if (Forcefield) then
+      !Base2 = Zero
+      call dcopy_(nOsc*nOsc,[Zero],0,Work(ipBase2),1)
+      do i=1,nOsc
+        Work(ipBase2+i-1+nOsc*(i-1)) = One
+      end do
+
+      call SetUpHmat2(energy1,energy2,Work(ipC1),Work(ipW1),det1,Work(ipr01),Work(ipr02),max_mOrd,max_nOrd,max_nOrd,max_mInc, &
+                      max_nInc,max_nInc,iWork(ipmMat),iWork(ipnMat),iWork(ipmInc),iWork(ipnInc),iWork(ipmDec),iWork(ipnDec), &
+                      Work(ipH1),Work(ipS1),Work(ipHess1),Work(ipG1),Work(ipBase2),Work(ipr01),nnsiz,nDimTot,nOsc)
+      call SolveSecEq(Work(ipH1),nDimTot,Work(ipU1),Work(ipS1),Work(ipE1))
+      write(u6,'(20f10.1)') ((Work(ipE1+i-1)-Work(ipE1))*auTocm,i=2,nOsc)
+      call SetUpHmat2(energy1,energy2,Work(ipC2),Work(ipW2),det2,Work(ipr01),Work(ipr02),max_mOrd,max_nOrd,max_nOrd,max_mInc, &
+                      max_nInc,max_nInc,iWork(ipmMat),iWork(ipnMat),iWork(ipmInc),iWork(ipnInc),iWork(ipmDec),iWork(ipnDec), &
+                      Work(ipH2),Work(ipS2),Work(ipHess2),Work(ipG2),Work(ipBase2),Work(ipr02),nnsiz,nDimTot,nOsc)
+      call SolveSecEq(Work(ipH2),nDimTot,Work(ipU2),Work(ipS2),Work(ipE2))
+      write(u6,'(20f10.1)') ((Work(ipE2+i-1)-Work(ipE2))*auTocm,i=2,nOsc)
+    else
+      call SetUpHmat(energy1,Work(ipr1),iWork(ipipow),Work(ipvar),Work(ipyin1),Work(ipr00),trfName1,max_term,Work(ipC1), &
+                     Work(ipW1),det1,Work(ipr01),Work(ipC2),Work(ipW2),det2,Work(ipr02),max_mOrd,max_nOrd,max_nOrd,max_mInc, &
+                     max_nInc,max_nInc,iWork(ipmMat),iWork(ipnMat),iWork(ipmInc),iWork(ipnInc),iWork(ipmDec),iWork(ipnDec), &
+                     Work(ipH1),Work(ipS1),Work(ipG1),Work(ipG2),Work(ipG0),work(ip_gprm1),work(ip_gprm2),work(ip_gprm0), &
+                     work(ip_gbis1),work(ip_gbis2),work(ip_gbis0),Work(ipC),Work(ipW),det0,Mass,Work(ipr00),Work(ipBase), &
+                     Work(ipr0),Work(ipr1),Work(ipr2),nnsiz,nterm,nvar,ndata,nosc,ndimtot,numofat)
+      call SolveSort(Work(ipH1),Work(ipU1),Work(ipS1),Work(ipE1),Work(ipW1),Work(ipW2),Work(ipW1),Work(ipC1),Work(ipC2), &
+                     Work(ipC1),Work(ipr01),Work(ipr02),Work(ipr01),iWork(ipmInc),iWork(ipmDec),iWork(ipmMat),mdim1,mdim2, &
+                     Work(ipOccNumMat1),nOsc,nDimTot)
+      call SetUpHmat(energy2,Work(ipr2),iWork(ipipow),Work(ipvar),Work(ipyin2),Work(ipr00),trfName2,max_term,Work(ipC1), &
+                     Work(ipW1),det1,Work(ipr01),Work(ipC2),Work(ipW2),det2,Work(ipr02),max_mOrd,max_nOrd,max_nOrd,max_mInc, &
+                     max_nInc,max_nInc,iWork(ipmMat),iWork(ipnMat),iWork(ipmInc),iWork(ipnInc),iWork(ipmDec),iWork(ipnDec), &
+                     Work(ipH2),Work(ipS2),Work(ipG1),Work(ipG2),Work(ipG0),work(ip_gprm1),work(ip_gprm2),work(ip_gprm0), &
+                     work(ip_gbis1),work(ip_gbis2),work(ip_gbis0),Work(ipC),Work(ipW),det0,Mass,Work(ipr00),Work(ipBase), &
+                     Work(ipr0),Work(ipr1),Work(ipr2),nnsiz,nterm,nvar,ndata,nosc,ndimtot,numofat)
+      call SolveSort(Work(ipH2),Work(ipU2),Work(ipS2),Work(ipE2),Work(ipW1),Work(ipW2),Work(ipW2),Work(ipC1),Work(ipC2), &
+                     Work(ipC2),Work(ipr01),Work(ipr02),Work(ipr02),iWork(ipnInc),iWork(ipnDec),iWork(ipnMat),ndim1,ndim2, &
+                     Work(ipOccNumMat2),nOsc,nDimTot)
+      call GetMem('yin1','Free','Real',ipyin1,ndata)
+      call GetMem('yin2','Free','Real',ipyin2,ndata)
+
+    end if
+    write(u6,*) 'T0',T0*HarToRcm
+    k2 = 1
+    l_TermMat_1 = nDimTot-1
+    l_TermMat_2 = nDimTot-1
+
+    call GetMem('TermMat','Allo','Real',ipTermMat,(l_TermMat_1+1)*(l_TermMat_2+1))
+
+    do jOrd=0,nDimTot-1
+      k1 = 1
+      do iOrd=0,nDimTot-1
+        Work(ipTermMat+iOrd+(l_TermMat_1+1)*jOrd) = T0+(Work(ipE2+k2-1)-Work(ipE1+k1-1))
+        k1 = k1+1
+      end do
+      k2 = k2+1
     end do
+    call GetMem('H1','Free','Real',ipH1,nDimTot*nDimTot)
+    call GetMem('H2','Free','Real',ipH2,nDimTot*nDimTot)
+    call GetMem('S1','Free','Real',ipS1,nDimTot*nDimTot)
+    call GetMem('S2','Free','Real',ipS2,nDimTot*nDimTot)
+    !call GetMem('G0','Free','Real',ipG0,nOsc*nOsc)
+  end if  ! END: Vibrational Hessian (variational)
+  call getmem('Gprm0','Free','Real',ip_Gprm0,ngdim**3)
+  call getmem('Gbis0','Free','Real',ip_Gbis0,ngdim**4)
 
-    call SetUpHmat2(energy1,energy2,Work(ipC1),Work(ipW1),det1,Work(ipr01),Work(ipr02),max_mOrd,max_nOrd,max_nOrd,max_mInc, &
-                    max_nInc,max_nInc,iWork(ipmMat),iWork(ipnMat),iWork(ipmInc),iWork(ipnInc),iWork(ipmDec),iWork(ipnDec), &
-                    Work(ipH1),Work(ipS1),Work(ipHess1),Work(ipG1),Work(ipBase2),Work(ipr01),nnsiz,nDimTot,nOsc)
-    call SolveSecEq(Work(ipH1),nDimTot,Work(ipU1),Work(ipS1),Work(ipE1))
-    write(u6,'(20f10.1)') ((Work(ipE1+i-1)-Work(ipE1))*auTocm,i=2,nOsc)
-    call SetUpHmat2(energy1,energy2,Work(ipC2),Work(ipW2),det2,Work(ipr01),Work(ipr02),max_mOrd,max_nOrd,max_nOrd,max_mInc, &
-                    max_nInc,max_nInc,iWork(ipmMat),iWork(ipnMat),iWork(ipmInc),iWork(ipnInc),iWork(ipmDec),iWork(ipnDec), &
-                    Work(ipH2),Work(ipS2),Work(ipHess2),Work(ipG2),Work(ipBase2),Work(ipr02),nnsiz,nDimTot,nOsc)
-    call SolveSecEq(Work(ipH2),nDimTot,Work(ipU2),Work(ipS2),Work(ipE2))
-    write(u6,'(20f10.1)') ((Work(ipE2+i-1)-Work(ipE2))*auTocm,i=2,nOsc)
+  call GetMem('Hess1','Free','Real',ipHess1,nOsc*nOsc)
+  call GetMem('Hess2','Free','Real',ipHess2,nOsc*nOsc)
+  call GetMem('AtCoord','Free','Real',ipAtCoord,3*NumOfAt)
+  call GetMem('G0','Free','Real',ipG0,nOsc*nOsc)
+  call GetMem('G1','Free','Real',ipG1,nOsc*nOsc)
+  call getmem('Gprm1','Free','Real',ip_Gprm1,ngdim**3)
+  call getmem('Gbis1','Free','Real',ip_Gbis1,ngdim**4)
+  call GetMem('G2','Free','Real',ipG2,nOsc*nOsc)
+  call getmem('Gprm2','Free','Real',ip_Gprm2,ngdim**3)
+  call getmem('Gbis2','Free','Real',ip_Gbis2,ngdim**4)
+
+  !--------------------------------------------------------------------!
+
+  ! Intensity calculations
+
+  !--------------------------------------------------------------------!
+
+  !PAM: If max_dip=0, there are no transition dipole gradients, but the
+  !     array TranDipGradInt must be formally all. anyway:
+  if (max_dip == 0) then
+    call GetMem('TranDipGradInt','Allo','Real',ipTranDipGradInt,3*nOsc)
+
+  end if
+
+  if (Matel) then
+    l_IntensityMat_1 = ndimtot-1
+    l_IntensityMat_2 = ndimtot-1
+    call GetMem('IntensityMat','Allo','Real',ipIntensityMat,(l_IntensityMat_1+1)*(l_IntensityMat_2+1))
+    !call GetMem('IntensityMat','Allo','Real',ipIntensityMat,ndimtot*ndimtot)
+    if (Forcefield) then
+      call dcopy_(nOsc*nOsc,[Zero],0,Work(ipBase2),1)
+      !Base2 = Zero
+      do i=1,nOsc
+        Work(ipBase2+i-1+nOsc*(i-1)) = One
+      end do
+      call Intensity2(Work(ipIntensityMat),Work(ipTermMat),T0,max_term,Work(ipU1),Work(ipU2),Work(ipE1),Work(ipE2),Work(ipC1), &
+                      Work(ipW1),det1,Work(ipr01),Work(ipC2),Work(ipW2),det2,Work(ipr02),Work(ipC),Work(ipW),det0,Work(ipr00), &
+                      m_max,n_max,max_dip,iWork(ipm_plot),iWork(ipn_plot),TranDip,Work(ipTranDipGradInt),Work(ipharmfreq1), &
+                      Work(ipx_anharm1),Work(ipharmfreq2),Work(ipx_anharm2),Work(ipr0),Work(ipr1),Work(ipr2),Work(ipBase2), &
+                      l_IntensityMat_1,l_IntensityMat_2,l_TermMat_1,l_TermMat_2,nOsc,nDimTot,l_n_plot,l_m_plot)
+      call GetMem('TranDipGradInt','Free','real',ipTranDipGradInt,3*nOsc)
+    else
+      call Intensity(Work(ipIntensityMat),Work(ipTermMat),T0,max_term,iWork(ipipow),Work(ipvar),Work(ipt_dipin1),Work(ipt_dipin2), &
+                     Work(ipt_dipin3),trfName1,Work(ipU1),Work(ipU2),Work(ipE1),Work(ipE2),Work(ipC1),Work(ipW1),det1,Work(ipr01), &
+                     Work(ipC2),Work(ipW2),det2,Work(ipr02),work(ipC),Work(ipW),det0,Work(ipr00),m_max,n_max,max_dip, &
+                     iWork(ipm_plot),iWork(ipn_plot),Work(ipharmfreq1),Work(ipharmfreq2),Work(ipr0),Work(ipr1),Work(ipr2), &
+                     Work(ipBase),l_IntensityMat_1,l_IntensityMat_2,l_TermMat_1,l_TermMat_2,nOsc,nDimTot,nPolyTerm,ndata,nvar, &
+                     MaxNumAt,l_n_plot,l_m_plot)
+      call GetMem('t_dipin1','Free','Real',ipt_dipin1,ndata)
+      call GetMem('t_dipin2','Free','Real',ipt_dipin2,ndata)
+      call GetMem('t_dipin3','Free','Real',ipt_dipin3,ndata)
+
+      call GetMem('var','Free','Real',ipvar,ndata*nvar)
+      call GetMem('ipow','Free','Inte',ipipow,nPolyTerm*nvar)
+
+    end if
   else
-    call SetUpHmat(energy1,Work(ipr1),iWork(ipipow),Work(ipvar),Work(ipyin1),Work(ipr00),trfName1,max_term,Work(ipC1),Work(ipW1), &
-                   det1,Work(ipr01),Work(ipC2),Work(ipW2),det2,Work(ipr02),max_mOrd,max_nOrd,max_nOrd,max_mInc,max_nInc,max_nInc, &
-                   iWork(ipmMat),iWork(ipnMat),iWork(ipmInc),iWork(ipnInc),iWork(ipmDec),iWork(ipnDec),Work(ipH1),Work(ipS1), &
-                   Work(ipG1),Work(ipG2),Work(ipG0),work(ip_gprm1),work(ip_gprm2),work(ip_gprm0),work(ip_gbis1),work(ip_gbis2), &
-                   work(ip_gbis0),Work(ipC),Work(ipW),det0,Mass,Work(ipr00),Work(ipBase),Work(ipr0),Work(ipr1),Work(ipr2),nnsiz, &
-                   nterm,nvar,ndata,nosc,ndimtot,numofat)
-    call SolveSort(Work(ipH1),Work(ipU1),Work(ipS1),Work(ipE1),Work(ipW1),Work(ipW2),Work(ipW1),Work(ipC1),Work(ipC2),Work(ipC1), &
-                   Work(ipr01),Work(ipr02),Work(ipr01),iWork(ipmInc),iWork(ipmDec),iWork(ipmMat),mdim1,mdim2,Work(ipOccNumMat1), &
-                   nOsc,nDimTot)
-    call SetUpHmat(energy2,Work(ipr2),iWork(ipipow),Work(ipvar),Work(ipyin2),Work(ipr00),trfName2,max_term,Work(ipC1),Work(ipW1), &
-                   det1,Work(ipr01),Work(ipC2),Work(ipW2),det2,Work(ipr02),max_mOrd,max_nOrd,max_nOrd,max_mInc,max_nInc,max_nInc, &
-                   iWork(ipmMat),iWork(ipnMat),iWork(ipmInc),iWork(ipnInc),iWork(ipmDec),iWork(ipnDec),Work(ipH2),Work(ipS2), &
-                   Work(ipG1),Work(ipG2),Work(ipG0),work(ip_gprm1),work(ip_gprm2),work(ip_gprm0),work(ip_gbis1),work(ip_gbis2), &
-                   work(ip_gbis0),Work(ipC),Work(ipW),det0,Mass,Work(ipr00),Work(ipBase),Work(ipr0),Work(ipr1),Work(ipr2),nnsiz, &
-                   nterm,nvar,ndata,nosc,ndimtot,numofat)
-    call SolveSort(Work(ipH2),Work(ipU2),Work(ipS2),Work(ipE2),Work(ipW1),Work(ipW2),Work(ipW2),Work(ipC1),Work(ipC2),Work(ipC2), &
-                   Work(ipr01),Work(ipr02),Work(ipr02),iWork(ipnInc),iWork(ipnDec),iWork(ipnMat),ndim1,ndim2,Work(ipOccNumMat2), &
-                   nOsc,nDimTot)
-    call GetMem('yin1','Free','Real',ipyin1,ndata)
-    call GetMem('yin2','Free','Real',ipyin2,ndata)
+    l_IntensityMat_1 = max_mOrd
+    l_IntensityMat_2 = max_nOrd
 
+    call GetMem('IntensityMat','Allo','Real',ipIntensityMat,(l_IntensityMat_1+1)*(l_IntensityMat_2+1))
+    call IntForceField(Work(ipIntensityMat),Work(ipTermMat),T0,max_term,FC00,Work(ipC1),Work(ipW1),det1,Work(ipr01),Work(ipC2), &
+                       Work(ipW2),det2,Work(ipr02),Work(ipC),Work(ipW),det0,Work(ipr00),m_max,n_max,max_dip,Trandip, &
+                       Work(ipTranDipGradInt),Work(ipharmfreq1),Work(ipx_anharm1),Work(ipharmfreq2),Work(ipx_anharm2), &
+                       iWork(ipmMat),iWork(ipmInc),iWork(ipmDec),iWork(ipnMat),iWork(ipnInc),iWork(ipnDec),OscStr,nsize,max_mOrd, &
+                       max_nOrd,nDimTot,nOsc)
+    call GetMem('TranDipGradInt','Free','Real',ipTranDipGradInt,3*nOsc)
   end if
-  write(u6,*) 'T0',T0*HarToRcm
-  k2 = 1
-  l_TermMat_1 = nDimTot-1
-  l_TermMat_2 = nDimTot-1
 
-  call GetMem('TermMat','Allo','Real',ipTermMat,(l_TermMat_1+1)*(l_TermMat_2+1))
+  !write results to log.
+  write(u6,*) ' Write intensity data to log file.'
+  call XFlush(u6)
+  call WriteInt(Work(ipIntensityMat),Work(ipTermMat),iWork(ipmMat),iWork(ipnMat),Work(ipOccNumMat1),Work(ipOccNumMat2),MatEl, &
+                ForceField,Work(ipE1),Work(ipE2),T0,Work(ipharmfreq1),Work(ipharmfreq2),Work(ipx_anharm1),Work(ipx_anharm2), &
+                l_IntensityMat_1,l_IntensityMat_2,l_TermMat_1,l_TermMat_2,nDimTot,nOsc)
 
-  do jOrd=0,nDimTot-1
-    k1 = 1
-    do iOrd=0,nDimTot-1
-      Work(ipTermMat+iOrd+(l_TermMat_1+1)*jOrd) = T0+(Work(ipE2+k2-1)-Work(ipE1+k1-1))
-      k1 = k1+1
-    end do
-    k2 = k2+1
-  end do
-  call GetMem('H1','Free','Real',ipH1,nDimTot*nDimTot)
-  call GetMem('H2','Free','Real',ipH2,nDimTot*nDimTot)
-  call GetMem('S1','Free','Real',ipS1,nDimTot*nDimTot)
-  call GetMem('S2','Free','Real',ipS2,nDimTot*nDimTot)
-  !call GetMem('G0','Free','Real',ipG0,nOsc*nOsc)
-end if  ! END: Vibrational Hessian (variational)
-call getmem('Gprm0','Free','Real',ip_Gprm0,ngdim**3)
-call getmem('Gbis0','Free','Real',ip_Gbis0,ngdim**4)
+  call GetMem('C','Free','Real',ipC,nOsc*nOsc)
+  call GetMem('W','Free','Real',ipW,nOsc*nOsc)
+  call GetMem('W1','Free','Real',ipW1,nOsc*nOsc)
+  call GetMem('W2','Free','Real',ipW2,nOsc*nOsc)
 
-call GetMem('Hess1','Free','Real',ipHess1,nOsc*nOsc)
-call GetMem('Hess2','Free','Real',ipHess2,nOsc*nOsc)
-call GetMem('AtCoord','Free','Real',ipAtCoord,3*NumOfAt)
-call GetMem('G0','Free','Real',ipG0,nOsc*nOsc)
-call GetMem('G1','Free','Real',ipG1,nOsc*nOsc)
-call getmem('Gprm1','Free','Real',ip_Gprm1,ngdim**3)
-call getmem('Gbis1','Free','Real',ip_Gbis1,ngdim**4)
-call GetMem('G2','Free','Real',ipG2,nOsc*nOsc)
-call getmem('Gprm2','Free','Real',ip_Gprm2,ngdim**3)
-call getmem('Gbis2','Free','Real',ip_Gbis2,ngdim**4)
+  call GetMem('C1','Free','Real',ipC1,nOsc*nOsc)
+  call GetMem('C2','Free','Real',ipC2,nOsc*nOsc)
 
-!----------------------------------------------------------------------!
+  call GetMem('r00','Free','Real',ipr00,nOsc)
+  call GetMem('r01','Free','Real',ipr01,nOsc)
+  call GetMem('r02','Free','Real',ipr02,nOsc)
 
-! Intensity calculations
+  call GetMem('nInc','Free','Inte',ipnInc,(nTabDim+1)*nOsc)
+  call GetMem('nDec','Free','Inte',ipnDec,(nTabDim+1)*nOsc)
+  call GetMem('mInc','Free','Inte',ipmInc,(mTabDim+1)*nOsc)
+  call GetMem('mDec','Free','Inte',ipmDec,(mTabDim+1)*nOsc)
 
-!----------------------------------------------------------------------!
+  call GetMem('harmfreq1','Free','Real',ipharmfreq1,nOsc)
+  call GetMem('harmfreq2','Free','Real',ipharmfreq2,nOsc)
 
-!PAM: If max_dip=0, there are no transition dipole gradients, but the
-!     array TranDipGradInt must be formally all. anyway:
-if (max_dip == 0) then
-  call GetMem('TranDipGradInt','Allo','Real',ipTranDipGradInt,3*nOsc)
+  call GetMem('x_anharm1','Free','Real',ipx_anharm1,nOsc*nOsc)
+  call GetMem('x_anharm2','Free','Real',ipx_anharm2,nOsc*nOsc)
+  call GetMem('TermMat','Free','Real',ipTermMat,(l_TermMat_1+1)*(l_TermMat_2+1))
+  call GetMem('IntensityMat','Free','Real',ipIntensityMat,(l_IntensityMat_1+1)*(l_IntensityMat_2+1))
+
+  call GetMem('U1','Free','Real',ipU1,l_l*l_l)
+  call GetMem('E1','Free','Real',ipE1,l_l)
+  call GetMem('U2','Free','Real',ipU2,l_l*l_l)
+  call GetMem('E2','Free','Real',ipE2,l_l)
+  call GetMem('mMat','Free','Inte',ipmMat,(mTabDim+1)*nOsc)
+  call GetMem('nMat','Free','Inte',ipnMat,(nTabDim+1)*nOsc)
+
+  call GetMem('OccNumMat1','Free','Real',ipOccNumMat1,l_l*3)
+  call GetMem('OccNumMat2','Free','Real',ipOccNumMat2,l_l*3)
+
+  call GetMem('m_plot','Free','Inte',ipm_plot,l_m_plot)
+  call GetMem('n_plot','Free','Inte',ipn_plot,l_n_plot)
+
+  call GetMem('NormModes','Free','Inte',ipNormModes,l_NormModes)
+  call GetMem('Base','Free','Real',ipBase,nOscOld*nOsc)
+  call GetMem('BaseInv','Free','Real',ipBaseInv,nOsc*nOscOld)
+
+  ! I don't understand why is it here??
+  call GetMem('TranDipGrad','Free','Real',ipTranDipGrad,3*NumOfAt)
+  call GetMem('Base2','Free','Real',ipBase2,nOsc*nOsc)
+  call GetMem('Lambda','Free','Real',ipLambda,nOsc)
+  call GetMem('r1','Free','Real',ipr1,nOsc)
+  call GetMem('r2','Free','Real',ipr2,nOsc)
+  call GetMem('r0','Free','Real',ipr0,nOsc)
 
 end if
-
-if (Matel) then
-  l_IntensityMat_1 = ndimtot-1
-  l_IntensityMat_2 = ndimtot-1
-  call GetMem('IntensityMat','Allo','Real',ipIntensityMat,(l_IntensityMat_1+1)*(l_IntensityMat_2+1))
-  !call GetMem('IntensityMat','Allo','Real',ipIntensityMat,ndimtot*ndimtot)
-  if (Forcefield) then
-    call dcopy_(nOsc*nOsc,[Zero],0,Work(ipBase2),1)
-    !Base2 = Zero
-    do i=1,nOsc
-      Work(ipBase2+i-1+nOsc*(i-1)) = One
-    end do
-    call Intensity2(Work(ipIntensityMat),Work(ipTermMat),T0,max_term,Work(ipU1),Work(ipU2),Work(ipE1),Work(ipE2),Work(ipC1), &
-                    Work(ipW1),det1,Work(ipr01),Work(ipC2),Work(ipW2),det2,Work(ipr02),Work(ipC),Work(ipW),det0,Work(ipr00),m_max, &
-                    n_max,max_dip,iWork(ipm_plot),iWork(ipn_plot),TranDip,Work(ipTranDipGradInt),Work(ipharmfreq1), &
-                    Work(ipx_anharm1),Work(ipharmfreq2),Work(ipx_anharm2),Work(ipr0),Work(ipr1),Work(ipr2),Work(ipBase2), &
-                    l_IntensityMat_1,l_IntensityMat_2,l_TermMat_1,l_TermMat_2,nOsc,nDimTot,l_n_plot,l_m_plot)
-    call GetMem('TranDipGradInt','Free','real',ipTranDipGradInt,3*nOsc)
-  else
-    call Intensity(Work(ipIntensityMat),Work(ipTermMat),T0,max_term,iWork(ipipow),Work(ipvar),Work(ipt_dipin1),Work(ipt_dipin2), &
-                   Work(ipt_dipin3),trfName1,Work(ipU1),Work(ipU2),Work(ipE1),Work(ipE2),Work(ipC1),Work(ipW1),det1,Work(ipr01), &
-                   Work(ipC2),Work(ipW2),det2,Work(ipr02),work(ipC),Work(ipW),det0,Work(ipr00),m_max,n_max,max_dip, &
-                   iWork(ipm_plot),iWork(ipn_plot),Work(ipharmfreq1),Work(ipharmfreq2),Work(ipr0),Work(ipr1),Work(ipr2), &
-                   Work(ipBase),l_IntensityMat_1,l_IntensityMat_2,l_TermMat_1,l_TermMat_2,nOsc,nDimTot,nPolyTerm,ndata,nvar, &
-                   MaxNumAt,l_n_plot,l_m_plot)
-    call GetMem('t_dipin1','Free','Real',ipt_dipin1,ndata)
-    call GetMem('t_dipin2','Free','Real',ipt_dipin2,ndata)
-    call GetMem('t_dipin3','Free','Real',ipt_dipin3,ndata)
-
-    call GetMem('var','Free','Real',ipvar,ndata*nvar)
-    call GetMem('ipow','Free','Inte',ipipow,nPolyTerm*nvar)
-
-  end if
-else
-  l_IntensityMat_1 = max_mOrd
-  l_IntensityMat_2 = max_nOrd
-
-  call GetMem('IntensityMat','Allo','Real',ipIntensityMat,(l_IntensityMat_1+1)*(l_IntensityMat_2+1))
-  call IntForceField(Work(ipIntensityMat),Work(ipTermMat),T0,max_term,FC00,Work(ipC1),Work(ipW1),det1,Work(ipr01),Work(ipC2), &
-                     Work(ipW2),det2,Work(ipr02),Work(ipC),Work(ipW),det0,Work(ipr00),m_max,n_max,max_dip,Trandip, &
-                     Work(ipTranDipGradInt),Work(ipharmfreq1),Work(ipx_anharm1),Work(ipharmfreq2),Work(ipx_anharm2),iWork(ipmMat), &
-                     iWork(ipmInc),iWork(ipmDec),iWork(ipnMat),iWork(ipnInc),iWork(ipnDec),OscStr,nsize,max_mOrd,max_nOrd,nDimTot, &
-                     nOsc)
-  call GetMem('TranDipGradInt','Free','Real',ipTranDipGradInt,3*nOsc)
-end if
-
-!write results to log.
-write(u6,*) ' Write intensity data to log file.'
-call XFlush(u6)
-call WriteInt(Work(ipIntensityMat),Work(ipTermMat),iWork(ipmMat),iWork(ipnMat),Work(ipOccNumMat1),Work(ipOccNumMat2),MatEl, &
-              ForceField,Work(ipE1),Work(ipE2),T0,Work(ipharmfreq1),Work(ipharmfreq2),Work(ipx_anharm1),Work(ipx_anharm2), &
-              l_IntensityMat_1,l_IntensityMat_2,l_TermMat_1,l_TermMat_2,nDimTot,nOsc)
-
-call GetMem('C','Free','Real',ipC,nOsc*nOsc)
-call GetMem('W','Free','Real',ipW,nOsc*nOsc)
-call GetMem('W1','Free','Real',ipW1,nOsc*nOsc)
-call GetMem('W2','Free','Real',ipW2,nOsc*nOsc)
-
-call GetMem('C1','Free','Real',ipC1,nOsc*nOsc)
-call GetMem('C2','Free','Real',ipC2,nOsc*nOsc)
-
-call GetMem('r00','Free','Real',ipr00,nOsc)
-call GetMem('r01','Free','Real',ipr01,nOsc)
-call GetMem('r02','Free','Real',ipr02,nOsc)
-
-call GetMem('nInc','Free','Inte',ipnInc,(nTabDim+1)*nOsc)
-call GetMem('nDec','Free','Inte',ipnDec,(nTabDim+1)*nOsc)
-call GetMem('mInc','Free','Inte',ipmInc,(mTabDim+1)*nOsc)
-call GetMem('mDec','Free','Inte',ipmDec,(mTabDim+1)*nOsc)
-
-call GetMem('harmfreq1','Free','Real',ipharmfreq1,nOsc)
-call GetMem('harmfreq2','Free','Real',ipharmfreq2,nOsc)
-
-call GetMem('x_anharm1','Free','Real',ipx_anharm1,nOsc*nOsc)
-call GetMem('x_anharm2','Free','Real',ipx_anharm2,nOsc*nOsc)
-call GetMem('TermMat','Free','Real',ipTermMat,(l_TermMat_1+1)*(l_TermMat_2+1))
-call GetMem('IntensityMat','Free','Real',ipIntensityMat,(l_IntensityMat_1+1)*(l_IntensityMat_2+1))
-
-call GetMem('U1','Free','Real',ipU1,l_l*l_l)
-call GetMem('E1','Free','Real',ipE1,l_l)
-call GetMem('U2','Free','Real',ipU2,l_l*l_l)
-call GetMem('E2','Free','Real',ipE2,l_l)
-call GetMem('mMat','Free','Inte',ipmMat,(mTabDim+1)*nOsc)
-call GetMem('nMat','Free','Inte',ipnMat,(nTabDim+1)*nOsc)
-
-call GetMem('OccNumMat1','Free','Real',ipOccNumMat1,l_l*3)
-call GetMem('OccNumMat2','Free','Real',ipOccNumMat2,l_l*3)
-
-call GetMem('m_plot','Free','Inte',ipm_plot,l_m_plot)
-call GetMem('n_plot','Free','Inte',ipn_plot,l_n_plot)
-
-call GetMem('NormModes','Free','Inte',ipNormModes,l_NormModes)
-call GetMem('Base','Free','Real',ipBase,nOscOld*nOsc)
-call GetMem('BaseInv','Free','Real',ipBaseInv,nOsc*nOscOld)
-
-! I don't understand why is it here??
-call GetMem('TranDipGrad','Free','Real',ipTranDipGrad,3*NumOfAt)
-call GetMem('Base2','Free','Real',ipBase2,nOsc*nOsc)
-call GetMem('Lambda','Free','Real',ipLambda,nOsc)
-call GetMem('r1','Free','Real',ipr1,nOsc)
-call GetMem('r2','Free','Real',ipr2,nOsc)
-call GetMem('r0','Free','Real',ipr0,nOsc)
-
-999 continue
 
 iReturn = 0
 

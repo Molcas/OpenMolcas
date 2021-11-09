@@ -146,39 +146,38 @@ if (iPrint >= 3) then
 end if
 
 nYes_start = nYes
-100 continue
-dWlow = Half*dMinWind/dRho
-dWup = dWlow
-do iOrd=0,max_nOrd
-  lVec(iOrd) = lTVec(iOrd)
-  if (lVec(iOrd) == 1) then
-    dEne = EneMat(iOrd)
-    if ((dEne < -dWlow) .or. (dEne > dWup)) then
-      lVec(iOrd) = 0
-      nYes = nYes-1
-    else
-      lVec(iOrd) = 1
-      if (iPrint >= 3) then
-        if (nOsc <= 24) then
-          iIndex = nTabDim(iOrd)
-          call iDaFile(lNMAT,2,nMat0,nOsc,iIndex)
-          loc_n_max = 0
-          do j=1,nOsc
-            loc_n_max = loc_n_max+nMat0(j)
-          end do
-          write(u6,'(a2,i8,f11.6,f11.4,i4,a2,24i3)') ' ',iOrd,dEne,dEne*HarToRcm,loc_n_max,': ',(nMat0(j),j=1,nOsc)
-        else
-          write(u6,'(a2,i8,f11.6,f11.4,i4        )') ' ',iOrd,dEne,dEne*HarToRcm,loc_n_max
+do
+  dWlow = Half*dMinWind/dRho
+  dWup = dWlow
+  do iOrd=0,max_nOrd
+    lVec(iOrd) = lTVec(iOrd)
+    if (lVec(iOrd) == 1) then
+      dEne = EneMat(iOrd)
+      if ((dEne < -dWlow) .or. (dEne > dWup)) then
+        lVec(iOrd) = 0
+        nYes = nYes-1
+      else
+        lVec(iOrd) = 1
+        if (iPrint >= 3) then
+          if (nOsc <= 24) then
+            iIndex = nTabDim(iOrd)
+            call iDaFile(lNMAT,2,nMat0,nOsc,iIndex)
+            loc_n_max = 0
+            do j=1,nOsc
+              loc_n_max = loc_n_max+nMat0(j)
+            end do
+            write(u6,'(a2,i8,f11.6,f11.4,i4,a2,24i3)') ' ',iOrd,dEne,dEne*HarToRcm,loc_n_max,': ',(nMat0(j),j=1,nOsc)
+          else
+            write(u6,'(a2,i8,f11.6,f11.4,i4        )') ' ',iOrd,dEne,dEne*HarToRcm,loc_n_max
+          end if
         end if
       end if
     end if
-  end if
-end do
-if ((nYes < 1) .and. lUpDate) then
+  end do
+  if ((nYes > 1) .or. (.not. lUpDate)) exit
   dMinWind = dMinWind+One
   nYes = nYes_start
-  goto 100
-end if
+end do
 
 call GetMem('level2','Free','Inte',iplevel2,nOsc)
 call GetMem('level1','Free','Inte',iplevel1,nOsc)

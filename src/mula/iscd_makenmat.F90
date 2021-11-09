@@ -46,13 +46,12 @@ do iQuanta=1,n_max
     iQ = iQ+1
     if (iQ > iQuanta) then
       do i=1,nOsc-1
-        if (iQ <= iQuanta) goto 99
+        if (iQ <= iQuanta) exit
         iQ = iQ-iWork(ipiVec+i-1)+1
         iWork(ipiVec+i-1) = 0
         iWork(ipiVec+i) = iWork(ipiVec+i)+1
       end do
     end if
-99  continue
     iWork(ipiVec+nOsc-1) = iQuanta-iq
     iDNR = iDetnr(iWork(ipiVec),Graph2,nosc,n_max)
     iDNR = iDNR-nD_0

@@ -46,19 +46,16 @@ lStdNam = StrnLn(StdNam)
 ! Read until an input Line is located which starts with
 ! the string, Name, not before the second column
 do while (.true.)
-  read(iUnit,'(A80)',end=900) Line
+  read(iUnit,'(A80)',iostat=istatus) Line
+  if (istatus < 0) then
+    write(u6,*) 'MulaRdNLst error: Could not locate input.'
+    write(u6,*) 'Looking for: &'//StdNam
+    call Quit_OnUserError()
+  end if
   call LeftAd(Line)
   call UpCase(Line)
-  if ((Line(1:1) == '&') .and. (Line(2:lStdNam+1) == StdNam(1:lStdNam))) then
-    return
-  end if
+  if ((Line(1:1) == '&') .and. (Line(2:lStdNam+1) == StdNam(1:lStdNam))) exit
 end do
-
-! Error exit
-900 continue
-write(u6,*) 'MulaRdNLst error: Could not locate input.'
-write(u6,*) 'Looking for: &'//StdNam
-call Quit_OnUserError()
 
 end subroutine MulaRdNLst
 !####
@@ -134,10 +131,9 @@ call Normalize(InLine,OutLine)
 ! Index of first blank character from the end:
 BlInd = 81
 do i=80,1,-1
-  if (Outline(i:i) /= ' ') goto 15
+  if (Outline(i:i) /= ' ') exit
   BlInd = i
 end do
-15 continue
 if (BlInd > 80) then
   write(u6,*) 'KEYWORD: KeyWd is too long.'
   write(u6,*) 'KeyWd:',KeyWd
@@ -156,19 +152,22 @@ if (rewind) then
   call MulaRdNlst(nUnit,InputName)
 end if
 
-read(nUnit,'(a80)',end=10,err=20) InLine
-call Normalize(InLine,OutLine)
-do while (OutLine(1:KLen) /= TmpKey(1:KLen))
-  read(nUnit,'(a80)',end=10,err=20) InLine
+read(nUnit,'(a80)',iostat=istatus) InLine
+if (istatus == 0) then
   call Normalize(InLine,OutLine)
-end do
-10 continue
+  do while (OutLine(1:KLen) /= TmpKey(1:KLen))
+    read(nUnit,'(a80)',iostat=istatus) InLine
+    if (istatus /= 0) exit
+    call Normalize(InLine,OutLine)
+  end do
+end if
+if (istatus > 0) then
+  write(u6,*) ' I/O error on unit nUnit=',nUnit
+  call abend()
+end if
 Exist = OutLine(1:KLen) == TmpKey(1:KLen)
 
 return
-
-20 write(u6,*) ' I/O error on unit nUnit=',nUnit
-call abend()
 
 end subroutine KeyWord
 !####
@@ -298,10 +297,9 @@ do i=1,len1
   ch = line(i:i)
   if (ch /= ' ') then
     ista = i
-    goto 11
+    exit
   end if
 end do
-11 continue
 line2 = ' '
 if (ista == 0) return
 wrdend = .false.
@@ -310,11 +308,17 @@ do i=ista,len1
   ch = line(i:i)
   if (ch /= ' ') then
     if (wrdend) then
-      if (len2 > len2max-1) goto 99
+      if (len2 > len2max-1) then
+        write(u6,*) ' WARNING: Line truncated in NORMALIZE.'
+        exit
+      end if
       line2(len2+1:len2+1) = ' '
       len2 = len2+1
     end if
-    if (len2 > len2max-1) goto 99
+    if (len2 > len2max-1) then
+      write(u6,*) ' WARNING: Line truncated in NORMALIZE.'
+      exit
+    end if
     ch = char(itrans(ichar(ch)))
     line2(len2+1:len2+1) = ch
     len2 = len2+1
@@ -325,8 +329,5 @@ do i=ista,len1
 end do
 
 return
-
-99 continue
-write(u6,*) ' WARNING: Line truncated in NORMALIZE.'
 
 end subroutine Normalize
