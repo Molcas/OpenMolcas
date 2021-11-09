@@ -29,6 +29,8 @@ subroutine SetUpHmat2(energy1,energy2,C,W,det,r1,r2,max_mOrd,max_nOrd,max_nOrd2,
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1996.
 
+use Constants, only: Zero
+
 !use Linalg
 !use OptMod
 !use FCMod
@@ -73,26 +75,26 @@ call GetMem('Gdble','Allo','Real',ipGdblePrime,nOsc*nOsc*nOsc*nOsc)
 ! - Calculate matrix elements.
 
 max_term = 2
-!grad = 0.0d0
-call dcopy_(nOsc,[0.0d0],0,Work(ipgrad),1)
-!D3 = 0.0d0
-call dcopy_(nOsc*nOsc*nOsc,[0.0d0],0,Work(ipD3),1)
-call dcopy_(nOsc*nOsc*nOsc,[0.0d0],0,Work(ipGprime),1)
-!D4 = 0.0d0
-call dcopy_(nOsc*nOsc*nOsc*nOsc,[0.0d0],0,Work(ipD4),1)
-call dcopy_(nOsc*nOsc*nOsc*nOsc,[0.0d0],0,Work(ipGdblePrime),1)
-!Gprime = 0.0d0
-!GdblePrime = 0.0d0
-!Base = 0.0d0
+!grad = Zero
+call dcopy_(nOsc,[Zero],0,Work(ipgrad),1)
+!D3 = Zero
+call dcopy_(nOsc*nOsc*nOsc,[Zero],0,Work(ipD3),1)
+call dcopy_(nOsc*nOsc*nOsc,[Zero],0,Work(ipGprime),1)
+!D4 = Zero
+call dcopy_(nOsc*nOsc*nOsc*nOsc,[Zero],0,Work(ipD4),1)
+call dcopy_(nOsc*nOsc*nOsc*nOsc,[Zero],0,Work(ipGdblePrime),1)
+!Gprime = Zero
+!GdblePrime = Zero
+!Base = Zero
 !do i=1,nOsc
-!  Base(i,i) = 1.0d0
+!  Base(i,i) = One
 !end do
 call Calc_r00(C,C,W,W,Work(ipC0),Work(ipW0),Work(ipalpha1),Work(ipalpha2),Work(ipr0),r1,r1,det0,det,det,FC00,nOsc)
 call FCval(C,W,det0,Work(ipr0),C,W,det0,Work(ipr0),Work(ipSij),max_mOrd,max_nOrd,max_nOrd,max_mInc,max_nInc,max_nInc,mMat,nMat, &
            mInc,nInc,mDec,nDec,Work(ipC0),Work(ipW0),det0,Work(ipr0),Work(ipL),Work(ipU),FC00,Work(ipalpha1),Work(ipalpha2), &
            Work(ipbeta),nOsc,nnsiz)
-!r_diff = 0.0d0
-call dcopy_(nOsc,[0.0d0],0,Work(ipr_diff),1)
+!r_diff = Zero
+call dcopy_(nOsc,[Zero],0,Work(ipr_diff),1)
 call MatrixElements(Work(ipL),Work(ipU),FC00,Work(ipHij),Work(ipC0),Work(ipW0),Work(ipr_diff),mMat,nMat,nInc,nDec,max_nOrd, &
                     max_mOrd,nOsc,energy1,Work(ipgrad),Hess,Work(ipD3),Work(ipD4),G0,Work(ipGprime),Work(ipGdbleprime), &
                     Work(ipalpha1),Work(ipalpha2),Work(ipbeta),max_term,Base)

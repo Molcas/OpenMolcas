@@ -49,6 +49,8 @@ subroutine SetUpDipMat2(DipMat,max_term,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,m
 !    DipMat     : Real*8 two dimensional array - contains the
 !                 matrix elements of the transition dipole.
 
+use Constants, only: Zero
+
 implicit real*8(a-h,o-z)
 #include "dims.fh"
 real*8 DipMat(0:nDimTot,0:nDimTot)
@@ -101,9 +103,9 @@ D0(1) = TranDip(1)
 D0(2) = TranDip(2)
 D0(3) = TranDip(3)
 call dcopy_(nOsc,TranDipGrad,1,Work(ipD1),1)
-call dcopy_(nOsc*nOsc,[0.0d0],0,Work(ipD2),1)
-call dcopy_(nOsc*nOsc*nOsc,[0.0d0],0,Work(ipD3),1)
-call dcopy_(nOsc*nOsc*nOsc*nOsc,[0.0d0],0,Work(ipD4),1)
+call dcopy_(nOsc*nOsc,[Zero],0,Work(ipD2),1)
+call dcopy_(nOsc*nOsc*nOsc,[Zero],0,Work(ipD3),1)
+call dcopy_(nOsc*nOsc*nOsc*nOsc,[Zero],0,Work(ipD4),1)
 
 call DipMatEl(Work(ipDij),Work(ipW),Work(ipL),Work(ipU),FC00,nMat,nInc,nDec,D0(1),Work(ipD1),Work(ipD2),Work(ipD3),Work(ipD4), &
               max_term,Base,ndim1,ndim2,max_mOrd,max_nOrd2)

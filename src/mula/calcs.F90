@@ -51,6 +51,8 @@ end subroutine BondStr
 !####
 subroutine NaNChk(X,k,i,j)
 
+use Definitions, only: u6
+
 implicit real*8(a-h,o-z)
 real*8 X
 character*16 str1, str2
@@ -58,11 +60,11 @@ character*16 str1, str2
 write(str2,'(G16.8)') X
 call Normalize(str2,str1)
 if (str1(1:3) == 'NAN') then
-  write(6,*) ' CalcS subroutine produced Not-a-Number!'
-  write(6,*) ' Internal coordinate nr j=',j
-  write(6,*) ' Atom nr.               i=',i
-  write(6,*) ' Component              k=',k
-  write(6,*) ' S(k,i,j)=',X
+  write(u6,*) ' CalcS subroutine produced Not-a-Number!'
+  write(u6,*) ' Internal coordinate nr j=',j
+  write(u6,*) ' Atom nr.               i=',i
+  write(u6,*) ' Component              k=',k
+  write(u6,*) ' S(k,i,j)=',X
 end if
 
 return
@@ -92,6 +94,8 @@ subroutine AngBend(R1,R2,i1,i2,i3,j,S,NumOfAt,NumInt)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1994.
 
+use Constants, only: One
+
 implicit real*8(a-h,o-z)
 #include "Constants_mula.fh"
 real*8 S(3,NumOfAt,NumInt)
@@ -114,7 +118,7 @@ CosTheta = cos(Theta)
 SinTheta = sin(Theta)
 
 ! Contributions to S.
-F1 = 1.0d0/(SR1*SinTheta)
+F1 = One/(SR1*SinTheta)
 S(1,i1,j) = (CosTheta*NR1(1)-NR2(1))*F1
 S(2,i1,j) = (CosTheta*NR1(2)-NR2(2))*F1
 S(3,i1,j) = (CosTheta*NR1(3)-NR2(3))*F1
@@ -126,7 +130,7 @@ S(1,i2,j) = (F2*NR1(1)+F3*NR2(1))*F4
 S(2,i2,j) = (F2*NR1(2)+F3*NR2(2))*F4
 S(3,i2,j) = (F2*NR1(3)+F3*NR2(3))*F4
 
-F5 = 1.0d0/(SR2*SinTheta)
+F5 = One/(SR2*SinTheta)
 S(1,i3,j) = (CosTheta*NR2(1)-NR1(1))*F5
 S(2,i3,j) = (CosTheta*NR2(2)-NR1(2))*F5
 S(3,i3,j) = (CosTheta*NR2(3)-NR1(3))*F5
@@ -166,6 +170,8 @@ subroutine LinBend(R1,R2,i1,i2,i3,j,S,NumOfAt,NumInt)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1994.
 
+use Constants, only: Zero, One
+
 implicit real*8(a-h,o-z)
 #include "Constants_mula.fh"
 real*8 S(3,NumOfAt,NumInt)
@@ -176,32 +182,32 @@ SR1 = sqrt(R1(1)**2+R1(2)**2+R1(3)**2)
 SR2 = sqrt(R2(1)**2+R2(2)**2+R2(3)**2)
 
 ! Contributions to S.
-F1 = 1.0d0/SR1
-F2 = 1.0d0/SR2
+F1 = One/SR1
+F2 = One/SR2
 
 S(1,i1,j) = F1
-S(2,i1,j) = 0.0d0
-S(3,i1,j) = 0.0d0
+S(2,i1,j) = Zero
+S(3,i1,j) = Zero
 
 S(1,i2,j) = -F1-F2
-S(2,i2,j) = 0.0d0
-S(3,i2,j) = 0.0d0
+S(2,i2,j) = Zero
+S(3,i2,j) = Zero
 
 S(1,i3,j) = F2
-S(2,i3,j) = 0.0d0
-S(3,i3,j) = 0.0d0
+S(2,i3,j) = Zero
+S(3,i3,j) = Zero
 
-S(1,i1,j+1) = 0.0d0
+S(1,i1,j+1) = Zero
 S(2,i1,j+1) = F1
-S(3,i1,j+1) = 0.0d0
+S(3,i1,j+1) = Zero
 
-S(1,i2,j+1) = 0.0d0
+S(1,i2,j+1) = Zero
 S(2,i2,j+1) = -F1-F2
-S(3,i2,j+1) = 0.0d0
+S(3,i2,j+1) = Zero
 
-S(1,i3,j+1) = 0.0d0
+S(1,i3,j+1) = Zero
 S(2,i3,j+1) = F2
-S(3,i3,j+1) = 0.0d0
+S(3,i3,j+1) = Zero
 
 call NaNChk(S(1,i1,j),1,i1,j)
 call NaNChk(S(2,i1,j),2,i1,j)
@@ -238,6 +244,8 @@ subroutine Torsion(R1,R2,R3,i1,i2,i3,i4,j,S,NumOfAt,NumInt)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1994.
 
+use Constants, only: One
+
 implicit real*8(a-h,o-z)
 #include "Constants_mula.fh"
 real*8 S(3,NumOfAt,NumInt)
@@ -263,7 +271,7 @@ CosTheta2 = cos(Theta2)
 SinTheta2 = sin(Theta2)
 
 ! Contributions to S.
-F1 = 1.0d0/(SR1*(SinTheta1)**2)
+F1 = One/(SR1*(SinTheta1)**2)
 F2 = NR1(2)*NR2(3)-NR1(3)*NR2(2)
 F3 = NR1(3)*NR2(1)-NR1(1)*NR2(3)
 F4 = NR1(1)*NR2(2)-NR1(2)*NR2(1)
@@ -286,7 +294,7 @@ S(1,i3,j) = F10*F7+F11*F2
 S(2,i3,j) = F10*F8+F11*F3
 S(3,i3,j) = F10*F9+F11*F4
 
-F12 = 1.0d0/(SR3*(SinTheta2)**2)
+F12 = One/(SR3*(SinTheta2)**2)
 S(1,i4,j) = -F7*F12
 S(2,i4,j) = -F8*F12
 S(3,i4,j) = -F9*F12
@@ -330,6 +338,8 @@ subroutine OutOfPl(R1,R2,R3,i1,i2,i3,i4,j,S,NumOfAt,NumInt)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1994.
 
+use Constants, only: One
+
 implicit real*8(a-h,o-z)
 #include "Constants_mula.fh"
 real*8 S(3,NumOfAt,NumInt)
@@ -367,7 +377,7 @@ CosPhi = cos(Phi)
 TanPhi = tan(Phi)
 
 ! Contributions to S.
-F4 = 1.0d0/(SR1*CosPhi*SinTheta)
+F4 = One/(SR1*CosPhi*SinTheta)
 F5 = TanPhi/SR1
 S(1,i1,j) = F1*F4-NR1(1)*F5
 S(2,i1,j) = F2*F4-NR1(2)*F5
@@ -376,7 +386,7 @@ S(3,i1,j) = F3*F4-NR1(3)*F5
 F6 = NR3(2)*NR1(3)-NR3(3)*NR1(2)
 F7 = NR3(3)*NR1(1)-NR3(1)*NR1(3)
 F8 = NR3(1)*NR1(2)-NR3(2)*NR1(1)
-F9 = 1.0d0/(SR2*CosPhi*SinTheta)
+F9 = One/(SR2*CosPhi*SinTheta)
 F10 = TanPhi/(SR2*(SinTheta)**2)
 S(1,i2,j) = F6*F9-NR2(1)*F10+CosTheta*F10*NR3(1)
 S(2,i2,j) = F7*F9-NR2(2)*F10+CosTheta*F10*NR3(2)
@@ -385,7 +395,7 @@ S(3,i2,j) = F8*F9-NR2(3)*F10+CosTheta*F10*NR3(3)
 F11 = NR1(2)*NR2(3)-NR1(3)*NR2(2)
 F12 = NR1(3)*NR2(1)-NR1(1)*NR2(3)
 F13 = NR1(1)*NR2(2)-NR1(2)*NR2(1)
-F14 = 1.0d0/(SR3*CosPhi*SinTheta)
+F14 = One/(SR3*CosPhi*SinTheta)
 F15 = TanPhi/(SR3*(SinTheta)**2)
 S(1,i3,j) = F11*F14-NR3(1)*F15+CosTheta*F15*NR2(1)
 S(2,i3,j) = F12*F14-NR3(2)*F15+CosTheta*F15*NR2(2)
@@ -531,6 +541,8 @@ subroutine CalcG(G,Mass,S,NumInt,NumOfAt)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1994.
 
+use Constants, only: Zero, One
+
 implicit real*8(a-h,o-z)
 #include "Constants_mula.fh"
 real*8 G(NumInt,NumInt)
@@ -539,9 +551,9 @@ real*8 S(3,NumOfAt,NumInt)
 
 do i=1,NumInt
   do j=1,NumInt
-    GSum = 0.0d0
+    GSum = Zero
     do k=1,NumOfAt
-      GSum = GSum+(1.0d0/(uToAu*Mass(k)))*(S(1,k,i)*S(1,k,j)+S(2,k,i)*S(2,k,j)+S(3,k,i)*S(3,k,j))
+      GSum = GSum+(One/(uToAu*Mass(k)))*(S(1,k,i)*S(1,k,j)+S(2,k,i)*S(2,k,j)+S(3,k,i)*S(3,k,j))
     end do
     G(i,j) = GSum
   end do

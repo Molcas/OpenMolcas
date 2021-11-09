@@ -36,6 +36,9 @@ subroutine WriteInt(IntMat,TermMat,mMat,nMat,OccNumMat1,OccNumMat2,MatEl,ForceFi
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1996.
 
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, u6
+
 implicit real*8(a-h,o-z)
 #include "Constants_mula.fh"
 #include "dims.fh"
@@ -61,17 +64,17 @@ integer nvTabDim
 #include "inout.fh"
 #include "WrkSpc.fh"
 
-write(6,*)
-write(6,*)
-write(6,*)
-write(6,*)
-write(6,'(a27,a)') ' ',' ================================================='
-write(6,'(a27,a)') ' ','|                                                 |'
-write(6,'(a27,a)') ' ','|       Results from intensity calculations       |'
-write(6,'(a27,a)') ' ','|                                                 |'
-write(6,'(a27,a)') ' ',' ================================================='
-write(6,*)
-write(6,*)
+write(u6,*)
+write(u6,*)
+write(u6,*)
+write(u6,*)
+write(u6,'(a27,a)') ' ',' ================================================='
+write(u6,'(a27,a)') ' ','|                                                 |'
+write(u6,'(a27,a)') ' ','|       Results from intensity calculations       |'
+write(u6,'(a27,a)') ' ','|                                                 |'
+write(u6,'(a27,a)') ' ',' ================================================='
+write(u6,*)
+write(u6,*)
 
 ! Dimensions.
 max_mOrd = l_IntMat_1
@@ -119,29 +122,29 @@ else
   !vv
   iprintLevel = 0
   if (iprintLevel == 10) then
-    write(6,*)
-    write(6,*)
-    write(6,*) ' ','The meaning of n and nprime in FC-table below:'
-    write(6,fmt='(a1,a,40a3,a)') ' ','=============',('===',i=1,nvar),'='
-    !write(6,fmt='(40a3)',advance='no')  ('===',i=1,nvar)
-    !write(6,fmt='(   a)',advance='yes') '='
-    write(6,*)
-    write(6,*) ' ','     n                                  Oscillator quanta'
-    write(6,fmt='(a1,a,40a3,a)') ' ','-------------',('---',i=1,nvar),'-'
-    !write(6,fmt='(40a3)',advance='no')  ('---',i=1,nvar)
-    !write(6,fmt='(   a)',advance='yes') '-'
+    write(u6,*)
+    write(u6,*)
+    write(u6,*) ' ','The meaning of n and nprime in FC-table below:'
+    write(u6,fmt='(a1,a,40a3,a)') ' ','=============',('===',i=1,nvar),'='
+    !write(u6,fmt='(40a3)',advance='no')  ('===',i=1,nvar)
+    !write(u6,fmt='(   a)',advance='yes') '='
+    write(u6,*)
+    write(u6,*) ' ','     n                                  Oscillator quanta'
+    write(u6,fmt='(a1,a,40a3,a)') ' ','-------------',('---',i=1,nvar),'-'
+    !write(u6,fmt='(40a3)',advance='no')  ('---',i=1,nvar)
+    !write(u6,fmt='(   a)',advance='yes') '-'
     if (max_mOrd > max_nOrd) then
       do i=0,max_mOrd
-        write(6,'(a4,i4,a5,40i3)') ' ',i,' ',(mMat(i,j),j=1,nvar)
+        write(u6,'(a4,i4,a5,40i3)') ' ',i,' ',(mMat(i,j),j=1,nvar)
       end do
     else
       do i=0,max_nOrd
-        write(6,'(a4,i4,a5,40i3)') ' ',i,' ',(nMat(i,j),j=1,nvar)
+        write(u6,'(a4,i4,a5,40i3)') ' ',i,' ',(nMat(i,j),j=1,nvar)
       end do
     end if
-    write(6,fmt='(a1,a,40a3,a)') ' ','=============',('===',i=1,nvar),'='
-    !write(6,fmt='(40a3)',advance='no')  ('===',i=1,nvar)
-    !write(6,fmt='(   a)',advance='yes') '='
+    write(u6,fmt='(a1,a,40a3,a)') ' ','=============',('===',i=1,nvar),'='
+    !write(u6,fmt='(40a3)',advance='no')  ('===',i=1,nvar)
+    !write(u6,fmt='(   a)',advance='yes') '='
   end if
 end if
 
@@ -160,10 +163,10 @@ if (WriteVibLevels) then
     call GetMem('level1','Allo','Inte',iplevel1,nvar)
     call GetMem('level2','Allo','Inte',iplevel2,nvar)
 
-    G1 = 0.0d0
+    G1 = Zero
     G2 = G1+T0
     k = 0
-    Work(ipVibLevel1+k) = 0.0d0
+    Work(ipVibLevel1+k) = Zero
     do iv=1,nvar
       iWork(iplevel1+iv-1) = mMat(0,iv)
     end do
@@ -235,31 +238,31 @@ if (WriteVibLevels) then
     end do
   end if
 
-  write(6,*)
-  write(6,*)
-  write(6,*) ' ','Vibrational levels for ground state'
-  write(6,*) ' ','=============================================='
-  write(6,*)
-  write(6,*) ' ','     Level                     Energy(cm-1)'
-  write(6,*) ' ','----------------------------------------------'
+  write(u6,*)
+  write(u6,*)
+  write(u6,*) ' ','Vibrational levels for ground state'
+  write(u6,*) ' ','=============================================='
+  write(u6,*)
+  write(u6,*) ' ','     Level                     Energy(cm-1)'
+  write(u6,*) ' ','----------------------------------------------'
   do i=0,max_mOrd
     iOrd = iwork(ipVibSort1+i+l_m)
-    write(6,'(a4,a15,a15,i7)') ' ',mMatChar(iOrd),' ',iWork(ipVibSort1+i)
+    write(u6,'(a4,a15,a15,i7)') ' ',mMatChar(iOrd),' ',iWork(ipVibSort1+i)
   end do
-  write(6,*) ' ','=============================================='
+  write(u6,*) ' ','=============================================='
 
-  write(6,*)
-  write(6,*)
-  write(6,*) ' ','Vibrational levels for excited state'
-  write(6,*) ' ','=============================================='
-  write(6,*)
-  write(6,*) ' ','     Level                     Energy(cm-1)'
-  write(6,*) ' ','----------------------------------------------'
+  write(u6,*)
+  write(u6,*)
+  write(u6,*) ' ','Vibrational levels for excited state'
+  write(u6,*) ' ','=============================================='
+  write(u6,*)
+  write(u6,*) ' ','     Level                     Energy(cm-1)'
+  write(u6,*) ' ','----------------------------------------------'
   do i=0,max_nOrd
     iOrd = iWork(ipVibSort2+i+l_n)
-    write(6,'(a4,a15,a15,i7)') ' ',nMatChar(iOrd),' ',iWork(ipVibSort2+i)
+    write(u6,'(a4,a15,a15,i7)') ' ',nMatChar(iOrd),' ',iWork(ipVibSort2+i)
   end do
-  write(6,*) ' ','=============================================='
+  write(u6,*) ' ','=============================================='
   call GetMem('VibSort1','Free','Inte',ipVibSort1,l_m*2)
   call GetMem('VibSort2','Free','Inte',ipVibSort2,l_n*2)
 
@@ -300,8 +303,8 @@ n = (l_TermMat_1+2)*(l_TermMat_2+2)
 l_TermSort = n+1
 call GetMem('TermSort','Allo','Inte',ipTermSort,l_TermSort*3)
 nval = 0
-max_Intensity = 0.0d0
-!
+max_Intensity = Zero
+
 if (MatEl .and. (.not. ForceField)) then
   if (max_mQuanta <= max_nQuanta) then
     do i=1,m_plot_max
@@ -342,7 +345,7 @@ else
       do iOrd=iWork(ipmMatStart+iWork(ipm_plot+i-1)),iWork(ipmMatStop+iWork(ipm_plot+i-1))
         do jOrd=iWork(ipmMatStart+iWork(ipn_plot+j-1)),iWork(ipmMatStop+iWork(ipn_plot+j-1))
           !if ((IntMat(iOrd,jOrd) > int_thrs*max_Intensity) .or. &
-          !if ((IntMat(iOrd,jOrd) > 1.0d-3*max_Intensity) .or. ((iOrd == 0 ) .and. (jOrd == 0))) then
+          !if ((IntMat(iOrd,jOrd) > 1.0e-3_wp*max_Intensity) .or. ((iOrd == 0 ) .and. (jOrd == 0))) then
           iWork(ipTermSort+nval) = int(abs(TermMat(iOrd,jOrd))*HarToRcm)
           iWork(ipTermSort+nval+l_TermSort) = iOrd
           iWork(ipTermSort+nval+l_TermSort*2) = jOrd
@@ -373,90 +376,90 @@ end do
 
 ! MatEl,ForceField,m_plot_max,n_plot_max== F T 1 2/5
 
-write(6,*)
-write(6,'(90A)') ' ',('=',iv=1,89)
+write(u6,*)
+write(u6,'(90A)') ' ',('=',iv=1,89)
 if (OscStr) then
-  write(6,'(A)') '  Ground                        Excited                         Energy         Oscillator'
-  write(6,'(A)') '  State                         State                      cm-1 /  eV / nm      Strength'
+  write(u6,'(A)') '  Ground                        Excited                         Energy         Oscillator'
+  write(u6,'(A)') '  State                         State                      cm-1 /  eV / nm      Strength'
 else
-  write(6,'(A)') '  Ground                        Excited                         Energy        Intensities'
-  write(6,'(A)') '  State                         State                      cm-1 /  eV / nm'
+  write(u6,'(A)') '  Ground                        Excited                         Energy        Intensities'
+  write(u6,'(A)') '  State                         State                      cm-1 /  eV / nm'
 end if
-write(6,'(90A)') ' ',('-',iv=1,89)
-const = 1.0d0
+write(u6,'(90A)') ' ',('-',iv=1,89)
+const = One
 
 do i=0,nval
   iOrd = iWork(ipTermSort+i+l_TermSort)
   jOrd = iWork(ipTermSort+i+l_TermSort*2)
   vee_cm = iWork(ipTermSort+i)
-  vee_nm = 1.0d7/vee_cm
-  vee_eV = vee_cm/8065.6d0
+  vee_nm = 1.0e7_wp/vee_cm
+  vee_eV = vee_cm*auToeV/auTocm
   vee = vee_eV
   if (Use_cm) vee = vee_cm
   if (Use_nm) vee = vee_nm
-  ivee_cm = int(vee_cm+0.5d0)
-  ivee_nm = int(vee_nm+0.5d0)
+  ivee_cm = int(vee_cm+Half)
+  ivee_nm = int(vee_nm+Half)
   Intensity = IntMat(iOrd,jOrd)/const
   if ((MatEl) .and. (.not. ForceField)) then
     if (m_plot_max < n_plot_max) then
-      write(6,'(a1,a15,a5,a1,f5.2,a1,f5.2,a1,f5.2,a1,a5,i7,a10,e12.3)') ' ',mMatChar(iOrd),'---> ','(',OccNumMat2(jOrd,1),',', &
-                                                                        OccNumMat2(jOrd,2),',',OccNumMat2(jOrd,3),')',' ', &
-                                                                        ivee_cm,' ',Intensity
-      if (Intensity > 1D-6) then
+      write(u6,'(a1,a15,a5,a1,f5.2,a1,f5.2,a1,f5.2,a1,a5,i7,a10,e12.3)') ' ',mMatChar(iOrd),'---> ','(',OccNumMat2(jOrd,1),',', &
+                                                                         OccNumMat2(jOrd,2),',',OccNumMat2(jOrd,3),')',' ', &
+                                                                         ivee_cm,' ',Intensity
+      if (Intensity > 1.0e-6_wp) then
         call Add_Info('Energy',[vee_cm],1,5)
         call Add_Info('Intensity',[Intensity],1,5)
       end if
     else
-      write(6,'(a1,a15,a5,a1,f5.2,a1,f5.2,a1,f5.2,a1,a5,i7,a10,e12.3)') ' ',mMatChar(iOrd),'<--- ','(',OccNumMat2(jOrd,1),',', &
-                                                                        OccNumMat2(jOrd,2),',',OccNumMat2(jOrd,3),')',' ', &
-                                                                        ivee_cm,' ',Intensity
-      if (Intensity > 1D-6) then
+      write(u6,'(a1,a15,a5,a1,f5.2,a1,f5.2,a1,f5.2,a1,a5,i7,a10,e12.3)') ' ',mMatChar(iOrd),'<--- ','(',OccNumMat2(jOrd,1),',', &
+                                                                         OccNumMat2(jOrd,2),',',OccNumMat2(jOrd,3),')',' ', &
+                                                                         ivee_cm,' ',Intensity
+      if (Intensity > 1.0e-6_wp) then
         call Add_Info('Energy',[vee_cm],1,5)
         call Add_Info('Intensity',[Intensity],1,5)
       end if
     end if
   else
     if (m_plot_max < n_plot_max) then
-      write(6,'(a1,a23,a7,a23,a4,i6,a1,f5.2,a1,i4,a2,e12.3)') ' ',mMatChar(iOrd),' --->  ',nMatChar(jOrd),' ',ivee_cm,'/',vee_eV, &
-                                                              '/',ivee_nm,'  ',Intensity
-      if (Intensity > 1D-6) then
+      write(u6,'(a1,a23,a7,a23,a4,i6,a1,f5.2,a1,i4,a2,e12.3)') ' ',mMatChar(iOrd),' --->  ',nMatChar(jOrd),' ',ivee_cm,'/',vee_eV, &
+                                                               '/',ivee_nm,'  ',Intensity
+      if (Intensity > 1.0e-6_wp) then
         call Add_Info('Energy',[vee],1,5)
         call Add_Info('Intensity',[Intensity],1,5)
       end if
     else
-      write(6,'(a1,a23,a7,a23,a4,i6,a1,f5.2,a1,i4,a2,e12.3)') ' ',mMatChar(iOrd),' <---  ',nMatChar(jOrd),' ',ivee_cm,'/',vee_eV, &
-                                                              '/',ivee_nm,'  ',Intensity
-      if (Intensity > 1D-6) then
+      write(u6,'(a1,a23,a7,a23,a4,i6,a1,f5.2,a1,i4,a2,e12.3)') ' ',mMatChar(iOrd),' <---  ',nMatChar(jOrd),' ',ivee_cm,'/',vee_eV, &
+                                                               '/',ivee_nm,'  ',Intensity
+      if (Intensity > 1.0e-6_wp) then
         call Add_Info('Energy',[vee],1,5)
         call Add_Info('Intensity',[Intensity],1,5)
       end if
     end if
   end if
 end do
-write(6,'(90A)') ' ',('=',iv=1,89)
-write(6,*)
-write(6,*)
+write(u6,'(90A)') ' ',('=',iv=1,89)
+write(u6,*)
+write(u6,*)
 
 !***********************************************************************
 
 ! Write to plot file.
 
-conv = 0.0d0
-if ((.not. Use_nm) .and. (.not. Use_cm)) conv = 1.239842d-4
-if (Use_cm) conv = 1.0d0
-if (Use_nm) conv = 1.0d7
+conv = Zero
+if ((.not. Use_nm) .and. (.not. Use_cm)) conv = 1.239842e-4_wp
+if (Use_cm) conv = One
+if (Use_nm) conv = 1.0e7_wp
 
 ! TermMin/Max must be in cm-1
 if (plotwindow) then
   if (Use_nm) then                         ! nm -> cm-1
-    TermMin = int(conv/cmend+0.999999d0)   ! Note the inversion
-    TermMax = int(conv/cmstart-0.999999d0) ! cmstart <=> cmend
+    TermMin = int(conv/cmend+0.999999_wp)   ! Note the inversion
+    TermMax = int(conv/cmstart-0.999999_wp) ! cmstart <=> cmend
   else if (Use_cm) then                    ! already cm-1
     TermMin = int(cmstart)
-    TermMax = int(cmend+0.999999d0)
+    TermMax = int(cmend+0.999999_wp)
   else                                     ! eV -> cm-1
-    TermMin = int(cmstart/conv+0.999999d0)
-    TermMax = int(cmend/conv-0.999999d0)
+    TermMin = int(cmstart/conv+0.999999_wp)
+    TermMax = int(cmend/conv-0.999999_wp)
   end if
 else
   TermMin = int(iWork(ipTermSort))-nfreq
@@ -464,13 +467,13 @@ else
 end if
 l_plotvec = TermMax-TermMin+1
 call GetMem('plotvec','Allo','Real',ipplotvec,l_plotvec)
-call dcopy_(l_plotvec,[0.0d0],0,Work(ipplotvec),1)
+call dcopy_(l_plotvec,[Zero],0,Work(ipplotvec),1)
 
 call molcas_open(plotunit,'plot.intensity')
 !open(unit=plotUnit,file='plot.intensity')
 if (broadplot) then
-  FWHM = hbarcm/(2.0d0*LifeTime)
-  G2 = FWHM/2.0d0
+  FWHM = hbarcm/(Two*LifeTime)
+  G2 = FWHM*Half
   do iTrans=0,nval
     iOrd = iWork(ipTermSort+iTrans+l_TermSort)
     jOrd = iWork(ipTermSort+iTrans+l_TermSort*2)
@@ -480,7 +483,7 @@ if (broadplot) then
     end do
   end do
   do ipoint=TermMin,TermMax
-    if (Work(ipplotVec+ipoint-TermMin) > 0.0d0) then
+    if (Work(ipplotVec+ipoint-TermMin) > Zero) then
       if (.not. Use_nm) then
         write(plotUnit,'(f12.6,e15.6)') ipoint*conv,Work(ipplotVec+ipoint-TermMin)
       else
@@ -498,15 +501,15 @@ else
     end if
   end do
   do ipoint=TermMin,TermMax
-    if (Work(ipplotVec+ipoint-TermMin) > 0.0d0) then
+    if (Work(ipplotVec+ipoint-TermMin) > Zero) then
       if (.not. Use_nm) then
-        write(plotUnit,'(f12.6,e15.6)') ipoint*conv,0.0d0
+        write(plotUnit,'(f12.6,e15.6)') ipoint*conv,Zero
         write(plotUnit,'(f12.6,e15.6)') ipoint*conv,Work(ipplotVec+ipoint-TermMin)
-        write(plotUnit,'(f12.6,e15.6)') ipoint*conv,0.0d0
+        write(plotUnit,'(f12.6,e15.6)') ipoint*conv,Zero
       else
-        write(plotUnit,'(f12.6,e15.6)') conv/ipoint,0.0d0
+        write(plotUnit,'(f12.6,e15.6)') conv/ipoint,Zero
         write(plotUnit,'(f12.6,e15.6)') conv/ipoint,Work(ipplotVec+ipoint-TermMin)
-        write(plotUnit,'(f12.6,e15.6)') conv/ipoint,0.0d0
+        write(plotUnit,'(f12.6,e15.6)') conv/ipoint,Zero
       end if
     end if
   end do

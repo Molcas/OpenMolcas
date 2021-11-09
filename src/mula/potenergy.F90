@@ -19,6 +19,8 @@ subroutine PotEnergy(A,nMat,iCre,iAnn,energy,grad,Hess,D3,D4,max_term,W,max_ord,
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1996.
 
+use Constants, only: Zero, One
+
 !use TabMod
 implicit real*8(a-h,o-z)
 #include "dims.fh"
@@ -36,16 +38,16 @@ real*8 W(noscold,nosc)
 
 ! Zeroth order term.
 call dcopy_(max_ord+1,[Energy],0,A,max_Ord+2)
-rdx(1) = 1.0d0
-rdx(2) = 1.0d0
-rdx(3) = 1.0d0
-rdx(4) = 1.0d0
+rdx(1) = One
+rdx(2) = One
+rdx(3) = One
+rdx(4) = One
 call GetMem('Temp','Allo','Real',ipTemp,nOscOld**4)
 
 ! First order terms.
 if (max_term > 0) then
   call GetMem('grad_2','Allo','Real',ipgrad_2,nOsc)
-  call DGEMM_('T','N',1,nOsc,nOscOld,1.0d0,grad,nOscOld,W,nOscOld,0.0d0,Work(ipgrad_2),1)
+  call DGEMM_('T','N',1,nOsc,nOscOld,One,grad,nOscOld,W,nOscOld,Zero,Work(ipgrad_2),1)
   call Mul1(nMat,A,icre,iann,Work(ipgrad_2),max_ord,nosc,rdx)
   call GetMem('grad_2','Free','Real',ipgrad_2,nOsc)
 end if
@@ -53,8 +55,8 @@ end if
 ! Second order terms.
 if (max_term > 1) then
   call GetMem('Hess_2','Allo','Real',ipHess_2,nOsc**2)
-  call DGEMM_('T','N',nOscOld,nOsc,nOscOld,1.0d0,Hess,nOscOld,W,nOscOld,0.0d0,Work(ipTemp),nOscOld)
-  call DGEMM_('T','N',nOsc,nOsc,nOscOld,1.0d0,Work(ipTemp),nOscOld,W,nOscOld,0.0d0,Work(ipHess_2),nOsc)
+  call DGEMM_('T','N',nOscOld,nOsc,nOscOld,One,Hess,nOscOld,W,nOscOld,Zero,Work(ipTemp),nOscOld)
+  call DGEMM_('T','N',nOsc,nOsc,nOscOld,One,Work(ipTemp),nOscOld,W,nOscOld,Zero,Work(ipHess_2),nOsc)
   call Mul2(nMat,A,icre,iann,Work(ipHess_2),max_ord,nosc,rdx)
   call GetMem('Hess_2','Free','Real',ipHess_2,nOsc**2)
 end if
@@ -62,9 +64,9 @@ end if
 ! Third order terms.
 if (max_term > 2) then
   call GetMem('D3_2','Allo','Real',ipD3_2,nOsc**3)
-  call DGEMM_('T','N',nOscOld**2,nOsc,nOscOld,1.0d0,D3,nOscOld,W,nOscOld,0.0d0,Work(ipTemp),nOscOld**2)
-  call DGEMM_('T','N',nOsc*nOscOld,nOsc,nOscOld,1.0d0,Work(ipTemp),nOscOld,W,nOscOld,0.0d0,Work(ipD3_2),nOsc*nOscOld)
-  call DGEMM_('T','N',nOsc**2,nOsc,nOscOld,1.0d0,Work(ipD3_2),nOscOld,W,nOscOld,0.0d0,Work(ipTemp),nOsc**2)
+  call DGEMM_('T','N',nOscOld**2,nOsc,nOscOld,One,D3,nOscOld,W,nOscOld,Zero,Work(ipTemp),nOscOld**2)
+  call DGEMM_('T','N',nOsc*nOscOld,nOsc,nOscOld,One,Work(ipTemp),nOscOld,W,nOscOld,Zero,Work(ipD3_2),nOsc*nOscOld)
+  call DGEMM_('T','N',nOsc**2,nOsc,nOscOld,One,Work(ipD3_2),nOscOld,W,nOscOld,Zero,Work(ipTemp),nOsc**2)
   call dcopy_(nOsc**3,Work(ipTemp),1,Work(ipD3_2),1)
   call Mul3(nMat,A,icre,iann,Work(ipD3_2),max_ord,nosc,rdx)
   call GetMem('D3_2','Free','Real',ipD3_2,nOsc**3)
@@ -74,10 +76,10 @@ end if
 if (max_term > 3) then
   call GetMem('D4_2','Allo','Real',ipD4_2,nOsc**4)
 
-  call DGEMM_('T','N',nOscOld**3,nOsc,nOscOld,1.0d0,D4,nOscOld,W,nOscOld,0.0d0,Work(ipTemp),nOscOld**3)
-  call DGEMM_('T','N',nOsc*nOscOld**2,nOsc,nOscOld,1.0d0,Work(ipTemp),nOscOld,W,nOscOld,0.0d0,Work(ipD4_2),nOsc*nOscOld**2)
-  call DGEMM_('T','N',nOsc**2*nOscOld,nOsc,nOscOld,1.0d0,Work(ipD4_2),nOscOld,W,nOscOld,0.0d0,Work(ipTemp),nOsc**2*nOscOld)
-  call DGEMM_('T','N',nOsc**3,nOsc,nOscOld,1.0d0,Work(ipTemp),nOscOld,W,nOscOld,0.0d0,Work(ipD4_2),nOsc**3)
+  call DGEMM_('T','N',nOscOld**3,nOsc,nOscOld,One,D4,nOscOld,W,nOscOld,Zero,Work(ipTemp),nOscOld**3)
+  call DGEMM_('T','N',nOsc*nOscOld**2,nOsc,nOscOld,One,Work(ipTemp),nOscOld,W,nOscOld,Zero,Work(ipD4_2),nOsc*nOscOld**2)
+  call DGEMM_('T','N',nOsc**2*nOscOld,nOsc,nOscOld,One,Work(ipD4_2),nOscOld,W,nOscOld,Zero,Work(ipTemp),nOsc**2*nOscOld)
+  call DGEMM_('T','N',nOsc**3,nOsc,nOscOld,One,Work(ipTemp),nOscOld,W,nOscOld,Zero,Work(ipD4_2),nOsc**3)
   call Mul4(nMat,A,icre,iann,Work(ipD4_2),max_ord,nosc,rdx)
   call GetMem('D4_2','Free','Real',ipD4_2,nOsc**4)
 end if

@@ -196,6 +196,8 @@ subroutine SetUpHmat_a(energy0,r_min,ipow,var,yin,r00,trfName,max_term,C1,W1,det
 !
 !  The expansion point for lspotfit is r00!!!!!
 
+use Constants, only: Zero
+
 implicit real*8(a-h,o-z)
 #include "Constants_mula.fh"
 #include "dims.fh"
@@ -295,10 +297,10 @@ call Hessian(r0vec,Work(ipFitCoef),iWork(ipkPow),Hess,nterm,nvar)
 call thirdDer(r0vec,Work(ipFitCoef),iWork(ipkPow),D3,nterm,nvar)
 call fourthDer(r0vec,Work(ipFitCoef),iWork(ipkPow),D4,nterm,nvar)
 energy = energy-energy0
-call dcopy_(nOsc,[0.0d0],0,r0vec,1)
-!r0vec = 0.0d0
-call dcopy_(nOsc,[0.0d0],0,r_diff,1)
-!r_diff = 0.0d0
+call dcopy_(nOsc,[Zero],0,r0vec,1)
+!r0vec = Zero
+call dcopy_(nOsc,[Zero],0,r_diff,1)
+!r_diff = Zero
 !Gtemp = G1
 call dcopy_(nOsc*nOsc,G1,1,Gtemp,1)
 !GprimeTemp = Gprime1
@@ -328,10 +330,10 @@ call Hessian(r0vec,Work(ipFitCoef),iWork(ipkPow),Hess,nterm,nvar)
 call thirdDer(r0vec,Work(ipFitCoef),iWork(ipkPow),D3,nterm,nvar)
 call fourthDer(r0vec,Work(ipFitCoef),iWork(ipkPow),D4,nterm,nvar)
 energy = energy-energy0
-!r0vec = 0.0d0
-!r_diff = 0.0d0
-call dcopy_(nOsc,[0.0d0],0,r0vec,1)
-call dcopy_(nOsc,[0.0d0],0,r_diff,1)
+!r0vec = Zero
+!r_diff = Zero
+call dcopy_(nOsc,[Zero],0,r0vec,1)
+call dcopy_(nOsc,[Zero],0,r_diff,1)
 !Gtemp = G2
 call dcopy_(nOsc*nOsc,G2,1,Gtemp,1)
 !GprimeTemp = Gprime2
@@ -355,15 +357,15 @@ call Calc_r00(C1,C2,W1,W2,C,W,alpha1,alpha2,r0vec,r01,r02,det0,det1,det2,FC00,l_
 call FCval(C1,W1,det1,r01,C2,W2,det2,r02,Sij,max_mOrd,max_nOrd,max_nOrd2,max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,nInc,mDec, &
            nDec,C,W,det0,r0vec,L,U,FC00,alpha1,alpha2,beta,l_C1,nnsiz)
 !r0vec = r0-r0
-call dcopy_(nOsc,[0.0d0],0,r0vec,1)
+call dcopy_(nOsc,[Zero],0,r0vec,1)
 call funcval(r0vec,Work(ipFitCoef),iWork(ipkPow),energy,nterm,nvar)
 call gradient(r0vec,Work(ipFitCoef),iWork(ipkPow),grad,nterm,nvar)
 call Hessian(r0vec,Work(ipFitCoef),iWork(ipkPow),Hess,nterm,nvar)
 call thirdDer(r0vec,Work(ipFitCoef),iWork(ipkPow),D3,nterm,nvar)
 call fourthDer(r0vec,Work(ipFitCoef),iWork(ipkPow),D4,nterm,nvar)
 energy = energy-energy0
-call dcopy_(nOsc,[0.0d0],0,r0vec,1)
-!r0vec = 0.0d0
+call dcopy_(nOsc,[Zero],0,r0vec,1)
+!r0vec = Zero
 do iv=1,nOsc
   r_diff(iv) = r01(iv)-r02(iv)
 end do

@@ -80,6 +80,9 @@ subroutine VibFreq(AtCoord,xvec,InterVec,Mass,Hess,G,Gprime,Gdbleprime,harmfreq,
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
+use Constants, only: Zero
+use Definitions, only: wp
+
 implicit real*8(a-h,o-z)
 #include "Constants_mula.fh"
 #include "dims.fh"
@@ -103,46 +106,46 @@ logical Cartesian
 #include "WrkSpc.fh"
 
 ! Initialize.
-!D write(6,*) ' Entered VIBFREQ.'
+!D write(u6,*) ' Entered VIBFREQ.'
 NumInt = nOsc
-!D write(6,*) ' NumInt:',NumInt
-!D write(6,*) ' NumOfAt:',NumOfAt
+!D write(u6,*) ' NumInt:',NumInt
+!D write(u6,*) ' NumOfAt:',NumOfAt
 call GetMem('S','Allo','Real',ipS,3*NumOfAt*NumInt)
 call GetMem('V','Allo','Real',ipV,NumInt*NumInt)
 call GetMem('B','Allo','Real',ipB,3*NumOfAt*NumInt)
 
 call GetMem('Bnew','Allo','Real',ipBnew,3*NumOfAt*NumInt)
 call GetMem('Lambda','Allo','Real',ipLambda,NumInt)
-call dcopy_(3*NumOfAt*NumInt,[0.0d0],0,Work(ipS),1)
+call dcopy_(3*NumOfAt*NumInt,[Zero],0,Work(ipS),1)
 
 ! Transform coordinates.
-!xvec = 0.0D0
-call dcopy_(nosc,[0.0d0],0,xvec,1)
-!D write(6,*) ' VIBFREQ, calling Cart_to_Int0.'
+!xvec = Zero
+call dcopy_(nosc,[Zero],0,xvec,1)
+!D write(u6,*) ' VIBFREQ, calling Cart_to_Int0.'
 call Cart_To_Int0(InterVec,AtCoord,xvec,NumOfAt,NumInt)
-!D write(6,*) ' VIBFREQ, back from Cart_to_Int0.'
-!D write(6,*) ' xvec:'
-!D write(6,'(5f16.8)') xvec
+!D write(u6,*) ' VIBFREQ, back from Cart_to_Int0.'
+!D write(u6,*) ' xvec:'
+!D write(u6,'(5f16.8)') xvec
 
 ! Calculate the contributions to the S matrix for each internal coordinate.
-!S = 0.0D0
-call dcopy_(3*NumOfAt*NumInt,[0.0d0],0,Work(ipS),1)
-!D write(6,*) ' VIBFREQ, calling CalcS.'
+!S = Zero
+call dcopy_(3*NumOfAt*NumInt,[Zero],0,Work(ipS),1)
+!D write(u6,*) ' VIBFREQ, calling CalcS.'
 call CalcS(AtCoord,InterVec,Work(ipS),NumInt,NumOfAt)
-!D write(6,*) ' VIBFREQ, back from CalcS.'
+!D write(u6,*) ' VIBFREQ, back from CalcS.'
 
 ! Calculate G matrix and first and second derivatives of the G matrix.
-!D write(6,*) ' VIBFREQ, calling CalcG.'
+!D write(u6,*) ' VIBFREQ, calling CalcG.'
 call CalcG(G,Mass,Work(ipS),NumInt,NumOfAt)
-!D Write(6,*) ' VIBFREQ, back from CalcG.'
-!Gprime = 0.0d0
-!Gdbleprime = 0.0d0
-call dcopy_(ngdim**3,[0.0d0],0,GPrime,1)
-call dcopy_(ngdim**4,[0.0d0],0,GdblePrime,1)
+!D Write(u6,*) ' VIBFREQ, back from CalcG.'
+!Gprime = Zero
+!Gdbleprime = Zero
+call dcopy_(ngdim**3,[Zero],0,GPrime,1)
+call dcopy_(ngdim**4,[Zero],0,GdblePrime,1)
 if (max_term > 2) then
-  dh = 1.0d-3
+  dh = 1.0e-3_wp
   call CalcGprime(Gprime,Mass,xvec,InterVec,AtCoord,NumOfAt,dh,NumInt)
-  dh = 1.0d-2
+  dh = 1.0e-2_wp
   call CalcGdbleprime(Gdbleprime,Mass,xvec,InterVec,AtCoord,NumOfAt,dh,NumInt)
 end if
 
@@ -168,27 +171,27 @@ do j=1,NumInt
 end do
 
 ! Given Hess and G, calculate the eigenvalues and eigenvectors of G*Hess.
-!D write(6,*) ' VIBFREQ, calling Freq.'
+!D write(u6,*) ' VIBFREQ, calling Freq.'
 call Freq_mula(Hess,G,Work(ipV),Work(ipLambda),Work(ipB),Work(ipBnew),qMat,nOsc,NumOfAt)
-!D write(6,*) ' VIBFREQ, back from Freq.'
-!D write(6,*) ' Lambda:'
-!D write(6,'(5f16.8)') Lambda
+!D write(u6,*) ' VIBFREQ, back from Freq.'
+!D write(u6,*) ' Lambda:'
+!D write(u6,'(5f16.8)') Lambda
 
 ! Calculate harmonic frequencies.
 
 do iv=1,nOsc
   harmfreq(iv) = sqrt(abs(Work(ipLambda+iv-1)))
 end do
-!D write(6,*) ' harmfreq:'
-!D write(6,'(5f16.8)') harmfreq
+!D write(u6,*) ' harmfreq:'
+!D write(u6,'(5f16.8)') harmfreq
 !eigenVec = V
 call dcopy_(nOsc*nOsc,Work(ipV),1,eigenVec,1)
 
 ! Anharmonicity calculations (if we have third and possibly fourth
 ! derivatives). First calculation of the anharmonicity constants and
 ! then calculation of the fundamental frequencies.
-!x_anharm = 0.0d0
-call dcopy_(nosc**2,[0.0d0],0,x_anharm,1)
+!x_anharm = Zero
+call dcopy_(nosc**2,[Zero],0,x_anharm,1)
 if (max_term > 2) then
   call GetMem('C1','Allo','Real',ipC1,nOsc*nOsc)
   call GetMem('Temp','Allo','Real',ipTemp,nOsc*nOsc)

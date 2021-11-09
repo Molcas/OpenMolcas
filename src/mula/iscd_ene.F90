@@ -14,6 +14,8 @@
 subroutine ISCD_LogEVec(iPrint,nOsc,max_nOrd,minQ,nYes,lNMAT,lnTabDim,nTabDim,nMaxQ,nMat0,lVec)
 ! Generate Logical Vector of useful States
 
+use Definitions, only: u6
+
 implicit real*8(a-h,o-z)
 implicit integer(i-n)
 dimension nMat0(nOsc)
@@ -21,7 +23,7 @@ integer nTabDim(0:lnTabDim), lVec(0:lnTabDim)
 integer nMaxQ(nOsc)
 
 if (iPrint >= 3) then
-  write(6,*) ' Original number of States=',max_nOrd+1
+  write(u6,*) ' Original number of States=',max_nOrd+1
 end if
 rewind(lNMAT)
 iIndex = 0
@@ -43,7 +45,7 @@ do iOrd=0,max_nOrd
 end do
 
 if (iPrint >= 3) then
-  write(6,*) ' Selected number of States=',nYes
+  write(u6,*) ' Selected number of States=',nYes
 end if
 
 return
@@ -53,6 +55,9 @@ end subroutine ISCD_LogEVec
 subroutine ISCD_Ene(iPrint,nOsc,max_nOrd,nYes,lNMAT,lnTabDim,GE1,GE2,harmfreq1,harmfreq2,x_anharm1,x_anharm2,dMinWind,dRho,nMat0, &
                     nTabDim,lVec,lTVec,EneMat)
 ! Calculate Energy of Levels  GG 30-Dec-08 - 08-Jan-09
+
+use Constants, only: Zero, One, Half
+use Definitions, only: u6
 
 implicit real*8(a-h,o-z)
 implicit integer(i-n)
@@ -66,9 +71,9 @@ integer nMat0(nOsc), nTabDim(0:lnTabDim)
 integer lVec(0:lnTabDim), lTVec(0:lnTabDim)
 logical lUpdate
 
-if (dMinWind == 0.0d0) then
+if (dMinWind == Zero) then
   lUpDate = .true.
-  dMinWind = 1.0d0
+  dMinWind = One
 else
   lUpDate = .false.
 end if
@@ -79,18 +84,18 @@ end do
 ! Energy calculation
 
 if (iPrint >= 4) then
-  write(6,*)
-  write(6,*) ' States in the preliminar window :'
+  write(u6,*)
+  write(u6,*) ' States in the preliminar window :'
   if (nOsc <= 24) then
-    write(6,'(a,108a)') '  ',('=',i=1,108)
-    write(6,*) '     jOrd    ene/au    ene/cm-1 Vibrational quantum numbers'
-    write(6,'(a,108a)') '  ',('-',i=1,108)
+    write(u6,'(a,108a)') '  ',('=',i=1,108)
+    write(u6,*) '     jOrd    ene/au    ene/cm-1 Vibrational quantum numbers'
+    write(u6,'(a,108a)') '  ',('-',i=1,108)
   else
-    write(6,'(a,36a)') '  ',('=',i=1,36)
-    write(6,*) '        #    jOrd   ene/au      ene/cm-1 '
-    write(6,'(a,36a)') '  ',('-',i=1,36)
+    write(u6,'(a,36a)') '  ',('=',i=1,36)
+    write(u6,*) '        #    jOrd   ene/au      ene/cm-1 '
+    write(u6,'(a,36a)') '  ',('-',i=1,36)
   end if
-  call XFlush(6)
+  call XFlush(u6)
 end if
 
 call GetMem('level1','Allo','Inte',iplevel1,nOsc)
@@ -115,9 +120,9 @@ do iOrd=0,max_nOrd
         do j=1,nOsc
           loc_n_max = loc_n_max+nMat0(j)
         end do
-        write(6,'(a2,i8,f11.6,f11.4,i4,a2,24i3)') ' ',iOrd,dEne,dEne*HarToRcm,loc_n_max,': ',(nMat0(j),j=1,nOsc)
+        write(u6,'(a2,i8,f11.6,f11.4,i4,a2,24i3)') ' ',iOrd,dEne,dEne*HarToRcm,loc_n_max,': ',(nMat0(j),j=1,nOsc)
       else
-        write(6,'(a2,i8,f11.6,f11.4,i4        )') ' ',iOrd,dEne,dEne*HarToRcm,loc_n_max
+        write(u6,'(a2,i8,f11.6,f11.4,i4        )') ' ',iOrd,dEne,dEne*HarToRcm,loc_n_max
       end if
     end if
   end if
@@ -126,23 +131,23 @@ end do
 ! Energy selection
 
 if (iPrint >= 3) then
-  write(6,*)
-  write(6,*) ' States in the window :'
+  write(u6,*)
+  write(u6,*) ' States in the window :'
   if (nOsc <= 24) then
-    write(6,'(a,108a)') '  ',('=',i=1,108)
-    write(6,*) '     jOrd    ene/au    ene/cm-1 Vibrational quantum numbers'
-    write(6,'(a,108a)') '  ',('-',i=1,108)
+    write(u6,'(a,108a)') '  ',('=',i=1,108)
+    write(u6,*) '     jOrd    ene/au    ene/cm-1 Vibrational quantum numbers'
+    write(u6,'(a,108a)') '  ',('-',i=1,108)
   else
-    write(6,'(a,36a)') '  ',('=',i=1,36)
-    write(6,*) '        #    jOrd   ene/au      ene/cm-1 '
-    write(6,'(a,36a)') '  ',('-',i=1,36)
+    write(u6,'(a,36a)') '  ',('=',i=1,36)
+    write(u6,*) '        #    jOrd   ene/au      ene/cm-1 '
+    write(u6,'(a,36a)') '  ',('-',i=1,36)
   end if
-  call XFlush(6)
+  call XFlush(u6)
 end if
 
 nYes_start = nYes
 100 continue
-dWlow = 0.5d0*dMinWind/dRho
+dWlow = Half*dMinWind/dRho
 dWup = dWlow
 do iOrd=0,max_nOrd
   lVec(iOrd) = lTVec(iOrd)
@@ -161,16 +166,16 @@ do iOrd=0,max_nOrd
           do j=1,nOsc
             loc_n_max = loc_n_max+nMat0(j)
           end do
-          write(6,'(a2,i8,f11.6,f11.4,i4,a2,24i3)') ' ',iOrd,dEne,dEne*HarToRcm,loc_n_max,': ',(nMat0(j),j=1,nOsc)
+          write(u6,'(a2,i8,f11.6,f11.4,i4,a2,24i3)') ' ',iOrd,dEne,dEne*HarToRcm,loc_n_max,': ',(nMat0(j),j=1,nOsc)
         else
-          write(6,'(a2,i8,f11.6,f11.4,i4        )') ' ',iOrd,dEne,dEne*HarToRcm,loc_n_max
+          write(u6,'(a2,i8,f11.6,f11.4,i4        )') ' ',iOrd,dEne,dEne*HarToRcm,loc_n_max
         end if
       end if
     end if
   end if
 end do
 if ((nYes < 1) .and. lUpDate) then
-  dMinWind = dMinWind+1.0d0
+  dMinWind = dMinWind+One
   nYes = nYes_start
   goto 100
 end if
@@ -179,20 +184,20 @@ call GetMem('level2','Free','Inte',iplevel2,nOsc)
 call GetMem('level1','Free','Inte',iplevel1,nOsc)
 
 if (iPrint >= 3) then
-  if (nOsc <= 30) write(6,'(a,108a)') '  ',('-',i=1,108)
-  if (nOsc > 30) write(6,'(a,36a)') '  ',('-',i=1,36)
-  write(6,'(a,f12.9,a,f12.9,a)') '  Window: ',-dWlow,' / ',dWup,' (au)'
-  write(6,'(a,f12.6,a,f12.6,a)') '  Window: ',-dWlow*HarToRcm,' / ',dWup*HarToRcm,' (cm-1)'
+  if (nOsc <= 30) write(u6,'(a,108a)') '  ',('-',i=1,108)
+  if (nOsc > 30) write(u6,'(a,36a)') '  ',('-',i=1,36)
+  write(u6,'(a,f12.9,a,f12.9,a)') '  Window: ',-dWlow,' / ',dWup,' (au)'
+  write(u6,'(a,f12.6,a,f12.6,a)') '  Window: ',-dWlow*HarToRcm,' / ',dWup*HarToRcm,' (cm-1)'
 end if
 if (iPrint >= 2) then
-  write(6,*) ' Final number of States=',nYes
+  write(u6,*) ' Final number of States=',nYes
 end if
-if ((dMinWind > 1.0d0) .and. lUpDate .and. (iPrint >= 1)) then
-  write(6,*)
-  write(6,*) ' *** Warning: Expansion factor has been set to ',dMinWind
-  write(6,*)
+if ((dMinWind > One) .and. lUpDate .and. (iPrint >= 1)) then
+  write(u6,*)
+  write(u6,*) ' *** Warning: Expansion factor has been set to ',dMinWind
+  write(u6,*)
 end if
-call XFlush(6)
+call XFlush(u6)
 
 return
 

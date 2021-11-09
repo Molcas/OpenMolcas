@@ -26,6 +26,9 @@ subroutine Mula(ireturn)
 !  Universita' di Torino, ITALY.
 !  Inter-System Crossing rate constant.
 
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, u5, u6
+
 implicit real*8(a-h,o-z)
 #include "inout.fh"
 integer InterVec(15*MaxNumAt)
@@ -54,7 +57,7 @@ integer nIndex(3,0:maxMax_n)
 
 ! Initialize.
 iReturn = 20
-close(5)
+close(u5)
 call molcas_open(inpunit,'stdin')
 lPotCoef = ip_Dummy
 iCode = 00         ! Default: NewCode, InCore
@@ -75,33 +78,33 @@ if (lISC) then
   if ((iCode == 01) .or. (iCode == 11)) lOldCode = .true.
   if ((iCode == 10) .or. (iCode == 11)) lInCore = .false.
   if (energy1 < energy2) then
-    write(6,*) ' ******************** ERROR *******************'
-    write(6,*) ' Energy of State #2 must be lower than State #1'
-    write(6,*) ' **********i***********************************'
-    write(6,*)
+    write(u6,*) ' ******************** ERROR *******************'
+    write(u6,*) ' Energy of State #2 must be lower than State #1'
+    write(u6,*) ' **********i***********************************'
+    write(u6,*)
     call Quit_OnUserError()
   end if
   MatEl = .false.
   m_max = 0
   if (iPrint >= 1) then
-    write(6,*)
-    write(6,*) ' ---------------------------------------------'
-    write(6,*) ' InterSystem Crossing rate constant evaluation'
-    write(6,*) '  - simple harmonic approximation is used.    '
-    write(6,*) '  - m_max set to 0.                           '
-    write(6,*) '  - no plot file.                             '
+    write(u6,*)
+    write(u6,*) ' ---------------------------------------------'
+    write(u6,*) ' InterSystem Crossing rate constant evaluation'
+    write(u6,*) '  - simple harmonic approximation is used.    '
+    write(u6,*) '  - m_max set to 0.                           '
+    write(u6,*) '  - no plot file.                             '
     if (lOldCode) then
-      write(6,*) '  - Full index matrices evaluation.           '
+      write(u6,*) '  - Full index matrices evaluation.           '
     else
-      write(6,*) '  - Reduced matrices evaluation.              '
+      write(u6,*) '  - Reduced matrices evaluation.              '
     end if
     if (lInCore) then
-      write(6,*) '  - In-core (memory) algorithm.               '
+      write(u6,*) '  - In-core (memory) algorithm.               '
     else
-      write(6,*) '  - Out-of-core (disk) algorithm.             '
+      write(u6,*) '  - Out-of-core (disk) algorithm.             '
     end if
-    write(6,*) ' ---------------------------------------------'
-    write(6,*)
+    write(u6,*) ' ---------------------------------------------'
+    write(u6,*)
   end if
   iPrint = 0
   do i=0,maxMax_n
@@ -146,8 +149,8 @@ if ((max_term >= 0) .and. (max_term <= 2)) then
 else if ((max_term >= 3) .and. (max_term <= 4)) then
   ngdim = nosc
 else
-  write(6,*) 'MULA error: max_term=',max_term
-  write(6,*) 'Allowed: 1,2,3, or 4.'
+  write(u6,*) 'MULA error: max_term=',max_term
+  write(u6,*) 'Allowed: 1,2,3, or 4.'
   call Quit_OnUserError()
 end if
 call getmem('D3_1','Allo','Real',ip_D3_1,ngdim**3)
@@ -188,7 +191,7 @@ end if
 call GetMem('AtCoord1','Free','Real',ipAtCoord1,3*NumOfAt)
 
 ! Determine vibrational modes and their frequencies.
-!D write(6,*) ' MULA calling VIBFREQ.'
+!D write(u6,*) ' MULA calling VIBFREQ.'
 call VibFreq(Work(ipAtCoord),Work(ipr01),InterVec,Mass,Work(ipHess1),Work(ipG1),work(ip_gprm1),work(ip_gbis1),Work(ipharmfreq1), &
              Work(ipeigenVec1),Work(ipqMat),Work(ipPED),work(ip_D3_1),work(ip_D4_1),Work(ipx_anharm1),Work(ipanharmfreq1), &
              max_term,Cartesian,nOsc,NumOfAt)
@@ -259,8 +262,8 @@ call GetMem('temp','Allo','Real',iptemp,nOsc*nOsc)
 
 ! Calculate W matrices.
 do jOsc=1,nOsc
-  const1 = 1.0d0/sqrt(Work(ipharmfreq1+jOsc-1))
-  const2 = 1.0d0/sqrt(Work(ipharmfreq2+jOsc-1))
+  const1 = One/sqrt(Work(ipharmfreq1+jOsc-1))
+  const2 = One/sqrt(Work(ipharmfreq2+jOsc-1))
   do iv=1,nOsc
     Work(ipW1+iv-1+nOsc*(jOsc-1)) = const1*Work(ipeigenVec1+iv-1+nOsc*(jOsc-1))
     Work(ipW2+iv-1+nOsc*(jOsc-1)) = const2*work(ipeigenVec2+iv-1+nOsc*(jOsc-1))
@@ -268,16 +271,16 @@ do jOsc=1,nOsc
 end do
 
 ! Calculate C = W^(-1).
-call dcopy_(nOsc**2,[0.0d0],0,Work(ipC1),1)
-call dcopy_(nOsc,[1.0d0],0,Work(ipC1),nOsc+1)
+call dcopy_(nOsc**2,[Zero],0,Work(ipC1),1)
+call dcopy_(nOsc,[One],0,Work(ipC1),nOsc+1)
 call dcopy_(nOsc*nOsc,Work(ipW1),1,Work(iptemp),1)
 call Dool_MULA(Work(iptemp),nOsc,nOsc,Work(ipC1),nOsc,nOsc,det)
-det1 = abs(1.0d0/det)
-call dcopy_(nOsc**2,[0.0d0],0,Work(ipC2),1)
-call dcopy_(nOsc,[1.0d0],0,Work(ipC2),nOsc+1)
+det1 = abs(One/det)
+call dcopy_(nOsc**2,[Zero],0,Work(ipC2),1)
+call dcopy_(nOsc,[One],0,Work(ipC2),nOsc+1)
 call dcopy_(nOsc*nOsc,Work(ipW2),1,Work(iptemp),1)
 call Dool_MULA(Work(iptemp),nOsc,nOsc,Work(ipC2),nOsc,nOsc,det)
-det2 = abs(1.0d0/det)
+det2 = abs(One/det)
 call GetMem('temp','Free','Real',iptemp,nOsc*nOsc)
 
 ! Calculate the expansion point geometry and save the full geometries for later use
@@ -300,15 +303,15 @@ call GetMem('r00','Free','Real',ipr00,nOsc)
 
 ! If we only wanted the expansion point geometry, it's time to quit now.
 if (lExpan) then
-  write(6,*) 'Bye bye'
-  write(6,*)
+  write(u6,*) 'Bye bye'
+  write(u6,*)
   call Quit(_RC_ALL_IS_WELL_)
 end if
 
 if (iPrint >= 1) call IntCalcHeader()
 
 ! Calculate term values.
-GE1 = 0.0d0
+GE1 = Zero
 GE2 = GE1+T0
 do iOsc=1,nOsc
   jOsc = 1
@@ -318,8 +321,8 @@ do iOsc=1,nOsc
     jOsc = jOsc+1
   end do
   if (.not. exist) then
-    GE1 = GE1+0.5d0*Work(ipharmfreq1+iOsc-1)
-    GE2 = GE2+0.5d0*Work(ipharmfreq2+iOsc-1)
+    GE1 = GE1+Half*Work(ipharmfreq1+iOsc-1)
+    GE2 = GE2+Half*Work(ipharmfreq2+iOsc-1)
   end if
 end do
 T0 = GE2-GE1
@@ -340,21 +343,21 @@ end do
 ! First state.
 ! Subroutine SolveRedSec(Hess,Gmat,freq,C,W,det)
 call GetMem('temp','Allo','Real',iptemp,nOscOld*nOsc)
-call DGEMM_('N','N',nOscOld,nOsc,nOscOld,1.0d0,Work(ipHess1),nOscOld,Work(ipBase),nOscOld,0.0d0,Work(iptemp),nOscOld)
+call DGEMM_('N','N',nOscOld,nOsc,nOscOld,One,Work(ipHess1),nOscOld,Work(ipBase),nOscOld,Zero,Work(iptemp),nOscOld)
 call GetMem('Hess1','Free','Real',ipHess1,l_Hess1*l_Hess1)
 
 call GetMem('Hess1','Allo','Real',ipHess1,nOsc*nOsc)
-call DGEMM_('T','N',nOsc,nOsc,nOscOld,1.0d0,Work(ipBase),nOscOld,Work(iptemp),nOscOld,0.0d0,Work(ipHess1),nOsc)
+call DGEMM_('T','N',nOsc,nOsc,nOscOld,One,Work(ipBase),nOscOld,Work(iptemp),nOscOld,Zero,Work(ipHess1),nOsc)
 call GetMem('temp2','Allo','Real',iptemp2,nOscOld*nOscOld)
-call dcopy_(nOscOld**2,[0.0d0],0,Work(iptemp2),1)
-call dcopy_(nOscOld,[1.0d0],0,Work(iptemp2),nOscOld+1)
+call dcopy_(nOscOld**2,[Zero],0,Work(iptemp2),1)
+call dcopy_(nOscOld,[One],0,Work(iptemp2),nOscOld+1)
 call Dool_MULA(Work(ipG1),nOsc,nOsc,work(iptemp2),nOscOld,nOscOld,det)
-call DGEMM_('N','N',nOscOld,nOsc,nOscOld,1.0d0,Work(iptemp2),nOscOld,Work(ipBase),nOscOld,0.0d0,Work(iptemp),nOscOld)
+call DGEMM_('N','N',nOscOld,nOsc,nOscOld,One,Work(iptemp2),nOscOld,Work(ipBase),nOscOld,Zero,Work(iptemp),nOscOld)
 call GetMem('temp2','Free','Real',iptemp2,nOscOld*nOscOld)
 call GetMem('temp2','Allo','Real',iptemp2,nOsc*nOsc)
-call DGEMM_('T','N',nOsc,nOsc,nOscOld,1.0d0,Work(ipBase),nOscOld,Work(iptemp),nOscOld,0.0d0,Work(iptemp2),nOsc)
-call dcopy_(nOsc**2,[0.0d0],0,Work(ipG1),1)
-call dcopy_(nOsc,[1.0d0],0,Work(ipG1),nOsc+1)
+call DGEMM_('T','N',nOsc,nOsc,nOscOld,One,Work(ipBase),nOscOld,Work(iptemp),nOscOld,Zero,Work(iptemp2),nOsc)
+call dcopy_(nOsc**2,[Zero],0,Work(ipG1),1)
+call dcopy_(nOsc,[One],0,Work(ipG1),nOsc+1)
 call Dool_MULA(Work(iptemp2),nOscOld,nOscOld,Work(ipG1),nOsc,nOsc,det)
 call GetMem('temp2','Free','Real',iptemp2,nOsc*nOsc)
 call GetMem('temp','Free','Real',iptemp,nOscOld*nOsc)
@@ -365,35 +368,35 @@ do iv=1,nOsc
 end do
 if (iPrint >= 1) call WriteFreq(Work(ipharmfreq1),iWork(ipNormModes),l_NormModes,'Frequencies of reduced problem, state 1')
 do jOsc=1,nOsc
-  const1 = 1.0/sqrt(Work(ipharmfreq1+jOsc-1))
+  const1 = One/sqrt(Work(ipharmfreq1+jOsc-1))
   do iv=1,nOsc
     Work(ipW1+iv-1+nOsc*(jOsc-1)) = const1*Work(iptemp+iv-1+nOsc*(jOsc-1))
   end do
 end do
-call dcopy_(nOsc**2,[0.0d0],0,Work(ipC1),1)
-call dcopy_(nOsc,[1.0d0],0,Work(ipC1),nOsc+1)
+call dcopy_(nOsc**2,[Zero],0,Work(ipC1),1)
+call dcopy_(nOsc,[One],0,Work(ipC1),nOsc+1)
 call dcopy_(nOsc*nOsc,Work(ipW1),1,Work(iptemp),1)
 call Dool_MULA(Work(iptemp),nOscOld,nOsc,Work(ipC1),nOsc,nOsc,det)
-det1 = abs(1.0d0/det)
+det1 = abs(One/det)
 call GetMem('temp','Free','Real',iptemp,nOsc*nOsc)
 
 ! Second state.
 call GetMem('temp','Allo','Real',iptemp,nOscOld*nOsc)
-call DGEMM_('N','N',nOscOld,nOsc,nOscOld,1.0d0,Work(ipHess2),nOscOld,Work(ipBase),nOscOld,0.0d0,Work(iptemp),nOscOld)
+call DGEMM_('N','N',nOscOld,nOsc,nOscOld,One,Work(ipHess2),nOscOld,Work(ipBase),nOscOld,Zero,Work(iptemp),nOscOld)
 
 call GetMem('Hess2','Free','Real',ipHess2,l_Hess1*l_Hess1)
 call GetMem('Hess2','Allo','Real',ipHess2,nOsc*nOsc)
-call DGEMM_('T','N',nOsc,nOsc,nOscOld,1.0d0,Work(ipBase),nOscOld,Work(iptemp),nOscOld,0.0d0,Work(ipHess2),nOsc)
+call DGEMM_('T','N',nOsc,nOsc,nOscOld,One,Work(ipBase),nOscOld,Work(iptemp),nOscOld,Zero,Work(ipHess2),nOsc)
 call GetMem('temp2','Allo','Real',iptemp2,nOscOld*nOscOld)
-call dcopy_(nOscOld**2,[0.0d0],0,Work(iptemp2),1)
-call dcopy_(nOscOld,[1.0d0],0,Work(iptemp2),nOscOld+1)
+call dcopy_(nOscOld**2,[Zero],0,Work(iptemp2),1)
+call dcopy_(nOscOld,[One],0,Work(iptemp2),nOscOld+1)
 call Dool_MULA(Work(ipG2),nOsc,nOsc,Work(iptemp2),nOscOld,nOscOld,det)
-call DGEMM_('N','N',nOscOld,nOsc,nOscOld,1.0d0,Work(iptemp2),nOscOld,Work(ipBase),nOscOld,0.0d0,Work(iptemp),nOscOld)
+call DGEMM_('N','N',nOscOld,nOsc,nOscOld,One,Work(iptemp2),nOscOld,Work(ipBase),nOscOld,Zero,Work(iptemp),nOscOld)
 call GetMem('temp2','Free','Real',iptemp2,nOscOld*nOscOld)
 call GetMem('temp2','Allo','Real',iptemp2,nOsc*nOsc)
-call DGEMM_('T','N',nOsc,nOsc,nOscOld,1.0d0,Work(ipBase),nOscOld,Work(iptemp),nOscOld,0.0d0,Work(iptemp2),nOsc)
-call dcopy_(nOsc**2,[0.0d0],0,Work(ipG2),1)
-call dcopy_(nOsc,[1.0d0],0,Work(ipG2),nOsc+1)
+call DGEMM_('T','N',nOsc,nOsc,nOscOld,One,Work(ipBase),nOscOld,Work(iptemp),nOscOld,Zero,Work(iptemp2),nOsc)
+call dcopy_(nOsc**2,[Zero],0,Work(ipG2),1)
+call dcopy_(nOsc,[One],0,Work(ipG2),nOsc+1)
 call Dool_MULA(Work(iptemp2),nOsc,nOsc,Work(ipG2),nOsc,nOsc,det)
 call GetMem('temp2','Free','Real',iptemp2,nOsc*nOsc)
 call GetMem('temp','Free','Real',iptemp,nOscOld*nOsc)
@@ -404,16 +407,16 @@ do iv=1,nOsc
 end do
 if (iPrint >= 1) call WriteFreq(Work(ipharmfreq2),iWork(ipNormModes),l_NormModes,'Frequencies of reduced problem, state 2')
 do jOsc=1,nOsc
-  const1 = 1.0d0/sqrt(Work(ipharmfreq2+jOsc-1))
+  const1 = One/sqrt(Work(ipharmfreq2+jOsc-1))
   do iv=1,nOsc
     Work(ipW2+iv-1+nOsc*(jOsc-1)) = const1*Work(iptemp+iv-1+nOsc*(jOsc-1))
   end do
 end do
-call dcopy_(nOsc**2,[0.0d0],0,Work(ipC2),1)
-call dcopy_(nOsc,[1.0d0],0,Work(ipC2),nOsc+1)
+call dcopy_(nOsc**2,[Zero],0,Work(ipC2),1)
+call dcopy_(nOsc,[One],0,Work(ipC2),nOsc+1)
 call dcopy_(nOsc*nOsc,Work(ipW2),1,Work(iptemp),1)
 call Dool_MULA(Work(iptemp),nOsc,nOsc,Work(ipC2),nOsc,nOsc,det)
-det2 = abs(1.0d0/det)
+det2 = abs(One/det)
 call GetMem('temp','Free','Real',iptemp,nOsc*nOsc)
 
 call GetMem('rtemp','Allo','Real',iprtemp,nOscOld)
@@ -422,12 +425,12 @@ call dcopy_(nOscOld,Work(ipr01),1,Work(iprtemp),1)
 call GetMem('r01','Free','Real',ipr01,nOsc)
 call GetMem('r01','Allo','Real',ipr01,nOsc)
 
-call DGEMM_('N','N',nOsc,1,nOscOld,1.0d0,Work(ipBaseInv),nOsc,Work(iprtemp),nOscOld,0.0d0,Work(ipr01),nOsc)
+call DGEMM_('N','N',nOsc,1,nOscOld,One,Work(ipBaseInv),nOsc,Work(iprtemp),nOscOld,Zero,Work(ipr01),nOsc)
 call dcopy_(nOscOld,Work(ipr02),1,Work(iprtemp),1)
 
 call GetMem('r02','Free','Real',ipr02,nOsc)
 call GetMem('r02','Allo','Real',ipr02,nOsc)
-call DGEMM_('N','N',nOsc,1,nOscOld,1.0d0,Work(ipBaseInv),nOsc,Work(iprtemp),nOscOld,0.0d0,Work(ipr02),nOsc)
+call DGEMM_('N','N',nOsc,1,nOscOld,One,Work(ipBaseInv),nOsc,Work(iprtemp),nOscOld,Zero,Work(ipr02),nOsc)
 call GetMem('rtemp','Free','Real',iprtemp,nOscOld)
 
 call GetMem('r00','Allo','Real',ipr00,nOsc)
@@ -453,8 +456,8 @@ call dcopy_(nOsc*nOsc,Work(ipW2),1,Work(ipBase2),1)
 
 if (Forcefield .and. (max_dip > 0)) then
   call GetMem('Smat','Allo','Real',ipSmat,3*NumOfAt*nOscOld)
-  !Smat = 0.0d0
-  call dcopy_(3*NumOfAt*nOscOld,[0.0d0],0,Work(ipSmat),1)
+  !Smat = Zero
+  call dcopy_(3*NumOfAt*nOscOld,[Zero],0,Work(ipSmat),1)
   call CalcS(Work(ipAtCoord),InterVec,Work(ipSmat),nOscOld,NumOfAt)
   call GetMem('Bmat','Allo','Real',ipBmat,3*NumOfAt*nOscOld)
 
@@ -471,28 +474,28 @@ if (Forcefield .and. (max_dip > 0)) then
   call GetMem('temp','Allo','Real',iptemp,nOscOld*nOscOld)
   call GetMem('temp3','Allo','Real',iptemp3,nOscOld*nOscOld)
 
-  call DGEMM_('T','N',nOscOld,nOscOld,3*NumOfAt,1.0d0,Work(ipBmat),3*NumOfAt,Work(ipBmat),3*NumOfAt,0.0d0,Work(iptemp),nOscOld)
-  call dcopy_(nOscOld**2,[0.0d0],0,Work(iptemp3),1)
-  call dcopy_(nOscOld,[1.0d0],0,Work(iptemp3),nOscOld+1)
+  call DGEMM_('T','N',nOscOld,nOscOld,3*NumOfAt,One,Work(ipBmat),3*NumOfAt,Work(ipBmat),3*NumOfAt,Zero,Work(iptemp),nOscOld)
+  call dcopy_(nOscOld**2,[Zero],0,Work(iptemp3),1)
+  call dcopy_(nOscOld,[One],0,Work(iptemp3),nOscOld+1)
   call Dool_MULA(Work(iptemp),nOscOld,nOscOld,Work(iptemp3),nOscOld,nOscOld,det)
   call GetMem('temp','Free','Real',iptemp,nOscOld*nOscOld)
   call GetMem('temp1','Allo','Real',iptemp1,3*NumOfAt*nOscOld)
 
-  call DGEMM_('N','N',3*NumOfAt,nOscOld,nOscOld,1.0d0,Work(ipBmat),3*NumOfAt,Work(iptemp3),nOscOld,0.0d0,Work(iptemp1),3*NumOfAt)
+  call DGEMM_('N','N',3*NumOfAt,nOscOld,nOscOld,One,Work(ipBmat),3*NumOfAt,Work(iptemp3),nOscOld,Zero,Work(iptemp1),3*NumOfAt)
   call GetMem('Bmat','Allo','Real',ipBmat,3*NumOfAt*nOscOld)
   call GetMem('temp3','Free','Real',iptemp3,nOscOld*nOscOld)
   call GetMem('temp3','Allo','Real',iptemp3,3*NumOfAt*nOsc)
-  call DGEMM_('N','N',3*NumOfAt,nOsc,nOscOld,1.0d0,Work(iptemp1),3*NumOfAt,Work(ipBase),nOscOld,0.0d0,Work(iptemp3),3*NumOfAt)
+  call DGEMM_('N','N',3*NumOfAt,nOsc,nOscOld,One,Work(iptemp1),3*NumOfAt,Work(ipBase),nOscOld,Zero,Work(iptemp3),3*NumOfAt)
   call GetMem('temp1','Free','Real',iptemp1,3*NumOfAt*nOscOld)
   call GetMem('temp1','Allo','Real',iptemp1,3*NumOfAt*nOsc)
-  call DGEMM_('N','N',3*NumOfAt,nOsc,nOsc,1.0d0,Work(iptemp3),3*NumOfAt,Work(ipW),nOsc,0.0d0,Work(iptemp1),3*NumOfAt)
+  call DGEMM_('N','N',3*NumOfAt,nOsc,nOsc,One,Work(iptemp3),3*NumOfAt,Work(ipW),nOsc,Zero,Work(iptemp1),3*NumOfAt)
   call GetMem('temp3','Free','Real',iptemp3,3*NumOfAt*nOsc)
   call GetMem('TranDipGradInt','Allo','Real',ipTranDipGradInt,3*nOsc)
-  call DGEMM_('T','N',nOsc,1,3*NumOfAt,1.0d0,Work(iptemp1),3*NumOfAt,work(ipTranDipGrad),3*NumOfAt,0.0d0,Work(ipTranDipGradInt), &
+  call DGEMM_('T','N',nOsc,1,3*NumOfAt,One,Work(iptemp1),3*NumOfAt,work(ipTranDipGrad),3*NumOfAt,Zero,Work(ipTranDipGradInt), &
               nOsc)
-  call DGEMM_('T','N',nOsc,1,3*NumOfAt,1.0d0,Work(iptemp1),3*NumOfAt,work(ipTranDipGrad+1),3*NumOfAt,0.0d0, &
+  call DGEMM_('T','N',nOsc,1,3*NumOfAt,One,Work(iptemp1),3*NumOfAt,work(ipTranDipGrad+1),3*NumOfAt,Zero, &
               Work(ipTranDipGradInt+1),nOsc)
-  call DGEMM_('T','N',nOsc,1,3*NumOfAt,1.0d0,Work(iptemp1),3*NumOfAt,Work(ipTranDipGrad+2),3*NumOfAt,0.0d0, &
+  call DGEMM_('T','N',nOsc,1,3*NumOfAt,One,Work(iptemp1),3*NumOfAt,Work(ipTranDipGrad+2),3*NumOfAt,Zero, &
               Work(ipTranDipGradInt+2),nOsc)
   call GetMem('temp1','Free','Real',iptemp1,3*NumOfAt*nOsc)
 
@@ -511,7 +514,7 @@ call GetMem('eigenVec2','Free','Real',ipeigenVec2,nOsc*nOsc)
 
 !----------------------------------------------------------------------!
 
-if (iPrint >= 4) write(6,*) ' FC(0-0)=',FC00
+if (iPrint >= 4) write(u6,*) ' FC(0-0)=',FC00
 if (lISC) then
 
   iPrint = iPrint_Save
@@ -519,14 +522,14 @@ if (lISC) then
   if (Huge_Print) iPrint = 3
   if (iPrint >= 1) call ISCHeader()
 
-  dRho = 0.0d0
+  dRho = Zero
   call GetMem('nMaxQ','Allo','Inte',ipnMaxQ,nOsc)
   call ISC_Rho(iPrint,nOsc,new_n_max,dRho,energy1,energy2,minQ,dMinWind,iWork(ipnMaxQ),Work(ipharmfreq1),Work(ipharmfreq2))
   if (new_n_max < n_max) then
     n_max = new_n_max
-    write(6,*) ' n_max reduced to',n_max
+    write(u6,*) ' n_max reduced to',n_max
   end if
-  if (iPrint >= 3) write(6,*) ' Actual n_max               =',n_max
+  if (iPrint >= 3) write(u6,*) ' Actual n_max               =',n_max
 
   ! Set up excitation matrices
 
@@ -556,15 +559,15 @@ if (lISC) then
     if (lOldCode) then
       iMem = int(7*(nTabDim+1)*nOsc/2)
       if (iMem >= lLeft) then
-        write(6,*) ' Too much memory required (',iMem,' words).'
-        write(6,*) ' Switch to reduced matrices evaluation.'
+        write(u6,*) ' Too much memory required (',iMem,' words).'
+        write(u6,*) ' Switch to reduced matrices evaluation.'
         lOldCode = .false.
       end if
     else
       iMem = int(3*(nTabDim+1)*nOsc/2)
       if (iMem >= lLeft) then
-        write(6,*) ' Too much memory required (',iMem,' words).'
-        write(6,*) ' Out-of-Core (disk) algorithm will be used.'
+        write(u6,*) ' Too much memory required (',iMem,' words).'
+        write(u6,*) ' Out-of-Core (disk) algorithm will be used.'
         lInCore = .false.
       end if
     end if
@@ -577,10 +580,10 @@ if (lISC) then
 
     if (lOldCode) then
       if (iPrint >= 2) then
-        write(6,*)
-        write(6,*) ' Index matrix evaluation.'
-        if (iPrint >= 3) write(6,*) ' Memory allocated for all index matrix:',iMem,' words,  ',8*iMem/1048576,' MB.'
-        call XFlush(6)
+        write(u6,*)
+        write(u6,*) ' Index matrix evaluation.'
+        if (iPrint >= 3) write(u6,*) ' Memory allocated for all index matrix:',iMem,' words,  ',8*iMem/1048576,' MB.'
+        call XFlush(u6)
       end if
       call GetMem('nMat','Allo','Inte',ipnMat,(nTabDim+1)*nOsc)
       call GetMem('nInc','Allo','Inte',ipnInc,(nTabDim+1)*nOsc)
@@ -592,10 +595,10 @@ if (lISC) then
     else ! NewCode: nInc & nDec reduced
       iMem = (nTabDim+1)*nOsc
       if (iPrint >= 2) then
-        write(6,*)
-        write(6,*) ' First index matrix evaluation.'
-        if (iPrint >= 3) write(6,*) ' Memory allocated for first index matrix:',iMem,' words,  ',(8*iMem+131071)/1048576,' MB.'
-        call XFlush(6)
+        write(u6,*)
+        write(u6,*) ' First index matrix evaluation.'
+        if (iPrint >= 3) write(u6,*) ' Memory allocated for first index matrix:',iMem,' words,  ',(8*iMem+131071)/1048576,' MB.'
+        call XFlush(u6)
       end if
       call GetMem('nMat','Allo','Inte',ipnMat,(nTabDim+1)*nOsc)
       call GetMem('Graph2','Allo','Inte',ipGraph2,(n_max+1)*(n_max+1)*nOsc)
@@ -611,18 +614,18 @@ if (lISC) then
     ! Definition of Vector with levels in the window
 
     if (iPrint >= 2) then
-      write(6,*)
-      write(6,*) ' Energy level screening.'
-      call XFlush(6)
+      write(u6,*)
+      write(u6,*) ' Energy level screening.'
+      call XFlush(u6)
     end if
     call GetMem('lVec','Allo','Inte',iplVec,(nTabDim+1))
     call LogEVec(iPrint,nOsc,max_nOrd,minQ,iWork(ipnMaxQ),iWork(ipnMat),iWork(iplVec),nYes)
     if (nYes <= 0) then
-      write(6,*)
-      write(6,*) ' ************ ERROR *************'
-      write(6,*) ' No energy levels in the Window !'
-      write(6,*) ' ********************************'
-      write(6,*)
+      write(u6,*)
+      write(u6,*) ' ************ ERROR *************'
+      write(u6,*) ' No energy levels in the Window !'
+      write(u6,*) ' ********************************'
+      write(u6,*)
       call Quit_OnUserError()
     end if
     call Timing(CPTF2,CPE,TIOTF2,TIOE)
@@ -630,12 +633,12 @@ if (lISC) then
     ! Energy levels calculation
 
     if (iPrint >= 2) then
-      write(6,*)
-      write(6,*) ' Energy level calculation.'
+      write(u6,*)
+      write(u6,*) ' Energy level calculation.'
       if (iPrint >= 3) then
-        write(6,*) ' Memory allocated for energy matrix:',(nTabDim+1),' words,  ',(8*(nTabDim+1)+131071)/1048576,' MB.'
+        write(u6,*) ' Memory allocated for energy matrix:',(nTabDim+1),' words,  ',(8*(nTabDim+1)+131071)/1048576,' MB.'
       end if
-      call XFlush(6)
+      call XFlush(u6)
     end if
     call GetMem('lTVec','Allo','Inte',iplTVec,(nTabDim+1))
     call GetMem('VibLevel2','Allo','Real',ipVibLevel2,max_nOrd+1)
@@ -644,11 +647,11 @@ if (lISC) then
     call GetMem('VibLevel2','Free','Real',ipVibLevel2,max_nOrd+1)
     call GetMem('lTVec','Free','Inte',iplTVec,(nTabDim+1))
     if (nYes <= 0) then
-      write(6,*)
-      write(6,*) ' ************ ERROR *************'
-      write(6,*) ' No energy levels in the Window !'
-      write(6,*) ' ********************************'
-      write(6,*)
+      write(u6,*)
+      write(u6,*) ' ************ ERROR *************'
+      write(u6,*) ' No energy levels in the Window !'
+      write(u6,*) ' ********************************'
+      write(u6,*)
       if (iPrint < 4) call Quit_OnUserError()
     end if
 
@@ -667,10 +670,10 @@ if (lISC) then
     else
       iMem = 2*(iMaxYes+1)*nOsc
       if (iPrint >= 2) then
-        write(6,*)
-        write(6,*) ' nInc and nDec matrices generation.'
-        if (iPrint >= 3) write(6,*) ' Memory allocated for remaining index matrix:',iMem,' words,  ',(8*iMem+131071)/1048576,' MB.'
-        call XFlush(6)
+        write(u6,*)
+        write(u6,*) ' nInc and nDec matrices generation.'
+        if (iPrint >= 3) write(u6,*) ' Memory allocated for remaining index matrix:',iMem,' words,  ',(8*iMem+131071)/1048576,' MB.'
+        call XFlush(u6)
       end if
       call GetMem('nInc','Allo','Inte',ipnInc,(iMaxYes+1)*nOsc)
       call GetMem('nDec','Allo','Inte',ipnDec,(iMaxYes+1)*nOsc)
@@ -682,9 +685,9 @@ if (lISC) then
     ! The ISC rate
 
     if (iPrint >= 2) then
-      write(6,*)
-      write(6,*) ' Franck-Condon factors evaluation.'
-      call XFlush(6)
+      write(u6,*)
+      write(u6,*) ' Franck-Condon factors evaluation.'
+      call XFlush(u6)
     end if
     call GetMem('FCWind2','Allo','Real',ipFCWind2,nYes)
     call ISC_Rate(iPrint,nOsc,max_nOrd,iMx_nOrd,iMaxYes,nYes,dMinWind,iWork(ipVibWind2),Work(ipC1),Work(ipC2),Work(ipW1), &
@@ -721,12 +724,12 @@ if (lISC) then
     call GetMem('nTabDim','Allo','Inte',ipnTabDim,nTabDim+1)
     call GetMem('nMat0','Allo','Inte',ipnMat0,nOsc)
     if (iPrint >= 2) then
-      write(6,*)
-      write(6,*) ' Index matrix evaluation.'
+      write(u6,*)
+      write(u6,*) ' Index matrix evaluation.'
       if (iPrint >= 3) then
-        write(6,*) ' Memory allocated for address array:',(nTabDim+1),' words,  ',(8*(nTabDim+1)+131071)/1048576,' MB.'
+        write(u6,*) ' Memory allocated for address array:',(nTabDim+1),' words,  ',(8*(nTabDim+1)+131071)/1048576,' MB.'
       end if
-      call XFlush(6)
+      call XFlush(u6)
     end if
     call ISCD_MakenMat(n_max,nOsc,lNMAT0,nTabDim,iWork(ipGraph2),iWork(ipnTabDim),iWork(ipnMat0))
     call Timing(CPTF1,CPE,TIOTF1,TIOE)
@@ -734,18 +737,18 @@ if (lISC) then
     ! Definition of Vector with levels in the window
 
     if (iPrint >= 2) then
-      write(6,*)
-      write(6,*) ' Energy level screening.'
-      call XFlush(6)
+      write(u6,*)
+      write(u6,*) ' Energy level screening.'
+      call XFlush(u6)
     end if
     call GetMem('lVec','Allo','Inte',iplVec,(nTabDim+1))
     call ISCD_LogEVec(iPrint,nOsc,max_nOrd,minQ,nYes,lNMAT0,nTabDim,iWork(ipnTabDim),iWork(ipnMaxQ),iWork(ipnMat0),iWork(iplVec))
     if (nYes <= 0) then
-      write(6,*)
-      write(6,*) ' ************ ERROR *************'
-      write(6,*) ' No energy levels in the Window !'
-      write(6,*) ' ********************************'
-      write(6,*)
+      write(u6,*)
+      write(u6,*) ' ************ ERROR *************'
+      write(u6,*) ' No energy levels in the Window !'
+      write(u6,*) ' ********************************'
+      write(u6,*)
       call Quit_OnUserError()
     end if
     call Timing(CPTF2,CPE,TIOTF2,TIOE)
@@ -753,12 +756,12 @@ if (lISC) then
     ! Energy levels calculation
 
     if (iPrint >= 2) then
-      write(6,*)
-      write(6,*) ' Energy level calculation.'
+      write(u6,*)
+      write(u6,*) ' Energy level calculation.'
       if (iPrint >= 3) then
-        write(6,*) ' Memory allocated for energy matrix:',(nTabDim+1),' words,  ',(8*(nTabDim+1)+131071)/1048576,' MB.'
+        write(u6,*) ' Memory allocated for energy matrix:',(nTabDim+1),' words,  ',(8*(nTabDim+1)+131071)/1048576,' MB.'
       end if
-      call XFlush(6)
+      call XFlush(u6)
     end if
     call GetMem('lTVec','Allo','Inte',iplTVec,(nTabDim+1))
     call GetMem('VibLevel2','Allo','Real',ipVibLevel2,max_nOrd+1)
@@ -767,11 +770,11 @@ if (lISC) then
     call GetMem('VibLevel2','Free','Real',ipVibLevel2,max_nOrd+1)
     call GetMem('lTVec','Free','Inte',iplTVec,(nTabDim+1))
     if (nYes <= 0) then
-      write(6,*)
-      write(6,*) ' ************ ERROR *************'
-      write(6,*) ' No energy levels in the Window !'
-      write(6,*) ' ********************************'
-      write(6,*)
+      write(u6,*)
+      write(u6,*) ' ************ ERROR *************'
+      write(u6,*) ' No energy levels in the Window !'
+      write(u6,*) ' ********************************'
+      write(u6,*)
       if (iPrint < 4) call Quit_OnUserError()
     end if
 
@@ -789,20 +792,21 @@ if (lISC) then
     end if
     call GetMem('MULA','MAX','INTE',ipLeft,lLeft)
     if (iPrint >= 3) then
-      write(6,'(A,I10,A,I4,A)') '  Available memory                          :',lLeft,' words,  ',(lLeft+131071)/131072,' MB.'
+      write(u6,'(A,I10,A,I4,A)') '  Available memory                          :',lLeft,' words,  ',(lLeft+131071)/131072,' MB.'
     end if
     iUMem = int(1*(nTabDim+1))  ! Memory for U, 1=> No Hot states
     iRateMem = iUMem+nTabDim+2+13*nOsc*nOsc+5*nOsc
-    iRateMem = int(2.1d0*iRateMem) ! to convert from INTE to REAL
+    iRateMem = int(2.1_wp*iRateMem) ! to convert from INTE to REAL
     lLeft = lLeft-iRateMem
     if (iRateMem < 0) then ! .or. (iRateMem > 2048*131072)) then
-      write(6,'(A,I10,A,I4,A)') '  Estimated memory for FC factors evaluation:',iRateMem,' words,  ',(iRateMem+131071)/131072,' MB.'
-      write(6,'(A,I10,A,I4,A)') '  Memory left for batches                   :',lLeft,' words,  ',(lLeft+131071)/131072,' MB.'
-      write(6,*)
-      write(6,*) ' ****************** ERROR ********************'
-      write(6,*) ' Not enough memory for FC factors evaluation !'
-      write(6,*) ' *********************************************'
-      write(6,*)
+      write(u6,'(A,I10,A,I4,A)') '  Estimated memory for FC factors evaluation:',iRateMem,' words,  ',(iRateMem+131071)/131072, &
+                                 ' MB.'
+      write(u6,'(A,I10,A,I4,A)') '  Memory left for batches                   :',lLeft,' words,  ',(lLeft+131071)/131072,' MB.'
+      write(u6,*)
+      write(u6,*) ' ****************** ERROR ********************'
+      write(u6,*) ' Not enough memory for FC factors evaluation !'
+      write(u6,*) ' *********************************************'
+      write(u6,*)
       if (iPrint >= 3) call GetMem('MULA','LIST','INTE',iDum,iDum)
       call Quit_OnUserError()
     end if
@@ -816,27 +820,28 @@ if (lISC) then
     nBatch = int((iMaxYes+1)/lBatch)
     leftBatch = (iMaxYes+1)-nBatch*lBatch
     if (nBatch+1 > maxMax_n) then
-      write(6,*)
-      write(6,*) ' ******************** ERROR *******************'
-      write(6,*) ' Not enough number of batches for Out-of-core !'
-      write(6,*) ' Increase maxMax_n in src/mula/io_mula.fh      '
-      write(6,*) ' **********************************************'
-      write(6,*)
+      write(u6,*)
+      write(u6,*) ' ******************** ERROR *******************'
+      write(u6,*) ' Not enough number of batches for Out-of-core !'
+      write(u6,*) ' Increase maxMax_n in src/mula/io_mula.fh      '
+      write(u6,*) ' **********************************************'
+      write(u6,*)
       call Quit_OnUserError()
     end if
     if (iPrint >= 2) then
-      write(6,*)
+      write(u6,*)
       if (iPrint >= 3) then
-        write(6,'(A,I10,A,I4,A)') '  Estimated memory for FC factors evaluation:',iRateMem,' words,  ',(iRateMem+131071)/131072, &
-                                  ' MB.'
-        write(6,'(A,I10,A,I4,A)') '  Memory left for batches                   :',lLeft,' words,  ',(lLeft+131071)/131072,' MB.'
-        write(6,'(A,I10,A,I4,A)') '  Memory allocated for batch                :',lMBatch,' words,  ',(lMBatch+131071)/131072,' MB.'
-        write(6,'(A,I8)') '  * Elements for batch:',lBatch
-        write(6,'(A,I8,A,I8,A)') '  * Number of batches :',nBatch,' (',lBatch*nBatch,' elements)'
-        write(6,'(A,I8)') '  * Residual elements :',leftBatch
+        write(u6,'(A,I10,A,I4,A)') '  Estimated memory for FC factors evaluation:',iRateMem,' words,  ',(iRateMem+131071)/131072, &
+                                   ' MB.'
+        write(u6,'(A,I10,A,I4,A)') '  Memory left for batches                   :',lLeft,' words,  ',(lLeft+131071)/131072,' MB.'
+        write(u6,'(A,I10,A,I4,A)') '  Memory allocated for batch                :',lMBatch,' words,  ',(lMBatch+131071)/131072, &
+                                   ' MB.'
+        write(u6,'(A,I8)') '  * Elements for batch:',lBatch
+        write(u6,'(A,I8,A,I8,A)') '  * Number of batches :',nBatch,' (',lBatch*nBatch,' elements)'
+        write(u6,'(A,I8)') '  * Residual elements :',leftBatch
       end if
-      write(6,*) ' Index matrix reloading.'
-      call XFlush(6)
+      write(u6,*) ' Index matrix reloading.'
+      call XFlush(u6)
     end if
 
     filnam = 'NMAT'
@@ -850,9 +855,9 @@ if (lISC) then
     ! The remaining excitation matrices nInc & nDec
 
     if (iPrint >= 2) then
-      write(6,*)
-      write(6,*) ' nInc and nDec matrices generation.'
-      call XFlush(6)
+      write(u6,*)
+      write(u6,*) ' nInc and nDec matrices generation.'
+      call XFlush(u6)
     end if
     filnam = 'NINC'
     call DaName_mf_wa(lNINC,filnam)
@@ -868,9 +873,9 @@ if (lISC) then
     ! The ISC rate
 
     if (iPrint >= 2) then
-      write(6,*)
-      write(6,*) ' Franck-Condon factors evaluation.'
-      call XFlush(6)
+      write(u6,*)
+      write(u6,*) ' Franck-Condon factors evaluation.'
+      call XFlush(u6)
     end if
     call GetMem('FCWind2','Allo','Real',ipFCWind2,nYes)
     call ISCD_Rate(iPrint,nOsc,max_nOrd,iMx_nOrd,iMaxYes,nYes,dMinWind,lBatch,nBatch,leftBatch,nIndex,iWork(ipVibWind2),lNMAT0, &
@@ -894,19 +899,19 @@ if (lISC) then
   end if
 
   if (iPrint >= 3) then
-    write(6,*)
-    write(6,'(A)') ' Timing informations (sec.):              '
-    write(6,'(A)') ' ========================================='
-    write(6,'(A)') ' MODULE:                       CPU Elapsed'
-    write(6,'(A,2F8.2)') ' Matrix evaluation        ',CPTF1-CPTF0,TIOTF1-TIOTF0
-    write(6,'(A,2F8.2)') ' Level screening          ',CPTF2-CPTF1,TIOTF2-TIOTF1
-    write(6,'(A,2F8.2)') ' Energy calculation       ',CPTF3-CPTF2,TIOTF3-TIOTF2
-    write(6,'(A,2F8.2)') ' Matrix reloading         ',CPTF4-CPTF3,TIOTF4-TIOTF3
-    write(6,'(A,2F8.2)') ' nInc and nDec generation ',CPTF5-CPTF4,TIOTF5-TIOTF4
-    write(6,'(A,2F8.2)') ' Franck-Condon evaluation ',CPTF6-CPTF5,TIOTF6-TIOTF5
-    write(6,'(A,2F8.2)') ' TOTAL                    ',CPTF6-CPTF0,TIOTF6-TIOTF0
-    write(6,'(A)') ' -----------------------------------------'
-    write(6,*)
+    write(u6,*)
+    write(u6,'(A)') ' Timing informations (sec.):              '
+    write(u6,'(A)') ' ========================================='
+    write(u6,'(A)') ' MODULE:                       CPU Elapsed'
+    write(u6,'(A,2F8.2)') ' Matrix evaluation        ',CPTF1-CPTF0,TIOTF1-TIOTF0
+    write(u6,'(A,2F8.2)') ' Level screening          ',CPTF2-CPTF1,TIOTF2-TIOTF1
+    write(u6,'(A,2F8.2)') ' Energy calculation       ',CPTF3-CPTF2,TIOTF3-TIOTF2
+    write(u6,'(A,2F8.2)') ' Matrix reloading         ',CPTF4-CPTF3,TIOTF4-TIOTF3
+    write(u6,'(A,2F8.2)') ' nInc and nDec generation ',CPTF5-CPTF4,TIOTF5-TIOTF4
+    write(u6,'(A,2F8.2)') ' Franck-Condon evaluation ',CPTF6-CPTF5,TIOTF6-TIOTF5
+    write(u6,'(A,2F8.2)') ' TOTAL                    ',CPTF6-CPTF0,TIOTF6-TIOTF0
+    write(u6,'(A)') ' -----------------------------------------'
+    write(u6,*)
   end if
 
   call GetMem('mDec','Free','Inte',ipmDec,(mTabDim+1)*nOsc)
@@ -1074,90 +1079,90 @@ if (MatEl) then  ! START: Vibrational Hessian (variational)
   call GetMem('OccNumMat1','Allo','Real',ipOccNumMat1,l_l*3)
   call GetMem('OccNumMat2','Allo','Real',ipOccNumMat2,l_l*3)
 
-  !H1 = 0.0d0
-  call dcopy_(nDimTot*nDimTot,[0.0d0],0,Work(ipH1),1)
-  call dcopy_(nDimTot*nDimTot,[0.0d0],0,Work(ipS1),1)
-  call dcopy_(nDimTot*nDimTot,[0.0d0],0,Work(ipH2),1)
-  call dcopy_(nDimTot*nDimTot,[0.0d0],0,Work(ipS2),1)
-  !S1 = 0.0d0
-  !H2 = 0.0d0
-  !S2 = 0.0d0
+  !H1 = Zero
+  call dcopy_(nDimTot*nDimTot,[Zero],0,Work(ipH1),1)
+  call dcopy_(nDimTot*nDimTot,[Zero],0,Work(ipS1),1)
+  call dcopy_(nDimTot*nDimTot,[Zero],0,Work(ipH2),1)
+  call dcopy_(nDimTot*nDimTot,[Zero],0,Work(ipS2),1)
+  !S1 = Zero
+  !H2 = Zero
+  !S2 = Zero
 
   ! Calculate inverse mass tensor and its derivatives in r0.
   call GetMem('Smat','Allo','Real',ipSmat,3*NumOfAt*nOscOld)
-  call dcopy_(3*NumOfAt*nOscOld,[0.0d0],0,Work(ipSmat),1)
+  call dcopy_(3*NumOfAt*nOscOld,[Zero],0,Work(ipSmat),1)
   !call Int_To_Cart(InterVec,r0,AtCoord,NumOfAt,nOscOld,Mass)
   l_a = NumOfAt
   call Int_To_Cart1(InterVec,Work(ipr0),Work(ipAtCoord),l_a,nOsc)
   call CalcS(Work(ipAtCoord),InterVec,Work(ipSmat),nOscold,NumOfAt)
   call CalcG(Work(ipG0),Mass,Work(ipSmat),nOscold,NumOfAt)
   if (max_term > 2) then
-    dh = 1.0d-3
+    dh = 1.0e-3_wp
     call CalcGprime(work(ip_gprm0),Mass,Work(ipr0),InterVec,Work(ipAtCoord),NumOfAt,dh,nOsc)
-    dh = 1.0d-2
+    dh = 1.0e-2_wp
     call CalcGdblePrime(work(ip_gbis0),Mass,Work(ipr0),InterVec,Work(ipAtCoord),NumOfAt,dh,nOsc)
 
     call GetMem('T4','Allo','Real',ipT4,nOscOld**4)
-    call DGEMM_('T','T',nOscOld**2,nOsc,nOscOld,1.0d0,work(ip_gprm2),nOscOld,Work(ipBaseInv),nOsc,0.0d0,Work(ipT4),nOscOld**2)
-    call DGEMM_('T','T',nOsc*nOscOld,nOsc,nOscOld,1.0d0,Work(ipT4),nOscOld,Work(ipBaseInv),nOsc,0.0d0,work(ip_gprm2),nOsc*nOscOld)
-    call DGEMM_('T','N',nOsc**2,nOsc,nOscOld,1.0d0,work(ip_gprm2),nOscOld,Work(ipBase),nOscOld,0.0d0,Work(ipT4),nOsc**2)
+    call DGEMM_('T','T',nOscOld**2,nOsc,nOscOld,One,work(ip_gprm2),nOscOld,Work(ipBaseInv),nOsc,Zero,Work(ipT4),nOscOld**2)
+    call DGEMM_('T','T',nOsc*nOscOld,nOsc,nOscOld,One,Work(ipT4),nOscOld,Work(ipBaseInv),nOsc,Zero,work(ip_gprm2),nOsc*nOscOld)
+    call DGEMM_('T','N',nOsc**2,nOsc,nOscOld,One,work(ip_gprm2),nOscOld,Work(ipBase),nOscOld,Zero,Work(ipT4),nOsc**2)
     call getmem('Gprm2','Free','Real',ip_Gprm2,ngdim**3)
 
     call getmem('Gprm2','Allo','Real',ip_Gprm2,ngdim**3)
     call dcopy_(nOsc**3,Work(ipT4),1,work(ip_gprm2),1)
 
-    call DGEMM_('T','T',nOscOld**3,nOsc,nOscOld,1.0d0,work(ip_gbis2),nOscOld,Work(ipBaseInv),nOsc,0.0d0,Work(ipT4),nOscOld**3)
-    call DGEMM_('T','T',nOsc*nOscOld**2,nOsc,nOscOld,1.0d0,Work(ipT4),nOscOld,Work(ipBaseInv),nOsc,0.0d0,work(ip_gbis2), &
+    call DGEMM_('T','T',nOscOld**3,nOsc,nOscOld,One,work(ip_gbis2),nOscOld,Work(ipBaseInv),nOsc,Zero,Work(ipT4),nOscOld**3)
+    call DGEMM_('T','T',nOsc*nOscOld**2,nOsc,nOscOld,One,Work(ipT4),nOscOld,Work(ipBaseInv),nOsc,Zero,work(ip_gbis2), &
                 nOsc*nOscOld**2)
-    call DGEMM_('T','N',nOsc**2*nOscOld,nOsc,nOscOld,1.0d0,work(ip_gbis2),nOscOld,Work(ipBase),nOscOld,0.0d0,Work(ipT4), &
+    call DGEMM_('T','N',nOsc**2*nOscOld,nOsc,nOscOld,One,work(ip_gbis2),nOscOld,Work(ipBase),nOscOld,Zero,Work(ipT4), &
                 nOsc**2*nOscOld)
-    call DGEMM_('T','N',nOsc**3,nOsc,nOscOld,1.0d0,Work(ipT4),nOscOld,Work(ipBase),nOscOld,0.0d0,work(ip_gbis2),nOsc**3)
-    call DGEMM_('T','T',nOscOld**2,nOsc,nOscOld,1.0d0,work(ip_gprm1),nOscOld,Work(ipBaseInv),nOsc,0.0d0,Work(ipT4),nOscOld**2)
-    call DGEMM_('T','T',nOsc*nOscOld,nOsc,nOscOld,1.0d0,Work(ipT4),nOscOld,Work(ipBaseInv),nOsc,0.0d0,work(ip_gprm1),nOsc*nOscOld)
-    call DGEMM_('T','N',nOsc**2,nOsc,nOscOld,1.0d0,work(ip_gprm1),nOscOld,Work(ipBase),nOscOld,0.0d0,Work(ipT4),nOsc**2)
+    call DGEMM_('T','N',nOsc**3,nOsc,nOscOld,One,Work(ipT4),nOscOld,Work(ipBase),nOscOld,Zero,work(ip_gbis2),nOsc**3)
+    call DGEMM_('T','T',nOscOld**2,nOsc,nOscOld,One,work(ip_gprm1),nOscOld,Work(ipBaseInv),nOsc,Zero,Work(ipT4),nOscOld**2)
+    call DGEMM_('T','T',nOsc*nOscOld,nOsc,nOscOld,One,Work(ipT4),nOscOld,Work(ipBaseInv),nOsc,Zero,work(ip_gprm1),nOsc*nOscOld)
+    call DGEMM_('T','N',nOsc**2,nOsc,nOscOld,One,work(ip_gprm1),nOscOld,Work(ipBase),nOscOld,Zero,Work(ipT4),nOsc**2)
     call getmem('Gprm1','Free','Real',ip_Gprm1,ngdim**3)
     call getmem('Gprm1','Allo','Real',ip_Gprm1,ngdim**3)
     call dcopy_(nOsc**3,Work(ipT4),1,work(ip_gprm1),1)
 
-    call DGEMM_('T','T',nOscOld**3,nOsc,nOscOld,1.0d0,work(ip_gbis1),nOscOld,Work(ipBaseInv),nOsc,0.0d0,Work(ipT4),nOscOld**3)
-    call DGEMM_('T','T',nOsc*nOscOld**2,nOsc,nOscOld,1.0d0,Work(ipT4),nOscOld,Work(ipBaseInv),nOsc,0.0d0,work(ip_gbis1), &
+    call DGEMM_('T','T',nOscOld**3,nOsc,nOscOld,One,work(ip_gbis1),nOscOld,Work(ipBaseInv),nOsc,Zero,Work(ipT4),nOscOld**3)
+    call DGEMM_('T','T',nOsc*nOscOld**2,nOsc,nOscOld,One,Work(ipT4),nOscOld,Work(ipBaseInv),nOsc,Zero,work(ip_gbis1), &
                 nOsc*nOscOld**2)
-    call DGEMM_('T','N',nOsc**2*nOscOld,nOsc,nOscOld,1.0d0,work(ip_gbis1),nOscOld,Work(ipBase),nOscOld,0.0d0,Work(ipT4), &
+    call DGEMM_('T','N',nOsc**2*nOscOld,nOsc,nOscOld,One,work(ip_gbis1),nOscOld,Work(ipBase),nOscOld,Zero,Work(ipT4), &
                 nOsc**2*nOscOld)
     call getmem('Gbis1','Free','Real',ip_Gbis1,ngdim**4)
     call getmem('Gbis1','Allo','Real',ip_Gbis1,ngdim**4)
-    call DGEMM_('T','N',nOsc**3,nOsc,nOscOld,1.0d0,Work(ipT4),nOscOld,Work(ipBase),nOscOld,0.0d0,work(ip_gbis1),nOsc**3)
-    call DGEMM_('T','T',nOscOld**2,nOsc,nOscOld,1.0d0,work(ip_gprm0),nOscOld,Work(ipBaseInv),nOsc,0.0d0,Work(ipT4),nOscOld**2)
-    call DGEMM_('T','T',nOsc*nOscOld,nOsc,nOscOld,1.0d0,Work(ipT4),nOscOld,Work(ipBaseInv),nOsc,0.0d0,work(ip_gprm0),nOsc*nOscOld)
-    call DGEMM_('T','N',nOsc**2,nOsc,nOscOld,1.0d0,work(ip_gprm0),nOscOld,Work(ipBase),nOscOld,0.0d0,Work(ipT4),nOsc**2)
+    call DGEMM_('T','N',nOsc**3,nOsc,nOscOld,One,Work(ipT4),nOscOld,Work(ipBase),nOscOld,Zero,work(ip_gbis1),nOsc**3)
+    call DGEMM_('T','T',nOscOld**2,nOsc,nOscOld,One,work(ip_gprm0),nOscOld,Work(ipBaseInv),nOsc,Zero,Work(ipT4),nOscOld**2)
+    call DGEMM_('T','T',nOsc*nOscOld,nOsc,nOscOld,One,Work(ipT4),nOscOld,Work(ipBaseInv),nOsc,Zero,work(ip_gprm0),nOsc*nOscOld)
+    call DGEMM_('T','N',nOsc**2,nOsc,nOscOld,One,work(ip_gprm0),nOscOld,Work(ipBase),nOscOld,Zero,Work(ipT4),nOsc**2)
     call getmem('Gprm0','Free','Real',ip_Gprm0,ngdim**3)
     ngdim = nosc
     call getmem('Gprm0','Allo','Real',ip_Gprm0,ngdim**3)
     call dcopy_(nOsc**3,Work(ipT4),1,work(ip_gprm0),1)
 
-    call DGEMM_('T','T',nOscOld**3,nOsc,nOscOld,1.0d0,work(ip_gbis0),nOscOld,Work(ipBaseInv),nOsc,0.0d0,Work(ipT4),nOscOld**3)
-    call DGEMM_('T','T',nOsc*nOscOld**2,nOsc,nOscOld,1.0d0,Work(ipT4),nOscOld,Work(ipBaseInv),nOsc,0.0d0,work(ip_gbis0), &
+    call DGEMM_('T','T',nOscOld**3,nOsc,nOscOld,One,work(ip_gbis0),nOscOld,Work(ipBaseInv),nOsc,Zero,Work(ipT4),nOscOld**3)
+    call DGEMM_('T','T',nOsc*nOscOld**2,nOsc,nOscOld,One,Work(ipT4),nOscOld,Work(ipBaseInv),nOsc,Zero,work(ip_gbis0), &
                 nOsc*nOscOld**2)
-    call DGEMM_('T','N',nOsc**2*nOscOld,nOsc,nOscOld,1.0d0,work(ip_gbis0),nOscOld,Work(ipBase),nOscOld,0.0d0,Work(ipT4), &
+    call DGEMM_('T','N',nOsc**2*nOscOld,nOsc,nOscOld,One,work(ip_gbis0),nOscOld,Work(ipBase),nOscOld,Zero,Work(ipT4), &
                 nOsc**2*nOscOld)
     call getmem('Gbis0','Free','Real',ip_Gbis0,ngdim**4)
     call getmem('Gbis0','Allo','Real',ip_Gbis0,ngdim**4)
-    call DGEMM_('T','N',nOsc**3,nOsc,nOscOld,1.0d0,Work(ipT4),nOscOld,Work(ipBase),nOscOld,0.0d0,work(ip_gbis0),nOsc**3)
+    call DGEMM_('T','N',nOsc**3,nOsc,nOscOld,One,Work(ipT4),nOscOld,Work(ipBase),nOscOld,Zero,work(ip_gbis0),nOsc**3)
     call GetMem('T4','Free','Real',ipT4,nOscOld**4)
   end if
   call GetMem('temp','Allo','Real',iptemp,nOscOld*nOscOld)
   call GetMem('temp2','Allo','Real',iptemp2,nOscOld*nOscOld)
 
   call dcopy_(nOscOld*nOscOld,Work(ipG0),1,Work(iptemp),1)
-  call dcopy_(nOscOld**2,[0.0d0],0,Work(iptemp2),1)
-  call dcopy_(nOscOld,[1.0d0],0,Work(iptemp2),nOscOld+1)
+  call dcopy_(nOscOld**2,[Zero],0,Work(iptemp2),1)
+  call dcopy_(nOscOld,[One],0,Work(iptemp2),nOscOld+1)
   call Dool_MULA(Work(iptemp),nOscOld,nOscOld,Work(iptemp2),nOscOld,nOscOld,det)
-  call DGEMM_('N','N',nOscOld,nOsc,nOscOld,1.0d0,Work(iptemp2),nOscOld,Work(ipBase),nOscOld,0.0d0,Work(iptemp),nOscOld)
+  call DGEMM_('N','N',nOscOld,nOsc,nOscOld,One,Work(iptemp2),nOscOld,Work(ipBase),nOscOld,Zero,Work(iptemp),nOscOld)
   call GetMem('temp2','Free','Real',iptemp2,nOscOld*nOscOld)
   call GetMem('temp2','Allo','Real',iptemp2,nOsc*nOsc)
-  call DGEMM_('T','N',nOsc,nOsc,nOscOld,1.0d0,Work(ipBase),nOscOld,Work(iptemp),nOscOld,0.0d0,Work(iptemp2),nOsc)
-  call dcopy_(nOsc**2,[0.0d0],0,Work(ipG0),1)
-  call dcopy_(nOsc,[1.0d0],0,Work(ipG0),nOsc+1)
+  call DGEMM_('T','N',nOsc,nOsc,nOscOld,One,Work(ipBase),nOscOld,Work(iptemp),nOscOld,Zero,Work(iptemp2),nOsc)
+  call dcopy_(nOsc**2,[Zero],0,Work(ipG0),1)
+  call dcopy_(nOsc,[One],0,Work(ipG0),nOsc+1)
   call Dool_MULA(Work(iptemp2),nOsc,nOsc,Work(ipG0),nOsc,nOsc,det)
 
   call GetMem('temp','Free','Real',iptemp,nOscOld*nOscOld)
@@ -1167,22 +1172,22 @@ if (MatEl) then  ! START: Vibrational Hessian (variational)
 
   ! Set up Hamilton matrix for the first state.
   if (Forcefield) then
-    !Base2 = 0.0d0
-    call dcopy_(nOsc*nOsc,[0.0d0],0,Work(ipBase2),1)
+    !Base2 = Zero
+    call dcopy_(nOsc*nOsc,[Zero],0,Work(ipBase2),1)
     do i=1,nOsc
-      Work(ipBase2+i-1+nOsc*(i-1)) = 1.0d0
+      Work(ipBase2+i-1+nOsc*(i-1)) = One
     end do
 
     call SetUpHmat2(energy1,energy2,Work(ipC1),Work(ipW1),det1,Work(ipr01),Work(ipr02),max_mOrd,max_nOrd,max_nOrd,max_mInc, &
                     max_nInc,max_nInc,iWork(ipmMat),iWork(ipnMat),iWork(ipmInc),iWork(ipnInc),iWork(ipmDec),iWork(ipnDec), &
                     Work(ipH1),Work(ipS1),Work(ipHess1),Work(ipG1),Work(ipBase2),Work(ipr01),nnsiz,nDimTot,nOsc)
     call SolveSecEq(Work(ipH1),nDimTot,Work(ipU1),Work(ipS1),Work(ipE1))
-    write(6,'(20f10.1)') ((Work(ipE1+i-1)-Work(ipE1))*219474.63d0,i=2,nOsc)
+    write(u6,'(20f10.1)') ((Work(ipE1+i-1)-Work(ipE1))*auTocm,i=2,nOsc)
     call SetUpHmat2(energy1,energy2,Work(ipC2),Work(ipW2),det2,Work(ipr01),Work(ipr02),max_mOrd,max_nOrd,max_nOrd,max_mInc, &
                     max_nInc,max_nInc,iWork(ipmMat),iWork(ipnMat),iWork(ipmInc),iWork(ipnInc),iWork(ipmDec),iWork(ipnDec), &
                     Work(ipH2),Work(ipS2),Work(ipHess2),Work(ipG2),Work(ipBase2),Work(ipr02),nnsiz,nDimTot,nOsc)
     call SolveSecEq(Work(ipH2),nDimTot,Work(ipU2),Work(ipS2),Work(ipE2))
-    write(6,'(20f10.1)') ((Work(ipE2+i-1)-Work(ipE2))*219474.63d0,i=2,nOsc)
+    write(u6,'(20f10.1)') ((Work(ipE2+i-1)-Work(ipE2))*auTocm,i=2,nOsc)
   else
     call SetUpHmat(energy1,Work(ipr1),iWork(ipipow),Work(ipvar),Work(ipyin1),Work(ipr00),trfName1,max_term,Work(ipC1),Work(ipW1), &
                    det1,Work(ipr01),Work(ipC2),Work(ipW2),det2,Work(ipr02),max_mOrd,max_nOrd,max_nOrd,max_mInc,max_nInc,max_nInc, &
@@ -1206,7 +1211,7 @@ if (MatEl) then  ! START: Vibrational Hessian (variational)
     call GetMem('yin2','Free','Real',ipyin2,ndata)
 
   end if
-  write(6,*) 'T0',T0*HarToRcm
+  write(u6,*) 'T0',T0*HarToRcm
   k2 = 1
   l_TermMat_1 = nDimTot-1
   l_TermMat_2 = nDimTot-1
@@ -1260,10 +1265,10 @@ if (Matel) then
   call GetMem('IntensityMat','Allo','Real',ipIntensityMat,(l_IntensityMat_1+1)*(l_IntensityMat_2+1))
   !call GetMem('IntensityMat','Allo','Real',ipIntensityMat,ndimtot*ndimtot)
   if (Forcefield) then
-    call dcopy_(nOsc*nOsc,[0.0d0],0,Work(ipBase2),1)
-    !Base2 = 0.0d0
+    call dcopy_(nOsc*nOsc,[Zero],0,Work(ipBase2),1)
+    !Base2 = Zero
     do i=1,nOsc
-      Work(ipBase2+i-1+nOsc*(i-1)) = 1.0d0
+      Work(ipBase2+i-1+nOsc*(i-1)) = One
     end do
     call Intensity2(Work(ipIntensityMat),Work(ipTermMat),T0,max_term,Work(ipU1),Work(ipU2),Work(ipE1),Work(ipE2),Work(ipC1), &
                     Work(ipW1),det1,Work(ipr01),Work(ipC2),Work(ipW2),det2,Work(ipr02),Work(ipC),Work(ipW),det0,Work(ipr00),m_max, &
@@ -1300,8 +1305,8 @@ else
 end if
 
 !write results to log.
-write(6,*) ' Write intensity data to log file.'
-call XFlush(6)
+write(u6,*) ' Write intensity data to log file.'
+call XFlush(u6)
 call WriteInt(Work(ipIntensityMat),Work(ipTermMat),iWork(ipmMat),iWork(ipnMat),Work(ipOccNumMat1),Work(ipOccNumMat2),MatEl, &
               ForceField,Work(ipE1),Work(ipE2),T0,Work(ipharmfreq1),Work(ipharmfreq2),Work(ipx_anharm1),Work(ipx_anharm2), &
               l_IntensityMat_1,l_IntensityMat_2,l_TermMat_1,l_TermMat_2,nDimTot,nOsc)

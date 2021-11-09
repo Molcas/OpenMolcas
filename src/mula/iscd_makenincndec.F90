@@ -21,18 +21,18 @@ integer lNMAT, lNINC, lNDEC
 integer nIndex(3,0:maxMax_n)
 
 !GGt -------------------------------------------------------------------
-!write(6,*)
-!write(6,*) 'CGGt[ISCD_Mk_nIncDec] Infos:                   '
-!write(6,*) '     nMat(',nOsc,',',lBatch,')'
-!write(6,*) '     n_max,nOrd,nOsc==',n_max,nOrd,nOsc
-!write(6,*) '     lBatch,nBatch,leftBatch==',lBatch,nBatch,leftBatch
-!write(6,*) '----------------------------------------------'
-!write(6,*) '  The nIndex file:    '
+!write(u6,*)
+!write(u6,*) 'CGGt[ISCD_Mk_nIncDec] Infos:                   '
+!write(u6,*) '     nMat(',nOsc,',',lBatch,')'
+!write(u6,*) '     n_max,nOrd,nOsc==',n_max,nOrd,nOsc
+!write(u6,*) '     lBatch,nBatch,leftBatch==',lBatch,nBatch,leftBatch
+!write(u6,*) '----------------------------------------------'
+!write(u6,*) '  The nIndex file:    '
 !do i=1,nBatch+1
-!  write(6,*) i,': ',nIndex(1,i)
+!  write(u6,*) i,': ',nIndex(1,i)
 !end do
-!  write(6,*) '----------------------------------------------'
-!call XFlush(6)
+!  write(u6,*) '----------------------------------------------'
+!call XFlush(u6)
 !GGt -------------------------------------------------------------------
 
 ! Initialize
@@ -53,14 +53,14 @@ do iBatch=1,nBatch
     end do
   end do
   kIndex = nIndex(1,iBatch)
-  !write(6,*)'          iBatch=',iBatch,'  kIndex=',kIndex
+  !write(u6,*)'          iBatch=',iBatch,'  kIndex=',kIndex
   call iDaFile(lNMAT,2,nMat,nOsc*lBatch,kIndex)
   !GGt -----------------------------------------------------------------
   !do i=0,lBatch-1
-  !  write(6,*) i+(iBatch-1)*lBatch,': ',(nMat(k,i+1),k=1,nOsc)
+  !  write(u6,*) i+(iBatch-1)*lBatch,': ',(nMat(k,i+1),k=1,nOsc)
   !end do
-  !write(6,*) '----------------------------------------------'
-  !call XFlush(6)
+  !write(u6,*) '----------------------------------------------'
+  !call XFlush(u6)
   !GGt -----------------------------------------------------------------
   do ii=1,lBatch
 
@@ -99,33 +99,33 @@ do iBatch=1,nBatch
   call iDaFile(lNDEC,1,nDec,nOsc*lBatch,jIndex)
   !GGt -----------------------------------------------------------------
   !do i=0,lBatch-1
-  !  write(6,*) i+(iBatch-1)*lBatch,':I',(nInc(k,i+1),k=1,nOsc)
-  !  write(6,*) i+(iBatch-1)*lBatch,':D',(nDec(k,i+1),k=1,nOsc)
+  !  write(u6,*) i+(iBatch-1)*lBatch,':I',(nInc(k,i+1),k=1,nOsc)
+  !  write(u6,*) i+(iBatch-1)*lBatch,':D',(nDec(k,i+1),k=1,nOsc)
   !end do
-  !call XFlush(6)
+  !call XFlush(u6)
   !GGt -----------------------------------------------------------------
-  !  write(6,*) '            nInc Written at ',nIndex(2,iBatch)
-  !  write(6,*) '            nDec Written at ',nIndex(3,iBatch)
-  !  write(6,*) '----------------------------------------------'
-  !call XFlush(6)
+  !  write(u6,*) '            nInc Written at ',nIndex(2,iBatch)
+  !  write(u6,*) '            nDec Written at ',nIndex(3,iBatch)
+  !  write(u6,*) '----------------------------------------------'
+  !call XFlush(u6)
   !GGt -----------------------------------------------------------------
 
 end do
 
 if (leftBatch > 0) then
   kIndex = nIndex(1,nBatch+1)
-  !write(6,*) '          nBatch+1',nBatch+1,'  kIndex=',kIndex
+  !write(u6,*) '          nBatch+1',nBatch+1,'  kIndex=',kIndex
   call iDaFile(lNMAT,2,nMat,nOsc*lBatch,kIndex)
   !GGt -----------------------------------------------------------------
-  !write(6,*) '  --------- last Batch'
+  !write(u6,*) '  --------- last Batch'
   !do i=0,lBatch-1
-  !  write(6,*) i+(iBatch-1)*lBatch,': ',(nMat(k,i+1),k=1,nOsc)
+  !  write(u6,*) i+(iBatch-1)*lBatch,': ',(nMat(k,i+1),k=1,nOsc)
   !end do
-  !call XFlush(6)
+  !call XFlush(u6)
   !GGt -----------------------------------------------------------------
 
-  !write(6,*) 'CGGt nBatch*lBatch,nOrd==',nBatch*lBatch,nOrd
-  !call XFlush(6)
+  !write(u6,*) 'CGGt nBatch*lBatch,nOrd==',nBatch*lBatch,nOrd
+  !call XFlush(u6)
   do ii=1,lBatch
     do iv=1,nOsc
       nInc(iv,ii) = -1
@@ -171,20 +171,20 @@ if (leftBatch > 0) then
   call iDaFile(lNDEC,1,nDec,nOsc*lBatch,jIndex)
   !GGt -----------------------------------------------------------------
   !do i=0,lBatch-1
-  !  write(6,*) i+(iBatch-1)*lBatch,':I',(nInc(k,i+1),k=1,nOsc)
-  !  write(6,*) i+(iBatch-1)*lBatch,':D',(nDec(k,i+1),k=1,nOsc)
+  !  write(u6,*) i+(iBatch-1)*lBatch,':I',(nInc(k,i+1),k=1,nOsc)
+  !  write(u6,*) i+(iBatch-1)*lBatch,':D',(nDec(k,i+1),k=1,nOsc)
   !end do
-  !call XFlush(6)
+  !call XFlush(u6)
   !GGt -----------------------------------------------------------------
-  !write(6,*) '            nInc Written at ',nIndex(2,nBatch+1)
-  !write(6,*) '            nDec Written at ',nIndex(3,nBatch+1)
-  !write(6,*) '----------------------------------------------'
-  !call XFlush(6)
+  !write(u6,*) '            nInc Written at ',nIndex(2,nBatch+1)
+  !write(u6,*) '            nDec Written at ',nIndex(3,nBatch+1)
+  !write(u6,*) '----------------------------------------------'
+  !call XFlush(u6)
   !GGt -----------------------------------------------------------------
 end if
 
-!write(6,*) '----------------------------------------------'
-!call XFlush(6)
+!write(u6,*) '----------------------------------------------'
+!call XFlush(u6)
 
 call GetMem('iVecD','Free','INTE',ipiVecD,nOsc)
 call GetMem('iVecI','Free','INTE',ipiVecI,nOsc)
@@ -207,20 +207,20 @@ integer nIndex(3,0:maxMax_n)
 ! Initialize
 
 !GGt -------------------------------------------------------------------
-!write(6,*)
-!write(6,*) 'CGGt[ISCD_ReloadNMAT] Infos:                   '
-!write(6,*) '     nMat(',nOsc,',',lBatch,')'
-!write(6,*) '     lnTabDim,nOrd,nOsc==',lnTabDim,nOrd,nOsc
-!write(6,*) '     lBatch,nBatch,leftBatch==',lBatch,nBatch,leftBatch
-!write(6,*) '     lnTabDim+1=',lnTabDim+1,':'
+!write(u6,*)
+!write(u6,*) 'CGGt[ISCD_ReloadNMAT] Infos:                   '
+!write(u6,*) '     nMat(',nOsc,',',lBatch,')'
+!write(u6,*) '     lnTabDim,nOrd,nOsc==',lnTabDim,nOrd,nOsc
+!write(u6,*) '     lBatch,nBatch,leftBatch==',lBatch,nBatch,leftBatch
+!write(u6,*) '     lnTabDim+1=',lnTabDim+1,':'
 !do i=0,lnTabDim
-!  write(6,*) i,' read at ',nTabDim(i)
+!  write(u6,*) i,' read at ',nTabDim(i)
 !  iIndex0 = nTabDim(i)
 !  call iDaFile(lNMAT0,2,nMat0,nOsc,iIndex0)
-!  write(6,*) i,' read at',nTabDim(i),'  M:',(nMat0(j),j=1,nOsc)
+!  write(u6,*) i,' read at',nTabDim(i),'  M:',(nMat0(j),j=1,nOsc)
 !end do
-!write(6,*) '----------------------------------------------'
-!call XFlush(6)
+!write(u6,*) '----------------------------------------------'
+!call XFlush(u6)
 !GGt -------------------------------------------------------------------
 jIndex = 0
 rewind(lNMAT0)
@@ -236,11 +236,11 @@ do iBatch=1,nBatch
   nIndex(1,iBatch) = jIndex
   call iDaFile(lNMAT,1,nMat,nOsc*lBatch,jIndex)
   !GGt -----------------------------------------------------------------
-  !write(6,*)'  --------- iBatch =',iBatch
+  !write(u6,*)'  --------- iBatch =',iBatch
   !do i=0,lBatch-1
-  !  write(6,*) i+(iBatch-1)*lBatch,':M',(nMat(k,i+1),k=1,nOsc)
+  !  write(u6,*) i+(iBatch-1)*lBatch,':M',(nMat(k,i+1),k=1,nOsc)
   !end do
-  !call XFlush(6)
+  !call XFlush(u6)
   !GGt -----------------------------------------------------------------
 end do
 if (leftBatch > 0) then
@@ -255,21 +255,21 @@ if (leftBatch > 0) then
   nIndex(1,nBatch+1) = jIndex
   call iDaFile(lNMAT,1,nMat,nOsc*lBatch,jIndex)
   !GGt -----------------------------------------------------------------
-  !write(6,*) '  --------- last Batch'
+  !write(u6,*) '  --------- last Batch'
   !do i=0,lBatch-1
-  !  write(6,*) i+(iBatch-1)*lBatch,':M',(nMat(k,i+1),k=1,nOsc)
+  !  write(u6,*) i+(iBatch-1)*lBatch,':M',(nMat(k,i+1),k=1,nOsc)
   !end do
-  !call XFlush(6)
+  !call XFlush(u6)
   !GGt -----------------------------------------------------------------
 end if
 !GGt -------------------------------------------------------------------
-!write(6,*) '----------------------------------------------'
-!write(6,*) '  The nIndex file:    '
+!write(u6,*) '----------------------------------------------'
+!write(u6,*) '  The nIndex file:    '
 !do i=1,nBatch+1
-! write(6,*) i,': ',nIndex(1,i)
+! write(u6,*) i,': ',nIndex(1,i)
 !end do
-!write(6,*) '----------------------------------------------'
-!call XFlush(6)
+!write(u6,*) '----------------------------------------------'
+!call XFlush(u6)
 !GGt -------------------------------------------------------------------
 
 return

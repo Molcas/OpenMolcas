@@ -44,10 +44,13 @@ subroutine Optimize(ipow,var,coef,x,energy,Hess,nterm,nvar,ndata)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, u6
+
 !use Linalg
 implicit real*8(a-h,o-z)
 parameter(maxiter=100)
-parameter(delta_max=1.0d0)
+parameter(delta_max=One)
 integer ipow(nterm,nvar)
 real*8 var(ndata,nvar)
 real*8 coef(nterm,1)
@@ -78,15 +81,15 @@ end do
 
 ! Optimize using Newton-Raphson.
 iseed = 12345
-energy = 1000.0d0
-!call Srand(0.5)
+energy = 1.0e3_wp
+!call Srand(Half)
 do i=1,1
   do j=1,nvar
     !rand_number = rand()
     ! Random_molcas takes an integer seed 0 < iseed < 2**31
-    ! and produces a pseudorandom number 0 < z < 1.0d0
+    ! and produces a pseudorandom number 0 < z < 1.0
     rand_number = Random_molcas(iseed)
-    iseed = nint(rand_number*2.0d0**31)
+    iseed = nint(rand_number*Two**31)
     x(j) = var_intervals(j,1)+(var_intervals(j,2)-var_intervals(j,1))*rand_number
   end do
   call gradient(x,coef,ipow,grad,nterm,nvar)
@@ -97,19 +100,19 @@ do i=1,1
   end do
   call Dool_MULA(Hess,nterm,nvar,delta,nvar,1,det)
   !call calcNorm(delta(:,1),delta_norm)
-  sum = 0.0d0
+  sum = Zero
   do iv=1,nvar
     sum = sum+delta(iv,1)**2
   end do
   delta_norm = sqrt(sum)
 
-  scale = 1.0d0
+  scale = One
   if (delta_norm > delta_max) scale = delta_max/delta_norm
   do iv=1,nvar
     x(iv) = x(iv)+delta(iv,1)*scale
   end do
   iter = 0
-  do while ((delta_norm > 1.0d-12) .and. (iter <= maxiter))
+  do while ((delta_norm > 1.0e-12_wp) .and. (iter <= maxiter))
     iter = iter+1
     call gradient(x,coef,ipow,grad,nterm,nvar)
     call Hessian(x,coef,ipow,Hess,nterm,nvar)
@@ -119,19 +122,19 @@ do i=1,1
     end do
     call Dool_MULA(Hess,nterm,nvar,delta,nvar,1,det)
     !call calcNorm(delta(:,1), delta_norm)
-    sum = 0.0d0
+    sum = Zero
     do iv=1,nvar
       sum = sum+delta(iv,1)**2
     end do
     delta_norm = sqrt(sum)
 
-    scale = 1.0d0
+    scale = One
     if (delta_norm > delta_max) scale = delta_max/delta_norm
     do iv=1,nvar
       x(iv) = x(iv)+delta(iv,1)*scale
     end do
   end do
-  if (iter >= maxiter) write(6,*) 'WARNING!! No convergence in Optimize'
+  if (iter >= maxiter) write(u6,*) 'WARNING!! No convergence in Optimize'
   call funcval(x,coef,ipow,fval,nterm,nvar)
   if (fval < energy) then
     energy = fval

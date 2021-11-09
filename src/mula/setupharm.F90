@@ -35,6 +35,8 @@ subroutine SetUpHarmDip(DipMat,max_term,m_max,n_max,mMat,mInc,mDec,nMat,nInc,nDe
 !    TabMod
 !    FCMod
 
+use Constants, only: Zero, One
+
 !use TabMod
 !use FCMod
 implicit real*8(a-h,o-z)
@@ -79,8 +81,8 @@ call GetMem('alpha2','Free','Real',ipalpha2,nOsc*nOsc)
 call GetMem('beta','Free','Real',ipbeta,nOsc*nOsc)
 
 ! Get the zeroth order contribution from transition dipole.
-!Dipmat = 0.0d0
-call dcopy_((max_mOrd+1)*(max_nOrd+1)*4,[0.0d0],0,Dipmat,1)
+!Dipmat = Zero
+call dcopy_((max_mOrd+1)*(max_nOrd+1)*4,[Zero],0,Dipmat,1)
 do iCar=1,3
   do iv=0,max_mOrd
     do jv=0,max_nOrd
@@ -91,7 +93,7 @@ end do
 call GetMem('Sij','Free','Real',ipSij,(m_max_ord+1)*(n_max_ord+1))
 
 !rt = sqrt(TranDip(1)**2+TranDip(2)**2+TranDip(3)**2)
-!if (rt > 0.0d0) DipMat(0:,0:,0) = rt*Sij
+!if (rt > Zero) DipMat(0:,0:,0) = rt*Sij
 !end if
 
 ! Calculate LFU (just valid for tdm first derivatives)
@@ -103,9 +105,9 @@ if (max_term == 1) then
     call GetMem('F','Allo','Real',ipF,l_F)
     call Fgenerator(nmat,Work(ipF),nInc,nDec,TranDipGrad,m_max_ord,mx_max_ord,nosc)
     do iCar=1,3
-      call DGEMM_('N','N',m_max_ord+1,mx_max_ord+1,m_max_ord+1,1.0d0,Work(ipL),m_max_ord+1, &
-                  Work(ipF+(m_max_ord+1)*(mx_max_ord+1)*(iCar-1)),m_max_ord+1,0.0d0,Work(ipTemp1),m_max_ord+1)
-      call DGEMM_('N','T',m_max_ord+1,n_max_ord+1,mx_max_ord+1,1.0d0,Work(ipTemp1),m_max_ord+1,Work(ipU),n_max_ord+1,0.0d0, &
+      call DGEMM_('N','N',m_max_ord+1,mx_max_ord+1,m_max_ord+1,One,Work(ipL),m_max_ord+1, &
+                  Work(ipF+(m_max_ord+1)*(mx_max_ord+1)*(iCar-1)),m_max_ord+1,Zero,Work(ipTemp1),m_max_ord+1)
+      call DGEMM_('N','T',m_max_ord+1,n_max_ord+1,mx_max_ord+1,One,Work(ipTemp1),m_max_ord+1,Work(ipU),n_max_ord+1,Zero, &
                   Work(ipTemp2),m_max_ord+1)
 
       do iv=0,max_mOrd
@@ -119,9 +121,9 @@ if (max_term == 1) then
     call GetMem('F','Allo','Real',ipF,l_F)
     call Fgenerator(mmat,Work(ipF),mInc,mDec,trandipgrad,n_max_ord,nx_max_ord,nosc)
     do iCar=1,3
-      call DGEMM_('N','T',m_max_ord+1,n_max_ord+1,nx_max_ord+1,1.0d0,Work(ipL),m_max_ord+1, &
-                  Work(ipF+(n_max_ord+1)*(nx_max_ord+1)*(iCar-1)),n_max_ord+1,0.0d0,Work(ipTemp1),m_max_ord+1)
-      call DGEMM_('N','T',m_max_ord+1,n_max_ord+1,n_max_ord+1,1.0d0,Work(ipTemp1),m_max_ord+1,Work(ipU),n_max_ord+1,0.0d0, &
+      call DGEMM_('N','T',m_max_ord+1,n_max_ord+1,nx_max_ord+1,One,Work(ipL),m_max_ord+1, &
+                  Work(ipF+(n_max_ord+1)*(nx_max_ord+1)*(iCar-1)),n_max_ord+1,Zero,Work(ipTemp1),m_max_ord+1)
+      call DGEMM_('N','T',m_max_ord+1,n_max_ord+1,n_max_ord+1,One,Work(ipTemp1),m_max_ord+1,Work(ipU),n_max_ord+1,Zero, &
                   Work(ipTemp2),m_max_ord+1)
       !DipMat(0:,0:,iCar) = DipMat(0:,0:,iCar)+Temp2*FC00
       do iv=0,max_mOrd

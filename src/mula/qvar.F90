@@ -20,6 +20,9 @@ subroutine qvar_to_var(var,x,grad,Hess,D3,D4,ref,qref,trfName,alpha,max_term,nda
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
+use Constants, only: Zero, One, Three, Four, Six
+use Definitions, only: u6
+
 implicit real*8(a-h,o-z)
 real*8 var(ndata,nvar)
 real*8 x(nvar)
@@ -68,11 +71,11 @@ do ivar=1,nvar
     v(ivar) = cos(q(ivar))
     s(ivar) = -sin(q(ivar))
   else if (ie > 0) then
-    q(ivar) = -log(1.0d0-x(ivar))/alpha(ivar)
-    t(ivar) = alpha(ivar)*(1.0d0-x(ivar))
-    u(ivar) = -alpha(ivar)**2*(1.0d0-x(ivar))
-    v(ivar) = alpha(ivar)**3*(1.0d0-x(ivar))
-    s(ivar) = -alpha(ivar)**4*(1.0d0-x(ivar))
+    q(ivar) = -log(One-x(ivar))/alpha(ivar)
+    t(ivar) = alpha(ivar)*(One-x(ivar))
+    u(ivar) = -alpha(ivar)**2*(One-x(ivar))
+    v(ivar) = alpha(ivar)**3*(One-x(ivar))
+    s(ivar) = -alpha(ivar)**4*(One-x(ivar))
     if (ia > 0) then
       q(ivar) = q(ivar)+ref(ivar)
     end if
@@ -81,12 +84,12 @@ do ivar=1,nvar
       x(ivar) = x(ivar)+ref(ivar)
     end if
     q(ivar) = x(ivar)
-    t(ivar) = 1.0d0
-    u(ivar) = 0.0d0
-    v(ivar) = 0.0d0
-    s(ivar) = 0.0d0
+    t(ivar) = One
+    u(ivar) = Zero
+    v(ivar) = Zero
+    s(ivar) = Zero
   else
-    write(6,*) ' TRFCODE ERROR.'
+    write(u6,*) ' TRFCODE ERROR.'
     call abend()
   end if
 end do
@@ -119,7 +122,7 @@ do i=1,nvar
     do k=j,nvar
       jkEq = (j == k)
       if (ijEq .and. jkEq) then
-        D3trans(i,i,i) = t(i)*t(i)*t(i)*D3(i,i,i)+3.0d0*u(i)*t(i)*Hess(i,i)+v(i)*grad(i)
+        D3trans(i,i,i) = t(i)*t(i)*t(i)*D3(i,i,i)+Three*u(i)*t(i)*Hess(i,i)+v(i)*grad(i)
       else if (ijEq .and. (.not. jkEq)) then
         D3trans(i,i,k) = t(i)*t(i)*t(k)*D3(i,i,k)+u(i)*t(k)*Hess(i,k)
       else if ((.not. ijEq) .and. jkEq) then
@@ -151,12 +154,12 @@ do i=1,nvar
       do l=k,nvar
         klEq = (k == l)
         if (ijEq .and. jkEq .and. klEq) then
-          D4trans(i,i,i,i) = t(i)**4*D4(i,i,i,i)+6.0d0*u(i)*t(i)**2*D3(i,i,i)+4.0d0*v(i)*t(i)*Hess(i,i)+3.0d0*u(i)*u(i)*Hess(i,i)+ &
+          D4trans(i,i,i,i) = t(i)**4*D4(i,i,i,i)+Six*u(i)*t(i)**2*D3(i,i,i)+Four*v(i)*t(i)*Hess(i,i)+Three*u(i)*u(i)*Hess(i,i)+ &
                              s(i)*grad(i)
         else if (ijEq .and. jkEq .and. (.not. klEq)) then
-          D4trans(i,i,i,l) = (t(i)*t(i)*t(i)*D4(i,i,i,l)+3.0d0*u(i)*t(i)*D3(i,i,l)+v(i)*Hess(i,l))*t(l)
+          D4trans(i,i,i,l) = (t(i)*t(i)*t(i)*D4(i,i,i,l)+Three*u(i)*t(i)*D3(i,i,l)+v(i)*Hess(i,l))*t(l)
         else if ((.not. ijEq) .and. jkEq .and. klEq) then
-          D4trans(i,j,j,j) = t(i)*(t(j)*t(j)*t(j)*D4(i,j,j,j)+3.0d0*u(j)*t(j)*D3(i,j,j)+v(j)*Hess(i,j))
+          D4trans(i,j,j,j) = t(i)*(t(j)*t(j)*t(j)*D4(i,j,j,j)+Three*u(j)*t(j)*D3(i,j,j)+v(j)*Hess(i,j))
         else if ((.not. ijEq) .and. jkEq .and. (.not. klEq)) then
           D4trans(i,j,j,l) = t(i)*(t(j)*t(j)*D4(i,j,j,l)+u(j)*D3(i,j,l))*t(l)
         else if (ijEq .and. (.not. jkEq) .and. (.not. klEq)) then

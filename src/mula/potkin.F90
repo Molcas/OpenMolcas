@@ -41,10 +41,12 @@ subroutine KinEnergy_drv(A,nMat,iCre,iAnn,G,Gprime,Gdbleprime,max_term,C,W,alpha
 !    Dept. of Theoretical Chemistry, Lund University, 1996.
 !    Dept. of Theoretical Chemistry, Lund University, 1999.
 
+use Definitions, only: wp
+
 !use TabMod
 implicit real*8(a-h,o-z)
 #include "dims.fh"
-parameter(Thrs=1.0d-15)
+parameter(Thrs=1.0e-15_wp)
 real*8 A(0:mdim1,0:ndim1)
 integer nMat(0:ndim1,ndim2)
 integer iAnn(0:ndim1,ndim2)
@@ -109,10 +111,13 @@ subroutine KinEnergy(A,nMat,iCre,iAnn,G,Gprime,Gdbleprime,max_term,C,W,alpha1,al
 !    Dept. of Theoretical Chemistry, Lund University, 1996.
 !    Dept. of Theoretical Chemistry, Lund University, 1999.
 
+use Constants, only: Zero, One, Two, Three, Six, Half, OneHalf
+use Definitions, only: wp
+
 !use TabMod
 implicit real*8(a-h,o-z)
 #include "dims.fh"
-parameter(Thrs=1.0d-15)
+parameter(Thrs=1.0e-15_wp)
 real*8 A(0:mdim1,0:ndim1)
 integer nMat(0:ndim1,ndim2)
 integer iAnn(0:ndim1,ndim2)
@@ -142,92 +147,92 @@ real*8 T1(nosc), T2(nosc)
 mPlus = max_Ord+1
 nOscSqr = nOsc**2
 r_norm = Dnrm2_(nOsc,r_diff,1)
-ran = 1.0d0
+ran = One
 call Dgesub(alpha1,nOsc,'N',alpha2,nOsc,'N',Tempa,nOsc,nOsc,nOsc)
 alpha_norm = Dnrm2_(nOscSqr,Tempa,1)
 if ((r_norm > Thrs) .or. (alpha_norm > Thrs)) then
   call Dgesub(alpha1,nOsc,'N',alpha2,nOsc,'N',Tempa,nOsc,nOsc,nOsc)
-  call DGEMM_('N','N',nOsc,nOsc,nOsc,1.0d0,Tempa,nOsc,W,nOsc,0.0d0,Tempb,nOsc)
-  call DGEMM_('N','N',nOsc,1,nOsc,1.0d0,beta,nOsc,r_diff,nOsc,0.0d0,r_temp,nOsc)
-  call dscal_(nOsc,-2.0d0,r_temp,1)
-  rdx(1) = +1.0d0
-  rdx(2) = -1.0d0
-  call DGEMM_('T','N',nosc,nosc,nosc,1.0d0,G,nosc,Tempb,nosc,0.0d0,Temp,nosc)
-  call DGEMM_('T','T',nosc,nosc,nosc,1.0d0,Temp,nosc,C,nosc,0.0d0,G_2,nosc)
+  call DGEMM_('N','N',nOsc,nOsc,nOsc,One,Tempa,nOsc,W,nOsc,Zero,Tempb,nOsc)
+  call DGEMM_('N','N',nOsc,1,nOsc,One,beta,nOsc,r_diff,nOsc,Zero,r_temp,nOsc)
+  call dscal_(nOsc,-Two,r_temp,1)
+  rdx(1) = One
+  rdx(2) = -One
+  call DGEMM_('T','N',nosc,nosc,nosc,One,G,nosc,Tempb,nosc,Zero,Temp,nosc)
+  call DGEMM_('T','T',nosc,nosc,nosc,One,Temp,nosc,C,nosc,Zero,G_2,nosc)
   call dscal_(nosc**2,-ran,G_2,1)
   call Mul2(nmat,A,iCre,iAnn,G_2,max_ord,nosc,rdx)
-  rdx(1) = -1.0d0
-  rdx(2) = +1.0d0
-  call DGEMM_('T','T',nosc,nosc,nosc,1.0d0,G,nosc,C,nosc,0.0d0,Temp,nosc)
-  call DGEMM_('T','N',nosc,nosc,nosc,1.0d0,Temp,nosc,Tempb,nosc,0.0d0,G_2,nosc)
+  rdx(1) = -One
+  rdx(2) = One
+  call DGEMM_('T','T',nosc,nosc,nosc,One,G,nosc,C,nosc,Zero,Temp,nosc)
+  call DGEMM_('T','N',nosc,nosc,nosc,One,Temp,nosc,Tempb,nosc,Zero,G_2,nosc)
   call dscal_(nosc**2,-ran,G_2,1)
   call Mul2(nmat,A,iCre,iAnn,G_2,max_ord,nosc,rdx)
-  rdx(1) = +1.0d0
-  rdx(2) = +1.0d0
-  call DGEMM_('T','N',nosc,nosc,nosc,1.0d0,G,nosc,Tempb,nosc,0.0d0,Temp,nosc)
-  call DGEMM_('T','N',nosc,nosc,nosc,1.0d0,Temp,nosc,Tempb,nosc,0.0d0,G_2,nosc)
-  call dscal_(nosc**2,-1.0d0,G_2,1)
+  rdx(1) = One
+  rdx(2) = One
+  call DGEMM_('T','N',nosc,nosc,nosc,One,G,nosc,Tempb,nosc,Zero,Temp,nosc)
+  call DGEMM_('T','N',nosc,nosc,nosc,One,Temp,nosc,Tempb,nosc,Zero,G_2,nosc)
+  call dscal_(nosc**2,-One,G_2,1)
   call Mul2(nmat,A,iCre,iAnn,G_2,max_ord,nosc,rdx)
-  call dGeMV_('N',nosc,nosc,1.0d0,G,nosc,r_temp,1,0.0d0,T1,1)
-  call dGeMV_('T',nosc,nosc,1.0d0,G,nosc,r_temp,1,1.0d0,T1,1)
-  call dGeMV_('N',nosc,nosc,1.0d0,C,nosc,T1,1,0.0d0,T2,1)
-  call dscal_(nosc,-0.5d0*ran,T2,1)
-  rdx(1) = -1.0d0
+  call dGeMV_('N',nosc,nosc,One,G,nosc,r_temp,1,Zero,T1,1)
+  call dGeMV_('T',nosc,nosc,One,G,nosc,r_temp,1,One,T1,1)
+  call dGeMV_('N',nosc,nosc,One,C,nosc,T1,1,Zero,T2,1)
+  call dscal_(nosc,-Half*ran,T2,1)
+  rdx(1) = -One
   call Mul1(nmat,A,iCre,iAnn,T2,max_ord,nosc,rdx)
-  call dGeMV_('N',nosc,nosc,1.0d0,G,nosc,r_temp,1,0.0d0,T1,1)
-  call dGeMV_('T',nosc,nosc,1.0d0,G,nosc,r_temp,1,1.0d0,T1,1)
-  call dGeMV_('T',nosc,nosc,-0.5d0,tempb,nosc,T1,1,0.0d0,T2,1)
-  rdx(1) = +1.0d0
+  call dGeMV_('N',nosc,nosc,One,G,nosc,r_temp,1,Zero,T1,1)
+  call dGeMV_('T',nosc,nosc,One,G,nosc,r_temp,1,One,T1,1)
+  call dGeMV_('T',nosc,nosc,-Half,tempb,nosc,T1,1,Zero,T2,1)
+  rdx(1) = One
   call Mul1(nmat,A,iCre,iAnn,T2,max_ord,nosc,rdx)
-  call dGeMV_('N',nosc,nosc,1.0d0,G,nosc,r_temp,1,0.0d0,T1,1)
+  call dGeMV_('N',nosc,nosc,One,G,nosc,r_temp,1,Zero,T1,1)
   r = Ddot_(nosc,T1,1,r_temp,1)
-  call daxpy_(mplus,r,-0.5d0,0,A,mplus+1)
+  call daxpy_(mplus,r,-Half,0,A,mplus+1)
   if (max_term > 2) then
-    call DGEMM_('T','N',nosc**2,nosc,nosc,1.0d0,Gprime,nosc,tempb,nosc,0.0d0,Temp1,nosc**2)
-    call DGEMM_('T','T',nosc**2,nosc,nosc,1.0d0,Temp1,nosc,C,nosc,0.0d0,Temp2,nosc**2)
-    call DGEMM_('T','N',nosc**2,nosc,nosc,1.0d0,Temp2,nosc,W,nosc,0.0d0,Temp1,nosc**2)
-    rdx(1) = 1.0d0
-    rdx(2) = 1.0d0
-    rdx(3) = -1.0d0
+    call DGEMM_('T','N',nosc**2,nosc,nosc,One,Gprime,nosc,tempb,nosc,Zero,Temp1,nosc**2)
+    call DGEMM_('T','T',nosc**2,nosc,nosc,One,Temp1,nosc,C,nosc,Zero,Temp2,nosc**2)
+    call DGEMM_('T','N',nosc**2,nosc,nosc,One,Temp2,nosc,W,nosc,Zero,Temp1,nosc**2)
+    rdx(1) = One
+    rdx(2) = One
+    rdx(3) = -One
     do i=1,nosc
       do j=1,nosc
         do k=1,nosc
-          Temp2(i,k,j) = -3.0d0*ran*temp1(i,j,k)
+          Temp2(i,k,j) = -Three*ran*temp1(i,j,k)
         end do
       end do
     end do
     call Mul3(nmat,A,iCre,iAnn,Temp2,max_ord,nosc,rdx)
-    call DGEMM_('T','T',nosc**2,nosc,nosc,1.0d0,Gprime,nosc,C,nosc,0.0d0,Temp1,nosc**2)
-    call DGEMM_('T','N',nosc**2,nosc,nosc,1.0d0,Temp1,nosc,Tempb,nosc,0.0d0,Temp2,nosc**2)
-    call DGEMM_('T','N',nosc**2,nosc,nosc,1.0d0,Temp2,nosc,W,nosc,0.0d0,Temp1,nosc**2)
-    rdx(1) = -1.0d0
-    rdx(2) = 1.0d0
-    rdx(3) = 1.0d0
+    call DGEMM_('T','T',nosc**2,nosc,nosc,One,Gprime,nosc,C,nosc,Zero,Temp1,nosc**2)
+    call DGEMM_('T','N',nosc**2,nosc,nosc,One,Temp1,nosc,Tempb,nosc,Zero,Temp2,nosc**2)
+    call DGEMM_('T','N',nosc**2,nosc,nosc,One,Temp2,nosc,W,nosc,Zero,Temp1,nosc**2)
+    rdx(1) = -One
+    rdx(2) = One
+    rdx(3) = One
     do i=1,nosc
       do j=1,nosc
         do k=1,nosc
-          Temp2(i,k,j) = -3.0d0*ran*temp1(i,j,k)
+          Temp2(i,k,j) = -Three*ran*temp1(i,j,k)
         end do
       end do
     end do
     call Mul3(nmat,A,iCre,iAnn,Temp2,max_ord,nosc,rdx)
-    call DGEMM_('T','N',nosc**2,nosc,nosc,1.0d0,Gprime,nosc,Tempb,nosc,0.0d0,Temp1,nosc**2)
-    call DGEMM_('T','N',nosc**2,nosc,nosc,1.0d0,Temp1,nosc,Tempb,nosc,0.0d0,Temp2,nosc**2)
-    call DGEMM_('T','N',nosc**2,nosc,nosc,1.0d0,Temp2,nosc,W,nosc,0.0d0,Temp1,nosc**2)
-    rdx(1) = 1.0d0
-    rdx(2) = 1.0d0
-    rdx(3) = 1.0d0
+    call DGEMM_('T','N',nosc**2,nosc,nosc,One,Gprime,nosc,Tempb,nosc,Zero,Temp1,nosc**2)
+    call DGEMM_('T','N',nosc**2,nosc,nosc,One,Temp1,nosc,Tempb,nosc,Zero,Temp2,nosc**2)
+    call DGEMM_('T','N',nosc**2,nosc,nosc,One,Temp2,nosc,W,nosc,Zero,Temp1,nosc**2)
+    rdx(1) = One
+    rdx(2) = One
+    rdx(3) = One
     do i=1,nosc
       do j=1,nosc
         do k=1,nosc
-          Temp2(i,k,j) = -3.0d0*temp1(i,j,k)
+          Temp2(i,k,j) = -Three*temp1(i,j,k)
         end do
       end do
     end do
     call Mul3(nmat,A,iCre,iAnn,Temp2,max_ord,nosc,rdx)
 
-    !temp = 0.0d0
-    call dcopy_(nOsc*nOsc,[0.0d0],0,temp,1)
+    !temp = Zero
+    call dcopy_(nOsc*nOsc,[Zero],0,temp,1)
     do i=1,nosc
       do j=1,nosc
         do k=1,nosc
@@ -235,14 +240,14 @@ if ((r_norm > Thrs) .or. (alpha_norm > Thrs)) then
         end do
       end do
     end do
-    rdx(1) = 1.0d0
-    rdx(2) = -1.0d0
-    call DGEMM_('T','N',nosc,nosc,nosc,1.0d0,Temp,nosc,W,nosc,0.0d0,G_2,nosc)
-    call DGEMM_('T','T',nosc,nosc,nosc,1.0d0,G_2,nosc,C,nosc,0.0d0,Temp,nosc)
+    rdx(1) = One
+    rdx(2) = -One
+    call DGEMM_('T','N',nosc,nosc,nosc,One,Temp,nosc,W,nosc,Zero,G_2,nosc)
+    call DGEMM_('T','T',nosc,nosc,nosc,One,G_2,nosc,C,nosc,Zero,Temp,nosc)
     call Mul2(nmat,A,iCre,iAnn,Temp,max_ord,nosc,rdx)
 
-    !temp = 0.0d0
-    call dcopy_(nOsc*nOsc,[0.0d0],0,temp,1)
+    !temp = Zero
+    call dcopy_(nOsc*nOsc,[Zero],0,temp,1)
     do i=1,nosc
       do j=1,nosc
         do k=1,nosc
@@ -250,14 +255,14 @@ if ((r_norm > Thrs) .or. (alpha_norm > Thrs)) then
         end do
       end do
     end do
-    rdx(1) = 1.0d0
-    rdx(2) = 1.0d0
-    call DGEMM_('T','N',nosc,nosc,nosc,1.0d0,Temp,nosc,W,nosc,0.0d0,G_2,nosc)
-    call DGEMM_('T','N',nosc,nosc,nosc,1.0d0,G_2,nosc,Tempb,nosc,0.0d0,Temp,nosc)
+    rdx(1) = One
+    rdx(2) = One
+    call DGEMM_('T','N',nosc,nosc,nosc,One,Temp,nosc,W,nosc,Zero,G_2,nosc)
+    call DGEMM_('T','N',nosc,nosc,nosc,One,G_2,nosc,Tempb,nosc,Zero,Temp,nosc)
     call Mul2(nmat,A,iCre,iAnn,Temp,max_ord,nosc,rdx)
 
-    !temp = 0.0d0
-    call dcopy_(nOsc*nOsc,[0.0d0],0,temp,1)
+    !temp = Zero
+    call dcopy_(nOsc*nOsc,[Zero],0,temp,1)
     do i=1,nosc
       do j=1,nosc
         do k=1,nosc
@@ -265,14 +270,14 @@ if ((r_norm > Thrs) .or. (alpha_norm > Thrs)) then
         end do
       end do
     end do
-    rdx(1) = -1.0d0
-    rdx(2) = 1.0d0
-    call DGEMM_('T','T',nosc,nosc,nosc,1.0d0,Temp,nosc,C,nosc,0.0d0,G_2,nosc)
-    call DGEMM_('T','N',nosc,nosc,nosc,1.0d0,G_2,nosc,W,nosc,0.0d0,Temp,nosc)
+    rdx(1) = -One
+    rdx(2) = One
+    call DGEMM_('T','T',nosc,nosc,nosc,One,Temp,nosc,C,nosc,Zero,G_2,nosc)
+    call DGEMM_('T','N',nosc,nosc,nosc,One,G_2,nosc,W,nosc,Zero,Temp,nosc)
     call Mul2(nmat,A,iCre,iAnn,Temp,max_ord,nosc,rdx)
 
-    !temp = 0.0d0
-    call dcopy_(nOsc*nOsc,[0.0d0],0,temp,1)
+    !temp = Zero
+    call dcopy_(nOsc*nOsc,[Zero],0,temp,1)
     do i=1,nosc
       do j=1,nosc
         do k=1,nosc
@@ -280,171 +285,171 @@ if ((r_norm > Thrs) .or. (alpha_norm > Thrs)) then
         end do
       end do
     end do
-    rdx(1) = 1.0d0
-    rdx(2) = 1.0d0
-    call DGEMM_('T','n',nosc,nosc,nosc,1.0d0,Temp,nosc,Tempb,nosc,0.0d0,G_2,nosc)
-    call DGEMM_('T','n',nosc,nosc,nosc,1.0d0,G_2,nosc,W,nosc,0.0d0,Temp,nosc)
+    rdx(1) = One
+    rdx(2) = One
+    call DGEMM_('T','n',nosc,nosc,nosc,One,Temp,nosc,Tempb,nosc,Zero,G_2,nosc)
+    call DGEMM_('T','n',nosc,nosc,nosc,One,G_2,nosc,W,nosc,Zero,Temp,nosc)
     call Mul2(nmat,A,iCre,iAnn,Temp,max_ord,nosc,rdx)
 
-    call dcopy_(nOsc,[0.0d0],0,t1,1)
-    !t1 = 0.0d0
+    call dcopy_(nOsc,[Zero],0,t1,1)
+    !t1 = Zero
     do i=1,nosc
       do j=1,nosc
         do k=1,nosc
-          T1(k) = -0.5d0*Gprime(i,j,k)*r_temp(i)*R_temp(j)+t1(k)
+          T1(k) = -Half*Gprime(i,j,k)*r_temp(i)*R_temp(j)+t1(k)
         end do
       end do
     end do
-    call DGEMM_('T','n',1,nosc,nosc,1.0d0,T1,nosc,W,nosc,0.0d0,T2,1)
-    rdx(1) = 1.0d0
+    call DGEMM_('T','n',1,nosc,nosc,One,T1,nosc,W,nosc,Zero,T2,1)
+    rdx(1) = One
     call Mul1(nmat,A,iCre,iAnn,T2,max_ord,nosc,rdx)
   end if
   if (max_term > 3) then
-    call DGEMM_('T','N',nosc**3,nosc,nosc,1.0d0,Gdbleprime,nosc,tempb,nosc,0.0d0,Temp3,nosc**3)
-    call DGEMM_('T','T',nosc**3,nosc,nosc,1.0d0,Temp3,nosc,C,nosc,0.0d0,Temp4,nosc**3)
-    call DGEMM_('T','N',nosc**3,nosc,nosc,1.0d0,Temp4,nosc,W,nosc,0.0d0,Temp3,nosc**3)
-    call DGEMM_('T','N',nosc**3,nosc,nosc,1.0d0,Temp3,nosc,W,nosc,0.0d0,Temp4,nosc**3)
-    rdx(1) = 1.0d0
-    rdx(2) = 1.0d0
-    rdx(3) = +1.0d0
-    rdx(4) = -1.0d0
+    call DGEMM_('T','N',nosc**3,nosc,nosc,One,Gdbleprime,nosc,tempb,nosc,Zero,Temp3,nosc**3)
+    call DGEMM_('T','T',nosc**3,nosc,nosc,One,Temp3,nosc,C,nosc,Zero,Temp4,nosc**3)
+    call DGEMM_('T','N',nosc**3,nosc,nosc,One,Temp4,nosc,W,nosc,Zero,Temp3,nosc**3)
+    call DGEMM_('T','N',nosc**3,nosc,nosc,One,Temp3,nosc,W,nosc,Zero,Temp4,nosc**3)
+    rdx(1) = One
+    rdx(2) = One
+    rdx(3) = One
+    rdx(4) = -One
     do i=1,nosc
       do j=1,nosc
         do k=1,nosc
           do l=1,nosc
-            Temp3(i,k,l,j) = -ran*6.0d0*temp4(i,j,k,l)
+            Temp3(i,k,l,j) = -ran*Six*temp4(i,j,k,l)
           end do
         end do
       end do
     end do
     call Mul4(nmat,A,iCre,iAnn,Temp3,max_ord,nosc,rdx)
-    call DGEMM_('T','T',nosc**3,nosc,nosc,1.0d0,Gdbleprime,nosc,C,nosc,0.0d0,Temp3,nosc**3)
-    call DGEMM_('T','N',nosc**3,nosc,nosc,1.0d0,Temp3,nosc,Tempb,nosc,0.0d0,Temp4,nosc**3)
-    call DGEMM_('T','N',nosc**3,nosc,nosc,1.0d0,Temp4,nosc,W,nosc,0.0d0,Temp3,nosc**3)
-    call DGEMM_('T','N',nosc**3,nosc,nosc,1.0d0,Temp3,nosc,W,nosc,0.0d0,Temp4,nosc**3)
-    rdx(1) = -1.0d0
-    rdx(2) = 1.0d0
-    rdx(3) = 1.0d0
-    rdx(4) = 1.0d0
+    call DGEMM_('T','T',nosc**3,nosc,nosc,One,Gdbleprime,nosc,C,nosc,Zero,Temp3,nosc**3)
+    call DGEMM_('T','N',nosc**3,nosc,nosc,One,Temp3,nosc,Tempb,nosc,Zero,Temp4,nosc**3)
+    call DGEMM_('T','N',nosc**3,nosc,nosc,One,Temp4,nosc,W,nosc,Zero,Temp3,nosc**3)
+    call DGEMM_('T','N',nosc**3,nosc,nosc,One,Temp3,nosc,W,nosc,Zero,Temp4,nosc**3)
+    rdx(1) = -One
+    rdx(2) = One
+    rdx(3) = One
+    rdx(4) = One
     do i=1,nosc
       do j=1,nosc
         do k=1,nosc
           do l=1,nosc
-            Temp3(i,k,l,j) = -ran*6.0d0*temp4(i,j,k,l)
+            Temp3(i,k,l,j) = -ran*Six*temp4(i,j,k,l)
           end do
         end do
       end do
     end do
     call Mul4(nmat,A,iCre,iAnn,Temp3,max_ord,nosc,rdx)
-    call DGEMM_('T','n',nosc**3,nosc,nosc,1.0d0,Gdbleprime,nosc,Tempb,nosc,0.0d0,Temp3,nosc**3)
-    call DGEMM_('T','N',nosc**3,nosc,nosc,1.0d0,Temp3,nosc,Tempb,nosc,0.0d0,Temp4,nosc**3)
-    call DGEMM_('T','N',nosc**3,nosc,nosc,1.0d0,Temp4,nosc,W,nosc,0.0d0,Temp3,nosc**3)
-    call DGEMM_('T','N',nosc**3,nosc,nosc,1.0d0,Temp3,nosc,W,nosc,0.0d0,Temp4,nosc**3)
-    rdx(1) = 1.0d0
-    rdx(2) = 1.0d0
-    rdx(3) = 1.0d0
-    rdx(4) = 1.0d0
+    call DGEMM_('T','n',nosc**3,nosc,nosc,One,Gdbleprime,nosc,Tempb,nosc,Zero,Temp3,nosc**3)
+    call DGEMM_('T','N',nosc**3,nosc,nosc,One,Temp3,nosc,Tempb,nosc,Zero,Temp4,nosc**3)
+    call DGEMM_('T','N',nosc**3,nosc,nosc,One,Temp4,nosc,W,nosc,Zero,Temp3,nosc**3)
+    call DGEMM_('T','N',nosc**3,nosc,nosc,One,Temp3,nosc,W,nosc,Zero,Temp4,nosc**3)
+    rdx(1) = One
+    rdx(2) = One
+    rdx(3) = One
+    rdx(4) = One
     do i=1,nosc
       do j=1,nosc
         do k=1,nosc
           do l=1,nosc
-            Temp3(i,k,l,j) = -6.0d0*temp4(i,j,k,l)
+            Temp3(i,k,l,j) = -Six*temp4(i,j,k,l)
           end do
         end do
       end do
     end do
     call Mul4(nmat,A,iCre,iAnn,Temp3,max_ord,nosc,rdx)
 
-    !temp1 = 0.0d0
-    call dcopy_(nOsc*nOsc*nOsc,[0.0d0],0,temp1,1)
+    !temp1 = Zero
+    call dcopy_(nOsc*nOsc*nOsc,[Zero],0,temp1,1)
     do i=1,nosc
       do j=1,nosc
         do k=1,nosc
           do l=1,nosc
-            Temp1(k,l,j) = -ran*1.5d0*Gdbleprime(i,j,k,l)*R_temp(i)+temp1(k,l,j)
+            Temp1(k,l,j) = -ran*OneHalf*Gdbleprime(i,j,k,l)*R_temp(i)+temp1(k,l,j)
           end do
         end do
       end do
     end do
-    rdx(1) = 1.0d0
-    rdx(2) = 1.0d0
-    rdx(3) = -1.0d0
-    call DGEMM_('T','n',nosc**2,nosc,nosc,1.0d0,Temp1,nosc,W,nosc,0.0d0,Temp2,nosc**2)
-    call DGEMM_('T','n',nosc**2,nosc,nosc,1.0d0,Temp2,nosc,W,nosc,0.0d0,Temp1,nosc**2)
-    call DGEMM_('T','T',nosc**2,nosc,nosc,1.0d0,Temp1,nosc,C,nosc,0.0d0,Temp2,nosc**2)
+    rdx(1) = One
+    rdx(2) = One
+    rdx(3) = -One
+    call DGEMM_('T','n',nosc**2,nosc,nosc,One,Temp1,nosc,W,nosc,Zero,Temp2,nosc**2)
+    call DGEMM_('T','n',nosc**2,nosc,nosc,One,Temp2,nosc,W,nosc,Zero,Temp1,nosc**2)
+    call DGEMM_('T','T',nosc**2,nosc,nosc,One,Temp1,nosc,C,nosc,Zero,Temp2,nosc**2)
     call Mul3(nmat,A,iCre,iAnn,Temp2,max_ord,nosc,rdx)
-    !temp1 = 0.0d0
-    call dcopy_(nOsc*nOsc*nOsc,[0.0d0],0,temp1,1)
+    !temp1 = Zero
+    call dcopy_(nOsc*nOsc*nOsc,[Zero],0,temp1,1)
     do i=1,nosc
       do j=1,nosc
         do k=1,nosc
           do l=1,nosc
-            Temp1(k,l,j) = -1.5d0*Gdbleprime(i,j,k,l)*R_temp(i)+temp1(k,l,j)
+            Temp1(k,l,j) = -OneHalf*Gdbleprime(i,j,k,l)*R_temp(i)+temp1(k,l,j)
           end do
         end do
       end do
     end do
-    rdx(1) = 1.0d0
-    rdx(2) = 1.0d0
-    rdx(3) = 1.0d0
-    call DGEMM_('T','n',nosc**2,nosc,nosc,1.0d0,Temp1,nosc,W,nosc,0.0d0,Temp2,nosc**2)
-    call DGEMM_('T','n',nosc**2,nosc,nosc,1.0d0,Temp2,nosc,W,nosc,0.0d0,Temp1,nosc**2)
-    call DGEMM_('T','n',nosc**2,nosc,nosc,1.0d0,Temp1,nosc,Tempb,nosc,0.0d0,Temp2,nosc**2)
-    call Mul3(nmat,A,iCre,iAnn,Temp2,max_ord,nosc,rdx)
-
-    !temp1 = 0.0d0
-    call dcopy_(nOsc*nOsc*nOsc,[0.0d0],0,temp1,1)
-    do i=1,nosc
-      do j=1,nosc
-        do k=1,nosc
-          do l=1,nosc
-            Temp1(i,k,l) = -ran*1.5d0*Gdbleprime(i,j,k,l)*R_temp(j)+temp1(i,k,l)
-          end do
-        end do
-      end do
-    end do
-    rdx(1) = -1.0d0
-    rdx(2) = 1.0d0
-    rdx(3) = 1.0d0
-    call DGEMM_('T','T',nosc**2,nosc,nosc,1.0d0,Temp1,nosc,C,nosc,0.0d0,Temp2,nosc**2)
-    call DGEMM_('T','N',nosc**2,nosc,nosc,1.0d0,Temp2,nosc,W,nosc,0.0d0,Temp1,nosc**2)
-    call DGEMM_('T','N',nosc**2,nosc,nosc,1.0d0,Temp1,nosc,W,nosc,0.0d0,Temp2,nosc**2)
+    rdx(1) = One
+    rdx(2) = One
+    rdx(3) = One
+    call DGEMM_('T','n',nosc**2,nosc,nosc,One,Temp1,nosc,W,nosc,Zero,Temp2,nosc**2)
+    call DGEMM_('T','n',nosc**2,nosc,nosc,One,Temp2,nosc,W,nosc,Zero,Temp1,nosc**2)
+    call DGEMM_('T','n',nosc**2,nosc,nosc,One,Temp1,nosc,Tempb,nosc,Zero,Temp2,nosc**2)
     call Mul3(nmat,A,iCre,iAnn,Temp2,max_ord,nosc,rdx)
 
-    !temp1 = 0.0d0
-    call dcopy_(nOsc*nOsc*nOsc,[0.0d0],0,temp1,1)
+    !temp1 = Zero
+    call dcopy_(nOsc*nOsc*nOsc,[Zero],0,temp1,1)
     do i=1,nosc
       do j=1,nosc
         do k=1,nosc
           do l=1,nosc
-            Temp1(i,k,l) = -1.5d0*Gdbleprime(i,j,k,l)*R_temp(j)+temp1(i,k,l)
+            Temp1(i,k,l) = -ran*OneHalf*Gdbleprime(i,j,k,l)*R_temp(j)+temp1(i,k,l)
           end do
         end do
       end do
     end do
-    rdx(1) = 1.0d0
-    rdx(2) = 1.0d0
-    rdx(3) = 1.0d0
-    call DGEMM_('T','n',nosc**2,nosc,nosc,1.0d0,Temp1,nosc,Tempb,nosc,0.0d0,Temp2,nosc**2)
-    call DGEMM_('T','N',nosc**2,nosc,nosc,1.0d0,Temp2,nosc,W,nosc,0.0d0,Temp1,nosc**2)
-    call DGEMM_('T','N',nosc**2,nosc,nosc,1.0d0,Temp1,nosc,W,nosc,0.0d0,Temp2,nosc**2)
+    rdx(1) = -One
+    rdx(2) = One
+    rdx(3) = One
+    call DGEMM_('T','T',nosc**2,nosc,nosc,One,Temp1,nosc,C,nosc,Zero,Temp2,nosc**2)
+    call DGEMM_('T','N',nosc**2,nosc,nosc,One,Temp2,nosc,W,nosc,Zero,Temp1,nosc**2)
+    call DGEMM_('T','N',nosc**2,nosc,nosc,One,Temp1,nosc,W,nosc,Zero,Temp2,nosc**2)
     call Mul3(nmat,A,iCre,iAnn,Temp2,max_ord,nosc,rdx)
 
-    rdx(1) = 1.0d0
-    rdx(2) = 1.0d0
-    !temp = 0.0d0
-    call dcopy_(nOsc*nOsc,[0.0d0],0,temp,1)
+    !temp1 = Zero
+    call dcopy_(nOsc*nOsc*nOsc,[Zero],0,temp1,1)
     do i=1,nosc
       do j=1,nosc
         do k=1,nosc
           do l=1,nosc
-            Temp(k,l) = -0.5d0*Gdbleprime(i,j,k,l)*r_temp(i)*R_temp(j)+temp(k,l)
+            Temp1(i,k,l) = -OneHalf*Gdbleprime(i,j,k,l)*R_temp(j)+temp1(i,k,l)
           end do
         end do
       end do
     end do
-    call DGEMM_('T','N',nosc,nosc,nosc,1.0d0,Temp,nosc,W,nosc,0.0d0,G_2,nosc)
-    call DGEMM_('T','N',nosc,nosc,nosc,1.0d0,G_2,nosc,W,nosc,0.0d0,Temp,nosc)
+    rdx(1) = One
+    rdx(2) = One
+    rdx(3) = One
+    call DGEMM_('T','n',nosc**2,nosc,nosc,One,Temp1,nosc,Tempb,nosc,Zero,Temp2,nosc**2)
+    call DGEMM_('T','N',nosc**2,nosc,nosc,One,Temp2,nosc,W,nosc,Zero,Temp1,nosc**2)
+    call DGEMM_('T','N',nosc**2,nosc,nosc,One,Temp1,nosc,W,nosc,Zero,Temp2,nosc**2)
+    call Mul3(nmat,A,iCre,iAnn,Temp2,max_ord,nosc,rdx)
+
+    rdx(1) = One
+    rdx(2) = One
+    !temp = Zero
+    call dcopy_(nOsc*nOsc,[Zero],0,temp,1)
+    do i=1,nosc
+      do j=1,nosc
+        do k=1,nosc
+          do l=1,nosc
+            Temp(k,l) = -Half*Gdbleprime(i,j,k,l)*r_temp(i)*R_temp(j)+temp(k,l)
+          end do
+        end do
+      end do
+    end do
+    call DGEMM_('T','N',nosc,nosc,nosc,One,Temp,nosc,W,nosc,Zero,G_2,nosc)
+    call DGEMM_('T','N',nosc,nosc,nosc,One,G_2,nosc,W,nosc,Zero,Temp,nosc)
     call Mul2(nmat,A,iCre,iAnn,Temp,max_ord,nosc,rdx)
   end if
 end if
@@ -452,43 +457,43 @@ end if
 ! If higher terms than quadratic are used in the polynomial
 ! fit of the potential surface, then we have to use a
 ! Taylor expansion of the inverse mass tensor.
-rdx(1) = -1.0d0
-rdx(2) = -1.0d0
-call DGEMM_('T','T',nosc,nosc,nosc,1.0d0,G,nosc,C,nosc,0.0d0,Temp,nosc)
-call DGEMM_('T','T',nosc,nosc,nosc,1.0d0,Temp,nosc,C,nosc,0.0d0,G_2,nosc)
-call DSCAL_(nosc**2,-1.0d0,G_2,1)
+rdx(1) = -One
+rdx(2) = -One
+call DGEMM_('T','T',nosc,nosc,nosc,One,G,nosc,C,nosc,Zero,Temp,nosc)
+call DGEMM_('T','T',nosc,nosc,nosc,One,Temp,nosc,C,nosc,Zero,G_2,nosc)
+call DSCAL_(nosc**2,-One,G_2,1)
 call Mul2(nmat,A,iCre,iAnn,G_2,max_ord,nosc,rdx)
 if (max_term > 2) then
-  call DGEMM_('T','T',nosc**2,nosc,nosc,1.0d0,Gprime,nosc,C,nosc,0.0d0,Temp1,nosc**2)
-  call DGEMM_('T','T',nosc**2,nosc,nosc,1.0d0,Temp1,nosc,C,nosc,0.0d0,Temp2,nosc**2)
-  call DGEMM_('T','N',nosc**2,nosc,nosc,1.0d0,Temp2,nosc,W,nosc,0.0d0,Temp1,nosc**2)
-  rdx(1) = -1.0d0
-  rdx(2) = 1.0d0
-  rdx(3) = -1.0d0
+  call DGEMM_('T','T',nosc**2,nosc,nosc,One,Gprime,nosc,C,nosc,Zero,Temp1,nosc**2)
+  call DGEMM_('T','T',nosc**2,nosc,nosc,One,Temp1,nosc,C,nosc,Zero,Temp2,nosc**2)
+  call DGEMM_('T','N',nosc**2,nosc,nosc,One,Temp2,nosc,W,nosc,Zero,Temp1,nosc**2)
+  rdx(1) = -One
+  rdx(2) = One
+  rdx(3) = -One
   do i=1,nosc
     do j=1,nosc
       do k=1,nosc
-        Temp2(i,k,j) = -3.0d0*temp1(i,j,k)
+        Temp2(i,k,j) = -Three*temp1(i,j,k)
       end do
     end do
   end do
   call Mul3(nmat,A,iCre,iAnn,Temp2,max_ord,nosc,rdx)
 end if
 if (max_term > 3) then
-  call DGEMM_('T','T',nosc**3,nosc,nosc,1.0d0,Gdbleprime,nosc,C,nosc,0.0d0,Temp3,nosc**3)
-  call DGEMM_('T','T',nosc**3,nosc,nosc,1.0d0,Temp3,nosc,C,nosc,0.0d0,Temp4,nosc**3)
-  call DGEMM_('T','N',nosc**3,nosc,nosc,1.0d0,Temp4,nosc,W,nosc,0.0d0,Temp3,nosc**3)
-  call DGEMM_('T','N',nosc**3,nosc,nosc,1.0d0,Temp3,nosc,W,nosc,0.0d0,Temp4,nosc**3)
+  call DGEMM_('T','T',nosc**3,nosc,nosc,One,Gdbleprime,nosc,C,nosc,Zero,Temp3,nosc**3)
+  call DGEMM_('T','T',nosc**3,nosc,nosc,One,Temp3,nosc,C,nosc,Zero,Temp4,nosc**3)
+  call DGEMM_('T','N',nosc**3,nosc,nosc,One,Temp4,nosc,W,nosc,Zero,Temp3,nosc**3)
+  call DGEMM_('T','N',nosc**3,nosc,nosc,One,Temp3,nosc,W,nosc,Zero,Temp4,nosc**3)
 
-  rdx(1) = -1.0d0
-  rdx(2) = 1.0d0
-  rdx(3) = 1.0d0
-  rdx(4) = -1.0d0
+  rdx(1) = -One
+  rdx(2) = One
+  rdx(3) = One
+  rdx(4) = -One
   do i=1,nosc
     do j=1,nosc
       do k=1,nosc
         do l=1,nosc
-          Temp3(i,k,l,j) = -6.0d0*Temp4(i,j,k,l)
+          Temp3(i,k,l,j) = -Six*Temp4(i,j,k,l)
         end do
       end do
     end do

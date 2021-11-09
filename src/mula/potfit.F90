@@ -80,6 +80,9 @@ subroutine PotFit(nterm,nvar,ndata,ipow,var,yin,coef,x,nOsc,energy,grad,Hess,D3,
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, u6
+
 !use LinAlg
 !use VibMod
 !use RandomMod
@@ -102,10 +105,9 @@ real*8 diff_vec(ndata)
 character*32 Inline
 #include "WrkSpc.fh"
 
-
 ! Initialize.
 do iv=1,nterm
-  coef(iv,1) = 0.0d0
+  coef(iv,1) = Zero
 end do
 call GetMem('qvar','Allo','Real',ipqvar,ndata*nvar)
 call GetMem('ref','Allo','Real',ipref,nvar)
@@ -120,10 +122,10 @@ call GetMem('alpha0','Allo','Real',ipalpha0,nvar)
 call GetMem('alphaTemp','Allo','Real',ipalphaTemp,nvar)
 
 call GetMem('alphaRad','Allo','Real',ipalphaRad,nvar)
-call dcopy_(nvar,[-1.0d0],0,Work(ipalphaStart),1)
-call dcopy_(nvar,[-1.0d0],0,Work(ipalphaStop),1)
-!alphaStart =-1.0d0
-!alphaStop =-1.0d0
+call dcopy_(nvar,[-One],0,Work(ipalphaStart),1)
+call dcopy_(nvar,[-One],0,Work(ipalphaStop),1)
+!alphaStart =-One
+!alphaStop =-One
 do ivar=1,nvar
   trfcode = trfName(ivar)(1:32)
   ifit = index(trfcode,'FIT')
@@ -135,7 +137,7 @@ do ivar=1,nvar
     Inline = trfCode(istart:len(trfCode))
     istop = len(Inline)
     read(Inline(1:istop),*) Work(ipalphaStart+ivar-1),Work(ipalphaStop+ivar-1)
-    Work(ipalphaRad+ivar-1) = (Work(ipalphaStop+ivar-1)-Work(ipalphaStart+ivar-1))/2.0d0
+    Work(ipalphaRad+ivar-1) = (Work(ipalphaStop+ivar-1)-Work(ipalphaStart+ivar-1))*Half
     Work(ipalpha0+ivar-1) = Work(ipalphaStart+ivar-1)+Work(ipalphaRad+ivar-1)
   end if
 end do
@@ -169,16 +171,16 @@ if (fit_alpha) then
   call Ranmar(Work(ipRandVec),length)
 
   ! Simulated annealing.
-  stand_dev_best = 100.0d0
+  stand_dev_best = 100.0_wp
   iRandNum = 1
-  do while (Work(ipalphaRad+ivarMax-1) > 1.0d-1)
+  do while (Work(ipalphaRad+ivarMax-1) > 0.1_wp)
     do iv=1,nvar
       Work(ipalphaTemp+iv-1) = Work(ipalpha0+iv-1)
     end do
     do iPoints=1,1000
       do ivar=1,nvar
-        if (Work(ipalphaStart+ivar-1) > 0.0d0) then
-          Work(ipalpha+ivar-1) = Work(ipalpha0+ivar-1)+Work(ipalphaRad+ivar-1)*(2.0d0*Work(ipRandVec+iRandNum+ivar-1-1)-1.0d0)
+        if (Work(ipalphaStart+ivar-1) > Zero) then
+          Work(ipalpha+ivar-1) = Work(ipalpha0+ivar-1)+Work(ipalphaRad+ivar-1)*(Two*Work(ipRandVec+iRandNum+ivar-1-1)-One)
         end if
       end do
       iRandNum = iRandNum+nvar
@@ -194,15 +196,15 @@ if (fit_alpha) then
     do iv=1,nvar
       Work(ipalpha0+iv-1) = Work(ipalphaTemp+iv-1)
     end do
-    write(6,*) (Work(ipalpha0+iv-1),iv=1,nvar),stand_dev_best
+    write(u6,*) (Work(ipalpha0+iv-1),iv=1,nvar),stand_dev_best
     do iv=1,nvar
-      Work(ipalphaRad+iv-1) = Work(ipalphaRad+iv-1)/2.0d0
+      Work(ipalphaRad+iv-1) = Work(ipalphaRad+iv-1)*Half
     end do
   end do
   do iv=1,nvar
     Work(ipalpha+iv-1) = Work(ipalpha0+iv-1)
   end do
-  write(6,*) Work(ipalpha),Work(ipalpha+1)
+  write(u6,*) Work(ipalpha),Work(ipalpha+1)
   call GetMem('RandVec','Free','Real',ipRandVec,length)
 
 end if
@@ -220,10 +222,10 @@ call var_to_qvar(var,Work(ipqvar),Work(ipref),Work(ipqref),Work(ipalpha),trfName
 ! Fit polynomial to energies.
 call PolFit(ipow,nvar,Work(ipqvar),yin,ndata,coef,nterm,stand_dev,max_err,diff_vec,use_weight)
 
-!write(6,*) ndata
+!write(u6,*) ndata
 
 !do i=1,ndata
-!  write(6,'(4f15.8,es15.6)') (var(i,j),j=1,nvar),yin(i),diff_vec(i)
+!  write(u6,'(4f15.8,es15.6)') (var(i,j),j=1,nvar),yin(i),diff_vec(i)
 !end do
 
 if (find_minimum) then
@@ -239,14 +241,14 @@ call Hessian(x,coef,ipow,Hess,nterm,nvar)
 if (max_term > 2) then
   call thirdDer(x,coef,ipow,D3,nterm,nvar)
 else
-  call dcopy_(l_D*l_D*l_D,[0.0d0],0,D3,1)
-  !D3 = 0.0d0
+  call dcopy_(l_D*l_D*l_D,[Zero],0,D3,1)
+  !D3 = Zero
 end if
 if (max_term > 3) then
   call fourthDer(x,coef,ipow,D4,nterm,nvar)
 else
-  !D4 = 0.0d0
-  call dcopy_(l_D*l_D*l_D*l_D,[0.0d0],0,D4,1)
+  !D4 = Zero
+  call dcopy_(l_D*l_D*l_D*l_D,[Zero],0,D4,1)
 end if
 
 ! Transform back to original coordinates.

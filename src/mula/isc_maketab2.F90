@@ -48,17 +48,17 @@ integer Graph2(m_max+1,m_max+1,nOsc)
 integer nTabDim, nvTabDim
 #include "WrkSpc.fh"
 
-!write(6,*)
-!write(6,*) 'CGGt[ISC_MakeTab2_a] Infos:                   '
-!write(6,*) 'Graph1(',m_max+1,',',nOsc+1,')'
-!write(6,*) 'Graph2(',m_max+1,',',m_max+1,',',nOsc,')'
-!write(6,*) 'mInc,mDec,mMat(0:',msiz,',',nosc,')'
-!write(6,*) '-------------------------------------------   '
+!write(u6,*)
+!write(u6,*) 'CGGt[ISC_MakeTab2_a] Infos:                   '
+!write(u6,*) 'Graph1(',m_max+1,',',nOsc+1,')'
+!write(u6,*) 'Graph2(',m_max+1,',',m_max+1,',',nOsc,')'
+!write(u6,*) 'mInc,mDec,mMat(0:',msiz,',',nosc,')'
+!write(u6,*) '-------------------------------------------   '
 
 ! Initialize.
 
-!write(6,*)
-!write(6,*) '                 msiz,nosc==',msiz,nosc
+!write(u6,*)
+!write(u6,*) '                 msiz,nosc==',msiz,nosc
 !call GetMem('Test_1','LIST','INTE',iDum,iDum)
 do iv=0,msiz
   do jv=1,nosc
@@ -68,12 +68,12 @@ do iv=0,msiz
   end do
 end do
 if (m_max == 0) return
-!write(6,*) '                 Calling TabDim_drv'
+!write(u6,*) '                 Calling TabDim_drv'
 call TabDim_drv(m_max,nOsc,nTabDim)
 maxOrd = nTabDim-1
 
 ! Set up the vertex table
-!write(6,*) '                 Graph1,dim=',(m_max+1)*(nOsc+1)
+!write(u6,*) '                 Graph1,dim=',(m_max+1)*(nOsc+1)
 do iv=1,m_max+1
   do jv=1,nOsc+1
     Graph1(iv,jv) = 0
@@ -96,7 +96,7 @@ if (nOsc > 1) then
 end if
 
 ! set up the arc table
-!write(6,*) '                 ipNumber,dim=',(m_max)
+!write(u6,*) '                 ipNumber,dim=',(m_max)
 call GetMem('Number','Allo','INTE',ipNumber,m_max+1)
 do iv=0,m_max
   iWork(ipNumber+iv) = 0
@@ -106,7 +106,7 @@ do m=1,m_max
   N = N+Graph1(m,nosc+1)
   iWork(ipNumber+m) = n
 end do
-!write(6,*) '                 Graph2,dim=',nOsc*((m_max+1)**2)
+!write(u6,*) '                 Graph2,dim=',nOsc*((m_max+1)**2)
 do iv=1,m_max+1
   do jv=1,m_max+1
     do kv=1,nOsc
@@ -132,21 +132,21 @@ end do
 
 call GetMem('Number','Free','INTE',ipNumber,m_max+1)
 
-!write(6,*) 'CGGt[MakeTab2_a] Vec,dim=',nOsc
+!write(u6,*) 'CGGt[MakeTab2_a] Vec,dim=',nOsc
 call GetMem('ivec','Allo','INTE',ipiVec,nOsc)
 do iQuanta=1,m_max
-  !write(6,*) 'CGGt[MakeTab2_a] iQuanta=',iQuanta
+  !write(u6,*) 'CGGt[MakeTab2_a] iQuanta=',iQuanta
   do iv=1,nOsc
     iWork(ipiVec+iv-1) = 0
   end do
   iQ = -1
   iWork(ipiVec) = -1
 
-  !write(6,*) 'CGGt[MakeTab2_a] Call TabDim2_drv - 1 '
-  !write(6,*) '    iQuanta,nOsc,nd==',iQuanta,nOsc,nd
+  !write(u6,*) 'CGGt[MakeTab2_a] Call TabDim2_drv - 1 '
+  !write(u6,*) '    iQuanta,nOsc,nd==',iQuanta,nOsc,nd
   call TabDim2_drv(iQuanta,nOsc,nd)
-  !write(6,*) 'CGGt[MakeTab2_a] Call TabDim2_drv - 2 '
-  !write(6,*) '     iQuanta-1,nOsc,nvTabDim==',iQuanta-1,nOsc,nvTabDim
+  !write(u6,*) 'CGGt[MakeTab2_a] Call TabDim2_drv - 2 '
+  !write(u6,*) '     iQuanta-1,nOsc,nvTabDim==',iQuanta-1,nOsc,nvTabDim
   call TabDim2_drv(iQuanta-1,nOsc,nvTabDim)
 
   nd = nd-nvTabDim

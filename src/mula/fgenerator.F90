@@ -11,6 +11,9 @@
 
 subroutine FGenerator(nMat,F,iCre,iAnn,trgrd,m_ord,mx_ord,nosc)
 
+use Constants, only: Zero, Two
+use Definitions, only: wp
+
 integer nMat(0:m_Ord,nOsc)
 real*8 trgrd(3,nOsc)
 real*8 F(0:m_ord,0:mx_ord,3)
@@ -18,10 +21,10 @@ real*8 sqr(0:50)
 integer iCre(0:m_ord,nosc)
 integer iAnn(0:m_ord,nosc)
 
-!F = 0.0d0
-call dcopy_((m_ord+1)*(mx_ord+1)*3,[0.0d0],0,F,1)
+!F = Zero
+call dcopy_((m_ord+1)*(mx_ord+1)*3,[Zero],0,F,1)
 do i=0,50
-  sqr(i) = sqrt(dble(i)/2.0d0)
+  sqr(i) = sqrt(real(i,kind=wp)/Two)
 end do
 do iCar=1,3
   do iOsc=1,nOsc

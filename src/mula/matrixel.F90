@@ -27,6 +27,8 @@ subroutine MatrixElements(L,U,FC00,Hmat,C,W,r_diff,mMat,nMat,iCre,iann,max_nOrd,
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1996.
 
+use Constants, only: Zero, One
+
 !use Linalg
 !use Potkin
 implicit real*8(a-h,o-z)
@@ -58,23 +60,23 @@ mPlus = max_mOrd+1
 nPlus = max_nOrd+1
 n_A = (max_mOrd+1)*(max_nOrd+1)
 call GetMem('A','Allo','Real',ipA,n_A)
-call dcopy_(n_A,[0.0d0],0,Work(ipA),1)
-!A = 0.0d0
+call dcopy_(n_A,[Zero],0,Work(ipA),1)
+!A = Zero
 
 call GetMem('Wtemp','Allo','Real',ipWtemp,nOscold*nOsc)
 call GetMem('Ctemp','Allo','Real',ipCtemp,nOsc*nOsc)
 call GetMem('temp','Allo','Real',iptemp,nOsc*nOsc)
 
-call DGEMM_('N','N',nOscold,nOsc,nOsc,1.0d0,Base,nOscOld,W,nOsc,0.0d0,Work(ipWtemp),nOscold)
-call dcopy_(nOsc**2,[0.0d0],0,Work(ipCtemp),1)
-call dcopy_(nOsc,[1.0d0],0,Work(ipCtemp),nOsc+1)
+call DGEMM_('N','N',nOscold,nOsc,nOsc,One,Base,nOscOld,W,nOsc,Zero,Work(ipWtemp),nOscold)
+call dcopy_(nOsc**2,[Zero],0,Work(ipCtemp),1)
+call dcopy_(nOsc,[One],0,Work(ipCtemp),nOsc+1)
 !temp = W
 call dcopy_(nOsc*nOsc,W,1,Work(iptemp),1)
 call Dool_MULA(Work(iptemp),nOsc,nOsc,Work(ipCtemp),nOsc,nOsc,det)
 call GetMem('temp','Free','Real',iptemp,nOsc*nOsc)
 
 call GetMem('rtemp1','Allo','Real',iprtemp1,nOsc)
-call DGEMM_('N','N',nOsc,1,nOsc,1.0d0,Work(ipCtemp),nOsc,r_diff,nOsc,0.0d0,Work(iprtemp1),nOsc)
+call DGEMM_('N','N',nOsc,1,nOsc,One,Work(ipCtemp),nOsc,r_diff,nOsc,Zero,Work(iprtemp1),nOsc)
 
 call PotEnergy(Work(ipA),nMat,iCre,iAnn,energy,grad,Hess,D3,D4,max_term,Work(ipWtemp),ndim1,ndim2,nOscOld)
 !l_nMat_1 = ndim1
@@ -83,8 +85,8 @@ call KinEnergy_drv(Work(ipA),nMat,iCre,iAnn,G,Gprime,Gdbleprime,max_term,C,W,alp
 
 ! Calculate Hamilton matrix.
 call GetMem('temp','Allo','Real',iptemp,mPlus*nPlus)
-call DGEMM_('N','T',mPlus,nPlus,nPlus,1.0d0,Work(ipA),mPlus,U,nPlus,0.0d0,Work(ipTemp),mPlus)
-call DGEMM_('N','N',mPlus,nPlus,mPlus,1.0d0,L,mPlus,Work(ipTemp),mPlus,0.0d0,Hmat,mPlus)
+call DGEMM_('N','T',mPlus,nPlus,nPlus,One,Work(ipA),mPlus,U,nPlus,Zero,Work(ipTemp),mPlus)
+call DGEMM_('N','N',mPlus,nPlus,mPlus,One,L,mPlus,Work(ipTemp),mPlus,Zero,Hmat,mPlus)
 call dscal_((max_mOrd+1)*(max_nOrd+1),FC00,Hmat,1)
 ! Hmat = FC00*Hmat
 

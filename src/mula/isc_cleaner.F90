@@ -19,12 +19,14 @@
 subroutine LogEVec(iPrint,nOsc,max_nOrd,minQ,nMaxQ,nMat,lVec,nYes)
 ! Generate Logical Vector of useful States
 
+use Definitions, only: u6
+
 implicit real*8(a-h,o-z)
 integer nMat(0:max_nOrd,nOsc), lVec(0:max_nOrd)
 integer nMaxQ(nOsc)
 
 if (iPrint >= 3) then
-  write(6,*) ' Original number of States=',max_nOrd+1
+  write(u6,*) ' Original number of States=',max_nOrd+1
 end if
 
 do iOrd=0,max_nOrd
@@ -42,7 +44,7 @@ do iOrd=0,max_nOrd
 end do
 
 if (iPrint >= 3) then
-  write(6,*) ' Selected number of States=',nYes
+  write(u6,*) ' Selected number of States=',nYes
 end if
 
 return

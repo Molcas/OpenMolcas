@@ -20,6 +20,9 @@ subroutine var_to_qvar(var,qvar,ref,qref,alpha,trfName,ndata,nvar)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
+use Constants, only: Zero, One
+use Definitions, only: u6
+
 implicit real*8(a-h,o-z)
 #include "Constants_mula.fh"
 real*8 var(ndata,nvar)
@@ -40,9 +43,9 @@ do ivar=1,nvar
   id = index(trfcode,'DEG')
   ic = index(trfcode,'COS')
   is = index(trfcode,'SIN')
-  angsc = 1.0d0
-  if (ir > 0) angsc = 1.0d0
-  if (id > 0) angsc = rpi/180.0d0
+  angsc = One
+  if (ir > 0) angsc = One
+  if (id > 0) angsc = deg2rad
   do idata=1,ndata
     v = var(idata,ivar)
     if (ic > 0) then
@@ -52,12 +55,12 @@ do ivar=1,nvar
     else if ((ix > 0) .or. (ie > 0)) then
       par(idata,ivar) = v
     else
-      write(6,*) ' TRFCODE ERROR.'
+      write(u6,*) ' TRFCODE ERROR.'
       call abend()
     end if
   end do
   ! Calculate refrence value.
-  sum = 0.0d0
+  sum = Zero
   do idata=1,ndata
     sum = sum+var(idata,ivar)
   end do
@@ -97,7 +100,7 @@ do ivar=1,nvar
   end if
   do idata=1,ndata
     if (ie > 0) then
-      qvar(idata,ivar) = 1.0d0-exp(-alpha(ivar)*par(idata,ivar))
+      qvar(idata,ivar) = One-exp(-alpha(ivar)*par(idata,ivar))
     else
       qvar(idata,ivar) = par(idata,ivar)
     end if
@@ -106,7 +109,7 @@ end do
 
 ! Calculate refrence value of transformed coordinates.
 do ivar=1,nvar
-  sum = 0.0d0
+  sum = Zero
   do idata=1,ndata
     sum = sum+qvar(idata,ivar)
   end do
@@ -129,6 +132,8 @@ subroutine x_to_qvar(x,ref,qref,alpha,trfName,nDimX)
 !  Written by:
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
+
+use Constants, only: One
 
 implicit real*8(a-h,o-z)
 real*8 x(nDimX)
@@ -175,7 +180,7 @@ do ivar=1,nDimX
     read(Inline(1:istop),*) alpha(ivar)
   end if
   if (ie > 0) then
-    x(ivar) = 1.0d0-exp(-alpha(ivar)*par(ivar))
+    x(ivar) = One-exp(-alpha(ivar)*par(ivar))
   else
     x(ivar) = par(ivar)
   end if

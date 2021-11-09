@@ -56,6 +56,9 @@ subroutine Rmarin(ij,kl)
 !           6533892.0  14220222.0  7275067.0
 !           6172232.0  8354498.0   10633180.0
 
+use Constants, only: Zero, Half
+use Definitions, only: wp, u6
+
 implicit real*8(a-h,o-z)
 real*8 U(97), c, cd, cm
 integer i97, j97
@@ -65,8 +68,8 @@ logical test
 test = .false.
 
 if ((ij < 0) .or. (ij > 31328) .or. (kl < 0) .or. (kl > 30081)) then
-  write(6,'(a)') 'The first random number seed must have a value between 0 and 31328'
-  write(6,'(a)') 'The second seed must have a value between 0 and 30081'
+  write(u6,'(a)') 'The first random number seed must have a value between 0 and 31328'
+  write(u6,'(a)') 'The second seed must have a value between 0 and 30081'
   call abend()
 end if
 
@@ -76,8 +79,8 @@ k = mod(kl/169,178)+1
 l = mod(kl,169)
 
 do ii=1,97
-  s = 0.0d0
-  t = 0.5d0
+  s = Zero
+  t = Half
   do jj=1,24
     m = mod(mod(i*j,179)*k,179)
     i = j
@@ -87,14 +90,14 @@ do ii=1,97
     if (mod(l*m,64) >= 32) then
       s = s+t
     end if
-    t = 0.5*t
+    t = Half*t
   end do
   U(ii) = s
 end do
 
-c = 362436.0d0/16777216.0d0
-cd = 7654321.0d0/16777216.0d0
-cm = 16777213.0d0/16777216.0d0
+c = 362436.0_wp/16777216.0_wp
+cd = 7654321.0_wp/16777216.0_wp
+cm = 16777213.0_wp/16777216.0_wp
 
 i97 = 97
 j97 = 33
@@ -109,6 +112,9 @@ subroutine Ranmar(rvec,len)
 ! It was slightly modified by F. James to produce an array of pseudorandom
 ! numbers.
 
+use Constants, only: Zero, One
+use Definitions, only: u6
+
 implicit real*8(a-h,o-z)
 real*8 U(97), c, cd, cm
 integer i97, j97
@@ -119,22 +125,22 @@ integer ivec
 #include "myrand.fh"
 
 if (.not. test) then
-  write(6,'(a)') ' Call the init routine (RMARIN) before calling RANMAR'
+  write(u6,'(a)') ' Call the init routine (RMARIN) before calling RANMAR'
   call abend()
 end if
 
 do ivec=1,len
   uni = u(i97)-u(j97)
-  if (uni < 0.0d0) uni = uni+1.0d0
+  if (uni < Zero) uni = uni+One
   u(i97) = uni
   i97 = i97-1
   if (i97 == 0) i97 = 97
   j97 = j97-1
   if (j97 == 0) j97 = 97
   c = c-cd
-  if (c < 0.0d0) c = c+cm
+  if (c < Zero) c = c+cm
   uni = uni-c
-  if (uni < 0.0d0) uni = uni+1.0d0
+  if (uni < Zero) uni = uni+One
   rvec(ivec) = uni
 end do
 

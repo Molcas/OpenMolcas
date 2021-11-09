@@ -51,7 +51,10 @@ subroutine ReadInp(Title,AtomLbl,Mass,InterVec,Bond,nBond,NumInt,NumOfAt,trfName
 !  Modified to use isotopes module
 !    Ignacio Fdez. Galvan, 2017
 
-use Isotopes
+use Isotopes, only: Isotope
+use Constants, only: Zero, One, Two, Eight, Quart
+use Definitions, only: wp, u6
+
 implicit real*8(a-h,o-z)
 #include "inout.fh"
 #include "Constants_mula.fh"
@@ -232,12 +235,12 @@ do nAtom=1,NumOfAt
     Mass(nAtom) = Mass(nAtom)/uToau
     ! Print error message if the isotope is not listed in MassFile.
     !nOffset = AtData(i+1,4)
-    !if ((Num > nOffset) .or. (Mass(nAtom) == -1.0d0)) then
-    !  write(6,*)
-    !  write(6,*) ' *************** ERROR *****************'
-    !  write(6,'(A,A2,A,I3,A)') ' The isotope of ',AtName,' with mass number ',Num
-    !  write(6,*) ' is not listed in MassFile.             '
-    !  write(6,*) '****************************************'
+    !if ((Num > nOffset) .or. (Mass(nAtom) == -One)) then
+    !  write(u6,*)
+    !  write(u6,*) ' *************** ERROR *****************'
+    !  write(u6,'(A,A2,A,I3,A)') ' The isotope of ',AtName,' with mass number ',Num
+    !  write(u6,*) ' is not listed in MassFile.             '
+    !  write(u6,*) '****************************************'
     !  call Quit_OnUserError()
     !end if
   end if
@@ -403,7 +406,7 @@ call GetMem('TranDipGrad','Allo','Real',ipTranDipGrad,3*n)
 ! ISC: InterSystem Crossing. GG-30-Dec-08
 
 lISC = .false.
-dMinWind = 0.0d0
+dMinWind = Zero
 call KeyWord(inpUnit,'ISC ',.true.,lISC)
 if (lISC) then
   call KeyWord(inpUnit,'EXPF',.true.,exist)
@@ -435,10 +438,10 @@ if (exist) then
     do while (iStop < len(OutLine))
       iWork(iptempModes+i-1) = iStrToInt(OutLine(iStart:iStop))
       if (iWork(iptempModes+i-1) > NumInt) then
-        write(6,*)
-        write(6,*) ' *********** ERROR *************'
-        write(6,*) ' Too many normal modes specified'
-        write(6,*) ' *******************************'
+        write(u6,*)
+        write(u6,*) ' *********** ERROR *************'
+        write(u6,*) ' Too many normal modes specified'
+        write(u6,*) ' *******************************'
         call Quit_OnUserError()
       end if
       i = i+1
@@ -471,9 +474,9 @@ else
     iWork(ipNormModes+i-1) = i
   end do
   if (iPrint >= 1) then
-    write(6,*) ' *** Warning: MODEs not specified !'
-    write(6,*) '     All ',l_NormModes,' will be calculated.'
-    write(6,*)
+    write(u6,*) ' *** Warning: MODEs not specified !'
+    write(u6,*) '     All ',l_NormModes,' will be calculated.'
+    write(u6,*)
   end if
 end if
 
@@ -487,9 +490,9 @@ m_max = 0 ! Defaul
 n_max = 1 ! Defaul
 if (.not. exist) then
   if (iPrint >= 1) then
-    write(6,*) ' *** Warning: MXLEvels not specified !'
-    write(6,*) '     Default values are 0 and 1.      '
-    write(6,*)
+    write(u6,*) ' *** Warning: MXLEvels not specified !'
+    write(u6,*) '     Default values are 0 and 1.      '
+    write(u6,*)
   end if
 else
   read(inpUnit,*) m_max,n_max
@@ -512,9 +515,9 @@ call KeyWord(inpUnit,'VARI',.true.,MatEl)
 call KeyWord(inpUnit,'TRAN',.true.,exist)
 if (.not. exist) then
   if (.not. lISC) then
-    write(6,*) ' *** Warning: TRANsitions not specified!'
-    write(6,*) '     All Levels will be printed.        '
-    write(6,*)
+    write(u6,*) ' *** Warning: TRANsitions not specified!'
+    write(u6,*) '     All Levels will be printed.        '
+    write(u6,*)
   end if
   n = m_max+1
   do i=1,n
@@ -529,19 +532,19 @@ else
   call WordPos(k,OutLine,iStart,iStop)
   do while (iStop < len(OutLine))
     if (i > max_plot_temp) then
-      write(6,*)
-      write(6,*) ' ************ ERROR *************'
-      write(6,*) ' TRANsitions: i  >  max_plot_temp'
-      write(6,*) ' ********************************'
+      write(u6,*)
+      write(u6,*) ' ************ ERROR *************'
+      write(u6,*) ' TRANsitions: i  >  max_plot_temp'
+      write(u6,*) ' ********************************'
       call Quit_OnUserError()
     end if
     plot_temp(i) = iStrToInt(OutLine(iStart:iStop))
     if (plot_temp(i) > m_max) then
-      write(6,*)
-      write(6,*) ' ************* ERROR **************'
-      write(6,*) ' A quantum specified for the output'
-      write(6,*) ' is larger than max quantum.       '
-      write(6,*) ' **********************************'
+      write(u6,*)
+      write(u6,*) ' ************* ERROR **************'
+      write(u6,*) ' A quantum specified for the output'
+      write(u6,*) ' is larger than max quantum.       '
+      write(u6,*) ' **********************************'
       call Quit_OnUserError()
     end if
     i = i+1
@@ -570,19 +573,19 @@ else
   call WordPos(k,OutLine,iStart,iStop)
   do while (iStop < len(OutLine))
     if (i > max_plot_temp) then
-      write(6,*)
-      write(6,*) ' *********** ERROR ************'
-      write(6,*) ' TRANsitions: i > max_plot_temp'
-      write(6,*) ' ******************************'
+      write(u6,*)
+      write(u6,*) ' *********** ERROR ************'
+      write(u6,*) ' TRANsitions: i > max_plot_temp'
+      write(u6,*) ' ******************************'
       call Quit_OnUserError()
     end if
     plot_temp(i) = iStrToInt(OutLine(iStart:iStop))
     if (plot_temp(i) > n_max) then
-      write(6,*)
-      write(6,*) ' ************* ERROR **************'
-      write(6,*) ' A quantum specified for the output'
-      write(6,*) ' is larger than max quantum.'
-      write(6,*) ' **********************************'
+      write(u6,*)
+      write(u6,*) ' ************* ERROR **************'
+      write(u6,*) ' A quantum specified for the output'
+      write(u6,*) ' is larger than max quantum.'
+      write(u6,*) ' **********************************'
       call Quit_OnUserError()
     end if
     i = i+1
@@ -606,7 +609,7 @@ end do
 
 call KeyWord(inpUnit,'FORC',.true.,Forcefield)
 if (.not. Forcefield) then
-  write(6,*) ' Forcefield not found. Will use Energy Surface.'
+  write(u6,*) ' Forcefield not found. Will use Energy Surface.'
   goto 10
 end if
 
@@ -615,18 +618,18 @@ end if
 
 call KeyWord(inpUnit,'ENER',.true.,exist)
 if (.not. exist) then
-  write(6,*)
-  write(6,*) ' ************** ERROR *************'
-  write(6,*) ' Electronic T_e energies not given.'
-  write(6,*) ' **********************************'
+  write(u6,*)
+  write(u6,*) ' ************** ERROR *************'
+  write(u6,*) ' Electronic T_e energies not given.'
+  write(u6,*) ' **********************************'
   call Quit_OnUserError()
 end if
 call KeyWord(inpUnit,'FIRS',.false.,exist)
 if (.not. exist) then
-  write(6,*)
-  write(6,*) ' ******************** ERROR *********************'
-  write(6,*) ' Electronic T_e energy for first state not given.'
-  write(6,*) ' ************************************************'
+  write(u6,*)
+  write(u6,*) ' ******************** ERROR *********************'
+  write(u6,*) ' Electronic T_e energy for first state not given.'
+  write(u6,*) ' ************************************************'
   call Quit_OnUserError()
 end if
 !read(inpUnit,*) energy1,Eunit
@@ -640,17 +643,17 @@ if (index(OutLine,'EV') > 0) EUnit = 'EV'
 if (index(OutLine,'CM') > 0) EUnit = 'CM'
 ! End of replacement.
 
-rfact = 1.0d0
-if (Eunit == 'AU') rfact = 1.0d0
-if (Eunit == 'EV') rfact = 1.0d0/27.2114d0
-if (Eunit == 'CM') rfact = 1.0d0/HarToRcm
+rfact = One
+if (Eunit == 'AU') rfact = One
+if (Eunit == 'EV') rfact = One/auToeV
+if (Eunit == 'CM') rfact = One/HarToRcm
 energy1 = energy1*rfact
 call KeyWord(inpUnit,'SECO',.false.,exist)
 if (.not. exist) then
-  write(6,*)
-  write(6,*) ' ******************** ERROR **********************'
-  write(6,*) ' Electronic T_e energy for second state not given.'
-  write(6,*) ' *************************************************'
+  write(u6,*)
+  write(u6,*) ' ******************** ERROR **********************'
+  write(u6,*) ' Electronic T_e energy for second state not given.'
+  write(u6,*) ' *************************************************'
   call Quit_OnUserError()
 end if
 !read(inpUnit,*) energy2,Eunit
@@ -663,9 +666,9 @@ EUnit = 'AU'
 if (index(OutLine,'EV') > 0) EUnit = 'EV'
 if (index(OutLine,'CM') > 0) EUnit = 'CM'
 ! End of replacement.
-if (Eunit == 'AU') rfact = 1.0d0
-if (Eunit == 'EV') rfact = 1.0d0/27.2114d0
-if (Eunit == 'CM') rfact = 1.0d0/HarToRcm
+if (Eunit == 'AU') rfact = One
+if (Eunit == 'EV') rfact = One/auToeV
+if (Eunit == 'CM') rfact = One/HarToRcm
 energy2 = energy2*rfact
 
 ! ENERgy: : End --------------------------------------------------------
@@ -675,13 +678,13 @@ energy2 = energy2*rfact
 
 call KeyWord(inpUnit,'GEOM',.true.,exist)
 if (.not. exist) then
-  write(6,*)
-  write(6,*) ' ***** ERROR *******'
-  write(6,*) ' GEOMetry not found.'
-  write(6,*) ' *******************'
+  write(u6,*)
+  write(u6,*) ' ***** ERROR *******'
+  write(u6,*) ' GEOMetry not found.'
+  write(u6,*) ' *******************'
   call Quit_OnUserError()
 end if
-!D write(6,*) ' READINP: Read geometry ("GEOMETRY").'
+!D write(u6,*) ' READINP: Read geometry ("GEOMETRY").'
 !read(inpUnit,*) CoordType
 !call UpCase(CoordType)
 ! Replace above two lines with:
@@ -708,13 +711,13 @@ end if
 
 if (CoordType == 'CARTESIAN') then
   Cartesian = .true.
-  !D write(6,*) ' READINP: Read cartesian coordinates for first state.'
+  !D write(u6,*) ' READINP: Read cartesian coordinates for first state.'
   call KeyWord(inpUnit,'FIRS',.false.,exist)
   if (.not. exist) then
-    write(6,*)
-    write(6,*) ' ****** ERROR ********'
-    write(6,*) ' Wrong geometry input.'
-    write(6,*) ' *********************'
+    write(u6,*)
+    write(u6,*) ' ****** ERROR ********'
+    write(u6,*) ' Wrong geometry input.'
+    write(u6,*) ' *********************'
     call Quit_OnUserError()
   end if
   ierror = 0
@@ -728,10 +731,10 @@ if (CoordType == 'CARTESIAN') then
       if (Atom == AtomLbl(i)) j = i
     end do
     if (j > NumOfAt) then
-      write(6,*)
-      write(6,*) '*********** ERROR ***********'
-      write(6,*) ' Unrecognized atom label "'//Atom//'"'
-      write(6,*) '*****************************'
+      write(u6,*)
+      write(u6,*) '*********** ERROR ***********'
+      write(u6,*) ' Unrecognized atom label "'//Atom//'"'
+      write(u6,*) '*****************************'
       ierror = ierror+1
     else
       do iv=1,3
@@ -739,13 +742,13 @@ if (CoordType == 'CARTESIAN') then
       end do
     end if
   end do
-  !D write(6,*) ' READINP: Read cartesian coordinates for second state.'
+  !D write(u6,*) ' READINP: Read cartesian coordinates for second state.'
   call KeyWord(inpUnit,'SECO',.false.,exist)
   if (.not. exist) then
-    write(6,*)
-    write(6,*) ' ****** ERROR ********'
-    write(6,*) ' Wrong geometry input.'
-    write(6,*) ' *********************'
+    write(u6,*)
+    write(u6,*) ' ****** ERROR ********'
+    write(u6,*) ' Wrong geometry input.'
+    write(u6,*) ' *********************'
     call Quit_OnUserError()
   end if
   do iAtom=1,NumOfAt
@@ -758,10 +761,10 @@ if (CoordType == 'CARTESIAN') then
       j = j+1
     end do
     if (j > NumOfAt) then
-      write(6,*)
-      write(6,*) '*********** ERROR ***********'
-      write(6,*) ' Unrecognized atom label "'//Atom//'"'
-      write(6,*) '*****************************'
+      write(u6,*)
+      write(u6,*) '*********** ERROR ***********'
+      write(u6,*) ' Unrecognized atom label "'//Atom//'"'
+      write(u6,*) '*****************************'
       ierror = ierror+1
     else
       do iv=1,3
@@ -774,7 +777,7 @@ else if (CoordType == 'INTERNAL') then
 
   Cartesian = .false.
   call KeyWord(inpUnit,'FIRS',.false.,exist)
-  !D write(6,*) ' READINP: Read internal coordinates for first state.'
+  !D write(u6,*) ' READINP: Read internal coordinates for first state.'
   n = 5*(3*NumOfAt-5)
   ! Largest possible necessary GeoVec
   call GetMem('GeoVec','Allo','Inte',ipGeoVec,5*(3*NumOfAt-5))
@@ -838,7 +841,7 @@ else if (CoordType == 'INTERNAL') then
       call WordPos(k,OutLine,iStart,iStop)
       DegOrRad = OutLine(iStart:iStop)
       if (DegOrRad == 'DEG') then
-        xvec(iInt) = xvec(iInt)*rpi/180.0d0
+        xvec(iInt) = xvec(iInt)*deg2rad
       end if
       j = j+4
     end if
@@ -870,7 +873,7 @@ else if (CoordType == 'INTERNAL') then
       call WordPos(k,OutLine,iStart,iStop)
       DegOrRad = OutLine(iStart:iStop)
       if (DegOrRad == 'DEG') then
-        xvec(iInt) = xvec(iInt)*rpi/180.0d0
+        xvec(iInt) = xvec(iInt)*deg2rad
       end if
       j = j+4
     end if
@@ -904,7 +907,7 @@ else if (CoordType == 'INTERNAL') then
       call WordPos(k,OutLine,iStart,iStop)
       DegOrRad = OutLine(iStart:iStop)
       if (DegOrRad == 'DEG') then
-        xvec(iInt) = xvec(iInt)*rpi/180.0d0
+        xvec(iInt) = xvec(iInt)*deg2rad
       end if
       j = j+5
     end if
@@ -938,7 +941,7 @@ else if (CoordType == 'INTERNAL') then
       call WordPos(k,OutLine,iStart,iStop)
       DegOrRad = OutLine(iStart:iStop)
       if (DegOrRad == 'DEG') then
-        xvec(iInt) = xvec(iInt)*rpi/180.0d0
+        xvec(iInt) = xvec(iInt)*deg2rad
       end if
       j = j+5
     end if
@@ -955,7 +958,7 @@ else if (CoordType == 'INTERNAL') then
   call GetMem('GeoVec','Free','Inte',ipGeoVec,5*(3*NumOfAt-5))
 
   call KeyWord(inpUnit,'SECO',.false.,exist)
-  !D write(6,*) ' READINP: Read internal coordinates for second state.'
+  !D write(u6,*) ' READINP: Read internal coordinates for second state.'
   n = 5*(3*NumOfAt-5)
   call GetMem('GeoVec','Allo','Inte',ipGeoVec,5*(3*NumOfAt-5))
   iInt = 1
@@ -1018,7 +1021,7 @@ else if (CoordType == 'INTERNAL') then
       call WordPos(k,OutLine,iStart,iStop)
       DegOrRad = OutLine(iStart:iStop)
       if (DegOrRad == 'DEG') then
-        xvec(iInt) = xvec(iInt)*rpi/180.0d0
+        xvec(iInt) = xvec(iInt)*deg2rad
       end if
       j = j+4
     end if
@@ -1050,7 +1053,7 @@ else if (CoordType == 'INTERNAL') then
       call WordPos(k,OutLine,iStart,iStop)
       DegOrRad = OutLine(iStart:iStop)
       if (DegOrRad == 'DEG') then
-        xvec(iInt) = xvec(iInt)*rpi/180.0d0
+        xvec(iInt) = xvec(iInt)*deg2rad
       end if
       j = j+4
     end if
@@ -1084,7 +1087,7 @@ else if (CoordType == 'INTERNAL') then
       call WordPos(k,OutLine,iStart,iStop)
       DegOrRad = OutLine(iStart:iStop)
       if (DegOrRad == 'DEG') then
-        xvec(iInt) = xvec(iInt)*rpi/180.0d0
+        xvec(iInt) = xvec(iInt)*deg2rad
       end if
       j = j+5
     end if
@@ -1118,7 +1121,7 @@ else if (CoordType == 'INTERNAL') then
       call WordPos(k,OutLine,iStart,iStop)
       DegOrRad = OutLine(iStart:iStop)
       if (DegOrRad == 'DEG') then
-        xvec(iInt) = xvec(iInt)*rpi/180.0d0
+        xvec(iInt) = xvec(iInt)*deg2rad
       end if
       j = j+5
     end if
@@ -1147,9 +1150,9 @@ end if
 call KeyWord(inpUnit,'MXOR',.true.,exist)
 if (.not. exist) then
   if (.not. lISC) then
-    write(6,*) ' *** Warning: MXORder not specified !'
-    write(6,*) '     Transition Dipole is assumed as constant.'
-    write(6,*)
+    write(u6,*) ' *** Warning: MXORder not specified !'
+    write(u6,*) '     Transition Dipole is assumed as constant.'
+    write(u6,*)
   end if
   max_dip = 0
 else
@@ -1166,11 +1169,11 @@ OscStr = .false.
 if (.not. lISC) then
   call KeyWord(inpUnit,'OSCS',.true.,OscStr)
   if (OscStr) then
-    write(6,*) '     The Oscillator Strength will be calculated.'
-    write(6,*)
+    write(u6,*) '     The Oscillator Strength will be calculated.'
+    write(u6,*)
   else
-    write(6,*) '     The Intensity will be calculated.'
-    write(6,*)
+    write(u6,*) '     The Intensity will be calculated.'
+    write(u6,*)
   end if
 end if
 
@@ -1195,8 +1198,8 @@ if (.not. lISC) call KeyWord(inpUnit,'CM-1',.true.,Use_cm)
 ! ----------------------------------------------------------------------
 ! PLOT: Enter the limits (in eV, cm-1 or in nm) for the plot file.
 
-cmstart = 0.0d0
-cmend = 0.0d0
+cmstart = Zero
+cmend = Zero
 plotwindow = .false.
 if (.not. lISC) then
   call KeyWord(inpUnit,'PLOT',.true.,plotwindow)
@@ -1209,31 +1212,31 @@ end if
 
 PlUnit = '      '
 broadplot = .false.
-LifeTime = 130.0d-15
+LifeTime = 130.0e-15_wp
 if (lISC) goto 900
 if (Use_nm .and. Use_cm) then
-  write(6,*)
-  write(6,*) ' ***************** ERROR *******************'
-  write(6,*) ' NANOmeters and CM-1 are mutually exclusive.'
-  write(6,*) ' *******************************************'
+  write(u6,*)
+  write(u6,*) ' ***************** ERROR *******************'
+  write(u6,*) ' NANOmeters and CM-1 are mutually exclusive.'
+  write(u6,*) ' *******************************************'
   call Quit_OnUserError()
 end if
 if (Use_nm) then
   PlUnit = ' nm.  '
-  write(6,*) '     The plot file will be in nanometers and the '
+  write(u6,*) '     The plot file will be in nanometers and the '
 else if (Use_cm) then
   PlUnit = ' cm-1.'
-  write(6,*) '     The plot file will be in cm-1 and the'
+  write(u6,*) '     The plot file will be in cm-1 and the'
 else
   PlUnit = ' eV.  '
-  write(6,*) '     The plot file will be in eV and the'
+  write(u6,*) '     The plot file will be in eV and the'
 end if
 if (plotwindow) then
-  write(6,*) '     interval is from ',cmstart,' to ',cmend,PlUnit
+  write(u6,*) '     interval is from ',cmstart,' to ',cmend,PlUnit
 else
-  write(6,*) '     interval automatically defined.'
+  write(u6,*) '     interval automatically defined.'
 end if
-write(6,*)
+write(u6,*)
 
 ! ----------------------------------------------------------------------
 ! BROAplot: Gives the peaks in the spectrum an artificial halfwidth.
@@ -1241,9 +1244,9 @@ write(6,*)
 call KeyWord(inpUnit,'BROA',.true.,broadplot)
 call KeyWord(inpUnit,'LIFE',.true.,exist)
 if (exist) read(inpunit,*) LifeTime
-write(6,*) '     Life time : ',LifeTime,' sec'
-900 FWHM = hbarcm/(2.0d0*LifeTime)
-if (.not. lISC) write(6,'(1X,A,F8.1,A,F9.6,A)') '     FWHM : ',FWHM,' cm-1 /',FWHM/8065.5d0,' eV'
+write(u6,*) '     Life time : ',LifeTime,' sec'
+900 FWHM = hbarcm/(Two*LifeTime)
+if (.not. lISC) write(u6,'(1X,A,F8.1,A,F9.6,A)') '     FWHM : ',FWHM,' cm-1 /',FWHM/8065.5d0,' eV'
 
 ! BROAplot: End --------------------------------------------------------
 
@@ -1301,12 +1304,12 @@ call KeyWord(inpUnit,'EXPA',.true.,lExpan)
 call KeyWord(inpUnit,'FORC',.true.,exist)
 max_term = 2
 call KeyWord(inpUnit,'FIRS',.false.,exist)
-!D write(6,*) ' READINP: Read force constants for first state.'
+!D write(u6,*) ' READINP: Read force constants for first state.'
 read(InpUnit,format) InLine
 call Normalize(InLine,Outline)
 iend = index(OutLine,' ')
 CoordType = OutLine(1:iend-1)
-!D write(6,*) ' READINP: CoordType=',CoordType
+!D write(u6,*) ' READINP: CoordType=',CoordType
 
 ! Read Hessian. If Hessian is given in cartesian coordinates,
 ! first remove total translation and total rotation and then
@@ -1329,8 +1332,8 @@ if (CoordType == 'INTERNAL') then
   end do
 else if (CoordType == 'CARTESIAN') then
   call GetMem('SS','Allo','Real',ipSS,3*NumOfAt*NumInt)
-  call dcopy_(3*NumOfAt*NumInt,[0.0d0],0,Work(ipSS),1)
-  !SS = 0.0d0
+  call dcopy_(3*NumOfAt*NumInt,[Zero],0,Work(ipSS),1)
+  !SS = Zero
   call CalcS(Work(ipAtCoord1),InterVec,Work(ipSS),NumInt,NumOfAt)
   ! Invert S matrix and remove total translation and total rotation.
   call GetMem('Sinv','Allo','Real',ipSinv,3*NumOfAt*NumInt)
@@ -1345,28 +1348,28 @@ else if (CoordType == 'CARTESIAN') then
     read(inpUnit1,*,err=999) (Work(ipFcart+m+nFcart*(n-1)-1),n=1,(3*NumOfAt))
     goto 998
 999 continue
-    write(6,*)
-    write(6,*) ' ***************** ERROR *******************'
-    write(6,*) ' Error trying to read cartesian force cnsts.'
-    write(6,*) ' for the first state. Probably wrong input  '
-    write(6,*) ' structure, perhaps too few values.         '
-    write(6,*) ' *******************************************'
+    write(u6,*)
+    write(u6,*) ' ***************** ERROR *******************'
+    write(u6,*) ' Error trying to read cartesian force cnsts.'
+    write(u6,*) ' for the first state. Probably wrong input  '
+    write(u6,*) ' structure, perhaps too few values.         '
+    write(u6,*) ' *******************************************'
     call Quit_OnUserError()
 998 continue
   end do
 
   ! Check if Hessian is symmetric.
-  error = 0.0d0
+  error = Zero
   do m=1,(3*NumOfAt)
     do n=1,(3*NumOfAt)
       error = error+(Work(ipFcart+m+nFcart*(n-1)-1)-Work(ipFcart+n+nFcart*(m-1)-1))**2
     end do
   end do
-  if (error > 1.0d-10) then
-    write(6,*)
-    write(6,*) ' ******************** ERROR **********************'
-    write(6,*) ' Non-symmetric error in cartesian Hessian:',error
-    write(6,*) ' *************************************************'
+  if (error > 1.0e-10_wp) then
+    write(u6,*)
+    write(u6,*) ' ******************** ERROR **********************'
+    write(u6,*) ' Non-symmetric error in cartesian Hessian:',error
+    write(u6,*) ' *************************************************'
     call Quit_OnUserError()
   end if
 
@@ -1375,7 +1378,7 @@ else if (CoordType == 'CARTESIAN') then
   !       It has been replaced by two n**3 matrix multiplies
   !do j=1,NumInt
   !  do i=1,NumInt
-  !    Fsum = 0.0d0
+  !    Fsum = Zero
   !    do n=1,(3*NumOfAt)
   !      do m=1,(3*NumOfAt)
   !        Fsum = Fsum+Fcart(m,n)*Sinv(1+Mod((m+2),3),Int((m+2)/3),i)*Sinv(1+Mod((n+2),3),Int((n+2)/3),j)
@@ -1386,8 +1389,8 @@ else if (CoordType == 'CARTESIAN') then
   !end do
   !PAM01 Here follows replacement code:
   call GetMem('Temp','Allo','Real',ipTemp,3*NumOfAt*NumInt)
-  call DGEMM_('N','N',3*NumOfAt,NumInt,3*NumOfAt,1.0d0,Work(ipFCart),3*NumOfAt,work(ipSInv),3*NumOfAt,0.0d0,Work(ipTemp),3*NumOfAt)
-  call DGEMM_('T','N',NumInt,NumInt,3*NumOfAt,1.0d0,Work(ipSInv),3*NumOfAt,Work(ipTemp),3*NumOfAt,0.0d0,Work(ipHess1),NumInt)
+  call DGEMM_('N','N',3*NumOfAt,NumInt,3*NumOfAt,One,Work(ipFCart),3*NumOfAt,work(ipSInv),3*NumOfAt,Zero,Work(ipTemp),3*NumOfAt)
+  call DGEMM_('T','N',NumInt,NumInt,3*NumOfAt,One,Work(ipSInv),3*NumOfAt,Work(ipTemp),3*NumOfAt,Zero,Work(ipHess1),NumInt)
   call GetMem('Temp','Free','Real',ipTemp,3*NumOfAt*NumInt)
   call GetMem('Sinv','Free','Real',ipSinv,3*NumOfAt*NumInt)
   call GetMem('SS','Free','Real',ipSS,3*NumOfAt*NumInt)
@@ -1412,12 +1415,12 @@ if (exist) then
   end do
   call GetMem('Scale1','Free','Real',ipScaleParam1,NumInt)
 end if
-!D write(6,*) ' Scaled.'
+!D write(u6,*) ' Scaled.'
 
 ! Hessian for second surface.
 call KeyWord(inpUnit,'FORC',.true.,exist)
 call KeyWord(inpUnit,'SECO',.false.,exist)
-!D write(6,*) ' READINP: Read force constants for second state.'
+!D write(u6,*) ' READINP: Read force constants for second state.'
 !read(inpUnit,*) CoordType
 !call UpCase(CoordType)
 ! Replace above two lines with:
@@ -1445,8 +1448,8 @@ if (CoordType == 'INTERNAL') then
 else if (CoordType == 'CARTESIAN') then
   call GetMem('SS','Allo','Real',ipSS,3*NumOfAt*NumInt)
 
-  call dcopy_(3*NumOfAt*NumInt,[0.0d0],0,Work(ipSS),1)
-  !SS = 0.0d0
+  call dcopy_(3*NumOfAt*NumInt,[Zero],0,Work(ipSS),1)
+  !SS = Zero
   call CalcS(Work(ipAtCoord2),InterVec,Work(ipSS),NumInt,NumofAt)
 
   ! Invert S matrix and remove total translation and total rotation.
@@ -1464,28 +1467,28 @@ else if (CoordType == 'CARTESIAN') then
     read(inpUnit2,*,err=997) (Work(ipFcart+m+nFcart*(n-1)-1),n=1,(3*NumOfAt))
     goto 996
 997 continue
-    write(6,*)
-    write(6,*) ' ***************** ERROR *******************'
-    write(6,*) ' Error trying to read cartesian force cnsts.'
-    write(6,*) ' for the second state. Probably wrong input '
-    write(6,*) ' structure, perhaps too few values.         '
-    write(6,*) ' *******************************************'
+    write(u6,*)
+    write(u6,*) ' ***************** ERROR *******************'
+    write(u6,*) ' Error trying to read cartesian force cnsts.'
+    write(u6,*) ' for the second state. Probably wrong input '
+    write(u6,*) ' structure, perhaps too few values.         '
+    write(u6,*) ' *******************************************'
     call Quit_OnUserError()
 996 continue
   end do
 
   ! Check if Hessian is symmetric.
-  error = 0.0d0
+  error = Zero
   do n=1,(3*NumOfAt)
     do m=1,(3*NumOfAt)
       error = error+(Work(ipFcart+m+nFcart*(n-1)-1)-Work(ipFcart+n+nFcart*(m-1)-1))**2
     end do
   end do
-  if (error > 1.0d-2) then
-    write(6,*)
-    write(6,*) ' ******************** ERROR **********************'
-    write(6,*) ' Non-symmetric error in cartesian Hessian:',error
-    write(6,*) ' *************************************************'
+  if (error > 1.0e-2_wp) then
+    write(u6,*)
+    write(u6,*) ' ******************** ERROR **********************'
+    write(u6,*) ' Non-symmetric error in cartesian Hessian:',error
+    write(u6,*) ' *************************************************'
     call Quit_OnUserError()
   end if
 
@@ -1494,7 +1497,7 @@ else if (CoordType == 'CARTESIAN') then
   !       It has been replaced by two n**3 matrix multiplies
   !do j=1,NumInt
   !  do i=1,NumInt
-  !    Fsum = 0.0d0
+  !    Fsum = Zero
   !    do n=1,(3*NumOfAt)
   !      do m=1,(3*NumOfAt)
   !        Fsum = Fsum+Fcart(m,n)*Sinv(1+Mod((m+2),3),Int((m+2)/3),i)*Sinv(1+Mod((n+2),3),Int((n+2)/3),j)
@@ -1505,8 +1508,8 @@ else if (CoordType == 'CARTESIAN') then
   !end do
   !PAM01 Here follows replacement code:
   call GetMem('Temp','Allo','Real',ipTemp,3*NumOfAt*NumInt)
-  call DGEMM_('N','N',3*NumOfAt,NumInt,3*NumOfAt,1.0d0,Work(ipFCart),3*NumOfAt,work(ipSInv),3*NumOfAt,0.0d0,Work(ipTemp),3*NumOfAt)
-  call DGEMM_('T','N',NumInt,NumInt,3*NumOfAt,1.0d0,Work(ipSInv),3*NumOfAt,Work(ipTemp),3*NumOfAt,0.0d0,Work(ipHess2),NumInt)
+  call DGEMM_('N','N',3*NumOfAt,NumInt,3*NumOfAt,One,Work(ipFCart),3*NumOfAt,work(ipSInv),3*NumOfAt,Zero,Work(ipTemp),3*NumOfAt)
+  call DGEMM_('T','N',NumInt,NumInt,3*NumOfAt,One,Work(ipSInv),3*NumOfAt,Work(ipTemp),3*NumOfAt,Zero,Work(ipHess2),NumInt)
   call GetMem('Temp','Free','Real',ipTemp,3*NumOfAt*NumInt)
   call GetMem('Sinv','Free','Real',ipSinv,3*NumOfAt*NumInt)
   call GetMem('SS','Free','Real',ipSS,3*NumOfAt*NumInt)
@@ -1549,17 +1552,17 @@ end if
 call KeyWord(inpUnit,'DIPO',.true.,exist)
 if (.not. exist) call KeyWord(inpUnit,'SOC ',.true.,exist)
 if (.not. exist) then
-  write(6,*)
-  write(6,*) ' ************ ERROR ****************'
-  write(6,*) ' The DIPOLES/SOC keyword is missing.'
-  write(6,*) ' ***********************************'
+  write(u6,*)
+  write(u6,*) ' ************ ERROR ****************'
+  write(u6,*) ' The DIPOLES/SOC keyword is missing.'
+  write(u6,*) ' ***********************************'
   call Quit_OnUserError()
 end if
-!D write(6,*) ' READINP: Read dipoles ("DIPOLES").'
+!D write(u6,*) ' READINP: Read dipoles ("DIPOLES").'
 read(inpUnit,format) Inline
 call Normalize(InLine,OutLine)
 if (OutLine(1:4) == 'FILE') then
-  !D write(6,*) ' Read trans dips from file UNSYM21'
+  !D write(u6,*) ' Read trans dips from file UNSYM21'
   call molcas_open(31,'UNSYM21')
   !open(unit=31,file='UNSYM21')
   if (max_dip == 1) then
@@ -1592,7 +1595,7 @@ if (OutLine(1:4) == 'FILE') then
   close(31)
 else
   call KeyWord(inpUnit,'DIPO',.true.,exist)
-  !D write(6,*) ' READINP: Read dipoles ("DIPOLES").'
+  !D write(u6,*) ' READINP: Read dipoles ("DIPOLES").'
   read(inpUnit,*) (TranDip(i),i=1,3)
   if (max_dip == 1) then
     read(inpUnit,*) (Work(ipTranDipGrad+3*(i-1)),i=1,3*NumOfAt)
@@ -1619,10 +1622,10 @@ ForceField = .false.
 ! Read transformations.
 call KeyWord(inpUnit,'NONL',.true.,exist)
 if (.not. Exist) then
-  write(6,*)
-  write(6,*) ' *********** ERROR **************'
-  write(6,*) ' Cannot find keyword  NONLINEAR !'
-  write(6,*) ' ********************************'
+  write(u6,*)
+  write(u6,*) ' *********** ERROR **************'
+  write(u6,*) ' Cannot find keyword  NONLINEAR !'
+  write(u6,*) ' ********************************'
   call Quit_OnUserError()
 end if
 do icoord=1,NumInt
@@ -1639,13 +1642,13 @@ end do
 ! Read terms in polynomial.
 call KeyWord(inpUnit,'POLY',.true.,exist)
 if (.not. Exist) then
-  write(6,*)
-  write(6,*) ' ************ ERROR **************'
-  write(6,*) ' Cannot find keyword  POLYNOMIAL !'
-  write(6,*) ' *********************************'
+  write(u6,*)
+  write(u6,*) ' ************ ERROR **************'
+  write(u6,*) ' Cannot find keyword  POLYNOMIAL !'
+  write(u6,*) ' *********************************'
   call Quit_OnUserError()
 end if
-!D write(6,*) ' READINP: Read polynomial.'
+!D write(u6,*) ' READINP: Read polynomial.'
 k = 1
 nvar = 0
 read(inpUnit,format) InLine
@@ -1665,10 +1668,10 @@ do while (OutLine(1:4) /= 'END ')
 end do
 call KeyWord(inpUnit,'POLY',.true.,exist)
 if (.not. Exist) then
-  write(6,*)
-  write(6,*) ' ************ ERROR **************'
-  write(6,*) ' Cannot find keyword  POLYNOMIAL !'
-  write(6,*) ' *********************************'
+  write(u6,*)
+  write(u6,*) ' ************ ERROR **************'
+  write(u6,*) ' Cannot find keyword  POLYNOMIAL !'
+  write(u6,*) ' *********************************'
   call Quit_OnUserError()
 end if
 
@@ -1691,13 +1694,13 @@ end do
 CoordType = 'INTERNAL'
 call KeyWord(inpUnit,'DATA',.true.,exist)
 if (.not. Exist) then
-  write(6,*)
-  write(6,*) ' ********* ERROR ***********'
-  write(6,*) ' Cannot find keyword  DATA !'
-  write(6,*) ' ***************************'
+  write(u6,*)
+  write(u6,*) ' ********* ERROR ***********'
+  write(u6,*) ' Cannot find keyword  DATA !'
+  write(u6,*) ' ***************************'
   call Quit_OnUserError()
 end if
-!D write(6,*) ' READINP: Read grid points (Key word "DATA").'
+!D write(u6,*) ' READINP: Read grid points (Key word "DATA").'
 idata = 0
 do while (.true.)
   idata = idata+1
@@ -1736,9 +1739,9 @@ if (NumOfAt == 3) then
   do i=1,ndata
     r1 = Work(ipvar+i-1)
     r2 = Work(ipvar+i+ndata-1)
-    theta = Work(ipvar+i+ndata*2-1)*(rpi/180.0d0)
-    const = -(1.0d0/8.0d0)*(1.0d0/(m12*r1**2)+1.0d0/(m23*r2**2))*(1.0d0+(1.0d0/(sin(theta)**2)))
-    const = const+0.25d0*(cos(theta)/(m2*r1*r2))*(cos(theta)/sin(theta))**2
+    theta = Work(ipvar+i+ndata*2-1)*deg2rad
+    const = -(One/Eight)*(One/(m12*r1**2)+One/(m23*r2**2))*(One+(One/(sin(theta)**2)))
+    const = const+Quart*(cos(theta)/(m2*r1*r2))*(cos(theta)/sin(theta))**2
     Work(ipyin1+i-1) = Work(ipyin1+i-1)+const
     Work(ipyin2+i-1) = Work(ipyin2+i-1)+const
   end do
@@ -1754,8 +1757,8 @@ do idata=1,ndata
   Work(ipt_dipin2+idata-1) = GrdVal(idata,10)
 end do
 call GetMem('t_dipin3','Allo','Real',ipt_dipin3,ndata)
-call dcopy_(ndata,[0.0d0],0,Work(ipt_dipin3),1)
-!t_dipin3 = 0.0d0
+call dcopy_(ndata,[Zero],0,Work(ipt_dipin3),1)
+!t_dipin3 = Zero
 
 ! Make sure that all transition dipole values have the same sign.
 sign1_1 = Work(ipt_dipin1)/abs(Work(ipt_dipin1))
@@ -1764,18 +1767,18 @@ do idata=2,ndata
   sign1_2 = Work(ipt_dipin1+idata-1)/abs(Work(ipt_dipin1+idata-1))
   sign2_2 = Work(ipt_dipin2+idata-1)/abs(Work(ipt_dipin2+idata-1))
   if (int(sign1_1*sign2_1) /= int(sign1_2*sign2_2)) then
-    write(6,*) 'Sign shift in transition dipole data:',idata
+    write(u6,*) 'Sign shift in transition dipole data:',idata
   end if
   Work(ipt_dipin1+idata-1) = sign1_1*sign1_2*Work(ipt_dipin1+idata-1)
   Work(ipt_dipin2+idata-1) = sign2_1*sign2_2*Work(ipt_dipin2+idata-1)
 end do
-!D write(6,*) ' READINP: Transition dipoles finished.'
+!D write(u6,*) ' READINP: Transition dipoles finished.'
 
 20 continue
 
 !                         End of Energy surface input part
 ! ----------------------------------------------------------------------
 
-!D write(6,*) ' Ending READINP.'
+!D write(u6,*) ' Ending READINP.'
 
 end subroutine ReadInp

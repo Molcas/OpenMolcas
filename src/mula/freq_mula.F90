@@ -44,6 +44,8 @@ subroutine Freq_mula(Hess,G,V,Lambda,B,Bnew,qMat,nOsc,NumOfAt)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1994.
 
+use Constants, only: Zero, One
+
 implicit real*8(a-h,o-z)
 #include "Constants_mula.fh"
 real*8 Hess(nOsc,nOsc), G(nOsc,nOsc), V(nOsc,nOsc)
@@ -71,9 +73,9 @@ call dcopy_(nSqrInt,V,1,Work(ipU),1)
 ! get memory for matrix Temp.
 call GetMem('Temp','Allo','Real',ipTemp,nOsc*nOsc)
 
-call DGEMM_('T','N',NumInt,NumInt,3*NumOfAt,1.0d0,B,3*NumOfAt,B,3*NumOfAt,0.0d0,Work(ipTemp),NumInt)
+call DGEMM_('T','N',NumInt,NumInt,3*NumOfAt,One,B,3*NumOfAt,B,3*NumOfAt,Zero,Work(ipTemp),NumInt)
 call Dool_MULA(Work(ipTemp),NumInt,NumInt,Work(ipU),NumInt,NumInt,Det)
-call DGEMM_('N','N',3*NumOfAt,NumInt,NumInt,1.0d0,B,3*NumOfAt,Work(ipU),NumInt,0.0d0,qMat,3*NumOfAt)
+call DGEMM_('N','N',3*NumOfAt,NumInt,NumInt,One,B,3*NumOfAt,Work(ipU),NumInt,Zero,qMat,3*NumOfAt)
 
 ! free memory space of Temp and U.
 call GetMem('U','Free','Real',ipU,nOsc*nOsc)

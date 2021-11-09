@@ -30,6 +30,9 @@ subroutine CalcGprime(Gprime,Mass,xvec,InterVec,AtCoord,NumOfAt,h,NumInt)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1996.
 
+use Constants, only: Zero
+use Definitions, only: wp
+
 !implicit none
 #include "Constants_mula.fh"
 #include "dims.fh"
@@ -53,15 +56,15 @@ do icoord=1,NumInt
   do iv=1,NumInt
     xtmp(iv) = xvec(iv)
   end do
-  !Gtemp = 0.0d0
-  call dcopy_(NumInt*NumInt*4,[0.0d0],0,Work(ipGtemp),1)
+  !Gtemp = Zero
+  call dcopy_(NumInt*NumInt*4,[Zero],0,Work(ipGtemp),1)
   iterm = 1
   do ih=-3,3,2
-    xtmp(icoord) = xvec(icoord)+dble(ih)*h
+    xtmp(icoord) = xvec(icoord)+real(ih,kind=wp)*h
     !call Int_To_Cart(InterVec,xtmp,AtCoord,NumOfAt,NumInt,Mass)
     call Int_to_Cart1(InterVec,xtmp,AtCoord,NumOfAt,NumInt)
-    !Stemp = 0.0d0
-    call dcopy_(3*NumOfAt*NumInt,[0.0d0],0,Work(ipStemp),1)
+    !Stemp = Zero
+    call dcopy_(3*NumOfAt*NumInt,[Zero],0,Work(ipStemp),1)
 
     call CalcS(AtCoord,InterVec,Work(ipStemp),NumInt,NumOfAt)
     !Gtemp(1,1,iterm)= 1+NumInt*(0+NumInt*(iterm-1))-1
@@ -76,9 +79,9 @@ do icoord=1,NumInt
       !Gtemp(j,k,2) = j+NumInt*(k-1+NumInt*(2-1))-1
       !Gtemp(j,k,3) = j+NumInt*(k-1+NumInt*(3-1))-1
 
-      !Gprime(j,k,icoord) = (Gtemp(j,k,1)-27.0d0*Gtemp(j,k,2)+27.0d0*Gtemp(j,k,3)-Gtemp(j,k,4))/(48.0d0*h)
-      Gprime(j,k,icoord) = (Work(ipGtemp+j+NumInt*(k-1)-1)-27.0d0*Work(ipGtemp+j+NumInt*(k-1+NumInt)-1)+ &
-                           27.0d0*Work(ipGtemp+j+NumInt*(k-1+NumInt*2)-1)-Work(ipGtemp+j+NumInt*(k-1+NumInt*3)-1))/(48.0d0*h)
+      !Gprime(j,k,icoord) = (Gtemp(j,k,1)-27.0_wp*Gtemp(j,k,2)+27.0_wp*Gtemp(j,k,3)-Gtemp(j,k,4))/(48.0_wp*h)
+      Gprime(j,k,icoord) = (Work(ipGtemp+j+NumInt*(k-1)-1)-27.0_wp*Work(ipGtemp+j+NumInt*(k-1+NumInt)-1)+ &
+                           27.0_wp*Work(ipGtemp+j+NumInt*(k-1+NumInt*2)-1)-Work(ipGtemp+j+NumInt*(k-1+NumInt*3)-1))/(48.0_wp*h)
     end do
   end do
 end do
@@ -109,6 +112,9 @@ subroutine CalcGdbleprime(Gdbleprime,Mass,xvec,InterVec,AtCoord,NumOfAt,h,NumInt
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1996.
 
+use Constants, only: One, Three
+use Definitions, only: wp
+
 !implicit none
 #include "Constants_mula.fh"
 #include "dims.fh"
@@ -133,21 +139,21 @@ call GetMem('Gprime4','Allo','Real',ipGprime4,NumInt3)
 do jcoord=1,NumInt
   call dcopy_(NumInt,xvec,1,Work(ipxtmp),1)
   !xtmp = xvec
-  Work(ipxtmp+jcoord-1) = xvec(jcoord)-3.0d0*h
+  Work(ipxtmp+jcoord-1) = xvec(jcoord)-Three*h
   call CalcGprime(Work(ipGprime1),Mass,Work(ipxtmp),InterVec,AtCoord,NumOfAt,h,NumInt)
-  Work(ipxtmp+jcoord-1) = xvec(jcoord)-1.0d0*h
+  Work(ipxtmp+jcoord-1) = xvec(jcoord)-One*h
   call CalcGprime(Work(ipGprime2),Mass,Work(ipxtmp),InterVec,AtCoord,NumOfAt,h,NumInt)
-  Work(ipxtmp+jcoord-1) = xvec(jcoord)+1.0d0*h
+  Work(ipxtmp+jcoord-1) = xvec(jcoord)+One*h
   call CalcGprime(Work(ipGprime3),Mass,Work(ipxtmp),InterVec,AtCoord,NumOfAt,h,NumInt)
-  Work(ipxtmp+jcoord-1) = xvec(jcoord)+3.0d0*h
+  Work(ipxtmp+jcoord-1) = xvec(jcoord)+Three*h
   call CalcGprime(Work(ipGprime4),Mass,Work(ipxtmp),InterVec,AtCoord,NumOfAt,h,NumInt)
   do icoord=1,NumInt
     do k=1,NumInt
       do j=1,NumInt
         !Gprime(j,k,icoord) = j+NumInt*(k-1+NumInt*(icoord-1))-1
         ivv = j+NumInt*(k-1+NumInt*(icoord-1))-1
-        Gdbleprime(j,k,icoord,jcoord) = (Work(ipGprime1+ivv)-27.0d0*Work(ipGprime2+ivv)+27.0d0*Work(ipGprime3+ivv)- &
-                                        Work(ipGprime4+ivv))/(48.0d0*h)
+        Gdbleprime(j,k,icoord,jcoord) = (Work(ipGprime1+ivv)-27.0_wp*Work(ipGprime2+ivv)+27.0_wp*Work(ipGprime3+ivv)- &
+                                        Work(ipGprime4+ivv))/(48.0_wp*h)
       end do
     end do
   end do

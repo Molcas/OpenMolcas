@@ -129,6 +129,8 @@ end function iDetNr
 
 subroutine Mul1(nMat,F,iCre,iAnn,mat,m_ord,nosc,rdx)
 
+use Constants, only: Half
+
 #include "dims.fh"
 integer nMat(0:m_ord,nosc)
 real*8 Mat(nOsc)
@@ -140,7 +142,7 @@ integer iAnn(0:ndim1,ndim2)
 integer iCre(0:ndim1,ndim2)
 
 do i=0,50
-  sqr(i) = sqrt(dble(i)/2.0d0)
+  sqr(i) = sqrt(Half*i)
 end do
 do iOrd=0,m_Ord
   do iOsc=1,nOsc
@@ -165,6 +167,8 @@ end subroutine Mul1
 !####
 subroutine Mul2(nMat,F,iCre,iAnn,mat,m_ord,nosc,rdx)
 
+use Constants, only: Zero, Half
+
 #include "dims.fh"
 integer nMat(0:m_ord,nosc)
 real*8 Mat(nOsc,nOsc)
@@ -175,9 +179,9 @@ integer iAnn(0:ndim1,ndim2)
 integer iCre(0:ndim1,ndim2)
 real*8 rdx(2)
 
-rsym = 1/2.0d0
+rsym = Half
 do i=0,50
-  sqr(i) = sqrt(dble(i)/2.0d0)
+  sqr(i) = sqrt(Half*i)
 end do
 r = rdx(1)*rdx(2)
 do iOrd=0,m_Ord
@@ -194,7 +198,7 @@ do iOrd=0,m_Ord
     end if
   end do
 end do
-if (r /= 0.0d0) then
+if (r /= Zero) then
   do iOrd=0,m_Ord
     do iOsc=1,nOsc
       jOrd = iann(iord,iosc)
@@ -228,13 +232,15 @@ end do
 r = rdx(2)
 do iOrd=0,m_Ord
   do iOsc=1,nOsc
-    F(iOrd,iOrd) = F(iOrd,iOrd)+Mat(iosc,iOsc)*r*rsym/2.0d0
+    F(iOrd,iOrd) = F(iOrd,iOrd)+Mat(iosc,iOsc)*r*rsym*Half
   end do
 end do
 
 end subroutine Mul2
 !####
 subroutine Mul3(nMat,F,iCre,iAnn,mat,m_ord,nosc,rdx)
+
+use Constants, only: One, Six, Half
 
 #include "dims.fh"
 integer nMat(0:m_ord,nosc)
@@ -246,9 +252,9 @@ real*8 fact, r, rsym, relem
 integer iAnn(0:ndim1,ndim2)
 integer iCre(0:ndim1,ndim2)
 
-rsym = 1.0d0/6.0d0
+rsym = One/Six
 do i=0,50
-  sqr(i) = sqrt(dble(i)/2.0d0)
+  sqr(i) = sqrt(Half*i)
 end do
 do iOrd=0,m_Ord
   do iOsc=1,nOsc
@@ -340,7 +346,7 @@ do iOrd=0,m_Ord
       do jOsc=1,nosc
         Fact = sqr(nmat(jord,iosc))
         relem = Mat(josc,josc,iosc)*rdx(2)+rdx(3)*(mat(iosc,josc,josc)+mat(josc,iosc,josc))
-        F(iOrd,jOrd) = F(iOrd,jOrd)+Fact*relem*rsym*0.5d0
+        F(iOrd,jOrd) = F(iOrd,jOrd)+Fact*relem*rsym*Half
       end do
     end if
   end do
@@ -353,7 +359,7 @@ do iOrd=0,m_Ord
       do jOsc=1,nosc
         Fact = sqr(nmat(iord,iosc))
         relem = Mat(iosc,josc,josc)*rdx(1)*rdx(3)+rdx(2)*rdx(3)*(mat(josc,josc,iosc)+mat(josc,iosc,josc))
-        F(iOrd,jOrd) = F(iOrd,jOrd)+Fact*relem*rsym*0.5d0
+        F(iOrd,jOrd) = F(iOrd,jOrd)+Fact*relem*rsym*Half
       end do
     end if
   end do
@@ -362,6 +368,9 @@ end do
 end subroutine Mul3
 !####
 subroutine Mul4(nMat,F,iCre,iAnn,mat,m_ord,nosc,rdx)
+
+use Constants, only: One, Half, Quart
+use Definitions, only: wp
 
 #include "dims.fh"
 integer nMat(0:m_ord,nosc)
@@ -374,9 +383,9 @@ integer iAnn(0:ndim1,ndim2)
 integer iCre(0:ndim1,ndim2)
 
 do i=0,50
-  sqr(i) = sqrt(dble(i)/2.0d0)
+  sqr(i) = sqrt(Half*i)
 end do
-rsym = 1.0d0/24.0d0
+rsym = One/24.0_wp
 r = Rdx(1)*rdx(2)*rdx(3)*rdx(4)
 do iOrd=0,m_Ord
   do iOsc=1,nOsc
@@ -517,7 +526,7 @@ do iOrd=0,m_Ord
             relem = rdx(1)*rdx(2)*rdx(4)*mat(iosc,josc,kosc,kosc)
             relem = relem+rdx(1)*rdx(3)*rdx(4)*(mat(iosc,kosc,kosc,josc)+mat(iosc,kosc,josc,kosc))
             relem = relem+rdx(2)*rdx(3)*rdx(4)*(mat(kosc,kosc,josc,iosc)+mat(kosc,iosc,kosc,josc)+mat(kosc,josc,iosc,kosc))
-            F(iOrd,kOrd) = F(iOrd,kOrd)+Fact*relem*0.5d0
+            F(iOrd,kOrd) = F(iOrd,kOrd)+Fact*relem*Half
           end do
         end if
       end do
@@ -537,7 +546,7 @@ do iOrd=0,m_Ord
             relem = rdx(2)*mat(kosc,kosc,iosc,josc)
             relem = relem+rdx(3)*(mat(iosc,kosc,kosc,josc)+mat(kosc,iosc,kosc,josc))
             relem = relem+rdx(4)*(mat(iosc,josc,kosc,kosc)+mat(iosc,kosc,josc,kosc)+mat(kosc,iosc,josc,kosc))
-            F(iOrd,kOrd) = F(iOrd,kOrd)+Fact*relem*0.5d0
+            F(iOrd,kOrd) = F(iOrd,kOrd)+Fact*relem*Half
           end do
         end if
       end do
@@ -559,7 +568,7 @@ do iOrd=0,m_Ord
             relem = relem+(Mat(kOsc,kosc,iosc,josc)+Mat(kOsc,iosc,kosc,josc))*rdx(2)*rdx(3)
             relem = relem+(Mat(iOsc,kosc,josc,kosc)+Mat(iOsc,josc,kosc,kosc))*rdx(1)*rdx(4)
             relem = relem+Mat(iOsc,kosc,kosc,josc)*rdx(1)*rdx(3)
-            F(iOrd,kOrd) = F(iOrd,kOrd)+Fact*relem*0.5d0
+            F(iOrd,kOrd) = F(iOrd,kOrd)+Fact*relem*Half
           end do
         end if
       end do
@@ -571,7 +580,7 @@ do iOrd=0,m_Ord
     do jOsc=1,nOsc
       relem = rdx(4)*rdx(3)*(mat(iosc,josc,josc,iosc)+mat(iosc,josc,iosc,josc))
       relem = relem+rdx(2)*rdx(4)*mat(iosc,iosc,josc,josc)
-      F(iOrd,iOrd) = F(iOrd,iOrd)+relem*rsym*0.25d0
+      F(iOrd,iOrd) = F(iOrd,iOrd)+relem*rsym*Quart
     end do
   end do
 end do

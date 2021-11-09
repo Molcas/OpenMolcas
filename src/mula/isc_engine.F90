@@ -20,6 +20,9 @@ subroutine ISC_Rho(iPrint,nOsc,new_n_max,dRho,energy1,energy2,minQ,dMinWind,nMax
 ! Calculate State Density  dRho  GG 30-Dec-08
 ! Formula (86) taken from  M. Bixon, J. Jortner  JCP,48,715 (1969)
 
+use Constants, only: Zero, One, Two, Six, Twelve, Half
+use Definitions, only: wp, u6
+
 implicit real*8(a-h,o-z)
 implicit integer(i-n)
 #include "Constants_mula.fh"
@@ -28,29 +31,29 @@ real*8 GE1, GE2, dMinWind, dMinWind0
 integer nMaxQ(nOsc)
 
 if (iPrint >= 2) then
-  write(6,*)
-  write(6,*) ' State Density data:                         '
-  write(6,*) ' ============================================'
+  write(u6,*)
+  write(u6,*) ' State Density data:                         '
+  write(u6,*) ' ============================================'
 end if
 
 dMinWind0 = dMinWind
-if (dMinWind == 0.0d0) dMinWind = 1.0d0
+if (dMinWind == Zero) dMinWind = One
 minQ = 0
-dRho = 2.0d0/rpi
-dRho = sqrt(dRho/1.0d0*nOsc)
-dRho = dRho*(1.0d0-1.0d0/(12.0d0*nOsc))
-avFreq = 0.0d0
-avFreqSq = 0.0d0
-dLambda = 1.0d0
-dZPE1 = 0.0d0
-dZPE2 = 0.0d0
-dMinFreq2 = 1.0d99
-dMaxFreq2 = 0.0d0
+dRho = Two/rpi
+dRho = sqrt(dRho*nOsc)
+dRho = dRho*(One-One/(Twelve*nOsc))
+avFreq = Zero
+avFreqSq = Zero
+dLambda = One
+dZPE1 = Zero
+dZPE2 = Zero
+dMinFreq2 = 1.0e99_wp
+dMaxFreq2 = Zero
 do iOsc=1,nOsc
   avFreq = avFreq+harmfreq2(iOsc)
   avFreqSq = avFreqSq+(harmfreq2(iOsc))**2
-  dZPE1 = dZPE1+0.5d0*harmfreq1(iOsc)
-  dZPE2 = dZPE2+0.5d0*harmfreq2(iOsc)
+  dZPE1 = dZPE1+Half*harmfreq1(iOsc)
+  dZPE2 = dZPE2+Half*harmfreq2(iOsc)
   dMinFreq2 = min(dMinFreq2,harmfreq2(iOsc))
   dMaxFreq2 = max(dMaxFreq2,harmfreq2(iOsc))
 end do
@@ -63,51 +66,51 @@ avFreqSq = avFreqSq/nOsc
 do jOsc=1,nOsc
   dLambda = dLambda*harmfreq2(jOsc)/avFreq
 end do
-new_n_max = int(0.5d0+(GE1-GE2)/dMinFreq2)
+new_n_max = int(Half+(GE1-GE2)/dMinFreq2)
 dAlpha = avFreqSq/(avFreq**2)
-dBeta = ((nOsc-1)*(nOsc-2)*dAlpha-nOsc**2)/(6*nOsc)
+dBeta = ((nOsc-1)*(nOsc-2)*dAlpha-nOsc**2)/(Six*nOsc)
 dEtha = abs(GE1-GE2)/dZPE2
 dRho = dRho/avFreq
 dRho = dRho*dAlpha
 dRho = dRho/(1+dEtha)
-dDn = (1.0d0+(2.0d0/dEtha))
-dDn = dDn**(dEtha/2.0d0)
-dDn = dDn*(1.0d0+(dEtha/2.d0))
+dDn = (One+(Two/dEtha))
+dDn = dDn**(dEtha/Two)
+dDn = dDn*(One+(dEtha/Two))
 dDn = dDn**nOsc
 dRho = dRho*dDn
-dFE = (1.0d0+dEtha)**2
-dFE = (1.0d0-1.0d0/dFE)**dBeta
+dFE = (One+dEtha)**2
+dFE = (One-One/dFE)**dBeta
 dRho = dRho*dFE
 
 do jOsc=1,nOsc
-  nMaxQ(jOsc) = int(0.5d0+(T0+dMinWind/dRho)/harmfreq2(jOsc))
+  nMaxQ(jOsc) = int(Half+(T0+dMinWind/dRho)/harmfreq2(jOsc))
 end do
-minQ = int(0.5d0+(T0-dMinWind/dRho)/dMaxFreq2)
+minQ = int(Half+(T0-dMinWind/dRho)/dMaxFreq2)
 if (minQ < 0) then
-  write(6,*)
-  write(6,*) ' ***** ERROR ******'
-  write(6,*) ' Window too large !'
-  write(6,*) ' ******************'
+  write(u6,*)
+  write(u6,*) ' ***** ERROR ******'
+  write(u6,*) ' Window too large !'
+  write(u6,*) ' ******************'
   call Quit_OnUserError()
 end if
 
 if (iPrint >= 2) then
-  write(6,'(a,f11.6,a)') '  T_0  = ',T0,' (au)  '
-  write(6,'(a,f11.3,a)') '  T_0  = ',T0*HarToRcm,' (cm-1)'
-  write(6,'(a,f11.3,a)') '  T_0  = ',T0*27.2114,' (eV)  '
-  write(6,'(a,d14.3,a)') '  State Density (dRho) = ',dRho,' (au-1)'
-  write(6,'(a,g14.3,a)') '  State Density (dRho) = ',dRho/HarToRcm,' (cm)'
-  write(6,'(a,g17.9,a)') '  1/dRho = ',HarToRcm/dRho,' (cm-1)'
-  write(6,'(a,f7.3,a)') '  Expansion factor =',dMinWind
-  write(6,'(a,g17.9,a)') '  Window = (+/-)',0.5d0*dMinWind*HarToRcm/dRho,' (cm-1)'
+  write(u6,'(a,f11.6,a)') '  T_0  = ',T0,' (au)'
+  write(u6,'(a,f11.3,a)') '  T_0  = ',T0*HarToRcm,' (cm-1)'
+  write(u6,'(a,f11.3,a)') '  T_0  = ',T0*auToeV,' (eV)'
+  write(u6,'(a,d14.3,a)') '  State Density (dRho) = ',dRho,' (au-1)'
+  write(u6,'(a,g14.3,a)') '  State Density (dRho) = ',dRho/HarToRcm,' (cm)'
+  write(u6,'(a,g17.9,a)') '  1/dRho = ',HarToRcm/dRho,' (cm-1)'
+  write(u6,'(a,f7.3,a)') '  Expansion factor =',dMinWind
+  write(u6,'(a,g17.9,a)') '  Window = (+/-)',Half*dMinWind*HarToRcm/dRho,' (cm-1)'
 end if
 if (iPrint >= 3) then
-  write(6,*) ' Maximum quantum numbers:',(nMaxQ(i),i=1,nOsc)
-  write(6,*) ' Minimum quantum number: ',minQ
-  write(6,*) ' Suggested n_max (new_n_max)=',new_n_max
-  write(6,*)
+  write(u6,*) ' Maximum quantum numbers:',(nMaxQ(i),i=1,nOsc)
+  write(u6,*) ' Minimum quantum number: ',minQ
+  write(u6,*) ' Suggested n_max (new_n_max)=',new_n_max
+  write(u6,*)
 end if
-call XFlush(6)
+call XFlush(u6)
 dMinWind = dMinWind0
 
 return
@@ -117,6 +120,9 @@ end subroutine ISC_Rho
 subroutine ISC_Ene(iPrint,nOsc,max_nOrd,nYes,nMat,nTabDim,GE1,GE2,harmfreq1,harmfreq2,x_anharm1,x_anharm2,dMinWind,dRho,EneMat, &
                    lVec,lTVec)
 ! Calculate Energy of Levels  GG 30-Dec-08 - 08-Jan-09
+
+use Constants, only: Zero, One, Half
+use Definitions, only: u6
 
 implicit real*8(a-h,o-z)
 implicit integer(i-n)
@@ -129,9 +135,9 @@ real*8 dEne, EneMat(0:max_nOrd)
 integer nMat(0:nTabDim,nOsc), lVec(0:nTabDim), lTVec(0:nTabDim)
 logical lUpdate
 
-if (dMinWind == 0.0d0) then
+if (dMinWind == Zero) then
   lUpDate = .true.
-  dMinWind = 1.0d0
+  dMinWind = One
 else
   lUpDate = .false.
 end if
@@ -142,18 +148,18 @@ end do
 ! Energy calculation
 
 if (iPrint >= 4) then
-  write(6,*)
-  write(6,*) ' States in the preliminar window :'
+  write(u6,*)
+  write(u6,*) ' States in the preliminar window :'
   if (nOsc <= 24) then
-    write(6,'(a,108a)') '  ',('=',i=1,108)
-    write(6,*) '     jOrd    ene/au    ene/cm-1 Vibrational quantum numbers'
-    write(6,'(a,108a)') '  ',('-',i=1,108)
+    write(u6,'(a,108a)') '  ',('=',i=1,108)
+    write(u6,*) '     jOrd    ene/au    ene/cm-1 Vibrational quantum numbers'
+    write(u6,'(a,108a)') '  ',('-',i=1,108)
   else
-    write(6,'(a,36a)') '  ',('=',i=1,36)
-    write(6,*) '        #    jOrd   ene/au      ene/cm-1 '
-    write(6,'(a,36a)') '  ',('-',i=1,36)
+    write(u6,'(a,36a)') '  ',('=',i=1,36)
+    write(u6,*) '        #    jOrd   ene/au      ene/cm-1 '
+    write(u6,'(a,36a)') '  ',('-',i=1,36)
   end if
-  call XFlush(6)
+  call XFlush(u6)
 end if
 
 call GetMem('level1','Allo','Inte',iplevel1,nOsc)
@@ -175,9 +181,9 @@ do iOrd=0,max_nOrd
         do j=1,nOsc
           loc_n_max = loc_n_max+nMat(iOrd,j)
         end do
-        write(6,'(a2,i8,f11.6,f11.4,i4,a2,24i3)') ' ',iOrd,dEne,dEne*HarToRcm,loc_n_max,': ',(nMat(iOrd,j),j=1,nOsc)
+        write(u6,'(a2,i8,f11.6,f11.4,i4,a2,24i3)') ' ',iOrd,dEne,dEne*HarToRcm,loc_n_max,': ',(nMat(iOrd,j),j=1,nOsc)
       else
-        write(6,'(a2,i8,f11.6,f11.4,i4        )') ' ',iOrd,dEne,dEne*HarToRcm,loc_n_max
+        write(u6,'(a2,i8,f11.6,f11.4,i4        )') ' ',iOrd,dEne,dEne*HarToRcm,loc_n_max
       end if
     end if
   end if
@@ -186,23 +192,23 @@ end do
 ! Energy selection
 
 if (iPrint >= 3) then
-  write(6,*)
-  write(6,*) ' States in the window :'
+  write(u6,*)
+  write(u6,*) ' States in the window :'
   if (nOsc <= 24) then
-    write(6,'(a,108a)') '  ',('=',i=1,108)
-    write(6,*) '     jOrd    ene/au    ene/cm-1 Vibrational quantum numbers'
-    write(6,'(a,108a)') '  ',('-',i=1,108)
+    write(u6,'(a,108a)') '  ',('=',i=1,108)
+    write(u6,*) '     jOrd    ene/au    ene/cm-1 Vibrational quantum numbers'
+    write(u6,'(a,108a)') '  ',('-',i=1,108)
   else
-    write(6,'(a,36a)') '  ',('=',i=1,36)
-    write(6,*) '        #    jOrd   ene/au      ene/cm-1 '
-    write(6,'(a,36a)') '  ',('-',i=1,36)
+    write(u6,'(a,36a)') '  ',('=',i=1,36)
+    write(u6,*) '        #    jOrd   ene/au      ene/cm-1 '
+    write(u6,'(a,36a)') '  ',('-',i=1,36)
   end if
-  call XFlush(6)
+  call XFlush(u6)
 end if
 
 nYes_start = nYes
 100 continue
-dWlow = 0.5d0*dMinWind/dRho
+dWlow = Half*dMinWind/dRho
 dWup = dWlow
 do iOrd=0,max_nOrd
   lVec(iOrd) = lTVec(iOrd)
@@ -219,16 +225,16 @@ do iOrd=0,max_nOrd
           do j=1,nOsc
             loc_n_max = loc_n_max+nMat(iOrd,j)
           end do
-          write(6,'(a2,i8,f11.6,f11.4,i4,a2,24i3)') ' ',iOrd,dEne,dEne*HarToRcm,loc_n_max,': ',(nMat(iOrd,j),j=1,nOsc)
+          write(u6,'(a2,i8,f11.6,f11.4,i4,a2,24i3)') ' ',iOrd,dEne,dEne*HarToRcm,loc_n_max,': ',(nMat(iOrd,j),j=1,nOsc)
         else
-          write(6,'(a2,i8,f11.6,f11.4,i4        )') ' ',iOrd,dEne,dEne*HarToRcm,loc_n_max
+          write(u6,'(a2,i8,f11.6,f11.4,i4        )') ' ',iOrd,dEne,dEne*HarToRcm,loc_n_max
         end if
       end if
     end if
   end if
 end do
 if ((nYes < 1) .and. lUpDate) then
-  dMinWind = dMinWind+1.0d0
+  dMinWind = dMinWind+One
   nYes = nYes_start
   goto 100
 end if
@@ -237,20 +243,20 @@ call GetMem('level2','Free','Inte',iplevel2,nOsc)
 call GetMem('level1','Free','Inte',iplevel1,nOsc)
 
 if (iPrint >= 3) then
-  if (nOsc <= 30) write(6,'(a,108a)') '  ',('-',i=1,108)
-  if (nOsc > 30) write(6,'(a,36a)') '  ',('-',i=1,36)
-  write(6,'(a,f12.9,a,f12.9,a)') '  Window: ',-dWlow,' / ',dWup,' (au)'
-  write(6,'(a,f12.6,a,f12.6,a)') '  Window: ',-dWlow*HarToRcm,' / ',dWup*HarToRcm,' (cm-1)'
+  if (nOsc <= 30) write(u6,'(a,108a)') '  ',('-',i=1,108)
+  if (nOsc > 30) write(u6,'(a,36a)') '  ',('-',i=1,36)
+  write(u6,'(a,f12.9,a,f12.9,a)') '  Window: ',-dWlow,' / ',dWup,' (au)'
+  write(u6,'(a,f12.6,a,f12.6,a)') '  Window: ',-dWlow*HarToRcm,' / ',dWup*HarToRcm,' (cm-1)'
 end if
 if (iPrint >= 2) then
-  write(6,*) ' Final number of States=',nYes
+  write(u6,*) ' Final number of States=',nYes
 end if
-if ((dMinWind > 1.0d0) .and. lUpDate .and. (iPrint >= 1)) then
-  write(6,*)
-  write(6,*) ' *** Warning: Expansion factor has been set to ',dMinWind
-  write(6,*)
+if ((dMinWind > One) .and. lUpDate .and. (iPrint >= 1)) then
+  write(u6,*)
+  write(u6,*) ' *** Warning: Expansion factor has been set to ',dMinWind
+  write(u6,*)
 end if
-call XFlush(6)
+call XFlush(u6)
 
 return
 
@@ -259,6 +265,9 @@ end subroutine ISC_Ene
 subroutine ISC_Rate(iPrint,nOsc,max_nOrd,iMx_nOrd,iMaxYes,nYes,dMinWind,VibWind2,C1,C2,W1,W2,det0,det1,det2,C,W,r01,r02,r00, &
                     mTabDim,mMat,nTabDim,nMat,mInc,mDec,nInc,nDec,m_max,n_max,max_dip,nnsiz,FC00,FCWind2,dRho)
 ! Estimate ISC rate  GG 30-Dec-08
+
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, u6
 
 implicit real*8(a-h,o-z)
 implicit integer(i-n)
@@ -290,9 +299,9 @@ call TabDim2_drv(n_max,nosc,nvTabDim)
 n_max_ord = nvTabDim-1
 
 mx_max_ord = 0 ! CGGn
-if (iPrint >= 3) write(6,*) ' Memory allocated for U matrix:',(n_max_ord+1)*(mx_max_ord+1),' words,  ', &
-                            8*(n_max_ord+1)*(mx_max_ord+1)/1024/1024,' MB.     '
-call XFlush(6)
+if (iPrint >= 3) write(u6,*) ' Memory allocated for U matrix:',(n_max_ord+1)*(mx_max_ord+1),' words,  ', &
+                             8*(n_max_ord+1)*(mx_max_ord+1)/1048576,' MB.     '
+call XFlush(u6)
 call GetMem('L','Allo','Real',ipL,(m_max_ord+1)*(nx_max_ord+1))
 call GetMem('U','Allo','Real',ipU,(n_max_ord+1)*(mx_max_ord+1))
 call GetMem('alpha1','Allo','Real',ipAlpha1,nOsc*nOsc)
@@ -300,59 +309,60 @@ call GetMem('alpha2','Allo','Real',ipAlpha2,nOsc*nOsc)
 call GetMem('beta','Allo','Real',ipBeta,nOsc*nOsc)
 
 !call GetMem('Test_2','LIST','INTE',iDum,iDum)
-!call XFlush(6)
+!call XFlush(u6)
 call ISC_FCval(iPrint,iMaxYes,nTabDim,C1,W1,det1,r01,C2,W2,det2,r02,m_max_ord,n_max_ord,mx_max_ord,max_mInc,max_nInc,nx_max_ord, &
                mMat,nMat,mInc,nInc,mDec,nDec,C,W,det0,r00,Work(ipL),Work(ipU),FC00,Work(ipAlpha1),Work(ipAlpha2),Work(ipBeta), &
                nOsc,nnsiz,iMx_nOrd,nYes,VibWind2,FCWind2)
 
-const = 2.0d0*rpi/5.309d-12
+! where does this number come from?
+const = Two*rpi/5.309e-12_wp
 if (iPrint >= 4) then
-  write(6,*)
-  write(6,*) '  const =',const
-  write(6,*) '  dRho/cm =',dRho/HarToRcm
-  write(6,*) '  const*dRho=',const*dRho/HarToRcm
+  write(u6,*)
+  write(u6,*) '  const =',const
+  write(u6,*) '  dRho/cm =',dRho/HarToRcm
+  write(u6,*) '  const*dRho=',const*dRho/HarToRcm
 end if
 const = const*dRho/HarToRcm
 
-dSum = 0.0d0
+dSum = Zero
 do ii=1,nYes
   dSum = dSum+FCWind2(ii)**2
 end do
 
-dSoc = 0.0d0
+dSoc = Zero
 do ii=1,3
   dSOC = dSOC+TranDip(ii)**2
 end do
 
 dRate = const*dSum*dSoc/dMinWind
-dLT = 1.0d0/dRate
+dLT = One/dRate
 
 if (iPrint >= 3) then
-  write(6,*) '  Sum of squares of FC factors =',dSum
-  write(6,*) '  Root-square of the sum =',sqrt(dSum)
-  write(6,*) '  dSOC =',dSOC
+  write(u6,*) '  Sum of squares of FC factors =',dSum
+  write(u6,*) '  Root-square of the sum =',sqrt(dSum)
+  write(u6,*) '  dSOC =',dSOC
 end if
 
 if (iPrint >= 1) then
-  write(6,*)
-  write(6,*) ' InterSystem Crossing rate constant: '
-  write(6,*) ' ===================================='
-  write(6,'(a,e10.2,a)') '  ISC Rate Constant  ',dRate,' sec-1'
-  write(6,'(a,e10.2,a)') '  Lifetime           ',dLT,' sec'
-  dLT = dLT*1.0d3
-  if ((dLT > 1.0d0) .and. (dLT <= 1.0d3)) write(6,'(a19,f5.1,a)') ' ',dLT,' msec'
-  dLT = dLT*1.0d3
-  if ((dLT > 1.0d0) .and. (dLT <= 1.0d3)) write(6,'(a19,f5.1,a)') ' ',dLT,' microsec'
-  dLT = dLT*1.0d3
-  if ((dLT > 1.0d0) .and. (dLT <= 1.0d3)) write(6,'(a19,f5.1,a)') ' ',dLT,' nsec'
-  dLT = dLT*1.0d3
-  if ((dLT > 1.0d0) .and. (dLT <= 1.0d3)) write(6,'(a19,f5.1,a)') ' ',dLT,' psec'
-  dLT = dLT*1.0d3
-  if ((dLT > 1.0d0) .and. (dLT <= 1.0d3)) write(6,'(a19,f5.1,a)') ' ',dLT,' fsec'
-  write(6,*) ' ------------------------------------'
-  write(6,*)
-  write(6,*)
-  call XFlush(6)
+  write(u6,*)
+  write(u6,*) ' InterSystem Crossing rate constant: '
+  write(u6,*) ' ===================================='
+  write(u6,'(a,e10.2,a)') '  ISC Rate Constant  ',dRate,' sec-1'
+  write(u6,'(a,e10.2,a)') '  Lifetime           ',dLT,' sec'
+  dLT = dLT*1.0e3_wp
+  if ((dLT > One) .and. (dLT <= 1.0e3_wp)) write(u6,'(a19,f5.1,a)') ' ',dLT,' msec'
+  dLT = dLT*1.0e3_wp
+  if ((dLT > One) .and. (dLT <= 1.0e3_wp)) write(u6,'(a19,f5.1,a)') ' ',dLT,' microsec'
+  dLT = dLT*1.0e3_wp
+  if ((dLT > One) .and. (dLT <= 1.0e3_wp)) write(u6,'(a19,f5.1,a)') ' ',dLT,' nsec'
+  dLT = dLT*1.0e3_wp
+  if ((dLT > One) .and. (dLT <= 1.0e3_wp)) write(u6,'(a19,f5.1,a)') ' ',dLT,' psec'
+  dLT = dLT*1.0e3_wp
+  if ((dLT > One) .and. (dLT <= 1.0e3_wp)) write(u6,'(a19,f5.1,a)') ' ',dLT,' fsec'
+  write(u6,*) ' ------------------------------------'
+  write(u6,*)
+  write(u6,*)
+  call XFlush(u6)
 end if
 
 call GetMem('beta','Free','Real',ipBeta,nOsc*nOsc)

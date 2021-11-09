@@ -34,6 +34,9 @@ subroutine PotDist(F,V,Lambda,PED,NumInt,nOsc)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1996.
 
+use Constants, only: Zero
+use Definitions, only: wp
+
 !use LinAlg
 implicit real*8(a-h,o-z)
 #include "Constants_mula.fh"
@@ -46,10 +49,10 @@ real*8 PED(nOsc,nOsc,nOsc)
 ! Initialize.
 
 ! Calculate Potential Energy Distribution for each mode.
-!PED = 0.0d0
-call dcopy_(nOsc*nOsc*nOsc,[0.0d0],0,PED,1)
+!PED = Zero
+call dcopy_(nOsc*nOsc*nOsc,[Zero],0,PED,1)
 do i=1,NumInt
-  Denominator = max(1.0D-10,Lambda(i))
+  Denominator = max(1.0e-10_wp,Lambda(i))
   do k=1,NumInt
     do l=1,NumInt
       if (k == l) then

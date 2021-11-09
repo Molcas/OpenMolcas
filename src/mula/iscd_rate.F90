@@ -20,6 +20,9 @@ subroutine ISCD_Rate(iPrint,nOsc,max_nOrd,iMx_nOrd,iMaxYes,nYes,dMinWind,lBatch,
                      lNINC,lNDEC,lnTabDim,nnTabDim,C1,C2,W1,W2,det0,det1,det2,C,W,r01,r02,r00,m_max,n_max,max_dip,nnsiz,FC00, &
                      FCWind2,dRho,mTabDim,mMat,mInc,mDec,nMat,nInc,nDec)
 
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, u6
+
 implicit real*8(a-h,o-z)
 implicit integer(i-n)
 #include "Constants_mula.fh"
@@ -52,9 +55,9 @@ call TabDim2_drv(n_max,nosc,nvTabDim)
 n_max_ord = nvTabDim-1
 
 mx_max_ord = 0 ! CGGn
-if (iPrint >= 3) write(6,*) ' Memory allocated for U matrix:',(n_max_ord+1)*(mx_max_ord+1),' words,  ', &
-                            8*(n_max_ord+1)*(mx_max_ord+1)/1024/1024,' MB.     '
-call XFlush(6)
+if (iPrint >= 3) write(u6,*) ' Memory allocated for U matrix:',(n_max_ord+1)*(mx_max_ord+1),' words,  ', &
+                             8*(n_max_ord+1)*(mx_max_ord+1)/1048576,' MB.     '
+call XFlush(u6)
 call GetMem('L','Allo','Real',ipL,(m_max_ord+1)*(nx_max_ord+1))
 call GetMem('U','Allo','Real',ipU,(n_max_ord+1)*(mx_max_ord+1))
 call GetMem('alpha1','Allo','Real',ipAlpha1,nOsc*nOsc)
@@ -63,69 +66,70 @@ call GetMem('beta','Allo','Real',ipBeta,nOsc*nOsc)
 call GetMem('MAT0','Allo','Inte',ipnMat0,nOsc)
 
 !GGt -------------------------------------------------------------------
-!write(6,*) '     lnTabDim+1=',lnTabDim+1,':'
+!write(u6,*) '     lnTabDim+1=',lnTabDim+1,':'
 !do i=0,lnTabDim
 !  iIndex0 = nnTabDim(i)
 !  call iDaFile(lNMAT0,2,iWork(ipnMat0),nOsc,iIndex0)
-!  write(6,*) i,' read at',nnTabDim(i),'  M:',(iWork(ipnMat0+j),j=0,nOsc-1)
+!  write(u6,*) i,' read at',nnTabDim(i),'  M:',(iWork(ipnMat0+j),j=0,nOsc-1)
 !end do
-!write(6,*) '-----------------------------------------------'
+!write(u6,*) '-----------------------------------------------'
 !GGt -------------------------------------------------------------------
 !call GetMem('Test_2','LIST','INTE',iDum,iDum)
-!call XFlush(6)
+!call XFlush(u6)
 call ISCD_FCval(iPrint,iMaxYes,lnTabDim,nnTabDim,lNMAT0,lNMAT,lNINC,lNDEC,lBatch,nBatch,leftBatch,nIndex,C1,W1,det1,r01,C2,W2, &
                 det2,r02,m_max_ord,n_max_ord,mx_max_ord,max_mInc,max_nInc,nx_max_ord,mMat,nMat,mInc,nInc,mDec,nDec,C,W,det0,r00, &
                 Work(ipL),Work(ipU),FC00,Work(ipAlpha1),Work(ipAlpha2),Work(ipBeta),nOsc,nnsiz,iMx_nOrd,nYes,VibWind2,FCWind2, &
                 iWork(ipnMat0))
 
-const = 2.0d0*rpi/5.309d-12
+! where does this number come from?
+const = Two*rpi/5.309e-12_wp
 if (iPrint >= 4) then
-  write(6,*)
-  write(6,*) '  const =',const
-  write(6,*) '  dRho/cm =',dRho/HarToRcm
-  write(6,*) '  const*dRho=',const*dRho/HarToRcm
+  write(u6,*)
+  write(u6,*) '  const =',const
+  write(u6,*) '  dRho/cm =',dRho/HarToRcm
+  write(u6,*) '  const*dRho=',const*dRho/HarToRcm
 end if
 const = const*dRho/HarToRcm
 
-dSum = 0.0d0
+dSum = Zero
 do ii=1,nYes
   dSum = dSum+FCWind2(ii)**2
 end do
 
-dSoc = 0.0d0
+dSoc = Zero
 do ii=1,3
   dSOC = dSOC+TranDip(ii)**2
 end do
 
 dRate = const*dSum*dSoc/dMinWind
-dLT = 1.0d0/dRate
+dLT = One/dRate
 
 if (iPrint >= 3) then
-  write(6,*) '  Sum of squares of FC factors =',dSum
-  write(6,*) '  Root-square of the sum =',sqrt(dSum)
-  write(6,*) '  dSOC =',dSOC
+  write(u6,*) '  Sum of squares of FC factors =',dSum
+  write(u6,*) '  Root-square of the sum =',sqrt(dSum)
+  write(u6,*) '  dSOC =',dSOC
 end if
 
 if (iPrint >= 1) then
-  write(6,*)
-  write(6,*) ' InterSystem Crossing rate constant: '
-  write(6,*) ' ===================================='
-  write(6,'(a,e10.2,a)') '  ISC Rate Constant  ',dRate,' sec-1'
-  write(6,'(a,e10.2,a)') '  Lifetime           ',dLT,' sec'
-  dLT = dLT*1.0d3
-  if ((dLT > 1.0d0) .and. (dLT <= 1.0d3)) write(6,'(a19,f5.1,a)') ' ',dLT,' msec'
-  dLT = dLT*1.0d3
-  if ((dLT > 1.0d0) .and. (dLT <= 1.0d3)) write(6,'(a19,f5.1,a)') ' ',dLT,' microsec'
-  dLT = dLT*1.0d3
-  if ((dLT > 1.0d0) .and. (dLT <= 1.0d3)) write(6,'(a19,f5.1,a)') ' ',dLT,' nsec'
-  dLT = dLT*1.0d3
-  if ((dLT > 1.0d0) .and. (dLT <= 1.0d3)) write(6,'(a19,f5.1,a)') ' ',dLT,' psec'
-  dLT = dLT*1.0d3
-  if ((dLT > 1.0d0) .and. (dLT <= 1.0d3)) write(6,'(a19,f5.1,a)') ' ',dLT,' fsec'
-  write(6,*) ' ------------------------------------'
-  write(6,*)
-  write(6,*)
-  call XFlush(6)
+  write(u6,*)
+  write(u6,*) ' InterSystem Crossing rate constant: '
+  write(u6,*) ' ===================================='
+  write(u6,'(a,e10.2,a)') '  ISC Rate Constant  ',dRate,' sec-1'
+  write(u6,'(a,e10.2,a)') '  Lifetime           ',dLT,' sec'
+  dLT = dLT*1.0e3_wp
+  if ((dLT > One) .and. (dLT <= 1.0e3_wp)) write(u6,'(a19,f5.1,a)') ' ',dLT,' msec'
+  dLT = dLT*1.0e3_wp
+  if ((dLT > One) .and. (dLT <= 1.0e3_wp)) write(u6,'(a19,f5.1,a)') ' ',dLT,' microsec'
+  dLT = dLT*1.0e3_wp
+  if ((dLT > One) .and. (dLT <= 1.0e3_wp)) write(u6,'(a19,f5.1,a)') ' ',dLT,' nsec'
+  dLT = dLT*1.0e3_wp
+  if ((dLT > One) .and. (dLT <= 1.0e3_wp)) write(u6,'(a19,f5.1,a)') ' ',dLT,' psec'
+  dLT = dLT*1.0e3_wp
+  if ((dLT > One) .and. (dLT <= 1.0e3_wp)) write(u6,'(a19,f5.1,a)') ' ',dLT,' fsec'
+  write(u6,*) ' ------------------------------------'
+  write(u6,*)
+  write(u6,*)
+  call XFlush(u6)
 end if
 
 call GetMem('MAT0','Free','Inte',ipnMat0,nOsc)

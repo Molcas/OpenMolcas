@@ -19,14 +19,16 @@ subroutine funcval(x,coef,ipow,fval,nterm,nvar)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
+use Constants, only: Zero, One
+
 real*8 x(nvar)
 real*8 coef(nterm)
 integer ipow(nterm,nvar)
 real*8 sum, prod, fval
 
-sum = 0.0d0
+sum = Zero
 do iterm=1,nterm
-  prod = 1.0d0
+  prod = One
   do ivar=1,nvar
     nsum = ipow(iterm,ivar)
     prod = prod*(x(ivar)**(nsum))
@@ -45,6 +47,8 @@ subroutine gradient(x,coef,ipow,grad,nterm,nvar)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
+use Constants, only: Zero, One
+
 real*8 x(nvar)
 real*8 coef(nvar)
 integer ipow(nterm,nvar)
@@ -54,9 +58,9 @@ logical ijEq
 real*8 rfactor
 
 do ivar=1,nvar
-  sum = 0.0d0
+  sum = Zero
   do iterm=1,nterm
-    prod = 1.0d0
+    prod = One
     do jvar=1,nvar
       ijEq = (ivar == jvar)
       if ((ipow(iterm,jvar) >= 1) .and. ijEq) then
@@ -90,6 +94,8 @@ subroutine Hessian(x,coef,ipow,Hess,nterm,nvar)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
+use Constants, only: Zero, One
+
 real*8 x(nvar)
 real*8 coef(nvar)
 integer ipow(nterm,nvar)
@@ -101,9 +107,9 @@ real*8 rfactor
 do ivar=1,nvar
   do jvar=ivar,nvar
     ijEq = (ivar == jvar)
-    sum = 0.0d0
+    sum = Zero
     do iterm=1,nterm
-      prod = 1.0d0
+      prod = One
       do kvar=1,nvar
         ikEq = (ivar == kvar)
         jkEq = (jvar == kvar)
@@ -143,6 +149,8 @@ subroutine thirdDer(x,coef,ipow,D3,nterm,nvar)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
+use Constants, only: Zero, One
+
 real*8 x(nvar)
 real*8 coef(nvar)
 integer ipow(nterm,nvar)
@@ -151,14 +159,14 @@ real*8 sum, prod
 logical ilEq, jlEq, klEq
 real*8 rfactor
 
-!D3 = 0.0d0
-call dcopy_(nvar*nvar*nvar,[0.0d0],0,D3,1)
+!D3 = Zero
+call dcopy_(nvar*nvar*nvar,[Zero],0,D3,1)
 do ivar=1,nvar
   do jvar=ivar,nvar
     do kvar=jvar,nvar
-      sum = 0.0d0
+      sum = Zero
       do iterm=1,nterm
-        prod = 1.0d0
+        prod = One
         do lvar=1,nvar
           ilEq = (ivar == lvar)
           jlEq = (jvar == lvar)
@@ -210,6 +218,8 @@ subroutine fourthDer(x,coef,ipow,D4,nterm,nvar)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
+use Constants, only: Zero, One
+
 real*8 x(nvar)
 real*8 coef(nvar)
 integer ipow(nterm,nvar)
@@ -218,15 +228,15 @@ real*8 sum, prod
 logical imEq, jmEq, kmEq, lmEq
 real*8 rfactor
 
-!D4 = 0.0d0
-call dcopy_(nvar*nvar*nvar*nvar,[0.0d0],0,D4,1)
+!D4 = Zero
+call dcopy_(nvar*nvar*nvar*nvar,[Zero],0,D4,1)
 do ivar=1,nvar
   do jvar=ivar,nvar
     do kvar=jvar,nvar
       do lvar=kvar,nvar
-        sum = 0.0d0
+        sum = Zero
         do iterm=1,nterm
-          prod = 1.0d0
+          prod = One
           do mvar=1,nvar
             imEq = (ivar == mvar)
             jmEq = (jvar == mvar)

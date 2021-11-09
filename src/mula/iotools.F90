@@ -31,6 +31,8 @@ subroutine MulaRdNLst(iUnit,NameIn)
 !  Slightly modified by:
 !    Niclas Forsberg, 1999
 
+use Definitions, only: u6
+
 #include "inputdata.fh"
 character NameIn*(*)
 character*8 StdNam
@@ -54,8 +56,8 @@ end do
 
 ! Error exit
 900 continue
-write(6,*) 'MulaRdNLst error: Could not locate input.'
-write(6,*) 'Looking for: &'//StdNam
+write(u6,*) 'MulaRdNLst error: Could not locate input.'
+write(u6,*) 'Looking for: &'//StdNam
 call Quit_OnUserError()
 
 end subroutine MulaRdNLst
@@ -118,6 +120,8 @@ subroutine KeyWord(nUnit,KeyWd,rewind,Exist)
 !    MulaRdNlst
 !    Normalize
 
+use Definitions, only: u6
+
 #include "inputdata.fh"
 character KeyWd*(*)
 character*32 TmpKey
@@ -130,15 +134,15 @@ call Normalize(InLine,OutLine)
 ! Index of first blank character from the end:
 BlInd = 81
 do i=80,1,-1
-  if (Outline(i:i) /= ' ') goto 5
+  if (Outline(i:i) /= ' ') goto 15
   BlInd = i
 end do
-5 continue
+15 continue
 if (BlInd > 80) then
-  write(6,*) 'KEYWORD: KeyWd is too long.'
-  write(6,*) 'KeyWd:',KeyWd
-  write(6,*) 'After normalization (OutLine):'
-  write(6,*) OutLine
+  write(u6,*) 'KEYWORD: KeyWd is too long.'
+  write(u6,*) 'KeyWd:',KeyWd
+  write(u6,*) 'After normalization (OutLine):'
+  write(u6,*) OutLine
   call abend()
 end if
 Exist = .false.
@@ -163,7 +167,7 @@ Exist = OutLine(1:KLen) == TmpKey(1:KLen)
 
 return
 
-20 write(6,*) ' I/O error on unit nUnit=',nUnit
+20 write(u6,*) ' I/O error on unit nUnit=',nUnit
 call abend()
 
 end subroutine KeyWord
@@ -178,6 +182,8 @@ real*8 function StrToDble(InString)
 !  Output:
 !    xNum     : Real*8.
 
+use Definitions, only: u6
+
 #include "inputdata.fh"
 real*8 xNum
 integer length
@@ -186,17 +192,17 @@ character*1 OneDigit
 character*2 TwoDigits
 
 length = len(InString)
-write(6,*) ' The string is:',InString
-write(6,*) ' Its length is:',length
+write(u6,*) ' The string is:',InString
+write(u6,*) ' Its length is:',length
 if (length < 10) then
   write(OneDigit,'(i1)') length
-  write(6,*) '   OneDigit is:',OneDigit
-  write(6,*) ' The format is:','(f'//OneDigit//'.0)'
+  write(u6,*) '   OneDigit is:',OneDigit
+  write(u6,*) ' The format is:','(f'//OneDigit//'.0)'
   read(InString,'(f'//OneDigit//'.0)') xnum
 else
   write(TwoDigits,'(i2)') length
-  write(6,*) '  TwoDigits is:',TwoDigits
-  write(6,*) ' The format is:','(f'//TwoDigits//'.0)'
+  write(u6,*) '  TwoDigits is:',TwoDigits
+  write(u6,*) ' The format is:','(f'//TwoDigits//'.0)'
   read(InString,'(f'//TwoDigits//'.0)') xNum
 end if
 StrToDble = xNum
@@ -260,6 +266,8 @@ subroutine Normalize(line,line2)
 !    P-AA Malmquist,
 !    Dept. of Theoretical Chemistry, Lund University.
 
+use Definitions, only: u6
+
 parameter(ntrans=256)
 #include "inputdata.fh"
 character line*(*)
@@ -319,6 +327,6 @@ end do
 return
 
 99 continue
-write(6,*) ' WARNING: Line truncated in NORMALIZE.'
+write(u6,*) ' WARNING: Line truncated in NORMALIZE.'
 
 end subroutine Normalize

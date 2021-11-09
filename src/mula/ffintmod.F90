@@ -68,6 +68,9 @@ subroutine IntForceField(IntensityMat,TermMat,T0,max_term,FC00,C1,W1,det1,r01,C2
 !    FCMod
 !    MatElMod
 
+use Constants, only: Zero, Two, Three
+use Definitions, only: wp
+
 !use VibMod
 !use TabMod
 !use FCMod
@@ -100,7 +103,7 @@ call SetUpHarmDip(Work(ipFC2),max_dip,m_max,n_max,mMat,mInc,mDec,nMat,nInc,nDec,
                   TranDip,TranDipGrad,FC00,nnsiz,max_mOrd,max_nOrd,nOsc)
 
 ! Calculate intensities with Boltzmann weighting of hotband intensity.
-const1 = (2.0d0/3.0d0)
+const1 = (Two/Three)
 call GetMem('level1','Allo','Inte',iplevel1,nOsc)
 call GetMem('level2','Allo','Inte',iplevel2,nOsc)
 
@@ -116,18 +119,19 @@ if (max_nOrd > max_mOrd) then
       iWork(iplevel2+iv-1) = mMat(iOrd,iv)
     end do
     l_harm = nOsc
-    call TransEnergy(0.0d0,x_anharm1,harmfreq1,iWork(iplevel1),0.0d0,x_anharm1,harmfreq1,iWork(iplevel2),Work(ipFreqDiffMat+iOrd), &
+    call TransEnergy(Zero,x_anharm1,harmfreq1,iWork(iplevel1),Zero,x_anharm1,harmfreq1,iWork(iplevel2),Work(ipFreqDiffMat+iOrd), &
                      l_harm)
   end do
   do jOrd=0,max_nOrd
     do iOrd=0,max_mOrd
-      dE = Work(ipFreqDiffMat+iOrd)*HarToaJ*1.0d-18
-      const2 = const1*exp(-dE/(1.38066d-23*Temperature))
+      dE = Work(ipFreqDiffMat+iOrd)*HarToaJ*1.0e-18_wp
+      const2 = const1*exp(-dE/(kBoltzmann*Temperature))
       IntensityMat(iOrd,jOrd) = const2*abs(TermMat(iOrd,jOrd))*(Work(ipFC2+iOrd+(max_mOrd+1)*(jOrd+(max_nOrd+1)))**2+ &
                                 Work(ipFC2+iOrd+(max_mOrd+1)*(jOrd+(max_nOrd+1)*2))**2+ &
                                 Work(ipFC2+iOrd+(max_mOrd+1)*(jOrd+(max_nOrd+1)*3))**2)
       if (.not. OscStr) then
-        IntensityMat(iOrd,jOrd) = 32.13002d9*const2*(TermMat(iOrd,jOrd)**2)*IntensityMat(iOrd,jOrd)
+        ! where does this number come from?
+        IntensityMat(iOrd,jOrd) = 32.13002e9_wp*const2*(TermMat(iOrd,jOrd)**2)*IntensityMat(iOrd,jOrd)
       end if
     end do
   end do
@@ -142,18 +146,19 @@ else
       iWork(iplevel2+iv-1) = nMat(iOrd,iv)
     end do
     l_harm = nOsc
-    call TransEnergy(0.0d0,x_anharm2,harmfreq2,iWork(iplevel1),0.0d0,x_anharm2,harmfreq2,iWork(iplevel2),Work(ipFreqDiffMat+iOrd), &
+    call TransEnergy(Zero,x_anharm2,harmfreq2,iWork(iplevel1),Zero,x_anharm2,harmfreq2,iWork(iplevel2),Work(ipFreqDiffMat+iOrd), &
                      l_harm)
   end do
   do jOrd=0,max_nOrd
-    dE = Work(ipFreqDiffMat+jOrd)*HarToaJ*1.0d-18
+    dE = Work(ipFreqDiffMat+jOrd)*HarToaJ*1.0e-18_wp
     do iOrd=0,max_mOrd
-      const2 = const1*exp(-dE/(1.38066d-23*Temperature))
+      const2 = const1*exp(-dE/(kBoltzmann*Temperature))
       IntensityMat(iOrd,jOrd) = const2*abs(TermMat(iOrd,jOrd))*(Work(ipFC2+iOrd+(max_mOrd+1)*(jOrd+(max_nOrd+1)))**2+ &
                                 Work(ipFC2+iOrd+(max_mOrd+1)*(jOrd+(max_nOrd+1)*2))**2+ &
                                 Work(ipFC2+iOrd+(max_mOrd+1)*(jOrd+(max_nOrd+1)*3))**2)
       if (.not. OscStr) then
-        IntensityMat(iOrd,jOrd) = 32.13002d9*const2*(TermMat(iOrd,jOrd)**2)*IntensityMat(iOrd,jOrd)
+        ! where does this number come from?
+        IntensityMat(iOrd,jOrd) = 32.13002e9_wp*const2*(TermMat(iOrd,jOrd)**2)*IntensityMat(iOrd,jOrd)
       end if
     end do
   end do

@@ -44,6 +44,8 @@ subroutine Dool_MULA(A,LA1,LA2,B,LB1,LB2,det)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
+use Constants, only: One
+
 implicit real*8(a-h,o-z)
 real*8 A(LA1,LA2)
 real*8 B(LB1,LB2)
@@ -62,10 +64,10 @@ do i=1,n
   iWork(ipiPiv+i-1) = i
   iWork(ipjPiv+i-1) = i
 end do
-det = 1.0d0
+det = One
 do i=1,n
   ! Now find better pivot element.
-  Amax = -1.0d0
+  Amax = -One
   do k=i,n
     do l=i,n
       Am = abs(A(iWork(ipiPiv+k-1),iWork(ipjPiv+l-1)))
@@ -164,6 +166,8 @@ subroutine SolveSecEq(A,n,C,S,D)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1994.
 
+use Constants, only: Zero, One
+
 implicit real*8(a-h,o-z)
 integer n
 real*8 A(n,n), S(n,n), C(n,n), D(n)
@@ -172,10 +176,10 @@ real*8 A(n,n), S(n,n), C(n,n), D(n)
 ! Initialize.
 nSqr = n**2
 nSqrTri = n*(n+1)/2
-!D write(6,*) 'SolveSecEq test prints.'
-!D write(6,*) 'Matrix A:'
+!D write(u6,*) 'SolveSecEq test prints.'
+!D write(u6,*) 'Matrix A:'
 !D do i=1,n
-!D   write(6,'(1x,5F16.8)') (A(i,j),j=1,n)
+!D   write(u6,'(1x,5F16.8)') (A(i,j),j=1,n)
 !D end do
 
 ! get memory for temporary matrices.
@@ -194,10 +198,10 @@ do i=1,n
 end do
 
 ! Turn T into a unit matrix.
-!vv T = 0.0d0
-call dcopy_(nSqr,[0.0d0],0,Work(ipT),1)
+!vv T = Zero
+call dcopy_(nSqr,[Zero],0,Work(ipT),1)
 do i=1,n
-  Work(ipT+i+n*(i-1)-1) = 1.0d0
+  Work(ipT+i+n*(i-1)-1) = One
 end do
 
 ! Diagonalize Scratch and scale each column of T with the square
@@ -213,8 +217,8 @@ end do
 
 ! Make A symmetric and transform it to lower packed storage in
 ! Scratch.
-call DGEMM_('N','N',n,n,n,1.0d0,A,n,Work(ipT),n,0.0d0,Work(ipTemp),n)
-call DGEMM_('T','N',n,n,n,1.0d0,Work(ipT),n,Work(ipTemp),n,0.0d0,Work(ipAsymm),n)
+call DGEMM_('N','N',n,n,n,One,A,n,Work(ipT),n,Zero,Work(ipTemp),n)
+call DGEMM_('T','N',n,n,n,One,Work(ipT),n,Work(ipTemp),n,Zero,Work(ipAsymm),n)
 k = 1
 do i=1,n
   do j=1,i
@@ -253,6 +257,9 @@ subroutine PolFit(ipow,nvar,var,yin,ndata,coef,nterm,stand_dev,max_err,diff_vec,
 !  Modified by:
 !    Niclas Forsberg
 
+use Constants, only: Zero, One
+use Definitions, only: wp, u6
+
 implicit real*8(a-h,o-z)
 parameter(mxdeg=6)
 integer ipow(nvar,nterm)
@@ -273,10 +280,10 @@ logical use_weight
 NrOfVar = nvar
 nPolyTerm = nterm
 myCoef2 = 1
-!vv rhs = 0.0d0
-call dcopy_(nterm,[0.0d0],0,rhs,1)
-!vv equmat = 0.0d0
-call dcopy_(nterm*nterm,[0.0d0],0,equmat,1)
+!vv rhs = Zero
+call dcopy_(nterm,[Zero],0,rhs,1)
+!vv equmat = Zero
+call dcopy_(nterm*nterm,[Zero],0,equmat,1)
 
 ! Set up weight vector.
 call GetMem('weight','Allo','Real',ipweight,ndata)
@@ -289,19 +296,19 @@ if (use_weight) then
   end do
   e_range = e_max-e_min
   do idata=1,ndata
-    Work(ipweight+idata-1) = 1.0d0/(1.0d0+1000.0d0*((yin(idata)-e_min)/e_range))
+    Work(ipweight+idata-1) = One/(One+1.0e3_wp*((yin(idata)-e_min)/e_range))
   end do
 else
-  !vv weight = 1.0d0
-  call dcopy_(ndata,[0.1d0],0,Work(ipweight),1)
+  !vv weight = One
+  call dcopy_(ndata,[0.1_wp],0,Work(ipweight),1)
 end if
 
 ! Accumulate equation matrix and right-hand-side.
 do idata=1,ndata
   ! Calculate powers of individual variable values.
   do ivar=1,NrOfVar
-    pow = 1.0d0
-    vpow(0,ivar) = 1.0d0
+    pow = One
+    vpow(0,ivar) = One
     do i=1,mxdeg
       pow = pow*var(idata,ivar)
       vpow(i,ivar) = pow
@@ -338,21 +345,21 @@ do i=1,nterm
   coef(i,1) = rhs(i)
 end do
 call Dool_MULA(equmat,nPolyTerm,nPolyTerm,coef,nPolyTerm,MyCoef2,det)
-if (abs(det) == 0.0) write(6,*) 'WARNING!! Determinant=0 in PolFit'
+if (abs(det) == Zero) write(u6,*) 'WARNING!! Determinant=0 in PolFit'
 
 ! Calculate fitted result.
 do idata=1,ndata
   ! Calculate powers of individual variable values.
   do ivar=1,NrOfVar
-    pow = 1.0d0
-    vpow(0,ivar) = 1.0d0
+    pow = One
+    vpow(0,ivar) = One
     do i=1,mxdeg
       pow = pow*var(idata,ivar)
       vpow(i,ivar) = pow
     end do
   end do
   ! Calculate value of each polynomial term. Add to yfit.
-  pol = 0.0d0
+  pol = Zero
   do iterm=1,nPolyTerm
     ip = ipow(iterm,1)
     t = vpow(ip,1)
@@ -366,7 +373,7 @@ do idata=1,ndata
 end do
 
 ! Calculate standard deviation and maximum error.
-sum = 0.0d0
+sum = Zero
 do idata=1,ndata
   diff = abs(yin(idata)-yfit(idata))
   diff_vec(idata) = diff
@@ -387,6 +394,8 @@ subroutine factor(exponent,nder,rfactor)
 !  Purpose:
 !    Calculate coefficient for n'th derivative.
 
+use Definitions, only: wp
+
 implicit none
 integer exponent, nder
 integer i, isum, ntot
@@ -401,7 +410,7 @@ if (nder > 0) then
 else if (nder < 0) then
   isum = 0
 end if
-rfactor = dble(isum)
+rfactor = real(isum,kind=wp)
 
 end subroutine factor
 !####
@@ -422,6 +431,9 @@ subroutine Cholesky(A,L,nd)
 !             triangular matrix.
 !
 !  Calls:
+
+use Constants, only: Zero, One
+use Definitions, only: u6
 
 !implicit none
 !VV: all calls use nxn
@@ -454,12 +466,12 @@ end if
 
 ! Take care of the first row.
 work(ipd) = L(1,1)
-L(1,1) = 1.0d0
+L(1,1) = One
 
 ! Multiply Llow with the square root of d.
 do iRow=1,n
-  if (work(ipd+iRow-1) < 0.0) then
-    write(6,*) 'Error in Cholesky!!! Matrix not positive definite.'
+  if (work(ipd+iRow-1) < Zero) then
+    write(u6,*) 'Error in Cholesky!!! Matrix not positive definite.'
     call Abend()
   end if
   dd = sqrt(work(ipd+iRow-1))

@@ -19,6 +19,8 @@ subroutine ShiftHess(Hess,shift,nDim,nDim2)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
+use Constants, only: Zero, One
+
 real*8 Hess(nDim,nDim2)
 !real*8 U(nDim,nDim2)
 !real*8 Hess_lowT(nDim*(nDim+1)/2)
@@ -41,12 +43,12 @@ do i=1,nDim
     Work(ipHess_lowT+k-1) = Hess(i,j)
   end do
 end do
-call dcopy_(nDimSqr,[0.0d0],0,Work(ipU),1)
-call dcopy_(nDim,[1.0d0],0,Work(ipU),nDim1)
+call dcopy_(nDimSqr,[Zero],0,Work(ipU),1)
+call dcopy_(nDim,[One],0,Work(ipU),nDim1)
 call Jacob(Work(ipHess_lowT),Work(ipU),nDim,nDim)
 call Jacord(Work(ipHess_lowT),Work(ipU),nDim,nDim)
 eigen_min = Work(ipHess_lowT)
-shift = eigen_min < 0.0d0
+shift = eigen_min < Zero
 if (shift) then
   epsilon = 2*eigen_min
   do i=1,nDim

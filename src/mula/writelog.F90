@@ -82,6 +82,8 @@ subroutine WriteLog(PotCoef,AtomLbl,AtCoord,Mass,InterVec,stand_dev,max_err,ener
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
+use Definitions, only: u6
+
 implicit real*8(a-h,o-z)
 #include "Constants_mula.fh"
 #include "dims.fh"
@@ -120,58 +122,58 @@ do i=1,NumInt
 end do
 
 if (nState == 1) then
-  write(6,*)
-  write(6,*)
-  write(6,'(a27,a)') ' ',' ================================================='
-  write(6,'(a27,a)') ' ','|                                                 |'
-  write(6,'(a27,a)') ' ','|           Results for the first state           |'
-  write(6,'(a27,a)') ' ','|                                                 |'
-  write(6,'(a27,a)') ' ',' ================================================='
-  write(6,*)
+  write(u6,*)
+  write(u6,*)
+  write(u6,'(a27,a)') ' ',' ================================================='
+  write(u6,'(a27,a)') ' ','|                                                 |'
+  write(u6,'(a27,a)') ' ','|           Results for the first state           |'
+  write(u6,'(a27,a)') ' ','|                                                 |'
+  write(u6,'(a27,a)') ' ',' ================================================='
+  write(u6,*)
 end if
 if (nState == 2) then
-  write(6,*)
-  write(6,*)
-  write(6,*)
-  write(6,'(a27,a)') ' ',' ================================================='
-  write(6,'(a27,a)') ' ','|                                                 |'
-  write(6,'(a27,a)') ' ','|           Results for the second state          |'
-  write(6,'(a27,a)') ' ','|                                                 |'
-  write(6,'(a27,a)') ' ',' ================================================='
-  write(6,*)
+  write(u6,*)
+  write(u6,*)
+  write(u6,*)
+  write(u6,'(a27,a)') ' ',' ================================================='
+  write(u6,'(a27,a)') ' ','|                                                 |'
+  write(u6,'(a27,a)') ' ','|           Results for the second state          |'
+  write(u6,'(a27,a)') ' ','|                                                 |'
+  write(u6,'(a27,a)') ' ',' ================================================='
+  write(u6,*)
 end if
 
 ! Write coefficients of polynomial fit, standard deviation and
 ! maximum error to log.
 if (.not. ForceField) then
-  write(6,*)
-  write(6,'(A)') '  Coefficients of different terms in polynomial:'
-  write(6,'(A)') '  ----------------------------------------------'
+  write(u6,*)
+  write(u6,'(A)') '  Coefficients of different terms in polynomial:'
+  write(u6,'(A)') '  ----------------------------------------------'
   do i=1,nPolyTerm
-    write(6,'(1x,f18.12,10(3x,i2))') PotCoef(i,1),(iWork(ipipow+i+nPolyTerm*(ivar-1)-1),ivar=1,nvar)
+    write(u6,'(1x,f18.12,10(3x,i2))') PotCoef(i,1),(iWork(ipipow+i+nPolyTerm*(ivar-1)-1),ivar=1,nvar)
   end do
-  write(6,*)
-  write(6,*)
-  write(6,'(A,es14.6)') '  Standard deviation of fitted values:',stand_dev
-  write(6,'(A)') '  ------------------------------------'
-  write(6,*)
-  write(6,'(A,es14.6)') '  Maximum error of fitted values:     ',max_err
-  write(6,'(A)') '  -------------------------------'
+  write(u6,*)
+  write(u6,*)
+  write(u6,'(A,es14.6)') '  Standard deviation of fitted values:',stand_dev
+  write(u6,'(A)') '  ------------------------------------'
+  write(u6,*)
+  write(u6,'(A,es14.6)') '  Maximum error of fitted values:     ',max_err
+  write(u6,'(A)') '  -------------------------------'
 
   ! Write energy in minimum.
-  write(6,*)
-  write(6,*)
-  write(6,'(A,F15.8,A)') '  Energy in minimum:',energy
-  write(6,'(A)') '  ------------------'
+  write(u6,*)
+  write(u6,*)
+  write(u6,'(A,F15.8,A)') '  Energy in minimum:',energy
+  write(u6,'(A)') '  ------------------'
 end if
 
 ! Write force constant matrix to log file.
 if (Huge_Print) then
-  write(6,*)
-  write(6,*)
-  write(6,*) ' ','Force Constant Matrix:'
-  write(6,*) ' ','======================'
-  write(6,*)
+  write(u6,*)
+  write(u6,*)
+  write(u6,*) ' ','Force Constant Matrix:'
+  write(u6,*) ' ','======================'
+  write(u6,*)
   maxCol = 10
   nRow = NumInt/maxCol+1
   nCol = mod(NumInt,maxCol)
@@ -194,22 +196,22 @@ if (Huge_Print) then
     end if
     if ((nCol == 0) .and. (i == nRow)) cont = .false.
     if (cont) then
-      write(6,'(10I12)') (nInt,nInt=m1,m2)
+      write(u6,'(10I12)') (nInt,nInt=m1,m2)
       do mInt=1,NumInt
-        write(6,'(10F12.6)') (Hess(mInt,nInt),nInt=m1,m2)
+        write(u6,'(10F12.6)') (Hess(mInt,nInt),nInt=m1,m2)
       end do
-      write(6,*)
-      write(6,*)
+      write(u6,*)
+      write(u6,*)
       m1 = m2+1
     end if
   end do
 
   ! Write matrix G to log file.
-  write(6,*)
-  write(6,*)
-  write(6,*) ' ','Inverse Mass Tensor :'
-  write(6,*) ' ','====================='
-  write(6,*)
+  write(u6,*)
+  write(u6,*)
+  write(u6,*) ' ','Inverse Mass Tensor :'
+  write(u6,*) ' ','====================='
+  write(u6,*)
   maxCol = 10
   nRow = NumInt/maxCol+1
   nCol = mod(NumInt,maxCol)
@@ -232,23 +234,23 @@ if (Huge_Print) then
     end if
     if ((nCol == 0) .and. (i == nRow)) cont = .false.
     if (cont) then
-      write(6,'(10I12)') (nInt,nInt=m1,m2)
+      write(u6,'(10I12)') (nInt,nInt=m1,m2)
       do mInt=1,NumInt
-        write(6,'(10F12.6)') (G(mInt,nInt),nInt=m1,m2)
+        write(u6,'(10F12.6)') (G(mInt,nInt),nInt=m1,m2)
       end do
-      write(6,*)
-      write(6,*)
+      write(u6,*)
+      write(u6,*)
       m1 = m2+1
     end if
   end do
-  write(6,*)
+  write(u6,*)
 
   ! Eigenvectors.
-  write(6,*)
-  write(6,*)
-  write(6,*) ' ','Eigenvectors :'
-  write(6,*) ' ','=============='
-  write(6,*)
+  write(u6,*)
+  write(u6,*)
+  write(u6,*) ' ','Eigenvectors :'
+  write(u6,*) ' ','=============='
+  write(u6,*)
   maxCol = 10
   nRow = NumInt/maxCol+1
   nCol = mod(NumInt,maxCol)
@@ -271,28 +273,28 @@ if (Huge_Print) then
     end if
     if ((nCol == 0) .and. (i == nRow)) cont = .false.
     if (cont) then
-      write(6,'(10I12)') (nInt,nInt=m1,m2)
+      write(u6,'(10I12)') (nInt,nInt=m1,m2)
       do mInt=1,NumInt
-        write(6,'(10F12.6)') (V(mInt,nInt),nInt=m1,m2)
+        write(u6,'(10F12.6)') (V(mInt,nInt),nInt=m1,m2)
       end do
-      write(6,*)
-      write(6,*)
+      write(u6,*)
+      write(u6,*)
       m1 = m2+1
     end if
   end do
-  write(6,*)
+  write(u6,*)
 end if
 
 ! Third derivatives.
 if (max_term > 2) then
-  write(6,*)
-  write(6,*)
-  write(6,'(A)') '  Cubic force constants:'
-  write(6,'(A)') '  ----------------------'
+  write(u6,*)
+  write(u6,*)
+  write(u6,'(A)') '  Cubic force constants:'
+  write(u6,'(A)') '  ----------------------'
   do i=1,NumInt
     do j=i,NumInt
       do k=j,NumInt
-        write(6,'(a,i2,i2,i2,f15.8)') '  ',i,j,k,D3(i,j,k)
+        write(u6,'(a,i2,i2,i2,f15.8)') '  ',i,j,k,D3(i,j,k)
       end do
     end do
   end do
@@ -300,15 +302,15 @@ end if
 
 ! Fourth derivatives.
 if (max_term > 3) then
-  write(6,*)
-  write(6,*)
-  write(6,'(A)') '  Quartic force constants:'
-  write(6,'(A)') '  ------------------------'
+  write(u6,*)
+  write(u6,*)
+  write(u6,'(A)') '  Quartic force constants:'
+  write(u6,'(A)') '  ------------------------'
   do i=1,NumInt
     do j=i,NumInt
       do k=j,NumInt
         do l=k,NumInt
-          write(6,'(a,i2,i2,i2,i2,f15.8)') '  ',i,j,k,l,D4(i,j,k,l)
+          write(u6,'(a,i2,i2,i2,i2,f15.8)') '  ',i,j,k,l,D4(i,j,k,l)
         end do
       end do
     end do
@@ -317,12 +319,12 @@ end if
 
 ! Anharmonicity constants.
 if (max_term > 2) then
-  write(6,*)
-  write(6,*)
-  write(6,'(A)') '  Anharmonicity constants:'
-  write(6,'(A)') '  ------------------------'
+  write(u6,*)
+  write(u6,*)
+  write(u6,'(A)') '  Anharmonicity constants:'
+  write(u6,'(A)') '  ------------------------'
   do i=1,NumInt
-    write(6,'(a,20f15.8)') ' ',(HarToRcm*x_anharm(i,j),j=1,i)
+    write(u6,'(a,20f15.8)') ' ',(HarToRcm*x_anharm(i,j),j=1,i)
   end do
 end if
 
@@ -341,19 +343,19 @@ if (max_term > 2) call WriteFreq(anharmfreq,iWork(ipaNormModes),l_aNormModes,'An
 ! Write Potential Energy Distribution for each mode to log
 ! if the molecule is not too large.
 if (Huge_Print .and. (NumInt <= 10)) then
-  write(6,*)
-  write(6,*)
-  write(6,*) ' ','Potential Energy Distribution :'
-  write(6,*) ' ','==============================='
+  write(u6,*)
+  write(u6,*)
+  write(u6,*) ' ','Potential Energy Distribution :'
+  write(u6,*) ' ','==============================='
   do imode=1,NumInt
-    write(6,*)
-    write(6,*) ' ','Mode',imode
-    write(6,*) ' ','-------'
+    write(u6,*)
+    write(u6,*) ' ','Mode',imode
+    write(u6,*) ' ','-------'
     do k=1,NumInt
       if (NumInt < 21) then
-        write(6,'(60F6.2)') (PED(k,l,imode),l=1,NumInt)
+        write(u6,'(60F6.2)') (PED(k,l,imode),l=1,NumInt)
       else
-        write(6,'(60F5.2)') (PED(k,l,imode),l=1,NumInt)
+        write(u6,'(60F5.2)') (PED(k,l,imode),l=1,NumInt)
       end if
     end do
   end do
@@ -373,16 +375,16 @@ end do
 ! Print displacement vectors scaled with length of longest vector
 ! if the molecule is not too large.
 if (Huge_Print .and. (NumInt <= 10)) then
-  write(6,*)
-  write(6,*)
-  write(6,*) ' ','Scaled displacement vectors :'
-  write(6,*) ' ','============================='
-  write(6,*) ' ','(length of longest vector set equal to one)'
-  write(6,*)
+  write(u6,*)
+  write(u6,*)
+  write(u6,*) ' ','Scaled displacement vectors :'
+  write(u6,*) ' ','============================='
+  write(u6,*) ' ','(length of longest vector set equal to one)'
+  write(u6,*)
   maxCol = 10
   do nAtom=1,NumOfAt
-    write(6,*) ' ',' Atom: ',AtomLbl(nAtom)
-    write(6,*) ' ',' ---------'
+    write(u6,*) ' ',' Atom: ',AtomLbl(nAtom)
+    write(u6,*) ' ',' ---------'
     nRow = NumInt/maxCol
     nCol = mod(NumInt,maxCol)
     m1 = 1
@@ -394,17 +396,17 @@ if (Huge_Print .and. (NumInt <= 10)) then
         m2 = m2+maxCol
       end if
       if (m2 /= 0) then
-        write(6,'(10I12)') (j,j=m1,m2)
-        write(6,'(A4,10F12.8)') '  x ',(qMat((nAtom-1)*3+1,j)/vMax,j=m1,m2)
-        write(6,'(A4,10F12.8)') '  y ',(qMat((nAtom-1)*3+2,j)/vMax,j=m1,m2)
-        write(6,'(A4,10F12.8)') '  z ',(qMat((nAtom-1)*3+3,j)/vMax,j=m1,m2)
-        write(6,*)
+        write(u6,'(10I12)') (j,j=m1,m2)
+        write(u6,'(A4,10F12.8)') '  x ',(qMat((nAtom-1)*3+1,j)/vMax,j=m1,m2)
+        write(u6,'(A4,10F12.8)') '  y ',(qMat((nAtom-1)*3+2,j)/vMax,j=m1,m2)
+        write(u6,'(A4,10F12.8)') '  z ',(qMat((nAtom-1)*3+3,j)/vMax,j=m1,m2)
+        write(u6,*)
         m1 = m2+1
       end if
     end do
   end do
-  write(6,*)
-  write(6,*)
+  write(u6,*)
+  write(u6,*)
 end if
 
 ! Generate MOLDEN input:

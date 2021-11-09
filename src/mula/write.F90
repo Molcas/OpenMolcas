@@ -13,67 +13,75 @@
 
 subroutine WriteDip(DipGrad,Modes,Title,nOsc)
 
+use Definitions, only: u6
+
 real*8 DipGrad(3,nOsc)
 integer Modes(nOsc)
 character Title*(*)
 #include "inout.fh"
 
-write(6,*)
-write(6,*)
-write(6,'(a2,a)') ' ',Title
-write(6,'(a2,a)') ' ','=============================================='
-write(6,'(a2,a)') ' ',' mode          X           Y           Z      '
-write(6,'(a2,a)') ' ','----------------------------------------------'
+write(u6,*)
+write(u6,*)
+write(u6,'(a2,a)') ' ',Title
+write(u6,'(a2,a)') ' ','=============================================='
+write(u6,'(a2,a)') ' ',' mode          X           Y           Z      '
+write(u6,'(a2,a)') ' ','----------------------------------------------'
 do i=1,nOsc
-  write(6,'(a3,i2,a1,a3,3f12.5)') ' ',Modes(i),'.',' ',(DipGrad(j,i),j=1,3)
+  write(u6,'(a3,i2,a1,a3,3f12.5)') ' ',Modes(i),'.',' ',(DipGrad(j,i),j=1,3)
 end do
-write(6,'(a2,a)') ' ','=============================================='
-write(6,*)
+write(u6,'(a2,a)') ' ','=============================================='
+write(u6,*)
 
 end subroutine WriteDip
 !####
 subroutine IntCalcHeader()
 
+use Definitions, only: u6
+
 #include "inout.fh"
 
-write(6,*)
-write(6,*)
-write(6,'(a27,a)') ' ',' ================================================='
-write(6,'(a27,a)') ' ','|                                                 |'
-write(6,'(a27,a)') ' ','|             Intensity calculation               |'
-write(6,'(a27,a)') ' ','|                                                 |'
-write(6,'(a27,a)') ' ',' ================================================='
-write(6,*)
+write(u6,*)
+write(u6,*)
+write(u6,'(a27,a)') ' ',' ================================================='
+write(u6,'(a27,a)') ' ','|                                                 |'
+write(u6,'(a27,a)') ' ','|             Intensity calculation               |'
+write(u6,'(a27,a)') ' ','|                                                 |'
+write(u6,'(a27,a)') ' ',' ================================================='
+write(u6,*)
 
 end subroutine IntCalcHeader
 !####
 subroutine ExpPointHeader()
 
+use Definitions, only: u6
+
 #include "inout.fh"
 
-write(6,*)
-write(6,*)
-write(6,'(a27,a)') ' ',' ================================================='
-write(6,'(a27,a)') ' ','|                                                 |'
-write(6,'(a27,a)') ' ','|            Expansion point geometry             |'
-write(6,'(a27,a)') ' ','|                                                 |'
-write(6,'(a27,a)') ' ',' ================================================='
-write(6,*)
+write(u6,*)
+write(u6,*)
+write(u6,'(a27,a)') ' ',' ================================================='
+write(u6,'(a27,a)') ' ','|                                                 |'
+write(u6,'(a27,a)') ' ','|            Expansion point geometry             |'
+write(u6,'(a27,a)') ' ','|                                                 |'
+write(u6,'(a27,a)') ' ',' ================================================='
+write(u6,*)
 
 end subroutine ExpPointHeader
 !####
 subroutine ISCHeader()
 
+use Definitions, only: u6
+
 #include "inout.fh"
 
-write(6,*)
-write(6,*)
-write(6,'(a27,a)') ' ',' ================================================='
-write(6,'(a27,a)') ' ','|                                                 |'
-write(6,'(a27,a)') ' ','|      InterSystem Crossing rate calculation      |'
-write(6,'(a27,a)') ' ','|                                                 |'
-write(6,'(a27,a)') ' ',' ================================================='
-write(6,*)
+write(u6,*)
+write(u6,*)
+write(u6,'(a27,a)') ' ',' ================================================='
+write(u6,'(a27,a)') ' ','|                                                 |'
+write(u6,'(a27,a)') ' ','|      InterSystem Crossing rate calculation      |'
+write(u6,'(a27,a)') ' ','|                                                 |'
+write(u6,'(a27,a)') ' ',' ================================================='
+write(u6,*)
 
 end subroutine ISCHeader
 !#####
@@ -85,23 +93,28 @@ subroutine WriteHeader(Title)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
+use Definitions, only: u6
+
 character*80 Title
 #include "inout.fh"
 
-write(6,*)
+write(u6,*)
 
 ! Write title of project.
-write(6,*)
-write(6,*)
-write(6,*)
-write(6,'(A,A)') '  Title : ',Title
-write(6,'(A)') '  -------'
-write(6,*)
+write(u6,*)
+write(u6,*)
+write(u6,*)
+write(u6,'(A,A)') '  Title : ',Title
+write(u6,'(A)') '  -------'
+write(u6,*)
 
 end subroutine WriteHeader
 
 subroutine WrMold(FName,NumOfAt,AtomLbl,AtCoord,NumInt,HarmFreq,QMat)
 ! Open file named FName, and create a MOLDEN input file.
+
+use Constants, only: Zero
+use Definitions, only: wp
 
 !implicit none
 #include "Constants_mula.fh"
@@ -128,7 +141,7 @@ end do
 ! VV: Not implemented???
 write(9,*) '[INT]'
 do iInt=1,NumInt
-  write(9,'(1X,F10.3)') 0.0
+  write(9,'(1X,F10.3)') Zero
 end do
 ! Atom coordinates:
 write(9,*) '[NATOM]'
@@ -144,13 +157,13 @@ end do
 
 ! Cartesian displacement coordinates:
 ! Scale such that max displacement is 0.2 A.U.
-DMax = 0.2d0
+DMax = 0.2_wp
 write(9,*) '[FR-NORM-COORD]'
 do iInt=1,NumInt
   write(9,*) 'vibration ',iInt
-  DispMx = 0.0d0
+  DispMx = Zero
   do iAtom=1,NumOfAt
-    D2 = 0.0d0
+    D2 = Zero
     do i=1,3
       D2 = D2+QMat(i,iAtom,iInt)**2
     end do

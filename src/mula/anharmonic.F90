@@ -27,6 +27,8 @@ subroutine AnharmonicFreq(x_anharm,harmfreq,anharmfreq,nOsc)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1996.
 
+use Constants, only: Zero
+
 implicit real*8(a-h,o-z)
 #include "Constants_mula.fh"
 real*8 G1, G2
@@ -39,7 +41,7 @@ real*8 anharmfreq(nosc)
 call GetMem('level1','Allo','Inte',iplevel1,nOsc)
 call GetMem('level2','Allo','Inte',iplevel2,nOsc)
 
-G1 = 0.0d0
+G1 = Zero
 G2 = G1
 do iv=0,nOsc-1
   iWork(iplevel1+iv) = 0

@@ -26,6 +26,9 @@ subroutine LSPotFit(r01,energy1,grad1,Hess1,D3_1,D4_1,r02,energy2,grad2,Hess2,D3
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1996.
 
+use Constants, only: Zero, One, Two, Ten
+use Definitions, only: wp
+
 !use Linalg
 !use FCMod
 !use TabMod
@@ -66,17 +69,17 @@ call GetMem('rhs','Allo','Real',iprhs,nDim)
 
 call GetMem('weight','Allo','Real',ipweight,nDim*nDim)
 
-call dcopy_(ndim**2,[0.0d0],0,Work(ipweight),1)
+call dcopy_(ndim**2,[Zero],0,Work(ipweight),1)
 n = 1
-Work(ipweight+n+nDim*(n-1)-1) = 1.0d4
-Work(ipweight+n+nterm+nDim*(n+nterm-1)-1) = 1.0d4
+Work(ipweight+n+nDim*(n-1)-1) = 1.0e4_wp
+Work(ipweight+n+nterm+nDim*(n+nterm-1)-1) = 1.0e4_wp
 Work(iprhs+n-1) = energy1
 Work(iprhs+n+nterm-1) = energy2
 n = n+1
 if (max_term > 0) then
   do i=1,nvar
-    Work(ipweight+n+nDim*(n-1)-1) = 1.0d3
-    Work(ipweight+n+nterm+nDim*(n+nterm-1)-1) = 1.0d3
+    Work(ipweight+n+nDim*(n-1)-1) = 1.0e3_wp
+    Work(ipweight+n+nterm+nDim*(n+nterm-1)-1) = 1.0e3_wp
     Work(iprhs+n-1) = grad1(i)
     Work(iprhs+n+nterm-1) = grad2(i)
     n = n+1
@@ -84,8 +87,8 @@ if (max_term > 0) then
   if (max_term > 1) then
     do i=1,nvar
       do j=i,nvar
-        Work(ipweight+n+nDim*(n-1)-1) = 1.0d2
-        Work(ipweight+n+nterm+nDim*(n+nterm-1)-1) = 1.0d2
+        Work(ipweight+n+nDim*(n-1)-1) = 1.0e2_wp
+        Work(ipweight+n+nterm+nDim*(n+nterm-1)-1) = 1.0e2_wp
         Work(iprhs+n-1) = Hess1(i,j)
         Work(iprhs+n+nterm-1) = Hess2(i,j)
         n = n+1
@@ -95,8 +98,8 @@ if (max_term > 0) then
       do i=1,nvar
         do j=i,nvar
           do k=j,nvar
-            Work(ipweight+n+nDim*(n-1)-1) = 1.0d1
-            Work(ipweight+n+nterm+nDim*(n+nterm-1)-1) = 1.0d1
+            Work(ipweight+n+nDim*(n-1)-1) = Ten
+            Work(ipweight+n+nterm+nDim*(n+nterm-1)-1) = Ten
             Work(iprhs+n-1) = D3_1(i,j,k)
             Work(iprhs+n+nterm-1) = D3_2(i,j,k)
             n = n+1
@@ -108,8 +111,8 @@ if (max_term > 0) then
           do j=i,nvar
             do k=j,nvar
               do l=k,nvar
-                Work(ipweight+n+nDim*(n-1)-1) = 1.0d0
-                Work(ipweight+n+nterm+nDim*(n+nterm-1)-1) = 1.0d0
+                Work(ipweight+n+nDim*(n-1)-1) = One
+                Work(ipweight+n+nterm+nDim*(n+nterm-1)-1) = One
                 Work(iprhs+n-1) = D4_1(i,j,k,l)
                 Work(iprhs+n+nterm-1) = D4_2(i,j,k,l)
                 n = n+1
@@ -122,15 +125,15 @@ if (max_term > 0) then
   end if
 end if
 if (pot) then
-  Work(iprhs+nDim-1) = energy0+20000.0d0/HarToRcm
-  Work(ipweight+nDim+nDim*(nDim-1)-1) = 1.0d4
+  Work(iprhs+nDim-1) = energy0+2.0e4_wp/HarToRcm
+  Work(ipweight+nDim+nDim*(nDim-1)-1) = 1.0e4_wp
 end if
 
 l_vpow = mxdeg+1
 call GetMem('vpow','Allo','Real',ipvpow,l_vpow*nvar)
 call GetMem('Tmat','Allo','Real',ipTmat,nDim*nterm)
-call dcopy_(nDim*nterm,[0.0d0],0,work(ipTmat),1)
-!Tmat = 0.0d0
+call dcopy_(nDim*nterm,[Zero],0,work(ipTmat),1)
+!Tmat = Zero
 call GetMem('x','Allo','Real',ipx,nvar)
 
 nrow = 1
@@ -149,8 +152,8 @@ do m=1,2
 
   ! Calculate powers of individual variable values.
   do ivar=1,nvar
-    pow = 1.0d0
-    work(ipvpow+1+l_vpow*(ivar-1)-1) = 1.0d0
+    pow = One
+    work(ipvpow+1+l_vpow*(ivar-1)-1) = One
     do i=1,mxdeg
       pow = pow*Work(ipx+ivar-1)
       Work(ipvpow+i+1+l_vpow*(ivar-1)-1) = pow
@@ -290,12 +293,12 @@ end do
 if (pot) then
   Work(ipx) = r_min(1)-r00(1)
   Work(ipx+1) = r_min(2)-r00(2)
-  Work(ipx+2) = 2.0d0*rpi-r_min(3)-r00(3)
+  Work(ipx+2) = Two*rpi-r_min(3)-r00(3)
 
   ! Calculate powers of individual variable values.
   do ivar=1,nvar
-    pow = 1.0d0
-    Work(ipvpow+1+l_vpow*(ivar-1)-1) = 1.0d0
+    pow = One
+    Work(ipvpow+1+l_vpow*(ivar-1)-1) = One
     do i=1,mxdeg
       pow = pow*Work(ipx+ivar-1)
       Work(ipvpow+i+1+l_vpow*(ivar-1)-1) = pow
@@ -318,8 +321,8 @@ end if
 call GetMem('Temp','Allo','Real',ipTemp,nterm*nDim)
 call GetMem('Equmat','Allo','Real',ipEqumat,nterm*nterm)
 
-call DGEMM_('T','N',nterm,nDim,nDim,1.0d0,Work(ipTmat),nDim,Work(ipweight),nDim,0.0d0,Work(ipTemp),nterm)
-call DGEMM_('N','N',nterm,nterm,nDim,1.0d0,Work(ipTemp),nterm,Work(ipTmat),nDim,0.0d0,Work(ipEqumat),nterm)
+call DGEMM_('T','N',nterm,nDim,nDim,One,Work(ipTmat),nDim,Work(ipweight),nDim,Zero,Work(ipTemp),nterm)
+call DGEMM_('N','N',nterm,nterm,nDim,One,Work(ipTemp),nterm,Work(ipTmat),nDim,Zero,Work(ipEqumat),nterm)
 
 n = 2
 if (max_term > 0) then
@@ -336,7 +339,7 @@ if (max_term > 0) then
       do i=1,nvar
         do j=i,nvar
           do k=j,nvar
-            Work(ipEqumat+n+nterm*(n-1)-1) = Work(ipEqumat+n+nterm*(n-1)-1)+1.0d-1
+            Work(ipEqumat+n+nterm*(n-1)-1) = Work(ipEqumat+n+nterm*(n-1)-1)+0.1_wp
             n = n+1
           end do
         end do
@@ -346,7 +349,7 @@ if (max_term > 0) then
           do j=i,nvar
             do k=j,nvar
               do l=k,nvar
-                Work(ipEqumat+n+nterm*(n-1)-1) = Work(ipEqumat+n+nterm*(n-1)-1)+1.0d-1
+                Work(ipEqumat+n+nterm*(n-1)-1) = Work(ipEqumat+n+nterm*(n-1)-1)+0.1_wp
                 n = n+1
               end do
             end do
@@ -357,7 +360,7 @@ if (max_term > 0) then
   end if
 end if
 
-call DGEMM_('N','N',nterm,1,nDim,1.0d0,Work(ipTemp),nterm,Work(iprhs),nDim,0.0d0,FitCoef,nterm)
+call DGEMM_('N','N',nterm,1,nDim,One,Work(ipTemp),nterm,Work(iprhs),nDim,Zero,FitCoef,nterm)
 
 ! Solve the resulting equation system.
 call Dool_MULA(Work(ipEqumat),nterm,nterm,FitCoef,nterm,nterm,det)

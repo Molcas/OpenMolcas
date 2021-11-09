@@ -11,6 +11,8 @@
 
 subroutine WriteFreq(Freq,NormModes,l_NormModes,Title)
 
+use Definitions, only: u6
+
 #include "Constants_mula.fh"
 real*8 frequency
 integer NormModes(l_NormModes)
@@ -21,19 +23,19 @@ character*8 F1
 
 F1 = '(a2,a)'
 NumInt = l_NormModes
-write(6,*)
-write(6,*)
-write(6,*)
-write(6,F1) ' ',Title
-write(6,F1) ' ','===================================================='
-write(6,F1) ' ',' mode        1/cm             GHz          hartrees '
-write(6,F1) ' ','----------------------------------------------------'
+write(u6,*)
+write(u6,*)
+write(u6,*)
+write(u6,F1) ' ',Title
+write(u6,F1) ' ','===================================================='
+write(u6,F1) ' ',' mode        1/cm             GHz          hartrees '
+write(u6,F1) ' ','----------------------------------------------------'
 do i=1,NumInt
   frequency = Freq(i)
-  write(6,'(A3,I2,A1,A3,F14.8,F18.8,F12.8)') ' ',NormModes(i),'.',' ',frequency*HarToRcm,frequency*HarToGHz,frequency
+  write(u6,'(A3,I2,A1,A3,F14.8,F18.8,F12.8)') ' ',NormModes(i),'.',' ',frequency*HarToRcm,frequency*HarToGHz,frequency
 end do
-write(6,F1) ' ','===================================================='
-write(6,*)
-write(6,*)
+write(u6,F1) ' ','===================================================='
+write(u6,*)
+write(u6,*)
 
 end subroutine WriteFreq

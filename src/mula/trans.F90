@@ -37,6 +37,8 @@ subroutine TransEnergy(G01,x_anharm1,harmfreq1,level1,G02,x_anharm2,harmfreq2,le
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1996.
 
+use Constants, only: Half
+
 implicit real*8(a-h,o-z)
 #include "Constants_mula.fh"
 real*8 sum, G0, G1, G01, G02
@@ -48,9 +50,9 @@ integer level1(nDim), level2(nDim)
 ! Calculate energy for level 1.
 sum = G01
 do i=1,nDim
-  sum = sum+harmfreq1(i)*(level1(i)+0.5d0)
+  sum = sum+harmfreq1(i)*(level1(i)+Half)
   do j=i,nDim
-    sum = sum+x_anharm1(i,j)*(level1(i)+0.5d0)*(level1(j)+0.5d0)
+    sum = sum+x_anharm1(i,j)*(level1(i)+Half)*(level1(j)+Half)
   end do
 end do
 G0 = sum
@@ -58,9 +60,9 @@ G0 = sum
 ! Calculate energy for level 2.
 sum = G02
 do i=1,nDim
-  sum = sum+harmfreq2(i)*(level2(i)+0.5d0)
+  sum = sum+harmfreq2(i)*(level2(i)+Half)
   do j=i,nDim
-    sum = sum+x_anharm2(i,j)*(level2(i)+0.5d0)*(level2(j)+0.5d0)
+    sum = sum+x_anharm2(i,j)*(level2(i)+Half)*(level2(j)+Half)
   end do
 end do
 G1 = sum

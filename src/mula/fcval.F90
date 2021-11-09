@@ -83,6 +83,9 @@ subroutine FCval(C1,W1,det1,r01,C2,W2,det2,r02,FC,max_mOrd,max_nOrd,max_nOrd2,ma
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, u6
+
 implicit real*8(a-h,o-z)
 #include "dims.fh"
 real*8 FC(0:max_mord,0:max_nord)
@@ -108,31 +111,31 @@ call GetMem('temp2','Allo','Real',iptemp2,nOscSqr)
 n = nTabDim+1
 call GetMem('sqr','Allo','Real',ipsqr,n+1)
 do i=0,nTabDim+1
-  Work(ipsqr+i) = sqrt(dble(i))
+  Work(ipsqr+i) = sqrt(real(i,kind=wp))
 end do
 
 ! Calculate alpha1, alpha2 and alpha.
 call GetMem('alpha','Allo','Real',ipalpha,nOscSqr)
-call DGEMM_('T','N',nOsc,nOsc,nOsc,1.0d0,C1,nOsc,C1,nOsc,0.0d0,alpha1,nOsc)
-call dscal_(nOscSqr,0.5d0,alpha1,1)
-call DGEMM_('T','N',nOsc,nOsc,nOsc,1.0d0,C2,nOsc,C2,nOsc,0.0d0,alpha2,nOsc)
-call dscal_(nOscSqr,0.5d0,alpha2,1)
+call DGEMM_('T','N',nOsc,nOsc,nOsc,One,C1,nOsc,C1,nOsc,Zero,alpha1,nOsc)
+call dscal_(nOscSqr,Half,alpha1,1)
+call DGEMM_('T','N',nOsc,nOsc,nOsc,One,C2,nOsc,C2,nOsc,Zero,alpha2,nOsc)
+call dscal_(nOscSqr,Half,alpha2,1)
 !temp = alpha1+alpha2
 call dcopy_(nOscSqr,alpha1,1,Work(iptemp),1)
-call Daxpy_(nOscSqr,1.0d0,alpha2,1,Work(iptemp),1)
-!alpha = 0.5d0*temp
-call dcopy_(nOscSqr,[0.0d0],0,Work(ipalpha),1)
-call Daxpy_(nOscSqr,0.5d0,Work(iptemp),1,Work(ipalpha),1)
+call Daxpy_(nOscSqr,One,alpha2,1,Work(iptemp),1)
+!alpha = Half*temp
+call dcopy_(nOscSqr,[Zero],0,Work(ipalpha),1)
+call Daxpy_(nOscSqr,Half,Work(iptemp),1,Work(ipalpha),1)
 
 !call xxDgemul(C,nOsc,'T',C,nOsc,'N',alpha,nOsc,nOsc,nOsc,nOsc)
-!call dscal_(nOscSqr,0.5d0,alpha,1)
+!call dscal_(nOscSqr,Half,alpha,1)
 
 ! Calculate C using a Cholesky factorization of 2*alpha.
 !call Cholesky(temp,C)
 
 ! Calculate W.
-!call dcopy_(nOscSqr,[0.0d0],0,W,1)
-!call dcopy_(nOsc,[1.0d0],0,W,nOsc+1)
+!call dcopy_(nOscSqr,[Zero],0,W,1)
+!call dcopy_(nOsc,[One],0,W,nOsc+1)
 !temp = C
 !call Dool_MULA(temp,W,det0)
 
@@ -148,19 +151,19 @@ do i=1,nOsc
 end do
 !temp1 = alpha1
 call dcopy_(nOscSqr,alpha1,1,Work(iptemp1),1)
-!temp = 2.0d0*alpha
-call dcopy_(nOscSqr,[0.0d0],0,Work(iptemp),1)
-call Daxpy_(nOscSqr,2.0d0,Work(ipalpha),1,Work(iptemp),1)
+!temp = Two*alpha
+call dcopy_(nOscSqr,[Zero],0,Work(iptemp),1)
+call Daxpy_(nOscSqr,Two,Work(ipalpha),1,Work(iptemp),1)
 
 call Dool_MULA(Work(iptemp),nOsc,nOsc,Work(iptemp1),nOsc,nOsc,det)
-call DGEMM_('N','N',nOsc,nOsc,nOsc,1.0d0,alpha2,nOsc,Work(iptemp1),nOsc,0.0d0,beta,nOsc)
+call DGEMM_('N','N',nOsc,nOsc,nOsc,One,alpha2,nOsc,Work(iptemp1),nOsc,Zero,beta,nOsc)
 
 ! Calculate FC00.
 !r_temp1 = r02-r01
 call dcopy_(nOsc,r01,1,Work(ipr_temp1),1)
-call Daxpy_(nOsc,-1.0d0,r02,1,Work(ipr_temp1),1)
+call Daxpy_(nOsc,-One,r02,1,Work(ipr_temp1),1)
 
-call DGEMM_('N','N',nOsc,1,nOsc,1.0d0,beta,nOsc,Work(ipr_temp1),nOsc,0.0d0,Work(ipr_temp2),nOsc)
+call DGEMM_('N','N',nOsc,1,nOsc,One,beta,nOsc,Work(ipr_temp1),nOsc,Zero,Work(ipr_temp2),nOsc)
 FC00_exp = Ddot_(nOsc,Work(ipr_temp1),1,Work(ipr_temp2),1)
 FC00 = (sqrt(det1)*sqrt(det2)/det0)*exp(-FC00_exp)
 
@@ -171,22 +174,22 @@ call GetMem('A2','Allo','Real',ipA2,nOscSqr)
 call GetMem('B2','Allo','Real',ipB2,nOscSqr)
 call GetMem('d1','Allo','Real',ipd1,nOsc)
 call GetMem('d2','Allo','Real',ipd2,nOsc)
-call DGEMM_('N','N',nOsc,nOsc,nOsc,1.0d0,C1,nOsc,W,nOsc,0.0d0,Work(ipA1),nOsc)
-call DGEMM_('T','T',nOsc,nOsc,nOsc,1.0d0,W1,nOsc,C,nOsc,0.0d0,Work(iptemp),nOsc)
+call DGEMM_('N','N',nOsc,nOsc,nOsc,One,C1,nOsc,W,nOsc,Zero,Work(ipA1),nOsc)
+call DGEMM_('T','T',nOsc,nOsc,nOsc,One,W1,nOsc,C,nOsc,Zero,Work(iptemp),nOsc)
 !B1 = A1-temp
 call dcopy_(nOscSqr,Work(ipA1),1,Work(ipB1),1)
-call Daxpy_(nOscSqr,-1.0d0,Work(iptemp),1,Work(ipB1),1)
+call Daxpy_(nOscSqr,-One,Work(iptemp),1,Work(ipB1),1)
 
-call DGEMM_('T','N',nOsc,1,nOsc,1.0d0,W1,nOsc,Work(ipr_temp2),nOsc,0.0d0,Work(ipd1),nOsc)
+call DGEMM_('T','N',nOsc,1,nOsc,One,W1,nOsc,Work(ipr_temp2),nOsc,Zero,Work(ipd1),nOsc)
 const = Work(ipsqr+8)
 call dscal_(nOsc,const,Work(ipd1),1)
-call DGEMM_('N','N',nOsc,nOsc,nOsc,1.0d0,C2,nOsc,W,nOsc,0.0d0,Work(ipA2),nOsc)
-call DGEMM_('T','T',nOsc,nOsc,nOsc,1.0d0,W2,nOsc,C,nOsc,0.0d0,Work(iptemp),nOsc)
+call DGEMM_('N','N',nOsc,nOsc,nOsc,One,C2,nOsc,W,nOsc,Zero,Work(ipA2),nOsc)
+call DGEMM_('T','T',nOsc,nOsc,nOsc,One,W2,nOsc,C,nOsc,Zero,Work(iptemp),nOsc)
 !B2 = A2-temp
 call dcopy_(nOscSqr,Work(ipA2),1,Work(ipB2),1)
-call Daxpy_(nOscSqr,-1.0d0,Work(iptemp),1,Work(ipB2),1)
+call Daxpy_(nOscSqr,-One,Work(iptemp),1,Work(ipB2),1)
 
-call DGEMM_('T','N',nOsc,1,nOsc,1.0d0,W2,nOsc,Work(ipr_temp2),nOsc,0.0d0,Work(ipd2),nOsc)
+call DGEMM_('T','N',nOsc,1,nOsc,One,W2,nOsc,Work(ipr_temp2),nOsc,Zero,Work(ipd2),nOsc)
 const = -Work(ipsqr+8)
 call dscal_(nOsc,const,Work(ipd2),1)
 
@@ -194,8 +197,8 @@ call dscal_(nOsc,const,Work(ipd2),1)
 call GetMem('A1B1T','Allo','Real',ipA1B1T,nOscSqr)
 call GetMem('A2B2T','Allo','Real',ipA2B2T,nOscSqr)
 
-call DGEMM_('N','T',nOsc,nOsc,nOsc,1.0d0,Work(ipA1),nOsc,Work(ipB1),nOsc,0.0d0,Work(ipA1B1T),nOsc)
-call DGEMM_('N','T',nOsc,nOsc,nOsc,1.0d0,Work(ipA2),nOsc,Work(ipB2),nOsc,0.0d0,Work(ipA2B2T),nOsc)
+call DGEMM_('N','T',nOsc,nOsc,nOsc,One,Work(ipA1),nOsc,Work(ipB1),nOsc,Zero,Work(ipA1B1T),nOsc)
+call DGEMM_('N','T',nOsc,nOsc,nOsc,One,Work(ipA2),nOsc,Work(ipB2),nOsc,Zero,Work(ipA2B2T),nOsc)
 
 call GetMem('temp','Free','Real',iptemp,nOscSqr)
 call GetMem('temp1','Free','Real',iptemp1,nOscSqr)
@@ -205,9 +208,9 @@ call GetMem('r_temp1','Free','Real',ipr_temp1,nOsc)
 call GetMem('r_temp2','Free','Real',ipr_temp2,nOsc)
 
 ! Initialize L matrix.
-call dcopy_((max_mord+1)*(max_ninc2+1),[0.0d0],0,L,1)
-!L = 0.0d0
-L(0,0) = 1.0d0
+call dcopy_((max_mord+1)*(max_ninc2+1),[Zero],0,L,1)
+!L = Zero
+L(0,0) = One
 
 ! If max_mOrd > 0 then set up L(m,0).
 if (max_mOrd > 0) then
@@ -233,15 +236,15 @@ if (max_mOrd > 0) then
   end if
 
   ! Use recursion formula to obtain the rest of L.
-  write(6,*) 'FCVAL Test prints:'
-  write(6,*) 'In this loop, indices jOrd and iOrd will vary.'
-  write(6,*) 'They are used to address L(iOrd,jOrd).'
-  write(6,'(1x,a,2i8)') '(1) jOrd goes from 1, up to max_mord=',max_mord
-  write(6,'(1x,a,2i8)') '(2) iOrd goes from 1, up to max_mord=',max_mord
+  write(u6,*) 'FCVAL Test prints:'
+  write(u6,*) 'In this loop, indices jOrd and iOrd will vary.'
+  write(u6,*) 'They are used to address L(iOrd,jOrd).'
+  write(u6,'(1x,a,2i8)') '(1) jOrd goes from 1, up to max_mord=',max_mord
+  write(u6,'(1x,a,2i8)') '(2) iOrd goes from 1, up to max_mord=',max_mord
   !vv stop
   !do jOrd=1,max_nInc2
   do jOrd=1,max_mOrd
-    write(6,'(1x,a,2i8)') ' jOrd=',jOrd
+    write(u6,'(1x,a,2i8)') ' jOrd=',jOrd
     lOsc = nOsc
     do while ((mMat(jOrd,lOsc) == 0) .and. (lOsc > 1))
       lOsc = lOsc-1
@@ -258,9 +261,9 @@ if (max_mOrd > 0) then
 end if
 
 ! Initialize U matrix.
-!U = 0.0d0
-call dcopy_((max_nord+1)*(max_nord2+1),[0.0d0],0,U,1)
-U(0,0) = 1.0d0
+!U = Zero
+call dcopy_((max_nord+1)*(max_nord2+1),[Zero],0,U,1)
+U(0,0) = One
 
 ! If max_nOrd > 0 then set up U(n,0).
 if (max_nOrd > 0) then
@@ -314,11 +317,11 @@ call GetMem('d1','Free','Real',ipd1,nOsc)
 call GetMem('d2','Free','Real',ipd2,nOsc)
 
 ! Calculate Franck-Condon factors.
-!FC = 0.0d0
-call dcopy_((max_mord+1)*(max_nord+1),[0.0d0],0,FC,1)
+!FC = Zero
+call dcopy_((max_mord+1)*(max_nord+1),[Zero],0,FC,1)
 do jOrd=0,max_nOrd
   do iOrd=0,max_mOrd
-    sum = 0.0d0
+    sum = Zero
     do kOrd=0,min(max_mOrd,max_nOrd)
 
       sum = sum+L(iOrd,kOrd)*U(jOrd,kOrd)

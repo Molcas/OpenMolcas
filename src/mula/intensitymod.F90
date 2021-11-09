@@ -89,6 +89,9 @@ subroutine Intensity(IntensityMat,TermMat,T0,max_term,ipow,var,Tdip_x,Tdip_y,Tdi
 !    TermMat      : Real*8 two dimensional array - energies
 !                   of transitions.
 
+use Constants, only: Zero, Two, Three
+use Definitions, only: wp
+
 implicit real*8(a-h,o-z)
 #include "Constants_mula.fh"
 #include "dims.fh"
@@ -153,11 +156,11 @@ call MakeTab2(n_max2,max_nOrd2,max_nInc2,nTabDim2,iWork(ipnMat),iWork(ipnInc),iW
 nDimTot = 2*max_mOrd+2
 n = ndimtot-1
 call GetMem('FC2','Allo','Real',ipFC2,nDimTot*nDimTot*3)
-!FC2 = 0.0d0
-call dcopy_(nDimtot*nDimTot*3,[0.0d0],0,Work(ipFC2),1)
+!FC2 = Zero
+call dcopy_(nDimtot*nDimTot*3,[Zero],0,Work(ipFC2),1)
 call GetMem('DipMat','Allo','Real',ipDipMat,nDimTot*nDimTot*3)
-!DipMat = 0.0d0
-call dcopy_(nDimtot*nDimTot*3,[0.0d0],0,Work(ipDipMat),1)
+!DipMat = Zero
+call dcopy_(nDimtot*nDimTot*3,[Zero],0,Work(ipDipMat),1)
 call SetUpDipMat(Work(ipDipMat),max_dip,ipow,var,Tdip_x,trfName,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,max_nOrd,max_mInc, &
                  max_nInc,max_nInc,iWork(ipmMat),iWork(ipnMat),iWork(ipmInc),iWork(ipnInc),iWork(ipmDec),iWork(ipnDec),det0,r0,r1, &
                  r2,base,nnsiz,nOsc,nDimTot,nPolyTerm,ndata,nvar,MaxNumAt)
@@ -189,7 +192,7 @@ end if
 do k=1,2
   do m=1,ndimtot
     do n=1,ndimtot
-      sum = 0.0d0
+      sum = Zero
       do j=1,nDimTot
         do i=1,nDimTot
           sum = sum+Work(ipDipMat+i-1+nDimTot*((j-1)+nDimTot*(k-1)))*U1(i,m)*U2(j,n)
@@ -206,17 +209,18 @@ call GetMem('DipMat','Free','Real',ipDipMat,nDimTot*nDimTot*3)
 !level1 = mMat(0,:)
 !do iOrd=0,max_mOrd
 !  level2 = mMat(iOrd,:)
-!  FreqDiffMat(iOrd) = TransEnergy(0.0d0,x_anharm1,harmfreq1,level1,0.0d0,x_anharm1,harmfreq1,level2)
+!  FreqDiffMat(iOrd) = TransEnergy(Zero,x_anharm1,harmfreq1,level1,Zero,x_anharm1,harmfreq1,level2)
 !end do
 
 ! Calculate intensities.
-const1 = (2.0d0/3.0d0)*32.13002d9
-call dcopy_((l_IntensityMat_1+1)*(l_IntensityMat_2+1),[0.0d0],0,IntensityMat,1)
-!IntensityMat = 0.0d0
-do jOrd=0,ndimtot-1
-  do iOrd=0,ndimtot-1
-    !dE = FreqDiffMat(iOrd)*HarToaJ*1.0d-18
-    !const2 = const1*exp(-dE/(1.38066d-23*Temperature))
+! where does this number come from?
+const1 = (Two/Three)*32.13002e9_wp
+call dcopy_((l_IntensityMat_1+1)*(l_IntensityMat_2+1),[Zero],0,IntensityMat,1)
+!IntensityMat = Zero
+do jOrd=0,nDimTot-1
+  do iOrd=0,nDimTot-1
+    !dE = FreqDiffMat(iOrd)*HarToaJ*1.0e-18_wp
+    !const2 = const1*exp(-dE/(kBoltzmann*Temperature))
     !IntensityMat(iOrd,jOrd) = const2*(TermMat(iOrd,jOrd)**3)* &
     IntensityMat(iOrd,jOrd) = const1*(TermMat(iOrd,jOrd)**3)*(Work(ipFC2+iOrd+nDimTot*(jOrd))**2+ &
                               Work(ipFC2+iOrd+nDimTot*(jOrd+nDimTot))**2+Work(ipFC2+iOrd+nDimTot*(jOrd+nDimTot*2))**2)
@@ -224,7 +228,6 @@ do jOrd=0,ndimtot-1
 end do
 
 call GetMem('FC2','Free','Real',ipFC2,nDimTot*nDimTot*3)
-
 call GetMem('mMat','Free','Inte',ipmMat,(mTabDim+1)*nOsc)
 call GetMem('mInc','Free','Inte',ipmInc,(mTabDim+1)*nOsc)
 call GetMem('mDec','Free','Inte',ipmDec,(mTabDim+1)*nOsc)
@@ -296,6 +299,9 @@ subroutine Intensity2(IntensityMat,TermMat,T0,max_term,U1,U2,E1,E2,C1,W1,det1,r0
 !    TermMat      : Real*8 two dimensional array - energies
 !                   of transitions.
 
+use Constants, only: Zero, Two, Three
+use Definitions, only: wp
+
 implicit real*8(a-h,o-z)
 #include "Constants_mula.fh"
 #include "dims.fh"
@@ -354,11 +360,11 @@ call MakeTab2(n_max2,max_nOrd2,max_nInc2,nTabDim2,iWork(ipnMat),iWork(ipnInc),iW
 nDimTot = max_mOrd+1
 n = nDimTot-1
 call GetMem('FC2','Allo','Real',ipFC2,nDimTot*nDimTot*3)
-!FC2 = 0.0d0
-call dcopy_(nDimtot*nDimTot*3,[0.0d0],0,Work(ipFC2),1)
+!FC2 = Zero
+call dcopy_(nDimtot*nDimTot*3,[Zero],0,Work(ipFC2),1)
 call GetMem('DipMat','Allo','Real',ipDipMat,nDimTot*nDimTot*3)
-!DipMat = 0.0d0
-call dcopy_(nDimtot*nDimTot*3,[0.0d0],0,Work(ipDipMat),1)
+!DipMat = Zero
+call dcopy_(nDimtot*nDimTot*3,[Zero],0,Work(ipDipMat),1)
 call SetUpDipMat2(Work(ipDipMat),max_dip,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,max_nOrd,max_mInc,max_nInc,max_nInc, &
                   iWork(ipmMat),iWork(ipnMat),iWork(ipmInc),iWork(ipnInc),iWork(ipmDec),iWork(ipnDec),det0,r0,r1,r2,Base, &
                   TranDip(1),TranDipGrad(1,1),nnsiz,nOsc,nDimTot)
@@ -393,7 +399,7 @@ end if
 do k=1,3
   do m=1,nDimTot
     do n=1,nDimTot
-      sum = 0.0d0
+      sum = Zero
       do j=1,nDimTot
         do i=1,nDimTot
           sum = sum+Work(ipDipMat+(i-1)+nDimTot*((j-1)+nDimTot*(k-1)))*U1(i,m)*U2(j,n)
@@ -408,19 +414,20 @@ call GetMem('DipMat','Free','Real',ipDipMat,nDimTot*nDimTot*3)
 ! Calculate frequency differences to be used in the boltzmann
 ! weighting of the different transitions.
 !level1 = mMat(0,:)
-!do iOrd = 0,max_mOrd
+!do iOrd=0,max_mOrd
 !  level2 = mMat(iOrd,:)
-!  FreqDiffMat(iOrd) = TransEnergy(0.0d0,x_anharm1,harmfreq1,level1,0.0d0,x_anharm1,harmfreq1,level2)
+!  FreqDiffMat(iOrd) = TransEnergy(Zero,x_anharm1,harmfreq1,level1,Zero,x_anharm1,harmfreq1,level2)
 !end do
 
 ! Calculate intensities.
-const1 = (2.0d0/3.0d0)*32.13002d9
-call dcopy_((l_IntensityMat_1+1)*(l_IntensityMat_2+1),[0.0d0],0,IntensityMat,1)
-!IntensityMat = 0.0d0
+! where does this number come from?
+const1 = (Two/Three)*32.13002e9_wp
+call dcopy_((l_IntensityMat_1+1)*(l_IntensityMat_2+1),[Zero],0,IntensityMat,1)
+!IntensityMat = Zero
 do jOrd=0,nDimTot-1
   do iOrd=0,nDimTot-1
-    !dE = FreqDiffMat(iOrd)*HarToaJ*1.0d-18
-    !const2 = const1*exp(-dE/(1.38066d-23*Temperature))
+    !dE = FreqDiffMat(iOrd)*HarToaJ*1.0e-18_wp
+    !const2 = const1*exp(-dE/(kBoltzmann*Temperature))
     !IntensityMat(iOrd,jOrd) = const2*(TermMat(iOrd,jOrd)**3)* &
     IntensityMat(iOrd,jOrd) = const1*(TermMat(iOrd,jOrd)**3)*(Work(ipFC2+iOrd+nDimTot*(jOrd))**2+ &
                               Work(ipFC2+iOrd+nDimTot*(jOrd+nDimTot))**2+Work(ipFC2+iOrd+nDimTot*(jOrd+nDimTot*2))**2)

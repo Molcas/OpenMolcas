@@ -13,30 +13,35 @@ subroutine WriteCartCoord(AtomLbl,Coord,Mass,NumOfAt)
 !  Purpose:
 !    Write cartesian coordinates to log file.
 
+use Definitions, only: u6
+
 character*4 AtomLbl(NumOfAt)
 real*8 Coord(3,NumOfAt)
 real*8 Mass(NumOfAt)
 #include "inout.fh"
 
 ! Write labels, coordinates and masses to log file.
-write(6,*)
-write(6,*)
-write(6,'(a1,a)') ' ','Cartesian coordinates (in bohr) and masses (in u)'
-write(6,*) ('====',i=1,17)
-write(6,'(a2,a)') ' ','Atom         x             y             z                Mass'
-write(6,*) ('----',i=1,17)
+write(u6,*)
+write(u6,*)
+write(u6,'(a1,a)') ' ','Cartesian coordinates (in bohr) and masses (in u)'
+write(u6,*) ('====',i=1,17)
+write(u6,'(a2,a)') ' ','Atom         x             y             z                Mass'
+write(u6,*) ('----',i=1,17)
 do j=1,NumOfAt
-  write(6,'(a2,a4,3f14.8,f20.8)') ' ',AtomLbl(j),(Coord(i,j),i=1,3),Mass(j)
+  write(u6,'(a2,a4,3f14.8,f20.8)') ' ',AtomLbl(j),(Coord(i,j),i=1,3),Mass(j)
 end do
-write(6,*) ('====',i=1,17)
-write(6,*)
-write(6,*)
+write(u6,*) ('====',i=1,17)
+write(u6,*)
+write(u6,*)
 
 end subroutine WriteCartCoord
 !####
 subroutine WriteIntCoord(InterVec,AtomLbl,xvec,NumInt)
 !  Purpose:
 !    Write internal coordinates to log file.
+
+use Constants, only: One
+use Definitions, only: u6
 
 #include "Constants_mula.fh"
 !integer InterVec(NumInt)
@@ -48,14 +53,14 @@ real*8 const
 #include "inout.fh"
 
 ! Internal coordinates at equilibrium.
-write(6,*)
-write(6,*)
-write(6,*)
-write(6,'(a1,a)') ' ','Internal coordinates at equilibrium'
-write(6,*) ('====',i=1,16)
-write(6,'(a2,a)') ' ','Distances :                            bohr          aangstrom'
-write(6,'(a2,a)') ' ','Angles    :                           radians         degrees'
-write(6,*) ('----',i=1,16)
+write(u6,*)
+write(u6,*)
+write(u6,*)
+write(u6,'(a1,a)') ' ','Internal coordinates at equilibrium'
+write(u6,*) ('====',i=1,16)
+write(u6,'(a2,a)') ' ','Distances :                            bohr          aangstrom'
+write(u6,'(a2,a)') ' ','Angles    :                           radians         degrees'
+write(u6,*) ('----',i=1,16)
 k = 1
 do j=1,NumInt
   IntType = InterVec(k)
@@ -103,12 +108,12 @@ do j=1,NumInt
   if (intType == 1) then
     const = Angstrom
   else
-    const = 180.0d0/rpi
+    const = One/deg2rad
   end if
-  write(6,'(A,A1,F15.8,F16.8)') Line(1:32),' ',xvec(j),xvec(j)*const
+  write(u6,'(A,A1,F15.8,F16.8)') Line(1:32),' ',xvec(j),xvec(j)*const
 end do
-write(6,*) ('====',i=1,16)
-write(6,*)
-write(6,*)
+write(u6,*) ('====',i=1,16)
+write(u6,*)
+write(u6,*)
 
 end subroutine WriteIntCoord
