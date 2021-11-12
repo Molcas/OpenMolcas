@@ -11,7 +11,7 @@
 
 subroutine FGenerator(nMat,F,iCre,iAnn,trgrd,m_ord,mx_ord,nosc)
 
-use Constants, only: Zero, Two
+use Constants, only: Zero, Half
 use Definitions, only: wp
 
 integer nMat(0:m_Ord,nOsc)
@@ -21,10 +21,9 @@ real*8 sqr(0:50)
 integer iCre(0:m_ord,nosc)
 integer iAnn(0:m_ord,nosc)
 
-!F = Zero
-call dcopy_((m_ord+1)*(mx_ord+1)*3,[Zero],0,F,1)
+F(:,:,:) = Zero
 do i=0,50
-  sqr(i) = sqrt(real(i,kind=wp)/Two)
+  sqr(i) = sqrt(real(i,kind=wp)*Half)
 end do
 do iCar=1,3
   do iOsc=1,nOsc

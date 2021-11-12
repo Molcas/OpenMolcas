@@ -64,138 +64,7 @@ subroutine SetUpHmat(energy0,r_min,ipow,var,yin,r00,trfName,max_term,C1,W1,det1,
 !
 !  The expansion point for lspotfit is r00!!!!!
 
-implicit real*8(a-h,o-z)
-#include "Constants_mula.fh"
-#include "dims.fh"
-integer ipow(nterm,nvar)
-real*8 var(ndata,nvar)
-real*8 yin(ndata)
-real*8 r01(nOsc), r02(nOsc), r00(nOsc), r_min(nOsc)
-real*8 r1(nOsc), r2(nOsc), r0(nOsc)
-real*8 rOrigin(nOsc)
-character*80 trfName(nvar)
-real*8 C1(nOsc,nOsc), C2(nOsc,nOsc), W1(nOsc,nOsc), W2(nOsc,nOsc), C0(nOsc,nOsc), W0(nOsc,nOsc)
-real*8 G1(nOsc,nOsc), G2(nOsc,nOsc), G0(nOsc,nOsc)
-real*8 Gprime1(ngdim,ngdim,ngdim)
-real*8 Gprime2(ngdim,ngdim,ngdim)
-real*8 Gprime0(ngdim,ngdim,ngdim)
-real*8 Gdbleprime1(ngdim,ngdim,ngdim,ngdim)
-real*8 Gdbleprime2(ngdim,ngdim,ngdim,ngdim)
-real*8 Gdbleprime0(ngdim,ngdim,ngdim,ngdim)
-integer mMat(0:mdim1,mdim2), mInc(0:mdim1,mdim2), mDec(0:mdim1,mdim2)
-integer nMat(0:ndim1,ndim2), nInc(0:ndim1,ndim2), nDec(0:ndim1,ndim2)
-real*8 H(ndimtot,ndimtot), S(ndimtot,ndimtot)
-real*8 Mass(numOfAt)
-real*8 Base(nosc,nosc)
-!logical find_minimum, use_weight
-!real*8 stand_dev, max_err
-!logical pot
-#include "WrkSpc.fh"
-
-nOscOld = nOsc
-
-call GetMem('Hij','Allo','Real',ipHij,(max_mOrd+1)*(max_nOrd+1))
-call GetMem('Hijtrans','Allo','Real',ipHijTrans,(max_nOrd+1)*(max_mOrd+1))
-call GetMem('Sij','Allo','Real',ipSij,(max_mOrd+1)*(max_nOrd+1))
-call GetMem('Sijtrans','Allo','Real',ipSijTrans,(max_nOrd+1)*(max_mOrd+1))
-call GetMem('r0vec','Allo','Real',ipr0vec,nOscOld)
-call GetMem('r_diff','Allo','Real',ipr_diff,nOscOld)
-call GetMem('C','Allo','Real',ipC,nOsc*nOsc)
-call GetMem('W','Allo','Real',ipW,nOsc*nOsc)
-call GetMem('grad','Allo','Real',ipgrad,nOscOld)
-call GetMem('grad1','Allo','Real',ipgrad1,nOscOld)
-call GetMem('grad2','Allo','Real',ipgrad2,nOscOld)
-call GetMem('Hess','Allo','Real',ipHess,nOscOld*nOscOld)
-
-call GetMem('Hess1','Allo','Real',ipHess1,nOscOld*nOscOld)
-call GetMem('Hess2','Allo','Real',ipHess2,nOscOld*nOscOld)
-
-call GetMem('D3','Allo','Real',ipD3,nOscOld*nOscOld*nOscOld)
-
-call GetMem('D3_1','Allo','Real',ipD3_1,nOscOld*nOscOld*nOscOld)
-call GetMem('D3_2','Allo','Real',ipD3_2,nOscOld*nOscOld*nOscOld)
-call GetMem('D4','Allo','Real',ipD4,nOscOld*nOscOld*nOscOld*nOscOld)
-call GetMem('D4_1','Allo','Real',ipD4_1,nOscOld*nOscOld*nOscOld*nOscOld)
-call GetMem('D4_2','Allo','Real',ipD4_2,nOscOld*nOscOld*nOscOld*nOscOld)
-call GetMem('GTemp','Allo','Real',ipGtemp,nOsc*nOsc)
-call GetMem('GprimeTemp','Allo','Real',ipGprimetemp,nOsc*nOsc*nOsc)
-call GetMem('GdbleprimeTemp','Allo','Real',ipGdbleprimetemp,nOsc*nOsc*nOsc*nOsc)
-call GetMem('alpha1','Allo','Real',ipalpha1,nOsc*nOsc)
-call GetMem('alpha2','Allo','Real',ipalpha2,nOsc*nOsc)
-call GetMem('beta','Allo','Real',ipbeta,nOsc*nOsc)
-call GetMem('L','Allo','Real',ipL,(max_mOrd+1)*(max_mOrd+1))
-call GetMem('U','Allo','Real',ipU,(max_nOrd+1)*(max_nOrd+1))
-
-call SetUpHmat_a(energy0,r_min,ipow,var,yin,r00,trfName,max_term,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,max_nOrd2, &
-                 max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,nInc,mDec,nDec,H,S,G1,G2,G0,Gprime1,Gprime2,Gprime0,Gdbleprime1, &
-                 Gdbleprime2,Gdbleprime0,C0,W0,det0,Mass,rOrigin,Base,r0,r1,r2,nnsiz,nterm,nvar,ndata,nosc,ndimtot,numofat, &
-                 nOscOld,Work(ipL),Work(ipU),Work(ipr_diff),Work(ipr0vec),Work(ipC),Work(ipW),Work(ipgrad),Work(ipHess), &
-                 Work(ipD3),Work(ipD4),Work(ipgrad1),Work(ipHess1),Work(ipD3_1),Work(ipD4_1),Work(ipgrad2),Work(ipHess2), &
-                 Work(ipD3_2),Work(ipD4_2),Work(ipHij),Work(ipHijTrans),Work(ipSij),Work(ipSijTrans),Work(ipGtemp), &
-                 Work(ipGprimeTemp),Work(ipGdbleprimeTemp),Work(ipalpha1),Work(ipalpha2),Work(ipbeta))
-
-call GetMem('Hij','Free','Real',ipHij,(max_mOrd+1)*(max_nOrd+1))
-call GetMem('Hijtrans','Free','Real',ipHijTrans,(max_nOrd+1)*(max_mOrd+1))
-call GetMem('Sij','Free','Real',ipSij,(max_mOrd+1)*(max_nOrd+1))
-call GetMem('Sijtrans','Free','Real',ipSijTrans,(max_nOrd+1)*(max_mOrd+1))
-call GetMem('r0vec','Free','Real',ipr0vec,nOscOld)
-call GetMem('r_diff','Free','Real',ipr_diff,nOscOld)
-call GetMem('C','Free','Real',ipC,nOsc*nOsc)
-call GetMem('W','Free','Real',ipW,nOsc*nOsc)
-call GetMem('grad','Free','Real',ipgrad,nOscOld)
-call GetMem('grad1','Free','Real',ipgrad1,nOscOld)
-call GetMem('grad2','Free','Real',ipgrad2,nOscOld)
-call GetMem('Hess','Free','Real',ipHess,nOscOld*nOscOld)
-
-call GetMem('Hess1','Free','Real',ipHess1,nOscOld*nOscOld)
-call GetMem('Hess2','Free','Real',ipHess2,nOscOld*nOscOld)
-
-call GetMem('D3','Free','Real',ipD3,nOscOld*nOscOld*nOscOld)
-
-call GetMem('D3_1','Free','Real',ipD3_1,nOscOld*nOscOld*nOscOld)
-call GetMem('D3_2','Free','Real',ipD3_2,nOscOld*nOscOld*nOscOld)
-call GetMem('D4','Free','Real',ipD4,nOscOld*nOscOld*nOscOld*nOscOld)
-call GetMem('D4_1','Free','Real',ipD4_1,nOscOld*nOscOld*nOscOld*nOscOld)
-call GetMem('D4_2','Free','Real',ipD4_2,nOscOld*nOscOld*nOscOld*nOscOld)
-call GetMem('GTemp','Free','Real',ipGtemp,nOsc*nOsc)
-call GetMem('GprimeTemp','Free','Real',ipGprimetemp,nOsc*nOsc*nOsc)
-call GetMem('GdbleprimeTemp','Free','Real',ipGdbleprimetemp,nOsc*nOsc*nOsc*nOsc)
-call GetMem('alpha1','Free','Real',ipalpha1,nOsc*nOsc)
-call GetMem('alpha2','Free','Real',ipalpha2,nOsc*nOsc)
-call GetMem('beta','Free','Real',ipbeta,nOsc*nOsc)
-call GetMem('L','Free','Real',ipL,(max_mOrd+1)*(max_mOrd+1))
-call GetMem('U','Free','Real',ipU,(max_nOrd+1)*(max_nOrd+1))
-
-end subroutine SetUpHmat
-
-subroutine SetUpHmat_a(energy0,r_min,ipow,var,yin,r00,trfName,max_term,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,max_nOrd2, &
-                       max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,nInc,mDec,nDec,H,S,G1,G2,G0,Gprime1,Gprime2,Gprime0,Gdbleprime1, &
-                       Gdbleprime2,Gdbleprime0,C0,W0,det0,Mass,rOrigin,Base,r0,r1,r2,nnsiz,nterm,nvar,ndata,nosc,ndimtot,numofat, &
-                       nOscOld,L,U,r_diff,r0vec,C,W,grad,Hess,D3,D4,grad1,Hess1,D3_1,D4_1,grad2,Hess2,D3_2,D4_2,Hij,HijTrans,Sij, &
-                       SijTrans,Gtemp,GprimeTemp,GdbleprimeTemp,alpha1,alpha2,beta)
-!  Purpose:
-!    Set up Hamilton matrix.
-!
-!  Input:
-!
-!   Energy
-!   r_min
-!   ipow
-!   var
-!   yin
-!   coeff
-!   r00
-!   trfname
-!   Max_term
-!   C1,W1,det1,r01
-!   C2,W2,det2,r02
-!   H S
-!   G1 G2 G0 1' G2' g0' g0'' g1'' g2''
-!   C0 W0 det0
-!   mass rorigin
-!
-!  The expansion point for lspotfit is r00!!!!!
-
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 
 implicit real*8(a-h,o-z)
@@ -224,188 +93,176 @@ real*8 Base(nosc,nosc)
 logical find_minimum, use_weight
 real*8 stand_dev, max_err
 logical pot
-real*8 Hij(0:max_mOrd,0:max_nOrd)
-real*8 HijTrans(0:max_nOrd,0:max_mOrd)
-real*8 Sij(0:max_mOrd,0:max_nOrd)
-real*8 SijTrans(0:max_nOrd,0:max_mOrd)
-real*8 r0vec(nOscOld)
-real*8 r_diff(nOscOld)
-real*8 C(nOsc,nOsc), W(nOsc,nOsc)
-real*8 grad(nOscOld)
-real*8 grad1(nOscOld), grad2(nOscOld)
-real*8 Hess(nOscOld,nOscOld)
-real*8 Hess1(nOscOld,nOscOld), Hess2(nOscOld,nOscOld)
-dimension D3(nOscOld,nOscOld,nOscOld)
-dimension D3_1(nOscOld,nOscOld,nOscOld)
-dimension D3_2(nOscOld,nOscOld,nOscOld)
-real*8 D4(nOscOld,nOscOld,nOscOld,nOscOld)
-dimension D4_1(nOscOld,nOscOld,nOscOld,nOscOld)
-dimension D4_2(nOscOld,nOscOld,nOscOld,nOscOld)
-real*8 Gtemp(nOsc,nOsc)
-real*8 GprimeTemp(nOsc,nOsc,nOsc)
-real*8 GdbleprimeTemp(nOsc,nOsc,nOsc,nOsc)
-real*8 alpha1(nOsc,nOsc), alpha2(nOsc,nOsc), beta(nOsc,nOsc)
-real*8 L(0:max_mOrd,0:max_mOrd)
-real*8 U(0:max_nOrd,0:max_nOrd)
-#include "WrkSpc.fh"
+integer, allocatable :: jPow(:,:)
+real*8, allocatable :: alpha1(:,:), alpha2(:,:), beta(:,:), C(:,:), Coef(:), D3(:,:,:), D3_1(:,:,:), D3_2(:,:,:), D4(:,:,:,:), &
+                       D4_1(:,:,:,:), D4_2(:,:,:,:), FitCoef(:), grad(:), grad1(:), grad2(:), Gdbleprimetemp(:,:,:,:), &
+                       Gprimetemp(:,:,:), Gtemp(:,:), Hess(:,:), Hess1(:,:), Hess2(:,:), Hij(:,:), HijTrans(:,:), L(:,:), &
+                       r_diff(:), r0vec(:), Sij(:,:), SijTrans(:,:), U(:,:), W(:,:)
 
 ! Initialize.
 l_r2 = nOsc
 find_minimum = .false.
 use_weight = .false.
+nOscOld = nOsc
 
-call GetMem('Coef','Allo','Real',ipCoef,nPolyTerm)
+call mma_allocate(Coef,nPolyTerm,label='Coef')
+call mma_allocate(grad1,nOscOld,label='grad1')
+call mma_allocate(grad2,nOscOld,label='grad2')
+call mma_allocate(Hess1,nOscOld,nOscOld,label='Hess1')
+call mma_allocate(Hess2,nOscOld,nOscOld,label='Hess2')
+call mma_allocate(D3_1,nOscOld,nOscOld,nOscOld,label='D3_1')
+call mma_allocate(D3_1,nOscOld,nOscOld,nOscOld,label='D3_1')
+call mma_allocate(D4_2,nOscOld,nOscOld,nOscOld,nOscOld,label='D4_2')
+call mma_allocate(D4_2,nOscOld,nOscOld,nOscOld,nOscOld,label='D4_2')
 
 ! Fit polynomial and calculate energy, gradient, Hessian and third
 ! and fourth order force constants around r01 and r02.
-call PotFit(nterm,nvar,ndata,ipow,var,yin,Work(ipcoef),r1,nOscOld,energy1,grad1,Hess1,D3_1,D4_1,trfName,stand_dev,max_err, &
-            find_minimum,max_term,use_weight,nOscOld,nOscOld,nOscOld)
-call PotFit(nterm,nvar,ndata,ipow,var,yin,Work(ipcoef),r2,l_r2,energy2,grad2,Hess2,D3_2,D4_2,trfName,stand_dev,max_err, &
-            find_minimum,max_term,use_weight,nOscOld,nOscOld,nOscOld)
-call GetMem('Coef','Allo','Real',ipCoef,nPolyTerm)
+call PotFit(nterm,nvar,ndata,ipow,var,yin,Coef,r1,nOscOld,energy1,grad1,Hess1,D3_1,D4_1,trfName,stand_dev,max_err,find_minimum, &
+            max_term,use_weight,nOscOld,nOscOld,nOscOld)
+call PotFit(nterm,nvar,ndata,ipow,var,yin,Coef,r2,l_r2,energy2,grad2,Hess2,D3_2,D4_2,trfName,stand_dev,max_err,find_minimum, &
+            max_term,use_weight,nOscOld,nOscOld,nOscOld)
+call mma_deallocate(Coef)
 
 ! Perform a least squares fit.
-call TabDim_drv(max_term,nOsc,numCoef)
-call GetMem('FitCoef','Allo','Real',ipFitCoef,numCoef)
+call TabDim(max_term,nOsc,numCoef)
+call mma_allocate(FitCoef,numCoef,label='FitCoef')
 
-call GetMem('jPow','Allo','Inte',ipjPow,numCoef*nOsc)
+call mma_allocate(jPow,numCoef,nOsc,label='jPow')
 pot = .true.
-call LSPotFit(r1,energy1,grad1,Hess1,D3_1,D4_1,r2,energy2,grad2,Hess2,D3_2,D4_2,r0,energy0,r_min,Work(ipFitCoef),iWork(ipjPow), &
-              stand_dev,max_err,use_weight,max_term,pot,nosc,numcoef)
-call GetMem('kPow','Allo','Inte',ipkPow,numCoef*nOsc)
-!kPow = jPow
-do iv=0,numCoef*nOsc
-  iWork(ipkPow+iv) = iWork(ipjPow+iv)
-end do
-!call dcopy_(numCoef*nOsc,iWork(ipjPow),1,iWork(ipkPow),1)
+call LSPotFit(r1,energy1,grad1,Hess1,D3_1,D4_1,r2,energy2,grad2,Hess2,D3_2,D4_2,r0,energy0,r_min,FitCoef,jPow,stand_dev,max_err, &
+              use_weight,max_term,pot,nosc,numcoef)
+
+call mma_deallocate(grad1)
+call mma_deallocate(grad2)
+call mma_deallocate(Hess1)
+call mma_deallocate(Hess2)
+call mma_deallocate(D3_1)
+call mma_deallocate(D3_2)
+call mma_deallocate(D4_1)
+call mma_deallocate(D4_2)
 
 ! For each of the centers:
 ! - Call Franck-Condon routine.
 ! - Calculate matrix elements.
+
+call mma_allocate(Hij,[0,max_mOrd],[0,max_nOrd],label='Hij')
+call mma_allocate(Sij,[0,max_mOrd],[0,max_nOrd],label='Sij')
+call mma_allocate(r0vec,nOscOld,label='r0vec')
+call mma_allocate(r_diff,nOscOld,label='r_diff')
+call mma_allocate(C,nOsc,nOsc,label='C')
+call mma_allocate(W,nOsc,nOsc,label='W')
+call mma_allocate(grad,nOscOld,label='grad')
+call mma_allocate(D3,nOscOld,nOscOld,nOscOld,label='D3')
+call mma_allocate(D4,nOscOld,nOscOld,nOscOld,nOscOld,label='D4')
+call mma_allocate(Gtemp,nOsc,nOsc,label='Gtemp')
+call mma_allocate(Gprimetemp,nOsc,nOsc,nOsc,label='Gprimetemp')
+call mma_allocate(Gdbleprimetemp,nOsc,nOsc,nOsc,nOsc,label='Gdbleprimetemp')
+call mma_allocate(alpha1,nOsc,nOsc,label='alpha1')
+call mma_allocate(alpha2,nOsc,nOsc,label='alpha2')
+call mma_allocate(beta,nOsc,nOsc,label='beta')
+call mma_allocate(L,[0,max_mOrd],[0,max_mOrd],label='L')
+call mma_allocate(U,[0,max_nOrd],[0,max_nOrd],label='U')
 
 ! Block 11.
 l_C1 = nOsc
 call Calc_r00(C1,C1,W1,W1,C,W,alpha1,alpha2,r0vec,r01,r01,det0,det1,det1,FC00,l_C1)
 call FCval(C1,W1,det1,r01,C1,W1,det1,r01,Sij,max_mOrd,max_nOrd,max_nOrd2,max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,nInc,mDec, &
            nDec,C,W,det1,r0vec,L,U,FC00,alpha1,alpha2,beta,l_C1,nnsiz)
-do iv=1,nOsc
-  r0vec(iv) = r1(iv)-r0(iv)
-end do
-call funcval(r0vec,Work(ipFitCoef),iWork(ipkPow),energy,nterm,nvar)
-call gradient(r0vec,Work(ipFitCoef),iWork(ipkPow),grad,nterm,nvar)
-call Hessian(r0vec,Work(ipFitCoef),iWork(ipkPow),Hess,nterm,nvar)
-call thirdDer(r0vec,Work(ipFitCoef),iWork(ipkPow),D3,nterm,nvar)
-call fourthDer(r0vec,Work(ipFitCoef),iWork(ipkPow),D4,nterm,nvar)
+r0vec(1:nOsc) = r1-r0
+call funcval(r0vec,FitCoef,jPow,energy,nterm,nvar)
+call gradient(r0vec,FitCoef,jPow,grad,nterm,nvar)
+call Hessian(r0vec,FitCoef,jPow,Hess,nterm,nvar)
+call thirdDer(r0vec,FitCoef,jPow,D3,nterm,nvar)
+call fourthDer(r0vec,FitCoef,jPow,D4,nterm,nvar)
 energy = energy-energy0
-call dcopy_(nOsc,[Zero],0,r0vec,1)
-!r0vec = Zero
-call dcopy_(nOsc,[Zero],0,r_diff,1)
-!r_diff = Zero
-!Gtemp = G1
-call dcopy_(nOsc*nOsc,G1,1,Gtemp,1)
-!GprimeTemp = Gprime1
-call dcopy_(nOsc*nOsc*nOsc,Gprime1,1,GprimeTemp,1)
-
-!GdbleprimeTemp = Gdbleprime1
-call dcopy_(nOsc**4,Gdbleprime1,1,GdbleprimeTemp,1)
+r0vec(:) = Zero
+r_diff(:) = Zero
+Gtemp(:,:) = G1
+GprimeTemp(:,:,:) = Gprime1
+GdbleprimeTemp(:,:,:,:) = Gdbleprime1
 call MatrixElements(L,U,FC00,Hij,C,W,r_diff,mMat,nMat,ninc,ndec,max_nOrd,max_mOrd,nOsc,energy,grad,Hess,D3,D4,Gtemp,GprimeTemp, &
                     GdbleprimeTemp,alpha1,alpha2,beta,max_term,Base)
 
-!H(1:max_mOrd+1,1:max_nOrd+1) = Hij
-!S(1:max_mOrd+1,1:max_nOrd+1) = Sij
-call dcopy_((max_mOrd+1)*(max_nOrd+1),Hij,1,H,1)
-call dcopy_((max_mOrd+1)*(max_nOrd+1),Sij,1,S,1)
+H(1:max_mOrd+1,1:max_nOrd+1) = Hij
+S(1:max_mOrd+1,1:max_nOrd+1) = Sij
 
 ! Block 22.
 l_C2 = nOsc
 call Calc_r00(C2,C2,W2,W2,C,W,alpha1,alpha2,r0vec,r02,r02,det0,det2,det2,FC00,l_C2)
 call FCval(C2,W2,det2,r02,C2,W2,det2,r02,Sij,max_mOrd,max_nOrd,max_nOrd2,max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,nInc,mDec, &
            nDec,C,W,det2,r0vec,L,U,FC00,alpha1,alpha2,beta,l_C2,nnsiz)
-do iv=1,nOsc
-  r0vec(iv) = r2(iv)-r0(iv)
-end do
-call funcval(r0vec,Work(ipFitCoef),iWork(ipkPow),energy,nterm,nvar)
-call gradient(r0vec,Work(ipFitCoef),iWork(ipkPow),grad,nterm,nvar)
-call Hessian(r0vec,Work(ipFitCoef),iWork(ipkPow),Hess,nterm,nvar)
-call thirdDer(r0vec,Work(ipFitCoef),iWork(ipkPow),D3,nterm,nvar)
-call fourthDer(r0vec,Work(ipFitCoef),iWork(ipkPow),D4,nterm,nvar)
+r0vec(1:nOsc) = r2-r0
+call funcval(r0vec,FitCoef,jPow,energy,nterm,nvar)
+call gradient(r0vec,FitCoef,jPow,grad,nterm,nvar)
+call Hessian(r0vec,FitCoef,jPow,Hess,nterm,nvar)
+call thirdDer(r0vec,FitCoef,jPow,D3,nterm,nvar)
+call fourthDer(r0vec,FitCoef,jPow,D4,nterm,nvar)
 energy = energy-energy0
-!r0vec = Zero
-!r_diff = Zero
-call dcopy_(nOsc,[Zero],0,r0vec,1)
-call dcopy_(nOsc,[Zero],0,r_diff,1)
-!Gtemp = G2
-call dcopy_(nOsc*nOsc,G2,1,Gtemp,1)
-!GprimeTemp = Gprime2
-call dcopy_(nOsc*nOsc*nOsc,Gprime2,1,GprimeTemp,1)
-!GdbleprimeTemp = Gdbleprime2
-call dcopy_(nOsc*nOsc*nOsc*nOsc,Gprime2,1,GprimeTemp,1)
+r0vec(:) = Zero
+r_diff(:) = Zero
+Gtemp(:,:) = G2
+GprimeTemp(:,:,:) = Gprime2
+GdbleprimeTemp(:,:,:,:) = Gdbleprime2
 call MatrixElements(L,U,FC00,Hij,C,W,r_diff,mMat,nMat,ninc,ndec,max_nOrd,max_mOrd,nOsc,energy,grad,Hess,D3,D4,Gtemp,GprimeTemp, &
                     GdbleprimeTemp,alpha1,alpha2,beta,max_term,Base)
-!H(max_mOrd+2:2*max_mOrd+2,max_nOrd+2:2*max_nOrd+2) = Hij
-!S(max_mOrd+2:2*max_mOrd+2,max_nOrd+2:2*max_nOrd+2) = Sij
-do iv=max_mOrd+2,2*max_mOrd+2
-  do jv=max_nOrd+2,2*max_nOrd+2
-    H(iv,jv) = Hij(iv-max_mOrd-2,jv-max_nOrd-2)
-    S(iv,jv) = Sij(iv-max_mOrd-2,jv-max_nOrd-2)
-  end do
-end do
+H(max_mOrd+2:2*max_mOrd+2,max_nOrd+2:2*max_nOrd+2) = Hij
+S(max_mOrd+2:2*max_mOrd+2,max_nOrd+2:2*max_nOrd+2) = Sij
 
 ! Block 12 and 21.
 l_C1 = nOsc
 call Calc_r00(C1,C2,W1,W2,C,W,alpha1,alpha2,r0vec,r01,r02,det0,det1,det2,FC00,l_C1)
 call FCval(C1,W1,det1,r01,C2,W2,det2,r02,Sij,max_mOrd,max_nOrd,max_nOrd2,max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,nInc,mDec, &
            nDec,C,W,det0,r0vec,L,U,FC00,alpha1,alpha2,beta,l_C1,nnsiz)
-!r0vec = r0-r0
-call dcopy_(nOsc,[Zero],0,r0vec,1)
-call funcval(r0vec,Work(ipFitCoef),iWork(ipkPow),energy,nterm,nvar)
-call gradient(r0vec,Work(ipFitCoef),iWork(ipkPow),grad,nterm,nvar)
-call Hessian(r0vec,Work(ipFitCoef),iWork(ipkPow),Hess,nterm,nvar)
-call thirdDer(r0vec,Work(ipFitCoef),iWork(ipkPow),D3,nterm,nvar)
-call fourthDer(r0vec,Work(ipFitCoef),iWork(ipkPow),D4,nterm,nvar)
+r0vec(:) = Zero
+call funcval(r0vec,FitCoef,jPow,energy,nterm,nvar)
+call gradient(r0vec,FitCoef,jPow,grad,nterm,nvar)
+call Hessian(r0vec,FitCoef,jPow,Hess,nterm,nvar)
+call thirdDer(r0vec,FitCoef,jPow,D3,nterm,nvar)
+call fourthDer(r0vec,FitCoef,jPow,D4,nterm,nvar)
 energy = energy-energy0
-call dcopy_(nOsc,[Zero],0,r0vec,1)
-!r0vec = Zero
-do iv=1,nOsc
-  r_diff(iv) = r01(iv)-r02(iv)
-end do
-!Gtemp = G0
-call dcopy_(nOsc*nOsc,G0,1,Gtemp,1)
-!GprimeTemp = Gprime0
-call dcopy_(nOsc*nOsc*nOsc,Gprime0,1,GprimeTemp,1)
-!GdbleprimeTemp = Gdbleprime0
-call dcopy_(nOsc*nOsc*nOsc*nOsc,Gdbleprime0,1,GdbleprimeTemp,1)
+r0vec(:) = Zero
+r_diff(1:nOsc) = r01-r02
+Gtemp(:,:) = G0
+GprimeTemp(:,:,:) = Gprime0
+GdbleprimeTemp(:,:,:,:) = Gdbleprime0
 call MatrixElements(L,U,FC00,Hij,C,W,r_diff,mMat,nMat,nInc,nDec,max_nOrd,max_mOrd,nOsc,energy,grad,Hess,D3,D4,Gtemp,GprimeTemp, &
                     GdbleprimeTemp,alpha1,alpha2,beta,max_term,Base)
-!H(1:max_mOrd+1,max_nOrd+2:2*max_nOrd+2) = Hij
-!S(1:max_mOrd+1,max_nOrd+2:2*max_nOrd+2) = Sij
+H(1:max_mOrd+1,max_nOrd+2:2*max_nOrd+2) = Hij
+S(1:max_mOrd+1,max_nOrd+2:2*max_nOrd+2) = Sij
 
-do iv=1,max_mOrd+1
-  do jv=max_nOrd+2,2*max_nOrd+2
-    H(iv,jv) = Hij(iv-1,jv-max_nOrd-2)
-    S(iv,jv) = Sij(iv-1,jv-max_nOrd-2)
-  end do
-end do
-
+call mma_allocate(HijTrans,[0,max_nOrd],[0,max_mOrd],label='HijTrans')
+call mma_allocate(SijTrans,[0,max_nOrd],[0,max_mOrd],label='SijTrans')
 do i=0,max_mOrd
   do j=0,max_nOrd
     HijTrans(j,i) = Hij(i,j)
     SijTrans(j,i) = Sij(i,j)
   end do
 end do
-!H(max_mOrd+2:2*max_mOrd+2,1:max_nOrd+1) = HijTrans
-!S(max_mOrd+2:2*max_mOrd+2,1:max_nOrd+1) = SijTrans
+H(max_mOrd+2:2*max_mOrd+2,1:max_nOrd+1) = HijTrans
+S(max_mOrd+2:2*max_mOrd+2,1:max_nOrd+1) = SijTrans
 
-do iv=max_mOrd+2,2*max_mOrd+2
-  do jv=1,max_nOrd+1
-    H(iv,jv) = HijTrans(iv-max_mOrd-2,jv-1)
-    S(iv,jv) = SijTrans(iv-max_mOrd-2,jv-1)
-  end do
-end do
-
-call GetMem('jPow','Free','Inte',ipjPow,numCoef*nOsc)
-call GetMem('kPow','Free','Inte',ipkPow,numCoef*nOsc)
-call GetMem('FitCoef','Free','Real',ipFitCoef,numCoef)
+call mma_deallocate(jPow)
+call mma_deallocate(FitCoef)
+call mma_deallocate(Hij)
+call mma_deallocate(Sij)
+call mma_deallocate(HijTrans)
+call mma_deallocate(SijTrans)
+call mma_deallocate(r0vec)
+call mma_deallocate(r_diff)
+call mma_deallocate(C)
+call mma_deallocate(W)
+call mma_deallocate(grad)
+call mma_deallocate(Hess)
+call mma_deallocate(D3)
+call mma_deallocate(D4)
+call mma_deallocate(Gtemp)
+call mma_deallocate(Gprimetemp)
+call mma_deallocate(Gdbleprimetemp)
+call mma_deallocate(alpha1)
+call mma_deallocate(alpha2)
+call mma_deallocate(beta)
+call mma_deallocate(L)
+call mma_deallocate(U)
 
 ! Avoid unused argument warnings
 if (.false.) then
@@ -417,4 +274,4 @@ if (.false.) then
   call Unused_real_array(rOrigin)
 end if
 
-end subroutine SetUpHmat_a
+end subroutine SetUpHmat

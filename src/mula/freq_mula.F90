@@ -11,7 +11,7 @@
 ! Copyright (C) 1994, Niclas Forsberg                                  *
 !***********************************************************************
 
-subroutine Freq_mula(Hess,G,V,Lambda,B,Bnew,qMat,nOsc,NumOfAt)
+subroutine Freq_mula(Hess,G,V,Lambda,B,Bnew,qMat,NumInt,NumOfAt)
 !  Purpose:
 !    Find eigenvalues and eigenvectors of FG matrix.
 !    The eigenvalues are stored in the array Lambda and the eigen-
@@ -44,42 +44,39 @@ subroutine Freq_mula(Hess,G,V,Lambda,B,Bnew,qMat,nOsc,NumOfAt)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1994.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 
 implicit real*8(a-h,o-z)
 #include "Constants_mula.fh"
-real*8 Hess(nOsc,nOsc), G(nOsc,nOsc), V(nOsc,nOsc)
-real*8 B(3*NumOfAt,nOsc), Bnew(3*NumOfAt,nOsc), qMat(3*NumOfAt,nOsc)
-real*8 Lambda(nOsc)
-#include "WrkSpc.fh"
-
-! Get dimensions.
-NumInt = nOsc
+real*8 Hess(NumInt,NumInt), G(NumInt,NumInt), V(NumInt,NumInt)
+real*8 B(3*NumOfAt,NumInt), Bnew(3*NumOfAt,NumInt), qMat(3*NumOfAt,NumInt)
+real*8 Lambda(NumInt)
+real*8, allocatable :: Temp(:,:), U(:,:)
 
 ! Solve secular equation.
 call SolveSecEq(Hess,NumInt,V,G,Lambda)
 
 ! get memory space for U.
-call GetMem('U','Allo','Real',ipU,nOsc*nOsc)
+call mma_allocate(U,NumInt,NumInt,label='U')
 
 ! Copy matrix containing eigenvectors to U, because this matrix
 ! will be destroyed when subroutine Dool_MULA is called.
-nSqrInt = NumInt**2
-call dcopy_(nSqrInt,V,1,Work(ipU),1)
+U(:,:) = V
 
 ! Calculate the cartesian diplacements, i.e. solve
 !     qMat = B * ( B(T) * B )^(-1) * V.
 
 ! get memory for matrix Temp.
-call GetMem('Temp','Allo','Real',ipTemp,nOsc*nOsc)
+call mma_allocate(Temp,NumInt,NumInt,label='Temp')
 
-call DGEMM_('T','N',NumInt,NumInt,3*NumOfAt,One,B,3*NumOfAt,B,3*NumOfAt,Zero,Work(ipTemp),NumInt)
-call Dool_MULA(Work(ipTemp),NumInt,NumInt,Work(ipU),NumInt,NumInt,Det)
-call DGEMM_('N','N',3*NumOfAt,NumInt,NumInt,One,B,3*NumOfAt,Work(ipU),NumInt,Zero,qMat,3*NumOfAt)
+call DGEMM_('T','N',NumInt,NumInt,3*NumOfAt,One,B,3*NumOfAt,B,3*NumOfAt,Zero,Temp,NumInt)
+call Dool_MULA(Temp,NumInt,NumInt,U,NumInt,NumInt,Det)
+call DGEMM_('N','N',3*NumOfAt,NumInt,NumInt,One,B,3*NumOfAt,U,NumInt,Zero,qMat,3*NumOfAt)
 
 ! free memory space of Temp and U.
-call GetMem('U','Free','Real',ipU,nOsc*nOsc)
-call GetMem('Temp','Free','Real',ipTemp,nOsc*nOsc)
+call mma_deallocate(U)
+call mma_deallocate(Temp)
 
 ! Avoid unused argument warnings
 if (.false.) call Unused_real_array(Bnew)

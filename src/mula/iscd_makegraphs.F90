@@ -11,29 +11,23 @@
 
 subroutine ISCD_MakeGraphs(m_max,maxOrd,maxIncOrd,Graph1,Graph2,nOsc)
 
+use stdalloc, only: mma_allocate, mma_deallocate
+
 implicit real*8(a-h,o-z)
 integer Graph1(m_max+1,nOsc+1)
 integer Graph2(m_max+1,m_max+1,nOsc)
 integer nTabDim
-#include "WrkSpc.fh"
+integer, allocatable :: Number(:)
 
 ! Initialize.
 if (m_max == 0) return
-call TabDim_drv(m_max,nOsc,nTabDim)
+call TabDim(m_max,nOsc,nTabDim)
 maxOrd = nTabDim-1
 
 ! Set up the vertex table
-do iv=1,m_max+1
-  do jv=1,nOsc+1
-    Graph1(iv,jv) = 0
-  end do
-end do
-do iv=1,m_max+1
-  Graph1(iv,2) = 1
-end do
-do jv=1,nOsc+1
-  Graph1(1,jv) = 1
-end do
+Graph1(:,:) = 0
+Graph1(:,2) = 1
+Graph1(1,:) = 1
 if (nOsc > 1) then
   do iOsc=2,nOsc
     n = 0
@@ -45,22 +39,14 @@ if (nOsc > 1) then
 end if
 
 ! set up the arc table
-call GetMem('Number','Allo','INTE',ipNumber,m_max+1)
-do iv=0,m_max
-  iWork(ipNumber+iv) = 0
-end do
+call mma_allocate(Number,[0,m_max],label='Number')
+Number(0) = 0
 N = 0
 do m=1,m_max
   N = N+Graph1(m,nosc+1)
-  iWork(ipNumber+m) = n
+  Number(m) = N
 end do
-do iv=1,m_max+1
-  do jv=1,m_max+1
-    do kv=1,nOsc
-      Graph2(iv,jv,kv) = 0
-    end do
-  end do
-end do
+Graph2(:,:,:) = 0
 do iOsc=1,nosc
   do iQ1=0,m_max      ! Where we are going
     do iQ2=0,iQ1-1    ! Where we came from
@@ -73,11 +59,11 @@ end do
 
 do iQ1=0,m_max  ! Where we are going
   do iQ2=0,iq1  ! Where we came from
-    Graph2(iQ1+1,iQ2+1,nOsc) = Graph2(iQ1+1,iQ2+1,nOsc)+iWork(ipNumber+iQ1)
+    Graph2(iQ1+1,iQ2+1,nOsc) = Graph2(iQ1+1,iQ2+1,nOsc)+Number(iQ1)
   end do
 end do
 
-call GetMem('Number','Free','INTE',ipNumber,m_max+1)
+call mma_deallocate(Number)
 
 return
 ! Avoid unused argument warnings

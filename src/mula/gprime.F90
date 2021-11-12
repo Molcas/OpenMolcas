@@ -30,6 +30,7 @@ subroutine CalcGprime(Gprime,Mass,xvec,InterVec,AtCoord,NumOfAt,h,NumInt)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1996.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp
 
@@ -45,51 +46,35 @@ real*8 xtmp(NumInt)
 integer InterVec(*)
 real*8 AtCoord(3,NumOfAt)
 integer icoord, iterm
-integer ih, k, j
-#include "WrkSpc.fh"
+integer ih
+real*8, allocatable :: Gtemp(:,:,:), Stemp(:,:,:)
 
 ! Initialize.
-call GetMem('Stemp','Allo','Real',ipStemp,3*NumOfAt*NumInt)
-call GetMem('Gtemp','Allo','Real',ipGtemp,NumInt*NumInt*4)
+call mma_allocate(Stemp,3,NumOfAt,NumInt,label='Stemp')
+call mma_allocate(Gtemp,NumInt,NumInt,4,label='Gtemp')
 
 do icoord=1,NumInt
-  do iv=1,NumInt
-    xtmp(iv) = xvec(iv)
-  end do
-  !Gtemp = Zero
-  call dcopy_(NumInt*NumInt*4,[Zero],0,Work(ipGtemp),1)
+  xtmp(:) = xvec
+  Gtemp(:,:,:) = Zero
   iterm = 1
   do ih=-3,3,2
     xtmp(icoord) = xvec(icoord)+real(ih,kind=wp)*h
     !call Int_To_Cart(InterVec,xtmp,AtCoord,NumOfAt,NumInt,Mass)
     call Int_to_Cart1(InterVec,xtmp,AtCoord,NumOfAt,NumInt)
-    !Stemp = Zero
-    call dcopy_(3*NumOfAt*NumInt,[Zero],0,Work(ipStemp),1)
+    Stemp(:,:,:) = Zero
 
-    call CalcS(AtCoord,InterVec,Work(ipStemp),NumInt,NumOfAt)
-    !Gtemp(1,1,iterm)= 1+NumInt*(0+NumInt*(iterm-1))-1
-    !call CalcG(Gtemp(1,1,iterm),Mass,Work(ipStemp))
-    call CalcG(Work(ipGtemp+NumInt*NumInt*(iterm-1)),Mass,Work(ipStemp),NumInt,NumOfAt)
+    call CalcS(AtCoord,InterVec,Stemp,NumInt,NumOfAt)
+    call CalcG(Gtemp(:,:,iterm),Mass,Stemp,NumInt,NumOfAt)
 
     iterm = iterm+1
   end do
-  do k=1,NumInt
-    do j=1,NumInt
-      !Gtemp(j,k,1) = j+NumInt*(k-1+NumInt*(1-1))-1
-      !Gtemp(j,k,2) = j+NumInt*(k-1+NumInt*(2-1))-1
-      !Gtemp(j,k,3) = j+NumInt*(k-1+NumInt*(3-1))-1
-
-      !Gprime(j,k,icoord) = (Gtemp(j,k,1)-27.0_wp*Gtemp(j,k,2)+27.0_wp*Gtemp(j,k,3)-Gtemp(j,k,4))/(48.0_wp*h)
-      Gprime(j,k,icoord) = (Work(ipGtemp+j+NumInt*(k-1)-1)-27.0_wp*Work(ipGtemp+j+NumInt*(k-1+NumInt)-1)+ &
-                           27.0_wp*Work(ipGtemp+j+NumInt*(k-1+NumInt*2)-1)-Work(ipGtemp+j+NumInt*(k-1+NumInt*3)-1))/(48.0_wp*h)
-    end do
-  end do
+  Gprime(1:NumInt,1:NumInt,icoord) = (Gtemp(:,:,1)-27.0_wp*Gtemp(:,:,2)+27.0_wp*Gtemp(:,:,3)-Gtemp(:,:,4))/(48.0_wp*h)
 end do
 !call Int_To_Cart(InterVec,xvec,AtCoord,NumOfAt,NumInt,Mass)
 call Int_to_Cart1(InterVec,xtmp,AtCoord,NumOfAt,NumInt)
 
-call GetMem('Stemp','Free','Real',ipStemp,3*NumOfAt*NumInt)
-call GetMem('Gtemp','Free','Real',ipGtemp,NumInt*NumInt*4)
+call mma_deallocate(Stemp)
+call mma_deallocate(Gtemp)
 
 end subroutine CalcGprime
 !####
@@ -112,59 +97,52 @@ subroutine CalcGdbleprime(Gdbleprime,Mass,xvec,InterVec,AtCoord,NumOfAt,h,NumInt
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1996.
 
-use Constants, only: One, Three
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Three
 use Definitions, only: wp
 
 !implicit none
 #include "Constants_mula.fh"
 #include "dims.fh"
 real*8 h
-integer icoord, jcoord, k, j
+integer icoord, jcoord
 integer NumInt, NumOfAt
 real*8 Gdbleprime(ngdim,ngdim,ngdim,ngdim)
 real*8 Mass(NumOfAt)
 real*8 xvec(NumInt)
 integer InterVec(*)
 real*8 AtCoord(3,NumOfAt)
-#include "WrkSpc.fh"
+real*8, allocatable :: Gprime1(:,:,:), Gprime2(:,:,:), Gprime3(:,:,:), Gprime4(:,:,:), xtmp(:)
 
 ! Initialize.
-call GetMem('xtmp','Allo','Real',ipxtmp,NumInt)
-NumInt3 = NumInt*NumInt*NumInt
-call GetMem('Gprime1','Allo','Real',ipGprime1,NumInt3)
-call GetMem('Gprime2','Allo','Real',ipGprime2,NumInt3)
-call GetMem('Gprime3','Allo','Real',ipGprime3,NumInt3)
-call GetMem('Gprime4','Allo','Real',ipGprime4,NumInt3)
+call mma_allocate(xtmp,NumInt,label='xtmp')
+call mma_allocate(Gprime1,NumInt,NumInt,NumInt,label='Gprime1')
+call mma_allocate(Gprime2,NumInt,NumInt,NumInt,label='Gprime2')
+call mma_allocate(Gprime3,NumInt,NumInt,NumInt,label='Gprime3')
+call mma_allocate(Gprime4,NumInt,NumInt,NumInt,label='Gprime4')
 
 do jcoord=1,NumInt
-  call dcopy_(NumInt,xvec,1,Work(ipxtmp),1)
-  !xtmp = xvec
-  Work(ipxtmp+jcoord-1) = xvec(jcoord)-Three*h
-  call CalcGprime(Work(ipGprime1),Mass,Work(ipxtmp),InterVec,AtCoord,NumOfAt,h,NumInt)
-  Work(ipxtmp+jcoord-1) = xvec(jcoord)-One*h
-  call CalcGprime(Work(ipGprime2),Mass,Work(ipxtmp),InterVec,AtCoord,NumOfAt,h,NumInt)
-  Work(ipxtmp+jcoord-1) = xvec(jcoord)+One*h
-  call CalcGprime(Work(ipGprime3),Mass,Work(ipxtmp),InterVec,AtCoord,NumOfAt,h,NumInt)
-  Work(ipxtmp+jcoord-1) = xvec(jcoord)+Three*h
-  call CalcGprime(Work(ipGprime4),Mass,Work(ipxtmp),InterVec,AtCoord,NumOfAt,h,NumInt)
+  xtmp(:) = xvec
+  xtmp(jcoord) = xvec(jcoord)-Three*h
+  call CalcGprime(Gprime1,Mass,xtmp,InterVec,AtCoord,NumOfAt,h,NumInt)
+  xtmp(jcoord) = xvec(jcoord)-h
+  call CalcGprime(Gprime2,Mass,xtmp,InterVec,AtCoord,NumOfAt,h,NumInt)
+  xtmp(jcoord) = xvec(jcoord)+h
+  call CalcGprime(Gprime3,Mass,xtmp,InterVec,AtCoord,NumOfAt,h,NumInt)
+  xtmp(jcoord) = xvec(jcoord)+Three*h
+  call CalcGprime(Gprime4,Mass,xtmp,InterVec,AtCoord,NumOfAt,h,NumInt)
   do icoord=1,NumInt
-    do k=1,NumInt
-      do j=1,NumInt
-        !Gprime(j,k,icoord) = j+NumInt*(k-1+NumInt*(icoord-1))-1
-        ivv = j+NumInt*(k-1+NumInt*(icoord-1))-1
-        Gdbleprime(j,k,icoord,jcoord) = (Work(ipGprime1+ivv)-27.0_wp*Work(ipGprime2+ivv)+27.0_wp*Work(ipGprime3+ivv)- &
-                                        Work(ipGprime4+ivv))/(48.0_wp*h)
-      end do
-    end do
+    Gdbleprime(1:NumInt,1:NumInt,icoord,jcoord) = &
+      (Gprime1(:,:,icoord)-27.0_wp*Gprime2(:,:,icoord)+27.0_wp*Gprime3(:,:,icoord)-Gprime4(:,:,icoord))/(48.0_wp*h)
   end do
 end do
 !call Int_To_Cart(InterVec,xvec,AtCoord,NumOfAt,NumInt,Mass)
 call Int_To_Cart1(InterVec,xvec,AtCoord,NumOfAt,NumInt)
 
-call GetMem('xtmp','Free','Real',ipxtmp,NumInt)
-call GetMem('Gprime1','Free','Real',ipGprime1,NumInt3)
-call GetMem('Gprime2','Free','Real',ipGprime2,NumInt3)
-call GetMem('Gprime3','Free','Real',ipGprime3,NumInt3)
-call GetMem('Gprime4','Free','Real',ipGprime4,NumInt3)
+call mma_deallocate(xtmp)
+call mma_deallocate(Gprime1)
+call mma_deallocate(Gprime2)
+call mma_deallocate(Gprime3)
+call mma_deallocate(Gprime4)
 
 end subroutine CalcGdbleprime

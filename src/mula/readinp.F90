@@ -52,6 +52,7 @@ subroutine ReadInp(Title,AtomLbl,Mass,InterVec,Bond,nBond,NumInt,NumOfAt,trfName
 !    Ignacio Fdez. Galvan, 2017
 
 use Isotopes, only: Isotope
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Eight, Quart
 use Definitions, only: wp, u6
 
@@ -98,6 +99,8 @@ character*8 format
 ! User-defined functions called:
 external StrToDble, iStrToInt
 #include "WrkSpc.fh"
+integer, allocatable :: GeoVec(:), tempmodes(:)
+real*8, allocatable :: Fcart(:,:), ScaleParam(:), Sinv(:,:), SS(:,:), Temp(:,:)
 
 format = '(A80)'
 
@@ -428,7 +431,7 @@ end if
 
 call KeyWord(inpUnit,'MODE',.true.,exist)
 if (exist) then
-  call GetMem('tempmodes','Allo','Inte',iptempModes,NumInt)
+  call mma_allocate(tempmodes,NumInt,label='tempmodes')
   read(inpUnit,format) InLine
   call Normalize(InLine,OutLine)
   i = 1
@@ -436,8 +439,8 @@ if (exist) then
     k = 1
     call WordPos(k,OutLine,iStart,iStop)
     do while (iStop < len(OutLine))
-      iWork(iptempModes+i-1) = iStrToInt(OutLine(iStart:iStop))
-      if (iWork(iptempModes+i-1) > NumInt) then
+      tempModes(i) = iStrToInt(OutLine(iStart:iStop))
+      if (tempModes(i) > NumInt) then
         write(u6,*)
         write(u6,*) ' *********** ERROR *************'
         write(u6,*) ' Too many normal modes specified'
@@ -454,9 +457,9 @@ if (exist) then
   l_NormModes = n
   call GetMem('NormModes','Allo','Inte',ipNormModes,l_NormModes)
   do iv=1,n
-    iWork(ipNormModes+iv-1) = iWork(iptempModes+iv-1)
+    iWork(ipNormModes+iv-1) = tempModes(iv)
   end do
-  call GetMem('tempmodes','Free','Inte',iptempModes,NumInt)
+  call mma_deallocate(tempmodes)
   do i=1,n-1
     do j=i+1,n
       if (iWork(ipNormModes+j-1) < iWork(ipNormModes+i-1)) then
@@ -777,7 +780,7 @@ if (Forcefield) then
     !D write(u6,*) ' READINP: Read internal coordinates for first state.'
     n = 5*(3*NumOfAt-5)
     ! Largest possible necessary GeoVec
-    call GetMem('GeoVec','Allo','Inte',ipGeoVec,5*(3*NumOfAt-5))
+    call mma_allocate(GeoVec,n,label='GeoVec')
     iInt = 1
     j = 1
     read(inpUnit,format) InLine
@@ -792,12 +795,12 @@ if (Forcefield) then
         k = iStop+1
         call WordPos(k,OutLine,iStart,iStop)
         Atom2 = OutLine(iStart:iStop)
-        iwork(ipGeoVec+j-1) = 1
+        GeoVec(j) = 1
         do i=1,NumOfAt
           if (Atom1 == AtomLbl(i)) then
-            iWork(ipGeoVec+j) = i
+            GeoVec(j+1) = i
           else if (Atom2 == AtomLbl(i)) then
-            iWork(ipGeoVec+j+1) = i
+            GeoVec(j+2) = i
           end if
         end do
         call WordPos(k,OutLine,iStart,iStop)
@@ -822,14 +825,14 @@ if (Forcefield) then
         k = iStop+1
         call WordPos(k,OutLine,iStart,iStop)
         Atom3 = OutLine(iStart:iStop)
-        iWork(ipGeoVec+j-1) = 2
+        GeoVec(j) = 2
         do i=1,NumOfAt
           if (Atom1 == AtomLbl(i)) then
-            iWOrk(ipGeoVec+j) = i
+            GeoVec(j+1) = i
           else if (Atom2 == AtomLbl(i)) then
-            iWOrk(ipGeoVec+j+1) = i
+            GeoVec(j+2) = i
           else if (Atom3 == AtomLbl(i)) then
-            iWOrk(ipGeoVec+j+2) = i
+            GeoVec(j+3) = i
           end if
         end do
         call WordPos(k,OutLine,iStart,iStop)
@@ -854,14 +857,14 @@ if (Forcefield) then
         k = iStop+1
         call WordPos(k,OutLine,iStart,iStop)
         Atom3 = OutLine(iStart:iStop)
-        iWork(ipGeoVec+j-1) = 3
+        GeoVec(j) = 3
         do i=1,NumOfAt
           if (Atom1 == AtomLbl(i)) then
-            iWork(ipGeoVec+j) = i
+            GeoVec(j+1) = i
           else if (Atom2 == AtomLbl(i)) then
-            iWOrk(ipGeoVec+j+1) = i
+            GeoVec(j+2) = i
           else if (Atom3 == AtomLbl(i)) then
-            iWork(ipGeoVec+j+2) = i
+            GeoVec(j+3) = i
           end if
         end do
         call WordPos(k,OutLine,iStart,iStop)
@@ -886,16 +889,16 @@ if (Forcefield) then
         Atom3 = OutLine(iStart:iStop)
         call WordPos(k,OutLine,iStart,iStop)
         Atom4 = OutLine(iStart:iStop)
-        iWork(ipGeoVec+j-1) = 4
+        GeoVec(j) = 4
         do i=1,NumOfAt
           if (Atom1 == AtomLbl(i)) then
-            iWork(ipGeoVec+j) = i
+            GeoVec(j+1) = i
           else if (Atom2 == AtomLbl(i)) then
-            iWork(ipGeoVec+j+1) = i
+            GeoVec(j+2) = i
           else if (Atom3 == AtomLbl(i)) then
-            iWork(ipGeoVec+j+2) = i
+            GeoVec(j+3) = i
           else if (Atom4 == AtomLbl(i)) then
-            iWOrk(ipGeoVec+j+3) = i
+            GeoVec(j+4) = i
           end if
         end do
         call WordPos(k,OutLine,iStart,iStop)
@@ -920,16 +923,16 @@ if (Forcefield) then
         Atom3 = OutLine(iStart:iStop)
         call WordPos(k,OutLine,iStart,iStop)
         Atom4 = OutLine(iStart:iStop)
-        iWork(ipGeoVec+j-1) = 5
+        GeoVec(j) = 5
         do i=1,NumOfAt
           if (Atom1 == AtomLbl(i)) then
-            iWork(ipGeoVec+j) = i
+            GeoVec(j+1) = i
           else if (Atom2 == AtomLbl(i)) then
-            iWork(ipGeoVec+j+1) = i
+            GeoVec(j+2) = i
           else if (Atom3 == AtomLbl(i)) then
-            iWork(ipGeoVec+j+2) = i
+            GeoVec(j+3) = i
           else if (Atom4 == AtomLbl(i)) then
-            iWork(ipGeoVec+j+3) = i
+            GeoVec(j+4) = i
           end if
         end do
         call WordPos(k,OutLine,iStart,iStop)
@@ -950,14 +953,14 @@ if (Forcefield) then
     !call Int_to_Cart(GeoVec,xvec,AtCoord1,NumOfAt,iInt,Mass)
     l_a = NumOfAt
     l_n = max_len_xvec
-    call Int_to_Cart1(iWork(ipGeoVec),xvec,Work(ipAtCoord1),l_a,l_n)
+    call Int_to_Cart1(GeoVec,xvec,Work(ipAtCoord1),l_a,l_n)
 
-    call GetMem('GeoVec','Free','Inte',ipGeoVec,5*(3*NumOfAt-5))
+    call mma_deallocate(GeoVec)
 
     call KeyWord(inpUnit,'SECO',.false.,exist)
     !D write(u6,*) ' READINP: Read internal coordinates for second state.'
     n = 5*(3*NumOfAt-5)
-    call GetMem('GeoVec','Allo','Inte',ipGeoVec,5*(3*NumOfAt-5))
+    call mma_allocate(GeoVec,n,label='GeoVec')
     iInt = 1
     j = 1
     read(inpUnit,format) InLine
@@ -972,12 +975,12 @@ if (Forcefield) then
         k = iStop+1
         call WordPos(k,OutLine,iStart,iStop)
         Atom2 = OutLine(iStart:iStop)
-        iWork(ipGeoVec+j-1) = 1
+        GeoVec(j) = 1
         do i=1,NumOfAt
           if (Atom1 == AtomLbl(i)) then
-            iWork(ipGeoVec+j) = i
+            GeoVec(j+1) = i
           else if (Atom2 == AtomLbl(i)) then
-            iWork(ipGeoVec+j+1) = i
+            GeoVec(j+2) = i
           end if
         end do
         call WordPos(k,OutLine,iStart,iStop)
@@ -1002,14 +1005,14 @@ if (Forcefield) then
         k = iStop+1
         call WordPos(k,OutLine,iStart,iStop)
         Atom3 = OutLine(iStart:iStop)
-        iWork(ipGeoVec+j-1) = 2
+        GeoVec(j) = 2
         do i=1,NumOfAt
           if (Atom1 == AtomLbl(i)) then
-            iWork(ipGeoVec+j) = i
+            GeoVec(j+1) = i
           else if (Atom2 == AtomLbl(i)) then
-            iWOrk(ipGeoVec+j+1) = i
+            GeoVec(j+2) = i
           else if (Atom3 == AtomLbl(i)) then
-            iWork(ipGeoVec+j+2) = i
+            GeoVec(j+3) = i
           end if
         end do
         call WordPos(k,OutLine,iStart,iStop)
@@ -1034,14 +1037,14 @@ if (Forcefield) then
         k = iStop+1
         call WordPos(k,OutLine,iStart,iStop)
         Atom3 = OutLine(iStart:iStop)
-        iWork(ipGeoVec+j-1) = 3
+        GeoVec(j) = 3
         do i=1,NumOfAt
           if (Atom1 == AtomLbl(i)) then
-            iWork(ipGeoVec+j) = i
+            GeoVec(j+1) = i
           else if (Atom2 == AtomLbl(i)) then
-            iWork(ipGeoVec+j+1) = i
+            GeoVec(j+2) = i
           else if (Atom3 == AtomLbl(i)) then
-            iWork(ipGeoVec+j+2) = i
+            GeoVec(j+3) = i
           end if
         end do
         call WordPos(k,OutLine,iStart,iStop)
@@ -1066,16 +1069,16 @@ if (Forcefield) then
         Atom3 = OutLine(iStart:iStop)
         call WordPos(k,OutLine,iStart,iStop)
         Atom4 = OutLine(iStart:iStop)
-        iWork(ipGeoVec+j-1) = 4
+        GeoVec(j) = 4
         do i=1,NumOfAt
           if (Atom1 == AtomLbl(i)) then
-            iWork(ipGeoVec+j) = i
+            GeoVec(j+1) = i
           else if (Atom2 == AtomLbl(i)) then
-            iWork(ipGeoVec+j+1) = i
+            GeoVec(j+2) = i
           else if (Atom3 == AtomLbl(i)) then
-            iWork(ipGeoVec+j+2) = i
+            GeoVec(j+3) = i
           else if (Atom4 == AtomLbl(i)) then
-            iWOrk(ipGeoVec+j+3) = i
+            GeoVec(j+4) = i
           end if
         end do
         call WordPos(k,OutLine,iStart,iStop)
@@ -1100,16 +1103,16 @@ if (Forcefield) then
         Atom3 = OutLine(iStart:iStop)
         call WordPos(k,OutLine,iStart,iStop)
         Atom4 = OutLine(iStart:iStop)
-        iWOrk(ipGeoVec+j-1) = 5
+        GeoVec(j) = 5
         do i=1,NumOfAt
           if (Atom1 == AtomLbl(i)) then
-            iWork(ipGeoVec+j) = i
+            GeoVec(j+1) = i
           else if (Atom2 == AtomLbl(i)) then
-            iWork(ipGeoVec+j+1) = i
+            GeoVec(j+2) = i
           else if (Atom3 == AtomLbl(i)) then
-            iWork(ipGeoVec+j+2) = i
+            GeoVec(j+3) = i
           else if (Atom4 == AtomLbl(i)) then
-            iWork(ipGeoVec+j+3) = i
+            GeoVec(j+4) = i
           end if
         end do
         call WordPos(k,OutLine,iStart,iStop)
@@ -1130,7 +1133,8 @@ if (Forcefield) then
     !call Int_to_Cart(GeoVec,xvec,AtCoord2,NumOfAt,iInt,Mass)
     l_a = NumOfAt
     l_n = max_len_xvec
-    call Int_to_Cart1(iWork(ipGeoVec),xvec,Work(ipAtCoord2),l_a,l_n)
+    call Int_to_Cart1(GeoVec,xvec,Work(ipAtCoord2),l_a,l_n)
+    call mma_deallocate(GeoVec)
     call GetMem('GeoVec','Free','Inte',ipGeoVec,5*(3*NumOfAt-5))
   end if
 
@@ -1329,21 +1333,24 @@ if (Forcefield) then
       read(inpUnit,*) (Work(ipHess1+i+l_Hess1*(j-1)-1),j=1,NumInt)
     end do
   else if (CoordType == 'CARTESIAN') then
-    call GetMem('SS','Allo','Real',ipSS,3*NumOfAt*NumInt)
-    call dcopy_(3*NumOfAt*NumInt,[Zero],0,Work(ipSS),1)
-    !SS = Zero
-    call CalcS(Work(ipAtCoord1),InterVec,Work(ipSS),NumInt,NumOfAt)
+    call mma_allocate(SS,3*NumOfAt,NumInt,label='SS')
+    SS(:,:) = Zero
+    call CalcS(Work(ipAtCoord1),InterVec,SS,NumInt,NumOfAt)
+
     ! Invert S matrix and remove total translation and total rotation.
-    call GetMem('Sinv','Allo','Real',ipSinv,3*NumOfAt*NumInt)
-    call RotTranRem(Work(ipSinv),Work(ipSS),Mass,Work(ipAtCoord1),NumOfAt,NumInt)
+    call mma_allocate(Sinv,3*NumOfAt,NumInt,label='Sinv')
+
+    call RotTranRem(Sinv,SS,Mass,Work(ipAtCoord1),NumOfAt,NumInt)
+    call mma_deallocate(SS)
 
     ! Read cartesian force constant matrix.
     n = 3*NumOfAt
     nFcart = n
-    call GetMem('Fcart','Allo','Real',ipFcart,nFcart*nFcart)
-    do m=1,(3*NumOfAt)
+    call mma_allocate(Fcart,nFcart,nFcart,label='Fcart')
+
+    do m=1,3*NumOfAt
       read(inpUnit1,'(a17)',iostat=istatus) Inline
-      if (istatus <= 0) read(inpUnit1,*,iostat=istatus) (Work(ipFcart+m+nFcart*(n-1)-1),n=1,(3*NumOfAt))
+      if (istatus <= 0) read(inpUnit1,*,iostat=istatus) (Fcart(m,n),n=1,3*NumOfAt)
       if (istatus > 0) then
         write(u6,*)
         write(u6,*) ' ***************** ERROR *******************'
@@ -1359,7 +1366,7 @@ if (Forcefield) then
     error = Zero
     do m=1,(3*NumOfAt)
       do n=1,(3*NumOfAt)
-        error = error+(Work(ipFcart+m+nFcart*(n-1)-1)-Work(ipFcart+n+nFcart*(m-1)-1))**2
+        error = error+(Fcart(m,n)-Fcart(n,m))**2
       end do
     end do
     if (error > 1.0e-10_wp) then
@@ -1385,32 +1392,31 @@ if (Forcefield) then
     !  end do
     !end do
     !PAM01 Here follows replacement code:
-    call GetMem('Temp','Allo','Real',ipTemp,3*NumOfAt*NumInt)
-    call DGEMM_('N','N',3*NumOfAt,NumInt,3*NumOfAt,One,Work(ipFCart),3*NumOfAt,work(ipSInv),3*NumOfAt,Zero,Work(ipTemp),3*NumOfAt)
-    call DGEMM_('T','N',NumInt,NumInt,3*NumOfAt,One,Work(ipSInv),3*NumOfAt,Work(ipTemp),3*NumOfAt,Zero,Work(ipHess1),NumInt)
-    call GetMem('Temp','Free','Real',ipTemp,3*NumOfAt*NumInt)
-    call GetMem('Sinv','Free','Real',ipSinv,3*NumOfAt*NumInt)
-    call GetMem('SS','Free','Real',ipSS,3*NumOfAt*NumInt)
-    call GetMem('Fcart','Free','Real',ipFcart,nFcart*nFcart)
+    call mma_allocate(Temp,3*NumOfAt,NumInt,label='Temp')
+    call DGEMM_('N','N',3*NumOfAt,NumInt,3*NumOfAt,One,FCart,3*NumOfAt,SInv,3*NumOfAt,Zero,Temp,3*NumOfAt)
+    call DGEMM_('T','N',NumInt,NumInt,3*NumOfAt,One,SInv,3*NumOfAt,Temp,3*NumOfAt,Zero,Work(ipHess1),NumInt)
+    call mma_deallocate(Temp)
+    call mma_deallocate(Sinv)
+    call mma_deallocate(Fcart)
 
   end if
 
   ! Scale Hessian if scaling factors were given.
   call KeyWord(inpUnit,'SCAL',.true.,exist)
   if (exist) then
-    call GetMem('Scale1','Allo','Real',ipScaleParam1,NumInt)
+    call mma_allocate(ScaleParam,NumInt,label='Scale1')
 
     call KeyWord(inpUnit,'FIRS',.false.,exist)
     do i=1,NumInt
-      read(inpUnit,*) Work(ipScaleParam1+i-1)
-      Work(ipScaleParam1+i-1) = sqrt(Work(ipScaleParam1+i-1))
+      read(inpUnit,*) ScaleParam(i)
+      ScaleParam(i) = sqrt(ScaleParam(i))
     end do
     do j=1,Numint
       do i=1,NumInt
-        Work(ipHess1+i+l_Hess1*(j-1)-1) = Work(ipHess1+i+l_Hess1*(j-1)-1)*Work(ipScaleParam1+i-1)*Work(ipScaleParam1+j-1)
+        Work(ipHess1+i+l_Hess1*(j-1)-1) = Work(ipHess1+i+l_Hess1*(j-1)-1)*ScaleParam(i)*ScaleParam(j)
       end do
     end do
-    call GetMem('Scale1','Free','Real',ipScaleParam1,NumInt)
+    call mma_deallocate(ScaleParam)
   end if
   !D write(u6,*) ' Scaled.'
 
@@ -1443,25 +1449,24 @@ if (Forcefield) then
       read(inpUnit,*) (Work(ipHess2+i+l_Hess1*(j-1)-1),j=1,NumInt)
     end do
   else if (CoordType == 'CARTESIAN') then
-    call GetMem('SS','Allo','Real',ipSS,3*NumOfAt*NumInt)
-
-    call dcopy_(3*NumOfAt*NumInt,[Zero],0,Work(ipSS),1)
-    !SS = Zero
-    call CalcS(Work(ipAtCoord2),InterVec,Work(ipSS),NumInt,NumofAt)
+    call mma_allocate(SS,3*NumOfAt,NumInt,label='SS')
+    SS(:,:) = Zero
+    call CalcS(Work(ipAtCoord2),InterVec,SS,NumInt,NumofAt)
 
     ! Invert S matrix and remove total translation and total rotation.
-    call GetMem('Sinv','Allo','Real',ipSinv,3*NumOfAt*NumInt)
+    call mma_allocate(Sinv,3*NumOfAt,NumInt,label='Sinv')
 
-    call RotTranRem(Work(ipSinv),Work(ipSS),Mass,Work(ipAtCoord2),NumOfAt,NumInt)
+    call RotTranRem(Sinv,SS,Mass,Work(ipAtCoord2),NumOfAt,NumInt)
+    call mma_deallocate(SS)
 
     ! Read cartesian force constant matrix.
     n = 3*NumOfAt
     nFcart = n
-    call GetMem('Fcart','Allo','Real',ipFcart,nFcart*nFcart)
+    call mma_allocate(Fcart,nFcart,nFcart,label='Fcart')
 
-    do m=1,(3*NumOfAt)
+    do m=1,3*NumOfAt
       read(inpUnit2,'(a17)',iostat=istatus) Inline
-      if (istatus <= 0) read(inpUnit2,*,iostat=istatus) (Work(ipFcart+m+nFcart*(n-1)-1),n=1,(3*NumOfAt))
+      if (istatus <= 0) read(inpUnit2,*,iostat=istatus) (Fcart(m,n),n=1,3*NumOfAt)
       if (istatus > 0) then
         write(u6,*)
         write(u6,*) ' ***************** ERROR *******************'
@@ -1477,7 +1482,7 @@ if (Forcefield) then
     error = Zero
     do n=1,(3*NumOfAt)
       do m=1,(3*NumOfAt)
-        error = error+(Work(ipFcart+m+nFcart*(n-1)-1)-Work(ipFcart+n+nFcart*(m-1)-1))**2
+        error = error+(Fcart(m,n)-Fcart(n,m))**2
       end do
     end do
     if (error > 1.0e-2_wp) then
@@ -1503,13 +1508,12 @@ if (Forcefield) then
     !  end do
     !end do
     !PAM01 Here follows replacement code:
-    call GetMem('Temp','Allo','Real',ipTemp,3*NumOfAt*NumInt)
-    call DGEMM_('N','N',3*NumOfAt,NumInt,3*NumOfAt,One,Work(ipFCart),3*NumOfAt,work(ipSInv),3*NumOfAt,Zero,Work(ipTemp),3*NumOfAt)
-    call DGEMM_('T','N',NumInt,NumInt,3*NumOfAt,One,Work(ipSInv),3*NumOfAt,Work(ipTemp),3*NumOfAt,Zero,Work(ipHess2),NumInt)
-    call GetMem('Temp','Free','Real',ipTemp,3*NumOfAt*NumInt)
-    call GetMem('Sinv','Free','Real',ipSinv,3*NumOfAt*NumInt)
-    call GetMem('SS','Free','Real',ipSS,3*NumOfAt*NumInt)
-    call GetMem('Fcart','Free','Real',ipFcart,nFcart*nFcart)
+    call mma_allocate(Temp,3*NumOfAt,NumInt,label='Temp')
+    call DGEMM_('N','N',3*NumOfAt,NumInt,3*NumOfAt,One,FCart,3*NumOfAt,SInv,3*NumOfAt,Zero,Temp,3*NumOfAt)
+    call DGEMM_('T','N',NumInt,NumInt,3*NumOfAt,One,SInv,3*NumOfAt,Temp,3*NumOfAt,Zero,Work(ipHess2),NumInt)
+    call mma_deallocate(Temp)
+    call mma_deallocate(Sinv)
+    call mma_deallocate(Fcart)
 
   end if
 
@@ -1525,19 +1529,19 @@ if (Forcefield) then
 
   call KeyWord(inpUnit,'SCAL',.true.,exist)
   if (exist) then
-    call GetMem('Scale2','Allo','Real',ipScaleParam2,NumInt)
+    call mma_allocate(ScaleParam,NumInt,label='ScaleParam')
 
     call KeyWord(inpUnit,'SECO',.false.,exist)
     do i=1,NumInt
-      read(inpUnit,*) Work(ipScaleParam2+i-1)
-      Work(ipScaleParam2+i-1) = sqrt(Work(ipScaleParam2+i-1))
+      read(inpUnit,*) ScaleParam(i)
+      ScaleParam(i) = sqrt(ScaleParam(i))
     end do
     do j=1,NumInt
       do i=1,NumInt
-        Work(ipHess2+i+l_Hess1*(j-1)-1) = Work(ipHess2+i+l_Hess1*(j-1)-1)*Work(ipScaleParam2+i-1)*Work(ipScaleParam2+j-1)
+        Work(ipHess2+i+l_Hess1*(j-1)-1) = Work(ipHess2+i+l_Hess1*(j-1)-1)*ScaleParam(i)*ScaleParam(j)
       end do
     end do
-    call GetMem('Scale2','Allo','Real',ipScaleParam2,NumInt)
+    call mma_deallocate(ScaleParam)
   end if
 
   ! SCALe: End ---------------------------------------------------------

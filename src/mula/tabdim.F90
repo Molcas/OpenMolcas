@@ -12,21 +12,7 @@
 !               1999, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine TabDim_drv(nDim,nOsc,nTabDim)
-
-integer nDim, nOsc
-integer nTabDim
-#include "WrkSpc.fh"
-
-call GetMem('binomCoef','Allo','INTE',ipbinomCoef,(nDim+1)*nOsc)
-call TabDim(nDim,nOsc,nTabDim,iWork(ipbinomCoef))
-call GetMem('binomCoef','Free','INTE',ipbinomCoef,(nDim+1)*nOsc)
-
-return
-
-end subroutine TabDim_drv
-!####
-subroutine TabDim(nDim,nOsc,nTabDim,binomCoef)
+subroutine TabDim(nDim,nOsc,nTabDim)
 !  Purpose:
 !    Fill a nDim*nOsc matrix with binomial coefficients.
 !    This matrix is then used to calculate the dimension
@@ -43,15 +29,18 @@ subroutine TabDim(nDim,nOsc,nTabDim,binomCoef)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
+use stdalloc, only: mma_allocate, mma_deallocate
+
 implicit none
 integer iRow, jCol, nDim, nOsc
 integer nTabDim
-integer binomCoef(0:nDim,nOsc)
+integer, allocatable :: binomCoef(:,:)
 
 ! Initialize.
 
 ! Calculate binomial coefficients.
 if (nDim > 0) then
+  call mma_allocate(binomCoef,[0,nDim],[1,nOsc],label='binomCoef')
   do jCol=1,nOsc
     binomCoef(0,jCol) = 1
   end do
@@ -69,25 +58,12 @@ if (nDim > 0) then
   do iRow=0,nDim
     nTabDim = nTabDim+binomCoef(iRow,nOsc)
   end do
+  call mma_deallocate(binomCoef)
 else
   nTabDim = 1
 end if
 
 end subroutine TabDim
-!####
-subroutine TabDim2_drv(nDim,nOsc,nTabDim)
-
-integer nDim, nOsc
-integer nTabDim
-#include "WrkSpc.fh"
-
-call GetMem('binomCoef','Allo','INTE',ipbinomCoef,(nDim+1)*nOsc)
-call TabDim(nDim,nOsc,nTabDim,iWork(ipbinomCoef))
-call GetMem('binomCoef','Free','INTE',ipbinomCoef,(nDim+1)*nOsc)
-
-return
-
-end subroutine TabDim2_drv
 !####
 integer function iDetNr(iocc,graph2,nosc,m)
 

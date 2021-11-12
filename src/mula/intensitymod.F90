@@ -89,6 +89,7 @@ subroutine Intensity(IntensityMat,TermMat,T0,max_term,ipow,var,Tdip_x,Tdip_y,Tdi
 !    TermMat      : Real*8 two dimensional array - energies
 !                   of transitions.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Three
 use Definitions, only: wp
 
@@ -108,65 +109,62 @@ real*8 U1(nDimTot,nDimTot), U2(nDimTot,nDimTot)
 real*8 Base(nOsc,nOsc)
 real*8 E1(nDimTot), E2(nDimTot)
 real*8 harmfreq1(nOsc), harmfreq2(nOsc)
-!real*8 IntensityMat(0:l_IntensityMat_1,0:l_IntensityMat_2)
 integer m_plot(l_m_plot), n_plot(l_n_plot)
 integer nvTabDim
-#include "WrkSpc.fh"
+integer, allocatable :: mDec(:,:), mInc(:,:), mMat(:,:), nDec(:,:), nInc(:,:), nMat(:,:)
+real*8, allocatable :: DipMat(:,:,:), FC2(:,:,:)
 
 ! Calculate dimensions given max level of excitation for the different states.
-call TabDim2_drv(m_max,nOsc,nvTabDim)
+call TabDim(m_max,nOsc,nvTabDim)
 mTabDim = nvTabDim-1
-call TabDim2_drv(n_max,nOsc,nvTabDim)
+call TabDim(n_max,nOsc,nvTabDim)
 nTabDim = nvTabDim-1
 !n_max2 = n_max+max_dip
 !max_term = n_max2-n_max
 !nTabDim2 = TabDim2(n_max2,nOsc)-1
 n_max2 = n_max
-call TabDim2_drv(n_max2,nOsc,nvTabDim)
+call TabDim(n_max2,nOsc,nvTabDim)
 nTabDim2 = nvTabDim-1
 max_mOrd = mTabDim
 max_nOrd = nTabDim
 max_nOrd2 = nTabDim
 
 ! Set up mMat for L.
-call GetMem('mMat','Allo','Inte',ipmMat,(mTabDim+1)*nOsc)
-call GetMem('mInc','Allo','Inte',ipmInc,(mTabDim+1)*nOsc)
-call GetMem('mDec','Allo','Inte',ipmDec,(mTabDim+1)*nOsc)
+call mma_allocate(mMat,[0,mTabDim],[1,nOsc],label='mMat')
+call mma_allocate(mInc,[0,mTabDim],[1,nOsc],label='mInc')
+call mma_allocate(mDec,[0,mTabDim],[1,nOsc],label='mDec')
 ! Put dimensions into common block:
 mdim1 = mTabDim
 mdim2 = nOsc
-call MakeTab2(m_max,max_mOrd,max_mInc,mTabDim,iWork(ipmMat),iWork(ipmInc),iWork(ipmDec),nOsc)
+call MakeTab2(m_max,max_mOrd,max_mInc,mTabDim,mMat,mInc,mDec,nOsc)
 
 ! Set up nMat for U.
 max_nOrd = nTabDim
-call TabDim2_drv(max(0,n_max-1),nOsc,nvTabDim)
+call TabDim(max(0,n_max-1),nOsc,nvTabDim)
 max_nInc = nvTabDim-1
-call GetMem('nMat','Allo','Inte',ipnMat,(nTabDim2+1)*nOsc)
-call GetMem('nInc','Allo','Inte',ipnInc,(nTabDim2+1)*nOsc)
-call GetMem('nDec','Allo','Inte',ipnDec,(nTabDim2+1)*nOsc)
+call mma_allocate(nMat,[0,nTabDim],[1,nOsc],label='nMat')
+call mma_allocate(nInc,[0,nTabDim],[1,nOsc],label='nInc')
+call mma_allocate(nDec,[0,nTabDim],[1,nOsc],label='nDec')
 ! Put dimensions into common block:
 ndim1 = nTabDim2
 ndim2 = nOsc
 ! Use nnsiz for the time being, to transfer dim to called routines.
 nnsiz = ntabdim2
-call MakeTab2(n_max2,max_nOrd2,max_nInc2,nTabDim2,iWork(ipnMat),iWork(ipnInc),iWork(ipnDec),nOsc)
+call MakeTab2(n_max2,max_nOrd2,max_nInc2,nTabDim2,nMat,nInc,nDec,nOsc)
 
 ! Either use the eigenvectors obtained from the variational
 ! method or use the simpler harmonic approximation.
 nDimTot = 2*max_mOrd+2
-n = ndimtot-1
-call GetMem('FC2','Allo','Real',ipFC2,nDimTot*nDimTot*3)
-!FC2 = Zero
-call dcopy_(nDimtot*nDimTot*3,[Zero],0,Work(ipFC2),1)
-call GetMem('DipMat','Allo','Real',ipDipMat,nDimTot*nDimTot*3)
-!DipMat = Zero
-call dcopy_(nDimtot*nDimTot*3,[Zero],0,Work(ipDipMat),1)
-call SetUpDipMat(Work(ipDipMat),max_dip,ipow,var,Tdip_x,trfName,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,max_nOrd,max_mInc, &
-                 max_nInc,max_nInc,iWork(ipmMat),iWork(ipnMat),iWork(ipmInc),iWork(ipnInc),iWork(ipmDec),iWork(ipnDec),det0,r0,r1, &
-                 r2,base,nnsiz,nOsc,nDimTot,nPolyTerm,ndata,nvar,MaxNumAt)
-call SetUpDipMat(Work(ipDipMat+nDimTot*nDimTot),max_dip,ipow,var,Tdip_y,trfName,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd, &
-                 max_nOrd,max_mInc,max_nInc,max_nInc,iWork(ipmMat),iWork(ipnMat),iWork(ipmInc),iWork(ipnInc),iWork(ipmDec), &
-                 iWork(ipnDec),det0,r0,r1,r2,base,nnsiz,nOsc,nDimTot,nPolyTerm,ndata,nvar,MaxNumAt)
+call mma_allocate(FC2,nDimTot,nDimTot,3)
+FC2(:,:,:) = Zero
+call mma_allocate(DipMat,nDimTot,nDimTot,2,label='DipMat')
+DipMat(:,:,:) = Zero
+call SetUpDipMat(DipMat(:,:,1),max_dip,ipow,var,Tdip_x,trfName,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,max_nOrd,max_mInc, &
+                 max_nInc,max_nInc,mMat,nMat,mInc,nInc,mDec,nDec,det0,r0,r1,r2,base,nnsiz,nOsc,nDimTot-1,nPolyTerm,ndata,nvar, &
+                 MaxNumAt)
+call SetUpDipMat(DipMat(:,:,2),max_dip,ipow,var,Tdip_y,trfName,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,max_nOrd,max_mInc, &
+                 max_nInc,max_nInc,mMat,nMat,mInc,nInc,mDec,nDec,det0,r0,r1,r2,base,nnsiz,nOsc,nDimTot-1,nPolyTerm,ndata,nvar, &
+                 MaxNumAt)
 m_plot_max = l_m_plot
 n_plot_max = l_n_plot
 max_mQuanta = m_plot(1)
@@ -190,19 +188,19 @@ end if
 !if (max_mQuanta == 0) max_mOrd = 0
 !if (max_nQuanta == 0) max_nOrd = 0
 do k=1,2
-  do m=1,ndimtot
-    do n=1,ndimtot
+  do m=1,nDimTot
+    do n=1,nDimTot
       sum = Zero
       do j=1,nDimTot
         do i=1,nDimTot
-          sum = sum+Work(ipDipMat+i-1+nDimTot*((j-1)+nDimTot*(k-1)))*U1(i,m)*U2(j,n)
+          sum = sum+DipMat(i,j,k)*U1(i,m)*U2(j,n)
         end do
       end do
-      Work(ipFC2+m-1+nDimTot*((n-1)+nDimTot*(k-1))) = sum
+      FC2(m,n,k) = sum
     end do
   end do
 end do
-call GetMem('DipMat','Free','Real',ipDipMat,nDimTot*nDimTot*3)
+call mma_deallocate(DipMat)
 
 ! Calculate frequency differences to be used in the boltzmann
 ! weighting of the different transitions.
@@ -215,25 +213,24 @@ call GetMem('DipMat','Free','Real',ipDipMat,nDimTot*nDimTot*3)
 ! Calculate intensities.
 ! where does this number come from?
 const1 = (Two/Three)*32.13002e9_wp
-call dcopy_((l_IntensityMat_1+1)*(l_IntensityMat_2+1),[Zero],0,IntensityMat,1)
-!IntensityMat = Zero
+IntensityMat(:,:) = Zero
 do jOrd=0,nDimTot-1
   do iOrd=0,nDimTot-1
     !dE = FreqDiffMat(iOrd)*HarToaJ*1.0e-18_wp
     !const2 = const1*exp(-dE/(kBoltzmann*Temperature))
     !IntensityMat(iOrd,jOrd) = const2*(TermMat(iOrd,jOrd)**3)* &
-    IntensityMat(iOrd,jOrd) = const1*(TermMat(iOrd,jOrd)**3)*(Work(ipFC2+iOrd+nDimTot*(jOrd))**2+ &
-                              Work(ipFC2+iOrd+nDimTot*(jOrd+nDimTot))**2+Work(ipFC2+iOrd+nDimTot*(jOrd+nDimTot*2))**2)
+    IntensityMat(iOrd,jOrd) = const1*(TermMat(iOrd,jOrd)**3)* &
+                              (FC2(iOrd+1,jOrd+1,1)**2+FC2(iOrd+1,jOrd+1,2)**2+FC2(iOrd+1,jOrd+1,3)**2)
   end do
 end do
 
-call GetMem('FC2','Free','Real',ipFC2,nDimTot*nDimTot*3)
-call GetMem('mMat','Free','Inte',ipmMat,(mTabDim+1)*nOsc)
-call GetMem('mInc','Free','Inte',ipmInc,(mTabDim+1)*nOsc)
-call GetMem('mDec','Free','Inte',ipmDec,(mTabDim+1)*nOsc)
-call GetMem('nMat','Free','Inte',ipnMat,(nTabDim2+1)*nOsc)
-call GetMem('nInc','Free','Inte',ipnInc,(nTabDim2+1)*nOsc)
-call GetMem('nDec','Free','Inte',ipnDec,(nTabDim2+1)*nOsc)
+call mma_deallocate(FC2)
+call mma_deallocate(mMat)
+call mma_deallocate(mInc)
+call mma_deallocate(mDec)
+call mma_deallocate(nMat)
+call mma_deallocate(nInc)
+call mma_deallocate(nDec)
 
 ! Avoid unused argument warnings
 if (.false.) then
@@ -299,6 +296,7 @@ subroutine Intensity2(IntensityMat,TermMat,T0,max_term,U1,U2,E1,E2,C1,W1,det1,r0
 !    TermMat      : Real*8 two dimensional array - energies
 !                   of transitions.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Three
 use Definitions, only: wp
 
@@ -319,61 +317,56 @@ real*8 harmfreq1(nOsc), harmfreq2(nOsc)
 real*8 x_anharm1(nOsc,nOsc), x_anharm2(nOsc,nOsc)
 integer m_plot(l_m_plot), n_plot(l_n_plot)
 integer nvTabDim
-#include "WrkSpc.fh"
+integer, allocatable :: mDec(:,:), mInc(:,:), mMat(:,:), nDec(:,:), nInc(:,:), nMat(:,:)
+real*8, allocatable :: DipMat(:,:,:), FC2(:,:,:)
 
 ! Calculate dimensions given max level of excitation for the different states.
-call TabDim2_drv(m_max,nOsc,nvTabDim)
+call TabDim(m_max,nOsc,nvTabDim)
 mTabDim = nvTabDim-1
-call TabDim2_drv(n_max,nOsc,nvTabDim)
+call TabDim(n_max,nOsc,nvTabDim)
 nTabDim = nvTabDim-1
 n_max2 = n_max
-call TabDim2_drv(n_max2,nOsc,nvTabDim)
+call TabDim(n_max2,nOsc,nvTabDim)
 nTabDim2 = nvTabDim-1
 max_mOrd = mTabDim
 max_nOrd = nTabDim
 max_nOrd2 = nTabDim
 
 ! Set up mMat for L.
-call GetMem('mMat','Allo','Inte',ipmMat,(mTabDim+1)*nOsc)
-call GetMem('mInc','Allo','Inte',ipmInc,(mTabDim+1)*nOsc)
-call GetMem('mDec','Allo','Inte',ipmDec,(mTabDim+1)*nOsc)
+call mma_allocate(mMat,[0,mTabDim],[1,nOsc],label='mMat')
+call mma_allocate(mInc,[0,mTabDim],[1,nOsc],label='mInc')
+call mma_allocate(mDec,[0,mTabDim],[1,nOsc],label='mDec')
 ! Put dimensions into common block:
 mdim1 = mTabDim
 mdim2 = nOsc
-call MakeTab2(m_max,max_mOrd,max_mInc,mTabDim,iWork(ipmMat),iWork(ipmInc),iWork(ipmDec),nOsc)
+call MakeTab2(m_max,max_mOrd,max_mInc,mTabDim,mMat,mInc,mDec,nOsc)
 
 ! Set up nMat for U.
 max_nOrd = nTabDim
-call TabDim2_drv(max(0,n_max-1),nOsc,nvTabDim)
+call TabDim(max(0,n_max-1),nOsc,nvTabDim)
 max_nInc = nvTabDim-1
-call GetMem('nMat','Allo','Inte',ipnMat,(nTabDim2+1)*nOsc)
-call GetMem('nInc','Allo','Inte',ipnInc,(nTabDim2+1)*nOsc)
-call GetMem('nDec','Allo','Inte',ipnDec,(nTabDim2+1)*nOsc)
+call mma_allocate(nMat,[0,nTabDim2],[1,nOsc],label='nMat')
+call mma_allocate(nInc,[0,nTabDim2],[1,nOsc],label='nInc')
+call mma_allocate(nDec,[0,nTabDim2],[1,nOsc],label='nDec')
 ! Put dimensions into common block:
 ndim1 = nTabDim2
 ndim2 = nOsc
 nnsiz = ntabdim2
-call MakeTab2(n_max2,max_nOrd2,max_nInc2,nTabDim2,iWork(ipnMat),iWork(ipnInc),iWork(ipnDec),nOsc)
+call MakeTab2(n_max2,max_nOrd2,max_nInc2,nTabDim2,nMat,nInc,nDec,nOsc)
 
 ! Either use the eigenvectors obtained from the variational
 ! method or use the simpler harmonic approximation.
 nDimTot = max_mOrd+1
-n = nDimTot-1
-call GetMem('FC2','Allo','Real',ipFC2,nDimTot*nDimTot*3)
-!FC2 = Zero
-call dcopy_(nDimtot*nDimTot*3,[Zero],0,Work(ipFC2),1)
-call GetMem('DipMat','Allo','Real',ipDipMat,nDimTot*nDimTot*3)
-!DipMat = Zero
-call dcopy_(nDimtot*nDimTot*3,[Zero],0,Work(ipDipMat),1)
-call SetUpDipMat2(Work(ipDipMat),max_dip,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,max_nOrd,max_mInc,max_nInc,max_nInc, &
-                  iWork(ipmMat),iWork(ipnMat),iWork(ipmInc),iWork(ipnInc),iWork(ipmDec),iWork(ipnDec),det0,r0,r1,r2,Base, &
-                  TranDip(1),TranDipGrad(1,1),nnsiz,nOsc,nDimTot)
-call SetUpDipMat2(Work(ipDipMat+nDimTot*nDimTot),max_dip,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,max_nOrd,max_mInc, &
-                  max_nInc,max_nInc,iWork(ipmMat),iWork(ipnMat),iWork(ipmInc),iWork(ipnInc),iWork(ipmDec),iWork(ipnDec),det0,r0, &
-                  r1,r2,Base,TranDip(2),TranDipGrad(2,1),nnsiz,nOsc,nDimTot)
-call SetUpDipMat2(Work(ipDipMat+0+nDimTot*nDimTot*2),max_dip,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,max_nOrd,max_mInc, &
-                  max_nInc,max_nInc,iWork(ipmMat),iWork(ipnMat),iWork(ipmInc),iWork(ipnInc),iWork(ipmDec),iWork(ipnDec),det0,r0, &
-                  r1,r2,Base,TranDip(3),TranDipGrad(3,1),nnsiz,nOsc,nDimTot)
+call mma_allocate(FC2,nDimTot,nDimTot,3)
+FC2(:,:,:) = Zero
+call mma_allocate(DipMat,nDimTot,nDimTot,3,label='DipMat')
+DipMat(:,:,:) = Zero
+call SetUpDipMat2(DipMat(:,:,1),max_dip,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,max_nOrd,max_mInc,max_nInc,max_nInc,mMat, &
+                  nMat,mInc,nInc,mDec,nDec,det0,r0,r1,r2,Base,TranDip(1),TranDipGrad(1,1),nnsiz,nOsc,nDimTot-1)
+call SetUpDipMat2(DipMat(:,:,2),max_dip,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,max_nOrd,max_mInc,max_nInc,max_nInc,mMat, &
+                  nMat,mInc,nInc,mDec,nDec,det0,r0,r1,r2,Base,TranDip(2),TranDipGrad(2,1),nnsiz,nOsc,nDimTot-1)
+call SetUpDipMat2(DipMat(:,:,3),max_dip,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,max_nOrd,max_mInc,max_nInc,max_nInc,mMat, &
+                  nMat,mInc,nInc,mDec,nDec,det0,r0,r1,r2,Base,TranDip(3),TranDipGrad(3,1),nnsiz,nOsc,nDimTot-1)
 m_plot_max = l_m_plot
 n_plot_max = l_n_plot
 max_mQuanta = m_plot(1)
@@ -402,14 +395,14 @@ do k=1,3
       sum = Zero
       do j=1,nDimTot
         do i=1,nDimTot
-          sum = sum+Work(ipDipMat+(i-1)+nDimTot*((j-1)+nDimTot*(k-1)))*U1(i,m)*U2(j,n)
+          sum = sum+DipMat(i,j,k)*U1(i,m)*U2(j,n)
         end do
       end do
-      Work(ipFC2+m-1+nDimTot*((n-1)+nDimTot*(k-1))) = sum
+      FC2(m,n,k) = sum
     end do
   end do
 end do
-call GetMem('DipMat','Free','Real',ipDipMat,nDimTot*nDimTot*3)
+call mma_deallocate(DipMat)
 
 ! Calculate frequency differences to be used in the boltzmann
 ! weighting of the different transitions.
@@ -422,25 +415,24 @@ call GetMem('DipMat','Free','Real',ipDipMat,nDimTot*nDimTot*3)
 ! Calculate intensities.
 ! where does this number come from?
 const1 = (Two/Three)*32.13002e9_wp
-call dcopy_((l_IntensityMat_1+1)*(l_IntensityMat_2+1),[Zero],0,IntensityMat,1)
-!IntensityMat = Zero
+IntensityMat(:,:) = Zero
 do jOrd=0,nDimTot-1
   do iOrd=0,nDimTot-1
     !dE = FreqDiffMat(iOrd)*HarToaJ*1.0e-18_wp
     !const2 = const1*exp(-dE/(kBoltzmann*Temperature))
     !IntensityMat(iOrd,jOrd) = const2*(TermMat(iOrd,jOrd)**3)* &
-    IntensityMat(iOrd,jOrd) = const1*(TermMat(iOrd,jOrd)**3)*(Work(ipFC2+iOrd+nDimTot*(jOrd))**2+ &
-                              Work(ipFC2+iOrd+nDimTot*(jOrd+nDimTot))**2+Work(ipFC2+iOrd+nDimTot*(jOrd+nDimTot*2))**2)
+    IntensityMat(iOrd,jOrd) = const1*(TermMat(iOrd,jOrd)**3)* &
+                              (FC2(iOrd+1,jOrd+1,1)**2+FC2(iOrd+1,jOrd+1,2)**2+FC2(iOrd+1,jOrd+1,3)**2)
   end do
 end do
 
-call GetMem('FC2','Free','Real',ipFC2,nDimTot*nDimTot*3)
-call GetMem('mMat','Free','Inte',ipmMat,(mTabDim+1)*nOsc)
-call GetMem('mInc','Free','Inte',ipmInc,(mTabDim+1)*nOsc)
-call GetMem('mDec','Free','Inte',ipmDec,(mTabDim+1)*nOsc)
-call GetMem('nMat','Free','Inte',ipnMat,(nTabDim2+1)*nOsc)
-call GetMem('nInc','Free','Inte',ipnInc,(nTabDim2+1)*nOsc)
-call GetMem('nDec','Free','Inte',ipnDec,(nTabDim2+1)*nOsc)
+call mma_deallocate(FC2)
+call mma_deallocate(mMat)
+call mma_deallocate(mInc)
+call mma_deallocate(mDec)
+call mma_deallocate(nMat)
+call mma_deallocate(nInc)
+call mma_deallocate(nDec)
 
 ! Avoid unused argument warnings
 if (.false.) then

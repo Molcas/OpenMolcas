@@ -53,23 +53,25 @@ return
 end subroutine ISCD_LogEVec
 !####
 subroutine ISCD_Ene(iPrint,nOsc,max_nOrd,nYes,lNMAT,lnTabDim,GE1,GE2,harmfreq1,harmfreq2,x_anharm1,x_anharm2,dMinWind,dRho,nMat0, &
-                    nTabDim,lVec,lTVec,EneMat)
+                    nTabDim,lVec)
 ! Calculate Energy of Levels  GG 30-Dec-08 - 08-Jan-09
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: u6
 
 implicit real*8(a-h,o-z)
 implicit integer(i-n)
 #include "Constants_mula.fh"
-#include "WrkSpc.fh"
 real*8 GE1, GE2, harmfreq1(nOsc), harmfreq2(nOsc)
 real*8 x_anharm1(nOsc,nOsc), x_anharm2(nOsc,nOsc)
 real*8 dMinWind, dRho, dWlow, dWup
-real*8 dEne, EneMat(0:max_nOrd)
+real*8 dEne
 integer nMat0(nOsc), nTabDim(0:lnTabDim)
-integer lVec(0:lnTabDim), lTVec(0:lnTabDim)
+integer lVec(0:lnTabDim)
 logical lUpdate
+integer, allocatable :: level1(:), level2(:), lTVec(:)
+real*8, allocatable :: EneMat(:)
 
 if (dMinWind == Zero) then
   lUpDate = .true.
@@ -77,9 +79,8 @@ if (dMinWind == Zero) then
 else
   lUpDate = .false.
 end if
-do iOrd=0,max_nOrd
-  lTVec(iOrd) = lVec(iOrd)
-end do
+call mma_allocate(lTVec,[0,max_nOrd],label='lTVec')
+lTVec(:) = lVec(0:max_nOrd)
 
 ! Energy calculation
 
@@ -98,21 +99,18 @@ if (iPrint >= 4) then
   call XFlush(u6)
 end if
 
-call GetMem('level1','Allo','Inte',iplevel1,nOsc)
-call GetMem('level2','Allo','Inte',iplevel2,nOsc)
-do iv=1,nOsc
-  iWork(iplevel1+iv-1) = 0
-end do
+call mma_allocate(level1,nOsc,label='level1')
+call mma_allocate(level2,nOsc,label='level2')
+call mma_allocate(EneMat,[0,max_nOrd],label='EneMat')
+level1(:) = 0
 rewind(lNMAT)
 do iOrd=0,max_nOrd
   if (lVec(iOrd) == 1) then
     iIndex = nTabDim(iOrd)
     call iDaFile(lNMAT,2,nMat0,nOsc,iIndex)
-    do iv=1,nOsc
-      iWork(iplevel2+iv-1) = nMat0(iv)
-    end do
+    level2(:) = nMat0
     l_harm = nOsc
-    call TransEnergy(GE1,x_anharm1,harmfreq1,iWork(iplevel1),GE2,x_anharm2,harmfreq2,iWork(iplevel2),dEne,l_harm)
+    call TransEnergy(GE1,x_anharm1,harmfreq1,level1,GE2,x_anharm2,harmfreq2,level2,dEne,l_harm)
     EneMat(iOrd) = dEne
     if (iPrint >= 4) then
       if (nOsc <= 24) then
@@ -179,8 +177,10 @@ do
   nYes = nYes_start
 end do
 
-call GetMem('level2','Free','Inte',iplevel2,nOsc)
-call GetMem('level1','Free','Inte',iplevel1,nOsc)
+call mma_deallocate(lTVec)
+call mma_deallocate(level1)
+call mma_deallocate(level2)
+call mma_deallocate(EneMat)
 
 if (iPrint >= 3) then
   if (nOsc <= 30) write(u6,'(a,108a)') '  ',('-',i=1,108)

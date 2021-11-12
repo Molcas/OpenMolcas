@@ -41,15 +41,17 @@
 !    mDec      : Two dimensional integer array
 subroutine ISC_MakeTab2(m_max,maxOrd,maxIncOrd,mSiz,mMat,Graph1,Graph2,nOsc)
 
+use stdalloc, only: mma_allocate, mma_deallocate
+
 implicit real*8(a-h,o-z)
 integer mMat(0:msiz,nosc)
 integer Graph1(m_max+1,nOsc+1)
 integer Graph2(m_max+1,m_max+1,nOsc)
 integer nTabDim, nvTabDim
-#include "WrkSpc.fh"
+integer, allocatable :: iVec(:), Number(:)
 
 !write(u6,*)
-!write(u6,*) 'CGGt[ISC_MakeTab2_a] Infos:                   '
+!write(u6,*) 'CGGt[ISC_MakeTab2] Infos:                   '
 !write(u6,*) 'Graph1(',m_max+1,',',nOsc+1,')'
 !write(u6,*) 'Graph2(',m_max+1,',',m_max+1,',',nOsc,')'
 !write(u6,*) 'mInc,mDec,mMat(0:',msiz,',',nosc,')'
@@ -59,32 +61,19 @@ integer nTabDim, nvTabDim
 
 !write(u6,*)
 !write(u6,*) '                 msiz,nosc==',msiz,nosc
-!call GetMem('Test_1','LIST','INTE',iDum,iDum)
-do iv=0,msiz
-  do jv=1,nosc
-    !mInc(iv,jv) = 0
-    !mDec(iv,jv) = 0
-    mMat(iv,jv) = 0
-  end do
-end do
+!mInc(:,:) = 0
+!mDec(:,:) = 0
+mMat(:,:) = 0
 if (m_max == 0) return
-!write(u6,*) '                 Calling TabDim_drv'
-call TabDim_drv(m_max,nOsc,nTabDim)
+!write(u6,*) '                 Calling TabDim'
+call TabDim(m_max,nOsc,nTabDim)
 maxOrd = nTabDim-1
 
 ! Set up the vertex table
 !write(u6,*) '                 Graph1,dim=',(m_max+1)*(nOsc+1)
-do iv=1,m_max+1
-  do jv=1,nOsc+1
-    Graph1(iv,jv) = 0
-  end do
-end do
-do iv=1,m_max+1
-  Graph1(iv,2) = 1
-end do
-do jv=1,nOsc+1
-  Graph1(1,jv) = 1
-end do
+Graph1(:,:) = 0
+Graph1(:,2) = 1
+Graph1(1,:) = 1
 if (nOsc > 1) then
   do iOsc=2,nOsc
     n = 0
@@ -96,24 +85,16 @@ if (nOsc > 1) then
 end if
 
 ! set up the arc table
-!write(u6,*) '                 ipNumber,dim=',(m_max)
-call GetMem('Number','Allo','INTE',ipNumber,m_max+1)
-do iv=0,m_max
-  iWork(ipNumber+iv) = 0
-end do
+!write(u6,*) '                 Number,dim=',(m_max)
+call mma_allocate(Number,[0,m_max],label='Number')
+Number(0) = 0
 N = 0
 do m=1,m_max
   N = N+Graph1(m,nosc+1)
-  iWork(ipNumber+m) = n
+  Number(m) = N
 end do
 !write(u6,*) '                 Graph2,dim=',nOsc*((m_max+1)**2)
-do iv=1,m_max+1
-  do jv=1,m_max+1
-    do kv=1,nOsc
-      Graph2(iv,jv,kv) = 0
-    end do
-  end do
-end do
+Graph2(:,:,:) = 0
 do iOsc=1,nosc
   do iQ1=0,m_max      ! Where we are going
     do iQ2=0,iQ1-1    ! Where we came from
@@ -126,51 +107,47 @@ end do
 
 do iQ1=0,m_max  ! Where we are going
   do iQ2=0,iq1  ! Where we came from
-    Graph2(iQ1+1,iQ2+1,nOsc) = Graph2(iQ1+1,iQ2+1,nOsc)+iWork(ipNumber+iQ1)
+    Graph2(iQ1+1,iQ2+1,nOsc) = Graph2(iQ1+1,iQ2+1,nOsc)+Number(iQ1)
   end do
 end do
 
-call GetMem('Number','Free','INTE',ipNumber,m_max+1)
+call mma_deallocate(Number)
 
-!write(u6,*) 'CGGt[MakeTab2_a] Vec,dim=',nOsc
-call GetMem('ivec','Allo','INTE',ipiVec,nOsc)
+!write(u6,*) 'CGGt[MakeTab2] Vec,dim=',nOsc
+call mma_allocate(iVec,nOsc,label='iVec')
 do iQuanta=1,m_max
-  !write(u6,*) 'CGGt[MakeTab2_a] iQuanta=',iQuanta
-  do iv=1,nOsc
-    iWork(ipiVec+iv-1) = 0
-  end do
+  !write(u6,*) 'CGGt[MakeTab2] iQuanta=',iQuanta
+  iVec(:) = 0
   iQ = -1
-  iWork(ipiVec) = -1
+  iVec(1) = -1
 
-  !write(u6,*) 'CGGt[MakeTab2_a] Call TabDim2_drv - 1 '
+  !write(u6,*) 'CGGt[MakeTab2] Call TabDim - 1 '
   !write(u6,*) '    iQuanta,nOsc,nd==',iQuanta,nOsc,nd
-  call TabDim2_drv(iQuanta,nOsc,nd)
-  !write(u6,*) 'CGGt[MakeTab2_a] Call TabDim2_drv - 2 '
+  call TabDim(iQuanta,nOsc,nd)
+  !write(u6,*) 'CGGt[MakeTab2] Call TabDim - 2 '
   !write(u6,*) '     iQuanta-1,nOsc,nvTabDim==',iQuanta-1,nOsc,nvTabDim
-  call TabDim2_drv(iQuanta-1,nOsc,nvTabDim)
+  call TabDim(iQuanta-1,nOsc,nvTabDim)
 
   nd = nd-nvTabDim
 
   do iDet=1,nD
-    iWork(ipiVec) = iWork(ipiVec)+1
+    iVec(1) = iVec(1)+1
     iQ = iQ+1
     if (iQ > iQuanta) then
       do i=1,nOsc-1
         if (iQ <= iQuanta) exit
-        iQ = iQ-iWork(ipiVec+i-1)+1
-        iWork(ipiVec+i-1) = 0
-        iWork(ipiVec+i) = iWork(ipiVec+i)+1
+        iQ = iQ-iVec(i)+1
+        iVec(i) = 0
+        iVec(i+1) = iVec(i+1)+1
       end do
     end if
-    iWork(ipiVec+nOsc-1) = iQuanta-iq
-    iDNR = iDetnr(iWork(ipiVec),Graph2,nosc,m_max)
-    do iv=1,nOsc
-      mMat(iDNR,iv) = iWork(ipiVec+iv-1)
-    end do
+    iVec(nOsc) = iQuanta-iq
+    iDNR = iDetnr(iVec,Graph2,nosc,m_max)
+    mMat(iDNR,:) = iVec(:)
   end do
 end do
 
-call GetMem('iVec','Free','INTE',ipiVec,nOsc)
+call mma_deallocate(iVec)
 
 return
 ! Avoid unused argument warnings
@@ -180,48 +157,40 @@ end subroutine ISC_MakeTab2
 !####
 subroutine Mk_nIncDec(m_max,nOrd,msiz,mInc,mDec,mMat,Graph2,nOsc)
 
+use stdalloc, only: mma_allocate, mma_deallocate
+
 implicit real*8(a-h,o-z)
 integer mInc(0:msiz,nosc), mDec(0:msiz,nosc)
 integer mMat(0:nOrd,nosc)
 integer Graph2(m_max+1,m_max+1,nOsc)
 integer m_max, nOrd, msiz
-#include "WrkSpc.fh"
+integer, allocatable :: iVec(:)
 
-call GetMem('iVec','Allo','INTE',ipiVec,nOsc)
+call mma_allocate(iVec,nOsc,label='iVec')
 
 ! Create mInc.
 
-do iv=0,msiz
-  do jv=1,nosc
-    mInc(iv,jv) = -1
-  end do
-end do
+mInc(:,:) = -1
 do i=0,msiz
-  do iv=1,nOsc
-    iWork(ipiVec+iv-1) = mMat(i,iv)
-  end do
+  iVec(:) = mMat(i,:)
   do j=1,nOsc
-    iWork(ipiVec+j-1) = iWork(ipiVec+j-1)+1
-    mInc(i,j) = iDetnr(iWork(ipiVec),Graph2,nosc,m_max)
-    iWork(ipiVec+j-1) = iWork(ipiVec+j-1)-1
+    iVec(j) = iVec(j)+1
+    mInc(i,j) = iDetnr(iVec,Graph2,nosc,m_max)
+    iVec(j) = iVec(j)-1
   end do
 end do
 
 ! Create mDec.
 
-do iv=1,nOsc
-  mDec(0,iv) = -1
-end do
+mDec(0,:) = -1
 do i=1,msiz
   do j=1,nOsc
     if (mMat(i,j) /= 0) then
+      iVec(:) = mMat(i,:)
+      iVec(j) = iVec(j)-1
+      mDec(i,j) = iDetnr(iVec,Graph2,nosc,m_max)
       do iv=1,nOsc
-        iWork(ipiVec+iv-1) = mMat(i,iv)
-      end do
-      iWork(ipiVec+j-1) = iWork(ipiVec+j-1)-1
-      mDec(i,j) = iDetnr(iWork(ipiVec),Graph2,nosc,m_max)
-      do iv=1,nOsc
-        iWork(ipiVec+iv-1) = iWork(ipiVec+j-1)+1
+        iVec(iv) = iVec(j)+1
       end do
     else
       mDec(i,j) = -1
@@ -229,7 +198,7 @@ do i=1,msiz
   end do
 end do
 
-call GetMem('ivec','Free','INTE',ipiVec,nOsc)
+call mma_deallocate(iVec)
 
 return
 

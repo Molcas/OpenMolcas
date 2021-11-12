@@ -34,46 +34,38 @@ subroutine MakeTab(m_max,maxOrd,maxIncOrd,mMat,mInc,mDec,nOsc)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
+use stdalloc, only: mma_allocate, mma_deallocate
+
 implicit real*8(a-h,o-z)
 integer mMat(0:maxord,nosc)
 integer mInc(0:maxord,nosc), mDec(0:maxord,nosc)
 logical equal
-#include "WrkSpc.fh"
+integer, allocatable :: mTemp(:,:), row(:), unit(:,:)
 
 ! Initialize.
 maxOrd = 0
 maxIncOrd = 0
-do iv=0,maxord
-  do jv=1,nosc
-    mMat(iv,jv) = 0
-    mInc(iv,jv) = 0
-    mDec(iv,jv) = 0
-  end do
-end do
+mMat(:,:) = 0
+mInc(:,:) = 0
+mDec(:,:) = 0
 if (m_max == 0) return
 if (nOsc == 1) then
   mTempDim = m_max
 else
   mTempDim = (1-nOsc**(m_max+1))/(1-nOsc)
 end if
-lmTemp = mTempDim*nOsc
-call GetMem('mTemp','Allo','INTE',ipmTemp,lmTemp)
+call mma_allocate(mTemp,[0,mTempDim],[1,nOsc],label='mTemp')
 
-call GetMem('row','Allo','INTE',iprow,nOsc)
+call mma_allocate(row,nOsc,label='row')
 
-!mTemp = 0
-do iv=0,lmTemp-1
-  iWork(ipmTemp+iv) = 0
-end do
+mTemp(:,:) = 0
 num = 1
 istart_row = 0
 irow = istart_row+1
-call GetMem('unit','Allo','INTE',ipunit,nOsc*nOsc)
+call mma_allocate(unit,nOsc,nOsc,label='unit')
+unit(:,:) = 0
 do i=1,nOsc
-  do j=1,nOsc
-    iWork(ipunit+i+nOsc*(j-1)-1) = 0
-  end do
-  iWork(ipunit+i+nOsc*(i-1)-1) = 1
+  unit(i,i) = 1
 end do
 
 ! Create table mMat.
@@ -85,7 +77,7 @@ do m=1,m_max
   do n=1,num
     do jrow=1,nOsc
       do jcol=1,nOsc
-        iWork(ipmTemp+irow+mTempDim*(jcol-1)) = mMat(istart_row,jcol)+iWork(ipunit+jrow+nOsc*(jcol-1)-1)
+        mTemp(irow,jcol) = mMat(istart_row,jcol)+unit(jrow,jcol)
       end do
       irow = irow+1
       numtemp = numtemp+1
@@ -104,7 +96,7 @@ do m=1,m_max
       equal = .true.
       do l=1,nOsc
         !if (row1(l) /= row2(l)) then
-        if (iWork(ipmTemp+i+mTempDim*(l-1)) /= mMat(j,l)) then
+        if (mTemp(i,l) /= mMat(j,l)) then
           equal = .false.
         end if
       end do
@@ -112,7 +104,7 @@ do m=1,m_max
     end do
     if (.not. equal) then
       do jcol=1,nOsc
-        mMat(mMat_row,jcol) = iWork(ipmTemp+i+mTempDim*(jcol-1))
+        mMat(mMat_row,jcol) = mTemp(i,jcol)
       end do
       mMat_row = mMat_row+1
     end if
@@ -120,23 +112,21 @@ do m=1,m_max
   num = mMat_row-istart_row
 end do
 maxOrd = mMat_row-1
-call GetMem('mTemp','Free','INTE',ipmTemp,lmTemp)
+call mma_deallocate(mTemp)
 
 ! Create mInc.
 maxIncOrd = maxOrd-num
 do i=0,maxIncOrd
-  do iv=1,nOsc
-    iWork(iprow+iv-1) = mMat(i,iv)
-  end do
+  row(:) = mMat(i,:)
   do j=1,nOsc
-    iWork(iprow+j-1) = iWork(iprow+j-1)+1
+    row(j) = row(j)+1
     equal = .false.
     k = i+1
     do while ((.not. equal) .and. (k <= maxOrd))
       !row2 => mMat(k,:)
       equal = .true.
       do l=1,nOsc
-        if (iWork(iprow+l-1) /= mMat(k,l)) then
+        if (row(l) /= mMat(k,l)) then
           equal = .false.
         end if
       end do
@@ -146,25 +136,23 @@ do i=0,maxIncOrd
         k = k+1
       end if
     end do
-    iWork(iprow+j-1) = iWork(iprow+j-1)-1
+    row(j) = row(j)-1
   end do
 end do
 
 ! Create mDec.
 do i=1,maxOrd
-  do iv=1,nOsc
-    iWork(iprow+iv-1) = mMat(i,iv)
-  end do
+  row(:) = mMat(i,:)
   do j=1,nOsc
-    if (iWork(iprow+j-1) > 0) then
-      iWork(iprow+j-1) = iWork(iprow+j-1)-1
+    if (row(j) > 0) then
+      row(j) = row(j)-1
       equal = .false.
       k = 0
       do while ((.not. equal) .and. (k <= maxOrd))
         !row2 => mMat(k,:)
         equal = .true.
         do l=1,nOsc
-          if (iWork(iprow+l-1) /= mMat(k,l)) then
+          if (row(l) /= mMat(k,l)) then
             equal = .false.
           end if
         end do
@@ -174,14 +162,14 @@ do i=1,maxOrd
           k = k+1
         end if
       end do
-      iWork(iprow+j-1) = iWork(iprow+j-1)+1
+      row(j) = row(j)+1
     else
       mDec(i,j) = 0
     end if
   end do
 end do
 
-call GetMem('row','Free','INTE',iprow,nOsc)
-call GetMem('unit','Free','INTE',ipunit,nOsc*nOsc)
+call mma_deallocate(row)
+call mma_deallocate(unit)
 
 end subroutine MakeTab

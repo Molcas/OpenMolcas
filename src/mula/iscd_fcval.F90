@@ -11,8 +11,9 @@
 
 subroutine ISCD_FCval(iPrint,iMaxYes,lnTabDim,nnTabDim,lNMAT0,lNMAT,lNINC,lNDEC,lBatch,nBatch,leftBatch,nIndex,C1,W1,det1,r01,C2, &
                       W2,det2,r02,max_mOrd,max_nOrd,max_nOrd2,max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,nInc,mDec,nDec,C,W,det0, &
-                      r00,L,U,FC00,Alpha1,Alpha2,Beta,nOsc,nnsiz,iMx_nOrd,nYes,VibWind2,FCWind2,nMat0)
+                      r00,FC00,nOsc,nnsiz,iMx_nOrd,nYes,VibWind2,FCWind2)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, u6
 
@@ -23,16 +24,17 @@ implicit integer(i-n)
 integer nIndex(3,0:maxMax_n)
 real*8 C1(nOsc,nOsc), C2(nOsc,nOsc), W1(nOsc,nOsc)
 real*8 W2(nOsc,nOsc), C(nOsc,nOsc), W(nOsc,nOsc)
-real*8 L(0:max_mOrd,0:max_nInc2)
-real*8 U(0:max_nOrd,0:max_nOrd2)
-real*8 Alpha1(nOsc,nOsc), Alpha2(nOsc,nOsc), Beta(nOsc,nOsc)
 real*8 r00(nOsc), r01(nOsc), r02(nOsc)
 real*8 FCWind2(nYes)
 integer mMat(0:mdim1,mdim2), mInc(0:mdim1,mdim2), mDec(0:mdim1,mdim2)
 integer nMat(nOsc,lBatch), nInc(nOsc,lBatch), nDec(nOsc,lBatch)
-integer VibWind2(nYes), nMat0(nOsc), nnTabDim(0:lnTabDim)
-#include "WrkSpc.fh"
+integer VibWind2(nYes), nnTabDim(0:lnTabDim)
 #include "inout.fh"
+integer, allocatable :: nMat0(:)
+real*8, allocatable :: A2(:,:), A2B2T(:,:), Alpha(:,:), Alpha1(:,:), Alpha2(:,:), B2(:,:), Beta(:,:), d2(:), L(:,:), r_temp1(:), &
+                       r_temp2(:), sqr(:), temp(:,:), temp1(:,:), temp2(:,:), U(:,:)
+
+call mma_allocate(nMat0,nOsc,label='nMat0')
 
 !GGt -------------------------------------------------------------------
 !write(u6,*) 'CGGt[ISCD_FCval] Enter '
@@ -62,116 +64,98 @@ nMaxMat = max(max_mOrd+1,max_nOrd+1)
 !write(u6,*) '            nMaxMat=',nMaxMat
 nTabDim = max(nMaxMat,8)
 !write(u6,*) '            nTabDim=',nTabDim
-nOscSqr = nOsc**2
-!write(u6,*) '            nOscSqr=',nOscSqr
-call GetMem('temp','Allo','Real',iptemp,nOscSqr)
-call GetMem('temp1','Allo','Real',iptemp1,nOscSqr)
-call GetMem('temp2','Allo','Real',iptemp2,nOscSqr)
+call mma_allocate(temp,nOsc,nOsc,label='temp')
+call mma_allocate(temp1,nOsc,nOsc,label='temp1')
+call mma_allocate(temp2,nOsc,nOsc,label='temp2')
 
 ! Setup sqr table.
 n = nTabDim+1
-call GetMem('sqr','Allo','Real',ipsqr,n+1)
+call mma_allocate(sqr,[0,n],label='sqr')
 do i=0,nTabDim+1
-  Work(ipsqr+i) = sqrt(real(i,kind=wp))
+  sqr(i) = sqrt(real(i,kind=wp))
 end do
 
 ! Calculate alpha1, alpha2 and alpha.
 !write(u6,*) 'CGGt[FCVal] Calculate alpha(s)'
 !call XFlush(u6)
-call GetMem('Alpha','Allo','Real',ipAlpha,nOscSqr)
-call DGEMM_('T','N',nOsc,nOsc,nOsc,One,C1,nOsc,C1,nOsc,Zero,Alpha1,nOsc)
-call dscal_(nOscSqr,Half,Alpha1,1)
-call DGEMM_('T','N',nOsc,nOsc,nOsc,One,C2,nOsc,C2,nOsc,Zero,Alpha2,nOsc)
-call dscal_(nOscSqr,Half,Alpha2,1)
-!temp = alpha1+alpha2
-call dcopy_(nOscSqr,Alpha1,1,Work(iptemp),1)
-call Daxpy_(nOscSqr,One,Alpha2,1,Work(iptemp),1)
-!alpha = Half*temp
-call dcopy_(nOscSqr,[Zero],0,Work(ipAlpha),1)
-call Daxpy_(nOscSqr,Half,Work(iptemp),1,Work(ipAlpha),1)
+call mma_allocate(Alpha,nOsc,nOsc,label='Alpha')
+call mma_allocate(Alpha1,nOsc,nOsc,label='Alpha1')
+call mma_allocate(Alpha2,nOsc,nOsc,label='Alpha2')
+call DGEMM_('T','N',nOsc,nOsc,nOsc,Half,C1,nOsc,C1,nOsc,Zero,Alpha1,nOsc)
+call DGEMM_('T','N',nOsc,nOsc,nOsc,Half,C2,nOsc,C2,nOsc,Zero,Alpha2,nOsc)
+temp(:,:) = alpha1+alpha2
+Alpha(:,:) = Half*temp
 
 !call xxDgemul(C,nOsc,'T',C,nOsc,'N',alpha,nOsc,nOsc,nOsc,nOsc)
-!call dscal_(nOscSqr,Half,alpha,1)
+!alpha(:,:) = Half*alpha
 
 ! Calculate C using a Cholesky factorization of 2*alpha.
 !call Cholesky(temp,C)
 
 ! Calculate W.
-!call dcopy_(nOscSqr,[Zero],0,W,1)
-!call dcopy_(nOsc,[One],0,W,nOsc+1)
-!temp = C
+!W(:,:) = Zero
+!do i=1,nOsc
+!  W(i,i) = One
+!end do
+!temp(:,:) = C
 !call Dool_MULA(temp,W,det0)
 
 ! Calculate r00.
-call GetMem('r_temp1','Allo','Real',ipr_temp1,nOsc)
-call GetMem('r_temp2','Allo','Real',ipr_temp2,nOsc)
+call mma_allocate(r_temp1,nOsc,label='r_temp1')
+call mma_allocate(r_temp2,nOsc,label='r_temp2')
 
 ! Calculate beta.
 !write(u6,*) 'CGGt[FCVal] Calculate beta.'
 !call XFlush(u6)
+call mma_allocate(Beta,nOsc,nOsc,label='Beta')
 do i=1,nOsc
   do j=1,nOsc
-    Work(iptemp1+j+nOsc*(i-1)-1) = C1(i,j)
+    temp1(j,i) = C1(i,j)
   end do
   !write(u6,*) 'CGGt C1(',i,',j)=',(C1(i,jj),jj=1,nOsc)
 end do
 !call XFlush(u6)
-!temp1 = alpha1
-call dcopy_(nOscSqr,Alpha1,1,Work(iptemp1),1)
-!temp  = Two*alpha
-call dcopy_(nOscSqr,[Zero],0,Work(iptemp),1)
-call Daxpy_(nOscSqr,Two,Work(ipAlpha),1,Work(iptemp),1)
+temp1(:,:) = Alpha1
+temp(:,:) = Two*Alpha
 
-call Dool_MULA(Work(iptemp),nOsc,nOsc,Work(iptemp1),nOsc,nOsc,det)
-call DGEMM_('N','N',nOsc,nOsc,nOsc,One,Alpha2,nOsc,Work(iptemp1),nOsc,Zero,Beta,nOsc)
+call Dool_MULA(temp,nOsc,nOsc,temp1,nOsc,nOsc,det)
+call DGEMM_('N','N',nOsc,nOsc,nOsc,One,Alpha2,nOsc,temp1,nOsc,Zero,Beta,nOsc)
+
+call mma_deallocate(Alpha1)
+call mma_deallocate(Alpha2)
 
 ! Calculate FC00.
-!r_temp1 = r02-r01
-call dcopy_(nOsc,r01,1,Work(ipr_temp1),1)
-call Daxpy_(nOsc,-One,r02,1,Work(ipr_temp1),1)
+!r_temp1(:) = r02-r01
+r_temp1(:) = r01-r02
 
-call DGEMM_('N','N',nOsc,1,nOsc,One,Beta,nOsc,Work(ipr_temp1),nOsc,Zero,Work(ipr_temp2),nOsc)
-FC00_exp = Ddot_(nOsc,Work(ipr_temp1),1,Work(ipr_temp2),1)
+call DGEMM_('N','N',nOsc,1,nOsc,One,Beta,nOsc,r_temp1,nOsc,Zero,r_temp2,nOsc)
+FC00_exp = Ddot_(nOsc,r_temp1,1,r_temp2,1)
 FC00 = (sqrt(det1)*sqrt(det2)/det0)*exp(-FC00_exp)
 !write(u6,*) 'CGGt[FCVal] FC00_exp,FC00=',FC00_exp,FC00
 !call XFlush(u6)
 
+call mma_deallocate(Beta)
+
 ! Calculate A, B and d matrices.
-call GetMem('A1','Allo','Real',ipA1,nOscSqr)
-call GetMem('B1','Allo','Real',ipB1,nOscSqr)
-call GetMem('A2','Allo','Real',ipA2,nOscSqr)
-call GetMem('B2','Allo','Real',ipB2,nOscSqr)
-call GetMem('d1','Allo','Real',ipd1,nOsc)
-call GetMem('d2','Allo','Real',ipd2,nOsc)
-call DGEMM_('N','N',nOsc,nOsc,nOsc,One,C1,nOsc,W,nOsc,Zero,Work(ipA1),nOsc)
-call DGEMM_('T','T',nOsc,nOsc,nOsc,One,W1,nOsc,C,nOsc,Zero,Work(iptemp),nOsc)
-!B1 = A1-temp
-call dcopy_(nOscSqr,Work(ipA1),1,Work(ipB1),1)
-call Daxpy_(nOscSqr,-One,Work(iptemp),1,Work(ipB1),1)
+call mma_allocate(A2,nOsc,nOsc,label='A2')
+call mma_allocate(B2,nOsc,nOsc,label='B2')
+call mma_allocate(d2,nOsc,label='d2')
 
-call DGEMM_('T','N',nOsc,1,nOsc,One,W1,nOsc,Work(ipr_temp2),nOsc,Zero,Work(ipd1),nOsc)
-const = Work(ipsqr+8)
-call dscal_(nOsc,const,Work(ipd1),1)
-call DGEMM_('N','N',nOsc,nOsc,nOsc,One,C2,nOsc,W,nOsc,Zero,Work(ipA2),nOsc)
-call DGEMM_('T','T',nOsc,nOsc,nOsc,One,W2,nOsc,C,nOsc,Zero,Work(iptemp),nOsc)
-!B2 = A2-temp
-call dcopy_(nOscSqr,Work(ipA2),1,Work(ipB2),1)
-call Daxpy_(nOscSqr,-One,Work(iptemp),1,Work(ipB2),1)
+call DGEMM_('N','N',nOsc,nOsc,nOsc,One,C2,nOsc,W,nOsc,Zero,A2,nOsc)
+call DGEMM_('T','T',nOsc,nOsc,nOsc,One,W2,nOsc,C,nOsc,Zero,temp,nOsc)
+B2(:,:) = A2-temp
 
-call DGEMM_('T','N',nOsc,1,nOsc,One,W2,nOsc,Work(ipr_temp2),nOsc,Zero,Work(ipd2),nOsc)
-const = -Work(ipsqr+8)
-call dscal_(nOsc,const,Work(ipd2),1)
+const = -sqr(8)
+call DGEMM_('T','N',nOsc,1,nOsc,const,W2,nOsc,r_temp2,nOsc,Zero,d2,nOsc)
 
-! Calculate A1B1T and A2B2T.
-call GetMem('A1B1T','Allo','Real',ipA1B1T,nOscSqr)
-call GetMem('A2B2T','Allo','Real',ipA2B2T,nOscSqr)
+! Calculate A2B2T.
+call mma_allocate(A2B2T,nOsc,nOsc,label='A2B2T')
 
-call DGEMM_('N','T',nOsc,nOsc,nOsc,One,Work(ipA1),nOsc,Work(ipB1),nOsc,Zero,Work(ipA1B1T),nOsc)
-call DGEMM_('N','T',nOsc,nOsc,nOsc,One,Work(ipA2),nOsc,Work(ipB2),nOsc,Zero,Work(ipA2B2T),nOsc)
+call DGEMM_('N','T',nOsc,nOsc,nOsc,One,A2,nOsc,B2,nOsc,Zero,A2B2T,nOsc)
 
 ! Initialize L matrix.
-call dcopy_((max_mord+1)*(max_ninc2+1),[Zero],0,L,1)
-!L = Zero
+call mma_allocate(L,[0,max_mOrd],[0,max_nInc2],label='L')
+L(:,:) = Zero
 L(0,0) = One
 
 ! If max_mOrd > 0 then set up L(m,0).
@@ -186,12 +170,13 @@ end if
 ! Initialize U matrix.
 !write(u6,*) 'CGGt[FCVal] Initialize U matrix.'
 !call XFlush(u6)
-call dcopy_((max_nord+1)*(max_nOrd2+1),[Zero],0,U,1)
+call mma_allocate(U,[0,max_nOrd],[0,max_nOrd2],label='U')
+U(:,:) = Zero
 U(0,0) = One
-do kOsc=1,nOsc
-!write(u6,*) 'CGGt[FCVal] Work(ipd2..)=',Work(ipd2+kOsc-1)
-!call XFlush(u6)
-end do
+!do kOsc=1,nOsc
+!  write(u6,*) 'CGGt[FCVal] d2(..)=',d2(kOsc)
+!  call XFlush(u6)
+!end do
 
 ! Reading for first batch nMat, nInc, nDec
 
@@ -238,7 +223,7 @@ call iDaFile(lNDEC,2,nDec,nOsc*lBatch,kIndex)
 !Call XFlush(u6)
 !GGt -------------------------------------------------------------------
 do kOsc=1,nOsc
-  U(nInc(kOsc,1),0) = Work(ipd2+kOsc-1)
+  U(nInc(kOsc,1),0) = d2(kOsc)
 end do
 max_nInc = min(max_nInc,iMaxYes)
 !GGt -------------------------------------------------------------------
@@ -284,8 +269,7 @@ if (max_nInc > 0) then
         !write(u6,*) 'iOrd,kOsc_start,kOsc,lOsc==',iOrd,kOsc_start,kOsc,lOsc
         !call XFlush(u6)
         if (nMat(lOsc,iiOrd) > 0) then
-          U(nInc(kOsc,iiOrd),0) = U(nInc(kOsc,iiOrd),0)+Work(ipsqr+nMat(lOsc,iiOrd))*Work(ipA2B2T+kOsc+nOsc*(lOsc-1)-1)* &
-                                  U(nDec(lOsc,iiOrd),0)
+          U(nInc(kOsc,iiOrd),0) = U(nInc(kOsc,iiOrd),0)+sqr(nMat(lOsc,iiOrd))*A2B2T(kOsc,lOsc)*U(nDec(lOsc,iiOrd),0)
           !write(u6,*) iOrd,' U(',nInc(kOsc,iiOrd),')=',U(nInc(kOsc,iiOrd),0)
           !call XFlush(u6)
         end if
@@ -304,7 +288,7 @@ if (max_nInc > 0) then
       end if
       !Write(u6,*) '         ',iOrd,' >',kDelta
       !Write(u6,*) iOrd,' jOrd=',jOrd  ,'  kDelta=',kDelta
-      U(nInc(kOsc,iiOrd),0) = (U(nInc(kOsc,iiOrd),0)+Work(ipd2+kOsc-1)*U(iOrd,0))/Work(ipsqr+kDelta) ! nMat(kOsc,nInc(kOsc,iiOrd)))
+      U(nInc(kOsc,iiOrd),0) = (U(nInc(kOsc,iiOrd),0)+d2(kOsc)*U(iOrd,0))/sqr(kDelta) ! nMat(kOsc,nInc(kOsc,iiOrd)))
     end do
   end do
 end if
@@ -322,21 +306,16 @@ end if
 !!    do kOsc=1,nOsc
 !!      if (nMat(iOrd,kOsc) > 0) then
 !!        !write(u6,*) '              ',iOrd,kOsc,nMat(iOrd,kOsc)
-!!        U(iOrd,jOrd) = U(iOrd,jOrd)+(Work(ipsqr+nMat(iOrd,kOsc))/Work(ipsqr+nMat(jOrd,lOsc)))*Work(ipA2+kOsc+nOsc*(lOsc-1)-1)* &
-!!                       U(nDec(iOrd,kOsc),nDec(jOrd,lOsc))
+!!        U(iOrd,jOrd) = U(iOrd,jOrd)+sqr(nMat(iOrd,kOsc))/sqr(nMat(jOrd,lOsc))*A2(kOsc,lOsc)*U(nDec(iOrd,kOsc),nDec(jOrd,lOsc))
 !!      end if
 !!    end do
 !!  end do
 !!end do
 
-call GetMem('A2B2T','Free','Real',ipA2B2T,nOscSqr)
-call GetMem('A1B1T','Free','Real',ipA1B1T,nOscSqr)
-call GetMem('d2','Free','Real',ipd2,nOsc)
-call GetMem('d1','Free','Real',ipd1,nOsc)
-call GetMem('B2','Free','Real',ipB2,nOscSqr)
-call GetMem('A2','Free','Real',ipA2,nOscSqr)
-call GetMem('B1','Free','Real',ipB1,nOscSqr)
-call GetMem('A1','Free','Real',ipA1,nOscSqr)
+call mma_deallocate(A2)
+call mma_deallocate(B2)
+call mma_deallocate(d2)
+call mma_deallocate(A2B2T)
 
 ! Calculate Franck-Condon factors.
 if (iPrint >= 3) then
@@ -384,13 +363,16 @@ if (iPrint >= 4) then
   write(u6,*) ' --------------------------------------------------'
 end if
 
-call GetMem('r_temp2','Free','Real',ipr_temp2,nOsc)
-call GetMem('r_temp1','Free','Real',ipr_temp1,nOsc)
-call GetMem('Alpha','Free','Real',ipAlpha,nOscSqr)
-call GetMem('sqr','Free','Real',ipsqr,n+1)
-call GetMem('temp2','Free','Real',iptemp2,nOscSqr)
-call GetMem('temp1','Free','Real',iptemp1,nOscSqr)
-call GetMem('temp','Free','Real',iptemp,nOscSqr)
+call mma_deallocate(r_temp1)
+call mma_deallocate(r_temp2)
+call mma_deallocate(Alpha)
+call mma_deallocate(sqr)
+call mma_deallocate(temp)
+call mma_deallocate(temp1)
+call mma_deallocate(temp2)
+call mma_deallocate(L)
+call mma_deallocate(U)
+call mma_deallocate(nMat0)
 
 !write(u6,*) 'CGGt[FCVal] Exit'
 !call XFlush(u6)
@@ -399,6 +381,7 @@ call GetMem('temp','Free','Real',iptemp,nOscSqr)
 if (.false.) then
   call Unused_integer(nBatch)
   call Unused_integer(leftBatch)
+  call Unused_real_array(W1)
   call Unused_integer(max_mInc)
   call Unused_integer_array(mMat)
   call Unused_integer_array(mInc)

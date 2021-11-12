@@ -42,9 +42,7 @@ character*80 trfName(nvar)
 character*32 trfCode
 logical ijEq, jkEq, klEq
 
-do iv=1,nvar
-  x(iv) = x(iv)+qref(iv)
-end do
+x(:) = x+qref
 do ivar=1,nvar
   trfcode = trfName(ivar)(1:32)
   ix = index(trfcode,'AS IT IS')
@@ -211,19 +209,14 @@ do i=1,nvar
 end do
 
 ! Assign transformed values.
-!x = q
-call dcopy_(nvar,q,1,x,1)
-!grad = tempgrad
-call dcopy_(nvar,tempgrad,1,grad,1)
+x(:) = q
+grad(:) = tempgrad
 
-!Hess = Temp
-call dcopy_(nvar*nvar,temp,1,Hess,1)
+Hess(:,:) = Temp
 
-!D3 = D3trans
-call dcopy_(nvar*nvar*nvar,D3trans,1,D3,1)
+D3(:,:,:) = D3trans
 
-!D4 = D4trans
-call dcopy_(nvar*nvar*nvar*nvar,D4trans,1,D4,1)
+D4(:,:,:,:) = D4trans
 
 ! Avoid unused argument warnings
 if (.false.) then

@@ -43,6 +43,7 @@ subroutine SolveSort(A,C,S,D,W1,W2,W0,C1,C2,C0,r01,r02,r00,icre,iann,nMat,nd1,nd
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1996.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Eight, Half, auTocm
 use Definitions, only: wp, u6
 
@@ -58,157 +59,140 @@ integer nMat(0:nd1,nd2)
 integer icre(0:nd1,nd2)
 integer iann(0:nd1,nd2)
 real*8 OccNumMat(0:nDimTot-1,nOsc)
-#include "WrkSpc.fh"
+real*8, allocatable :: A1(:,:), A2(:,:), alpha(:,:), alpha1(:,:), alpha2(:,:), Asymm(:,:), B1(:,:), B2(:,:), beta(:,:), C_col(:), &
+                       d1(:), d2(:), r_temp1(:), r_temp2(:), SC_col(:), Scr(:), T(:,:), temp1(:,:), temp2(:,:), Tmp1(:,:)
 
 ! Initialize.
 n = nDimTot
-nOscSqr = nOsc**2
-nSqr = n**2
-nSqrTri = n*(n+1)/2
-call GetMem('Scr','Allo','Real',ipScr,nSqrTri)
-call GetMem('T','Allo','Real',ipT,n*n)
-call GetMem('Tmp1','Allo','Real',ipTmp1,n*n)
-call GetMem('Asymm','Allo','Real',ipAsymm,n*n)
+call mma_allocate(Scr,n*(n+1)/2,label='Scr')
+call mma_allocate(T,n,n,label='T')
+call mma_allocate(Tmp1,n,n,label='T')
+call mma_allocate(Asymm,n,n,label='Asymm')
 
 ! Cholesky decomposition of S.
 do i=1,n
   S(i,i) = S(i,i)+1.0e-6_wp
 end do
-call Cholesky(S,Work(ipTmp1),n)
-call dcopy_(nSqr,[Zero],0,Work(ipT),1)
-call dcopy_(n,[One],0,Work(ipT),n+1)
-call Dool_MULA(Work(ipTmp1),n,n,Work(ipT),n,n,det)
+call Cholesky(S,Tmp1,n)
+T(:,:) = Zero
+do i=1,n
+  T(i,i) = One
+end do
+call Dool_MULA(Tmp1,n,n,T,n,n,det)
 
 ! Make A symmetric and transform it to lower packed storage in Scratch.
-call DGEMM_('N','N',n,n,n,One,A,n,Work(ipT),n,Zero,Work(ipTmp1),n)
-call DGEMM_('T','N',n,n,n,One,Work(ipT),n,Work(ipTmp1),n,Zero,Work(ipAsymm),n)
+call DGEMM_('N','N',n,n,n,One,A,n,T,n,Zero,Tmp1,n)
+call DGEMM_('T','N',n,n,n,One,T,n,Tmp1,n,Zero,Asymm,n)
 k = 1
 do i=1,n
   do j=1,i
-    Work(ipScr+k-1) = Work(ipAsymm+i+n*(j-1)-1)
+    Scr(k) = Asymm(i,j)
     k = k+1
   end do
 end do
 
 ! Diagonalize Scratch.
-call dcopy_(nSqr,[Zero],0,Work(ipTmp1),1)
-call dcopy_(n,[One],0,Work(ipTmp1),n+1)
-call Jacob(Work(ipScr),Work(ipTmp1),n,n)
-call Jacord(Work(ipScr),Work(ipTmp1),n,n)
+Tmp1(:,:) = Zero
+do i=1,n
+  Tmp1(i,i) = One
+end do
+call Jacob(Scr,Tmp1,n,n)
+call Jacord(Scr,Tmp1,n,n)
 
 ! Store the eigenvalues in array D and calculate C.
 do i=1,n
   ii = i*(i+1)/2
-  D(i) = Work(ipScr+ii-1)
+  D(i) = Scr(ii)
 end do
 
-call DGEMM_('N','N',n,n,n,One,Work(ipT),n,Work(ipTmp1),n,Zero,C,n)
-call GetMem('Scr','Free','Real',ipScr,nSqrTri)
-call GetMem('T','Free','Real',ipT,n*n)
-call GetMem('Tmp1','Free','Real',ipTmp1,n*n)
-call GetMem('Asymm','Free','Real',ipAsymm,n*n)
+call DGEMM_('N','N',n,n,n,One,T,n,Tmp1,n,Zero,C,n)
+call mma_deallocate(Scr)
+call mma_deallocate(T)
+call mma_deallocate(Tmp1)
+call mma_deallocate(Asymm)
 
 ! Calculate alpha1, alpha2 and alpha.
-call GetMem('temp1','Allo','Real',iptemp1,nOscSqr)
-call GetMem('temp2','Allo','Real',iptemp2,nOscSqr)
+call mma_allocate(temp1,nOsc,nOsc,label='temp1')
+call mma_allocate(temp2,nOsc,nOsc,label='temp2')
 
-call GetMem('alpha','Allo','Real',ipalpha,nOscSqr)
-call GetMem('alpha1','Allo','Real',ipalpha1,nOscSqr)
-call GetMem('alpha2','Allo','Real',ipalpha2,nOscSqr)
+call mma_allocate(alpha,nOsc,nOsc,label='alpha')
+call mma_allocate(alpha1,nOsc,nOsc,label='alpha1')
+call mma_allocate(alpha2,nOsc,nOsc,label='alpha2')
 
-call DGEMM_('T','N',nOsc,nOsc,nOsc,One,C1,nOsc,C1,nOsc,Zero,Work(ipalpha1),nOsc)
-call dscal_(nOscSqr,Half,Work(ipalpha1),1)
-call DGEMM_('T','N',nOsc,nOsc,nOsc,One,C2,nOsc,C2,nOsc,Zero,Work(ipalpha2),nOsc)
-call dscal_(nOscSqr,Half,Work(ipalpha2),1)
-call DGEMM_('T','N',nOsc,nOsc,nOsc,One,C0,nOsc,C0,nOsc,Zero,Work(ipalpha),nOsc)
-call dscal_(nOscSqr,Half,Work(ipalpha),1)
+call DGEMM_('T','N',nOsc,nOsc,nOsc,Half,C1,nOsc,C1,nOsc,Zero,alpha1,nOsc)
+call DGEMM_('T','N',nOsc,nOsc,nOsc,Half,C2,nOsc,C2,nOsc,Zero,alpha2,nOsc)
+call DGEMM_('T','N',nOsc,nOsc,nOsc,Half,C0,nOsc,C0,nOsc,Zero,alpha,nOsc)
 
 ! Calculate beta.
-call GetMem('beta','Allo','Real',ipbeta,nOscSqr)
-call GetMem('r_temp1','Allo','Real',ipr_temp1,nOsc)
-call GetMem('r_temp2','Allo','Real',ipr_temp2,nOsc)
+call mma_allocate(beta,nOsc,nOsc,label='beta')
+call mma_allocate(r_temp1,nOsc,label='r_temp1')
+call mma_allocate(r_temp2,nOsc,label='r_temp2')
 
-!temp1 = alpha1
-call dcopy_(nOscSqr,Work(ipalpha1),1,Work(iptemp1),1)
-!temp2 = Two*alpha
-call dcopy_(nOscSqr,Work(ipalpha),1,Work(iptemp2),1)
-call dscal_(nOscSqr,Two,Work(iptemp2),1)
+temp1(:,:) = alpha1
+temp2(:,:) = Two*alpha
 
-call Dool_MULA(Work(iptemp2),nOsc,nOsc,Work(iptemp1),nOsc,nOsc,det)
-call DGEMM_('N','N',nOsc,nOsc,nOsc,One,Work(ipalpha2),nOsc,Work(iptemp1),nOsc,Zero,WOrk(ipbeta),nOsc)
+call Dool_MULA(temp2,nOsc,nOsc,temp1,nOsc,nOsc,det)
+call DGEMM_('N','N',nOsc,nOsc,nOsc,One,alpha2,nOsc,temp1,nOsc,Zero,beta,nOsc)
 
 ! Calculate A, B and d matrices.
-call GetMem('A1','Allo','Real',ipA1,nOscSqr)
-call GetMem('B1','Allo','Real',ipB1,nOscSqr)
-call GetMem('A2','Allo','Real',ipA2,nOscSqr)
-call GetMem('B2','Allo','Real',ipB2,nOscSqr)
-call GetMem('d1','Allo','Real',ipd1,nOsc)
-call GetMem('d2','Allo','Real',ipd2,nOsc)
-call DGEMM_('N','N',nOsc,nOsc,nOsc,One,C1,nOsc,W0,nOsc,Zero,Work(ipA1),nOsc)
-call DGEMM_('T','T',nOsc,nOsc,nOsc,One,W1,nOsc,C0,nOsc,Zero,Work(iptemp1),nOsc)
-call dcopy_(nOscSqr,Work(ipA1),1,Work(ipB1),1)
-call daxpy_(nOscSqr,-One,Work(iptemp1),1,Work(ipB1),1)
-!B1 = A1-temp1
-!r_temp1 = r01-r00
-call dcopy_(nOscSqr,r01,1,Work(ipr_temp1),1)
-call daxpy_(nOscSqr,-One,r00,1,Work(ipr_temp1),1)
-call DGEMM_('N','N',nOsc,1,nOsc,One,Work(ipbeta),nOsc,Work(ipr_temp1),nOsc,Zero,Work(ipr_temp2),nOsc)
-call DGEMM_('T','N',nOsc,1,nOsc,One,W1,nOsc,Work(ipr_temp2),nOsc,Zero,Work(ipd1),nOsc)
-call dscal_(nOsc,sqrt(Eight),Work(ipd1),1)
-call DGEMM_('N','N',nOsc,nOsc,nOsc,One,C2,nOsc,W0,nOsc,Zero,Work(ipA2),nOsc)
-call DGEMM_('T','T',nOsc,nOsc,nOsc,One,W2,nOsc,C0,nOsc,Zero,Work(iptemp2),nOsc)
-call dcopy_(nOscSqr,Work(ipA2),1,Work(ipB2),1)
-call daxpy_(nOscSqr,-One,Work(iptemp2),1,Work(ipB2),1)
-!B2 = A2-temp2
-!r_temp1 = r02-r00
-call dcopy_(nOscSqr,r02,1,Work(ipr_temp1),1)
-call daxpy_(nOscSqr,-One,r00,1,Work(ipr_temp1),1)
-call DGEMM_('N','N',nOsc,1,nOsc,One,Work(ipbeta),nOsc,Work(ipr_temp1),nOsc,Zero,Work(ipr_temp2),nOsc)
-call DGEMM_('T','N',nOsc,1,nOsc,One,W2,nOsc,Work(ipr_temp2),nOsc,Zero,Work(ipd2),nOsc)
-call dscal_(nOsc,sqrt(Eight),Work(ipd2),1)
+call mma_allocate(A1,nOsc,nOsc,label='A1')
+call mma_allocate(B1,nOsc,nOsc,label='B1')
+call mma_allocate(A2,nOsc,nOsc,label='A2')
+call mma_allocate(B2,nOsc,nOsc,label='B2')
+call mma_allocate(d1,nOsc,label='d1')
+call mma_allocate(d2,nOsc,label='d2')
+call DGEMM_('N','N',nOsc,nOsc,nOsc,One,C1,nOsc,W0,nOsc,Zero,A1,nOsc)
+call DGEMM_('T','T',nOsc,nOsc,nOsc,One,W1,nOsc,C0,nOsc,Zero,temp1,nOsc)
+B1(:,:) = A1-temp1
+r_temp1(:) = r01-r00
+call DGEMM_('N','N',nOsc,1,nOsc,One,beta,nOsc,r_temp1,nOsc,Zero,r_temp2,nOsc)
+call DGEMM_('T','N',nOsc,1,nOsc,sqrt(Eight),W1,nOsc,r_temp2,nOsc,Zero,d1,nOsc)
+call DGEMM_('N','N',nOsc,nOsc,nOsc,One,C2,nOsc,W0,nOsc,Zero,A2,nOsc)
+call DGEMM_('T','T',nOsc,nOsc,nOsc,One,W2,nOsc,C0,nOsc,Zero,temp2,nOsc)
+B2(:,:) = A2-temp2
+r_temp1(:) = r02-r00
+call DGEMM_('N','N',nOsc,1,nOsc,One,beta,nOsc,r_temp1,nOsc,Zero,r_temp2,nOsc)
+call DGEMM_('T','N',nOsc,1,nOsc,sqrt(Eight),W2,nOsc,r_temp2,nOsc,Zero,d2,nOsc)
 
-call GetMem('temp1','Free','Real',iptemp1,nOscSqr)
-call GetMem('temp2','Free','Real',iptemp2,nOscSqr)
+call mma_deallocate(temp1)
+call mma_deallocate(temp2)
 
-call GetMem('beta','Free','Real',ipbeta,nOscSqr)
-call GetMem('r_temp1','Free','Real',ipr_temp1,nOsc)
-call GetMem('r_temp2','Free','Real',ipr_temp2,nOsc)
-call GetMem('alpha','Free','Real',ipalpha,nOscSqr)
-call GetMem('alpha1','Free','Real',ipalpha1,nOscSqr)
-call GetMem('alpha2','Free','Real',ipalpha2,nOscSqr)
+call mma_deallocate(alpha)
+call mma_deallocate(alpha1)
+call mma_deallocate(alpha2)
+
+call mma_deallocate(beta)
+call mma_deallocate(r_temp1)
+call mma_deallocate(r_temp2)
 
 m = (n/2)-1
 
-call GetMem('c_col','Allo','Real',ipc_col,n)
-call GetMem('SC_col','Allo','Real',ipSC_col,n)
-call dcopy_(nDimTot*nOsc,[Zero],0,OccNumMat,1)
-!OccNumMat = Zero
+call mma_allocate(C_col,[0,n-1],label='C_col')
+call mma_allocate(SC_col,[0,n-1],label='SC_col')
+OccNumMat(:,:) = Zero
 do k=1,n
   do jOsc=1,nosc
-    !C_col = Zero
-    call dcopy_(n,[Zero],0,Work(ipc_col),1)
+    C_col(:) = Zero
     do l=0,m
       do iOsc=1,nOsc
         lc = iCre(l,iosc)
         la = iAnn(l,iosc)
-        if (lc >= 0) Work(ipC_col+lc) = Work(ipC_col+lc)+sqrt(real(nmat(lc,iosc),kind=wp))*c(l+1,k)*Work(ipB1+iosc+nOsc*(josc-1)-1)
-        if (la >= 0) Work(ipC_col+la) = Work(ipC_col+la)+sqrt(real(nmat(l,iosc),kind=wp))*c(l+1,k)*Work(ipA1+iosc+nOsc*(josc-1)-1)
+        if (lc >= 0) C_col(lc) = C_col(lc)+sqrt(real(nmat(lc,iosc),kind=wp))*c(l+1,k)*B1(iosc,josc)
+        if (la >= 0) C_col(la) = C_col(la)+sqrt(real(nmat(l,iosc),kind=wp))*c(l+1,k)*A1(iosc,josc)
       end do
-      Work(ipC_col+l) = Work(ipC_col+l)-c(l+1,k)*Work(ipd1+josc-1)
+      C_col(l) = C_col(l)-c(l+1,k)*d1(josc)
     end do
     do l=0,m
       do iOsc=1,nosc
         lc = icre(l,iosc)
         la = iann(l,iosc)
-        if (lc >= 0) Work(ipC_col+m+lc+1) = Work(ipC_col+m+lc+1)+sqrt(real(nmat(lc,iosc),kind=wp))*c(m+l+2,k)* &
-                                            Work(ipB2+iosc+nOsc*(josc-1)-1)
-        if (la >= 0) Work(ipC_col+m+la+1) = Work(ipC_col+m+la+1)+sqrt(real(nmat(l,iosc),kind=wp))*c(m+l+2,k)* &
-                                            Work(ipA2+iosc+nOsc*(josc-1)-1)
+        if (lc >= 0) C_col(m+lc+1) = C_col(m+lc+1)+sqrt(real(nmat(lc,iosc),kind=wp))*c(m+l+2,k)*B2(iosc,josc)
+        if (la >= 0) C_col(m+la+1) = C_col(m+la+1)+sqrt(real(nmat(l,iosc),kind=wp))*c(m+l+2,k)*A2(iosc,josc)
       end do
-      Work(ipC_col+m+l+1) = Work(ipC_col+m+l+1)-c(m+l+2,k)*Work(ipd2+josc-1)
+      C_col(m+l+1) = C_col(m+l+1)-c(m+l+2,k)*d2(josc)
     end do
-    call DGEMM_('N','N',n,1,n,One,S,n,Work(ipC_col),n,Zero,Work(ipSC_col),n)
-    OccNumMat(k-1,jOsc) = Ddot_(n,Work(ipC_col),1,Work(ipSC_col),1)
+    call DGEMM_('N','N',n,1,n,One,S,n,C_col,n,Zero,SC_col,n)
+    OccNumMat(k-1,jOsc) = Ddot_(n,C_col,1,SC_col,1)
   end do
 end do
 write(u6,*)
@@ -216,13 +200,13 @@ write(u6,*) 'Frequencies'
 write(u6,'(20i6)') (int((D(i+1)-D(1))*auTocm),i=1,m)
 write(u6,*)
 
-call GetMem('d1','Free','Real',ipd1,nOsc)
-call GetMem('d2','Free','Real',ipd2,nOsc)
-call GetMem('c_col','Free','Real',ipc_col,n)
-call GetMem('SC_col','Free','Real',ipSC_col,n)
-call GetMem('A1','Free','Real',ipA1,nOscSqr)
-call GetMem('B1','Free','Real',ipB1,nOscSqr)
-call GetMem('A2','Free','Real',ipA2,nOscSqr)
-call GetMem('B2','Free','Real',ipB2,nOscSqr)
+call mma_deallocate(A1)
+call mma_deallocate(B1)
+call mma_deallocate(A2)
+call mma_deallocate(B2)
+call mma_deallocate(d1)
+call mma_deallocate(d2)
+call mma_deallocate(C_col)
+call mma_deallocate(SC_col)
 
 end subroutine SolveSort

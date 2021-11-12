@@ -82,6 +82,7 @@ subroutine WriteLog(PotCoef,AtomLbl,AtCoord,Mass,InterVec,stand_dev,max_err,ener
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: u6
 
 implicit real*8(a-h,o-z)
@@ -113,12 +114,12 @@ character*11 VibPlotFile
 character*8 BondString
 real*8 PotCoef(nPolyTerm,1)
 #include "WrkSpc.fh"
+integer, allocatable :: aNormModes(:)
 
 NumInt = nOsc
-l_aNormModes = NumInt
-call GetMem('aNormModes','Allo','Inte',ipaNormModes,l_aNormModes)
+call mma_allocate(aNormModes,NumInt,label='aNormModes')
 do i=1,NumInt
-  iWork(ipaNormModes+i-1) = i
+  aNormModes(i) = i
 end do
 
 if (nState == 1) then
@@ -335,10 +336,10 @@ call WriteCartCoord(AtomLbl,AtCoord,Mass,NumOfAt)
 call WriteIntCoord(InterVec,AtomLbl,xvec,NumInt)
 
 ! Harmonic frequencies in reciprocal cm, GHz and hartrees.
-call WriteFreq(harmfreq,iWork(ipaNormModes),l_aNormModes,'Harmonic frequencies')
+call WriteFreq(harmfreq,aNormModes,NumInt,'Harmonic frequencies')
 
 ! Fundamental frequencies in reciprocal cm, GHz and hartrees.
-if (max_term > 2) call WriteFreq(anharmfreq,iWork(ipaNormModes),l_aNormModes,'Anharmonic frequencies')
+if (max_term > 2) call WriteFreq(anharmfreq,aNormModes,NumInt,'Anharmonic frequencies')
 
 ! Write Potential Energy Distribution for each mode to log
 ! if the molecule is not too large.
@@ -459,6 +460,6 @@ if (VibModPlot) then
   close(VibPlotUnit)
 end if
 
-call GetMem('aNormModes','Free','Inte',ipaNormModes,l_aNormModes)
+call mma_deallocate(aNormModes)
 
 end subroutine WriteLog

@@ -159,8 +159,7 @@ real*8 sum, prod
 logical ilEq, jlEq, klEq
 real*8 rfactor
 
-!D3 = Zero
-call dcopy_(nvar*nvar*nvar,[Zero],0,D3,1)
+D3(:,:,:) = Zero
 do ivar=1,nvar
   do jvar=ivar,nvar
     do kvar=jvar,nvar
@@ -228,8 +227,7 @@ real*8 sum, prod
 logical imEq, jmEq, kmEq, lmEq
 real*8 rfactor
 
-!D4 = Zero
-call dcopy_(nvar*nvar*nvar*nvar,[Zero],0,D4,1)
+D4(:,:,:,:) = Zero
 do ivar=1,nvar
   do jvar=ivar,nvar
     do kvar=jvar,nvar

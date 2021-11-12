@@ -19,35 +19,34 @@ subroutine ShiftHess(Hess,shift,nDim,nDim2)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 
 real*8 Hess(nDim,nDim2)
-!real*8 U(nDim,nDim2)
-!real*8 Hess_lowT(nDim*(nDim+1)/2)
 real*8 epsilon
 real*8 eigen_min
 logical shift
-#include "WrkSpc.fh"
+real*8, allocatable :: Hess_lowT(:), U(:,:)
 
-call GetMem('U','Allo','Real',ipU,nDim*nDim2)
-call GetMem('Hess_low','Allo','Real',ipHess_lowT,nDim*(nDim+1)/2)
+call mma_allocate(U,nDim,nDim2,label='U')
+call mma_allocate(Hess_lowT,nDim*(nDim+1)/2,label='Hess_lowT')
 
 ! Initialize.
-nDim1 = nDim+1
-nDimSqr = nDim**2
 
 k = 0
 do i=1,nDim
   do j=1,i
     k = k+1
-    Work(ipHess_lowT+k-1) = Hess(i,j)
+    Hess_lowT(k) = Hess(i,j)
   end do
 end do
-call dcopy_(nDimSqr,[Zero],0,Work(ipU),1)
-call dcopy_(nDim,[One],0,Work(ipU),nDim1)
-call Jacob(Work(ipHess_lowT),Work(ipU),nDim,nDim)
-call Jacord(Work(ipHess_lowT),Work(ipU),nDim,nDim)
-eigen_min = Work(ipHess_lowT)
+U(:,:) = Zero
+do i=1,nDim
+  U(i,i) = One
+end do
+call Jacob(Hess_lowT,U,nDim,nDim)
+call Jacord(Hess_lowT,U,nDim,nDim)
+eigen_min = Hess_lowT(1)
 shift = eigen_min < Zero
 if (shift) then
   epsilon = 2*eigen_min
@@ -55,7 +54,7 @@ if (shift) then
     Hess(i,i) = Hess(i,i)-epsilon
   end do
 end if
-call GetMem('U','Free','Real',ipU,nDim*nDim2)
-call GetMem('Hess_low','Free','Real',ipHess_lowT,nDim*(nDim+1)/2)
+call mma_deallocate(U)
+call mma_deallocate(Hess_lowT)
 
 end subroutine ShiftHess

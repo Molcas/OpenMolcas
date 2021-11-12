@@ -117,23 +117,24 @@ return
 
 end subroutine ISC_Rho
 !####
-subroutine ISC_Ene(iPrint,nOsc,max_nOrd,nYes,nMat,nTabDim,GE1,GE2,harmfreq1,harmfreq2,x_anharm1,x_anharm2,dMinWind,dRho,EneMat, &
-                   lVec,lTVec)
+subroutine ISC_Ene(iPrint,nOsc,max_nOrd,nYes,nMat,nTabDim,GE1,GE2,harmfreq1,harmfreq2,x_anharm1,x_anharm2,dMinWind,dRho,lVec)
 ! Calculate Energy of Levels  GG 30-Dec-08 - 08-Jan-09
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: u6
 
 implicit real*8(a-h,o-z)
 implicit integer(i-n)
 #include "Constants_mula.fh"
-#include "WrkSpc.fh"
 real*8 GE1, GE2, harmfreq1(nOsc), harmfreq2(nOsc)
 real*8 x_anharm1(nOsc,nOsc), x_anharm2(nOsc,nOsc)
 real*8 dMinWind, dRho, dWlow, dWup
-real*8 dEne, EneMat(0:max_nOrd)
-integer nMat(0:nTabDim,nOsc), lVec(0:nTabDim), lTVec(0:nTabDim)
+real*8 dEne
+integer nMat(0:nTabDim,nOsc), lVec(0:nTabDim)
 logical lUpdate
+integer, allocatable :: level1(:), level2(:), lTVec(:)
+real*8, allocatable :: EneMat(:)
 
 if (dMinWind == Zero) then
   lUpDate = .true.
@@ -141,9 +142,8 @@ if (dMinWind == Zero) then
 else
   lUpDate = .false.
 end if
-do iOrd=0,max_nOrd
-  lTVec(iOrd) = lVec(iOrd)
-end do
+call mma_allocate(lTVec,[0,max_nOrd],label='lTVec')
+lTVec(:) = lVec(0:max_nOrd)
 
 ! Energy calculation
 
@@ -162,18 +162,15 @@ if (iPrint >= 4) then
   call XFlush(u6)
 end if
 
-call GetMem('level1','Allo','Inte',iplevel1,nOsc)
-call GetMem('level2','Allo','Inte',iplevel2,nOsc)
-do iv=1,nOsc
-  iWork(iplevel1+iv-1) = 0
-end do
+call mma_allocate(level1,nOsc,label='level1')
+call mma_allocate(level2,nOsc,label='level2')
+call mma_allocate(EneMat,[0,max_nOrd],label='EneMat')
+level1(:) = 0
 do iOrd=0,max_nOrd
   if (lVec(iOrd) == 1) then
-    do iv=1,nOsc
-      iWork(iplevel2+iv-1) = nMat(iOrd,iv)
-    end do
+    level2(:) = nMat(iOrd,:)
     l_harm = nOsc
-    call TransEnergy(GE1,x_anharm1,harmfreq1,iWork(iplevel1),GE2,x_anharm2,harmfreq2,iWork(iplevel2),dEne,l_harm)
+    call TransEnergy(GE1,x_anharm1,harmfreq1,level1,GE2,x_anharm2,harmfreq2,level2,dEne,l_harm)
     EneMat(iOrd) = dEne
     if (iPrint >= 4) then
       if (nOsc <= 24) then
@@ -238,8 +235,10 @@ do
   nYes = nYes_start
 end do
 
-call GetMem('level2','Free','Inte',iplevel2,nOsc)
-call GetMem('level1','Free','Inte',iplevel1,nOsc)
+call mma_deallocate(lTVec)
+call mma_deallocate(level1)
+call mma_deallocate(level2)
+call mma_deallocate(EneMat)
 
 if (iPrint >= 3) then
   if (nOsc <= 30) write(u6,'(a,108a)') '  ',('-',i=1,108)
@@ -262,9 +261,10 @@ return
 end subroutine ISC_Ene
 !####
 subroutine ISC_Rate(iPrint,nOsc,max_nOrd,iMx_nOrd,iMaxYes,nYes,dMinWind,VibWind2,C1,C2,W1,W2,det0,det1,det2,C,W,r01,r02,r00, &
-                    mTabDim,mMat,nTabDim,nMat,mInc,mDec,nInc,nDec,m_max,n_max,max_dip,nnsiz,FC00,FCWind2,dRho)
+                    mTabDim,mMat,nTabDim,nMat,mInc,mDec,nInc,nDec,m_max,n_max,max_dip,nnsiz,FC00,dRho)
 ! Estimate ISC rate  GG 30-Dec-08
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, u6
 
@@ -272,46 +272,38 @@ implicit real*8(a-h,o-z)
 implicit integer(i-n)
 #include "Constants_mula.fh"
 #include "inout.fh"
-#include "WrkSpc.fh"
 real*8 C1(nOsc,nOsc), C2(nOsc,nosc), W1(nOsc,nOsc), W2(nOsc,nOsc), C(nOsc,nOsc), W(nOsc,nOsc)
 real*8 r01(nOsc), r02(nOsc), r00(nOsc), det0, det1, det2, FC00
-real*8 FCWind2(nYes)
 integer VibWind2(nYes)
 integer mMat(0:mTabDim,nOsc), nMat(0:nTabDim,nOsc)
 integer mInc(0:mTabDim,nOsc), nInc(0:iMaxYes,nOsc)
 integer mDec(0:mTabDim,nOsc), nDec(0:iMaxYes,nOsc)
+real*8, allocatable :: FCWind2(:)
 
-call TabDim2_drv(m_max,nosc,nvTabDim)
-call TabDim2_drv(n_max,nosc,nvTabDim)
+call TabDim(m_max,nosc,nvTabDim)
+call TabDim(n_max,nosc,nvTabDim)
 max_nOrd = nvTabDim-1
-call TabDim2_drv(m_max,nosc,nvTabDim)
+call TabDim(m_max,nosc,nvTabDim)
 m_max_ord = nvTabDim-1
-call TabDim2_drv(min(n_max,m_max+1),nosc,nvTabDim)
+call TabDim(min(n_max,m_max+1),nosc,nvTabDim)
 mx_max_ord = nvTabDim-1
-call TabDim2_drv(min(m_max,n_max+1),nosc,nvTabDim)
+call TabDim(min(m_max,n_max+1),nosc,nvTabDim)
 nx_max_ord = nvTabDim-1
-call TabDim2_drv(m_max-1,nosc,nvTabDim)
+call TabDim(m_max-1,nosc,nvTabDim)
 max_mInc = nvTabDim-1
-call TabDim2_drv(n_max-1,nosc,nvTabDim)
+call TabDim(n_max-1,nosc,nvTabDim)
 max_nInc = nvTabDim-1
-call TabDim2_drv(n_max,nosc,nvTabDim)
+call TabDim(n_max,nosc,nvTabDim)
 n_max_ord = nvTabDim-1
 
 mx_max_ord = 0 ! CGGn
 if (iPrint >= 3) write(u6,*) ' Memory allocated for U matrix:',(n_max_ord+1)*(mx_max_ord+1),' words,  ', &
                              8*(n_max_ord+1)*(mx_max_ord+1)/1048576,' MB.     '
 call XFlush(u6)
-call GetMem('L','Allo','Real',ipL,(m_max_ord+1)*(nx_max_ord+1))
-call GetMem('U','Allo','Real',ipU,(n_max_ord+1)*(mx_max_ord+1))
-call GetMem('alpha1','Allo','Real',ipAlpha1,nOsc*nOsc)
-call GetMem('alpha2','Allo','Real',ipAlpha2,nOsc*nOsc)
-call GetMem('beta','Allo','Real',ipBeta,nOsc*nOsc)
 
-!call GetMem('Test_2','LIST','INTE',iDum,iDum)
-!call XFlush(u6)
+call mma_allocate(FCWind2,nYes,label='FCWind2')
 call ISC_FCval(iPrint,iMaxYes,nTabDim,C1,W1,det1,r01,C2,W2,det2,r02,m_max_ord,n_max_ord,mx_max_ord,max_mInc,max_nInc,nx_max_ord, &
-               mMat,nMat,mInc,nInc,mDec,nDec,C,W,det0,r00,Work(ipL),Work(ipU),FC00,Work(ipAlpha1),Work(ipAlpha2),Work(ipBeta), &
-               nOsc,nnsiz,iMx_nOrd,nYes,VibWind2,FCWind2)
+               mMat,nMat,mInc,nInc,mDec,nDec,C,W,det0,r00,FC00,nOsc,nnsiz,iMx_nOrd,nYes,VibWind2,FCWind2)
 
 ! where does this number come from?
 const = Two*rpi/5.309e-12_wp
@@ -327,6 +319,7 @@ dSum = Zero
 do ii=1,nYes
   dSum = dSum+FCWind2(ii)**2
 end do
+call mma_deallocate(FCWind2)
 
 dSoc = Zero
 do ii=1,3
@@ -363,12 +356,6 @@ if (iPrint >= 1) then
   write(u6,*)
   call XFlush(u6)
 end if
-
-call GetMem('beta','Free','Real',ipBeta,nOsc*nOsc)
-call GetMem('alpha2','Free','Real',ipAlpha2,nOsc*nOsc)
-call GetMem('alpha1','Free','Real',ipAlpha1,nOsc*nOsc)
-call GetMem('U','Free','Free',ipU,(n_max_ord+1)*(mx_max_ord+1))
-call GetMem('L','Free','Real',ipL,(m_max_ord+1)*(nx_max_ord+1))
 
 return
 ! Avoid unused argument warnings

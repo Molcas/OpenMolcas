@@ -36,6 +36,7 @@ subroutine WriteInt(IntMat,TermMat,mMat,nMat,OccNumMat1,OccNumMat2,MatEl,ForceFi
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1996.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, u6
 
@@ -61,8 +62,11 @@ real*8 x_anharm1(nOsc,nOsc), x_anharm2(nOsc,nOsc)
 logical MatEl, ForceField
 character*12 format
 integer nvTabDim
+integer itemp(3)
 #include "inout.fh"
 #include "WrkSpc.fh"
+integer, allocatable :: level1(:), level2(:), mMatStart(:), mMatStop(:), TermSort(:,:), VibSort1(:,:), VibSort2(:,:)
+real*8, allocatable :: plotvec(:), VibLevel1(:), VibLevel2(:)
 
 write(u6,*)
 write(u6,*)
@@ -150,75 +154,64 @@ end if
 
 ! Write vibrational levels.
 if (WriteVibLevels) then
-  call GetMem('VibLevel1','Allo','Real',ipVibLevel1,max_mOrd+1)
-  call GetMem('VibLevel2','Allo','Real',ipVibLevel2,max_nOrd+1)
+  call mma_allocate(VibLevel1,[0,max_mOrd],label='VibLevel1')
+  call mma_allocate(VibLevel2,[0,max_nOrd],label='VibLevel2')
   if (MatEl) then
     k = 0
     do iOrd=1,max_mOrd+1
-      Work(ipVibLevel1+k) = (E1(iOrd)-E1(1))
-      Work(ipVibLevel2+k) = T0+(E2(iOrd)-E2(1))
+      VibLevel1(k) = (E1(iOrd)-E1(1))
+      VibLevel2(k) = T0+(E2(iOrd)-E2(1))
       k = k+1
     end do
   else
-    call GetMem('level1','Allo','Inte',iplevel1,nvar)
-    call GetMem('level2','Allo','Inte',iplevel2,nvar)
+    call mma_allocate(level1,nvar,label='level1')
+    call mma_allocate(level2,nvar,label='level2')
 
     G1 = Zero
     G2 = G1+T0
     k = 0
-    Work(ipVibLevel1+k) = Zero
-    do iv=1,nvar
-      iWork(iplevel1+iv-1) = mMat(0,iv)
-    end do
+    VibLevel1(k) = Zero
+    level1(:) = mMat(0,:)
     if (max_mOrd > 0) then
       do iOrd=1,max_mOrd
         k = k+1
-        do iv=1,nvar
-          iWork(iplevel2+iv-1) = mMat(iOrd,iv)
-        end do
+        level2(:) = mMat(iOrd,:)
         l_harm = nOsc
-        call TransEnergy(G1,x_anharm1,harmfreq1,iWork(iplevel1),G1,x_anharm1,harmfreq1,iWork(iplevel2),Work(ipVibLevel1+k),l_harm)
+        call TransEnergy(G1,x_anharm1,harmfreq1,level1,G1,x_anharm1,harmfreq1,level2,VibLevel1(k),l_harm)
       end do
     end if
     k = 0
     do iOrd=0,max_nOrd
-      do iv=1,nvar
-        iWork(iplevel2+iv-1) = nMat(iOrd,iv)
-      end do
+      level2(:) = nMat(iOrd,:)
       l_harm = nOsc
-      call TransEnergy(G1,x_anharm2,harmfreq2,iWork(iplevel1),G2,x_anharm2,harmfreq2,iWork(iplevel2),Work(ipVibLevel2+k),l_harm)
+      call TransEnergy(G1,x_anharm2,harmfreq2,level1,G2,x_anharm2,harmfreq2,level2,VibLevel2(k),l_harm)
       k = k+1
     end do
-    call GetMem('level1','Free','Inte',iplevel1,nvar)
-    call GetMem('level2','Free','Inte',iplevel2,nvar)
+    call mma_deallocate(level1)
+    call mma_deallocate(level2)
   end if
 
-  l_m = max_mOrd+1
-  l_n = max_nOrd+1
-  call GetMem('VibSort1','Allo','Inte',ipVibSort1,l_m*2)
-  call GetMem('VibSort2','Allo','Inte',ipVibSort2,l_n*2)
+  call mma_allocate(VibSort1,[1,2],[0,max_mOrd],label='VibSort1')
+  call mma_allocate(VibSort2,[1,2],[0,max_nOrd],label='VibSort2')
 
   do iOrd=0,max_mOrd
-    iWork(ipVibSort1+iOrd) = int(Work(ipVibLevel1+iOrd)*HarToRcm)
-    iWork(ipVibSort1+iOrd+l_m) = iOrd
+    VibSort1(1,iOrd) = int(VibLevel1(iOrd)*HarToRcm)
+    VibSort1(2,iOrd) = iOrd
   end do
   do iOrd=0,max_nOrd
-    iwork(ipVibSort2+iOrd) = int(Work(ipVibLevel2+iOrd)*HarToRcm)
-    iWork(ipVibSort2+iOrd+l_n) = iOrd
+    VibSort2(1,iOrd) = int(VibLevel2(iOrd)*HarToRcm)
+    VibSort2(2,iOrd) = iOrd
   end do
-  call GetMem('VibLevel1','Free','Real',ipVibLevel1,max_mOrd+1)
-  call GetMem('VibLevel2','Free','Real',ipVibLevel2,max_nOrd+1)
+  call mma_deallocate(VibLevel1)
+  call mma_deallocate(VibLevel2)
 
   if (max_mOrd > 0) then
     do i=0,max_mOrd
       do j=i+1,max_mOrd
-        if (iWork(ipVibSort1+j) < iWork(ipVibSort1+i)) then
-          itemp = iWork(ipVibSort1+j)
-          iwork(ipVibSort1+j) = iWork(ipVibSort1+i)
-          iWork(ipVibSort1+i) = itemp
-          itemp = iWork(ipVibSort1+j+l_m)
-          iwork(ipVibSort1+j+l_m) = iWork(ipVibSort1+i+l_m)
-          iwork(ipVibSort1+i+l_m) = itemp
+        if (VibSort1(1,j) < VibSort1(1,i)) then
+          itemp(1:2) = VibSort1(:,j)
+          VibSort1(:,j) = VibSort1(:,i)
+          VibSort1(:,i) = itemp(1:2)
         end if
       end do
     end do
@@ -226,13 +219,10 @@ if (WriteVibLevels) then
   if (max_nOrd > 0) then
     do i=0,max_nOrd
       do j=i+1,max_nOrd
-        if (iwork(ipVibSort2+j) < iWork(ipVibSort2+i)) then
-          itemp = iwork(ipVibSort2+j)
-          iWork(ipVibSort2+j) = iwork(ipVibSort2+i)
-          iWork(ipVibSort2+i) = itemp
-          itemp = iWork(ipVibSort2+j+l_n)
-          iWork(ipVibSort2+j+l_n) = iWork(ipVibSort2+i+l_n)
-          iWork(ipVibSort2+i+l_n) = itemp
+        if (VibSort2(1,j) < VibSort2(1,i)) then
+          itemp(1:2) = VibSort2(:,j)
+          VibSort2(:,j) = VibSort2(:,i)
+          VibSort2(:,i) = itemp(1:2)
         end if
       end do
     end do
@@ -246,8 +236,8 @@ if (WriteVibLevels) then
   write(u6,*) ' ','     Level                     Energy(cm-1)'
   write(u6,*) ' ','----------------------------------------------'
   do i=0,max_mOrd
-    iOrd = iwork(ipVibSort1+i+l_m)
-    write(u6,'(a4,a15,a15,i7)') ' ',mMatChar(iOrd),' ',iWork(ipVibSort1+i)
+    iOrd = VibSort1(2,i)
+    write(u6,'(a4,a15,a15,i7)') ' ',mMatChar(iOrd),' ',VibSort1(1,i)
   end do
   write(u6,*) ' ','=============================================='
 
@@ -259,12 +249,12 @@ if (WriteVibLevels) then
   write(u6,*) ' ','     Level                     Energy(cm-1)'
   write(u6,*) ' ','----------------------------------------------'
   do i=0,max_nOrd
-    iOrd = iWork(ipVibSort2+i+l_n)
-    write(u6,'(a4,a15,a15,i7)') ' ',nMatChar(iOrd),' ',iWork(ipVibSort2+i)
+    iOrd = VibSort2(2,i)
+    write(u6,'(a4,a15,a15,i7)') ' ',nMatChar(iOrd),' ',VibSort2(1,i)
   end do
   write(u6,*) ' ','=============================================='
-  call GetMem('VibSort1','Free','Inte',ipVibSort1,l_m*2)
-  call GetMem('VibSort2','Free','Inte',ipVibSort2,l_n*2)
+  call mma_deallocate(VibSort1)
+  call mma_deallocate(VibSort2)
 
 end if
 !!
@@ -288,31 +278,30 @@ if (n_plot_max > 1) then
   end do
 end if
 maxQuanta = max(max_mQuanta,max_nQuanta)
-call GetMem('mMatStart','Allo','Inte',ipmMatStart,maxQuanta+1)
-call GetMem('mMatStop','Allo','Inte',ipmMatStop,maxQuanta+1)
-iWork(ipmMatStart) = 0
-iWork(ipmMatStop) = 0
+call mma_allocate(mMatStart,[0,maxQuanta],label='mMatStart')
+call mma_allocate(mMatStop,[0,maxQuanta],label='mMatStop')
+mMatStart(0) = 0
+mMatStop(0) = 0
 do i=1,maxQuanta
-  iWork(ipmMatStart+i) = iWork(ipmMatStop+i-1)+1
-  call TabDim2_drv(i,nvar,nvTabDim)
-  iWork(ipmMatStop+i) = nvTabDim-1
+  mMatStart(i) = mMatStop(i-1)+1
+  call TabDim(i,nvar,nvTabDim)
+  mMatStop(i) = nvTabDim-1
 end do
 
 ! Intensities.
 n = (l_TermMat_1+2)*(l_TermMat_2+2)
-l_TermSort = n+1
-call GetMem('TermSort','Allo','Inte',ipTermSort,l_TermSort*3)
+call mma_allocate(TermSort,[1,3],[0,n],label='TermSort')
 nval = 0
 max_Intensity = Zero
 
 if (MatEl .and. (.not. ForceField)) then
   if (max_mQuanta <= max_nQuanta) then
     do i=1,m_plot_max
-      do iOrd=iWork(ipmMatStart+iwork(ipm_plot+i-1)),iWork(ipmMatStop+iWork(ipm_plot+i-1))
+      do iOrd=mMatStart(iwork(ipm_plot+i-1)),mMatStop(iWork(ipm_plot+i-1))
         do jOrd=0,3*max_mOrd/4
-          iWork(ipTermSort+nval) = int(TermMat(iOrd,jOrd)*HarToRcm)
-          iWork(ipTermSort+nval+l_TermSort) = iOrd
-          iWork(ipTermSort+nval+l_TermSort*2) = jOrd
+          TermSort(1,nval) = int(TermMat(iOrd,jOrd)*HarToRcm)
+          TermSort(2,nval) = iOrd
+          TermSort(3,nval) = jOrd
           nval = nval+1
         end do
       end do
@@ -320,11 +309,11 @@ if (MatEl .and. (.not. ForceField)) then
   else
     do iOrd=0,3*max_mOrd/4
       do j=1,n_plot_max
-        do jOrd=iWork(ipmMatStart+iWork(ipn_plot+j-1)),iWork(ipmMatStop+iWork(ipn_plot+j-1))
+        do jOrd=mMatStart(iWork(ipn_plot+j-1)),mMatStop(iWork(ipn_plot+j-1))
           if (IntMat(iOrd,jOrd) > max_Intensity) max_Intensity = IntMat(iOrd,jOrd)
-          iWork(ipTermSort+nval) = int(abs(TermMat(iOrd,jOrd))*HarToRcm)
-          iWork(ipTermSort+nval+l_TermSort) = iOrd
-          iWork(ipTermSort+nval+l_TermSort*2) = jOrd
+          TermSort(1,nval) = int(abs(TermMat(iOrd,jOrd))*HarToRcm)
+          TermSort(2,nval) = iOrd
+          TermSort(3,nval) = jOrd
           nval = nval+1
         end do
       end do
@@ -333,8 +322,8 @@ if (MatEl .and. (.not. ForceField)) then
 else
   do i=1,m_plot_max
     do j=1,n_plot_max
-      do iOrd=iWork(ipmMatStart+iWork(ipm_plot+i-1)),iWork(ipmMatStop+iWork(ipm_plot+i-1))
-        do jOrd=iwork(ipmMatStart+iWork(ipn_plot+j-1)),iWork(ipmMatStop+iwork(ipn_plot+j-1))
+      do iOrd=mMatStart(iWork(ipm_plot+i-1)),mMatStop(iWork(ipm_plot+i-1))
+        do jOrd=mMatStart(iWork(ipn_plot+j-1)),mMatStop(iwork(ipn_plot+j-1))
           if (IntMat(iOrd,jOrd) > max_Intensity) max_Intensity = IntMat(iOrd,jOrd)
         end do
       end do
@@ -342,13 +331,13 @@ else
   end do
   do i=1,m_plot_max
     do j=1,n_plot_max
-      do iOrd=iWork(ipmMatStart+iWork(ipm_plot+i-1)),iWork(ipmMatStop+iWork(ipm_plot+i-1))
-        do jOrd=iWork(ipmMatStart+iWork(ipn_plot+j-1)),iWork(ipmMatStop+iWork(ipn_plot+j-1))
+      do iOrd=mMatStart(iWork(ipm_plot+i-1)),mMatStop(iWork(ipm_plot+i-1))
+        do jOrd=mMatStart(iWork(ipn_plot+j-1)),mMatStop(iWork(ipn_plot+j-1))
           !if ((IntMat(iOrd,jOrd) > int_thrs*max_Intensity) .or. &
           !if ((IntMat(iOrd,jOrd) > 1.0e-3_wp*max_Intensity) .or. ((iOrd == 0 ) .and. (jOrd == 0))) then
-          iWork(ipTermSort+nval) = int(abs(TermMat(iOrd,jOrd))*HarToRcm)
-          iWork(ipTermSort+nval+l_TermSort) = iOrd
-          iWork(ipTermSort+nval+l_TermSort*2) = jOrd
+          TermSort(1,nval) = int(abs(TermMat(iOrd,jOrd))*HarToRcm)
+          TermSort(2,nval) = iOrd
+          TermSort(3,nval) = jOrd
           nval = nval+1
           !end if
         end do
@@ -360,16 +349,10 @@ end if
 nval = nval-1
 do i=0,nval
   do j=i+1,nval
-    if (iWork(ipTermSort+j) < iWork(ipTermSort+i)) then
-      itemp = iWork(ipTermSort+j)
-      iWork(ipTermSort+j) = iWork(ipTermSort+i)
-      iWork(ipTermSort+i) = itemp
-      itemp = iWork(ipTermSort+j+l_TermSort)
-      iWork(ipTermSort+j+l_TermSort) = iWork(ipTermSort+i+l_TermSort)
-      iWork(ipTermSort+i+l_TermSort) = itemp
-      itemp = iWork(ipTermSort+j+l_TermSort*2)
-      iWork(ipTermSort+j+l_TermSort*2) = iWork(ipTermSort+i+l_TermSort*2)
-      iWork(ipTermSort+i+l_TermSort*2) = itemp
+    if (TermSort(1,j) < TermSort(1,i)) then
+      itemp(:) = TermSort(:,j)
+      TermSort(:,j) = TermSort(:,i)
+      TermSort(:,i) = itemp
     end if
   end do
 end do
@@ -389,9 +372,9 @@ write(u6,'(90A)') ' ',('-',iv=1,89)
 const = One
 
 do i=0,nval
-  iOrd = iWork(ipTermSort+i+l_TermSort)
-  jOrd = iWork(ipTermSort+i+l_TermSort*2)
-  vee_cm = iWork(ipTermSort+i)
+  iOrd = TermSort(2,i)
+  jOrd = TermSort(3,i)
+  vee_cm = TermSort(1,i)
   vee_nm = 1.0e7_wp/vee_cm
   vee_eV = vee_cm*auToeV/auTocm
   vee = vee_eV
@@ -462,12 +445,11 @@ if (plotwindow) then
     TermMax = int(cmend/conv-0.999999_wp)
   end if
 else
-  TermMin = int(iWork(ipTermSort))-nfreq
-  TermMax = int(iWork(ipTermSort+nval))+nfreq
+  TermMin = int(TermSort(1,0))-nfreq
+  TermMax = int(TermSort(1,nval))+nfreq
 end if
-l_plotvec = TermMax-TermMin+1
-call GetMem('plotvec','Allo','Real',ipplotvec,l_plotvec)
-call dcopy_(l_plotvec,[Zero],0,Work(ipplotvec),1)
+call mma_allocate(plotvec,[TermMin,TermMax],label='plotvec')
+plotvec(:) = Zero
 
 call molcas_open(plotunit,'plot.intensity')
 !open(unit=plotUnit,file='plot.intensity')
@@ -475,52 +457,51 @@ if (broadplot) then
   FWHM = hbarcm/(Two*LifeTime)
   G2 = FWHM*Half
   do iTrans=0,nval
-    iOrd = iWork(ipTermSort+iTrans+l_TermSort)
-    jOrd = iWork(ipTermSort+iTrans+l_TermSort*2)
-    ifreq = iWork(ipTermSort+iTrans)
+    iOrd = TermSort(2,iTrans)
+    jOrd = TermSort(3,iTrans)
+    ifreq = TermSort(1,iTrans)
     do ipoint=TermMin,TermMax
-      Work(ipplotVec+ipoint-TermMin) = Work(ipplotVec+ipoint-TermMin)+IntMat(iOrd,jOrd)*(G2**2)/((G2**2)+(ipoint-ifreq)**2)
+      plotVec(ipoint) = plotVec(ipoint)+IntMat(iOrd,jOrd)*(G2**2)/((G2**2)+(ipoint-ifreq)**2)
     end do
   end do
   do ipoint=TermMin,TermMax
-    if (Work(ipplotVec+ipoint-TermMin) > Zero) then
+    if (plotVec(ipoint) > Zero) then
       if (.not. Use_nm) then
-        write(plotUnit,'(f12.6,e15.6)') ipoint*conv,Work(ipplotVec+ipoint-TermMin)
+        write(plotUnit,'(f12.6,e15.6)') ipoint*conv,plotVec(ipoint)
       else
-        write(plotUnit,'(f12.6,e15.6)') conv/ipoint,Work(ipplotVec+ipoint-TermMin)
+        write(plotUnit,'(f12.6,e15.6)') conv/ipoint,plotVec(ipoint)
       end if
     end if
   end do
 else
   do iTrans=0,nval
-    iOrd = iWork(ipTermSort+iTrans+l_TermSort)
-    jOrd = iWork(ipTermSort+iTrans+l_TermSort*2)
-    ifreq = iWork(ipTermSort+iTrans)
+    iOrd = TermSort(2,iTrans)
+    jOrd = TermSort(3,iTrans)
+    ifreq = TermSort(1,iTrans)
     if ((TermMin <= ifreq) .and. (ifreq <= TermMax)) then
-      Work(ipplotVec+ifreq-TermMin) = Work(ipplotVec+ifreq-TermMin)+IntMat(iOrd,jOrd)
+      plotVec(ifreq) = plotVec(ifreq)+IntMat(iOrd,jOrd)
     end if
   end do
   do ipoint=TermMin,TermMax
-    if (Work(ipplotVec+ipoint-TermMin) > Zero) then
+    if (plotVec(ipoint) > Zero) then
       if (.not. Use_nm) then
         write(plotUnit,'(f12.6,e15.6)') ipoint*conv,Zero
-        write(plotUnit,'(f12.6,e15.6)') ipoint*conv,Work(ipplotVec+ipoint-TermMin)
+        write(plotUnit,'(f12.6,e15.6)') ipoint*conv,plotVec(ipoint)
         write(plotUnit,'(f12.6,e15.6)') ipoint*conv,Zero
       else
         write(plotUnit,'(f12.6,e15.6)') conv/ipoint,Zero
-        write(plotUnit,'(f12.6,e15.6)') conv/ipoint,Work(ipplotVec+ipoint-TermMin)
+        write(plotUnit,'(f12.6,e15.6)') conv/ipoint,plotVec(ipoint)
         write(plotUnit,'(f12.6,e15.6)') conv/ipoint,Zero
       end if
     end if
   end do
-  !call GetMem('plotvec','Free','Real',ipplotvec,l_plotvec)
 end if
-call GetMem('plotvec','Free','Real',ipplotvec,l_plotvec)
+call mma_deallocate(plotvec)
 close(plotUnit)
 
-call GetMem('TermSort','Free','Inte',ipTermSort,l_TermSort*3)
-call GetMem('mMatStart','Free','Inte',ipmMatStart,maxQuanta+1)
-call GetMem('mMatStop','Free','Inte',ipmMatStop,maxQuanta+1)
+call mma_deallocate(TermSort)
+call mma_deallocate(mMatStart)
+call mma_deallocate(mMatStop)
 
 ! Avoid unused argument warnings
 if (.false.) call Unused_real_array(OccNumMat1)

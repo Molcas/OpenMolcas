@@ -71,10 +71,7 @@ subroutine FCval(C1,W1,det1,r01,C2,W2,det2,r02,FC,max_mOrd,max_nOrd,max_nOrd2,ma
 !
 !  Calls:
 !    Cholesky    (LinAlg)
-!    Dcopy       (Essl)
-!    DGEMM_      (Essl)
 !    Dool_MULA   (LinAlg)
-!    Dscal       (Essl)
 !
 !  Uses:
 !    Linalg
@@ -83,6 +80,7 @@ subroutine FCval(C1,W1,det1,r01,C2,W2,det2,r02,FC,max_mOrd,max_nOrd,max_nOrd2,ma
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, u6
 
@@ -97,125 +95,109 @@ real*8 alpha1(nosc,nosc), alpha2(nosc,nosc), beta(nosc,nosc)
 real*8 r00(nosc), r01(nosc), r02(nosc)
 integer mMat(0:mdim1,mdim2), mInc(0:mdim1,mdim2),mDec(0:mdim1,mdim2)
 integer nMat(0:ndim1,ndim2), nInc(0:ndim1,ndim2),nDec(0:ndim1,ndim2)
-#include "WrkSpc.fh"
+real*8, allocatable :: A1(:,:), A1B1T(:,:), A2(:,:), A2B2T(:,:), alpha(:,:), B1(:,:), B2(:,:), d1(:), d2(:), r_temp1(:), &
+                       r_temp2(:), sqr(:), temp(:,:), temp1(:,:), temp2(:,:)
 
 ! Initialize.
 nMaxMat = max(max_mord+1,max_nord+1)
 nTabDim = max(nMaxMat,8)
-nOscSqr = nOsc**2
-call GetMem('temp','Allo','Real',iptemp,nOscSqr)
-call GetMem('temp1','Allo','Real',iptemp1,nOscSqr)
-call GetMem('temp2','Allo','Real',iptemp2,nOscSqr)
+call mma_allocate(temp,nOsc,nOsc,label='temp')
+call mma_allocate(temp1,nOsc,nOsc,label='temp1')
+call mma_allocate(temp2,nOsc,nOsc,label='temp2')
 
 ! Setup sqr table.
-n = nTabDim+1
-call GetMem('sqr','Allo','Real',ipsqr,n+1)
+call mma_allocate(sqr,[0,nTabDim+1],label='sqr')
 do i=0,nTabDim+1
-  Work(ipsqr+i) = sqrt(real(i,kind=wp))
+  sqr(i) = sqrt(real(i,kind=wp))
 end do
 
 ! Calculate alpha1, alpha2 and alpha.
-call GetMem('alpha','Allo','Real',ipalpha,nOscSqr)
-call DGEMM_('T','N',nOsc,nOsc,nOsc,One,C1,nOsc,C1,nOsc,Zero,alpha1,nOsc)
-call dscal_(nOscSqr,Half,alpha1,1)
-call DGEMM_('T','N',nOsc,nOsc,nOsc,One,C2,nOsc,C2,nOsc,Zero,alpha2,nOsc)
-call dscal_(nOscSqr,Half,alpha2,1)
-!temp = alpha1+alpha2
-call dcopy_(nOscSqr,alpha1,1,Work(iptemp),1)
-call Daxpy_(nOscSqr,One,alpha2,1,Work(iptemp),1)
-!alpha = Half*temp
-call dcopy_(nOscSqr,[Zero],0,Work(ipalpha),1)
-call Daxpy_(nOscSqr,Half,Work(iptemp),1,Work(ipalpha),1)
+call mma_allocate(alpha,nOsc,nOsc,label='alpha')
+call DGEMM_('T','N',nOsc,nOsc,nOsc,Half,C1,nOsc,C1,nOsc,Zero,alpha1,nOsc)
+call DGEMM_('T','N',nOsc,nOsc,nOsc,Half,C2,nOsc,C2,nOsc,Zero,alpha2,nOsc)
+temp(:,:) = alpha1+alpha2
+alpha(:,:) = Half*temp
 
 !call xxDgemul(C,nOsc,'T',C,nOsc,'N',alpha,nOsc,nOsc,nOsc,nOsc)
-!call dscal_(nOscSqr,Half,alpha,1)
+!alpha(:,:) = Half*alpha
 
 ! Calculate C using a Cholesky factorization of 2*alpha.
 !call Cholesky(temp,C)
 
 ! Calculate W.
-!call dcopy_(nOscSqr,[Zero],0,W,1)
-!call dcopy_(nOsc,[One],0,W,nOsc+1)
-!temp = C
+!W(:,:) = Zero
+!do i=1,nOsc
+!  W(i,i) = One
+!end do
+!temp(:,:) = C
 !call Dool_MULA(temp,W,det0)
 
 ! Calculate r00.
-call GetMem('r_temp1','Allo','Real',ipr_temp1,nOsc)
-call GetMem('r_temp2','Allo','Real',ipr_temp2,nOsc)
+call mma_allocate(r_temp1,nOsc,label='r_temp1')
+call mma_allocate(r_temp2,nOsc,label='r_temp2')
 
 ! Calculate beta.
 do i=1,nOsc
   do j=1,nOsc
-    Work(iptemp1+j+nOsc*(i-1)-1) = C1(i,j)
+    temp(j,i) = C1(i,j)
   end do
 end do
-!temp1 = alpha1
-call dcopy_(nOscSqr,alpha1,1,Work(iptemp1),1)
-!temp = Two*alpha
-call dcopy_(nOscSqr,[Zero],0,Work(iptemp),1)
-call Daxpy_(nOscSqr,Two,Work(ipalpha),1,Work(iptemp),1)
+temp1(:,:) = alpha1
+temp(:,:) = Two*alpha
 
-call Dool_MULA(Work(iptemp),nOsc,nOsc,Work(iptemp1),nOsc,nOsc,det)
-call DGEMM_('N','N',nOsc,nOsc,nOsc,One,alpha2,nOsc,Work(iptemp1),nOsc,Zero,beta,nOsc)
+call Dool_MULA(temp,nOsc,nOsc,temp1,nOsc,nOsc,det)
+call DGEMM_('N','N',nOsc,nOsc,nOsc,One,alpha2,nOsc,temp1,nOsc,Zero,beta,nOsc)
 
 ! Calculate FC00.
-!r_temp1 = r02-r01
-call dcopy_(nOsc,r01,1,Work(ipr_temp1),1)
-call Daxpy_(nOsc,-One,r02,1,Work(ipr_temp1),1)
+!r_temp1(:) = r02-r01
+r_temp1(:) = r01-r02
 
-call DGEMM_('N','N',nOsc,1,nOsc,One,beta,nOsc,Work(ipr_temp1),nOsc,Zero,Work(ipr_temp2),nOsc)
-FC00_exp = Ddot_(nOsc,Work(ipr_temp1),1,Work(ipr_temp2),1)
+call DGEMM_('N','N',nOsc,1,nOsc,One,beta,nOsc,r_temp1,nOsc,Zero,r_temp2,nOsc)
+FC00_exp = Ddot_(nOsc,r_temp1,1,r_temp2,1)
 FC00 = (sqrt(det1)*sqrt(det2)/det0)*exp(-FC00_exp)
 
 ! Calculate A, B and d matrices.
-call GetMem('A1','Allo','Real',ipA1,nOscSqr)
-call GetMem('B1','Allo','Real',ipB1,nOscSqr)
-call GetMem('A2','Allo','Real',ipA2,nOscSqr)
-call GetMem('B2','Allo','Real',ipB2,nOscSqr)
-call GetMem('d1','Allo','Real',ipd1,nOsc)
-call GetMem('d2','Allo','Real',ipd2,nOsc)
-call DGEMM_('N','N',nOsc,nOsc,nOsc,One,C1,nOsc,W,nOsc,Zero,Work(ipA1),nOsc)
-call DGEMM_('T','T',nOsc,nOsc,nOsc,One,W1,nOsc,C,nOsc,Zero,Work(iptemp),nOsc)
-!B1 = A1-temp
-call dcopy_(nOscSqr,Work(ipA1),1,Work(ipB1),1)
-call Daxpy_(nOscSqr,-One,Work(iptemp),1,Work(ipB1),1)
+call mma_allocate(A1,nOsc,nOsc,label='A1')
+call mma_allocate(B1,nOsc,nOsc,label='B1')
+call mma_allocate(A2,nOsc,nOsc,label='A2')
+call mma_allocate(B2,nOsc,nOsc,label='B2')
+call mma_allocate(d1,nOsc,label='d1')
+call mma_allocate(d2,nOsc,label='d2')
+call DGEMM_('N','N',nOsc,nOsc,nOsc,One,C1,nOsc,W,nOsc,Zero,A1,nOsc)
+call DGEMM_('T','T',nOsc,nOsc,nOsc,One,W1,nOsc,C,nOsc,Zero,temp,nOsc)
+B1(:,:) = A1-temp
 
-call DGEMM_('T','N',nOsc,1,nOsc,One,W1,nOsc,Work(ipr_temp2),nOsc,Zero,Work(ipd1),nOsc)
-const = Work(ipsqr+8)
-call dscal_(nOsc,const,Work(ipd1),1)
-call DGEMM_('N','N',nOsc,nOsc,nOsc,One,C2,nOsc,W,nOsc,Zero,Work(ipA2),nOsc)
-call DGEMM_('T','T',nOsc,nOsc,nOsc,One,W2,nOsc,C,nOsc,Zero,Work(iptemp),nOsc)
-!B2 = A2-temp
-call dcopy_(nOscSqr,Work(ipA2),1,Work(ipB2),1)
-call Daxpy_(nOscSqr,-One,Work(iptemp),1,Work(ipB2),1)
+const = sqr(8)
+call DGEMM_('T','N',nOsc,1,nOsc,const,W1,nOsc,r_temp2,nOsc,Zero,d1,nOsc)
+call DGEMM_('N','N',nOsc,nOsc,nOsc,One,C2,nOsc,W,nOsc,Zero,A2,nOsc)
+call DGEMM_('T','T',nOsc,nOsc,nOsc,One,W2,nOsc,C,nOsc,Zero,temp,nOsc)
+B2(:,:) = A2-temp
 
-call DGEMM_('T','N',nOsc,1,nOsc,One,W2,nOsc,Work(ipr_temp2),nOsc,Zero,Work(ipd2),nOsc)
-const = -Work(ipsqr+8)
-call dscal_(nOsc,const,Work(ipd2),1)
+const = -sqr(8)
+call DGEMM_('T','N',nOsc,1,nOsc,const,W2,nOsc,r_temp2,nOsc,Zero,d2,nOsc)
 
 ! Calculate A1B1T and A2B2T.
-call GetMem('A1B1T','Allo','Real',ipA1B1T,nOscSqr)
-call GetMem('A2B2T','Allo','Real',ipA2B2T,nOscSqr)
+call mma_allocate(A1B1T,nOsc,nOsc,label='A1B1T')
+call mma_allocate(A2B2T,nOsc,nOsc,label='A2B2T')
 
-call DGEMM_('N','T',nOsc,nOsc,nOsc,One,Work(ipA1),nOsc,Work(ipB1),nOsc,Zero,Work(ipA1B1T),nOsc)
-call DGEMM_('N','T',nOsc,nOsc,nOsc,One,Work(ipA2),nOsc,Work(ipB2),nOsc,Zero,Work(ipA2B2T),nOsc)
+call DGEMM_('N','T',nOsc,nOsc,nOsc,One,A1,nOsc,B1,nOsc,Zero,A1B1T,nOsc)
+call DGEMM_('N','T',nOsc,nOsc,nOsc,One,A2,nOsc,B2,nOsc,Zero,A2B2T,nOsc)
 
-call GetMem('temp','Free','Real',iptemp,nOscSqr)
-call GetMem('temp1','Free','Real',iptemp1,nOscSqr)
-call GetMem('temp2','Free','Real',iptemp2,nOscSqr)
-call GetMem('alpha','Free','Real',ipalpha,nOscSqr)
-call GetMem('r_temp1','Free','Real',ipr_temp1,nOsc)
-call GetMem('r_temp2','Free','Real',ipr_temp2,nOsc)
+call mma_deallocate(temp)
+call mma_deallocate(temp1)
+call mma_deallocate(temp2)
+call mma_deallocate(alpha)
+call mma_deallocate(r_temp1)
+call mma_deallocate(r_temp2)
 
 ! Initialize L matrix.
-call dcopy_((max_mord+1)*(max_ninc2+1),[Zero],0,L,1)
-!L = Zero
+L(:,:) = Zero
 L(0,0) = One
 
 ! If max_mOrd > 0 then set up L(m,0).
 if (max_mOrd > 0) then
   do kOsc=1,nOsc
-    L(mInc(0,kOsc),0) = Work(ipd1+kOsc-1)
+    L(mInc(0,kOsc),0) = d1(kOsc)
   end do
   if (max_mInc > 0) then
     do iOrd=1,max_mInc
@@ -226,11 +208,10 @@ if (max_mOrd > 0) then
       do kOsc=kOsc_start,nOsc
         do lOsc=1,nOsc
           if (mMat(iOrd,lOsc) > 0) then
-            L(mInc(iOrd,kOsc),0) = L(mInc(iOrd,kOsc),0)+Work(ipsqr+mMat(iOrd,lOsc))*Work(ipA1B1T+kOsc+nOsc*(lOsc-1)-1)* &
-                                   L(mDec(iOrd,lOsc),0)
+            L(mInc(iOrd,kOsc),0) = L(mInc(iOrd,kOsc),0)+sqr(mMat(iOrd,lOsc))*A1B1T(kOsc,lOsc)*L(mDec(iOrd,lOsc),0)
           end if
         end do
-        L(mInc(iOrd,kOsc),0) = (L(mInc(iOrd,kOsc),0)+Work(ipd1+kOsc-1)*L(iOrd,0))/Work(ipsqr+mMat(mInc(iOrd,kOsc),kOsc))
+        L(mInc(iOrd,kOsc),0) = (L(mInc(iOrd,kOsc),0)+d1(kOsc)*L(iOrd,0))/sqr(mMat(mInc(iOrd,kOsc),kOsc))
       end do
     end do
   end if
@@ -252,8 +233,7 @@ if (max_mOrd > 0) then
     do iOrd=0,max_mOrd
       do kOsc=1,nOsc
         if (mMat(iOrd,kOsc) > 0) then
-          L(iOrd,jOrd) = L(iOrd,jOrd)+(Work(ipsqr+mMat(iOrd,kOsc))/Work(ipsqr+mMat(jOrd,lOsc)))*Work(ipA1+kOsc+nOsc*(lOsc-1)-1)* &
-                         L(mDec(iOrd,kOsc),mDec(jOrd,lOsc))
+          L(iOrd,jOrd) = L(iOrd,jOrd)+sqr(mMat(iOrd,kOsc))/sqr(mMat(jOrd,lOsc))*A1(kOsc,lOsc)*L(mDec(iOrd,kOsc),mDec(jOrd,lOsc))
         end if
       end do
     end do
@@ -261,14 +241,13 @@ if (max_mOrd > 0) then
 end if
 
 ! Initialize U matrix.
-!U = Zero
-call dcopy_((max_nord+1)*(max_nord2+1),[Zero],0,U,1)
+U(:,:) = Zero
 U(0,0) = One
 
 ! If max_nOrd > 0 then set up U(n,0).
 if (max_nOrd > 0) then
   do kOsc=1,nOsc
-    U(nInc(0,kOsc),0) = Work(ipd2+kOsc-1)
+    U(nInc(0,kOsc),0) = d2(kOsc)
   end do
   if (max_nInc > 0) then
     do iOrd=1,max_nInc
@@ -280,12 +259,11 @@ if (max_nOrd > 0) then
         do lOsc=1,nOsc
           if (nMat(iOrd,lOsc) > 0) then
 
-            U(nInc(iOrd,kOsc),0) = U(nInc(iOrd,kOsc),0)+Work(ipsqr+nMat(iOrd,lOsc))*Work(ipA2B2T+kOsc+nOsc*(lOsc-1)-1)* &
-                                   U(nDec(iOrd,lOsc),0)
+            U(nInc(iOrd,kOsc),0) = U(nInc(iOrd,kOsc),0)+sqr(nMat(iOrd,lOsc))*A2B2T(kOsc,lOsc)*U(nDec(iOrd,lOsc),0)
           end if
         end do
 
-        U(nInc(iOrd,kOsc),0) = (U(nInc(iOrd,kOsc),0)+WOrk(ipd2+kOsc-1)*U(iOrd,0))/Work(ipsqr+nMat(nInc(iOrd,kOsc),kOsc))
+        U(nInc(iOrd,kOsc),0) = (U(nInc(iOrd,kOsc),0)+d2(kOsc)*U(iOrd,0))/sqr(nMat(nInc(iOrd,kOsc),kOsc))
       end do
     end do
   end if
@@ -299,26 +277,24 @@ if (max_nOrd > 0) then
     do iOrd=0,max_nOrd
       do kOsc=1,nOsc
         if (nMat(iOrd,kOsc) > 0) then
-          U(iOrd,jOrd) = U(iOrd,jOrd)+(Work(ipsqr+nMat(iOrd,kOsc))/Work(ipsqr+nMat(jOrd,lOsc)))*Work(ipA2+kOsc+nOsc*(lOsc-1)-1)* &
-                         U(nDec(iOrd,kOsc),nDec(jOrd,lOsc))
+          U(iOrd,jOrd) = U(iOrd,jOrd)+sqr(nMat(iOrd,kOsc))/sqr(nMat(jOrd,lOsc))*A2(kOsc,lOsc)*U(nDec(iOrd,kOsc),nDec(jOrd,lOsc))
         end if
       end do
     end do
   end do
 end if
 
-call GetMem('A1','Free','Real',ipA1,nOscSqr)
-call GetMem('B1','Free','Real',ipB1,nOscSqr)
-call GetMem('A2','Free','Real',ipA2,nOscSqr)
-call GetMem('B2','Free','Real',ipB2,nOscSqr)
-call GetMem('A1B1T','Free','Real',ipA1B1T,nOscSqr)
-call GetMem('A2B2T','Free','Real',ipA2B2T,nOscSqr)
-call GetMem('d1','Free','Real',ipd1,nOsc)
-call GetMem('d2','Free','Real',ipd2,nOsc)
+call mma_deallocate(A1)
+call mma_deallocate(B1)
+call mma_deallocate(A2)
+call mma_deallocate(B2)
+call mma_deallocate(A1B1T)
+call mma_deallocate(A2B2T)
+call mma_deallocate(d1)
+call mma_deallocate(d2)
 
 ! Calculate Franck-Condon factors.
-!FC = Zero
-call dcopy_((max_mord+1)*(max_nord+1),[Zero],0,FC,1)
+FC(:,:) = Zero
 do jOrd=0,max_nOrd
   do iOrd=0,max_mOrd
     sum = Zero
@@ -330,7 +306,7 @@ do jOrd=0,max_nOrd
   end do
 end do
 
-call GetMem('sqr','Free','Real',ipsqr,n+1)
+call mma_deallocate(sqr)
 
 ! Avoid unused argument warnings
 if (.false.) then

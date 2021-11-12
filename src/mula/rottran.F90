@@ -26,11 +26,6 @@ subroutine RotTranRem(Sinv,S,Mass,AtCoord,NumOfAt,NumInt)
 !    Sinv     : Real*8 three dimensional array - Inverted
 !               S matrix with rotation and translation projected out.
 !
-!  Calls:
-!    Daxpy  (ESSL)
-!    Dcopy  (ESSL)
-!    Ddot_  (ESSL)
-!
 !  Uses:
 !    LinAlg
 !
@@ -38,6 +33,7 @@ subroutine RotTranRem(Sinv,S,Mass,AtCoord,NumOfAt,NumInt)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 
 !use Linalg
@@ -50,66 +46,65 @@ real*8 Sinv(3,NumOfAt,NumInt)
 real*8 Mass(NumOfAt)
 real*8 Det, X
 integer iAtom, n, k, i, j
-#include "WrkSpc.fh"
+real*8, allocatable :: Ainv(:,:), Amat(:,:), AmatMass(:,:), Stemp(:,:,:), Temp1(:,:), Temp2(:,:)
 
 ! Initialize.
 nFree = 6
 n = 3*NumOfAt
-call GetMem('Amat','Allo','Real',ipAmat,3*NumOfAt*nFree)
-lAmat = n
-!Amat = Zero
-call dcopy_(3*NumOfAt*nFree,[Zero],0,Work(ipAmat),1)
+call mma_allocate(Amat,n,nFree,label='Amat')
+Amat(:,:) = Zero
 
 ! Invert S matrix.
-call GetMem('Temp2','Allo','Real',ipTemp2,NumInt*Numint)
+call mma_allocate(Temp2,NumInt,NumInt,label='Temp2')
 
-call DGEMM_('T','N',NumInt,NumInt,3*NumOfAt,One,S,3*NumOfAt,S,3*NumOfAt,Zero,Work(ipTemp2),NumInt)
+call DGEMM_('T','N',NumInt,NumInt,3*NumOfAt,One,S,3*NumOfAt,S,3*NumOfAt,Zero,Temp2,NumInt)
 ! Invert, by solving eq Temp2*X=Temp1. Solution computed in-place.
 ! Thus, Temp1=Unit matrix(in) and contains solution (out).
-call GetMem('Temp1','Allo','Real',ipTemp1,NumInt*Numint)
+call mma_allocate(Temp1,NumInt,NumInt,label='Temp1')
 
-call dcopy_(NumInt**2,[Zero],0,Work(ipTemp1),1)
-call dcopy_(NumInt,[One],0,Work(ipTemp1),NumInt+1)
-call Dool_MULA(Work(ipTemp2),NumInt,NumInt,Work(ipTemp1),NumInt,NumInt,det)
+Temp1(:,:) = Zero
+do i=1,NumInt
+  Temp1(i,i) = One
+end do
+call Dool_MULA(Temp2,NumInt,NumInt,Temp1,NumInt,NumInt,det)
 !PAM01 Replacement for Dool_MULA, if superstable solution is wanted:
 !Eps = 1.0e-8_wp
 !call SymSolve(Temp2,Temp1,Temp3,Temp4,Eps)
-!call dcopy_(NumInt**2,Temp3,1,Temp1,1)
+!Temp1(:,:) = Temp3
 !PAM01 End of replacement code.
 
-call DGEMM_('N','N',3*NumOfAt,NumInt,NumInt,One,S,3*NumOfAt,Work(ipTemp1),NumInt,Zero,Sinv,3*NumOfAt)
-call GetMem('Temp1','Free','Real',ipTemp1,NumInt*Numint)
-call GetMem('Temp2','Free','Real',ipTemp2,NumInt*Numint)
+call DGEMM_('N','N',3*NumOfAt,NumInt,NumInt,One,S,3*NumOfAt,Temp1,NumInt,Zero,Sinv,3*NumOfAt)
+call mma_deallocate(Temp1)
+call mma_deallocate(Temp2)
 
 ! Pure translation.
-k = 1
+k = 0
 do iAtom=1,NumOfAt
-  Work(ipAmat+k-1) = One
-  Work(ipAmat+k+lAmat) = One
-  Work(ipAmat+k+1+lAmat*2) = One
+  Amat(k+1,1) = One
+  Amat(k+2,2) = One
+  Amat(k+3,3) = One
   k = k+3
 end do
 
 ! Pure rotation.
-k = 1
+k = 0
 do iAtom=1,NumOfAt
-  Work(ipAmat+k+lAmat*3-1) = -AtCoord(2,iAtom)
-  Work(ipAmat+k+1+lAmat*3-1) = AtCoord(1,iAtom)
-  Work(ipAmat+k+2+lAmat*3-1) = Zero
-  Work(ipAmat+k+lAmat*4-1) = AtCoord(3,iAtom)
-  Work(ipAmat+k+1+lAmat*4-1) = Zero
-  Work(ipAmat+k+2+lAmat*4-1) = -AtCoord(1,iAtom)
-  Work(ipAmat+k+lAmat*5-1) = Zero
-  Work(ipAmat+k+1+lAmat*5-1) = -AtCoord(3,iAtom)
-  Work(ipAmat+k+2+lAmat*5-1) = AtCoord(2,iAtom)
+  Amat(k+1,4) = -AtCoord(2,iAtom)
+  Amat(k+2,4) = AtCoord(1,iAtom)
+  Amat(k+3,4) = Zero
+  Amat(k+1,5) = AtCoord(3,iAtom)
+  Amat(k+2,5) = Zero
+  Amat(k+3,5) = -AtCoord(1,iAtom)
+  Amat(k+1,6) = Zero
+  Amat(k+2,6) = -AtCoord(3,iAtom)
+  Amat(k+3,6) = AtCoord(2,iAtom)
   k = k+3
 end do
 
 ! Scale with the mass of the atom.
 n = 3*NumOfAt
-call GetMem('AmatMass','Allo','Real',ipAmatMass,3*NumOfAt*nFree)
-!AmatMass = Amat
-call dcopy_(lAmat*nFree,Work(ipAmat),1,Work(ipAmatMass),1)
+call mma_allocate(AmatMass,n,nFree,label='AmatMass')
+AmatMass(:,:) = Amat
 !PAM04: Replace the following code section...
 !do i=1,nFree
 !  Acol => AmatMass(:,i)
@@ -126,40 +121,41 @@ call dcopy_(lAmat*nFree,Work(ipAmat),1,Work(ipAmatMass),1)
 do i=1,nFree
   do j=1,NumOfAt
     X = uToAu*Mass(j)
-    Work(ipAmatMass+1+3*(j-1)+lAmat*(i-1)-1) = X*Work(ipAmatMass+1+3*(j-1)+lAmat*(i-1)-1)
-    Work(ipAmatMass+2+3*(j-1)+lAmat*(i-1)-1) = X*Work(ipAmatMass+2+3*(j-1)+lAmat*(i-1)-1)
-    Work(ipAmatMass+3+3*(j-1)+lAmat*(i-1)-1) = X*Work(ipAmatMass+3+3*(j-1)+lAmat*(i-1)-1)
+    AmatMass(1+3*(j-1),i) = X*AmatMass(1+3*(j-1),i)
+    AmatMass(2+3*(j-1),i) = X*AmatMass(2+3*(j-1),i)
+    AmatMass(3+3*(j-1),i) = X*AmatMass(3+3*(j-1),i)
   end do
 end do
 !PAM04: ... until here.
 
 ! Project rotation and translation out of S matrix.
-call GetMem('Temp1','Allo','Real',ipTemp1,nFree*nFree)
-call DGEMM_('T','N',nFree,nFree,3*NumOfAt,One,Work(ipAmatMass),3*NumOfAt,Work(ipAmat),3*NumOfAt,Zero,Work(ipTemp1),nFree)
-call GetMem('Ainv','Allo','Real',ipAinv,nFree*nFree)
-call dcopy_(nFree**2,[Zero],0,Work(ipAinv),1)
-call dcopy_(nFree,[One],0,Work(ipAinv),nFree+1)
-call Dool_MULA(Work(ipTemp1),nFree,nFree,Work(ipAinv),nFree,nFree,det)
-call GetMem('Temp1','Free','Real',ipTemp1,nFree*nFree)
+call mma_allocate(Temp1,nFree,nFree,label='Temp1')
+call DGEMM_('T','N',nFree,nFree,3*NumOfAt,One,AmatMass,3*NumOfAt,Amat,3*NumOfAt,Zero,Temp1,nFree)
+call mma_allocate(Ainv,nFree,nFree,label='Ainv')
+Ainv(:,:) = Zero
+do i=1,nFree
+  Ainv(i,i) = One
+end do
+call Dool_MULA(Temp1,nFree,nFree,Ainv,nFree,nFree,det)
+call mma_deallocate(Temp1)
 
-call GetMem('Temp2','Allo','Real',ipTemp2,nFree*Numint)
-call DGEMM_('T','N',nFree,NumInt,3*NumOfAt,One,Work(ipAmatMass),3*NumOfAt,Sinv,3*NumOfAt,Zero,Work(ipTemp2),nFree)
-call GetMem('AmatMass','Free','Real',ipAmatMass,3*NumOfAt*nFree)
+call mma_allocate(Temp2,nFree,NumInt,label='Temp2')
+call DGEMM_('T','N',nFree,NumInt,3*NumOfAt,One,AmatMass,3*NumOfAt,Sinv,3*NumOfAt,Zero,Temp2,nFree)
+call mma_deallocate(AmatMass)
 
-call GetMem('Temp3','Allo','Real',ipTemp3,nFree*Numint)
+call mma_allocate(Temp1,nFree,NumInt,label='Temp1')
 
-call DGEMM_('N','N',nFree,NumInt,nFree,One,Work(ipAinv),nFree,Work(ipTemp2),nFree,Zero,Work(ipTemp3),nFree)
-call GetMem('Ainv','Free','Real',ipAinv,nFree*nFree)
-call GetMem('Temp2','Free','Real',ipTemp2,nFree*Numint)
+call DGEMM_('N','N',nFree,NumInt,nFree,One,Ainv,nFree,Temp2,nFree,Zero,Temp1,nFree)
+call mma_deallocate(Ainv)
+call mma_deallocate(Temp2)
 
-call GetMem('Stemp','Allo','Real',ipStemp,3*NumOfAt*Numint)
-call DGEMM_('N','N',3*NumOfAt,NumInt,nFree,One,Work(ipAmat),3*NumOfAt,Work(ipTemp3),nFree,Zero,work(ipStemp),3*NumOfAt)
-call GetMem('Amat','Free','Real',ipAmat,3*NumOfAt*nFree)
-call GetMem('Temp3','Free','Real',ipTemp3,nFree*Numint)
+call mma_allocate(Stemp,3,NumOfAt,NumInt,label='Stemp')
+call DGEMM_('N','N',3*NumOfAt,NumInt,nFree,One,Amat,3*NumOfAt,Temp1,nFree,Zero,Stemp,3*NumOfAt)
+call mma_deallocate(Amat)
+call mma_deallocate(Temp1)
 
-!Sinv = Sinv-Stemp
-call daxpy_(3*NumOfAt*Numint,-One,Work(ipStemp),1,Sinv,1)
+Sinv(:,:,:) = Sinv-Stemp
 
-call GetMem('Stemp','Free','Real',ipStemp,3*NumOfAt*Numint)
+call mma_deallocate(Stemp)
 
 end subroutine RotTranRem

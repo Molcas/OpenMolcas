@@ -366,12 +366,9 @@ SinTheta = sin(Theta)
 F1 = NR2(2)*NR3(3)-NR2(3)*NR3(2)
 F2 = NR2(3)*NR3(1)-NR2(1)*NR3(3)
 F3 = NR2(1)*NR3(2)-NR2(2)*NR3(1)
-F0(1) = F1
-F0(2) = F2
-F0(3) = F3
-do iv=1,3
-  F0(iv) = F0(iv)/SinTheta
-end do
+F0(1) = F1/SinTheta
+F0(2) = F2/SinTheta
+F0(3) = F3/SinTheta
 Phi = asin(Ddot_(3,F0,1,NR1,1))
 CosPhi = cos(Phi)
 TanPhi = tan(Phi)
@@ -458,9 +455,7 @@ do while (nInt <= NumInt)
     ! Bond Stretching.
     i1 = InterVec(k+1)
     i2 = InterVec(k+2)
-    do iv=1,3
-      R(iv) = (AtCoord(iv,i2)-AtCoord(iv,i1))
-    end do
+    R(:) = AtCoord(:,i2)-AtCoord(:,i1)
     call BondStr(R,i1,i2,nInt,S,NumOfAt,NumInt)
     k = k+3
   end if
@@ -469,10 +464,8 @@ do while (nInt <= NumInt)
     i1 = InterVec(k+1)
     i2 = InterVec(k+2)
     i3 = InterVec(k+3)
-    do iv=1,3
-      R1(iv) = (AtCoord(iv,i1)-AtCoord(iv,i2))
-      R2(iv) = (AtCoord(iv,i3)-AtCoord(iv,i2))
-    end do
+    R1(:) = AtCoord(:,i1)-AtCoord(:,i2)
+    R2(:) = AtCoord(:,i3)-AtCoord(:,i2)
     call AngBend(R1,R2,i1,i2,i3,nInt,S,NumOfAt,NumInt)
     k = k+4
   end if
@@ -481,10 +474,8 @@ do while (nInt <= NumInt)
     i1 = InterVec(k+1)
     i2 = InterVec(k+2)
     i3 = InterVec(k+3)
-    do iv=1,3
-      R1(iv) = (AtCoord(iv,i1)-AtCoord(iv,i2))
-      R2(iv) = (AtCoord(iv,i3)-AtCoord(iv,i2))
-    end do
+    R1(:) = AtCoord(:,i1)-AtCoord(:,i2)
+    R2(:) = AtCoord(:,i3)-AtCoord(:,i2)
     call LinBend(R1,R2,i1,i2,i3,nInt-1,S,NumOfAt,NumInt)
     k = k+4
   end if
@@ -494,11 +485,9 @@ do while (nInt <= NumInt)
     i2 = InterVec(k+2)
     i3 = InterVec(k+3)
     i4 = InterVec(k+4)
-    do iv=1,3
-      R1(iv) = (AtCoord(iv,i2)-AtCoord(iv,i1))
-      R2(iv) = (AtCoord(iv,i3)-AtCoord(iv,i2))
-      R3(iv) = (AtCoord(iv,i4)-AtCoord(iv,i3))
-    end do
+    R1(:) = AtCoord(:,i2)-AtCoord(:,i1)
+    R2(:) = AtCoord(:,i3)-AtCoord(:,i2)
+    R3(:) = AtCoord(:,i4)-AtCoord(:,i3)
     call Torsion(R1,R2,R3,i1,i2,i3,i4,nInt,S,NumOfAt,NumInt)
     k = k+5
   end if
@@ -508,11 +497,9 @@ do while (nInt <= NumInt)
     i2 = InterVec(k+2)
     i3 = InterVec(k+3)
     i4 = InterVec(k+4)
-    do iv=1,3
-      R1(iv) = (AtCoord(iv,i1)-AtCoord(iv,i4))
-      R2(iv) = (AtCoord(iv,i2)-AtCoord(iv,i4))
-      R3(iv) = (AtCoord(iv,i3)-AtCoord(iv,i4))
-    end do
+    R1(:) = AtCoord(:,i1)-AtCoord(:,i4)
+    R2(:) = AtCoord(:,i2)-AtCoord(:,i4)
+    R3(:) = AtCoord(:,i3)-AtCoord(:,i4)
     call OutOfPl(R1,R2,R3,i1,i2,i3,i4,nInt,S,NumOfAt,NumInt)
     k = k+5
   end if

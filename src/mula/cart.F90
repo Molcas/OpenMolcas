@@ -47,7 +47,6 @@ real*8 NR1(3), NR2(3), NR3(3)
 real*8 Normal123(3), Normal234(3)
 real*8 G1(3), G2(3), G3(3)
 integer i1, i2, k, nInt, i3, i4
-integer iv
 real*8 SR1, SR2, SR3, SR, R2R3, Area
 real*8 cosv, sinv, cosv0, sinv0, cosdv, sindv
 real*8 cos123, sin123, cot123, cos234, sin234, cot234
@@ -60,15 +59,11 @@ do while (nInt <= NumInt)
     ! Bond.
     i1 = InterVec(k+1)
     i2 = InterVec(k+2)
-    do iv=1,3
-      R(iv) = (AtCoord(iv,i1)-AtCoord(iv,i2))
-    end do
+    R(:) = AtCoord(:,i1)-AtCoord(:,i2)
     SR = sqrt(R(1)**2+R(2)**2+R(3)**2)
     xvec(nInt) = SR
-    do iv=1,3
-      BMatrix(iv,i1,nInt) = R(iv)/SR
-      BMatrix(iv,i2,nInt) = -R(iv)/SR
-    end do
+    BMatrix(:,i1,nInt) = R/SR
+    BMatrix(:,i2,nInt) = -R/SR
     !write(u6,*) ' Bond. i1,i2=',i1,i2
     !write(u6,'(1x,a,3F16.8)') ' R=',R
     !write(u6,'(1x,a,3F16.8)') 'SR=',SR
@@ -82,10 +77,8 @@ do while (nInt <= NumInt)
     i1 = InterVec(k+1)
     i2 = InterVec(k+2)
     i3 = InterVec(k+3)
-    do iv=1,3
-      R1(iv) = (AtCoord(iv,i1)-AtCoord(iv,i2))
-      R2(iv) = (AtCoord(iv,i2)-AtCoord(iv,i3))
-    end do
+    R1(:) = AtCoord(:,i1)-AtCoord(:,i2)
+    R2(:) = AtCoord(:,i2)-AtCoord(:,i3)
     SR1 = sqrt(R1(1)**2+R1(2)**2+R1(3)**2)
     SR2 = sqrt(R2(1)**2+R2(2)**2+R2(3)**2)
     cosv = -(R1(1)*R2(1)+R1(2)*R2(2)+R1(3)*R2(3))/(SR1*SR2)
@@ -93,11 +86,9 @@ do while (nInt <= NumInt)
     if (cosv < -One) cosv = -One
     sinv = sqrt(One-cosv**2)
     xvec(nInt) = atan2(sinv,cosv)
-    do iv=1,3
-      BMatrix(iv,i1,nInt) = (SR1*R2(iv)+SR2*cosv*R1(iv))/(SR1**2*SR2*sinv)
-      BMatrix(iv,i3,nInt) = -(SR2*R1(iv)+SR1*cosv*R2(iv))/(SR2**2*SR1*sinv)
-      BMatrix(iv,i2,nInt) = -(BMatrix(iv,i1,nInt)+BMatrix(iv,i3,nInt))
-    end do
+    BMatrix(:,i1,nInt) = (SR1*R2+SR2*cosv*R1)/(SR1**2*SR2*sinv)
+    BMatrix(:,i3,nInt) = -(SR2*R1+SR1*cosv*R2)/(SR2**2*SR1*sinv)
+    BMatrix(:,i2,nInt) = -(BMatrix(:,i1,nInt)+BMatrix(:,i3,nInt))
     !write(u6,*) ' Angle. i1,i2,i3=',i1,i2,i3
     !write(u6,'(1x,a,3F16.8)') ' R1=',R1
     !write(u6,'(1x,a,3F16.8)') ' R2=',R2
@@ -113,10 +104,8 @@ do while (nInt <= NumInt)
     i1 = InterVec(k+1)
     i2 = InterVec(k+2)
     i3 = InterVec(k+3)
-    do iv=1,3
-      R1(iv) = (AtCoord(iv,i1)-AtCoord(iv,i2))
-      R2(iv) = (AtCoord(iv,i2)-AtCoord(iv,i3))
-    end do
+    R1(:) = AtCoord(:,i1)-AtCoord(:,i2)
+    R2(:) = AtCoord(:,i2)-AtCoord(:,i3)
     SR1 = sqrt(R1(1)**2+R1(2)**2+R1(3)**2)
     SR2 = sqrt(R2(1)**2+R2(2)**2+R2(3)**2)
     cosv = -(R1(1)*R2(1)+R1(2)*R2(2)+R1(3)*R2(3))/(SR1*SR2)
@@ -139,19 +128,15 @@ do while (nInt <= NumInt)
     i2 = InterVec(k+2)
     i3 = InterVec(k+3)
     i4 = InterVec(k+4)
-    do iv=1,3
-      R1(iv) = (AtCoord(iv,i1)-AtCoord(iv,i2))
-      R2(iv) = (AtCoord(iv,i2)-AtCoord(iv,i3))
-      R3(iv) = (AtCoord(iv,i3)-AtCoord(iv,i4))
-    end do
+    R1(:) = AtCoord(:,i1)-AtCoord(:,i2)
+    R2(:) = AtCoord(:,i2)-AtCoord(:,i3)
+    R3(:) = AtCoord(:,i3)-AtCoord(:,i4)
     SR1 = sqrt(R1(1)**2+R1(2)**2+R1(3)**2)
     SR2 = sqrt(R2(1)**2+R2(2)**2+R2(3)**2)
     SR3 = sqrt(R3(1)**2+R3(2)**2+R3(3)**2)
-    do iv=1,3
-      NR1(iv) = R1(iv)/SR1
-      NR2(iv) = R2(iv)/SR2
-      NR3(iv) = R3(iv)/SR3
-    end do
+    NR1(:) = R1/SR1
+    NR2(:) = R2/SR2
+    NR3(:) = R3/SR3
     cos123 = -(NR1(1)*NR2(1)+NR1(2)*NR2(2)+NR1(3)*NR2(3))
     if (cos123 > One) cos123 = One
     if (cos123 < -One) cos123 = -One
@@ -181,17 +166,13 @@ do while (nInt <= NumInt)
     sindv = sinv*cosv0-cosv*sinv0
     cosdv = cosv*cosv0+sinv*sinv0
     xvec(nInt) = xvec(nInt)+atan2(sindv,cosdv)
-    do iv=1,3
-      G1(iv) = Normal123(iv)/(SR1*sin123)
-      G3(iv) = Normal234(iv)/(SR3*sin234)
-      G2(iv) = (cot123*Normal123(iv)+cot234*Normal234(iv))/SR2
-    end do
-    do iv=1,3
-      BMatrix(iv,i1,nInt) = G1(iv)
-      BMatrix(iv,i2,nInt) = -G1(iv)+G2(iv)
-      BMatrix(iv,i3,nInt) = -G2(iv)+G3(iv)
-      BMatrix(iv,i4,nInt) = -G3(iv)
-    end do
+    G1(:) = Normal123/(SR1*sin123)
+    G3(:) = Normal234/(SR3*sin234)
+    G2(:) = (cot123*Normal123+cot234*Normal234)/SR2
+    BMatrix(:,i1,nInt) = G1
+    BMatrix(:,i2,nInt) = -G1+G2
+    BMatrix(:,i3,nInt) = -G2+G3
+    BMatrix(:,i4,nInt) = -G3
     !write(u6,*) ' Torsion. i1,i2,i3,i4=',i1,i2,i3,i4
     !write(u6,'(1x,a,3F16.8)') ' R1=',R1
     !write(u6,'(1x,a,3F16.8)') ' R2=',R2
@@ -209,11 +190,9 @@ do while (nInt <= NumInt)
     i2 = InterVec(k+2)
     i3 = InterVec(k+3)
     i4 = InterVec(k+4)
-    do iv=1,3
-      R1(iv) = (AtCoord(iv,i1)-AtCoord(iv,i2))
-      R2(iv) = (AtCoord(iv,i2)-AtCoord(iv,i3))
-      R3(iv) = (AtCoord(iv,i3)-AtCoord(iv,i4))
-    end do
+    R1(:) = AtCoord(:,i1)-AtCoord(:,i2)
+    R2(:) = AtCoord(:,i2)-AtCoord(:,i3)
+    R3(:) = AtCoord(:,i3)-AtCoord(:,i4)
     SR1 = sqrt(R1(1)**2+R1(2)**2+R1(3)**2)
     SR2 = sqrt(R2(1)**2+R2(2)**2+R2(3)**2)
     SR3 = sqrt(R3(1)**2+R3(2)**2+R3(3)**2)
@@ -240,12 +219,10 @@ do while (nInt <= NumInt)
     G3(1) = (R1(2)*R2(3)-R2(2)*R1(3)-(SR1*sinv/Area)*(SR2*R3(1)-R2R3*R2(1)))/(SR1*Area*cosv)
     G3(2) = (R1(3)*R2(1)-R2(3)*R1(1)-(SR1*sinv/Area)*(SR2*R3(2)-R2R3*R2(2)))/(SR1*Area*cosv)
     G3(3) = (R1(1)*R2(2)-R2(1)*R1(2)-(SR1*sinv/Area)*(SR2*R3(3)-R2R3*R2(3)))/(SR1*Area*cosv)
-    do iv=1,3
-      BMatrix(iv,i1,nInt) = G1(iv)
-      BMatrix(iv,i2,nInt) = -G1(iv)+G2(iv)
-      BMatrix(iv,i3,nInt) = -G2(iv)+G3(iv)
-      BMatrix(iv,i4,nInt) = -G3(iv)
-    end do
+    BMatrix(:,i1,nInt) = G1
+    BMatrix(:,i2,nInt) = -G1+G2
+    BMatrix(:,i3,nInt) = -G2+G3
+    BMatrix(:,i4,nInt) = -G3
     k = k+5
     nInt = nInt+1
   end if
@@ -287,7 +264,7 @@ real*8 R(3), R1(3), R2(3), R3(3)
 real*8 NR1(3), NR2(3), NR3(3)
 real*8 Normal123(3), Normal234(3)
 !real*8 G1(3), G2(3), G3(3)
-integer i1, i2, k, nInt, i3, i4, iv
+integer i1, i2, k, nInt, i3, i4
 real*8 SR1, SR2, SR3, SR, R2R3
 real*8 cosv, sinv, cosv0, sinv0, cosdv, sindv
 real*8 cos123, sin123, cos234, sin234
@@ -300,9 +277,7 @@ do while (nInt <= NumInt)
     ! Bond.
     i1 = InterVec(k+1)
     i2 = InterVec(k+2)
-    do iv=1,3
-      R(iv) = (AtCoord(iv,i1)-AtCoord(iv,i2))
-    end do
+    R(:) = AtCoord(:,i1)-AtCoord(:,i2)
     SR = sqrt(R(1)**2+R(2)**2+R(3)**2)
     xvec(nInt) = SR
     k = k+3
@@ -313,10 +288,8 @@ do while (nInt <= NumInt)
     i1 = InterVec(k+1)
     i2 = InterVec(k+2)
     i3 = InterVec(k+3)
-    do iv=1,3
-      R1(iv) = (AtCoord(iv,i1)-AtCoord(iv,i2))
-      R2(iv) = (AtCoord(iv,i2)-AtCoord(iv,i3))
-    end do
+    R1(:) = AtCoord(:,i1)-AtCoord(:,i2)
+    R2(:) = AtCoord(:,i2)-AtCoord(:,i3)
     SR1 = sqrt(R1(1)**2+R1(2)**2+R1(3)**2)
     SR2 = sqrt(R2(1)**2+R2(2)**2+R2(3)**2)
     cosv = -(R1(1)*R2(1)+R1(2)*R2(2)+R1(3)*R2(3))/(SR1*SR2)
@@ -333,16 +306,12 @@ do while (nInt <= NumInt)
     i1 = InterVec(k+1)
     i2 = InterVec(k+2)
     i3 = InterVec(k+3)
-    do iv=1,3
-      R1(iv) = (AtCoord(iv,i1)-AtCoord(iv,i2))
-      R2(iv) = (AtCoord(iv,i3)-AtCoord(iv,i2))
-    end do
+    R1(:) = AtCoord(:,i1)-AtCoord(:,i2)
+    R2(:) = AtCoord(:,i3)-AtCoord(:,i2)
     SR1 = sqrt(R1(1)**2+R1(2)**2+R1(3)**2)
     SR2 = sqrt(R2(1)**2+R2(2)**2+R2(3)**2)
-    do iv=1,3
-      NR1(iv) = R1(iv)/SR1
-      NR2(iv) = R2(iv)/SR2
-    end do
+    NR1(:) = R1/SR1
+    NR2(:) = R2/SR2
     cosv = NR1(1)*NR2(1)+NR1(2)*NR2(2)+NR1(3)*NR2(3)
     if (cosv > One) cosv = One
     if (cosv < -One) cosv = -One
@@ -356,19 +325,15 @@ do while (nInt <= NumInt)
     i2 = InterVec(k+2)
     i3 = InterVec(k+3)
     i4 = InterVec(k+4)
-    do iv=1,3
-      R1(iv) = (AtCoord(iv,i1)-AtCoord(iv,i2))
-      R2(iv) = (AtCoord(iv,i2)-AtCoord(iv,i3))
-      R3(iv) = (AtCoord(iv,i3)-AtCoord(iv,i4))
-    end do
+    R1(:) = AtCoord(:,i1)-AtCoord(:,i2)
+    R2(:) = AtCoord(:,i2)-AtCoord(:,i3)
+    R3(:) = AtCoord(:,i3)-AtCoord(:,i4)
     SR1 = sqrt(R1(1)**2+R1(2)**2+R1(3)**2)
     SR2 = sqrt(R2(1)**2+R2(2)**2+R2(3)**2)
     SR3 = sqrt(R3(1)**2+R3(2)**2+R3(3)**2)
-    do iv=1,3
-      NR1(iv) = R1(iv)/SR1
-      NR2(iv) = R2(iv)/SR2
-      NR3(iv) = R3(iv)/SR3
-    end do
+    NR1(:) = R1/SR1
+    NR2(:) = R2/SR2
+    NR3(:) = R3/SR3
     cos123 = -(NR1(1)*NR2(1)+NR1(2)*NR2(2)+NR1(3)*NR2(3))
     if (cos123 > One) cos123 = One
     if (cos123 < -One) cos123 = -One
@@ -405,11 +370,9 @@ do while (nInt <= NumInt)
     i2 = InterVec(k+2)
     i3 = InterVec(k+3)
     i4 = InterVec(k+4)
-    do iv=1,3
-      R1(iv) = (AtCoord(iv,i1)-AtCoord(iv,i2))
-      R2(iv) = (AtCoord(iv,i2)-AtCoord(iv,i3))
-      R3(iv) = (AtCoord(iv,i3)-AtCoord(iv,i4))
-    end do
+    R1(:) = AtCoord(:,i1)-AtCoord(:,i2)
+    R2(:) = AtCoord(:,i2)-AtCoord(:,i3)
+    R3(:) = AtCoord(:,i3)-AtCoord(:,i4)
     SR1 = sqrt(R1(1)**2+R1(2)**2+R1(3)**2)
     SR2 = sqrt(R2(1)**2+R2(2)**2+R2(3)**2)
     SR3 = sqrt(R3(1)**2+R3(2)**2+R3(3)**2)
@@ -441,30 +404,7 @@ subroutine Int_to_Cart1(InterVec,xvec,AtCoord,NumOfAt,NumInt)
 !    Per Ake Malmqvist
 !    Dept. of Theoretical Chemistry, Lund University, 2000.
 
-!implicit none
-#include "Constants_mula.fh"
-integer NumInt, NumOfAt
-!integer ncart, iter
-!real*8 sum, RMSErr
-integer InterVec(*)
-real*8 xvec(NumInt)
-real*8 AtCoord(3,NumOfAt)
-#include "WrkSpc.fh"
-
-call GetMem('Bmatrix','Allo','Real',ipBmatrix,3*NumOfAt*NumInt)
-call Int_to_Cart1_a(InterVec,xvec,AtCoord,NumOfAt,NumInt,Work(ipBmatrix))
-call GetMem('Bmatrix','Free','Real',ipBmatrix,3*NumOfAt*NumInt)
-
-end subroutine Int_to_Cart1
-!####
-subroutine Int_to_Cart1_a(InterVec,xvec,AtCoord,NumOfAt,NumInt,Bmatrix)
-!  Purpose:
-!    Transform a set of internal coordinates to cartesian coordinates.
-!
-!  Written by:
-!    Per Ake Malmqvist
-!    Dept. of Theoretical Chemistry, Lund University, 2000.
-
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, u6
 
@@ -476,10 +416,11 @@ real*8 sum, RMSErr, det
 integer InterVec(*)
 real*8 xvec(NumInt)
 real*8 AtCoord(3,NumOfAt)
-real*8 BMatrix(3,NumOfAt,NumInt)
-#include "WrkSpc.fh"
+real*8, allocatable :: BMatrix(:,:,:), EqMat(:,:), EqRHS(:), xvectmp(:)
 
 ! Initialize.
+
+call mma_allocate(BMatrix,3,NumOfAt,NumInt,label='BMatrix')
 
 ! Purpose: For a given array InterVec, which describes the set of
 ! internal coordinates, and a given array xvec with values of these
@@ -489,13 +430,11 @@ real*8 BMatrix(3,NumOfAt,NumInt)
 ! Method: Newton-Raphson iteration, modified by Gauss' approximation
 ! in each iteration.
 ncart = 3*NumOfAt
-!vv call GetMem('Bmatrix','Allo','Real',ipBmatrix,3*NumOfAt*NumInt)
 
-!BMatrix = Zero
-call dcopy_(3*NumOfAt*NumInt,[Zero],0,Bmatrix,1)
-call GetMem('EqMat','Allo','Real',ipEqMat,ncart*ncart)
-call GetMem('EqRHS','Allo','Real',ipEqRHS,ncart)
-call GetMem('xvectmp','Allo','Real',ipxvectmp,NumInt)
+BMatrix(:,:,:) = Zero
+call mma_allocate(EqMat,ncart,ncart,label='EqMat')
+call mma_allocate(EqRHS,ncart,label='EqRHS')
+call mma_allocate(xvectmp,NumInt,label='xvectmp')
 !write(u6,*) ' Int_to_Cart1 has been called with target internal coordinates:'
 !write(u6,'(1x,5F16.8)') xvec
 iter = 0
@@ -508,13 +447,13 @@ do while (RMSErr > 1.0e-12_wp)
   end if
   ! Find the current internal coordinates and B matrix:
   !xvectmp = xvec
-  call dcopy_(NumInt,xvec,1,Work(ipxvectmp),1)
-  call Cart_to_Int1(InterVec,AtCoord,Work(ipxvectmp),BMatrix,NumOfAt,NumInt)
+  xvectmp(:) = xvec
+  call Cart_to_Int1(InterVec,AtCoord,xvectmp,BMatrix,NumOfAt,NumInt)
 
   ! Present error:
   sum = Zero
   do k=1,NumInt
-    sum = sum+(Work(ipxvectmp+k-1)-xvec(k))**2
+    sum = sum+(xvectmp(k)-xvec(k))**2
   end do
   RMSErr = sqrt(sum)
   ! The B matrix is the matrix of partial derivatives of xvectmp with
@@ -533,7 +472,7 @@ do while (RMSErr > 1.0e-12_wp)
           do k=1,NumInt
             sum = sum+BMatrix(i2,i1,k)*BMatrix(j2,j1,k)
           end do
-          Work(ipEqMat+ii+ncart*(jj-1)-1) = sum
+          EqMat(ii,jj) = sum
         end do
       end do
     end do
@@ -545,9 +484,9 @@ do while (RMSErr > 1.0e-12_wp)
       ii = ii+1
       sum = Zero
       do k=1,NumInt
-        sum = sum+BMatrix(i2,i1,k)*(xvec(k)-Work(ipxvectmp+k-1))
+        sum = sum+BMatrix(i2,i1,k)*(xvec(k)-xvectmp(k))
       end do
-      Work(ipEqRHS+ii-1) = sum
+      EqRHS(ii) = sum
     end do
   end do
   !D write(u6,*) ' EqRHS:'
@@ -555,10 +494,10 @@ do while (RMSErr > 1.0e-12_wp)
   ! Automatic step limitation, and in fact ensuring that we go in the
   ! direction of minimization always, is achieved indirectly:
   do j=1,ncart
-    Work(ipEqMat+j+ncart*(j-1)-1) = Work(ipEqMat+j+ncart*(j-1)-1)+1.0e-12_wp
+    EqMat(j,j) = EqMat(j,j)+1.0e-12_wp
   end do
   ! Solve the linear equation system:
-  call Dool_MULA(Work(ipEqMat),ncart,ncart,Work(ipEqRHS),ncart,1,det)
+  call Dool_MULA(EqMat,ncart,ncart,EqRHS,ncart,1,det)
   !D write(u6,*) ' Solution vector:'
   !D write(u6,'(1x,5f16.8)') EqRHS
   ! After return from dool, EqMat is destroyed and EqRHS is solution.
@@ -567,7 +506,7 @@ do while (RMSErr > 1.0e-12_wp)
   do i1=1,NumOfAt
     do i2=1,3
       ii = ii+1
-      AtCoord(i2,i1) = AtCoord(i2,i1)+Work(ipEqRHS+ii-1)
+      AtCoord(i2,i1) = AtCoord(i2,i1)+EqRHS(ii)
     end do
   end do
   !write(u6,*) ' Iteration iter=',iter
@@ -577,10 +516,11 @@ do while (RMSErr > 1.0e-12_wp)
   !end do
   !write(u6,*) 'RMSErr:',RMSErr
 end do
-call GetMem('EqMat','Free','Real',ipEqMat,ncart*ncart)
-call GetMem('EqRHS','Free','Real',ipEqRHS,ncart)
-call GetMem('xvectmp','Free','Real',ipxvectmp,NumInt)
+call mma_deallocate(EqMat)
+call mma_deallocate(EqRHS)
+call mma_deallocate(xvectmp)
+call mma_deallocate(BMatrix)
 
 return
 
-end subroutine Int_to_Cart1_a
+end subroutine Int_to_Cart1

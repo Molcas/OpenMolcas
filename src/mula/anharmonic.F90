@@ -27,6 +27,7 @@ subroutine AnharmonicFreq(x_anharm,harmfreq,anharmfreq,nOsc)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1996.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 
 implicit real*8(a-h,o-z)
@@ -35,29 +36,23 @@ real*8 G1, G2
 real*8 x_anharm(nosc,nosc)
 real*8 harmfreq(nosc)
 real*8 anharmfreq(nosc)
-#include "WrkSpc.fh"
+integer, allocatable :: level1(:), level2(:)
 
 !nDim = nOsc
-call GetMem('level1','Allo','Inte',iplevel1,nOsc)
-call GetMem('level2','Allo','Inte',iplevel2,nOsc)
+call mma_allocate(level1,nOsc,label='level1')
+call mma_allocate(level2,nOsc,label='level2')
 
 G1 = Zero
 G2 = G1
-do iv=0,nOsc-1
-  iWork(iplevel1+iv) = 0
-end do
-!level1 = 0
+level1(:) = 0
 do istate=1,nOsc
-  do iv=0,nOsc-1
-    iWork(iplevel2+iv) = 0
-  end do
-  !level2 = 0
-  iWork(iplevel2+istate-1) = 1
+  level2(:) = 0
+  level2(istate) = 1
   !l_harm = nOsc
-  call TransEnergy(G1,x_anharm,harmfreq,iWork(iplevel1),G2,x_anharm,harmfreq,iWork(iplevel2),anharmfreq(istate),nOsc)
+  call TransEnergy(G1,x_anharm,harmfreq,level1,G2,x_anharm,harmfreq,level2,anharmfreq(istate),nOsc)
 end do
 
-call GetMem('level1','Free','Inte',iplevel1,nOsc)
-call GetMem('level2','Free','Inte',iplevel2,nOsc)
+call mma_deallocate(level1)
+call mma_deallocate(level2)
 
 end subroutine AnharmonicFreq

@@ -80,7 +80,8 @@ subroutine VibFreq(AtCoord,xvec,InterVec,Mass,Hess,G,Gprime,Gdbleprime,harmfreq,
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
-use Constants, only: Zero
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
 use Definitions, only: wp
 
 implicit real*8(a-h,o-z)
@@ -103,45 +104,39 @@ real*8 x_anharm(nosc,nOsc)
 real*8 Gprime(ngdim,ngdim,ngdim)
 real*8 Gdbleprime(ngdim,ngdim,ngdim,ngdim)
 logical Cartesian
-#include "WrkSpc.fh"
+real*8, allocatable :: B(:,:), Bnew(:,:), Lambda(:), V(:,:)
 
 ! Initialize.
 !D write(u6,*) ' Entered VIBFREQ.'
 NumInt = nOsc
 !D write(u6,*) ' NumInt:',NumInt
 !D write(u6,*) ' NumOfAt:',NumOfAt
-call GetMem('S','Allo','Real',ipS,3*NumOfAt*NumInt)
-call GetMem('V','Allo','Real',ipV,NumInt*NumInt)
-call GetMem('B','Allo','Real',ipB,3*NumOfAt*NumInt)
+call mma_allocate(V,NumInt,NumInt,label='V')
+call mma_allocate(B,3*NumOfAt,NumInt,label='B')
 
-call GetMem('Bnew','Allo','Real',ipBnew,3*NumOfAt*NumInt)
-call GetMem('Lambda','Allo','Real',ipLambda,NumInt)
-call dcopy_(3*NumOfAt*NumInt,[Zero],0,Work(ipS),1)
+call mma_allocate(Bnew,3*NumOfAt,NumInt,label='Bnew')
+call mma_allocate(Lambda,NumInt,label='Lambda')
 
 ! Transform coordinates.
-!xvec = Zero
-call dcopy_(nosc,[Zero],0,xvec,1)
+xvec(:) = Zero
 !D write(u6,*) ' VIBFREQ, calling Cart_to_Int0.'
 call Cart_To_Int0(InterVec,AtCoord,xvec,NumOfAt,NumInt)
 !D write(u6,*) ' VIBFREQ, back from Cart_to_Int0.'
 !D write(u6,*) ' xvec:'
 !D write(u6,'(5f16.8)') xvec
 
-! Calculate the contributions to the S matrix for each internal coordinate.
-!S = Zero
-call dcopy_(3*NumOfAt*NumInt,[Zero],0,Work(ipS),1)
+! Calculate the contributions to the B matrix for each internal coordinate.
+B(:,:) = Zero
 !D write(u6,*) ' VIBFREQ, calling CalcS.'
-call CalcS(AtCoord,InterVec,Work(ipS),NumInt,NumOfAt)
+call CalcS(AtCoord,InterVec,B,NumInt,NumOfAt)
 !D write(u6,*) ' VIBFREQ, back from CalcS.'
 
 ! Calculate G matrix and first and second derivatives of the G matrix.
 !D write(u6,*) ' VIBFREQ, calling CalcG.'
-call CalcG(G,Mass,Work(ipS),NumInt,NumOfAt)
+call CalcG(G,Mass,B,NumInt,NumOfAt)
 !D Write(u6,*) ' VIBFREQ, back from CalcG.'
-!Gprime = Zero
-!Gdbleprime = Zero
-call dcopy_(ngdim**3,[Zero],0,GPrime,1)
-call dcopy_(ngdim**4,[Zero],0,GdblePrime,1)
+Gprime(:,:,:) = Zero
+Gdbleprime(:,:,:,:) = Zero
 if (max_term > 2) then
   dh = 1.0e-3_wp
   call CalcGprime(Gprime,Mass,xvec,InterVec,AtCoord,NumOfAt,dh,NumInt)
@@ -149,77 +144,44 @@ if (max_term > 2) then
   call CalcGdbleprime(Gdbleprime,Mass,xvec,InterVec,AtCoord,NumOfAt,dh,NumInt)
 end if
 
-! Transform three dimensional array S into two dimensional array B.
-do j=1,NumInt
-  k = 1
-  do i=1,NumOfAt
-    Work(ipB+k+3*NumOfAt*(j-1)-1) = Work(ipS+3*(i-1+NumOfAt*(j-1)))
-    Work(ipB+k+3*NumOfAt*(j-1)) = Work(ipS+1+3*(i-1+NumOfAt*(j-1)))
-    Work(ipB+k+3*NumOfAt*(j-1)+1) = Work(ipS+2+3*(i-1+NumOfAt*(j-1)))
-    k = k+3
-  end do
-end do
-! Transform three dimensional array S into two dimensional array Bnew.
-do j=1,NumInt
-  k = 1
-  do i=1,NumOfAt
-    Work(ipBnew+k+3*NumOfAt*(j-1)-1) = Work(ipS+3*(i-1+NumOfAt*(j-1)))/sqrt(uToAU*Mass(i))
-    Work(ipBnew+k+3*NumOfAt*(j-1)) = Work(ipS+1+3*(i-1+NumOfAt*(j-1)))/sqrt(uToAU*Mass(i))
-    Work(ipBnew+k+3*NumOfAt*(j-1)+1) = Work(ipS+2+3*(i-1+NumOfAt*(j-1)))/sqrt(uToAU*Mass(i))
-    k = k+3
-  end do
+k = 1
+do i=1,NumOfAt
+  const = One/sqrt(uToAU*Mass(i))
+  Bnew(k:k+2,:) = B(k:k+2,:)*const
+  k = k+3
 end do
 
 ! Given Hess and G, calculate the eigenvalues and eigenvectors of G*Hess.
 !D write(u6,*) ' VIBFREQ, calling Freq.'
-call Freq_mula(Hess,G,Work(ipV),Work(ipLambda),Work(ipB),Work(ipBnew),qMat,nOsc,NumOfAt)
+call Freq_mula(Hess,G,V,Lambda,B,Bnew,qMat,nOsc,NumOfAt)
 !D write(u6,*) ' VIBFREQ, back from Freq.'
 !D write(u6,*) ' Lambda:'
 !D write(u6,'(5f16.8)') Lambda
 
 ! Calculate harmonic frequencies.
 
-do iv=1,nOsc
-  harmfreq(iv) = sqrt(abs(Work(ipLambda+iv-1)))
-end do
+harmfreq(:) = sqrt(abs(Lambda))
 !D write(u6,*) ' harmfreq:'
 !D write(u6,'(5f16.8)') harmfreq
-!eigenVec = V
-call dcopy_(nOsc*nOsc,Work(ipV),1,eigenVec,1)
+eigenVec(:,:) = V
 
 ! Anharmonicity calculations (if we have third and possibly fourth
 ! derivatives). First calculation of the anharmonicity constants and
 ! then calculation of the fundamental frequencies.
-!x_anharm = Zero
-call dcopy_(nosc**2,[Zero],0,x_anharm,1)
+x_anharm(:,:) = Zero
 if (max_term > 2) then
-  call GetMem('C1','Allo','Real',ipC1,nOsc*nOsc)
-  call GetMem('Temp','Allo','Real',ipTemp,nOsc*nOsc)
-  call GetMem('V3','Allo','Real',ipV3,nOsc*nOsc*nOsc)
-  call GetMem('T3','Allo','Real',ipT3,nOsc*nOsc*nOsc)
-  call GetMem('V4','Allo','Real',ipV4,nOsc*nOsc*nOsc*nOsc)
-  call GetMem('T4','Allo','Real',ipT4,nOsc*nOsc*nOsc*nOsc)
-  call Anharm(eigenVec,harmfreq,D3,D4,Gprime,Gdbleprime,x_anharm,max_term,nOsc,Work(ipC1),Work(ipTemp),Work(ipV3),Work(ipT3), &
-              Work(ipV4),Work(ipT4))
-  call GetMem('C1','Free','Real',ipC1,nOsc*nOsc)
-  call GetMem('Temp','Free','Real',ipTemp,nOsc*nOsc)
-  call GetMem('V3','Free','Real',ipV3,nOsc*nOsc*nOsc)
-  call GetMem('T3','Free','Real',ipT3,nOsc*nOsc*nOsc)
-  call GetMem('V4','Free','Real',ipV4,nOsc*nOsc*nOsc*nOsc)
-  call GetMem('T4','Free','Real',ipT4,nOsc*nOsc*nOsc*nOsc)
-
+  call Anharm(eigenVec,harmfreq,D3,D4,Gprime,Gdbleprime,x_anharm,max_term,nOsc)
   call AnharmonicFreq(x_anharm,harmfreq,anharmfreq,nOsc)
 end if
 
 ! Calculate potential energy distribution.
-call PotDist(Hess,Work(ipV),Work(ipLambda),PED,NumInt,nOsc)
+call PotDist(Hess,V,Lambda,PED,NumInt,nOsc)
 
-! Free memory space of S, B, Bnew, G and V.
-call GetMem('S','Free','Real',ipS,3*NumOfAt*NumInt)
-call GetMem('B','Free','Real',ipB,3*NumOfAt*NumInt)
-call GetMem('V','Free','Real',ipV,NumInt*NumInt)
-call GetMem('Lambda','Free','Real',ipLambda,NumInt)
-call GetMem('Bnew','Free','Real',ipBnew,3*NumOfAt*NumInt)
+! Free memory space of B, Bnew, G and V.
+call mma_deallocate(B)
+call mma_deallocate(V)
+call mma_deallocate(Bnew)
+call mma_deallocate(Lambda)
 
 ! Avoid unused argument warnings
 if (.false.) call Unused_logical(Cartesian)

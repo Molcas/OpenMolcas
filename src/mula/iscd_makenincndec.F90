@@ -11,14 +11,16 @@
 
 subroutine ISCD_MakenIncDec(n_max,nOrd,nOsc,lNMAT,lNINC,lNDEC,lBatch,nBatch,leftBatch,nIndex,Graph2,nMat,nInc,nDec)
 
+use stdalloc, only: mma_allocate, mma_deallocate
+
 implicit real*8(a-h,o-z)
 integer nMat(nOsc,lBatch), nInc(nOsc,lBatch), nDec(nOsc,lBatch)
 integer Graph2(n_max+1,n_max+1,nOsc)
 integer n_max, nOrd, lBatch, nBatch, leftBatch
 integer lNMAT, lNINC, lNDEC
-#include "WrkSpc.fh"
 #include "io_mula.fh"
 integer nIndex(3,0:maxMax_n)
+integer, allocatable :: iVecD(:), iVecI(:)
 
 !GGt -------------------------------------------------------------------
 !write(u6,*)
@@ -37,8 +39,8 @@ integer nIndex(3,0:maxMax_n)
 
 ! Initialize
 
-call GetMem('iVecI','Allo','INTE',ipiVecI,nOsc)
-call GetMem('iVecD','Allo','INTE',ipiVecD,nOsc)
+call mma_allocate(iVecI,nOsc,label='iVecI')
+call mma_allocate(iVecD,nOsc,label='iVecD')
 
 ! Macrocycle iBatch
 ! Reading nMat
@@ -47,10 +49,8 @@ iIndex = 0
 jIndex = 0
 do iBatch=1,nBatch
   do ii=1,lBatch
-    do iv=1,nOsc
-      nInc(iv,ii) = -1
-      nDec(iv,ii) = -1
-    end do
+    nInc(:,ii) = -1
+    nDec(:,ii) = -1
   end do
   kIndex = nIndex(1,iBatch)
   !write(u6,*)'          iBatch=',iBatch,'  kIndex=',kIndex
@@ -66,26 +66,22 @@ do iBatch=1,nBatch
 
     ! Create nInc.
 
-    do iv=1,nOsc
-      iWork(ipiVecI+iv-1) = nMat(iv,ii)
-    end do
+    iVecI(:) = nMat(:,ii)
     do j=1,nOsc
-      iWork(ipiVecI+j-1) = iWork(ipiVecI+j-1)+1
-      nInc(j,ii) = iDetnr(iWork(ipiVecI),Graph2,nOsc,n_max)
-      iWork(ipiVecI+j-1) = iWork(ipiVecI+j-1)-1
+      iVecI(j) = iVecI(j)+1
+      nInc(j,ii) = iDetnr(iVecI,Graph2,nOsc,n_max)
+      iVecI(j) = iVecI(j)-1
     end do
 
     ! Create nDec.
 
     do j=1,nOsc
       if (nMat(j,ii) /= 0) then
+        iVecD(:) = nMat(:,ii)
+        iVecD(j) = iVecD(j)-1
+        nDec(j,ii) = iDetnr(iVecD,Graph2,nosc,n_max)
         do iv=1,nOsc
-          iWork(ipiVecD+iv-1) = nMat(iv,ii)
-        end do
-        iWork(ipiVecD+j-1) = iWork(ipiVecD+j-1)-1
-        nDec(j,ii) = iDetnr(iWork(ipiVecD),Graph2,nosc,n_max)
-        do iv=1,nOsc
-          iWork(ipiVecD+iv-1) = iWork(ipiVecD+j-1)+1
+          iVecD(iv) = iVecD(j)+1
         end do
       else
         nDec(j,ii) = -1
@@ -93,6 +89,7 @@ do iBatch=1,nBatch
     end do
 
   end do
+
   nIndex(2,iBatch) = iIndex
   call iDaFile(lNINC,1,nInc,nOsc*lBatch,iIndex)
   nIndex(3,iBatch) = jIndex
@@ -127,36 +124,30 @@ if (leftBatch > 0) then
   !write(u6,*) 'CGGt nBatch*lBatch,nOrd==',nBatch*lBatch,nOrd
   !call XFlush(u6)
   do ii=1,lBatch
-    do iv=1,nOsc
-      nInc(iv,ii) = -1
-      nDec(iv,ii) = -1
-    end do
+    nInc(:,ii) = -1
+    nDec(:,ii) = -1
   end do
   do iOrd=nBatch*lBatch,nOrd
     ii = 1+iOrd-nBatch*lBatch
 
     ! Create nInc.
 
-    do iv=1,nOsc
-      iWork(ipiVecI+iv-1) = nMat(iv,ii)
-    end do
+    iVecI(:) = nMat(:,ii)
     do j=1,nOsc
-      iWork(ipiVecI+j-1) = iWork(ipiVecI+j-1)+1
-      nInc(j,ii) = iDetnr(iWork(ipiVecI),Graph2,nOsc,n_max)
-      iWork(ipiVecI+j-1) = iWork(ipiVecI+j-1)-1
+      iVecI(j) = iVecI(j)+1
+      nInc(j,ii) = iDetnr(iVecI,Graph2,nOsc,n_max)
+      iVecI(j) = iVecI(j)-1
     end do
 
     ! Create nDec.
 
     do j=1,nOsc
       if (nMat(j,ii) /= 0) then
+        iVecD(:) = nMat(:,ii)
+        iVecD(j) = iVecD(j)-1
+        nDec(j,ii) = iDetnr(iVecD,Graph2,nosc,n_max)
         do iv=1,nOsc
-          iWork(ipiVecD+iv-1) = nMat(iv,ii)
-        end do
-        iWork(ipiVecD+j-1) = iWork(ipiVecD+j-1)-1
-        nDec(j,ii) = iDetnr(iWork(ipiVecD),Graph2,nosc,n_max)
-        do iv=1,nOsc
-          iWork(ipiVecD+iv-1) = iWork(ipiVecD+j-1)+1
+          iVecD(iv) = iVecD(j)+1
         end do
       else
         nDec(j,ii) = -1
@@ -186,8 +177,8 @@ end if
 !write(u6,*) '----------------------------------------------'
 !call XFlush(u6)
 
-call GetMem('iVecD','Free','INTE',ipiVecD,nOsc)
-call GetMem('iVecI','Free','INTE',ipiVecI,nOsc)
+call mma_deallocate(iVecI)
+call mma_deallocate(iVecD)
 
 return
 
@@ -200,7 +191,6 @@ integer nMat(nOsc,lBatch)
 integer nMat0(nOsc), nTabDim(0:lnTabDim)
 integer lnTabDim, nOrd, nOsc, lNMAT0, lNMAT
 integer lBatch, nBatch, leftBatch
-#include "WrkSpc.fh"
 #include "io_mula.fh"
 integer nIndex(3,0:maxMax_n)
 

@@ -11,7 +11,7 @@
 ! Copyright (C) 1996, Niclas Forsberg                                  *
 !***********************************************************************
 
-subroutine Anharm(eigenVec,harmfreq,D3,D4,Gprime,Gdbleprime,x,max_term,nOsc,C,Temp,V3,T3,V4,T4)
+subroutine Anharm(eigenVec,harmfreq,D3,D4,Gprime,Gdbleprime,x,max_term,nOsc)
 !  Purpose:
 !    Calculate the anharmonicity constants.
 !    This routine assumes that the curvilinear coordinates are such
@@ -39,6 +39,7 @@ subroutine Anharm(eigenVec,harmfreq,D3,D4,Gprime,Gdbleprime,x,max_term,nOsc,C,Te
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1996.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Four, Five, Six, Eight, Nine, Half, Quart
 use Definitions, only: wp
 
@@ -52,21 +53,25 @@ real*8 D4(ngdim,ngdim,ngdim,ngdim)
 real*8 Gprime(ngdim,ngdim,ngdim)
 real*8 Gdbleprime(ngdim,ngdim,ngdim,ngdim)
 real*8 x(nosc,nosc)
-real*8 C(nOsc,nOsc)
-real*8 V3(nOsc,nOsc,nOsc)
-real*8 V4(nOsc,nOsc,nOsc,nOsc)
-real*8 T3(nOsc,nOsc,nOsc)
-real*8 T4(nOsc,nOsc,nOsc,nOsc)
-real*8 Temp(nOsc,nOsc)
+real*8, allocatable :: C(:,:), T3(:,:,:), T4(:,:,:,:), Temp(:,:), V3(:,:,:), V4(:,:,:,:)
 
 NumInt = nOsc
 
+call mma_allocate(C,nOsc,nOsc,label='C')
+call mma_allocate(Temp,nOsc,nOsc,label='Temp')
+call mma_allocate(V3,nOsc,nOsc,nOsc,label='V3')
+call mma_allocate(T3,nOsc,nOsc,nOsc,label='T3')
+call mma_allocate(V4,nOsc,nOsc,nOsc,nOsc,label='V4')
+call mma_allocate(T4,nOsc,nOsc,nOsc,nOsc,label='T4')
+
 ! Calculate the eigenvector matrix, C, in dimensionless normal coordinates.
-call dcopy_(NumInt**2,[Zero],0,Temp,1)
+Temp(:,:) = Zero
 do i=1,NumInt
   Temp(i,i) = One/sqrt(harmfreq(i))
 end do
 call DGEMM_('n','n',NumInt,NumInt,NumInt,One,eigenVec,NumInt,Temp,NumInt,Zero,C,NumInt)
+
+call mma_deallocate(Temp)
 
 ! Transform cubic force constants to dimensionless normal coordinates
 do i=1,NumInt
@@ -113,6 +118,8 @@ do i=1,NumInt
     end do
   end do
 end do
+
+call mma_deallocate(C)
 
 ! Calculate diagonal anharmonicity constants.
 do i=1,NumInt
@@ -171,6 +178,11 @@ do i=1,NumInt
     end if
   end do
 end do
+
+call mma_deallocate(V3)
+call mma_deallocate(T3)
+call mma_deallocate(V4)
+call mma_deallocate(T4)
 
 ! Avoid unused argument warnings
 if (.false.) call Unused_integer(max_term)

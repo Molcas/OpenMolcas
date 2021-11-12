@@ -68,6 +68,7 @@ subroutine IntForceField(IntensityMat,TermMat,T0,max_term,FC00,C1,W1,det1,r01,C2
 !    FCMod
 !    MatElMod
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Three
 use Definitions, only: wp
 
@@ -90,45 +91,38 @@ integer mMat(0:mdim1,mdim2), mInc(0:mdim1,mdim2), mDec(0:mdim1,mdim2)
 integer nMat(0:ndim1,ndim2), nInc(0:ndim1,ndim2), nDec(0:ndim1,ndim2)
 logical OscStr
 integer nvTabDim
-#include "WrkSpc.fh"
+integer, allocatable :: level1(:), level2(:)
+real*8, allocatable :: FC2(:,:,:), FreqDiffmat(:)
 
 ! Initialize.
-call TabDim2_drv(m_max,nosc,nvTabDim)
+call TabDim(m_max,nosc,nvTabDim)
 max_mOrd = nvTabDim-1
-call TabDim2_drv(n_max,nosc,nvTabDim)
+call TabDim(n_max,nosc,nvTabDim)
 max_nOrd = nvTabDim-1
-call GetMem('FC2','Allo','Real',ipFC2,(max_mOrd+1)*(max_nOrd+1)*4)
+call mma_allocate(FC2,[0,max_mOrd],[0,max_nOrd],[0,3],label='FC2')
 
-call SetUpHarmDip(Work(ipFC2),max_dip,m_max,n_max,mMat,mInc,mDec,nMat,nInc,nDec,C1,W1,det1,r01,C2,W2,det2,r02,C,W,det0,r00, &
-                  TranDip,TranDipGrad,FC00,nnsiz,max_mOrd,max_nOrd,nOsc)
+call SetUpHarmDip(FC2,max_dip,m_max,n_max,mMat,mInc,mDec,nMat,nInc,nDec,C1,W1,det1,r01,C2,W2,det2,r02,C,W,det0,r00,TranDip, &
+                  TranDipGrad,FC00,nnsiz,max_mOrd,max_nOrd,nOsc)
 
 ! Calculate intensities with Boltzmann weighting of hotband intensity.
-const1 = (Two/Three)
-call GetMem('level1','Allo','Inte',iplevel1,nOsc)
-call GetMem('level2','Allo','Inte',iplevel2,nOsc)
+const1 = Two/Three
+call mma_allocate(level1,nOsc,label='level1')
+call mma_allocate(level2,nOsc,label='level2')
 
 if (max_nOrd > max_mOrd) then
-  l_FreqDiffMat = max_mOrd+1
-  call GetMem('FreqDiffMat','Allo','Real',ipFreqDiffMat,l_FreqDiffMat)
+  call mma_allocate(FreqDiffmat,[0,max_mOrd],label='FreqDiffMat')
 
-  do iv=1,nOsc
-    iWork(iplevel1+iv-1) = mMat(0,iv)
-  end do
+  level1(:) = mMat(0,:)
   do iOrd=0,max_mOrd
-    do iv=1,nOsc
-      iWork(iplevel2+iv-1) = mMat(iOrd,iv)
-    end do
+    level2(:) = mMat(iOrd,:)
     l_harm = nOsc
-    call TransEnergy(Zero,x_anharm1,harmfreq1,iWork(iplevel1),Zero,x_anharm1,harmfreq1,iWork(iplevel2),Work(ipFreqDiffMat+iOrd), &
-                     l_harm)
+    call TransEnergy(Zero,x_anharm1,harmfreq1,level1,Zero,x_anharm1,harmfreq1,level2,FreqDiffMat(iOrd),l_harm)
   end do
   do jOrd=0,max_nOrd
     do iOrd=0,max_mOrd
-      dE = Work(ipFreqDiffMat+iOrd)*HarToaJ*1.0e-18_wp
+      dE = FreqDiffMat(iOrd)*HarToaJ*1.0e-18_wp
       const2 = const1*exp(-dE/(kBoltzmann*Temperature))
-      IntensityMat(iOrd,jOrd) = const2*abs(TermMat(iOrd,jOrd))*(Work(ipFC2+iOrd+(max_mOrd+1)*(jOrd+(max_nOrd+1)))**2+ &
-                                Work(ipFC2+iOrd+(max_mOrd+1)*(jOrd+(max_nOrd+1)*2))**2+ &
-                                Work(ipFC2+iOrd+(max_mOrd+1)*(jOrd+(max_nOrd+1)*3))**2)
+      IntensityMat(iOrd,jOrd) = const2*abs(TermMat(iOrd,jOrd))*(FC2(iOrd,jOrd,1)**2+FC2(iOrd,jOrd,2)**2+FC2(iOrd,jOrd,3)**2)
       if (.not. OscStr) then
         ! where does this number come from?
         IntensityMat(iOrd,jOrd) = 32.13002e9_wp*const2*(TermMat(iOrd,jOrd)**2)*IntensityMat(iOrd,jOrd)
@@ -136,26 +130,18 @@ if (max_nOrd > max_mOrd) then
     end do
   end do
 else
-  l_FreqDiffMat = max_nOrd+1
-  call GetMem('FreqDiffMat','Allo','Real',ipFreqDiffMat,l_FreqDiffMat)
-  do iv=1,nOsc
-    iWork(iplevel1+iv-1) = nMat(0,iv)
-  end do
+  call mma_allocate(FreqDiffMat,[0,max_nOrd],label='FreqDiffMat')
+  level1(:) = nMat(0,:)
   do iOrd=0,max_nOrd
-    do iv=1,nOsc
-      iWork(iplevel2+iv-1) = nMat(iOrd,iv)
-    end do
+    level2(:) = nMat(iOrd,:)
     l_harm = nOsc
-    call TransEnergy(Zero,x_anharm2,harmfreq2,iWork(iplevel1),Zero,x_anharm2,harmfreq2,iWork(iplevel2),Work(ipFreqDiffMat+iOrd), &
-                     l_harm)
+    call TransEnergy(Zero,x_anharm2,harmfreq2,level1,Zero,x_anharm2,harmfreq2,level2,FreqDiffMat(iOrd),l_harm)
   end do
   do jOrd=0,max_nOrd
-    dE = Work(ipFreqDiffMat+jOrd)*HarToaJ*1.0e-18_wp
+    dE = FreqDiffMat(jOrd)*HarToaJ*1.0e-18_wp
     do iOrd=0,max_mOrd
       const2 = const1*exp(-dE/(kBoltzmann*Temperature))
-      IntensityMat(iOrd,jOrd) = const2*abs(TermMat(iOrd,jOrd))*(Work(ipFC2+iOrd+(max_mOrd+1)*(jOrd+(max_nOrd+1)))**2+ &
-                                Work(ipFC2+iOrd+(max_mOrd+1)*(jOrd+(max_nOrd+1)*2))**2+ &
-                                Work(ipFC2+iOrd+(max_mOrd+1)*(jOrd+(max_nOrd+1)*3))**2)
+      IntensityMat(iOrd,jOrd) = const2*abs(TermMat(iOrd,jOrd))*(FC2(iOrd,jOrd,1)**2+FC2(iOrd,jOrd,2)**2+FC2(iOrd,jOrd,3)**2)
       if (.not. OscStr) then
         ! where does this number come from?
         IntensityMat(iOrd,jOrd) = 32.13002e9_wp*const2*(TermMat(iOrd,jOrd)**2)*IntensityMat(iOrd,jOrd)
@@ -163,10 +149,10 @@ else
     end do
   end do
 end if
-call GetMem('level1','Free','Inte',iplevel1,nOsc)
-call GetMem('level2','Free','Inte',iplevel2,nOsc)
-call GetMem('FC2','Free','Real',ipFC2,(max_mOrd+1)*(max_nOrd+1)*4)
-call GetMem('FreqDiffMat','Free','Real',ipFreqDiffMat,l_FreqDiffMat)
+call mma_deallocate(level1)
+call mma_deallocate(level2)
+call mma_deallocate(FC2)
+call mma_deallocate(FreqDiffMat)
 
 ! Avoid unused argument warnings
 if (.false.) then

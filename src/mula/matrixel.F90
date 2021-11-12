@@ -27,6 +27,7 @@ subroutine MatrixElements(L,U,FC00,Hmat,C,W,r_diff,mMat,nMat,iCre,iann,max_nOrd,
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1996.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 
 !use Linalg
@@ -52,49 +53,46 @@ real*8 Gprime(nosc,nosc,nosc)
 real*8 Gdbleprime(nosc,nosc,nosc,nosc)
 real*8 alpha1(nosc,nosc), alpha2(nosc,nosc), beta(nosc,nosc)
 real*8 Base(nosc,nosc)
-#include "WrkSpc.fh"
+real*8, allocatable :: A(:,:), Ctemp(:,:), rtemp1(:), temp(:,:), Wtemp(:,:)
 
 ! Initialize.
 noscOld = nOsc
 mPlus = max_mOrd+1
 nPlus = max_nOrd+1
-n_A = (max_mOrd+1)*(max_nOrd+1)
-call GetMem('A','Allo','Real',ipA,n_A)
-call dcopy_(n_A,[Zero],0,Work(ipA),1)
-!A = Zero
+call mma_allocate(A,[0,max_mOrd],[0,max_nOrd],label='A')
+A(:,:) = Zero
 
-call GetMem('Wtemp','Allo','Real',ipWtemp,nOscold*nOsc)
-call GetMem('Ctemp','Allo','Real',ipCtemp,nOsc*nOsc)
-call GetMem('temp','Allo','Real',iptemp,nOsc*nOsc)
+call mma_allocate(Wtemp,nOscOld,nOsc,label='Wtemp')
+call mma_allocate(Ctemp,nOsc,nOsc,label='Ctemp')
+call mma_allocate(temp,nOsc,nOsc,label='temp')
 
-call DGEMM_('N','N',nOscold,nOsc,nOsc,One,Base,nOscOld,W,nOsc,Zero,Work(ipWtemp),nOscold)
-call dcopy_(nOsc**2,[Zero],0,Work(ipCtemp),1)
-call dcopy_(nOsc,[One],0,Work(ipCtemp),nOsc+1)
-!temp = W
-call dcopy_(nOsc*nOsc,W,1,Work(iptemp),1)
-call Dool_MULA(Work(iptemp),nOsc,nOsc,Work(ipCtemp),nOsc,nOsc,det)
-call GetMem('temp','Free','Real',iptemp,nOsc*nOsc)
+call DGEMM_('N','N',nOscold,nOsc,nOsc,One,Base,nOscOld,W,nOsc,Zero,Wtemp,nOscold)
+Ctemp(:,:) = Zero
+do i=1,nOsc
+  Ctemp(i,i) = One
+end do
+temp(:,:) = W
+call Dool_MULA(temp,nOsc,nOsc,Ctemp,nOsc,nOsc,det)
+call mma_deallocate(temp)
 
-call GetMem('rtemp1','Allo','Real',iprtemp1,nOsc)
-call DGEMM_('N','N',nOsc,1,nOsc,One,Work(ipCtemp),nOsc,r_diff,nOsc,Zero,Work(iprtemp1),nOsc)
+call mma_allocate(rtemp1,nOsc,label='rtemp1')
+call DGEMM_('N','N',nOsc,1,nOsc,One,Ctemp,nOsc,r_diff,nOsc,Zero,rtemp1,nOsc)
 
-call PotEnergy(Work(ipA),nMat,iCre,iAnn,energy,grad,Hess,D3,D4,max_term,Work(ipWtemp),ndim1,ndim2,nOscOld)
+call PotEnergy(A,nMat,iCre,iAnn,energy,grad,Hess,D3,D4,max_term,Wtemp,ndim1,ndim2,nOscOld)
 !l_nMat_1 = ndim1
 !l_nMat_2 = ndim2
-call KinEnergy_drv(Work(ipA),nMat,iCre,iAnn,G,Gprime,Gdbleprime,max_term,C,W,alpha1,alpha2,beta,Work(iprtemp1),ndim1,ndim2,nOscOld)
+call KinEnergy(A,nMat,iCre,iAnn,G,Gprime,Gdbleprime,max_term,C,W,alpha1,alpha2,beta,rtemp1,ndim1,ndim2,nOscOld)
 
 ! Calculate Hamilton matrix.
-call GetMem('temp','Allo','Real',iptemp,mPlus*nPlus)
-call DGEMM_('N','T',mPlus,nPlus,nPlus,One,Work(ipA),mPlus,U,nPlus,Zero,Work(ipTemp),mPlus)
-call DGEMM_('N','N',mPlus,nPlus,mPlus,One,L,mPlus,Work(ipTemp),mPlus,Zero,Hmat,mPlus)
-call dscal_((max_mOrd+1)*(max_nOrd+1),FC00,Hmat,1)
-! Hmat = FC00*Hmat
+call mma_allocate(temp,[0,max_mOrd],[0,max_nOrd],label='temp')
+call DGEMM_('N','T',mPlus,nPlus,nPlus,One,A,mPlus,U,nPlus,Zero,Temp,mPlus)
+call DGEMM_('N','N',mPlus,nPlus,mPlus,FC00,L,mPlus,Temp,mPlus,Zero,Hmat,mPlus)
 
-call GetMem('A','Free','Real',ipA,n_A)
-call GetMem('temp','Free','Real',iptemp,mPlus*nPlus)
-call GetMem('Wtemp','Free','Real',ipWtemp,nOscold*nOsc)
-call GetMem('Ctemp','Free','Real',ipCtemp,nOsc*nOsc)
-call GetMem('rtemp1','Free','Real',iprtemp1,nOsc)
+call mma_deallocate(A)
+call mma_deallocate(Ctemp)
+call mma_deallocate(Wtemp)
+call mma_deallocate(temp)
+call mma_deallocate(rtemp1)
 
 ! Avoid unused argument warnings
 if (.false.) call Unused_integer_array(mMat)

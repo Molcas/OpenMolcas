@@ -49,8 +49,7 @@ real*8 PED(nOsc,nOsc,nOsc)
 ! Initialize.
 
 ! Calculate Potential Energy Distribution for each mode.
-!PED = Zero
-call dcopy_(nOsc*nOsc*nOsc,[Zero],0,PED,1)
+PED(:,:,:) = Zero
 do i=1,NumInt
   Denominator = max(1.0e-10_wp,Lambda(i))
   do k=1,NumInt

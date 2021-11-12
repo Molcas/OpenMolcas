@@ -49,6 +49,7 @@ subroutine SetUpDipMat2(DipMat,max_term,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,m
 !    DipMat     : Real*8 two dimensional array - contains the
 !                 matrix elements of the transition dipole.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 
 implicit real*8(a-h,o-z)
@@ -63,25 +64,26 @@ real*8 Base(nOsc,nOsc)
 real*8 TranDip(3), TranDipGrad(nOsc)
 real*8 D0(3)
 !real*8 max_err, stand_dev
-#include "WrkSpc.fh"
+real*8, allocatable :: alpha1(:,:), alpha2(:,:), beta(:,:), C(:,:), D1(:), D2(:,:), D3(:,:,:), D4(:,:,:,:), Dij(:,:), L(:,:), &
+                       r0vec(:), Sij(:,:), U(:,:), W(:,:)
 
 ! Initialize.
-call GetMem('Dij','Allo','Real',ipDij,(max_mOrd+1)*(max_mOrd+1))
+call mma_allocate(Dij,[0,max_mOrd],[0,max_mOrd],label='Dij')
 
-call GetMem('C','Allo','Real',ipC,nOsc*nOsc)
-call GetMem('W','Allo','Real',ipW,nOsc*nOsc)
+call mma_allocate(C,nOsc,nOsc,label='C')
+call mma_allocate(W,nOsc,nOsc,label='W')
 
-call GetMem('L','Allo','Real',ipL,(max_mOrd+1)*(max_mOrd+1))
-call GetMem('U','Allo','Real',ipU,(max_nOrd2+1)*(max_nOrd2+1))
-call GetMem('Sij','Allo','Real',ipSij,(max_mOrd+1)*(max_nOrd+1))
-call GetMem('r0vec','Allo','Real',ipr0vec,nOsc)
-call GetMem('alpha1','Allo','Real',ipalpha1,nOsc*nOsc)
-call GetMem('alpha2','Allo','Real',ipalpha2,nOsc*nOsc)
-call GetMem('beta','Allo','Real',ipbeta,nOsc*nOsc)
-call GetMem('D1','Allo','Real',ipD1,nOsc)
-call GetMem('D2','Allo','Real',ipD2,nOsc*nOsc)
-call GetMem('D3','Allo','Real',ipD3,nOsc*nOsc*nOsc)
-call GetMem('D4','Allo','Real',ipD4,nOsc*nOsc*nOsc*nOsc)
+call mma_allocate(L,[0,max_mOrd],[0,max_mOrd],label='L')
+call mma_allocate(U,[0,max_nOrd2],[0,max_nOrd2],label='U')
+call mma_allocate(Sij,[0,max_mOrd],[0,max_nOrd],label='Sij')
+call mma_allocate(r0vec,nOsc,label='r0vec')
+call mma_allocate(alpha1,nOsc,nOsc,label='alpha1')
+call mma_allocate(alpha2,nOsc,nOsc,label='alpha2')
+call mma_allocate(beta,nOsc,nOsc,label='beta')
+call mma_allocate(D1,nOsc,label='D1')
+call mma_allocate(D2,nOsc,nOsc,label='D2')
+call mma_allocate(D3,nOsc,nOsc,nOsc,label='D3')
+call mma_allocate(D4,nOsc,nOsc,nOsc,nOsc,label='D4')
 
 ! Calculate terms of type
 !
@@ -95,37 +97,33 @@ call GetMem('D4','Allo','Real',ipD4,nOsc*nOsc*nOsc*nOsc)
 ! k:th normal coordinate.
 
 l_C1 = nOsc
-call Calc_r00(C1,C2,W1,W2,Work(ipC),Work(ipW),Work(ipalpha1),Work(ipalpha2),Work(ipr0vec),r01,r02,det0,det1,det2,FC00,l_C1)
-call FCval(C1,W1,det1,r01,C2,W2,det2,r02,Work(ipSij),max_mOrd,max_nOrd,max_nOrd2,max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,nInc, &
-           mDec,nDec,Work(ipC),Work(ipW),det0,Work(ipr0vec),Work(ipL),Work(ipU),FC00,Work(ipalpha1),Work(ipalpha2),Work(ipbeta), &
-           l_C1,nnsiz)
+call Calc_r00(C1,C2,W1,W2,C,W,alpha1,alpha2,r0vec,r01,r02,det0,det1,det2,FC00,l_C1)
+call FCval(C1,W1,det1,r01,C2,W2,det2,r02,Sij,max_mOrd,max_nOrd,max_nOrd2,max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,nInc,mDec, &
+           nDec,C,W,det0,r0vec,L,U,FC00,alpha1,alpha2,beta,l_C1,nnsiz)
 D0(1) = TranDip(1)
 D0(2) = TranDip(2)
 D0(3) = TranDip(3)
-call dcopy_(nOsc,TranDipGrad,1,Work(ipD1),1)
-call dcopy_(nOsc*nOsc,[Zero],0,Work(ipD2),1)
-call dcopy_(nOsc*nOsc*nOsc,[Zero],0,Work(ipD3),1)
-call dcopy_(nOsc*nOsc*nOsc*nOsc,[Zero],0,Work(ipD4),1)
+D1(:) = TranDipGrad
+D2(:,:) = Zero
+D3(:,:,:) = Zero
+D4(:,:,:,:) = Zero
 
-call DipMatEl(Work(ipDij),Work(ipW),Work(ipL),Work(ipU),FC00,nMat,nInc,nDec,D0(1),Work(ipD1),Work(ipD2),Work(ipD3),Work(ipD4), &
-              max_term,Base,ndim1,ndim2,max_mOrd,max_nOrd2)
-!DipMat(0:max_mOrd,0:max_mOrd) = Dij
-call dcopy_((max_mOrd+1)*(max_mOrd+1),Work(ipDij),1,DipMat,1)
+call DipMatEl(Dij,W,L,U,FC00,nMat,nInc,nDec,D0(1),D1,D2,D3,D4,max_term,Base,ndim1,ndim2,max_mOrd,max_nOrd2)
+DipMat(0:max_mOrd,0:max_mOrd) = Dij
 
-call GetMem('Sij','Free','Real',ipSij,(max_mOrd+1)*(max_nOrd+1))
-call GetMem('L','Free','Real',ipL,(max_mOrd+1)*(max_mOrd+1))
-call GetMem('U','Free','Real',ipU,(max_nOrd2+1)*(max_nOrd2+1))
-call GetMem('C','Free','Real',ipC,nOsc*nOsc)
-call GetMem('W','Free','Real',ipW,nOsc*nOsc)
-call GetMem('Dij','Free','Real',ipDij,(max_mOrd+1)*(max_mOrd+1))
-call GetMem('D1','Free','Real',ipD1,nOsc)
-call GetMem('D2','Free','Real',ipD2,nOsc*nOsc)
-call GetMem('D3','Free','Real',ipD3,nOsc*nOsc*nOsc)
-call GetMem('D4','Free','Real',ipD4,nOsc*nOsc*nOsc*nOsc)
-call GetMem('r0vec','Free','Real',ipr0vec,nOsc)
-call GetMem('alpha1','Free','Real',ipalpha1,nOsc*nOsc)
-call GetMem('alpha2','Free','Real',ipalpha2,nOsc*nOsc)
-call GetMem('beta','Free','Real',ipbeta,nOsc*nOsc)
+call mma_deallocate(Dij)
+call mma_deallocate(C)
+call mma_deallocate(W)
+call mma_deallocate(L)
+call mma_deallocate(U)
+call mma_deallocate(r0vec)
+call mma_deallocate(alpha1)
+call mma_deallocate(alpha2)
+call mma_deallocate(beta)
+call mma_deallocate(D1)
+call mma_deallocate(D2)
+call mma_deallocate(D3)
+call mma_deallocate(D4)
 
 ! Avoid unused argument warnings
 if (.false.) then

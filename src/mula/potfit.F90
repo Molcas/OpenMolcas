@@ -80,6 +80,7 @@ subroutine PotFit(nterm,nvar,ndata,ipow,var,yin,coef,x,nOsc,energy,grad,Hess,D3,
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, u6
 
@@ -103,29 +104,25 @@ logical use_weight
 logical fit_alpha
 real*8 diff_vec(ndata)
 character*32 Inline
-#include "WrkSpc.fh"
+real*8, allocatable :: alpha(:), alpha0(:), alphaRad(:), alphaStart(:), alphaStop(:), alphaTemp(:), qref(:), qvar(:,:), &
+                       RandVec(:), ref(:)
 
 ! Initialize.
-do iv=1,nterm
-  coef(iv,1) = Zero
-end do
-call GetMem('qvar','Allo','Real',ipqvar,ndata*nvar)
-call GetMem('ref','Allo','Real',ipref,nvar)
-call GetMem('qref','Allo','Real',ipqref,nvar)
+coef(:,:) = Zero
+call mma_allocate(qvar,ndata,nvar,label='qvar')
+call mma_allocate(ref,nvar,label='ref')
+call mma_allocate(qref,nvar,label='qref')
 
 ! Check if a fit of alpha is wanted.
 fit_alpha = .false.
-call GetMem('alphaStart','Allo','Real',ipalphaStart,nvar)
-call GetMem('alphaStop','Allo','Real',ipalphaStop,nvar)
-call GetMem('alpha','Allo','Real',ipalpha,nvar)
-call GetMem('alpha0','Allo','Real',ipalpha0,nvar)
-call GetMem('alphaTemp','Allo','Real',ipalphaTemp,nvar)
-
-call GetMem('alphaRad','Allo','Real',ipalphaRad,nvar)
-call dcopy_(nvar,[-One],0,Work(ipalphaStart),1)
-call dcopy_(nvar,[-One],0,Work(ipalphaStop),1)
-!alphaStart =-One
-!alphaStop =-One
+call mma_allocate(alphaStart,nvar,label='alphaStart')
+call mma_allocate(alphaStop,nvar,label='alphaStop')
+call mma_allocate(alpha,nvar,label='alpha')
+call mma_allocate(alpha0,nvar,label='alpha')
+call mma_allocate(alphaTemp,nvar,label='alpha')
+call mma_allocate(alphaRad,nvar,label='alpha')
+alphaStart(:) = -One
+alphaStop(:) = -One
 do ivar=1,nvar
   trfcode = trfName(ivar)(1:32)
   ifit = index(trfcode,'FIT')
@@ -136,20 +133,20 @@ do ivar=1,nvar
     istart = istart+6
     Inline = trfCode(istart:len(trfCode))
     istop = len(Inline)
-    read(Inline(1:istop),*) Work(ipalphaStart+ivar-1),Work(ipalphaStop+ivar-1)
-    Work(ipalphaRad+ivar-1) = (Work(ipalphaStop+ivar-1)-Work(ipalphaStart+ivar-1))*Half
-    Work(ipalpha0+ivar-1) = Work(ipalphaStart+ivar-1)+Work(ipalphaRad+ivar-1)
+    read(Inline(1:istop),*) alphaStart(ivar),alphaStop(ivar)
+    alphaRad(ivar) = (alphaStop(ivar)-alphaStart(ivar))*Half
+    alpha0(ivar) = alphaStart(ivar)+alphaRad(ivar)
   end if
 end do
 
 if (fit_alpha) then
 
   ! Determine which alpha radius is the largest.
-  alphaMax = Work(ipalphaRad)
+  alphaMax = alphaRad(1)
   ivarMax = 1
   do ivar=2,nvar
-    if (Work(ipalphaRad+ivar-1) > alphaMax) then
-      alphaMax = Work(ipalphaRad+ivar-1)
+    if (alphaRad(ivar) > alphaMax) then
+      alphaMax = alphaRad(ivar)
       ivarMax = ivar
     end if
   end do
@@ -166,61 +163,50 @@ if (fit_alpha) then
 
   ! Store nPoints random numbers in vector RandVec.
   length = nvar*nPoints
-  call GetMem('RandVec','Allo','Real',ipRandVec,length)
+  call mma_allocate(RandVec,length,label='RandVec')
 
-  call Ranmar(Work(ipRandVec),length)
+  call Ranmar(RandVec,length)
 
   ! Simulated annealing.
   stand_dev_best = 100.0_wp
   iRandNum = 1
-  do while (Work(ipalphaRad+ivarMax-1) > 0.1_wp)
-    do iv=1,nvar
-      Work(ipalphaTemp+iv-1) = Work(ipalpha0+iv-1)
-    end do
+  do while (alphaRad(ivarMax) > 0.1_wp)
+    alphaTemp(:) = alpha0
     do iPoints=1,1000
       do ivar=1,nvar
-        if (Work(ipalphaStart+ivar-1) > Zero) then
-          Work(ipalpha+ivar-1) = Work(ipalpha0+ivar-1)+Work(ipalphaRad+ivar-1)*(Two*Work(ipRandVec+iRandNum+ivar-1-1)-One)
+        if (alphaStart(ivar) > Zero) then
+          alpha(ivar) = alpha0(ivar)+alphaRad(ivar)*(Two*RandVec(iRandNum+ivar-1)-One)
         end if
       end do
       iRandNum = iRandNum+nvar
-      call var_to_qvar(var,Work(ipqvar),Work(ipref),Work(ipqref),Work(ipalpha),trfName,ndata,nvar)
-      call PolFit(ipow,nvar,Work(ipqvar),yin,ndata,coef,nterm,stand_dev,max_err,diff_vec,use_weight)
+      call var_to_qvar(var,qvar,ref,qref,alpha,trfName,ndata,nvar)
+      call PolFit(ipow,nvar,qvar,yin,ndata,coef,nterm,stand_dev,max_err,diff_vec,use_weight)
       if (stand_dev < stand_dev_best) then
         stand_dev_best = stand_dev
-        do iv=1,nvar
-          Work(ipalphaTemp+iv-1) = Work(ipalpha+iv-1)
-        end do
+        alphaTemp(:) = alpha
       end if
     end do
-    do iv=1,nvar
-      Work(ipalpha0+iv-1) = Work(ipalphaTemp+iv-1)
-    end do
-    write(u6,*) (Work(ipalpha0+iv-1),iv=1,nvar),stand_dev_best
-    do iv=1,nvar
-      Work(ipalphaRad+iv-1) = Work(ipalphaRad+iv-1)*Half
-    end do
+    alpha0(:) = alphaTemp
+    write(u6,*) alpha0(:),stand_dev_best
+    alphaRad(:) = alphaRad*Half
   end do
-  do iv=1,nvar
-    Work(ipalpha+iv-1) = Work(ipalpha0+iv-1)
-  end do
-  write(u6,*) Work(ipalpha),Work(ipalpha+1)
-  call GetMem('RandVec','Free','Real',ipRandVec,length)
+  alpha(:) = alpha0
+  write(u6,*) alpha(1),alpha(2)
+  call mma_deallocate(RandVec)
 
 end if
 
-call GetMem('alpha0','Free','Real',ipalpha0,nvar)
-call GetMem('alphaTemp','Free','Real',ipalphaTemp,nvar)
-
-call GetMem('alphaRad','Free','Real',ipalphaRad,nvar)
-call GetMem('alphaStart','Free','Real',ipalphaStart,nvar)
-call GetMem('alphaStop','Free','Real',ipalphaStop,nvar)
+call mma_deallocate(alphaStart)
+call mma_deallocate(alphaStop)
+call mma_deallocate(alpha0)
+call mma_deallocate(alphaTemp)
+call mma_deallocate(alphaRad)
 
 ! Transform coordinates to get better numerical fit.
-call var_to_qvar(var,Work(ipqvar),Work(ipref),Work(ipqref),Work(ipalpha),trfName,ndata,nvar)
+call var_to_qvar(var,qvar,ref,qref,alpha,trfName,ndata,nvar)
 
 ! Fit polynomial to energies.
-call PolFit(ipow,nvar,Work(ipqvar),yin,ndata,coef,nterm,stand_dev,max_err,diff_vec,use_weight)
+call PolFit(ipow,nvar,qvar,yin,ndata,coef,nterm,stand_dev,max_err,diff_vec,use_weight)
 
 !write(u6,*) ndata
 
@@ -229,9 +215,9 @@ call PolFit(ipow,nvar,Work(ipqvar),yin,ndata,coef,nterm,stand_dev,max_err,diff_v
 !end do
 
 if (find_minimum) then
-  call Optimize(ipow,Work(ipqvar),coef,x,energy,Hess,nterm,nvar,ndata)
+  call Optimize(ipow,qvar,coef,x,energy,Hess,nterm,nvar,ndata)
 else
-  call x_to_qvar(x,Work(ipref),Work(ipqref),Work(ipalpha),trfName,nvar)
+  call x_to_qvar(x,ref,qref,alpha,trfName,nvar)
 end if
 
 ! Calculate gradient and quadratic, cubic and quartic force constants.
@@ -241,22 +227,20 @@ call Hessian(x,coef,ipow,Hess,nterm,nvar)
 if (max_term > 2) then
   call thirdDer(x,coef,ipow,D3,nterm,nvar)
 else
-  call dcopy_(l_D*l_D*l_D,[Zero],0,D3,1)
-  !D3 = Zero
+  D3(:,:,:) = Zero
 end if
 if (max_term > 3) then
   call fourthDer(x,coef,ipow,D4,nterm,nvar)
 else
-  !D4 = Zero
-  call dcopy_(l_D*l_D*l_D*l_D,[Zero],0,D4,1)
+  D4(:,:,:,:) = Zero
 end if
 
 ! Transform back to original coordinates.
-call qvar_to_var(var,x,grad,Hess,D3,D4,Work(ipref),Work(ipqref),trfName,Work(ipalpha),max_term,ndata,nvar)
+call qvar_to_var(var,x,grad,Hess,D3,D4,ref,qref,trfName,alpha,max_term,ndata,nvar)
 
-call GetMem('alpha','Free','Real',ipalpha,nvar)
-call GetMem('qvar','Free','Real',ipqvar,ndata*nvar)
-call GetMem('ref','Free','Real',ipref,nvar)
-call GetMem('qref','Free','Real',ipqref,nvar)
+call mma_deallocate(alpha)
+call mma_deallocate(qvar)
+call mma_deallocate(ref)
+call mma_deallocate(qref)
 
 end subroutine PotFit

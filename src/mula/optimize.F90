@@ -65,10 +65,8 @@ logical shift
 ! Initialize.
 
 ! Determine intervals for random starting point in optimization.
-do iv=1,nvar
-  var_intervals(iv,1) = var(1,iv)
-  var_intervals(iv,2) = var(1,iv)
-end do
+var_intervals(:,1) = var(1,:)
+var_intervals(:,2) = var(1,:)
 do ivar=1,nvar
   do iterm=2,nterm
     if (var(iterm,ivar) < var_intervals(ivar,1)) then
@@ -95,9 +93,7 @@ do i=1,1
   call gradient(x,coef,ipow,grad,nterm,nvar)
   call Hessian(x,coef,ipow,Hess,nterm,nvar)
   call ShiftHess(Hess,shift,nterm,nvar)
-  do iv=1,nvar
-    delta(iv,1) = -grad(iv)
-  end do
+  delta(:,1) = -grad
   call Dool_MULA(Hess,nterm,nvar,delta,nvar,1,det)
   !call calcNorm(delta(:,1),delta_norm)
   sum = Zero
@@ -108,18 +104,14 @@ do i=1,1
 
   scale = One
   if (delta_norm > delta_max) scale = delta_max/delta_norm
-  do iv=1,nvar
-    x(iv) = x(iv)+delta(iv,1)*scale
-  end do
+  x(:) = x(:)+delta(:,1)*scale
   iter = 0
   do while ((delta_norm > 1.0e-12_wp) .and. (iter <= maxiter))
     iter = iter+1
     call gradient(x,coef,ipow,grad,nterm,nvar)
     call Hessian(x,coef,ipow,Hess,nterm,nvar)
     call ShiftHess(Hess,shift,nterm,nvar)
-    do iv=1,nvar
-      delta(iv,1) = -grad(iv)
-    end do
+    delta(:,1) = -grad
     call Dool_MULA(Hess,nterm,nvar,delta,nvar,1,det)
     !call calcNorm(delta(:,1), delta_norm)
     sum = Zero
@@ -130,21 +122,15 @@ do i=1,1
 
     scale = One
     if (delta_norm > delta_max) scale = delta_max/delta_norm
-    do iv=1,nvar
-      x(iv) = x(iv)+delta(iv,1)*scale
-    end do
+    x(:) = x(:)+delta(:,1)*scale
   end do
   if (iter >= maxiter) write(u6,*) 'WARNING!! No convergence in Optimize'
   call funcval(x,coef,ipow,fval,nterm,nvar)
   if (fval < energy) then
     energy = fval
-    do iv=1,nvar
-      xmin(iv) = x(iv)
-    end do
+    xmin(:) = x
   end if
 end do
-do iv=1,nvar
-  x(iv) = xmin(iv)
-end do
+x(:) = xmin
 
 end subroutine Optimize

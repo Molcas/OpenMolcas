@@ -44,25 +44,27 @@ subroutine Dool_MULA(A,LA1,LA2,B,LB1,LB2,det)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 
 implicit real*8(a-h,o-z)
 real*8 A(LA1,LA2)
 real*8 B(LB1,LB2)
-#include "WrkSpc.fh"
+integer, allocatable :: iPiv(:), jPiv(:)
+real*8, allocatable :: Buf(:)
 
 ! Initialize.
 ip = -9999999
 jp = -9999999
 n = LA2
 m = LB2
-call GetMem('Buf','Allo','Real',ipBuf,n)
-call GetMem('iPiv','Allo','Inte',ipiPiv,n)
-call GetMem('jPiv','Allo','Inte',ipjPiv,n)
+call mma_allocate(Buf,n,label='Buf')
+call mma_allocate(iPiv,n,label='iPiv')
+call mma_allocate(jPiv,n,label='jPiv')
 
 do i=1,n
-  iWork(ipiPiv+i-1) = i
-  iWork(ipjPiv+i-1) = i
+  iPiv(i) = i
+  jPiv(i) = i
 end do
 det = One
 do i=1,n
@@ -70,7 +72,7 @@ do i=1,n
   Amax = -One
   do k=i,n
     do l=i,n
-      Am = abs(A(iWork(ipiPiv+k-1),iWork(ipjPiv+l-1)))
+      Am = abs(A(iPiv(k),jPiv(l)))
       if (Amax <= Am) then
         Amax = Am
         ip = k
@@ -80,28 +82,28 @@ do i=1,n
   end do
   if (ip /= i) then
     det = -det
-    iTemp = iWork(ipiPiv+i-1)
-    iWork(ipiPiv+i-1) = iWork(ipiPiv+ip-1)
-    iWork(ipiPiv+ip-1) = iTemp
+    iTemp = iPiv(i)
+    iPiv(i) = iPiv(ip)
+    iPiv(ip) = iTemp
   end if
   if (jp /= i) then
     det = -det
-    jTemp = iWork(ipjPiv+i-1)
-    iWork(ipjPiv+i-1) = iWork(ipjPiv+jp-1)
-    iWork(ipjPiv+jp-1) = jTemp
+    jTemp = jPiv(i)
+    jPiv(i) = jPiv(jp)
+    jPiv(jp) = jTemp
   end if
-  ip = iWork(ipiPiv+i-1)
-  jp = iWork(ipjPiv+i-1)
+  ip = iPiv(i)
+  jp = jPiv(i)
   diag = A(ip,jp)
   !Buf(i) = diag
-  Work(ipBuf+i-1) = diag
+  Buf(i) = diag
   det = det*diag
   do k=i+1,n
-    kp = iWork(ipiPiv+k-1)
+    kp = iPiv(k)
     c = A(kp,jp)/diag
     A(kp,jp) = c
     do l=i+1,n
-      lp = iWork(ipjPiv+l-1)
+      lp = jPiv(l)
       A(kp,lp) = A(kp,lp)-c*A(ip,lp)
     end do
   end do
@@ -110,10 +112,10 @@ end do
 ! First resubstitution step.
 do j=1,m
   do i=2,n
-    ip = iWork(ipiPiv+i-1)
+    ip = iPiv(i)
     sum = B(ip,j)
     do k=1,i-1
-      sum = sum-A(ip,iWork(ipjPiv+k-1))*B(iWork(ipiPiv+k-1),j)
+      sum = sum-A(ip,jPiv(k))*B(iPiv(k),j)
     end do
     B(ip,j) = sum
   end do
@@ -122,28 +124,28 @@ end do
 !!---- Second resubstitution step.
 do j=1,m
   do i=n,1,-1
-    ip = iWork(ipiPiv+i-1)
+    ip = iPiv(i)
     sum = B(ip,j)
     do k=i+1,n
-      sum = sum-A(ip,iWork(ipjPiv+k-1))*B(iWork(ipiPiv+k-1),j)
+      sum = sum-A(ip,jPiv(k))*B(iPiv(k),j)
     end do
-    B(ip,j) = sum/Work(ipBuf+i-1)
+    B(ip,j) = sum/Buf(i)
   end do
 end do
 
 ! Reorganization part.
 do j=1,m
   do i=1,n
-    Work(ipBuf+i-1) = B(iWork(ipiPiv+i-1),j)
+    Buf(i) = B(iPiv(i),j)
   end do
   do i=1,n
-    B(iWork(ipjPiv+i-1),j) = Work(ipBuf+i-1)
+    B(jPiv(i),j) = Buf(i)
   end do
 end do
 
-call GetMem('Buf','Free','Real',ipBuf,n)
-call GetMem('iPiv','Free','Real',ipiPiv,n)
-call GetMem('jPiv','Free','Real',ipjPiv,n)
+call mma_deallocate(Buf)
+call mma_deallocate(iPiv)
+call mma_deallocate(jPiv)
 
 end subroutine Dool_MULA
 !####
@@ -166,16 +168,15 @@ subroutine SolveSecEq(A,n,C,S,D)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1994.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 
 implicit real*8(a-h,o-z)
 integer n
 real*8 A(n,n), S(n,n), C(n,n), D(n)
-#include "WrkSpc.fh"
+real*8, allocatable :: Asymm(:,:), Scr(:), T(:,:), Temp(:,:)
 
 ! Initialize.
-nSqr = n**2
-nSqrTri = n*(n+1)/2
 !D write(u6,*) 'SolveSecEq test prints.'
 !D write(u6,*) 'Matrix A:'
 !D do i=1,n
@@ -183,67 +184,62 @@ nSqrTri = n*(n+1)/2
 !D end do
 
 ! get memory for temporary matrices.
-call GetMem('Scr','Allo','Real',ipScr,nSqrTri)
-call GetMem('T','Allo','Real',ipT,nSqr)
-call GetMem('Temp','Allo','Real',ipTemp,nSqr)
-call GetMem('Asymm','Allo','Real',ipAsymm,nSqr)
+call mma_allocate(Scr,n*(n+1)/2,label='Scr')
+call mma_allocate(T,n,n,label='T')
+call mma_allocate(Temp,n,n,label='Temp')
+call mma_allocate(Asymm,n,n,label='Asymm')
 
 ! Transform S to lower packed storage in Scratch.
 k = 1
 do i=1,n
   do j=1,i
-    Work(ipScr+k-1) = S(i,j)
+    Scr(k) = S(i,j)
     k = k+1
   end do
 end do
 
 ! Turn T into a unit matrix.
-!vv T = Zero
-call dcopy_(nSqr,[Zero],0,Work(ipT),1)
+T(:,:) = Zero
 do i=1,n
-  Work(ipT+i+n*(i-1)-1) = One
+  T(i,i) = One
 end do
 
 ! Diagonalize Scratch and scale each column of T with the square
 ! root of the corresponding eigenvalue.
-call Jacob(Work(ipScr),Work(ipT),n,n)
+call Jacob(Scr,T,n,n)
 do j=1,n
   jj = j*(j+1)/2
-  Scale = sqrt(Work(ipScr+jj-1))
-  do i=1,n
-    Work(ipT+i+n*(j-1)-1) = Work(ipT+i+n*(j-1)-1)*Scale
-  end do
+  T(:,j) = T(:,j)*sqrt(Scr(jj))
 end do
 
 ! Make A symmetric and transform it to lower packed storage in
 ! Scratch.
-call DGEMM_('N','N',n,n,n,One,A,n,Work(ipT),n,Zero,Work(ipTemp),n)
-call DGEMM_('T','N',n,n,n,One,Work(ipT),n,Work(ipTemp),n,Zero,Work(ipAsymm),n)
+call DGEMM_('N','N',n,n,n,One,A,n,T,n,Zero,Temp,n)
+call DGEMM_('T','N',n,n,n,One,T,n,Temp,n,Zero,Asymm,n)
 k = 1
 do i=1,n
   do j=1,i
-    Work(ipScr+k-1) = Work(ipAsymm+i+n*(j-1)-1)
+    Scr(k) = Asymm(i,j)
     k = k+1
   end do
 end do
 
 ! Diagonalize Scratch.
-call Jacob(Work(ipScr),Work(ipT),n,n)
-call JacOrd(Work(ipScr),Work(ipT),n,n)
+call Jacob(Scr,T,n,n)
+call JacOrd(Scr,T,n,n)
 
 ! Store the eigenvalues in array D.
 do i=1,n
   ii = i*(i+1)/2
-  D(i) = Work(ipScr+ii-1)
+  D(i) = Scr(ii)
 end do
-!vv C = T
-call dcopy_(nSqr,Work(ipT),1,C,1)
+C(:,:) = T
 
 ! Free memory of temporary matrices.
-call GetMem('Scr','Free','Real',ipScr,nSqrTri)
-call GetMem('T','Free','Real',ipT,nSqr)
-call GetMem('Temp','Free','Real',ipTemp,nSqr)
-call GetMem('Asymm','Free','Real',ipAsymm,nSqr)
+call mma_deallocate(Scr)
+call mma_deallocate(T)
+call mma_deallocate(Temp)
+call mma_deallocate(Asymm)
 
 end subroutine SolveSecEq
 !####
@@ -257,6 +253,7 @@ subroutine PolFit(ipow,nvar,var,yin,ndata,coef,nterm,stand_dev,max_err,diff_vec,
 !  Modified by:
 !    Niclas Forsberg
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, u6
 
@@ -271,22 +268,19 @@ real*8 yfit(ndata)
 real*8 vpow(0:mxdeg,nvar)
 real*8 equmat(nterm,nterm)
 real*8 rhs(nterm), term(nterm)
-
 real*8 diff_vec(ndata)
 logical use_weight
-#include "WrkSpc.fh"
+real*8, allocatable :: weight(:)
 
 ! Initialize.
 NrOfVar = nvar
 nPolyTerm = nterm
 myCoef2 = 1
-!vv rhs = Zero
-call dcopy_(nterm,[Zero],0,rhs,1)
-!vv equmat = Zero
-call dcopy_(nterm*nterm,[Zero],0,equmat,1)
+rhs(:) = Zero
+equmat(:,:) = Zero
 
 ! Set up weight vector.
-call GetMem('weight','Allo','Real',ipweight,ndata)
+call mma_allocate(weight,ndata,label='weight')
 if (use_weight) then
   e_min = yin(1)
   e_max = yin(1)
@@ -296,11 +290,11 @@ if (use_weight) then
   end do
   e_range = e_max-e_min
   do idata=1,ndata
-    Work(ipweight+idata-1) = One/(One+1.0e3_wp*((yin(idata)-e_min)/e_range))
+    weight(idata) = One/(One+1.0e3_wp*((yin(idata)-e_min)/e_range))
   end do
 else
-  !vv weight = One
-  call dcopy_(ndata,[0.1_wp],0,Work(ipweight),1)
+  !vv weight(:) = One
+  weight(:) = 0.1_wp
 end if
 
 ! Accumulate equation matrix and right-hand-side.
@@ -326,9 +320,9 @@ do idata=1,ndata
   end do
   ! Accumulate equmat and rhs.
   do iterm=1,nPolyTerm
-    rhs(iterm) = rhs(iterm)+yin(idata)*term(iterm)*Work(ipweight+idata-1)
+    rhs(iterm) = rhs(iterm)+yin(idata)*term(iterm)*weight(idata)
     do jterm=1,iterm
-      equmat(iterm,jterm) = equmat(iterm,jterm)+term(iterm)*term(jterm)*Work(ipweight+idata-1)
+      equmat(iterm,jterm) = equmat(iterm,jterm)+term(iterm)*term(jterm)*weight(idata)
     end do
   end do
 end do
@@ -386,7 +380,7 @@ do idata=1,ndata
 end do
 stand_dev = sqrt(sum/ndata)
 
-call GetMem('weight','Free','Real',ipweight,ndata)
+call mma_deallocate(weight)
 
 end subroutine PolFit
 !####
@@ -435,27 +429,25 @@ subroutine Cholesky(A,L,nd)
 use Constants, only: Zero, One
 use Definitions, only: u6
 
+use stdalloc, only: mma_allocate, mma_deallocate
+
 !implicit none
 !VV: all calls use nxn
 real*8 A(nd,nd), L(nd,nd), dd
 integer n, j
 integer iRow, jRow
-#include "WrkSpc.fh"
+real*8, allocatable :: D(:)
 
 ! Initialize.
 n = nd
-n2 = n*n
-call GetMem('D','Allo','Real',ipD,n)
-call dcopy_(n2,A,1,L,1)
-!vv L = A
+call mma_allocate(D,n,label='D')
+L(:,:) = A
 
 ! Take care of the n-1 last rows.
 if (n > 1) then
   do iRow=n,2,-1
-    work(ipd+iRow-1) = L(iRow,iRow)
-    do j=1,n
-      L(iRow,j) = L(iRow,j)/work(ipd+iRow-1)
-    end do
+    D(iRow) = L(iRow,iRow)
+    L(iRow,:) = L(iRow,:)/D(iRow)
     do jRow=iRow-1,1,-1
       do j=1,n
         L(jRow,j) = L(jRow,j)-L(jRow,iRow)*L(iRow,j)
@@ -465,23 +457,20 @@ if (n > 1) then
 end if
 
 ! Take care of the first row.
-work(ipd) = L(1,1)
+D(1) = L(1,1)
 L(1,1) = One
 
 ! Multiply Llow with the square root of d.
 do iRow=1,n
-  if (work(ipd+iRow-1) < Zero) then
+  if (D(iRow) < Zero) then
     write(u6,*) 'Error in Cholesky!!! Matrix not positive definite.'
     call Abend()
   end if
-  dd = sqrt(work(ipd+iRow-1))
-  do j=1,n
-    L(iRow,j) = L(iRow,j)*dd
-  end do
+  dd = sqrt(D(iRow))
+  L(iRow,:) = L(iRow,:)*dd
 end do
-call GetMem('D','Free','Real',ipD,n)
+call mma_deallocate(D)
 
-!call dcopy_(n2,L,1,Llow,1)
-!Llow = L
+!Llow(:,:) = L
 
 end subroutine Cholesky

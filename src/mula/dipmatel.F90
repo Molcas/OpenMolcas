@@ -37,6 +37,7 @@ subroutine DipMatEl(Dij,W,L,U,FC00,nMat,nInc,nDec,D0,D1,D2,D3,D4,max_term,base,m
 !  Uses:
 !    MatElMod
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 
 !use PotKin
@@ -52,28 +53,26 @@ real*8 D1(nosc)
 real*8 D2(nosc,nosc)
 real*8 D3(nosc,nosc,nosc)
 real*8 D4(nosc,nosc,nosc,nosc)
-#include "WrkSpc.fh"
+real*8, allocatable :: A(:,:), Temp(:,:), Wtemp(:,:)
 
 ! Initialize.
 max_nOrd = max_mOrd
 mPlus = max_mOrd+1
 nPlus = max_nOrd+1
 nOscOld = nOsc
-l_A = (max_mOrd+1)*(max_nOrd+1)
-call GetMem('A','Allo','Real',ipA,l_A)
-call GetMem('Wtemp','Allo','Real',ipWtemp,nOscOld*nOsc)
-call DGEMM_('N','N',nOscOld,nOsc,nOsc,One,Base,nOscOld,W,nOsc,Zero,Work(ipWtemp),nOscOld)
-call dcopy_(l_A,[Zero],0,Work(ipA),1)
-call PotEnergy(Work(ipA),nMat,nInc,nDec,D0,D1,D2,D3,D4,max_term,Work(ipWTemp),m_ord,nosc,nOscOld)
+call mma_allocate(A,[0,max_mOrd],[0,max_nOrd],label='A')
+call mma_allocate(Wtemp,nOscOld,nOsc,label='Wtemp')
+call DGEMM_('N','N',nOscOld,nOsc,nOsc,One,Base,nOscOld,W,nOsc,Zero,Wtemp,nOscOld)
+A(:,:) = Zero
+call PotEnergy(A,nMat,nInc,nDec,D0,D1,D2,D3,D4,max_term,WTemp,m_ord,nosc,nOscOld)
 
-call GetMem('Wtemp','Free','Real',ipWtemp,nOscOld*nOsc)
-call GetMem('Temp','Allo','Real',ipTemp,l_A)
-call DGEMM_('N','T',mplus,mplus,nplus,One,Work(ipA),mplus,U,mplus,Zero,Work(ipTemp),mplus)
-call DGEMM_('N','N',mPlus,nPlus,mPlus,One,L,mPlus,Work(ipTemp+max_mOrd+1+(max_mOrd+1)*max_nOrd2-1),mPlus,Zero,Dij,mPlus)
-call GetMem('Temp','Free','Real',ipTemp,l_A)
-call GetMem('A','Free','Real',ipA,l_A)
+call mma_deallocate(Wtemp)
+call mma_allocate(Temp,[0,max_mOrd],[0,max_nOrd],label='Temp')
+call DGEMM_('N','T',mPlus,mPlus,nPlus,One,A,mPlus,U,mPlus,Zero,Temp,mPlus)
+call DGEMM_('N','N',mPlus,nPlus,mPlus,One,L,mPlus,Temp(:,max_nOrd2+1:),mPlus,Zero,Dij,mPlus)
+call mma_deallocate(Temp)
+call mma_deallocate(A)
 
-!Dij = FC00*Dij
-call dscal_((max_mOrd+1)*(max_mOrd+1),FC00,Dij,1)
+Dij(:,:) = FC00*Dij
 
 end subroutine DipMatEl
