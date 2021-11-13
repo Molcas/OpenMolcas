@@ -11,8 +11,8 @@
 ! Copyright (C) 1996, Niclas Forsberg                                  *
 !***********************************************************************
 
-subroutine LSPotFit(r01,energy1,grad1,Hess1,D3_1,D4_1,r02,energy2,grad2,Hess2,D3_2,D4_2,r00,energy0,r_min,FitCoef,mMat,stand_dev, &
-                    max_err,use_weight,max_term,pot,nosc,numcoef)
+subroutine LSPotFit(r01,energy1,grad1,Hess1,D3_1,D4_1,r02,energy2,grad2,Hess2,D3_2,D4_2,r00,energy0,r_min,FitCoef,mMat,max_term, &
+                    pot,nosc,numcoef)
 !  Purpose:
 !    Perform a least squares fit of the potentiag at two different
 !    centra, r01 and r02.
@@ -42,8 +42,7 @@ dimension D3_1(nosc,nosc,nosc), D3_2(nosc,nosc,nosc)
 dimension D4_1(nosc,nosc,nosc,nosc), D4_2(nosc,nosc,nosc,nosc)
 real*8 FitCoef(numcoef,1)
 integer mMat(0:numcoef-1,nosc)
-real*8 stand_dev, max_err
-logical use_weight, pot
+logical pot
 integer nTabDim
 integer, allocatable :: mDec(:,:), mInc(:,:)
 real*8, allocatable :: Equmat(:,:), rhs(:), Temp(:,:), Tmat(:,:), vpow(:,:), weight(:,:), x(:)
@@ -367,12 +366,5 @@ call mma_deallocate(Tmat)
 call mma_deallocate(rhs)
 call mma_deallocate(Equmat)
 call mma_deallocate(Temp)
-
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real(stand_dev)
-  call Unused_real(max_err)
-  call Unused_logical(use_weight)
-end if
 
 end subroutine LSPotFit

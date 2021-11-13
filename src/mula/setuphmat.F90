@@ -38,9 +38,9 @@
 
 !contains
 
-subroutine SetUpHmat(energy0,r_min,ipow,var,yin,r00,trfName,max_term,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,max_nOrd2, &
+subroutine SetUpHmat(energy0,r_min,ipow,var,yin,trfName,max_term,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,max_nOrd2, &
                      max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,nInc,mDec,nDec,H,S,G1,G2,G0,Gprime1,Gprime2,Gprime0,Gdbleprime1, &
-                     Gdbleprime2,Gdbleprime0,C0,W0,det0,Mass,rOrigin,Base,r0,r1,r2,nnsiz,nterm,nvar,ndata,nosc,ndimtot,numofat)
+                     Gdbleprime2,Gdbleprime0,det0,Base,r0,r1,r2,nterm,nvar,ndata,nosc,ndimtot)
 !  Purpose:
 !    Set up Hamilton matrix.
 !
@@ -52,15 +52,13 @@ subroutine SetUpHmat(energy0,r_min,ipow,var,yin,r00,trfName,max_term,C1,W1,det1,
 !   var
 !   yin
 !   coeff
-!   r00
 !   trfname
 !   Max_term
 !   C1,W1,det1,r01
 !   C2,W2,det2,r02
 !   H S
 !   G1 G2 G0 1' G2' g0' g0'' g1'' g2''
-!   C0 W0 det0
-!   mass rorigin
+!   det0
 !
 !  The expansion point for lspotfit is r00!!!!!
 
@@ -72,11 +70,10 @@ implicit real*8(a-h,o-z)
 integer ipow(nterm,nvar)
 real*8 var(ndata,nvar)
 real*8 yin(ndata)
-real*8 r01(nOsc), r02(nOsc), r00(nOsc), r_min(nOsc)
+real*8 r01(nOsc), r02(nOsc), r_min(nOsc)
 real*8 r1(nOsc), r2(nOsc), r0(nOsc)
-real*8 rOrigin(nOsc)
 character*80 trfName(nvar)
-real*8 C1(nOsc,nOsc), C2(nOsc,nOsc), W1(nOsc,nOsc), W2(nOsc,nOsc), C0(nOsc,nOsc), W0(nOsc,nOsc)
+real*8 C1(nOsc,nOsc), C2(nOsc,nOsc), W1(nOsc,nOsc), W2(nOsc,nOsc)
 real*8 G1(nOsc,nOsc), G2(nOsc,nOsc), G0(nOsc,nOsc)
 real*8 Gprime1(ngdim,ngdim,ngdim)
 real*8 Gprime2(ngdim,ngdim,ngdim)
@@ -87,7 +84,6 @@ real*8 Gdbleprime0(ngdim,ngdim,ngdim,ngdim)
 integer mMat(0:mdim1,mdim2), mInc(0:mdim1,mdim2), mDec(0:mdim1,mdim2)
 integer nMat(0:ndim1,ndim2), nInc(0:ndim1,ndim2), nDec(0:ndim1,ndim2)
 real*8 H(ndimtot,ndimtot), S(ndimtot,ndimtot)
-real*8 Mass(numOfAt)
 real*8 Base(nosc,nosc)
 logical find_minimum, use_weight
 real*8 stand_dev, max_err
@@ -128,8 +124,8 @@ call mma_allocate(FitCoef,numCoef,label='FitCoef')
 
 call mma_allocate(jPow,numCoef,nOsc,label='jPow')
 pot = .true.
-call LSPotFit(r1,energy1,grad1,Hess1,D3_1,D4_1,r2,energy2,grad2,Hess2,D3_2,D4_2,r0,energy0,r_min,FitCoef,jPow,stand_dev,max_err, &
-              use_weight,max_term,pot,nosc,numcoef)
+call LSPotFit(r1,energy1,grad1,Hess1,D3_1,D4_1,r2,energy2,grad2,Hess2,D3_2,D4_2,r0,energy0,r_min,FitCoef,jPow,max_term,pot,nosc, &
+              numcoef)
 
 call mma_deallocate(grad1)
 call mma_deallocate(grad2)
@@ -164,9 +160,9 @@ call mma_allocate(U,[0,max_nOrd],[0,max_nOrd],label='U')
 
 ! Block 11.
 l_C1 = nOsc
-call Calc_r00(C1,C1,W1,W1,C,W,alpha1,alpha2,r0vec,r01,r01,det0,det1,det1,FC00,l_C1)
+call Calc_r00(C1,C1,C,W,alpha1,alpha2,r0vec,r01,r01,det0,det1,det1,FC00,l_C1)
 call FCval(C1,W1,det1,r01,C1,W1,det1,r01,Sij,max_mOrd,max_nOrd,max_nOrd2,max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,nInc,mDec, &
-           nDec,C,W,det1,r0vec,L,U,FC00,alpha1,alpha2,beta,l_C1,nnsiz)
+           nDec,C,W,det1,L,U,FC00,alpha1,alpha2,beta,l_C1)
 r0vec(1:nOsc) = r1-r0
 call funcval(r0vec,FitCoef,jPow,energy,nterm,nvar)
 call gradient(r0vec,FitCoef,jPow,grad,nterm,nvar)
@@ -179,7 +175,7 @@ r_diff(:) = Zero
 Gtemp(:,:) = G1
 GprimeTemp(:,:,:) = Gprime1
 GdbleprimeTemp(:,:,:,:) = Gdbleprime1
-call MatrixElements(L,U,FC00,Hij,C,W,r_diff,mMat,nMat,ninc,ndec,max_nOrd,max_mOrd,nOsc,energy,grad,Hess,D3,D4,Gtemp,GprimeTemp, &
+call MatrixElements(L,U,FC00,Hij,C,W,r_diff,nMat,ninc,ndec,max_nOrd,max_mOrd,nOsc,energy,grad,Hess,D3,D4,Gtemp,GprimeTemp, &
                     GdbleprimeTemp,alpha1,alpha2,beta,max_term,Base)
 
 H(1:max_mOrd+1,1:max_nOrd+1) = Hij
@@ -187,9 +183,9 @@ S(1:max_mOrd+1,1:max_nOrd+1) = Sij
 
 ! Block 22.
 l_C2 = nOsc
-call Calc_r00(C2,C2,W2,W2,C,W,alpha1,alpha2,r0vec,r02,r02,det0,det2,det2,FC00,l_C2)
+call Calc_r00(C2,C2,C,W,alpha1,alpha2,r0vec,r02,r02,det0,det2,det2,FC00,l_C2)
 call FCval(C2,W2,det2,r02,C2,W2,det2,r02,Sij,max_mOrd,max_nOrd,max_nOrd2,max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,nInc,mDec, &
-           nDec,C,W,det2,r0vec,L,U,FC00,alpha1,alpha2,beta,l_C2,nnsiz)
+           nDec,C,W,det2,L,U,FC00,alpha1,alpha2,beta,l_C2)
 r0vec(1:nOsc) = r2-r0
 call funcval(r0vec,FitCoef,jPow,energy,nterm,nvar)
 call gradient(r0vec,FitCoef,jPow,grad,nterm,nvar)
@@ -202,16 +198,16 @@ r_diff(:) = Zero
 Gtemp(:,:) = G2
 GprimeTemp(:,:,:) = Gprime2
 GdbleprimeTemp(:,:,:,:) = Gdbleprime2
-call MatrixElements(L,U,FC00,Hij,C,W,r_diff,mMat,nMat,ninc,ndec,max_nOrd,max_mOrd,nOsc,energy,grad,Hess,D3,D4,Gtemp,GprimeTemp, &
+call MatrixElements(L,U,FC00,Hij,C,W,r_diff,nMat,ninc,ndec,max_nOrd,max_mOrd,nOsc,energy,grad,Hess,D3,D4,Gtemp,GprimeTemp, &
                     GdbleprimeTemp,alpha1,alpha2,beta,max_term,Base)
 H(max_mOrd+2:2*max_mOrd+2,max_nOrd+2:2*max_nOrd+2) = Hij
 S(max_mOrd+2:2*max_mOrd+2,max_nOrd+2:2*max_nOrd+2) = Sij
 
 ! Block 12 and 21.
 l_C1 = nOsc
-call Calc_r00(C1,C2,W1,W2,C,W,alpha1,alpha2,r0vec,r01,r02,det0,det1,det2,FC00,l_C1)
+call Calc_r00(C1,C2,C,W,alpha1,alpha2,r0vec,r01,r02,det0,det1,det2,FC00,l_C1)
 call FCval(C1,W1,det1,r01,C2,W2,det2,r02,Sij,max_mOrd,max_nOrd,max_nOrd2,max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,nInc,mDec, &
-           nDec,C,W,det0,r0vec,L,U,FC00,alpha1,alpha2,beta,l_C1,nnsiz)
+           nDec,C,W,det0,L,U,FC00,alpha1,alpha2,beta,l_C1)
 r0vec(:) = Zero
 call funcval(r0vec,FitCoef,jPow,energy,nterm,nvar)
 call gradient(r0vec,FitCoef,jPow,grad,nterm,nvar)
@@ -224,7 +220,7 @@ r_diff(1:nOsc) = r01-r02
 Gtemp(:,:) = G0
 GprimeTemp(:,:,:) = Gprime0
 GdbleprimeTemp(:,:,:,:) = Gdbleprime0
-call MatrixElements(L,U,FC00,Hij,C,W,r_diff,mMat,nMat,nInc,nDec,max_nOrd,max_mOrd,nOsc,energy,grad,Hess,D3,D4,Gtemp,GprimeTemp, &
+call MatrixElements(L,U,FC00,Hij,C,W,r_diff,nMat,nInc,nDec,max_nOrd,max_mOrd,nOsc,energy,grad,Hess,D3,D4,Gtemp,GprimeTemp, &
                     GdbleprimeTemp,alpha1,alpha2,beta,max_term,Base)
 H(1:max_mOrd+1,max_nOrd+2:2*max_nOrd+2) = Hij
 S(1:max_mOrd+1,max_nOrd+2:2*max_nOrd+2) = Sij
@@ -262,15 +258,5 @@ call mma_deallocate(alpha2)
 call mma_deallocate(beta)
 call mma_deallocate(L)
 call mma_deallocate(U)
-
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(r00)
-  call Unused_real_array(Gdbleprime2)
-  call Unused_real_array(C0)
-  call Unused_real_array(W0)
-  call Unused_real_array(Mass)
-  call Unused_real_array(rOrigin)
-end if
 
 end subroutine SetUpHmat

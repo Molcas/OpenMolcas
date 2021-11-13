@@ -11,7 +11,7 @@
 ! Copyright (C) 1996, Niclas Forsberg                                  *
 !***********************************************************************
 
-subroutine Anharm(eigenVec,harmfreq,D3,D4,Gprime,Gdbleprime,x,max_term,nOsc)
+subroutine Anharm(eigenVec,harmfreq,D3,D4,Gprime,Gdbleprime,x,nOsc)
 !  Purpose:
 !    Calculate the anharmonicity constants.
 !    This routine assumes that the curvilinear coordinates are such
@@ -29,7 +29,6 @@ subroutine Anharm(eigenVec,harmfreq,D3,D4,Gprime,Gdbleprime,x,max_term,nOsc)
 !                 derivatives of the inverse mass tensor.
 !    Gdbleprime : Real*8 four dimensional array - second
 !                 derivatives of the inverse mass tensor.
-!    max_term   : Integer - highest power of term in polynomial fit.
 !
 !  Output:
 !    x          : Real*8 two dimensional array - anharmonicity
@@ -182,8 +181,5 @@ call mma_deallocate(V3)
 call mma_deallocate(T3)
 call mma_deallocate(V4)
 call mma_deallocate(T4)
-
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(max_term)
 
 end subroutine Anharm

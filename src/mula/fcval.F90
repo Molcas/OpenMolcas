@@ -16,7 +16,7 @@
 !  Contains:
 !    FCval     (C1,W1,det1,r01,C2,W2,det2,r02,FC,max_mOrd,max_nOrd,
 !               max_nOrd2,max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,
-!               nInc,mDec,nDec,C,W,det0,r00,L,U,FC00,alpha1,alpha2,beta)
+!               nInc,mDec,nDec,C,W,det0,L,U,FC00,alpha1,alpha2,beta)
 !
 !  Uses:
 !    TabMod
@@ -28,7 +28,7 @@
 !contains
 
 subroutine FCval(C1,W1,det1,r01,C2,W2,det2,r02,FC,max_mOrd,max_nOrd,max_nOrd2,max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,nInc, &
-                 mDec,nDec,C,W,det0,r00,L,U,FC00,alpha1,alpha2,beta,nOsc,nnsiz)
+                 mDec,nDec,C,W,det0,L,U,FC00,alpha1,alpha2,beta,nOsc)
 !  Purpose:
 !    Calculate multidimensional Franck Condon factors.
 !
@@ -57,8 +57,6 @@ subroutine FCval(C1,W1,det1,r01,C2,W2,det2,r02,FC,max_mOrd,max_nOrd,max_nOrd2,ma
 !    C          : Real*8 two dimensional array - inverse
 !                 of W.
 !    det0       : Real*8 variable - determinant of C.
-!    r00        : Real*8 array - coordinates of intermediate
-!                 oscillator.
 !    L,U        : Real*8 two dimensional arrays
 !    FC00       : Real*8 variable - zero-zero overlap.
 !    FC         : Real*8
@@ -92,7 +90,7 @@ real*8 W2(nosc,nosc), C(nosc,nosc), W(nosc,nosc)
 real*8 L(0:max_mord,0:max_ninc2)
 real*8 U(0:max_nord,0:max_nord2)
 real*8 alpha1(nosc,nosc), alpha2(nosc,nosc), beta(nosc,nosc)
-real*8 r00(nosc), r01(nosc), r02(nosc)
+real*8 r01(nosc), r02(nosc)
 integer mMat(0:mdim1,mdim2), mInc(0:mdim1,mdim2),mDec(0:mdim1,mdim2)
 integer nMat(0:ndim1,ndim2), nInc(0:ndim1,ndim2),nDec(0:ndim1,ndim2)
 real*8, allocatable :: A1(:,:), A1B1T(:,:), A2(:,:), A2B2T(:,:), alpha(:,:), B1(:,:), B2(:,:), d1(:), d2(:), r_temp1(:), &
@@ -307,11 +305,5 @@ do jOrd=0,max_nOrd
 end do
 
 call mma_deallocate(sqr)
-
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(r00)
-  call Unused_integer(nnsiz)
-end if
 
 end subroutine FCval

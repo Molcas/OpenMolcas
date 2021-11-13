@@ -53,7 +53,7 @@ subroutine ReadInp(Title,AtomLbl,Mass,InterVec,Bond,nBond,NumInt,NumOfAt,trfName
 
 use mula_global, only: AtCoord1, AtCoord2, broadplot, cmstart, cmend, energy1, energy2, hbarcm, Hess1, Hess2, Huge_Print, inpUnit, &
                        ipow, LifeTime, m_plot, MaxNumAt, n_plot, ndata, NormModes, nPolyTerm, nvar, OscStr, plotwindow, t_dipin1, &
-                       t_dipin2, t_dipin3, TranDip, TranDipGrad, Use_cm, Use_nm, var, VibModPlot, WriteVibLevels, yin1, yin2
+                       t_dipin2, TranDip, TranDipGrad, Use_cm, Use_nm, var, VibModPlot, WriteVibLevels, yin1, yin2
 use Isotopes, only: Isotope
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Eight, Quart, Angstrom, auTocm, auToeV, deg2rad, uToau
@@ -1719,9 +1719,6 @@ else
 
   call mma_allocate(t_dipin2,ndata,label='t_dipin2')
   t_dipin2(:) = GrdVal(:,10)
-
-  call mma_allocate(t_dipin3,ndata,label='t_dipin3')
-  t_dipin3(:) = Zero
 
   ! Make sure that all transition dipole values have the same sign.
   sign1_1 = sign(One,t_dipin1(1))

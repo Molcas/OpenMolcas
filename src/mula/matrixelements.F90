@@ -11,7 +11,7 @@
 ! Copyright (C) 1996, Niclas Forsberg                                  *
 !***********************************************************************
 
-subroutine MatrixElements(L,U,FC00,Hmat,C,W,r_diff,mMat,nMat,iCre,iann,max_nOrd,max_mOrd,nOsc,energy,grad,Hess,D3,D4,G,Gprime, &
+subroutine MatrixElements(L,U,FC00,Hmat,C,W,r_diff,nMat,iCre,iann,max_nOrd,max_mOrd,nOsc,energy,grad,Hess,D3,D4,G,Gprime, &
                           Gdbleprime,alpha1,alpha2,beta,max_term,Base)
 !  Purpose:
 !    Set up Hamilton matrix at a given center.
@@ -27,7 +27,7 @@ subroutine MatrixElements(L,U,FC00,Hmat,C,W,r_diff,mMat,nMat,iCre,iann,max_nOrd,
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1996.
 
-use mula_global, only: mdim1, mdim2, ndim1, ndim2
+use mula_global, only: ndim1, ndim2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 
@@ -40,7 +40,6 @@ real*8 Hmat(0:max_mOrd,0:max_nOrd)
 real*8 C(nosc,nosc)
 real*8 W(nosc,nosc)
 real*8 r_diff(nosc)
-integer mMat(0:mdim1,mdim2)
 integer nMat(0:ndim1,ndim2)
 integer icre(0:ndim1,ndim2)
 integer iann(0:ndim1,ndim2)
@@ -93,8 +92,5 @@ call mma_deallocate(Ctemp)
 call mma_deallocate(Wtemp)
 call mma_deallocate(temp)
 call mma_deallocate(rtemp1)
-
-! Avoid unused argument warnings
-if (.false.) call Unused_integer_array(mMat)
 
 end subroutine MatrixElements

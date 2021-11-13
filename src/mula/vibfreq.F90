@@ -44,7 +44,7 @@
 !contains
 
 subroutine VibFreq(AtCoord,xvec,InterVec,Mass,Hess,G,Gprime,Gdbleprime,harmfreq,eigenVec,qMat,PED,D3,D4,x_anharm,anharmfreq, &
-                   max_term,Cartesian,nOsc,NumOfAt)
+                   max_term,nOsc,NumOfAt)
 !  Purpose:
 !    Calculates the vibrational frequencies of a molecule.
 !
@@ -60,8 +60,6 @@ subroutine VibFreq(AtCoord,xvec,InterVec,Mass,Hess,G,Gprime,Gdbleprime,harmfreq,
 !    D4         : Real*8 four dimensional array - fourth derivatives
 !                 of potential surface.
 !    max_term   : Integer - highest power of term in polynomial fit.
-!    Cartesian  : Logical - If geometry is given in cartesian coordinates,
-!                 then this variable is True.
 !
 !  Output:
 !    AtCoord    : Real*8 two dimensional array - cartesian
@@ -102,8 +100,7 @@ real*8 D4(ngdim,ngdim,ngdim,ngdim)
 real*8 x_anharm(nosc,nOsc)
 real*8 Gprime(ngdim,ngdim,ngdim)
 real*8 Gdbleprime(ngdim,ngdim,ngdim,ngdim)
-logical Cartesian
-real*8, allocatable :: B(:,:), Bnew(:,:), Lambda(:), V(:,:)
+real*8, allocatable :: B(:,:), Lambda(:), V(:,:)
 
 ! Initialize.
 !D write(u6,*) ' Entered VIBFREQ.'
@@ -113,7 +110,6 @@ NumInt = nOsc
 call mma_allocate(V,NumInt,NumInt,label='V')
 call mma_allocate(B,3*NumOfAt,NumInt,label='B')
 
-call mma_allocate(Bnew,3*NumOfAt,NumInt,label='Bnew')
 call mma_allocate(Lambda,NumInt,label='Lambda')
 
 ! Transform coordinates.
@@ -143,16 +139,9 @@ if (max_term > 2) then
   call CalcGdbleprime(Gdbleprime,Mass,xvec,InterVec,AtCoord,NumOfAt,dh,NumInt)
 end if
 
-k = 1
-do i=1,NumOfAt
-  const = One/sqrt(uToau*Mass(i))
-  Bnew(k:k+2,:) = B(k:k+2,:)*const
-  k = k+3
-end do
-
 ! Given Hess and G, calculate the eigenvalues and eigenvectors of G*Hess.
 !D write(u6,*) ' VIBFREQ, calling Freq.'
-call Freq_mula(Hess,G,V,Lambda,B,Bnew,qMat,nOsc,NumOfAt)
+call Freq_mula(Hess,G,V,Lambda,B,qMat,nOsc,NumOfAt)
 !D write(u6,*) ' VIBFREQ, back from Freq.'
 !D write(u6,*) ' Lambda:'
 !D write(u6,'(5f16.8)') Lambda
@@ -169,20 +158,16 @@ eigenVec(:,:) = V
 ! then calculation of the fundamental frequencies.
 x_anharm(:,:) = Zero
 if (max_term > 2) then
-  call Anharm(eigenVec,harmfreq,D3,D4,Gprime,Gdbleprime,x_anharm,max_term,nOsc)
+  call Anharm(eigenVec,harmfreq,D3,D4,Gprime,Gdbleprime,x_anharm,nOsc)
   call AnharmonicFreq(x_anharm,harmfreq,anharmfreq,nOsc)
 end if
 
 ! Calculate potential energy distribution.
 call PotDist(Hess,V,Lambda,PED,NumInt,nOsc)
 
-! Free memory space of B, Bnew, G and V.
+! Free memory space of B, G and V.
 call mma_deallocate(B)
 call mma_deallocate(V)
-call mma_deallocate(Bnew)
 call mma_deallocate(Lambda)
-
-! Avoid unused argument warnings
-if (.false.) call Unused_logical(Cartesian)
 
 end subroutine VibFreq

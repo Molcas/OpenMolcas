@@ -11,7 +11,7 @@
 ! Copyright (C) 1994, Niclas Forsberg                                  *
 !***********************************************************************
 
-subroutine Freq_mula(Hess,G,V,Lambda,B,Bnew,qMat,NumInt,NumOfAt)
+subroutine Freq_mula(Hess,G,V,Lambda,B,qMat,NumInt,NumOfAt)
 !  Purpose:
 !    Find eigenvalues and eigenvectors of FG matrix.
 !    The eigenvalues are stored in the array Lambda and the eigen-
@@ -24,7 +24,6 @@ subroutine Freq_mula(Hess,G,V,Lambda,B,Bnew,qMat,NumInt,NumOfAt)
 !               the force constants expressed in internal
 !    G        : Real*8 two dimensional array.
 !    B        : Real*8 two dimensional array.
-!    Bnew     : Real*8 two dimensional array.
 !
 !  Output:
 !    V        : Real*8 two dimensional array  - contains
@@ -49,7 +48,7 @@ use Constants, only: Zero, One
 
 implicit real*8(a-h,o-z)
 real*8 Hess(NumInt,NumInt), G(NumInt,NumInt), V(NumInt,NumInt)
-real*8 B(3*NumOfAt,NumInt), Bnew(3*NumOfAt,NumInt), qMat(3*NumOfAt,NumInt)
+real*8 B(3*NumOfAt,NumInt), qMat(3*NumOfAt,NumInt)
 real*8 Lambda(NumInt)
 real*8, allocatable :: Temp(:,:), U(:,:)
 
@@ -76,8 +75,5 @@ call DGEMM_('N','N',3*NumOfAt,NumInt,NumInt,One,B,3*NumOfAt,U,NumInt,Zero,qMat,3
 ! free memory space of Temp and U.
 call mma_deallocate(U)
 call mma_deallocate(Temp)
-
-! Avoid unused argument warnings
-if (.false.) call Unused_real_array(Bnew)
 
 end subroutine Freq_mula

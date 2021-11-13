@@ -16,28 +16,27 @@
 !  Dip. Chimica Generale e Chimica Organica, Torino (ITALY)
 !  28-Dec-08 - 06-Jan-09 ; June 2009
 
-subroutine ISC_FCval(iPrint,iMaxYes,nTabDim,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,max_nOrd2,max_mInc,max_nInc,max_nInc2, &
-                     mMat,nMat,mInc,nInc,mDec,nDec,C,W,det0,r00,FC00,nOsc,nnsiz,iMx_nOrd,nYes,VibWind2,FCWind2)
+subroutine ISC_FCval(iPrint,iMaxYes,nTabDim,C1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,max_nOrd2,max_nInc,max_nInc2,nMat,nInc, &
+                     nDec,C,W,det0,FC00,nOsc,nYes,VibWind2,FCWind2)
 
-use mula_global, only: mdim1, mdim2, ndim1, ndim2
+use mula_global, only: ndim1, ndim2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, u6
 
 implicit real*8(a-h,o-z)
 implicit integer(i-n)
-real*8 C1(nOsc,nOsc), C2(nOsc,nOsc), W1(nOsc,nOsc)
+real*8 C1(nOsc,nOsc), C2(nOsc,nOsc)
 real*8 W2(nOsc,nOsc), C(nOsc,nOsc), W(nOsc,nOsc)
-real*8 r00(nOsc), r01(nOsc), r02(nOsc)
+real*8 r01(nOsc), r02(nOsc)
 real*8 FCWind2(nYes)
-integer mMat(0:mdim1,mdim2), mInc(0:mdim1,mdim2), mDec(0:mdim1,mdim2)
 integer nMat(0:ndim1,ndim2), nInc(0:iMaxYes,nOsc), nDec(0:iMaxYes,nOsc)
 integer VibWind2(nYes)
 real*8, allocatable :: A2(:,:), A2B2T(:,:), Alpha(:,:), Alpha1(:,:), Alpha2(:,:), B2(:,:), Beta(:,:), d2(:), L(:,:), r_temp1(:), &
                        r_temp2(:), sqr(:), temp(:,:), temp1(:,:), temp2(:,:), U(:,:)
 
 !write(u6,*) 'CGGt[ISC_FCval] Enter '
-!write(u6,*) '                iMx_nOrd, nYes = ',iMx_nOrd, nYes
+!write(u6,*) '                nYes = ',nYes
 !write(u6,*) '                VibWind2 :',(VibWind2(i),i=1,nYes)
 !write(u6,*) '            L matrix:',max_mOrd,max_nInc2
 !write(u6,*) '            U matrix:',max_nOrd,max_nOrd2
@@ -283,17 +282,5 @@ call mma_deallocate(r_temp2)
 
 !write(u6,*) 'CGGt[FCVal] Exit'
 !call XFlush(u6)
-
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(W1)
-  call Unused_integer(max_mInc)
-  call Unused_integer_array(mMat)
-  call Unused_integer_array(mInc)
-  call Unused_integer_array(mDec)
-  call Unused_real_array(r00)
-  call Unused_integer(nnsiz)
-  call Unused_integer(iMx_nOrd)
-end if
 
 end subroutine ISC_FCval

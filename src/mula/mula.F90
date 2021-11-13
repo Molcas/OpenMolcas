@@ -28,7 +28,7 @@ subroutine Mula(ireturn)
 
 use mula_global, only: AtCoord1, AtCoord2, energy1, energy2, Hess1, Hess2, Huge_Print, inpUnit, ipow, m_plot, maxMax_n, MaxNumAt, &
                        mdim1, mdim2, n_plot, ndata, ndim1, ndim2, ngdim, NormModes, nPolyTerm, nvar, OscStr, t_dipin1, t_dipin2, &
-                       t_dipin3, TranDip, TranDipGrad, var, WriteVibLevels, yin1, yin2
+                       TranDip, TranDipGrad, var, WriteVibLevels, yin1, yin2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half, auTocm
 use Definitions, only: wp, u5, u6, ItoB
@@ -194,7 +194,7 @@ call mma_deallocate(AtCoord1)
 ! Determine vibrational modes and their frequencies.
 !D write(u6,*) ' MULA calling VIBFREQ.'
 call VibFreq(AtCoord,r01,InterVec,Mass,Hess1,G1,Gprm1,Gbis1,harmfreq1,eigenVec1,qMat,PED,D3_1,D4_1,x_anharm1,anharmfreq1,max_term, &
-             Cartesian,nOsc,NumOfAt)
+             nOsc,NumOfAt)
 
 !call WriteLog(PotCoef,AtomLbl,AtCoord,
 if (iPrint >= 1) call WriteLog(PotCoef,AtomLbl,AtCoord,Mass,InterVec,stand_dev,max_err,energy1,Hess1,G1,eigenVec1,harmfreq1,qMat, &
@@ -218,7 +218,7 @@ call mma_deallocate(AtCoord2)
 
 ! Determine vibrational modes and their frequencies.
 call VibFreq(AtCoord,r02,InterVec,Mass,Hess2,G2,Gprm2,Gbis2,harmfreq2,eigenVec2,qMat,PED,D3_2,D4_2,x_anharm2,anharmfreq2,max_term, &
-             Cartesian,nOsc,NumOfAt)
+             nOsc,NumOfAt)
 if (iPrint >= 1) call WriteLog(PotCoef,AtomLbl,AtCoord,Mass,InterVec,stand_dev,max_err,energy2,Hess2,G2,eigenVec2,harmfreq2,qMat, &
                                Bond,nBond,r02,D3_2,D4_2,PED,x_anharm2,anharmfreq2,max_term,2,ForceField,NumOfAt,nOsc)
 
@@ -280,7 +280,7 @@ if (iPrint >= 1) call ExpPointHeader()
 call mma_allocate(r00,nOsc,label='r00')
 call mma_allocate(alpha1,nOsc,nOsc,label='alpha1')
 call mma_allocate(alpha2,nOsc,nOsc,label='alpha2')
-call Calc_r00(C1,C2,W1,W2,C,W,alpha1,alpha2,r00,r01,r02,det0,det1,det2,FC00,nOsc)
+call Calc_r00(C1,C2,C,W,alpha1,alpha2,r00,r01,r02,det0,det1,det2,FC00,nOsc)
 call mma_deallocate(alpha1)
 call mma_deallocate(alpha2)
 r0(:) = r00
@@ -421,7 +421,7 @@ call mma_deallocate(rtemp)
 call mma_allocate(r00,nOsc,label='r00')
 call mma_allocate(alpha1,nOsc,nOsc,label='alpha1')
 call mma_allocate(alpha2,nOsc,nOsc,label='alpha2')
-call Calc_r00(C1,C2,W1,W2,C,W,alpha1,alpha2,r00,r01,r02,det0,det1,det2,FC00,nOsc)
+call Calc_r00(C1,C2,C,W,alpha1,alpha2,r00,r01,r02,det0,det1,det2,FC00,nOsc)
 call mma_deallocate(alpha1)
 call mma_deallocate(alpha2)
 
@@ -558,7 +558,6 @@ if (lISC) then
       call mma_allocate(nDec,[0,nTabDim],[1,nOsc],label='nDec')
       ndim1 = nTabDim
       ndim2 = nOsc
-      nnsiz = ndim1
       call MakeTab2(n_max,max_nOrd,max_nInc,nTabDim,nMat,nInc,nDec,nOsc)
     else ! NewCode: nInc & nDec reduced
       iMem = (nTabDim+1)*nOsc
@@ -573,8 +572,7 @@ if (lISC) then
       call mma_allocate(Graph2,[0,n_max],[0,n_max],[1,nOsc],label='Graph2')
       ndim1 = nTabDim
       ndim2 = nOsc
-      nnsiz = ndim1
-      call ISC_MakeTab2(n_max,max_nOrd,max_nInc,nTabDim,nMat,Graph1,Graph2,nOsc)
+      call ISC_MakeTab2(n_max,max_nOrd,nTabDim,nMat,Graph1,Graph2,nOsc)
       call mma_deallocate(Graph1)
     end if
     call Timing(CPTF1,CPE,TIOTF1,TIOE)
@@ -621,7 +619,7 @@ if (lISC) then
     ! The State Window
 
     call mma_allocate(VibWind2,nYes,label='VibWind2')
-    call MkVibWind2(iPrint,nYes,iMaxYes,max_nOrd,lVec,VibWind2)
+    call MkVibWind2(nYes,iMaxYes,max_nOrd,lVec,VibWind2)
     call mma_deallocate(lVec)
     call Timing(CPTF3,CPE,TIOTF3,TIOE)
     call Timing(CPTF4,CPE,TIOTF4,TIOE)
@@ -652,8 +650,8 @@ if (lISC) then
       write(u6,*) ' Franck-Condon factors evaluation.'
       call XFlush(u6)
     end if
-    call ISC_Rate(iPrint,nOsc,max_nOrd,iMx_nOrd,iMaxYes,nYes,dMinWind,VibWind2,C1,C2,W1,W2,det0,det1,det2,C,W,r01,r02,r00,mTabDim, &
-                  mMat,nTabDim,nMat,mInc,mDec,nInc,nDec,m_max,n_max,max_dip,nnsiz,FC00,dRho)
+    call ISC_Rate(iPrint,nOsc,max_nOrd,iMaxYes,nYes,dMinWind,VibWind2,C1,C2,W2,det0,det1,det2,C,W,r01,r02,nTabDim,nMat,nInc,nDec, &
+                  m_max,n_max,FC00,dRho)
     call Timing(CPTF6,CPE,TIOTF6,TIOE)
 
     call mma_deallocate(VibWind2)
@@ -673,7 +671,7 @@ if (lISC) then
 
     call mma_allocate(Graph1,[0,n_max],[1,nOsc+1],label='Graph1')
     call mma_allocate(Graph2,[0,n_max],[0,n_max],[1,nOsc],label='Graph2')
-    call ISCD_MakeGraphs(n_max,max_nOrd,max_nInc,Graph1,Graph2,nOsc)
+    call ISCD_MakeGraphs(n_max,max_nOrd,Graph1,Graph2,nOsc)
     call mma_deallocate(Graph1)
     call mma_allocate(nnTabDim,[0,nTabDim],label='nnTabDim')
     call mma_allocate(nMat0,nOsc,label='nMat0')
@@ -731,7 +729,7 @@ if (lISC) then
     ! The State Window
 
     call mma_allocate(VibWind2,nYes,label='VibWind2')
-    call MkVibWind2(iPrint,nYes,iMaxYes,max_nOrd,lVec,VibWind2)
+    call MkVibWind2(nYes,iMaxYes,max_nOrd,lVec,VibWind2)
     call mma_deallocate(lVec)
     call Timing(CPTF3,CPE,TIOTF3,TIOE)
 
@@ -821,9 +819,8 @@ if (lISC) then
       write(u6,*) ' Franck-Condon factors evaluation.'
       call XFlush(u6)
     end if
-    call ISCD_Rate(iPrint,nOsc,max_nOrd,iMx_nOrd,iMaxYes,nYes,dMinWind,lBatch,nBatch,leftBatch,nIndex,VibWind2,lNMAT0,lNMAT,lNINC, &
-                   lNDEC,nTabDim,nnTabDim,C1,C2,W1,W2,det0,det1,det2,C,W,r01,r02,r00,m_max,n_max,max_dip,nnsiz,FC00,dRho,mTabDim, &
-                   mMat,mInc,mDec,nMat,nInc,nDec)
+    call ISCD_Rate(iPrint,nOsc,max_nOrd,iMaxYes,nYes,dMinWind,lBatch,nIndex,VibWind2,lNMAT0,lNMAT,lNINC,lNDEC,nTabDim,nnTabDim,C1, &
+                   C2,W2,det0,det1,det2,C,W,r01,r02,m_max,n_max,FC00,dRho,nMat,nInc,nDec)
     call Timing(CPTF6,CPE,TIOTF6,TIOE)
 
     call mma_deallocate(VibWind2)
@@ -949,7 +946,6 @@ else
   ! Put dimensions into common block:
   ndim1 = nTabDim
   ndim2 = nOsc
-  nnsiz = ndim1
   call MakeTab2(n_max,max_nOrd,max_nInc,nTabDim,nMat,nInc,nDec,nOsc)
 
   if (.not. MatEl) then
@@ -1078,22 +1074,22 @@ else
         Base2(i,i) = One
       end do
 
-      call SetUpHmat2(energy1,energy2,C1,W1,det1,r01,r02,max_mOrd,max_nOrd,max_nOrd,max_mInc,max_nInc,max_nInc,mMat,nMat,mInc, &
-                      nInc,mDec,nDec,H1,S1,Hess1,G1,Base2,r01,nnsiz,nDimTot,nOsc)
+      call SetUpHmat2(energy1,C1,W1,det1,r01,max_mOrd,max_nOrd,max_mInc,max_nInc,mMat,nMat,mInc,nInc,mDec,nDec,H1,S1,Hess1,G1, &
+                      Base2,nDimTot,nOsc)
       call SolveSecEq(H1,nDimTot,U1,S1,E1)
       write(u6,'(20f10.1)') ((E1(i)-E1(1))*auTocm,i=2,nOsc)
-      call SetUpHmat2(energy1,energy2,C2,W2,det2,r01,r02,max_mOrd,max_nOrd,max_nOrd,max_mInc,max_nInc,max_nInc,mMat,nMat,mInc, &
-                      nInc,mDec,nDec,H2,S2,Hess2,G2,Base2,r02,nnsiz,nDimTot,nOsc)
+      call SetUpHmat2(energy1,C2,W2,det2,r01,max_mOrd,max_nOrd,max_nInc,max_nInc,mMat,nMat,mInc,nInc,mDec,nDec,H2,S2,Hess2,G2, &
+                      Base2,nDimTot,nOsc)
       call SolveSecEq(H2,nDimTot,U2,S2,E2)
       write(u6,'(20f10.1)') ((E2(i)-E2(1))*auTocm,i=2,nOsc)
     else
-      call SetUpHmat(energy1,r1,ipow,var,yin1,r00,trfName1,max_term,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,max_nOrd, &
-                     max_mInc,max_nInc,max_nInc,mMat,nMat,mInc,nInc,mDec,nDec,H1,S1,G1,G2,G0,Gprm1,Gprm2,Gprm0,Gbis1,Gbis2,Gbis0, &
-                     C,W,det0,Mass,r00,Base,r0,r1,r2,nnsiz,nterm,nvar,ndata,nosc,ndimtot,numofat)
+      call SetUpHmat(energy1,r1,ipow,var,yin1,trfName1,max_term,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,max_nOrd,max_mInc, &
+                     max_nInc,max_nInc,mMat,nMat,mInc,nInc,mDec,nDec,H1,S1,G1,G2,G0,Gprm1,Gprm2,Gprm0,Gbis1,Gbis2,Gbis0,det0,Base, &
+                     r0,r1,r2,nterm,nvar,ndata,nosc,ndimtot)
       call SolveSort(H1,U1,S1,E1,W1,W2,W1,C1,C2,C1,r01,r02,r01,mInc,mDec,mMat,mdim1,mdim2,OccNumMat1,nOsc,nDimTot)
-      call SetUpHmat(energy2,r2,ipow,var,yin2,r00,trfName2,max_term,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,max_nOrd, &
-                     max_mInc,max_nInc,max_nInc,mMat,nMat,mInc,nInc,mDec,nDec,H2,S2,G1,G2,G0,Gprm1,Gprm2,Gprm0,Gbis1,Gbis2,Gbis0, &
-                     C,W,det0,Mass,r00,Base,r0,r1,r2,nnsiz,nterm,nvar,ndata,nosc,ndimtot,numofat)
+      call SetUpHmat(energy2,r2,ipow,var,yin2,trfName2,max_term,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,max_nOrd,max_mInc, &
+                     max_nInc,max_nInc,mMat,nMat,mInc,nInc,mDec,nDec,H2,S2,G1,G2,G0,Gprm1,Gprm2,Gprm0,Gbis1,Gbis2,Gbis0,det0,Base, &
+                     r0,r1,r2,nterm,nvar,ndata,nosc,ndimtot)
       call SolveSort(H2,U2,S2,E2,W1,W2,W2,C1,C2,C2,r01,r02,r02,nInc,nDec,nMat,ndim1,ndim2,OccNumMat2,nOsc,nDimTot)
       call mma_deallocate(yin1)
       call mma_deallocate(yin2)
@@ -1157,19 +1153,16 @@ else
       do i=1,nOsc
         Base2(i,i) = One
       end do
-      call Intensity2(IntensityMat,TermMat,T0,max_term,U1,U2,E1,E2,C1,W1,det1,r01,C2,W2,det2,r02,C,W,det0,r00,m_max,n_max,max_dip, &
-                      m_plot,n_plot,TranDip,TranDipGradInt,harmfreq1,x_anharm1,harmfreq2,x_anharm2,r0,r1,r2,Base2, &
-                      l_IntensityMat_1,l_IntensityMat_2,l_TermMat_1,l_TermMat_2,nOsc,nDimTot,l_n_plot,l_m_plot)
+      call Intensity2(IntensityMat,TermMat,U1,U2,C1,W1,det1,r01,C2,W2,det2,r02,det0,m_max,n_max,max_dip,m_plot,n_plot,TranDip, &
+                      TranDipGradInt,Base2,l_IntensityMat_1,l_IntensityMat_2,l_TermMat_1,l_TermMat_2,nOsc,nDimTot,l_n_plot,l_m_plot)
       call mma_deallocate(TranDipGradInt)
       call mma_deallocate(Base2)
     else
-      call Intensity(IntensityMat,TermMat,T0,max_term,ipow,var,t_dipin1,t_dipin2,t_dipin3,trfName1,U1,U2,E1,E2,C1,W1,det1,r01,C2, &
-                     W2,det2,r02,C,W,det0,r00,m_max,n_max,max_dip,m_plot,n_plot,harmfreq1,harmfreq2,r0,r1,r2,Base, &
-                     l_IntensityMat_1,l_IntensityMat_2,l_TermMat_1,l_TermMat_2,nOsc,nDimTot,nPolyTerm,ndata,nvar,MaxNumAt, &
-                     l_n_plot,l_m_plot)
+      call Intensity(IntensityMat,TermMat,ipow,var,t_dipin1,t_dipin2,trfName1,U1,U2,C1,W1,det1,r01,C2,W2,det2,r02,det0,m_max, &
+                     n_max,max_dip,m_plot,n_plot,r0,r1,r2,Base,l_IntensityMat_1,l_IntensityMat_2,l_TermMat_1,l_TermMat_2,nOsc, &
+                     nDimTot,nPolyTerm,ndata,nvar,MaxNumAt,l_n_plot,l_m_plot)
       call mma_deallocate(t_dipin1)
       call mma_deallocate(t_dipin2)
-      call mma_deallocate(t_dipin3)
 
       call mma_deallocate(var)
       call mma_deallocate(ipow)
@@ -1180,17 +1173,17 @@ else
     l_IntensityMat_2 = max_nOrd
 
     call mma_allocate(IntensityMat,[0,l_IntensityMat_1],[0,l_IntensityMat_2],label='IntensityMat')
-    call IntForceField(IntensityMat,TermMat,T0,max_term,FC00,C1,W1,det1,r01,C2,W2,det2,r02,C,W,det0,r00,m_max,n_max,max_dip, &
-                       Trandip,TranDipGradInt,harmfreq1,x_anharm1,harmfreq2,x_anharm2,mMat,mInc,mDec,nMat,nInc,nDec,OscStr,nsize, &
-                       max_mOrd,max_nOrd,nDimTot,nOsc)
+    call IntForceField(IntensityMat,TermMat,FC00,C1,W1,det1,r01,C2,W2,det2,r02,C,W,det0,m_max,n_max,max_dip,Trandip, &
+                       TranDipGradInt,harmfreq1,x_anharm1,harmfreq2,x_anharm2,mMat,mInc,mDec,nMat,nInc,nDec,OscStr,max_mOrd, &
+                       max_nOrd,nOsc)
     call mma_deallocate(TranDipGradInt)
   end if
 
   !write results to log.
   write(u6,*) ' Write intensity data to log file.'
   call XFlush(u6)
-  call WriteInt(IntensityMat,TermMat,mMat,nMat,OccNumMat1,OccNumMat2,MatEl,ForceField,E1,E2,T0,harmfreq1,harmfreq2,x_anharm1, &
-                x_anharm2,l_IntensityMat_1,l_IntensityMat_2,l_TermMat_1,l_TermMat_2,nDimTot,nOsc)
+  call WriteInt(IntensityMat,TermMat,mMat,nMat,OccNumMat2,MatEl,ForceField,E1,E2,T0,harmfreq1,harmfreq2,x_anharm1,x_anharm2, &
+                l_IntensityMat_1,l_IntensityMat_2,l_TermMat_1,l_TermMat_2,nDimTot,nOsc)
 
   call mma_deallocate(C)
   call mma_deallocate(C1)

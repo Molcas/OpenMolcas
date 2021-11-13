@@ -9,11 +9,10 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ISCD_FCval(iPrint,iMaxYes,lnTabDim,nnTabDim,lNMAT0,lNMAT,lNINC,lNDEC,lBatch,nBatch,leftBatch,nIndex,C1,W1,det1,r01,C2, &
-                      W2,det2,r02,max_mOrd,max_nOrd,max_nOrd2,max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,nInc,mDec,nDec,C,W,det0, &
-                      r00,FC00,nOsc,nnsiz,iMx_nOrd,nYes,VibWind2,FCWind2)
+subroutine ISCD_FCval(iPrint,iMaxYes,lnTabDim,nnTabDim,lNMAT0,lNMAT,lNINC,lNDEC,lBatch,nIndex,C1,det1,r01,C2,W2,det2,r02,max_mOrd, &
+                      max_nOrd,max_nOrd2,max_nInc,max_nInc2,nMat,nInc,nDec,C,W,det0,FC00,nOsc,nYes,VibWind2,FCWind2)
 
-use mula_global, only: maxMax_n, mdim1, mdim2
+use mula_global, only: maxMax_n
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, u6
@@ -21,11 +20,10 @@ use Definitions, only: wp, u6
 implicit real*8(a-h,o-z)
 implicit integer(i-n)
 integer nIndex(3,0:maxMax_n)
-real*8 C1(nOsc,nOsc), C2(nOsc,nOsc), W1(nOsc,nOsc)
+real*8 C1(nOsc,nOsc), C2(nOsc,nOsc)
 real*8 W2(nOsc,nOsc), C(nOsc,nOsc), W(nOsc,nOsc)
-real*8 r00(nOsc), r01(nOsc), r02(nOsc)
+real*8 r01(nOsc), r02(nOsc)
 real*8 FCWind2(nYes)
-integer mMat(0:mdim1,mdim2), mInc(0:mdim1,mdim2), mDec(0:mdim1,mdim2)
 integer nMat(nOsc,lBatch), nInc(nOsc,lBatch), nDec(nOsc,lBatch)
 integer VibWind2(nYes), nnTabDim(0:lnTabDim)
 integer, allocatable :: nMat0(:)
@@ -36,7 +34,7 @@ call mma_allocate(nMat0,nOsc,label='nMat0')
 
 !GGt -------------------------------------------------------------------
 !write(u6,*) 'CGGt[ISCD_FCval] Enter '
-!write(u6,*) '     iMx_nOrd, nYes = ',iMx_nOrd, nYes
+!write(u6,*) '     nYes = ',nYes
 !write(u6,*) '     VibWind2 :',(VibWind2(i),i=1,nYes)
 !write(u6,*) '     L matrix:',max_mOrd,max_nInc2
 !write(u6,*) '     U matrix:',max_nOrd,max_nOrd2
@@ -374,19 +372,5 @@ call mma_deallocate(nMat0)
 
 !write(u6,*) 'CGGt[FCVal] Exit'
 !call XFlush(u6)
-
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(nBatch)
-  call Unused_integer(leftBatch)
-  call Unused_real_array(W1)
-  call Unused_integer(max_mInc)
-  call Unused_integer_array(mMat)
-  call Unused_integer_array(mInc)
-  call Unused_integer_array(mDec)
-  call Unused_real_array(r00)
-  call Unused_integer(nnsiz)
-  call Unused_integer(iMx_nOrd)
-end if
 
 end subroutine ISCD_FCval

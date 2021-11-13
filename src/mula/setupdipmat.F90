@@ -10,8 +10,8 @@
 !***********************************************************************
 
 subroutine SetUpDipMat(DipMat,max_term,ipow,var,dip,trfName,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,max_nOrd2,max_mInc, &
-                       max_nInc,max_nInc2,mMat,nMat,mInc,nInc,mDec,nDec,det0,r0,r1,r2,base,nnsiz,nOsc,nDimTot,nPolyTerm,ndata, &
-                       nvar,MaxNumAt)
+                       max_nInc,max_nInc2,mMat,nMat,mInc,nInc,mDec,nDec,det0,r0,r1,r2,base,nOsc,nDimTot,nPolyTerm,ndata,nvar, &
+                       MaxNumAt)
 !  Purpose:
 !    Performs a least squares fit of the transition dipole at the two
 !    centra and at the inPolyTermediate oscillator. Calculates the matrix
@@ -102,9 +102,9 @@ call mma_allocate(D4,nOsc,nOsc,nOsc,nOsc,label='D4')
 ! k:th normal coordinate.
 
 l_C1 = nOsc
-call Calc_r00(C1,C1,W1,W1,C,W,alpha1,alpha2,r0vec,r01,r01,det0,det1,det1,FC00,l_C1)
+call Calc_r00(C1,C1,C,W,alpha1,alpha2,r0vec,r01,r01,det0,det1,det1,FC00,l_C1)
 call FCval(C1,W1,det1,r01,C1,W1,det1,r01,Sij,max_mOrd,max_nOrd,max_nOrd2,max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,nInc,mDec, &
-           nDec,C,W,det1,r0vec,L,U,FC00,alpha1,alpha2,beta,l_C1,nnsiz)
+           nDec,C,W,det1,L,U,FC00,alpha1,alpha2,beta,l_C1)
 call mma_allocate(coef,nPolyTerm,label='coef')
 l_r1 = nOsc
 call PotFit(nPolyTerm,nvar,ndata,ipow,var,dip,coef,r1,l_r1,D0,D1,D2,D3,D4,trfName,stand_dev,max_err,find_minimum,max_term, &
@@ -113,9 +113,9 @@ call DipMatEl(Dij,W,L,U,FC00,nMat,ninc,ndec,D0,D1,D2,D3,D4,max_term,Base,ndim1,n
 DipMat(0:max_mOrd,0:max_mOrd) = Dij
 
 l_C2 = nOsc
-call Calc_r00(C2,C2,W2,W2,C,W,alpha1,alpha2,r0vec,r02,r02,det0,det2,det2,FC00,l_C2)
+call Calc_r00(C2,C2,C,W,alpha1,alpha2,r0vec,r02,r02,det0,det2,det2,FC00,l_C2)
 call FCval(C2,W2,det2,r02,C2,W2,det2,r02,Sij,max_mOrd,max_nOrd,max_nOrd2,max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,nInc,mDec, &
-           nDec,C,W,det2,r0vec,L,U,FC00,alpha1,alpha2,beta,l_C2,nnsiz)
+           nDec,C,W,det2,L,U,FC00,alpha1,alpha2,beta,l_C2)
 l_r2 = nOsc
 call PotFit(nPolyTerm,nvar,ndata,ipow,var,dip,coef,r2,l_r2,D0,D1,D2,D3,D4,trfName,stand_dev,max_err,find_minimum,max_term, &
             use_weight,nOsc,nOsc,nOsc)
@@ -123,9 +123,9 @@ call DipMatEl(Dij,W,L,U,FC00,nMat,ninc,ndec,D0,D1,D2,D3,D4,max_term,Base,ndim1,n
 DipMat(max_mOrd+1:2*max_mOrd+1,max_mOrd+1:2*max_mOrd+1) = Dij
 
 l_C1 = nOsc
-call Calc_r00(C1,C2,W1,W2,C,W,alpha1,alpha2,r0vec,r01,r02,det0,det1,det2,FC00,l_C1)
+call Calc_r00(C1,C2,C,W,alpha1,alpha2,r0vec,r01,r02,det0,det1,det2,FC00,l_C1)
 call FCval(C1,W1,det1,r01,C2,W2,det2,r02,Sij,max_mOrd,max_nOrd,max_nOrd2,max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,nInc,mDec, &
-           nDec,C,W,det0,r0vec,L,U,FC00,alpha1,alpha2,beta,l_C1,nnsiz)
+           nDec,C,W,det0,L,U,FC00,alpha1,alpha2,beta,l_C1)
 l_r0 = nOsc
 call PotFit(nPolyTerm,nvar,ndata,ipow,var,dip,coef,r0,l_r0,D0,D1,D2,D3,D4,trfName,stand_dev,max_err,find_minimum,max_term, &
             use_weight,nOsc,nOsc,nOsc)

@@ -237,7 +237,7 @@ else
 end if
 
 ! Transform back to original coordinates.
-call qvar_to_var(var,x,grad,Hess,D3,D4,ref,qref,trfName,alpha,max_term,ndata,nvar)
+call qvar_to_var(x,grad,Hess,D3,D4,ref,qref,trfName,alpha,nvar)
 
 call mma_deallocate(alpha)
 call mma_deallocate(qvar)

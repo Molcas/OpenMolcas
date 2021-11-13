@@ -11,8 +11,8 @@
 ! Copyright (C) 1996, Niclas Forsberg                                  *
 !***********************************************************************
 
-subroutine WriteInt(IntMat,TermMat,mMat,nMat,OccNumMat1,OccNumMat2,MatEl,ForceField,E1,E2,T0,harmfreq1,harmfreq2,x_anharm1, &
-                    x_anharm2,l_IntMat_1,l_IntMat_2,l_TermMat_1,l_TermMat_2,nDimTot,nOsc)
+subroutine WriteInt(IntMat,TermMat,mMat,nMat,OccNumMat2,MatEl,ForceField,E1,E2,T0,harmfreq1,harmfreq2,x_anharm1,x_anharm2, &
+                    l_IntMat_1,l_IntMat_2,l_TermMat_1,l_TermMat_2,nDimTot,nOsc)
 !  Purpose:
 !    Write vibrational levels, intensities to log.
 !
@@ -47,7 +47,7 @@ parameter(nfreq=2000)
 real*8 Intensity, max_Intensity
 real*8 IntMat(0:l_IntMat_1,0:l_IntMat_2)
 real*8 TermMat(0:l_TermMat_1,0:l_TermMat_2)
-real*8 OccNumMat1(0:nDimTot-1,nOsc), OccNumMat2(0:nDimTot-1,nOsc)
+real*8 OccNumMat2(0:nDimTot-1,nOsc)
 integer mMat(0:mdim1,mdim2)
 integer nMat(0:ndim1,ndim2)
 character*23 mMatChar(0:mdim1+1)
@@ -487,8 +487,5 @@ close(plotUnit)
 call mma_deallocate(TermSort)
 call mma_deallocate(mMatStart)
 call mma_deallocate(mMatStop)
-
-! Avoid unused argument warnings
-if (.false.) call Unused_real_array(OccNumMat1)
 
 end subroutine WriteInt

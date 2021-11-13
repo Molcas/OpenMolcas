@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Calc_r00(C1,C2,W1,W2,C,W,alpha1,alpha2,r00,r01,r02,det0,det1,det2,FC00,nOsc)
+subroutine Calc_r00(C1,C2,C,W,alpha1,alpha2,r00,r01,r02,det0,det1,det2,FC00,nOsc)
 !  Purpose:
 !    Calculate geometry of the intermediate oscillator.
 
@@ -18,7 +18,7 @@ use Constants, only: Zero, One, Two, Half
 
 implicit real*8(a-h,o-z)
 real*8 C1(nOsc,nOsc), C2(nOsc,nOsc), C(nOsc,nOsc)
-real*8 W1(nOsc,nOsc), W2(nOsc,nOsc), W(nOsc,nOsc)
+real*8 W(nOsc,nOsc)
 real*8 alpha1(nOsc,nOsc), alpha2(nOsc,nOsc)
 real*8 r00(nOsc), r01(nOsc), r02(nOsc)
 real*8, allocatable :: alpha(:,:), beta(:,:), r_temp(:), r_temp1(:), r_temp2(:), temp(:,:), temp1(:,:)
@@ -86,11 +86,5 @@ call mma_deallocate(alpha)
 call mma_deallocate(beta)
 call mma_deallocate(temp)
 call mma_deallocate(temp1)
-
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(W1)
-  call Unused_real_array(W2)
-end if
 
 end subroutine Calc_r00

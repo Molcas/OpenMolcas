@@ -10,7 +10,7 @@
 !***********************************************************************
 
 subroutine SetUpDipMat2(DipMat,max_term,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,max_nOrd2,max_mInc,max_nInc,max_nInc2, &
-                        mMat,nMat,mInc,nInc,mDec,nDec,det0,r0,r1,r2,base,TranDip,TranDipGrad,nnsiz,nOsc,nDimTot)
+                        mMat,nMat,mInc,nInc,mDec,nDec,det0,base,TranDip,TranDipGrad,nOsc,nDimTot)
 !  Purpose:
 !    Performs a least squares fit of the transition dipole at the two
 !    centra and at the intermediate oscillator. Calculates the matrix
@@ -59,7 +59,6 @@ integer mMat(0:mdim1,mdim2), mInc(0:mdim1,mdim2), mDec(0:mdim1,mdim2)
 integer nMat(0:ndim1,ndim2), nInc(0:ndim1,ndim2), nDec(0:ndim1,ndim2)
 real*8 C1(nOsc,nOsc), C2(nOsc,nOsc), W1(nOsc,nOsc), W2(nOsc,nOsc)
 real*8 r01(nOsc), r02(nOsc)
-real*8 r0(nOsc), r1(nOsc), r2(nOsc)
 real*8 Base(nOsc,nOsc)
 real*8 TranDip(3), TranDipGrad(nOsc)
 real*8 D0(3)
@@ -97,9 +96,9 @@ call mma_allocate(D4,nOsc,nOsc,nOsc,nOsc,label='D4')
 ! k:th normal coordinate.
 
 l_C1 = nOsc
-call Calc_r00(C1,C2,W1,W2,C,W,alpha1,alpha2,r0vec,r01,r02,det0,det1,det2,FC00,l_C1)
+call Calc_r00(C1,C2,C,W,alpha1,alpha2,r0vec,r01,r02,det0,det1,det2,FC00,l_C1)
 call FCval(C1,W1,det1,r01,C2,W2,det2,r02,Sij,max_mOrd,max_nOrd,max_nOrd2,max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,nInc,mDec, &
-           nDec,C,W,det0,r0vec,L,U,FC00,alpha1,alpha2,beta,l_C1,nnsiz)
+           nDec,C,W,det0,L,U,FC00,alpha1,alpha2,beta,l_C1)
 D0(1) = TranDip(1)
 D0(2) = TranDip(2)
 D0(3) = TranDip(3)
@@ -124,12 +123,5 @@ call mma_deallocate(D1)
 call mma_deallocate(D2)
 call mma_deallocate(D3)
 call mma_deallocate(D4)
-
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(r0)
-  call Unused_real_array(r1)
-  call Unused_real_array(r2)
-end if
 
 end subroutine SetUpDipMat2

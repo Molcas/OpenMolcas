@@ -51,7 +51,7 @@ return
 
 end subroutine LogEVec
 !####
-subroutine MkVibWind2(iPrint,nYes,iMaxYes,max_nOrd,lVec,VibWind2)
+subroutine MkVibWind2(nYes,iMaxYes,max_nOrd,lVec,VibWind2)
 
 implicit real*8(a-h,o-z)
 integer VibWind2(nYes), lVec(0:max_nOrd)
@@ -67,8 +67,5 @@ do iOrd=0,max_nOrd
 end do
 
 return
-
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(iPrint)
 
 end subroutine MkVibWind2

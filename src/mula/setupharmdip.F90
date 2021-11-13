@@ -9,8 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SetUpHarmDip(DipMat,max_term,m_max,n_max,mMat,mInc,mDec,nMat,nInc,nDec,C1,W1,det1,r01,C2,W2,det2,r02,C,W,det0,r00, &
-                        TranDip,TranDipGrad,FC00,nnsiz,max_mOrd,max_nOrd,nOsc)
+subroutine SetUpHarmDip(DipMat,max_term,m_max,n_max,mMat,mInc,mDec,nMat,nInc,nDec,C1,W1,det1,r01,C2,W2,det2,r02,C,W,det0,TranDip, &
+                        TranDipGrad,FC00,max_mOrd,max_nOrd,nOsc)
 !  Purpose:
 !    Calculate the matrix elements of the transition dipole moment
 !    at the location of the intermediate oscillator.
@@ -46,7 +46,7 @@ real*8 DipMat(0:max_mOrd,0:max_nOrd,0:3)
 integer mMat(0:mdim1,mdim2), mInc(0:mdim1,mdim2), mDec(0:mdim1,mdim2)
 integer nMat(0:ndim1,ndim2), nInc(0:ndim1,ndim2), nDec(0:ndim1,ndim2)
 real*8 C1(nosc,nosc), C2(nosc,nosc), W1(nosc,nosc), W2(nosc,nosc), C(nosc,nosc), W(nosc,nosc)
-real*8 r01(nosc), r02(nosc), r00(nosc)
+real*8 r01(nosc), r02(nosc)
 real*8 TranDipGrad(3,nosc)
 real*8 TranDip(3)
 integer nvTabDim
@@ -76,7 +76,7 @@ call mma_allocate(beta,nOsc,nOsc,label='beta')
 
 ! Calculate Franck-Condon factors.
 call FCval(C1,W1,det1,r01,C2,W2,det2,r02,Sij,m_max_ord,n_max_ord,mx_max_ord,max_mInc,max_nInc,nx_max_ord,mMat,nMat,mInc,nInc,mDec, &
-           nDec,C,W,det0,r00,L,U,FC00,alpha1,alpha2,beta,nOsc,nnsiz)
+           nDec,C,W,det0,L,U,FC00,alpha1,alpha2,beta,nOsc)
 
 call mma_deallocate(alpha1)
 call mma_deallocate(alpha2)

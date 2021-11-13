@@ -11,7 +11,7 @@
 ! Copyright (C) 1995, Niclas Forsberg                                  *
 !***********************************************************************
 
-subroutine qvar_to_var(var,x,grad,Hess,D3,D4,ref,qref,trfName,alpha,max_term,ndata,nvar)
+subroutine qvar_to_var(x,grad,Hess,D3,D4,ref,qref,trfName,alpha,nvar)
 !  Purpose:
 !    Tranform coordinates, gradient, Hessian, third derivatives and
 !    fourth derivates back to the coordinates originally specified.
@@ -24,7 +24,6 @@ use Constants, only: Zero, One, Three, Four, Six
 use Definitions, only: u6
 
 implicit real*8(a-h,o-z)
-real*8 var(ndata,nvar)
 real*8 x(nvar)
 real*8 q(nvar)
 real*8 t(nvar), u(nvar), v(nvar), s(nvar)
@@ -217,11 +216,5 @@ Hess(:,:) = Temp
 D3(:,:,:) = D3trans
 
 D4(:,:,:,:) = D4trans
-
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(var)
-  call Unused_integer(max_term)
-end if
 
 end subroutine qvar_to_var

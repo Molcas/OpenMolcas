@@ -39,7 +39,7 @@
 !    mMat      : Two dimensional integer array
 !    mInc      : Two dimensional integer array
 !    mDec      : Two dimensional integer array
-subroutine ISC_MakeTab2(m_max,maxOrd,maxIncOrd,mSiz,mMat,Graph1,Graph2,nOsc)
+subroutine ISC_MakeTab2(m_max,maxOrd,mSiz,mMat,Graph1,Graph2,nOsc)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 
@@ -150,8 +150,6 @@ end do
 call mma_deallocate(iVec)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(MaxIncOrd)
 
 end subroutine ISC_MakeTab2
 !####

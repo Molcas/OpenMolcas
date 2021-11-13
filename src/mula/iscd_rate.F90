@@ -16,25 +16,26 @@
 !          Dip. Chimica Generale e Chimica Organica, Torino (ITALY)
 !          June 2009
 
-subroutine ISCD_Rate(iPrint,nOsc,max_nOrd,iMx_nOrd,iMaxYes,nYes,dMinWind,lBatch,nBatch,leftBatch,nIndex,VibWind2,lNMAT0,lNMAT, &
-                     lNINC,lNDEC,lnTabDim,nnTabDim,C1,C2,W1,W2,det0,det1,det2,C,W,r01,r02,r00,m_max,n_max,max_dip,nnsiz,FC00, &
-                     dRho,mTabDim,mMat,mInc,mDec,nMat,nInc,nDec)
+subroutine ISCD_Rate(iPrint,nOsc,max_nOrd,iMaxYes,nYes,dMinWind,lBatch,nIndex,VibWind2,lNMAT0,lNMAT, &
+                     lNINC,lNDEC,lnTabDim,nnTabDim,C1,C2,W2,det0,det1,det2,C,W,r01,r02,m_max,n_max,FC00, &
+                     dRho,nMat,nInc,nDec)
 
-use mula_global, only: maxMax_n, TranDip
+use mula_global, only: hbarcm, maxMax_n, TranDip
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Pi, auTocm
-use Definitions, only: wp, u6
+use Definitions, only: wp, u6, ItoB
 
 implicit real*8(a-h,o-z)
 implicit integer(i-n)
 integer nIndex(3,0:maxMax_n)
-real*8 C1(nOsc,nOsc), C2(nOsc,nosc), W1(nOsc,nOsc), W2(nOsc,nOsc), C(nOsc,nOsc), W(nOsc,nOsc)
-real*8 r01(nOsc), r02(nOsc), r00(nOsc), det0, det1, det2, FC00
+real*8 C1(nOsc,nOsc), C2(nOsc,nosc), W2(nOsc,nOsc), C(nOsc,nOsc), W(nOsc,nOsc)
+real*8 r01(nOsc), r02(nOsc), det0, det1, det2, FC00
 integer VibWind2(nYes), nnTabDim(0:lnTabDim)
-integer mMat(0:mTabDim,nOsc), nMat(nOsc,lBatch)
-integer mInc(0:mTabDim,nOsc), nInc(nOsc,lBatch)
-integer mDec(0:mTabDim,nOsc), nDec(nOsc,lBatch)
+integer nMat(nOsc,lBatch)
+integer nInc(nOsc,lBatch)
+integer nDec(nOsc,lBatch)
 real*8, allocatable :: FCWind2(:)
+integer, parameter :: MB = 1048576
 
 call TabDim(m_max,nosc,nvTabDim)
 call TabDim(n_max,nosc,nvTabDim)
@@ -46,7 +47,6 @@ mx_max_ord = nvTabDim-1
 call TabDim(min(m_max,n_max+1),nosc,nvTabDim)
 nx_max_ord = nvTabDim-1
 call TabDim(m_max-1,nosc,nvTabDim)
-max_mInc = nvTabDim-1
 call TabDim(n_max-1,nosc,nvTabDim)
 max_nInc = nvTabDim-1
 call TabDim(n_max,nosc,nvTabDim)
@@ -54,7 +54,7 @@ n_max_ord = nvTabDim-1
 
 mx_max_ord = 0 ! CGGn
 if (iPrint >= 3) write(u6,*) ' Memory allocated for U matrix:',(n_max_ord+1)*(mx_max_ord+1),' words,  ', &
-                             8*(n_max_ord+1)*(mx_max_ord+1)/1048576,' MB.     '
+                             (n_max_ord+1)*(mx_max_ord+1)*ItoB/MB,' MB.'
 call XFlush(u6)
 
 !GGt -------------------------------------------------------------------
@@ -69,12 +69,10 @@ call XFlush(u6)
 !call XFlush(u6)
 
 call mma_allocate(FCWind2,nYes,label='FCWind2')
-call ISCD_FCval(iPrint,iMaxYes,lnTabDim,nnTabDim,lNMAT0,lNMAT,lNINC,lNDEC,lBatch,nBatch,leftBatch,nIndex,C1,W1,det1,r01,C2,W2, &
-                det2,r02,m_max_ord,n_max_ord,mx_max_ord,max_mInc,max_nInc,nx_max_ord,mMat,nMat,mInc,nInc,mDec,nDec,C,W,det0,r00, &
-                FC00,nOsc,nnsiz,iMx_nOrd,nYes,VibWind2,FCWind2)
+call ISCD_FCval(iPrint,iMaxYes,lnTabDim,nnTabDim,lNMAT0,lNMAT,lNINC,lNDEC,lBatch,nIndex,C1,det1,r01,C2,W2,det2,r02,m_max_ord, &
+                n_max_ord,mx_max_ord,max_nInc,nx_max_ord,nMat,nInc,nDec,C,W,det0,FC00,nOsc,nYes,VibWind2,FCWind2)
 
-! where does this number come from?
-const = Two*Pi/5.309e-12_wp
+const = Two*Pi/hbarcm
 if (iPrint >= 4) then
   write(u6,*)
   write(u6,*) '  const =',const
@@ -126,8 +124,5 @@ if (iPrint >= 1) then
 end if
 
 return
-
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(max_dip)
 
 end subroutine ISCD_Rate

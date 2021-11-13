@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ISCD_MakeGraphs(m_max,maxOrd,maxIncOrd,Graph1,Graph2,nOsc)
+subroutine ISCD_MakeGraphs(m_max,maxOrd,Graph1,Graph2,nOsc)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 
@@ -66,7 +66,5 @@ end do
 call mma_deallocate(Number)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(maxIncOrd)
 
 end subroutine ISCD_MakeGraphs

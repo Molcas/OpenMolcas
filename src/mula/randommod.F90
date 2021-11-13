@@ -68,85 +68,85 @@ subroutine Rmarin(ij,kl)
 !           6533892.0  14220222.0  7275067.0
 !           6172232.0  8354498.0   10633180.0
 
-use Constants, only: Zero, Half
-use Definitions, only: wp, u6
+  use Constants, only: Zero, Half
+  use Definitions, only: wp, u6
 
-implicit real*8(a-h,o-z)
+  implicit real*8(a-h,o-z)
 
-test = .false.
+  test = .false.
 
-if ((ij < 0) .or. (ij > 31328) .or. (kl < 0) .or. (kl > 30081)) then
-  write(u6,'(a)') 'The first random number seed must have a value between 0 and 31328'
-  write(u6,'(a)') 'The second seed must have a value between 0 and 30081'
-  call abend()
-end if
+  if ((ij < 0) .or. (ij > 31328) .or. (kl < 0) .or. (kl > 30081)) then
+    write(u6,'(a)') 'The first random number seed must have a value between 0 and 31328'
+    write(u6,'(a)') 'The second seed must have a value between 0 and 30081'
+    call abend()
+  end if
 
-i = mod(ij/177,177)+2
-j = mod(ij,177)+2
-k = mod(kl/169,178)+1
-l = mod(kl,169)
+  i = mod(ij/177,177)+2
+  j = mod(ij,177)+2
+  k = mod(kl/169,178)+1
+  l = mod(kl,169)
 
-do ii=1,97
-  s = Zero
-  t = Half
-  do jj=1,24
-    m = mod(mod(i*j,179)*k,179)
-    i = j
-    j = k
-    k = m
-    l = mod(53*l+1,169)
-    if (mod(l*m,64) >= 32) then
-      s = s+t
-    end if
-    t = Half*t
+  do ii=1,97
+    s = Zero
+    t = Half
+    do jj=1,24
+      m = mod(mod(i*j,179)*k,179)
+      i = j
+      j = k
+      k = m
+      l = mod(53*l+1,169)
+      if (mod(l*m,64) >= 32) then
+        s = s+t
+      end if
+      t = Half*t
+    end do
+    U(ii) = s
   end do
-  U(ii) = s
-end do
 
-c = 362436.0_wp/16777216.0_wp
-cd = 7654321.0_wp/16777216.0_wp
-cm = 16777213.0_wp/16777216.0_wp
+  c = 362436.0_wp/16777216.0_wp
+  cd = 7654321.0_wp/16777216.0_wp
+  cm = 16777213.0_wp/16777216.0_wp
 
-i97 = 97
-j97 = 33
+  i97 = 97
+  j97 = 33
 
-test = .true.
+  test = .true.
 
 end subroutine Rmarin
-!####
+
 subroutine Ranmar(rvec,len)
 ! This is the random number generator proposed by George Marsaglia in
 ! Florida State University Report: FSU-SCRI-87-50
 ! It was slightly modified by F. James to produce an array of pseudorandom
 ! numbers.
 
-use Constants, only: Zero, One
-use Definitions, only: u6
+  use Constants, only: Zero, One
+  use Definitions, only: u6
 
-implicit real*8(a-h,o-z)
-real*8 rvec(*)
-real*8 uni
-integer ivec
+  implicit real*8(a-h,o-z)
+  real*8 rvec(*)
+  real*8 uni
+  integer ivec
 
-if (.not. test) then
-  write(u6,'(a)') ' Call the init routine (RMARIN) before calling RANMAR'
-  call abend()
-end if
+  if (.not. test) then
+    write(u6,'(a)') ' Call the init routine (RMARIN) before calling RANMAR'
+    call abend()
+  end if
 
-do ivec=1,len
-  uni = u(i97)-u(j97)
-  if (uni < Zero) uni = uni+One
-  u(i97) = uni
-  i97 = i97-1
-  if (i97 == 0) i97 = 97
-  j97 = j97-1
-  if (j97 == 0) j97 = 97
-  c = c-cd
-  if (c < Zero) c = c+cm
-  uni = uni-c
-  if (uni < Zero) uni = uni+One
-  rvec(ivec) = uni
-end do
+  do ivec=1,len
+    uni = u(i97)-u(j97)
+    if (uni < Zero) uni = uni+One
+    u(i97) = uni
+    i97 = i97-1
+    if (i97 == 0) i97 = 97
+    j97 = j97-1
+    if (j97 == 0) j97 = 97
+    c = c-cd
+    if (c < Zero) c = c+cm
+    uni = uni-c
+    if (uni < Zero) uni = uni+One
+    rvec(ivec) = uni
+  end do
 
 end subroutine Ranmar
 

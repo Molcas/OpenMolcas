@@ -42,9 +42,9 @@
 
 !contains
 
-subroutine Intensity(IntensityMat,TermMat,T0,max_term,ipow,var,Tdip_x,Tdip_y,Tdip_z,trfName,U1,U2,E1,E2,C1,W1,det1,r01,C2,W2,det2, &
-                     r02,C,W,det0,r00,m_max,n_max,max_dip,m_plot,n_plot,harmfreq1,harmfreq2,r0,r1,r2,Base,l_IntensityMat_1, &
-                     l_IntensityMat_2,l_TermMat_1,l_TermMat_2,nOsc,nDimTot,nPolyTerm,ndata,nvar,MaxNumAt,l_n_plot,l_m_plot)
+subroutine Intensity(IntensityMat,TermMat,ipow,var,Tdip_x,Tdip_y,trfName,U1,U2,C1,W1,det1,r01,C2,W2,det2,r02,det0,m_max,n_max, &
+                     max_dip,m_plot,n_plot,r0,r1,r2,Base,l_IntensityMat_1,l_IntensityMat_2,l_TermMat_1,l_TermMat_2,nOsc,nDimTot, &
+                     nPolyTerm,ndata,nvar,MaxNumAt,l_n_plot,l_m_plot)
 !  Purpose:
 !    Calculates the intensities of the different transitions between
 !    the two surfaces.
@@ -52,21 +52,16 @@ subroutine Intensity(IntensityMat,TermMat,T0,max_term,ipow,var,Tdip_x,Tdip_y,Tdi
 !  Input:
 !    FC           : Real*8 two dimensional array -
 !                   Franck-Condon factors.
-!    T0           : Real*8 variable - energy difference between
-!                   the two states.
-!    max_term     : Integer - maximum order of the transition dipole terms.
 !    ipow         : Two dimensional integer array - terms of the
 !                   polynomial.
 !    var          : Real*8 two dimensional array - coordinates
 !                   to be used in the fit.
-!    Tdip_y,
-!    Tdip_z       : Real*8 array - transition dipole
+!    Tdip_x,
+!    Tdip_y       : Real*8 array - transition dipole
 !    trfName      : Character array - transformation associated with each
 !                   internal coordinate.
 !    use_weight   : Logical
 !    U1,U2        : Real*8 two dimensional arrays - eigenvectors
-!                   obtained from matrix element calculations.
-!    E1,E2        : Real*8 arrays - energy values.
 !                   obtained from matrix element calculations.
 !    W1,W2        : Real*8 two dimensional arrays - eigenvectors
 !                   scaled by the square root of the eigenvalues. Harmonic
@@ -76,8 +71,6 @@ subroutine Intensity(IntensityMat,TermMat,T0,max_term,ipow,var,Tdip_x,Tdip_y,Tdi
 !    det1,det2    : Real*8 variables - determinants of C1 and C2.
 !    r01,r02      : Real*8 arrays - coordinates of the two
 !                   oscillators.
-!    r00          : Real*8 array - coordinates of intermediate
-!                   oscillator.
 !    m_max,n_max  : Integer variables - maximum quanta.
 !    max_dip      : Integer variable - maximum order of transition dipole.
 !    m_plot,
@@ -99,15 +92,13 @@ real*8 IntensityMat(0:l_IntensityMat_1,0:l_IntensityMat_2)
 real*8 TermMat(0:l_TermMat_1,0:l_TermMat_2)
 integer ipow(nPolyTerm,nvar)
 real*8 var(ndata,nvar)
-real*8 Tdip_x(ndata), Tdip_y(ndata), Tdip_z(ndata)
+real*8 Tdip_x(ndata), Tdip_y(ndata)
 character*80 trfName(MaxNumAt)
-real*8 C1(nOsc,nOsc), C2(nOsc,nOsc), W1(nOsc,nOsc), W2(nOsc,nOsc), C(nOsc,nOsc), W(nOsc,nOsc)
-real*8 r01(nOsc), r02(nOsc), r00(nOsc)
+real*8 C1(nOsc,nOsc), C2(nOsc,nOsc), W1(nOsc,nOsc), W2(nOsc,nOsc)
+real*8 r01(nOsc), r02(nOsc)
 real*8 r1(nOsc), r2(nOsc), r0(nOsc)
 real*8 U1(nDimTot,nDimTot), U2(nDimTot,nDimTot)
 real*8 Base(nOsc,nOsc)
-real*8 E1(nDimTot), E2(nDimTot)
-real*8 harmfreq1(nOsc), harmfreq2(nOsc)
 integer m_plot(l_m_plot), n_plot(l_n_plot)
 integer nvTabDim
 integer, allocatable :: mDec(:,:), mInc(:,:), mMat(:,:), nDec(:,:), nInc(:,:), nMat(:,:)
@@ -147,8 +138,6 @@ call mma_allocate(nDec,[0,nTabDim],[1,nOsc],label='nDec')
 ! Put dimensions into module
 ndim1 = nTabDim2
 ndim2 = nOsc
-! Use nnsiz for the time being, to transfer dim to called routines.
-nnsiz = ntabdim2
 call MakeTab2(n_max2,max_nOrd2,max_nInc2,nTabDim2,nMat,nInc,nDec,nOsc)
 
 ! Either use the eigenvectors obtained from the variational
@@ -159,11 +148,9 @@ FC2(:,:,:) = Zero
 call mma_allocate(DipMat,nDimTot,nDimTot,2,label='DipMat')
 DipMat(:,:,:) = Zero
 call SetUpDipMat(DipMat(:,:,1),max_dip,ipow,var,Tdip_x,trfName,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,max_nOrd,max_mInc, &
-                 max_nInc,max_nInc,mMat,nMat,mInc,nInc,mDec,nDec,det0,r0,r1,r2,base,nnsiz,nOsc,nDimTot-1,nPolyTerm,ndata,nvar, &
-                 MaxNumAt)
+                 max_nInc,max_nInc,mMat,nMat,mInc,nInc,mDec,nDec,det0,r0,r1,r2,base,nOsc,nDimTot-1,nPolyTerm,ndata,nvar,MaxNumAt)
 call SetUpDipMat(DipMat(:,:,2),max_dip,ipow,var,Tdip_y,trfName,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,max_nOrd,max_mInc, &
-                 max_nInc,max_nInc,mMat,nMat,mInc,nInc,mDec,nDec,det0,r0,r1,r2,base,nnsiz,nOsc,nDimTot-1,nPolyTerm,ndata,nvar, &
-                 MaxNumAt)
+                 max_nInc,max_nInc,mMat,nMat,mInc,nInc,mDec,nDec,det0,r0,r1,r2,base,nOsc,nDimTot-1,nPolyTerm,ndata,nvar,MaxNumAt)
 m_plot_max = l_m_plot
 n_plot_max = l_n_plot
 max_mQuanta = m_plot(1)
@@ -231,25 +218,10 @@ call mma_deallocate(nMat)
 call mma_deallocate(nInc)
 call mma_deallocate(nDec)
 
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real(T0)
-  call Unused_integer(max_term)
-  call Unused_real_array(Tdip_z)
-  call Unused_real_array(E1)
-  call Unused_real_array(E2)
-  call Unused_real_array(C)
-  call Unused_real_array(W)
-  call Unused_real_array(r00)
-  call Unused_real_array(harmfreq1)
-  call Unused_real_array(harmfreq2)
-end if
-
 end subroutine Intensity
 !####
-subroutine Intensity2(IntensityMat,TermMat,T0,max_term,U1,U2,E1,E2,C1,W1,det1,r01,C2,W2,det2,r02,C,W,det0,r00,m_max,n_max,max_dip, &
-                      m_plot,n_plot,TranDip,TranDipGrad,harmfreq1,x_anharm1,harmfreq2,x_anharm2,r0,r1,r2,Base,l_IntensityMat_1, &
-                      l_IntensityMat_2,l_TermMat_1,l_TermMat_2,nOsc,nDimTot,l_n_plot,l_m_plot)
+subroutine Intensity2(IntensityMat,TermMat,U1,U2,C1,W1,det1,r01,C2,W2,det2,r02,det0,m_max,n_max,max_dip,m_plot,n_plot,TranDip, &
+                      TranDipGrad,Base,l_IntensityMat_1,l_IntensityMat_2,l_TermMat_1,l_TermMat_2,nOsc,nDimTot,l_n_plot,l_m_plot)
 
 !  Purpose:
 !    Calculates the intensities of the different transitions between
@@ -258,21 +230,14 @@ subroutine Intensity2(IntensityMat,TermMat,T0,max_term,U1,U2,E1,E2,C1,W1,det1,r0
 !  Input:
 !    FC           : Real*8 two dimensional array -
 !                   Franck-Condon factors.
-!    T0           : Real*8 variable - energy difference between
-!                   the two states.
-!    max_term     : Integer - maximum order of the transition dipole terms.
 !    ipow         : Two dimensional integer array - terms of the
 !                   polynomial.
 !    var          : Real*8 two dimensional array - coordinates
 !                   to be used in the fit.
-!    Tdip_y,
-!    Tdip_z       : Real*8 array - transition dipole
 !    trfName      : Character array - transformation associated with each
 !                   internal coordinate.
 !    use_weight   : Logical
 !    U1,U2        : Real*8 two dimensional arrays - eigenvectors
-!                   obtained from matrix element calculations.
-!    E1,E2        : Real*8 arrays - energy values.
 !                   obtained from matrix element calculations.
 !    W1,W2        : Real*8 two dimensional arrays - eigenvectors
 !                   scaled by the square root of the eigenvalues. Harmonic
@@ -282,8 +247,6 @@ subroutine Intensity2(IntensityMat,TermMat,T0,max_term,U1,U2,E1,E2,C1,W1,det1,r0
 !    det1,det2    : Real*8 variables - determinants of C1 and C2.
 !    r01,r02      : Real*8 arrays - coordinates of the two
 !                   oscillators.
-!    r00          : Real*8 array - coordinates of intermediate
-!                   oscillator.
 !    m_max,n_max  : Integer variables - maximum quanta.
 !    max_dip      : Integer variable - maximum order of transition dipole.
 !    m_plot,
@@ -303,16 +266,12 @@ use Definitions, only: wp
 implicit real*8(a-h,o-z)
 real*8 IntensityMat(0:l_IntensityMat_1,0:l_IntensityMat_2)
 real*8 TermMat(0:l_TermMat_1,0:l_TermMat_2)
-real*8 C1(nOsc,nOsc), C2(nOsc,nOsc), W1(nOsc,nOsc), W2(nOsc,nOsc), C(nOsc,nOsc), W(nOsc,nOsc)
-real*8 r01(nOsc), r02(nOsc), r00(nOsc)
-real*8 r1(nOsc), r2(nOsc), r0(nOsc)
+real*8 C1(nOsc,nOsc), C2(nOsc,nOsc), W1(nOsc,nOsc), W2(nOsc,nOsc)
+real*8 r01(nOsc), r02(nOsc)
 real*8 U1(nDimTot,nDimTot), U2(nDimTot,nDimTot)
 real*8 TranDip(3)
 real*8 TranDipGrad(3,nOsc)
 real*8 Base(nOsc,nOsc)
-real*8 E1(nDimTot), E2(nDimTot)
-real*8 harmfreq1(nOsc), harmfreq2(nOsc)
-real*8 x_anharm1(nOsc,nOsc), x_anharm2(nOsc,nOsc)
 integer m_plot(l_m_plot), n_plot(l_n_plot)
 integer nvTabDim
 integer, allocatable :: mDec(:,:), mInc(:,:), mMat(:,:), nDec(:,:), nInc(:,:), nMat(:,:)
@@ -349,7 +308,6 @@ call mma_allocate(nDec,[0,nTabDim2],[1,nOsc],label='nDec')
 ! Put dimensions into module
 ndim1 = nTabDim2
 ndim2 = nOsc
-nnsiz = ntabdim2
 call MakeTab2(n_max2,max_nOrd2,max_nInc2,nTabDim2,nMat,nInc,nDec,nOsc)
 
 ! Either use the eigenvectors obtained from the variational
@@ -360,11 +318,11 @@ FC2(:,:,:) = Zero
 call mma_allocate(DipMat,nDimTot,nDimTot,3,label='DipMat')
 DipMat(:,:,:) = Zero
 call SetUpDipMat2(DipMat(:,:,1),max_dip,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,max_nOrd,max_mInc,max_nInc,max_nInc,mMat, &
-                  nMat,mInc,nInc,mDec,nDec,det0,r0,r1,r2,Base,TranDip(1),TranDipGrad(1,1),nnsiz,nOsc,nDimTot-1)
+                  nMat,mInc,nInc,mDec,nDec,det0,Base,TranDip(1),TranDipGrad(1,1),nOsc,nDimTot-1)
 call SetUpDipMat2(DipMat(:,:,2),max_dip,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,max_nOrd,max_mInc,max_nInc,max_nInc,mMat, &
-                  nMat,mInc,nInc,mDec,nDec,det0,r0,r1,r2,Base,TranDip(2),TranDipGrad(2,1),nnsiz,nOsc,nDimTot-1)
+                  nMat,mInc,nInc,mDec,nDec,det0,Base,TranDip(2),TranDipGrad(2,1),nOsc,nDimTot-1)
 call SetUpDipMat2(DipMat(:,:,3),max_dip,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,max_nOrd,max_mInc,max_nInc,max_nInc,mMat, &
-                  nMat,mInc,nInc,mDec,nDec,det0,r0,r1,r2,Base,TranDip(3),TranDipGrad(3,1),nnsiz,nOsc,nDimTot-1)
+                  nMat,mInc,nInc,mDec,nDec,det0,Base,TranDip(3),TranDipGrad(3,1),nOsc,nDimTot-1)
 m_plot_max = l_m_plot
 n_plot_max = l_n_plot
 max_mQuanta = m_plot(1)
@@ -431,20 +389,5 @@ call mma_deallocate(mDec)
 call mma_deallocate(nMat)
 call mma_deallocate(nInc)
 call mma_deallocate(nDec)
-
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real(T0)
-  call Unused_integer(max_term)
-  call Unused_real_array(E1)
-  call Unused_real_array(E2)
-  call Unused_real_array(C)
-  call Unused_real_array(W)
-  call Unused_real_array(r00)
-  call Unused_real_array(harmfreq1)
-  call Unused_real_array(x_anharm1)
-  call Unused_real_array(harmfreq2)
-  call Unused_real_array(x_anharm2)
-end if
 
 end subroutine Intensity2

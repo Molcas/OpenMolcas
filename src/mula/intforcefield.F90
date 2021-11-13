@@ -26,9 +26,8 @@
 
 !contains
 
-subroutine IntForceField(IntensityMat,TermMat,T0,max_term,FC00,C1,W1,det1,r01,C2,W2,det2,r02,C,W,det0,r00,m_max,n_max,max_dip, &
-                         Trandip,TranDipGrad,harmfreq1,x_anharm1,harmfreq2,x_anharm2,mMat,mInc,mDec,nMat,nInc,nDec,OscStr,nnsiz, &
-                         max_mOrd,max_nOrd,nDimTot,nOsc)
+subroutine IntForceField(IntensityMat,TermMat,FC00,C1,W1,det1,r01,C2,W2,det2,r02,C,W,det0,m_max,n_max,max_dip,Trandip,TranDipGrad, &
+                         harmfreq1,x_anharm1,harmfreq2,x_anharm2,mMat,mInc,mDec,nMat,nInc,nDec,OscStr,max_mOrd,max_nOrd,nOsc)
 !  Purpose:
 !    Calculates the intensities of the different transitions between
 !    the two surfaces.
@@ -36,9 +35,6 @@ subroutine IntForceField(IntensityMat,TermMat,T0,max_term,FC00,C1,W1,det1,r01,C2
 !  Input:
 !    FC           : Real*8 two dimensional array -
 !                   Franck-Condon factors.
-!    T0           : Real*8 variable - energy difference between
-!                   the two states.
-!    max_term     : Integer - maximum order of the transition dipole terms.
 !    W1,W2        : Real*8 two dimensional arrays - eigenvectors
 !                   scaled by the square root of the eigenvalues. Harmonic
 !                   approximation.
@@ -47,8 +43,6 @@ subroutine IntForceField(IntensityMat,TermMat,T0,max_term,FC00,C1,W1,det1,r01,C2
 !    det1,det2    : Real*8 variables - determinants of C1 and C2.
 !    r01,r02      : Real*8 arrays - coordinates of the two
 !                   oscillators.
-!    r00          : Real*8 array - coordinates of intermediate
-!                   oscillator.
 !    m_max,n_max  : Integer variables - maximum quanta.
 !    max_dip      : Integer variable - maximum order of transition dipole.
 !    MatEl        : Logical
@@ -81,7 +75,7 @@ implicit real*8(a-h,o-z)
 real*8 IntensityMat(0:max_mOrd,0:max_nOrd)
 real*8 TermMat(0:max_mOrd,0:max_nOrd)
 real*8 C1(nosc,nosc), C2(nosc,nosc), W1(nosc,nosc), W2(nosc,nosc), C(nosc,nosc), W(nosc,nosc)
-real*8 r01(nosc), r02(nosc), r00(nosc)
+real*8 r01(nosc), r02(nosc)
 real*8 TranDip(3)
 real*8 TranDipGrad(3,nosc)
 real*8 harmfreq1(nosc), harmfreq2(nosc)
@@ -101,8 +95,8 @@ call TabDim(n_max,nosc,nvTabDim)
 max_nOrd = nvTabDim-1
 call mma_allocate(FC2,[0,max_mOrd],[0,max_nOrd],[0,3],label='FC2')
 
-call SetUpHarmDip(FC2,max_dip,m_max,n_max,mMat,mInc,mDec,nMat,nInc,nDec,C1,W1,det1,r01,C2,W2,det2,r02,C,W,det0,r00,TranDip, &
-                  TranDipGrad,FC00,nnsiz,max_mOrd,max_nOrd,nOsc)
+call SetUpHarmDip(FC2,max_dip,m_max,n_max,mMat,mInc,mDec,nMat,nInc,nDec,C1,W1,det1,r01,C2,W2,det2,r02,C,W,det0,TranDip, &
+                  TranDipGrad,FC00,max_mOrd,max_nOrd,nOsc)
 
 ! Calculate intensities with Boltzmann weighting of hotband intensity.
 const1 = Two/Three
@@ -153,12 +147,5 @@ call mma_deallocate(level1)
 call mma_deallocate(level2)
 call mma_deallocate(FC2)
 call mma_deallocate(FreqDiffMat)
-
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real(T0)
-  call Unused_integer(max_term)
-  call Unused_integer(nDimTot)
-end if
 
 end subroutine IntForceField

@@ -11,8 +11,8 @@
 ! Copyright (C) 1996, Niclas Forsberg                                  *
 !***********************************************************************
 
-subroutine SetUpHmat2(energy1,energy2,C,W,det,r1,r2,max_mOrd,max_nOrd,max_nOrd2,max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,nInc, &
-                      mDec,nDec,H,S,Hess,G0,Base,rOrigin,nnsiz,nDimTot,nOsc)
+subroutine SetUpHmat2(energy1,C,W,det,r1,max_mOrd,max_nOrd,max_mInc,max_nInc,mMat,nMat,mInc,nInc,mDec,nDec,H,S,Hess,G0,Base, &
+                      nDimTot,nOsc)
 !  Purpose:
 !
 !  Input:
@@ -39,8 +39,6 @@ use Constants, only: Zero
 !use TabMod
 implicit real*8(a-h,o-z)
 real*8 r1(nosc)
-real*8 r2(nosc)
-real*8 rOrigin(nosc)
 real*8 C(nOsc,nOsc)
 real*8 W(nOsc,nOsc)
 integer mMat(0:mdim1,mdim2), mInc(0:mdim1,mdim2), mDec(0:mdim1,mdim2)
@@ -85,12 +83,12 @@ Gdbleprime(:,:,:,:) = Zero
 !do i=1,nOsc
 !  Base(i,i) = One
 !end do
-call Calc_r00(C,C,W,W,C0,W0,alpha1,alpha2,r0,r1,r1,det0,det,det,FC00,nOsc)
+call Calc_r00(C,C,C0,W0,alpha1,alpha2,r0,r1,r1,det0,det,det,FC00,nOsc)
 call FCval(C,W,det0,r0,C,W,det0,r0,Sij,max_mOrd,max_nOrd,max_nOrd,max_mInc,max_nInc,max_nInc,mMat,nMat,mInc,nInc,mDec,nDec,C0,W0, &
-           det0,r0,L,U,FC00,alpha1,alpha2,beta,nOsc,nnsiz)
+           det0,L,U,FC00,alpha1,alpha2,beta,nOsc)
 r_diff(:) = Zero
-call MatrixElements(L,U,FC00,Hij,C0,W0,r_diff,mMat,nMat,nInc,nDec,max_nOrd,max_mOrd,nOsc,energy1,grad,Hess,D3,D4,G0,Gprime, &
-                    Gdbleprime,alpha1,alpha2,beta,max_term,Base)
+call MatrixElements(L,U,FC00,Hij,C0,W0,r_diff,nMat,nInc,nDec,max_nOrd,max_mOrd,nOsc,energy1,grad,Hess,D3,D4,G0,Gprime,Gdbleprime, &
+                    alpha1,alpha2,beta,max_term,Base)
 
 H(1:max_mOrd+1,1:max_nOrd+1) = Hij
 S(1:max_mOrd+1,1:max_nOrd+1) = Sij
@@ -111,14 +109,5 @@ call mma_deallocate(D3)
 call mma_deallocate(Gprime)
 call mma_deallocate(D4)
 call mma_deallocate(Gdbleprime)
-
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real(energy2)
-  call Unused_real_array(r2)
-  call Unused_integer(max_nInc2)
-  call Unused_integer(max_nOrd2)
-  call Unused_real_array(rOrigin)
-end if
 
 end subroutine SetUpHmat2
