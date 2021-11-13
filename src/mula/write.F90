@@ -18,7 +18,6 @@ use Definitions, only: u6
 real*8 DipGrad(3,nOsc)
 integer Modes(nOsc)
 character Title*(*)
-#include "inout.fh"
 
 write(u6,*)
 write(u6,*)
@@ -38,7 +37,6 @@ subroutine IntCalcHeader()
 
 use Definitions, only: u6
 
-#include "inout.fh"
 
 write(u6,*)
 write(u6,*)
@@ -55,7 +53,6 @@ subroutine ExpPointHeader()
 
 use Definitions, only: u6
 
-#include "inout.fh"
 
 write(u6,*)
 write(u6,*)
@@ -72,7 +69,6 @@ subroutine ISCHeader()
 
 use Definitions, only: u6
 
-#include "inout.fh"
 
 write(u6,*)
 write(u6,*)
@@ -96,7 +92,6 @@ subroutine WriteHeader(Title)
 use Definitions, only: u6
 
 character*80 Title
-#include "inout.fh"
 
 write(u6,*)
 
@@ -113,11 +108,10 @@ end subroutine WriteHeader
 subroutine WrMold(FName,NumOfAt,AtomLbl,AtCoord,NumInt,HarmFreq,QMat)
 ! Open file named FName, and create a MOLDEN input file.
 
-use Constants, only: Zero
+use Constants, only: Zero, auTocm
 use Definitions, only: wp
 
 !implicit none
-#include "Constants_mula.fh"
 character*(*) FName
 integer NumOfAt, NumInt
 character*(*) AtomLbl(NumOfAt)
@@ -125,10 +119,9 @@ real*8 AtCoord(3,NumOfAt), HarmFreq(NumInt),QMat(3,NumOfAt,NumInt)
 real*8 DMax, D2, DispMx, Factor
 integer i, iInt, iAtom
 character*2 AtName
-#include "inout.fh"
 
 call molcas_open(9,Fname)
-!open(9,file=FName,status='UNKNOWN')
+!open(9,FName,status='UNKNOWN')
 write(9,*) '[MOLDEN FORMAT]'
 
 ! Harmonic frequencies:
@@ -136,7 +129,7 @@ write(9,*) '[N_FREQ]'
 write(9,*) NumInt
 write(9,*) '[FREQ]'
 do iInt=1,NumInt
-  write(9,'(1X,F10.3)') HarToRcm*HarmFreq(iInt)
+  write(9,'(1X,F10.3)') auTocm*HarmFreq(iInt)
 end do
 ! VV: Not implemented???
 write(9,*) '[INT]'

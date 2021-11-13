@@ -18,7 +18,6 @@ use Definitions, only: u6
 character*4 AtomLbl(NumOfAt)
 real*8 Coord(3,NumOfAt)
 real*8 Mass(NumOfAt)
-#include "inout.fh"
 
 ! Write labels, coordinates and masses to log file.
 write(u6,*)
@@ -40,17 +39,15 @@ subroutine WriteIntCoord(InterVec,AtomLbl,xvec,NumInt)
 !  Purpose:
 !    Write internal coordinates to log file.
 
-use Constants, only: One
+use Constants, only: One, Angstrom, deg2rad
 use Definitions, only: u6
 
-#include "Constants_mula.fh"
 !integer InterVec(NumInt)
 integer InterVec(*)
 character*4 AtomLbl(NumInt)
 character*128 Line
 real*8 xvec(NumInt)
 real*8 const
-#include "inout.fh"
 
 ! Internal coordinates at equilibrium.
 write(u6,*)
@@ -58,7 +55,7 @@ write(u6,*)
 write(u6,*)
 write(u6,'(a1,a)') ' ','Internal coordinates at equilibrium'
 write(u6,*) ('====',i=1,16)
-write(u6,'(a2,a)') ' ','Distances :                            bohr          aangstrom'
+write(u6,'(a2,a)') ' ','Distances :                            bohr           angstrom'
 write(u6,'(a2,a)') ' ','Angles    :                           radians         degrees'
 write(u6,*) ('----',i=1,16)
 k = 1

@@ -68,8 +68,9 @@ subroutine IntForceField(IntensityMat,TermMat,T0,max_term,FC00,C1,W1,det1,r01,C2
 !    FCMod
 !    MatElMod
 
+use mula_global, only: mdim1, mdim2, ndim1, ndim2
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, Two, Three
+use Constants, only: Zero, Two, Three, auTokJ, kBoltzmann
 use Definitions, only: wp
 
 !use VibMod
@@ -77,8 +78,6 @@ use Definitions, only: wp
 !use FCMod
 !use MatElMod
 implicit real*8(a-h,o-z)
-#include "Constants_mula.fh"
-#include "dims.fh"
 real*8 IntensityMat(0:max_mOrd,0:max_nOrd)
 real*8 TermMat(0:max_mOrd,0:max_nOrd)
 real*8 C1(nosc,nosc), C2(nosc,nosc), W1(nosc,nosc), W2(nosc,nosc), C(nosc,nosc), W(nosc,nosc)
@@ -93,6 +92,7 @@ logical OscStr
 integer nvTabDim
 integer, allocatable :: level1(:), level2(:)
 real*8, allocatable :: FC2(:,:,:), FreqDiffmat(:)
+real*8, parameter :: Temperature = 10.0_wp !, int_thrs = 0.1_wp
 
 ! Initialize.
 call TabDim(m_max,nosc,nvTabDim)
@@ -120,7 +120,7 @@ if (max_nOrd > max_mOrd) then
   end do
   do jOrd=0,max_nOrd
     do iOrd=0,max_mOrd
-      dE = FreqDiffMat(iOrd)*HarToaJ*1.0e-18_wp
+      dE = FreqDiffMat(iOrd)*auTokJ*1.0e-39_wp
       const2 = const1*exp(-dE/(kBoltzmann*Temperature))
       IntensityMat(iOrd,jOrd) = const2*abs(TermMat(iOrd,jOrd))*(FC2(iOrd,jOrd,1)**2+FC2(iOrd,jOrd,2)**2+FC2(iOrd,jOrd,3)**2)
       if (.not. OscStr) then
@@ -138,7 +138,7 @@ else
     call TransEnergy(Zero,x_anharm2,harmfreq2,level1,Zero,x_anharm2,harmfreq2,level2,FreqDiffMat(iOrd),l_harm)
   end do
   do jOrd=0,max_nOrd
-    dE = FreqDiffMat(jOrd)*HarToaJ*1.0e-18_wp
+    dE = FreqDiffMat(jOrd)*auTokJ*1.0e-39_wp
     do iOrd=0,max_mOrd
       const2 = const1*exp(-dE/(kBoltzmann*Temperature))
       IntensityMat(iOrd,jOrd) = const2*abs(TermMat(iOrd,jOrd))*(FC2(iOrd,jOrd,1)**2+FC2(iOrd,jOrd,2)**2+FC2(iOrd,jOrd,3)**2)

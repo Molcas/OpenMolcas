@@ -31,7 +31,6 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 
 implicit real*8(a-h,o-z)
-#include "Constants_mula.fh"
 real*8 G1, G2
 real*8 x_anharm(nosc,nosc)
 real*8 harmfreq(nosc)

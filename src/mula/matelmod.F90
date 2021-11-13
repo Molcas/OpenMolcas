@@ -64,12 +64,11 @@ subroutine SetUpHmat(energy0,r_min,ipow,var,yin,r00,trfName,max_term,C1,W1,det1,
 !
 !  The expansion point for lspotfit is r00!!!!!
 
+use mula_global, only: mdim1, mdim2, ndim1, ndim2, ngdim
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 
 implicit real*8(a-h,o-z)
-#include "Constants_mula.fh"
-#include "dims.fh"
 integer ipow(nterm,nvar)
 real*8 var(ndata,nvar)
 real*8 yin(ndata)

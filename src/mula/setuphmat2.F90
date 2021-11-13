@@ -29,6 +29,7 @@ subroutine SetUpHmat2(energy1,energy2,C,W,det,r1,r2,max_mOrd,max_nOrd,max_nOrd2,
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1996.
 
+use mula_global, only: mdim1, mdim2, ndim1, ndim2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 
@@ -37,8 +38,6 @@ use Constants, only: Zero
 !use FCMod
 !use TabMod
 implicit real*8(a-h,o-z)
-#include "Constants_mula.fh"
-#include "dims.fh"
 real*8 r1(nosc)
 real*8 r2(nosc)
 real*8 rOrigin(nosc)

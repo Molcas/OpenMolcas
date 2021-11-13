@@ -27,14 +27,13 @@ subroutine LSPotFit(r01,energy1,grad1,Hess1,D3_1,D4_1,r02,energy2,grad2,Hess2,D3
 !    Dept. of Theoretical Chemistry, Lund University, 1996.
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two, Ten
+use Constants, only: Zero, One, Two, Ten, Pi, auTocm
 use Definitions, only: wp
 
 !use Linalg
 !use FCMod
 !use TabMod
 implicit real*8(a-h,o-z)
-#include "Constants_mula.fh"
 parameter(mxdeg=6)
 real*8 r01(nosc), r02(nosc), r00(nosc), r_min(nosc)
 real*8 grad1(nosc), grad2(nosc)
@@ -126,7 +125,7 @@ if (max_term > 0) then
   end if
 end if
 if (pot) then
-  rhs(nDim) = energy0+2.0e4_wp/HarToRcm
+  rhs(nDim) = energy0+2.0e4_wp/auTocm
   weight(nDim,nDim) = 1.0e4_wp
 end if
 
@@ -287,7 +286,7 @@ end do
 if (pot) then
   x(1) = r_min(1)-r00(1)
   x(2) = r_min(2)-r00(2)
-  x(3) = Two*rpi-r_min(3)-r00(3)
+  x(3) = Two*Pi-r_min(3)-r00(3)
 
   ! Calculate powers of individual variable values.
   do ivar=1,nvar

@@ -35,13 +35,13 @@ subroutine SetUpHarmDip(DipMat,max_term,m_max,n_max,mMat,mInc,mDec,nMat,nInc,nDe
 !    TabMod
 !    FCMod
 
+use mula_global, only: mdim1, mdim2, ndim1, ndim2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 
 !use TabMod
 !use FCMod
 implicit real*8(a-h,o-z)
-#include "dims.fh"
 real*8 DipMat(0:max_mOrd,0:max_nOrd,0:3)
 integer mMat(0:mdim1,mdim2), mInc(0:mdim1,mdim2), mDec(0:mdim1,mdim2)
 integer nMat(0:ndim1,ndim2), nInc(0:ndim1,ndim2), nDec(0:ndim1,ndim2)

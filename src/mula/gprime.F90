@@ -30,13 +30,12 @@ subroutine CalcGprime(Gprime,Mass,xvec,InterVec,AtCoord,NumOfAt,h,NumInt)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1996.
 
+use mula_global, only: ngdim
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp
 
 !implicit none
-#include "Constants_mula.fh"
-#include "dims.fh"
 real*8 h
 real*8 Gprime(ngdim,ngdim,ngdim)
 integer NumInt, NumOfAt
@@ -97,13 +96,12 @@ subroutine CalcGdbleprime(Gdbleprime,Mass,xvec,InterVec,AtCoord,NumOfAt,h,NumInt
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1996.
 
+use mula_global, only: ngdim
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Three
 use Definitions, only: wp
 
 !implicit none
-#include "Constants_mula.fh"
-#include "dims.fh"
 real*8 h
 integer icoord, jcoord
 integer NumInt, NumOfAt

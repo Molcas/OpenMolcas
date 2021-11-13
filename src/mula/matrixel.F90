@@ -27,13 +27,13 @@ subroutine MatrixElements(L,U,FC00,Hmat,C,W,r_diff,mMat,nMat,iCre,iann,max_nOrd,
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1996.
 
+use mula_global, only: mdim1, mdim2, ndim1, ndim2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 
 !use Linalg
 !use Potkin
 implicit real*8(a-h,o-z)
-#include "dims.fh"
 real*8 L(0:max_mOrd,0:max_mOrd)
 real*8 U(0:max_nOrd,0:max_nOrd)
 real*8 Hmat(0:max_mOrd,0:max_nOrd)

@@ -80,12 +80,12 @@ subroutine FCval(C1,W1,det1,r01,C2,W2,det2,r02,FC,max_mOrd,max_nOrd,max_nOrd2,ma
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
+use mula_global, only: mdim1, mdim2, ndim1, ndim2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, u6
 
 implicit real*8(a-h,o-z)
-#include "dims.fh"
 real*8 FC(0:max_mord,0:max_nord)
 real*8 C1(nosc,nosc), C2(nosc,nosc), W1(nosc,nosc)
 real*8 W2(nosc,nosc), C(nosc,nosc), W(nosc,nosc)

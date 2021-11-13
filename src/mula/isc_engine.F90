@@ -20,12 +20,11 @@ subroutine ISC_Rho(iPrint,nOsc,new_n_max,dRho,energy1,energy2,minQ,dMinWind,nMax
 ! Calculate State Density  dRho  GG 30-Dec-08
 ! Formula (86) taken from  M. Bixon, J. Jortner  JCP,48,715 (1969)
 
-use Constants, only: Zero, One, Two, Six, Twelve, Half
+use Constants, only: Zero, One, Two, Six, Twelve, Half, Pi, auTocm, auToeV
 use Definitions, only: wp, u6
 
 implicit real*8(a-h,o-z)
 implicit integer(i-n)
-#include "Constants_mula.fh"
 real*8 energy1, energy2, harmfreq1(nOsc), harmfreq2(nOsc)
 real*8 GE1, GE2, dMinWind, dMinWind0
 integer nMaxQ(nOsc)
@@ -39,7 +38,7 @@ end if
 dMinWind0 = dMinWind
 if (dMinWind == Zero) dMinWind = One
 minQ = 0
-dRho = Two/rpi
+dRho = Two/Pi
 dRho = sqrt(dRho*nOsc)
 dRho = dRho*(One-One/(Twelve*nOsc))
 avFreq = Zero
@@ -96,13 +95,13 @@ end if
 
 if (iPrint >= 2) then
   write(u6,'(a,f11.6,a)') '  T_0  = ',T0,' (au)'
-  write(u6,'(a,f11.3,a)') '  T_0  = ',T0*HarToRcm,' (cm-1)'
+  write(u6,'(a,f11.3,a)') '  T_0  = ',T0*auTocm,' (cm-1)'
   write(u6,'(a,f11.3,a)') '  T_0  = ',T0*auToeV,' (eV)'
   write(u6,'(a,d14.3,a)') '  State Density (dRho) = ',dRho,' (au-1)'
-  write(u6,'(a,g14.3,a)') '  State Density (dRho) = ',dRho/HarToRcm,' (cm)'
-  write(u6,'(a,g17.9,a)') '  1/dRho = ',HarToRcm/dRho,' (cm-1)'
+  write(u6,'(a,g14.3,a)') '  State Density (dRho) = ',dRho/auTocm,' (cm)'
+  write(u6,'(a,g17.9,a)') '  1/dRho = ',auTocm/dRho,' (cm-1)'
   write(u6,'(a,f7.3,a)') '  Expansion factor =',dMinWind
-  write(u6,'(a,g17.9,a)') '  Window = (+/-)',Half*dMinWind*HarToRcm/dRho,' (cm-1)'
+  write(u6,'(a,g17.9,a)') '  Window = (+/-)',Half*dMinWind*auTocm/dRho,' (cm-1)'
 end if
 if (iPrint >= 3) then
   write(u6,*) ' Maximum quantum numbers:',(nMaxQ(i),i=1,nOsc)
@@ -121,12 +120,11 @@ subroutine ISC_Ene(iPrint,nOsc,max_nOrd,nYes,nMat,nTabDim,GE1,GE2,harmfreq1,harm
 ! Calculate Energy of Levels  GG 30-Dec-08 - 08-Jan-09
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Half
+use Constants, only: Zero, One, Half, auTocm
 use Definitions, only: u6
 
 implicit real*8(a-h,o-z)
 implicit integer(i-n)
-#include "Constants_mula.fh"
 real*8 GE1, GE2, harmfreq1(nOsc), harmfreq2(nOsc)
 real*8 x_anharm1(nOsc,nOsc), x_anharm2(nOsc,nOsc)
 real*8 dMinWind, dRho, dWlow, dWup
@@ -178,9 +176,9 @@ do iOrd=0,max_nOrd
         do j=1,nOsc
           loc_n_max = loc_n_max+nMat(iOrd,j)
         end do
-        write(u6,'(a2,i8,f11.6,f11.4,i4,a2,24i3)') ' ',iOrd,dEne,dEne*HarToRcm,loc_n_max,': ',(nMat(iOrd,j),j=1,nOsc)
+        write(u6,'(a2,i8,f11.6,f11.4,i4,a2,24i3)') ' ',iOrd,dEne,dEne*auTocm,loc_n_max,': ',(nMat(iOrd,j),j=1,nOsc)
       else
-        write(u6,'(a2,i8,f11.6,f11.4,i4        )') ' ',iOrd,dEne,dEne*HarToRcm,loc_n_max
+        write(u6,'(a2,i8,f11.6,f11.4,i4        )') ' ',iOrd,dEne,dEne*auTocm,loc_n_max
       end if
     end if
   end if
@@ -222,9 +220,9 @@ do
             do j=1,nOsc
               loc_n_max = loc_n_max+nMat(iOrd,j)
             end do
-            write(u6,'(a2,i8,f11.6,f11.4,i4,a2,24i3)') ' ',iOrd,dEne,dEne*HarToRcm,loc_n_max,': ',(nMat(iOrd,j),j=1,nOsc)
+            write(u6,'(a2,i8,f11.6,f11.4,i4,a2,24i3)') ' ',iOrd,dEne,dEne*auTocm,loc_n_max,': ',(nMat(iOrd,j),j=1,nOsc)
           else
-            write(u6,'(a2,i8,f11.6,f11.4,i4        )') ' ',iOrd,dEne,dEne*HarToRcm,loc_n_max
+            write(u6,'(a2,i8,f11.6,f11.4,i4        )') ' ',iOrd,dEne,dEne*auTocm,loc_n_max
           end if
         end if
       end if
@@ -244,7 +242,7 @@ if (iPrint >= 3) then
   if (nOsc <= 30) write(u6,'(a,108a)') '  ',('-',i=1,108)
   if (nOsc > 30) write(u6,'(a,36a)') '  ',('-',i=1,36)
   write(u6,'(a,f12.9,a,f12.9,a)') '  Window: ',-dWlow,' / ',dWup,' (au)'
-  write(u6,'(a,f12.6,a,f12.6,a)') '  Window: ',-dWlow*HarToRcm,' / ',dWup*HarToRcm,' (cm-1)'
+  write(u6,'(a,f12.6,a,f12.6,a)') '  Window: ',-dWlow*auTocm,' / ',dWup*auTocm,' (cm-1)'
 end if
 if (iPrint >= 2) then
   write(u6,*) ' Final number of States=',nYes
@@ -264,14 +262,13 @@ subroutine ISC_Rate(iPrint,nOsc,max_nOrd,iMx_nOrd,iMaxYes,nYes,dMinWind,VibWind2
                     mTabDim,mMat,nTabDim,nMat,mInc,mDec,nInc,nDec,m_max,n_max,max_dip,nnsiz,FC00,dRho)
 ! Estimate ISC rate  GG 30-Dec-08
 
+use mula_global, only: TranDip
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two
+use Constants, only: Zero, One, Two, Pi, auTocm
 use Definitions, only: wp, u6
 
 implicit real*8(a-h,o-z)
 implicit integer(i-n)
-#include "Constants_mula.fh"
-#include "inout.fh"
 real*8 C1(nOsc,nOsc), C2(nOsc,nosc), W1(nOsc,nOsc), W2(nOsc,nOsc), C(nOsc,nOsc), W(nOsc,nOsc)
 real*8 r01(nOsc), r02(nOsc), r00(nOsc), det0, det1, det2, FC00
 integer VibWind2(nYes)
@@ -306,14 +303,14 @@ call ISC_FCval(iPrint,iMaxYes,nTabDim,C1,W1,det1,r01,C2,W2,det2,r02,m_max_ord,n_
                mMat,nMat,mInc,nInc,mDec,nDec,C,W,det0,r00,FC00,nOsc,nnsiz,iMx_nOrd,nYes,VibWind2,FCWind2)
 
 ! where does this number come from?
-const = Two*rpi/5.309e-12_wp
+const = Two*Pi/5.309e-12_wp
 if (iPrint >= 4) then
   write(u6,*)
   write(u6,*) '  const =',const
-  write(u6,*) '  dRho/cm =',dRho/HarToRcm
-  write(u6,*) '  const*dRho=',const*dRho/HarToRcm
+  write(u6,*) '  dRho/cm =',dRho/auTocm
+  write(u6,*) '  const*dRho=',const*dRho/auTocm
 end if
-const = const*dRho/HarToRcm
+const = const*dRho/auTocm
 
 dSum = Zero
 do ii=1,nYes

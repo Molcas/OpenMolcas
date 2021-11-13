@@ -26,12 +26,14 @@ subroutine Mula(ireturn)
 !  Universita' di Torino, ITALY.
 !  Inter-System Crossing rate constant.
 
+use mula_global, only: AtCoord1, AtCoord2, energy1, energy2, Hess1, Hess2, Huge_Print, inpUnit, ipow, m_plot, maxMax_n, MaxNumAt, &
+                       mdim1, mdim2, n_plot, ndata, ndim1, ndim2, ngdim, NormModes, nPolyTerm, nvar, OscStr, t_dipin1, t_dipin2, &
+                       t_dipin3, TranDip, TranDipGrad, var, WriteVibLevels, yin1, yin2
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Half
-use Definitions, only: wp, u5, u6
+use Constants, only: Zero, One, Half, auTocm
+use Definitions, only: wp, u5, u6, ItoB
 
 implicit real*8(a-h,o-z)
-#include "inout.fh"
 integer InterVec(15*MaxNumAt)
 character*80 trfName1(MaxNumAt), trfName2(MaxNumAt)
 real*8 Mass(MaxNumAt)
@@ -47,12 +49,6 @@ logical Cartesian
 logical exist
 integer nvTabDim
 integer iCode, iMaxYes, lNMAT0, lNMAT, lNINC, lNDEC
-#include "Constants_mula.fh"
-#include "inputdata.fh"
-#include "dims.fh"
-#include "indims.fh"
-#include "WrkSpc.fh"
-#include "io_mula.fh"
 #include "warnings.h"
 integer nIndex(3,0:maxMax_n)
 integer, allocatable :: Graph1(:,:), Graph2(:,:,:), level1(:), level2(:), lVec(:), mDec(:,:), mInc(:,:), mMat(:,:), nDec(:,:), &
@@ -62,15 +58,17 @@ real*8, allocatable :: alpha1(:,:), alpha2(:,:), anharmfreq1(:), anharmfreq2(:),
                        E1(:), E2(:), eigenVec1(:,:), eigenVec2(:,:), G0(:,:), G1(:,:), G2(:,:), Gbis0(:,:,:,:), Gbis1(:,:,:,:), &
                        Gbis2(:,:,:,:), Gprm0(:,:,:), Gprm1(:,:,:), Gprm2(:,:,:), grad1(:), grad2(:), H1(:,:), H2(:,:), &
                        harmfreq1(:), harmfreq2(:), IntensityMat(:,:), Lambda(:), OccNumMat1(:,:,:), OccNumMat2(:,:,:), PED(:,:,:), &
-                       qMat(:,:), r0(:), r00(:), r01(:), r02(:), r1(:), r2(:), rtemp(:), S1(:,:), S2(:,:), Smat(:,:), T4(:), &
-                       temp(:,:), temp1(:,:), temp2(:,:), TermMat(:,:), U1(:,:), U2(:,:), W(:,:), W1(:,:), W2(:,:), &
-                       x_anharm1(:,:), x_anharm2(:,:)
+                       PotCoef(:), qMat(:,:), r0(:), r00(:), r01(:), r02(:), r1(:), r2(:), rtemp(:), S1(:,:), S2(:,:), Smat(:,:), &
+                       T4(:), temp(:,:), temp1(:,:), temp2(:,:), TermMat(:,:), TranDipGradInt(:,:), U1(:,:), U2(:,:), W(:,:), &
+                       W1(:,:), W2(:,:), x_anharm1(:,:), x_anharm2(:,:)
+integer, parameter :: MB = 1048576
+integer, external :: isfreeunit
 
 ! Initialize.
 iReturn = 20
 close(u5)
-call molcas_open(inpunit,'stdin')
-lPotCoef = ip_Dummy
+inpUnit = isfreeunit(12)
+call molcas_open(inpUnit,'stdin')
 iCode = 00         ! Default: NewCode, InCore
 lOldCode = .false. ! X0  CGGn.4
 lInCore = .true.   ! 0X  CGGn.4
@@ -80,7 +78,7 @@ lNINC = 94         !     CGGn.4
 lNDEC = 95         !     CGGn.4
 iPrint = iPrintLevel(-1)
 iPrint_Save = iPrint
-!open(unit=inpUnit,file='stdin')
+!open(inpUnit,'stdin')
 
 ! Read input file and Write header to log file.
 call ReadInp(Title,AtomLbl,Mass,InterVec,Bond,nBond,nOsc,NumOfAt,trfName1,trfName2,m_max,n_max,max_dip,max_term,MatEl,ForceField, &
@@ -118,15 +116,11 @@ if (lISC) then
     write(u6,*)
   end if
   iPrint = 0
-  do i=0,maxMax_n
-    nIndex(1,i) = 0
-    nIndex(2,i) = 0
-    nIndex(3,i) = 0
-  end do
+  nIndex(:,:) = 0
 end if
 if ((iPrint >= 1) .and. (Title(1:1) /= ' ')) call WriteHeader(Title)
 
-close(unit=inpUnit)
+close(inpUnit)
 call mma_allocate(r01,nOsc,label='r01')
 call mma_allocate(r02,nOsc,label='r02')
 call mma_allocate(r0,nOsc,label='r0')
@@ -182,53 +176,53 @@ call mma_allocate(Gbis2,ngdim,ngdim,ngdim,ngdim,label='Gbis2')
 call mma_allocate(AtCoord,3,NumOfAt,label='AtCoord')
 
 l_a = NumOfAt
-l_Hess_1 = l_Hess1
-l_Hess_2 = l_Hess1
+l_Hess_1 = size(Hess1,1)
+l_Hess_2 = size(Hess1,2)
 
+call mma_allocate(PotCoef,nPolyTerm,label='PotCoef')
 if (ForceField) then
-  call dcopy_(3*NumOfAt,Work(ipAtCoord1),1,AtCoord,1)
+  AtCoord(:,:) = AtCoord1
 else
   find_minimum = .true.
   use_weight = .false.
-  call GetMem('PotCoef','Allo','Real',lPotCoef,nPolyTerm)
-  call PotFit(nPolyTerm,nvar,ndata,iWork(ipipow),Work(ipvar),Work(ipyin1),Work(lPotCoef),r01,nOsc,energy1,grad1,Work(ipHess1), &
-              D3_1,D4_1,trfName1,stand_dev,max_err,find_minimum,max_term,use_weight,l_Hess_1,l_Hess_2,ngdim)
+  call PotFit(nPolyTerm,nvar,ndata,ipow,var,yin1,PotCoef,r01,nOsc,energy1,grad1,Hess1,D3_1,D4_1,trfName1,stand_dev,max_err, &
+              find_minimum,max_term,use_weight,l_Hess_1,l_Hess_2,ngdim)
   call Int_To_Cart1(InterVec,r01,AtCoord,l_a,nOsc)
 end if
-call GetMem('AtCoord1','Free','Real',ipAtCoord1,3*NumOfAt)
+call mma_deallocate(AtCoord1)
 
 ! Determine vibrational modes and their frequencies.
 !D write(u6,*) ' MULA calling VIBFREQ.'
-call VibFreq(AtCoord,r01,InterVec,Mass,Work(ipHess1),G1,Gprm1,Gbis1,harmfreq1,eigenVec1,qMat,PED,D3_1,D4_1,x_anharm1,anharmfreq1, &
-             max_term,Cartesian,nOsc,NumOfAt)
+call VibFreq(AtCoord,r01,InterVec,Mass,Hess1,G1,Gprm1,Gbis1,harmfreq1,eigenVec1,qMat,PED,D3_1,D4_1,x_anharm1,anharmfreq1,max_term, &
+             Cartesian,nOsc,NumOfAt)
 
-!call WriteLog(Work(lPotCoef),AtomLbl,AtCoord,
-if (iPrint >= 1) call WriteLog(Work(lPotCoef),AtomLbl,AtCoord,Mass,InterVec,stand_dev,max_err,energy1,Work(ipHess1),G1,eigenVec1, &
-                               harmfreq1,qMat,Bond,nBond,r01,D3_1,D4_1,PED,x_anharm1,anharmfreq1,max_term,1,ForceField,NumOfAt,nOsc)
+!call WriteLog(PotCoef,AtomLbl,AtCoord,
+if (iPrint >= 1) call WriteLog(PotCoef,AtomLbl,AtCoord,Mass,InterVec,stand_dev,max_err,energy1,Hess1,G1,eigenVec1,harmfreq1,qMat, &
+                               Bond,nBond,r01,D3_1,D4_1,PED,x_anharm1,anharmfreq1,max_term,1,ForceField,NumOfAt,nOsc)
 
 !----------------------      Second State -----------------------------!
 
-l_Hess_1 = l_Hess1
-l_Hess_2 = l_Hess1
+l_Hess_1 = size(Hess2,1)
+l_Hess_2 = size(Hess2,2)
 
 if (ForceField) then
-  call dcopy_(3*NumOfAt,Work(ipAtCoord2),1,AtCoord,1)
+  AtCoord(:,:) = AtCoord2
 else
   find_minimum = .true.
   use_weight = .false.
-  call PotFit(nPolyTerm,nvar,ndata,iWork(ipipow),Work(ipvar),Work(ipyin2),Work(lPotCoef),r02,nOsc,energy2,grad2,Work(ipHess2), &
-              D3_2,D4_2,trfName2,stand_dev,max_err,find_minimum,max_term,use_weight,l_Hess_1,l_Hess_2,ngdim)
+  call PotFit(nPolyTerm,nvar,ndata,ipow,var,yin2,PotCoef,r02,nOsc,energy2,grad2,Hess2,D3_2,D4_2,trfName2,stand_dev,max_err, &
+              find_minimum,max_term,use_weight,l_Hess_1,l_Hess_2,ngdim)
   call Int_To_Cart1(InterVec,r02,AtCoord,l_a,nOsc)
 end if
-call GetMem('AtCoord2','Free','Real',ipAtCoord2,3*NumOfAt)
+call mma_deallocate(AtCoord2)
 
 ! Determine vibrational modes and their frequencies.
-call VibFreq(AtCoord,r02,InterVec,Mass,Work(ipHess2),G2,Gprm2,Gbis2,harmfreq2,eigenVec2,qMat,PED,D3_2,D4_2,x_anharm2,anharmfreq2, &
-             max_term,Cartesian,nOsc,NumOfAt)
-if (iPrint >= 1) call WriteLog(Work(lPotCoef),AtomLbl,AtCoord,Mass,InterVec,stand_dev,max_err,energy2,Work(ipHess2),G2,eigenVec2, &
-                               harmfreq2,qMat,Bond,nBond,r02,D3_2,D4_2,PED,x_anharm2,anharmfreq2,max_term,2,ForceField,NumOfAt,nOsc)
+call VibFreq(AtCoord,r02,InterVec,Mass,Hess2,G2,Gprm2,Gbis2,harmfreq2,eigenVec2,qMat,PED,D3_2,D4_2,x_anharm2,anharmfreq2,max_term, &
+             Cartesian,nOsc,NumOfAt)
+if (iPrint >= 1) call WriteLog(PotCoef,AtomLbl,AtCoord,Mass,InterVec,stand_dev,max_err,energy2,Hess2,G2,eigenVec2,harmfreq2,qMat, &
+                               Bond,nBond,r02,D3_2,D4_2,PED,x_anharm2,anharmfreq2,max_term,2,ForceField,NumOfAt,nOsc)
 
-if (.not. Forcefield) call GetMem('PotCoef','Free','Real',lPotCoef,nPolyTerm)
+call mma_deallocate(PotCoef)
 call mma_deallocate(qMat)
 call mma_deallocate(PED)
 
@@ -309,11 +303,12 @@ if (iPrint >= 1) call IntCalcHeader()
 ! Calculate term values.
 GE1 = Zero
 GE2 = GE1+T0
+l_NormModes = size(NormModes)
 do iOsc=1,nOsc
   jOsc = 1
   exist = .false.
   do while ((.not. exist) .and. (jOsc <= l_NormModes))
-    exist = (iOsc == iWork(ipNormModes+jOsc-1))
+    exist = (iOsc == NormModes(jOsc))
     jOsc = jOsc+1
   end do
   if (.not. exist) then
@@ -330,9 +325,10 @@ call mma_allocate(Lambda,nOsc,label='Lambda')
 call mma_allocate(Base,nOscOld,nOsc,label='Base')
 call mma_allocate(BaseInv,nOsc,nOscOld,label='BaseInv')
 do jOsc=1,nOsc
+  nm = NormModes(jOsc)
   do iOsc=1,nOscOld
-    Base(iOsc,jOsc) = W2(iOsc,iWork(ipNormModes+jOsc-1))
-    BaseInv(jOsc,iOsc) = C2(iWork(ipNormModes+jOsc-1),iOsc)
+    Base(iOsc,jOsc) = W2(iOsc,nm)
+    BaseInv(jOsc,iOsc) = C2(nm,iOsc)
   end do
 end do
 
@@ -341,11 +337,11 @@ call mma_allocate(temp2,nOscOld,nOscOld,label='temp2')
 
 ! First state.
 ! Subroutine SolveRedSec(Hess,Gmat,freq,C,W,det)
-call DGEMM_('N','N',nOscOld,nOsc,nOscOld,One,Work(ipHess1),nOscOld,Base,nOscOld,Zero,temp1,nOscOld)
-call GetMem('Hess1','Free','Real',ipHess1,l_Hess1*l_Hess1)
+call DGEMM_('N','N',nOscOld,nOsc,nOscOld,One,Hess1,nOscOld,Base,nOscOld,Zero,temp1,nOscOld)
+call mma_deallocate(Hess1)
 
-call GetMem('Hess1','Allo','Real',ipHess1,nOsc*nOsc)
-call DGEMM_('T','N',nOsc,nOsc,nOscOld,One,Base,nOscOld,temp1,nOscOld,Zero,Work(ipHess1),nOsc)
+call mma_allocate(Hess1,nOsc,nOsc,label='Hess1')
+call DGEMM_('T','N',nOsc,nOsc,nOscOld,One,Base,nOscOld,temp1,nOscOld,Zero,Hess1,nOsc)
 temp2(:,:) = Zero
 do i=1,nOscOld
   temp2(i,i) = One
@@ -358,11 +354,11 @@ do i=1,nOsc
   G1(i,i) = One
 end do
 call Dool_MULA(temp,nOscOld,nOscOld,G1,nOsc,nOsc,det)
-call SolveSecEq(Work(ipHess1),nOsc,temp,G1,Lambda)
+call SolveSecEq(Hess1,nOsc,temp,G1,Lambda)
 do iv=1,nOsc
   harmfreq1(iv) = sqrt(abs(Lambda(iv)))
 end do
-if (iPrint >= 1) call WriteFreq(harmfreq1,iWork(ipNormModes),l_NormModes,'Frequencies of reduced problem, state 1')
+if (iPrint >= 1) call WriteFreq(harmfreq1,NormModes,l_NormModes,'Frequencies of reduced problem, state 1')
 do jOsc=1,nOsc
   W1(:,jOsc) = temp(:,jOsc)/sqrt(harmfreq1(jOsc))
 end do
@@ -375,11 +371,11 @@ call Dool_MULA(temp,nOscOld,nOsc,C1,nOsc,nOsc,det)
 det1 = abs(One/det)
 
 ! Second state.
-call DGEMM_('N','N',nOscOld,nOsc,nOscOld,One,Work(ipHess2),nOscOld,Base,nOscOld,Zero,temp1,nOscOld)
+call DGEMM_('N','N',nOscOld,nOsc,nOscOld,One,Hess2,nOscOld,Base,nOscOld,Zero,temp1,nOscOld)
+call mma_deallocate(Hess2)
 
-call GetMem('Hess2','Free','Real',ipHess2,l_Hess1*l_Hess1)
-call GetMem('Hess2','Allo','Real',ipHess2,nOsc*nOsc)
-call DGEMM_('T','N',nOsc,nOsc,nOscOld,One,Base,nOscOld,temp1,nOscOld,Zero,Work(ipHess2),nOsc)
+call mma_allocate(Hess2,nOsc,nOsc,label='Hess2')
+call DGEMM_('T','N',nOsc,nOsc,nOscOld,One,Base,nOscOld,temp1,nOscOld,Zero,Hess2,nOsc)
 temp2(:,:) = Zero
 do i=1,nOscOld
   temp2(i,i) = One
@@ -392,11 +388,11 @@ do i=1,nOsc
   G2(i,i) = One
 end do
 call Dool_MULA(temp,nOsc,nOsc,G2,nOsc,nOsc,det)
-call SolveSecEq(Work(ipHess2),nOsc,temp,G2,Lambda)
+call SolveSecEq(Hess2,nOsc,temp,G2,Lambda)
 do iv=1,nOsc
   harmfreq2(iv) = sqrt(abs(Lambda(iv)))
 end do
-if (iPrint >= 1) call WriteFreq(harmfreq2,iWork(ipNormModes),l_NormModes,'Frequencies of reduced problem, state 2')
+if (iPrint >= 1) call WriteFreq(harmfreq2,NormModes,l_NormModes,'Frequencies of reduced problem, state 2')
 do jOsc=1,nOsc
   W2(:,jOsc) = temp(:,jOsc)/sqrt(harmfreq2(jOsc))
 end do
@@ -464,13 +460,13 @@ if (Forcefield .and. (max_dip > 0)) then
   call mma_allocate(temp1,3*NumOfAt,nOsc,label='temp1')
   call DGEMM_('N','N',3*NumOfAt,nOsc,nOsc,One,temp2,3*NumOfAt,W,nOsc,Zero,temp1,3*NumOfAt)
   call mma_deallocate(temp2)
-  call GetMem('TranDipGradInt','Allo','Real',ipTranDipGradInt,3*nOsc)
-  call DGEMM_('T','N',nOsc,1,3*NumOfAt,One,temp1,3*NumOfAt,work(ipTranDipGrad),3*NumOfAt,Zero,Work(ipTranDipGradInt),nOsc)
-  call DGEMM_('T','N',nOsc,1,3*NumOfAt,One,temp1,3*NumOfAt,work(ipTranDipGrad+1),3*NumOfAt,Zero,Work(ipTranDipGradInt+1),nOsc)
-  call DGEMM_('T','N',nOsc,1,3*NumOfAt,One,temp1,3*NumOfAt,Work(ipTranDipGrad+2),3*NumOfAt,Zero,Work(ipTranDipGradInt+2),nOsc)
+  call mma_allocate(TranDipGradInt,3,nOsc,label='TranDipGradInt')
+  call DGEMM_('T','N',nOsc,1,3*NumOfAt,One,temp1,3*NumOfAt,TranDipGrad(1,1),3*NumOfAt,Zero,TranDipGradInt(1,1),nOsc)
+  call DGEMM_('T','N',nOsc,1,3*NumOfAt,One,temp1,3*NumOfAt,TranDipGrad(2,1),3*NumOfAt,Zero,TranDipGradInt(2,1),nOsc)
+  call DGEMM_('T','N',nOsc,1,3*NumOfAt,One,temp1,3*NumOfAt,TranDipGrad(3,1),3*NumOfAt,Zero,TranDipGradInt(3,1),nOsc)
   call mma_deallocate(temp1)
 
-  call WriteDip(Work(ipTranDipGradInt),iWork(ipNormModes),'Transition dipole gradient',nOsc)
+  call WriteDip(TranDipGradInt,NormModes,'Transition dipole gradient',nOsc)
 end if
 
 call mma_deallocate(eigenVec1)
@@ -526,17 +522,17 @@ if (lISC) then
   max_nInc = nvTabDim-1
 
   ! Memory estimation and algorithm selection
-  call GetMem('MULA','MAX','INTE',ipLeft,lLeft)
+  call mma_maxINT(lLeft)
   if (lInCore) then
     if (lOldCode) then
-      iMem = int(7*(nTabDim+1)*nOsc/2)
+      iMem = 7*(nTabDim+1)*nOsc/2
       if (iMem >= lLeft) then
         write(u6,*) ' Too much memory required (',iMem,' words).'
         write(u6,*) ' Switch to reduced matrices evaluation.'
         lOldCode = .false.
       end if
     else
-      iMem = int(3*(nTabDim+1)*nOsc/2)
+      iMem = 3*(nTabDim+1)*nOsc/2
       if (iMem >= lLeft) then
         write(u6,*) ' Too much memory required (',iMem,' words).'
         write(u6,*) ' Out-of-Core (disk) algorithm will be used.'
@@ -554,7 +550,7 @@ if (lISC) then
       if (iPrint >= 2) then
         write(u6,*)
         write(u6,*) ' Index matrix evaluation.'
-        if (iPrint >= 3) write(u6,*) ' Memory allocated for all index matrix:',iMem,' words,  ',8*iMem/1048576,' MB.'
+        if (iPrint >= 3) write(u6,*) ' Memory allocated for all index matrix:',iMem,' words,  ',iMem*ItoB/MB,' MB.'
         call XFlush(u6)
       end if
       call mma_allocate(nMat,[0,nTabDim],[1,nOsc],label='nMat')
@@ -569,7 +565,7 @@ if (lISC) then
       if (iPrint >= 2) then
         write(u6,*)
         write(u6,*) ' First index matrix evaluation.'
-        if (iPrint >= 3) write(u6,*) ' Memory allocated for first index matrix:',iMem,' words,  ',(8*iMem+131071)/1048576,' MB.'
+        if (iPrint >= 3) write(u6,*) ' Memory allocated for first index matrix:',iMem,' words,  ',iMem*ItoB/MB,' MB.'
         call XFlush(u6)
       end if
       call mma_allocate(nMat,[0,nTabDim],[1,nOsc],label='nMat')
@@ -608,7 +604,7 @@ if (lISC) then
       write(u6,*)
       write(u6,*) ' Energy level calculation.'
       if (iPrint >= 3) then
-        write(u6,*) ' Memory allocated for energy matrix:',(nTabDim+1),' words,  ',(8*(nTabDim+1)+131071)/1048576,' MB.'
+        write(u6,*) ' Memory allocated for energy matrix:',(nTabDim+1),' words,  ',(nTabDim+1)*ItoB/MB,' MB.'
       end if
       call XFlush(u6)
     end if
@@ -639,7 +635,7 @@ if (lISC) then
       if (iPrint >= 2) then
         write(u6,*)
         write(u6,*) ' nInc and nDec matrices generation.'
-        if (iPrint >= 3) write(u6,*) ' Memory allocated for remaining index matrix:',iMem,' words,  ',(8*iMem+131071)/1048576,' MB.'
+        if (iPrint >= 3) write(u6,*) ' Memory allocated for remaining index matrix:',iMem,' words,  ',iMem*ItoB/MB,' MB.'
         call XFlush(u6)
       end if
       call mma_allocate(nInc,[0,iMaxYes],[1,nOsc],label='nInc')
@@ -685,7 +681,7 @@ if (lISC) then
       write(u6,*)
       write(u6,*) ' Index matrix evaluation.'
       if (iPrint >= 3) then
-        write(u6,*) ' Memory allocated for address array:',(nTabDim+1),' words,  ',(8*(nTabDim+1)+131071)/1048576,' MB.'
+        write(u6,*) ' Memory allocated for address array:',(nTabDim+1),' words,  ',(nTabDim+1)*ItoB/MB,' MB.'
       end if
       call XFlush(u6)
     end if
@@ -717,7 +713,7 @@ if (lISC) then
       write(u6,*)
       write(u6,*) ' Energy level calculation.'
       if (iPrint >= 3) then
-        write(u6,*) ' Memory allocated for energy matrix:',(nTabDim+1),' words,  ',(8*(nTabDim+1)+131071)/1048576,' MB.'
+        write(u6,*) ' Memory allocated for energy matrix:',(nTabDim+1),' words,  ',(nTabDim+1)*ItoB/MB,' MB.'
       end if
       call XFlush(u6)
     end if
@@ -744,18 +740,17 @@ if (lISC) then
     if (lOldCode) then
       iMaxYes = nTabDim
     end if
-    call GetMem('MULA','MAX','INTE',ipLeft,lLeft)
+    call mma_maxINT(lLeft)
     if (iPrint >= 3) then
-      write(u6,'(A,I10,A,I4,A)') '  Available memory                          :',lLeft,' words,  ',(lLeft+131071)/131072,' MB.'
+      write(u6,'(A,I10,A,I4,A)') '  Available memory                          :',lLeft,' words,  ',lLeft*iToB/MB,' MB.'
     end if
-    iUMem = int(1*(nTabDim+1))  ! Memory for U, 1=> No Hot states
+    iUMem = nTabDim+1  ! Memory for U, 1=> No Hot states
     iRateMem = iUMem+nTabDim+2+13*nOsc*nOsc+5*nOsc
     iRateMem = int(2.1_wp*iRateMem) ! to convert from INTE to REAL
     lLeft = lLeft-iRateMem
-    if (iRateMem < 0) then ! .or. (iRateMem > 2048*131072)) then
-      write(u6,'(A,I10,A,I4,A)') '  Estimated memory for FC factors evaluation:',iRateMem,' words,  ',(iRateMem+131071)/131072, &
-                                 ' MB.'
-      write(u6,'(A,I10,A,I4,A)') '  Memory left for batches                   :',lLeft,' words,  ',(lLeft+131071)/131072,' MB.'
+    if (iRateMem < 0) then ! .or. (iRateMem > 2048*MB/ItoB)) then
+      write(u6,'(A,I10,A,I4,A)') '  Estimated memory for FC factors evaluation:',iRateMem,' words,  ',iRateMem*ItoB/MB,' MB.'
+      write(u6,'(A,I10,A,I4,A)') '  Memory left for batches                   :',lLeft,' words,  ',lLeft*ItoB/MB,' MB.'
       write(u6,*)
       write(u6,*) ' ****************** ERROR ********************'
       write(u6,*) ' Not enough memory for FC factors evaluation !'
@@ -764,9 +759,9 @@ if (lISC) then
       call Quit_OnUserError()
     end if
     lMBatch = int(lLeft/3)
-    lMBatch = min(lMBatch,lMaxMBatch*131072) ! Max 512 MB
-    lMBatch = max(lMBatch,lMinMBatch*131072) ! Min  64 MB
-    !GGt lMBatch = 131072*8  ! Test only !!!!
+    lMBatch = min(lMBatch,512*MB/ItoB) ! Max 512 MB
+    lMBatch = max(lMBatch,64*MB/ItoB)  ! Min  64 MB
+    !GGt lMBatch = MB  ! Test only !!!!
     lBatch = int(lMBatch/nOsc)
     if (lBatch > (iMaxYes+1)) lBatch = (iMaxYes+1)
     lMBatch = lBatch*nOsc
@@ -784,11 +779,9 @@ if (lISC) then
     if (iPrint >= 2) then
       write(u6,*)
       if (iPrint >= 3) then
-        write(u6,'(A,I10,A,I4,A)') '  Estimated memory for FC factors evaluation:',iRateMem,' words,  ',(iRateMem+131071)/131072, &
-                                   ' MB.'
-        write(u6,'(A,I10,A,I4,A)') '  Memory left for batches                   :',lLeft,' words,  ',(lLeft+131071)/131072,' MB.'
-        write(u6,'(A,I10,A,I4,A)') '  Memory allocated for batch                :',lMBatch,' words,  ',(lMBatch+131071)/131072, &
-                                   ' MB.'
+        write(u6,'(A,I10,A,I4,A)') '  Estimated memory for FC factors evaluation:',iRateMem,' words,  ',iRateMem*ItoB/MB,' MB.'
+        write(u6,'(A,I10,A,I4,A)') '  Memory left for batches                   :',lLeft,' words,  ',lLeft*ItoB/MB,' MB.'
+        write(u6,'(A,I10,A,I4,A)') '  Memory allocated for batch                :',lMBatch,' words,  ',lMBatch*ItoB/MB,' MB.'
         write(u6,'(A,I8)') '  * Elements for batch:',lBatch
         write(u6,'(A,I8,A,I8,A)') '  * Number of batches :',nBatch,' (',lBatch*nBatch,' elements)'
         write(u6,'(A,I8)') '  * Residual elements :',leftBatch
@@ -873,8 +866,8 @@ if (lISC) then
   call mma_deallocate(r01)
   call mma_deallocate(r02)
 
-  call GetMem('Hess2','Free','Real',ipHess2,nOsc*nOsc)
-  call GetMem('Hess1','Free','Real',ipHess1,nOsc*nOsc)
+  call mma_deallocate(Hess1)
+  call mma_deallocate(Hess2)
 
   call mma_deallocate(Base)
   call mma_deallocate(BaseInv)
@@ -905,11 +898,11 @@ if (lISC) then
   call mma_deallocate(r1)
   call mma_deallocate(r2)
 
-  call GetMem('n_plot','Free','Inte',ipn_plot,l_n_plot)
-  call GetMem('m_plot','Free','Inte',ipm_plot,l_m_plot)
+  call mma_deallocate(m_plot)
+  call mma_deallocate(n_plot)
 
-  call GetMem('NormModes','Free','Inte',ipNormModes,l_NormModes)
-  call GetMem('TranDipGrad','Free','Real',ipTranDipGrad,3*NumOfAt)
+  call mma_deallocate(NormModes)
+  call mma_deallocate(TranDipGrad)
 
   lISC = .false.
 
@@ -1086,27 +1079,27 @@ else
       end do
 
       call SetUpHmat2(energy1,energy2,C1,W1,det1,r01,r02,max_mOrd,max_nOrd,max_nOrd,max_mInc,max_nInc,max_nInc,mMat,nMat,mInc, &
-                      nInc,mDec,nDec,H1,S1,Work(ipHess1),G1,Base2,r01,nnsiz,nDimTot,nOsc)
+                      nInc,mDec,nDec,H1,S1,Hess1,G1,Base2,r01,nnsiz,nDimTot,nOsc)
       call SolveSecEq(H1,nDimTot,U1,S1,E1)
       write(u6,'(20f10.1)') ((E1(i)-E1(1))*auTocm,i=2,nOsc)
       call SetUpHmat2(energy1,energy2,C2,W2,det2,r01,r02,max_mOrd,max_nOrd,max_nOrd,max_mInc,max_nInc,max_nInc,mMat,nMat,mInc, &
-                      nInc,mDec,nDec,H2,S2,Work(ipHess2),G2,Base2,r02,nnsiz,nDimTot,nOsc)
+                      nInc,mDec,nDec,H2,S2,Hess2,G2,Base2,r02,nnsiz,nDimTot,nOsc)
       call SolveSecEq(H2,nDimTot,U2,S2,E2)
       write(u6,'(20f10.1)') ((E2(i)-E2(1))*auTocm,i=2,nOsc)
     else
-      call SetUpHmat(energy1,r1,iWork(ipipow),Work(ipvar),Work(ipyin1),r00,trfName1,max_term,C1,W1,det1,r01,C2,W2,det2,r02, &
-                     max_mOrd,max_nOrd,max_nOrd,max_mInc,max_nInc,max_nInc,mMat,nMat,mInc,nInc,mDec,nDec,H1,S1,G1,G2,G0,Gprm1, &
-                     Gprm2,Gprm0,Gbis1,Gbis2,Gbis0,C,W,det0,Mass,r00,Base,r0,r1,r2,nnsiz,nterm,nvar,ndata,nosc,ndimtot,numofat)
+      call SetUpHmat(energy1,r1,ipow,var,yin1,r00,trfName1,max_term,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,max_nOrd, &
+                     max_mInc,max_nInc,max_nInc,mMat,nMat,mInc,nInc,mDec,nDec,H1,S1,G1,G2,G0,Gprm1,Gprm2,Gprm0,Gbis1,Gbis2,Gbis0, &
+                     C,W,det0,Mass,r00,Base,r0,r1,r2,nnsiz,nterm,nvar,ndata,nosc,ndimtot,numofat)
       call SolveSort(H1,U1,S1,E1,W1,W2,W1,C1,C2,C1,r01,r02,r01,mInc,mDec,mMat,mdim1,mdim2,OccNumMat1,nOsc,nDimTot)
-      call SetUpHmat(energy2,r2,iWork(ipipow),Work(ipvar),Work(ipyin2),r00,trfName2,max_term,C1,W1,det1,r01,C2,W2,det2,r02, &
-                     max_mOrd,max_nOrd,max_nOrd,max_mInc,max_nInc,max_nInc,mMat,nMat,mInc,nInc,mDec,nDec,H2,S2,G1,G2,G0,Gprm1, &
-                     Gprm2,Gprm0,Gbis1,Gbis2,Gbis0,C,W,det0,Mass,r00,Base,r0,r1,r2,nnsiz,nterm,nvar,ndata,nosc,ndimtot,numofat)
+      call SetUpHmat(energy2,r2,ipow,var,yin2,r00,trfName2,max_term,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,max_nOrd, &
+                     max_mInc,max_nInc,max_nInc,mMat,nMat,mInc,nInc,mDec,nDec,H2,S2,G1,G2,G0,Gprm1,Gprm2,Gprm0,Gbis1,Gbis2,Gbis0, &
+                     C,W,det0,Mass,r00,Base,r0,r1,r2,nnsiz,nterm,nvar,ndata,nosc,ndimtot,numofat)
       call SolveSort(H2,U2,S2,E2,W1,W2,W2,C1,C2,C2,r01,r02,r02,nInc,nDec,nMat,ndim1,ndim2,OccNumMat2,nOsc,nDimTot)
-      call GetMem('yin1','Free','Real',ipyin1,ndata)
-      call GetMem('yin2','Free','Real',ipyin2,ndata)
+      call mma_deallocate(yin1)
+      call mma_deallocate(yin2)
 
     end if
-    write(u6,*) 'T0',T0*HarToRcm
+    write(u6,*) 'T0',T0*auTocm
     k2 = 1
     l_TermMat_1 = nDimTot-1
     l_TermMat_2 = nDimTot-1
@@ -1129,8 +1122,8 @@ else
   end if  ! END: Vibrational Hessian (variational)
 
   call mma_deallocate(AtCoord)
-  call GetMem('Hess1','Free','Real',ipHess1,nOsc*nOsc)
-  call GetMem('Hess2','Free','Real',ipHess2,nOsc*nOsc)
+  call mma_deallocate(Hess1)
+  call mma_deallocate(Hess2)
   call mma_deallocate(G0)
   call mma_deallocate(G1)
   call mma_deallocate(G2)
@@ -1150,12 +1143,14 @@ else
   !PAM: If max_dip=0, there are no transition dipole gradients, but the
   !     array TranDipGradInt must be formally all. anyway:
   if (max_dip == 0) then
-    call GetMem('TranDipGradInt','Allo','Real',ipTranDipGradInt,3*nOsc)
+    call mma_allocate(TranDipGradInt,3,nOsc,label='TranDipGradInt')
   end if
 
   if (Matel) then
     l_IntensityMat_1 = ndimtot-1
     l_IntensityMat_2 = ndimtot-1
+    l_m_plot = size(m_plot)
+    l_n_plot = size(n_plot)
     call mma_allocate(IntensityMat,[0,l_IntensityMat_1],[0,l_IntensityMat_2],label='IntensityMat')
     if (Forcefield) then
       Base2(:,:) = Zero
@@ -1163,21 +1158,21 @@ else
         Base2(i,i) = One
       end do
       call Intensity2(IntensityMat,TermMat,T0,max_term,U1,U2,E1,E2,C1,W1,det1,r01,C2,W2,det2,r02,C,W,det0,r00,m_max,n_max,max_dip, &
-                      iWork(ipm_plot),iWork(ipn_plot),TranDip,Work(ipTranDipGradInt),harmfreq1,x_anharm1,harmfreq2,x_anharm2,r0, &
-                      r1,r2,Base2,l_IntensityMat_1,l_IntensityMat_2,l_TermMat_1,l_TermMat_2,nOsc,nDimTot,l_n_plot,l_m_plot)
-      call GetMem('TranDipGradInt','Free','real',ipTranDipGradInt,3*nOsc)
+                      m_plot,n_plot,TranDip,TranDipGradInt,harmfreq1,x_anharm1,harmfreq2,x_anharm2,r0,r1,r2,Base2, &
+                      l_IntensityMat_1,l_IntensityMat_2,l_TermMat_1,l_TermMat_2,nOsc,nDimTot,l_n_plot,l_m_plot)
+      call mma_deallocate(TranDipGradInt)
       call mma_deallocate(Base2)
     else
-      call Intensity(IntensityMat,TermMat,T0,max_term,iWork(ipipow),Work(ipvar),Work(ipt_dipin1),Work(ipt_dipin2), &
-                     Work(ipt_dipin3),trfName1,U1,U2,E1,E2,C1,W1,det1,r01,C2,W2,det2,r02,C,W,det0,r00,m_max,n_max,max_dip, &
-                     iWork(ipm_plot),iWork(ipn_plot),harmfreq1,harmfreq2,r0,r1,r2,Base,l_IntensityMat_1,l_IntensityMat_2, &
-                     l_TermMat_1,l_TermMat_2,nOsc,nDimTot,nPolyTerm,ndata,nvar,MaxNumAt,l_n_plot,l_m_plot)
-      call GetMem('t_dipin1','Free','Real',ipt_dipin1,ndata)
-      call GetMem('t_dipin2','Free','Real',ipt_dipin2,ndata)
-      call GetMem('t_dipin3','Free','Real',ipt_dipin3,ndata)
+      call Intensity(IntensityMat,TermMat,T0,max_term,ipow,var,t_dipin1,t_dipin2,t_dipin3,trfName1,U1,U2,E1,E2,C1,W1,det1,r01,C2, &
+                     W2,det2,r02,C,W,det0,r00,m_max,n_max,max_dip,m_plot,n_plot,harmfreq1,harmfreq2,r0,r1,r2,Base, &
+                     l_IntensityMat_1,l_IntensityMat_2,l_TermMat_1,l_TermMat_2,nOsc,nDimTot,nPolyTerm,ndata,nvar,MaxNumAt, &
+                     l_n_plot,l_m_plot)
+      call mma_deallocate(t_dipin1)
+      call mma_deallocate(t_dipin2)
+      call mma_deallocate(t_dipin3)
 
-      call GetMem('var','Free','Real',ipvar,ndata*nvar)
-      call GetMem('ipow','Free','Inte',ipipow,nPolyTerm*nvar)
+      call mma_deallocate(var)
+      call mma_deallocate(ipow)
 
     end if
   else
@@ -1186,9 +1181,9 @@ else
 
     call mma_allocate(IntensityMat,[0,l_IntensityMat_1],[0,l_IntensityMat_2],label='IntensityMat')
     call IntForceField(IntensityMat,TermMat,T0,max_term,FC00,C1,W1,det1,r01,C2,W2,det2,r02,C,W,det0,r00,m_max,n_max,max_dip, &
-                       Trandip,Work(ipTranDipGradInt),harmfreq1,x_anharm1,harmfreq2,x_anharm2,mMat,mInc,mDec,nMat,nInc,nDec, &
-                       OscStr,nsize,max_mOrd,max_nOrd,nDimTot,nOsc)
-    call GetMem('TranDipGradInt','Free','Real',ipTranDipGradInt,3*nOsc)
+                       Trandip,TranDipGradInt,harmfreq1,x_anharm1,harmfreq2,x_anharm2,mMat,mInc,mDec,nMat,nInc,nDec,OscStr,nsize, &
+                       max_mOrd,max_nOrd,nDimTot,nOsc)
+    call mma_deallocate(TranDipGradInt)
   end if
 
   !write results to log.
@@ -1231,14 +1226,14 @@ else
   call mma_deallocate(OccNumMat1)
   call mma_deallocate(OccNumMat2)
 
-  call GetMem('m_plot','Free','Inte',ipm_plot,l_m_plot)
-  call GetMem('n_plot','Free','Inte',ipn_plot,l_n_plot)
+  call mma_deallocate(m_plot)
+  call mma_deallocate(n_plot)
 
-  call GetMem('NormModes','Free','Inte',ipNormModes,l_NormModes)
+  call mma_deallocate(NormModes)
   call mma_deallocate(Base)
   call mma_deallocate(BaseInv)
 
-  call GetMem('TranDipGrad','Free','Real',ipTranDipGrad,3*NumOfAt)
+  call mma_deallocate(TranDipGrad)
   call mma_deallocate(r0)
   call mma_deallocate(r1)
   call mma_deallocate(r2)

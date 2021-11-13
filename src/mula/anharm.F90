@@ -39,13 +39,12 @@ subroutine Anharm(eigenVec,harmfreq,D3,D4,Gprime,Gdbleprime,x,max_term,nOsc)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1996.
 
+use mula_global, only: ngdim
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Four, Five, Six, Eight, Nine, Half, Quart
 use Definitions, only: wp
 
 implicit real*8(a-h,o-z)
-#include "Constants_mula.fh"
-#include "dims.fh"
 real*8 eigenVec(nosc,nosc)
 real*8 harmfreq(nosc)
 real*8 D3(ngdim,ngdim,ngdim)

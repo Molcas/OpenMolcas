@@ -34,7 +34,6 @@ subroutine BondStr(R,i1,i2,j,S,NumOfAt,NumInt)
 !    Dept. of Theoretical Chemistry, Lund University, 1994.
 
 implicit real*8(a-h,o-z)
-#include "Constants_mula.fh"
 real*8 S(3,NumOfAt,NumInt)
 real*8 R(3)
 
@@ -97,7 +96,6 @@ subroutine AngBend(R1,R2,i1,i2,i3,j,S,NumOfAt,NumInt)
 use Constants, only: One
 
 implicit real*8(a-h,o-z)
-#include "Constants_mula.fh"
 real*8 S(3,NumOfAt,NumInt)
 real*8 R1(3), R2(3)
 real*8 NR1(3), NR2(3)
@@ -173,7 +171,6 @@ subroutine LinBend(R1,R2,i1,i2,i3,j,S,NumOfAt,NumInt)
 use Constants, only: Zero, One
 
 implicit real*8(a-h,o-z)
-#include "Constants_mula.fh"
 real*8 S(3,NumOfAt,NumInt)
 real*8 R1(3), R2(3)
 
@@ -247,7 +244,6 @@ subroutine Torsion(R1,R2,R3,i1,i2,i3,i4,j,S,NumOfAt,NumInt)
 use Constants, only: One
 
 implicit real*8(a-h,o-z)
-#include "Constants_mula.fh"
 real*8 S(3,NumOfAt,NumInt)
 real*8 R1(3), R2(3), R3(3)
 real*8 NR1(3), NR2(3), NR3(3)
@@ -341,7 +337,6 @@ subroutine OutOfPl(R1,R2,R3,i1,i2,i3,i4,j,S,NumOfAt,NumInt)
 use Constants, only: One
 
 implicit real*8(a-h,o-z)
-#include "Constants_mula.fh"
 real*8 S(3,NumOfAt,NumInt)
 real*8 R1(3), R2(3), R3(3)
 real*8 NR1(3), NR2(3), NR3(3), F0(3)
@@ -439,7 +434,6 @@ subroutine CalcS(AtCoord,InterVec,S,NumInt,NumOfAt)
 !    Dept. of Theoretical Chemistry, Lund University, 1994.
 
 implicit real*8(a-h,o-z)
-#include "Constants_mula.fh"
 real*8 AtCoord(3,NumOfAt)
 integer InterVec(*)
 real*8 S(3,NumOfAt,NumInt)
@@ -528,10 +522,9 @@ subroutine CalcG(G,Mass,S,NumInt,NumOfAt)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1994.
 
-use Constants, only: Zero, One
+use Constants, only: Zero, One, uToau
 
 implicit real*8(a-h,o-z)
-#include "Constants_mula.fh"
 real*8 G(NumInt,NumInt)
 real*8 Mass(NumOfAt)
 real*8 S(3,NumOfAt,NumInt)
@@ -540,7 +533,7 @@ do i=1,NumInt
   do j=1,NumInt
     GSum = Zero
     do k=1,NumOfAt
-      GSum = GSum+(One/(uToAu*Mass(k)))*(S(1,k,i)*S(1,k,j)+S(2,k,i)*S(2,k,j)+S(3,k,i)*S(3,k,j))
+      GSum = GSum+(One/(uToau*Mass(k)))*(S(1,k,i)*S(1,k,j)+S(2,k,i)*S(2,k,j)+S(3,k,i)*S(3,k,j))
     end do
     G(i,j) = GSum
   end do

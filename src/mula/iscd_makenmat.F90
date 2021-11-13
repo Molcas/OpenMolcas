@@ -18,7 +18,6 @@ implicit integer(i-n)
 integer Graph2(n_max+1,n_max+1,nOsc)
 integer nTabDim(0:lnTabDim), nMat0(nOsc)
 integer nvTabDim
-#include "io_mula.fh"
 integer, allocatable :: iVec(:)
 
 ! Initialize.

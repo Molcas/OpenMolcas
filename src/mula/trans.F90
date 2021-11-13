@@ -40,7 +40,6 @@ subroutine TransEnergy(G01,x_anharm1,harmfreq1,level1,G02,x_anharm2,harmfreq2,le
 use Constants, only: Half
 
 implicit real*8(a-h,o-z)
-#include "Constants_mula.fh"
 real*8 sum, G0, G1, G01, G02
 real*8 energy
 real*8 x_anharm1(nDim,nDim), x_anharm2(nDim,nDim)

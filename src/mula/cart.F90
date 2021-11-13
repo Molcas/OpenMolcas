@@ -36,7 +36,6 @@ subroutine Cart_to_Int1(InterVec,AtCoord,xvec,BMatrix,NumOfAt,NumInt)
 use Constants, only: One
 
 implicit none
-#include "Constants_mula.fh"
 integer inttype, numint, numofat
 real*8 AtCoord(3,NumOfAt)
 integer InterVec(*)
@@ -255,7 +254,6 @@ subroutine Cart_to_Int0(InterVec,AtCoord,xvec,NumOfAt,NumInt)
 use Constants, only: One
 
 implicit none
-#include "Constants_mula.fh"
 integer inttype, numint, numofat
 real*8 AtCoord(3,NumOfAt)
 integer InterVec(*)
@@ -409,7 +407,6 @@ use Constants, only: Zero
 use Definitions, only: wp, u6
 
 !implicit none
-#include "Constants_mula.fh"
 integer NumInt, NumOfAt
 integer ncart, iter, j, k, ii, i1, i2, jj, j1, j2
 real*8 sum, RMSErr, det

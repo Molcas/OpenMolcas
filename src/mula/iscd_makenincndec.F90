@@ -11,6 +11,7 @@
 
 subroutine ISCD_MakenIncDec(n_max,nOrd,nOsc,lNMAT,lNINC,lNDEC,lBatch,nBatch,leftBatch,nIndex,Graph2,nMat,nInc,nDec)
 
+use mula_global, only: maxMax_n
 use stdalloc, only: mma_allocate, mma_deallocate
 
 implicit real*8(a-h,o-z)
@@ -18,7 +19,6 @@ integer nMat(nOsc,lBatch), nInc(nOsc,lBatch), nDec(nOsc,lBatch)
 integer Graph2(n_max+1,n_max+1,nOsc)
 integer n_max, nOrd, lBatch, nBatch, leftBatch
 integer lNMAT, lNINC, lNDEC
-#include "io_mula.fh"
 integer nIndex(3,0:maxMax_n)
 integer, allocatable :: iVecD(:), iVecI(:)
 
@@ -186,12 +186,13 @@ end subroutine ISCD_MakenIncDec
 !####
 subroutine ISCD_ReloadNMAT(lnTabDim,nOrd,nOsc,lNMAT0,lNMAT,lBatch,nBatch,leftBatch,nIndex,nTabDim,nMat0,nMat)
 
+use mula_global, only: maxMax_n
+
 implicit real*8(a-h,o-z)
 integer nMat(nOsc,lBatch)
 integer nMat0(nOsc), nTabDim(0:lnTabDim)
 integer lnTabDim, nOrd, nOsc, lNMAT0, lNMAT
 integer lBatch, nBatch, leftBatch
-#include "io_mula.fh"
 integer nIndex(3,0:maxMax_n)
 
 ! Initialize

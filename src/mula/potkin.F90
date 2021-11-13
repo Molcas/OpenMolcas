@@ -41,13 +41,13 @@ subroutine KinEnergy(A,nMat,iCre,iAnn,G,Gprime,Gdbleprime,max_term,C,W,alpha1,al
 !    Dept. of Theoretical Chemistry, Lund University, 1996.
 !    Dept. of Theoretical Chemistry, Lund University, 1999.
 
+use mula_global, only: ndim1, ndim2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Six, Half, OneHalf
 use Definitions, only: wp
 
 !use TabMod
 implicit real*8(a-h,o-z)
-#include "dims.fh"
 parameter(Thrs=1.0e-15_wp)
 real*8 A(0:max_Ord,0:max_Ord)
 integer nMat(0:ndim1,ndim2)

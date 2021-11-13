@@ -37,12 +37,12 @@ subroutine DipMatEl(Dij,W,L,U,FC00,nMat,nInc,nDec,D0,D1,D2,D3,D4,max_term,base,m
 !  Uses:
 !    MatElMod
 
+use mula_global, only: ndim1, ndim2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 
 !use PotKin
 implicit real*8(a-h,o-z)
-#include "dims.fh"
 real*8 Base(nOsc,nOsc)
 real*8 Dij(0:max_mOrd,0:max_mOrd)
 real*8 W(nOsc,nOsc)

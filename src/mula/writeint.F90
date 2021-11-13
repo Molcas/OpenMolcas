@@ -36,15 +36,13 @@ subroutine WriteInt(IntMat,TermMat,mMat,nMat,OccNumMat1,OccNumMat2,MatEl,ForceFi
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1996.
 
+use mula_global, only: broadplot, cmstart, cmend, hbarcm, LifeTime, m_plot, mdim1, mdim2, n_plot, ndim1, ndim2, OscStr, &
+                       plotwindow, Use_cm, Use_nm, WriteVibLevels
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two, Half
+use Constants, only: Zero, One, Two, Half, auTocm, auToeV
 use Definitions, only: wp, u6
 
 implicit real*8(a-h,o-z)
-#include "Constants_mula.fh"
-#include "dims.fh"
-#include "indims.fh"
-#include "inputdata.fh"
 parameter(nfreq=2000)
 real*8 Intensity, max_Intensity
 real*8 IntMat(0:l_IntMat_1,0:l_IntMat_2)
@@ -63,10 +61,10 @@ logical MatEl, ForceField
 character*12 format
 integer nvTabDim
 integer itemp(3)
-#include "inout.fh"
-#include "WrkSpc.fh"
+integer plotunit
 integer, allocatable :: level1(:), level2(:), mMatStart(:), mMatStop(:), TermSort(:,:), VibSort1(:,:), VibSort2(:,:)
 real*8, allocatable :: plotvec(:), VibLevel1(:), VibLevel2(:)
+integer, external :: isfreeunit
 
 write(u6,*)
 write(u6,*)
@@ -195,11 +193,11 @@ if (WriteVibLevels) then
   call mma_allocate(VibSort2,[1,2],[0,max_nOrd],label='VibSort2')
 
   do iOrd=0,max_mOrd
-    VibSort1(1,iOrd) = int(VibLevel1(iOrd)*HarToRcm)
+    VibSort1(1,iOrd) = int(VibLevel1(iOrd)*auTocm)
     VibSort1(2,iOrd) = iOrd
   end do
   do iOrd=0,max_nOrd
-    VibSort2(1,iOrd) = int(VibLevel2(iOrd)*HarToRcm)
+    VibSort2(1,iOrd) = int(VibLevel2(iOrd)*auTocm)
     VibSort2(2,iOrd) = iOrd
   end do
   call mma_deallocate(VibLevel1)
@@ -257,26 +255,12 @@ if (WriteVibLevels) then
   call mma_deallocate(VibSort2)
 
 end if
-!!
-!!---- Find start and end points for a given total quanta in mMat and nMat.
-m_plot_max = l_m_plot
-n_plot_max = l_n_plot
-max_mQuanta = iWork(ipm_plot)
-if (m_plot_max > 1) then
-  do i=2,m_plot_max
-    if (iWork(ipm_plot+i-1) > max_mQuanta) then
-      max_mQuanta = iWork(ipm_plot+i-1)
-    end if
-  end do
-end if
-max_nQuanta = iWork(ipn_plot)
-if (n_plot_max > 1) then
-  do i=2,n_plot_max
-    if (iWork(ipn_plot+i-1) > max_nQuanta) then
-      max_nQuanta = iWork(ipn_plot+i-1)
-    end if
-  end do
-end if
+
+! Find start and end points for a given total quanta in mMat and nMat.
+m_plot_max = size(m_plot)
+n_plot_max = size(n_plot)
+max_mQuanta = maxval(m_plot)
+max_nQuanta = maxval(n_plot)
 maxQuanta = max(max_mQuanta,max_nQuanta)
 call mma_allocate(mMatStart,[0,maxQuanta],label='mMatStart')
 call mma_allocate(mMatStop,[0,maxQuanta],label='mMatStop')
@@ -297,9 +281,9 @@ max_Intensity = Zero
 if (MatEl .and. (.not. ForceField)) then
   if (max_mQuanta <= max_nQuanta) then
     do i=1,m_plot_max
-      do iOrd=mMatStart(iwork(ipm_plot+i-1)),mMatStop(iWork(ipm_plot+i-1))
+      do iOrd=mMatStart(m_plot(i)),mMatStop(m_plot(i))
         do jOrd=0,3*max_mOrd/4
-          TermSort(1,nval) = int(TermMat(iOrd,jOrd)*HarToRcm)
+          TermSort(1,nval) = int(TermMat(iOrd,jOrd)*auTocm)
           TermSort(2,nval) = iOrd
           TermSort(3,nval) = jOrd
           nval = nval+1
@@ -309,9 +293,9 @@ if (MatEl .and. (.not. ForceField)) then
   else
     do iOrd=0,3*max_mOrd/4
       do j=1,n_plot_max
-        do jOrd=mMatStart(iWork(ipn_plot+j-1)),mMatStop(iWork(ipn_plot+j-1))
+        do jOrd=mMatStart(n_plot(j)),mMatStop(n_plot(j))
           if (IntMat(iOrd,jOrd) > max_Intensity) max_Intensity = IntMat(iOrd,jOrd)
-          TermSort(1,nval) = int(abs(TermMat(iOrd,jOrd))*HarToRcm)
+          TermSort(1,nval) = int(abs(TermMat(iOrd,jOrd))*auTocm)
           TermSort(2,nval) = iOrd
           TermSort(3,nval) = jOrd
           nval = nval+1
@@ -322,8 +306,8 @@ if (MatEl .and. (.not. ForceField)) then
 else
   do i=1,m_plot_max
     do j=1,n_plot_max
-      do iOrd=mMatStart(iWork(ipm_plot+i-1)),mMatStop(iWork(ipm_plot+i-1))
-        do jOrd=mMatStart(iWork(ipn_plot+j-1)),mMatStop(iwork(ipn_plot+j-1))
+      do iOrd=mMatStart(m_plot(i)),mMatStop(m_plot(i))
+        do jOrd=mMatStart(n_plot(j)),mMatStop(n_plot(j))
           if (IntMat(iOrd,jOrd) > max_Intensity) max_Intensity = IntMat(iOrd,jOrd)
         end do
       end do
@@ -331,11 +315,11 @@ else
   end do
   do i=1,m_plot_max
     do j=1,n_plot_max
-      do iOrd=mMatStart(iWork(ipm_plot+i-1)),mMatStop(iWork(ipm_plot+i-1))
-        do jOrd=mMatStart(iWork(ipn_plot+j-1)),mMatStop(iWork(ipn_plot+j-1))
+      do iOrd=mMatStart(m_plot(i)),mMatStop(m_plot(i))
+        do jOrd=mMatStart(n_plot(j)),mMatStop(n_plot(j))
           !if ((IntMat(iOrd,jOrd) > int_thrs*max_Intensity) .or. &
           !if ((IntMat(iOrd,jOrd) > 1.0e-3_wp*max_Intensity) .or. ((iOrd == 0 ) .and. (jOrd == 0))) then
-          TermSort(1,nval) = int(abs(TermMat(iOrd,jOrd))*HarToRcm)
+          TermSort(1,nval) = int(abs(TermMat(iOrd,jOrd))*auTocm)
           TermSort(2,nval) = iOrd
           TermSort(3,nval) = jOrd
           nval = nval+1
@@ -434,13 +418,13 @@ if (Use_nm) conv = 1.0e7_wp
 
 ! TermMin/Max must be in cm-1
 if (plotwindow) then
-  if (Use_nm) then                         ! nm -> cm-1
+  if (Use_nm) then                          ! nm -> cm-1
     TermMin = int(conv/cmend+0.999999_wp)   ! Note the inversion
     TermMax = int(conv/cmstart-0.999999_wp) ! cmstart <=> cmend
-  else if (Use_cm) then                    ! already cm-1
+  else if (Use_cm) then                     ! already cm-1
     TermMin = int(cmstart)
     TermMax = int(cmend+0.999999_wp)
-  else                                     ! eV -> cm-1
+  else                                      ! eV -> cm-1
     TermMin = int(cmstart/conv+0.999999_wp)
     TermMax = int(cmend/conv-0.999999_wp)
   end if
@@ -451,8 +435,9 @@ end if
 call mma_allocate(plotvec,[TermMin,TermMax],label='plotvec')
 plotvec(:) = Zero
 
-call molcas_open(plotunit,'plot.intensity')
-!open(unit=plotUnit,file='plot.intensity')
+plotUnit = isfreeunit(20)
+call molcas_open(plotUnit,'plot.intensity')
+!open(plotUnit,'plot.intensity')
 if (broadplot) then
   FWHM = hbarcm/(Two*LifeTime)
   G2 = FWHM*Half

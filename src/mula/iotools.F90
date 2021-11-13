@@ -33,7 +33,6 @@ subroutine MulaRdNLst(iUnit,NameIn)
 
 use Definitions, only: u6
 
-#include "inputdata.fh"
 character NameIn*(*)
 character*8 StdNam
 character*80 Line
@@ -75,7 +74,6 @@ subroutine WordPos(k,InLine,iStart,iStop)
 !    iStop,k  : Integer - the position of the first blank character
 !               after position iStart in InLine.
 
-#include "inputdata.fh"
 character*1 Ch
 character InLine*(*)
 
@@ -119,7 +117,6 @@ subroutine KeyWord(nUnit,KeyWd,rewind,Exist)
 
 use Definitions, only: u6
 
-#include "inputdata.fh"
 character KeyWd*(*)
 character*32 TmpKey
 character*80 InLine, OutLine
@@ -149,7 +146,7 @@ TmpKey = OutLine(1:KLen)
 
 if (rewind) then
   rewind nUnit
-  call MulaRdNlst(nUnit,InputName)
+  call MulaRdNlst(nUnit,'MULA')
 end if
 
 read(nUnit,'(a80)',iostat=istatus) InLine
@@ -183,7 +180,6 @@ real*8 function StrToDble(InString)
 
 use Definitions, only: u6
 
-#include "inputdata.fh"
 real*8 xNum
 integer length
 character InString*(*)
@@ -268,7 +264,6 @@ subroutine Normalize(line,line2)
 use Definitions, only: u6
 
 parameter(ntrans=256)
-#include "inputdata.fh"
 character line*(*)
 character line2*(*)
 character*26 lcase, ucase

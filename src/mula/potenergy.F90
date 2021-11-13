@@ -19,12 +19,12 @@ subroutine PotEnergy(A,nMat,iCre,iAnn,energy,grad,Hess,D3,D4,max_term,W,max_ord,
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1996.
 
+use mula_global, only: ndim1, ndim2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 
 !use TabMod
 implicit real*8(a-h,o-z)
-#include "dims.fh"
 real*8 A(0:max_ord,0:max_ord)
 integer nMat(0:ndim1,ndim2)
 integer iAnn(0:ndim1,ndim2)

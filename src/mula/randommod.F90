@@ -8,7 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!module RandomMod
+
+module RandomMod
 
 ! Description:
 !   This random number generator originally appeared in "Toward a Universal
@@ -34,7 +35,18 @@
 !   On a Vax 11/780, this random number generator can produce a number in
 !   13 microseconds.
 
-!contains
+use Definitions, only: wp, iwp
+
+implicit real*8(a-h,o-z)
+private
+
+integer(kind=iwp) :: i97, j97
+real(kind=wp) :: c, cd, cm, U(97)
+logical(kind=iwp) :: test
+
+public :: Ranmar, Rmarin
+
+contains
 
 subroutine Rmarin(ij,kl)
 ! This is the initialization routine for the random number generator RANMAR()
@@ -60,10 +72,6 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, u6
 
 implicit real*8(a-h,o-z)
-real*8 U(97), c, cd, cm
-integer i97, j97
-logical test
-#include "myrand.fh"
 
 test = .false.
 
@@ -116,13 +124,9 @@ use Constants, only: Zero, One
 use Definitions, only: u6
 
 implicit real*8(a-h,o-z)
-real*8 U(97), c, cd, cm
-integer i97, j97
-logical test
 real*8 rvec(*)
 real*8 uni
 integer ivec
-#include "myrand.fh"
 
 if (.not. test) then
   write(u6,'(a)') ' Call the init routine (RMARIN) before calling RANMAR'
@@ -146,4 +150,4 @@ end do
 
 end subroutine Ranmar
 
-!end module RandomMod
+end module RandomMod

@@ -20,11 +20,10 @@ subroutine var_to_qvar(var,qvar,ref,qref,alpha,trfName,ndata,nvar)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
-use Constants, only: Zero, One
+use Constants, only: Zero, One, deg2rad
 use Definitions, only: u6
 
 implicit real*8(a-h,o-z)
-#include "Constants_mula.fh"
 real*8 var(ndata,nvar)
 real*8 par(ndata,nvar)
 real*8 qvar(ndata,nvar)

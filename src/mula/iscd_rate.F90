@@ -20,15 +20,13 @@ subroutine ISCD_Rate(iPrint,nOsc,max_nOrd,iMx_nOrd,iMaxYes,nYes,dMinWind,lBatch,
                      lNINC,lNDEC,lnTabDim,nnTabDim,C1,C2,W1,W2,det0,det1,det2,C,W,r01,r02,r00,m_max,n_max,max_dip,nnsiz,FC00, &
                      dRho,mTabDim,mMat,mInc,mDec,nMat,nInc,nDec)
 
+use mula_global, only: maxMax_n, TranDip
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two
+use Constants, only: Zero, One, Two, Pi, auTocm
 use Definitions, only: wp, u6
 
 implicit real*8(a-h,o-z)
 implicit integer(i-n)
-#include "Constants_mula.fh"
-#include "inout.fh"
-#include "io_mula.fh"
 integer nIndex(3,0:maxMax_n)
 real*8 C1(nOsc,nOsc), C2(nOsc,nosc), W1(nOsc,nOsc), W2(nOsc,nOsc), C(nOsc,nOsc), W(nOsc,nOsc)
 real*8 r01(nOsc), r02(nOsc), r00(nOsc), det0, det1, det2, FC00
@@ -76,14 +74,14 @@ call ISCD_FCval(iPrint,iMaxYes,lnTabDim,nnTabDim,lNMAT0,lNMAT,lNINC,lNDEC,lBatch
                 FC00,nOsc,nnsiz,iMx_nOrd,nYes,VibWind2,FCWind2)
 
 ! where does this number come from?
-const = Two*rpi/5.309e-12_wp
+const = Two*Pi/5.309e-12_wp
 if (iPrint >= 4) then
   write(u6,*)
   write(u6,*) '  const =',const
-  write(u6,*) '  dRho/cm =',dRho/HarToRcm
-  write(u6,*) '  const*dRho=',const*dRho/HarToRcm
+  write(u6,*) '  dRho/cm =',dRho/auTocm
+  write(u6,*) '  const*dRho=',const*dRho/auTocm
 end if
-const = const*dRho/HarToRcm
+const = const*dRho/auTocm
 
 dSum = Zero
 do ii=1,nYes

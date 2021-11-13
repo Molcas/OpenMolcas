@@ -19,13 +19,13 @@
 subroutine ISC_FCval(iPrint,iMaxYes,nTabDim,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,max_nOrd2,max_mInc,max_nInc,max_nInc2, &
                      mMat,nMat,mInc,nInc,mDec,nDec,C,W,det0,r00,FC00,nOsc,nnsiz,iMx_nOrd,nYes,VibWind2,FCWind2)
 
+use mula_global, only: mdim1, mdim2, ndim1, ndim2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, u6
 
 implicit real*8(a-h,o-z)
 implicit integer(i-n)
-#include "dims.fh"
 real*8 C1(nOsc,nOsc), C2(nOsc,nOsc), W1(nOsc,nOsc)
 real*8 W2(nOsc,nOsc), C(nOsc,nOsc), W(nOsc,nOsc)
 real*8 r00(nOsc), r01(nOsc), r02(nOsc)
@@ -33,7 +33,6 @@ real*8 FCWind2(nYes)
 integer mMat(0:mdim1,mdim2), mInc(0:mdim1,mdim2), mDec(0:mdim1,mdim2)
 integer nMat(0:ndim1,ndim2), nInc(0:iMaxYes,nOsc), nDec(0:iMaxYes,nOsc)
 integer VibWind2(nYes)
-#include "inout.fh"
 real*8, allocatable :: A2(:,:), A2B2T(:,:), Alpha(:,:), Alpha1(:,:), Alpha2(:,:), B2(:,:), Beta(:,:), d2(:), L(:,:), r_temp1(:), &
                        r_temp2(:), sqr(:), temp(:,:), temp1(:,:), temp2(:,:), U(:,:)
 

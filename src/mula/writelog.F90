@@ -82,15 +82,12 @@ subroutine WriteLog(PotCoef,AtomLbl,AtCoord,Mass,InterVec,stand_dev,max_err,ener
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
+use mula_global, only: Huge_Print, ipow, MaxNumAt, nPolyTerm, VibModPlot
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: auTocm
 use Definitions, only: u6
 
 implicit real*8(a-h,o-z)
-#include "Constants_mula.fh"
-#include "dims.fh"
-#include "inputdata.fh"
-#include "indims.fh"
-#include "inout.fh"
 integer VibPlotUnit
 real*8 energy
 real*8 Hess(nOsc,nOsc), G(nOsc,nOsc), V(nOsc,nOsc)
@@ -108,13 +105,13 @@ real*8 x_anharm(nOsc,nOsc)
 real*8 anharmfreq(nOsc)
 integer Bond(2*MaxNumAt)
 !logical Plot
-logical ForceField
+logical ForceField, cont
 real*8 stand_dev, max_err
 character*11 VibPlotFile
 character*8 BondString
 real*8 PotCoef(nPolyTerm,1)
-#include "WrkSpc.fh"
 integer, allocatable :: aNormModes(:)
+integer, external :: isfreeunit
 
 NumInt = nOsc
 call mma_allocate(aNormModes,NumInt,label='aNormModes')
@@ -151,7 +148,7 @@ if (.not. ForceField) then
   write(u6,'(A)') '  Coefficients of different terms in polynomial:'
   write(u6,'(A)') '  ----------------------------------------------'
   do i=1,nPolyTerm
-    write(u6,'(1x,f18.12,10(3x,i2))') PotCoef(i,1),(iWork(ipipow+i+nPolyTerm*(ivar-1)-1),ivar=1,nvar)
+    write(u6,'(1x,f18.12,10(3x,i2))') PotCoef(i,1),ipow(i,:)
   end do
   write(u6,*)
   write(u6,*)
@@ -325,7 +322,7 @@ if (max_term > 2) then
   write(u6,'(A)') '  Anharmonicity constants:'
   write(u6,'(A)') '  ------------------------'
   do i=1,NumInt
-    write(u6,'(a,20f15.8)') ' ',(HarToRcm*x_anharm(i,j),j=1,i)
+    write(u6,'(a,20f15.8)') ' ',(auTocm*x_anharm(i,j),j=1,i)
   end do
 end if
 
@@ -420,18 +417,16 @@ end if
 
 ! Print geometry of molecule, together with cartesian displacements,
 ! in a file.
-VibPlotUnit = 77
 if (VibModPlot) then
+  VibPlotUnit = isfreeunit(21)
   if (nState == 1) then
-    VibPlotUnit = VibPlotUnit1
     VibPlotFile = 'plot.modes1'
   end if
   if (nState == 2) then
-    VibPlotUnit = VibPlotUnit2
     VibPlotFile = 'plot.modes2'
   end if
   call molcas_Open(vibplotunit,vibplotfile)
-  !open(unit=VibPlotUnit,file=VibPlotFile)
+  !open(VibPlotUnit,VibPlotFile)
   write(VibPlotUnit,*) 2*NumOfAt
   write(VibPlotUnit,*) nBond/2
   write(VibPlotUnit,*) '1'

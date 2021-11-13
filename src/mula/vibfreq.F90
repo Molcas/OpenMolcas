@@ -80,13 +80,12 @@ subroutine VibFreq(AtCoord,xvec,InterVec,Mass,Hess,G,Gprime,Gdbleprime,harmfreq,
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
+use mula_global, only: ngdim
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp
 
 implicit real*8(a-h,o-z)
-#include "Constants_mula.fh"
-#include "dims.fh"
 integer InterVec(*)
 real*8 AtCoord(3,NumOfAt)
 real*8 Mass(NumOfAt)
@@ -146,7 +145,7 @@ end if
 
 k = 1
 do i=1,NumOfAt
-  const = One/sqrt(uToAU*Mass(i))
+  const = One/sqrt(uToau*Mass(i))
   Bnew(k:k+2,:) = B(k:k+2,:)*const
   k = k+3
 end do

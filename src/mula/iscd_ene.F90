@@ -57,12 +57,11 @@ subroutine ISCD_Ene(iPrint,nOsc,max_nOrd,nYes,lNMAT,lnTabDim,GE1,GE2,harmfreq1,h
 ! Calculate Energy of Levels  GG 30-Dec-08 - 08-Jan-09
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Half
+use Constants, only: Zero, One, Half, auTocm
 use Definitions, only: u6
 
 implicit real*8(a-h,o-z)
 implicit integer(i-n)
-#include "Constants_mula.fh"
 real*8 GE1, GE2, harmfreq1(nOsc), harmfreq2(nOsc)
 real*8 x_anharm1(nOsc,nOsc), x_anharm2(nOsc,nOsc)
 real*8 dMinWind, dRho, dWlow, dWup
@@ -118,9 +117,9 @@ do iOrd=0,max_nOrd
         do j=1,nOsc
           loc_n_max = loc_n_max+nMat0(j)
         end do
-        write(u6,'(a2,i8,f11.6,f11.4,i4,a2,24i3)') ' ',iOrd,dEne,dEne*HarToRcm,loc_n_max,': ',(nMat0(j),j=1,nOsc)
+        write(u6,'(a2,i8,f11.6,f11.4,i4,a2,24i3)') ' ',iOrd,dEne,dEne*auTocm,loc_n_max,': ',(nMat0(j),j=1,nOsc)
       else
-        write(u6,'(a2,i8,f11.6,f11.4,i4        )') ' ',iOrd,dEne,dEne*HarToRcm,loc_n_max
+        write(u6,'(a2,i8,f11.6,f11.4,i4        )') ' ',iOrd,dEne,dEne*auTocm,loc_n_max
       end if
     end if
   end if
@@ -164,9 +163,9 @@ do
             do j=1,nOsc
               loc_n_max = loc_n_max+nMat0(j)
             end do
-            write(u6,'(a2,i8,f11.6,f11.4,i4,a2,24i3)') ' ',iOrd,dEne,dEne*HarToRcm,loc_n_max,': ',(nMat0(j),j=1,nOsc)
+            write(u6,'(a2,i8,f11.6,f11.4,i4,a2,24i3)') ' ',iOrd,dEne,dEne*auTocm,loc_n_max,': ',(nMat0(j),j=1,nOsc)
           else
-            write(u6,'(a2,i8,f11.6,f11.4,i4        )') ' ',iOrd,dEne,dEne*HarToRcm,loc_n_max
+            write(u6,'(a2,i8,f11.6,f11.4,i4        )') ' ',iOrd,dEne,dEne*auTocm,loc_n_max
           end if
         end if
       end if
@@ -186,7 +185,7 @@ if (iPrint >= 3) then
   if (nOsc <= 30) write(u6,'(a,108a)') '  ',('-',i=1,108)
   if (nOsc > 30) write(u6,'(a,36a)') '  ',('-',i=1,36)
   write(u6,'(a,f12.9,a,f12.9,a)') '  Window: ',-dWlow,' / ',dWup,' (au)'
-  write(u6,'(a,f12.6,a,f12.6,a)') '  Window: ',-dWlow*HarToRcm,' / ',dWup*HarToRcm,' (cm-1)'
+  write(u6,'(a,f12.6,a,f12.6,a)') '  Window: ',-dWlow*auTocm,' / ',dWup*auTocm,' (cm-1)'
 end if
 if (iPrint >= 2) then
   write(u6,*) ' Final number of States=',nYes

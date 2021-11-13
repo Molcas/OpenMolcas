@@ -39,7 +39,6 @@ use Definitions, only: wp
 
 !use LinAlg
 implicit real*8(a-h,o-z)
-#include "Constants_mula.fh"
 real*8 F(NumInt,NumInt)
 real*8 V(NumInt,NumInt)
 real*8 Denominator

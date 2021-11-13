@@ -48,7 +48,6 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 
 implicit real*8(a-h,o-z)
-#include "Constants_mula.fh"
 real*8 Hess(NumInt,NumInt), G(NumInt,NumInt), V(NumInt,NumInt)
 real*8 B(3*NumOfAt,NumInt), Bnew(3*NumOfAt,NumInt), qMat(3*NumOfAt,NumInt)
 real*8 Lambda(NumInt)

@@ -51,22 +51,21 @@ subroutine ReadInp(Title,AtomLbl,Mass,InterVec,Bond,nBond,NumInt,NumOfAt,trfName
 !  Modified to use isotopes module
 !    Ignacio Fdez. Galvan, 2017
 
+use mula_global, only: AtCoord1, AtCoord2, broadplot, cmstart, cmend, energy1, energy2, hbarcm, Hess1, Hess2, Huge_Print, inpUnit, &
+                       ipow, LifeTime, m_plot, MaxNumAt, n_plot, ndata, NormModes, nPolyTerm, nvar, OscStr, plotwindow, t_dipin1, &
+                       t_dipin2, t_dipin3, TranDip, TranDipGrad, Use_cm, Use_nm, var, VibModPlot, WriteVibLevels, yin1, yin2
 use Isotopes, only: Isotope
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two, Eight, Quart
+use Constants, only: Zero, One, Two, Eight, Quart, Angstrom, auTocm, auToeV, deg2rad, uToau
 use Definitions, only: wp, u6
 
 implicit real*8(a-h,o-z)
-#include "inout.fh"
-#include "Constants_mula.fh"
-#include "inputdata.fh"
-#include "indims.fh"
 integer InterVec(MaxNumAt*15)
 character*80 trfName1(MaxNumAt), trfName2(MaxNumAt)
 real*8 Mass(MaxNumAt)
 character*4 AtomLbl(MaxNumAt)
 integer Bond(MaxNumAt*2)
-character*80 Title
+character*80 Title, InLine, OutLine
 !logical Plot
 character*9 CoordType
 character*1 c
@@ -98,7 +97,6 @@ logical XnotFound, YnotFound, ZnotFound
 character*8 format
 ! User-defined functions called:
 external StrToDble, iStrToInt
-#include "WrkSpc.fh"
 integer, allocatable :: GeoVec(:), tempmodes(:)
 real*8, allocatable :: Fcart(:,:), ScaleParam(:), Sinv(:,:), SS(:,:), Temp(:,:)
 
@@ -395,13 +393,12 @@ do while (OutLine(1:4) /= 'END ')
   call Normalize(InLine,OutLine)
 end do
 
-call GetMem('AtCoord1','Allo','Real',ipAtCoord1,3*NumOfAt)
-call GetMem('AtCoord2','Allo','Real',ipAtCoord2,3*NumOfAt)
-l_Hess1 = NumInt
-call GetMem('Hess1','Allo','Real',ipHess1,l_Hess1*l_Hess1)
-call GetMem('Hess2','Allo','Real',ipHess2,l_Hess1*l_Hess1)
+call mma_allocate(AtCoord1,3,NumOfAt,label='AtCoord1')
+call mma_allocate(AtCoord2,3,NumOfAt,label='AtCoord2')
+call mma_allocate(Hess1,NumInt,NumInt,label='Hess1')
+call mma_allocate(Hess2,NumInt,NumInt,label='Hess2')
 n = 3*NumOfAt
-call GetMem('TranDipGrad','Allo','Real',ipTranDipGrad,3*n)
+call mma_allocate(TranDipGrad,3,n,label='TranDipGrad')
 
 ! INTErnal: End --------------------------------------------------------
 
@@ -454,31 +451,27 @@ if (exist) then
     call Normalize(InLine,OutLine)
   end do
   n = i-1
-  l_NormModes = n
-  call GetMem('NormModes','Allo','Inte',ipNormModes,l_NormModes)
-  do iv=1,n
-    iWork(ipNormModes+iv-1) = tempModes(iv)
-  end do
+  call mma_allocate(NormModes,n,label='NormModes')
+  NormModes(:) = tempModes(1:n)
   call mma_deallocate(tempmodes)
   do i=1,n-1
     do j=i+1,n
-      if (iWork(ipNormModes+j-1) < iWork(ipNormModes+i-1)) then
-        modeTemp = iWork(ipNormModes+i-1)
-        iWork(ipNormModes+i-1) = iWork(ipNormModes+j-1)
-        iWork(ipNormModes+j-1) = modeTemp
+      if (NormModes(j) < NormModes(i)) then
+        modeTemp = NormModes(i)
+        NormModes(i) = NormModes(j)
+        NormModes(j) = modeTemp
       end if
     end do
   end do
 else
   ! No MODEs specified
-  l_NormModes = NumInt
-  call GetMem('NormModes','Allo','Inte',ipNormModes,l_NormModes)
+  call mma_allocate(NormModes,NumInt,label='NormModes')
   do i=1,NumInt
-    iWork(ipNormModes+i-1) = i
+    NormModes(i) = i
   end do
   if (iPrint >= 1) then
     write(u6,*) ' *** Warning: MODEs not specified !'
-    write(u6,*) '     All ',l_NormModes,' will be calculated.'
+    write(u6,*) '     All ',NumInt,' will be calculated.'
     write(u6,*)
   end if
 end if
@@ -555,11 +548,8 @@ else
   end do
   n = i-1
 end if
-l_m_plot = n
-call GetMem('m_plot','Allo','Inte',ipm_plot,l_m_plot)
-do iv=1,n
-  iWork(ipm_plot+iv-1) = plot_temp(iv)
-end do
+call mma_allocate(m_plot,n,label='m_plot')
+m_plot(:) = plot_temp(1:n)
 
 call KeyWord(inpUnit,'TRAN',.true.,exist)
 if (.not. exist) then
@@ -596,11 +586,8 @@ else
   end do
   n = i-1
 end if
-l_n_plot = n
-call GetMem('n_plot','Allo','Inte',ipn_plot,l_n_plot)
-do iv=1,n
-  iWork(ipn_plot+iv-1) = plot_temp(iv)
-end do
+call mma_allocate(n_plot,n,label='n_plot')
+n_plot(:) = plot_temp(1:n)
 
 ! TRANsitions: End -----------------------------------------------------
 
@@ -646,7 +633,7 @@ if (Forcefield) then
   rfact = One
   if (Eunit == 'AU') rfact = One
   if (Eunit == 'EV') rfact = One/auToeV
-  if (Eunit == 'CM') rfact = One/HarToRcm
+  if (Eunit == 'CM') rfact = One/auTocm
   energy1 = energy1*rfact
   call KeyWord(inpUnit,'SECO',.false.,exist)
   if (.not. exist) then
@@ -668,7 +655,7 @@ if (Forcefield) then
   ! End of replacement.
   if (Eunit == 'AU') rfact = One
   if (Eunit == 'EV') rfact = One/auToeV
-  if (Eunit == 'CM') rfact = One/HarToRcm
+  if (Eunit == 'CM') rfact = One/auTocm
   energy2 = energy2*rfact
 
   ! ENERgy: : End ------------------------------------------------------
@@ -699,10 +686,10 @@ if (Forcefield) then
     inpUnit1 = 31
     inpUnit2 = 32
     call molcas_open(31,'UNSYM1')
-    !open(unit=31,file='UNSYM1')
+    !open(31,'UNSYM1')
     call KeyWord(inpUnit1,'*LABEL COORDINATES CHARGE',.false.,exist)
     call molcas_open(32,'UNSYM2')
-    !open(unit=32,file='UNSYM2')
+    !open(32,'UNSYM2')
     call KeyWord(inpUnit2,'*LABEL COORDINATES CHARGE',.false.,exist)
   else
     inpUnit1 = inpunit
@@ -737,9 +724,7 @@ if (Forcefield) then
         write(u6,*) '*****************************'
         ierror = ierror+1
       else
-        do iv=1,3
-          Work(ipAtCoord1+iv+3*(j-1)-1) = TmpCoord(iv)
-        end do
+        AtCoord1(:,j) = TmpCoord(:)
       end if
     end do
     !D write(u6,*) ' READINP: Read cartesian coordinates for second state.'
@@ -767,9 +752,7 @@ if (Forcefield) then
         write(u6,*) '*****************************'
         ierror = ierror+1
       else
-        do iv=1,3
-          Work(ipAtCoord2+iv+3*(j-1)-1) = TmpCoord(iv)
-        end do
+        AtCoord2(:,j) = TmpCoord(:)
       end if
     end do
 
@@ -953,7 +936,7 @@ if (Forcefield) then
     !call Int_to_Cart(GeoVec,xvec,AtCoord1,NumOfAt,iInt,Mass)
     l_a = NumOfAt
     l_n = max_len_xvec
-    call Int_to_Cart1(GeoVec,xvec,Work(ipAtCoord1),l_a,l_n)
+    call Int_to_Cart1(GeoVec,xvec,AtCoord1,l_a,l_n)
 
     call mma_deallocate(GeoVec)
 
@@ -1133,9 +1116,8 @@ if (Forcefield) then
     !call Int_to_Cart(GeoVec,xvec,AtCoord2,NumOfAt,iInt,Mass)
     l_a = NumOfAt
     l_n = max_len_xvec
-    call Int_to_Cart1(GeoVec,xvec,Work(ipAtCoord2),l_a,l_n)
+    call Int_to_Cart1(GeoVec,xvec,AtCoord2,l_a,l_n)
     call mma_deallocate(GeoVec)
-    call GetMem('GeoVec','Free','Inte',ipGeoVec,5*(3*NumOfAt-5))
   end if
 
   if (inpunit1 == 31) then
@@ -1320,7 +1302,7 @@ if (Forcefield) then
     Coordtype = 'CARTESIAN'
     inpUnit1 = 31
     call molcas_open(31,'UNSYM1')
-    !open(unit=31,file='UNSYM1')
+    !open(31,'UNSYM1')
     call KeyWord(inpUnit1,'UNSYMMETRIZED HESSIAN',.false.,exist)
     read(inpUnit1,'(a17)') Inline
     read(inpUnit1,'(a17)') Inline
@@ -1330,17 +1312,17 @@ if (Forcefield) then
 
   if (CoordType == 'INTERNAL') then
     do i=1,NumInt
-      read(inpUnit,*) (Work(ipHess1+i+l_Hess1*(j-1)-1),j=1,NumInt)
+      read(inpUnit,*) Hess1(i,:)
     end do
   else if (CoordType == 'CARTESIAN') then
     call mma_allocate(SS,3*NumOfAt,NumInt,label='SS')
     SS(:,:) = Zero
-    call CalcS(Work(ipAtCoord1),InterVec,SS,NumInt,NumOfAt)
+    call CalcS(AtCoord1,InterVec,SS,NumInt,NumOfAt)
 
     ! Invert S matrix and remove total translation and total rotation.
     call mma_allocate(Sinv,3*NumOfAt,NumInt,label='Sinv')
 
-    call RotTranRem(Sinv,SS,Mass,Work(ipAtCoord1),NumOfAt,NumInt)
+    call RotTranRem(Sinv,SS,Mass,AtCoord1,NumOfAt,NumInt)
     call mma_deallocate(SS)
 
     ! Read cartesian force constant matrix.
@@ -1394,7 +1376,7 @@ if (Forcefield) then
     !PAM01 Here follows replacement code:
     call mma_allocate(Temp,3*NumOfAt,NumInt,label='Temp')
     call DGEMM_('N','N',3*NumOfAt,NumInt,3*NumOfAt,One,FCart,3*NumOfAt,SInv,3*NumOfAt,Zero,Temp,3*NumOfAt)
-    call DGEMM_('T','N',NumInt,NumInt,3*NumOfAt,One,SInv,3*NumOfAt,Temp,3*NumOfAt,Zero,Work(ipHess1),NumInt)
+    call DGEMM_('T','N',NumInt,NumInt,3*NumOfAt,One,SInv,3*NumOfAt,Temp,3*NumOfAt,Zero,Hess1,NumInt)
     call mma_deallocate(Temp)
     call mma_deallocate(Sinv)
     call mma_deallocate(Fcart)
@@ -1412,9 +1394,7 @@ if (Forcefield) then
       ScaleParam(i) = sqrt(ScaleParam(i))
     end do
     do j=1,Numint
-      do i=1,NumInt
-        Work(ipHess1+i+l_Hess1*(j-1)-1) = Work(ipHess1+i+l_Hess1*(j-1)-1)*ScaleParam(i)*ScaleParam(j)
-      end do
+      Hess1(:,j) = Hess1(:,j)*ScaleParam*ScaleParam(j)
     end do
     call mma_deallocate(ScaleParam)
   end if
@@ -1436,7 +1416,7 @@ if (Forcefield) then
     Coordtype = 'CARTESIAN'
     inpUnit2 = 32
     call molcas_open(32,'UNSYM2')
-    !open (unit=32,file='UNSYM2')
+    !open (32,'UNSYM2')
     call KeyWord(inpUnit2,'UNSYMMETRIZED HESSIAN',.false.,exist)
     read(inpUnit2,'(a17)') Inline
     read(inpUnit2,'(a17)') Inline
@@ -1446,17 +1426,17 @@ if (Forcefield) then
 
   if (CoordType == 'INTERNAL') then
     do i=1,NumInt
-      read(inpUnit,*) (Work(ipHess2+i+l_Hess1*(j-1)-1),j=1,NumInt)
+      read(inpUnit,*) Hess2(i,:)
     end do
   else if (CoordType == 'CARTESIAN') then
     call mma_allocate(SS,3*NumOfAt,NumInt,label='SS')
     SS(:,:) = Zero
-    call CalcS(Work(ipAtCoord2),InterVec,SS,NumInt,NumofAt)
+    call CalcS(AtCoord2,InterVec,SS,NumInt,NumofAt)
 
     ! Invert S matrix and remove total translation and total rotation.
     call mma_allocate(Sinv,3*NumOfAt,NumInt,label='Sinv')
 
-    call RotTranRem(Sinv,SS,Mass,Work(ipAtCoord2),NumOfAt,NumInt)
+    call RotTranRem(Sinv,SS,Mass,AtCoord2,NumOfAt,NumInt)
     call mma_deallocate(SS)
 
     ! Read cartesian force constant matrix.
@@ -1510,7 +1490,7 @@ if (Forcefield) then
     !PAM01 Here follows replacement code:
     call mma_allocate(Temp,3*NumOfAt,NumInt,label='Temp')
     call DGEMM_('N','N',3*NumOfAt,NumInt,3*NumOfAt,One,FCart,3*NumOfAt,SInv,3*NumOfAt,Zero,Temp,3*NumOfAt)
-    call DGEMM_('T','N',NumInt,NumInt,3*NumOfAt,One,SInv,3*NumOfAt,Temp,3*NumOfAt,Zero,Work(ipHess2),NumInt)
+    call DGEMM_('T','N',NumInt,NumInt,3*NumOfAt,One,SInv,3*NumOfAt,Temp,3*NumOfAt,Zero,Hess2,NumInt)
     call mma_deallocate(Temp)
     call mma_deallocate(Sinv)
     call mma_deallocate(Fcart)
@@ -1537,9 +1517,7 @@ if (Forcefield) then
       ScaleParam(i) = sqrt(ScaleParam(i))
     end do
     do j=1,NumInt
-      do i=1,NumInt
-        Work(ipHess2+i+l_Hess1*(j-1)-1) = Work(ipHess2+i+l_Hess1*(j-1)-1)*ScaleParam(i)*ScaleParam(j)
-      end do
+      Hess2(:,j) = Hess2(:,j)*ScaleParam*ScaleParam(j)
     end do
     call mma_deallocate(ScaleParam)
   end if
@@ -1564,14 +1542,14 @@ if (Forcefield) then
   if (OutLine(1:4) == 'FILE') then
     !D write(u6,*) ' Read trans dips from file UNSYM21'
     call molcas_open(31,'UNSYM21')
-    !open(unit=31,file='UNSYM21')
+    !open(31,'UNSYM21')
     if (max_dip == 1) then
       call KeyWord(31,'*BEGIN TRANSDIPDER FOR COMPONENT X',.false.,exist)
-      read(31,*) (Work(ipTranDipGrad+3*(i-1)),i=1,3*NumOfAt)
+      read(31,*) TranDipGrad(1,:)
       call KeyWord(31,'*BEGIN TRANSDIPDER FOR COMPONENT Y',.false.,exist)
-      read(31,*) (Work(ipTranDipGrad+1+3*(i-1)),i=1,3*NumOfAt)
+      read(31,*) TranDipGrad(2,:)
       call KeyWord(31,'*BEGIN TRANSDIPDER FOR COMPONENT Z',.false.,exist)
-      read(31,*) (Work(ipTranDipGrad+2+3*(i-1)),i=1,3*NumOfAt)
+      read(31,*) TranDipGrad(3,:)
     end if
     XnotFound = .true.
     YnotFound = .true.
@@ -1596,11 +1574,11 @@ if (Forcefield) then
   else
     call KeyWord(inpUnit,'DIPO',.true.,exist)
     !D write(u6,*) ' READINP: Read dipoles ("DIPOLES").'
-    read(inpUnit,*) (TranDip(i),i=1,3)
+    read(inpUnit,*) TranDip(:)
     if (max_dip == 1) then
-      read(inpUnit,*) (Work(ipTranDipGrad+3*(i-1)),i=1,3*NumOfAt)
-      read(inpUnit,*) (Work(ipTranDipGrad+1+3*(i-1)),i=1,3*NumOfAt)
-      read(inpUnit,*) (Work(ipTranDipGrad+2+3*(i-1)),i=1,3*NumOfAt)
+      read(inpUnit,*) TranDipGrad(1,:)
+      read(inpUnit,*) TranDipGrad(2,:)
+      read(inpUnit,*) TranDipGrad(3,:)
     end if
   end if
 
@@ -1673,9 +1651,9 @@ else
     call Quit_OnUserError()
   end if
 
-  call GetMem('ipow','Allo','Inte',ipipow,nPolyTerm*nvar)
+  call mma_allocate(ipow,nPolyTerm,nvar,label='ipow')
   do iterm=1,nPolyTerm
-    read(inpUnit,*) (iWork(ipipow+iterm+nPolyTerm*(ivar-1)-1),ivar=1,nvar)
+    read(inpUnit,*) ipow(iterm,:)
   end do
 
   ! Find highest power of term in polynomial.
@@ -1683,7 +1661,7 @@ else
   do iterm=1,nPolyTerm
     nsum = 0
     do jvar=1,nvar
-      nsum = nsum+iWork(ipipow+iterm+nPolyTerm*(jvar-1)-1)
+      nsum = nsum+ipow(iterm,jvar)
       if (nsum > max_term) max_term = nsum
     end do
   end do
@@ -1707,25 +1685,16 @@ else
   end do
 
   ndata = idata-1
-  call GetMem('var','Allo','Real',ipvar,ndata*nvar)
-  do idata=1,ndata
-    do jvar=1,nvar
-      Work(ipvar+idata+ndata*(jvar-1)-1) = coord(idata,jvar)
-    end do
-  end do
+  call mma_allocate(var,ndata,nvar,label='var')
+  var(:,:) = coord(1:idata,1:nvar)
 
   ! CASPT2 energies for ground state.
-  call GetMem('yin1','Allo','Real',ipyin1,ndata)
-
-  do idata=1,ndata
-    Work(ipyin1+idata-1) = GrdVal(idata,2)
-  end do
+  call mma_allocate(yin1,ndata,label='yin1')
+  yin1(:) = GrdVal(1:ndata,2)
 
   ! CASPT2 energies for excited state.
-  call GetMem('yin2','Allo','Real',ipyin2,ndata)
-  do idata=1,ndata
-    Work(ipyin2+idata-1) = GrdVal(idata,6)
-  end do
+  call mma_allocate(yin2,ndata,label='yin2')
+  yin2(:) = GrdVal(1:ndata,6)
 
   ! If three atomic molecule, add Watson correction to energy values.
   if (NumOfAt == 3) then
@@ -1735,40 +1704,36 @@ else
     m12 = (m1*m2)/(m1+m2)
     m23 = (m2*m3)/(m2+m3)
     do i=1,ndata
-      r1 = Work(ipvar+i-1)
-      r2 = Work(ipvar+i+ndata-1)
-      theta = Work(ipvar+i+ndata*2-1)*deg2rad
+      r1 = var(i,1)
+      r2 = var(i,2)
+      theta = var(i,3)*deg2rad
       const = -(One/Eight)*(One/(m12*r1**2)+One/(m23*r2**2))*(One+(One/(sin(theta)**2)))
       const = const+Quart*(cos(theta)/(m2*r1*r2))*(cos(theta)/sin(theta))**2
-      Work(ipyin1+i-1) = Work(ipyin1+i-1)+const
-      Work(ipyin2+i-1) = Work(ipyin2+i-1)+const
+      yin1(i) = yin1(i)+const
+      yin2(i) = yin2(i)+const
     end do
   end if
 
-  call GetMem('t_dipin1','Allo','Real',ipt_dipin1,ndata)
-  do idata=1,ndata
-    Work(ipt_dipin1+idata-1) = GrdVal(idata,9)
-  end do
+  call mma_allocate(t_dipin1,ndata,label='t_dipin1')
+  t_dipin1(:) = GrdVal(1:ndata,9)
 
-  call GetMem('t_dipin2','Allo','Real',ipt_dipin2,ndata)
-  do idata=1,ndata
-    Work(ipt_dipin2+idata-1) = GrdVal(idata,10)
-  end do
-  call GetMem('t_dipin3','Allo','Real',ipt_dipin3,ndata)
-  call dcopy_(ndata,[Zero],0,Work(ipt_dipin3),1)
-  !t_dipin3 = Zero
+  call mma_allocate(t_dipin2,ndata,label='t_dipin2')
+  t_dipin2(:) = GrdVal(:,10)
+
+  call mma_allocate(t_dipin3,ndata,label='t_dipin3')
+  t_dipin3(:) = Zero
 
   ! Make sure that all transition dipole values have the same sign.
-  sign1_1 = Work(ipt_dipin1)/abs(Work(ipt_dipin1))
-  sign2_1 = Work(ipt_dipin2)/abs(Work(ipt_dipin2))
+  sign1_1 = sign(One,t_dipin1(1))
+  sign2_1 = sign(One,t_dipin2(1))
   do idata=2,ndata
-    sign1_2 = Work(ipt_dipin1+idata-1)/abs(Work(ipt_dipin1+idata-1))
-    sign2_2 = Work(ipt_dipin2+idata-1)/abs(Work(ipt_dipin2+idata-1))
+    sign1_2 = sign(One,t_dipin1(idata))
+    sign2_2 = sign(One,t_dipin2(idata))
     if (int(sign1_1*sign2_1) /= int(sign1_2*sign2_2)) then
       write(u6,*) 'Sign shift in transition dipole data:',idata
     end if
-    Work(ipt_dipin1+idata-1) = sign1_1*sign1_2*Work(ipt_dipin1+idata-1)
-    Work(ipt_dipin2+idata-1) = sign2_1*sign2_2*Work(ipt_dipin2+idata-1)
+    t_dipin1(idata) = sign1_1*sign1_2*t_dipin1(idata)
+    t_dipin2(idata) = sign2_1*sign2_2*t_dipin2(idata)
   end do
   !D write(u6,*) ' READINP: Transition dipoles finished.'
 

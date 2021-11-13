@@ -49,10 +49,10 @@ subroutine SetUpDipMat(DipMat,max_term,ipow,var,dip,trfName,C1,W1,det1,r01,C2,W2
 !    DipMat     : Real*8 two dimensional array - contains the
 !                 matrix elements of the transition dipole.
 
+use mula_global, only: mdim1, mdim2, ndim1, ndim2
 use stdalloc, only: mma_allocate, mma_deallocate
 
 implicit real*8(a-h,o-z)
-#include "dims.fh"
 real*8 DipMat(0:nDimTot,0:nDimTot)
 integer ipow(nPolyTerm,nvar)
 real*8 var(ndata,nvar)

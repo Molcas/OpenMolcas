@@ -89,13 +89,12 @@ subroutine Intensity(IntensityMat,TermMat,T0,max_term,ipow,var,Tdip_x,Tdip_y,Tdi
 !    TermMat      : Real*8 two dimensional array - energies
 !                   of transitions.
 
+use mula_global, only: mdim1, mdim2, ndim1, ndim2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Three
 use Definitions, only: wp
 
 implicit real*8(a-h,o-z)
-#include "Constants_mula.fh"
-#include "dims.fh"
 real*8 IntensityMat(0:l_IntensityMat_1,0:l_IntensityMat_2)
 real*8 TermMat(0:l_TermMat_1,0:l_TermMat_2)
 integer ipow(nPolyTerm,nvar)
@@ -133,7 +132,7 @@ max_nOrd2 = nTabDim
 call mma_allocate(mMat,[0,mTabDim],[1,nOsc],label='mMat')
 call mma_allocate(mInc,[0,mTabDim],[1,nOsc],label='mInc')
 call mma_allocate(mDec,[0,mTabDim],[1,nOsc],label='mDec')
-! Put dimensions into common block:
+! Put dimensions into module
 mdim1 = mTabDim
 mdim2 = nOsc
 call MakeTab2(m_max,max_mOrd,max_mInc,mTabDim,mMat,mInc,mDec,nOsc)
@@ -145,7 +144,7 @@ max_nInc = nvTabDim-1
 call mma_allocate(nMat,[0,nTabDim],[1,nOsc],label='nMat')
 call mma_allocate(nInc,[0,nTabDim],[1,nOsc],label='nInc')
 call mma_allocate(nDec,[0,nTabDim],[1,nOsc],label='nDec')
-! Put dimensions into common block:
+! Put dimensions into module
 ndim1 = nTabDim2
 ndim2 = nOsc
 ! Use nnsiz for the time being, to transfer dim to called routines.
@@ -216,7 +215,7 @@ const1 = (Two/Three)*32.13002e9_wp
 IntensityMat(:,:) = Zero
 do jOrd=0,nDimTot-1
   do iOrd=0,nDimTot-1
-    !dE = FreqDiffMat(iOrd)*HarToaJ*1.0e-18_wp
+    !dE = FreqDiffMat(iOrd)*auTokJ*1.0e-39_wp
     !const2 = const1*exp(-dE/(kBoltzmann*Temperature))
     !IntensityMat(iOrd,jOrd) = const2*(TermMat(iOrd,jOrd)**3)* &
     IntensityMat(iOrd,jOrd) = const1*(TermMat(iOrd,jOrd)**3)* &
@@ -296,13 +295,12 @@ subroutine Intensity2(IntensityMat,TermMat,T0,max_term,U1,U2,E1,E2,C1,W1,det1,r0
 !    TermMat      : Real*8 two dimensional array - energies
 !                   of transitions.
 
+use mula_global, only: mdim1, mdim2, ndim1, ndim2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Three
 use Definitions, only: wp
 
 implicit real*8(a-h,o-z)
-#include "Constants_mula.fh"
-#include "dims.fh"
 real*8 IntensityMat(0:l_IntensityMat_1,0:l_IntensityMat_2)
 real*8 TermMat(0:l_TermMat_1,0:l_TermMat_2)
 real*8 C1(nOsc,nOsc), C2(nOsc,nOsc), W1(nOsc,nOsc), W2(nOsc,nOsc), C(nOsc,nOsc), W(nOsc,nOsc)
@@ -336,7 +334,7 @@ max_nOrd2 = nTabDim
 call mma_allocate(mMat,[0,mTabDim],[1,nOsc],label='mMat')
 call mma_allocate(mInc,[0,mTabDim],[1,nOsc],label='mInc')
 call mma_allocate(mDec,[0,mTabDim],[1,nOsc],label='mDec')
-! Put dimensions into common block:
+! Put dimensions into module
 mdim1 = mTabDim
 mdim2 = nOsc
 call MakeTab2(m_max,max_mOrd,max_mInc,mTabDim,mMat,mInc,mDec,nOsc)
@@ -348,7 +346,7 @@ max_nInc = nvTabDim-1
 call mma_allocate(nMat,[0,nTabDim2],[1,nOsc],label='nMat')
 call mma_allocate(nInc,[0,nTabDim2],[1,nOsc],label='nInc')
 call mma_allocate(nDec,[0,nTabDim2],[1,nOsc],label='nDec')
-! Put dimensions into common block:
+! Put dimensions into module
 ndim1 = nTabDim2
 ndim2 = nOsc
 nnsiz = ntabdim2
@@ -418,7 +416,7 @@ const1 = (Two/Three)*32.13002e9_wp
 IntensityMat(:,:) = Zero
 do jOrd=0,nDimTot-1
   do iOrd=0,nDimTot-1
-    !dE = FreqDiffMat(iOrd)*HarToaJ*1.0e-18_wp
+    !dE = FreqDiffMat(iOrd)*auTokJ*1.0e-39_wp
     !const2 = const1*exp(-dE/(kBoltzmann*Temperature))
     !IntensityMat(iOrd,jOrd) = const2*(TermMat(iOrd,jOrd)**3)* &
     IntensityMat(iOrd,jOrd) = const1*(TermMat(iOrd,jOrd)**3)* &

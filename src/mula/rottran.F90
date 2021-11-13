@@ -34,11 +34,10 @@ subroutine RotTranRem(Sinv,S,Mass,AtCoord,NumOfAt,NumInt)
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero, One, uToau
 
 !use Linalg
 !implicit none
-#include "Constants_mula.fh"
 integer NumOfAt, NumInt, nFree
 real*8 AtCoord(3,NumofAt)
 real*8 S(3,NumOfAt,NumInt)
@@ -111,16 +110,16 @@ AmatMass(:,:) = Amat
 !  k = 1
 !  do j=1,NumOfAt
 !    jMass = (k+2)/3
-!    Acol(k) = uToAu*Mass(jMass)*Acol(k)
-!    Acol(k+1) = uToAu*Mass(jMass)*Acol(k+1)
-!    Acol(k+2) = uToAu*Mass(jMass)*Acol(k+2)
+!    Acol(k) = uToau*Mass(jMass)*Acol(k)
+!    Acol(k+1) = uToau*Mass(jMass)*Acol(k+1)
+!    Acol(k+2) = uToau*Mass(jMass)*Acol(k+2)
 !    k = k+3
 !  end do
 !end do
 !PAM04: ... with the following...
 do i=1,nFree
   do j=1,NumOfAt
-    X = uToAu*Mass(j)
+    X = uToau*Mass(j)
     AmatMass(1+3*(j-1),i) = X*AmatMass(1+3*(j-1),i)
     AmatMass(2+3*(j-1),i) = X*AmatMass(2+3*(j-1),i)
     AmatMass(3+3*(j-1),i) = X*AmatMass(3+3*(j-1),i)

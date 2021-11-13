@@ -105,9 +105,9 @@ end function iDetNr
 
 subroutine Mul1(nMat,F,iCre,iAnn,mat,m_ord,nosc,rdx)
 
+use mula_global, only: mdim1, ndim1, ndim2
 use Constants, only: Half
 
-#include "dims.fh"
 integer nMat(0:m_ord,nosc)
 real*8 Mat(nOsc)
 real*8 F(0:mdim1,0:ndim1)
@@ -143,9 +143,9 @@ end subroutine Mul1
 !####
 subroutine Mul2(nMat,F,iCre,iAnn,mat,m_ord,nosc,rdx)
 
+use mula_global, only: mdim1, ndim1, ndim2
 use Constants, only: Zero, Half
 
-#include "dims.fh"
 integer nMat(0:m_ord,nosc)
 real*8 Mat(nOsc,nOsc)
 real*8 F(0:mdim1,0:ndim1)
@@ -216,9 +216,9 @@ end subroutine Mul2
 !####
 subroutine Mul3(nMat,F,iCre,iAnn,mat,m_ord,nosc,rdx)
 
+use mula_global, only: mdim1, ndim1, ndim2
 use Constants, only: One, Six, Half
 
-#include "dims.fh"
 integer nMat(0:m_ord,nosc)
 real*8 Mat(nOsc,nOsc,nOsc)
 real*8 F(0:mdim1,0:ndim1)
@@ -345,10 +345,10 @@ end subroutine Mul3
 !####
 subroutine Mul4(nMat,F,iCre,iAnn,mat,m_ord,nosc,rdx)
 
+use mula_global, only: mdim1, ndim1, ndim2
 use Constants, only: One, Half, Quart
 use Definitions, only: wp
 
-#include "dims.fh"
 integer nMat(0:m_ord,nosc)
 real*8 Mat(nOsc,nOsc,nOsc,nOsc)
 real*8 F(0:mdim1,0:ndim1)
