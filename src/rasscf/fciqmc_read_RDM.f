@@ -15,7 +15,7 @@
 
       module fciqmc_read_RDM
       use fortran_strings, only: str
-      use definitions, only: wp, stdout => u6
+      use definitions, only: wp, u6
       use stdalloc, only: mma_allocate, mma_deallocate
       use para_info, only: myRank
       use rasscf_data, only : NRoots
@@ -219,7 +219,7 @@
 
           iprlev = iprloc(1)
           if(iprlev == debug) then
-            write(stdout,*) 'Rank of process: ', MyRank
+            write(u6,*) 'Rank of process: ', MyRank
           end if
         ! TODO: Does it really matter, can we not just read all spin
         ! density matrices? Currently, this just adds another level of
@@ -267,9 +267,9 @@
         call Molcas_Open(iUnit, 'TwoRDM_aaaa.' // str(iroot))
         Rewind(iUnit)
         IF(IPRLEV >= DEBUG) THEN
-          write(stdout,*) 'p   q   r   s  pq  rs  pqrs',
+          write(u6,*) 'p   q   r   s  pq  rs  pqrs',
      &    'RDMval                PSMAT                   PAMAT'
-          write(stdout,*) '******* AAAA *******'
+          write(u6,*) '******* AAAA *******'
         end if
         do
 
@@ -286,7 +286,7 @@
             if (p > q.and.r < s) PAMAT(pqrs) = PAMAT(pqrs)
      &          - fac * RDMval
             IF(IPRLEV >= DEBUG) THEN
-               write(stdout,'(7I6,3G25.17)')
+               write(u6,'(7I6,3G25.17)')
      &         p,q,r,s,pq,rs,pqrs, RDMval,PSMAT(pqrs),PAMAT(pqrs)
             END IF
             ! Contribution to D_alpha (not final):
@@ -303,7 +303,7 @@
               PAMAT(psrq) = PAMAT(psrq) - fac * RDMval
             end if
             IF(IPRLEV >= DEBUG) THEN
-              write(stdout,'(7I6,3G25.17)')
+              write(u6,'(7I6,3G25.17)')
      &          p,s,r,q,ps,rq,psrq, RDMval,PSMAT(psrq),PAMAT(psrq)
             END IF
             ! Contribution to D_alpha (not final): The minus sign comes
@@ -321,9 +321,9 @@
           Call Molcas_Open(iUnit,'TwoRDM_bbbb.' // str(iroot))
           Rewind(iUnit)
           if (IPRLEV >= DEBUG) then
-           write(stdout,*) '  p   q   r   s  pq  rs  pqrs',
+           write(u6,*) '  p   q   r   s  pq  rs  pqrs',
      &     'RDMval                PSMAT                   PAMAT'
-           write(stdout,*) '******* BBBB *******'
+           write(u6,*) '******* BBBB *******'
           end if
           do
             ! processing as PQRS
@@ -336,7 +336,7 @@
             if(p > q.and.r > s) PAMAT(pqrs) = PAMAT(pqrs) + fac * RDMval
             if(p > q.and.r < s) PAMAT(pqrs) = PAMAT(pqrs) - fac * RDMval
             IF(IPRLEV >= DEBUG) THEN
-              write(stdout,'(7I6,3G25.17)')
+              write(u6,'(7I6,3G25.17)')
      &           p,q,r,s,pq,rs,pqrs, RDMval,PSMAT(pqrs),PAMAT(pqrs)
             END IF
             ! Contribution to D_beta (not final):
@@ -354,7 +354,7 @@
               PAMAT(psrq) = PAMAT(psrq) - fac*RDMval
             end if
             IF(IPRLEV >= DEBUG) THEN
-              write(stdout,'(7I6,3G25.17)')
+              write(u6,'(7I6,3G25.17)')
      &          p,s,r,q,ps,rq,psrq, RDMval,PSMAT(psrq),PAMAT(psrq)
             END IF
             ! Contribution to D_beta (not final): The minus sign comes
@@ -371,7 +371,7 @@
         Call Molcas_Open(iUnit,'TwoRDM_abab.' // str(iroot))
         Rewind(iUnit)
         IF(IPRLEV >= DEBUG) THEN
-         write(stdout,*) '******* ABAB *******'
+         write(u6,*) '******* ABAB *******'
         END IF
         do
           read(iUnit,"(4I6,G25.17)",iostat=iread) s,q,r,p,RDMval
@@ -383,7 +383,7 @@
         if(r < s.and.p /= q) PAMAT(pqrs) = PAMAT(pqrs) - fac*RDMval
         if(r /= s.and.p == q) PSMAT(pqrs) = PSMAT(pqrs) + fac*RDMval
         if (IPRLEV >= DEBUG) then
-          write(stdout,'(7I6,3G25.17)')
+          write(u6,'(7I6,3G25.17)')
      &        p,q,r,s,pq,rs,pqrs, RDMval,PSMAT(pqrs),PAMAT(pqrs)
         end if
         ! Contribution to D_alpha and D_beta (not final):
@@ -403,7 +403,7 @@
         Call Molcas_Open(iUnit,'TwoRDM_baba.' // str(iroot))
         rewind(iUnit)
         if (IPRLEV >= DEBUG) then
-           write(stdout,*) '******* BABA *******'
+           write(u6,*) '******* BABA *******'
         end if
         do
           read(iUnit,"(4I6,G25.17)",iostat=iread) s,q,r,p,RDMval
@@ -415,7 +415,7 @@
           if(r < s.and.p /= q) PAMAT(pqrs) = PAMAT(pqrs) - fac*RDMval
           if(r /= s.and.p == q) PSMAT(pqrs) = PSMAT(pqrs) + fac*RDMval
           IF(IPRLEV >= DEBUG) THEN
-            write(stdout,'(7I6,3G25.17)')
+            write(u6,'(7I6,3G25.17)')
      &          p,q,r,s,pq,rs,pqrs, RDMval,PSMAT(pqrs),PAMAT(pqrs)
           END IF
           ! Contribution to D_alpha (not final):
@@ -429,7 +429,7 @@
       Call Molcas_Open(iUnit,'TwoRDM_abba.' // str(iroot))
       Rewind(iUnit)
       IF(IPRLEV >= DEBUG) THEN
-        write(stdout,*) '******* ABBA *******'
+        write(u6,*) '******* ABBA *******'
       END IF
       do
         read(iUnit,"(4I6,G25.17)",iostat=iread) q,s,r,p,RDMval
@@ -444,7 +444,7 @@
           PAMAT(pqrs) = PAMAT(pqrs) - fac*RDMval
         end if
         IF(IPRLEV >= DEBUG) THEN
-          write(stdout,'(7I6,3G25.17)')
+          write(u6,'(7I6,3G25.17)')
      &        p,q,r,s,pq,rs,pqrs, RDMval,PSMAT(pqrs),PAMAT(pqrs)
         END IF
           ! Contribution to D_alpha (not final):
@@ -462,7 +462,7 @@
         Call Molcas_Open(iUnit,'TwoRDM_baab.' // str(iroot))
         Rewind(iUnit)
         IF(IPRLEV >= DEBUG) THEN
-          write(stdout,*) ' ******* BAAB *******'
+          write(u6,*) ' ******* BAAB *******'
         END IF
         do
           read(iUnit,"(4I6,G25.17)",iostat=iread) q,s,r,p,RDMval
@@ -477,7 +477,7 @@
             PAMAT(pqrs) = PAMAT(pqrs) - fac*RDMval
           end if
           IF(IPRLEV >= DEBUG) THEN
-            write(stdout,'(7I6,3G25.17)')
+            write(u6,'(7I6,3G25.17)')
      &          p,q,r,s,pq,rs,pqrs, RDMval,PSMAT(pqrs),PAMAT(pqrs)
           END IF
           ! Contribution to D_alpha (not final):
@@ -516,7 +516,7 @@
 
         call prgmtranslate_master(InFile, master, lmaster1)
         call symlink_(trim(master), trim(InFile), err)
-        if (err == 0) write(stdout, *) strerror_(get_errno_())
+        if (err == 0) write(u6, *) strerror_(get_errno_())
       end subroutine bcast_2RDM
 
 
