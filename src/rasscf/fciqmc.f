@@ -10,6 +10,7 @@
 *                                                                      *
 * Copyright (C) 2014, Giovanni Li Manni                                *
 *               2019-2021, Oskar Weser                                 *
+*               2021, Werner Dobrautz                                  *
 *               2021, Arta Safari                                      *
 ************************************************************************
 #include "macros.fh"
