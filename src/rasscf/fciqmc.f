@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2014, Giovanni Li Manni                                *
 *               2019-2021, Oskar Weser                                 *
-*               2021, Werner Dobrautz, Arta Safari                     *
+*               2021, Arta Safari                                      *
 ************************************************************************
 #include "macros.fh"
       module fciqmc
