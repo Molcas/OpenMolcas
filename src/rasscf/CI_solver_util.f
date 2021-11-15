@@ -23,7 +23,7 @@
       use Para_Info, only: MyRank
       use stdalloc, only: mma_allocate, mma_deallocate
       use linalg_mod, only: verify_
-      use rasscf_data, only: iAdr15, nAc, nAcPar, nAcpr2
+      use rasscf_data, only: iAdr15, nAc, nAcPar, nAcpr2, nroots
       use general_data, only: JobIPH
       implicit none
       private
@@ -50,7 +50,7 @@
       use f90_unix_proc, only: sleep
 #endif
         character(len=*), intent(in) :: filename
-        real(wp), intent(out) :: energy
+        real(wp), intent(out) :: energy(nroots)
         logical :: newcycle_found
         integer :: LuNewC
         newcycle_found = .false.

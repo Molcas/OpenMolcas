@@ -808,6 +808,8 @@ c         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
 
         if (allocated(CI_solver)) then
           call CI_solver%run(actual_iter=actual_iter,
+     &                    iroot=iroot,
+     &                    weight=weight,
      &                    CMO=work(LCMO : LCMO + nTot2 - 1),
      &                    DIAF=work(LDIAF : LDiaf + nTot - 1),
      &                    D1I_AO=work(lD1I : lD1I + nTot2 - 1),
@@ -1072,6 +1074,8 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
         Call Timing(Swatch,Swatch,Zenith_1,Swatch)
         if (allocated(CI_solver)) then
           call CI_solver%run(actual_iter=actual_iter,
+     &                    iroot=iroot,
+     &                    weight=weight,
      &                    CMO=work(LCMO : LCMO + nTot2 - 1),
      &                    DIAF=work(LDIAF : LDiaf + nTot - 1),
      &                    D1I_AO=work(lD1I : lD1I + nTot2 - 1),
@@ -1686,6 +1690,8 @@ c Clean-close as much as you can the CASDFT stuff...
 
       if (allocated(CI_solver)) then
           call CI_solver%run(actual_iter=actual_iter,
+     &                    iroot=iroot,
+     &                    weight=weight,
      &                    CMO=work(LCMO : LCMO + nTot2 - 1),
      &                    DIAF=work(LDIAF : LDiaf + nTot - 1),
      &                    D1I_AO=work(lD1I : lD1I + nTot2 - 1),
