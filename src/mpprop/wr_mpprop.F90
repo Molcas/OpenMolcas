@@ -111,7 +111,7 @@ do i=1,nAtoms
   do iMltPl=0,nMltPl
     nComp = (iMltPl+1)*(iMltPl+2)/2
     do iComp=1,nComp,6
-      write(iStdOut,'(1x,a16,6f16.8)') String(iMltPl),(AtBoMltPl(iMltPl)%M(jComp,i*(i+1)/2),jComp=iComp,min(iComp+5,nComp))
+      write(iStdOut,'(1x,a16,6f16.8)') String(iMltPl),(AtBoMltPl(iMltPl)%A(jComp,i*(i+1)/2),jComp=iComp,min(iComp+5,nComp))
     end do
   end do
   if (iPol > 0) then
@@ -129,7 +129,7 @@ do i=1,nAtoms
       do iMltPl=0,nMltPl
         nComp = (iMltPl+1)*(iMltPl+2)/2
         do iComp=1,nComp,6
-          write(iStdOut,'(1x,a16,6f16.8)') String(iMltPl),(AtBoMltPl(iMltPl)%M(jComp,i*(i-1)/2+j),jComp=iComp,min(iComp+5,nComp))
+          write(iStdOut,'(1x,a16,6f16.8)') String(iMltPl),(AtBoMltPl(iMltPl)%A(jComp,i*(i-1)/2+j),jComp=iComp,min(iComp+5,nComp))
         end do
       end do
       if (iPol > 0) then
@@ -152,7 +152,7 @@ do i=1,nAtoms
   do iMltPl=0,nMltPl
     nComp = (iMltPl+1)*(iMltPl+2)/2
     do iComp=1,nComp,6
-      write(iStdOut,'(1x,a16,6f16.8)') String(iMltPl),(AtMltPl(iMltPl)%M(jComp,i),jComp=iComp,min(iComp+5,nComp))
+      write(iStdOut,'(1x,a16,6f16.8)') String(iMltPl),(AtMltPl(iMltPl)%A(jComp,i),jComp=iComp,min(iComp+5,nComp))
     end do
   end do
   if (iPol > 0) then
@@ -170,7 +170,7 @@ write(iStdOut,'(1x,a16,3f16.8)') 'Coord',Zero,Zero,Zero
 do iMltPl=0,nMltPl
   nComp = (iMltPl+1)*(iMltPl+2)/2
   do iComp=1,nComp,6
-    write(iStdOut,'(1x,a16,6f16.8)') String(iMltPl),(AtMltPlTot(iMltPl)%M(jComp,1),jComp=iComp,min(iComp+5,nComp))
+    write(iStdOut,'(1x,a16,6f16.8)') String(iMltPl),(AtMltPlTot(iMltPl)%A(jComp),jComp=iComp,min(iComp+5,nComp))
   end do
 end do
 if (iPol > 0) write(iStdOut,'(1x,a16,6f16.8)') PolString,(MolPol(j),j=1,6)
@@ -180,7 +180,7 @@ write(iStdOut,'(1x,a16,3f16.8)') 'Coord',Zero,Zero,Zero
 do iMltPl=0,nMltPl
   nComp = (iMltPl+1)*(iMltPl+2)/2
   do iComp=1,nComp,6
-    write(iStdOut,'(1x,a16,6f16.8)') String(iMltPl),(AtBoMltPlTot(iMltPl)%M(jComp,1),jComp=iComp,min(iComp+5,nComp))
+    write(iStdOut,'(1x,a16,6f16.8)') String(iMltPl),(AtBoMltPlTot(iMltPl)%A(jComp),jComp=iComp,min(iComp+5,nComp))
   end do
 end do
 

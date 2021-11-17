@@ -111,7 +111,7 @@ if (btest(iDFT,6)) then
   jPrint = nPrint(112)
   !AMS
   !jPrint = 15
-  if (jPrint >= 15) call PrGrad(Label,Temp,nGrad,ChDisp,5)
+  if (jPrint >= 15) call PrGrad(Label,Temp,nGrad,ChDisp)
   if (king()) call DaXpY_(nGrad,One,Temp,1,Grad,1)
   if (iPrint >= 6) then
     write(LuWr,*)

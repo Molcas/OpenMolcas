@@ -418,7 +418,7 @@ test:garble:
   needs:
     - build:garble
     - tinker
-  parallel: 4
+  parallel: 6
 
 build:bounds:
   extends: .bounds

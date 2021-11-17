@@ -1100,6 +1100,23 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
      &               WORK(LTUVX),IFINAL)
         end if
 
+        block
+            use CI_solver_util, only: write_RDM
+            use fortran_strings, only: str
+            integer :: file_id
+
+            open(newunit=file_id, file="DMAT" // str(actual_iter))
+              call write_RDM(work(lDMAT : lDMAT + nAcPar - 1), file_id)
+            close(file_id)
+            open(newunit=file_id, file="PSMAT" // str(actual_iter))
+              call write_RDM(work(lpmat : lPMat + nAcpr2 - 1), file_id)
+            close(file_id)
+            open(newunit=file_id, file="PAMAT" // str(actual_iter))
+              call write_RDM(work(lpa : lpa + nAcPr2 - 1), file_id)
+            close(file_id)
+
+        end block
+
 c      call triprt('twxy',' ',WORK(LTUVX),nAc*(nAc+1)/2)
 c      call triprt('P-mat 2',' ',WORK(LPMAT),nAc*(nAc+1)/2)
 

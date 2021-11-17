@@ -322,7 +322,7 @@ else
   ! electronic transitions.
 
   if (EMFR) then
-    write(LuWr,'(15X,A)') '   Transition moment intergrals'
+    write(LuWr,'(15X,A)') '   Transition moment integrals'
     write(LuWr,'(15X,A,3(F7.4,1X),A)') '   The wavevector k: (',(kVector(i),i=1,3),')'
     temp = sqrt(KVector(1)**2+KVector(2)**2+kVector(3)**2)
     temp = (Two*Pi)/temp

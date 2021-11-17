@@ -30,7 +30,7 @@ subroutine FragPGrd( &
 !              gaussians.                                              *
 !      P     : center of new gaussian from the products of bra and ket *
 !              gaussians.                                              *
-!      Final : array for computed integrals                            *
+!      rFinal: array for computed integrals                            *
 !      nZeta : nAlpha x nBeta                                          *
 !      nComp : number of components in the operator (e.g. dipole moment*
 !              operator has three components)                          *
@@ -60,7 +60,6 @@ use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-#define _USE_WP_
 #include "grd_interface.fh"
 #include "print.fh"
 real(kind=wp) :: C(3), TC(3), B(3), TB(3), Fact
@@ -489,7 +488,7 @@ do iS=1,nSkal
 
       !---Next Contract (iKaC)*W(KLCD)*(LjDb) producing ijab
 
-      Final(:,:,:,:) = Zero
+      rFinal(:,:,:,:) = Zero
 
       if (iPrint >= 99) then
         call RecPrt('ipF1 (nVecAC x X)',' ',Array(ipF1),nVecAC,iBas*nAlpha*iSize)
@@ -520,14 +519,14 @@ do iS=1,nSkal
             end if
 
             call FragPCont(Array(ipF1a),nAlpha,iBas,nTri0Elem(la),iSize,Array(ipF2a),jBas,nBeta,jSize,nTri0Elem(lb),Array(ipIJ), &
-                           Final(:,:,:,mVec),Fact*Half)
+                           rFinal(:,:,:,mVec),Fact*Half)
           end if
         end do !iCent
       end do !iCar
 
       if (iPrint >= 49) then
         do iVec=1,mVec
-          write(u6,*) iVec,sqrt(DNrm2_(nZeta*nTri0Elem(la)*nTri0Elem(lb),Final(1,1,1,iVec),1))
+          write(u6,*) iVec,sqrt(DNrm2_(nZeta*nTri0Elem(la)*nTri0Elem(lb),rFinal(1,1,1,iVec),1))
         end do
       end if
       if (iPrint >= 99) then
@@ -535,8 +534,8 @@ do iS=1,nSkal
         do ia=1,nTri0Elem(la)
           do ib=1,nTri0Elem(lb)
             do iVec=1,mVec
-              write(Label,'(A,I2,A,I2,A,I2,A)') ' Final(',ia,',',ib,',',iVec,')'
-              call RecPrt(Label,' ',Final(1,ia,ib,iVec),nAlpha,nBeta)
+              write(Label,'(A,I2,A,I2,A,I2,A)') ' rFinal(',ia,',',ib,',',iVec,')'
+              call RecPrt(Label,' ',rFinal(1,ia,ib,iVec),nAlpha,nBeta)
             end do
           end do
         end do
@@ -544,7 +543,7 @@ do iS=1,nSkal
 
       !---Distribute contributions to the gradient
 
-      call Distg1X(Final,DAO,nZeta,nDAO,mVec,Grad,nGrad,JfGrad,JndGrd,iuvwx,lOp)
+      call Distg1X(rFinal,DAO,nZeta,nDAO,mVec,Grad,nGrad,JfGrad,JndGrd,iuvwx,lOp)
 
     end do !lDCRT
     jSbasis = jSbasis+jBas*jSize

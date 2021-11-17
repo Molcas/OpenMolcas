@@ -15,9 +15,9 @@
 #include "mem_interface.fh"
      &)
 ************************************************************************
-*  Object: to compute the number of real*8 the kernal routine will     *
+*  Object: to compute the number of real*8 the kernel routine will     *
 *          need for the computation of a matrix element between two    *
-*          cartesian Gaussin functions with the total angular momentum *
+*          cartesian Gaussian functions with the total angular momentum*
 *          of la and lb (la=0 s-function, la=1 p-function, etc.)       *
 *          lr is the order of the operator (this is only used when the *
 *          integrals are computed with the Hermite-Gauss quadrature).  *
@@ -46,9 +46,9 @@ c Avoid unused argument warnings
 #include "mem_interface.fh"
      &)
 ************************************************************************
-*  Object: to compute the number of real*8 the kernal routine will     *
+*  Object: to compute the number of real*8 the kernel routine will     *
 *          need for the computation of a matrix element between two    *
-*          cartesian Gaussin functions with the total angular momentum *
+*          cartesian Gaussian functions with the total angular momentum*
 *          of la and lb (la=0 s-function, la=1 p-function, etc.)       *
 *          lr is the order of the operator (this is only used when the *
 *          integrals are computed with the Hermite-Gauss quadrature).  *
