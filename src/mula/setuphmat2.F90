@@ -32,24 +32,17 @@ subroutine SetUpHmat2(energy1,C,W,det,r1,max_mOrd,max_nOrd,max_mInc,max_nInc,mMa
 use mula_global, only: mdim1, mdim2, ndim1, ndim2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-!use Linalg
-!use OptMod
-!use FCMod
-!use TabMod
-implicit real*8(a-h,o-z)
-real*8 r1(nosc)
-real*8 C(nOsc,nOsc)
-real*8 W(nOsc,nOsc)
-integer mMat(0:mdim1,mdim2), mInc(0:mdim1,mdim2), mDec(0:mdim1,mdim2)
-integer nMat(0:ndim1,ndim2), nInc(0:ndim1,ndim2), nDec(0:ndim1,ndim2)
-real*8 H(nDimTot,nDimTot)
-real*8 S(nDimTot,nDimTot)
-real*8 Hess(nOsc,nOsc)
-real*8 G0(nOsc,nOsc)
-real*8 Base(nosc,nOsc)
-real*8, allocatable :: alpha1(:,:), alpha2(:,:), beta(:,:), C0(:,:), D3(:,:,:), D4(:,:,:,:), Gdbleprime(:,:,:,:), Gprime(:,:,:), &
-                       grad(:), Hij(:,:), L(:,:), r0(:), r_diff(:), Sij(:,:), U(:,:), W0(:,:)
+implicit none
+integer(kind=iwp), intent(in) :: max_mOrd, max_nOrd, max_mInc, max_nInc, mMat(0:mdim1,mdim2), nMat(0:ndim1,ndim2), &
+                                 mInc(0:mdim1,mdim2), nInc(0:ndim1,ndim2), mDec(0:mdim1,mdim2), nDec(0:ndim1,ndim2), nDimTot, nOsc
+real(kind=wp), intent(in) :: energy1, C(nOsc,nOsc), W(nOsc,nOsc), det, r1(nOsc), Hess(nOsc,nOsc), G0(nOsc,nOsc), Base(nOsc,nOsc)
+real(kind=wp), intent(out) :: H(nDimTot,nDimTot), S(nDimTot,nDimTot)
+integer(kind=iwp) :: max_term
+real(kind=wp) :: det0, FC00
+real(kind=wp), allocatable :: alpha1(:,:), alpha2(:,:), beta(:,:), C0(:,:), D3(:,:,:), D4(:,:,:,:), Gdbleprime(:,:,:,:), &
+                              Gprime(:,:,:), grad(:), Hij(:,:), L(:,:), r0(:), r_diff(:), Sij(:,:), U(:,:), W0(:,:)
 
 ! Initialize.
 ! arrays for setuphmat2

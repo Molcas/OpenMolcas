@@ -20,21 +20,17 @@ subroutine Freq_mula(Hess,G,V,Lambda,B,qMat,NumInt,NumOfAt)
 !    displacements, which are stored in matrix X.
 !
 !  Input:
-!    Hess     : Real*8 two dimensional array -  contains
-!               the force constants expressed in internal
-!    G        : Real*8 two dimensional array.
-!    B        : Real*8 two dimensional array.
+!    Hess     : Real two dimensional array -  contains the force constants expressed in internal
+!    G        : Real two dimensional array.
+!    B        : Real two dimensional array.
 !
 !  Output:
-!    V        : Real*8 two dimensional array  - contains
-!               the eigenvectors of F*G as columns.
-!    Lambda   : Real*8 array  - contains the eigenvalues
-!               of F*G.
-!    qMat     : Real*8 array - contains the cartesian
-!               displacements of the atoms.
+!    V        : Real two dimensional array - contains the eigenvectors of F*G as columns.
+!    Lambda   : Real array - contains the eigenvalues of F*G.
+!    qMat     : Real array - contains the cartesian displacements of the atoms.
 !
 !  Local:
-!    U,Tmp    : Real*8 two dimensional arrays.
+!    U,Tmp    : Real two dimensional arrays.
 !
 !  Uses:
 !    LinAlg
@@ -45,12 +41,14 @@ subroutine Freq_mula(Hess,G,V,Lambda,B,qMat,NumInt,NumOfAt)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 Hess(NumInt,NumInt), G(NumInt,NumInt), V(NumInt,NumInt)
-real*8 B(3*NumOfAt,NumInt), qMat(3*NumOfAt,NumInt)
-real*8 Lambda(NumInt)
-real*8, allocatable :: Temp(:,:), U(:,:)
+implicit none
+integer(kind=iwp), intent(in) :: NumInt, NumOfAt
+real(kind=wp), intent(in) :: Hess(NumInt,NumInt), G(NumInt,NumInt), B(3*NumOfAt,NumInt)
+real(kind=wp), intent(out) :: V(NumInt,NumInt), Lambda(NumInt), qMat(3*NumOfAt,NumInt)
+real(kind=wp) :: Det
+real(kind=wp), allocatable :: Temp(:,:), U(:,:)
 
 ! Solve secular equation.
 call SolveSecEq(Hess,NumInt,V,G,Lambda)

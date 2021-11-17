@@ -14,26 +14,19 @@ subroutine SetUpDipMat(DipMat,max_term,ipow,var,dip,trfName,C1,W1,det1,r01,C2,W2
                        MaxNumAt)
 !  Purpose:
 !    Performs a least squares fit of the transition dipole at the two
-!    centra and at the inPolyTermediate oscillator. Calculates the matrix
-!    elements of the transition dipole at these centra.
+!    centers and at the inPolyTermediate oscillator. Calculates the matrix
+!    elements of the transition dipole at these centers.
 !
 !  Input:
-!    ipow       : Two dimensional integer array - terms of the
-!                 polynomial.
-!    var        : Real*8 two dimensional array - coordinates
-!                 to be used in the fit.
-!    dip        : Real*8 array - values of dipole at the
-!                 coordinates contained in var.
-!    trfName    : Character array - transformation associated with each
-!                 internal coordinate.
+!    ipow       : Two dimensional integer array - terms of the polynomial.
+!    var        : Real two dimensional array - coordinates to be used in the fit.
+!    dip        : Real array - values of dipole at the coordinates contained in var.
+!    trfName    : Character array - transformation associated with each internal coordinate.
 !    max_term   : Integer - maximum order of the transition dipole terms.
-!    W1,W2      : Real*8 two dimensional arrays - eigenvectors
-!                 scaled by the square root of the eigenvalues.
-!    C1,C2      : Real*8 two dimensional arrays - inverses
-!                 of W1 and W2.
-!    det1,det2  : Real*8 variables - determinants of C1 and C2.
-!    r01,r02    : Real*8 arrays - coordinates of the two
-!                 oscillators.
+!    W1,W2      : Real two dimensional arrays - eigenvectors scaled by the square root of the eigenvalues.
+!    C1,C2      : Real two dimensional arrays - inverses of W1 and W2.
+!    det1,det2  : Real variables - determinants of C1 and C2.
+!    r01,r02    : Real arrays - coordinates of the two oscillators.
 !    max_mOrd,
 !    max_nOrd,
 !    max_nOrd2
@@ -44,31 +37,26 @@ subroutine SetUpDipMat(DipMat,max_term,ipow,var,dip,trfName,C1,W1,det1,r01,C2,W2
 !    mInc,nInc,
 !    mDec,nDec  : Two dimensional integer arrays
 !
-!
 !  Output:
-!    DipMat     : Real*8 two dimensional array - contains the
-!                 matrix elements of the transition dipole.
+!    DipMat     : Real two dimensional array - contains the matrix elements of the transition dipole.
 
 use mula_global, only: mdim1, mdim2, ndim1, ndim2
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 DipMat(0:nDimTot,0:nDimTot)
-integer ipow(nPolyTerm,nvar)
-real*8 var(ndata,nvar)
-real*8 dip(ndata)
-character*80 trfName(MaxNumAt)
-logical use_weight
-logical find_minimum
-integer mMat(0:mdim1,mdim2), mInc(0:mdim1,mdim2), mDec(0:mdim1,mdim2)
-integer nMat(0:ndim1,ndim2), nInc(0:ndim1,ndim2), nDec(0:ndim1,ndim2)
-real*8 C1(nOsc,nOsc), C2(nOsc,nOsc), W1(nOsc,nOsc), W2(nOsc,nOsc)
-real*8 r01(nOsc), r02(nOsc)
-real*8 r0(nOsc), r1(nOsc), r2(nOsc)
-real*8 Base(nOsc,nOsc)
-real*8 max_err, stand_dev
-real*8, allocatable :: alpha1(:,:), alpha2(:,:), beta(:,:), C(:,:), coef(:), D1(:), D2(:,:), D3(:,:,:), D4(:,:,:,:), Dij(:,:), &
-                       DijTrans(:,:), L(:,:), r0vec(:), Sij(:,:), U(:,:), W(:,:)
+implicit none
+integer(kind=iwp), intent(in) :: max_term, nPolyTerm, nvar, ipow(nPolyTerm,nvar), max_mOrd, max_nOrd, max_nOrd2, max_mInc, &
+                                 max_nInc, max_nInc2, mMat(0:mdim1,mdim2), nMat(0:ndim1,ndim2), mInc(0:mdim1,mdim2), &
+                                 nInc(0:ndim1,ndim2), mDec(0:mdim1,mdim2), nDec(0:ndim1,ndim2), nOsc, nDimtot, ndata, MaxNumAt
+real(kind=wp), intent(out) :: DipMat(0:nDimTot,0:nDimTot), det0, r0(nOsc), r1(nOsc), r2(nOsc)
+real(kind=wp), intent(in) :: var(ndata,nvar), dip(ndata), C1(nOsc,nOsc), W1(nOsc,nOsc), det1, r01(nOsc), C2(nOsc,nOsc), &
+                             W2(nOsc,nOsc), det2, r02(nOsc), Base(nOsc,nOsc)
+character(len=80), intent(in) :: trfName(MaxNumAt)
+integer(kind=iwp) :: iOrd, jOrd, l_C1, l_C2, l_r0, l_r1, l_r2
+real(kind=wp) :: D0, FC00, max_err, stand_dev
+logical(kind=iwp) :: find_minimum, use_weight
+real(kind=wp), allocatable :: alpha1(:,:), alpha2(:,:), beta(:,:), C(:,:), coef(:), D1(:), D2(:,:), D3(:,:,:), D4(:,:,:,:), &
+                              Dij(:,:), DijTrans(:,:), L(:,:), r0vec(:), Sij(:,:), U(:,:), W(:,:)
 
 ! Initialize.
 find_minimum = .false.

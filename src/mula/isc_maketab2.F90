@@ -42,20 +42,21 @@
 subroutine ISC_MakeTab2(m_max,maxOrd,mSiz,mMat,Graph1,Graph2,nOsc)
 
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-integer mMat(0:msiz,nosc)
-integer Graph1(m_max+1,nOsc+1)
-integer Graph2(m_max+1,m_max+1,nOsc)
-integer nTabDim, nvTabDim
-integer, allocatable :: iVec(:), Number(:)
+implicit none
+integer(kind=iwp), intent(in) :: m_max, mSiz, nOsc
+integer(kind=iwp), intent(out) :: maxOrd, mMat(0:mSiz,nOsc), Graph1(m_max+1,nOsc+1), Graph2(m_max+1,m_max+1,nOsc)
+integer(kind=iwp) :: i, iDet, iDNR, iOsc, iQ, iQ1, iQ2, iQuanta, m, n, nd, nQuanta, nTabDim, nvTabDim
+integer(kind=iwp), allocatable :: iVec(:), Num(:)
+integer(kind=iwp), external :: iDetnr
 
 !write(u6,*)
-!write(u6,*) 'CGGt[ISC_MakeTab2] Infos:                   '
+!write(u6,*) 'CGGt[ISC_MakeTab2] Infos:'
 !write(u6,*) 'Graph1(',m_max+1,',',nOsc+1,')'
 !write(u6,*) 'Graph2(',m_max+1,',',m_max+1,',',nOsc,')'
 !write(u6,*) 'mInc,mDec,mMat(0:',msiz,',',nosc,')'
-!write(u6,*) '-------------------------------------------   '
+!write(u6,*) '-------------------------------------------'
 
 ! Initialize.
 
@@ -85,13 +86,13 @@ if (nOsc > 1) then
 end if
 
 ! set up the arc table
-!write(u6,*) '                 Number,dim=',(m_max)
-call mma_allocate(Number,[0,m_max],label='Number')
-Number(0) = 0
+!write(u6,*) '                 Num,dim=',m_max
+call mma_allocate(Num,[0,m_max],label='Number')
+Num(0) = 0
 N = 0
 do m=1,m_max
   N = N+Graph1(m,nosc+1)
-  Number(m) = N
+  Num(m) = N
 end do
 !write(u6,*) '                 Graph2,dim=',nOsc*((m_max+1)**2)
 Graph2(:,:,:) = 0
@@ -107,11 +108,11 @@ end do
 
 do iQ1=0,m_max  ! Where we are going
   do iQ2=0,iq1  ! Where we came from
-    Graph2(iQ1+1,iQ2+1,nOsc) = Graph2(iQ1+1,iQ2+1,nOsc)+Number(iQ1)
+    Graph2(iQ1+1,iQ2+1,nOsc) = Graph2(iQ1+1,iQ2+1,nOsc)+Num(iQ1)
   end do
 end do
 
-call mma_deallocate(Number)
+call mma_deallocate(Num)
 
 !write(u6,*) 'CGGt[MakeTab2] Vec,dim=',nOsc
 call mma_allocate(iVec,nOsc,label='iVec')
@@ -121,10 +122,10 @@ do iQuanta=1,m_max
   iQ = -1
   iVec(1) = -1
 
-  !write(u6,*) 'CGGt[MakeTab2] Call TabDim - 1 '
+  !write(u6,*) 'CGGt[MakeTab2] Call TabDim - 1'
   !write(u6,*) '    iQuanta,nOsc,nd==',iQuanta,nOsc,nd
   call TabDim(iQuanta,nOsc,nd)
-  !write(u6,*) 'CGGt[MakeTab2] Call TabDim - 2 '
+  !write(u6,*) 'CGGt[MakeTab2] Call TabDim - 2'
   !write(u6,*) '     iQuanta-1,nOsc,nvTabDim==',iQuanta-1,nOsc,nvTabDim
   call TabDim(iQuanta-1,nOsc,nvTabDim)
 
@@ -156,13 +157,14 @@ end subroutine ISC_MakeTab2
 subroutine Mk_nIncDec(m_max,nOrd,msiz,mInc,mDec,mMat,Graph2,nOsc)
 
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-integer mInc(0:msiz,nosc), mDec(0:msiz,nosc)
-integer mMat(0:nOrd,nosc)
-integer Graph2(m_max+1,m_max+1,nOsc)
-integer m_max, nOrd, msiz
-integer, allocatable :: iVec(:)
+implicit none
+integer(kind=iwp), intent(in) :: m_max, nOrd, msiz, nOsc, mMat(0:nOrd,nOsc), Graph2(m_max+1,m_max+1,nOsc)
+integer(kind=iwp), intent(out) :: mInc(0:msiz,nOsc), mDec(0:msiz,nOsc)
+integer(kind=iwp) :: i, iv, j
+integer(kind=iwp), external :: iDetnr
+integer(kind=iwp), allocatable :: iVec(:)
 
 call mma_allocate(iVec,nOsc,label='iVec')
 

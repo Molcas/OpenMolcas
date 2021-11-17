@@ -16,26 +16,29 @@
 !          Dip. Chimica Generale e Chimica Organica, Torino (ITALY)
 !          28 Dec-08 - 06 Jan-09
 
-subroutine ISC_Rho(iPrint,nOsc,new_n_max,dRho,energy1,energy2,minQ,dMinWind,nMaxQ,harmfreq1,harmfreq2)
+subroutine ISC_Rho(iPrint,nOsc,new_n_max,dRho,energy1,energy2,minQ,dMinWind0,nMaxQ,harmfreq1,harmfreq2)
 ! Calculate State Density  dRho  GG 30-Dec-08
 ! Formula (86) taken from  M. Bixon, J. Jortner  JCP,48,715 (1969)
 
 use Constants, only: Zero, One, Two, Six, Twelve, Half, Pi, auTocm, auToeV
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
-real*8 energy1, energy2, harmfreq1(nOsc), harmfreq2(nOsc)
-real*8 GE1, GE2, dMinWind, dMinWind0
-integer nMaxQ(nOsc)
+implicit none
+integer(kind=iwp), intent(in) :: iPrint, nOsc
+integer(kind=iwp), intent(out) :: new_n_max, minQ, nMaxQ(nOsc)
+real(kind=wp), intent(out) :: dRho
+real(kind=wp), intent(in) :: energy1, energy2, dMinWind0, harmfreq1(nOsc), harmfreq2(nOsc)
+integer(kind=iwp) :: i, iOsc, jOsc
+real(kind=wp) :: avFreq, avFreqSq, dAlpha, dBeta, dDn, dEtha, dFE, dLambda, dMaxFreq2, dMinFreq2, dMinWind, dZPE1, dZPE2, GE1, &
+                 GE2, T0
 
 if (iPrint >= 2) then
   write(u6,*)
-  write(u6,*) ' State Density data:                         '
+  write(u6,*) ' State Density data:'
   write(u6,*) ' ============================================'
 end if
 
-dMinWind0 = dMinWind
+dMinWind = dMinWind0
 if (dMinWind == Zero) dMinWind = One
 minQ = 0
 dRho = Two/Pi
@@ -110,7 +113,6 @@ if (iPrint >= 3) then
   write(u6,*)
 end if
 call XFlush(u6)
-dMinWind = dMinWind0
 
 return
 
@@ -121,18 +123,18 @@ subroutine ISC_Ene(iPrint,nOsc,max_nOrd,nYes,nMat,nTabDim,GE1,GE2,harmfreq1,harm
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half, auTocm
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
-real*8 GE1, GE2, harmfreq1(nOsc), harmfreq2(nOsc)
-real*8 x_anharm1(nOsc,nOsc), x_anharm2(nOsc,nOsc)
-real*8 dMinWind, dRho, dWlow, dWup
-real*8 dEne
-integer nMat(0:nTabDim,nOsc), lVec(0:nTabDim)
-logical lUpdate
-integer, allocatable :: level1(:), level2(:), lTVec(:)
-real*8, allocatable :: EneMat(:)
+implicit none
+integer(kind=iwp), intent(in) :: iPrint, nOsc, max_nOrd, nTabDim, nMat(0:nTabDim,nOsc)
+integer(kind=iwp), intent(inout) :: nYes, lVec(0:nTabDim)
+real(kind=wp), intent(in) :: GE1, GE2, harmfreq1(nOsc), harmfreq2(nOsc), x_anharm1(nOsc,nOsc), x_anharm2(nOsc,nOsc), dRho
+real(kind=wp), intent(inout) :: dMinWind
+integer(kind=iwp) :: i, iOrd, j, l_harm, loc_n_max, nYes_start
+real(kind=wp) :: dEne, dWlow, dWup
+logical(kind=iwp) :: lUpdate
+integer(kind=iwp), allocatable :: level1(:), level2(:), lTVec(:)
+real(kind=wp), allocatable :: EneMat(:)
 
 if (dMinWind == Zero) then
   lUpDate = .true.
@@ -154,7 +156,7 @@ if (iPrint >= 4) then
     write(u6,'(a,108a)') '  ',('-',i=1,108)
   else
     write(u6,'(a,36a)') '  ',('=',i=1,36)
-    write(u6,*) '        #    jOrd   ene/au      ene/cm-1 '
+    write(u6,*) '        #    jOrd   ene/au      ene/cm-1'
     write(u6,'(a,36a)') '  ',('-',i=1,36)
   end if
   call XFlush(u6)
@@ -195,7 +197,7 @@ if (iPrint >= 3) then
     write(u6,'(a,108a)') '  ',('-',i=1,108)
   else
     write(u6,'(a,36a)') '  ',('=',i=1,36)
-    write(u6,*) '        #    jOrd   ene/au      ene/cm-1 '
+    write(u6,*) '        #    jOrd   ene/au      ene/cm-1'
     write(u6,'(a,36a)') '  ',('-',i=1,36)
   end if
   call XFlush(u6)
@@ -265,32 +267,32 @@ subroutine ISC_Rate(iPrint,nOsc,max_nOrd,iMaxYes,nYes,dMinWind,VibWind2,C1,C2,W2
 use mula_global, only: hbarcm, TranDip
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Pi, auTocm
-use Definitions, only: wp, u6, ItoB
+use Definitions, only: wp, iwp, u6, ItoB
 
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
-real*8 C1(nOsc,nOsc), C2(nOsc,nosc), W2(nOsc,nOsc), C(nOsc,nOsc), W(nOsc,nOsc)
-real*8 r01(nOsc), r02(nOsc), det0, det1, det2, FC00
-integer VibWind2(nYes)
-integer nMat(0:nTabDim,nOsc)
-integer nInc(0:iMaxYes,nOsc)
-integer nDec(0:iMaxYes,nOsc)
-real*8, allocatable :: FCWind2(:)
-integer, parameter :: MB = 1048576
+implicit none
+integer(kind=iwp), intent(inout) :: nTabDim
+integer(kind=iwp), intent(in) :: iPrint, nOsc, iMaxYes, nYes, VibWind2(nYes), nMat(0:nTabDim,nOsc), nInc(0:iMaxYes,nOsc), &
+                                 nDec(0:iMaxYes,nOsc), m_max, n_max
+integer(kind=iwp), intent(out) :: max_nOrd
+real(kind=wp), intent(in) :: dMinWind, C1(nOsc,nOsc), C2(nOsc,nosc), W2(nOsc,nOsc), det0, det1, det2, C(nOsc,nOsc), W(nOsc,nOsc), &
+                             r01(nOsc), r02(nOsc), dRho
+real(kind=wp), intent(out) :: FC00
+integer(kind=iwp) :: ii, m_max_ord, max_nInc, mx_max_ord, n_max_ord, nvTabDim, nx_max_ord
+real(kind=wp) :: const, dLT, dRate, dSoc, dSum
+real(kind=wp), allocatable :: FCWind2(:)
+integer(kind=iwp), parameter :: MB = 1048576
 
-call TabDim(m_max,nosc,nvTabDim)
-call TabDim(n_max,nosc,nvTabDim)
+call TabDim(n_max,nOsc,nvTabDim)
 max_nOrd = nvTabDim-1
-call TabDim(m_max,nosc,nvTabDim)
+call TabDim(m_max,nOsc,nvTabDim)
 m_max_ord = nvTabDim-1
-call TabDim(min(n_max,m_max+1),nosc,nvTabDim)
+call TabDim(min(n_max,m_max+1),nOsc,nvTabDim)
 mx_max_ord = nvTabDim-1
-call TabDim(min(m_max,n_max+1),nosc,nvTabDim)
+call TabDim(min(m_max,n_max+1),nOsc,nvTabDim)
 nx_max_ord = nvTabDim-1
-call TabDim(m_max-1,nosc,nvTabDim)
-call TabDim(n_max-1,nosc,nvTabDim)
+call TabDim(n_max-1,nOsc,nvTabDim)
 max_nInc = nvTabDim-1
-call TabDim(n_max,nosc,nvTabDim)
+call TabDim(n_max,nOsc,nvTabDim)
 n_max_ord = nvTabDim-1
 
 mx_max_ord = 0 ! CGGn
@@ -333,7 +335,7 @@ end if
 
 if (iPrint >= 1) then
   write(u6,*)
-  write(u6,*) ' InterSystem Crossing rate constant: '
+  write(u6,*) ' InterSystem Crossing rate constant:'
   write(u6,*) ' ===================================='
   write(u6,'(a,e10.2,a)') '  ISC Rate Constant  ',dRate,' sec-1'
   write(u6,'(a,e10.2,a)') '  Lifetime           ',dLT,' sec'

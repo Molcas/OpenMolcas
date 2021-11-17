@@ -40,59 +40,51 @@
 
 subroutine SetUpHmat(energy0,r_min,ipow,var,yin,trfName,max_term,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,max_nOrd2, &
                      max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,nInc,mDec,nDec,H,S,G1,G2,G0,Gprime1,Gprime2,Gprime0,Gdbleprime1, &
-                     Gdbleprime2,Gdbleprime0,det0,Base,r0,r1,r2,nterm,nvar,ndata,nosc,ndimtot)
+                     Gdbleprime2,Gdbleprime0,det0,Base,r0,r1,r2,nterm,nvar,ndata,nOsc,nDimTot)
 !  Purpose:
 !    Set up Hamilton matrix.
 !
 !  Input:
-!
-!   Energy
-!   r_min
-!   ipow
-!   var
-!   yin
-!   coeff
-!   trfname
-!   Max_term
-!   C1,W1,det1,r01
-!   C2,W2,det2,r02
-!   H S
-!   G1 G2 G0 1' G2' g0' g0'' g1'' g2''
-!   det0
+!    Energy
+!    r_min
+!    ipow
+!    var
+!    yin
+!    coeff
+!    trfname
+!    Max_term
+!    C1,W1,det1,r01
+!    C2,W2,det2,r02
+!    H S
+!    G1 G2 G0 1' G2' g0' g0'' g1'' g2''
+!    det0
 !
 !  The expansion point for lspotfit is r00!!!!!
 
-use mula_global, only: mdim1, mdim2, ndim1, ndim2, ngdim
+use mula_global, only: mdim1, mdim2, ndim1, ndim2, ngdim, nPolyTerm
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-integer ipow(nterm,nvar)
-real*8 var(ndata,nvar)
-real*8 yin(ndata)
-real*8 r01(nOsc), r02(nOsc), r_min(nOsc)
-real*8 r1(nOsc), r2(nOsc), r0(nOsc)
-character*80 trfName(nvar)
-real*8 C1(nOsc,nOsc), C2(nOsc,nOsc), W1(nOsc,nOsc), W2(nOsc,nOsc)
-real*8 G1(nOsc,nOsc), G2(nOsc,nOsc), G0(nOsc,nOsc)
-real*8 Gprime1(ngdim,ngdim,ngdim)
-real*8 Gprime2(ngdim,ngdim,ngdim)
-real*8 Gprime0(ngdim,ngdim,ngdim)
-real*8 Gdbleprime1(ngdim,ngdim,ngdim,ngdim)
-real*8 Gdbleprime2(ngdim,ngdim,ngdim,ngdim)
-real*8 Gdbleprime0(ngdim,ngdim,ngdim,ngdim)
-integer mMat(0:mdim1,mdim2), mInc(0:mdim1,mdim2), mDec(0:mdim1,mdim2)
-integer nMat(0:ndim1,ndim2), nInc(0:ndim1,ndim2), nDec(0:ndim1,ndim2)
-real*8 H(ndimtot,ndimtot), S(ndimtot,ndimtot)
-real*8 Base(nosc,nosc)
-logical find_minimum, use_weight
-real*8 stand_dev, max_err
-logical pot
-integer, allocatable :: jPow(:,:)
-real*8, allocatable :: alpha1(:,:), alpha2(:,:), beta(:,:), C(:,:), Coef(:), D3(:,:,:), D3_1(:,:,:), D3_2(:,:,:), D4(:,:,:,:), &
-                       D4_1(:,:,:,:), D4_2(:,:,:,:), FitCoef(:), grad(:), grad1(:), grad2(:), Gdbleprimetemp(:,:,:,:), &
-                       Gprimetemp(:,:,:), Gtemp(:,:), Hess(:,:), Hess1(:,:), Hess2(:,:), Hij(:,:), HijTrans(:,:), L(:,:), &
-                       r_diff(:), r0vec(:), Sij(:,:), SijTrans(:,:), U(:,:), W(:,:)
+implicit none
+integer(kind=iwp), intent(in) :: nterm, nvar, ipow(nterm,nvar), max_term, max_mOrd, max_nOrd, max_nOrd2, max_mInc, max_nInc, &
+                                 max_nInc2, mMat(0:mdim1,mdim2), nMat(0:ndim1,ndim2), mInc(0:mdim1,mdim2), nInc(0:ndim1,ndim2), &
+                                 mDec(0:mdim1,mdim2), nDec(0:ndim1,ndim2), ndata, nOsc, nDimTot
+real(kind=wp), intent(in) :: energy0, r_min(nOsc), var(ndata,nvar), yin(ndata), C1(nOsc,nOsc), W1(nOsc,nOsc), det1, r01(nOsc), &
+                             C2(nOsc,nOsc), W2(nOsc,nOsc), det2, r02(nOsc), G1(nOsc,nOsc), G2(nOsc,nOsc), G0(nOsc,nOsc), &
+                             Gprime1(ngdim,ngdim,ngdim), Gprime2(ngdim,ngdim,ngdim), Gprime0(ngdim,ngdim,ngdim), &
+                             Gdbleprime1(ngdim,ngdim,ngdim,ngdim), Gdbleprime2(ngdim,ngdim,ngdim,ngdim), &
+                             Gdbleprime0(ngdim,ngdim,ngdim,ngdim), Base(nOsc,nOsc), r0(nOsc)
+real(kind=wp), intent(out) :: H(nDimTot,nDimTot), S(nDimTot,nDimTot), det0, r1(nOsc), r2(nOsc)
+character(len=80), intent(in) :: trfName(nvar)
+integer(kind=iwp) :: i, j, l_C1, l_C2, l_r2, nOscOld, numCoef
+real(kind=wp) :: energy, energy1, energy2, FC00, max_err, stand_dev
+logical(kind=iwp) :: find_minimum, pot, use_weight
+integer(kind=iwp), allocatable :: jPow(:,:)
+real(kind=wp), allocatable :: alpha1(:,:), alpha2(:,:), beta(:,:), C(:,:), Coef(:), D3(:,:,:), D3_1(:,:,:), D3_2(:,:,:), &
+                              D4(:,:,:,:), D4_1(:,:,:,:), D4_2(:,:,:,:), FitCoef(:), grad(:), grad1(:), grad2(:), &
+                              Gdbleprimetemp(:,:,:,:), Gprimetemp(:,:,:), Gtemp(:,:), Hess(:,:), Hess1(:,:), Hess2(:,:), Hij(:,:), &
+                              HijTrans(:,:), L(:,:), r_diff(:), r0vec(:), Sij(:,:), SijTrans(:,:), U(:,:), W(:,:)
 
 ! Initialize.
 l_r2 = nOsc
@@ -124,7 +116,7 @@ call mma_allocate(FitCoef,numCoef,label='FitCoef')
 
 call mma_allocate(jPow,numCoef,nOsc,label='jPow')
 pot = .true.
-call LSPotFit(r1,energy1,grad1,Hess1,D3_1,D4_1,r2,energy2,grad2,Hess2,D3_2,D4_2,r0,energy0,r_min,FitCoef,jPow,max_term,pot,nosc, &
+call LSPotFit(r1,energy1,grad1,Hess1,D3_1,D4_1,r2,energy2,grad2,Hess2,D3_2,D4_2,r0,energy0,r_min,FitCoef,jPow,max_term,pot,nOsc, &
               numcoef)
 
 call mma_deallocate(grad1)

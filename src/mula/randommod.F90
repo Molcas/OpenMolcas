@@ -37,12 +37,12 @@ module RandomMod
 
 use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
 private
 
 integer(kind=iwp) :: i97, j97
 real(kind=wp) :: c, cd, cm, U(97)
-logical(kind=iwp) :: test
+logical(kind=iwp) :: test = .false.
 
 public :: Ranmar, Rmarin
 
@@ -69,9 +69,11 @@ subroutine Rmarin(ij,kl)
 !           6172232.0  8354498.0   10633180.0
 
   use Constants, only: Zero, Half
-  use Definitions, only: wp, u6
+  use Definitions, only: u6
 
-  implicit real*8(a-h,o-z)
+  integer(kind=iwp), intent(in) :: ij, kl
+  integer(kind=iwp) :: i, ii, j, jj, k, l, m
+  real(kind=wp) :: s, t
 
   test = .false.
 
@@ -123,10 +125,10 @@ subroutine Ranmar(rvec,len)
   use Constants, only: Zero, One
   use Definitions, only: u6
 
-  implicit real*8(a-h,o-z)
-  real*8 rvec(*)
-  real*8 uni
-  integer ivec
+  integer(kind=iwp), intent(in) :: len
+  real(kind=wp), intent(out) :: rvec(len)
+  integer(kind=iwp) :: ivec
+  real(kind=wp) :: uni
 
   if (.not. test) then
     write(u6,'(a)') ' Call the init routine (RMARIN) before calling RANMAR'

@@ -19,14 +19,10 @@ subroutine ReadInp(Title,AtomLbl,Mass,InterVec,Bond,nBond,NumInt,NumOfAt,trfName
 !
 !  Output:
 !    Title    : String - title of the project.
-!    AtomLbl  : Array of character - contains the labels for the
-!               atoms.
-!    Mass     : Real*8 array - contains the mass of the
-!               atoms.
-!    InterVec : Integer array - containis the atoms that are used
-!               in the calculations of each internal coordinate.
-!    Bond     : Integer array - contains atom pairs that are to be
-!               bonded together in a plot.
+!    AtomLbl  : Array of character - contains the labels for the atoms.
+!    Mass     : Real array - contains the mass of the atoms.
+!    InterVec : Integer array - containis the atoms that are used in the calculations of each internal coordinate.
+!    Bond     : Integer array - contains atom pairs that are to be bonded together in a plot.
 !    nBond    : Integer - dim of Bond, i.e. 2*(number of bonds).
 !    NumInt   : Integer - the total number of internal coordinates.
 !    NumOfAt  : Integer - the number of atoms.
@@ -36,8 +32,7 @@ subroutine ReadInp(Title,AtomLbl,Mass,InterVec,Bond,nBond,NumInt,NumOfAt,trfName
 !    m_plot   : Integer array - level(s) to plot for the first state.
 !    n_plot   : Integer array - level(s) to plot for the second state.
 !    max_dip  : Integer - highest order of term in transition dipole.
-!    max_term : Integer - highest power of a term in polynomial fitted
-!               to energy values.
+!    max_term : Integer - highest power of a term in polynomial fitted to energy values.
 !    MatEl    : Logical
 !    lISC     : Logical to calculate InterSystem Crossing
 !
@@ -57,50 +52,36 @@ use mula_global, only: AtCoord1, AtCoord2, broadplot, cmstart, cmend, energy1, e
 use Isotopes, only: Isotope
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Eight, Quart, Angstrom, auTocm, auToeV, deg2rad, uToau
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-integer InterVec(MaxNumAt*15)
-character*80 trfName1(MaxNumAt), trfName2(MaxNumAt)
-real*8 Mass(MaxNumAt)
-character*4 AtomLbl(MaxNumAt)
-integer Bond(MaxNumAt*2)
-character*80 Title, InLine, OutLine
-!logical Plot
-character*9 CoordType
-character*1 c
-character*7 AtInp
-character*2 AtName
-character*2 Eunit
-character*3 DegOrRad
-character*2 AAOrAu
-character*4 Atom
-character*6 PlUnit
-character*4 Atom1, Atom2, Atom3, Atom4
-!character*2 AtList(0:120)
-!integer AtData(120,4)
-!real*8 MassData(400)
-real*8 coord(1000,10)
-real*8 GrdVal(1000,10)
-logical MatEl, ForceField, lISC
-logical Cartesian
-logical exist
-logical lExpan
-real*8 m1, m2, m3, m12, m23
-real*8 TmpCoord(3)
-parameter(max_len_xvec=150)
-real*8 xvec(max_len_xvec)
-parameter(max_plot_temp=100)
-integer plot_temp(max_plot_temp), iCode
-logical XnotFound, YnotFound, ZnotFound
-! Format declarations.
-character*8 format
+implicit none
+character(len=80), intent(out) :: Title, trfName1(MaxNumAt), trfName2(MaxNumAt)
+character(len=4), intent(out) :: AtomLbl(MaxNumAt)
+real(kind=wp), intent(out) :: Mass(MaxNumAt), dMinWind
+integer(kind=iwp), intent(out) :: InterVec(MaxNumAt*15), Bond(MaxNumAt*2), nBond, NumInt, NumOfAt, m_max, n_max, max_dip, max_term
+logical(kind=iwp), intent(out) :: MatEl, ForceField, Cartesian, lExpan, lISC
+integer(kind=iwp), intent(inout) :: iCode
+integer(kind=iwp), parameter :: max_len_xvec = 150, max_plot_temp = 100
+integer(kind=iwp) :: i, iAtom, icoord, idata, iend, ierror, ii, iInt, inpUnit1, inpUnit2, IntVal, iPrint, iStart, istatus, iStop, &
+                     iterm, j, jvar, k, l, l_a, l_n, Length, m, modeTemp, n, nAtom, nFcart, nsum, Num, plot_temp(max_plot_temp)
+                     !, AtData(120,4)
+real(kind=wp) :: const, coord(1000,10), error, FWHM, GrdVal(1000,10), m1, m12, m2, m23, m3, r1, r2, rfact, sign1_1, sign1_2, &
+                 sign2_1, sign2_2, theta, TmpCoord(3), xvec(max_len_xvec) !, MassData(400)
+logical(kind=iwp) :: exists, XnotFound, YnotFound, ZnotFound
+character(len=80) :: InLine, OutLine
+character(len=9) :: CoordType
+character(len=7) :: AtInp
+character(len=6) :: PlUnit
+character(len=4) :: Atom, Atom1, Atom2, Atom3, Atom4
+character(len=3) :: DegOrRad
+character(len=2) :: AAOrAu, AtName, Eunit !, AtList(0:120)
+character :: c
+integer(kind=iwp), allocatable :: GeoVec(:), tempmodes(:)
+real(kind=wp), allocatable :: Fcart(:,:), ScaleParam(:), Sinv(:,:), SS(:,:), Temp(:,:)
+character(len=*), parameter :: frmt = '(A80)'
 ! User-defined functions called:
-external StrToDble, iStrToInt
-integer, allocatable :: GeoVec(:), tempmodes(:)
-real*8, allocatable :: Fcart(:,:), ScaleParam(:), Sinv(:,:), SS(:,:), Temp(:,:)
-
-format = '(A80)'
+integer(kind=iwp), external :: iPrintLevel, isfreeunit, iStrToInt
+real(kind=wp), external :: StrToDble
 
 ! Read from MassFile:
 ! - name of atoms into array of string - AtList.
@@ -110,7 +91,7 @@ format = '(A80)'
 
 !i = 0
 !call Molcas_Open(massUnit,'MASSUNIT')
-!read(massUnit,Format) InLine
+!read(massUnit,frmt) InLine
 ! Read sequential lines from atomic data file.
 !call Normalize(InLine,OutLine)
 !do while (OutLine(1:4) /= 'END ')
@@ -120,13 +101,13 @@ format = '(A80)'
 !    AtList(i) = OutLine(1:2)
 !    read(OutLine(3:80),*) (AtData(i,j),j=1,4)
 !  end if
-!  read(massUnit,Format) InLine
+!  read(massUnit,frmt) InLine
 !  call Normalize(InLine,OutLine)
 !end do
 !iAtList = i
 
 !i = 0
-!read(massUnit,Format) InLine
+!read(massUnit,frmt) InLine
 !call Normalize(InLine,OutLine)
 !do while (OutLine(1:4) /= 'END ')
 !  l = Index(OutLine,'*')
@@ -134,7 +115,7 @@ format = '(A80)'
 !    i = i+1
 !    read(OutLine,*) MassData(i)
 !  end if
-!  read(massUnit,Format) InLine
+!  read(massUnit,frmt) InLine
 !  call Normalize(InLine,OutLine)
 !end do
 !close(massUnit)
@@ -144,34 +125,34 @@ iPrint = iPrintLevel(-1)
 ! TITLe: Read the title into a string - Title
 
 Title = ' '
-call KeyWord(inpUnit,'TITL',.true.,exist)
-if (exist) read(inpUnit,format) Title
+call KeyWord(inpUnit,'TITL',.true.,exists)
+if (exists) read(inpUnit,frmt) Title
 
 ! TITLe: End -----------------------------------------------------------
 
 ! ----------------------------------------------------------------------
 ! ATOMs:  Process ATOMS
 
-call KeyWord(inpUnit,'ATOM',.true.,exist)
+call KeyWord(inpUnit,'ATOM',.true.,exists)
 NumOfAt = 0
-read(inpUnit,format) InLine
+read(inpUnit,frmt) InLine
 call Normalize(InLine,OutLine)
 do while (OutLine(1:4) /= 'END ')
   NumOfAt = NumOfAt+1
-  read(inpUnit,format) InLine
+  read(inpUnit,frmt) InLine
   call Normalize(InLine,OutLine)
 end do
 
 ! Read the labels of atoms into an array - AtomLbl.
 
-call KeyWord(inpUnit,'ATOM',.true.,exist)
+call KeyWord(inpUnit,'ATOM',.true.,exists)
 do nAtom=1,NumOfAt
-  read(inpUnit,format) InLine
+  read(inpUnit,frmt) InLine
   call Normalize(InLine,OutLine)
   k = 1
   call WordPos(k,OutLine,iStart,iStop)
   k = iStop+1
-  AtInp = '       '
+  AtInp = ' '
   AtInp = OutLine(iStart:iStop)
   !- Check if a massnumber is given.
   Num = 0
@@ -186,14 +167,14 @@ do nAtom=1,NumOfAt
   end do
   if ((iStart+i-1) > iStop) then
     call WordPos(k,OutLine,iStart,iStop)
-    AtInp = '      '
+    AtInp = ' '
     AtInp = OutLine(iStart:iStop)
     i = 1
     c = AtInp(i:i)
   end if
   ! Extract atomic name and possible label.
-  AtName = '  '
-  AtomLbl(nAtom) = '    '
+  AtName = ' '
+  AtomLbl(nAtom) = ' '
   j = 1
   do ii=i,7
     IntVal = index('0123456789',c)-1
@@ -240,7 +221,7 @@ do nAtom=1,NumOfAt
     !  write(u6,*)
     !  write(u6,*) ' *************** ERROR *****************'
     !  write(u6,'(A,A2,A,I3,A)') ' The isotope of ',AtName,' with mass number ',Num
-    !  write(u6,*) ' is not listed in MassFile.             '
+    !  write(u6,*) ' is not listed in MassFile.'
     !  write(u6,*) '****************************************'
     !  call Quit_OnUserError()
     !end if
@@ -252,11 +233,11 @@ end do
 ! ----------------------------------------------------------------------
 ! INTErnal: Resolve the different internal coordinates specified in the input.
 
-call KeyWord(inpUnit,'INTE',.true.,exist)
+call KeyWord(inpUnit,'INTE',.true.,exists)
 j = 1
 NumInt = 0
 nBond = 0
-read(inpUnit,format) InLine
+read(inpUnit,frmt) InLine
 call Normalize(InLine,OutLine)
 
 do while (OutLine(1:4) /= 'END ')
@@ -389,7 +370,7 @@ do while (OutLine(1:4) /= 'END ')
     NumInt = NumInt+1
   end if
 
-  read(inpUnit,format) InLine
+  read(inpUnit,frmt) InLine
   call Normalize(InLine,OutLine)
 end do
 
@@ -409,16 +390,16 @@ lISC = .false.
 dMinWind = Zero
 call KeyWord(inpUnit,'ISC ',.true.,lISC)
 if (lISC) then
-  call KeyWord(inpUnit,'EXPF',.true.,exist)
-  if (exist) then
-    read(InpUnit,format) InLine
+  call KeyWord(inpUnit,'EXPF',.true.,exists)
+  if (exists) then
+    read(InpUnit,frmt) InLine
     call Normalize(InLine,Outline)
     read(OutLine,*) dMinWind
   end if
-  call KeyWord(inpUnit,'OLDC',.true.,exist)
-  if (exist) iCode = iCode+1
-  call KeyWord(inpUnit,'DISK',.true.,exist)
-  if (exist) iCode = iCode+10
+  call KeyWord(inpUnit,'OLDC',.true.,exists)
+  if (exists) iCode = iCode+1
+  call KeyWord(inpUnit,'DISK',.true.,exists)
+  if (exists) iCode = iCode+10
 end if
 
 ! ISC: End -------------------------------------------------------------
@@ -426,10 +407,10 @@ end if
 ! ----------------------------------------------------------------------
 ! MODEs: Chose which modes to use in intensity calculations.
 
-call KeyWord(inpUnit,'MODE',.true.,exist)
-if (exist) then
+call KeyWord(inpUnit,'MODE',.true.,exists)
+if (exists) then
   call mma_allocate(tempmodes,NumInt,label='tempmodes')
-  read(inpUnit,format) InLine
+  read(inpUnit,frmt) InLine
   call Normalize(InLine,OutLine)
   i = 1
   do while (OutLine(1:4) /= 'END ')
@@ -447,7 +428,7 @@ if (exist) then
       i = i+1
       call WordPos(k,OutLine,iStart,iStop)
     end do
-    read(inpUnit,format) InLine
+    read(inpUnit,frmt) InLine
     call Normalize(InLine,OutLine)
   end do
   n = i-1
@@ -481,13 +462,13 @@ end if
 ! ----------------------------------------------------------------------
 ! MXLEvels: Maximun number of vibr. quanta in first and second state
 
-call KeyWord(inpUnit,'MXLE',.true.,exist)
-m_max = 0 ! Defaul
-n_max = 1 ! Defaul
-if (.not. exist) then
+call KeyWord(inpUnit,'MXLE',.true.,exists)
+m_max = 0 ! Default
+n_max = 1 ! Default
+if (.not. exists) then
   if (iPrint >= 1) then
     write(u6,*) ' *** Warning: MXLEvels not specified !'
-    write(u6,*) '     Default values are 0 and 1.      '
+    write(u6,*) '     Default values are 0 and 1.'
     write(u6,*)
   end if
 else
@@ -508,11 +489,11 @@ call KeyWord(inpUnit,'VARI',.true.,MatEl)
 ! ----------------------------------------------------------------------
 ! TRANsitions: Check which transitions that are wanted in the output.
 
-call KeyWord(inpUnit,'TRAN',.true.,exist)
-if (.not. exist) then
+call KeyWord(inpUnit,'TRAN',.true.,exists)
+if (.not. exists) then
   if (.not. lISC) then
     write(u6,*) ' *** Warning: TRANsitions not specified!'
-    write(u6,*) '     All Levels will be printed.        '
+    write(u6,*) '     All Levels will be printed.'
     write(u6,*)
   end if
   n = m_max+1
@@ -520,8 +501,8 @@ if (.not. exist) then
     plot_temp(i) = i-1
   end do
 else
-  call KeyWord(inpUnit,'FIRS',.false.,exist)
-  read(inpUnit,format) InLine
+  call KeyWord(inpUnit,'FIRS',.false.,exists)
+  read(inpUnit,frmt) InLine
   call Normalize(InLine,OutLine)
   k = 1
   i = 1
@@ -539,7 +520,7 @@ else
       write(u6,*)
       write(u6,*) ' ************* ERROR **************'
       write(u6,*) ' A quantum specified for the output'
-      write(u6,*) ' is larger than max quantum.       '
+      write(u6,*) ' is larger than max quantum.'
       write(u6,*) ' **********************************'
       call Quit_OnUserError()
     end if
@@ -551,15 +532,15 @@ end if
 call mma_allocate(m_plot,n,label='m_plot')
 m_plot(:) = plot_temp(1:n)
 
-call KeyWord(inpUnit,'TRAN',.true.,exist)
-if (.not. exist) then
+call KeyWord(inpUnit,'TRAN',.true.,exists)
+if (.not. exists) then
   n = n_max+1
   do i=1,n
     plot_temp(i) = i-1
   end do
 else
-  call KeyWord(inpUnit,'SECO',.false.,exist)
-  read(inpUnit,format) InLine
+  call KeyWord(inpUnit,'SECO',.false.,exists)
+  read(inpUnit,frmt) InLine
   call Normalize(InLine,OutLine)
   k = 1
   i = 1
@@ -603,16 +584,16 @@ if (Forcefield) then
   ! --------------------------------------------------------------------
   ! ENERgy: Read minimum energies for the two surfaces.
 
-  call KeyWord(inpUnit,'ENER',.true.,exist)
-  if (.not. exist) then
+  call KeyWord(inpUnit,'ENER',.true.,exists)
+  if (.not. exists) then
     write(u6,*)
     write(u6,*) ' ************** ERROR *************'
     write(u6,*) ' Electronic T_e energies not given.'
     write(u6,*) ' **********************************'
     call Quit_OnUserError()
   end if
-  call KeyWord(inpUnit,'FIRS',.false.,exist)
-  if (.not. exist) then
+  call KeyWord(inpUnit,'FIRS',.false.,exists)
+  if (.not. exists) then
     write(u6,*)
     write(u6,*) ' ******************** ERROR *********************'
     write(u6,*) ' Electronic T_e energy for first state not given.'
@@ -622,7 +603,7 @@ if (Forcefield) then
   !read(inpUnit,*) energy1,Eunit
   !call Upcase(Eunit)
   ! Replace above two lines with:
-  read(InpUnit,format) InLine
+  read(InpUnit,frmt) InLine
   call Normalize(InLine,Outline)
   read(OutLine,*) Energy1
   EUnit = 'AU'
@@ -635,8 +616,8 @@ if (Forcefield) then
   if (Eunit == 'EV') rfact = One/auToeV
   if (Eunit == 'CM') rfact = One/auTocm
   energy1 = energy1*rfact
-  call KeyWord(inpUnit,'SECO',.false.,exist)
-  if (.not. exist) then
+  call KeyWord(inpUnit,'SECO',.false.,exists)
+  if (.not. exists) then
     write(u6,*)
     write(u6,*) ' ******************** ERROR **********************'
     write(u6,*) ' Electronic T_e energy for second state not given.'
@@ -646,7 +627,7 @@ if (Forcefield) then
   !read(inpUnit,*) energy2,Eunit
   !call Upcase(Eunit)
   ! Replace above two lines with:
-  read(InpUnit,format) InLine
+  read(InpUnit,frmt) InLine
   call Normalize(InLine,Outline)
   read(OutLine,*) Energy2
   EUnit = 'AU'
@@ -663,8 +644,8 @@ if (Forcefield) then
   ! --------------------------------------------------------------------
   ! GEOMetries: Read geometries for the two surfaces.
 
-  call KeyWord(inpUnit,'GEOM',.true.,exist)
-  if (.not. exist) then
+  call KeyWord(inpUnit,'GEOM',.true.,exists)
+  if (.not. exists) then
     write(u6,*)
     write(u6,*) ' ***** ERROR *******'
     write(u6,*) ' GEOMetry not found.'
@@ -675,7 +656,7 @@ if (Forcefield) then
   !read(inpUnit,*) CoordType
   !call UpCase(CoordType)
   ! Replace above two lines with:
-  read(InpUnit,format) InLine
+  read(InpUnit,frmt) InLine
   call Normalize(InLine,Outline)
   iend = index(OutLine,' ')
   CoordType = OutLine(1:iend-1)
@@ -683,24 +664,24 @@ if (Forcefield) then
 
   if (CoordType == 'FILE') then
     Coordtype = 'CARTESIAN'
-    inpUnit1 = 31
-    inpUnit2 = 32
-    call molcas_open(31,'UNSYM1')
+    inpUnit1 = isfreeunit(31)
+    inpUnit2 = isfreeunit(32)
+    call molcas_open(inpUnit1,'UNSYM1')
     !open(31,'UNSYM1')
-    call KeyWord(inpUnit1,'*LABEL COORDINATES CHARGE',.false.,exist)
-    call molcas_open(32,'UNSYM2')
+    call KeyWord(inpUnit1,'*LABEL COORDINATES CHARGE',.false.,exists)
+    call molcas_open(inpUnit2,'UNSYM2')
     !open(32,'UNSYM2')
-    call KeyWord(inpUnit2,'*LABEL COORDINATES CHARGE',.false.,exist)
+    call KeyWord(inpUnit2,'*LABEL COORDINATES CHARGE',.false.,exists)
   else
-    inpUnit1 = inpunit
-    inpUnit2 = inpunit
+    inpUnit1 = inpUnit
+    inpUnit2 = inpUnit
   end if
 
   if (CoordType == 'CARTESIAN') then
     Cartesian = .true.
     !D write(u6,*) ' READINP: Read cartesian coordinates for first state.'
-    call KeyWord(inpUnit,'FIRS',.false.,exist)
-    if (.not. exist) then
+    call KeyWord(inpUnit,'FIRS',.false.,exists)
+    if (.not. exists) then
       write(u6,*)
       write(u6,*) ' ****** ERROR ********'
       write(u6,*) ' Wrong geometry input.'
@@ -709,7 +690,7 @@ if (Forcefield) then
     end if
     ierror = 0
     do iAtom=1,NumOfAt
-      read(inpUnit1,format) InLine
+      read(inpUnit1,frmt) InLine
       call UpCase(InLine)
       Atom = InLine(1:4)
       read(InLine(5:80),*) (TmpCoord(i),i=1,3)
@@ -728,8 +709,8 @@ if (Forcefield) then
       end if
     end do
     !D write(u6,*) ' READINP: Read cartesian coordinates for second state.'
-    call KeyWord(inpUnit,'SECO',.false.,exist)
-    if (.not. exist) then
+    call KeyWord(inpUnit,'SECO',.false.,exists)
+    if (.not. exists) then
       write(u6,*)
       write(u6,*) ' ****** ERROR ********'
       write(u6,*) ' Wrong geometry input.'
@@ -737,7 +718,7 @@ if (Forcefield) then
       call Quit_OnUserError()
     end if
     do iAtom=1,NumOfAt
-      read(inpUnit2,format) InLine
+      read(inpUnit2,frmt) InLine
       call UpCase(InLine)
       Atom = InLine(1:4)
       read(InLine(5:80),*) (TmpCoord(i),i=1,3)
@@ -759,14 +740,14 @@ if (Forcefield) then
   else if (CoordType == 'INTERNAL') then
 
     Cartesian = .false.
-    call KeyWord(inpUnit,'FIRS',.false.,exist)
+    call KeyWord(inpUnit,'FIRS',.false.,exists)
     !D write(u6,*) ' READINP: Read internal coordinates for first state.'
     n = 5*(3*NumOfAt-5)
     ! Largest possible necessary GeoVec
     call mma_allocate(GeoVec,n,label='GeoVec')
     iInt = 1
     j = 1
-    read(inpUnit,format) InLine
+    read(inpUnit,frmt) InLine
     call Normalize(InLine,OutLine)
     do while (OutLine(1:4) /= 'END ')
       ! Bond distance.
@@ -929,7 +910,7 @@ if (Forcefield) then
         j = j+5
       end if
       iInt = iInt+1
-      read(inpUnit,format) InLine
+      read(inpUnit,frmt) InLine
       call Normalize(InLine,OutLine)
     end do
     iInt = iInt-1
@@ -940,13 +921,13 @@ if (Forcefield) then
 
     call mma_deallocate(GeoVec)
 
-    call KeyWord(inpUnit,'SECO',.false.,exist)
+    call KeyWord(inpUnit,'SECO',.false.,exists)
     !D write(u6,*) ' READINP: Read internal coordinates for second state.'
     n = 5*(3*NumOfAt-5)
     call mma_allocate(GeoVec,n,label='GeoVec')
     iInt = 1
     j = 1
-    read(inpUnit,format) InLine
+    read(inpUnit,frmt) InLine
     call Normalize(InLine,OutLine)
     do while (OutLine(1:4) /= 'END ')
       ! Bond distance.
@@ -1109,7 +1090,7 @@ if (Forcefield) then
         j = j+5
       end if
       iInt = iInt+1
-      read(inpUnit,format) InLine
+      read(inpUnit,frmt) InLine
       call Normalize(InLine,OutLine)
     end do
     iInt = iInt-1
@@ -1120,18 +1101,16 @@ if (Forcefield) then
     call mma_deallocate(GeoVec)
   end if
 
-  if (inpunit1 == 31) then
-    close(inpUnit1)
-    close(inpUnit2)
-  end if
+  if (inpUnit1 /= inpUnit) close(inpUnit1)
+  if (inpUnit2 /= inpUnit) close(inpUnit2)
 
   ! GEOMetries: End ----------------------------------------------------
 
   ! --------------------------------------------------------------------
   ! MXORder: Read maximum order for the transition dipole moment.
 
-  call KeyWord(inpUnit,'MXOR',.true.,exist)
-  if (.not. exist) then
+  call KeyWord(inpUnit,'MXOR',.true.,exists)
+  if (.not. exists) then
     if (.not. lISC) then
       write(u6,*) ' *** Warning: MXORder not specified !'
       write(u6,*) '     Transition Dipole is assumed as constant.'
@@ -1187,13 +1166,13 @@ if (Forcefield) then
   if (.not. lISC) then
     call KeyWord(inpUnit,'PLOT',.true.,plotwindow)
     if (plotwindow) then
-      read(inpunit,*) cmstart,cmend
+      read(inpUnit,*) cmstart,cmend
     end if
   end if
 
   ! PLOT : End ---------------------------------------------------------
 
-  PlUnit = '      '
+  PlUnit = ' '
   broadplot = .false.
   LifeTime = 130.0e-15_wp
   if (.not. lISC) then
@@ -1205,13 +1184,13 @@ if (Forcefield) then
       call Quit_OnUserError()
     end if
     if (Use_nm) then
-      PlUnit = ' nm.  '
-      write(u6,*) '     The plot file will be in nanometers and the '
+      PlUnit = ' nm.'
+      write(u6,*) '     The plot file will be in nanometers and the'
     else if (Use_cm) then
       PlUnit = ' cm-1.'
       write(u6,*) '     The plot file will be in cm-1 and the'
     else
-      PlUnit = ' eV.  '
+      PlUnit = ' eV.'
       write(u6,*) '     The plot file will be in eV and the'
     end if
     if (plotwindow) then
@@ -1225,8 +1204,8 @@ if (Forcefield) then
     ! BROAplot: Gives the peaks in the spectrum an artificial halfwidth.
 
     call KeyWord(inpUnit,'BROA',.true.,broadplot)
-    call KeyWord(inpUnit,'LIFE',.true.,exist)
-    if (exist) read(inpunit,*) LifeTime
+    call KeyWord(inpUnit,'LIFE',.true.,exists)
+    if (exists) read(inpUnit,*) LifeTime
     write(u6,*) '     Life time : ',LifeTime,' sec'
     FWHM = hbarcm/(Two*LifeTime)
     write(u6,'(1X,A,F8.1,A,F9.6,A)') '     FWHM : ',FWHM,' cm-1 /',FWHM*auToeV/auTocm,' eV'
@@ -1248,10 +1227,10 @@ if (Forcefield) then
   VibModPlot = .false.
   call KeyWord(inpUnit,'VIBP',.true.,VibModPlot)
   if (VibModPlot) then
-    call KeyWord(inpUnit,'CYCL',.false.,exist)
-    if (exist) then
-      call KeyWord(inpUnit,'VIBP',.true.,exist)
-      read(inpUnit,format) InLine
+    call KeyWord(inpUnit,'CYCL',.false.,exists)
+    if (exists) then
+      call KeyWord(inpUnit,'VIBP',.true.,exists)
+      read(inpUnit,frmt) InLine
       call Normalize(InLine,OutLine)
       k = 1
       call WordPos(k,OutLine,iStart,iStop)
@@ -1285,11 +1264,11 @@ if (Forcefield) then
   ! --------------------------------------------------------------------
   ! FORCe: Here really read force constants.
 
-  call KeyWord(inpUnit,'FORC',.true.,exist)
+  call KeyWord(inpUnit,'FORC',.true.,exists)
   max_term = 2
-  call KeyWord(inpUnit,'FIRS',.false.,exist)
+  call KeyWord(inpUnit,'FIRS',.false.,exists)
   !D write(u6,*) ' READINP: Read force constants for first state.'
-  read(InpUnit,format) InLine
+  read(InpUnit,frmt) InLine
   call Normalize(InLine,Outline)
   iend = index(OutLine,' ')
   CoordType = OutLine(1:iend-1)
@@ -1300,10 +1279,10 @@ if (Forcefield) then
   ! transform it to internal coordinates.
   if (CoordType == 'FILE') then
     Coordtype = 'CARTESIAN'
-    inpUnit1 = 31
-    call molcas_open(31,'UNSYM1')
+    inpUnit1 = isfreeunit(31)
+    call molcas_open(inpUnit1,'UNSYM1')
     !open(31,'UNSYM1')
-    call KeyWord(inpUnit1,'UNSYMMETRIZED HESSIAN',.false.,exist)
+    call KeyWord(inpUnit1,'UNSYMMETRIZED HESSIAN',.false.,exists)
     read(inpUnit1,'(a17)') Inline
     read(inpUnit1,'(a17)') Inline
   else
@@ -1337,8 +1316,8 @@ if (Forcefield) then
         write(u6,*)
         write(u6,*) ' ***************** ERROR *******************'
         write(u6,*) ' Error trying to read cartesian force cnsts.'
-        write(u6,*) ' for the first state. Probably wrong input  '
-        write(u6,*) ' structure, perhaps too few values.         '
+        write(u6,*) ' for the first state. Probably wrong input'
+        write(u6,*) ' structure, perhaps too few values.'
         write(u6,*) ' *******************************************'
         call Quit_OnUserError()
       end if
@@ -1384,11 +1363,11 @@ if (Forcefield) then
   end if
 
   ! Scale Hessian if scaling factors were given.
-  call KeyWord(inpUnit,'SCAL',.true.,exist)
-  if (exist) then
+  call KeyWord(inpUnit,'SCAL',.true.,exists)
+  if (exists) then
     call mma_allocate(ScaleParam,NumInt,label='Scale1')
 
-    call KeyWord(inpUnit,'FIRS',.false.,exist)
+    call KeyWord(inpUnit,'FIRS',.false.,exists)
     do i=1,NumInt
       read(inpUnit,*) ScaleParam(i)
       ScaleParam(i) = sqrt(ScaleParam(i))
@@ -1401,23 +1380,23 @@ if (Forcefield) then
   !D write(u6,*) ' Scaled.'
 
   ! Hessian for second surface.
-  call KeyWord(inpUnit,'FORC',.true.,exist)
-  call KeyWord(inpUnit,'SECO',.false.,exist)
+  call KeyWord(inpUnit,'FORC',.true.,exists)
+  call KeyWord(inpUnit,'SECO',.false.,exists)
   !D write(u6,*) ' READINP: Read force constants for second state.'
   !read(inpUnit,*) CoordType
   !call UpCase(CoordType)
   ! Replace above two lines with:
-  read(InpUnit,format) InLine
+  read(InpUnit,frmt) InLine
   call Normalize(InLine,Outline)
   iend = index(OutLine,' ')
   CoordType = OutLine(1:iend-1)
   ! End of replacement
   if (CoordType == 'FILE') then
     Coordtype = 'CARTESIAN'
-    inpUnit2 = 32
-    call molcas_open(32,'UNSYM2')
+    inpUnit2 = isfreeunit(32)
+    call molcas_open(inpUnit2,'UNSYM2')
     !open (32,'UNSYM2')
-    call KeyWord(inpUnit2,'UNSYMMETRIZED HESSIAN',.false.,exist)
+    call KeyWord(inpUnit2,'UNSYMMETRIZED HESSIAN',.false.,exists)
     read(inpUnit2,'(a17)') Inline
     read(inpUnit2,'(a17)') Inline
   else
@@ -1451,8 +1430,8 @@ if (Forcefield) then
         write(u6,*)
         write(u6,*) ' ***************** ERROR *******************'
         write(u6,*) ' Error trying to read cartesian force cnsts.'
-        write(u6,*) ' for the second state. Probably wrong input '
-        write(u6,*) ' structure, perhaps too few values.         '
+        write(u6,*) ' for the second state. Probably wrong input'
+        write(u6,*) ' structure, perhaps too few values.'
         write(u6,*) ' *******************************************'
         call Quit_OnUserError()
       end if
@@ -1497,21 +1476,19 @@ if (Forcefield) then
 
   end if
 
-  if (inpunit1 == 31) then
-    close(inpunit1)
-    close(inpunit2)
-  end if
+  if (inpUnit1 /= inpUnit) close(inpUnit1)
+  if (inpUnit2 /= inpUnit) close(inpUnit2)
 
   ! FORCe: End ---------------------------------------------------------
 
   ! --------------------------------------------------------------------
   ! SCALe: Scale Hessian if scaling factors were given.
 
-  call KeyWord(inpUnit,'SCAL',.true.,exist)
-  if (exist) then
+  call KeyWord(inpUnit,'SCAL',.true.,exists)
+  if (exists) then
     call mma_allocate(ScaleParam,NumInt,label='ScaleParam')
 
-    call KeyWord(inpUnit,'SECO',.false.,exist)
+    call KeyWord(inpUnit,'SECO',.false.,exists)
     do i=1,NumInt
       read(inpUnit,*) ScaleParam(i)
       ScaleParam(i) = sqrt(ScaleParam(i))
@@ -1527,9 +1504,9 @@ if (Forcefield) then
   ! --------------------------------------------------------------------
   ! DIPOles: Read Transition Dipoles or Spin-Orbit Coupling.
 
-  call KeyWord(inpUnit,'DIPO',.true.,exist)
-  if (.not. exist) call KeyWord(inpUnit,'SOC ',.true.,exist)
-  if (.not. exist) then
+  call KeyWord(inpUnit,'DIPO',.true.,exists)
+  if (.not. exists) call KeyWord(inpUnit,'SOC ',.true.,exists)
+  if (.not. exists) then
     write(u6,*)
     write(u6,*) ' ************ ERROR ****************'
     write(u6,*) ' The DIPOLES/SOC keyword is missing.'
@@ -1537,24 +1514,24 @@ if (Forcefield) then
     call Quit_OnUserError()
   end if
   !D write(u6,*) ' READINP: Read dipoles ("DIPOLES").'
-  read(inpUnit,format) Inline
+  read(inpUnit,frmt) Inline
   call Normalize(InLine,OutLine)
   if (OutLine(1:4) == 'FILE') then
     !D write(u6,*) ' Read trans dips from file UNSYM21'
     call molcas_open(31,'UNSYM21')
     !open(31,'UNSYM21')
     if (max_dip == 1) then
-      call KeyWord(31,'*BEGIN TRANSDIPDER FOR COMPONENT X',.false.,exist)
+      call KeyWord(31,'*BEGIN TRANSDIPDER FOR COMPONENT X',.false.,exists)
       read(31,*) TranDipGrad(1,:)
-      call KeyWord(31,'*BEGIN TRANSDIPDER FOR COMPONENT Y',.false.,exist)
+      call KeyWord(31,'*BEGIN TRANSDIPDER FOR COMPONENT Y',.false.,exists)
       read(31,*) TranDipGrad(2,:)
-      call KeyWord(31,'*BEGIN TRANSDIPDER FOR COMPONENT Z',.false.,exist)
+      call KeyWord(31,'*BEGIN TRANSDIPDER FOR COMPONENT Z',.false.,exists)
       read(31,*) TranDipGrad(3,:)
     end if
     XnotFound = .true.
     YnotFound = .true.
     ZnotFound = .true.
-    call KeyWord(31,'*BEGIN TRANSITION PROPERTIES',.false.,exist)
+    call KeyWord(31,'*BEGIN TRANSITION PROPERTIES',.false.,exists)
     do while (XnotFound .or. YnotFound .or. ZnotFound)
       read(31,'(A37)') InLine
       if (InLine(1:20) == 'MLTPL  1 COMPONENT1 ') then
@@ -1572,7 +1549,7 @@ if (Forcefield) then
     end do
     close(31)
   else
-    call KeyWord(inpUnit,'DIPO',.true.,exist)
+    call KeyWord(inpUnit,'DIPO',.true.,exists)
     !D write(u6,*) ' READINP: Read dipoles ("DIPOLES").'
     read(inpUnit,*) TranDip(:)
     if (max_dip == 1) then
@@ -1596,8 +1573,8 @@ else
   !--------------------------------------------------------------------!
 
   ! Read transformations.
-  call KeyWord(inpUnit,'NONL',.true.,exist)
-  if (.not. Exist) then
+  call KeyWord(inpUnit,'NONL',.true.,exists)
+  if (.not. exists) then
     write(u6,*)
     write(u6,*) ' *********** ERROR **************'
     write(u6,*) ' Cannot find keyword  NONLINEAR !'
@@ -1605,19 +1582,19 @@ else
     call Quit_OnUserError()
   end if
   do icoord=1,NumInt
-    read(inpUnit,format) InLine
+    read(inpUnit,frmt) InLine
     call Normalize(InLine,OutLine)
     trfName1(icoord) = OutLine
   end do
   do icoord=1,NumInt
-    read(inpUnit,format) InLine
+    read(inpUnit,frmt) InLine
     call Normalize(InLine,OutLine)
     trfName2(icoord) = OutLine
   end do
 
   ! Read terms in polynomial.
-  call KeyWord(inpUnit,'POLY',.true.,exist)
-  if (.not. Exist) then
+  call KeyWord(inpUnit,'POLY',.true.,exists)
+  if (.not. exists) then
     write(u6,*)
     write(u6,*) ' ************ ERROR **************'
     write(u6,*) ' Cannot find keyword  POLYNOMIAL !'
@@ -1627,7 +1604,7 @@ else
   !D write(u6,*) ' READINP: Read polynomial.'
   k = 1
   nvar = 0
-  read(inpUnit,format) InLine
+  read(inpUnit,frmt) InLine
   call WordPos(k,InLine,iStart,iStop)
   do while (iStop < len(Inline))
     k = iStop+1
@@ -1635,15 +1612,15 @@ else
     call WordPos(k,InLine,iStart,iStop)
   end do
   nPolyTerm = 1
-  read(inpUnit,format) InLine
+  read(inpUnit,frmt) InLine
   call Normalize(InLine,OutLine)
   do while (OutLine(1:4) /= 'END ')
     nPolyTerm = nPolyTerm+1
-    read(inpUnit,format) InLine
+    read(inpUnit,frmt) InLine
     call Normalize(InLine,OutLine)
   end do
-  call KeyWord(inpUnit,'POLY',.true.,exist)
-  if (.not. Exist) then
+  call KeyWord(inpUnit,'POLY',.true.,exists)
+  if (.not. exists) then
     write(u6,*)
     write(u6,*) ' ************ ERROR **************'
     write(u6,*) ' Cannot find keyword  POLYNOMIAL !'
@@ -1668,8 +1645,8 @@ else
 
   ! Read grid points and energies.
   CoordType = 'INTERNAL'
-  call KeyWord(inpUnit,'DATA',.true.,exist)
-  if (.not. Exist) then
+  call KeyWord(inpUnit,'DATA',.true.,exists)
+  if (.not. exists) then
     write(u6,*)
     write(u6,*) ' ********* ERROR ***********'
     write(u6,*) ' Cannot find keyword  DATA !'

@@ -21,12 +21,15 @@ subroutine ShiftHess(Hess,shift,nDim,nDim2)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-real*8 Hess(nDim,nDim2)
-real*8 epsilon
-real*8 eigen_min
-logical shift
-real*8, allocatable :: Hess_lowT(:), U(:,:)
+implicit none
+integer(kind=iwp), intent(in) :: nDim, nDim2
+real(kind=wp), intent(inout) :: Hess(nDim,nDim2)
+logical(kind=iwp), intent(out) :: shift
+integer(kind=iwp) :: i, j, k
+real(kind=wp) :: eigen_min, eps
+real(kind=wp), allocatable :: Hess_lowT(:), U(:,:)
 
 call mma_allocate(U,nDim,nDim2,label='U')
 call mma_allocate(Hess_lowT,nDim*(nDim+1)/2,label='Hess_lowT')
@@ -49,9 +52,9 @@ call Jacord(Hess_lowT,U,nDim,nDim)
 eigen_min = Hess_lowT(1)
 shift = eigen_min < Zero
 if (shift) then
-  epsilon = 2*eigen_min
+  eps = 2*eigen_min
   do i=1,nDim
-    Hess(i,i) = Hess(i,i)-epsilon
+    Hess(i,i) = Hess(i,i)-eps
   end do
 end if
 call mma_deallocate(U)

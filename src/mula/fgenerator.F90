@@ -9,17 +9,17 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine FGenerator(nMat,F,iCre,iAnn,trgrd,m_ord,mx_ord,nosc)
+subroutine FGenerator(nMat,F,iCre,iAnn,trgrd,m_Ord,mx_Ord,nOsc)
 
 use Constants, only: Zero, Half
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
-integer nMat(0:m_Ord,nOsc)
-real*8 trgrd(3,nOsc)
-real*8 F(0:m_ord,0:mx_ord,3)
-real*8 sqr(0:50)
-integer iCre(0:m_ord,nosc)
-integer iAnn(0:m_ord,nosc)
+implicit none
+integer(kind=iwp), intent(in) :: m_Ord, nOsc, nMat(0:m_Ord,nOsc), iCre(0:m_Ord,nOsc), iAnn(0:m_Ord,nOsc),  mx_Ord
+real(kind=wp), intent(out) :: F(0:m_Ord,0:mx_Ord,3)
+real(kind=wp), intent(in) :: trgrd(3,nOsc)
+integer(kind=iwp) :: i, iCar, iOrd, iOsc, jOrd
+real(kind=wp) :: sqr(0:50)
 
 F(:,:,:) = Zero
 do i=0,50

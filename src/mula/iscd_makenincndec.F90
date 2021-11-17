@@ -13,23 +13,24 @@ subroutine ISCD_MakenIncDec(n_max,nOrd,nOsc,lNMAT,lNINC,lNDEC,lBatch,nBatch,left
 
 use mula_global, only: maxMax_n
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-integer nMat(nOsc,lBatch), nInc(nOsc,lBatch), nDec(nOsc,lBatch)
-integer Graph2(n_max+1,n_max+1,nOsc)
-integer n_max, nOrd, lBatch, nBatch, leftBatch
-integer lNMAT, lNINC, lNDEC
-integer nIndex(3,0:maxMax_n)
-integer, allocatable :: iVecD(:), iVecI(:)
+implicit none
+integer(kind=iwp), intent(in) :: n_max, nOrd, nOsc, lNMAT, lNINC, lNDEC, lBatch, nBatch, leftBatch, Graph2(n_max+1,n_max+1,nOsc)
+integer(kind=iwp), intent(inout) :: nIndex(3,0:maxMax_n)
+integer(kind=iwp), intent(out) :: nMat(nOsc,lBatch), nInc(nOsc,lBatch), nDec(nOsc,lBatch)
+integer(kind=iwp) :: iBatch, ii, iIndex, iOrd, iv, j, jIndex, kIndex
+integer(kind=iwp), allocatable :: iVecD(:), iVecI(:)
+integer(kind=iwp), external :: iDetnr
 
 !GGt -------------------------------------------------------------------
 !write(u6,*)
-!write(u6,*) 'CGGt[ISCD_Mk_nIncDec] Infos:                   '
+!write(u6,*) 'CGGt[ISCD_Mk_nIncDec] Infos:'
 !write(u6,*) '     nMat(',nOsc,',',lBatch,')'
 !write(u6,*) '     n_max,nOrd,nOsc==',n_max,nOrd,nOsc
 !write(u6,*) '     lBatch,nBatch,leftBatch==',lBatch,nBatch,leftBatch
 !write(u6,*) '----------------------------------------------'
-!write(u6,*) '  The nIndex file:    '
+!write(u6,*) '  The nIndex file:'
 !do i=1,nBatch+1
 !  write(u6,*) i,': ',nIndex(1,i)
 !end do
@@ -48,10 +49,8 @@ call mma_allocate(iVecD,nOsc,label='iVecD')
 iIndex = 0
 jIndex = 0
 do iBatch=1,nBatch
-  do ii=1,lBatch
-    nInc(:,ii) = -1
-    nDec(:,ii) = -1
-  end do
+  nInc(:,:) = -1
+  nDec(:,:) = -1
   kIndex = nIndex(1,iBatch)
   !write(u6,*)'          iBatch=',iBatch,'  kIndex=',kIndex
   call iDaFile(lNMAT,2,nMat,nOsc*lBatch,kIndex)
@@ -123,10 +122,8 @@ if (leftBatch > 0) then
 
   !write(u6,*) 'CGGt nBatch*lBatch,nOrd==',nBatch*lBatch,nOrd
   !call XFlush(u6)
-  do ii=1,lBatch
-    nInc(:,ii) = -1
-    nDec(:,ii) = -1
-  end do
+  nInc(:,:) = -1
+  nDec(:,:) = -1
   do iOrd=nBatch*lBatch,nOrd
     ii = 1+iOrd-nBatch*lBatch
 
@@ -187,19 +184,18 @@ end subroutine ISCD_MakenIncDec
 subroutine ISCD_ReloadNMAT(lnTabDim,nOrd,nOsc,lNMAT0,lNMAT,lBatch,nBatch,leftBatch,nIndex,nTabDim,nMat0,nMat)
 
 use mula_global, only: maxMax_n
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-integer nMat(nOsc,lBatch)
-integer nMat0(nOsc), nTabDim(0:lnTabDim)
-integer lnTabDim, nOrd, nOsc, lNMAT0, lNMAT
-integer lBatch, nBatch, leftBatch
-integer nIndex(3,0:maxMax_n)
+implicit none
+integer(kind=iwp), intent(in) :: lnTabDim, nOrd, nOsc, lNMAT0, lNMAT, lBatch, nBatch, leftBatch, nTabDim(0:lnTabDim)
+integer(kind=iwp), intent(out) :: nIndex(3,0:maxMax_n), nMat0(nOsc), nMat(nOsc,lBatch)
+integer(kind=iwp) :: iBatch, ii, iIndex0, iOrd, iOsc, jIndex
 
 ! Initialize
 
 !GGt -------------------------------------------------------------------
 !write(u6,*)
-!write(u6,*) 'CGGt[ISCD_ReloadNMAT] Infos:                   '
+!write(u6,*) 'CGGt[ISCD_ReloadNMAT] Infos:'
 !write(u6,*) '     nMat(',nOsc,',',lBatch,')'
 !write(u6,*) '     lnTabDim,nOrd,nOsc==',lnTabDim,nOrd,nOsc
 !write(u6,*) '     lBatch,nBatch,leftBatch==',lBatch,nBatch,leftBatch
@@ -255,7 +251,7 @@ if (leftBatch > 0) then
 end if
 !GGt -------------------------------------------------------------------
 !write(u6,*) '----------------------------------------------'
-!write(u6,*) '  The nIndex file:    '
+!write(u6,*) '  The nIndex file:'
 !do i=1,nBatch+1
 ! write(u6,*) i,': ',nIndex(1,i)
 !end do

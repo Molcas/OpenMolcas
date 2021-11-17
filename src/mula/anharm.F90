@@ -19,20 +19,15 @@ subroutine Anharm(eigenVec,harmfreq,D3,D4,Gprime,Gdbleprime,x,nOsc)
 !    small displacements.
 !
 !  Input:
-!    eigenVec   : Real*8 two dimensional array - eigenvectors.
-!    harmfreq   : Real*8 array - harmonic frequencies.
-!    D3         : Real*8 three dimensional array - cubic force
-!                 constants.
-!    D4         : Real*8 four dimensional array - quartic force
-!                 constants.
-!    Gprime     : Real*8 three dimensional array - first
-!                 derivatives of the inverse mass tensor.
-!    Gdbleprime : Real*8 four dimensional array - second
-!                 derivatives of the inverse mass tensor.
+!    eigenVec   : Real two dimensional array - eigenvectors.
+!    harmfreq   : Real array - harmonic frequencies.
+!    D3         : Real three dimensional array - cubic force constants.
+!    D4         : Real four dimensional array - quartic force constants.
+!    Gprime     : Real three dimensional array - first derivatives of the inverse mass tensor.
+!    Gdbleprime : Real four dimensional array - second derivatives of the inverse mass tensor.
 !
 !  Output:
-!    x          : Real*8 two dimensional array - anharmonicity
-!                 constants.
+!    x          : Real two dimensional array - anharmonicity constants.
 !
 !  Written by:
 !    Niclas Forsberg,
@@ -41,17 +36,16 @@ subroutine Anharm(eigenVec,harmfreq,D3,D4,Gprime,Gdbleprime,x,nOsc)
 use mula_global, only: ngdim
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Four, Five, Six, Eight, Nine, Half, Quart
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 eigenVec(nosc,nosc)
-real*8 harmfreq(nosc)
-real*8 D3(ngdim,ngdim,ngdim)
-real*8 D4(ngdim,ngdim,ngdim,ngdim)
-real*8 Gprime(ngdim,ngdim,ngdim)
-real*8 Gdbleprime(ngdim,ngdim,ngdim,ngdim)
-real*8 x(nosc,nosc)
-real*8, allocatable :: C(:,:), T3(:,:,:), T4(:,:,:,:), Temp(:,:), V3(:,:,:), V4(:,:,:,:)
+implicit none
+integer(kind=iwp), intent(in) :: nOsc
+real(kind=wp),intent(in) :: eigenVec(nOsc,nOsc), harmfreq(nOsc), D3(ngdim,ngdim,ngdim), D4(ngdim,ngdim,ngdim,ngdim), &
+                            Gprime(ngdim,ngdim,ngdim), Gdbleprime(ngdim,ngdim,ngdim,ngdim)
+real(kind=wp), intent(out) :: x(nOsc,nOsc)
+integer(kind=iwp) :: i, i1, j, j1, k, k1, l, l1, NumInt
+real(kind=wp) :: coef, delta, deltaInv, rsum, sum1, sum2, tmp
+real(kind=wp), allocatable :: C(:,:), T3(:,:,:), T4(:,:,:,:), Temp(:,:), V3(:,:,:), V4(:,:,:,:)
 
 NumInt = nOsc
 
@@ -155,14 +149,14 @@ do i=1,NumInt
       do k=1,NumInt
         if ((k /= i) .and. (k /= j)) then
           delta = One
-          sum = harmfreq(i)+harmfreq(j)+harmfreq(k)
-          delta = delta*sum
-          sum = harmfreq(i)-harmfreq(j)-harmfreq(k)
-          delta = delta*sum
-          sum = -harmfreq(i)+harmfreq(j)-harmfreq(k)
-          delta = delta*sum
-          sum = -harmfreq(i)-harmfreq(j)+harmfreq(k)
-          delta = delta*sum
+          rsum = harmfreq(i)+harmfreq(j)+harmfreq(k)
+          delta = delta*rsum
+          rsum = harmfreq(i)-harmfreq(j)-harmfreq(k)
+          delta = delta*rsum
+          rsum = -harmfreq(i)+harmfreq(j)-harmfreq(k)
+          delta = delta*rsum
+          rsum = -harmfreq(i)-harmfreq(j)+harmfreq(k)
+          delta = delta*rsum
           deltaInv = One/delta
           x(i,j) = x(i,j)+deltaInv*Half*harmfreq(k)*(harmfreq(i)**2+harmfreq(j)**2-harmfreq(k)**2)* &
                    (V3(i,j,k)**2+T3(i,j,k)**2+T3(j,k,i)**2+T3(k,i,j)**2)

@@ -13,25 +13,28 @@
 
 subroutine var_to_qvar(var,qvar,ref,qref,alpha,trfName,ndata,nvar)
 !  Purpose:
-!    Transform coordinates given in input using tranformation
-!    specified in input.
+!    Transform coordinates given in input using tranformation specified in input.
 !
 !  Written by:
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, deg2rad
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-real*8 var(ndata,nvar)
-real*8 par(ndata,nvar)
-real*8 qvar(ndata,nvar)
-real*8 ref(nvar), qref(nvar)
-real*8 alpha(nvar)
-character*80 trfName(nvar)
-character*32 trfCode
-character*32 Inline
+implicit none
+integer(kind=iwp), intent(in) :: ndata, nvar
+real(kind=wp), intent(in) :: var(ndata,nvar)
+real(kind=wp), intent(out) :: qvar(ndata,nvar), ref(nvar), qref(nvar)
+real(kind=wp), intent(inout) :: alpha(nvar)
+character(len=80), intent(in) :: trfName(nvar)
+integer(kind=iwp) :: ia, ic, id, idata, ie, ifit, ir, is, istart, istop, ivar, ix
+real(kind=wp) :: angsc, rsum, v
+character(len=32) :: Inline, trfCode
+real(kind=wp), allocatable :: par(:,:)
+
+call mma_allocate(par,ndata,nvar,label='par')
 
 do ivar=1,nvar
   trfcode = trfName(ivar)(1:32)
@@ -59,11 +62,11 @@ do ivar=1,nvar
     end if
   end do
   ! Calculate refrence value.
-  sum = Zero
+  rsum = Zero
   do idata=1,ndata
-    sum = sum+var(idata,ivar)
+    rsum = rsum+var(idata,ivar)
   end do
-  ref(ivar) = sum/ndata
+  ref(ivar) = rsum/ndata
   if (ic > 0) then
     ref(ivar) = cos(angsc*ref(ivar))
   else if (is > 0) then
@@ -106,13 +109,15 @@ do ivar=1,nvar
   end do
 end do
 
-! Calculate refrence value of transformed coordinates.
+call mma_deallocate(par)
+
+! Calculate reference value of transformed coordinates.
 do ivar=1,nvar
-  sum = Zero
+  rsum = Zero
   do idata=1,ndata
-    sum = sum+qvar(idata,ivar)
+    rsum = rsum+qvar(idata,ivar)
   end do
-  qref(ivar) = sum/ndata
+  qref(ivar) = rsum/ndata
 end do
 
 ! Subtract reference value from transformed coordinates.
@@ -132,16 +137,21 @@ subroutine x_to_qvar(x,ref,qref,alpha,trfName,nDimX)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 x(nDimX)
-real*8 par(nDimX)
-real*8 ref(nDimX), qref(nDimX)
-real*8 alpha(nDimx)
-character*80 trfName(nDimX)
-character*32 trfCode
-character*32 Inline
+implicit none
+integer(kind=iwp), intent(in) :: nDimX
+real(kind=wp), intent(inout) :: x(nDimX), alpha(nDimx)
+real(kind=wp), intent(in) :: ref(nDimX), qref(nDimX)
+character(len=80), intent(in) :: trfName(nDimX)
+integer(kind=iwp) :: ia, ic, ie, is, istart, istop, ivar
+real(kind=wp) :: v
+character(len=32) :: Inline, trfCode
+real(kind=wp), allocatable :: par(:)
+
+call mma_allocate(par,nDimX,label='par')
 
 do ivar=1,nDimX
   trfcode = trfName(ivar)(1:32)
@@ -184,6 +194,8 @@ do ivar=1,nDimX
     x(ivar) = par(ivar)
   end if
 end do
+
+call mma_deallocate(par)
 
 ! Subtract reference value from transformed coordinates.
 do ivar=1,nDimX

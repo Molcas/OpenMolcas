@@ -35,12 +35,15 @@ subroutine MakeTab(m_max,maxOrd,maxIncOrd,mMat,mInc,mDec,nOsc)
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-integer mMat(0:maxord,nosc)
-integer mInc(0:maxord,nosc), mDec(0:maxord,nosc)
-logical equal
-integer, allocatable :: mTemp(:,:), row(:), unit(:,:)
+implicit none
+integer(kind=iwp), intent(in) :: m_max, nOsc
+integer(kind=iwp), intent(inout) :: maxOrd
+integer(kind=iwp), intent(out) :: maxIncOrd, mMat(0:maxOrd,nOsc), mInc(0:maxOrd,nOsc), mDec(0:maxOrd,nOsc)
+integer(kind=iwp) :: i, irow, istart_row, j, jcol, jmax, jrow, k, l, m, mMat_row, mTempDim, n, num, numtemp
+logical(kind=iwp) :: equal
+integer(kind=iwp), allocatable :: mTemp(:,:), row(:), unitm(:,:)
 
 ! Initialize.
 maxOrd = 0
@@ -62,10 +65,10 @@ mTemp(:,:) = 0
 num = 1
 istart_row = 0
 irow = istart_row+1
-call mma_allocate(unit,nOsc,nOsc,label='unit')
-unit(:,:) = 0
+call mma_allocate(unitm,nOsc,nOsc,label='unit')
+unitm(:,:) = 0
 do i=1,nOsc
-  unit(i,i) = 1
+  unitm(i,i) = 1
 end do
 
 ! Create table mMat.
@@ -77,7 +80,7 @@ do m=1,m_max
   do n=1,num
     do jrow=1,nOsc
       do jcol=1,nOsc
-        mTemp(irow,jcol) = mMat(istart_row,jcol)+unit(jrow,jcol)
+        mTemp(irow,jcol) = mMat(istart_row,jcol)+unitm(jrow,jcol)
       end do
       irow = irow+1
       numtemp = numtemp+1
@@ -170,6 +173,6 @@ do i=1,maxOrd
 end do
 
 call mma_deallocate(row)
-call mma_deallocate(unit)
+call mma_deallocate(unitm)
 
 end subroutine MakeTab

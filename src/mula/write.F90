@@ -13,20 +13,22 @@
 
 subroutine WriteDip(DipGrad,Modes,Title,nOsc)
 
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-real*8 DipGrad(3,nOsc)
-integer Modes(nOsc)
-character Title*(*)
+implicit none
+integer(kind=iwp), intent(in) :: nOsc, Modes(nOsc)
+real(kind=wp), intent(in) :: DipGrad(3,nOsc)
+character(len=*), intent(in) :: Title
+integer(kind=iwp) :: i
 
 write(u6,*)
 write(u6,*)
 write(u6,'(a2,a)') ' ',Title
 write(u6,'(a2,a)') ' ','=============================================='
-write(u6,'(a2,a)') ' ',' mode          X           Y           Z      '
+write(u6,'(a2,a)') ' ',' mode          X           Y           Z'
 write(u6,'(a2,a)') ' ','----------------------------------------------'
 do i=1,nOsc
-  write(u6,'(a3,i2,a1,a3,3f12.5)') ' ',Modes(i),'.',' ',(DipGrad(j,i),j=1,3)
+  write(u6,'(a3,i2,a1,a3,3f12.5)') ' ',Modes(i),'.',' ',DipGrad(:,i)
 end do
 write(u6,'(a2,a)') ' ','=============================================='
 write(u6,*)
@@ -37,6 +39,7 @@ subroutine IntCalcHeader()
 
 use Definitions, only: u6
 
+implicit none
 
 write(u6,*)
 write(u6,*)
@@ -53,6 +56,7 @@ subroutine ExpPointHeader()
 
 use Definitions, only: u6
 
+implicit none
 
 write(u6,*)
 write(u6,*)
@@ -69,6 +73,7 @@ subroutine ISCHeader()
 
 use Definitions, only: u6
 
+implicit none
 
 write(u6,*)
 write(u6,*)
@@ -80,7 +85,7 @@ write(u6,'(a27,a)') ' ',' ================================================='
 write(u6,*)
 
 end subroutine ISCHeader
-!#####
+!####
 subroutine WriteHeader(Title)
 !  Purpose:
 !    Write header and title to logfile.
@@ -91,7 +96,8 @@ subroutine WriteHeader(Title)
 
 use Definitions, only: u6
 
-character*80 Title
+implicit none
+character(len=80), intent(in) :: Title
 
 write(u6,*)
 
@@ -104,21 +110,20 @@ write(u6,'(A)') '  -------'
 write(u6,*)
 
 end subroutine WriteHeader
-
+!####
 subroutine WrMold(FName,NumOfAt,AtomLbl,AtCoord,NumInt,HarmFreq,QMat)
 ! Open file named FName, and create a MOLDEN input file.
 
 use Constants, only: Zero, auTocm
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
-!implicit none
-character*(*) FName
-integer NumOfAt, NumInt
-character*(*) AtomLbl(NumOfAt)
-real*8 AtCoord(3,NumOfAt), HarmFreq(NumInt),QMat(3,NumOfAt,NumInt)
-real*8 DMax, D2, DispMx, Factor
-integer i, iInt, iAtom
-character*2 AtName
+implicit none
+integer(kind=iwp), intent(in) :: NumOfAt, NumInt
+character(len=*), intent(in) :: FName, AtomLbl(NumOfAt)
+real(kind=wp), intent(in) :: AtCoord(3,NumOfAt), HarmFreq(NumInt), QMat(3,NumOfAt,NumInt)
+integer(kind=iwp) :: i, iAtom, iInt
+real(kind=wp) :: D2, DispMx, DMax, Factor
+character(len=2) :: AtName
 
 call molcas_open(9,Fname)
 !open(9,FName,status='UNKNOWN')

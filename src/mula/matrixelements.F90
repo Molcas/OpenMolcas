@@ -30,32 +30,21 @@ subroutine MatrixElements(L,U,FC00,Hmat,C,W,r_diff,nMat,iCre,iann,max_nOrd,max_m
 use mula_global, only: ndim1, ndim2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-!use Linalg
-!use Potkin
-implicit real*8(a-h,o-z)
-real*8 L(0:max_mOrd,0:max_mOrd)
-real*8 U(0:max_nOrd,0:max_nOrd)
-real*8 Hmat(0:max_mOrd,0:max_nOrd)
-real*8 C(nosc,nosc)
-real*8 W(nosc,nosc)
-real*8 r_diff(nosc)
-integer nMat(0:ndim1,ndim2)
-integer icre(0:ndim1,ndim2)
-integer iann(0:ndim1,ndim2)
-real*8 grad(nosc)
-real*8 Hess(nosc,nosc)
-real*8 D3(nosc,nosc,nosc)
-real*8 D4(nosc,nosc,nosc,nosc)
-real*8 G(nosc,nosc)
-real*8 Gprime(nosc,nosc,nosc)
-real*8 Gdbleprime(nosc,nosc,nosc,nosc)
-real*8 alpha1(nosc,nosc), alpha2(nosc,nosc), beta(nosc,nosc)
-real*8 Base(nosc,nosc)
-real*8, allocatable :: A(:,:), Ctemp(:,:), rtemp1(:), temp(:,:), Wtemp(:,:)
+implicit none
+integer(kind=iwp), intent(in) :: nMat(0:ndim1,ndim2), icre(0:ndim1,ndim2), iann(0:ndim1,ndim2), max_nOrd, max_mOrd, nOsc, max_term
+real(kind=wp), intent(out) :: Hmat(0:max_mOrd,0:max_nOrd)
+real(kind=wp), intent(in) :: L(0:max_mOrd,0:max_mOrd), U(0:max_nOrd,0:max_nOrd), FC00, C(nOsc,nOsc), W(nOsc,nOsc), r_diff(nOsc), &
+                             energy, grad(nOsc), Hess(nOsc,nOsc), D3(nOsc,nOsc,nOsc), D4(nOsc,nOsc,nOsc,nOsc), G(nOsc,nOsc), &
+                             Gprime(nOsc,nOsc,nOsc), Gdbleprime(nOsc,nOsc,nOsc,nOsc), alpha1(nOsc,nOsc), alpha2(nOsc,nOsc), &
+                             beta(nOsc,nOsc), Base(nOsc,nOsc)
+integer(kind=iwp) :: i, mPlus, nOscOld, nPlus
+real(kind=wp) :: det
+real(kind=wp), allocatable :: A(:,:), Ctemp(:,:), rtemp1(:), temp(:,:), Wtemp(:,:)
 
 ! Initialize.
-noscOld = nOsc
+nOscOld = nOsc
 mPlus = max_mOrd+1
 nPlus = max_nOrd+1
 call mma_allocate(A,[0,max_mOrd],[0,max_nOrd],label='A')

@@ -12,18 +12,17 @@
 subroutine ISCD_MakenMat(n_max,nOsc,lNMAT,lnTabDim,Graph2,nTabDim,nMat0)
 
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
-integer Graph2(n_max+1,n_max+1,nOsc)
-integer nTabDim(0:lnTabDim), nMat0(nOsc)
-integer nvTabDim
-integer, allocatable :: iVec(:)
+implicit none
+integer(kind=iwp), intent(in) :: n_max, nOsc, lNMAT, lnTabDim, Graph2(n_max+1,n_max+1,nOsc)
+integer(kind=iwp), intent(out) :: nTabDim(0:lnTabDim), nMat0(nOsc)
+integer(kind=iwp) :: i, iDet, iDNR, iIndex, iQ, iQuanta, nd, nD_0, nvTabDim
+integer(kind=iwp), allocatable :: iVec(:)
+integer(kind=iwp), external :: iDetnr
 
 ! Initialize.
-do i=1,nOsc
-  nMat0(i) = 0
-end do
+nMat0(:) = 0
 iIndex = 0
 nTabDim(0) = iIndex
 call iDaFile(lNMAT,1,nMat0,nOsc,iIndex)

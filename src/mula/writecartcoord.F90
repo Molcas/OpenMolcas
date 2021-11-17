@@ -13,11 +13,13 @@ subroutine WriteCartCoord(AtomLbl,Coord,Mass,NumOfAt)
 !  Purpose:
 !    Write cartesian coordinates to log file.
 
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-character*4 AtomLbl(NumOfAt)
-real*8 Coord(3,NumOfAt)
-real*8 Mass(NumOfAt)
+implicit none
+integer(kind=iwp), intent(in) :: NumOfAt
+character(len=4), intent(in) :: AtomLbl(NumOfAt)
+real(kind=wp), intent(in) :: Coord(3,NumOfAt), Mass(NumOfAt)
+integer(kind=iwp) :: i
 
 ! Write labels, coordinates and masses to log file.
 write(u6,*)
@@ -26,8 +28,8 @@ write(u6,'(a1,a)') ' ','Cartesian coordinates (in bohr) and masses (in u)'
 write(u6,*) ('====',i=1,17)
 write(u6,'(a2,a)') ' ','Atom         x             y             z                Mass'
 write(u6,*) ('----',i=1,17)
-do j=1,NumOfAt
-  write(u6,'(a2,a4,3f14.8,f20.8)') ' ',AtomLbl(j),(Coord(i,j),i=1,3),Mass(j)
+do i=1,NumOfAt
+  write(u6,'(a2,a4,3f14.8,f20.8)') ' ',AtomLbl(i),Coord(:,i),Mass(i)
 end do
 write(u6,*) ('====',i=1,17)
 write(u6,*)
@@ -40,14 +42,15 @@ subroutine WriteIntCoord(InterVec,AtomLbl,xvec,NumInt)
 !    Write internal coordinates to log file.
 
 use Constants, only: One, Angstrom, deg2rad
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-!integer InterVec(NumInt)
-integer InterVec(*)
-character*4 AtomLbl(NumInt)
-character*128 Line
-real*8 xvec(NumInt)
-real*8 const
+implicit none
+integer(kind=iwp), intent(in) :: InterVec(*), NumInt
+character(len=4), intent(in) :: AtomLbl(NumInt)
+real(kind=wp), intent(in) :: xvec(NumInt)
+integer(kind=iwp) :: i, i1, i2, i3, i4, IntType, j, k
+real(kind=wp) :: const
+character(len=128) :: Line
 
 ! Internal coordinates at equilibrium.
 write(u6,*)
@@ -65,7 +68,7 @@ do j=1,NumInt
     ! Bond Stretching.
     i1 = InterVec(k+1)
     i2 = InterVec(k+2)
-    write(Line,fmt='(A2,A,A,A,A,A)') ' ','Bond    ',AtomLbl(i1),'- ',AtomLbl(i2),'            '
+    write(Line,fmt='(A2,A,A,A,A)') ' ','Bond    ',AtomLbl(i1),'- ',AtomLbl(i2)
     k = k+3
   end if
   if (IntType == 2) then
@@ -73,7 +76,7 @@ do j=1,NumInt
     i1 = InterVec(k+1)
     i2 = InterVec(k+2)
     i3 = InterVec(k+3)
-    write(Line,fmt='(A2,A,A,A,A,A,A,A)') ' ','Angle   ',AtomLbl(i1),'- ',AtomLbl(i2),'- ',AtomLbl(i3),'      '
+    write(Line,fmt='(A2,A,A,A,A,A,A)') ' ','Angle   ',AtomLbl(i1),'- ',AtomLbl(i2),'- ',AtomLbl(i3)
     k = k+4
   end if
   if (IntType == 3) then
@@ -81,7 +84,7 @@ do j=1,NumInt
     i1 = InterVec(k+1)
     i2 = InterVec(k+2)
     i3 = InterVec(k+3)
-    write(Line,fmt='(A2,A,A,A,A,A,A,A)') ' ','LinAng  ',AtomLbl(i1),'- ',AtomLbl(i2),'- ',AtomLbl(i3),'      '
+    write(Line,fmt='(A2,A,A,A,A,A,A)') ' ','LinAng  ',AtomLbl(i1),'- ',AtomLbl(i2),'- ',AtomLbl(i3)
     k = k+4
   end if
   if (IntType == 4) then

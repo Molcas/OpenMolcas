@@ -33,13 +33,10 @@ subroutine FCval(C1,W1,det1,r01,C2,W2,det2,r02,FC,max_mOrd,max_nOrd,max_nOrd2,ma
 !    Calculate multidimensional Franck Condon factors.
 !
 !  Input:
-!    W1,W2      : Real*8 two dimensional arrays - eigenvectors
-!                 scaled by the square root of the eigenvalues.
-!    C1,C2      : Real*8 two dimensional arrays - inverses
-!                 of W1 and W2.
-!    det1,det2  : Real*8 variables - determinants of C1 and C2.
-!    r01,r02    : Real*8 arrays - coordinates of the two
-!                 oscillators.
+!    W1,W2      : Real two dimensional arrays - eigenvectors scaled by the square root of the eigenvalues.
+!    C1,C2      : Real two dimensional arrays - inverses of W1 and W2.
+!    det1,det2  : Real variables - determinants of C1 and C2.
+!    r01,r02    : Real arrays - coordinates of the two oscillators.
 !    max_mOrd,
 !    max_nOrd,
 !    max_nOrd2
@@ -51,21 +48,15 @@ subroutine FCval(C1,W1,det1,r01,C2,W2,det2,r02,FC,max_mOrd,max_nOrd,max_nOrd2,ma
 !    mDec,nDec  : Two dimensional integer arrays
 !
 !  Output:
-!    W          : Real*8 two dimensional array - eigenvectors
-!                 of intermediate oscillator scaled by the square root
-!                 of the eigenvalues.
-!    C          : Real*8 two dimensional array - inverse
-!                 of W.
-!    det0       : Real*8 variable - determinant of C.
-!    L,U        : Real*8 two dimensional arrays
-!    FC00       : Real*8 variable - zero-zero overlap.
-!    FC         : Real*8
-!    alpha1     : Real*8 two dimensional array -
-!                 0.5*C1(T)*C1.
-!    alpha2     : Real*8 two dimensional array -
-!                 0.5*C2(T)*C2.
-!    beta       : Real*8 two dimensional array -
-!                 0.5*alpha1*alpha^(-1)*alpha2
+!    W          : Real two dimensional array - eigenvectors of intermediate oscillator scaled by the square root of the eigenvalues.
+!    C          : Real two dimensional array - inverse of W.
+!    det0       : Real variable - determinant of C.
+!    L,U        : Real two dimensional arrays
+!    FC00       : Real variable - zero-zero overlap.
+!    FC         : Real
+!    alpha1     : Real two dimensional array - 0.5*C1(T)*C1.
+!    alpha2     : Real two dimensional array - 0.5*C2(T)*C2.
+!    beta       : Real two dimensional array - 0.5*alpha1*alpha^(-1)*alpha2
 !
 !  Calls:
 !    Cholesky    (LinAlg)
@@ -81,20 +72,21 @@ subroutine FCval(C1,W1,det1,r01,C2,W2,det2,r02,FC,max_mOrd,max_nOrd,max_nOrd2,ma
 use mula_global, only: mdim1, mdim2, ndim1, ndim2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-real*8 FC(0:max_mord,0:max_nord)
-real*8 C1(nosc,nosc), C2(nosc,nosc), W1(nosc,nosc)
-real*8 W2(nosc,nosc), C(nosc,nosc), W(nosc,nosc)
-real*8 L(0:max_mord,0:max_ninc2)
-real*8 U(0:max_nord,0:max_nord2)
-real*8 alpha1(nosc,nosc), alpha2(nosc,nosc), beta(nosc,nosc)
-real*8 r01(nosc), r02(nosc)
-integer mMat(0:mdim1,mdim2), mInc(0:mdim1,mdim2),mDec(0:mdim1,mdim2)
-integer nMat(0:ndim1,ndim2), nInc(0:ndim1,ndim2),nDec(0:ndim1,ndim2)
-real*8, allocatable :: A1(:,:), A1B1T(:,:), A2(:,:), A2B2T(:,:), alpha(:,:), B1(:,:), B2(:,:), d1(:), d2(:), r_temp1(:), &
-                       r_temp2(:), sqr(:), temp(:,:), temp1(:,:), temp2(:,:)
+implicit none
+integer(kind=iwp), intent(in) :: max_mOrd, max_nOrd, max_nOrd2, max_mInc, max_nInc, max_nInc2, mMat(0:mdim1,mdim2), &
+                                 nMat(0:ndim1,ndim2), mInc(0:mdim1,mdim2), nInc(0:ndim1,ndim2), mDec(0:mdim1,mdim2), &
+                                 nDec(0:ndim1,ndim2), nOsc
+real(kind=wp), intent(in) :: C1(nOsc,nOsc), W1(nOsc,nOsc), det1, r01(nOsc), C2(nOsc,nOsc), W2(nOsc,nOsc), det2, r02(nOsc), &
+                             C(nOsc,nOsc), W(nOsc,nOsc), det0
+real(kind=wp), intent(out) :: FC(0:max_mord,0:max_nord), L(0:max_mord,0:max_ninc2), U(0:max_nord,0:max_nord2), FC00, &
+                              alpha1(nOsc,nOsc), alpha2(nOsc,nOsc), beta(nOsc,nOsc)
+integer(kind=iwp) :: i, iOrd, j, jOrd, kOrd, kOsc, kOsc_start, lOsc, nMaxMat, nTabDim
+real(kind=wp) :: const, det, FC00_exp, rsum
+real(kind=wp), allocatable :: A1(:,:), A1B1T(:,:), A2(:,:), A2B2T(:,:), alpha(:,:), B1(:,:), B2(:,:), d1(:), d2(:), r_temp1(:), &
+                              r_temp2(:), sqr(:), temp(:,:), temp1(:,:), temp2(:,:)
+real(kind=wp), external :: Ddot_
 
 ! Initialize.
 nMaxMat = max(max_mord+1,max_nord+1)
@@ -295,12 +287,11 @@ call mma_deallocate(d2)
 FC(:,:) = Zero
 do jOrd=0,max_nOrd
   do iOrd=0,max_mOrd
-    sum = Zero
+    rsum = Zero
     do kOrd=0,min(max_mOrd,max_nOrd)
-
-      sum = sum+L(iOrd,kOrd)*U(jOrd,kOrd)
+      rsum = rsum+L(iOrd,kOrd)*U(jOrd,kOrd)
     end do
-    FC(iOrd,jOrd) = FC00*sum
+    FC(iOrd,jOrd) = FC00*rsum
   end do
 end do
 

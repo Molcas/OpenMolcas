@@ -16,12 +16,11 @@ subroutine AnharmonicFreq(x_anharm,harmfreq,anharmfreq,nOsc)
 !    Calculate the anharmonic frequencies.
 !
 !  Input:
-!    x_anharm   : Real*8 two dimensional array - anharmonicity
-!                 constants.
-!    harmfreq   : Real*8 array - harmonic frequencies.
+!    x_anharm   : Real two dimensional array - anharmonicity constants.
+!    harmfreq   : Real array - harmonic frequencies.
 !
 !  Output:
-!    anharmfreq : Real*8 array - anharmonic frequencies.
+!    anharmfreq : Real array - anharmonic frequencies.
 !
 !  Written by:
 !    Niclas Forsberg,
@@ -29,15 +28,16 @@ subroutine AnharmonicFreq(x_anharm,harmfreq,anharmfreq,nOsc)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 G1, G2
-real*8 x_anharm(nosc,nosc)
-real*8 harmfreq(nosc)
-real*8 anharmfreq(nosc)
-integer, allocatable :: level1(:), level2(:)
+implicit none
+integer(kind=iwp), intent(in) :: nOsc
+real(kind=wp), intent(in) :: x_anharm(nOsc,nOsc), harmfreq(nOsc)
+real(kind=wp), intent(out) :: anharmfreq(nOsc)
+integer(kind=iwp) :: istate
+real(kind=wp) :: G1, G2
+integer(kind=iwp), allocatable :: level1(:), level2(:)
 
-!nDim = nOsc
 call mma_allocate(level1,nOsc,label='level1')
 call mma_allocate(level2,nOsc,label='level2')
 
@@ -47,7 +47,6 @@ level1(:) = 0
 do istate=1,nOsc
   level2(:) = 0
   level2(istate) = 1
-  !l_harm = nOsc
   call TransEnergy(G1,x_anharm,harmfreq,level1,G2,x_anharm,harmfreq,level2,anharmfreq(istate),nOsc)
 end do
 

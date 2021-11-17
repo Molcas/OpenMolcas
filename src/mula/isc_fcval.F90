@@ -22,20 +22,23 @@ subroutine ISC_FCval(iPrint,iMaxYes,nTabDim,C1,det1,r01,C2,W2,det2,r02,max_mOrd,
 use mula_global, only: ndim1, ndim2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
-real*8 C1(nOsc,nOsc), C2(nOsc,nOsc)
-real*8 W2(nOsc,nOsc), C(nOsc,nOsc), W(nOsc,nOsc)
-real*8 r01(nOsc), r02(nOsc)
-real*8 FCWind2(nYes)
-integer nMat(0:ndim1,ndim2), nInc(0:iMaxYes,nOsc), nDec(0:iMaxYes,nOsc)
-integer VibWind2(nYes)
-real*8, allocatable :: A2(:,:), A2B2T(:,:), Alpha(:,:), Alpha1(:,:), Alpha2(:,:), B2(:,:), Beta(:,:), d2(:), L(:,:), r_temp1(:), &
-                       r_temp2(:), sqr(:), temp(:,:), temp1(:,:), temp2(:,:), U(:,:)
+implicit none
+integer(kind=iwp), intent(in) :: iPrint, iMaxYes, max_mOrd, max_nOrd, max_nOrd2, max_nInc2, nOsc, nMat(0:ndim1,ndim2), &
+                                 nInc(0:iMaxYes,nOsc), nDec(0:iMaxYes,nOsc), nYes, VibWind2(nYes)
+integer(kind=iwp), intent(out) :: nTabDim
+real(kind=wp), intent(in) :: C1(nOsc,nOsc), det1, r01(nOsc), C2(nOsc,nOsc), W2(nOsc,nOsc), det2, r02(nOsc), C(nOsc,nOsc), &
+                             W(nOsc,nOsc), det0
+integer(kind=iwp), intent(inout) :: max_nInc
+real(kind=wp), intent(out) :: FC00, FCWind2(nYes)
+integer(kind=iwp) :: i, ii, iOrd, j, jOrd, kOsc, kOsc_start, loc_n_max, lOsc, n, nMaxMat
+real(kind=wp) :: const, det, dFC, FC00_exp
+real(kind=wp), allocatable :: A2(:,:), A2B2T(:,:), Alpha(:,:), Alpha1(:,:), Alpha2(:,:), B2(:,:), Beta(:,:), d2(:), L(:,:), &
+                              r_temp1(:), r_temp2(:), sqr(:), temp(:,:), temp1(:,:), temp2(:,:), U(:,:)
+real(kind=wp), external :: Ddot_
 
-!write(u6,*) 'CGGt[ISC_FCval] Enter '
+!write(u6,*) 'CGGt[ISC_FCval] Enter'
 !write(u6,*) '                nYes = ',nYes
 !write(u6,*) '                VibWind2 :',(VibWind2(i),i=1,nYes)
 !write(u6,*) '            L matrix:',max_mOrd,max_nInc2
@@ -229,9 +232,9 @@ call mma_deallocate(A2B2T)
 
 ! Calculate Franck-Condon factors.
 if (iPrint >= 3) then
-  write(u6,*) ' Franck-Condon factors for States in the Window: '
+  write(u6,*) ' Franck-Condon factors for States in the Window:'
   write(u6,'(a,36a)') '  ',('=',i=1,36)
-  write(u6,*) '     #     jOrd   FC factor     jSum '
+  write(u6,*) '     #     jOrd   FC factor     jSum'
   write(u6,'(a,36a)') '  ',('-',i=1,36)
 end if
 do ii=1,nYes
@@ -256,7 +259,7 @@ if (iPrint >= 4) then
   write(u6,*)
   write(u6,*) ' Full Franck-Condon factors (FC_00=',FC00,'):'
   write(u6,*) ' =================================================='
-  write(u6,*) '    jOrd   FC            level                     '
+  write(u6,*) '    jOrd   FC            level'
   write(u6,*) ' --------------------------------------------------'
   do jOrd=0,max_nOrd
     loc_n_max = 0

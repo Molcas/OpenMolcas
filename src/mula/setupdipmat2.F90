@@ -13,27 +13,20 @@ subroutine SetUpDipMat2(DipMat,max_term,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,m
                         mMat,nMat,mInc,nInc,mDec,nDec,det0,base,TranDip,TranDipGrad,nOsc,nDimTot)
 !  Purpose:
 !    Performs a least squares fit of the transition dipole at the two
-!    centra and at the intermediate oscillator. Calculates the matrix
-!    elements of the transition dipole at these centra.
+!    centers and at the intermediate oscillator. Calculates the matrix
+!    elements of the transition dipole at these centers.
 !
 !  Input:
-!    ipow       : Two dimensional integer array - terms of the
-!                 polynomial.
-!    var        : Real*8 two dimensional array - coordinates
-!                 to be used in the fit.
-!    dip        : Real*8 array - values of dipole at the
-!                 coordinates contained in var.
-!    trfName    : Character array - transformation associated with each
-!                 internal coordinate.
+!    ipow       : Two dimensional integer array - terms of the polynomial.
+!    var        : Real two dimensional array - coordinates to be used in the fit.
+!    dip        : Real array - values of dipole at the coordinates contained in var.
+!    trfName    : Character array - transformation associated with each internal coordinate.
 !    use_weight : Logical
 !    max_term   : Integer - maximum order of the transition dipole terms.
-!    W1,W2      : Real*8 two dimensional arrays - eigenvectors
-!                 scaled by the square root of the eigenvalues.
-!    C1,C2      : Real*8 two dimensional arrays - inverses
-!                 of W1 and W2.
-!    det1,det2  : Real*8 variables - determinants of C1 and C2.
-!    r01,r02    : Real*8 arrays - coordinates of the two
-!                 oscillators.
+!    W1,W2      : Real two dimensional arrays - eigenvectors scaled by the square root of the eigenvalues.
+!    C1,C2      : Real two dimensional arrays - inverses of W1 and W2.
+!    det1,det2  : Real variables - determinants of C1 and C2.
+!    r01,r02    : Real arrays - coordinates of the two oscillators.
 !    max_mOrd,
 !    max_nOrd,
 !    max_nOrd2
@@ -44,27 +37,25 @@ subroutine SetUpDipMat2(DipMat,max_term,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,m
 !    mInc,nInc,
 !    mDec,nDec  : Two dimensional integer arrays
 !
-!
 !  Output:
-!    DipMat     : Real*8 two dimensional array - contains the
-!                 matrix elements of the transition dipole.
+!    DipMat     : Real two dimensional array - contains the matrix elements of the transition dipole.
 
 use mula_global, only: mdim1, mdim2, ndim1, ndim2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 DipMat(0:nDimTot,0:nDimTot)
-integer mMat(0:mdim1,mdim2), mInc(0:mdim1,mdim2), mDec(0:mdim1,mdim2)
-integer nMat(0:ndim1,ndim2), nInc(0:ndim1,ndim2), nDec(0:ndim1,ndim2)
-real*8 C1(nOsc,nOsc), C2(nOsc,nOsc), W1(nOsc,nOsc), W2(nOsc,nOsc)
-real*8 r01(nOsc), r02(nOsc)
-real*8 Base(nOsc,nOsc)
-real*8 TranDip(3), TranDipGrad(nOsc)
-real*8 D0(3)
-!real*8 max_err, stand_dev
-real*8, allocatable :: alpha1(:,:), alpha2(:,:), beta(:,:), C(:,:), D1(:), D2(:,:), D3(:,:,:), D4(:,:,:,:), Dij(:,:), L(:,:), &
-                       r0vec(:), Sij(:,:), U(:,:), W(:,:)
+implicit none
+integer(kind=iwp), intent(in) :: max_term, max_mOrd, max_nOrd, max_nOrd2, max_mInc, max_nInc, max_nInc2, mMat(0:mdim1,mdim2), &
+                                 nMat(0:ndim1,ndim2), mInc(0:mdim1,mdim2), nInc(0:ndim1,ndim2), mDec(0:mdim1,mdim2), &
+                                 nDec(0:ndim1,ndim2), nOsc, nDimTot
+real(kind=wp), intent(out) :: DipMat(0:nDimTot,0:nDimTot), det0
+real(kind=wp), intent(in) :: C1(nOsc,nOsc), W1(nOsc,nOsc), det1, r01(nOsc), C2(nOsc,nOsc), W2(nOsc,nOsc), det2, r02(nOsc), &
+                             Base(nOsc,nOsc), TranDip(3), TranDipGrad(nOsc)
+integer(kind=iwp) :: l_C1
+real(kind=wp) :: D0(3), FC00
+real(kind=wp), allocatable :: alpha1(:,:), alpha2(:,:), beta(:,:), C(:,:), D1(:), D2(:,:), D3(:,:,:), D4(:,:,:,:), Dij(:,:), &
+                              L(:,:), r0vec(:), Sij(:,:), U(:,:), W(:,:)
 
 ! Initialize.
 call mma_allocate(Dij,[0,max_mOrd],[0,max_mOrd],label='Dij')

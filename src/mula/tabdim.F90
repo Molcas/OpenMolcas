@@ -30,11 +30,13 @@ subroutine TabDim(nDim,nOsc,nTabDim)
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp
 
 implicit none
-integer iRow, jCol, nDim, nOsc
-integer nTabDim
-integer, allocatable :: binomCoef(:,:)
+integer(kind=iwp), intent(in) :: nDim, nOsc
+integer(kind=iwp), intent(out) :: nTabDim
+integer(kind=iwp) :: iRow, jCol
+integer(kind=iwp), allocatable :: binomCoef(:,:)
 
 ! Initialize.
 
@@ -65,14 +67,18 @@ end if
 
 end subroutine TabDim
 !####
-integer function iDetNr(iocc,graph2,nosc,m)
+function iDetNr(iocc,graph2,nOsc,m)
 
-implicit integer(a-z)
-integer iocc(nosc), graph2(0:m,0:m,nosc)
-! iocc:occupation vector
-! graph2:vertex graph table
-! nosc number of nodes
-! m  number of quantas
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: iDetNr
+integer(kind=iwp), intent(in) :: nOsc, iocc(nOsc), m, graph2(0:m,0:m,nOsc)
+integer(kind=iwp) :: i, iqnew, iqold, n
+! iocc: occupation vector
+! graph2: vertex graph table
+! nOsc: number of nodes
+! m: number of quantas
 ! number of determinants in with lower number of quantas.
 
 ! Calculate the index of occupation string iocc
@@ -80,13 +86,13 @@ integer iocc(nosc), graph2(0:m,0:m,nosc)
 iqnew = 0
 iqold = 0
 n = 0
-do i=1,nosc
+do i=1,nOsc
   iqnew = iqnew+iocc(i)
   n = n+graph2(iqnew,iqold,i)
   iqold = iqnew
 end do
 
-idetnr = n
+iDetNr = n
 
 end function iDetNr
 
@@ -97,25 +103,25 @@ end function iDetNr
 !
 ! nmat : Occupation of slater det.
 ! F    : Output <i|A|j>
-! iCre,iAnn : Gives the resulting slater determinant if a^t (a) is acticting on SD
+! iCre,iAnn : Gives the resulting slater determinant if a^t (a) is acting on SD
 ! mat  : Matrix describing the operator expanded in Normal modes
-! m_ord: Number of slater determinants.
+! m_Ord: Number of slater determinants.
 !
 ! Anders Bernhardsson Friday the 13th august 1999
 
-subroutine Mul1(nMat,F,iCre,iAnn,mat,m_ord,nosc,rdx)
+!####
+subroutine Mul1(nMat,F,iCre,iAnn,mat,m_Ord,nOsc,rdx)
 
 use mula_global, only: mdim1, ndim1, ndim2
 use Constants, only: Half
+use Definitions, only: wp, iwp
 
-integer nMat(0:m_ord,nosc)
-real*8 Mat(nOsc)
-real*8 F(0:mdim1,0:ndim1)
-real*8 rdx(1)
-real*8 sqr(0:50)
-real*8 fact
-integer iAnn(0:ndim1,ndim2)
-integer iCre(0:ndim1,ndim2)
+implicit none
+integer(kind=iwp), intent(in) :: m_Ord, nOsc, nMat(0:m_Ord,nOsc), iCre(0:ndim1,ndim2), iAnn(0:ndim1,ndim2)
+real(kind=wp), intent(out) :: F(0:mdim1,0:ndim1)
+real(kind=wp), intent(in) :: Mat(nOsc), rdx(1)
+integer(kind=iwp) :: i, iOrd, iOsc, jOrd
+real(kind=wp) :: fact, sqr(0:50)
 
 do i=0,50
   sqr(i) = sqrt(Half*i)
@@ -141,19 +147,18 @@ end do
 
 end subroutine Mul1
 !####
-subroutine Mul2(nMat,F,iCre,iAnn,mat,m_ord,nosc,rdx)
+subroutine Mul2(nMat,F,iCre,iAnn,mat,m_Ord,nOsc,rdx)
 
 use mula_global, only: mdim1, ndim1, ndim2
 use Constants, only: Zero, Half
+use Definitions, only: wp, iwp
 
-integer nMat(0:m_ord,nosc)
-real*8 Mat(nOsc,nOsc)
-real*8 F(0:mdim1,0:ndim1)
-real*8 sqr(0:50)
-real*8 fact, r, rsym
-integer iAnn(0:ndim1,ndim2)
-integer iCre(0:ndim1,ndim2)
-real*8 rdx(2)
+implicit none
+integer(kind=iwp), intent(in) :: m_Ord, nOsc, nMat(0:m_Ord,nOsc), iCre(0:ndim1,ndim2), iAnn(0:ndim1,ndim2)
+real(kind=wp), intent(inout) :: F(0:mdim1,0:ndim1)
+real(kind=wp), intent(in) :: Mat(nOsc,nOsc), rdx(2)
+integer(kind=iwp) :: i, iOrd, iOsc, jOrd, jOsc, kOrd
+real(kind=wp) :: fact, r, rsym, sqr(0:50)
 
 rsym = Half
 do i=0,50
@@ -214,19 +219,18 @@ end do
 
 end subroutine Mul2
 !####
-subroutine Mul3(nMat,F,iCre,iAnn,mat,m_ord,nosc,rdx)
+subroutine Mul3(nMat,F,iCre,iAnn,mat,m_Ord,nOsc,rdx)
 
 use mula_global, only: mdim1, ndim1, ndim2
 use Constants, only: One, Six, Half
+use Definitions, only: wp, iwp
 
-integer nMat(0:m_ord,nosc)
-real*8 Mat(nOsc,nOsc,nOsc)
-real*8 F(0:mdim1,0:ndim1)
-real*8 sqr(0:50)
-real*8 rdx(3)
-real*8 fact, r, rsym, relem
-integer iAnn(0:ndim1,ndim2)
-integer iCre(0:ndim1,ndim2)
+implicit none
+integer(kind=iwp), intent(in) :: m_Ord, nOsc, nMat(0:m_Ord,nOsc), iCre(0:ndim1,ndim2), iAnn(0:ndim1,ndim2)
+real(kind=wp), intent(inout) :: F(0:mdim1,0:ndim1)
+real(kind=wp), intent(in) :: Mat(nOsc,nOsc,nOsc), rdx(3)
+integer(kind=iwp) :: i, iOrd, iOsc, jOrd, jOsc, kOrd, kOsc, lOrd
+real(kind=wp) :: fact, r, relem, rsym, sqr(0:50)
 
 rsym = One/Six
 do i=0,50
@@ -319,7 +323,7 @@ do iOrd=0,m_Ord
   do iOsc=1,nOsc
     jOrd = iCre(iOrd,iOsc)
     if (jOrd >= 0) then
-      do jOsc=1,nosc
+      do jOsc=1,nOsc
         Fact = sqr(nmat(jord,iosc))
         relem = Mat(josc,josc,iosc)*rdx(2)+rdx(3)*(mat(iosc,josc,josc)+mat(josc,iosc,josc))
         F(iOrd,jOrd) = F(iOrd,jOrd)+Fact*relem*rsym*Half
@@ -332,7 +336,7 @@ do iOrd=0,m_Ord
   do iOsc=1,nOsc
     jOrd = iann(iOrd,iOsc)
     if (jOrd >= 0) then
-      do jOsc=1,nosc
+      do jOsc=1,nOsc
         Fact = sqr(nmat(iord,iosc))
         relem = Mat(iosc,josc,josc)*rdx(1)*rdx(3)+rdx(2)*rdx(3)*(mat(josc,josc,iosc)+mat(josc,iosc,josc))
         F(iOrd,jOrd) = F(iOrd,jOrd)+Fact*relem*rsym*Half
@@ -343,20 +347,18 @@ end do
 
 end subroutine Mul3
 !####
-subroutine Mul4(nMat,F,iCre,iAnn,mat,m_ord,nosc,rdx)
+subroutine Mul4(nMat,F,iCre,iAnn,mat,m_Ord,nOsc,rdx)
 
 use mula_global, only: mdim1, ndim1, ndim2
 use Constants, only: One, Half, Quart
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
-integer nMat(0:m_ord,nosc)
-real*8 Mat(nOsc,nOsc,nOsc,nOsc)
-real*8 F(0:mdim1,0:ndim1)
-real*8 sqr(0:50)
-real*8 rdx(4)
-real*8 fact, r, rsym, relem
-integer iAnn(0:ndim1,ndim2)
-integer iCre(0:ndim1,ndim2)
+implicit none
+integer(kind=iwp), intent(in) :: m_Ord, nOsc, nMat(0:m_Ord,nOsc), iCre(0:ndim1,ndim2), iAnn(0:ndim1,ndim2)
+real(kind=wp), intent(inout) :: F(0:mdim1,0:ndim1)
+real(kind=wp), intent(in) :: Mat(nOsc,nOsc,nOsc,nOsc), rdx(4)
+integer(kind=iwp) :: i, iOrd, iOsc, jOrd, jOsc, kOrd, kOsc, lOrd, lOsc, mOrd
+real(kind=wp) :: fact, r, relem, rsym, sqr(0:50)
 
 do i=0,50
   sqr(i) = sqrt(Half*i)

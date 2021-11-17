@@ -20,26 +20,29 @@ subroutine qvar_to_var(x,grad,Hess,D3,D4,ref,qref,trfName,alpha,nvar)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Three, Four, Six
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-real*8 x(nvar)
-real*8 q(nvar)
-real*8 t(nvar), u(nvar), v(nvar), s(nvar)
-real*8 alpha(nvar)
-real*8 grad(nvar), tempgrad(nvar)
-real*8 Hess(nvar,nvar)
-real*8 Temp(nvar,nvar)
-real*8 D3(nvar,nvar,nvar)
-real*8 D3trans(nvar,nvar,nvar)
-real*8 D4(nvar,nvar,nvar,nvar)
-real*8 D4trans(nvar,nvar,nvar,nvar)
-real*8 ref(nvar), qref(nvar)
-!integer nOrd(4)
-character*80 trfName(nvar)
-character*32 trfCode
-logical ijEq, jkEq, klEq
+implicit none
+integer(kind=iwp), intent(in) :: nvar
+real(kind=wp), intent(inout) :: x(nvar), grad(nvar), Hess(nvar,nvar), D3(nvar,nvar,nvar), D4(nvar,nvar,nvar,nvar)
+real(kind=wp), intent(in) :: ref(nvar), qref(nvar), alpha(nvar)
+character(len=80), intent(in) :: trfName(nvar)
+integer(kind=iwp) :: i, ia, ic, ie, is, ivar, ix, j, k, l
+character(len=32) :: trfCode
+logical(kind=iwp) :: ijEq, jkEq, klEq
+real(kind=wp), allocatable :: D3trans(:,:,:), D4trans(:,:,:,:), q(:), s(:), t(:), Temp(:,:), tempgrad(:), u(:), v(:)
+
+call mma_allocate(s,nvar,label='s')
+call mma_allocate(t,nvar,label='t')
+call mma_allocate(u,nvar,label='u')
+call mma_allocate(v,nvar,label='v')
+call mma_allocate(q,nvar,label='q')
+call mma_allocate(tempgrad,nvar,label='tempgrad')
+call mma_allocate(Temp,nvar,nvar,label='Temp')
+call mma_allocate(D3trans,nvar,nvar,nvar,label='D3trans')
+call mma_allocate(D4trans,nvar,nvar,nvar,nvar,label='D4trans')
 
 x(:) = x+qref
 do ivar=1,nvar
@@ -216,5 +219,15 @@ Hess(:,:) = Temp
 D3(:,:,:) = D3trans
 
 D4(:,:,:,:) = D4trans
+
+call mma_deallocate(s)
+call mma_deallocate(t)
+call mma_deallocate(u)
+call mma_deallocate(v)
+call mma_deallocate(q)
+call mma_deallocate(tempgrad)
+call mma_deallocate(Temp)
+call mma_deallocate(D3trans)
+call mma_deallocate(D4trans)
 
 end subroutine qvar_to_var

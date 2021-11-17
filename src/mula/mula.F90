@@ -31,38 +31,37 @@ use mula_global, only: AtCoord1, AtCoord2, energy1, energy2, Hess1, Hess2, Huge_
                        TranDip, TranDipGrad, var, WriteVibLevels, yin1, yin2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half, auTocm
-use Definitions, only: wp, u5, u6, ItoB
+use Definitions, only: wp, iwp, u5, u6, ItoB
 
-implicit real*8(a-h,o-z)
-integer InterVec(15*MaxNumAt)
-character*80 trfName1(MaxNumAt), trfName2(MaxNumAt)
-real*8 Mass(MaxNumAt)
-character*4 AtomLbl(MaxNumAt), filnam
-integer Bond(2*MaxNumAt)
-character*80 Title
-real*8 stand_dev, max_err
-logical find_minimum
-logical lExpan
-logical use_weight
-logical MatEl, ForceField, lISC, lOldCode, lInCore
-logical Cartesian
-logical exist
-integer nvTabDim
-integer iCode, iMaxYes, lNMAT0, lNMAT, lNINC, lNDEC
+implicit none
+integer(kind=iwp), intent(out) :: ireturn
+integer(kind=iwp) :: i, iCode, iMaxYes, iMem, iOrd, iOsc, iPrint, iPrint_Save, iRateMem, iUMem, iv, jOrd, jOsc, k1, k2, l_a, &
+                     l_harm, l_Hess_1, l_Hess_2, l_IntensityMat_1, l_IntensityMat_2, l_l, l_m_plot, l_n_plot, l_NormModes, &
+                     l_TermMat_1, l_TermMat_2, lBatch, leftBatch, lLeft, lMBatch, lNDEC, lNINC, lNMAT, lNMAT0, m_max, max_dip, &
+                     max_mInc, max_mOrd, max_nInc, max_nOrd, max_term, minQ, mTabDim, n_max, nBatch, nBond,  nDimTot, new_n_max, &
+                     nm, nOsc, nOscOld, nTabDim, nterm, NumOfAt, nvTabDim, nYes
+real(kind=wp) :: CPE, CPTF0, CPTF1, CPTF2, CPTF3, CPTF4, CPTF5, CPTF6, det, det0, det1, det2, dh, dMinWind, dRho, FC00, GE1, GE2, &
+                 max_err, stand_dev, T0, TIOE, TIOTF0, TIOTF1, TIOTF2, TIOTF3, TIOTF4, TIOTF5, TIOTF6
+logical(kind=iwp) :: Cartesian, exists, find_minimum, ForceField, lExpan, lInCore, lISC, lOldCode, MatEl, use_weight
+character(len=80) :: Title
+character(len=4) :: filnam
+integer(kind=iwp), allocatable :: Bond(:), Graph1(:,:), Graph2(:,:,:), InterVec(:), level1(:), level2(:), lVec(:), mDec(:,:), &
+                                  mInc(:,:), mMat(:,:), nDec(:,:), nInc(:,:), nIndex(:,:), nMat(:,:), nMat0(:), nMaxQ(:), &
+                                  nnTabDim(:), VibWind2(:)
+real(kind=wp), allocatable :: alpha1(:,:), alpha2(:,:), anharmfreq1(:), anharmfreq2(:), AtCoord(:,:), Base(:,:), Base2(:,:), &
+                              BaseInv(:,:), Bmat(:,:), C(:,:), C1(:,:), C2(:,:), D3_1(:,:,:), D3_2(:,:,:), D4_1(:,:,:,:), &
+                              D4_2(:,:,:,:), E1(:), E2(:), eigenVec1(:,:), eigenVec2(:,:), G0(:,:), G1(:,:), G2(:,:), &
+                              Gbis0(:,:,:,:), Gbis1(:,:,:,:), Gbis2(:,:,:,:), Gprm0(:,:,:), Gprm1(:,:,:), Gprm2(:,:,:), grad1(:), &
+                              grad2(:), H1(:,:), H2(:,:), harmfreq1(:), harmfreq2(:), IntensityMat(:,:), Lambda(:), &
+                              Mass(:), OccNumMat1(:,:,:), OccNumMat2(:,:,:), PED(:,:,:), PotCoef(:), qMat(:,:), r0(:), r00(:), &
+                              r01(:), r02(:), r1(:), r2(:), rtemp(:), S1(:,:), S2(:,:), Smat(:,:), T4(:), temp(:,:), temp1(:,:), &
+                              temp2(:,:), TermMat(:,:), TranDipGradInt(:,:), U1(:,:), U2(:,:), W(:,:), W1(:,:), W2(:,:), &
+                              x_anharm1(:,:), x_anharm2(:,:)
+character(len=80), allocatable :: trfName1(:), trfName2(:)
+character(len=4), allocatable :: AtomLbl(:)
+integer(kind=iwp), parameter :: MB = 1048576
+integer(kind=iwp), external :: iPrintlevel, isfreeunit
 #include "warnings.h"
-integer nIndex(3,0:maxMax_n)
-integer, allocatable :: Graph1(:,:), Graph2(:,:,:), level1(:), level2(:), lVec(:), mDec(:,:), mInc(:,:), mMat(:,:), nDec(:,:), &
-                        nInc(:,:), nMat(:,:), nMat0(:), nMaxQ(:), nnTabDim(:), VibWind2(:)
-real*8, allocatable :: alpha1(:,:), alpha2(:,:), anharmfreq1(:), anharmfreq2(:), AtCoord(:,:), Base(:,:), Base2(:,:), &
-                       BaseInv(:,:), Bmat(:,:), C(:,:), C1(:,:), C2(:,:), D3_1(:,:,:), D3_2(:,:,:), D4_1(:,:,:,:), D4_2(:,:,:,:), &
-                       E1(:), E2(:), eigenVec1(:,:), eigenVec2(:,:), G0(:,:), G1(:,:), G2(:,:), Gbis0(:,:,:,:), Gbis1(:,:,:,:), &
-                       Gbis2(:,:,:,:), Gprm0(:,:,:), Gprm1(:,:,:), Gprm2(:,:,:), grad1(:), grad2(:), H1(:,:), H2(:,:), &
-                       harmfreq1(:), harmfreq2(:), IntensityMat(:,:), Lambda(:), OccNumMat1(:,:,:), OccNumMat2(:,:,:), PED(:,:,:), &
-                       PotCoef(:), qMat(:,:), r0(:), r00(:), r01(:), r02(:), r1(:), r2(:), rtemp(:), S1(:,:), S2(:,:), Smat(:,:), &
-                       T4(:), temp(:,:), temp1(:,:), temp2(:,:), TermMat(:,:), TranDipGradInt(:,:), U1(:,:), U2(:,:), W(:,:), &
-                       W1(:,:), W2(:,:), x_anharm1(:,:), x_anharm2(:,:)
-integer, parameter :: MB = 1048576
-integer, external :: isfreeunit
 
 ! Initialize.
 iReturn = 20
@@ -81,6 +80,12 @@ iPrint_Save = iPrint
 !open(inpUnit,'stdin')
 
 ! Read input file and Write header to log file.
+call mma_allocate(AtomLbl,MaxNumAt,label='AtomLbl')
+call mma_allocate(Mass,MaxNumAt,label='Mass')
+call mma_allocate(InterVec,MaxNumAt*15,label='InterVec')
+call mma_allocate(Bond,MaxNumAt*2,label='Bond')
+call mma_allocate(trfName1,MaxNumAt,label='trfName1')
+call mma_allocate(trfName2,MaxNumAt,label='trfName2')
 call ReadInp(Title,AtomLbl,Mass,InterVec,Bond,nBond,nOsc,NumOfAt,trfName1,trfName2,m_max,n_max,max_dip,max_term,MatEl,ForceField, &
              Cartesian,lExpan,lISC,iCode,dMinWind)
 if (lISC) then
@@ -99,24 +104,23 @@ if (lISC) then
     write(u6,*)
     write(u6,*) ' ---------------------------------------------'
     write(u6,*) ' InterSystem Crossing rate constant evaluation'
-    write(u6,*) '  - simple harmonic approximation is used.    '
-    write(u6,*) '  - m_max set to 0.                           '
-    write(u6,*) '  - no plot file.                             '
+    write(u6,*) '  - simple harmonic approximation is used.'
+    write(u6,*) '  - m_max set to 0.'
+    write(u6,*) '  - no plot file.'
     if (lOldCode) then
-      write(u6,*) '  - Full index matrices evaluation.           '
+      write(u6,*) '  - Full index matrices evaluation.'
     else
-      write(u6,*) '  - Reduced matrices evaluation.              '
+      write(u6,*) '  - Reduced matrices evaluation.'
     end if
     if (lInCore) then
-      write(u6,*) '  - In-core (memory) algorithm.               '
+      write(u6,*) '  - In-core (memory) algorithm.'
     else
-      write(u6,*) '  - Out-of-core (disk) algorithm.             '
+      write(u6,*) '  - Out-of-core (disk) algorithm.'
     end if
     write(u6,*) ' ---------------------------------------------'
     write(u6,*)
   end if
   iPrint = 0
-  nIndex(:,:) = 0
 end if
 if ((iPrint >= 1) .and. (Title(1:1) /= ' ')) call WriteHeader(Title)
 
@@ -222,6 +226,7 @@ call VibFreq(AtCoord,r02,InterVec,Mass,Hess2,G2,Gprm2,Gbis2,harmfreq2,eigenVec2,
 if (iPrint >= 1) call WriteLog(PotCoef,AtomLbl,AtCoord,Mass,InterVec,stand_dev,max_err,energy2,Hess2,G2,eigenVec2,harmfreq2,qMat, &
                                Bond,nBond,r02,D3_2,D4_2,PED,x_anharm2,anharmfreq2,max_term,2,ForceField,NumOfAt,nOsc)
 
+call mma_deallocate(Bond)
 call mma_deallocate(PotCoef)
 call mma_deallocate(qMat)
 call mma_deallocate(PED)
@@ -291,6 +296,8 @@ call Int_To_Cart1(InterVec,r00,AtCoord,l_a,nOsc)
 if (iPrint >= 1) call WriteCartCoord(AtomLbl,AtCoord,Mass,NumOfAt)
 call mma_deallocate(r00)
 
+call mma_deallocate(AtomLbl)
+
 ! If we only wanted the expansion point geometry, it's time to quit now.
 if (lExpan) then
   write(u6,*) 'Bye bye'
@@ -306,12 +313,12 @@ GE2 = GE1+T0
 l_NormModes = size(NormModes)
 do iOsc=1,nOsc
   jOsc = 1
-  exist = .false.
-  do while ((.not. exist) .and. (jOsc <= l_NormModes))
-    exist = (iOsc == NormModes(jOsc))
+  exists = .false.
+  do while ((.not. exists) .and. (jOsc <= l_NormModes))
+    exists = (iOsc == NormModes(jOsc))
     jOsc = jOsc+1
   end do
-  if (.not. exist) then
+  if (.not. exists) then
     GE1 = GE1+Half*harmfreq1(iOsc)
     GE2 = GE2+Half*harmfreq2(iOsc)
   end if
@@ -769,7 +776,7 @@ if (lISC) then
       write(u6,*)
       write(u6,*) ' ******************** ERROR *******************'
       write(u6,*) ' Not enough number of batches for Out-of-core !'
-      write(u6,*) ' Increase maxMax_n in src/mula/io_mula.fh      '
+      write(u6,*) ' Increase maxMax_n in src/mula/io_mula.fh'
       write(u6,*) ' **********************************************'
       write(u6,*)
       call Quit_OnUserError()
@@ -787,6 +794,9 @@ if (lISC) then
       write(u6,*) ' Index matrix reloading.'
       call XFlush(u6)
     end if
+
+    call mma_allocate(nIndex,[1,3],[0,maxMax_n],label='nIndex')
+    nIndex(:,:) = 0
 
     filnam = 'NMAT'
     call DaName_mf_wa(lNMAT,filnam)
@@ -823,6 +833,7 @@ if (lISC) then
                    C2,W2,det0,det1,det2,C,W,r01,r02,m_max,n_max,FC00,dRho,nMat,nInc,nDec)
     call Timing(CPTF6,CPE,TIOTF6,TIOE)
 
+    call mma_deallocate(nIndex)
     call mma_deallocate(VibWind2)
 
     call mma_deallocate(nMat)
@@ -839,7 +850,7 @@ if (lISC) then
 
   if (iPrint >= 3) then
     write(u6,*)
-    write(u6,'(A)') ' Timing informations (sec.):              '
+    write(u6,'(A)') ' Timing informations (sec.):'
     write(u6,'(A)') ' ========================================='
     write(u6,'(A)') ' MODULE:                       CPU Elapsed'
     write(u6,'(A,2F8.2)') ' Matrix evaluation        ',CPTF1-CPTF0,TIOTF1-TIOTF0
@@ -903,8 +914,8 @@ if (lISC) then
 
   lISC = .false.
 
-else
   !GGn -----------------------------------------------------------------
+else
 
   !--------------------------------------------------------------------!
 
@@ -1232,6 +1243,11 @@ else
   call mma_deallocate(r2)
 
 end if
+
+call mma_deallocate(Mass)
+call mma_deallocate(InterVec)
+call mma_deallocate(trfName1)
+call mma_deallocate(trfName2)
 
 iReturn = 0
 

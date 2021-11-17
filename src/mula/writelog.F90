@@ -36,42 +36,28 @@ subroutine WriteLog(PotCoef,AtomLbl,AtCoord,Mass,InterVec,stand_dev,max_err,ener
 !    Write results to log file.
 !
 !  Input:
-!    AtomLbl    : Array of character - contains the labels for the
-!                 atoms.
-!    AtCoord    : Two dimensional Real*8 array - contains
-!                 the cartesian coordinates of the atoms.
-!    Mass       : Real*8 array - contains the mass of the
-!                 atoms.
-!    InterVec   : Integer array - contains the atoms that are used
-!                 in the calculations of each internal coordinate.
+!    AtomLbl    : Array of character - contains the labels for the atoms.
+!    AtCoord    : Two dimensional Real array - contains the cartesian coordinates of the atoms.
+!    Mass       : Real array - contains the mass of the atoms.
+!    InterVec   : Integer array - contains the atoms that are used in the calculations of each internal coordinate.
 !    ipow       : Two dimesional integer array - terms of polynomial.
-!    PotCoef    : Real*8 two dimensional array - coefficients
-!                 of terms given in ipow.
-!    stand_dev  : Real*8 variable - standard deviation of fitted
-!                 values of polynomial.
-!    max_err    : Real*8 variable - maximum error of fitted
-!                 values of polynomial.
-!    energy     : Real*8 variable - energy in minimum.
-!    Hess       : Real*8 array -  contains the force
-!                 constants expressed in internal coordinates.
-!    G          : Real*8 array.
-!    V          : Real*8 array - contains the eigenvectors
-!                 of G*F as columns.
-!    harmfreq   : Real*8 array - harmonic frequencies.
-!    qMat       : Real*8 array - contains the cartesian
-!                 displacements of the atoms.
-!    Bond       : Integer array - contains atom pairs that are to be
-!                 bonded together in a plot.
+!    PotCoef    : Real two dimensional array - coefficients of terms given in ipow.
+!    stand_dev  : Real variable - standard deviation of fitted values of polynomial.
+!    max_err    : Real variable - maximum error of fitted values of polynomial.
+!    energy     : Real variable - energy in minimum.
+!    Hess       : Real array -  contains the force constants expressed in internal coordinates.
+!    G          : Real array.
+!    V          : Real array - contains the eigenvectors of G*F as columns.
+!    harmfreq   : Real array - harmonic frequencies.
+!    qMat       : Real array - contains the cartesian displacements of the atoms.
+!    Bond       : Integer array - contains atom pairs that are to be bonded together in a plot.
 !    nBond      : Integer - dim of Bond, i.e. 2*(number of bonds).
-!    xvec       : Real*8 array - contains the internal coordinates
-!                 at equilibrium.
-!    D3         : Real*8 array - contains the third derivatives.
-!    D4         : Real*8 array - contains the fourth derivatives.
-!    PED        : Real*8 three dimensional array - potential
-!                 energy distribution.
-!    x_anharm   : Real*8 two dimensional array - anharmonicity
-!                 constants.
-!    anharmfreq : Real*8 array - anharmonic frequencies.
+!    xvec       : Real array - contains the internal coordinates at equilibrium.
+!    D3         : Real array - contains the third derivatives.
+!    D4         : Real array - contains the fourth derivatives.
+!    PED        : Real three dimensional array - potential energy distribution.
+!    x_anharm   : Real two dimensional array - anharmonicity constants.
+!    anharmfreq : Real array - anharmonic frequencies.
 !    max_term   : Integer - highest power of term in fitted polynomial.
 !    nState     : Integer - 1 or 2, depending upon which state it is.
 !
@@ -85,33 +71,23 @@ subroutine WriteLog(PotCoef,AtomLbl,AtCoord,Mass,InterVec,stand_dev,max_err,ener
 use mula_global, only: Huge_Print, ipow, MaxNumAt, nPolyTerm, VibModPlot
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: auTocm
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-integer VibPlotUnit
-real*8 energy
-real*8 Hess(nOsc,nOsc), G(nOsc,nOsc), V(nOsc,nOsc)
-real*8 D3(nOsc,nOsc,nOsc)
-real*8 D4(nOsc,nOsc,nOsc,nOsc)
-real*8 qMat(3*NumOfAt,nOsc)
-real*8 harmfreq(nOsc)
-real*8 xvec(nOsc)
-integer InterVec(MaxNumAt*15)
-real*8 Mass(MaxNumAt)
-real*8 AtCoord(3,NumOfAt)
-character*4 AtomLbl(MaxNumAt)
-real*8 PED(nOsc,nOsc,nOsc)
-real*8 x_anharm(nOsc,nOsc)
-real*8 anharmfreq(nOsc)
-integer Bond(2*MaxNumAt)
-!logical Plot
-logical ForceField, cont
-real*8 stand_dev, max_err
-character*11 VibPlotFile
-character*8 BondString
-real*8 PotCoef(nPolyTerm,1)
-integer, allocatable :: aNormModes(:)
-integer, external :: isfreeunit
+implicit none
+integer(kind=iwp), intent(in) :: InterVec(MaxNumAt*15), Bond(MaxNumAt*2), nBond, max_term, nState, NumOfAt, nOsc
+real(kind=wp), intent(in) :: PotCoef(nPolyTerm,1), AtCoord(3,NumOfAt), Mass(MaxNumAt), stand_dev, max_err, energy, &
+                             Hess(nOsc,nOsc), G(nOsc,nOsc), V(nOsc,nOsc), harmfreq(nOsc), qMat(3*NumOfAt,nOsc), xvec(nOsc), &
+                             D3(nOsc,nOsc,nOsc), D4(nOsc,nOsc,nOsc,nOsc), PED(nOsc,nOsc,nOsc), x_anharm(nOsc,nOsc), anharmfreq(nOsc)
+character(len=4), intent(in) :: AtomLbl(MaxNumAt)
+logical(kind=iwp), intent(in) :: ForceField
+integer(kind=iwp) :: i, iBond, iInt, imode, j, k, l, m1, m2, maxCol, mInt, nAtom, nCol, n_Int, nRow, NumInt, VibPlotUnit
+real(kind=wp) :: vLength, vMax, x1, x2, x3
+logical(kind=iwp) :: cont
+character(len=11) :: VibPlotFile
+character(len=8) :: BondString
+integer(kind=iwp), allocatable :: aNormModes(:)
+integer(kind=iwp), external :: isfreeunit
+real(kind=wp), external :: Dnrm2_
 
 NumInt = nOsc
 call mma_allocate(aNormModes,NumInt,label='aNormModes')
@@ -194,9 +170,9 @@ if (Huge_Print) then
     end if
     if ((nCol == 0) .and. (i == nRow)) cont = .false.
     if (cont) then
-      write(u6,'(10I12)') (nInt,nInt=m1,m2)
+      write(u6,'(10I12)') (n_Int,n_Int=m1,m2)
       do mInt=1,NumInt
-        write(u6,'(10F12.6)') (Hess(mInt,nInt),nInt=m1,m2)
+        write(u6,'(10F12.6)') (Hess(mInt,n_Int),n_Int=m1,m2)
       end do
       write(u6,*)
       write(u6,*)
@@ -232,9 +208,9 @@ if (Huge_Print) then
     end if
     if ((nCol == 0) .and. (i == nRow)) cont = .false.
     if (cont) then
-      write(u6,'(10I12)') (nInt,nInt=m1,m2)
+      write(u6,'(10I12)') (n_Int,n_Int=m1,m2)
       do mInt=1,NumInt
-        write(u6,'(10F12.6)') (G(mInt,nInt),nInt=m1,m2)
+        write(u6,'(10F12.6)') (G(mInt,n_Int),n_Int=m1,m2)
       end do
       write(u6,*)
       write(u6,*)
@@ -271,9 +247,9 @@ if (Huge_Print) then
     end if
     if ((nCol == 0) .and. (i == nRow)) cont = .false.
     if (cont) then
-      write(u6,'(10I12)') (nInt,nInt=m1,m2)
+      write(u6,'(10I12)') (n_Int,n_Int=m1,m2)
       do mInt=1,NumInt
-        write(u6,'(10F12.6)') (V(mInt,nInt),nInt=m1,m2)
+        write(u6,'(10F12.6)') (V(mInt,n_Int),n_Int=m1,m2)
       end do
       write(u6,*)
       write(u6,*)

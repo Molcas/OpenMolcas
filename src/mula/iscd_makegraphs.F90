@@ -12,12 +12,13 @@
 subroutine ISCD_MakeGraphs(m_max,maxOrd,Graph1,Graph2,nOsc)
 
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-integer Graph1(m_max+1,nOsc+1)
-integer Graph2(m_max+1,m_max+1,nOsc)
-integer nTabDim
-integer, allocatable :: Number(:)
+implicit none
+integer(kind=iwp), intent(in) :: m_max, nOsc
+integer(kind=iwp), intent(out) :: maxOrd, Graph1(m_max+1,nOsc+1), Graph2(m_max+1,m_max+1,nOsc)
+integer(kind=iwp) :: i, iOsc, iQ1, iQ2, m, n, nQuanta, nTabDim
+integer(kind=iwp), allocatable :: Num(:)
 
 ! Initialize.
 if (m_max == 0) return
@@ -39,12 +40,12 @@ if (nOsc > 1) then
 end if
 
 ! set up the arc table
-call mma_allocate(Number,[0,m_max],label='Number')
-Number(0) = 0
+call mma_allocate(Num,[0,m_max],label='Number')
+Num(0) = 0
 N = 0
 do m=1,m_max
   N = N+Graph1(m,nosc+1)
-  Number(m) = N
+  Num(m) = N
 end do
 Graph2(:,:,:) = 0
 do iOsc=1,nosc
@@ -59,11 +60,11 @@ end do
 
 do iQ1=0,m_max  ! Where we are going
   do iQ2=0,iq1  ! Where we came from
-    Graph2(iQ1+1,iQ2+1,nOsc) = Graph2(iQ1+1,iQ2+1,nOsc)+Number(iQ1)
+    Graph2(iQ1+1,iQ2+1,nOsc) = Graph2(iQ1+1,iQ2+1,nOsc)+Num(iQ1)
   end do
 end do
 
-call mma_deallocate(Number)
+call mma_deallocate(Num)
 
 return
 

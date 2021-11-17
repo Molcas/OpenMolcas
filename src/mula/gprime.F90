@@ -16,15 +16,13 @@ subroutine CalcGprime(Gprime,Mass,xvec,InterVec,AtCoord,NumOfAt,h,NumInt)
 !    Calculate first derivatives of G.
 !
 !  Input:
-!    Mass     : Real*8 array - the mass of the atoms.
-!    xvec     : Real*8 array - the geometry in internal
-!               coordinates.
+!    Mass     : Real array - the mass of the atoms.
+!    xvec     : Real array - the geometry in internal coordinates.
 !    InterVec : Integer array.
 !    NumOfAt  : Integer - the number of atoms.
 !
 !  Output:
-!    Gprime   : Real*8 two dimensional array - first
-!               derivative of the inverse mass tensor G.
+!    Gprime   : Real two dimensional array - first derivative of the inverse mass tensor G.
 !
 !  Written by:
 !    Niclas Forsberg,
@@ -33,20 +31,16 @@ subroutine CalcGprime(Gprime,Mass,xvec,InterVec,AtCoord,NumOfAt,h,NumInt)
 use mula_global, only: ngdim
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
-!implicit none
-real*8 h
-real*8 Gprime(ngdim,ngdim,ngdim)
-integer NumInt, NumOfAt
-real*8 Mass(NumOfAt)
-real*8 xvec(NumInt)
-real*8 xtmp(NumInt)
-integer InterVec(*)
-real*8 AtCoord(3,NumOfAt)
-integer icoord, iterm
-integer ih
-real*8, allocatable :: Gtemp(:,:,:), Stemp(:,:,:)
+implicit none
+integer(kind=iwp), intent(in) :: InterVec(*), NumOfAt, NumInt
+real(kind=wp), intent(out) :: Gprime(ngdim,ngdim,ngdim)
+real(kind=wp), intent(in) :: Mass(NumOfAt), xvec(NumInt), h
+real(kind=wp), intent(inout) :: AtCoord(3,NumOfAt)
+integer(kind=iwp) :: icoord, ih, iterm
+real(kind=wp) :: xtmp(NumInt)
+real(kind=wp), allocatable :: Gtemp(:,:,:), Stemp(:,:,:)
 
 ! Initialize.
 call mma_allocate(Stemp,3,NumOfAt,NumInt,label='Stemp')
@@ -82,15 +76,13 @@ subroutine CalcGdbleprime(Gdbleprime,Mass,xvec,InterVec,AtCoord,NumOfAt,h,NumInt
 !    Calculate second derivatives of G.
 !
 !  Input:
-!    Mass       : Real*8 array - the mass of the atoms.
-!    xvec       : Real*8 array - the geometry in internal
-!                 coordinates.
+!    Mass       : Real array - the mass of the atoms.
+!    xvec       : Real array - the geometry in internal coordinates.
 !    InterVec   : Integer array.
 !    NumOfAt    : Integer - the number of atoms.
 !
 !  Output:
-!    Gdbleprime : Real*8 two dimensional array - second
-!                 derivative of the inverse mass tensor G.
+!    Gdbleprime : Real two dimensional array - second derivative of the inverse mass tensor G.
 !
 !  Written by:
 !    Niclas Forsberg,
@@ -99,18 +91,15 @@ subroutine CalcGdbleprime(Gdbleprime,Mass,xvec,InterVec,AtCoord,NumOfAt,h,NumInt
 use mula_global, only: ngdim
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Three
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
-!implicit none
-real*8 h
-integer icoord, jcoord
-integer NumInt, NumOfAt
-real*8 Gdbleprime(ngdim,ngdim,ngdim,ngdim)
-real*8 Mass(NumOfAt)
-real*8 xvec(NumInt)
-integer InterVec(*)
-real*8 AtCoord(3,NumOfAt)
-real*8, allocatable :: Gprime1(:,:,:), Gprime2(:,:,:), Gprime3(:,:,:), Gprime4(:,:,:), xtmp(:)
+implicit none
+integer(kind=iwp), intent(in) :: InterVec(*), NumOfAt, NumInt
+real(kind=wp), intent(out) :: Gdbleprime(ngdim,ngdim,ngdim,ngdim)
+real(kind=wp), intent(in) :: Mass(NumOfAt), xvec(NumInt), h
+real(kind=wp), intent(inout) :: AtCoord(3,NumOfAt)
+integer(kind=iwp) :: icoord, jcoord
+real(kind=wp), allocatable :: Gprime1(:,:,:), Gprime2(:,:,:), Gprime3(:,:,:), Gprime4(:,:,:), xtmp(:)
 
 ! Initialize.
 call mma_allocate(xtmp,NumInt,label='xtmp')

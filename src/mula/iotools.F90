@@ -19,10 +19,8 @@ subroutine MulaRdNLst(iUnit,NameIn)
 !  (similar to FORTRAN NAMELIST read known to some systems)
 !
 !  Calling arguments:
-!    iUnit  : Type integer, input
-!             FORTRAN unit number
-!    NameIn : Type character string, input
-!             Character string marking the beginning of the input
+!    iUnit  : Type integer, input - FORTRAN unit number
+!    NameIn : Type character string, input - Character string marking the beginning of the input
 !
 !  Written by:
 !    M.P. Fuelscher and P.O. Widmark
@@ -31,12 +29,15 @@ subroutine MulaRdNLst(iUnit,NameIn)
 !  Slightly modified by:
 !    Niclas Forsberg, 1999
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-character NameIn*(*)
-character*8 StdNam
-character*80 Line
-integer StrnLn
+implicit none
+integer(kind=iwp), intent(in) :: iUnit
+character(len=*), intent(in) :: NameIn
+integer(kind=iwp) :: istatus, lStdNam
+character(len=80) :: Line
+character(len=8) :: StdNam
+integer(kind=iwp), external :: StrnLn
 
 ! Convert the Name to internal standard format.
 call StdFmt(NameIn,StdNam)
@@ -60,22 +61,24 @@ end subroutine MulaRdNLst
 !####
 subroutine WordPos(k,InLine,iStart,iStop)
 !  Purpose:
-!    Return the position (iStart,iStop) of the first word after
-!    position k in InLine.
+!    Return the position (iStart,iStop) of the first word after position k in InLine.
 !
 !  Input:
-!    k        : Integer - the first position after keyword in the
-!               string InLine.
+!    k        : Integer - the first position after keyword in the string InLine.
 !    InLine   : Character string.
 !
 !  Output:
-!    iStart   : Integer - the position of the first non-blank
-!               character after position k in InLine.
-!    iStop,k  : Integer - the position of the first blank character
-!               after position iStart in InLine.
+!    iStart   : Integer - the position of the first non-blank character after position k in InLine.
+!    iStop,k  : Integer - the position of the first blank character after position iStart in InLine.
 
-character*1 Ch
-character InLine*(*)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(inout) :: k
+character(len=*), intent(in) :: InLine
+integer(kind=iwp), intent(out) :: iStart, iStop
+integer(kind=iwp) :: Length
+character :: Ch
 
 Length = len(InLine)
 Ch = InLine(k:k)
@@ -99,29 +102,32 @@ iStop = k-1
 
 end subroutine WordPos
 !####
-subroutine KeyWord(nUnit,KeyWd,rewind,Exist)
+subroutine KeyWord(nUnit,KeyWd,rwnd,Exists)
 !  Purpose:
 !    Read from a file until a line contains the string KeyWd.
 !
 !  Input:
 !    nUnit     : Unit to read from.
 !    KeyWd     : Character string - keyword.
-!    Rewind    : Logical.
+!    rwnd      : Logical.
 !
 !  Output:
-!    File      : Next line in the file contains the data connected
-!                with the keyword KeyWd.
+!    File      : Next line in the file contains the data connected with the keyword KeyWd.
+!
 !  Calls:
 !    MulaRdNlst
 !    Normalize
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-character KeyWd*(*)
-character*32 TmpKey
-character*80 InLine, OutLine
-integer i, KLen, BlInd
-logical rewind, Exist
+implicit none
+integer(kind=iwp), intent(in) :: nUnit
+character(len=*), intent(in) :: KeyWd
+logical(kind=iwp), intent(in) :: rwnd
+logical(kind=iwp), intent(out) :: Exists
+integer(kind=iwp) :: BlInd, i, istatus, KLen
+character(len=80) :: InLine, OutLine
+character(len=32) :: TmpKey
 
 InLine = KeyWd
 call Normalize(InLine,OutLine)
@@ -138,14 +144,14 @@ if (BlInd > 80) then
   write(u6,*) OutLine
   call abend()
 end if
-Exist = .false.
+Exists = .false.
 if (BlInd == 1) return
 
 KLen = BlInd-1
 TmpKey = OutLine(1:KLen)
 
-if (rewind) then
-  rewind nUnit
+if (rwnd) then
+  rewind(nUnit)
   call MulaRdNlst(nUnit,'MULA')
 end if
 
@@ -162,29 +168,31 @@ if (istatus > 0) then
   write(u6,*) ' I/O error on unit nUnit=',nUnit
   call abend()
 end if
-Exist = OutLine(1:KLen) == TmpKey(1:KLen)
+Exists = OutLine(1:KLen) == TmpKey(1:KLen)
 
 return
 
 end subroutine KeyWord
 !####
-real*8 function StrToDble(InString)
+function StrToDble(InString)
 !  Purpose:
-!    Convert a number in string InString to Real*8.
+!    Convert a number in string InString to Real.
 !
 !  Input:
 !    InString   : Character string.
 !
 !  Output:
-!    xNum     : Real*8.
+!    xNum       : Real.
 
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-real*8 xNum
-integer length
-character InString*(*)
-character*1 OneDigit
-character*2 TwoDigits
+implicit none
+real(kind=wp) :: StrToDble
+character(len=*), intent(in) :: InString
+integer(kind=iwp) :: length
+real(kind=wp) :: xNum
+character(len=2) :: TwoDigits
+character(len=1) :: OneDigit
 
 length = len(InString)
 write(u6,*) ' The string is:',InString
@@ -214,12 +222,14 @@ function iStrToInt(InLine)
 !  Output:
 !    num      : Integer.
 
-integer num
-character InLine*(*)
-character ch
-logical minus
+use Definitions, only: iwp
 
-IntVal(ch) = index('0123456789',ch)-1
+implicit none
+integer(kind=iwp) :: iStrToInt
+character(len=*), intent(in) :: InLine
+integer(kind=iwp) :: i, isum, length, nPos, num
+logical(kind=iwp) :: minus
+character :: ch
 
 length = len(InLine)
 
@@ -232,7 +242,7 @@ do nPos=length,1,-1
     minus = .true.
   else
     ch = InLine(nPos:nPos)
-    isum = isum+IntVal(ch)*10**(i)
+    isum = isum+(index('0123456789',ch)-1)*10**(i)
     i = i+1
   end if
 end do
@@ -261,18 +271,17 @@ subroutine Normalize(line,line2)
 !    P-AA Malmquist,
 !    Dept. of Theoretical Chemistry, Lund University.
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-parameter(ntrans=256)
-character line*(*)
-character line2*(*)
-character*26 lcase, ucase
-character*1 ch
-integer itrans(ntrans)
-logical wrdend
-intrinsic ichar, char, len
-data icalled/0/
-data lcase,ucase/'abcdefghijklmnopqrstuvwxyz','ABCDEFGHIJKLMNOPQRSTUVWXYZ'/
+implicit none
+character(len=*), intent(in) :: line
+character(len=*), intent(out) :: line2
+integer(kind=iwp), parameter :: ntrans = 256
+integer(kind=iwp) :: i, icalled = 0, ista, itrans(ntrans), j, len1, len2, len2max
+logical(kind=iwp) :: wrdend
+character :: ch
+character(len=*), parameter :: lcase = 'abcdefghijklmnopqrstuvwxyz', &
+                               ucase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 ! Set up character transformation table:
 if (icalled == 0) then

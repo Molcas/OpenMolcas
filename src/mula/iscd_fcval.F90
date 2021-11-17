@@ -15,25 +15,28 @@ subroutine ISCD_FCval(iPrint,iMaxYes,lnTabDim,nnTabDim,lNMAT0,lNMAT,lNINC,lNDEC,
 use mula_global, only: maxMax_n
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
-integer nIndex(3,0:maxMax_n)
-real*8 C1(nOsc,nOsc), C2(nOsc,nOsc)
-real*8 W2(nOsc,nOsc), C(nOsc,nOsc), W(nOsc,nOsc)
-real*8 r01(nOsc), r02(nOsc)
-real*8 FCWind2(nYes)
-integer nMat(nOsc,lBatch), nInc(nOsc,lBatch), nDec(nOsc,lBatch)
-integer VibWind2(nYes), nnTabDim(0:lnTabDim)
-integer, allocatable :: nMat0(:)
-real*8, allocatable :: A2(:,:), A2B2T(:,:), Alpha(:,:), Alpha1(:,:), Alpha2(:,:), B2(:,:), Beta(:,:), d2(:), L(:,:), r_temp1(:), &
-                       r_temp2(:), sqr(:), temp(:,:), temp1(:,:), temp2(:,:), U(:,:)
+implicit none
+integer(kind=iwp), intent(in) :: iPrint, iMaxYes, lnTabDim, nnTabDim(0:lnTabDim), lNMAT0, lNMAT, lNINC, lNDEC, lBatch, &
+                                 nIndex(3,0:maxMax_n), max_mOrd, max_nOrd, max_nOrd2, max_nInc2, nOsc, nYes, VibWind2(nYes)
+real(kind=wp), intent(in) :: C1(nOsc,nOsc), det1, r01(nOsc), C2(nOsc,nOsc), W2(nOsc,nOsc), det2, r02(nOsc), C(nOsc,nOsc), &
+                             W(nOsc,nOsc), det0
+integer(kind=iwp), intent(inout) :: max_nInc
+integer(kind=iwp), intent(out) :: nMat(nOsc,lBatch), nInc(nOsc,lBatch), nDec(nOsc,lBatch)
+real(kind=wp), intent(out) :: FC00, FCWind2(nYes)
+integer(kind=iwp) :: i, iBatch, ii, iIndex, iIndex0, iiOrd, iOrd, j, jIndex, jjOrd, jOrd, kDelta, kIndex, kOsc, kOsc_start, &
+                     loc_n_max, lOsc, n, nMaxMat, nTabDim
+real(kind=wp) :: const, det, dFC, FC00_exp
+integer(kind=iwp), allocatable :: nMat0(:)
+real(kind=wp), allocatable :: A2(:,:), A2B2T(:,:), Alpha(:,:), Alpha1(:,:), Alpha2(:,:), B2(:,:), Beta(:,:), d2(:), L(:,:), &
+                              r_temp1(:), r_temp2(:), sqr(:), temp(:,:), temp1(:,:), temp2(:,:), U(:,:)
+real(kind=wp), external :: Ddot_
 
 call mma_allocate(nMat0,nOsc,label='nMat0')
 
 !GGt -------------------------------------------------------------------
-!write(u6,*) 'CGGt[ISCD_FCval] Enter '
+!write(u6,*) 'CGGt[ISCD_FCval] Enter'
 !write(u6,*) '     nYes = ',nYes
 !write(u6,*) '     VibWind2 :',(VibWind2(i),i=1,nYes)
 !write(u6,*) '     L matrix:',max_mOrd,max_nInc2
@@ -315,9 +318,9 @@ call mma_deallocate(A2B2T)
 
 ! Calculate Franck-Condon factors.
 if (iPrint >= 3) then
-  write(u6,*) ' Franck-Condon factors for States in the Window: '
+  write(u6,*) ' Franck-Condon factors for States in the Window:'
   write(u6,'(a,36a)') '  ',('=',i=1,36)
-  write(u6,*) '     #     jOrd   FC factor     jSum '
+  write(u6,*) '     #     jOrd   FC factor     jSum'
   write(u6,'(a,36a)') '  ',('-',i=1,36)
 end if
 do ii=1,nYes
@@ -344,7 +347,7 @@ if (iPrint >= 4) then
   write(u6,*)
   write(u6,*) ' Full Franck-Condon factors (FC_00=',FC00,'):'
   write(u6,*) ' =================================================='
-  write(u6,*) '    jOrd   FC            level                     '
+  write(u6,*) '    jOrd   FC            level'
   write(u6,*) ' --------------------------------------------------'
   do jOrd=0,max_nInc ! max_nOrd
     loc_n_max = 0

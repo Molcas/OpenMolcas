@@ -46,63 +46,50 @@ subroutine Intensity(IntensityMat,TermMat,ipow,var,Tdip_x,Tdip_y,trfName,U1,U2,C
                      max_dip,m_plot,n_plot,r0,r1,r2,Base,l_IntensityMat_1,l_IntensityMat_2,l_TermMat_1,l_TermMat_2,nOsc,nDimTot, &
                      nPolyTerm,ndata,nvar,MaxNumAt,l_n_plot,l_m_plot)
 !  Purpose:
-!    Calculates the intensities of the different transitions between
-!    the two surfaces.
+!    Calculates the intensities of the different transitions between the two surfaces.
 !
 !  Input:
-!    FC           : Real*8 two dimensional array -
-!                   Franck-Condon factors.
-!    ipow         : Two dimensional integer array - terms of the
-!                   polynomial.
-!    var          : Real*8 two dimensional array - coordinates
-!                   to be used in the fit.
+!    FC           : Real two dimensional array - Franck-Condon factors.
+!    ipow         : Two dimensional integer array - terms of the polynomial.
+!    var          : Real two dimensional array - coordinates to be used in the fit.
 !    Tdip_x,
-!    Tdip_y       : Real*8 array - transition dipole
-!    trfName      : Character array - transformation associated with each
-!                   internal coordinate.
+!    Tdip_y       : Real array - transition dipole
+!    trfName      : Character array - transformation associated with each internal coordinate.
 !    use_weight   : Logical
-!    U1,U2        : Real*8 two dimensional arrays - eigenvectors
-!                   obtained from matrix element calculations.
-!    W1,W2        : Real*8 two dimensional arrays - eigenvectors
-!                   scaled by the square root of the eigenvalues. Harmonic
-!                   approximation.
-!    C1,C2        : Real*8 two dimensional arrays - inverses
-!                   of W1 and W2.
-!    det1,det2    : Real*8 variables - determinants of C1 and C2.
-!    r01,r02      : Real*8 arrays - coordinates of the two
-!                   oscillators.
+!    U1,U2        : Real two dimensional arrays - eigenvectors obtained from matrix element calculations.
+!    W1,W2        : Real two dimensional arrays - eigenvectors scaled by the square root of the eigenvalues. Harmonic approximation.
+!    C1,C2        : Real two dimensional arrays - inverses of W1 and W2.
+!    det1,det2    : Real variables - determinants of C1 and C2.
+!    r01,r02      : Real arrays - coordinates of the two oscillators.
 !    m_max,n_max  : Integer variables - maximum quanta.
 !    max_dip      : Integer variable - maximum order of transition dipole.
 !    m_plot,
 !    n_plot       : Integer array - transitions wanted in output.
 !
 !  Output:
-!    IntensityMat : Real*8 two dimensional array - intensities
-!                   of the transitions.
-!    TermMat      : Real*8 two dimensional array - energies
-!                   of transitions.
+!    IntensityMat : Real two dimensional array - intensities of the transitions.
+!    TermMat      : Real two dimensional array - energies of transitions.
 
 use mula_global, only: mdim1, mdim2, ndim1, ndim2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Three
-use Definitions, only: wp
+use Definitions, only: iwp, wp
 
-implicit real*8(a-h,o-z)
-real*8 IntensityMat(0:l_IntensityMat_1,0:l_IntensityMat_2)
-real*8 TermMat(0:l_TermMat_1,0:l_TermMat_2)
-integer ipow(nPolyTerm,nvar)
-real*8 var(ndata,nvar)
-real*8 Tdip_x(ndata), Tdip_y(ndata)
-character*80 trfName(MaxNumAt)
-real*8 C1(nOsc,nOsc), C2(nOsc,nOsc), W1(nOsc,nOsc), W2(nOsc,nOsc)
-real*8 r01(nOsc), r02(nOsc)
-real*8 r1(nOsc), r2(nOsc), r0(nOsc)
-real*8 U1(nDimTot,nDimTot), U2(nDimTot,nDimTot)
-real*8 Base(nOsc,nOsc)
-integer m_plot(l_m_plot), n_plot(l_n_plot)
-integer nvTabDim
-integer, allocatable :: mDec(:,:), mInc(:,:), mMat(:,:), nDec(:,:), nInc(:,:), nMat(:,:)
-real*8, allocatable :: DipMat(:,:,:), FC2(:,:,:)
+implicit none
+integer(kind=iwp), intent(in) :: nPolyTerm, nvar, ipow(nPolyTerm,nvar), m_max, n_max, max_dip, l_n_plot, l_m_plot, &
+                                 m_plot(l_m_plot), n_plot(l_n_plot), l_IntensityMat_1, l_IntensityMat_2, l_TermMat_1, l_TermMat_2, &
+                                 nOsc, ndata, MaxNumAt
+real(kind=wp), intent(out) :: IntensityMat(0:l_IntensityMat_1,0:l_IntensityMat_2), det0, r0(nOsc), r1(nOsc), r2(nOsc)
+integer(kind=iwp), intent(inout) :: nDimTot
+real(kind=wp), intent(in) :: TermMat(0:l_TermMat_1,0:l_TermMat_2), var(ndata,nvar), Tdip_x(ndata), Tdip_y(ndata), &
+                             U1(nDimTot,nDimTot), U2(nDimTot,nDimTot), C1(nOsc,nOsc), W1(nOsc,nOsc), det1, r01(nOsc), &
+                             C2(nOsc,nOsc), W2(nOsc,nOsc), det2, r02(nOsc), Base(nOsc,nOsc)
+character(len=80), intent(in) :: trfName(MaxNumAt)
+integer(kind=iwp) :: i, iOrd, j, jOrd, k, m, m_plot_max, max_mInc, max_mOrd, max_mQuanta, max_nInc, max_nInc2, max_nOrd, &
+                     max_nOrd2, max_nQuanta, mTabDim, n, n_max2, n_plot_max, nTabDim, nTabDim2, nvTabDim
+real(kind=wp) :: const1, rsum
+integer(kind=iwp), allocatable :: mDec(:,:), mInc(:,:), mMat(:,:), nDec(:,:), nInc(:,:), nMat(:,:)
+real(kind=wp), allocatable :: DipMat(:,:,:), FC2(:,:,:)
 
 ! Calculate dimensions given max level of excitation for the different states.
 call TabDim(m_max,nOsc,nvTabDim)
@@ -176,13 +163,13 @@ end if
 do k=1,2
   do m=1,nDimTot
     do n=1,nDimTot
-      sum = Zero
+      rsum = Zero
       do j=1,nDimTot
         do i=1,nDimTot
-          sum = sum+DipMat(i,j,k)*U1(i,m)*U2(j,n)
+          rsum = rsum+DipMat(i,j,k)*U1(i,m)*U2(j,n)
         end do
       end do
-      FC2(m,n,k) = sum
+      FC2(m,n,k) = rsum
     end do
   end do
 end do
@@ -222,60 +209,47 @@ end subroutine Intensity
 !####
 subroutine Intensity2(IntensityMat,TermMat,U1,U2,C1,W1,det1,r01,C2,W2,det2,r02,det0,m_max,n_max,max_dip,m_plot,n_plot,TranDip, &
                       TranDipGrad,Base,l_IntensityMat_1,l_IntensityMat_2,l_TermMat_1,l_TermMat_2,nOsc,nDimTot,l_n_plot,l_m_plot)
-
 !  Purpose:
-!    Calculates the intensities of the different transitions between
-!    the two surfaces.
+!    Calculates the intensities of the different transitions between the two surfaces.
 !
 !  Input:
-!    FC           : Real*8 two dimensional array -
-!                   Franck-Condon factors.
-!    ipow         : Two dimensional integer array - terms of the
-!                   polynomial.
-!    var          : Real*8 two dimensional array - coordinates
-!                   to be used in the fit.
-!    trfName      : Character array - transformation associated with each
-!                   internal coordinate.
+!    FC           : Real two dimensional array - Franck-Condon factors.
+!    ipow         : Two dimensional integer array - terms of the polynomial.
+!    var          : Real two dimensional array - coordinates to be used in the fit.
+!    trfName      : Character array - transformation associated with each internal coordinate.
 !    use_weight   : Logical
-!    U1,U2        : Real*8 two dimensional arrays - eigenvectors
-!                   obtained from matrix element calculations.
-!    W1,W2        : Real*8 two dimensional arrays - eigenvectors
-!                   scaled by the square root of the eigenvalues. Harmonic
-!                   approximation.
-!    C1,C2        : Real*8 two dimensional arrays - inverses
-!                   of W1 and W2.
-!    det1,det2    : Real*8 variables - determinants of C1 and C2.
-!    r01,r02      : Real*8 arrays - coordinates of the two
-!                   oscillators.
+!    U1,U2        : Real two dimensional arrays - eigenvectors obtained from matrix element calculations.
+!    W1,W2        : Real two dimensional arrays - eigenvectors scaled by the square root of the eigenvalues. Harmonic approximation.
+!    C1,C2        : Real two dimensional arrays - inverses of W1 and W2.
+!    det1,det2    : Real variables - determinants of C1 and C2.
+!    r01,r02      : Real arrays - coordinates of the two oscillators.
 !    m_max,n_max  : Integer variables - maximum quanta.
 !    max_dip      : Integer variable - maximum order of transition dipole.
 !    m_plot,
 !    n_plot       : Integer array - transitions wanted in output.
 !
 !  Output:
-!    IntensityMat : Real*8 two dimensional array - intensities
-!                   of the transitions.
-!    TermMat      : Real*8 two dimensional array - energies
-!                   of transitions.
+!    IntensityMat : Real two dimensional array - intensities of the transitions.
+!    TermMat      : Real two dimensional array - energies of transitions.
 
 use mula_global, only: mdim1, mdim2, ndim1, ndim2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Three
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 IntensityMat(0:l_IntensityMat_1,0:l_IntensityMat_2)
-real*8 TermMat(0:l_TermMat_1,0:l_TermMat_2)
-real*8 C1(nOsc,nOsc), C2(nOsc,nOsc), W1(nOsc,nOsc), W2(nOsc,nOsc)
-real*8 r01(nOsc), r02(nOsc)
-real*8 U1(nDimTot,nDimTot), U2(nDimTot,nDimTot)
-real*8 TranDip(3)
-real*8 TranDipGrad(3,nOsc)
-real*8 Base(nOsc,nOsc)
-integer m_plot(l_m_plot), n_plot(l_n_plot)
-integer nvTabDim
-integer, allocatable :: mDec(:,:), mInc(:,:), mMat(:,:), nDec(:,:), nInc(:,:), nMat(:,:)
-real*8, allocatable :: DipMat(:,:,:), FC2(:,:,:)
+implicit none
+integer(kind=iwp), intent(in) :: m_max, n_max, max_dip, l_n_plot, l_m_plot, m_plot(l_m_plot), n_plot(l_n_plot), l_IntensityMat_1, &
+                                 l_IntensityMat_2, l_TermMat_1, l_TermMat_2, nOsc
+real(kind=wp), intent(out) :: IntensityMat(0:l_IntensityMat_1,0:l_IntensityMat_2), det0
+integer(kind=iwp), intent(inout) :: nDimTot
+real(kind=wp), intent(in) :: TermMat(0:l_TermMat_1,0:l_TermMat_2), U1(nDimTot,nDimTot), U2(nDimTot,nDimTot), C1(nOsc,nOsc), &
+                             W1(nOsc,nOsc), det1, r01(nOsc), C2(nOsc,nOsc), W2(nOsc,nOsc), det2, r02(nOsc), TranDip(3), &
+                             TranDipGrad(3,nOsc), Base(nOsc,nOsc)
+integer(kind=iwp) :: i, iOrd, j, jOrd, k, m, m_plot_max, max_mInc, max_mOrd, max_mQuanta, max_nInc, max_nInc2, max_nOrd, &
+                     max_nOrd2, max_nQuanta, mTabDim, n, n_max2, n_plot_max, nTabDim, nTabDim2, nvTabDim
+real(kind=wp) :: const1, rsum
+integer(kind=iwp), allocatable :: mDec(:,:), mInc(:,:), mMat(:,:), nDec(:,:), nInc(:,:), nMat(:,:)
+real(kind=wp), allocatable :: DipMat(:,:,:), FC2(:,:,:)
 
 ! Calculate dimensions given max level of excitation for the different states.
 call TabDim(m_max,nOsc,nvTabDim)
@@ -348,13 +322,13 @@ end if
 do k=1,3
   do m=1,nDimTot
     do n=1,nDimTot
-      sum = Zero
+      rsum = Zero
       do j=1,nDimTot
         do i=1,nDimTot
-          sum = sum+DipMat(i,j,k)*U1(i,m)*U2(j,n)
+          rsum = rsum+DipMat(i,j,k)*U1(i,m)*U2(j,n)
         end do
       end do
-      FC2(m,n,k) = sum
+      FC2(m,n,k) = rsum
     end do
   end do
 end do

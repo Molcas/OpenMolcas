@@ -13,18 +13,15 @@
 
 subroutine RotTranRem(Sinv,S,Mass,AtCoord,NumOfAt,NumInt)
 !  Purpose:
-!    Project total translation and total rotation out of inverted
-!    S matrix.
+!    Project total translation and total rotation out of inverted S matrix.
 !
 !  Input:
-!    S        : Real*8 three dimensional array.
-!    Mass     : Real*8 array - masses of the atoms.
-!    AtCoord  : Real*8 two dimensional array - coordinates
-!               of the atoms.
+!    S        : Real three dimensional array.
+!    Mass     : Real array - masses of the atoms.
+!    AtCoord  : Real two dimensional array - coordinates of the atoms.
 !
 !  Output:
-!    Sinv     : Real*8 three dimensional array - Inverted
-!               S matrix with rotation and translation projected out.
+!    Sinv     : Real three dimensional array - Inverted S matrix with rotation and translation projected out.
 !
 !  Uses:
 !    LinAlg
@@ -35,20 +32,18 @@ subroutine RotTranRem(Sinv,S,Mass,AtCoord,NumOfAt,NumInt)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, uToau
+use Definitions, only: wp, iwp
 
-!use Linalg
-!implicit none
-integer NumOfAt, NumInt, nFree
-real*8 AtCoord(3,NumofAt)
-real*8 S(3,NumOfAt,NumInt)
-real*8 Sinv(3,NumOfAt,NumInt)
-real*8 Mass(NumOfAt)
-real*8 Det, X
-integer iAtom, n, k, i, j
-real*8, allocatable :: Ainv(:,:), Amat(:,:), AmatMass(:,:), Stemp(:,:,:), Temp1(:,:), Temp2(:,:)
+implicit none
+integer(kind=iwp), intent(in) :: NumOfAt, NumInt
+real(kind=wp), intent(out) :: Sinv(3,NumOfAt,NumInt)
+real(kind=wp), intent(in) :: S(3,NumOfAt,NumInt), Mass(NumOfAt), AtCoord(3,NumOfAt)
+integer(kind=iwp) :: i, iAtom, j, k, n
+real(kind=wp) :: Det, X
+real(kind=wp), allocatable :: Ainv(:,:), Amat(:,:), AmatMass(:,:), Stemp(:,:,:), Temp1(:,:), Temp2(:,:)
+integer(kind=iwp), parameter :: nFree = 6
 
 ! Initialize.
-nFree = 6
 n = 3*NumOfAt
 call mma_allocate(Amat,n,nFree,label='Amat')
 Amat(:,:) = Zero

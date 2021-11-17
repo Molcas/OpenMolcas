@@ -12,10 +12,9 @@
 !***********************************************************************
 
 subroutine LSPotFit(r01,energy1,grad1,Hess1,D3_1,D4_1,r02,energy2,grad2,Hess2,D3_2,D4_2,r00,energy0,r_min,FitCoef,mMat,max_term, &
-                    pot,nosc,numcoef)
+                    pot,nOsc,numcoef)
 !  Purpose:
-!    Perform a least squares fit of the potentiag at two different
-!    centra, r01 and r02.
+!    Perform a least squares fit of the potential at two different centers, r01 and r02.
 !
 !  Uses:
 !    Constants
@@ -28,27 +27,25 @@ subroutine LSPotFit(r01,energy1,grad1,Hess1,D3_1,D4_1,r02,energy2,grad2,Hess2,D3
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Ten, Pi, auTocm
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
-!use Linalg
-!use FCMod
-!use TabMod
-implicit real*8(a-h,o-z)
-parameter(mxdeg=6)
-real*8 r01(nosc), r02(nosc), r00(nosc), r_min(nosc)
-real*8 grad1(nosc), grad2(nosc)
-real*8 Hess1(nosc,nosc), Hess2(nosc,nosc)
-dimension D3_1(nosc,nosc,nosc), D3_2(nosc,nosc,nosc)
-dimension D4_1(nosc,nosc,nosc,nosc), D4_2(nosc,nosc,nosc,nosc)
-real*8 FitCoef(numcoef,1)
-integer mMat(0:numcoef-1,nosc)
-logical pot
-integer nTabDim
-integer, allocatable :: mDec(:,:), mInc(:,:)
-real*8, allocatable :: Equmat(:,:), rhs(:), Temp(:,:), Tmat(:,:), vpow(:,:), weight(:,:), x(:)
+implicit none
+integer(kind=iwp), intent(in) :: nOsc, numcoef, max_term
+integer(kind=iwp), intent(out) :: mMat(0:numcoef-1,nOsc)
+real(kind=wp), intent(in) :: r01(nOsc), energy1, grad1(nOsc), Hess1(nOsc,nOsc), D3_1(nOsc,nOsc,nOsc), D4_1(nOsc,nOsc,nOsc,nOsc), &
+                             r02(nOsc), energy2, grad2(nOsc), Hess2(nOsc,nOsc), D3_2(nOsc,nOsc,nOsc), D4_2(nOsc,nOsc,nOsc,nOsc), &
+                             r00(nOsc), energy0, r_min(nOsc)
+real(kind=wp), intent(out) :: FitCoef(numcoef,1)
+logical(kind=iwp), intent(in) :: pot
+integer(kind=iwp) :: i, ip, irow, iterm, ivar, j, jrow, jterm, jvar, k, krow, kvar, l, l_mMat, lrow, lvar, m, max_mInc, max_mOrd, &
+                     mrow, mTabDim, mvar, n, nDim, nrow, nTabDim, nterm, nvar
+real(kind=wp) :: det, pow, t
+integer(kind=iwp), allocatable :: mDec(:,:), mInc(:,:)
+real(kind=wp), allocatable :: Equmat(:,:), rhs(:), Temp(:,:), Tmat(:,:), vpow(:,:), weight(:,:), x(:)
+integer(kind=iwp), parameter :: mxdeg = 6
 
 ! Initialize.
-nvar = nosc
+nvar = nOsc
 mTabDim = numcoef-1
 call TabDim(max_term,nOsc,nTabDim)
 max_mOrd = nTabDim-1

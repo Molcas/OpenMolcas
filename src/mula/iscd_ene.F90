@@ -14,13 +14,12 @@
 subroutine ISCD_LogEVec(iPrint,nOsc,max_nOrd,minQ,nYes,lNMAT,lnTabDim,nTabDim,nMaxQ,nMat0,lVec)
 ! Generate Logical Vector of useful States
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
-dimension nMat0(nOsc)
-integer nTabDim(0:lnTabDim), lVec(0:lnTabDim)
-integer nMaxQ(nOsc)
+implicit none
+integer(kind=iwp), intent(in) :: iPrint, nOsc, max_nOrd, minQ, lNMAT, lnTabDim, nTabDim(0:lnTabDim), nMaxQ(nOsc)
+integer(kind=iwp), intent(out) :: nYes, nMat0(nOsc), lVec(0:lnTabDim)
+integer(kind=iwp) :: iIndex, iOrd, iOsc, nSumQ
 
 if (iPrint >= 3) then
   write(u6,*) ' Original number of States=',max_nOrd+1
@@ -58,19 +57,19 @@ subroutine ISCD_Ene(iPrint,nOsc,max_nOrd,nYes,lNMAT,lnTabDim,GE1,GE2,harmfreq1,h
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half, auTocm
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
-real*8 GE1, GE2, harmfreq1(nOsc), harmfreq2(nOsc)
-real*8 x_anharm1(nOsc,nOsc), x_anharm2(nOsc,nOsc)
-real*8 dMinWind, dRho, dWlow, dWup
-real*8 dEne
-integer nMat0(nOsc), nTabDim(0:lnTabDim)
-integer lVec(0:lnTabDim)
-logical lUpdate
-integer, allocatable :: level1(:), level2(:), lTVec(:)
-real*8, allocatable :: EneMat(:)
+implicit none
+integer(kind=iwp), intent(in) :: iPrint, nOsc, max_nOrd, lNMAT, lnTabDim, nTabDim(0:lnTabDim)
+integer(kind=iwp), intent(inout) :: nYes, lVec(0:lnTabDim)
+real(kind=wp), intent(in) :: GE1, GE2, harmfreq1(nOsc), harmfreq2(nOsc), x_anharm1(nOsc,nOsc), x_anharm2(nOsc,nOsc), dRho
+real(kind=wp), intent(inout) :: dMinWind
+integer(kind=iwp), intent(out) :: nMat0(nOsc)
+integer(kind=iwp) :: i, iIndex, iOrd, j, l_harm, loc_n_max, nYes_start
+real(kind=wp) :: dEne, dWlow, dWup
+logical(kind=iwp) :: lUpdate
+integer(kind=iwp), allocatable :: level1(:), level2(:), lTVec(:)
+real(kind=wp), allocatable :: EneMat(:)
 
 if (dMinWind == Zero) then
   lUpDate = .true.
@@ -92,7 +91,7 @@ if (iPrint >= 4) then
     write(u6,'(a,108a)') '  ',('-',i=1,108)
   else
     write(u6,'(a,36a)') '  ',('=',i=1,36)
-    write(u6,*) '        #    jOrd   ene/au      ene/cm-1 '
+    write(u6,*) '        #    jOrd   ene/au      ene/cm-1'
     write(u6,'(a,36a)') '  ',('-',i=1,36)
   end if
   call XFlush(u6)
@@ -136,7 +135,7 @@ if (iPrint >= 3) then
     write(u6,'(a,108a)') '  ',('-',i=1,108)
   else
     write(u6,'(a,36a)') '  ',('=',i=1,36)
-    write(u6,*) '        #    jOrd   ene/au      ene/cm-1 '
+    write(u6,*) '        #    jOrd   ene/au      ene/cm-1'
     write(u6,'(a,36a)') '  ',('-',i=1,36)
   end if
   call XFlush(u6)

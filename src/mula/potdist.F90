@@ -13,20 +13,16 @@
 
 subroutine PotDist(F,V,Lambda,PED,NumInt,nOsc)
 !  Purpose:
-!    To give the fractional contributions of the F-matrix to the
-!    potential energy.
+!    To give the fractional contributions of the F-matrix to the potential energy.
 !
 !  Input:
-!    F        : Real*8 two dimensional array -  contains
-!               the force constants expressed in internal
-!    V        : Real*8 two dimensional array  - contains
-!               the eigenvectors of F*G as columns.
-!    Lambda   : Real*8 array - contains the eigenvalues
-!               of F*G.
+!    F        : Real two dimensional array -  contains the force constants expressed in internal
+!    V        : Real two dimensional array  - contains the eigenvectors of F*G as columns.
+!    Lambda   : Real array - contains the eigenvalues of F*G.
 !
 !  Output:
-!    PED      : Real*8 three dimensional array - Potential
-!               Energy Distribution for each mode.
+!    PED      : Real three dimensional array - Potential Energy Distribution for each mode. !
+!
 !  Uses:
 !    Linalg
 !
@@ -35,15 +31,14 @@ subroutine PotDist(F,V,Lambda,PED,NumInt,nOsc)
 !    Dept. of Theoretical Chemistry, Lund University, 1996.
 
 use Constants, only: Zero
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
-!use LinAlg
-implicit real*8(a-h,o-z)
-real*8 F(NumInt,NumInt)
-real*8 V(NumInt,NumInt)
-real*8 Denominator
-real*8 Lambda(NumInt)
-real*8 PED(nOsc,nOsc,nOsc)
+implicit none
+integer(kind=iwp), intent(in) :: NumInt, nOsc
+real(kind=wp), intent(in) :: F(NumInt,NumInt), V(NumInt,NumInt), Lambda(NumInt)
+real(kind=wp), intent(out) :: PED(nOsc,nOsc,nOsc)
+integer(kind=iwp) :: i, k, l
+real(kind=wp) :: Denominator
 
 ! Initialize.
 

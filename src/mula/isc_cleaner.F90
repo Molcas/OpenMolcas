@@ -19,11 +19,12 @@
 subroutine LogEVec(iPrint,nOsc,max_nOrd,minQ,nMaxQ,nMat,lVec,nYes)
 ! Generate Logical Vector of useful States
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
-integer nMat(0:max_nOrd,nOsc), lVec(0:max_nOrd)
-integer nMaxQ(nOsc)
+implicit none
+integer(kind=iwp), intent(in) :: iPrint, nOsc, max_nOrd, minQ, nMaxQ(nOsc), nMat(0:max_nOrd,nOsc)
+integer(kind=iwp), intent(out) :: lVec(0:max_nOrd), nYes
+integer(kind=iwp) :: iOrd, iOsc, nSumQ
 
 if (iPrint >= 3) then
   write(u6,*) ' Original number of States=',max_nOrd+1
@@ -53,8 +54,12 @@ end subroutine LogEVec
 !####
 subroutine MkVibWind2(nYes,iMaxYes,max_nOrd,lVec,VibWind2)
 
-implicit real*8(a-h,o-z)
-integer VibWind2(nYes), lVec(0:max_nOrd)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: nYes, max_nOrd, lVec(0:max_nOrd)
+integer(kind=iwp), intent(out) :: iMaxYes, VibWind2(nYes)
+integer(kind=iwp) :: iOrd, iYes
 
 iMaxYes = 0
 iYes = 1

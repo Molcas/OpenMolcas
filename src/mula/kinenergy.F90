@@ -44,27 +44,19 @@ subroutine KinEnergy(A,nMat,iCre,iAnn,G,Gprime,Gdbleprime,max_term,C,W,alpha1,al
 use mula_global, only: ndim1, ndim2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Six, Half, OneHalf
-use Definitions, only: wp
+use Definitions, only: wp, iwp, r8
 
-!use TabMod
-implicit real*8(a-h,o-z)
-parameter(Thrs=1.0e-15_wp)
-real*8 A(0:max_Ord,0:max_Ord)
-integer nMat(0:ndim1,ndim2)
-integer iAnn(0:ndim1,ndim2)
-integer iCre(0:ndim1,ndim2)
-real*8 rdx(4)
-real*8 alpha1(nosc,nosc)
-real*8 alpha2(nosc,nosc)
-real*8 beta(nosc,nosc)
-real*8 C(nosc,nosc)
-real*8 W(nosc,nosc)
-real*8 G(nosc,nosc)
-real*8 r_diff(noscold)
-real*8 Gprime(nosc,nosc,nosc)
-real*8 Gdbleprime(nosc,nosc,nosc,nosc)
-real*8, allocatable :: G_2(:,:), r_temp(:), T1(:), T2(:), Temp(:,:), Temp1(:,:,:), Temp2(:,:,:), Temp3(:,:,:,:), Temp4(:,:,:,:), &
-                       Tempa(:,:), Tempb(:,:)
+implicit none
+integer(kind=iwp), intent(in) :: nMat(0:ndim1,ndim2), iCre(0:ndim1,ndim2), iAnn(0:ndim1,ndim2), max_term, max_Ord, nOsc, nOscOld
+real(kind=wp), intent(out) :: A(0:max_Ord,0:max_Ord)
+real(kind=wp), intent(in) :: G(nOsc,nOsc), Gprime(nOsc,nOsc,nOsc), Gdbleprime(nOsc,nOsc,nOsc,nOsc), C(nOsc,nOsc), W(nOsc,nOsc), &
+                             alpha1(nOsc,nOsc), alpha2(nOsc,nOsc), beta(nOsc,nOsc), r_diff(nOscOld)
+integer(kind=iwp) :: i, j, k, l, nOscSqr
+real(kind=wp) :: alpha_norm, r, r_norm, ran, rdx(4)
+real(kind=wp), allocatable :: G_2(:,:), r_temp(:), T1(:), T2(:), Temp(:,:), Temp1(:,:,:), Temp2(:,:,:), Temp3(:,:,:,:), &
+                              Temp4(:,:,:,:), Tempa(:,:), Tempb(:,:)
+real(kind=wp), parameter :: Thrs = 1.0e-15_wp
+real(kind=r8), external :: Ddot_, Dnrm2_
 
 ! Initialize.
 call mma_allocate(Temp,nOsc,nOsc,label='Temp')

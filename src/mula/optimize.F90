@@ -17,16 +17,13 @@ subroutine Optimize(ipow,var,coef,x,energy,Hess,nterm,nvar,ndata)
 !
 !  Input:
 !    ipow      : Two dimensional integer array - terms in polynomial.
-!    var       : Real*8 two dimensional array - coordinates
-!                for which we know the energy.
-!    coef      : Real*8 two dimensional array - coefficients
-!                for each term specified by ipow.
+!    var       : Real two dimensional array - coordinates for which we know the energy.
+!    coef      : Real two dimensional array - coefficients for each term specified by ipow.
 !
 !  Output:
-!    x         : Real*8 array - geometry in minimum.
-!    energy    : Real*8 - energy in minimum.
-!    Hess      : Real*8 two dimensional array - Hessian in
-!                minimum.
+!    x         : Real array - geometry in minimum.
+!    energy    : Real - energy in minimum.
+!    Hess      : Real two dimensional array - Hessian in minimum.
 !
 !  Calls:
 !    Dool_MULA
@@ -44,25 +41,28 @@ subroutine Optimize(ipow,var,coef,x,energy,Hess,nterm,nvar,ndata)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6, r8
 
-!use Linalg
-implicit real*8(a-h,o-z)
-parameter(maxiter=100)
-parameter(delta_max=One)
-integer ipow(nterm,nvar)
-real*8 var(ndata,nvar)
-real*8 coef(nterm,1)
-real*8 x(nvar)
-real*8 xmin(nvar)
-real*8 grad(nvar)
-real*8 delta(nvar,1)
-real*8 Hess(nterm,nvar)
-real*8 var_intervals(nvar,2)
-logical shift
+implicit none
+integer(kind=iwp), intent(in) :: nterm, nvar, ipow(nterm,nvar), ndata
+real(kind=wp), intent(in) :: var(ndata,nvar), coef(nterm,1)
+real(kind=wp), intent(out) :: x(nvar), energy, Hess(nterm,nvar)
+integer(kind=iwp) :: i, iseed, iter, iterm, iv, ivar, j
+real(kind=wp) :: delta_norm, det, fval, rand_number, rscale, rsum
+logical(kind=iwp) :: shift
+real(kind=wp), allocatable :: delta(:,:), grad(:), var_intervals(:,:), xmin(:)
+integer(kind=iwp), parameter :: maxiter = 100
+real(kind=wp), parameter :: delta_max = One
+real(kind=r8), external :: Random_Molcas
 
 ! Initialize.
+
+call mma_allocate(var_intervals,nvar,2,label='var_intervals')
+call mma_allocate(grad,nvar,label='grad')
+call mma_allocate(delta,nvar,1,label='delta')
+call mma_allocate(xmin,nvar,label='xmin')
 
 ! Determine intervals for random starting point in optimization.
 var_intervals(:,1) = var(1,:)
@@ -96,15 +96,15 @@ do i=1,1
   delta(:,1) = -grad
   call Dool_MULA(Hess,nterm,nvar,delta,nvar,1,det)
   !call calcNorm(delta(:,1),delta_norm)
-  sum = Zero
+  rsum = Zero
   do iv=1,nvar
-    sum = sum+delta(iv,1)**2
+    rsum = rsum+delta(iv,1)**2
   end do
-  delta_norm = sqrt(sum)
+  delta_norm = sqrt(rsum)
 
-  scale = One
-  if (delta_norm > delta_max) scale = delta_max/delta_norm
-  x(:) = x(:)+delta(:,1)*scale
+  rscale = One
+  if (delta_norm > delta_max) rscale = delta_max/delta_norm
+  x(:) = x(:)+delta(:,1)*rscale
   iter = 0
   do while ((delta_norm > 1.0e-12_wp) .and. (iter <= maxiter))
     iter = iter+1
@@ -114,15 +114,15 @@ do i=1,1
     delta(:,1) = -grad
     call Dool_MULA(Hess,nterm,nvar,delta,nvar,1,det)
     !call calcNorm(delta(:,1), delta_norm)
-    sum = Zero
+    rsum = Zero
     do iv=1,nvar
-      sum = sum+delta(iv,1)**2
+      rsum = rsum+delta(iv,1)**2
     end do
-    delta_norm = sqrt(sum)
+    delta_norm = sqrt(rsum)
 
-    scale = One
-    if (delta_norm > delta_max) scale = delta_max/delta_norm
-    x(:) = x(:)+delta(:,1)*scale
+    rscale = One
+    if (delta_norm > delta_max) rscale = delta_max/delta_norm
+    x(:) = x(:)+delta(:,1)*rscale
   end do
   if (iter >= maxiter) write(u6,*) 'WARNING!! No convergence in Optimize'
   call funcval(x,coef,ipow,fval,nterm,nvar)
@@ -132,5 +132,10 @@ do i=1,1
   end if
 end do
 x(:) = xmin
+
+call mma_deallocate(var_intervals)
+call mma_deallocate(grad)
+call mma_deallocate(delta)
+call mma_deallocate(xmin)
 
 end subroutine Optimize

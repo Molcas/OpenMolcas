@@ -30,12 +30,12 @@ subroutine Dool_MULA(A,LA1,LA2,B,LB1,LB2,det)
 !    Solve A*X = B
 !
 !  Input:
-!    A      : Real*8 two dimensional array
-!    B      : Real*8 two dimensional array
+!    A      : Real two dimensional array
+!    B      : Real two dimensional array
 !
 !  Output:
-!    B      : Real*8 two dimensional array - contains
-!             the solution X.
+!    B      : Real two dimensional array - contains the solution X.
+!
 !  Written by:
 !    Per-AAke Malmquist
 !    Dept. of Theoretical Chemistry, Lund University, 1983.
@@ -46,12 +46,16 @@ subroutine Dool_MULA(A,LA1,LA2,B,LB1,LB2,det)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 A(LA1,LA2)
-real*8 B(LB1,LB2)
-integer, allocatable :: iPiv(:), jPiv(:)
-real*8, allocatable :: Buf(:)
+implicit none
+integer(kind=iwp), intent(in) :: LA1, LA2, LB1, LB2
+real(kind=wp), intent(inout) :: A(LA1,LA2), B(LB1,LB2)
+real(kind=wp), intent(out) :: det
+integer(kind=iwp) :: i, ip, iTemp, j, jp, jTemp, k, kp, l, lp, m, n
+real(kind=wp) :: Am, Amax, c, diag, rsum
+integer(kind=iwp), allocatable :: iPiv(:), jPiv(:)
+real(kind=wp), allocatable :: Buf(:)
 
 ! Initialize.
 ip = -9999999
@@ -113,23 +117,23 @@ end do
 do j=1,m
   do i=2,n
     ip = iPiv(i)
-    sum = B(ip,j)
+    rsum = B(ip,j)
     do k=1,i-1
-      sum = sum-A(ip,jPiv(k))*B(iPiv(k),j)
+      rsum = rsum-A(ip,jPiv(k))*B(iPiv(k),j)
     end do
-    B(ip,j) = sum
+    B(ip,j) = rsum
   end do
 end do
-!!
-!!---- Second resubstitution step.
+
+! Second resubstitution step.
 do j=1,m
   do i=n,1,-1
     ip = iPiv(i)
-    sum = B(ip,j)
+    rsum = B(ip,j)
     do k=i+1,n
-      sum = sum-A(ip,jPiv(k))*B(iPiv(k),j)
+      rsum = rsum-A(ip,jPiv(k))*B(iPiv(k),j)
     end do
-    B(ip,j) = sum/Buf(i)
+    B(ip,j) = rsum/Buf(i)
   end do
 end do
 
@@ -154,12 +158,12 @@ subroutine SolveSecEq(A,n,C,S,D)
 !    Solve the secular equation SAC = CD.
 !
 !  Input:
-!    A        : Real*8 two dimensional array
-!    S        : Real*8 two dimensional array
+!    A        : Real two dimensional array
+!    S        : Real two dimensional array
 !
 !  Output:
-!    C        : Real*8 two dimensional array
-!    D        : Real*8 array
+!    C        : Real two dimensional array
+!    D        : Real array
 !
 !  Calls:
 !    Jacob
@@ -170,11 +174,14 @@ subroutine SolveSecEq(A,n,C,S,D)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-integer n
-real*8 A(n,n), S(n,n), C(n,n), D(n)
-real*8, allocatable :: Asymm(:,:), Scr(:), T(:,:), Temp(:,:)
+implicit none
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(in) :: A(n,n), S(n,n)
+real(kind=wp), intent(out) :: C(n,n), D(n)
+integer(kind=iwp) :: i, ii, j, jj, k
+real(kind=wp), allocatable :: Asymm(:,:), Scr(:), T(:,:), Temp(:,:)
 
 ! Initialize.
 !D write(u6,*) 'SolveSecEq test prints.'
@@ -255,27 +262,24 @@ subroutine PolFit(ipow,nvar,var,yin,ndata,coef,nterm,stand_dev,max_err,diff_vec,
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-parameter(mxdeg=6)
-integer ipow(nvar,nterm)
-real*8 var(ndata,nvar)
-real*8 yin(ndata)
-real*8 coef(nterm,1)
-real*8 stand_dev, max_err
-real*8 yfit(ndata)
-real*8 vpow(0:mxdeg,nvar)
-real*8 equmat(nterm,nterm)
-real*8 rhs(nterm), term(nterm)
-real*8 diff_vec(ndata)
-logical use_weight
-real*8, allocatable :: weight(:)
+implicit none
+integer(kind=iwp), intent(in) :: nvar, nterm, ipow(nvar,nterm), ndata
+real(kind=wp), intent(in) :: var(ndata,nvar), yin(ndata)
+real(kind=wp), intent(out) :: coef(nterm,1), stand_dev, max_err, diff_vec(ndata)
+logical(kind=iwp), intent(in) :: use_weight
+integer(kind=iwp) :: i, idata, ip, iterm, ivar, jterm, myCoef2, nPolyTerm, NrOfVar
+real(kind=wp) :: det, diff, e_max, e_min, e_range, pol, pow, rsum, t
+real(kind=wp), allocatable :: equmat(:,:), rhs(:), term(:), vpow(:,:), weight(:), yfit(:)
+integer(kind=iwp), parameter :: mxdeg = 6
 
 ! Initialize.
 NrOfVar = nvar
 nPolyTerm = nterm
 myCoef2 = 1
+call mma_allocate(rhs,nterm,label='rhs')
+call mma_allocate(equmat,nterm,nterm,label='equmat')
 rhs(:) = Zero
 equmat(:,:) = Zero
 
@@ -298,6 +302,8 @@ else
 end if
 
 ! Accumulate equation matrix and right-hand-side.
+call mma_allocate(vpow,[0,mxdeg],[1,nvar],label='vpow')
+call mma_allocate(term,nterm,label='term')
 do idata=1,ndata
   ! Calculate powers of individual variable values.
   do ivar=1,NrOfVar
@@ -326,6 +332,7 @@ do idata=1,ndata
     end do
   end do
 end do
+call mma_deallocate(term)
 
 ! Set upper triangle of equmat by symmetry.
 do iterm=1,nPolyTerm-1
@@ -340,8 +347,11 @@ do i=1,nterm
 end do
 call Dool_MULA(equmat,nPolyTerm,nPolyTerm,coef,nPolyTerm,MyCoef2,det)
 if (abs(det) == Zero) write(u6,*) 'WARNING!! Determinant=0 in PolFit'
+call mma_deallocate(rhs)
+call mma_deallocate(equmat)
 
 ! Calculate fitted result.
+call mma_allocate(yfit,ndata,label='yfit')
 do idata=1,ndata
   ! Calculate powers of individual variable values.
   do ivar=1,NrOfVar
@@ -365,9 +375,10 @@ do idata=1,ndata
   end do
   yfit(idata) = pol
 end do
+call mma_deallocate(vpow)
 
 ! Calculate standard deviation and maximum error.
-sum = Zero
+rsum = Zero
 do idata=1,ndata
   diff = abs(yin(idata)-yfit(idata))
   diff_vec(idata) = diff
@@ -376,27 +387,28 @@ do idata=1,ndata
   else
     if (diff > max_err) max_err = diff
   end if
-  sum = sum+diff**2
+  rsum = rsum+diff**2
 end do
-stand_dev = sqrt(sum/ndata)
+stand_dev = sqrt(rsum/ndata)
 
+call mma_deallocate(yfit)
 call mma_deallocate(weight)
 
 end subroutine PolFit
 !####
-subroutine factor(exponent,nder,rfactor)
+subroutine factor(expnt,nder,rfactor)
 !  Purpose:
 !    Calculate coefficient for n'th derivative.
 
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer exponent, nder
-integer i, isum, ntot
-real*8 rfactor
+integer(kind=iwp), intent(in) :: expnt, nder
+real(kind=wp), intent(out) :: rfactor
+integer(kind=iwp) :: i, isum, ntot
 
 isum = 1
-ntot = nder+exponent
+ntot = nder+expnt
 if (nder > 0) then
   do i=ntot,ntot-nder+1,-1
     isum = isum*i
@@ -417,26 +429,24 @@ subroutine Cholesky(A,L,nd)
 !    where L is a lower triangular matrix and L~ is L transposed.
 !
 !  Input:
-!    A      : real*8 two dimensional array - positive
-!             definite matrix.
+!    A      : Real two dimensional array - positive definite matrix.
 !
 !  Output:
-!    L      : real*8 two dimensional array - lower
-!             triangular matrix.
+!    L      : Real two dimensional array - lower triangular matrix.
 !
 !  Calls:
 
-use Constants, only: Zero, One
-use Definitions, only: u6
-
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-!implicit none
-!VV: all calls use nxn
-real*8 A(nd,nd), L(nd,nd), dd
-integer n, j
-integer iRow, jRow
-real*8, allocatable :: D(:)
+implicit none
+integer(kind=iwp), intent(in) :: nd
+real(kind=wp), intent(in) :: A(nd,nd)
+real(kind=wp), intent(out) :: L(nd,nd)
+integer(kind=iwp) :: iRow, j, jRow, n
+real(kind=wp) :: dd
+real(kind=wp), allocatable :: D(:)
 
 ! Initialize.
 n = nd
@@ -470,7 +480,5 @@ do iRow=1,n
   L(iRow,:) = L(iRow,:)*dd
 end do
 call mma_deallocate(D)
-
-!Llow(:,:) = L
 
 end subroutine Cholesky

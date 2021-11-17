@@ -50,29 +50,21 @@ subroutine VibFreq(AtCoord,xvec,InterVec,Mass,Hess,G,Gprime,Gdbleprime,harmfreq,
 !
 !  Input:
 !    InterVec   : Integer array
-!    Mass       : Real*8 array - masses of the atoms.
-!    xvec       : Real*8 array - geometry of molecule in internal
-!                 coordinates.
-!    Hess       : Real*8 two dimensional array - force constant
-!                 matrix.
-!    D3         : Real*8 three dimensional array - third derivatives
-!                 of potential surface.
-!    D4         : Real*8 four dimensional array - fourth derivatives
-!                 of potential surface.
+!    Mass       : Real array - masses of the atoms.
+!    xvec       : Real array - geometry of molecule in internal coordinates.
+!    Hess       : Real two dimensional array - force constant matrix.
+!    D3         : Real three dimensional array - third derivatives of potential surface.
+!    D4         : Real four dimensional array - fourth derivatives of potential surface.
 !    max_term   : Integer - highest power of term in polynomial fit.
 !
 !  Output:
-!    AtCoord    : Real*8 two dimensional array - cartesian
-!                 coordinates of the atoms.
-!    harmfreq   : Real*8 array - contains harmonical frequencies.
-!    eigenVec   : Real*8 two dimensional array - contains eigenvectors.
-!    qMat       : Real*8 two dimensional array - cartesian
-!                 displacement vectors.
-!    PED        : Real*8 three dimensional array - potential
-!                 energy distribution.
-!    x_anharm   : Real*8 two dimensional array - anharmonicity
-!                 constants.
-!    anharmfreq : Real*8 array - contains anharmonical frequencies.
+!    AtCoord    : Real two dimensional array - cartesian coordinates of the atoms.
+!    harmfreq   : Real array - contains harmonical frequencies.
+!    eigenVec   : Real two dimensional array - contains eigenvectors.
+!    qMat       : Real two dimensional array - cartesian displacement vectors.
+!    PED        : Real three dimensional array - potential energy distribution.
+!    x_anharm   : Real two dimensional array - anharmonicity constants.
+!    anharmfreq : Real array - contains anharmonical frequencies.
 !
 !  Written by:
 !    Niclas Forsberg,
@@ -81,26 +73,18 @@ subroutine VibFreq(AtCoord,xvec,InterVec,Mass,Hess,G,Gprime,Gdbleprime,harmfreq,
 use mula_global, only: ngdim
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-integer InterVec(*)
-real*8 AtCoord(3,NumOfAt)
-real*8 Mass(NumOfAt)
-real*8 xvec(nosc)
-real*8 Hess(nOsc,nOsc)
-real*8 G(nosc,nosc)
-real*8 harmfreq(nosc)
-real*8 anharmfreq(nosc)
-real*8 eigenVec(nosc,nosc)
-real*8 qMat(3*NumOfAt,nOsc)
-real*8 PED(nosc,nosc,nosc)
-real*8 D3(ngdim,ngdim,ngdim)
-real*8 D4(ngdim,ngdim,ngdim,ngdim)
-real*8 x_anharm(nosc,nOsc)
-real*8 Gprime(ngdim,ngdim,ngdim)
-real*8 Gdbleprime(ngdim,ngdim,ngdim,ngdim)
-real*8, allocatable :: B(:,:), Lambda(:), V(:,:)
+implicit none
+integer(kind=iwp), intent(in) :: InterVec(*), max_term, nOsc, NumOfAt
+real(kind=wp), intent(inout) :: AtCoord(3,NumOfAt)
+real(kind=wp), intent(out) :: xvec(nosc), G(nosc,nosc), Gprime(ngdim,ngdim,ngdim), Gdbleprime(ngdim,ngdim,ngdim,ngdim), &
+                              harmfreq(nosc), eigenVec(nosc,nosc), qMat(3*NumOfAt,nOsc), PED(nosc,nosc,nosc), x_anharm(nosc,nOsc), &
+                              anharmfreq(nosc)
+real(kind=wp), intent(in) :: Mass(NumOfAt), Hess(nOsc,nOsc), D3(ngdim,ngdim,ngdim), D4(ngdim,ngdim,ngdim,ngdim)
+integer(kind=iwp) :: NumInt
+real(kind=wp) :: dh
+real(kind=wp), allocatable :: B(:,:), Lambda(:), V(:,:)
 
 ! Initialize.
 !D write(u6,*) ' Entered VIBFREQ.'

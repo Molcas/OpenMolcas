@@ -16,40 +16,37 @@
 !          Dip. Chimica Generale e Chimica Organica, Torino (ITALY)
 !          June 2009
 
-subroutine ISCD_Rate(iPrint,nOsc,max_nOrd,iMaxYes,nYes,dMinWind,lBatch,nIndex,VibWind2,lNMAT0,lNMAT, &
-                     lNINC,lNDEC,lnTabDim,nnTabDim,C1,C2,W2,det0,det1,det2,C,W,r01,r02,m_max,n_max,FC00, &
-                     dRho,nMat,nInc,nDec)
+subroutine ISCD_Rate(iPrint,nOsc,max_nOrd,iMaxYes,nYes,dMinWind,lBatch,nIndex,VibWind2,lNMAT0,lNMAT,lNINC,lNDEC,lnTabDim,nnTabDim, &
+                     C1,C2,W2,det0,det1,det2,C,W,r01,r02,m_max,n_max,FC00,dRho,nMat,nInc,nDec)
 
 use mula_global, only: hbarcm, maxMax_n, TranDip
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Pi, auTocm
-use Definitions, only: wp, u6, ItoB
+use Definitions, only: wp, iwp, u6, ItoB
 
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
-integer nIndex(3,0:maxMax_n)
-real*8 C1(nOsc,nOsc), C2(nOsc,nosc), W2(nOsc,nOsc), C(nOsc,nOsc), W(nOsc,nOsc)
-real*8 r01(nOsc), r02(nOsc), det0, det1, det2, FC00
-integer VibWind2(nYes), nnTabDim(0:lnTabDim)
-integer nMat(nOsc,lBatch)
-integer nInc(nOsc,lBatch)
-integer nDec(nOsc,lBatch)
-real*8, allocatable :: FCWind2(:)
-integer, parameter :: MB = 1048576
+implicit none
+integer(kind=iwp), intent(in) :: iPrint, nOsc, iMaxYes, nYes, lBatch, nIndex(3,0:maxMax_n), VibWind2(nYes), lNMAT0, lNMAT, lNINC, &
+                                 lNDEC, lnTabDim, nnTabDim(0:lnTabDim), m_max, n_max
+integer(kind=iwp), intent(out) :: max_nOrd, nMat(nOsc,lBatch), nInc(nOsc,lBatch), nDec(nOsc,lBatch)
+real(kind=wp), intent(in) :: dMinWind, C1(nOsc,nOsc), C2(nOsc,nosc), W2(nOsc,nOsc), det0, det1, det2, C(nOsc,nOsc), W(nOsc,nOsc), &
+                             r01(nOsc), r02(nOsc), dRho
+real(kind=wp), intent(out) :: FC00
+integer(kind=iwp) :: ii, m_max_ord, max_nInc, mx_max_ord, n_max_ord, nvTabDim, nx_max_ord
+real(kind=wp) :: const, dLT, dRate, dSoc, dSum
+real(kind=wp), allocatable :: FCWind2(:)
+integer(kind=iwp), parameter :: MB = 1048576
 
-call TabDim(m_max,nosc,nvTabDim)
-call TabDim(n_max,nosc,nvTabDim)
+call TabDim(n_max,nOsc,nvTabDim)
 max_nOrd = nvTabDim-1
-call TabDim(m_max,nosc,nvTabDim)
+call TabDim(m_max,nOsc,nvTabDim)
 m_max_ord = nvTabDim-1
-call TabDim(min(n_max,m_max+1),nosc,nvTabDim)
+call TabDim(min(n_max,m_max+1),nOsc,nvTabDim)
 mx_max_ord = nvTabDim-1
-call TabDim(min(m_max,n_max+1),nosc,nvTabDim)
+call TabDim(min(m_max,n_max+1),nOsc,nvTabDim)
 nx_max_ord = nvTabDim-1
-call TabDim(m_max-1,nosc,nvTabDim)
-call TabDim(n_max-1,nosc,nvTabDim)
+call TabDim(n_max-1,nOsc,nvTabDim)
 max_nInc = nvTabDim-1
-call TabDim(n_max,nosc,nvTabDim)
+call TabDim(n_max,nOsc,nvTabDim)
 n_max_ord = nvTabDim-1
 
 mx_max_ord = 0 ! CGGn
@@ -103,7 +100,7 @@ end if
 
 if (iPrint >= 1) then
   write(u6,*)
-  write(u6,*) ' InterSystem Crossing rate constant: '
+  write(u6,*) ' InterSystem Crossing rate constant:'
   write(u6,*) ' ===================================='
   write(u6,'(a,e10.2,a)') '  ISC Rate Constant  ',dRate,' sec-1'
   write(u6,'(a,e10.2,a)') '  Lifetime           ',dLT,' sec'

@@ -29,31 +29,23 @@
 subroutine IntForceField(IntensityMat,TermMat,FC00,C1,W1,det1,r01,C2,W2,det2,r02,C,W,det0,m_max,n_max,max_dip,Trandip,TranDipGrad, &
                          harmfreq1,x_anharm1,harmfreq2,x_anharm2,mMat,mInc,mDec,nMat,nInc,nDec,OscStr,max_mOrd,max_nOrd,nOsc)
 !  Purpose:
-!    Calculates the intensities of the different transitions between
-!    the two surfaces.
+!    Calculates the intensities of the different transitions between the two surfaces.
 !
 !  Input:
-!    FC           : Real*8 two dimensional array -
-!                   Franck-Condon factors.
-!    W1,W2        : Real*8 two dimensional arrays - eigenvectors
-!                   scaled by the square root of the eigenvalues. Harmonic
-!                   approximation.
-!    C1,C2        : Real*8 two dimensional arrays - inverses
-!                   of W1 and W2.
-!    det1,det2    : Real*8 variables - determinants of C1 and C2.
-!    r01,r02      : Real*8 arrays - coordinates of the two
-!                   oscillators.
+!    FC           : Real two dimensional array - Franck-Condon factors.
+!    W1,W2        : Real two dimensional arrays - eigenvectors scaled by the square root of the eigenvalues. Harmonic approximation.
+!    C1,C2        : Real two dimensional arrays - inverses of W1 and W2.
+!    det1,det2    : Real variables - determinants of C1 and C2.
+!    r01,r02      : Real arrays - coordinates of the two oscillators.
 !    m_max,n_max  : Integer variables - maximum quanta.
 !    max_dip      : Integer variable - maximum order of transition dipole.
 !    MatEl        : Logical
 !    m_plot,
 !    n_plot       : Integer array - transitions wanted in output.
-!    TermMat      : Real*8 two dimensional array - energies
-!                   of transitions.
+!    TermMat      : Real two dimensional array - energies of transitions.
 !
 !  Output:
-!    IntensityMat : Real*8 two dimensional array - intensities
-!                   of the transitions.
+!    IntensityMat : Real two dimensional array - intensities of the transitions.
 !
 !  Uses:
 !    Constants
@@ -65,28 +57,22 @@ subroutine IntForceField(IntensityMat,TermMat,FC00,C1,W1,det1,r01,C2,W2,det2,r02
 use mula_global, only: mdim1, mdim2, ndim1, ndim2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Three, auTokJ, kBoltzmann
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
-!use VibMod
-!use TabMod
-!use FCMod
-!use MatElMod
-implicit real*8(a-h,o-z)
-real*8 IntensityMat(0:max_mOrd,0:max_nOrd)
-real*8 TermMat(0:max_mOrd,0:max_nOrd)
-real*8 C1(nosc,nosc), C2(nosc,nosc), W1(nosc,nosc), W2(nosc,nosc), C(nosc,nosc), W(nosc,nosc)
-real*8 r01(nosc), r02(nosc)
-real*8 TranDip(3)
-real*8 TranDipGrad(3,nosc)
-real*8 harmfreq1(nosc), harmfreq2(nosc)
-real*8 x_anharm1(nosc,nosc), x_anharm2(nosc,nosc)
-integer mMat(0:mdim1,mdim2), mInc(0:mdim1,mdim2), mDec(0:mdim1,mdim2)
-integer nMat(0:ndim1,ndim2), nInc(0:ndim1,ndim2), nDec(0:ndim1,ndim2)
-logical OscStr
-integer nvTabDim
-integer, allocatable :: level1(:), level2(:)
-real*8, allocatable :: FC2(:,:,:), FreqDiffmat(:)
-real*8, parameter :: Temperature = 10.0_wp !, int_thrs = 0.1_wp
+implicit none
+integer(kind=iwp), intent(inout) :: max_mOrd, max_nOrd
+real(kind=wp), intent(out) :: IntensityMat(0:max_mOrd,0:max_nOrd), FC00
+integer(kind=iwp), intent(in) :: m_max, n_max, max_dip, mMat(0:mdim1,mdim2), mInc(0:mdim1,mdim2), mDec(0:mdim1,mdim2), &
+                                 nMat(0:ndim1,ndim2), nInc(0:ndim1,ndim2), nDec(0:ndim1,ndim2), nOsc
+real(kind=wp), intent(in) :: TermMat(0:max_mOrd,0:max_nOrd), C1(nOsc,nOsc), W1(nOsc,nOsc), det1, r01(nOsc), C2(nOsc,nOsc), &
+                             W2(nOsc,nOsc), det2, r02(nOsc), C(nOsc,nOsc), W(nOsc,nOsc), det0, TranDip(3), TranDipGrad(3,nOsc), &
+                             harmfreq1(nOsc), x_anharm1(nOsc,nOsc), harmfreq2(nOsc), x_anharm2(nOsc,nOsc)
+logical(kind=iwp), intent(in) :: OscStr
+integer(kind=iwp) :: iOrd, jOrd, l_harm, nvTabDim
+real(kind=wp) :: const1, const2, dE
+integer(kind=iwp), allocatable :: level1(:), level2(:)
+real(kind=wp), allocatable :: FC2(:,:,:), FreqDiffmat(:)
+real(kind=wp), parameter :: Temperature = 10.0_wp
 
 ! Initialize.
 call TabDim(m_max,nosc,nvTabDim)

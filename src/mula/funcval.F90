@@ -20,22 +20,25 @@ subroutine funcval(x,coef,ipow,fval,nterm,nvar)
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-real*8 x(nvar)
-real*8 coef(nterm)
-integer ipow(nterm,nvar)
-real*8 sum, prod, fval
+implicit none
+integer(kind=iwp), intent(in) :: nterm, nvar, ipow(nterm,nvar)
+real(kind=wp), intent(in) :: x(nvar), coef(nterm)
+real(kind=wp), intent(out) :: fval
+integer(kind=iwp) :: iterm, ivar, nsum
+real(kind=wp) :: prod, rsum
 
-sum = Zero
+rsum = Zero
 do iterm=1,nterm
   prod = One
   do ivar=1,nvar
     nsum = ipow(iterm,ivar)
     prod = prod*(x(ivar)**(nsum))
   end do
-  sum = sum+coef(iterm)*prod
+  rsum = rsum+coef(iterm)*prod
 end do
-fval = sum
+fval = rsum
 
 end subroutine funcval
 !####
@@ -48,17 +51,18 @@ subroutine gradient(x,coef,ipow,grad,nterm,nvar)
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-real*8 x(nvar)
-real*8 coef(nvar)
-integer ipow(nterm,nvar)
-real*8 grad(nvar)
-real*8 sum, prod
-logical ijEq
-real*8 rfactor
+implicit none
+integer(kind=iwp), intent(in) :: nterm, nvar, ipow(nterm,nvar)
+real(kind=wp), intent(in) :: x(nvar), coef(nvar)
+real(kind=wp), intent(out) :: grad(nvar)
+integer(kind=iwp) :: iterm, ivar, jvar, nder, nsum
+real(kind=wp) :: prod, rfactor, rsum
+logical(kind=iwp) :: ijEq
 
 do ivar=1,nvar
-  sum = Zero
+  rsum = Zero
   do iterm=1,nterm
     prod = One
     do jvar=1,nvar
@@ -76,9 +80,9 @@ do ivar=1,nvar
       call factor(nsum,nder,rfactor)
       prod = prod*rfactor*(x(jvar)**(nsum))
     end do
-    sum = sum+coef(iterm)*prod
+    rsum = rsum+coef(iterm)*prod
   end do
-  grad(ivar) = sum
+  grad(ivar) = rsum
 end do
 
 end subroutine gradient
@@ -95,19 +99,20 @@ subroutine Hessian(x,coef,ipow,Hess,nterm,nvar)
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-real*8 x(nvar)
-real*8 coef(nvar)
-integer ipow(nterm,nvar)
-real*8 Hess(nvar,nvar)
-real*8 sum, prod
-logical ijEq, ikEq, jkEq
-real*8 rfactor
+implicit none
+integer(kind=iwp), intent(in) :: nterm, nvar, ipow(nterm,nvar)
+real(kind=wp), intent(in) :: x(nvar), coef(nvar)
+real(kind=wp), intent(out) :: Hess(nvar,nvar)
+integer(kind=iwp) :: iterm, ivar, jvar, kvar, nder, nsum
+real(kind=wp) :: prod, rfactor, rsum
+logical(kind=iwp) :: ijEq, ikEq, jkEq
 
 do ivar=1,nvar
   do jvar=ivar,nvar
     ijEq = (ivar == jvar)
-    sum = Zero
+    rsum = Zero
     do iterm=1,nterm
       prod = One
       do kvar=1,nvar
@@ -129,10 +134,10 @@ do ivar=1,nvar
         call factor(nsum,nder,rfactor)
         prod = prod*rfactor*(x(kvar)**(nsum))
       end do
-      sum = sum+coef(iterm)*prod
+      rsum = rsum+coef(iterm)*prod
     end do
-    Hess(ivar,jvar) = sum
-    Hess(jvar,ivar) = sum
+    Hess(ivar,jvar) = rsum
+    Hess(jvar,ivar) = rsum
   end do
 end do
 
@@ -150,20 +155,21 @@ subroutine thirdDer(x,coef,ipow,D3,nterm,nvar)
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-real*8 x(nvar)
-real*8 coef(nvar)
-integer ipow(nterm,nvar)
-real*8 D3(nvar,nvar,nvar)
-real*8 sum, prod
-logical ilEq, jlEq, klEq
-real*8 rfactor
+implicit none
+integer(kind=iwp), intent(in) :: nterm, nvar, ipow(nterm,nvar)
+real(kind=wp), intent(in) :: x(nvar), coef(nvar)
+real(kind=wp), intent(out) :: D3(nvar,nvar,nvar)
+integer(kind=iwp) :: iterm, ivar, jvar, kvar, lvar, nder, nsum
+real(kind=wp) :: prod, rfactor, rsum
+logical(kind=iwp) :: ilEq, jlEq, klEq
 
 D3(:,:,:) = Zero
 do ivar=1,nvar
   do jvar=ivar,nvar
     do kvar=jvar,nvar
-      sum = Zero
+      rsum = Zero
       do iterm=1,nterm
         prod = One
         do lvar=1,nvar
@@ -192,14 +198,14 @@ do ivar=1,nvar
           call factor(nsum,nder,rfactor)
           prod = prod*rfactor*(x(lvar)**(nsum))
         end do
-        sum = sum+coef(iterm)*prod
+        rsum = rsum+coef(iterm)*prod
       end do
-      D3(ivar,jvar,kvar) = sum
-      D3(kvar,ivar,jvar) = sum
-      D3(jvar,kvar,ivar) = sum
-      D3(jvar,ivar,kvar) = sum
-      D3(kvar,jvar,ivar) = sum
-      D3(ivar,kvar,jvar) = sum
+      D3(ivar,jvar,kvar) = rsum
+      D3(kvar,ivar,jvar) = rsum
+      D3(jvar,kvar,ivar) = rsum
+      D3(jvar,ivar,kvar) = rsum
+      D3(kvar,jvar,ivar) = rsum
+      D3(ivar,kvar,jvar) = rsum
     end do
   end do
 end do
@@ -218,21 +224,22 @@ subroutine fourthDer(x,coef,ipow,D4,nterm,nvar)
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-real*8 x(nvar)
-real*8 coef(nvar)
-integer ipow(nterm,nvar)
-real*8 D4(nvar,nvar,nvar,nvar)
-real*8 sum, prod
-logical imEq, jmEq, kmEq, lmEq
-real*8 rfactor
+implicit none
+integer(kind=iwp), intent(in) :: nterm, nvar, ipow(nterm,nvar)
+real(kind=wp), intent(in) :: x(nvar), coef(nvar)
+real(kind=wp), intent(out) :: D4(nvar,nvar,nvar,nvar)
+integer(kind=iwp) :: iterm, ivar, jvar, kvar, lvar, mvar, nder, nsum
+real(kind=wp) :: prod, rfactor, rsum
+logical(kind=iwp) :: imEq, jmEq, kmEq, lmEq
 
 D4(:,:,:,:) = Zero
 do ivar=1,nvar
   do jvar=ivar,nvar
     do kvar=jvar,nvar
       do lvar=kvar,nvar
-        sum = Zero
+        rsum = Zero
         do iterm=1,nterm
           prod = One
           do mvar=1,nvar
@@ -268,35 +275,35 @@ do ivar=1,nvar
             call factor(nsum,nder,rfactor)
             prod = prod*rfactor*(x(mvar)**(nsum))
           end do
-          sum = sum+coef(iterm)*prod
+          rsum = rsum+coef(iterm)*prod
         end do
-        D4(ivar,jvar,kvar,lvar) = sum
-        D4(ivar,kvar,jvar,lvar) = sum
-        D4(ivar,jvar,lvar,kvar) = sum
-        D4(ivar,lvar,kvar,jvar) = sum
-        D4(ivar,lvar,jvar,kvar) = sum
-        D4(ivar,kvar,lvar,jvar) = sum
+        D4(ivar,jvar,kvar,lvar) = rsum
+        D4(ivar,kvar,jvar,lvar) = rsum
+        D4(ivar,jvar,lvar,kvar) = rsum
+        D4(ivar,lvar,kvar,jvar) = rsum
+        D4(ivar,lvar,jvar,kvar) = rsum
+        D4(ivar,kvar,lvar,jvar) = rsum
 
-        D4(jvar,ivar,kvar,lvar) = sum
-        D4(jvar,kvar,ivar,lvar) = sum
-        D4(jvar,ivar,lvar,kvar) = sum
-        D4(jvar,lvar,kvar,ivar) = sum
-        D4(jvar,lvar,ivar,kvar) = sum
-        D4(jvar,kvar,lvar,ivar) = sum
+        D4(jvar,ivar,kvar,lvar) = rsum
+        D4(jvar,kvar,ivar,lvar) = rsum
+        D4(jvar,ivar,lvar,kvar) = rsum
+        D4(jvar,lvar,kvar,ivar) = rsum
+        D4(jvar,lvar,ivar,kvar) = rsum
+        D4(jvar,kvar,lvar,ivar) = rsum
 
-        D4(kvar,ivar,jvar,lvar) = sum
-        D4(kvar,jvar,ivar,lvar) = sum
-        D4(kvar,ivar,lvar,jvar) = sum
-        D4(kvar,lvar,jvar,ivar) = sum
-        D4(kvar,lvar,ivar,jvar) = sum
-        D4(kvar,jvar,lvar,ivar) = sum
+        D4(kvar,ivar,jvar,lvar) = rsum
+        D4(kvar,jvar,ivar,lvar) = rsum
+        D4(kvar,ivar,lvar,jvar) = rsum
+        D4(kvar,lvar,jvar,ivar) = rsum
+        D4(kvar,lvar,ivar,jvar) = rsum
+        D4(kvar,jvar,lvar,ivar) = rsum
 
-        D4(lvar,ivar,jvar,kvar) = sum
-        D4(lvar,jvar,ivar,kvar) = sum
-        D4(lvar,kvar,jvar,ivar) = sum
-        D4(lvar,ivar,kvar,jvar) = sum
-        D4(lvar,kvar,ivar,jvar) = sum
-        D4(lvar,jvar,kvar,ivar) = sum
+        D4(lvar,ivar,jvar,kvar) = rsum
+        D4(lvar,jvar,ivar,kvar) = rsum
+        D4(lvar,kvar,jvar,ivar) = rsum
+        D4(lvar,ivar,kvar,jvar) = rsum
+        D4(lvar,kvar,ivar,jvar) = rsum
+        D4(lvar,jvar,kvar,ivar) = rsum
       end do
     end do
   end do

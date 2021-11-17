@@ -17,7 +17,7 @@
 !  Contains:
 !    MakeTab   (m_max,maxOrd,maxIncOrd,mMat,mInc,mDec)
 !    TabDim    (nDim,nOsc) Result(nTabDim)
-!    iDetNr    (iocc,graph,nosc,m_max)  Result(iDetNr)
+!    iDetNr    (iocc,graph,nOsc,m_max)  Result(iDetNr)
 !
 !  Written by:
 !    Niclas Forsberg & Anders Bernhardsson,
@@ -51,12 +51,15 @@ subroutine MakeTab2(m_max,maxOrd,maxIncOrd,msiz,mMat,mInc,mDec,nOsc)
 !    Dept. of Theoretical Chemistry, Lund University, 1995&1998
 
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-integer mInc(0:msiz,nosc), mDec(0:msiz,nosc), mmat(0:msiz,nosc)
-!integer iocc(10)  ! test
-integer nTabDim, nvTabDim
-integer, allocatable :: Graph1(:,:), Graph2(:,:,:), iVec(:), Number(:)
+implicit none
+integer(kind=iwp), intent(in) :: m_max, msiz, nOsc
+integer(kind=iwp), intent(inout) :: maxOrd, maxIncOrd
+integer(kind=iwp), intent(out) :: mMat(0:msiz,nOsc), mInc(0:msiz,nOsc), mDec(0:msiz,nOsc)
+integer(kind=iwp) :: i, iDet, iDNR, iOsc, iQ, iQ1, iQ2, iQuanta, iv, j, m, n, nd, nQuanta, nTabDim, nvTabDim
+integer(kind=iwp), allocatable :: Graph1(:,:), Graph2(:,:,:), iVec(:), Num(:)
+integer(kind=iwp), external :: iDetnr
 
 ! Initialize.
 
@@ -84,15 +87,15 @@ if (nOsc > 1) then
 end if
 
 ! set up the arc table
-call mma_allocate(Number,[0,m_max],label='Number')
-Number(0) = 0
+call mma_allocate(Num,[0,m_max],label='Number')
+Num(0) = 0
 N = 0
 do m=1,m_max
-  N = N+Graph1(m-1,nosc+1)
-  Number(m) = N
+  N = N+Graph1(m-1,nOsc+1)
+  Num(m) = N
 end do
 Graph2(:,:,:) = 0
-do iOsc=1,nosc
+do iOsc=1,nOsc
   do iQ1=0,m_max      ! Where we are going
     do iQ2=0,iQ1-1    ! Where we came from
       do i=iQ2+1,iq1  ! Sum over preceding paths
@@ -104,12 +107,12 @@ end do
 
 do iQ1=0,m_max  ! Where we are going
   do iQ2=0,iq1  ! Where we came from
-    Graph2(iQ1,iQ2,nOsc) = Graph2(iQ1,iQ2,nOsc)+Number(iQ1)
+    Graph2(iQ1,iQ2,nOsc) = Graph2(iQ1,iQ2,nOsc)+Num(iQ1)
   end do
 end do
 
 call mma_deallocate(Graph1)
-call mma_deallocate(Number)
+call mma_deallocate(Num)
 
 call mma_allocate(iVec,nOsc,label='iVec')
 do iQuanta=1,m_max
@@ -134,7 +137,7 @@ do iQuanta=1,m_max
       end do
     end if
     iVec(nOsc) = iQuanta-iq
-    iDNR = iDetnr(iVec,Graph2,nosc,m_max)
+    iDNR = iDetnr(iVec,Graph2,nOsc,m_max)
     mMat(iDnr,:) = iVec(:)
   end do
 end do
@@ -143,13 +146,13 @@ end do
 !minc = -1
 mInc(:,:) = -1
 
-call TabDim(m_max-1,nosc,nvTabDim)
+call TabDim(m_max-1,nOsc,nvTabDim)
 maxIncOrd = nvTabDim-1
 do i=0,maxIncOrd
   iVec(:) = mMat(i,:)
   do j=1,nOsc
     iVec(j) = iVec(j)+1
-    mInc(i,j) = iDetnr(iVec,Graph2,nosc,m_max)
+    mInc(i,j) = iDetnr(iVec,Graph2,nOsc,m_max)
     iVec(j) = iVec(j)-1
   end do
 end do
@@ -162,7 +165,7 @@ do i=1,maxOrd
     if (mmat(i,j) /= 0) then
       iVec(:) = mMat(i,:)
       iVec(j) = iVec(j)-1
-      mDec(i,j) = iDetnr(iVec,Graph2,nosc,m_max)
+      mDec(i,j) = iDetnr(iVec,Graph2,nOsc,m_max)
       do iv=1,nOsc
         iVec(iv) = iVec(j)+1
       end do

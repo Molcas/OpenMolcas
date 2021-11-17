@@ -12,13 +12,15 @@
 subroutine WriteFreq(Freq,NormModes,l_NormModes,Title)
 
 use Constants, only: auTocm, auToHz
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
-real*8 frequency
-integer NormModes(l_NormModes)
-real*8 Freq(l_NormModes)
-character*(*) Title
-character*8 F1
+implicit none
+integer(kind=iwp), intent(in) :: l_NormModes, NormModes(l_NormModes)
+real(kind=wp), intent(in) :: Freq(l_NormModes)
+character(len=*), intent(in) :: Title
+integer(kind=iwp) :: i, NumInt
+real(kind=wp) :: frequency
+character(len=8) :: F1
 
 F1 = '(a2,a)'
 NumInt = l_NormModes
@@ -27,7 +29,7 @@ write(u6,*)
 write(u6,*)
 write(u6,F1) ' ',Title
 write(u6,F1) ' ','===================================================='
-write(u6,F1) ' ',' mode        1/cm             GHz          hartrees '
+write(u6,F1) ' ',' mode        1/cm             GHz          hartrees'
 write(u6,F1) ' ','----------------------------------------------------'
 do i=1,NumInt
   frequency = Freq(i)

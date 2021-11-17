@@ -17,14 +17,11 @@ subroutine WriteInt(IntMat,TermMat,mMat,nMat,OccNumMat2,MatEl,ForceField,E1,E2,T
 !    Write vibrational levels, intensities to log.
 !
 !  Input:
-!    FC       : Real*8 two dimensional array - Franck-Condon
-!               factors.
-!    Int_Mat  : Real*8 two dimensional array - Intensities.
-!    Term_Mat : Real*8 two dimensional array - Vibronic levels.
-!    mMat     : Integer two dimensional array - oscillator quanta for
-!               ground state.
-!    nMat     : Integer two dimensional array - oscillator quanta for
-!               excited state.
+!    FC       : Real two dimensional array - Franck-Condon factors.
+!    Int_Mat  : Real two dimensional array - Intensities.
+!    Term_Mat : Real two dimensional array - Vibronic levels.
+!    mMat     : Integer two dimensional array - oscillator quanta for ground state.
+!    nMat     : Integer two dimensional array - oscillator quanta for excited state.
 !    m_plot,
 !    n_plot   : Integer array - transitions wanted in output.
 !
@@ -40,31 +37,26 @@ use mula_global, only: broadplot, cmstart, cmend, hbarcm, LifeTime, m_plot, mdim
                        plotwindow, Use_cm, Use_nm, WriteVibLevels
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half, auTocm, auToeV
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-parameter(nfreq=2000)
-real*8 Intensity, max_Intensity
-real*8 IntMat(0:l_IntMat_1,0:l_IntMat_2)
-real*8 TermMat(0:l_TermMat_1,0:l_TermMat_2)
-real*8 OccNumMat2(0:nDimTot-1,nOsc)
-integer mMat(0:mdim1,mdim2)
-integer nMat(0:ndim1,ndim2)
-character*23 mMatChar(0:mdim1+1)
-character*23 nMatChar(0:ndim1+1)
-character*23 CharTemp
-integer TermMin, TermMax, ivee_cm, ivee_nm
-real*8 E1(nDimTot), E2(nDimTot)
-real*8 harmfreq1(nOsc), harmfreq2(nOsc)
-real*8 x_anharm1(nOsc,nOsc), x_anharm2(nOsc,nOsc)
-logical MatEl, ForceField
-character*12 format
-integer nvTabDim
-integer itemp(3)
-integer plotunit
-integer, allocatable :: level1(:), level2(:), mMatStart(:), mMatStop(:), TermSort(:,:), VibSort1(:,:), VibSort2(:,:)
-real*8, allocatable :: plotvec(:), VibLevel1(:), VibLevel2(:)
-integer, external :: isfreeunit
+implicit none
+integer(kind=iwp), intent(in) :: mMat(0:mdim1,mdim2), nMat(0:ndim1,ndim2), l_IntMat_1, l_IntMat_2, l_TermMat_1, l_TermMat_2, &
+                                 nDimTot, nOsc
+real(kind=wp), intent(in) :: IntMat(0:l_IntMat_1,0:l_IntMat_2), TermMat(0:l_TermMat_1,0:l_TermMat_2), &
+                             OccNumMat2(0:nDimTot-1,nOsc), E1(nDimTot), E2(nDimTot), T0, harmfreq1(nOsc), harmfreq2(nOsc), &
+                             x_anharm1(nOsc,nOsc), x_anharm2(nOsc,nOsc)
+logical(kind=iwp), intent(in) :: MatEl, ForceField
+integer(kind=iwp) :: i, ifreq, iOrd, ipoint, iprintLevel, itemp(3), iTrans, iv, ivee_cm, ivee_nm, j, jOrd, k, l_harm, m_plot_max, &
+                     max_mOrd, max_mQuanta, max_nOrd, max_nQuanta, maxQuanta, n, n_plot_max, nval, nvar, plotunit, TermMax, &
+                     TermMin, nvTabDim
+real(kind=wp) :: const, conv, FWHM, G1, G2, Intensity, max_Intensity, vee, vee_cm, vee_eV, vee_nm
+character(len=23) :: CharTemp
+character(len=12) :: frmt
+integer(kind=iwp), allocatable :: level1(:), level2(:), mMatStart(:), mMatStop(:), TermSort(:,:), VibSort1(:,:), VibSort2(:,:)
+real(kind=wp), allocatable :: plotvec(:), VibLevel1(:), VibLevel2(:)
+character(len=23), allocatable :: mMatChar(:), nMatChar(:)
+integer(kind=iwp), parameter :: nfreq = 2000
+integer(kind=iwp), external :: isfreeunit
 
 write(u6,*)
 write(u6,*)
@@ -83,33 +75,17 @@ max_mOrd = l_IntMat_1
 max_nOrd = l_IntMat_2
 nvar = nOsc
 
-if (nvar == 1) format = '(a1,  i3,a2)'
-if (nvar == 2) format = '(a1, 2i3,a2)'
-if (nvar == 3) format = '(a1, 3i3,a2)'
-if (nvar == 4) format = '(a1, 4i3,a2)'
-if (nvar == 5) format = '(a1, 5i3,a2)'
-if (nvar == 6) format = '(a1, 6i2,a2)'
-if (nvar == 7) format = '(a1, 7i2,a2)'
-if (nvar == 8) format = '(a1, 8i1,a2)'
-if (nvar == 9) format = '(a1, 9i1,a2)'
-if (nvar == 10) format = '(a1,10i1,a2)'
-if (nvar == 11) format = '(a1,11i1,a2)'
-if (nvar == 12) format = '(a1,12i1,a2)'
-if (nvar == 13) format = '(a1,13i1,a2)'
-if (nvar == 14) format = '(a1,14i1,a2)'
-if (nvar == 15) format = '(a1,15i1,a2)'
-if (nvar == 16) format = '(a1,16i1,a2)'
-if (nvar == 17) format = '(a1,17i1,a2)'
-if (nvar == 18) format = '(a1,18i1,a2)'
-if (nvar == 19) format = '(a1,19i1,a2)'
-if (nvar == 20) format = '(a1,20i1,a2)'
+call mma_allocate(mMatChar,[0,mdim1+1],label='mMatChar')
+call mma_allocate(nMatChar,[0,ndim1+1],label='nMatChar')
+
 if (nvar < 21) then
+  if (nvar > 0) write(frmt,'(a,i2,a)') '(a1,',nvar,'i1,a2)'
   do i=0,mdim1
-    write(CharTemp,fmt=format) '(',(mMat(i,j),j=1,nvar),')'
+    write(CharTemp,fmt=frmt) '(',(mMat(i,j),j=1,nvar),')'
     mMatChar(i) = CharTemp
   end do
   do i=0,ndim1
-    write(CharTemp,fmt=format) '(',(nMat(i,j),j=1,nvar),')'
+    write(CharTemp,fmt=frmt) '(',(nMat(i,j),j=1,nvar),')'
     nMatChar(i) = CharTemp
   end do
 else
@@ -157,7 +133,7 @@ if (WriteVibLevels) then
   if (MatEl) then
     k = 0
     do iOrd=1,max_mOrd+1
-      VibLevel1(k) = (E1(iOrd)-E1(1))
+      VibLevel1(k) = E1(iOrd)-E1(1)
       VibLevel2(k) = T0+(E2(iOrd)-E2(1))
       k = k+1
     end do
@@ -406,6 +382,9 @@ end do
 write(u6,'(90A)') ' ',('=',iv=1,89)
 write(u6,*)
 write(u6,*)
+
+call mma_deallocate(mMatChar)
+call mma_deallocate(nMatChar)
 
 !***********************************************************************
 

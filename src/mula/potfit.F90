@@ -45,31 +45,22 @@ subroutine PotFit(nterm,nvar,ndata,ipow,var,yin,coef,x,nOsc,energy,grad,Hess,D3,
 !
 !  Input:
 !    ipow         : Two dimensional integer array - terms in polynomial.
-!    var          : Real*8 two dimensional array - coordinates
-!                   for which we know the energy.
-!    yin          : Real*8 array - energy in points given in var.
-!    trfName      : Character array - transformation associated with each
-!                   internal coordinate.
-!
-!  Output:
-!    coef         : Real*8 two dimensional array - coefficients
-!                   for each term specified by ipow.
-!    x            : Real*8 array - geometry in internal coordinates.
-!    energy       : Real*8 - energy in minimum.
-!    Hess         : Real*8 two dimensional array - Hessian in
-!                   minimum.
-!    D3           : Real*8 three dimensional array - cubic force
-!                   constants.
-!    D4           : Real*8 four dimensional array - quartic force
-!                   constants.
-!    stand_dev    : Real*8 variable - standard deviation of fitted
-!                   values in Subroutine PolFit.
-!    max_err      : Real*8 variable - maximum error of fitted
-!                   values in Subroutine PolFit.
+!    var          : Real two dimensional array - coordinates for which we know the energy.
+!    yin          : Real array - energy in points given in var.
+!    trfName      : Character array - transformation associated with each internal coordinate.
 !    find_minimum : Logical variable - whether or not to optimize structure.
 !    max_term     : Integer - highest power if term in polynomial fit.
-!    use_weight   : Logical variable - whether or not to use weights to
-!                   make the minimum more important in the fit.
+!    use_weight   : Logical variable - whether or not to use weights to make the minimum more important in the fit.
+!
+!  Output:
+!    coef         : Real two dimensional array - coefficients for each term specified by ipow.
+!    x            : Real array - geometry in internal coordinates.
+!    energy       : Real - energy in minimum.
+!    Hess         : Real two dimensional array - Hessian in minimum.
+!    D3           : Real three dimensional array - cubic force constants.
+!    D4           : Real four dimensional array - quartic force constants.
+!    stand_dev    : Real variable - standard deviation of fitted values in Subroutine PolFit.
+!    max_err      : Real variable - maximum error of fitted values in Subroutine PolFit.
 !
 !  Uses:
 !    LinAlg
@@ -83,30 +74,21 @@ subroutine PotFit(nterm,nvar,ndata,ipow,var,yin,coef,x,nOsc,energy,grad,Hess,D3,
 use RandomMod, only: Ranmar, Rmarin
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
-!use LinAlg
-!use VibMod
-!use RandomMod
-implicit real*8(a-h,o-z)
-integer iPow(nterm,nvar)
-real*8 var(ndata,nvar), yin(ndata)
-real*8 coef(nterm,1)
-real*8 x(nosc)
-real*8 grad(nosc)
-real*8 Hess(l_Hess_1,l_Hess_2)
-real*8 D3(l_D,l_D,l_D)
-real*8 D4(l_D,l_D,l_D,l_D)
-character*80 trfName(nvar)
-character*32 trfcode
-real*8 stand_dev, max_err
-logical find_minimum
-logical use_weight
-logical fit_alpha
-real*8 diff_vec(ndata)
-character*32 Inline
-real*8, allocatable :: alpha(:), alpha0(:), alphaRad(:), alphaStart(:), alphaStop(:), alphaTemp(:), qref(:), qvar(:,:), &
-                       RandVec(:), ref(:)
+implicit none
+integer(kind=iwp), intent(in) :: nterm, nvar, iPow(nterm,nvar), ndata, nOsc, max_term, l_Hess_1, l_Hess_2, l_D
+real(kind=wp), intent(in) :: var(ndata,nvar), yin(ndata)
+real(kind=wp), intent(out) :: coef(nterm,1), x(nosc), energy, grad(nosc), Hess(l_Hess_1,l_Hess_2), D3(l_D,l_D,l_D), &
+                              D4(l_D,l_D,l_D,l_D), stand_dev, max_err
+character(len=80), intent(in) :: trfName(nvar)
+logical(kind=iwp), intent(in) :: find_minimum, use_weight
+integer(kind=iwp) :: ifit, iPoints, iRandNum, istart, istop, ivar, ivarMax, length, nPoints
+real(kind=wp) :: alphaMax, stand_dev_best
+logical(kind=iwp) :: fit_alpha
+character(len=32) :: Inline, trfcode
+real(kind=wp), allocatable :: alpha(:), alpha0(:), alphaRad(:), alphaStart(:), alphaStop(:), alphaTemp(:), diff_vec(:), qref(:), &
+                              qvar(:,:), RandVec(:), ref(:)
 
 ! Initialize.
 coef(:,:) = Zero
@@ -139,6 +121,8 @@ do ivar=1,nvar
     alpha0(ivar) = alphaStart(ivar)+alphaRad(ivar)
   end if
 end do
+
+call mma_allocate(diff_vec,ndata,label='diff_vec')
 
 if (fit_alpha) then
 
@@ -214,6 +198,8 @@ call PolFit(ipow,nvar,qvar,yin,ndata,coef,nterm,stand_dev,max_err,diff_vec,use_w
 !do i=1,ndata
 !  write(u6,'(4f15.8,es15.6)') (var(i,j),j=1,nvar),yin(i),diff_vec(i)
 !end do
+
+call mma_deallocate(diff_vec)
 
 if (find_minimum) then
   call Optimize(ipow,qvar,coef,x,energy,Hess,nterm,nvar,ndata)

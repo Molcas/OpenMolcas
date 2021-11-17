@@ -11,28 +11,24 @@
 ! Copyright (C) 1996, Niclas Forsberg                                  *
 !***********************************************************************
 
-subroutine SolveSort(A,C,S,D,W1,W2,W0,C1,C2,C0,r01,r02,r00,icre,iann,nMat,nd1,nd2,OccNumMat,nosc,nDimTot)
+subroutine SolveSort(A,C,S,D,W1,W2,W0,C1,C2,C0,r01,r02,r00,icre,iann,nMat,nd1,nd2,OccNumMat,nOsc,nDimTot)
 !  Purpose:
 !    Solve the secular equation AC = SCD.
 !
 !  Input:
-!    A         : Real*8 two dimensional array
-!    S         : Real*8 two dimensional array
-!    W0,W1,W2  : Real*8 two dimensional arrays - eigenvectors
-!                scaled by square root of harmonic frequencies.
-!    C0,C1,C2  : Real*8 two dimensional arrays - inverses
-!                of W0,W1 and W2.
+!    A         : Real two dimensional array
+!    S         : Real two dimensional array
+!    W0,W1,W2  : Real two dimensional arrays - eigenvectors scaled by square root of harmonic frequencies.
+!    C0,C1,C2  : Real two dimensional arrays - inverses of W0,W1 and W2.
 !    r00,
 !    r01,
-!    r02       : Real*8 arrays - geometry in internal
-!                coordinates.
+!    r02       : Real arrays - geometry in internal coordinates.
 !    nMat      : Two dimensional integer array
 !
 !  Output:
-!    C         : Real*8 two dimensional array
-!    D         : Real*8 array
-!    OccNumMat : Real*8 two dimensional array - occupation
-!                numbers for the different modes.
+!    C         : Real two dimensional array
+!    D         : Real array
+!    OccNumMat : Real two dimensional array - occupation numbers for the different modes.
 !
 !  Calls:
 !    Jacob
@@ -45,22 +41,20 @@ subroutine SolveSort(A,C,S,D,W1,W2,W0,C1,C2,C0,r01,r02,r00,icre,iann,nMat,nd1,nd
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Eight, Half, auTocm
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
-!use Linalg
-implicit real*8(a-h,o-z)
-real*8 A(nDimTot,nDimTot)
-real*8 C(nDimTot,nDimTot)
-real*8 S(nDimTot,nDimTot)
-real*8 D(nDimTot)
-real*8 W1(nosc,nosc), W2(nosc,nosc), C1(nosc,nosc), C2(nosc,nosc), W0(nosc,nosc), C0(nosc,nosc)
-real*8 r01(nosc), r02(nosc), r00(nosc)
-integer nMat(0:nd1,nd2)
-integer icre(0:nd1,nd2)
-integer iann(0:nd1,nd2)
-real*8 OccNumMat(0:nDimTot-1,nOsc)
-real*8, allocatable :: A1(:,:), A2(:,:), alpha(:,:), alpha1(:,:), alpha2(:,:), Asymm(:,:), B1(:,:), B2(:,:), beta(:,:), C_col(:), &
-                       d1(:), d2(:), r_temp1(:), r_temp2(:), SC_col(:), Scr(:), T(:,:), temp1(:,:), temp2(:,:), Tmp1(:,:)
+implicit none
+integer(kind=iwp), intent(in) :: nd1, nd2, icre(0:nd1,nd2), iann(0:nd1,nd2), nMat(0:nd1,nd2), nOsc, nDimTot
+real(kind=wp), intent(in) :: A(nDimTot,nDimTot), W1(nOsc,nOsc), W2(nOsc,nOsc), W0(nOsc,nOsc), C1(nOsc,nOsc), C2(nOsc,nOsc), &
+                             C0(nOsc,nOsc), r01(nOsc), r02(nOsc), r00(nOsc)
+real(kind=wp), intent(out) :: C(nDimTot,nDimTot), D(nDimTot), OccNumMat(0:nDimTot-1,nOsc)
+real(kind=wp), intent(inout) :: S(nDimTot,nDimTot)
+integer(kind=iwp) :: i, ii, iOsc, j, jOsc, k, l, la, lc, m, n
+real(kind=wp) :: det
+real(kind=wp), allocatable :: A1(:,:), A2(:,:), alpha(:,:), alpha1(:,:), alpha2(:,:), Asymm(:,:), B1(:,:), B2(:,:), beta(:,:), &
+                              C_col(:), d1(:), d2(:), r_temp1(:), r_temp2(:), SC_col(:), Scr(:), T(:,:), temp1(:,:), temp2(:,:), &
+                              Tmp1(:,:)
+real(kind=wp), external :: Ddot_
 
 ! Initialize.
 n = nDimTot
@@ -171,7 +165,7 @@ call mma_allocate(C_col,[0,n-1],label='C_col')
 call mma_allocate(SC_col,[0,n-1],label='SC_col')
 OccNumMat(:,:) = Zero
 do k=1,n
-  do jOsc=1,nosc
+  do jOsc=1,nOsc
     C_col(:) = Zero
     do l=0,m
       do iOsc=1,nOsc
@@ -183,7 +177,7 @@ do k=1,n
       C_col(l) = C_col(l)-c(l+1,k)*d1(josc)
     end do
     do l=0,m
-      do iOsc=1,nosc
+      do iOsc=1,nOsc
         lc = icre(l,iosc)
         la = iann(l,iosc)
         if (lc >= 0) C_col(m+lc+1) = C_col(m+lc+1)+sqrt(real(nmat(lc,iosc),kind=wp))*c(m+l+2,k)*B2(iosc,josc)

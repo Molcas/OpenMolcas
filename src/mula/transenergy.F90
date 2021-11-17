@@ -16,55 +16,48 @@ subroutine TransEnergy(G01,x_anharm1,harmfreq1,level1,G02,x_anharm2,harmfreq2,le
 !    Calculate transition energy between two states.
 !
 !  Input:
-!    G01,G02    : Real*8 - (G02-G01) = energy difference between
-!                 the two states.
-!    x_anharm1  : Real*8 two dimensional array - anharmonicity
-!                 constants for ground state.
-!    x_anharm2  : Real*8 two dimensional array - anharmonicity
-!                 constants for excited state.
-!    harmfreq1  : Real*8 array - harmonic frequencies for
-!                 ground state.
-!    harmfreq2  : Real*8 array - harmonic frequencies for
-!                 excited state.
+!    G01,G02    : Real - (G02-G01) = energy difference between the two states.
+!    x_anharm1  : Real two dimensional array - anharmonicity constants for ground state.
+!    x_anharm2  : Real two dimensional array - anharmonicity constants for excited state.
+!    harmfreq1  : Real array - harmonic frequencies for ground state.
+!    harmfreq2  : Real array - harmonic frequencies for excited state.
 !    level1     : Integer array - quanta for ground state.
 !    level2     : Integer array - quanta for excited state.
 !
 !  Output:
-!    energy     : Real*8 variable - energy for transition
-!                 between level1 and level2.
+!    energy     : Real variable - energy for transition between level1 and level2.
 !
 !  Written by:
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1996.
 
 use Constants, only: Half
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 sum, G0, G1, G01, G02
-real*8 energy
-real*8 x_anharm1(nDim,nDim), x_anharm2(nDim,nDim)
-real*8 harmfreq1(nDim), harmfreq2(nDim)
-integer level1(nDim), level2(nDim)
+implicit none
+integer(kind=iwp), intent(in) :: nDim, level1(nDim), level2(nDim)
+real(kind=wp), intent(in) :: G01, x_anharm1(nDim,nDim), harmfreq1(nDim), G02, x_anharm2(nDim,nDim), harmfreq2(nDim)
+real(kind=wp), intent(out) :: energy
+integer(kind=iwp) :: i, j
+real(kind=wp) :: G0, G1
 
 ! Calculate energy for level 1.
-sum = G01
+G0 = G01
 do i=1,nDim
-  sum = sum+harmfreq1(i)*(level1(i)+Half)
+  G0 = G0+harmfreq1(i)*(level1(i)+Half)
   do j=i,nDim
-    sum = sum+x_anharm1(i,j)*(level1(i)+Half)*(level1(j)+Half)
+    G0 = G0+x_anharm1(i,j)*(level1(i)+Half)*(level1(j)+Half)
   end do
 end do
-G0 = sum
 
 ! Calculate energy for level 2.
-sum = G02
+G1 = G02
 do i=1,nDim
-  sum = sum+harmfreq2(i)*(level2(i)+Half)
+  G1 = G1+harmfreq2(i)*(level2(i)+Half)
   do j=i,nDim
-    sum = sum+x_anharm2(i,j)*(level2(i)+Half)*(level2(j)+Half)
+    G1 = G1+x_anharm2(i,j)*(level2(i)+Half)*(level2(j)+Half)
   end do
 end do
-G1 = sum
 
 ! Calculate energy difference.
 energy = G1-G0

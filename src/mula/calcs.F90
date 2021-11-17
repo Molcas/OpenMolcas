@@ -16,15 +16,12 @@ subroutine BondStr(R,i1,i2,j,S,NumOfAt,NumInt)
 !    Calculate contribution to the S-matrix due to bond stretching.
 !
 !  Input:
-!    R        : Array of Real*8 real -  contains the
-!               cartesian coordinates of the bond.
+!    R        : Array of Real -  contains the cartesian coordinates of the bond.
 !    i1,i2    : Integer - the number of the atom.
 !    j        : Integer - the number of the internal coordinate.
 !
 !  Output:
-!    S        : Real*8 three dimensional array - the
-!               contributions to S for the parameters specified
-!               in the input.
+!    S        : Real three dimensional array - the contributions to S for the parameters specified in the input.
 !
 !  Uses:
 !    Linalg
@@ -33,9 +30,14 @@ subroutine BondStr(R,i1,i2,j,S,NumOfAt,NumInt)
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1994.
 
-implicit real*8(a-h,o-z)
-real*8 S(3,NumOfAt,NumInt)
-real*8 R(3)
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp), intent(in) :: R(3)
+integer(kind=iwp), intent(in) :: i1, i2, j, NumOfAt, NumInt
+real(kind=wp), intent(inout) :: S(3,NumOfAt,NumInt)
+integer(kind=iwp) :: k
+real(kind=wp) :: SR
 
 ! Contributions to S.
 SR = sqrt(R(1)**2+R(2)**2+R(3)**2)
@@ -50,19 +52,20 @@ end subroutine BondStr
 !####
 subroutine NaNChk(X,k,i,j)
 
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-real*8 X
-character*16 str1, str2
+implicit none
+real(kind=wp), intent(in) :: X
+integer(kind=iwp), intent(in) :: k, i, j
+character(len=16) :: str1, str2
 
 write(str2,'(G16.8)') X
 call Normalize(str2,str1)
 if (str1(1:3) == 'NAN') then
   write(u6,*) ' CalcS subroutine produced Not-a-Number!'
-  write(u6,*) ' Internal coordinate nr j=',j
-  write(u6,*) ' Atom nr.               i=',i
-  write(u6,*) ' Component              k=',k
+  write(u6,*) ' Internal coordinate nr. j=',j
+  write(u6,*) ' Atom nr.                i=',i
+  write(u6,*) ' Component               k=',k
   write(u6,*) ' S(k,i,j)=',X
 end if
 
@@ -72,19 +75,15 @@ end subroutine NaNChk
 !####
 subroutine AngBend(R1,R2,i1,i2,i3,j,S,NumOfAt,NumInt)
 !  Purpose:
-!    Calculate contribution to the S-matrix due to valence
-!    angle bending.
+!    Calculate contribution to the S-matrix due to valence angle bending.
 !
 !  Input:
-!    R1,R2    : Array of Real*8 real - contains the
-!               cartesian coordinates of the bond.
+!    R1,R2    : Array of Real - contains the cartesian coordinates of the bond.
 !    i1,i2,i3 : Integer - the number of the atom.
 !    j        : Integer - the number of the internal coordinate.
 !
 !  Output:
-!    S        : Real*8 three dimensional array - the
-!               contributions to S for the parameters specified
-!               in the input.
+!    S        : Real three dimensional array - the contributions to S for the parameters specified in the input.
 !
 !  Uses:
 !    Linalg
@@ -94,13 +93,15 @@ subroutine AngBend(R1,R2,i1,i2,i3,j,S,NumOfAt,NumInt)
 !    Dept. of Theoretical Chemistry, Lund University, 1994.
 
 use Constants, only: One
+use Definitions, only: wp, iwp, r8
 
-implicit real*8(a-h,o-z)
-real*8 S(3,NumOfAt,NumInt)
-real*8 R1(3), R2(3)
-real*8 NR1(3), NR2(3)
-real*8 CosTheta, SinTheta, F1, F2, F3
-real*8 SR1, SR2
+implicit none
+real(kind=wp), intent(in) :: R1(3), R2(3)
+integer(kind=iwp), intent(in) :: i1, i2, i3, j, NumOfAt, NumInt
+real(kind=wp), intent(inout) :: S(3,NumOfAt,NumInt)
+integer(kind=iwp) :: k
+real(kind=wp) :: CosTheta, F1, F2, F3, F4, F5, NR1(3), NR2(3), SinTheta, SR1, SR2, Theta
+real(kind=r8), external :: dDot_
 
 ! Unit vectors.
 SR1 = sqrt(R1(1)**2+R1(2)**2+R1(3)**2)
@@ -147,19 +148,15 @@ end subroutine AngBend
 !####
 subroutine LinBend(R1,R2,i1,i2,i3,j,S,NumOfAt,NumInt)
 !  Purpose:
-!    Calculate contribution to the S-matrix due to valence
-!    angle bending for a linear molecule.
+!    Calculate contribution to the S-matrix due to valence angle bending for a linear molecule.
 !
 !  Input:
-!    R1,R2    : Array of Real*8 real -  contains the
-!               cartesian coordinates of the bond.
+!    R1,R2    : Array of Real - contains the cartesian coordinates of the bond.
 !    i1,i2,i3 : Integer - the number of the atom.
 !    j        : Integer - the number of the internal coordinate.
 !
 !  Output:
-!    S        : Real*8 three dimensional array - the
-!               contributions to S for the parameters specified
-!               in the input.
+!    S        : Real three dimensional array - the contributions to S for the parameters specified in the input.
 !
 !  Uses:
 !    Linalg
@@ -169,10 +166,13 @@ subroutine LinBend(R1,R2,i1,i2,i3,j,S,NumOfAt,NumInt)
 !    Dept. of Theoretical Chemistry, Lund University, 1994.
 
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 S(3,NumOfAt,NumInt)
-real*8 R1(3), R2(3)
+implicit none
+real(kind=wp), intent(in) :: R1(3), R2(3)
+integer(kind=iwp), intent(in) :: i1, i2, i3, j, NumOfAt, NumInt
+real(kind=wp), intent(inout) :: S(3,NumOfAt,NumInt)
+real(kind=wp) :: F1, F2, SR1, SR2
 
 ! Length of vectors.
 SR1 = sqrt(R1(1)**2+R1(2)**2+R1(3)**2)
@@ -223,16 +223,13 @@ subroutine Torsion(R1,R2,R3,i1,i2,i3,i4,j,S,NumOfAt,NumInt)
 !    Calculate contribution to the S-matrix due to torsion.
 !
 !  Input:
-!    R1,R2,R3 : Array of Real*8 real -  contains the
-!               cartesian coordinates of the bond.
+!    R1,R2,R3 : Array of Real - contains the cartesian coordinates of the bond.
 !    i1,i2,
 !    i3,i4    : Integer - the number of the atom.
 !    j        : Integer - the number of the internal coordinate.
 !
 !  Output:
-!    S        : Real*8 three dimensional array - the
-!               contributions to S for the parameters specified
-!               in the input.
+!    S        : Real three dimensional array - the contributions to S for the parameters specified in the input.
 !
 !  Uses:
 !    Linalg
@@ -242,11 +239,16 @@ subroutine Torsion(R1,R2,R3,i1,i2,i3,i4,j,S,NumOfAt,NumInt)
 !    Dept. of Theoretical Chemistry, Lund University, 1994.
 
 use Constants, only: One
+use Definitions, only: wp, iwp, r8
 
-implicit real*8(a-h,o-z)
-real*8 S(3,NumOfAt,NumInt)
-real*8 R1(3), R2(3), R3(3)
-real*8 NR1(3), NR2(3), NR3(3)
+implicit none
+real(kind=wp), intent(in) :: R1(3), R2(3), R3(3)
+integer(kind=iwp), intent(in) :: i1, i2, i3, i4, j, NumOfAt, NumInt
+real(kind=wp), intent(inout) :: S(3,NumOfAt,NumInt)
+integer(kind=iwp) :: k
+real(kind=wp) :: CosTheta1, CosTheta2, F1, F10, F11, F12, F2, F3, F4, F5, F6, F7, F8, F9, NR1(3), NR2(3), NR3(3), SinTheta1, &
+                 SinTheta2, SR1, SR2, SR3, Theta1, Theta2
+real(kind=r8), external :: dDot_
 
 ! Unit vectors.
 SR1 = sqrt(R1(1)**2+R1(2)**2+R1(3)**2)
@@ -311,22 +313,17 @@ call NaNChk(S(3,i1,j),3,i4,j)
 end subroutine Torsion
 !####
 subroutine OutOfPl(R1,R2,R3,i1,i2,i3,i4,j,S,NumOfAt,NumInt)
-!
 !  Purpose:
-!    Calculate contribution to the S-matrix due to the angle between
-!    a bond and a plane defined by two bonds.
+!    Calculate contribution to the S-matrix due to the angle between a bond and a plane defined by two bonds.
 !
 !  Input:
-!    R1,R2,R3 : Array of Real*8 real -  contains the
-!               cartesian coordinates of the bond.
+!    R1,R2,R3 : Array of Real - contains the cartesian coordinates of the bond.
 !    i1,i2,
 !    i3,i4    : Integer - the number of the atom.
 !    j        : Integer - the number of the internal coordinate.
 !
 !  Output:
-!    S        : Real*8 three dimensional array - the
-!               contributions to S for the parameters specified
-!               in the input.
+!    S        : Real three dimensional array - the contributions to S for the parameters specified in the input.
 !  Uses:
 !    Linalg
 !
@@ -335,11 +332,16 @@ subroutine OutOfPl(R1,R2,R3,i1,i2,i3,i4,j,S,NumOfAt,NumInt)
 !    Dept. of Theoretical Chemistry, Lund University, 1994.
 
 use Constants, only: One
+use Definitions, only: wp, iwp, r8
 
-implicit real*8(a-h,o-z)
-real*8 S(3,NumOfAt,NumInt)
-real*8 R1(3), R2(3), R3(3)
-real*8 NR1(3), NR2(3), NR3(3), F0(3)
+implicit none
+real(kind=wp), intent(in) :: R1(3), R2(3), R3(3)
+integer(kind=iwp), intent(in) :: i1, i2, i3, i4, j, NumOfAt, NumInt
+real(kind=wp), intent(inout) :: S(3,NumOfAt,NumInt)
+integer(kind=iwp) :: k
+real(kind=wp) :: CosPhi, CosTheta, Dot, F0(3), F1, F10, F11, F12, F13, F14, F15, F2, F3, F4, F5, F6, F7, F8, F9, NR1(3), NR2(3), &
+                 NR3(3), Phi, SinTheta, SR1, SR2, SR3, TanPhi, Theta
+real(kind=r8), external :: Ddot_
 
 ! Unit vectors.
 SR1 = sqrt(R1(1)**2+R1(2)**2+R1(3)**2)
@@ -413,44 +415,42 @@ call NaNChk(S(3,i1,j),3,i4,j)
 end subroutine OutOfPl
 !####
 subroutine CalcS(AtCoord,InterVec,S,NumInt,NumOfAt)
-!
 !  Purpose:
-!    Calculate the contribution to the S-matrix for each of the
-!    internal coordinates.
+!    Calculate the contribution to the S-matrix for each of the internal coordinates.
 !
 !  Input:
-!    AtCoord  : Two dimensional Real*8 array - contains
-!               the cartesian coordinates of the atoms.
-!    InterVec : Integer array - contains the atoms that are used
-!               in the calculations of each internal coordinate.
-!    S        : Real*8 array filled with zeros.
+!    AtCoord  : Two dimensional Real array - contains the cartesian coordinates of the atoms.
+!    InterVec : Integer array - contains the atoms that are used in the calculations of each internal coordinate.
+!    S        : Real array filled with zeros.
 !
 !  Output:
-!    S        : Real*8 array - contains the contributions
-!               of each of the internal coordinates.
+!    S        : Real array - contains the contributions of each of the internal coordinates.
 !
 !  Written by:
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1994.
 
-implicit real*8(a-h,o-z)
-real*8 AtCoord(3,NumOfAt)
-integer InterVec(*)
-real*8 S(3,NumOfAt,NumInt)
-real*8 R(3), R1(3), R2(3), R3(3)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: InterVec(*), NumInt, NumOfAt
+real(kind=wp), intent(in) :: AtCoord(3,NumOfAt)
+real(kind=wp), intent(inout) :: S(3,NumOfAt,NumInt)
+integer(kind=iwp) :: i1, i2, i3, i4, IntType, k, n_Int
+real(kind=wp) :: R(3), R1(3), R2(3), R3(3)
 
 ! Calculate the contributions to the S-matrix for each internal
 ! coordinate specified in the vector InterVec.
 k = 1
 IntType = InterVec(k)
-nInt = 1
-do while (nInt <= NumInt)
+n_Int = 1
+do while (n_Int <= NumInt)
   if (IntType == 1) then
     ! Bond Stretching.
     i1 = InterVec(k+1)
     i2 = InterVec(k+2)
     R(:) = AtCoord(:,i2)-AtCoord(:,i1)
-    call BondStr(R,i1,i2,nInt,S,NumOfAt,NumInt)
+    call BondStr(R,i1,i2,n_Int,S,NumOfAt,NumInt)
     k = k+3
   end if
   if (IntType == 2) then
@@ -460,7 +460,7 @@ do while (nInt <= NumInt)
     i3 = InterVec(k+3)
     R1(:) = AtCoord(:,i1)-AtCoord(:,i2)
     R2(:) = AtCoord(:,i3)-AtCoord(:,i2)
-    call AngBend(R1,R2,i1,i2,i3,nInt,S,NumOfAt,NumInt)
+    call AngBend(R1,R2,i1,i2,i3,n_Int,S,NumOfAt,NumInt)
     k = k+4
   end if
   if (IntType == 3) then
@@ -470,7 +470,7 @@ do while (nInt <= NumInt)
     i3 = InterVec(k+3)
     R1(:) = AtCoord(:,i1)-AtCoord(:,i2)
     R2(:) = AtCoord(:,i3)-AtCoord(:,i2)
-    call LinBend(R1,R2,i1,i2,i3,nInt-1,S,NumOfAt,NumInt)
+    call LinBend(R1,R2,i1,i2,i3,n_Int-1,S,NumOfAt,NumInt)
     k = k+4
   end if
   if (IntType == 4) then
@@ -482,7 +482,7 @@ do while (nInt <= NumInt)
     R1(:) = AtCoord(:,i2)-AtCoord(:,i1)
     R2(:) = AtCoord(:,i3)-AtCoord(:,i2)
     R3(:) = AtCoord(:,i4)-AtCoord(:,i3)
-    call Torsion(R1,R2,R3,i1,i2,i3,i4,nInt,S,NumOfAt,NumInt)
+    call Torsion(R1,R2,R3,i1,i2,i3,i4,n_Int,S,NumOfAt,NumInt)
     k = k+5
   end if
   if (IntType == 5) then
@@ -494,11 +494,11 @@ do while (nInt <= NumInt)
     R1(:) = AtCoord(:,i1)-AtCoord(:,i4)
     R2(:) = AtCoord(:,i2)-AtCoord(:,i4)
     R3(:) = AtCoord(:,i3)-AtCoord(:,i4)
-    call OutOfPl(R1,R2,R3,i1,i2,i3,i4,nInt,S,NumOfAt,NumInt)
+    call OutOfPl(R1,R2,R3,i1,i2,i3,i4,n_Int,S,NumOfAt,NumInt)
     k = k+5
   end if
   IntType = InterVec(k)
-  nInt = nInt+1
+  n_Int = n_Int+1
 end do
 
 end subroutine CalcS
@@ -508,12 +508,11 @@ subroutine CalcG(G,Mass,S,NumInt,NumOfAt)
 !    Calculate G-matrix.
 !
 !  Input:
-!    Mass     : Real*8 array - the mass of the atoms.
-!    S        : Real*8 three dimensional array - the
-!               contributions from all the internal coordinates.
+!    Mass     : Real array - the mass of the atoms.
+!    S        : Real three dimensional array - the contributions from all the internal coordinates.
 !
 !  Output:
-!    G        : Real*8 two dimensional array.
+!    G        : Real two dimensional array.
 !
 !  Uses:
 !    Constants
@@ -523,11 +522,14 @@ subroutine CalcG(G,Mass,S,NumInt,NumOfAt)
 !    Dept. of Theoretical Chemistry, Lund University, 1994.
 
 use Constants, only: Zero, One, uToau
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-real*8 G(NumInt,NumInt)
-real*8 Mass(NumOfAt)
-real*8 S(3,NumOfAt,NumInt)
+implicit none
+integer(kind=iwp), intent(in) :: NumInt, NumOfAt
+real(kind=wp), intent(out) :: G(NumInt,NumInt)
+real(kind=wp), intent(in) :: Mass(NumOfAt), S(3,NumOfAt,NumInt)
+integer(kind=iwp) :: i, j, k
+real(kind=wp) :: GSum
 
 do i=1,NumInt
   do j=1,NumInt
