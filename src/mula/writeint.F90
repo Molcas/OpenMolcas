@@ -25,10 +25,6 @@ subroutine WriteInt(IntMat,TermMat,mMat,nMat,OccNumMat2,MatEl,ForceField,E1,E2,T
 !    m_plot,
 !    n_plot   : Integer array - transitions wanted in output.
 !
-!  Uses
-!    TabMod
-!    VibMod
-!
 !  Written by:
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1996.

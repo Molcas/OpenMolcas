@@ -12,18 +12,20 @@
 !               1994,1995, Niclas Forsberg                             *
 !***********************************************************************
 
+!module LinAlg
+
 !  Contains:
-!    Cholesky    : Performs a Cholesky factorization of a positive
-!                 definite matrix A.
+!    Cholesky    : Performs a Cholesky factorization of a positive definite matrix A.
 !    Dool_MULA   : Solves the system of linear equations A*X = B.
 !    SolveSecEq  : Solves the seqular equation A*C = S*C*D.
-!    Polfit      : Fit a polynomial of requested dimension to the input
-!                  data.
-!    calcNorm    : Calculates norm of a vector.
+!    Polfit      : Fit a polynomial of requested dimension to the input data.
+!    factor      : Calculate coefficient for n'th derivative.
 !
 !  Written by:
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
+
+!contains
 
 subroutine Dool_MULA(A,LA1,LA2,B,LB1,LB2,det)
 !  Purpose:
@@ -152,7 +154,7 @@ call mma_deallocate(iPiv)
 call mma_deallocate(jPiv)
 
 end subroutine Dool_MULA
-!####
+
 subroutine SolveSecEq(A,n,C,S,D)
 !  Purpose:
 !    Solve the secular equation SAC = CD.
@@ -249,7 +251,7 @@ call mma_deallocate(Temp)
 call mma_deallocate(Asymm)
 
 end subroutine SolveSecEq
-!####
+
 subroutine PolFit(ipow,nvar,var,yin,ndata,coef,nterm,stand_dev,max_err,diff_vec,use_weight)
 !  Purpose:
 !    Fit a polynomial to yin.
@@ -395,7 +397,7 @@ call mma_deallocate(yfit)
 call mma_deallocate(weight)
 
 end subroutine PolFit
-!####
+
 subroutine factor(expnt,nder,rfactor)
 !  Purpose:
 !    Calculate coefficient for n'th derivative.
@@ -419,7 +421,7 @@ end if
 rfactor = real(isum,kind=wp)
 
 end subroutine factor
-!####
+
 subroutine Cholesky(A,L,nd)
 !  Purpose:
 !    Perform a Cholesky factorization of the matrix A:
@@ -433,8 +435,6 @@ subroutine Cholesky(A,L,nd)
 !
 !  Output:
 !    L      : Real two dimensional array - lower triangular matrix.
-!
-!  Calls:
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -482,3 +482,5 @@ end do
 call mma_deallocate(D)
 
 end subroutine Cholesky
+
+!end module LinAlg

@@ -23,9 +23,6 @@ subroutine PotDist(F,V,Lambda,PED,NumInt,nOsc)
 !  Output:
 !    PED      : Real three dimensional array - Potential Energy Distribution for each mode. !
 !
-!  Uses:
-!    Linalg
-!
 !  Written by:
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1996.

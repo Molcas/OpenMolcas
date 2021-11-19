@@ -23,9 +23,6 @@ subroutine RotTranRem(Sinv,S,Mass,AtCoord,NumOfAt,NumInt)
 !  Output:
 !    Sinv     : Real three dimensional array - Inverted S matrix with rotation and translation projected out.
 !
-!  Uses:
-!    LinAlg
-!
 !  Written by:
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1995.

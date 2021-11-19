@@ -33,7 +33,6 @@ subroutine SolveSort(A,C,S,D,W1,W2,W0,C1,C2,C0,r01,r02,r00,icre,iann,nMat,nd1,nd
 !  Calls:
 !    Jacob
 !    Jacord
-!    Linalg
 !
 !  Written by:
 !    Niclas Forsberg,

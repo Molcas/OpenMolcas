@@ -14,12 +14,8 @@
 !module FCMod
 
 !  Contains:
-!    FCval     (C1,W1,det1,r01,C2,W2,det2,r02,FC,max_mOrd,max_nOrd,
-!               max_nOrd2,max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,
-!               nInc,mDec,nDec,C,W,det0,L,U,FC00,alpha1,alpha2,beta)
-!
-!  Uses:
-!    TabMod
+!    FCval     (C1,W1,det1,r01,C2,W2,det2,r02,FC,max_mOrd,max_nOrd,max_nOrd2,max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,nInc,mDec,
+!               nDec,C,W,det0,L,U,FC00,alpha1,alpha2,beta)
 !
 !  Written by:
 !    Niclas Forsberg,
@@ -59,11 +55,7 @@ subroutine FCval(C1,W1,det1,r01,C2,W2,det2,r02,FC,max_mOrd,max_nOrd,max_nOrd2,ma
 !    beta       : Real two dimensional array - 0.5*alpha1*alpha^(-1)*alpha2
 !
 !  Calls:
-!    Cholesky    (LinAlg)
-!    Dool_MULA   (LinAlg)
-!
-!  Uses:
-!    Linalg
+!    Dool_MULA
 !
 !  Written by:
 !    Niclas Forsberg,
@@ -298,3 +290,5 @@ end do
 call mma_deallocate(sqr)
 
 end subroutine FCval
+
+!end module FCMod

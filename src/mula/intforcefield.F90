@@ -22,8 +22,6 @@
 !    Anders Bernhardsson & Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1998.
 
-!vv private
-
 !contains
 
 subroutine IntForceField(IntensityMat,TermMat,FC00,C1,W1,det1,r01,C2,W2,det2,r02,C,W,det0,m_max,n_max,max_dip,Trandip,TranDipGrad, &
@@ -46,13 +44,6 @@ subroutine IntForceField(IntensityMat,TermMat,FC00,C1,W1,det1,r01,C2,W2,det2,r02
 !
 !  Output:
 !    IntensityMat : Real two dimensional array - intensities of the transitions.
-!
-!  Uses:
-!    Constants
-!    VibMod
-!    TabMod
-!    FCMod
-!    MatElMod
 
 use mula_global, only: mdim1, mdim2, ndim1, ndim2
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -135,3 +126,5 @@ call mma_deallocate(FC2)
 call mma_deallocate(FreqDiffMat)
 
 end subroutine IntForceField
+
+!end module ForceFieldIntMod

@@ -15,30 +15,16 @@
 
 !  Contains:
 !    DipMatEl       (Dij,W,L,U,FC00,nMat,D0,D1,D2,D3,D4,max_term)
-!    SetUpDipMat    (DipMat,max_term,ipow,var,dip,trfName,
-!                    use_weight,C1,W1,det1,r01,
-!                    C2,W2,det2,r02,max_mOrd,max_nOrd,max_nOrd2,
-!                    max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,
-!                    nInc,mDec,nDec)
-!    Intensity      (IntensityMat,TermMat,T0,harmfreq1,harmfreq2,
-!                    x_anharm1,x_anharm2,max_term,ipow,var,
-!                    Tdip_y,Tdip_z,
-!                    trfName,use_weight,U1,U2,E1,E2,r00,
-!                    C1,W1,det1,r01,C2,W2,det2,r02,m_max,n_max,
-!                    max_dip,MatEl)
-!
-!  Uses:
-!    TabMod
-!    FCMod
-!    MatElMod
-!    OptMod
-!    VibMod
+!    SetUpDipMat    (DipMat,max_term,ipow,var,dip,trfName,use_weight,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,max_nOrd2,
+!                    max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,nInc,mDec,nDec)
+!    Intensity      (IntensityMat,TermMat,T0,harmfreq1,harmfreq2,x_anharm1,x_anharm2,max_term,ipow,var,Tdip_y,Tdip_z,trfName,
+!                    use_weight,U1,U2,E1,E2,r00,C1,W1,det1,r01,C2,W2,det2,r02,m_max,n_max,max_dip,MatEl)
+!    Intensity2     (IntensityMat,TermMat,U1,U2,C1,W1,det1,r01,C2,W2,det2,r02,det0,m_max,n_max,max_dip,m_plot,n_plot,TranDip,
+!                    TranDipGrad,Base)
 !
 !  Written by:
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1996.
-
-!xx private
 
 !contains
 
@@ -206,7 +192,7 @@ call mma_deallocate(nInc)
 call mma_deallocate(nDec)
 
 end subroutine Intensity
-!####
+
 subroutine Intensity2(IntensityMat,TermMat,U1,U2,C1,W1,det1,r01,C2,W2,det2,r02,det0,m_max,n_max,max_dip,m_plot,n_plot,TranDip, &
                       TranDipGrad,Base,l_IntensityMat_1,l_IntensityMat_2,l_TermMat_1,l_TermMat_2,nOsc,nDimTot,l_n_plot,l_m_plot)
 !  Purpose:
@@ -365,3 +351,194 @@ call mma_deallocate(nInc)
 call mma_deallocate(nDec)
 
 end subroutine Intensity2
+
+subroutine DipMatEl(Dij,W,L,U,FC00,nMat,nInc,nDec,D0,D1,D2,D3,D4,max_term,Base,m_ord,nOsc,max_mOrd,max_nOrd2)
+!  Purpose:
+!    Calculate matrix elements of the transition dipole.
+!
+!  Input:
+!    D0       : Real variable - the zero order term of the transition dipole.
+!    D1       : Real array - the first order term of the transition dipole.
+!    D2       : Real two dimensional array - the second order term of the transition dipole.
+!    D3       : Real three dimensional array - the third order term of the transition dipole.
+!    D4       : Real four dimensional array - the fourth order term of the transition dipole.
+!    W        : Real two dimensional array
+!    L,U      : Real two dimensional array
+!    FC00     : Real variable
+!    nMat     : Two dimensional integer array.
+!    max_term : Integer - maximum order of the transition dipole terms.
+!
+!  Output:
+!    Dij      : Real two dimensional array - contains the matrix elements of the transition dipole.
+
+use mula_global, only: ndim1, ndim2
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: nMat(0:ndim1,ndim2), nInc(0:ndim1,ndim2), nDec(0:ndim1,ndim2), max_term, m_ord, nOsc, max_mOrd, &
+                                 max_nOrd2
+real(kind=wp), intent(out) :: Dij(0:max_mOrd,0:max_mOrd)
+real(kind=wp), intent(in) :: W(nOsc,nOsc), L(0:max_mOrd,0:max_mOrd), U(0:max_nOrd2,0:max_nord2), FC00, D0, D1(nOsc), &
+                             D2(nOsc,nOsc), D3(nOsc,nOsc,nOsc), D4(nOsc,nOsc,nOsc,nOsc), Base(nOsc,nOsc)
+integer(kind=iwp) :: max_nOrd, mPlus, nOscOld, nPlus
+real(kind=wp), allocatable :: A(:,:), Temp(:,:), Wtemp(:,:)
+
+! Initialize.
+max_nOrd = max_mOrd
+mPlus = max_mOrd+1
+nPlus = max_nOrd+1
+nOscOld = nOsc
+call mma_allocate(A,[0,max_mOrd],[0,max_nOrd],label='A')
+call mma_allocate(Wtemp,nOscOld,nOsc,label='Wtemp')
+call DGEMM_('N','N',nOscOld,nOsc,nOsc,One,Base,nOscOld,W,nOsc,Zero,Wtemp,nOscOld)
+A(:,:) = Zero
+call PotEnergy(A,nMat,nInc,nDec,D0,D1,D2,D3,D4,max_term,WTemp,m_ord,nosc,nOscOld)
+
+call mma_deallocate(Wtemp)
+call mma_allocate(Temp,[0,max_mOrd],[0,max_nOrd],label='Temp')
+call DGEMM_('N','T',mPlus,mPlus,nPlus,One,A,mPlus,U,mPlus,Zero,Temp,mPlus)
+call DGEMM_('N','N',mPlus,nPlus,mPlus,FC00,L,mPlus,Temp(:,max_nOrd2+1:),mPlus,Zero,Dij,mPlus)
+call mma_deallocate(Temp)
+call mma_deallocate(A)
+
+end subroutine DipMatEl
+
+subroutine SetUpDipMat(DipMat,max_term,ipow,var,dip,trfName,C1,W1,det1,r01,C2,W2,det2,r02,max_mOrd,max_nOrd,max_nOrd2,max_mInc, &
+                       max_nInc,max_nInc2,mMat,nMat,mInc,nInc,mDec,nDec,det0,r0,r1,r2,base,nOsc,nDimTot,nPolyTerm,ndata,nvar, &
+                       MaxNumAt)
+!  Purpose:
+!    Performs a least squares fit of the transition dipole at the two
+!    centers and at the inPolyTermediate oscillator. Calculates the matrix
+!    elements of the transition dipole at these centers.
+!
+!  Input:
+!    ipow       : Two dimensional integer array - terms of the polynomial.
+!    var        : Real two dimensional array - coordinates to be used in the fit.
+!    dip        : Real array - values of dipole at the coordinates contained in var.
+!    trfName    : Character array - transformation associated with each internal coordinate.
+!    max_term   : Integer - maximum order of the transition dipole terms.
+!    W1,W2      : Real two dimensional arrays - eigenvectors scaled by the square root of the eigenvalues.
+!    C1,C2      : Real two dimensional arrays - inverses of W1 and W2.
+!    det1,det2  : Real variables - determinants of C1 and C2.
+!    r01,r02    : Real arrays - coordinates of the two oscillators.
+!    max_mOrd,
+!    max_nOrd,
+!    max_nOrd2
+!    max_mInc,
+!    max_nInc,
+!    max_nInc2  : Integer variables
+!    mMat,nMat,
+!    mInc,nInc,
+!    mDec,nDec  : Two dimensional integer arrays
+!
+!  Output:
+!    DipMat     : Real two dimensional array - contains the matrix elements of the transition dipole.
+
+use mula_global, only: mdim1, mdim2, ndim1, ndim2
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: max_term, nPolyTerm, nvar, ipow(nPolyTerm,nvar), max_mOrd, max_nOrd, max_nOrd2, max_mInc, &
+                                 max_nInc, max_nInc2, mMat(0:mdim1,mdim2), nMat(0:ndim1,ndim2), mInc(0:mdim1,mdim2), &
+                                 nInc(0:ndim1,ndim2), mDec(0:mdim1,mdim2), nDec(0:ndim1,ndim2), nOsc, nDimtot, ndata, MaxNumAt
+real(kind=wp), intent(out) :: DipMat(0:nDimTot,0:nDimTot), det0, r0(nOsc), r1(nOsc), r2(nOsc)
+real(kind=wp), intent(in) :: var(ndata,nvar), dip(ndata), C1(nOsc,nOsc), W1(nOsc,nOsc), det1, r01(nOsc), C2(nOsc,nOsc), &
+                             W2(nOsc,nOsc), det2, r02(nOsc), Base(nOsc,nOsc)
+character(len=80), intent(in) :: trfName(MaxNumAt)
+integer(kind=iwp) :: iOrd, jOrd, l_C1, l_C2, l_r0, l_r1, l_r2
+real(kind=wp) :: D0, FC00, max_err, stand_dev
+logical(kind=iwp) :: find_minimum, use_weight
+real(kind=wp), allocatable :: alpha1(:,:), alpha2(:,:), beta(:,:), C(:,:), coef(:), D1(:), D2(:,:), D3(:,:,:), D4(:,:,:,:), &
+                              Dij(:,:), DijTrans(:,:), L(:,:), r0vec(:), Sij(:,:), U(:,:), W(:,:)
+
+! Initialize.
+find_minimum = .false.
+use_weight = .false.
+
+call mma_allocate(Dij,[0,max_mOrd],[0,max_mOrd],label='Dij')
+call mma_allocate(DijTrans,[0,max_mOrd],[0,max_mOrd],label='DijTrans')
+call mma_allocate(C,nOsc,nOsc,label='C')
+call mma_allocate(W,nOsc,nOsc,label='W')
+call mma_allocate(L,[0,max_mOrd],[0,max_mOrd],label='L')
+call mma_allocate(U,[0,max_nOrd2],[0,max_nOrd2],label='U')
+call mma_allocate(Sij,[0,max_mOrd],[0,max_mOrd],label='Sij')
+call mma_allocate(r0vec,nOsc,label='r0vec')
+call mma_allocate(alpha1,nOsc,nOsc,label='alpha1')
+call mma_allocate(alpha2,nOsc,nOsc,label='alpha2')
+call mma_allocate(beta,nOsc,nOsc,label='beta')
+call mma_allocate(D1,nOsc,label='D1')
+call mma_allocate(D2,nOsc,nOsc,label='D2')
+call mma_allocate(D3,nOsc,nOsc,nOsc,label='D3')
+call mma_allocate(D4,nOsc,nOsc,nOsc,nOsc,label='D4')
+
+! Calculate terms of type
+!
+!                    dM  |
+!                    --  | < i | Q  | j >,
+!                    dQ  |        k
+!                      k  Q
+!                          0
+! where M is the (transition) dipole moment, |i> and |j> are harmonic
+! oscillator states, Q_0 is the equilibrium geometry and Q_k is the
+! k:th normal coordinate.
+
+l_C1 = nOsc
+call Calc_r00(C1,C1,C,W,alpha1,alpha2,r0vec,r01,r01,det0,det1,det1,FC00,l_C1)
+call FCval(C1,W1,det1,r01,C1,W1,det1,r01,Sij,max_mOrd,max_nOrd,max_nOrd2,max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,nInc,mDec, &
+           nDec,C,W,det1,L,U,FC00,alpha1,alpha2,beta,l_C1)
+call mma_allocate(coef,nPolyTerm,label='coef')
+l_r1 = nOsc
+call PotFit(nPolyTerm,nvar,ndata,ipow,var,dip,coef,r1,l_r1,D0,D1,D2,D3,D4,trfName,stand_dev,max_err,find_minimum,max_term, &
+            use_weight,nOsc,nOsc,nOsc)
+call DipMatEl(Dij,W,L,U,FC00,nMat,ninc,ndec,D0,D1,D2,D3,D4,max_term,Base,ndim1,ndim2,max_mOrd,max_nOrd2)
+DipMat(0:max_mOrd,0:max_mOrd) = Dij
+
+l_C2 = nOsc
+call Calc_r00(C2,C2,C,W,alpha1,alpha2,r0vec,r02,r02,det0,det2,det2,FC00,l_C2)
+call FCval(C2,W2,det2,r02,C2,W2,det2,r02,Sij,max_mOrd,max_nOrd,max_nOrd2,max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,nInc,mDec, &
+           nDec,C,W,det2,L,U,FC00,alpha1,alpha2,beta,l_C2)
+l_r2 = nOsc
+call PotFit(nPolyTerm,nvar,ndata,ipow,var,dip,coef,r2,l_r2,D0,D1,D2,D3,D4,trfName,stand_dev,max_err,find_minimum,max_term, &
+            use_weight,nOsc,nOsc,nOsc)
+call DipMatEl(Dij,W,L,U,FC00,nMat,ninc,ndec,D0,D1,D2,D3,D4,max_term,Base,ndim1,ndim2,max_mOrd,max_nOrd2)
+DipMat(max_mOrd+1:2*max_mOrd+1,max_mOrd+1:2*max_mOrd+1) = Dij
+
+l_C1 = nOsc
+call Calc_r00(C1,C2,C,W,alpha1,alpha2,r0vec,r01,r02,det0,det1,det2,FC00,l_C1)
+call FCval(C1,W1,det1,r01,C2,W2,det2,r02,Sij,max_mOrd,max_nOrd,max_nOrd2,max_mInc,max_nInc,max_nInc2,mMat,nMat,mInc,nInc,mDec, &
+           nDec,C,W,det0,L,U,FC00,alpha1,alpha2,beta,l_C1)
+l_r0 = nOsc
+call PotFit(nPolyTerm,nvar,ndata,ipow,var,dip,coef,r0,l_r0,D0,D1,D2,D3,D4,trfName,stand_dev,max_err,find_minimum,max_term, &
+            use_weight,nOsc,nOsc,nOsc)
+call mma_deallocate(coef)
+call DipMatEl(Dij,W,L,U,FC00,nMat,ninc,ndec,D0,D1,D2,D3,D4,max_term,Base,ndim1,ndim2,max_mOrd,max_nOrd2)
+DipMat(0:max_mOrd,max_mOrd+1:2*max_mOrd+1) = Dij
+do iOrd=0,max_mOrd
+  do jOrd=0,max_mOrd
+    DijTrans(jOrd,iOrd) = Dij(iOrd,jOrd)
+  end do
+end do
+DipMat(max_mOrd+1:2*max_mOrd+1,0:max_mOrd) = DijTrans
+
+call mma_deallocate(Dij)
+call mma_deallocate(DijTrans)
+call mma_deallocate(C)
+call mma_deallocate(W)
+call mma_deallocate(L)
+call mma_deallocate(U)
+call mma_deallocate(Sij)
+call mma_deallocate(r0vec)
+call mma_deallocate(alpha1)
+call mma_deallocate(alpha2)
+call mma_deallocate(beta)
+call mma_deallocate(D1)
+call mma_deallocate(D2)
+call mma_deallocate(D3)
+call mma_deallocate(D4)
+
+end subroutine SetUpDipMat
+
+!end module IntensityMod

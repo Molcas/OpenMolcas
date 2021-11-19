@@ -19,12 +19,6 @@ subroutine SetUpHmat2(energy1,C,W,det,r1,max_mOrd,max_nOrd,max_mInc,max_nInc,mMa
 !
 !  Output:
 !
-!  Uses:
-!    Linalg
-!    OptMod
-!    FCMod
-!    VibMod
-!
 !  Written by:
 !    Niclas Forsberg,
 !    Dept. of Theoretical Chemistry, Lund University, 1996.

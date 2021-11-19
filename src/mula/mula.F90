@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) Niclas Forsberg                                        *
-!               2009, Giovanni Ghigo                                   *
+!               2008,2009, Giovanni Ghigo                              *
 !***********************************************************************
 
 subroutine Mula(ireturn)
@@ -38,7 +38,7 @@ integer(kind=iwp), intent(out) :: ireturn
 integer(kind=iwp) :: i, iCode, iMaxYes, iMem, iOrd, iOsc, iPrint, iPrint_Save, iRateMem, iUMem, iv, jOrd, jOsc, k1, k2, l_a, &
                      l_harm, l_Hess_1, l_Hess_2, l_IntensityMat_1, l_IntensityMat_2, l_l, l_m_plot, l_n_plot, l_NormModes, &
                      l_TermMat_1, l_TermMat_2, lBatch, leftBatch, lLeft, lMBatch, lNDEC, lNINC, lNMAT, lNMAT0, m_max, max_dip, &
-                     max_mInc, max_mOrd, max_nInc, max_nOrd, max_term, minQ, mTabDim, n_max, nBatch, nBond,  nDimTot, new_n_max, &
+                     max_mInc, max_mOrd, max_nInc, max_nOrd, max_term, minQ, mTabDim, n_max, nBatch, nBond, nDimTot, new_n_max, &
                      nm, nOsc, nOscOld, nTabDim, nterm, NumOfAt, nvTabDim, nYes
 real(kind=wp) :: CPE, CPTF0, CPTF1, CPTF2, CPTF3, CPTF4, CPTF5, CPTF6, det, det0, det1, det2, dh, dMinWind, dRho, FC00, GE1, GE2, &
                  max_err, stand_dev, T0, TIOE, TIOTF0, TIOTF1, TIOTF2, TIOTF3, TIOTF4, TIOTF5, TIOTF6
@@ -914,8 +914,8 @@ if (lISC) then
 
   lISC = .false.
 
-  !GGn -----------------------------------------------------------------
 else
+  !GGn -----------------------------------------------------------------
 
   !--------------------------------------------------------------------!
 

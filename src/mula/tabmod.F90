@@ -8,9 +8,343 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 1995, Niclas Forsberg                                  *
-!               1999, Anders Bernhardsson                              *
+! Copyright (C) 1995,1998, Niclas Forsberg                             *
+!               1995,1998,1999, Anders Bernhardsson                    *
 !***********************************************************************
+
+!module TabMod
+
+!  Contains:
+!    MakeTab   (m_max,maxOrd,maxIncOrd,mMat,mInc,mDec)
+!    MakeTab2  (m_max,maxOrd,maxIncOrd,msiz,mMat,mInc,mDec)
+!    TabDim    (nDim,nOsc) Result(nTabDim)
+!    iDetNr    (iocc,graph,nOsc,m_max)  Result(iDetNr)
+!    Mul1      (nMat,F,iCre,iAnn,mat,rdx)
+!    Mul2      (nMat,F,iCre,iAnn,mat,rdx)
+!    Mul3      (nMat,F,iCre,iAnn,mat,rdx)
+!    Mul4      (nMat,F,iCre,iAnn,mat,rdx)
+!
+!  Written by:
+!    Niclas Forsberg & Anders Bernhardsson,
+!    Dept. of Theoretical Chemistry, Lund University, 1995&1998.
+
+!contains
+
+subroutine MakeTab(m_max,maxOrd,maxIncOrd,mMat,mInc,mDec,nOsc)
+!  Purpose:
+!    Create tables used in FCval.
+!
+!  Input:
+!    nOsc      : Integer - the the number of oscillators.
+!    m_max     : Integer - the maximum sum of the quantum numbers.
+!    maxOrd    : Integer - number of rows in mMat.
+!    nTabDim   : Integer
+!    Osc_Shift : Integer array
+!
+!  Output:
+!    mMat      : Two dimensional integer array
+!    mInc      : Two dimensional integer array
+!    mDec      : Two dimensional integer array
+!
+!  Written by:
+!    Niclas Forsberg,
+!    Dept. of Theoretical Chemistry, Lund University, 1995.
+
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: m_max, nOsc
+integer(kind=iwp), intent(inout) :: maxOrd
+integer(kind=iwp), intent(out) :: maxIncOrd, mMat(0:maxOrd,nOsc), mInc(0:maxOrd,nOsc), mDec(0:maxOrd,nOsc)
+integer(kind=iwp) :: i, irow, istart_row, j, jcol, jmax, jrow, k, l, m, mMat_row, mTempDim, n, num, numtemp
+logical(kind=iwp) :: equal
+integer(kind=iwp), allocatable :: mTemp(:,:), row(:), unitm(:,:)
+
+! Initialize.
+maxOrd = 0
+maxIncOrd = 0
+mMat(:,:) = 0
+mInc(:,:) = 0
+mDec(:,:) = 0
+if (m_max == 0) return
+if (nOsc == 1) then
+  mTempDim = m_max
+else
+  mTempDim = (1-nOsc**(m_max+1))/(1-nOsc)
+end if
+call mma_allocate(mTemp,[0,mTempDim],[1,nOsc],label='mTemp')
+
+call mma_allocate(row,nOsc,label='row')
+
+mTemp(:,:) = 0
+num = 1
+istart_row = 0
+irow = istart_row+1
+call mma_allocate(unitm,nOsc,nOsc,label='unit')
+unitm(:,:) = 0
+do i=1,nOsc
+  unitm(i,i) = 1
+end do
+
+! Create table mMat.
+mMat_row = 1
+do m=1,m_max
+  irow = 1
+  numtemp = 0
+  ! Produce all combinations for a given total sum = m_max.
+  do n=1,num
+    do jrow=1,nOsc
+      do jcol=1,nOsc
+        mTemp(irow,jcol) = mMat(istart_row,jcol)+unitm(jrow,jcol)
+      end do
+      irow = irow+1
+      numtemp = numtemp+1
+    end do
+    istart_row = istart_row+1
+  end do
+  num = numtemp
+  ! Remove all entries which occur more than once.
+  do i=1,num
+    !row1 => mTemp(i,:)
+    j = istart_row
+    jmax = mMat_row
+    equal = .false.
+    do while ((j < jmax) .and. (.not. equal))
+      !row2 => mMat(j,:)
+      equal = .true.
+      do l=1,nOsc
+        !if (row1(l) /= row2(l)) then
+        if (mTemp(i,l) /= mMat(j,l)) then
+          equal = .false.
+        end if
+      end do
+      j = j+1
+    end do
+    if (.not. equal) then
+      do jcol=1,nOsc
+        mMat(mMat_row,jcol) = mTemp(i,jcol)
+      end do
+      mMat_row = mMat_row+1
+    end if
+  end do
+  num = mMat_row-istart_row
+end do
+maxOrd = mMat_row-1
+call mma_deallocate(mTemp)
+
+! Create mInc.
+maxIncOrd = maxOrd-num
+do i=0,maxIncOrd
+  row(:) = mMat(i,:)
+  do j=1,nOsc
+    row(j) = row(j)+1
+    equal = .false.
+    k = i+1
+    do while ((.not. equal) .and. (k <= maxOrd))
+      !row2 => mMat(k,:)
+      equal = .true.
+      do l=1,nOsc
+        if (row(l) /= mMat(k,l)) then
+          equal = .false.
+        end if
+      end do
+      if (equal) then
+        mInc(i,j) = k
+      else
+        k = k+1
+      end if
+    end do
+    row(j) = row(j)-1
+  end do
+end do
+
+! Create mDec.
+do i=1,maxOrd
+  row(:) = mMat(i,:)
+  do j=1,nOsc
+    if (row(j) > 0) then
+      row(j) = row(j)-1
+      equal = .false.
+      k = 0
+      do while ((.not. equal) .and. (k <= maxOrd))
+        !row2 => mMat(k,:)
+        equal = .true.
+        do l=1,nOsc
+          if (row(l) /= mMat(k,l)) then
+            equal = .false.
+          end if
+        end do
+        if (equal) then
+          mDec(i,j) = k
+        else
+          k = k+1
+        end if
+      end do
+      row(j) = row(j)+1
+    else
+      mDec(i,j) = 0
+    end if
+  end do
+end do
+
+call mma_deallocate(row)
+call mma_deallocate(unitm)
+
+end subroutine MakeTab
+
+subroutine MakeTab2(m_max,maxOrd,maxIncOrd,msiz,mMat,mInc,mDec,nOsc)
+!  Purpose:
+!    Create tables used in FCval.
+!
+!  Input:
+!    nOsc      : Integer - the the number of oscillators.
+!    m_max     : Integer - the maximum sum of the quantum numbers.
+!    maxOrd    : Integer - number of rows in mMat.
+!    nTabDim   : Integer
+!    Osc_Shift : Integer array
+!
+!  Output:
+!    mMat      : Two dimensional integer array
+!    mInc      : Two dimensional integer array
+!    mDec      : Two dimensional integer array
+!
+!  Calls:
+!    none
+!
+!  Written by:
+!    Niclas Forsberg Anders Bernhardsson,
+!    Dept. of Theoretical Chemistry, Lund University, 1995&1998
+
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: m_max, msiz, nOsc
+integer(kind=iwp), intent(inout) :: maxOrd, maxIncOrd
+integer(kind=iwp), intent(out) :: mMat(0:msiz,nOsc), mInc(0:msiz,nOsc), mDec(0:msiz,nOsc)
+integer(kind=iwp) :: i, iDet, iDNR, iOsc, iQ, iQ1, iQ2, iQuanta, iv, j, m, n, nd, nQuanta, nTabDim, nvTabDim
+integer(kind=iwp), allocatable :: Graph1(:,:), Graph2(:,:,:), iVec(:), Num(:)
+integer(kind=iwp), external :: iDetnr
+
+! Initialize.
+
+mInc(:,:) = 0
+mDec(:,:) = 0
+mMat(:,:) = 0
+if (m_max == 0) return
+call TabDim(m_max,nOsc,nTabDim)
+maxOrd = nTabDim-1
+
+! Set up the vertex table
+call mma_allocate(Graph1,[0,m_max],[1,nOsc+1],label='Graph1')
+call mma_allocate(Graph2,[0,m_max],[0,m_max],[1,nOsc],label='Graph2')
+Graph1(:,:) = 0
+Graph1(:,2) = 1
+Graph1(0,:) = 1
+if (nOsc > 1) then
+  do iOsc=2,nOsc
+    n = 0
+    do nQuanta=0,m_max
+      n = n+Graph1(nQuanta,iOsc)
+      Graph1(nQuanta,iOsc+1) = n
+    end do
+  end do
+end if
+
+! set up the arc table
+call mma_allocate(Num,[0,m_max],label='Number')
+Num(0) = 0
+N = 0
+do m=1,m_max
+  N = N+Graph1(m-1,nOsc+1)
+  Num(m) = N
+end do
+Graph2(:,:,:) = 0
+do iOsc=1,nOsc
+  do iQ1=0,m_max      ! Where we are going
+    do iQ2=0,iQ1-1    ! Where we came from
+      do i=iQ2+1,iq1  ! Sum over preceding paths
+        Graph2(iQ1,iQ2,iOsc) = Graph1(i,iOsc)+Graph2(iQ1,iQ2,iOsc)
+      end do
+    end do
+  end do
+end do
+
+do iQ1=0,m_max  ! Where we are going
+  do iQ2=0,iq1  ! Where we came from
+    Graph2(iQ1,iQ2,nOsc) = Graph2(iQ1,iQ2,nOsc)+Num(iQ1)
+  end do
+end do
+
+call mma_deallocate(Graph1)
+call mma_deallocate(Num)
+
+call mma_allocate(iVec,nOsc,label='iVec')
+do iQuanta=1,m_max
+  iVec(:) = 0
+  iQ = -1
+  iVec(1) = -1
+
+  call TabDim(iQuanta,nOsc,nd)
+  call TabDim(iQuanta-1,nOsc,nvTabDim)
+
+  nd = nd-nvTabDim
+
+  do iDet=1,nD
+    iVec(1) = iVec(1)+1
+    iQ = iQ+1
+    if (iQ > iQuanta) then
+      do i=1,nOsc-1
+        if (iQ <= iQuanta) exit
+        iQ = iQ-iVec(i)+1
+        iVec(i) = 0
+        iVec(i+1) = iVec(i+1)+1
+      end do
+    end if
+    iVec(nOsc) = iQuanta-iq
+    iDNR = iDetnr(iVec,Graph2,nOsc,m_max)
+    mMat(iDnr,:) = iVec(:)
+  end do
+end do
+
+! Create mInc.
+!minc = -1
+mInc(:,:) = -1
+
+call TabDim(m_max-1,nOsc,nvTabDim)
+maxIncOrd = nvTabDim-1
+do i=0,maxIncOrd
+  iVec(:) = mMat(i,:)
+  do j=1,nOsc
+    iVec(j) = iVec(j)+1
+    mInc(i,j) = iDetnr(iVec,Graph2,nOsc,m_max)
+    iVec(j) = iVec(j)-1
+  end do
+end do
+
+! Create mDec.
+
+mDec(0,:) = -1
+do i=1,maxOrd
+  do j=1,nOsc
+    if (mmat(i,j) /= 0) then
+      iVec(:) = mMat(i,:)
+      iVec(j) = iVec(j)-1
+      mDec(i,j) = iDetnr(iVec,Graph2,nOsc,m_max)
+      do iv=1,nOsc
+        iVec(iv) = iVec(j)+1
+      end do
+    else
+      mdec(i,j) = -1
+    end if
+  end do
+end do
+
+call mma_deallocate(Graph2)
+call mma_deallocate(iVec)
+
+end subroutine MakeTab2
 
 subroutine TabDim(nDim,nOsc,nTabDim)
 !  Purpose:
@@ -66,7 +400,7 @@ else
 end if
 
 end subroutine TabDim
-!####
+
 function iDetNr(iocc,graph2,nOsc,m)
 
 use Definitions, only: iwp
@@ -109,7 +443,6 @@ end function iDetNr
 !
 ! Anders Bernhardsson Friday the 13th august 1999
 
-!####
 subroutine Mul1(nMat,F,iCre,iAnn,mat,m_Ord,nOsc,rdx)
 
 use mula_global, only: mdim1, ndim1, ndim2
@@ -146,7 +479,7 @@ do iOrd=0,m_Ord
 end do
 
 end subroutine Mul1
-!####
+
 subroutine Mul2(nMat,F,iCre,iAnn,mat,m_Ord,nOsc,rdx)
 
 use mula_global, only: mdim1, ndim1, ndim2
@@ -218,7 +551,7 @@ do iOrd=0,m_Ord
 end do
 
 end subroutine Mul2
-!####
+
 subroutine Mul3(nMat,F,iCre,iAnn,mat,m_Ord,nOsc,rdx)
 
 use mula_global, only: mdim1, ndim1, ndim2
@@ -346,7 +679,7 @@ do iOrd=0,m_Ord
 end do
 
 end subroutine Mul3
-!####
+
 subroutine Mul4(nMat,F,iCre,iAnn,mat,m_Ord,nOsc,rdx)
 
 use mula_global, only: mdim1, ndim1, ndim2
@@ -540,8 +873,8 @@ do iOrd=0,m_Ord
         if (kOrd >= 0) then
           do kOsc=1,nOsc
             Fact = sqr(nmat(iord,iosc))*sqr(nmat(kord,josc))*rsym
-            relem = (Mat(jOsc,kosc,kosc,iosc)+Mat(kOsc,josc,kosc,iosc)+Mat(jOsc,kosc,iosc,kosc)+ &
-                    Mat(kOsc,josc,iosc,kosc))*rdx(3)*rdx(4)
+            relem = (Mat(jOsc,kosc,kosc,iosc)+Mat(kOsc,josc,kosc,iosc)+Mat(jOsc,kosc,iosc,kosc)+Mat(kOsc,josc,iosc,kosc))* &
+                    rdx(3)*rdx(4)
             relem = relem+(Mat(kOsc,kosc,josc,iosc)+Mat(jOsc,iosc,kosc,kosc)+Mat(kOsc,iosc,josc,kosc))*rdx(2)*rdx(4)
             relem = relem+(Mat(kOsc,kosc,iosc,josc)+Mat(kOsc,iosc,kosc,josc))*rdx(2)*rdx(3)
             relem = relem+(Mat(iOsc,kosc,josc,kosc)+Mat(iOsc,josc,kosc,kosc))*rdx(1)*rdx(4)
@@ -564,3 +897,5 @@ do iOrd=0,m_Ord
 end do
 
 end subroutine Mul4
+
+!end module TabMod

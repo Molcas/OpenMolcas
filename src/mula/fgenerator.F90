@@ -15,7 +15,7 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: m_Ord, nOsc, nMat(0:m_Ord,nOsc), iCre(0:m_Ord,nOsc), iAnn(0:m_Ord,nOsc),  mx_Ord
+integer(kind=iwp), intent(in) :: m_Ord, nOsc, nMat(0:m_Ord,nOsc), iCre(0:m_Ord,nOsc), iAnn(0:m_Ord,nOsc), mx_Ord
 real(kind=wp), intent(out) :: F(0:m_Ord,0:mx_Ord,3)
 real(kind=wp), intent(in) :: trgrd(3,nOsc)
 integer(kind=iwp) :: i, iCar, iOrd, iOsc, jOrd

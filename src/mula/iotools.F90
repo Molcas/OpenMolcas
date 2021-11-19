@@ -14,6 +14,10 @@
 !               Per Ake Malmqvist                                      *
 !***********************************************************************
 
+!module IOTools
+
+!contains
+
 subroutine MulaRdNLst(iUnit,NameIn)
 !  Locate the beginning of an input stream
 !  (similar to FORTRAN NAMELIST read known to some systems)
@@ -58,7 +62,7 @@ do while (.true.)
 end do
 
 end subroutine MulaRdNLst
-!####
+
 subroutine WordPos(k,InLine,iStart,iStop)
 !  Purpose:
 !    Return the position (iStart,iStop) of the first word after position k in InLine.
@@ -101,7 +105,7 @@ end do
 iStop = k-1
 
 end subroutine WordPos
-!####
+
 subroutine KeyWord(nUnit,KeyWd,rwnd,Exists)
 !  Purpose:
 !    Read from a file until a line contains the string KeyWd.
@@ -173,7 +177,7 @@ Exists = OutLine(1:KLen) == TmpKey(1:KLen)
 return
 
 end subroutine KeyWord
-!####
+
 function StrToDble(InString)
 !  Purpose:
 !    Convert a number in string InString to Real.
@@ -211,7 +215,7 @@ end if
 StrToDble = xNum
 
 end function StrToDble
-!####
+
 function iStrToInt(InLine)
 !  Purpose:
 !    Convert a number in string InLine to integer.
@@ -256,7 +260,7 @@ end if
 iStrToInt = num
 
 end function iStrToInt
-!####
+
 subroutine Normalize(line,line2)
 !  Purpose:
 !    Convert a string to uppercase characters.
@@ -335,3 +339,5 @@ end do
 return
 
 end subroutine Normalize
+
+!end module IOTools

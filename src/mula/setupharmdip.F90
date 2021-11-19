@@ -24,10 +24,6 @@ subroutine SetUpHarmDip(DipMat,max_term,m_max,n_max,mMat,mInc,mDec,nMat,nInc,nDe
 !
 !  Output:
 !    DipMat     : Real two dimensional array - contains the matrix elements of the transition dipole.
-!
-!  Uses:
-!    TabMod
-!    FCMod
 
 use mula_global, only: mdim1, mdim2, ndim1, ndim2
 use stdalloc, only: mma_allocate, mma_deallocate
