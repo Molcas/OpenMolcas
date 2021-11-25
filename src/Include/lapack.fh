@@ -1,24 +1,30 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
 
-* This file contains the necessary files for an internal LAPACK
-*
-* If you modify this, the files delayed_lapack.f90 and f[1-5].fh in
-* delayed_util should be updated too, use delayed.py for the latter
+! This file contains the necessary files for an internal LAPACK
+!
+! If you modify this, the files delayed_lapack.f90 and f[1-5].fh in
+! delayed_util should be updated too, use delayed.py for the latter
 
-* dgesdd, dsyevd, dlamc3 are used by libwfa
-* dpstrf, dpstf2 are used by GA to detect LAPACK
+! dgesdd, dsyevd, dlamc3 are used by libwfa
+! dpstrf, dpstf2 are used by GA to detect LAPACK
 
 #ifndef _LAPACK_FH_
 
+#ifdef _F90_
+#include "dlartg.f90"
+#include "dlassq.f90"
+#include "zlassq.f90"
+#undef _F90_
+#else
 #include "dbdsdc.f"
 #include "dbdsqr.f"
 #include "dcombssq.f"
@@ -105,7 +111,6 @@
 #include "dlarrk.f"
 #include "dlarrr.f"
 #include "dlarrv.f"
-#include "dlartg.f"
 #include "dlaruv.f"
 #include "dlas2.f"
 #include "dlascl.f"
@@ -130,7 +135,6 @@
 #include "dlasq6.f"
 #include "dlasr.f"
 #include "dlasrt.f"
-#include "dlassq.f"
 #include "dlasv2.f"
 #include "dlaswp.f"
 #include "dlasy2.f"
@@ -232,7 +236,6 @@
 #include "zlascl.f"
 #include "zlaset.f"
 #include "zlasr.f"
-#include "zlassq.f"
 #include "zlatrd.f"
 #include "zstedc.f"
 #include "zstein.f"
@@ -254,6 +257,7 @@
 #include "zunmlq.f"
 #include "zunmtr.f"
 #include "zupgtr.f"
+#endif
 
 #define _LAPACK_FH_
 #endif

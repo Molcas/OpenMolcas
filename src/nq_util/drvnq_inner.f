@@ -107,7 +107,6 @@
         sp_time = 0d0
         FI_time = 0d0
 !
-       Debug=.false.
        IF(Debug) THEN
         LuMC=37
         call OpnFl('MCPDFT',LuMC,Exist)
@@ -395,13 +394,11 @@ C     End Do ! number_of_subblocks
         write(6,*) 'Funcaa in drvnq_ :', Funcaa
         write(6,*) 'Funcbb in drvnq_ :', Funcbb
         write(6,*) 'Funccc in drvnq_ :', Funccc
-      END IF
 *
 * Close these files...
-      If(l_casdft) then
         Close(LuMC)
         Close(LuMT)
-      End if
+      END IF
 
       Return
       End

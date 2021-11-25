@@ -16,11 +16,11 @@ endif ()
 file (RELATIVE_PATH tooldir ${BASE_DIR} ${CMAKE_CURRENT_LIST_DIR})
 set (EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/${tooldir})
 
-if (PYTHONINTERP_FOUND)
+if (Python_FOUND)
 
   foreach (prog IN ITEMS dynamixtools)
     file (READ ${CMAKE_CURRENT_LIST_DIR}/${prog}.py content)
-    file (WRITE ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${prog}.py "#!/usr/bin/env ${PYTHON_EXECUTABLE}\n")
+    file (WRITE ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${prog}.py "#!/usr/bin/env ${Python_EXECUTABLE}\n")
     file (APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${prog}.py "${content}")
     file (COPY ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${prog}.py
           DESTINATION ${EXECUTABLE_OUTPUT_PATH}
@@ -34,6 +34,6 @@ if (PYTHONINTERP_FOUND)
 
 else ()
 
-  message (WARNING "No appropriate python interpreter found, dynamixtools will be disabled")
+  message (WARNING "No appropriate Python interpreter found, dynamixtools will be disabled")
 
 endif ()

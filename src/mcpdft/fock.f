@@ -373,6 +373,7 @@ C
       Character*16 ROUTINE
       Parameter (ROUTINE='FOCK    ')
 #include "WrkSpc.fh"
+#include "mspdft.fh"
 
 #include "chotodo.fh"
 #include "chlcas.fh"
@@ -612,7 +613,11 @@ C
 !      Call Dscal_(ntot4,0.5d0,F,1)
 
 !For MCLR
-      Call put_dArray('Fock_PDFT',F,ntot4)
+      IF(DoGradMSPD) THEN
+       CALL DCopy_(nTot4,F,1,WORK(iFxyMS+(iIntS-1)*nTot4),1)
+      ELSE
+       Call put_dArray('Fock_PDFT',F,ntot4)
+      END IF
 
       call xflush(6)
       CALL FOCKOC_m(Q,F,CMO)

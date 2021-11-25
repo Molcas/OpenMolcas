@@ -261,6 +261,10 @@ C Will also handle mixing of states (sodiag.f)
       IF(SONATNSTATE.GT.0) THEN
         CALL DO_SONATORB(NSS,USOR,USOI)
       END IF
+C Plot SO-Natural Transition Orbitals if requested
+      IF(SONTOSTATES.GT.0) THEN
+        CALL DO_SONTO(NSS,USOR,USOI)
+      END IF
 
       Call mma_deallocate(USOR)
       Call mma_deallocate(USOI)

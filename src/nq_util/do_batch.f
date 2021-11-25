@@ -481,6 +481,7 @@ cGLM            kAO   = iCmp*iBas_Eff*mGrid
          do iGrid=0,mGrid-1
           dTot=Rho(1,iGrid+1)+Rho(2,iGrid+1)
           ratio = 0.0d0
+           IF(Debug) THEN
             write(LuMT,'(3(F10.6,A),5(F17.10,A))')
      &       Grid(1,iGrid+1),',',
      &       Grid(2,iGrid+1),',',
@@ -490,6 +491,7 @@ cGLM            kAO   = iCmp*iBas_Eff*mGrid
      &       dTot*Weights(iGrid+1),',',
      &       Weights(iGrid+1),',',
      &       dTot
+           END IF
 cGLM          if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
           if(dTot.ge.thrsrho) then
             ratio = 4.0d0*P2_ontop(1,iGrid+1)/(dTot**2.0d0)
