@@ -52,7 +52,7 @@
         character(len=*), intent(in) :: filename
         real(wp), intent(out) :: energy(nroots)
         logical :: newcycle_found
-        integer :: LuNewC
+        integer :: LuNewC, i
         newcycle_found = .false.
         do while(.not. newcycle_found)
           call sleep(1)
@@ -68,7 +68,7 @@
           write(6, *) 'NEWCYCLE file found. Proceding with SuperCI'
           LuNewC = isFreeUnit(12)
           call molcas_open(LuNewC, 'NEWCYCLE')
-            read(LuNewC,*) energy
+            read(LuNewC,*) (energy(i), i = 1, nroots)
           close(LuNewC, status='delete')
           write(6, *) 'I read the following energy:', energy
         end if

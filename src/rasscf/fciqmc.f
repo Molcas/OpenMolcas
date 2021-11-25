@@ -210,7 +210,6 @@
         logical, intent(in) :: DoEmbdNECI, fake_run, reuse_pops
         character(len=*), intent(in) :: ascii_fcidmp, h5_fcidmp
         real(wp), intent(out) :: NECIen(nroots),
-     &
      &      D1S_MO(nAcPar), DMAT(nAcpar), PSMAT(nAcpr2), PAMAT(nAcpr2)
         logical, intent(in) :: tGUGA
         integer, intent(in) :: iroot(nroots)
