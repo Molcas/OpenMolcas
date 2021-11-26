@@ -2,7 +2,7 @@
 * Molecule: C2H4
 * Basis: 6-31G
 * Symmetry: C1
-* Features tested: MECI optimization MS-CASPT2 analytical gradients and NAC
+* Features tested: MECI optimization XMS-CASPT2 analytical gradients and NAC
 * Responsible person: S. Battaglia
 * Comments: Using analytic interstate coupling vector and gradients
 *-------------------------------------------------------------------------------
