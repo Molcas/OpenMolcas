@@ -596,12 +596,26 @@ Keywords
               </KEYWORD>
 
 :kword:`GRDT`
-  Enables the calculation of analytical nuclear gradients.
+  Enable the calculation of quantities required by :program:`MCLR` to obtain the
+  Lagrange multipliers for computing the analytical nuclear gradients.
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="GRDT" APPEAR="Gradient" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: Grdt <advanced>
               <HELP>
-              Force analytical nuclear gradients calculation of the CASPT2 wave function.
+              Enable calculation of quantities required for the analytical nuclear gradients.
+              </HELP>
+              </KEYWORD>
+
+:kword:`NAC`
+  Enable the calculation of quantities required by :program:`MCLR` to obtain the
+  Lagrange multipliers for computing the analytical non-adiabatic coupling vector.
+  This keyword expects two 2 integers specifying the two states for which the NAC
+  vector should be computed.
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="NAC" APPEAR="Non-adiabatic coupling" KIND="INTS" SIZE="2" LEVEL="ADVANCED">
+              %%Keyword: NAC <advanced>
+              <HELP>
+              Enable calculation of quantities required for the analytical non-adiabatic coupling vector.
               </HELP>
               </KEYWORD>
 
