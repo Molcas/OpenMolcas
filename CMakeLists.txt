@@ -2224,7 +2224,7 @@ if (MolGUI)
   include (ExternalProject)
   ExternalProject_Add (${projname}
                        GIT_REPOSITORY https://gitlab.com/Molcas/MolGUI.git
-                       GIT_TAG 2667899eac1195c28e1a33c6f3ae28b6350fe52c
+                       GIT_TAG 599b75e79fab49501adb313f3e2dfab9d8211795
                        PREFIX ${projdir}
                        CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${projinstall}
                                   -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}

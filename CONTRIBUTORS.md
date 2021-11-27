@@ -61,7 +61,7 @@ Eugeniusz Bednarz
 Nelson H. F. Beebe  
 Anders Bernhardsson  
 Margareta R. A. Blomberg  
-Sergey I. Bokarev
+Sergey I. Bokarev  
 Piotr Borowski  
 Jonas Boström  
 Per Boussard  
@@ -112,7 +112,7 @@ Marcus Johansson
 Erik Källman  
 Gunnar Karlström  
 Stefan Knecht  
-Vladislav Kochetov
+Vladislav Kochetov  
 Jesper Wisborg Krogh  
 Teodoro Laino  
 Giovanni Li Manni  
