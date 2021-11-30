@@ -13,13 +13,15 @@
 
 module fortran_strings
 
-use, intrinsic :: iso_c_binding, only: c_ptr, c_f_pointer
+use, intrinsic :: iso_c_binding, only: c_ptr, c_char, c_f_pointer, C_NULL_CHAR
 use Definitions, only: wp, iwp, MOLCAS_C_INT
 
 implicit none
 private
 
-public :: str, to_lower, to_upper, operator(.in.), split, count_char, StringWrapper_t, Cptr_to_str, char_array
+public :: str, to_lower, to_upper, operator(.in.), split, &
+    count_char, StringWrapper_t, Cptr_to_str, char_array, &
+    to_c_str
 
 ! This type exists to have an array of string pointers
 ! and to allow unequally sized strings.
@@ -197,5 +199,12 @@ pure function count_char(str,char) result(c)
     if (str(i:i) == char) c = c+1
   end do
 end function count_char
+
+pure function to_c_str(str) result(c_str)
+    character(len=*), intent(in) :: str
+    character(len=1, kind=c_char), allocatable :: c_str(:)
+    allocate(c_str(len_trim(str)))
+    c_str = trim(str) //  C_NULL_CHAR
+end function
 
 end module fortran_strings

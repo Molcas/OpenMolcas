@@ -25,49 +25,50 @@
 /* Implicit cast to c_int */
 INT strlen_wrapper(const char*const* str)
 {
-  return strlen(*str);
+    return strlen(*str);
 }
 
 
-INT access_wrapper(const char*const* path)
+INT access_wrapper(const char* path)
 {
-    return access(*path, F_OK) == 0;
+    return access(path, F_OK);
 }
 
 void getcwd_wrapper(char* path, const INT* n, INT* err)
 {
-  if (getcwd(path, *n) == path) {
-    *err = 0;
-    INT i = -1;
+    if (getcwd(path, *n) == path) {
+        *err = 0;
+        INT i = -1;
 /* This is necessary for FORTRAN trim() to work correctly.*/
-    while (path[++i] != '\0');
-    for (; i < *n; i++) {
-      path[i] = ' ';
+        while (path[++i] != '\0'); {
+            for (; i < *n; i++) {
+                path[i] = ' ';
+            }
+        }
+    } else {
+        *err = 1;
     }
-  } else {
-    *err = 1;
-  }
 }
 
 void chdir_wrapper(const char* path, INT *err)
 {
-  *err = chdir(path);
+    *err = chdir(path);
 }
 
 void symlink_wrapper(const char* to, const char* from, INT* err)
 {
-  *err = symlink(to, from);
+    *err = symlink(to, from);
 }
 
 /* MODE_T (or in general unsigned ints) is not supported by FORTRAN */
 /* Implicit cast to c_int */
-void mkdir_wrapper(const char*  path, const INT* mode, INT* err)
+void mkdir_wrapper(const char* path, const INT* mode, INT* err)
 {
     *err = mkdir(path, *mode);
 }
 
 INT get_errno() {
-  return errno;
+    return errno;
 }
 
 

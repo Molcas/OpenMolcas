@@ -16,14 +16,14 @@ module filesystem
 #include "compiler_features.h"
 
     use, intrinsic :: iso_c_binding, only: c_char, c_int, c_ptr, c_null_char
-    use fortran_strings, only: split, StringWrapper_t, Cptr_to_str, str
+    use fortran_strings, only: split, StringWrapper_t, Cptr_to_str, str, to_c_str
     use Definitions, only: iwp, MOLCAS_C_INT
 
     implicit none
     private
 
     public :: getcwd_, chdir_, symlink_, get_errno_, strerror_, mkdir_, &
-        remove_, real_path, basename
+        remove_, real_path, basename, inquire_
 
     interface
         subroutine getcwd_c(path, n, err) bind(C, name='getcwd_wrapper')
@@ -71,10 +71,9 @@ module filesystem
             integer(kind=MOLCAS_C_INT), intent(out) :: err
         end subroutine remove_c
 
-        function inquire_c(path) bind(C, name='access_wrapper')
+        integer(kind=MOLCAS_C_INT) function access_c(path) bind(C, name='access_wrapper')
             import :: c_char, MOLCAS_C_INT
             character(len=1, kind=c_char), intent(in) :: path(*)
-            integer(kind=MOLCAS_C_INT), intent(out) :: err
         end function
 
     end interface
@@ -166,5 +165,10 @@ contains
             res = str(names(size(names) - 1)%str)
         end if
     end function basename
+
+    logical function inquire_(path)
+        character(len=*), intent(in) :: path
+        inquire_ = access_c(trim(path) // C_NULL_CHAR) == 0
+    end function
 
 end module filesystem
