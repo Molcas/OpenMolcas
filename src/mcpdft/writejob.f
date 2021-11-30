@@ -123,8 +123,8 @@
      &      Work(LCIRot+NCON*(I-1):LCIRot+NCON*I-1),[NCON,1],[0,i-1])
         END DO
         call mh5_close_file(refwfn_id)
-      end if
 #endif
+      end if
 
       CALL GETMEM('CIRot','FREE','REAL',LCIRot,NCON*LROOTS)
       call mma_deallocate(tCI)

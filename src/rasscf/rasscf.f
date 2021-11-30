@@ -426,13 +426,9 @@
 * Create job interphase on unit JOBIPH (FT15)
 *
 
-      write(lf,*) 'here we go ... ',ifvb
       if(ifvb.ne.2) then
         CALL CREIPH
-      write(lf,*) 'here we go again ... ',wfn_fileid
         call cre_raswfn
-      write(lf,*) 'here we go again done ... ',wfn_fileid
-      call flush(lf)
       end if
       if(ifvb.eq.1)call casinfo2_cvb()
 

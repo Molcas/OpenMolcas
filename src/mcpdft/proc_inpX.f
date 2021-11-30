@@ -65,12 +65,11 @@
 #include "chopar.fh"
 
 * Local NBAS_L, NORB_L .. avoid collision with items in common.
-      DIMENSION NBAS_L(8)
       DIMENSION NFRO_L(8),NISH_L(8),NRS1_L(8),NRS2_L(8)
       DIMENSION NRS3_L(8),NSSH_L(8),NDEL_L(8)
-      integer :: root2state(MxRoot)
 #ifdef _HDF5_
       character(len=1), allocatable :: typestring(:)
+      DIMENSION NBAS_L(8)
 #endif
 * TOC on JOBOLD (or JOBIPH)
       DIMENSION IADR19(15)
@@ -123,10 +122,10 @@ C   No changing about read in orbital information from INPORB yet.
 
       !> read from / write to HDF5 file
       hasHDF5ref = .false.
-      !> reference wave function is of MPS type (aka "DMRG wave function")
+!> reference wave function is of MPS type (aka "DMRG wave function")
       hasMPSref  = .false.
 
-      !> default for MC-PDFT: read/write from/to JOBIPH-type files
+!> default for MC-PDFT: read/write from/to JOBIPH-type files
       keyJOBI = .true.
 
       NAlter=0
@@ -215,7 +214,7 @@ C   No changing about read in orbital information from INPORB yet.
          hasHDF5ref = .true.
        end if
 #endif
-       !> we do not need a JOBIPH file if we have HDF5 - override the default!
+!> we do not need a JOBIPH file if we have HDF5 - override the default!
        if(hasHDF5ref) keyJOBI = .false.
 
       End If
@@ -480,7 +479,7 @@ CGG This part will be removed. (PAM 2009: What on earth does he mean??)
 * =======================================================================
       iprlev=insane
 
-      !> read orbital space data AND CI optimiation parameters from JOBIPH file
+!> read orbital space data AND CI optimiation parameters from JOBIPH
       IF (IORBDATA.EQ.0) THEN
         IAD19=0
         Call IDaFile(JOBIPH,2,IADR19,10,IAD19)
@@ -493,7 +492,7 @@ CGG This part will be removed. (PAM 2009: What on earth does he mean??)
      &                      NRS1,NRS2,NRS3,NHOLE1,NELEC3,IPT2,WEIGHT)
       End If  !> IORBDATA
 
-      !> read CI optimiation parameters from HDF5 file
+!> read CI optimiation parameters from HDF5 file
       if(hasHDF5ref)then
 #ifdef _HDF5_
         mh5id = mh5_open_file_r(StartOrbFile)
@@ -513,11 +512,6 @@ CGG This part will be removed. (PAM 2009: What on earth does he mean??)
           nroots = lroots
         End If
         call mh5_fetch_attr (mh5id,'STATE_WEIGHT', weight)
-
-        call iCopy(MxRoot,[0],0,root2state,1)
-        Do i=1,nroots
-            root2state(i)=i
-        End Do
 
         call mh5_close_file(mh5id)
 #endif
