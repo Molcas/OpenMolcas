@@ -28,6 +28,12 @@ INT strlen_wrapper(const char*const* str)
   return strlen(*str);
 }
 
+
+INT access_wrapper(const char*const* path)
+{
+    return access(*path, F_OK) == 0;
+}
+
 void getcwd_wrapper(char* path, const INT* n, INT* err)
 {
   if (getcwd(path, *n) == path) {
