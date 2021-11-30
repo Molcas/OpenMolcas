@@ -8,9 +8,20 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-*
-      integer iwjob,ncon
-      COMMON /WJOBI/ iwjob,ncon
-      LOGICAL hasHDF5ref,hasMPSref
-      COMMON /WJOBL/ hasHDF5ref,hasMPSref
-*
+      integer                 wfn_fileid,
+     $        wfn_mocoef, wfn_occnum, wfn_dens, wfn_spindens,
+     $        wfn_transdens, wfn_transsdens,
+     $        wfn_supsym, wfn_basfns, wfn_ovlmat,
+     $        wfn_cicoef, wfn_orbene, wfn_energy, wfn_iter
+#ifdef _DMRG_
+     $        , wfn_dmrg_checkpoint
+#endif
+
+      common /mcpdftwfn_handles/ wfn_fileid,
+     $        wfn_mocoef, wfn_occnum, wfn_dens, wfn_spindens,
+     $        wfn_transdens, wfn_transsdens,
+     $        wfn_supsym, wfn_basfns, wfn_ovlmat,
+     $        wfn_cicoef, wfn_orbene, wfn_energy, wfn_iter
+#ifdef _DMRG_
+     $        , wfn_dmrg_checkpoint
+#endif

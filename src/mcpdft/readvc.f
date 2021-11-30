@@ -58,7 +58,8 @@
 ************************************************************************
 
 #ifdef _HDF5_
-      Use mh5, Only: mh5_open_file_r, mh5_fetch_dset, mh5_close_file
+      use mh5, only: mh5_open_file_r, mh5_exists_dset, mh5_fetch_dset,
+     &               mh5_close_file
 #endif
       Implicit Real*8 (A-H,O-Z)
 
@@ -93,6 +94,9 @@ c      Integer StrnLn
       Dimension Dummy(1),iDummy(1)
       Character*(LENIN8*mxOrb) lJobH1
       Character*(2*72) lJobH2
+#ifdef _HDF5_
+      integer mh5id
+#endif
 
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -335,7 +339,7 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
         END IF
 
         mh5id = mh5_open_file_r(StartOrbFile)
-        call mh5_fetch_dset(mh5id, 'MOCOEF', CMO)
+        call mh5_fetch_dset(mh5id, 'MO_VECTORS', CMO)
         call mh5_close_file(mh5id)
 #else
         write (6,*) 'Orbitals requested from HDF5, but this'
