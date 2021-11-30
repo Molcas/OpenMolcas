@@ -13,7 +13,7 @@
 
 #include "compiler_features.h"
 
-module test_fortran_strings_mod
+module test_filesystem_mod
     use fruit
     use filesystem, only: basename, inquire_, mkdir_, remove_, chdir_, getcwd_
     implicit none
@@ -25,7 +25,9 @@ contains
     subroutine test_filesystem()
         integer :: err
         character(*), parameter :: test_dir = 'test_dir'
-        character(len=512) :: cwd
+        character(len=512) :: cwd, root
+
+        call getcwd_(root)
 
         if (inquire_(test_dir)) then
             call remove_(test_dir, err)
@@ -51,18 +53,18 @@ contains
                 call assert_true(err == 0)
                 call assert_false(inquire_(test_file))
             end block
-        call chdir_('..')
+        call chdir_(root)
 
         call remove_(test_dir, err)
         call assert_true(err == 0)
         call assert_false(inquire_(test_dir))
     end subroutine
 
-end module test_fortran_strings_mod
+end module test_filesystem_mod
 
 program test_fortran_strings
     use fruit
-    use test_fortran_strings_mod
+    use test_filesystem_mod, only: test_filesystem
 
     implicit none
     integer :: failed_count, i, seed_size
@@ -73,7 +75,7 @@ program test_fortran_strings
     call init_linalg()
     call inimem()
 
-    call test_filesystem_driver()
+    call run_test_case(test_filesystem, "test_filesystem")
 
     call fruit_summary()
     call fruit_finalize()
@@ -81,9 +83,4 @@ program test_fortran_strings
 
     if (failed_count /= 0) error stop
 
-contains
-
-    subroutine test_filesystem_driver()
-        call run_test_case(test_filesystem, "test_filesystem")
-    end subroutine
 end program test_fortran_strings

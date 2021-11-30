@@ -42,9 +42,9 @@ void getcwd_wrapper(char* path, const INT* n, INT* err)
         INT i = -1;
 /* This is necessary for FORTRAN trim() to work correctly.*/
         while (path[++i] != '\0') {
-            for (; i < *n; i++) {
-                path[i] = ' ';
-            }
+        }
+        for (; i < *n; i++) {
+            path[i] = ' ';
         }
     } else {
         *err = 1;
