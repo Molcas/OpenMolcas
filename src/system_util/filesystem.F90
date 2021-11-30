@@ -16,7 +16,7 @@ module filesystem
 #include "compiler_features.h"
 
     use, intrinsic :: iso_c_binding, only: c_char, c_int, c_ptr, c_null_char
-    use fortran_strings, only: split, StringWrapper_t, Cptr_to_str, str, to_c_str
+    use fortran_strings, only: split, StringWrapper_t, Cptr_to_str, str
     use Definitions, only: iwp, MOLCAS_C_INT
 
     implicit none
@@ -80,6 +80,8 @@ module filesystem
 
 contains
 
+    !> @brief
+    !> Return the current working directory.
     subroutine getcwd_(path, err)
         character(len=*), intent(out) :: path
         integer(kind=iwp), intent(out), optional :: err
@@ -88,6 +90,8 @@ contains
         if (present(err)) err = int(c_err)
     end subroutine getcwd_
 
+    !> @brief
+    !> Change the current directory to `path`.
     subroutine chdir_(path, err)
         character(len=*), intent(in) :: path
         integer(kind=iwp), intent(out), optional :: err
@@ -96,6 +100,8 @@ contains
         if (present(err)) err = int(c_err)
     end subroutine chdir_
 
+    !> @brief
+    !> Create a weak symlink_ `from` -> `to`.
     subroutine symlink_(to, from, err)
         character(len=*), intent(in) :: to, from
         integer(kind=iwp), intent(out), optional :: err
@@ -104,6 +110,8 @@ contains
         if (present(err)) err = int(c_err)
     end subroutine symlink_
 
+    !> @brief
+    !> Create a directory at `path`.
     subroutine mkdir_(path, err)
         character(len=*), intent(in) :: path
         integer(kind=iwp), optional, intent(out) :: err
@@ -112,12 +120,15 @@ contains
         if (present(err)) err = loc_err
     end subroutine mkdir_
 
+    !> @brief
+    !> Return the global error number.
     function get_errno_()
         integer(kind=iwp) :: get_errno_
         get_errno_ = int(get_errno_c())
     end function get_errno_
 
-!> Return Error String from Error number
+    !> @brief
+    !> Return Error String from Error number
     function strerror_(errnum) result(res)
         character(len=:), allocatable :: res
         integer(kind=iwp), intent(in) :: errnum
@@ -133,6 +144,8 @@ contains
 # endif
     end function strerror_
 
+    !> @brief
+    !> Remove the file `path`.
     subroutine remove_(path, err)
         character(len=*) :: path
         integer(kind=iwp), optional, intent(out) :: err
@@ -141,6 +154,8 @@ contains
         if (present(err)) err = int(loc_err)
     end subroutine remove_
 
+    !> @brief
+    !> Translate internal Molcas filenames to system paths.
     function real_path(molcas_name) result(path)
         character(len=:), allocatable :: path
         character(len=*), intent(in) :: molcas_name
@@ -150,6 +165,8 @@ contains
         path = buffer(:L)
     end function real_path
 
+    !> @brief
+    !> Return the basename of `path`.
     function basename(path) result(res)
         character(len=:), allocatable :: res
         character(len=*), intent(in) :: path
@@ -166,6 +183,8 @@ contains
         end if
     end function basename
 
+    !> @brief
+    !> Return true if the file or directory `path` exists.
     logical function inquire_(path)
         character(len=*), intent(in) :: path
         inquire_ = access_c(trim(path) // C_NULL_CHAR) == 0

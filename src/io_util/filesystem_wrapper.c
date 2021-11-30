@@ -31,6 +31,7 @@ INT strlen_wrapper(const char*const* str)
 
 INT access_wrapper(const char* path)
 {
+    /* https://stackoverflow.com/questions/230062/whats-the-best-way-to-check-if-a-file-exists-in-c */
     return access(path, F_OK);
 }
 
@@ -40,7 +41,7 @@ void getcwd_wrapper(char* path, const INT* n, INT* err)
         *err = 0;
         INT i = -1;
 /* This is necessary for FORTRAN trim() to work correctly.*/
-        while (path[++i] != '\0'); {
+        while (path[++i] != '\0') {
             for (; i < *n; i++) {
                 path[i] = ' ';
             }
