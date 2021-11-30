@@ -51,6 +51,9 @@
 ************************************************************************
 
       use stdalloc, only : mma_allocate, mma_deallocate
+#ifdef _HDF5_
+      use mh5, only: mh5_put_attr, mh5_put_dset
+#endif
       use OFembed, only: Do_OFemb, FMaux
       Implicit Real*8 (A-H,O-Z)
 
@@ -215,7 +218,7 @@
 
 
 * Process the input:
-      Call Proc_InpX(DSCF,lOPTO,iRc)
+      Call Proc_InpX(DSCF,iRc)
 * If something goes wrong in proc_inp:
       If (iRc.ne._RC_ALL_IS_WELL_) Then
        If (IPRLEV.ge.TERSE) Then
@@ -324,12 +327,6 @@
 *
       CALL ALLOC_m
 *
-* Create job interphase on unit JOBIPH (FT15)
-*
-      if(ifvb.ne.2) then
-!        CALL CREIPH
-!        call cre_raswfn
-      end if
       if(ifvb.eq.1)call casinfo2_cvb()
 
       Call Timing(Swatch,Swatch,Ebel_1,Swatch)
@@ -590,6 +587,7 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
 
        Call Put_CMO(Work(LCMO),ntot2)
 
+       !write(6,*) 'doGSOR is ... ',doGSOR
        if (doGSOR) then
         Call f_Inquire('JOBOLD',Found)
         if (.not.found) then
@@ -701,8 +699,12 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
         Call FZero(Work(iP2MOt),lRoots*NACPR2)
        END IF
         CALL GETMEM('CASDFT_Fock','ALLO','REAL',LFOCK,NACPAR)
+
+        !write(6,*) 'call msctl ...'
+
         Call MSCtl(Work(LCMO),Work(LFOCK),Work(LFI),Work(LFA),
      &       Work(iRef_E))
+
         If(IWJOB==1.and.(.not.Do_Rotate)) Call writejob(iadr19)
 
         If (Do_Rotate) Then
@@ -829,6 +831,7 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
 !         Call GetMem('Q-mat','Free','Real',ipQmat,NTav)
 !      EndIf
 
+       !write(6,*) 'done mcpdft...'
 
 *                                                                      *
 ************************************************************************

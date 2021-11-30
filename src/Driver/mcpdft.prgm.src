@@ -20,6 +20,8 @@
 #include "rasscffiles.inc"
 #include "orbitals.inc"
 #include "wfnfiles.inc"
+* extra wfn file for MPS reference wave function for MC-PDFT
+ (file)  MPSWFN "$WorkDir/$Project$SubProject."dmrgscf.h5   rws
  (file)  NQGRID   "$WorkDir/$Project."NqGrid    rw
 #include "moldenfiles.inc"
  (file)  GV.off   "$WorkDir/$Project$SubProject."GV.off    rw
