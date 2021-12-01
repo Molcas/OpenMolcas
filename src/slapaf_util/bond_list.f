@@ -96,8 +96,8 @@
             If (iDCR(1).ne.iOper(0)) Go To 2
             If (R_Stab_A(iDCR(2),jStab(0,iAtom),nStab(iAtom)) .and.
      &          iDCR(2).ne.iOper(0)) Go To 2
-            iRow = ANr(iAtom)
-            jRow = ANr(jAtom)
+            iRow = max(ANr(iAtom),1)
+            jRow = max(ANr(jAtom),1)
 #ifdef _DEBUGPRINT_
             Write (6,*) 'iAtom,jAtom=',iAtom,jAtom
 #endif
@@ -206,14 +206,14 @@
                Rab=Sqrt(Rij2)
                If (Help) Then
                   RabCov=CovRad(ANr(iAtom))+CovRad(ANr(jAtom))
-                  If ((iRow.eq.1.and.jRow.eq.1).or.Help) Then
+*                 If (iRow.eq.1.and.jRow.eq.1) Then
 *                    Bond a la Fischer & Almlof
                      f_Const=A_StrH(1)*EXP(-A_StrH(2)*(Rab-RabCov))
-                  Else
-                     ij=Max(iRow,jRow)*(Max(iRow,jRow)+1)/2
-     &                 +Min(iRow,jRow)
-                     f_Const=A_Str/(Rab-B_Str(ij))**3
-                  End If
+*                 Else
+*                    ij=Max(iRow,jRow)*(Max(iRow,jRow)+1)/2
+*    &                 +Min(iRow,jRow)
+*                    f_Const=A_Str/(Rab-B_Str(ij))**3
+*                 End If
                Else
                   If (iAnd(iOptC,2048).eq.2048.and.iBondType.eq.1) Then
                      r0 = r_ref_vdW(iRow,jRow)
