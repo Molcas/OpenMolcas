@@ -15,6 +15,7 @@ use Alaska_Info, only: Auto, DefRoot, ForceNAC, iRlxRoot
 use Para_Info, only: nProcs
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
+use filesystem, only: inquire_
 
 implicit none
 integer(kind=iwp), intent(out) :: iRC
@@ -23,8 +24,8 @@ integer(kind=iwp), intent(out) :: iRC
 integer(kind=iwp) :: Columbus, iForceAnalytical, iGo, iMp2Prpt, iPL, iReturn, istatus, LuInput, LuSpool, LuSpool2, nGrad, nsAtom, &
                      nSym
 logical(kind=iwp) :: Do_Cholesky, Numerical, Do_DF, Do_ESPF, StandAlone, Exists, Do_Numerical_Cholesky, Do_1CCD, MCLR_Ready
-character(len=128) :: FileName
 character(len=180) :: Line
+character(len=*), parameter :: filename = 'ALASKINP'
 character(len=16) :: KSDFT, StdIn
 character(len=8) :: Method
 character(Len=16) mstate1, mstate2
@@ -264,13 +265,10 @@ else if ((Method == 'CASSCFSA') .or. ((Method == 'DMRGSCFS') .and. (iGo /= 2))) 
     write(LuInput,'(A)') 'End of Input'
     write(LuInput,'(A)') ' '
 
-    FileName = 'ALASKINP'
-    call f_inquire(Filename,Exists)
-
-    if (Exists) then
+    if (inquire_(filename)) then
       LuSpool2 = 77
       LuSpool2 = IsFreeUnit(LuSpool2)
-      call Molcas_Open(LuSpool2,Filename)
+      call Molcas_Open(LuSpool2, filename)
 
       do
         read(LuSpool2,'(A)',iostat=istatus) Line
@@ -400,13 +398,10 @@ else if ((Method == 'MCPDFT').or.(Method == 'MSPDFT')) then
     write(LuInput,'(A)') 'End of Input'
     write(LuInput,'(A)') ' '
 
-    FileName = 'ALASKINP'
-    call f_inquire(Filename,Exists)
-
-    if (Exists) then
+    if (inquire_(filename)) then
       LuSpool2 = 77
       LuSpool2 = IsFreeUnit(LuSpool2)
-      call Molcas_Open(LuSpool2,Filename)
+      call Molcas_Open(LuSpool2, filename)
 
       do
         read(LuSpool2,'(A)',iostat=istatus) Line

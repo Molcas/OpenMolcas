@@ -19,6 +19,7 @@ C              This routine is used only for debugging purposes, and
 C              the file may not exist (in which case irc=-1 is
 C              returned).
 C
+      use filesystem, only: inquire_
       Implicit None
       Integer AB
       Integer l_C
@@ -33,7 +34,6 @@ C
       Character*5 FileName
       Parameter (FileName='LDFUC')
 
-      Logical FileExists
       Integer l
       Integer Lu_UC
       Integer iAddr
@@ -46,9 +46,7 @@ C
       Unique(j)=iWork(ip_AP_Unique-1+j)
       isUnique(j)=Unique(j).eq.j
 
-      FileExists=.False.
-      Call f_Inquire(FileName,FileExists)
-      If (FileExists) Then
+      If (inquire_(FileName)) Then
          l=LDF_AtomPair_DiagDim(AB)*LDF_nBasAux_Pair(AB)
          If (l_C.lt.l) Then
             irc=1
