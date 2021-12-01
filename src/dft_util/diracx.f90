@@ -1,21 +1,20 @@
-! ************************************************************************
-! * This file is part of OpenMolcas.                                     *
-! *                                                                      *
-! * OpenMolcas is free software; you can redistribute it and/or modify   *
-! * it under the terms of the GNU Lesser General Public License, v. 2.1. *
-! * OpenMolcas is distributed in the hope that it will be useful, but it *
-! * is provided "as is" and without any express or implied warranties.   *
-! * For more details see the full text of the license in the file        *
-! * LICENSE or in <http://www.gnu.org/licenses/>.                        *
-! *                                                                      *
-! * Copyright (C) 2000, Roland Lindh                                     *
-! ************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2000, Roland Lindh                                     *
+!***********************************************************************
       Subroutine DiracX(mGrid,Rho,nRho,iSpin,F_xc,dF_dRho,ndF_dRho,Coeff,T_X)
-! ************************************************************************
-! *      Author:Roland Lindh, Department of Chemical Physics, University *
-! *             of Lund, SWEDEN. November 2000                           *
-! ************************************************************************
-      use KSDFT_Info, only: F_xca, F_xcb
+!***********************************************************************
+!      Author:Roland Lindh, Department of Chemical Physics, University *
+!             of Lund, SWEDEN. November 2000                           *
+!***********************************************************************
       use xc_f03_lib_m
       implicit none
 !#include "real.fh"
@@ -76,4 +75,11 @@
          End Do
       End If
       Return
+! Avoid unused argument warnings
+      If (.False.) Then
+         Call Unused_real(T_X)
+      End If
+
+
+
     End Subroutine DiracX
