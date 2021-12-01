@@ -33,7 +33,6 @@
 
 &MCPDFT
   ksdft = ftpbe
-  nograd
   wjob
   fileorb=ref.h5
 

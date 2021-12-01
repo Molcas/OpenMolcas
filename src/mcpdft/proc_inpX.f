@@ -634,17 +634,6 @@ c      end if
 *TRS
       End If
 *
-*---  Process NOGR command --------------------------------------------*
-      If (DBG) Write(6,*) ' Check if NOGRadient case.'
-*TRS - removing nograd command
-*      If (KeyNOGR) Then
-       If (.false.) Then
-       If (DBG) Write(6,*) ' NOGRadient keyword was used.'
-       DoNoGrad=.true.
-       Call SetPos_m(LUInput,'NOGR',Line,iRc)
-       Call ChkIfKey_m()
-      End If
-
 *---  Process GSOR command --------------------------------------------*
       If (DBG) Write(6,*) ' Check if Gram-Schmidt case.'
       If (KeyGSOR) Then
