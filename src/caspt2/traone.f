@@ -10,7 +10,6 @@
 ************************************************************************
       SUBROUTINE TRAONE(CMO)
       use output_caspt2, only:iPrGlb,verbose
-      use filesystem, only: inquire_
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "warnings.h"
@@ -100,7 +99,7 @@ c the nuclear attraction by the cavity self-energy
          End Do
          Call GetMem('RFFLD','Allo','Real',lTemp,nTemp)
 *
-         Found = inquire_('RUNOLD')
+         Call f_Inquire('RUNOLD',Found)
          If (Found) Call NameRun('RUNOLD')
          Call Get_dScalar('RF Self Energy',ERFSelf)
          Call Get_dArray('Reaction field',Work(lTemp),nTemp)

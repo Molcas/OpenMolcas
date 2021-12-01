@@ -34,19 +34,20 @@ function Read_Grad(Grad,nGrad,iRoot,iNAC,jNAC)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
-use filesystem, only: inquire_
 
 implicit none
 integer(kind=iwp) :: Read_Grad
 integer(kind=iwp), intent(in) :: nGrad, iRoot, iNAC, jNAC
 real(kind=wp), intent(out) :: Grad(nGrad)
 integer(kind=iwp) :: iAd, iDum(1), idx, iSt, jSt, LuGrad, nCoup, nRoots, TOC(5)
+logical(kind=iwp) :: Found
 integer(kind=iwp), allocatable :: i_grad(:), i_nac(:)
 character(len=5), parameter :: Filename = 'GRADS'
 
 ! If the GRADS file does not exist, there is no gradient
 
-if (.not. inquire_(Filename)) then
+call f_Inquire(Filename,Found)
+if (.not. Found) then
   Read_Grad = 0
 else
 

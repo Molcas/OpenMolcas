@@ -21,7 +21,6 @@ C  written by:
 C  M.P. Fuelscher and P. AA. Malmqvist
 C  University of Lund, Sweden, 1993
 ************************************************************************
-      use filesystem, only: inquire_
       Implicit Real*8 (A-H,O-Z)
       CHARACTER(LEN=2) CVEC,CMAT
 *---------------------------------------------------------------------*
@@ -92,7 +91,7 @@ C  Temporary unit with MO two-electron integrals (uv|xt)
       LUINTM=80
       CALL DANAME_MF_wa(LUINTM,'MOLINT')
 C  AO one-electron integrals
-      Found2 = inquire_('ORDINT')
+      Call f_Inquire('ORDINT',Found2)
       Call DecideOnDirect(.False.,Found2,IfDirect,IfChol)
       If (IfChol) then
 *        IF(IPRGLB.GE.USUAL) WRITE(6,*) 'This is a Cholesky CASPT2'

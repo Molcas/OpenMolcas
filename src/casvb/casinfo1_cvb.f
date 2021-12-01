@@ -12,7 +12,6 @@
 *               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine casinfo1_cvb()
-      use filesystem, only: inquire_
       implicit real*8 (a-h,o-z)
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
@@ -20,14 +19,17 @@
 #include "print_cvb.fh"
 
 #include "casinfo_cvb.fh"
+      logical iphex,oldex
 
 c  Information from molcas interface file 'JOBIPH' :
       write(6,'(2a)')' ------- Recover RASSCF-related information',
      >              ' --------------------------------------'
-      if(inquire_('JOBIPH'))then
+      call f_inquire('JOBIPH',iphex)
+      call f_inquire('JOBOLD',oldex)
+      if(iphex)then
         write(6,'(/,a)')' Using JOBIPH interface file.'
        Call Copy_JobIph("JOBIPH","JOBOLD")
-      elseif(inquire_('JOBOLD'))then
+      elseif(oldex)then
         write(6,'(/,a)')' Using JOBOLD interface file.'
        Call Copy_JobIph("JOBOLD","JOBIPH")
       else

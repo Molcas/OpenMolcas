@@ -15,7 +15,6 @@ cbs   Purpose: combine SO-integrals from amfi to symmetry-adapted
 cbs   integrals on one file AOPROPER_MF_SYM
 cbs
 cbs
-      use filesystem, only: inquire_
       implicit real*8 (a-h,o-z)
 #include "para.fh"
 #include "Molcas.fh"
@@ -29,6 +28,7 @@ cbs
       character*8 ya,za,xa2
       character*3 END
 CBS   character*20 filename
+      logical  EX
 CBS   namelist /SYMTRA/ none
       dimension ya(4),za(4)
       dimension xa2(4)
@@ -56,7 +56,8 @@ c#######################################################################
 c
 c     read information from SYMINFO
       isymunit=isfreeunit(58)
-      if (.not.inquire_('SYMINFO')) Call SysAbendMsg('systrafo',
+      call f_inquire('SYMINFO',EX)
+      if (.not.EX) Call SysAbendMsg('systrafo',
      &                  'SYMINFO not present','Sorry')
       call molcas_open(isymunit,'SYMINFO')
       rewind(isymunit)

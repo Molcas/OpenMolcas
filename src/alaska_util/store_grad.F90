@@ -31,7 +31,6 @@ subroutine Store_Grad(Grad,nGrad,iRoot,iNAC,jNAC)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
-use filesystem, only: inquire_
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
@@ -42,7 +41,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nGrad, iRoot, iNAC, jNAC
 real(kind=wp), intent(_IN_) :: Grad(nGrad)
 integer(kind=iwp) :: iAd, idx, iSt, jSt, Length(1), LuGrad, nCoup, nRoots, TOC(5)
-logical(kind=iwp) :: BadFile
+logical(kind=iwp) :: Found, BadFile
 integer, allocatable :: i_grad(:), i_nac(:)
 integer(kind=iwp), external :: AixRm
 character(len=5), parameter :: Filename = 'GRADS'
@@ -51,7 +50,8 @@ character(len=5), parameter :: Filename = 'GRADS'
 
 call Get_iScalar('Number of roots',nRoots)
 LuGrad = 20
-if (.not. inquire_(Filename)) call Create_Grads(Filename,nRoots,nGrad)
+call f_Inquire(Filename,Found)
+if (.not. Found) call Create_Grads(Filename,nRoots,nGrad)
 
 ! Read the header
 

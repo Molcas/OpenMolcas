@@ -27,20 +27,22 @@
 subroutine Query_Grads(Exists,nRoots,nGrad)
 
 use Definitions, only: iwp
-use filesystem, only: inquire_
 
 implicit none
 logical(kind=iwp), intent(out) :: Exists
 integer(kind=iwp), intent(out) :: nRoots, nGrad
 integer(kind=iwp) :: iAd, iDum(1), LuGrad, TOC(5)
-character(len=*), parameter :: Filename = 'GRADS'
+logical(kind=iwp) :: Found
+character(len=5), parameter :: Filename = 'GRADS'
 
-Exists = inquire_(Filename)
-if (.not. Exists) then
+call f_Inquire(Filename,Found)
+if (.not. Found) then
+  Exists = .false.
   nRoots = 0
   nGrad = 0
   return
 end if
+Exists = .true.
 
 LuGrad = 20
 call DaName(LuGrad,Filename)

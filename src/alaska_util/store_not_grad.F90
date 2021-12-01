@@ -32,11 +32,11 @@ subroutine Store_Not_Grad(iRoot,iNAC,jNAC)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
-use filesystem, only: inquire_
 
 implicit none
 integer(kind=iwp), intent(in) :: iRoot, iNAC, jNAC
 integer(kind=iwp) :: iAd, idx, iSt, jSt, Length(1), LuGrad, nCoup, nGrad, nRoots, TOC(5)
+logical(kind=iwp) :: Found
 integer(kind=iwp), allocatable :: i_grad(:), i_nac(:)
 character(len=5), parameter :: Filename = 'GRADS'
 
@@ -46,7 +46,8 @@ call Get_iScalar('Number of roots',nRoots)
 call Get_iScalar('Unique atoms',nGrad)
 nGrad = 3*nGrad
 LuGrad = 20
-if (.not. inquire_(Filename)) call Create_Grads(Filename,nRoots,nGrad)
+call f_Inquire(Filename,Found)
+if (.not. Found) call Create_Grads(Filename,nRoots,nGrad)
 
 ! Read the header
 

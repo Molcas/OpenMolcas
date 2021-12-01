@@ -13,7 +13,6 @@
 #if 0
       use OFembed, only: Do_OFemb, FMAux, OFE_First
 #endif
-      use filesystem, only: inquire_
       Implicit real*8 (a-h,o-z)
       Dimension H1EFF(*)
 * ----------------------------------------------------------------
@@ -56,7 +55,7 @@ c the nuclear attraction by the cavity self-energy
          Do iSym=1,nSym
             nTemp=nTemp+nBas(iSym)*(nBas(iSym)+1)/2
          End Do
-         Found = inquire_('RUNOLD')
+         Call f_Inquire('RUNOLD',Found)
          If (Found) Call NameRun('RUNOLD')
          Call GetMem('RFFLD','Allo','Real',lTemp,nTemp)
          Call Get_dScalar('RF Self Energy',ERFSelf)
