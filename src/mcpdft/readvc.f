@@ -58,8 +58,7 @@
 ************************************************************************
 
 #ifdef _HDF5_
-      use mh5, only: mh5_open_file_r, mh5_exists_dset, mh5_fetch_dset,
-     &               mh5_close_file
+      use mh5, only: mh5_open_file_r, mh5_fetch_dset, mh5_close_file
 #endif
       Implicit Real*8 (A-H,O-Z)
 

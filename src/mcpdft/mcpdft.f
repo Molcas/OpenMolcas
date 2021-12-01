@@ -51,9 +51,6 @@
 ************************************************************************
 
       use stdalloc, only : mma_allocate, mma_deallocate
-#ifdef _HDF5_
-      use mh5, only: mh5_put_attr, mh5_put_dset
-#endif
       use OFembed, only: Do_OFemb, FMaux
       Implicit Real*8 (A-H,O-Z)
 

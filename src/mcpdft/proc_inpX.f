@@ -93,7 +93,7 @@
       Character*8 emiloop
       Character*8 inGeo
 
-      Intrinsic INDEX,NINT,DBLE,SQRT
+      Intrinsic DBLE
 C...Dongxia note for GAS:
 C   No changing about read in orbital information from INPORB yet.
 
