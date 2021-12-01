@@ -321,7 +321,7 @@
           do i=istate,istate
              !write(6,*)"SD_DMRG(idet)%dv(i)",i
             open(unit=118,file="GET_COEFF_IN_LIST")
-              inquire(file='ELE_CISR_FOR_MCLR',exist=IFFILE)
+              call f_inquire('ELE_CISR_FOR_MCLR', IFFILE)
               if(IFFILE)then
                 tmp_run="./srcas "//trim(checkpoint(i))//
      &       " dets.mclr 1.0 1.0 0 ELE_CISR_FOR_MCLR > "//"CIRE.scratch"
