@@ -135,6 +135,7 @@ if (";Debug;Garble;RelWithDebInfo;" MATCHES ";${CMAKE_BUILD_TYPE};" OR
 endif ()
 
 # External projects
+option (LIBXC    "Enable Libxc for density functional approximations."                                        ON)
 option (DMRG     "Activate QCMaquis DMRG driver and library."                                                 OFF)
 option (EFPLIB   "Enable EFPLib library for effective fragment potentials (requires External/efp submodule)." OFF)
 option (GA_BUILD "Build Global Arrays."                                                                       OFF)
@@ -2109,6 +2110,50 @@ if (EFPLIB)
   endif ()
 else ()
   message ("EFP interface DISABLED")
+endif ()
+
+# Libxc support
+if (LIBXC)
+  message ("Configuring Libxc support:")
+  set (proj ${extprojsdir}/libxc)
+  set (projname Libxc)
+  if (EXISTS ${proj}/CMakeLists.txt)
+
+    include (ExternalProject)
+    # Enabling source changes to keep ExternalProject happy
+    set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
+    ExternalProject_Add (${projname}
+                         PREFIX ${PROJECT_BINARY_DIR}/External
+                         SOURCE_DIR ${proj}
+                         CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${PROJECT_BINARY_DIR}
+                                    -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+                                    -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+                                    -DCMAKE_INSTALL_LIBDIR=lib
+                                    -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+                                    -DDISABLE_KXC=ON -DDISABLE_LXC=ON
+                                    -DENABLE_FORTRAN=ON -DENABLE_PYTHON=OFF
+                         CMAKE_CACHE_ARGS -DCMAKE_C_FLAGS:STRING=${CMAKE_C_FLAGS}
+    )
+    set (CMAKE_DISABLE_SOURCE_CHANGES ON)
+
+    ExternalProject_Get_Property (Libxc BINARY_DIR)
+    set (proj_bin ${BINARY_DIR})
+    link_directories (${proj_bin})
+    list (APPEND EXTERNAL_PROJECTS ${projname})
+    list (APPEND integral_util_incs ${proj}/interface)
+
+    set (Libxc_LIBRARIES xcf03 xc)
+
+    message ("-- Libxc_LIBRARIES: ${Libxc_LIBRARIES}")
+
+    list (APPEND EXTERNAL_LIBRARIES ${Libxc_LIBRARIES})
+    include_directories (${PROJECT_BINARY_DIR}/include)
+    add_compile_definitions (_Libxc_)
+  else ()
+    message ("-- Libxc interface ignored (source not available, run git submodule update --init ${proj}\")")
+  endif ()
+else ()
+  message ("Libxc interface DISABLED")
 endif ()
 
 # Gen1Int interface
