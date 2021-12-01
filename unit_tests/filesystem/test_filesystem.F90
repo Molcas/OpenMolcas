@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2020, Oskar Weser                                      *
+! Copyright (C) 2021, Oskar Weser                                      *
 !***********************************************************************
 
 #include "compiler_features.h"
@@ -62,7 +62,7 @@ contains
 
 end module test_filesystem_mod
 
-program test_fortran_strings
+program test_filesystem_prog
     use fruit
     use test_filesystem_mod, only: test_filesystem
 
@@ -83,4 +83,4 @@ program test_fortran_strings
 
     if (failed_count /= 0) error stop
 
-end program test_fortran_strings
+end program test_filesystem_prog
