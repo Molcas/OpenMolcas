@@ -13,7 +13,7 @@
 
 module fortran_strings
 
-use, intrinsic :: iso_c_binding, only: c_ptr, c_char, c_f_pointer, C_NULL_CHAR
+use, intrinsic :: iso_c_binding, only: c_ptr, c_f_pointer
 use Definitions, only: wp, iwp, MOLCAS_C_INT
 
 implicit none
