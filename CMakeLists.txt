@@ -2132,6 +2132,7 @@ if (LIBXC)
                                     -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
                                     -DDISABLE_KXC=ON -DDISABLE_LXC=ON
                                     -DENABLE_FORTRAN=ON -DENABLE_PYTHON=OFF
+                                    -DCMAKE_BUILD_TYPE=Release
                          CMAKE_CACHE_ARGS -DCMAKE_C_FLAGS:STRING=${CMAKE_C_FLAGS}
     )
     set (CMAKE_DISABLE_SOURCE_CHANGES ON)
