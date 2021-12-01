@@ -151,10 +151,7 @@ The :kword:`KSDFT` is the only required keyword.
               </KEYWORD>
 
 :kword:`MSPDFT`
-  This keyword allows one to run Multi-State Pair-Density Functional Theory (MS-PDFT).
-  This keyword is only effective when a file named :file:`H0_Rotate.txt` is present in the scratch directory, otherwise only state-specific MC-PDFT calculations will be performed.
-  With the :kword:`MSPD` keyword, the program reads the Hamiltonian matrix from :file:`H0_Rotate.txt`, replaces the diagonal elements with the MC-PDFT energies of the rotated states (presumably obtained from a previous :program:`RASSCF` module in which the keyword :kword:`ROST`, :kword:`XMSI` or :kword:`CMSI` is used), and diagonalizes the Hamiltonian matrix in the intermediate basis (called the effective Hamiltonian matrix) to obtain the MS-PDFT states and energies. An input example is shown below.
-  More details regarding the theory, the input, and the output can be found on the Minnesota OpenMolcas page\ [#fn1]_.
+  This keyword allows one to run Multi-State Pair-Density Functional Theory (MS-PDFT). This keyword is only effective when a file named :file:`H0_Rotate.txt` is present in the scratch directory, otherwise only state-specific MC-PDFT calculations will be performed.  With the :kword:`MSPD` keyword, the program reads the Hamiltonian matrix from :file:`H0_Rotate.txt`, replaces the diagonal elements with the MC-PDFT energies of the rotated states (presumably obtained from a previous :program:`RASSCF` module in which the keyword :kword:`ROST`, :kword:`XMSI` or :kword:`CMSI` is used), and diagonalizes the Hamiltonian matrix in the intermediate basis (called the effective Hamiltonian matrix) to obtain the MS-PDFT states and energies. An input example is shown below.  More details regarding the theory, the input, and the output can be found on the Minnesota OpenMolcas page\ [#fn1]_.
 
   XMS-PDFT and CMS-PDFT are two MS-PDFT options in the code.
 
@@ -168,11 +165,7 @@ The :kword:`KSDFT` is the only required keyword.
               </KEYWORD>
 
 :kword:`WJOB`
-  This keyword allows one to write the energies and eigenstates of MC-PDFT or MS-PDFT into 
-file:`JOBIPH` (or file:`wavefunction.h5`). For MC-PDFT, only the energy of each state is written into file:`JOBIPH` (or file:`wavefunction.h5`), 
-since an MC-PDFT calculation is based on a previous wave function (CASSCF, SA-CASSCF, RASSCF, GASSCF, DMRG-SCF, CASCI, RASCI...); for MS-PDFT, 
-both the energy and the CI coefficients of the eigenstates are written into file:`JOBIPH`, because an MS calculation
-changes the wave functions. The latter option is not yet available for DMRG-SCF reference wave functions.
+  This keyword allows one to write the energies and eigenstates of MC-PDFT or MS-PDFT into file:`JOBIPH` (or file:`wavefunction.h5`). For MC-PDFT, only the energy of each state is written into file:`JOBIPH` (or file:`wavefunction.h5`), since an MC-PDFT calculation is based on a previous wave function (CASSCF, SA-CASSCF, RASSCF, GASSCF, DMRG-SCF, CASCI, RASCI...); for MS-PDFT, both the energy and the CI coefficients of the eigenstates are written into file:`JOBIPH`, because an MS calculation changes the wave functions. The latter option is not yet available for DMRG-SCF reference wave functions.
 
   .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="WJOB" APPEAR="Write into JOBIPH" KIND="SINGLE" LEVEL="BASIC">
                                   %%Keyword: WJOB <basic>
@@ -181,14 +174,12 @@ changes the wave functions. The latter option is not yet available for DMRG-SCF 
               </HELP>
               </KEYWORD>
 
-:kword:`FILEorb`
-  This keyword allows one to set as reference wave function file instead of file:`JOBIPH` a different one, in particular
-an HDF5 file. If the MC-PDFT is to be followed by an MPSSI calculation for a reference DMRG wave function, please also
-add the kewyword :kword:`WJOB`.
+:kword:`FILEORB`
+  This keyword allows one to set as reference wave function file instead of file:`JOBIPH` a different one, in particular an HDF5 file. If the MC-PDFT is to be followed by an MPSSI calculation for a reference DMRG wave function, please also add the kewyword :kword:`WJOB`.
 Example: `fileorb=wavefunction.h5`
 
-  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="FILEorb" APPEAR="Set reference wave function file" KIND="SINGLE" LEVEL="BASIC">
-                                  %%Keyword: FILEorb <basic>
+  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="FILEORB" APPEAR="Set reference wave function file" KIND="STRING" LEVEL="BASIC">
+                                  %%Keyword: FILEORB <basic>
               <HELP>
               Enables one to set the reference wave function file for an MC-PDFT run, in particular for an HDF5 formatted file.
               </HELP>
