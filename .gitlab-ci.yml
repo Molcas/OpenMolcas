@@ -115,7 +115,7 @@ include:
       fi
     # get submodules
     - |
-      if [ -z "${submodules}" ] ; then export submodules="External/lapack" ; fi
+      if [ -z "${submodules}" ] ; then export submodules="External/lapack External/libxc" ; fi
       for s in ${submodules} ; do
         git submodule update --init ${s}
       done
