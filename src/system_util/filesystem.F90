@@ -185,9 +185,9 @@ contains
 
     !> @brief
     !> Return true if the file or directory `path` exists.
-    logical function inquire_(path)
+    logical(kind=iwp) function inquire_(path)
         character(len=*), intent(in) :: path
-        inquire_ = access_c(trim(path) // C_NULL_CHAR) == 0
+        inquire_ = access_c(trim(path) // c_null_char) == 0
     end function
 
 end module filesystem

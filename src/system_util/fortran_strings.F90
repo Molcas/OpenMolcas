@@ -19,8 +19,7 @@ use Definitions, only: wp, iwp, MOLCAS_C_INT
 implicit none
 private
 
-public :: str, to_lower, to_upper, operator(.in.), split, &
-    count_char, StringWrapper_t, Cptr_to_str, char_array
+public :: str, to_lower, to_upper, operator(.in.), split, count_char, StringWrapper_t, Cptr_to_str, char_array
 
 ! This type exists to have an array of string pointers
 ! and to allow unequally sized strings.
