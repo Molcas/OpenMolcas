@@ -22,8 +22,7 @@ use Definitions, only: iwp, MOLCAS_C_INT
 implicit none
 private
 
-public :: getcwd_, chdir_, symlink_, get_errno_, strerror_, mkdir_, &
-          remove_, real_path, basename, inquire_
+public :: getcwd_, chdir_, symlink_, get_errno_, strerror_, mkdir_, remove_, real_path, basename, inquire_
 
 interface
   subroutine getcwd_c(path,n,err) bind(C,name='getcwd_wrapper')
@@ -71,8 +70,9 @@ interface
     integer(kind=MOLCAS_C_INT), intent(out) :: err
   end subroutine remove_c
 
-  integer(kind=MOLCAS_C_INT) function access_c(path) bind(C,name='access_wrapper')
+  function access_c(path) bind(C,name='access_wrapper')
     import :: c_char, MOLCAS_C_INT
+    integer(kind=MOLCAS_C_INT)  :: access_c
     character(len=1,kind=c_char), intent(in) :: path(*)
   end function
 
@@ -185,8 +185,9 @@ end function basename
 
 !> @brief
 !> Return true if the file or directory `path` exists.
-logical(kind=iwp) function inquire_(path)
+function inquire_(path)
   character(len=*), intent(in) :: path
+  logical(kind=iwp) :: inquire_
   inquire_ = access_c(trim(path)//c_null_char) == 0
 end function
 
