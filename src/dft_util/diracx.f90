@@ -17,9 +17,6 @@
 !***********************************************************************
       use xc_f03_lib_m
       implicit none
-!#include "real.fh"
-!#include "nq_index.fh"
-!#include "ksdft.fh"
       Real*8 :: Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
       Real*8 :: Coeff, T_X
       integer :: mgrid, nrho, ndf_drho, ispin, iGrid
