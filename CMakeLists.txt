@@ -1969,12 +1969,12 @@ if (DMRG)
     dmrgscf
     last_energy
     mclr
+    mcpdft
     mpssi
     nevpt2
     rasscf
     rassi
     wfn_util
-    mcpdft
   )
     list (APPEND ${prog}_defs "_DMRG_")
   endforeach ()
