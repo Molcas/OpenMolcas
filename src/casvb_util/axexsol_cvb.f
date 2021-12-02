@@ -15,13 +15,13 @@
      >  solp,solp_res,eig,eig_res)
 c  Diagonalize Hamiltonian in Davidson subspace:
       implicit real*8 (a-h,o-z)
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension ap(maxdav,maxdav),solp(maxdav),solp_res(maxdav)
 
       i1 = mstackr_cvb(itdav)
       i2 = mstackr_cvb(itdav*itdav)
 
-      call axexsol2_cvb(ap,w(i1),w(i2),dum,itdav,maxdav,
+      call axexsol2_cvb(ap,work(i1),work(i2),dum,itdav,maxdav,
      >  solp,solp_res,eig,eig_res)
 
       call mfreer_cvb(i1)

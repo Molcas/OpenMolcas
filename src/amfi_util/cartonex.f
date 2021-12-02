@@ -13,7 +13,7 @@
       implicit real*8 (a-h,o-z)
       dimension onecontr(MxcontL,MxcontL,-Lmax:Lmax,3),
      *onecartX(MxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1))
-cbs   arranges the cartesian one-elctron-integrals for X  on a
+cbs   arranges the cartesian one-electron-integrals for X  on a
 cbs   quadratic matrix
       ipnt(I,J)=(max(i,j)*(max(i,j)-1))/2+min(i,j)
 cbs   - + Integrals    m || mprime     mprime=m+1

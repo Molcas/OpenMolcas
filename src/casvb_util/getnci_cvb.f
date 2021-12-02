@@ -23,7 +23,7 @@ c  *********************************************************************
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension nciloc(*)
 
       nalf1=(nelloc+i2sloc)/2
@@ -49,15 +49,16 @@ c  *********************************************************************
       k17= mstacki_cvb(mxirrep)
 
       call symgen_cvb(nalf1,nbet1,nda1,ndb1,
-     >  iw(k1),iw(k2),iw(k3),iw(k4),
-     >  iw(k5),iw(k6),iw(k7),iw(k8),iw(k9),
-     >  iw(k10),iw(k11),iw(k12),iw(k13),iw(k14),iw(k15),
-     >  iw(k16),iw(k17))
+     >  iwork(k1),iwork(k2),iwork(k3),iwork(k4),
+     >  iwork(k5),iwork(k6),iwork(k7),iwork(k8),iwork(k9),
+     >  iwork(k10),iwork(k11),iwork(k12),iwork(k13),iwork(k14),
+     >  iwork(k15),
+     >  iwork(k16),iwork(k17))
 
       if(isymloc.eq.0)then
-        call imove_cvb(iw(k7),nciloc,mxirrep)
+        call imove_cvb(iwork(k7),nciloc,mxirrep)
       else
-        nciloc(1)=iw(isymloc+k7-1)
+        nciloc(1)=iwork(isymloc+k7-1)
       endif
       call mfreei_cvb(k1)
       return

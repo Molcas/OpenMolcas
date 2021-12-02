@@ -28,6 +28,13 @@
       Implicit real*8 (a-h,o-z)
 #include "WrkSpc.fh"
       Real*8 A
+      Interface
+        Function idLoc(x) bind(C,name='idloc_')
+          use Definitions, only: MOLCAS_C_INT, MOLCAS_C_REAL
+          integer(MOLCAS_C_INT) :: idLoc
+          real(MOLCAS_C_REAL) :: x
+        End Function idLoc
+      End Interface
 *
       loc1=(idLoc(A)-idLoc(Work(ip_Dummy)))
       loc2=(idLoc(Work(ip_Dummy+1))-idLoc(Work(ip_Dummy)))

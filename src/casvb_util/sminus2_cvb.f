@@ -16,9 +16,10 @@
      >  xdetto,ioccfrom,ioccto)
       implicit real*8 (a-h,o-w,y-z),integer(x)
       dimension bikfrom(ndetfrom,nvec),bikto(ndetto,nvec)
+      integer xdetto
       dimension xdetto(0:nel,0:nalfto)
       dimension ioccfrom(nalffrom),ioccto(nalfto)
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 
       call fzero(bikto,ndetto*nvec)
 

@@ -238,7 +238,7 @@ C Addition of ANGMOM to Runfile.
          ENDIF
 c add dipole moment integrals:
          IF(PNAME(IPROP).EQ.'MLTPL  1'.AND.
-     &      SOPRTP(IPROP).EQ.'HERMSING') THEN
+     &      PTYPE(IPROP).EQ.'HERMSING') THEN
             IFDIP1=.TRUE.
             DO I=1,NSTATE
                DO J=1,NSTATE
@@ -290,12 +290,16 @@ c If PRPR requested, print the spin matrices
       IF (LPRPR) THEN
          Call mma_Allocate(SOPRR,NSS**2,NSOPR,Label='SOPRR')
          Call mma_Allocate(SOPRI,NSS**2,NSOPR,Label='SOPRI')
-         DO ISOPR=1,3
+         DO ICMP=1,3
             SOPRR(:,1)=0.0D0
             SOPRI(:,1)=0.0D0
-            CALL SMMAT(PROP,SOPRR,NSS,0,ISOPR)
+            IF (ICMP.EQ.2) THEN
+              CALL SMMAT(PROP,SOPRI,NSS,0,ICMP)
+            ELSE
+              CALL SMMAT(PROP,SOPRR,NSS,0,ICMP)
+            END IF
             CALL ZTRNSF(NSS,USOR,USOI,SOPRR,SOPRI)
-            CALL PRCMAT3(NSS,SOPRR,SOPRI,ISOPR)
+            CALL PRCMAT3(NSS,SOPRR,SOPRI,ICMP)
          END DO
          Call mma_deallocate(SOPRR)
          Call mma_deallocate(SOPRI)
@@ -2818,6 +2822,12 @@ C printing threshold
         END DO ! I
         WRITE(6,*)
         WRITE(6,*)
+! VKochetov 2021 put SO Dyson amplitudes to hdf5
+#ifdef _HDF5_
+        if (rhodyn) then
+            call mh5_put_dset(wfn_sos_dys, SODYSAMPS)
+        endif
+#endif
        END IF
 ! +++ J. Norell
 

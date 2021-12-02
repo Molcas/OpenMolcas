@@ -18,7 +18,7 @@
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension orbs(norb,norb),igjorb(*)
 c  *********************************************************************
 c  *                                                                   *
@@ -38,15 +38,15 @@ c  *********************************************************************
       k2 = mstacki_cvb(norb)
       k3 = mstacki_cvb(norb)
       k4 = mstacki_cvb(norb)
-      call fmove_cvb(orbs,w(k1),norb*norb)
+      call fmove_cvb(orbs,work(k1),norb*norb)
       ioff=idbl_cvb(norb*norb)
       call c_f_pointer(c_loc(igjorb(1)),gjorb,[norb*norb])
-      call gaussj2_cvb(w(k1),iw(k2),iw(k3),iw(k4),
+      call gaussj2_cvb(work(k1),iwork(k2),iwork(k3),iwork(k4),
      >  igjorb(1+ioff),igjorb(1+norb+ioff),gjorb,norb)
       nullify(gjorb)
-      call imove_cvb(igjorb(1+ioff),iw(k2),norb)
+      call imove_cvb(igjorb(1+ioff),iwork(k2),norb)
       do 100 i=1,norb
-      igjorb(iw(i+k2-1)+ioff)=i
+      igjorb(iwork(i+k2-1)+ioff)=i
 100   continue
       call mfreer_cvb(k1)
       return

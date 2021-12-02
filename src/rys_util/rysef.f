@@ -23,8 +23,8 @@
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             January '90.                                             *
 *                                                                      *
-*             Modified for kernal routine RysEF0 August '90.           *
-*             Modified for kernal routines RysS1, RysS2, and RysS3     *
+*             Modified for kernel routine RysEF0 August '90.           *
+*             Modified for kernel routines RysS1, RysS2, and RysS3     *
 *             September '90.                                           *
 *             Modified for improved vectorization August '91.          *
 *             Modified for decreased memory access January '94.        *

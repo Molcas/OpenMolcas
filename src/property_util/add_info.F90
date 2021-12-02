@@ -51,6 +51,14 @@ integer(kind=iwp), external :: isFreeUnit
 !integer(kind=iwp) :: irecl
 !character(len=32) :: File_Name
 !logical(kind=iwp) :: Exist, is_error
+interface
+  subroutine add_molcas_info(str,n) bind(C,name='add_molcas_info_')
+    use, intrinsic :: iso_c_binding, only: c_char
+    use Definitions, only: MOLCAS_C_INT
+    character(kind=c_char) :: str(*)
+    integer(kind=MOLCAS_C_INT) :: n
+  end subroutine add_molcas_info
+end interface
 
 !------------------------------------------------
 ! If this is a fake parallel run (e.g. inside the parallel loop of CASPT2_gradient,

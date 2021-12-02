@@ -18,7 +18,7 @@
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension cvec1(*),cvec2(*)
 c  *********************************************************************
 c  *                                                                   *
@@ -30,7 +30,8 @@ c  *********************************************************************
       ivec2=nint(cvec2(1))
       iformat=iform_ci(ivec1)
       if(iformat.eq.0)then
-        call daxpy_(ndet,fac,w(iaddr_ci(ivec1)),1,w(iaddr_ci(ivec2)),1)
+        call daxpy_(ndet,fac,work(iaddr_ci(ivec1)),1,
+     >              work(iaddr_ci(ivec2)),1)
       else
         write(6,*)' Unsupported format in CIDAXPY :',iformat
         call abend_cvb()

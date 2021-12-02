@@ -204,7 +204,7 @@ do iCnttp=1,nCnttp
 end do
 if (iPrint >= 15) then
   Lab = ' OFE Nuclear Repulsion Contribution'
-  call PrGrad(Lab,Temp,nGrad,ChDisp,5)
+  call PrGrad(Lab,Temp,nGrad,ChDisp)
 end if
 
 call mma_deallocate(Charge_B)

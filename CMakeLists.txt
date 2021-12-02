@@ -48,10 +48,7 @@ find_program (GIT "git")
 find_program (PERL "perl")
 mark_as_advanced (FORCE GIT PERL)
 
-FIND_PACKAGE (PythonInterp 3.0)
-if (NOT PYTHONINTERP_FOUND)
-  FIND_PACKAGE (PythonInterp 2.7)
-endif ()
+FIND_PACKAGE (Python COMPONENTS Interpreter)
 
 ################################################################################
 #                                                                              #
@@ -92,6 +89,7 @@ option (MPI "Enable MPI parallellization." OFF)
 option (GA "Use Global Arrays library." OFF)
 
 option (OPENMP "Enable multi-threading." OFF)
+option (IPO "Enable interprocedural optimization (if supported)." OFF)
 
 option (BOUNDS "Enable bounds checking (only GNU Fortran)." OFF)
 
@@ -722,7 +720,7 @@ set (SunPro_TRAP "-ftrap=common")
 #======================================#
 # defines __PGI
 # C++ compiler
-list (APPEND SUPPORTED_CXX_COMPILERS "PGI")
+list (APPEND SUPPORTED_CXX_COMPILERS "PGI" "NVHPC")
 set (CXXFLAGS_PGI_BASIC "-c99 -pgf90libs")
 set (CXXFLAGS_PGI_OPENMP "-mp")
 # build targets
@@ -732,7 +730,7 @@ set (CXXFLAGS_PGI_RELWITHDEBINFO "-O2 -gopt -Minform=warn")
 set (CXXFLAGS_PGI_RELEASE "-O2")
 set (CXXFLAGS_PGI_FAST "-O2")
 # C compiler
-list (APPEND SUPPORTED_C_COMPILERS "PGI")
+list (APPEND SUPPORTED_C_COMPILERS "PGI" "NVHPC")
 set (CFLAGS_PGI_BASIC "-c99 -pgf90libs")
 set (CFLAGS_PGI_OPENMP "-mp")
 # build targets
@@ -742,7 +740,7 @@ set (CFLAGS_PGI_RELWITHDEBINFO "-O2 -gopt -Minform=warn")
 set (CFLAGS_PGI_RELEASE "-O2")
 set (CFLAGS_PGI_FAST "-O2")
 # Fortran compiler
-list (APPEND SUPPORTED_Fortran_COMPILERS "PGI")
+list (APPEND SUPPORTED_Fortran_COMPILERS "PGI" "NVHPC")
 set (FFLAGS_PGI_BASIC "-Mbackslash")
 set (FFLAGS_PGI_PREPROCESS "-Mpreprocess")
 set (FFLAGS_PGI_OPENMP "-mp")
@@ -800,6 +798,9 @@ if (DMRG OR WFA)
       set (CXXCID ${CMAKE_CXX_COMPILER_ID})
     endif ()
   endforeach ()
+  if (CXXCID STREQUAL "NVHPC")
+    set (CXXCID "PGI")
+  endif ()
 
   if (NOT CXXCID)
     message (FATAL_ERROR "unsupported CXX compiler: ${CMAKE_CXX_COMPILER_ID}")
@@ -812,6 +813,9 @@ foreach (C_COMPILER ${SUPPORTED_C_COMPILERS})
     set (CCID ${CMAKE_C_COMPILER_ID})
   endif ()
 endforeach ()
+if (CCID STREQUAL "NVHPC")
+  set (CCID "PGI")
+endif ()
 
 if (NOT CCID)
   message (FATAL_ERROR "unsupported C compiler: ${CMAKE_C_COMPILER_ID}")
@@ -899,6 +903,9 @@ foreach (Fortran_COMPILER ${SUPPORTED_Fortran_COMPILERS})
     set (FCID ${CMAKE_Fortran_COMPILER_ID})
   endif ()
 endforeach ()
+if (FCID STREQUAL "NVHPC")
+  set (FCID "PGI")
+endif ()
 
 if (NOT FCID)
   message (FATAL_ERROR "unsupported Fortran compiler: ${CMAKE_Fortran_COMPILER_ID}")
@@ -1442,8 +1449,9 @@ if (LINALG STREQUAL "Internal")
   if (NOT DEFINED ${util}_src)
     message (FATAL_ERROR "\"${util}\" not found in source directories.")
   endif ()
+  set (linalgmod "${${util}_src}/la_constants_.F90" "${${util}_src}/la_xisnan_.F90")
   foreach (lib ${LINALG_LIBRARIES})
-    set (source ${${util}_src}/${lib}.f)
+    set (source ${${util}_src}/${lib}.f ${${util}_src}/${lib}_f90.F90 ${linalgmod})
     add_library (${lib} ${source})
     list (APPEND ALL_SOURCES ${source})
     list (APPEND ${util}_incs ${internal_linalg})
@@ -2216,7 +2224,7 @@ if (MolGUI)
   include (ExternalProject)
   ExternalProject_Add (${projname}
                        GIT_REPOSITORY https://gitlab.com/Molcas/MolGUI.git
-                       GIT_TAG 2667899eac1195c28e1a33c6f3ae28b6350fe52c
+                       GIT_TAG 599b75e79fab49501adb313f3e2dfab9d8211795
                        PREFIX ${projdir}
                        CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${projinstall}
                                   -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
@@ -2341,6 +2349,14 @@ message ("-- Debug definitions: ${DEBUG_DEFS}")
 # Utilities/Programs                                                           #
 #                                                                              #
 ################################################################################
+
+# Enable interprocedural optimization, if requested and supported, from now on
+set (set_IPO OFF)
+if (IPO AND ";RelWithDebInfo;Release;Fast;" MATCHES ";${CMAKE_BUILD_TYPE};")
+  include (CheckIPOSupported)
+  check_ipo_supported (RESULT set_IPO)
+endif ()
+set (CMAKE_INTERPROCEDURAL_OPTIMIZATION ${set_IPO})
 
 # generate utility list
 #======================
@@ -2592,6 +2608,7 @@ if (HDF5 AND HDF5_FOUND)
     poly_aniso
     rasscf
     rassi
+    rhodyn
     scf
     single_aniso
     slapaf
@@ -2608,6 +2625,9 @@ if (HDF5 AND HDF5_FOUND)
       list (APPEND ${prog}_deplibs qcmaquis-hdf5-interface)
     endforeach ()
   endif ()
+else ()
+  message (WARNING "RHODYN program requires HDF5 interface, disabled")
+  list (REMOVE_ITEM progs rhodyn)
 endif ()
 
 # Libraries that require QCMaquis-OpenMolcas interface
@@ -2719,7 +2739,7 @@ elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "NAG")
   set (netlib_nowarn_flags " -w")
 endif ()
 if (netlib_nowarn_flags)
-  file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${LinAlg_internal_src}/*.f ${delayed_util_src}/*.f)
+  file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${LinAlg_internal_src}/*.f ${LinAlg_internal_src}/*.F90 ${delayed_util_src}/*.f ${delayed_util_src}/*.F90)
   set_property (SOURCE ${source} APPEND_STRING PROPERTY COMPILE_FLAGS ${netlib_nowarn_flags})
 endif ()
 
@@ -2771,6 +2791,13 @@ if (BUILD_SHARED_LIBS)
   set_target_properties (mods_obj PROPERTIES POSITION_INDEPENDENT_CODE "TRUE")
 endif ()
 set_target_properties (mods_obj PROPERTIES Fortran_MODULE_DIRECTORY ${MAIN_MOD_DIR})
+
+# set the module directory for internal linalg
+if (LINALG STREQUAL "Internal")
+  foreach (lib ${LINALG_LIBRARIES})
+    set_module_directory (${lib})
+  endforeach ()
+endif ()
 
 # now go through utility list
 foreach (util ${utils})
@@ -3114,9 +3141,9 @@ add_custom_target (prgms ALL
 add_dependencies (mods_obj prgms)
 
 # generate help databases from doc
-if (PYTHONINTERP_FOUND)
+if (Python_FOUND)
   execute_process (
-    COMMAND ${PYTHON_EXECUTABLE} ${OPENMOLCAS_DIR}/sbin/extract_xmldoc.py ${OPENMOLCAS_DIR}/doc ${PROJECT_BINARY_DIR}/data
+    COMMAND ${Python_EXECUTABLE} ${OPENMOLCAS_DIR}/sbin/extract_xmldoc.py ${OPENMOLCAS_DIR}/doc ${PROJECT_BINARY_DIR}/data
     ERROR_VARIABLE EXTRACT_ERROR
     RESULT_VARIABLE EXTRACT_RESULT
   )
@@ -3137,7 +3164,7 @@ if (PYTHONINTERP_FOUND)
     endif ()
   endif ()
 else ()
-  message (WARNING "No python found, help databases will not be created.")
+  message (WARNING "No Python found, help databases will not be created.")
 endif ()
 
 # generate rcodes.txt file

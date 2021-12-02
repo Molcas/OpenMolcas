@@ -30,4 +30,4 @@
 #define iiloc iiloc_
 #endif
 #endif
-UN_INT iiloc(UN_INT x) { return x; }
+INT iiloc(INT *x) { return (INT)x; }

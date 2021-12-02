@@ -11,7 +11,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2019,2020, Ignacio Fdez. Galván                        *
+# Copyright (C) 2019-2021, Ignacio Fdez. Galván                        *
 #***********************************************************************
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
@@ -95,6 +95,13 @@ def to_next_non_blank(lines):
   while ((n < len(lines)) and blank(lines[n])):
     n += 1
   return n
+
+def default_lookup(mod):
+  lookup = {}
+  for kw in mod.xpath(kw_exp):
+    if kw.get('KIND') == 'INT' and kw.get('DEFAULT_VALUE'):
+      lookup[kw.get('NAME')] = fortran_int(kw.get('DEFAULT_VALUE'))
+  return lookup
 
 # Check if the current line starts a group
 #  1: group matches, consume one line
@@ -1296,7 +1303,7 @@ def test_custom(lines, keyword):
         l += ll
       except:
         return None
-    elif (name == 'PROPERTY'):
+    elif (name in ['PROPERTY', 'SOPROPERTY']):
       try:
         parts = fortran_split_quotes(lines[l])
         n = fortran_int(parts.pop(0))
@@ -1307,6 +1314,36 @@ def test_custom(lines, keyword):
             l += 1
           parts.pop(0)
           m = fortran_int(parts.pop(0))
+      except:
+        return None
+    else:
+      return None
+
+  elif (module == 'RHODYN'):
+    if (name == 'NRDE'):
+      try:
+        n = gv.lookup['NRSM']
+        for i in range(n):
+          ll = test_standard(lines[l-1:], 'INTS', 4)
+          l += ll-1
+      except:
+        return None
+    elif (name == 'NSTA'):
+      try:
+        parts = fortran_split(lines[l])
+        n = fortran_int(parts[0])
+        assert parts[1].upper().strip() == 'ALL'
+        l += 1
+      except:
+        return None
+    elif (name == 'POLA'):
+      try:
+        n = gv.lookup['NPUL']
+        for i in range(n):
+          parts = [x.strip(' (') for x in lines[l].split(')')]
+          for j in range(3):
+            re, im = [fortran_float(x) for x in parts[j].split(',')]
+          l += 1
       except:
         return None
     else:
@@ -1575,6 +1612,9 @@ def validate(inp, db):
       kw.set('NAME', '*{}'.format(kw.get('NAME')))
 
   result.append('Input for: {0}'.format(program))
+
+  # Get default values for lookup sizes
+  gv.lookup.update(default_lookup(module))
 
   stack = [None]
   group = module

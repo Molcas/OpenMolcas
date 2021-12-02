@@ -1,0 +1,263 @@
+# Define some configuration groups (variables, tags, etc.) to be used in jobs
+# - plain: default configuration
+# - options: enable several options
+# - linalg: use a link-time linalg library and ninja
+# - pgi: use PGI compilers
+# - sun: use Oracle compilers
+# - intel: use Intel compilers (needs access to a license)
+# - intel13: use Intel 2013 compilers (build on specific runner)
+# - nag: use NAG Fortran compiler and Garble (build on specific runner)
+# - garble: setup with Garble option and gcc compilers
+# - bounds: enable bounds checking (slow)
+# - debug: build with no optimization (no tests)
+# - qcmaquis: default build with QCMaquis and NEVPT2 support (only qcmaquis tests)
+# - mpi: build with Global Arrays, OpenMPI, OpenBLAS
+
+.plain:
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-4.8:latest
+  variables:
+    cache_file: |
+      set (BIGOT "ON" CACHE STRING "do not allow any warning")
+    CC: "gcc"
+    CXX: "g++"
+    FC: "gfortran"
+    tests: ".all exhaustive"
+  tags:
+    - docker
+
+.options:
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-9:latest
+  variables:
+    cache_file: |
+      set (CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "opt, debug info")
+      set (BUILD_SHARED_LIBS "ON" CACHE STRING "use shared libmolcas")
+      set (BUILD_STATIC_LIB "ON" CACHE STRING "build static libmolcas too")
+      set (BIGOT "ON" CACHE STRING "do not allow any warning")
+      set (LINALG "Runtime" CACHE STRING "runtime blas/lapack linking")
+      set (IPO "ON" CACHE STRING "enable interprocedural optimization")
+      set (CHEMPS2 "ON" CACHE STRING "enable CheMPS2 interface")
+      set (FDE "ON" CACHE STRING "enable frozen-density-embedding (FDE) interface")
+      set (TOOLS "ON" CACHE STRING "compile Tools")
+      set (MSYM "ON" CACHE STRING "enable libmsym (needs submodule)")
+      set (WFA "ON" CACHE STRING "enable libwfa (needs submodule)")
+      set (GEN1INT "ON" CACHE STRING "enable Gen1Int")
+    CC: "gcc"
+    CXX: "g++"
+    FC: "gfortran"
+    submodules: "External/lapack External/libmsym External/libwfa"
+    MOLCAS_LINALG: "/opt/OpenBLAS/lib/libopenblas.so"
+    MOLCAS_LINALG_INFO: "YES"
+  tags:
+    - docker
+
+.linalg:
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-10:latest
+  variables:
+    CMAKE_GENERATOR: "Ninja"
+    make: "ninja -j 1"
+    cache_file: |
+      set (CMAKE_BUILD_TYPE "Fast" CACHE STRING "high opt")
+      set (BUILD_SHARED_LIBS "ON" CACHE STRING "use shared libmolcas")
+      set (BIGOT "ON" CACHE STRING "do not allow any warning")
+      set (LINALG "MKL" CACHE STRING "use MKL library")
+    CC: "gcc"
+    CXX: "g++"
+    FC: "gfortran"
+    tests: ".all"
+  tags:
+    - docker
+
+.pgi:
+  image: ${CI_REGISTRY}/molcas/dockerfiles/pgi:latest
+  variables:
+    cache_file: |
+      set (DEFMOLCASMEM "1536" CACHE STRING "reduce memory")
+    # Add -tp=px flag to make the result more portable
+    CC: "pgcc '-tp=px'"
+    CXX: "pgc++ '-tp=px'"
+    FC: "pgfortran '-tp=px'"
+  tags:
+    - docker
+
+.sun:
+  image: ${CI_REGISTRY}/molcas/dockerfiles/oracle:latest
+  variables:
+    cache_file: |
+      set (DEFMOLCASMEM "1024" CACHE STRING "reduce memory")
+    CC: "suncc -I/usr/include/x86_64-linux-gnu"
+    CXX: "sunCC -I/usr/include/x86_64-linux-gnu"
+    FC: "sunf90 -I/usr/include/x86_64-linux-gnu"
+  tags:
+    - docker
+
+.intel:
+  image: ${CI_REGISTRY}/molcas/dockerfiles/intel-arch:latest
+  variables:
+    cache_file: |
+      set (CMAKE_BUILD_TYPE "Release" CACHE STRING "opt, no debug info" )
+      set (HDF5 "ON" CACHE STRING "turn on HDF5")
+      set (LINALG "MKL" CACHE STRING "enable MKL")
+      set (BIGOT "ON" CACHE STRING "do not allow any warning")
+      # with -fsyntax-only and only_objs we create all interface files
+      set (EXTRA_FFLAGS "-fsyntax-only" CACHE STRING "extra Fortran flags")
+    pre_compile_script: |
+      . /opt/intel/composerxe/linux/bin/compilervars.sh intel64
+    pre_make_script: |
+      $${make} only_objs
+      cmake -D EXTRA_FFLAGS="" .
+    CC: "icc"
+    CXX: "icpc"
+    FC: "ifort"
+  tags:
+    - intel_license
+
+.intel13:
+  image: ${CI_REGISTRY}/molcas/dockerfiles/intel-arch:latest
+  variables:
+    install_path: "${CI_PROJECT_DIR}/install"
+    cache_file: |
+      set (CMAKE_BUILD_TYPE "Release" CACHE STRING "opt, no debug info" )
+      set (HDF5 "OFF" CACHE STRING "turn off HDF5")
+      set (LINALG "MKL" CACHE STRING "enable MKL")
+      set (BIGOT "ON" CACHE STRING "do not allow any warning")
+      # use python3 instead of python3.4 for better compatibility
+      set (Python_EXECUTABLE "/usr/bin/python3" CACHE STRING "Python interpreter")
+      # with -fsyntax-only and only_objs we create all interface files
+      set (EXTRA_FFLAGS "-fsyntax-only" CACHE STRING "extra Fortran flags")
+    pre_compile_script: |
+      . /usr/local/bin/setupintel.sh
+      rm -rf ${install_path}
+    pre_make_script: |
+      $${make} only_objs
+      cmake -D EXTRA_FFLAGS="" .
+    CC: "icc"
+    CXX: "icpc"
+    FC: "ifort"
+  tags:
+    - intel13
+
+.nag:
+  # use this image for better compatibility with the nag runner
+  image: ${CI_REGISTRY}/molcas/dockerfiles/intel-arch:latest
+  variables:
+    install_path: "${CI_PROJECT_DIR}/install"
+    cache_file: |
+      set (CMAKE_BUILD_TYPE "Garble" CACHE STRING "garble installation" )
+      set (BUILD_SHARED_LIBS "OFF" CACHE STRING "static molcas lib" )
+      set (HDF5_ROOT "/opt/hdf5_v1.12.0_gnu" CACHE STRING "HDF5 location") # specific for nag runner
+      set (HDF5_USE_STATIC_LIBRARIES "ON" CACHE STRING "use static HDF5")
+      set (HDF5 "ON" CACHE STRING "turn on HDF5")
+      set (DEFMOLCASMEM "256" CACHE STRING "reduce memory to get more speed")
+      # -w=obs : disable fixed source form, statement function
+      # -w=x77 : disable real*8
+      set (EXTRA_FFLAGS "-w=obs -w=x77 -unsharedrts" CACHE STRING "extra Fortran flags")
+    pre_compile_script: |
+      rm -rf ${install_path}
+    pre_make_script: |
+      mkdir -p ${install_path}
+      $${make} 2>&1 | tee nag.log
+      # Remove CMake and NAG version lines
+      sed -E '/^Scanning dependencies of target [^ ]*/d ; /^\[ *[0-9]+*%\].*/d ; /^\[?NAG Fortran Compiler.*/d' nag.log > nag2.log ; mv nag2.log nag.log
+      # Wrap lines that start with a space
+      sed -E ':a ; $!N ; s/\n\s+/ / ; ta ; P ; D' nag.log > nag2.log ; mv nag2.log nag.log
+      # Remove ignored warnings
+      sed -E '/WrkSpc\.fh.*EQUIVALENCE/d ; /(was not compiled with the -i8 option)/d' nag.log > nag2.log ; mv nag2.log nag.log
+      # More reasonable paths
+      sed -E 's%/[^ ]*OpenMolcas/src%src%' nag.log > nag2.log ; mv nag2.log nag.log
+      cp nag.log ${install_path}
+      # Fail if any warning remains
+      if [ "$$(wc -l < nag.log)" == "0" ] ; then
+        true
+      else
+        echo "***************************************"
+        echo "* Compilation finished with warnings! *"
+        echo "***************************************"
+        cat nag.log
+        echo "***************************************"
+        false
+      fi
+    CC: "gcc"
+    CXX: "g++"
+    FC: "nagfor"
+  tags:
+    - nagfor
+
+.garble:
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-9:latest
+  variables:
+    cache_file: |
+      set (CMAKE_BUILD_TYPE "Garble" CACHE STRING "garble installation" )
+      set (BIGOT "ON" CACHE STRING "do not allow any warning")
+      #set (BOUNDS "ON" CACHE STRING "enable bounds checking" )
+      set (BUILD_SHARED_LIBS "OFF" CACHE STRING "static molcas lib" )
+      set (HDF5 "OFF" CACHE STRING "turn off HDF5")
+      set (DEFMOLCASMEM "256" CACHE STRING "reduce memory to get more speed")
+    CC: "gcc"
+    CXX: "g++"
+    FC: "gfortran"
+  tags:
+    - docker
+
+.bounds:
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-9:latest
+  variables:
+    cache_file: |
+      set (CMAKE_BUILD_TYPE "Release" CACHE STRING "opt, no debug info" )
+      set (BOUNDS "ON" CACHE STRING "enable bounds checking" )
+      set (DEFMOLCASMEM "256" CACHE STRING "reduce memory to get more speed")
+      set (IPO "ON" CACHE STRING "enable interprocedural optimization")
+    CC: "gcc"
+    CXX: "g++"
+    FC: "gfortran"
+    MOLCAS_TIMELIM: "1000"
+  tags:
+    - docker
+
+.debug:
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-9:latest
+  variables:
+    cache_file: |
+      set (CMAKE_BUILD_TYPE "Debug" CACHE STRING "no opt, debug info")
+      set (BUILD_SHARED_LIBS "OFF" CACHE STRING "do not use shared libmolcas")
+      set (BIGOT "ON" CACHE STRING "do not allow any warning")
+    CC: "gcc"
+    CXX: "g++"
+    FC: "gfortran"
+    # only interested in compilation, so run no tests
+    tests: ".none"
+  tags:
+    - docker
+
+.qcmaquis:
+  image: ${CI_REGISTRY}/molcas/dockerfiles/qcmaquis:latest
+  variables:
+    cache_file: |
+      set (DMRG ON CACHE STRING "Enable DMRG")
+      set (NEVPT2 ON CACHE STRING "Enable NEVPT2")
+    CC: "gcc"
+    CXX: "g++"
+    FC: "gfortran"
+    tests: ".all qcmaquis"
+  tags:
+    - docker
+
+.mpi:
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-9:latest
+  variables:
+    cache_file: |
+      set (BIGOT "ON" CACHE STRING "do not allow any warning")
+      set (MPI "ON" CACHE STRING "enable MPI parallelization")
+      set (GA "ON" CACHE STRING "enable Global Arrays")
+      set (GA_BUILD "ON" CACHE STRING "build our own Global Arrays")
+      set (OPENMP "ON" CACHE STRING "enable OpenMP diagnostics")
+      set (LINALG "OpenBLAS" CACHE STRING "use OpenBLAS library")
+      set (MPI_LAUNCHER "/usr/bin/mpiexec $$MPI_FLAGS -n $$MOLCAS_NPROCS" CACHE STRING "custom MPI launcher command line")
+      set (DEFMOLCASMEM "768" CACHE STRING "reduce memory for 2 processes")
+    CC: "gcc"
+    CXX: "g++"
+    FC: "gfortran"
+    tests: ".all"
+    MPI_FLAGS: "--allow-run-as-root --oversubscribe"
+    MOLCAS_NPROCS: "2"
+  tags:
+    - docker

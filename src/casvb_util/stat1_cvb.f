@@ -18,7 +18,7 @@
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 
       cpu0=tim0_cvb()
       if(((.not.variat).or.nmcscf.eq.1).or.(ip(3).ge.1.and.

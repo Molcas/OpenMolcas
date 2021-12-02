@@ -20,7 +20,7 @@ c ... Make: up to date? ...
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension dx(*)
 c      dimension orbs(norb,norb),cvb(nvb)
 
@@ -35,14 +35,14 @@ c  TRY quantities only up2date if SVB/EVB ok :
       i1 = mstackr_cvb(norb*norb)
       i2 = mstackr_cvb(nvb)
       i3 = mstackr_cvb(norb*norb)
-      call update2_cvb(w(i1),w(i2),w(lv(1)),w(lv(2)),
-     >  w(lw(2)),dx,
+      call update2_cvb(work(i1),work(i2),work(lv(1)),work(lv(2)),
+     >  work(lw(2)),dx,
      >  ic,
      >  norb,nvb,nprorb,npr,orbopt,strucopt,sym,
-     >  w(lp(6)),iw(ls(11)),nort,w(i3))
-      call fmove_cvb(w(i1),w(lv(1)),norb*norb)
-      call fmove_cvb(w(i2),w(lv(2)),nvb)
-      call str2vbc_cvb(w(lv(2)),w(lv(5)))
+     >  work(lp(6)),iwork(ls(11)),nort,work(i3))
+      call fmove_cvb(work(i1),work(lv(1)),norb*norb)
+      call fmove_cvb(work(i2),work(lv(2)),nvb)
+      call str2vbc_cvb(work(lv(2)),work(lv(5)))
       call mfreer_cvb(i1)
       return
       end
@@ -53,7 +53,7 @@ c  TRY quantities only up2date if SVB/EVB ok :
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension dx(*)
       dimension orbs(norb,norb),cvb(nvb)
       if(orbopt)call touch_cvb('ORBSTRY')
@@ -61,11 +61,11 @@ c  TRY quantities only up2date if SVB/EVB ok :
       call make_cvb('WFNTRY')
       ic = 2
       i1 = mstackr_cvb(norb*norb)
-      call update2_cvb(orbs,cvb,w(lv(1)),w(lv(2)),
-     >  w(lw(2)),dx,
+      call update2_cvb(orbs,cvb,work(lv(1)),work(lv(2)),
+     >  work(lw(2)),dx,
      >  ic,
      >  norb,nvb,nprorb,npr,orbopt,strucopt,sym,
-     >  w(lp(6)),iw(ls(11)),nort,w(i1))
+     >  work(lp(6)),iwork(ls(11)),nort,work(i1))
       call mfreer_cvb(i1)
       return
       end

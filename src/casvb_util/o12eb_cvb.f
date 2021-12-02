@@ -21,12 +21,12 @@
 #include "print_cvb.fh"
 
 #include "opt2_cvb.fh"
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 
-      call o12eb2_cvb(w(lv(1)),w(lv(2)),nparm1,nvb,
+      call o12eb2_cvb(work(lv(1)),work(lv(2)),nparm1,nvb,
      >  nfrorb,
-     >  w(lw(4)),w(lw(5)),w(lw(6)),
-     >  w(ix(1)),
+     >  work(lw(4)),work(lw(5)),work(lw(6)),
+     >  work(ix(1)),
      >  dxnrm,grdnrm,close2conv,strucopt)
       return
       end

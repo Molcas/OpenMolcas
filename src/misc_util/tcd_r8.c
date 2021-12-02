@@ -42,7 +42,7 @@
 #endif
 
 void one_ulp(double *);
-void tcd_r8(unsigned char in[], INT *n_in, double out[], INT *n_out, double *thr, INT *Init_do_setup_d) {
+void tcd_r8(unsigned char *in, INT *n_in, double out[], INT *n_out, double *thr, INT *Init_do_setup_d) {
 /* unsigned long long int *ptr_64; */
    unsigned char          *ptr_8;
 /* marked as volatile to prevent over-optimization */

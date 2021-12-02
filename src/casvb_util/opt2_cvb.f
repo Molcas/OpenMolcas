@@ -19,7 +19,7 @@
 #include "print_cvb.fh"
 
 #include "formats_cvb.fh"
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension orbs(norb,norb),cvb(nvb)
 
 c The following initialization is to appease a compiler

@@ -21,7 +21,7 @@ c ... Make: up to date? ...
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       external loopcntr_iterate_cvb
       logical loopcntr_iterate_cvb
 

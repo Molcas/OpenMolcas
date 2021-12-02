@@ -20,23 +20,23 @@ c ... Files/Hamiltonian available ...
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension orbs(norb,norb),cvb(nvb)
 
       if(tstfile_cvb(66000.2d0))then
         i1=mstackr_cvb(norb*norb+nvb)
-        call rdr_cvb(w(i1),norb*norb+nvb,66000.2d0,0)
-        call subvec(w(i1),orbs,w(i1),norb*norb)
-        call subvec(w(norb*norb+i1),cvb,w(norb*norb+i1),nvb)
-        dxnrm=dnrm2_(norb*norb+nvb,w(i1),1)
-        call findamx_cvb(w(i1),norb*norb+nvb,dx_amx,idum)
+        call rdr_cvb(work(i1),norb*norb+nvb,66000.2d0,0)
+        call subvec(work(i1),orbs,work(i1),norb*norb)
+        call subvec(work(norb*norb+i1),cvb,work(norb*norb+i1),nvb)
+        dxnrm=dnrm2_(norb*norb+nvb,work(i1),1)
+        call findamx_cvb(work(i1),norb*norb+nvb,dx_amx,idum)
         call mfreer_cvb(i1)
       endif
       call wrr_cvb(orbs,norb*norb,66000.2d0,0)
       call wrr_cvb(cvb,nvb,66000.2d0,norb*norb)
       call evb2cas2_cvb(orbs,cvb,ioptc,iter,fx,
      >  dxnrm,dx_amx,
-     >  w(lc(1)),w(lc(2)),w(lc(3)),w(lc(4)),w(lc(5)),
-     >  w(lw(2)),w(lw(3)))
+     >  work(lc(1)),work(lc(2)),work(lc(3)),work(lc(4)),work(lc(5)),
+     >  work(lw(2)),work(lw(3)))
       return
       end

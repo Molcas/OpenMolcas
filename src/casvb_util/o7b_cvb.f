@@ -15,11 +15,11 @@
      >  dxnrm,grdnrm,close2conv)
       implicit real*8 (a-h,o-z)
       logical close2conv
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 #include "direct_cvb.fh"
 #include "opt2_cvb.fh"
 
-      call o7b2_cvb(nparm1,w(ix(1)),
+      call o7b2_cvb(nparm1,work(ix(1)),
      >  dxnrm,grdnrm,close2conv)
       return
       end

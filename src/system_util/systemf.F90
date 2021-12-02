@@ -29,6 +29,14 @@ integer(kind=iwp), intent(out) :: rc
 integer(kind=iwp) :: i, LenC
 character(len=1024) :: C2
 integer(kind=iwp), external :: StrnLn
+interface
+  subroutine systemc(c,lc,RCC) bind(C,name='systemc_')
+    use, intrinsic :: iso_c_binding, only: c_char
+    use Definitions, only: MOLCAS_C_INT
+    character(kind=c_char) :: c(*)
+    integer(kind=MOLCAS_C_INT) :: lc, RCC
+  end subroutine systemc
+end interface
 
 LenC = StrnLn(C)
 if (LenC > 1024-1) then

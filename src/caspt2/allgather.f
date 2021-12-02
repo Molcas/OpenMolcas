@@ -30,7 +30,6 @@
 *            The receiving buffer is allocated by this subroutine.
 ************************************************************************
 #include "warnings.h"
-#include "WrkSpc.fh"
 
 #include "global.fh"
 #include "mafdecls.fh"
@@ -106,7 +105,6 @@
 *            The receiving buffer is allocated by this subroutine.
 ************************************************************************
 #include "warnings.h"
-#include "WrkSpc.fh"
 
 #include "global.fh"
 #include "mafdecls.fh"

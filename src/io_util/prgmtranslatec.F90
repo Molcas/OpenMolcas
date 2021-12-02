@@ -20,17 +20,17 @@
 #ifndef _HAVE_EXTRA_
 #define MAXSTR 1024
 
-subroutine PrgmTranslateC(InStr,l1,OutStr,l2,Par)
+subroutine PrgmTranslateC(InStr,l1,OutStr,l2,Par) bind(C,name='prgmtranslatec_')
 
 use, intrinsic :: iso_c_binding, only: c_char, c_null_char
 use Prgm, only: PrgmTranslate_Mod
-use Definitions, only: iwp
+use Definitions, only: iwp, MOLCAS_C_INT
 
 implicit none
 character(kind=c_char), intent(in) :: InStr(*)
-integer(kind=iwp), intent(in) :: l1, Par
+integer(kind=MOLCAS_C_INT), intent(in) :: l1, Par
 character(kind=c_char), intent(_OUT_) :: OutStr(*)
-integer(kind=iwp), intent(out) :: l2
+integer(kind=MOLCAS_C_INT), intent(out) :: l2
 character(len=MAXSTR) :: TmpStr, TmpStr2
 integer(kind=iwp) :: i
 

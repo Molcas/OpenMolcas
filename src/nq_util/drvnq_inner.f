@@ -107,6 +107,7 @@
         sp_time = 0d0
         FI_time = 0d0
 !
+       IF(Debug) THEN
         LuMC=37
         call OpnFl('MCPDFT',LuMC,Exist)
 c        Call append_file(LuMC)
@@ -125,6 +126,7 @@ c        Call append_file(LuMT)
      &                    '       d_a*W     ,       d_b*W     ,'//
      &                    '       dTot*W    ,       Weights   ,'//
      &                    '       dTot '
+       END IF
       END IF
 ************************************************************************
 *
@@ -392,13 +394,11 @@ C     End Do ! number_of_subblocks
         write(6,*) 'Funcaa in drvnq_ :', Funcaa
         write(6,*) 'Funcbb in drvnq_ :', Funcbb
         write(6,*) 'Funccc in drvnq_ :', Funccc
-      END IF
 *
 * Close these files...
-      If(l_casdft) then
         Close(LuMC)
         Close(LuMT)
-      End if
+      END IF
 
       Return
       End

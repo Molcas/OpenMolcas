@@ -21,7 +21,7 @@ c ... Content of CI vectors ...
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension orbs(norb,norb)
       dimension civec(ndet),civecp(ndet)
 
@@ -29,15 +29,15 @@ c ... Content of CI vectors ...
 
       iowrk  = mstackr_cvb(norb*norb)
       igjorb = mstackr_cvb(norb*norb+ihlf_cvb(norb+2*norb*norb))
-      call transp_cvb(orbs,w(iowrk),norb,norb)
-      call gaussj_cvb(w(iowrk),w(igjorb))
+      call transp_cvb(orbs,work(iowrk),norb,norb)
+      call gaussj_cvb(work(iowrk),work(igjorb))
       if(memplenty)then
         call getci_cvb(civec)
         call cicopy_cvb(civec,civecp)
       else
         call cird_cvb(civecp,61001.2d0)
       endif
-      call applyt_cvb(civecp,w(igjorb))
+      call applyt_cvb(civecp,work(igjorb))
       call mfreer_cvb(iowrk)
 
       call setcnt_cvb(civecp,3)

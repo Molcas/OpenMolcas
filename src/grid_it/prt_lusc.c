@@ -34,7 +34,7 @@
 
 #define MYMAXPATH 1024
 
-void prgmtranslatec (char *, INT *, char *, INT *, INT*);
+void* prgmtranslatec (char *, INT *, char *, INT *, INT*);
 
 INT prt_lusc_(INT *lid, char *line, INT *len, INT *isBin)
 {

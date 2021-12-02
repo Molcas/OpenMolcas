@@ -24,28 +24,28 @@ c  *********************************************************************
 #include "print_cvb.fh"
 
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension iconfs(noe,nconf1)
 
       i1 = mstacki_cvb(noe)
 c  Main loop over configurations :
       do 100 iconf=1,nconf1
-c  Prepare iw(i1) for print
+c  Prepare iwork(i1) for print
       ioffs=i1-1
       do 200 iorb=1,norb
       if(iconfs(iorb,iconf).eq.2)then
-        iw(1+ioffs)=iorb
-        iw(2+ioffs)=iorb
+        iwork(1+ioffs)=iorb
+        iwork(2+ioffs)=iorb
         ioffs=ioffs+2
       endif
 200   continue
       do 300 iorb=1,norb
       if(iconfs(iorb,iconf).eq.1)then
-        iw(1+ioffs)=iorb
+        iwork(1+ioffs)=iorb
         ioffs=ioffs+1
       endif
 300   continue
-      write(6,'(i8,a,20i3)')iconf,'   =>  ',(iw(ii+i1-1),ii=1,nel1)
+      write(6,'(i8,a,20i3)')iconf,'   =>  ',(iwork(ii+i1-1),ii=1,nel1)
 100   continue
       call mfreei_cvb(i1)
       return

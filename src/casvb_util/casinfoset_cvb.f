@@ -21,7 +21,7 @@ c ... Files/Hamiltonian available ...
 #include "print_cvb.fh"
 
 #include "inpmod_cvb.fh"
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 #include "casinfo_cvb.fh"
       logical hadinput
       logical debug

@@ -19,18 +19,18 @@
 #include "print_cvb.fh"
 
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 
       if(ic.eq.1)then
         i1 = mstackiz_cvb((nel+1)*(nel+1)*(nel+1))
-        call bspset2_cvb(iw(i1),nel,kbasis1,need)
+        call bspset2_cvb(iwork(i1),nel,kbasis1,need)
         call mfreei_cvb(i1)
       elseif(ic.eq.2)then
         do 100 i=0,(nel+1)*(nel+1)*(nel+1)-1
-        iw(i+lb(3))=-1
+        iwork(i+lb(3))=-1
 100     continue
-        call bspset2_cvb(iw(lb(3)),nel,kbasis1,need)
-        call setifnss_cvb(iw(lb(4)),iw(lb(5)),iw(lb(6)))
+        call bspset2_cvb(iwork(lb(3)),nel,kbasis1,need)
+        call setifnss_cvb(iwork(lb(4)),iwork(lb(5)),iwork(lb(6)))
       endif
       if(kbasis1.eq.6)need=0
       return

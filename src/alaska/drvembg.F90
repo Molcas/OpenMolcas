@@ -90,7 +90,7 @@ do
 end do
 Label = 'DFT-OFE('//OFE_KSDFT(1:iEnd)//') contribution'
 jPrint = nPrint(112)
-if (jPrint >= 15) call PrGrad(Label,Temp,nGrad,ChDisp,5)
+if (jPrint >= 15) call PrGrad(Label,Temp,nGrad,ChDisp)
 if (king()) call DaXpY_(nGrad,One,Temp,1,Grad,1)
 if (iPrint >= 6) then
   write(LuWr,*)

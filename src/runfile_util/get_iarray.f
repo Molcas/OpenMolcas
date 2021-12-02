@@ -94,13 +94,13 @@
 *----------------------------------------------------------------------*
       i_run_IA_used(item)=i_run_IA_used(item)+1
       If(item.eq.-1) Then
-         Call SysAbendMsg('get_iArray','Could not locate:',Label)
+         Call SysAbendMsg('get_iArray','Could not locate: ',Label)
       End If
       If(RecIdx(item).eq.0) Then
-         Call SysAbendMsg('get_iArray','Data not defined:',Label)
+         Call SysAbendMsg('get_iArray','Data not defined: ',Label)
       End If
       If(Reclen(item).ne.nData) Then
-         Call SysAbendMsg('get_iArray','Data of wrong length:',Label)
+         Call SysAbendMsg('get_iArray','Data of wrong length: ',Label)
       End If
       Call iRdRun(RecLab(item),Data,nData)
 *----------------------------------------------------------------------*

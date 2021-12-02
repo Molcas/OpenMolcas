@@ -1,5 +1,6 @@
 * Molecule: O2
 * Feature test: RASSI: EPR delta g values for O2
+* Notes: Bogus properties specified in RASSI
 * Responsible person: Steven Vancoillie
 *-------------------------------------------------------------------------------
 > export MOLCAS_MEM=256
@@ -135,6 +136,15 @@ PROP
 'AngMom' 1
 'AngMom' 2
 'AngMom' 3
+SOPROP
+7
+'Foo' 1
+'AngMom' 1
+'AngMom' 2
+'AngMom' 3
+'Spin' 1
+'Spin' 2
+'Spin' 3
 EJOB
 EPRG
  0.0D0

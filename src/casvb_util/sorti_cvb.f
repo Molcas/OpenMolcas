@@ -13,17 +13,17 @@
 ************************************************************************
       subroutine sorti_cvb(n,arrin)
       implicit real*8 (a-h,o-z)
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       integer arrin
       dimension arrin(n)
 
       i1 = mstacki_cvb(n)
-      call sortindxi_cvb(n,arrin,iw(i1))
+      call sortindxi_cvb(n,arrin,iwork(i1))
       i2 = mstacki_cvb(n)
       do 100 i=0,n-1
-      iw(i+i2)=arrin(iw(i+i1))
+      iwork(i+i2)=arrin(iwork(i+i1))
 100   continue
-      call imove_cvb(iw(i2),arrin,n)
+      call imove_cvb(iwork(i2),arrin,n)
       call mfreei_cvb(i1)
       return
       end

@@ -17,7 +17,6 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "WrkSpc.fh"
 #include "intgrl.fh"
 #include "eqsolv.fh"
 #include "chocaspt2.fh"

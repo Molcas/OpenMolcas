@@ -20,41 +20,41 @@ c ... Make: up to date? ...
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension vec(*)
 
       n_hess=n_hess+1
       if(.not.up2date_cvb('OOHESS'))then
         call make_cvb('OOHESS')
-        call oohess_cvb(w(lv(1)),w(lc(2)),w(lc(3)),w(lc(4)),
-     >    w(lw(1)),w(lw(2)),w(lw(3)),
-     >    w(lq(8)),w(lq(9)),w(lq(3)),w(lq(4)))
+        call oohess_cvb(work(lv(1)),work(lc(2)),work(lc(3)),work(lc(4)),
+     >    work(lw(1)),work(lw(2)),work(lw(3)),
+     >    work(lq(8)),work(lq(9)),work(lq(3)),work(lq(4)))
       endif
       i1 = mstackr_cvb(npr)
       i2 = mstackr_cvb(npr)
       i3 = mstackr_cvb(norb*norb)
       i4 = mstackr_cvb(norb*norb)
-      call free2all_cvb(vec,w(i1),1)
+      call free2all_cvb(vec,work(i1),1)
       if(icrit.eq.1)then
-        call hess_svb1_cvb(w(lv(1)),
-     >    w(lc(2)),w(lc(3)),w(lc(4)),w(lc(5)),
-     >    w(lw(1)),w(lw(2)),w(lw(3)),
-     >    w(lw(4)),w(lw(5)),w(lw(6)),
-     >    w(lw(10)),
-     >    w(lq(7)),w(lq(8)),w(lq(3)),
-     >    w(lq(10)),iw(ls(11)),
-     >    w(i1),w(i2),w(i3),w(i4))
+        call hess_svb1_cvb(work(lv(1)),
+     >    work(lc(2)),work(lc(3)),work(lc(4)),work(lc(5)),
+     >    work(lw(1)),work(lw(2)),work(lw(3)),
+     >    work(lw(4)),work(lw(5)),work(lw(6)),
+     >    work(lw(10)),
+     >    work(lq(7)),work(lq(8)),work(lq(3)),
+     >    work(lq(10)),iwork(ls(11)),
+     >    work(i1),work(i2),work(i3),work(i4))
       elseif(icrit.eq.2)then
-        call hess_evb1_cvb(w(lv(1)),
-     >    w(lc(2)),w(lc(3)),w(lc(4)),
-     >    w(lw(2)),w(lw(3)),
-     >    w(lw(4)),w(lw(5)),w(lw(6)),
-     >    w(lw(10)),
-     >    w(lq(7)),w(lq(8)),w(lq(3)),
-     >    w(lq(10)),iw(ls(11)),
-     >    w(i1),w(i2))
+        call hess_evb1_cvb(work(lv(1)),
+     >    work(lc(2)),work(lc(3)),work(lc(4)),
+     >    work(lw(2)),work(lw(3)),
+     >    work(lw(4)),work(lw(5)),work(lw(6)),
+     >    work(lw(10)),
+     >    work(lq(7)),work(lq(8)),work(lq(3)),
+     >    work(lq(10)),iwork(ls(11)),
+     >    work(i1),work(i2))
       endif
-      call all2free_cvb(w(i2),vec,1)
+      call all2free_cvb(work(i2),vec,1)
       call mfreer_cvb(i1)
       return
       end

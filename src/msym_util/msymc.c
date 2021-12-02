@@ -57,7 +57,7 @@ err:
     return 1;
 }
 
-INT cmsym_release_context(msym_context *pctx, int*err){
+INT cmsym_release_context(msym_context *pctx, INT *err){
     msym_error_t ret = MSYM_SUCCESS;
     ret = msymReleaseContext(*pctx);
     *pctx = NULL;
@@ -126,7 +126,8 @@ INT cmsym_find_symmetry(msym_context *pctx, char pgname[6], INT *err){
     if(MSYM_SUCCESS != (ret = msymFindSymmetry(ctx))) goto err;
     if(MSYM_SUCCESS != (ret = msymGetPointGroupName(ctx, sizeof(char[6]), buf))) goto err;
 
-    snprintf(pgname,6,"%s     ",buf);
+    *err = snprintf(pgname,6,"%s     ",buf);
+    if (*err < 0) abort();
     pgname[5] = ' ';
 
     *err = ret;
@@ -227,7 +228,8 @@ INT cmsym_generate_orbital_subspaces(msym_context *pctx, INT *l, double c[*l][*l
                     irrep_ind[row+l] = sym + l;
                     if(mct->s[mss[i].s].d > 1){
                         snprintf(tmp, 18, "%d%s",l,mct->s[mss[i].s].name);
-                        snprintf(lbl[sym+l], 8, "%s",tmp);
+                        *err = snprintf(lbl[sym+l], 8, "%s",tmp);
+                        if (*err < 0) abort();
                     }
                     else snprintf(lbl[sym+l], 8, "%s",mct->s[mss[i].s].name);
                     lbl[sym+l][strlen(lbl[sym+l])] = ' ';

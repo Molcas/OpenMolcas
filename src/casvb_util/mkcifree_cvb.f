@@ -18,8 +18,8 @@
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 
-      call mkcifree2_cvb(w(lv(2)),iw(ls(9)),w(ls(15)))
+      call mkcifree2_cvb(work(lv(2)),iwork(ls(9)),work(ls(15)))
       return
       end

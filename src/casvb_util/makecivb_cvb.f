@@ -23,7 +23,7 @@ c ... Content of CI vectors ...
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension orbs(norb,norb),cvb(nvb)
       dimension civec(ndet),civb(ndet)
       dimension cvbdet(ndetvb)
@@ -43,10 +43,10 @@ c ... Content of CI vectors ...
         else
           call cird_cvb(civb,61001.2d0)
         endif
-        call fmove_cvb(orbs,w(iorbinv),norb*norb)
-        call mxinv_cvb(w(iorbinv),norb)
-        call gaussj_cvb(w(iorbinv),w(igjorb))
-        call applyt_cvb(civb,w(igjorb))
+        call fmove_cvb(orbs,work(iorbinv),norb*norb)
+        call mxinv_cvb(work(iorbinv),norb)
+        call gaussj_cvb(work(iorbinv),work(igjorb))
+        call applyt_cvb(civb,work(igjorb))
         call ci2vbc_cvb(civb,cvbdet)
         call vb2strc_cvb(cvbdet,cvb)
         if(ic.eq.1)call vb2cic_cvb(cvbdet,civb)

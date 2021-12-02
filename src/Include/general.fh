@@ -53,7 +53,7 @@
 !     LUDAVID: Intermediate results of the diagonalization
 !                   (binary, temporary)
 !
-      Character(128)  StartOrbFile
+      Character(256)  StartOrbFile
       COMMON/STRINGS/ StartOrbFile
       INTEGER         LUStartOrb,JOBIPH,JOBOLD,LUDAVID,                 &
      &                LUONEL,LUINTA,LUINTM,                             &

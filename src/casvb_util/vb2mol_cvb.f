@@ -18,7 +18,7 @@
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension vecvb(ndet),vecmol(*)
 
       iwr=0
@@ -29,7 +29,7 @@
       i3 = mstacki_cvb(mxirrep)
       i4 = mstacki_cvb(mxirrep)
       call mol2vb2_cvb(vecvb,vecmol,isyml,0d0,iwr,
-     >  iw(i1),iw(i2),iw(i3),iw(i4),nsa,nsb)
+     >  iwork(i1),iwork(i2),iwork(i3),iwork(i4),nsa,nsb)
       ibasemx=max(ibasemx,mstackr_cvb(0))
       call mfreei_cvb(i1)
       return
@@ -41,7 +41,7 @@
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension vecvb(ndet),vecmol(*)
 
       iwr=1
@@ -52,7 +52,7 @@
       i3 = mstacki_cvb(mxirrep)
       i4 = mstacki_cvb(mxirrep)
       call mol2vb2_cvb(vecvb,vecmol,isyml,0d0,iwr,
-     >  iw(i1),iw(i2),iw(i3),iw(i4),nsa,nsb)
+     >  iwork(i1),iwork(i2),iwork(i3),iwork(i4),nsa,nsb)
       ibasemx=max(ibasemx,mstackr_cvb(0))
       call mfreei_cvb(i1)
       return
@@ -65,7 +65,7 @@
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension vecvb(ndet),vecmol(*)
       iwr=2
       call icomb_cvb(norb,nalf,nsa)
@@ -75,7 +75,7 @@
       i3 = mstacki_cvb(mxirrep)
       i4 = mstacki_cvb(mxirrep)
       call mol2vb2_cvb(vecvb,vecmol,isyml,fac,iwr,
-     >  iw(i1),iw(i2),iw(i3),iw(i4),nsa,nsb)
+     >  iwork(i1),iwork(i2),iwork(i3),iwork(i4),nsa,nsb)
       ibasemx=max(ibasemx,mstackr_cvb(0))
       call mfreei_cvb(i1)
       return

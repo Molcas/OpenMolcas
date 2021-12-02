@@ -19,7 +19,7 @@
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension civb(ndet),civb2(ndet),grad(npr),dvbdet(ndetvb)
 
       call fzero(grad,nprorb)
@@ -30,8 +30,8 @@
           call vb2strg_cvb(dvbdet,grad(nprorb+1))
         elseif(np-nprorb.lt.nvb)then
           i1 = mstackrz_cvb(nvb)
-          call vb2strg_cvb(dvbdet,w(i1))
-          call fmove_cvb(w(i1),w(lv(5)),np-nprorb)
+          call vb2strg_cvb(dvbdet,work(i1))
+          call fmove_cvb(work(i1),work(lv(5)),np-nprorb)
           call mfreer_cvb(i1)
         else
           write(6,*)' Error in mkgrd - np-nprorb > nvb :',np,nprorb,nvb

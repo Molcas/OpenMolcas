@@ -15,7 +15,7 @@
 c  Normalizes NNRM vectors in C.
       implicit real*8 (a-h,o-z)
       logical safe
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension c(n,nnrm),s(*)
       save one,thresh
       data one/1.d0/,thresh/1.d-8/
@@ -26,8 +26,8 @@ c  Normalizes NNRM vectors in C.
       if(metr.eq.0)then
         cnrm=dnrm2_(n,c(1,i),1)
       else
-        call saoon_cvb(c(1,i),w(i1),1,s,n,metr)
-        cnrm=sqrt(ddot_(n,c(1,i),1,w(i1),1))
+        call saoon_cvb(c(1,i),work(i1),1,s,n,metr)
+        cnrm=sqrt(ddot_(n,c(1,i),1,work(i1),1))
       endif
       if(safe.and.cnrm.lt.thresh)then
         ierr=ierr+1

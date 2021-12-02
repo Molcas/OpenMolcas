@@ -26,6 +26,9 @@ use Period, only: Cell_l, ispread
 use GeoList, only: Centr, Mass
 use MpmC, only: Coor_MPM
 use EFP_Module, only: lEFP
+#ifdef _EFP_
+use EFP_Module, only: nEFP_Fragments
+#endif
 use External_centers, only: AMP_Center, DMS_Centers, nDMS, nEF, nOrdEF, nWel, nXF, OAM_Center, OMQ_Center, XF
 use Temporary_Parameters, only: Onenly, Prprt, Test
 use DKH_Info, only: BSS, DKroll, iCtrLD, iRELAE, LDKroll, nCtrLD, radiLD
@@ -319,7 +322,7 @@ else
   ! electronic transitions.
 
   if (EMFR) then
-    write(LuWr,'(15X,A)') '   Transition moment intergrals'
+    write(LuWr,'(15X,A)') '   Transition moment integrals'
     write(LuWr,'(15X,A,3(F7.4,1X),A)') '   The wavevector k: (',(kVector(i),i=1,3),')'
     temp = sqrt(KVector(1)**2+KVector(2)**2+kVector(3)**2)
     temp = (Two*Pi)/temp

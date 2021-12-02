@@ -19,15 +19,15 @@ c  Applies S and H on c vector(s).
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension c(nprm,nvec),axc(nprm,nvec),sxc(nprm,nvec)
 
       i1 = mstackr_cvb(nvb+nprorb)
       call asonc12e2_cvb(c,axc,sxc,nvec,nprm,
-     >  w(lc(3)),w(lc(4)),w(lc(2)),
-     >  w(lv(1)),w(lw(4)),w(lw(5)),w(lw(6)),w(lw(9)),
-     >  w(lv(2)),
-     >  w(i1))
+     >  work(lc(3)),work(lc(4)),work(lc(2)),
+     >  work(lv(1)),work(lw(4)),work(lw(5)),work(lw(6)),work(lw(9)),
+     >  work(lv(2)),
+     >  work(i1))
       call mfreer_cvb(i1)
       return
       end

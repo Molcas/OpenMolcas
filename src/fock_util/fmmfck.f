@@ -11,7 +11,6 @@
 * Copyright (C) 2007, Mark A. Watson                                   *
 ************************************************************************
       Subroutine FMMFck(Dens,TwoHam,ndim)
-#ifdef _NOT_ACTIVE_
 ************************************************************************
 *                                                                      *
 *     purpose: Generate FMM interface file and call FMM driver         *
@@ -33,9 +32,11 @@
 #include "mxdm.fh"
 #include "real.fh"
       Parameter(LMAX = 12)
-      Real*8 Dens(ndim), TwoHam(ndim), nBas(8)
+      Real*8 Dens(ndim), TwoHam(ndim)
+#ifdef _NOT_ACTIVE_
 *
 *---- Define local variables
+      Integer nBas(8)
       Real*8 CarMoms( ndim, (LMAX+1)*(LMAX+2)/2 , LMAX+1 )
       Real*8 SphMoms( ndim, 2*LMAX+1 , LMAX+1 )
       Real*8 Moms_batch( ndim+4 )
@@ -157,11 +158,11 @@ C     CALL fmm_call_get_J_matrix(TwoHam,ndim,nBasTot,LMAX)
       Call Untested('FMMFck')
 c Avoid unused argument warnings
       If (.False.) Then
-         Call Unused_real(Dens)
+         Call Unused_real_array(Dens)
          Call Unused_integer(ndim)
       End If
 #endif
 c Avoid unused argument warnings
-      If (.False.) Call Unused_real(TwoHam)
+      If (.False.) Call Unused_real_array(TwoHam)
       Return
       End

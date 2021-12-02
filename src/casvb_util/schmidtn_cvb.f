@@ -13,14 +13,14 @@
 ************************************************************************
       subroutine schmidtn_cvb(c,nvec,sao,n,metr)
       implicit real*8 (a-h,o-z)
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
       dimension c(n,nvec),sao(*)
 
       if(metr.eq.0)then
         call schmidtn2_cvb(c,c,nvec,sao,n,metr)
       else
         i1 = mstackr_cvb(n*nvec)
-        call schmidtn2_cvb(c,w(i1),nvec,sao,n,metr)
+        call schmidtn2_cvb(c,work(i1),nvec,sao,n,metr)
         call mfreer_cvb(i1)
       endif
       return

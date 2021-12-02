@@ -64,7 +64,7 @@
          Call GetInf(DoRys,nDiff)
          Primitive_Pass=.True.
 *
-*--------Add contibution for interaction external field and nuclear
+*--------Add contribution for interaction external field and nuclear
 *        charges. Here we will have charge-charge, and charge-dipole
 *        inteaction.
 *

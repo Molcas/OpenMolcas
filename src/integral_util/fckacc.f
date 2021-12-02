@@ -23,7 +23,7 @@
      &                  FT,nFT,DoCoul,DoExch,ExFac)
 ************************************************************************
 *                                                                      *
-*  Object: to accumulate contibutions from the AO integrals directly   *
+*  Object: to accumulate contributions from the AO integrals directly  *
 *          to the symmetry adapted Fock matrix.                        *
 *                                                                      *
 *          The indices has been scrambled before calling this routine. *
@@ -328,9 +328,8 @@ C                 Write (*,*)
                      Else
                         vkl = Dkl(kBas*lBas+1,i3,i4)
 #ifndef _BOUND_
-                        loc1=(idLoc(Dkl(1,i3,i4))-idLoc(Scrt(1)))
-                        loc2=(idLoc(Scrt(2))-idLoc(Scrt(1)))
-                        ipDkl = 1 + loc1/loc2
+                        ipDkl = ip_of_Work(Dkl(1,i3,i4)) -
+     &                          ip_of_Work(Scrt(1)) + 1
 #else
                         ipDkl=ip
                         ip = ip + kBas*lBas
@@ -349,9 +348,8 @@ C                 Write (*,*)
                      Else
                         vij = Dij(iBas*jBas+1,i1,i2)
 #ifndef _BOUND_
-                        loc1=(idLoc(Dij(1,i1,i2))-idLoc(Scrt(1)))
-                        loc2=(idLoc(Scrt(2))-idLoc(Scrt(1)))
-                        ipDij = 1 + loc1/loc2
+                        ipDij = ip_of_Work(Dij(1,i1,i2)) -
+     &                          ip_of_Work(Scrt(1)) + 1
 #else
                         ipDij=ip
                         ip = ip + iBas*jBas
@@ -383,9 +381,8 @@ C                 Write (*,*)
                      Else
                         vjl=Djl(jBas*lBas+1,i2,i4)
 #ifndef _BOUND_
-                        loc1= (idLoc(Djl(1,i2,i4))-idLoc(Scrt(1)))
-                        loc2=(idLoc(Scrt(2))-idLoc(Scrt(1)))
-                        ipDjl = 1 + loc1/loc2
+                        ipDjl = ip_of_Work(Djl(1,i2,i4)) -
+     &                          ip_of_Work(Scrt(1)) + 1
 #else
                         ipDjl=ip
                         ip = ip + jBas*lBas
@@ -404,9 +401,8 @@ C                 Write (*,*)
                      Else
                         vik=Dik(iBas*kBas+1,i1,i3)
 #ifndef _BOUND_
-                        loc1=(idLoc(Dik(1,i1,i3))-idLoc(Scrt(1)))
-                        loc2=(idLoc(Scrt(2))-idLoc(Scrt(1)))
-                        ipDik = 1 + loc1/loc2
+                        ipDik = ip_of_Work(Dik(1,i1,i3)) -
+     &                          ip_of_Work(Scrt(1)) + 1
 #else
                         ipDik = ip
                         ip = ip + iBas*kBas
@@ -438,9 +434,8 @@ C                 Write (*,*)
                      Else
                         vjk = Djk(jBas*kBas+1,i2,i3)
 #ifndef _BOUND_
-                        loc1=(idLoc(Djk(1,i2,i3))-idLoc(Scrt(1)))
-                        loc2= (idLoc(Scrt(2))-idLoc(Scrt(1)))
-                        ipDjk = 1 + loc1/loc2
+                        ipDjk = ip_of_Work(Djk(1,i2,i3)) -
+     &                          ip_of_Work(Scrt(1)) + 1
 #else
                         ipDjk = ip
                         ip = ip + jBas*kBas
@@ -459,9 +454,8 @@ C                 Write (*,*)
                      Else
                         vil = Dil(iBas*lBas+1,i1,i4)
 #ifndef _BOUND_
-                        loc1= (idLoc(Dil(1,i1,i4))-idLoc(Scrt(1)))
-                        loc2= (idLoc(Scrt(2))-idLoc(Scrt(1)))
-                        ipDil = 1 + loc1/loc2
+                        ipDil = ip_of_Work(Dil(1,i1,i4)) -
+     &                          ip_of_Work(Scrt(1)) + 1
 #else
                         ipDil = ip
                         ip = ip + iBas*lBas

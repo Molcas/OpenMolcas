@@ -54,6 +54,14 @@ character(len=LenIn8), allocatable :: Mamn(:)
 real(kind=wp), allocatable :: DCo(:,:), DCh(:), DCh_Eff(:)
 integer(kind=iwp), allocatable :: nStab(:)
 integer(kind=iwp), external :: AixRm
+interface
+  subroutine get_genome(cDNA,nDNA) bind(C,name='get_genome_')
+    use, intrinsic :: iso_c_binding, only: c_char
+    use Definitions, only: MOLCAS_C_INT
+    character(kind=c_char) :: cDNA(*)
+    integer(kind=MOLCAS_C_INT) :: nDNA
+  end subroutine get_genome
+end interface
 
 !                                                                      *
 !***********************************************************************

@@ -38,25 +38,22 @@
 *
       Integer InBuf(*)
       Integer OutBuf(nData)
-      Call cUPKI4(InBuf)
-*
-*     This is to allow type punning without an explicit interface
-      Contains
-      Subroutine cUPKI4(InBuf)
-      Use Iso_C_Binding
-      Integer, Target :: InBuf(*)
-      Character, Pointer :: cInBuf(:)
+      Interface
+        Subroutine iunzip(OpCode,nData,nBytes,InBuf,OutBuf)
+     &             bind(C,name='iunzip_')
+          use Definitions, only: MOLCAS_C_INT
+          Integer(kind=MOLCAS_C_INT) :: OpCode, nData, nBytes, InBuf(*),
+     &                                  OutBuf(*)
+        End Subroutine iunzip
+      End Interface
 *
 *----------------------------------------------------------------------*
 *
       iOpt = 1
-      Call C_F_Pointer(C_Loc(InBuf(1)),cInBuf,[1])
-      Call iunzip(iOpt,nData,nByte,cInBuf,OutBuf)
-      Nullify(cInBuf)
+      Call iunzip(iOpt,nData,nByte,InBuf,OutBuf)
 *
 *----------------------------------------------------------------------*
 *
       Return
-      End Subroutine cUPKI4
 *
       End

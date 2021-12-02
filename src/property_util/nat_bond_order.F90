@@ -495,7 +495,7 @@ DNAO(:,:) = Zero
 write(Label,'(A,I1)') 'LoProp Dens ',0
 call qpg_dArray(Label,Exists,nDens)
 if ((.not. Exists) .or. (nDens == 0)) then
-  call SysAbendMsg('get_density_matrix','Could not locate:',Label)
+  call SysAbendMsg('nat_bond_order','Could not locate:',Label)
 end if
 call mma_allocate(Tmp,nDens,label='Tmp')
 Tmp(:) = Zero

@@ -18,7 +18,8 @@ subroutine gugadrt_dbl_downwalk()
 !     |ss(i>j)\       |
 !     |  2 1  \       |
 
-use gugadrt_global, only: iseg_sta, iseg_downwei, lsm_inn, max_innorb, mul_tab, ng_sm, norb_dbl, norb_dz, norb_frz, ns_sm
+use gugadrt_global, only: iseg_sta, iseg_downwei, lsm_inn, max_innorb, ng_sm, norb_dbl, norb_dz, norb_frz, ns_sm
+use Symmetry_Info, only: mul_tab => Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 

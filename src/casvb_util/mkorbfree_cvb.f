@@ -18,15 +18,16 @@
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-#include "malloc_cvb.fh"
+#include "WrkSpc.fh"
 
       i1 = mstackr_cvb(norb*norb)
       i2 = mstackr_cvb(norb*norb)
       i3 = mstackr_cvb(norb*norb)
       i4 = mstacki_cvb(nprorb)
-      call mkorbfree2_cvb(w(lv(1)),iw(ls(3)),w(ls(4)),
-     >  iw(ls(5)),w(ls(6)),iw(ls(8)),iw(ls(11)),iw(ls(12)),
-     >  w(ls(14)),w(i1),w(i2),w(i3),iw(i4))
+      call mkorbfree2_cvb(work(lv(1)),iwork(ls(3)),work(ls(4)),
+     >  iwork(ls(5)),work(ls(6)),iwork(ls(8)),iwork(ls(11)),
+     >  iwork(ls(12)),
+     >  work(ls(14)),work(i1),work(i2),work(i3),iwork(i4))
       call mfreer_cvb(i1)
       return
       end

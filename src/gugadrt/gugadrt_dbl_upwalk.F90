@@ -11,7 +11,8 @@
 
 subroutine gugadrt_dbl_upwalk()
 
-use gugadrt_global, only: jpad_upwei, jroute_sys, lsm_inn, mxnode, mul_tab, ng_sm, norb_dbl, norb_dz, norb_frz, nu_ad, ns_sm
+use gugadrt_global, only: jpad_upwei, jroute_sys, lsm_inn, mxnode, ng_sm, norb_dbl, norb_dz, norb_frz, nu_ad, ns_sm
+use Symmetry_Info, only: mul_tab => Mul
 use Definitions, only: iwp
 
 implicit none
