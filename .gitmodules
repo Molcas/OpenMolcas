@@ -13,6 +13,3 @@
 [submodule "External/lapack"]
 	path = External/lapack
 	url = https://github.com/Reference-LAPACK/lapack.git
-[submodule "External/libxc"]
-	path = External/libxc
-	url = https://gitlab.com/libxc/libxc.git

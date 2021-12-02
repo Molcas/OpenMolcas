@@ -135,7 +135,6 @@ if (";Debug;Garble;RelWithDebInfo;" MATCHES ";${CMAKE_BUILD_TYPE};" OR
 endif ()
 
 # External projects
-option (LIBXC    "Enable Libxc for density functional approximations."                                        ON)
 option (DMRG     "Activate QCMaquis DMRG driver and library."                                                 OFF)
 option (EFPLIB   "Enable EFPLib library for effective fragment potentials (requires External/efp submodule)." OFF)
 option (GA_BUILD "Build Global Arrays."                                                                       OFF)
@@ -1557,6 +1556,73 @@ else ()
   mark_as_advanced (FORCE CUDAROOT)
 endif ()
 
+# Libxc settings
+#===============
+message ("Configuring Libxc:")
+
+include (ExternalProject)
+set (EP_PROJECT Libxc)
+set (EP_PATH ${PROJECT_BINARY_DIR}/External/${EP_PROJECT})
+set (EP_INSTALL ${PROJECT_BINARY_DIR}/External/${EP_PROJECT}_install)
+
+set (Libxc_REPO https://gitlab.com/libxc/libxc.git)
+set (Libxc_HASH df9ba8d9) # Release 5.1.7
+
+# Note shared libraries won't work here because installation issues.
+# TODO: Solving this will require creating a wrapper main project that includes
+#       both Libxc and OpenMolcas as ExternalProject. This could also simplify
+#       the handling of other codes like GlobalArrays or QCMaquis
+list (APPEND LibxcCMakeArgs
+      -D CMAKE_INSTALL_PREFIX=${EP_INSTALL}
+      -D CMAKE_INSTALL_RPATH_USE_LINK_PATH=TRUE
+      -D BUILD_SHARED_LIBS=NO
+      -D CMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+      -D CMAKE_BUILD_TYPE=Release
+      -D ENABLE_FORTRAN=ON
+      -D ENABLE_PYTHON=OFF
+      -D DISABLE_KXC=ON
+      -D DISABLE_LXC=ON
+      -D BUILD_TESTING=NO
+)
+
+# Workaround for ExternalProject's shortcoming
+# (see https://gitlab.kitware.com/cmake/cmake/-/issues/16419)
+# UPDATE_DISCONNECTED is ON if the current commit has already
+# been built, and OFF when the commit changes, but it requires
+# to run cmake for detection
+set (last_hash "None")
+set (hash_file ${EP_PATH}/${EP_PROJECT}.hash)
+if (EXISTS ${hash_file})
+  file (READ ${hash_file} last_hash)
+  string (REGEX REPLACE "\n$" "" last_hash "${last_hash}")
+endif ()
+if (last_hash STREQUAL ${Libxc_HASH})
+  set (LibxcSkipUpdate ON)
+else ()
+  set (LibxcSkipUpdate OFF)
+endif ()
+
+ExternalProject_Add (${EP_PROJECT}
+                     PREFIX ${EP_PATH}
+                     GIT_REPOSITORY ${Libxc_REPO}
+                     GIT_TAG ${Libxc_HASH}
+                     CMAKE_ARGS ${LibxcCMakeArgs}
+                     UPDATE_DISCONNECTED ${LibxcSkipUpdate}
+)
+
+ExternalProject_Add_Step (${EP_PROJECT} update_hash
+                          COMMAND echo ${Libxc_HASH} > ${hash_file}
+                          DEPENDEES build
+)
+
+link_directories(${EP_INSTALL}/lib)
+
+list (APPEND dft_util_incs ${EP_INSTALL}/include)
+
+set (Libxc_LIBRARIES xcf03 xc)
+message ("-- Libxc_LIBRARIES: ${Libxc_LIBRARIES}")
+list (APPEND EXTERNAL_LIBRARIES ${Libxc_LIBRARIES})
+
 # Global Arrays settings
 #=======================
 
@@ -1602,11 +1668,7 @@ if (GA AND MPI)
       )
     endif ()
 
-    # Workaround for ExternalProject's shortcoming
-    # (see https://gitlab.kitware.com/cmake/cmake/-/issues/16419)
-    # UPDATE_DISCONNECTED is ON if the current GA commit has already
-    # been built, and OFF when the commit changes, but it requires
-    # to run cmake for detection
+    # Same workaround as for Libxc (see above)
     set (last_hash "None")
     set (hash_file ${EP_PATH}/${EP_PROJECT}.hash)
     if (EXISTS ${hash_file})
@@ -1650,9 +1712,8 @@ if (GA AND MPI)
     else ()
       set (lib_ext ".a")
     endif ()
-    set (ga_file ${EP_INSTALL}/lib/libga${lib_ext})
-    set (armci_file ${EP_INSTALL}/lib/libarmci${lib_ext})
     foreach (lib ${GA_LIBRARIES})
+      set (${lib}_file ${EP_INSTALL}/lib/lib${lib}${lib_ext})
       add_library (${lib} UNKNOWN IMPORTED)
       set_target_properties (${lib} PROPERTIES IMPORTED_LOCATION ${${lib}_file})
     endforeach ()
@@ -2110,51 +2171,6 @@ if (EFPLIB)
   endif ()
 else ()
   message ("EFP interface DISABLED")
-endif ()
-
-# Libxc support
-if (LIBXC)
-  message ("Configuring Libxc support:")
-  set (proj ${extprojsdir}/libxc)
-  set (projname Libxc)
-  if (EXISTS ${proj}/CMakeLists.txt)
-
-    include (ExternalProject)
-    # Enabling source changes to keep ExternalProject happy
-    set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
-    ExternalProject_Add (${projname}
-                         PREFIX ${PROJECT_BINARY_DIR}/External
-                         SOURCE_DIR ${proj}
-                         CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${PROJECT_BINARY_DIR}
-                                    -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-                                    -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-                                    -DCMAKE_INSTALL_LIBDIR=lib
-                                    -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
-                                    -DDISABLE_KXC=ON -DDISABLE_LXC=ON
-                                    -DENABLE_FORTRAN=ON -DENABLE_PYTHON=OFF
-                                    -DCMAKE_BUILD_TYPE=Release
-                         CMAKE_CACHE_ARGS -DCMAKE_C_FLAGS:STRING=${CMAKE_C_FLAGS}
-    )
-    set (CMAKE_DISABLE_SOURCE_CHANGES ON)
-
-    ExternalProject_Get_Property (Libxc BINARY_DIR)
-    set (proj_bin ${BINARY_DIR})
-    link_directories (${proj_bin})
-    list (APPEND EXTERNAL_PROJECTS ${projname})
-    list (APPEND integral_util_incs ${proj}/interface)
-
-    set (Libxc_LIBRARIES xcf03 xc)
-
-    message ("-- Libxc_LIBRARIES: ${Libxc_LIBRARIES}")
-
-    list (APPEND EXTERNAL_LIBRARIES ${Libxc_LIBRARIES})
-    include_directories (${PROJECT_BINARY_DIR}/include)
-    add_compile_definitions (_Libxc_)
-  else ()
-    message ("-- Libxc interface ignored (source not available, run git submodule update --init ${proj}\")")
-  endif ()
-else ()
-  message ("Libxc interface DISABLED")
 endif ()
 
 # Gen1Int interface
@@ -2827,6 +2843,7 @@ endif ()
 # dependency using the "mods_obj" target.
 # note that mods_obj is empty at the beginning, source files will be added later
 add_library (mods_obj OBJECT)
+add_dependencies (mods_obj Libxc)
 if (GA_BUILD AND MPI)
   add_dependencies (mods_obj GlobalArrays)
 endif ()

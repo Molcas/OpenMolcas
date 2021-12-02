@@ -15,17 +15,16 @@
 module Definitions
 
 use, intrinsic :: iso_fortran_env, only: int32, int64, real64, error_unit, input_unit, output_unit
-use, intrinsic :: iso_c_binding, only: c_double
+use, intrinsic :: iso_c_binding, only: c_double, c_int, c_size_t
 #   ifdef _I8_
 use, intrinsic :: iso_c_binding, only: c_long
-#   else
-use, intrinsic :: iso_c_binding, only: c_int
 #   endif
 
 implicit none
 private
 
 public :: wp, iwp, DefInt, MPIInt, HDF5Int
+public :: LibxcInt, LibxcReal, LibxcSize
 public :: MOLCAS_C_INT, MOLCAS_C_REAL
 public :: i1, i4, i8, r4, r8
 public :: ItoB, RtoB, RtoI, CtoR
@@ -43,6 +42,11 @@ integer(kind=iwp), parameter :: wp = real64, MOLCAS_C_REAL = c_double
 ! "default" integer, without using `-i8` flag or equivalent,
 ! this is needed for some intrinsic calls in some compilers
 integer(kind=iwp), parameter :: DefInt = int32
+
+! This is the type of Libxc arguments
+integer(kind=iwp), parameter :: LibxcInt = c_int, &
+                                LibxcReal = c_double, &
+                                LibxcSize = c_size_t
 
 ! This is the type of MPI arguments
 ! NOTE: If legacy `integer*4` declarations are replaced with integer(MPIInt)
