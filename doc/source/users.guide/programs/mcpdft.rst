@@ -32,8 +32,8 @@ Four translated functionals are currently available: tLSDA, tPBE, tBLYP, and tre
 variants :cite:`Carlson2015`: ftLSDA, ftPBE, ftBLYP, and ftrevPBE.
 As multiconfigurational wave functions are used as input quantities, spin and space symmetry are correctly conserved.
 
-The molecular orbitals and one- and two-body density matrices are read from the :file:`JOBIPH` (or :file:`JOBOLD` ) file
-generated during a :program:`RASSCF` run. In the DMRG-SCF case, the one- and two-body density matrices are read 
+The molecular orbitals and one- and two-body density matrices are read from the :file:`JOBIPH` (or :file:`JOBOLD`) file
+generated during a :program:`RASSCF` run. In the DMRG-SCF case, the one- and two-body density matrices are read
 from an :file:`.h5` file generated during a :program:`DMRGSCF` run.
 
 .. _UG\:sec\:mcpdft_dependencies:
@@ -66,7 +66,7 @@ Input files
 
 :program:`MCPDFT` will use the following input
 files: :file:`ONEINT`, :file:`ORDINT`, :file:`RUNFILE`, :file:`JOBOLD`,
-:file:`JOBIPH`,:file:`wavefunction.h5`.
+:file:`JOBIPH`, :file:`wavefunction.h5`.
 
 If Cholesky options are selected, additional Cholesky-related files will also be used.
 Only :file:`JOBIPH` or :file:`JOBOLD` or :file:`wavefunction.h5` is needed; the code will first look for :file:`JOBOLD`
@@ -125,7 +125,7 @@ The :kword:`KSDFT` is the only required keyword.
   This keyword should be followed by the scaling factor for the exchange terms and the scaling factor for the correlation terms, separated by a space.
   If the values are 1.0 (default), then the original functional is used.
   For an HLE-type functional, use 1.25 (for exchange) and 0.5 (for correlation).
-  Example: `DFCF=1.25 0.5`
+  Example: ``DFCF=1.25 0.5``
 
   .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="DFCF" APPEAR="DFT exch. &amp; corr. scaling factors" KIND="REALS" SIZE="2" LEVEL="ADVANCED">
               %%Keyword: DFCF <advanced>
@@ -165,21 +165,22 @@ The :kword:`KSDFT` is the only required keyword.
               </KEYWORD>
 
 :kword:`WJOB`
-  This keyword allows one to write the energies and eigenstates of MC-PDFT or MS-PDFT into file:`JOBIPH` (or file:`wavefunction.h5`). For MC-PDFT, only the energy of each state is written into file:`JOBIPH` (or file:`wavefunction.h5`), since an MC-PDFT calculation is based on a previous wave function (CASSCF, SA-CASSCF, RASSCF, GASSCF, DMRG-SCF, CASCI, RASCI...); for MS-PDFT, both the energy and the CI coefficients of the eigenstates are written into file:`JOBIPH`, because an MS calculation changes the wave functions. The latter option is not yet available for DMRG-SCF reference wave functions.
+    This keyword allows one to write the energies and eigenstates of MC-PDFT or MS-PDFT into :file:`JOBIPH` (or :file:`wavefunction.h5`). For MC-PDFT, only the energy of each state is written into :file:`JOBIPH` (or :file:`wavefunction.h5`), since an MC-PDFT calculation is based on a previous wave function (CASSCF, SA-CASSCF, RASSCF, GASSCF, DMRG-SCF, CASCI, RASCI...); for MS-PDFT, both the energy and the CI coefficients of the eigenstates are written into :file:`JOBIPH`, because an MS calculation changes the wave functions. The latter option is not yet available for DMRG-SCF reference wave functions.
+
 
   .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="WJOB" APPEAR="Write into JOBIPH" KIND="SINGLE" LEVEL="BASIC">
-                                  %%Keyword: WJOB <basic>
+              %%Keyword: WJOB <basic>
               <HELP>
               Enable one to write the energies and eigenstates of MC-PDFT or MS-PDFT into the JOBIPH file.
               </HELP>
               </KEYWORD>
 
 :kword:`FILEORB`
-  This keyword allows one to set as reference wave function file instead of file:`JOBIPH` a different one, in particular an HDF5 file. If the MC-PDFT is to be followed by an MPSSI calculation for a reference DMRG wave function, please also add the kewyword :kword:`WJOB`.
-Example: `fileorb=wavefunction.h5`
+  This keyword allows one to set as reference wave function file instead of :file:`JOBIPH` a different one, in particular an HDF5 file. If the MC-PDFT is to be followed by an MPSSI calculation for a reference DMRG wave function, please also add the keyword :kword:`WJOB`.
+  Example: ``FileOrb = wavefunction.h5``
 
   .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="FILEORB" APPEAR="Set reference wave function file" KIND="STRING" LEVEL="BASIC">
-                                  %%Keyword: FILEORB <basic>
+              %%Keyword: FILEORB <basic>
               <HELP>
               Enables one to set the reference wave function file for an MC-PDFT run, in particular for an HDF5 formatted file.
               </HELP>
@@ -216,7 +217,7 @@ The first RASSCF run is a standard CASSCF calculation that leads to variationall
 The MC-PDFT run will use the orbitals and density matrices optimized during the preceding RASSCF run.
 
 The following example shows a part of the input to run CMS-PDFT calculation.
-For XMS-PDFT calculations, one simply replaces :kword:`CMSI` with :kword:`XMSI` 
+For XMS-PDFT calculations, one simply replaces :kword:`CMSI` with :kword:`XMSI`.
 The system is :math:`\ce{LiF}` and the point group used is |Ctv|.
 
 ::
