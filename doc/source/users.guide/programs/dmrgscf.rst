@@ -226,7 +226,7 @@ are listed below. The start and end of the OptimizationSettings input section is
 
 :kword:`NEVPT2prep`
   Prepare for a subsequent DMRG-NEVPT2 or CASPT2 calculation. Then the four- and transition three-particle density matrices (4- and t-3RDMs), required for the MRPT2 calculations, will be evaluated and stored on disk in :file:`$WorkDir`. **QCMaquis** input files for the 4- and t-3RDMs evaluation are prepared and the RDM evaluation may be performed externally or directly in the :program:`NEVPT2` program. More about external RDM evaluation in Section 6.3 of the QCMaquis_ manual.
-  If this keyword is used with :kwod:`ITER=0,0` keyword, the DMRG-SCF/DMRG-CI calculation is skipped and only **QCMaquis** input files for the 4- and t-3RDMs evaluation are prepared. This is useful for a NEVPT2 calculation for an already converged DMRG-CI/DMRG-SCF calculation.
+  If this keyword is used with :kword:`ITER=0,0` keyword, the DMRG-SCF/DMRG-CI calculation is skipped and only **QCMaquis** input files for the 4- and t-3RDMs evaluation are prepared. This is useful for a NEVPT2 calculation for an already converged DMRG-CI/DMRG-SCF calculation.
 
   .. xmldoc:: <KEYWORD MODULE="DMRGSCF" NAME="NEVPT2PREP" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: NEVPT2prep <basic>
