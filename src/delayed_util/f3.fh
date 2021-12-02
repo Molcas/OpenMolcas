@@ -315,6 +315,11 @@
         call c_f_procpointer(funptr, lb_dgecon)
       end if
 !
+      funptr=link_func('dgees')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dgees)
+      end if
+!
       funptr=link_func('dgeev')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_dgeev)
@@ -1118,6 +1123,16 @@
       funptr=link_func('dtrexc')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_dtrexc)
+      end if
+!
+      funptr=link_func('dtrsen')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dtrsen)
+      end if
+!
+      funptr=link_func('dtrsyl')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dtrsyl)
       end if
 !
       funptr=link_func('dtrti2')

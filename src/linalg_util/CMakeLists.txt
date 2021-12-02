@@ -21,6 +21,7 @@ set (sources
      dyax.F90
      dzaxpy.F90
      eigen_molcas.F90
+     exp_schur.F90
      fzero.F90
      idmin.F90
      ilasrt.F90
@@ -32,6 +33,7 @@ set (sources
      nidiag_new.F90
      not_dgeev.F90
      scatter.F90
+     schur_skew.F90
      vecphase.F90
      xeigen.F90
 )
