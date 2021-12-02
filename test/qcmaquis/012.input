@@ -1,0 +1,53 @@
+*-------------------------------------------------------------------------------
+* Molecule: C2H2
+* Basis: cc-pVDZ
+* Symmetry: C1
+* Features tested: NEVPT2
+* Responsible person: L. Freitag
+* Comments: DMRG-NEVPT2 and QD-NEVPT2 test for C2H2, CAS(4,4), 2 states
+*-------------------------------------------------------------------------------
+
+&GATEWAY
+ coord
+ 4
+ ang
+ H   0.0000000000   0.0000000000  -1.6450541782
+ C   0.0000000000   0.0000000000  -0.5832481605
+ C   0.0000000000   0.0000000000   0.5832481606
+ H   0.0000000000   0.0000000000   1.6450541782
+ basis=cc-pvdz
+ group=NOSYM
+ RICD
+&SEWARD
+
+&SCF
+
+* Test NEVPT2Prep with ITER=0,0 to skip optimisation
+&DMRGSCF
+ ActiveSpaceOptimizer=QCMaquis
+OOptimizationSettings
+ nactel = 4,0,0
+ inactive = 5
+     RAS2 = 4
+  CIROOT=2,2,1
+  Alter
+  1
+  1 8 10
+  ITER=0,0
+  NEVPT2Prep
+  SOCC
+  2200
+  2ud0
+EndOOptimizationSettings
+DMRGSettings
+    nsweeps = 20
+    max_bond_dimension = 100
+EndDMRGSettings
+&MOTRA
+Frozen=0
+CTonly
+Kpq
+HDF5
+
+&NEVPT2
+States=2

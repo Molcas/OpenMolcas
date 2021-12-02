@@ -20,7 +20,7 @@
 # Gerardo Raggi - AppleClang
 
 cmake_minimum_required (VERSION 3.12)
-cmake_policy (VERSION 3.12...3.13)
+cmake_policy (VERSION 3.12...3.23)
 
 project (OpenMolcas
          LANGUAGES Fortran C
