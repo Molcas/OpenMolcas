@@ -2,7 +2,7 @@
 * Molecule: C2H2
 * Basis: cc-pVDZ
 * Symmetry: C1
-* Features tested: NEVPT2
+* Features tested: NEVPT2 with skipped MO optimization in the DMRG-SCF step
 * Responsible person: L. Freitag
 * Comments: DMRG-NEVPT2 and QD-NEVPT2 test for C2H2, CAS(4,4), 2 states
 *-------------------------------------------------------------------------------
