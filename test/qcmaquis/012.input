@@ -22,7 +22,6 @@
 
 &SCF
 
-* Test NEVPT2Prep with ITER=0,0 to skip optimisation
 &DMRGSCF
  ActiveSpaceOptimizer=QCMaquis
 OOptimizationSettings
@@ -33,6 +32,23 @@ OOptimizationSettings
   Alter
   1
   1 8 10
+  SOCC
+  2200
+  2ud0
+EndOOptimizationSettings
+DMRGSettings
+    nsweeps = 20
+    max_bond_dimension = 100
+EndDMRGSettings
+
+* Test NEVPT2Prep with ITER=0,0 to skip optimisation
+&DMRGSCF
+ ActiveSpaceOptimizer=QCMaquis
+OOptimizationSettings
+ nactel = 4,0,0
+ inactive = 5
+     RAS2 = 4
+  CIROOT=2,2,1
   ITER=0,0
   NEVPT2Prep
   SOCC
@@ -43,6 +59,7 @@ DMRGSettings
     nsweeps = 20
     max_bond_dimension = 100
 EndDMRGSettings
+
 &MOTRA
 Frozen=0
 CTonly
