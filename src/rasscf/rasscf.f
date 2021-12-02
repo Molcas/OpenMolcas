@@ -424,6 +424,7 @@
 *
 * Create job interphase on unit JOBIPH (FT15)
 *
+
       if(ifvb.ne.2) then
         CALL CREIPH
         call cre_raswfn
