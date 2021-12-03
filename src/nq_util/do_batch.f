@@ -141,7 +141,7 @@
       Else If(DFTFOCK.eq.'DIFF'.and.nD.eq.2) Then
          mRho = nRho/nD
       Else If(l_casdft) then !GLM
-      mRho = nP2_ontop
+         mRho = nP2_ontop
       End If
 *
       If (mRho.ne.-1) Then
@@ -164,23 +164,16 @@
 ************************************************************************
 *
       Call FZero(TabAO,nTabAO)
-c      write(6,*) 'nTabAO value in do_batch.f=', nTabAO
       UnPack=.False.
       If (NQ_Direct.eq.Off .and. (Grid_Status.eq.Use_Old .and.
      &      .Not.Do_Grad         .and.
      &    Functional_Type.eq.Old_Functional_Type)) Then
-C        Write (*,*) 'Read from disk!'
 *
 *------- Retrieve the AOs from disc
 *
-C        Write (*,*) 'iDisk_Grid=',iDisk_Grid
          Call iDaFile(Lu_Grid,2,ipTabAO,2*(nlist_s+1),iDisk_Grid)
-C        Write (*,*) 'ipTabAO(*,1)=',(ipTabAO(i,1),i=1,nlist_s+1)
-C        Write (*,*) 'ipTabAO(*,2)=',(ipTabAO(i,2),i=1,nlist_s+1)
          mTabAO=ipTabAO(nlist_s+1,2)-1
-C        Write (*,*) 'iDisk_Grid,mTabAO=',iDisk_Grid,mTabAO
          Call dDaFile(Lu_Grid,2,TabAO,mTabAO,iDisk_Grid)
-C        Call RecPrt('TabAO from disk',' ',TabAO,1,mTabAO)
          Unpack=Packing.eq.On
 *
       Else
@@ -232,25 +225,11 @@ C        Call RecPrt('TabAO from disk',' ',TabAO,1,mTabAO)
             RA(2) = py*A(2)
             RA(3) = pz*A(3)
             iSym=NrOpr(iR)
-#ifdef _DEBUGPRINT_
-            If (debug) Write (6,*) 'mAO=',mAO
-            If (iPrim_Eff.le.0 .or. iPrim_Eff.gt.iPrim) Then
-               Call WarningMessage(2,'Do_batch: error in iPrim_Eff!')
-               Write (6,*) '          iPrim=',iPrim
-               Write (6,*) '          iPrim_Eff=',iPrim_Eff
-               Call Abend()
-            End If
-#endif
 *
 *---------- Evaluate AOs at RA
 *
-#ifdef _DEBUGPRINT_
-            iPrint_132=nPrint(132)
-            If (Debug) nPrint(132)=99
-#endif
             ipTabAO(iList_s,1)=iOff
 *                                                                      *
-c            write(6,*) 'iOff =', iOff
             Call AOEval(iAng,mGrid,Grid,Work(ipxyz),RA,
      &                  Shells(iShll)%Transf,
      &                  RSph(ipSph(iAng)),nElem(iAng),iCmp,
@@ -262,13 +241,8 @@ c            write(6,*) 'iOff =', iOff
      &                  TabAO(iOff),
      &                  mAO,px,py,pz,ipx,ipy,ipz)
             iOff = iOff + mAO*mGrid*iBas_Eff*iCmp
-#ifdef _DEBUGPRINT_
-            nPrint(132)=iPrint_132
-#endif
 *
          End Do
-*                write(6,*) 'AOValue in do_batch:'
-*         write(6,'(10G20.10)') (TabAO(i),i=1,nTabAO)
          ipTabAO(nList_s+1,1)=iOff
 *
 *        AOs are packed and written to disk.
@@ -289,7 +263,7 @@ c            write(6,*) 'iOff =', iOff
                   iBas_Eff = List_Bas(1,ilist_s)
                   nData=mAO*mGrid*iBas_Eff*iCmp
 *
-*                 Check if we should store any AO's at all!
+*                 Check if we should store any AOs at all!
 *
                   iOff = ipTabAO(ilist_s,1)
                   ix=iDAMax_(nData,TabAO(iOff),1)
@@ -360,6 +334,7 @@ c            write(6,*) 'iOff =', iOff
       End If
 *                                                                      *
 ************************************************************************
+************************************************************************
 *                                                                      *
 *     Evaluate some MOs on the grid                                    *
 *                                                                      *
@@ -420,7 +395,7 @@ cGLM            kAO   = iCmp*iBas_Eff*mGrid
 *                                                                      *
       If (Functional_type.eq.LDA_type) Then
 *
-         Call Rho_LDA(Dens,nDens,nD,Rho,nRho,mGrid,
+         Call Rho_LDA(Dens,nDens,nD,mGrid,
      &                list_s,nlist_s,TabAO,ipTabAO,mAO,nTabAO,nSym,
      &                Work(ip_Fact),ndc,Work(ipTabAOMax),
      &                list_bas,Index,nIndex)
@@ -797,7 +772,7 @@ C    &                         list_bas,Index,nIndex)
 *
       Else If (Functional_type.eq.GGA_type) Then
 *
-         Call Rho_GGA(Dens,nDens,nD,Rho,nRho,mGrid,
+         Call Rho_GGA(Dens,nDens,nD,mGrid,
      &                list_s,nlist_s,TabAO,ipTabAO,mAO,nTabAO,nSym,
      &                Work(ip_Fact),ndc,Work(ipTabAOMax),
      &                list_bas,Index,nIndex)
@@ -1603,7 +1578,7 @@ C    &                       list_bas,Index,nIndex)
 *
       Else If (Functional_type.eq.CASDFT_type) Then
 *
-         Call Rho_CAS(Dens,nDens,nD,Rho,nRho,mGrid,
+         Call Rho_CAS(Dens,nDens,nD,mGrid,
      &                list_s,nlist_s,TabAO,ipTabAO,mAO,nTabAO,nSym,
      &                Work(ip_Fact),ndc,Work(ipTabAOMax),
      &                list_bas,Index,nIndex)
@@ -1631,7 +1606,7 @@ C    &                       list_bas,Index,nIndex)
 *
       Else If (Functional_type.eq.meta_GGA_type1) Then
 *
-         Call Rho_meta_GGA1(nD,Rho,nRho,mGrid,
+         Call Rho_meta_GGA1(nD,mGrid,
      &                     list_s,nlist_s,TabAO,ipTabAO,mAO,nTabAO,
      &                     Work(ip_Fact),ndc,Work(ipTabAOMax),
      &                     list_bas,Index,nIndex)
@@ -1647,7 +1622,7 @@ C    &                       list_bas,Index,nIndex)
 *
       Else If (Functional_type.eq.meta_GGA_type2) Then
 *
-         Call Rho_meta_GGA2(nD,Rho,nRho,mGrid,
+         Call Rho_meta_GGA2(nD,mGrid,
      &                     list_s,nlist_s,TabAO,ipTabAO,mAO,nTabAO,
      &                     Work(ip_Fact),ndc,Work(ipTabAOMax),
      &                     list_bas,Index,nIndex)

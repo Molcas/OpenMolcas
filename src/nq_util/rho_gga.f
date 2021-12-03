@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2000, Roland Lindh                                     *
 ************************************************************************
-      Subroutine Rho_GGA(Dens,nDens,nD,Rho,nRho,mGrid,
+      Subroutine Rho_GGA(Dens,nDens,nD,mGrid,
      &                   list_s,nlist_s,TabAO,ipTabAO,mAO,nTabAO,nSym,
      &                   Fact,mdc,TabAOMax,list_bas,Index,nIndex)
 ************************************************************************
@@ -19,6 +19,7 @@
 ************************************************************************
       use iSD_data
       use k2_arrays, only: DeDe, ipDijS
+      use nq_Grid, only: nRho, Rho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
@@ -28,7 +29,7 @@
 #include "setup.fh"
       Integer list_s(2,nlist_s), ipTabAO(nlist_s), list_bas(2,nlist_s),
      &        Index(nIndex)
-      Real*8 Dens(nDens,nD), Rho(nRho,mGrid), Fact(mdc**2),
+      Real*8 Dens(nDens,nD), Fact(mdc**2),
      &       TabAO(nTabAO), TabAOMax(nlist_s)
 *                                                                      *
 ************************************************************************
@@ -60,7 +61,7 @@
       End If
 #endif
 *
-      Call FZero(Rho,nRho*mGrid)
+      Rho(:,1:mGrid)=Zero
 *                                                                      *
 ************************************************************************
 *                                                                      *
