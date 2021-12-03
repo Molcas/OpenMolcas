@@ -26,7 +26,8 @@
       use iSD_data
       use Symmetry_Info, only: nIrrep
       use KSDFT_Info, only: KSDFA
-      use nq_Grid, only: Rho, Grid, Weights, nRho, nGridMax
+      use nq_Grid, only: Rho, Grid, Weights
+      use nq_Grid, only: nRho, nGridMax, nSigma
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "real.fh"
@@ -200,7 +201,7 @@
 *        We need rho.
 *        For gradients we need derivatives of rho wrt the coordinates
 *
-         nRho=1*nD
+         nRho=nD
          mdRho_dr=0
          If (Do_Grad) mdRho_dr=nRho
 *
@@ -232,6 +233,8 @@
 *        For gradients we need the derrivatives wrt the coordinates
 *
          nRho=4*nD
+*        nRho=nD
+*        nSigma=nD*(nD+1)/2
          mdRho_dR=0
          If (Do_Grad) mdRho_dR=nRho
 *
