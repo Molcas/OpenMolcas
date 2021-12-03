@@ -111,6 +111,8 @@ set_property (CACHE LINALG PROPERTY STRINGS Internal Runtime MKL OpenBLAS AOCL A
 option (CUBLAS "Enable CUDA BLAS library." OFF)
 option (NVBLAS "Enable NVidia BLAS library." OFF)
 
+set (EXTERNAL_LIBXC "" CACHE STRING "Location for an external Libxc build")
+
 option (FDE "Enable Frozen-density-embedding (FDE) interface." OFF)
 option (GROMACS "Compile Gromacs interface." OFF)
 option (BLOCK "Activate BLOCK-DMRG support." OFF)
@@ -1560,67 +1562,81 @@ endif ()
 #===============
 message ("Configuring Libxc:")
 
-include (ExternalProject)
-set (EP_PROJECT Libxc)
-set (EP_PATH ${PROJECT_BINARY_DIR}/External/${EP_PROJECT})
-set (EP_INSTALL ${PROJECT_BINARY_DIR}/External/${EP_PROJECT}_install)
-
-set (Libxc_REPO https://gitlab.com/libxc/libxc.git)
-set (Libxc_HASH df9ba8d9) # Release 5.1.7
-
-# Note shared libraries won't work here because installation issues.
-# TODO: Solving this will require creating a wrapper main project that includes
-#       both Libxc and OpenMolcas as ExternalProject. This could also simplify
-#       the handling of other codes like GlobalArrays or QCMaquis
-list (APPEND LibxcCMakeArgs
-      -D CMAKE_INSTALL_PREFIX=${EP_INSTALL}
-      -D CMAKE_INSTALL_RPATH_USE_LINK_PATH=TRUE
-      -D BUILD_SHARED_LIBS=NO
-      -D CMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-      -D CMAKE_BUILD_TYPE=Release
-      -D ENABLE_FORTRAN=ON
-      -D ENABLE_PYTHON=OFF
-      -D DISABLE_KXC=ON
-      -D DISABLE_LXC=ON
-      -D BUILD_TESTING=NO
-)
-
-# Workaround for ExternalProject's shortcoming
-# (see https://gitlab.kitware.com/cmake/cmake/-/issues/16419)
-# UPDATE_DISCONNECTED is ON if the current commit has already
-# been built, and OFF when the commit changes, but it requires
-# to run cmake for detection
-set (last_hash "None")
-set (hash_file ${EP_PATH}/${EP_PROJECT}.hash)
-if (EXISTS ${hash_file})
-  file (READ ${hash_file} last_hash)
-  string (REGEX REPLACE "\n$" "" last_hash "${last_hash}")
-endif ()
-if (last_hash STREQUAL ${Libxc_HASH})
-  set (LibxcSkipUpdate ON)
+if (EXTERNAL_LIBXC)
+  message ("-- External Libxc root specified at: ${EXTERNAL_LIBXC}")
+  find_library (xcf03 xcf03 ${EXTERNAL_LIBXC} PATH_SUFFIXES lib lib32 lib64)
+  if (NOT xc OR NOT xcf03)
+    message (FATAL_ERROR "Libxc could not be found in ${EXTERNAL_LIBXC}.")
+  endif ()
+  set (Libxc_INCLUDE_DIRS ${EXTERNAL_LIBXC}/include)
+  set (Libxc_LIBRARIES ${xcf03})
 else ()
-  set (LibxcSkipUpdate OFF)
+  message ("-- Configuring built-in Libxc")
+  include (ExternalProject)
+  set (EP_PROJECT Libxc)
+  set (EP_PATH ${PROJECT_BINARY_DIR}/External/${EP_PROJECT})
+  set (EP_INSTALL ${PROJECT_BINARY_DIR}/External/${EP_PROJECT}_install)
+
+  set (Libxc_REPO https://gitlab.com/libxc/libxc.git)
+  set (Libxc_HASH df9ba8d9) # Release 5.1.7
+
+  # Note shared libraries won't work here because installation issues.
+  # TODO: Solving this will require creating a wrapper main project that includes
+  #       both Libxc and OpenMolcas as ExternalProject. This could also simplify
+  #       the handling of other codes like GlobalArrays or QCMaquis
+  list (APPEND LibxcCMakeArgs
+        -D CMAKE_INSTALL_PREFIX=${EP_INSTALL}
+        -D BUILD_SHARED_LIBS=NO
+        -D CMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+        -D CMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER}
+        -D CMAKE_Fortran_FLAGS=${CMAKE_Fortran_FLAGS}
+        -D CMAKE_INSTALL_LIBDIR=lib
+        -D ENABLE_FORTRAN=ON
+        -D ENABLE_PYTHON=OFF
+        -D DISABLE_KXC=ON
+        -D DISABLE_LXC=ON
+        -D BUILD_TESTING=NO
+  )
+
+  # Workaround for ExternalProject's shortcoming
+  # (see https://gitlab.kitware.com/cmake/cmake/-/issues/16419)
+  # UPDATE_DISCONNECTED is ON if the current commit has already
+  # been built, and OFF when the commit changes, but it requires
+  # to run cmake for detection
+  set (last_hash "None")
+  set (hash_file ${EP_PATH}/${EP_PROJECT}.hash)
+  if (EXISTS ${hash_file})
+    file (READ ${hash_file} last_hash)
+    string (REGEX REPLACE "\n$" "" last_hash "${last_hash}")
+  endif ()
+  if (last_hash STREQUAL ${Libxc_HASH})
+    set (LibxcSkipUpdate ON)
+  else ()
+    set (LibxcSkipUpdate OFF)
+  endif ()
+
+  ExternalProject_Add (${EP_PROJECT}
+                       PREFIX ${EP_PATH}
+                       GIT_REPOSITORY ${Libxc_REPO}
+                       GIT_TAG ${Libxc_HASH}
+                       CMAKE_ARGS ${LibxcCMakeArgs}
+                       UPDATE_DISCONNECTED ${LibxcSkipUpdate}
+  )
+
+  ExternalProject_Add_Step (${EP_PROJECT} update_hash
+                            COMMAND echo ${Libxc_HASH} > ${hash_file}
+                            DEPENDEES build
+  )
+
+  link_directories(${EP_INSTALL}/lib)
+
+  set (Libxc_INCLUDE_DIRS ${EP_INSTALL}/include)
+  set (Libxc_LIBRARIES xcf03 xc)
+
 endif ()
-
-ExternalProject_Add (${EP_PROJECT}
-                     PREFIX ${EP_PATH}
-                     GIT_REPOSITORY ${Libxc_REPO}
-                     GIT_TAG ${Libxc_HASH}
-                     CMAKE_ARGS ${LibxcCMakeArgs}
-                     UPDATE_DISCONNECTED ${LibxcSkipUpdate}
-)
-
-ExternalProject_Add_Step (${EP_PROJECT} update_hash
-                          COMMAND echo ${Libxc_HASH} > ${hash_file}
-                          DEPENDEES build
-)
-
-link_directories(${EP_INSTALL}/lib)
-
-list (APPEND dft_util_incs ${EP_INSTALL}/include)
-
-set (Libxc_LIBRARIES xcf03 xc)
+message ("-- Libxc_INCLUDE_DIRS: ${Libxc_INCLUDE_DIRS}")
 message ("-- Libxc_LIBRARIES: ${Libxc_LIBRARIES}")
+list (APPEND dft_util_incs ${Libxc_INCLUDE_DIRS})
 list (APPEND EXTERNAL_LIBRARIES ${Libxc_LIBRARIES})
 
 # Global Arrays settings
@@ -2021,7 +2037,7 @@ if (DMRG)
     set (QCMaquis_ROOT $ENV{QCMaquis_ROOT})
   endif ()
   if (QCMaquis_ROOT)
-    message (STATUS "External QCMaquis root specified at: ${QCMaquis_ROOT}")
+    message ("-- External QCMaquis root specified at: ${QCMaquis_ROOT}")
     set (QCMaquis_ROOT ${QCMaquis_ROOT} CACHE STRING "Specify path to existing QCMaquis installation. This will allow to skip the installation of QCMaquis.")
     set (MAQUIS_DMRG_DIR ${QCMaquis_ROOT}/share/cmake)
     find_package (MAQUIS_DMRG PATHS ${QCMaquis_ROOT} NO_DEFAULT_PATH)
@@ -2843,7 +2859,9 @@ endif ()
 # dependency using the "mods_obj" target.
 # note that mods_obj is empty at the beginning, source files will be added later
 add_library (mods_obj OBJECT)
-add_dependencies (mods_obj Libxc)
+if (TARGET Libxc)
+  add_dependencies (mods_obj Libxc)
+endif ()
 if (GA_BUILD AND MPI)
   add_dependencies (mods_obj GlobalArrays)
 endif ()
