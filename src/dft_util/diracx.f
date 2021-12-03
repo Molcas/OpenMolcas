@@ -19,9 +19,9 @@
       Use xc_f03_lib_m
       Use Definitions, Only: LibxcInt, LibxcReal, LibxcSize
       Implicit None
+      Integer :: mGrid, nrho, ndf_drho, ispin, iGrid
       Real*8 :: Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
       Real*8 :: Coeff, T_X
-      Integer :: mGrid, nrho, ndf_drho, ispin, iGrid
 *     Work memory for libxc
       Real(kind=LibxcReal) :: func(mGrid), dfunc_drho(iSpin,mGrid)
 *     xc functional

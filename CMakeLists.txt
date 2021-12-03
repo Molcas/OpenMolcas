@@ -1589,7 +1589,7 @@ else ()
         -D BUILD_SHARED_LIBS=NO
         -D CMAKE_C_COMPILER=${CMAKE_C_COMPILER}
         -D CMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER}
-        -D CMAKE_Fortran_FLAGS=${CMAKE_Fortran_FLAGS}
+        -D CMAKE_Fortran_FLAGS=${CMAKE_Fortran_FLAGS_DEFAULT}
         -D CMAKE_INSTALL_LIBDIR=lib
         -D ENABLE_FORTRAN=ON
         -D ENABLE_PYTHON=OFF
