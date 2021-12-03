@@ -265,6 +265,4 @@
       end subroutine
 
 
-
-
       end module CI_solver_util

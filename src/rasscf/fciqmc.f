@@ -42,11 +42,11 @@
       use definitions, only: u6
 
       implicit none
-      save  ! why is this save necessary?
+      ! preserves values when modules go out of scope, legacy.
+      save
       private
       public :: DoNECI, DoEmbdNECI, fciqmc_solver_t, tGUGA_in
 
-      integer :: u6
       logical :: DoEmbdNECI = .false., DoNECI = .false.,
      &  tGUGA_in  = .false.
 
@@ -189,8 +189,7 @@
      &  NECIen=NECIen, iroot=iroot, weight=weight,
      &  D1S_MO=D1S_MO, DMAT=DMAT, PSMAT=PSMAT, PAMAT=PAMAT,
      &  tGUGA=this%tGUGA)
-      ! TODO: what is this doing?
-      ENER(1 : lRoots, iter) = NECIen  ! where is ENER defined?
+      ENER(1 : lRoots, iter) = NECIen
 
       if (nAsh(1) /= nac) call dblock(dmat)
       if (allocated(GAS_spaces)) then
@@ -216,8 +215,7 @@
         real(wp), intent(in) :: weight(nroots)
         integer, intent(in), optional ::
      &      GAS_spaces(:, :), GAS_particles(:, :)
-        ! real(wp), save :: previous_NECIen(nroots) = 0.0_wp
-        real(wp) :: previous_NECIen(nroots)
+        real(wp), allocatable, save :: previous_NECIen(:)
         character(len=*), parameter :: input_name = 'FCINP',
      &    energy_file = 'NEWCYCLE'
 
@@ -226,7 +224,10 @@
         ! (unitialized codepaths lead to abortion).
         NECIen = huge(NECIen)
 #endif
-        previous_NECIen(nroots) = 0.0_wp
+        if (.not. allocated(previous_NECIen)) then
+            allocate(previous_NECIen(nroots))
+            previous_NECIen(:) = 0.0_wp
+        end if
         if (fake_run) then
           NECIen = previous_NECIen
         else if (DoEmbdNECI) then
@@ -253,6 +254,7 @@
               call write_ExNECI_message(input_name, ascii_fcidmp,
      &                                  h5_fcidmp, energy_file, tGUGA)
             end if
+
             call wait_and_read(energy_file, NECIen)
         end if
         previous_NECIen = NECIen

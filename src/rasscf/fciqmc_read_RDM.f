@@ -70,7 +70,6 @@
           DMAT = 0.0_wp; DSPN = 0.0_wp
           PSMAT = 0.0_wp; PAMAT = 0.0_wp
 
-          ! TODO: how are iroot and weight stored internally?
           do i = 1, NRoots
               do j = 1, size(iroot)
                   if (iroot(j) == i) then
@@ -81,9 +80,11 @@
      &                    )
                       else
                           call read_single_neci_RDM(
-     &                        iroot(j), DMAT, DSPN, PSMAT, PAMAT
+     &                        iroot(j), temp_DMAT, temp_DSPN,
+     &                        temp_PSMAT, temp_PAMAT
      &                    )
                       end if
+
                       DMAT = DMAT + weight(j) * temp_DMAT
                       DSPN = DSPN + weight(j) * temp_DSPN
                       PSMAT= PSMAT + weight(j) * temp_PSMAT
@@ -91,7 +92,6 @@
                   end if
               end do
           end do
-          ! manual deallocation, because ...
           call mma_deallocate(temp_DMAT)
           call mma_deallocate(temp_DSPN)
           call mma_deallocate(temp_PSMAT)
@@ -204,7 +204,6 @@
 !>  @paramin[out] PSMAT Average symm. 2-dens matrix
 !>  @paramin[out] PAMAT Average antisymm. 2-dens matrix
 !>
-!>  [Arta, Oskar]
 !>  This function is unmaintainable, someone has to rewrite it.
       subroutine read_single_neci_RDM(iroot, DMAT, DSPN, PSMAT, PAMAT)
           use Para_Info, only: MyRank
