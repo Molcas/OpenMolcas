@@ -260,8 +260,8 @@
             call mh5_fetch_dset(refwfn_id,'QCMAQUIS_CHECKPOINT',
      &                          qcm_group_names(job)%states(i:i),
      &                          [1],[LROOT(ISTATE)-1])
-!           Write(6,'(I3,A,A)') ISTATE, '   ',
-!    &      trim(qcm_group_names(job)%states(i))
+            Write(6,'(5X,I3,3X,A)') ISTATE,
+     &      trim(qcm_group_names(job)%states(i))
           END DO
           write(6,*) "  --------------------------"
           !! save QCMaquis prefix
