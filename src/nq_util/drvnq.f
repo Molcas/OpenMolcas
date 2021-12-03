@@ -268,6 +268,8 @@
 *        For gradients we need the derrivatives wrt the coordinates
 *
          nRho=5*nD
+*        nRho=nD
+         nSigma=nD*(nD+1)/2
          mdRho_dR=0
          If (Do_Grad) mdRho_dR=nRho
 *
@@ -301,6 +303,8 @@
 *        For gradients we need the derrivatives wrt the coordinates
 *
          nRho=6*nD
+*        nRho=nD
+         nSigma=nD*(nD+1)/2
          mdRho_dR=0
          If (Do_Grad) mdRho_dR=nRho
 *
@@ -317,61 +321,26 @@
          End If
          nP2_ontop=4
          ndF_dP2ontop=4
-c         Call WarningMessage(2,
-c     &        'Meta-GGA functional type 2 not fully DEBUGGED yet!')
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Else If ( Functional_type.eq.PAM_type) Then
-*                                                                      *
-************************************************************************
-*                                                                      *
-         mAO=5
-         nRho=4*nD
-         mdRho_dR=0
-         If (nD.eq.1) Then
-            ndF_dRho=3
-         Else
-            ndF_dRho=5
-         Endif
-         nP2_ontop=4
-         ndF_dP2ontop=4
-         Call WarningMessage(2,'PAM functionals not implemented yet!')
-         Call Abend()
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Else If ( Functional_type.eq.CS_type) Then
-*                                                                      *
-************************************************************************
-*                                                                      *
-         mAO=5
-         nRho=4*nD
-         mdRho_dR=0
-         If (nD.eq.1) Then
-            ndF_dRho=3
-         Else
-            ndF_dRho=5
-         Endif
-         nP2_ontop=4
-         ndF_dP2ontop=4
-         Call WarningMessage(2,'CS functionals not implemented yet!')
-         Call Abend()
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Else If ( Functional_type.eq.CASDFT_type) Then
-*
-*        nD's definition is not consistent with the use here!
+*                                                                      *
+************************************************************************
+*                                                                      *
+*        nD  definition is not consistent with the use here!
 *        This needs to be restructured.
 *
          mAO=10
+
+         nRho=4*nD
+*        nRho=nD
+         nSigma=nD*(nD+1)/2
          mdRho_dR=0
          If (Do_Grad) Then
              Call WarningMessage(2,'CASDFT: Gradient not available.')
              Call Abend()
          End If
-         nRho=4*nD
 *
          If (nD.eq.1) Then
             ndF_dRho=3 ! could be 2?
@@ -384,11 +353,17 @@ c     &        'Meta-GGA functional type 2 not fully DEBUGGED yet!')
 ************************************************************************
 *                                                                      *
       Else
+*                                                                      *
+************************************************************************
+*                                                                      *
          Functional_type=Other_type
          Call WarningMessage(2,'DrvNQ: Invalid Functional_type!')
          Call Abend()
          nRho=0
          ndF_dRho=0
+*                                                                      *
+************************************************************************
+*                                                                      *
       End If
 *                                                                      *
 ************************************************************************
@@ -544,13 +519,9 @@ c     Call GetMem('tmpB','Allo','Real',ip_tmpB,nGridMax)
           nd1mo = NQNACPAR
           Call GetMem('D1MO','Allo','Real',ipD1MO,nd1mo)
           Call Get_D1MO(Work(ipD1mo),nd1mo)
-cGLM          write(6,*) 'D1MO in drvNQ routine'
-cGLM          write(6,*) (Work(ipD1mo+i), i=0,NQNACPAR-1)
           nP2 = NQNACPR2
           Call GetMEM('P2MO','Allo','Real',ipP2MO,nP2)
           call Get_P2mo(Work(ipP2mo),nP2)
-cGLM          write(6,*) 'P2MO in drvNQ routine'
-cGLM          write(6,*) (Work(ipP2mo+i), i=0,NQNACPR2-1)
         END IF
          Call GetMem('P2_ontop','Allo','Real',ipp2_ontop,
      &               nP2_ontop*nGridMax)
@@ -580,7 +551,6 @@ cGLM          write(6,*) (Work(ipP2mo+i), i=0,NQNACPR2-1)
      &            Do_Grad,Grad,nGrad,iWork(iplist_g),
      &            iWork(ipIndGrd),iWork(ipiTab),Work(ipTemp),mGrad,
      &            Work(ip_F_xc),
-cGLM     &        Work(ip_F_xca),Work(ip_F_xcb),
      &            Work(ip_dFdRho),work(ipdF_dP2ontop),
      &            DFTFOCK,mAO,mdRho_dR)
 *                                                                      *
