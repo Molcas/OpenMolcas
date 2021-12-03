@@ -9,5 +9,10 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Module nq_Grid
+Real*8, Allocatable:: Weights(:)
 Real*8, Allocatable:: Grid(:,:)
+!     nGridMax: size of the array Grid
+Integer :: nGridMax=128
+Real*8, Allocatable:: Rho(:,:)
+Integer :: nRho=0
 End Module nq_Grid

@@ -10,8 +10,7 @@
 *                                                                      *
 * Copyright (C) 2000, Roland Lindh                                     *
 ************************************************************************
-      Subroutine Do_Batch(Kernel,Func,
-     &                    Grid,Weights,Rho,mGrid,nRho,
+      Subroutine Do_Batch(Kernel,Func,mGrid,
      &                    list_s,nlist_s,List_Exp,List_Bas,
      &                    Index,nIndex,AOInt,nAOInt,
      &                    FckInt,nFckDim,nFckInt,SOTemp,nSOTemp,
@@ -35,6 +34,7 @@
       use Center_Info
       use Phase_Info
       use KSDFT_Info
+      use nq_Grid, only: Grid, Weights, Rho, nRho
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "SysDef.fh"
@@ -53,8 +53,7 @@
      &        ipTabAO(nlist_s+1,2), IndGrd(nGrad_Eff),
      &        list_g(3,nlist_s), iTab(4,nGrad_Eff), Index(nIndex),
      &        Maps2p(nShell,0:nSym-1), List_Bas(2,nlist_s)
-      Real*8 A(3), RA(3), Grid(3,mGrid), Weights(mGrid),
-     &       Rho(nRho,mGrid), AOInt(nAOInt*nAOInt,nD),
+      Real*8 A(3), RA(3), AOInt(nAOInt*nAOInt,nD),
      &       dF_dRho(ndF_dRho,mGrid), TabAO(nTabAO), Grad(nGrad),
      &       FckInt(nFckInt,nFckDim),
      &       Dens(nDens,nD), SOTemp(nSOTemp,nD),
