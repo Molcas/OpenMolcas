@@ -978,7 +978,7 @@ C     the relative CISE root given in the input by the 'CIRF' keyword.
         !point for numerical gradient calculations)
 #ifdef _DMRG_
         if(doDMRG.and.exist)then
-          inquire(file="rf.results_state.h5", exist=rfh5DMRG)
+          call f_inquire('rf.results_state.h5', rfh5DMRG)
           if(.not.rfh5DMRG)then
             maquis_name_states  = ""
             maquis_name_results = ""
