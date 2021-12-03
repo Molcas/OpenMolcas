@@ -109,13 +109,13 @@
          End If
          If (TMax_i*TMax_i*DMax_ii.ge.T_X) Then
             If (nD.eq.1) Then
-               Call Do_Rho2a_d(Rho,     mGrid,
+               Call Do_Rho2a_d(mGrid,
      &                         DeDe(ip_D_a),     mAO,
      &                         TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,
      &                         iCmp,Fact(ij),T_X,TMax_i*TMax_i,
      &                         Index(index_i))
             Else
-               Call Do_Rho2_d(Rho,     mGrid,
+               Call Do_Rho2_d(mGrid,
      &                        DeDe(ip_D_a),DeDe(ip_D_b),     mAO,
      &                        TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,
      &                        iCmp,Fact(ij),T_X,TMax_i*TMax_i,
@@ -186,7 +186,7 @@
 *
                If (iShell.ge.jShell) Then
 *
-               Call Do_Rho2a(Rho,     mGrid,
+               Call Do_Rho2a(mGrid,
      &                       DeDe(ip_D_a),     mAO,
      &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
      &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
@@ -195,7 +195,7 @@
 *
                Else
 *
-               Call Do_Rho2a(Rho,     mGrid,
+               Call Do_Rho2a(mGrid,
      &                       DeDe(ip_D_a),     mAO,
      &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
      &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
@@ -208,7 +208,7 @@
 *
                If (iShell.ge.jShell) Then
 *
-               Call Do_Rho2_(Rho,     mGrid,
+               Call Do_Rho2_(mGrid,
      &                       DeDe(ip_D_a),DeDe(ip_D_b),     mAO,
      &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
      &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
@@ -217,7 +217,7 @@
 *
                Else
 *
-               Call Do_Rho2_(Rho,     mGrid,
+               Call Do_Rho2_(mGrid,
      &                       DeDe(ip_D_a),DeDe(ip_D_b),     mAO,
      &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
      &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
@@ -250,15 +250,16 @@ c Avoid unused argument warnings
 
 
 
-      Subroutine Do_Rho2a(Rho,     mGrid,DAij,
+      Subroutine Do_Rho2a(mGrid,DAij,
      &                    mAO,TabAO1,iBas,iBas_Eff,iCmp,
      &                        TabAO2,jBas,jBas_Eff,jCmp,
      &                    Fact,T_X,TMax_ij,Index_i,Index_j)
+      use nq_grid, only: nRho, Rho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "debug.fh"
-      Real*8 Rho(     mGrid), DAij(iBas*iCmp,jBas*jCmp),
+      Real*8 DAij(iBas*iCmp,jBas*jCmp),
      &       TabAO1(mAO,mGrid,iBas_Eff*iCmp),
      &       TabAO2(mAO,mGrid,jBas_Eff*jCmp)
       Integer Index_i(iBas_Eff*iCmp), Index_j(jBas_Eff*jCmp)
@@ -278,7 +279,7 @@ c Avoid unused argument warnings
 *
             Do iGrid = 1, mGrid
                Prod_ij=TabAO1(1,iGrid,iCB_Eff)*TabAO2(1,iGrid,jCB_Eff)
-               Rho(  iGrid)=Rho(  iGrid)+Prod_ij*DAij_
+               Rho(1,iGrid)=Rho(1,iGrid)+Prod_ij*DAij_
             End Do    ! iGrid
 *
  99         Continue
@@ -293,15 +294,15 @@ c Avoid unused argument warnings
 
 
 
-      Subroutine Do_Rho2_(Rho,     mGrid,DAij,DBij,
+      Subroutine Do_Rho2_(mGrid,DAij,DBij,
      &                    mAO,TabAO1,iBas,iBas_Eff,iCmp,
      &                        TabAO2,jBas,jBas_Eff,jCmp,
      &                    Fact,T_X,TMax_ij,Index_i,Index_j)
+      use nq_grid, only: nRho, Rho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"
-      Real*8 Rho(   2,mGrid),
-     &       DAij(iBas*iCmp,jBas*jCmp), DBij(iBas*iCmp,jBas*jCmp),
+      Real*8 DAij(iBas*iCmp,jBas*jCmp), DBij(iBas*iCmp,jBas*jCmp),
      &       TabAO1(mAO,mGrid,iBas_Eff*iCmp),
      &       TabAO2(mAO,mGrid,jBas_Eff*jCmp)
       Integer Index_i(iBas_Eff*iCmp), Index_j(jBas_Eff*jCmp)
@@ -336,14 +337,15 @@ c Avoid unused argument warnings
 
 
 
-      Subroutine Do_Rho2a_d(Rho,     mGrid,DAii,
+      Subroutine Do_Rho2a_d(mGrid,DAii,
      &                      mAO,TabAO1,iBas,iBas_Eff,iCmp,
      &                      Fact,T_X,TMax_ii,Index_i)
+      use nq_grid, only: nRho, Rho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "debug.fh"
-      Real*8 Rho(     mGrid), DAii(iBas*iCmp,iBas*iCmp),
+      Real*8 DAii(iBas*iCmp,iBas*iCmp),
      &       TabAO1(mAO,mGrid,iBas_Eff*iCmp)
       Integer Index_i(iBas_Eff*iCmp)
 *                                                                      *
@@ -358,7 +360,7 @@ c Avoid unused argument warnings
          If (TMax_ii*Abs(DAjj_).ge.T_X) Then
             Do iGrid = 1, mGrid
                Prod_jj=TabAO1(1,iGrid,jCB_Eff)*TabAO1(1,iGrid,jCB_Eff)
-               Rho(  iGrid)=Rho(  iGrid)+Prod_jj*DAjj_
+               Rho(1,iGrid)=Rho(1,iGrid)+Prod_jj*DAjj_
             End Do    ! iGrid
          End If
 *
@@ -370,7 +372,7 @@ c Avoid unused argument warnings
 *
             Do iGrid = 1, mGrid
                Prod_ij=TabAO1(1,iGrid,iCB_Eff)*TabAO1(1,iGrid,jCB_Eff)
-               Rho(  iGrid)=Rho(  iGrid)+Prod_ij*DAij_
+               Rho(1,iGrid)=Rho(1,iGrid)+Prod_ij*DAij_
             End Do    ! iGrid
 *
  99         Continue
@@ -383,17 +385,14 @@ c Avoid unused argument warnings
       Return
       End
 
-
-
-
-      Subroutine Do_Rho2_d(Rho,     mGrid,DAii,DBii,
+      Subroutine Do_Rho2_d( mGrid,DAii,DBii,
      &                    mAO,TabAO1,iBas,iBas_Eff,iCmp,
      &                    Fact,T_X,TMax_ii,Index_i)
+      use nq_grid, only: nRho, Rho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"
-      Real*8 Rho(   2,mGrid),
-     &       DAii(iBas*iCmp,iBas*iCmp), DBii(iBas*iCmp,iBas*iCmp),
+      Real*8 DAii(iBas*iCmp,iBas*iCmp), DBii(iBas*iCmp,iBas*iCmp),
      &       TabAO1(mAO,mGrid,iBas_Eff*iCmp)
       Integer Index_i(iBas_Eff*iCmp)
 *                                                                      *

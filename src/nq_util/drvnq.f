@@ -26,7 +26,7 @@
       use iSD_data
       use Symmetry_Info, only: nIrrep
       use KSDFT_Info, only: KSDFA
-      use nq_Grid, only: Rho, Grid, Weights
+      use nq_Grid, only: Rho, Sigma, Grid, Weights
       use nq_Grid, only: nRho, nGridMax, nSigma
       Implicit Real*8 (A-H,O-Z)
       External Kernel
@@ -141,6 +141,7 @@
 *     and associated weights.
 *
       Call mma_Allocate(Grid,3,nGridMax,Label='Grid')
+      Call mma_Allocate(Weights,nGridMax,Label='Weights')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -234,7 +235,7 @@
 *
          nRho=4*nD
 *        nRho=nD
-*        nSigma=nD*(nD+1)/2
+         nSigma=nD*(nD+1)/2
          mdRho_dR=0
          If (Do_Grad) mdRho_dR=nRho
 *
@@ -392,11 +393,13 @@ c     &        'Meta-GGA functional type 2 not fully DEBUGGED yet!')
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('F_xc','Allo','Real',ip_F_xc,nGridMax)
       Call mma_allocate(Rho,nRho,nGridMax,Label='Rho')
+      If (nSigma.ne.0) Call mma_Allocate(Sigma,nSigma,nGridMax,
+     &                                   Label='Sigma')
+
+      Call GetMem('F_xc','Allo','Real',ip_F_xc,nGridMax)
       Call GetMem('dF_dRho','Allo','Real',ip_dFdRho,ndF_dRho*nGridMax)
 *
-      Call mma_allocate(Weights,nGridMax,Label='Weights')
       Call GetMem('list_s','Allo','Inte',iplist_s,2*nIrrep*nShell)
       Call GetMem('list_exp','Allo','Inte',iplist_exp,3*nIrrep*nShell)
       iplist_bas=iplist_exp+nIrrep*nShell
@@ -596,7 +599,6 @@ cGLM     &        Work(ip_F_xca),Work(ip_F_xcb),
       Call GetMem('list_p','Free','Inte',iplist_p,nNQ)
       Call GetMem('list_exp','Free','Inte',iplist_exp,3*nIrrep*nShell)
       Call GetMem('list_s','Free','Inte',iplist_s,2*nIrrep*nShell)
-      Call mma_deallocate(Weights)
       Call GetMem('dF_dRho','Free','Real',ip_dFdRho,ndF_dRho*nGridMax)
 *Do_TwoEl
       If(ipP2mo.ne.ip_Dummy) Call Free_Work(ipP2mo)
@@ -608,11 +610,13 @@ cGLM     &        Work(ip_F_xca),Work(ip_F_xcb),
          Call Put_dArray('DFT_TwoEl',Work(ipTmpPUVX),nTmpPUVX)
          Call GetMem('TmpPUVX','Free','Real',ipTmpPUVX,nTmpPUVX)
       End If
-*
-      Call mma_deallocate(Rho)
       Call GetMem('F_xc','Free','Real',ip_F_xc,nGridMax)
+*
+      If (Allocated(Sigma)) Call mma_deallocate(Sigma)
+      Call mma_deallocate(Rho)
+
+      Call mma_deallocate(Weights)
       Call mma_deallocate(Grid)
-c      Call GetMem('tmpB','Free','Real',ip_tmpB,nGridMax)
 
       if(Debug) write(6,*) 'l_casdft value at drvnq.f:',l_casdft
       if(Debug.and.l_casdft) write(6,*) 'MCPDFT with functional:', KSDFA
