@@ -26,7 +26,8 @@
       use iSD_data
       use Symmetry_Info, only: nIrrep
       use KSDFT_Info, only: KSDFA
-      use nq_Grid, only: Rho, Sigma, Grid, Weights
+      use nq_Grid, only: Rho, Sigma, Tau, Lapl
+      use nq_Grid, only: Grid, Weights
       use nq_Grid, only: nRho, nGridMax, nSigma
       Implicit Real*8 (A-H,O-Z)
       External Kernel
@@ -205,16 +206,15 @@
          nRho=nD
          mdRho_dr=0
          If (Do_Grad) mdRho_dr=nRho
+         nSigma=0
+         nLabl=0
+         nTau=0
 *
 *        We need derivatives of the functional with respect to
 *        rho(alpha). In case of open-shell calculations we also
 *        need rho(beta).
 *
-         If (nD.eq.1) Then
-            ndF_dRho=1
-         Else
-            ndF_dRho=2
-         End If
+         nDG_dRho=nD
          nP2_ontop=1
          ndF_dP2ontop=1
 *                                                                      *
@@ -270,6 +270,8 @@
          nRho=5*nD
 *        nRho=nD
          nSigma=nD*(nD+1)/2
+         nLabl=0
+         nTau=nD
          mdRho_dR=0
          If (Do_Grad) mdRho_dR=nRho
 *
@@ -305,6 +307,8 @@
          nRho=6*nD
 *        nRho=nD
          nSigma=nD*(nD+1)/2
+         nTau=nD
+         nLapl=nD
          mdRho_dR=0
          If (Do_Grad) mdRho_dR=nRho
 *
@@ -336,6 +340,8 @@
          nRho=4*nD
 *        nRho=nD
          nSigma=nD*(nD+1)/2
+         nTau=0
+         nLapl=0
          mdRho_dR=0
          If (Do_Grad) Then
              Call WarningMessage(2,'CASDFT: Gradient not available.')
@@ -371,6 +377,10 @@
       Call mma_allocate(Rho,nRho,nGridMax,Label='Rho')
       If (nSigma.ne.0) Call mma_Allocate(Sigma,nSigma,nGridMax,
      &                                   Label='Sigma')
+      If (nTau.ne.0) Call mma_allocate(Tau,nTau,nGridMax,
+     &                                 Label='Tau')
+      If (nLapl.ne.0) Call mma_allocate(Lapl,nLapl,nGridMax,
+     &                                 Label='Lapl')
 
       Call GetMem('F_xc','Allo','Real',ip_F_xc,nGridMax)
       Call GetMem('dF_dRho','Allo','Real',ip_dFdRho,ndF_dRho*nGridMax)
@@ -582,6 +592,8 @@ c     Call GetMem('tmpB','Allo','Real',ip_tmpB,nGridMax)
       End If
       Call GetMem('F_xc','Free','Real',ip_F_xc,nGridMax)
 *
+      If (Allocated(Lapl)) Call mma_deallocate(Lapl)
+      If (Allocated(Tau)) Call mma_deallocate(Tau)
       If (Allocated(Sigma)) Call mma_deallocate(Sigma)
       Call mma_deallocate(Rho)
 
