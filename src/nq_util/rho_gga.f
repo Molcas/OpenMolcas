@@ -376,9 +376,9 @@ c Avoid unused argument warnings
                Rho(3,iGrid)=Rho(3,iGrid) + Two*Prod_31*DAii_
                Rho(4,iGrid)=Rho(4,iGrid) + Two*Prod_41*DAii_
 
-               dRhoX=Two*Prod_21*DAij_
-               dRhoY=Two*Prod_31*DAij_
-               dRhoZ=Two*Prod_41*DAij_
+               dRhoX=Two*Prod_21*DAii_
+               dRhoY=Two*Prod_31*DAii_
+               dRhoZ=Two*Prod_41*DAii_
                Sigma(1,iGrid)=dRhoX**2+dRhoY**2+dRhoZ**2
             End Do    ! iGrid
          End If
@@ -452,12 +452,12 @@ c Avoid unused argument warnings
                Rho(7,iGrid)=Rho(7,iGrid) + Two*Prod_31*DBii_
                Rho(8,iGrid)=Rho(8,iGrid) + Two*Prod_41*DBii_
 
-               dRhoX_A=Two*Prod_21*DAij_
-               dRhoY_A=Two*Prod_31*DAij_
-               dRhoZ_A=Two*Prod_41*DAij_
-               dRhoX_B=Two*Prod_21*DBij_
-               dRhoY_B=Two*Prod_31*DBij_
-               dRhoZ_B=Two*Prod_41*DBij_
+               dRhoX_A=Two*Prod_21*DAii_
+               dRhoY_A=Two*Prod_31*DAii_
+               dRhoZ_A=Two*Prod_41*DAii_
+               dRhoX_B=Two*Prod_21*DBii_
+               dRhoY_B=Two*Prod_31*DBii_
+               dRhoZ_B=Two*Prod_41*DBii_
                Sigma(1,iGrid)=dRhoX_A**2+dRhoY_A**2+dRhoZ_A**2
                Sigma(2,iGrid)=dRhoX_A*dRhoX_B
      &                       +dRhoY_A*dRhoY_B

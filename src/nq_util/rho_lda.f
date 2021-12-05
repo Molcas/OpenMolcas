@@ -19,7 +19,10 @@
 ************************************************************************
       use iSD_data
       use k2_arrays, only: DeDe, ipDijS
-      use nq_grid, only: nRho, Rho
+      use nq_grid, only: Rho
+#ifdef _DEBUGPRINT_
+      use nq_grid, only: nRho
+#endif
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
@@ -254,7 +257,7 @@ c Avoid unused argument warnings
      &                    mAO,TabAO1,iBas,iBas_Eff,iCmp,
      &                        TabAO2,jBas,jBas_Eff,jCmp,
      &                    Fact,T_X,TMax_ij,Index_i,Index_j)
-      use nq_grid, only: nRho, Rho
+      use nq_grid, only: Rho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -298,7 +301,7 @@ c Avoid unused argument warnings
      &                    mAO,TabAO1,iBas,iBas_Eff,iCmp,
      &                        TabAO2,jBas,jBas_Eff,jCmp,
      &                    Fact,T_X,TMax_ij,Index_i,Index_j)
-      use nq_grid, only: nRho, Rho
+      use nq_grid, only: Rho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -340,7 +343,7 @@ c Avoid unused argument warnings
       Subroutine Do_Rho2a_d(mGrid,DAii,
      &                      mAO,TabAO1,iBas,iBas_Eff,iCmp,
      &                      Fact,T_X,TMax_ii,Index_i)
-      use nq_grid, only: nRho, Rho
+      use nq_grid, only: Rho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -388,7 +391,7 @@ c Avoid unused argument warnings
       Subroutine Do_Rho2_d( mGrid,DAii,DBii,
      &                    mAO,TabAO1,iBas,iBas_Eff,iCmp,
      &                    Fact,T_X,TMax_ii,Index_i)
-      use nq_grid, only: nRho, Rho
+      use nq_grid, only: Rho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"
