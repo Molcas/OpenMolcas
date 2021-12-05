@@ -60,7 +60,7 @@ C--     &           ndF_dRho,CoefR-Coeff_C,T_X)
 *                                                                      *
 *---- Lee-Yang-Parr Correlation Functional                             *
 *                                                                      *
-      Call LYP(Rho,nRho,mGrid,
+      Call LYP(mGrid,
      &         dF_dRho,ndF_dRho,
      &         Coeff_C,iSpin,F_xc,T_X)
 *                                                                      *

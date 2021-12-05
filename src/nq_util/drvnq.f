@@ -270,8 +270,8 @@
          nRho=5*nD
 *        nRho=nD
          nSigma=nD*(nD+1)/2
-         nLabl=nD
-         nTau=0
+         nLabl=0
+         nTau=nD
          mdRho_dR=0
          If (Do_Grad) mdRho_dR=nRho
 *

@@ -53,7 +53,7 @@ C MP2 correlation energy to be scaled to 1 - Coeff_C = 0.25
 *                                                                      *
 *  LYP correlation                                                     *
 *                                                                      *
-      Call LYP(Rho,nRho,mGrid,
+      Call LYP(mGrid,
      &         dF_dRho,ndF_dRho,
      &         Coeff_C,iSpin,F_xc,T_X)
 *                                                                      *
