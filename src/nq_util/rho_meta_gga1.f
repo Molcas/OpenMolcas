@@ -19,7 +19,7 @@
 ************************************************************************
       use iSD_data
       use k2_arrays, only: DeDe, ipDijS
-      use nq_Grid, only: Rho, Sigma
+      use nq_Grid, only: Rho, Sigma, Lapl
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
@@ -60,6 +60,7 @@
 *
       Rho(:,1:mGrid)=Zero
       Sigma(:,1:mGrid)=Zero
+      Lapl(:,1:mGrid)=Zero
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -232,7 +233,7 @@
      &                    mAO,TabAO1,iBas,iBas_Eff,iCmp,
      &                        TabAO2,jBas,jBas_Eff,jCmp,
      &                    Fact,T_X,TMax_ij,Index_i,Index_j)
-      use nq_Grid, only: Rho, Sigma
+      use nq_Grid, only: Rho, Sigma, Lapl
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -282,6 +283,8 @@
      &                       + dRhoX**2
      &                       + dRhoY**2
      &                       + dRhoZ**2
+               Lapl(1,iGrid)=Lapl(1,iGrid)
+     &                     +(Prod_22+Prod_33+Prod_44)*DAij_
 
             End Do    ! iGrid
 *
@@ -299,7 +302,7 @@
      &                    mAO,TabAO1,iBas,iBas_Eff,iCmp,
      &                        TabAO2,jBas,jBas_Eff,jCmp,
      &                    Fact,T_X,TMax_ij,Index_i,Index_j)
-      use nq_Grid, only: Rho, Sigma
+      use nq_Grid, only: Rho, Sigma, Lapl
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
       Real*8 DAij(iBas*iCmp,jBas*jCmp), DBij(iBas*iCmp,jBas*jCmp),
@@ -364,6 +367,10 @@
      &                       + dRhoX_B**2
      &                       + dRhoY_B**2
      &                       + dRhoZ_B**2
+               Lapl(1,iGrid)=Lapl(1,iGrid)
+     &                     +(Prod_22+Prod_33+Prod_44)*DAij_
+               Lapl(2,iGrid)=Lapl(2,iGrid)
+     &                     +(Prod_22+Prod_33+Prod_44)*DBij_
             End Do    ! iGrid
 *
  99         Continue
@@ -377,7 +384,7 @@
      &                    DAii,
      &                    mAO,TabAO1,iBas,iBas_Eff,iCmp,
      &                    Fact,T_X,TMax_ii,Index_i)
-      use nq_Grid, only: Rho, Sigma
+      use nq_Grid, only: Rho, Sigma, Lapl
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
       Real*8 DAii(iBas*iCmp,iBas*iCmp),
@@ -415,6 +422,8 @@
      &                       + dRhoX**2
      &                       + dRhoY**2
      &                       + dRhoZ**2
+               Lapl(1,iGrid)=Lapl(1,iGrid)
+     &                     +(Prod_22+Prod_33+Prod_44)*DAii_
             End Do    ! iGrid
          End If
 *
@@ -451,6 +460,8 @@
      &                       + dRhoX**2
      &                       + dRhoY**2
      &                       + dRhoZ**2
+               Lapl(1,iGrid)=Lapl(1,iGrid)
+     &                     +(Prod_22+Prod_33+Prod_44)*DAii_
             End Do    ! iGrid
 *
  99         Continue
@@ -464,7 +475,7 @@
      &                     DAii,DBii,
      &                     mAO,TabAO1,iBas,iBas_Eff,iCmp,
      &                     Fact,T_X,TMax_ii,Index_i)
-      use nq_Grid, only: Rho, Sigma
+      use nq_Grid, only: Rho, Sigma, Lapl
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
       Real*8 DAii(iBas*iCmp,iBas*iCmp), DBii(iBas*iCmp,iBas*iCmp),
@@ -521,6 +532,10 @@
      &                       + dRhoX_B**2
      &                       + dRhoY_B**2
      &                       + dRhoZ_B**2
+               Lapl(1,iGrid)=Lapl(1,iGrid)
+     &                     +(Prod_22+Prod_33+Prod_44)*DAii_
+               Lapl(2,iGrid)=Lapl(2,iGrid)
+     &                     +(Prod_22+Prod_33+Prod_44)*DBii_
             End Do    ! iGrid
          End If
 *
@@ -576,6 +591,10 @@
      &                       + dRhoX_B**2
      &                       + dRhoY_B**2
      &                       + dRhoZ_B**2
+               Lapl(1,iGrid)=Lapl(1,iGrid)
+     &                     +(Prod_22+Prod_33+Prod_44)*DAij_
+               Lapl(2,iGrid)=Lapl(2,iGrid)
+     &                     +(Prod_22+Prod_33+Prod_44)*DBij_
             End Do    ! iGrid
 *
  99         Continue
