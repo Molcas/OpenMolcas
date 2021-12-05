@@ -11,7 +11,7 @@
 * Copyright (C) Per Ake Malmqvist                                      *
 *               Ajitha Devarajan                                       *
 ************************************************************************
-      Subroutine LYP(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Subroutine LYP(mGrid,dF_dRho,ndF_dRho,
      &               Coeff,iSpin,F_xc,T_X)
 ************************************************************************
 *                                                                      *
@@ -25,12 +25,12 @@
 *              and adopt for closed shell case                         *
 ************************************************************************
       use KSDFT_Info, only: tmpB
+      use nq_Grid, only: Rho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
 #include "ksdft.fh"
-      Real*8 dF_dRho(ndF_dRho,mGrid),Rho(nRho,mGrid),F_xc(mGrid)
-cGLM     &               F_xca(mGrid),F_xcb(mGrid),tmpB(mGrid)
+      Real*8 dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
 *
       data Cfconst / 2.8712340001881918D0 /
       data aconst,bconst,cconst,dconst

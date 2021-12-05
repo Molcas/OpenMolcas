@@ -45,7 +45,7 @@
 *---- Lee-Yang-Parr Correlation
 *
       Coeff=One*CoefR
-      Call LYP(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Call LYP(mGrid,dF_dRho,ndF_dRho,
      &         Coeff,iSpin,F_xc,T_X)
 *                                                                      *
 ************************************************************************
