@@ -17,4 +17,8 @@ Real*8, Allocatable:: Rho(:,:)
 Integer :: nRho=0
 Real*8, Allocatable:: Sigma(:,:)
 Integer :: nSigma=0
+Real*8, Allocatable:: Lapl(:,:)
+Integer :: nLapl=0
+Real*8, Allocatable:: Tau(:,:)
+Integer :: nTau=0
 End Module nq_Grid
