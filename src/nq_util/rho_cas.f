@@ -278,7 +278,8 @@ c Avoid unused argument warnings
                dRhoX=(Prod_21+Prod_12)*DAij_
                dRhoY=(Prod_31+Prod_13)*DAij_
                dRhoZ=(Prod_41+Prod_14)*DAij_
-               Sigma(1,iGrid)=dRhoX**2+dRhoY**2+dRhoZ**2
+               Sigma(1,iGrid)=Sigma(1,iGrid)
+     &                       +dRhoX**2+dRhoY**2+dRhoZ**2
             End Do    ! iGrid
 *
  99         Continue
@@ -348,11 +349,14 @@ c Avoid unused argument warnings
                dRhoX_B=(Prod_21+Prod_12)*DBij_
                dRhoY_B=(Prod_31+Prod_13)*DBij_
                dRhoZ_B=(Prod_41+Prod_14)*DBij_
-               Sigma(1,iGrid)=dRhoX_A**2+dRhoY_A**2+dRhoZ_A**2
-               Sigma(2,iGrid)=dRhoX_A*dRhoX_B
+               Sigma(1,iGrid)=Sigma(1,iGrid)
+     &                       +dRhoX_A**2+dRhoY_A**2+dRhoZ_A**2
+               Sigma(2,iGrid)=Sigma(2,iGrid)
+     &                       +dRhoX_A*dRhoX_B
      &                       +dRhoY_A*dRhoY_B
      &                       +dRhoZ_A*dRhoZ_B
-               Sigma(3,iGrid)=dRhoX_B**2+dRhoY_B**2+dRhoZ_B**2
+               Sigma(3,iGrid)=Sigma(3,iGrid)
+     &                       +dRhoX_B**2+dRhoY_B**2+dRhoZ_B**2
 
             End Do    ! iGrid
 *
@@ -400,10 +404,11 @@ c Avoid unused argument warnings
                Rho(5,iGrid)= Rho(5,iGrid)
      &                     + (Prod_55+Prod_88+Prod_10)*DAii_
 
-               dRhoX=Two*Prod_21*DAij_
-               dRhoY=Two*Prod_31*DAij_
-               dRhoZ=Two*Prod_41*DAij_
-               Sigma(1,iGrid)=dRhoX**2+dRhoY**2+dRhoZ**2
+               dRhoX=Two*Prod_21*DAii_
+               dRhoY=Two*Prod_31*DAii_
+               dRhoZ=Two*Prod_41*DAii_
+               Sigma(1,iGrid)=Sigma(1,iGrid)
+     &                       +dRhoX**2+dRhoY**2+dRhoZ**2
             End Do    ! iGrid
          End If
 *
@@ -435,7 +440,8 @@ c Avoid unused argument warnings
                dRhoX=(Prod_21+Prod_12)*DAij_
                dRhoY=(Prod_31+Prod_13)*DAij_
                dRhoZ=(Prod_41+Prod_14)*DAij_
-               Sigma(1,iGrid)=dRhoX**2+dRhoY**2+dRhoZ**2
+               Sigma(1,iGrid)=Sigma(1,iGrid)
+     &                       +dRhoX**2+dRhoY**2+dRhoZ**2
             End Do    ! iGrid
 *
  99         Continue
@@ -490,17 +496,20 @@ c Avoid unused argument warnings
                Rho(10,iGrid)= Rho(10,iGrid)
      &                      + (Prod_55+Prod_88+Prod_10)*DBii_
 
-               dRhoX_A=Two*Prod_21*DAij_
-               dRhoY_A=Two*Prod_31*DAij_
-               dRhoZ_A=Two*Prod_41*DAij_
-               dRhoX_B=Two*Prod_21*DBij_
-               dRhoY_B=Two*Prod_31*DBij_
-               dRhoZ_B=Two*Prod_41*DBij_
-               Sigma(1,iGrid)=dRhoX_A**2+dRhoY_A**2+dRhoZ_A**2
-               Sigma(2,iGrid)=dRhoX_A*dRhoX_B
+               dRhoX_A=Two*Prod_21*DAii_
+               dRhoY_A=Two*Prod_31*DAii_
+               dRhoZ_A=Two*Prod_41*DAii_
+               dRhoX_B=Two*Prod_21*DBii_
+               dRhoY_B=Two*Prod_31*DBii_
+               dRhoZ_B=Two*Prod_41*DBii_
+               Sigma(1,iGrid)=Sigma(1,iGrid)
+     &                       +dRhoX_A**2+dRhoY_A**2+dRhoZ_A**2
+               Sigma(2,iGrid)=Sigma(2,iGrid)
+     &                       +dRhoX_A*dRhoX_B
      &                       +dRhoY_A*dRhoY_B
      &                       +dRhoZ_A*dRhoZ_B
-               Sigma(3,iGrid)=dRhoX_B**2+dRhoY_B**2+dRhoZ_B**2
+               Sigma(3,iGrid)=Sigma(3,iGrid)
+     &                       +dRhoX_B**2+dRhoY_B**2+dRhoZ_B**2
             End Do    ! iGrid
          End If
 *
@@ -543,11 +552,14 @@ c Avoid unused argument warnings
                dRhoX_B=(Prod_21+Prod_12)*DBij_
                dRhoY_B=(Prod_31+Prod_13)*DBij_
                dRhoZ_B=(Prod_41+Prod_14)*DBij_
-               Sigma(1,iGrid)=dRhoX_A**2+dRhoY_A**2+dRhoZ_A**2
-               Sigma(2,iGrid)=dRhoX_A*dRhoX_B
+               Sigma(1,iGrid)=Sigma(1,iGrid)
+     &                       +dRhoX_A**2+dRhoY_A**2+dRhoZ_A**2
+               Sigma(2,iGrid)=Sigma(2,iGrid)
+     &                       +dRhoX_A*dRhoX_B
      &                       +dRhoY_A*dRhoY_B
      &                       +dRhoZ_A*dRhoZ_B
-               Sigma(3,iGrid)=dRhoX_B**2+dRhoY_B**2+dRhoZ_B**2
+               Sigma(3,iGrid)=Sigma(3,iGrid)
+     &                       +dRhoX_B**2+dRhoY_B**2+dRhoZ_B**2
             End Do    ! iGrid
 *
  99         Continue
