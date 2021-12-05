@@ -19,7 +19,7 @@
 ************************************************************************
       use iSD_data
       use k2_arrays, only: DeDe, ipDijS
-      use nq_Grid, only: Rho, Sigma, Lapl
+      use nq_Grid, only: Rho, Sigma, Lapl, Tau
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
@@ -58,6 +58,7 @@
 *
       Rho(:,1:mGrid)=Zero
       Sigma(:,1:mGrid)=Zero
+      Tau(:,1:mGrid)=Zero
       Lapl(:,1:mGrid)=Zero
 *                                                                      *
 ************************************************************************
@@ -230,7 +231,7 @@
      &                    mAO,TabAO1,iBas,iBas_Eff,iCmp,
      &                        TabAO2,jBas,jBas_Eff,jCmp,
      &                    Fact,T_X,TMax_ij,Index_i,Index_j)
-      use nq_Grid, only: Rho, Sigma, Lapl
+      use nq_Grid, only: Rho, Sigma, Lapl, Tau
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -289,8 +290,12 @@
      &                      +RhoX**2
      &                      +RhoY**2
      &                      +RhoZ**2
-              Lapl(1,iGrid)=Lapl(1,iGrid)
+              Tau(1,iGrid)=Tau(1,iGrid)
      &                     +(Prod_22+Prod_33+Prod_44)*DAij_
+              Lapl(1,iGrid)=Lapl(1,iGrid)
+     &                    + (Prod_1X
+     &                    + Two*(Prod_22+Prod_33+Prod_44)
+     &                    + Prod_X1) *DAij_
             End Do    ! iGrid
 *
  99         Continue
@@ -305,7 +310,7 @@
      &                    mAO,TabAO1,iBas,iBas_Eff,iCmp,
      &                        TabAO2,jBas,jBas_Eff,jCmp,
      &                    Fact,T_X,TMax_ij,Index_i,Index_j)
-      use nq_Grid, only: Rho, Sigma, Lapl
+      use nq_Grid, only: Rho, Sigma, Lapl, Tau
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -385,10 +390,18 @@
      &                      +RhoX_B**2
      &                      +RhoY_B**2
      &                      +RhoZ_B**2
-              Lapl(1,iGrid)=Lapl(1,iGrid)
+              Tau(1,iGrid)=Tau(1,iGrid)
      &                     +(Prod_22+Prod_33+Prod_44)*DAij_
-              Lapl(2,iGrid)=Lapl(2,iGrid)
+              Tau(2,iGrid)=Tau(2,iGrid)
      &                     +(Prod_22+Prod_33+Prod_44)*DBij_
+              Lapl(1,iGrid)=Lapl(1,iGrid)
+     &                    + (Prod_1X
+     &                    + Two*(Prod_22+Prod_33+Prod_44)
+     &                    + Prod_X1) *DAij_
+              Lapl(2,iGrid)=Lapl(2,iGrid)
+     &                    + (Prod_1X
+     &                    + Two*(Prod_22+Prod_33+Prod_44)
+     &                    + Prod_X1) *DBij_
             End Do    ! iGrid
 *
  99         Continue
@@ -402,7 +415,7 @@
      &                    DAii,
      &                    mAO,TabAO1,iBas,iBas_Eff,iCmp,
      &                    Fact,T_X,TMax_ii,Index_i)
-      use nq_Grid, only: Rho, Sigma, Lapl
+      use nq_Grid, only: Rho, Sigma, Lapl, Tau
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -452,8 +465,12 @@
      &                      +RhoX**2
      &                      +RhoY**2
      &                      +RhoZ**2
-              Lapl(1,iGrid)=Lapl(1,iGrid)
+              Tau(1,iGrid)=Tau(1,iGrid)
      &                     +(Prod_22+Prod_33+Prod_44)*DAii_
+              Lapl(1,iGrid)=Lapl(1,iGrid)
+     &                    + (Prod_1X
+     &                    + Two*(Prod_22+Prod_33+Prod_44)
+     &                    + Prod_X1) *DAii_
             End Do    ! iGrid
          End If
 *
@@ -501,8 +518,12 @@
      &                      +RhoX**2
      &                      +RhoY**2
      &                      +RhoZ**2
-              Lapl(1,iGrid)=Lapl(1,iGrid)
+              Tau(1,iGrid)=Tau(1,iGrid)
      &                     +(Prod_22+Prod_33+Prod_44)*DAij_
+              Lapl(1,iGrid)=Lapl(1,iGrid)
+     &                    + (Prod_1X
+     &                    + Two*(Prod_22+Prod_33+Prod_44)
+     &                    + Prod_X1) *DAij_
             End Do    ! iGrid
 *
  99         Continue
@@ -516,7 +537,7 @@
      &                     DAii,DBii,
      &                     mAO,TabAO1,iBas,iBas_Eff,iCmp,
      &                     Fact,T_X,TMax_ii,Index_i)
-      use nq_Grid, only: Rho, Sigma, Lapl
+      use nq_Grid, only: Rho, Sigma, Lapl, Tau
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -588,10 +609,18 @@
      &                      +RhoX_B**2
      &                      +RhoY_B**2
      &                      +RhoZ_B**2
-              Lapl(1,iGrid)=Lapl(1,iGrid)
+              Tau(1,iGrid)=Tau(1,iGrid)
      &                     +(Prod_22+Prod_33+Prod_44)*DAii_
-              Lapl(1,iGrid)=Lapl(1,iGrid)
+              Tau(2,iGrid)=Tau(2,iGrid)
      &                     +(Prod_22+Prod_33+Prod_44)*BAii_
+              Lapl(1,iGrid)=Lapl(1,iGrid)
+     &                    + (Prod_1X
+     &                    + Two*(Prod_22+Prod_33+Prod_44)
+     &                    + Prod_X1) *DAii_
+              Lapl(2,iGrid)=Lapl(2,iGrid)
+     &                    + (Prod_1X
+     &                    + Two*(Prod_22+Prod_33+Prod_44)
+     &                    + Prod_X1) *DBii_
             End Do    ! iGrid
          End If
 *
@@ -661,10 +690,18 @@
      &                      +RhoX_B**2
      &                      +RhoY_B**2
      &                      +RhoZ_B**2
-              Lapl(1,iGrid)=Lapl(1,iGrid)
+              Tau(1,iGrid)=Tau(1,iGrid)
      &                     +(Prod_22+Prod_33+Prod_44)*DAii_
-              Lapl(1,iGrid)=Lapl(1,iGrid)
+              Tau(2,iGrid)=Tau(2,iGrid)
      &                     +(Prod_22+Prod_33+Prod_44)*BAii_
+              Lapl(1,iGrid)=Lapl(1,iGrid)
+     &                    + (Prod_1X
+     &                    + Two*(Prod_22+Prod_33+Prod_44)
+     &                    + Prod_X1) *DAii_
+              Lapl(2,iGrid)=Lapl(2,iGrid)
+     &                    + (Prod_1X
+     &                    + Two*(Prod_22+Prod_33+Prod_44)
+     &                    + Prod_X1) *DBii_
             End Do    ! iGrid
 *
  99         Continue
