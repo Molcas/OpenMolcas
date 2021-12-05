@@ -28,7 +28,7 @@
       use KSDFT_Info, only: KSDFA
       use nq_Grid, only: Rho, Sigma, Tau, Lapl
       use nq_Grid, only: Grid, Weights
-      use nq_Grid, only: nRho, nGridMax, nSigma
+      use nq_Grid, only: nRho, nTau, nSigma, nLapl, nGridMax
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "real.fh"
@@ -214,7 +214,7 @@
 *        rho(alpha). In case of open-shell calculations we also
 *        need rho(beta).
 *
-         nDG_dRho=nD
+         ndF_dRho=nD
          nP2_ontop=1
          ndF_dP2ontop=1
 *                                                                      *
@@ -270,8 +270,8 @@
          nRho=5*nD
 *        nRho=nD
          nSigma=nD*(nD+1)/2
-         nLabl=0
-         nTau=nD
+         nLabl=nD
+         nTau=0
          mdRho_dR=0
          If (Do_Grad) mdRho_dR=nRho
 *
