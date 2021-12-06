@@ -397,7 +397,7 @@ cGLM            kAO   = iCmp*iBas_Eff*mGrid
 *
          Call Rho_LDA(Dens,nDens,nD,mGrid,
      &                list_s,nlist_s,TabAO,ipTabAO,mAO,nTabAO,nSym,
-     &                Work(ip_Fact),ndc,Work(ipTabAOMax),
+     &                Work(ip_Fact),ndc,
      &                list_bas,Index,nIndex)
 *
          If (Do_Grad)
@@ -774,7 +774,7 @@ C    &                         list_bas,Index,nIndex)
 *
          Call Rho_GGA(Dens,nDens,nD,mGrid,
      &                list_s,nlist_s,TabAO,ipTabAO,mAO,nTabAO,nSym,
-     &                Work(ip_Fact),ndc,Work(ipTabAOMax),
+     &                Work(ip_Fact),ndc,
      &                list_bas,Index,nIndex)
 *
          If (Do_Grad)
@@ -1580,7 +1580,7 @@ C    &                       list_bas,Index,nIndex)
 *
          Call Rho_CAS(Dens,nDens,nD,mGrid,
      &                list_s,nlist_s,TabAO,ipTabAO,mAO,nTabAO,nSym,
-     &                Work(ip_Fact),ndc,Work(ipTabAOMax),
+     &                Work(ip_Fact),ndc,
      &                list_bas,Index,nIndex)
 *
 C        If (Do_Grad)
@@ -1608,7 +1608,7 @@ C    &                       list_bas,Index,nIndex)
 *
          Call Rho_meta_GGA1(nD,mGrid,
      &                     list_s,nlist_s,TabAO,ipTabAO,mAO,nTabAO,
-     &                     Work(ip_Fact),ndc,Work(ipTabAOMax),
+     &                     Work(ip_Fact),ndc,
      &                     list_bas,Index,nIndex)
 *
          If (Do_Grad)
@@ -1624,7 +1624,7 @@ C    &                       list_bas,Index,nIndex)
 *
          Call Rho_meta_GGA2(nD,mGrid,
      &                     list_s,nlist_s,TabAO,ipTabAO,mAO,nTabAO,
-     &                     Work(ip_Fact),ndc,Work(ipTabAOMax),
+     &                     Work(ip_Fact),ndc,
      &                     list_bas,Index,nIndex)
 *
          If (Do_Grad)
@@ -1837,7 +1837,7 @@ cGLM     write(6,*) 'Func in do_batch =', Func
      &                      FckInt,nFckInt,SOTemp,nSOTemp,
      &                      TabAO,ipTabAO,nTabAO,dF_dRho,ndF_dRho,
      &                      nSym,nD,Flop,Rho,nRho,Work(ipTmp),nTmp,
-     &                      Work(ip_Fact),ndc,mAO,Work(ipTabAOMax),T_Y,
+     &                      Work(ip_Fact),ndc,mAO,
      &                      list_bas,Functional_type,nAOMax)
              End If
            End If
@@ -1944,14 +1944,14 @@ cGLM     write(6,*) 'Func in do_batch =', Func
 !     &                      FckInt,nFckInt,SOTemp,nSOTemp,
 !     &                      TabAO,ipTabAO,nTabAO,dF_dRho,ndF_dRho,
 !     &                      nSym,nD,Flop,Rho,nRho,Work(ipTmp),nTmp,
-!     &                      Work(ip_Fact),ndc,mAO,Work(ipTabAOMax),T_Y,
+!     &                      Work(ip_Fact),ndc,mAO,
 !     &                      list_bas,Functional_type,nAOMax)
              If(.not.l_casdft) then
                Call DFT_Int(Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                      FckInt,nFckInt,SOTemp,nSOTemp,
      &                      TabAO,ipTabAO,nTabAO,dF_dRho,ndF_dRho,
      &                      nSym,nD,Flop,Rho,nRho,Work(ipTmp),nTmp,
-     &                      Work(ip_Fact),ndc,mAO,Work(ipTabAOMax),T_Y,
+     &                      Work(ip_Fact),ndc,mAO,
      &                      list_bas,Functional_type,nAOMax)
              end if
            End If
@@ -1980,7 +1980,7 @@ cGLM     write(6,*) 'Func in do_batch =', Func
      &                 FckInt,nFckInt,SOTemp,nSOTemp,
      &                 TabAO,ipTabAO,nTabAO,dF_dRho,ndF_dRho,
      &                 nSym,nD,Flop,Rho,nRho,Work(ipTmp),nTmp,
-     &                 Work(ip_Fact),ndc,mAO,Work(ipTabAOMax),T_Y,
+     &                 Work(ip_Fact),ndc,mAO,
      &                 list_bas,Functional_type,nAOMax)
 *                                                                      *
 ************************************************************************
