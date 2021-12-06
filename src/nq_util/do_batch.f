@@ -796,10 +796,11 @@ C    &                         list_bas,Index,nIndex)
      &                       Work(ip_Fact),ndc,Work(ipTmp),T_X,
      &                       list_bas,Index,nIndex)
 
+*======================================================================*
+*======================================================================*
 ************************************************************************
 * TBLYP,TPBE,TREVPBE,TSSBSW,TSSBD,TS12G                                *
 ************************************************************************
-
       if(KSDFA(1:5).eq.'TBLYP'.or. !GLM
      &   KSDFA(1:4).eq.'TPBE'.or.
      &   KSDFA(1:6).eq.'TSSBSW'.or.
@@ -899,8 +900,8 @@ c             pi_p_z = (1.0d0 - zeta**2.0d0)*dTot*grad_z/2.0d0
 c              write(6,*) 'P2_p-pi_p =', P2_ontop(2,iGrid+1)-pi_p_x,
 c     &        P2_ontop(3,iGrid+1)-pi_p_y, P2_ontop(4,iGrid+1)-pi_p_z
 *              write(6,*) 'Old Rho = ',
-*     &        Rho(3,iGrid+1),Rho(4,iGrid+1),Rho(5,iGrid+1),
-*     &        Rho(6,iGrid+1),Rho(7,iGrid+1),Rho(8,iGrid+1)
+*     &        GradRho(1,iGrid+1),GradRho(2,iGrid+1),GradRho(3,iGrid+1),
+*     &        GradRho(4,iGrid+1),GradRho(5,iGrid+1),GradRho(6,iGrid+1)
         if(l_tanhr) then
           GradRho(1,iGrid+1)= (1.0d0+Zeta)*grad_x/2.0d0
      &    + ((ratio**2.0d0 - 1.0d0)
@@ -953,7 +954,7 @@ c
         end if ! End tanh option
 *              write(6,*) 'New Rho = ',
 *     &        GradRho(1,iGrid+1),GradRho(2,iGrid+1),GradRho(3,iGrid+1),
-*     &        GradRho(4,iGrid+1),GradRho(4,iGrid+1),GradRho(6,iGrid+1)
+*     &        GradRho(4,iGrid+1),GradRho(5,iGrid+1),GradRho(6,iGrid+1)
            else
              Zeta  = 0.0d0
 c             pi_p_x = (1.0d0 - zeta**2.0d0)*dTot*grad_x/2.0d0
@@ -1095,6 +1096,8 @@ c         write(6,*)'X Y Z spinDens and grad aft on-top density'
 *         end do
       end if
 *     ^ End if over GLM stuff
+*======================================================================*
+*======================================================================*
 ************************************************************************
 * FTBLYP,FTPBE,FTREVPBE                                                *
 ************************************************************************
@@ -1578,6 +1581,8 @@ cGLM        if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
         end do!gridpt
        end if!
        end if
+*======================================================================*
+*======================================================================*
 C        If (Do_Hess)
 C    &      Call dRho_dR_GGA(Dens,nDens,nD,dRho_dR,d2Rho_dR2,
 C    &                       ndRho_dr,mGrid,list_s,nlist_s,
@@ -1587,7 +1592,7 @@ C    &                       Grid_Type,Fixed_Grid,
 C    &                       Work(ip_Fact),ndc,Work(ipTmp),T_X,
 C    &                       list_bas,Index,nIndex)
 
-      Rho(3:3+nD*3-1,:) = GradRho(1:nD*3,:)
+      If (l_casdft) Then
       If (nD.eq.1) Then
          Rho(3,:) = GradRho(1,:)
          Rho(4,:) = GradRho(2,:)
@@ -1615,6 +1620,7 @@ C    &                       list_bas,Index,nIndex)
      &                    +GradRho(5,iGrid)**2
      &                    +GradRho(6,iGrid)**2
          End Do
+      End If
       End If
 *                                                                      *
 ************************************************************************
