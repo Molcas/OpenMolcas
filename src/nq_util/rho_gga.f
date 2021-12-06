@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine Rho_GGA(Dens,nDens,nD,mGrid,
      &                   list_s,nlist_s,TabAO,ipTabAO,mAO,nTabAO,nSym,
-     &                   Fact,mdc,TabAOMax,list_bas,Index,nIndex)
+     &                   Fact,mdc,list_bas,Index,nIndex)
 ************************************************************************
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN.  2000                                   *
@@ -29,8 +29,7 @@
 #include "setup.fh"
       Integer list_s(2,nlist_s), ipTabAO(nlist_s), list_bas(2,nlist_s),
      &        Index(nIndex)
-      Real*8 Dens(nDens,nD), Fact(mdc**2),
-     &       TabAO(nTabAO), TabAOMax(nlist_s)
+      Real*8 Dens(nDens,nD), Fact(mdc**2), TabAO(nTabAO)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -69,10 +68,6 @@
          iCmp  = iSD( 2,iSkal)
          iBas  = iSD( 3,iSkal)
          iBas_Eff=list_bas(1,ilist_s)
-         ix = iDAMax_(mAO*mGrid*iBas_Eff*iCmp,TabAO(ipTabAO(iList_s)),1)
-         TabAOMax(ilist_s)=Abs(TabAO(ipTabAO(ilist_s)-1+ix))
-         TMax_i=TabAOMax(ilist_s)
-         If (TMax_i.le.T_X) Go To 999
          kDCRE=list_s(2,ilist_s)
          index_i=list_bas(2,ilist_s)
          mdci  = iSD(10,iSkal)
@@ -82,8 +77,6 @@
          Do jlist_s=1,ilist_s
             Fij=Two
             If (jlist_s.eq.ilist_s) Fij=One
-            TMax_j=TabAOMax(jlist_s)
-            If (TMax_i*TMax_j.lt.T_X) Go To 998
             jSkal = list_s(1,jlist_s)
             kDCRR=list_s(2,jlist_s)
             jCmp  = iSD( 2,jSkal)
@@ -119,16 +112,6 @@
             ip_D_b=ip_D_a
             If (nD.ne.1) ip_D_b=ipDSij+lDCRER*mDij
 *
-            If (nD.ne.1) Then
-               ix=iDAMax_(mDij,DeDe(ip_D_a),1)
-               iy=iDAMax_(mDij,DeDe(ip_D_b),1)
-               DMax_ij=Half*( Abs(DeDe(ip_D_a-1+ix))
-     &                       +Abs(DeDe(ip_D_b-1+iy)) )
-            Else
-               ix=iDAMax_(mDij,DeDe(ip_D_b),1)
-               DMax_ij=Abs(DeDe(ip_D_a-1+ix))
-            End If
-            If (TMax_i*TMax_j*DMax_ij.lt.T_X) Go To 998
 #ifdef _DEBUGPRINT_
             If (Debug) Then
                Write (6,*) 'Rho_GGA'
@@ -149,14 +132,14 @@
      &                       DeDe(ip_D_a),                  mAO,
      &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
      &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
-     &                       Fact(ij)*Fij,T_X,TMax_i*TMax_j,
+     &                       Fact(ij)*Fij,
      &                       Index(index_i),Index(index_j))
                Else
                Call Do_Rho8a(mGrid,
      &                       DeDe(ip_D_a),                  mAO,
      &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
      &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
-     &                       Fact(ij)*Fij,T_X,TMax_i*TMax_j,
+     &                       Fact(ij)*Fij,
      &                       Index(index_i),Index(index_j))
                End If
             Else
@@ -165,21 +148,19 @@
      &                       DeDe(ip_D_a),DeDe(ip_D_b),     mAO,
      &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
      &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
-     &                       Fact(ij)*Fij,T_X,TMax_i*TMax_j,
+     &                       Fact(ij)*Fij,
      &                       Index(index_i),Index(index_j))
                Else
                Call Do_Rho8_(mGrid,
      &                       DeDe(ip_D_a),DeDe(ip_D_b),     mAO,
      &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
      &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
-     &                       Fact(ij)*Fij,T_X,TMax_i*TMax_j,
+     &                       Fact(ij)*Fij,
      &                       Index(index_i),Index(index_j))
                End If
             End If
 *
- 998        Continue
          End Do                      ! jlist_s
- 999     Continue
       End Do                         ! ilist_s
 
       If (nD.eq.1) Then
@@ -212,7 +193,7 @@ c Avoid unused argument warnings
      &                    DAij,
      &                    mAO,TabAO1,iBas,iBas_Eff,iCmp,
      &                        TabAO2,jBas,jBas_Eff,jCmp,
-     &                    Fact,T_X,TMax_ij,Index_i,Index_j)
+     &                    Fact,Index_i,Index_j)
       use nq_Grid, only: Rho, GradRho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
@@ -232,7 +213,6 @@ c Avoid unused argument warnings
             iCB = Index_i(iCB_Eff)
 *
             DAij_=DAij(iCB,jCB)*Fact
-            If (TMax_ij*Abs(DAij_).lt.T_X) Go To 99
 *
             Do iGrid = 1, mGrid
                Prod_11=TabAO1(1,iGrid,iCB_Eff)*TabAO2(1,iGrid,jCB_Eff)
@@ -256,8 +236,6 @@ c Avoid unused argument warnings
      &                         + (Prod_41+Prod_14)*DAij_
             End Do    ! iGrid
 *
- 99         Continue
-*
          End Do          ! iCB
       End Do             ! jCB
 *
@@ -267,7 +245,7 @@ c Avoid unused argument warnings
      &                    DAij,DBij,
      &                    mAO,TabAO1,iBas,iBas_Eff,iCmp,
      &                        TabAO2,jBas,jBas_Eff,jCmp,
-     &                    Fact,T_X,TMax_ij,Index_i,Index_j)
+     &                    Fact,Index_i,Index_j)
       use nq_Grid, only: Rho, GradRho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
@@ -287,8 +265,6 @@ c Avoid unused argument warnings
 *
             DAij_=DAij(iCB,jCB)*Fact
             DBij_=DBij(iCB,jCB)*Fact
-            Dij_ =Half*(Abs(DAij_)+Abs(DBij_))
-            If (TMax_ij*Abs(Dij_).lt.T_X) Go To 99
 *
             Do iGrid = 1, mGrid
                Prod_11=TabAO1(1,iGrid,iCB_Eff)*TabAO2(1,iGrid,jCB_Eff)
@@ -321,8 +297,6 @@ c Avoid unused argument warnings
                GradRho(6,iGrid)=GradRho(6,iGrid)
      &                         + (Prod_41+Prod_14)*DBij_
             End Do    ! iGrid
-*
- 99         Continue
 *
          End Do          ! iCB
       End Do             ! jCB
