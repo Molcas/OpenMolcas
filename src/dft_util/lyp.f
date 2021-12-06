@@ -25,7 +25,7 @@
 *              and adopt for closed shell case                         *
 ************************************************************************
       use KSDFT_Info, only: tmpB
-      use nq_Grid, only: Rho
+      use nq_Grid, only: Rho, Sigma
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
@@ -52,22 +52,10 @@
 *                                                                      *
       Do iGrid = 1, mGrid
 *
-      rhoa=Rho(ipR,iGrid)
+      rhoa=Rho(1,iGrid)
       rhob=rhoa
       rho_tot=rhoa+rhob
       if(rho_tot.lt.T_X) Go To 101
-
-      gxa=Rho(ipdRx,iGrid)
-      gya=Rho(ipdRy,iGrid)
-      gza=Rho(ipdRz,iGrid)
-      gxb=gxa
-      gyb=gya
-      gzb=gza
-
-* New LYP code.
-      gx=gxa+gxb
-      gy=gya+gyb
-      gz=gza+gzb
 
       rho3=rho_tot**(-1.0D0/3.D0)
       crho3=cconst*rho3
@@ -95,7 +83,7 @@
       ec2=tmp1+tmp2
       dec2dra=(ec2*dlogodr)+(11.D0*tmp1+3.D0*tmp2)/(3.D0*rhoa)
       dec2drb=(ec2*dlogodr)+(3.D0*tmp1+11.D0*tmp2)/(3.D0*rhob)
-      sa=gxa**2+gya**2+gza**2
+      sa=Sigma(1,iGrid)
       sb=sa
       s =4.D0*sa
       pp=-p*rhoa*rhob/(18.D0*rho_tot)
@@ -167,23 +155,13 @@
 *         write(6,*) 'mGrid',mGrid
 *         write(6,*) 'Rho_min',Rho_min
       Do iGrid = 1, mGrid
-      rhoa=Max(Rho_min,Rho(ipRa,iGrid))
-      rhob=Max(Rho_min,Rho(ipRb,iGrid))
+      rhoa=Max(Rho_min,Rho(1,iGrid))
+      rhob=Max(Rho_min,Rho(2,iGrid))
       rho_tot=rhoa+rhob
 *         if(iGrid.le.10) then
 *           write(6,*) rhoa, rhob, rho_tot
 *         end if
       if(rho_tot.lt.T_X) Go To 201
-      gxa=Rho(ipdRxa,iGrid)
-      gya=Rho(ipdRya,iGrid)
-      gza=Rho(ipdRza,iGrid)
-      gxb=Rho(ipdRxb,iGrid)
-      gyb=Rho(ipdRyb,iGrid)
-      gzb=Rho(ipdRzb,iGrid)
-
-      gx=gxa+gxb
-      gy=gya+gyb
-      gz=gza+gzb
 
       rho3=rho_tot**(-1.0D0/3.D0)
       crho3=cconst*rho3
@@ -214,9 +192,10 @@
       dec2drb=(ec2*dlogodr)+(3.D0*tmp1+11.D0*tmp2)
      &       /(3.D0*Max(rhob,0.5D-50))
 
-      sa=gxa**2+gya**2+gza**2
-      sb=gxb**2+gyb**2+gzb**2
-      s =gx**2+gy**2+gz**2
+      sa=Sigma(1,iGrid)
+      sb=Sigma(3,iGrid)
+      s = sa + sb + Two*Sigma(2,iGrid)
+
       pp=-p*rhoa*rhob/(18.D0*rho_tot)
       dppdra=((dlogodr-1.D0/rho_tot)+1.D0/Max(rhoa,0.5D-50))*pp
       dppdrb=((dlogodr-1.D0/rho_tot)+1.D0/Max(rhob,0.5D-50))*pp

@@ -28,7 +28,7 @@
 *---- Dirac exchange (Slater)                                          *
 *                                                                      *
       Coeff=0.70D+00
-      Call DiracX(mGrid,Rho,nRho,iSpin,F_xc,
+      Call DiracX(mGrid,iSpin,F_xc,
      &            dF_dRho,ndF_dRho,Coeff,T_X)
 *                                                                      *
 ************************************************************************
