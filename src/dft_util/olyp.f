@@ -33,7 +33,7 @@
 *---- Dirac Exchange with OLYP factor!
 *
       Coeff= 1.051510d0*CoefX
-      Call Diracx(mGrid,Rho,nRho,iSpin,F_xc,
+      Call Diracx(mGrid,iSpin,F_xc,
      &            dF_dRho,ndF_dRho,Coeff,T_X)
 *
 *---- OPTX Exchange
