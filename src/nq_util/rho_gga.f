@@ -79,50 +79,9 @@
          iShell= iSD(11,iSkal)
          nFunc_i=iBas*iCmp
 *
-         mDij=nFunc_i*nFunc_i
-*
-*------- Get the Density
-*
-         ijS=iTri(iShell,iShell)
-         ip_Tmp=ipDijs
-         Call Dens_Info(ijS,ipDij,ipDSij,mDCRij,ipDDij,ip_Tmp,nD)
-*
-         ij = (mdci-1)*mdc + mdci
-*
-         iER=iEOr(kDCRE,kDCRE)
-         lDCRER=NrOpr(iER)
-*
-         ip_D_a=ipDij+lDCRER*mDij
-         ip_D_b=ip_D_a
-         If (nD.ne.1) ip_D_b=ipDSij+lDCRER*mDij
-*
-         If (nD.ne.1) Then
-            ix=iDAMax_(mDij,DeDe(ip_D_a),1)
-            iy=iDAMax_(mDij,DeDe(ip_D_b),1)
-            DMax_ii=Half*( Abs(DeDe(ip_D_a-1+ix))
-     &                    +Abs(DeDe(ip_D_b-1+iy)) )
-         Else
-            ix=iDAMax_(mDij,DeDe(ip_D_a),1)
-            DMax_ii=Abs(DeDe(ip_D_a-1+ix))
-         End If
-         If (TMax_i*TMax_i*DMax_ii.ge.T_X) Then
-            If (nD.eq.1) Then
-               Call Do_Rho8a_d(mGrid,
-     &                         DeDe(ip_D_a),mAO,TabAO(ipTabAO(iList_s)),
-     &                         iBas,iBas_Eff,iCmp,
-     &                         Fact(ij),T_X,TMax_i*TMax_i,
-     &                         Index(index_i))
-            Else
-               Call Do_Rho8_d(mGrid,
-     &                        DeDe(ip_D_a),DeDe(ip_D_b),mAO,
-     &                        TabAO(ipTabAO(iList_s)),
-     &                        iBas,iBas_Eff,iCmp,
-     &                        Fact(ij),T_X,TMax_i*TMax_i,Index(index_i))
-            End If
-         End If
-
-*
-         Do jlist_s=1,ilist_s-1
+         Do jlist_s=1,ilist_s
+            Fij=Two
+            If (jlist_s.eq.ilist_s) Fij=One
             TMax_j=TabAOMax(jlist_s)
             If (TMax_i*TMax_j.lt.T_X) Go To 998
             jSkal = list_s(1,jlist_s)
@@ -190,14 +149,14 @@
      &                       DeDe(ip_D_a),                  mAO,
      &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
      &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
-     &                       Fact(ij)*Two,T_X,TMax_i*TMax_j,
+     &                       Fact(ij)*Fij,T_X,TMax_i*TMax_j,
      &                       Index(index_i),Index(index_j))
                Else
                Call Do_Rho8a(mGrid,
      &                       DeDe(ip_D_a),                  mAO,
      &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
      &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
-     &                       Fact(ij)*Two,T_X,TMax_i*TMax_j,
+     &                       Fact(ij)*Fij,T_X,TMax_i*TMax_j,
      &                       Index(index_i),Index(index_j))
                End If
             Else
@@ -206,14 +165,14 @@
      &                       DeDe(ip_D_a),DeDe(ip_D_b),     mAO,
      &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
      &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
-     &                       Fact(ij)*Two,T_X,TMax_i*TMax_j,
+     &                       Fact(ij)*Fij,T_X,TMax_i*TMax_j,
      &                       Index(index_i),Index(index_j))
                Else
                Call Do_Rho8_(mGrid,
      &                       DeDe(ip_D_a),DeDe(ip_D_b),     mAO,
      &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
      &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
-     &                       Fact(ij)*Two,T_X,TMax_i*TMax_j,
+     &                       Fact(ij)*Fij,T_X,TMax_i*TMax_j,
      &                       Index(index_i),Index(index_j))
                End If
             End If
@@ -361,160 +320,6 @@ c Avoid unused argument warnings
      &                         + (Prod_31+Prod_13)*DBij_
                GradRho(6,iGrid)=GradRho(6,iGrid)
      &                         + (Prod_41+Prod_14)*DBij_
-            End Do    ! iGrid
-*
- 99         Continue
-*
-         End Do          ! iCB
-      End Do             ! jCB
-*
-      Return
-      End
-      Subroutine Do_Rho8a_d(mGrid,
-     &                    DAii,
-     &                    mAO,TabAO1,iBas,iBas_Eff,iCmp,
-     &                    Fact,T_X,TMax_ii,Index_i)
-      use nq_Grid, only: Rho, GradRho
-      Implicit Real*8 (A-H,O-Z)
-#include "real.fh"
-#include "WrkSpc.fh"
-      Real*8 DAii(iBas*iCmp,iBas*iCmp),
-     &       TabAO1(mAO,mGrid,iBas_Eff*iCmp)
-      Integer Index_i(iBas_Eff*iCmp)
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Do jCB_Eff = 1, iBas_Eff*iCmp
-         jCB=Index_i(jCB_Eff)
-*
-         DAii_=DAii(jCB,jCB)*Fact
-         If (TMax_ii*Abs(DAii_).ge.T_X) Then
-            Do iGrid = 1, mGrid
-               Prod_11=TabAO1(1,iGrid,jCB_Eff)*TabAO1(1,iGrid,jCB_Eff)
-               Prod_21=TabAO1(2,iGrid,jCB_Eff)*TabAO1(1,iGrid,jCB_Eff)
-               Prod_31=TabAO1(3,iGrid,jCB_Eff)*TabAO1(1,iGrid,jCB_Eff)
-               Prod_41=TabAO1(4,iGrid,jCB_Eff)*TabAO1(1,iGrid,jCB_Eff)
-*
-               Rho(1,iGrid)=Rho(1,iGrid) +     Prod_11*DAii_
-               Rho(2,iGrid)=Rho(2,iGrid) + Two*Prod_21*DAii_
-               Rho(3,iGrid)=Rho(3,iGrid) + Two*Prod_31*DAii_
-               Rho(4,iGrid)=Rho(4,iGrid) + Two*Prod_41*DAii_
-
-               GradRho(1,iGrid)=GradRho(1,iGrid) + Two*Prod_21*DAii_
-               GradRho(2,iGrid)=GradRho(2,iGrid) + Two*Prod_31*DAii_
-               GradRho(3,iGrid)=GradRho(3,iGrid) + Two*Prod_41*DAii_
-            End Do    ! iGrid
-         End If
-*
-         Do iCB_Eff = 1, jCB_Eff-1
-            iCB=Index_i(iCB_Eff)
-*
-            DAij_=DAii(iCB,jCB)*Fact*Two
-            If (TMax_ii*Abs(DAij_).lt.T_X) Go To 99
-*
-            Do iGrid = 1, mGrid
-               Prod_11=TabAO1(1,iGrid,iCB_Eff)*TabAO1(1,iGrid,jCB_Eff)
-               Prod_21=TabAO1(2,iGrid,iCB_Eff)*TabAO1(1,iGrid,jCB_Eff)
-               Prod_12=TabAO1(1,iGrid,iCB_Eff)*TabAO1(2,iGrid,jCB_Eff)
-               Prod_31=TabAO1(3,iGrid,iCB_Eff)*TabAO1(1,iGrid,jCB_Eff)
-               Prod_13=TabAO1(1,iGrid,iCB_Eff)*TabAO1(3,iGrid,jCB_Eff)
-               Prod_41=TabAO1(4,iGrid,iCB_Eff)*TabAO1(1,iGrid,jCB_Eff)
-               Prod_14=TabAO1(1,iGrid,iCB_Eff)*TabAO1(4,iGrid,jCB_Eff)
-*
-               Rho(1,iGrid)=Rho(1,iGrid) +     Prod_11      *DAij_
-               Rho(2,iGrid)=Rho(2,iGrid) + (Prod_21+Prod_12)*DAij_
-               Rho(3,iGrid)=Rho(3,iGrid) + (Prod_31+Prod_13)*DAij_
-               Rho(4,iGrid)=Rho(4,iGrid) + (Prod_41+Prod_14)*DAij_
-
-               GradRho(1,iGrid)=GradRho(1,iGrid)+(Prod_21+Prod_12)*DAij_
-               GradRho(2,iGrid)=GradRho(2,iGrid)+(Prod_31+Prod_13)*DAij_
-               GradRho(3,iGrid)=GradRho(3,iGrid)+(Prod_41+Prod_14)*DAij_
-            End Do    ! iGrid
-*
- 99         Continue
-*
-         End Do          ! iCB
-      End Do             ! jCB
-*
-      Return
-      End
-      Subroutine Do_Rho8_d(mGrid,
-     &                     DAii,DBii,
-     &                     mAO,TabAO1,iBas,iBas_Eff,iCmp,
-     &                     Fact,T_X,TMax_ii,Index_i)
-      use nq_Grid, only: Rho, GradRho
-      Implicit Real*8 (A-H,O-Z)
-#include "real.fh"
-#include "WrkSpc.fh"
-      Real*8 DAii(iBas*iCmp,iBas*iCmp), DBii(iBas*iCmp,iBas*iCmp),
-     &       TabAO1(mAO,mGrid,iBas_Eff*iCmp)
-      Integer Index_i(iBas_Eff*iCmp)
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Do jCB_Eff = 1, iBas_Eff*iCmp
-         jCB=Index_i(jCB_Eff)
-*
-         DAii_=DAii(jCB,jCB)*Fact
-         DBii_=DBii(jCB,jCB)*Fact
-         Dii_ =Half*(Abs(DAii_)+Abs(DBii_))
-         If (TMax_ii*Abs(Dii_).ge.T_X) Then
-            Do iGrid = 1, mGrid
-               Prod_11=TabAO1(1,iGrid,jCB_Eff)*TabAO1(1,iGrid,jCB_Eff)
-               Prod_21=TabAO1(2,iGrid,jCB_Eff)*TabAO1(1,iGrid,jCB_Eff)
-               Prod_31=TabAO1(3,iGrid,jCB_Eff)*TabAO1(1,iGrid,jCB_Eff)
-               Prod_41=TabAO1(4,iGrid,jCB_Eff)*TabAO1(1,iGrid,jCB_Eff)
-*
-               Rho(1,iGrid)=Rho(1,iGrid) +     Prod_11*DAii_
-               Rho(2,iGrid)=Rho(2,iGrid) +     Prod_11*DBii_
-               Rho(3,iGrid)=Rho(3,iGrid) + Two*Prod_21*DAii_
-               Rho(4,iGrid)=Rho(4,iGrid) + Two*Prod_31*DAii_
-               Rho(5,iGrid)=Rho(5,iGrid) + Two*Prod_41*DAii_
-               Rho(6,iGrid)=Rho(6,iGrid) + Two*Prod_21*DBii_
-               Rho(7,iGrid)=Rho(7,iGrid) + Two*Prod_31*DBii_
-               Rho(8,iGrid)=Rho(8,iGrid) + Two*Prod_41*DBii_
-
-               GradRho(1,iGrid)=GradRho(1,iGrid) + Two*Prod_21*DAii_
-               GradRho(2,iGrid)=GradRho(2,iGrid) + Two*Prod_31*DAii_
-               GradRho(3,iGrid)=GradRho(3,iGrid) + Two*Prod_41*DAii_
-               GradRho(4,iGrid)=GradRho(4,iGrid) + Two*Prod_21*DBii_
-               GradRho(5,iGrid)=GradRho(5,iGrid) + Two*Prod_31*DBii_
-               GradRho(6,iGrid)=GradRho(6,iGrid) + Two*Prod_41*DBii_
-            End Do    ! iGrid
-         End If
-*
-         Do iCB_Eff = 1, jCB_Eff-1
-            iCB=Index_i(iCB_Eff)
-*
-            DAij_=DAii(iCB,jCB)*Fact*Two
-            DBij_=DBii(iCB,jCB)*Fact*Two
-            Dij_ =Half*(Abs(DAij_)+Abs(DBij_))
-            If (TMax_ii*Abs(Dij_).lt.T_X ) Go To 99
-*
-            Do iGrid = 1, mGrid
-               Prod_11= TabAO1(1,iGrid,iCB_Eff)*TabAO1(1,iGrid,jCB_Eff)
-               Prod_21= TabAO1(2,iGrid,iCB_Eff)*TabAO1(1,iGrid,jCB_Eff)
-               Prod_12= TabAO1(1,iGrid,iCB_Eff)*TabAO1(2,iGrid,jCB_Eff)
-               Prod_31= TabAO1(3,iGrid,iCB_Eff)*TabAO1(1,iGrid,jCB_Eff)
-               Prod_13= TabAO1(1,iGrid,iCB_Eff)*TabAO1(3,iGrid,jCB_Eff)
-               Prod_41= TabAO1(4,iGrid,iCB_Eff)*TabAO1(1,iGrid,jCB_Eff)
-               Prod_14= TabAO1(1,iGrid,iCB_Eff)*TabAO1(4,iGrid,jCB_Eff)
-*
-               Rho(1,iGrid)=Rho(1,iGrid) +     Prod_11      *DAij_
-               Rho(2,iGrid)=Rho(2,iGrid) +     Prod_11      *DBij_
-               Rho(3,iGrid)=Rho(3,iGrid) + (Prod_21+Prod_12)*DAij_
-               Rho(4,iGrid)=Rho(4,iGrid) + (Prod_31+Prod_13)*DAij_
-               Rho(5,iGrid)=Rho(5,iGrid) + (Prod_41+Prod_14)*DAij_
-               Rho(6,iGrid)=Rho(6,iGrid) + (Prod_21+Prod_12)*DBij_
-               Rho(7,iGrid)=Rho(7,iGrid) + (Prod_31+Prod_13)*DBij_
-               Rho(8,iGrid)=Rho(8,iGrid) + (Prod_41+Prod_14)*DBij_
-
-               GradRho(1,iGrid)=GradRho(1,iGrid)+(Prod_21+Prod_12)*DAij_
-               GradRho(2,iGrid)=GradRho(2,iGrid)+(Prod_31+Prod_13)*DAij_
-               GradRho(3,iGrid)=GradRho(3,iGrid)+(Prod_41+Prod_14)*DAij_
-               GradRho(4,iGrid)=GradRho(4,iGrid)+(Prod_21+Prod_12)*DBij_
-               GradRho(5,iGrid)=GradRho(5,iGrid)+(Prod_31+Prod_13)*DBij_
-               GradRho(6,iGrid)=GradRho(6,iGrid)+(Prod_41+Prod_14)*DBij_
             End Do    ! iGrid
 *
  99         Continue
