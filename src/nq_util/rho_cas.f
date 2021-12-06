@@ -193,6 +193,8 @@ c Avoid unused argument warnings
          Do iCB_Eff = 1, iBas_Eff*iCmp
             iCB = Index_i(iCB_Eff)
 *
+            DAij_=DAij(iCB,jCB)*Fact
+*
             Do iGrid = 1, mGrid
                Prod_11=TabAO1(1,iGrid,iCB_Eff)*TabAO2(1,iGrid,jCB_Eff)
                Prod_21=TabAO1(2,iGrid,iCB_Eff)*TabAO2(1,iGrid,jCB_Eff)
