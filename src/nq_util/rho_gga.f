@@ -19,7 +19,7 @@
 ************************************************************************
       use iSD_data
       use k2_arrays, only: DeDe, ipDijS
-      use nq_Grid, only: Rho, Sigma
+      use nq_Grid, only: Rho, GradRho, Sigma
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
@@ -59,6 +59,7 @@
 #endif
 *
       Rho(:,1:mGrid)=Zero
+      GradRho(:,1:mGrid)=Zero
       Sigma(:,1:mGrid)=Zero
 *                                                                      *
 ************************************************************************
@@ -221,6 +222,26 @@
          End Do                      ! jlist_s
  999     Continue
       End Do                         ! ilist_s
+
+      If (nD.eq.1) Then
+         Do iGrid=1, mGrid
+            Sigma(1,iGrid)=GradRho(1,iGrid)**2
+     &                    +GradRho(2,iGrid)**2
+     &                    +GradRho(3,iGrid)**2
+         End Do
+      Else
+         Do iGrid=1, mGrid
+            Sigma(1,iGrid)=GradRho(1,iGrid)**2
+     &                    +GradRho(2,iGrid)**2
+     &                    +GradRho(3,iGrid)**2
+            Sigma(2,iGrid)=GradRho(1,iGrid)*GradRho(4,iGrid)
+     &                    +GradRho(2,iGrid)*GradRho(5,iGrid)
+     &                    +GradRho(3,iGrid)*GradRho(6,iGrid)
+            Sigma(3,iGrid)=GradRho(4,iGrid)**2
+     &                    +GradRho(5,iGrid)**2
+     &                    +GradRho(6,iGrid)**2
+         End Do
+      End If
 *
 c Avoid unused argument warnings
       If (.False.) Call Unused_real_array(Dens)
@@ -233,7 +254,7 @@ c Avoid unused argument warnings
      &                    mAO,TabAO1,iBas,iBas_Eff,iCmp,
      &                        TabAO2,jBas,jBas_Eff,jCmp,
      &                    Fact,T_X,TMax_ij,Index_i,Index_j)
-      use nq_Grid, only: Rho, Sigma
+      use nq_Grid, only: Rho, GradRho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -268,10 +289,12 @@ c Avoid unused argument warnings
                Rho(3,iGrid)=Rho(3,iGrid) + (Prod_31+Prod_13)*DAij_
                Rho(4,iGrid)=Rho(4,iGrid) + (Prod_41+Prod_14)*DAij_
 
-               dRhoX=(Prod_21+Prod_12)*DAij_
-               dRhoY=(Prod_31+Prod_13)*DAij_
-               dRhoZ=(Prod_41+Prod_14)*DAij_
-               Sigma(1,iGrid)=dRhoX**2+dRhoY**2+dRhoZ**2
+               GradRho(1,iGrid)=GradRho(1,iGrid)
+     &                         + (Prod_21+Prod_12)*DAij_
+               GradRho(2,iGrid)=GradRho(2,iGrid)
+     &                         + (Prod_31+Prod_13)*DAij_
+               GradRho(3,iGrid)=GradRho(3,iGrid)
+     &                         + (Prod_41+Prod_14)*DAij_
             End Do    ! iGrid
 *
  99         Continue
@@ -286,7 +309,7 @@ c Avoid unused argument warnings
      &                    mAO,TabAO1,iBas,iBas_Eff,iCmp,
      &                        TabAO2,jBas,jBas_Eff,jCmp,
      &                    Fact,T_X,TMax_ij,Index_i,Index_j)
-      use nq_Grid, only: Rho, Sigma
+      use nq_Grid, only: Rho, GradRho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -326,17 +349,18 @@ c Avoid unused argument warnings
                Rho(7,iGrid)=Rho(7,iGrid) + (Prod_31+Prod_13)*DBij_
                Rho(8,iGrid)=Rho(8,iGrid) + (Prod_41+Prod_14)*DBij_
 
-               dRhoX_A=(Prod_21+Prod_12)*DAij_
-               dRhoY_A=(Prod_31+Prod_13)*DAij_
-               dRhoZ_A=(Prod_41+Prod_14)*DAij_
-               dRhoX_B=(Prod_21+Prod_12)*DBij_
-               dRhoY_B=(Prod_31+Prod_13)*DBij_
-               dRhoZ_B=(Prod_41+Prod_14)*DBij_
-               Sigma(1,iGrid)=dRhoX_A**2+dRhoY_A**2+dRhoZ_A**2
-               Sigma(2,iGrid)=dRhoX_A*dRhoX_B
-     &                       +dRhoY_A*dRhoY_B
-     &                       +dRhoZ_A*dRhoZ_B
-               Sigma(3,iGrid)=dRhoX_B**2+dRhoY_B**2+dRhoZ_B**2
+               GradRho(1,iGrid)=GradRho(1,iGrid)
+     &                         + (Prod_21+Prod_12)*DAij_
+               GradRho(2,iGrid)=GradRho(2,iGrid)
+     &                         + (Prod_31+Prod_13)*DAij_
+               GradRho(3,iGrid)=GradRho(3,iGrid)
+     &                         + (Prod_41+Prod_14)*DAij_
+               GradRho(4,iGrid)=GradRho(4,iGrid)
+     &                         + (Prod_21+Prod_12)*DBij_
+               GradRho(5,iGrid)=GradRho(5,iGrid)
+     &                         + (Prod_31+Prod_13)*DBij_
+               GradRho(6,iGrid)=GradRho(6,iGrid)
+     &                         + (Prod_41+Prod_14)*DBij_
             End Do    ! iGrid
 *
  99         Continue
@@ -350,7 +374,7 @@ c Avoid unused argument warnings
      &                    DAii,
      &                    mAO,TabAO1,iBas,iBas_Eff,iCmp,
      &                    Fact,T_X,TMax_ii,Index_i)
-      use nq_Grid, only: Rho, Sigma
+      use nq_Grid, only: Rho, GradRho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -376,10 +400,9 @@ c Avoid unused argument warnings
                Rho(3,iGrid)=Rho(3,iGrid) + Two*Prod_31*DAii_
                Rho(4,iGrid)=Rho(4,iGrid) + Two*Prod_41*DAii_
 
-               dRhoX=Two*Prod_21*DAii_
-               dRhoY=Two*Prod_31*DAii_
-               dRhoZ=Two*Prod_41*DAii_
-               Sigma(1,iGrid)=dRhoX**2+dRhoY**2+dRhoZ**2
+               GradRho(1,iGrid)=GradRho(1,iGrid) + Two*Prod_21*DAii_
+               GradRho(2,iGrid)=GradRho(2,iGrid) + Two*Prod_31*DAii_
+               GradRho(3,iGrid)=GradRho(3,iGrid) + Two*Prod_41*DAii_
             End Do    ! iGrid
          End If
 *
@@ -403,10 +426,9 @@ c Avoid unused argument warnings
                Rho(3,iGrid)=Rho(3,iGrid) + (Prod_31+Prod_13)*DAij_
                Rho(4,iGrid)=Rho(4,iGrid) + (Prod_41+Prod_14)*DAij_
 
-               dRhoX=(Prod_21+Prod_12)*DAij_
-               dRhoY=(Prod_31+Prod_13)*DAij_
-               dRhoZ=(Prod_41+Prod_14)*DAij_
-               Sigma(1,iGrid)=dRhoX**2+dRhoY**2+dRhoZ**2
+               GradRho(1,iGrid)=GradRho(1,iGrid)+(Prod_21+Prod_12)*DAij_
+               GradRho(2,iGrid)=GradRho(2,iGrid)+(Prod_31+Prod_13)*DAij_
+               GradRho(3,iGrid)=GradRho(3,iGrid)+(Prod_41+Prod_14)*DAij_
             End Do    ! iGrid
 *
  99         Continue
@@ -420,7 +442,7 @@ c Avoid unused argument warnings
      &                     DAii,DBii,
      &                     mAO,TabAO1,iBas,iBas_Eff,iCmp,
      &                     Fact,T_X,TMax_ii,Index_i)
-      use nq_Grid, only: Rho, Sigma
+      use nq_Grid, only: Rho, GradRho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -452,17 +474,12 @@ c Avoid unused argument warnings
                Rho(7,iGrid)=Rho(7,iGrid) + Two*Prod_31*DBii_
                Rho(8,iGrid)=Rho(8,iGrid) + Two*Prod_41*DBii_
 
-               dRhoX_A=Two*Prod_21*DAii_
-               dRhoY_A=Two*Prod_31*DAii_
-               dRhoZ_A=Two*Prod_41*DAii_
-               dRhoX_B=Two*Prod_21*DBii_
-               dRhoY_B=Two*Prod_31*DBii_
-               dRhoZ_B=Two*Prod_41*DBii_
-               Sigma(1,iGrid)=dRhoX_A**2+dRhoY_A**2+dRhoZ_A**2
-               Sigma(2,iGrid)=dRhoX_A*dRhoX_B
-     &                       +dRhoY_A*dRhoY_B
-     &                       +dRhoZ_A*dRhoZ_B
-               Sigma(3,iGrid)=dRhoX_B**2+dRhoY_B**2+dRhoZ_B**2
+               GradRho(1,iGrid)=GradRho(1,iGrid) + Two*Prod_21*DAii_
+               GradRho(2,iGrid)=GradRho(2,iGrid) + Two*Prod_31*DAii_
+               GradRho(3,iGrid)=GradRho(3,iGrid) + Two*Prod_41*DAii_
+               GradRho(4,iGrid)=GradRho(4,iGrid) + Two*Prod_21*DBii_
+               GradRho(5,iGrid)=GradRho(5,iGrid) + Two*Prod_31*DBii_
+               GradRho(6,iGrid)=GradRho(6,iGrid) + Two*Prod_41*DBii_
             End Do    ! iGrid
          End If
 *
@@ -492,17 +509,12 @@ c Avoid unused argument warnings
                Rho(7,iGrid)=Rho(7,iGrid) + (Prod_31+Prod_13)*DBij_
                Rho(8,iGrid)=Rho(8,iGrid) + (Prod_41+Prod_14)*DBij_
 
-               dRhoX_A=(Prod_21+Prod_12)*DAij_
-               dRhoY_A=(Prod_31+Prod_13)*DAij_
-               dRhoZ_A=(Prod_41+Prod_14)*DAij_
-               dRhoX_B=(Prod_21+Prod_12)*DBij_
-               dRhoY_B=(Prod_31+Prod_13)*DBij_
-               dRhoZ_B=(Prod_41+Prod_14)*DBij_
-               Sigma(1,iGrid)=dRhoX_A**2+dRhoY_A**2+dRhoZ_A**2
-               Sigma(2,iGrid)=dRhoX_A*dRhoX_B
-     &                       +dRhoY_A*dRhoY_B
-     &                       +dRhoZ_A*dRhoZ_B
-               Sigma(3,iGrid)=dRhoX_B**2+dRhoY_B**2+dRhoZ_B**2
+               GradRho(1,iGrid)=GradRho(1,iGrid)+(Prod_21+Prod_12)*DAij_
+               GradRho(2,iGrid)=GradRho(2,iGrid)+(Prod_31+Prod_13)*DAij_
+               GradRho(3,iGrid)=GradRho(3,iGrid)+(Prod_41+Prod_14)*DAij_
+               GradRho(4,iGrid)=GradRho(4,iGrid)+(Prod_21+Prod_12)*DBij_
+               GradRho(5,iGrid)=GradRho(5,iGrid)+(Prod_31+Prod_13)*DBij_
+               GradRho(6,iGrid)=GradRho(6,iGrid)+(Prod_41+Prod_14)*DBij_
             End Do    ! iGrid
 *
  99         Continue

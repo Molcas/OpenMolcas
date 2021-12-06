@@ -26,9 +26,9 @@
       use iSD_data
       use Symmetry_Info, only: nIrrep
       use KSDFT_Info, only: KSDFA
-      use nq_Grid, only: Rho, Sigma, Tau, Lapl
+      use nq_Grid, only: Rho, GradRho, Sigma, Tau, Lapl
       use nq_Grid, only: Grid, Weights
-      use nq_Grid, only: nRho, nTau, nSigma, nLapl, nGridMax
+      use nq_Grid, only: nRho, nGradRho, nTau, nSigma, nLapl, nGridMax
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "real.fh"
@@ -207,6 +207,7 @@
          mdRho_dr=0
          If (Do_Grad) mdRho_dr=nRho
          nSigma=0
+         nGradTho=0
          nLabl=0
          nTau=0
 *
@@ -236,6 +237,7 @@
          nRho=4*nD
 *        nRho=nD
          nSigma=nD*(nD+1)/2
+         nGradRho=nD*3
          mdRho_dR=0
          If (Do_Grad) mdRho_dR=nRho
 *
@@ -270,6 +272,7 @@
          nRho=5*nD
 *        nRho=nD
          nSigma=nD*(nD+1)/2
+         nGradRho=nD*3
          nLabl=0
          nTau=nD
          mdRho_dR=0
@@ -307,6 +310,7 @@
          nRho=6*nD
 *        nRho=nD
          nSigma=nD*(nD+1)/2
+         nGradRho=nD*3
          nTau=nD
          nLapl=nD
          mdRho_dR=0
@@ -340,6 +344,7 @@
          nRho=4*nD
 *        nRho=nD
          nSigma=nD*(nD+1)/2
+         nGradRho=nD*3
          nTau=0
          nLapl=0
          mdRho_dR=0
@@ -377,6 +382,8 @@
       Call mma_allocate(Rho,nRho,nGridMax,Label='Rho')
       If (nSigma.ne.0) Call mma_Allocate(Sigma,nSigma,nGridMax,
      &                                   Label='Sigma')
+      If (nGradRho.ne.0) Call mma_Allocate(GradRho,nGradRho,nGridMax,
+     &                                   Label='GradRho')
       If (nTau.ne.0) Call mma_allocate(Tau,nTau,nGridMax,
      &                                 Label='Tau')
       If (nLapl.ne.0) Call mma_allocate(Lapl,nLapl,nGridMax,
@@ -594,6 +601,7 @@ c     Call GetMem('tmpB','Allo','Real',ip_tmpB,nGridMax)
 *
       If (Allocated(Lapl)) Call mma_deallocate(Lapl)
       If (Allocated(Tau)) Call mma_deallocate(Tau)
+      If (Allocated(GradRho)) Call mma_deallocate(GradRho)
       If (Allocated(Sigma)) Call mma_deallocate(Sigma)
       Call mma_deallocate(Rho)
 
