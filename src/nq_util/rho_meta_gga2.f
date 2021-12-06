@@ -19,7 +19,7 @@
 ************************************************************************
       use iSD_data
       use k2_arrays, only: DeDe, ipDijS
-      use nq_Grid, only: Rho, Sigma, Lapl, Tau
+      use nq_Grid, only: Rho, GradRho, Sigma, Lapl, Tau
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
@@ -57,6 +57,7 @@
 #endif
 *
       Rho(:,1:mGrid)=Zero
+      GradRho(:,1:mGrid)=Zero
       Sigma(:,1:mGrid)=Zero
       Tau(:,1:mGrid)=Zero
       Lapl(:,1:mGrid)=Zero
@@ -163,6 +164,26 @@
          End Do                      ! jlist_s
       End Do                         ! ilist_s
 *
+      If (nD.eq.1) Then
+         Do iGrid=1, mGrid
+            Sigma(1,iGrid)=GradRho(1,iGrid)**2
+     &                    +GradRho(2,iGrid)**2
+     &                    +GradRho(3,iGrid)**2
+         End Do
+      Else
+         Do iGrid=1, mGrid
+            Sigma(1,iGrid)=GradRho(1,iGrid)**2
+     &                    +GradRho(2,iGrid)**2
+     &                    +GradRho(3,iGrid)**2
+            Sigma(2,iGrid)=GradRho(1,iGrid)*GradRho(4,iGrid)
+     &                    +GradRho(2,iGrid)*GradRho(5,iGrid)
+     &                    +GradRho(3,iGrid)*GradRho(6,iGrid)
+            Sigma(3,iGrid)=GradRho(4,iGrid)**2
+     &                    +GradRho(5,iGrid)**2
+     &                    +GradRho(6,iGrid)**2
+         End Do
+      End If
+*
       Return
       End
       Subroutine Do_Rho9a(mGrid,
@@ -170,7 +191,7 @@
      &                    mAO,TabAO1,iBas,iBas_Eff,iCmp,
      &                        TabAO2,jBas,jBas_Eff,jCmp,
      &                    Fact,Index_i,Index_j)
-      use nq_Grid, only: Rho, Sigma, Lapl, Tau
+      use nq_Grid, only: Rho, GradRho, Lapl, Tau
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -221,19 +242,15 @@
      &                     + Two*(Prod_22+Prod_33+Prod_44)
      &                                   +  Prod_X1) *DAij_
 
-              RhoX=(Prod_21+Prod_12)*DAij_
-              RhoY=(Prod_31+Prod_13)*DAij_
-              RhoZ=(Prod_41+Prod_14)*DAij_
-              Sigma(1,iGrid)=Sigma(1,iGrid)
-     &                      +RhoX**2
-     &                      +RhoY**2
-     &                      +RhoZ**2
-              Tau(1,iGrid)=Tau(1,iGrid)
+               GradRho(1,iGrid)=GradRho(1,iGrid)+(Prod_21+Prod_12)*DAij_
+               GradRho(2,iGrid)=GradRho(2,iGrid)+(Prod_31+Prod_13)*DAij_
+               GradRho(3,iGrid)=GradRho(3,iGrid)+(Prod_41+Prod_14)*DAij_
+               Tau(1,iGrid)=Tau(1,iGrid)
      &                     +(Prod_22+Prod_33+Prod_44)*DAij_
-              Lapl(1,iGrid)=Lapl(1,iGrid)
-     &                    + (Prod_1X
-     &                    + Two*(Prod_22+Prod_33+Prod_44)
-     &                    + Prod_X1) *DAij_
+               Lapl(1,iGrid)=Lapl(1,iGrid)
+     &                      + (Prod_1X
+     &                      + Two*(Prod_22+Prod_33+Prod_44)
+     &                      + Prod_X1) *DAij_
             End Do    ! iGrid
 *
          End Do          ! iCB
@@ -246,7 +263,7 @@
      &                    mAO,TabAO1,iBas,iBas_Eff,iCmp,
      &                        TabAO2,jBas,jBas_Eff,jCmp,
      &                    Fact,Index_i,Index_j)
-      use nq_Grid, only: Rho, Sigma, Lapl, Tau
+      use nq_Grid, only: Rho, GradRho, Lapl, Tau
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -306,36 +323,24 @@
      &                     + Two*(Prod_22+Prod_33+Prod_44)
      &                                   +  Prod_X1) *DBij_
 
-              RhoX_A=(Prod_21+Prod_12)*DAij_
-              RhoY_A=(Prod_31+Prod_13)*DAij_
-              RhoZ_A=(Prod_41+Prod_14)*DAij_
-              RhoX_A=(Prod_21+Prod_12)*DBij_
-              RhoY_A=(Prod_31+Prod_13)*DBij_
-              RhoZ_A=(Prod_41+Prod_14)*DBij_
-              Sigma(1,iGrid)=Sigma(1,iGrid)
-     &                      +RhoX_A**2
-     &                      +RhoY_A**2
-     &                      +RhoZ_A**2
-              Sigma(2,iGrid)=Sigma(2,iGrid)
-     &                      +RhoX_A*RhoX_A
-     &                      +RhoY_A*RhoY_A
-     &                      +RhoZ_A*RhoZ_A
-              Sigma(3,iGrid)=Sigma(3,iGrid)
-     &                      +RhoX_B**2
-     &                      +RhoY_B**2
-     &                      +RhoZ_B**2
-              Tau(1,iGrid)=Tau(1,iGrid)
+               GradRho(1,iGrid)=GradRho(1,iGrid)+(Prod_21+Prod_12)*DAij_
+               GradRho(2,iGrid)=GradRho(2,iGrid)+(Prod_31+Prod_13)*DAij_
+               GradRho(3,iGrid)=GradRho(3,iGrid)+(Prod_41+Prod_14)*DAij_
+               GradRho(4,iGrid)=GradRho(4,iGrid)+(Prod_21+Prod_12)*DBij_
+               GradRho(5,iGrid)=GradRho(5,iGrid)+(Prod_31+Prod_13)*DBij_
+               GradRho(6,iGrid)=GradRho(6,iGrid)+(Prod_41+Prod_14)*DBij_
+               Tau(1,iGrid)=Tau(1,iGrid)
      &                     +(Prod_22+Prod_33+Prod_44)*DAij_
-              Tau(2,iGrid)=Tau(2,iGrid)
+               Tau(2,iGrid)=Tau(2,iGrid)
      &                     +(Prod_22+Prod_33+Prod_44)*DBij_
-              Lapl(1,iGrid)=Lapl(1,iGrid)
-     &                    + (Prod_1X
-     &                    + Two*(Prod_22+Prod_33+Prod_44)
-     &                    + Prod_X1) *DAij_
-              Lapl(2,iGrid)=Lapl(2,iGrid)
-     &                    + (Prod_1X
-     &                    + Two*(Prod_22+Prod_33+Prod_44)
-     &                    + Prod_X1) *DBij_
+               Lapl(1,iGrid)=Lapl(1,iGrid)
+     &                      + (Prod_1X
+     &                      + Two*(Prod_22+Prod_33+Prod_44)
+     &                      + Prod_X1) *DAij_
+               Lapl(2,iGrid)=Lapl(2,iGrid)
+     &                      + (Prod_1X
+     &                      + Two*(Prod_22+Prod_33+Prod_44)
+     &                      + Prod_X1) *DBij_
             End Do    ! iGrid
 *
          End Do          ! iCB
