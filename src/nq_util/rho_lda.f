@@ -84,49 +84,9 @@
          index_i=list_bas(2,ilist_s)
          nFunc_i=iBas*iCmp
 *
-         mDij=nFunc_i*nFunc_i
-*
-*------- Get the Density
-*
-         ijS=iTri(iShell,iShell)
-         ip_Tmp=ipDijs
-         Call Dens_Info(ijS,ipDij,ipDSij,mDCRij,ipDDij,ip_Tmp,nD)
-*
-         ij = (mdci-1)*mdc + mdci
-*
-         iER=iEOr(kDCRE,kDCRE)
-         lDCRER=NrOpr(iER)
-*
-         ip_D_a=ipDij+lDCRER*mDij
-         ip_D_b=ip_D_a
-         If (nD.ne.1) ip_D_b=ipDSij+lDCRER*mDij
-*
-         If (nD.ne.1) Then
-            ix=iDAMax_(mDij,DeDe(ip_D_a),1)
-            iy=iDAMax_(mDij,DeDe(ip_D_b),1)
-            DMax_ii=Half*( Abs(DeDe(ip_D_a-1+ix))
-     &                    +Abs(DeDe(ip_D_b-1+iy)) )
-         Else
-            ix=iDAMax_(mDij,DeDe(ip_D_a),1)
-            DMax_ii=Abs(DeDe(ip_D_a-1+ix))
-         End If
-         If (TMax_i*TMax_i*DMax_ii.ge.T_X) Then
-            If (nD.eq.1) Then
-               Call Do_Rho2a_d(mGrid,
-     &                         DeDe(ip_D_a),     mAO,
-     &                         TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,
-     &                         iCmp,Fact(ij),T_X,TMax_i*TMax_i,
-     &                         Index(index_i))
-            Else
-               Call Do_Rho2_d(mGrid,
-     &                        DeDe(ip_D_a),DeDe(ip_D_b),     mAO,
-     &                        TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,
-     &                        iCmp,Fact(ij),T_X,TMax_i*TMax_i,
-     &                        Index(index_i))
-            End If
-         End If
-*
-         Do jlist_s=1,ilist_s-1
+         Do jlist_s=1,ilist_s
+            Fij = Two
+            If (jList_s.eq.ilist_s) Fij=One
             TMax_j=TabAOMax(jlist_s)
             If (TMax_i*TMax_j.lt.T_X) Go To 998
             jSkal = list_s(1,jlist_s)
@@ -193,7 +153,7 @@
      &                       DeDe(ip_D_a),     mAO,
      &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
      &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
-     &                       Fact(ij)*Two,T_X,TMax_i*TMax_j,
+     &                       Fact(ij)*Fij,T_X,TMax_i*TMax_j,
      &                       Index(index_i),Index(index_j))
 *
                Else
@@ -202,7 +162,7 @@
      &                       DeDe(ip_D_a),     mAO,
      &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
      &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
-     &                       Fact(ij)*Two,T_X,TMax_i*TMax_j,
+     &                       Fact(ij)*Fij,T_X,TMax_i*TMax_j,
      &                       Index(index_i),Index(index_j))
 *
                End If
@@ -215,7 +175,7 @@
      &                       DeDe(ip_D_a),DeDe(ip_D_b),     mAO,
      &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
      &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
-     &                       Fact(ij)*Two,T_X,TMax_i*TMax_j,
+     &                       Fact(ij)*Fij,T_X,TMax_i*TMax_j,
      &                       Index(index_i),Index(index_j))
 *
                Else
@@ -224,7 +184,7 @@
      &                       DeDe(ip_D_a),DeDe(ip_D_b),     mAO,
      &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
      &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
-     &                       Fact(ij)*Two,T_X,TMax_i*TMax_j,
+     &                       Fact(ij)*Fij,T_X,TMax_i*TMax_j,
      &                       Index(index_i),Index(index_j))
 *
                End If
@@ -325,106 +285,6 @@ c Avoid unused argument warnings
 *
             Do iGrid = 1, mGrid
                Prod_ij=TabAO1(1,iGrid,iCB_Eff)*TabAO2(1,iGrid,jCB_Eff)
-               Rho(1,iGrid)=Rho(1,iGrid)+Prod_ij*DAij_
-               Rho(2,iGrid)=Rho(2,iGrid)+Prod_ij*DBij_
-            End Do    ! iGrid
-*
- 99         Continue
-*
-         End Do          ! iCB
-      End Do             ! jCB
-*
-      Return
-      End
-
-
-
-
-      Subroutine Do_Rho2a_d(mGrid,DAii,
-     &                      mAO,TabAO1,iBas,iBas_Eff,iCmp,
-     &                      Fact,T_X,TMax_ii,Index_i)
-      use nq_grid, only: Rho
-      Implicit Real*8 (A-H,O-Z)
-#include "real.fh"
-#include "WrkSpc.fh"
-#include "debug.fh"
-      Real*8 DAii(iBas*iCmp,iBas*iCmp),
-     &       TabAO1(mAO,mGrid,iBas_Eff*iCmp)
-      Integer Index_i(iBas_Eff*iCmp)
-*                                                                      *
-************************************************************************
-*                                                                      *
-#ifdef _TIME_
-#endif
-      Do jCB_Eff = 1, iBas_Eff*iCmp
-         jCB = Index_i(jCB_Eff)
-*
-         DAjj_=DAii(jCB,jCB)*Fact
-         If (TMax_ii*Abs(DAjj_).ge.T_X) Then
-            Do iGrid = 1, mGrid
-               Prod_jj=TabAO1(1,iGrid,jCB_Eff)*TabAO1(1,iGrid,jCB_Eff)
-               Rho(1,iGrid)=Rho(1,iGrid)+Prod_jj*DAjj_
-            End Do    ! iGrid
-         End If
-*
-         Do iCB_Eff = 1, jCB_Eff-1
-            iCB = Index_i(iCB_Eff)
-*
-            DAij_=DAii(iCB,jCB)*Fact*Two
-            If (TMax_ii*Abs(DAij_).lt.T_X) Go To 99
-*
-            Do iGrid = 1, mGrid
-               Prod_ij=TabAO1(1,iGrid,iCB_Eff)*TabAO1(1,iGrid,jCB_Eff)
-               Rho(1,iGrid)=Rho(1,iGrid)+Prod_ij*DAij_
-            End Do    ! iGrid
-*
- 99         Continue
-*
-         End Do          ! iCB
-      End Do             ! jCB
-*
-#ifdef _TIME_
-#endif
-      Return
-      End
-
-      Subroutine Do_Rho2_d( mGrid,DAii,DBii,
-     &                    mAO,TabAO1,iBas,iBas_Eff,iCmp,
-     &                    Fact,T_X,TMax_ii,Index_i)
-      use nq_grid, only: Rho
-      Implicit Real*8 (A-H,O-Z)
-#include "real.fh"
-#include "WrkSpc.fh"
-      Real*8 DAii(iBas*iCmp,iBas*iCmp), DBii(iBas*iCmp,iBas*iCmp),
-     &       TabAO1(mAO,mGrid,iBas_Eff*iCmp)
-      Integer Index_i(iBas_Eff*iCmp)
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Do jCB_Eff = 1, iBas_Eff*iCmp
-         jCB = Index_i(jCB_Eff)
-*
-         DAjj_=DAii(jCB,jCB)*Fact
-         DBjj_=DBii(jCB,jCB)*Fact
-         Djj_ =Half*(Abs(DAjj_)+Abs(DBjj_))
-         If (TMax_ii*Abs(Djj_).ge.T_X) Then
-            Do iGrid = 1, mGrid
-               Prod_jj=TabAO1(1,iGrid,jCB_Eff)*TabAO1(1,iGrid,jCB_Eff)
-               Rho(1,iGrid)=Rho(1,iGrid)+Prod_jj*DAjj_
-               Rho(2,iGrid)=Rho(2,iGrid)+Prod_jj*DBjj_
-            End Do    ! iGrid
-         End If
-*
-         Do iCB_Eff = 1, jCB_Eff-1
-            iCB = Index_i(iCB_Eff)
-*
-            DAij_=DAii(iCB,jCB)*Fact*Two
-            DBij_=DBii(iCB,jCB)*Fact*Two
-            Dij_ = Half*(Abs(DAij_)+Abs(DBij_))
-            If (TMax_ii*Abs(Dij_).lt.T_X) Go To 99
-*
-            Do iGrid = 1, mGrid
-               Prod_ij=TabAO1(1,iGrid,iCB_Eff)*TabAO1(1,iGrid,jCB_Eff)
                Rho(1,iGrid)=Rho(1,iGrid)+Prod_ij*DAij_
                Rho(2,iGrid)=Rho(2,iGrid)+Prod_ij*DBij_
             End Do    ! iGrid
