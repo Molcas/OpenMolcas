@@ -1,0 +1,28 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 4c1841ae1..f05d3b0ff 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -32,7 +32,7 @@ endif()
+ if(CMAKE_C_COMPILER_ID MATCHES Intel)
+   option_with_flags(ENABLE_XHOST "Enable processor-specific optimization" ON "-xHost" "-march=native" "/arch:AVX2")
+ else()
+-  option_with_flags(ENABLE_XHOST "Enable processor-specific optimization" ON  "-march=native" "-xHost" "/arch:AVX2")
++  option_with_flags(ENABLE_XHOST "Enable processor-specific optimization" ON  "-march=native" "-xHost")
+ endif()
+ 
+ option_with_print(DISABLE_VXC "Don't compile first derivative code" OFF)
+diff --git a/scripts/get_funcs.pl b/scripts/get_funcs.pl
+index 1d5c7b64e..f6964a8f8 100755
+--- a/scripts/get_funcs.pl
++++ b/scripts/get_funcs.pl
+@@ -50,8 +50,8 @@ foreach $func (@funcs){
+       $s3 .= sprintf "  %s %-30s = %3s  ! %s\n", "integer, parameter ::",
+         $deflist_f{$key}, $key, $deflist_c{$key};
+ 
+-      $s5 .= sprintf "  %s %-30s = %3s  ! %s\n", "integer(c_int), parameter, public ::",
+-      $deflist_f{$key}, $key, $deflist_c{$key};
++      $s5 .= sprintf "\n! %s\n  %s %-30s = %3s\n", $deflist_c{$key}, "integer(c_int), parameter, public ::",
++      $deflist_f{$key}, $key;
+     }
+ 
+     $s1 .= "extern xc_func_info_type xc_func_info_$t;\n";

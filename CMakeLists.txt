@@ -1623,6 +1623,10 @@ else ()
                        UPDATE_DISCONNECTED ${LibxcSkipUpdate}
   )
 
+  if (NOT LibxcSkipUpdate)
+    ExternalProject_add_patches (${EP_PROJECT} "cmake/custom/libxc.patch")
+  endif ()
+
   ExternalProject_Add_Step (${EP_PROJECT} update_hash
                             COMMAND echo ${Libxc_HASH} > ${hash_file}
                             DEPENDEES build
