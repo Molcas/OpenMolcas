@@ -15,6 +15,8 @@ Real*8, Allocatable:: Grid(:,:)
 Integer :: nGridMax=128
 Real*8, Allocatable:: Rho(:,:)
 Integer :: nRho=0
+Real*8, Allocatable:: GradRho(:,:)
+Integer :: nGradRho=0
 Real*8, Allocatable:: Sigma(:,:)
 Integer :: nSigma=0
 Real*8, Allocatable:: Lapl(:,:)
