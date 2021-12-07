@@ -31,7 +31,7 @@
 *---- NDSD potential
 *
       Coeff=One
-      Call ndsd_Ts(mGrid,Rho,nRho,nDmat,F_xc,
+      Call ndsd_Ts(mGrid,nDmat,F_xc,
      &                   dF_dRho,ndF_dRho,Coeff,T_X)
 
       If (KEonly) Return
