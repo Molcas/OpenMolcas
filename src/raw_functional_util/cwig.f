@@ -11,7 +11,7 @@
 * Copyright (C) 2006, Per Ake Malmqvist                                *
 *               2010, Grigory A. Shamov                                *
 ************************************************************************
-      Subroutine CWIG(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Subroutine CWIG(mGrid,dF_dRho,ndF_dRho,
      &                   Coeff,iSpin,F_xc,T_X)
 ************************************************************************
 *                                                                      *
@@ -26,11 +26,11 @@
 *      Author:Per Ake Malmqvist, Department of Theoretical Chemistry,  *
 *             University of Lund, SWEDEN. June 2006                    *
 ************************************************************************
+      use nq_Grid, only: Rho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-      Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
-     &       F_xc(mGrid)
+      Real*8 dF_dRho(ndF_dRho,mGrid), F_xc(mGrid)
 
 * IDORD=Order of derivatives to request from XPBE:
       idord=1
@@ -41,7 +41,7 @@
 * T_X: Screening threshold of total density.
         Ta=0.5D0*T_X
         do iGrid=1,mgrid
-         rhoa=max(1.0D-24,Rho(ipR,iGrid))
+         rhoa=max(1.0D-24,Rho(1,iGrid))
          if(rhoa.lt.Ta) goto 110
 
          call cWIG_(idord,rhoa,rhoa,F,dFdrhoa,dFdrhob,
@@ -55,8 +55,8 @@ C     F is ok, but dFdrho comes in two pieces ? nope
       else
 * ispin .ne. 1, use both alpha and beta components.
         do iGrid=1,mgrid
-         rhoa=max(1.0D-24,Rho(ipRa,iGrid))
-         rhob=max(1.0D-24,Rho(ipRb,iGrid))
+         rhoa=max(1.0D-24,Rho(1,iGrid))
+         rhob=max(1.0D-24,Rho(2,iGrid))
          rho_tot=rhoa+rhob
          if(rho_tot.lt.T_X) goto 210
          call cWIG_(idord,rhoa,rhob,F,dFdrhoa,dFdrhob,
