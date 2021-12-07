@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2010, Yan Zhao                                         *
 ************************************************************************
-      Subroutine CVS98(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Subroutine CVS98(mGrid,dF_dRho,ndF_dRho,
      &                 CoeffA,iSpin,F_xc,T_X,ijzy)
 ************************************************************************
 *                                                                      *
@@ -32,10 +32,11 @@
 *                                                                      *
 *  YZ (10/07)                                                          *
 ************************************************************************
+      use nq_Grid, only: Rho, Sigma, Tau
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-      Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
+      Real*8 dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
       Integer mGrid
 
       REAL*8 Pi34, F13,
@@ -109,13 +110,10 @@ C     Parameters for M06-2X
       If (iSpin.eq.1) Then
 *
          Do iGrid = 1, mGrid
-            PA=max(1.0D-24,Rho(ipR,iGrid),Ta)
+            PA=max(1.0D-24,Rho(1,iGrid),Ta)
             If (Rho(ipR,iGrid).lt.Ta) goto 110
-            grdrhoa_x=Rho(ipdRx,iGrid)
-            grdrhoa_y=Rho(ipdRy,iGrid)
-            grdrhoa_z=Rho(ipdRz,iGrid)
-            GAA=grdrhoa_x**2+grdrhoa_y**2+grdrhoa_z**2
-            TauA = Rho(ipTau,iGrid)
+            GAA=Sigma(1,iGrid)
+            TauA = Tau(1,iGrid)
             Call vs98ss(PA,GAA,TauA,FA,FPA,FGA,FTA,EUA,ZA,
      &                  ChiA,EUPA,ChiAP,ChiAG,ZAP,ZAT,ijzy)
 
@@ -164,13 +162,10 @@ C     Parameters for M06-2X
 *                                                                      *
       Else
          Do iGrid = 1, mGrid
-            PA=max(1.0D-24,Rho(ipRa,iGrid),Ta)
+            PA=max(1.0D-24,Rho(1,iGrid),Ta)
             If(Rho(ipRa,iGrid).lt.Ta) goto 100
-            grdrhoa_x=Rho(ipdRxa,iGrid)
-            grdrhoa_y=Rho(ipdRya,iGrid)
-            grdrhoa_z=Rho(ipdRza,iGrid)
-            GAA=grdrhoa_x**2+grdrhoa_y**2+grdrhoa_z**2
-            TauA = Rho(ipTaua,iGrid)
+            GAA=Sigma(1,iGrid)
+            TauA = Tau(1,iGrid)
             Call vs98ss(PA,GAA,TauA,FA,FPA,FGA,FTA,EUA,ZA,
      &                  ChiA,EUPA,ChiAP,ChiAG,ZAP,ZAT,ijzy)
 
@@ -183,13 +178,10 @@ C     Parameters for M06-2X
             dF_dRho(ipTa,iGrid)=dF_dRho(ipTa,iGrid)+FTA
 100         Continue
 *
-            PB=max(1.0D-24,Rho(ipRb,iGrid),Ta)
+            PB=max(1.0D-24,Rho(2,iGrid),Ta)
             if(Rho(ipRb,iGrid).lt.Ta) goto 111
-            grdrhob_x=Rho(ipdRxb,iGrid)
-            grdrhob_y=Rho(ipdRyb,iGrid)
-            grdrhob_z=Rho(ipdRzb,iGrid)
-            GBB=grdrhob_x**2+grdrhob_y**2+grdrhob_z**2
-            TauB = Rho(ipTaub,iGrid)
+            GBB=Sigma(3,iGrid)
+            TauB = Tau(2,iGrid)
             Call vs98ss(PB,GBB,TauB,FB,FPB,FGB,FTB,EUB,ZB,
      &                  ChiB,EUPB,ChiBP,ChiBG,ZBP,ZBT,ijzy)
 
