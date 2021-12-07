@@ -9,16 +9,14 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 2006, Per Ake Malmqvist                                *
+*               2009, Grigory A. Shamov                                *
 ************************************************************************
-      Subroutine XPBE_ofe(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
-     &                    Coeff,iSpin,F_xc,T_X)
+      Subroutine XPBEsol(mGrid,dF_dRho,ndF_dRho,
+     &                   Coeff,iSpin,F_xc,T_X)
 ************************************************************************
 *                                                                      *
-* Object: To compute the functional called x_pbe in the Density        *
-* Functional Repository (http://www.cse.clrc.ac.uk/qcg/dft)            *
-* Original reference article: J.P. Perdew, K. Burke, and M. Ernzerhof, *
-*  "Generalized gradient approximation made simple,"                   *
-*      Phys. Rev. Lett. 77 (1996) 3865-3868.                           *
+* Object: To compute the X part of PBEsol, PRL 100,136406,2008         *
+*         simple change of paramters in PBE                            *
 *                                                                      *
 * Called from:                                                         *
 *                                                                      *
@@ -27,11 +25,11 @@
 *      Author:Per Ake Malmqvist, Department of Theoretical Chemistry,  *
 *             University of Lund, SWEDEN. June 2006                    *
 ************************************************************************
+      use nq_Grid, only: Rho, Sigma
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-      Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
-     &       F_xc(mGrid)
+      Real*8 dF_dRho(ndF_dRho,mGrid), F_xc(mGrid)
 * Call arguments:
 * Weights(mGrid) (input) integration weights.
 * Rho(nRho,mGrid) (input) Density and density derivative values,
@@ -51,16 +49,13 @@
 * T_X: Screening threshold of total density.
         Ta=0.5D0*T_X
         do iGrid=1,mgrid
-         rhoa=max(1.0D-24,Rho(ipR,iGrid))
+         rhoa=max(1.0D-24,Rho(1,iGrid))
          if(rhoa.lt.Ta) goto 110
-         grdrhoa_x=Rho(ipdRx,iGrid)
-         grdrhoa_y=Rho(ipdRy,iGrid)
-         grdrhoa_z=Rho(ipdRz,iGrid)
-         sigmaaa=grdrhoa_x**2+grdrhoa_y**2+grdrhoa_z**2
+         sigmaaa=Sigma(1,iGrid)
 
-         call xpbe_1(idord,rhoa,sigmaaa,Fa,dFdrhoa,dFdgammaaa,
+         call XPBEsol_(idord,rhoa,sigmaaa,Fa,dFdrhoa,dFdgammaaa,
      &          d2Fdra2,d2Fdradgaa,d2Fdgaa2)
-         F_xc(iGrid)=F_xc(iGrid)+2.0D0*Fa
+         F_xc(iGrid)=F_xc(iGrid)+Coeff*(2.0D0*Fa)
          dF_dRho(ipR,iGrid)=dF_dRho(ipR,iGrid)+Coeff*dFdrhoa
 * Maybe derivatives w.r.t. gamma_aa, gamma_ab, gamma_bb should be used instead.
          dF_dRho(ipGxx,iGrid)=dF_dRho(ipGxx,iGrid)+Coeff*dFdgammaaa
@@ -70,25 +65,19 @@
       else
 * ispin .ne. 1, use both alpha and beta components.
         do iGrid=1,mgrid
-         rhoa=max(1.0D-24,Rho(ipRa,iGrid))
-         rhob=max(1.0D-24,Rho(ipRb,iGrid))
+         rhoa=max(1.0D-24,Rho(1,iGrid))
+         rhob=max(1.0D-24,Rho(2,iGrid))
          rho_tot=rhoa+rhob
          if(rho_tot.lt.T_X) goto 210
-         grdrhoa_x=Rho(ipdRxa,iGrid)
-         grdrhoa_y=Rho(ipdRya,iGrid)
-         grdrhoa_z=Rho(ipdRza,iGrid)
-         sigmaaa=grdrhoa_x**2+grdrhoa_y**2+grdrhoa_z**2
-         call xpbe_(idord,rhoa,sigmaaa,Fa,dFdrhoa,dFdgammaaa,
+         sigmaaa=Sigma(1,iGrid)
+         call XPBEsol_(idord,rhoa,sigmaaa,Fa,dFdrhoa,dFdgammaaa,
      &          d2Fdra2,d2Fdradgaa,d2Fdgaa2)
 
-         grdrhob_x=Rho(ipdRxb,iGrid)
-         grdrhob_y=Rho(ipdRyb,iGrid)
-         grdrhob_z=Rho(ipdRzb,iGrid)
-         sigmabb=grdrhob_x**2+grdrhob_y**2+grdrhob_z**2
-         call xpbe_1(idord,rhob,sigmabb,Fb,dFdrhob,dFdgammabb,
+         sigmabb=Sigma(2,iGrid)
+         call XPBEsol_(idord,rhob,sigmabb,Fb,dFdrhob,dFdgammabb,
      &          d2Fdrb2,d2Fdrbdgbb,d2Fdgbb2)
 
-         F_xc(iGrid)=F_xc(iGrid)+Fa+Fb
+         F_xc(iGrid)=F_xc(iGrid)+Coeff*(Fa+Fb)
          dF_dRho(ipRa,iGrid)=dF_dRho(ipRa,iGrid)+Coeff*dFdrhoa
          dF_dRho(ipRb,iGrid)=dF_dRho(ipRb,iGrid)+Coeff*dFdrhob
 * Maybe derivatives w.r.t. gamma_aa, gamma_ab, gamma_bb should be used instead.
@@ -102,15 +91,11 @@
       Return
       End
 
-      Subroutine XPBE_1(idord,rho_s,sigma_s,
+      Subroutine XPBEsol_(idord,rho_s,sigma_s,
      &                        f,dFdr,dFdg,d2Fdr2,d2Fdrdg,d2Fdg2)
 ************************************************************************
 *                                                                      *
-* Object: To compute the functional called x_pbe in the Density        *
-* Functional Repository (http://www.cse.clrc.ac.uk/qcg/dft)            *
-* Original reference article: J.P. Perdew, K. Burke, and M. Ernzerhof, *
-*  "Generalized gradient approximation made simple,"                   *
-*      Phys. Rev. Lett. 77 (1996) 3865-3868.                           *
+* Object: To compute the X part of PBEsol, PRL 100,136406,2008         *
 *                                                                      *
 * Called from:                                                         *
 *                                                                      *
@@ -118,9 +103,11 @@
 *                                                                      *
 *      Author:Per Ake Malmqvist, Department of Theoretical Chemistry,  *
 *             University of Lund, SWEDEN. December 2006                *
+*      modified by GAS, UofM 2009                                      *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-      Data Ckp, Cmu / 0.804D0, 0.2195149727645171D0/
+C Cmu modified to 10/81
+      Data Ckp, Cmu / 0.804D0, 0.12345679012346D0/
       Data CkF / 3.0936677262801359310D0/
       Data CeX /-0.73855876638202240588D0/
 
