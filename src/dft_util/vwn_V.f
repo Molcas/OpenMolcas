@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2000, Roland Lindh                                     *
 ************************************************************************
-      Subroutine VWN_V(mGrid,Rho,nRho,iSpin,
+      Subroutine VWN_V(mGrid,iSpin,
      &                 F_xc,dF_dRho,ndF_dRho,Coeff,T_X)
 ************************************************************************
 *                                                                      *
@@ -21,10 +21,11 @@
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. November 2000                           *
 ************************************************************************
+      use nq_Grid, only: Rho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-      Real*8 Rho(nRho,mGrid), dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
+      Real*8 dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
 *  LDA Stuff
       Real*8 A(3),b(3),c(3),x0(3),Q(3),Xx0(3),e(3),d_e(3)
       data A  / 0.0621814D+00,  0.0310907D+00, -0.0337740D+00/
@@ -70,7 +71,7 @@ C     CVX   =(two**THIRD)*((three/Pi)**THIRD)
 ************************************************************************
 *                                                                      *
       Do iGrid = 1, mGrid
-         d_alpha =Rho(ipR,iGrid)
+         d_alpha =Rho(1,iGrid)
          DTot=Two*d_alpha
          If (DTot.lt.T_X) Go To 100
 *
@@ -130,8 +131,8 @@ C     CVX   =(two**THIRD)*((three/Pi)**THIRD)
 ************************************************************************
 *                                                                      *
       Do iGrid = 1, mGrid
-         d_alpha =Max(Rho_min,Rho(ipRa,iGrid))
-         d_beta  =Max(Rho_min,Rho(ipRb,iGrid))
+         d_alpha =Max(Rho_min,Rho(1,iGrid))
+         d_beta  =Max(Rho_min,Rho(2,iGrid))
          DTot=d_alpha+d_beta
          If (DTot.lt.T_X) Go To 200
          DSpn=d_alpha-d_beta

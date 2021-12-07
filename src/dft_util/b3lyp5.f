@@ -47,7 +47,7 @@
 *                                                                      *
 *---- Vosko-Wilk-Nusair Correlation Functional V                       *
 *                                                                      *
-      Call VWN_V(mGrid,Rho,nRho,
+      Call VWN_V(mGrid,
      &           iSpin,F_xc,dF_dRho,
      &           ndF_dRho,CoefR-Coeff_C,T_X)
 *                                                                      *
@@ -62,6 +62,8 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
+         Call Unused_Integer(nRho)
+         Call Unused_real_array(Rho)
          Call Unused_real_array(P2_ontop)
          Call Unused_real_array(dF_dP2ontop)
       End If

@@ -54,7 +54,7 @@ C    requires 0.27 times MP2 correlation energy from MBPT2
 *                                                                      *
 *---- Vosko-Wilk-Nusair Correlation Functional V                       *
 *                                                                      *
-C--      Call VWN_V(mGrid,Rho,nRho,
+C--      Call VWN_V(mGrid,
 C--     &           iSpin,F_xc,dF_dRho,
 C--     &           ndF_dRho,CoefR-Coeff_C,T_X)
 *                                                                      *
