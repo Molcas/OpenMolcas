@@ -11,7 +11,7 @@
 * Copyright (C) 2000, Roland Lindh                                     *
 *               2001, Laura Gagliardi                                  *
 ************************************************************************
-      Subroutine VWN_III(mGrid,Rho,nRho,iSpin,F_xc,
+      Subroutine VWN_III(mGrid,iSpin,F_xc,
      &                   dF_dRho,ndF_dRho,Coeff,T_X)
 ************************************************************************
 *                                                                      *
@@ -25,11 +25,12 @@
 *             University of Bologna, ITALY. October 2001               *
 ************************************************************************
       use KSDFT_Info, only: tmpB
+      use nq_Grid, only: Rho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
 #include "ksdft.fh"
-      Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
+      Real*8 dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
 *  LDA Stuff
       Real*8 A(2),b(2),c(2),x0(2),Q(2),xx0(2),e(2),d_e(2)
       data A  / 0.0621814D+00,  0.0310907D+00/
@@ -64,7 +65,7 @@
 ************************************************************************
 *                                                                      *
       Do iGrid = 1, mGrid
-         d_alpha =Rho(ipR,iGrid)
+         d_alpha =Rho(1,iGrid)
          DTot=Two*d_alpha
          If (DTot.le.T_X) Go To 100
 *
@@ -127,8 +128,8 @@
 ************************************************************************
 *                                                                      *
       Do iGrid = 1, mGrid
-         d_alpha =Max(Rho_min,Rho(ipRa,iGrid))
-         d_beta  =Max(Rho_min,Rho(ipRb,iGrid))
+         d_alpha =Max(Rho_min,Rho(1,iGrid))
+         d_beta  =Max(Rho_min,Rho(2,iGrid))
          rho_a=d_alpha
          rho_b=d_beta
          DTot=d_alpha+d_beta
