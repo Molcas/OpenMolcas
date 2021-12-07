@@ -47,7 +47,7 @@ cGLM     &       F_xca(mGrid),F_xcb(mGrid),tmpB(mGrid),
      &          CoeffB,iSpin,F_xc,T_X)
 
       CoeffA=One*CoefR
-      Call CPBE(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Call CPBE(mGrid,dF_dRho,ndF_dRho,
      &          CoeffA,iSpin,F_xc,T_X)
 *                                                                      *
 ************************************************************************

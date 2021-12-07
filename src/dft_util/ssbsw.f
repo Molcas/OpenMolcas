@@ -42,7 +42,7 @@
 *
 *---- PBE Correlation
       Coeff=1.0d0*CoefR
-      Call CPBE(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Call CPBE(mGrid,dF_dRho,ndF_dRho,
      &         Coeff,iSpin,F_xc,T_X)
 *                                                                      *
 ************************************************************************
