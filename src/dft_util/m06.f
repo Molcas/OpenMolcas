@@ -32,7 +32,7 @@
       Call XM06(mGrid,dF_dRho,ndF_dRho,
      &             CoeffA,iSpin,F_xc,T_X,ijzy)
       CoeffA=One*CoefX
-      Call XVS98(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Call XVS98(mGrid,dF_dRho,ndF_dRho,
      &             CoeffA,iSpin,F_xc,T_X,ijzy+1)
       CoeffA=One*CoefR
       Call CM06(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
