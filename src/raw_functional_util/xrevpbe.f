@@ -11,7 +11,7 @@
 * Copyright (C) 2006, Per Ake Malmqvist                                *
 *               2016, Andrew M. Sand                                   *
 ************************************************************************
-      Subroutine XrevPBE(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Subroutine XrevPBE(mGrid,dF_dRho,ndF_dRho,
      &                   Coeff,iSpin,F_xc,T_X)
 ************************************************************************
 *                                                                      *
@@ -30,13 +30,12 @@
 *      Modified for revPBE: Andrew Sand, U. of Minnesota, March 2016   *
 ************************************************************************
       use KSDFT_Info, only: F_xca, F_xcb, tmpB
+      use nq_Grid, only: rho, Sigma
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
 #include "ksdft.fh"
-      Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
-     &       F_xc(mGrid)
-cGLM     &       F_xca(mGrid),F_xcb(mGrid),tmpB(mGrid)
+      Real*8 dF_dRho(ndF_dRho,mGrid), F_xc(mGrid)
 * Call arguments:
 * Weights(mGrid) (input) integration weights.
 * Rho(nRho,mGrid) (input) Density and density derivative values,
@@ -56,12 +55,9 @@ cGLM     &       F_xca(mGrid),F_xcb(mGrid),tmpB(mGrid)
 * T_X: Screening threshold of total density.
         Ta=0.5D0*T_X
         do iGrid=1,mgrid
-         rhoa=max(1.0D-24,Rho(ipR,iGrid))
+         rhoa=max(1.0D-24,Rho(1,iGrid))
          if(rhoa.lt.Ta) goto 110
-         grdrhoa_x=Rho(ipdRx,iGrid)
-         grdrhoa_y=Rho(ipdRy,iGrid)
-         grdrhoa_z=Rho(ipdRz,iGrid)
-         sigmaaa=grdrhoa_x**2+grdrhoa_y**2+grdrhoa_z**2
+         sigmaaa=Sigma(1,iGrid)
 
          call xrevpbe_(idord,rhoa,sigmaaa,Fa,dFdrhoa,dFdgammaaa,
      &          d2Fdra2,d2Fdradgaa,d2Fdgaa2)
@@ -75,21 +71,15 @@ cGLM     &       F_xca(mGrid),F_xcb(mGrid),tmpB(mGrid)
       else
 * ispin .ne. 1, use both alpha and beta components.
         do iGrid=1,mgrid
-         rhoa=max(1.0D-24,Rho(ipRa,iGrid))
-         rhob=max(1.0D-24,Rho(ipRb,iGrid))
+         rhoa=max(1.0D-24,Rho(1,iGrid))
+         rhob=max(1.0D-24,Rho(2,iGrid))
          rho_tot=rhoa+rhob
          if(rho_tot.lt.T_X) goto 210
-         grdrhoa_x=Rho(ipdRxa,iGrid)
-         grdrhoa_y=Rho(ipdRya,iGrid)
-         grdrhoa_z=Rho(ipdRza,iGrid)
-         sigmaaa=grdrhoa_x**2+grdrhoa_y**2+grdrhoa_z**2
+         sigmaaa=Sigma(1,iGrid)
          call xrevpbe_(idord,rhoa,sigmaaa,Fa,dFdrhoa,dFdgammaaa,
      &          d2Fdra2,d2Fdradgaa,d2Fdgaa2)
 
-         grdrhob_x=Rho(ipdRxb,iGrid)
-         grdrhob_y=Rho(ipdRyb,iGrid)
-         grdrhob_z=Rho(ipdRzb,iGrid)
-         sigmabb=grdrhob_x**2+grdrhob_y**2+grdrhob_z**2
+         sigmabb=Sigma(3,iGrid)
          call xrevpbe_(idord,rhob,sigmabb,Fb,dFdrhob,dFdgammabb,
      &          d2Fdrb2,d2Fdrbdgbb,d2Fdgbb2)
 
