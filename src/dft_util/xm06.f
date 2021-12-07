@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2010, Yan Zhao                                         *
 ************************************************************************
-      Subroutine XM06(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Subroutine XM06(mGrid,dF_dRho,ndF_dRho,
      &                CoeffA,iSpin,F_xc,T_X,ijzy)
 ************************************************************************
 *                                                                      *
@@ -30,10 +30,11 @@
 *                                                                      *
 *  YZ (10/07)                                                          *
 ************************************************************************
+      use nq_Grid, only: Rho, Sigma, Tau
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-      Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
+      Real*8 dF_dRho(ndF_dRho,mGrid),
      &       F_xc(mGrid)
       Integer mGrid
 
@@ -132,23 +133,21 @@ C     Parameters for M06-2X
 ************************************************************************
 *                                                                      *
         Do iGrid = 1, mGrid
-         if(Rho(ipR,iGrid).lt.Ta .or.  Rho(ipTau,iGrid).lt.Ta) goto 110
-         rhoo=max(1.0D-24,rho(ipR,igrid),Ta)
+         if(Rho(1,iGrid).lt.Ta .or.  Tau(1,iGrid).lt.Ta) goto 110
+         rhoo=max(1.0D-24,rho(1,igrid),Ta)
          rho43 = rhoo**F4o3
          rrho = 1.0d0/rhoo       ! reciprocal of rho
          rho13 = rho43*rrho
          rho53 = rhoo**F5o3
 *
-         tauu=Rho(ipTau,iGrid)
+         tauu=Tau(1,iGrid)
          TauUEG=F3o5*((Six*pi*pi)**F2o3)*rho53
          Tsig =TauUEG/tauu
          Wsig =(Tsig-One)/(Tsig+One)
          Fsig=at*(at0 + Wsig*(at1 + Wsig*(at2 + Wsig*(at3 + Wsig*(
      &            at4 + Wsig*(at5 + Wsig*(at6 + Wsig*(at7 + Wsig*(
      &            at8 + Wsig*(at9 + Wsig*(at10+Wsig*at11)))))))))))
-         Gamma = sqrt(Rho(ipdRx,igrid)**2
-     &                +Rho(ipdRy,igrid)**2
-     &                +Rho(ipdRz,igrid)**2)
+         Gamma = Sqrt(Sigma(1,iGrid))
          x = Gamma/rho43
          x2 = x*x
          En = C1*x2
@@ -196,23 +195,21 @@ C     Parameters for M06-2X
 *
 * alpha component
 *
-         If(Rho(ipRa,iGrid).lt.Ta .or. Rho(ipTaua,iGrid).lt.Ta) goto 210
-         rhoo=Rho(ipRa,iGrid)
+         If(Rho(1,iGrid).lt.Ta .or. Tau(1,iGrid).lt.Ta) goto 210
+         rhoo=Rho(1,iGrid)
          rho43 = rhoo**F4o3
          rrho = 1.0d0/rhoo       ! reciprocal of rho
          rho13 = rho43*rrho
          rho53 = rhoo**F5o3
 *
-         tauu=rho(ipTaua,iGrid)
+         tauu=Tau(1,iGrid)
          TauUEG=F3o5*((Six*pi*pi)**F2o3)*rho53
          Tsig =TauUEG/tauu
          Wsig =(TauUEG - tauu)/(TauUEG + tauu)
          Fsig=at*(at0 + Wsig*(at1 + Wsig*(at2 + Wsig*(at3 + Wsig*(
      &            at4 + Wsig*(at5 + Wsig*(at6 + Wsig*(at7 + Wsig*(
      &            at8 + Wsig*(at9 + Wsig*(at10+Wsig*at11)))))))))))
-         Gamma = sqrt(Rho(ipdRxa,igrid)**2
-     &                +Rho(ipdRya,igrid)**2
-     &                +Rho(ipdRza,igrid)**2)
+         Gamma = Sqrt(Sigma(1,iGrid))
          x = Gamma/rho43
          x2 = x*x
          En = C1*x2
@@ -249,23 +246,21 @@ C     Parameters for M06-2X
 *
 * beta component
 *
-         if(Rho(ipRb,iGrid).lt.Ta .or. Rho(ipTaub,iGrid).lt.Ta) goto 310
-         rhoo=Rho(ipRb,iGrid)
+         if(Rho(2,iGrid).lt.Ta .or. Tau(2,iGrid).lt.Ta) goto 310
+         rhoo=Rho(2,iGrid)
          rho43 = rhoo**F4o3
          rrho = 1.0d0/rhoo       ! reciprocal of rho
          rho13 = rho43*rrho
          rho53 = rhoo**F5o3
 *
-         tauu=Rho(ipTaub,iGrid)
+         tauu=Tau(2,iGrid)
          TauUEG=F3o5*((Six*pi*pi)**F2o3)*rho53
          Tsig =TauUEG/tauu
          Wsig =(Tsig-One)/(Tsig+One)
          Fsig=at*(at0 + Wsig*(at1 + Wsig*(at2 + Wsig*(at3 + Wsig*(
      &            at4 + Wsig*(at5 + Wsig*(at6 + Wsig*(at7 + Wsig*(
      &            at8 + Wsig*(at9 + Wsig*(at10+Wsig*at11)))))))))))
-         Gamma = sqrt(Rho(ipdRxb,iGrid)**2
-     &                +Rho(ipdRyb,iGrid)**2
-     &                +Rho(ipdRzb,iGrid)**2)
+         Gamma = sqrt(Sigma(3,iGrid))
          x = Gamma/rho43
          x2 = x*x
          En = C1*x2

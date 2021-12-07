@@ -207,8 +207,8 @@
          mdRho_dr=0
          If (Do_Grad) mdRho_dr=nRho
          nSigma=0
-         nGradTho=0
-         nLabl=0
+         nGradRho=0
+         nLapl=0
          nTau=0
 *
 *        We need derivatives of the functional with respect to

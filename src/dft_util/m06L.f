@@ -29,7 +29,7 @@
 *                                                                      *
       ijzy=1
       CoeffA=One*CoefX
-      Call XM06(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Call XM06(mGrid,dF_dRho,ndF_dRho,
      &          CoeffA,iSpin,F_xc,T_X,ijzy)
       CoeffA=One*CoefX
       Call XVS98(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
