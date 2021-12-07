@@ -42,7 +42,7 @@
 *---- Becke 86 Exchange
 *
       Coeff=One*CoefX
-      Call xB86(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Call xB86(mGrid,dF_dRho,ndF_dRho,
      &          Coeff,iSpin,F_xc,T_X)
 *
 *---- Lee-Yang-Parr Correlation
@@ -56,6 +56,8 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
+         Call Unused_Integer(nRho)
+         Call Unused_real_array(Rho)
          Call Unused_real_array(P2_ontop)
          Call Unused_real_array(dF_dP2ontop)
       End If
