@@ -41,7 +41,7 @@
 *                                                                      *
 *---- Becke 88 Exchange Functional                                     *
 *                                                                      *
-      Call xB88(Rho,nRho,mGrid,
+      Call xB88(mGrid,
      &          dF_dRho,ndF_dRho,
      &          Coeff_B,iSpin,F_xc,T_X)
 *                                                                      *

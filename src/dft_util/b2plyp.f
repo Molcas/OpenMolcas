@@ -48,7 +48,7 @@ C    requires 0.27 times MP2 correlation energy from MBPT2
 *                                                                      *
 *---- Becke 88 Exchange Functional                                     *
 *                                                                      *
-      Call xB88(Rho,nRho,mGrid,
+      Call xB88(mGrid,
      &          dF_dRho,ndF_dRho,
      &          Coeff_A,iSpin,F_xc,T_X)
 *                                                                      *
@@ -70,6 +70,8 @@ C
       Return
 c Avoid unused argument warnings
       If (.False.) Then
+         Call Unused_integer(nRho)
+         Call Unused_real_array(Rho)
          Call Unused_real_array(P2_ontop)
          Call Unused_real_array(dF_dP2ontop)
       End If

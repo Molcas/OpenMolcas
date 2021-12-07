@@ -39,7 +39,7 @@
 *---- Becke 88 Exchange
 *
       Coeff=One*CoefX
-      Call xB88(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Call xB88(mGrid,dF_dRho,ndF_dRho,
      &          Coeff,iSpin,F_xc,T_X)
 *
 *---- Lee-Yang-Parr Correlation
