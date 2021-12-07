@@ -67,19 +67,19 @@
 *---- Dirac Exchange
 *
       Coeff=Zero
-      Call Diracx_ofe(mGrid,Rho,nRho,iSpin,F_xc,
+      Call Diracx_ofe(mGrid,iSpin,F_xc,
      &                dF_dRho,ndF_dRho,Coeff,T_X)
 *                                                                      *
 *---- Becke 88 Exchange
 *
       Coeff=Zero
-      Call xB88_ofe(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Call xB88_ofe(mGrid,dF_dRho,ndF_dRho,
      &              Coeff,iSpin,F_xc,T_X)
 *
 *---- Lee-Yang-Parr Correlation
 *
       Coeff=Zero
-      Call LYP_ofe(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Call LYP_ofe(mGrid,dF_dRho,ndF_dRho,
      &             Coeff,iSpin,F_xc,T_X)
 *                                                                      *
 ************************************************************************
@@ -87,6 +87,8 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
+         Call Unused_Integer(nRho)
+         Call Unused_real_array(Rho)
          Call Unused_real_array(P2_ontop)
          Call Unused_real_array(dF_dP2ontop)
       End If

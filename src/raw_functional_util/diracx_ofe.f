@@ -10,17 +10,18 @@
 *                                                                      *
 * Copyright (C) 2000, Roland Lindh                                     *
 ************************************************************************
-      Subroutine DiracX_OFE(mGrid,Rho,nRho,iSpin,F_xc,dF_dRho,
+      Subroutine DiracX_OFE(mGrid,iSpin,F_xc,dF_dRho,
      &                      ndF_dRho,Coeff,T_X)
 ************************************************************************
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. November 2000                           *
 ************************************************************************
 C-Ajitha Modifying the kernel output structure
+      use nq_Grid, only: Rho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-      Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
+      Real*8 dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -45,7 +46,7 @@ C-Ajitha Modifying the kernel output structure
 ************************************************************************
 *                                                                      *
       Do iGrid = 1, mGrid
-         d_alpha =Rho(ipR,iGrid)
+         d_alpha =Rho(1,iGrid)
          DTot=Two*d_alpha
          If (DTot.lt.T_X) Go To 100
 *
@@ -75,8 +76,8 @@ C-Ajitha Modifying the kernel output structure
 ************************************************************************
 *                                                                      *
       Do iGrid = 1, mGrid
-         d_alpha =Max(Rho_Min,Rho(ipRa,iGrid))
-         d_beta  =Max(Rho_Min,Rho(ipRb,iGrid))
+         d_alpha =Max(Rho_Min,Rho(1,iGrid))
+         d_beta  =Max(Rho_Min,Rho(2,iGrid))
          DTot=d_alpha+d_beta
          If (DTot.lt.T_X) Go To 200
 *------- Exchange contributions to energy
