@@ -36,7 +36,7 @@
 *---- OPTX Exchange, the a2 coeff is here!
 *
       Coeff= 1.431690d0*CoefX
-      Call xOPT(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Call xOPT(mGrid,dF_dRho,ndF_dRho,
      &          Coeff,iSpin,F_xc,T_X)
 *
 *---- PBEc
@@ -50,6 +50,8 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
+         Call Unused_Integer(nRho)
+         Call Unused_real_array(Rho)
          Call Unused_real_array(P2_ontop)
          Call Unused_real_array(dF_dP2ontop)
       End If

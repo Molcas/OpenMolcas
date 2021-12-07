@@ -38,7 +38,7 @@
 *---- KT term Exchange/Correlation
 *
       Coeff= - 0.0060d0
-      Call KealTozer(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Call KealTozer(mGrid,dF_dRho,ndF_dRho,
      &          Coeff,iSpin,F_xc,T_X)
 *
 *---- VWN-3 Correlation
@@ -54,6 +54,8 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
+         Call Unused_Integer(nRho)
+         Call Unused_real_array(Rho)
          Call Unused_real_array(P2_ontop)
          Call Unused_real_array(dF_dP2ontop)
       End If
