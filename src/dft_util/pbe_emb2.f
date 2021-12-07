@@ -66,7 +66,7 @@
 ************************************************************************
 *                                                                      *
       CoeffA=0.0D0
-      Call CPBE_ofe(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Call CPBE_ofe(mGrid,dF_dRho,ndF_dRho,
      &              CoeffA,iSpin,F_xc,T_X)
 
       CoeffB=0.0D0

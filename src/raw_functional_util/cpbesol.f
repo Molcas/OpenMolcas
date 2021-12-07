@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2005, Per Ake Malmqvist                                *
 ************************************************************************
-      Subroutine CPBEsol(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Subroutine CPBEsol(mGrid,dF_dRho,ndF_dRho,
      &                Coeff,iSpin,F_xc,T_X)
 ************************************************************************
 *                                                                      *
@@ -24,14 +24,14 @@
 *      Author:Per Ake Malmqvist, Department of Theoretical Chemistry,  *
 *             University of Lund, SWEDEN. December 2005                *
 ************************************************************************
+      use nq_Grid, only: Rho, Sigma
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-      Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
+      Real*8 dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
 * Local arrays:
       Real*8 func1(3),func2(3,3)
 * Call arguments:
-* Weights(mGrid) (input) integration weights.
 * Rho(nRho,mGrid) (input) Density and density derivative values,
 *   Rho(1,iGrid) is rho_alpha values, Rho(2,iGrid) is rho_beta values
 *   Rho(i,iGrid) is grad_rho_alpha (i=3..5 for d/dx, d/dy, d/dz)
@@ -67,14 +67,11 @@
       if (ispin.eq.1) then
 * ispin=1 means spin zero.
         do iGrid=1,mgrid
-         rhoa=Rho(ipR,iGrid)
+         rhoa=Rho(1,iGrid)
          rho_in=2.0D0*rhoa
          if(rho_in.lt.T_X) goto 110
-         grdrho_x=2.D0*Rho(ipdRx,iGrid)
-         grdrho_y=2.D0*Rho(ipdRy,iGrid)
-         grdrho_z=2.D0*Rho(ipdRz,iGrid)
 
-         gamma=(grdrho_x**2+grdrho_y**2+grdrho_z**2)
+         gamma=Four*Sigma(1,iGrid)
          grdrho_in=sqrt(gamma)
          zeta_in=0.0D0
          call cpbesol_(idord,rho_in,grdrho_in,zeta_in,func0,func1,func2)
@@ -89,21 +86,12 @@
       else
 * ispin .ne. 1, use both alpha and beta components.
         do iGrid=1,mgrid
-         rhoa=max(1.0D-24,Rho(ipRa,iGrid))
-         rhob=max(1.0D-24,Rho(ipRb,iGrid))
+         rhoa=max(1.0D-24,Rho(1,iGrid))
+         rhob=max(1.0D-24,Rho(2,iGrid))
          rho_in=rhoa+rhob
          if(rho_in.lt.T_X) goto 210
-         grdrhoa_x=Rho(ipdRxa,iGrid)
-         grdrhoa_y=Rho(ipdRya,iGrid)
-         grdrhoa_z=Rho(ipdRza,iGrid)
-         grdrhob_x=Rho(ipdRxb,iGrid)
-         grdrhob_y=Rho(ipdRyb,iGrid)
-         grdrhob_z=Rho(ipdRzb,iGrid)
 
-         grdrho_x=grdrhoa_x+grdrhob_x
-         grdrho_y=grdrhoa_y+grdrhob_y
-         grdrho_z=grdrhoa_z+grdrhob_z
-         gamma=(grdrho_x**2+grdrho_y**2+grdrho_z**2)
+         gamma=Sigma(1,iGrid)+Two*Sigma(2,iGrid)+Sigma(3,iGrid)
          grdrho_in=sqrt(gamma)
          zeta_in=(rhoa-rhob)/rho_in
          call cpbesol_(idord,rho_in,grdrho_in,zeta_in,func0,func1,func2)

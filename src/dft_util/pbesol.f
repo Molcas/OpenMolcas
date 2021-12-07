@@ -34,7 +34,7 @@
 ************************************************************************
 *                                                                      *
       CoeffA=One*CoefR
-      Call CPBEsol(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Call CPBEsol(mGrid,dF_dRho,ndF_dRho,
      &          CoeffA,iSpin,F_xc,T_X)
 
       CoeffB=One*CoefX
