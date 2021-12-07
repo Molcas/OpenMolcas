@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine NDSD_Ts(mGrid,Rho,nRho,nDmat,F_xc,dF_dRho,
+      Subroutine NDSD_Ts(mGrid,nDmat,F_xc,dF_dRho,
      &                   ndF_dRho,Coeff,T_X)
 ************************************************************************
 *                                                                      *
@@ -23,13 +23,14 @@
 *                density, gradient and laplacian.                      *
 *                                                                      *
 ************************************************************************
+      use nq_Grid, only: Rho, GradRho, Lapl
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-      Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
+      Real*8 dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
       Real*8 Fexp, Vt_lim
       External Fexp, Vt_lim
-      Real*8 wGradRho(2:4)
+      Real*8 wGradRho(1:3)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -57,13 +58,13 @@
 *
 *------- Contributions to the potential
 *
-            Do k=2,4
-               wGradRho(k)=Two*Rho(k,iGrid)
+            Do k=1,3
+               wGradRho(k)=Two*GradRho(k,iGrid)
             End Do
-            wLaplRho=Two*Rho(6,iGrid)
+            wLaplRho=Two*Lapl(1,iGrid)
 *
-            dfunc_NDSD = Fexp(d_sys,wGradRho(2))
-     &                 * Vt_lim(d_sys,wGradRho(2),wLaplRho)
+            dfunc_NDSD = Fexp(d_sys,wGradRho(1))
+     &                 * Vt_lim(d_sys,wGradRho(1),wLaplRho)
             dF_dRho(1,iGrid) = dF_dRho(1,iGrid)
      &                       + Coeff*dfunc_NDSD
 *
@@ -88,15 +89,13 @@
 *
 *------- Contributions to the potential
 *
-            Do k=2,4
-               ik=k+1
-               jk=ik+3
-               wGradRho(k)=Rho(ik,iGrid)+Rho(jk,iGrid)
+            Do k=1,3
+               wGradRho(k)=Rho(k,iGrid)+Rho(k+3,iGrid)
             End Do
-            wLaplRho=Rho(11,iGrid)+Rho(12,iGrid)
+            wLaplRho=Lapl(1,iGrid)+Lapl(2,iGrid)
 *
-            dfunc_NDSD_alpha = Fexp(DTot,wGradRho(2))
-     &                       * Vt_lim(DTot,wGradRho(2),wLaplRho)
+            dfunc_NDSD_alpha = Fexp(DTot,wGradRho(1))
+     &                       * Vt_lim(DTot,wGradRho(1),wLaplRho)
             dfunc_NDSD_beta  = dfunc_NDSD_alpha
 *
             dF_dRho(1,iGrid) = dF_dRho(1,iGrid)

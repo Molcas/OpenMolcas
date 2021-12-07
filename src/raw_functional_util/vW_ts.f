@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine vW_Ts(mGrid,Rho,nRho,nDmat,F_xc,dF_dRho,
+      Subroutine vW_Ts(mGrid,nDmat,F_xc,dF_dRho,
      &                       ndF_dRho,Coeff,T_X)
 ************************************************************************
 *                                                                      *
@@ -16,10 +16,11 @@
 *          No potential computed!!!                                    *
 *                                                                      *
 ************************************************************************
+      use nq_grid, only: Rho, Sigma
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-      Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
+      Real*8 dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -41,7 +42,7 @@
 *
 *------- Kinetic energy contributions
 *
-            snorm=Rho(2,iGrid)**2+Rho(3,iGrid)**2+Rho(4,iGrid)**2
+            snorm=Sigma(1,iGrid)
             functional = Half*snorm/d_sys
             F_xc(iGrid)=F_xc(iGrid)+Coeff*functional
 *
@@ -61,9 +62,9 @@
 *
 *------- Kinetic energy contributions
 *
-            snorm=Rho(3,iGrid)**2+Rho(4,iGrid)**2+Rho(5,iGrid)**2
+            snorm=Sigma(1,iGrid)
             functional = One8*snorm/da_sys
-            snorm=Rho(6,iGrid)**2+Rho(7,iGrid)**2+Rho(8,iGrid)**2
+            snorm=Sigma(3,iGrid)
             functional = functional + One8*snorm/db_sys
             F_xc(iGrid)=F_xc(iGrid)+Coeff*functional
 
