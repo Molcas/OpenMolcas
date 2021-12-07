@@ -41,7 +41,7 @@
      &          CoeffA,iSpin,F_xc,T_X)
 
       CoeffB=One*CoefX
-      Call XPBE(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Call XPBE(mGrid,dF_dRho,ndF_dRho,
      &          CoeffB,iSpin,F_xc,T_X)
 *                                                                      *
 ************************************************************************
