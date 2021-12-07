@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2006, Per Ake Malmqvist                                *
 ************************************************************************
-      Subroutine xB88(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Subroutine xB88(mGrid,dF_dRho,ndF_dRho,
      &                Coeff,iSpin,F_xc,T_X)
 ************************************************************************
 *                                                                      *
@@ -30,13 +30,12 @@
 *             University of Lund, SWEDEN. June 2006                    *
 ************************************************************************
       use KSDFT_Info, only: F_xca, F_xcb, tmpB
+      use nq_Grid, only: Rho, Sigma
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
 #include "ksdft.fh"
-      Real*8 Rho(nRho,mGrid),
-     &       dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
-cGLM     &       F_xca(mGrid),F_xcb(mGrid),tmpB(mGrid)
+      Real*8 dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
 
 * IDORD=Order of derivatives to request from XPBE:
       idord=1
@@ -49,12 +48,9 @@ cGLM     &       F_xca(mGrid),F_xcb(mGrid),tmpB(mGrid)
 * T_X: Screening threshold of total density.
         Ta=0.5D0*T_X
         do iGrid=1,mgrid
-         Rhoa=Rho(ipR,iGrid)
+         Rhoa=Rho(1,iGrid)
          if(Rhoa.lt.Ta) goto 110
-         grdrhoa_x=Rho(ipdRx,iGrid)
-         grdrhoa_y=Rho(ipdRy,iGrid)
-         grdrhoa_z=Rho(ipdRz,iGrid)
-         sigmaaa=grdrhoa_x**2+grdrhoa_y**2+grdrhoa_z**2
+         sigmaaa=Sigma(1,iGrid)
 
          call xB88_(idord,rhoa,sigmaaa,Fa,dFdrhoa,dFdgammaaa,
      &          d2Fdra2,d2Fdradgaa,d2Fdgaa2)
@@ -70,21 +66,15 @@ cGLM     &       F_xca(mGrid),F_xcb(mGrid),tmpB(mGrid)
 * ispin .ne. 1, use both alpha and beta components.
 
         do iGrid=1,mgrid
-         rhoa=Max(Rho_Min,rho(ipRa,iGrid))
-         rhob=Max(Rho_Min,rho(ipRb,iGrid))
+         rhoa=Max(Rho_Min,rho(1,iGrid))
+         rhob=Max(Rho_Min,rho(2,iGrid))
          rho_tot=rhoa+rhob
          if(rho_tot.lt.T_X) goto 210
-         grdrhoa_x=rho(ipdRxa,iGrid)
-         grdrhoa_y=rho(ipdRya,iGrid)
-         grdrhoa_z=rho(ipdRza,iGrid)
-         sigmaaa=grdrhoa_x**2+grdrhoa_y**2+grdrhoa_z**2
+         sigmaaa=Sigma(1,iGrid)
          call xB88_(idord,rhoa,sigmaaa,Fa,dFdrhoa,dFdgammaaa,
      &          d2Fdra2,d2Fdradgaa,d2Fdgaa2)
 
-         grdrhob_x=rho(ipdRxb,iGrid)
-         grdrhob_y=rho(ipdRyb,iGrid)
-         grdrhob_z=rho(ipdRzb,iGrid)
-         sigmabb=grdrhob_x**2+grdrhob_y**2+grdrhob_z**2
+         sigmabb=Sigma(3,iGrid)
          call xB88_(idord,rhob,sigmabb,Fb,dFdrhob,dFdgammabb,
      &          d2Fdrb2,d2Fdrbdgbb,d2Fdgbb2)
 
