@@ -50,7 +50,7 @@
 *                                                                      *
 *---- Vosko-Wilks-Nusair Correlation Functional III                    *
 *                                                                      *
-      Call VWN_III(mGrid,Rho,nRho,
+      Call VWN_III(mGrid,
      &             iSpin,
      &             F_xc,dF_dRho,ndF_dRho,CoefR - Coeff_C,T_X)
 *                                                                      *
