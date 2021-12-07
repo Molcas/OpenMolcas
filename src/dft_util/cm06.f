@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2010, Yan Zhao                                         *
 ************************************************************************
-      Subroutine CM06(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Subroutine CM06(mGrid,dF_dRho,ndF_dRho,
      &                 CoeffA,iSpin,F_xc,T_X,ijzy)
 ************************************************************************
 *                                                                      *
@@ -30,10 +30,11 @@
 *                                                                      *
 *  YZ (10/07)                                                          *
 ************************************************************************
+      use nq_Grid, only: Rho, Sigma, Tau
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-      Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
+      Real*8 dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
       Integer mGrid
 
       REAL*8 Pi34, F13,
@@ -87,13 +88,10 @@ C     Parameters for M06-2X Correlation
       Ta=0.5D0*T_X
       If (iSpin.eq.1) Then
          Do iGrid = 1, mGrid
-            PA=max(1.0D-24,Rho(ipR,iGrid))
+            PA=max(1.0D-24,Rho(1,iGrid))
             If (PA.lt.Ta) Go To 110
-            grdrhoa_x=Rho(ipdRx,iGrid)
-            grdrhoa_y=Rho(ipdRy,iGrid)
-            grdrhoa_z=Rho(ipdRz,iGrid)
-            GAA=grdrhoa_x**2+grdrhoa_y**2+grdrhoa_z**2
-            TauA = Rho(ipTau,iGrid)
+            GAA=Sigma(1,iGrid)
+            TauA = Tau(1,iGrid)
             Call m06css(T_X,PA,GAA,TauA,FA,FPA,FGA,FTA,EUA,
      &                  ChiA,EUPA,ChiAP,ChiAG,ijzy)
 
@@ -133,13 +131,10 @@ C     Parameters for M06-2X Correlation
          End Do
       Else
          Do iGrid = 1, mGrid
-            PA=max(1.0D-24,Rho(ipRa,iGrid))
+            PA=max(1.0D-24,Rho(1,iGrid))
             If (PA.lt.Ta) Go To 100
-            grdrhoa_x=Rho(ipdRxa,iGrid)
-            grdrhoa_y=Rho(ipdRya,iGrid)
-            grdrhoa_z=Rho(ipdRza,iGrid)
-            GAA=grdrhoa_x**2+grdrhoa_y**2+grdrhoa_z**2
-            TauA = Rho(ipTaua,iGrid)
+            GAA=Sigma(1,iGrid)
+            TauA = Tau(1,iGrid)
             Call m06css(T_X,PA,GAA,TauA,FA,FPA,FGA,FTA,EUA,
      &                  ChiA,EUPA,ChiAP,ChiAG,ijzy)
 *
@@ -152,13 +147,10 @@ C     Parameters for M06-2X Correlation
             dF_dRho(ipTa,igrid)=dF_dRho(ipTa,iGrid)+FTA
 
 100         continue
-            PB=max(1.0D-24,Rho(ipRb,iGrid))
+            PB=max(1.0D-24,Rho(2,iGrid))
             if(PB.lt.Ta) goto 111
-            grdrhob_x=Rho(ipdRxb,iGrid)
-            grdrhob_y=Rho(ipdRyb,iGrid)
-            grdrhob_z=Rho(ipdRzb,iGrid)
-            GBB=grdrhob_x**2+grdrhob_y**2+grdrhob_z**2
-            TauB = Rho(ipTaub,iGrid)
+            GBB=Sigma(3,iGrid)
+            TauB = Tau(2,iGrid)
             call m06css(T_X,PB,GBB,TauB,FB,FPB,FGB,FTB,EUB,
      &                  ChiB,EUPB,ChiBP,ChiBG,ijzy)
 
