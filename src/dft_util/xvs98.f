@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2010, Yan Zhao                                         *
 ************************************************************************
-      Subroutine XVS98(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Subroutine XVS98(mGrid,dF_dRho,ndF_dRho,
      &                 CoeffA,iSpin,F_xc,T_X,ijzy)
 ************************************************************************
 *                                                                      *
@@ -30,10 +30,11 @@
 *                                                                      *
 *  YZ (10/07)                                                          *
 ************************************************************************
+      use nq_Grid, only: Rho, Sigma, Tau
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-      Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
+      Real*8 dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
       Integer mGrid
 
       integer ijzy
@@ -113,19 +114,16 @@ c
 *                                                                      *
         Ta=0.5D0*T_X
         Do iGrid = 1, mGrid
-         rhoo=max(1.0D-24,rho(ipR,igrid))
+         rhoo=max(1.0D-24,rho(1,igrid))
          if(rhoo.lt.Ta) goto 110
-         grdrhoa_x=rho(ipdRx,igrid)
-         grdrhoa_y=rho(ipdRy,igrid)
-         grdrhoa_z=rho(ipdRz,igrid)
 
          rho43 = rhoo**F43
          rrho = 1.0d0/rhoo       ! reciprocal of rho
          rho13 = rho43*rrho
          rho53 = rhoo**F53
          rho83 = rho53*rhoo
-         tauu=Rho(ipTau,iGrid)
-         Gamma=grdrhoa_x**2+grdrhoa_y**2+grdrhoa_z**2
+         tauu=Tau(1,iGrid)
+         Gamma=Sigma(1,iGrid)
          x = gamma/rho83
          dxdr = -f83*x*rrho
          dxdg = One/rho83
@@ -156,19 +154,16 @@ c
 c
 * alpha component
 c
-         rhoo=max(1.0D-24,rho(ipRa,iGrid))
+         rhoo=max(1.0D-24,rho(1,iGrid))
          if(rhoo.lt.Ta) goto 210
-         grdrhoa_x=rho(ipdRxa,iGrid)
-         grdrhoa_y=rho(ipdRya,iGrid)
-         grdrhoa_z=rho(ipdRza,iGrid)
 
          rho43 = rhoo**F43
          rrho = 1.0d0/rhoo       ! reciprocal of rho
          rho13 = rho43*rrho
          rho53 = rhoo**F53
          rho83 = rho53*rhoo
-         tauu=Rho(ipTaua,iGrid)
-         Gamma=grdrhoa_x**2+grdrhoa_y**2+grdrhoa_z**2
+         tauu=Tau(1,iGrid)
+         Gamma=Sigma(1,iGrid)
          x = gamma/rho83
          dxdr = -f83*x*rrho
          dxdg = One/rho83
@@ -194,19 +189,16 @@ c
 c
 c beta component
 c
-         rhoo=max(1.0D-24,rho(ipRb,iGrid))
+         rhoo=max(1.0D-24,rho(2,iGrid))
          if(rhoo.lt.Ta) goto 310
-         grdrhoa_x=rho(ipdRxb,iGrid)
-         grdrhoa_y=rho(ipdRyb,iGrid)
-         grdrhoa_z=rho(ipdRzb,iGrid)
 
          rho43 = rhoo**F43
          rrho = 1.0d0/rhoo       ! reciprocal of rho
          rho13 = rho43*rrho
          rho53 = rhoo**F53
          rho83 = rho53*rhoo
-         tauu=Rho(ipTaub,iGrid)
-         Gamma=grdrhoa_x**2+grdrhoa_y**2+grdrhoa_z**2
+         tauu=Tau(2,iGrid)
+         Gamma=Sigma(3,iGrid)
          x = gamma/rho83
          dxdr = -f83*x*rrho
          dxdg = One/rho83
