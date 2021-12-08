@@ -127,37 +127,19 @@
 #endif
 *
             If (nD.eq.1) Then
-               If (iShell.ge.jShell) Then
                Call Do_Rho7a(mGrid,
      &                       DeDe(ip_D_a),                  mAO,
      &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
      &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
      &                       Fact(ij)*Fij,
      &                       Index(index_i),Index(index_j))
-               Else
-               Call Do_Rho7a(mGrid,
-     &                       DeDe(ip_D_a),                  mAO,
-     &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
-     &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
-     &                       Fact(ij)*Fij,
-     &                       Index(index_i),Index(index_j))
-               End If
             Else
-               If (iShell.ge.jShell) Then
                Call Do_Rho7_(mGrid,
      &                       DeDe(ip_D_a),DeDe(ip_D_b),     mAO,
      &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
      &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
      &                       Fact(ij)*Fij,
      &                       Index(index_i),Index(index_j))
-               Else
-               Call Do_Rho7_(mGrid,
-     &                       DeDe(ip_D_a),DeDe(ip_D_b),     mAO,
-     &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
-     &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
-     &                       Fact(ij)*Fij,
-     &                       Index(index_i),Index(index_j))
-               End If
             End If
 *
          End Do                      ! jlist_s
