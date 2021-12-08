@@ -355,7 +355,6 @@
 *
 *---------- Allocate memory for SO and MO
 *
-cGLM            kAO   = iCmp*iBas_Eff*mGrid
             kAO   = iCmp*iBas*mGrid
             nDeg  = nSym/dc(mdci)%nStab
             nSO   = kAO*nDeg*mAO
@@ -470,7 +469,6 @@ cGLM            kAO   = iCmp*iBas_Eff*mGrid
      &       Weights(iGrid+1),',',
      &       dTot
            END IF
-cGLM          if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
           if(dTot.ge.thrsrho) then
             ratio = 4.0d0*P2_ontop(1,iGrid+1)/(dTot**2.0d0)
             if(l_tanhr) ratio = tanh(ratio)
@@ -511,7 +509,6 @@ cGLM          if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
               dTot_d=dRho_dr(1,iGrid+1,dindex)+dRho_dr(2,iGrid+1,dindex)
               ratio = 0.0d0
               ratio_d = 0.0d0
-cGLM           if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
            if(dTot.ge.thrsrho) then
              ratio = 4.0d0*P2_ontop(1,iGrid+1)/(dTot**2.0d0)
              ratio_d = 4.0d0*P2_ontop_d(1,dindex,iGrid+1)/(dTot**2.0d0)
@@ -630,7 +627,6 @@ cRKCft
      &       Weights(iGrid+1),',',
      &       dTot
            END IF
-cGLM       if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
            if(dTot.ge.thrsrho) then
              ratio = 4.0d0*P2_ontop(1,iGrid+1)/(dTot**2.0d0)
              if(((1.0d0-ratio).gt.thrsrho2).and.(ratio.lt.thrsrho3))then
@@ -683,7 +679,6 @@ cGLM       if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
               dTot_d=dRho_dr(1,iGrid+1,dindex)+dRho_dr(2,iGrid+1,dindex)
               ratio = 0.0d0
               ratio_d = 0.0d0
-cGLM      if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
            if(dTot.ge.thrsrho) then
              ratio = 4.0d0*P2_ontop(1,iGrid+1)/(dTot**2.0d0)
 !             ratio_d= 4.0d0*P2_ontop_d(dindex,iGrid+1)/(dTot**2.0d0)
@@ -879,8 +874,6 @@ c         write(6,*) 'thrsrho2', thrsrho2
      &       Weights(iGrid+1),',',
      &       dTot
            END IF
-cGLM       if(dTot.ge.thrsrho.and.abs(P2_ontop(1,iGrid+1)).ge.
-cGLM     &                               0.25*thrsrho**3.0d0)then
           if(dTot.ge.thrsrho) then
             ratio = 4.0d0*P2_ontop(1,iGrid+1)/(dTot**2.0d0)
             if(l_tanhr) ratio = tanh(ratio)
@@ -1005,10 +998,6 @@ c             pi_p_z = (1.0d0 - zeta**2.0d0)*dTot*grad_z/2.0d0
      &               +dRho_dr(8,iGrid+1,dindex)
               ratio = 0.0d0
               ratio_d = 0.0d0
-cGLM          if(P2_ontop(1,iGrid+1).lt.0.0d0) P2_ontop(1,iGrid+1)
-cGLM     &                                           = 0.0d0
-cGLM       if(dTot.ge.thrsrho.and.abs(P2_ontop(1,iGrid+1))
-cGLM     &                           .ge.0.25*thrsrho**3.0d0) then
           if(dTot.ge.thrsrho) then
               ratio = 4.0d0*P2_ontop(1,iGrid+1)/(dTot**2.0d0)
               ratio_d = 4.0d0*P2_ontop_d(1,dindex,iGrid+1)/(dTot**2.0d0)
@@ -1149,7 +1138,6 @@ c         write(6,*)'X Y Z spinDens and grad aft on-top density'
      &       Weights(iGrid+1),',',
      &       dTot
             END IF
-cGLM      if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
           if(dTot.ge.thrsrho) then
             ratio = 4.0d0*P2_ontop(1,iGrid+1)/(dTot**2.0d0)
             if(((1.0d0-ratio).gt.thrsrho2).and.(ratio.lt.thrsrho3)) then
@@ -1312,7 +1300,6 @@ c             pi_p_z = (1.0d0 - zeta**2.0d0)*dTot*grad_z/2.0d0
      &               +dRho_dr(8,iGrid+1,dindex)
               ratio = 0.0d0
               ratio_d = 0.0d0
-cGLM        if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
             if(dTot.ge.thrsrho) then
               ratio = 4.0d0*P2_ontop(1,iGrid+1)/(dTot**2.0d0)
               ratio_d = 4.0d0*P2_ontop_d(1,dindex,iGrid+1)/(dTot**2.0d0)
@@ -1779,8 +1766,6 @@ C     Write (*,*) Dens_I,Grad_I,Tau_I
       Call Kernel(mGrid,Rho,nRho,P2_ontop,
      &            nP2_ontop,nD,F_xc,dF_dRho,
      &            ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_Rho)
-cGLM     &            nP2_ontop,nD,F_xc,F_xca,F_xcb,dF_dRho,
-cGLM     &            ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_Rho,Work(ip_tmpB))
 *
       If (nD.eq.2.and.DFTFOCK.eq.'DIFF') Then
          Call P2Diff(mGrid,dF_dRho,ndF_dRho,Rho,nRho)
@@ -1789,7 +1774,6 @@ cGLM     &            ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_Rho,Work(ip_tmpB))
 *     Integrate the energy of the functional
 *
       Func=Func+DDot_(mGrid,Weights,1,F_xc,1)
-cGLM     write(6,*) 'Func in do_batch =', Func
       Funcaa=Funcaa+DDot_(mGrid,Weights,1,F_xca,1)
       Funcbb=Funcbb+DDot_(mGrid,Weights,1,F_xcb,1)
       Funccc=Funccc+DDot_(mGrid,Weights,1,tmpB,1)
