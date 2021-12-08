@@ -28,11 +28,13 @@
 *---- Thomas-Fermi Kinetic energy functional
 *
       Coeff=One
-      Call TF_Ts(mGrid,Rho,nRho,nDmat,F_xc,
+      Call TF_Ts(mGrid,nDmat,F_xc,
      &                 dF_dRho,ndF_dRho,Coeff,T_X)
 ************************************************************************
 c Avoid unused argument warnings
       If (.False.) Then
+         Call Unused_Integer(nRho)
+         Call Unused_real_array(Rho)
          Call Unused_real_array(P2_ontop)
          Call Unused_real_array(dF_dP2ontop)
       End If

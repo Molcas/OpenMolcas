@@ -8,17 +8,18 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine TF_Ts(mGrid,Rho,nRho,nDmat,F_xc,dF_dRho,
+      Subroutine TF_Ts(mGrid,nDmat,F_xc,dF_dRho,
      &                 ndF_dRho,Coeff,T_X)
 ************************************************************************
 *                                                                      *
 * Object:  compute Func and potential for Thomas-Fermi KE functional   *
 *                                                                      *
 ************************************************************************
+      use nq_Grid, only: Rho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-      Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
+      Real*8 dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *

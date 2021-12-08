@@ -25,7 +25,7 @@
 *      Modified by G. Ghigo, Department of Theoretical Chemistry,      *
 *                  University of Lund, SWEDEN. June 2004               *
 ************************************************************************
-      use nq_grid, only: Rho, Sigma, Lapl
+      use nq_grid, only: Rho, GradRho, Sigma, Lapl
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
@@ -48,6 +48,9 @@ CGG   Cf=2.8712340001881918D0
        If(nD.eq.1) Then
          Rho_tot=2.0d0*Rho(1,iGrid)
          If (Rho_tot.lt.T_X) Go To 199
+         Rhox=Two*GradRho(1,iGrid)
+         Rhoy=Two*GradRho(2,iGrid)
+         Rhoz=Two*GradRho(3,iGrid)
          gradRho2=Sigma(1,iGrid)
          grad2Rho=2.0d0*Lapl(1,iGrid)
          P2=P2_ontop(1,iGrid)
@@ -60,6 +63,9 @@ CGG   Cf=2.8712340001881918D0
        Else
          Rho_tot=Max(Rho_Min,Rho(1,iGrid))+Max(Rho_Min,Rho(2,iGrid))
          If (Rho_tot.lt.T_X) Go To 199
+         Rhox=GradRho(1,iGrid)+GradRho(4,iGrid)
+         Rhoy=GradRho(2,iGrid)+GradRho(5,iGrid)
+         Rhoz=GradRho(3,iGrid)+GradRho(6,iGrid)
          gradRho2=Sigma(1,iGrid)+Two*Sigma(2,iGrid)+Sigma(3,iGrid)
          grad2Rho=Lapl(2,iGrid)+Lapl(2,iGrid)
          P2 =P2_ontop(1,iGrid)

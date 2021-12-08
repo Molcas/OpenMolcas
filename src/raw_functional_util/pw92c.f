@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Sergey Gusarov                                         *
 ************************************************************************
-      Subroutine PW92C(Rho,nRho,mGrid,
+      Subroutine PW92C(mGrid,
      &                   dF_dRho,ndF_dRho,
      &                   Coeff,iSpin,F_xc,T_X)
 ************************************************************************
@@ -21,9 +21,10 @@
 *              University of LUnd, SWEDEN                              *
 *              Maple 8.0                                               *
 ************************************************************************
+      use nq_Grid, only: Rho
       Implicit Real*8 (A-H,O-Z)
 #include "nq_index.fh"
-      Real*8 dF_dRho(ndF_dRho,mGrid),Rho(nRho,mGrid),F_xc(mGrid)
+      Real*8 dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *

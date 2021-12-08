@@ -22,7 +22,7 @@
 *      Author: Per-AAke Malmquist,Department of Theoretical Chemistry  *
 *              University of LUnd, SWEDEN                              *
 ************************************************************************
-      use nq_Grid, only: Rho, Sigma, Lapl
+      use nq_Grid, only: Rho, GradRho, Sigma, Lapl
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
       Real*8 dF_dRho(ndF_dRho,mGrid),
@@ -43,6 +43,9 @@
        If(nD.eq.1) Then
          Rho_tot=2.0d0*Rho(1,iGrid)
          If (Rho_tot.lt.T_X) Go To 199
+         Rhox=Two*GradRho(1,iGrid)
+         Rhoy=Two*GradRho(2,iGrid)
+         Rhoz=Two*GradRho(3,iGrid)
          gradRho2=Four*Sigma(1,iGrid)
          grad2Rho=2.0d0*Lapl(1,iGrid)
          P2x=P2_ontop(2,iGrid)
