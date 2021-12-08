@@ -24,11 +24,7 @@
 *              Modify Per-AAke's code for open shell case              *
 *              and adopt for closed shell case                         *
 ************************************************************************
-<<<<<<< HEAD:src/raw_functional_util/lyppi.f
       use nq_Grid, only: Rho, GradRho, Sigma, Lapl
-=======
-      use nq_Grid, only: Rho, Sigma, Lapl
->>>>>>> f65508f5fef9865114c9b8dfd9d228c303f4f96b:src/dft_util/lyppi.f
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
