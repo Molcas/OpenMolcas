@@ -24,7 +24,7 @@
 *              Modify Per-AAke's code for open shell case              *
 *              and adopt for closed shell case                         *
 ************************************************************************
-      use nq_Grid, only: Rho, Sigma, Lapl
+      use nq_Grid, only: Rho, GradRho, Sigma, Lapl
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"

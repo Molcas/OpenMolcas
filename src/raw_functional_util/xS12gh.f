@@ -42,7 +42,7 @@
 * T_X: Screening threshold of total density.
         Ta=0.5D0*T_X
         do iGrid=1,mgrid
-         rhoa=rho(i1,iGrid)
+         rhoa=rho(1,iGrid)
          if(rhoa.lt.Ta) goto 110
          sigmaaa=Sigma(1,iGrid)
 
