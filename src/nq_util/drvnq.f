@@ -273,7 +273,7 @@
 *        nRho=nD
          nSigma=nD*(nD+1)/2
          nGradRho=nD*3
-         nLabl=0
+         nLapl=0
          nTau=nD
          mdRho_dR=0
          If (Do_Grad) mdRho_dR=nRho
