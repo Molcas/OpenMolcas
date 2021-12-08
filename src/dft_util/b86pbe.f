@@ -53,7 +53,11 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
+<<<<<<< HEAD
          Call Unused_Integer(nRho)
+=======
+         Call Unused_real_array(nRho)
+>>>>>>> f65508f5fef9865114c9b8dfd9d228c303f4f96b
          Call Unused_real_array(Rho)
          Call Unused_real_array(P2_ontop)
          Call Unused_real_array(dF_dP2ontop)
