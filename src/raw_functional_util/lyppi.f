@@ -11,7 +11,7 @@
 * Copyright (C) Per Ake Malmqvist                                      *
 *               Ajitha Devarajan                                       *
 ************************************************************************
-      Subroutine LYPPI(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Subroutine LYPPI(mGrid,dF_dRho,ndF_dRho,
      &                 Coeff,iSpin,F_xc,T_X)
 ************************************************************************
 *                                                                      *
@@ -24,10 +24,11 @@
 *              Modify Per-AAke's code for open shell case              *
 *              and adopt for closed shell case                         *
 ************************************************************************
+      use nq_Grid, only: Rho, Sigma, Lapl
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-      Real*8 dF_dRho(ndF_dRho,mGrid),Rho(nRho,mGrid),F_xc(mGrid)
+      Real*8 dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
 *
       data Cfconst / 2.8712340001881918D0 /
       data aconst,bconst,cconst,dconst
@@ -52,17 +53,16 @@
 *     iSpin=1
 *
 ************************************************************************
-      Call dScal_(nRho*iSpin*mGrid,2.0d0,Rho,1)
       If (iSpin.eq.1) Then
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Do iGrid = 1, mGrid
 *
-      Dns = Rho(ipR,iGrid)
+      Dns = Two*Rho(1,iGrid)
       if(Dns.lt.T_X) Go To 100
-      gradRho2=ddot_(3,Rho(ipdRx,iGrid),1,Rho(ipdRx,iGrid),1)
-      grad2Rho = Rho(ipL,iGrid)
+      gradRho2= Two*Sigma(1,iGrid)
+      grad2Rho = Two*Lapl(1,iGrid)
 
       t1 = aConst*bConst
       t2 = Dns**(1.D0/3.D0)
@@ -125,20 +125,10 @@
 *                                                                      *
 *
       Do iGrid = 1, mGrid
-      rhoa=Max(Rho_min,Rho(ipRa,iGrid))
-      rhob=Max(Rho_min,Rho(ipRb,iGrid))
+      rhoa=Max(Rho_min,Rho(1,iGrid))
+      rhob=Max(Rho_min,Rho(2,iGrid))
       rho_tot=rhoa+rhob
       if(rho_tot.lt.T_X) Go To 200
-      gxa=Rho(ipdRxa,iGrid)
-      gya=Rho(ipdRya,iGrid)
-      gza=Rho(ipdRza,iGrid)
-      gxb=Rho(ipdRxb,iGrid)
-      gyb=Rho(ipdRyb,iGrid)
-      gzb=Rho(ipdRzb,iGrid)
-
-      gx=gxa+gxb
-      gy=gya+gyb
-      gz=gza+gzb
 
       rho3=rho_tot**(-1.0D0/3)
       crho3=cconst*rho3
@@ -165,9 +155,9 @@
       dec2dra=(ec2*dlogodr)+(11*tmp1+3*tmp2)/(3*rhoa)
       dec2drb=(ec2*dlogodr)+(3*tmp1+11*tmp2)/(3*rhob)
 
-      sa=gxa**2+gya**2+gza**2
-      sb=gxb**2+gyb**2+gzb**2
-      s =gx**2+gy**2+gz**2
+      sa=Sigma(1,iGrid)
+      sb=Sigma(3,iGrid)
+      s =sa + Two*Sigma(2,iGrid) + sb
       pp=-p*rhoa*rhob/(18*rho_tot)
       dppdra=((dlogodr-1/rho_tot)+1/rhoa)*pp
       dppdrb=((dlogodr-1/rho_tot)+1/rhob)*pp
