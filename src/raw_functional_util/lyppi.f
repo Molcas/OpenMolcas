@@ -129,7 +129,16 @@
       rhob=Max(Rho_min,Rho(2,iGrid))
       rho_tot=rhoa+rhob
       if(rho_tot.lt.T_X) Go To 200
+      gxa=GradRho(1,iGrid)
+      gya=GradRho(2,iGrid)
+      gza=GradRho(3,iGrid)
+      gxb=GradRho(4,iGrid)
+      gyb=GradRho(5,iGrid)
+      gzb=GradRho(6,iGrid)
 
+      gx = gxa+gxb
+      gy = gya+gyb
+      gz = gza+gzb
       rho3=rho_tot**(-1.0D0/3)
       crho3=cconst*rho3
       R=1/(1+dconst*rho3)
@@ -155,9 +164,9 @@
       dec2dra=(ec2*dlogodr)+(11*tmp1+3*tmp2)/(3*rhoa)
       dec2drb=(ec2*dlogodr)+(3*tmp1+11*tmp2)/(3*rhob)
 
-      sa=Sigma(1,iGrid)
-      sb=Sigma(3,iGrid)
-      s =sa + Two*Sigma(2,iGrid) + sb
+      sa=gxa**2+gya**2+gza**2
+      sb=gxb**2+gyb**2+gzb**2
+      s =gx **2+gy **2+ gz**2
       pp=-p*rhoa*rhob/(18*rho_tot)
       dppdra=((dlogodr-1/rho_tot)+1/rhoa)*pp
       dppdrb=((dlogodr-1/rho_tot)+1/rhob)*pp
