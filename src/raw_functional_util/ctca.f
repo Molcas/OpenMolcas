@@ -93,16 +93,6 @@
          rhob=max(1.0D-24,Rho(2,iGrid))
          rho_in=rhoa+rhob
          if(rho_in.lt.T_X) goto 210
-         grdrhoa_x=Rho(ipdRxa,iGrid)
-         grdrhoa_y=Rho(ipdRya,iGrid)
-         grdrhoa_z=Rho(ipdRza,iGrid)
-         grdrhob_x=Rho(ipdRxb,iGrid)
-         grdrhob_y=Rho(ipdRyb,iGrid)
-         grdrhob_z=Rho(ipdRzb,iGrid)
-
-         grdrho_x=grdrhoa_x+grdrhob_x
-         grdrho_y=grdrhoa_y+grdrhob_y
-         grdrho_z=grdrhoa_z+grdrhob_z
          gamma_in=Sigma(1,iGrid)+Two*Sigma(2,iGrid)+Sigma(3,iGrid)
          zeta_in=(rhoa-rhob)/rho_in
          call ctca_(idord,rho_in,gamma_in,zeta_in,func0,func1,func2)

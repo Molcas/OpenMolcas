@@ -174,7 +174,6 @@
 *
         grad2Z = Zero
 *
-        ii=0
         Do i=1,3
            Betaxx = - Two*qCS*GradRho(i,iGrid)**2/
      &                (9.0d0*Rho(1,iGrid)**(5.0d0/3.0d0)) +
