@@ -23,4 +23,5 @@ Real*8, Allocatable:: Lapl(:,:)
 Integer :: nLapl=0
 Real*8, Allocatable:: Tau(:,:)
 Integer :: nTau=0
+Logical :: l_CASDFT=.FALSE.
 End Module nq_Grid

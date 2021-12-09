@@ -29,6 +29,7 @@
       use nq_Grid, only: Rho, GradRho, Sigma, Tau, Lapl
       use nq_Grid, only: Grid, Weights
       use nq_Grid, only: nRho, nGradRho, nTau, nSigma, nLapl, nGridMax
+      use nq_Grid, only: l_CASDFT
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "real.fh"
@@ -44,7 +45,7 @@
 #include "ksdft.fh"
       Real*8 FckInt(nFckInt,nFckDim),Density(nFckInt,nD), Grad(nGrad)
       Logical Do_Grad, Do_MO,Do_TwoEl,PMode
-      Logical l_XHol, l_casdft
+      Logical l_XHol
       Character*4 DFTFOCK
       Integer nBas(8), nDel(8)
 *                                                                      *
@@ -148,7 +149,6 @@
 *                                                                      *
 *     CASDFT stuff:
 *
-      l_casdft=.false.
       nP2=1
       nCmo=1
       nD1mo=1
@@ -170,6 +170,26 @@
       LuGridFile=31
       LuGridFile=IsFreeUnit(LuGridFile)
       Call Molcas_Open(LuGridFile,'GRIDFILE')
+*                                                                      *
+************************************************************************
+* Global variable for MCPDFT functionals                               *
+      l_casdft = KSDFA.eq.'TLSDA'   .or.
+     &           KSDFA.eq.'TLSDA5'  .or.
+     &           KSDFA.eq.'TBLYP'   .or.
+     &           KSDFA.eq.'TSSBSW'  .or.
+     &           KSDFA.eq.'TSSBD'   .or.
+     &           KSDFA.eq.'TS12G'   .or.
+     &           KSDFA.eq.'TPBE'    .or.
+     &           KSDFA.eq.'FTPBE'   .or.
+     &           KSDFA.eq.'TOPBE'   .or.
+     &           KSDFA.eq.'FTOPBE'  .or.
+     &           KSDFA.eq.'TREVPBE' .or.
+     &           KSDFA.eq.'FTREVPBE'.or.
+     &           KSDFA.eq.'FTLSDA'  .or.
+     &           KSDFA.eq.'FTBLYP'
+      if(Debug) write(6,*) 'l_casdft value at drvnq.f:',l_casdft
+      if(Debug.and.l_casdft) write(6,*) 'MCPDFT with functional:', KSDFA
+************************************************************************
 ************************************************************************
 *
 ************************************************************************
@@ -397,27 +417,7 @@
       iplist_bas=iplist_exp+nIrrep*nShell
       Call GetMem('list_p','Allo','Inte',iplist_p,nNQ)
       Call GetMem('R2_trail','Allo','Real',ipR2_trail,nNQ)
-c     Call GetMem('tmpB','Allo','Real',ip_tmpB,nGridMax)
-*                                                                      *
-************************************************************************
-* Global variable for MCPDFT functionals                               *
-      l_casdft = KSDFA.eq.'TLSDA'   .or.
-     &           KSDFA.eq.'TLSDA5'  .or.
-     &           KSDFA.eq.'TBLYP'   .or.
-     &           KSDFA.eq.'TSSBSW'  .or.
-     &           KSDFA.eq.'TSSBD'   .or.
-     &           KSDFA.eq.'TS12G'   .or.
-     &           KSDFA.eq.'TPBE'    .or.
-     &           KSDFA.eq.'FTPBE'   .or.
-     &           KSDFA.eq.'TOPBE'   .or.
-     &           KSDFA.eq.'FTOPBE'  .or.
-     &           KSDFA.eq.'TREVPBE' .or.
-     &           KSDFA.eq.'FTREVPBE'.or.
-     &           KSDFA.eq.'FTLSDA'  .or.
-     &           KSDFA.eq.'FTBLYP'
-      if(Debug) write(6,*) 'l_casdft value at drvnq.f:',l_casdft
-      if(Debug.and.l_casdft) write(6,*) 'MCPDFT with functional:', KSDFA
-************************************************************************
+
       If (Do_MO) Then
          If (NQNAC.ne.0) Then
            If(.not.l_casdft) Then

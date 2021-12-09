@@ -35,6 +35,7 @@
       use Phase_Info
       use KSDFT_Info
       use nq_Grid, only: Grid, Weights, Rho, GradRho, Sigma, nRho
+      use nq_Grid, only: l_CASDFT
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "SysDef.fh"
@@ -64,7 +65,7 @@
      &       dW_dR(nGrad_Eff,mGrid),dF_dP2ontop(ndF_dP2ontop,mGrid)
       Real*8 TmpPUVX(nTmpPUVX)
       Logical Do_Grad,Do_Mo,Do_TwoEl,Unpack
-      Logical l_Xhol, l_tanhr,l_casdft
+      Logical l_Xhol, l_tanhr
       Logical ft
       Character*4 DFTFOCK
       Integer dindex
@@ -92,26 +93,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*                                                                      *
-************************************************************************
-*        Initializing MCPDFT global variable                           *
 ************************************************************************
 *                                                                      *
-      l_casdft = KSDFA(1:5).eq.'TLSDA'   .or.
-     &           KSDFA(1:6).eq.'TLSDA5'  .or.
-     &           KSDFA(1:5).eq.'TBLYP'   .or.
-     &           KSDFA(1:6).eq.'TSSBSW'  .or.
-     &           KSDFA(1:5).eq.'TSSBD'  .or.
-     &           KSDFA(1:5).eq.'TS12G'  .or.
-     &           KSDFA(1:4).eq.'TPBE'    .or.
-     &           KSDFA(1:5).eq.'FTPBE'   .or.
-     &           KSDFA(1:7).eq.'TREVPBE' .or.
-     &           KSDFA(1:8).eq.'FTREVPBE'.or.
-     &           KSDFA(1:6).eq.'FTLSDA'  .or.
-     &           KSDFA(1:5).eq.'TOPBE'   .or.
-     &           KSDFA(1:6).eq.'FTOPBE'  .or.
-     &           KSDFA(1:6).eq.'FTBLYP'
-************************************************************************
 #ifdef _DEBUGPRINT_
       Debug_Save=Debug
       Debug=Debug.or.iPrint.ge.99
