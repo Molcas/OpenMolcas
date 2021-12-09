@@ -25,11 +25,12 @@
 ************************************************************************
       use iSD_data
       use Symmetry_Info, only: nIrrep
-      use KSDFT_Info, only: KSDFA
+      use KSDFT_Info, only: KSDFA, F_xca, F_xcb, TmpB
       use nq_Grid, only: Rho, GradRho, Sigma, Tau, Lapl
       use nq_Grid, only: Grid, Weights
       use nq_Grid, only: nRho, nGradRho, nTau, nSigma, nLapl, nGridMax
       use nq_Grid, only: l_CASDFT
+      use nq_Grid, only: Exc
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "real.fh"
@@ -409,7 +410,12 @@
       If (nLapl.ne.0) Call mma_allocate(Lapl,nLapl,nGridMax,
      &                                 Label='Lapl')
 
-      Call GetMem('F_xc','Allo','Real',ip_F_xc,nGridMax)
+      Call mma_allocate(Exc,nGridMax,Label='Exc')
+      If (l_casdft) Then
+         Call mma_allocate(F_xca,nGridMax,Label='F_xca')
+         Call mma_allocate(F_xcb,nGridMax,Label='F_xcb')
+         Call mma_allocate(TmpB,nGridMax,Label='TmpB')
+      End If
       Call GetMem('dF_dRho','Allo','Real',ip_dFdRho,ndF_dRho*nGridMax)
 *
       Call GetMem('list_s','Allo','Inte',iplist_s,2*nIrrep*nShell)
@@ -567,8 +573,7 @@
      &            Work(ipP2mo),nP2,Work(ipD1mo),nd1mo,Work(ipp2_ontop),
      &            Do_Grad,Grad,nGrad,iWork(iplist_g),
      &            iWork(ipIndGrd),iWork(ipiTab),Work(ipTemp),mGrad,
-     &            Work(ip_F_xc),
-     &            Work(ip_dFdRho),work(ipdF_dP2ontop),
+     &            Exc,Work(ip_dFdRho),work(ipdF_dP2ontop),
      &            DFTFOCK,mAO,mdRho_dR)
 *                                                                      *
 ************************************************************************
@@ -597,7 +602,12 @@
          Call Put_dArray('DFT_TwoEl',Work(ipTmpPUVX),nTmpPUVX)
          Call GetMem('TmpPUVX','Free','Real',ipTmpPUVX,nTmpPUVX)
       End If
-      Call GetMem('F_xc','Free','Real',ip_F_xc,nGridMax)
+      If (l_casdft) Then
+         Call mma_deallocate(TmpB)
+         Call mma_deallocate(F_xcb)
+         Call mma_deallocate(F_xca)
+      End If
+      Call mma_deallocate(Exc)
 *
       If (Allocated(Lapl)) Call mma_deallocate(Lapl)
       If (Allocated(Tau)) Call mma_deallocate(Tau)

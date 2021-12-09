@@ -1734,14 +1734,13 @@ C     Write (*,*) Dens_I,Grad_I,Tau_I
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call FZero(dF_dRho,ndF_dRho*mGrid)
-      Call FZero(F_xc,mGrid)
-      Call mma_allocate(F_xca,mGrid,Label='F_xca')
-      Call mma_allocate(F_xcb,mGrid,Label='F_xcb')
-      Call mma_allocate(tmpB,mGrid,Label='tmpB')
-      F_xca(:)=Zero
-      F_xcb(:)=Zero
-      tmpB(:)=Zero
+      dF_dRho(:,1:mGrid)=Zero
+      F_xc(1:mGrid)=Zero
+      If (l_casdft) Then
+         F_xca(1:mGrid)=Zero
+         F_xcb(1:mGrid)=Zero
+         tmpB(1:mGrid)=Zero
+      End If
 *
 *1)   evaluate the energy density, the derivative of the functional with
 *     respect to rho and grad rho.
@@ -1757,13 +1756,11 @@ C     Write (*,*) Dens_I,Grad_I,Tau_I
 *     Integrate the energy of the functional
 *
       Func=Func+DDot_(mGrid,Weights,1,F_xc,1)
-      Funcaa=Funcaa+DDot_(mGrid,Weights,1,F_xca,1)
-      Funcbb=Funcbb+DDot_(mGrid,Weights,1,F_xcb,1)
-      Funccc=Funccc+DDot_(mGrid,Weights,1,tmpB,1)
-      call xflush(6)
-      Call mma_deallocate(F_xca)
-      Call mma_deallocate(F_xcb)
-      Call mma_deallocate(tmpB)
+      If (l_casdft) Then
+         Funcaa=Funcaa+DDot_(mGrid,Weights,1,F_xca,1)
+         Funcbb=Funcbb+DDot_(mGrid,Weights,1,F_xcb,1)
+         Funccc=Funccc+DDot_(mGrid,Weights,1,tmpB,1)
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
