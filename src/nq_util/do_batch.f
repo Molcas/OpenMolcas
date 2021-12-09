@@ -10,8 +10,7 @@
 *                                                                      *
 * Copyright (C) 2000, Roland Lindh                                     *
 ************************************************************************
-      Subroutine Do_Batch(Kernel,Func,
-     &                    Grid,Weights,Rho,mGrid,nRho,
+      Subroutine Do_Batch(Kernel,Func,mGrid,
      &                    list_s,nlist_s,List_Exp,List_Bas,
      &                    Index,nIndex,AOInt,nAOInt,
      &                    FckInt,nFckDim,nFckInt,SOTemp,nSOTemp,
@@ -35,6 +34,7 @@
       use Center_Info
       use Phase_Info
       use KSDFT_Info
+      use nq_Grid, only: Grid, Weights, Rho, GradRho, Sigma, nRho
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "SysDef.fh"
@@ -53,8 +53,7 @@
      &        ipTabAO(nlist_s+1,2), IndGrd(nGrad_Eff),
      &        list_g(3,nlist_s), iTab(4,nGrad_Eff), Index(nIndex),
      &        Maps2p(nShell,0:nSym-1), List_Bas(2,nlist_s)
-      Real*8 A(3), RA(3), Grid(3,mGrid), Weights(mGrid),
-     &       Rho(nRho,mGrid), AOInt(nAOInt*nAOInt,nD),
+      Real*8 A(3), RA(3), AOInt(nAOInt*nAOInt,nD),
      &       dF_dRho(ndF_dRho,mGrid), TabAO(nTabAO), Grad(nGrad),
      &       FckInt(nFckInt,nFckDim),
      &       Dens(nDens,nD), SOTemp(nSOTemp,nD),
@@ -142,7 +141,7 @@
       Else If(DFTFOCK.eq.'DIFF'.and.nD.eq.2) Then
          mRho = nRho/nD
       Else If(l_casdft) then !GLM
-      mRho = nP2_ontop
+         mRho = nP2_ontop
       End If
 *
       If (mRho.ne.-1) Then
@@ -165,23 +164,16 @@
 ************************************************************************
 *
       Call FZero(TabAO,nTabAO)
-c      write(6,*) 'nTabAO value in do_batch.f=', nTabAO
       UnPack=.False.
       If (NQ_Direct.eq.Off .and. (Grid_Status.eq.Use_Old .and.
      &      .Not.Do_Grad         .and.
      &    Functional_Type.eq.Old_Functional_Type)) Then
-C        Write (*,*) 'Read from disk!'
 *
 *------- Retrieve the AOs from disc
 *
-C        Write (*,*) 'iDisk_Grid=',iDisk_Grid
          Call iDaFile(Lu_Grid,2,ipTabAO,2*(nlist_s+1),iDisk_Grid)
-C        Write (*,*) 'ipTabAO(*,1)=',(ipTabAO(i,1),i=1,nlist_s+1)
-C        Write (*,*) 'ipTabAO(*,2)=',(ipTabAO(i,2),i=1,nlist_s+1)
          mTabAO=ipTabAO(nlist_s+1,2)-1
-C        Write (*,*) 'iDisk_Grid,mTabAO=',iDisk_Grid,mTabAO
          Call dDaFile(Lu_Grid,2,TabAO,mTabAO,iDisk_Grid)
-C        Call RecPrt('TabAO from disk',' ',TabAO,1,mTabAO)
          Unpack=Packing.eq.On
 *
       Else
@@ -233,25 +225,11 @@ C        Call RecPrt('TabAO from disk',' ',TabAO,1,mTabAO)
             RA(2) = py*A(2)
             RA(3) = pz*A(3)
             iSym=NrOpr(iR)
-#ifdef _DEBUGPRINT_
-            If (debug) Write (6,*) 'mAO=',mAO
-            If (iPrim_Eff.le.0 .or. iPrim_Eff.gt.iPrim) Then
-               Call WarningMessage(2,'Do_batch: error in iPrim_Eff!')
-               Write (6,*) '          iPrim=',iPrim
-               Write (6,*) '          iPrim_Eff=',iPrim_Eff
-               Call Abend()
-            End If
-#endif
 *
 *---------- Evaluate AOs at RA
 *
-#ifdef _DEBUGPRINT_
-            iPrint_132=nPrint(132)
-            If (Debug) nPrint(132)=99
-#endif
             ipTabAO(iList_s,1)=iOff
 *                                                                      *
-c            write(6,*) 'iOff =', iOff
             Call AOEval(iAng,mGrid,Grid,Work(ipxyz),RA,
      &                  Shells(iShll)%Transf,
      &                  RSph(ipSph(iAng)),nElem(iAng),iCmp,
@@ -263,13 +241,8 @@ c            write(6,*) 'iOff =', iOff
      &                  TabAO(iOff),
      &                  mAO,px,py,pz,ipx,ipy,ipz)
             iOff = iOff + mAO*mGrid*iBas_Eff*iCmp
-#ifdef _DEBUGPRINT_
-            nPrint(132)=iPrint_132
-#endif
 *
          End Do
-*                write(6,*) 'AOValue in do_batch:'
-*         write(6,'(10G20.10)') (TabAO(i),i=1,nTabAO)
          ipTabAO(nList_s+1,1)=iOff
 *
 *        AOs are packed and written to disk.
@@ -290,7 +263,7 @@ c            write(6,*) 'iOff =', iOff
                   iBas_Eff = List_Bas(1,ilist_s)
                   nData=mAO*mGrid*iBas_Eff*iCmp
 *
-*                 Check if we should store any AO's at all!
+*                 Check if we should store any AOs at all!
 *
                   iOff = ipTabAO(ilist_s,1)
                   ix=iDAMax_(nData,TabAO(iOff),1)
@@ -361,6 +334,7 @@ c            write(6,*) 'iOff =', iOff
       End If
 *                                                                      *
 ************************************************************************
+************************************************************************
 *                                                                      *
 *     Evaluate some MOs on the grid                                    *
 *                                                                      *
@@ -381,7 +355,6 @@ c            write(6,*) 'iOff =', iOff
 *
 *---------- Allocate memory for SO and MO
 *
-cGLM            kAO   = iCmp*iBas_Eff*mGrid
             kAO   = iCmp*iBas*mGrid
             nDeg  = nSym/dc(mdci)%nStab
             nSO   = kAO*nDeg*mAO
@@ -418,12 +391,16 @@ cGLM            kAO   = iCmp*iBas_Eff*mGrid
 *---- Compute density and grad_density
 *                                                                      *
 ************************************************************************
+************************************************************************
 *                                                                      *
       If (Functional_type.eq.LDA_type) Then
-*
-         Call Rho_LDA(Dens,nDens,nD,Rho,nRho,mGrid,
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
+         Call Rho_LDA(Dens,nDens,nD,mGrid,
      &                list_s,nlist_s,TabAO,ipTabAO,mAO,nTabAO,nSym,
-     &                Work(ip_Fact),ndc,Work(ipTabAOMax),
+     &                Work(ip_Fact),ndc,
      &                list_bas,Index,nIndex)
 *
          If (Do_Grad)
@@ -492,7 +469,6 @@ cGLM            kAO   = iCmp*iBas_Eff*mGrid
      &       Weights(iGrid+1),',',
      &       dTot
            END IF
-cGLM          if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
           if(dTot.ge.thrsrho) then
             ratio = 4.0d0*P2_ontop(1,iGrid+1)/(dTot**2.0d0)
             if(l_tanhr) ratio = tanh(ratio)
@@ -533,7 +509,6 @@ cGLM          if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
               dTot_d=dRho_dr(1,iGrid+1,dindex)+dRho_dr(2,iGrid+1,dindex)
               ratio = 0.0d0
               ratio_d = 0.0d0
-cGLM           if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
            if(dTot.ge.thrsrho) then
              ratio = 4.0d0*P2_ontop(1,iGrid+1)/(dTot**2.0d0)
              ratio_d = 4.0d0*P2_ontop_d(1,dindex,iGrid+1)/(dTot**2.0d0)
@@ -652,7 +627,6 @@ cRKCft
      &       Weights(iGrid+1),',',
      &       dTot
            END IF
-cGLM       if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
            if(dTot.ge.thrsrho) then
              ratio = 4.0d0*P2_ontop(1,iGrid+1)/(dTot**2.0d0)
              if(((1.0d0-ratio).gt.thrsrho2).and.(ratio.lt.thrsrho3))then
@@ -705,7 +679,6 @@ cGLM       if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
               dTot_d=dRho_dr(1,iGrid+1,dindex)+dRho_dr(2,iGrid+1,dindex)
               ratio = 0.0d0
               ratio_d = 0.0d0
-cGLM      if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
            if(dTot.ge.thrsrho) then
              ratio = 4.0d0*P2_ontop(1,iGrid+1)/(dTot**2.0d0)
 !             ratio_d= 4.0d0*P2_ontop_d(dindex,iGrid+1)/(dTot**2.0d0)
@@ -795,12 +768,18 @@ C    &                         nGrad_Eff,list_g,
 C    &                         Grid_Type,Fixed_Grid,
 C    &                         Work(ip_Fact),ndc,Work(ipTmp),T_X,
 C    &                         list_bas,Index,nIndex)
-*
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
       Else If (Functional_type.eq.GGA_type) Then
-*
-         Call Rho_GGA(Dens,nDens,nD,Rho,nRho,mGrid,
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
+         Call Rho_GGA(Dens,nDens,nD,mGrid,
      &                list_s,nlist_s,TabAO,ipTabAO,mAO,nTabAO,nSym,
-     &                Work(ip_Fact),ndc,Work(ipTabAOMax),
+     &                Work(ip_Fact),ndc,
      &                list_bas,Index,nIndex)
 *
          If (Do_Grad)
@@ -812,10 +791,11 @@ C    &                         list_bas,Index,nIndex)
      &                       Work(ip_Fact),ndc,Work(ipTmp),T_X,
      &                       list_bas,Index,nIndex)
 
+*======================================================================*
+*======================================================================*
 ************************************************************************
 * TBLYP,TPBE,TREVPBE,TSSBSW,TSSBD,TS12G                                *
 ************************************************************************
-
       if(KSDFA(1:5).eq.'TBLYP'.or. !GLM
      &   KSDFA(1:4).eq.'TPBE'.or.
      &   KSDFA(1:6).eq.'TSSBSW'.or.
@@ -870,7 +850,8 @@ c         end do
 C         write(6,*)'X Y Z d_a d_b grXa grYa grZa grXb grYb grZb bf P2'
 C         do iGrid=1,mGrid
 C           write(6,'(3F8.3,8E12.4)')
-C     &           (Grid(i,iGrid),i=1,3),(Rho(j,iGrid),j=1,8)
+C     &           (Grid(i,iGrid),i=1,3),(Rho(j,iGrid),j=1,2)
+C     &           (GradRho(k,iGrid),k=1,6)
 C         end do
 c         write(6,*) 'thrsrho', thrsrho
 c         write(6,*) 'thrsrho2', thrsrho2
@@ -878,9 +859,9 @@ c         write(6,*) 'thrsrho2', thrsrho2
        If(.not.Do_Grad) then
          do iGrid=0,mGrid-1
           dTot=Rho(1,iGrid+1)+Rho(2,iGrid+1)
-          grad_x = Rho(3,iGrid+1)+Rho(6,iGrid+1)
-          grad_y = Rho(4,iGrid+1)+Rho(7,iGrid+1)
-          grad_z = Rho(5,iGrid+1)+Rho(8,iGrid+1)
+          grad_x = GradRho(1,iGrid+1)+GradRho(4,iGrid+1)
+          grad_y = GradRho(2,iGrid+1)+GradRho(5,iGrid+1)
+          grad_z = GradRho(3,iGrid+1)+GradRho(6,iGrid+1)
           ratio = 0.0d0
            IF(Debug) THEN
           write(LuMT,'(3(F10.6,A),5(F17.10,A))')
@@ -893,8 +874,6 @@ c         write(6,*) 'thrsrho2', thrsrho2
      &       Weights(iGrid+1),',',
      &       dTot
            END IF
-cGLM       if(dTot.ge.thrsrho.and.abs(P2_ontop(1,iGrid+1)).ge.
-cGLM     &                               0.25*thrsrho**3.0d0)then
           if(dTot.ge.thrsrho) then
             ratio = 4.0d0*P2_ontop(1,iGrid+1)/(dTot**2.0d0)
             if(l_tanhr) ratio = tanh(ratio)
@@ -914,61 +893,61 @@ c             pi_p_z = (1.0d0 - zeta**2.0d0)*dTot*grad_z/2.0d0
 c              write(6,*) 'P2_p-pi_p =', P2_ontop(2,iGrid+1)-pi_p_x,
 c     &        P2_ontop(3,iGrid+1)-pi_p_y, P2_ontop(4,iGrid+1)-pi_p_z
 *              write(6,*) 'Old Rho = ',
-*     &        Rho(3,iGrid+1),Rho(4,iGrid+1),Rho(5,iGrid+1),
-*     &        Rho(6,iGrid+1),Rho(7,iGrid+1),Rho(8,iGrid+1)
+*     &        GradRho(1,iGrid+1),GradRho(2,iGrid+1),GradRho(3,iGrid+1),
+*     &        GradRho(4,iGrid+1),GradRho(5,iGrid+1),GradRho(6,iGrid+1)
         if(l_tanhr) then
-          Rho(3,iGrid+1)= (1.0d0+Zeta)*grad_x/2.0d0
+          GradRho(1,iGrid+1)= (1.0d0+Zeta)*grad_x/2.0d0
      &    + ((ratio**2.0d0 - 1.0d0)
      &    *(P2_ontop(2,iGrid+1)-(grad_x*4.0d0*P2_ontop(1,iGrid+1)/dTot))
      &    /(dTot*zeta))
 c
-          Rho(4,iGrid+1)= (1.0d0+Zeta)*grad_y/2.0d0
+          GradRho(2,iGrid+1)= (1.0d0+Zeta)*grad_y/2.0d0
      &    + ((ratio**2.0d0 - 1.0d0)
      &    *(P2_ontop(3,iGrid+1)-(grad_y*4.0d0*P2_ontop(1,iGrid+1)/dTot))
      &    /(dTot*zeta))
 c
-          Rho(5,iGrid+1)= (1.0d0+Zeta)*grad_z/2.0d0
+          GradRho(3,iGrid+1)= (1.0d0+Zeta)*grad_z/2.0d0
      &    + ((ratio**2.0d0 - 1.0d0)
      &    *(P2_ontop(4,iGrid+1)-(grad_z*4.0d0*P2_ontop(1,iGrid+1)/dTot))
      &    /(dTot*zeta))
 c
-          Rho(6,iGrid+1)= (1.0d0-Zeta)*grad_x/2.0d0
+          GradRho(4,iGrid+1)= (1.0d0-Zeta)*grad_x/2.0d0
      &    - ((ratio**2.0d0 - 1.0d0)
      &    *(P2_ontop(2,iGrid+1)-(grad_x*4.0d0*P2_ontop(1,iGrid+1)/dTot))
      &    /(dTot*zeta))
 c
-          Rho(7,iGrid+1)= (1.0d0-Zeta)*grad_y/2.0d0
+          GradRho(5,iGrid+1)= (1.0d0-Zeta)*grad_y/2.0d0
      &    - ((ratio**2.0d0 - 1.0d0)
      &    *(P2_ontop(3,iGrid+1)-(grad_y*4.0d0*P2_ontop(1,iGrid+1)/dTot))
      &    /(dTot*zeta))
 c
-          Rho(8,iGrid+1)= (1.0d0-Zeta)*grad_z/2.0d0
+          GradRho(6,iGrid+1)= (1.0d0-Zeta)*grad_z/2.0d0
      &    - ((ratio**2.0d0 - 1.0d0)
      &    *(P2_ontop(4,iGrid+1)-(grad_z*4.0d0*P2_ontop(1,iGrid+1)/dTot))
      &    /(dTot*zeta))
         else
-              Rho(3,iGrid+1)= (1.0d0+Zeta)*grad_x/2.0d0
+              GradRho(1,iGrid+1)= (1.0d0+Zeta)*grad_x/2.0d0
 *     &                         + ratio*grad_x/(2.0d0*Zeta)
 *     &                         - P2_ontop(2,iGrid+1)/(dTot*Zeta)
-              Rho(4,iGrid+1)= (1.0d0+Zeta)*grad_y/2.0d0
+              GradRho(2,iGrid+1)= (1.0d0+Zeta)*grad_y/2.0d0
 *     &                         + ratio*grad_y/(2.0d0*Zeta)
 *     &                         - P2_ontop(3,iGrid+1)/(dTot*Zeta)
-              Rho(5,iGrid+1)= (1.0d0+Zeta)*grad_z/2.0d0
+              GradRho(3,iGrid+1)= (1.0d0+Zeta)*grad_z/2.0d0
 *     &                         + ratio*grad_z/(2.0d0*Zeta)
 *     &                         - P2_ontop(4,iGrid+1)/(dTot*Zeta)
-              Rho(6,iGrid+1)= (1.0d0-Zeta)*grad_x/2.0d0
+              GradRho(4,iGrid+1)= (1.0d0-Zeta)*grad_x/2.0d0
 *     &                         - ratio*grad_x/(2.0d0*Zeta)
 *     &                         + P2_ontop(2,iGrid+1)/(dTot*Zeta)
-              Rho(7,iGrid+1)= (1.0d0-Zeta)*grad_y/2.0d0
+              GradRho(5,iGrid+1)= (1.0d0-Zeta)*grad_y/2.0d0
 *     &                         - ratio*grad_y/(2.0d0*Zeta)
 *     &                         + P2_ontop(3,iGrid+1)/(dTot*Zeta)
-              Rho(8,iGrid+1)= (1.0d0-Zeta)*grad_z/2.0d0
+              GradRho(6,iGrid+1)= (1.0d0-Zeta)*grad_z/2.0d0
 *     &                         - ratio*grad_z/(2.0d0*Zeta)
 *     &                         + P2_ontop(4,iGrid+1)/(dTot*Zeta)
         end if ! End tanh option
 *              write(6,*) 'New Rho = ',
-*     &        Rho(3,iGrid+1),Rho(4,iGrid+1),Rho(5,iGrid+1),
-*     &        Rho(6,iGrid+1),Rho(7,iGrid+1),Rho(8,iGrid+1)
+*     &        GradRho(1,iGrid+1),GradRho(2,iGrid+1),GradRho(3,iGrid+1),
+*     &        GradRho(4,iGrid+1),GradRho(5,iGrid+1),GradRho(6,iGrid+1)
            else
              Zeta  = 0.0d0
 c             pi_p_x = (1.0d0 - zeta**2.0d0)*dTot*grad_x/2.0d0
@@ -978,12 +957,12 @@ c             pi_p_z = (1.0d0 - zeta**2.0d0)*dTot*grad_z/2.0d0
               Rho(1,iGrid+1)=(1.0d0+Zeta)*dTot/2.0d0
               Rho(2,iGrid+1)=(1.0d0-Zeta)*dTot/2.0d0
 * Compute  gradients
-              Rho(3,iGrid+1)= (1.0d0+Zeta)*grad_x/2.0d0
-              Rho(4,iGrid+1)= (1.0d0+Zeta)*grad_y/2.0d0
-              Rho(5,iGrid+1)= (1.0d0+Zeta)*grad_z/2.0d0
-              Rho(6,iGrid+1)= (1.0d0-Zeta)*grad_x/2.0d0
-              Rho(7,iGrid+1)= (1.0d0-Zeta)*grad_y/2.0d0
-              Rho(8,iGrid+1)= (1.0d0-Zeta)*grad_z/2.0d0
+              GradRho(1,iGrid+1)= (1.0d0+Zeta)*grad_x/2.0d0
+              GradRho(2,iGrid+1)= (1.0d0+Zeta)*grad_y/2.0d0
+              GradRho(3,iGrid+1)= (1.0d0+Zeta)*grad_z/2.0d0
+              GradRho(4,iGrid+1)= (1.0d0-Zeta)*grad_x/2.0d0
+              GradRho(5,iGrid+1)= (1.0d0-Zeta)*grad_y/2.0d0
+              GradRho(6,iGrid+1)= (1.0d0-Zeta)*grad_z/2.0d0
            end if
 *          ^ end conditional regarding the ratio
           end if
@@ -1006,9 +985,9 @@ c             pi_p_z = (1.0d0 - zeta**2.0d0)*dTot*grad_z/2.0d0
        Else !GRADIENT CALCULATION
            do iGrid=0,mGrid-1
            dTot=Rho(1,iGrid+1)+Rho(2,iGrid+1)
-           grad_x = Rho(3,iGrid+1)+Rho(6,iGrid+1)
-           grad_y = Rho(4,iGrid+1)+Rho(7,iGrid+1)
-           grad_z = Rho(5,iGrid+1)+Rho(8,iGrid+1)
+           grad_x = GradRho(1,iGrid+1)+GradRho(4,iGrid+1)
+           grad_y = GradRho(2,iGrid+1)+GradRho(5,iGrid+1)
+           grad_z = GradRho(3,iGrid+1)+GradRho(6,iGrid+1)
             do dindex=1,nGrad_Eff
               dTot_d=dRho_dr(1,iGrid+1,dindex)+dRho_dr(2,iGrid+1,dindex)
               dTot_dx=dRho_dr(3,iGrid+1,dindex)
@@ -1019,10 +998,6 @@ c             pi_p_z = (1.0d0 - zeta**2.0d0)*dTot*grad_z/2.0d0
      &               +dRho_dr(8,iGrid+1,dindex)
               ratio = 0.0d0
               ratio_d = 0.0d0
-cGLM          if(P2_ontop(1,iGrid+1).lt.0.0d0) P2_ontop(1,iGrid+1)
-cGLM     &                                           = 0.0d0
-cGLM       if(dTot.ge.thrsrho.and.abs(P2_ontop(1,iGrid+1))
-cGLM     &                           .ge.0.25*thrsrho**3.0d0) then
           if(dTot.ge.thrsrho) then
               ratio = 4.0d0*P2_ontop(1,iGrid+1)/(dTot**2.0d0)
               ratio_d = 4.0d0*P2_ontop_d(1,dindex,iGrid+1)/(dTot**2.0d0)
@@ -1035,12 +1010,12 @@ cGLM     &                           .ge.0.25*thrsrho**3.0d0) then
 * Compute alpha and beta densities
                Rho(1,iGrid+1)=(1.0d0+Zeta)*dTot/2.0d0
                Rho(2,iGrid+1)=(1.0d0-Zeta)*dTot/2.0d0
-               Rho(3,iGrid+1)= (1.0d0+Zeta)*grad_x/2.0d0
-               Rho(4,iGrid+1)= (1.0d0+Zeta)*grad_y/2.0d0
-               Rho(5,iGrid+1)= (1.0d0+Zeta)*grad_z/2.0d0
-               Rho(6,iGrid+1)= (1.0d0-Zeta)*grad_x/2.0d0
-               Rho(7,iGrid+1)= (1.0d0-Zeta)*grad_y/2.0d0
-               Rho(8,iGrid+1)= (1.0d0-Zeta)*grad_z/2.0d0
+               GradRho(1,iGrid+1)= (1.0d0+Zeta)*grad_x/2.0d0
+               GradRho(2,iGrid+1)= (1.0d0+Zeta)*grad_y/2.0d0
+               GradRho(3,iGrid+1)= (1.0d0+Zeta)*grad_z/2.0d0
+               GradRho(4,iGrid+1)= (1.0d0-Zeta)*grad_x/2.0d0
+               GradRho(5,iGrid+1)= (1.0d0-Zeta)*grad_y/2.0d0
+               GradRho(6,iGrid+1)= (1.0d0-Zeta)*grad_z/2.0d0
 
                dRho_dr(1,iGrid+1,dindex) =
      &         Zeta_d*dTot/2.0d0+(1.0d0+Zeta)*dTot_d/2.0d0
@@ -1064,12 +1039,12 @@ cGLM     &                           .ge.0.25*thrsrho**3.0d0) then
 
                Rho(1,iGrid+1)=(1.0d0+Zeta)*dTot/2.0d0
                Rho(2,iGrid+1)=(1.0d0-Zeta)*dTot/2.0d0
-               Rho(3,iGrid+1)= (1.0d0+Zeta)*grad_x/2.0d0
-               Rho(4,iGrid+1)= (1.0d0+Zeta)*grad_y/2.0d0
-               Rho(5,iGrid+1)= (1.0d0+Zeta)*grad_z/2.0d0
-               Rho(6,iGrid+1)= (1.0d0-Zeta)*grad_x/2.0d0
-               Rho(7,iGrid+1)= (1.0d0-Zeta)*grad_y/2.0d0
-               Rho(8,iGrid+1)= (1.0d0-Zeta)*grad_z/2.0d0
+               GradRho(1,iGrid+1)= (1.0d0+Zeta)*grad_x/2.0d0
+               GradRho(2,iGrid+1)= (1.0d0+Zeta)*grad_y/2.0d0
+               GradRho(3,iGrid+1)= (1.0d0+Zeta)*grad_z/2.0d0
+               GradRho(4,iGrid+1)= (1.0d0-Zeta)*grad_x/2.0d0
+               GradRho(5,iGrid+1)= (1.0d0-Zeta)*grad_y/2.0d0
+               GradRho(6,iGrid+1)= (1.0d0-Zeta)*grad_z/2.0d0
 
                dRho_dr(1,iGrid+1,dindex) =
      &         Zeta_d*dTot/2.0d0+(1.0d0+Zeta)*dTot_d/2.0d0
@@ -1104,12 +1079,14 @@ c         write(6,*)'X Y Z spinDens and grad aft on-top density'
 *            write(6,'(3F12.6,8E14.6,8A)')
 *     &           (Grid(i,iGrid),i=1,3),
 *     &           Rho(1,iGrid),Rho(2,iGrid),
-*     &           Rho(3,iGrid),Rho(4,iGrid),Rho(5,iGrid),
-*     &           Rho(6,iGrid),Rho(7,iGrid),Rho(8,iGrid),
+*     &           GradRho(1,iGrid),GradRho(2,iGrid),GradRho(3,iGrid),
+*     &           GradRho(4,iGrid),GradRho(5,iGrid),GradRho(6,iGrid),
 *     &           ' after'
 *         end do
       end if
 *     ^ End if over GLM stuff
+*======================================================================*
+*======================================================================*
 ************************************************************************
 * FTBLYP,FTPBE,FTREVPBE                                                *
 ************************************************************************
@@ -1146,9 +1123,9 @@ c         write(6,*)'X Y Z spinDens and grad aft on-top density'
        If(.not.Do_Grad) then
          do iGrid=0,mGrid-1
           dTot=Rho(1,iGrid+1)+Rho(2,iGrid+1)
-          grad_x = Rho(3,iGrid+1)+Rho(6,iGrid+1)
-          grad_y = Rho(4,iGrid+1)+Rho(7,iGrid+1)
-          grad_z = Rho(5,iGrid+1)+Rho(8,iGrid+1)
+          grad_x = GradRho(1,iGrid+1)+GradRho(4,iGrid+1)
+          grad_y = GradRho(2,iGrid+1)+GradRho(5,iGrid+1)
+          grad_z = GradRho(3,iGrid+1)+GradRho(6,iGrid+1)
           ratio = 0.0d0
            IF(Debug) THEN
           write(LuMT,'(3(F10.6,A),5(F17.10,A))')
@@ -1161,7 +1138,6 @@ c         write(6,*)'X Y Z spinDens and grad aft on-top density'
      &       Weights(iGrid+1),',',
      &       dTot
             END IF
-cGLM      if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
           if(dTot.ge.thrsrho) then
             ratio = 4.0d0*P2_ontop(1,iGrid+1)/(dTot**2.0d0)
             if(((1.0d0-ratio).gt.thrsrho2).and.(ratio.lt.thrsrho3)) then
@@ -1173,22 +1149,22 @@ c             pi_p_z = (1.0d0 - zeta**2.0d0)*dTot*grad_z/2.0d0
               Rho(1,iGrid+1)=(1.0d0+Zeta)*dTot/2.0d0
               Rho(2,iGrid+1)=(1.0d0-Zeta)*dTot/2.0d0
 * compute gradients
-              Rho(3,iGrid+1)= (1.0d0+Zeta)*grad_x/2.0d0
+              GradRho(1,iGrid+1)= (1.0d0+Zeta)*grad_x/2.0d0
      &                         + ratio*grad_x/(2.0d0*Zeta)
      &                         - P2_ontop(2,iGrid+1)/(dTot*Zeta)
-              Rho(4,iGrid+1)= (1.0d0+Zeta)*grad_y/2.0d0
+              GradRho(2,iGrid+1)= (1.0d0+Zeta)*grad_y/2.0d0
      &                         + ratio*grad_y/(2.0d0*Zeta)
      &                         - P2_ontop(3,iGrid+1)/(dTot*Zeta)
-              Rho(5,iGrid+1)= (1.0d0+Zeta)*grad_z/2.0d0
+              GradRho(3,iGrid+1)= (1.0d0+Zeta)*grad_z/2.0d0
      &                         + ratio*grad_z/(2.0d0*Zeta)
      &                         - P2_ontop(4,iGrid+1)/(dTot*Zeta)
-              Rho(6,iGrid+1)= (1.0d0-Zeta)*grad_x/2.0d0
+              GradRho(4,iGrid+1)= (1.0d0-Zeta)*grad_x/2.0d0
      &                         - ratio*grad_x/(2.0d0*Zeta)
      &                         + P2_ontop(2,iGrid+1)/(dTot*Zeta)
-              Rho(7,iGrid+1)= (1.0d0-Zeta)*grad_y/2.0d0
+              GradRho(5,iGrid+1)= (1.0d0-Zeta)*grad_y/2.0d0
      &                         - ratio*grad_y/(2.0d0*Zeta)
      &                         + P2_ontop(3,iGrid+1)/(dTot*Zeta)
-              Rho(8,iGrid+1)= (1.0d0-Zeta)*grad_z/2.0d0
+              GradRho(6,iGrid+1)= (1.0d0-Zeta)*grad_z/2.0d0
      &                         - ratio*grad_z/(2.0d0*Zeta)
      &                         + P2_ontop(4,iGrid+1)/(dTot*Zeta)
 *          ^ end if over unwanted ratios
@@ -1208,7 +1184,7 @@ c             pi_p_z = (1.0d0 - zeta**2.0d0)*dTot*grad_z/2.0d0
               Rho(2,iGrid+1)=(1.0d0-Zeta)*dTot/2.0d0
 
 * Compute  gradients
-               Rho(3,iGrid+1)= (1.0d0+Zeta)*grad_x/2.0d0
+               GradRho(1,iGrid+1)= (1.0d0+Zeta)*grad_x/2.0d0
      &           + (Ab1*(ratio-1.15d0)**4.0d0)
      &            * ((10.0d0*P2_ontop(2,iGrid+1)/dTot)
      &            - (5.0d0*ratio*grad_x))
@@ -1219,7 +1195,7 @@ c             pi_p_z = (1.0d0 - zeta**2.0d0)*dTot*grad_z/2.0d0
      &            * ((6.0d0*P2_ontop(2,iGrid+1)/dTot)
      &            - (3.0d0*ratio*grad_x))
 
-               Rho(4,iGrid+1)= (1.0d0+Zeta)*grad_y/2.0d0
+               GradRho(2,iGrid+1)= (1.0d0+Zeta)*grad_y/2.0d0
      &           + (Ab1*(ratio-1.15d0)**4.0d0)
      &            * ((10.0d0*P2_ontop(3,iGrid+1)/dTot)
      &            - (5.0d0*ratio*grad_y))
@@ -1230,7 +1206,7 @@ c             pi_p_z = (1.0d0 - zeta**2.0d0)*dTot*grad_z/2.0d0
      &            * ((6.0d0*P2_ontop(3,iGrid+1)/dTot)
      &            - (3.0d0*ratio*grad_y))
 
-               Rho(5,iGrid+1)= (1.0d0+Zeta)*grad_z/2.0d0
+               GradRho(3,iGrid+1)= (1.0d0+Zeta)*grad_z/2.0d0
      &           + (Ab1*(ratio-1.15d0)**4.0d0)
      &            * ((10.0d0*P2_ontop(4,iGrid+1)/dTot)
      &            - (5.0d0*ratio*grad_z))
@@ -1241,7 +1217,7 @@ c             pi_p_z = (1.0d0 - zeta**2.0d0)*dTot*grad_z/2.0d0
      &            * ((6.0d0*P2_ontop(4,iGrid+1)/dTot)
      &            - (3.0d0*ratio*grad_z))
 
-               Rho(6,iGrid+1)= (1.0d0-Zeta)*grad_x/2.0d0
+               GradRho(4,iGrid+1)= (1.0d0-Zeta)*grad_x/2.0d0
      &           + (Ab1*(ratio-1.15d0)**4.0d0)
      &            * ((-10.0d0*P2_ontop(2,iGrid+1)/dTot)
      &            + (5.0d0*ratio*grad_x))
@@ -1252,7 +1228,7 @@ c             pi_p_z = (1.0d0 - zeta**2.0d0)*dTot*grad_z/2.0d0
      &            * ((-6.0d0*P2_ontop(2,iGrid+1)/dTot)
      &            + (3.0d0*ratio*grad_x))
 
-               Rho(7,iGrid+1)= (1.0d0-Zeta)*grad_y/2.0d0
+               GradRho(5,iGrid+1)= (1.0d0-Zeta)*grad_y/2.0d0
      &           + (Ab1*(ratio-1.15d0)**4.0d0)
      &            * ((-10.0d0*P2_ontop(3,iGrid+1)/dTot)
      &            + (5.0d0*ratio*grad_y))
@@ -1263,7 +1239,7 @@ c             pi_p_z = (1.0d0 - zeta**2.0d0)*dTot*grad_z/2.0d0
      &            * ((-6.0d0*P2_ontop(3,iGrid+1)/dTot)
      &            + (3.0d0*ratio*grad_y))
 
-              Rho(8,iGrid+1)= (1.0d0-Zeta)*grad_z/2.0d0
+               GradRho(6,iGrid+1)= (1.0d0-Zeta)*grad_z/2.0d0
      &           + (Ab1*(ratio-1.15d0)**4.0d0)
      &            * ((-10.0d0*P2_ontop(4,iGrid+1)/dTot)
      &            + (5.0d0*ratio*grad_z))
@@ -1281,12 +1257,12 @@ c             pi_p_z = (1.0d0 - zeta**2.0d0)*dTot*grad_z/2.0d0
               Rho(1,iGrid+1)=(1.0d0+Zeta)*dTot/2.0d0
               Rho(2,iGrid+1)=(1.0d0-Zeta)*dTot/2.0d0
 * Compute  gradients
-              Rho(3,iGrid+1)= (1.0d0+Zeta)*grad_x/2.0d0
-              Rho(4,iGrid+1)= (1.0d0+Zeta)*grad_y/2.0d0
-              Rho(5,iGrid+1)= (1.0d0+Zeta)*grad_z/2.0d0
-              Rho(6,iGrid+1)= (1.0d0-Zeta)*grad_x/2.0d0
-              Rho(7,iGrid+1)= (1.0d0-Zeta)*grad_y/2.0d0
-              Rho(8,iGrid+1)= (1.0d0-Zeta)*grad_z/2.0d0
+              GradRho(1,iGrid+1)= (1.0d0+Zeta)*grad_x/2.0d0
+              GradRho(2,iGrid+1)= (1.0d0+Zeta)*grad_y/2.0d0
+              GradRho(3,iGrid+1)= (1.0d0+Zeta)*grad_z/2.0d0
+              GradRho(4,iGrid+1)= (1.0d0-Zeta)*grad_x/2.0d0
+              GradRho(5,iGrid+1)= (1.0d0-Zeta)*grad_y/2.0d0
+              GradRho(6,iGrid+1)= (1.0d0-Zeta)*grad_z/2.0d0
            end if
 *          ^ end if over zeta=0
           end if
@@ -1311,9 +1287,9 @@ c             pi_p_z = (1.0d0 - zeta**2.0d0)*dTot*grad_z/2.0d0
         Else !GRADIENT CALCULATION
            do iGrid=0,mGrid-1
            dTot=Rho(1,iGrid+1)+Rho(2,iGrid+1)
-           grad_x = Rho(3,iGrid+1)+Rho(6,iGrid+1)
-           grad_y = Rho(4,iGrid+1)+Rho(7,iGrid+1)
-           grad_z = Rho(5,iGrid+1)+Rho(8,iGrid+1)
+           grad_x = GradRho(1,iGrid+1)+GradRho(4,iGrid+1)
+           grad_y = GradRho(2,iGrid+1)+GradRho(5,iGrid+1)
+           grad_z = GradRho(3,iGrid+1)+GradRho(6,iGrid+1)
             do dindex=1,nGrad_Eff
               dTot_d=dRho_dr(1,iGrid+1,dindex)+dRho_dr(2,iGrid+1,dindex)
               dTot_dx=dRho_dr(3,iGrid+1,dindex)
@@ -1324,7 +1300,6 @@ c             pi_p_z = (1.0d0 - zeta**2.0d0)*dTot*grad_z/2.0d0
      &               +dRho_dr(8,iGrid+1,dindex)
               ratio = 0.0d0
               ratio_d = 0.0d0
-cGLM        if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
             if(dTot.ge.thrsrho) then
               ratio = 4.0d0*P2_ontop(1,iGrid+1)/(dTot**2.0d0)
               ratio_d = 4.0d0*P2_ontop_d(1,dindex,iGrid+1)/(dTot**2.0d0)
@@ -1373,17 +1348,17 @@ cGLM        if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
 ! Compute alpha and beta densities
                Rho(1,iGrid+1)=(1.0d0+Zeta)*dTot/2.0d0
                Rho(2,iGrid+1)=(1.0d0-Zeta)*dTot/2.0d0
-               Rho(3,iGrid+1)= (1.0d0+Zeta)*grad_x/2.0d0
+               GradRho(1,iGrid+1)= (1.0d0+Zeta)*grad_x/2.0d0
      &                          +0.5d0*dTot*Zeta_dx
-               Rho(4,iGrid+1)= (1.0d0+Zeta)*grad_y/2.0d0
+               GradRho(2,iGrid+1)= (1.0d0+Zeta)*grad_y/2.0d0
      &                          +0.5d0*dTot*Zeta_dy
-               Rho(5,iGrid+1)= (1.0d0+Zeta)*grad_z/2.0d0
+               GradRho(3,iGrid+1)= (1.0d0+Zeta)*grad_z/2.0d0
      &                          +0.5d0*dTot*Zeta_dz
-               Rho(6,iGrid+1)= (1.0d0-Zeta)*grad_x/2.0d0
+               GradRho(4,iGrid+1)= (1.0d0-Zeta)*grad_x/2.0d0
      &                          -0.5d0*dTot*Zeta_dx
-               Rho(7,iGrid+1)= (1.0d0-Zeta)*grad_y/2.0d0
+               GradRho(5,iGrid+1)= (1.0d0-Zeta)*grad_y/2.0d0
      &                          -0.5d0*dTot*Zeta_dy
-               Rho(8,iGrid+1)= (1.0d0-Zeta)*grad_z/2.0d0
+               GradRho(6,iGrid+1)= (1.0d0-Zeta)*grad_z/2.0d0
      &                          -0.5d0*dTot*Zeta_dz
 
                dRho_dr(1,iGrid+1,dindex) =
@@ -1445,7 +1420,7 @@ cGLM        if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
               Rho(2,iGrid+1)=(1.0d0-Zeta)*dTot/2.0d0
 
 * Compute  gradients
-               Rho(3,iGrid+1)= (1.0d0+Zeta)*grad_x/2.0d0
+               GradRho(1,iGrid+1)= (1.0d0+Zeta)*grad_x/2.0d0
      &           + (Ab1*(ratio-1.15d0)**4.0d0)
      &            * ((10.0d0*P2_ontop(2,iGrid+1)/dTot)
      &            - (5.0d0*ratio*grad_x))
@@ -1456,7 +1431,7 @@ cGLM        if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
      &            * ((6.0d0*P2_ontop(2,iGrid+1)/dTot)
      &            - (3.0d0*ratio*grad_x))
 !
-               Rho(4,iGrid+1)= (1.0d0+Zeta)*grad_y/2.0d0
+               GradRho(2,iGrid+1)= (1.0d0+Zeta)*grad_y/2.0d0
      &           + (Ab1*(ratio-1.15d0)**4.0d0)
      &            * ((10.0d0*P2_ontop(3,iGrid+1)/dTot)
      &            - (5.0d0*ratio*grad_y))
@@ -1467,7 +1442,7 @@ cGLM        if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
      &            * ((6.0d0*P2_ontop(3,iGrid+1)/dTot)
      &            - (3.0d0*ratio*grad_y))
 
-               Rho(5,iGrid+1)= (1.0d0+Zeta)*grad_z/2.0d0
+               GradRho(3,iGrid+1)= (1.0d0+Zeta)*grad_z/2.0d0
      &           + (Ab1*(ratio-1.15d0)**4.0d0)
      &            * ((10.0d0*P2_ontop(4,iGrid+1)/dTot)
      &            - (5.0d0*ratio*grad_z))
@@ -1478,7 +1453,7 @@ cGLM        if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
      &            * ((6.0d0*P2_ontop(4,iGrid+1)/dTot)
      &            - (3.0d0*ratio*grad_z))
 
-               Rho(6,iGrid+1)= (1.0d0-Zeta)*grad_x/2.0d0
+               GradRho(4,iGrid+1)= (1.0d0-Zeta)*grad_x/2.0d0
      &           + (Ab1*(ratio-1.15d0)**4.0d0)
      &            * ((-10.0d0*P2_ontop(2,iGrid+1)/dTot)
      &            + (5.0d0*ratio*grad_x))
@@ -1489,7 +1464,7 @@ cGLM        if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
      &            * ((-6.0d0*P2_ontop(2,iGrid+1)/dTot)
      &            + (3.0d0*ratio*grad_x))
 
-               Rho(7,iGrid+1)= (1.0d0-Zeta)*grad_y/2.0d0
+               GradRho(5,iGrid+1)= (1.0d0-Zeta)*grad_y/2.0d0
      &           + (Ab1*(ratio-1.15d0)**4.0d0)
      &            * ((-10.0d0*P2_ontop(3,iGrid+1)/dTot)
      &            + (5.0d0*ratio*grad_y))
@@ -1500,7 +1475,7 @@ cGLM        if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
      &            * ((-6.0d0*P2_ontop(3,iGrid+1)/dTot)
      &            + (3.0d0*ratio*grad_y))
 
-              Rho(8,iGrid+1)= (1.0d0-Zeta)*grad_z/2.0d0
+               GradRho(6,iGrid+1)= (1.0d0-Zeta)*grad_z/2.0d0
      &           + (Ab1*(ratio-1.15d0)**4.0d0)
      &            * ((-10.0d0*P2_ontop(4,iGrid+1)/dTot)
      &            + (5.0d0*ratio*grad_z))
@@ -1547,12 +1522,12 @@ cGLM        if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
 
 !               Rho(1,iGrid+1)=0
 !               Rho(2,iGrid+1)=0
-!               Rho(3,iGrid+1)= 0
-!               Rho(4,iGrid+1)= 0
-!               Rho(5,iGrid+1)= 0
-!               Rho(6,iGrid+1)= 0
-!               Rho(7,iGrid+1)= 0
-!               Rho(8,iGrid+1)= 0
+!               GradRho(1,iGrid+1)= 0
+!               GradRho(2,iGrid+1)= 0
+!               GradRho(3,iGrid+1)= 0
+!               GradRho(4,iGrid+1)= 0
+!               GradRho(5,iGrid+1)= 0
+!               GradRho(6,iGrid+1)= 0
 !               dRho_dr(1,iGrid+1,dindex) =0
 !               dRho_dr(2,iGrid+1,dindex) =0
 !               dRho_dr(3,iGrid+1,dindex) =0
@@ -1564,12 +1539,12 @@ cGLM        if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
 
                Rho(1,iGrid+1)=(1.0d0+Zeta)*dTot/2.0d0
                Rho(2,iGrid+1)=(1.0d0-Zeta)*dTot/2.0d0
-               Rho(3,iGrid+1)= (1.0d0+Zeta)*grad_x/2.0d0
-               Rho(4,iGrid+1)= (1.0d0+Zeta)*grad_y/2.0d0
-               Rho(5,iGrid+1)= (1.0d0+Zeta)*grad_z/2.0d0
-               Rho(6,iGrid+1)= (1.0d0-Zeta)*grad_x/2.0d0
-               Rho(7,iGrid+1)= (1.0d0-Zeta)*grad_y/2.0d0
-               Rho(8,iGrid+1)= (1.0d0-Zeta)*grad_z/2.0d0
+               GradRho(1,iGrid+1)= (1.0d0+Zeta)*grad_x/2.0d0
+               GradRho(2,iGrid+1)= (1.0d0+Zeta)*grad_y/2.0d0
+               GradRho(3,iGrid+1)= (1.0d0+Zeta)*grad_z/2.0d0
+               GradRho(4,iGrid+1)= (1.0d0-Zeta)*grad_x/2.0d0
+               GradRho(5,iGrid+1)= (1.0d0-Zeta)*grad_y/2.0d0
+               GradRho(6,iGrid+1)= (1.0d0-Zeta)*grad_z/2.0d0
 !
                dRho_dr(1,iGrid+1,dindex) =
      &         Zeta_d*dTot/2.0d0+(1.0d0+Zeta)*dTot_d/2.0d0
@@ -1593,6 +1568,8 @@ cGLM        if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
         end do!gridpt
        end if!
        end if
+*======================================================================*
+*======================================================================*
 C        If (Do_Hess)
 C    &      Call dRho_dR_GGA(Dens,nDens,nD,dRho_dR,d2Rho_dR2,
 C    &                       ndRho_dr,mGrid,list_s,nlist_s,
@@ -1601,12 +1578,50 @@ C    &                       nGrad_Eff,list_g,
 C    &                       Grid_Type,Fixed_Grid,
 C    &                       Work(ip_Fact),ndc,Work(ipTmp),T_X,
 C    &                       list_bas,Index,nIndex)
-*
+
+      If (l_casdft) Then
+      If (nD.eq.1) Then
+         Rho(3,:) = GradRho(1,:)
+         Rho(4,:) = GradRho(2,:)
+         Rho(5,:) = GradRho(3,:)
+         Do iGrid=1, mGrid
+            Sigma(1,iGrid)=GradRho(1,iGrid)**2
+     &                    +GradRho(2,iGrid)**2
+     &                    +GradRho(3,iGrid)**2
+         End Do
+      Else
+         Rho(3,:) = GradRho(1,:)
+         Rho(4,:) = GradRho(2,:)
+         Rho(5,:) = GradRho(3,:)
+         Rho(6,:) = GradRho(4,:)
+         Rho(7,:) = GradRho(5,:)
+         Rho(8,:) = GradRho(6,:)
+         Do iGrid=1, mGrid
+            Sigma(1,iGrid)=GradRho(1,iGrid)**2
+     &                    +GradRho(2,iGrid)**2
+     &                    +GradRho(3,iGrid)**2
+            Sigma(2,iGrid)=GradRho(1,iGrid)*GradRho(4,iGrid)
+     &                    +GradRho(2,iGrid)*GradRho(5,iGrid)
+     &                    +GradRho(3,iGrid)*GradRho(6,iGrid)
+            Sigma(3,iGrid)=GradRho(4,iGrid)**2
+     &                    +GradRho(5,iGrid)**2
+     &                    +GradRho(6,iGrid)**2
+         End Do
+      End If
+      End If
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
       Else If (Functional_type.eq.CASDFT_type) Then
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
 *
-         Call Rho_CAS(Dens,nDens,nD,Rho,nRho,mGrid,
+         Call Rho_CAS(Dens,nDens,nD,mGrid,
      &                list_s,nlist_s,TabAO,ipTabAO,mAO,nTabAO,nSym,
-     &                Work(ip_Fact),ndc,Work(ipTabAOMax),
+     &                Work(ip_Fact),ndc,
      &                list_bas,Index,nIndex)
 *
 C        If (Do_Grad)
@@ -1629,12 +1644,18 @@ C    &                       list_bas,Index,nIndex)
          Call Do_P2new(P2mo,np2act,D1mo,nd1mo,TabMO,mAO,mGrid,
      &                 nMOs,P2_ontop,nP2_ontop,Work(ipRhoI),
      &                 Work(ipRhoA),mRho)
-*
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
       Else If (Functional_type.eq.meta_GGA_type1) Then
-*
-         Call Rho_meta_GGA1(nD,Rho,nRho,mGrid,
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
+         Call Rho_meta_GGA1(nD,mGrid,
      &                     list_s,nlist_s,TabAO,ipTabAO,mAO,nTabAO,
-     &                     Work(ip_Fact),ndc,Work(ipTabAOMax),
+     &                     Work(ip_Fact),ndc,
      &                     list_bas,Index,nIndex)
 *
          If (Do_Grad)
@@ -1645,12 +1666,18 @@ C    &                       list_bas,Index,nIndex)
      &                       nGrad_Eff,list_g,
      &                       Work(ip_Fact),ndc,Work(ipTmp),T_X,
      &                       list_bas,Index,nIndex)
-*
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
       Else If (Functional_type.eq.meta_GGA_type2) Then
-*
-         Call Rho_meta_GGA2(nD,Rho,nRho,mGrid,
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
+         Call Rho_meta_GGA2(nD,mGrid,
      &                     list_s,nlist_s,TabAO,ipTabAO,mAO,nTabAO,
-     &                     Work(ip_Fact),ndc,Work(ipTabAOMax),
+     &                     Work(ip_Fact),ndc,
      &                     list_bas,Index,nIndex)
 *
          If (Do_Grad)
@@ -1739,8 +1766,6 @@ C     Write (*,*) Dens_I,Grad_I,Tau_I
       Call Kernel(mGrid,Rho,nRho,P2_ontop,
      &            nP2_ontop,nD,F_xc,dF_dRho,
      &            ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_Rho)
-cGLM     &            nP2_ontop,nD,F_xc,F_xca,F_xcb,dF_dRho,
-cGLM     &            ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_Rho,Work(ip_tmpB))
 *
       If (nD.eq.2.and.DFTFOCK.eq.'DIFF') Then
          Call P2Diff(mGrid,dF_dRho,ndF_dRho,Rho,nRho)
@@ -1749,7 +1774,6 @@ cGLM     &            ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_Rho,Work(ip_tmpB))
 *     Integrate the energy of the functional
 *
       Func=Func+DDot_(mGrid,Weights,1,F_xc,1)
-cGLM     write(6,*) 'Func in do_batch =', Func
       Funcaa=Funcaa+DDot_(mGrid,Weights,1,F_xca,1)
       Funcbb=Funcbb+DDot_(mGrid,Weights,1,F_xcb,1)
       Funccc=Funccc+DDot_(mGrid,Weights,1,tmpB,1)
@@ -1863,7 +1887,7 @@ cGLM     write(6,*) 'Func in do_batch =', Func
      &                      FckInt,nFckInt,SOTemp,nSOTemp,
      &                      TabAO,ipTabAO,nTabAO,dF_dRho,ndF_dRho,
      &                      nSym,nD,Flop,Rho,nRho,Work(ipTmp),nTmp,
-     &                      Work(ip_Fact),ndc,mAO,Work(ipTabAOMax),T_Y,
+     &                      Work(ip_Fact),ndc,mAO,
      &                      list_bas,Functional_type,nAOMax)
              End If
            End If
@@ -1970,14 +1994,14 @@ cGLM     write(6,*) 'Func in do_batch =', Func
 !     &                      FckInt,nFckInt,SOTemp,nSOTemp,
 !     &                      TabAO,ipTabAO,nTabAO,dF_dRho,ndF_dRho,
 !     &                      nSym,nD,Flop,Rho,nRho,Work(ipTmp),nTmp,
-!     &                      Work(ip_Fact),ndc,mAO,Work(ipTabAOMax),T_Y,
+!     &                      Work(ip_Fact),ndc,mAO,
 !     &                      list_bas,Functional_type,nAOMax)
              If(.not.l_casdft) then
                Call DFT_Int(Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                      FckInt,nFckInt,SOTemp,nSOTemp,
      &                      TabAO,ipTabAO,nTabAO,dF_dRho,ndF_dRho,
      &                      nSym,nD,Flop,Rho,nRho,Work(ipTmp),nTmp,
-     &                      Work(ip_Fact),ndc,mAO,Work(ipTabAOMax),T_Y,
+     &                      Work(ip_Fact),ndc,mAO,
      &                      list_bas,Functional_type,nAOMax)
              end if
            End If
@@ -2006,7 +2030,7 @@ cGLM     write(6,*) 'Func in do_batch =', Func
      &                 FckInt,nFckInt,SOTemp,nSOTemp,
      &                 TabAO,ipTabAO,nTabAO,dF_dRho,ndF_dRho,
      &                 nSym,nD,Flop,Rho,nRho,Work(ipTmp),nTmp,
-     &                 Work(ip_Fact),ndc,mAO,Work(ipTabAOMax),T_Y,
+     &                 Work(ip_Fact),ndc,mAO,
      &                 list_bas,Functional_type,nAOMax)
 *                                                                      *
 ************************************************************************

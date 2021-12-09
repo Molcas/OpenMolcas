@@ -32,19 +32,19 @@
 *---- Dirac Exchange with non-UEG factor
 *
       Coeff= 1.07173d0
-      Call Diracx(mGrid,Rho,nRho,iSpin,F_xc,
+      Call Diracx(mGrid,iSpin,F_xc,
      &            dF_dRho,ndF_dRho,Coeff,T_X)
 *
 *---- KT term Exchange/Correlation
 *
       Coeff= - 0.0060d0
-      Call KealTozer(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Call KealTozer(mGrid,dF_dRho,ndF_dRho,
      &          Coeff,iSpin,F_xc,T_X)
 *
 *---- VWN-3 Correlation
 *
       Coeff=0.576727d0
-      Call VWN_III(mGrid,Rho,nRho,
+      Call VWN_III(mGrid,
      &             iSpin,
      &             F_xc,dF_dRho,ndF_dRho,Coeff,T_X)
 
@@ -54,6 +54,8 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
+         Call Unused_Integer(nRho)
+         Call Unused_real_array(Rho)
          Call Unused_real_array(P2_ontop)
          Call Unused_real_array(dF_dP2ontop)
       End If

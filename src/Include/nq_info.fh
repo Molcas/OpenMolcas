@@ -29,8 +29,6 @@
 !     ip_ioffsh   : Pointer to the offset of the shells in the
 !                    overlap matrix.
 !
-!     nGridMax:Real size of the array Grid
-!
       Integer LMax_NQ
       Parameter(LMax_NQ=62)
       Integer Info_Ang(3,LMax_NQ)
@@ -50,8 +48,7 @@
      &                 ip_nR_Eff,ip_R,ipMem,nMem,                       &
      &                 L_Quad,nR,nAtoms,nMaxExp,                        &
      &                 nTotGP,nbrmxbas,iAngMax,ip_ioffsh,ipcoor,        &
-     &                 nGridMax,iOpt_Angular,ip_O,                      &
-     &                 mIrrep,                                          &
+     &                 iOpt_Angular,ip_O,mIrrep,                        &
      &                 ipTmp,nTmp,mTmp,mRad,nAOMax,                     &
      &                 ipTabAOMax,NQ_Direct,                            &
      &                 iQEnd,ip_OrbDip(3)
@@ -63,7 +60,7 @@
      &                 ip_nR_Eff,ip_R,ipMem,nMem,                       &
      &                 L_Quad,nR,nAtoms,nMaxExp,                        &
      &                 nTotGP,nbrmxbas,iAngMax,ip_ioffsh,ipcoor,        &
-     &                 nGridMax,iOpt_Angular,ip_O,                      &
+     &                 iOpt_Angular,ip_O,                               &
      &                 mIrrep, nISh, nAsh, mBas,Functional_type,        &
      &                 Grid_Type, Rotational_Invariance,                &
      &                 ipTmp,nTmp,mTmp,mRad,nAOMax,                     &
