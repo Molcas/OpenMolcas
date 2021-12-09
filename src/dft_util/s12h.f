@@ -39,20 +39,20 @@
 *
 C      Coeff=1.079966d0
 C
-C      Call Diracx(mGrid,Rho,nRho,iSpin,F_xc,
+C      Call Diracx(mGrid,iSpin,F_xc,
 C     &            dF_dRho,ndF_dRho,Coeff,T_X)
 *
 *---- S12h has its LDA part included!
 *
       Coeff=0.75d0
       gh_switch = 2
-      Call xS12gh(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Call xS12gh(mGrid,dF_dRho,ndF_dRho,
      &          Coeff,iSpin,F_xc,T_X,gh_switch)
 *
 *---- PBE Correlation
 *
       Coeff=1.0d0
-      Call CPBE(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Call CPBE(mGrid,dF_dRho,ndF_dRho,
      &         Coeff,iSpin,F_xc,T_X)
 *                                                                      *
 ************************************************************************
@@ -60,6 +60,8 @@ C     &            dF_dRho,ndF_dRho,Coeff,T_X)
       Return
 c Avoid unused argument warnings
       If (.False.) Then
+         Call Unused_Integer(nRho)
+         Call Unused_real_array(Rho)
          Call Unused_real_array(P2_ontop)
          Call Unused_real_array(dF_dP2ontop)
       End If

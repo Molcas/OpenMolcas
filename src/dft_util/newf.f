@@ -28,7 +28,7 @@
 *---- New Lee-Yang-Parr Correlation
 *
       Coeff=One
-      Call Do_NewFunctional(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Call Do_NewFunctional(mGrid,dF_dRho,ndF_dRho,
      &                      Coeff,iSpin,F_xc,
      &                      P2_ontop,nP2_ontop,dF_dP2ontop,
      &                      ndF_dP2ontop,T_X)
@@ -36,4 +36,9 @@
 ************************************************************************
 *                                                                      *
       Return
+      If (.False.) Then
+         Call Unused_Integer(nRho)
+         Call Unused_real_array(Rho)
+      End If
+
       End

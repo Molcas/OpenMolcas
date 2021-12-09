@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine W(R,ilist_p,Weights,list_p,nlist_p,nGrid)
+      Subroutine W(R,ilist_p,Weights,list_p,nlist_p,nGrid,nRemoved)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -39,6 +39,8 @@ C     Write (*,*) 'iNQ=',iNQ
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      jGrid = 0
+      nRemoved = 0
       Do iGrid = 1, nGrid
 *        Write (*,*) 'iGrid=',iGrid
 *                                                                      *
@@ -93,12 +95,24 @@ C     Write (*,*) 'iNQ=',iNQ
          End Do
          Fact=Weights(iGrid)
          Weights(iGrid)=Fact*P_i/Sum_P_k
-C        Write (*,*) 'Fact,P_A,Z,Weights=',Fact,P_i,Sum_P_k,
-C    &               Weights(iGrid)
+         If (Weights(iGrid)>=1.0D-14) Then
+            jGrid = jGrid + 1
+            If (jGrid.ne.iGrid) Then
+               Weights(jGrid)=Weights(iGrid)
+               R(1,jGrid)    =R(1,iGrid)
+               R(2,jGrid)    =R(2,iGrid)
+               R(3,jGrid)    =R(3,iGrid)
+            End If
+         Else
+            nRemoved = nRemoved + 1
+         End If
+*        Write (*,*) 'Fact,P_A,Z,Weights=',Fact,P_i,Sum_P_k,
+*    &               Weights(jGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       End Do
+*     Write (6,*) 'nRemoved=',nRemoved
 *                                                                      *
 ************************************************************************
 *                                                                      *

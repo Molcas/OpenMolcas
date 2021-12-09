@@ -254,16 +254,18 @@ c           Write (*,*) 'Select angular points!'
                End If
 #endif
 *
-               number_of_grid_points=number_of_grid_points+1
 *              Radial weight
                weight=Work(ip_Rx+iROff(2,iR))
 *              Combine the radial and angular weight
                w_g=weight*w_a(iPoint,iSet)
-               Grid(1,number_of_grid_points)= x
-               Grid(2,number_of_grid_points)= y
-               Grid(3,number_of_grid_points)= z
-*              Compute the partitioning weight
-               Weights(number_of_grid_points)=w_g*Fact
+               If (w_g*Fact>=1.0D-15) Then
+                  number_of_grid_points=number_of_grid_points+1
+                  Grid(1,number_of_grid_points)= x
+                  Grid(2,number_of_grid_points)= y
+                  Grid(3,number_of_grid_points)= z
+*                 Compute the partitioning weight
+                  Weights(number_of_grid_points)=w_g*Fact
+               End If
             End If
 *                                                                      *
 ************************************************************************
@@ -286,17 +288,20 @@ c           Write (*,*) 'Select angular points!'
                Call WarningMessage(2,'Subblock: nBatch.gt.nBatch_Max')
                Call Abend()
             End If
-            iBatchInfo(1,nBatch)=iDisk_Grid
-            iBatchInfo(2,nBatch)=number_of_grid_points
-            iBatchInfo(3,nBatch)=iNQ
-*
-            Call dDaFile(Lu_Grid,1,Grid,3*number_of_grid_points,
-     &                   iDisk_Grid)
 *
 *---------- Generate weights
 *
+            mGrid_= number_of_grid_points-iStrt+1
             Call W(Grid(1,iStrt),ilist_p,Weights(iStrt),list_p,
-     &             nList_p,number_of_grid_points-iStrt+1)
+     &             nList_p,mGrid_,nRemoved)
+            number_of_grid_points=number_of_grid_points-nRemoved
+
+            iBatchInfo(1,nBatch)=iDisk_Grid
+            iBatchInfo(3,nBatch)=iNQ
+            iBatchInfo(2,nBatch)=number_of_grid_points
+
+            Call dDaFile(Lu_Grid,1,Grid,3*number_of_grid_points,
+     &                   iDisk_Grid)
             Call dDaFile(Lu_Grid,1,Weights,number_of_grid_points,
      &                   iDisk_Grid)
 *
@@ -322,9 +327,12 @@ C           Write (*,*) 'ntotgp=',ntotgp
 *
 *     Write (6,*) 'number_of_grid_points=',number_of_grid_points
 *     Write (6,*) 'iStrt=',iStrt
-      If (number_of_grid_points-iStrt+1.gt.0)
-     &   Call W(Grid(1,iStrt),ilist_p,Weights(iStrt),list_p,
-     &          nList_p,number_of_grid_points-iStrt+1)
+      If (number_of_grid_points-iStrt+1.gt.0) Then
+         mGrid_=number_of_grid_points-iStrt+1
+         Call W(Grid(1,iStrt),ilist_p,Weights(iStrt),list_p,
+     &          nList_p,mGrid_,nRemoved)
+         number_of_grid_points=number_of_grid_points-nRemoved
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *

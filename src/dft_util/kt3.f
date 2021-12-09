@@ -37,25 +37,25 @@
 *---- Dirac Exchange with the non-UEG factor!
 *
       Coeff= 1.092d0*CoefX
-      Call Diracx(mGrid,Rho,nRho,iSpin,F_xc,
+      Call Diracx(mGrid,iSpin,F_xc,
      &            dF_dRho,ndF_dRho,Coeff,T_X)
 *
 *---- OPTX Exchange
 *
       Coeff= 0.925452d0*CoefX
-      Call xOPT(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Call xOPT(mGrid,dF_dRho,ndF_dRho,
      &          Coeff,iSpin,F_xc,T_X)
 *
 *---- KT term Exchange
 *
       Coeff= -0.0040d0*CoefX
-      Call KealTozer(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Call KealTozer(mGrid,dF_dRho,ndF_dRho,
      &          Coeff,iSpin,F_xc,T_X)
 *
 *---- Lee-Yang-Parr Correlation
 *
       Coeff=0.864409d0*CoefR
-      Call LYP(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Call LYP(mGrid,dF_dRho,ndF_dRho,
      &         Coeff,iSpin,F_xc,T_X)
 *                                                                      *
 ************************************************************************
@@ -63,6 +63,8 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
+         Call Unused_Integer(nRho)
+         Call Unused_real_array(Rho)
          Call Unused_real_array(P2_ontop)
          Call Unused_real_array(dF_dP2ontop)
       End If

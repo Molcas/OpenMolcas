@@ -32,13 +32,13 @@
 *---- Dirac (Slater) exchange                                          *
 *                                                                      *
       Coeff=1.051510d0*CoefX
-      Call DiracX(mGrid,Rho,nRho,iSpin,F_xc,
+      Call DiracX(mGrid,iSpin,F_xc,
      &            dF_dRho,ndF_dRho,Coeff,T_X)
 *                                                                      *
 *---- OPTX Exchange Functional                                         *
 *                                                                      *
       Coeff=1.431690d0*CoefX
-      Call xOPT(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Call xOPT(mGrid,dF_dRho,ndF_dRho,
      &          Coeff,iSpin,F_xc,T_X)
 *                                                                      *
 ************************************************************************
@@ -46,6 +46,8 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
+         Call Unused_Integer(nRho)
+         Call Unused_real_array(Rho)
          Call Unused_real_array(P2_ontop)
          Call Unused_real_array(dF_dP2ontop)
       End If

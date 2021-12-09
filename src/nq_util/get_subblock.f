@@ -16,7 +16,7 @@
      &                        AOInt,nAOInt,
      &                        FckInt,nFckDim,nFckInt,SOTemp,nSOTemp,
      &                        Dens,nDens,nD,
-     &                        Grid,Weights,Rho,mGrid,nRho,
+     &                        mGrid,
      &                        ndF_dRho,nP2_ontop,ndF_dP2ontop,
      &                        Do_Mo,Do_TwoEl,l_Xhol,
      &                        TmpPUVX,nTmpPUVX,nMOs,CMOs,nCMO,DoIt,
@@ -42,6 +42,7 @@ cGLM     &                        Temp,mGrad,F_xc,F_xca,F_xcb,dF_dRho,
       use iSD_data
       use Basis_Info
       use Center_Info
+      use nq_Grid, only: Grid, Weights
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "itmax.fh"
@@ -60,7 +61,6 @@ cGLM     &                        Temp,mGrad,F_xc,F_xca,F_xcb,dF_dRho,
       Real*8 R2_trial(nNQ), FckInt(nFckInt,nFckDim),
      &       AOInt(nAOInt,nAOInt,nD), SOTemp(nSOTemp,nD),
      &       Dens(nDens,nD), Grad(nGrad), Temp(mGrad),
-     &       Grid(3,mGrid), Rho(nRho,mGrid), Weights(mGrid),
      &       CMOs(nCMO), P2mo(np2act), D1mo(nD1mo),
      &       P2_ontop(nP2_ontop,mGrid), Roots(3,3), F_xc(mGrid),
 cGLM     &       F_xca(mGrid),F_xcb(mGrid),
@@ -688,8 +688,7 @@ c
             End If
          End If
 *
-         Call Do_Batch(Kernel,Func,Grid,Weights,Rho,
-     &                 nogp,nRho,
+         Call Do_Batch(Kernel,Func,nogp,
      &                 list_s,nlist_s,List_Exp,List_Bas,
      &                 iWork(ipIndex),nIndex,AOInt,nAOInt,
      &                 FckInt,nFckDim,nFckInt,
