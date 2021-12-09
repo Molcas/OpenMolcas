@@ -91,7 +91,7 @@
     - docker
 
 .intel:
-  image: ${CI_REGISTRY}/molcas/dockerfiles/intel-phusion:testing
+  image: ${CI_REGISTRY}/molcas/dockerfiles/intel-phusion:latest
   variables:
     cache_file: |
       set (CMAKE_BUILD_TYPE "Release" CACHE STRING "opt, no debug info" )
@@ -114,7 +114,7 @@
     - intel_license
 
 .intel13:
-  image: ${CI_REGISTRY}/molcas/dockerfiles/intel-phusion:testing
+  image: ${CI_REGISTRY}/molcas/dockerfiles/intel-phusion:latest
   variables:
     install_path: "${CI_PROJECT_DIR}/install"
     cache_file: |
