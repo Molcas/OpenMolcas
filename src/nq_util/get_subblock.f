@@ -73,6 +73,8 @@ cGLM     &       F_xca(mGrid),F_xcb(mGrid),
       Logical Do_Mo,Do_TwoEl,l_Xhol
       Character*4 DFTFOCK
       Integer LOE_DB,LTEG_DB
+      Real*8,DIMENSION(NASHT4)::P2Unzip
+      Real*8,DIMENSION(NASHT**2)::D1Unzip
 *                                                                      *
 ************************************************************************
 *                                                                      *
