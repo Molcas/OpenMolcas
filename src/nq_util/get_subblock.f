@@ -20,13 +20,13 @@
      &                        ndF_dRho,nP2_ontop,ndF_dP2ontop,
      &                        Do_Mo,Do_TwoEl,l_Xhol,
      &                        TmpPUVX,nTmpPUVX,nMOs,CMOs,nCMO,DoIt,
-     &                        P2mo,np2act,D1mo,nD1mo,P2_ontop,
+     &                  P2mo,P2Unzip,np2act,D1mo,D1Unzip,nD1mo,P2_ontop,
      &                        Do_Grad,Grad,nGrad,List_G,IndGrd,iTab,
      &                        Temp,mGrad,F_xc,dF_dRho,
 cGLM     &                        Temp,mGrad,F_xc,F_xca,F_xcb,dF_dRho,
      &                        dF_dP2ontop,
      &                        DFTFOCK,mAO,mdRho_dR,
-     &                        LOE_DB,LTEG_DB)
+     &                        LOE_DB,LTEG_DB,PDFTPot1,PDFTFocI,PDFTFocA)
 ************************************************************************
 *                                                                      *
 * Object: to generate the list of the shell and exponent that have an  *
@@ -63,10 +63,11 @@ cGLM     &                        Temp,mGrad,F_xc,F_xca,F_xcb,dF_dRho,
      &       Dens(nDens,nD), Grad(nGrad), Temp(mGrad),
      &       CMOs(nCMO), P2mo(np2act), D1mo(nD1mo),
      &       P2_ontop(nP2_ontop,mGrid), Roots(3,3), F_xc(mGrid),
+     &       D1Unzip(NASHT**2),
 cGLM     &       F_xca(mGrid),F_xcb(mGrid),
      &       dF_dRho(ndF_dRho,mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid),
-     &       xyz0(3,2)
+     &       xyz0(3,2),PDFTPot1(npot1),PDFTFocI(nPot1),PDFTFocA(nPot1)
       Real*8 TmpPUVX(nTmpPUVX)
       Logical InBox(MxAtom), Do_Grad, More_to_come
       Logical Do_Mo,Do_TwoEl,l_Xhol
@@ -702,14 +703,14 @@ c
      &                 TmpPUVX,nTmpPUVX,
      &                 Work(ipTabMO),Work(ipTabSO),
      &                 nMOs,CMOs,nCMO,DoIt,
-     &                 P2mo,np2act,D1mo,nd1mo,P2_ontop,
+     &          P2mo,P2unzip,np2act,D1mo,D1Unzip,nd1mo,P2_ontop,
      &                 Do_Grad,Grad,nGrad,
      &                 Work(ip_dRho_dR),mdRho_dR,nGrad_Eff,
      &                 list_g,IndGrd,iTab,Temp,F_xc,
 cGLM     &                 list_g,IndGrd,iTab,Temp,F_xc,F_xca,F_xcb,
      &                 Work(ip_dW_dR),iNQ,
      &                 Maps2p,dF_dRho,dF_dP2ontop,
-     &                 DFTFOCK,LOE_DB,LTEG_DB)
+     &                DFTFOCK,LOE_DB,LTEG_DB,PDFTPot1,PDFTFocI,PDFTFocA)
 *
          nTotGP=nTotGP+nogp
 * update the "LuGridFile":
