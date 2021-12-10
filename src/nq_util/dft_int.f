@@ -13,7 +13,7 @@
       Subroutine DFT_Int(Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                   FckInt,nFckInt,SOTemp,nSOTemp,
      &                   TabAO,ipTabAO,nTabAO,dF_dRho,ndF_dRho,
-     &                   nSym,iSpin,Flop,Rho,nRho,Scr,mScr,
+     &                   nSym,iSpin,Flop,Scr,mScr,
      &                   Fact,ndc,mAO,
      &                   list_bas,Functional_type,nAOMax)
 ************************************************************************
@@ -23,6 +23,7 @@
 *      Author:Roland Lindh, Dept. of Theor. Chem., Lund Unibersity,   ,*
 *             SWEDEN. November 2008                                    *
 ************************************************************************
+      use nq_Grid, only: Rho
       Implicit Real*8 (A-H,O-Z)
       External Do_NInt1_d, Do_nInt1,
      &         Do_NInt2_d, Do_nInt2,
@@ -31,10 +32,11 @@
 #include "functional_types.fh"
       Integer Functional_type
       Real*8 Weights(mGrid), SOTemp(nSOTemp,iSpin), Fact(ndc**2),
-     &       TabAO(nTabAO), Scr(mScr), Rho(nRho,mGrid),
+     &       TabAO(nTabAO), Scr(mScr),
      &       AOInt(nAOInt*nAOInt,iSpin), FckInt(nFckInt,iSpin),
      &       dF_dRho(ndF_dRho,mGrid)
       Integer list_s(2,nlist_s), ipTabAO(nlist_s), list_bas(2,nlist_s)
+      nRho=SIZE(Rho,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *

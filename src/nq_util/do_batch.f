@@ -1697,7 +1697,7 @@ C     Write (*,*) Dens_I,Grad_I,Tau_I
                  Call DFT_Int(Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                      FckInt,nFckInt,SOTemp,nSOTemp,
      &                      TabAO,ipTabAO,nTabAO,dF_dRho,ndF_dRho,
-     &                      nSym,nD,Flop,Rho,nRho,Work(ipTmp),nTmp,
+     &                      nSym,nD,Flop,Work(ipTmp),nTmp,
      &                      Work(ip_Fact),ndc,mAO,
      &                      list_bas,Functional_type,nAOMax)
              End If
@@ -1777,7 +1777,7 @@ C     Write (*,*) Dens_I,Grad_I,Tau_I
                Call DFT_Int(Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                      FckInt,nFckInt,SOTemp,nSOTemp,
      &                      TabAO,ipTabAO,nTabAO,dF_dRho,ndF_dRho,
-     &                      nSym,nD,Flop,Rho,nRho,Work(ipTmp),nTmp,
+     &                      nSym,nD,Flop,Work(ipTmp),nTmp,
      &                      Work(ip_Fact),ndc,mAO,
      &                      list_bas,Functional_type,nAOMax)
              end if
@@ -1806,7 +1806,7 @@ C     Write (*,*) Dens_I,Grad_I,Tau_I
           Call DFT_Int(Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                 FckInt,nFckInt,SOTemp,nSOTemp,
      &                 TabAO,ipTabAO,nTabAO,dF_dRho,ndF_dRho,
-     &                 nSym,nD,Flop,Rho,nRho,Work(ipTmp),nTmp,
+     &                 nSym,nD,Flop,Work(ipTmp),nTmp,
      &                 Work(ip_Fact),ndc,mAO,
      &                 list_bas,Functional_type,nAOMax)
 *                                                                      *
