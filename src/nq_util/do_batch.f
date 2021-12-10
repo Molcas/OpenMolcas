@@ -1549,14 +1549,14 @@ C    &                       list_bas,Index,nIndex)
          Dens_I=Dens_I+Compute_Rho (Weights,mGrid,Rho,nRho,nD,T_Rho)
       Else If (Functional_type.eq.GGA_type) Then
          Dens_I=Dens_I+Compute_Rho (Weights,mGrid,Rho,nRho,nD,T_Rho)
-         Grad_I=Grad_I+Compute_Grad(Weights,mGrid,Rho,nRho,nD,T_Rho)
+         Grad_I=Grad_I+Compute_Grad(Weights,mGrid,nD,T_Rho)
       Else If (Functional_type.eq.meta_GGA_type1) Then
          Dens_I=Dens_I+Compute_Rho (Weights,mGrid,Rho,nRho,nD,T_Rho)
-         Grad_I=Grad_I+Compute_Grad(Weights,mGrid,Rho,nRho,nD,T_Rho)
+         Grad_I=Grad_I+Compute_Grad(Weights,mGrid,nD,T_Rho)
          Tau_I =Tau_I +Compute_Tau (Weights,mGrid,Rho,nRho,nD,T_Rho)
       Else If (Functional_type.eq.meta_GGA_type2) Then
          Dens_I=Dens_I+Compute_Rho (Weights,mGrid,Rho,nRho,nD,T_Rho)
-         Grad_I=Grad_I+Compute_Grad(Weights,mGrid,Rho,nRho,nD,T_Rho)
+         Grad_I=Grad_I+Compute_Grad(Weights,mGrid,nD,T_Rho)
          Tau_I =Tau_I +Compute_Tau (Weights,mGrid,Rho,nRho,nD,T_Rho)
       End If
 C     Write (*,*) Dens_I,Grad_I,Tau_I
