@@ -409,7 +409,7 @@
         Do iGrid=1,mGrid
          IOff1=(iGrid-1)*NASHT
          do IIrrep=0,mIrrep-1
-          IOff2=IOff1+iOff_Ash(kIrrep)+1
+          IOff2=IOff1+iOff_Ash(IIrrep)+1
           P2_ontop_d(1,g_eff,iGrid)=P2_ontop_d(1,g_eff,iGrid)+
      &    4.0d0*ddot_(nAsh(IIrrep),dMOs(IOff2),1,P2MOCube(IOff2),1)
          end do
