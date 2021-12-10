@@ -35,7 +35,7 @@
       use Center_Info
       use Phase_Info
       use KSDFT_Info
-      use nq_Grid, only: Grid, Weights, Rho, GradRho, Sigma, nRho,
+      use nq_Grid, only: Grid, Weights, Rho, GradRho, Sigma, nRho
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "SysDef.fh"
