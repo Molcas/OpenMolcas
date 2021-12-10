@@ -38,7 +38,7 @@ C#include "stdalloc.fh"
       Real*8 RhoA(mRho,mGrid)
       Logical Do_Grad
 
-      INTEGER nPi,IOff1,IOff2
+      INTEGER IOff1,IOff2
       REAL*8,DIMENSION(mGrid*NASHT)::P2MOCube,MOs,MOx,MOy,MOz
       Real*8 ddot_
       External DDot_
@@ -47,7 +47,6 @@ C#include "stdalloc.fh"
       iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 *                                                                      *
 ************************************************************************
-      nPi=nP2_ontop
       If (nP2_ontop.eq.4) Then
          If (mAO.ne.4.or.mRho.ne.4) Then
            Call WarningMessage(2,' Somthings wrong in dim. in p2cs')

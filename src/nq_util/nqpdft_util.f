@@ -309,7 +309,7 @@ C      CALL RecPrt(' ','(10(F9.5,1X))',D1Unzip,nAsht,nAsht)
       Subroutine TranslateDens(Pi,dRhodR,dPi,
      & Thrsrho,ThrsZ2,iTrans,nRho,mGrid,nPi,ndRhodR,nEGrad,
      & DoGrad)
-      use nq_Grid, only: Rho, GradRho,nGradRho
+      use nq_Grid, only: Rho, GradRho, nGradRho
 ******Input
       INTEGER iTrans,nRho,mGrid,nPi,ndRhodR,nEGrad
       REAL*8 ThrsRho,ThrsZ2
