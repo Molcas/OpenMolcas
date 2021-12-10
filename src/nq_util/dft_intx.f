@@ -31,7 +31,6 @@
 *             of Lund, SWEDEN. November 2000                           *
 *             D.Ajitha:Modifying for the new Kernel outputs            *
 ************************************************************************
-      use nq_Grid, only: Rho, nRho
       use iSD_data
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
@@ -97,7 +96,7 @@
 *                                                                      *
             If (ilist_s.eq.jlist_s) Then
                Call Do_NInt_d(AOInt,nAOInt,ndF_dRho, dF_dRho,
-     &                        Weights,mGrid,Rho,nRho,
+     &                        Weights,mGrid,
      &                        Scr, TabAO(ipTabAO(iList_s)),iCmp,
      &                        iBas_Eff,nGrid_Tot,iSpin,mAO,nFn)
             Else
