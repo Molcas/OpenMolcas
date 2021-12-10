@@ -23,7 +23,6 @@
 *      Author:Roland Lindh, Dept. of Theor. Chem., Lund Unibersity,   ,*
 *             SWEDEN. November 2008                                    *
 ************************************************************************
-      use nq_Grid, only: Rho
       Implicit Real*8 (A-H,O-Z)
       External Do_NInt1_d, Do_nInt1,
      &         Do_NInt2_d, Do_nInt2,
@@ -36,7 +35,6 @@
      &       AOInt(nAOInt*nAOInt,iSpin), FckInt(nFckInt,iSpin),
      &       dF_dRho(ndF_dRho,mGrid)
       Integer list_s(2,nlist_s), ipTabAO(nlist_s), list_bas(2,nlist_s)
-      nRho=SIZE(Rho,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -47,7 +45,7 @@
      &                 Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                 FckInt,nFckInt,SOTemp,nSOTemp,
      &                 TabAO,ipTabAO,nTabAO,dF_dRho,ndF_dRho,
-     &                 nSym,iSpin,Flop,Rho,nRho,Scr,nScr,
+     &                 nSym,iSpin,Flop,Scr,nScr,
      &                 Fact,ndc,mAO,
      &                 list_bas,nFn)
 *                                                                      *
@@ -60,7 +58,7 @@
      &                 Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                 FckInt,nFckInt,SOTemp,nSOTemp,
      &                 TabAO,ipTabAO,nTabAO,dF_dRho,ndF_dRho,
-     &                 nSym,iSpin,Flop,Rho,nRho,Scr,nScr,
+     &                 nSym,iSpin,Flop,Scr,nScr,
      &                 Fact,ndc,mAO,
      &                 list_bas,nFn)
 *                                                                      *
@@ -73,7 +71,7 @@
      &                 Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                 FckInt,nFckInt,SOTemp,nSOTemp,
      &                 TabAO,ipTabAO,nTabAO,dF_dRho,ndF_dRho,
-     &                 nSym,iSpin,Flop,Rho,nRho,Scr,nScr,
+     &                 nSym,iSpin,Flop,Scr,nScr,
      &                 Fact,ndc,mAO,
      &                 list_bas,nFn)
 *                                                                      *
@@ -86,7 +84,7 @@
      &                 Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                 FckInt,nFckInt,SOTemp,nSOTemp,
      &                 TabAO,ipTabAO,nTabAO,dF_dRho,ndF_dRho,
-     &                 nSym,iSpin,Flop,Rho,nRho,Scr,nScr,
+     &                 nSym,iSpin,Flop,Scr,nScr,
      &                 Fact,ndc,mAO,
      &                 list_bas,nFn)
 *                                                                      *
