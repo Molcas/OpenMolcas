@@ -22,7 +22,7 @@
 *     Author: Roland Lindh, Dept. of Chemical Physics, University of   *
 *             Lund, Sweden.  May 2002 in Bologna, Italy.               *
 ************************************************************************
-      use nq_Grid, only: RHo, GradRho
+      use nq_Grid, only: GradRho
       use KSDFT_Info, only: KSDFA
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
