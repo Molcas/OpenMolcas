@@ -176,7 +176,7 @@ c Avoid unused argument warnings
      &                    mAO,TabAO1,iBas,iBas_Eff,iCmp,
      &                        TabAO2,jBas,jBas_Eff,jCmp,
      &                    Fact,Index_i,Index_j)
-      use nq_Grid, only: Rho, GradRho
+      use nq_Grid, only: Rho, GradRho, Tau
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -220,6 +220,8 @@ c Avoid unused argument warnings
                GradRho(1,iGrid)=GradRho(1,iGrid)+(Prod_21+Prod_12)*DAij_
                GradRho(2,iGrid)=GradRho(2,iGrid)+(Prod_31+Prod_13)*DAij_
                GradRho(3,iGrid)=GradRho(3,iGrid)+(Prod_41+Prod_14)*DAij_
+               Tau(1,iGrid)= Tau(1,iGrid)
+     &                     + (Prod_55+Prod_88+Prod_10)*DAij_
             End Do    ! iGrid
 *
          End Do          ! iCB
@@ -234,7 +236,7 @@ c Avoid unused argument warnings
      &                    mAO,TabAO1,iBas,iBas_Eff,iCmp,
      &                        TabAO2,jBas,jBas_Eff,jCmp,
      &                    Fact,Index_i,Index_j)
-      use nq_Grid, only: Rho, GradRho
+      use nq_Grid, only: Rho, GradRho, Tau
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -285,6 +287,11 @@ c Avoid unused argument warnings
                GradRho(4,iGrid)=GradRho(4,iGrid)+(Prod_21+Prod_12)*DBij_
                GradRho(5,iGrid)=GradRho(5,iGrid)+(Prod_31+Prod_13)*DBij_
                GradRho(6,iGrid)=GradRho(6,iGrid)+(Prod_41+Prod_14)*DBij_
+
+               Tau(1,iGrid)= Tau(1,iGrid)
+     &                      + (Prod_55+Prod_88+Prod_10)*DAij_
+               Tau(2,iGrid)= Tau(2,iGrid)
+     &                      + (Prod_55+Prod_88+Prod_10)*DBij_
 
             End Do    ! iGrid
 *
