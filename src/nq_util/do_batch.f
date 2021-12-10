@@ -1826,7 +1826,7 @@ C     Write (*,*) Dens_I,Grad_I,Tau_I
       Else
 *
          Call DFT_Grad(Grad,nGrad,dF_dRho,ndF_dRho,nD,Grid,mGrid,
-     &                 dRho_dR,ndRho_dR,nGrad_Eff,Rho,nRho,IndGrd,
+     &                 dRho_dR,ndRho_dR,nGrad_Eff,IndGrd,
      &                 Weights,iTab,Temp,F_xc,dW_dR,iNQ)
 *
       End If

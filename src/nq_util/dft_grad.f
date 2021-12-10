@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine DFT_Grad(Grad,nGrad,dF_dRho,ndF_dRho,iSpin,
      &                    Grid,mGrid,dRho_dR,ndRho_dR,nGrad_Eff,
-     &                    Rho,nRho,IndGrd,Weights,iTab,Temp,F_xc,
+     &                    IndGrd,Weights,iTab,Temp,F_xc,
      &                    dW_dR,iNQ)
 ************************************************************************
 *                                                                      *
@@ -22,6 +22,7 @@
 *     Author: Roland Lindh, Dept. of Chemical Physics, University of   *
 *             Lund, Sweden.  May 2002 in Bologna, Italy.               *
 ************************************************************************
+      use nq_Grid, only: RHo, GradRho
       use KSDFT_Info, only: KSDFA
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -37,7 +38,7 @@
       Real*8 Grad(nGrad), Temp(nGrad_Eff), Grid(3,mGrid),
      &       dF_dRho(ndF_dRho,mGrid),
      &       dRho_dR(ndRho_dR,mGrid,nGrad_Eff), OV(3,3), V(3,3),
-     &       Rho(nRho,mGrid), R_Grid(3),
+     &       R_Grid(3),
      &       Weights(mGrid), F_xc(mGrid), dW_dR(nGrad_Eff,mGrid)
       Integer IndGrd(nGrad_Eff), iTab(4,nGrad_Eff)
 *                                                                      *
@@ -180,9 +181,9 @@
                tmp=Zero
                ixyz=iTab(1,i_Eff)
                Do j = 1, mGrid
-                  gx=rho(2,j)
-                  gy=rho(3,j)
-                  gz=rho(4,j)
+                  gx=Gradrho(1,j)
+                  gy=Gradrho(2,j)
+                  gz=Gradrho(3,j)
                   Temp0=dF_dRho(ipR,j)
                   Temp1=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gx
                   Temp2=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gy
@@ -213,12 +214,12 @@
                tmp=Zero
                ixyz=iTab(1,i_Eff)
                Do j = 1, mGrid
-                  gxa=rho(3,j)
-                  gya=rho(4,j)
-                  gza=rho(5,j)
-                  gxb=rho(6,j)
-                  gyb=rho(7,j)
-                  gzb=rho(8,j)
+                  gxa=Gradrho(1,j)
+                  gya=Gradrho(2,j)
+                  gza=Gradrho(3,j)
+                  gxb=Gradrho(4,j)
+                  gyb=Gradrho(5,j)
+                  gzb=Gradrho(6,j)
 
                   Temp0a=dF_dRho(ipRa,j)
                   Temp0b=dF_dRho(ipRb,j)
@@ -267,9 +268,9 @@
                tmp=Zero
                ixyz=iTab(1,i_Eff)
                Do j = 1, mGrid
-                  gx=rho(2,j)
-                  gy=rho(3,j)
-                  gz=rho(4,j)
+                  gx=Gradrho(1,j)
+                  gy=Gradrho(2,j)
+                  gz=Gradrho(3,j)
                   Temp0=dF_dRho(ipR,j)
                   Temp1=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gx
                   Temp2=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gy
@@ -300,12 +301,12 @@
                tmp=Zero
                ixyz=iTab(1,i_Eff)
                Do j = 1, mGrid
-                  gxa=rho(3,j)
-                  gya=rho(4,j)
-                  gza=rho(5,j)
-                  gxb=rho(6,j)
-                  gyb=rho(7,j)
-                  gzb=rho(8,j)
+                  gxa=Gradrho(1,j)
+                  gya=Gradrho(2,j)
+                  gza=Gradrho(3,j)
+                  gxb=Gradrho(4,j)
+                  gyb=Gradrho(5,j)
+                  gzb=Gradrho(6,j)
 
                   Temp0a=dF_dRho(ipRa,j)
                   Temp0b=dF_dRho(ipRb,j)
@@ -358,9 +359,9 @@
                tmp=Zero
                ixyz=iTab(1,i_Eff)
                Do j = 1, mGrid
-                  gx=rho(2,j)
-                  gy=rho(3,j)
-                  gz=rho(4,j)
+                  gx=Gradrho(1,j)
+                  gy=Gradrho(2,j)
+                  gz=Gradrho(3,j)
                   Temp0=dF_dRho(ipR,j)
                   Temp1=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gx
                   Temp2=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gy
@@ -393,12 +394,12 @@
                tmp=Zero
                ixyz=iTab(1,i_Eff)
                Do j = 1, mGrid
-                  gxa=rho(3,j)
-                  gya=rho(4,j)
-                  gza=rho(5,j)
-                  gxb=rho(6,j)
-                  gyb=rho(7,j)
-                  gzb=rho(8,j)
+                  gxa=Gradrho(1,j)
+                  gya=Gradrho(2,j)
+                  gza=Gradrho(3,j)
+                  gxb=Gradrho(4,j)
+                  gyb=Gradrho(5,j)
+                  gzb=Gradrho(6,j)
 
                   Temp0a=dF_dRho(ipRa,j)
                   Temp0b=dF_dRho(ipRb,j)
