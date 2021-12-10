@@ -1812,13 +1812,13 @@ C     Write (*,*) Dens_I,Grad_I,Tau_I
 !               Call Get_dArray('ONTOPT',work(LTEG_DB),NFINT)
 
                Call Calc_OTPUVX(Work(LTEG_DB),TabMO,mAO,mGrid,
-     &         nMOs,P2_ontop,nP2_ontop,Rho,nRho,dF_dRho,
+     &         nMOs,P2_ontop,nP2_ontop,dF_dRho,
      &         ndF_dRho,Work(ipRhoI),Work(ipRhoA),mRho,Weights,
      &         D1MO,nD1MO,nsym)
 
 !
                Call Calc_OTOE(Work(LOE_DB),TabMO,mAO,mGrid,
-     &         nMOs,P2_ontop,nP2_ontop,Rho,nRho,dF_dRho,
+     &         nMOs,P2_ontop,nP2_ontop,dF_dRho,
      &         ndF_dRho,Work(ipRhoI),Work(ipRhoA),mRho,Weights,
      &         nsym)
 
@@ -1842,14 +1842,14 @@ C     Write (*,*) Dens_I,Grad_I,Tau_I
 
 
                Call Calc_OTPUVX_ftlsda2(Work(LTEG_DB),TabMO,mAO,mGrid,
-     &         nMOs,P2_ontop,nP2_ontop,Rho,nRho,dF_dRho,
+     &         nMOs,P2_ontop,nP2_ontop,dF_dRho,
      &         ndF_dRho,Work(ipRhoI),Work(ipRhoA),mRho,Weights,
      &         D1MO,nD1MO,nsym)
 
 !               tmpor = Work(loe_db)
 !
                Call Calc_OTOEf(Work(LOE_DB),TabMO,mAO,mGrid,
-     &         nMOs,P2_ontop,nP2_ontop,Rho,nRho,dF_dRho,
+     &         nMOs,P2_ontop,nP2_ontop,dF_dRho,
      &         ndF_dRho,Work(ipRhoI),Work(ipRhoA),mRho,Weights,
      &         nsym)
 
@@ -1922,12 +1922,12 @@ C     Write (*,*) Dens_I,Grad_I,Tau_I
 !               Call Get_dArray('ONTOPT',work(LTEG_DB),NFINT)
 
                Call Calc_OTPUVXGGA_2(Work(LTEG_DB),TabMO,mAO,mGrid,
-     &         nMOs,P2_ontop,nP2_ontop,Rho,nRho,dF_dRho,
+     &         nMOs,P2_ontop,nP2_ontop,dF_dRho,
      &         ndF_dRho,Work(ipRhoI),Work(ipRhoA),mRho,Weights,
      &         D1MO,nD1MO,nsym)
 
                Call Calc_OTOEGGA(Work(LOE_DB),TabMO,mAO,mGrid,
-     &         nMOs,P2_ontop,nP2_ontop,Rho,nRho,dF_dRho,
+     &         nMOs,P2_ontop,nP2_ontop,dF_dRho,
      &         ndF_dRho,Work(ipRhoI),Work(ipRhoA),mRho,Weights,
      &         nsym)
 
@@ -1952,12 +1952,12 @@ C     Write (*,*) Dens_I,Grad_I,Tau_I
 !               Call Get_dArray('ONTOPT',work(LTEG_DB),NFINT)
 
                Call Calc_OTPUVXGGA_ft(Work(LTEG_DB),TabMO,mAO,mGrid,
-     &         nMOs,P2_ontop,nP2_ontop,Rho,nRho,dF_dRho,
+     &         nMOs,P2_ontop,nP2_ontop,dF_dRho,
      &         ndF_dRho,Work(ipRhoI),Work(ipRhoA),mRho,Weights,
      &         D1MO,nD1MO,nsym)
 
                Call Calc_OTOEGGA_ft(Work(LOE_DB),TabMO,mAO,mGrid,
-     &         nMOs,P2_ontop,nP2_ontop,Rho,nRho,dF_dRho,
+     &         nMOs,P2_ontop,nP2_ontop,dF_dRho,
      &         ndF_dRho,Work(ipRhoI),Work(ipRhoA),mRho,Weights,
      &         nsym)
 
