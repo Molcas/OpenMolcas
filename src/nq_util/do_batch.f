@@ -1610,7 +1610,7 @@ C     Write (*,*) Dens_I,Grad_I,Tau_I
      &            ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_Rho)
 *
       If (nD.eq.2.and.DFTFOCK.eq.'DIFF') Then
-         Call P2Diff(mGrid,dF_dRho,ndF_dRho,Rho,nRho)
+         Call P2Diff(mGrid,dF_dRho,ndF_dRho)
       End If
 *
 *     Integrate the energy of the functional
