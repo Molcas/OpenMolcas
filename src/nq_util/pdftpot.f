@@ -352,7 +352,7 @@ C     & Pot1(iOff2),mOrb(iIrrep),mOrb(iIrrep))
       Real*8,DIMENSION(mGrid*nOrbt)::MOas
       Real*8,DIMENSION(mGrid*NASHT)::MOs
       Real*8,DIMENSION(mGrid)::Fact1
-      Real*8,DIMENSION(NASHT)::D1
+      Real*8,DIMENSION(NASHT**2)::D1
 
 ******Output
       Real*8,DIMENSION(nFock)::FI,FA
