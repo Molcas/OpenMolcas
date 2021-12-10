@@ -26,7 +26,9 @@
       use iSD_data
       use Symmetry_Info, only: nIrrep
       use KSDFT_Info, only: KSDFA
-      use nq_Grid
+      use nq_Grid, only: Rho, GradRho, Sigma, Tau, Lapl
+      use nq_Grid, only: Grid, Weights
+      use nq_Grid, only: nRho, nGradRho, nTau, nSigma, nLapl, nGridMax
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "real.fh"
@@ -140,6 +142,7 @@
 *     and associated weights.
 *
       Call mma_Allocate(Grid,3,nGridMax,Label='Grid')
+      Call mma_Allocate(Weights,nGridMax,Label='Weights')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -200,19 +203,19 @@
 *        We need rho.
 *        For gradients we need derivatives of rho wrt the coordinates
 *
-         nRho=1*nD
+         nRho=nD
          mdRho_dr=0
          If (Do_Grad) mdRho_dr=nRho
+         nSigma=0
+         nGradRho=0
+         nLapl=0
+         nTau=0
 *
 *        We need derivatives of the functional with respect to
 *        rho(alpha). In case of open-shell calculations we also
 *        need rho(beta).
 *
-         If (nD.eq.1) Then
-            ndF_dRho=1
-         Else
-            ndF_dRho=2
-         End If
+         ndF_dRho=nD
          nP2_ontop=1
          ndF_dP2ontop=1
 *                                                                      *
@@ -232,6 +235,9 @@
 *        For gradients we need the derrivatives wrt the coordinates
 *
          nRho=4*nD
+*        nRho=nD
+         nSigma=nD*(nD+1)/2
+         nGradRho=nD*3
          mdRho_dR=0
          If (Do_Grad) mdRho_dR=nRho
 *
@@ -264,6 +270,11 @@
 *        For gradients we need the derrivatives wrt the coordinates
 *
          nRho=5*nD
+*        nRho=nD
+         nSigma=nD*(nD+1)/2
+         nGradRho=nD*3
+         nLapl=0
+         nTau=nD
          mdRho_dR=0
          If (Do_Grad) mdRho_dR=nRho
 *
@@ -297,6 +308,11 @@
 *        For gradients we need the derrivatives wrt the coordinates
 *
          nRho=6*nD
+*        nRho=nD
+         nSigma=nD*(nD+1)/2
+         nGradRho=nD*3
+         nTau=nD
+         nLapl=nD
          mdRho_dR=0
          If (Do_Grad) mdRho_dR=nRho
 *
@@ -313,61 +329,29 @@
          End If
          nP2_ontop=4
          ndF_dP2ontop=4
-c         Call WarningMessage(2,
-c     &        'Meta-GGA functional type 2 not fully DEBUGGED yet!')
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Else If ( Functional_type.eq.PAM_type) Then
-*                                                                      *
-************************************************************************
-*                                                                      *
-         mAO=5
-         nRho=4*nD
-         mdRho_dR=0
-         If (nD.eq.1) Then
-            ndF_dRho=3
-         Else
-            ndF_dRho=5
-         Endif
-         nP2_ontop=4
-         ndF_dP2ontop=4
-         Call WarningMessage(2,'PAM functionals not implemented yet!')
-         Call Abend()
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Else If ( Functional_type.eq.CS_type) Then
-*                                                                      *
-************************************************************************
-*                                                                      *
-         mAO=5
-         nRho=4*nD
-         mdRho_dR=0
-         If (nD.eq.1) Then
-            ndF_dRho=3
-         Else
-            ndF_dRho=5
-         Endif
-         nP2_ontop=4
-         ndF_dP2ontop=4
-         Call WarningMessage(2,'CS functionals not implemented yet!')
-         Call Abend()
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Else If ( Functional_type.eq.CASDFT_type) Then
-*
-*        nD's definition is not consistent with the use here!
+*                                                                      *
+************************************************************************
+*                                                                      *
+*        nD  definition is not consistent with the use here!
 *        This needs to be restructured.
 *
          mAO=10
+
+         nRho=4*nD
+*        nRho=nD
+         nSigma=nD*(nD+1)/2
+         nGradRho=nD*3
+         nTau=0
+         nLapl=0
          mdRho_dR=0
          If (Do_Grad) Then
              Call WarningMessage(2,'CASDFT: Gradient not available.')
              Call Abend()
          End If
-         nRho=4*nD
 *
          If (nD.eq.1) Then
             ndF_dRho=3 ! could be 2?
@@ -380,26 +364,40 @@ c     &        'Meta-GGA functional type 2 not fully DEBUGGED yet!')
 ************************************************************************
 *                                                                      *
       Else
+*                                                                      *
+************************************************************************
+*                                                                      *
          Functional_type=Other_type
          Call WarningMessage(2,'DrvNQ: Invalid Functional_type!')
          Call Abend()
          nRho=0
          ndF_dRho=0
+*                                                                      *
+************************************************************************
+*                                                                      *
       End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Call mma_allocate(Rho,nRho,nGridMax,Label='Rho')
+      If (nSigma.ne.0) Call mma_Allocate(Sigma,nSigma,nGridMax,
+     &                                   Label='Sigma')
+      If (nGradRho.ne.0) Call mma_Allocate(GradRho,nGradRho,nGridMax,
+     &                                   Label='GradRho')
+      If (nTau.ne.0) Call mma_allocate(Tau,nTau,nGridMax,
+     &                                 Label='Tau')
+      If (nLapl.ne.0) Call mma_allocate(Lapl,nLapl,nGridMax,
+     &                                 Label='Lapl')
+
       Call GetMem('F_xc','Allo','Real',ip_F_xc,nGridMax)
-      Call GetMem('Rho','Allo','Real',ip_Rho,nRho*nGridMax)
       Call GetMem('dF_dRho','Allo','Real',ip_dFdRho,ndF_dRho*nGridMax)
 *
-      Call GetMem('Weights','Allo','Real',ip_Weights,nGridMax)
       Call GetMem('list_s','Allo','Inte',iplist_s,2*nIrrep*nShell)
       Call GetMem('list_exp','Allo','Inte',iplist_exp,3*nIrrep*nShell)
       iplist_bas=iplist_exp+nIrrep*nShell
       Call GetMem('list_p','Allo','Inte',iplist_p,nNQ)
       Call GetMem('R2_trail','Allo','Real',ipR2_trail,nNQ)
-c      Call GetMem('tmpB','Allo','Real',ip_tmpB,nGridMax)
+c     Call GetMem('tmpB','Allo','Real',ip_tmpB,nGridMax)
 *                                                                      *
 ************************************************************************
 * Global variable for MCPDFT functionals                               *
@@ -538,13 +536,9 @@ c      Call GetMem('tmpB','Allo','Real',ip_tmpB,nGridMax)
           nd1mo = NQNACPAR
           Call GetMem('D1MO','Allo','Real',ipD1MO,nd1mo)
           Call Get_D1MO(Work(ipD1mo),nd1mo)
-cGLM          write(6,*) 'D1MO in drvNQ routine'
-cGLM          write(6,*) (Work(ipD1mo+i), i=0,NQNACPAR-1)
           nP2 = NQNACPR2
           Call GetMEM('P2MO','Allo','Real',ipP2MO,nP2)
           call Get_P2mo(Work(ipP2mo),nP2)
-cGLM          write(6,*) 'P2MO in drvNQ routine'
-cGLM          write(6,*) (Work(ipP2mo+i), i=0,NQNACPR2-1)
         END IF
          Call GetMem('P2_ontop','Allo','Real',ipp2_ontop,
      &               nP2_ontop*nGridMax)
@@ -564,8 +558,7 @@ cGLM          write(6,*) (Work(ipP2mo+i), i=0,NQNACPR2-1)
      &            Work(ipAOInt),nAOInt,FckInt,nFckDim,
      &            Density,nFckInt,nD,
      &            Work(ipSOTemp),nSOTemp,
-     &            Grid,Work(ip_Weights),Work(ip_Rho),
-     &            nGridMax,nRho,
+     &            nGridMax,
      &            ndF_dRho,nP2_ontop,ndF_dP2ontop,
      &            Do_Mo,Do_TwoEl,l_Xhol,
      &            Work(ipTmpPUVX),nTmpPUVX,
@@ -575,7 +568,6 @@ cGLM          write(6,*) (Work(ipP2mo+i), i=0,NQNACPR2-1)
      &            Do_Grad,Grad,nGrad,iWork(iplist_g),
      &            iWork(ipIndGrd),iWork(ipiTab),Work(ipTemp),mGrad,
      &            Work(ip_F_xc),
-cGLM     &        Work(ip_F_xca),Work(ip_F_xcb),
      &            Work(ip_dFdRho),work(ipdF_dP2ontop),
      &            DFTFOCK,mAO,mdRho_dR)
 *                                                                      *
@@ -594,7 +586,6 @@ cGLM     &        Work(ip_F_xca),Work(ip_F_xcb),
       Call GetMem('list_p','Free','Inte',iplist_p,nNQ)
       Call GetMem('list_exp','Free','Inte',iplist_exp,3*nIrrep*nShell)
       Call GetMem('list_s','Free','Inte',iplist_s,2*nIrrep*nShell)
-      Call GetMem('Weights','Free','Real',ip_Weights,nGridMax)
       Call GetMem('dF_dRho','Free','Real',ip_dFdRho,ndF_dRho*nGridMax)
 *Do_TwoEl
       If(ipP2mo.ne.ip_Dummy) Call Free_Work(ipP2mo)
@@ -606,11 +597,16 @@ cGLM     &        Work(ip_F_xca),Work(ip_F_xcb),
          Call Put_dArray('DFT_TwoEl',Work(ipTmpPUVX),nTmpPUVX)
          Call GetMem('TmpPUVX','Free','Real',ipTmpPUVX,nTmpPUVX)
       End If
-*
-      Call GetMem('Rho','Free','Real',ip_Rho,nRho*nGridMax)
       Call GetMem('F_xc','Free','Real',ip_F_xc,nGridMax)
+*
+      If (Allocated(Lapl)) Call mma_deallocate(Lapl)
+      If (Allocated(Tau)) Call mma_deallocate(Tau)
+      If (Allocated(GradRho)) Call mma_deallocate(GradRho)
+      If (Allocated(Sigma)) Call mma_deallocate(Sigma)
+      Call mma_deallocate(Rho)
+
+      Call mma_deallocate(Weights)
       Call mma_deallocate(Grid)
-c      Call GetMem('tmpB','Free','Real',ip_tmpB,nGridMax)
 
       if(Debug) write(6,*) 'l_casdft value at drvnq.f:',l_casdft
       if(Debug.and.l_casdft) write(6,*) 'MCPDFT with functional:', KSDFA

@@ -32,7 +32,7 @@
 *---- Dirac (Slater) exchange                                          *
 *                                                                      *
       Coeff=One*CoefX
-      Call DiracX(mGrid,Rho,nRho,iSpin,F_xc,
+      Call DiracX(mGrid,iSpin,F_xc,
      &            dF_dRho,ndF_dRho,Coeff,T_X)
 *                                                                      *
 ************************************************************************
@@ -40,6 +40,8 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
+         Call Unused_Integer(nRho)
+         Call Unused_real_array(Rho)
          Call Unused_real_array(P2_ontop)
          Call Unused_real_array(dF_dP2ontop)
       End If

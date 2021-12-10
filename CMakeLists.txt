@@ -20,7 +20,7 @@
 # Gerardo Raggi - AppleClang
 
 cmake_minimum_required (VERSION 3.12)
-cmake_policy (VERSION 3.12...3.13)
+cmake_policy (VERSION 3.12...3.21)
 
 project (OpenMolcas
          LANGUAGES Fortran C
@@ -616,7 +616,7 @@ set (CXXFLAGS_Intel_RELEASE "-O2")
 set (CXXFLAGS_Intel_FAST "-O2")
 # C compiler
 list (APPEND SUPPORTED_C_COMPILERS "Intel")
-set (CFLAGS_Intel_BASIC "-std=gnu99")
+set (CFLAGS_Intel_BASIC "-std=gnu99 -gcc-sys")
 set (CFLAGS_Intel_OPENMP "-qopenmp")
 # build targets
 set (CFLAGS_Intel_DEBUG "-debug -w3")
@@ -2051,6 +2051,7 @@ if (DMRG)
     dmrgscf
     last_energy
     mclr
+    mcpdft
     mpssi
     nevpt2
     rasscf

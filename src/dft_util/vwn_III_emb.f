@@ -24,12 +24,14 @@
 *---- Vosko-Wilk-Nusair correlation functional III
 *
       Coeff=dFMD
-      Call VWN_III(mGrid,Rho,nRho,iSpin,F_xc,
+      Call VWN_III(mGrid,iSpin,F_xc,
      &             dF_dRho,ndF_dRho,Coeff,T_X)
 
       Return
 c Avoid unused argument warnings
       If (.False.) Then
+         Call Unused_Integer(nRho)
+         Call Unused_real_array(Rho)
          Call Unused_real_array(P2_ontop)
          Call Unused_real_array(dF_dP2ontop)
       End If

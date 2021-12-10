@@ -35,25 +35,25 @@
 *                                                                      *
 *---- Dirac Exchange Functional                                        *
 *                                                                      *
-      Call Diracx(mGrid,Rho,nRho,
+      Call Diracx(mGrid,
      &            iSpin,F_xc,dF_dRho,
      &            ndF_dRho,Coeff_A,T_X)
 *                                                                      *
 *---- Becke 88 Exchange Functional                                     *
 *                                                                      *
-      Call xB88(Rho,nRho,mGrid,
+      Call xB88(mGrid,
      &          dF_dRho,ndF_dRho,
      &          Coeff_B,iSpin,F_xc,T_X)
 *                                                                      *
 *---- Vosko-Wilk-Nusair Correlation Functional V                       *
 *                                                                      *
-      Call VWN_V(mGrid,Rho,nRho,
+      Call VWN_V(mGrid,
      &           iSpin,F_xc,dF_dRho,
      &           ndF_dRho,CoefR-Coeff_C,T_X)
 *                                                                      *
 *---- Lee-Yang-Parr Correlation Functional                             *
 *                                                                      *
-      Call LYP(Rho,nRho,mGrid,
+      Call LYP(mGrid,
      &         dF_dRho,ndF_dRho,
      &         Coeff_C,iSpin,F_xc,T_X)
 *                                                                      *
@@ -62,6 +62,8 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
+         Call Unused_Integer(nRho)
+         Call Unused_real_array(Rho)
          Call Unused_real_array(P2_ontop)
          Call Unused_real_array(dF_dP2ontop)
       End If
