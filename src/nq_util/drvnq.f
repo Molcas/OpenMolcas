@@ -226,7 +226,7 @@
 *
          nRho=nD
          mdRho_dr=0
-         If (Do_Grad) mdRho_dr=nRho
+         If (Do_Grad) mdRho_dr=nD
          nSigma=0
          nGradRho=0
          nLapl=0
@@ -255,12 +255,11 @@
 *        We need rho and grad rho
 *        For gradients we need the derrivatives wrt the coordinates
 *
-         nRho=4*nD
-*        nRho=nD
+         nRho=nD
          nSigma=nD*(nD+1)/2
          nGradRho=nD*3
          mdRho_dR=0
-         If (Do_Grad) mdRho_dR=nRho
+         If (Do_Grad) mdRho_dR=4*nD
 *
 *        We need derivatives of the functional with respect to
 *        rho(alpha), gamma(alpha,alpha) and gamma(alpha,beta).
@@ -290,14 +289,13 @@
 *        We need rho, grad rho and tau.
 *        For gradients we need the derrivatives wrt the coordinates
 *
-         nRho=5*nD
-*        nRho=nD
+         nRho=nD
          nSigma=nD*(nD+1)/2
          nGradRho=nD*3
          nLapl=0
          nTau=nD
          mdRho_dR=0
-         If (Do_Grad) mdRho_dR=nRho
+         If (Do_Grad) mdRho_dR=5*nD
 *
 *        We need derivatives of the functional with respect to
 *        rho(alpha), gamma(alpha,alpha), gamma(alpha,beta) and
@@ -328,14 +326,13 @@
 *        We need rho, grad rho, tau, and the Laplacian
 *        For gradients we need the derrivatives wrt the coordinates
 *
-         nRho=6*nD
-*        nRho=nD
+         nRho=nD
          nSigma=nD*(nD+1)/2
          nGradRho=nD*3
          nTau=nD
          nLapl=nD
          mdRho_dR=0
-         If (Do_Grad) mdRho_dR=nRho
+         If (Do_Grad) mdRho_dR=6*nD
 *
 *        We need derivatives of the functional with respect to
 *        rho(alpha), gamma(alpha,alpha), gamma(alpha,beta),
@@ -362,13 +359,12 @@
 *
          mAO=10
 
-         nRho=4*nD
-*        nRho=nD
+         nRho=nD
          nSigma=nD*(nD+1)/2
          nGradRho=nD*3
          nTau=0
          nLapl=0
-         mdRho_dR=0
+         If (Do_Grad) mdRho_dR=4*nD
          If (Do_Grad) Then
              Call WarningMessage(2,'CASDFT: Gradient not available.')
              Call Abend()

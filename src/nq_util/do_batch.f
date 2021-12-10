@@ -1424,21 +1424,12 @@ C    &                       list_bas,Index,nIndex)
 
       If (l_casdft) Then
       If (nD.eq.1) Then
-         Rho(3,:) = GradRho(1,:)
-         Rho(4,:) = GradRho(2,:)
-         Rho(5,:) = GradRho(3,:)
          Do iGrid=1, mGrid
             Sigma(1,iGrid)=GradRho(1,iGrid)**2
      &                    +GradRho(2,iGrid)**2
      &                    +GradRho(3,iGrid)**2
          End Do
       Else
-         Rho(3,:) = GradRho(1,:)
-         Rho(4,:) = GradRho(2,:)
-         Rho(5,:) = GradRho(3,:)
-         Rho(6,:) = GradRho(4,:)
-         Rho(7,:) = GradRho(5,:)
-         Rho(8,:) = GradRho(6,:)
          Do iGrid=1, mGrid
             Sigma(1,iGrid)=GradRho(1,iGrid)**2
      &                    +GradRho(2,iGrid)**2
