@@ -286,8 +286,8 @@ C      CALL RecPrt(' ','(10(F9.5,1X))',D1Unzip,nAsht,nAsht)
           KL=iTri(KAct,LAct)
           IJKL=iTri(ij,kl)
           Fact=0.5d0
-         if((ij.ge.kl).and.(k.eq.l)) Fact=1.0d0
-         if((kl.ge.ij).and.(i.eq.j)) Fact=1.0d0
+         if((ij.ge.kl).and.(kAct.eq.lAct)) Fact=1.0d0
+         if((kl.ge.ij).and.(iAct.eq.jAct)) Fact=1.0d0
           P2Unzip(IOff3+LAct)=P2MO(ijkl)*Fact
          end do
          end do

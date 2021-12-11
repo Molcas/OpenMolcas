@@ -177,16 +177,17 @@
               ICoordOff=IGridOff+(iCoord-1)*nMOs
               g_eff = list_g(iCoord,ilist_s)
               do iIrrep=0,mIrrep-1
-               nBasF=nBas(iIrrep)
                nOccO=nIsh(iIrrep)+nAsh(iIrrep)
+               IF(nOccO.eq.0) CYCLE
+               nBasF=nBas(iIrrep)
 
       CALL DGEMM_('T','N',nOccO,1,nBasF,1.0d0,
      &           CMO(OffBas2(iIrrep)),nBasF,
      &           TabSO2(iCoordOff+OffBas(iIrrep)),nBasF,
-     &    0.0d0,dTabMO2(OffBas(iIrrep)),nOccO)
+     &           0.0d0,dTabMO2,nOccO)
 
       CALL DAXPY_(nOccO,1.0d0,dTabMO2,1,
-     &dTabMO(1,OffBas(iIrrep),g_eff,iGrid),nP2_ontop)
+     &dTabMO(1,IOff_BasAct(iIrrep)+1,g_eff,iGrid),nP2_ontop)
               end do
 
              End Do
