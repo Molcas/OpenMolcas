@@ -187,7 +187,7 @@
      &           0.0d0,dTabMO2,nOccO)
 
       CALL DAXPY_(nOccO,1.0d0,dTabMO2,1,
-     &dTabMO(1,IOff_BasAct(iIrrep)+1,g_eff,iGrid),nP2_ontop)
+     &dTabMO(1,OffBas(iIrrep)+nFro(iIrrep),g_eff,iGrid),nP2_ontop)
               end do
 
              End Do
