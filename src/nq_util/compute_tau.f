@@ -10,14 +10,15 @@
 *                                                                      *
 * Copyright (C) 2000, Roland Lindh                                     *
 ************************************************************************
-      Real*8 Function Compute_Tau(Weights,mGrid,Rho,nRho,iSpin,T_X)
+      Real*8 Function Compute_Tau(Weights,mGrid,iSpin,T_X)
 ************************************************************************
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. November 2000                           *
 ************************************************************************
+      use nq_Grid, only: Rho, Tau
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-      Real*8 Weights(mGrid), Rho(nRho,mGrid)
+      Real*8 Weights(mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -39,11 +40,11 @@
          d_alpha=Rho(1,iGrid)
          DTot=Two*d_alpha
          If (DTot.lt.T_X) Go To 199
-         Tau=Rho(5,iGrid)
+         TauA=Tau(1,iGrid)
 *
 *------- Accumulate contributions to the integrated Tau
 *
-         Compute_Tau = Compute_Tau + Two*Tau*Weights(iGrid)
+         Compute_Tau = Compute_Tau + Two*TauA*Weights(iGrid)
 *
  199     Continue
 *
@@ -63,11 +64,11 @@
          d_beta =Max(Rho_min,Rho(2,iGrid))
          DTot=d_alpha+d_beta
          If (DTot.lt.T_X) Go To 299
-         Tau=Rho(9,iGrid)+Rho(10,iGrid)
+         TauA=Tau(1,iGrid)+Tau(2,iGrid)
 *
 *------- Accumulate contributions to the integrated density
 *
-         Compute_Tau = Compute_Tau + Tau*Weights(iGrid)
+         Compute_Tau = Compute_Tau + TauA*Weights(iGrid)
 *
  299     Continue
 *
