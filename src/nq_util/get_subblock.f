@@ -693,7 +693,7 @@ c
      &                 iWork(ipIndex),nIndex,AOInt,nAOInt,
      &                 FckInt,nFckDim,nFckInt,
      &                 SOTemp,nSOTemp,
-     &                 TabAO,Work(ipTabAO),mAO,Size(TabAO),
+     &                 TabAO,iWork(ipTabAO),mAO,Size(TabAO),
      &                 nSym,Dens,nDens,nD,
      &                 ndF_dRho,nP2_ontop,ndF_dP2ontop,
      &                 nShell,

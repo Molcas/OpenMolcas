@@ -784,7 +784,7 @@ C    &                         list_bas,Index,nIndex)
           IF(.not.l_tanhr) THEN
           CALL TranslateDens(P2_OnTop,dRho_dr,P2_OnTop_d,
      &                       ThrsRho,ThrsRho2,1,nRho,mGrid,nP2_OnTop,
-     &                       ndRho_dR,nGrad_EffDo_Grad)
+     &                       ndRho_dR,nGrad_Eff,Do_Grad)
           ELSE
           CALL TranslateDens(P2_OnTop,dRho_dr,P2_OnTop_d,
      &ThrsRho,ThrsRho2,3,nRho,mGrid,nP2_OnTop,ndRho_dR,nGrad_Eff,
