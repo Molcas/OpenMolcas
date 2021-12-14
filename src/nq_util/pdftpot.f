@@ -142,6 +142,8 @@ C     & MOVX(iGrid+IOff1)
 ******Use dgemm to calculate PUVX at this grid point
       DO pIrrep=0,mIrrep-1
        nporb=mOrb(pIrrep)
+       IF(nporb.eq.0) CYCLE
+       IF(nAsh(pIrrep).eq.0) CYCLE
        IOff1=OffOrb(pIrrep)*mGrid+1
        IOff2=OffPUVX(pIrrep)+1
        DO uIrrep=0,mIrrep-1
@@ -149,6 +151,7 @@ C     & MOVX(iGrid+IOff1)
         DO vIrrep=0,mIrrep-1
          xIrrep=IEOR(puIrrep,vIrrep)
          nnUVX=nUVX(xIrrep,vIrrep,uIrrep)
+       IF((xIrrep.gt.vIrrep).or.(nnUVX.eq.0)) CYCLE
          IOff3=OffUVX(xIrrep,vIrrep,uIrrep)*mGrid+1
        CALL DGEMM_('T','N',npOrb,nnUVX,mGrid,
      &             1.0d0,MOs(iOff1),mGrid,MOUVX(IOff3),mGrid,

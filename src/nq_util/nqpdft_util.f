@@ -213,29 +213,22 @@ C       CALL TriPrt(' ','(10(F9.5,1X))',Packed(iOff1+1),nOrbs)
 ******Output
       Real*8,DIMENSION(NASHT**2)::D1Unzip
 ******Intermediate
-      INTEGER iv,ix,iIrrep,IOff1,iOff2,IOffD1,nAct
+      INTEGER iv,ix,iLoc1,iLoc2,iLoc3
 
       CALL FZero(D1Unzip,NASHT**2)
-      IOffD1=0
-      DO iIrrep=0,mIrrep-1
-       nAct=nAsh(iIrrep)
-       Do iv=1,nAct
-        IOff1=(iv-1)*NASHT
-        IOff2=(iv-1)*iv/2
-C        do ix=1,iv-1
-        do ix=1,iv
-         D1Unzip(iOff1+ix)=D1MO(iOff2+ix+IOffD1)*0.5d0
-         D1Unzip((ix-1)*nASHT+iv)=D1Unzip(iOff1+ix)
-        end do
-C        ix=iv
-C        D1Unzip(iOff1+ix)=0.5d0*D1MO(iOff2+ix+IOffD1)
+      DO iv=1,NASHT
+       Do ix=1,iv-1
+        iLoc1=(iv-1)*NASHT+ix
+        iLoc2=(ix-1)*NASHT+iv
+        iLoc3=(iv-1)*iv/2+ix
+        D1Unzip(iLoc1)=0.5d0*D1MO(iLoc3)
+        D1Unzip(iLoc2)=D1Unzip(iLoc1)
        End Do
-C       write(6,*)'triangular D1 in irrep',iIrrep
-C       CALL TriPrt(' ','(10(F9.5,1X))',D1MO(iOffD1+1),nAct)
-       IOffD1=IOffD1+nAct*(nAct+1)/2
+       ix=iv
+       iLoc1=(iv-1)*NASHT+ix
+       iLoc3=(iv+1)*iv/2
+       D1Unzip(iLoc1)=0.5d0*D1MO(iLoc3)
       END DO
-C      write(6,*)'Rectangular D1'
-C      CALL RecPrt(' ','(10(F9.5,1X))',D1Unzip,nAsht,nAsht)
 
       RETURN
       End Subroutine
@@ -555,7 +548,7 @@ C      CALL RecPrt(' ','(10(F9.5,1X))',D1Unzip,nAsht,nAsht)
       IF (mAO.eq.4) THEN
        DO iGrid=1,mGrid
         IOff1=(iGrid-1)*NASHT
-        Do iIrrep=1,mIrrep-1
+        Do iIrrep=0,mIrrep-1
          IOff2=IOff_Ash(iIrrep)+1
          IOff3=IOff_BasAct(iIrrep)+1
          CALL DCopy_(nAsh(iIrrep),TabMO(2,iGrid,IOff3),nGridPi,
