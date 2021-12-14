@@ -42,7 +42,7 @@ real(kind=wp), intent(out) :: Temp(nGrad)
 #include "rctfld.fh"
 #include "disp.fh"
 #include "nq_info.fh"
-integer(kind=iwp) :: iDFT, iDumm, iEnd, iIrrep, iOpt, iPrint, iRout, iSpin, jPrint, LuWr, nDens, IK, ng1, ng2, nAsht, nRoots, iI
+integer(kind=iwp) :: iDFT, iDumm, iEnd, iIrrep, iOpt, iPrint, iRout, iSpin, jPrint, LuWr, nDens, IK, ng1, ng2, nRoots, iI
 real(kind=wp) :: Dummy1(1), Dummy2(1), Dummy3(1), Dummy4, Dumm0(1), Dumm1(1), ExFac, TCpu1, TCpu2, TWall1, TWall2
 logical(kind=iwp) :: First, Dff, Do_Grad, l_casdft
 character(len=80) :: Label

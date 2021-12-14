@@ -34,7 +34,6 @@
 #include "real.fh"
       Real*8 P2mo(np2act),D1mo(nd1mo),TabMO(mAO,mGrid,nMOs),
      &       P2_ontop(nP2_ontop,mGrid)
-      Integer iOff_Ash(0:7), iOff_Bas(0:7), iOff_BasAct(0:7)
       Real*8 RhoI(mRho,mGrid)
       Real*8 RhoA(mRho,mGrid)
       Logical Do_Grad
@@ -348,8 +347,7 @@ C            Write(6,'(A,1f28.20)') 'P2(4)   =',P2_ontop(4,iGrid)
 #include "WrkSpc.fh"
 #include "print.fh"
 !Error could be TabAO...
-      Integer iOff_Ash(0:7), iOff_Bas(0:7), iOff_BasAct(0:7),
-     &        list_s(2,nlist_s),list_bas(2,nlist_s),Index(nIndex),
+      Integer list_s(2,nlist_s),list_bas(2,nlist_s),Index(nIndex),
      &        list_g(3,nlist_s),ipTabAO(nlist_s,2),
      &        mAO,nAOs,mGrid,nP2_ontop,nGrad_Eff,np2act,nd1mo,nTabAO,
      &        mRho,nCMO,nsym

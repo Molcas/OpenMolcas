@@ -31,7 +31,6 @@
      &       dFdP2ontop(ndFdP2ontop,nGrid),
      &       RhoI(mRho,nGrid),RhoA(mRho,nGrid),
      &       TmpPUVX(nTmpPUVX)
-      Integer iOff_Bas(0:7)
 *                                                                      *
 ************************************************************************
 *                                                                      *
