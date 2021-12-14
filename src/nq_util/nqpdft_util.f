@@ -319,7 +319,7 @@ C       CALL TriPrt(' ','(10(F9.5,1X))',Packed(iOff1+1),nOrbs)
      &                         tanhrx,tanhry,tanhrz
       Real*8,DIMENSION(mGrid*nEGrad)::dRhoABdR,dRhoxdR,dRhoydR,dRhozdR,
      &                                dRatio,dZeta
-
+      Logical,DIMENSION(mGrid)::Pass1,Pass2
 ******iTrans
 *     1. translated functionals
 *     2. fully translated functionals (not implemented yet)
@@ -353,11 +353,19 @@ C       CALL TriPrt(' ','(10(F9.5,1X))',Packed(iOff1+1),nOrbs)
       CALL FZero( Zeta,mGrid)
       CALL FZero(Ratio,mGrid)
       DO iGrid=1,mGrid
+       Pass1(iGrid)=.false.
+       Pass2(iGrid)=.false.
+      END DO
+      DO iGrid=1,mGrid
        IF(RhoAB(iGrid).ge.ThrsRho) THEN
+        Pass1(iGrid)=.true.
         RRatio=4.0d0*Pi(1,iGrid)/(RhoAB(iGrid)**2)
         If(iTrans.eq.3) RRatio=tanh(RRatio)
         If((iTrans.eq.1).or.(iTrans.eq.3)) Then
-         If((1.0d0-Rratio).gt.ThrsZ2) Zeta(iGrid)=sqrt(1.0d0-Rratio)
+         if((1.0d0-Rratio).gt.ThrsZ2) then
+          Zeta(iGrid)=sqrt(1.0d0-Rratio)
+          Pass2(iGrid)=.true.
+         end if
         End If
         Ratio(iGrid)=Rratio
        END IF
@@ -376,7 +384,7 @@ C       CALL TriPrt(' ','(10(F9.5,1X))',Packed(iOff1+1),nOrbs)
 *     translating rho_a and rho_b
 *********************************************************************
       DO iGrid=1,mGrid
-       IF(RhoAB(iGrid).ge.ThrsRho) THEN
+       IF(Pass1(iGrid)) THEN
         Rho(1,iGrid)=OnePZeta(iGrid)*RhoAB(iGrid)
         Rho(2,iGrid)=OneMZeta(iGrid)*RhoAB(iGrid)
        END IF
@@ -387,7 +395,7 @@ C       CALL TriPrt(' ','(10(F9.5,1X))',Packed(iOff1+1),nOrbs)
 *********************************************************************
       IF(nGRho.eq.6) THEN
        DO iGrid=1,mGrid
-        If(RhoAB(iGrid).ge.ThrsRho) Then
+        If(Pass1(iGrid)) Then
          GradRho(1,iGrid)=OnePZeta(iGrid)*dRhodX(iGrid)
          GradRho(2,iGrid)=OnePZeta(iGrid)*dRhodY(iGrid)
          GradRho(3,iGrid)=OnePZeta(iGrid)*dRhodZ(iGrid)
@@ -406,7 +414,7 @@ C       CALL TriPrt(' ','(10(F9.5,1X))',Packed(iOff1+1),nOrbs)
        CALL FZero(tanhry,mGrid)
        CALL FZero(tanhrz,mGrid)
        DO iGrid=1,mGrid
-        If(RhoAB(iGrid).gt.thrsrho) Then
+        If(Pass1(iGrid)) Then
          RRatio=Ratio(iGrid)
          TempR=4.0d0*Pi(1,iGrid)/RhoAB(iGrid)
          TanhrX(iGrid)=(RRatio**2-1.0d0)*(Pi(2,iGrid)-
@@ -454,7 +462,7 @@ C       CALL TriPrt(' ','(10(F9.5,1X))',Packed(iOff1+1),nOrbs)
 *     Calculate dRatio
       CALL Fzero(dRatio,nGraGri)
       DO iGrid=1,mGrid
-       IF(RhoAB(iGrid).ge.ThrsRho) THEN
+       IF(Pass1(iGrid)) THEN
         Do iEGrad=1,nEGrad
          IOff1=(iEGrad-1)*mGrid
          dRatio(IOff1+iGrid)=4.0d0*dPi(1,iEGrad,iGrid)/(RhoAB(iGrid)**2)
@@ -465,7 +473,7 @@ C       CALL TriPrt(' ','(10(F9.5,1X))',Packed(iOff1+1),nOrbs)
 *     alculate dZeta
       CALL Fzero(dZeta,nGraGri)
       DO iGrid=1,mGrid
-       IF((1.0d0-Ratio(iGrid)).gt.ThrsZ2) THEN
+      IF(Pass2(iGrid)) THEN
        ScaleFact=-0.5d0/Zeta(iGrid)
        CALL DAxpy_(nEGrad,ScaleFact,dRatio(iGrid),mGrid,
      &                               dZeta(iGrid),mGrid)
@@ -475,7 +483,7 @@ C       CALL TriPrt(' ','(10(F9.5,1X))',Packed(iOff1+1),nOrbs)
       DO iEGrad=1,nEGrad
        IOff1=(iEGrad-1)*mGrid
        Do iGrid=1,mGrid
-        If(RhoAB(iGrid).ge.ThrsRho) Then
+        If(Pass1(iGrid)) Then
          dRhodR(1,iGrid,iEGrad)=OnePZeta(iGrid)*dRhoABdR(IOff1+iGrid)+
      &                          0.50d0*dZeta(IOFf1+iGrid)*RhoAB(iGrid)
          dRhodR(2,iGrid,iEGrad)=OneMZeta(iGrid)*dRhoABdR(IOff1+iGrid)-
@@ -488,7 +496,7 @@ C       CALL TriPrt(' ','(10(F9.5,1X))',Packed(iOff1+1),nOrbs)
        DO iEGrad=1,nEGrad
         IOff1=(iEGrad-1)*mGrid
         Do iGrid=1,mGrid
-         If(RhoAB(iGrid).ge.ThrsRho) Then
+         If(Pass1(iGrid)) Then
           dRhodR(3,iGrid,iEGrad)=OnePZeta(iGrid)*dRhoxdR(IOff1+iGrid)+
      &                           0.50d0*dZeta(IOFf1+iGrid)*dRhodx(iGrid)
           dRhodR(6,iGrid,iEGrad)=OneMZeta(iGrid)*dRhoxdR(IOff1+iGrid)-
