@@ -41,7 +41,8 @@
       use iSD_data
       use Basis_Info
       use Center_Info
-      use nq_Grid, only: Grid, Weights, TabAO, Grid_AO, Dens_AO
+      use nq_Grid, only: Grid, Weights, TabAO, Grid_AO, Dens_AO,
+     &                   TabAO_Pack
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "itmax.fh"
@@ -343,6 +344,7 @@ C              End If
       End Do
 *
       Call mma_Allocate(TabAO,mAO,mGrid,nBfn,Label='TabAO')
+      TabAO_Pack(1:mAO*mGrid*nBfn) => TabAO(:,:,:)
       Call Allocate_iWork(ipTabAO,2*(nlist_s+1))
       Call mma_Allocate(Grid_AO,mAO,mGrid,nBfn,nD,Label='Grid_AO')
       Call mma_Allocate(Dens_AO,nBfn**2,nD,Label='Dens_AO')
@@ -728,6 +730,7 @@ c
       Call Free_iWork(ipTabAO)
       Call mma_deallocate(Dens_AO)
       Call mma_deallocate(Grid_AO)
+      TabAO_Pack => Null()
       Call mma_deallocate(TabAO)
       If (Do_Grad) Call Free_Work(ip_dRho_dR)
       If (ipTabMO.ne.ip_Dummy) Call Free_Work(ipTabMO)
