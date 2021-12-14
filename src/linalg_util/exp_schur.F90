@@ -22,11 +22,12 @@
 !> If \f$ X = Z T Z^T \f$, then \f$ \exp(X) = Z \exp(T) Z^T \f$, and \f$ exp(T) \f$ is trivial to compute since each block can
 !> be treated separately: \f$ (0, \lambda) \to (\cos(\lambda), \pm\sin(\lambda) \f$.
 !>
-!> @param[in]     N  Size of the square matrix
-!> @param[in,out] X  Antisymmetric real matrix, it is replaced by its exponential
+!> @param[in]     N        Size of the square matrix
+!> @param[in,out] X        Antisymmetric real matrix, it is replaced by its exponential
+!> @param[out]    maxtheta Maximum rotation angle (absolute value in the Schur form)
 !***********************************************************************
 
-subroutine Exp_Schur(N,X)
+subroutine Exp_Schur(N,X,maxtheta)
 
 use sorting_funcs, only: geq_r
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -47,6 +48,7 @@ real(kind=wp), allocatable :: wri(:,:)
 #endif
 real(kind=wp), parameter :: thrs = epsilon(thrs)
 
+maxtheta = Zero
 if (N < 1) return
 
 #ifdef _USE_LAPACK_
@@ -74,7 +76,6 @@ call mma_allocate(tmp,N,N,label='tmp')
 ! or of the form  C = [ 0 x], and exp(C) = [ cos(x) sin(x)]
 !                     [-x 0]               [-sin(x) cos(x)]
 i = 1
-maxtheta = Zero
 do while (i <= N)
   if (i == N) then
     pair = .false.
@@ -94,7 +95,6 @@ do while (i <= N)
     i = i+1
   end if
 end do
-write(6,*) 'IFG theta',maxtheta
 
 ! Compute exp(X) = tmp Z^T
 call dgemm_('N','T',N,N,N,One,tmp,N,vs,N,Zero,X,N)
@@ -116,7 +116,6 @@ if (info /= 0) call abend()
 call mma_allocate(tmp,N,N,label='tmp')
 
 i = 1
-maxtheta = Zero
 do while (i <= N)
   theta = work(i)
   if ((i < N) .and. (abs(theta) > thrs)) then
@@ -131,7 +130,6 @@ do while (i <= N)
     i = i+1
   end if
 end do
-write(6,*) 'IFG theta',maxtheta
 
 call mma_deallocate(work)
 

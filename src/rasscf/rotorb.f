@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE rotorb (cmoo, cmon, c, x, x2, y, vec, a, b, thmax,FA)
+      SUBROUTINE rotorb (cmoo, cmon, c, x, x2, y, thmax,FA)
 c
 c     RASSCF program: version IBM-3090: SX section
 c
@@ -33,8 +33,8 @@ c
 #include "rasscf.fh"
 #include "WrkSpc.fh"
 
-      DIMENSION cmoo(*), cmon(*), c(*), x(*), vec(*),  x2(*)
-      DIMENSION y(*), a(*), b(*), FA(*)
+      DIMENSION cmoo(*), cmon(*), c(*), x(*), x2(*)
+      DIMENSION y(*), FA(*)
       DIMENSION DAMPGAS(10),COREGAS(10)
       INTEGER IDAMPGAS(0:4,0:4),ICOREGAS(0:4,0:4)
       LOGICAL iFrzAct
@@ -267,7 +267,7 @@ c
 c
 c      Now form the unitary matrix exp(X)
 c
-        CALL expx (x, x2, y, vec, a, b, thm, no)
+        CALL exp_Schur(no,x,thm)
         thmax=max(thmax,thm)
 c
 c      Check for largest non diagonal element
