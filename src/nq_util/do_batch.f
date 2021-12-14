@@ -68,7 +68,7 @@
       Real*8 TmpPUVX(nTmpPUVX)
       Logical Do_Grad,Do_Mo,Do_TwoEl,Unpack
       Logical l_Xhol, l_tanhr
-      Logical ft
+      Logical ft, lGGA
       Character*4 DFTFOCK
       Integer dindex
       Real*8 dTot_d,ratio_d,Zeta_d
