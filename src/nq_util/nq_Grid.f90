@@ -26,4 +26,6 @@ Integer :: nTau=0
 Logical :: l_CASDFT=.FALSE.
 Real*8, Allocatable:: Exc(:)
 Real*8, Allocatable:: TabAO(:,:,:)
+Real*8, Allocatable:: Grid_AO(:,:,:,:)
+Real*8, Allocatable:: Dens_AO(:,:)
 End Module nq_Grid

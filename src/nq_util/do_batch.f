@@ -146,7 +146,7 @@
 *                                                                      *
 ************************************************************************
 *
-      Call FZero(TabAO,nTabAO)
+      TabAO(:)=Zero
       UnPack=.False.
       If (NQ_Direct.eq.Off .and. (Grid_Status.eq.Use_Old .and.
      &      .Not.Do_Grad         .and.

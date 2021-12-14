@@ -41,7 +41,7 @@
       use iSD_data
       use Basis_Info
       use Center_Info
-      use nq_Grid, only: Grid, Weights, TabAO
+      use nq_Grid, only: Grid, Weights, TabAO, Grid_AO, Dens_AO
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "itmax.fh"
@@ -344,6 +344,8 @@ C              End If
 *
       Call mma_Allocate(TabAO,mAO,mGrid,nBfn,Label='TabAO')
       Call Allocate_iWork(ipTabAO,2*(nlist_s+1))
+      Call mma_Allocate(Grid_AO,mAO,mGrid,nBfn,nD,Label='Grid_AO')
+      Call mma_Allocate(Dens_AO,nBfn**2,nD,Label='Dens_AO')
 *
       If ((Functional_Type.eq.CASDFT_Type).or.Do_MO.or.DO_TwoEl) Then
          nTabMO=mAO*nMOs*mGrid
@@ -699,7 +701,6 @@ c
      &                 Do_Grad,Grad,nGrad,
      &                 Work(ip_dRho_dR),mdRho_dR,nGrad_Eff,
      &                 list_g,IndGrd,iTab,Temp,F_xc,
-cGLM     &                 list_g,IndGrd,iTab,Temp,F_xc,F_xca,F_xcb,
      &                 Work(ip_dW_dR),iNQ,
      &                 Maps2p,dF_dRho,dF_dP2ontop,
      &                 DFTFOCK,LOE_DB,LTEG_DB)
@@ -725,6 +726,8 @@ cGLM     &                 list_g,IndGrd,iTab,Temp,F_xc,F_xca,F_xcb,
 *                                                                      *
       Call GetMem('Index','Free','Real',ipIndex,nIndex)
       Call Free_iWork(ipTabAO)
+      Call mma_deallocate(Dens_AO)
+      Call mma_deallocate(Grid_AO)
       Call mma_deallocate(TabAO)
       If (Do_Grad) Call Free_Work(ip_dRho_dR)
       If (ipTabMO.ne.ip_Dummy) Call Free_Work(ipTabMO)
