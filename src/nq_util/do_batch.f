@@ -397,7 +397,7 @@
 ************************************************************************
 *                                                                      *
          Call Rho_LDA(Dens,nDens,nD,mGrid,
-     &                list_s,nlist_s,TabAO,ipTabAO,mAO,nTabAO,nSym,
+     &                list_s,nlist_s,ipTabAO,mAO,nSym,
      &                Work(ip_Fact),ndc,
      &                list_bas,Index,nIndex)
 *

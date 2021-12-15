@@ -11,7 +11,7 @@
 * Copyright (C) 2000, Roland Lindh                                     *
 ************************************************************************
       Subroutine Rho_LDA(Dens,nDens,nD,mGrid,
-     &                   list_s,nlist_s,TabAO,ipTabAO,mAO,nTabAO,nSym,
+     &                   list_s,nlist_s,ipTabAO,mAO,nSym,
      &                   Fact,mdc,list_bas,Index,nIndex)
 ************************************************************************
 *      Author:Roland Lindh, Department of Chemical Physics, University *
@@ -19,7 +19,7 @@
 ************************************************************************
       use iSD_data
       use k2_arrays, only: DeDe, ipDijS
-      use nq_grid, only: Rho
+      use nq_grid, only: Rho, TabAO, TabAO_Pack
 #ifdef _DEBUGPRINT_
       use nq_grid, only: nRho
 #endif
@@ -32,7 +32,7 @@
 #include "setup.fh"
       Integer list_s(2,nlist_s), ipTabAO(nlist_s), list_bas(2,nlist_s),
      &        Index(nIndex)
-      Real*8 Dens(nDens,nD), TabAO(nTabAO), Fact(mdc**2)
+      Real*8 Dens(nDens,nD), Fact(mdc**2)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -41,6 +41,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      nTabAO=Size(TabAO)
 *define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Call RecPrt('Rho_LDA:Dens',' ',Dens,nDens,nD)
@@ -56,7 +57,7 @@
          mTabAO=iBas*iCmp
          mdci  = iSD(10,iSkal)
          Call RecPrt('Rho_LDA: TabAO',' ',
-     &               TabAO(ipTabAO(iList_s)),mAO,mGrid*mTabAO)
+     &               TabAO_Pack(ipTabAO(iList_s)),mAO,mGrid*mTabAO)
       End Do
 #endif
 *
@@ -130,8 +131,8 @@
 *
                Call Do_Rho2a(mGrid,
      &                       DeDe(ip_D_a),     mAO,
-     &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
-     &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
+     &                  TabAO_Pack(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
+     &                  TabAO_Pack(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
      &                       Fact(ij)*Fij,
      &                       Index(index_i),Index(index_j))
 *
@@ -139,8 +140,8 @@
 *
                Call Do_Rho2_(mGrid,
      &                       DeDe(ip_D_a),DeDe(ip_D_b),     mAO,
-     &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
-     &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
+     &                  TabAO_Pack(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
+     &                  TabAO_Pack(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
      &                       Fact(ij)*Fij,
      &                       Index(index_i),Index(index_j))
 *
