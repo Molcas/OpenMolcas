@@ -141,7 +141,7 @@ C     Call dDaFile(LuPT2,2,Work(ipT),n,i)
 *
       Call Qpg_dArray('D1ao',Found,nDens)
       If (Found .and. nDens/=0) Then
-         Call mma_allocate(DCAS,nDens,Label='DCAS*)
+         Call mma_allocate(DCAS,nDens,Label='DCAS')
       Else
          Write (6,*) 'RHS_PT2: Density not found'
          Call Abend()
