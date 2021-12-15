@@ -614,7 +614,7 @@ set (CXXFLAGS_Intel_RELEASE "-O2")
 set (CXXFLAGS_Intel_FAST "-O2")
 # C compiler
 list (APPEND SUPPORTED_C_COMPILERS "Intel")
-set (CFLAGS_Intel_BASIC "-std=gnu99")
+set (CFLAGS_Intel_BASIC "-std=gnu99 -gcc-sys")
 set (CFLAGS_Intel_OPENMP "-qopenmp")
 # build targets
 set (CFLAGS_Intel_DEBUG "-debug -w3")
