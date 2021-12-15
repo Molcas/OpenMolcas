@@ -28,7 +28,6 @@
 #include "wadr.fh"
       DIMENSION XINT(*)
 *
-      CALL QENTER('GETIN')
       NTEST = 00
 *
       IF(NTEST.GE.1) THEN
@@ -88,7 +87,6 @@ c       WRITE(6,*) ' I_USE_SIMTRH in GETINT =', I_USE_SIMTRH
         CALL WRTMAT(XINT,NIK,NJL,NIK,NJL)
       END IF
 *
-      CALL QEXIT('GETIN')
 C     STOP ' Jeppe forced me to stop in GETINT '
       RETURN
       END

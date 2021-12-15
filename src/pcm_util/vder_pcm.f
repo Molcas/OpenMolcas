@@ -16,8 +16,12 @@
       Dimension Tessera(4,*),iSphe(*)
       Dimension DerTes(nTs,nAt,3),DerPunt(nTs,nAt,3,3)
       Dimension DerRad(nS,nAt,3),DerCentr(nS,nAt,3,3)
+      Integer Lu
 cpcm_solvent very temporary! read the potential derivatives from file
-      open(1,file='DerPot.dat',status='old',form='formatted')
+      Lu=1
+      Lu=IsFreeUnit(Lu)
+      Call Molcas_Open(Lu,'DerPot.dat')
+*     open(1,file='DerPot.dat',status='old',form='formatted')
       do 1134 iAt = 1, nAt
         do 1135 iCoord = 1, 3
           Index = 3 * (iAt-1) + iCoord

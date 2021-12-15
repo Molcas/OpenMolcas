@@ -38,7 +38,6 @@
 *  Author : P. A. Malmqvist
 **********************************************************************
 
-      Call QEnter('TraChoSZ')
 
 * ======================================================================
 * Determine sectioning size to use for the full-transformed MO vectors
@@ -121,7 +120,7 @@ CSVC: take the global sum of the individual maxima
       NFTSPC_TOT=NJSCT_TOT*MXFTARR
 #endif
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,*)' To be allocated for ...'
       WRITE(6,'(A,1X,I12)')'   Chol. vectors: NCHSPC     =',NCHSPC
       WRITE(6,'(A,1X,I12)')'   half-transf  : NHTSPC     =',NHTSPC
@@ -228,7 +227,6 @@ CSVC: take the global sum of the individual maxima
         END DO
       END DO
 
-      Call QExit('TraChoSZ')
       RETURN
       END
 

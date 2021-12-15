@@ -63,7 +63,7 @@ parnell (int argc, char * argv[])
         if (status != PARNELL_CONTINUE) goto error;
 
         /* when debugging, print what task is going to be executed */
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         if (MyRank == 0) {
                 printf("parnell: %c", task);
                 for (int i=0; i<argc; i++) printf(" %s", argv[i]);

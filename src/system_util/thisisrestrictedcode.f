@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2012, Thomas Bondo Pedersen                            *
 ************************************************************************
-C#define _DEBUG_
+C#define _DEBUGPRINT_
       Subroutine ThisIsRestrictedCode(developer_name,code_name,Abort)
 C
 C     Thomas Bondo Pedersen, December 2012.
@@ -33,7 +33,7 @@ C
       Call GetEnvf('MOLCAS_ISDEV',val)
       If (val.eq.'PRODUCTION') Return
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call OnlyIMayUseIt(developer_name)
       Write(6,'(A,A)') '>>>>> Restricted code: ',code_name
       Write(6,'(A,A,//)') '>>>>> Contact ',developer_name

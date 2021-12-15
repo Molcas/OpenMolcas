@@ -1,5 +1,5 @@
 &SEWARD
-coord 
+coord
 2
 Angstrom
 N 0.0 0.0   0.60
@@ -18,7 +18,7 @@ End of input
  &RASSCF &END
 LINEAR
 nActEl
- 5 0 0 
+ 5 0 0
 FROZen
 0 0 0 0 0 0 0 0
 INACTIVE
@@ -50,7 +50,7 @@ JOBIPH
 CIREstart
 CIONLY
 nActEl
- 5 0 0 
+ 5 0 0
 FROZen
 0 0 0 0 0 0 0 0
 INACTIVE
@@ -66,7 +66,7 @@ Symmetry
 1
 Spin
  2
->>enddo 
+>>enddo
 
 >>> COPY test.JobIph JOBIPH
  &MCPDFT

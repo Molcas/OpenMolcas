@@ -17,11 +17,6 @@
 * Object: to compute the first derivative of the kinetic energy        *
 *         integrals with respect to the magnetic field.                *
 *                                                                      *
-* Called from: KnEInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *                                                                      *
@@ -44,7 +39,6 @@
 *
       iRout = 134
       iPrint = nPrint(iRout)
-*     Call qEnter('CmbnKE_GIAO')
 *
       RAB(1)=A(1)-RB(1)
       RAB(2)=A(2)-RB(2)
@@ -152,6 +146,5 @@
       End Do
       End Do
 *
-*     Call qExit('CmbnKE_GIAO')
       Return
       End

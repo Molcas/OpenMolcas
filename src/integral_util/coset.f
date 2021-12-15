@@ -8,16 +8,17 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine CoSet(iCoSet,nCoSet,iChAtom,iOper,nSym)
+      Subroutine CoSet(iCoSet,nCoSet,iChAtom)
+      use Symmetry_Info, only: nIrrep, iOper
       Implicit Real*8 (A-H,O-Z)
-      Integer iCoSet(0:7), iOper(0:nSym-1)
+      Integer iCoSet(0:7)
       Logical Same
 *
 *     Find the coset representatives
 *
       iCoSet(0) = 0      ! Put in the unit operator
       nCoSet = 1
-      Do iIrrep = 1, nSym-1
+      Do iIrrep = 1, nIrrep-1
          itest=iAnd(iChAtom,iOper(iIrrep))
          Same = .False.
          Do jCoSet = 0, nCoSet-1

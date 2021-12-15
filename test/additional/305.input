@@ -1,9 +1,9 @@
 *-------------------------------------------------------------------------------
 * Molecule: H2CO
-* Basis: cc-pVTZ           
+* Basis: cc-pVTZ
 * Symmetry: C2v
 * Features tested: LK-CD-4  Seward, SCF, RASSCF, FNO-CASPT2
-* Responsible person: F. Aquilante  
+* Responsible person: F. Aquilante
 * Comments: this is a test for the Frozen Natural Orbital (FNO) CASPT2 method
 *-------------------------------------------------------------------------------
 > export MOLCAS_THR=1
@@ -56,7 +56,7 @@ Ras2
 0 3 0 0
 CiRoot
 1 1
-1 
+1
 ChoInput
 LocK
 EndCho

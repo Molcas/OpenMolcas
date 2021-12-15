@@ -279,7 +279,7 @@ Keywords
   see also :kword:`XMULtistate`.
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="MULTISTATE" APPEAR="Multi-State" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC">
-              <ALTERNATE KIND="CUSTOM" />
+              <ALTERNATE KIND="CHOICE" LIST="all" />
               %%Keyword: Multistate <basic> GUI:list
               <HELP>
               Enter the number of states for CASPT2 to compute, and a list of numbers
@@ -300,40 +300,14 @@ Keywords
   are desired.
   This keyword is mutually exclusive with :kword:`MULTistate`.
 
-  It can be used for an XMS-PDFT calculation (which needs :program:`RASSCF`,
-  :program:`CASPT2` and :program:`MCPDFT` modules).
-  To carry out an XMS-PDFT calculation, one needs to rotate the SA-CASSCF
-  or SA-RASSCF states to intermediate states (using the same rotation as in
-  XMS-CASPT2), and the rotation matrix can be obtained in the :program:`CASPT2` module
-  with this keyword.
-  With this, two files are generated in the scratch directory, :file:`Do_Rotate.txt`,
-  which stores the XMS rotation vector, and :file:`H0_Rotate.txt`, which stores the
-  Hamiltonian for the XMS rotated states. If the user wants to skip the
-  expensive perturbation-theory calculation, this keyword can be combined
-  with :kword:`XROH` to skip the perturbation part.
-
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="XMULTISTATE" APPEAR="Extended Multi-State" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC">
-              <ALTERNATE KIND="CUSTOM" />
+              <ALTERNATE KIND="CHOICE" LIST="all" />
               %%Keyword: XMultistate <basic> GUI:list
               <HELP>
               Enter the number of states for CASPT2 to compute, and a list of numbers
               showing which CASSCF state to use as root state for each.
               Alternatively, enter "all" for all the states included in the CASSCF
               orbital optimization.
-              </HELP>
-              </KEYWORD>
-
-:kword:`XROH`
-  This keyword can be used in an XMS-PDFT calculation (which needs :program:`RASSCF`, :program:`CASPT2` and :program:`MCPDFT` modules), together with :kword:`XMUL`.
-  When this keyword is used, the :program:`CASPT2` module will not perform perturbation theory calculations; instead, it will only print the rotation matrix and the Hamiltonian matrix of the intermediate states.
-  More information can be found on the Minnesota OpenMolcas page\ [#fn1]_.
-
-  .. [#fn1] https://comp.chem.umn.edu/openmolcas/
-
-  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="XROH" KIND="SINGLE" LEVEL="BASIC">
-              %%Keyword: XROH <basic>
-              <HELP>
-              Skips PT2 calculation. Only effective when XMUL is used.
               </HELP>
               </KEYWORD>
 
@@ -479,11 +453,11 @@ Keywords
               <HELP>
               "Freeze-and-Delete" type of CASPT2, available only in connection with Cholesky or RI.
               Needs (pseudo)canonical orbitals from RASSCF. An example of input for the keyword LOVC is the following:
-              ||
-              ||LovCASPT2
-              || 0.3
-              ||DoMP2  (or DoEnv)
-              ||
+
+                LovCASPT2
+                 0.3
+                DoMP2  (or DoEnv)
+
               In this case, both occupied and virtual orbitals (localized by the program) are divided in two groups: those mainly located on
               the region determined (automatically) by the spatial extent of the active orbitals ("active site"),
               and the remaining ones, which are obviously "outside" this region.
@@ -522,11 +496,11 @@ Keywords
               <HELP>
               Performs a Frozen Natural Orbital (FNO) CASPT2 calculation, available only in combination with Cholesky or RI integral representation.
               Needs (pseudo)canonical orbitals from RASSCF. An example of input for the keyword FNOC is the following:
-              ||
-              ||FNOCaspt2
-              || 0.4
-              ||DoMP2
-              ||
+
+                FNOCaspt2
+                 0.4
+                DoMP2
+
               The keyword FNOC has one compulsory argument (real number in ]0,1]) specifying the fraction of virtual orbitals
               (in each irrep) to be retained in the FNO-CASPT2 calculation.
               The keyword DoMP2 is optional and used to compute the (estimated) correction for the truncation error.

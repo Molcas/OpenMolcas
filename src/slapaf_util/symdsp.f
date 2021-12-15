@@ -10,24 +10,19 @@
 *                                                                      *
 * Copyright (C) 1992, Roland Lindh                                     *
 ************************************************************************
-      Logical Function SymDsp(iOper,nIrrep,iBsFnc)
+      Logical Function SymDsp(iBsFnc)
 ************************************************************************
 *                                                                      *
 * Object: to establish if a translation or a rotation belongs to the   *
 *         total symmetric irreducible representation.                  *
 *                                                                      *
-* Called from: Input                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              ICopy                                                   *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             April '92                                                *
 ************************************************************************
+      use Symmetry_Info, only: nIrrep, iOper
       Implicit Real*8 (A-H,O-Z)
-      Integer   iOper(0:nIrrep-1), jPrmt(0:7)
+      Integer jPrmt(0:7)
 #include "real.fh"
       Data jPrmt/1,-1,-1,1,-1,1,1,-1/
 *

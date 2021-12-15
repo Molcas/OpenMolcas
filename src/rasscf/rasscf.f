@@ -141,7 +141,6 @@
       External Get_ProgName
       Character*100 ProgName, Get_ProgName
       Character*15 STLNE2
-      External QEnter, QExit
       External RasScf_Init
       External Scan_Inp
       External Proc_Inp
@@ -156,7 +155,6 @@
 
 * Start the traceback utilities
 *
-      Call QENTER(ROUTINE)
 
 * Set status line for monitor:
       Call StatusLine('RASSCF:',' Just started.')
@@ -237,7 +235,7 @@
 
 * Process the input:
       Call StatusLine('RASSCF:',' Processing input')
-      Call Proc_Inp(DSCF,Info,lOPTO,iRc)
+      Call Proc_Inp(DSCF,lOPTO,iRc)
 * If something goes wrong in proc_inp:
       If (iRc.ne._RC_ALL_IS_WELL_) Then
        If (IPRLEV.ge.TERSE) Then
@@ -341,7 +339,6 @@
       If (iCIRST.eq.1.and.DumpOnly) then
         write(6,*) 'ICIRST and DumpOnly flags are not compatible!'
         write(6,*) 'Choose only one.'
-        Call QTrace
         Call Abend
       end if
 
@@ -858,7 +855,7 @@ c         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
         else
           CALL CICTL(WORK(LCMO),
      &               WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
-     &               WORK(LFI),WORK(LD1I),WORK(LD1A),
+     &               WORK(LFI),WORK(LFA),WORK(LD1I),WORK(LD1A),
      &               WORK(LTUVX),IFINAL)
 
           if(dofcidump)then
@@ -1121,7 +1118,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
         else
           CALL CICTL(WORK(LCMO),
      &               WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
-     &               WORK(LFI),WORK(LD1I),WORK(LD1A),
+     &               WORK(LFI),WORK(LFA),WORK(LD1I),WORK(LD1A),
      &               WORK(LTUVX),IFINAL)
         end if
 
@@ -1181,7 +1178,6 @@ c      call triprt('P-mat 2',' ',WORK(LPMAT),nAc*(nAc+1)/2)
            Write(LF,*) 'SGFCIN: iRc from Call RdOne not 0'
            Write(LF,*) 'Label = ',Label
            Write(LF,*) 'iRc = ',iRc
-           Call QTrace
            Call Abend
           End if
 
@@ -1487,7 +1483,7 @@ cGLM some additional printout for MC-PDFT
         else
           IF(doDMRG)then
 
-#ifdef _DMRG_DEBUG_
+#ifdef _DMRG_DEBUGPRINT_
             write(lf,*) "DMRG-SCF energy    ",ECAS
             write(lf,*) "DMRG sweeped energy",EAV
 #endif
@@ -1743,7 +1739,7 @@ c Clean-close as much as you can the CASDFT stuff...
       else
         CALL CICTL(WORK(LCMO),
      &           WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
-     &           WORK(LFI),WORK(LD1I),WORK(LD1A),
+     &           WORK(LFI),WORK(LFA),WORK(LD1I),WORK(LD1A),
      &           WORK(LTUVX),IFINAL)
       end if
 
@@ -1926,7 +1922,7 @@ c  i_root>0 gives natural spin orbitals for that root
       Call OrbFiles(JOBIPH,IPRLEV)
 *
 ************************************************************************
-************ Priniting final RDMs in NECI format       *****************
+************ Printing final RDMs in NECI format        *****************
 ************************************************************************
       If ( IPRLEV.ge.DEBUG ) then
        Call printRDMs_NECI(Work(LDMAT),NAC,Work(LPMAT),Work(LPA),NACPAR)
@@ -1990,9 +1986,6 @@ c deallocating TUVX memory...
       If (.not. any([allocated(CI_solver), DumpOnly,
      &              doDMRG, doBlockDMRG])) then
         Call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)
-      else if (allocated(CI_solver)) then
-        call CI_solver%cleanup()
-        deallocate(CI_solver)
       end if
 
 
@@ -2039,6 +2032,11 @@ c      End If
       if (.not. (iDoGas .or. doDMRG .or. doBlockDMRG
      &          .or. allocated(CI_solver) .or. DumpOnly)) then
         Call MKGUGA_FREE
+      end if
+
+      if (allocated(CI_solver)) then
+          call CI_solver%cleanup()
+          deallocate(CI_solver)
       end if
 
 !Leon: The velociraptor comes! xkcd.com/292/
@@ -2102,7 +2100,6 @@ C Close the one-electron integral file:
         END DO
         Close(LUInput)
       End If
-      Call qExit(ROUTINE)
 
       return
 

@@ -52,7 +52,6 @@ CPAM98     &              LMOR2,LMOS2,IAD13,ITP,ITQ,ITR,ITS
       Dimension X1(nX1),X2(nX2)
       Dimension PQRU(nPQRU),PQUS(nPQUS)
 
-      Call Qenter('tr2nsa3')
       NSYMP=NSYM*(NSYM+1)/2
       NOTU=NOCR*NOCS
       IF(ISR.EQ.ISS) NOTU=(NOCR**2+NOCR)/2
@@ -354,6 +353,5 @@ c End of Loop over t,u pair
       Endif
   200 Continue
 
-      CALL QEXIT('tr2nsa3')
       Return
       End

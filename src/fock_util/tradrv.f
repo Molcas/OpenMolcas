@@ -54,7 +54,6 @@
 *
       iTri(i,j)=i*(i-1)/2+j
 *
-      Call qEnter('TraDrv')
 *
 *     generate offsets
       iiOff  = off_sqMat(iSym) + iFro*iBas + 1
@@ -79,7 +78,6 @@
 *
 *     quit, if this integral block is not used
       If ( case1.eq.4 .and. case2.eq.0 ) then
-        Call qExit('TraDrv')
         Return
       End If
 *
@@ -298,7 +296,6 @@
       Candino_2 = Candino_2 - Candino_1
       Candino_3 = Candino_3 + Candino_2
 *
-      Call qExit('TraDrv')
 *
       Return
       End

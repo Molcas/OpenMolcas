@@ -59,17 +59,19 @@
 *     S. Vancoillie, University of Lund, Sweden, 2010-2015             *
 ************************************************************************
       SubRoutine GAInit
+************************************************************************
 *     purpose: initialize DGA and set the global rank and number of    *
 *              processes in mpp_procid and mpp_nprocs. Then also set   *
 *              the (initial) local myRank and nProcs varibles.         *
 *     called from: DPMP2 (distributed parallel MP2)                    *
 *     calls to: MPI-2/DGA routines                                     *
+************************************************************************
       Implicit None
 #include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #  include "mpp_info.fh"
 #  include "global.fh"
-      Character(8) :: molcas_nprocs_env
+      Character(Len=8) :: molcas_nprocs_env
       Integer :: molcas_nprocs, iRC
 
 C     SVC: bypass MPI initialization if only 1 process, this is needed for a
@@ -159,7 +161,7 @@ C     continue to run the master process in serial mode.
       Subroutine GABrdcst(dType,Buf,nByte,Root)
       Implicit None
       Integer       dType,nByte,Root
-      Character(*)  buf
+      Character(Len=*)  buf
 #ifdef _MOLCAS_MPP_
 #  include "global.fh"
 
@@ -221,7 +223,7 @@ c Avoid unused argument warnings
       SubRoutine GAdGOp_Scal(x,op)
       Implicit None
       Real*8 x
-      Character(*) op
+      Character(Len=*) op
       Real*8 x_arr(1)
 
       x_arr(1)=x
@@ -283,7 +285,7 @@ c Avoid unused argument warnings
       SubRoutine GAiGOp_Scal(k,op)
       Implicit None
       Integer k
-      Character(*) op
+      Character(Len=*) op
       Integer k_arr(1)
 
       k_arr(1)=k
@@ -335,7 +337,6 @@ c Avoid unused argument warnings
       If (.NOT.ok) Then
         Write (6,*) 'GADupl: ga_duplicate not OK!'
         Call GAStp('GADupl',42)
-        Call QTrace
         Call Abend()
       End If
 

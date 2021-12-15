@@ -47,7 +47,6 @@
 * ======
       DIMENSION DIAG(*)
 *
-      CALL QENTER('CI_DIA')
 *
       NTEST = 0
       NTEST = MAX(NTEST,IPRDIA)
@@ -109,7 +108,6 @@
       CALL GETMEM('KLBSTR','FREE','INTE',KLBSTR,MXNSTR*NBEL)
       CALL GETMEM('KLRJKA','FREE','REAL',KLRJKA,MAXA)
 *
-      CALL QEXIT('CI_DIA')
 *
 C?    STOP ' Jeppe forced me to stop after GASDIA '
       RETURN

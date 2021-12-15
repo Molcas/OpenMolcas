@@ -27,7 +27,6 @@ C
 #include "output_ras.fh"
       Parameter (ROUTINE='PMAT    ')
       DIMENSION X(*),P(*)
-      Call qEnter('PMAT')
 C Local print level (if any)
       IPRLEV=IPRLOC(4)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -111,6 +110,5 @@ C
         Write(LF,*)' Reordered 2-matrix:'
         Write(LF,'(1X,10F10.6)') (X(I),I=1,LPMAT)
       END IF
-      CALL QEXIT('PMAT')
       RETURN
       END

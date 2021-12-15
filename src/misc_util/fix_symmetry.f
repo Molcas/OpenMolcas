@@ -29,8 +29,6 @@
       INTEGER nAt,Stab(nAt)
       REAL*8 Coord(3,nAt),thr
       PARAMETER ( thr = 1.0D-12 )
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 *

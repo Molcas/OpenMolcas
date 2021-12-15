@@ -55,13 +55,12 @@ C
 
 ************************************************************************
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Debug=.true.
 #else
       Debug=.false.
 #endif
 
-      Call QEnter(SECNAM)
 
       DoRead  = .false.
       IREDC = -1  ! unknown reduced set in core
@@ -163,7 +162,6 @@ C ------------------------------------------------------------------
 
             if (nVrs.lt.0) then
                Write(6,*)SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
-               call qtrace()
                call abend()
             endif
 
@@ -171,7 +169,6 @@ C ------------------------------------------------------------------
             if(irc.ne.0)then
               Write(6,*)SECNAM//'cho_X_setred non-zero return code.'
               Write(6,*)        'rc= ',irc
-              call qtrace()
               call abend()
             endif
 
@@ -190,7 +187,6 @@ C ------------------------------------------------------------------
                WRITE(6,*) 'reading ',nRS,' and transforming to ',mvec
                WRITE(6,*) 'of jsym= ',jsym,' and JRED= ',JRED
                rc = 33
-               CALL QTrace()
                CALL Abend()
                NumBat = -9999  ! dummy assignment
             End If
@@ -460,7 +456,6 @@ C --- free memory
       rc  = 0
 
       Call Cho_X_final(rc)
-      CAll QExit(SECNAM)
 
       Return
       END

@@ -49,7 +49,6 @@
 *
       NTEST =  000
 *
-C     CALL QENTER('SKICK')
       IF(IROUTE.EQ.3) THEN
 * S(Ka,i,Ib) = S(Ka,i,Ib) + sum(j) (ji!kl) C(Ka,j,Jb)
         DO KB = 1, NKB
@@ -236,7 +235,6 @@ C1000 CONTINUE
       END IF
 *. End of IROUTE branchning
 *
-C     CALL QEXIT('SKICK')
       RETURN
       END
 

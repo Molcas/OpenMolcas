@@ -43,7 +43,7 @@ End of Input
 >>export MOLCAS_NOCHECK=SCF_ITER,RASSCF_ITER,MLTPL,GRAD,NQ_DENSITY,DFT_ENERGY
  &SCF &End
 Occupied
-9  
+9
 Core
 End of Input
 *-------------------------------------------------------------------------------

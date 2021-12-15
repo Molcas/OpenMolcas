@@ -40,7 +40,9 @@
 #include "orbinf2.fh"
 #include "mbpt2aux.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "files_mbpt2.fh"
+      Real*8, Allocatable:: CMO_t(:)
 
 *     declaration of local variables...
       Logical Debug
@@ -49,7 +51,6 @@
 
 #include "SysDef.fh"
 
-      Call qEnter('RdMBPT')
 *
 *...  Read nSym, nBas, nOrb, nOcc, nFro, CMO and orbital energies from COMFILE
 *
@@ -65,26 +66,28 @@
             Write (6,'(A,8I5)') 'nOcc:',(nOcc(i),i=1,nSym)
             Write (6,'(A,8I5)') 'nFro:',(nFro(i),i=1,nSym)
          End If
+         lthCMO=0
          Do iSym=1,nSym
             If (nFro(iSym).ne.0) Then
                Write (6,*) 'Some orbitals where frozen in the SCF!'
-               Call QTrace()
                Call Abend()
             End If
             nDel(iSym)=nBas(iSym)-nOrb(iSym)
             nExt(iSym)=nOrb(iSym)-nOcc(iSym)
             nDsto(iSym)=nDel(iSym)
+            lthCMO = lthCMO + nBas(iSym)*nOrb(iSym)
          End Do
 *
-         Call Get_CMO_(ipCMO_t,lthCMO)
+         Call mma_allocate(CMO_t,lthCMO,Label='CMO_t')
+         Call Get_CMO_(CMO_t,lthCMO)
          Call GetMem('CMO   ','Allo','Real',ipCMO,lthCMO)
 *
 *...  set MO coefficients of the deleted orbitals to zero
 *     Observe that these are not included at all in the basis
          iStart   = ipCMO
-         iStart_t = ipCMO_t
+         iStart_t = 1
          Do iSym=1,nSym
-            call dcopy_(nOrb(iSym)*nBas(iSym),Work(iStart_t),1,
+            call dcopy_(nOrb(iSym)*nBas(iSym),CMO_t(iStart_t),1,
      &                                       Work(iStart),1)
             iStart   = iStart   + nOrb(iSym)*nBas(iSym)
             iStart_t = iStart_t + nOrb(iSym)*nBas(iSym)
@@ -93,7 +96,7 @@
             iStart   = iStart   +
      &                 (nBas(iSym)-nOrb(iSym))*nBas(iSym)
          End Do
-         Call GetMem('CMO_t ','Free','Real',ipCMO_t,lthCMO)
+         Call mma_deallocate(CMO_t)
 *
          Call Get_OrbE_(ipEOrb_t,lthEOr)
          nnB=lthEOr
@@ -113,6 +116,5 @@
          End Do
          Call GetMem('EOrb_t','Free','Real',ipEOrb_t,lthEOr)
 *
-      Call qExit('RdMBPT')
       Return
       End

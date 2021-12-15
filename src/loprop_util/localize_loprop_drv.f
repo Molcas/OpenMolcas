@@ -21,7 +21,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -56,7 +56,6 @@
          If ( iRc.ne.0 ) Then
             Write (6,*) 'Polar: error reading length of mu!'
             Write (6,*) 'Mu=',0
-            Call QTrace
             Call Abend()
          End If
          nInts=idum(1)
@@ -65,11 +64,10 @@
          If ( iRc.ne.0 ) Then
             Write (6,*) 'Polar: error reading mu!'
             Write (6,*) 'Mu=',0
-            Call QTrace
             Call Abend()
          End If
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('SSym',' ',Work(ip_SSym),1,nInts)
 #endif
 *                                                                      *
@@ -112,7 +110,7 @@
          Call Free_Work(ip_Tmp)
 *
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Overlap matrix',' ',Work(ipS),nBas1,nBas1)
 #endif
 *
@@ -120,7 +118,7 @@
 *---- Localize
 *
       Call Localize_LoProp(Ttot,Ttot_Inv,nBas1,Work(ipS),iCenter,iType)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Ttot',' ',Ttot,nBas1,nBas1)
       Call RecPrt('Ttot_Inv',' ',Ttot_Inv,nBas1,nBas1)
       Call xSpot('Exit Localize_LoProp_Drv')

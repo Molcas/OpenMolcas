@@ -22,7 +22,6 @@
       integer NCI, IDISK, I
       real*8, allocatable :: CIBigArray(:)
 
-      CALL qEnter('SurfaceHop')
 
       call initial_surfacehop()
       call rdinp_surfacehop()
@@ -46,6 +45,5 @@
       call tully(CIBigArray,NSTATE,NCI)
 
       call mma_deallocate(CIBigArray)
-      CALL qExit('SurfaceHop')
       return=_RC_ALL_IS_WELL_
       end

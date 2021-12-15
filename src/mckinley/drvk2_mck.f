@@ -16,19 +16,6 @@
 *                                                                      *
 *  Object: to precompute all pair entites as zeta, kappa, P.           *
 *                                                                      *
-* Called from: Drvg1                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              mHrr                                                    *
-*              ICopy                                                   *
-*              DCopy   (ESSL)                                          *
-*              DCR                                                     *
-*              MemRys                                                  *
-*              PSOAO0                                                  *
-*              k2Loop                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -41,11 +28,13 @@
       use k2_setup
       use k2_arrays
       use iSD_data
+      use Basis_Info
+      use Symmetry_Info, only: nIrrep, iOper
+      use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "ndarray.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "disp.fh"
 #include "disp2.fh"
 #include "WrkSpc.fh"
@@ -65,7 +54,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qEnter('Drvk2')
       Call CWTime(TCpu1,TWall1)
       Call GetMem('k2','Max','Real',idum,maxk2)
       maxk2 = maxk2 / 2
@@ -84,21 +72,21 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('Con','Allo','Real',ipCon,m2Max)
+      Call GetMem('Con','Allo','Real',ipCon,S%m2Max)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       MemTmp=0
-      Do iAng = 0, iAngMx
-         MemTmp=Max(MemTmp,(MaxPrm(iAng)*nElem(iAng))**2)
+      Do iAng = 0, S%iAngMx
+         MemTmp=Max(MemTmp,(S%MaxPrm(iAng)*nElem(iAng))**2)
       End Do
       Call GetMem('Temp1','Allo','Real',ipTmp1,MemTmp )
       Call GetMem('Temp2','Allo','Real',ipTmp2,MemTmp )
       Call GetMem('Temp3','Allo','Real',ipTmp3,MemTmp )
-      Call GetMem('Knew ','Allo','Real',ipKnew,m2Max  )
-      Call GetMem('Lnew ','Allo','Real',ipLnew,m2Max  )
-      Call GetMem('Pnew ','Allo','Real',ipPnew,3*m2Max)
-      Call GetMem('Qnew ','Allo','Real',ipQnew,3*m2Max)
+      Call GetMem('Knew ','Allo','Real',ipKnew,S%m2Max  )
+      Call GetMem('Lnew ','Allo','Real',ipLnew,S%m2Max  )
+      Call GetMem('Pnew ','Allo','Real',ipPnew,3*S%m2Max)
+      Call GetMem('Qnew ','Allo','Real',ipQnew,3*S%m2Max)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -112,40 +100,34 @@
          iAng   = iSD( 1,iS)
          iCmp   = iSD( 2,iS)
          iBas   = iSD( 3,iS)
-         iCff   = iSD( 4,iS)
          iPrim  = iSD( 5,iS)
-         iExp   = iSD( 6,iS)
          iAO    = iSD( 7,iS)
-         ixyz   = iSD( 8,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
          iCnttp = iSD(13,iS)
          iCnt   = iSD(14,iS)
+         Coor(1:3,1)=dbsc(iCnttp)%Coor(1:3,iCnt)
 *
          iAngV(1) = iAng
          iShllV(1) = iShll
          iCmpV(1) = (iAng+1)*(iAng+2)/2
-         call dcopy_(3,Work(ixyz),1,Coor(1,1),1)
 *
          Do jS = 1, iS
             jShll  = iSD( 0,jS)
             jAng   = iSD( 1,jS)
             jCmp   = iSD( 2,jS)
             jBas   = iSD( 3,jS)
-            jCff   = iSD( 4,jS)
             jPrim  = iSD( 5,jS)
-            jExp   = iSD( 6,jS)
             jAO    = iSD( 7,jS)
-            jxyz   = iSD( 8,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
             jCnttp = iSD(13,jS)
             jCnt   = iSD(14,jS)
+            Coor(1:3,2)=dbsc(jCnttp)%Coor(1:3,jCnt)
 *
             iAngV(2) = jAng
             iShllV(2) = jShll
             iCmpV(2) = (jAng+1)*(jAng+2)/2
-            call dcopy_(3,Work(jxyz),1,Coor(1,2),1)
 *
 *-------Compute FLOP's for the transfer equation.
 *
@@ -154,10 +136,8 @@
 *
             iPrimi   = iPrim
             jPrimj   = jPrim
-            ipExpi   = ipExp(iShllV(1))
-            jpExpj   = ipExp(iShllV(2))
-            nBasi    = nBasis(iShllV(1))
-            nBasj    = nBasis(iShllV(2))
+            nBasi    = Shells(iShllV(1))%nBasis
+            nBasj    = Shells(iShllV(2))%nBasis
 *
             kPrimk = 1
             lPriml = 1
@@ -165,13 +145,12 @@
             jBasj = jPrimj
             kBask = 1
             lBasl = 1
-            kpExpk = -1
-            lpExpl = -1
 *
             nZeta = iPrimi * jPrimj
 *
             Call ConMax(Work(ipCon),iPrimi,jPrimj,
-     &                  Work(iCff),nBasi,Work(jCff),nBasj)
+     &                  Shells(iShll)%pCff,nBasi,
+     &                  Shells(jShll)%pCff,nBasj)
 *
             Call ICopy(2,iAngV,1,iAngV(3),1)
             Call ICopy(2,iCmpV,1,iCmpV(3),1)
@@ -206,14 +185,13 @@
      &             'Drvk2: iBasi.ne.iBsInc .or.jBasj.ne.jBsInc'
                 Write (6,*) 'iBasi,iBsInc=',iBasi,iBsInc
                 Write (6,*) 'jBasj,jBsInc=',jBasj,jBsInc
-                Call QTrace
                 Call Abend()
             End If
 *
 *-----------Find the Double Coset Representatives
 *           for center A and B.
 *
-            Call ICopy(nIrrep,iOper,1,iDCRR,1)
+            iDCRR(0:nIrrep-1)=iOper(0:nIrrep-1)
             nDCRR=nIrrep
 *
 *---------- Compute all pair entities (zeta, kappa, Px, Py,
@@ -226,10 +204,10 @@
      &                      iAngV,iCmpV,
      &                      iDCRR,nDCRR,Data_k2_local(jpk2),
      &                      ijCmp,
-     &                      Work(ipExpi), iPrimi,
-     &                      Work(jpExpj),jPrimj,
-     &                      Work(iCff),iBas,
-     &                      Work(jCff),jBas,
+     &                      Shells(iShllV(1))%Exp,iPrimi,
+     &                      Shells(iShllV(2))%Exp,jPrimj,
+     &                      Shells(iShllV(1))%pCff,iBas,
+     &                      Shells(iShllV(2))%pCff,jBas,
      &                      nMemab,Work(ipCon),
      &                      Work(ipM002),M002,Work(ipM003),M003,
      &                      Work(ipM004),M004,
@@ -249,7 +227,7 @@
      &                + (iBas*jBas+1)*iCmp*jCmp
             End If
             iSmLbl = 1
-            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
             If (nSO.gt.0) mDeDe = mDeDe + iDeSiz*nDCRR
 
             jpk2 = 1 + nk2
@@ -260,14 +238,14 @@
 ************************************************************************
 *                                                                      *
       Call GetMem('MemMax', 'Free','Real',ipM001, MemMax )
-      Call GetMem(' Qnew',  'Free','Real',ipQnew, 3*m2Max)
-      Call GetMem(' Pnew',  'Free','Real',ipPnew, 3*m2Max)
-      Call GetMem(' Lnew',  'Free','Real',ipLnew, m2Max  )
-      Call GetMem(' Knew',  'Free','Real',ipKnew, m2Max  )
+      Call GetMem(' Qnew',  'Free','Real',ipQnew, 3*S%m2Max)
+      Call GetMem(' Pnew',  'Free','Real',ipPnew, 3*S%m2Max)
+      Call GetMem(' Lnew',  'Free','Real',ipLnew, S%m2Max  )
+      Call GetMem(' Knew',  'Free','Real',ipKnew, S%m2Max  )
       Call GetMem('Temp3',  'Free','Real',ipTmp3, MemTmp )
       Call GetMem('Temp2',  'Free','Real',ipTmp2, MemTmp )
       Call GetMem('Temp1',  'Free','Real',ipTmp1, MemTmp )
-      Call GetMem('Con','Free','Real',ipCon,m2Max)
+      Call GetMem('Con','Free','Real',ipCon,S%m2Max)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -279,7 +257,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*)
       Write (6,'(20X,A)')
      &  ' *** The k2 entities has been precomputed ***'
@@ -291,7 +269,6 @@
      &   ' integral estimates.'
 #endif
 *
-      Call qExit('Drvk2')
       Call CWTime(TCpu2,TWall2)
       Call SavTim(2,TCpu2-TCpu1,TWall2-TWall1)
       Return

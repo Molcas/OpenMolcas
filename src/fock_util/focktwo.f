@@ -217,7 +217,7 @@ c Accumulate the contributions
 *
       Call GADSum(Flt,nFlt)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,'(6X,A)')'FROZEN FOCK MATRIX IN AO BASIS:'
       ISTLTT=1
       DO ISYM=1,NSYM

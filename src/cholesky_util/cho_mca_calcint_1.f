@@ -37,7 +37,7 @@ C
       NBSTSH(I)=IWORK(ip_NBSTSH-1+I)
       ISP2F(I)=IWORK(ip_iSP2F-1+I)
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL GETMEM('INT.LEAK','MAX ','REAL',KLEAK,LLEAK)
       MEM_START = LLEAK
 #endif
@@ -240,7 +240,7 @@ C     ----------------------
      &   'Skipped',PCT,'% of rows (shell pairs) in this distribution'
       END IF
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL GETMEM('INT.LEAK','MAX ','REAL',KLEAK,LLEAK)
       MEM_END = LLEAK
       LEAK = MEM_END - MEM_START

@@ -50,7 +50,6 @@
 
 #include "WrkSpc.fh"
 
-      Call qEnter(SecNam)
       irc = 0
       If (n .lt. 1) Then
          If (Verbose) Then
@@ -190,7 +189,6 @@ C     ===========================
       Call GetMem('Matrix','Free','Real',ip_Mat,l_Mat)
 
     1   Continue
-       Call qExit(SecNam)
       End
 C
       SubRoutine CD_Tester_Col(Col,nDim,iCol,nCol,Buf,lBuf)

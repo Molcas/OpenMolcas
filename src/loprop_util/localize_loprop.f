@@ -184,8 +184,7 @@ C     Call RecPrt('New S',' ',SMatrix,nBas,nBas)
 *
       Filename='MD_LPR'
       Call Get_iScalar('nSym',nSym)
-      If (nSym.eq.1) Call Molden_Interface(iUHF,OrbName,Filename,
-     &                                     .False.)
+      If (nSym.eq.1) Call Molden_Interface(iUHF,OrbName,Filename)
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -11,13 +11,11 @@
        Subroutine Init_RctFld(NonEq,iCharge)
        use Langevin_arrays
        use PCM_arrays, only: MM
-       use external_centers, only: nXF
+       use external_centers, only: nXF, iXPolType
        Implicit Real*8 (a-h,o-z)
 #include "rctfld.fh"
 #include "status.fh"
 #include "stdalloc.fh"
-#include "itmax.fh"
-#include "info.fh"
        Logical NonEq
 *
        tK=1.0D-99 ! Boltzman factor, initial set to 0 K

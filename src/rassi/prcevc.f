@@ -41,7 +41,6 @@ C on the same line have absolute value at least as large as
 C a certain fraction (FRAC) of the largest such value for the
 C foursome of states.
 
-      CALL QENTER(ROUTINE)
 
       If(IPGLOB.ge.verbose) then
       DO JSTA=1,NSS,4
@@ -137,7 +136,6 @@ C Addition of UMATR and UMATI on RunFile
       call mma_deallocate(weight)
       call mma_deallocate(sstate)
 
-      CALL QEXIT(ROUTINE)
 
       RETURN
       END

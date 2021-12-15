@@ -58,7 +58,6 @@ C     THE LAST ADRESS IS ZERO IF SYM T = SYM U
       Logical DoTCVA
       Logical Found
 
-      Call qEnter('RdInt2')
 C GG-Dec04  The following informations must be passed to the Cholesky
 C transformation section through RunFile. COMMON blocks could not be
 C used due to several conflicts.
@@ -264,6 +263,5 @@ C
       Write(6,*) '   LTotTot=',LTotInt+LTotEx1+LTotEx2
       Write(6,*)
 C
-      Call qExit('RdInt2')
       RETURN
       END

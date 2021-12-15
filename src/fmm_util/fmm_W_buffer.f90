@@ -20,7 +20,7 @@ MODULE fmm_W_buffer
              fmm_close_W_buffer
 
    ! diagnostic flag
-   CHARACTER(4), SAVE :: W_buffer_stat
+   CHARACTER(LEN=4), SAVE :: W_buffer_stat
 
 CONTAINS
 

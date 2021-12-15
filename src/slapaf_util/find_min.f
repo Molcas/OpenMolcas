@@ -17,7 +17,6 @@
 *
       iRout=117
       iPrint=nPrint(iRout)
-      Call QEnter('Find_Min')
       If (iPrint.ge.99) Then
           Call RecPrt('Find_Min: A',' ',A,1,nOrder+1)
       End If
@@ -55,7 +54,6 @@
          If (Abs(XInc).lt.Thr) Then
             ENew=fnc
             XMin=XValue
-            Call QExit('Find_Min')
             Return
          End If
          If (XValue.gt.XHi) XValue=XHi
@@ -65,6 +63,5 @@
      &   Write (6,*) '-- Too many iterations in Find_Min'
       RC=.False.
 *
-      Call QExit('Find_Min')
       Return
       End

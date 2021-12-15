@@ -34,7 +34,6 @@
         Write (6,*) 'Get_Grad_Full: nAtoms_Full.ne.nAtoms_Fullx'
         Write (6,*) 'nAtoms_Full=',nAtoms_Full
         Write (6,*) 'nAtoms_Fullx=',nAtoms_Fullx
-        Call QTrace
         Call Abend
       End If
       Call Get_nAtoms_All(nAtoms_All)
@@ -42,13 +41,11 @@
         Write (6,*) 'Get_Coord_Full: nAtoms_Full.lt.nAtoms_All'
         Write (6,*) 'nAtoms_Full=',nAtoms_Full
         Write (6,*) 'nAtoms_Fullx=',nAtoms_All
-        Call QTrace
         Call Abend
       End If
       Call Qpg_dArray('GRAD',Found,nGrad)
       If(.not.Found .or. nGrad.eq.0) Then
         Write (6,*) 'Get_Grad_Full: Did not find GRAD'
-        Call QTrace
         Call Abend
       End If
       Call Get_dArray('GRAD',Grad_Full,nGrad)

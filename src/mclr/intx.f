@@ -53,7 +53,6 @@
         If (iRc.ne.0) Then
            Write (6,*) 'IntX: Error reading MCKINT'
            Write (6,'(A,A)') 'Label=',Label
-           Call QTrace
            Call Abend()
         End If
         Call ReLoad(Fock,loper+1,nbas,norb)
@@ -66,7 +65,6 @@
         If (iRc.ne.0) Then
            Write (6,*) 'IntX: Error reading MCKINT'
            Write (6,'(A,A)') 'Label=',Label
-           Call QTrace
            Call Abend()
         End If
         Call ReLoad(Focki,loper+1,nbas,norb)
@@ -79,7 +77,6 @@
         If (iRc.ne.0) Then
            Write (6,*) 'IntX: Error reading MCKINT'
            Write (6,'(A,A)') 'Label=',Label
-           Call QTrace
            Call Abend()
         End If
        Else
@@ -98,7 +95,6 @@
        If (iRc.ne.0) Then
           Write (6,*) 'IntX: Error reading MCKINT'
           Write (6,'(A,A)') 'Label=',Label
-          Call QTrace
           Call Abend()
        End If
        call dcopy_(ndens2,[0.0d0],0,fock,1)
@@ -128,7 +124,6 @@
        If (iRc.ne.0) Then
           Write (6,*) 'IntX: Error reading MCKINT'
           Write (6,'(A,A)') 'Label=',Label
-          Call QTrace
           Call Abend()
        End If
       Else                                         ! or seward
@@ -139,7 +134,6 @@
        If (iRc.ne.0) Then
           Write (6,*) 'IntX: Error reading MCKINT'
           Write (6,'(A,A)') 'Label=',Label
-          Call QTrace
           Call Abend()
        End If
        Call DSCAL_(ndens2,1.0d0,Temp1,1)

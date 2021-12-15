@@ -26,6 +26,8 @@
 *
       Return
       End
+
+
       SubRoutine SOrb_(LuOrb,SIntTh,iTerm,CMO,TrM,mBB,nD,OneHam,Fock,
      &                 Ovrlp,mBT,EOrb,OccNo,mmB)
 ************************************************************************
@@ -72,13 +74,6 @@
       Logical FstItr
       Logical found
 *
-*----------------------------------------------------------------------*
-*     Start                                                            *
-*----------------------------------------------------------------------*
-*
-#ifdef _DEBUG_
-      Call qEnter('SOrb')
-#endif
 *
       CALL DecideonCholesky(DoCholesky)
 *-------- Cholesky and NDDO are incompatible
@@ -223,11 +218,5 @@
 #ifdef _HDF5_
       If (isHDF5) Call mh5_close_file(fileorb_id)
 #endif
-#ifdef _DEBUG_
-      Call qExit('SOrb')
-#endif
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
-      Return
-      End
+
+      End subroutine SOrb_

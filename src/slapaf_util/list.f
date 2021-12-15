@@ -16,11 +16,6 @@
 *                                                                      *
 * Object: to print gradient or internal coordinate lists               *
 *                                                                      *
-* Called from: RlxCtl                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             1993                                                     *
@@ -33,7 +28,6 @@
 *
       iRout = 118
       iPrint = nPrint(iRout)
-*     Call qEnter('List')
       Lu=6
 *
       Write (Lu,*)
@@ -60,7 +54,6 @@
  10   Continue
       Write (Lu,*)
 *
-*     Call qExit('List')
       Return
       End
 

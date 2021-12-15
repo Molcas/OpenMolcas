@@ -32,7 +32,6 @@
 #include "real.fh"
 #include "print.fh"
       Real*8 Array(m,n*n)
-*     Call qEnter('Trnglr')
 *
 *     Observe that the desymmetrization will not yield a symmetric
 *     result. In order to apply the triangularization we will have
@@ -57,6 +56,5 @@
  20      Continue
  10   Continue
 *
-*     Call qExit('Trnglr')
       Return
       End

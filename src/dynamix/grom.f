@@ -37,7 +37,6 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       CHARACTER, ALLOCATABLE ::  atom(:)*2
 *
       IF(IPRINT.EQ.INSANE) WRITE(6,*)' Entering ',ROUTINE
-      CALL QENTER(ROUTINE)
 
       WRITE(6,*)'**** Writes out Forces and Energies for Gromacs ****'
 *
@@ -67,7 +66,6 @@ C
       CALL mma_deallocate(force)
 *
       irc=_RC_ALL_IS_WELL_
-      CALL qExit(ROUTINE)
       RETURN
 *
       END

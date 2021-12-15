@@ -53,7 +53,6 @@ C
 C -- THRA: THRESHOLD FOR WARNING, ACTIVE OCC NO CLOSE TO 0 OR 2.
       DATA THRA/1.D-06/
       DIMENSION P2Act(1)
-      Call qEnter('SXHAM')
 C Local print level (if any)
       IPRLEV=IPRLOC(4)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -410,6 +409,5 @@ C
         HDIAG(I)=ENER(I,ITER)-ENER(IROOT1,ITER)
 56     CONTINUE
       ENDIF
-      CALL QEXIT('SXHAM')
       RETURN
       END

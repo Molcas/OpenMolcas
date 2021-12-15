@@ -11,10 +11,9 @@
       SubRoutine SmAdNa(ArrIn,nb,ArrOut,nop,
      &                  lOper,IndGrd,
      &                  iuv,IfGrd,Index,iDCar,rf,IFG,tr)
+      use Symmetry_Info, only: nIrrep, iChTbl, iChBas
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 c#include "print.fh"
       Real*8 ArrIn (nb,*),
      &       ArrOut(nb,*)
@@ -27,7 +26,6 @@ c#include "print.fh"
 *
 c     iRout = 200
 c     iPrint = nPrint(iRout)
-c     Call qEnter('SymAdO')
 *
 *--------Accumulate contributions
 *
@@ -90,7 +88,6 @@ c     Call qEnter('SymAdO')
  102  Continue
 *
 *     Call GetMem(' Exit SymAdO','LIST','REAL',iDum,iDum)
-c     Call qExit('SymAdO')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

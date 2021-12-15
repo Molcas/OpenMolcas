@@ -18,7 +18,6 @@
 #include "output_ras.fh"
       Parameter (ROUTINE='ONCMO   ')
 #include "WrkSpc.fh"
-      Call qEnter('ONCMO')
 
 C Local print level (if any)
       IPRLEV=IPRLOC(1)
@@ -159,7 +158,6 @@ C Local print level (if any)
       IF(IPRLEV.ge.DEBUG) THEN
         WRITE(LF,*)' Leaving ',ROUTINE
       END IF
-      Call qExit('ONCMO')
 *
       Return
       End

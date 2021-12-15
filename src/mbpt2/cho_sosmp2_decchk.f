@@ -45,7 +45,6 @@ C
       Character*17 SecNam
       Parameter (SecNam = 'Cho_SOSmp2_DecChk', ThisNm = 'DecChk')
 
-      Call qEnter(ThisNm)
       irc = 0
 
 C     Check dimensions.
@@ -153,5 +152,4 @@ C     ------------------
       ErrStat(3) = sqrt(ErrStat(3)/xdim)
 
     1   Continue
-       Call qExit(ThisNm)
       End

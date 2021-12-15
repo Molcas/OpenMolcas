@@ -18,7 +18,6 @@
 ! #include "intgrl.fh"
       REAL*8 DREF(NDREF)
 
-      CALL QENTER('GETDREF')
 * Get active 1-el density matrix GAMMA1 and
 * construct DREF in a tringular storage.
 
@@ -43,7 +42,6 @@
 
   99  CONTINUE
 
-      CALL QEXIT('GETDREF')
       RETURN
       END
 

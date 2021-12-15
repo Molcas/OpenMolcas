@@ -17,11 +17,6 @@
 *                                                                      *
 * Object:                                                              *
 *                                                                      *
-* Called from: Convrg                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
 *             May '91                                                  *
@@ -40,7 +35,6 @@
       Lu=6
       iRout = 52
       iPrint = nPrint(iRout)
-*     Call qEnter('Status')
 *
 *     Pick up previous energy
 *
@@ -124,6 +118,5 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Call qExit('Status')
       Return
       End

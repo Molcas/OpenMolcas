@@ -49,7 +49,7 @@ generated from projected atomic orbitals (Cholesky PAOs) :cite:`Aquilante:06a`.
   Whereas the Pipek--Mezey :cite:`Pipek:89`,
   Boys :cite:`Boys:60,Foster:60`, and
   Edmiston--Ruedenberg :cite:`Edmiston:63` procedures define :math:`\mat{U}`
-  through an iterative maximization of a localisation functional,
+  through an iterative maximisation of a localisation functional,
   the Cholesky orbitals are simply defined through the Cholesky decomposition
   of the one-electron density, i.e.
 
@@ -67,7 +67,7 @@ occupied and virtual orbitals and thereby break the Hartree--Fock
 invariance. The default settings, however, do not break the invariance.
 
 For Pipek--Mezey, Boys, and Edmiston--Ruedenberg localisations, iterative
-optimizations are carried out. We use
+optimisations are carried out. We use
 the :math:`\eta`-steps of Subotnik *et al.* :cite:`Subotnik:04` for
 Edmiston--Ruedenberg, whereas the traditional Jacobi sweeps (consecutive
 two-by-two orbital rotations) :cite:`Pipek:89,Subotnik:04`
@@ -394,16 +394,16 @@ Optional general keywords
 
 :kword:`THRRotations`
   The following line specifies the screening threshold used in
-  the Jacobi sweep optimization algorithm. The default is 1.0d-10.
+  the Jacobi sweep optimisation algorithm. The default is 1.0d-10.
 
   .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="THRR" APPEAR="Screening threshold" LEVEL="ADVANCED" KIND="REAL">
               <HELP>
               Please, specify the convergence threshold used in
-              the Jacobi sweep optimization algorithm. The default is 1.0d-10.
+              the Jacobi sweep optimisation algorithm. The default is 1.0d-10.
               </HELP>
               %%Keyword: THRR <advanced>
               The following line specifies the screening threshold used in
-              the Jacobi sweep optimization algorithm. The default is 1.0d-10.
+              the Jacobi sweep optimisation algorithm. The default is 1.0d-10.
               </KEYWORD>
 
 :kword:`CHOStart`
@@ -437,13 +437,13 @@ Optional general keywords
               </KEYWORD>
 
 :kword:`DOMAin`
-  Requests orbital domains and pair domains are set up and analyzed.
+  Requests orbital domains and pair domains are set up and analysed.
   The default is not to set up domains.
 
   .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="DOMA" APPEAR="Orbital and pair domains analysis" LEVEL="ADVANCED" KIND="SINGLE">
               %%Keyword: DOMA <advanced>
               <HELP>
-              Requests orbital domains and pair domains are set up and analyzed.
+              Requests orbital domains and pair domains are set up and analysed.
               </HELP>
               The default is not to set up domains.
               </KEYWORD>
@@ -517,11 +517,11 @@ Optional general keywords
   In this example, the (localised) orbitals constructed by the :program:`LOCALISATION` program
   are subdivided in two groups: those having less than 0.3 total Mulliken population on
   the two iron atoms, and the remaining orbitals, obviously localised on the iron-iron region. The resulting
-  density matrices for the two subsets of orbitals are then diagonalized separately
+  density matrices for the two subsets of orbitals are then diagonalised separately
   and the corresponding (localised) natural orbitals written to :file:`LOCORB` with the proper occupation
   numbers. Note that the two sets of LNOs are mutually non-orthogonal.
 
-  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="LOCN" APPEAR="Localized natural orbitals" LEVEL="BASIC" KIND="CUSTOM">
+  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="LOCN" APPEAR="Localised natural orbitals" LEVEL="BASIC" KIND="CUSTOM">
               <HELP>
               Specify the number of atoms in the region and the threshold.
               Then the names of the symmetry unique atoms.
@@ -544,7 +544,7 @@ Optional general keywords
   (eigenvalues of a local Fock matrix).
   Please, refer to the analogous keyword :kword:`LOCN` in this manual for more details and input examples.
 
-  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="LOCC" APPEAR="Localized canonical orbitals" LEVEL="BASIC" KIND="CUSTOM">
+  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="LOCC" APPEAR="Localised canonical orbitals" LEVEL="BASIC" KIND="CUSTOM">
               <HELP>
               Specify the number of atoms in the region and the threshold.
               Then the names of the symmetry unique atoms.
@@ -604,7 +604,7 @@ decomposition that removes linear dependence is set to 1.0d-14.
 This input is an example of the Cholesky localisation (using default 1.0d-8 as
 threshold for the decomposition) of the
 valence occupied orbitals of the CO molecule.
-Orbital domains are set up and analyzed.
+Orbital domains are set up and analysed.
 
 .. extractfile:: ug/localisation.Cholesky.input
 

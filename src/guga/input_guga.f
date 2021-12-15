@@ -38,7 +38,6 @@
      &          'NONI','NACT','END '/
 *
 *---  Initialize data and variables -----------------------------------*
-      CALL QENTER('INPUT')
       IOM=55
       IVER=MXVERT
       IFIRST=0
@@ -89,7 +88,6 @@ CPAM97 IFCORE.ne.0 means core-polarization orbitals (NOCO keyword).
      &      1100,1200,1300,1400,1500,1600,1700,1800           ) jCmd
       Write (6,*) 'Input: Illegal Keyword'
       Write (6,'(A,A)') 'Command=',Command
-      Call QTrace
       Call Quit(_RC_INPUT_ERROR_)
 *
 *---  process TITLE    command ----------------------------------------*
@@ -317,7 +315,6 @@ CPAM97 IFCORE was not set -- assume bug. Following line inserted:
       If (LN.NE.LN1+LV+NIORB) Then
          Write (6,*) 'Input: LN.NE.LN1+LV+NIORB'
          Write (6,*) 'LN,LN1,LV,NIORB=',LN,LN1,LV,NIORB
-         Call QTrace
          Call Quit(_RC_INPUT_ERROR_)
       End If
       LNP=LN*(LN+1)/2
@@ -357,7 +354,6 @@ CPAM97 IFCORE was not set -- assume bug. Following line inserted:
       If (LN.GT.IOM) Then
          Write (6,*) 'Input: LN.GT.IOM'
          Write (6,*) 'LN,IOM=',LN,IOM
-         Call QTrace
          Call Quit(_RC_INPUT_ERROR_)
       End If
       CALL TAB2F(IVER-1,LV)
@@ -393,7 +389,6 @@ CPAM97 IFCORE was not set -- assume bug. Following line inserted:
           Write (6,*) ' Summed occupation nums   =',NO
           Write (6,*) ' Sum total is             =',2*NIORB+NO
           Write (6,*) ' But input says nr of elec=',N
-          Call QTrace
           Call Quit(_RC_INPUT_ERROR_)
        End If
 111   CONTINUE
@@ -425,14 +420,11 @@ CPAM97      IR1=(LN*IR+29)/30
       IAD10(2)=IADD10
       CALL iDAFILE(Lu_10,1,JREFX,JRC(1),IADD10)
 *
-      CALL QEXIT('INPUT')
       RETURN
 991   Write (6,*) 'Input: End of input file encountered'
       Write (6,'(A,A)') 'Last Command: ',Command
-      Call QTrace
       Call Quit(_RC_INPUT_ERROR_)
 992   Write (6,*) 'Input: Error while reading input!'
       Write (6,'(A,A)') 'Last Command: ',Command
-      Call QTrace
       Call Quit(_RC_INPUT_ERROR_)
       END

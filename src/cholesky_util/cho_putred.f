@@ -21,10 +21,6 @@ C
       CHARACTER*10 SECNAM
       PARAMETER (SECNAM = 'CHO_PUTRED')
 
-#if defined (_DEBUG_)
-      CALL QENTER('_PUTRED')
-#endif
-
       IF (IPASS .GT. MAXRED) THEN
          WRITE(LUPRI,*) SECNAM,': integral pass ',IPASS
          WRITE(LUPRI,*) SECNAM,': max. allowed is ',MAXRED
@@ -55,9 +51,5 @@ C
          IWORK(ip_INFRED+IPASS) = IWORK(ip_INFRED-1+IPASS)
      &                          + NSYM*NNSHL + NNBSTRT(IRED)
       END IF
-
-#if defined (_DEBUG_)
-      CALL QEXIT('_PUTRED')
-#endif
 
       END

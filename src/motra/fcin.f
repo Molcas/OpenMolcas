@@ -21,7 +21,6 @@
       DIMENSION DLT(*),FLT(nFLT),DSQ(*),FSQ(*)
       Logical DoCholesky
 *
-      Call qEnter('FCIN')
 *
 *     Construct the one-electron density matrix for frozen space
 *
@@ -47,7 +46,6 @@
         n_Bas=Max(n_Bas,nBas(iSym))
 33    CONTINUE
       IF ( NTFRO.EQ.0 ) THEN
-        Call qExit('FCIN')
         RETURN
       ENDIF
 *
@@ -108,6 +106,5 @@
 *
 *     Exit
 *
-      Call qExit('FCIN')
       RETURN
       END

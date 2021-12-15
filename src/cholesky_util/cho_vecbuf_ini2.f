@@ -10,8 +10,8 @@
 *                                                                      *
 * Copyright (C) 2016, Thomas Bondo Pedersen                            *
 ************************************************************************
-#if defined (_CHO_DEBUG_)
-#define _DEBUG_
+#if defined (_CHO_DEBUGPRINT_)
+#define _DEBUGPRINT_
 #endif
       SubRoutine Cho_VecBuf_Ini2()
 C
@@ -28,7 +28,7 @@ C
       Parameter (SecNam = 'Cho_VecBuf_Ini2')
 
       Logical LocDbg
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Parameter (LocDbg = .true.)
 #else
       Parameter (LocDbg = .false.)

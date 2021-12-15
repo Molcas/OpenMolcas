@@ -67,7 +67,6 @@
 *----------------------------------------------------------------------*
 *     Pick up the file definitions                                     *
 *----------------------------------------------------------------------*
-*     Call qEnter('WrOne')
       rc    = rc0000
       LuOne = AuxOne(pLu  )
       Open  = AuxOne(pOpen)
@@ -102,7 +101,7 @@
 *----------------------------------------------------------------------*
 *     Print debugging information                                      *
 *----------------------------------------------------------------------*
-      debug=.false.
+      debug=.False.
       If(iAnd(option,1024).ne.0) debug=.true.
       If(debug) Then
          Call DmpOne
@@ -144,7 +143,6 @@
             Write (6,*) 'WrOne: The total number of operators',
      &                  ' exceeds the limit'
             Write (6,*) 'k.eq.0'
-            Call QTrace()
             Call Abend()
          End If
          Len=0
@@ -188,7 +186,6 @@
 *----------------------------------------------------------------------*
 *     Terminate procedure                                              *
 *----------------------------------------------------------------------*
-*     Call qExit('WrOne')
       Return
       End
 

@@ -41,6 +41,7 @@
 *> @param[in]  ip_OrbDip Dipole moments computed by LoProp routine
 *> @param[out] Func      The expectation value of the kernel
 ************************************************************************
+#ifdef _NOT_USED_OR_TESTED_
       Subroutine XHole(nRho,mGrid,Rho,Grid,mAO,nMOs,TabMO,ndF_dRho,nD,
      &                 dF_dRho,Weights,ip_OrbDip,Func)
       Implicit Real*8 (a-h,o-z)
@@ -102,3 +103,7 @@
 
       Return
       End
+#else
+      Subroutine XHole()
+      End
+#endif

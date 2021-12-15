@@ -4,7 +4,7 @@
 * Symmetry: C2v
 * Features tested: SEW,SCF,RASSCF,CASVB
 * Responsible person: P.-O. Widmark 041227
-* Comments:Testing different options in CASVB 
+* Comments:Testing different options in CASVB
 *-------------------------------------------------------------------------------
  &SEWARD   &END
 expert

@@ -3,7 +3,7 @@
 * Basis: cc-pVDZ
 * Symmetry: C2h
 * Features tested: aC-CD-4  in  SEWARD, SCF, RASSCF, FD-CASPT2
-* Responsible person: F. Aquilante            
+* Responsible person: F. Aquilante
 * Comments: Test of "Freeze-and-delete" (FD) CASPT2  (also known as LovCASPT2)
 *-------------------------------------------------------------------------------
 >export MOLCAS_MOLDEN=ON
@@ -56,7 +56,7 @@ nActEl
  2 0 0
 Inactive
   21 20  3  3
-Ras2    
+Ras2
    0  0  1  1
 ChoInput
 NoLK
@@ -76,7 +76,7 @@ LovCASPT2
  0.1
 DoMP2
 PROPerties
-End of input                                                                  
+End of input
 *-------------------------------------------------------------------------------
 
 >>FILE checkfile

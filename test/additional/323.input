@@ -679,7 +679,7 @@ End of Input
 * 1234567890
 0 iiiiiissss
 1 ssssssssss
-2 sssssssss 
+2 sssssssss
 >> EOF
 
 >>FILE checkfile

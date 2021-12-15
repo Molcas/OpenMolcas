@@ -8,7 +8,7 @@
 >> export MOLCAS_NOCHECK=MLTPL
 >> FILE C2H2O3.xyz
    7
-  -301.26694971533146     
+  -301.26694971533146
  C    -0.01955106     0.02093488    -0.01842325
  C    -0.03041733     0.10051427     1.48467194
  O     0.98282884    -0.11651999    -0.67400992
@@ -19,7 +19,7 @@
 >> EOF
 >> COPY C2H2O3.xyz .
 
- &Gateway 
+ &Gateway
  Coord=C2H2O3.xyz
  Basis=6-31G
  Group=nosym
@@ -27,7 +27,7 @@
 
 >>> Do While
  &Seward
- &SCF 
+ &SCF
 Threshold=1.0D-10 1.0D-5 1.0D-5 1.0D-4
 
  &Alaska

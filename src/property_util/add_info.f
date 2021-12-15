@@ -58,7 +58,6 @@ c Number - is a number of exported variables from an array.
       File_Name='molcas_info'
       if(iToll.eq.0) iToll=8
 *
-*     Call qEnter('Add_Info')
       Lu_Info=99
 *
 *---------------------------------------------------------------------*
@@ -258,6 +257,5 @@ c      write (Lu_Info,'(a,a,a,a)') '#> ', Line(1:nlabel),'/',Junk(1:ik)
 *----------------------------------------------------------------------*
 *     exit                                                             *
 *----------------------------------------------------------------------*
-*     Call qExit('Add_Info')
       Return
       End

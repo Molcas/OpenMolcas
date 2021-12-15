@@ -47,7 +47,6 @@
 #include "WrkSpc.fh"
 *
 *----------------------------------------------------------------------*
-      Call qEnter('FFPT')
 *----------------------------------------------------------------------*
 C     Call Hello
       Call MkCom
@@ -76,8 +75,6 @@ C     Call Hello
       Call GetMem('Ovlp','Free','Real',ipOvlp,nSize)
       Call GetMem('H0','Free','Real',ipH0,nSize)
 *----------------------------------------------------------------------*
-      Call qExit('FFPT')
-      Call qStat(' ')
       Call FastIO('STATUS')
 *
       ireturn=0

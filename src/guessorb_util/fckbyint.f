@@ -77,7 +77,7 @@
       Integer nIsh(8)
       Integer nAsh(8)
 #ifdef _HDF5_
-      Character(1), Allocatable :: typestring(:)
+      Character(Len=1), Allocatable :: typestring(:)
       Integer nZero(MxSym)
 #endif
 *----------------------------------------------------------------------*

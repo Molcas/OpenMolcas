@@ -14,22 +14,11 @@
      &                  nP2_ontop,iSpin,F_xc,
      &                  dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. March 2001                              *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "WrkSpc.fh"
-#include "print.fh"
 #include "ksdft.fh"
       Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
      &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
@@ -37,7 +26,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Call QEnter('B3LYP5')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -71,7 +59,6 @@ C     Call QEnter('B3LYP5')
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Call QExit('B3LYP5')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

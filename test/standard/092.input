@@ -1,7 +1,7 @@
 *-------------------------------------------------------------------------------
 * Molecule: H2O
 * Basis: ANO-L-MB and ANO-L-VDZP
-* Symmetry: C1 
+* Symmetry: C1
 * Features tested: SEW(inline),SCF,RASSCF,SLAPAF, MCKINLEY, EXPBAS
 * Responsible person: R. Lindh (2014-02-10)
 * Comments: Expand using orbitals, geometry and Hessian in the 2nd step.
@@ -19,11 +19,15 @@
   End of basis
   NoCD
 >>> Do While
-  &SEWARD 
-  &RASSCF ; Title=water
-     NACTEL=8 0 0; Inactive=1 
-     Ras2=6; Symmetry=1; Spin=1
-  &Alaska 
+  &SEWARD
+  &RASSCF
+     Title=water
+     NACTEL=8 0 0
+     Inactive=1
+     Ras2=6
+     Symmetry=1
+     Spin=1
+  &Alaska
   &SLAPAF
 >>>End Do
   &Mckinley
@@ -47,13 +51,17 @@
  &EXPBAS
    FileOrb = $Project.RasOrb
 >>> Do While
-  &SEWARD 
-  &RASSCF ; Title=water
+  &SEWARD
+  &RASSCF
+     Title=water
      FileOrb = $Project.ExpOrb
-     NACTEL=8 0 0; Inactive=1 
-     Ras2=6; Symmetry=1; Spin=1
+     NACTEL=8 0 0
+     Inactive=1
+     Ras2=6
+     Symmetry=1
+     Spin=1
      LumOrb
-  &Alaska 
+  &Alaska
   &SLAPAF
 >>>End Do
 

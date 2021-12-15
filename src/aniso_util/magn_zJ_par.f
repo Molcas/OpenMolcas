@@ -81,7 +81,6 @@ c local variables:
       Complex(kind=8), allocatable :: MZ(:,:,:)
 !                                      SZ(3,EXCH,EXCH), MZ(3,EXCH,EXCH)
 
-      Call qEnter('MAGN_ZJ_PAR')
       kB=0.6950356000_wp   ! Boltzmann constant,  in cm^-1*K-1
       mB=0.4668643740_wp   ! Bohr magneton,       in cm-1*T-1
 
@@ -218,6 +217,5 @@ c /// calculation of matrix elements of spin momentum in the basis of Zeeman sta
       Call mma_deallocate(ZM)
       Call mma_deallocate(SZ)
       Call mma_deallocate(MZ)
-      Call qExit('MAGN_ZJ_PAR')
       Return
       End

@@ -43,7 +43,7 @@
       integer, allocatable :: ref_rootid(:)
       integer :: root2state(MxRoot)
 
-      character(1), allocatable :: typestring(:)
+      character(len=1), allocatable :: typestring(:)
 
       real*8, allocatable :: ref_Heff(:,:), ref_energies(:)
 #endif
@@ -63,7 +63,6 @@
 #endif
 
 
-      CALL QENTER(ROUTINE)
 
 #ifdef _HDF5_
 ************************************************************************
@@ -618,7 +617,6 @@ C Where is the CMO data set stored?
 #endif
 
       CALL XFLUSH(6)
-      CALL QEXIT(ROUTINE)
       RETURN
 ************************************************************************
 *

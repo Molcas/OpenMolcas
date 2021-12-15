@@ -20,7 +20,6 @@ C
       DIMENSION IVER(NVERT0)
       DIMENSION IDRT(NVERT,5),IDOWN(NVERT,0:3)
 C
-*     Call qEnter('Drt_MCLR')
 C
       DO 30 IV=1,NVERT0
         IVNEW=IVER(IV)
@@ -36,7 +35,6 @@ C
 20      CONTINUE
 30    CONTINUE
 C
-*     Call qExit('Drt_MCLR')
 C
 C     EXIT
 C

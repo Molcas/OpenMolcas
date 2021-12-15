@@ -37,7 +37,6 @@
       DIMENSION IDUM(1)
 * Analysing and post-processing the input that was read in readin_rassi.
 
-      CALL QENTER(ROUTINE)
 
       Call mma_allocate(jDisk_TDM,2,nState*(nState+1)/2,
      &                  Label='jDisk_TDM')
@@ -1027,6 +1026,5 @@ C Addition of NSTATE, JBNUM, and LROOT to RunFile.
       End If
 *
       CALL XFLUSH(6)
-      CALL QEXIT(ROUTINE)
       RETURN
       END

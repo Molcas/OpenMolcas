@@ -32,8 +32,8 @@ NoCD
 >export MOLCAS_PRINT=VERBOSE
 >>>>> do while <<<<<
 *-------------------------------------------------------------------------------
- &Seward 
- &SCF 
+ &Seward
+ &SCF
  &Alaska
  &Slapaf &End
 FindTS

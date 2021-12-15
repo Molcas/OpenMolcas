@@ -78,7 +78,7 @@
 
       Logical TestOrth, Normalize
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       TestOrth = .True.
 #else
       TestOrth = .False.

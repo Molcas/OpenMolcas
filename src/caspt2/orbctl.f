@@ -36,7 +36,6 @@
 C Calculate transformation matrix to PT2 orbitals, defined as those
 C that have standard Fock matrix FIFA diagonal within inactive,
 C active, and secondary subblocks.
-      CALL QENTER('ORBCTL')
 
 c Determine PT2 orbitals, and transform CI coeffs.
       IF(IPRGLB.GE.DEBUG) THEN
@@ -143,7 +142,6 @@ C Print orbitals. Different options:
   99  CONTINUE
       CALL GETMEM('ORBE','FREE','REAL',LORBE,NBAST)
 
-      CALL QEXIT('ORBCTL')
 
       RETURN
       END

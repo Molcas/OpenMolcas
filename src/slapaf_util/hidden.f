@@ -26,13 +26,12 @@
       Dimension XYZ(3)
       Character*2 Symbol
 *
-      Call QEnter('hidden')
       iPL = iPrintLevel(-1)
 *     iPL=99
 *
-*#define _DEBUG_
+*#define _DEBUGPRINT_
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iPL = 4
 #endif
       nMDstep = 0
@@ -171,6 +170,5 @@
       End If
       nHidden = nKept
 *
-      Call QExit('hidden')
       Return
       End

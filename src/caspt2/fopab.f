@@ -27,7 +27,6 @@
 * In: The (possibly average) Fock matrix, active indices only, over the
 * original CASSCF orbitals and the indices of the two states
 
-      CALL QENTER('FOPAB')
 
 * Offset table for accessing FIFA array:
       IOF=0
@@ -72,7 +71,6 @@
           WRITE(6,*) ' of H0, XMS will be equal to MS!'
         END IF
         FOPEL=ESUM
-        CALL QEXIT('FOPAB')
         RETURN
       END IF
 
@@ -220,7 +218,6 @@
       CALL GETMEM('LBRA','FREE','REAL',LBRA,NCONF)
       CALL GETMEM('LKET','FREE','REAL',LKET,NCONF)
 
-      CALL QEXIT('FOPAB')
       RETURN
       END
 

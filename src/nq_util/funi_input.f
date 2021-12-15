@@ -25,7 +25,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Call qEnter('Funi_Input')
 *
       mask_111110=62
       mask_111101=61
@@ -319,6 +318,5 @@
          End If
       End If
 *
-*     Call qExit('Funi_Input')
       Return
       End

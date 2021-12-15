@@ -59,7 +59,6 @@
 *                                                                      *
 *----------------------------------------------------------------------*
 *
-      Call qEnter('RDINP_FFPT')
       Call RdNlst(5,'FFPT')
       Temp2 = ' '
       Temp1 = ' '
@@ -690,7 +689,6 @@
 *     Exit                                                             *
 *----------------------------------------------------------------------*
 *
-      Call qExit('RdInp_FFPT')
       Return
 *
 *----------------------------------------------------------------------*
@@ -706,7 +704,6 @@
       Write(6,'(2X,A,A)') 'The current line is:      ',Line
       Write(6,'(2X,A,A)') 'The previous line is:     ',Temp1
       Write(6,'(2X,A,A)') 'The next previous line is:',Temp2
-      Call qTrace
       Call Quit_OnUserError
  992  Write (6,*)
       Write(6,'(2X,A)') 'The program has been supplied with an unknown'
@@ -717,7 +714,6 @@
       Write(6,'(2X,A,A)') 'The current line is:      ',Line
       Write(6,'(2X,A,A)') 'The previous line is:     ',Temp1
       Write(6,'(2X,A,A)') 'The next previous line is:',Temp2
-      Call qTrace
       Call Quit_OnUserError
  993  Write (6,*)
       Write(6,'(2X,A)') 'A command or one of its components has been'
@@ -728,17 +724,14 @@
       Write(6,'(2X,A,A)') 'The current line is:      ',Line
       Write(6,'(2X,A,A)') 'The previous line is:     ',Temp1
       Write(6,'(2X,A,A)') 'The next previous line is:',Temp2
-      Call qTrace
       Call Quit_OnUserError
  994  Write (6,*)
       Write(6,'(2X,A)') 'The number of perturbations requested exceeds'
       Write(6,'(2X,A)') 'the internal buffer size. Increase the para-'
       Write(6,'(2X,A)') 'meter MxLbl and recompile the program.'
-      Call qTrace
       Call Quit_OnUserError
  996  Write (6,*)
       Write(6,'(2X,A)') 'The definition of the origin of an operator '
       Write(6,'(2X,A)') 'is not unique.  Please correct your input.'
-      Call qTrace
       Call Quit_OnUserError
       End

@@ -21,7 +21,6 @@
 
       DIMENSION DPT2(*)
       if(nasht.eq.0) return
-      CALL QENTER('TRDTMP')
 
 C Test print:
 CTEST      WRITE(*,*)' At beginning of TRDTMP. The DPT2 array:'
@@ -86,6 +85,5 @@ CTEST      WRITE(*,*)' At end of TRDTMP. Memory list:'
 CTEST      call getmem('Point B','list','real',ldum,ndum)
       call getmem('dtemp','free','real',ldtemp,ndtemp)
 CTEST      WRITE(*,*)' Leaving TRDTMP.'
-      CALL QEXIT('TRDTMP')
       return
       end

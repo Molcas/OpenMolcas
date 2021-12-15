@@ -23,27 +23,15 @@
 *             ref (secondary): Swart, Sola, Bickelhaupt                *
 *             J.Chem.Phys. 131 (2009) 094103. Note that it isnt SSB-D  *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author: G. Li Manni & A. Cohen, Max Planck Institute Stuttgart  *
 *              Summer 2017, edited in Cambridge (UK) & Palermo (Sicily)*
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "WrkSpc.fh"
-#include "print.fh"
 #include "ksdft.fh"
       Real*8 Rho(nRho,mGrid), dF_dRho(ndF_dRho,mGrid),
      &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid)
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Call QEnter('SSBSW')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -59,7 +47,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('SSBSW')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

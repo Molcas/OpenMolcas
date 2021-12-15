@@ -16,11 +16,6 @@
 *                                                                      *
 * Object: to assemble the gradients of the ERI's.                      *
 *                                                                      *
-* Called from: Rysg1                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             October '91                                              *

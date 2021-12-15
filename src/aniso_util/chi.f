@@ -35,7 +35,6 @@
       Real(kind=8)                :: pB, dE, c2(3,3), R, F
       Real(kind=8)                :: boltz_k
 
-      Call qEnter('CHI')
       boltz_k=0.6950356_wp !   in cm^-1*k-1
 
       pB=0.0_wp
@@ -75,6 +74,5 @@
 
       ! scale the total tensor by the total statistical sum Z:
       Call dscal_(3*3, 1.0_wp/Z, X, 1)
-      Call qExit('CHI')
       Return
       End

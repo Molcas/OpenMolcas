@@ -14,10 +14,8 @@
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION ITAI(*),L0(*),L1(*),L2(*),L3(*)
 #include "integ.fh"
-      CALL QENTER('TAIL')
        L=LL+1
       IF(ITAIL.EQ.0)THEN
-        CALL QEXIT('TAIL')
         RETURN
       END IF
       DO 5 I=1,ITAIL
@@ -66,6 +64,5 @@
       ITAI(ICOUP(LN+1))=ICOUP1(LN+1)
       GO TO 12
 10      Continue
-       CALL QEXIT('TAIL')
       RETURN
       END

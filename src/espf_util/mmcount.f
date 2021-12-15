@@ -17,7 +17,6 @@
 *
       Logical Exist
 *
-      Call QEnter('MMCount')
       iPL = iPL_espf()
       ipIsMM = ip_iDummy
 *
@@ -54,6 +53,5 @@
       Else If(nAtMM.ne.0.and.iPL.ge.3) Then
          Write(6,'(A,I5,A)') ' QM/MM: found ',nAtMM,' MM atoms'
       End If
-      Call QExit('MMCount')
       Return
       End

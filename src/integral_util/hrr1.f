@@ -13,16 +13,6 @@
       SubRoutine HRR1(ab1,nab1,a1b,na1b,cffAB,ab,nab,
      &           na,nb,na1,nb1,nPrim,la,lb)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: HRR                                                     *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DZaXpY  (ESSL)                                          *
-*              DCopy   (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             June '91                                                 *
@@ -39,7 +29,6 @@
 *
       iRout = 99
       iPrint = nPrint(iRout)
-*     Call qEnter('HRR1')
 *     If (iPrint.ge.99) Then
 *        Write(Label,'(A,i1,A,i1,A)') ' Source: (',na1,',',nb,'|'
 *        Call RecPrt(Label,' ',a1b,nPrim,na1b)
@@ -105,6 +94,5 @@
 *        Call RecPrt(Label,' ',ab1,nPrim,nab1)
 *     End If
 *
-*     Call qExit('HRR1')
       Return
       End

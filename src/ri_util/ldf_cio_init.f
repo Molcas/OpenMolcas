@@ -28,7 +28,7 @@ C
 #include "ldf_cio.fh"
 #include "ldf_atom_pair_info.fh"
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Character*12 SecNam
       Parameter (SecNam='LDF_CIO_Init')
       Real*8 Byte
@@ -71,7 +71,7 @@ C
       Call f_Inquire('LDFC',CFileExists)
       If (.not.CFileExists) Then
          irc=-1
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          Write(6,'(/,A,A)') SecNam,': Coefficient file not found!!'
          Call xFlush(6)
 #endif
@@ -86,7 +86,7 @@ C
 
       ! Return if no buffer requested
       If (Frac.lt.1.0d-14) Then
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          ! Set lBuf_Max for the sake of printing
          lBuf_Max=0
 #endif
@@ -150,7 +150,7 @@ C
             iWork(ip_LDFC_Blocks-1+iAtomPair)=ip
             ip=ip+l
          End Do
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          If (ip.ne.(ip_LDFC_Buffer+l_LDFC_Buffer)) Then
             Call WarningMessage(2,SecNam//': buffer error!')
             Call LDF_Quit(1)
@@ -159,7 +159,7 @@ C
       End If
 
     1 Continue
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Write(6,'(/,A,A)')
      & SecNam,': coefficient I/O has been initialized!'
       Call Cho_Head('LDF coefficient buffer info','=',80,6)

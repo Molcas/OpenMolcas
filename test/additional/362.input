@@ -13,21 +13,21 @@ Symmetry
 Basis set
 C.cc-PVDZ
 C1    1.3864     0.0     0.0   /Bohr
-End of basis                      
-Basis set                         
-C.cc-PVDZ                         
+End of basis
+Basis set
+C.cc-PVDZ
 C2    2.7942     2.0997  0.0   /Bohr
-End of basis                      
-Basis set                         
-H.cc-PVDZ                         
+End of basis
+Basis set
+H.cc-PVDZ
 H1    2.3070    -1.8452  0.0    /Bohr
-End of basis                      
-Basis set                         
-H.cc-PVDZ                         
+End of basis
+Basis set
+H.cc-PVDZ
 H2    1.9302     3.9685  0.0    /Bohr
-End of basis                      
-Basis set                         
-H.cc-PVDZ                         
+End of basis
+Basis set
+H.cc-PVDZ
 H3    4.8475     2.0151  0.0    /Bohr
 End of basis
 NoCD
@@ -35,7 +35,7 @@ End of input
 *-------------------------------------------------------------------------------
  &SCF &END
 Title
- C4H6 molecule 
+ C4H6 molecule
 Occupied
  7  1 6 1
 Iterations

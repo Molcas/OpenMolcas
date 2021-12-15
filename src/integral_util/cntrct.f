@@ -22,13 +22,6 @@
 *         basis functions. The subroutine will do both complete and    *
 *         incomplete transformations.                                  *
 *                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              CntHlf                                                  *
-*              QExit                                                   *
-*                                                                      *
 * Author:     Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
 ************************************************************************
@@ -50,8 +43,8 @@
       iPrint = nPrint(iRout)
 *
       mabcd=(mabMax-mabMin+1)*(mcdMax-mcdMin+1)
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
          Call RecPrt('Cntrct: Coef1',' ',Coef1,n1,m1)
          Call RecPrt('Cntrct: Coef2',' ',Coef2,n2,m2)
          Call RecPrt('Cntrct: Coef3',' ',Coef3,n3,m3)
@@ -102,7 +95,7 @@
      &            .True.,IncVec,ACInt,Scrtch(ipA2),Scrtch(ipA3),
      &            IndZet)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Call RecPrt('Halftransformed',' ',
      &                       Scrtch(ipA3),nVec,m1*m2)
 #endif
@@ -123,7 +116,7 @@
      &            IndEta)
       First = .False.
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' In Cntrct: (a0|c0) ',' ',
      &            ACOut,mabcd,m1*m2*m3*m4)
 #endif

@@ -23,7 +23,7 @@ C
 #include "chosew.fh"
 #include "WrkSpc.fh"
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Character*12 SecNam
       Parameter (SecNam = 'Cho_SetShP2Q')
 #endif
@@ -32,7 +32,7 @@ C
       iQuAB(i,j)=iWork(ip_iQuAB-1+MaxQual*(j-1)+i)
       nBstSh(i)=iWork(ip_nBstSh-1+i)
       iSP2F(i)=iWork(ip_iSP2F-1+i)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       IndRsh(i)=iWork(ip_IndRSh-1+i)
 #endif
 
@@ -72,7 +72,7 @@ C     -------------------------------------------------------
             iAB = iQuAB(iOffQ(iSym)+lAB,iSym) ! addr in current rs
             jAB = IndRed(iAB,iLoc)            ! addr in 1st rs
             kAB = IndRed(jAB,1)               ! addr in full shell pair
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
             nErr = 0
             If (IndRSh(jAB).ne.iSP2F(iShlAB)) Then
                Write(Lupri,*) SecNam,': inconsistent shell pairs!'

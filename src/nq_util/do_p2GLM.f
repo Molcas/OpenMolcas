@@ -339,15 +339,14 @@ C            Write(6,'(A,1f28.20)') 'P2(4)   =',P2_ontop(4,iGrid)
 *                                                                      *
 ************************************************************************
       use iSD_data
+      use Center_Info
+      use Basis_Info, only: nBas
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "nq_info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
-!#include "info.fh"
 !Error could be TabAO...
       Integer iOff_Ash(0:7), iOff_Bas(0:7), iOff_BasAct(0:7),
      &        list_s(2,nlist_s),list_bas(2,nlist_s),Index(nIndex),
@@ -420,7 +419,7 @@ C            Write(6,'(A,1f28.20)') 'P2(4)   =',P2_ontop(4,iGrid)
         IndMap = Index(index_i)
         iR = list_s(2,ilist_s)
         write(6,*) 'iR',iR
-!        isym = NrOpr(iR,iOper,nSym)
+!        isym = NrOpr(iR)
 !        write(6,*) 'isym',isym
         iAO = iSD(7,iSkal)
       end do
@@ -498,17 +497,17 @@ C            Write(6,'(A,1f28.20)') 'P2(4)   =',P2_ontop(4,iGrid)
             iShell= iSD(11,iSh)
 
             kAO   = iCmp*iBas*mGrid
-            nDeg  = nSym/nStab(mdci)
+            nDeg  = nSym/dc(mdci)%nStab
             nSO   = kAO*nDeg*mAO
             ipSOs = ipMem
 
             Call FZero(Work(ipSOs),nSO)
 
             iR=list_s(2,ilist_s)
-            iSym=NrOpr(iR,iOper,nSym)
+            iSym=NrOpr(iR)
 
             Call SOAdpt_NQ(TabAO(ipTabAO(iList_s,1)),mAO,mGrid,iBas,
-     &                  iBas_Eff,iCmp,iSym,Work(ipSOs),nDeg,iShell)
+     &                  iBas_Eff,iCmp,iSym,Work(ipSOs),nDeg,iAO)
 
             Call GetMem('TmpCM','Allo','Real',ipTmpCMO,nCMO)
             Call GetMem('TDoIt','Allo','Inte',ipTDoIt,nMOs)
@@ -519,7 +518,7 @@ C            Write(6,'(A,1f28.20)') 'P2(4)   =',P2_ontop(4,iGrid)
 
             Call  SODist2(Work(ipSOs),mAO,mGrid,iBas,
      &                   iCmp,nDeg,TabSO,
-     &                   iShell,nMOs,iAO,Work(ipTmpCMO),
+     &                   nMOs,iAO,Work(ipTmpCMO),
      &                   nCMO,iWork(ipTDoIt))
             Call GetMem('TmpCM','Free','Real',ipTmpCMO,nCMO)
             Call GetMem('TDoIt','Free','Inte',ipTDoIt,nMOs)

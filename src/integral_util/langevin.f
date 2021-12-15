@@ -9,77 +9,72 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine Langevin(h1,TwoHam,D,RepNuc,nh1,First,Dff)
+      Use Basis_Info
+      use Center_Info
       Use Langevin_arrays
       use External_Centers
+      use Phase_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       Real*8 h1(nh1), TwoHam(nh1), D(nh1)
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
 #include "rctfld.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
       Logical First, Dff, Exist
       Save nAnisopol,nPolComp
+      Real*8, Allocatable:: D1ao(:)
+      Real*8, Allocatable:: Cord(:,:), Chrg(:), Atom_R(:),
+     &                      pField(:,:), tmpField(:,:)
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
       iRout = 1
       iPrint = nPrint(iRout)
-      Call qEnter('Langevin')
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *---- Generate list of all atoms
 *
 *     Cord: list of all atoms
-*     Atod: associated effective atomic radius
+*     Atom_R: associated effective atomic radius
 *
 
       mdc = 0
       MaxAto=0
       Do iCnttp = 1, nCnttp
-         nCnt = nCntr(iCnttp)
+         nCnt = dbsc(iCnttp)%nCntr
          Do iCnt = 1, nCnt
             mdc = mdc + 1
-            MaxAto = MaxAto + nIrrep/nStab(mdc)
+            MaxAto = MaxAto + nIrrep/dc(mdc)%nStab
          End Do
       End Do
 *
-      Call GetMem('Cord','Allo','Real',ipCord,3*MaxAto)
-      Call GetMem('Chrg','Allo','Real',ipChrg,MaxAto)
-      Call GetMem('Atod','Allo','Real',ipAtod,MaxAto)
+      Call mma_allocate(Cord,3,MaxAto,Label='Cord')
+      Call mma_allocate(Chrg,MaxAto,Label='Chrg')
+      Call mma_allocate(Atom_R,MaxAto,Label='Atom_R')
 *
       ndc = 0
-      nc = 1
+      nc = 0
       Do jCnttp = 1, nCnttp
-         Z = Charge(jCnttp)
-         mCnt = nCntr(jCnttp)
-         jxyz = ipCntr(jCnttp)
-         If (iAtmNr(jCnttp).ge.1) Then
-*            Atod = CovRad (iAtmNr(jCnttp))
-             Atod = CovRadT(iAtmNr(jCnttp))
+         Z = dbsc(jCnttp)%Charge
+         mCnt = dbsc(jCnttp)%nCntr
+         If (dbsc(jCnttp)%AtmNr.ge.1) Then
+*            Atod = CovRad (dbsc(jCnttp)%AtmNr)
+             Atod = CovRadT(dbsc(jCnttp)%AtmNr)
          Else
              Atod = Zero
          End If
          Do jCnt = 1, mCnt
             ndc = ndc + 1
-            x1 = Work(jxyz)
-            y1 = Work(jxyz+1)
-            z1 = Work(jxyz+2)
-            Do i = 0, nIrrep/nStab(ndc) - 1
-               iFacx=iPhase(1,iCoset(i,0,ndc))
-               iFacy=iPhase(2,iCoset(i,0,ndc))
-               iFacz=iPhase(3,iCoset(i,0,ndc))
-               Work(ipCord+(nc-1)*3) =   x1*DBLE(iFacx)
-               Work(ipCord+(nc-1)*3+1) = y1*DBLE(iFacy)
-               Work(ipCord+(nc-1)*3+2) = z1*DBLE(iFacz)
-               Work(ipAtod+(nc-1)) = Atod
-               Work(ipChrg+(nc-1)) = Z
-*              Write (*,*) 'Z=',Z
+            Do i = 0, nIrrep/dc(ndc)%nStab - 1
                nc = nc + 1
+               Call OA(dc(ndc)%iCoSet(i,0),dbsc(jCnttp)%Coor(1:3,jCnt),
+     &                 Cord(:,nc))
+               Atom_R(nc) = Atod
+               Chrg(nc) = Z
+*              Write (*,*) 'Z=',Z
             End Do
-            jxyz = jxyz + 3
          End Do
       End Do
 *
@@ -142,9 +137,8 @@ c            Call System_clock(iSeed,j,k)
          EndIf
          If(lLangevin) Then
 *            Note: Gen_Grid is now a part of the lattcr subroutine
-c            Call Gen_Grid(Work(ipGrid+3*nGrid_Eff),nGrid-nGrid_Eff)
             Call lattcr(Grid,nGrid,nGrid_Eff,PolEf,DipEf,
-     &                  Work(ipCord),maxato,Work(ipAtod),nPolComp,
+     &                  Cord,maxato,Atom_R,nPolComp,
      &                  XF,nXF,nOrd_XF,XEle,iXPolType)
          EndIf
 c        Write(6,*) 'nGrid,  nGrid_Eff', nGrid,  nGrid_Eff
@@ -164,25 +158,17 @@ c        Write(6,*) 'nGrid,  nGrid_Eff', nGrid,  nGrid_Eff
 *
 *     Get the total 1st order AO density matrix
 *
-      Call Get_D1ao(ipD1ao,nDens)
-      If (nDens.ne.nh1) Then
-         Call WarningMessage(2,'Langevin: nDens.ne.nh1')
-         Write (6,*) 'nDens,nh1=',nDens,nh1
-         Call Abend()
-      End If
+      Call mma_allocate(D1ao,nh1,Label='D1ao')
+      Call Get_D1ao(D1ao,nh1)
 *
 *     Save field from permanent multipoles for use in ener
-      Call GetMem('pField','Allo','Real',ippField,nGrid_Eff*4)
-      Call GetMem('tmpField','Allo','Real',iptmpField,nGrid_Eff*4)
+      Call mma_allocate(pField,4,nGrid_Eff,Label='pField')
+      Call mma_allocate(tmpField,4,nGrid_Eff,Label='tmpField')
 
-      Call FZero(Work(ippField ),nGrid_Eff*4)
+      pField(:,:)=Zero
 
-
-
-
-      Call eperm(Work(ipD1ao),nh1,Ravxyz,Cavxyz,nCavxyz,
-     &           dField,Grid,nGrid_Eff,Work(ipCord),
-     &           MaxAto,Work(ipChrg),Work(ippField))
+      Call eperm(D1ao,nh1,Ravxyz,Cavxyz,nCavxyz,
+     &           dField,Grid,nGrid_Eff,Cord,MaxAto,Chrg,pField)
 
 *                                                                      *
 ************************************************************************
@@ -192,10 +178,9 @@ c        Write(6,*) 'nGrid,  nGrid_Eff', nGrid,  nGrid_Eff
       Lu=21
       Call OpnFl('LANGINFO',Lu,Exist)
       If(.not.Exist) Then
-      Write(Lu,*)nc-1
-      do i=0,nc-2
-         Write(Lu,11)INT(Work(ipChrg+i)),Work(ipAtod+i),
-     &        (Work(ipCord+i*3+j),j=0,2)
+      Write(Lu,*) nc
+      do i=1,nc
+         Write(Lu,11)INT(Chrg(i)),Atom_R(i),(Cord(j,i),j=1,3)
  11      format(i3,f10.4,3f16.8)
       enddo
       Write(Lu,*)nXF
@@ -222,7 +207,7 @@ c        Write(6,*) 'nGrid,  nGrid_Eff', nGrid,  nGrid_Eff
          Write(Lu,12)(Grid(j,i+1),j=1,3),
      &        PolEf(:,i+1),
      &        DipEf(i+1),
-     &        (dField(j,i+1),j=1,3),(Work(ippField+i*4+j),j=0,2)
+     &        (dField(j,i+1),j=1,3),(pField(j,i),j=1,3)
  12      format(11f20.10)
       enddo
       Write(Lu,*)polsi,dipsi,scala,One/tK/3.1668D-6
@@ -233,7 +218,7 @@ c        Write(6,*) 'nGrid,  nGrid_Eff', nGrid,  nGrid_Eff
       Endif
       Close(Lu)
 
-      call dcopy_(nGrid_Eff*4,dField,1,Work(iptmpField),1)
+      call dcopy_(nGrid_Eff*4,dField,1,tmpField,1)
 
       If(lDiprestart .or. lFirstIter) Then
          Field(:,:)=Zero
@@ -274,11 +259,9 @@ c        Write(6,*) 'nGrid,  nGrid_Eff', nGrid,  nGrid_Eff
 *                                                                      *
 *---- Compute contributions to RepNuc, h1, and TwoHam
 *
-      Call Ener(h1,TwoHam,D,RepNuc,nh1,First,Dff,Work(ipD1ao),
-     &          Grid,nGrid_Eff,Dip, Field,
-     &          DipEf,PolEf,Work(ipCord),MaxAto,
-     &          Work(ipChrg),nPolComp,nAnisopol,Work(ippField),
-     &     Work(iptmpField))
+      Call Ener(h1,TwoHam,D,RepNuc,nh1,First,Dff,D1ao,Grid,
+     &          nGrid_Eff,Dip, Field,DipEf,PolEf,Cord,MaxAto,
+     &          Chrg,nPolComp,nAnisopol,pField,tmpField)
 
 
 *     Subtract the static field from the self-consistent field
@@ -286,12 +269,12 @@ c        Write(6,*) 'nGrid,  nGrid_Eff', nGrid,  nGrid_Eff
 *     in Field, to be used in the next iteration if
 *     not DRES has been requested
 
-      Call DaXpY_(nGrid*4,-One,Work(iptmpField),1,Field,1)
+      Call DaXpY_(nGrid*4,-One,tmpField,1,Field,1)
       lFirstIter=.False.
 
 
-      Call GetMem('pField','Free','Real',ippField,nGrid_Eff*4)
-      Call GetMem('tmpField','Free','Real',iptmpField,nGrid_Eff*4)
+      Call mma_deallocate(pField)
+      Call mma_deallocate(tmpField)
       If(LGridAverage) Then
          Write(6,'(a,i4,a,f18.10)')'Solvation energy (Grid nr. ',iAv,
      &        '):',RepNuc
@@ -304,15 +287,13 @@ c        Write(6,*) 'nGrid,  nGrid_Eff', nGrid,  nGrid_Eff
      &        'Average solvation energy and stdev: ',
      &        sumRepNuc/DBLE(nAv),
      &        sqrt(sumRepNuc2/DBLE(nAv)-(sumRepNuc/DBLE(nAv))**2)
-      EndIf
-      Call GetMem('Atod','Free','Real',ipAtod,MaxAto)
-      Call GetMem(' D1ao','Free','Real',ipD1ao,nDens)
-      Call GetMem('Chrg','Free','Real',ipChrg,MaxAto)
-      Call GetMem('Cord','Free','Real',ipCord,3*MaxAto)
-
+      End If
+      Call mma_deallocate(Atom_R)
+      Call mma_deallocate(D1ao)
+      Call mma_deallocate(Chrg)
+      Call mma_deallocate(Cord)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('Langevin')
       Return
       End

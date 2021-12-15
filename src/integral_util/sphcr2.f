@@ -22,16 +22,6 @@
 *                                                                      *
 *          Observe that most of the time Win and Wout will overlap.    *
 *                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DGEMM_   (ESSL)                                         *
-*              RecPrt                                                  *
-*              DGeTMO   (ESSL)                                         *
-*              DCopy    (ESSL)                                         *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -49,7 +39,6 @@
 *
       iRout = 60
       iPrint = nPrint(iRout)
-*     Call qEnter('SphCr2')
 *     Call RecPrt(' In SphCr2: P(AB|cd) ',' ',Win,ncd*ijkl,iSph*jSph)
       If (Tr1.and.Tr2) Then
 *        Call RecPrt(' Right contraction',' ',Coeff2,jCar,jSph)
@@ -110,7 +99,6 @@
          Call RecPrt(' In SphCr2: P(ab|cd)',' ',Wout,ijkl,ncd*mab)
       End If
 *     Call GetMem(' Exit SphCr2','CHECK','REAL',iDum,iDum)
-*     Call qExit('SphCr2')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

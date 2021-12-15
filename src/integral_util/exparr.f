@@ -15,12 +15,6 @@
 *                                                                      *
 * Object: to expand arrays according to an index array.                *
 *                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy   (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             Augusti '91                                              *
@@ -33,7 +27,6 @@
 *
       iRout = 235
       iPrint = nPrint(iRout)
-      Call qEnter('ExpArr')
 *
       Do 100 iArray = nArray, 1, -1
          jArray = Ind(iArray)
@@ -45,6 +38,5 @@
             call dcopy_(lArray,Array(1,jArray),1,Array(1,iArray),1)
          End If
  100  Continue
-      Call qExit('ExpArr')
       Return
       End

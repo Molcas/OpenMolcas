@@ -33,8 +33,8 @@
      &       CffCnt(mExp,nBas), AOValue(mAO,nCoor,nBas,nCmp)
       Integer Angular(nTerm,5,nForm)
       Logical Transf
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Character*80 Label
 #endif
 *                                                                      *
@@ -71,8 +71,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
-*      Call QEnter('AOEval')
+#ifdef _DEBUGPRINT_
       iRout=132
       iPrint=nPrint(iRout)
 C     iPrint=99
@@ -103,8 +102,7 @@ C     Write(6,*) '----- nDrv = ', nDrv
 *----    Normal radial part and
 *----    premultiplied with (minus two times the exponent)**iDrv
 *
-#ifdef _DEBUG_
-*      Call QEnter('Exponent')
+#ifdef _DEBUGPRINT_
       If (nRad.LE.0 .AND. nRad.GE.5) Then
          Write (6,*) 'AOEval: illegal value of nRad!'
          Call Abend()
@@ -176,13 +174,12 @@ C        If (-Exp_Min*R2.lt.Thre) Go To 9898
  9898    Continue
       End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
             Write (6,*) mExp,nExp
             Write (Label,'(A)')'Radial(nCoor*nRad,nBas)'
             Call RecPrt(Label,'(10G20.10)',Radial,nCoor*nRad,nBas)
       End If
-*      Call QExit('Exponent')
 #endif
 *                                                                      *
 ************************************************************************
@@ -208,7 +205,7 @@ C        If (-Exp_Min*R2.lt.Thre) Go To 9898
       Else
          call dcopy_(3*nCoor,[One],0,xyz(1,1,0),1)
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Do i = 0, iAng+nRad-1
             Write (Label,'(A,I2,A)')'xyz(nCoor,nCar,',i,')'
@@ -255,7 +252,7 @@ C           Call PrntA(nterm,nform,Angular,if,0)
                         jf=jf+(kDrv+1)*(kDrv+2)/2
                      End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                      If (iPrint.ge.99) Then
                         Write (6,*) ' jx,jy,jz,jf=',jx,jy,jz,jf
                      End If
@@ -361,23 +358,13 @@ C                      Call PrntA(nterm,nform,Angular,if,jdrv+1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.49) Then
-C        Do iCmp = 1, nCmp
-C           Write (Label,'(A,I2,A)') 'AOValue(mAO,nCoor,nBas,',
-C    &                                    iCmp,')'
-C           Call RecPrt(Label,' ',AOValue(1,1,1,iCmp),mAO,nCoor*nBas)
-C        End Do
          Write(6,*) 'mAO,nCoor,nBas,nCmp',mAO,nCoor,nBas,nCmp
          Call RecPrt('AOValue','(10G20.10)',AOValue,mAO,nCoor*nBas*nCmp)
       End If
 #endif
-*
-*     Call GetMem('AOEval ','CHEC','REAL',iDum,iDum)
-#ifdef _DEBUG_
-*      Call QExit ('AOEval')
-#endif
-      Return
+
       End
 *
       Subroutine dFdxyz(mterm,mform,N,jp,ip,ixyz,ipf,jdrv)
@@ -389,12 +376,6 @@ C        End Do
 *     ipf: Phase factor in integer
 *
 *
-C     Write(6,*) '--- Start dFdxyz ---'
-C     Write(6,9000) 'jp',jp
-C     Write(6,9000) 'ip',ip
-C     Write(6,9000) 'ixyz',ixyz
-C     Write(6,9000) 'ipf',ipf
-C     Write(6,9000) 'jdrv',jdrv
 *
 *
       nterm=2**jdrv
@@ -434,27 +415,4 @@ C     Write(6,9000) 'jdrv',jdrv
          N(iterm,4,ip)=N(iterm,4,ip)+1
          N(iterm,5,ip)=N(iterm,5,ip)*ipf
       End do
-*
-*
-C     Call  PrntA(mterm,mform,N,ip,jdrv+1)
-C     Write(6,*) '---  End  dFdxyz ---'
-*
-C9000 Format(a10,'=',i5)
-*
-      Return
       End
-*
-C     Subroutine PrntA(mterm,mform,A,ip,idrv)
-*
-C     Implicit real*8 (a-h,o-z)
-C     Integer A(mterm,5,mform)
-*
-C     nterm=2**idrv
-C     Do iterm=1,nterm
-C        Write(6,9000) ip,iterm,(A(iterm,i,ip),i=1,5)
-C     End do
-*
-C9000 Format(7i10)
-*
-C     Return
-C     End

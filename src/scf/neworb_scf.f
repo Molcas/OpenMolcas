@@ -73,13 +73,13 @@
 ************************************************************************
 *                                                                      *
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
-*define _SPECIAL_DEBUG_
-#ifdef _SPECIAL_DEBUG_
+*define _SPECIAL_DEBUGPRINT_
+#ifdef _SPECIAL_DEBUGPRINT_
       Call DebugCMOx(CMO,nCMO,nD,nBas,nOrb,nSym,'NewOrb: CMO old')
 #endif
 
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call NrmClc(Fock,nFock*nD,'NewOrb','Fock')
 #endif
 *
@@ -151,14 +151,14 @@
      &                  HlfF,1,nBas(iSym),
      &                  TraF,
      &                  nOccmF,nBas(iSym))
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 *             Call Triprt('Occupied Fock matrix in MO basis',
 *    &                    '(20F10.4)',TraF,nOccmF)
 #endif
               nOccmF=nOccmF-nConstr(iSym)
               Call NIdiag(TraF,CMO(iCMO,iD),nOccmF,nBas(iSym),0)
               nOccmF=nOccmF+nConstr(iSym)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 *             Call Triprt('Occupied Fock matrix in MO basis',
 *    &                    '(20F10.4)',TraF,nOccmF)
 #endif
@@ -185,12 +185,12 @@
      &                  HlfF,1,nBas(iSym),
      &                  TraF,
      &                  nVrt,nBas(iSym))
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 *             Call Triprt('Virtual Fock matrix in MO basis',
 *    &                    '(20F10.4)',TraF,nVrt)
 #endif
               Call NIdiag(TraF,CMO(iCMO,iD),nVrt,nBas(iSym),0)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 *             Call Triprt('Virtual Fock matrix in MO basis',
 *    &                    '(20F10.4)',TraF,nVrt)
 #endif
@@ -393,7 +393,7 @@ c    &                 '(20F10.4)',TraF,nOrbmF)
 *--------- Constrained SCF section ends ----------------
 *
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 *          Call Triprt('Fock matrix in MO basis after modification',
 *    &                 '(10F10.4)',TraF,nOrbmF)
 #endif
@@ -419,8 +419,8 @@ c    &                 '(20F10.4)',TraF,nOrbmF)
             Do i = 1, nBas(iSym)
                tmp = OrbPhase(CMO(iCMO+(i-1)*nBas(iSym),iD),nBas(iSym))
             End Do
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
             Call NrmClc(Fcks,nbas(iSym)*nOrb(iSym),'NewOrb','Old CMOs')
             Call NrmClc(CMO(iCMO,iD),nbas(iSym)*nOrb(iSym),
      &                  'NewOrb','New CMOs')
@@ -553,7 +553,7 @@ c    &                 '(20F10.4)',TraF,nOrbmF)
      &                                   CMO(kOff,iD),1)
                End If
             End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call NrmClc(CMO(iCMO,iD),nbas(iSym)*nOrb(iSym),
      &                  'NewOrb','New CMOs')
 *           Call RecPrt('New CMOs',' ',CMO(iCMO,iD),nBas(iSym),
@@ -622,11 +622,11 @@ c    &                 '(20F10.4)',TraF,nOrbmF)
       End If
       If (MxConstr.gt.0) Call mma_deallocate(eConstr)
 *
-#ifdef _SPECIAL_DEBUG_
+#ifdef _SPECIAL_DEBUGPRINT_
       Call DebugCMOx(CMO,nCMO,nD,nBas,nOrb,nSym,'NewOrb: CMO new')
 #endif
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
 *     Do iD = 1, nD
 *        iOff=1
 *        jOff=1

@@ -19,9 +19,7 @@
 
 #include "cpfmcpf.fh"
 C
-      CALL QENTER('CPFCTL')
       CALL CPFCTL_INTERNAL(H)
-      CALL QEXIT('CPFCTL')
 *
 *     This is to allow type punning without an explicit interface
       CONTAINS

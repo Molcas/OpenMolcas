@@ -23,7 +23,6 @@
 
 
 
-      CALL QENTER(ROUTINE)
 
       nSym  =iSGStruct(1)
       lISm  =iSGStruct(3)
@@ -48,6 +47,5 @@
      &             IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
      &             WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
 
-      CALL QEXIT(ROUTINE)
       return
       end

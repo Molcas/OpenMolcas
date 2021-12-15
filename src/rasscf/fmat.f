@@ -66,7 +66,6 @@
 
       Dimension CMO(*) , PUVX(*) , D(*) , D1A(*) , FI(*) , FA(*)
       logical l_casdft
-      Call qEnter (ROUTINE)
 C Local print level (if any)
       IPRLEV=IPRLOC(4)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -442,7 +441,6 @@ c        End If
         End Do
       End If
 
-      Call qExit('Fmat')
 
       Return
       End

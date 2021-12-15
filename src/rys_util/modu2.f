@@ -16,12 +16,6 @@
 *                                                                      *
 * Object: precompute u2/(zeta+eta)                                     *
 *                                                                      *
-*                                                                      *
-* Called from: Rys                                                     *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             May '90                                                  *
 ************************************************************************

@@ -16,6 +16,7 @@
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 * OBSERVE! MxState has to be the same as MxStat in cntrl.fh
 *          in src/rassi.
       Parameter (MxState=200,MxStOT=MxState*(MxState+1)/2)
@@ -24,10 +25,11 @@
       Dimension Q_Nuc(nAtoms)
       Dimension iToc(MxStOT)
       Logical UserDen, PrintDen, SubtractDen, Exist, Restart, Utility
-      Logical TDensity, ok1, ok2
+      Logical TDensity, ok1, ok2, Found
       Character*8 Method
+      Real*8, Allocatable:: DTmp(:), DSym(:)
 *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *
       Write(Label,'(A,I1)') 'LoProp Dens ',iPert
       If (Restart) Then
@@ -41,7 +43,12 @@
          End If
          Call Allocate_Work(ip_D,nDens)
          Call Get_dArray(Label,Work(ip_D),nDens)
+*
+         nSize=nDens
+*
       Else If (nSym.eq.1) Then
+*
+         nSize=nBas(1)*(nBas(1)+1)/2
 *
          If(UserDen) then
 * Additions made by A.Ohrn to enable LoProp to read in a density matrix
@@ -60,7 +67,6 @@
              Write(6,*)' Unable to locate user density matrix.'
              Call Abend()
            Endif
-           nSize=nBas(1)*(nBas(1)+1)/2
            Call GetMem('UserDen','Allo','Real',ipUser,nSize)
            Read(Lu_Ud,*)(Work(ipUser+k),k=0,nSize-1)
            Call Put_D1ao(Work(ipUser),nSize)
@@ -76,7 +82,6 @@
 *---  Table-of-contents
            Call iDaFile(LuIn,2,iToc,MxStOT,iDisk)
 *---  Allocation of density
-           nSize=nBas(1)*(nBas(1)+1)/2
            Call GetMem('TDMden','Allo','Real',iTDMden,nSize)
 *---  Loop to 'suck-out' the relevant matrix from the ToFile.
            nStateM=max(nStateI,nStateF)
@@ -111,15 +116,15 @@
              Write(6,*)' Unable to locate density matrix to subtract.'
              Call Abend()
            Endif
-           nSize=nBas(1)*(nBas(1)+1)/2
            Call GetMem('UserDen','Allo','Real',ipUser,nSize)
            Read(Lu_Ud,*)(Work(ipUser+k),k=0,nSize-1)
-           Call Get_D1ao(ip_Dtmp,nDens)
+           Call mma_allocate(DTmp,nSize)
+           Call Get_D1ao(Dtmp,nSize)
            Do k=0,nSize-1
-              Work(ip_Dtmp+k)=SubScale*(Work(ip_Dtmp+k)-Work(ipUser+k))
+              Dtmp(1+k)=SubScale*(Dtmp(1+k)-Work(ipUser+k))
            EndDo
-           Call Put_D1ao(Work(ip_Dtmp),nSize)
-           Call Free_Work(ip_Dtmp)
+           Call Put_D1ao(Dtmp,nSize)
+           Call mma_deallocate(DTmp)
            Call GetMem('UserDen','Free','Real',ipUser,nSize)
            Close(Lu_Ud)
            Do k=1,nAtoms
@@ -135,13 +140,15 @@
          If(Method.eq.'MBPT2   ') Then
             Call Get_iScalar('mp2prpt',iMp2Prpt)
          End If
+         Call getmem('D','Allo','Real',ip_D,nSize)
          If(iMp2Prpt.ne.0) Then
-            Call Get_D1ao_var(ip_D,nDens)
+            Call Get_D1ao_var(Work(ip_D),nSize)
          else
 * End Addition J.Bostrom (well, the End If too ofc.)
-            Call Get_D1ao(ip_D,nDens)
+            Call Get_D1ao(Work(ip_D),nSize)
          End If
-#ifdef _DEBUG_
+         nDens=nSize
+#ifdef _DEBUGPRINT_
          Call RecPrt('D',' ',Work(ip_D),1,nDens)
 #endif
          If(PrintDen) Then
@@ -161,29 +168,36 @@
          Call Allocate_Work(ip_D_sq,nBas1**2)
          Call Allocate_Work(ip_Tmp,nBas2)
 *
-         Call Get_D1ao(ip_DSym,nDens)
+         Call Qpg_darray('D1ao',Found,nDens)
+         If (Found .and. nDens/=0) Then
+            Call mma_allocate(DSym,nDens,Label='DSym')
+            Call Get_D1ao(DSym,nDens)
+         Else
+            Write (6,*) 'Get_density_matrix: not found.'
+            Call Abend()
+         End If
          iSyLbl=1
-#ifdef _DEBUG_
-         Call RecPrt('DSym',' ',Work(ip_DSym),1,nDens)
+#ifdef _DEBUGPRINT_
+         Call RecPrt('DSym',' ',DSym,1,nDens)
 #endif
-         iOfft = ip_DSym
+         iOfft = 1
          iOffs = ip_Tmp
          Do iSym = 1, nSym
             If (nBas(iSym).eq.0) Go To 99
-#ifdef _DEBUG_
-            Call TriPrt('DSym',' ',Work(iOfft),nBas(iSym))
+#ifdef _DEBUGPRINT_
+            Call TriPrt('DSym',' ',DSym(iOfft),nBas(iSym))
 #endif
-            Call Square(Work(iOfft),Work(iOffs),1,nBas(iSym),nBas(iSym))
+            Call Square(DSym(iOfft),Work(iOffs),1,nBas(iSym),nBas(iSym))
             Call DScal_(nBas(iSym)**2,Half,Work(iOffs),1)
             Call DScal_(nBas(iSym)   ,Two, Work(iOffs),nBas(iSym)+1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('DSym',' ',Work(iOffs),nBas(iSym),nBas(iSym))
 #endif
             iOfft = iOfft + nBas(iSym)*(nBas(iSym)+1)/2
             iOffs = iOffs + nBas(iSym)**2
  99         Continue
          End Do
-         Call Free_Work(ip_DSym)
+         Call mma_deallocate(DSym)
 *
          nScr=nBasMax*nBas1
          Call Allocate_Work(ipScr,nScr)
@@ -196,7 +210,7 @@
          Call Triangularize(Work(ip_D_sq),Work(ip_D),nBas1,.True.)
          Call Free_Work(ip_D_sq)
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call TriPrt('Density Matrix',' ',Work(ip_D),nBas1)
 #endif
 *

@@ -22,33 +22,19 @@
 *                                                                      *
 * Object: to compute the gradient of the two-electron integrals.       *
 *                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Tvalue                                                  *
-*              RtsWgh                                                  *
-*              vRysRW                                                  *
-*              ModU2                                                   *
-*              Cff2D                                                   *
-*              Rys2Dm                                                  *
-*              HrrCtl                                                  *
-*              Rys2Dg                                                  *
-*              Assg1                                                   *
-*              Distg1                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
 *             Modified to 1st order derivatives October '91            *
 ************************************************************************
       use vRys_RW
+      use Symmetry_Info, only: iOper
+      use Real_Info, only: ChiI2
+      use Temporary_Parameters, only: IsChi
       Implicit Real*8 (A-H,O-Z)
       External Tvalue, ModU2, Cff2D
       External Exp_1, Exp_2
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "notab.fh"
 #include "print.fh"
       Real*8 Zeta(nZeta), ZInv(nZeta), P(lP,3),
@@ -65,7 +51,7 @@
       lOp(2) = iOper(kOp(2))
       lOp(3) = iOper(kOp(3))
       lOp(4) = iOper(kOp(4))
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       call dcopy_(lP-nZeta,[Zero],0,P(nZeta+1,1),1)
       call dcopy_(lP-nZeta,[Zero],0,P(nZeta+1,2),1)
       call dcopy_(lP-nZeta,[Zero],0,P(nZeta+1,3),1)
@@ -216,7 +202,7 @@
          call dcopy_(nEta,Q(1,3),1,Array(iOff+ipQ     ),nZeta)
       End Do
 *
-*     Compute tha arguments for which we will compute the roots and
+*     Compute the arguments for which we will compute the roots and
 *     the weights.
 *
       Call Tvalue(Array(ipZeta),Array(ipEta),Array(ipP),Array(ipQ),nT,
@@ -339,7 +325,7 @@
 *     Distribute the contributions to the molecular gradient
 *
       Call Distg1(Temp,mVec,Grad,nGrad,JfGrad,JndGrd,
-     &            iuvwx,lOp,iChBas,MxFnc,nIrrep)
+     &            iuvwx,lOp)
 *-----Drop ipAC
 *     ip = ip - nT*nPAO * 9
 #ifdef _CHECK_

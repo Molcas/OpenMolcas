@@ -11,12 +11,10 @@
 * Copyright (C) 1990, Roland Lindh                                     *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine DCR(Lambda,iOper,nIrrep,iStab1,nStab1,iStab2,nStab2,
-     &               iDCR,mDCR)
+      SubRoutine DCR(Lambda,iStab1,nStab1,iStab2,nStab2,iDCR,mDCR)
+      Use Symmetry_Info, only: nIrrep, iOper
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
-      Integer   iOper(0:nIrrep-1),iStab1(0:nStab1-1),iStab2(0:nStab2-1),
-     &          iDCR(0:7)
+      Integer   iStab1(0:nStab1-1),iStab2(0:nStab2-1), iDCR(0:7)
       Integer   Index(50), Lambda_all(1275), mDCR_all(1275),
      &          iDCR_all(0:7,1275)
       Save   Index, Lambda_all, mDCR_all, iDCR_all
@@ -69,8 +67,7 @@
       ij = Max(Ind1,Ind2)*(Max(Ind1,Ind2)-1)/2 + Min(Ind1,Ind2)
 *
       If (.Not.Done(ij)) Then
-         Call DCR_(Lambda_all(ij),iOper,nIrrep,iStab1,nStab1,
-     &                                         iStab2,nStab2,
+         Call DCR_(Lambda_all(ij),iStab1,nStab1,iStab2,nStab2,
      &             iDCR_all(0,ij),mDCR_all(ij))
          Done(ij)=.True.
       End If
@@ -91,8 +88,7 @@
       End Do
       Return
       End
-      SubRoutine DCR_(Lambda,iOper,nIrrep,iStab1,nStab1,iStab2,nStab2,
-     &               iDCR,mDCR)
+      SubRoutine DCR_(Lambda,iStab1,nStab1,iStab2,nStab2,iDCR,mDCR)
 ************************************************************************
 * Oject: to compute the double coset representatives (DCR) and Lambda. *
 *                                                                      *
@@ -105,19 +101,12 @@
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             January '90                                              *
 ************************************************************************
+      Use Symmetry_Info, only: nIrrep, iOper
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
-      Integer   iOper(0:nIrrep-1),iStab1(0:nStab1-1),iStab2(0:nStab2-1),
-     &          iDCR(0:7)
+      Integer   iStab1(0:nStab1-1),iStab2(0:nStab2-1),iDCR(0:7)
       Integer   iScrt(0:7,0:7)
 *
-      iRout = 23
-      iPrint = nPrint(iRout)
-      Do 10 i = 0, 7
-         Do 11 j = 0, 7
-            iScrt(i,j) = 0
- 11      Continue
- 10   Continue
+      iScrt(:,:)=0
 *
 *     Construct all UGV subgroups. We accumulate the number of times an
 *     operator appears in each UGV subgroup.

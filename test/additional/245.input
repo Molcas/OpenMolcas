@@ -9,10 +9,10 @@ PkThrs
 
 Basis set
 H.ANO-S...2s.
-H1  1.433544       -0.952939       0.00000        
-H2  -1.433544      -0.952939      0.00000        
+H1  1.433544       -0.952939       0.00000
+H2  -1.433544      -0.952939      0.00000
 End of basis
- 
+
 
 Basis set
 O.ANO-S...3s1P.
@@ -20,12 +20,12 @@ O3     0.000000       0.000000       0.000000
 End of basis
 
 End of input
-             
+
  &SCF &END
 Occupied
 5
 End of Input
- 
+
 
  &LOPROP &END
 Expansion

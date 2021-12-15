@@ -112,7 +112,7 @@
          iOpt = 2
          iAdrA = iAdrA_in(iSym)
          Call dDaFile(Lu_A(iType),iOpt,Work(ip_A_t),l_A_t,iAdrA)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write(6,*) 'Q-vectors'
          Do i = 1, l_Q
             Write(6,*) Work(ip_Q+i-1)

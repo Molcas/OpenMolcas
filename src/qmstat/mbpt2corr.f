@@ -19,8 +19,9 @@
 #include "qm1.fh"
 #include "qminp.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "warnings.fh"
-
+      Real*8, Allocatable:: Diff(:)
       Dimension Cmo(MxBas**2)
 
       Write(6,*)
@@ -36,10 +37,11 @@
       Call Quit(_RC_GENERAL_ERROR_)
 *--- Check that the density difference is sound.
       iT=nBas*(nBas+1)/2
-      Call Get_D1ao(ipDiff,iT)
+      Call mma_allocate(Diff,iT,Label='Diff')
+      Call Get_D1ao(Diff,iT)
       If(iPrint.ge.10) then
         Call TriPrt('Non-reduced difference density matrix',' '
-     &             ,Work(ipDiff),nBas)
+     &             ,Diff,nBas)
       Endif
 *--- Transform density difference to orbital basis.
       Call GetMem('SqDenA','Allo','Real',ipSqD,nBas**2)
@@ -51,7 +53,7 @@
       call dcopy_(iOrb(1)**2,[ZERO],iZERO,Work(ipSqE),iONE)
       call dcopy_(nBas*iOrb(1),[ZERO],iZERO,Work(ipTEMP),iONE)
 *--- Do not forget the density matrix convention in Molcas.
-      Call Dsq(Work(ipDiff),Work(ipSqD),iONE,nBas,nBas)
+      Call Dsq(Diff,Work(ipSqD),iONE,nBas,nBas)
 *--- Inverse of orbital file and transformation.
       Call Minv(Cmo,Work(iI),Ising,Det,nBas)
       Call Dgemm_('N','N',nBas,nBas,nBas,ONE,Work(iI),nBas,Work(ipSqD)
@@ -117,7 +119,7 @@
 *     &             ,Work(ipTrDiffD),nBas)
 *      Endif
 
-      Call GetMem('Dens','Free','Real',ipDiff,iT)
+      Call mma_deallocate(Diff)
       Call GetMem('SqDenA','Free','Real',ipSqD,nBas**2)
       Call GetMem('SqDenM','Free','Real',ipSqE,nBas**2)
       Call GetMem('TEMP','Free','Real',ipTEMP,nBas**2)

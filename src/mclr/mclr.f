@@ -36,8 +36,10 @@
 *    It was hard to write, and it must be hard to understand..."       *
 *                                                                      *
 ************************************************************************
+      Use Basis_Info, only: Basis_Info_Free
+      Use Center_Info, only: Center_Info_Free
+      use Symmetry_Info, only: Symmetry_Info_Free
       Implicit Real*8 (a-h,o-z)
-
 #include "Input.fh"
 #include "warnings.fh"
 #include "WrkSpc.fh"
@@ -65,6 +67,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+*     Call MCLR_banner()
       Call CWTime(TCpu1,TWall1)
 *                                                                      *
 ************************************************************************
@@ -75,7 +78,6 @@
 ************************************************************************
 *                                                                      *
 *
-      call qenter('MCLR')
 *
       iAllo=0
 c      idp=rtoi
@@ -244,6 +246,12 @@ c      idp=rtoi
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Call Basis_Info_Free()
+      Call Center_Info_Free()
+      Call Symmetry_Info_Free()
+*                                                                      *
+************************************************************************
+*                                                                      *
 
 *     Deallocate memory
 *
@@ -301,7 +309,6 @@ c      idp=rtoi
       Call GetMem('RHSFile','Free','INTE',ifpRHS,nisp)
       Call GetMem('SigFile','Free','INTE',ifpS,nisp)
       Call GetMem('KapFile','Free','INTE',ifpK,nisp)
-
 *
 *     Close files
 *
@@ -336,7 +343,6 @@ c      idp=rtoi
       Else
          ireturn=_RC_NOT_CONVERGED_
       End If
-      Call qStat(' ')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -374,6 +380,5 @@ c      idp=rtoi
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('MCLR')
       Return
       End

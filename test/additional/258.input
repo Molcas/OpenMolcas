@@ -38,7 +38,7 @@ N.6-31G....
 End of Basis
 End of Input
 
- 
+
  &SCF &End
 ChoInput
 algo
@@ -57,10 +57,10 @@ algo
 NoLK
 EndChoInput
 nActEl
-8 0 0 
+8 0 0
 Inactive
 24 0
-RAS2  
+RAS2
 0 8
 End of Input
 
@@ -74,10 +74,10 @@ algo
 NODEcompose
 EndChoInput
 nActEl
-8 0 0 
+8 0 0
 Inactive
 24 0
-RAS2  
+RAS2
 0 8
 End of Input
 

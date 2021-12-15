@@ -890,7 +890,7 @@
          End Do
       End Do
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(6,*) 'Full One-electron Density Matrix'
       iOff = 0
       Do iSym = 1, nSym

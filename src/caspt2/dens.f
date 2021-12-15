@@ -1111,7 +1111,6 @@ C so that the slaves have the same density matrix as the master.
       END IF
 #endif
 
-      CALL QEXIT('DENS')
       RETURN
       END
 C

@@ -20,7 +20,6 @@
       DIMENSION HCOUT(nCOP)
       JSYM(L)=JSUNP_CPF(JSY,L)
 *
-      CALL QENTER('IJIJ_CPF')
 *
       ICOUP = 0 ! dummy initialize
       IVL   = 0 ! dummy initialize
@@ -193,6 +192,5 @@ C One last write of the HCOUT buffer:
        WRITE(6,50)POTNUC
       CALL XFLUSH(6)
 50    FORMAT(/,6X,'REFERENCE ENERGY',F18.8)
-      CALL QEXIT('IJIJ_CPF')
       RETURN
       END

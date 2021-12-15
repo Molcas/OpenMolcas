@@ -54,7 +54,7 @@
             End If
          End Do
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('G (cartesian)',' ',G,mInter,mInter)
       Call RecPrt('G-1 (cartesian)',' ',GInv,mInter,mInter)
 #endif

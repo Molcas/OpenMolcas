@@ -48,8 +48,8 @@ case "$BRANCH" in
   # protected branches: disallow
   master)
     echo "    ==========================================================="
-    echo "    You tried to commit to the master branch"
-    echo "    This is not recommended, even in your local machine."
+    echo "    You tried to commit to the master branch."
+    echo "    This is not recommended, even in your own fork."
     echo ""
     echo "    If you really want to do so,"
     echo "    use the \"--no-verify\" flag with \"git commit\"".

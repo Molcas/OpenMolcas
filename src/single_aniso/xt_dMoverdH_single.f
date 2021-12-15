@@ -92,7 +92,6 @@ c standard deviation data:
       Real(kind=8) :: cm3tomB
       logical       :: DBG
 
-      Call qEnter('XT_dMdH')
       DBG=.false.
       m_paranoid=.true.!.false.
       cm3tomB=0.5584938904_wp   !   in cm3 * mol-1 * T
@@ -574,7 +573,6 @@ c print out the main VAN VLECK SUSCEPTIBILITY TENSOR, its main values and main a
          Call mma_deallocate(XTtens_MH)
          Call mma_deallocate(XTtens_dMdH)
       End If
-      Call qExit('XT_dMdH')
 
       Return
       End

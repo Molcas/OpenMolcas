@@ -13,22 +13,22 @@
   Basis = Fe.ANO-RCC...3s3p1d
   XField = 3 Angstrom 0
     2.0  0.0  0.0  -10.1
-    0.0  2.0  0.0  -10.2 
-    0.0  0.0  2.0  -10.3 
+    0.0  2.0  0.0  -10.2
+    0.0  0.0  2.0  -10.3
 
 &SEWARD
 
 &RASSCF
   FileOrb = StartOrb
-  Spin = 1 
-  Thrs = 1e-4 1e-1 5e-4 
+  Spin = 1
+  Thrs = 1e-4 1e-1 5e-4
   Symmetry = 1
   NActEl = 12 0 0
   Inactive = 3 1 1 0 1 0 0 0
   GASSCF = 2
     2 0 0 1 0 1 1 0
     6 7
-    0 1 1 0 1 0 0 0 
+    0 1 1 0 1 0 0 0
     12 12
   CIRoot = 10 10 1
   OrbList = All

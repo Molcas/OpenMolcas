@@ -18,13 +18,6 @@
 * Object: to assemble the cartesian components of the multipole moment *
 *         matrix within the framework of the Gauss-Hermite quadrature. *
 *                                                                      *
-* Called from: PrpInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 ************************************************************************
@@ -40,7 +33,6 @@
       iRout = 123
       iPrint = nPrint(iRout)
 *     iPrint = 99
-      Call qEnter('vAssmbl ')
       If (iPrint.ge.99) Then
          Call RecPrt(' In vAssmbl:HerW',' ',HerW,1,nHer)
          Call RecPrt(' In vAssmbl:Axyz',' ',Axyz,nZeta*3,nHer*(la+1))
@@ -83,6 +75,5 @@
  100  Continue
 *
 *     Call GetMem(' Exit vAssmbl ','LIST','REAL',iDum,iDum)
-      Call qExit('vAssmbl ')
       Return
       End

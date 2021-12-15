@@ -44,7 +44,6 @@ C
       MulD2h(i,j)=iEor(i-1,j-1)+1
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
 
-      Call qEnter(ThisNm)
       irc = 0
 
       kP(1)=1
@@ -530,5 +529,4 @@ C     ----------------------------------
          End Do
       End If
 
-      Call qExit(ThisNm)
       End

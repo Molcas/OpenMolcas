@@ -66,7 +66,7 @@ c
       integer i,j
       REAL*8 ducoeffs(maxorder),dkhzerothrsh(0:maxorder)
       intrinsic INT,DBLE
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 #ifdef _MOLCAS_
       Integer IsFreeUnit,k
 #endif
@@ -272,7 +272,7 @@ c
 #endif
       endif
 c
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       if (dbgflg.ge.1) then
 #ifdef _MOLCAS_
         dbgunit=32

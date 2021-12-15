@@ -18,11 +18,12 @@
      &                    kCnttp,fact,loper,idcar)
 
       use Real_Spherical
+      use Basis_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External TNAI1, Fake, Cff2D
+#include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"
@@ -65,18 +66,17 @@
       ip = ip + nDAO*nZeta
       if (ip.ge.narray) then
         write(6,*) 'Out of memory in m1kernel (',narray,',',ip,')'
-        Call QTrace
         Call Abend()
       endif
 
 
 
       if (iprint.ge.49)
-     &  Write(6,*)'nM1=',nM1(kCnttp),'kCnttp=',kCnttp
+     &  Write(6,*)'nM1=',dbsc(kCnttp)%nM1,'kCnttp=',kCnttp
 
-      Do 1011 iM1xp=0, nM1(kCnttp)-1
-           Gamma = Work(ipM1xp(kCnttp)+iM1xp)
-           FactECP = Work(ipM1cf(kCnttp)+iM1xp)* Fact
+      Do 1011 iM1xp=1, dbsc(kCnttp)%nM1
+           Gamma =   dbsc(kCnttp)%M1xp(iM1xp)
+           FactECP = dbsc(kCnttp)%M1cf(iM1xp)* Fact
 
 
            if (iprint.ge.49) then

@@ -30,7 +30,9 @@
       End If
 #else
 c Avoid unused argument warnings
+#ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(InVec)
+#endif
 #endif
       Return
       End

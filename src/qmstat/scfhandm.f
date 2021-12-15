@@ -49,7 +49,6 @@
       Dimension iMME(MxMltp*(MxMltp+1)*(MxMltp+2)/6)
       Character MMElab*20,ChCo*2
 
-      Call QEnter('ScfHAndM')
 *----------------------------------------------------------------------*
 * Zeros.                                                               *
 *----------------------------------------------------------------------*
@@ -265,6 +264,5 @@
 *
 *-- The End...
 *
-      Call QEXit('ScfHAndM')
       Return
       End

@@ -26,7 +26,7 @@
 #include "WrkSpc.fh"
       Logical Found
 *
-*define _DEBUG_
+*define _DEBUGPRINT_
       nX=3*nsAtom
       mInter=mInt + mTROld
       nInter=mInt
@@ -77,7 +77,7 @@
 *     The Hessian matrix (zero elements over translations and
 *     rotations are explicitly excluded).
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('BMtrx',' ',BMtrx,nX,nInter)
 #endif
       ii = 0
@@ -125,7 +125,7 @@
 *
       End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Hessian (cartesian)',' ',Tmp3,mInter,mInter)
 #endif
       Call Put_dArray('FC-Matrix',Tmp3,mInter**2)

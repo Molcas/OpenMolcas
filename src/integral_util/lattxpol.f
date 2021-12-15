@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine lattXPol(Grid,nGrid,nGrid_Eff,PolEff,DipEff,
-     &     XF,nXF,nOrd_XF,nPolComp)
+     &                    XF,nXF,nOrd_XF,nPolComp)
 *
       Implicit Real*8 (a-h,o-z)
 *

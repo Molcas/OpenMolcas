@@ -10,6 +10,7 @@
 *                                                                      *
 * Copyright (C) 1995, Martin Schuetz                                   *
 ************************************************************************
+      SubRoutine SOFSh1(nSkal,nSym,nSOs)
 ************************************************************************
 * This Module contains subroutines which are used to compute info on   *
 * the size of the SO integral symmetry blocks for direct integral      *
@@ -28,13 +29,13 @@
 *     M. Schuetz                                                       *
 *     University of Lund, Sweden, 1995                                 *
 ************************************************************************
-      SubRoutine SOFSh1(nSkal,nSym,nSOs)
+*#define _CHECK_
+      use SOAO_Info, only: iAOtSO
       use iSD_data
       use Index_arrays
+      use Basis_Info, only: nBas, nBas_Aux
       Implicit Real*8 (A-H,O-Z)
 *
-#include "itmax.fh"
-#include "info.fh"
 #include "stdalloc.fh"
 #include "Basis_Mode_Parameters.fh"
 #include "Basis_Mode.fh"
@@ -55,7 +56,6 @@
       nShOff(:)=1
 *
       Do iSkal = 1, nSkal
-         iShell      = iSD(11,iSkal)
          iAO         = iSD( 7,iSkal)
          iCmp        = iSD( 2,iSkal)
          icntr(iSkal)= iSD(10,iSkal)
@@ -65,9 +65,8 @@
          Do i=1, iCmp
 *           loop over irreps...
             Do irp=0, nSym-1
-               If (iAnd(IrrCmp(IndS(iShell)+i),2**irp).ne.0) Then
+               If (iAOtSO(iAO+i,irp)>0) Then
                   nShBF(irp,iSkal) = nShBF(irp,iSkal)+ iSD(3,iSkal)
-*#define _CHECK_
 #ifdef _CHECK_
                   If (Basis_Mode.eq.Auxiliary_Mode) Then
                      iShOff(irp,iSkal)=Min(iShOff(irp,iSkal),
@@ -97,7 +96,7 @@
             iShOff(irp,iSkal)=nShOff(irp)
             nShOff(irp)=nShOff(irp)+nShBF(irp,iSkal)
          End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write(6,'(A)') 'nShBF'
          Write(6,'(8I4)') iSkal,(nShBF(irp,iSkal),irp=0,nSym-1)
          Write(6,'(A)') 'iShOff'
@@ -143,7 +142,7 @@
             iptr=iptr+nBas(irp)
          End If
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(6,'(A,I4)') 'max shell size:',nShBFMx
       Write(6,'(A)') '# of shells contributing to each irrep:'
       Write(6,'(8I4)') (nShIrp(irp),irp=0,nSym-1)

@@ -22,7 +22,6 @@ C
       Character*9 SecNam
       Parameter (SecNam='RPA_RdOrb')
 
-      Call qEnter(SecNam)
 
       If (LumOrb) Then
          ! read from InpOrb
@@ -32,7 +31,6 @@ C
          Call RPA_RdOrb_FromRunfile()
       End If
 
-      Call qExit(SecNam)
 
       End
 ************************************************************************
@@ -61,8 +59,7 @@ C
 
       Integer iUHF
       Integer iSym
-      Integer ip_rawCMO, l_rawCMO
-      Integer i, n
+      Integer i
       Integer nB, nB2
       Integer ip, ipO, ipV
 
@@ -86,17 +83,10 @@ C
       End If
 
       ! Read CMO array(s) from Runfile
-      Call Get_CMO(ip_rawCMO,l_rawCMO)
-      If (l_rawCMO.ne.nB2) Then
-         Call RPA_Warn(3,SecNam//': unexpected CMO dimension')
-      End If
-      Call dCopy_(l_CMO(1),Work(ip_rawCMO),1,Work(ip_CMO(1)),1)
+      Call Get_CMO(Work(ip_CMO(1)),nB2)
       If (iUHF.eq.2) Then
-         n=l_rawCMO
-         Call Get_dArray('CMO_ab',Work(ip_rawCMO),n)
-         Call dCopy_(l_CMO(2),Work(ip_rawCMO),1,Work(ip_CMO(2)),1)
+         Call Get_dArray('CMO_ab',Work(ip_CMO(2)),nB2)
       End If
-      Call GetMem('CMO','Free','Real',ip_rawCMO,l_rawCMO)
 
       ! Allocate memory for orbital energies
       nB=nBas(1)

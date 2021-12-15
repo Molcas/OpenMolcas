@@ -35,7 +35,6 @@
       Integer ALGO
       Common /CHLCAS / DoCholesky,ALGO
 *
-      Call qEnter('TraCtl2')
 *
 *
 *      Call DecideOnCholesky(DoCholesky)
@@ -84,7 +83,6 @@ C  Synchronization for parallel runs is done in cho_cas_drv
 
       EndIf
 
-      Call qExit('TraCtl2')
 
       Return
       End

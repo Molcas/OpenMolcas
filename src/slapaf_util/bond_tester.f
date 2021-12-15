@@ -22,10 +22,9 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *define _TIME_
 #ifdef _TIME_
-      Call Qenter('Bond_Tester')
 #endif
 *                                                                      *
 ************************************************************************
@@ -37,7 +36,7 @@
       If (iz.lt.1.or.iz.gt.nz) Go To 199
       Nr=iTab(0, ix,iy,iz) ! nr of atoms in the box.
       If (Nr.eq.0) Go To 199
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'Bond_Tester: iAtom,ix,iy,iz=',iAtom,ix,iy,iz
 #endif
 *
@@ -58,7 +57,7 @@ C        If (iAtom.le.jAtom) Go To 99
          If (iAtom.ge.jAtom) Go To 99
          jRow =iTabRow(iANr(jAtom))
          Help = iRow.gt.3.or.jRow.gt.3
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (6,*) ' jAtom, iAnr(jAtom)=',jAtom, iAnr(jAtom)
          Write (6,*) 'Help=',Help
 #endif
@@ -75,7 +74,7 @@ C        If (iAtom.le.jAtom) Go To 99
          If (Schlegel.or.Help) Then
             Rab=Sqrt(rij2)
             RabCov=CovRad(iANr(iAtom))+CovRad(iANr(jAtom))
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*) 'Rab=',Rab
             Write (6,*) CovRad(iANr(iAtom)),CovRad(iANr(jAtom))
 #endif
@@ -110,7 +109,7 @@ C        If (iAtom.le.jAtom) Go To 99
             Else
                test_vdW=0.0D0
             End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*)
             Write (6,*) 'Bond_Tester: iAtom,jAtom=',iAtom,jAtom
             Write (6,*) 'Bond_Tester: test=',test,ThrB
@@ -202,7 +201,6 @@ C        If (iAtom.le.jAtom) Go To 99
 *
  199  Continue
 #ifdef _TIME_
-      Call QExit('Bond_Tester')
 #endif
       Return
       End

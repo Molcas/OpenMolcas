@@ -8,20 +8,25 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Get_Grad(ipGrad,nGrad)
-      Implicit Real*8 (A-H,O-Z)
-#include "WrkSpc.fh"
+      Subroutine Get_Grad(Grad,nGrad)
+      Implicit None
+      Integer nGrad
+      Real*8 Grad(nGrad)
+*     Local variables
+      Integer :: mGrad=0
+      Character(LEN=24), Parameter:: Label='GRAD'
+      Logical :: Found=.False.
 
-      Character*24 Label
-      Logical      Found
-
-      Label='GRAD'
-      Call qpg_dArray(Label,Found,nGrad)
-      If(.not.Found .or. nGrad.eq.0) Then
+      Call qpg_dArray(Label,Found,mGrad)
+      If(.not.Found .or. nGrad==0) Then
          Call SysAbendmsg('get_grad','Did not find:',Label)
       End If
-      Call GetMem('Grad','Allo','Real',ipGrad,nGrad)
-      Call Get_dArray(Label,Work(ipGrad),nGrad)
+      If (mGrad/=nGrad) Then
+         Write (6,*) 'mGrad=',mGrad
+         Write (6,*) 'nGrad=',nGrad
+         Call SysAbendmsg('get_grad','mGrad/=nGrad:',Label)
+      End If
+      Call Get_dArray(Label,Grad,nGrad)
 
       Return
       End

@@ -28,7 +28,6 @@
       Character*8 Label
       Dimension Dum(1)
 *
-*     Call qEnter('Trsn')
       mCent=2
       Call Strtch(xyz(1,1),mCent,Rij1,BRij,.False.,Label,dBRij,ldB)
       Call Strtch(xyz(1,2),mCent,Rjk1,BRjk,.False.,Label,dBRjk,ldB)
@@ -47,7 +46,6 @@
          Tau=Zero
          dTau=Zero
          If (lWrite) Write (6,1) Label,-dTau,-Tau
-*        Call qExit('Trsn')
          Return
       End If
 *
@@ -212,6 +210,5 @@
       Call DScal_(3*nCent,Fac,Bt,1)
       If (ldB) Call DScal_((3*nCent)**2,Fac,dBt,1)
 *
-*     Call qExit('Trsn')
       Return
       End

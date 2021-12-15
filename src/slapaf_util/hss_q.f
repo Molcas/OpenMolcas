@@ -31,7 +31,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -45,7 +45,7 @@
       Call Get_dArray('Hss_X',Work(ip_Hss_x),nDim**2)
       Call Allocate_Work(ip_KtB,nDim*nQQ)
       Call Get_dArray('KtB',Work(ip_KtB),nDim*nQQ)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Hss_x',' ',Work(ip_Hss_X),nDim,nDim)
 #endif
 *
@@ -57,7 +57,7 @@
             i = i + 1
          End If
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Work(ipDegen)',' ',Work(ipDegen),nDim,1)
 #endif
 *
@@ -68,7 +68,7 @@
 *        and form d^2E/dx^2 - d^2Q/dx^2 dE/dQ
 *
          Call dBuu(Work(ipDegen),nQQ,nDim,Grad,Work(ip_Hss_X),.False.)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('H(X)-BtgQ',' ',Work(ip_Hss_X),nDim,nDim)
 #endif
       End If
@@ -79,7 +79,7 @@
 *
       Call Put_dArray('Hss_Q',Work(ip_Hss_Q),nQQ**2)
       Call Put_dArray('Hss_upd',Work(ip_Dummy),0)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Hss_Q: Hessian',' ',Work(ip_Hss_Q),nQQ,nQQ)
 #endif
       Call Free_Work(ip_Hss_Q)

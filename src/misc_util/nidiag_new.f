@@ -48,7 +48,7 @@
 *                                                                      *
 *----------------------------------------------------------------------*
       If (n.eq.0) Return
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(6,*) "New nidiag"
 #endif
       Call FZero(U,nv*n)
@@ -73,7 +73,7 @@
      &Work(ipTAU),info)
 
       If(info.ne.0) Then
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write(6,'(A,I4)')"Failed to tridiagonalize matrix",
      &   info
 #endif
@@ -92,7 +92,7 @@
      &liwrk,info)
 
       If(info.ne.0) Then
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write(6,'(A,I4)') "Failed to diagonalize matrix",
      &   info
 #endif
@@ -103,7 +103,7 @@
      &U,nv,Work(ipWork),info)
 
       If(info.ne.0) Then
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         Write(6,'(A,I4)') "Failed to back transform vectors",
      &  info
 #endif
@@ -127,7 +127,7 @@
       Call GetMem('HDUP','FREE','REAL',ipHDUP,n*(n+1)/2)
 
       if(info.ne.0) Then
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write(6,'(A)')
      &   "Using the old Givens rot. based routine"
 #endif

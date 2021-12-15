@@ -14,8 +14,6 @@ C     read atomic/block information for local transformation
 C
       Integer N
       Integer indx(n)
-#include "itmax.fh"
-#include "info.fh"
 *
       call get_iarray('Ctr Index Prim',indx,N)
       End

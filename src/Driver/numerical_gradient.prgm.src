@@ -26,6 +26,7 @@
  (file)  CHCCINP       "$WorkDir/$Project."Chcc.Input          rwi
  (file)  CHT3INP       "$WorkDir/$Project."Cht3.Input          rwi
  (file)  ESPFINP       "$WorkDir/$Project."Espf.Input          rwi
+ (file)  FALSEINP      "$WorkDir/$Project."False.Input         rwi
 #include "sewints.inc"
 #include "rysfiles.inc"
 #include "scffiles.inc"

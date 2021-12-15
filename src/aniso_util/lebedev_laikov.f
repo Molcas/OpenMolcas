@@ -16,7 +16,6 @@
       Integer                    :: N
       Real (kind=8), intent(out), dimension(nP) :: x, y, z, w
 
-      Call qEnter('Lebedev_Laikov')
 
       If(     nsymm .eq. 1 ) Then  ! default :  grid on a half-sphere;
         If(     ngrid .eq.  1 ) Then
@@ -235,7 +234,6 @@
         Write(6,'(a)') 'nsymm parameter can take only 1,2, or 3 values.'
       End If
 
-      Call qExit('Lebedev_Laikov')
       Return
       End
 

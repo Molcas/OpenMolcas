@@ -138,7 +138,6 @@ C-jwk-cleanup      REAL * 8 INPROD,L
       INTERACT = 0 ! jwk-cleanup
 *
 
-      CALL QENTER('GASDN')
       NTEST = 0000
       NTEST = MAX(NTEST,IPRNT)
       IF(NTEST.GE.20) THEN
@@ -461,7 +460,6 @@ C             write(6,*) ' Loop 9999 ILPERM = ', ILPERM
 *.      ^ End of loop over batches of R blocks
 10001 CONTINUE
 *.    ^ End of loop over batches of L blocks
-      CALL QEXIT('GASDN')
 
       RETURN
 c Avoid unused argument warnings

@@ -4,10 +4,10 @@
 * Symmetry: d2h
 * Features tested: SEWARD(CONVENTIONAL),SCF,MBPT2(FC),ALASKA(NUMERICAL)
 * Responsible person: Victor P. Vysotskiy
-* Comments: SP calculation of numerical gradients at the MBPT2(FC)/ANO-L-VDZP 
-*           level of theory. The MBPT2(FC) optimized geometry is used. Thus, 
-*           computed gradients must be negligible small (virtually zero) and 
-*           'slapaf' must report that the geometry is already converged. 
+* Comments: SP calculation of numerical gradients at the MBPT2(FC)/ANO-L-VDZP
+*           level of theory. The MBPT2(FC) optimized geometry is used. Thus,
+*           computed gradients must be negligible small (virtually zero) and
+*           'slapaf' must report that the geometry is already converged.
 *-------------------------------------------------------------------------------
 >> export MOLCAS_PRINT=VERBOSE
 >>export MOLCAS_NOCHECK=POTNUC

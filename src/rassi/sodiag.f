@@ -97,7 +97,9 @@ C BPTST       Storage for some testing
 
       !> identity mat
       IDENTMAT(:,:)=0.0D0
-      FORALL (I=1:3) IDENTMAT(I,I)=1.0D0
+      DO I = 1,3
+        IDENTMAT(I,I)=1.0D0
+      END DO
 
 C First, we calculate the expectation values of
 C  (L+ge*S)x (L+ge*S)y (L+ge*S)z

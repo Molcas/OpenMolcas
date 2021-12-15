@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine Get_CurviL(
      &              nq,nqRF,nqB,nqA,nqT,nqO,
-     &              nAtoms,iIter,nIter,Cx,iOper,nSym,jStab,
+     &              nAtoms,iIter,nIter,Cx,jStab,
      &              nStab,nDim,Smmtrc,Process,Value,nB,
      &              iANr,qLbl,iRef,
      &              fconst,rMult,iOptC,LuIC,Name,Indq,iPrv,
@@ -24,7 +24,7 @@
      &       Value(nB,nIter), rMult(nB), dMass(nAtoms),
      &       Grad_all(9,iGlow:iGhi,nIter),
      &       BM(nB_Tot),dBM(ndB_Tot)
-      Integer nStab(nAtoms), iOper(0:nSym-1), iANr(nAtoms),
+      Integer nStab(nAtoms), iANr(nAtoms),
      &        jStab(0:7,nAtoms), Indq(3,nB), iCoSet(0:7,nAtoms),
      &        iTabBonds(3,nBonds), iTabAtoms(2,0:nMax,mAtoms),
      &        iTabAI(2,mAtoms), iBM(nB_Tot), idBM(2,ndB_Tot), mqB(nB)
@@ -46,7 +46,7 @@
       nq_=nq
       Call RF_Coord(
      &              nq,
-     &              nAtoms,iIter,nIter,Cx,iOper,nSym,jStab,
+     &              nAtoms,iIter,nIter,Cx,jStab,
      &              nStab,nDim,Smmtrc,Process,Value,nB,
      &              iANr,qLbl,iRef,
      &              fconst,rMult,LuIC,Indq,
@@ -57,7 +57,7 @@
       nq_=nq
       Call Bond_List(
      &              nq,
-     &              nAtoms,iIter,nIter,Cx,iOper,nSym,jStab,
+     &              nAtoms,iIter,nIter,Cx,jStab,
      &              nStab,nDim,Smmtrc,Process,Value,nB,
      &              iANr,qLbl,fconst,
      &              rMult,iOptC,LuIC,Name,Indq,
@@ -69,7 +69,7 @@
       nq_=nq
       Call Angle_List(
      &              nq,
-     &              nAtoms,iIter,nIter,Cx,iOper,nSym,jStab,
+     &              nAtoms,iIter,nIter,Cx,jStab,
      &              nStab,nDim,Smmtrc,Process,Value,nB,
      &              iANr,qLbl,iRef,
      &              fconst,rMult,LuIC,Name,Indq,
@@ -82,7 +82,7 @@
       nq_=nq
       Call Torsion_List(
      &              nq,
-     &              nAtoms,iIter,nIter,Cx,iOper,nSym,jStab,
+     &              nAtoms,iIter,nIter,Cx,jStab,
      &              nStab,nDim,Smmtrc,Process,Value,nB,
      &              iANr,qLbl,iRef,
      &              fconst,rMult,LuIC,Name,Indq,iPrv,Proc_dB,
@@ -94,7 +94,7 @@
       nq_=nq
       Call OutOfPlane_List(
      &              nq,
-     &              nAtoms,iIter,nIter,Cx,iOper,nSym,jStab,
+     &              nAtoms,iIter,nIter,Cx,jStab,
      &              nStab,nDim,Smmtrc,Process,Value,nB,
      &              iANr,qLbl,iRef,
      &              fconst,rMult,LuIC,Name,Indq,iPrv,Proc_dB,

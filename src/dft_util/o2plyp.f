@@ -19,24 +19,14 @@
 *           preserves non-UEG feature of the OPTX combinations         *
 *           requires scaling of &mbpt2 correlation energy!             *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*                                                                      *
 *      Author: Grigory A Shamov, U of Manitoba, 2009                   *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "WrkSpc.fh"
-#include "print.fh"
 #include "ksdft.fh"
       Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
      &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid)
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Call QEnter('O2PLYP')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -69,7 +59,6 @@ C MP2 correlation energy to be scaled to 1 - Coeff_C = 0.25
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('O2PLYP')
 C
       Return
 c Avoid unused argument warnings

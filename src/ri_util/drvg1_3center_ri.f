@@ -20,19 +20,6 @@
 *          list of symmetry distinct centers that do have basis func-  *
 *          tions of the requested type.                                *
 *                                                                      *
-* Called from: Alaska                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              SetUp_Ints                                              *
-*              GetMem                                                  *
-*              DCopy   (ESSL)                                          *
-*              Swap                                                    *
-*              MemRg1                                                  *
-*              PSOAO1                                                  *
-*              PGet0                                                   *
-*              TwoEl                                                   *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -47,17 +34,21 @@
 *             Modified for gradient calculation. January '92           *
 *             Modified for SetUp_Ints. January '00                     *
 *             Modified for 3-center RI gradients, March '07            *
-*                                                                      *
 ************************************************************************
       use k2_setup
       use iSD_data
       use pso_stuff
       use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr
+      use Basis_Info
+      use Sizes_of_Seward, only:S
+      use Real_Info, only: CutInt
+      use RICD_Info, only: Do_RI
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External Rsv_Tsk2
-#include "real.fh"
+#include "Molcas.fh"
 #include "itmax.fh"
-#include "info.fh"
+#include "real.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "print.fh"
@@ -110,7 +101,6 @@
 *                                                                      *
       iRout = 9
       iPrint = nPrint(iRout)
-      Call QEnter('Drvg1_3Center_RI')
 #ifdef _CD_TIMING_
       Twoel3_CPU = 0.0d0
       Twoel3_Wall = 0.0d0
@@ -170,8 +160,8 @@
 ************************************************************************
 *                                                                      *
       MxPrm = 0
-      Do iAng = 0, iAngMx
-         MxPrm = Max(MxPrm,MaxPrm(iAng))
+      Do iAng = 0, S%iAngMx
+         MxPrm = Max(MxPrm,S%MaxPrm(iAng))
       End Do
       nZeta = MxPrm * MxPrm
       nEta  = MxPrm * MxPrm
@@ -205,8 +195,6 @@
             ip_Out=ip_Tmp + (jS-1)*nSkal + iS -1
             ip_In =ipTMax + (jS-1)*nSkal_Valence + iS -1
             Work(ip_In)=Work(ip_Out)
-cVV: ifort 11 can't handle the code without this dummy print.
-            if(iPrint.gt.100) write(6,*) ip_In, ip_Out
             ip_In =ipTMax + (iS-1)*nSkal_Valence + jS -1
             Work(ip_In)=Work(ip_Out)
             TMax_all=Max(TMax_all,Work(ip_Out))
@@ -538,7 +526,7 @@ cVV: ifort 11 can't handle the code without this dummy print.
 *                                                                      *
 *-------Compute FLOP's for the transfer equation.
 *
-      Do iAng = 0, iAngMx
+      Do iAng = 0, S%iAngMx
          Do jAng = 0, iAng
             nHrrab = 0
             Do i = 0, iAng+1
@@ -739,7 +727,7 @@ C    *        Recl=nBasT*nBasT*8)
 ************************************************************************
 *                                                                      *
          Call Gen_iSD4(iS, jS, kS, lS,iSD,nSD,iSD4)
-         Call Size_SO_block_g(iSD4,nSD,Petite,nSO,No_batch)
+         Call Size_SO_block_g(iSD4,nSD,nSO,No_batch)
          If (No_batch) Go To 140
 *
          Call Int_Prep_g(iSD4,nSD,Coor,Shijij,iAOV,iStabs)
@@ -775,7 +763,6 @@ C    *        Recl=nBasT*nBasT*8)
 *
          Call SOAO_g(iSD4,nSD,nSO,
      &               MemPrm, MemMax,
-     &               nExp,nBasis,MxShll,
      &               iBsInc,jBsInc,kBsInc,lBsInc,
      &               iPrInc,jPrInc,kPrInc,lPrInc,
      &               ipMem1,ipMem2, Mem1,  Mem2,
@@ -790,8 +777,6 @@ C    *        Recl=nBasT*nBasT*8)
          Call Int_Parm_g(iSD4,nSD,iAnga,
      &                 iCmpa,iShlla,iShela,
      &                 iPrimi,jPrimj,kPrimk,lPriml,
-     &                 ipCffi,jpCffj,kpCffk,lpCffl,
-     &                 nExp,ipExp,ipCff,MxShll,
      &                 indij,k2ij,nDCRR,k2kl,nDCRS,
      &                 mdci,mdcj,mdck,mdcl,AeqB,CeqD,
      &                 nZeta,nEta,ipZeta,ipZI,
@@ -838,7 +823,7 @@ C    *        Recl=nBasT*nBasT*8)
 #ifdef _CD_TIMING_
            CALL CWTIME(Pget0CPU1,Pget0WALL1)
 #endif
-           Call PGet0(iCmpa,iShela,
+           Call PGet0(iCmpa,
      &                iBasn,jBasn,kBasn,lBasn,Shijij,
      &                iAOV,iAOst,nijkl,Sew_Scr(ipMem1),nSO,
      &                iFnc(1)*iBasn,iFnc(2)*jBasn,
@@ -865,10 +850,10 @@ C    *        Recl=nBasT*nBasT*8)
      &          Data_k2(k2kl),ncd,nHmcd,nDCRS,Pren,Prem,
      &          iPrimi,iPrInc,jPrimj,jPrInc,
      &          kPrimk,kPrInc,lPriml,lPrInc,
-     &          Work(ipCffi+(iBasAO-1)*iPrimi),iBasn,
-     &          Work(jpCffj+(jBasAO-1)*jPrimj),jBasn,
-     &          Work(kpCffk+(kBasAO-1)*kPrimk),kBasn,
-     &          Work(lpCffl+(lBasAO-1)*lPriml),lBasn,
+     &          Shells(iSD4(0,1))%pCff(1,iBasAO),iBasn,
+     &          Shells(iSD4(0,2))%pCff(1,jBasAO),jBasn,
+     &          Shells(iSD4(0,3))%pCff(1,kBasAO),kBasn,
+     &          Shells(iSD4(0,4))%pCff(1,lBasAO),lBasn,
      &          Mem_DBLE(ipZeta),Mem_DBLE(ipZI),Mem_DBLE(ipP),nZeta,
      &          Mem_DBLE(ipEta), Mem_DBLE(ipEI),Mem_DBLE(ipQ),nEta,
      &          Mem_DBLE(ipxA),Mem_DBLE(ipxB),
@@ -883,7 +868,7 @@ C    *        Recl=nBasT*nBasT*8)
 *
             If (iPrint.ge.15)
      &         Call PrGrad(' In Drvg1_3Center_RI: Grad',
-     &                  Temp,nGrad,lIrrep,ChDisp,iPrint)
+     &                  Temp,nGrad,ChDisp,iPrint)
 *
  430     Continue
  420     Continue
@@ -996,7 +981,6 @@ C    *        Recl=nBasT*nBasT*8)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('Drvg1_3Center_RI')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_real_array(Grad)

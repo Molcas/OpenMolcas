@@ -36,6 +36,7 @@
 ************************************************************************
       Subroutine MEP_Dir(Cx,Gx,nAtom,iMEP,iOff_iter,iPrint,IRCRestart,
      &                   ResGrad,BadConstraint)
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -46,7 +47,6 @@
       Parameter ( RadToDeg=180.0D0/Pi )
       Dimension iDum(1)
 *
-      Call QEnter('MEP_dir')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -95,7 +95,7 @@
       dPrevDirPostDir=Zero
       iOff=0
       Do iAtom=1,nAtom
-        Fact=Dble(iDeg(Cx(1+iOff,iter),iOper,nSym))
+        Fact=Dble(iDeg(Cx(1+iOff,iter)))
         xWeight=Work(ipWeights+iAtom-1)
         TWeight=TWeight+Fact*xWeight
         Do ixyz=1,3
@@ -287,7 +287,7 @@
         dDir=Zero
         iOff=0
         Do iAtom=1,nAtom
-          Fact=Dble(iDeg(Cx(1+iOff,iter),iOper,nSym))
+          Fact=Dble(iDeg(Cx(1+iOff,iter)))
           xWeight=Work(ipWeights+iAtom-1)
           Do ixyz=1,3
             dDir=dDir+Fact*xWeight*Work(ipDir+iOff)**2
@@ -320,8 +320,8 @@
 *       Randomly displace the new geometry 1/20th of the MEP distance
 *       to try to break symmetry
 *
-        If (nSym.eq.1) Then
-          Call Random_Vector(nCoor,Work(ipDisp))
+        If (nIrrep.eq.1) Then
+          Call Random_Vector(nCoor,Work(ipDisp),.True.)
           dDir=Zero
           iOff=0
           Do iAtom=1,nAtom
@@ -346,6 +346,5 @@
       Call Free_Work(ipGrad)
       Call Free_Work(ipDir)
       Call Free_Work(ipCen)
-      Call QExit('MEP_dir')
       Return
       End

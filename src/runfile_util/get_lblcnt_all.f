@@ -10,19 +10,18 @@
 ************************************************************************
       Subroutine Get_LblCnt_All(xLblCnt)
       Implicit Real*8 (a-h,o-z)
-#include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "Molcas.fh"
+      Real*8, Allocatable:: Coord(:,:)
       Character*(LENIN) xLblCnt(*), xLblCnt_Unique(MxAtom)
 *
       Call Get_iScalar('Unique atoms',nAtoms)
-      Call Allocate_Work(ipCoord,3*nAtoms)
-      Call Get_dArray('Unique Coordinates',Work(ipCoord),3*nAtoms)
+      Call mma_allocate(Coord,3,nAtoms,Label='Coord')
+      Call Get_dArray('Unique Coordinates',Coord,3*nAtoms)
       Call Get_Name(xLblCnt_Unique)
       Call Get_cArray('Unique Atom Names',xLblCnt_Unique,LENIN*nAtoms)
-      Call Get_Name_All_(Work(ipCoord),nAtoms,nAtoms_all,
-     &                   xLblCnt_Unique,xLblCnt)
-      Call Free_Work(ipCoord)
+      Call Get_Name_All_(Coord,nAtoms,nAtoms_all,xLblCnt_Unique,xLblCnt)
+      Call mma_deallocate(Coord)
 *
       Return
       End

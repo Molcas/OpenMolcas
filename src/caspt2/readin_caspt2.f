@@ -39,10 +39,6 @@ C types, which are not supported with stdalloc. Hence, the infraction.
       Integer :: nXMulState = 0
       Type(States) :: XMulGroup
       Logical :: AllXMult = .False.
-!     skip PT2 and MS-PT2 calculation. For XMC-PDFT calculation
-      Logical :: IFNOPT2 = .false.
-!     print XMS rotated Hamiltonian and rotation vector. For XMS-PDFT
-      Logical :: SilentPrRot = .true.
 !     DWMS      use dynamical weighting to construct Fock
       Logical :: DWMS = .False.
       Integer :: ZETA = 50
@@ -239,7 +235,6 @@ C is nSym, as some input lines assume knowledge of the number of irreps.
 #endif
 
 
-      CALL QENTER('READIN')
 *
       Rewind(LuIn)
       Call RdNLst(LuIn,'CASPT2')
@@ -332,9 +327,6 @@ C end of input
       End Do
       dealloc_dline
 
-      Case('XROH')
-      Input % SilentPrRot = .false.
-      Input % IFNOPT2 = .true.
 
       Case('DWMS')
       Input % DWMS = .True.
@@ -683,7 +675,6 @@ C     GoTo 9930
       GoTo 10
 
 9000  CONTINUE
-      CALL QEXIT('Readin_CASPT2')
 
 #ifdef _ENABLE_CHEMPS2_DMRG_
 ! Check if nState>1

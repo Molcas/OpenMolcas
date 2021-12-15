@@ -25,7 +25,7 @@ C
       INTEGER AB, AB1, AB2
 
       LOGICAL LOCDBG
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       PARAMETER (LOCDBG = .TRUE.)
 #else
       PARAMETER (LOCDBG = .FALSE.)
@@ -110,7 +110,7 @@ C
       Parameter (SecNam = 'Cho_MaxAbsDiag_1C')
 
       Logical LocDbg
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Parameter (LocDbg = .true.)
 #else
       Parameter (LocDbg = .false.)

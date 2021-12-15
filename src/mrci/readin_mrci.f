@@ -32,7 +32,6 @@
 *---- convert a pointer in H to a pointer for iH
 *     ipointer(i)=(i-1)*RtoI+1
 *
-      Call qEnter('ReadIn')
 *
 *     Initialize data and set defaults
 *
@@ -707,7 +706,6 @@ C START OF NON-PERMANENT AREA:
       MEMPRM=MEMTOT-MEMWRK
 
       CALL ALLOC_MRCI
-      Call qExit('Readin')
       RETURN
 991   Continue
       WRITE(6,*)'READIN Error: Premature end of file while reading.'

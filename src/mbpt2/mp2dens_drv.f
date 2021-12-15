@@ -53,8 +53,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*#define _DEBUG_
-#ifdef _DEBUG_
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Do iSym = 1,nSym
          write (6,*) 'Symmetry nr', iSym
          Call RecPrt('InvDia','',
@@ -126,7 +126,7 @@
       Do iSym = 1, nSym
          nI=nFro(iSym)+nOcc(iSym)
          nA=nExt(iSym)+nDel(iSym)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('(ia|ia)',' ',Work(ip_DiaA(iSym)),
      &               nI,nA)
          Call RecPrt('MP2Lagr',' ',Work(ip_Mp2Lagr(iSym)),
@@ -169,7 +169,7 @@
 *     in MCLR and not MP2-specific.
       Do Iter = 1, nIter
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write(6,*) 'P ITER:', Iter
           Do i = 0,lVec-1
              Write(6,*) Work(ip_P+i)
@@ -190,7 +190,7 @@
                EndIf
             EndDo
          EndDo
-*#ifdef _DEBUG_
+*#ifdef _DEBUGPRINT_
 *         Write(6,*) 'MP2Ap'
 *         Do i = 0, lVec-1
 *            Write(6,*) Work(ip_Ap+i)
@@ -238,7 +238,7 @@
          End Do
       End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Do iSym = 1, nSym
          Write(6,*) 'Density matrix for Symm:', iSym
          Call RecPrt('MP2Density','',Work(ip_Density(iSym)),
@@ -294,7 +294,7 @@
       Call Build_Mp2Dens(ip_WAOTriDens, ip_WDensity,
      &                   Work(ipCMO),nSym,nOrbAll,nOccAll,.false.)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(6,*) 'Normal Dens'
       Do i = 0, l_TriDens - 1
          Write(6,*) Work(ip_AOTriDens+i)
@@ -319,7 +319,7 @@
 *
 *     Overwrite nonvariational density to fool LoProp. (should not be done
 *     this way)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       write (6,*) 'EMP2 is ', EMP2
       write (6,*) ' '
       Do iSym = 1, nSym

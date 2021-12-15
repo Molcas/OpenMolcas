@@ -18,12 +18,12 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
       R_Test=R_BS/Crowding
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'lAng=',lAng
       Write (6,*) 'Crowding=',Crowding
       Write (6,*) 'R_BS=',R_BS
@@ -37,7 +37,7 @@
       Do iR = 1, nR
 *
          R_Value=Radius(1,iR)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (6,'(A,G10.3)') 'R_Value=',R_Value
 #endif
 *
@@ -45,7 +45,7 @@
 *
 c        Avoid overflow by converting to Int at the end
          iAng=Int(Half*Min(L_Quad*R_Value/R_Test,DBLE(L_Quad)))
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (6,*) 'iAng=',iAng
 #endif
 *
@@ -56,7 +56,7 @@ c        Avoid overflow by converting to Int at the end
          Do jAng = lAng,1,-1
             If (R_Value.lt.R_Min(jAng)) iAng=Min(iAng,jAng-1)
          End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (6,*) 'iAng=',iAng
 #endif
 *
@@ -86,7 +86,7 @@ c          Avoid overflow by converting to Int at the end
          iAngular_Grid(iR)=kSet
 *
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*)
       Write (6,*) 'iAngular_Grid:'
       Write (6,*) 'R_Min     R_Max    kSet  nR   nPoints'

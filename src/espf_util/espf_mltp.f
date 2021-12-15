@@ -23,7 +23,6 @@
       Dimension opnuc(1)
       Data Axis/' x ',' y ',' z '/
 *
-      Call QEnter('espf_mltp')
 *
       If (iPL.ge.5) Then
          Write(6,*) ' In espf_mltp:',MltOrd,nMult,nGrdPt,ipTTT,ipMltp,
@@ -100,6 +99,5 @@
 1004  Format('        ',A,' individual contribution =',F10.6)
       End If
 *
-      Call QExit('espf_mltp')
       Return
       End

@@ -12,31 +12,23 @@
 ************************************************************************
       SubRoutine SOSctt(SOInt,iBas,jBas,nSOInt,PrpInt,nPrp,lOper,
      &                  iCmp,jCmp,iShell,jShell,
-     &                  iAO,jAO,
-     &                  nComp,Label,kOper,rHrmt)
+     &                  iAO,jAO,nComp,Label,kOper,rHrmt)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             January '91                                              *
 ************************************************************************
+      use SOAO_Info, only: iAOtSO
+      use Basis_Info, only: nBas
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
       Real*8 SOInt(iBas*jBas,nSOInt), PrpInt(nPrp)
       Integer kOper(nComp)
       Character Label*8
 *
-*#define _DEBUG_
-#ifdef _DEBUG_
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' In SOSctt:SOInt',' ',SOInt,iBas*jBas,nSOInt)
       Call RecPrt(' In SOSctt:PrpInt',' ',PrpInt,1,nPrp)
 #endif
@@ -44,7 +36,7 @@
       lSO = 0
       Do 100 j1 = 0, nIrrep-1
        Do 200 i1 = 1, iCmp
-        If (iAnd(IrrCmp(IndS(iShell)+i1),2**j1).eq.0) Go To 200
+        If (iAOtSO(iAO+i1,j1)<0) Cycle
 *
 *       Scatter the SO's onto lower rectangular blocks and triangular
 *       diagonal blocks.
@@ -55,7 +47,7 @@
          jjMx = jCmp
          If (iShell.eq.jShell .and. j1.eq.j2) jjMx = i1
          Do 400 i2 = 1, jjMx
-          If (iAnd(IrrCmp(IndS(jShell)+i2),2**j2).eq.0) Go To 400
+          If (iAOtSO(jAO+i2,j2)<0) Cycle
           lSO = lSO + 1
           iSO1=iAOtSO(iAO+i1,j1)
           iSO2=iAOtSO(jAO+i2,j2)

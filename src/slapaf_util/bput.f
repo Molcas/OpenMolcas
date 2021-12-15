@@ -16,7 +16,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -33,7 +33,7 @@
             End Do
          End If
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('BPut: BMx',' ',BMx,nX,nQQ)
 #endif
 *

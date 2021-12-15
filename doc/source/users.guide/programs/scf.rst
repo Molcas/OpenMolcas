@@ -376,9 +376,9 @@ Below is a list of keywords that should cover the needs of most users.
               If this keyword is not specified, the molecule is assumed to
               have net charge zero.
               The input is given as
-              ||
-              ||Charge=n
-              ||
+
+                Charge=n
+
               where n is the charge of the system.
               </HELP>
               </KEYWORD>
@@ -421,9 +421,9 @@ Below is a list of keywords that should cover the needs of most users.
               procedure is not used when you specify this keyword.
               The input for one of the point groups D2, C2h or C2v
               is given as
-              ||
-              ||OCCUpied= n1 n2 n3 n4
-              ||
+
+                OCCUpied= n1 n2 n3 n4
+
               where n1 is the number of electron pairs (occupied orbitals)
               in the first irreducible representation, etc.
               If UHF keyword was specified, occupation numbers
@@ -476,27 +476,27 @@ Below is a list of keywords that should cover the needs of most users.
               The orbitals will be partially populated according to a Fermi
               population.
               The input is gives as
-              ||
-              ||Fermi= m
-              ||
+
+                Fermi= m
+
               where m is the temperature parameter according to
-              ||
-              ||m=0: No temperature is used. Not recommended.
-              ||m=1: A low temperature is used and will yield swift convergence
-              ||     for well behaved systems.
-              ||m=2: A medium low temperature is used and will yield swift and
-              ||     safe convergence for most systems. This is the default value.
-              ||m=3: A medium temperature is used and you will obtain good
-              ||     convergence for closed shell systems. If the system is not
-              ||     a closed shell system, the temperature dependent aufbau
-              ||     procedure may not terminate. This will result in a density
-              ||     matrix with fractional occupation numbers.
-              ||m=4: A medium high temperature is used and the temperature
-              ||     dependent aufbau procedure will most probably not terminate.
-              ||     This is useful for generating starting orbitals for an MCSCF
-              ||     calculation.
-              ||m=5: A high temperature is used. Behaves as m=4 only more so.
-              ||
+
+              m=0 -- No temperature is used. Not recommended.
+              m=1 -- A low temperature is used and will yield swift convergence
+                     for well behaved systems.
+              m=2 -- A medium low temperature is used and will yield swift and
+                     safe convergence for most systems. This is the default value.
+              m=3 -- A medium temperature is used and you will obtain good
+                     convergence for closed shell systems. If the system is not
+                     a closed shell system, the temperature dependent aufbau
+                     procedure may not terminate. This will result in a density
+                     matrix with fractional occupation numbers.
+              m=4 -- A medium high temperature is used and the temperature
+                     dependent aufbau procedure will most probably not terminate.
+                     This is useful for generating starting orbitals for an MCSCF
+                     calculation.
+              m=5 -- A high temperature is used. Behaves as m=4 only more so.
+
               It should be noted that only dynamic damping is used until the
               program have found a stable closed shell configuration. When
               this have happened the more efficient methods: the ordinary
@@ -626,17 +626,17 @@ Below is a list of keywords that should cover the needs of most users.
   .. xmldoc:: %%Keyword: CONS <advanced>
               Performs a Constrained (Natural Orbitals) SCF calculation, available only in combination with Cholesky or RI integral representation.
               An example of input for the keyword CONS is the following:
-              ||
-              ||CONStraints
-              || 2  3
-              || 1 -1
-              || 1  1  1
-              ||
-              ||ADDCorrelation
-              ||pbe
-              ||
-              ||SAVErage
-              ||
+
+                CONStraints
+                 2  3
+                 1 -1
+                 1  1  1
+
+                ADDCorrelation
+                pbe
+
+                SAVErage
+
               The keyword CONS has two compulsory arguments: the number of constrained NOs
               (in each irrep) to be used in the CNO-SCF calculation, followed by one line per irrep specifying the spin configuration
               of the so-called (+) wavelet (-1 --> beta, 1 --> alpha)
@@ -669,14 +669,14 @@ Below is a list of keywords that should cover the needs of most users.
               Performs a Orbital-Free Embedding (OFE)SCF calculation, available only in combination with Cholesky or RI integral representation.
               The runfile of the environment subsystem renamed AUXRFIL is required.
               An example of input for the keyword OFEM is the following:
-              ||
-              ||OFEMbedding
-              || ldtf/pbe
-              ||dFMD
-              || 1.0  1.0d2
-              ||FTHAw
-              || 1.0d-4
-              ||
+
+                OFEMbedding
+                 ldtf/pbe
+                dFMD
+                 1.0  1.0d2
+                FTHAw
+                 1.0d-4
+
               The keyword OFEM requires the specification of two functionals in the form fun1/fun2, where fun1 is the functional used for the
               Kinetic Energy (available functionals: Thomas-Fermi, with acronym LDTF, and the NDSD functional), and where
               fun2 is the xc-functional (LDA, LDA5, PBE and BLYP available at the moment).
@@ -884,7 +884,7 @@ Advanced general keywords
     1 --- orbitals with orbital energies smaller than
     :math:`2E_{\text{HOMO}}-E_{\text{LUMO}}` are printed.
 
-    2 --- followed by real number (ThrEne) --- orbitals with orbital
+    2 --- followed by real number (ThrEne); orbitals with orbital
     energies smaller than ThrEne are printed.
 
   Default value is 1.
@@ -910,17 +910,20 @@ Advanced general keywords
               Specifies which orbitals are to be printed in the logfile (standard output).
               The keyword takes as argument two integers.
               The possible values of first argument are:
-              ||0 --- No orbitals printed;
-              ||1 --- orbitals with orbital energies smaller than
-              ||      2E(homo)-E(lumo) are printed; and
-              ||2 --- followed by real number (ThrEne) --- orbitals with orbital
-              ||      energies smaller than ThrEne are printed.
+
+              0 -- No orbitals printed;
+              1 -- orbitals with orbital energies smaller than
+                   2E(homo)-E(lumo) are printed; and
+              2 -- followed by real number (ThrEne); orbitals with orbital
+                   energies smaller than ThrEne are printed.
+
               Default value is 1.
               Second (optional) argument specifies a format:
-              ||0 --- No orbitals printed
-              ||1 --- Print only one-electron energies and occupation numbers
-              ||2 --- Short print format
-              ||3 --- Extended print format
+
+              0 -- No orbitals printed
+              1 -- Print only one-electron energies and occupation numbers
+              2 -- Short print format
+              3 -- Extended print format
               </HELP>
               </KEYWORD>
 

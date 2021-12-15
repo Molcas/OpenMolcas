@@ -24,7 +24,6 @@
       REAL*8 PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
      &       HAM(NSTATE,NSTATE),ESHFT(NSTATE)
 *
-      CALL QENTER(ROUTINE)
 
 C Print results:
       NCOL=4
@@ -240,6 +239,5 @@ cnf
 cnf
 
       WRITE(6,*)
-      CALL QEXIT(ROUTINE)
       RETURN
       END

@@ -97,7 +97,7 @@ End of Input
 Occupation
 4 1
 KSDFT
-LDA  
+LDA
 ChoInput
 Algo
  3
@@ -131,7 +131,7 @@ End of Input
 Occupation
 3 1 1 0
 KSDFT
-LDA  
+LDA
 ChoInput
 Algo
  3
@@ -198,7 +198,7 @@ End of Input
 Occupation
 4 1
 KSDFT
-B3LYP  
+B3LYP
 ChoInput
 Algo
  3
@@ -232,7 +232,7 @@ End of Input
 Occupation
 3 1 1 0
 KSDFT
-B3LYP  
+B3LYP
 ChoInput
 Algo
  3

@@ -41,7 +41,6 @@
       COMMON / CHOTRAW / tv2disk
 *
 
-      Call qEnter('RdInp')
 
       iCTonly=0
       iDoInt =0
@@ -78,7 +77,6 @@
       End Do
       If ( jCmd.eq.0 ) Then
          Write (6,*) 'RdInp: Unknown command at line: ', trim(Line)
-         Call QTrace()
          Call Abend()
       End If
 *----------------------------------------------------------------------*
@@ -223,13 +221,11 @@
       End Do
       Call Put_iArray('nFro',nFro,nSym)
       close(LuSpool)
-      Call qExit('RdInp')
       Return
 *----------------------------------------------------------------------*
 *     Error Exit                                                       *
 *----------------------------------------------------------------------*
 994   Write (6,*) 'RdInp: error readin input file!'
       Write (6,*) 'Command=',CmdTab(jCmd)
-      Call QTrace()
       Call Abend()
       End

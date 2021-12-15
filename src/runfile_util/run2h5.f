@@ -41,8 +41,8 @@
 
       real*8 :: potnuc
 
-      character(LENIN), allocatable :: atomlbl(:)
-      character(LENIN4), allocatable :: desym_atomlbl(:)
+      character(len=LENIN), allocatable :: atomlbl(:)
+      character(len=LENIN4), allocatable :: desym_atomlbl(:)
 
       integer, allocatable :: basis_ids(:,:)
       integer, allocatable :: desym_basis_ids(:,:)

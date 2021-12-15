@@ -39,7 +39,6 @@
 #include "warnings.fh"
       Parameter (ROUTINE='ChkInp  ')
 *----------------------------------------------------------------------*
-      Call qEnter('ChkInp')
 C Local print level (if any)
       IERR=0
       If ( NTOT.gt.mxOrb ) Then
@@ -420,7 +419,6 @@ CBOR  Check INVEC
         Write(LF,*)'***********************************'
         Call Quit(_RC_INPUT_ERROR_)
       Endif
-      Call qExit('ChkInp')
 
 * PAM Krapperup Nov 05: Orbital print format.
 * First question: Which orbital spaces are eligible for printing?

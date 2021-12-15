@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine Angle_List(
      &                 nq,
-     &                 nAtoms,iIter,nIter,Cx,iOper,nSym,jStab,
+     &                 nAtoms,iIter,nIter,Cx,jStab,
      &                 nStab,nDim,Smmtrc,Process,Value,
      &                 nB,iANr,qLbl,iRef,
      &                 fconst,rMult,LuIC,Name,Indq,
@@ -18,6 +18,7 @@
      &                 iTabBonds,nBonds,iTabAI,mAtoms,iTabAtoms,nMax,
      &                 mB_Tot,mdB_Tot,
      &                 BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,nqB,Thr_small)
+      use Symmetry_Info, only: nIrrep, iOper
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
@@ -29,8 +30,8 @@
      &       Grad_Ref(9), Axis(3), Perp_Axis(3,2), Grad(mB),
      &       Grad_all(9,iGlow:iGhi,nIter),
      &       BM(nB_Tot), dBM(ndB_Tot)
-      Integer   nStab(nAtoms), iOper(0:nSym-1), iANr(nAtoms),
-     &          iDCRR(0:7), jStab(0:7,nAtoms), iPhase(3,0:7),
+      Integer   nStab(nAtoms), iANr(nAtoms),
+     &          iDCRR(0:7), jStab(0:7,nAtoms),
      &          iStabM(0:7), Ind(3), iDCR(3), iDCRT(0:7),
      &          iStabN(0:7), iChOp(0:7), Indq(3,nB), nqB(nB),
      &          iTabBonds(3,nBonds), iTabAI(2,mAtoms),
@@ -45,29 +46,26 @@
 #define _FMIN_
 #include "ddvdt.fh"
 #include "ddvdt_bend.fh"
-      Data iPhase/ 1, 1, 1,   -1, 1, 1,   1,-1, 1,  -1,-1, 1,
-     &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       Data ChOp/'E  ','X ','Y ','XY ','Z  ','XZ ','YZ ','XYZ'/
       Data iChOp/1,1,1,2,1,2,2,3/
 #include "constants.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
       If (nBonds.lt.2) Return
       iRout=150
       iPrint=nPrint(iRout)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iPrint=99
 #endif
-      Call QEnter('Bends')
 *
       nqA=0
       PSPrint=.False.
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) PSPrint=.True.
       If (PSPrint) Write (6,*) ' Enter Bends.'
 #endif
@@ -114,7 +112,7 @@
             iBondType=iTabBonds(3,iBond)
             If (iBondType.eq.vdW_Bond.or.
      &          iBondType.gt.Magic_Bond) Go To 200
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*)
             Write (6,*) 'iAtom,mAtom=',iAtom,mAtom
             Write (6,*) 'iBond,iBondType=',iBond,iBondType
@@ -151,7 +149,7 @@
                jBondType=iTabBonds(3,jBond)
                If (jBondType.eq.vdW_Bond.or.
      &             jBondType.gt.Magic_Bond) Go To 300
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write (6,*)
                Write (6,*) 'jAtom,mAtom=',jAtom,mAtom
                Write (6,*) 'jBond,jBondType=',jBond,jBondType
@@ -161,7 +159,7 @@
                Write (Label,'(A,I2,A,I2,A,I2,A)')
      &                'A(',iAtom,',',mAtom,',',jAtom,')'
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                If (PSPrint) Then
                   Call RecPrt('A',' ',Cx(1,iAtom,iIter),1,3)
                   Call RecPrt('B',' ',Cx(1,mAtom,iIter),1,3)
@@ -171,16 +169,16 @@
 *
 *------------- Form double coset representatives for (iAtom,jAtom)
 *
-               Call DCR(Lambda,iOper,nSym,
+               Call DCR(Lambda,
      &                  jStab(0,iAtom),nStab(iAtom),
      &                  jStab(0,jAtom),nStab(jAtom),iDCRT,nDCRT)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write (6,'(10A)') 'T={',
      &               (ChOp(iDCRT(i)),i=0,nDCRT-1),'}  '
 #endif
                kDCRT=iDCR(3)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                If (PSPrint) Then
                   Write (6,'(10A)') 'U={',
      &                  (ChOp(jStab(i,iAtom)),i=0,nStab(iAtom)-1),'}  '
@@ -192,15 +190,9 @@
                End If
 #endif
 *
-               A(1,3)   = DBLE(iPhase(1,kDCRT))*Cx(1,jAtom,iIter)
-               A(2,3)   = DBLE(iPhase(2,kDCRT))*Cx(2,jAtom,iIter)
-               A(3,3)   = DBLE(iPhase(3,kDCRT))*Cx(3,jAtom,iIter)
-               Ref(1,3) = DBLE(iPhase(1,kDCRT))*Cx(1,jAtom,iRef )
-               Ref(2,3) = DBLE(iPhase(2,kDCRT))*Cx(2,jAtom,iRef )
-               Ref(3,3) = DBLE(iPhase(3,kDCRT))*Cx(3,jAtom,iRef )
-               Prv(1,3) = DBLE(iPhase(1,kDCRT))*Cx(1,jAtom,iPrv )
-               Prv(2,3) = DBLE(iPhase(2,kDCRT))*Cx(2,jAtom,iPrv )
-               Prv(3,3) = DBLE(iPhase(3,kDCRT))*Cx(3,jAtom,iPrv )
+               Call OA(kDCRT,Cx(1:3,jAtom,iIter),  A(1:3,3))
+               Call OA(kDCRT,Cx(1:3,jAtom,iRef ),Ref(1:3,3))
+               Call OA(kDCRT,Cx(1:3,jAtom,iPrv ),Prv(1:3,3))
 *
 *------------- Form the stabilizer for (iAtom,jAtom)
 *
@@ -214,7 +206,7 @@
      &                          iStabN,nStabN)
                End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                If (PSPrint) Then
                   Write (6,'(10A)') 'N={',
      &                  (ChOp(iStabN(i)),i=0,nStabN-1),'}  '
@@ -224,12 +216,12 @@
 *------------- Form double coset representatives for
 *              ((iAtom,mAtom),jAtom)
 *
-               Call DCR(Lambda,iOper,nSym,
+               Call DCR(Lambda,
      &                  jStab(0,mAtom),nStab(mAtom),
      &                  iStabN,nStabN,iDCRR,nDCRR)
                kDCRR = iDCR(2)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                If (PSPrint) Then
                   Write (6,'(10A)') 'R={',
      &                  (ChOp(iDCRR(i)),i=0,nDCRR-1),'}  '
@@ -237,15 +229,9 @@
                End If
 #endif
 *
-               A(1,2)   = DBLE(iPhase(1,kDCRR))*Cx(1,mAtom,iIter)
-               A(2,2)   = DBLE(iPhase(2,kDCRR))*Cx(2,mAtom,iIter)
-               A(3,2)   = DBLE(iPhase(3,kDCRR))*Cx(3,mAtom,iIter)
-               Ref(1,2) = DBLE(iPhase(1,kDCRR))*Cx(1,mAtom,iRef )
-               Ref(2,2) = DBLE(iPhase(2,kDCRR))*Cx(2,mAtom,iRef )
-               Ref(3,2) = DBLE(iPhase(3,kDCRR))*Cx(3,mAtom,iRef )
-               Prv(1,2) = DBLE(iPhase(1,kDCRR))*Cx(1,mAtom,iPrv )
-               Prv(2,2) = DBLE(iPhase(2,kDCRR))*Cx(2,mAtom,iPrv )
-               Prv(3,2) = DBLE(iPhase(3,kDCRR))*Cx(3,mAtom,iPrv )
+               Call OA(kDCRR,Cx(1:3,mAtom,iIter),  A(1:3,2))
+               Call OA(kDCRR,Cx(1:3,mAtom,iRef ),Ref(1:3,2))
+               Call OA(kDCRR,Cx(1:3,mAtom,iPrv ),Prv(1:3,2))
 *
 *------------- Form the stabilizer for ((iAtom,mAtom),jAtom)
 *
@@ -253,7 +239,7 @@
      &                    iStabN,nStabN,
      &                    iStabM,nStabM)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                If (PSPrint) Then
                   Write (6,'(10A)') 'M={',
      &                  (ChOp(iStabM(i)),i=0,nStabM-1),'}  '
@@ -262,10 +248,10 @@
 *
 *------------- Compute the degeneracy of the angle
 *
-               ideg=nSym/nStabM
+               ideg=nIrrep/nStabM
                Deg=Sqrt(DBLE(iDeg))
-#ifdef _DEBUG_
-               If (PSPrint) Write (6,*)' nSym,nStabM=',nSym,nStabM
+#ifdef _DEBUGPRINT_
+               If (PSPrint) Write (6,*)' nIrrep,nStabM=',nIrrep,nStabM
 #endif
 *
 *------------- Test if coordinate should be included
@@ -317,7 +303,7 @@
                If (f_Const_Ref.lt.f_Const_Min .and.
      &             iBondType.ne.Fragments_Bond .and.
      &             jBondType.ne.Fragments_Bond ) Go To 300
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write (6,*) ' A Force Constant:',f_Const
                Write (6,*) iAtom,mAtom,jAtom, f_Const
 #endif
@@ -408,7 +394,7 @@ C                 Do k = 1, 2
      &                          Lbls(1)(iF1:iE1),
      &                      ' ',Lbls(2)(iF2:iE2),
      &                      ' ',Lbls(3)(iF3:iE3)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                      If (iPrint.ge.49)
      &               Write (6,'(A,I3.3,A,I1.1,6A)')
      &                      'a',nqA,' = LAngle(',k,') ',
@@ -507,7 +493,7 @@ C                 Do k = 1, 2
      &                       Lbls(1)(iF1:iE1),
      &                   ' ',Lbls(2)(iF2:iE2),
      &                   ' ',Lbls(3)(iF3:iE3)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   If (iPrint.ge.49)
      &            Write (6,'(A,I3.3,6A)')
      &                   'a',nqA,' = Angle ',
@@ -577,6 +563,5 @@ C                 Do k = 1, 2
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit ('Bends')
       Return
       End

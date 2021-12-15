@@ -1,9 +1,9 @@
 **********************************************************************
-* Molecule: CO2                         
-* Basis: SVP    
+* Molecule: CO2
+* Basis: SVP
 * Symmetry: C2v
 * Features tested: Cholesky decomposition (seward),
-*                  Cholesky SCF (algo=3),        
+*                  Cholesky SCF (algo=3),
 *                  Scaled Opposite-Spin (SOS) MP2.
 *
 * Responsable person: F. Aquilante 070517

@@ -41,7 +41,6 @@
      &       X3_jp(jAsh,iOrb),  X3_ip(iAsh,jOrb),
      &       PUVX_jp(iOrb,jAsh,nkl), PUVX_ip(jOrb,iAsh,nkl)
 *
-*     Call qEnter('Tra2B')
 *
       If ( jAsh*iOrb.ne.0 ) then
         Call DGEMM_('T','N',
@@ -83,7 +82,6 @@
         End Do
       End If
 *
-*     Call qExit('Tra2B')
 *
       Return
       End

@@ -15,7 +15,6 @@
 #include "real_guga.fh"
 #include "integ.fh"
       COMMON/CNSTS/D0,D1,D2
-      CALL QENTER('LOOP3')
       ISTOP=0
 C     STOP THE LOOP
       KM1=KM+1
@@ -62,6 +61,5 @@ C     CASE G-H
       GO TO 40
 52    ISTOP=1
 40      Continue
-       CALL QEXIT('LOOP3')
       RETURN
       END

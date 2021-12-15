@@ -15,8 +15,8 @@
 #include "real.fh"
 #include "prgm.fh"
       INTEGER iState,initState,newState
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       INTEGER j
 #endif
       REAL*8 MaxOv,ThisOv
@@ -41,7 +41,7 @@
 
 *     Find the root in the first JOB (current states) that has maximum
 *     overlap with the tracked root in the second JOB (previous states)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,*)
       WRITE(6,*)'OVERLAP MATRIX FOR THE ORIGINAL STATES:'
       WRITE(6,*)

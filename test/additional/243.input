@@ -22,7 +22,7 @@ O.ANO-S...3s2p1d.
 O        .00000000    .00000000    .00000000
 End of basis
 
-   
+
 Basis set
 He.ANO-S...2s1p.
 Pseudo
@@ -31,12 +31,12 @@ End of basis
 
 End of input
 
- &SCF &END            
-Title                
+ &SCF &END
+Title
  H2O
-ITERATIONS        
- 40, 40              
-Occupied        
+ITERATIONS
+ 40, 40
+Occupied
 *4 1
 5
 End of input
@@ -47,7 +47,7 @@ End of Input
 
  &Slapaf &End
 Iterations
-20 
+20
 End of Input
 *&Last_Energy
 >>>>> ENDDO  <<<<<

@@ -24,7 +24,6 @@
 *
       JO(L)=ICUNP(ICASE,L)
 *
-      CALL QENTER('EMPTY')
 *
       ISUM=JRC(ILIM)
       IOUT=0
@@ -117,6 +116,5 @@ CPAM96      ICOP1(IOUT)=IOR(ITYP,ISHFT(IKK,1))
 25    CONTINUE
 20    CONTINUE
 10    CONTINUE
-      CALL QEXIT('EMPTY')
       RETURN
       END

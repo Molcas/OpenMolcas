@@ -131,8 +131,8 @@
       Write(Lu,*)
       Write(Lu,*) 'See: J. Chem. Theory Comput. 12 (2016) 3636-3653'
       Write(Lu,*)
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Gradient difference','',work(ip_g),n,1)
       Call RecPrt('Coupling vector','',work(ip_h),n,1)
       Call RecPrt('Average gradient','',work(ip_s),n,1)
@@ -141,7 +141,7 @@
 #endif
       Write(Lu,100) 'Pitch (delta_gh):',dgh,' Eh/a0'
       Write(Lu,100) 'Asymmetry (Delta_gh):',deltagh,Trim(LabA)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(Lu,100) 'Total tilt (s):',st,' Eh/a0'
 #endif
       Write(Lu,100) 'Relative tilt (sigma=s/delta_gh):',srel

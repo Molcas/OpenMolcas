@@ -11,24 +11,16 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
       SubRoutine SOAdd(SOInt,iBas,jBas,nSOInt,PrpInt,nPrp,lOper,
-     &                  iCmp,jCmp,iShell,jShell,
-     &                  AeqB,iAO,jAO)
+     &                  iCmp,jCmp,iShell,jShell,AeqB,iAO,jAO)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             January '91                                              *
 ************************************************************************
+      use SOAO_Info, only: iAOtSO
+      use Basis_Info, only: nBas
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
       Real*8 SOInt(iBas*jBas,nSOInt), PrpInt(nPrp)
@@ -36,7 +28,6 @@
 *
       iRout = 130
       iPrint = nPrint(iRout)
-C     Call qEnter('SOAdd')
       If (iPrint.ge.99) Then
          Call RecPrt(' In SOAdd:SOInt',' ',SOInt,iBas*jBas,nSOInt)
       End If
@@ -44,7 +35,7 @@ C     Call qEnter('SOAdd')
       lSO = 0
       Do 100 j1 = 0, nIrrep-1
        Do 200 i1 = 1, iCmp
-        If (iAnd(IrrCmp(IndS(iShell)+i1),2**j1).eq.0) Go To 200
+        If (iAOtSO(iAO+i1,j1)<0) Cycle
 *
 *       Scatter the SO's onto lower rectangular blocks and triangular
 *       diagonal blocks.
@@ -55,7 +46,7 @@ C     Call qEnter('SOAdd')
          jjMx = jCmp
          If (iShell.eq.jShell .and. j1.eq.j2) jjMx = i1
          Do 400 i2 = 1, jjMx
-          If (iAnd(IrrCmp(IndS(jShell)+i2),2**j2).eq.0) Go To 400
+          If (iAOtSO(jAO+i2,j2)<0) Cycle
           lSO = lSO + 1
           iSO1=iAOtSO(iAO+i1,j1)
           iSO2=iAOtSO(jAO+i2,j2)
@@ -107,7 +98,6 @@ C     Call qEnter('SOAdd')
 *
       If (iPrint.ge.99) Call GetMem(' Exit SOAdd','CHECK','ALLO',
      &                              iDum,iDum)
-C     Call qExit('SOAdd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

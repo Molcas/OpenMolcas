@@ -17,7 +17,6 @@
 * Purpose: given an orbital transformation array and some
 * one-electron matrix in storage format as e.g. HONE, FIFA,
 * transform the matrix to use the new orbital basis.
-      CALL QENTER('TRANSFOCK')
 
       NT=0
       NOMX=0
@@ -133,7 +132,6 @@
       CALL GETMEM('TSQ','FREE','REAL',LTSQ,NOMX**2)
       CALL GETMEM('TMP','FREE','REAL',LTMP,NOMX**2)
 
-      CALL QEXIT('TRANSFOCK')
 
       RETURN
       END

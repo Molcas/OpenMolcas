@@ -494,7 +494,7 @@ end function
 
 integer function ilaenv_( ispec_, name, opts, n1_, n2_, n3_, n4_ )
   implicit none
-  character(*)    name, opts
+  character(len=*)    name, opts
   integer            ispec_, n1_, n2_, n3_, n4_
 #ifdef MOLCAS_TO_LAPACK_INT
   LAPACKINT          ispec, n1, n2, n3, n4

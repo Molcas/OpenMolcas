@@ -33,8 +33,6 @@
        INTEGER Y(NORB,NEL)
        INTEGER MAXEL(NORB),MINEL(NORB)
 *
-*      Call qEnter('GRAPW')
-*
        NTEST = 0
        NTEST = MAX(NTEST,IPRNT)
 *
@@ -79,6 +77,5 @@
          CALL IWRTMA(Y,NORB,NEL,NORB,NEL)
       END IF
 *
-*     Call qExit('GRAPW')
       RETURN
       END

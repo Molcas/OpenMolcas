@@ -28,7 +28,6 @@ C ISYMP is the symmetry irrep label of the derivatives.
       DIMENSION ARRAY(NARRAY)
       CHARACTER*8 LABEL
 
-      CALL QENTER(ROUTINE)
 
       IF(JOB.LT.1 .OR. JOB.GT.NJOB) THEN
         WRITE(6,*)' RDMCI: Invalid JOB parameter.'
@@ -97,6 +96,5 @@ C Close MCKINT file:
         CALL ABEND()
       END IF
 
-      CALL QEXIT(ROUTINE)
       RETURN
       END

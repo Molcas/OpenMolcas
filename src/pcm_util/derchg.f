@@ -166,7 +166,10 @@ c Avoid unused argument warnings
       subroutine testq(nAt,nTs,VDer,q,qtot)
       Implicit Real*8 (A-H,O-Z)
       Dimension VDer(nTs,*),Q(2,*),QTot(*)
-      open(1,file='DerPot.dat',status='old',form='formatted')
+      Integer Lu
+      Lu=1
+      Call Molcas_open(Lu,'DerPt.dat')
+*     open(1,file='DerPot.dat',status='old',form='formatted')
       do 1132 iAt = 1, nAt
         do 1133 iCoord = 1, 3
           Index = 3 * (iAt-1) + iCoord

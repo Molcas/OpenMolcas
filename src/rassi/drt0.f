@@ -20,7 +20,6 @@
 
 
 
-      CALL QENTER(ROUTINE)
 
       NACTEL=2*A0+B0
       NLEV=A0+B0+C0
@@ -94,6 +93,5 @@
         CALL ABEND()
       END IF
 
-      CALL QEXIT(ROUTINE)
       RETURN
       END

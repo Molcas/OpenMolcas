@@ -43,7 +43,6 @@
 #include "TwoDat.fh"
 *
       Real*8 Buf(*)
-*     Call qEnter('OrdIn2')
 *---------------------------------------------------------------------*
 *     If this is the first block of a symmetry batch                  *
 *     get the disk disk start adress and load the buffer              *
@@ -66,6 +65,5 @@
 *---------------------------------------------------------------------*
 *     exit                                                            *
 *---------------------------------------------------------------------*
-*     Call qExit('OrdIn2')
       Return
       End

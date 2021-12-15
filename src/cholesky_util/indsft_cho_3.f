@@ -26,9 +26,9 @@
 *          april '90                                                   *
 *                                                                      *
 ************************************************************************
+      use Symmetry_Info, only: nIrrep
+      use SOAO_Info, only: iAOtSO, iOffSO
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "cholesky.fh"
 #include "choptr.fh"
 #include "chosew.fh"
@@ -57,9 +57,6 @@
       iShP2RS(i,j)=iWork(ip_iShP2RS-1+2*(j-1)+i)
       iShP2Q(i,j)=iWork(ip_iShP2Q-1+2*(j-1)+i)
 *
-#if defined (_DEBUG_)
-      Call qEnter('IndSft_Cho_3')
-#endif
       irout = 39
       jprint = nprint(irout)
       k12=0
@@ -112,13 +109,17 @@ C to avoid stupid compiler warnings:
       Shkl = iShell(3).eq.iShell(4)
       Do 100 i1 = 1, iCmp(1)
          Do 101 j = 0, nIrrep-1
-            iSym(j) = iand(IrrCmp(inds(iShell(1))+i1),2**j)
+            ix = 0
+            If (iAOtSO(iAO(1)+i1,j)<0) ix = 2**j
+            iSym(j) = ix
 101      Continue
          jCmpMx = iCmp(2)
          If (Shij) jCmpMx = i1
          Do 200 i2 = 1, jCmpMx
             Do 201 j = 0, nIrrep-1
-               jSym(j) = iand(IrrCmp(inds(iShell(2))+i2),2**j)
+               ix = 0
+               If (iAOtSO(iAO(2)+i2,j)<0) ix = 2**j
+               jSym(j) = ix
 201         Continue
             qij = i1.eq.i2
             If (iShell(2).gt.iShell(1)) then
@@ -128,13 +129,17 @@ C to avoid stupid compiler warnings:
             End If
             Do 300 i3 = 1, iCmp(3)
                Do 301 j = 0, nIrrep-1
-                  kSym(j) = iand(IrrCmp(inds(iShell(3))+i3),2**j)
+                  ix = 0
+                  If (iAOtSO(iAO(3)+i3,j)<0) ix = 2**j
+                  kSym(j) = ix
 301            Continue
                lCmpMx = iCmp(4)
                If (Shkl) lCmpMx = i3
                Do 400 i4 = 1, lCmpMx
                   Do 401 j = 0, nIrrep-1
-                     lSym(j) = iand(IrrCmp(inds(iShell(4))+i4),2**j)
+                     ix = 0
+                     If (iAOtSO(iAO(4)+i4,j)<0) ix = 2**j
+                     lSym(j) = ix
 401               Continue
                   qkl = i3.eq.i4
                   If (iShell(4).gt.iShell(3)) then
@@ -364,8 +369,4 @@ C to avoid stupid compiler warnings:
 200      Continue
 100   Continue
 *
-#if defined (_DEBUG_)
-      Call qExit('IndSft_Cho_3')
-#endif
-      Return
       End

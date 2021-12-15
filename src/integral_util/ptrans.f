@@ -42,7 +42,6 @@ c -------------------------------------------------------------------
 c Triangular addressing without symmetry:
       i3adr(i,j)=( (max(i,j)) *( (max(i,j)) -1) )/2+min(i,j)
 *
-*     Call qEnter('PTrans')
       iRout = 251
       iPrint = nPrint(iRout)
 *     Call GetMem('List1','List','Real',iDum,iDum)
@@ -320,6 +319,5 @@ c End of loop over symmetry labels.
      &                     nnPam1*nnPam2,nnPam3*nnPam4)
 *
 *     Call GetMem('Exit PTrans','Check','Real',iDum,iDum)
-*     Call qExit('PTrans')
       return
       end

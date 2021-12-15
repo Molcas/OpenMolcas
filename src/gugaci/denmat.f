@@ -246,10 +246,8 @@ c                        call ddatard(nft,buff,kbuf,idisk)
               enddo
               if(idx.ne.nintb) then
                 write(6,*) "in ci_dentest,count error"
-      call qtrace
       call abend()
 #ifdef _XIANEST_
-      call qexit()
 #endif
 !               call abend
 !                stop 1999

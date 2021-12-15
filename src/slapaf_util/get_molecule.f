@@ -13,15 +13,16 @@
 #include "sbs.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "weighting.fh"
 #include "Molcas.fh"
       Character*(LENIN) AtomLbl(mxdc)
       Logical TransVar, RotVar, Found
       Integer Columbus
+      Real*8, Allocatable:: Grad(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QEnter('Get_Molecule')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -55,7 +56,11 @@
 *
          Call Get_iScalar('ColGradMode',iMode)
          If (iMode.eq.0) Then
-            Call Get_Grad(ipGrd,Length)
+            Call mma_allocate(Grad,3*nsAtom,Label='Grad')
+            Call Get_Grad(Grad,3*nsAtom)
+            Call GetMem('Grad','Allo','Real',ipGrd,3*nsAtom)
+            Call DCopy_(3*nsAtom,Grad,1,Work(ipGrd),1)
+            Call mma_deallocate(Grad)
          Else If (iMode.le.3) Then
             Call qpg_dArray('Grad State1',Found,Length)
             If (.not.Found .or. Length.eq.0) Then
@@ -118,6 +123,5 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('Get_Molecule')
       Return
       End

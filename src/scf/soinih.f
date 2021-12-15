@@ -60,8 +60,8 @@
 *
       call DCopy_(nH*nD,[1.0D+99],0,HDiag,1)
 *
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'nD=',nD
       Do iD = 1, nD
          Write (6,*) 'iD=',iD
@@ -99,7 +99,7 @@
 *
              End Do     ! ii
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
              Write (6,*) 'nOccmF,nOrbmF=',nOccmF,nOrbmF
              If ((nOrbmF-nOccmF)*nOccmF.gt.0)
      &          Call RecPrt('HDiag',' ',HDiag(iHoffs_,iD),

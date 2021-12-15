@@ -16,20 +16,19 @@
 *                                                                      *
 * Object: to compute the multipole moments for the nuclei.             *
 *                                                                      *
-* Called from: Input                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 ************************************************************************
+      use Basis_Info
+      use Center_Info
+#ifdef _OBSOLETE_
+      use External_Centers, only: nOrd_XF, XF
+#endif
+      use Phase_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
       Real*8  rNucMm((ir+1)*(ir+2)/2), CoOp(3), A(3), RA(3)
 #ifdef _OBSOLETE_
      &        ,rRMy(3)
@@ -40,7 +39,6 @@
 *                                                                      *
       iRout = 124
       iPrint = nPrint(iRout)
-      Call qEnter('RFNuc')
       If (iPrint.ge.99) Then
          Call RecPrt(' In RFNuc:CoOp',' ',CoOp,1,3)
       End If
@@ -61,23 +59,18 @@ C           Write (*,*) ' ix,iy,iz=',ix,iy,iz
 *
             ndc = 0
             Do iCnttp = 1, nCnttp
-               If (Charge(iCnttp).eq.Zero) Go To 101
-               ZA = Charge(iCnttp)
-               ixyz = ipCntr(iCnttp)
+               ZA = dbsc(iCnttp)%Charge
+               If (ZA.eq.Zero) Go To 101
                If (iPrint.ge.99) Then
                   Write (6,*) ' Charge=',ZA
-                  Write (6,*) ' ixyz=',ixyz
-                  Call RecPrt(' Centers',' ',Work(ixyz),3,nCntr(iCnttp))
+                  Call RecPrt(' Centers',' ',dbsc(iCnttp)%Coor,3,
+     &                        dbsc(iCnttp)%nCntr)
                End If
-               Do iCnt = 1, nCntr(iCnttp)
-                  A(1) = Work(ixyz  )
-                  A(2) = Work(ixyz+1)
-                  A(3) = Work(ixyz+2)
+               Do iCnt = 1, dbsc(iCnttp)%nCntr
+                  A(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
                   mdc = ndc + iCnt
-                  Do i = 0, nIrrep/nStab(mdc) - 1
-                     RA(1)=A(1)*DBLE(iPhase(1,iCoset(i,0,mdc)))
-                     RA(2)=A(2)*DBLE(iPhase(2,iCoset(i,0,mdc)))
-                     RA(3)=A(3)*DBLE(iPhase(3,iCoset(i,0,mdc)))
+                  Do i = 0, nIrrep/dc(mdc)%nStab - 1
+                     Call OA(dc(mdc)%iCoSet(i,0),A,RA)
 C                    Call RecPrt(' RA',' ',RA,1,3)
 C                    Call RecPrt(' CoOp',' ',CoOp,1,3)
 #ifdef NAGFOR
@@ -102,10 +95,9 @@ C                    Call RecPrt(' CoOp',' ',CoOp,1,3)
 C                    Write (*,*) CCoMx, CCoMy, CCoMz, temp
                      temp = temp + ZA * CCoMx * CCoMy * CCoMz
                   End Do
-                  ixyz = ixyz + 3
                End Do
  101           Continue
-               ndc = ndc + nCntr(iCnttp)
+               ndc = ndc + dbsc(iCnttp)%nCntr
             End Do
             rNucMm(iq) = temp
          End Do
@@ -123,7 +115,7 @@ C                    Write (*,*) CCoMx, CCoMy, CCoMz, temp
 
 
 
-      If ((.Not.lXF).or.(nOrd_XF.lt.0)) Go To 99
+      If ((.Not.Allocated(XF)).or.(nOrd_XF.lt.0)) Go To 99
 *
 *     Contributions due to the charges and dipoles of the
 *     static external electric field.
@@ -181,24 +173,13 @@ C                    Write (*,*) CCoMx, CCoMy, CCoMz, temp
 *
 *------------- Generate Stabilazor of C
 *
-               If (nIrrep.eq.8) Then
-                  nOper=3
-               Else If (nIrrep.eq.4) Then
-                  nOper=2
-               Else If (nIrrep.eq.2) Then
-                  nOper=1
-               Else
-                  nOper=0
-               End If
-               iChxyz=iChAtm(A,iOper,nOper,iChBas(2))
+               iChxyz=iChAtm(A)
                iDum=0
-               Call Stblz(iChxyz,iOper,nIrrep,nStb,iStb,iDum,jCoSet)
+               Call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
 *
 *              Write (*,*) ' nStb=',nStb
                Do i = 0, nIrrep/nStb - 1
-                  RA(1)=A(1)*DBLE(iPhase(1,jCoSet(i,0)))
-                  RA(2)=A(2)*DBLE(iPhase(2,jCoSet(i,0)))
-                  RA(3)=A(3)*DBLE(iPhase(3,jCoSet(i,0)))
+                  Call OA(jCoSet(i,0),A,RA)
                   rRMy(1)=DAx*DBLE(iPhase(1,jCoSet(i,0)))
                   rRMy(2)=DAy*DBLE(iPhase(2,jCoSet(i,0)))
                   rRMy(3)=DAz*DBLE(iPhase(3,jCoSet(i,0)))
@@ -261,10 +242,8 @@ c            Write (*,*) ' Temp=',temp
 #endif
       If (iPrint.ge.99) Call RecPrt(' Nuclear Multipole Moments',
      &                              ' ',rNucMm,ip,1)
-*     Call GetMem(' Exit RFNuc','CHECK','REAL',iDum,iDum)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('RFNuc')
       Return
       End

@@ -34,7 +34,6 @@
         If (.NOT.ok) Then
           Write (6,*) 'GATskL: ga_create not OK!'
           Call GAStp('GATskL',42)
-          Call QTrace
           Call Abend()
         End If
         Call ga_zero(igaTsk)

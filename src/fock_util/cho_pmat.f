@@ -32,7 +32,6 @@ C
       DIMENSION X(*),P(*)
       COMMON /CHOPMAT / ipPL
 
-C     CALL QENTER('PMAT')
 C
 c     Loop over all reordered 2-matrix elements.
 C
@@ -107,6 +106,5 @@ C
 C
       IF(IPR.GE.20) Write(IW,1000) (X(I),I=1,LPMAT)
 1000  FORMAT(/1X,'Reordered 2-matrix'/(10F10.6))
-C     CALL QEXIT('PMAT')
       RETURN
       END

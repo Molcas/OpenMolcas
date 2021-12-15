@@ -20,16 +20,6 @@
 * Object: kernel routine for the computation of nuclear attraction     *
 *         integrals.                                                   *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              DCR                                                     *
-*              XRysg1                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden, May '95                                 *
 *                                                                      *
@@ -37,11 +27,11 @@
 *             R. Lindh.                                                *
 ************************************************************************
       use PCM_arrays, only: PCMTess
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI1, Fake, XCff2D
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"
@@ -69,7 +59,6 @@
 *
       iRout = 151
       iPrint = nPrint(iRout)
-      Call qEnter('PCMgrd')
 *
 *---- Modify the density matrix with the prefactor
 *
@@ -110,8 +99,8 @@
       Else
        call dcopy_(3,RB,1,CoorAC(1,1),1)
       End If
-      iuvwx(1) = nStab(mdc)
-      iuvwx(2) = nStab(ndc)
+      iuvwx(1) = dc(mdc)%nStab
+      iuvwx(2) = dc(ndc)%nStab
       lOp(1) = kOp(1)
       lOp(2) = kOp(2)
 *
@@ -153,8 +142,7 @@ cpcm_solvent end
 *
 *--------Find the DCR for M and S
 *
-         Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &            iStb,nStb,iDCRT,nDCRT)
+         Call DCR(LmbdT,iStabM,nStabM,iStb,nStb,iDCRT,nDCRT)
          Fact = -DBLE(nStabM) / DBLE(LmbdT)
 *
          If (iPrint.ge.99) Then
@@ -203,11 +191,9 @@ cpcm_solvent end
          If (mGrad.eq.0) Go To 111
 *
          Do lDCRT = 0, nDCRT-1
-            lOp(3) = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+            lOp(3) = NrOpr(iDCRT(lDCRT))
             lOp(4) = lOp(3)
-            TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-            TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-            TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+            Call OA(iDCRT(lDCRT),C,TC)
             call dcopy_(3,TC,1,CoorAC(1,2),1)
             call dcopy_(3,TC,1,Coori(1,3),1)
             call dcopy_(3,TC,1,Coori(1,4),1)
@@ -236,7 +222,6 @@ cpcm_solvent end
       End Do     ! End loop over centers in the external field
 *
 *     Call GetMem(' Exit PCMgrd','LIST','REAL',iDum,iDum)
-      Call qExit('PCMgrd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

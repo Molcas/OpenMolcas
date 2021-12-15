@@ -15,7 +15,6 @@
 #include "real_guga.fh"
 #include "integ.fh"
       COMMON/CNSTS/D0,D1,D2
-      CALL QENTER('PATH')
       ISTOP=0
       KM1=KM+1
       IWAYKM=IWAY(KM)
@@ -50,6 +49,5 @@
       GO TO 140
 131   ISTOP=1
 140     Continue
-       CALL QEXIT('PATH')
       RETURN
       END

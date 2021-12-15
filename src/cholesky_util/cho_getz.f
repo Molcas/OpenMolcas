@@ -48,7 +48,7 @@ C
 #include "cholesky.fh"
 #include "choptr.fh"
 #include "WrkSpc.fh"
-#if defined(_DEBUG_)
+#if defined(_DEBUGPRINT_)
 #include "choprint.fh"
 #endif
 
@@ -72,7 +72,7 @@ C
 
       Real*8 C0, C1, W0, W1
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Integer nBlock_Max, nnB, n
       Integer ip_Chk, l_Chk
       Integer myDebugInfo
@@ -93,7 +93,7 @@ C     ----------------
 
       irc = 0
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       ! Check memory boundaries
       l_Chk=-1
       Call GetMem('Check0','Check','Real',ip_Chk,l_Chk)
@@ -259,7 +259,7 @@ C     --------------
                End If
                K = InfVec(KK,5,iSym)
                kBlock=Cho_iRange(K+1,iV1(1,iSym),nBlock(iSym),.True.)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
                If (kBlock.lt.1 .or. kBlock.gt.nBlock(iSym)) Then
                   Call Cho_Quit('[BLOCK] Error detected in '//SecNam,
      &                          104)
@@ -285,7 +285,7 @@ C     --------------
             End Do
             KK1=KK1+nVRead
          End Do
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          ! Check memory boundaries
          l_Chk=-1
          Call GetMem('Check1','Check','Real',ip_Chk,l_Chk)
@@ -309,7 +309,7 @@ C     --------------------------------------
          End Do
       End Do
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
 C     Check that diagonal elements of Z are strictly positive.
 C     --------------------------------------------------------
 
@@ -368,7 +368,7 @@ C     -----------------------------------------------
       End If
       Call GetMem('FLUSH','Free','Inte',ip_Flush,l_Flush)
 
-#ifndef _DEBUG_
+#ifndef _DEBUGPRINT_
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer_array(NVT)
 #endif

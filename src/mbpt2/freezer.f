@@ -30,8 +30,6 @@ C     ------------------------------------------
 
       If (nSym.lt.1 .or. nSym.gt.8) Then
          Write(6,*) SecNam,': illegal nSym = ',nSym
-         Call qEnter(SecNam)
-         Call qTrace()
          Call SysAbendMsg(SecNam,'illegal nSym',' ')
       Else If (nSym .eq. 1) Then
          nFro1(1) = nFre
@@ -75,8 +73,6 @@ C     -------------------------------------------------------
       If (NumFre .ne. nFre) Then
          Write(6,*) SecNam,': an error occurred in CD_DiaMax!'
          Write(6,*) 'NumFre = ',NumFre,' != ',nFre,' = nFre'
-         Call qEnter(SecNam)
-         Call qTrace()
          Call SysAbendMsg(SecNam,'CD_DiaMax failure',' ')
       End If
 

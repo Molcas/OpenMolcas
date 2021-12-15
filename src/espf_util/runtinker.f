@@ -25,7 +25,6 @@
 1000  Format('Molcas  ',i2,2x,i2)
 1010  Format(3F15.8)
 *
-      Call qEnter('runtinker')
       iPL = iPL_espf()
       Write(ExtPotFormat,'(a4,i2,a6)') '(I4,',MxExtPotComp,'F13.8)'
 *
@@ -252,6 +251,5 @@
       Close (ITkPot)
       Call GetMem('PotInESPF','Free','Real',iESPF,natom*MxExtPotComp)
 *
-      Call QExit('runtinker')
       Return
       End

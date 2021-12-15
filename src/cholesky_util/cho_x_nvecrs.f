@@ -121,7 +121,7 @@ C     --------------------------------------------
          End If
       End Do
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
 C     Debug: print result.
 C     --------------------
 

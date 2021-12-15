@@ -16,11 +16,6 @@
 *                                                                      *
 * Object: to numerically evaluate the molecular Hessian.               *
 *                                                                      *
-* Called from: RlxCtl                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             May '92                                                  *
@@ -35,7 +30,6 @@
 *
       iRout = 181
       iPrint = nPrint(iRout)
-      Call qEnter('NmHess')
 *
       If (iPrint.ge.99) Then
          Call RecPrt('NmHess:  g',' ',g,nInter,nIter)
@@ -59,8 +53,8 @@ C        Write (*,*) kIter1,kIter2
          dDipM(3,iInter) = (DipM(3,kIter1)-DipM(3,kIter2))
      &                   / (Two*Delta)
       End Do
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call RecPrt('DipM',' ',DipM,3,nIter)
       Call RecPrt('dDipM',' ',dDipM,3,nInter)
 #endif
@@ -168,6 +162,5 @@ C        Write (*,*) kIter1,kIter2
 *
       End If
 *
-      Call qExit('NmHess')
       Return
       End

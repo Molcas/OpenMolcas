@@ -18,6 +18,7 @@
  (file)  MD_DYS    "$WorkDir/$Project$SubProject."dys.molden      rwstg*
  (file)  MD_PT2    "$WorkDir/$Project$SubProject."caspt2.molden   rwstg*
  (file)  MD_VB     "$WorkDir/$Project$SubProject."casvb.molden    rwstg*
+ (file)  MD_NTO    "$WorkDir/$Project$SubProject."nto.molden      rwstg*
  (file)  MD_GEO    "$WorkDir/$Project$SubProject."geo.molden      rwstg
  (file)  MD_MEP    "$WorkDir/$Project."mep.molden                 rwstg
  (file)  MD_SADDLE "$WorkDir/$Project."saddle.molden              rwstg

@@ -12,30 +12,16 @@
 ************************************************************************
       Integer Function n2Tri(lOper)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             February '91                                             *
 ************************************************************************
+      use Basis_Info, only: nBas
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
-#include "print.fh"
-#include "real.fh"
 *
-      iRout = 212
-      iPrint = nPrint(iRout)
-*     Call qEnter('n2Tri')
 *
       n2Tri = iPntSO(nIrrep-1,nIrrep,lOper,nBas)
 *
-*     Call qExit('n2Tri')
       Return
       End

@@ -41,7 +41,6 @@ C
       DIMENSION TUVX(*)
       DIMENSION Dummy(1)
 C
-      CALL QENTER('CIDIA')
       Call Timing(Tissot_1,Swatch,Swatch,Swatch)
       IPRLEV=IPRLOC(3)
 C
@@ -99,7 +98,6 @@ C
       Call Timing(Tissot_2,Swatch,Swatch,Swatch)
       Tissot_2 = Tissot_2 - Tissot_1
       Tissot_3 = Tissot_3 + Tissot_2
-      CALL QEXIT('CIDIA')
 C
       RETURN
 c Avoid unused argument warnings

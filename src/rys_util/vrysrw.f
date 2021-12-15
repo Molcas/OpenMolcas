@@ -25,8 +25,6 @@
 ************************************************************************
       use vRys_RW
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
 #include "FMM.fh"
@@ -34,8 +32,7 @@
 *
       iRout = 78
       iPrint = nPrint(iRout)
-*     Call qEnter('vRysRW')
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Call RecPrt('In vRysRW:Arg',' ',Arg,nArg,1)
 #endif
       labcd=1
@@ -170,13 +167,12 @@
 *
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          If (labcd.ne.0)
      &      Call Recprt(' In vRysRW: Roots ',' ',Root  ,nRys,nArg)
          Call Recprt(' In vRysRW: Weight',' ',Weight,nRys,nArg)
       End If
 #endif
-*     Call qExit('vRysRW')
       Return
       End

@@ -4,7 +4,7 @@
 * Symmetry: C1
 * Features tested: RICD CASPT2 numerical optimization
 * Responsible person: I. Fdez. Galván
-* Comments: 
+* Comments:
 *-------------------------------------------------------------------------------
 
 >>> Export MOLCAS_PRINT = VERBOSE
@@ -17,7 +17,7 @@
   Basis = H.DZ....
   Group = NoSymm
   RICD
- 
+
 >>> DoWhile
 
 &SEWARD

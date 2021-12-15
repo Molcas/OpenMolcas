@@ -13,7 +13,7 @@
       Subroutine Update_sl_(kIter,iInt,nFix,nInter,qInt,Shift,
      &                     Grad,iOptC,Beta,Beta_Disp,Lbl,GNrm,
      &                     Energy,UpMeth,ed,Line_Search,Step_Trunc,
-     &                     nLambda,iRow_c,nsAtom,AtomLbl,nSym,iOper,
+     &                     nLambda,iRow_c,nsAtom,AtomLbl,
      &                     mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
      &                     rLambda,Cx,GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
@@ -45,8 +45,6 @@
 *      iRow_c         : number of lines on the UDC file                *
 *      nsAtom         : number of symmetry unique atoms                *
 *      AtomLbl        : character string with atom labels              *
-*      nSym           : number of irreps                               *
-*      iOper          : integer representations of symmetry operators  *
 *      mxdc           : max number of nsAtom                           *
 *      jStab          : integer list of stabilizers                    *
 *      nStab          : number of stabilizers                          *
@@ -86,7 +84,7 @@
      &       dMass(nsAtom), BMx(3*nsAtom,3*nsAtom),
      &       rLambda(nLambda,kIter+1), Degen(3*nsAtom), MF(3*nsAtom),
      &       Cx(3*nsAtom,kIter+1)
-      Integer iOper(0:nSym-1), jStab(0:7,nsAtom), nStab(nsAtom),
+      Integer jStab(0:7,nsAtom), nStab(nsAtom),
      &        iNeg(2)
 *    &        iNeg(2), jNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),FindTS, TSC, HrmFrq_Show,
@@ -101,8 +99,8 @@
       iRout=153
       iPrint=nPrint(iRout)
       Lu=6
-*#define _DEBUG_
-#ifdef _DEBUG_
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Write (Lu,*)'Update_:iOpt_RS,Beta,Beta_Disp=',
      &                     iOpt_RS,Beta,Beta_Disp
       Call RecPrt('Update_: qInt',' ',qInt,nInter,kIter)
@@ -144,7 +142,7 @@
 *     modify the Hessian if it is needed to guide 2nd order
 *     optimization towards a minimum or a TS.
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (Lu,*)
       Write (Lu,*)
       Write (Lu,*) ' *** Updating the molecular Hessian ***'
@@ -306,7 +304,7 @@ C           Write (6,*) 'tBeta=',tBeta
                qInt(:,kIter+1)=qInt(:,kIter)+Shift(:,kIter)
                Call Dispersion_Kriging_Layer(qInt(1,kIter+1),Disp,
      &                                       nInter)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write (6,*) 'Disp,Beta_Disp=',Disp,Beta_Disp
 #endif
                fact=Half*fact
@@ -315,7 +313,7 @@ C           Write (6,*) 'tBeta=',tBeta
                If ((fact.lt.1.0D-5) .or. (disp.lt.Beta_Disp)) Exit
                Step_Trunc='*'
             End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write (6,*) 'Step_Trunc=',Step_Trunc
 #endif
 *
@@ -407,7 +405,7 @@ C           Write (6,*) 'tBeta=',tBeta
      &                   Work(ipValue),Work(ipcInt),Work(ipcInt0),
      &                   Lbl(nInter+1),AtomLbl,Cx(1,lIter),
      &                   (lIter.eq.kIter).and.First_MicroIteration,
-     &                   nSym,iOper,jStab,nStab,mxdc,
+     &                   jStab,nStab,mxdc,
      &                   Work(ipMult),Smmtrc,nDimBC,Work(ipdBMx),
      &                   Work(ipValue0),lIter,iWork(ip_iFlip),dMass)
 *

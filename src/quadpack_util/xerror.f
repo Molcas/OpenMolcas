@@ -17,7 +17,6 @@
        Write (6,'(A,I5)') 'ix=',ix
        Write (6,'(A,I5)') 'ier=',ier
        Write (6,'(A,I5)') 'lvl=',lvl
-       Call QTrace()
        Call Abend()
 *
        Return

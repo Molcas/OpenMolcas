@@ -43,7 +43,6 @@ C Tables of starting locations, created and used later
       EXTERNAL ISFREEUNIT
       EXTERNAL DDOT_
 
-      Call qEnter('BINAT')
 C Nr of basis functions, total
       NBSQ=0
       DO ISYM=1,NSYM
@@ -337,6 +336,5 @@ C End of very long loop over eigenstate pairs.
       CALL GETMEM('TDMAO','FREE','REAL',LTDMAO,NBSQ)
       CALL GETMEM('BRABNO','FREE','REAL',LBRABNO,NBSQ)
       CALL GETMEM('KETBNO','FREE','REAL',LKETBNO,NBSQ)
-      Call qExit('BINAT')
       RETURN
       END

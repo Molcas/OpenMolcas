@@ -23,7 +23,6 @@
 #include "WrkSpc.fh"
       Real*8 dq(nInter,nIter), H(nInter,nInter), g(nInter,nIter+1)
 *
-*     Call QEnter('QNR')
       iRout = 115
       iPrint = nPrint(iRout)
 *
@@ -49,6 +48,5 @@
         Call RecPrt(' dq',' ',dq(1,nIter),1,nInter)
       End If
 *
-*     Call QExit('QNR')
       Return
       End

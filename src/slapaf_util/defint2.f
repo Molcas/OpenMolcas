@@ -12,7 +12,7 @@
 ************************************************************************
       SubRoutine DefInt2(BVct,dBVct,nBvct,Labels,BMtrx,mInt,nAtom,
      &                   nLines,Value,rInt,rInt0,Lbl,Name,Coor,
-     &                   lWrite,nSym,iOper,jStab,nStab,mxdc,
+     &                   lWrite,jStab,nStab,mxdc,
      &                   rMult,Smmtrc,nDim,dBMtrx,Value0,lIter,
      &                   iFlip,dMass)
 ************************************************************************
@@ -21,19 +21,6 @@
 *         between an infinitesimal displacement in the symmetry adapted*
 *         internal coordinates and the symmetry unique cartesian       *
 *         coordinates.                                                 *
-*                                                                      *
-*                                                                      *
-* Called from: BMtrx                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Banner                                                  *
-*              UpCase                                                  *
-*              NxtWrd                                                  *
-*              Cllct                                                   *
-*              RecPrt                                                  *
-*              DCopy  (ESSL)                                           *
-*              DaXpY  (ESSL)                                           *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
@@ -58,7 +45,7 @@
       Integer Flip, NoFlip, StrnLn
       External StrnLn
       Parameter (Flip=1,NoFlip=0)
-      Integer iOper(0:7), nStab(mxdc), jStab(0:7,mxdc), iFlip(nBVct)
+      Integer nStab(mxdc), jStab(0:7,mxdc), iFlip(nBVct)
       Character*100 Get_SuperName
       External Get_SuperName
 #include "angstr.fh"
@@ -76,7 +63,6 @@
 *
       iRout = 30
       iPrint = nPrint(iRout)
-      Call qEnter('DefInt2')
       Start=lIter.eq.1
       Call ICopy(nBVct,[Flip],0,iFlip,1)
 *
@@ -292,7 +278,7 @@ c      Open(Lu_UDC,File=filnam,Form='FORMATTED',Status='OLD')
      &               dBVct(1,1,iBVct),Value(iBVct),Name,nAtom,Coor,
      &               nCntr,mCntr,Work(ipxyz),Work(ipGrad),iWork(ipInd),
      &               Type,dMass,Work(ipMass),
-     &               Labels(iBVct),nSym,lWrite,iOper,jStab,
+     &               Labels(iBVct),lWrite,jStab,
      &               nStab,mxdc,rMult(iBVct,iBVct),Smmtrc,
      &               Work(ipHess),lIter)
 *
@@ -667,7 +653,6 @@ C              Write (Lu,*) 'Flip Sign for ',Labels(iBVct)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('DefInt2')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(nDim)

@@ -24,7 +24,6 @@
 ************************************************************************
       Subroutine Get_Coord_New_All(Coord_All,nAtoms_All)
       Implicit Real*8 (a-h,o-z)
-#include "real.fh"
 #include "stdalloc.fh"
       Real*8 Coord_All(3,nAtoms_All)
       Real*8, Dimension (:,:), Allocatable :: CU
@@ -40,7 +39,6 @@
          Write (6,*) 'Get_Coord_All: nAtoms_All.ne.nAtoms_Allx'
          Write (6,*) 'nAtoms_All=',nAtoms_All
          Write (6,*) 'nAtoms_Allx=',nAtoms_Allx
-         Call QTrace
          Call Abend
       End If
       Call Get_Coord_New(CU,nAtoms)

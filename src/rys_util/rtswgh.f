@@ -166,7 +166,7 @@ C COMPUTE RYS VALUES AND ADD SQUARES TO GET WGH:
 C
  5000 CONTINUE
 C
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt(' Roots',' ',U2,nRys,nT)
          Call RecPrt(' Weights',' ',Wgh,nRys,nT)

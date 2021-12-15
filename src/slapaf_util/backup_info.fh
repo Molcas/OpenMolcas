@@ -10,7 +10,7 @@
 ************************************************************************
 #include "info_slapaf.fh"
 *
-      Integer Bk_iOper(0:7), Bk_iSym(3), Bk_iCoSet(0:7,mxdc),
+      Integer Bk_iSym(3), Bk_iCoSet(0:7,mxdc),
      &        Bk_nStab(mxdc), Bk_ipAtom, Bk_ipNSup, Bk_ipR12, Bk_iRef,
      &        Bk_nQQ, Bk_mRowH(10), Bk_nRowH, Bk_ipEner, Bk_ipGnrm,
      &        Bk_ipdqInt, Bk_ipH, Bk_ipQInt, Bk_NmIter, Bk_ipShf,
@@ -22,7 +22,7 @@
      &        Bk_ipMF, Bk_nLambda, Bk_iRow_c, Bk_ipL, Bk_ipEner0,
      &        Bk_ipGx0, Bk_nqInt, Bk_nMEP, Bk_ipRef, Bk_ipGradRef,
      &        Bk_ipDipM, Bk_ipK_Ref, Bk_nBVec, Bk_IRC, Bk_ipCM,
-     &        Bk_ipCoor, Bk_mTtAtm, Bk_nsAtom, Bk_nSym, Bk_MEPnum,
+     &        Bk_ipCoor, Bk_mTtAtm, Bk_nsAtom, Bk_MEPnum,
      &        Bk_RootMap(MxRoot)
 *
       Logical Bk_Smmtrc(3*mxdc), Bk_Stop, Bk_lWrite, Bk_Exist,

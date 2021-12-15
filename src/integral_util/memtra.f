@@ -19,7 +19,6 @@ c -------------------------------------------------------------------
       intrinsic max
 *
 *     iQ = 1
-*     Call qEnter('MemTra')
       mxact=0
       mxS1=0
       mxS2=0
@@ -52,6 +51,5 @@ c Max sizes, in common, needed for certain temporaries:
       nScr2=max(1,nscr2,nscr4)
       memtra=nCred+2*nScr1+nScr2+3
 *
-*     Call qExit('MemTra')
       Return
       End

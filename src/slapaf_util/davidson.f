@@ -51,7 +51,7 @@
       INTEGER iPrint,iRout
 #include "print.fh"
 
-*define _DEBUG_
+*define _DEBUGPRINT_
 * Diagonal preconditioned residue (Davidson)
 #define DAV_DPR 1
 * Inverse-iteration generalized Davidson (Olsen et al.)
@@ -62,7 +62,7 @@
       iRout=216
       iPrint=nPrint(iRout)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       CALL TriPrt('Initial matrix','',A,n)
 #endif
 
@@ -106,7 +106,7 @@
         call dcopy_(n*k,Work(ipVec),1,Vec,1)
         CALL GetMem('Values ','Free','Real',ipVal,n)
         CALL GetMem('Vectors','Free','Real',ipVec,n*n)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         IF (iPrint .GE. 99) THEN
           CALL RecPrt('Eigenvalues',' ',Eig,1,n)
           WRITE(6,*)
@@ -200,7 +200,7 @@
       DO WHILE (.NOT. Last)
         iter=iter+1
         IF (iter .GT. 1) call dcopy_(k,Eig,1,Eig_old,1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         IF (.NOT. Reduced) THEN
           WRITE(6,'(A)') '---------------'
           WRITE(6,'(A,1X,I5)') 'Iteration',iter
@@ -253,7 +253,7 @@
 *        If the subspace has been reduced, no need to compute new eigenpairs
 *
         IF (.NOT. Reduced) THEN
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           WRITE(6,'(2X,A,1X,I5)') 'Solving for subspace size:',mk
 #endif
           call dcopy_(maxk*maxk,Proj,1,EVec,1)
@@ -266,11 +266,11 @@
           CALL Free_Work(ipTmp)
           CALL JacOrd2(EVal,EVec,mk,maxk)
           call dcopy_(k,EVal,1,Eig,1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           CALL RecPrt('Current guess',' ',Eig,1,k)
 #endif
         END IF
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         IF (iPrint .GE. 99) THEN
           CALL RecPrt('Eigenvalues',' ',EVal,1,mk)
           CALL SubRecPrt('Subspace Eigenvectors',' ',EVec,
@@ -295,7 +295,7 @@
               Conv=MAX(Conv,ABS(Eig(i)-Eig_old(i)))
             END IF
           END DO
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           IF (Augmented)
      &      WRITE(6,'(2X,A,1X,G12.6)') 'Maximum relative eigenvalue '//
      &                                 'change:',Conv
@@ -305,17 +305,17 @@
         END IF
         old_mk=mk
         IF (Augmented .AND. (Conv .LE. Thr) .AND. (mk .GE. mink)) THEN
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           WRITE(6,'(A)') 'Converged due to small change'
 #endif
           Last=.TRUE.
         ELSE IF (mk .EQ. n) THEN
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           WRITE(6,'(A)') 'Complete system solved'
 #endif
           Last=.TRUE.
         ELSE IF (iter .GE. maxiter) THEN
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           WRITE(6,'(A)') 'Not converged'
 #endif
           Last=.TRUE.
@@ -329,7 +329,7 @@
 *
         ELSE IF ((MIN(mk+k,n) .GT. maxk) .OR. (iRC .EQ. 2)) THEN
           IF (iRC .EQ. 2) iRC=0
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           WRITE(6,'(2X,A,1X,I5)') 'Reducing search space to',mink
 #endif
           CALL Allocate_Work(ipTmp,mink*n)
@@ -350,7 +350,7 @@
 
 *----     j should be mink, but who knows...
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           IF (j .LT. mink) THEN
             WRITE(6,'(2X,A,1X,I5)') 'Fewer vectors found:',j
           END IF
@@ -450,7 +450,7 @@
 *           solve the equation
             CALL CG_Solver(n,n*n,Work(ipP1),iWork(ipDum),Work(ipTRes),
      &                     Work(ipTmp),info,5)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             WRITE(6,*) 'CG iterations',info
 #endif
             CALL Free_Work(ipP1)
@@ -461,11 +461,11 @@
               jj=jj-mk
             END IF
           END DO
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           WRITE(6,'(2X,A,1X,G12.6)') 'Maximum residual:',Conv
 #endif
           IF ((Conv .LT. Thr3) .AND. (mk .GE. mink)) THEN
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             WRITE(6,'(A)') 'Converged due to small residual'
 #endif
             Last=.TRUE.
@@ -476,7 +476,7 @@
 *            -Try to find a non-linear-dependent base vector in the original matrix
 *
             IF (jj .EQ. 0) THEN
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
               WRITE(6,'(A)') 'Process stagnated'
 #endif
               IF (mk .LT. maxk) THEN

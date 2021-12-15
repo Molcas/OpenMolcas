@@ -11,6 +11,9 @@
 * Copyright (C) 2011, Daoling Peng                                     *
 ************************************************************************
       Subroutine DKRelint_DP
+      Use Basis_Info
+      use DKH_Info
+      use Symmetry_Info, only: nIrrep
 *
 *     modified by D. Peng, ETH Zurich, October 2011
 *
@@ -20,9 +23,8 @@
 *           exact decoupling BSS method.
 *
       Implicit real*8(a-h,o-z)
+#include "Molcas.fh"
 #include "warnings.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "rinfo.fh"
 #include "print.fh"
 #include "real.fh"
@@ -33,9 +35,6 @@
 #include "relae.fh"
       integer ipaddr(3)
       Character*8 Label, pXpLbl
-#ifdef MOLPRO
-      character*(64) filename
-#endif
       Integer nBas_prim(8), nBas_cont(8)
       Logical Debug
       Data Debug/.False./
@@ -54,7 +53,6 @@
 *                                                                      *
       iRout=77
       iPrint=nPrint(iRout)
-      Call QEnter('DKRelInt')
 *
       If(Debug)Then
         idbg=6
@@ -81,12 +79,12 @@
 *       The none valence type shells comes at the end. When this block
 *       is encountered stop the procedure.
 *
-        If(AuxCnttp(iCnttp) .or.
-     &      FragCnttp(iCnttp) .or.
-     &      nFragType(iCnttp).gt.0 ) Go To 999
+        If(dbsc(iCnttp)%Aux .or.
+     &     dbsc(iCnttp)%Frag .or.
+     &     dbsc(iCnttp)%nFragType.gt.0 ) Go To 999
 
 *
-        Do icnt = 1, nCntr(iCnttp)
+        Do icnt = 1, dbsc(iCnttp)%nCntr
         kC=kC+1
            Do iAngr=0,nAngr(kC)
                rI=DBLE(iAngr)+One+Half
@@ -145,9 +143,6 @@ c                   write(stdout,'(a11,f20.8)') ' Exponents',rExpi
 *
       Call iCopy(8,nBas,1,nBas_Cont,1)
       nSym=nIrrep
-#ifdef MOLPRO
-      call icopy(8,nrbas_prim,1,nbas,1)
-#else
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -171,7 +166,6 @@ c                   write(stdout,'(a11,f20.8)') ' Exponents',rExpi
 ************************************************************************
 *                                                                      *
       Call Get_iArray('nBas_Prim',nBas,nSym)
-#endif
       Call iCopy(8,nBas,1,nBas_prim,1)
       If(iPrint.ge.10) then
          write(stdout,'(a,8i5)') ' Symmetries          ', nSym
@@ -201,12 +195,6 @@ c                   write(stdout,'(a11,f20.8)') ' Exponents',rExpi
 *
       If (iprint.ge.20) write(stdout,*)
      &   '  indices', iss,ik,iv,ipvp
-#ifdef MOLPRO
-      call lesw(work(iss),iSizep,1,1101,0)
-      call lesw(work(ik),iSizep,1,1401,0)
-      Call lesw(Work(iv),iSizep,1,1411,0)
-      call lesw(work(ipvp),iSizep,1,1412,0)
-#else
       Label='Mltpl  0'
       iComp=1
       iOpt=0
@@ -228,6 +216,8 @@ c                   write(stdout,'(a11,f20.8)') ' Exponents',rExpi
          Write (stdout,'(A,A)') 'Label=',Label
          Call Abend
       End If
+      ipaddr(1)=iV
+      If (iPrint.ge.20) Call PrMtrx(Label,[lOper],nComp,ipaddr,Work)
       Label='Kinetic '
       iRC = -1
       Call RdOne(iRC,iOpt,Label,1,Work(iK),lOper)
@@ -236,6 +226,8 @@ c                   write(stdout,'(a11,f20.8)') ' Exponents',rExpi
          Write (stdout,'(A,A)') 'Label=',Label
          Call Abend
       End If
+      ipaddr(1)=iK
+      If (iPrint.ge.20)  Call PrMtrx(Label,[lOper],nComp,ipaddr,Work)
       Label='pVp     '
       iRC = -1
       Call RdOne(iRC,iOpt,Label,1,Work(ipVp),lOper)
@@ -244,10 +236,11 @@ c                   write(stdout,'(a11,f20.8)') ' Exponents',rExpi
          Write (stdout,'(A,A)') 'Label=',Label
          Call Abend
       End If
+      ipaddr(1)=ipVp
+      If (iPrint.ge.20) Call PrMtrx(Label,[lOper],nComp,ipaddr,Work)
 *
       iOpt=0
       Call ClsOne(iRC,iOpt)
-#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -319,7 +312,6 @@ c     &                            " exact decoupling BSS Hamiltonian"
          If (LDKroll) Then
            Call GetMem('Index  ','ALLO','INTE',indx,iibas+4)
            Call xdr_indx(iibas,iWork(indx))
-CDP           write(6,*) "radild : ",radild
            DoFullLT=.true.
            if(radiLD.eq.0.d0) DoFullLT=.false.
            if(DoFullLT)then
@@ -844,7 +836,6 @@ c... reset contracted basis size
       CALL GetMem('H_temp  ','FREE','REAL',iH_temp,iSizec+4)
       CALL GetMem('pVp     ','FREE','REAL',ipVp,iSizep+4)
 *
-      Call QExit('DKRelInt')
       Return
 *
  9999 Continue

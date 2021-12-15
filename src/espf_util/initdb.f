@@ -16,7 +16,6 @@
 *
 #include "espf.fh"
 *
-      Call QEnter('initdb')
       nOrd = nMult/nAtQM
       nMnAt = nMult*nAtQM*3
       nGdnAt = nGrdPt*nAtQM*3
@@ -42,7 +41,6 @@
      &            Work(ipDTTT),Work(ipExt),Work(ipDB))
       Call GetMem('DTTT','Free','Real',ipDTTT,nMult*nGrdPt*nAtQM*3)
 *
-      Call QExit('initdb')
       Return
 c Avoid unused argument warnings
       If (.False.) Then
@@ -62,7 +60,6 @@ c Avoid unused argument warnings
       Dimension TTT(nGrdPt,nMult),DTTT(nMult,nGrdPt,3,nAtQM),
      &          ExtPot(10,natom),DB(nGrdPt,3,nAtQM)
 *
-      Call QEnter('calcdb')
       iPL = iPL_espf()
 *
       If (iPL.ge.4) Call RecPrt('TTT in calcdb',' ',TTT,nMult,nGrdPt)
@@ -119,6 +116,5 @@ c Avoid unused argument warnings
             End Do
          End Do
       End If
-      Call QExit('calcdb')
       Return
       End

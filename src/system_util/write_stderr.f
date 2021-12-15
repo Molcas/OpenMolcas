@@ -10,7 +10,7 @@
 ************************************************************************
       subroutine write_stderr (msg)
       implicit none
-      character(*) :: msg
+      character(len=*) :: msg
 #include "para_info.fh"
       write(0,'(a,i6,a,1x,a)')
      &  '[ process ', myrank, ']:',

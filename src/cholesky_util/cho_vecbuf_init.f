@@ -8,8 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-#if defined (_CHO_DEBUG_)
-#define _DEBUG_
+#if defined (_CHO_DEBUGPRINT_)
+#define _DEBUGPRINT_
 #endif
       SubRoutine Cho_VecBuf_Init(Frac,lVec)
 C
@@ -30,7 +30,7 @@ C
       Parameter (SecNam = 'Cho_VecBuf_Init')
 
       Logical LocDbg
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Parameter (LocDbg = .true.)
 #else
       Parameter (LocDbg = .false.)

@@ -16,9 +16,8 @@
 ************************************************************************
       subroutine Shell_MxDens(Dens,DMax,nSkal)
 c----------------------------------------------------------------------
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
       dimension dmax(nskal,nskal),dens(*)
       ijoff=0
       call fzero(dmax,nskal*nskal)

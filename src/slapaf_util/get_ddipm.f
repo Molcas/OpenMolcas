@@ -15,7 +15,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -68,7 +68,7 @@
 *
       Real*8 CM(3)
       Parameter ( thr = 1.0D-12 )
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('TRVec',' ',TRVec,nX,mTR)
       Call RecPrt('BMtrx',' ',BMtrx,nX,nInter)
       Call RecPrt('dDipM',' ',dDipM,3,nInter+mTR)
@@ -119,7 +119,7 @@
      &                TRVec((i-1)*3+2,iX)*(Coor(1,i)-CM(1)))
      &              * Degen(3,i)
          End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (6,*) 'Tx,Ty,Tz=',Tx,Ty,Tz
          Write (6,*) 'Rx,Ry,Rz=',Rx,Ry,Rz
 #endif
@@ -130,7 +130,7 @@
 *-----------Translation, dipole moment invariant to translation
 *
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*) 'Translation'
 #endif
             call dcopy_(3,[Zero],0,dDipM(1,iTR),1)
@@ -156,7 +156,7 @@
          End If
          iTR = iTR - 1
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('dDipM(Original)',' ',dDipM,3,nInter+mTR)
 #endif
 *                                                                      *
@@ -194,7 +194,7 @@
 *
       End Do
       call dcopy_(3*mInter,Tmp2,1,dDipM,1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('dDipM(cartesian)',' ',dDipM,3,mInter)
 #endif
 *                                                                      *

@@ -10,7 +10,6 @@
 ************************************************************************
       Subroutine AppFld(Cavxyz,radius,Eps,lmax,EpsInf,NonEq)
       Implicit Real*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       Real*8 Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6)
       Real*8, Allocatable:: CavSph(:,:)
@@ -36,7 +35,6 @@
 *
       iRout=2
       iPrint=nPrint(iRout)
-      Call qEnter('AppFld')
 *
       If (iPrint.ge.99) Call RecPrt('Multipole Moments',' ',Cavxyz,
      &                              (lMax+1)*(lMax+2)*(lMax+3)/6,1)
@@ -78,7 +76,6 @@
       If (iPrint.ge.99) Call RecPrt('Electric Field',' ',Cavxyz,
      &                              (lMax+1)*(lMax+2)*(lMax+3)/6,1)
 *
-      Call qExit('AppFld')
       Return
       End
       Subroutine AppFld_NonEq_1(Cavxyz,radius,Eps,lmax,EpsInf,NonEq)
@@ -108,7 +105,6 @@
 *
       iRout=2
       iPrint=nPrint(iRout)
-      Call qEnter('AppFld')
 *
       If (iPrint.ge.99) Call RecPrt('Multipole Moments',' ',Cavxyz,
      &                              (lMax+1)*(lMax+2)*(lMax+3)/6,1)
@@ -140,7 +136,6 @@
       If (iPrint.ge.99) Call RecPrt('Electric Field',' ',Cavxyz,
      &                              (lMax+1)*(lMax+2)*(lMax+3)/6,1)
 *
-      Call qExit('AppFld')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_logical(NonEq)
@@ -172,7 +167,6 @@ c Avoid unused argument warnings
 *
       iRout=2
       iPrint=nPrint(iRout)
-      Call qEnter('AppFld')
 *
       If (iPrint.ge.99) Call RecPrt('Multipole Moments',' ',Cavxyz,
      &                              (lMax+1)*(lMax+2)*(lMax+3)/6,1)
@@ -205,7 +199,6 @@ c Avoid unused argument warnings
       If (iPrint.ge.99) Call RecPrt('Electric Field',' ',Cavxyz,
      &                              (lMax+1)*(lMax+2)*(lMax+3)/6,1)
 *
-      Call qExit('AppFld')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_logical(NonEq)

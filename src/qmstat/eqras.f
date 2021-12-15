@@ -50,7 +50,6 @@
 *
 *-- Enter eqras.
 *
-      Call Qenter('EqRas')
 
 *
 *-- Numbers, initializations, conversions.
@@ -676,6 +675,5 @@
      &,it4h,':',it4m,':',t4s
 9     Format(A,I4,A,I3,A,F5.2)
 
-      Call Qexit('EqRas')
       Return
       End

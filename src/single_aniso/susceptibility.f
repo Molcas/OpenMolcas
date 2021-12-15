@@ -48,7 +48,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       Real (kind=8), allocatable :: WT(:), ZT(:,:)
       Real (kind=8) :: rdummy(1)
       Character(len=50) :: label
-      Call qEnter('SUSCEPTIBILITY')
 c constants used in this subrutine
       RtoB=8
       mem_local=0
@@ -410,7 +409,6 @@ C  saving some information for tests:
       Call mma_deallocate(wt)
       Call mma_deallocate(zt)
 
-      Call qExit('SUSCEPTIBILITY')
       Return
       End
 

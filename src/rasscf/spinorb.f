@@ -24,7 +24,6 @@ C
       Parameter (ROUTINE='SPINORB ')
       DIMENSION D(*),CMO(*),OCC(*)
 C
-C     CALL QENTER('SPINORB')
 C
 C Local print level (if any)
       IPRLEV=IPRLOC(6)
@@ -67,9 +66,10 @@ C Local print level (if any)
         END IF
       END DO
 C
-C     CALL QEXIT('SPINORB')
 C
       RETURN
 c Avoid unused argument warnings
+#ifdef _WARNING_WORKAROUND_
       IF (.FALSE.) CALL Unused_integer(kroot)
+#endif
       END

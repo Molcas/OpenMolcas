@@ -1,6 +1,6 @@
 *-------------------------------------------------------------------------------
 * Molecule: Allyl radical (C3H5)
-* Basis: ANO-S...C(3s2p)/H(2s)      
+* Basis: ANO-S...C(3s2p)/H(2s)
 * Symmetry: C2v
 * Features tested: Cholesky decomposition (seward),
 *                  Unrestricted SCF,
@@ -35,7 +35,7 @@ End of Input
 
  &SCF &END
 Title
- allyl radical 
+ allyl radical
 ChoInput
 NoDeco
 Algo
@@ -49,7 +49,7 @@ End of Input
 
  &SCF &END
 Title
- allyl radical 
+ allyl radical
 UHF
 KSDFT
 blyp

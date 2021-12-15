@@ -14,19 +14,20 @@
 #include "real.fh"
 #include "nadc.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "info_slapaf.fh"
 #include "print.fh"
       Logical Is_Roots_Set
 #include "SysDef.fh"
       Character*100 Get_SuperName, SuperName
       External Get_SuperName
+      Real*8, Allocatable:: Grad0(:)
 * Beijing Test
       Logical Exist_2,lMMGrd, Found
       Real*8 Columbus_Energy(2)
 ************ columbus interface ****************************************
       Integer Columbus
 *
-      Call QEnter('Init2')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -270,15 +271,26 @@ c     Work(ipEner+iter-1)=Energy
             Call Get_iScalar('NumGradRoot',iRoot)
 *           Write (6,*) 'iRoot=',iRoot
             Call Allocate_Work(ipDMs,3*nRoots)
-            Call Get_dArray('Last Dipole Moments',Work(ipDMs),3*nRoots)
-            Call DCopy_(3,Work(ipDMs+(iRoot-1)*3),1,
+            Call FZero(Work(ipDMs),3*nRoots)
+            Call Qpg_dArray('Last Dipole Moments',Found,nDip)
+            If (Found.and.(nDip.eq.3*nRoots)) Then
+               Call Get_dArray('Last Dipole Moments',
+     &                         Work(ipDMs),3*nRoots)
+            End If
+            Call dCopy_(3,Work(ipDMs+(iRoot-1)*3),1,
      &                    Work(ipDipM+(iter-1)*3),1)
-*           Call RecPrt('Dipole Moment',' ',
-*    &                    Work(ipDipM+(iter-1)*3),1,3)
             Call Free_Work(ipDMs)
          Else
-            Call Get_DArray('Dipole moment',Work(ipDipM+(iter-1)*3),3)
+            Call Qpg_dArray('Dipole moment',Found,nDip)
+            If (Found.and.(nDip.eq.3)) Then
+               Call Get_dArray('Dipole moment',
+     &                         Work(ipDipM+(iter-1)*3),3)
+            Else
+               Call dCopy_(3,[Zero],0,Work(ipDipM+(iter-1)*3),1)
+            End If
          End If
+*        Call RecPrt('Dipole Moment',' ',
+*    &               Work(ipDipM+(iter-1)*3),1,3)
       End If
 *                                                                      *
 ************************************************************************
@@ -345,11 +357,13 @@ C              Write (6,*) 'iRoot=',iRoot
             End If
             Work(ipEner0+iter-1)=E0
 *
-            Call Get_Grad(ipGrad0,nGrad)
+            nGrad=3*nsAtom
+            Call mma_Allocate(Grad0,nGrad,Label='Grad0')
+            Call Get_Grad(Grad0,nGrad)
             ipOff = (iter-1)*3*nsAtom + ipGx0
-            call dcopy_(3*nsAtom,Work(ipGrad0) ,1,Work(ipOff),1)
+            call dcopy_(3*nsAtom,Grad0 ,1,Work(ipOff),1)
             Call DScal_(3*nsAtom,-One,Work(ipOff),1)
-            Call Free_Work(ipGrad0)
+            Call mma_deallocate(Grad0)
 *
             Call NameRun('RUNFILE')
             TwoRunFiles = .True.
@@ -365,6 +379,5 @@ C              Write (6,*) 'iRoot=',iRoot
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('Init2')
       Return
       End

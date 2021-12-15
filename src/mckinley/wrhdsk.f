@@ -9,9 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine WrHDsk(Hess,ngrad)
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "WrkSpc.fh"
 #include "disp.fh"
 #include "disp2.fh"
@@ -84,7 +84,6 @@
       If (iRc.ne.0) Then
          Write (6,*) 'WrHDsk: Error writing to MCKINT'
          Write (6,'(A,A)') 'Label=',Label
-         Call QTrace
          Call Abend()
       End If
       Call Getmem('HStat','Free','REAL',ipHStat,nH)

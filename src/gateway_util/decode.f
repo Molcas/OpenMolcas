@@ -27,7 +27,6 @@
       Logical Hit
       Data dot/'.'/
 *
-*     Call qEnter('Decode')
 *     write(6,'(1x,a)') LBL
       i1=1
       idot=0
@@ -51,7 +50,6 @@
          Write (6,'(A,A)')'LBL=',LBL
          Call Abend()
       Else
-*        Call qExit('Decode')
          Return
       End If
 *
@@ -66,6 +64,5 @@
        i1=i1+1
        string(i1:i1) =xstring(i:i)
    30 continue
-*     Call qExit('Decode')
       Return
       End

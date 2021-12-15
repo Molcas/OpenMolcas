@@ -29,6 +29,7 @@
 #include "real.fh"
 #include "mxave.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
 *
 *-- Allocate.
@@ -38,6 +39,7 @@
       Character Title*72, Fname*7,OLabel*10,Titorb*40,OrbFile*128
       Character BsLbl*4000,PLab*3
       Dimension Dummy(1),iDummy(7,8)
+      Real*8, Allocatable:: DTmp(:)
 
 
 *
@@ -168,9 +170,10 @@
           Write(Fname(4:6),'(I3.3)') iset
           Call NameRun(Fname)
 *------- Collect density from runfile.
-          Call Get_D1ao(ip_Dtmp,nDens)
-          Call DaxPy_(lsmat,Wset(iset),Work(ip_Dtmp),1,Work(iDtemp),1)
-          Call Free_Work(ip_Dtmp)
+          Call mma_allocate(DTmp,lsmat,Label='DTmp')
+          Call Get_D1ao(Dtmp,lsmat)
+          Call DaxPy_(lsmat,Wset(iset),Dtmp,1,Work(iDtemp),1)
+          Call mma_deallocate(DTmp)
 95      Continue
 *----- Square the density matrix.
         iDt=0

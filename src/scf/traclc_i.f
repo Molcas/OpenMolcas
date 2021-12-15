@@ -60,7 +60,7 @@
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
-*define _DEBUG_
+*define _DEBUGPRINT_
 *
       If (iDKeep.lt.0) Return
       iter_d=iter-iter0
@@ -124,7 +124,7 @@
 *----------------------------------------------------------------------*
 *                                                                      *
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Do iD = 1, nD
          Write(6,'(a)') 'traclc: TrDh'
          Write(6,'(6f16.8)') (TrDh(ii,ii,iD),ii=1,iter_d)
@@ -195,7 +195,7 @@
 *
             End Do ! iD
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Do iD = 1, nD
                Write(6,*) 'iteration:',ii+iter0
                Write(6,'(a)') 'traclc: TrDh'

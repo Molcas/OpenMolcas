@@ -20,7 +20,6 @@
       DIMENSION NBSX(8),KEEP(8)
       Logical FoundTwoEls,ISQUAR
 *
-      Call qEnter('FTWOI')
 *
       Call f_Inquire(FnTwoAo,FoundTwoEls)
       If (.not.FoundTwoEls) Then
@@ -37,7 +36,6 @@
         Write (6,*) 'FTwoi: NSYM2.NE.NSYM'
         Write (6,*) 'NSYM2=',NSYM2
         Write (6,*) 'NSYM=',NSYM
-        Call QTrace()
         Call Abend()
       END IF
       DO ISYM=1,NSYM
@@ -47,7 +45,6 @@
            Write (6,*) 'FTwoi: NB1.NE.NB2'
            Write (6,*) 'NB1=',NB1
            Write (6,*) 'NB2=',NB2
-           Call QTrace()
            Call Abend()
         END IF
       END DO
@@ -81,7 +78,6 @@
         END DO
       END IF
 *
-      Call qExit('FTWOI')
 *
       RETURN
       END

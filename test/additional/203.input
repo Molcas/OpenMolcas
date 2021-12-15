@@ -74,7 +74,7 @@ Thrshold
 End of Input
 *&Last_Energy
 
->>>>>>>>>>>>> ENDDO <<<<<<<<<<<<<<<<<<<<<<<<<<<<< 
+>>>>>>>>>>>>> ENDDO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
  &MCKINLEY &END
 Perturbation
@@ -87,11 +87,11 @@ End of Input
 >> FILE StartOrb
 #INPORB 1.0
 #INFO
-* SCF orbitals                                                                  
+* SCF orbitals
   0 1
   34
   34
-#ORB  
+#ORB
 * ORBITAL    1    1
 -.100173484452E+01-.975621649513E-020.107922447369E-010.618307435031E-16
 0.406393740757E-160.436581995263E-140.340465331158E-15-.325668954427E-16
@@ -463,7 +463,7 @@ SSSS
 SSSS
 SSSS
 SSSS
-SS  
+SS
 >> EOF
 
 >>FILE checkfile

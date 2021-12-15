@@ -40,11 +40,11 @@ SUBROUTINE TIMTXT(TEXTIN,TIMUSD,IUNIT)
 
    USE fmm_global_paras
    IMPLICIT NONE
-   CHARACTER(*) :: TEXTIN
+   CHARACTER(LEN=*) :: TEXTIN
    CHARACTER :: AHOUR*6, ASEC*8, AMIN*8
    REAL(REALK) :: TIMUSD
    INTEGER :: ISECND, IUNIT, IHOURS, MINUTE
-   CHARACTER(45) :: TEXT
+   CHARACTER(LEN=45) :: TEXT
 
    TEXT = TEXTIN
 
@@ -86,7 +86,7 @@ END SUBROUTINE TIMTXT
 !-------------------------------------------------------------------------------
 
 SUBROUTINE fmm_quit(msg)
-   CHARACTER(*) msg
+   CHARACTER(LEN=*) msg
    write(6,*) msg
    WRITE(6,*) ">>> FATAL ERROR"
    CALL Abend()
@@ -99,7 +99,7 @@ SUBROUTINE fmm_matrix_norm(label,matrix,ndim)
    USE fmm_global_paras
 
    IMPLICIT NONE
-   CHARACTER(*), INTENT(IN) :: label
+   CHARACTER(LEN=*), INTENT(IN) :: label
    INTEGER,      INTENT(IN) :: ndim
    REAL(REALK),  INTENT(IN) :: matrix(ndim)
 

@@ -108,7 +108,6 @@ C: the DIIS error vectors
       If (nDens.lt.2) Then
          Write (6,*) 'MemAlo: nDens.lt.2'
          Write (6,*) 'nDens=',nDens
-         Call QTrace
          Call Abend()
       End If
 C: Francesco Aquilante

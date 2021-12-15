@@ -17,7 +17,7 @@
 ! from getenvc.c
 #define MAXSTR 256
 
-!define _DEBUG_
+!define _DEBUGPRINT_
 
       Module prgm
       Implicit None
@@ -67,12 +67,12 @@
       Input = InStr
       Loc = Index(Input, Char(0))
       If (Loc .gt. 0) Input(Loc:) = ''
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(6,*) 'Translating ', Trim(Input)
 #endif
       Inquire(File=Input,Exist=Found)
       If (Found) Then
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         Write(6,*) 'File ', Trim(Input), ' exists'
 #endif
         OutStr = Input
@@ -81,7 +81,7 @@
         If (Trim(WD) .eq. '') WD = '.'
         Num = FindFile(Input, FileTable)
         If (Num .gt. 0) Then
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           Write(6,*) 'File ', Trim(Input), ' found in table: ',
      &               Trim(FileTable(Num)%Filename)
 #endif
@@ -105,7 +105,7 @@
             OutStr = ReplaceSubstr(OutStr, Loc, Loc, Trim(Ext)//'.')
           End If
         Else
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           Write(6,*) 'Assuming $WorkDir/'//Trim(Input)
 #endif
           If ((Par .eq. 1)) WD = Trim(WD)//SlaveDir
@@ -113,7 +113,7 @@
         End If
       End If
       l2 = Len_Trim(OutStr)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(6,*) 'Output: ', Trim(OutStr)
 #endif
       Return
@@ -151,7 +151,7 @@
 
       If (.Not. Allocated(FileTable)) Allocate(FileTable(0))
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(6,*) 'ModName: '//Trim(ModName)
 #endif
 
@@ -162,7 +162,7 @@
       FileName = Trim(Dir)//'/'//Trim(ModName)//'.prgm'
       Inquire(File=FileName,Exist=Found)
       If (Found) Then
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         Write(6,*) 'FileName: '//Trim(FileName)
 #endif
         Lu = isFreeUnit(30)
@@ -225,7 +225,7 @@
         Deallocate(TempTable)
         Close(Lu)
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call ReportPrgm()
 #endif
       Return

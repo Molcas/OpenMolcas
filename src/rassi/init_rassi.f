@@ -23,7 +23,6 @@
       Character*256 STRING
       Logical FoundTwoEls,DoCholesky
 
-      CALL QENTER(ROUTINE)
 
 
 C SET UP SYMMETRY MULTIPLICATION TABLE:
@@ -172,6 +171,8 @@ C DEFAULT FLAGS:
       L_Eff=5
 C CD - velocity and mixed gauge
       DOCD = .FALSE.
+      RSTHR = 0.0D0
+      RSPR=.FALSE.
 C Force that TDMs are not stored in the AO basis.
       Force_NON_AO_TDM=.False.
       CALL GETENVF('MOLCAS_FORCE_NON_AO_TDM',STRING)
@@ -256,6 +257,5 @@ C DEFAULT WAVE FUNCTION TYPE:
       WFTYPE='GENERAL '
       IF(IPGLOB.GT.VERBOSE) WRITE(6,*)' ***** INIT ENDS **********'
 
-      CALL QEXIT(ROUTINE)
       RETURN
       END

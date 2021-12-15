@@ -251,9 +251,10 @@ The input for each module is preceded by its name like: ::
               </KEYWORD>
               %%Keyword: PRINtkey <advanced>
               Sets the print level
-              || 1 - Minimal
-              || 2 - Minimal + timings
-              ||10 - Debug
+
+              1  -- Minimal
+              2  -- Minimal + timings
+              10 -- Debug
 
 ::
 

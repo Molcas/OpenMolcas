@@ -35,7 +35,6 @@ C Adds, into the matrix DCOM, a correction obtained by commutation relations.
 C Present assumption: The two vectors nr. IVEC and JVEC, stored on LUSOLV,
 C are both in contravariant representation. Possibly, IVEC equals JVEC.
 
-      CALL QENTER('COMMWEW')
       DO ICASE=1,11
         DO ISYM=1,NSYM
           NAS=NASUP(ISYM,ICASE)
@@ -452,6 +451,5 @@ C Here ends the loops over ISYM and ICASE.
         END DO
       END DO
 
-      CALL QEXIT('COMMWEW')
       RETURN
       END

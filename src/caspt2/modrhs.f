@@ -17,7 +17,6 @@
 #include "eqsolv.fh"
       DIMENSION FIMO(NFIMO)
 
-      CALL QENTER('MODRHS')
 
 ***************************************************************
 * Case A:
@@ -169,7 +168,6 @@ C Put W on disk:
 
  300  CONTINUE
 
-      CALL QEXIT('MODRHS')
 
       RETURN
       END

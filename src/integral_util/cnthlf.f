@@ -20,11 +20,6 @@
 *         intermediate matrix will not push the start of the same out  *
 *         from the cache.                                              *
 *                                                                      *
-* Called from: Cntrct                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 * Author:     Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
 ************************************************************************
@@ -38,7 +33,6 @@
       Integer Indij(lZeta),idone(mxnprm),nnz2(mxnprm),
      &        ifirst(mxnprm),last(mxnprm)
       Logical First
-*     Call QEnter('CntHlf')
 *
       If (nPrm1.gt.mxnprm .or.
      &    nPrm2.gt.mxnprm) Then
@@ -164,6 +158,5 @@ C     &                         A3(iivec,iCntr1,icntr2),1,mVec,nPrm2)
 *
       End Do    ! iiVec
 *
-*     Call QExit('CntHlf')
       Return
       End

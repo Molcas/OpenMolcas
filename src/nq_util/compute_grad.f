@@ -12,25 +12,12 @@
 ************************************************************************
       Real*8 Function Compute_Grad(Weights,mGrid,Rho,nRho,iSpin,T_X)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. November 2000                           *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
       Real*8 Weights(mGrid), Rho(nRho,mGrid)
-*                                                                      *
-************************************************************************
-*                                                                      *
-C     Call QEnter('Compute_RHo')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -95,6 +82,5 @@ C     Call QEnter('Compute_RHo')
 ************************************************************************
 *                                                                      *
 *
-C     Call QExit('Compute_Rho')
       Return
       End

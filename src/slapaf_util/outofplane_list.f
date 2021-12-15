@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine OutOfPlane_List(
      &                 nq,
-     &                 nAtoms,iIter,nIter,Cx,iOper,nSym,jStab,
+     &                 nAtoms,iIter,nIter,Cx,jStab,
      &                 nStab,nDim,Smmtrc,Process,Value,
      &                 nB,iANr,qLbl,iRef,
      &                 fconst,rMult,LuIC,Name,Indq,iPrv,Proc_dB,
@@ -23,6 +23,7 @@
 *     This is a quick and possibly dirty implementation of the out-    *
 *     of-plane angle. RL, Tokyo June, 2004.                            *
 ************************************************************************
+      use Symmetry_Info, only: nIrrep, iOper
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
@@ -31,8 +32,8 @@
      &       fconst(nB), Value(nB,nIter),
      &       Ref(3,4), Prv(3,4), rMult(nB),
      &       Grad_ref(9), RX4Y(3,3), BM(nB_Tot), dBM(ndB_Tot)
-      Integer   nStab(nAtoms), iOper(0:nSym-1), iANr(nAtoms),
-     &          iDCRR(0:7), jStab(0:7,nAtoms), iPhase(3,0:7),
+      Integer   nStab(nAtoms), iANr(nAtoms),
+     &          iDCRR(0:7), jStab(0:7,nAtoms),
      &          iStabM(0:7), Ind(4), iDCR(4), iDCRT(0:7),
      &          iDCRS(0:7), iStabN(0:7), iStabO(0:7), iChOp(0:7),
      &          Indq(3,nB), iDCRX(0:7), iDCRY(0:7), nqB(nB),
@@ -49,15 +50,13 @@
 #define _FMIN_
 #include "ddvdt.fh"
 #include "ddvdt_outofp.fh"
-      Data iPhase/ 1, 1, 1,   -1, 1, 1,   1,-1, 1,  -1,-1, 1,
-     &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       Data ChOp/'E  ','X ','Y ','XY ','Z  ','XZ ','YZ ','XYZ'/
       Data iChOp/1,1,1,2,1,2,2,3/
 #include "constants.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*#define _DEBUG_
+*#define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -65,11 +64,10 @@
       If (nBonds.lt.3) Return
       iRout=152
       iPrint=nPrint(iRout)
-      Call QEnter('OutOfPs')
       nqO=0
       PSPrint=.False.
       Call FZero(Hess,144)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iPrint=99
       If (iPrint.ge.99) PSPrint=.True.
 #endif
@@ -125,7 +123,7 @@
             Help = ir.gt.3.or.jr.gt.3
             iDCR(4)=iTabAI(2,iAtom_)
             iDCR(1)=iTabAI(2,jAtom_)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*)
             Write (6,*) 'E,R=',Name(iAtom),ChOp(iDCR(4)),
      &                         Name(jAtom),ChOp(iDCR(1))
@@ -148,12 +146,12 @@
 *
 *---------- Form double coset representatives for (iAtom,jAtom)
 *
-            Call DCR(Lambda,iOper,nSym,
+            Call DCR(Lambda,
      &               jStab(0,iAtom),nStab(iAtom),
      &               jStab(0,jAtom),nStab(jAtom),
      &               iDCRR,nDCRR)
             kDCRR=iDCR(1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             If (PSPrint) Then
                Write (6,'(10A)') 'U={',(ChOp(jStab(i,iAtom)),
      &                            i=0,nStab(iAtom)-1),'}  '
@@ -165,22 +163,16 @@
             End If
 #endif
 *
-            A(1,1)   = DBLE(iPhase(1,kDCRR))*Cx(1,jAtom,iIter)
-            A(2,1)   = DBLE(iPhase(2,kDCRR))*Cx(2,jAtom,iIter)
-            A(3,1)   = DBLE(iPhase(3,kDCRR))*Cx(3,jAtom,iIter)
-            Ref(1,1) = DBLE(iPhase(1,kDCRR))*Cx(1,jAtom,iRef)
-            Ref(2,1) = DBLE(iPhase(2,kDCRR))*Cx(2,jAtom,iRef)
-            Ref(3,1) = DBLE(iPhase(3,kDCRR))*Cx(3,jAtom,iRef)
-            Prv(1,1) = DBLE(iPhase(1,kDCRR))*Cx(1,jAtom,iPrv)
-            Prv(2,1) = DBLE(iPhase(2,kDCRR))*Cx(2,jAtom,iPrv)
-            Prv(3,1) = DBLE(iPhase(3,kDCRR))*Cx(3,jAtom,iPrv)
+            Call OA(kDCRR,Cx(1:3,jAtom,iIter),  A(1:3,1))
+            Call OA(kDCRR,Cx(1:3,jAtom,iRef ),Ref(1:3,1))
+            Call OA(kDCRR,Cx(1:3,jAtom,iPrv ),Prv(1:3,1))
 *
 *---------- Form stabilizer for (iAtom,jAtom)
 *
             Call Inter(jStab(0,iAtom),nStab(iAtom),
      &                 jStab(0,jAtom),nStab(jAtom),
      &                     iStabM,nStabM)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             If (PSPrint) Then
                Write (6,'(10A)') 'M={',
      &               (ChOp(iStabM(i)),i=0,nStabM-1),'}  '
@@ -210,7 +202,7 @@
                If (kAtom_.eq.jAtom_) Go To 301
                kBond =iTabAtoms(2,kNeighbor,iAtom_)
                kBondType=iTabBonds(3,kBond)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write (6,*) 'kBond,kBondType=',
      &                      kBond,kBondType
 #endif
@@ -232,7 +224,7 @@
                   If (R_Stab_A(iDCR(2),jStab(0,iAtom),nStab(iAtom)).and.
      &                iDCR(2).ne.iOper(0)) Go To 301
                End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write (6,*)
                Write (6,*) 'T=',Name(kAtom),ChOp(iDCR(2))
                Write (6,*) 'kAtom=', kAtom
@@ -249,7 +241,7 @@
                   If (lBond.eq.jBond)   Go To 401
                   If (lBond.eq.kBond)   Go To 401
                   lAtom=iTabAI(1,lAtom_)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   Write (6,*) 'lBond,lBondType=',
      &                         lBond,lBondType
                   Write (6,*) 'lAtom=', lAtom
@@ -282,7 +274,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
      &                iDCR(3).ne.iOper(0).and.iDCR(2).ne.iOper(0))
      &                Go To 401
                End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   Write (6,*)
                   Write (6,*) 'TS=',Name(lAtom),ChOp(iDCR(3))
 #endif
@@ -294,13 +286,13 @@ C                 If (kAtom.gt.lAtom) Go To 401
 *
 *---------------- Form double coset representatives for (kAtom,lAtom)
 *
-                  Call DCR(Lambda,iOper,nSym,
+                  Call DCR(Lambda,
      &                     jStab(0,kAtom),nStab(kAtom),
      &                     jStab(0,lAtom),nStab(lAtom),
      &                     iDCRS,nDCRS)
                   kDCRS=iEor(iDCR(2),iDCR(3))
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   If (PSPrint) Then
                      Write (6,'(10A)') 'W={',(ChOp(jStab(i,kAtom)),
      &                                  i=0,nStab(kAtom)-1),'}  '
@@ -312,18 +304,10 @@ C                 If (kAtom.gt.lAtom) Go To 401
                   End If
 #endif
 *
-                  Ref(1,2) =                        Cx(1,kAtom,iRef)
-                  Ref(2,2) =                        Cx(2,kAtom,iRef)
-                  Ref(3,2) =                        Cx(3,kAtom,iRef)
-                  Ref(1,3) = DBLE(iPhase(1,kDCRS))* Cx(1,lAtom,iRef)
-                  Ref(2,3) = DBLE(iPhase(2,kDCRS))* Cx(2,lAtom,iRef)
-                  Ref(3,3) = DBLE(iPhase(3,kDCRS))* Cx(3,lAtom,iRef)
-                  Prv(1,2) =                        Cx(1,kAtom,iPrv)
-                  Prv(2,2) =                        Cx(2,kAtom,iPrv)
-                  Prv(3,2) =                        Cx(3,kAtom,iPrv)
-                  Prv(1,3) = DBLE(iPhase(1,kDCRS))* Cx(1,lAtom,iPrv)
-                  Prv(2,3) = DBLE(iPhase(2,kDCRS))* Cx(2,lAtom,iPrv)
-                  Prv(3,3) = DBLE(iPhase(3,kDCRS))* Cx(3,lAtom,iPrv)
+                  Ref(1:3,2) =  Cx(1:3,kAtom,iRef)
+                  Call OA(kDCRS,Cx(1:3,lAtom,iRef),Ref(1:3,3))
+                  Prv(1:3,2) =  Cx(1:3,kAtom,iPrv)
+                  Call OA(kDCRS,Cx(1:3,lAtom,iPrv),Prv(1:3,3))
 *
 *---------------- Form stabilizer for (kAtom,lAtom)
 *
@@ -331,7 +315,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
      &                       jStab(0,lAtom),nStab(lAtom),
      &                       iStabN,nStabN)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   If (PSPrint) Then
                      Write (6,'(10A)') 'N={',
      &                     (ChOp(iStabN(i)),i=0,nStabN-1),'}  '
@@ -341,7 +325,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
 *---------------- Form double coset representatives for
 *                 ((iAtom,jAtom),(kAtom,lAtom))
 *
-                  Call DCR(Lambda,iOper,nSym,
+                  Call DCR(Lambda,
      &                     iSTabM,nStabM,
      &                     iStabN,nStabN,
      &                     iDCRT,nDCRT)
@@ -367,7 +351,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
                   kDCRT =iDCR(2)
                   kDCRTS=iDCR(3)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   If (PSPrint) Then
                      Write (6,'(10A)') 'T={',
      &                     (ChOp(iDCRT(i)),i=0,nDCRT-1),'}  '
@@ -375,24 +359,12 @@ C                 If (kAtom.gt.lAtom) Go To 401
                   End If
 #endif
 *
-                  A(1,2)   = DBLE(iPhase(1,kDCRT ))*Cx(1,kAtom,iIter)
-                  A(2,2)   = DBLE(iPhase(2,kDCRT ))*Cx(2,kAtom,iIter)
-                  A(3,2)   = DBLE(iPhase(3,kDCRT ))*Cx(3,kAtom,iIter)
-                  Ref(1,2) = DBLE(iPhase(1,kDCRT ))*Cx(1,kAtom,iRef)
-                  Ref(2,2) = DBLE(iPhase(2,kDCRT ))*Cx(2,kAtom,iRef)
-                  Ref(3,2) = DBLE(iPhase(3,kDCRT ))*Cx(3,kAtom,iRef)
-                  Prv(1,2) = DBLE(iPhase(1,kDCRT ))*Cx(1,kAtom,iPrv)
-                  Prv(2,2) = DBLE(iPhase(2,kDCRT ))*Cx(2,kAtom,iPrv)
-                  Prv(3,2) = DBLE(iPhase(3,kDCRT ))*Cx(3,kAtom,iPrv)
-                  A(1,3)   = DBLE(iPhase(1,kDCRTS))*Cx(1,lAtom,iIter)
-                  A(2,3)   = DBLE(iPhase(2,kDCRTS))*Cx(2,lAtom,iIter)
-                  A(3,3)   = DBLE(iPhase(3,kDCRTS))*Cx(3,lAtom,iIter)
-                  Ref(1,3) = DBLE(iPhase(1,kDCRTS))*Cx(1,lAtom,iRef)
-                  Ref(2,3) = DBLE(iPhase(2,kDCRTS))*Cx(2,lAtom,iRef)
-                  Ref(3,3) = DBLE(iPhase(3,kDCRTS))*Cx(3,lAtom,iRef)
-                  Prv(1,3) = DBLE(iPhase(1,kDCRTS))*Cx(1,lAtom,iPrv)
-                  Prv(2,3) = DBLE(iPhase(2,kDCRTS))*Cx(2,lAtom,iPrv)
-                  Prv(3,3) = DBLE(iPhase(3,kDCRTS))*Cx(3,lAtom,iPrv)
+                  Call OA(kDCRT ,Cx(1:3,kAtom,iIter),  A(1:3,2))
+                  Call OA(kDCRT ,Cx(1:3,kAtom,iRef ),Ref(1:3,2))
+                  Call OA(kDCRT ,Cx(1:3,kAtom,iPrv ),Prv(1:3,2))
+                  Call OA(kDCRTS,Cx(1:3,lAtom,iIter),  A(1:3,3))
+                  Call OA(kDCRTS,Cx(1:3,lAtom,iRef ),Ref(1:3,3))
+                  Call OA(kDCRTS,Cx(1:3,lAtom,iPrv ),Prv(1:3,3))
 *
 *---------------- Form the stabilizer for the out-of-plane
 *
@@ -407,7 +379,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
      &                          iStabO,nStabO)
                   End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   If (PSPrint) Then
                      Write (6,'(10A)') 'M={',
      &                     (ChOp(iStabM(i)),i=0,nStabM-1),'}  '
@@ -422,7 +394,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
 *
 *-----------------Compute the degeneracy of the torsion
 *
-                  iDeg=nSym/nStabO
+                  iDeg=nIrrep/nStabO
                   Deg=Sqrt(DBLE(iDeg))
 *
 *-----------------Test if coordinate should be included
@@ -485,7 +457,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
                   Call Bend(RX4Y,mCent,Fi2,Grad_ref,
      &                     .False.,
      &                     .False.,'        ',Hess,.False.)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   Write (6,*) '1-4-2: Fi2=',Fi2
 #endif
                   delta = delta0
@@ -500,7 +472,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
                   Call Bend(RX4Y,mCent,Fi3,Grad_ref,
      &                      .False.,
      &                      .False.,'        ',Hess,.False.)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   Write (6,*) '1-4-3: Fi3=',Fi3
 #endif
                   delta = delta0
@@ -515,7 +487,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
                   Call Bend(RX4Y,mCent,Fi4,Grad_ref,
      &                      .False.,
      &                      .False.,'        ',Hess,.False.)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   Write (6,*) '2-4-3: Fi4=',Fi4
 #endif
                   delta = delta0
@@ -527,7 +499,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
                   Call OutofP(Ref,nCent,Val,Grad,.False.,
      &                       .False.,
      &                       '        ',Hess,.False.)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   Write (6,*) 'Val=',Val*180.D0/Pi
 #endif
 *
@@ -539,7 +511,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
                   nq = nq + 1
                   If (.Not.Process) mB_Tot = mB_Tot + mB
                   If (.Not.Proc_dB) mdB_Tot = mdB_Tot + mB**2
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   Write (6,*) 'nq=',nq
 #endif
 *
@@ -589,7 +561,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
      &                   ' ',Lbls(3)(iF3:iE3),
      &                   ' ',Lbls(4)(iF4:iE4),
      &                   ' ',Lbls(1)(iF1:iE1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   If (iPrint.ge.49)
      &            Write (6,'(A,I3.3,8A)')
      &                   'o',nqO,' = Outofp   ',
@@ -613,7 +585,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
                      Indq(3,nq) = kDCRS*8**2 + ijDCR
 *
 *                    f_Const=Max(f_Const,f_Const_Min)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                      Write (6,*) 'f_const=',f_const
 #endif
                      fconst(nq)=Sqrt(f_Const)
@@ -642,6 +614,5 @@ C                 If (kAtom.gt.lAtom) Go To 401
   101    Continue
       End Do                     ! jBond
 *
-      Call QExit ('OutOfPs')
       Return
       End

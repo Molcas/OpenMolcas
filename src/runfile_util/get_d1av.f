@@ -8,20 +8,25 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Get_D1AV(ipD1AV,nDens)
+      Subroutine Get_D1AV(D1AV,nD1AV)
       Implicit Real*8 (A-H,O-Z)
-#include "WrkSpc.fh"
-
       Character*24 Label
       Logical      Found
+      Real*8 D1AV(nD1AV)
 
       Label='D1av'
-      Call qpg_dArray(Label,Found,nDens)
-      If(.not.Found .or. nDens.eq.0) Then
-         Call SysAbendMsg('get_d1av','Did not find:',Label)
+      Call qpg_dArray(Label,Found,mD1AV)
+      If(.not.Found .or. mD1AV.eq.0) Then
+         Call SysAbendMsg('Get_D1AV','Did not find:',Label)
       End If
-      Call GetMem('D1av','Allo','Real',ipD1AV,nDens)
-      Call Get_dArray(Label,Work(ipD1AV),nDens)
+      If (nD1AV/=mD1AV) Then
+         Write (6,*) 'Get_D1AV: nD1AV/=mD1AV'
+         Write (6,*) 'nD1AV=',nD1AV
+         Write (6,*) 'mD1AV=',mD1AV
+         Call Abend()
+      End If
+
+      Call Get_dArray(Label,D1AV,nD1AV)
 
       Return
       End

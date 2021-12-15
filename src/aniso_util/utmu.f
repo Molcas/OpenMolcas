@@ -23,7 +23,6 @@ c  local variables:
       External         :: dznrm2_
       Complex(kind=8), allocatable :: TMP(:,:)
 
-      Call qEnter('UTMU')
 
       DBG=.false.
 
@@ -142,7 +141,6 @@ c  local variables:
       End If
       Call mma_deallocate(TMP)
 
-      Call qExit('UTMU')
       Return
       End Subroutine utmu
 
@@ -168,7 +166,6 @@ c  local variables:
       external         :: dznrm2_
       complex(kind=8), allocatable :: tmp(:,:), mtmp(:,:,:)
 
-      call qenter('utmu2')
 
       dbg=.false.
 
@@ -300,7 +297,6 @@ c  local variables:
       if(dbg) write(6,*) 'at the end of utmu2'
       if(dbg) call prmom('utmu2, moment',m,n)
 
-      call qexit('utmu2')
       return
       end subroutine utmu2
 
@@ -326,7 +322,6 @@ c  local variables:
       External         :: dznrm2_
       Complex(kind=8), allocatable :: TMP(:,:), MTMP(:,:)
 
-      Call qEnter('UTMUL')
 
       DBG=.false.
 
@@ -448,6 +443,5 @@ c  local variables:
       If(N<EXCH) Call mma_deallocate(MTMP)
       Call mma_deallocate(TMP)
 
-      Call qExit('UTMUL')
       Return
       End Subroutine utmul

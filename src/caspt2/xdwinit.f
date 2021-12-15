@@ -26,7 +26,6 @@
       logical IF_TRNSF
 
 
-      call QENTER('xdwinit')
 
 * Allocate memory for CI array state averaged 1-RDM
       call getmem('LCI','ALLO','REAL',LCI,NCONF)
@@ -166,7 +165,6 @@
       call getmem('CIXMS','FREE','REAL',LCIXMS,NCONF)
       call getmem('LCMO','FREE','REAL',LCMO,NCMO)
 
-      call QEXIT('xdwinit')
 
       return
       end

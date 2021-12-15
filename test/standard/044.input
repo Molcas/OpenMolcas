@@ -6,6 +6,8 @@
 * Responsible person: R. Lindh
 * Comments:
 *-------------------------------------------------------------------------------
+>export MOLCAS_REDUCE_PRT=NO
+
 >>> DO WHILE <<<
  &SEWARD &END
 Title
@@ -30,7 +32,7 @@ End of input
 
  &SCF &End
 Occupation
- 3 1 1 0 
+ 3 1 1 0
 KSDFT
 BLYP
 ChoInput
@@ -39,7 +41,7 @@ Algo
 EndChoInput
 End Of Input
 
- &Slapaf 
+ &Slapaf
 
 >>> ENDDO <<<
 

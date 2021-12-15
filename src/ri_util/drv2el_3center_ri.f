@@ -21,15 +21,6 @@
 *          2) a 3-center section to generate the R-vectors             *
 *          3) a partial transpose section to generate the RI vectors   *
 *                                                                      *
-* Called from: Seward                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Timing                                                  *
-*              Setup_Ints                                              *
-*              Eval_Ints                                               *
-*              Term_Ints                                               *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -41,16 +32,18 @@
 *             Modified driver. Jan. '98                                *
 *             Modified to 3-center ERIs for RI Jan '06                 *
 *             Modified to out-of-core version Feb '07                  *
-*                                                                      *
 ************************************************************************
       use iSD_data
       use Wrj12
+      use Basis_Info, only: dbsc, nBas, nBas_Aux
+      use Temporary_Parameters, only: force_out_of_core
+      use Real_Info, only: CutInt
+      use RICD_Info, only: LDF
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut, Integral_RI_2, Rsv_Tsk
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "j12.fh"
-#include "lundio.fh"
 #include "print.fh"
 #include "real.fh"
 #include "stdalloc.fh"
@@ -72,7 +65,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -84,7 +77,6 @@
 ************************************************************************
 *                                                                      *
       iRout = 9
-      Call QEnter('Drv2El3RI')
 *
 #ifdef  _MOLCAS_MPP_
       Distribute = nProcs.gt.1 .and. Is_Real_Par()
@@ -222,8 +214,8 @@
 *     the RI vectors.
 *
       Call Setup_Aux(ip_SOShl,ip_ShlSO,ip_nBasSh,nIrrep,nBas,
-     &               nSkal_Valence,nSkal_Auxiliary,nSO,ip_iSSOff,iSOInf,
-     &               MxAO,Work(ipTMax),CutInt,ip_iShij,nSkal2,nBas_Aux,
+     &               nSkal_Valence,nSkal_Auxiliary,nSO,ip_iSSOff,
+     &               Work(ipTMax),CutInt,ip_iShij,nSkal2,nBas_Aux,
      &               nChV,iTOffs)
 *
       Call GetMem('iRv','Allo','Inte',ip_iRv,nSkal2)
@@ -398,7 +390,7 @@ C                    Write (6,*) 'iLO,iSO_Aux=',iLO,iSO_Aux
          End If
 *
          Aint_kl = TMax_Valence(kS,lS)
-         If (fmass(kCnttp).ne.fmass(lCnttp)) Aint_kl=0.0D0
+         If (dbsc(kCnttp)%fMass.ne.dbsc(lCnttp)%fMass) Aint_kl=0.0D0
 *
          nRv = nSize_Rv(kS,lS,iWork(ip_nBasSh),nSkal-1,nIrrep,iOff_Rv,
      &                  nChV)
@@ -422,7 +414,7 @@ C              Write (6,*) 'jCenter=',jCenter
 *
             Aint=Aint_kl * TMax_Auxiliary(jS-nSkal_Valence)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*)
             Write (6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
             Write (6,*) 'AInt,CutInt=',AInt,CutInt
@@ -783,6 +775,5 @@ C      End Do    ! klS
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('Drv2El3RI')
       Return
       End

@@ -63,7 +63,6 @@
 
       Character*16 TheName
       Data TheName/'DaName_Main'/
-      If ( Query ) Call qEnter(TheName)
 
       If ( Trace ) then
         Write (6,*) ' >>> Enter DaName_Main <<<'
@@ -93,7 +92,7 @@
 #ifndef _GA_
       isFiM(Lu)=0
       isFiM(Lu)=isinmem(StdNam)
-#ifdef _DEBUG_IO_
+#ifdef _DEBUGPRINT_IO_
       if(isFiM(Lu)>0) write(6,*) "The file ",StdNam," will be kept in
      & memory"
 #endif
@@ -105,7 +104,7 @@
       iRc = AixOpn(temp,StdNam,.true.)
 #ifndef _GA_
       if(iRc.eq.eFiMFo) Then
-#ifdef _DEBUG_IO_
+#ifdef _DEBUGPRINT_IO_
          write(6,*) "Failed to open file in memory"
 #endif
          isFiM(Lu)=0
@@ -180,7 +179,6 @@
         Write (6,*) ' >>> Exit DaName_Main <<<'
       End If
 
-      If ( Query ) Call qExit(TheName)
 
       Return
       End

@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Proc_InpX(DSCF,Info,lOPTO,iRc)
+      Subroutine Proc_InpX(DSCF,lOPTO,iRc)
 
 ! module dependencies
 #ifdef module_DMRG
@@ -40,7 +40,7 @@
 #include "stdalloc.fh"
 #ifdef _HDF5_
 #  include "mh5.fh"
-      character(32) :: prgm
+      character(len=32) :: prgm
 #endif
 *
       Logical Do_OFemb,KEonly,OFE_first
@@ -88,7 +88,7 @@
       DIMENSION NFRO_L(8),NISH_L(8),NRS1_L(8),NRS2_L(8)
       DIMENSION NRS3_L(8),NSSH_L(8),NDEL_L(8)
 #ifdef _HDF5_
-      character(1), allocatable :: typestring(:)
+      character(len=1), allocatable :: typestring(:)
 #endif
 * TOC on JOBOLD (or JOBIPH)
       DIMENSION IADR19(15)
@@ -155,7 +155,6 @@ C   No changing about read in orbital information from INPORB yet.
 *    GAS flag, means the INPUT was GAS
       iDoGas = .false.
 
-      Call qEnter('Proc_Inp')
 
       NAlter=0
       iRc=_RC_ALL_IS_WELL_
@@ -905,7 +904,7 @@ CGG This part will be removed. (PAM 2009: What on earth does he mean??)
 *---  Process MSPD command --------------------------------------------*
       If (DBG) Write(6,*) ' Check if Multi-state MC-PDFT case.'
       If (KeyMSPD) Then
-       Write(6,*) ' MSPD keyword was used.'
+       If (DBG) Write(6,*) ' MSPD keyword was used.'
        iMSPDFT=1
        Call SetPos_m(LUInput,'MSPD',Line,iRc)
        Call ChkIfKey_m()
@@ -2786,7 +2785,7 @@ C Test read failed. JOBOLD cannot be used.
      &    PCM_On()       .or.
      &    Do_OFEmb       .or.
      &    KSDFT.ne.'SCF'     )
-     &    Call IniSew(Info,DSCF.or.Langevin_On().or.PCM_On(),nDiff)
+     &    Call IniSew(DSCF.or.Langevin_On().or.PCM_On(),nDiff)
 * ===============================================================
 *
 *     Check the input data
@@ -2944,11 +2943,9 @@ C Test read failed. JOBOLD cannot be used.
 9000  CONTINUE
       close(989)
       If (DBG) Write(6,*)' Normal exit from PROC_INP.'
-      Call qExit('Proc_Inp')
       Return
 *---  Abnormal exit -----------------------------------------------------*
 9900  CONTINUE
       If (DBG) Write(6,*)' Abnormal exit from PROC_INP.'
-      Call qExit('Proc_Inp')
       Return
       End

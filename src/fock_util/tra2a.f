@@ -38,7 +38,6 @@
      &       IJKL(lBas*kBas), IJKX(kBas*lAsh),
      &       IJVX(lAsh*kAsh), VXIJ(ij_bas_pairs,kl_Orb_pairs)
 *
-*     Call qEnter('Tra2A')
 *
 *     (ij|kl) -> (ij|kx)
       Call DGEMM_('T','N',
@@ -68,7 +67,6 @@
         VXIJ(ij_pair,kl) = IJVX(kl)
       End Do
 *
-*     Call qExit('Tra2A')
 *
       Return
       End

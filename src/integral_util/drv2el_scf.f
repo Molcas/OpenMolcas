@@ -27,18 +27,6 @@
 *          Twoham is the lower triangular of the two-electron contri-  *
 *               bution to the Fock matrix.                             *
 *                                                                      *
-* Called from: PMat                                                    *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DeDe_SCF                                                *
-*              DrvK2                                                   *
-*              StatP                                                   *
-*              mHrr                                                    *
-*              DCopy   (ESSL)                                          *
-*              Swap                                                    *
-*              DrvTwo                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -55,10 +43,9 @@
 ************************************************************************
       use k2_arrays, only: pDq, pFq
       use IOBUF
+      use Real_Info, only: ThrInt, CutInt
       Implicit Real*8 (a-h,o-z)
       External Rsv_GTList, No_Routine
-#include "itmax.fh"
-#include "info.fh"
 #include "stdalloc.fh"
 #include "print.fh"
 #include "real.fh"
@@ -72,12 +59,9 @@
       Logical W2Disc, FstItr, Semi_Direct,Rsv_GTList,
      &        PreSch, Free_K2, Verbose, Indexation,
      &        DoIntegrals, DoFock, DoGrad, Triangular
-      Integer iTOffs(8,8,8),
-     &        nShi(8), nShj(8), nShk(8), nShl(8),
-     &        nShOffi(8), nShOffj(8), nShOffk(8), nShOffl(8)
+      Integer iTOffs(8,8,8)
       Logical Debug
       Character*72 SLine
-      Dimension Ind(1,1,2)
       Real*8, Allocatable:: TMax(:,:), DMax(:,:)
       Integer, Allocatable:: ip_ij(:,:)
 *
@@ -87,10 +71,8 @@
 *                                                                      *
       iRout = 9
       iPrint = nPrint(iRout)
-      Call QEnter('Drv2El')
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
        Debug=.true.
-c       iPrint=200
 #else
        Debug=.false.
 #endif
@@ -105,7 +87,6 @@ c       iPrint=200
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      nInd=1
       Nr_Dens=1
       DoIntegrals=.False.
       NoExch=ExFac.eq.Zero
@@ -268,13 +249,11 @@ c       iPrint=200
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         Call Eval_Ints_New_
+         Call Eval_Ints_New_Internal
      &                  (iS,jS,kS,lS,TInt,nTInt,
-     &                   iTOffs,nShi,nShj,nShk,nShl,
-     &                   nShOffi,nShOffj,nShOffk,nShOffl,
-     &                   No_Routine,
+     &                   iTOffs,No_Routine,
      &                   pDq,pFq,mDens,[ExFac],Nr_Dens,
-     &                   Ind,nInd,[NoCoul],[NoExch],
+     &                   [NoCoul],[NoExch],
      &                   Thize,W2Disc,PreSch,Disc_Mx,Disc,
      &                   Count,DoIntegrals,DoFock)
 
@@ -335,7 +314,6 @@ c       iPrint=200
 *
       Call Free_DeDe(Dens,TwoHam,nDens)
 *
-      Call QExit('Drv2El')
 *
 *     Broadcast contributions to the Fock matrix
 *

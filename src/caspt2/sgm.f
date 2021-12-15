@@ -67,7 +67,7 @@ C greater than ICASE1, hence the reverse option.
 CFUE  IF( (ICASE1.EQ.1 .AND. ICASE2.EQ.2) .AND.
 CFUE &    (ISYM1.EQ.1  .AND. ISYM2.EQ.1 )       ) IFTEST=1
 CPAM      IF(ICASE1.EQ.5.AND.ICASE2.GT.11) IFTEST=1
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,'(A,10I5)')' ENTERING SGM.'
       WRITE(6,'(A,10I5)')'       IMLTOP:',IMLTOP
       WRITE(6,'(A,10I5)')' ISYM1,ICASE1:',ISYM1,ICASE1

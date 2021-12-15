@@ -42,7 +42,8 @@ FILE = $Project.guessorb.h5
 
  &RASSCF
 FILE = $Project.scf.h5
-Symmetry = 1; Spin = 1
+Symmetry = 1
+Spin = 1
 Nactel = 6  0  0
 Inac =  18
 Ras2 =   6
@@ -55,7 +56,8 @@ Iter = 30 100
  &RASSCF
 FILE = $Project.rasscf.h5
 H5CI
-Symmetry = 1; Spin = 1
+Symmetry = 1
+Spin = 1
 Nactel = 6  0  0
 Inac =  18
 Ras2 =   6

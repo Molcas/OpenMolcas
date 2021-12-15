@@ -20,7 +20,6 @@
       Character*(*) Char(nDim)
       Real*8 FI(N1,N2)
 *
-      Call qEnter('Output')
 *
       Lu=6
       WRITE (Lu,100) Text
@@ -36,6 +35,5 @@
          End If
 10    Continue
 *
-      Call qExit('Output')
       Return
       End

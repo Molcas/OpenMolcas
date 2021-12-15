@@ -17,7 +17,6 @@
       Character*180 ESPFLine, Get_Ln
       External Get_Ln
 *
-      Call QEnter('espf_analysis')
       iPL = iPL_espf()
 *
       If (iPL.ge.2) Then
@@ -152,6 +151,5 @@
 *
       Call ClsSew()
 *
-      Call QExit('espf_analysis')
       Return
       End

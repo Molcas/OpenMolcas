@@ -15,7 +15,6 @@ cpgi$g opt=1
 #include "mrci.fh"
       DIMENSION HREF(*),FC(*),FIJKL(*),JREFX(NCVAL)
 *
-      CALL QENTER('MKHREF')
       NHREF=(NREF*(NREF+1))/2
       CALL FZERO(HREF,NHREF)
       ICHK=0
@@ -152,6 +151,5 @@ CPAM96        LP=IAND(ISHFT(INDI,-24),255)
           HREF(IIR)=HREF(IIR)+COP(IBUF)+POTNUC
         END IF
 410   CONTINUE
-      CALL QEXIT('MKHREF')
       RETURN
       END

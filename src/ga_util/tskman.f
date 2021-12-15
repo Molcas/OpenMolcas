@@ -43,7 +43,6 @@
       integer :: id, n
 
 #ifdef _debug_trace_
-      call qenter('init_tsk')
 #endif
 
       if (list_counter.eq.mxtsklst) then
@@ -73,7 +72,6 @@
 #endif
 
 #ifdef _debug_trace_
-      call qexit('init_tsk')
 #endif
       end
 
@@ -87,7 +85,6 @@
       integer :: id
 
 #ifdef _debug_trace_
-      call qenter('free_tsk')
 #endif
 
       if (list_counter.eq.0) then
@@ -111,7 +108,6 @@
       list_counter = list_counter - 1
 
 #ifdef _debug_trace_
-      call qexit('free_tsk')
 #endif
       end
 
@@ -154,7 +150,6 @@
       integer :: id, n
 
 #ifdef _debug_trace_
-      call qenter('init_tsk_even')
 #endif
 
       if (list_counter.eq.mxtsklst) then
@@ -176,7 +171,6 @@
 #endif
 
 #ifdef _debug_trace_
-      call qexit('init_tsk_even')
 #endif
       end
 
@@ -186,7 +180,6 @@
       integer :: id
 
 #ifdef _debug_trace_
-      call qenter('free_tsk_even')
 #endif
 
       if (list_counter.eq.0) then
@@ -200,7 +193,6 @@
       list_counter = list_counter - 1
 
 #ifdef _debug_trace_
-      call qexit('free_tsk_even')
 #endif
       end
 

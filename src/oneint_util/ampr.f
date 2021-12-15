@@ -17,10 +17,6 @@
 * Object: Compute matrix elements of hermitized products of angular    *
 *         moment operators, using elementary overlaps, dipole, and     *
 *         quadrupole integrals.                                        *
-* Called from: AMPInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Per-Ake Malmqvist, Dept. of Theoretical Chemistry,       *
 *             University of Lund, SWEDEN                               *
@@ -47,7 +43,6 @@
 *
       iRout = 221
       iPrint = nPrint(iRout)
-      Call qEnter('AMPr ')
 *
       If (iPrint.ge.99) Then
           Write (6,*) ' In AMPr la,lb=',la,lb
@@ -378,6 +373,5 @@ C------------------ (Lx,Lz)
           Write (6,*) ' Leaving AMPr.'
       End If
 *
-      Call qExit('AMPr ')
       Return
       End

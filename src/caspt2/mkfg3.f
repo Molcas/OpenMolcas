@@ -111,7 +111,6 @@ C>                   to active indices
       ! which is set to nbuf1 later, i.e. a maximum of nlev2 <= mxlev**2
       REAL*8 BUFR(MXLEV**2)
 
-      CALL QENTER('MKFG3')
 
 C Put in zeroes. Recognize special cases:
       IF(nlev.EQ.0) GOTO 999
@@ -689,6 +688,5 @@ C     so make sure that the _total_ fingerprint is computed
       ENDIF
 
  999  continue
-      CALL QEXIT('MKFG3')
       RETURN
       END

@@ -19,7 +19,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -30,7 +30,7 @@
       End If
 *
       ThrB=0.40D0
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Box: Coor',' ',Coor,3,nAtoms)
       Write (6,*) 'Box: ThrB=',ThrB
       Write (6,*) 'Box: ThrB_=',ThrB_
@@ -73,7 +73,7 @@
       adjust = (DBLE(nz)*Box_size - (zmax-zmin))/Two
       zmin=zmin-adjust
       zmax=zmax+adjust
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'nx,ny,nz=',nx,ny,nz
 #endif
 *
@@ -100,7 +100,7 @@ c AOM
       Call Free_iWork(ip_Tab)
 *
       Return
-#ifndef _DEBUG_
+#ifndef _DEBUGPRINT_
 c Avoid unused argument warnings
       If (.False.) Call Unused_real(Thrb_)
 #endif

@@ -109,7 +109,6 @@
       Parameter (DefThr = 1.0d-6, DefSpan = 1.0d-2) ! defaults
       Parameter (ThrNeg = -1.0d-13, ThrFail = -1.0d-8)
 
-      Call qEnter(SecNam)
 
 C     Initialize variables.
 C     ---------------------
@@ -206,5 +205,4 @@ C     That's it!
 C     ----------
 
     1 Continue
-      Call qExit(SecNam)
       End

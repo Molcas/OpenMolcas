@@ -30,7 +30,7 @@ C
       Parameter (SecNam = 'Cho_VecBuf_Subtr')
 
       Logical LocDbg
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Parameter (LocDbg = .true.)
 #else
       Parameter (LocDbg = .false.)
@@ -113,7 +113,7 @@ C        ------------------------
          End If
          iVec0 = nVec*(iBatch-1)
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          Need = nQual(iSym)*NumV
          If (lWrk .lt. Need) Then
             Call Cho_Quit('Batch setup error in '//SecNam,104)

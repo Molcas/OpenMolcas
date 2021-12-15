@@ -97,7 +97,7 @@ INT add_shmentry(mstat *MM, mentry *tmp, char *path, INT *Id) {
     int   shmid;
     key_t SHM_key;
     char *defpath=NULL,*wpath;
-#ifdef _DEBUG_MEM_
+#ifdef _DEBUGPRINT_MEM_
     int    rc;
     struct shmid_ds shm_stat;
 #endif
@@ -106,7 +106,7 @@ INT add_shmentry(mstat *MM, mentry *tmp, char *path, INT *Id) {
     char   *wrkspc=NULL;
 
     if(defpath==NULL) defpath=getenvc("MOLCAS");
-#ifdef _DEBUG_MEM_
+#ifdef _DEBUGPRINT_MEM_
     printf("defpath=%s\n",defpath);
 #endif
     wpath=(strlen(path))?path:defpath;
@@ -119,7 +119,7 @@ INT add_shmentry(mstat *MM, mentry *tmp, char *path, INT *Id) {
     }
 */
 /* Linux part is here */
-#ifdef _DEBUG_MEM_
+#ifdef _DEBUGPRINT_MEM_
     printf("++++++++ Adding new shared memory entry %s of type = %s with length=%ld and the key=%ld\n",tmp->elbl,tmp->etyp,LIFMT(tmp->len),LIFMT(SHM_key));
 #endif
 #ifdef _HUGE_PAGES_
@@ -143,7 +143,7 @@ INT add_shmentry(mstat *MM, mentry *tmp, char *path, INT *Id) {
 
     if(shmid==-1) {
       shmid = shmget(SHM_key, 0,0644|IPC_CREAT);
-#ifdef _DEBUG_MEM_
+#ifdef _DEBUGPRINT_MEM_
       rc=shmctl(shmid,IPC_STAT,&shm_stat);
       if(rc==0) {
          printf("Shared memory segment with the key '%x' is already exist and its size = %ld bytes\n",SHM_key,LIFMT(shm_stat.shm_segsz));
@@ -171,7 +171,7 @@ INT add_shmentry(mstat *MM, mentry *tmp, char *path, INT *Id) {
         perror("shmop: shmat failed");
         return(-2);
     }
-#ifdef _DEBUG_MEM_
+#ifdef _DEBUGPRINT_MEM_
     bzero((void *) wrkspc, (size_t) tmp->len);
 #endif
     tmp->addr=(void *) wrkspc;
@@ -191,12 +191,12 @@ INT add_shmentry(mstat *MM, mentry *tmp, char *path, INT *Id) {
             break;
         default: printf("MMA: not supported datatype %s\n",tmp->etyp);
     }
-#ifdef _DEBUG_MEM_
+#ifdef _DEBUGPRINT_MEM_
     printf("dist=%ld\n",LIFMT(dist));
     printf("entry %s has been allocated at %p. The corresponding <key> and [id] are <%x> and [%ld], respectively\n",tmp->elbl,tmp->addr,SHM_key,LIFMT(*Id));
 #endif
     tmp->offset=(INT) dist;
-#ifdef _DEBUG_MEM_
+#ifdef _DEBUGPRINT_MEM_
     dump_mentry("NEW SHARED MEMORY ENTRY", tmp);
 #endif
 
@@ -208,18 +208,18 @@ INT del_shmentry(mentry *tmp, INT shmid) {
     INT     rc;
     char   *wrkspc=NULL;
 
-#ifdef _DEBUG_MEM_
+#ifdef _DEBUGPRINT_MEM_
     printf("-------- Deleting shared memory entry '%9s' of type = '%9s' with length=%12ld (offset=%12ld)\n",tmp->elbl,tmp->etyp,LIFMT(tmp->len),LIFMT(tmp->offset));
 #endif
 
-#ifdef _DEBUG_MEM_
+#ifdef _DEBUGPRINT_MEM_
     dump_mentry("DELETING SHARED MEMORY ENTRY",tmp);
     printf("requested shmid=%ld\n",shmid);
 #endif
 
     wrkspc=woff2cptr(tmp->etyp, tmp->offset);
 
-#ifdef _DEBUG_MEM_
+#ifdef _DEBUGPRINT_MEM_
     printf("Deallocating memory %s at adress %p\n",tmp->elbl, wrkspc);
 #endif
     rc=shmdt(wrkspc);
@@ -249,7 +249,7 @@ INT c_getshmem(char *name, char* Op, char *dtyp, INT *offset, INT *len, char *pa
     string2UC(Op,action);
 
     op=memop(action);
-#ifdef _DEBUG_MEM_
+#ifdef _DEBUGPRINT_MEM_
     print_params("C_Get_SHMEM",name, Op, dtyp, offset,len);
     printf("Op=%s (%ld)\n",Op,LIFMT(memop(Op)));
 #endif

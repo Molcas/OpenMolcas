@@ -40,8 +40,6 @@
       Title=BLine
 
 *
-*     Call qEnter('RdCtl')
-*
 *
 
       LuRd=21

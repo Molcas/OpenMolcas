@@ -10,38 +10,27 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      Integer Function MltLbl(Lbl1,Lbl2,nIrrep)
+      Integer Function MltLbl(Lbl1,Lbl2)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             February '91                                             *
 ************************************************************************
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
-#include "real.fh"
+      Integer Lbl1, Lbl2
 *
-      iRout =213
-      iPrint = nPrint(iRout)
-*     Call qEnter('MltLbl')
+      Integer iIrrep, jIrrep, ijSym
 *
       MltLbl = 0
-      Do 10 iIrrep = 0, nIrrep - 1
-         If (iAnd(Lbl1,2**iIrrep).eq.0) Go To 10
-         Do 20 jIrrep = 0, nIrrep - 1
-            If (iAnd(Lbl2,2**jIrrep).eq.0) Go To 20
+      Do iIrrep = 0, nIrrep - 1
+         If (iAnd(Lbl1,2**iIrrep).eq.0) Cycle
+         Do jIrrep = 0, nIrrep - 1
+            If (iAnd(Lbl2,2**jIrrep).eq.0) Cycle
             ijSym = iEor(iIrrep,jIrrep)
             If (iAnd(MltLbl,2**ijSym).eq.0) MltLbl = MltLbl + 2**ijSym
- 20      Continue
- 10   Continue
+         End Do
+      End Do
 *
-*     Call qExit('MltLbl')
       Return
       End

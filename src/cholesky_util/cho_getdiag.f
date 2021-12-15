@@ -33,7 +33,6 @@ C
 
       INTEGER ISYLST(8)
 
-      CALL QENTER('_GETDIAG')
 
       IF (RSTDIA) THEN
 
@@ -228,6 +227,5 @@ C     -----------------------------------
 
       ip_DIAG = KDIAG
 
-      CALL QEXIT('_GETDIAG')
 
       END

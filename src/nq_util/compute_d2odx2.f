@@ -191,7 +191,7 @@
      &            Px,3,
      &            0.0d0,Scr1,3)
       Call DaXpY_(9,-One,Scr1,1,RHS,1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('RHS',' ',RHS,3,3)
 #endif
 *

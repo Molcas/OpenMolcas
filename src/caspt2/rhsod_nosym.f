@@ -30,7 +30,6 @@
 #include "eqsolv.fh"
 #include "para_info.fh"
 
-      Call QEnter('RHSOD')
 
       IF (IPRGLB.GE.VERBOSE) THEN
         WRITE(6,'(1X,A)') ' Using special RHS on-demand algorithm,'
@@ -54,7 +53,7 @@
       CALL RHSOD_G_NOSYM(IVEC)
       CALL RHSOD_H_NOSYM(IVEC)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 * compute and print RHS fingerprints
       WRITE(6,'(1X,A4,1X,A3,1X,A18)') 'Case','Sym','Fingerprint'
       WRITE(6,'(1X,A4,1X,A3,1X,A18)') '====','===','==========='
@@ -72,7 +71,6 @@
       END DO
 #endif
 
-      Call QExit('RHSOD')
 
       END
 

@@ -36,7 +36,7 @@
  Group = NoSym
  Basis = STO-3G
  RICD
- 
+
 &Seward
 
 > EXPORT MOLCAS_THR=2

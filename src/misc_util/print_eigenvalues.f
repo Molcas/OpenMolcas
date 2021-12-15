@@ -14,7 +14,6 @@
 #include "WrkSpc.fh"
       Real*8 H(nH*(nH+1)/2)
 *
-      Call QEnter('PEV')
       Lu=6
 *
       Call GetMem('EVal','Allo','Real',ipEVal,nH*(nH+1)/2)
@@ -44,6 +43,5 @@
       Call GetMem('EVec','Free','Real',ipEVec,nH*nH)
       Call GetMem('EVal','Free','Real',ipEVal,nH*(nH+1)/2)
 *
-      Call QExit('PEV')
       Return
       End

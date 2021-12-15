@@ -73,9 +73,9 @@ c----------------------------------------------------------------
       Logical, intent(out) :: m_paranoid
       Logical              :: doplot
 
-      Character(2)  :: cME,clanth(37)
-      Character(21) :: namefile_energy
-      Character(180):: input_file_name,tmpline,err_msg
+      Character(Len=2)  :: cME,clanth(37)
+      Character(Len=21) :: namefile_energy
+      Character(Len=180):: input_file_name,tmpline,err_msg
 
       External      :: FindDetR
 
@@ -89,12 +89,11 @@ c      COMMON/MAGNSUBR/ HMIN,HMAX
 c      COMMON/MAGNSUBL/ HINPUT
 
       Integer        :: I,LINENR,j
-      Character(280) :: LINE
+      Character(Len=280) :: LINE
 
 
       Logical :: DBG
 
-      Call qEnter('SA_readin')
       DBG=.false.
 C============ Some default settings=====================================
 c  variables in "mgrid.fh"
@@ -1592,6 +1591,5 @@ C------ errors ------------------------------
 
 
  190  continue
-      Call qExit('SA_readin')
       Return
       End

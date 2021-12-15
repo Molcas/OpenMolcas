@@ -64,7 +64,6 @@ c      Dimension iToc(15)
       Character*80 String
       Logical Exist
 
-      Call qEnter('CStart')
       IPRLEV=IPRLOC(3)
 
 * special case: nConf=1
@@ -75,7 +74,6 @@ C$$$        ExplE(1) = C(1)  ! Commented out by Jesper
 C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
         C(1) = 1.0d0
         Call Save_tmp_CI_vec(1,nConf,C,LuDavid)
-        Call qExit('CStart')
         Return
       End If
 
@@ -106,7 +104,6 @@ C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
             Call dVcPrt(String,' ',ExplV(1+(i-1)*nSel),l)
           End If
         End Do
-        Call qExit('CStart')
         Return
       End If
 
@@ -254,7 +251,6 @@ C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
 
       End If
 
-      Call qExit('CStart')
 
       Return
       End

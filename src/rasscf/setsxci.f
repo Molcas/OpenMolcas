@@ -27,7 +27,6 @@ C ---------------------------------------------------------
 C --  SET INDEX VECTORS FOR CI/SX INTEGRAL ORDERING
 C ---------------------------------------------------------
 C
-      Call QENTER(ROUTINE)
 
       NGSSHT=0
       DO IGAS=1,NGAS

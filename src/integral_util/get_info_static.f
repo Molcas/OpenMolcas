@@ -10,127 +10,26 @@
 *                                                                      *
 * Copyright (C) 1992, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine Get_Info_Static(ioffr)
+      SubRoutine Get_Info_Static()
 ************************************************************************
-*                                                                      *
-* Object: to read all input information stored in common blocks        *
-*         INFO, RINFO, LINFO and CINFO.                                *
-*                                                                      *
-* Called from: Alaska                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              OpnCom                                                  *
-*              ClsCom                                                  *
-*              RdCom                                                   *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             January 1992                                             *
 ************************************************************************
-      Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
-#include "stdalloc.fh"
-#include "relae.fh"
-#include "RelLight.fh"
-      Integer iix(2)
-      Real*8 rix(2)
-      Integer, Allocatable:: AS(:,:)
-*
-      nbyte_i = iiloc(iix(2)) - iiloc(iix(1))
-      nbyte_r = idloc(rix(2)) - idloc(rix(1))
-*
-      Call Get_Info_Static_Internal(cxStrt,ixStrt,lxStrt,rxStrt)
+      use Symmetry_Info, only: Symmetry_Info_Get
+      use Sizes_of_Seward, only: Size_Get
+      use DKH_Info, only: DKH_Info_Get
+      use Real_Info, only: Real_Info_Get
+      use RICD_Info, only: RICD_Info_Get
+      use Logical_Info, only: Logical_Info_Get
+
+      Call Symmetry_Info_Get()
+      Call Size_Get()
+      Call DKH_Info_Get()
+      Call Real_Info_Get()
+      Call RICD_Info_Get()
+      Call Logical_Info_Get()
+
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(ioffr)
-*
-*     This is to allow type punning without an explicit interface
-      Contains
-      SubRoutine Get_Info_Static_Internal(cxStrt,ixStrt,lxStrt,rxStrt)
-      Use Iso_C_Binding
-      Integer, Target :: cxStrt,ixStrt,lxStrt
-      Real*8, Target :: rxStrt
-      Integer, Pointer :: p_cx(:),p_ix(:),p_lx(:)
-      Real*8, Pointer :: p_rx(:)
-*
-*     Prologue
-*
-*     Call qEnter('GetInfo')
-*
-*     Load the common INFO
-*
-      Len = iiLoc(ixEnd)-iiLoc(ixStrt)
-      Len = (Len+nbyte_i)/nbyte_i
-      Call C_F_Pointer(C_Loc(ixStrt),p_ix,[Len])
-      Call Get_iArray('SewIInfo',p_ix,Len) ! temporarely deactivated
-      Call Get_iArray('nExp',nExp,Mx_Shll)
-      Call Get_iArray('nBasis',nBasis,Mx_Shll)
-      Call Get_iArray('nBasis_Cntrct',nBasis_Cntrct,Mx_Shll)
-      Call Get_iArray('ipCff',ipCff,Mx_Shll)
-      Call Get_iArray('ipCff_Cntrct',ipCff_Cntrct,Mx_Shll)
-      Call Get_iArray('ipCff_Prim',ipCff_Prim,Mx_Shll)
-      Call Get_iArray('ipExp',ipExp,Mx_Shll)
-      Call Get_iArray('IndS',IndS,nShlls)
-      Call Get_iArray('ip_Occ',ip_Occ,Mx_Shll)
-      Call Get_iArray('ipAkl',ipAkl,Mx_Shll)
-      Call Get_iArray('ipBk',ipBk,Mx_Shll)
-      Call Get_iArray('nOpt',nOpt,nCnttp)
-      Call Get_iArray('iCoSet',iCoSet,64*Mx_mdc)
-      Call Get_iArray('iSOInf',iSOInf,3*4*MxAO)
-      Call ICopy(MxUnq,[1],0,IrrCmp,1)
-      Call Get_iArray('IrrCmp',IrrCmp,Mx_Unq)
-      Call Get_iArray('ipFockOp',ipFockOp,Mx_Shll)
-*
-*     And some in iAOtSO
-*
-      Call mma_allocate(AS,8,Mx_AO,Label='AS')
-      Call Get_iArray('iAOtSO',AS,8*Mx_AO)
-      Do i = 1, Mx_AO
-         Call ICopy(8,AS(1,i),1,iAOtSO(i,0),MxAO)
-      End Do
-      Call mma_deallocate(AS)
-*
-      iRELAE=iRELAE_Info
-*
-*     Load the common LINFO
-*
-      Len = iiLoc(lxEnd)-iiLoc(lxStrt)
-      Len = (Len+nbyte_i)/nbyte_i
-      Call C_F_Pointer(C_Loc(lxStrt),p_lx,[Len])
-      Call Get_iArray('SewLInfo',p_lx,Len)
-      Len = ilLoc(Prjct(Mx_Shll))-ilLoc(Prjct(1))
-      Len = (Len+nByte_i)/nByte_i
-      Call Get_lArray('Prjct',Prjct,Len)
-      Call Get_lArray('Transf',Transf,Len)
-      Call Get_lArray('AuxShell',AuxShell,Len)
-      Call Get_lArray('FragShell',FragShell,Len)
-*
-*     Load the common RINFO
-*
-      Len = idLoc(rxEnd)-idLoc(rxStrt)
-      Len = (Len+nByte_r)/nByte_r
-      Call C_F_Pointer(C_Loc(rxStrt),p_rx,[Len])
-      Call Get_dArray('SewRInfo',p_rx,Len)
-      Len = idLoc(RMax_Shll(Mx_Shll))-idLoc(RMax_Shll(1))
-      Len = (Len+nByte_r)/nByte_r
-      Call Get_dArray('RMax_Shll',RMax_Shll,Len)
-      CLightAU=CLight_Info
-*
-*     Load the common CINFO
-*
-      Len = icLoc(cxEnd)-icLoc(cxStrt)
-      Len = (Len+nByte_i)/nByte_i
-      Call C_F_Pointer(C_Loc(cxStrt),p_cx,[Len])
-      Call Get_iArray('SewCInfo',p_cx,Len)
-*
-      Nullify(p_ix,p_lx,p_rx,p_cx)
-*
-*     Epilogue, end
-*
-*     Call qExit('GetInfo')
-      Return
-      End SubRoutine Get_Info_Static_Internal
-*
       End

@@ -82,7 +82,6 @@ C
 
       Else
 
-         Call qEnter(ThisNam)
          Call ChoMP2_Quit(SecNam,
      &                    'Input parameter "Job" is out of range',' ')
 

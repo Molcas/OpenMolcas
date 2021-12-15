@@ -59,7 +59,6 @@ C
 
       Logical Last
 
-      Call qEnter(SecNam)
       irc = 0
 
       iPass = 0
@@ -270,5 +269,4 @@ C              ----------------------------------------
       End Do
 
     1 Continue
-      Call qExit(SecNam)
       End

@@ -22,7 +22,6 @@ c local variables
       Real(kind=8)    :: MB2
       Complex(kind=8) :: p2a, p2b, p1, HL, d3, mb2c, threeC, vec1(3)
 
-      Call qEnter('PA_Dipol_Exchange')
 
 !     * in cm-1*T-1   -- the value of (mu_Bohr*mu_Bohr)/(Angstrom^3)  in cm-1
       MB2=0.4329701512063995_wp
@@ -65,7 +64,6 @@ c
         End Do
       End Do
 
-      Call qExit('PA_Dipol_Exchange')
 
       Return
       End Subroutine Dipol_Exchange

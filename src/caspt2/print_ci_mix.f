@@ -27,7 +27,6 @@
       Real*8, Allocatable, Dimension(:) :: cCI, mCI
       Logical :: Close_refwfn
 
-      Call QEnter('Print_CI_Mix')
 
       Call mma_allocate(mCI, nConf, Label='MixCICoeff')
       Call mma_allocate(cCI, nConf, Label='CICoeff')
@@ -87,6 +86,5 @@
       Call mma_deallocate(mCI)
       Call mma_deallocate(cCI)
 
-      Call QExit('Print_CI_Mix')
 
       End Subroutine Print_CI_Mix

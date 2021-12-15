@@ -406,7 +406,7 @@ c Avoid unused argument warnings
          End Do
          iSP1=iSP1+nSP_this_batch
       End Do
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If ((iSP1-1).ne.n_mySP) Then
          Call Cho_Quit(SecNam//': SP batch dimension error',103)
       End If

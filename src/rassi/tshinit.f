@@ -32,7 +32,6 @@
 *
 
 
-      CALL QENTER(ROUTINE)
 C
 C Print a banner
 C
@@ -204,11 +203,11 @@ C     Check if the Energy gap is smaller than the threshold.
      &          ISTATE2
            WRITE(6,'(6X,A,I11,4X,A,I11)')'NCI1=',NCI1,'NCI2=',NCI2
          END IF
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          WRITE(6,*)' TSHinit calls TSHop.'
 #endif
          CALL TSHop(WORK(LCI1),WORK(LCI2))
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          WRITE(6,*)' TSHinit back from TSHop.'
 #endif
          IF(WFTYP2.EQ.'GENERAL ') THEN
@@ -287,11 +286,11 @@ C     Check if the Energy gap is smaller than the threshold.
      &          ISTATE2
            WRITE(6,'(6X,A,I11,4X,A,I11)')'NCI1=',NCI1,'NCI2=',NCI2
          END IF
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          WRITE(6,*)' TSHinit calls TSHop.'
 #endif
          CALL TSHop(WORK(LCI1),WORK(LCI2))
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          WRITE(6,*)' TSHinit back from TSHop.'
 #endif
          IF(WFTYP2.EQ.'GENERAL ') THEN
@@ -312,7 +311,6 @@ C      END IF
         CALL SGCLOSE(ISGSTR1)
       END IF
       CALL GETMEM('GTDMCI1','FREE','REAL',LCI1,NCI1)
-      CALL QEXIT(ROUTINE)
       RETURN
 *
       END

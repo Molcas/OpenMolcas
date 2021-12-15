@@ -11,7 +11,7 @@
       Subroutine BMtrx_User_Defined(
      &                 nLines,nBVec,ipBMx,nAtom,nInter,
      &                 ip_rInt,Lbl,Coor,nDim,dMass,
-     &                 Name,nSym,iOper,Smmtrc,
+     &                 Name,Smmtrc,
      &                 Degen,BSet,HSet,nIter,ip_drInt,
      &                 Gx,Cx,mTtAtm,iAnr,
      &                 nStab,jStab,Numerical,
@@ -26,7 +26,7 @@
       Real*8 Coor(3,nAtom), dMass(nAtom), Degen(3*nAtom),
      &       Gx(3*nAtom,nIter), Cx(3*nAtom,nIter)
       Character Lbl(nInter)*8, Name(nAtom)*(LENIN)
-      Integer   iOper(0:nSym-1), iAnr(nAtom),
+      Integer   iAnr(nAtom),
      &          nStab(nAtom), jStab(0:7,nAtom), iCoSet(0:7,nAtom)
       Logical Smmtrc(3*nAtom), BSet, HSet, Redundant,
      &        Numerical, HWRS, Analytic_Hessian, PrQ, lOld
@@ -65,7 +65,7 @@
       ip = ip_rInt + (nIter-1)*nQQ
       Call DefInt(Work(ipBVec),nBVec,cWork(ipLab),Work(ipBMx),nQQ,
      &            nAtom,nLines,Work(ipVal),Work(ip),Lbl,Name,
-     &            Coor,dMass,nSym,iOper,jStab,nStab,mxdc,Work(ipMult),
+     &            Coor,dMass,jStab,nStab,mxdc,Work(ipMult),
      &            nDim-mTR,Redundant)
 *
       Call GetMem('Lab','Free','Char',ipLab,nBVec*8)

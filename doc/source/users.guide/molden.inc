@@ -8,13 +8,13 @@ Writing LUSCUS/MOLDEN input
 ---------------------------
 
 By default the :program:`GUESSORB`, :program:`SCF`, :program:`MBPT2`, :program:`RASSCF`,
-:program:`SLAPAF`, :program:`LOCALISATION`, and :program:`MCLR` modules
+:program:`SLAPAF`, :program:`LOCALISATION`, :program:`MCLR`, and, optionally :program:`RASSI` modules
 generate input in Molden format. The :program:`SCF`, :program:`MBPT2`, :program:`RASSCF`,
 and :program:`LOCALISATION` modules generate input for molecular orbital
 analysis, :program:`SLAPAF` for geometry optimization analysis, minimum energy paths,
-Saddle optimization paths and IRC TS analysis,
-and the :program:`MCLR` module generates input for
-analysis of harmonic frequencies.
+Saddle optimization paths and IRC TS analysis, :program:`MCLR` module generates input for
+analysis of harmonic frequencies, and :program:`RASSI` generates natural transition orbitals,
+if requested.
 
 The generic name of the input file and the actual
 name are different for the nodes as a reflection on the data generated
@@ -39,6 +39,9 @@ by each module. Hence, the actual names (generic name) for the Molden files in e
   $Project.local.molden (MD_LOC)
 * MCLR module:
   $Project.freq.molden (MD_FREQ)
+* RASSI module:
+  $Project.nto.molden.I_J.Spin.HOLE for hole NTOs and
+  $Project.nto.molden.I_J.Spin.PART for particle NTOs. (MD_NTO)
 
 Files in MOLDEN format can be visualized by Molden program,
 or by |molcas| GUI program :program:`LUSCUS`.

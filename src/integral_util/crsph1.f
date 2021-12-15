@@ -22,16 +22,6 @@
 *                                                                      *
 *          Observe that most of the time Win and Wout will overlap.    *
 *                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DGEMM_   (ESSL)                                         *
-*              RecPrt                                                  *
-*              DGeTMO   (ESSL)                                         *
-*              DCopy    (ESSL)                                         *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 ************************************************************************

@@ -19,7 +19,7 @@
 #endif
 #include "standard_iounits.fh"
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) ' Start.'
 #endif
 
@@ -32,21 +32,21 @@
 * Initialize delayed BLAS+LAPACK
 *
       Call Init_LinAlg
-#  ifdef _DEBUG_
+#  ifdef _DEBUGPRINT_
       Write (6,*) ' BLAS+LAPACK initialized '
 #  endif
 *
 *  Initialize Timing
 *
       Call SetTim
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) ' TIMING set'
 #endif
 *
 * Initialize the parallel environment
 *
       Call GAInit
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(6,*) ' GA initialized: MyRank, nProcs = ', MyRank, nProcs
 #endif
 *
@@ -74,7 +74,7 @@
 *  (DO NOT MOVE FROM HERE)
 *
       Call CheckRun()
-#  ifdef _DEBUG_
+#  ifdef _DEBUGPRINT_
       Write (6,*) ' CHECKRUN passed'
 #  endif
 
@@ -82,7 +82,7 @@
 *  (DO NOT MOVE FROM HERE)
 *
       Call IniMem()
-#  ifdef _DEBUG_
+#  ifdef _DEBUGPRINT_
       Write (6,*) ' MEMORY MANAGER initialized'
 #  endif
 *
@@ -90,12 +90,12 @@
 *  (DO NOT MOVE FROM HERE)
 *
       Call UnixInfo(ModuleName,ModuleName)
-#  ifdef _DEBUG_
+#  ifdef _DEBUGPRINT_
       Write (6,*) ' UNIXINFO passed '
 #  endif
 
       call prgminit(ModuleName)
-#  ifdef _DEBUG_
+#  ifdef _DEBUGPRINT_
       Write (6,*) ' PRGM initialized'
 #  endif
 
@@ -119,7 +119,7 @@
       LuRd=5
       close(LuRd)
       call molcas_open(LuRd,'stdin')
-#  ifdef _DEBUG_
+#  ifdef _DEBUGPRINT_
       Write (6,*) ' STDIN opened '
 #  endif
 *
@@ -131,7 +131,7 @@
         call molcas_open(LuWr,'stdout')
         call Append_file(LuWr)
       Endif
-#  ifdef _DEBUG_
+#  ifdef _DEBUGPRINT_
       Write (6,*) ' STDOUT opened '
 #  endif
 *
@@ -139,7 +139,7 @@
 *
       Call ColorizeInit()
       call xml_Open('module',' ',' ',0,ModuleName)
-#  ifdef _DEBUG_
+#  ifdef _DEBUGPRINT_
       Write (6,*) ' XML initialized '
 #  endif
 *
@@ -150,7 +150,7 @@
 *  Initiate I/O
 *
       Call FIOInit()
-#  ifdef _DEBUG_
+#  ifdef _DEBUGPRINT_
       Write (6,*) ' I/O initialized '
 #  endif
 *
@@ -158,14 +158,14 @@
 *
       Call IniTim()
       Call IniStat()
-#  ifdef _DEBUG_
+#  ifdef _DEBUGPRINT_
       Write (6,*) ' TIMINGS/STATISTICS initialized'
 #  endif
 *
 * Set standard name for the runfile
 *
       Call NameRun('RUNFILE')
-#  ifdef _DEBUG_
+#  ifdef _DEBUGPRINT_
       Write (6,*) ' RUNFILE initialized '
 #  endif
       Call Init_Run_Use()
@@ -178,7 +178,7 @@
 * Set Grid Set
 *
       Call NQ_Init()
-#  ifdef _DEBUG_
+#  ifdef _DEBUGPRINT_
       Write (6,*) ' GRID initialized '
 #  endif
 

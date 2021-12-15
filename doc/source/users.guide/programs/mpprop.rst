@@ -181,8 +181,9 @@ Optional general keywords
               %%Keyword: POLArizability <basic>
               <HELP>
               This specifies if the polarizability should be calculated or not.
-              0 Means no polarizability should be calculated.
-              1 (Default) Means polarizability should be calculated.
+
+              0 -- Means no polarizability should be calculated.
+              1 -- (Default) Means polarizability should be calculated.
               </HELP>
               </KEYWORD>
 

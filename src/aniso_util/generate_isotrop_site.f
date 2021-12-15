@@ -44,7 +44,6 @@
       Logical                       :: dbg
       dbg=.false.
 !----------------------------------------------------------------------|
-      Call qEnter('generate_isotrop_site')
 
       Do j=-30,30
          ib(j)=0
@@ -227,6 +226,5 @@
       End If ! nss>=2
 
 
-      Call qExit('generate_isotrop_site')
       Return
       End subroutine generate_isotrop_site

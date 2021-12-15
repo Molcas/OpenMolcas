@@ -53,7 +53,6 @@
       COMMON /CHOSCREEN/ Estimate,Update
       COMMON /CHOPAR/ ChFracMem
 
-      Call qEnter(ROUTINE)
 
 *----------------------------------------------------------------------*
       ProgName=Get_SuperName()
@@ -374,5 +373,12 @@ CSVC: lucia timers
       tsigma = 0.0d0
       tdensi = 0.0d0
 *
+C state rotation
+      iRotPsi=0
+      iXMSP=0
+      iCMSP=0
+      ICMSIterMax=100
+      ICMSIterMin=5
+      CMSThreshold=1.0d-6
       RETURN
       END

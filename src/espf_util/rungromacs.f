@@ -43,7 +43,6 @@
       INTEGER, EXTERNAL :: mmslave_read_tpr,mmslave_set_q
       CHARACTER(LEN=100), EXTERNAL :: Get_SuperName
 
-      CALL qEnter('RunGromacs')
 
       LuExtPot = 1
       LuWr = 6
@@ -242,7 +241,6 @@
       END IF
       CALL mmslave_done(%VAL(ipGMS))
 
-      CALL qExit('RunGromacs')
 
       RETURN
       END

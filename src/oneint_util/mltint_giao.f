@@ -21,20 +21,6 @@
 * Object: to compute the multipole moments integrals with the          *
 *         Gauss-Hermite quadrature.                                    *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              CrtCmp                                                  *
-*              SOS                                                     *
-*              DCR                                                     *
-*              Assmbl                                                  *
-*              GetMem                                                  *
-*              DCopy   (ESSL)                                          *
-*              CmbnMP                                                  *
-*              SymAdO                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 *             Modified to multipole moments November '90               *
@@ -42,9 +28,6 @@
       use Her_RW
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 #include "oneswi.fh"
 #include "print.fh"
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
@@ -63,7 +46,6 @@
 *
       iRout = 122
       iPrint = nPrint(iRout)
-*     Call qEnter('MltInt_GIAO')
 *
       call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
       If (EQ(A,RB)) Go To 999
@@ -78,7 +60,6 @@
       If (NDDO.AND.
      &    .NOT.(ABeq(1).AND.ABeq(2).AND.ABeq(3))) Then
         call dcopy_(nZeta*nIC*nElem(la)*nElem(lb),[Zero],0,Final,1)
-*       Call qExit('MltInt_GIAO')
         Return
       End If
 *     switch
@@ -125,8 +106,7 @@
 *
 *
       Call SOS(iStabO,nStabO,llOper)
-      Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,iStabO,nStabO,
-     &         iDCRT,nDCRT)
+      Call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
       If (iPrint.ge.99) Then
          Write (6,*) ' m      =',nStabM
          Write (6,'(9A)') '{M}=',(ChOper(iStabM(ii)),ii = 0, nStabM-1)
@@ -138,9 +118,7 @@
       End If
 *
       Do 102 lDCRT = 0, nDCRT-1
-         TC(1) = iPhase(1,iDCRT(lDCRT))*CCoor(1)
-         TC(2) = iPhase(2,iDCRT(lDCRT))*CCoor(2)
-         TC(3) = iPhase(3,iDCRT(lDCRT))*CCoor(3)
+         Call OA(iDCRT(lDCRT),CCoor,TC)
 *
 *        Compute the contribution from the multipole moment operator
 *
@@ -168,7 +146,7 @@
 *
 *        Accumulate contributions
 *
-         nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+         nOp = NrOpr(iDCRT(lDCRT))
          Call SymAdO(Array(ipFnl),nZeta,la,lb,nComp,Final,nIC,
      &               nOp         ,lOper,iChO,One)
 *
@@ -188,7 +166,6 @@
  100     Continue
       End If
 *
-*     Call qExit('MltInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

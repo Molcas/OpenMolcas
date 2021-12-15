@@ -18,13 +18,6 @@
 *         integral from the cartesian components of the overlap        *
 *         integral.                                                    *
 *                                                                      *
-* Called from: PrpInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 ************************************************************************
@@ -41,7 +34,6 @@
 *                                                                      *
       iRout = 115
       iPrint = nPrint(iRout)
-*     Call qEnter('Kntc_GIAO')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -172,7 +164,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Call qExit('Kntc_GIAO')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(nr)

@@ -23,7 +23,6 @@
       JO(L)=ICUNP(ICASE,L)
       JSYM(L)=JSUNP_CPF(JSY,L)
 *
-      CALL QENTER('IIJJ_CPF')
       IAD27=0
       ILIM=4
       IF(IFIRST.NE.0)ILIM=2
@@ -108,6 +107,5 @@ C IR=IRC(2)+1 ... IRC(ILIM)
         END DO
         IF(IND.GT.0)CALL dDAFILE(Lu_27,1,HDIAG,IND,IAD27)
 100   CONTINUE
-      CALL QEXIT('IIJJ_CPF')
       RETURN
       END

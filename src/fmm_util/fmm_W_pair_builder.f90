@@ -54,7 +54,7 @@ CONTAINS
       TYPE(old_new),       INTENT(IN)  :: addr
       REAL(REALK),         INTENT(IN)  :: r_ab(3)
       INTEGER(INTK),       INTENT(IN)  :: new_LMAX, old_LMAX
-      CHARACTER(3),        INTENT(IN)  :: object
+      CHARACTER(LEN=3),    INTENT(IN)  :: object
       TYPE(T_pair_single), INTENT(OUT) :: W_pair
 
       W_pair%paras%ratio = one ! i.e. W_pair%r_ab is the actual vector

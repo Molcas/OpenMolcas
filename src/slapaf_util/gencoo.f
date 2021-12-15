@@ -8,22 +8,23 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine GenCoo(Cart,nAtom,Coor,iOper,nSym,mAtom,Vctrs,Smmtrc,
+      Subroutine GenCoo(Cart,nAtom,Coor,mAtom,Vctrs,Smmtrc,
      &                  nDim,iAnr,jAnr,iTabAI,Degen)
+      use Symmetry_Info, only: nIrrep, iOper
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
       Real*8 Cart(3,nAtom), Coor(3,mAtom), Vctrs(3*mAtom,nDim), r(3),
      &       Degen(3*nAtom)
-      Integer iOper(0:nSym-1), iAnr(nAtom), jAnr(mAtom), iTabAI(2,mAtom)
+      Integer iAnr(nAtom), jAnr(mAtom), iTabAI(2,mAtom)
       Logical New, SmmTrc(3,nAtom)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('GenCoo: Cart',' ',Cart,3,nAtom)
       Call RecPrt('GenCoo: Degen',' ',Degen,3,nAtom)
 #endif
@@ -51,7 +52,7 @@
 *-----Loop over the operators of the point group
 *
          iElem=1
-         Do ig = 1, nSym-1
+         Do ig = 1, nIrrep-1
             r(1)=One
             If (iAnd(iOper(ig),1).ne.0) r(1)=-One
             r(2)=One
@@ -95,7 +96,7 @@
          iSt = iEnd + 1
       End Do         ! End loop over centers
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' In GenCoo: Coor',' ',Coor,3,mAtom)
       Call RecPrt(' In GenCoo: Vctrs',' ',Vctrs,3*mAtom,nDim)
       Write (6,*)

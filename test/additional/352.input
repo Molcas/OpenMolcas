@@ -48,7 +48,7 @@ END OF INPUT
 Orbitals
 WSET
 3
-1.0 1.0 1.0 
+1.0 1.0 1.0
 END OF INPUT
 
  &AVERD &END

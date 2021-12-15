@@ -21,7 +21,6 @@ C and return values and pointers.
 
 
 
-      CALL QENTER(ROUTINE)
 
       NSYM  =ISGS(1)
       NLEV  =ISGS(2)
@@ -36,6 +35,5 @@ C and return values and pointers.
       LMAW  =ISGS(11)
       LLTV  =ISGS(12)
 
-      CALL QEXIT(ROUTINE)
       RETURN
       END

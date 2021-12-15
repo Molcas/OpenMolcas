@@ -28,7 +28,6 @@ C     Dimension Tvj(ndim),T(ndim),Gv(nemax),Gv2(nemax),F(100),Fc(100),
       Dimension Gv(nemax),Gv2(nemax),F(nemax),Fc(nemax),
      *          A(3,3),B(nemax),X(3),jind(nemax),D(nemax),G(3),dF(nemax)
 *
-      Call qEnter('Spectc')
 C
       ChkSum=0.0d0
       zero=0.d0
@@ -384,6 +383,5 @@ c
 c
       Call Add_Info('VIBROT_SPECTC',[ChkSum],1,2)
 *     Write(*,*) 'Spectc: ChkSum',ChkSum
-      Call qExit('Spectc')
       Return
       End

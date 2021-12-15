@@ -21,17 +21,6 @@
 *                                                                      *
 *  X_ij^K = Sum(L) R_ij_L  Q_L^K                                       *
 *                                                                      *
-*                                                                      *
-* Called from: Alaska                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              SetUp_Ints                                              *
-*              GetMem                                                  *
-*              DCopy   (ESSL)                                          *
-*              PGet0                                                   *
-*              TwoEl                                                   *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -41,17 +30,21 @@
 *             Modified for gradient calculation. January '92           *
 *             Modified for SetUp_Ints. January '00                     *
 *             Modified for 2-center RI gradients, January '07          *
-*                                                                      *
 ************************************************************************
       use k2_setup
       use iSD_data
       use pso_stuff
       use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr
+      use Basis_Info
+      use Sizes_of_Seward, only:S
+      use Real_Info, only: CutInt
+      use RICD_Info, only: Do_RI
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External Rsv_Tsk
-#include "real.fh"
 #include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
+#include "real.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "print.fh"
@@ -93,7 +86,6 @@
 *                                                                      *
       iRout = 9
       iPrint = nPrint(iRout)
-      Call QEnter('Drvg1_2Center_RI')
 #ifdef _CD_TIMING_
       Twoel2_CPU = 0.0d0
       Twoel2_Wall = 0.0d0
@@ -139,8 +131,8 @@
 ************************************************************************
 *                                                                      *
       MxPrm = 0
-      Do iAng = 0, iAngMx
-         MxPrm = Max(MxPrm,MaxPrm(iAng))
+      Do iAng = 0, S%iAngMx
+         MxPrm = Max(MxPrm,S%MaxPrm(iAng))
       End Do
       nZeta = MxPrm * MxPrm
       nEta  = MxPrm * MxPrm
@@ -301,7 +293,7 @@ C    *        Form='UNFORMATTED')
 *                                                                      *
 *-----Compute FLOP's for the transfer equation.
 *
-      Do iAng = 0, iAngMx
+      Do iAng = 0, S%iAngMx
          Do jAng = 0, iAng
             nHrrab = 0
             Do i = 0, iAng+1
@@ -333,7 +325,7 @@ C    *        Form='UNFORMATTED')
          Call Drvh1(Grad,Temp,nGrad)
 *        If (nPrint(1).ge.15)
 *    &   Call PrGrad(' Gradient excluding two-electron contribution',
-*    &               Grad,lDisp(0),lIrrep,ChDisp,iPrint)
+*    &               Grad,lDisp(0),ChDisp,iPrint)
          call dcopy_(nGrad,[Zero],0,Temp,1)
          If (Do_RI) Then
             Call Set_Basis_Mode('Auxiliary')
@@ -385,7 +377,7 @@ C        End If
 ************************************************************************
 *                                                                      *
          Call Gen_iSD4(iS, jS, kS, lS,iSD,nSD,iSD4)
-         Call Size_SO_block_g(iSD4,nSD,Petite,nSO,No_batch)
+         Call Size_SO_block_g(iSD4,nSD,nSO,No_batch)
          If (No_batch) Go To 140
 *
          Call Int_Prep_g(iSD4,nSD,Coor,Shijij,iAOV,iStabs)
@@ -422,7 +414,6 @@ C        End If
 
          Call SOAO_g(iSD4,nSD,nSO,
      &               MemPrm, MemMax,
-     &               nExp,nBasis,MxShll,
      &               iBsInc,jBsInc,kBsInc,lBsInc,
      &               iPrInc,jPrInc,kPrInc,lPrInc,
      &               ipMem1,ipMem2, Mem1,  Mem2,
@@ -437,8 +428,6 @@ C        End If
          Call Int_Parm_g(iSD4,nSD,iAnga,
      &                 iCmpa,iShlla,iShela,
      &                 iPrimi,jPrimj,kPrimk,lPriml,
-     &                 ipCffi,jpCffj,kpCffk,lpCffl,
-     &                 nExp,ipExp,ipCff,MxShll,
      &                 indij,k2ij,nDCRR,k2kl,nDCRS,
      &                 mdci,mdcj,mdck,mdcl,AeqB,CeqD,
      &                 nZeta,nEta,ipZeta,ipZI,
@@ -484,7 +473,7 @@ C        End If
 #ifdef _CD_TIMING_
            CALL CWTIME(Pget0CPU1,Pget0WALL1)
 #endif
-           Call PGet0(iCmpa,iShela,
+           Call PGet0(iCmpa,
      &                iBasn,jBasn,kBasn,lBasn,Shijij,
      &                iAOV,iAOst,nijkl,Sew_Scr(ipMem1),nSO,
      &                iFnc(1)*iBasn,iFnc(2)*jBasn,
@@ -509,10 +498,10 @@ C        End If
      &          Data_k2(k2kl),ncd,nHmcd,nDCRS,Pren,Prem,
      &          iPrimi,iPrInc,jPrimj,jPrInc,
      &          kPrimk,kPrInc,lPriml,lPrInc,
-     &          Work(ipCffi+(iBasAO-1)*iPrimi),iBasn,
-     &          Work(jpCffj+(jBasAO-1)*jPrimj),jBasn,
-     &          Work(kpCffk+(kBasAO-1)*kPrimk),kBasn,
-     &          Work(lpCffl+(lBasAO-1)*lPriml),lBasn,
+     &          Shells(iSD4(0,1))%pCff(1,iBasAO),iBasn,
+     &          Shells(iSD4(0,2))%pCff(1,jBasAO),jBasn,
+     &          Shells(iSD4(0,3))%pCff(1,kBasAO),kBasn,
+     &          Shells(iSD4(0,4))%pCff(1,lBasAO),lBasn,
      &          Mem_DBLE(ipZeta),Mem_DBLE(ipZI),Mem_DBLE(ipP),nZeta,
      &          Mem_DBLE(ipEta), Mem_DBLE(ipEI),Mem_DBLE(ipQ),nEta,
      &          Mem_DBLE(ipxA),Mem_DBLE(ipxB),
@@ -526,7 +515,7 @@ C        End If
 #endif
             If (iPrint.ge.15)
      &         Call PrGrad(' In Drvg1_2Center_RI: Grad',
-     &                  Temp,nGrad,lIrrep,ChDisp,iPrint)
+     &                  Temp,nGrad,ChDisp,iPrint)
 *
  430     Continue
  420     Continue
@@ -587,6 +576,5 @@ C        End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('Drvg1_2Center_RI')
       Return
       End

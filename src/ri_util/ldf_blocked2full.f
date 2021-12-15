@@ -33,7 +33,7 @@ C
 #include "WrkSpc.fh"
 #include "localdf_bas.fh"
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Character*16 SecNam
       Parameter (SecNam='LDF_Blocked2Full')
 
@@ -53,7 +53,7 @@ C
       Integer nBasSh
       nBasSh(i)=iWork(ip_nBasSh-1+i)
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       ! Check that atom pair info is set
       If (.not.LDF_AtomPairInfoIsSet()) Then
          Call WarningMessage(2,SecNam//': atom pair info not set!')
@@ -70,7 +70,7 @@ C
          iWork(ip0+iS)=n
          n=n+nBasSh(iS)
       End Do
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (n.ne.nBas_Valence) Then
          Call WarningMessage(2,SecNam//': nBas_Valence problem!')
          Call LDF_Quit(1)

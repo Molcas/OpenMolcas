@@ -34,7 +34,7 @@
       Subroutine f_setsubdir(sub)
         Use iso_c_binding
         Implicit None
-        Character(*) :: sub
+        Character(Len=*) :: sub
         If (Trim(sub).eq.'') Then
           Call c_setsubdir(''//c_null_char)
         Else
@@ -45,7 +45,7 @@
       Subroutine f_setsubdir(sub)
         Use Prgm
         Implicit None
-        Character(*) :: sub
+        Character(Len=*) :: sub
         If (Trim(sub).eq.'') Then
           Call SetSubDir('')
         Else

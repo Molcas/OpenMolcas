@@ -60,10 +60,10 @@ Nrofjobiphs
   4
   5
 End of input
->>RM JOB001 
->>RM JOB002 
->>RM JOB003 
->>RM JOB004 
+>>RM JOB001
+>>RM JOB002
+>>RM JOB003
+>>RM JOB004
 >>RM JOB005
 *-------------------------------------------------------------------------------
 
@@ -71,7 +71,7 @@ End of input
 >> FILE StartOrb
 #INPORB 1.1
 #INFO
-* RASSCF average (pseudo-natural) orbitals                                      
+* RASSCF average (pseudo-natural) orbitals
        0       1
       48
       48

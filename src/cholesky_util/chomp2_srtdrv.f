@@ -38,7 +38,6 @@ C
       irc = 0
       If (nBatch .lt. 1) Return
 
-      Call qEnter(ThisNm)
 
 C     Allocate available memory.
 C     --------------------------
@@ -162,5 +161,4 @@ C           ---------------------------------------------
       End Do
 
     1 Call GetMem('SrtMax','Free','Real',ipWrk,lWrk)
-      Call qExit(ThisNm)
       End

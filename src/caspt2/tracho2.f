@@ -60,7 +60,6 @@
       REAL*8, EXTERNAL :: DDOT_
 
 **********************************************************************
-      Call QEnter('TRACHO2')
 * ======================================================================
 * This section deals with density matrices and CMO''s
 * Offsets into CMO arrays:
@@ -556,7 +555,7 @@ c (It is in fact an effective one-electron Hamiltonian).
 * Nuclear repulsion energy:
       ECORE=POTNUC+ECORE1+ECORE2
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
        WRITE(6,'(6X,A,E20.10)') 'NUCLEAR REPULSION ENERGY:',POTNUC
        WRITE(6,'(6X,A,E20.10)') 'ONE-ELECTRON CORE ENERGY:',ECORE1
        WRITE(6,'(6X,A,E20.10)') 'TWO-ELECTRON CORE ENERGY:',ECORE2
@@ -575,7 +574,7 @@ c (It is in fact an effective one-electron Hamiltonian).
        CALL GETMEM('FTSPC','FREE','REAL',IP_FTSPC,NFTSPC)
       END IF
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         WRITE(6,'(6X,A)')'TEST PRINT FROM TRACHO2.'
         WRITE(6,'(6X,A)')
         write(6,*)' NSYM:',NSYM
@@ -618,6 +617,5 @@ c (It is in fact an effective one-electron Hamiltonian).
         END DO
 #endif
 
-      Call QExit('TRACHO2')
       RETURN
       END

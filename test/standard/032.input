@@ -19,7 +19,7 @@ expert
 Basis set
 Cl.ECP.Barandiaran.7s7p1d.3s4p1d.7e-CG-AIMP-SO. / inline
 *--
-*-- 
+*--
 *-- CG-AIMP core[Ne] & valence basis set (7/5) from
 *-- Z.Barandiaran, L.Seijo, Can.J.Chem. 70(1992)409.
 *-- spin-orbit-correction of the valence basis set from
@@ -332,7 +332,7 @@ End of input
   0 2
    32 30
    32 30
-#ORB   
+#ORB
 * ORBITAL    1    1
 -.142758676205E-01-.156059879401E-01-.163095037400E-01-.826853078237E-02
 -.126281697573E-01-.205990682774E-02 .674940156832E-03-.438627544340E-21

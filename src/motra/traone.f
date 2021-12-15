@@ -27,7 +27,6 @@
       Real*8 CMO(*)
       DIMENSION PAO(*),PMO(*),TEMP(*)
 *
-      Call qEnter('TraOne')
 *
       ICMO=1
       IAO =1
@@ -53,7 +52,6 @@ C     *             NORB(ISYM),NBAS(ISYM),NBAS(ISYM))
          IMO =IMO +NORB(ISYM)*(NORB(ISYM)+1)/2
 100   CONTINUE
 *
-      Call qExit('TraOne')
 *
       RETURN
       END

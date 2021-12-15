@@ -10,6 +10,10 @@
 ************************************************************************
       Subroutine Compute_AuxVec(ipVk,ipUk,ipZpk,myProc,nProc,CASPT2)
       use pso_stuff
+      use Basis_Info, only: nBas, nBas_Aux
+      use Temporary_Parameters, only: force_out_of_core
+      use RICD_Info, only: Do_RI, Cholesky
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
       Integer ipVk(nProc), ipUk(nProc), ipZpk(nProc)
       Logical CASPT2
@@ -27,6 +31,7 @@
       Integer nU_l(0:7), nU_t(0:7)
       Integer ipTxy(0:7,0:7,2),ipDLT2,jp_V_k
       COMMON    /CHOTIME /timings
+      Character*8 Method
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -103,7 +108,7 @@
 
          If(iMp2prpt .ne. 2) Then
             If (DoCAS.and.lSA) Then
-               nSA=4
+               nSA=5
                Call GetMem('Dens','Allo','Real',ipDMLT(1),nDens*nSA)
                Do i=2,nSA
                  ipDMLT(i)=ipDMLT(i-1)+nDens
@@ -117,19 +122,24 @@
                      ij = ij + 1
                      Work(ipDMLT(1)+ij)=Two*Work(ipDMLT(1)+ij)
                      Work(ipDMLT(3)+ij)=Two*Work(ipDMLT(3)+ij)
+                     Work(ipDMLT(5)+ij)=Two*Work(ipDMLT(5)+ij)
                    EndDo
                    ij = ij + 1
                  EndDo
                EndDo
             Else
-               Call Get_D1AO_Var(ipDMLT(1),nDens)
+               Call GetMem('DMLT(1)','Allo','Real',ipDMLT(1),nDens)
+               Call Get_D1AO_Var(Work(ipDMLT(1)),nDens)
             EndIf
          Else
-            Call Get_D1AO(ipDMLT(1),nDens)
+            Call GetMem('DMLT(1)','Allo','Real',ipDMLT(1),nDens)
+            Call Get_D1AO(Work(ipDMLT(1)),nDens)
          End If
 *
          If (nKdens.eq.2) Then
-            Call Get_D1SAO_Var(ipDMLT(2),nDens) ! spin-density matrix
+            Call GetMem('DMLT(2)','Allo','Real',ipDMLT(2),nDens)
+!           spin-density matrix
+            Call Get_D1SAO_Var(Work(ipDMLT(2)),nDens)
             Call daxpy_(nDens,-One,Work(ipDMLT(1)),1,
      &                              Work(ipDMLT(2)),1)
             call dscal_(nDens,-Half,Work(ipDMLT(2)),1) ! beta DMAT
@@ -142,7 +152,8 @@
          EndIf
          ipDLT2 = 1
          If(iMp2prpt.eq.2) Then
-            Call Get_D1AO_Var(ipDLT2,nDens)
+            Call GetMem('DLT2','Allo','Real',ipDLT2,nDens)
+            Call Get_D1AO_Var(Work(ipDLT2),nDens)
             Call daxpy_(nDens,-One,Work(ipDMLT(1)),1,Work(ipDLT2),1)
          Else
             ipDLT2 = ip_Dummy
@@ -154,6 +165,12 @@
 *       using Eigenvalue decomposition for non-PD matrices (SA-CASSCF) *
 *                                                                      *
 ************************************************************************
+*         DoExchange=Exfac.ne.Zero
+*
+         Call Get_cArray('Relax Method',Method,8)
+         If (Method.eq.'MCPDFT ' ) exfac=1.0d0
+         DoExchange=Exfac.ne.Zero
+
          If (DoExchange .or. DoCAS) Then
             Call GetMem('ChMOs','Allo','Real',ipChM(1),nCMO*nKdens)
             Do i=2,nKdens

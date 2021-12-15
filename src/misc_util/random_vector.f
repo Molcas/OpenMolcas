@@ -13,22 +13,24 @@
 *  Random_Vector
 *
 *> @brief
-*>   Generate a random unit vector in \f$ N \f$ dimensional space
+*>   Generate a random vector in an \f$ N \f$ dimensional hypersphere
 *> @author Ignacio Fdez. Galv&aacute;n
 *>
 *> @details
-*> Generate a random \f$ N \f$ dimensional unit vector by using random
-*> normal-distributed numbers. \cite Mul1959-CACM-2-19
+*> Generate a random \f$ N \f$ dimensional vector of unit length or less,
+*> by using random normal-distributed numbers. \cite Mul1959-CACM-2-19
 *> The normal-distributed random numbers are generated with the Box--Muller
 *> transform. \cite Box1958-AMS-29-610
 *>
-*> @param[in]  N   Dimension of the generated vector
-*> @param[out] Vec Generated random vector of unit length
+*> @param[in]  N    Dimension of the generated vector
+*> @param[out] Vec  Generated random vector
+*> @param[in]  UVec Specifies whether the vector should be of unit length
 ************************************************************************
-      SUBROUTINE Random_Vector(N,Vec)
+      SUBROUTINE Random_Vector(N,Vec,UVec)
       IMPLICIT NONE
       INTEGER, INTENT(IN) :: N
       REAL*8, INTENT(OUT) :: Vec(N)
+      LOGICAL, INTENT(IN) :: UVec
 #include "real.fh"
       INTEGER :: i
       INTEGER, SAVE :: iSeed=0
@@ -65,8 +67,13 @@
         END DO
       END DO
 *     Normalize the vector
-      sm = One/SQRT(tot_m)
-      Vec(:) = sm*Vec(:)
+*     and scale by a random (0,1) number if no unit vector desired
+      IF (UVec) THEN
+        sm = One
+      ELSE
+        sm = Random_Molcas(iSeed)
+      END IF
+      Vec(:) = sm/SQRT(tot_m)*Vec(:)
 *
       RETURN
       END

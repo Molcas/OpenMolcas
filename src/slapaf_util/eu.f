@@ -88,7 +88,7 @@
 ************************************************************************
 *                                                                      *
 *define _DEBUG
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 *     Make a comment in logfile
       write(6,*) 'hello from eu.f'
       Call RecPrt('H matrix',' ',H,nH,nH)
@@ -113,14 +113,14 @@
 *     Get the eigenvalues and eigenvectors
 *
       Call NIDiag_new(Eval,Evec,nH,nH,0)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Evec matrix',' ',Evec,nH,nH)
 #endif
 *
 *---- Calculate mi, diagonal elements of M matrix (eq. 18)
 *
       Call FZero(M,nH**2)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('gi-vector',' ',gi,1,nH)
       Call RecPrt('dq-vector',' ',dq,1,nH)
 #endif
@@ -178,7 +178,7 @@
 *
 *     Store mi value in M
             M(i,i) = 1.0d0
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             write(6,*) "mi ", mi, "  Energy ", de,"  Eigenvalue "
      &           ,Eval(ii)
 #endif
@@ -187,7 +187,7 @@
          Else
             M(i,i) = 1.0d0
             ii = i*(i+1)/2
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             write(6,*) "mi = p 1.0  Eigenvalue ",Eval(ii)
 #endif
          End If
@@ -207,7 +207,7 @@
      &            1.0d0,WorkM,nH,
      &            Evec,nH,
      &            0.0d0,M,nH)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('M-matrix',' ',M,nH,nH)
 #endif
 correct
@@ -220,7 +220,7 @@ correct
 *     WorkV = M * dq
 *
       WorkR = DDot_(nH,dq,1,dq,1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       write(6,*)WorkR, " = <dq|dq>, should be one?"
 #endif
       Call DGEMM_('N','N',
@@ -279,14 +279,14 @@ correct
      &            1.0d0 ,u ,  nH,
      &                   v ,  1 ,
      &            1.0d0 ,E ,  nH )
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Error matrix',' ',E,nH,nH)
 #endif
 *
 *---- The new Hessian (H = H + E, equation 1)
 *
       Call DaxPy_(nH*nH,1.0d0,E,1,H,1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('new Hessian',' ',H,nH,nH)
 #endif
 *
@@ -302,7 +302,7 @@ correct
 *
 *     WorkV = WorkV - dg = 0.00
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call DaxPy_(nH,-1.0d0,dg,1,WorkV,1)
       Call RecPrt('Quasi-Newton',' ',WorkV,1,nH)
 *

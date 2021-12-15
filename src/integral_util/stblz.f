@@ -8,9 +8,10 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Stblz(iChxyz,iOper,nIrrep,nStab,jStab,MaxDCR,iCoSet)
+      Subroutine Stblz(iChxyz,nStab,jStab,MaxDCR,iCoSet)
+      use Symmetry_Info, only: iOper, nIrrep
       Implicit Real*8 (a-h,o-z)
-      Integer iOper(0:nIrrep-1), jStab(0:7), iCoSet(0:7,0:7)
+      Integer jStab(0:7), iCoSet(0:7,0:7)
 *                                                                      *
 ************************************************************************
 *                                                                      *

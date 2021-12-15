@@ -3,7 +3,7 @@
 * Basis: cc-pVDZ
 * Symmetry: C2h
 * Features tested: aC-CD-4  in  SEWARD, SCF, RASSCF, FD-CASPT2
-* Responsible person: F. Aquilante            
+* Responsible person: F. Aquilante
 * Comments: Test of "Freeze-and-delete" (FD) MP2  (also known as LovMP2)
 *-------------------------------------------------------------------------------
 >export MOLCAS_MOLDEN=ON
@@ -52,11 +52,11 @@ EndChoInput
 End of input
 *-------------------------------------------------------------------------------
  &MBPT2 &END
-LovMP2    
+LovMP2
  1  0.2
- C7 
+ C7
 DoMP2
-End of input                                                                  
+End of input
 *-------------------------------------------------------------------------------
 
 >>FILE checkfile

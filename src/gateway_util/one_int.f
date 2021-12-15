@@ -8,101 +8,94 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine One_Int(Kernel,DInf,nDInf,A,ip,Info,nInfo,jShll,iAng,
-     &                   iComp,nOrdOp,nScr1,nScr2,naa,ipSAR,nSAR,
-     &                   iShll_a,nPrim_a,ipExp_a,nCntrc_a,ipCff_a,
+      Subroutine One_Int(Kernel,Array,nArray,A,iAng,
+     &                   iComp,nOrdOp,
+     &                   Scr1,nScr1,Scr2,nScr2,naa,SAR,nSAR,
+     &                   iShll_a,nPrim_a,Exp_a,nCntrc_a,Cff_a,
      &                   iCmp_a,
-     &                   iShll_r,nPrim_r,ipExp_r,nCntrc_r,ipCff_r,
+     &                   iShll_r,nPrim_r,Exp_r,nCntrc_r,Cff_r,
      &                   iCmp_r)
 ************************************************************************
 *                                                                      *
 *                                                                      *
 ************************************************************************
+      use Basis_Info
       use Her_RW
       use Real_Spherical
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
+#include "stdalloc.fh"
       External Kernel
-      Real*8 DInf(nDInf), A(3)
+      Real*8 Array(nArray)
+      Real*8, Intent(Out):: SAR(nSAR)
+      Real*8, Intent(In):: A(3)
+      Real*8, Intent(In):: Exp_a(nPrim_a), Exp_r(nPrim_r)
+      Real*8, Intent(In):: Cff_a(nPrim_a,nCntrc_a)
+      Real*8, Intent(In):: Cff_r(nPrim_r,nCntrc_r)
+      Real*8 Scr1(nScr1), Scr2(nScr2)
+      Real*8, Allocatable:: ZAR(:), ZIAR(:), KAR(:), PAR(:,:)
+      Real*8, Allocatable:: pSAR(:)
 *
-      ipSAR = ip
-      nSAR = nPrim_a*nPrim_r * naa
-      ip = ip + nSAR
-      ipPAR = ip
-      ip = ip + 3 * nPrim_a*nPrim_r
-      ipZAR = ip
-      ip = ip + nPrim_a*nPrim_r
-      ipKAR = ip
-      ip = ip + nPrim_a*nPrim_r
-      ipZIAR = ip
-      ip = ip + nPrim_a*nPrim_r
-      nInfo = ipExp(jShll+1) - Info
-      mArr = nDInf/(nPrim_a*nPrim_r) - nInfo
-      If (mArr.lt.1) Then
-         Call WarningMessage(2,'One_Int:  mArr < 1 .'
-     &            //'Please, increase MOLCAS_MEM.')
-         Call Abend()
-      EndIf
+      mArr = nArray/(nPrim_a*nPrim_r)
+      Call mma_allocate(ZAR,nPrim_a*nPrim_r,Label='ZAR')
+      Call mma_allocate(ZIAR,nPrim_a*nPrim_r,Label='ZIAR')
+      Call mma_allocate(KAR,nPrim_a*nPrim_r,Label='KAR')
+      Call mma_allocate(PAR,nPrim_a*nPrim_r,3,Label='PAR')
 *
-      Call ZXia(DInf(ipZAR),DInf(ipZIAR),nPrim_a,nPrim_r,
-     &          DInf(ipExp_a),DInf(ipExp_r))
-      Call SetUp1(DInf(ipExp_a),nPrim_a,
-     &            DInf(ipExp_r),nPrim_r,
-     &            A,A,DInf(ipKAR),DInf(ipPAR),DInf(ipZIAR))
+      mSAR = nPrim_a*nPrim_r * naa
+      Call mma_allocate(pSAR,mSAR,Label='pSAR')
+*
+      Call ZXia(ZAR,ZIAR,nPrim_a,nPrim_r,Exp_a,Exp_r)
+      Call SetUp1(Exp_a,nPrim_a,Exp_r,nPrim_r,A,A,KAR,PAR,ZIAR)
 *
       nHer = (2*iAng+2+nOrdOp)/2
-      Call Kernel(DInf(ipExp_a),nPrim_a,
-     &            DInf(ipExp_r),nPrim_r,
-     &            DInf(ipZAR),DInf(ipZIAR),
-     &            DInf(ipKAR),DInf(ipPAR),
-     &            DInf(ipSAR),nPrim_a*nPrim_r,iComp,
-     &            iAng,iAng,A,A,nHer,DInf(ip),mArr,A,nOrdOp)
-      ip = ip - 6 * nPrim_a * nPrim_r
+      Call Kernel(Exp_a,nPrim_a,Exp_r,nPrim_r,
+     &            ZAR,ZIAR,KAR,PAR,
+     &            pSAR,nPrim_a*nPrim_r,iComp,
+     &            iAng,iAng,A,A,nHer,Array,mArr,A,nOrdOp)
 *
-      ipScrt1 = ip
-      ip = ip + nScr1
-      ipScrt2 = ip
-      ip = ip + nScr2
+      Call mma_deallocate(ZAR)
+      Call mma_deallocate(ZIAR)
+      Call mma_deallocate(KAR)
+      Call mma_deallocate(PAR)
+*
       Call DGEMM_('T','N',
      &            nPrim_r*naa,nCntrc_a,nPrim_a,
-     &            1.0d0,DInf(ipSAR),nPrim_a,
-     &            DInf(ipCff_a),nPrim_a,
-     &            0.0d0,DInf(ipScrt1),nPrim_r*naa)
+     &            1.0d0,pSAR,nPrim_a,
+     &                  Cff_a,nPrim_a,
+     &            0.0d0,Scr1,nPrim_r*naa)
       Call DGEMM_('T','N',
      &            naa*nCntrc_a,nCntrc_r,nPrim_r,
-     &            1.0d0,DInf(ipScrt1),nPrim_r,
-     &            DInf(ipCff_r),nPrim_r,
-     &            0.0d0,DInf(ipScrt2),naa*nCntrc_a)
-#ifdef _DEBUG_
-      Call RecPrt('S_AR in Cartesian',' ',DInf(ipScrt2),
+     &            1.0d0,Scr1,nPrim_r,
+     &                  Cff_r,nPrim_r,
+     &            0.0d0,Scr2,naa*nCntrc_a)
+#ifdef _DEBUGPRINT_
+      Call RecPrt('S_AR in Cartesian',' ',Scr2,
      &            naa,nCntrc_a*nCntrc_r)
 #endif
 *
 *     Transform to spherical Gaussian if needed!
 *
-      If (Transf(iShll_a).or.Transf(iShll_r)) Then
+      If (Shells(iShll_a)%Transf.or.Shells(iShll_r)%Transf) Then
 *
-         Call CarSph(DInf(ipScrt2),naa,nCntrc_a*nCntrc_r,
-     &               DInf(ipSAR),nScr2,
+         Call CarSph(Scr2,naa,nCntrc_a*nCntrc_r,
+     &               pSAR,nScr2,
      &               RSph(ipSph(iAng)),iAng,
-     &               Transf(iShll_a),Prjct(iShll_a),
+     &               Shells(iShll_a)%Transf,
+     &               Shells(iShll_a)%Prjct,
      &               RSph(ipSph(iAng)),iAng,
-     &               Transf(iShll_r),Prjct(iShll_r),
-     &               DInf(ipScrt1),iCmp_a*iCmp_r)
-         Call DCopy_(nCntrc_a*nCntrc_r*iCmp_a*iCmp_r,
-     &               DInf(ipScrt1),1,DInf(ipSAR),1)
+     &               Shells(iShll_r)%Transf,
+     &               Shells(iShll_r)%Prjct,
+     &               SAR,iCmp_a*iCmp_r)
       Else
-         Call DGeTmO(DInf(ipScrt2),naa,naa,nCntrc_a*nCntrc_r,
-     &               DInf(ipSAR),nCntrc_a*nCntrc_r)
+         Call DGeTmO(Scr2,naa,naa,nCntrc_a*nCntrc_r,
+     &               SAR,nCntrc_a*nCntrc_r)
       End If
-*define _DEBUG_
-#ifdef _DEBUG_
-      Call RecPrt('S_AR in Sphericals',' ',DInf(ipSAR),
+      Call mma_deallocate(pSAR)
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+      Call RecPrt('S_AR in Sphericals',' ',SAR,
      &                  iCmp_a*iCmp_r,nCntrc_a*nCntrc_r)
 #endif
-      ip = ip - nScr2 - nScr1
-      nSAR = nCntrc_a*nCntrc_r * naa
 *
       Return
       End

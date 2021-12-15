@@ -100,7 +100,7 @@ Thrs
   1.0D-9 1.0D-5
 end of input
 *&Last_Energy
->>>>>>>>>>>>> ENDDO <<<<<<<<<<<<<<<<<<<<<<<<<<<<< 
+>>>>>>>>>>>>> ENDDO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 * &CASVB &END
 * note this line is included to specify that this test  uses casvb_utils

@@ -33,7 +33,6 @@
       dbg=.false.
       StdOut = 6
       iErr=0
-      Call qEnter('plot_barrier')
 
       xmin=        MINVAL(DBLE( M(3,1:nMult,:,1:nMult,:) )) -
      &     0.10_wp*MAXVAL(DBLE( M(3,1:nMult,:,1:nMult,:) ))
@@ -424,6 +423,5 @@
 
       dbg=.false.
 
-      Call qExit('plot_barrier')
       RETURN
       END SUBROUTINE plot_barrier

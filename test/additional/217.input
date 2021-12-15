@@ -16,17 +16,17 @@ H              1.4335743557        0.0000000000       -0.9528986149
 End of basis
 
 XField
-2 
+2
  1.0  1.0   20.0    1.0  0.0 0.0 0.0
  0.0  0.0   20.0    1.0  0.0 0.0 0.0
 
 End of input
-             
+
  &SCF &END
 Occupied
 3 1 1 0
 iterations
-10 20 
+10 20
 Thresholds
 1.0D-12 1.0D-6 1.0D-6 1.0D-4
 End of Input

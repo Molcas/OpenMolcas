@@ -323,21 +323,21 @@ supsym
 #INDEX
 * 1234567890
 0 iiii22ssss
-1 sssss     
+1 sssss
 * 1234567890
-0 3isssssss 
+0 3isssssss
 * 1234567890
-0 iisssssss 
+0 iisssssss
 * 1234567890
-0 2ssss     
+0 2ssss
 * 1234567890
-0 iisssssss 
+0 iisssssss
 * 1234567890
-0 2ssss     
+0 2ssss
 * 1234567890
-0 2ssss     
+0 2ssss
 * 1234567890
-0 ss        
+0 ss
 >>EOF
 
 >>FILE checkfile

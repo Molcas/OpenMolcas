@@ -9,13 +9,14 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Bond_List(
-     &                 nq,nAtoms,iIter,nIter,Cx,iOper,nSym,jStab,
+     &                 nq,nAtoms,iIter,nIter,Cx,jStab,
      &                 nStab,nDim,Smmtrc,Process,Value,
      &                 nB,iANr,qLbl,fconst,
      &                 rMult,iOptC,LuIC,Name,Indq,
      &                 Proc_dB,iTabBonds,nBonds,
      &                 iTabAI,mAtoms,mB_Tot,mdB_Tot,
      &                 BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,mqB)
+      use Symmetry_Info, only: nIrrep, iOper
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
@@ -24,8 +25,7 @@
       Real*8 Cx(3,nAtoms,nIter), A(3,2), Grad(mB), Hess(mB**2),
      &       fconst(nB), Value(nB,nIter), rMult(nB),
      &       BM(nB_Tot), dBM(ndB_Tot)
-      Integer   nStab(nAtoms), iOper(0:nSym-1),
-     &          iDCRR(0:7), jStab(0:7,nAtoms), iPhase(3,0:7),
+      Integer   nStab(nAtoms), iDCRR(0:7), jStab(0:7,nAtoms),
      &          iStabM(0:7), Ind(2), iDCR(2), iANr(nAtoms), iChOp(0:7),
      &          Indq(3,nB), iTabBonds(3,nBonds), iTabAI(2,mAtoms),
      &          iBM(nB_Tot), idBM(2,ndB_Tot), mqB(nB)
@@ -41,28 +41,25 @@
 #include "ddvdt.fh"
 #define _SCHLEGEL_
 #include "ddvdt_bond.fh"
-      Data iPhase/ 1, 1, 1,   -1, 1, 1,   1,-1, 1,  -1,-1, 1,
-     &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       Data ChOp/'E  ','X ','Y ','XY ','Z  ','XZ ','YZ ','XYZ'/
       Data iChOp/1,1,1,2,1,2,2,3/
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
       If (nBonds.lt.1) Return
       iRout=151
       iPrint=nPrint(iRout)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iPrint=99
 #endif
-      Call QEnter('Bonds')
 *
       nqB=0
       PSPrint=.False.
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) PSPrint=.True.
       If (PSPrint) Then
          Write (6,*)
@@ -108,7 +105,7 @@
      &          iDCR(2).ne.iOper(0)) Go To 2
             iRow = iANr(iAtom)
             jRow = iANr(jAtom)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*) 'iAtom,jAtom=',iAtom,jAtom
 #endif
             Help = iRow.gt.3 .or. jRow.gt.3
@@ -125,12 +122,12 @@
 *
 *------------- Form double coset representatives
 *
-            Call DCR(Lambda,iOper,nSym,
+            Call DCR(Lambda,
      &               jStab(0,iAtom),nStab(iAtom),
      &               jStab(0,jAtom),nStab(jAtom),iDCRR,nDCRR)
              kDCRR = iDCR(2)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             If (PSPrint) Then
                Write (6,'(10A)') 'U={',
      &               (ChOp(jStab(i,iAtom)),i=0,nStab(iAtom)-1),'}  '
@@ -142,9 +139,7 @@
             End If
 #endif
 *
-            A(1,2) = DBLE(iPhase(1,iDCR(2)))*Cx(1,jAtom,iIter)
-            A(2,2) = DBLE(iPhase(2,iDCR(2)))*Cx(2,jAtom,iIter)
-            A(3,2) = DBLE(iPhase(3,iDCR(2)))*Cx(3,jAtom,iIter)
+            Call OA(iDCR(2),Cx(1:3,jAtom,iIter),A(1:3,2))
 *
 *---------- Compute the stabilizer of A & R(B), this is done in two ways.
 *
@@ -161,7 +156,7 @@
      &                    jStab(0,jAtom),nStab(jAtom),
      &                    kDCRR,iStabM,nStabM)
             End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             If (PSPrint) Then
                Write (6,'(10A)') 'M={',
      &               (ChOp(iStabM(i)),i=0,nStabM-1),'}  '
@@ -170,10 +165,10 @@
 *
 *---------- Now evaluate the degeneracy of the bond.
 *
-            iDeg=nSym/nStabM
+            iDeg=nIrrep/nStabM
             Deg=Sqrt(DBLE(iDeg))
-#ifdef _DEBUG_
-            If (PSPrint) Write (6,*)' nSym,nStabM=',nSym,nStabM
+#ifdef _DEBUGPRINT_
+            If (PSPrint) Write (6,*)' nIrrep,nStabM=',nIrrep,nStabM
 #endif
 *
             nq = nq + 1
@@ -198,7 +193,7 @@
      &             'b',nqB,' = Bond ',
      &             Lbls(1)(iF1:iE1),' ',
      &             Lbls(2)(iF2:iE2)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             If (iPrint.ge.49)
      &      Write (6,'(A,I3.3,4A)')
      &             'b',nqB,' = Bond ',
@@ -266,6 +261,5 @@
  1       Continue
       End Do        ! iBond
 *
-      Call QExit ('Bonds')
       Return
       End

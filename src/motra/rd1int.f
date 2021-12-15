@@ -29,7 +29,6 @@
       Character*8 OneLbl
       Logical Found
 *
-      Call qEnter('Rd1Int')
 *----------------------------------------------------------------------*
 *     Read one-electron integral file header etc.                      *
 *----------------------------------------------------------------------*
@@ -145,13 +144,11 @@ c      Call Get_cArray('Unique Atom Names',AtLbl,(LENIN)*nAtoms)
 *----------------------------------------------------------------------*
 *     Normal termination                                               *
 *----------------------------------------------------------------------*
-      Call qExit('Rd1Int')
       Return
 *----------------------------------------------------------------------*
 *     Error Exit                                                       *
 *----------------------------------------------------------------------*
 991   Write (6,*) 'Rd1Int: Error reading from ONEINT'
       Write (6,*) 'OneLbl=',OneLbl
-      Call QTrace()
       Call Abend()
       End

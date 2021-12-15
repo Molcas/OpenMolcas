@@ -61,8 +61,8 @@
          mAdVir(iSym) = mAdVir(iSym-1) + nExt(iSym-1)
       enddo
 *
-*#define _DEBUG_
-#ifdef _DEBUG_
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
 *----- Print occupied and virtual energies
       Do iSym = 1, nSym
          If (nOcc(iSym).gt.0) Then
@@ -131,7 +131,7 @@
 *     Refer to the three-index storing of the symmetryblocks
 *     by this routine
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'Before RHS_Mp2_help1'
       Do iSym = 1, nSym
          nI = nOcc(iSym) + nFro(iSym)
@@ -161,7 +161,7 @@
             enddo               !ASym
          enddo                  !JSym
       enddo                     !ISym
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'After RHS_Mp2_help1'
       Do iSym = 1, nSym
          nI = nOcc(iSym) + nFro(iSym)
@@ -191,7 +191,7 @@
             End Do
          End Do
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'After RHS_Mp2_help1 xx'
       Do iSym = 1, nSym
          nI = nOcc(iSym) + nFro(iSym)
@@ -224,7 +224,7 @@
             enddo               !ASym
          enddo                  !JSym
       enddo                     !ISym
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'After RHS_Mp2_help1 yy'
       Do iSym = 1, nSym
          nI = nOcc(iSym) + nFro(iSym)
@@ -254,7 +254,7 @@
       Call GetMem('Int2','Free','Real',ipInt2,lInt)
       Call GetMem('Scr1','Free','Real',ipScr1,lInt)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       write (6,*) 'EMP2 is ', EMP2
       write (6,*) ' '
       Do iSym = 1, nSym

@@ -10,7 +10,8 @@ Basis = Cr.ANO-rcc...10s10p8d6f4g2h.
 Medium Cholesky
 
 &RASSCF
-Spin = 1; Symmetry = 1
+Spin = 1
+Symmetry = 1
 RASSCF = 0 2
 FileOrb = startorb
 OrbListing = All
@@ -21,7 +22,8 @@ Tight = 1.0d-6 1.0d-4
 *NoQuNe
 
 &CASPT2
-Multistate = 1 1; NoMult
+Multistate = 1 1
+NoMult
 Frozen = 3 1 1 0 3 1 1 0
 *Shift = 0.3
 Imaginary = 0.1
@@ -5139,23 +5141,23 @@ MaxIterations = 50
 3 ssssssssss
 4 ssssssssss
 5 ssssssssss
-6 ssssss    
+6 ssssss
 * 1234567890
 0 ii23ssssss
 1 ssssssssss
 2 ssssssssss
 3 ssssssssss
-4 ssss      
+4 ssss
 * 1234567890
 0 ii23ssssss
 1 ssssssssss
 2 ssssssssss
 3 ssssssssss
-4 ssss      
+4 ssss
 * 1234567890
 0 23ssssssss
 1 ssssssssss
-2 ssssss    
+2 ssssss
 * 1234567890
 0 iiiii22233
 1 ssssssssss
@@ -5163,23 +5165,23 @@ MaxIterations = 50
 3 ssssssssss
 4 ssssssssss
 5 ssssssssss
-6 ssssss    
+6 ssssss
 * 1234567890
 0 ii23ssssss
 1 ssssssssss
 2 ssssssssss
 3 ssssssssss
-4 ssss      
+4 ssss
 * 1234567890
 0 ii23ssssss
 1 ssssssssss
 2 ssssssssss
 3 ssssssssss
-4 ssss      
+4 ssss
 * 1234567890
 0 23ssssssss
 1 ssssssssss
-2 ssssss    
+2 ssssss
 
 >>EOF
 

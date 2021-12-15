@@ -31,19 +31,26 @@ Isotopes= 1
   >> COPY StartOrb INPORB
   &RASSCF
   LUMORB
-  Symmetry= 1; Spin= 1; nActEl= 4 0 0
+  Symmetry= 1
+  Spin= 1
+  nActEl= 4 0 0
   CIroot= 2 2; 1 2; 1 1
-  Inactive= 13; RAS2= 4
+  Inactive= 13
+  RAS2= 4
   MDRLXR= 2
   >COPY $Project.JobIph $Project.JobOld
 >END IF
 
 >> COPY $Project.RasOrb INPORB
 &RASSCF
-JOBIPH; CIRESTART
-Symmetry= 1; Spin= 1; nActEl= 4 0 0
+JOBIPH
+CIRESTART
+Symmetry= 1
+Spin= 1
+nActEl= 4 0 0
 CIroot= 2 2; 1 2; 1 1
-Inactive= 13; RAS2= 4
+Inactive= 13
+RAS2= 4
 MDRLXR= 2
 >COPY $Project.JobIph $Project.JobOld
 
@@ -52,8 +59,12 @@ Show
 CutOff= 1.0D-8
 Verbose
 
-&DYNAMIX ; VelVer
-DT= 10.0; VELO= 1; THERMO= 2; HOP=3
+&DYNAMIX
+VelVer
+DT= 10.0
+VELO= 1
+THERMO= 2
+HOP=3
 > END DO
 
 * Check that we can resume the dynamics
@@ -90,10 +101,14 @@ DT= 10.0; VELO= 1; THERMO= 2; HOP=3
 
 >> COPY $Project.RasOrb INPORB
 &RASSCF
-JOBIPH; CIRESTART
-Symmetry= 1; Spin= 1; nActEl= 4 0 0
+JOBIPH
+CIRESTART
+Symmetry= 1
+Spin= 1
+nActEl= 4 0 0
 CIroot= 2 2; 1 2; 1 1
-Inactive= 13; RAS2= 4
+Inactive= 13
+RAS2= 4
 MDRLXR= 2
 >COPY $Project.JobIph $Project.JobOld
 
@@ -103,12 +118,21 @@ CutOff= 1.0D-8
 Verbose
 
 >> IF ($HAVE_HDF5 == 0)
-  &DYNAMIX ; VelVer
-  DT= 10.0; VELO= 1; THERMO= 2; HOP=3
+  &DYNAMIX
+  VelVer
+  DT= 10.0
+  VELO= 1
+  THERMO= 2
+  HOP=3
 >> ENDIF
 >> IF ($HAVE_HDF5 == 1)
-  &DYNAMIX ; VelVer
-  DT= 10.0; VELO= 1; THERMO= 2; HOP=3; H5RESTART=restart.h5
+  &DYNAMIX
+  VelVer
+  DT= 10.0
+  VELO= 1
+  THERMO= 2
+  HOP=3
+  H5RESTART=restart.h5
 >> ENDIF
 > END DO
 
@@ -780,7 +804,7 @@ Verbose
 1 III2222SSS
 2 SSSSSSSSSS
 3 SSSSSSSSSS
-4 SSSSSSSS  
+4 SSSSSSSS
 >> EOF
 
 >> FILE C3H6N.xyz

@@ -23,7 +23,6 @@
 
 
 
-      CALL QENTER(ROUTINE)
 
 C Dereference ISGS to get at ISM table:
       LISM=ISGS(3)
@@ -74,6 +73,5 @@ CPAM98     *                 WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
 100   CONTINUE
       CALL GETMEM('ILEV','FREE','INTE',LILEV,NA)
 
-      CALL QEXIT(ROUTINE)
       RETURN
       END

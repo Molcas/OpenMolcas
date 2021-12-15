@@ -12,44 +12,36 @@ module sorting_funcs
 implicit none
 public
 
-interface le
-  module procedure le_i, le_r, le_c
-end interface
-
-interface ge
-  module procedure ge_i, ge_r, ge_c
-end interface
-
 contains
 
-logical pure function le_i(x, y)
+logical pure function leq_i(x, y)
   integer, intent(in) :: x, y
-  le_i = x <= y
+  leq_i = x <= y
 end function
 
-logical pure function le_r(x, y)
+logical pure function leq_r(x, y)
   real*8, intent(in) :: x, y
-  le_r = x <= y
+  leq_r = x <= y
 end function
 
-logical pure function le_c(x, y)
+logical pure function leq_c(x, y)
   complex*16, intent(in) :: x, y
-  le_c = real(x)**2+aimag(x)**2 <= real(y)**2+aimag(y)**2
+  leq_c = real(x)**2+aimag(x)**2 <= real(y)**2+aimag(y)**2
 end function
 
-logical pure function ge_i(x, y)
+logical pure function geq_i(x, y)
   integer, intent(in) :: x, y
-  ge_i = x >= y
+  geq_i = x >= y
 end function
 
-logical pure function ge_r(x, y)
+logical pure function geq_r(x, y)
   real*8, intent(in) :: x, y
-  ge_r = x >= y
+  geq_r = x >= y
 end function
 
-logical pure function ge_c(x, y)
+logical pure function geq_c(x, y)
   complex*16, intent(in) :: x, y
-  ge_c = real(x)**2+aimag(x)**2 >= real(y)**2+aimag(y)**2
+  geq_c = real(x)**2+aimag(x)**2 >= real(y)**2+aimag(y)**2
 end function
 
 end module sorting_funcs

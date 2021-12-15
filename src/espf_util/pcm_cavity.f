@@ -24,7 +24,6 @@
       Real*8, Allocatable:: Xs(:), Ys(:), Zs(:), Rs(:)
       Integer, Allocatable:: pNs(:)
 *
-      Call qEnter('PCM_Cavity')
 *
 *     Build the cavity.
 *
@@ -109,6 +108,5 @@
          End If
       EndIf
 *
-      Call qExit('PCM_Cavity')
       Return
       End

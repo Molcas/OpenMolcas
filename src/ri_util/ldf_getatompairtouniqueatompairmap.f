@@ -38,7 +38,7 @@ C
       A2AP(i)=iWork(ip_A2AP-1+i)
       AP_Atoms(i,j)=iWork(ip_AP_Atoms-1+2*(j-1)+i)
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (nAP.lt.NumberOfAtomPairs) Then
          Call WarningMessage(2,
      &           'LDF_GetAtomPairToUniqueAtomPairMap: dimension error!')

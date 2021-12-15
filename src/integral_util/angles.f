@@ -15,11 +15,6 @@
 *                                                                      *
 * Object: to compute angles from a list of coordinates.                *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 ************************************************************************

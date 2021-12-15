@@ -79,14 +79,13 @@ C
       nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
 ************************************************************************
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 c      Debug=.true.
       Debug=.false.! to avoid double printing in CASSCF-debug
 #else
       Debug=.false.
 #endif
 
-      Call QEnter(SECNAM)
 
       if(ExFac.ne.1.0d0) then
           write(6,*) 'WARNING: if you are running MCPDFT calculations'
@@ -247,7 +246,6 @@ C ------------------------------------------------------------------
 
             if (nVrs.lt.0) then
                Write(6,*)SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
-               call qtrace()
                call abend()
             endif
 
@@ -255,7 +253,6 @@ C ------------------------------------------------------------------
             if(irc.ne.0)then
               Write(6,*)SECNAM//'cho_X_setred non-zero return code.',
      &                       '    rc= ',irc
-              call qtrace()
               call abend()
             endif
 
@@ -286,7 +283,6 @@ C ------------------------------------------------------------------
                WRITE(6,*) 'reading ',nRS,' and transforming to ',mTvec
                WRITE(6,*) 'of jsym= ',jsym,' and JRED= ',JRED
                rc = 33
-               CALL QTrace()
                CALL Abend()
                nBatch = -9999  ! dummy assignment
             End If
@@ -410,7 +406,7 @@ C --- Set pointers to the half-transformed Cholesky vectors
      &                         nAorb(iSymp),nChM(iSymp))*JNUM
      &                  + nnA(iSymp,iSymb)*JNUM
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             write(6,*)'JRED,iBatch,nBatch= ',jred,iBatch,nBatch
             write(6,*)'JSYM,iSymp,iSymb,lChot= ',JSYM,iSymp,iSymb,lChot
             write(6,*)'Lxb starts in= ',ipLab(iSymp,3)
@@ -439,7 +435,7 @@ C *********************** INACTIVE HALF-TRANSFORMATION  ****************
                tread(1) = tread(1) + (TCR4 - TCR3)
                tread(2) = tread(2) + (TWR4 - TWR3)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
        write(6,*) 'Half-transformation in the Inactive space'
        write(6,*) 'Total allocated :     ',mTvec*nVec,' at ',ipChoT
        write(6,*) 'Mem pointers ipLab :  ',(ipLab(i,1),i=1,nSym)
@@ -744,7 +740,7 @@ C --- free memory
 
 
 c Print the Fock-matrix
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 
       if(Debug) then !to avoid double printing in CASSCF-debug
 
@@ -778,7 +774,6 @@ c Print the Fock-matrix
 
       rc  = 0
 
-      CAll QExit(SECNAM)
 
       Return
       END
@@ -924,7 +919,6 @@ c Offsets to symmetry block in the LT matrix
 
          write(6,*)'Wrong input parameter. mode = ',mode
          irc = 66
-         Call Qtrace()
          Call abend()
 
       EndIf

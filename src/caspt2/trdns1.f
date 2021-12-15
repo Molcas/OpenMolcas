@@ -32,7 +32,6 @@
 #include "mafdecls.fh"
 #endif
 
-      CALL QENTER('TRDNS1')
 C Add to the transition density matrix DPT1,
 C    DPT1(p,q) = Add <IVEC| E(p,q) |0>.
 C where IVEC stands for the 1st-order perturbed CASPT2
@@ -224,6 +223,5 @@ C proper positions, as subdiagonal matrices in DPT1:
       IF(NWAI.GT.0)CALL GETMEM('WAI','FREE','REAL',LWAI,NWAI)
       IF(NWAT.GT.0)CALL GETMEM('WAT','FREE','REAL',LWAT,NWAT)
 
-      CALL QEXIT('TRDNS1')
       RETURN
       END

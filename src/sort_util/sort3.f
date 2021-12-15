@@ -81,7 +81,7 @@
 *     pick up the print level                                          *
 *----------------------------------------------------------------------*
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iRout = 88
       iPrint = nPrint(iRout)
       If ( iPrint.gt.5 ) Write(6,*) ' >>> Enter SORT3 <<<'
@@ -91,7 +91,6 @@
 *     Turn timing ON                                                   *
 *----------------------------------------------------------------------*
 *
-      Call qEnter('Sort3')
 *
 *----------------------------------------------------------------------*
 *     Scan once the two-electron integral file a pick up the sort      *
@@ -110,7 +109,7 @@
          SrtKey(iOrd) = Int(Buf(2))
       End Do
       MaxDax=iDisk
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If ( iPrint.ge.10 ) then
         Call iVcPrt('Sort keys',' ',SrtKey,mxOrd)
         Call iVcPrt('Disk addresses',' ',SRtAdr,mxOrd)
@@ -151,7 +150,7 @@
           SrtKey(j2) = j2
         End If
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If ( iPrint.ge.10 ) then
         Call iVcPrt('Sort keys',' ',SrtKey,mxOrd)
       End If
@@ -198,6 +197,5 @@
 *     Turn timing OFF and exit                                         *
 *----------------------------------------------------------------------*
 *
-      Call qExit('Sort3')
       Return
       End

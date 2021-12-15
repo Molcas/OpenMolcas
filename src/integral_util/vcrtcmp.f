@@ -17,14 +17,6 @@
 * Object: to compile the value of the angular part of a basis function *
 *         evaluated at a root of the quadrature.                       *
 *                                                                      *
-* Called from: PrpInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy                                                   *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 ************************************************************************
@@ -38,7 +30,6 @@
       iRout = 116
       iPrint = nPrint(iRout)
 *     iPrint = 99
-      Call qEnter('vCrtCmp')
 *
       If (iPrint.ge.99) Then
          Call RecPrt(' In vCrtCmp: HerR',' ',HerR,1,nHer)
@@ -86,6 +77,5 @@
 *100     Continue
 *     End If
 *     Call GetMem(' Exit vCrtCmp','CHECK','REAL',iDum,iDum)
-      Call qExit('vCrtCmp')
       Return
       End

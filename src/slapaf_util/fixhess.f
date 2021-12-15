@@ -21,7 +21,6 @@
 *
       iRout=211
       iPrint=nPrint(iRout)
-      Call QEnter('FixHess')
 *
       If (iPrint.ge.99) Then
          Call RecPrt('FixHess: H(Start)',' ',H,nH,nH)
@@ -516,7 +515,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('FixHess')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(Iter)

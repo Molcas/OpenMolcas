@@ -33,7 +33,6 @@ cGLM     &               nP2_ontop,iSpin,F_xc,F_xca,F_xcb,
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "ksdft.fh"
       Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
      &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),

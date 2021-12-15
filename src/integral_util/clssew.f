@@ -12,26 +12,19 @@
 ************************************************************************
       SubRoutine ClsSew
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 ************************************************************************
       use Her_RW
-      use Real_Spherical
+      use Real_Spherical, only: Sphere_Free
       use EFP_module
       use External_Centers
+      use Basis_Info
+      use Center_Info
+      Use SOAO_Info
+      use Symmetry_Info, only: Symmetry_Info_Free
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "timtra.fh"
 #include "rctfld.fh"
@@ -44,52 +37,12 @@
       Call Term_Ints(.False.,.True.)
       Call Free_RctFld(iXPolType)
       Call Free_HerRW()
-*
-      If (Allocated(RSph)) Call mma_deallocate(RSph)
-      If (Allocated(ipSph)) Call mma_deallocate(ipSph)
-*                                                                      *
-************************************************************************
-*                                                                      *
-      If (Info_Status.eq.Active) Then
-         Call GetMem('Info','Free','Real',LctInf,nInfo)
-         Info_Status=InActive
-*                                                                      *
-*        Process "external" centers
-*
-         If (Allocated(EF_Centers)) Then
-            Call mma_deallocate(EF_Centers)
-            nEF=0
-         End If
-         If (Allocated(OAM_Center)) Call mma_deallocate(OAM_Center)
-         If (Allocated(OMQ_Center)) Call mma_deallocate(OMQ_Center)
-         If (Allocated(DMS_Centers)) Then
-            Call mma_deallocate(DMS_Centers)
-            nDMS=0
-         End If
-         If (Allocated(Wel_Info)) Then
-            Call mma_deallocate(Wel_Info)
-            nWel=0
-         End If
-         If (Allocated(AMP_Center)) Call mma_deallocate(AMP_Center)
-         If (Allocated(RP_Centers)) Then
-            Call mma_deallocate(RP_Centers)
-            nRP=0
-         End If
-         If (Allocated(XF)) Then
-            Call mma_deallocate(XF)
-            Call mma_deallocate(XMolnr)
-            Call mma_deallocate(XEle)
-            nData_XF=0
-            nXF=0
-            nXMolnr=0
-         End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-      End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+      Call Sphere_Free()
+      Call SOAO_Info_Free()
+      Call Basis_Info_Free()
+      Call SYmmetry_Info_Free()
+      Call Center_Info_Free()
+      Call External_Centers_Free()
       Call Free_iSD()
       Call Freek2()
       Call CloseR()
@@ -103,23 +56,4 @@
 *
       Seward_Status=InActive
       Return
-      End
-c
-c This code originally was included into ClsSew
-c occasionally it should be separated
-      Subroutine DumpSagit()
-      Implicit Real*8 (A-H,O-Z)
-c      Character*8 sagit
-c      Call getenvf('MOLCAS_SAGIT',sagit)
-c      If (sagit(1:1).eq.'y'.or.sagit(1:1).eq.'Y') Then
-CVV: dump info from runfile into ORB.std
-C    note that changes in info.fh
-C    should be reflected in sagit
-        iutemp=16
-        iutemp=isfreeunit(iutemp)
-        Call molcas_open(iutemp,'ORB.std')
-        Call Koor2file(iutemp)
-        Call Basi2file(iutemp)
-        close(iutemp)
-c      End If
       End

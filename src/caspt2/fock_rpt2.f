@@ -35,8 +35,7 @@ c as the three integral sets on LUINTM.
 c To be called from ORBCTL section, after second order two-el
 c transformation, and TRAONE, are finished, or from H0CTL.
 
-      CALL QENTER('FOCK_RPT2')
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       IFTEST=1
 #else
       IFTEST=0
@@ -170,7 +169,6 @@ C density.
 
       CALL GETMEM('LBUF','FREE','REAL',LBUF,NBUF)
 
-      CALL QEXIT('FOCK_RPT2')
 
       RETURN
       END

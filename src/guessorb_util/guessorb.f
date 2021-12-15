@@ -43,7 +43,6 @@
 * Prologue                                                             *
 *----------------------------------------------------------------------*
       iReturn=0
-      Call qEnter('guessorb')
       Call InitGO(StandAlone)
       If(StandAlone) Call InpCtl_GuessOrb
 *----------------------------------------------------------------------*
@@ -65,15 +64,13 @@
 *----------------------------------------------------------------------*
       iUHF=0
       If (iRC.eq.0) then
-        Call Molden_Interface(iUHF,'GSSORB','MD_GSS',.False.)
+        Call Molden_Interface(iUHF,'GSSORB','MD_GSS')
 c        call grid_driver(-1,'SEWARD','GSSORB',iRc)
       End If
 *----------------------------------------------------------------------*
 * Epilogue                                                             *
 *----------------------------------------------------------------------*
-      Call qExit('guessorb')
       If(StandAlone) Then
-         Call qStat(' ')
          Call FastIO('STATUS')
       End If
       iReturn=0

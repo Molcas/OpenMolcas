@@ -16,17 +16,10 @@
      &                 la,lb,lc,ld,IfHss,ifgrd)
 ************************************************************************
 *                                                                      *
-*     Object: to compute the 2-dimensional integrals of the Rys        *
-*             quadrature. The z components are assumed to be pre-      *
-*             conditioned with the weights of the roots of the         *
-*             Rys polynomial.                                          *
-*                                                                      *
-* Called from: Rys                                                     *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy   (ESSL)                                          *
-*              RecPrt                                                  *
-*              QExit                                                   *
+* Object: to compute the 2-dimensional integrals of the Rys            *
+*         quadrature. The z components are assumed to be pre-          *
+*         conditioned with the weights of the roots of the             *
+*         Rys polynomial.                                              *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
@@ -35,8 +28,6 @@
 * Chemistry, University of Lund, Sweden.                               *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 c#include "print.fh"
       Real*8 xyz2D(nArg*lRys,3,0:nabMax,0:ncdMax),
@@ -48,7 +39,6 @@ c#include "print.fh"
 *
 c     iRout = 15
 c     iPrint = nPrint(iRout)
-c     Call QEnter('Rys2Dm')
 *     If (iPrint.ge.99) Then
 *        If (nabMax.gt.0) Call RecPrt('PAWP',' ',PAWP,nArg,lRys*3)
 *        If (ncdMax.gt.0) Call RecPrt('QCWQ',' ',QCWQ,nArg,lRys*3)
@@ -196,7 +186,6 @@ c     Call QEnter('Rys2Dm')
 *610        Continue
 *600     Continue
 *     End If
-c     Call QExit('Rys2Dm')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

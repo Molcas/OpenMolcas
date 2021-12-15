@@ -30,7 +30,6 @@
 *> @param[in] nShij    Number of shell pairs
 ************************************************************************
       SubRoutine IniCho_RI(nSkal,nVec_Aux,nIrrep,iTOffs,iShij,nShij)
-
       Implicit None
       Integer nSkal, nIrrep, nShij
       Integer nVec_Aux(0:nIrrep-1)
@@ -420,10 +419,8 @@ C     -------------------------------------------------------
 *
 ************************************************************
       Subroutine Get_thrc_RI(Thr_CD)
-
+      use RICD_Info, only: Thrshld_CD
       Real*8 Thr_CD
-#include "itmax.fh"
-#include "info.fh"
 
       Thr_CD = Thrshld_CD
 

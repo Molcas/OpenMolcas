@@ -17,13 +17,6 @@
 * Object: Numerical Gauss integrations over the unit sphere by a rule  *
 * with octahedral symmetry.                                            *
 *                                                                      *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN.                                         *
 *             Laura Gagliardi, Dipartimento di Chimica G. Ciamician,   *

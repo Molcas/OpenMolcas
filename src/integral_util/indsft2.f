@@ -25,9 +25,11 @@
 *          april '90                                                   *
 ************************************************************************
       use k2_arrays, only: Sew_Scr
+      use SOAO_Info, only: iAOtSO, iOffSO
+      use lw_Info
+      use Real_Info, only: ThrInt
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
 #include "srt0.fh"
@@ -41,10 +43,9 @@
       Logical dupli
       Data tr1,tr2/0.0d0,0.0d0/
       Save tr1,tr2
-*     Call qEnter('IndSft2')
       irout = 39
       iprint = nprint(irout)
-C     iPrint=99
+*     iPrint=99
       k12=0
       k34=0
       If (iPrint.ge.49) Then
@@ -73,18 +74,19 @@ C     iPrint=99
 *
       Shij = iShell(1).eq.iShell(2)
       Shkl = iShell(3).eq.iShell(4)
-C     Write (*,*) 'iShell=',iShell
-C     Write (*,*) 'Shijij=',Shijij
-C     Write (*,*) 'iAO=',iAO
       Do 100 i1 = 1, iCmp(1)
          Do 101 j = 0, nIrrep-1
-            iSym(j) = iand(IrrCmp(inds(iShell(1))+i1),2**j)
+            ix = 0
+            If (iAOtSO(iAO(1)+i1,j)>0) ix = 2**j
+            iSym(j) = ix
 101      Continue
          jCmpMx = iCmp(2)
          If (Shij) jCmpMx = i1
          Do 200 i2 = 1, jCmpMx
             Do 201 j = 0, nIrrep-1
-               jSym(j) = iand(IrrCmp(inds(iShell(2))+i2),2**j)
+               ix = 0
+               If (iAOtSO(iAO(2)+i2,j)>0) ix = 2**j
+               jSym(j) = ix
 201         Continue
             qij = i1.eq.i2
             If (iShell(2).gt.iShell(1)) then
@@ -94,13 +96,17 @@ C     Write (*,*) 'iAO=',iAO
             End If
             Do 300 i3 = 1, iCmp(3)
                Do 301 j = 0, nIrrep-1
-                  kSym(j) = iand(IrrCmp(inds(iShell(3))+i3),2**j)
+                  ix = 0
+                  If (iAOtSO(iAO(3)+i3,j)>0) ix = 2**j
+                  kSym(j) = ix
 301            Continue
                lCmpMx = iCmp(4)
                If (Shkl) lCmpMx = i3
                Do 400 i4 = 1, lCmpMx
                   Do 401 j = 0, nIrrep-1
-                     lSym(j) = iand(IrrCmp(inds(iShell(4))+i4),2**j)
+                     ix = 0
+                     If (iAOtSO(iAO(4)+i4,j)>0) ix = 2**j
+                     lSym(j) = ix
 401               Continue
                   qkl = i3.eq.i4
                   If (iShell(4).gt.iShell(3)) then
@@ -319,8 +325,6 @@ C    &                                   iStBin(jSyBlk)
 *
       Call R8PREP(nUt+1,Sew_Scr(lwInt))
       Call SORT1A(nUt+1,Sew_Scr(lwInt),Sew_Scr(lwSqN),Sew_Scr(lwSyB))
-      NotZer=NotZer+nUt+1
       nUt=0
-*     Call qExit('IndSft2')
       Return
       End

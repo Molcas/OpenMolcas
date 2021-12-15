@@ -34,7 +34,6 @@ c
 
       DIMENSION x(*), x2(*), v(*), a(*), b(*), y(*)
 
-      Call qEnter(Routine)
 c
 c     square the matrix X into the symmetric matrix X2
 c
@@ -133,6 +132,5 @@ C Finally, add 1 to obtain exp(x)
         x(i)=x(i)+1.0D0
       end do
 c
-      Call qExit(Routine)
       RETURN
       END

@@ -40,7 +40,7 @@
 *> @param[in]     TUVX   Active 2-el integrals
 *> @param[in]     IFINAL Calculation status switch
 ************************************************************************
-      Subroutine CICtl(CMO,D,DS,P,PA,FI,D1I,D1A,TUVX,IFINAL)
+      Subroutine CICtl(CMO,D,DS,P,PA,FI,FA,D1I,D1A,TUVX,IFINAL)
 * ****************************************************************
 * history:                                                       *
 * updated to use determinant based CI-procedures                 *
@@ -59,7 +59,7 @@
 
       Implicit Real* 8 (A-H,O-Z)
 
-      Dimension CMO(*),D(*),DS(*),P(*),PA(*),FI(*),D1I(*),D1A(*),
+      Dimension CMO(*),D(*),DS(*),P(*),PA(*),FI(*),FA(*),D1I(*),D1A(*),
      &          TUVX(*)
       Logical Exist,Do_ESPF,l_casdft
 *JB   variables for state rotation on final states
@@ -102,7 +102,6 @@
       Dimension rdum(1)
 
 *PAM05      SymProd(i,j)=1+iEor(i-1,j-1)
-      Call qEnter('CICTL')
 C Local print level (if any)
       IPRLEV=IPRLOC(3)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -518,6 +517,13 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
 *JB   states
        do_rotate=.False.
        If (ifinal.eq.2) Then
+        IF(IXMSP.eq.1) THEN
+         CALL XMSRot(CMO,FI,FA)
+        End If
+        IF(ICMSP.eq.1) THEN
+         CALL XMSRot(CMO,FI,FA)
+         CALL CMSRot(TUVX)
+        END IF
         If(IRotPsi==1) Then
          CALL f_inquire('ROT_VEC',Do_Rotate)
         End If
@@ -582,7 +588,7 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
      &                             state = jroot,
      &                             rdm1  = .true.
      &                            )
-#ifdef _DMRG_DEBUG_
+#ifdef _DMRG_DEBUGPRINT_
            write(6,*)"==============================================="
            write(6,*)"  Set all elems in anti-symmetric 2-RDM to zero"
            write(6,*)"==============================================="
@@ -1021,6 +1027,5 @@ C     the relative CISE root given in the input by the 'CIRF' keyword.
         Call Free_Work(ipRF)
       End If
 
-      Call qExit('CICTL')
       Return
       End

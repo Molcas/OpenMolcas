@@ -11,7 +11,7 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
       SubRoutine DefInt(BVct,nBVct,Labels,BMtrx,nQQ,nAtom,nLines,Value,
-     &                  rInt,Lbl,Name,Coor,dMass,nSym,iOper,
+     &                  rInt,Lbl,Name,Coor,dMass,
      &                  jStab,nStab,mxdc,rMult,nDim,Redundant)
 ************************************************************************
 *                                                                      *
@@ -19,19 +19,6 @@
 *         between a infinitesimal displacement in the symmetry adapted *
 *         internal coordinates and the symmetry unique cartesian       *
 *         coordinates.                                                 *
-*                                                                      *
-*                                                                      *
-* Called from: BMtrx                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Banner                                                  *
-*              UpCase                                                  *
-*              NxtWrd                                                  *
-*              Cllct                                                   *
-*              RecPrt                                                  *
-*              DCopy  (ESSL)                                           *
-*              DaXpY  (ESSL)                                           *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
@@ -49,7 +36,7 @@
      &          Name(nAtom)*(LENIN), Line*120, Format*8, filnam*16
       Logical First, lWrite, Flip, lPIC(6*nAtom), lAtom(nAtom), lErr,
      &        Redundant
-      Integer   iOper(0:7), nStab(mxdc), jStab(0:7,mxdc)
+      Integer nStab(mxdc), jStab(0:7,mxdc)
       Save First
       Data First/.True./
 *
@@ -58,7 +45,6 @@
       iRout = 30
       iPrint = nPrint(iRout)
       If (iPrint.ge.6) lWrite = .True.
-      Call qEnter('DefInt')
       Do i = 1, 6*nAtom
          lPIC(i)  = .True.
       EndDo
@@ -250,7 +236,7 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
      &              Name,nAtom,Coor,nCntr,mCntr,
      &              Work(ipxyz),Work(ipTemp),iWork(ipInd),Type,
      &              dMass,Work(ipMass),Work(ipTM),lWrite,
-     &              Labels(iBVct),nSym,lWrite,iOper,jStab,nStab,mxdc,
+     &              Labels(iBVct),lWrite,jStab,nStab,mxdc,
      &              rMult(iBVct),lAtom)
 *
          If (.Not.First .and.
@@ -556,7 +542,6 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
       End If
 
       Close(Lu_UDIC)
-      Call qExit('DefInt')
       First = .False.
       Return
       End

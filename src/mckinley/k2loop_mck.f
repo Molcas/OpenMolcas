@@ -28,17 +28,6 @@
 *         This is done for all unique pairs of centers                 *
 *         generated from the symmetry unique centers A and B.          *
 *                                                                      *
-* Called from: Drvk2                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy   (ESSL)                                          *
-*              DoZeta                                                  *
-*              SchInt                                                  *
-*              PckInt                                                  *
-*              GetMem                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -52,10 +41,9 @@
 *             By Anders Bernhardsson                                   *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "ndarray.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "disp.fh"
 #include "disp2.fh"
       Real*8 Coor(3,2), CoorM(3,4), Alpha(nAlpha), Beta(nBeta),
@@ -94,9 +82,7 @@ c Avoid unused argument warnings
 *
       Do 100 lDCRR = 0, nDCRR-1
 *
-         CoorM(1,2) = DBLE(iPhase(1,iDCRR(lDCRR)))*Coor(1,2)
-         CoorM(2,2) = DBLE(iPhase(2,iDCRR(lDCRR)))*Coor(2,2)
-         CoorM(3,2) = DBLE(iPhase(3,iDCRR(lDCRR)))*Coor(3,2)
+         Call OA(iDCRR(lDCRR),Coor(1:3,2),CoorM(1:3,2))
          call dcopy_(6,CoorM(1,1),1,CoorM(1,3),1)
 *
 *--------Compute Zeta, P and kappa.

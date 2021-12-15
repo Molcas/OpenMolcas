@@ -18,12 +18,6 @@
 * Object: to entities for the nucelar attraction integrals which are   *
 *         used in the Rys quadrature to evaluate these integrals.      *
 *                                                                      *
-* Called from: Rys                                                     *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 ************************************************************************
@@ -35,7 +29,7 @@
 *
       iRout = 57
       iPrint = nPrint(iRout)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt(' Zeta in TNAI',' ',Zeta,nT,1)
          Call RecPrt(' Eta in TNAI',' ',Eta,nT,1)
@@ -55,7 +49,7 @@
          Fact(iT) =  2.0D0*rKapab(iT)*Pi/Zeta(iT)
       End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt('Tvalue',' ',T,nT,1)
          Call RecPrt('Fact  ',' ',Fact,nT,1)

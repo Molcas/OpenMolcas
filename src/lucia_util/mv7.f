@@ -42,7 +42,6 @@
 #include "glbbas.fh"
 #include "oper.fh"
       COMMON/CMXCJ/MXCJ,MAXK1_MX,LSCMAX_MX
-      CALL QENTER('MV7  ')
       IDUM = 0
 *
       IF(ICISTR.EQ.1) THEN
@@ -143,7 +142,6 @@ C?    WRITE(6,*) ' LSCMAX_MX = ', LSCMAX_MX
       CALL GETMEM('CI1BT ','FREE','INTE',KLSI1BT,NTTS  )
       CALL GETMEM('CIBT  ','FREE','INTE',KLSIBT ,8*NTTS)
 *
-      CALL QEXIT('MV7  ')
 *
       RETURN
       END

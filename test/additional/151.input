@@ -6,22 +6,22 @@
 * Responsible person: Coen de Graaf & Roland Lindh 20-06-24
 * Comments:
 *-------------------------------------------------------------------------------
-&seward 
-basis set 
-O.ano-s...3s2p. 
-O 0.0000 0.0000 0.0000 Angstrom 
-end of basis 
-basis set 
-h.ano-s...2s. 
-h1 0.7713 0.5897 0.0000 Angstrom 
-h2 -0.7713 0.5897 0.0000 Angstrom 
-end of basis 
-verbose 
-xfie 
-4 0 2 
- 5.0 0.0 0.0  0.1  0.1 0.0 0.0 0.1 0.0 0.1 
--5.0 0.0 0.0 -0.15 0.1 0.0 0.0 0.1 0.0 0.1 
- 0.0 6.0 0.0  0.1  0.1 0.0 0.0 0.1 0.0 0.1 
+&seward
+basis set
+O.ano-s...3s2p.
+O 0.0000 0.0000 0.0000 Angstrom
+end of basis
+basis set
+h.ano-s...2s.
+h1 0.7713 0.5897 0.0000 Angstrom
+h2 -0.7713 0.5897 0.0000 Angstrom
+end of basis
+verbose
+xfie
+4 0 2
+ 5.0 0.0 0.0  0.1  0.1 0.0 0.0 0.1 0.0 0.1
+-5.0 0.0 0.0 -0.15 0.1 0.0 0.0 0.1 0.0 0.1
+ 0.0 6.0 0.0  0.1  0.1 0.0 0.0 0.1 0.0 0.1
  0.0 0.0 3.0 -0.1  0.1 0.0 0.0 0.1 0.0 0.1
 
 &scf

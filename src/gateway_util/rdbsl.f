@@ -46,8 +46,8 @@
       Integer iLast_JR,iLast1
       Integer BasisTypes(4)
       Data IfTest/.False./
-*#define _DEBUG_
-#ifdef _DEBUG_
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       IfTest=.True.
 #endif
       If (iTabMx.lt.lCGTO) Then
@@ -61,7 +61,6 @@
          End Do
       End If
       If (IfTest) Then
-         Call qEnter('Rdbsl')
          Write (6,*) ' Enter Rdbsl'
          Write (6,'(2a)') ' BsLbl=',BsLbl
          Write (6,'(2a)') ' BasDir=',BasDir
@@ -354,7 +353,6 @@ c     &        Form='FORMATTED',IOSTAT=IOStat)
      &     'Abend in RdBsl:Requested basis inconsistent with library')
          Call Quit_OnUserError()
       End If
-      If (IfTest) Call qExit('Rdbsl')
       Return
       End
 c

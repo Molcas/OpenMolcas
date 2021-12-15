@@ -19,7 +19,6 @@
 *
 #include "espf.fh"
 *
-      Call QEnter('espf_init')
 *
       Call Get_iScalar('Unique atoms',natom)
       Call GetMem('AtomCoord','Allo','Real',ipCord,3*natom)
@@ -29,7 +28,6 @@
       Call GetMem('ExtPot','ALLO','REAL',ipExt,natom*MxExtPotComp)
       call dcopy_(MxExtPotComp*natom,[Zero],0,Work(ipExt),1)
 *
-      Call QExit('espf_init')
       iReturn=0
       Return
       End

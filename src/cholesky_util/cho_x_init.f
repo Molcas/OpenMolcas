@@ -67,7 +67,7 @@
       Character*10 SecNam
       Parameter (SecNam = 'Cho_X_Init')
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Character*2 Unt
 #endif
 
@@ -88,8 +88,7 @@
 C     Register entry.
 C     ---------------
 
-#if defined (_DEBUG_)
-      Call qEnter(SecNam)
+#if defined (_DEBUGPRINT_)
       Call GetMem('CXI_MX1','Max ','Real',ip_Max,l_Max)
       Call Cho_Word2Byte(l_Max,8,Byte,Unt)
       Write(6,*) '>>>>> Available memory on entry to ',SecNam,': ',
@@ -422,10 +421,10 @@ C     ------------------------
          Go To 104
       End If
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
 C     Debug: test bookmarks.
 C     Note that 1C-CD flag must be available on runfile
-C     (make sure _DEBUG_ is defined also in Cho_Final().
+C     (make sure _DEBUGPRINT_ is defined also in Cho_Final().
 C     --------------------------------------------------
       If (l_BkmVec.gt.0 .and. l_BkmThr.gt.0) Then
          Call Get_iScalar('1C-CD',is1CCD)
@@ -495,15 +494,16 @@ C     Return.
 C     =======
 
     1 Continue
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call GetMem('CXI_MX2','Max ','Real',ip_Max,l_Max)
       Call Cho_Word2Byte(l_Max,8,Byte,Unt)
       Write(6,*) '>>>>> Available memory on exit from ',SecNam,': ',
      &           l_Max,' = ',Byte,Unt
       Call xFlush(6)
-      Call qExit(SecNam)
 #endif
       End
+
+
       SubRoutine Cho_X_DefineInfVec_5(isDF)
 C
 C     Purpose: Trivial definition of location 5 of InfVec:

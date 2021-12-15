@@ -19,7 +19,6 @@
       Dimension iXStruct (nXSize)
 #include "WrkSpc.fh"
 
-      CALL QENTER(ROUTINE)
 
       nSym   =iSGStruct(1)
       nLev   =iSGStruct(2)
@@ -140,6 +139,5 @@ C nVTab has now been updated to the true size. Allocate final array:
       Call GetMem('VSGM','Free','Real',lVSgm,nSgmnt)
       Call GetMem('IVR','Free','Inte',lIVR,2*nVert)
 
-      CALL QEXIT(ROUTINE)
       return
       end

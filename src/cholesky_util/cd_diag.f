@@ -45,7 +45,6 @@ C
       Character*7 SecNam
       Parameter (SecNam = 'CD_Diag')
 
-      Call qEnter(SecNam)
 
 C     Set variables.
 C     --------------
@@ -139,5 +138,4 @@ C     -----------------------------------------------
       Converged = ErrStat(2) .le. Thr
 
     1   Continue
-       Call qExit(SecNam)
       End

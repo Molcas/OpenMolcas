@@ -23,7 +23,7 @@
       Real*8  G1(3*nAtoms),G2(3*nAtoms)
 
       Data XYZ/1,2,3/
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       debug=.true.
 #else
       debug=.false.

@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1990,1995, Roland Lindh                                *
+* Copyright (C) 1990,2005, Roland Lindh                                *
 *               1990, IBM                                              *
 ************************************************************************
       Subroutine PLF_RI_2(AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,
@@ -28,9 +28,9 @@
 *          Modified to 2-center RI June '05                            *
 *                                                                      *
 ************************************************************************
+      use SOAO_Info, only: iAOtSO
+      use Basis_Info, only: nBas
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
 #include "srt0.fh"
@@ -48,9 +48,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
-#ifdef _DEBUG_
-      Call qEnter('PLF_RI_2')
+#ifdef _DEBUGPRINT_
       irout = 109
       iPrint = nPrint(irout)
       iPrint=99
@@ -74,7 +72,7 @@
       nn = mm_ - iOffA(2)
       mx = nn*(nn+1)/2
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'nn,mx=',nn,mx
       Write (6,*) 'iOff=',nn,mx
       Write (6,*) 'lBas,jBas=',lBas,jBas
@@ -105,12 +103,8 @@
 *
          End Do
       End Do
-#ifdef _DEBUG_
-      Call qExit('PLF_RI_2')
-#endif
 *
-      Return
-c Avoid unused argument warnings
+#ifdef _WARNING_WORKAROUND_
       If (.False.) Then
          Call Unused_integer(iCmp)
          Call Unused_integer(kCmp)
@@ -119,4 +113,5 @@ c Avoid unused argument warnings
          Call Unused_integer(iBas)
          Call Unused_integer(kBas)
       End If
+#endif
       End

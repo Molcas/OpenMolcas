@@ -45,12 +45,12 @@ OCH3 = Angle O2 C1 H3
 OCH4 = Angle O2 C1 H4
 DH4  = Dihedral H3 O2 C1 H4
 Vary
-rCO2  = 1.0 CO2 
-rOH3  = 1.0 OH3 
-rOH4  = 1.0 OH4 
+rCO2  = 1.0 CO2
+rOH3  = 1.0 OH3
+rOH4  = 1.0 OH4
 aOCH3 = 1.0 OCH3
 aOCH4 = 1.0 OCH4
-tDH4  = 1.0 DH4 
+tDH4  = 1.0 DH4
 End of Internal
 End of input
 

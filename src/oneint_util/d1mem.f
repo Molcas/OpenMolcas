@@ -9,12 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine D1Mem(nHer,MemD1,la,lb,lr)
+      use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
 *
-#include "itmax.fh"
-#include "info.fh"
-*
-      nHer=mCentr
+      nHer=S%mCentr
       MemD1 = 3*(la+1)*nHer +
      &        3*(lb+1)*nHer
 *

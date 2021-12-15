@@ -13,7 +13,7 @@
       Use, Intrinsic :: IEEE_Exceptions
 #endif
       Integer iReturn
-      Character(20) Module_Name
+      Character(Len=20) Module_Name
       Parameter (Module_Name = 'poly_aniso')
 #ifdef _FPE_TRAP_
       Call IEEE_Set_Halting_Mode(IEEE_Usual,.True._4)
@@ -21,6 +21,5 @@
 
       Call Start(Module_Name)
       Call poly_aniso_open(iReturn)
-      Call QStat(' ')
       Call Finish(iReturn)
       End

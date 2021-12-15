@@ -4,7 +4,7 @@
 * Symmetry: Yes
 * Features tested: SEWARD(ZMAT), SCF, MBPT2
 * Responsible person: Giovanni Ghigo (GG)
-* Comments: Test for ZMAT with ghost X atoms in SEWARD. 
+* Comments: Test for ZMAT with ghost X atoms in SEWARD.
 *-------------------------------------------------------------------------------
 >export MOLCAS_MOLDEN=ON
  &SEWARD &END

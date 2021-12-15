@@ -44,7 +44,6 @@ C
          Return
       End If
 
-      Call qEnter(ThisNm)
       irc = 0
 
 C     Determine if vector files are to be deleted after use.
@@ -359,5 +358,4 @@ C     ----------------------
 
       EMP2 = -EMP2
 
-      Call qExit(ThisNm)
       End

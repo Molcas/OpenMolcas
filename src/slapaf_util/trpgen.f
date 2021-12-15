@@ -8,15 +8,14 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine TRPGen(nDim,nAtom,Coor,Degen,nSym,iOper,
-     &                  Smmtrc,mTR,dMass,CofM,TRVec)
+      Subroutine TRPGen(nDim,nAtom,Coor,Degen,Smmtrc,mTR,dMass,CofM,
+     &                  TRVec)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
       Real*8 Coor(3,nAtom), Degen(3*nAtom),
      &       dMass(nAtom), TRVec(3*nAtom*6)
-      Integer   iOper(0:nSym-1)
       Logical Smmtrc(3*nAtom), CofM
       Logical g12K
       Data g12K/.True./
@@ -32,8 +31,8 @@
 *     B    (nTR x nDim)
 *      tr
 *
-      Call TRMake(Work(ipTR),Coor,nAtom,nTR,Degen,iOper,nSym,
-     &            Smmtrc,nDim,dMass,CofM)
+      Call TRMake(Work(ipTR),Coor,nAtom,nTR,Degen,Smmtrc,nDim,dMass,
+     &            CofM)
 *
       call dcopy_(nTR*nDim,Work(ipTR),1,TRVec,1)
 *

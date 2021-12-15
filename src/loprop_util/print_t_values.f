@@ -12,8 +12,7 @@
      &                          nAtoms,nij,Standard,iWarnings,
      &                          Num_Warnings,iPrint)
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "real.fh"
       Real*8 T_Values(nij),EC(3,nij)
       Integer iT_Sets(nij),iANr(nAtoms),iWarnings(nij)

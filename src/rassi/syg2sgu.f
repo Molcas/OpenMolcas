@@ -31,7 +31,6 @@
 
 
 
-      CALL QENTER(ROUTINE)
 
 C Input:
 C ISGSTRUCT : Data that define a Split Graph
@@ -572,7 +571,6 @@ C      write(*,'(1x,a,8I8)')'ICSYMG<-ICSPLT:',ICSYMG,ICSPLT
       ENDIF
 C
       CALL GETMEM('OrbArr','Free','Inte',LORBARR,NACTEL)
-      CALL QEXIT(ROUTINE)
 
       RETURN
       END

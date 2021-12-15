@@ -17,7 +17,6 @@ C
       Implicit None
       Character*(*) SecNam, Str1, Str2
 
-      Call qTrace
       Call SysAbendMsg(SecNam,Str1,Str2)
 
       End

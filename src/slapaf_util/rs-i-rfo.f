@@ -45,7 +45,6 @@
       Character*1 Step_Trunc
       Logical Found
 *
-*     Call QEnter('RS_I_RFO')
       iRout = 215
       Lu =6
       iPrint = nPrint(iRout)
@@ -160,6 +159,5 @@
          Call RecPrt(' In RS_I_RFO:dq','(10f10.6)',dq,nInter,1)
       End If
 *
-*     Call QExit('RS_I_RFO')
       Return
       End

@@ -15,7 +15,6 @@
       Logical :: FOUND
 
 
-      Call qEnter('SA_fetchRF1')
 
       ! check the presence of the RUNFILE
       FOUND=.false.
@@ -158,7 +157,6 @@
          Write(6,'(5X,A)') 'The DIPMOM array was not found on RUNFILE'
          Write(6,'(5X,A)') 'Absorption intensities will not be computed'
       End If
-      Call qExit('SA_fetchRF1')
       Return
       End Subroutine fetch_data_RunFile_init
 
@@ -193,7 +191,6 @@
       Logical          :: found_edmom, found_amfi, found_hsor,
      &                    found_hsoi
 
-      Call qEnter('SA_fetchRF2')
       g_e=2.00231930437180_wp
       au2cm=219474.6313702_wp
       ! get basic sizes:
@@ -420,7 +417,6 @@ c----- expand the spin free basis to the spin-orbit basis:
       End Do !L
       Call mma_deallocate(tmp)
 
-      Call qExit('SA_fetchRF2')
 
       Return
       End Subroutine fetch_data_RunFile_all

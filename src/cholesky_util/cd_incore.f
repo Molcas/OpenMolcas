@@ -46,7 +46,6 @@
       Real*8 ThrNeg, ThrFail
       Parameter (ThrNeg = -1.0d-13, ThrFail = -1.0d-8)
 
-      Call qEnter(SecNam)
 
       irc = 0
       NumCho = 0
@@ -60,5 +59,4 @@
       End If
 
     1   Continue
-       Call qExit(SecNam)
       End

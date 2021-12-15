@@ -41,7 +41,7 @@ MODULE fmm_W_contractors
    REAL(REALK), POINTER, SAVE :: old_ptr(:,:)
    REAL(REALK), POINTER, SAVE :: new_ptr(:,:)
    ! Diagnostic variables
-   CHARACTER(11), SAVE :: W_con_stat
+   CHARACTER(LEN=11), SAVE :: W_con_stat
    LOGICAL,       SAVE :: fmm_lock_W_con
 
 CONTAINS
@@ -109,7 +109,7 @@ CONTAINS
       REAL(REALK)   :: arr_tmp(W_pair%lm_max)
       REAL(REALK)   :: r_mod2
       INTEGER(INTK) :: n,m,w, lm_dim, hi, p,q, LMAX,JMAX
-      CHARACTER(1)  :: NT
+      CHARACTER(LEN=1)  :: NT
 
       CALL fmm_check_W_status
 
@@ -153,7 +153,7 @@ CONTAINS
       REAL(REALK)   :: arr_tmp(W_pairs%lm_max)
       REAL(REALK)   :: lastlen, r_pq(3), r_pq_mod(3)
       INTEGER(INTK) :: LMAX, i, p,q, lm_dim, hi
-      CHARACTER(1)  :: NT
+      CHARACTER(LEN=1)  :: NT
 
       CALL fmm_check_W_status
 
@@ -210,7 +210,7 @@ CONTAINS
       REAL(REALK)   :: arr_tmp(W_pairs%lm_max)
       REAL(REALK)   :: lastlen, r_pq(3), r_pq_mod(3)
       INTEGER(INTK) :: LMAX,JMAX, n,m,lm_dim, i, p,q, hi
-      CHARACTER(1)  :: NT
+      CHARACTER(LEN=1)  :: NT
 
       CALL fmm_check_W_status
 
@@ -266,7 +266,7 @@ CONTAINS
 
       REAL(REALK)   :: lastlen, r_pq(3), r_pq_mod(3)
       INTEGER(INTK) :: LMAX, n,lm_dim, i, p,q
-      CHARACTER(1)  :: NT
+      CHARACTER(LEN=1)  :: NT
 
       CALL fmm_check_W_status
 

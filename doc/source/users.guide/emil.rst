@@ -147,7 +147,7 @@ Here is a list of EMIL commands:
 :command:`>> EXPORT A=B`
   a command to set environment variable A to value B
 
-  .. xmldoc:: <COMMAND NAME="EXPORT" FORMAT="export %s = %s" SHOWVALUE="TRUE">
+  .. xmldoc:: <COMMAND NAME="EXPORT" APPEAR="Export" FORMAT="EXPORT %s = %s" SHOWVALUE="TRUE">
               %%Keyword: EXPORT <basic>
               <HELP>
               A command to export environment variable in a form A=B
@@ -158,7 +158,7 @@ Here is a list of EMIL commands:
   a command to terminate execution.
   An optional value for this command is the return code (default value is 0)
 
-  .. xmldoc:: <COMMAND NAME="EXIT" APPEAR="EXIT" FORMAT="exit">
+  .. xmldoc:: <COMMAND NAME="EXIT" APPEAR="Exit" FORMAT="EXIT">
               %%Keyword: EXIT <basic>
               <HELP>
               A command to terminate execution.
@@ -170,12 +170,12 @@ Here is a list of EMIL commands:
   a command to include a file into the input
   A compulsory value for this command is the filename.
 
-  .. xmldoc:: <COMMAND NAME="INCLUDE" APPEAR="INCLUDE" FORMAT="include %s" LEVEL="HIDDEN">
+  .. xmldoc:: <COMMAND NAME="INCLUDE" APPEAR="Include file" FORMAT="INCLUDE %s" LEVEL="HIDDEN">
               %%Keyword: INCLUDE <basic>
               <HELP>
               A command to include file
-              ||
-              ||>> INCLUDE filename
+
+                >> INCLUDE filename
               </HELP>
               </COMMAND>
 
@@ -188,22 +188,22 @@ Here is a list of EMIL commands:
   All files specified with :command:`FILE` are created at the beginning of the calculation,
   regardless of their placement in the input.
 
-  .. xmldoc:: <COMMAND NAME="FILE" APPEAR="FILE" FORMAT="file %s">
+  .. xmldoc:: <COMMAND NAME="FILE" APPEAR="Inline file" FORMAT="FILE %s" LINK_ANCHOR="EOF" CONTENT="ANY">
               %%Keyword: FILE <basic>
               <HELP>
               A command to inline a file in the input file. The file will be extracted into
               WorkDir before the start of the calculation
-              ||
-              ||>> FILE filename
-              ||...
-              ||>> EOF
+
+                >> FILE filename
+                ...
+                >> EOF
               </HELP>
               </COMMAND>
 
 :command:`>> EOF`
   A command to close inlined file.
 
-  .. xmldoc:: <COMMAND NAME="EOF" APPEAR="EOF" FORMAT="eof">
+  .. xmldoc:: <COMMAND NAME="EOF" APPEAR="EOF" FORMAT="EOF">
               %%Keyword: EOF <basic>
               <HELP>
               A command to close inlined file.
@@ -213,7 +213,7 @@ Here is a list of EMIL commands:
 :command:`>> SHELL`
   a command to execute a unix command in serial.
 
-  .. xmldoc:: <COMMAND NAME="SHELL" APPEAR="SHELL" FORMAT="SHELL %s" SHOWVALUE="TRUE">
+  .. xmldoc:: <COMMAND NAME="SHELL" APPEAR="Serial shell" FORMAT="SHELL %s" SHOWVALUE="TRUE">
               %%Keyword: SHELL <basic>
               <HELP>
               A command to define a unix command to be executed in serial.
@@ -223,7 +223,7 @@ Here is a list of EMIL commands:
 :command:`>> EXEC`
   a command to execute a unix command in parallel.
 
-  .. xmldoc:: <COMMAND NAME="EXEC" APPEAR="EXEC" FORMAT="EXEC %s" SHOWVALUE="TRUE">
+  .. xmldoc:: <COMMAND NAME="EXEC" APPEAR="Parallel shell" FORMAT="EXEC %s" SHOWVALUE="TRUE">
               %%Keyword: EXEC <basic>
               <HELP>
               A command to define a unix command to be executed in parallel.
@@ -237,7 +237,7 @@ Here is a list of EMIL commands:
   FILE1 does exist, and FILE2 does not at the moment. >>LINK -FORCE allows
   to link a file which does not exist. User should avoid the usage of LINK commands in the input.
 
-  .. xmldoc:: <COMMAND NAME="LINK" APPEAR="LINK" FORMAT="LINK %s %s" FILE_INDEX="0" VALUES="????|????.OR.ITER" SHOWVALUE="TRUE">
+  .. xmldoc:: <COMMAND NAME="LINK" APPEAR="Link" FORMAT="LINK %s %s" FILE_INDEX="0" VALUES="????|????.OR.ITER" SHOWVALUE="TRUE">
               %%Keyword: LINK <basic>
               <HELP>
               A command to link two files located in WorkDir.
@@ -256,7 +256,7 @@ Here is a list of EMIL commands:
   EMIL command does not allow to use masks in the command. If FILE1 does not
   exist, the command returns an error code.
 
-  .. xmldoc:: <COMMAND NAME="COPY" APPEAR="COPY" FORMAT="COPY %s %s" FILE_INDEX="0" SHOWVALUE="TRUE">
+  .. xmldoc:: <COMMAND NAME="COPY" APPEAR="Copy to all" FORMAT="COPY %s %s" FILE_INDEX="0" SHOWVALUE="TRUE">
               %%Keyword: COPY <basic>
               <HELP>
               A command to copy one file to another. The command is similar to '!cp -f
@@ -273,7 +273,7 @@ Here is a list of EMIL commands:
   all slaves if parallel. It is mostly used internally, e.g. to distribute an input
   file to all WorkDirs.
 
-  .. xmldoc:: <COMMAND NAME="CLONE" APPEAR="CLONE" FORMAT="CLONE %s %s" FILE_INDEX="0" SHOWVALUE="TRUE">
+  .. xmldoc:: <COMMAND NAME="CLONE" APPEAR="Copy on all" FORMAT="CLONE %s %s" FILE_INDEX="0" SHOWVALUE="TRUE">
               %%Keyword: CLONE <basic>
               <HELP>
               A command to make a clone copy of a file, doing a local copy on
@@ -287,7 +287,7 @@ Here is a list of EMIL commands:
   slaves and put them on the master if parallel. It is mostly used internally, e.g.
   to collect output files.
 
-  .. xmldoc:: <COMMAND NAME="COLLECT" APPEAR="COLLECT" FORMAT="COLLECT %s %s" FILE_INDEX="0" SHOWVALUE="TRUE">
+  .. xmldoc:: <COMMAND NAME="COLLECT" APPEAR="Collect from slaves" FORMAT="COLLECT %s %s" FILE_INDEX="0" SHOWVALUE="TRUE">
               %%Keyword: COLLECT <basic>
               <HELP>
               A command to copy one file to another, collecting files on slaves and put them on the master if parallel
@@ -297,7 +297,7 @@ Here is a list of EMIL commands:
 :command:`>> SAVE`
   A command to copy one file to another, only on the master if parallel
 
-  .. xmldoc:: <COMMAND NAME="SAVE" APPEAR="SAVE" FORMAT="SAVE %s %s" FILE_INDEX="0" SHOWVALUE="TRUE">
+  .. xmldoc:: <COMMAND NAME="SAVE" APPEAR="Copy on master" FORMAT="SAVE %s %s" FILE_INDEX="0" SHOWVALUE="TRUE">
               %%Keyword: SAVE <basic>
               <HELP>
               A command to copy one file to another, only on the master if parallel
@@ -311,7 +311,7 @@ Here is a list of EMIL commands:
   file leads to an error. It is possible to use -FORCE flag to allow deleting
   of non-existent file.
 
-  .. xmldoc:: <COMMAND NAME="RM" APPEAR="RM" FORMAT="RM %s" FILE_INDEX="0" SHOWVALUE="TRUE">
+  .. xmldoc:: <COMMAND NAME="RM" APPEAR="Delete" FORMAT="RM %s" FILE_INDEX="0" SHOWVALUE="TRUE">
               %%Keyword: RM <basic>
               <HELP>
               A command to delete a file. The command is similar to '!rm
@@ -325,7 +325,7 @@ Here is a list of EMIL commands:
 :command:`>> EVAL A=B`
   evaluate a numerical value
 
-  .. xmldoc:: <COMMAND NAME="EVAL" APPEAR="EVAL" FORMAT="EVAL %s=%s">
+  .. xmldoc:: <COMMAND NAME="EVAL" APPEAR="Evaluate" FORMAT="EVAL %s = %s">
               %%Keyword: EVAL <basic>
               <HELP>
               A command to evaluate numerical expression, e.g. eval A=$A+1
@@ -340,7 +340,7 @@ Keywords to organize loops in input, and execute modules conditionally:
   a command to start a loop. The loop should be terminated by SLAPAF or LOOP module,
   followed by ENDDO command
 
-  .. xmldoc:: <COMMAND NAME="DO" APPEAR="DO" FORMAT="DO WHILE" LINK_ANCHOR="ENDDO">
+  .. xmldoc:: <COMMAND NAME="DO" APPEAR="Do loop" FORMAT="DO WHILE" LINK_ANCHOR="ENDDO">
               %%Keyword: DO WHILE <basic>
               <HELP>
               A command to start a loop. The loop should be terminated by SLAPAF or LOOP module,
@@ -353,7 +353,7 @@ Keywords to organize loops in input, and execute modules conditionally:
   with constrained internal coordinates. The loop should be terminated by
   ENDDO command. (See documentation for :program:`GEO` for more details.)
 
-  .. xmldoc:: <COMMAND NAME="DO" APPEAR="DO GEO" FORMAT="DO GEO" LINK_ANCHOR="ENDDO">
+  .. xmldoc:: <COMMAND NAME="DOGEO" APPEAR="Geo loop" FORMAT="DO GEO" LINK_ANCHOR="ENDDO">
               %%Keyword: DO GEO <basic>
               <HELP>
               A command to start a constrained geometry optimization loop. The loop should be
@@ -365,22 +365,26 @@ Keywords to organize loops in input, and execute modules conditionally:
   a command to loop when the value of A is in the comma or space separated list.
   The list also can be written in the format ``From .. To``. Note that variable in the loop must be uppercased.
 
-  .. xmldoc:: <COMMAND NAME="FOREACH" FORMAT="FOREACH %s in ( %s )" LINK_ANCHOR="ENDDO" SHOWVALUE="TRUE">
+  .. xmldoc:: <COMMAND NAME="FOREACH" APPEAR="Foreach loop" FORMAT="FOREACH %s IN ( %s )" LINK_ANCHOR="ENDFOREACH" SHOWVALUE="TRUE">
               %%Keyword: FOREACH <basic>
               <HELP>
-              || >> foreach A in (B,C,D)
               A command to loop when the value of A is in the comma or space separated list.
+
+                >> foreach A in (B,C,D)
+
               The list also can be written in the format "From .. To".
               Note that variable in the loop must be uppercased.
               </HELP>
               </COMMAND>
+
+  .. xmldoc:: <COMMAND NAME="ENDFOREACH" FORMAT="END FOREACH" />
 
 :command:`>> ENDDO`
   a command to finish the loop. If last module (before ENDDO command) returns
   1 --- the loop will be executed again (if number of iterations is less than MAXITER).
   If the return code is equal to 0 the loop will be terminated.
 
-  .. xmldoc:: <COMMAND NAME="ENDDO" FORMAT="ENDDO">
+  .. xmldoc:: <COMMAND NAME="ENDDO" FORMAT="END DO">
               %%Keyword: ENDDO <basic>
               <HELP>
               A command to finish the loop.
@@ -396,7 +400,7 @@ Keywords to organize loops in input, and execute modules conditionally:
 :command:`>> IF ( ITER != N )`
   same as above
 
-  .. xmldoc:: <COMMAND NAME="IF" FORMAT="IF ( %s %s %d )" VALUES="ITER.OR.????|NE.OR.EQ" LINK_ANCHOR="ENDIF" SHOWVALUE="TRUE">
+  .. xmldoc:: <COMMAND NAME="IF" APPEAR="Condition" FORMAT="IF ( %s %s %d )" VALUES="ITER.OR.????|=.OR.!=" LINK_ANCHOR="ENDIF" SHOWVALUE="TRUE">
               %%Keyword: IF ITER <basic>
               <HELP>
               A command to make conditional execution of modules/commands on iteration N
@@ -412,20 +416,22 @@ Keywords to organize loops in input, and execute modules conditionally:
 :command:`>> IF ( -FILE file )`
   test for existence of a file
 
-  .. xmldoc:: <COMMAND NAME="IFGOTO" FORMAT="IF ( %s %s %d ) GOTO %s" VALUES="ITER.OR.????|NE.OR.EQ" LINK_ANCHOR="LABEL" LINK_VALUE_INDEX="3" SHOWVALUE="TRUE">
+  .. xmldoc:: <COMMAND NAME="IFGOTO" APPEAR="Conditional jump" FORMAT="IF ( %s %s %d ) GOTO %s" VALUES="ITER.OR.????|=.OR.!=" LINK_ANCHOR="LABEL" LINK_VALUE_INDEX="3" SHOWVALUE="TRUE">
               %%Keyword: IF  <advanced>
               <HELP>
-              A command to make conditional execution
-              ||Allowed syntax: IF ( $VAR = 7 )             (IF statement terminated by ENDIF)
-              ||                IF ( $VAR = 7 ) GOTO JUMP   (jump to label JUMP)
-              ||                IF ( -FILE file )           (test for existence of a file, terminated by ENDIF)
+              A command to make conditional execution.
+              Allowed syntax:
+
+              * IF ( $VAR = 7 )           (IF statement terminated by ENDIF)
+              * IF ( $VAR = 7 ) GOTO JUMP (jump to label JUMP)
+              * IF ( -FILE file )         (test for existence of a file, terminated by ENDIF)
               </HELP>
               </COMMAND>
 
 :command:`>> LABEL JUMP`
   a command to define a label. Note! Only forward jumps are allowed.
 
-  .. xmldoc:: <COMMAND NAME="LABEL" FORMAT="LABEL %s" LINK_TARGET="0" SHOWVALUE="TRUE">
+  .. xmldoc:: <COMMAND NAME="LABEL" APPEAR="Label" FORMAT="LABEL %s" LINK_TARGET="0" SHOWVALUE="TRUE">
               %%Keyword: LABEL <advanced>
               <HELP>
               A command to define a label. Note! Only forward jumps are allowed.
@@ -435,7 +441,7 @@ Keywords to organize loops in input, and execute modules conditionally:
 :command:`>> ENDIF`
   terminate :command:`IF` block. Note nested if's are not allowed.
 
-  .. xmldoc:: <COMMAND NAME="ENDIF" APPEAR="ENDIF" FORMAT="ENDIF">
+  .. xmldoc:: <COMMAND NAME="ENDIF" FORMAT="END IF">
               %%Keyword: ENDIF  <basic>
               <HELP>
               Terminate IF block. Note nested if's are not allowed.
@@ -471,7 +477,7 @@ mark a corresponding part of the input by EMIL command :command:`VERBATIM`
 :command:`>> VERBATIM <<`
   start verbatim input
 
-  .. xmldoc:: <COMMAND NAME="VERBATIM" FORMAT="VERBATIM" LEVEL="HIDDEN" LINK_ANCHOR="ENDVERBATIM" />
+  .. xmldoc:: <COMMAND NAME="VERBATIM" APPEAR="Verbatim" FORMAT="VERBATIM" LEVEL="HIDDEN" LINK_ANCHOR="ENDVERBATIM" CONTENT="ANY" />
               %%Keyword: VERBATIM <advanced>
               Start verbatim input
 
@@ -484,43 +490,47 @@ mark a corresponding part of the input by EMIL command :command:`VERBATIM`
 
 .. xmldoc:: </EMIL>
 
-.. xmldoc:: <MODULE NAME="DEMO">
-              <KEYWORD MODULE="DEMO" NAME="CHECKBOX" APPEAR="Check Appear" KIND="SINGLE" />
-              <KEYWORD MODULE="DEMO" NAME="INTTEXT" KIND="INT" REQUIRE="CHECKBOX" DEFAULT_VALUE="1" />
-              <KEYWORD MODULE="DEMO" NAME="REALTEXT" KIND="REAL" MIN_VALUE="0" MAX_VALUE="100.0" />
-              <KEYWORD MODULE="DEMO" NAME="STRINGTEXT" KIND="STRING" />
-              <KEYWORD MODULE="DEMO" NAME="INTTABLE" KIND="INTS" SIZE="3" />
-              <KEYWORD MODULE="DEMO" NAME="REALTABLE" KIND="REALS" SIZE="3" />
-              <KEYWORD MODULE="DEMO" NAME="MULTILINESTRING" KIND="STRINGS" SIZE="3" />
-              <KEYWORD MODULE="DEMO" NAME="MANYLINESTRING" KIND="STRINGS" />
-              <KEYWORD MODULE="DEMO" NAME="COMBOBOX" KIND="CHOICE" LIST="CHO1,CHO2,CHO3" />
-              <KEYWORD MODULE="DEMO" NAME="INTTABLE_COMPUTED" KIND="INTS_COMPUTED" SIZE="2" />
-              <KEYWORD MODULE="DEMO" NAME="COMPUTED_REALTABLE" KIND="REALS_COMPUTED" SIZE="3" />
-              <KEYWORD MODULE="DEMO" NAME="LOOKUP_INTTABLE" KIND="INTS_LOOKUP" SIZE="NSYM" />
-              <KEYWORD MODULE="DEMO" NAME="FILELOAD" KIND="FILE" />
-              <SELECT MODULE="DEMO" NAME="SELECTION" CONTAINS="SEL1,SEL2,SEL3">
-                <KEYWORD MODULE="DEMO" NAME="SEL1" KIND="REALS" SIZE="2" EXCLUSIVE="SEL2,SEL3" />
-                <KEYWORD MODULE="DEMO" NAME="SEL2" KIND="INTS" SIZE="3" EXCLUSIVE="SEL1,SEL3" />
-                <KEYWORD MODULE="DEMO" NAME="SEL3" KIND="SINGLE" EXCLUSIVE="SEL1,SEL2" />
-              </SELECT>
-              <GROUP MODULE="DEMO" NAME="BOXGROUP" KIND="BOX" WINDOW="INPLACE">
-                <KEYWORD MODULE="DEMO" NAME="CHECKBOX1" KIND="SINGLE" EXCLUSIVE="CHECKBOX2,CHECKBOX3" />
-                <KEYWORD MODULE="DEMO" NAME="CHECKBOX2" KIND="SINGLE" EXCLUSIVE="CHECKBOX1,CHECKBOX3" />
-                <KEYWORD MODULE="DEMO" NAME="CHECKBOX3" KIND="SINGLE" EXCLUSIVE="CHECKBOX1,CHECKBOX2" />
-                <KEYWORD MODULE="DEMO" NAME="REALTEXT1" KIND="REAL" MIN_VALUE="0" MAX_VALUE="100.0" />
-              </GROUP>
-              <GROUP MODULE="DEMO" NAME="BLOCKGROUP" KIND="BLOCK" WINDOW="POPUP">
-                <KEYWORD MODULE="DEMO" NAME="CHECKBOX1" KIND="SINGLE" EXCLUSIVE="CHECKBOX2,CHECKBOX3" />
-                <KEYWORD MODULE="DEMO" NAME="CHECKBOX2" KIND="SINGLE" EXCLUSIVE="CHECKBOX1,CHECKBOX3" />
-                <KEYWORD MODULE="DEMO" NAME="CHECKBOX3" KIND="SINGLE" EXCLUSIVE="CHECKBOX1,CHECKBOX2" />
-                <KEYWORD MODULE="DEMO" NAME="BLOCKGROUP" KIND="REAL" MIN_VALUE="0" MAX_VALUE="100.0" />
-              </GROUP>
-              <GROUP MODULE="DEMO" NAME="RADIOGROUP" KIND="RADIO" WINDOW="TAB">
-                <KEYWORD MODULE="DEMO" NAME="CHECKBOX1" KIND="SINGLE" />
-                <KEYWORD MODULE="DEMO" NAME="CHECKBOX2" KIND="SINGLE" />
-                <KEYWORD MODULE="DEMO" NAME="REALTEXT1" KIND="REAL" MIN_VALUE="0" MAX_VALUE="100.0" />
-              </GROUP>
-            </MODULE>
+.. .. xmldoc:: <MODULE NAME="COMMENT" LEVEL="HIDDEN">
+                 <KEYWORD MODULE="COMMENT" NAME="UNDEFINED" APPEAR="Unrecognized Content" KIND="STRINGS" LEVEL="BASIC" />
+               </MODULE>
+
+   .. xmldoc:: <MODULE NAME="DEMO">
+                 <KEYWORD MODULE="DEMO" NAME="CHECKBOX" APPEAR="Check Appear" KIND="SINGLE" />
+                 <KEYWORD MODULE="DEMO" NAME="INTTEXT" KIND="INT" REQUIRE="CHECKBOX" DEFAULT_VALUE="1" />
+                 <KEYWORD MODULE="DEMO" NAME="REALTEXT" KIND="REAL" MIN_VALUE="0" MAX_VALUE="100.0" />
+                 <KEYWORD MODULE="DEMO" NAME="STRINGTEXT" KIND="STRING" />
+                 <KEYWORD MODULE="DEMO" NAME="INTTABLE" KIND="INTS" SIZE="3" />
+                 <KEYWORD MODULE="DEMO" NAME="REALTABLE" KIND="REALS" SIZE="3" />
+                 <KEYWORD MODULE="DEMO" NAME="MULTILINESTRING" KIND="STRINGS" SIZE="3" />
+                 <KEYWORD MODULE="DEMO" NAME="MANYLINESTRING" KIND="STRINGS" />
+                 <KEYWORD MODULE="DEMO" NAME="COMBOBOX" KIND="CHOICE" LIST="CHO1,CHO2,CHO3" />
+                 <KEYWORD MODULE="DEMO" NAME="INTTABLE_COMPUTED" KIND="INTS_COMPUTED" SIZE="2" />
+                 <KEYWORD MODULE="DEMO" NAME="COMPUTED_REALTABLE" KIND="REALS_COMPUTED" SIZE="3" />
+                 <KEYWORD MODULE="DEMO" NAME="LOOKUP_INTTABLE" KIND="INTS_LOOKUP" SIZE="NSYM" />
+                 <KEYWORD MODULE="DEMO" NAME="FILELOAD" KIND="FILE" />
+                 <SELECT MODULE="DEMO" NAME="SELECTION" CONTAINS="SEL1,SEL2,SEL3">
+                   <KEYWORD MODULE="DEMO" NAME="SEL1" KIND="REALS" SIZE="2" EXCLUSIVE="SEL2,SEL3" />
+                   <KEYWORD MODULE="DEMO" NAME="SEL2" KIND="INTS" SIZE="3" EXCLUSIVE="SEL1,SEL3" />
+                   <KEYWORD MODULE="DEMO" NAME="SEL3" KIND="SINGLE" EXCLUSIVE="SEL1,SEL2" />
+                 </SELECT>
+                 <GROUP MODULE="DEMO" NAME="BOXGROUP" KIND="BOX" WINDOW="INPLACE">
+                   <KEYWORD MODULE="DEMO" NAME="CHECKBOX1" KIND="SINGLE" EXCLUSIVE="CHECKBOX2,CHECKBOX3" />
+                   <KEYWORD MODULE="DEMO" NAME="CHECKBOX2" KIND="SINGLE" EXCLUSIVE="CHECKBOX1,CHECKBOX3" />
+                   <KEYWORD MODULE="DEMO" NAME="CHECKBOX3" KIND="SINGLE" EXCLUSIVE="CHECKBOX1,CHECKBOX2" />
+                   <KEYWORD MODULE="DEMO" NAME="REALTEXT1" KIND="REAL" MIN_VALUE="0" MAX_VALUE="100.0" />
+                 </GROUP>
+                 <GROUP MODULE="DEMO" NAME="BLOCKGROUP" KIND="BLOCK" WINDOW="POPUP">
+                   <KEYWORD MODULE="DEMO" NAME="CHECKBOX4" KIND="SINGLE" EXCLUSIVE="CHECKBOX5,CHECKBOX6" />
+                   <KEYWORD MODULE="DEMO" NAME="CHECKBOX5" KIND="SINGLE" EXCLUSIVE="CHECKBOX4,CHECKBOX6" />
+                   <KEYWORD MODULE="DEMO" NAME="CHECKBOX6" KIND="SINGLE" EXCLUSIVE="CHECKBOX4,CHECKBOX5" />
+                   <KEYWORD MODULE="DEMO" NAME="REALTEXT2" KIND="REAL" MIN_VALUE="0" MAX_VALUE="100.0" />
+                 </GROUP>
+                 <GROUP MODULE="DEMO" NAME="RADIOGROUP" KIND="RADIO" WINDOW="TAB">
+                   <KEYWORD MODULE="DEMO" NAME="CHECKBOX7" KIND="SINGLE" />
+                   <KEYWORD MODULE="DEMO" NAME="CHECKBOX8" KIND="SINGLE" />
+                   <KEYWORD MODULE="DEMO" NAME="REALTEXT3" KIND="REAL" MIN_VALUE="0" MAX_VALUE="100.0" />
+                 </GROUP>
+               </MODULE>
 
 Below are different input examples.
 

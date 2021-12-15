@@ -8,7 +8,7 @@
 *
 *  B. Swerts, L.F. Chibotaru, R. Lindh, L. Seijo, Z. Barandiaran, S. Clima,
 *  K. Pierloot, M.F.A. Hendrickx
-*  J. Chem. Theory Comput. 2008, 4, 586-594.  DOI: 10.1021/ct7003148
+*  J. Chem. Theory Comput. 2008, 4, 586-594. doi:10.1021/ct7003148
 *
 * In the official implementation of FAIEMP no official TEST existed
 * in MOLCAS suite for this function.

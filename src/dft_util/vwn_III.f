@@ -19,21 +19,15 @@
 *         Ceperley-Alder solution to the uniform electron gas.         *
 *         This is the functional to use in B3LYP.                      *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. November 2000                           *
 *             Laura Gagliardi, Dipartimento di Chimica G. Ciamician,   *
 *             University of Bologna, ITALY. October 2001               *
 ************************************************************************
+      use KSDFT_Info, only: tmpB
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-#include "WrkSpc.fh"
 #include "ksdft.fh"
       Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
 *  LDA Stuff
@@ -45,7 +39,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Call QEnter('VWN_III')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -237,7 +230,7 @@ c      If(.False.) Then
 
 *
          F_xc(iGrid)=F_xc(iGrid)+Coeff*vwn
-         Work(ip_tmpB+iGrid-1)=Work(ip_tmpB+iGrid-1)+Coeff*vwn
+         tmpB(iGrid)=tmpB(iGrid)+Coeff*vwn
 *
          dF_dRho(ipRa,iGrid) = dF_dRho(ipRa,iGrid)
      &                               + Coeff*dvwndra
@@ -332,6 +325,5 @@ c+++  original formula in Rydbergs -> 0.5 converts to hartree
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Call QExit('VWN_III')
       Return
       End

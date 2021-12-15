@@ -112,7 +112,9 @@ def check_test(infofile, checkfile, count):
     if (passcheck):
       print('\n*** This check is informative only, nothing fails')
     fmt_head = '\n{0:^30} {1:^20} {2:^20} {3:^9} {4:^9}'.format('Label','Value','Reference','Error','Tolerance')
-    fmt_num = '{0:<30} {1:20.16g} {2:20.16g} {3:9.3e} {4:9.3e} {5}'
+    # maximum exponent is 3 digits long, this makes at most 7 extra characters (exponent, decimal point, "e" and two signs)
+    # but error and tolerance are absolute values
+    fmt_num = '{0:<30} {1:20.13g} {2:20.13g} {3:9.3e} {4:9.3e} {5}'
     fmt_rule = '-'*92
     j = -1
     failtol = False

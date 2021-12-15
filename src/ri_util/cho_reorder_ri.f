@@ -64,7 +64,7 @@ C     --------
                      na = iBas(iSyma) + ia
                      nab = iTri(na,nb)
                      iRS = iWork(ipiF2RS-1+nab)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
                      If (iRS.lt.1 .or. iRS.gt.nnBstR(iSym,1)) Then
                         Call SysAbendMsg('Cho_Reorder_RI',
      &                                   'Index out of bounds',' ')
@@ -81,7 +81,7 @@ C     --------
                      nb = iBas(iSymb) + ib
                      nab = iTri(na,nb)
                      iRS = iWork(ipiF2RS-1+nab)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
                      If (iRS.lt.1 .or. iRS.gt.nnBstR(iSym,1)) Then
                         Call SysAbendMsg('Cho_Reorder_RI',
      &                                   'Index out of bounds',' ')

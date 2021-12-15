@@ -42,7 +42,6 @@
 
       character(len=7) :: input_id = '&RASSI '
 
-      CALL QENTER(ROUTINE)
 
       Call SpoolInp(LuIn)
 
@@ -640,7 +639,7 @@ C--------------------------------------------
       ENDIF
 C--------------------------------------------
       IF(LINE(1:4).EQ.'QIPR')THEN
-! Printing threshold for quadrupole intensities. Current default 1.0D-8
+! Printing threshold for quadrupole intensities. Current default 1.0D-5
         QIPR=.TRUE.
         Read(LuIn,*,ERR=997) OSTHR_QIPR
         LINENR=LINENR+1
@@ -654,6 +653,14 @@ C ------------------------------------------
         GOTO 100
       END IF
 C--------------------------------------------
+      IF(LINE(1:4).EQ.'RSPR') THEN
+! Printing threshold for rotatory strength. Current default 1.0D-7
+        RSPR=.TRUE.
+        Read(LuIn,*,ERR=997) RSTHR
+        LINENR=LINENR+1
+        GOTO 100
+      END IF
+C ------------------------------------------
       IF(LINE(1:4).EQ.'CD  ') THEN
 ! Perform regular circular dichroism - velocity and mixed gauge
         DOCD = .TRUE.
@@ -832,6 +839,15 @@ cnf
          Write(6,*) ' specific k-vector directions.'
          Do_Pol = .False.
       End If
+! Prints warning if rot. str. threshold is defined without any calculations
+      If(RSPR) Then
+        If (.NOT.DOCD .AND. .NOT.Do_TMOM) Then
+          Call WarningMessage(1,'Input request was ignored.')
+          WRITE(6,*)
+     &     'Warning: Rotatory strength threshold specified (RSPR) '//
+     &     'without calculating rotatory strength'
+        End if
+      End if
 * Determine file names, if undefined.
       IF(JBNAME(1).EQ.'UNDEFINE') THEN
 * The first (perhaps only) jobiph file is named 'JOB001', or maybe 'JOBIPH'
@@ -910,6 +926,5 @@ cnf
 
       Call Close_LuSpool(LuIn)
 
-      CALL QEXIT(ROUTINE)
       RETURN
       END

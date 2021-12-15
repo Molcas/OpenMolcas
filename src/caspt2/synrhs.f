@@ -15,7 +15,6 @@
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 
-      CALL QENTER('SYNRHS')
 
 ***************************************************************
       DO ICASE=1,NCASES
@@ -34,7 +33,6 @@
        END DO
       END DO
 
-      CALL QEXIT('SYNRHS')
 
       RETURN
       END
@@ -47,7 +45,6 @@
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 
-      CALL QENTER('SYNRHS')
 
 ***************************************************************
       DO ICASE=1,NCASES
@@ -66,7 +63,6 @@
        END DO
       END DO
 
-      CALL QEXIT('SYNRHS')
 
       RETURN
       END

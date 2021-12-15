@@ -13,37 +13,68 @@
       module kriging_mod
 
       implicit none
-      integer :: nspAI, npxAI, miAI
-      real*8 :: pAI, lb(3), dAIy, meAI, blvAI, blavAI
-      logical :: Kriging, ordinary, anMd, blAI, mblAI, blaAI, set_l
+!
+!     Define and initiate Kriging parameters.
+!
+      Logical :: Kriging = .False.
+      Integer :: nspAI = 1
+      Logical :: anMd = .True.
+      Real*8  :: pAI = 2
+      Real*8  :: lb(3) = [20.0D0, 20.0D0, 1.0D0]
+      Integer :: Max_MicroIterations = 50
+      Real*8  :: Thr_MicroIterations = 1.0D-8
+      Logical :: blAI = .False.
+      Logical :: mblAI = .False.
+      Logical :: blaAI = .True.
+      Real*8  :: blavAI=10.0D0
+      Logical :: set_l=.False.
+      Logical :: ordinary=.False.
+      Real*8  :: blvAI
 *
-*     use AI, only: npxAI, anMd, pAI, lb, blAI, blvAI, mblAI, blaAI,
-*    &              blavAI
-
+!     Memory for coordinates, value and gradients of the
+!     sample points.
+!
       real*8, allocatable, protected :: x(:,:), y(:), dy(:)
-      integer, protected :: nInter_save = 0, nPoints_save = 0
+!
+!     Inter_save: the dimension of the coordinate vector
+!     nPoints_v: the total number of sample points for which the value is
+!                used
+!     nPoinst_g: the total number of sample points for which the
+!                gradients are used
+!
+!     We will assume that nPoints_v >= nPoints_g
+!
+      integer, protected :: nInter = 0 , nPoints = 0, nD=0
 
       real*8, allocatable ::
-     &        rl(:,:,:), dl(:,:), full_Rinv(:,:),
-     &        full_R(:,:), nx(:,:), Kv(:),
-     &        cv(:,:,:,:), cvg(:,:,:),cvh(:,:,:,:),
-     &        var(:), Rones(:), sigma(:), l(:),
-     &        pred(:), gpred(:,:), hpred(:,:,:), ll(:),
-     &        cvMatFder(:,:), cvMatSder(:,:), cvMatTder(:,:)
+     &        rl(:,:), dl(:), full_Rinv(:,:),
+     &        full_R(:,:), x0(:), Kv(:),
+     &        cv(:,:,:), cvg(:,:,:),cvh(:,:,:,:),
+     &        Rones(:), l(:),
+     &        gpred(:), hpred(:,:), ll(:),
+     &        cvMatFder(:), cvMatSder(:), cvMatTder(:)
+      real*8 :: pred, sigma, var
       real*8 :: sb, variance, detR, lh, sbO, sbmev
       real*8, parameter :: h = 1e-5, eps = 1e-13, eps2 = 1e-10
 ! eps avoid to become singular in 1st der & eps2 in 2nd der
-      integer :: prev_ns, m_t, npx, counttimes
+      integer :: prev_ns, m_t, counttimes
 
       contains
 
-      Subroutine Setup_Kriging(nPoints,nInter,x_,dy_,y_)
+      Subroutine Setup_Kriging(nPoints_In,nD_In,nInter_In,x_,dy_,y_)
+#include "stdalloc.fh"
+      integer :: nPoints_In, nD_In, nInter_In, i, j
+      real*8 ::  x_(nInter_In,nPoints_In)
+      real*8 ::         y_(nPoints_In)
+      real*8 :: dy_(nInter_In,nPoints_In)
 
-      integer :: nPoints, nInter, i, j
-      real*8 :: x_(nInter,nPoints), dy_(nInter,nPoints), y_(nPoints)
+      nInter = nInter_In
+      nD           = nD_In
+      nPoints      = nPoints_In
 
-      nInter_save = nInter
-      nPoints_save = nPoints
+      Call mma_Allocate(x,nInter,nPoints,Label="x")
+      Call mma_Allocate(y,nPoints,Label="y")
+      Call mma_Allocate(dy,nInter*(nPoints-nD),Label="dy")
 
 !x is the n-dimensional internal coordinates
       x(:,:) = x_(:,:)
@@ -53,9 +84,17 @@
       ! write(6,*) 'y',y
 !dy it's a vector of Grad-y (eq. (5)  ref. gradients of
 ! the energy with respect to the internal coordinates
+!
+!     Note the storage as subblocks of the same component of the
+!     gradient, each subblock running over all nPoints_g which
+!     contributes with gradient values.
+!
+!     At this point we also skip those gradients which we will not use in
+!     the kriging.
+!
       do i=1,nInter
-        do j=1,nPoints
-          dy((i-1)*nPoints+j) = dy_(i,j)
+        do j=1,nPoints-nD
+          dy(j + (i-1)*(nPoints-nD)) = dy_(i,j+nD)
         enddo
       enddo
 

@@ -37,7 +37,6 @@
 ************************************************************************
 *                                                                      *
         Call PrInp_MCLR(iPL)
-        Call QTrace
         Call Abend()
       END IF
 *. Number of electrons in RAS1 and RAS 3

@@ -30,7 +30,6 @@
       Real(kind=8)      :: g_e
       Real(kind=8), allocatable :: tmpR(:,:), tmpI(:,:)
 
-      Call qEnter('read_binary_aniso')
       g_e=2.0023193043718_wp
       ! initialize:
       multiplicity=0
@@ -141,7 +140,6 @@
       Call mma_deallocate(tmpI)
       Call daclos(luaniso)
 
-      Call qExit('read_binary_aniso')
       Return
       End Subroutine read_binary_aniso
 
@@ -166,7 +164,6 @@
       Integer            :: luaniso, idisk
       Real(kind=8), allocatable :: tmpR(:,:), tmpI(:,:)
 
-      Call qEnter('write_binary_aniso')
       LUANISO=8
       ! open the binary $Project.aniso file
       Call DANAME(LUANISO,'POLYFILE')
@@ -261,7 +258,6 @@
       ! close the binary $Project.aniso file
       Call daclos(luaniso)
 
-      Call qExit('write_binary_aniso')
       Return
       End
 

@@ -38,7 +38,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*#define _DEBUG_
+*#define _DEBUGPRINT_
       iAdrGam = 1
       LoadZeros = .false.
 *
@@ -93,7 +93,7 @@
      &        Work(ipCMO_v + iOffCMO_v(iSym)),1)
       End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 *     Print the elements of the Full CMO-matrices as well as CMO_o and
 *     CMO_v.
       Do iSym = 1, nSym
@@ -295,7 +295,7 @@
                   Call Coul(iSym_D,iSym_C,iSym_A,iSym_B,
      &                 iI+nFro(iSym_A),iA+nFro(iSym_B)+nOcc(iSym_B),
      &                 Work(ipInt2),Work(ipScr1))
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   Write(6,*) ' *  I,A = ',iI, iA
                   Call RecPrt('Int1:','(8F10.6)',Work(ipInt1),
      &                 nOrb(iSym_D)+nDel(iSym_D),
@@ -317,7 +317,7 @@
                   Call Coul(iSym_C,iSym_D,iSym_A,iSym_B,
      &                 iI+nFro(iSym_A),iA+nFro(iSym_B)+nOcc(iSym_B),
      &                 Work(ipInt2_2),Work(ipScr1))
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   Write(6,*) ' *  I,A = ',iI, iA
                   Call RecPrt('Int1:','(8F10.6)',Work(ipInt1_2),
      &                 nOrb(iSym_C)+nDel(iSym_C),
@@ -343,7 +343,7 @@
                         Work(ipTemp1 + (iJ-1)*nB + iB-1) = Tiajb
                      End Do     !iSymB
                   End Do        !iSymJ
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Call RecPrt('Tiajb',' ',Work(ipTemp1),nExt(iSym_D),
      &                     nOcc(iSym_C))
 #endif
@@ -362,7 +362,7 @@
                         Work(ipTemp1_2 + (iJ-1)*nB2 + iB-1) = Tiajb
                      End Do     !iSymB
                   End Do        !iSymJ
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Call RecPrt('Tiajb',' ',Work(ipTemp1),nExt(iSym_D),
      &                     nOcc(iSym_C))
 #endif
@@ -477,7 +477,7 @@
                   Call Coul(iSym_D,iSym_C,iSym_B,iSym_A,
      &                 iI+nFro(iSym_B),iA+nFro(iSym_A)+nOcc(iSym_A),
      &                 Work(ipInt2),Work(ipScr1))
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   Write(6,*) ' *  I,A = ',iI, iA
                   Call RecPrt('Int1_lap2:','(8F10.6)',Work(ipInt1),
      &                 nOrb(iSym_D)+nDel(iSym_D),
@@ -496,7 +496,7 @@
                   Call Coul(iSym_C,iSym_D,iSym_B,iSym_A,
      &                 iI+nFro(iSym_B),iA+nFro(iSym_A)+nOcc(iSym_A),
      &                 Work(ipInt2_2),Work(ipScr1))
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   Write(6,*) ' *  I,A = ',iI, iA
                   Call RecPrt('Int1_lap2:','(8F10.6)',Work(ipInt1_2),
      &                 nOrb(iSym_C)+nDel(iSym_C),
@@ -732,13 +732,13 @@
 *     Store the result on disk.
             If(Triangular) Then
                iSize = nBas(iSym_A)*(nBas(iSym_A)+1)/2
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Call TriPrt('(Gamma)',' ',Work(ipTemp2),
      &                     nBas(iSym_A))
 #endif
             Else
                iSize = nBas(iSym_A)*nBas(iSym_B)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Call RecPrt('(Gamma)',' ',Work(ipTemp2),
      &                     nBas(iSym_A),nBas(iSym_B))
 #endif

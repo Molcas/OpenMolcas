@@ -54,7 +54,7 @@
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
-       Location='Start3'
+      Location='Start3'
 *
 *---- Compute transformation matrix
       Do iD = 1, nD
@@ -65,51 +65,36 @@
 *...  read old system definitions
 *...  check for compatibility of the calculations
 *
-*        Call get_iScalar('nSym',nSymX)
-         Call Peek_iScalar('nSym',nSymX)
-         If (nSymX.ne.nSym) Then
+*     Call get_iScalar('nSym',nSymX)
+      Call Peek_iScalar('nSym',nSymX)
+      If (nSymX.ne.nSym) Then
          Call SysWarnMsg(Location,
      &         'Error inconsistent number of Irreps',' ')
          Call SysCondMsg('nSymX=nSym',nSymX,'<>',nSym)
-         End If
-         Call Get_iArray('nBas',nBasX,nSymX)
-         Do iSym=1,nSym
-            If (nBasX(iSym).ne.nBas(iSym)) Then
-         Call SysWarnMsg(Location,
-     &         'Error inconsistent nBas',' ')
-         Call SysCondMsg('nBasX(iSym)=nBas (iSym)',
+      End If
+      Call Get_iArray('nBas',nBasX,nSymX)
+      Do iSym=1,nSym
+         If (nBasX(iSym).ne.nBas(iSym)) Then
+            Call SysWarnMsg(Location,
+     &            'Error inconsistent nBas',' ')
+            Call SysCondMsg('nBasX(iSym)=nBas (iSym)',
      &         nBasX(iSym),'<>',nBas(iSym))
-            End If
-         End Do
+         End If
+      End Do
 *
 *...  read old density matrix
-         Call Get_D1AO(ipD1AO,Length)
-         If (Length.ne.nBT) Then
-         Call SysWarnMsg(Location,
-     &         'Error Reading D1AO',' ')
-         Call SysCondMsg('Length.ne.nBT',Length,'<>',nBT)
-         End If
-         call dcopy_(nBT,Work(ipD1AO),1,Dens(1,1),1)
-         Call Free_Work(ipD1AO)
-         if (iUHF.eq.1) then
-            Call Get_D1sAO(ipD1AO,Length)
-            If (Length.ne.nBT) Then
-            Call SysWarnMsg(Location,
-     &            'Error Reading D1SAO',' ')
-            Call SysCondMsg('Length.ne.nBT',Length,'<>',nBT)
-         End If
-         call dcopy_(nBT,Work(ipD1AO),1,Dens(1,2),1)
-         Call Free_Work(ipD1AO)
-         Call Abend()
+      Call Get_D1AO(Dens(1,1),nBT)
+      if (iUHF.eq.1) then
+         Call Get_D1sAO(Dens(1,2),nBT)
 c now we need to fix interface - actually we read a+b,a-b
          Do i=1,nBT
             ra=Half*(Dens(i,1)+Dens(i,2))
             rb=Half*(Dens(i,1)-Dens(i,2))
             Dens(i,1)=ra
             Dens(i,2)=rb
-        End Do
+         End Do
 
-         endif
+      endif
 *
 *----------------------------------------------------------------------*
 *     Exit                                                             *

@@ -39,7 +39,6 @@
      &                          'Internal error',' ')
       END IF
 *
-C     CALL QENTER('ABTOR')
 *. Excitations <Ib!Eb(kl)!Jb>
         DO KB = 1, NKB
 *. Number of nonvanishing connections from KB
@@ -100,7 +99,6 @@ C                  END IF
        END DO
 *. (end over loop over Kb strings )
 *
-C     CALL QEXIT('ABTOR')
       RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN

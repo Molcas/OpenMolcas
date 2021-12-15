@@ -23,7 +23,7 @@
         use iso_c_binding
         implicit none
         integer(MOLCAS_C_INT) :: lu
-        character(C_CHAR) :: filename(*)
+        character(kind=C_CHAR) :: filename(*)
         end function
       end interface
       integer :: lrealname
@@ -44,7 +44,7 @@
         use iso_c_binding
         implicit none
         integer(MOLCAS_C_INT) :: lu
-        character(C_CHAR) :: filename(*)
+        character(kind=C_CHAR) :: filename(*)
         end function
       end interface
       integer :: lrealname
@@ -65,7 +65,7 @@
         use iso_c_binding
         implicit none
         integer(MOLCAS_C_INT) :: lu
-        character(C_CHAR) :: filename(*)
+        character(kind=C_CHAR) :: filename(*)
         end function
       end interface
       integer :: lrealname
@@ -102,7 +102,7 @@
      &   bind(C, name='mh5c_is_hdf5')
         use iso_c_binding
         implicit none
-        character(c_char) :: filename(*)
+        character(kind=c_char) :: filename(*)
         integer(MOLCAS_C_INT) :: rc
         end function
       end interface
@@ -133,7 +133,7 @@
       logical function mh5_exists_dset (id, name)
       use iso_c_binding
       implicit none
-      character(MH5_MAX_LBL_LEN) :: mh5_lbl
+      character(len=MH5_MAX_LBL_LEN) :: mh5_lbl
       integer :: id
       character(len=*) :: name
       interface
@@ -142,7 +142,7 @@
         use iso_c_binding
         implicit none
         integer(MOLCAS_C_INT), VALUE :: id
-        character(c_char) :: name(*)
+        character(len=c_char) :: name(*)
         integer(MOLCAS_C_INT) :: rc
         end function
       end interface
@@ -162,7 +162,7 @@
       logical function mh5_exists_attr (id, name)
       use iso_c_binding
       implicit none
-      character(MH5_MAX_LBL_LEN) :: mh5_lbl
+      character(len=MH5_MAX_LBL_LEN) :: mh5_lbl
       integer :: id
       character(len=*) :: name
       interface
@@ -171,7 +171,7 @@
         use iso_c_binding
         implicit none
         integer(MOLCAS_C_INT), VALUE :: id
-        character(c_char) :: name(*)
+        character(kind=c_char) :: name(*)
         integer(MOLCAS_C_INT) :: rc
         end function
       end interface
@@ -192,7 +192,7 @@
       function mh5_open_dset (lu, dsetname) result(dsetid)
       use iso_c_binding
       implicit none
-      character(MH5_MAX_LBL_LEN) :: mh5_lbl
+      character(len=MH5_MAX_LBL_LEN) :: mh5_lbl
       integer :: lu
       character(len=*) :: dsetname
       integer :: dsetid
@@ -203,7 +203,7 @@
         implicit none
         integer(MOLCAS_C_INT) :: dsetid
         integer(MOLCAS_C_INT), VALUE :: lu
-        character(c_char) :: dsetname(*)
+        character(kind=c_char) :: dsetname(*)
         end function
       end interface
 
@@ -231,7 +231,7 @@
       function mh5_open_attr (lu, attrname) result(attrid)
       use iso_c_binding
       implicit none
-      character(MH5_MAX_LBL_LEN) :: mh5_lbl
+      character(len=MH5_MAX_LBL_LEN) :: mh5_lbl
       integer :: lu
       character(len=*) :: attrname
       integer :: attrid
@@ -242,7 +242,7 @@
         implicit none
         integer(MOLCAS_C_INT) :: attrid
         integer(MOLCAS_C_INT), VALUE :: lu
-        character(c_char) :: attrname(*)
+        character(kind=c_char) :: attrname(*)
         end function
       end interface
 
@@ -274,7 +274,7 @@
       function mh5_create_attr_scalar_int (lu, name) result (dset_id)
       use iso_c_binding
       implicit none
-      character(MH5_MAX_LBL_LEN) :: mh5_lbl
+      character(len=MH5_MAX_LBL_LEN) :: mh5_lbl
       integer :: lu
       character(len=*) :: name
       integer :: dset_id
@@ -284,7 +284,7 @@
         use iso_c_binding
         implicit none
         integer(MOLCAS_C_INT), VALUE :: lu
-        character(c_char) :: name(*)
+        character(kind=c_char) :: name(*)
         integer(MOLCAS_C_INT) :: dset_id
         end function
       end interface
@@ -296,7 +296,7 @@
       function mh5_create_attr_scalar_real (lu, name) result (dset_id)
       use iso_c_binding
       implicit none
-      character(MH5_MAX_LBL_LEN) :: mh5_lbl
+      character(len=MH5_MAX_LBL_LEN) :: mh5_lbl
       integer :: lu
       character(len=*) :: name
       integer :: dset_id
@@ -306,7 +306,7 @@
         use iso_c_binding
         implicit none
         integer(MOLCAS_C_INT), VALUE :: lu
-        character(c_char) :: name(*)
+        character(kind=c_char) :: name(*)
         integer(MOLCAS_C_INT) :: dset_id
         end function
       end interface
@@ -319,7 +319,7 @@
      &        result (dset_id)
       use iso_c_binding
       implicit none
-      character(MH5_MAX_LBL_LEN) :: mh5_lbl
+      character(len=MH5_MAX_LBL_LEN) :: mh5_lbl
       integer :: lu
       character(len=*) :: name
       integer :: size
@@ -331,7 +331,7 @@
         use iso_c_binding
         implicit none
         integer(MOLCAS_C_INT), VALUE :: lu
-        character(c_char) :: name(*)
+        character(kind=c_char) :: name(*)
         integer(MOLCAS_C_INT), VALUE :: size
         integer(MOLCAS_C_INT) :: dset_id
         end function
@@ -393,7 +393,7 @@
         use iso_c_binding
         implicit none
         integer(MOLCAS_C_INT), VALUE :: dset_id
-        character(c_char) :: value(*)
+        character(kind=c_char) :: value(*)
         integer(MOLCAS_C_INT) :: ierr
         end function
       end interface
@@ -454,7 +454,7 @@
         use iso_c_binding
         implicit none
         integer(MOLCAS_C_INT), VALUE :: dset_id
-        character(c_char) :: value(*)
+        character(kind=c_char) :: value(*)
         integer(MOLCAS_C_INT) :: ierr
         end function
       end interface
@@ -477,13 +477,13 @@
         use iso_c_binding
         implicit none
         integer(MOLCAS_C_INT), VALUE :: lu
-        character(c_char) :: name(*)
+        character(kind=c_char) :: name(*)
         integer(MOLCAS_C_INT), VALUE :: rank
         integer(MOLCAS_C_INT) :: dims(*)
         integer(MOLCAS_C_INT) :: ierr
         end function
       end interface
-      character(MH5_MAX_LBL_LEN) :: mh5_lbl
+      character(len=MH5_MAX_LBL_LEN) :: mh5_lbl
 
       call f2c_upcase(name,mh5_lbl)
       attr_id = mh5c_create_attr_array_int(lu, mh5_lbl, rank, dims)
@@ -504,13 +504,13 @@
         use iso_c_binding
         implicit none
         integer(MOLCAS_C_INT), VALUE :: lu
-        character(c_char) :: name(*)
+        character(kind=c_char) :: name(*)
         integer(MOLCAS_C_INT), VALUE :: rank
         integer(MOLCAS_C_INT) :: dims(*)
         integer(MOLCAS_C_INT) :: ierr
         end function
       end interface
-      character(MH5_MAX_LBL_LEN) :: mh5_lbl
+      character(len=MH5_MAX_LBL_LEN) :: mh5_lbl
 
       call f2c_upcase(name,mh5_lbl)
       attr_id = mh5c_create_attr_array_real(lu, mh5_lbl, rank, dims)
@@ -532,14 +532,14 @@
         use iso_c_binding
         implicit none
         integer(MOLCAS_C_INT), VALUE :: lu
-        character(c_char) :: name(*)
+        character(kind=c_char) :: name(*)
         integer(MOLCAS_C_INT), VALUE :: rank
         integer(MOLCAS_C_INT) :: dims(*)
         integer(MOLCAS_C_INT), VALUE :: size
         integer(MOLCAS_C_INT) :: ierr
         end function
       end interface
-      character(MH5_MAX_LBL_LEN) :: mh5_lbl
+      character(len=MH5_MAX_LBL_LEN) :: mh5_lbl
 
       call f2c_upcase(name,mh5_lbl)
       attr_id = mh5c_create_attr_array_str(
@@ -601,7 +601,7 @@
         use iso_c_binding
         implicit none
         integer(MOLCAS_C_INT), VALUE :: id
-        character(c_char) :: buffer(*)
+        character(kind=c_char) :: buffer(*)
         integer(MOLCAS_C_INT) :: ierr
         end function
       end interface
@@ -665,7 +665,7 @@
         use iso_c_binding
         implicit none
         integer(MOLCAS_C_INT), VALUE :: id
-        character(c_char) :: buffer(*)
+        character(kind=c_char) :: buffer(*)
         integer(MOLCAS_C_INT) :: ierr
         end function
       end interface
@@ -837,7 +837,7 @@
       function mh5_create_dset_scalar_int (lu, name) result (dset_id)
       use iso_c_binding
       implicit none
-      character(MH5_MAX_LBL_LEN) :: mh5_lbl
+      character(len=MH5_MAX_LBL_LEN) :: mh5_lbl
       integer :: lu
       character(len=*) :: name
       integer :: dset_id
@@ -847,7 +847,7 @@
         use iso_c_binding
         implicit none
         integer(MOLCAS_C_INT), VALUE :: lu
-        character(c_char) :: name(*)
+        character(kind=c_char) :: name(*)
         integer(MOLCAS_C_INT) :: dset_id
         end function
       end interface
@@ -859,7 +859,7 @@
       function mh5_create_dset_scalar_real (lu, name) result (dset_id)
       use iso_c_binding
       implicit none
-      character(MH5_MAX_LBL_LEN) :: mh5_lbl
+      character(len=MH5_MAX_LBL_LEN) :: mh5_lbl
       integer :: lu
       character(len=*) :: name
       integer :: dset_id
@@ -869,7 +869,7 @@
         use iso_c_binding
         implicit none
         integer(MOLCAS_C_INT), VALUE :: lu
-        character(c_char) :: name(*)
+        character(kind=c_char) :: name(*)
         integer(MOLCAS_C_INT) :: dset_id
         end function
       end interface
@@ -882,7 +882,7 @@
      &        result (dset_id)
       use iso_c_binding
       implicit none
-      character(MH5_MAX_LBL_LEN) :: mh5_lbl
+      character(len=MH5_MAX_LBL_LEN) :: mh5_lbl
       integer :: lu
       character(len=*) :: name
       integer :: size
@@ -894,7 +894,7 @@
         use iso_c_binding
         implicit none
         integer(MOLCAS_C_INT), VALUE :: lu
-        character(c_char) :: name(*)
+        character(kind=c_char) :: name(*)
         integer(MOLCAS_C_INT), VALUE :: size
         integer(MOLCAS_C_INT) :: dset_id
         end function
@@ -956,7 +956,7 @@
         use iso_c_binding
         implicit none
         integer(MOLCAS_C_INT), VALUE :: dset_id
-        character(c_char) :: value(*)
+        character(kind=c_char) :: value(*)
         integer(MOLCAS_C_INT) :: ierr
         end function
       end interface
@@ -1017,7 +1017,7 @@
         use iso_c_binding
         implicit none
         integer(MOLCAS_C_INT), VALUE :: dset_id
-        character(c_char) :: value(*)
+        character(kind=c_char) :: value(*)
         integer(MOLCAS_C_INT) :: ierr
         end function
       end interface
@@ -1041,7 +1041,7 @@
         use iso_c_binding
         implicit none
         integer(MOLCAS_C_INT), VALUE :: lu
-        character(c_char) :: name(*)
+        character(kind=c_char) :: name(*)
         integer(MOLCAS_C_INT), VALUE :: rank
         integer(MOLCAS_C_INT) :: dims(*)
         integer(MOLCAS_C_INT) :: ierr
@@ -1051,7 +1051,7 @@
         use iso_c_binding
         implicit none
         integer(MOLCAS_C_INT), VALUE :: lu
-        character(c_char) :: name(*)
+        character(kind=c_char) :: name(*)
         integer(MOLCAS_C_INT), VALUE :: rank
         integer(MOLCAS_C_INT) :: dims(*)
         integer(MOLCAS_C_INT) :: ierr
@@ -1088,7 +1088,7 @@
         use iso_c_binding
         implicit none
         integer(MOLCAS_C_INT), VALUE :: lu
-        character(c_char) :: name(*)
+        character(kind=c_char) :: name(*)
         integer(MOLCAS_C_INT), VALUE :: rank
         integer(MOLCAS_C_INT) :: dims(*)
         integer(MOLCAS_C_INT) :: ierr
@@ -1098,13 +1098,13 @@
         use iso_c_binding
         implicit none
         integer(MOLCAS_C_INT), VALUE :: lu
-        character(c_char) :: name(*)
+        character(kind=c_char) :: name(*)
         integer(MOLCAS_C_INT), VALUE :: rank
         integer(MOLCAS_C_INT) :: dims(*)
         integer(MOLCAS_C_INT) :: ierr
         end function
       end interface
-      character(MH5_MAX_LBL_LEN) :: mh5_lbl
+      character(len=MH5_MAX_LBL_LEN) :: mh5_lbl
       logical :: isdyn
 
       isdyn = .false.
@@ -1137,7 +1137,7 @@
         use iso_c_binding
         implicit none
         integer(MOLCAS_C_INT), VALUE :: lu
-        character(c_char) :: name(*)
+        character(kind=c_char) :: name(*)
         integer(MOLCAS_C_INT), VALUE :: rank
         integer(MOLCAS_C_INT) :: dims(*)
         integer(MOLCAS_C_INT), VALUE :: size
@@ -1149,14 +1149,14 @@
         use iso_c_binding
         implicit none
         integer(MOLCAS_C_INT), VALUE :: lu
-        character(c_char) :: name(*)
+        character(kind=c_char) :: name(*)
         integer(MOLCAS_C_INT), VALUE :: rank
         integer(MOLCAS_C_INT) :: dims(*)
         integer(MOLCAS_C_INT), VALUE :: size
         integer(MOLCAS_C_INT) :: ierr
         end function
       end interface
-      character(MH5_MAX_LBL_LEN) :: mh5_lbl
+      character(len=MH5_MAX_LBL_LEN) :: mh5_lbl
       logical :: isdyn
 
       isdyn = .false.
@@ -1260,7 +1260,7 @@
         implicit none
         integer(MOLCAS_C_INT), VALUE :: id
         integer(MOLCAS_C_INT) :: exts(*), offs(*)
-        character(c_char) :: buffer(*)
+        character(kind=c_char) :: buffer(*)
         integer(MOLCAS_C_INT) :: ierr
         end function
         function mh5c_put_dset_array_str_full(id, buffer)
@@ -1268,7 +1268,7 @@
         use iso_c_binding
         implicit none
         integer(MOLCAS_C_INT), VALUE :: id
-        character(c_char) :: buffer(*)
+        character(kind=c_char) :: buffer(*)
         integer(MOLCAS_C_INT) :: ierr
         end function
       end interface
@@ -1372,7 +1372,7 @@
         implicit none
         integer(MOLCAS_C_INT), VALUE :: id
         integer(MOLCAS_C_INT) :: exts(*), offs(*)
-        character(c_char) :: buffer(*)
+        character(kind=c_char) :: buffer(*)
         integer(MOLCAS_C_INT) :: ierr
         end function
         function mh5c_get_dset_array_str_full(id, buffer)
@@ -1380,7 +1380,7 @@
         use iso_c_binding
         implicit none
         integer(MOLCAS_C_INT), VALUE :: id
-        character(c_char) :: buffer(*)
+        character(kind=c_char) :: buffer(*)
         integer(MOLCAS_C_INT) :: ierr
         end function
       end interface
@@ -1589,7 +1589,7 @@
         use iso_c_binding
         implicit none
         integer(MOLCAS_C_INT), VALUE :: id
-        character(c_char) :: buffer(*)
+        character(kind=c_char) :: buffer(*)
         integer(MOLCAS_C_INT) :: ierr
         end function
       end interface
@@ -1706,7 +1706,7 @@
       subroutine f2c_upcase(name, lbl)
       use iso_c_binding
       implicit none
-      character(*) :: name, lbl
+      character(len=*) :: name, lbl
       if (len(name) .gt. len(lbl)-1) then
         call AbEnd
       end if

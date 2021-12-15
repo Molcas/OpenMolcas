@@ -76,13 +76,12 @@
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ************************************************************************
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Debug=.true.
 #else
       Debug=.false.
 #endif
 
-      Call qEnter('HALFTRNSF')
 
 * iLoc = 3 means 'use scratch location in reduced index arrays'
       iLoc = 3
@@ -250,7 +249,6 @@
 
       irc=0
 
-      Call qExit('HALFTRNSF')
 
       Return
       END

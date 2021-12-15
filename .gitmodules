@@ -13,6 +13,3 @@
 [submodule "External/lapack"]
 	path = External/lapack
 	url = https://github.com/Reference-LAPACK/lapack.git
-[submodule "External/grid_it"]
-	path = External/grid_it
-	url = https://git.code.sf.net/p/gridit/code

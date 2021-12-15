@@ -35,7 +35,7 @@ C
       Parameter (SecNam = 'Cho_X_Init_Par_DF')
 
       Logical LocDbg
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Parameter (LocDbg = .True.)
 #else
       Parameter (LocDbg = .False.)
@@ -109,7 +109,7 @@ C
       Parameter (SecNam = 'Cho_X_Init_Par_Cho')
 
       Logical LocDbg
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Parameter (LocDbg = .True.)
 #else
       Parameter (LocDbg = .False.)

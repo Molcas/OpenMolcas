@@ -37,7 +37,6 @@
 C     Register entry.
 C     ---------------
 
-      Call Qenter(SecNam)
 
 C     Set  error code.
 C     ----------------
@@ -100,5 +99,4 @@ C        -----------------------------------------------------
 C     Register exit and return.
 C     -------------------------
 
-      Call Qexit(SecNam)
       End

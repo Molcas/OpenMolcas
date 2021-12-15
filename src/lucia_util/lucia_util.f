@@ -71,7 +71,7 @@
 #include "WrkSpc.fh"
 #include "rasscf_lucia.fh"
 *
-#ifdef _DEBUG_TRACE_
+#ifdef _DEBUGPRINT_
       INTEGER, SAVE :: COUNTER = 0
       COUNTER=COUNTER+1
       WRITE(6,'(1X,A1,I6,A1,1X,A,1X,A1,A,A1)')
@@ -121,7 +121,7 @@
          Call Abend
       End If
 
-#ifdef _DEBUG_TRACE_
+#ifdef _DEBUGPRINT_
       WRITE(6,'(1X,A1,I6,A1,1X,A,1X,A1,A,A1)')
      & '[',COUNTER,']','EXIT LUCIA_UTIL','(',Module,')'
 #endif

@@ -27,7 +27,6 @@
 #include "observ.fh"
       Dimension R(npoint+4),PotR(npoint+4)
 C
-      Call qEnter('Main')
 C
 C  Logical units
 C  Vibwvs can be saved for later Transition moment calculations
@@ -60,7 +59,6 @@ C  where it will be redefined as Vibwvs1 or Vibwvs2:
       Call Daclos(Vibwvs)
       Call Daclos(Vibwvs1)
       Call Daclos(Vibwvs2)
-      Call qExit('Main')
       ireturn=0
       return
       End

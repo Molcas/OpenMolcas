@@ -97,7 +97,6 @@
       Else
          Write (6,*) 'SetMem: illegal option'
          Write (6,'(2A)') 'Option:',Token
-         Call QTrace()
          Call Abend()
       End if
 *----------------------------------------------------------------------*

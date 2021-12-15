@@ -31,7 +31,7 @@
       real*8, allocatable :: SAO(:), Scr(:)
 
       integer :: iRc, iOpt, iComp, iSyLbl
-      character(8) :: Label
+      character(len=8) :: Label
 
       integer :: iOff1, iOff2
 
@@ -102,7 +102,7 @@
       real*8, allocatable :: SAO(:), Scr(:)
 
       integer :: iRc, iOpt, iComp, iSyLbl
-      character(8) :: Label
+      character(len=8) :: Label
 
       integer :: iOff1, iOff2
 
@@ -177,10 +177,10 @@
       real*8, dimension(3,3) :: mp_orig
 
       integer :: iRc, iOpt, iComp, iSyMsk
-      character(8) :: Label
+      character(len=8) :: Label
 
-      character(1) :: mltpl1_comp(3) = ['X','Y','Z']
-      character(2) :: mltpl2_comp(6) = ['XX','XY','XZ','YY','YZ','ZZ']
+      character(len=1)::mltpl1_comp(3) = ['X','Y','Z']
+      character(len=2)::mltpl2_comp(6) = ['XX','XY','XZ','YY','YZ','ZZ']
 
       integer :: i, j, iOff, jOff, iScrOff, iBas, jBas
 

@@ -234,7 +234,8 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
      &    Method(1:5) .eq. 'CCSDT'  .OR.
      &    Method(1:4) .eq. 'CHCC'   .OR.
      &    Method(1:6) .eq. 'MCPDFT' .OR.
-     &    Method(1:4) .eq. 'CHT3') Then
+     &    Method(1:4) .eq. 'CHT3'   .OR.
+     &    Method(1:8) .eq. 'EXTERNAL') Then
          If (iPL_Save.ge.3) Then
             Write (LuWr,*)
             Write (LuWr,'(A,A,A)')
@@ -271,10 +272,6 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
       iChCar(1) = iSymX
       iChCar(2) = iSymY
       iChCar(3) = iSymZ
-      nOper=0
-      If (nIrrep.eq.8) nOper=3
-      If (nIrrep.eq.4) nOper=2
-      If (nIrrep.eq.2) nOper=1
       MaxDCR = nIrrep
 *                                                                      *
 ************************************************************************
@@ -308,8 +305,8 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
 *
 *           Find the stabilizer of this center
 *
-            iChxyz=iChAtm(Work(ipCoor+(i-1)*3),iOper,nOper,iChCar)
-            Call Stblz(iChxyz,iOper,nIrrep,nStab,jStab,MaxDCR,iCoSet)
+            iChxyz=iChAtm(Work(ipCoor+(i-1)*3))
+            Call Stblz(iChxyz,nStab,jStab,MaxDCR,iCoSet)
 *
             Call IZero(iDispXYZ,3)
             Do j = 0, nStab-1
@@ -366,7 +363,7 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
       Call Allocate_Work(ipDeg,3*nAtoms)
       Call FZero(Work(ipDeg),3*nAtoms)
       Do i = 1, nAtoms
-         rDeg=DBLE(iDeg(Work(ipCoor+(i-1)*3),iOper,nSym))
+         rDeg=DBLE(iDeg(Work(ipCoor+(i-1)*3)))
          Work(ipDeg+(i-1)*3  )=rDeg
          Work(ipDeg+(i-1)*3+1)=rDeg
          Work(ipDeg+(i-1)*3+2)=rDeg
@@ -417,7 +414,7 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
       iPL_Base=0
       If (iPL_Save.ge.3) iPl_Base=iPL_Save
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('BMtrx',' ',Work(ip_BMtrx),3*nAtoms,mInt)
       Call RecPrt('TMtrx',' ',Work(ip_TMtrx),mInt,mInt)
       Call RecPrt('Degeneracy vector',' ',Work(ipDeg),3,nAtoms)
@@ -642,6 +639,19 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
             If (iReturn .ne. 0) Then
                Write(LuWr,*) 'Numerical_Gradient failed ...'
                Write(LuWr,*) 'RASSCF returned with return code, rc = ',
+     &                     iReturn
+               Write(LuWr,*) 'for the perturbation iDisp = ',iDisp
+               Call Abend()
+            End If
+         Else If (Method(1:8) .eq. 'EXTERNAL') Then
+            Call StartLight('false')
+            Call init_run_use()
+            Call Disable_Spool()
+            Call False_program(ireturn)
+            Call ReClose()
+            If (iReturn .ne. 0) Then
+               Write(LuWr,*) 'Numerical_Gradient failed ...'
+               Write(LuWr,*) 'FALSE returned with return code, rc = ',
      &                     iReturn
                Write(LuWr,*) 'for the perturbation iDisp = ',iDisp
                Call Abend()
@@ -998,7 +1008,7 @@ C_MPP End Do
 *
          Call F_Inquire('QMMM',Exist)
          If (Exist .and. DoTinker) Then
-            Call LA_Morok(nAtoms,ipTmp,1)
+            Call LA_Morok(nAtoms,Work(ipTmp),1)
          End If
 *
          If (iR.eq.iRoot) Call Put_Grad(Work(ipTmp),3*nAtoms)

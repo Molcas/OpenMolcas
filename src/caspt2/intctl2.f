@@ -20,7 +20,6 @@
 
       LOGICAL IF_TRNSF
 
-      CALL QENTER('INTCTL2')
 
 * Compute using Cholesky vectors.
 * Frozen, inactive and active Fock matrix in AO basis:
@@ -60,6 +59,5 @@ c Compute FIMO, FAMO, ...  to workspace:
       Call GetMem('FIAO','FREE','REAL',LFIAO,NBTRI)
       Call GetMem('FAAO','FREE','REAL',LFAAO,NBTRI)
 
-      CALL QEXIT('INTCTL2')
       RETURN
       END

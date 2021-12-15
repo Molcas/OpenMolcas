@@ -8,7 +8,7 @@
  &SEWARD &END
 NoCD
 Title
-CN 
+CN
 NoPack
 expert
 Basis set
@@ -16,8 +16,8 @@ Basis set
 *  Reference
 *
 *  polarization and/or diffuse functions
-* CARBON       (10s,5p,2d,1f) -> [4s,3p,2d,1f]                   
-* CARBON       Diffuse (1s,1p,1d,1f)                             
+* CARBON       (10s,5p,2d,1f) -> [4s,3p,2d,1f]
+* CARBON       Diffuse (1s,1p,1d,1f)
  C.....      / inline
           6.   3
 * S-type functions
@@ -80,8 +80,8 @@ Basis set
 *  Reference
 *
 *  polarization and/or diffuse functions
-* NITROGEN     (10s,5p,2d,1f) -> [4s,3p,2d,1f]                   
-* NITROGEN     Diffuse (1s,1p,1d,1f)                             
+* NITROGEN     (10s,5p,2d,1f) -> [4s,3p,2d,1f]
+* NITROGEN     Diffuse (1s,1p,1d,1f)
  N.....    / inline
           7.   3
 * S-type functions
@@ -164,7 +164,7 @@ Nactel
 Inactive
 6
 Ras2
-1 
+1
 LumOrb
 LevShift
 0.5

@@ -28,7 +28,7 @@
       Complex(kind=8), intent(out) :: DM(3,nss,nss)
       Complex(kind=8), intent(out) ::   U(nss,nss)
       Complex(kind=8), intent(out) :: HSO(nss,nss)
-      Character(180)                :: input_file_name
+      Character(Len=180)            :: input_file_name
       ! local variables:
       Integer       :: l,j,j1,j2,LuAniso,IsFreeUnit
       Real(kind=8) :: g_e
@@ -199,7 +199,7 @@ c compatibility with the present version: of aniso_i.input file
       Complex(kind=8), intent(out) :: MM(3,nss,nss)
       Complex(kind=8), intent(out) :: MS(3,nss,nss)
       Complex(kind=8), intent(out) :: ML(3,nss,nss)
-      Character(180)                :: input_file_name
+      Character(Len=180)            :: input_file_name
       ! local variables:
       Integer       :: l,j,j1,j2,LuAniso,IsFreeUnit
       Real(kind=8) :: g_e
@@ -486,7 +486,7 @@ c      End If
       Complex(kind=8), intent(out) :: MM(3,nss,nss)
       Complex(kind=8), intent(out) :: MS(3,nss,nss)
       Complex(kind=8), intent(out) :: ML(3,nss,nss)
-      Character(180)                :: input_file_name
+      Character(Len=180)            :: input_file_name
       ! local variables:
       Integer       :: itmp, nss_local, nstate_local
       Integer       :: l,j,j1,j2,LuAniso,IsFreeUnit

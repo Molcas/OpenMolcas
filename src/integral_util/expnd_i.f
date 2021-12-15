@@ -25,7 +25,6 @@
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
       Real*8 Array(m,n*n)
-      Call qEnter('Expnd_i')
 *
       nij = n*(n+1)/2
       Do 10 i = n, 1, -1
@@ -41,6 +40,5 @@
          nij = nij - 1
  10   Continue
 *
-      Call qExit('Expnd_i')
       Return
       End

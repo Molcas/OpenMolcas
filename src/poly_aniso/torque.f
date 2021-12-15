@@ -129,7 +129,6 @@ c local data:
       Logical :: DBG
 
 
-      Call qEnter('PA_torq')
 
 c      Boltz_k=0.6950356000_wp   !   in cm^-1*K-1
 c      mu_Bohr=0.4668643740_wp   !   in cm-1*T-1
@@ -781,6 +780,5 @@ C -------------------------------------------------------------------
       If(dbg) Write(6,*) 'TORQ: allocated memory was sucessfully '//
      &                   'deallocated'
 
-      Call qExit('PA_torq')
       Return
       End

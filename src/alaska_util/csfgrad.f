@@ -18,9 +18,8 @@
 * in the runfile                                                       *
 *                                                                      *
 ************************************************************************
+      use Basis_Info, only: nBas
       Implicit None
-#include "itmax.fh"
-#include "info.fh"
 #include "stdalloc.fh"
 #include "real.fh"
 #include "nac.fh"

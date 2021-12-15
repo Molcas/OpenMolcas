@@ -1,6 +1,6 @@
 **********************************************************************
 * Molecule: Nitronyl Nitroxide Radical
-* Basis: 3-21G           
+* Basis: 3-21G
 * Symmetry: C2v
 * Features tested: Cholesky decomposition (seward),
 *                  U-SCF with LK scheme,
@@ -41,7 +41,7 @@ End of input
 *************************************************************************
  &SCF &END
 Title
- Nitronyl Nitroxide 
+ Nitronyl Nitroxide
 ChoInput
 LocK
 dmpK
@@ -58,7 +58,7 @@ Title
  Nitronyl Nitroxide
 Symmetry
  2
-Spin 
+Spin
  2
 ChoInput
 LocK
@@ -69,12 +69,12 @@ nActEl
  7  0  0
 Inactive
  12 1 9 1
-Ras2    
+Ras2
  0 4 0 3
 CiRoot
  2 2
- 1 2 
- 1 1 
+ 1 2
+ 1 1
 Sdav
 100
 Iter
@@ -84,7 +84,7 @@ CIMX
 LumOrb
 Levshft
 0.5
-End of input                                                           
+End of input
 >>> COPY $Project.JobIph JOB001
 **********************************************************************
  &RASSCF &END
@@ -92,7 +92,7 @@ Title
  Nitronyl Nitroxide
 Symmetry
  4
-Spin 
+Spin
  2
 ChoInput
 LocK
@@ -103,7 +103,7 @@ nActEl
  7  0  0
 Inactive
  12 1 9 1
-Ras2    
+Ras2
  0 4 0 3
 CiRoot
  3 3
@@ -118,13 +118,13 @@ CIMX
 LumOrb
 Levshft
 0.5
-End of input                                                           
+End of input
 >>> COPY $Project.JobIph JOB002
 **********************************************************************
  &RASSI &END
 NrOfJobIphs
  2 2 3
-  1 2 
+  1 2
   1 2 3
 CIPR
 ChoInput
@@ -136,13 +136,13 @@ End of Input
  &RASSI &END
 NrOfJobIphs
  2 2 3
-  1 2 
+  1 2
   1 2 3
 ChoInput
 LocK
 NODEcompose
 dmpk
-1.0d-1 
+1.0d-1
 EndChoInput
 CIPR
 End of Input

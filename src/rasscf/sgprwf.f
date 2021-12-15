@@ -34,7 +34,6 @@ C
       Integer   iSel(*)
       Character*400 Line
 C
-      Call QENTER(ROUTINE)
 
       Line(1:16)='      conf/sym  '
       iOff=16

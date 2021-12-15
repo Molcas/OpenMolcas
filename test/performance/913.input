@@ -10,7 +10,7 @@
 >>export MOLCAS_NOCHECK=POTNUC,SEWARD_MLTPL1X,SEWARD_KINETIC,SEWARD_ATTRACT,SCF_ITER
 >>> Do while
 >>export MOLCAS_NOCHECK=POTNUC,SEWARD_MLTPL1X,SEWARD_KINETIC,SEWARD_ATTRACT
-                                                                                                                                                                            
+
  &SEWARD  &END
 NoCD
 Title
@@ -27,16 +27,16 @@ H1       0.000000  0.758602  0.504284 Angstrom
 End of basis
 End of input
 >>export MOLCAS_NOCHECK=SCF_ITER,RASSCF_ITER,MLTPL,GRAD,E_SCF,E_RASSCF,E_CASPT2
-                                                                                                                                                                           
+
 >>> If ( Iter = 1 ) <<<
-                                                                                                                                                                            
+
  &SCF &END
 Title
  H2O caspt2 minimum optimization
 End of input
-                                                                                                                                                                            
+
 >>> EndIf <<<
-                                                                                                                                                                            
+
  &RASSCF &END
 Title
  H2O caspt2 minimum optimization
@@ -47,20 +47,20 @@ Inactive
 Ras2
  3 1 2 0
 End of input
-                                                                                                                                                                            
+
  &CASPT2 &END
 Title
  H2O caspt2 minimum optimization
 Frozen
  1 0 0 0
 End of Input
-                                                                                                                                                                            
+
  &ALASKA &END
 End of input
-                                                                                                                                                                            
+
  &SLAPAF &END
 End of input
-                                                                                                                                                                            
+
 >>> EndDo
 
 >>FILE checkfile

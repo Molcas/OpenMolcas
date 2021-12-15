@@ -21,7 +21,6 @@ C CASSCF states.
       real(8) Heff(Nstate,Nstate),Ueff(Nstate,Nstate),U0(Nstate,Nstate)
       real(8),allocatable :: U0transpose(:,:),Utmp(:,:)
 
-      CALL QENTER('BACKTRANSFORM')
 
       if (IFXMS) then
 
@@ -46,7 +45,6 @@ C CASSCF states.
 
       end if
 
-      CALL QEXIT('BACKTRANSFORM')
 
       RETURN
       END

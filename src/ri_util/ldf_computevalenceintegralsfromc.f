@@ -41,7 +41,7 @@ C
 
       Logical  LDF_IntegralPrescreeningInfoIsSet
       External LDF_IntegralPrescreeningInfoIsSet
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Logical  isSymmetric
       External isSymmetric
 #endif
@@ -232,7 +232,7 @@ C-tbp    End If
          If (Mode.eq.3) Call dScal_(l_xInt,0.5d0,xInt,1)
       End If
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (AB.eq.CD) Then
          If (.not.isSymmetric(xInt,nAB,1.0d-12)) Then
             Call WarningMessage(0,
@@ -279,7 +279,7 @@ C-tbp    End If
          Call GetMem('Intermediate','Free','Real',ip,l)
       End If
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (AB.eq.CD) Then
          If (.not.isSymmetric(xInt,nAB,1.0d-12)) Then
             Call WarningMessage(0,

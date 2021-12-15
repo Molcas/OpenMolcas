@@ -51,7 +51,6 @@
       Parameter (SecNam = 'LovMP2_Drv', ThisNm = 'Dry')
 
 
-      Call qEnter(ThisNm)
       irc=0
       EMP2=0.0d0
       EFRO=0.0d0
@@ -95,7 +94,6 @@
       isymlbl=1
       Call RdOne(irc,6,'Mltpl  0',1,Work(ipS),isymlbl)
       If(irc.ne.0) Then
-        Call qExit(ThisNm)
         return
       End If
       ltri=0
@@ -176,7 +174,6 @@
      &                        Work(ipSQ),Work(ipSaa),Name,NamAct,
      &                        nSym,nActa,nOcc,nBas,ortho,Thrs,ns_O)
       If(irc.ne.0) Then
-        Call qExit(ThisNm)
         Return
       End If
       iOff=0
@@ -229,7 +226,6 @@
      &                        Work(ipSQ),Name,NamAct,iWork(iD_vir),
      &                        nSym,nActa,nExt,nBas,ortho,ns_V)
       If(irc.ne.0) Then
-        Call qExit(ThisNm)
         Return
       End If
       Call GetMem('ID_vir','Free','Inte',iD_vir,nxBasT)
@@ -508,7 +504,6 @@
       EndIf
 
       CALL GetMem('SMAT','FREE','REAL',ipSQ,nSQ)
-      Call qExit(ThisNm)
       Return
       End
 ************************************************************************

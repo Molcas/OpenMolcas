@@ -11,7 +11,7 @@
       logical function next_non_comment(lu,line)
       implicit none
       integer, intent(in) :: lu
-      character(*), intent(out) :: line
+      character(len=*), intent(out) :: line
       next_non_comment = .false.
 100   continue
       read(lu,'(A)',End=900) line

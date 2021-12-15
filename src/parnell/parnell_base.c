@@ -53,7 +53,7 @@ parnell_base (int argc, char **argv)
                                 }
                         } else {
                                 /* when debugging, print success */
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                                 fprintf(stdout,"> %d parnell_base: successfully created %s\n", MyRank, WorkDir);
 #endif
                         }
@@ -83,7 +83,7 @@ parnell_base (int argc, char **argv)
                                                 return PARNELL_ERROR;
                                         }
                                 } else {
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                                         fprintf(stdout,"> %d parnell_base: successfully created %s\n", MyRank, MyWorkDir);
 #endif
                                 }

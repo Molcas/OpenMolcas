@@ -52,7 +52,6 @@ C
             End Do
          Else
             Write(String,'(A8,I6)') 'ChoAlg =',ChoAlg
-            Call qEnter(SecNam)
             Call ChoMP2_Quit(SecNam,'ChoAlg out-of-bounds error!',
      &                       String)
          End If

@@ -60,7 +60,6 @@
 #include "output_ras.fh"
 #include "lucia_ini.fh"
       Parameter(ROUTINE='DAVCTL  ')
-      Call qEnter('DAVCTL')
 C
 C -------------------------------------------------------------------- C
 C -- INITIALIZE THE DAVIDSON DIAGONALIZATION
@@ -194,7 +193,6 @@ C
      &                JOBIPH,LuDavid,iDisk)
       CALL GETMEM('CIVEC','FREE','REAL',LW4,NCONF)
 
-      Call qExit('DAVCTL')
 
       Return
 
@@ -248,43 +246,36 @@ C
 
       Character*8 Label
 
-      Call qEnter('Ini_David')
 
 *     check input arguments
       If ( nConf.lt.0 ) then
          Write(6,*) 'Ini_David: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
-         Call QTrace
          Call Abend
       Endif
       If ( nRoots.lt.0 ) then
          Write(6,*) 'Ini_David: nRoots less than zero'
          Write(6,*) 'nRoots = ',nRoots
-         Call QTrace
          Call Abend
       Endif
       If ( nRoots.gt.mxRoot ) then
          Write(6,*) 'Ini_David: nRoots greater than mxRoot'
          Write(6,*) 'nRoots, mxRoot = ',nRoots, mxRoot
-         Call QTrace
          Call Abend
       Endif
       If ( nDet.lt.0 ) then
          Write(6,*) 'Ini_David: nDet less than zero'
          Write(6,*) 'nDet = ',nDet
-         Call QTrace
          Call Abend
       Endif
       If ( ntAsh.lt.0 ) then
          Write(6,*) 'Ini_David: ntAsh less than 0'
          Write(6,*) 'ntAsh = ',ntAsh
-         Call QTrace
          Call Abend
       Endif
       If ( ntAsh.gt.mxAct ) then
          Write(6,*) 'Ini_David: ntAsh greater than mxAct'
          Write(6,*) 'ntAsh, mxAct = ',ntAsh, mxAct
-         Call QTrace
          Call Abend
       Endif
       n_Roots=nRoots
@@ -442,7 +433,6 @@ CFUE  End If
         save_in_memory = .true.
       End If
 
-      Call qExit('Ini_David')
 
       Return
       End
@@ -488,25 +478,21 @@ CFUE  End If
 #include "davctl.fh"
 #include "WrkSpc.fh"
 
-      Call qEnter('Term_David')
 
 *     check input arguments
       If ( nConf.lt.0 ) then
          Write(6,*) 'Term_David: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
-         Call QTrace
          Call Abend
       Endif
       If ( iter.lt.0 ) then
          Write(6,*) 'Term_David: iter less than 0'
          Write(6,*) 'iter = ',iter
-         Call QTrace
          Call Abend
       Endif
       If ( iter.gt.mxCiIt ) then
          Write(6,*) 'Term_David: iter greater than mxCiIt'
          Write(6,*) 'iter, mxCiIt = ',iter, mxCiIt
-         Call QTrace
          Call Abend
       Endif
 
@@ -543,7 +529,6 @@ CFUE  End If
         End Do
       End If
 
-      Call qExit('Term_David')
 
       Return
       End
@@ -585,14 +570,12 @@ CFUE  End If
 
       Character*16 KeyWord
 
-      Call qEnter('Load_H_diag')
       Call Timing(WTC_1,Swatch,Swatch,Swatch)
 
 *     check input arguments
       If ( nConf.lt.0 ) then
          Write(6,*) 'Load_H_diag: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
-         Call QTrace
          Call Abend
       Endif
 
@@ -624,7 +607,6 @@ CFUE  End If
       Call Timing(WTC_2,Swatch,Swatch,Swatch)
       WTC_2 = WTC_2 - WTC_1
       WTC_3 = WTC_3 + WTC_2
-      Call qExit('Load_H_diag')
 
       Return
       End
@@ -666,14 +648,12 @@ CFUE  End If
 
       Character*16 KeyWord
 
-      Call qEnter('Save_H_diag')
       Call Timing(WTC_1,Swatch,Swatch,Swatch)
 
 *     check input arguments
       If ( nConf.lt.0 ) then
          Write(6,*) 'Save_H_diag: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
-         Call QTrace
          Call Abend
       Endif
 
@@ -705,7 +685,6 @@ CFUE  End If
       Call Timing(WTC_2,Swatch,Swatch,Swatch)
       WTC_2 = WTC_2 - WTC_1
       WTC_3 = WTC_3 + WTC_2
-      Call qExit('Save_H_diag')
 
       Return
       End
@@ -749,26 +728,22 @@ CFUE  End If
 
       Character*16 KeyWord
 
-      Call qEnter('Load_CI_vec')
       Call Timing(WTC_1,Swatch,Swatch,Swatch)
 
 *     check input arguments
       If ( nConf.lt.0 ) then
          Write(6,*) 'Load_CI_vec: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
-         Call QTrace
          Call Abend
       Endif
       If ( iRoot.lt.0 ) then
          Write(6,*) 'Load_CI_vec: iRoot less than 0'
          Write(6,*) 'iRoot = ',iRoot
-         Call QTrace
          Call Abend
       Endif
       If ( iRoot.gt.nkeep ) then
          Write(6,*) 'Load_CI_vec: iRoot greater than nkeep'
          Write(6,*) 'iRoot, nkeep = ',iRoot, nkeep
-         Call QTrace
          Call Abend
       Endif
 
@@ -802,7 +777,6 @@ CFUE  End If
       Call Timing(WTC_2,Swatch,Swatch,Swatch)
       WTC_2 = WTC_2 - WTC_1
       WTC_3 = WTC_3 + WTC_2
-      Call qExit('Load_CI_vec')
 
       Return
       End
@@ -846,26 +820,22 @@ CFUE  End If
 
       Character*16 KeyWord
 
-      Call qEnter('Save_CI_vec')
       Call Timing(WTC_1,Swatch,Swatch,Swatch)
 
 *     check input arguments
       If ( nConf.lt.0 ) then
          Write(6,*) 'Save_CI_vec: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
-         Call QTrace
          Call Abend
       Endif
       If ( iRoot.lt.0 ) then
          Write(6,*) 'Save_CI_vec: iRoot less than 0'
          Write(6,*) 'iRoot = ',iRoot
-         Call QTrace
          Call Abend
       Endif
       If ( iRoot.gt.nkeep ) then
          Write(6,*) 'Save_CI_vec: iRoot greater than nkeep'
          Write(6,*) 'iRoot, nkeep = ',iRoot, nkeep
-         Call QTrace
          Call Abend
       Endif
 
@@ -899,7 +869,6 @@ CFUE  End If
       Call Timing(WTC_2,Swatch,Swatch,Swatch)
       WTC_2 = WTC_2 - WTC_1
       WTC_3 = WTC_3 + WTC_2
-      Call qExit('Save_CI_vec')
 
       Return
       End
@@ -943,26 +912,22 @@ CFUE  End If
 
       Character*16 KeyWord
 
-      Call qEnter('Load_Sig_vec')
       Call Timing(WTC_1,Swatch,Swatch,Swatch)
 
 *     check input arguments
       If ( nConf.lt.0 ) then
          Write(6,*) 'Load_Sig_vec: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
-         Call QTrace
          Call Abend
       Endif
       If ( iRoot.lt.0 ) then
          Write(6,*) 'Load_Sig_vec: iRoot less than 0'
          Write(6,*) 'iRoot = ',iRoot
-         Call QTrace
          Call Abend
       Endif
       If ( iRoot.gt.nkeep ) then
          Write(6,*) 'Load_Sig_vec: iRoot greater than nkeep'
          Write(6,*) 'iRoot, nkeep = ',iRoot, nkeep
-         Call QTrace
          Call Abend
       Endif
 
@@ -996,7 +961,6 @@ CFUE  End If
       Call Timing(WTC_2,Swatch,Swatch,Swatch)
       WTC_2 = WTC_2 - WTC_1
       WTC_3 = WTC_3 + WTC_2
-      Call qExit('Load_Sig_vec')
 
       Return
       End
@@ -1040,26 +1004,22 @@ CFUE  End If
 
       Character*16 KeyWord
 
-      Call qEnter('Save_Sig_vec')
       Call Timing(WTC_1,Swatch,Swatch,Swatch)
 
 *     check input arguments
       If ( nConf.lt.0 ) then
          Write(6,*) 'Save_Sig_vec: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
-         Call QTrace
          Call Abend
       Endif
       If ( iRoot.lt.0 ) then
          Write(6,*) 'Save_Sig_vec: iRoot less than 0'
          Write(6,*) 'iRoot = ',iRoot
-         Call QTrace
          Call Abend
       Endif
       If ( iRoot.gt.nkeep ) then
          Write(6,*) 'Save_Sig_vec: iRoot greater than nkeep'
          Write(6,*) 'iRoot, nkeep = ',iRoot, nkeep
-         Call QTrace
          Call Abend
       Endif
 
@@ -1093,7 +1053,6 @@ CFUE  End If
       Call Timing(WTC_2,Swatch,Swatch,Swatch)
       WTC_2 = WTC_2 - WTC_1
       WTC_3 = WTC_3 + WTC_2
-      Call qExit('Save_Sig_vec')
 
       Return
       End
@@ -1137,26 +1096,22 @@ CFUE  End If
 
       Character*16 KeyWord
 
-      Call qEnter('Load_tmp_CI_vec')
       Call Timing(WTC_1,Swatch,Swatch,Swatch)
 
 *     check input arguments
       If ( nConf.lt.0 ) then
          Write(6,*) 'Load_tmp_CI_vec: nConf less than'
          Write(6,*) 'nConf = ',nConf
-         Call QTrace
          Call Abend
       Endif
       If ( iRoot.lt.0 ) then
          Write(6,*) 'Load_tmp_CI_vec: iRoot less than 0'
          Write(6,*) 'iRoot = ',iRoot
-         Call QTrace
          Call Abend
       Endif
       If ( iRoot.gt.n_Roots ) then
          Write(6,*) 'Load_tmp_CI_vec: iRoot greater than nRoots'
          Write(6,*) 'iRoot, nRoots = ',iRoot, n_Roots
-         Call QTrace
          Call Abend
       Endif
 
@@ -1189,7 +1144,6 @@ CFUE  End If
       Call Timing(WTC_2,Swatch,Swatch,Swatch)
       WTC_2 = WTC_2 - WTC_1
       WTC_3 = WTC_3 + WTC_2
-      Call qExit('Load_tmp_CI_vec')
 
       Return
       End
@@ -1233,26 +1187,22 @@ CFUE  End If
 
       Character*16 KeyWord
 
-      Call qEnter('Save_tmp_CI_vec')
       Call Timing(WTC_1,Swatch,Swatch,Swatch)
 
 *     check input arguments
       If ( nConf.lt.0 ) then
          Write(6,*) 'Save_tmp_CI_vec: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
-         Call QTrace
          Call Abend
       Endif
       If ( iRoot.lt.0 ) then
          Write(6,*) 'Save_tmp_CI_vec: iRoot less than 0'
          Write(6,*) 'iRoot = ',iRoot
-         Call QTrace
          Call Abend
       Endif
       If ( iRoot.gt.n_Roots ) then
          Write(6,*) 'Save_tmp_CI_vec: iRoot greater than nRoots'
          Write(6,*) 'iRoot, nRoots = ',iRoot, n_Roots
-         Call QTrace
          Call Abend
       Endif
 
@@ -1285,7 +1235,6 @@ CFUE  End If
       Call Timing(WTC_2,Swatch,Swatch,Swatch)
       WTC_2 = WTC_2 - WTC_1
       WTC_3 = WTC_3 + WTC_2
-      Call qExit('Save_tmp_CI_vec')
 
       Return
       End
@@ -1329,26 +1278,22 @@ CFUE  End If
 
       Character*16 KeyWord
 
-      Call qEnter('Load_tmp_Sig_vec')
       Call Timing(WTC_1,Swatch,Swatch,Swatch)
 
 *     check input arguments
       If ( nConf.lt.0 ) then
          Write(6,*) 'Load_tmp_Sig_vec: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
-         Call QTrace
          Call Abend
       Endif
       If ( iRoot.lt.0 ) then
          Write(6,*) 'Load_tmp_Sig_vec: iRoot less than 0'
          Write(6,*) 'iRoot = ',iRoot
-         Call QTrace
          Call Abend
       Endif
       If ( iRoot.gt.n_Roots ) then
          Write(6,*) 'Load_tmp_Sig_vec: iRoot greater than nRoots'
          Write(6,*) 'iRoot = ',n_Roots
-         Call QTrace
          Call Abend
       Endif
 
@@ -1381,7 +1326,6 @@ CFUE  End If
       Call Timing(WTC_2,Swatch,Swatch,Swatch)
       WTC_2 = WTC_2 - WTC_1
       WTC_3 = WTC_3 + WTC_2
-      Call qExit('Load_tmp_Sig_vec')
 
       Return
       End
@@ -1425,26 +1369,22 @@ CFUE  End If
 
       Character*16 KeyWord
 
-      Call qEnter('Save_tmp_Sig_vec')
       Call Timing(WTC_1,Swatch,Swatch,Swatch)
 
 *     check input arguments
       If ( nConf.lt.0 ) then
          Write(6,*) 'Save_tmp_Sig_vec: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
-         Call QTrace
          Call Abend
       Endif
       If ( iRoot.lt.0 ) then
          Write(6,*) 'Save_tmp_Sig_vec: iRoot less than 0'
          Write(6,*) 'iRoot = ',iRoot
-         Call QTrace
          Call Abend
       Endif
       If ( iRoot.gt.n_Roots ) then
          Write(6,*) 'Save_tmp_Sig_vec: iRoot greater than nRoots'
          Write(6,*) 'iRoot, nRoots = ',iRoot, n_Roots
-         Call QTrace
          Call Abend
       Endif
 
@@ -1477,7 +1417,6 @@ CFUE  End If
       Call Timing(WTC_2,Swatch,Swatch,Swatch)
       WTC_2 = WTC_2 - WTC_1
       WTC_3 = WTC_3 + WTC_2
-      Call qExit('Save_tmp_Sig_vec')
 
       Return
       End
@@ -1520,13 +1459,11 @@ CFUE  End If
 #include "davctl.fh"
 #include "WrkSpc.fh"
 
-      Call qEnter('page_out')
 
 *     check input arguments
       If ( nConf.lt.0 ) then
          Write(6,*) 'page_out: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
-         Call QTrace
          Call Abend
       Endif
 
@@ -1601,7 +1538,6 @@ CFUE  End If
         End If
       End if
 
-      Call qExit('page_out')
 
       Return
       End
@@ -1643,13 +1579,11 @@ CFUE  End If
 #include "davctl.fh"
 #include "WrkSpc.fh"
 
-      Call qEnter('page_in')
 
 *     check input arguments
       If ( nConf.lt.0 ) then
          Write(6,*) 'page_in: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
-         Call QTrace
          Call Abend
       Endif
 
@@ -1661,7 +1595,6 @@ CFUE  End If
       If ( nStk.eq.0 ) then
          Write(6,*) 'page_in: nStk equal 0'
          Write(6,*) 'nStk = ',nStk
-         Call QTrace
          Call Abend
       Endif
 
@@ -1673,7 +1606,6 @@ CFUE  End If
         Call DDaFile(LuDavid,2,Vector,nConf,iDisk)
       End If
 
-      Call qExit('page_in')
 
       Return
       End
@@ -1706,15 +1638,11 @@ CFUE  End If
 
 #include "davctl.fh"
 
-*     Call qEnter('PageNo')
-
       itmp1 = iRoot
       If (iRoot.gt.n_Roots) then
         itmp1=n_Roots+mod(istart+iRoot-n_Roots-1,nvec-n_Roots)+1
       EndIf
       PageNo = itmp1
-
-*     Call qExit('PageNo')
 
       Return
       End
@@ -1751,8 +1679,6 @@ CFUE  End If
 
 #include "davctl.fh"
 
-*     Call qEnter('RecNo')
-
       RecNo = 0
       If ( itype.eq.1 ) then
         H_diag_RecNo = 1
@@ -1772,11 +1698,8 @@ CFUE  End If
       Else
         Write(6,*) 'RecNo: itype does not match'
         Write(6,*) 'itype = ',itype
-        Call QTrace
         Call Abend
       End If
-
-*     Call qExit('RecNo')
 
       Return
       End

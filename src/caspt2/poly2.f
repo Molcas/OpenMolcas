@@ -39,7 +39,6 @@
 #ifdef _ENABLE_CHEMPS2_DMRG_
       INTEGER NAC4
 #endif
-      CALL QENTER('POLY2')
 
       IF(NLEV.GT.0) THEN
 * NN.15 in case of DMRG-CASPT2, CI=1 and MXCI=1
@@ -99,7 +98,6 @@
         CALL GETMEM('LG2TMP','FREE','REAL',LG2TMP,NG2)
       END IF
 
-      CALL QEXIT('POLY2')
 
       RETURN
       END

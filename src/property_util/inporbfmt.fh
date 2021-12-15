@@ -12,9 +12,9 @@
 * to add a new version, increase version number and
 * add appropriate new Magic string and format descriptors
       Integer, Parameter :: mxVer = 5
-      Character(11) :: Magic(mxVer)
-      Character(40) :: FMTORB(mxVer), FMTOCC(mxVer), FMTOCCHR(mxVer),
-     &                 FMTENE(mxVer), FMTIND(mxVer)
+      Character(Len=11) :: Magic(mxVer)
+      Character(Len=40) :: FMTORB(mxVer), FMTOCC(mxVer),
+     &                 FMTOCCHR(mxVer), FMTENE(mxVer), FMTIND(mxVer)
       Integer :: nDivOrb(mxVer), nDivOcc(mxVer), nDivOccHR(mxVer),
      &           nDivEne(mxVer), nDivInd(mxVer), nSkpInd(mxVer)
       Integer, Parameter :: iVer10=1, iVer11=2, iVer20=3, iVer21=4,

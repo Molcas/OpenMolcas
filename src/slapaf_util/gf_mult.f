@@ -14,7 +14,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -32,7 +32,7 @@
             GF(ijT) = XMass_i*XMass_j*F(ij)
          End Do
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call TriPrt('G^(1/2)FG^(1/2)',' ',GF,mInter)
 #endif
 *                                                                      *

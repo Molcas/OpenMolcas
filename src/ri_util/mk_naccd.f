@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Mk_nacCD_Shells(Info,nInfo,kCnttp,lCnttp)
+      Subroutine Mk_nacCD_Shells(kCnttp,lCnttp)
 ************************************************************************
 *                                                                      *
 *     Flowchart                                                        *
@@ -66,8 +66,6 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
-         Call Unused_integer(Info)
-         Call Unused_integer(nInfo)
          Call Unused_integer(kCnttp)
          Call Unused_integer(lCnttp)
       End If

@@ -9,6 +9,5 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine ErrTra
-      Call qTrace
       Return
       End

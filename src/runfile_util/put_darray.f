@@ -209,9 +209,9 @@ c mess started here :)
          RecLab( 50)='Quad_r          '
          RecLab( 51)='RCTFLD          '
          RecLab( 52)='RFrInfo         '
-         RecLab( 53)='SewRInfo        '
-         RecLab( 54)='SewTInfo        '
-         RecLab( 55)='SewXInfo        '
+         RecLab( 53)='                '
+         RecLab( 54)='DKH_Info        '
+         RecLab( 55)='Real_Info       '
          RecLab( 56)='Last orbitals_ab'
          RecLab( 57)='SCFInfoI_ab     '
          RecLab( 58)='SCFInfoR_ab     '
@@ -236,11 +236,11 @@ c mess started here :)
          RecLab( 77)='MpProp Orb Ener '
          RecLab( 78)='LoProp H0       '
          RecLab( 79)='Dipole moment   '
-         RecLab( 80)='****************' ! Unused
+         RecLab( 80)='RICD_Info       '
          RecLab( 81)='BMtrx           '
          RecLab( 82)='CList           '
          RecLab( 83)='DList           '
-         RecLab( 84)='RMax_Shll       '
+         RecLab( 84)='                ' ! Unused
          RecLab( 85)='MkNemo.vDisp    '
          RecLab( 86)='MkNemo.tqCluster'
          RecLab( 87)='MkNemo.Energies '
@@ -343,6 +343,9 @@ c mess started here :)
          RecLab(184)='AMP_Center      '
          RecLab(185)='RP_Centers      '
          RecLab(186)='XF              '
+         RecLab(187)='rDmp            '
+         RecLab(188)='rDmp:A          '
+         RecLab(189)='rDmp:S          '
 *                     1234567890123456
 *
 *        If you go beyond 256: update pg_da_info.fh and this line!

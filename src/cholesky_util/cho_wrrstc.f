@@ -24,10 +24,6 @@ C
       REAL*8  DSCR(LSCR)
       INTEGER JSCR(LSCR)
 
-#if defined (_DEBUG_)
-      CALL QENTER('_WRRSTC')
-#endif
-
 C     Start address on file.
 C     ----------------------
 
@@ -109,9 +105,5 @@ C     --------------------------------------
          JADR = 0
          CALL IDAFILE(LUMAP,IOPT,IWORK(ip_INTMAP),NDIM,JADR)
       END IF
-
-#if defined (_DEBUG_)
-      CALL QEXIT('_WRRSTC')
-#endif
 
       END

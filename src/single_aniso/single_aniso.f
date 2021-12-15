@@ -16,7 +16,7 @@
       Integer ::  i, input_to_read, nH, nT, nTempMagn
       Integer ::  nDir, nDirZee, nMult
       Logical ::  ifrestart,GRAD
-      Character(180) :: input_file_name
+      Character(Len=180) :: input_file_name
       Logical :: dbg
 
 C----------------------------------------------------------------------
@@ -148,7 +148,7 @@ c      Real(kind=8) :: F, Fx,Fy,Fz, AT, Ax,Ay,Az, AF, dnrm, dE
       Real(kind=8), allocatable :: TempMagn(:)
       Complex(kind=8), allocatable :: MM(:,:,:), MS(:,:,:), HSO(:,:),
      &                                 ML(:,:,:), DM(:,:,:), U(:,:)
-      Character(180), intent(in) :: input_file_name
+      Character(Len=180), intent(in) :: input_file_name
 
       Logical :: poly_file
       Logical :: ifrestart
@@ -169,7 +169,6 @@ c      Real(kind=8) :: F, Fx,Fy,Fz, AT, Ax,Ay,Az, AF, dnrm, dE
       Integer :: l
       Integer                   :: nss2,nstate2
 
-      Call qEnter('SA_main1')
       DBG=.false.
 
       Boltz_k=0.6950356_wp                    !   in cm-1*K-1
@@ -754,7 +753,6 @@ c---------------------------------------------------------------------
          Call mma_deallocate(chit_exp)
       End If
 
-      Call qExit('SA_main1')
 
       Return
       End

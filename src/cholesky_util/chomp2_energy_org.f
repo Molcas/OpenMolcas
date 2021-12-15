@@ -46,7 +46,6 @@ C
       MulD2h(i,j)=iEor(i-1,j-1)+1
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
 
-      Call qEnter(ThisNm)
       irc = 0
 
 C     Set number and type of vectors.
@@ -441,5 +440,4 @@ C     ----------------------
 
       EMP2 = -EMP2
 
-      Call qExit(ThisNm)
       End

@@ -11,6 +11,7 @@
 * Copyright (C) 2001-2016, Valera Veryazov                             *
 ************************************************************************
       subroutine finish(rc)
+      use Symmetry_Info, only: Symmetry_Info_Free
 #ifndef _HAVE_EXTRA_
       Use Prgm
 #endif
@@ -23,6 +24,8 @@ C     called to do the actual termination.
 #include "timtra.fh"
       integer :: idum = 0
       integer :: iwarn
+
+      Call Symmetry_Info_Free()
 
       if(nfld_tim.gt.0) Call GetMem('iGATim','Free','Real',
      &                  iGATim,iDum)

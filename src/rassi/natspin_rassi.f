@@ -28,7 +28,6 @@
 
       DIMENSION Dummy(1),iDummy(7,8)
 
-      Call qEnter('NATSPIN')
 C ALLOCATE WORKSPACE AREAS.
       NSZZ=NBTRI
       NVEC=NBSQ
@@ -217,6 +216,5 @@ C End of very long loop over eigenstates KEIG.
       CALL GETMEM('VEC2  ','FREE','REAL',LVEC2,NVEC2)
       CALL GETMEM('SCR   ','FREE','REAL',LSCR,NSCR)
       CALL GETMEM('EIG   ','FREE','REAL',LEIG,NEIG)
-      Call qExit('NATSPIN')
       RETURN
       END

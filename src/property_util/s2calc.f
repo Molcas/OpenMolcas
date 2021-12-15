@@ -59,8 +59,8 @@
 *----------------------------------------------------------------------*
 * Debug printing stuff                                                 *
 *----------------------------------------------------------------------*
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Write(6,'(a,8i5)') 'nSym  . . . . . .',nSym
       Write(6,'(a,8i5)') 'nBas  . . . . . .',(nBas(iSym),iSym=1,nSym)
       Write(6,'(a,8i5)') 'nOrb  . . . . . .',(nOrb(iSym),iSym=1,nSym)
@@ -90,7 +90,7 @@
          sb=sb+1.0d0*nBeta(iSym)
       End Do
       s2=s2 + sz*(sz+1.0d0) + sb
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(6,'(a,f12.6)') 'sz  . . . . . . .',sz
       Write(6,'(a,f12.6)') 'sb  . . . . . . .',sb
       Write(6,'(a,f12.6)') 's2  . . . . . . .',s2
@@ -106,7 +106,7 @@
          npHalf=Max(npHalf,nAlpha(iSym)*nBas(iSym))
          npTfrm=Max(npTfrm,nAlpha(iSym)*nBeta(iSym))
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(6,'(a,i5)') 'npSmat  . . . . .',npSmat
       Write(6,'(a,i5)') 'npHalf  . . . . .',npHalf
       Write(6,'(a,i5)') 'npTfrm  . . . . .',npTfrm

@@ -20,11 +20,6 @@
 *     Object: kernel routine to assemble the integrals from the Ixy    *
 *             and Iz integrals.                                        *
 *                                                                      *
-* Called from: RysEF                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             August '90                                               *
 *                                                                      *

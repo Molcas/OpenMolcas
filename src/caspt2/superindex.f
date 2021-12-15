@@ -36,7 +36,7 @@
 #include "caspt2.fh"
 #include "output.fh"
 #include "stdalloc.fh"
-      CHARACTER(8) CSNAME(MXCASE)
+      CHARACTER(LEN=8) CSNAME(MXCASE)
       DATA CSNAME / 'VJTU    ','VJTIP   ','VJTIM   ',
      &     'ATVX    ','AIVX    ','VJAIP   ','VJAIM   ','BVATP   ',
      &     'BVATM   ','BJATP   ','BJATM   ','BJAIP   ','BJAIM   '/
@@ -57,7 +57,6 @@
       INTEGER N,N5,N6,N7,N10,N11
       INTEGER NAT,NAU,NAV,NII,NIJ,NSA,NSB
 
-      CALL QENTER('SUPINI')
 
       CALL MMA_ALLOCATE(KTUV,NASHT,NASHT,NASHT)
       CALL MMA_ALLOCATE(MTUV,3,NASHT**3)
@@ -357,7 +356,6 @@ C(index,symmetry) pairs.
         END DO
       END DO
 
-      CALL QEXIT('SUPINI')
 
       RETURN
       END SUBROUTINE

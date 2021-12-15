@@ -21,7 +21,6 @@
       Character*12  Opt_Method
       Dimension dLimmo(2)
 *
-      Call qEnter('ReadIn')
 *
 *     copy input from standard input to a local scratch file
 *
@@ -39,7 +38,6 @@
 *     remove local copy of standard input
 *
       Call Close_LuSpool(LuSpool)
-      Call qExit('ReadIn')
 *
 *----------------------------------------------------------------------*
 *     Exit                                                             *

@@ -22,24 +22,23 @@
 * G. Li Manni (GLM)
 * S Dong, 2018 (added print outs related to scaling)
 ******************************************************************
-
+       use KSDFT_Info, only: Funcaa, Funcbb, Funccc
       Implicit Real*8 (A-H,O-Z)
       Real*8 CASDFT_E,E_nuc,E_cor,E_cas,E_ot
       Real*8 CASDFT_E_1,E_ot_1,Funcaa1,Funcbb1,Funccc1
       Dimension Ref_Ener(*)
       integer jroot
-      LOGICAL Do_Rotate
-      COMMON /MSPDFT/ Do_Rotate
 #include "WrkSpc.fh"
 #include "ksdft.fh"
 #include "nq_info.fh"
+#include "mspdft.fh"
 
       write(6,'(6X,80A)')
       write(6,'(6X,80A)') ('*',i=1,80)
       write(6,'(6X,80A)') ('*',i=1,80)
       IF(Do_Rotate) Then
-      write(6,'(6X,A,1X,I2.2,1X,A)')'**                       '//
-     &    ' MS-PDFT INTERMEDIATE STATE', jroot,
+      write(6,'(6X,2A,1X,I2.2,1X,A)')'**                       '//
+     &    MSpdftMethod,' INTERMEDIATE STATE', jroot,
      & '                      ** '
       ELSE
       write(6,'(6X,A,1X,I2.2,1X,A)')'**                         '//

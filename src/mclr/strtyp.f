@@ -56,7 +56,6 @@
 *                                                                      *
 ************************************************************************
         Call PrInp_MCLR(iPL)
-        Call QTrace
         Call Abend()
       END IF
 * Default on alternatice RAS limits

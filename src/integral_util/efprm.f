@@ -18,18 +18,6 @@
 * Object: kernel routine for the computation of electric field         *
 *         integrals.                                                   *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy  (ESSL)                                           *
-*              SOS                                                     *
-*              DCR                                                     *
-*              XRys                                                    *
-*              Util1                                                   *
-*              DaXpY  (ESSL)                                           *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden, January '91                             *
 *                                                                      *
@@ -38,8 +26,6 @@
       Implicit Real*8 (A-H,O-Z)
       External TNAI, Fake, XCff2D, XRys2D
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),
      &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
@@ -58,7 +44,6 @@
 *
       iRout = 200
       iPrint = nPrint(iRout)
-      Call qEnter('EFPrm')
 *
       If (iPrint.ge.99) Then
          Call RecPrt(' In EFPrm: Alpha',' ',Alpha,nAlpha,1)
@@ -158,7 +143,6 @@
  400     Continue
       End If
 *
-      Call qExit('EFPrm')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(nRys)

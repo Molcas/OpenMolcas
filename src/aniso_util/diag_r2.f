@@ -29,7 +29,6 @@ C
       Real(kind=8), allocatable :: W1(:)   !(N)
       Real(kind=8), allocatable :: Z1(:,:) !(N,N)
 
-      Call qEnter('diag_r2')
 C initializations
       INFO=0
       If(N<1) Return
@@ -61,6 +60,5 @@ C initializations
       Call mma_deallocate(WORK)
       Call mma_deallocate(W1)
       Call mma_deallocate(Z1)
-      Call qExit('diag_r2')
       Return
       End Subroutine DIAG_R2

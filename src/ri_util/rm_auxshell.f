@@ -8,36 +8,29 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine rm_AuxShell(Info,nInfo,iCnttp)
+      Subroutine rm_AuxShell(iCnttp)
 ************************************************************************
 *                                                                      *
 *     Remove an auxiliary basis set by making it empty.                *
 *                                                                      *
 ************************************************************************
+      Use Basis_Info, only: dbsc, Shells
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "SysDef.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Do k = 0, nTot_Shells(iCnttp)-1
-         iShll = ipVal(iCnttp) + k
+      Do k = 0, dbsc(iCnttp)%nShells-1
+         iShll = dbsc(iCnttp)%iVal + k
 *
-         nExp(iShll) = 0
-         nBasis(iShll) = 0
-         nBasis_Cntrct(iShll) = 0
+         Shells(iShll)%nExp=0
+         Shells(iShll)%nBasis  =0
+         Shells(iShll)%nBasis_c=0
 *
       End Do
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer(Info)
-         Call Unused_integer(nInfo)
-      End If
       End

@@ -21,7 +21,8 @@ NoCD
 End of input
 
 
-&SCF; File=init.StrOrb
+&SCF
+File=init.StrOrb
 
 &MOTRA
 Title

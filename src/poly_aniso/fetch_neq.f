@@ -15,7 +15,7 @@
       Integer, intent(inout):: neq(nneq), nexch(nneq)
       !local variables:
       Integer       :: i, Input, LineNr
-      Character(72) :: LINE
+      Character(Len=72) :: LINE
       Logical       :: ab_initio_all
       Logical       :: DBG
       DBG=.false.

@@ -26,7 +26,6 @@ C
 #include "wadr.fh"
 #include "WrkSpc.fh"
 C
-      CALL QENTER('HMAT')
 C
 C COMPUTE SIGMA VECTORS
 C
@@ -55,6 +54,5 @@ C
        IST=IST+NDIM
       END DO
 C
-      CALL QEXIT('HMAT')
       RETURN
       END

@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine BMtrx_Internal(
      &                 nLines,ipBMx,nAtom,nInter,ip_rInt,Coor,nDim,
-     &                 dMass,Name,nSym,iOper,Smmtrc,Degen,BSet,HSet,
+     &                 dMass,Name,Smmtrc,Degen,BSet,HSet,
      &                 nIter,ip_drInt,Gx,Cx,mTtAtm,iAnr,nStab,jStab,
      &                 Numerical,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
      &                 iCoSet,lOld,nFix,iIter,mTR,TRVec,ip_TabAI,
@@ -24,8 +24,8 @@
       Real*8 Coor(3,nAtom), dMass(nAtom), Degen(3*nAtom),
      &       Gx(3*nAtom,nIter), Cx(3*nAtom,nIter), TRVec(nDim,mTR)
       Character Name(nAtom)*(LENIN)
-      Integer   iOper(0:nSym-1), iAnr(nAtom),
-     &          nStab(nAtom), jStab(0:7,nAtom), iCoSet(0:7,nAtom)
+      Integer   iAnr(nAtom), nStab(nAtom), jStab(0:7,nAtom),
+     &          iCoSet(0:7,nAtom)
       Logical Smmtrc(3*nAtom), BSet, HSet, Redundant,
      &        Numerical, HWRS, Analytic_Hessian, PrQ, lOld
 *                                                                      *
@@ -41,8 +41,8 @@
 *
       Call GetMem('Proj','Allo','Real',ipProj,nDim)
 *
-      Call CurviL(nAtom,nDim,Cx,Gx,nIter,iIter,iRef,nStab,iOper,
-     &            nSym,jStab,Degen,Smmtrc,mTR,TRVec,
+      Call CurviL(nAtom,nDim,Cx,Gx,nIter,iIter,iRef,nStab,
+     &            jStab,Degen,Smmtrc,mTR,TRVec,
      &            ip_rInt,ip_drInt,HSet,BSet,ipBMx,
      &            Numerical,iANr,HWRS,Analytic_Hessian,iOptC,
      &            Name,PrQ,Work(ipProj),dMass,iCoSet,

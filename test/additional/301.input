@@ -4,8 +4,8 @@
 * Symmetry: No
 * Features tested: SEWARD(ZMAT with X) , SCF, SLAPAF(Internal coordinates & RowH)
 * Responsible person: Giovanni Ghigo (GG) - 28 Aug 2007
-* Comments: Test for ZMAT with dummy X atoms in SEWARD & SLAPAF with 
-* Internal coordinates, new Hessian and RowH. 
+* Comments: Test for ZMAT with dummy X atoms in SEWARD & SLAPAF with
+* Internal coordinates, new Hessian and RowH.
 *-------------------------------------------------------------------------------
 
 >>>  Do  While  <<<
@@ -50,13 +50,13 @@ OH1  = Bond O3 H1
 HOH1 = Angle H5 O3 H1
 DH1  = Dihedral O4 H5 O3 H1
 Vary
-OH1 
-OO4 
-OH5 
-OH6 
+OH1
+OO4
+OH5
+OH6
 OOH5
 OOH6
-DH6 
+DH6
 HOH1
 DH1
 RowH

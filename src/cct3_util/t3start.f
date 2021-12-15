@@ -1421,7 +1421,8 @@ c
         integer lun
 c
         lun=1
-        open (unit=lun,file='T3tEne')
+        Call Molcas_Open(lun,'T3tEne')
+*       open (unit=lun,file='T3tEne')
 c
         write (lun,97) symimin,imin,symjmin,jmin
         write (lun,98) symi,symj
@@ -1457,7 +1458,8 @@ c
         integer lun,bullshit
 c
         lun=1
-        open (unit=lun,file='T3tEne')
+        Call Molcas_Open(Lun,'T3tEne')
+*       open (unit=lun,file='T3tEne')
 c
 c       read blank, since there is Symimin,imin,Symjmin,jmin
 c       on first line

@@ -101,7 +101,6 @@ C     Common /SRT3/ nStk,ip_IOStk,lStk
 *     Turn timing ON                                                   *
 *----------------------------------------------------------------------*
 *
-      Call qEnter('Sort2')
 *
 *----------------------------------------------------------------------*
 *     Initialize the IO-stack                                          *
@@ -247,6 +246,5 @@ C     Common /SRT3/ nStk,ip_IOStk,lStk
 *     Turn timing OFF and exit                                         *
 *----------------------------------------------------------------------*
 *
-      Call qExit('Sort2')
       Return
       End

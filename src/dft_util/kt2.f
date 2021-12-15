@@ -16,24 +16,16 @@
 *                                                                      *
 * Object:     KT2 combination, as described in Keal&Tozer paper        *
 *               J.Chem.Phys 119 (2003) 3015                            *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
 *                                                                      *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "WrkSpc.fh"
-#include "print.fh"
       Real*8 Rho(nRho,mGrid), dF_dRho(ndF_dRho,mGrid),
      &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QEnter('KT2')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -59,7 +51,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('KT2')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

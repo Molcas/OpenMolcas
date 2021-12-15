@@ -46,7 +46,6 @@ c*************************************************
       logical logic_restart
 #ifdef MOLPRO
 #else
-      call qenter("INPUT")
       call rdnlst(5,"GUGACI")
 #endif
 
@@ -83,11 +82,9 @@ c set the default convergence threshhold
       write (6,'(a,a)') 'command=',command
 #ifdef MOLPRO
 #else
-      call qtrace
       call abend()
 #endif
 #ifdef _XIANEST_
-      call qexit()
 #endif
 *
 *---  process title    command ----------------------------------------*
@@ -162,21 +159,17 @@ c set the default convergence threshhold
 991   write (6,*) 'input: end of input file encountered'
       write (6,'(a,a)') 'last command: ',command
 #ifdef _XIANEST_
-      call qexit()
 #endif
 #ifdef MOLPRO
 #else
-      call qtrace
       call abend()
 #endif
 992   write (6,*) 'input: error while reading input!'
       write (6,'(a,a)') 'last command: ',command
 #ifdef _XIANEST_
-      call qexit()
 #endif
 #ifdef MOLPRO
 #else
-      call qtrace
       call abend()
 #endif
       end
@@ -305,11 +298,9 @@ c write date into cidrt for ci calculation
         write(6,*)'  input num.of orbital err! check again!'
 #ifdef MOLPRO
 #else
-      call qtrace
       call abend()
 #endif
 #ifdef _XIANEST_
-      call qexit()
 #endif
       endif
 

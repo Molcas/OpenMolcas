@@ -27,8 +27,8 @@
 ************************************************************************
 *                                                                      *
 *
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call RecPrt('CoeffA',' ',CoeffA,nPrimA,nConA)
       Call RecPrt('CoeffB',' ',CoeffB,nPrimB,nConB)
       Call iVcPrt('Indkl',' ',Indkl,nkl)
@@ -75,7 +75,7 @@
 *
          End If
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Coeff',' ',Coeff,nTheta_Full,nPhi)
 #endif
 *

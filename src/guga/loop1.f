@@ -15,7 +15,6 @@
 #include "real_guga.fh"
 #include "integ.fh"
       COMMON/CNSTS/D0,D1,D2
-      CALL QENTER('LOOP1')
       ISTOP=0
       KM1=KM+1
 C     FOUR POSSIBLE STARTS
@@ -55,6 +54,5 @@ C     FOUR POSSIBLE STARTS
       GO TO 40
 30    ISTOP=1
 40      Continue
-       CALL QEXIT('LOOP1')
       RETURN
       END

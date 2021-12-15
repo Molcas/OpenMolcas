@@ -28,7 +28,6 @@ c
       ! local variables:
       Integer :: i
 
-      Call qEnter('g_high')
 C intializations
       If(Iprint>2) Then
         CALL prMom('G_HIGH:  DIPSOM(l,i,j):',dipsom,dim)
@@ -65,7 +64,6 @@ c--------------------------------------------------------------------------
      &                Do_structure_abc, cryst, coord, gtens, maxes,
      &                iprint)
 
-      Call qExit('g_high')
       Return
       End
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -114,7 +112,6 @@ C
      &                  trace
       External trace, IsFreeUnit
 !----------------------------------------------------------------------
-      Call qEnter('g_high_1')
 
       Call mma_allocate(ELOC,dim,'ELOC')
       Call mma_allocate(axes_in_abc,3,3,'axes_in_abc')
@@ -700,7 +697,6 @@ c
       Call mma_deallocate(SP_DIPW)
 
 
-      Call qExit('g_high_1')
 
       Return
       End

@@ -25,7 +25,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      CALL QENTER('ADDRHSA')
 *
       ISYT=MUL(JSYM,ISYJ)
       ISYV=MUL(JSYM,ISYX)
@@ -94,7 +93,6 @@ C Put W on disk:
 ************************************************************************
 *                                                                      *
  900  CONTINUE
-      CALL QEXIT('ADDRHSA')
       RETURN
       END
 
@@ -126,7 +124,6 @@ Case B:
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      CALL QENTER('ADDRHSB')
 *
       ISYT=MUL(JSYM,ISYJ)
       ISYV=MUL(JSYM,ISYL)
@@ -287,7 +284,6 @@ C Put WBM on disk:
 ************************************************************************
 *                                                                      *
  900  CONTINUE
-      CALL QEXIT('ADDRHSB')
       RETURN
       END
 
@@ -313,7 +309,6 @@ C             (FIMO(a,t)-sum(y)(ay,yt))*delta(u,v)/NACTEL.
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      CALL QENTER('ADDRHSC')
 *
       ISYA=MUL(JSYM,ISYU)
       ISYV=MUL(JSYM,ISYX)
@@ -382,7 +377,6 @@ C Put W on disk:
 ************************************************************************
 *                                                                      *
  900  CONTINUE
-      CALL QEXIT('ADDRHSC')
       RETURN
       END
 
@@ -409,7 +403,6 @@ C Compute W2(vu,al)=(au,vl)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      CALL QENTER('ADDRHSD1')
 *
       DO ISW=1,NSYM
        IO=0
@@ -513,7 +506,6 @@ C Put W on disk:
 ************************************************************************
 *                                                                      *
  900  CONTINUE
-      CALL QEXIT('ADDRHSD1')
       RETURN
       END
 
@@ -540,7 +532,6 @@ C Compute W2(vu,al)=(au,vl)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      CALL QENTER('ADDRHSD2')
 *
       DO ISYW=1,NSYM
        IO=0
@@ -620,7 +611,6 @@ C Put W on disk:
 ************************************************************************
 *                                                                      *
  900  CONTINUE
-      CALL QEXIT('ADDRHSD2')
       RETURN
       END
 
@@ -646,7 +636,6 @@ Case E:
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      CALL QENTER('ADDRHSE')
 *
       SQ32=SQRT(1.5D0)
       ISYA=MUL(JSYM,ISYJ)
@@ -836,7 +825,6 @@ C Read WM:
 ************************************************************************
 *                                                                      *
  900  CONTINUE
-      CALL QEXIT('ADDRHSE')
       RETURN
       END
 
@@ -863,7 +851,6 @@ C   WM(ux,ac)= -((aucx)-(axcu))/2
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      CALL QENTER('ADDRHSF')
 *
       IF(ISYU.LT.ISYX) GOTO 900
 
@@ -1024,7 +1011,6 @@ C Put WFM on disk:
 ************************************************************************
 *                                                                      *
  900  CONTINUE
-      CALL QEXIT('ADDRHSF')
       RETURN
       END
 
@@ -1052,7 +1038,6 @@ C   WM(u,l,ac)=  ((aucl)-cual))*SQRT(1.5D0)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      CALL QENTER('ADDRHSG')
 *
 
       ISYA=MUL(JSYM,ISYU)
@@ -1269,7 +1254,6 @@ C      NBXSZJ=NINABX
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      CALL QEXIT('ADDRHSG')
       RETURN
       END
 
@@ -1295,7 +1279,6 @@ C   WM(jl,ac)=((ajcl)-(alcj))*SQRT(3.0D0)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      CALL QENTER('ADDRHSH')
       IF(ISYJ.LT.ISYL) GOTO 900
       ISYA=MUL(JSYM,ISYJ)
       ISYC=MUL(JSYM,ISYL)
@@ -1543,6 +1526,5 @@ C      NBXSZJ=NINABX
 ************************************************************************
 *                                                                      *
  900  CONTINUE
-      CALL QEXIT('ADDRHSH')
       RETURN
       END

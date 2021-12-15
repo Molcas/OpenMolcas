@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2018, Ignacio Fdez. Galvan                             *
 ************************************************************************
-      Subroutine Proc_Inp(DSCF,Info,lOPTO,iRc)
+      Subroutine Proc_Inp(DSCF,lOPTO,iRc)
 
       use stdalloc, only : mma_allocate, mma_deallocate
       use fortran_strings, only : to_upper, operator(.in.)
@@ -109,7 +109,7 @@
       DIMENSION NFRO_L(8),NISH_L(8),NRS1_L(8),NRS2_L(8)
       DIMENSION NRS3_L(8),NSSH_L(8),NDEL_L(8)
 #ifdef _HDF5_
-      character(1), allocatable :: typestring(:)
+      character(len=1), allocatable :: typestring(:)
 #endif
 * TOC on JOBOLD (or JOBIPH)
       DIMENSION IADR19(15)
@@ -131,7 +131,7 @@
 
       integer :: start, step, length
 
-      character(50) :: ON_scheme_inp, uppercased
+      character(len=50) :: ON_scheme_inp, uppercased
 
 #ifdef _DMRG_
 !     dmrg(QCMaquis)-stuff
@@ -213,7 +213,6 @@ C   No changing about read in orbital information from INPORB yet.
 *     The compiler thinks NASHT could be undefined later (after 100)
       NASHT=0
 
-      Call qEnter('Proc_Inp')
 
       DBG=.false.
       NAlter=0
@@ -871,6 +870,63 @@ CGG This part will be removed. (PAM 2009: What on earth does he mean??)
        If (DBG) Write(6,*) ' ROtSTate keyword was used.'
        iRotPsi=1
        Call SetPos(LUInput,'ROST',Line,iRc)
+       Call ChkIfKey()
+      End If
+*---  Process XMSI command --------------------------------------------*
+      If (DBG) Write(6,*) ' Check if XMSI case.'
+      If (KeyXMSI) Then
+       If (DBG) Write(6,*) ' XMSI keyword was used.'
+       iRotPsi=1
+       IXMSP=1
+       Call SetPos(LUInput,'XMSI',Line,iRc)
+       Call ChkIfKey()
+      End If
+*---  Process CMSI command --------------------------------------------*
+      If (DBG) Write(6,*) ' Check if CMSI case.'
+      If (KeyCMSI) Then
+       If (DBG) Write(6,*) ' CMSI keyword was used.'
+       iRotPsi=1
+       ICMSP=1
+       Call SetPos(LUInput,'CMSI',Line,iRc)
+       Call ChkIfKey()
+      End If
+*---  Process CMMA command --------------------------------------------*
+      If (KeyCMMA) Then
+       If (DBG) Write(6,*) ' CMS Max Cylces keyword was given.'
+       Call SetPos(LUInput,'CMMA',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       ReadStatus=' Failure reading data following CMMA keyword.'
+       Read(LUInput,*,End=9910,Err=9920) ICMSIterMax
+       ReadStatus=' O.K. reading data following CMMA keyword.'
+       If (DBG) Then
+        Write(6,*) ' Max nr of CMS cycles',ICMSIterMax
+       End If
+       Call ChkIfKey()
+      End If
+*---  Process CMMI command --------------------------------------------*
+      If (KeyCMMI) Then
+       If (DBG) Write(6,*) ' CMS Min Cylces keyword was given.'
+       Call SetPos(LUInput,'CMMI',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       ReadStatus=' Failure reading data following CMMI keyword.'
+       Read(LUInput,*,End=9910,Err=9920) ICMSIterMin
+       ReadStatus=' O.K. reading data following CMMI keyword.'
+       If (DBG) Then
+        Write(6,*) ' Min nr of CMS cycles',ICMSIterMin
+       End If
+       Call ChkIfKey()
+      End If
+*---  Process CMTH command --------------------------------------------*
+      If (KeyCMTH) Then
+       If (DBG) Write(6,*) ' CMS Threshold keyword was given.'
+       Call SetPos(LUInput,'CMTH',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       ReadStatus=' Failure reading data following CMTH keyword.'
+       Read(LUInput,*,End=9910,Err=9920) CMSThreshold
+       ReadStatus=' O.K. reading data following CMTH keyword.'
+       If (DBG) Then
+        Write(6,*) ' CMS threshold',CMSThreshold
+       End If
        Call ChkIfKey()
       End If
 *---  Process RFPE command ----- (new!) -------------------------------*
@@ -2704,7 +2760,7 @@ c       write(6,*)          '  --------------------------------------'
         guess_dmrg(1:7) = 'DEFAULT'
         call mma_allocate(initial_occ,nrs2t,nroots); initial_occ = 0
         !> debug output
-#ifdef _DMRG_DEBUG_
+#ifdef _DMRG_DEBUGPRINT_
         ifverbose_dmrg = .true.
 #endif
       end if
@@ -3144,7 +3200,7 @@ C Test read failed. JOBOLD cannot be used.
      &    PCM_On()       .or.
      &    Do_OFEmb       .or.
      &    KSDFT.ne.'SCF'     )
-     &    Call IniSew(Info,DSCF.or.Langevin_On().or.PCM_On(),nDiff)
+     &    Call IniSew(DSCF.or.Langevin_On().or.PCM_On(),nDiff)
 * ===============================================================
 
       ! Setup part for DMRG calculations
@@ -3352,12 +3408,10 @@ C Test read failed. JOBOLD cannot be used.
 *---  Normal exit -----------------------------------------------------*
 9000  CONTINUE
       If (DBG) Write(6,*)' Normal exit from PROC_INP.'
-      Call qExit('Proc_Inp')
       Return
 *---  Abnormal exit ---------------------------------------------------*
 9900  CONTINUE
       If (DBG) Write(6,*)' Abnormal exit from PROC_INP.'
-      Call qExit('Proc_Inp')
       Return
 
       end subroutine proc_inp

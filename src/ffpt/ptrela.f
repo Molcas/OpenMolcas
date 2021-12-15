@@ -37,10 +37,8 @@
 *                                                                      *
 *----------------------------------------------------------------------*
 *
-      Call qEnter('PtRela')
 *
       If ( .not.ComStk(2,5,0,1) ) then
-         Call qExit('PtRela')
          Return
       End If
 *
@@ -88,7 +86,6 @@
 *     Normal Exit                                                      *
 *----------------------------------------------------------------------*
 *
-      Call qExit('PtRela')
       Return
 c Avoid unused argument warnings
       If (.False.) Then
@@ -102,6 +99,5 @@ c Avoid unused argument warnings
 *
 991   Write (6,*) 'PtRela: Error reading ONEINT'
       Write (6,'(A,A)') 'Label=',Label
-      Call QTrace
       Call Abend()
       End

@@ -16,14 +16,14 @@ C     0.0000  0.0000  -0.0899
 End of basis
 Basis set
 H.cc-PVDZ
-H     0.0000  0.8929   0.5353  
+H     0.0000  0.8929   0.5353
 End of basis
 NoCD
 End of input
 *-------------------------------------------------------------------------------
  &SCF &END
 Title
- CH2 molecule 
+ CH2 molecule
 Occupied
  3 0 1 0
 Iterations

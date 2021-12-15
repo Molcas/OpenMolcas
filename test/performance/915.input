@@ -57,9 +57,9 @@ End of Input
 ****
 
 >> FILE StartOrb
-#INPORB 1.1         
+#INPORB 1.1
 #INFO
-* RASSCF average (pseudo-natural) orbitals                                      
+* RASSCF average (pseudo-natural) orbitals
        0       1
       75
       75
@@ -1615,7 +1615,7 @@ End of Input
 4 SSSSSSSSSS
 5 SSSSSSSSSS
 6 SSSSSSSSSS
-7 SSSSS     
+7 SSSSS
 >> EOF
 
 >>FILE checkfile

@@ -16,7 +16,6 @@
       DIMENSION TORB(*),DREF(NDREF)
 * Purpose: given an orbital transformation array
 * transform the DREF array (blocked triangular, active)
-      CALL QENTER('TRANSDREF')
 
       NT=0
       NAMX=0
@@ -110,7 +109,6 @@
       CALL GETMEM('TSQ','FREE','REAL',LTSQ,NAMX**2)
       CALL GETMEM('TMP','FREE','REAL',LTMP,NAMX**2)
 
-      CALL QEXIT('TRANSDREF')
 
       RETURN
       END

@@ -14,7 +14,6 @@
 #include "timtra.fh"
 #include "WrkSpc.fh"
 *
-*     Call QEnter('SavTim')
       if(nfld_tim.eq.0) return
       If (iFld.gt.nfld_tim) Then
          Call WarningMessage(2,'SavTim: iFld.gt.nfld_tim')
@@ -25,7 +24,6 @@
       iad=iGATim+myrank*nFld_Tim*2+iFld-1
       Work(iad)=Work(iad)+TCPU
       Work(iad+nFld_Tim)=Work(iad+nFld_Tim)+TWall
-*     Call QExit('SavTim')
       Return
       End
       SubRoutine SavStat(iFld,Value,op)
@@ -35,7 +33,6 @@
 #include "timtra.fh"
 #include "WrkSpc.fh"
 *
-*     Call QEnter('SavStat')
       if(nfld_stat.eq.0) return
       If (iFld.gt.nfld_Stat) Then
          Call WarningMessage(2,'SavStat: iFld.gt.nfld_stat')
@@ -51,6 +48,5 @@
       else if(op.eq.'=') then
         Work(iad)=Value
       end if
-*     Call QExit('SavStat')
       Return
       End

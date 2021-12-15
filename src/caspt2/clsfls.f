@@ -28,7 +28,6 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "output.fh"
-      Call qEnter('ClsFls')
       Call DaClos(LUCIEX)
 * PAM08
 *      Call DaClos(LUMORB)
@@ -60,6 +59,5 @@
 *----------------------------------------------------------------------*
 *     Exit                                                             *
 *----------------------------------------------------------------------*
-      Call qExit('ClsFls')
       Return
       End

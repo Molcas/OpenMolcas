@@ -16,11 +16,6 @@
 * Object: to assemble the diamagnetic shielding integrals from         *
 *         electric field integrals.                                    *
 *                                                                      *
-* Called from: DMSInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             February '91                                             *
@@ -41,7 +36,6 @@
 *
       iRout = 231
       iPrint = nPrint(iRout)
-      Call qEnter('Util4 ')
 *
       BD(1) = Bcoor(1) - Dcoor(1)
       BD(2) = Bcoor(2) - Dcoor(2)
@@ -131,6 +125,5 @@
  300      Continue
       End If
 *
-      Call qExit('Util4 ')
       Return
       End

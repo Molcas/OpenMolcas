@@ -140,7 +140,6 @@
 #endif
 #include "para_info.fh"
 #include "print.fh"
-      Parameter (MxShll=iTabMx*MxAtom)
       Integer iBDsh(MxShll*8)
       Common /BDshell/ iBDsh
 
@@ -193,7 +192,7 @@ ctbp &                      i + (j-1)*(nChOrb_(iSym,jDen)+1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 c      Debug=.true.
       Debug=.false.! to avoid double printing
 #else
@@ -209,7 +208,6 @@ c      Debug=.true.
       iRout = 9
       iPrint = nPrint(iRout)
 
-      Call QEnter(SECNAM)
 
       CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 
@@ -719,7 +717,6 @@ c            !set index arrays at iLoc
                WRITE(6,*) ' mTvec = ',mTvec
                WRITE(6,*) ' LFMAX = ',LFMAX
                irc = 33
-               CALL QTrace()
                CALL Abend()
                nBatch = -9999  ! dummy assignment
             End If
@@ -1834,7 +1831,6 @@ C--- have performed screening in the meanwhile
 
       irc  = 0
 
-      CAll QExit(SECNAM)
 
       Return
       END

@@ -13,7 +13,7 @@
       Use, Intrinsic :: IEEE_Exceptions
 #endif
       implicit none
-      Character(20) Module_Name
+      Character(Len=20) Module_Name
       Parameter (Module_Name = 'caspt2')
       Integer ireturn
 #ifdef _FPE_TRAP_

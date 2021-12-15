@@ -13,14 +13,6 @@
       SubRoutine CmbnKEr(Rnr,qC,Di,nZeta,la,lb,Zeta,Final,nComp,Alpha,
      &                   nAlpha,Beta,nBeta)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: KnEInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Kurt Pfingst                                             *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
@@ -40,7 +32,6 @@
 *
       iRout = 134
       iPrint = nPrint(iRout)
-*     Call QEnter('CmbnKEr')
 *     Call GetMem(' Enter CmbnKE','LIST','REAL',iDum,iDum)
 *
       iComp = 1
@@ -223,6 +214,5 @@
 ************************************************************************
 *
 *     Call GetMem(' Exit CmbnKE','LIST','REAL',iDum,iDum)
-*     Call QExit('CmbnKE')
       Return
       End

@@ -19,7 +19,7 @@
       integer :: natoms,nh,nsym,nstates,nconfs,
      $           dyn_dsetid,surf_dsetid,wfn_fileid,ii
       real*8, allocatable :: coord(:,:), ener(:), ciarray(:)
-      character(LENIN), allocatable :: atomlbl(:)
+      character(len=LENIN), allocatable :: atomlbl(:)
       logical :: found
       complex*16, allocatable :: amatrix(:)
 

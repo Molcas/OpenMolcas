@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
 #include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "constants2.fh"
 #include "qmmm.fh"
 #include "WrkSpc.fh"

@@ -35,7 +35,6 @@
          Call OPNMCK(irc,iopt,FNMCK,LUMCK)
          If (irc.ne.0) Then
             Write (6,*) 'StPert: Error opening MCKINT'
-            Call QTrace
             Call Abend()
          End If
          irc=-1
@@ -47,7 +46,6 @@
          If (irc.ne.0) Then
              Write (6,*) 'StPert: Error writing to MCKINT'
              Write (6,'(A,A)') 'MckLbl=',MckLbl
-            Call QTrace
             Call Abend()
          End If
          irc=-1
@@ -57,7 +55,6 @@
          If (irc.ne.0) Then
              Write (6,*) 'StPert: Error writing to MCKINT'
              Write (6,'(A,A)') 'MckLbl=',MckLbl
-            Call QTrace
             Call Abend()
          End If
          irc=-1
@@ -67,7 +64,6 @@
          If (irc.ne.0) Then
              Write (6,*) 'StPert: Error writing to MCKINT'
              Write (6,'(A,A)') 'MckLbl=',MckLbl
-            Call QTrace
             Call Abend()
          End If
          irc=-1
@@ -77,7 +73,6 @@
          If (irc.ne.0) Then
              Write (6,*) 'StPert: Error writing to MCKINT'
              Write (6,'(A,A)') 'MckLbl=',MckLbl
-            Call QTrace
             Call Abend()
          End If
          irc=-1
@@ -87,7 +82,6 @@
          If (irc.ne.0) Then
              Write (6,*) 'StPert: Error writing to MCKINT'
              Write (6,'(A,A)') 'MckLbl=',MckLbl
-            Call QTrace
             Call Abend()
          End If
          irc=-1
@@ -97,7 +91,6 @@
          If (irc.ne.0) Then
              Write (6,*) 'StPert: Error writing to MCKINT'
              Write (6,'(A,A)') 'MckLbl=',MckLbl
-            Call QTrace
             Call Abend()
          End If
          irc=-1
@@ -107,7 +100,6 @@
          If (irc.ne.0) Then
              Write (6,*) 'StPert: Error writing to MCKINT'
              Write (6,'(A,A)') 'MckLbl=',MckLbl
-            Call QTrace
             Call Abend()
          End If
          irc=-1
@@ -117,7 +109,6 @@
          If (irc.ne.0) Then
              Write (6,*) 'StPert: Error writing to MCKINT'
              Write (6,'(A,A)') 'MckLbl=',MckLbl
-            Call QTrace
             Call Abend()
          End If
          irc=-1
@@ -127,7 +118,6 @@
          If (irc.ne.0) Then
              Write (6,*) 'StPert: Error writing to MCKINT'
              Write (6,'(A,A)') 'MckLbl=',MckLbl
-            Call QTrace
             Call Abend()
          End If
          irc=-1
@@ -137,7 +127,6 @@
          If (irc.ne.0) Then
              Write (6,*) 'StPert: Error writing to MCKINT'
              Write (6,'(A,A)') 'MckLbl=',MckLbl
-            Call QTrace
             Call Abend()
          End If
       End If

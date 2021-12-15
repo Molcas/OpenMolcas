@@ -11,30 +11,10 @@
 * Copyright (C) 1990,1991,1993, Roland Lindh                           *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine Input_Seward(lOPTO,Info,DInf,nDInf)
+      SubRoutine Input_Seward(lOPTO)
 ************************************************************************
 *                                                                      *
 *     Object: to read the input to the integral package.               *
-*                                                                      *
-*                                                                      *
-* Called from: Seward                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RdCtl                                                   *
-*              ChTab                                                   *
-*              GeoNew                                                  *
-*              DCopy    (ESSL)                                         *
-*              SOCtl                                                   *
-*              Sphere                                                  *
-*              Nrmlz                                                   *
-*              Dstncs                                                  *
-*              Angles                                                  *
-*              Dihedr                                                  *
-*              CoW                                                     *
-*              RigRot                                                  *
-*              RdMx                                                    *
-*              DrvN0                                                   *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             January '90                                              *
@@ -42,12 +22,15 @@
 *             January '91 additional input for property calculations.  *
 *             October '93 split up to RdCtl and SoCtl.                 *
 ************************************************************************
+      use Sizes_of_Seward, only: S
+      use Basis_Info, only: nBas
+      use Temporary_Parameters, only: Test, PrPrt, Primitive_Pass
+      use Logical_Info, only: Do_GuessOrb
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "real.fh"
 #include "SysDef.fh"
-#include "lundio.fh"
 #include "print.fh"
 #include "stdalloc.fh"
       Parameter (nMamn=MaxBfn+MaxBfn_Aux)
@@ -56,12 +39,10 @@
       Logical Reduce_Prt
       External Reduce_Prt
       Save Show_Save
-      Real*8 DInf(nDInf)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       iRout=2
-      Call qEnter('Input ')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -102,21 +83,18 @@
 *                                                                      *
 *     Start of output, collect all output to this routine!
 *
-      Call Gen_RelPointers(-(Info-1))
-      If (Show) Call Output1_Seward(lOPTO,Info,DInf,nDInf)
+      If (Show) Call Output1_Seward(lOPTO)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *-----Generate the SO or AO basis set
 *
       Call mma_allocate(Mamn,nMamn,label='Mamn')
-      Call SOCtl_Seward(Mamn,nMamn,DInf,nDInf,Info)
-      Call Gen_RelPointers(Info-1)
+      Call SOCtl_Seward(Mamn,nMamn)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       If (Test) Then
-         Call qExit('Input ')
          Return
       End If
 *                                                                      *
@@ -126,16 +104,13 @@
 *
       If (Primitive_Pass) Then
          Call Put_iArray('nBas_Prim',nBas,nIrrep)
-         Call Gen_RelPointers(-(Info-1))
-         Call Info2Runfile(DInf,nDInf)
-         Call Gen_RelPointers(Info-1)
+         Call Info2Runfile()
       End If
-      Call Put_cArray('Unique Basis Names',Mamn(1),(LENIN8)*nDim)
+      Call Put_cArray('Unique Basis Names',Mamn(1),(LENIN8)*S%nDim)
       Call Put_iArray('nBas',nBas,nIrrep)
       Call mma_deallocate(Mamn)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('Input ')
       Return
       End

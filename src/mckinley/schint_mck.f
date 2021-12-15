@@ -21,19 +21,6 @@
 *         prescreening. This is done for all unique pairs of centers   *
 *         generated from the symmetry unique centers A and B.          *
 *                                                                      *
-* Called from: k2loop                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy   (ESSL)                                          *
-*              DoZeta                                                  *
-*              Rys                                                     *
-*              GetMem                                                  *
-*              RecPrt                                                  *
-*              Hrr                                                     *
-*              CrSph1                                                  *
-*              CrSph2                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -47,8 +34,6 @@
 *     External TERISq, ModU2, Cff2Dq
       External TERIS, ModU2, Cff2DS,rys2d
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
       Real*8  CoorM(3,4), CoorAC(3,2),
      &       Zeta(nZeta), ZInv(nZeta), rKapab(nZeta), P(nZeta,3),

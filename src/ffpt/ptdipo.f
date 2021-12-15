@@ -36,14 +36,12 @@
 *                                                                      *
 *----------------------------------------------------------------------*
 *
-      Call qEnter('PTDIPO')
 *
       Exec=.false.
       Exec=Exec.or.ComStk(2,1,1,1)
       Exec=Exec.or.ComStk(2,1,1,2)
       Exec=Exec.or.ComStk(2,1,1,3)
       If ( .not.Exec ) then
-         Call qExit ('PTDIPO')
          Return
       End If
 *
@@ -82,7 +80,6 @@
 *     Normal Exit                                                      *
 *----------------------------------------------------------------------*
 *
-      Call qExit ('PTDIPO')
       Return
 c Avoid unused argument warnings
       If (.False.) Then
@@ -96,6 +93,5 @@ c Avoid unused argument warnings
 *
 991   Write (6,*) 'PtDipi: Error reading ONEINT'
       Write (6,'(A,A)') 'Label=',Label
-      Call QTrace
       Call Abend()
       End

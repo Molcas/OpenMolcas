@@ -34,7 +34,6 @@ C the same for all the root states.
       INTEGER IDCI,LCI1,LCI2
       REAL*8 OVL,DUMMY(1)
 
-      CALL QENTER('HEFVAL')
 C We evaluate the effective Hamiltonian matrix element in two steps.
 
       NTG1=NASHT**2
@@ -83,6 +82,5 @@ C Read root vectors nr. IST and JST from LUCI.
       CALL GETMEM('TG2','FREE','REAL',LTG2,NTG2)
       CALL GETMEM('TG3','FREE','REAL',LTG3,NTG3)
 
-      CALL QEXIT('HEFVAL')
       RETURN
       END

@@ -18,12 +18,11 @@
 #include "Molcas.fh"
       Character*2 Element(MxAtom*8)
 *
-      Call QEnter('Freq_Molden')
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Freq',' ',Freq,1,nFreq)
       Call RecPrt('Intens',' ',Intens,1,nFreq)
       Call RecPrt('Vectors',' ',Vectors,1,nVectors)
@@ -40,7 +39,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Write (Lu_9,*) '[MOLDEN FORMAT]'
+      Write (Lu_9,*) '[Molden Format]'
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -64,7 +63,7 @@
       Call Get_nAtoms_All(nCoord)
       Call Allocate_Work(ipCoord,3*nCoord)
       Call Get_Coord_All(Work(ipCoord),nCoord)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Coord(all)',' ',Work(ipCoord),3,nCoord)
 #endif
       Call Get_Name_All(Element)
@@ -91,7 +90,7 @@
       Call Get_NMode_All(Vectors,nVectors,nFreq,nUnique_Atoms,
      &                   Work(ipNMode),nAll_Atoms,mDisp)
       Write (Lu_9,*) '[FR-NORM-COORD]'
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Normal Modes',' ',Work(ipNMode),3*nAll_Atoms,nFreq)
 #endif
       ipTemp=ipNMode
@@ -117,6 +116,5 @@
 
 
       Close(Lu_9)
-      Call QExit('Freq_Molden')
       Return
       End

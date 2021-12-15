@@ -10,14 +10,14 @@
 ************************************************************************
       Subroutine Torsion_List(
      &                 nq,
-     &                 nAtoms,iIter,nIter,Cx,iOper,nSym,jStab,
+     &                 nAtoms,iIter,nIter,Cx,jStab,
      &                 nStab,nDim,Smmtrc,Process,Value,
      &                 nB,iANr,qLbl,iRef,
-     &                 fconst,rMult,LuIC,Name,Indq,iPrv,
-     &                 Proc_dB,
+     &                 fconst,rMult,LuIC,Name,Indq,iPrv,Proc_dB,
      &                 iTabBonds,nBonds,iTabAI,mAtoms,iTabAtoms,nMax,
      &                 mB_Tot,mdB_Tot,
      &                 BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,nqB)
+      use Symmetry_Info, only: nIrrep, iOper
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
@@ -26,8 +26,8 @@
      &       fconst(nB), Value(nB,nIter),
      &       Ref(3,4), Prv(3,4), rMult(nB), Grad_ref(9),
      &       BM(nB_Tot), dBM(ndB_Tot)
-      Integer   nStab(nAtoms), iOper(0:nSym-1), iANr(nAtoms),
-     &          iDCRR(0:7), jStab(0:7,nAtoms), iPhase(3,0:7),
+      Integer   nStab(nAtoms), iANr(nAtoms),
+     &          iDCRR(0:7), jStab(0:7,nAtoms),
      &          iStabM(0:7), Ind(4), iDCR(4), iDCRT(0:7),
      &          iDCRS(0:7), iStabN(0:7), iStabO(0:7), iChOp(0:7),
      &          Indq(3,nB), iDCRX(0:7), iDCRY(0:7), nqB(nB),
@@ -44,8 +44,6 @@
 #define _FMIN_
 #include "ddvdt.fh"
 #include "ddvdt_trsn.fh"
-      Data iPhase/ 1, 1, 1,   -1, 1, 1,   1,-1, 1,  -1,-1, 1,
-     &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       Data ChOp/'E  ','X  ','Y  ','XY ','Z  ','XZ ','YZ ','XYZ'/
       Data iChOp/1,1,1,2,1,2,2,3/
       Data f_Const_Min2/1.0D-1/
@@ -53,18 +51,17 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
       If (nBonds.lt.3) Return
       iRout=152
       iPrint=nPrint(iRout)
-      Call QEnter('Trsns')
       nqT=0
       PSPrint=.False.
       Call FZero(Hess,144)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iPrint=99
       If (iPrint.ge.99) PSPrint=.True.
 #endif
@@ -92,7 +89,7 @@
 *
 *        The center bond may be a "magic" bond
          iBondType=iTabBonds(3,iBond)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (6,*)
          Write (6,*) 'iBond,iBondType=',iBond,iBondType
 #endif
@@ -133,7 +130,7 @@
             iDCR(3) = iTabAI(2,kAtom_)
             If (R_Stab_A(iDCR(3),jStab(0,kAtom),nStab(kAtom)))
      &          iDCR(3)=iOper(0)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*)
             Write (6,*) 'R,T=',Name(jAtom),ChOp(iDCR(2)),
      &                         Name(kAtom),ChOp(iDCR(3))
@@ -152,7 +149,7 @@
             If ( nCoBond_j.lt.2.and.nFgBond_j.eq.0) Go To 250
             If ( nCoBond_k.lt.2.and.nFgBond_k.eq.0) Go To 250
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*) 'nNeighbor_j,nNeighbor_k=',
      &                   nNeighbor_j,nNeighbor_k
 #endif
@@ -166,7 +163,7 @@
             jBond  = iTabAtoms(2,iNeighbor,jAtom_)
             If (jBond.eq.iBond) Go To 301
             jBondType=iTabBonds(3,jBond)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*) 'jBond,jBondType=',jBond,jBondType
 #endif
             If (jBondType.eq.vdW_Bond   .or.
@@ -200,7 +197,7 @@
             If (R_Stab_A(iDCR(3),jStab(0,iAtom),nStab(iAtom)) .and.
      &          R_Stab_A(iDCR(3),jStab(0,jAtom),nStab(jAtom)) .and.
      &          iDCR(3).ne.iOper(0)) Go To 301
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*)
             Write (6,*) 'E=',Name(iAtom),ChOp(iDCR(1))
 #endif
@@ -211,26 +208,20 @@
 *
 *---------- Form double coset representatives for (iAtom,jAtom)
 *
-            Call DCR(Lambda,iOper,nSym,
+            Call DCR(Lambda,
      &               jStab(0,iAtom),nStab(iAtom),
      &               jStab(0,jAtom),nStab(jAtom),
      &               iDCRR,nDCRR)
             kDCRR=iDCR(2)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,'(10A)') 'R={',(ChOp(iDCRR(i)),
      &                            i=0,nDCRR-1),'}  '
             Write (6,'(2A)') 'R=',ChOp(kDCRR)
 #endif
-            A(1,2)   = DBLE(iPhase(1,kDCRR))*Cx(1,jAtom,iIter)
-            A(2,2)   = DBLE(iPhase(2,kDCRR))*Cx(2,jAtom,iIter)
-            A(3,2)   = DBLE(iPhase(3,kDCRR))*Cx(3,jAtom,iIter)
-            Ref(1,2) = DBLE(iPhase(1,kDCRR))*Cx(1,jAtom,iRef)
-            Ref(2,2) = DBLE(iPhase(2,kDCRR))*Cx(2,jAtom,iRef)
-            Ref(3,2) = DBLE(iPhase(3,kDCRR))*Cx(3,jAtom,iRef)
-            Prv(1,2) = DBLE(iPhase(1,kDCRR))*Cx(1,jAtom,iPrv)
-            Prv(2,2) = DBLE(iPhase(2,kDCRR))*Cx(2,jAtom,iPrv)
-            Prv(3,2) = DBLE(iPhase(3,kDCRR))*Cx(3,jAtom,iPrv)
-#ifdef _DEBUG_
+            Call OA(kDCRR,Cx(1:3,jAtom,iIter),  A(1:3,2))
+            Call OA(kDCRR,Cx(1:3,jAtom,iRef ),Ref(1:3,2))
+            Call OA(kDCRR,Cx(1:3,jAtom,iPrv ),Prv(1:3,2))
+#ifdef _DEBUGPRINT_
             Write (6,'(10A)') 'U={',(ChOp(jStab(i,iAtom)),
      &                         i=0,nStab(iAtom)-1),'}  '
             Write (6,'(10A)') 'V={',(ChOp(jStab(i,jAtom)),
@@ -242,7 +233,7 @@
             Call Inter(jStab(0,iAtom),nStab(iAtom),
      &                 jStab(0,jAtom),nStab(jAtom),
      &                 iStabM,nStabM)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             If (PSPrint) Then
                Write (6,'(10A)') 'M={',
      &               (ChOp(iStabM(i)),i=0,nStabM-1),'}  '
@@ -287,7 +278,7 @@
                If (kBond.eq.iBond) Go To 401
                If (lAtom_.eq.iAtom_) Go To 401
                kBondType=iTabBonds(3,kBond)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (6,*) 'kBond,kBondType=',kBond,kBondType
 #endif
                If (kBondType.eq.vdW_Bond    .or.
@@ -304,7 +295,7 @@
                kDCRT= iDCR(3)
                kDCRTS=iDCR(4)
                kDCRS=iEor(kDCRTS,kDCRT)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write (6,*) 'i,j,k,l=',
      &               Name(iAtom),ChOp(iDCR(1)),
      &               Name(jAtom),ChOp(iDCR(2)),
@@ -333,7 +324,7 @@
                If (nE.lt.mE) Go To 401
                If (nE.eq.mE .and. iAtom.gt.lAtom) Go To 401
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write (6,*)
                Write (6,*) 'TS=',Name(lAtom),ChOp(iDCR(4))
 #endif
@@ -342,18 +333,18 @@
 *
                Write (Label,'(A,I2,A,I2,A,I2,A,I2,A)')
      &                'D(',iAtom,',',jAtom,',',kAtom,',',lAtom,')'
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write (6,'(A,I2,A,I2,A,I2,A,I2,A)')
      &                'D(',iAtom,',',jAtom,',',kAtom,',',lAtom,')'
 #endif
 *
 *------------- Form double coset representatives for (kAtom,lAtom)
 *
-               Call DCR(Lambda,iOper,nSym,
+               Call DCR(Lambda,
      &                  jStab(0,kAtom),nStab(kAtom),
      &                  jStab(0,lAtom),nStab(lAtom),
      &                  iDCRS,nDCRS)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write (6,'(10A)') 'S={',(ChOp(iDCRS(i)),
      &                            i=0,nDCRS-1),'}  '
                Write (6,'(10A)') 'W={',(ChOp(jStab(i,kAtom)),
@@ -363,18 +354,10 @@
                Write (6,'(2A)') 'S=',ChOp(kDCRS)
 #endif
 *
-               Ref(1,3) = Cx(1,kAtom,iRef)
-               Ref(2,3) = Cx(2,kAtom,iRef)
-               Ref(3,3) = Cx(3,kAtom,iRef)
-               Ref(1,4) = DBLE(iPhase(1,kDCRS))*Cx(1,lAtom,iRef)
-               Ref(2,4) = DBLE(iPhase(2,kDCRS))*Cx(2,lAtom,iRef)
-               Ref(3,4) = DBLE(iPhase(3,kDCRS))*Cx(3,lAtom,iRef)
-               Prv(1,3) = Cx(1,kAtom,iPrv)
-               Prv(2,3) = Cx(2,kAtom,iPrv)
-               Prv(3,3) = Cx(3,kAtom,iPrv)
-               Prv(1,4) = DBLE(iPhase(1,kDCRS))*Cx(1,lAtom,iPrv)
-               Prv(2,4) = DBLE(iPhase(2,kDCRS))*Cx(2,lAtom,iPrv)
-               Prv(3,4) = DBLE(iPhase(3,kDCRS))*Cx(3,lAtom,iPrv)
+               Ref(1:3,3) = Cx(1:3,kAtom,iRef)
+               Call OA(kDCRS,Cx(1:3,lAtom,iRef),Ref(1:3,4))
+               Prv(1:3,3) = Cx(1:3,kAtom,iPrv)
+               Call OA(kDCRS,Cx(1:3,lAtom,iPrv),Prv(1:3,4))
 *
                If (Help) Then
                   rkl2=(Ref(1,3)-Ref(1,4))**2
@@ -396,7 +379,7 @@
      &                    jStab(0,lAtom),nStab(lAtom),
      &                    iStabN,nStabN)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                If (PSPrint) Then
                   Write (6,'(10A)') 'N={',
      &                  (ChOp(iStabN(i)),i=0,nStabN-1),'}  '
@@ -406,7 +389,7 @@
 *------------- Form double coset representatives for
 *              ((iAtom,jAtom),(kAtom,lAtom))
 *
-               Call DCR(Lambda,iOper,nSym,
+               Call DCR(Lambda,
      &                  iSTabM,nStabM,
      &                  iStabN,nStabN,
      &                  iDCRT,nDCRT)
@@ -429,7 +412,7 @@
      &                       kDCRS,iDCRT,nDCRT)
                End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write (6,'(10A)') 'T={',
      &               (ChOp(iDCRT(i)),i=0,nDCRT-1),'}  '
 #endif
@@ -438,24 +421,12 @@
                kDCRTS=iEor(kDCRT,kDCRS)
 *
                If (PSPrint) Write (6,'(2A)') 'T=',ChOp(kDCRT)
-               A(1,3)   = DBLE(iPhase(1,kDCRT ))*Cx(1,kAtom,iIter)
-               A(2,3)   = DBLE(iPhase(2,kDCRT ))*Cx(2,kAtom,iIter)
-               A(3,3)   = DBLE(iPhase(3,kDCRT ))*Cx(3,kAtom,iIter)
-               Ref(1,3) = DBLE(iPhase(1,kDCRT ))*Cx(1,kAtom,iRef)
-               Ref(2,3) = DBLE(iPhase(2,kDCRT ))*Cx(2,kAtom,iRef)
-               Ref(3,3) = DBLE(iPhase(3,kDCRT ))*Cx(3,kAtom,iRef)
-               Prv(1,3) = DBLE(iPhase(1,kDCRT ))*Cx(1,kAtom,iPrv)
-               Prv(2,3) = DBLE(iPhase(2,kDCRT ))*Cx(2,kAtom,iPrv)
-               Prv(3,3) = DBLE(iPhase(3,kDCRT ))*Cx(3,kAtom,iPrv)
-               A(1,4)   = DBLE(iPhase(1,kDCRTS))*Cx(1,lAtom,iIter)
-               A(2,4)   = DBLE(iPhase(2,kDCRTS))*Cx(2,lAtom,iIter)
-               A(3,4)   = DBLE(iPhase(3,kDCRTS))*Cx(3,lAtom,iIter)
-               Ref(1,4) = DBLE(iPhase(1,kDCRTS))*Cx(1,lAtom,iRef)
-               Ref(2,4) = DBLE(iPhase(2,kDCRTS))*Cx(2,lAtom,iRef)
-               Ref(3,4) = DBLE(iPhase(3,kDCRTS))*Cx(3,lAtom,iRef)
-               Prv(1,4) = DBLE(iPhase(1,kDCRTS))*Cx(1,lAtom,iPrv)
-               Prv(2,4) = DBLE(iPhase(2,kDCRTS))*Cx(2,lAtom,iPrv)
-               Prv(3,4) = DBLE(iPhase(3,kDCRTS))*Cx(3,lAtom,iPrv)
+               Call OA(kDCRT ,Cx(1:3,kAtom,iIter),  A(1:3,3))
+               Call OA(kDCRT ,Cx(1:3,kAtom,iRef ),Ref(1:3,3))
+               Call OA(kDCRT ,Cx(1:3,kAtom,iPrv ),Prv(1:3,3))
+               Call OA(kDCRTS,Cx(1:3,lAtom,iIter),  A(1:3,4))
+               Call OA(kDCRTS,Cx(1:3,lAtom,iRef ),Ref(1:3,4))
+               Call OA(kDCRTS,Cx(1:3,lAtom,iPrv ),Prv(1:3,4))
 *
 *------------- Form the stabilizer for the torsion
 *
@@ -470,7 +441,7 @@
      &                       iStabO,nStabO)
                End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                If (PSPrint) Then
                   Write (6,'(10A)') 'M={',
      &                  (ChOp(iStabM(i)),i=0,nStabM-1),'}  '
@@ -483,7 +454,7 @@
 *
 *------------- Compute the degeneracy of the torsion
 *
-               iDeg=nSym/nStabO
+               iDeg=nIrrep/nStabO
                Deg=Sqrt(DBLE(iDeg))
 *
 *------------- Test if coordinate should be included
@@ -547,20 +518,15 @@
 *
                mCent=3
                delta = (15.0D0/180.D0)*Pi
-               Call Bend(Ref(1,1),mCent,Fi2,Grad_ref,
-     &                   .False.,
+               If (nAtoms.eq.4) delta = -Ten
+               Call Bend(Ref(1,1),mCent,Fi2,Grad_ref,.False.,
      &                   .False.,'        ',Hess,.False.)
-               Call Bend(A(1,1),mCent,Fi2_a,Grad,.False.,
+               If (Fi2.gt.Pi-delta) Go To 401
+               If (Fi2.lt.delta) Go To 401
+               Call Bend(Ref(1,2),mCent,Fi3,Grad_ref,.False.,
      &                   .False.,'        ',Hess,.False.)
-               If (Fi2.gt.Pi-delta.and.nAtoms.ne.4) Go To 401
-               If (Fi2.lt.delta.and.nAtoms.ne.4) Go To 401
-               Call Bend(Ref(1,2),mCent,Fi3,Grad_ref,
-     &                   .False.,
-     &                   .False.,'        ',Hess,.False.)
-               Call Bend(A(1,2),mCent,Fi3_a,Grad,.False.,
-     &                   .False.,'        ',Hess,.False.)
-               If (Fi3.gt.Pi-delta.and.nAtoms.ne.4) Go To 401
-               If (Fi3.lt.delta.and.nAtoms.ne.4) Go To 401
+               If (Fi3.gt.Pi-delta) Go To 401
+               If (Fi3.lt.delta) Go To 401
 *              Write (6,*) ' T Force Constant:',f_Const
 *
                nq = nq + 1
@@ -611,7 +577,7 @@
      &                ' ',Lbls(2)(iF2:iE2),
      &                ' ',Lbls(3)(iF3:iE3),
      &                ' ',Lbls(4)(iF4:iE4)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write (6,'(A,I3.3,8A)')
      &                't',nqT,' = Dihedral ',
      &                    Lbls(1)(iF1:iE1),
@@ -650,7 +616,7 @@
                      Val=Val-Pi
                   End If
                End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                If (PSPrint) Then
                   Call RecPrt('Trsns:  B',' ',Grad,3,4)
                   Call RecPrt('Trsns: dB',' ',Hess,12,12)
@@ -678,6 +644,13 @@
                   End If
                   fconst(nq)=Sqrt(f_Const)
                   rMult(nq)=Deg
+*                 Scale down fconst if angles are close to linear
+                  CosFi=Max(Abs(Cos(Fi2)),Abs(Cos(Fi3)))
+                  CosThr=0.97D0
+                  If (CosFi.gt.CosThr) Then
+                    CosFi=(CosFi-CosThr)/(One-CosThr)
+                    fconst(nq)=(One-CosFi**2)*fconst(nq)
+                  End If
 *
                   Value(nq,iIter)=Val
                   qLbl(nq) = Label
@@ -701,13 +674,12 @@
          End Do                  ! iCase
   201    Continue
       End Do                     ! iBonds
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'nqT=',nqT
 #endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit ('Trsns')
       Return
       End
       Function Torsion_Check(iAtom,jAtom,kAtom,lAtom,Ref,iTabAtoms,

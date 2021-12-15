@@ -13,7 +13,6 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       IMPLICIT REAL*8 (a-h,o-z)
       INTEGER Task(nTasks)
 *
-      CALL qEnter('ReadIn')
 C
 C     Copy input from standard input to a local scratch file
 C
@@ -22,18 +21,17 @@ C
 C
 C     Read input
 C
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,*)' Dynamix calls RdInp_Dynamix.'
 #endif
       CALL RdInp_Dynamix(LuSpool,Task,nTasks,mTasks)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,*)' Dynamix back from RdInp_Dynamix.'
 #endif
 C
 C     Remove local copy of standard input
 C
       CLOSE(LuSpool)
-      CALL qExit('ReadIn')
 *
       RETURN
 *

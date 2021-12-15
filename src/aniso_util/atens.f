@@ -38,7 +38,6 @@ c local variables
       Complex (kind=8) :: AC_TENS(3,3), trace
       External          :: dznrm2, FindDetR, trace
 
-      Call qEnter('atens')
 
       dnorm=0.0_wp
       dnorm =  dznrm2(3*dim*dim, moment, 1 )
@@ -273,7 +272,6 @@ c     &                                      (maxes(j,3),j=1,3),'|'
       End If
 
  199  Continue
-      Call qExit('atens')
 
       Return
       End Subroutine atens

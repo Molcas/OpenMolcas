@@ -10,31 +10,13 @@
 *                                                                      *
 * Copyright (C) 1993, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine PrjGrd_mck(Alpha,nAlpha,Beta, nBeta,
-     &                  Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,la,lb,A,RB,nHer,
-     &                  Array,nArr,Ccoor,nOrdOp,
-     &                  IfGrad,IndGrd,nop,
-     &                  loper,iu,iv,nrop,idcar,idcnt,
-     &                  iStabM,nStabM,ldum)
+      SubRoutine PrjGrd_mck(
+#define _CALLING_
+#include "grd_mck_interface.fh"
+     &                     )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of ECP integrals.         *
-*                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              ZXia                                                    *
-*              SetUp1                                                  *
-*              Mlt1                                                    *
-*              DGeTMO  (ESSL)                                          *
-*              DGEMM_  (ESSL)                                          *
-*              DScal   (ESSL)                                          *
-*              DGEMM_  (ESSL)                                          *
-*              GetMem                                                  *
-*              QExit                                                   *
 *                                                                      *
 *      Alpha : exponents of bra gaussians                              *
 *      nAlpha: number of primitives (exponents) of bra gaussians       *
@@ -62,27 +44,26 @@
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden, and Per Boussard, Dept. of Theoretical  *
-*             Physics, University of Stockholm, Sweden, October '93.   *
+*             Physics, University of Stockholm, Sweden, October 1993.  *
 ************************************************************************
+      use Basis_Info
+      use Center_Info
       use Real_Spherical
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"
 
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nrop),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3),
-     &       Array(nZeta*nArr), Ccoor(3), C(3), TC(3)
-      Integer iStabM(0:nStabM-1), iDCRT(0:7), lOper,
-     &          iuvwx(4), nOp(2), mOp(4),index(3,4),
-     &          indgrd(0:7), JndGrd(3,4,0:7)
-      Logical IfGrad(3,2), JfGrad(3,4), EQ,
-     &        DiffCnt,tr(4),ifg(4),ifhess_dum(3,4,3,4)
-      Dimension Dum(1)
+#include "grd_mck_interface.fh"
+
+*     Local variables
+      Real*8 C(3), TC(3)
+      Integer iDCRT(0:7), iuvwx(4), mOp(4), index(3,4), JndGrd(3,4,0:7)
+      Logical JfGrad(3,4), EQ, DiffCnt,tr(4),ifg(4),ifhess_dum(3,4,3,4)
+      Real*8 Dum(1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -114,20 +95,19 @@
 
       kdc = 0
       Do 1960 kCnttp = 1, nCnttp
-         If (.Not.ECP(kCnttp)) Go To 1961
-         If (nSRO_Shells(kCnttp).le.0) Go To 1961
+         If (.Not.dbsc(kCnttp)%ECP) Go To 1961
+         If (dbsc(kCnttp)%nSRO.le.0) Go To 1961
 
-         Do 1965 kCnt = 1,nCntr(kCnttp)
+         Do 1965 kCnt = 1,dbsc(kCnttp)%nCntr
             If ((.not.DiffCnt).and.((kdc+kCnt).ne.iDCnt)) Goto 1965
 
-            ixyz = ipCntr(kCnttp) + (kCnt-1)*3
-            call dcopy_(3,Work(ixyz),1,C,1)
+            C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 *
-            Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               jStab(0,kdc+kCnt),nStab(kdc+kCnt),iDCRT,nDCRT)
+            Call DCR(LmbdT,iStabM,nStabM,
+     &               dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
-            iuvwx(3) = nStab(kdc+kCnt)
-            iuvwx(4) = nStab(kdc+kCnt)
+            iuvwx(3) = dc(kdc+kCnt)%nStab
+            iuvwx(4) = dc(kdc+kCnt)%nStab
 
             Call LCopy(12,[.false.],0,JFgrad,1)
             Call LCopy(4 ,[.false.],0,iFg,1)
@@ -160,25 +140,24 @@
 *
          Do 1967 lDCRT = 0, nDCRT-1
 
-            mop(3)=nropr(iDCRT(lDCRT),ioper,nirrep)
+            mop(3)=nropr(iDCRT(lDCRT))
             mop(4)=mop(3)
-            TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-            TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-            TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+            Call OA(iDCRT(lDCRT),C,TC)
 
             If (EQ(A,RB).and.EQ(A,TC)) Go To 1967
 
-            Do 1966 iAng = 0, nPrj_Shells(kCnttp)-1
-               iShll = ipPrj(kCnttp) + iAng
-
+            Do 1966 iAng = 0, dbsc(kCnttp)%nPrj-1
+               iShll = dbsc(kCnttp)%iPrj + iAng
+               nExpi=Shells(iShll)%nExp
+               nBasisi=Shells(iShll)%nBasis
                If (iPrint.ge.49) Then
-                  Write (6,*) 'nExp(iShll)=',nExp(iShll)
-                  Write (6,*) 'nBasis(iShll)=',nBasis(iShll)
+                  Write (6,*) 'nExp(iShll)=',nExpi
+                  Write (6,*) 'nBasisi=',nBasisi
                   Write (6,*) ' iAng=',iAng
                   Call RecPrt('TC',' ',TC,1,3)
                End If
 
-               If (nExp(iShll).eq.0 .or. nBasis(iShll).eq.0) Go To 1966
+               If (nExpi.eq.0 .or. nBasisi.eq.0) Go To 1966
 *
                ip=1
 
@@ -186,10 +165,10 @@
                ip=ip+nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2*6
 
                ipFA1 = ip
-               ip = ip + nAlpha*nExp(iShll)*nElem(la)*nElem(iAng)*4
+               ip = ip + nAlpha*nExpi*nElem(la)*nElem(iAng)*4
 
                ipFB1 = ip
-               ip = ip + nExp(iShll)*nBeta*nElem(iAng)*nElem(lb)*4
+               ip = ip + nExpi*nBeta*nElem(iAng)*nElem(lb)*4
 
                ipFB2 = ip
                ipFA2 = ip
@@ -218,7 +197,7 @@
 
 
                call  CmbnACB1(Array(ipFA1),Array(ipFB1),Array(ipFin),
-     &                        Fact,nAlpha,nBeta,Dum,nBasis(ishll),
+     &                        Fact,nAlpha,nBeta,Dum,nBasisi,
      &                        la,lb,iang,jfgrad,Dum,.false.,
      &                        index,mvec,idcar)
 
@@ -233,7 +212,7 @@
  1967    Continue
  1965    Continue
  1961    Continue
-         kdc = kdc + nCntr(kCnttp)
+         kdc = kdc + dbsc(kCnttp)%nCntr
  1960 Continue
 *
       Return
@@ -244,6 +223,6 @@ c Avoid unused argument warnings
          Call Unused_real_array(rKappa)
          Call Unused_integer(nHer)
          Call Unused_real_array(Ccoor)
-         Call Unused_integer(ldum)
+         Call Unused_logical_array(Trans)
       End If
       End

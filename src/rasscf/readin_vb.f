@@ -177,7 +177,6 @@ CSVC: check if NU<NT are included in the same gas space
 *     read one integer and later one real
       Character*72 Line
 
-      Call QENTER(ROUTINE)
       iStart=1
       Do While ( Line(iStart:iStart).eq.' ')
          iStart=iStart+1

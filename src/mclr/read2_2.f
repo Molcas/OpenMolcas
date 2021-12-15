@@ -81,7 +81,6 @@
 *     ib           ij jp bp
 *
 *
-      Call QEnter('Read2_2')
       If (jspin.eq.1) Then
         Triplet=.true.
         Singlet=.false.
@@ -633,7 +632,6 @@
 *
 *
 
-      Call QExit('Read2_2')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

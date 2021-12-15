@@ -33,12 +33,10 @@
          If ( iRc.ne.0 ) Then
             Write (6,*) 'Read_h0: Error reading ONEINT'
             Write (6,'(A,A)') 'Label=',Label
-            Call QTrace()
             Call Abend()
          End If
          If (nInts(1)+4.ne.nSize) Then
             Write (6,*) 'Local_Polar: nInts+4.ne.nSize',nInts(1)+4,nSize
-            Call QTrace
             Call Abend()
          End If
          iRc=-1

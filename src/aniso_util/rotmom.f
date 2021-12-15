@@ -22,7 +22,6 @@ c  local variables
       Integer :: i,j,l,k
       Complex(kind=8) :: RC(3,3)
 
-      Call qEnter('rotmom')
 c rotate the matrix
 
       Call zcopy_(3*N*N,[(0.0_wp,0.0_wp)],0,MOMR,1)
@@ -44,7 +43,6 @@ c rotate the matrix
          End Do
       End Do
 
-      Call qExit('rotmom')
       Return
       End
 c------------------------------------------------------------------------
@@ -60,7 +58,6 @@ c  local variables
       Integer i,j,l,k
       Complex(kind=8) :: RC(3,3)
 
-      Call qEnter('rotmom2')
 c rotate the matrix
       Call zcopy_(3*N*N,[(0.0_wp,0.0_wp)],0,MOMR,1)
 
@@ -81,7 +78,6 @@ c rotate the matrix
          End Do
       End Do
 
-      Call qExit('rotmom2')
       Return
       End
 

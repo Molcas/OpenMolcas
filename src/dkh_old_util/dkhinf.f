@@ -1244,7 +1244,7 @@ c
 #ifdef _MOLCAS_
       Integer IsFreeUnit
 #endif
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       character*(3) dkh_int2char
 #endif
       real*8 coeff
@@ -1306,7 +1306,7 @@ c
           call mat_zero (scr1(1,1,poss(idum1)),nbas)
         end if
         if (order(3).gt.Max(dkhorder,xorder+1)) then
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           write (stdout,1040) i,dkh_int2char(idum1)
 1040      format (15X,I3,2X,'S',A3,' is not required here; thus skip ',
      *            'it.')
@@ -1356,7 +1356,7 @@ CMR        write(*,*) "S : scr1(1,1,poss(idum1))=",work(iscr)
 CMR        write(*,*) "S : scr1(1,1,poss(idum1))=",scr1(1,1,poss(idum1))
         end if
 c
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         write (stdout,1060) i,dkh_int2char(idum1)
 1060    format (15X,I3,2X,'S',A3,' has now been completed.')
 #endif

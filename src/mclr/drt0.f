@@ -19,7 +19,6 @@ C
       DIMENSION DA(0:3),DB(0:3),DC(0:3)
       DATA DA /0,0,1,1/, DB /0,1,-1,0/, DC /1,0,1,0/
 C
-*     Call qEnter('Drt0_MCLR')
 C
 C     SET UP TOP ROW
 C
@@ -110,7 +109,6 @@ C
         DRT(VERT,NTAB)=2*DRT(VERT,ATAB)+DRT(VERT,BTAB)
 130   CONTINUE
 C
-*     Call qExit ('Drt0_MCLR')
 C
 C     EXIT
 C

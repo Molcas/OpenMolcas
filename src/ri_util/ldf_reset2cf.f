@@ -94,7 +94,7 @@ C
                End If
             End If
          End Do
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          If (n2CF.ne.M2_new) Then
             Call WarningMessage(2,'LDF_Reset2CF: n2CF != M2_new')
             Call LDF_Quit(1)

@@ -63,7 +63,6 @@ c     PARAMETER   (conv=-CONV_AU_TO_KJ_PER_MOLE_/Angstrom)
 
 *
       IF(IPRINT.EQ.INSANE) WRITE(6,*)' Entering ',ROUTINE
-      CALL QENTER(ROUTINE)
 
       WRITE(6,*)'*** Second step of the Velocity Verlet algorithm ***'
 
@@ -292,6 +291,5 @@ C
 C     The return code is set in order to continue the loop
 C
       irc=_RC_ALL_IS_WELL_
-      CALL qExit(ROUTINE)
       RETURN
       END

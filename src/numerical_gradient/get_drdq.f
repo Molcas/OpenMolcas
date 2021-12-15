@@ -52,7 +52,7 @@
      &                Work(ipBMx),nLambda,nsAtom,iRow_c,
      &                Work(ipValue),Work(ipcInt),Work(ipcInt0),
      &                Lbl,AtomLbl,Work(ipCoor_l),
-     &                lWrite,nSym,iOper,jStab,nStab,mxdc,
+     &                lWrite,jStab,nStab,mxdc,
      &                Work(ipMult),Smmtrc,nDimBC,Work(ipdBMx),
      &                Work(ipValue0),Iter,iWork(ip_iFlip),
      &                Work(ipCM))

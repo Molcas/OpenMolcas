@@ -19,8 +19,8 @@
       Return
       End
       Subroutine Mk_iSO2Ind_(iSO2Sh,iSO2Ind,nSO,nTemp,nShell)
-#include "itmax.fh"
-#include "info.fh"
+      use Basis_Info, only: nBas_Aux
+      use Symmetry_Info, only: nIrrep
       Integer iSO2Sh(nSO), iSO2Ind(nSO), nTemp(nShell)
 *
       iSO = 0

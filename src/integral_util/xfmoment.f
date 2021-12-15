@@ -22,11 +22,10 @@
 *              November 2004                                           *
 ************************************************************************
       use External_Centers
+      use Phase_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 
       Real*8 Cavxyz(nCavxyz_),Tmom(nCavxyz_),Org(3)
 
@@ -44,20 +43,11 @@
 *
 *------------- Generate Stabilizer of C
 *
-         If (nIrrep.eq.8) Then
-            nOper=3
-         Else If (nIrrep.eq.4) Then
-            nOper=2
-         Else If (nIrrep.eq.2) Then
-            nOper=1
-         Else
-            nOper=0
-         End If
 ! IFG: "A" was undefined, is this the right point?
          A(1:3)=XF(1:3,i)
-         iChxyz=iChAtm(A,iOper,nOper,iChBas(2))
+         iChxyz=iChAtm(A)
          iDum=0
-         Call Stblz(iChxyz,iOper,nIrrep,nStb,iStb,iDum,jCoSet)
+         Call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
          Do j = 0, nIrrep/nStb - 1
             Call FZero(Tmom,nCavxyz_)
             call dcopy_(nInp,XF(4,i),1,Tmom,1)

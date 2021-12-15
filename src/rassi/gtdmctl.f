@@ -89,7 +89,6 @@ CC    NTO section
 #endif
 #include "SysDef.fh"
 
-      CALL QENTER(ROUTINE)
 #define _TIME_GTDM
 #ifdef _TIME_GTDM_
       Call CWTime(TCpu1,TWall1)
@@ -1293,6 +1292,5 @@ C             Write density 1-matrices in AO basis to disk.
       write(6,*) 'Time for GTDM : ',TCpu2-TCpu1,TWall2-TWall1
 #endif
 
-      CALL QEXIT(ROUTINE)
       RETURN
       END

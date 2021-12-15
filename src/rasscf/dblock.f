@@ -22,7 +22,6 @@ C
 #include "rasscf.fh"
 #include "general.fh"
       DIMENSION D(*)
-C     CALL QENTER('DBLOCK')
 C
       IA=NASH(1)
       NTU=ITRI(IA+1)
@@ -40,6 +39,5 @@ C
 10    CONTINUE
       END DO
 C
-C     CALL QEXIT('DBLOCK')
       RETURN
       END

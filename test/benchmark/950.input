@@ -4,17 +4,17 @@
 * Symmetry: d2h
 * Features tested: SEWARD(CONVENTIONAL),SCF,MBPT2(FC),ALASKA(ANALYTICAL)
 * Responsible person: Victor P. Vysotskiy
-* Comments: SP calculation of analytical gradients at the MBPT2(FC)/cc-pVTZ 
-*           level of theory. The MBPT2(FC) optimized geometry is used. Thus, 
-*           computed gradients must be negligible small (virtually zero) and 
-*           'slapaf' must report that the geometry is already converged. 
+* Comments: SP calculation of analytical gradients at the MBPT2(FC)/cc-pVTZ
+*           level of theory. The MBPT2(FC) optimized geometry is used. Thus,
+*           computed gradients must be negligible small (virtually zero) and
+*           'slapaf' must report that the geometry is already converged.
 *-------------------------------------------------------------------------------
  &SEWARD &END
 Title
 Benzene, cc-pVTZ basis set
 NoPack
-Symmetry 
-X Y Z 
+Symmetry
+X Y Z
 Basis set
 H.cc-pVTZ
 H1  -2.14349516    1.23754751    0.00000000 Angstrom

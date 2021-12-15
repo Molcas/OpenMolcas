@@ -121,9 +121,8 @@
         end function
 
         subroutine abort_(message)
-          character(*), intent(in) :: message
+          character(len=*), intent(in) :: message
           call WarningMessage(2, message)
-          call QTrace()
           call Abend()
         end subroutine
       end module blockdiagonal_matrices

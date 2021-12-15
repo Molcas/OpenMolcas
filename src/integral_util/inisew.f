@@ -10,23 +10,13 @@
 *                                                                      *
 * Copyright (C) 1999, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine IniSew(Info,DSCF,nDiff)
+      SubRoutine IniSew(DSCF,nDiff)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Chemical Physics,                 *
 *             University of Lund, SWEDEN                               *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "nsd.fh"
 #include "setup.fh"
 #include "status.fh"
@@ -38,9 +28,9 @@
          Call xRlsMem_Ints()
       End If
 *
-      Call Seward_Init
+      Call Seward_Init()
 *
-      Call GetInf(Info,nInfo,DSCF,nDiff,1)
+      Call GetInf(DSCF,nDiff)
 *
       Return
       End

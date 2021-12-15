@@ -46,7 +46,7 @@ End of input
 >> FILE StartOrb
 #INPORB 1.1
 #INFO
-* RASSCF average (pseudo-natural) orbitals                                      
+* RASSCF average (pseudo-natural) orbitals
        0       1
       48
       48

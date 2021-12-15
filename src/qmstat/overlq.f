@@ -60,7 +60,6 @@
 *----------------------------------------------------------------------*
 * Prepare some numbers for later.                                      *
 *----------------------------------------------------------------------*
-      Call Qenter('OverLQ')
       ind=0
       nSpecific1=iQ1*(iQ1+1)/2 !Remember that each base consist of
       nSpecific2=iQ2*(iQ2+1)/2 !many functions - this is how many.
@@ -242,7 +241,6 @@
 *----------------------------------------------------------------------*
       Call GetMem('PrimCar','Free','Real',iPpS,nSizeCart)
       Call GetMem('PrimSph','Free','Real',iPsphS,nSizeSph)
-      Call Qexit('OverLQ')
 
       Return
       End

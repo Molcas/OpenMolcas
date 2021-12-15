@@ -22,7 +22,6 @@
 *
 *-- Enter.
 *
-      Call QEnter('BoostRep')
 *
 *-- Common section.
 *
@@ -77,7 +76,6 @@
 *
       If(InCutOff) AddRep=1D+20
 
-      Call QExit('BoostRep')
 
       Return
       End

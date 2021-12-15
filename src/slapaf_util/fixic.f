@@ -15,7 +15,6 @@
       Real*8 SS(mInt), B(nDim*mInt), F(nDim), u(nDim)
       Character*8 Label(mInt)
 *
-      Call qEnter('Fixic')
 *
 *     write out the internal coordinates which will be fixed
 *
@@ -60,6 +59,5 @@
       Call GetMem('uB','Free','Real',ipuB,mInt*nDim)
       Call GetMem('uInv','Free','Real',ipuInv,nDim**2)
 *
-      Call qExit('Fixic')
       Return
       End

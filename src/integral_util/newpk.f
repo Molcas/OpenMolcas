@@ -13,14 +13,8 @@
 ************************************************************************
       SubRoutine NewPK(A,B,P,mZeta,nZeta,rKappa,Alpha,Beta)
 ************************************************************************
+*                                                                      *
 * Object : to compute P and kappa.                                     *
-*                                                                      *
-* Called from: k2Loop                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
@@ -39,7 +33,6 @@
 *
       iRout = 243
       iPrint = nPrint(iRout)
-*     Call qEnter('NewPK')
 *
       If (iPrint.ge.99) Then
          Call RecPrt(' In NewPK:Alpha',' ',Alpha,mZeta,1)
@@ -70,6 +63,5 @@
          Call RecPrt(' In NewPK: Px',' ',P(1,3),mZeta,1)
       End If
 *
-*     Call qExit('NewPK')
       Return
       End

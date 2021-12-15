@@ -16,11 +16,6 @@
 * Object: to assemble the Vp integrals from                            *
 *         derivative integrals of the electric potential.              *
 *                                                                      *
-* Called from: VpInt                                                   *
-*                                                                      *
-* Calling    : qEnter                                                  *
-*              qExit                                                   *
-*                                                                      *
 *     Author: Bernd Hess, Institut fuer Physikalische und Theoretische *
 *             Chemie, University of Bonn, Germany, August 1994         *
 ************************************************************************
@@ -40,7 +35,6 @@
 *
       iRout = 203
       iPrint = nPrint(iRout)
-      Call qEnter('util8 ')
 *
 *
       If (iPrint.ge.99) Then
@@ -132,6 +126,5 @@
 380          Continue
       End If
 *
-      Call qExit('util8 ')
       Return
       End

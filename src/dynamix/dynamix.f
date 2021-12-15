@@ -40,17 +40,16 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       REAL*8, ALLOCATABLE ::    Mass(:),vel(:),pcoo(:,:)
 
 *
-      CALL QEnter('Dynamix')
       iReturn=99
 *
 C
 C     Initialize Dynamix and set default values
 C
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,*)' Dynamix calls Init_Dynamix.'
 #endif
       Call Init_Dynamix
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,*)' Dynamix back from Init_Dynamix.'
 #endif
 C
@@ -60,11 +59,11 @@ C
 #ifdef _HDF5_
       call cre_dyn
 #endif
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,*)' Dynamix calls Readin_Dynamix.'
 #endif
       CALL Readin_Dynamix(Task,nTasks,mTasks)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,*)' Dynamix back from Readin_Dynamix.'
 #endif
 C
@@ -247,11 +246,11 @@ C
 
             IF (Found) THEN
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,*)' Dynamix calls VelVer_Second.'
 #endif
                CALL VelVer_Second(irc)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,*)' Dynamix back from VelVer_Second.'
 #endif
 C
@@ -300,22 +299,22 @@ C
                   Close(LuInput)
                   Call Finish(_RC_INVOKED_OTHER_MODULE_)
                ELSE
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,*)' Dynamix calls VelVer_First.'
 #endif
                   CALL VelVer_First(irc)
                END IF
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,*)' Dynamix back from VelVer_First.'
 #endif
             ELSE
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,*)' Dynamix calls VelVer_First.'
 #endif
 
                CALL VelVer_First(irc)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,*)' Dynamix back from VelVer_First.'
 #endif
             END IF
@@ -333,7 +332,6 @@ C
 
          ELSE
             WRITE(6,*) 'Illegal task'
-            CALL QTrace()
             CALL Abend()
          END IF
       END DO
@@ -374,7 +372,6 @@ C
       Else
          iReturn=irc
       End If
-      CALL QExit('Dynamix')
       RETURN
 *
       END

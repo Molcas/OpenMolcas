@@ -39,7 +39,6 @@
       ij(i,j,lda)= (j-1)*lda + i
       iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 *
-      Call QEnter('C2DIIS')
       iRout = 121
       iPrint = nPrint(iRout)
 *
@@ -350,6 +349,5 @@
 *
       Call Free_Work(ipA)
 *
-      Call QExit('C2DIIS')
       Return
       End

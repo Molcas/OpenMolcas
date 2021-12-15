@@ -22,7 +22,6 @@
 
 
 
-      CALL QENTER(ROUTINE)
 
       NLEV=NASHT
 C Allocate Level to Symmetry table ISm:
@@ -141,6 +140,5 @@ C Put sizes and addresses in structure iSGStruct:
       iSGStruct(11)=lMAW
       iSGStruct(12)=lLTV
 
-      CALL QEXIT(ROUTINE)
       return
       end

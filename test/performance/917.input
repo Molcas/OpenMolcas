@@ -4,10 +4,10 @@
 * Symmetry: c1
 * Features tested: SEWARD(CONVENTIONAL),SCF,MBPT2(FC),ALASKA(ANALYTICAL)
 * Responsible person: Victor P. Vysotskiy
-* Comments: SP calculation of analytical gradients at the MBPT2(FC)/cc-pVDZ 
-*           level of theory. The MBPT2(FC) optimized geometry is used. Thus, 
-*           computed gradients must be negligible small (virtually zero) and 
-*           'slapaf' must report that the geometry is already converged. 
+* Comments: SP calculation of analytical gradients at the MBPT2(FC)/cc-pVDZ
+*           level of theory. The MBPT2(FC) optimized geometry is used. Thus,
+*           computed gradients must be negligible small (virtually zero) and
+*           'slapaf' must report that the geometry is already converged.
 *-------------------------------------------------------------------------------
 
 >>export MOLCAS_MOLDEN=OFF
@@ -49,7 +49,7 @@ End of input
 &MBPT2 &END
 Grdt
 Frozen
-6 
+6
 End of input
 *-------------------------------------------------------------------------------
 &ALASKA

@@ -35,7 +35,7 @@ C
 
       Integer  LDF_nShell_Atom
       External LDF_nShell_Atom
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Logical  LDF_AtomPairInfoIsSet
       External LDF_AtomPairInfoIsSet
       Integer  LDF_AtomPair_DiagDim, LDF_nBasAux_Pair
@@ -66,7 +66,7 @@ C
          Call LDF_Quit(1)
       End If
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       ! Check
       If (.not.LDF_AtomPairInfoIsSet()) Then
          Call WarningMessage(2,SecNam//': atom pair info not set')

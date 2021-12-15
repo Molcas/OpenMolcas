@@ -17,13 +17,6 @@
 * Object: to compute intermediate integrals for the evaluation of the  *
 *          mass velocity integrals.                                    *
 *                                                                      *
-* Called from: MVeInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 *                                                                      *
@@ -41,7 +34,6 @@
 *
       iRout = 192
       iPrint = nPrint(iRout)
-      Call qEnter('MVe')
 *
       If (iPrint.ge.99) Then
          Call RecPrt(' In MVe: Alpha',' ',Alpha,nZeta,1)
@@ -137,6 +129,5 @@
       End If
 *
 *     Call GetMem(' Exit MVe   ','CHECK','REAL',iDum,iDum)
-      Call qExit('MVe ')
       Return
       End

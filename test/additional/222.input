@@ -1,4 +1,4 @@
-*This is a clone of test 084 
+*This is a clone of test 084
 *
  &SEWARD &END
  NoCD
@@ -54,11 +54,11 @@ End of input
 >> FILE StartOrb
 #INPORB 1.0
 #INFO
-* SCF orbitals                                                                  
+* SCF orbitals
   0 4
    18 12 7 4
    18 12 7 4
-#ORB   
+#ORB
 * ORBITAL    1    1
 0.233489855528E-03-.721338353902E-040.132059086108E-04-.965728674784E-04
 0.919575746129E-050.236058385287E-070.106188405617E-060.999989693748E+00
@@ -275,12 +275,12 @@ I222
 22SS
 SSSS
 SSSS
-SS  
+SS
 22SS
 SSSS
 SSSS
 2SSS
-SSS 
+SSS
 SSSS
 >> EOF
 

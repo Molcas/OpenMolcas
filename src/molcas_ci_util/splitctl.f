@@ -50,7 +50,6 @@
 #include "strnum.fh"
 #include "timers.fh"
 
-      Call qEnter('SplitCTL')
 
       IPRLEV=IPRLOC(3)
 
@@ -609,7 +608,6 @@ C        CALL GETMEM('IPCNF','FREE','INTE',LG1,NCNASM(LSYM))
         write(6,*) 'CPU timing : ', CSplitTot2 - CSplitTot1
         write(6,*) 'W. timing  : ', WSplitTot2 - WSplitTot1
       end if
-      Call qExit('SplitCTL')
 
       Return
 

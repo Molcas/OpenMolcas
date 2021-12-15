@@ -64,7 +64,6 @@
 
       Character Buf(*)
 
-      If ( Query ) Call qEnter('bDaFile')
 
       If ( Trace ) then
         Write (6,*) ' >>> Enter bDaFile <<<'
@@ -103,6 +102,5 @@ C*     Dummy write. No I/O is made. Disk address is updated.
 
 1100  Continue
       If ( Trace ) Write (6,*) ' >>> Exit bDaFile <<<'
-      If ( Query ) Call qExit('bDaFile')
       Return
       End

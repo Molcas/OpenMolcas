@@ -16,11 +16,6 @@
 *                                                                      *
 * Object: to assemble the gradients of the ERI's.                      *
 *                                                                      *
-* Called from: Rysg2                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Anders Bernhardsson                                      *
 *             Dept. of Theoretical Chemistry,                          *
 *             University of Lund, SWEDEN                               *
@@ -48,11 +43,11 @@ c#include "print.fh"
      &                            ((iCent-1)*3+iCar)/2+
      &                             (jCent-1)*3+jCar
 *
-*define _DEBUG_
+*define _DEBUGPRINT_
 c     iRout = 248
 c     iPrint = nPrint(iRout)
       call dcopy_(78,[Zero],0,g2,1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Assg2: g2(0)',' ',g2,1,78)
 #endif
       ii = la*(la+1)*(la+2)/6
@@ -131,7 +126,7 @@ c     iPrint = nPrint(iRout)
   94       Continue
   95      Continue
   90     Continue
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Assg2: g2 non-diagonal',' ',g2,1,78)
 #endif
 *
@@ -185,7 +180,7 @@ c     iPrint = nPrint(iRout)
             End If
  210       Continue
  200     Continue
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Assg2: g2 full',' ',g2,1,78)
 #endif
 *

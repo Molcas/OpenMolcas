@@ -19,9 +19,6 @@ C
 C
 *
       Implicit Real*8(a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 #include "real.fh"
 CBS   Logical jfhess(3,3,2,2)   ! now same dimensions as in prjhss.f
       Logical jfhess(3,3,4,4)

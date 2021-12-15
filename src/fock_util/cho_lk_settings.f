@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2013, Thomas Bondo Pedersen                            *
 ************************************************************************
-C#define _DEBUG_
+C#define _DEBUGPRINT_
       Real*8 Function Cho_LK_ScreeningThreshold(delta)
 C
 C     Thomas Bondo Pedersen, May 2013.
@@ -33,7 +33,7 @@ C
          thr=thr*delta
       End If
       Cho_LK_ScreeningThreshold=max(thr,1.0d-15)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Write(6,'(1P,4(A,D15.6))')
      & 'ThrCom=',ThrCom,' thr0=',thr0,' delta=',delta,
      & ' Cho_LK_ScreeningThreshold=',Cho_LK_ScreeningThreshold
@@ -54,7 +54,7 @@ C     (nearly) independent of available memory.
 C
       Implicit None
       Cho_LK_MaxVecPerBatch=25
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Write(6,'(A,I10)')
      & 'Cho_LK_MaxVecPerBatch=',Cho_LK_MaxVecPerBatch
 #endif

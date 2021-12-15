@@ -75,7 +75,7 @@ C     ----------------------------------------------
      &                            iSym,iV+1)
             iV = iV + nRead
          End Do
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          If (iV .ne. nV) Then
             Call Cho_Quit('Logical error in '//SecNam,103)
          End If

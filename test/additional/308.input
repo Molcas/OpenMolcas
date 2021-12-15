@@ -12,28 +12,28 @@ NOGUessorb
 Basis set
 C.aug-cc-pVDZ........
 
-C1 0.337280 0.141260 -2.424100 Angstrom 
+C1 0.337280 0.141260 -2.424100 Angstrom
 End of Basis
 Basis set
 N.aug-cc-pVDZ........
 
-N1 -0.586450 -0.123360 -1.320230 Angstrom 
+N1 -0.586450 -0.123360 -1.320230 Angstrom
 End of Basis
 Basis set
 H.aug-cc-pVDZ........
 
-H1 1.006520 0.954050 -2.140180 Angstrom 
-H2 0.954620 -0.714030 -2.722130 Angstrom 
-H3 -0.224090 0.473940 -3.297760 Angstrom 
-H4 -1.206110 -0.884470 -1.568880 Angstrom 
-H5 -0.065320 -0.425530 -0.501800 Angstrom 
+H1 1.006520 0.954050 -2.140180 Angstrom
+H2 0.954620 -0.714030 -2.722130 Angstrom
+H3 -0.224090 0.473940 -3.297760 Angstrom
+H4 -1.206110 -0.884470 -1.568880 Angstrom
+H5 -0.065320 -0.425530 -0.501800 Angstrom
 End of Basis
 End of input
 
  &GUESSORB &END
 STHR
 1.0d-13
-End of Input 
+End of Input
 
  &SCF &END
 Title

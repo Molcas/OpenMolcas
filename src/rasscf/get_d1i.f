@@ -45,7 +45,6 @@
       real*8, parameter :: Zero = 0.0d0, Two = 2.0d0
       integer :: ista, iSym, nb, nbsq, nfi
 
-      Call qEnter('Get_D1I')
 
       ista=1
       do isym=1,nsym
@@ -62,7 +61,6 @@
         end if
       end do
 
-      Call qExit('Get_D1I')
 
       Return
       End

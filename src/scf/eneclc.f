@@ -58,7 +58,7 @@
 * Start                                                                *
 *----------------------------------------------------------------------*
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
-*define _DEBUG_
+*define _DEBUGPRINT_
 *
 * Allocate memory for full Dens and TwoHam
 *
@@ -126,7 +126,7 @@ c set to Zero for RHF
 #ifdef __SUNPRO_F90
       If (iUHF.gt.3) Write (6,*) 'eneclc: Ene=',En1V,En1V_ab,En2V,EnerV
 #endif
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'eneclc: Ene=',En1V,En1V_ab,En2V,EnerV
 #endif
       Call Timing(Cpu2,Tim1,Tim2,Tim3)

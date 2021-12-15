@@ -20,7 +20,7 @@
 #include "SysDef.fh"
 #include "intgrl.fh"
 #include "eqsolv.fh"
-      CHARACTER(50)  STLNE2
+      CHARACTER(LEN=50)  STLNE2
 C     timers
       REAL*8 CPU0,CPU1,CPU,
      &       TIO0,TIO1,TIO
@@ -28,7 +28,6 @@ C     indices
       INTEGER I,J,IFTEST
       ! INTEGER IDCI
 
-      CALL QENTER('STINI')
       Write(STLNE2,'(A,I4)')
      &                ' Compute H0 matrices for state ',MSTATE(JSTATE)
       Call StatusLine('CASPT2: ',trim(STLNE2))
@@ -85,7 +84,6 @@ C     indices
        WRITE(6,'(A)')' H0 matrices have been computed.'
        WRITE(6,*)
       ENDIF
-      CALL QEXIT('STINI')
 
       RETURN
       END

@@ -30,7 +30,6 @@ C
 
       MulD2h(k,l)=iEor(k-1,l-1)+1
 
-      Call qEnter(ThisNm)
       irc = 0
 
 C     Initialization.
@@ -59,6 +58,5 @@ C     ------------------------
             kD0 = kD0 + nMoMo(iSym,iVecType)
          End Do
 
-      Call qExit(ThisNm)
       Return
       End

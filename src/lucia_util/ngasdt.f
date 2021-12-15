@@ -44,7 +44,6 @@
 *. block types
       DIMENSION IBLTP(*)
 *
-      CALL QENTER('NGASD')
       NTEST = 0
       IF(NTEST.GE.5) THEN
         WRITE(6,*) ' NGASDT speaking'
@@ -120,7 +119,6 @@
      &               NCOMB,XNCOMB,NTTSBL
       END IF
 *
-      CALL QEXIT('NGASD')
 *
       RETURN
       END

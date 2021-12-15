@@ -15,10 +15,11 @@
 *      and MO for RASSCF, this will hopefully be changed, but if you
 *      see this mess before that I apologize
 *
+      use Basis_Info, only: nBas
       use pso_stuff
+      use Symmetry_Info, only: nIrrep, iOper
       Implicit Real*8 (a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "buffer.fh"
 #include "etwas.fh"
 #include "WrkSpc.fh"
@@ -46,7 +47,7 @@
       nna=0
       ipCC=1
       Do jIrrep=0,nIrrep-1
-         kIrrep=NrOpr(iEOr(iOper(jIrrep),iOper(iIrrep)),iOper,nIrrep)
+         kIrrep=NrOpr(iEOr(iOper(jIrrep),iOper(iIrrep)))
          If (kIrrep.lt.jIrrep) Then
             ip(jIrrep)=nIn
             nIn=nIN+nBas(kIrrep)*nBas(jIrrep)
@@ -90,7 +91,7 @@
          Write (6,*)
       End If
       Do jIrrep=0,nIrrep-1
-         kIrrep=NrOpr(iEOr(iOper(jIrrep),iOper(iIrrep)),iOper,nIrrep)
+         kIrrep=NrOpr(iEOr(iOper(jIrrep),iOper(iIrrep)))
          If (nBAs(jIrrep).gt.0.and.nbas(kIrrep).gt.0) Then
             If (kIrrep.lt.jIrrep) Then
                Call DGEMM_('N','N',
@@ -161,7 +162,7 @@
             Write (6,*)
          End If
          Do jIrrep=0,nIrrep-1
-            kIrrep=NrOpr(iEOr(iOper(jIrrep),iOper(iIrrep)),iOper,nIrrep)
+            kIrrep=NrOpr(iEOr(iOper(jIrrep),iOper(iIrrep)))
             If (nBas(jIrrep).gt.0.and.nBas(kIrrep).gt.0) Then
                If (kIrrep.eq.jIrrep) Then
                   Call Square(rIn(ipDisp2(jDisp)+ip(jIrrep)),Work(ipX),
@@ -210,7 +211,7 @@
          End If
          iii=0
          Do jIrrep=0,nIrrep-1
-            kIrrep=NrOpr(iEOr(iOper(jIrrep),iOper(iIrrep)),iOper,nIrrep)
+            kIrrep=NrOpr(iEOr(iOper(jIrrep),iOper(iIrrep)))
 *
             If (nBas(jIrrep)*nIsh(kIrrep).gt.0) Then
                Call DaXpY_(nIsh(kIrrep)*nBas(jIrrep),2.0d0,
@@ -274,7 +275,6 @@
          If (iRc.ne.0) Then
             Write (6,*) 'WrDisk: Error writing to MCKINT'
             Write (6,'(A,A)') 'Label=',Label
-            Call QTrace
             Call Abend()
          End If
          If (Show) Then
@@ -289,7 +289,6 @@
          If (iRc.ne.0) Then
             Write (6,*) 'WrDisk: Error writing to MCKINT'
             Write (6,'(A,A)') 'Label=',Label
-            Call QTrace
             Call Abend()
          End If
          If (Show) Then
@@ -307,7 +306,6 @@
          If (iRc.ne.0) Then
             Write (6,*) 'WrDisk: Error writing to MCKINT'
             Write (6,'(A,A)') 'Label=',Label
-            Call QTrace
             Call Abend()
          End If
 *                                                                      *
@@ -326,7 +324,6 @@
          If (iRc.ne.0) Then
             Write (6,*) 'WrDisk: Error writing to MCKINT'
             Write (6,'(A,A)') 'Label=',Label
-            Call QTrace
             Call Abend()
          End If
          If (Show) Then

@@ -9,15 +9,15 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine DrvPCM(h1,TwoHam,D,RepNuc,nh1,First,Dff,NonEq)
+      use Basis_Info
+      use Center_Info
       use PCM_arrays, only: PCMTess, PCMDM
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       Real*8 h1(nh1), TwoHam(nh1), D(nh1)
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
 #include "rctfld.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       Logical First, Dff, NonEq
       Real*8, Allocatable:: Cord(:,:), Chrg(:), PCM_charge(:,:),
@@ -26,19 +26,6 @@
 *
       iRout = 1
       iPrint = nPrint(iRout)
-      Call QEnter('DrvPCM')
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Get the total 1st order AO density matrix
-*
-*     (unused?)
-      Call Get_D1ao(ipD1ao,nDens)
-      If (nDens.ne.nh1) Then
-         Call WarningMessage(2,'DrvPCM: nDens.ne.nh1')
-         Write (6,*) nDens,nh1
-         Call Abend()
-      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -54,26 +41,17 @@
       ndc = 0
       nc = 1
       Do jCnttp = 1, nCnttp
-         Z = Charge(jCnttp)
-         mCnt = nCntr(jCnttp)
-         If (AuxCnttp(jCnttp)) mCnt = 0
-         jxyz = ipCntr(jCnttp)
+         Z = dbsc(jCnttp)%Charge
+         mCnt = dbsc(jCnttp)%nCntr
+         If (dbsc(jCnttp)%Aux) mCnt = 0
          Do jCnt = 1, mCnt
             ndc = ndc + 1
-            x1 = Work(jxyz)
-            y1 = Work(jxyz+1)
-            z1 = Work(jxyz+2)
-            Do i = 0, nIrrep/nStab(ndc) - 1
-               iFacx=iPhase(1,iCoset(i,0,ndc))
-               iFacy=iPhase(2,iCoset(i,0,ndc))
-               iFacz=iPhase(3,iCoset(i,0,ndc))
-               Cord(1,nc)  = x1*DBLE(iFacx)
-               Cord(2,nc)  = y1*DBLE(iFacy)
-               Cord(3,nc)  = z1*DBLE(iFacz)
+            Do i = 0, nIrrep/dc(ndc)%nStab - 1
+               Call OA(dc(ndc)%iCoSet(i,0),dbsc(jCnttp)%Coor(1:3,jCnt),
+     &                 Cord(1:3,nc))
                Chrg(nc)    = Z
                nc = nc + 1
             End Do
-            jxyz = jxyz + 3
          End Do
       End Do
 *                                                                      *
@@ -108,11 +86,9 @@
 *                                                                      *
       Call mma_deallocate(Chrg)
       Call mma_deallocate(Cord)
-      Call GetMem('D1ao','Free','Real',ipD1ao,nDens)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('DrvPCM')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_logical(Dff)

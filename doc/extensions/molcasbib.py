@@ -9,7 +9,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2015,2017,2019 Ignacio Fdez. Galván                    *
+# Copyright (C) 2015,2017,2019, Ignacio Fdez. Galván                   *
 #***********************************************************************
 
 ########################################################################
@@ -357,13 +357,13 @@ class MolcasStyle(UnsrtStyle):
     return template
 
   def format_doi(self, e):
-    return join [
-      'DOI: ',
-      href [
-        join [
-          'https://doi.org/',
-          field('doi')
-        ],
+    return href [
+      join [
+        'https://doi.org/',
+        field('doi')
+      ],
+      join [
+        'doi:',
         field('doi')
       ]
     ]

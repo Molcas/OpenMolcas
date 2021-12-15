@@ -77,8 +77,8 @@ CONTAINS
    SUBROUTINE fmm_init_buffer_stats(mode,W_mode)
 
       IMPLICIT NONE
-      CHARACTER(1), INTENT(IN)           :: mode
-      CHARACTER(7), OPTIONAL, INTENT(IN) :: W_mode
+      CHARACTER(LEN=1), INTENT(IN)           :: mode
+      CHARACTER(LEN=7), OPTIONAL, INTENT(IN) :: W_mode
 
       SELECT CASE (mode)
          CASE ('T')
@@ -119,8 +119,8 @@ CONTAINS
    SUBROUTINE fmm_init_matrix_stats(mode,W_mode)
 
       IMPLICIT NONE
-      CHARACTER(1), INTENT(IN)           :: mode
-      CHARACTER(7), OPTIONAL, INTENT(IN) :: W_mode
+      CHARACTER(LEN=1), INTENT(IN)           :: mode
+      CHARACTER(LEN=7), OPTIONAL, INTENT(IN) :: W_mode
 
       SELECT CASE (mode)
          CASE ('T')

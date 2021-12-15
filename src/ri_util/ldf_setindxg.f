@@ -220,7 +220,7 @@ C
             iWork(ip_IndxG2-1+maxAuxSP*(ijS-1)+ij)=k
          End Do
       End If
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (k.ne.M) Then
          Write(6,'(A,I8,1X,I8)') SecNam//': k,M=',k,M
          Call WarningMessage(2,SecNam//': G matrix dimension problem!')

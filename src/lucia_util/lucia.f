@@ -31,7 +31,6 @@
 #include "warnings.fh"
 *.Scratch : A character line
 *
-      CALL QENTER('REST ')
 *.    No floating point underflow
       CALL XUFLOW
 *. Assign diskunits
@@ -76,7 +75,6 @@ c       CALL STRINF_GAS(WORK,IPRSTR)
 c      IF(PNTGRP.GT.1) CALL MLSM(IREFSM,IREFPA,IREFSM,'CI',1)
       IF(NOINT.EQ.1) THEN
         WRITE(6,*) ' End of calculation without integrals'
-        CALL QSTAT(' ')
         CALL QUIT(_RC_ALL_IS_WELL_)
       END IF
 *
@@ -95,6 +93,5 @@ c         IF (ENVIRO(1:6).EQ.'RASSCF') THEN
 
       CALL GETMEM('VEC1  ','ALLO','REAL',KCI_POINTER,LBLOCK)
       CALL GETMEM('VEC2  ','ALLO','REAL',KSIGMA_POINTER,LBLOCK)
-      CALL QEXIT('REST ')
       RETURN
       END

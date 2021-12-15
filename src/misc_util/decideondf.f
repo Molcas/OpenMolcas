@@ -17,7 +17,7 @@
       Call Get_iScalar('System BitSwitch',iOption)
       DoDF=IAND(iOption,1024).eq.1024
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Write(6,*) '>>> Exit from DecideOnDF:'
       Write(6,*) '    System Bit Switch = ',iOption
       Write(6,*) '    DoDF = ',DoDF

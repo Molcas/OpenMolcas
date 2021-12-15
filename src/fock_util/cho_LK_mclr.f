@@ -110,14 +110,13 @@ C
 ************************************************************************
 
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 c      Debug=.true.
       Debug=.false.! to avoid double printing in CASSCF-debug
 #else
       Debug=.false.
 #endif
 
-      Call QEnter(SECNAM)
 
       timings=.false.
 *
@@ -2206,7 +2205,7 @@ C--- have performed screening in the meanwhile
 
 
 c Print the Fock-matrix
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 
       if(Debug) then !to avoid double printing in RASSI-debug
 
@@ -2228,7 +2227,6 @@ c Print the Fock-matrix
 #endif
       rc  = 0
 
-      CAll QExit(SECNAM)
 
       Return
 c Avoid unused argument warnings

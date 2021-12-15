@@ -9,24 +9,26 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine PCM_EF_grd(Grad,nGrad)
+      use Basis_Info
+      use Center_Info
       use PCM_arrays
+      use Temporary_Parameters, only: PrPrt
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       Real*8 Grad(nGrad)
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
 #include "rctfld.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-      Logical Save_tmp
+      Logical Save_tmp, Found
       Real*8 EF_Temp(3)
       Real*8, Allocatable :: Cord(:,:), Chrg(:), FactOp(:)
       Integer, Allocatable :: lOper(:)
+      Real*8, Allocatable:: D1ao(:)
 *
       iRout = 1
       iPrint = nPrint(iRout)
-      Call QEnter('PCM_EF_grd')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -53,26 +55,17 @@
       ndc = 0
       nc = 1
       Do jCnttp = 1, nCnttp
-         If (AuxCnttp(jCnttp)) Cycle
-         Z = Charge(jCnttp)
-         mCnt = nCntr(jCnttp)
-         jxyz = ipCntr(jCnttp)
+         If (dbsc(jCnttp)%Aux) Cycle
+         Z = dbsc(jCnttp)%Charge
+         mCnt = dbsc(jCnttp)%nCntr
          Do jCnt = 1, mCnt
             ndc = ndc + 1
-            x1 = Work(jxyz)
-            y1 = Work(jxyz+1)
-            z1 = Work(jxyz+2)
-            Do i = 0, nIrrep/nStab(ndc) - 1
-               iFacx=iPhase(1,iCoset(i,0,ndc))
-               iFacy=iPhase(2,iCoset(i,0,ndc))
-               iFacz=iPhase(3,iCoset(i,0,ndc))
-               Cord(1,nc) = x1*DBLE(iFacx)
-               Cord(2,nc) = y1*DBLE(iFacy)
-               Cord(3,nc) = z1*DBLE(iFacz)
+            Do i = 0, nIrrep/dc(ndc)%nStab - 1
+               Call OA(dc(ndc)%iCoSet(i,0),dbsc(jCnttp)%Coor(1:3,jCnt),
+     &                 Cord(1:3,nc))
                Chrg(nc) = Z
                nc = nc + 1
             End Do
-            jxyz = jxyz + 3
          End Do
       End Do
 *                                                                      *
@@ -104,19 +97,26 @@
 *
 *     Get the total 1st order AO density matrix
 *
-      Call Get_D1ao(ipD1ao,nDens)
+      Call Qpg_dArray('D1ao',Found,nDens)
+      If (Found .and. nDens/=0) Then
+         Call mma_allocate(D1ao,nDens,Label='D1ao')
+      Else
+         Write (6,*) 'pcm_ef_grd: D1ao not found.'
+         Call Abend()
+      End If
+      Call Get_D1ao(D1ao,nDens)
 *
       Call mma_allocate(FactOp,nTs)
       Call mma_allocate(lOper,nTs)
       Call DCopy_(nTs,[One],0,FactOp,1)
       Call ICopy(nTs,[255],0,lOper,1)
 *
-      Call Drv1_PCM(FactOp,nTs,Work(ipD1ao),nDens,
+      Call Drv1_PCM(FactOp,nTs,D1ao,nDens,
      &              PCMTess,lOper,Work(ip_EF),nOrdOp)
 *
       Call mma_deallocate(lOper)
       Call mma_deallocate(FactOp)
-      Call GetMem('D1ao','Free','Real',ipD1ao,nDens)
+      Call mma_deallocate(D1ao)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -134,6 +134,5 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('PCM_EF_grd')
       Return
       End

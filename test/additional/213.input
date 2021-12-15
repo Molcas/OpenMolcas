@@ -25,7 +25,7 @@ H5            -0.9706452266        1.6741542337        2.9575416307
 End of Basis
 
 Grid input
-Lobatto 
+Lobatto
 NoRo
 RQUAD
 LOG3

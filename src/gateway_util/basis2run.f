@@ -8,18 +8,19 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine basis2run(DInf,nDInf)
+      Subroutine basis2run()
+      use Basis_Info
+      use Center_Info
+      use Sizes_of_Seward, only: S
+      use Symmetry_Info, only: nIrrep
       Implicit None
-#include "itmax.fh"
-#include "info.fh"
 #include "stdalloc.fh"
       integer :: nPrim
-      integer :: iExp, kExp, iCff
+      integer :: kExp
       integer :: iPrim, iCnttp, icnt, mdc, jSh, iShSrt, iAng, iBasis
       real*8, allocatable :: primitives(:,:)
       integer, allocatable :: primitive_ids(:,:), IndC(:)
-      integer :: iyy, iCo, iAtoms, index_center, nDInf
-      Real*8 DInf(nDInf)
+      integer :: iyy, iCo, iAtoms, index_center
 *
 ************************************************************************
 *
@@ -31,20 +32,22 @@
       nPrim=0
 *     Loop over basis sets
       Do iCnttp = 1, nCnttp
-        if (iCnttp.eq.iCnttp_Dummy) cycle
-        mdc = mdciCnttp(iCnttp)
-        iShSrt = ipVal(iCnttp)
-*     Loop over distinct centers
-        Do icnt = 1, nCntr(iCnttp)
+        If (iCnttp.eq.iCnttp_Dummy) cycle
+        If (dbsc(iCnttp)%iVal.eq.0) Cycle
+        mdc = dbsc(iCnttp)%mdci
+        iShSrt = dbsc(iCnttp)%iVal
+*       Loop over distinct centers
+        Do icnt = 1, dbsc(iCnttp)%nCntr
           mdc = mdc + 1
-*     Loop over symmetry-related centers
-          Do iCo = 0, nIrrep/nStab(mdc)-1
-*     Loop over shells associated with this center
-*     Start with s type shells
+*         Loop over symmetry-related centers
+          Do iCo = 0, nIrrep/dc(mdc)%nStab-1
+*           Loop over shells associated with this center
+*           Start with s type shells
             jSh = iShSrt
-            if (AuxShell(jSh).or.FragShell(jSh)) cycle
-            Do iAng = 0, nVal_Shells(iCnttp)-1
-              nPrim = nPrim + nExp(jSh) * nBasis(jSh)
+            if (Shells(jSh)%Aux.or.
+     &          Shells(jSh)%Frag) cycle
+            Do iAng = 0, dbsc(iCnttp)%nVal-1
+              nPrim = nPrim + Shells(jSh)%nExp * Shells(jSh)%nBasis
               jSh = jSh + 1
             End Do
           End Do
@@ -53,7 +56,7 @@
 
       call put_iScalar('nPrim',nPrim)
 
-      Call mma_allocate(IndC,2*mCentr,label='IndC')
+      Call mma_allocate(IndC,2*S%mCentr,label='IndC')
       call mma_allocate(primitive_ids, 3, nPrim,label='primitive_ids')
       call mma_allocate(primitives, 2, nPrim,label='primitives')
 
@@ -62,33 +65,31 @@
 *     Loop over basis sets
       Do iCnttp = 1, nCnttp
         if (iCnttp.eq.iCnttp_Dummy) cycle
-        mdc = mdciCnttp(iCnttp)
-        iShSrt = ipVal(iCnttp)
+        If (dbsc(iCnttp)%iVal.eq.0) Cycle
+        mdc = dbsc(iCnttp)%mdci
+        iShSrt = dbsc(iCnttp)%iVal
 *     Loop over distinct centers
-        Do icnt = 1, nCntr(iCnttp)
+        Do icnt = 1, dbsc(iCnttp)%nCntr
           mdc = mdc + 1
 *     Loop over symmetry-related centers
-          Do iCo = 0, nIrrep/nStab(mdc)-1
+          Do iCo = 0, nIrrep/dc(mdc)%nStab-1
 *     Loop over shells associated with this center
 *     Start with s type shells
             jSh = iShSrt
-            if (AuxShell(jSh).or.FragShell(jSh)) cycle
+            if (Shells(jSh)%Aux.or.
+     &          ShellS(jSh)%Frag) cycle
 *     Get the flat, desymmetrized id of the center
-            iyy=Index_Center(mdc,iCo,IndC,iAtoms,mCentr)
-            Do iAng = 0, nVal_Shells(iCnttp)-1
+            iyy=Index_Center(mdc,iCo,IndC,iAtoms,S%mCentr)
+            Do iAng = 0, dbsc(iCnttp)%nVal-1
 *     Pointer to the untouched contraction matrix as after input.
-              iCff = ipCff(jSh)+nExp(jSh)*nBasis(jSh)
-              Do iBasis = 1,nBasis(jSh)
-                iExp = ipExp(jSh)
-                Do kExp = 1, nExp(jSh)
+              Do iBasis = 1, Shells(jSh)%nBasis
+                Do kExp = 1, Shells(jSh)%nExp
                   iPrim  = iPrim  + 1
                   primitive_ids(1,iPrim) = iyy
                   primitive_ids(2,iPrim) = iAng
                   primitive_ids(3,iPrim) = iBasis
-                  primitives(1,iPrim) = DInf(iExp)
-                  primitives(2,iPrim) = DInf(iCff)
-                  iExp = iExp + 1
-                  iCff = iCff + 1
+                  primitives(1,iPrim) = Shells(jSh)%Exp(kExp)
+                  primitives(2,iPrim) = Shells(jSh)%Cff_c(kExp,iBasis,2)
                 End Do
               End Do
               jSh = jSh + 1

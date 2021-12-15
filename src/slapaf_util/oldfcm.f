@@ -22,7 +22,6 @@
       Logical Found
 *
 *...  Prologue
-      Call qEnter('OldFcm')
 *
 *...  Set runfile to be RUNOLD
       Call NameRun(RunOld)
@@ -78,7 +77,6 @@
          nQQ = iINter
 *
 *...  Epilogue, end
-      Call qExit('OldFcm')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(nsAtom)

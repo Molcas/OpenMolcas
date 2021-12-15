@@ -8,11 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine AtmLst(Cart,nAtom,Coor,iOper,nSym,mAtom)
+      Subroutine AtmLst(Cart,nAtom,Coor,mAtom)
+      use Symmetry_Info, only: nIrrep, iOper
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
       Real*8 Cart(3,nAtom), Coor(3,mAtom), r(3)
-      Integer   iOper(0:nSym-1)
       Logical New
 *
 *     Call RecPrt(' In AtmLst:Cart',' ',Cart,3,nAtom)
@@ -26,7 +26,7 @@
 *
 *-----Loop over the operators of the point group
 *
-         Do ig = 1, nSym-1
+         Do ig = 1, nIrrep-1
             r(1)=One
             If (iAnd(iOper(ig),1).ne.0) r(1)=-One
             r(2)=One

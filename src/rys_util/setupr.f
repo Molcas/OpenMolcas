@@ -31,8 +31,6 @@
       use vRys_RW
       use Leg_RW
       implicit none
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "status.fh"
@@ -83,8 +81,8 @@
  105     Continue
  110  Continue
 *
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call TriPrt(' Hermite squared roots',' ',HerR2(iHerR2(1)),nRys)
       Call TriPrt(' Hermite weights      ',' ',HerW2(iHerW2(1)),nRys)
 #endif

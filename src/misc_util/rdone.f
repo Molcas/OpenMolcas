@@ -74,7 +74,6 @@
 *----------------------------------------------------------------------*
 *     Pick up the file definitions                                     *
 *----------------------------------------------------------------------*
-*     Call qEnter('RdOne')
       rc    = rc0000
       LuOne = AuxOne(pLu  )
       Open  = AuxOne(pOpen)
@@ -125,17 +124,14 @@
       If((iAnd(iAnd(option,sRdFst),sRdNxt)).ne.0) then
          Write (6,*) 'RdOne: Invalid option(s)'
          Write (6,*) 'option=',option
-         Call QTrace()
          Call Abend()
       Else If((iAnd(iAnd(option,sRdFst),sRdCur)).ne.0) then
          Write (6,*) 'RdOne: Invalid option(s)'
          Write (6,*) 'option=',option
-         Call QTrace()
          Call Abend()
       Else If((iAnd(iAnd(option,sRdNxt),sRdCur)).ne.0) then
          Write (6,*) 'RdOne: Invalid option(s)'
          Write (6,*) 'option=',option
-         Call QTrace()
          Call Abend()
       End If
 *----------------------------------------------------------------------*
@@ -276,7 +272,6 @@
 *----------------------------------------------------------------------*
 *     Terminate procedure                                              *
 *----------------------------------------------------------------------*
-*     Call qExit('RdOne')
       Return
 *
 *     This is to allow type punning without an explicit interface

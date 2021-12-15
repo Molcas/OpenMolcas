@@ -32,16 +32,12 @@ C
       InfVec(i,j,k)=iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
       IndRSh(i)=iWork(ip_IndRSh-1+i)
 
-#if defined (_DEBUG_)
-      Call qEnter('_GnVc_GetInt')
-#endif
-
 C     Initialization and input check.
 C     -------------------------------
 
       If (NumPass .lt. 1) Then
          NumSP = 0
-         Go To 1 ! exit
+         return
       End If
 
       If (mSym .ne. nSym) Then
@@ -118,9 +114,4 @@ C     Deallocation.
 C     -------------
 
       Call xRlsMem_Ints
-    1 Continue
-#if defined (_DEBUG_)
-      Call qExit('_GnVc_GetInt')
-#endif
-
       End

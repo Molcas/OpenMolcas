@@ -18,7 +18,6 @@
       Real*8 CMO(*)
       DIMENSION DSQ(*),DLT(*)
 *
-      Call qEnter('Donei')
 *
       ISTSQ=0
       ISTLT=0
@@ -57,7 +56,6 @@
         END DO
       END IF
 *
-      Call qExit('Donei')
 *
       RETURN
       END

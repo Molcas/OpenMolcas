@@ -26,7 +26,6 @@
 *
       Lu=6
 *
-*     Call QEnter('LBend')
 *
       If (iPrint.ge.99) Then
          Write(6,*) 'LBend: Force ',Force
@@ -389,7 +388,6 @@
             Call RecPrt('dBf',' ',dBf,3*nCent,3*nCent)
          End If
       End If
-*     Call QExit('LBend')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_logical(lWarn)

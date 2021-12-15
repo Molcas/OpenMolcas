@@ -10,42 +10,30 @@
 *                                                                      *
 * Copyright (C) 1992,1995, Roland Lindh                                *
 ************************************************************************
-      SubRoutine WelGrd(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,la,lb,A,RB,nHer,
-     &                  Array,nArr,Ccoor,nOrdOp,Grad,nGrad,
-     &                  IfGrad,IndGrd,DAO,mdc,ndc,kOp,lOper,nComp,
-     &                  iStabM,nStabM)
+      SubRoutine WelGrd(
+#define _CALLING_
+#include "grd_interface.fh"
+     &                 )
 ************************************************************************
 *                                                                      *
 * Object: to compute the Pauli repulsion integrals with the            *
 *         Gauss-Hermite quadrature.                                    *
-*                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Rowel                                                   *
-*              Traxyz                                                  *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden. October '92.                            *
 *                                                                      *
 *             Modified to gradients, April '95. R. Lindh               *
 ************************************************************************
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "wldata.fh"
 #include "print.fh"
 #include "disp.fh"
-      Integer IndGrd(3,2), kOp(2), lOper(nComp), iStabM(0:nStabM-1)
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3),
-     &       Array(nZeta*nArr), Ccoor(3), Grad(nGrad),
-     &       DAO(nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2)
-      Logical IfGrad(3,2)
+
+#include "grd_interface.fh"
+
 *
 *     Statement function for Cartesian index
 *
@@ -54,7 +42,6 @@
       iRout = 122
       iPrint = nPrint(iRout)
 *     iQ = 1
-      Call qEnter('WelGrd')
       If (iPrint.ge.59) Then
          Write (6,*) ' In WelGrd'
          Write (6,*) ' r0, ExpB=',r0,ExpB
@@ -203,8 +190,7 @@
       Call CmbnW1(Array(ipp0),Array(ipm0),Array(ip0p),Array(ip0m),
      &            nZeta,la,lb,Zeta,rKappa,Final,Array(ipAlph),
      &            Array(ipBeta),Grad,nGrad,DAO,
-     &            IfGrad,IndGrd,nStab(mdc),nStab(ndc),nIrrep,
-     &            kOp,iChBas,MxFnc)
+     &            IfGrad,IndGrd,dc(mdc)%nStab,dc(ndc)%nStab,kOp)
 
 *
       ip = ip - 5*nZeta
@@ -214,7 +200,6 @@
       If (lb.ge.1) ip = ip - nZeta*nElem(la)*nElem(lb-1)
       ip = ip - nZeta*nElem(la+1)*nElem(lb)
       ip = ip - 2*nZeta*jsump
-      Call qExit('WelGrd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

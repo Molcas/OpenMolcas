@@ -18,7 +18,6 @@
 *
       Real*8 SelfEn
 *
-      Call qEnter('selfen')
       iPL = iPL_espf()
       E = Zero
       Do iChg = 2, nChg
@@ -58,6 +57,5 @@
       SelfEn = E
       If (nChg.gt.0.and.iPL.ge.2) Write(6,'(A,F16.10)')
      &    ' (For info only) Self Energy of the charges =',SelfEn
-      Call qExit('selfen')
       Return
       End

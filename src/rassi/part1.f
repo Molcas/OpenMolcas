@@ -24,7 +24,6 @@ C  ORIGINAL VERSION, MALMQUIST 84-04-04
 C  RASSCF VERSION,   MALMQUIST 89-11-15
 C---------------------------------------------------------------
 C INITIALIZE A = INVERSE OF SXY, AND B = UNIT MATRIX:
-      CALL QENTER('PART1')
       DO 20 I=1,NDIMEN
         DO 10 J=1,NDIMEN
           A(I,J)=0.0D00
@@ -110,6 +109,5 @@ C
           B(K,L)=-(B(L,L)*B(K,L))
 230       CONTINUE
 240     CONTINUE
-      CALL QEXIT('PART1')
       RETURN
       END

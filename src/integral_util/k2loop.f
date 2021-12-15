@@ -12,35 +12,22 @@
 *               1990, IBM                                              *
 ************************************************************************
       SubRoutine k2Loop(Coor,
-     &           iAnga,iCmpa,iShll,
-     &           iDCRR,nDCRR,Data,
-     &           Alpha,nAlpha,Beta, nBeta,
-     &           Alpha_,Beta_,
-     &           Coeff1,iBasn,Coeff2,jBasn,
-     &           Zeta,ZInv,Kappab,P,IndP,nZeta,IncZZ,Con,
-     &           Wrk,nWork2,
-     &           Cmpct,nScree,mScree,iStb,jStb,
-     &           Dij,nDij,nDCR,nHm,ijCmp,DoFock,
-     &           Scr,nScr,
-     &           Knew,Lnew,Pnew,Qnew,nNew,DoGrad,HMtrx,nHrrMtrx)
+     &                  iAnga,iCmpa,iShll,
+     &                  iDCRR,nDCRR,Data,
+     &                  Alpha,nAlpha,Beta, nBeta,
+     &                  Alpha_,Beta_,
+     &                  Coeff1,iBasn,Coeff2,jBasn,
+     &                  Zeta,ZInv,Kappab,P,IndP,nZeta,IncZZ,Con,
+     &                  Wrk,nWork2,
+     &                  Cmpct,nScree,mScree,iStb,jStb,
+     &                  Dij,nDij,nDCR,nHm,ijCmp,DoFock,
+     &                  Scr,nScr,
+     &                  Knew,Lnew,Pnew,Qnew,nNew,DoGrad,HMtrx,nHrrMtrx)
 ************************************************************************
 *                                                                      *
 * Object: to compute zeta, kappa, P, and the integrals [nm|nm] for     *
 *         prescreening. This is done for all unique pairs of centers   *
 *         generated from the symmetry unique centers A and B.          *
-*                                                                      *
-* Called from: Drvk2                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy   (ESSL)                                          *
-*              DoZeta                                                  *
-*              Rys                                                     *
-*              DGeTMO  (ESSL)                                          *
-*              RecPrt                                                  *
-*              Hrr                                                     *
-*              CrSph1                                                  *
-*              CrSph2                                                  *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
@@ -52,12 +39,15 @@
 *             Modified for direct SCF, January '93                     *
 ************************************************************************
       use Real_Spherical
+      use Basis_Info
+      use Center_Info
+      use Symmetry_Info, only: nIrrep, iOper
+      use Real_Info, only: CutInt, RadMax, cdMax, EtMax
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
       External TERIS, ModU2, Cmpct, Cff2DS, Rys2D
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "disp.fh"
 #include "print.fh"
       Real*8 Coor(3,4), CoorM(3,4), Coori(3,4), Coora(3,4), CoorAC(3,2),
@@ -110,15 +100,14 @@
 *     Statement function to compute canonical index
 *
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &                       nStab(mdc))
+      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
+     &                              iIrrep,iComp,dc(mdc)%nStab)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       iRout = 241
       iPrint = nPrint(iRout)
-*     Call QEnter('k2Loop')
+*     iPrint = 99
       call dcopy_(3,[One],0,Q,1)
       nData=nZeta*(nDArray+2*ijCmp)+nDScalar+nHm
       call dcopy_(nData*nDCRR,[Zero],0,Data,1)
@@ -144,9 +133,7 @@
          Call ICopy(1024,[5],0,nPrint,1)
          iR = iDCRR(lDCRR)
 *
-         CoorM(1,2) = DBLE(iPhase(1,iDCRR(lDCRR)))*Coor(1,2)
-         CoorM(2,2) = DBLE(iPhase(2,iDCRR(lDCRR)))*Coor(2,2)
-         CoorM(3,2) = DBLE(iPhase(3,iDCRR(lDCRR)))*Coor(3,2)
+         Call OA(iDCRR(lDCRR),Coor(1:3,2),CoorM(1:3,2))
          AeqB = EQ(CoorM(1,1),CoorM(1,2))
 *        Branch out if integrals are zero by symmetry.
          If (AeqB .and. Mod(iSmAng,2).eq.1) Go To 100
@@ -180,16 +167,12 @@
          ne=(mabMax-mabMin+1)
          Do iIrrep = 0, nIrrep-1
             i13_=ip_HrrMtrx(nZeta)+(iIrrep*nHm)/nIrrep
-            TA(1) = DBLE(iPhase(1,iOper(iIrrep)))*CoorM(1,1)
-            TA(2) = DBLE(iPhase(2,iOper(iIrrep)))*CoorM(2,1)
-            TA(3) = DBLE(iPhase(3,iOper(iIrrep)))*CoorM(3,1)
-            TB(1) = DBLE(iPhase(1,iOper(iIrrep)))*CoorM(1,2)
-            TB(2) = DBLE(iPhase(2,iOper(iIrrep)))*CoorM(2,2)
-            TB(3) = DBLE(iPhase(3,iOper(iIrrep)))*CoorM(3,2)
+            Call OA(iOper(iIrrep),CoorM(1:3,1),TA)
+            Call OA(iOper(iIrrep),CoorM(1:3,2),TB)
             Call HrrMtrx(Data(i13_,lDCRR+1),
      &                   ne,la,lb,TA,TB,
-     &                   Transf(iShlla),RSph(ipSph(la)),iCmpa_,
-     &                   Transf(jShllb),RSph(ipSph(lb)),jCmpb_)
+     &                   Shells(iShlla)%Transf,RSph(ipSph(la)),iCmpa_,
+     &                   Shells(jShllb)%Transf,RSph(ipSph(lb)),jCmpb_)
          End Do
 *                                                                      *
 ************************************************************************
@@ -262,6 +245,11 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+         Call C_F_Pointer(C_Loc(Data(ip_IndZ(1,nZeta),lDCRR+1)),iData,
+     &                    [nAlpha*nBeta+1])
+*                                                                      *
+************************************************************************
+*                                                                      *
 *-----------Store data in core
 *
             Call Cmpct(Wrk(iW2),iCmpa_,jCmpb_,nZeta,mZeta,
@@ -270,7 +258,7 @@
      &                 Data(ip_Z    (1,nZeta),lDCRR+1),
      &                 Data(ip_Kappa(1,nZeta),lDCRR+1),
      &                 Data(ip_Pcoor(1,nZeta),lDCRR+1),
-     &                 Data(ip_IndZ (1,nZeta),lDCRR+1),iZeta-1,Jnd,
+     &                 iData,iZeta-1,Jnd,
      &                 Data(ip_ZInv (1,nZeta),lDCRR+1),CutInt,RadMax,
      &                 cdMax,EtMax,AeqB,
      &                 Data(ip_ab   (1,nZeta),lDCRR+1),
@@ -287,8 +275,6 @@
 *                                                                      *
 *        Estimate the largest contracted integral.
 *
-         Call C_F_Pointer(C_Loc(Data(ip_IndZ(1,nZeta),lDCRR+1)),iData,
-     &                    [nAlpha*nBeta+1])
          Data(ip_EstI(nZeta),lDCRR+1) =
      &                      EstI(Data(ip_Z(1,nZeta),lDCRR+1),
      &                           Data(ip_Kappa(1,nZeta),lDCRR+1),
@@ -516,8 +502,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*#define _DEBUG_
-#ifdef _DEBUG_
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
          Write (6,*)
          Write (6,*) 'lDCRR=',lDCRR
          Call WrCheck('Zeta ',Data(ip_Z    (1,nZeta),  lDCRR+1),nZeta)
@@ -545,7 +531,6 @@
 #endif
  100  Continue ! lDCRR
 *
-*     Call QExit('k2Loop')
       Return
       End Subroutine k2loop_internal
 *

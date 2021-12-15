@@ -100,7 +100,6 @@
 
       DIMENSION IAOC(*),JAOC(*),IBOC(*),JBOC(*)
 *
-      CALL QENTER('GSD2B')
 
       NTESTL = 000
       NTEST = MAX(NTESTL,NTESTG)
@@ -281,7 +280,6 @@ C             COMPRS2LST(I1,XI1,N1,I2,XI2,N2,NKIN,NKOUT)
  9999 CONTINUE
 *
 *
-      CALL QEXIT('GSD2B')
       RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN

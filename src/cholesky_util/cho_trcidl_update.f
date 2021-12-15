@@ -21,11 +21,11 @@ C
 #include "choptr2.fh"
 #include "cho_para_info.fh"
 #include "WrkSpc.fh"
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
 #include "cholesky.fh"
 #endif
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (l_Idle.lt.1 .or. .not.Trace_Idle) Then
          Write(LuPri,'(A)')
      &   'Cho_TrcIdl_Update should not be called in this run!'

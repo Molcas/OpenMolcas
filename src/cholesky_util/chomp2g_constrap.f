@@ -99,7 +99,7 @@
 *     Set
 *
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(6,*) 'iPQ', iPQ
       Write(6,*) 'iIQ', iIQ
       Write(6,*) 'iIR', iIR

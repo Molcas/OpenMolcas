@@ -59,7 +59,7 @@
       Character*(LENIN8) Clean_BName !14
       External Clean_BName
       Debug=.false.
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Debug=.true.
 #endif
 *

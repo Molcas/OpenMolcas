@@ -32,7 +32,7 @@ C
       PARAMETER (SECNAM = 'CHO_QUALIFY')
 
       LOGICAL LOCDBG
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       PARAMETER (LOCDBG = .TRUE.)
 #else
       PARAMETER (LOCDBG = .FALSE.)

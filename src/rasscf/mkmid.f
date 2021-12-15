@@ -24,7 +24,6 @@ C
       DIMENSION IRAW(NVERT,0:4)
       DIMENSION LTV(-1:NLEV)
 
-      Call qEnter(Routine)
 
 C
 C     SET UP A LEVEL-TO-VERTEX TABLE, LTV, AND IDENTIFY MIDVERTICES:
@@ -101,6 +100,5 @@ C
         Write(LF,*)
       ENDIF
 
-      Call qExit(Routine)
       RETURN
       END

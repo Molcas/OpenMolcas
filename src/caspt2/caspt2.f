@@ -75,7 +75,7 @@ C
 #include "chocaspt2.fh"
 #include "stdalloc.fh"
 #include "caspt2_grad.fh"
-      CHARACTER(60) STLNE2
+      CHARACTER(len=60) STLNE2
 #ifdef _MOLCAS_MPP_
       LOGICAL KING, Is_Real_Par
 #endif
@@ -105,7 +105,6 @@ C
       Call StatusLine('CASPT2:','Just starting')
 
       IRETURN = 0
-      CALL QENTER('CASPT2')
 
       CALL SETTIM
       ! CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
@@ -221,11 +220,9 @@ C
        END IF
 
        IF (IPRGLB.GE.USUAL) THEN
-        If(.not.IFNOPT2) Then
          WRITE(STLNE2,'(A,1X,I3)') 'CASPT2 computation for group',IGROUP
          CALL CollapseOutput(1,TRIM(STLNE2))
          WRITE(6,*)
-        End If
        END IF
 
        CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
@@ -242,9 +239,6 @@ C
        CPUGIN=CPTF10-CPTF0
        TIOGIN=TIOTF10-TIOTF0
 CProducing XMS Rotated States
-       If(IFNOPT2) then
-        GOTO 9999
-       END IF
 
        DO ISTATE=1,NGROUPSTATE(IGROUP)
          JSTATE = JSTATE_OFF + ISTATE
@@ -421,25 +415,16 @@ C     transition density matrices.
 C End of long loop over states in the group
        END DO
        IF (IPRGLB.GE.USUAL) THEN
-        If(.not.IFNOPT2) Then
          CALL CollapseOutput(0,'CASPT2 computation for group ')
          WRITE(6,*)
-        End If
        END IF
 C End of long loop over groups
         JSTATE_OFF = JSTATE_OFF + NGROUPSTATE(IGROUP)
-9999    write (6,*)
       END DO STATELOOP
 
 1000  CONTINUE
 
       IF (IRETURN.NE.0) GOTO 9000
-       If(IFNOPT2) then  !XMS Skip multistate calculation.
-        write(6,*)'PT2 calculation skipped with XROH keyword'
-        write(6,*)
-C       CALL MMA_DEALLOCATE(UEFF)
-C       CALL MMA_DEALLOCATE(U0)
-       Else
       IF(IPRGLB.GE.TERSE) THEN
        WRITE(6,*)' Total CASPT2 energies:'
        DO I=1,NSTATE
@@ -558,10 +543,8 @@ C Free resources, close files
 C     PRINT I/O AND SUBROUTINE CALL STATISTICS
       IF ( IPRGLB.GE.USUAL ) THEN
         CALL FASTIO('STATUS')
-        CALL QSTAT(' ')
       END IF
 
       Call StatusLine('CASPT2:','Finished.')
-      CALL QEXIT('CASPT2')
       RETURN
       END

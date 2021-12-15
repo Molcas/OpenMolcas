@@ -49,7 +49,6 @@
 #endif
 #include "molcas_eaf.fh"
 #endif
-      Call QEnter('EAFOpen')
 #ifdef _MOLCAS_MPP_
       If(Is_Real_Par()) Then
       FN=FName
@@ -76,7 +75,6 @@
 #ifdef _MOLCAS_MPP_
       End If
 #endif
-      Call QExit('EAFOpen')
       Return
       End
 *                                                                      *
@@ -91,7 +89,6 @@
       External Is_Real_Par
 #include "molcas_eaf.fh"
 #endif
-      Call QEnter('EAFClose')
 #ifdef _MOLCAS_MPP_
       If(Is_Real_Par()) Then
 #ifdef _HAVE_EXTRA_
@@ -110,7 +107,6 @@
 #ifdef _MOLCAS_MPP_
       End If
 #endif
-      Call QExit('EAFClose')
       Return
       End
 *                                                                      *
@@ -127,7 +123,6 @@
 #include "molcas_eaf.fh"
 #include "SysDef.fh"
 #endif
-      Call QEnter('EAFAWrite')
 #ifdef _MOLCAS_MPP_
       If(Is_Real_Par()) Then
 #ifdef _HAVE_EXTRA_
@@ -148,7 +143,6 @@
 #ifdef _MOLCAS_MPP_
       End If
 #endif
-      Call QExit('EAFAWrite')
       Return
       End
 *                                                                      *
@@ -165,7 +159,6 @@
 #include "molcas_eaf.fh"
 #include "SysDef.fh"
 #endif
-      Call QEnter('EAFARead')
 #ifdef _MOLCAS_MPP_
       If(Is_Real_Par()) Then
 #ifdef _HAVE_EXTRA_
@@ -186,7 +179,6 @@
 #ifdef _MOLCAS_MPP_
       End If
 #endif
-      Call QExit('EAFARead')
       Return
       End
 *                                                                      *
@@ -204,7 +196,6 @@
 #include "molcas_eaf.fh"
 #include "SysDef.fh"
 #endif
-      Call QEnter('EAFWrite')
 #ifdef _MOLCAS_MPP_
       If(Is_Real_Par()) Then
 #ifdef _HAVE_EXTRA_
@@ -226,7 +217,6 @@
 #ifdef _MOLCAS_MPP_
       End If
 #endif
-      Call QExit('EAFWrite')
       Return
       End
 *                                                                      *
@@ -244,7 +234,6 @@
 #include "molcas_eaf.fh"
 #include "SysDef.fh"
 #endif
-      Call QEnter('EAFRead')
 #ifdef _MOLCAS_MPP_
       If(Is_Real_Par()) Then
 #ifdef _HAVE_EXTRA_
@@ -266,7 +255,6 @@
 #ifdef _MOLCAS_MPP_
       End If
 #endif
-      Call QExit('EAFRead')
       Return
       End
 *                                                                      *
@@ -281,7 +269,6 @@
       External Is_Real_Par
 #include "molcas_eaf.fh"
 #endif
-      Call QEnter('EAFWait')
 #ifdef _MOLCAS_MPP_
       If(Is_Real_Par()) Then
 #ifdef _HAVE_EXTRA_
@@ -296,7 +283,6 @@
       End If
       End If
 #endif
-      Call QExit('EAFWait')
       Return
 #ifndef _MOLCAS_MPP_
 c Avoid unused argument warnings

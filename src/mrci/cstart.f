@@ -15,7 +15,6 @@
 #include "mrci.fh"
       DIMENSION BUF(nCOP),ISTART(MXROOT)
 *
-      CALL QENTER('CSTART')
       DO  5 I=1,MXVEC
         IDISKC(I)=-1
         IDISKS(I)=-1
@@ -117,6 +116,5 @@ C THEN, SET UP START CI VECTORS IN MCSF BASIS:
       END IF
       NVTOT=NNEW
       NSTOT=0
-      CALL QEXIT('CSTART')
       RETURN
       END

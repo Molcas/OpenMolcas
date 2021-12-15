@@ -19,7 +19,6 @@ import os
 import codecs
 import os.path
 import re
-import textwrap
 
 sys.dont_write_bytecode = True
 
@@ -57,7 +56,7 @@ for root, subdirs, files in os.walk(os.path.join(docdir, 'source')):
         except UnicodeDecodeError:
           continue
         if (inxml):
-          match = re.match(r'(\s{{{0},}})'.format(inxml), line)
+          match = re.match(r'(\s{{{0}}})'.format(inxml), line)
           if (match or (line == '')):
             try:
               docs[-1].append(line[len(match.group(1)):])
@@ -70,7 +69,6 @@ for root, subdirs, files in os.walk(os.path.join(docdir, 'source')):
           if match:
             inxml = len(match.group(0))
             docs.append([line[inxml:]])
-            inxml = len(match.group(1))+1
     if (docs):
       xmldocs[f.name] = docs
 

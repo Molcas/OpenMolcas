@@ -35,7 +35,7 @@
 #include "choptr.fh"
 #include "WrkSpc.fh"
 #include "exterm.fh"
-*#define _DEBUG_
+*#define _DEBUGPRINT_
 *#define _CD_TIMING_
 #ifdef _CD_TIMING_
 #include "temptime.fh"
@@ -163,7 +163,7 @@
             iAdrQ=(iFirstCho-1)*NumAux + (iJBat-1)*nJVec*NumAux
             Call dDaFile(Lu_Q,2,Work(ip_Qvector),l_Q,iAdrQ)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('Q-vectors',' ',Work(ip_QVector),
      &                  nJVec,NumAux)
 #endif
@@ -198,7 +198,7 @@
 
 
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (6,*) 'jSym=',jSym
          Call RecPrt('R-Vectors',' ',Work(ip_RVector),
      &               nIJ1(iSym,lSym,iSO),NumAux)

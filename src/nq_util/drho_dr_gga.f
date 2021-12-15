@@ -16,22 +16,13 @@
      &                       Grid_Type,Fixed_Grid,Fact,ndc,TabAOMax,T_X,
      &                       list_bas,Index,nIndex)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: Do_Batch                                                *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN.  2002 (at Todai)                        *
 ************************************************************************
       use iSD_data
       use k2_arrays, only: DeDe, ipDijS
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "disp.fh"
 #include "real.fh"
 #include "print.fh"
@@ -55,14 +46,12 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
-      Call QEnter('dRho_dR_GGA')
+#ifdef _DEBUGPRINT_
       If (Debug) Then
          Call RecPrt('dRho_dR_GGA:Dens',' ',Dens,nDens,nD)
          Write (6,*) 'mAO=',mAO
          Write (6,*) 'mGrid=',mGrid
          Write (6,*) 'nTabAO=',nTabAO
-         Write (6,*) 'nIrrep=',nIrrep
          Write (6,*) 'nlist_s=',nlist_s
          Do iList_s = 1, nList_s
             Write (6,*) 'iList_s=',iList_s
@@ -97,7 +86,7 @@
          iShell= iSD(11,iS)
          index_i=list_bas(2,ilist_s)
 *
-         lDCRE=NrOpr(kDCRE,iOper,nIrrep)
+         lDCRE=NrOpr(kDCRE)
 *
          jNQ=Maps2p(iS,lDCRE)
          Call ICopy(3,list_g(1,ilist_s),1,IndGrd_Eff(1,1),1)
@@ -117,7 +106,7 @@
             jBas_Eff=list_bas(1,jlist_s)
             index_j =list_bas(2,jlist_s)
 *
-            lDCRR=NrOpr(kDCRR,iOper,nIrrep)
+            lDCRR=NrOpr(kDCRR)
 *
             kNQ=Maps2p(jS,lDCRR)
             Call ICopy(3,list_g(1,jlist_s),1,IndGrd_Eff(1,2),1)
@@ -131,7 +120,7 @@
             ijS=iTri(iShell,jShell)
             ipTmp=ipDijs
             Call Dens_Info(ijS,ipDij,ipDSij,mDCRij,ipDDij,ipTmp,nD)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             If (Debug) Then
                Write (6,*)
                Write (6,*) 'iS,jS=',iS,jS
@@ -146,7 +135,7 @@
             If (ilist_s.eq.jlist_s) Deg=One
 *
             iER=iEOr(kDCRE,kDCRR)
-            lDCRER=NrOpr(iER,iOper,nIrrep)
+            lDCRER=NrOpr(iER)
 *
             ip_D_a=ipDij+lDCRER*mDij
             ip_D_b=ip_D_a
@@ -163,7 +152,7 @@
             End If
             DMax_ij=DMax_ij*Fact(ij)
             If (TMax_i*TMax_j*DMax_ij.lt.T_X) Go To 98
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             If (Debug) Then
                Write (6,*) 'dRho_dR_GGA'
                nBB = iBas*jBas
@@ -231,11 +220,10 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (Debug) Call RecPrt('dRho_dR_GGA: dRho_dR',' ',dRho_dR,
      &                        ndRho_dR*mGrid,nGrad_Eff)
 *
-      Call QExit('dRho_dR_GGA')
 #else
 c Avoid unused argument warnings
       If (.False.) Call Unused_real_array(Dens)

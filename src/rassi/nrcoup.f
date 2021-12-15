@@ -40,7 +40,6 @@ C SCRATCH PARAMETERS:
 
 
 
-      CALL QENTER(ROUTINE)
 
 C Dereference ISGSTRUCT, ICISTRUCT for some other data
       NLEV  =ISGSTRUCT(2)
@@ -370,6 +369,5 @@ C Put sizes in structures iCIStruct, iXStruct:
       IXSTRUCT(13)=NT4MX
       IXSTRUCT(14)=NT5MX
 
-      CALL QEXIT(ROUTINE)
       RETURN
       END

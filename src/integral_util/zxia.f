@@ -8,42 +8,35 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1990, Roland Lindh                                     *
+* Copyright (C) 1990,2020, Roland Lindh                                *
 *               1990, IBM                                              *
 ************************************************************************
       SubRoutine ZXia(Zeta,ZInv,N,M,Alpha,Beta)
 ************************************************************************
 *                                                                      *
-*                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : GetMem                                                  *
-*              RecPrt                                                  *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
-*             January '90                                              *
+*             January 1990                                             *
 ************************************************************************
-      Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
+      Implicit None
 #include "real.fh"
-      Real*8 Zeta(N,M), ZInv(N,M), Alpha(N), Beta(M)
+      Integer, Intent(In):: N,M
+      Real*8, Intent(In):: Alpha(N), Beta(M)
+      Real*8, Intent(InOut):: Zeta(N,M), ZInv(N,M)
+      Integer j
 *
-      iRout = 113
-      iPrint = nPrint(iRout)
-      If (iPrint.ge.99) Then
-         Call RecPrt(' Alpha',' ',Alpha,N,1)
-         Call RecPrt(' Beta ',' ',Beta ,M,1)
-      End If
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' In ZXia: Alpha',' ',Alpha,N,1)
+      Call RecPrt(' In ZXia: Beta ',' ',Beta ,M,1)
+#endif
 *
-      Do 10 i = 1, N
-         Do 20 j = 1, M
-            Zeta(i,j) = (Alpha(i)+Beta(j))
-            ZInv(i,j) = One/Zeta(i,j)
- 20      Continue
- 10   Continue
-      If (iPrint.ge.99) Then
-         Call RecPrt( ' In ZXia: Zeta',' ',Zeta,N,M)
-      End If
+      Do j = 1, M
+         Zeta(:,j) = (Alpha(:)+Beta(j))
+         ZInv(:,j) = One/Zeta(:,j)
+      End Do
+#ifdef _DEBUGPRINT_
+      Call RecPrt( ' In ZXia: Zeta',' ',Zeta,N,M)
+#endif
 *
       Return
-      End
+      End SubRoutine ZXia

@@ -57,7 +57,6 @@ c  Read option variable set in Seward
 *------ No integrals, no direct calculation (allowed) - we have to crash!
         Write(6,'(2A)')' Two-electron integral file was not found!'
         If(CanDoDirect) Write(6,'(A)')' Try keyword DIRECT in SEWARD.'
-        Call QTrace()
         Call Abend()
       Else If (.Not. FoundTwoEls) Then
         DoDirect = .True.

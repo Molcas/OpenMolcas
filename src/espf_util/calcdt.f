@@ -33,7 +33,6 @@
 *
       Dimension DG(3,3)
 *
-      Call QEnter('calcdt')
       iPL = iPL_espf()
 *
       nOrd = nMult/nAtQM
@@ -242,7 +241,6 @@ c                     If (iGrdTyp.eq.2) DG(I,J) = DGrid(iPnt,jQM,I,J)
          End Do
       End Do
 *
-      Call QExit('calcdt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

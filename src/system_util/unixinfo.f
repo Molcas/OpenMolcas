@@ -16,7 +16,7 @@
       Logical IfTest
       Data IfTest/.False./
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       IfTest=.True.
 #endif
 

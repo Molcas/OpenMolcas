@@ -38,7 +38,6 @@
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
-      Call qEnter('OpnFls')
 *---  define logical unit numbers -------------------------------------*
 *...  Molecular orbital input file  this variable is not used
 *...  File is opened and closed i.e. around calls to rdvec.
@@ -107,6 +106,5 @@ c     &     File='CIITER')
 *----------------------------------------------------------------------*
 *     Exit                                                             *
 *----------------------------------------------------------------------*
-      Call qExit('OpnFls')
       Return
       End

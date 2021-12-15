@@ -34,7 +34,6 @@ C
       Complex(kind=8), allocatable :: tmp(:,:) !dim,dim
       Logical :: dbg
 
-      Call qEnter('s_phase')
 
       dbg=.false.
 
@@ -155,7 +154,6 @@ cc    mZ(i,i)   => diagonal
       Call mma_deallocate(r)
       Call mma_deallocate(phs)
       Call mma_deallocate(tmp)
-      Call qExit('s_phase')
 
       Return
       End
@@ -192,7 +190,6 @@ C
       Complex(kind=8), allocatable :: tmp(:,:) !dim,dim
       Logical :: dbg
 
-      Call qEnter('s_phase')
       dbg=.false.
 
       Call mma_allocate(rxr,dim,'rxr')
@@ -317,7 +314,6 @@ cc    mZ(i,i)   => diagonal
       Call mma_deallocate(r)
       Call mma_deallocate(phs)
       Call mma_deallocate(tmp)
-      Call qExit('s_phase')
 
       Return
       End

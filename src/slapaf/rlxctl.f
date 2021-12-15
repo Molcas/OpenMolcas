@@ -23,14 +23,16 @@
 #include "weighting.fh"
 #include "db.fh"
 #include "print.fh"
+#include "stdalloc.fh"
       Logical Numerical, GoOn, PrQ, TSReg,
      &        Do_ESPF, Just_Frequencies, Found
       Character*8 GrdLbl, StpLbl, Labels(nLabels), Lbl(nLbl)
       Character*1 Step_trunc
       Integer AixRm, iNeg(2)
+      Integer nGB
+      Real*8, Allocatable:: GB(:)
 *
       Lu=6
-      Call QEnter('RlxCtl')
       iRout = 32
       iPrint=nPrint(iRout)
       StpLbl=' '
@@ -90,8 +92,7 @@
 *                                                                      *
       If (lCtoF .AND. PrQ) Call Def_CtoF(.False.,Work(ipCM),
      &                                   nsAtom,AtomLbl,
-     &                                   Work(ipCoor),nSym,iOper,
-     &                                   jStab,nStab)
+     &                                   Work(ipCoor),jStab,nStab)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -127,8 +128,8 @@
       If (Numerical) nWndw=NmIter
       iRef=0
       Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,ipqInt,Lbl,
-     &           Work(ipCoor),nDimBC,Work(ipCM),AtomLbl,nSym,
-     &           iOper,Smmtrc,Degen,BSet,HSet,iter,ipdqInt,ipShf,
+     &           Work(ipCoor),nDimBC,Work(ipCM),AtomLbl,
+     &           Smmtrc,Degen,BSet,HSet,iter,ipdqInt,ipShf,
      &           Work(ipGx),Work(ipCx),mTtAtm,iWork(ipANr),iOptH,
      &           User_Def,nStab,jStab,Curvilinear,Numerical,
      &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
@@ -156,7 +157,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Reset_ThrGrd(nsAtom,nDimBC,Work(ipCM),nSym,iOper,Smmtrc,
+      Call Reset_ThrGrd(nsAtom,nDimBC,Work(ipCM),Smmtrc,
      &                  Degen,Iter,Work(ipCx),mTtAtm,iWork(ipANr),
      &                  DDV_Schlegel,iOptC,rHidden,ThrGrd)
 *                                                                      *
@@ -238,7 +239,7 @@
      &               Work(ipShf),Work(ipdqInt),iOptC,Beta,Beta_Disp,
      &               Lbl,Work(ipGNrm),Work(ipEner),UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
-     &               AtomLbl,nSym,iOper,mxdc,jStab,nStab,Work(ipB),
+     &               AtomLbl,mxdc,jStab,nStab,Work(ipB),
      &               Smmtrc,nDimBC,Work(ipL),Work(ipCx),Work(ipGx),
      &               GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &               Labels,nLabels,FindTS,TSConstraints,nRowH,
@@ -252,7 +253,7 @@
      &               Work(ipShf),Work(ipdqInt),iOptC,Beta,Beta_Disp,
      &               Lbl,Work(ipGNrm),Work(ipEner),UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
-     &               AtomLbl,nSym,iOper,mxdc,jStab,nStab,Work(ipB),
+     &               AtomLbl,mxdc,jStab,nStab,Work(ipB),
      &               Smmtrc,nDimBC,Work(ipL),Work(ipCx),GrdMax,
      &               StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &               Labels,nLabels,FindTS,TSConstraints,nRowH,
@@ -283,7 +284,7 @@
          Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,nQQ,Work(ipCoor),
      &               ipB,Work(ipCM),Lbl,Work(ipShf),ipqInt,
      &               ipdqInt,Work(ipDFC),Work(ipdss),Work(ipTmp),
-     &               AtomLbl,iOper,nSym,iSym,Smmtrc,Degen,
+     &               AtomLbl,iSym,Smmtrc,Degen,
      &               Work(ipGx),Work(ipCx),mTtAtm,iWork(ipANr),iOptH,
      &               User_Def,nStab,jStab,Curvilinear,Numerical,
      &               DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
@@ -302,7 +303,7 @@
       Do_ESPF = .False.
       Call DecideOnESPF(Do_ESPF)
       If (Do_ESPF) Then
-       Call LA_Morok(nsAtom,ipCoor,2)
+       Call LA_Morok(nsAtom,work(ipCoor),2)
        call dcopy_(3*nsAtom,Work(ipCoor),1,Work(ipCx+3*nsAtom*Iter),1)
       End If
 *                                                                      *
@@ -341,7 +342,7 @@
      &            Work(ipdqInt),Lbl,Work(ipGNrm),
      &            Work(ipEner),Stat,MaxItr,Stop,iStop,ThrCons,
      &            ThrEne,ThrGrd,MxItr,UpMeth,HUpMet,mIntEff,Baker,
-     &            Work(ipCx),Work(ipGx),nsAtom,mTtAtm,iOper,nSym,ed,
+     &            Work(ipCx),Work(ipGx),nsAtom,mTtAtm,ed,
      &            iNeg,GoOn,Step_Trunc,GrdMax,StpMax,GrdLbl,StpLbl,
      &            Analytic_Hessian,rMEP,MEP,nMEP,
      &            (lNmHss.or.lRowH).and.iter.le.NmIter,
@@ -360,7 +361,7 @@
       Call DstInf(iStop,Just_Frequencies,
      &            (lNmHss.or.lRowH) .and.iter.le.NmIter)
       If (lCtoF) Call Def_CtoF(.True.,Work(ipCM),
-     &         nsAtom,AtomLbl,Work(ipCoor),nSym,iOper,jStab,nStab)
+     &         nsAtom,AtomLbl,Work(ipCoor),jStab,nStab)
       If (.Not.User_Def .and.
      &   ((lNmHss.and.iter.ge.NmIter).or..Not.lNmHss)) Call cp_SpcInt
 *
@@ -371,7 +372,9 @@
          Call f_Inquire('RUNBACK',Found)
          If (Found) Then
 *           Read data
-            Call Get_Grad(ipGB,nGB)
+            nGB=3*nsAtom
+            Call mma_allocate(GB,nGB,Label='GB')
+            Call Get_Grad(GB,nGB)
             Call Qpg_dArray('Hss_X',Found,nHX)
             Call GetMem('HssX','Allo','Real',ipHX,nHX)
             Call Get_dArray('Hss_X',Work(ipHX),nHX)
@@ -384,7 +387,7 @@
             Call Get_iScalar('No of Internal coordinates',nIntCoor)
 *           Write data in backup file
             Call NameRun('RUNBACK')
-            Call Put_Grad(Work(ipGB),nGB)
+            Call Put_Grad(GB,nGB)
             Call Put_dArray('Hss_X',Work(ipHX),nHX)
             Call Put_dArray('Hss_Q',Work(ipHQ),nHQ)
             Call Put_dArray('Hss_upd',Work(ip_Dummy),0)
@@ -402,7 +405,7 @@
             End Do
             Call Put_AnalHess(Work(ipHX),iOff)
             Call NameRun('#Pop')
-            Call GetMem('Grad','Free','Real',ipGB,nGB)
+            Call mma_deallocate(GB)
             Call GetMem('HssX','Free','Real',ipHX,nHX)
             Call GetMem('HssQ','Free','Real',ipHQ,nHQ)
             Call GetMem('KtB','Free','Real',ipKtB,nKtB)
@@ -457,7 +460,6 @@
 *
 *-----Terminate the calculations.
 *
-      Call QExit('RlxCtl')
 *
       Return
       End

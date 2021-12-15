@@ -18,12 +18,12 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*#define _DEBUG_
+*#define _DEBUGPRINT_
 *
 *     Be careful here so that noise is not converted to a basis!
 *
       Thr=1.0D-12
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('GS: dRdQ',' ',drdq,nInter,nLambda)
 #endif
 *                                                                      *
@@ -48,7 +48,7 @@ C        Write (6,*) 'i,XX=',i,XX
             End If
          End If
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('GS: dRdQ(orth)',' ',drdq,nInter,nLambda)
 #endif
       If ((.not.RD).and.(jLambda.ne.nLambda)) Then
@@ -64,7 +64,7 @@ C        Write (6,*) 'i,XX=',i,XX
       Call FZero(T,nInter**2)
 *
       call dcopy_(nInter,[One],0,T,1+nInter)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('T(orig)',' ',T,nInter,nInter)
 #endif
 *
@@ -79,7 +79,7 @@ C        Write (6,*) 'i,XX=',i,XX
             End Do
          End Do
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('1-P',' ',T,nInter,nInter)
 #endif
 *
@@ -94,7 +94,7 @@ C        Write (6,*) 'i,XX=',i,XX
          iStart = nInter-nLambda + 1
          Call FZero(T(1,iStart),nInter*nLambda)
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('1-P(GS)',' ',T,nInter,nInter)
 #endif
 *                                                                      *
@@ -125,7 +125,7 @@ C        Write (6,*) 'i,XX=',i,XX
 *     Put drdq at the start
 *
       call dcopy_(nInter*nLambda,drdq,1,T,1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('T(ReOrdered)',' ',T,nInter,nInter)
 #endif
 *
@@ -181,7 +181,7 @@ C        Write (6,*) 'GS_: i,XX=',i,XX
             Call FZero(T(1,i),nInter)
          End If
  100     Continue
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('GS_: T',' ',T,nInter,nInter)
 #endif
       End Do
@@ -192,7 +192,7 @@ C        Write (6,*) 'GS_: i,XX=',i,XX
       Implicit Real*8 (a-h,o-z)
       Real*8 T(nInter,nVec)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('GS_Order: T(orig)','(12F6.2)',T,nInter,nVec)
 #endif
       Do j = 1, nVec-1
@@ -207,7 +207,7 @@ C        Write (6,*) 'GS_: i,XX=',i,XX
          End Do
          If (iDiag.ne.j) call dswap_(nInter,T(1,iDiag),1,T(1,j),1)
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('GS_Order: T(ordered)','(12F6.2)',T,nInter,nVec)
 #endif
       Return

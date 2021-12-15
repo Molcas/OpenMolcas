@@ -23,8 +23,6 @@
       use Index_arrays
       Implicit Real*8 (A-H,O-Z)
 *
-#include "itmax.fh"
-#include "info.fh"
 #include "setup.fh"
 #include "stdalloc.fh"
 #include "nsd.fh"

@@ -44,7 +44,8 @@
 #ifdef _DMRG_
      &    Method(1:7) .eq. 'DMRGSCF'.OR.
 #endif
-     &    Method(1:4) .eq. 'CHT3') Then
+     &    Method(1:4) .eq. 'CHT3'   .OR.
+     &    Method(1:8) .eq. 'EXTERNAL') Then
          Continue
       Else
          Write (6,'(A,A,A)') 'Last Energy for ',Method,
@@ -125,8 +126,17 @@
             Call Abend()
          End If
 #endif
+      Else If (Method(1:8) .eq. 'EXTERNAL') Then
+         Call StartLight('false')
+         Call Disable_Spool()
+         Call False_program(ireturn)
+         If (iReturn .ne. 0) Then
+            Write(6,*) 'Last_Energy failed ...'
+            Write(6,*) 'FALSE returned with return code, rc = ',
+     &                  iReturn
+            Call Abend()
+         End If
       End If
-
 *
       If (Method(1:5) .eq. 'MBPT2') Then
          Call StartLight('mbpt2')

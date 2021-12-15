@@ -24,10 +24,6 @@ C
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
       Tmax(i,j)=Work(ip_Tmax-1+nShell*(j-1)+i)
 
-#if defined (_DEBUG_)
-      Call qEnter('_DiaSP')
-#endif
-
       If (Cho_PreScreen) Then ! prescreening with approx. diagonal
 
          l_Tmax = nShell**2
@@ -77,7 +73,7 @@ C
 
       End If
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (.not.Cho_PreScreen) Tau = 0.0d0
       Write(LuPri,*) '>>> Exit from Cho_DiaSP:'
       Write(LuPri,*) '    Screening threshold               : ',Tau
@@ -89,7 +85,6 @@ C
          Write(LuPri,*) '    Screening-%: ',
      &                   1.0d2*DBLE(nnShl_Tot-nnShl)/DBLE(nnShl_Tot)
       End If
-      Call qExit('_DiaSP')
 #endif
 
       End

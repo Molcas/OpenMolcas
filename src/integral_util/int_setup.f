@@ -8,14 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Int_Setup(iSD,nSkal,iS,jS,kS,lS,
-     &                     Coor,Shijij,
+      Subroutine Int_Setup(iSD,nSkal,iS,jS,kS,lS,Coor,Shijij,
      &                     iAngV,iCmpV,iShelV,iShllV,iAOV,iStabs)
+      Use Basis_Info
+      use Real_Info, only: RPQMin
+      use Logical_Info, only: DoFMM
       Implicit Real*8 (a-h,o-z)
-*
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 *
 #include "nsd.fh"
 #include "FMM.fh"
@@ -27,21 +25,27 @@
       Logical Shijij
 *
       iCnttp=iSD(13,iS)
+      iCnt  =iSD(14,iS)
+      jCnttp=iSD(13,jS)
+      jCnt  =iSD(14,jS)
       kCnttp=iSD(13,kS)
+      kCnt  =iSD(14,kS)
+      lCnttp=iSD(13,lS)
+      lCnt  =iSD(14,lS)
 *
-      If (AuxCnttp(iCnttp)) Then
-         call dcopy_(3,Work(iSD(8,jS)),1,Coor(1,1),1)
+      If (dbsc(iCnttp)%Aux) Then
+         Coor(1:3,1)=dbsc(jCnttp)%Coor(1:3,jCnt)
       Else
-         call dcopy_(3,Work(iSD(8,iS)),1,Coor(1,1),1)
+         Coor(1:3,1)=dbsc(iCnttp)%Coor(1:3,iCnt)
       End If
-      call dcopy_(3,Work(iSD(8,jS)),1,Coor(1,2),1)
+      Coor(1:3,2)=dbsc(jCnttp)%Coor(1:3,jCnt)
 *
-      If (AuxCnttp(kCnttp)) Then
-         call dcopy_(3,Work(iSD(8,lS)),1,Coor(1,3),1)
+      If (dbsc(kCnttp)%Aux) Then
+         Coor(1:3,3)=dbsc(lCnttp)%Coor(1:3,lCnt)
       Else
-         call dcopy_(3,Work(iSD(8,kS)),1,Coor(1,3),1)
+         Coor(1:3,3)=dbsc(kCnttp)%Coor(1:3,kCnt)
       End If
-      call dcopy_(3,Work(iSD(8,lS)),1,Coor(1,4),1)
+      Coor(1:3,4)=dbsc(lCnttp)%Coor(1:3,lCnt)
 *
       Shijij=(iSD(0,iS).eq.iSD(0,kS).and.iSD(10,iS).eq.iSD(10,kS))
      &       .and.

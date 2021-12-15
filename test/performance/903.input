@@ -57,7 +57,7 @@ End of input
  &MOTRA &END
 Title
  O2 molecule.
-LumOrb  
+LumOrb
 Frozen
   1 1 0 0 0 0 0 0
 End of input
@@ -73,7 +73,7 @@ Spin
   3
 Inactive
   1 1 0 0 0 0 0 0
-Active 
+Active
   1 1 1 1 1 1 0 0
 CiAll
   7

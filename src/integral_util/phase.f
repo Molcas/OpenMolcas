@@ -14,26 +14,18 @@
       Subroutine Phase(iCmp, jCmp, kCmp, lCmp, iAng,
      &                 iShll, kOp, ijkl, AOInt)
 ************************************************************************
+*                                                                      *
 *  Object: To change the phase of the integrals in accordance with the *
 *          swapping of the operators operating on the integrals.       *
-*                                                                      *
-* Called from: TwoEl                                                   *
-*            : Trnsps                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              GetMem                                                  *
-*              DScal    (ESSL)                                         *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             June '90                                                 *
 ************************************************************************
+      use Basis_Info
+      use Real_Spherical, only: iSphCr
+      use Symmetry_Info, only: iChBas
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
-#include "print.fh"
       Real*8 AOInt(ijkl,iCmp,jCmp,kCmp,lCmp)
       Integer iAng(4), iShll(4)
 *
@@ -41,9 +33,6 @@
 *
       iOff(ixyz)  = ixyz*(ixyz+1)*(ixyz+2)/6
 *
-      iRout = 73
-      iPrint = nPrint(iRout)
-*     Call qEnter('Phase')
 *     Call RecPrt(' In Phase: AOInt ',' ',AOInt,ijkl,ijCmp*ijCmp)
 *
 *     Change phase factor. This is only necessary if T=/=E.
@@ -55,20 +44,20 @@
       ll = iOff(iAng(4))
       Do 10 i1 = 1, iCmp
        iChBs = iChBas(ii+i1)
-       If (Transf(iShll(1))) iChBs = iChBas(iSphCr(ii+i1))
+       If (Shells(iShll(1))%Transf) iChBs = iChBas(iSphCr(ii+i1))
        pa1T = DBLE(iPrmt(kOp,iChBs))
        Do 11 i2 = 1, jCmp
         jChBs = iChBas(jj+i2)
-        If (Transf(iShll(2))) jChBs = iChBas(iSphCr(jj+i2))
+        If (Shells(iShll(2))%Transf) jChBs = iChBas(iSphCr(jj+i2))
         pb1T = DBLE(iPrmt(kOp,jChBs))
 *
         Do 12 i3 = 1, kCmp
          kChBs = iChBas(kk+i3)
-         If (Transf(iShll(3))) kChBs = iChBas(iSphCr(kk+i3))
+         If (Shells(iShll(3))%Transf) kChBs = iChBas(iSphCr(kk+i3))
          pa2T = DBLE(iPrmt(kOp,kChBs))
          Do 13 i4 = 1, lCmp
           lChBs = iChBas(ll+i4)
-          If (Transf(iShll(4))) lChBs = iChBas(iSphCr(ll+i4))
+          If (Shells(iShll(4))%Transf) lChBs = iChBas(iSphCr(ll+i4))
           pb2T = DBLE(iPrmt(kOp,lChBs))
           Factor=pa1T*pb1T*pa2T*pb2T
           If (Factor.ne.One) Call DScal_(ijkl,Factor,
@@ -81,7 +70,5 @@
 *
 *     Call RecPrt(' Exit Phase: AOInt ',' ',AOInt,ijkl,
 *    &            iCmp*jCmp*kCmp*lCmp)
-*     Call GetMem(' Exit Phase','CHECK','REAL',iDum,iDum)
-*     Call qExit('Phase')
       Return
       End

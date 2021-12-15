@@ -46,7 +46,7 @@ c
         PAst = PA(iMO_s,iMO_t,iAt)
         PAtt = PA(iMO_t,iMO_t,iAt)
 *       Write (6,*) 'updateP:',PAss,PAst,PAtt
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
         PAts = PA(iMO_t,iMO_s,iAt)
         Tst  = PAst - PAts
         If (abs(Tst) .gt. 1.0d-14) Then

@@ -55,7 +55,6 @@
 * obtained by (IEX-1) fold internal excitation , with a NAEL + DELTAA
 * alpha electrons and  NBEL + DELTAB beta electrons
 *
-*     Call qEnter('ICISPC')
 *
       NTEST = 00000
       NTEST = MAX(NTEST,IPRNT)
@@ -107,7 +106,6 @@
 1020    CONTINUE
       END IF
 *
-*     Call qExit('ICISPC')
 *
       RETURN
       END

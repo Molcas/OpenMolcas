@@ -15,7 +15,6 @@
 #include "real_guga.fh"
 #include "integ.fh"
       COMMON/CNSTS/D0,D1,D2
-      CALL QENTER('LOOP26')
       ISTOP=0
       KM1=KM+1
       J2F=IPO(J2(KM1))
@@ -101,6 +100,5 @@ C     BD+
       GO TO 40
 55    ISTOP=1
 40      Continue
-       CALL QEXIT('LOOP26')
       RETURN
       END

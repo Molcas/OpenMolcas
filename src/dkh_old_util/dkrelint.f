@@ -12,6 +12,10 @@
 *               2005, Markus Reiher                                    *
 ************************************************************************
       Subroutine DKRelint
+      use Basis_Info
+      use Temporary_Parameters, only: force_out_of_core
+      use DKH_Info
+      use Symmetry_Info, only: nIrrep
 c
 c     modified by A. Wolf and M. Reiher, Uni Bonn, Feb. and March 2005
 c       (extended for use of generalized arbitrary-order DKH)
@@ -19,9 +23,8 @@ c       NB: If the standard 2nd order DKH is wanted,
 c           the original routines by Hess are called!
 c
       Implicit real*8(a-h,o-z)
+#include "Molcas.fh"
 #include "warnings.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "rinfo.fh"
 #include "print.fh"
 #include "real.fh"
@@ -52,7 +55,6 @@ c
 *                                                                      *
       iRout=77
       iPrint=nPrint(iRout)
-      Call QEnter('DKRelInt')
 *
       If(Debug)Then
         idbg=6
@@ -108,12 +110,12 @@ c
 *       The none valence type shells comes at the end. When this block
 *       is encountered stop the procedure.
 *
-        If(AuxCnttp(iCnttp) .or.
-     &      FragCnttp(iCnttp) .or.
-     &      nFragType(iCnttp).gt.0 ) Go To 999
+        If(dbsc(iCnttp)%Aux .or.
+     &     dbsc(iCnttp)%Frag .or.
+     &     dbsc(iCnttp)%nFragType.gt.0 ) Go To 999
 
 *
-        Do icnt = 1, nCntr(iCnttp)
+        Do icnt = 1, dbsc(iCnttp)%nCntr
         kC=kC+1
            Do iAngr=0,nAngr(kC)
                rI=DBLE(iAngr)+One+Half
@@ -1031,7 +1033,6 @@ c... reset contracted basis size
       CALL GetMem('H_temp  ','FREE','REAL',iH_temp,iSizec+4)
       CALL GetMem('pVp     ','FREE','REAL',ipVp,iSizep+4)
 *
-      Call QExit('DKRelInt')
       Return
 *
  9999 Continue

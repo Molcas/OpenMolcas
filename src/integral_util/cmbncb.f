@@ -16,10 +16,6 @@
 *                                                                      *
 * Object: compute the gradient of the overlap matrix.                  *
 *                                                                      *
-* Calling    : QEnter                                                  *
-*              DDot_   (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             October '91.                                             *
@@ -38,7 +34,6 @@
 *
       iRout = 134
       iPrint = nPrint(iRout)
-*     Call qEnter('CmbnCB')
 *     Call GetMem(' Enter CmbnCB','LIST','REAL',iDum,iDum)
 *
       If (iPrint.ge.99) Then
@@ -133,6 +128,5 @@
  10   Continue
 *
 *     Call GetMem(' Exit CmbnCB','LIST','REAL',iDum,iDum)
-*     Call qExit('CmbnCB')
       Return
       End

@@ -35,7 +35,6 @@
 
       INTEGER I, IAD, IDISK, JOB, LROOT1, LSYM
 
-      CALL QENTER(ROUTINE)
 
       IF(ISTATE.LT.1 .OR. ISTATE.GT.NSTATE) THEN
         WRITE(6,*)'RASSI/READCI: Invalid ISTATE parameter.'
@@ -99,6 +98,5 @@
         CALL PRWF(ISGS,ICIS,LSYM,CI,CITHR)
       END IF
 
-      CALL QEXIT(ROUTINE)
       RETURN
       END

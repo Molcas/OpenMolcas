@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2012, Thomas Bondo Pedersen                            *
 ************************************************************************
-C#define _DEBUG_
+C#define _DEBUGPRINT_
       Subroutine ChoLSOSMP2_Energy(irc,EMP2,EOcc,EVir,Sorted,DelOrig)
 C
 C     Thomas Bondo Pedersen, December 2012.
@@ -37,7 +37,7 @@ C
       External TestMinimaxLaplace
 
       Logical Debug
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Parameter (Debug=.true.)
 #else
       Parameter (Debug=.false.)
