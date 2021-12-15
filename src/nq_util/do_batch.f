@@ -14,13 +14,14 @@
      &                    list_s,nlist_s,List_Exp,List_Bas,
      &                    Index,nIndex,AOInt,nAOInt,
      &                    FckInt,nFckDim,nFckInt,SOTemp,nSOTemp,
-     &                    TabAO,ipTabAO,mAO,nTabAO,nSym,
+     &                    ipTabAO,mAO,nSym,
      &                    Dens,nDens,nD,
      &                    ndF_dRho,nP2_ontop,ndF_dP2ontop,nShell,
      &                    Do_Mo,Do_TwoEl,l_Xhol,
      &                    TmpPUVX,nTmpPUVX,TabMO,TabSO,
      &                    nMOs,CMOs,nCMO,DoIt,
-     &                  P2mo,P2unzip,np2act,D1mo,D1Unzip,nd1mo,P2_ontop,
+     &                    P2mo,P2unzip,np2act,D1mo,D1Unzip,nd1mo,
+     &                    P2_ontop,
      &                    Do_Grad,Grad,nGrad,dRho_dR,ndRho_dR,nGrad_Eff,
      &                    list_g,IndGrd,iTab,Temp,F_xc,dW_dR,iNQ,Maps2p,
      &                    dF_dRho,dF_dP2ontop,DFTFOCK,LOE_DB,LTEG_DB,
@@ -36,7 +37,7 @@
       use Phase_Info
       use KSDFT_Info
       use nq_Grid, only: Grid, Weights, Rho, GradRho, Sigma, nRho
-      use nq_Grid, only: l_CASDFT
+      use nq_Grid, only: l_CASDFT, TabAO, TabAO_Pack
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "SysDef.fh"
@@ -56,7 +57,7 @@
      &        list_g(3,nlist_s), iTab(4,nGrad_Eff), Index(nIndex),
      &        Maps2p(nShell,0:nSym-1), List_Bas(2,nlist_s)
       Real*8 A(3), RA(3), AOInt(nAOInt*nAOInt,nD),
-     &       dF_dRho(ndF_dRho,mGrid), TabAO(nTabAO), Grad(nGrad),
+     &       dF_dRho(ndF_dRho,mGrid), Grad(nGrad),
      &       FckInt(nFckInt,nFckDim),
      &       Dens(nDens,nD), SOTemp(nSOTemp,nD),
      &       TabMO(mAO,mGrid,nMOs),TabSO(mAO,mGrid,nMOs),
@@ -106,6 +107,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      nTabAO=Size(TabAO)
 #ifdef _DEBUGPRINT_
       Debug_Save=Debug
       Debug=Debug.or.iPrint.ge.99
@@ -157,7 +159,7 @@
 *                                                                      *
 ************************************************************************
 *
-      TabAO(:)=Zero
+      TabAO(:,:,:)=Zero
       UnPack=.False.
       If (NQ_Direct.eq.Off .and. (Grid_Status.eq.Use_Old .and.
      &      .Not.Do_Grad         .and.
@@ -232,7 +234,7 @@
      &                  Work(ipRadial),
      &                  iBas_Eff,
      &                  Shells(iShll)%pCff(1,iBas-iBas_Eff+1),
-     &                  TabAO(iOff),
+     &                  TabAO_Pack(iOff),
      &                  mAO,px,py,pz,ipx,ipy,ipz)
             iOff = iOff + mAO*mGrid*iBas_Eff*iCmp
 *
@@ -260,15 +262,16 @@
 *                 Check if we should store any AOs at all!
 *
                   iOff = ipTabAO(ilist_s,1)
-                  ix=iDAMax_(nData,TabAO(iOff),1)
-                  AOMax=Abs(TabAO(iOff-1+ix))
+                  ix=iDAMax_(nData,TabAO_Pack(iOff),1)
+                  AOMax=Abs(TabAO_Pack(iOff-1+ix))
                   If (AOMax.ge.T_X) Then
                      If (nData.gt.nTmp) Then
                         Call WarningMessage(2,'nData.gt.nTmp')
                         Call Abend()
                      End If
-                     call dcopy_(nData,TabAO(iOff),1,Work(ipTmp),1)
-                     Call PkR8(0,nData,nByte,Work(ipTmp),TabAO(jOff))
+                     call dcopy_(nData,TabAO_Pack(iOff),1,Work(ipTmp),1)
+                     Call PkR8(0,nData,nByte,Work(ipTmp),
+     &                                       TabAO_Pack(jOff))
                      mData = (nByte+RtoB-1)/RtoB
                      If (mData.gt.nData) Then
                         Call WarningMessage(2,'mData.gt.nData')
@@ -317,11 +320,11 @@
                   Call WarningMessage(2,'mData.gt.nTmp')
                   Call Abend()
                End If
-               Call UpkR8(0,nData,nByte,TabAO(jOff),Work(ipTmp))
-               call dcopy_(nData,Work(ipTmp),1,TabAO(iOff),1)
+               Call UpkR8(0,nData,nByte,TabAO_Pack(jOff),Work(ipTmp))
+               call dcopy_(nData,Work(ipTmp),1,TabAO_Pack(iOff),1)
             Else
                mData=0
-               Call FZero(TabAO(iOff),nData)
+               TabAO_Pack(1:nData)=Zero
             End If
          End Do
 *
@@ -362,8 +365,9 @@
 *           on to the SOs of this shell. The SOs are only stored
 *           temporarily!
 *
-            Call SOAdpt_NQ(TabAO(ipTabAO(iList_s,1)),mAO,mGrid,iBas,
-     &                  iBas_Eff,iCmp,iSym,Work(ipSOs),nDeg,iAO)
+            Call SOAdpt_NQ(TabAO_Pack(ipTabAO(iList_s,1)),mAO,mGrid,
+     &                     iBas,iBas_Eff,iCmp,iSym,Work(ipSOs),nDeg,
+     &                     iAO)
 *
             Call GetMem('TmpCM','Allo','Real',ipTmpCMO,nCMO)
             Call GetMem('TDoIt','Allo','Inte',ipTDoIt,nMOs)

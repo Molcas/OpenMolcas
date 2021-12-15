@@ -348,7 +348,6 @@ C              End If
       Call mma_Allocate(TabAO,mAO,mGrid,nBfn,Label='TabAO')
       TabAO_Pack(1:mAO*mGrid*nBfn) => TabAO(:,:,:)
       Call Allocate_iWork(ipTabAO,2*(nlist_s+1))
-      Call mma_Allocate(Grid_AO,mAO,mGrid,nBfn,nD,Label='Grid_AO')
       Call mma_Allocate(Dens_AO,nBfn**2,nD,Label='Dens_AO')
 *
       If ((Functional_Type.eq.CASDFT_Type).or.Do_MO.or.DO_TwoEl) Then
@@ -688,27 +687,26 @@ c
             End If
          End If
 *
+         Call mma_Allocate(Grid_AO,mAO,nogp,nBfn,nD,Label='Grid_AO')
          Call Do_Batch(Kernel,Func,nogp,
      &                 list_s,nlist_s,List_Exp,List_Bas,
      &                 iWork(ipIndex),nIndex,AOInt,nAOInt,
-     &                 FckInt,nFckDim,nFckInt,
-     &                 SOTemp,nSOTemp,
-     &                 TabAO,iWork(ipTabAO),mAO,Size(TabAO),
-     &                 nSym,Dens,nDens,nD,
+     &                 FckInt,nFckDim,nFckInt,SOTemp,nSOTemp,
+     &                 iWork(ipTabAO),mAO,nSym,Dens,nDens,nD,
      &                 ndF_dRho,nP2_ontop,ndF_dP2ontop,
-     &                 nShell,
-     &                 Do_Mo,Do_TwoEl,l_Xhol,
-     &                 TmpPUVX,nTmpPUVX,
+     &                 nShell,Do_Mo,Do_TwoEl,l_Xhol,TmpPUVX,nTmpPUVX,
      &                 Work(ipTabMO),Work(ipTabSO),
      &                 nMOs,CMOs,nCMO,DoIt,
-     &          P2mo,P2unzip,np2act,D1mo,D1Unzip,nd1mo,P2_ontop,
+     &                 P2mo,P2unzip,np2act,D1mo,D1Unzip,nd1mo,P2_ontop,
      &                 Do_Grad,Grad,nGrad,
      &                 Work(ip_dRho_dR),mdRho_dR,nGrad_Eff,
      &                 list_g,IndGrd,iTab,Temp,F_xc,
      &                 Work(ip_dW_dR),iNQ,
      &                 Maps2p,dF_dRho,dF_dP2ontop,
-     &                DFTFOCK,LOE_DB,LTEG_DB,PDFTPot1,PDFTFocI,PDFTFocA)
+     &                 DFTFOCK,LOE_DB,LTEG_DB,PDFTPot1,PDFTFocI,
+     &                 PDFTFocA)
 *
+         Call mma_deallocate(Grid_AO)
          nTotGP=nTotGP+nogp
 *        update the "LuGridFile":
          do i=1,nogp
@@ -731,7 +729,6 @@ c
       Call GetMem('Index','Free','Real',ipIndex,nIndex)
       Call Free_iWork(ipTabAO)
       Call mma_deallocate(Dens_AO)
-      Call mma_deallocate(Grid_AO)
       TabAO_Pack => Null()
       Call mma_deallocate(TabAO)
       If (Do_Grad) Call Free_Work(ip_dRho_dR)
