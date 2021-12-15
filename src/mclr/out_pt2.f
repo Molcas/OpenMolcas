@@ -441,8 +441,8 @@ C
              Do iI = 1, nBasI
                Do iJ = 1, nBasI
                  Read(LuPT2,*) Val
-                 Work(ipD_K+ipMat(iSym,iSym)-1+iI-1+(iJ-1)*nBasI)
-     *         = Work(ipD_K+ipMat(iSym,iSym)-1+iI-1+(iJ-1)*nBasI)
+                 D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)
+     *         = D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)
      *         + Val
                End Do
              End Do
@@ -453,11 +453,11 @@ C
              Do iI = 1, nBasI
                Do iJ = 1, nBasI
                  Read(LuPT2,*) Val
-                 Work(ipD_K+ipMat(iSym,iSym)-1+iI-1+(iJ-1)*nBasI)
-     *         = Work(ipD_K+ipMat(iSym,iSym)-1+iI-1+(iJ-1)*nBasI)
+                 D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)
+     *         = D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)
      *         + Val*0.25d+00
-                 Work(ipD_K+ipMat(iSym,iSym)-1+iJ-1+(iI-1)*nBasI)
-     *         = Work(ipD_K+ipMat(iSym,iSym)-1+iJ-1+(iI-1)*nBasI)
+                 D_K(ipMat(iSym,iSym)+iJ-1+(iI-1)*nBasI)
+     *         = D_K(ipMat(iSym,iSym)+iJ-1+(iI-1)*nBasI)
      *         + Val*0.25d+00
                End Do
              End Do
@@ -562,8 +562,8 @@ C
              Do iI = 1, nBasI
                Do iJ = 1, nBasI
                  Read(LuPT2,*) Val
-                 Work(ipD_K+ipMat(iSym,iSym)-1+iI-1+(iJ-1)*nBasI)
-     *         = Work(ipD_K+ipMat(iSym,iSym)-1+iI-1+(iJ-1)*nBasI)
+                 D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)
+     *         = D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)
      *         + Val
                End Do
              End Do
@@ -577,11 +577,11 @@ C
              Do iI = 1, nBasI
                Do iJ = 1, nBasI
                  Read(LuPT2,*) Val
-                 Work(ipD_K+ipMat(iSym,iSym)-1+iI-1+(iJ-1)*nBasI)
-     *         = Work(ipD_K+ipMat(iSym,iSym)-1+iI-1+(iJ-1)*nBasI)
+                 D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)
+     *         = D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)
      *         + Val*0.25d+00
-                 Work(ipD_K+ipMat(iSym,iSym)-1+iJ-1+(iI-1)*nBasI)
-     *         = Work(ipD_K+ipMat(iSym,iSym)-1+iJ-1+(iI-1)*nBasI)
+                 D_K(ipMat(iSym,iSym)+iJ-1+(iI-1)*nBasI)
+     *         = D_K(ipMat(iSym,iSym)+iJ-1+(iI-1)*nBasI)
      *         + Val*0.25d+00
                End Do
              End Do
