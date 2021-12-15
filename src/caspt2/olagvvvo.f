@@ -529,7 +529,6 @@ C     IF (.not.DoCholesky) THEN
          WRITE(6,*)' Max nr of bf in any symmetry,  NBMX=',NBMX
          WRITE(6,*)' Required minimum size     1+NBMX**2=',1+NBMX**2
          WRITE(6,*)'    (All in Real*8-size words)'
-         Call QTRACE()
          Call  ABEND()
       End If
 *

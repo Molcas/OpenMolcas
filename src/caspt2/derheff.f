@@ -20,7 +20,6 @@ C
       Dimension CLag(nConf,nState),VECROT(*)
 C     return
 
-      CALL QENTER('DerHEff')
 C We evaluate the effective Hamiltonian matrix element in two steps.
 
       NTG1=NASHT**2
@@ -93,7 +92,6 @@ C
       CALL GETMEM('DTG2','FREE','REAL',LDTG2,NTG2)
       CALL GETMEM('DTG3','FREE','REAL',LDTG3,NTG3)
 C
-      CALL QEXIT('DerHEff')
 C
       RETURN
 C
@@ -133,7 +131,6 @@ C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
 #include "mafdecls.fh"
 #endif
 
-      CALL QENTER('DerHeffX')
 
 C Sketch of procedure:
 C  HEL=0.0D0
@@ -237,7 +234,6 @@ C    &    'Summed: ', (HECOMP(14,IS),IS=1,NSYM+1)
 C       WRITE(6,*)
 C     END IF
 
-      CALL QEXIT('DerHeffX')
 
       END
 C
@@ -271,7 +267,6 @@ C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
       HEBLK=0.0D0
 
       IF (IISTA.LE.0) RETURN
-      CALL QENTER('DerHEffX_BLK')
 
       NISBLK=IIEND-IISTA+1
       SELECT CASE (ICASE)
@@ -808,7 +803,6 @@ C         HEBLK=HEBLK+OVL*DDOT_(NAS*NISBLK,V2,1,V1,1)
         END IF
 ************************************************************************
       END SELECT
-      CALL QExit('DerHEffX_BLK')
       Return
       END
 C
@@ -851,7 +845,6 @@ C tu stands for the pair index tu= t + NASHT*(u-1), etc., and t is
 C the usual active orbital number, when they are enumerated across
 C all the symmetries (The ''absolute'' active index).
 
-      CALL QENTER('DERTG3')
 
 C Put in zeroes. Recognize special cases:
 C     OVL=1.0D0
@@ -1324,6 +1317,5 @@ C element.
       CALL GETMEM('IPTOLEV','FREE','INTE',LP2LEV,2*NASHT**2)
 
  999  CONTINUE
-      CALL QEXIT('DERTG3')
       RETURN
       END

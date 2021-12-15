@@ -60,7 +60,6 @@ C     contravariant form (T*C),
 C     With IMLTOP=1: the vector for the first  argument has to be
 C     covariant form (T*SC),
 C
-      CALL QENTER('SIGDER')
 C
 C     Allocate some matrices for storing overlap and transformation
 C     derivatives. Here constructs these derivatives in the MO basis,
@@ -280,7 +279,6 @@ C Transform contrav C  to eigenbasis of H0(diag):
       IF(IVEC.NE.JVEC) CALL PTRTOSR(1,JVEC,JVEC)
 
 C 99  CONTINUE
-      CALL QEXIT('SIGDER')
       RETURN
 
       Contains

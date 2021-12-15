@@ -1579,7 +1579,6 @@ C
       REAL*8, EXTERNAL :: DDOT_,DNRM2_
       REAL*8 :: CLag(*), RDMEIG(*)
 
-      CALL QENTER('POLY1')
 
       IF(NLEV.GT.0) THEN
         CALL GETMEM('LSGM1','ALLO','REAL',LSGM1 ,MXCI)
@@ -1602,7 +1601,6 @@ C     return !! for test purpose
         CALL GETMEM('LSGM1','FREE','REAL',LSGM1 ,MXCI)
       END IF
 
-      CALL QEXIT('POLY1')
 
       RETURN
       END
@@ -1639,7 +1637,6 @@ C     REAL*8 GTU
 
 * Purpose: Compute the 1-electron density matrix array G1.
 
-      CALL QENTER('DENS1_RPT2')
 
 * For the general cases, we use actual CI routine calls, and
 * have to take account of orbital order.
@@ -1757,7 +1754,6 @@ C       end do
 
 C 99  CONTINUE
 
-      CALL QEXIT('DENS1_RPT2')
 
       RETURN
       END

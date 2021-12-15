@@ -181,7 +181,6 @@ C     This applies to DG2 and DF2. DF1 has no problem, even though this
 C     term is computed similarly. It is because the indices of the
 C     latter excitation operator are the same.
 C
-      CALL QENTER('DERFG3')
 C     call dcopy_(nlev**4,[0.0d+00],0,df2,1)
 C     CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
 C
@@ -1429,7 +1428,6 @@ C     CALL GETMEM('FCDER1','FREE','REAL',LFCDer1,NBUFD*MXCI)
 C     CALL GETMEM('FCDER2','FREE','REAL',LFCDer2,NLEV*NLEV)
 C
  999  continue
-      CALL QEXIT('DERFG3')
       RETURN
       END
 C
@@ -1469,7 +1467,6 @@ C OR CLOSED-SHELL SCF CASE.
 #include "para_info.fh"
       LOGICAL RSV_TSK
 
-      CALL QENTER('SPECIAL')
 
 C     CALL DCOPY_(NG1,[0.0D0],0,G1,1)
 C     CALL DCOPY_(NG2,[0.0D0],0,G2,1)
@@ -1634,6 +1631,5 @@ C       F1(IT,IT)=(ESUM*OCC-ETA(LT))*G1(IT,IT)
         End Do
       END DO
 
-      CALL QEXIT('SPECIAL')
       RETURN
       END

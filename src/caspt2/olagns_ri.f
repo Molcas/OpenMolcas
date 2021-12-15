@@ -87,7 +87,7 @@ C
       Integer Active, Inactive, Virtual
       Parameter (Inactive=1, Active=2, Virtual=3)
       Integer nSh(8,3)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       INTEGER NUMERR
       SAVE NUMERR
       DATA NUMERR / 0 /
@@ -107,7 +107,6 @@ C
       Call ICopy(NSYM,NASH,1,nSh(1,Active  ),1)
       Call ICopy(NSYM,NSSH,1,nSh(1,Virtual ),1)
 C
-      Call QEnter('OLagNS_RI')
 
       IF (IPRGLB.GE.VERBOSE) THEN
         WRITE(6,'(1X,A)') ' Using RHSALL2+ADDRHS algorithm'
@@ -445,7 +444,6 @@ C
       Call DScal_(nBasSq,SCLNEL,DPT2C,1)
       If (isCSF) Call DScal_(nBasSq,SCLNEL,DPT2Canti,1)
 C
-      Call QExit('OLagNS_RI')
 C
       Return
 C

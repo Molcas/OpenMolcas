@@ -238,7 +238,6 @@ C
       REAL*8 OVLAPS(0:8,0:MXCASE)
       REAL*8 DSCALE
 
-      CALL QENTER('PCG_RES')
 C Flag to tell wether convergence was obtained
       ICONV = 0
 
@@ -442,7 +441,6 @@ C     !     WRITE(6,'(6x,a,f13.5)') 'Reference weight:     ',REFWGT
       !  EndIf
       END IF
 
-      CALL QEXIT('PCG_RES')
 C
       RETURN
 C

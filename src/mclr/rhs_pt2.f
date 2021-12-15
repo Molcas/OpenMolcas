@@ -36,6 +36,7 @@
 #endif
       Real*8 rKappa(*),CLag(*),SLag(*)
       Real*8, Allocatable:: DCAS(:)
+      Logical Found
       Half=0.5d0
 
 *
@@ -140,7 +141,7 @@ C     Call dDaFile(LuPT2,2,Work(ipT),n,i)
 *---  Read in necessary densities.
 *
       Call Qpg_dArray('D1ao',Found,nDens)
-      If (Found .and. nDens/=0) Then
+      If (Found .and. (nDens.ne.0)) Then
          Call mma_allocate(DCAS,nDens,Label='DCAS')
       Else
          Write (6,*) 'RHS_PT2: Density not found'

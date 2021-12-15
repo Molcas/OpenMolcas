@@ -56,7 +56,6 @@ C
       INTEGER IDCI,LCI1,LCI2
       REAL*8 OVL,DUMMY(1)
 
-      CALL QENTER('HEFVAL')
 C We evaluate the effective Hamiltonian matrix element in two steps.
 
       NTG1=NASHT**2
@@ -116,7 +115,6 @@ C Read root vectors nr. IST and JST from LUCI.
       CALL GETMEM('TG2','FREE','REAL',LTG2,NTG2)
       CALL GETMEM('TG3','FREE','REAL',LTG3,NTG3)
 
-      CALL QEXIT('HEFVAL')
       RETURN
       End Subroutine MS_Res
 C
@@ -156,7 +154,6 @@ C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
 #include "mafdecls.fh"
 #endif
 
-      CALL QENTER('MS_STRANS')
 
 C Sketch of procedure:
 C  HEL=0.0D0
@@ -264,7 +261,6 @@ C Sum-reduce the per-process contributions
         WRITE(6,*)
       END IF
 
-      CALL QEXIT('MS_STRANS')
 
       END
 C
@@ -298,7 +294,6 @@ C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
       HEBLK=0.0D0
 
       IF (IISTA.LE.0) RETURN
-      CALL QENTER('MS_STRANS_BLK')
 
       NISBLK=IIEND-IISTA+1
       SELECT CASE (ICASE)
@@ -728,7 +723,6 @@ C         HEBLK=HEBLK+OVL*DDOT_(NAS*NISBLK,V2,1,V1,1)
         END IF
 ************************************************************************
       END SELECT
-      CALL QExit('MS_STRANS_BLK')
       Return
       END
 C
@@ -739,7 +733,7 @@ C
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-      character(1) Bas
+      character(len=1) Bas
       real(8) CI(Nconf),U0(nState,nState)
       integer ID, Istate
 C
@@ -1276,7 +1270,6 @@ C
       REAL*8, EXTERNAL :: DDOT_,DNRM2_
       REAL*8 :: CLag1(*), CLag2(*), RDMEIG(*),Scal
 
-      CALL QENTER('POLY1')
 
       IF(NLEV.GT.0) THEN
         CALL GETMEM('LSGM1','ALLO','REAL',LSGM1 ,MXCI)
@@ -1299,7 +1292,6 @@ C
         CALL GETMEM('LSGM1','FREE','REAL',LSGM1 ,MXCI)
       END IF
 
-      CALL QEXIT('POLY1')
 
       RETURN
       END
@@ -1337,7 +1329,6 @@ C     REAL*8 GTU
 
 * Purpose: Compute the 1-electron density matrix array G1.
 
-      CALL QENTER('DENS1_RPT2')
 
 * For the general cases, we use actual CI routine calls, and
 * have to take account of orbital order.
@@ -1435,7 +1426,6 @@ C    *        Call DaXpY_(NSGM,2.0d+00*RDMEIG(IT,IU),SGM1,1,CLag,1)
 
 C 99  CONTINUE
 
-      CALL QEXIT('DENS1_RPT2')
 
       RETURN
       END
@@ -1811,7 +1801,6 @@ C
 c Purpose: Compute the 1- and 2-electron density matrix
 c arrays G1 and G2.
 
-      CALL QENTER('DENS2_RPT2')
 
       CALL DCOPY_(NG1,[0.0D0],0,G1,1)
 
@@ -1907,7 +1896,6 @@ C     task.
         WRITE(6,'("DEBUG> ",A,1X,ES21.14)') "G1:", DNRM2_(NG1,G1,1)
       ENDIF
 
-      CALL QEXIT('DENS2_RPT2')
 
       RETURN
       END

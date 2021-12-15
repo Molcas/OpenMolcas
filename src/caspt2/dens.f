@@ -41,8 +41,6 @@ C
       Dimension VECROT(nStLag)
 
 
-      CALL QENTER('DENS')
-C
       IF (IFGRDT) THEN
         !! Print out some information for the first time only
         If (iStpGrd.eq.nStpGrd) Then

@@ -48,7 +48,6 @@
 c Purpose: Compute the 1- and 2-electron density matrix
 c arrays G1 and G2.
 
-      CALL QENTER('DENS2_RPT2')
 
       CALL DCOPY_(NG1,[0.0D0],0,G1,1)
       CALL DCOPY_(NG2,[0.0D0],0,G2,1)
@@ -294,7 +293,6 @@ C     END DO
         WRITE(6,'("DEBUG> ",A,1X,ES21.14)') "G2:", DNRM2_(NG2,G2,1)
       ENDIF
 
-      CALL QEXIT('DENS2_RPT2')
 
       RETURN
       END
