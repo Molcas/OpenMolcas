@@ -808,6 +808,7 @@ c         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
 
         if (allocated(CI_solver)) then
           call CI_solver%run(actual_iter=actual_iter,
+     &                    ifinal=ifinal,
      &                    iroot=iroot,
      &                    weight=weight,
      &                    CMO=work(LCMO : LCMO + nTot2 - 1),
@@ -1074,6 +1075,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
         Call Timing(Swatch,Swatch,Zenith_1,Swatch)
         if (allocated(CI_solver)) then
           call CI_solver%run(actual_iter=actual_iter,
+     &                    ifinal=ifinal,
      &                    iroot=iroot,
      &                    weight=weight,
      &                    CMO=work(LCMO : LCMO + nTot2 - 1),
@@ -1099,23 +1101,6 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
      &               WORK(LFI),WORK(LFA),WORK(LD1I),WORK(LD1A),
      &               WORK(LTUVX),IFINAL)
         end if
-
-        block
-            use CI_solver_util, only: write_RDM
-            use fortran_strings, only: str
-            integer :: file_id
-
-            open(newunit=file_id, file="DMAT" // str(actual_iter))
-              call write_RDM(work(lDMAT : lDMAT + nAcPar - 1), file_id)
-            close(file_id)
-            open(newunit=file_id, file="PSMAT" // str(actual_iter))
-              call write_RDM(work(lpmat : lPMat + nAcpr2 - 1), file_id)
-            close(file_id)
-            open(newunit=file_id, file="PAMAT" // str(actual_iter))
-              call write_RDM(work(lpa : lpa + nAcPr2 - 1), file_id)
-            close(file_id)
-
-        end block
 
 c      call triprt('twxy',' ',WORK(LTUVX),nAc*(nAc+1)/2)
 c      call triprt('P-mat 2',' ',WORK(LPMAT),nAc*(nAc+1)/2)
@@ -1707,6 +1692,7 @@ c Clean-close as much as you can the CASDFT stuff...
 
       if (allocated(CI_solver)) then
           call CI_solver%run(actual_iter=actual_iter,
+     &                    ifinal=ifinal,
      &                    iroot=iroot,
      &                    weight=weight,
      &                    CMO=work(LCMO : LCMO + nTot2 - 1),

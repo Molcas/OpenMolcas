@@ -60,12 +60,12 @@ module CC_CI_mod
 
 contains
 
-    subroutine CC_CI_ctl(this, actual_iter, iroot, weight, CMO, DIAF, D1I_AO, &
+    subroutine CC_CI_ctl(this, actual_iter, ifinal, iroot, weight, CMO, DIAF, D1I_AO, &
                          D1A_AO, TUVX, F_IN, D1S_MO, DMAT, PSMAT, PAMAT)
         use fcidump_reorder, only : get_P_GAS, get_P_inp,ReOrFlag,ReOrInp
         use fcidump, only : make_fcidumps, transform
         class(CC_CI_solver_t), intent(in) :: this
-        integer, intent(in) :: actual_iter, iroot(nroots)
+        integer, intent(in) :: actual_iter, iroot(nroots), ifinal
         real(wp), intent(in) :: weight(nroots), &
             CMO(nTot2), DIAF(nTot), D1I_AO(nTot2), D1A_AO(nTot2), TUVX(nAcpr2)
         real(wp), intent(inout) :: F_In(nTot1), D1S_MO(nAcPar)

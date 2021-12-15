@@ -37,22 +37,6 @@ C
       iDisk=IADR15(12)
       jDisk=IADR15(3)
 
-*        Write(LF,*)
-*        Write(LF,*) ' CMO in NATORB_RASSCF very beginning'
-*        Write(LF,*) ' ---------------------'
-*        Write(LF,*)
-*        ioff=0
-*        Do iSym = 1,nSym
-*         iBas = nBas(iSym)
-*         if(iBas.ne.0) then
-*           write(6,*) 'Sym =', iSym
-*           do i= 1,iBas
-*             write(6,*) (CMOO(ioff+iBas*(i-1)+j),j=1,iBas)
-*           end do
-*           iOff = iOff + (iBas*iBas)
-*         end if
-*        End Do
-
       if(.not.DoSplitCAS) then
         Do kRoot = 1,lRoots
           If(KSDFT.eq.'SCF'.and.IPRLEV.ge.USUAL) Then

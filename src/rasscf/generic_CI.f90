@@ -50,14 +50,14 @@ module generic_CI
 !>  @paramin[out] PSMAT Average symm. 2-dens matrix
 !>  @paramin[out] PAMAT Average antisymm. 2-dens matrix
 
-        subroutine CI_run_t(this, actual_iter, iroot, weight, CMO, DIAF,  &
-                            D1I_AO, D1A_AO, TUVX, F_IN, D1S_MO, DMAT, PSMAT, &
-                            PAMAT)
+        subroutine CI_run_t(this, actual_iter, ifinal, iroot, weight, &
+                            CMO, DIAF, D1I_AO, D1A_AO, TUVX, F_IN, &
+                            D1S_MO, DMAT, PSMAT, PAMAT)
             import :: CI_solver_t, ntot, ntot1, ntot2, nAcPar, nAcpr2, nroots,&
                       wp
 
             class(CI_solver_t), intent(in) :: this
-            integer, intent(in) :: actual_iter, iroot(nroots)
+            integer, intent(in) :: actual_iter, iroot(nroots), ifinal
             real(wp), intent(in) :: weight(nroots), &
                                   CMO(nTot2), DIAF(nTot), D1I_AO(nTot2), &
                                   D1A_AO(nTot2), TUVX(nAcpr2)

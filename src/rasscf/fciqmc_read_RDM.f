@@ -11,6 +11,7 @@
 * Copyright (C) 2016,2017, Giovanni Li Manni                           *
 *               2019-2021, Oskar Weser                                 *
 *               2021, Werner Dobrautz                                  *
+*               2021, Arta Safari                                      *
 ************************************************************************
 
       module fciqmc_read_RDM
@@ -18,11 +19,11 @@
       use definitions, only: wp, u6
       use stdalloc, only: mma_allocate, mma_deallocate
       use para_info, only: myRank
-      use rasscf_data, only : NRoots
+      use rasscf_data, only : NRoots, iAdr15
       use general_data, only : nActEl
       ! Note that two_el_idx_flatten has also out parameters.
       use index_symmetry, only : two_el_idx_flatten
-      use CI_solver_util, only: CleanMat
+      use CI_solver_util, only: CleanMat, RDM_to_runfile
       use linalg_mod, only: abort_, verify_
 
       implicit none
@@ -49,17 +50,20 @@
 
 
       subroutine read_neci_RDM(
-     &    iroot, weight, tGUGA, DMAT, DSPN, PSMAT, PAMAT
+     &    iroot, weight, tGUGA, ifinal, DMAT, DSPN, PSMAT, PAMAT
      &  )
           ! wrapper around `read_single_neci_(GUGA)_RDM` to average
-          ! normal and GUGA density matrices for stochastic SA-RASSCF.
-          integer(wp), intent(in) :: iroot(:)
+          ! normal and GUGA density matrices for stochastic SA-MCSCF.
+          integer(wp), intent(in) :: iroot(:), ifinal
           real(wp), intent(in) :: weight(:)
           logical, intent(in) :: tGUGA
           real(wp), intent(out) :: DMAT(:), DSPN(:), PSMAT(:), PAMAT(:)
-          integer :: i, j
+          integer :: i, j, jDisk
           real(wp), allocatable :: temp_DMAT(:), temp_DSPN(:),
      &                             temp_PSMAT(:), temp_PAMAT(:)
+
+          ! position in memory for writing density matrices to JOBIPH
+          jDisk = iAdr15(3)
 
           ! prevent stackoverflow
           call mma_allocate(temp_DMAT, size(DMAT))
@@ -85,17 +89,37 @@
      &                    )
                       end if
 
-                      DMAT = DMAT + weight(j) * temp_DMAT
-                      DSPN = DSPN + weight(j) * temp_DSPN
-                      PSMAT= PSMAT + weight(j) * temp_PSMAT
-                      PAMAT= PAMAT + weight(j) * temp_PAMAT
+                      DMAT  = DMAT  + weight(j) * temp_DMAT
+                      DSPN  = DSPN  + weight(j) * temp_DSPN
+                      PSMAT = PSMAT + weight(j) * temp_PSMAT
+                      PAMAT = PAMAT + weight(j) * temp_PAMAT
+
+!                     print *, "jDisk is:"
+!                     print *, jDisk
+!                     print *, "ifinal is:"
+!                     print *, ifinal
+
+                      if (ifinal > 0) then
+                          call RDM_to_runfile(
+     &                       temp_DMAT, temp_DSPN, temp_PSMAT,
+     &                       temp_PAMAT, jDisk
+     &                    )
+                      end if
                   end if
               end do
           end do
+
           call mma_deallocate(temp_DMAT)
           call mma_deallocate(temp_DSPN)
           call mma_deallocate(temp_PSMAT)
           call mma_deallocate(temp_PAMAT)
+
+          if (ifinal == 0) then
+              call RDM_to_runfile(
+     &            DMAT, DSPN, PSMAT, PAMAT, jDisk
+     &        )
+          end if
+
       end subroutine read_neci_RDM
 
 
