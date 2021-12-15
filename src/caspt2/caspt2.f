@@ -516,7 +516,6 @@ C     CALL MMA_DEALLOCATE(UEFF)
 C     CALL MMA_DEALLOCATE(U0)
       End If  !Skipping MultiState calculation in the first loop
               !for gradient calculation
-      End If  !Skipping MultiState calculation when IFNOPT2=true
 
       END DO GRADLOOP
 9000  CONTINUE

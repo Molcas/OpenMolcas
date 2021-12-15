@@ -258,11 +258,6 @@
      &     'diagonalize the Fock operator'
         end if
 
-        if (IFNOPT2) then
-          write(6,Fmt1)'The second-order perturbation calculation '//
-     &     'will not be performed'
-        end if
-
         if (IFDORTHO) then
           write(6,Fmt1)'Unscaled orthornormalization will be used '//
      &     'to generate internally contracted basis'

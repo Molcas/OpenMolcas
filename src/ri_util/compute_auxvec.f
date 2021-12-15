@@ -18,7 +18,7 @@
       Integer ipVk(nProc), ipUk(nProc), ipZpk(nProc)
       Logical CASPT2
 #include "itmax.fh"
-#include "info.fh"
+! #include "info.fh"
 #include "WrkSpc.fh"
 #include "real.fh"
 #include "cholesky.fh"
