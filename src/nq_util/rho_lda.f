@@ -304,6 +304,44 @@
                End Do
             End Do
          End Do
+      Else If (Functional_Type.eq.CASDFT_Type) Then
+         Rho(:,1:mGrid)=Zero
+         GradRho(:,1:mGrid)=Zero
+         Tau(:,1:mGrid)=Zero
+         Do iD = 1, nD
+            ix = (iD-1)*3 + 1
+            iy = (iD-1)*3 + 2
+            iz = (iD-1)*3 + 3
+            Do iAO = 1, nAO
+               Do iGrid = 1, mGrid
+                  Rho(iD,iGrid) = Rho(iD,iGrid)
+     &                          + Grid_AO(1,iGrid,iAO,iD)
+     &                          * TabAO(1,iGrid,iAO)
+                  GradRho(ix,iGrid)=GradRho(ix,iGrid)
+     &                          + Grid_AO(1,iGrid,iAO,iD)
+     &                          * TabAO(2,iGrid,iAO)
+     &                          + Grid_AO(2,iGrid,iAO,iD)
+     &                          * TabAO(1,iGrid,iAO)
+                  GradRho(iy,iGrid)=GradRho(iy,iGrid)
+     &                          + Grid_AO(1,iGrid,iAO,iD)
+     &                          * TabAO(3,iGrid,iAO)
+     &                          + Grid_AO(3,iGrid,iAO,iD)
+     &                          * TabAO(1,iGrid,iAO)
+                  GradRho(iz,iGrid)=GradRho(iz,iGrid)
+     &                          + Grid_AO(1,iGrid,iAO,iD)
+     &                          * TabAO(4,iGrid,iAO)
+     &                          + Grid_AO(4,iGrid,iAO,iD)
+     &                          * TabAO(1,iGrid,iAO)
+                  Tau(iD,iGrid) = Tau(iD,iGrid)
+     &                          + Grid_AO(5,iGrid,iAO,iD)
+     &                          * TabAO(5,iGrid,iAO)
+     &                          + Grid_AO(8,iGrid,iAO,iD)
+     &                          * TabAO(8,iGrid,iAO)
+     &                          + Grid_AO(10,iGrid,iAO,iD)
+     &                          * TabAO(10,iGrid,iAO)
+               End Do
+            End Do
+         End Do
       Else
          Call abend()
       End If

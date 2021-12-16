@@ -1304,8 +1304,8 @@ C    &                       list_bas,Index,nIndex)
 ************************************************************************
 *                                                                      *
 *
-         Call Rho_CAS(Dens,nDens,nD,mGrid,
-     &                list_s,nlist_s,TabAO,ipTabAO,mAO,nTabAO,nSym,
+         Call Rho_LDA(Dens,nDens,nD,mGrid,
+     &                list_s,nlist_s,ipTabAO,mAO,nSym,
      &                Work(ip_Fact),ndc,
      &                list_bas,Index,nIndex)
 *
