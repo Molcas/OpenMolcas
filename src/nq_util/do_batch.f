@@ -1338,10 +1338,10 @@ C    &                       list_bas,Index,nIndex)
 ************************************************************************
 ************************************************************************
 *                                                                      *
-         Call Rho_meta_GGA1(nD,mGrid,
-     &                     list_s,nlist_s,TabAO,ipTabAO,mAO,nTabAO,
-     &                     Work(ip_Fact),ndc,
-     &                     list_bas,Index,nIndex)
+         Call Rho_LDA(Dens,nDens,nD,mGrid,
+     &                list_s,nlist_s,ipTabAO,mAO,nSym,
+     &                Work(ip_Fact),ndc,
+     &                list_bas,Index,nIndex)
 *
          If (Do_Grad)
      &      Call dRho_dR_meta_GGA1
@@ -1374,6 +1374,10 @@ C    &                       list_bas,Index,nIndex)
      &                       Work(ip_Fact),ndc,Work(ipTmp),T_X,
      &                       list_bas,Index,nIndex)
       End If
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
 *
 *     Integrate out the number of electrons
 *

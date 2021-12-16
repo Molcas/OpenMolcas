@@ -20,7 +20,7 @@
       use iSD_data
       use k2_arrays, only: DeDe, ipDijS
       use nq_grid, only: Rho, TabAO, Dens_AO, Grid_AO
-      use nq_grid, only: GradRho, Sigma
+      use nq_grid, only: GradRho, Sigma, Tau
 #ifdef _DEBUGPRINT_
       use nq_grid, only: nRho
 #endif
@@ -212,6 +212,53 @@
                End Do
             End Do
          End Do
+       Else If (Functional_Type.eq.meta_GGA_Type1) Then
+         Rho(:,1:mGrid)=Zero
+         GradRho(:,1:mGrid)=Zero
+         Tau(:,1:mGrid)=Zero
+         Do iD = 1, nD
+            ix = (iD-1)*3 + 1
+            iy = (iD-1)*3 + 2
+            iz = (iD-1)*3 + 3
+            Do iAO = 1, nAO
+               Do iGrid = 1, mGrid
+                  Rho(iD,iGrid) = Rho(iD,iGrid)
+     &                          + Grid_AO(1,iGrid,iAO,iD)
+     &                          * TabAO(1,iGrid,iAO)
+                  GradRho(ix,iGrid)=GradRho(ix,iGrid)
+     &                          + Grid_AO(1,iGrid,iAO,iD)
+     &                          * TabAO(2,iGrid,iAO)
+     &                          + Grid_AO(2,iGrid,iAO,iD)
+     &                          * TabAO(1,iGrid,iAO)
+                  GradRho(iy,iGrid)=GradRho(iy,iGrid)
+     &                          + Grid_AO(1,iGrid,iAO,iD)
+     &                          * TabAO(3,iGrid,iAO)
+     &                          + Grid_AO(3,iGrid,iAO,iD)
+     &                          * TabAO(1,iGrid,iAO)
+                  GradRho(iz,iGrid)=GradRho(iz,iGrid)
+     &                          + Grid_AO(1,iGrid,iAO,iD)
+     &                          * TabAO(4,iGrid,iAO)
+     &                          + Grid_AO(4,iGrid,iAO,iD)
+     &                          * TabAO(1,iGrid,iAO)
+                  Tau(iD,iGrid) = Tau(iD,iGrid)
+     &                          + Grid_AO(2,iGrid,iAO,iD)
+     &                          * TabAO(2,iGrid,iAO)
+     &                          + Grid_AO(3,iGrid,iAO,iD)
+     &                          * TabAO(3,iGrid,iAO)
+     &                          + Grid_AO(4,iGrid,iAO,iD)
+     &                          * TabAO(4,iGrid,iAO)
+               End Do
+            End Do
+         End Do
+
+
+      Else
+         Call abend()
+      End If
+*
+*     Generate the sigma vectors
+*
+      If (Allocated(Sigma)) Then
          If (nD.eq.1) Then
             Do iGrid=1, mGrid
                Sigma(1,iGrid)=GradRho(1,iGrid)**2
@@ -231,12 +278,7 @@
      &                       +GradRho(6,iGrid)**2
             End Do
          End If
-
-      Else
-         Call abend()
       End If
-
-
 #ifdef _DEBUGPRINT_
       Do iD = 1, nD
          Call RecPrt('Dens_AO',' ',Dens_AO(:,:,iD),nAO,nAO)
