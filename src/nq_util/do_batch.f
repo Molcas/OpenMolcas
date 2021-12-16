@@ -391,16 +391,14 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
+      Call Mk_Rho(nD,mGrid,list_s,nlist_s,ipTabAO,mAO,
+     &            Work(ip_Fact),ndc,list_bas,Index,nIndex)
+
       If (Functional_type.eq.LDA_type) Then
 *                                                                      *
 ************************************************************************
 ************************************************************************
 *                                                                      *
-         Call Rho_LDA(Dens,nDens,nD,mGrid,
-     &                list_s,nlist_s,ipTabAO,mAO,nSym,
-     &                Work(ip_Fact),ndc,
-     &                list_bas,Index,nIndex)
-*
          If (Do_Grad)
      &      Call dRho_dR_LDA(Dens,nDens,nD,dRho_dR,ndRho_dr,
      &                       mGrid,list_s,nlist_s,
@@ -723,11 +721,6 @@ C    &                         list_bas,Index,nIndex)
 ************************************************************************
 ************************************************************************
 *                                                                      *
-         Call Rho_LDA(Dens,nDens,nD,mGrid,
-     &                list_s,nlist_s,ipTabAO,mAO,nSym,
-     &                Work(ip_Fact),ndc,
-     &                list_bas,Index,nIndex)
-*
          If (Do_Grad)
      &      Call dRho_dR_GGA(Dens,nDens,nD,dRho_dR,ndRho_dr,
      &                       mGrid,list_s,nlist_s,
@@ -1304,11 +1297,6 @@ C    &                       list_bas,Index,nIndex)
 ************************************************************************
 *                                                                      *
 *
-         Call Rho_LDA(Dens,nDens,nD,mGrid,
-     &                list_s,nlist_s,ipTabAO,mAO,nSym,
-     &                Work(ip_Fact),ndc,
-     &                list_bas,Index,nIndex)
-*
 C        If (Do_Grad)
 C    &      Call dRho_dR_CAS(Dens,nDens,nD,dRho_dR,ndRho_dr,
 C    &                       mGrid,list_s,nlist_s,
@@ -1338,11 +1326,6 @@ C    &                       list_bas,Index,nIndex)
 ************************************************************************
 ************************************************************************
 *                                                                      *
-         Call Rho_LDA(Dens,nDens,nD,mGrid,
-     &                list_s,nlist_s,ipTabAO,mAO,nSym,
-     &                Work(ip_Fact),ndc,
-     &                list_bas,Index,nIndex)
-*
          If (Do_Grad)
      &      Call dRho_dR_meta_GGA1
      &                      (nD,dRho_dR,ndRho_dr,
@@ -1360,11 +1343,6 @@ C    &                       list_bas,Index,nIndex)
 ************************************************************************
 ************************************************************************
 *                                                                      *
-         Call Rho_LDA(Dens,nDens,nD,mGrid,
-     &                list_s,nlist_s,ipTabAO,mAO,nSym,
-     &                Work(ip_Fact),ndc,
-     &                list_bas,Index,nIndex)
-*
          If (Do_Grad)
      &      Call dRho_dR_meta_GGA2
      &                      (nD,dRho_dR,ndRho_dr,

@@ -8,11 +8,10 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 2000, Roland Lindh                                     *
+* Copyright (C) 2000, 2021, Roland Lindh                               *
 ************************************************************************
-      Subroutine Rho_LDA(Dens,nDens,nD,mGrid,
-     &                   list_s,nlist_s,ipTabAO,mAO,nSym,
-     &                   Fact,mdc,list_bas,Index,nIndex)
+      Subroutine Mk_Rho(nD,mGrid,list_s,nlist_s,ipTabAO,mAO,
+     &                  Fact,mdc,list_bas,Index,nIndex)
 ************************************************************************
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN.  2000                                   *
@@ -33,7 +32,7 @@
 #include "setup.fh"
       Integer list_s(2,nlist_s), ipTabAO(nlist_s), list_bas(2,nlist_s),
      &        Index(nIndex)
-      Real*8 Dens(nDens,nD), Fact(mdc**2)
+      Real*8 Fact(mdc**2)
       Integer ipD(2)
 *                                                                      *
 ************************************************************************
@@ -377,12 +376,5 @@
       End Do
 #endif
 
-#ifdef _DEBUGPRINT_
-#else
-c Avoid unused argument warnings
-      If (.False.) Call Unused_real_array(Dens)
-#endif
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(nSym)
       End
