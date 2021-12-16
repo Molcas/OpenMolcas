@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 2000, 2021, Roland Lindh                               *
+* Copyright (C) 2000, Roland Lindh                                     *
+*               2021, Roland Lindh                                     *
 ************************************************************************
       Subroutine Mk_Rho(nD,mGrid,list_s,nlist_s,ipTabAO,mAO,
      &                  Fact,mdc,list_bas,Index,nIndex)
