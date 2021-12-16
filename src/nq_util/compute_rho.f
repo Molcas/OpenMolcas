@@ -10,14 +10,15 @@
 *                                                                      *
 * Copyright (C) 2000, Roland Lindh                                     *
 ************************************************************************
-      Real*8 Function Compute_Rho(Weights,mGrid,Rho,nRho,iSpin,T_X)
+      Real*8 Function Compute_Rho(Weights,mGrid,iSpin,T_X)
 ************************************************************************
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. November 2000                           *
 ************************************************************************
+      use nq_Grid, only: Rho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-      Real*8 Weights(mGrid), Rho(nRho,mGrid)
+      Real*8 Weights(mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -169,7 +169,7 @@ c Avoid unused argument warnings
      &                    mAO,TabAO1,iBas,iBas_Eff,iCmp,
      &                        TabAO2,jBas,jBas_Eff,jCmp,
      &                    Fact,Index_i,Index_j)
-      use nq_grid, only: Rho
+      use nq_Grid, only: Rho, Grid_AO, Dens_AO
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -181,8 +181,34 @@ c Avoid unused argument warnings
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _TIME_
-#endif
+#define _NEWCODE_
+#ifdef _NEWCODE_
+      n_iBas = iBas_Eff*iCmp
+      n_jBas = jBas_Eff*jCmp
+*
+      Do jCB_Eff = 1, jBas_Eff*jCmp
+         jCB = Index_j(jCB_Eff)
+*
+         Do iCB_Eff = 1, iBas_Eff*iCmp
+            iCB = Index_i(iCB_Eff)
+*
+            ij = (jCB_Eff-1)*n_iBas + iCB_Eff
+            Dens_AO(ij,1) = DAij(iCB,jCB)*Fact
+         End Do          ! iCB
+      End Do             ! jCB
+*
+      Call DGEMM_('N','N',mAO*mGrid,n_jBas*1,n_iBas,
+     &            One,TabAO1,mAO*Size(TabAO1,2),
+     &                Dens_AO,n_iBas,
+     &            Zero,Grid_AO,mAO*Size(Grid_AO,2))
+*
+      Do jCB_Eff = 1, jBas_Eff*jCmp
+         Do iGrid = 1, mGrid
+            Rho(1,iGrid)=Rho(1,iGrid) + Grid_AO(1,iGrid,jCB_Eff,1)
+     &                                 * TabAO2(1,iGrid,jCB_Eff)
+         End Do
+      End Do
+#else
       Do jCB_Eff = 1, jBas_Eff*jCmp
          jCB = Index_j(jCB_Eff)
 *
@@ -198,9 +224,8 @@ c Avoid unused argument warnings
 *
          End Do          ! iCB
       End Do             ! jCB
-*
-#ifdef _TIME_
 #endif
+*
       Return
       End
 

@@ -11,7 +11,7 @@
 ************************************************************************
 *                                                                      *
       Subroutine Do_NInt1_d(AOInt,nAOInt,ndF_dRho,dF_dRho,
-     &                      Weights,mGrid,Rho,nRho,
+     &                      Weights,mGrid,
      &                      Scr,TabAO1,iCmp,iBas,nGrid_Tot,iSpin,
      &                      mAO,nFn)
 *                                                                      *
@@ -20,7 +20,7 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-      Real*8 AOInt(nAOInt*nAOInt,iSpin), Rho(nRho,mGrid),
+      Real*8 AOInt(nAOInt*nAOInt,iSpin),
      &       dF_dRho(ndF_dRho,mGrid), Weights(mGrid),
      &       TabAO1(mAO,mGrid,iBas*iCmp),
      &       Scr(iSpin*nFn,mGrid,iBas*iCmp)
@@ -133,8 +133,6 @@
       End Do
 *
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_real_array(Rho)
       End
 *                                                                      *
 ************************************************************************
@@ -223,17 +221,18 @@ c Avoid unused argument warnings
 ************************************************************************
 *                                                                      *
       Subroutine Do_NInt2_d(AOInt,nAOInt,ndF_dRho, dF_dRho,
-     &                      Weights,mGrid,Rho,nRho,
+     &                      Weights,mGrid,
      &                      Scr,TabAO1,iCmp,iBas,nGrid_Tot,iSpin,
      &                      mAO,nFn)
 *                                                                      *
 ************************************************************************
 ************************************************************************
+      use nq_Grid, only: GradRho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
       Real*8 AOInt(nAOInt*nAOInt,iSpin), dF_dRho(ndF_dRho,mGrid),
-     &       Weights(mGrid), Rho(nRho,mGrid),
+     &       Weights(mGrid),
      &       TabAO1(mAO,mGrid,iBas*iCmp),
      &       Scr(iSpin*nFn,mGrid,iBas*iCmp)
 *
@@ -260,9 +259,9 @@ c Avoid unused argument warnings
          ToAdd1=Zero
          Do iGrid = 1, mGrid
 
-            gx=Rho(2,iGrid)*Weights(iGrid)
-            gy=Rho(3,iGrid)*Weights(iGrid)
-            gz=Rho(4,iGrid)*Weights(iGrid)
+            gx=GradRho(1,iGrid)*Weights(iGrid)
+            gy=GradRho(2,iGrid)*Weights(iGrid)
+            gz=GradRho(3,iGrid)*Weights(iGrid)
 
             Temp0=dF_dRho(ipR,iGrid)*Weights(iGrid)
             Temp1=gx*(2.0d0*dF_dRho(ipGxx,iGrid)+dF_dRho(ipGxy,iGrid))
@@ -338,12 +337,12 @@ c Avoid unused argument warnings
          ToAdd2=Zero
          Do iGrid = 1, mGrid
 
-            gxa=rho(3,iGrid)*Weights(iGrid)
-            gya=rho(4,iGrid)*Weights(iGrid)
-            gza=rho(5,iGrid)*Weights(iGrid)
-            gxb=rho(6,iGrid)*Weights(iGrid)
-            gyb=rho(7,iGrid)*Weights(iGrid)
-            gzb=rho(8,iGrid)*Weights(iGrid)
+            gxa=Gradrho(1,iGrid)*Weights(iGrid)
+            gya=Gradrho(2,iGrid)*Weights(iGrid)
+            gza=Gradrho(3,iGrid)*Weights(iGrid)
+            gxb=Gradrho(4,iGrid)*Weights(iGrid)
+            gyb=Gradrho(5,iGrid)*Weights(iGrid)
+            gzb=Gradrho(6,iGrid)*Weights(iGrid)
 
             Temp0a=dF_dRho(ipRa,iGrid) * Weights(iGrid)
             Temp0b=dF_dRho(ipRb,iGrid) * Weights(iGrid)
@@ -546,17 +545,18 @@ c Avoid unused argument warnings
 ************************************************************************
 *                                                                      *
       Subroutine Do_NInt3_d(AOInt,nAOInt,ndF_dRho,
-     &                      dF_dRho,Weights,mGrid,Rho,nRho,
+     &                      dF_dRho,Weights,mGrid,
      &                      Scr,TabAO1,iCmp,iBas,nGrid_Tot,iSpin,
      &                      mAO,nFn)
 *                                                                      *
 ************************************************************************
 ************************************************************************
+      use nq_Grid, only: GradRho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
       Real*8 AOInt(nAOInt*nAOInt,iSpin), dF_dRho(ndF_dRho,mGrid),
-     &       Weights(mGrid), Rho(nRho,mGrid),
+     &       Weights(mGrid),
      &       TabAO1(mAO,mGrid,iBas*iCmp),
      &       Scr(iSpin*nFn,mGrid,iBas*iCmp)
 *
@@ -583,9 +583,9 @@ c Avoid unused argument warnings
          ToAdd1=Zero
          Do iGrid = 1, mGrid
 
-            gx=Rho(2,iGrid)*Weights(iGrid)
-            gy=Rho(3,iGrid)*Weights(iGrid)
-            gz=Rho(4,iGrid)*Weights(iGrid)
+            gx=GradRho(1,iGrid)*Weights(iGrid)
+            gy=GradRho(2,iGrid)*Weights(iGrid)
+            gz=GradRho(3,iGrid)*Weights(iGrid)
 
             Temp0=dF_dRho(ipR,iGrid)*Weights(iGrid)
             Temp1=gx*(2.0d0*dF_dRho(ipGxx,iGrid)+dF_dRho(ipGxy,iGrid))
@@ -678,12 +678,12 @@ c Avoid unused argument warnings
          ToAdd2=Zero
          Do iGrid = 1, mGrid
 
-            gxa=rho(3,iGrid)*Weights(iGrid)
-            gya=rho(4,iGrid)*Weights(iGrid)
-            gza=rho(5,iGrid)*Weights(iGrid)
-            gxb=rho(6,iGrid)*Weights(iGrid)
-            gyb=rho(7,iGrid)*Weights(iGrid)
-            gzb=rho(8,iGrid)*Weights(iGrid)
+            gxa=Gradrho(1,iGrid)*Weights(iGrid)
+            gya=Gradrho(2,iGrid)*Weights(iGrid)
+            gza=Gradrho(3,iGrid)*Weights(iGrid)
+            gxb=Gradrho(4,iGrid)*Weights(iGrid)
+            gyb=Gradrho(5,iGrid)*Weights(iGrid)
+            gzb=Gradrho(6,iGrid)*Weights(iGrid)
 
             Temp0a=dF_dRho(ipRa,iGrid) * Weights(iGrid)
             Temp0b=dF_dRho(ipRb,iGrid) * Weights(iGrid)
@@ -921,17 +921,18 @@ c Avoid unused argument warnings
 ************************************************************************
 *                                                                      *
       Subroutine Do_NInt4_d(AOInt,nAOInt,ndF_dRho,
-     &                      dF_dRho,Weights,mGrid,Rho,nRho,
+     &                      dF_dRho,Weights,mGrid,
      &                      Scr,TabAO1,iCmp,iBas,nGrid_Tot,iSpin,
      &                      mAO,nFn)
 *                                                                      *
 ************************************************************************
 ************************************************************************
+      use nq_Grid, only: GradRho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
       Real*8 AOInt(nAOInt*nAOInt,iSpin), dF_dRho(ndF_dRho,mGrid),
-     &       Weights(mGrid), Rho(nRho,mGrid),
+     &       Weights(mGrid),
      &       TabAO1(mAO,mGrid,iBas*iCmp),
      &       Scr(iSpin*nFn,mGrid,iBas*iCmp)
 *
@@ -957,9 +958,9 @@ c Avoid unused argument warnings
 *                                                                      *
          ToAdd1=Zero
          Do iGrid = 1, mGrid
-            gx=Rho(2,iGrid)*Weights(iGrid)
-            gy=Rho(3,iGrid)*Weights(iGrid)
-            gz=Rho(4,iGrid)*Weights(iGrid)
+            gx=GradRho(1,iGrid)*Weights(iGrid)
+            gy=GradRho(2,iGrid)*Weights(iGrid)
+            gz=GradRho(3,iGrid)*Weights(iGrid)
 
             Temp0=dF_dRho(ipR,iGrid)*Weights(iGrid)
             Temp1=gx*(2.0d0*dF_dRho(ipGxx,iGrid)+dF_dRho(ipGxy,iGrid))
@@ -1041,12 +1042,12 @@ c Avoid unused argument warnings
          ToAdd2=Zero
          Do iGrid = 1, mGrid
 
-            gxa=rho(3,iGrid)*Weights(iGrid)
-            gya=rho(4,iGrid)*Weights(iGrid)
-            gza=rho(5,iGrid)*Weights(iGrid)
-            gxb=rho(6,iGrid)*Weights(iGrid)
-            gyb=rho(7,iGrid)*Weights(iGrid)
-            gzb=rho(8,iGrid)*Weights(iGrid)
+            gxa=Gradrho(1,iGrid)*Weights(iGrid)
+            gya=Gradrho(2,iGrid)*Weights(iGrid)
+            gza=Gradrho(3,iGrid)*Weights(iGrid)
+            gxb=Gradrho(4,iGrid)*Weights(iGrid)
+            gyb=Gradrho(5,iGrid)*Weights(iGrid)
+            gzb=Gradrho(6,iGrid)*Weights(iGrid)
 
             Temp0a=dF_dRho(ipRa,iGrid) * Weights(iGrid)
             Temp0b=dF_dRho(ipRb,iGrid) * Weights(iGrid)

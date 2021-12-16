@@ -169,9 +169,10 @@
 
 
       Subroutine Calc_OTPUVX(PUVX,TabMO,mAO,nCoor,nTabMOs
-     &                       ,P2_ontop,nP2_ontop,Rho,nRho,
+     &                       ,P2_ontop,nP2_ontop,
      &                      dF_dRho,ndF_dRho,RhoI,RhoA,mRho,
      &                      Weights,D1MO,nD1MO,nIrrep)
+      use nq_grid, only: Rho
       Implicit Real*8 (A-H,O-Z)
       Dimension PUVX(*)
 #include "rasdim.fh"
@@ -185,7 +186,7 @@
 
       Dimension TabMO(mAO,nCoor,nTabMOs),
      &       Weights(nCoor),P2_ontop(nP2_ontop,nCoor),
-     &       dF_dRho(ndF_dRho,nCoor),Rho(nRho,nCoor),
+     &       dF_dRho(ndF_dRho,nCoor),
      &       RhoI(mRho,nCoor),RhoA(mRho,nCoor)
       Integer nIrrep
       Real*8 D1MO(nD1MO)
@@ -1085,9 +1086,10 @@
 
 
       Subroutine Calc_OTOE(OE,TabMO,mAO,nCoor,nTabMOs
-     &                       ,P2_ontop,nP2_ontop,Rho,nRho,
+     &                       ,P2_ontop,nP2_ontop,
      &                      dF_dRho,ndF_dRho,RhoI,RhoA,mRho,Weights,
      &                      nIrrep)
+      use nq_grid, only: Rho
       Implicit Real*8 (A-H,O-Z)
       Dimension OE(*)
 #include "rasdim.fh"
@@ -1097,7 +1099,7 @@
       Integer off_basIsh(mxSym),off_Fmat(mxSym)
       Dimension TabMO(mAO,nCoor,nTabMOs),
      &       Weights(nCoor),P2_ontop(nP2_ontop,nCoor),
-     &       dF_dRho(ndF_dRho,nCoor),Rho(nRho,nCoor),
+     &       dF_dRho(ndF_dRho,nCoor),
      &       RhoI(mRho,nCoor),RhoA(mRho,nCoor)
       Integer VX,ix,jx,iv,jv
       Integer nIrrep
@@ -1166,9 +1168,10 @@
       End
 
       Subroutine Calc_OTOEf(OE,TabMO,mAO,nCoor,nTabMOs
-     &                       ,P2_ontop,nP2_ontop,Rho,nRho,
+     &                       ,P2_ontop,nP2_ontop,
      &                      dF_dRho,ndF_dRho,RhoI,RhoA,mRho,Weights,
      &                      nIrrep)
+      use nq_grid, only: Rho
       Implicit Real*8 (A-H,O-Z)
       Dimension OE(*)
 #include "rasdim.fh"
@@ -1178,7 +1181,7 @@
       Integer off_basIsh(mxSym),off_Fmat(mxSym)
       Dimension TabMO(mAO,nCoor,nTabMOs),
      &       Weights(nCoor),P2_ontop(nP2_ontop,nCoor),
-     &       dF_dRho(ndF_dRho,nCoor),Rho(nRho,nCoor),
+     &       dF_dRho(ndF_dRho,nCoor),
      &       RhoI(mRho,nCoor),RhoA(mRho,nCoor)
 !      Integer count_tmp
       Integer VX,ix,jx,iv,jv
@@ -1278,9 +1281,10 @@
 
 
       Subroutine Calc_OTPUVX_ft(PUVX,TabMO,mAO,nCoor,nTabMOs
-     &                       ,P2_ontop,nP2_ontop,Rho,nRho,
+     &                       ,P2_ontop,nP2_ontop,
      &                      dF_dRho,ndF_dRho,RhoI,RhoA,mRho,
      &                      Weights,D1MO,nD1MO,nIrrep)
+      use nq_grid, only: Rho
       Implicit Real*8 (A-H,O-Z)
       Dimension PUVX(*)
 #include "rasdim.fh"
@@ -1296,7 +1300,7 @@
 
       Dimension TabMO(mAO,nCoor,nTabMOs),
      &       Weights(nCoor),P2_ontop(nP2_ontop,nCoor),
-     &       dF_dRho(ndF_dRho,nCoor),Rho(nRho,nCoor),
+     &       dF_dRho(ndF_dRho,nCoor),
      &       RhoI(mRho,nCoor),RhoA(mRho,nCoor)
       Real*8 D1MO(nD1MO)
               Integer count_tmp
@@ -2266,9 +2270,10 @@
       End
 
       Subroutine Calc_OTPUVX_FTLSDA2(PUVX,TabMO,mAO,nCoor,nTabMOs
-     &                       ,P2_ontop,nP2_ontop,Rho,nRho,
+     &                       ,P2_ontop,nP2_ontop,
      &                    dF_dRho,ndF_dRho,RhoI,RhoA,mRho,Weights,
      &                    D1MO,nD1MO,nIrrep)
+      use nq_grid, only: Rho
       Implicit Real*8 (A-H,O-Z)
       Dimension PUVX(*)
 #include "rasdim.fh"
@@ -2283,7 +2288,7 @@
 
       Dimension TabMO(mAO,nCoor,nTabMOs),
      &       Weights(nCoor),P2_ontop(nP2_ontop,nCoor),
-     &       dF_dRho(ndF_dRho,nCoor),Rho(nRho,nCoor),
+     &       dF_dRho(ndF_dRho,nCoor),
      &       RhoI(mRho,nCoor),RhoA(mRho,nCoor)
       Integer nIrrep
       Real*8 D1MO(nD1MO)
@@ -3643,9 +3648,10 @@
       End
 
       Subroutine Calc_OTOE_FTLSDA(OE,TabMO,mAO,nCoor,nTabMOs
-     &                       ,P2_ontop,nP2_ontop,Rho,nRho,
+     &                       ,P2_ontop,nP2_ontop,
      &                      dF_dRho,ndF_dRho,RhoI,RhoA,mRho,Weights,
      &                      nIrrep)
+      use nq_grid, only: Rho
       Implicit Real*8 (A-H,O-Z)
       Dimension OE(*)
 #include "rasdim.fh"
@@ -3656,7 +3662,7 @@
       Integer nIrrep
       Dimension TabMO(mAO,nCoor,nTabMOs),
      &       Weights(nCoor),P2_ontop(nP2_ontop,nCoor),
-     &       dF_dRho(ndF_dRho,nCoor),Rho(nRho,nCoor),
+     &       dF_dRho(ndF_dRho,nCoor),
      &       RhoI(mRho,nCoor),RhoA(mRho,nCoor)
 *
       !iTri(i) = (i*i-i)/2
@@ -3776,9 +3782,10 @@
       Call Unused_real_array(RhoA)
       End
       Subroutine Calc_OTOE_ft(OE,TabMO,mAO,nCoor,nTabMOs
-     &                       ,P2_ontop,nP2_ontop,Rho,nRho,
+     &                       ,P2_ontop,nP2_ontop,
      &                      dF_dRho,ndF_dRho,RhoI,RhoA,mRho,Weights,
      &                      nIrrep)
+      use nq_grid, only: Rho
       Implicit Real*8 (A-H,O-Z)
       Dimension OE(*)
 #include "rasdim.fh"
@@ -3788,7 +3795,7 @@
       Integer off_basIsh(mxSym),off_Fmat(mxSym)
       Dimension TabMO(mAO,nCoor,nTabMOs),
      &       Weights(nCoor),P2_ontop(nP2_ontop,nCoor),
-     &       dF_dRho(ndF_dRho,nCoor),Rho(nRho,nCoor),
+     &       dF_dRho(ndF_dRho,nCoor),
      &       RhoI(mRho,nCoor),RhoA(mRho,nCoor)
       Integer nIrrep
       Integer VX,ix,jx,iv,jv
@@ -3887,9 +3894,10 @@
 
 
       Subroutine Calc_OTPUVXGGA(PUVX,TabMO,mAO,nCoor,nTabMOs
-     &                       ,P2_ontop,nP2_ontop,Rho,nRho,
+     &                       ,P2_ontop,nP2_ontop,
      &                      dF_dRho,ndF_dRho,RhoI,RhoA,mRho,
      &                      Weights,D1MO,nD1MO,nIrrep)
+      use nq_grid, only: Rho, GradRho
       Implicit Real*8 (A-H,O-Z)
       Dimension PUVX(*)
 #include "rasdim.fh"
@@ -3904,7 +3912,7 @@
 
       Dimension TabMO(mAO,nCoor,nTabMOs),
      &       Weights(nCoor),P2_ontop(nP2_ontop,nCoor),
-     &       dF_dRho(ndF_dRho,nCoor),Rho(nRho,nCoor),
+     &       dF_dRho(ndF_dRho,nCoor),
      &       RhoI(mRho,nCoor),RhoA(mRho,nCoor)
       Real*8 D1MO(nD1MO)
       Integer count_tmp
@@ -4014,9 +4022,9 @@
               ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                       if((1.0d0-ratio).gt.thrsrho2) then
                       Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
 !                      interm1 = 1/(zeta*dTot)
 !                      interm2 = interm1/dTot
                       PUVX(iPUVX) = PUVX(iPUVX) +
@@ -4030,33 +4038,33 @@
                          !x alpha part
 !     &                    +RHOPx/interm2
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
 !     &                    +RHOPx/interm2
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
 !     &                    +RHOPy/interm2
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
 !     &                    +RHOPy/interm2
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
 !     &                    +RHOPz/interm2
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
 !     &                    +RHOPz/interm2
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                       else
                      PUVX(iPUVX) = PUVX(iPUVX) +0.0D0
@@ -4150,9 +4158,9 @@
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -4162,28 +4170,28 @@
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -4209,9 +4217,9 @@
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -4221,28 +4229,28 @@
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -4268,9 +4276,9 @@
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -4280,28 +4288,28 @@
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -4326,9 +4334,9 @@
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -4338,28 +4346,28 @@
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -4385,9 +4393,9 @@
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -4397,28 +4405,28 @@
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -4444,9 +4452,9 @@
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -4456,28 +4464,28 @@
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -4517,9 +4525,9 @@
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -4529,28 +4537,28 @@
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -4576,9 +4584,9 @@
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -4588,28 +4596,28 @@
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -4635,9 +4643,9 @@
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -4647,28 +4655,28 @@
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -4693,9 +4701,9 @@
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -4705,28 +4713,28 @@
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -4752,9 +4760,9 @@
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -4764,28 +4772,28 @@
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -4826,9 +4834,9 @@
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -4838,28 +4846,28 @@
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -4885,9 +4893,9 @@
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -4897,28 +4905,28 @@
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -4944,9 +4952,9 @@
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -4956,28 +4964,28 @@
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -5003,9 +5011,9 @@
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -5015,28 +5023,28 @@
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -5062,9 +5070,9 @@
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -5074,28 +5082,28 @@
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -5134,9 +5142,9 @@
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -5146,28 +5154,28 @@
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -5193,9 +5201,9 @@
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -5205,28 +5213,28 @@
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -5252,9 +5260,9 @@
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -5264,28 +5272,28 @@
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -5311,9 +5319,9 @@
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -5323,28 +5331,28 @@
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -5370,9 +5378,9 @@
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -5382,28 +5390,28 @@
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -5457,9 +5465,10 @@
       End
 
       Subroutine Calc_OTPUVXGGA_ft(PUVX,TabMO,mAO,nCoor,nTabMOs
-     &                       ,P2_ontop,nP2_ontop,Rho,nRho,
+     &                       ,P2_ontop,nP2_ontop,
      &                      dF_dRho,ndF_dRho,RhoI,RhoA,mRho,
      &                      Weights,D1MO,nD1MO,nIrrep)
+      use nq_grid, only: Rho, GradRho
       Implicit Real*8 (A-H,O-Z)
       Dimension PUVX(*)
 #include "rasdim.fh"
@@ -5474,7 +5483,7 @@
 
       Dimension TabMO(mAO,nCoor,nTabMOs),
      &       Weights(nCoor),P2_ontop(nP2_ontop,nCoor),
-     &       dF_dRho(ndF_dRho,nCoor),Rho(nRho,nCoor),
+     &       dF_dRho(ndF_dRho,nCoor),
      &       RhoI(mRho,nCoor),RhoA(mRho,nCoor)
       Real*8 D1MO(nD1MO)
       real*8 V_puvx
@@ -5616,9 +5625,9 @@
      &                    .and.(ratio.lt.thrsrho3))  then
                       Zeta  = sqrt(1.0d0-ratio)
                       d_Zeta = -2.0D0/(Zeta*dTot**2.0D0)*SQMO
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       PUVX(iPUVX) = PUVX(iPUVX) +
      &                   Weights(iGrid)*dble(nIrrep)*(
      &                   SQMO/(Zeta*dTot)*
@@ -5630,48 +5639,48 @@
      &                     +P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                     +(-0.5D0*RHOPx*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPx
      &                     -P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                     +(0.5D0*RHOPy*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPy
      &                     +P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                     +(-0.5D0*RHOPy*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPy
      &                     -P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(0.5D0*RHOPz*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPz
      &                     +P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(-0.5D0*RHOPz*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPz
      &                     -P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                      elseif((ratio.ge.thrsrho3)
      &                  .and.(ratio.le.thrsrho4)) then
@@ -5684,9 +5693,9 @@
                        d_Deriv = (20.0D0*Ab1*(ratio-1.15d0)**3.0d0
      &                          +12.0D0*Bb1*(ratio-1.15d0)**2.0d0
      &                          +6.0D0*Cb1*(ratio-1.15d0)**1.0d0)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
 c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
 c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
 c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
@@ -5717,33 +5726,33 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !x alpha part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                      else
                      PUVX(iPUVX) = PUVX(iPUVX) +0.0D0
@@ -5865,9 +5874,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                    .and.(ratio.lt.thrsrho3))  then
                       Zeta  = sqrt(1.0d0-ratio)
                       d_Zeta = -2.0D0/(Zeta*dTot**2.0D0)*SQMO
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                     V_PUVX = V_PUVX +
      &                   Weights(iGrid)*(
      &                   SQMO/(Zeta*dTot)*
@@ -5879,48 +5888,48 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                     +P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                     +(-0.5D0*RHOPx*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPx
      &                     -P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                     +(0.5D0*RHOPy*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPy
      &                     +P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                     +(-0.5D0*RHOPy*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPy
      &                     -P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(0.5D0*RHOPz*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPz
      &                     +P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(-0.5D0*RHOPz*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPz
      &                     -P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                      elseif((ratio.ge.thrsrho3)
      &                  .and.(ratio.le.thrsrho4)) then
@@ -5933,9 +5942,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       d_Deriv = (20.0D0*Ab1*(ratio-1.15d0)**3.0d0
      &                          +12.0D0*Bb1*(ratio-1.15d0)**2.0d0
      &                          +6.0D0*Cb1*(ratio-1.15d0)**1.0d0)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
 c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
 c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
 c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
@@ -5966,33 +5975,33 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !x alpha part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                      else
                         V_PUVX = V_PUVX + 0.0d0
@@ -6047,9 +6056,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                    .and.(ratio.lt.thrsrho3))  then
                       Zeta  = sqrt(1.0d0-ratio)
                        d_Zeta = -2.0D0/(Zeta*dTot**2.0D0)*SQMO
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                      V_PUVX = V_PUVX +
      &                   Weights(iGrid)*(
      &                   SQMO/(Zeta*dTot)*
@@ -6061,48 +6070,48 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                     +P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                     +(-0.5D0*RHOPx*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPx
      &                     -P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                     +(0.5D0*RHOPy*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPy
      &                     +P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                     +(-0.5D0*RHOPy*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPy
      &                     -P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(0.5D0*RHOPz*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPz
      &                     +P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(-0.5D0*RHOPz*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPz
      &                     -P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                       elseif((ratio.ge.thrsrho3)
      &                  .and.(ratio.le.thrsrho4)) then
@@ -6115,9 +6124,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       d_Deriv = (20.0D0*Ab1*(ratio-1.15d0)**3.0d0
      &                          +12.0D0*Bb1*(ratio-1.15d0)**2.0d0
      &                          +6.0D0*Cb1*(ratio-1.15d0)**1.0d0)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
 c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
 c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
 c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
@@ -6148,33 +6157,33 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !x alpha part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                        else
                              V_PUVX = V_PUVX + 0.0d0
@@ -6229,9 +6238,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                    .and.(ratio.lt.thrsrho3))  then
                       Zeta  = sqrt(1.0d0-ratio)
                        d_Zeta = -2.0D0/(Zeta*dTot**2.0D0)*SQMO
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                      V_PUVX = V_PUVX +
      &                   Weights(iGrid)*(
      &                   SQMO/(Zeta*dTot)*
@@ -6243,48 +6252,48 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                     +P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                     +(-0.5D0*RHOPx*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPx
      &                     -P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                     +(0.5D0*RHOPy*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPy
      &                     +P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                     +(-0.5D0*RHOPy*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPy
      &                     -P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(0.5D0*RHOPz*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPz
      &                     +P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(-0.5D0*RHOPz*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPz
      &                     -P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                       elseif((ratio.ge.thrsrho3)
      &                  .and.(ratio.le.thrsrho4)) then
@@ -6297,9 +6306,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       d_Deriv = (20.0D0*Ab1*(ratio-1.15d0)**3.0d0
      &                          +12.0D0*Bb1*(ratio-1.15d0)**2.0d0
      &                          +6.0D0*Cb1*(ratio-1.15d0)**1.0d0)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
 c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
 c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
 c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
@@ -6330,33 +6339,33 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !x alpha part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)
-     &                    *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &             *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                     else
                             V_PUVX = V_PUVX + 0.0d0
@@ -6410,9 +6419,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                    .and.(ratio.lt.thrsrho3))  then
                       Zeta  = sqrt(1.0d0-ratio)
                        d_Zeta = -2.0D0/(Zeta*dTot**2.0D0)*SQMO
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                     V_PUVX = V_PUVX +
      &                   Weights(iGrid)*(
      &                   SQMO/(Zeta*dTot)*
@@ -6424,48 +6433,48 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                     +P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                     +(-0.5D0*RHOPx*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPx
      &                     -P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                     +(0.5D0*RHOPy*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPy
      &                     +P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                     +(-0.5D0*RHOPy*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPy
      &                     -P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(0.5D0*RHOPz*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPz
      &                     +P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(-0.5D0*RHOPz*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPz
      &                     -P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                       elseif((ratio.ge.thrsrho3)
      &                  .and.(ratio.le.thrsrho4)) then
@@ -6478,9 +6487,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       d_Deriv = (20.0D0*Ab1*(ratio-1.15d0)**3.0d0
      &                          +12.0D0*Bb1*(ratio-1.15d0)**2.0d0
      &                          +6.0D0*Cb1*(ratio-1.15d0)**1.0d0)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
 c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
 c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
 c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
@@ -6511,33 +6520,33 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !x alpha part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                        else
                             V_PUVX = V_PUVX + 0.0d0
@@ -6592,9 +6601,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                    .and.(ratio.lt.thrsrho3))  then
                       Zeta  = sqrt(1.0d0-ratio)
                        d_Zeta = -2.0D0/(Zeta*dTot**2.0D0)*SQMO
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                      V_PUVX = V_PUVX +
      &                   Weights(iGrid)*(
      &                   SQMO/(Zeta*dTot)*
@@ -6606,48 +6615,48 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                     +P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                     +(-0.5D0*RHOPx*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPx
      &                     -P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                     +(0.5D0*RHOPy*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPy
      &                     +P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                     +(-0.5D0*RHOPy*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPy
      &                     -P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(0.5D0*RHOPz*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPz
      &                     +P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(-0.5D0*RHOPz*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPz
      &                     -P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                       elseif((ratio.ge.thrsrho3)
      &                  .and.(ratio.le.thrsrho4)) then
@@ -6660,9 +6669,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       d_Deriv = (20.0D0*Ab1*(ratio-1.15d0)**3.0d0
      &                          +12.0D0*Bb1*(ratio-1.15d0)**2.0d0
      &                          +6.0D0*Cb1*(ratio-1.15d0)**1.0d0)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
 c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
 c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
 c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
@@ -6693,33 +6702,33 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !x alpha part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                       else
                             V_PUVX = V_PUVX + 0.0d0
@@ -6774,9 +6783,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                    .and.(ratio.lt.thrsrho3))  then
                       Zeta  = sqrt(1.0d0-ratio)
                        d_Zeta = -2.0D0/(Zeta*dTot**2.0D0)*SQMO
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                      V_PUVX = V_PUVX +
      &                   Weights(iGrid)*(
      &                   SQMO/(Zeta*dTot)*
@@ -6788,48 +6797,48 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                     +P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                     +(-0.5D0*RHOPx*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPx
      &                     -P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                     +(0.5D0*RHOPy*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPy
      &                     +P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                     +(-0.5D0*RHOPy*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPy
      &                     -P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(0.5D0*RHOPz*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPz
      &                     +P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(-0.5D0*RHOPz*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPz
      &                     -P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                       elseif((ratio.ge.thrsrho3)
      &                  .and.(ratio.le.thrsrho4)) then
@@ -6842,9 +6851,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       d_Deriv = (20.0D0*Ab1*(ratio-1.15d0)**3.0d0
      &                          +12.0D0*Bb1*(ratio-1.15d0)**2.0d0
      &                          +6.0D0*Cb1*(ratio-1.15d0)**1.0d0)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
 c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
 c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
 c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
@@ -6875,33 +6884,33 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !x alpha part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                        else
                             V_PUVX = V_PUVX + 0.0d0
@@ -6967,9 +6976,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                    .and.(ratio.lt.thrsrho3))  then
                       Zeta  = sqrt(1.0d0-ratio)
                        d_Zeta = -2.0D0/(Zeta*dTot**2.0D0)*SQMO
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                      V_PUVX = V_PUVX +
      &                   Weights(iGrid)*(
      &                   SQMO/(Zeta*dTot)*
@@ -6981,48 +6990,48 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                     +P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                     +(-0.5D0*RHOPx*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPx
      &                     -P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                     +(0.5D0*RHOPy*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPy
      &                     +P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                     +(-0.5D0*RHOPy*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPy
      &                     -P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(0.5D0*RHOPz*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPz
      &                     +P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(-0.5D0*RHOPz*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPz
      &                     -P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                       elseif((ratio.ge.thrsrho3)
      &                  .and.(ratio.le.thrsrho4)) then
@@ -7035,9 +7044,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       d_Deriv = (20.0D0*Ab1*(ratio-1.15d0)**3.0d0
      &                          +12.0D0*Bb1*(ratio-1.15d0)**2.0d0
      &                          +6.0D0*Cb1*(ratio-1.15d0)**1.0d0)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
 c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
 c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
 c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
@@ -7068,33 +7077,33 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !x alpha part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                        else
                             V_PUVX = V_PUVX + 0.0d0
@@ -7149,9 +7158,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                    .and.(ratio.lt.thrsrho3))  then
                       Zeta  = sqrt(1.0d0-ratio)
                        d_Zeta = -2.0D0/(Zeta*dTot**2.0D0)*SQMO
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                      V_PUVX = V_PUVX +
      &                   Weights(iGrid)*(
      &                   SQMO/(Zeta*dTot)*
@@ -7163,48 +7172,48 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                     +P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                     +(-0.5D0*RHOPx*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPx
      &                     -P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                     +(0.5D0*RHOPy*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPy
      &                     +P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                     +(-0.5D0*RHOPy*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPy
      &                     -P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(0.5D0*RHOPz*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPz
      &                     +P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(-0.5D0*RHOPz*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPz
      &                     -P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                       elseif((ratio.ge.thrsrho3)
      &                  .and.(ratio.le.thrsrho4)) then
@@ -7217,9 +7226,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       d_Deriv = (20.0D0*Ab1*(ratio-1.15d0)**3.0d0
      &                          +12.0D0*Bb1*(ratio-1.15d0)**2.0d0
      &                          +6.0D0*Cb1*(ratio-1.15d0)**1.0d0)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
 c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
 c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
 c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
@@ -7250,33 +7259,33 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !x alpha part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                         else
                             V_PUVX = V_PUVX + 0.0d0
@@ -7331,9 +7340,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                    .and.(ratio.lt.thrsrho3))  then
                       Zeta  = sqrt(1.0d0-ratio)
                        d_Zeta = -2.0D0/(Zeta*dTot**2.0D0)*SQMO
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                      V_PUVX = V_PUVX +
      &                   Weights(iGrid)*(
      &                   SQMO/(Zeta*dTot)*
@@ -7345,48 +7354,48 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                     +P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                     +(-0.5D0*RHOPx*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPx
      &                     -P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                     +(0.5D0*RHOPy*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPy
      &                     +P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                     +(-0.5D0*RHOPy*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPy
      &                     -P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(0.5D0*RHOPz*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPz
      &                     +P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(-0.5D0*RHOPz*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPz
      &                     -P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                       elseif((ratio.ge.thrsrho3)
      &                  .and.(ratio.le.thrsrho4)) then
@@ -7399,9 +7408,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       d_Deriv = (20.0D0*Ab1*(ratio-1.15d0)**3.0d0
      &                          +12.0D0*Bb1*(ratio-1.15d0)**2.0d0
      &                          +6.0D0*Cb1*(ratio-1.15d0)**1.0d0)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
 c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
 c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
 c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
@@ -7432,33 +7441,33 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !x alpha part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                      else
                             V_PUVX = V_PUVX + 0.0d0
@@ -7512,9 +7521,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                    .and.(ratio.lt.thrsrho3))  then
                       Zeta  = sqrt(1.0d0-ratio)
                        d_Zeta = -2.0D0/(Zeta*dTot**2.0D0)*SQMO
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                      V_PUVX = V_PUVX +
      &                   Weights(iGrid)*(
      &                   SQMO/(Zeta*dTot)*
@@ -7526,48 +7535,48 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                     +P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                     +(-0.5D0*RHOPx*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPx
      &                     -P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                     +(0.5D0*RHOPy*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPy
      &                     +P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                     +(-0.5D0*RHOPy*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPy
      &                     -P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(0.5D0*RHOPz*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPz
      &                     +P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(-0.5D0*RHOPz*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPz
      &                     -P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                       elseif((ratio.ge.thrsrho3)
      &                  .and.(ratio.le.thrsrho4)) then
@@ -7580,9 +7589,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       d_Deriv = (20.0D0*Ab1*(ratio-1.15d0)**3.0d0
      &                          +12.0D0*Bb1*(ratio-1.15d0)**2.0d0
      &                          +6.0D0*Cb1*(ratio-1.15d0)**1.0d0)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
 c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
 c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
 c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
@@ -7613,33 +7622,33 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !x alpha part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                      else
                              V_PUVX = V_PUVX + 0.0d0
@@ -7694,9 +7703,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                    .and.(ratio.lt.thrsrho3))  then
                       Zeta  = sqrt(1.0d0-ratio)
                        d_Zeta = -2.0D0/(Zeta*dTot**2.0D0)*SQMO
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                      V_PUVX = V_PUVX +
      &                   Weights(iGrid)*(
      &                   SQMO/(Zeta*dTot)*
@@ -7708,48 +7717,48 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                     +P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                     +(-0.5D0*RHOPx*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPx
      &                     -P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                     +(0.5D0*RHOPy*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPy
      &                     +P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                     +(-0.5D0*RHOPy*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPy
      &                     -P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(0.5D0*RHOPz*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPz
      &                     +P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(-0.5D0*RHOPz*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPz
      &                     -P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                       elseif((ratio.ge.thrsrho3)
      &                  .and.(ratio.le.thrsrho4)) then
@@ -7762,9 +7771,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       d_Deriv = (20.0D0*Ab1*(ratio-1.15d0)**3.0d0
      &                          +12.0D0*Bb1*(ratio-1.15d0)**2.0d0
      &                          +6.0D0*Cb1*(ratio-1.15d0)**1.0d0)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
 c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
 c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
 c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
@@ -7795,33 +7804,33 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !x alpha part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                      else
                             V_PUVX = V_PUVX + 0.0d0
@@ -7876,9 +7885,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                    .and.(ratio.lt.thrsrho3))  then
                       Zeta  = sqrt(1.0d0-ratio)
                        d_Zeta = -2.0D0/(Zeta*dTot**2.0D0)*SQMO
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                      V_PUVX = V_PUVX +
      &                   Weights(iGrid)*(
      &                   SQMO/(Zeta*dTot)*
@@ -7890,48 +7899,48 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                     +P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                     +(-0.5D0*RHOPx*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPx
      &                     -P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                     +(0.5D0*RHOPy*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPy
      &                     +P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                     +(-0.5D0*RHOPy*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPy
      &                     -P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(0.5D0*RHOPz*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPz
      &                     +P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(-0.5D0*RHOPz*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPz
      &                     -P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                       elseif((ratio.ge.thrsrho3)
      &                  .and.(ratio.le.thrsrho4)) then
@@ -7944,9 +7953,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       d_Deriv = (20.0D0*Ab1*(ratio-1.15d0)**3.0d0
      &                          +12.0D0*Bb1*(ratio-1.15d0)**2.0d0
      &                          +6.0D0*Cb1*(ratio-1.15d0)**1.0d0)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
 c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
 c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
 c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
@@ -7977,33 +7986,33 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !x alpha part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                      else
                             V_PUVX = V_PUVX + 0.0d0
@@ -8071,9 +8080,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                    .and.(ratio.lt.thrsrho3))  then
                       Zeta  = sqrt(1.0d0-ratio)
                        d_Zeta = -2.0D0/(Zeta*dTot**2.0D0)*SQMO
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                      V_PUVX = V_PUVX +
      &                   Weights(iGrid)*(
      &                   SQMO/(Zeta*dTot)*
@@ -8085,48 +8094,48 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                     +P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                     +(-0.5D0*RHOPx*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPx
      &                     -P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                     +(0.5D0*RHOPy*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPy
      &                     +P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                     +(-0.5D0*RHOPy*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPy
      &                     -P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(0.5D0*RHOPz*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPz
      &                     +P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(-0.5D0*RHOPz*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPz
      &                     -P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                       elseif((ratio.ge.thrsrho3)
      &                  .and.(ratio.le.thrsrho4)) then
@@ -8139,9 +8148,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       d_Deriv = (20.0D0*Ab1*(ratio-1.15d0)**3.0d0
      &                          +12.0D0*Bb1*(ratio-1.15d0)**2.0d0
      &                          +6.0D0*Cb1*(ratio-1.15d0)**1.0d0)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
 c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
 c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
 c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
@@ -8172,33 +8181,33 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !x alpha part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                      else
                             V_PUVX = V_PUVX + 0.0d0
@@ -8253,9 +8262,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                    .and.(ratio.lt.thrsrho3))  then
                       Zeta  = sqrt(1.0d0-ratio)
                        d_Zeta = -2.0D0/(Zeta*dTot**2.0D0)*SQMO
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                      V_PUVX = V_PUVX +
      &                   Weights(iGrid)*(
      &                   SQMO/(Zeta*dTot)*
@@ -8267,48 +8276,48 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                     +P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                     +(-0.5D0*RHOPx*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPx
      &                     -P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                     +(0.5D0*RHOPy*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPy
      &                     +P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                     +(-0.5D0*RHOPy*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPy
      &                     -P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(0.5D0*RHOPz*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPz
      &                     +P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(-0.5D0*RHOPz*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPz
      &                     -P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                       elseif((ratio.ge.thrsrho3)
      &                  .and.(ratio.le.thrsrho4)) then
@@ -8321,9 +8330,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       d_Deriv = (20.0D0*Ab1*(ratio-1.15d0)**3.0d0
      &                          +12.0D0*Bb1*(ratio-1.15d0)**2.0d0
      &                          +6.0D0*Cb1*(ratio-1.15d0)**1.0d0)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
 c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
 c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
 c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
@@ -8354,33 +8363,33 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !x alpha part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                      else
                             V_PUVX = V_PUVX + 0.0d0
@@ -8435,9 +8444,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                    .and.(ratio.lt.thrsrho3))  then
                       Zeta  = sqrt(1.0d0-ratio)
                        d_Zeta = -2.0D0/(Zeta*dTot**2.0D0)*SQMO
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                      V_PUVX = V_PUVX +
      &                   Weights(iGrid)*(
      &                   SQMO/(Zeta*dTot)*
@@ -8449,48 +8458,48 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                     +P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                     +(-0.5D0*RHOPx*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPx
      &                     -P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                     +(0.5D0*RHOPy*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPy
      &                     +P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                     +(-0.5D0*RHOPy*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPy
      &                     -P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(0.5D0*RHOPz*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPz
      &                     +P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(-0.5D0*RHOPz*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPz
      &                     -P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                       elseif((ratio.ge.thrsrho3)
      &                  .and.(ratio.le.thrsrho4)) then
@@ -8503,9 +8512,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       d_Deriv = (20.0D0*Ab1*(ratio-1.15d0)**3.0d0
      &                          +12.0D0*Bb1*(ratio-1.15d0)**2.0d0
      &                          +6.0D0*Cb1*(ratio-1.15d0)**1.0d0)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
 c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
 c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
 c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
@@ -8536,33 +8545,33 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !x alpha part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                      else
                             V_PUVX = V_PUVX + 0.0d0
@@ -8617,9 +8626,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                    .and.(ratio.lt.thrsrho3))  then
                       Zeta  = sqrt(1.0d0-ratio)
                        d_Zeta = -2.0D0/(Zeta*dTot**2.0D0)*SQMO
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                      V_PUVX = V_PUVX +
      &                   Weights(iGrid)*(
      &                   SQMO/(Zeta*dTot)*
@@ -8631,48 +8640,48 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                     +P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                     +(-0.5D0*RHOPx*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPx
      &                     -P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                     +(0.5D0*RHOPy*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPy
      &                     +P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                     +(-0.5D0*RHOPy*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPy
      &                     -P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(0.5D0*RHOPz*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPz
      &                     +P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(-0.5D0*RHOPz*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPz
      &                     -P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                       elseif((ratio.ge.thrsrho3)
      &                  .and.(ratio.le.thrsrho4)) then
@@ -8685,9 +8694,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       d_Deriv = (20.0D0*Ab1*(ratio-1.15d0)**3.0d0
      &                          +12.0D0*Bb1*(ratio-1.15d0)**2.0d0
      &                          +6.0D0*Cb1*(ratio-1.15d0)**1.0d0)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
 c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
 c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
 c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
@@ -8718,33 +8727,33 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !x alpha part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                      else
                             V_PUVX = V_PUVX + 0.0d0
@@ -8799,9 +8808,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                    .and.(ratio.lt.thrsrho3))  then
                       Zeta  = sqrt(1.0d0-ratio)
                        d_Zeta = -2.0D0/(Zeta*dTot**2.0D0)*SQMO
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                      V_PUVX = V_PUVX +
      &                   Weights(iGrid)*(
      &                   SQMO/(Zeta*dTot)*
@@ -8813,48 +8822,48 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                     +P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                     +(-0.5D0*RHOPx*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPx
      &                     -P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                     +(0.5D0*RHOPy*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPy
      &                     +P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                     +(-0.5D0*RHOPy*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPy
      &                     -P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(0.5D0*RHOPz*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPz
      &                     +P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(-0.5D0*RHOPz*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPz
      &                     -P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                       elseif((ratio.ge.thrsrho3)
      &                  .and.(ratio.le.thrsrho4)) then
@@ -8867,9 +8876,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       d_Deriv = (20.0D0*Ab1*(ratio-1.15d0)**3.0d0
      &                          +12.0D0*Bb1*(ratio-1.15d0)**2.0d0
      &                          +6.0D0*Cb1*(ratio-1.15d0)**1.0d0)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
 c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
 c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
 c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
@@ -8900,33 +8909,33 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !x alpha part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                      else
                             V_PUVX = V_PUVX + 0.0d0
@@ -8981,9 +8990,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                    .and.(ratio.lt.thrsrho3))  then
                       Zeta  = sqrt(1.0d0-ratio)
                        d_Zeta = -2.0D0/(Zeta*dTot**2.0D0)*SQMO
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                      V_PUVX = V_PUVX +
      &                   Weights(iGrid)*(
      &                   SQMO/(Zeta*dTot)*
@@ -8995,48 +9004,48 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                     +P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                     +(-0.5D0*RHOPx*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPx
      &                     -P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                     +(0.5D0*RHOPy*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPy
      &                     +P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                     +(-0.5D0*RHOPy*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPy
      &                     -P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(0.5D0*RHOPz*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPz
      &                     +P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(-0.5D0*RHOPz*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPz
      &                     -P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                       elseif((ratio.ge.thrsrho3)
      &                  .and.(ratio.le.thrsrho4)) then
@@ -9049,9 +9058,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       d_Deriv = (20.0D0*Ab1*(ratio-1.15d0)**3.0d0
      &                          +12.0D0*Bb1*(ratio-1.15d0)**2.0d0
      &                          +6.0D0*Cb1*(ratio-1.15d0)**1.0d0)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
 c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
 c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
 c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
@@ -9082,33 +9091,33 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !x alpha part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                      else
                             V_PUVX = V_PUVX + 0.0d0
@@ -9174,9 +9183,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                    .and.(ratio.lt.thrsrho3))  then
                       Zeta  = sqrt(1.0d0-ratio)
                        d_Zeta = -2.0D0/(Zeta*dTot**2.0D0)*SQMO
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                      V_PUVX = V_PUVX +
      &                   Weights(iGrid)*(
      &                   SQMO/(Zeta*dTot)*
@@ -9188,48 +9197,48 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                     +P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                     +(-0.5D0*RHOPx*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPx
      &                     -P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                     +(0.5D0*RHOPy*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPy
      &                     +P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                     +(-0.5D0*RHOPy*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPy
      &                     -P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(0.5D0*RHOPz*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPz
      &                     +P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(-0.5D0*RHOPz*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPz
      &                     -P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                       elseif((ratio.ge.thrsrho3)
      &                  .and.(ratio.le.thrsrho4)) then
@@ -9242,9 +9251,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       d_Deriv = (20.0D0*Ab1*(ratio-1.15d0)**3.0d0
      &                          +12.0D0*Bb1*(ratio-1.15d0)**2.0d0
      &                          +6.0D0*Cb1*(ratio-1.15d0)**1.0d0)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
 c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
 c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
 c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
@@ -9275,33 +9284,33 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !x alpha part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                      else
                             V_PUVX = V_PUVX + 0.0d0
@@ -9356,9 +9365,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                    .and.(ratio.lt.thrsrho3))  then
                       Zeta  = sqrt(1.0d0-ratio)
                        d_Zeta = -2.0D0/(Zeta*dTot**2.0D0)*SQMO
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                      V_PUVX = V_PUVX +
      &                   Weights(iGrid)*(
      &                   SQMO/(Zeta*dTot)*
@@ -9370,48 +9379,48 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                     +P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                     +(-0.5D0*RHOPx*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPx
      &                     -P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                     +(0.5D0*RHOPy*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPy
      &                     +P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                     +(-0.5D0*RHOPy*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPy
      &                     -P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(0.5D0*RHOPz*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPz
      &                     +P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(-0.5D0*RHOPz*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPz
      &                     -P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                       elseif((ratio.ge.thrsrho3)
      &                  .and.(ratio.le.thrsrho4)) then
@@ -9424,9 +9433,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       d_Deriv = (20.0D0*Ab1*(ratio-1.15d0)**3.0d0
      &                          +12.0D0*Bb1*(ratio-1.15d0)**2.0d0
      &                          +6.0D0*Cb1*(ratio-1.15d0)**1.0d0)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
 c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
 c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
 c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
@@ -9457,33 +9466,33 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !x alpha part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                      else
                             V_PUVX = V_PUVX + 0.0d0
@@ -9538,9 +9547,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                    .and.(ratio.lt.thrsrho3))  then
                       Zeta  = sqrt(1.0d0-ratio)
                        d_Zeta = -2.0D0/(Zeta*dTot**2.0D0)*SQMO
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                      V_PUVX = V_PUVX +
      &                   Weights(iGrid)*(
      &                   SQMO/(Zeta*dTot)*
@@ -9552,48 +9561,48 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                     +P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                     +(-0.5D0*RHOPx*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPx
      &                     -P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                     +(0.5D0*RHOPy*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPy
      &                     +P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                     +(-0.5D0*RHOPy*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPy
      &                     -P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(0.5D0*RHOPz*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPz
      &                     +P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(-0.5D0*RHOPz*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPz
      &                     -P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                       elseif((ratio.ge.thrsrho3)
      &                  .and.(ratio.le.thrsrho4)) then
@@ -9606,9 +9615,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       d_Deriv = (20.0D0*Ab1*(ratio-1.15d0)**3.0d0
      &                          +12.0D0*Bb1*(ratio-1.15d0)**2.0d0
      &                          +6.0D0*Cb1*(ratio-1.15d0)**1.0d0)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
 c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
 c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
 c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
@@ -9639,33 +9648,33 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !x alpha part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                      else
                             V_PUVX = V_PUVX + 0.0d0
@@ -9720,9 +9729,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                    .and.(ratio.lt.thrsrho3))  then
                       Zeta  = sqrt(1.0d0-ratio)
                        d_Zeta = -2.0D0/(Zeta*dTot**2.0D0)*SQMO
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                      V_PUVX = V_PUVX +
      &                   Weights(iGrid)*(
      &                   SQMO/(Zeta*dTot)*
@@ -9734,48 +9743,48 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                     +P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                     +(-0.5D0*RHOPx*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPx
      &                     -P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                     +(0.5D0*RHOPy*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPy
      &                     +P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                     +(-0.5D0*RHOPy*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPy
      &                     -P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(0.5D0*RHOPz*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPz
      &                     +P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(-0.5D0*RHOPz*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPz
      &                     -P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                       elseif((ratio.ge.thrsrho3)
      &                  .and.(ratio.le.thrsrho4)) then
@@ -9788,9 +9797,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       d_Deriv = (20.0D0*Ab1*(ratio-1.15d0)**3.0d0
      &                          +12.0D0*Bb1*(ratio-1.15d0)**2.0d0
      &                          +6.0D0*Cb1*(ratio-1.15d0)**1.0d0)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
 c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
 c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
 c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
@@ -9821,33 +9830,33 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !x alpha part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                      else
                             V_PUVX = V_PUVX + 0.0d0
@@ -9902,9 +9911,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                    .and.(ratio.lt.thrsrho3))  then
                       Zeta  = sqrt(1.0d0-ratio)
                        d_Zeta = -2.0D0/(Zeta*dTot**2.0D0)*SQMO
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                      V_PUVX = V_PUVX +
      &                   Weights(iGrid)*(
      &                   SQMO/(Zeta*dTot)*
@@ -9916,48 +9925,48 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                     +P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                     +(-0.5D0*RHOPx*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPx
      &                     -P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                     +(0.5D0*RHOPy*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPy
      &                     +P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                     +(-0.5D0*RHOPy*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPy
      &                     -P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(0.5D0*RHOPz*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPz
      &                     +P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(-0.5D0*RHOPz*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPz
      &                     -P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                       elseif((ratio.ge.thrsrho3)
      &                  .and.(ratio.le.thrsrho4)) then
@@ -9970,9 +9979,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       d_Deriv = (20.0D0*Ab1*(ratio-1.15d0)**3.0d0
      &                          +12.0D0*Bb1*(ratio-1.15d0)**2.0d0
      &                          +6.0D0*Cb1*(ratio-1.15d0)**1.0d0)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
 c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
 c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
 c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
@@ -10003,33 +10012,33 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !x alpha part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                      else
                             V_PUVX = V_PUVX + 0.0d0
@@ -10084,9 +10093,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                    .and.(ratio.lt.thrsrho3))  then
                       Zeta  = sqrt(1.0d0-ratio)
                         d_Zeta = -2.0D0/(Zeta*dTot**2.0D0)*SQMO
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                      V_PUVX = V_PUVX +
      &                   Weights(iGrid)*(
      &                   SQMO/(Zeta*dTot)*
@@ -10098,48 +10107,48 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                     +P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                     +(-0.5D0*RHOPx*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPx
      &                     -P2_ontop(2,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPx/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPx/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                     +(0.5D0*RHOPy*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPy
      &                     +P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                     +(-0.5D0*RHOPy*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPy
      &                     -P2_ontop(3,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPy/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPy/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(0.5D0*RHOPz*d_Zeta
      &                     -1.0D0/(Zeta*dTot)*SQMOPz
      &                     +P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     +(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     -(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(-0.5D0*RHOPz*d_Zeta
      &                     +1.0D0/(Zeta*dTot)*SQMOPz
      &                     -P2_ontop(4,iGrid)/(dTot*Zeta**2)*d_Zeta
      &                     -(RHOPz/(2.0d0*Zeta)*d_ratio)
      &                     +(Ratio*RHOPz/(2.0d0*Zeta**2.0d0)*d_Zeta))
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                       elseif((ratio.ge.thrsrho3)
      &                  .and.(ratio.le.thrsrho4)) then
@@ -10152,9 +10161,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       d_Deriv = (20.0D0*Ab1*(ratio-1.15d0)**3.0d0
      &                          +12.0D0*Bb1*(ratio-1.15d0)**2.0d0
      &                          +6.0D0*Cb1*(ratio-1.15d0)**1.0d0)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
 c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
 c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
 c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
@@ -10185,33 +10194,33 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !x alpha part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +(2.0D0*RHOPx/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetax)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +(2.0D0*RHOPy/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetay)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)
-     &                     *(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &              *(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +(2.0D0*RHOPz/(dTot**2.0D0)*SQMO*Deriv
      &                    +0.5D0*dTot*d_Zetaz)* (-1.0D0)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
               else
                             V_PUVX = V_PUVX + 0.0d0
@@ -10265,9 +10274,10 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
 
 
       Subroutine Calc_OTOEGGA(OE,TabMO,mAO,nCoor,nTabMOs
-     &                       ,P2_ontop,nP2_ontop,Rho,nRho,
+     &                       ,P2_ontop,nP2_ontop,
      &                      dF_dRho,ndF_dRho,RhoI,RhoA,mRho,Weights,
      &                      nIrrep)
+      use nq_grid, only: Rho, GradRho
       Implicit Real*8 (A-H,O-Z)
       Dimension OE(*)
 #include "rasdim.fh"
@@ -10278,7 +10288,7 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
       Integer off_basIsh(mxSym),off_Fmat(mxSym)
       Dimension TabMO(mAO,nCoor,nTabMOs),
      &       Weights(nCoor),P2_ontop(nP2_ontop,nCoor),
-     &       dF_dRho(ndF_dRho,nCoor),Rho(nRho,nCoor),
+     &       dF_dRho(ndF_dRho,nCoor),
      &       RhoI(mRho,nCoor),RhoA(mRho,nCoor)
       Integer VX,ix,jx,iv,jv
 *
@@ -10331,9 +10341,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                        STERM=2.0D0*P2_ontop(1,iGrid)/(Zeta*dTot**2)
                        STERMG=2.0D0*P2_ontop(1,iGrid)
      &                       /(Zeta*dTot**3)
-                       RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                       RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                       RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                       RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                       RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                       RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                      OE(VX)=OE(VX)
      &                    +(SQMO
      &                    *(dF_dRho(1,iGrid)*(FTERMa
@@ -10342,33 +10352,33 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                    -STERM))
                           !Now gradient part
                           !x alpha component
-     &                    +(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &                    +(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
      &                     *(FTERMa*SQMOPx+
      &                     STERMG*RHOPx*SQMO)
                           !x beta component
-     &                    +(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &                    +(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
      &                     *(FTERMb*SQMOPx
      &                     -STERMG*RHOPx*SQMO)
                           !y alpha component
-     &                    +(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &                    +(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
      &                     *(FTERMa*SQMOPy+
      &                     STERMG*RHOPy*SQMO)
                           !y beta component
-     &                    +(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &                    +(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
      &                     *(FTERMb*SQMOPy
      &                     -STERMG*RHOPy*SQMO)
                           !z alpha component
-     &                    +(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &                    +(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
      &                     *(FTERMa*SQMOPz+
      &                     STERMG*RHOPz*SQMO)
                           !z beta component
-     &                    +(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &                    +(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                     *(FTERMb*SQMOPz
      &                     -STERMG*RHOPz*SQMO)
      &                    )*Weights(iGrid)*dble(nIrrep)
@@ -10379,28 +10389,28 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                     +dF_dRho(2,iGrid))
                             !gradient part
                           !x alpha component
-     &                    +(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &                    +(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
      &                     *SQMOPx
                           !x beta component
-     &                    +(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &                    +(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
      &                     *SQMOPx
                           !y alpha component
-     &                    +(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &                    +(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
      &                     *SQMOPy
                           !y beta component
-     &                    +(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &                    +(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
      &                     *SQMOPy
                           !z alpha component
-     &                    +(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &                    +(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
      &                     *SQMOPz
                           !z beta component
-     &                    +(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &                    +(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                     *SQMOPz
      &                     )*Weights(iGrid)*0.5D0*dble(nIrrep)
                   end if
@@ -10415,9 +10425,10 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
       End
 
       Subroutine Calc_OTOEGGA_ft(OE,TabMO,mAO,nCoor,nTabMOs
-     &                       ,P2_ontop,nP2_ontop,Rho,nRho,
+     &                       ,P2_ontop,nP2_ontop,
      &                      dF_dRho,ndF_dRho,RhoI,RhoA,mRho,Weights,
      &                      nIrrep)
+      use nq_grid, only: Rho, GradRho
       Implicit Real*8 (A-H,O-Z)
       Dimension OE(*)
 #include "rasdim.fh"
@@ -10428,7 +10439,7 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
       Integer off_basIsh(mxSym),off_Fmat(mxSym)
       Dimension TabMO(mAO,nCoor,nTabMOs),
      &       Weights(nCoor),P2_ontop(nP2_ontop,nCoor),
-     &       dF_dRho(ndF_dRho,nCoor),Rho(nRho,nCoor),
+     &       dF_dRho(ndF_dRho,nCoor),
      &       RhoI(mRho,nCoor),RhoA(mRho,nCoor)
       Integer VX,ix,jx,iv,jv
 *
@@ -10490,9 +10501,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                        STERM=2.0D0*P2_ontop(1,iGrid)/(Zeta*dTot**2)
                        STERMG=2.0D0*P2_ontop(1,iGrid)
      &                       /(Zeta*dTot**3)
-                       RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                       RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                       RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                       RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                       RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                       RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                      OE(VX)=OE(VX)
      &                    +(SQMO
      &                    *(dF_dRho(1,iGrid)*(FTERMa
@@ -10501,8 +10512,8 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                    -STERM))
                           !Now gradient part
                           !x alpha component
-     &                    +(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &                    +(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
      &                     *(FTERMa*SQMOPx+
      &                     STERMG*RHOPx*SQMO
      &                    +(P2_ontop(2,iGrid)/((Zeta*dTot)**2.0D0)*
@@ -10511,8 +10522,8 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                    +(RHOPx/(2*Zeta)*d_ratio)
      &                    -(RHOPx*Ratio/(2.0D0*Zeta**2.0D0)*d_Zeta))
                           !x beta component
-     &                    +(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &                    +(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
      &                     *(FTERMb*SQMOPx
      &                     -STERMG*RHOPx*SQMO
      &                     -(P2_ontop(2,iGrid)/((Zeta*dTot)**2.0D0)*
@@ -10521,8 +10532,8 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                    -(RHOPx/(2*Zeta)*d_ratio)
      &                    +(RHOPx*Ratio/(2.0D0*Zeta**2.0D0)*d_Zeta))
                           !y alpha component
-     &                    +(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &                    +(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
      &                     *(FTERMa*SQMOPy+
      &                     STERMG*RHOPy*SQMO
      &                    +(P2_ontop(3,iGrid)/((Zeta*dTot)**2.0D0)*
@@ -10531,8 +10542,8 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                    +(RHOPy/(2*Zeta)*d_ratio)
      &                    -(RHOPy*Ratio/(2.0D0*Zeta**2.0D0)*d_Zeta))
                           !y beta component
-     &                    +(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &                    +(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
      &                     *(FTERMb*SQMOPy
      &                     -STERMG*RHOPy*SQMO
      &                    -(P2_ontop(3,iGrid)/((Zeta*dTot)**2.0D0)*
@@ -10541,8 +10552,8 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                    -(RHOPy/(2*Zeta)*d_ratio)
      &                    +(RHOPy*Ratio/(2.0D0*Zeta**2.0D0)*d_Zeta))
                           !z alpha component
-     &                    +(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &                    +(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
      &                     *(FTERMa*SQMOPz+
      &                     STERMG*RHOPz*SQMO
      &                    +(P2_ontop(4,iGrid)/((Zeta*dTot)**2.0D0)*
@@ -10551,8 +10562,8 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                    +(RHOPz/(2*Zeta)*d_ratio)
      &                    -(RHOPz*Ratio/(2.0D0*Zeta**2.0D0)*d_Zeta))
                           !z beta component
-     &                    +(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &                    +(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                     *(FTERMb*SQMOPz
      &                     -STERMG*RHOPz*SQMO
      &                    -(P2_ontop(4,iGrid)/((Zeta*dTot)**2.0D0)*
@@ -10577,9 +10588,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                        STERM=-4.0D0*P2_ontop(1,iGrid)/(dTot**2)*Deriv
                        STERMG=-4.0D0*P2_ontop(1,iGrid)
      &                       /(dTot**3)*Deriv
-                       RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                       RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                       RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                       RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                       RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                       RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                        Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
      &                          /(dTot**2.0D0))-(2.0D0*ratio*RHOPx
      &                          /dTot))
@@ -10621,38 +10632,38 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                    -STERM))
                           !Now gradient part
                           !x alpha component
-     &                    +(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &                    +(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
      &                     *(FTERMa*SQMOPx+
      &                     STERMG*RHOPx*SQMO+0.5D0*dTot*d_Zetax
      &                      +0.5d0*Zetax*SQMO)
                           !x beta component
-     &                    +(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &                    +(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
      &                     *(FTERMb*SQMOPx
      &                     -STERMG*RHOPx*SQMO-0.5D0*dTot*d_Zetax
      &                      -0.5d0*Zetax*SQMO)
                           !y alpha component
-     &                    +(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &                    +(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
      &                     *(FTERMa*SQMOPy+
      &                     STERMG*RHOPy*SQMO+0.5D0*dTot*d_Zetay
      &                      +0.5d0*Zetay*SQMO)
                           !y beta component
-     &                    +(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &                    +(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
      &                     *(FTERMb*SQMOPy
      &                     -STERMG*RHOPy*SQMO-0.5D0*dTot*d_Zetay
      &                      -0.5d0*Zetay*SQMO)
                           !z alpha component
-     &                    +(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &                    +(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
      &                     *(FTERMa*SQMOPz+
      &                     STERMG*RHOPz*SQMO+0.5D0*dTot*d_Zetaz
      &                      +0.5d0*Zetaz*SQMO)
                           !z beta component
-     &                    +(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &                    +(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                     *(FTERMb*SQMOPz
      &                     -STERMG*RHOPz*SQMO-0.5D0*dTot*d_Zetaz
      &                      -0.5d0*Zetaz*SQMO)
@@ -10664,28 +10675,28 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &                     +dF_dRho(2,iGrid))
                             !gradient part
                           !x alpha component
-     &                    +(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &                    +(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
      &                     *SQMOPx
                           !x beta component
-     &                    +(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &                    +(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
      &                     *SQMOPx
                           !y alpha component
-     &                    +(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &                    +(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
      &                     *SQMOPy
                           !y beta component
-     &                    +(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &                    +(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
      &                     *SQMOPy
                           !z beta component
-     &                    +(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &                    +(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
      &                     *SQMOPz
                           !z beta component
-     &                    +(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &                    +(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                     *SQMOPz
      &                     )*Weights(iGrid)*0.5D0*dble(nIrrep)
                   end if
@@ -10699,9 +10710,10 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
       Call Unused_real_array(RhoA)
       End
       Subroutine Calc_OTPUVXGGA_2(PUVX,TabMO,mAO,nCoor,nTabMOs
-     &                       ,P2_ontop,nP2_ontop,Rho,nRho,
+     &                       ,P2_ontop,nP2_ontop,
      &                      dF_dRho,ndF_dRho,RhoI,RhoA,mRho,
      &                      Weights,D1MO,nD1MO,nIrrep)
+      use nq_grid, only: Rho, GradRho
       Implicit Real*8 (A-H,O-Z)
       Dimension PUVX(*)
 #include "rasdim.fh"
@@ -10716,7 +10728,7 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
 
       Dimension TabMO(mAO,nCoor,nTabMOs),
      &       Weights(nCoor),P2_ontop(nP2_ontop,nCoor),
-     &       dF_dRho(ndF_dRho,nCoor),Rho(nRho,nCoor),
+     &       dF_dRho(ndF_dRho,nCoor),
      &       RhoI(mRho,nCoor),RhoA(mRho,nCoor)
       Real*8 D1MO(nD1MO)
       Integer count_tmp
@@ -10797,9 +10809,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
 !               ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
 !                if((1.0d0-ratio).gt.thrsrho2) then
 !                    Zeta  = sqrt(1.0d0-ratio)
-!                    RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-!                    RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-!                    RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+!                    RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+!                    RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+!                    RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
 !                         izet_stu =
 !     &                   Weights(iGrid)*dble(nIrrep)*(
 !     &                   1.0D0/(Zeta*dTot)*
@@ -10807,28 +10819,28 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
 !                         !gradient part
 !                         !x alpha part
 !     &                    +RHOPx/(dTot**2*Zeta)
-!     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-!     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+!     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+!     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
 !                         !x beta part
 !     &                    +RHOPx/(dTot**2*Zeta)
-!     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-!     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+!     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+!     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
 !                         !y alpha part
 !     &                    +RHOPy/(dTot**2*Zeta)
-!     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-!     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+!     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+!     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
 !                         !y beta part
 !     &                    +RHOPy/(dTot**2*Zeta)
-!     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-!     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+!     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+!     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
 !                         !z alpha part
 !     &                    +RHOPz/(dTot**2*Zeta)
-!     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-!     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+!     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+!     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
 !     &                    +RHOPz/(dTot**2*Zeta)
-!     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-!     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+!     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+!     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
 !     &                    )
 !                else
 !                  PUVX(iPUVX) = PUVX(iPUVX) +0.0D0
@@ -10905,9 +10917,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
               ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                       if((1.0d0-ratio).gt.thrsrho2) then
                       Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
 !                      interm1 = 1/(zeta*dTot)
 !                      interm2 = interm1/dTot
                       PUVX(iPUVX) = PUVX(iPUVX) +
@@ -10921,33 +10933,33 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !x alpha part
 !     &                    +RHOPx/interm2
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
 !     &                    +RHOPx/interm2
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
 !     &                    +RHOPy/interm2
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
 !     &                    +RHOPy/interm2
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
 !     &                    +RHOPz/interm2
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
 !     &                    +RHOPz/interm2
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                       else
                      PUVX(iPUVX) = PUVX(iPUVX) +0.0D0
@@ -11028,36 +11040,36 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
      &     P2_ontop(1,iGrid).ge.thrsrho) then
             ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
             if((1.0d0-ratio).gt.thrsrho2) then
-              RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-              RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-              RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+              RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+              RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+              RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
               junk_test = !Work(iftmpo+(ipq-1)*nCoor+iGrid)*
 !     &               TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
      &                ((-dF_dRho(1,iGrid)+dF_dRho(2,iGrid))
                          !x alpha part
      &                   +(RHOPx/dTot)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
 !            Work(ifav_n+iFoff+ipq-1) = Work(ifav_n+iFoff+ipq-1) +
 !     &                               DVX*junk_test*dble(nIrrep)
@@ -11163,9 +11175,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -11175,28 +11187,28 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -11222,9 +11234,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -11234,28 +11246,28 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -11281,9 +11293,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -11293,28 +11305,28 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -11340,9 +11352,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -11352,28 +11364,28 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -11399,9 +11411,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -11411,28 +11423,28 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -11458,9 +11470,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -11470,28 +11482,28 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -11531,9 +11543,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -11543,28 +11555,28 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -11590,9 +11602,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -11602,28 +11614,28 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -11649,9 +11661,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -11661,28 +11673,28 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -11707,9 +11719,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -11719,28 +11731,28 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -11766,9 +11778,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -11778,28 +11790,28 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -11825,9 +11837,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -11837,28 +11849,28 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -11899,9 +11911,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -11911,28 +11923,28 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -11958,9 +11970,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -11970,28 +11982,28 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -12017,9 +12029,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -12029,28 +12041,28 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -12076,9 +12088,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -12088,28 +12100,28 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -12135,9 +12147,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -12147,28 +12159,28 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -12194,9 +12206,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -12206,28 +12218,28 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -12266,9 +12278,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -12278,28 +12290,28 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -12325,9 +12337,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -12337,28 +12349,28 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -12384,9 +12396,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -12396,28 +12408,28 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -12443,9 +12455,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -12455,28 +12467,28 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -12502,9 +12514,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -12514,28 +12526,28 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0
@@ -12561,9 +12573,9 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                           ratio = 4.0d0*P2_ontop(1,iGrid)/(dTot**2.0d0)
                           if((1.0d0-ratio).gt.thrsrho2) then
                             Zeta  = sqrt(1.0d0-ratio)
-                      RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
-                      RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
-                      RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
+                      RHOPx=GradRho(1,iGrid)+GradRho(4,iGrid)
+                      RHOPy=GradRho(2,iGrid)+GradRho(5,iGrid)
+                      RHOPz=GradRho(3,iGrid)+GradRho(6,iGrid)
                       V_PUVX = V_PUVX +
      &                   TabMO(1,iGrid,jP)*TabMO(1,iGrid,jU)*
      &                   TabMO(1,iGrid,jV)*TabMO(1,iGrid,jX)*
@@ -12573,28 +12585,28 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                          !gradient part
                          !x alpha part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(3,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(6,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(4,iGrid))
                          !x beta part
      &                    +RHOPx/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(6,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(3,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(1,iGrid))
                          !y alpha part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(4,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(7,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(5,iGrid))
                          !y beta part
      &                    +RHOPy/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(7,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(4,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(2,iGrid))
                          !z alpha part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                   * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*Rho(5,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(8,iGrid))
+     &    * (-1.0D0)*(2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(6,iGrid))
                          !z beta part
      &                    +RHOPz/(dTot**2*Zeta)
-     &                     *(2.0D0*dF_dRho(5,iGrid)*Rho(8,iGrid)
-     &                     +dF_dRho(4,iGrid)*Rho(5,iGrid))
+     &              *(2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)
+     &                     +dF_dRho(4,iGrid)*GradRho(3,iGrid))
      &                    )
                           else
                             V_PUVX = V_PUVX + 0.0d0

@@ -30,7 +30,7 @@
 *      Modified for revPBE: Andrew Sand, U. of Minnesota, March 2016   *
 ************************************************************************
       use KSDFT_Info, only: F_xca, F_xcb, tmpB
-      use nq_Grid, only: rho, Sigma
+      use nq_Grid, only: rho, Sigma, l_casdft
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
@@ -70,11 +70,12 @@
         end do
       else
 * ispin .ne. 1, use both alpha and beta components.
+        If (l_casdft) Then
         do iGrid=1,mgrid
          rhoa=max(1.0D-24,Rho(1,iGrid))
          rhob=max(1.0D-24,Rho(2,iGrid))
          rho_tot=rhoa+rhob
-         if(rho_tot.lt.T_X) goto 210
+         if(rho_tot.lt.T_X) Cycle
          sigmaaa=Sigma(1,iGrid)
          call xrevpbe_(idord,rhoa,sigmaaa,Fa,dFdrhoa,dFdgammaaa,
      &          d2Fdra2,d2Fdradgaa,d2Fdgaa2)
@@ -92,9 +93,31 @@
 * Note: For xpbe, dFdgammaab is zero.
          dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)+Coeff*dFdgammaaa
          dF_dRho(ipGbb,iGrid)=dF_dRho(ipGbb,iGrid)+Coeff*dFdgammabb
- 210     continue
         end do
         tmpB(:)=F_xc(:)
+        Else
+        do iGrid=1,mgrid
+         rhoa=max(1.0D-24,Rho(1,iGrid))
+         rhob=max(1.0D-24,Rho(2,iGrid))
+         rho_tot=rhoa+rhob
+         if(rho_tot.lt.T_X) Cycle
+         sigmaaa=Sigma(1,iGrid)
+         call xrevpbe_(idord,rhoa,sigmaaa,Fa,dFdrhoa,dFdgammaaa,
+     &          d2Fdra2,d2Fdradgaa,d2Fdgaa2)
+
+         sigmabb=Sigma(3,iGrid)
+         call xrevpbe_(idord,rhob,sigmabb,Fb,dFdrhob,dFdgammabb,
+     &          d2Fdrb2,d2Fdrbdgbb,d2Fdgbb2)
+
+         F_xc (iGrid)=F_xc (iGrid)+Coeff*(Fa+Fb)
+         dF_dRho(ipRa,iGrid)=dF_dRho(ipRa,iGrid)+Coeff*dFdrhoa
+         dF_dRho(ipRb,iGrid)=dF_dRho(ipRb,iGrid)+Coeff*dFdrhob
+* Maybe derivatives w.r.t. gamma_aa, gamma_ab, gamma_bb should be used instead.
+* Note: For xpbe, dFdgammaab is zero.
+         dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)+Coeff*dFdgammaaa
+         dF_dRho(ipGbb,iGrid)=dF_dRho(ipGbb,iGrid)+Coeff*dFdgammabb
+        end do
+        End If
 
       end if
 

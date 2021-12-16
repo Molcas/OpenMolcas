@@ -23,7 +23,6 @@
      &                  P2mo,P2Unzip,np2act,D1mo,D1Unzip,nD1mo,P2_ontop,
      &                        Do_Grad,Grad,nGrad,List_G,IndGrd,iTab,
      &                        Temp,mGrad,F_xc,dF_dRho,
-cGLM     &                        Temp,mGrad,F_xc,F_xca,F_xcb,dF_dRho,
      &                        dF_dP2ontop,
      &                        DFTFOCK,mAO,mdRho_dR,
      &                        LOE_DB,LTEG_DB,PDFTPot1,PDFTFocI,PDFTFocA)
@@ -42,7 +41,8 @@ cGLM     &                        Temp,mGrad,F_xc,F_xca,F_xcb,dF_dRho,
       use iSD_data
       use Basis_Info
       use Center_Info
-      use nq_Grid, only: Grid, Weights
+      use nq_Grid, only: Grid, Weights, TabAO, Grid_AO, Dens_AO,
+     &                   TabAO_Pack
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "itmax.fh"
@@ -53,6 +53,7 @@ cGLM     &                        Temp,mGrad,F_xc,F_xca,F_xcb,dF_dRho,
 #include "real.fh"
 #include "grid_on_disk.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "debug.fh"
 #include "ksdft.fh"
       Integer Maps2p(nShell,0:nSym-1), list_s(2,*), List_G(3,*),
@@ -63,7 +64,6 @@ cGLM     &                        Temp,mGrad,F_xc,F_xca,F_xcb,dF_dRho,
      &       Dens(nDens,nD), Grad(nGrad), Temp(mGrad),
      &       CMOs(nCMO), P2mo(np2act), D1mo(nD1mo),
      &       P2_ontop(nP2_ontop,mGrid), Roots(3,3), F_xc(mGrid),
-cGLM     &       F_xca(mGrid),F_xcb(mGrid),
      &       dF_dRho(ndF_dRho,mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid),
      &       xyz0(3,2),PDFTPot1(npot1),PDFTFocI(nPot1),PDFTFocA(nPot1)
@@ -324,12 +324,9 @@ C              End If
          Call Do_Index(iWork(ipIndex-1+iIndex),NrBas,NrBas_Eff,iCmp)
          iIndex=iIndex + NrBas_Eff*iCmp
       End Do
-C     Write (6,*) 'nAOs**2,nAOs_Eff**2=',nAOs**2,nAOs_Eff**2
-C     Write (6,*) 'Reduction=',DBLE(nAOs_Eff**2)/DBLE(nAOs**2)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*
 #ifdef _DEBUGPRINT_
       If (Debug) Then
          write(6,*) 'Contribution to the subblock :'
@@ -340,18 +337,19 @@ C     Write (6,*) 'Reduction=',DBLE(nAOs_Eff**2)/DBLE(nAOs**2)
       End If
 #endif
 *
-      kTabAO=0
+      nBfn=0
       Do iList_s = 1, nList_s
          iSkal = list_s(1,ilist_s)
          iCmp  = iSD( 2,iSkal)
          iBas  = iSD( 3,iSkal)
-         mTabAO=iBas*iCmp
-         kTabAO = kTabAO + mAO * mTabAO
+         nBfn=nBfn+iBas*iCmp
       End Do
 *
-      nTabAO = mGrid * kTabAO
-      Call Allocate_Work(ip_TabAO,nTabAO)
+      Call mma_Allocate(TabAO,mAO,mGrid,nBfn,Label='TabAO')
+      TabAO_Pack(1:mAO*mGrid*nBfn) => TabAO(:,:,:)
       Call Allocate_iWork(ipTabAO,2*(nlist_s+1))
+      Call mma_Allocate(Grid_AO,mAO,mGrid,nBfn,nD,Label='Grid_AO')
+      Call mma_Allocate(Dens_AO,nBfn**2,nD,Label='Dens_AO')
 *
       If ((Functional_Type.eq.CASDFT_Type).or.Do_MO.or.DO_TwoEl) Then
          nTabMO=mAO*nMOs*mGrid
@@ -695,8 +693,7 @@ c
      &                 iWork(ipIndex),nIndex,AOInt,nAOInt,
      &                 FckInt,nFckDim,nFckInt,
      &                 SOTemp,nSOTemp,
-     &                 Work(ip_TabAO),iWork(ipTabAO),mAO,
-     &                 nTabAO,
+     &                 TabAO,iWork(ipTabAO),mAO,Size(TabAO),
      &                 nSym,Dens,nDens,nD,
      &                 ndF_dRho,nP2_ontop,ndF_dP2ontop,
      &                 nShell,
@@ -708,13 +705,12 @@ c
      &                 Do_Grad,Grad,nGrad,
      &                 Work(ip_dRho_dR),mdRho_dR,nGrad_Eff,
      &                 list_g,IndGrd,iTab,Temp,F_xc,
-cGLM     &                 list_g,IndGrd,iTab,Temp,F_xc,F_xca,F_xcb,
      &                 Work(ip_dW_dR),iNQ,
      &                 Maps2p,dF_dRho,dF_dP2ontop,
      &                DFTFOCK,LOE_DB,LTEG_DB,PDFTPot1,PDFTFocI,PDFTFocA)
 *
          nTotGP=nTotGP+nogp
-* update the "LuGridFile":
+*        update the "LuGridFile":
          do i=1,nogp
          write(LuGridFile,'(3ES24.14,1x,ES24.14)')
      &               (Grid(l,i),l=1,3), Weights(i)
@@ -734,7 +730,10 @@ cGLM     &                 list_g,IndGrd,iTab,Temp,F_xc,F_xca,F_xcb,
 *                                                                      *
       Call GetMem('Index','Free','Real',ipIndex,nIndex)
       Call Free_iWork(ipTabAO)
-      Call Free_Work(ip_TabAO)
+      Call mma_deallocate(Dens_AO)
+      Call mma_deallocate(Grid_AO)
+      TabAO_Pack => Null()
+      Call mma_deallocate(TabAO)
       If (Do_Grad) Call Free_Work(ip_dRho_dR)
       If (ipTabMO.ne.ip_Dummy) Call Free_Work(ipTabMO)
       If (ipTabSO.ne.ip_Dummy) Call Free_Work(ipTabSO)

@@ -8,18 +8,20 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine P2Diff(mGrid,dF_dRho,ndF_dRho,Rho,nRho)
+      Subroutine P2Diff(mGrid,dF_dRho,ndF_dRho)
+      use nq_Grid, only: Rho, GradRho
       Implicit Real*8 (A-H,O-Z)
       Dimension dF_dRho(ndF_dRho,mGrid)
-      Dimension Rho(nRho,mGrid)
 #include "nq_info.fh"
 #include "real.fh"
 #include "nq_index.fh"
       Real*8 MinDns
+      Logical GradRho_Allocated
 *
       MinDns=0.0001d0
 
-      If (nRho.eq.2) Then
+      GradRho_Allocated=Allocated(GradRho)
+      If (.NOT.GradRho_Allocated) Then
          Do iGrid=1,mGrid
             If (Abs(Rho(1,iGrid)-Rho(2,iGrid)).le.MinDns  .or.
      &         (Rho(1,iGrid)+Rho(2,iGrid))**2-
@@ -37,7 +39,7 @@
      &                              Rho(2,iGrid)*dFdRb)
             End If
          End Do   ! iGrid
-      Else If (nRho.eq.8) Then
+      Else
 
 
          Do iGrid=1,mGrid
@@ -70,9 +72,9 @@
                dF_dRho(ipdRya,iGrid) = 0.0d0
                dF_dRho(ipdRza,iGrid) = 0.0d0
                dF_dRho(ipRb,iGrid) = 2.0d0*dF_dRho_/rho_tot -
-     &         4.0d0*(Rho(3,iGrid)*dF_dRhox+
-     &                Rho(4,iGrid)*dF_dRhoy+
-     &                Rho(5,iGrid)*dF_dRhoz)/rho_tot/rho_tot
+     &         4.0d0*(GradRho(1,iGrid)*dF_dRhox+
+     &                GradRho(2,iGrid)*dF_dRhoy+
+     &                GradRho(3,iGrid)*dF_dRhoz)/rho_tot/rho_tot
                dF_dRho(ipdRxb,iGrid) = 2.0d0*dF_dRhox/rho_tot
                dF_dRho(ipdRyb,iGrid) = 2.0d0*dF_dRhoy/rho_tot
                dF_dRho(ipdRzb,iGrid) = 2.0d0*dF_dRhoz/rho_tot
@@ -80,36 +82,6 @@
 
             Else
                rho_tot=Rho(1,iGrid)+Rho(2,iGrid)
-c              OnTop=Rho(1,iGrid)*Rho(2,iGrid)
-c              det=sqrt(rho_tot*rho_tot-4.0d0*OnTop)
-c              rho_x=Rho(3,iGrid)+Rho(6,iGrid)
-c              rho_y=Rho(4,iGrid)+Rho(7,iGrid)
-c              rho_z=Rho(5,iGrid)+Rho(8,iGrid)
-c              P2_x=Rho(3,iGrid)*Rho(2,iGrid)+
-c    &              Rho(1,iGrid)*Rho(6,iGrid)
-c              P2_y=Rho(4,iGrid)*Rho(2,iGrid)+
-c    &              Rho(1,iGrid)*Rho(7,iGrid)
-c              P2_z=Rho(5,iGrid)*Rho(2,iGrid)+
-c    &              Rho(1,iGrid)*Rho(8,iGrid)
-
-c     t0 = (1.D0/2.D0+rho_tot/det/2)*rho_x/det+(P2_x-(rho_tot/2+det/2)*
-c    &rho_x)*rho_tot/det**3
-c     t1 = (1.D0/2.D0+rho_tot/det/2)*rho_y/det+(P2_y-(rho_tot/2+det/2)*
-c    &rho_y)*rho_tot/det**3
-c     t2 = (1.D0/2.D0+rho_tot/det/2)*rho_z/det+(P2_z-(rho_tot/2+det/2)*
-c    &rho_z)*rho_tot/det**3
-c     t3 = (1.D0/2.D0+rho_tot/det/2)*rho_x/det+(P2_x-(rho_tot/2+det/2)*
-c    &rho_x)*rho_tot/det**3
-c     t4 = (1.D0/2.D0+rho_tot/det/2)*rho_y/det+(P2_y-(rho_tot/2+det/2)*
-c    &rho_y)*rho_tot/det**3
-c     t5 = (1.D0/2.D0+rho_tot/det/2)*rho_z/det+(P2_z-(rho_tot/2+det/2)*
-c    &rho_z)*rho_tot/det**3
-c     t6 = -rho_x/det**2-2*(P2_x-(rho_tot/2+det/2)*rho_x)/det**3
-c     t7 = -rho_y/det**2-2*(P2_y-(rho_tot/2+det/2)*rho_y)/det**3
-c     t8 = -rho_z/det**2-2*(P2_z-(rho_tot/2+det/2)*rho_z)/det**3
-c     t9 = rho_x/det**2+2*(P2_x-(rho_tot/2+det/2)*rho_x)/det**3
-c     t10 = rho_y/det**2+2*(P2_y-(rho_tot/2+det/2)*rho_y)/det**3
-c     t11 = rho_z/det**2+2*(P2_z-(rho_tot/2+det/2)*rho_z)/det**3
                rab1 = 1.0d0/(Rho(1,iGrid)-Rho(2,iGrid))
                dFdRa  = dF_dRho(ipRa,iGrid)
                dFdRb  = dF_dRho(ipRb,iGrid)
@@ -120,16 +92,17 @@ c     t11 = rho_z/det**2+2*(P2_z-(rho_tot/2+det/2)*rho_z)/det**3
                dFdRaz = dF_dRho(ipdRza,iGrid)
                dFdRbz = dF_dRho(ipdRzb,iGrid)
 *
-              tmp1= (Rho(1,iGrid)*Rho(6,iGrid)-Rho(2,iGrid)*
-     &                                Rho(3,iGrid))*(dFdRbx-dFdRax)+
-     &              (Rho(1,iGrid)*Rho(7,iGrid)-Rho(2,iGrid)*
-     &                                Rho(4,iGrid))*(dFdRby-dFdRay)+
-     &              (Rho(1,iGrid)*Rho(8,iGrid)-Rho(2,iGrid)*
-     &                                Rho(5,iGrid))*(dFdRbz-dFdRaz)
+              tmp1= (Rho(1,iGrid)*Rho(4,iGrid)-Rho(2,iGrid)*
+     &                            GradRho(3,iGrid))*(dFdRbx-dFdRax)+
+     &              (Rho(1,iGrid)*Rho(5,iGrid)-Rho(2,iGrid)*
+     &                            GradRho(4,iGrid))*(dFdRby-dFdRay)+
+     &              (Rho(1,iGrid)*Rho(6,iGrid)-Rho(2,iGrid)*
+     &                            GradRho(5,iGrid))*(dFdRbz-dFdRaz)
 *
-               tmp2= (Rho(6,iGrid)-Rho(3,iGrid))*(dFdRbx-dFdRax)+
-     &               (Rho(7,iGrid)-Rho(4,iGrid))*(dFdRby-dFdRay)+
-     &               (Rho(8,iGrid)-Rho(5,iGrid))*(dFdRbz-dFdRaz)
+               tmp2=
+     &          (GradRho(4,iGrid)-GradRho(1,iGrid))*(dFdRbx-dFdRax)+
+     &          (GradRho(5,iGrid)-GradRho(2,iGrid))*(dFdRby-dFdRay)+
+     &          (GradRho(6,iGrid)-GradRho(3,iGrid))*(dFdRbz-dFdRaz)
 *
                dF_dRho(ipRa,iGrid) = rab1*
      &                             (Rho(1,iGrid)*dFdRa-
@@ -157,10 +130,6 @@ c     t11 = rho_z/det**2+2*(P2_z-(rho_tot/2+det/2)*rho_z)/det**3
             End If
          End Do   ! iGrid
 
-      Else
-         Call WarningMessage(2,'P2Diff: Error')
-         Write(6,*) 'nRho=',nRho
-         Call Abend()
       End If
 *
       Return
