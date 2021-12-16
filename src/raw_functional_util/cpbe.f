@@ -28,7 +28,7 @@
 *             University of Lund, SWEDEN. December 2005                *
 ************************************************************************
       use KSDFT_Info, only: tmpB
-      use nq_Grid, only: Rho, Sigma
+      use nq_Grid, only: Rho, Sigma, l_casdft
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
@@ -90,11 +90,12 @@
         end do
       else
 * ispin .ne. 1, use both alpha and beta components.
+        If (l_casdft) Then
         do iGrid=1,mgrid
          rhoa=max(1.0D-24,Rho(1,iGrid))
          rhob=max(1.0D-24,Rho(2,iGrid))
          rho_in=rhoa+rhob
-         if(rho_in.lt.T_X) goto 210
+         if(rho_in.lt.T_X) Cycle
 
          gamma=Sigma(1,iGrid)+Two*Sigma(2,iGrid)+Sigma(3,iGrid)
          grdrho_in=sqrt(gamma)
@@ -111,8 +112,30 @@
          dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)+Coeff*func1(2)
          dF_dRho(ipGab,iGrid)=dF_dRho(ipGab,iGrid)+Coeff*2.0D0*func1(2)
          dF_dRho(ipGbb,iGrid)=dF_dRho(ipGbb,iGrid)+Coeff*func1(2)
- 210     continue
         end do
+        Else
+        do iGrid=1,mgrid
+         rhoa=max(1.0D-24,Rho(1,iGrid))
+         rhob=max(1.0D-24,Rho(2,iGrid))
+         rho_in=rhoa+rhob
+         if(rho_in.lt.T_X) Cycle
+
+         gamma=Sigma(1,iGrid)+Two*Sigma(2,iGrid)+Sigma(3,iGrid)
+         grdrho_in=sqrt(gamma)
+         zeta_in=(rhoa-rhob)/rho_in
+         call cpbe_(idord,rho_in,grdrho_in,zeta_in,func0,func1,func2)
+         F_xc(iGrid)=F_xc(iGrid)+Coeff*func0
+* dF_drhoa:
+         dF_dRho(ipRa,iGrid)=dF_dRho(ipRa,iGrid)+
+     &            Coeff*(func1(1)+(2.0D0*func1(3))*(rhob/rho_in**2))
+         dF_dRho(ipRb,iGrid)=dF_dRho(ipRb,iGrid)+
+     &            Coeff*(func1(1)-(2.0D0*func1(3))*(rhoa/rho_in**2))
+* Maybe derivatives w.r.t. gamma_aa, gamma_ab, gamma_bb should be used instead.
+         dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)+Coeff*func1(2)
+         dF_dRho(ipGab,iGrid)=dF_dRho(ipGab,iGrid)+Coeff*2.0D0*func1(2)
+         dF_dRho(ipGbb,iGrid)=dF_dRho(ipGbb,iGrid)+Coeff*func1(2)
+        end do
+        End If
       end if
 
       Return

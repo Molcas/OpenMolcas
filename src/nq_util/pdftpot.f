@@ -260,9 +260,9 @@ C     calculation
          dEdRhobz(iGrid)=2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)+
      &                         dF_dRho(4,iGrid)*GradRho(3,iGrid)
 
-         dRhodx(iGrid)=Rho(3,iGrid)+Rho(6,iGrid)
-         dRhody(iGrid)=Rho(4,iGrid)+Rho(7,iGrid)
-         dRhodz(iGrid)=Rho(5,iGrid)+Rho(8,iGrid)
+         dRhodx(iGrid)=GradRho(1,iGrid)+GradRho(4,iGrid)
+         dRhody(iGrid)=GradRho(2,iGrid)+GradRho(5,iGrid)
+         dRhodz(iGrid)=GradRho(3,iGrid)+GradRho(6,iGrid)
          Fact1(iGrid)=Fact1(iGrid)+
      &   ((dEdRhoax(iGrid)-dEdRhobx(iGrid))*dRhodx(iGrid)+
      &    (dEdRhoay(iGrid)-dEdRhoby(iGrid))*dRhody(iGrid)+

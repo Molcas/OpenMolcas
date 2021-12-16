@@ -209,11 +209,6 @@
                Prod_44=TabAO1(4,iGrid,iCB_Eff)*TabAO2(4,iGrid,jCB_Eff)
 *
                Rho(1,iGrid)=Rho(1,iGrid) +     Prod_11      *DAij_
-               Rho(2,iGrid)=Rho(2,iGrid) + (Prod_21+Prod_12)*DAij_
-               Rho(3,iGrid)=Rho(3,iGrid) + (Prod_31+Prod_13)*DAij_
-               Rho(4,iGrid)=Rho(4,iGrid) + (Prod_41+Prod_14)*DAij_
-               Rho(5,iGrid)=Rho(5,iGrid)
-     &                     + (Prod_22+Prod_33+Prod_44)*DAij_
 
                GradRho(1,iGrid)=GradRho(1,iGrid)+(Prod_21+Prod_12)*DAij_
                GradRho(2,iGrid)=GradRho(2,iGrid)+(Prod_31+Prod_13)*DAij_
@@ -267,16 +262,6 @@
 *
                Rho( 1,iGrid)=Rho(1,iGrid) +     Prod_11      *DAij_
                Rho( 2,iGrid)=Rho(2,iGrid) +     Prod_11      *DBij_
-               Rho( 3,iGrid)=Rho(3,iGrid) + (Prod_21+Prod_12)*DAij_
-               Rho( 4,iGrid)=Rho(4,iGrid) + (Prod_31+Prod_13)*DAij_
-               Rho( 5,iGrid)=Rho(5,iGrid) + (Prod_41+Prod_14)*DAij_
-               Rho( 6,iGrid)=Rho(6,iGrid) + (Prod_21+Prod_12)*DBij_
-               Rho( 7,iGrid)=Rho(7,iGrid) + (Prod_31+Prod_13)*DBij_
-               Rho( 8,iGrid)=Rho(8,iGrid) + (Prod_41+Prod_14)*DBij_
-               Rho( 9,iGrid)=Rho( 9,iGrid)
-     &                      +(Prod_22+Prod_33+Prod_44)*DAij_
-               Rho(10,iGrid)=Rho(10,iGrid)
-     &                      +(Prod_22+Prod_33+Prod_44)*DBij_
 
                GradRho(1,iGrid)=GradRho(1,iGrid)+(Prod_21+Prod_12)*DAij_
                GradRho(2,iGrid)=GradRho(2,iGrid)+(Prod_31+Prod_13)*DAij_
@@ -284,6 +269,7 @@
                GradRho(4,iGrid)=GradRho(4,iGrid)+(Prod_21+Prod_12)*DBij_
                GradRho(5,iGrid)=GradRho(5,iGrid)+(Prod_31+Prod_13)*DBij_
                GradRho(6,iGrid)=GradRho(6,iGrid)+(Prod_41+Prod_14)*DBij_
+
                Tau(1,iGrid)=Tau(1,iGrid)
      &                     +(Prod_22+Prod_33+Prod_44)*DAij_
                Tau(2,iGrid)=Tau(2,iGrid)

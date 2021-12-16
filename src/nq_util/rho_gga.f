@@ -206,9 +206,6 @@ c Avoid unused argument warnings
                Prod_14=TabAO1(1,iGrid,iCB_Eff)*TabAO2(4,iGrid,jCB_Eff)
 *
                Rho(1,iGrid)=Rho(1,iGrid) +     Prod_11      *DAij_
-               Rho(2,iGrid)=Rho(2,iGrid) + (Prod_21+Prod_12)*DAij_
-               Rho(3,iGrid)=Rho(3,iGrid) + (Prod_31+Prod_13)*DAij_
-               Rho(4,iGrid)=Rho(4,iGrid) + (Prod_41+Prod_14)*DAij_
 
                GradRho(1,iGrid)=GradRho(1,iGrid)
      &                         + (Prod_21+Prod_12)*DAij_
@@ -259,12 +256,6 @@ c Avoid unused argument warnings
 *
                Rho(1,iGrid)=Rho(1,iGrid) +     Prod_11      *DAij_
                Rho(2,iGrid)=Rho(2,iGrid) +     Prod_11      *DBij_
-               Rho(3,iGrid)=Rho(3,iGrid) + (Prod_21+Prod_12)*DAij_
-               Rho(4,iGrid)=Rho(4,iGrid) + (Prod_31+Prod_13)*DAij_
-               Rho(5,iGrid)=Rho(5,iGrid) + (Prod_41+Prod_14)*DAij_
-               Rho(6,iGrid)=Rho(6,iGrid) + (Prod_21+Prod_12)*DBij_
-               Rho(7,iGrid)=Rho(7,iGrid) + (Prod_31+Prod_13)*DBij_
-               Rho(8,iGrid)=Rho(8,iGrid) + (Prod_41+Prod_14)*DBij_
 
                GradRho(1,iGrid)=GradRho(1,iGrid)
      &                         + (Prod_21+Prod_12)*DAij_
