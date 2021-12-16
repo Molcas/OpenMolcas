@@ -362,7 +362,7 @@
          nRho=nD
          nSigma=nD*(nD+1)/2
          nGradRho=nD*3
-         nTau=0
+         nTau=nD
          nLapl=0
          If (Do_Grad) mdRho_dR=4*nD
          If (Do_Grad) Then

@@ -1360,10 +1360,10 @@ C    &                       list_bas,Index,nIndex)
 ************************************************************************
 ************************************************************************
 *                                                                      *
-         Call Rho_meta_GGA2(nD,mGrid,
-     &                     list_s,nlist_s,TabAO,ipTabAO,mAO,nTabAO,
-     &                     Work(ip_Fact),ndc,
-     &                     list_bas,Index,nIndex)
+         Call Rho_LDA(Dens,nDens,nD,mGrid,
+     &                list_s,nlist_s,ipTabAO,mAO,nSym,
+     &                Work(ip_Fact),ndc,
+     &                list_bas,Index,nIndex)
 *
          If (Do_Grad)
      &      Call dRho_dR_meta_GGA2
