@@ -19,7 +19,8 @@
 ************************************************************************
       use iSD_data
       use k2_arrays, only: DeDe, ipDijS
-      use nq_grid, only: Rho, TabAO, TabAO_Pack
+      use nq_grid, only: Rho, TabAO, Dens_AO, Grid_AO
+      use nq_grid, only: GradRho, Sigma
 #ifdef _DEBUGPRINT_
       use nq_grid, only: nRho
 #endif
@@ -33,6 +34,7 @@
       Integer list_s(2,nlist_s), ipTabAO(nlist_s), list_bas(2,nlist_s),
      &        Index(nIndex)
       Real*8 Dens(nDens,nD), Fact(mdc**2)
+      Integer ipD(2)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -41,14 +43,15 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      nTabAO=Size(TabAO)
-*define _DEBUGPRINT_
+      n = ipTabAO(1)
+*#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Call RecPrt('Rho_LDA:Dens',' ',Dens,nDens,nD)
       Write (6,*) 'mAO=',mAO
       Write (6,*) 'mGrid=',mGrid
       Write (6,*) 'nTabAO=',nTabAO
       Write (6,*) 'nlist_s=',nlist_s
+      TmpD=Zero
       Do iList_s = 1, nList_s
          Write (6,*) 'iList_s=',iList_s
          iSkal = list_s(1,ilist_s)
@@ -57,15 +60,20 @@
          mTabAO=iBas*iCmp
          mdci  = iSD(10,iSkal)
          Call RecPrt('Rho_LDA: TabAO',' ',
-     &               TabAO_Pack(ipTabAO(iList_s)),mAO,mGrid*mTabAO)
+     &               TabAO_Pack(ipTabAO(iList_s)),mAO*mGrid,mTabAO)
       End Do
+      Call RecPrt('Rho: TabAO',' ',
+     &               TabAO,mAO*mGrid,nAO)
 #endif
 *
-      Rho(:,1:mGrid)=Zero
+      nTabAO=Size(TabAO)
+      nAO = SIZE(Dens_AO,1)
+      Dens_AO(:,:,:)=Zero
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *
+      iOff = 0
       Do ilist_s=1,nlist_s
          iSkal = list_s(1,ilist_s)
          iCmp  = iSD( 2,iSkal)
@@ -76,7 +84,9 @@
          mdci  = iSD(10,iSkal)
          index_i=list_bas(2,ilist_s)
          nFunc_i=iBas*iCmp
+         n_iBas=iBas_Eff*iCmp
 *
+         jOff = 0
          Do jlist_s=1,ilist_s
             Fij = Two
             If (jList_s.eq.ilist_s) Fij=One
@@ -89,6 +99,7 @@
             mdcj  = iSD(10,jSkal)
             jShell= iSD(11,jSkal)
             nFunc_j=jBas*jCmp
+            n_jBas=jBas_Eff*jCmp
 *
             mDij=nFunc_i*nFunc_j
 *
@@ -112,6 +123,8 @@
             ip_D_a=ipDij+lDCRER*mDij
             ip_D_b=ip_D_a
             If (nD.ne.1) ip_D_b=ipDSij+lDCRER*mDij
+            ipD(1)=ip_D_a
+            ipD(2)=ip_D_b
 *
 #ifdef _DEBUGPRINT_
             Write (6,*) 'Rho_LDA'
@@ -120,40 +133,119 @@
             Write (6,*) 'iShell,jshell=', iShell,jshell
             Write (6,*) 'kDCRE,kDCRR=', kDCRE,kDCRR
             Write (6,*) 'iER,lDCRER=',iER,lDCRER
-            Call RecPrt('DAij',' ',DeDe(ip_D_a),nBB,nCC)
-            If (nD.ne.1) Call RecPrt('DBij',' ',DeDe(ip_D_b),nBB,nCC)
+            Write (6,*) 'Fact(ij)=',Fact(ij)
+            Call RecPrt('DAij',' ',DeDe(ip_D_a),nFunc_i,nFunc_j)
+            If (nD.ne.1) Call RecPrt('DBij',' ',DeDe(ip_D_b),nFunc_i,
+     &                                                       nFunc_j)
 #endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
-            If (nD.eq.1) Then
+            Do iD = 1, nD
+               Do j_R = 1, n_jBas
+                  jCB = Index(index_j-1+j_R)    ! Real index
+                  j_A = j_R + jOff            ! Absolute index
 *
+                  Do i_R = 1, n_iBas
+                     iCB = Index(index_i-1+i_R)
+                     i_A = i_R + iOff
 *
-               Call Do_Rho2a(mGrid,
-     &                       DeDe(ip_D_a),     mAO,
-     &                  TabAO_Pack(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
-     &                  TabAO_Pack(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
-     &                       Fact(ij)*Fij,
-     &                       Index(index_i),Index(index_j))
+                     ij_D = (jCB-1)*nFunc_i + iCB - 1
+                     DAij =DeDe(ipD(iD)+ij_D)*Fact(ij)
+                     Dens_AO(i_A,j_A,iD) = DAij
+                     Dens_AO(j_A,i_A,iD) = DAij
 *
-            Else
-*
-               Call Do_Rho2_(mGrid,
-     &                       DeDe(ip_D_a),DeDe(ip_D_b),     mAO,
-     &                  TabAO_Pack(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
-     &                  TabAO_Pack(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
-     &                       Fact(ij)*Fij,
-     &                       Index(index_i),Index(index_j))
-*
-            End If
+                  End Do          ! iCB
+               End Do             ! jCB
+            End Do
 *                                                                      *
 ************************************************************************
 *                                                                      *
+            jOff = jOff + jBas_Eff*jCmp
          End Do                      ! jlist_s
+         iOff = iOff + iBas_Eff*iCmp
       End Do                         ! ilist_s
 *
+      Call DGEMM_('N','N',mAO*mGrid,nAO*nD,nAO,
+     &            One,TabAO,mAO*mGrid,
+     &                Dens_AO,nAO,
+     &            Zero,Grid_AO,mAO*mGrid)
+
+      If (Functional_Type.eq.LDA_Type) Then
+         Rho(:,1:mGrid)=Zero
+         Do iD = 1, nD
+            Do iAO = 1, nAO
+               Do iGrid = 1, mGrid
+                  Rho(iD,iGrid) = Rho(iD,iGrid)
+     &                          + Grid_AO(1,iGrid,iAO,iD)
+     &                          * TabAO(1,iGrid,iAO)
+               End Do
+            End Do
+         End Do
+       Else If (Functional_Type.eq.GGA_Type) Then
+         Rho(:,1:mGrid)=Zero
+         GradRho(:,1:mGrid)=Zero
+         Do iD = 1, nD
+            ix = (iD-1)*3 + 1
+            iy = (iD-1)*3 + 2
+            iz = (iD-1)*3 + 3
+            Do iAO = 1, nAO
+               Do iGrid = 1, mGrid
+                  Rho(iD,iGrid) = Rho(iD,iGrid)
+     &                          + Grid_AO(1,iGrid,iAO,iD)
+     &                          * TabAO(1,iGrid,iAO)
+                  GradRho(ix,iGrid)=GradRho(ix,iGrid)
+     &                          + Grid_AO(1,iGrid,iAO,iD)
+     &                          * TabAO(2,iGrid,iAO)
+     &                          + Grid_AO(2,iGrid,iAO,iD)
+     &                          * TabAO(1,iGrid,iAO)
+                  GradRho(iy,iGrid)=GradRho(iy,iGrid)
+     &                          + Grid_AO(1,iGrid,iAO,iD)
+     &                          * TabAO(3,iGrid,iAO)
+     &                          + Grid_AO(3,iGrid,iAO,iD)
+     &                          * TabAO(1,iGrid,iAO)
+                  GradRho(iz,iGrid)=GradRho(iz,iGrid)
+     &                          + Grid_AO(1,iGrid,iAO,iD)
+     &                          * TabAO(4,iGrid,iAO)
+     &                          + Grid_AO(4,iGrid,iAO,iD)
+     &                          * TabAO(1,iGrid,iAO)
+               End Do
+            End Do
+         End Do
+         If (nD.eq.1) Then
+            Do iGrid=1, mGrid
+               Sigma(1,iGrid)=GradRho(1,iGrid)**2
+     &                       +GradRho(2,iGrid)**2
+     &                       +GradRho(3,iGrid)**2
+            End Do
+         Else
+            Do iGrid=1, mGrid
+               Sigma(1,iGrid)=GradRho(1,iGrid)**2
+     &                       +GradRho(2,iGrid)**2
+     &                       +GradRho(3,iGrid)**2
+               Sigma(2,iGrid)=GradRho(1,iGrid)*GradRho(4,iGrid)
+     &                       +GradRho(2,iGrid)*GradRho(5,iGrid)
+     &                       +GradRho(3,iGrid)*GradRho(6,iGrid)
+               Sigma(3,iGrid)=GradRho(4,iGrid)**2
+     &                       +GradRho(5,iGrid)**2
+     &                       +GradRho(6,iGrid)**2
+            End Do
+         End If
+
+      Else
+         Call abend()
+      End If
+
+
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Rho_LDA: Rho','(10F15.6)',Rho,nRho,mGrid)
+      Do iD = 1, nD
+         Call RecPrt('Dens_AO',' ',Dens_AO(:,:,iD),nAO,nAO)
+         Call RecPrt('Grid_AO',' ',Grid_AO(:,:,:,iD),mAO*mGrid,
+     &                                               nAO)
+      End Do
+#endif
+
+#ifdef _DEBUGPRINT_
 #else
 c Avoid unused argument warnings
       If (.False.) Call Unused_real_array(Dens)
@@ -161,109 +253,4 @@ c Avoid unused argument warnings
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(nSym)
-      End
-
-
-
-
-      Subroutine Do_Rho2a(mGrid,DAij,
-     &                    mAO,TabAO1,iBas,iBas_Eff,iCmp,
-     &                        TabAO2,jBas,jBas_Eff,jCmp,
-     &                    Fact,Index_i,Index_j)
-      use nq_Grid, only: Rho, Grid_AO, Dens_AO
-      Implicit Real*8 (A-H,O-Z)
-#include "real.fh"
-#include "WrkSpc.fh"
-#include "debug.fh"
-      Real*8 DAij(iBas*iCmp,jBas*jCmp),
-     &       TabAO1(mAO,mGrid,iBas_Eff*iCmp),
-     &       TabAO2(mAO,mGrid,jBas_Eff*jCmp)
-      Integer Index_i(iBas_Eff*iCmp), Index_j(jBas_Eff*jCmp)
-*                                                                      *
-************************************************************************
-*                                                                      *
-#define _NEWCODE_
-#ifdef _NEWCODE_
-      n_iBas = iBas_Eff*iCmp
-      n_jBas = jBas_Eff*jCmp
-*
-      Do jCB_Eff = 1, jBas_Eff*jCmp
-         jCB = Index_j(jCB_Eff)
-*
-         Do iCB_Eff = 1, iBas_Eff*iCmp
-            iCB = Index_i(iCB_Eff)
-*
-            ij = (jCB_Eff-1)*n_iBas + iCB_Eff
-            Dens_AO(ij,1) = DAij(iCB,jCB)*Fact
-         End Do          ! iCB
-      End Do             ! jCB
-*
-      Call DGEMM_('N','N',mAO*mGrid,n_jBas*1,n_iBas,
-     &            One,TabAO1,mAO*Size(TabAO1,2),
-     &                Dens_AO,n_iBas,
-     &            Zero,Grid_AO,mAO*Size(Grid_AO,2))
-*
-      Do jCB_Eff = 1, jBas_Eff*jCmp
-         Do iGrid = 1, mGrid
-            Rho(1,iGrid)=Rho(1,iGrid) + Grid_AO(1,iGrid,jCB_Eff,1)
-     &                                 * TabAO2(1,iGrid,jCB_Eff)
-         End Do
-      End Do
-#else
-      Do jCB_Eff = 1, jBas_Eff*jCmp
-         jCB = Index_j(jCB_Eff)
-*
-         Do iCB_Eff = 1, iBas_Eff*iCmp
-            iCB = Index_i(iCB_Eff)
-*
-            DAij_=DAij(iCB,jCB)*Fact
-*
-            Do iGrid = 1, mGrid
-               Prod_ij=TabAO1(1,iGrid,iCB_Eff)*TabAO2(1,iGrid,jCB_Eff)
-               Rho(1,iGrid)=Rho(1,iGrid)+Prod_ij*DAij_
-            End Do    ! iGrid
-*
-         End Do          ! iCB
-      End Do             ! jCB
-#endif
-*
-      Return
-      End
-
-
-
-      Subroutine Do_Rho2_(mGrid,DAij,DBij,
-     &                    mAO,TabAO1,iBas,iBas_Eff,iCmp,
-     &                        TabAO2,jBas,jBas_Eff,jCmp,
-     &                    Fact,Index_i,Index_j)
-      use nq_grid, only: Rho
-      Implicit Real*8 (A-H,O-Z)
-#include "real.fh"
-#include "WrkSpc.fh"
-      Real*8 DAij(iBas*iCmp,jBas*jCmp), DBij(iBas*iCmp,jBas*jCmp),
-     &       TabAO1(mAO,mGrid,iBas_Eff*iCmp),
-     &       TabAO2(mAO,mGrid,jBas_Eff*jCmp)
-      Integer Index_i(iBas_Eff*iCmp), Index_j(jBas_Eff*jCmp)
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Do jCB_Eff = 1, jBas_Eff*jCmp
-         jCB = Index_j(jCB_Eff)
-*
-         Do iCB_Eff = 1, iBas_Eff*iCmp
-            iCB = Index_i(iCB_Eff)
-*
-            DAij_=DAij(iCB,jCB)*Fact
-            DBij_=DBij(iCB,jCB)*Fact
-*
-            Do iGrid = 1, mGrid
-               Prod_ij=TabAO1(1,iGrid,iCB_Eff)*TabAO2(1,iGrid,jCB_Eff)
-               Rho(1,iGrid)=Rho(1,iGrid)+Prod_ij*DAij_
-               Rho(2,iGrid)=Rho(2,iGrid)+Prod_ij*DBij_
-            End Do    ! iGrid
-*
-         End Do          ! iCB
-      End Do             ! jCB
-*
-      Return
       End

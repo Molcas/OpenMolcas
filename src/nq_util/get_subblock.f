@@ -345,10 +345,8 @@ C              End If
          nBfn=nBfn+iBas*iCmp
       End Do
 *
-      Call mma_Allocate(TabAO,mAO,mGrid,nBfn,Label='TabAO')
-      TabAO_Pack(1:mAO*mGrid*nBfn) => TabAO(:,:,:)
       Call Allocate_iWork(ipTabAO,2*(nlist_s+1))
-      Call mma_Allocate(Dens_AO,nBfn**2,nD,Label='Dens_AO')
+      Call mma_Allocate(Dens_AO,nBfn,nBfn,nD,Label='Dens_AO')
 *
       If ((Functional_Type.eq.CASDFT_Type).or.Do_MO.or.DO_TwoEl) Then
          nTabMO=mAO*nMOs*mGrid
@@ -688,6 +686,9 @@ c
          End If
 *
          Call mma_Allocate(Grid_AO,mAO,nogp,nBfn,nD,Label='Grid_AO')
+         Call mma_Allocate(TabAO,mAO,nogp,nBfn,Label='TabAO')
+         TabAO_Pack(1:mAO*nogp*nBfn) => TabAO(:,:,:)
+
          Call Do_Batch(Kernel,Func,nogp,
      &                 list_s,nlist_s,List_Exp,List_Bas,
      &                 iWork(ipIndex),nIndex,AOInt,nAOInt,
@@ -706,7 +707,10 @@ c
      &                 DFTFOCK,LOE_DB,LTEG_DB,PDFTPot1,PDFTFocI,
      &                 PDFTFocA)
 *
+         TabAO_Pack => Null()
+         Call mma_deallocate(TabAO)
          Call mma_deallocate(Grid_AO)
+
          nTotGP=nTotGP+nogp
 *        update the "LuGridFile":
          do i=1,nogp
@@ -729,8 +733,6 @@ c
       Call GetMem('Index','Free','Real',ipIndex,nIndex)
       Call Free_iWork(ipTabAO)
       Call mma_deallocate(Dens_AO)
-      TabAO_Pack => Null()
-      Call mma_deallocate(TabAO)
       If (Do_Grad) Call Free_Work(ip_dRho_dR)
       If (ipTabMO.ne.ip_Dummy) Call Free_Work(ipTabMO)
       If (ipTabSO.ne.ip_Dummy) Call Free_Work(ipTabSO)
