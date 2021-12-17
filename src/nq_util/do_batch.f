@@ -272,7 +272,7 @@
                      call dcopy_(nData,TabAO_Pack(iOff:),1,
      &                                 Work(ipTmp),1)
                      Call PkR8(0,nData,nByte,Work(ipTmp),
-     &                                       TabAO_Pack(jOff))
+     &                                       TabAO_Pack(jOff:))
                      mData = (nByte+RtoB-1)/RtoB
                      If (mData.gt.nData) Then
                         Call WarningMessage(2,'mData.gt.nData')
