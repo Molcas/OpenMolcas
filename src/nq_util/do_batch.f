@@ -269,7 +269,7 @@
                         Call WarningMessage(2,'nData.gt.nTmp')
                         Call Abend()
                      End If
-                     call dcopy_(nData,TabAO_Pack(iOff),1,Work(ipTmp),1)
+                     call dcopy_(nData,TabAO_Pack(iOff:),1,Work(ipTmp),1)
                      Call PkR8(0,nData,nByte,Work(ipTmp),
      &                                       TabAO_Pack(jOff))
                      mData = (nByte+RtoB-1)/RtoB
@@ -391,8 +391,8 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-      Call Mk_Rho(nD,mGrid,list_s,nlist_s,ipTabAO,mAO,
-     &            Work(ip_Fact),ndc,list_bas,Index,nIndex)
+      Call Mk_Rho(nD,mGrid,list_s,nlist_s,Work(ip_Fact),ndc,list_bas,
+     &            Index,nIndex)
 
       If (Functional_type.eq.LDA_type) Then
 *                                                                      *

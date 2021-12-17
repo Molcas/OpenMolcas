@@ -10,8 +10,8 @@
 *                                                                      *
 * Copyright (C) 2000,2021, Roland Lindh                                *
 ************************************************************************
-      Subroutine Mk_Rho(nD,mGrid,list_s,nlist_s,ipTabAO,mAO,
-     &                  Fact,mdc,list_bas,Index,nIndex)
+      Subroutine Mk_Rho(nD,mGrid,list_s,nlist_s,Fact,mdc,list_bas,Index,
+     &                  nIndex)
 ************************************************************************
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN.  2000                                   *
@@ -30,8 +30,7 @@
 #include "nq_info.fh"
 #include "nsd.fh"
 #include "setup.fh"
-      Integer list_s(2,nlist_s), ipTabAO(nlist_s), list_bas(2,nlist_s),
-     &        Index(nIndex)
+      Integer list_s(2,nlist_s), list_bas(2,nlist_s), Index(nIndex)
       Real*8 Fact(mdc**2)
       Integer ipD(2)
 *                                                                      *
@@ -42,32 +41,17 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      n = ipTabAO(1)
-*#define _DEBUGPRINT_
-#ifdef _DEBUGPRINT_
-      Call RecPrt('Rho_LDA:Dens',' ',Dens,nDens,nD)
-      Write (6,*) 'mAO=',mAO
-      Write (6,*) 'mGrid=',mGrid
-      Write (6,*) 'nTabAO=',nTabAO
-      Write (6,*) 'nlist_s=',nlist_s
-      TmpD=Zero
-      Do iList_s = 1, nList_s
-         Write (6,*) 'iList_s=',iList_s
-         iSkal = list_s(1,ilist_s)
-         iCmp  = iSD( 2,iSkal)
-         iBas  = iSD( 3,iSkal)
-         mTabAO=iBas*iCmp
-         mdci  = iSD(10,iSkal)
-         Call RecPrt('Rho_LDA: TabAO',' ',
-     &               TabAO_Pack(ipTabAO(iList_s)),mAO*mGrid,mTabAO)
-      End Do
-      Call RecPrt('Rho: TabAO',' ',
-     &               TabAO,mAO*mGrid,nAO)
-#endif
 *
-      nTabAO=Size(TabAO)
       nAO = SIZE(Dens_AO,1)
       Dens_AO(:,:,:)=Zero
+      mAO = SIZE(TabAO,1)
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+      Write (6,*) 'mAO=',mAO
+      Write (6,*) 'mGrid=',mGrid
+      Write (6,*) 'nlist_s=',nlist_s
+      Call RecPrt('Rho: TabAO',' ',TabAO,mAO*mGrid,nAO)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -87,8 +71,6 @@
 *
          jOff = 0
          Do jlist_s=1,ilist_s
-            Fij = Two
-            If (jList_s.eq.ilist_s) Fij=One
             jSkal = list_s(1,jlist_s)
             jCmp  = iSD( 2,jSkal)
             jBas  = iSD( 3,jSkal)
