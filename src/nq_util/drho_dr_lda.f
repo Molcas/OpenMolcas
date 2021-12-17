@@ -39,6 +39,7 @@
       Real*8 TabAO(nTabAO), Fact(ndc**2),
      &       dRho_dR(ndRho_dR,mGrid,nGrad_Eff)
       Integer IndGrd_Eff(3,2)
+      Integer ipD(2)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -76,6 +77,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      iOff = 0
       Do ilist_s=1,nlist_s
          iS      =list_s(1,ilist_s)
          iCmp       =iSD( 2,iS)
@@ -85,10 +87,13 @@
          iShell     =iSD(11,iS)
          mdci       =iSD(10,iS)
          index_i    =list_bas(2,ilist_s)
+         nFunc_i=iBas*iCmp
+         n_iBas=iBas_Eff*iCmp
+
 *
          Call ICopy(3,list_g(1,ilist_s),1,IndGrd_Eff(1,1),1)
-         n1 = IndGrd_Eff(1,1) + IndGrd_Eff(2,1) + IndGrd_Eff(3,1)
 *
+         jOff = 0
          Do jlist_s=1,ilist_s
             jS      =list_s(1,jlist_s)
             kDCRR   =list_s(2,jlist_s)
@@ -98,10 +103,10 @@
             mdcj       =iSD(10,jS)
             jShell     =iSD(11,jS)
             index_j    =list_bas(2,jlist_s)
+            nFuncji=jBas*jCmp
+            n_jBas=jBas_Eff*jCmp
 *
             Call ICopy(3,list_g(1,jlist_s),1,IndGrd_Eff(1,2),1)
-            n2 = IndGrd_Eff(1,2) + IndGrd_Eff(2,2) + IndGrd_Eff(3,2)
-            If (n1+n2.eq.0) Go To 98
 *
             mDij=iBas*jBas*iCmp*jCmp
 *
@@ -130,6 +135,9 @@
             ip_D_a=ipDij+lDCRER*mDij
             ip_D_b=ip_D_a
             If (nD.ne.1) ip_D_b=ipDSij+lDCRER*mDij
+            ipD(1)=ip_D_a
+            ipD(2)=ip_D_b
+
 *
 #ifdef _DEBUGPRINT_
             If (Debug) Then
@@ -161,10 +169,11 @@
      &                       Index(index_i),Index(index_j))
             End If
 *
- 98         Continue
-*
+            jOff = jOff + jBas_Eff*jCmp
          End Do                      ! jlist_s
+         iOff = iOff + iBas_Eff*iCmp
       End Do                         ! ilist_s
+
 *                                                                      *
 ************************************************************************
 *                                                                      *
