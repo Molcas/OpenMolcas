@@ -234,7 +234,7 @@
      &                  Work(ipRadial),
      &                  iBas_Eff,
      &                  Shells(iShll)%pCff(1,iBas-iBas_Eff+1),
-     &                  TabAO_Pack(iOff),
+     &                  TabAO_Pack(iOff:),
      &                  mAO,px,py,pz,ipx,ipy,ipz)
             iOff = iOff + mAO*mGrid*iBas_Eff*iCmp
 *
@@ -262,7 +262,7 @@
 *                 Check if we should store any AOs at all!
 *
                   iOff = ipTabAO(ilist_s,1)
-                  ix=iDAMax_(nData,TabAO_Pack(iOff),1)
+                  ix=iDAMax_(nData,TabAO_Pack(iOff:),1)
                   AOMax=Abs(TabAO_Pack(iOff-1+ix))
                   If (AOMax.ge.T_X) Then
                      If (nData.gt.nTmp) Then
@@ -321,8 +321,8 @@
                   Call WarningMessage(2,'mData.gt.nTmp')
                   Call Abend()
                End If
-               Call UpkR8(0,nData,nByte,TabAO_Pack(jOff),Work(ipTmp))
-               call dcopy_(nData,Work(ipTmp),1,TabAO_Pack(iOff),1)
+               Call UpkR8(0,nData,nByte,TabAO_Pack(jOff:),Work(ipTmp))
+               call dcopy_(nData,Work(ipTmp),1,TabAO_Pack(iOff:),1)
             Else
                mData=0
                TabAO_Pack(1:nData)=Zero
