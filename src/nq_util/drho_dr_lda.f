@@ -72,7 +72,7 @@
       End If
 #endif
 *
-      Call FZero(dRho_dR,ndRho_dR*mGrid*nGrad_Eff)
+      dRho_dR(:,:,:)=Zero
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -121,8 +121,8 @@
 *
             ij = (mdcj-1)*ndc + mdci
 *
-            Deg=Two
-            If (ilist_s.eq.jlist_s) Deg=One
+            Fij=Two
+            If (ilist_s.eq.jlist_s) Fij=One
 *
             iER=iEOr(kDCRE,kDCRR)
             lDCRER=NrOpr(iER)
@@ -145,49 +145,20 @@
             End If
 #endif
 *
-            If (iShell.lt.jShell) Then
-               itmp=IndGrd_Eff(1,1)
-               IndGrd_Eff(1,1)=IndGrd_Eff(1,2)
-               IndGrd_Eff(1,2)=itmp
-               itmp=IndGrd_Eff(2,1)
-               IndGrd_Eff(2,1)=IndGrd_Eff(2,2)
-               IndGrd_Eff(2,2)=itmp
-               itmp=IndGrd_Eff(3,1)
-               IndGrd_Eff(3,1)=IndGrd_Eff(3,2)
-               IndGrd_Eff(3,2)=itmp
-            End If
             If (nD.eq.1) Then
-               If (iShell.ge.jShell) Then
                Call Do_Rho2da(dRho_dR,   mGrid,nGrad_Eff,
      &                       DeDe(ip_D_a),                  mAO,
      &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
      &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
-     &                       Fact(ij)*Deg,IndGrd_Eff,
+     &                       Fact(ij)*Fij,IndGrd_Eff,
      &                       Index(index_i),Index(index_j))
-               Else
-               Call Do_Rho2da(dRho_dR,   mGrid,nGrad_Eff,
-     &                       DeDe(ip_D_a),                  mAO,
-     &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
-     &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
-     &                       Fact(ij)*Deg,IndGrd_Eff,
-     &                       Index(index_i),Index(index_j))
-               End If
             Else
-               If (iShell.ge.jShell) Then
                Call Do_Rho2d_(dRho_dR,   mGrid,nGrad_Eff,
      &                       DeDe(ip_D_a),DeDe(ip_D_b),     mAO,
      &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
      &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
-     &                       Fact(ij)*Deg,IndGrd_Eff,
+     &                       Fact(ij)*Fij,IndGrd_Eff,
      &                       Index(index_i),Index(index_j))
-               Else
-               Call Do_Rho2d_(dRho_dR,   mGrid,nGrad_Eff,
-     &                       DeDe(ip_D_a),DeDe(ip_D_b),     mAO,
-     &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
-     &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
-     &                       Fact(ij)*Deg,IndGrd_Eff,
-     &                       Index(index_i),Index(index_j))
-               End If
             End If
 *
  98         Continue
