@@ -262,27 +262,20 @@
 *                 Check if we should store any AOs at all!
 *
                   iOff = ipTabAO(ilist_s,1)
-                  ix=iDAMax_(nData,TabAO_Pack(iOff:),1)
-                  AOMax=Abs(TabAO_Pack(iOff-1+ix))
-                  If (AOMax.ge.T_X) Then
-                     If (nData.gt.nTmp) Then
-                        Call WarningMessage(2,'nData.gt.nTmp')
-                        Call Abend()
-                     End If
-                     call dcopy_(nData,TabAO_Pack(iOff:),1,
-     &                                 Work(ipTmp),1)
-                     Call PkR8(0,nData,nByte,Work(ipTmp),
-     &                                       TabAO_Pack(jOff:))
-                     mData = (nByte+RtoB-1)/RtoB
-                     If (mData.gt.nData) Then
-                        Call WarningMessage(2,'mData.gt.nData')
-                        Write (6,*) 'nData=',nData
-                        Write (6,*) 'nData=',nData
-                        Call Abend()
-                     End If
-                  Else
-                     nByte=0
-                     mData = 0
+                  If (nData.gt.nTmp) Then
+                     Call WarningMessage(2,'nData.gt.nTmp')
+                     Call Abend()
+                  End If
+                  call dcopy_(nData,TabAO_Pack(iOff:),1,
+     &                              Work(ipTmp),1)
+                  Call PkR8(0,nData,nByte,Work(ipTmp),
+     &                                    TabAO_Pack(jOff:))
+                  mData = (nByte+RtoB-1)/RtoB
+                  If (mData.gt.nData) Then
+                     Call WarningMessage(2,'mData.gt.nData')
+                     Write (6,*) 'nData=',nData
+                     Write (6,*) 'nData=',nData
+                     Call Abend()
                   End If
                   ipTabAO(iList_s,2)=nByte
                   jOff = jOff + mData
@@ -366,7 +359,7 @@
 *           on to the SOs of this shell. The SOs are only stored
 *           temporarily!
 *
-            Call SOAdpt_NQ(TabAO_Pack(ipTabAO(iList_s,1)),mAO,mGrid,
+            Call SOAdpt_NQ(TabAO_Pack(ipTabAO(iList_s,1):),mAO,mGrid,
      &                     iBas,iBas_Eff,iCmp,iSym,Work(ipSOs),nDeg,
      &                     iAO)
 *
