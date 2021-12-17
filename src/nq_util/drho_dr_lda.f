@@ -10,11 +10,11 @@
 *                                                                      *
 * Copyright (C) 2000,2002, Roland Lindh                                *
 ************************************************************************
-      Subroutine dRho_dR_LDA(Dens,nDens,nD,dRho_dR,ndRho_dR,mGrid,
+      Subroutine dRho_dR_LDA(nD,dRho_dR,ndRho_dR,mGrid,
      &                       list_s,nlist_s,
      &                       TabAO,ipTabAO,mAO,nTabAO,
      &                       nGrad_Eff,list_g,
-     &                       Grid_type,Fixed_Grid,Fact,ndc,TabAOMax,T_X,
+     &                       Fact,ndc,
      &                       list_bas,Index,nIndex)
 ************************************************************************
 *      Author:Roland Lindh, Department of Chemical Physics, University *
@@ -36,10 +36,8 @@
       Parameter (On=1, Off=0)
       Integer list_s(2,nlist_s), list_g(3,nlist_s),
      &        ipTabAO(nlist_s), list_bas(2,nlist_s), Index(nIndex)
-      Integer Grid_Type, Fixed_Grid
-      Real*8 Dens(nDens,nD), TabAO(nTabAO), Fact(ndc**2),
-     &       dRho_dR(ndRho_dR,mGrid,nGrad_Eff),
-     &       TabAOMax(nlist_s)
+      Real*8 TabAO(nTabAO), Fact(ndc**2),
+     &       dRho_dR(ndRho_dR,mGrid,nGrad_Eff)
       Integer IndGrd_Eff(3,2)
 *                                                                      *
 ************************************************************************
@@ -82,10 +80,6 @@
          iS      =list_s(1,ilist_s)
          iCmp       =iSD( 2,iS)
          iBas_Eff  = list_bas(1,ilist_s)
-         ix = iDAMax_(mAO*mGrid*iBas_Eff*iCmp,TabAO(ipTabAO(iList_s)),1)
-         TabAOMax(ilist_s)=Abs(TabAO(ipTabAO(ilist_s)-1+ix))
-         TMax_i=TabAOMax(ilist_s)
-         If (TMax_i.le.T_X) Go To 999
          iBas       =iSD( 3,iS)
          kDCRE   =list_s(2,ilist_s)
          iShell     =iSD(11,iS)
@@ -96,9 +90,6 @@
          n1 = IndGrd_Eff(1,1) + IndGrd_Eff(2,1) + IndGrd_Eff(3,1)
 *
          Do jlist_s=1,ilist_s
-            TMax_j=TabAOMax(jlist_s)
-            If (TMax_j.le.T_X) Go To 98
-            If (TMax_i*TMax_j.lt.T_X) Go To 98
             jS      =list_s(1,jlist_s)
             kDCRR   =list_s(2,jlist_s)
             jCmp       =iSD( 2,jS)
@@ -140,17 +131,6 @@
             ip_D_b=ip_D_a
             If (nD.ne.1) ip_D_b=ipDSij+lDCRER*mDij
 *
-            If (nD.ne.1) Then
-               ix=iDAMax_(mDij,DeDe(ip_D_a),1)
-               iy=iDAMax_(mDij,DeDe(ip_D_b),1)
-               DMax_ij=Half*( Abs(DeDe(ip_D_a-1+ix))
-     &                       +Abs(DeDe(ip_D_b-1+iy)) )
-            Else
-               ix=iDAMax_(mDij,DeDe(ip_D_a),1)
-               DMax_ij=Abs(DeDe(ip_D_a-1+ix))
-            End If
-            DMax_ij=DMax_ij*Fact(ij)
-            If (TMax_i*TMax_j*DMax_ij.lt.T_X) Go To 98
 #ifdef _DEBUGPRINT_
             If (Debug) Then
                Write (6,*) 'dRho_dR_LDA'
@@ -183,7 +163,6 @@
      &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
      &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
      &                       Fact(ij)*Deg,IndGrd_Eff,
-     &                       T_X,TMax_i*TMax_j,
      &                       Index(index_i),Index(index_j))
                Else
                Call Do_Rho2da(dRho_dR,   mGrid,nGrad_Eff,
@@ -191,7 +170,6 @@
      &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
      &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
      &                       Fact(ij)*Deg,IndGrd_Eff,
-     &                       T_X,TMax_i*TMax_j,
      &                       Index(index_i),Index(index_j))
                End If
             Else
@@ -201,7 +179,6 @@
      &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
      &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
      &                       Fact(ij)*Deg,IndGrd_Eff,
-     &                       T_X,TMax_i*TMax_j,
      &                       Index(index_i),Index(index_j))
                Else
                Call Do_Rho2d_(dRho_dR,   mGrid,nGrad_Eff,
@@ -209,7 +186,6 @@
      &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
      &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
      &                       Fact(ij)*Deg,IndGrd_Eff,
-     &                       T_X,TMax_i*TMax_j,
      &                       Index(index_i),Index(index_j))
                End If
             End If
@@ -217,7 +193,6 @@
  98         Continue
 *
          End Do                      ! jlist_s
- 999     Continue
       End Do                         ! ilist_s
 *                                                                      *
 ************************************************************************
@@ -226,22 +201,14 @@
       If (Debug) Call RecPrt('dRho_dR_LDA: dRho_dR',' ',dRho_dR,
      &                       ndRho_dR*mGrid,nGrad_Eff)
 *
-#else
-c Avoid unused argument warnings
-      If (.False.) Call Unused_real_array(Dens)
 #endif
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer(Grid_type)
-         Call Unused_integer(Fixed_Grid)
-      End If
       End
       Subroutine Do_Rho2da(dRho_dR,   mGrid,nGrad_Eff,
      &                     DAij,          mAO,
      &                     TabAO1,iBas,iBas_Eff,iCmp,
      &                     TabAO2,jBas,jBas_Eff,jCmp,
-     &                     Fact,IndGrd_Eff,T_X,TMax_ij,
+     &                     Fact,IndGrd_Eff,
      &                     Index_i,Index_j)
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
@@ -263,7 +230,6 @@ c Avoid unused argument warnings
             iCB=Index_i(iCB_Eff)
 *
             DAij_=DAij(iCB,jCB)*Fact
-            If (TMax_ij*Abs(DAij_).lt.T_X) Go To 99
 *
 *---------- Loop over cartesian components
 *
@@ -300,8 +266,6 @@ c Avoid unused argument warnings
 *
             End Do  ! iCar
 *
- 99         Continue
-*
          End Do          ! iCB
       End Do             ! jCB
 *
@@ -311,7 +275,7 @@ c Avoid unused argument warnings
      &                     DAij,DBij,     mAO,
      &                     TabAO1,iBas,iBas_Eff,iCmp,
      &                     TabAO2,jBas,jBas_Eff,jCmp,
-     &                     Fact,IndGrd_Eff,T_X,TMax_ij,
+     &                     Fact,IndGrd_Eff,
      &                     Index_i,Index_j)
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
@@ -335,8 +299,6 @@ c Avoid unused argument warnings
 *
             DAij_=DAij(iCB,jCB)*Fact
             DBij_=DBij(iCB,jCB)*Fact
-            Dij_ =Half*(Abs(DAij_)+Abs(DBij_))
-            If (TMax_ij*Abs(Dij_).lt.T_X) Go To 99
 *
 *---------- Loop over cartesian components
 *
@@ -380,8 +342,6 @@ c Avoid unused argument warnings
                End If
 *
             End Do ! iCar
-*
- 99         Continue
 *
          End Do          ! iCB
       End Do             ! jCB

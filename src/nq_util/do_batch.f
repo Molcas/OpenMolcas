@@ -400,12 +400,11 @@
 ************************************************************************
 *                                                                      *
          If (Do_Grad)
-     &      Call dRho_dR_LDA(Dens,nDens,nD,dRho_dR,ndRho_dr,
+     &      Call dRho_dR_LDA(nD,dRho_dR,ndRho_dr,
      &                       mGrid,list_s,nlist_s,
      &                       TabAO,ipTabAO,mAO,nTabAO,
      &                       nGrad_Eff,list_g,
-     &                       Grid_Type,Fixed_Grid,
-     &                       Work(ip_Fact),ndc,Work(ipTmp),T_X,
+     &                       Work(ip_Fact),ndc,
      &                       list_bas,Index,nIndex)
 
 **************************************************************************
