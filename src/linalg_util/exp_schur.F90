@@ -29,7 +29,10 @@
 
 subroutine Exp_Schur(N,X,maxtheta)
 
+!define _USE_LAPACK_
+#ifdef _USE_LAPACK_
 use sorting_funcs, only: geq_r
+#endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -40,7 +43,6 @@ real(kind=wp), intent(inout) :: X(N,N)
 integer(kind=iwp) :: i, info
 real(kind=wp) :: c, maxtheta, s, theta
 real(kind=wp), allocatable :: tmp(:,:), vs(:,:), work(:)
-!define _USE_LAPACK_
 #ifdef _USE_LAPACK_
 integer(kind=iwp) :: j, lwork, sdim
 real(kind=wp) :: dwrk(1)
