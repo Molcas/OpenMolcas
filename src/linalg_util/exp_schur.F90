@@ -40,8 +40,9 @@ real(kind=wp), intent(inout) :: X(N,N)
 integer(kind=iwp) :: i, info
 real(kind=wp) :: c, maxtheta, s, theta
 real(kind=wp), allocatable :: tmp(:,:), vs(:,:), work(:)
+!define _USE_LAPACK_
 #ifdef _USE_LAPACK_
-integer(kind=iwp) :: lwork, sdim
+integer(kind=iwp) :: j, lwork, sdim
 real(kind=wp) :: dwrk(1)
 logical(kind=iwp) :: bwork(1), pair
 real(kind=wp), allocatable :: wri(:,:)
@@ -52,6 +53,13 @@ maxtheta = Zero
 if (N < 1) return
 
 #ifdef _USE_LAPACK_
+
+! Ensure the matrix is antisymmetric
+do i=1,N
+  do j=i+1,N
+    X(i,j) = -X(j,i)
+  end do
+end do
 
 call mma_allocate(wri,N,2,label='wri')
 call mma_allocate(vs,N,N,label='vs')

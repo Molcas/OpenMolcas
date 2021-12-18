@@ -94,16 +94,16 @@ c
         DO nr=1,noc
          DO np=max(nr+1,nio+1),no
           jpr=no*(nr-1)+np
-          jrp=no*(np-1)+nr
+          !jrp=no*(np-1)+nr
           xx=c(istbm+nr+noc*(np-nio-1))
 *
 *         Any numerical information smaller than Acc is considered
 *         numerical noise and is ignored.
 *
-          If (Abs(xx).lt.Acc) xx=0.0D0
+          If (Abs(xx).lt.Acc) Cycle
 *
           x(jpr)=xx
-          x(jrp)=-xx
+          !x(jrp)=-xx
          END DO
         END DO
 c
@@ -127,7 +127,7 @@ c
           DO ni=1,no
            DO nj=1,no
             ij=ij+1
-c io=ib+nf ! offeset counting all nbas of previous sym and nfro of current sym.
+c io=ib+nf ! offset counting all nbas of previous sym and nfro of current sym.
             IF( (ni.gt.nio) .and. (ni.lt.nio+nao) .or.
      &          (nj.gt.nio) .and. (nj.lt.nio+nao) ) x(ij)=0.0D0
            END DO
