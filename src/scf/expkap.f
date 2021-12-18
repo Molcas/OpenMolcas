@@ -39,6 +39,7 @@
 *
       Integer iKap,iSym,iU,j,jU,mOcc,mOrb,mVir
       Real*8 Cpu1,Cpu2,Tim1,Tim2,Tim3,theta
+      Real*8, Parameter :: Thrs = 1.0D-14
 *
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
 *
@@ -50,7 +51,7 @@
         mOcc = mynOcc(iSym)-nFro(iSym)
         mVir = mOrb-mOcc
         If (mVir*mOcc == 0) Cycle
-        ! Put the non-zero values in the occ-vir nondiagonal block
+        ! Put the non-zero values in the occ-vir offdiagonal block
         jU = iU+mOcc
         Do j=1,mOcc
           U(jU:jU+mVir-1) = kapOV(iKap:iKap+mVir-1)
@@ -61,6 +62,10 @@
         Call Exp_Schur(mOrb,U(iU),theta)
         iU = iU+mOrb**2
       End Do
+*
+      Do j=1,nOFS
+        If (abs(U(j)).lt.Thrs) U(j) = Zero
+      End do
 *
       Call Timing(Cpu2,Tim1,Tim2,Tim3)
       TimFld(10) = TimFld(10) + (Cpu2 - Cpu1)

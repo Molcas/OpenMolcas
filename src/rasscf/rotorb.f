@@ -38,6 +38,7 @@ c
       DIMENSION DAMPGAS(10),COREGAS(10)
       INTEGER IDAMPGAS(0:4,0:4),ICOREGAS(0:4,0:4)
       LOGICAL iFrzAct
+      PARAMETER (Thrs=1.0D-14)
 c
       IPRLEV=IPRLOC(4)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -276,6 +277,10 @@ c
         DO ni=1,no
           DO nj=1,no
             ij=ij+1
+            IF (abs(x(ij)).lt.Thrs) THEN
+              x(ij) = 0.0D0
+              GO TO 40
+            END IF
             IF (ni.eq.nj) GO TO 40
             IF (abs(x(ij)).gt.abs(rotmax)) rotmax=x(ij)
   40        CONTINUE
