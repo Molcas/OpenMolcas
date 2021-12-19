@@ -38,6 +38,7 @@ subroutine schur_skew(n,A,E,ierr)
 !   Technical report ORNL/CSD-9 TRN: 76-016851, 1976. Oak Ridge National Laboratory, Tennessee (USA)
 !   doi:10.2172/7350249
 
+use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, r8
 
 implicit none
@@ -60,13 +61,13 @@ ierr = 0
 do i=n,2,-1
   l = i-1
   ! normalize row
-  sc = 0.0d0
+  sc = Zero
   do j=1,l
     sc = sc+abs(A(i,j))
   end do
   if (sc < eps) then
-    E(i) = 0.0d0
-    A(i,i) = 0.0d0
+    E(i) = Zero
+    A(i,i) = Zero
     cycle
   end if
   ! compute elements of U vector
@@ -81,7 +82,7 @@ do i=n,2,-1
   A(i,i) = sqrt(h)
   if (l > 1) then
     ! compute elements of A*U/h
-    h = 1.0d0/h
+    h = One/h
     do j=1,l
       ! sum( A(j,j+1:l) * A(i,j+1:l) ) - sum( A(j+1:l,j) * A(i,j+1:l) )
       E(j) = (ddot_(j-1,A(j,1),n,A(i,1),n)-ddot_(l-j,A(j+1:l,j),1,A(i,j+1),n))*h
@@ -94,27 +95,27 @@ do i=n,2,-1
   A(i,1:i) = sc*A(i,1:i)
 end do
 ! enforce conventional value
-E(1) = 0.0d0
+E(1) = Zero
 
 ! Diagonalize skew-symmetric tridiagonal matrix
 
 ! place identity matrix in Z
 allocate(Z(n,n))
-Z(:,:) = 0.0d0
+Z(:,:) = Zero
 do i=1,n
-  Z(i,i) = 1.0d0
+  Z(i,i) = One
 end do
 
 m = n
 mm1 = m-1
-E(1) = 0.0d0
+E(1) = Zero
 its = 0
 
 outer: do while (m >= 2)
   m0 = m
 
   ! search for next submatrix to solve (matrix splitting)
-  f = 0.0d0
+  f = Zero
   break = .false.
   do i=1,mm1
     j = m-i
@@ -131,7 +132,7 @@ outer: do while (m >= 2)
   l0m1 = j+1
   if (l0m1 == m) then
     ! iteration converged to one zero eigenvalue
-    E(m) = 0.0d0
+    E(m) = Zero
     m = mm1
     its = 0
     mm1 = m-1
@@ -160,23 +161,23 @@ outer: do while (m >= 2)
   if (isodd) then
 
     ! find zero eigenvalue of odd ordered submatrices
-    c = 0.0d0
-    s = -1.0d0
+    c = Zero
+    s = -One
     do i=l0,mm1,2
       k = mm1+l0-i
       q = -s*E(k+1)
       E(k+1) = c*E(k+1)
       if (abs(E(k)) > abs(q)) then
         s = q/E(k)
-        r = sqrt(1.0d0+s**2)
+        r = sqrt(One+s**2)
         E(k) = E(k)*r
-        c = 1.0d0/r
+        c = One/r
         s = s*c
       else
         c = E(k)/q
-        r = sqrt(c**2+1.0d0)
+        r = sqrt(c**2+One)
         E(k) = q*r
-        s = 1.0d0/r
+        s = One/r
         c = c*s
       end if
 
@@ -243,8 +244,8 @@ outer: do while (m >= 2)
     g = E(m-2)
     c = E(mm1)
     s = E(m)
-    p = ((c-f)*(c+f)+(s-g)*(s+g))/(2.0d0*g*c)
-    r = sqrt(p*p+1.0d0)
+    p = ((c-f)*(c+f)+(s-g)*(s+g))/(Two*g*c)
+    r = sqrt(p*p+One)
     q = (g/(p+sign(r,p)))-c
     f = E(l)
     lm1 = l-1
@@ -252,22 +253,22 @@ outer: do while (m >= 2)
 
     ! perform one implicit QR iteration on Cholesky factor
     ls = l0m1
-    c = 1.0d0
-    s = 1.0d0
+    c = One
+    s = One
     do i=l,mm1
       q = s*E(i+1)
       E(i+1) = c*E(i+1)
       if (abs(E(i-1)) > abs(q)) then
         s = q/E(i-1)
-        r = sqrt(1.0d0+s**2)
+        r = sqrt(One+s**2)
         E(i-1) = E(i-1)*r
-        c = 1.0d0/r
+        c = One/r
         s = s*c
       else
         c = E(i-1)/q
-        r = sqrt(c**2+1.0d0)
+        r = sqrt(c**2+One)
         E(i-1) = q*r
-        s = 1.0d0/r
+        s = One/r
         c = c*s
       end if
       f = E(i+1)
@@ -286,7 +287,7 @@ outer: do while (m >= 2)
         ls = l0m1
       end if
     end do
-    E(lm1) = 0.0d0
+    E(lm1) = Zero
   end do
 
 end do outer
@@ -294,7 +295,7 @@ end do outer
 ! Back-transform to full matrix
 
 do i=2,n
-  if (A(i,i) == 0.0d0) cycle
+  if (A(i,i) == Zero) cycle
   do j=1,n
     ! sum( A(i,1:i-1) * Z(1:i-1,j) ) / A(i,i)**2
     s = (ddot_(i-1,A(i,1),n,Z(1:i-1,j),1)/A(i,i))/A(i,i)
