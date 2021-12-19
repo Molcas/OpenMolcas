@@ -29,4 +29,6 @@ Real*8, Allocatable, Target:: TabAO(:,:,:)
 Real*8, Pointer:: TabAO_pack(:) => Null()
 Real*8, Allocatable:: Grid_AO(:,:,:,:)
 Real*8, Allocatable:: Dens_AO(:,:,:)
+Real*8, Allocatable:: dRho_dR(:,:,:)
+Integer, Allocatable:: Ind_Grd(:,:)
 End Module nq_Grid

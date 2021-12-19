@@ -147,6 +147,8 @@
          iOff = iOff + iBas_Eff*iCmp
       End Do                         ! ilist_s
 *
+*     mAO is used for both TabAO and Grid_AO, for the time being.
+*
       Call DGEMM_('N','N',mAO*mGrid,nAO*nD,nAO,
      &            One,TabAO,mAO*mGrid,
      &                Dens_AO,nAO,

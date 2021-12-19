@@ -73,8 +73,5 @@
          End Do      ! i2
       End Do         ! i1
 *
-#ifdef _DEBUGPRINT_
-      Call GetMem(' Exit AOAdd','CHECK','REAL',iDum,iDum)
-#endif
       Return
       End

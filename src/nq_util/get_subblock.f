@@ -42,7 +42,7 @@
       use Basis_Info
       use Center_Info
       use nq_Grid, only: Grid, Weights, TabAO, Grid_AO, Dens_AO,
-     &                   TabAO_Pack
+     &                   TabAO_Pack, Ind_Grd, dRho_dR
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "itmax.fh"
@@ -347,6 +347,7 @@ C              End If
 *
       Call Allocate_iWork(ipTabAO,2*(nlist_s+1))
       Call mma_Allocate(Dens_AO,nBfn,nBfn,nD,Label='Dens_AO')
+      Call mma_Allocate(Ind_Grd,3,nBfn,Label='Ind_Grd')
 *
       If ((Functional_Type.eq.CASDFT_Type).or.Do_MO.or.DO_TwoEl) Then
          nTabMO=mAO*nMOs*mGrid
@@ -440,8 +441,6 @@ C              End If
                End If
             End Do
          End Do
-         n_dRho_dR=Max(mdRho_dR*mGrid*nGrad_Eff,1)
-         Call Allocate_Work(ip_dRho_dR,n_dRho_dR)
 *
          If (Grid_Type.eq.Moving_Grid) Then
             ndW_dR=nGrad_Eff*mGrid
@@ -688,6 +687,8 @@ c
          Call mma_Allocate(Grid_AO,mAO,nogp,nBfn,nD,Label='Grid_AO')
          Call mma_Allocate(TabAO,mAO,nogp,nBfn,Label='TabAO')
          TabAO_Pack(1:mAO*nogp*nBfn) => TabAO(:,:,:)
+         If (Do_Grad) Call mma_allocate(dRho_dR,mdRho_dR,nogp,
+     &                                  nGrad_eff,Label='dRho_dR')
 
          Call Do_Batch(Kernel,Func,nogp,
      &                 list_s,nlist_s,List_Exp,List_Bas,
@@ -700,13 +701,14 @@ c
      &                 nMOs,CMOs,nCMO,DoIt,
      &                 P2mo,P2unzip,np2act,D1mo,D1Unzip,nd1mo,P2_ontop,
      &                 Do_Grad,Grad,nGrad,
-     &                 Work(ip_dRho_dR),mdRho_dR,nGrad_Eff,
+     &                 dRho_dR,mdRho_dR,nGrad_Eff,
      &                 list_g,IndGrd,iTab,Temp,F_xc,
      &                 Work(ip_dW_dR),iNQ,
      &                 Maps2p,dF_dRho,dF_dP2ontop,
      &                 DFTFOCK,LOE_DB,LTEG_DB,PDFTPot1,PDFTFocI,
      &                 PDFTFocA)
 *
+         If (Do_Grad) Call mma_deallocate(dRho_dR)
          TabAO_Pack => Null()
          Call mma_deallocate(TabAO)
          Call mma_deallocate(Grid_AO)
@@ -730,10 +732,10 @@ c
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Call mma_deAllocate(Ind_Grd)
       Call GetMem('Index','Free','Real',ipIndex,nIndex)
       Call Free_iWork(ipTabAO)
       Call mma_deallocate(Dens_AO)
-      If (Do_Grad) Call Free_Work(ip_dRho_dR)
       If (ipTabMO.ne.ip_Dummy) Call Free_Work(ipTabMO)
       If (ipTabSO.ne.ip_Dummy) Call Free_Work(ipTabSO)
       If (Do_Grad.and.Grid_Type.eq.Moving_Grid) Then
