@@ -28,10 +28,11 @@
 #include "debug.fh"
 #include "nsd.fh"
 #include "setup.fh"
-      Integer On, Off
-      Parameter (On=1, Off=0)
+#include "nq_info.fh"
       Integer list_s(2,nlist_s), list_g(3,nlist_s), list_bas(2,nlist_s)
       Real*8 dRho_dR(ndRho_dR,mGrid,nGrad_Eff)
+      Integer, parameter :: Index_d2(3,3)=
+     &    Reshape([5,6,7, 6,8,9, 7,9,10],[3,3])
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -61,27 +62,90 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Do iD = 1, nD
-         Do iAO = 1, nAO
+      If (Functional_Type.eq.LDA_Type) Then
+         Do iD = 1, nD
+            Do iAO = 1, nAO
 *
-*---------- Loop over cartesian components
+*------------- Loop over cartesian components
 *
-            Do iCar = 1, 3
+               Do iCar = 1, 3
 
-               Ind_xyz=Ind_Grd(iCar,iAO)
-               j = iCar + 1
+                  Ind_xyz=Ind_Grd(iCar,iAO)
+                  j = iCar + 1
 
-               If (Ind_xyz/=0) Then
-                  Do iGrid = 1, mGrid
-                     dRho_dR(iD,iGrid,Ind_xyz)=dRho_dR(iD,iGrid,Ind_xyz)
-     &                             + Two * Grid_AO(1,iGrid,iAO,iD)
-     &                             * TabAO(j,iGrid,iAO)
-                  End Do
-               End If
+                  If (Ind_xyz/=0) Then
+                     Do iGrid = 1, mGrid
+*
+*                       Cartesian derivative of the density.
+*
+                        dRho_dR(iD,iGrid,Ind_xyz)
+     &                                = dRho_dR(iD,iGrid,Ind_xyz)
+     &                                + Two * Grid_AO(1,iGrid,iAO,iD)
+     &                                * TabAO(j,iGrid,iAO)
+                     End Do
+                  End If
 
+               End Do
             End Do
          End Do
-      End Do
+       Else If (Functional_Type.eq.GGA_Type) Then
+         Do iD = 1, nD                      ! index of rho
+            Do iAO = 1, nAO
+*
+*------------- Loop over cartesian components
+*
+               Do iCar = 1, 3
+
+                  Ind_xyz=Ind_Grd(iCar,iAO)! index of  nuclear gradient
+
+                  j = iCar + 1             ! index derivative of AO
+
+                  iDx = nD + (iD-1)*3 + 1  ! index of grad rho component
+                  iDy = iDx + 1
+                  iDz = iDy + 1
+
+                  idjx = Index_d2(1,iCar)
+                  idjy = Index_d2(2,iCar)
+                  idjz = Index_d2(3,iCar)
+                  If (Ind_xyz/=0) Then
+                     Do iGrid = 1, mGrid
+*
+*                       Cartesian derivative of rho
+*
+                        dRho_dR(iD,iGrid,Ind_xyz)
+     &                             = dRho_dR(iD,iGrid,Ind_xyz)
+     &                        + Two * Grid_AO(1,iGrid,iAO,iD)
+     &                                * TabAO(j,iGrid,iAO)
+*
+*                       Cartesian derivatives of grad rho
+*
+                        dRho_dR(iDx,iGrid,Ind_xyz)
+     &                              = dRho_dR(iDx,iGrid,Ind_xyz)
+     &                         + Two * TabAO(idjx,iGrid,iAO)
+     &                                * Grid_AO(1,iGrid,iAO,iD)
+     &                            + Two * TabAO(j,iGrid,iAO)
+     &                                * Grid_AO(2,iGrid,iAO,iD)
+                        dRho_dR(iDy,iGrid,Ind_xyz)
+     &                              = dRho_dR(iDy,iGrid,Ind_xyz)
+     &                         + Two * TabAO(idjy,iGrid,iAO)
+     &                                * Grid_AO(1,iGrid,iAO,iD)
+     &                            + Two * TabAO(j,iGrid,iAO)
+     &                                * Grid_AO(3,iGrid,iAO,iD)
+                        dRho_dR(iDz,iGrid,Ind_xyz)
+     &                              = dRho_dR(iDz,iGrid,Ind_xyz)
+     &                         + Two * TabAO(idjz,iGrid,iAO)
+     &                                * Grid_AO(1,iGrid,iAO,iD)
+     &                            + Two * TabAO(j,iGrid,iAO)
+     &                                * Grid_AO(4,iGrid,iAO,iD)
+                     End Do
+                  End If
+
+               End Do
+            End Do
+         End Do
+      Else
+         Call abend()
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
