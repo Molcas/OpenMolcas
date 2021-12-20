@@ -237,7 +237,7 @@
 
                   idjx2 = Index_d3(1,iCar)
                   idjy2 = Index_d3(2,iCar)
-                  idjx2 = Index_d3(3,iCar)
+                  idjz2 = Index_d3(3,iCar)
                   idx2  = Index_d2(1,1)
                   idy2  = Index_d2(2,2)
                   idz2  = Index_d2(3,3)
