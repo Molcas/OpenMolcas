@@ -1323,13 +1323,8 @@ C    &                       list_bas,Index,nIndex)
 ************************************************************************
 *                                                                      *
          If (Do_Grad)
-     &      Call dRho_dR_meta_GGA2
-     &                      (nD,dRho_dR,ndRho_dr,
-     &                       mGrid,list_s,nlist_s,
-     &                       TabAO,ipTabAO,mAO,nTabAO,
-     &                       nGrad_Eff,list_g,
-     &                       Work(ip_Fact),ndc,Work(ipTmp),T_X,
-     &                       list_bas,Index,nIndex)
+     &      Call dRho_dR_LDA(nD,dRho_dR,ndRho_dr,mGrid,list_s,nlist_s,
+     &                       nGrad_Eff,list_g,list_bas)
 *                                                                      *
 ************************************************************************
 ************************************************************************

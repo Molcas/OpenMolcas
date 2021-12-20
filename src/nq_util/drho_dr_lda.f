@@ -31,8 +31,10 @@
 #include "nq_info.fh"
       Integer list_s(2,nlist_s), list_g(3,nlist_s), list_bas(2,nlist_s)
       Real*8 dRho_dR(ndRho_dR,mGrid,nGrad_Eff)
-      Integer, parameter :: Index_d2(3,3)=
+      Integer, Parameter :: Index_d2(3,3)=
      &    Reshape([5,6,7, 6,8,9, 7,9,10],[3,3])
+      Integer, Parameter :: Index_d3(3,3) =
+     &    Reshape([11,14,16, 12,17,19, 13,18,19],[3,3])
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -203,6 +205,93 @@
      &                              * Grid_AO(3,iGrid,iAO,iD)
      &                       + Four* TabAO(idjz,iGrid,iAO)
      &                              * Grid_AO(4,iGrid,iAO,iD)
+                     End Do
+                  End If
+
+               End Do
+            End Do
+         End Do
+       Else If (Functional_Type.eq.meta_GGA_Type2) Then
+         Do iD = 1, nD                      ! index of rho
+            Do iAO = 1, nAO
+*
+*------------- Loop over cartesian components
+*
+               Do iCar = 1, 3
+
+                  Ind_xyz=Ind_Grd(iCar,iAO)! index of  nuclear gradient
+
+                  j = iCar + 1             ! index derivative of AO
+
+                  iDx = nD + (iD-1)*3 + 1  ! index of grad rho component
+                  iDy = iDx + 1
+                  iDz = iDy + 1
+
+                  iT  = nD*4 + iD      ! index of tau component
+
+                  iL  = nD*5 + iD      ! index if laplacian component
+
+                  idjx = Index_d2(1,iCar)
+                  idjy = Index_d2(2,iCar)
+                  idjz = Index_d2(3,iCar)
+
+                  idjx2 = Index_d3(1,iCar)
+                  idjy2 = Index_d3(2,iCar)
+                  idjx2 = Index_d3(3,iCar)
+                  idx2  = Index_d2(1,1)
+                  idy2  = Index_d2(2,2)
+                  idz2  = Index_d2(3,3)
+                  If (Ind_xyz/=0) Then
+                     Do iGrid = 1, mGrid
+*
+*                       Cartesian derivative of rho
+*
+                        dRho_dR(iD,iGrid,Ind_xyz)
+     &                             = dRho_dR(iD,iGrid,Ind_xyz)
+     &                        + Two * Grid_AO(1,iGrid,iAO,iD)
+     &                                * TabAO(j,iGrid,iAO)
+*
+*                       Cartesian derivatives of grad rho
+*
+                        dRho_dR(iDx,iGrid,Ind_xyz)
+     &                              = dRho_dR(iDx,iGrid,Ind_xyz)
+     &                         + Two * TabAO(idjx,iGrid,iAO)
+     &                                * Grid_AO(1,iGrid,iAO,iD)
+     &                            + Two * TabAO(j,iGrid,iAO)
+     &                                * Grid_AO(2,iGrid,iAO,iD)
+                        dRho_dR(iDy,iGrid,Ind_xyz)
+     &                              = dRho_dR(iDy,iGrid,Ind_xyz)
+     &                         + Two * TabAO(idjy,iGrid,iAO)
+     &                                * Grid_AO(1,iGrid,iAO,iD)
+     &                            + Two * TabAO(j,iGrid,iAO)
+     &                                * Grid_AO(3,iGrid,iAO,iD)
+                        dRho_dR(iDz,iGrid,Ind_xyz)
+     &                              = dRho_dR(iDz,iGrid,Ind_xyz)
+     &                         + Two * TabAO(idjz,iGrid,iAO)
+     &                                * Grid_AO(1,iGrid,iAO,iD)
+     &                            + Two * TabAO(j,iGrid,iAO)
+     &                                * Grid_AO(4,iGrid,iAO,iD)
+
+                        dRho_dR(iT,iGrid,Ind_xyz)
+     &                             = dRho_dR(iT,iGrid,Ind_xyz)
+     &                       + Four* TabAO(idjx,iGrid,iAO)
+     &                              * Grid_AO(2,iGrid,iAO,iD)
+     &                       + Four* TabAO(idjy,iGrid,iAO)
+     &                              * Grid_AO(3,iGrid,iAO,iD)
+     &                       + Four* TabAO(idjz,iGrid,iAO)
+     &                              * Grid_AO(4,iGrid,iAO,iD)
+
+                        dRho_dR(iL,iGrid,Ind_xyz)
+     &                             = dRho_dR(iL,iGrid,Ind_xyz)
+     &                             + Two * Grid_AO(1,iGrid,iAO,iD)
+     &                             *(TabAO(idjx2,iGrid,iAO)
+     &                             + TabAO(idjy2,iGrid,iAO)
+     &                             + TabAO(idjz2,iGrid,iAO))
+     &                             + Two *(Grid_AO(idx2,iGrid,iAO,iD)
+     &                                    +Grid_AO(idy2,iGrid,iAO,iD)
+     &                                    +Grid_AO(idz2,iGrid,iAO,iD))
+     &                             *       TabAO(j,iGrid,iAO)
+
                      End Do
                   End If
 
