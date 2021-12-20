@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1986, Per E. M. Siegbahn                               *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!***********************************************************************
       SUBROUTINE ONEEL_GUGA()
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "real_guga.fh"
 #include "integ.fh"
 #include "files_addr.fh"
-*
+!
       IOUT=0
       NMAT=0
       ITYP=0
@@ -41,7 +41,7 @@
       NMAT=NMAT+NBUF
       IOUT=0
 460   IOUT=IOUT+1
-*      ICOP1(IOUT)=I+2**10*K
+!      ICOP1(IOUT)=I+2**10*K
       ICOP1(IOUT)=IOR(I,ISHFT(K,10))
       IF(IOUT.LT.NBUF)GO TO 21
       ICOP1(nCOP+1)=NBUF

@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1986, Per E. M. Siegbahn                               *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!***********************************************************************
       SUBROUTINE COMP(I,LJ,ITYP,L,IT1,IT2)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
@@ -17,9 +17,9 @@
 #include "integ.fh"
 #include "files_addr.fh"
 #include "d.fh"
-*
+!
       JO(L)=ICUNP(ICASE,L)
-*
+!
       IF (IT1.NE.IT2) Then
          Write (6,*) 'Comp: IT1.NE.IT2'
          Write (6,*) 'IT1,IT2=',IT1,IT2
@@ -60,8 +60,8 @@
       IC2=JND2-JJD
       IOUT=IOUT+1
       IVL0=IV0-IVL
-*      IND=IVL0+2**6*IC2
-*      ICOP1(IOUT)=IND+2**19*IC1
+!      IND=IVL0+2**6*IC2
+!      ICOP1(IOUT)=IND+2**19*IC1
       IND=IOR(IVL0,ISHFT(IC2,6))
       ICOP1(IOUT)=IOR(IND,ISHFT(IC1,19))
 
@@ -76,7 +76,7 @@
       IF(I.EQ.1)GO TO 71
       KM=1
       GO TO 27
-*
+!
 71      Continue
       Return
       End

@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1986, Per E. M. Siegbahn                               *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!***********************************************************************
       SUBROUTINE AIBJ(L0,L1,L2,L3,ITAI)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
@@ -19,9 +19,9 @@
 #include "files_addr.fh"
 #include "d.fh"
       DIMENSION NUMM(7)
-*
+!
       JO(L)=ICUNP(ICASE,L)
-*
+!
       IC1=0    ! dummy initialize
       IC2=0    ! dummy initialize
       COPLA=D0 ! dummy initialize
@@ -47,8 +47,8 @@
       NMAT=NMAT+NBUF
       IOUT=0
 460   IOUT=IOUT+1
-CPAM96      ICOP1(IOUT)=IOR(I,ISHFT(J,10))
-*      ICOP1(IOUT)=I+2**10*J
+!PAM96      ICOP1(IOUT)=IOR(I,ISHFT(J,10))
+!      ICOP1(IOUT)=I+2**10*J
       ICOP1(IOUT)=IOR(I,ISHFT(J,10))
       IF(IOUT.LT.NBUF)GO TO 11
       ICOP1(nCOP+1)=NBUF
@@ -58,14 +58,14 @@ CPAM96      ICOP1(IOUT)=IOR(I,ISHFT(J,10))
       IOUT=0
 11    IJS=IJ(I+1)+1
       IJM=IJ(I)
-C     FIRST ORDER INTERACTION
-C     TRIPLET-VALENCE INTERACTIONS
+!     FIRST ORDER INTERACTION
+!     TRIPLET-VALENCE INTERACTIONS
       JTURN=1
       ITURN=0
       ITT1=2
       ITT2=0
 150   IT1=ITT1*MXVERT
-culf      IT2=ITT2*300
+!ulf      IT2=ITT2*300
       IT2=ITT2*MXVERT
       II=0
       IID=0
@@ -182,14 +182,14 @@ culf      IT2=ITT2*300
 100   IOUT=IOUT+1
       NUMM(JTURN)=NUMM(JTURN)+1
       COP(IOUT)=COPL
-CPAM96      IND1=IOR(IFAB,ISHFT(ITURN,1))
-CPAM96      IND2=IOR(IND1,ISHFT(ITYP,2))
-CPAM96      IND3=IOR(IND2,ISHFT(ICP1,5))
-CPAM96      ICOP1(IOUT)=IOR(IND3,ISHFT(ICP2,18))
-*      IND1=IFAB+2**1*ITURN
-*      IND2=IND1+2**2*ITYP
-*      IND3=IND2+2**5*ICP1
-*      ICOP1(IOUT)=IND3+2**18*ICP2
+!PAM96      IND1=IOR(IFAB,ISHFT(ITURN,1))
+!PAM96      IND2=IOR(IND1,ISHFT(ITYP,2))
+!PAM96      IND3=IOR(IND2,ISHFT(ICP1,5))
+!PAM96      ICOP1(IOUT)=IOR(IND3,ISHFT(ICP2,18))
+!      IND1=IFAB+2**1*ITURN
+!      IND2=IND1+2**2*ITYP
+!      IND3=IND2+2**5*ICP1
+!      ICOP1(IOUT)=IND3+2**18*ICP2
       IND1=IOR(IFAB,ISHFT(ITURN,1))
       IND2=IOR(IND1,ISHFT(ITYP,2))
       IND3=IOR(IND2,ISHFT(ICP1,5))
@@ -217,32 +217,32 @@ CPAM96      ICOP1(IOUT)=IOR(IND3,ISHFT(ICP2,18))
       GO TO 62
 30    CONTINUE
       GO TO (151,152,153,154,155,156,20),JTURN
-C     SINGLET-VALENCE INTERACTIONS
+!     SINGLET-VALENCE INTERACTIONS
 151   JTURN=2
       ITT1=3
       GO TO 150
-C     TRIPLET-TRIPLET INTERACTIONS
+!     TRIPLET-TRIPLET INTERACTIONS
 152   JTURN=3
       ITURN=1
       ITT1=2
       ITT2=2
       GO TO 150
-C     SINGLET-SINGLET INTERACTIONS
+!     SINGLET-SINGLET INTERACTIONS
 153   JTURN=4
       ITT1=3
       ITT2=3
       GO TO 150
-C     TRIPLET-SINGLET INTERACTIONS
+!     TRIPLET-SINGLET INTERACTIONS
 154   JTURN=5
       ITT1=2
       ITT2=3
       GO TO 150
-C     SINGLET-TRIPLET INTERACTIONS
+!     SINGLET-TRIPLET INTERACTIONS
 155   JTURN=6
       ITT1=3
       ITT2=2
       GO TO 150
-C     DOUBLET-DOUBLET INTERACTIONS
+!     DOUBLET-DOUBLET INTERACTIONS
 156   JTURN=7
       ITT1=1
       ITT2=1

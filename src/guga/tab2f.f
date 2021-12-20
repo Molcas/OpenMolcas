@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1986, Per E. M. Siegbahn                               *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!***********************************************************************
       SUBROUTINE TAB2F(IVER,LV)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "real_guga.fh"
@@ -31,9 +31,9 @@
       IORB(1)=0
       DO 10 II=1,LN
       IIM=LN-II+1-LV
-C     S=0
+!     S=0
 16    NIJ=NIJ+1
-c      IF(NIJ.GT.IVER)
+!      IF(NIJ.GT.IVER)
       nijj=max(nij,nijj)
       IAF(NIJ)=IAF(IJR)
       IBF(NIJ)=IBF(IJR)
@@ -42,9 +42,9 @@ c      IF(NIJ.GT.IVER)
       CALL CHEL(IAF(NIJ),IBF(NIJ),IIM,IEL,ISTOP)
       IF(ISTOP.EQ.1)NIJ=NIJ-1
 11    IF(IBF(IJR).EQ.0)GO TO 12
-C     S=1
+!     S=1
       NIJ=NIJ+1
-c      IF(NIJ.GT.IVER)
+!      IF(NIJ.GT.IVER)
       nijj=max(nij,nijj)
       IAF(NIJ)=IAF(IJR)
       IBF(NIJ)=IBF(IJR)-1
@@ -53,9 +53,9 @@ c      IF(NIJ.GT.IVER)
       CALL CHEL(IAF(NIJ),IBF(NIJ),IIM,IEL,ISTOP)
       IF(ISTOP.EQ.1)NIJ=NIJ-1
 12    IF(IAF(IJR).EQ.0)GO TO 13
-C     S=2
+!     S=2
       NIJ=NIJ+1
-c      IF(NIJ.GT.IVER)
+!      IF(NIJ.GT.IVER)
       nijj=max(nij,nijj)
       IAF(NIJ)=IAF(IJR)-1
       IBF(NIJ)=IBF(IJR)+1
@@ -64,9 +64,9 @@ c      IF(NIJ.GT.IVER)
       CALL CHEL(IAF(NIJ),IBF(NIJ),IIM,IEL,ISTOP)
       IF(ISTOP.EQ.1)NIJ=NIJ-1
 13    IF(IAF(IJR).EQ.0)GO TO 14
-C     S=3
+!     S=3
       NIJ=NIJ+1
-c      IF(NIJ.GT.IVER)
+!      IF(NIJ.GT.IVER)
       nijj=max(nij,nijj)
       IAF(NIJ)=IAF(IJR)-1
       IBF(NIJ)=IBF(IJR)
@@ -77,7 +77,7 @@ c      IF(NIJ.GT.IVER)
 14    IF(IJR.EQ.IJRL)GO TO 15
       IJR=IJR+1
       GO TO 16
-C     DELETE VERTICES
+!     DELETE VERTICES
 15    CONTINUE
       NIJ1=NIJ-1
       IN=IJS
@@ -95,7 +95,7 @@ C     DELETE VERTICES
 26       IAF(J)=-1
          IBF(J)=-1
 20    CONTINUE
-C     PACK VERTICES
+!     PACK VERTICES
       IJS1=IJS+1
       DO 30 J=IJS1,NIJ
          IF(IAF(J).NE.-1)GO TO 31
@@ -108,7 +108,7 @@ C     PACK VERTICES
          IBF(IUT)=IBF(IN)
          IORB(IUT)=IORB(IN)
 30    CONTINUE
-C     ORDER VERTICES
+!     ORDER VERTICES
       IUT1=IUT-1
       IF(IUT1.LT.IJS)GO TO 21
       DO 41 J=IJS,IUT1
@@ -144,7 +144,7 @@ C     ORDER VERTICES
       J3=JJ2+1
       IF(I.NE.1)J4=IJF(I-1)
       IF(I.EQ.1)J4=IUT
-C     DETERMINE CASE DOWN
+!     DETERMINE CASE DOWN
       DO 50 J=JJ1,JJ2
       IA1=IAF(J)
       IB1=IBF(J)
@@ -182,10 +182,10 @@ C     DETERMINE CASE DOWN
       K2F(IUT+1)=0
       K3F(IUT+1)=0
       IF(IPRINT.GE.5)WRITE(IW,101)
-101   FORMAT(///,6X,'TAB2F',//,8X,'J',7X,'AF',2X,'BF',6X,
-     *'K0F',1X,'K1F',1X,'K2F',1X,'K3F',/)
-      IF(IPRINT.GE.5)WRITE(IW,100)(J,IAF(J),IBF(J),K0F(J),
-     *K1F(J),K2F(J),K3F(J),J=1,IUT)
+101   FORMAT(///,6X,'TAB2F',//,8X,'J',7X,'AF',2X,'BF',6X,               &
+     &'K0F',1X,'K1F',1X,'K2F',1X,'K3F',/)
+      IF(IPRINT.GE.5)WRITE(IW,100)(J,IAF(J),IBF(J),K0F(J),              &
+     &K1F(J),K2F(J),K3F(J),J=1,IUT)
 100   FORMAT(6X,I3,5X,2I4,5X,4I4)
       write(6,*) ' Number of vertices', nijj, iut
       if (nijj.gt.iver) go to 300

@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1986, Per E. M. Siegbahn                               *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!***********************************************************************
       SUBROUTINE LOOP18(KM,ISTOP,IT1,IT2)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "real_guga.fh"
@@ -27,7 +27,7 @@
       END IF
 51    IF(IWAY(KM).EQ.2)GO TO 55
       IWAY(KM)=2
-C     F+H
+!     F+H
       IF(K1(IT1+J1(KM1)).EQ.0.OR.K2(IT2+J2(KM1)).EQ.0)GO TO 55
       IF(K3F(JM(KM1)).EQ.0)GO TO 55
       J2(KM)=K2(IT2+J2(KM1))
@@ -39,7 +39,7 @@ C     F+H
 52    IWAYKM=IWAY(KM)
       GO TO (59,61,62,55),IWAYKM
 59    IWAY(KM)=2
-C     (E+E,G+G)
+!     (E+E,G+G)
       IF(K0(IT1+J1(KM1)).EQ.0.OR.K0(IT2+J2(KM1)).EQ.0)GO TO 61
       WM0=D0
       WP0=D0
@@ -59,7 +59,7 @@ C     (E+E,G+G)
 163   WP0=D1
 162   COUP(KM)=WM0*COUP1(KM1)+WP0*COUP(KM1)
       GO TO 40
-C     F+F
+!     F+F
 61    IWAY(KM)=3
       IF(K1(IT1+J1(KM1)).EQ.0.OR.K1(IT2+J2(KM1)).EQ.0)GO TO 62
       IF(K3F(JM1(KM1)).EQ.0)GO TO 62
@@ -69,7 +69,7 @@ C     F+F
       ICOUP(KM)=ICOUP(KM1)+IY(IT2+J2(KM1),1)
       COUP(KM)=COUP1(KM1)*BS3(IB(J2(KM1))+1)**2
       GO TO 40
-C     H+H
+!     H+H
 62    IWAY(KM)=4
       IF(K2(IT1+J1(KM1)).EQ.0.OR.K2(IT2+J2(KM1)).EQ.0)GO TO 55
       IF(K3F(JM(KM1)).EQ.0)GO TO 55
@@ -81,7 +81,7 @@ C     H+H
       GO TO 40
 53    IF(IWAY(KM).EQ.2)GO TO 55
       IWAY(KM)=2
-C     H+F
+!     H+F
       IF(K2(IT1+J1(KM1)).EQ.0.OR.K1(IT2+J2(KM1)).EQ.0)GO TO 55
       IF(K3F(JM1(KM1)).EQ.0)GO TO 55
       J2(KM)=K1(IT2+J2(KM1))

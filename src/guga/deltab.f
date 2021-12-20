@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1986, Per E. M. Siegbahn                               *
-************************************************************************
-      SUBROUTINE DELTAB(NREF,IOCR,L0,L1,L2,L3,INTNUM,LV,IFCORE,
-     *ICOR,NONE,JONE,K00,K11,K22,K33,L00,L11,L22,L33)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!***********************************************************************
+      SUBROUTINE DELTAB(NREF,IOCR,L0,L1,L2,L3,INTNUM,LV,IFCORE,         &
+     &ICOR,NONE,JONE,K00,K11,K22,K33,L00,L11,L22,L33)
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION IOCR(*),L0(*),L1(*),L2(*),L3(*),ICOR(*),JONE(*),
-     *K00(*),K11(*),K22(*),K33(*),L00(*),L11(*),L22(*),L33(*)
+      DIMENSION IOCR(*),L0(*),L1(*),L2(*),L3(*),ICOR(*),JONE(*),        &
+     &K00(*),K11(*),K22(*),K33(*),L00(*),L11(*),L22(*),L33(*)
 #include "real_guga.fh"
 #include "integ.fh"
       DIMENSION IOC(55),ISP(55)
@@ -92,7 +92,7 @@
       IF(IOC(I).EQ.1)NSJ=MUL(NSJ,NSM(I))
       IF(I.LE.NIORB+LV.AND.I.GT.LV)INHOLE=INHOLE+2-IOC(I)
 110   CONTINUE
-C     STRIKE OUT INTERNAL CONFIGURATIONS
+!     STRIKE OUT INTERNAL CONFIGURATIONS
       IPART=0
       IF(IIJ.GT.1)IPART=IPART+1
       IF(IIJ.GT.2)IPART=IPART+1
@@ -126,9 +126,9 @@ C     STRIKE OUT INTERNAL CONFIGURATIONS
       GO TO 12
 113   IF(IPART.EQ.0.AND.NSJ.NE.LSYM)GO TO 12
       IF(IPART.NE.2.OR.INTNUM.EQ.0)GO TO 115
-C     INTERACTING SPACE
+!     INTERACTING SPACE
       IF(INHOLE.EQ.2.AND.IBS.NE.0)GO TO 12
-C     NO CORE-CORE CORRELATION
+!     NO CORE-CORE CORRELATION
 115   IF(IFCORE.EQ.0)GO TO 116
       NCORR=0
       DO 117 I=1,LN
@@ -136,7 +136,7 @@ C     NO CORE-CORE CORRELATION
       NCORR=NCORR+2-IOC(I)
 117   CONTINUE
       IF(NCORR.GT.1)GO TO 12
-C     SINGLY OCCUPIED ORBITALS
+!     SINGLY OCCUPIED ORBITALS
 116   IF(NONE.EQ.0)GO TO 118
       DO 119 I=1,NONE
       IF(IOC(JONE(I)).NE.1)GO TO 12
@@ -174,6 +174,6 @@ C     SINGLY OCCUPIED ORBITALS
       L3(ISTA+I)=L3M(I)
 1     CONTINUE
 10    CONTINUE
-*
+!
       Return
       End

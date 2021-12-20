@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1986, Per E. M. Siegbahn                               *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!***********************************************************************
       SUBROUTINE AI(JTYP,ITAI,L0,L1,L2,L3)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
@@ -43,7 +43,7 @@
 11    IJS=IJ(I+1)+1
       IJM=IJ(I)
       IF(JTYP.EQ.1)GO TO 101
-C     DOUBLET-VALENCE INTERACTIONS
+!     DOUBLET-VALENCE INTERACTIONS
       ITURN=1
       ITT1=1
       ITT2=0
@@ -90,11 +90,11 @@ C     DOUBLET-VALENCE INTERACTIONS
       JOUT=JOUT+1
       IF(JOUT.GT.JMAX)JMAX=JOUT
       COP(IOUT)=COUP(1)
-CPAM96      IND=IOR(ITYP,ISHFT(ICP2,6))
-*      IND=ITYP+2**6*ICP2
+!PAM96      IND=IOR(ITYP,ISHFT(ICP2,6))
+!      IND=ITYP+2**6*ICP2
       IND=IOR(ITYP,ISHFT(ICP2,6))
-CPAM96      ICOP1(IOUT)=IOR(IND,ISHFT(ICP1,19))
-*      ICOP1(IOUT)=IND+2**19*ICP1
+!PAM96      ICOP1(IOUT)=IOR(IND,ISHFT(ICP1,19))
+!      ICOP1(IOUT)=IND+2**19*ICP1
       ICOP1(IOUT)=IOR(IND,ISHFT(ICP1,19))
       IF(IOUT.LT.NBUF)GO TO 80
       ICOP1(NCOP+1)=NBUF
@@ -106,12 +106,12 @@ CPAM96      ICOP1(IOUT)=IOR(IND,ISHFT(ICP1,19))
       GO TO 53
 30    CONTINUE
       GO TO (101,102,10),ITURN
-C     TRIPLET-DOUBLET INTERACTIONS
+!     TRIPLET-DOUBLET INTERACTIONS
 101   ITURN=2
       ITT1=2
       ITT2=1
       GO TO 150
-C     SINGLET-DOUBLET INTERACTIONS
+!     SINGLET-DOUBLET INTERACTIONS
 102   ITURN=3
       ITT1=3
       ITT2=1

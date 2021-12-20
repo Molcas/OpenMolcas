@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1986, Per E. M. Siegbahn                               *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!***********************************************************************
       SUBROUTINE LOOP11(KM,ISTOP,IT1,IT2)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "real_guga.fh"
@@ -23,7 +23,7 @@
       IWAYKM=IWAY(KM)
       GO TO (39,41,42,43,55),IWAYKM
 39    IWAY(KM)=2
-C     (B+R,D+O)
+!     (B+R,D+O)
       IF(K3(IT1+J1(KM1)).EQ.0.OR.K2(IT2+J2(KM1)).EQ.0)GO TO 41
       IF(K1F(J1F).EQ.0)GO TO 141
       J1(KM)=K3(IT1+J1(KM1))
@@ -42,7 +42,7 @@ C     (B+R,D+O)
 142   COUP(KM)=BS2(IB(J2(KM1))+2)*BL2(IB(J2(KM1))+1)*COUP(KM1)
       JM(KM)=K2F(J1F)
       GO TO 40
-C     A+M
+!     A+M
 41    IWAY(KM)=3
       IF(K2(IT1+J1(KM1)).EQ.0.OR.K0(IT2+J2(KM1)).EQ.0)GO TO 42
       IF(K0F(J1F).EQ.0)GO TO 42
@@ -53,7 +53,7 @@ C     A+M
       COUP(KM)=COUP(KM1)
       JM(KM)=K0F(J1F)
       GO TO 40
-C     B+N
+!     B+N
 42    IWAY(KM)=4
       IF(K3(IT1+J1(KM1)).EQ.0.OR.K1(IT2+J2(KM1)).EQ.0)GO TO 43
       IF(K1F(J1F).EQ.0)GO TO 43
@@ -64,7 +64,7 @@ C     B+N
       COUP(KM)=-BS1(IB(J2(KM1))+2)*COUP(KM1)
       JM(KM)=K1F(J1F)
       GO TO 40
-C     C+M
+!     C+M
 43    IWAY(KM)=5
       IF(K1(IT1+J1(KM1)).EQ.0.OR.K0(IT2+J2(KM1)).EQ.0)GO TO 55
       IF(K0F(J1F).EQ.0)GO TO 55
@@ -78,7 +78,7 @@ C     C+M
 51    IWAYKM=IWAY(KM)
       GO TO (59,61,62,63,55),IWAYKM
 59    IWAY(KM)=2
-C     (B+J,D+Q)
+!     (B+J,D+Q)
       IF(K3(IT1+J1(KM1)).EQ.0.OR.K1(IT2+J2(KM1)).EQ.0)GO TO 61
       IF(K1F(J1F).EQ.0)GO TO 161
       J1(KM)=K3(IT1+J1(KM1))
@@ -97,7 +97,7 @@ C     (B+J,D+Q)
 162   COUP(KM)=BS2(IB(J2(KM1)))*COUP(KM1)/IB(J2(KM1))
       JM(KM)=K2F(J1F)
       GO TO 40
-C     A+I
+!     A+I
 61    IWAY(KM)=3
       IF(K2(IT1+J1(KM1)).EQ.0.OR.K0(IT2+J2(KM1)).EQ.0)GO TO 62
       IF(K0F(J1F).EQ.0)GO TO 62
@@ -108,7 +108,7 @@ C     A+I
       COUP1(KM)=COUP(KM1)
       JM1(KM)=K0F(J1F)
       GO TO 40
-C     C+I
+!     C+I
 62    IWAY(KM)=4
       IF(K1(IT1+J1(KM1)).EQ.0.OR.K0(IT2+J2(KM1)).EQ.0)GO TO 63
       IF(K0F(J1F).EQ.0)GO TO 63
@@ -119,7 +119,7 @@ C     C+I
       COUP1(KM)=COUP(KM1)
       JM1(KM)=K0F(J1F)
       GO TO 40
-C     D+K
+!     D+K
 63    IWAY(KM)=5
       IF(K3(IT1+J1(KM1)).EQ.0.OR.K2(IT2+J2(KM1)).EQ.0)GO TO 55
       IF(K2F(J1F).EQ.0)GO TO 55

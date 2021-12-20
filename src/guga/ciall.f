@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1986, Per E. M. Siegbahn                               *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!***********************************************************************
       SUBROUTINE CIALL(LSYM,NREF,IOCR,nIOCR,L0,L1,L2,L3,LV)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION IOCR(nIOCR),L0(*),L1(*),L2(*),L3(*)
 #include "integ.fh"
       DIMENSION IOC(55)
-*
+!
       IIN=0
       NREF=0
       IJJ=IV0
@@ -72,7 +72,7 @@
          IOCR(IIN)=IOC(I)
 111   CONTINUE
       GO TO 12
-*
+!
 10      Continue
       RETURN
       End

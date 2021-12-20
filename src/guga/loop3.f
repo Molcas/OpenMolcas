@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1986, Per E. M. Siegbahn                               *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!***********************************************************************
       SUBROUTINE LOOP3(KM,ISTOP,IT1,IT2)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "real_guga.fh"
 #include "integ.fh"
       ISTOP=0
-C     STOP THE LOOP
+!     STOP THE LOOP
       KM1=KM+1
       IDIF=IA(J1(KM1))-IA(J2(KM1))
       IF(IDIF.LT.0.OR.IDIF.GT.1)GO TO 52
@@ -23,7 +23,7 @@ C     STOP THE LOOP
       IWAYKM=IWAY(KM)
       GO TO (49,51,52),IWAYKM
 49    IWAY(KM)=2
-C     CASE E-F
+!     CASE E-F
       IF(K2(IT1+J1(KM1)).EQ.0.OR.K0(IT2+J2(KM1)).EQ.0)GO TO 51
       COUP(KM)=COUP(KM1)
       J2(KM)=K2(IT1+J1(KM1))
@@ -39,7 +39,7 @@ C     CASE E-F
       ICOUP1(KM)=ICOUP1(KM1)+IY(IT1+J1(KM1),3)
       ICOUP(KM)=ICOUP(KM1)+IY(IT2+J2(KM1),1)
       GO TO 40
-C     CASE G-H
+!     CASE G-H
 60    IWAYKM=IWAY(KM)
       GO TO (64,65,52),IWAYKM
 64    IWAY(KM)=2

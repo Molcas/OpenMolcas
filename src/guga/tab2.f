@@ -1,35 +1,35 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1986, Per E. M. Siegbahn                               *
-************************************************************************
-      SUBROUTINE TAB2(NREF,IOCR,nIOCR,L0,L1,L2,L3,INTNUM,LV,LSYM,
-     *ICIALL,IFCORE,ICOR,NONE,JONE)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!***********************************************************************
+      SUBROUTINE TAB2(NREF,IOCR,nIOCR,L0,L1,L2,L3,INTNUM,LV,LSYM,       &
+     &ICIALL,IFCORE,ICOR,NONE,JONE)
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION IOCR(nIOCR),L0(*),L1(*),L2(*),L3(*),ICOR(*),
-     *JONE(*)
+      DIMENSION IOCR(nIOCR),L0(*),L1(*),L2(*),L3(*),ICOR(*),            &
+     &JONE(*)
 #include "real_guga.fh"
 #include "integ.fh"
       DIMENSION IORB(MXVERT)
       DIMENSION K00(MXVERT),K11(MXVERT),K22(MXVERT),K33(MXVERT)
       DIMENSION L00(MXVERT),L11(MXVERT),L22(MXVERT),L33(MXVERT)
-*
+!
       IEL=2
       IF(IFIRST.NE.0)IEL=1
-*
-C     NUMBER OF ACTIVE ELECTRONS
+!
+!     NUMBER OF ACTIVE ELECTRONS
       NAC=N-2*NIORB
-*
-C     UPPER LIMIT FOR NUMBER OF ELECTRONS IN ACTIVE SPACE
+!
+!     UPPER LIMIT FOR NUMBER OF ELECTRONS IN ACTIVE SPACE
       NACU=NAC+IEL
-*
+!
       IUT=0
       IB(1)=INT(2*S)
       IA(1)=INT(N-2*S)/2
@@ -44,9 +44,9 @@ C     UPPER LIMIT FOR NUMBER OF ELECTRONS IN ACTIVE SPACE
          IIM=LN-II+1-LV
          IAC=IIM-NIORB-1
          IIM2=(IIM-1)*2
-*
-C        S=0
-*
+!
+!        S=0
+!
 16       INUM=N-2*IA(IJR)-IB(IJR)
          IF(INTNUM.EQ.0.OR.IIM.LE.0)GO TO 109
          IF(IAC.GE.0)GO TO 409
@@ -61,9 +61,9 @@ C        S=0
          IF(IIM.LE.0)GO TO 11
          CALL CHEL(IA(NIJ),IB(NIJ),IIM,IEL,ISTOP)
          IF(ISTOP.EQ.1)NIJ=NIJ-1
-*
-C        S=1
-*
+!
+!        S=1
+!
 11       IF(IB(IJR).EQ.0)GO TO 12
          IF(INTNUM.EQ.0.OR.IIM.LE.0)GO TO 112
          IF(IAC.LT.0)GO TO 112
@@ -78,9 +78,9 @@ C        S=1
          IF(IIM.LE.0)GO TO 12
          CALL CHEL(IA(NIJ),IB(NIJ),IIM,IEL,ISTOP)
          IF(ISTOP.EQ.1)NIJ=NIJ-1
-*
-C        S=2
-*
+!
+!        S=2
+!
 12       IF(IA(IJR).EQ.0)GO TO 13
          IF(INTNUM.EQ.0.OR.IIM.LE.0)GO TO 113
          IF(IAC.LT.0)GO TO 413
@@ -98,9 +98,9 @@ C        S=2
          IF(IIM.LE.0)GO TO 13
          CALL CHEL(IA(NIJ),IB(NIJ),IIM,IEL,ISTOP)
          IF(ISTOP.EQ.1)NIJ=NIJ-1
-*
-C        S=3
-*
+!
+!        S=3
+!
 13       IF(IA(IJR).EQ.0)GO TO 14
          IF(INTNUM.EQ.0)GO TO 114
          IF(IAC.LT.0)GO TO 114
@@ -116,11 +116,11 @@ C        S=3
          IF(IIM.LE.0)GO TO 14
          CALL CHEL(IA(NIJ),IB(NIJ),IIM,IEL,ISTOP)
          IF(ISTOP.EQ.1)NIJ=NIJ-1
-*
+!
 14       IF(IJR.EQ.IJRL)GO TO 15
          IJR=IJR+1
          GO TO 16
-C        DELETE VERTICES
+!        DELETE VERTICES
 15       NIJ1=NIJ-1
          IN=IJS
          IUT=IJS
@@ -137,7 +137,7 @@ C        DELETE VERTICES
 26          IA(J)=-1
             IB(J)=-1
 20       CONTINUE
-C        PACK VERTICES
+!        PACK VERTICES
          IJS1=IJS+1
          DO 30 J=IJS1,NIJ
             IF(IA(J).NE.-1)GO TO 31
@@ -150,7 +150,7 @@ C        PACK VERTICES
             IB(IUT)=IB(IN)
             IORB(IUT)=IORB(IN)
 30       CONTINUE
-C        ORDER VERTICES
+!        ORDER VERTICES
          IUT1=IUT-1
          IF(IUT1.LT.IJS)GO TO 21
          DO 41 J=IJS,IUT1
@@ -196,7 +196,7 @@ C        ORDER VERTICES
          J3=JJ2+1
          IF(I0.NE.1)J4=IJ(I0-1)
          IF(I0.EQ.1)J4=IUT
-C        DETERMINE CASE DOWN
+!        DETERMINE CASE DOWN
          DO 50 J=JJ1,JJ2
             IA1=IA(J)
             IB1=IB(J)
@@ -229,7 +229,7 @@ C        DETERMINE CASE DOWN
 64             K00(J)=JJ
 60          CONTINUE
 50       CONTINUE
-C        DETERMINE CASE UP
+!        DETERMINE CASE UP
          DO 70 J=J3,J4
             IA1=IA(J)
             IB1=IB(J)
@@ -276,16 +276,16 @@ C        DETERMINE CASE UP
       K22(IUT+1)=0
       K33(IUT+1)=0
       IF(ICIALL.NE.0)CALL CIALL(LSYM,NREF,IOCR,nIOCR,L00,L11,L22,L33,LV)
-      CALL DELTAB(NREF,IOCR,L0,L1,L2,L3,INTNUM,LV,IFCORE,ICOR,
-     *NONE,JONE,K00,K11,K22,K33,L00,L11,L22,L33)
+      CALL DELTAB(NREF,IOCR,L0,L1,L2,L3,INTNUM,LV,IFCORE,ICOR,          &
+     &NONE,JONE,K00,K11,K22,K33,L00,L11,L22,L33)
       DO 103 I=1,ILIM
          ISTA=(I-1)*MXVERT
          IF(IPRINT.GE.5)WRITE(IW,101)
-101      FORMAT(///,6X,'TAB2',//,8X,'J',8X,'A',3X,'B',7X,
-     *   'K0',2X,'K1',2X,'K2',2X,'K3',2X,'L0',2X,'L1',2X,'L2',2X,'L3',/)
-         IF(IPRINT.GE.5)WRITE(IW,100)(J,IA(J),IB(J),K0(ISTA+J),
-     *   K1(ISTA+J),K2(ISTA+J),K3(ISTA+J),L0(ISTA+J),L1(ISTA+J),
-     *   L2(ISTA+J),L3(ISTA+J),J=1,IUT)
+101      FORMAT(///,6X,'TAB2',//,8X,'J',8X,'A',3X,'B',7X,               &
+     &   'K0',2X,'K1',2X,'K2',2X,'K3',2X,'L0',2X,'L1',2X,'L2',2X,'L3',/)
+         IF(IPRINT.GE.5)WRITE(IW,100)(J,IA(J),IB(J),K0(ISTA+J),         &
+     &   K1(ISTA+J),K2(ISTA+J),K3(ISTA+J),L0(ISTA+J),L1(ISTA+J),        &
+     &   L2(ISTA+J),L3(ISTA+J),J=1,IUT)
 100   FORMAT(6X,I3,5X,2I4,5X,8I4)
 103   CONTINUE
       IBMAX=0
@@ -325,10 +325,10 @@ C        DETERMINE CASE UP
       DO 104 I=1,ILIM
          ISTA=(I-1)*MXVERT
          IF(IPRINT.GE.5)WRITE(IW,102)
-102      FORMAT(///,6X,'INDEX TABLE',//,8X,'J',8X,'Y1',3X,'Y2',
-     *   3X,'Y3',9X,'X',/)
-         IF(IPRINT.GE.5)WRITE(IW,200)(J,IY(ISTA+J,1),IY(ISTA+J,2),
-     *   IY(ISTA+J,3),IX(ISTA+J),J=1,IUT)
+102      FORMAT(///,6X,'INDEX TABLE',//,8X,'J',8X,'Y1',3X,'Y2',         &
+     &   3X,'Y3',9X,'X',/)
+         IF(IPRINT.GE.5)WRITE(IW,200)(J,IY(ISTA+J,1),IY(ISTA+J,2),      &
+     &   IY(ISTA+J,3),IX(ISTA+J),J=1,IUT)
 200      FORMAT(6X,I3,5X,3I5,5X,I5)
 104   CONTINUE
       IF(IPRINT.GE.2)WRITE(IW,210)IUT
@@ -337,18 +337,18 @@ C        DETERMINE CASE UP
 214   FORMAT(///,6X,'INTERNAL CONFIGURATIONS (FORMAL)')
 
       IF (IFIRST.EQ.0) THEN
-* This is a normal calculation, both singles and doubles included.
+! This is a normal calculation, both singles and doubles included.
       WRITE(IW,215)(IX(IUT+1-ITTT+MXVERT*(ITTT-1)),ITTT=1,4)
-215   FORMAT(/,6X,'NUMBER OF VALENCE STATES',I16,
-     */,6X,'NUMBER OF DOUBLET COUPLED SINGLES',I7,
-     */,6X,'NUMBER OF TRIPLET COUPLED DOUBLES',I7,
-     */,6X,'NUMBER OF SINGLET COUPLED DOUBLES',I7)
+215   FORMAT(/,6X,'NUMBER OF VALENCE STATES',I16,                       &
+     &/,6X,'NUMBER OF DOUBLET COUPLED SINGLES',I7,                      &
+     &/,6X,'NUMBER OF TRIPLET COUPLED DOUBLES',I7,                      &
+     &/,6X,'NUMBER OF SINGLET COUPLED DOUBLES',I7)
       ELSE
-* ''FIRST'' keyword has been given. Then this is just a so-called
-* first-order CI, i.e., singles only.
+! ''FIRST'' keyword has been given. Then this is just a so-called
+! first-order CI, i.e., singles only.
       WRITE(IW,215)(IX(IUT+1-ITTT+MXVERT*(ITTT-1)),ITTT=1,2)
-c216   FORMAT(/,6X,'NUMBER OF VALENCE STATES',I16,
-c     */,6X,'NUMBER OF DOUBLET COUPLED SINGLES',I7)
+!216   FORMAT(/,6X,'NUMBER OF VALENCE STATES',I16,
+!     */,6X,'NUMBER OF DOUBLET COUPLED SINGLES',I7)
       END IF
 
       IRC(1)=IX(IUT)
@@ -375,7 +375,7 @@ c     */,6X,'NUMBER OF DOUBLET COUPLED SINGLES',I7)
          FB=(FBB+2)**2-1
          BL2(I)=SQRT(FB)/(FBB+2)
 5     CONTINUE
-C     PUT ZEROS IN VECTORS
+!     PUT ZEROS IN VECTORS
       DO 6 I=1,LN
          COUP(I)=D0
          COUP1(I)=D0
@@ -407,16 +407,16 @@ C     PUT ZEROS IN VECTORS
          IF(JL.LT.JMAX)GO TO 400
          JMAX=JL
 400   CONTINUE
-*
+!
       IF (IPRINT.GE.2) THEN
          WRITE(IW,411)JMAX
          WRITE(IW,412)IBMAX, MAXB
-411      FORMAT(/,6X,'NUMBER OF VERTICES IN ONE ROW',I6,
+411      FORMAT(/,6X,'NUMBER OF VERTICES IN ONE ROW',I6,                &
      &     6X,'(PRESENT LIMIT 31)')
          IF(JMAX.GT.31) Call Abend
 412      FORMAT(6X,'MAXIMUM B VALUE',I20,6X,'(PRESENT LIMIT ',I5,')')
       END IF
       IF(IBMAX.GT.MAXB) Call Abend
-*
+!
       RETURN
       END

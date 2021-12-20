@@ -1,26 +1,26 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1986, Per E. M. Siegbahn                               *
-************************************************************************
-      SUBROUTINE CONFIG(NREF,IOCR,nIOCR,L0,L1,L2,L3,JSYM,JSY,INTNUM,
-     &                  LSYM,JJS,ISO,LV,IFCORE,ICOR,NONE,JONE,JREFX,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!***********************************************************************
+      SUBROUTINE CONFIG(NREF,IOCR,nIOCR,L0,L1,L2,L3,JSYM,JSY,INTNUM,    &
+     &                  LSYM,JJS,ISO,LV,IFCORE,ICOR,NONE,JONE,JREFX,    &
      &                  NFREF)
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION IOCR(nIOCR),L0(*),L1(*),L2(*),L3(*),JSYM(*),JSY(*),
+      DIMENSION IOCR(nIOCR),L0(*),L1(*),L2(*),L3(*),JSYM(*),JSY(*),     &
      &          JJS(*),ISO(*),ICOR(*),JONE(*),JREFX(*)
 #include "real_guga.fh"
 #include "integ.fh"
 #include "d.fh"
       DIMENSION IOC(55),ISP(55)
-*
+!
       JSYL=30000
       JSYLL=3000
       JRX=9000
@@ -29,7 +29,7 @@
       LSYM=1
       NFREF=0
       LNS=NIORB+LV+1
-* Compute wave function symmetry
+! Compute wave function symmetry
       IRR=0
       DO 5 I=LNS,LN
         IRR=IRR+1
@@ -37,13 +37,13 @@
 5     CONTINUE
       WRITE(IW,'(6X,A,I3)') 'WAVE-FUNCTION SYMMETRY LABEL:', LSYM
 
-* Initialize arrays JJS, JNDX, ICASE, JSY
+! Initialize arrays JJS, JNDX, ICASE, JSY
       DO 3 I=1,18
         JJS(I)=0
 3     CONTINUE
-C CONSTRUCT JNDX
-* ILIM=2 or ILIM=4 was set by input: Normally 4, but 2 if keyword FIRST
-* has been given. ILIM is in integ.fh
+! CONSTRUCT JNDX
+! ILIM=2 or ILIM=4 was set by input: Normally 4, but 2 if keyword FIRST
+! has been given. ILIM is in integ.fh
       INTOT=IRC(ILIM)
       DO 1 I=1,INTOT
         JNDX(I)=0
@@ -58,26 +58,26 @@ C CONSTRUCT JNDX
       LMN=0
 
       DO 10 IIJ=1,ILIM
-* Special cases:
+! Special cases:
       JRC(IIJ)=LMN
       IF(N.eq.0 .and. IIJ.gt.1) goto 10
       IF(N.eq.1 .and. IIJ.gt.2) goto 10
       IF(N.eq.2 .and. ISPIN.eq.1 .and. IIJ.eq.3) goto 10
       IF(N.eq.2 .and. ISPIN.eq.3 .and. IIJ.eq.4) goto 10
-* ISTA is actually an offset, not a start point.
+! ISTA is actually an offset, not a start point.
       ISTA=(IIJ-1)*MXVERT
-* Element in row IJJ=IV0+1-IIJ of the tables is the top vertex, for
-* IIJ=1 (Valence), 2 (Singles), 3 (Doubles T), 4 (Doubles S).
-* It is found as element ISTA+IJJ of arrays L0, L1 etc.
+! Element in row IJJ=IV0+1-IIJ of the tables is the top vertex, for
+! IIJ=1 (Valence), 2 (Singles), 3 (Doubles T), 4 (Doubles S).
+! It is found as element ISTA+IJJ of arrays L0, L1 etc.
       IJJ=IV0+1-IIJ
       KM=1
       J2(KM)=IJJ
 11    KM=KM+1
       IWAY(KM)=0
 12    KM1=KM-1
-* At KM, trying for a way down.
+! At KM, trying for a way down.
       IF(L0(ISTA+J2(KM1)).EQ.0.OR.IWAY(KM).GE.1)GO TO 14
-* IWAY is 0, and the next vertex L0(ISTA+J2(KM1)) is actually there:
+! IWAY is 0, and the next vertex L0(ISTA+J2(KM1)) is actually there:
       J2(KM)=L0(ISTA+J2(KM1))
       IWAY(KM)=1
       IOC(KM1)=0
@@ -85,7 +85,7 @@ C CONSTRUCT JNDX
       GO TO 20
 
 14    IF(L1(ISTA+J2(KM1)).EQ.0.OR.IWAY(KM).GE.2)GO TO 15
-* IWAY is 1, and the next vertex is actually there:
+! IWAY is 1, and the next vertex is actually there:
       J2(KM)=L1(ISTA+J2(KM1))
       IWAY(KM)=2
       IOC(KM1)=1
@@ -93,7 +93,7 @@ C CONSTRUCT JNDX
       GO TO 20
 
 15    IF(L2(ISTA+J2(KM1)).EQ.0.OR.IWAY(KM).GE.3)GO TO 16
-* IWAY is 2, and the next vertex is actually there:
+! IWAY is 2, and the next vertex is actually there:
       J2(KM)=L2(ISTA+J2(KM1))
       IWAY(KM)=3
       IOC(KM1)=1
@@ -101,7 +101,7 @@ C CONSTRUCT JNDX
       GO TO 20
 
 16    IF(L3(ISTA+J2(KM1)).EQ.0.OR.IWAY(KM).GE.4)GO TO 17
-* IWAY is 3, and the next vertex is actually there:
+! IWAY is 3, and the next vertex is actually there:
       J2(KM)=L3(ISTA+J2(KM1))
       IWAY(KM)=4
       IOC(KM1)=2
@@ -109,34 +109,34 @@ C CONSTRUCT JNDX
       GO TO 20
 
 17    KM=KM-1
-* No more ways to try from this vertex. Up to higher vertex:
+! No more ways to try from this vertex. Up to higher vertex:
       IF(KM.EQ.1)GO TO 10
-* If KM was 1, then finish this IIJ value and do next one.
-* Else, goto 12, to take new route from the higher vertex.
+! If KM was 1, then finish this IIJ value and do next one.
+! Else, goto 12, to take new route from the higher vertex.
       GO TO 12
 
 20    CONTINUE
-* While trying to find a new wav through the graph, we found
-* a feasible edge from a vertex J2(KM) to a vertex at level KM1.
+! While trying to find a new wav through the graph, we found
+! a feasible edge from a vertex J2(KM) to a vertex at level KM1.
       IF(KM1.EQ.NIORB+LV)IBS=IB(J2(KM))
       IF(KM.NE.LN+1)GO TO 11
-* KM has reached top of the graph.
+! KM has reached top of the graph.
 
       JND=JND+1
-* A formally legal way was found. Should it be accepted?
+! A formally legal way was found. Should it be accepted?
       NSJ=1
       INHOLE=0
       DO 110 I=1,LN
        IF(IOC(I).EQ.1)NSJ=MUL(NSJ,NSM(I))
        IF(I.LE.NIORB+LV.AND.I.GT.LV)INHOLE=INHOLE+2-IOC(I)
 110   CONTINUE
-C     STRIKE OUT INTERNAL CONFIGURATIONS
+!     STRIKE OUT INTERNAL CONFIGURATIONS
       IPART=0
       IF(JND.GT.IRC(1))IPART=IPART+1
       IF(JND.GT.IRC(2))IPART=IPART+1
       IF(IPART.EQ.0.AND.NSJ.NE.LSYM)GO TO 12
-C     TEST IF TO HIGHLY EXCITED
-C     TEST ALSO IF REFERENCE STATE
+!     TEST IF TO HIGHLY EXCITED
+!     TEST ALSO IF REFERENCE STATE
       IFEXC=0
       IFREF=0
       JJ1=0
@@ -168,9 +168,9 @@ C     TEST ALSO IF REFERENCE STATE
 111   CONTINUE
       IF(IFEXC.EQ.0)GO TO 12
       IF(IPART.NE.2.OR.INTNUM.EQ.0)GO TO 115
-C     INTERACTING SPACE
+!     INTERACTING SPACE
       IF(INHOLE.EQ.2.AND.IBS.NE.0)GO TO 12
-C     NO CORE-CORE CORRELATION
+!     NO CORE-CORE CORRELATION
 115   IF(IFCORE.EQ.0)GO TO 116
       NCORR=0
       DO 117 I=1,LN
@@ -178,7 +178,7 @@ C     NO CORE-CORE CORRELATION
       NCORR=NCORR+2-IOC(I)
 117   CONTINUE
       IF(NCORR.GT.1)GO TO 12
-C     SINGLY OCCUPIED ORBITALS
+!     SINGLY OCCUPIED ORBITALS
 116   IF(NONE.EQ.0)GO TO 118
       DO 119 I=1,NONE
       IF(IOC(JONE(I)).NE.1)GO TO 12
@@ -188,7 +188,7 @@ C     SINGLY OCCUPIED ORBITALS
       IND=LMN
       JNDX(L)=IND
       IF(IIJ.EQ.1) THEN
-C CONSTRUCT INDEX LIST FOR REFERENCE STATES
+! CONSTRUCT INDEX LIST FOR REFERENCE STATES
         If (LMN.GT.JRX) Then
            Write (6,*) 'Config: LMN.GT.JRX'
            Write (6,*) 'LMN,JRX=',LMN,JRX
@@ -245,21 +245,21 @@ C CONSTRUCT INDEX LIST FOR REFERENCE STATES
       IX2=JRC(2)-JRC(1)
       IF(IFIRST.NE.0)GO TO 205
 
-*      IF(N.EQ.2) JRC(3)=JRC(2)
+!      IF(N.EQ.2) JRC(3)=JRC(2)
 
       IX3=JRC(3)-JRC(2)
       IX4=JRC(4)-JRC(3)
       WRITE(IW,215)IX1,IX2,IX3,IX4
-215   FORMAT(/,6X,'NUMBER OF VALENCE STATES',I16,
-     */,6X,'NUMBER OF DOUBLET COUPLED SINGLES',I7,
-     */,6X,'NUMBER OF TRIPLET COUPLED DOUBLES',I7,
-     */,6X,'NUMBER OF SINGLET COUPLED DOUBLES',I7)
+215   FORMAT(/,6X,'NUMBER OF VALENCE STATES',I16,                       &
+     &/,6X,'NUMBER OF DOUBLET COUPLED SINGLES',I7,                      &
+     &/,6X,'NUMBER OF TRIPLET COUPLED DOUBLES',I7,                      &
+     &/,6X,'NUMBER OF SINGLET COUPLED DOUBLES',I7)
       If (LMN.GT.JSYL) Then
          Write (6,*) 'Config: LMN.GT.JSYL'
          Write (6,*) 'LMN,JSYL=',LMN,JSYL
          Call Abend()
       End If
-      If (IX1.GE.8192.OR.IX2.GE.8192.OR.
+      If (IX1.GE.8192.OR.IX2.GE.8192.OR.                                &
      &    IX3.GE.8192.OR.IX4.GE.8192) Then
          Write (6,*) 'Config: IX?.GE.8192'
          Write (6,*) 'IX1,IX2,IX3,IX4=',IX1,IX2,IX3,IX4
@@ -274,7 +274,7 @@ C CONSTRUCT INDEX LIST FOR REFERENCE STATES
          Write (6,*) ' ''Report a new bug''.'
          Call Abend()
       End If
-C     SORT BY SYMMETRY
+!     SORT BY SYMMETRY
       IF(NSYM.EQ.1)GO TO 410
       ITU=2
 400   IRC1=IRC(ITU)+1
@@ -311,8 +311,8 @@ C     SORT BY SYMMETRY
       GO TO 400
 
 406   CONTINUE
-* JJS(2..9): JJS(I+1)=Nr of internal triplet states per symmetry I.
-* JJS(11..18): JJS(I+10)=Nr of internal singlet states per symmetry I.
+! JJS(2..9): JJS(I+1)=Nr of internal triplet states per symmetry I.
+! JJS(11..18): JJS(I+10)=Nr of internal singlet states per symmetry I.
       WRITE(IW,407)(JJS(I+1),I=1,NSYM)
 407   FORMAT(/6X,'INTERNAL TRIPLET STATES PER SYMMETRY:',6X,8I5)
       WRITE(IW,408)(JJS(I+10),I=1,NSYM)
@@ -322,22 +322,22 @@ C     SORT BY SYMMETRY
        JJS(I1)=JJS(I)+JJS(I1)
        JJS(I1+9)=JJS(I+9)+JJS(I1+9)
 405   CONTINUE
-* Now, JJS is changed to contain instead the corresponding cumulative sum
-* summed over the symmetries.
+! Now, JJS is changed to contain instead the corresponding cumulative sum
+! summed over the symmetries.
       GO TO 410
 
 205   WRITE(IW,216)IX1,IX2
-216   FORMAT(/,6X,'NUMBER OF VALENCE STATES',I16,
-     */,6X,'NUMBER OF DOUBLET COUPLED SINGLES',I7)
+216   FORMAT(/,6X,'NUMBER OF VALENCE STATES',I16,                       &
+     &/,6X,'NUMBER OF DOUBLET COUPLED SINGLES',I7)
       If (IX1.GE.8192.OR.IX2.GE.8192) Then
          Write (6,*) 'Config: IX?.GE.8192'
          Write (6,*) 'IX1,IX2=',IX1,IX2
          Call Abend()
       End If
 
-C     PACK OCCUPATION AND SYMMETRY VECTORS FOR CI
+!     PACK OCCUPATION AND SYMMETRY VECTORS FOR CI
 410   LMN0=JRC(ILIM)*LN
-CPAM97      M1=(LMN0+29)/30
+!PAM97      M1=(LMN0+29)/30
       M1=(LMN0+14)/15
       If (M1.GT.MXCASE) Then
          Write (6,*) 'Config: M1.GT.MXCASE'
@@ -349,15 +349,15 @@ CPAM97      M1=(LMN0+29)/30
       DO 412 K=1,LN
       M=M+1
       MND=ISO(M)
-C     IOCC((M+29)/30)=OR(IOCC((M+29)/30),
-C    1SHIFT(MND,2*((M+29)/30*30-M)))
-CPAM97      QOCC((M+29)/30)=PACK(QOCC((M+29)/30), MND, 2*M-(2*M-1)/60*60, 2)
+!     IOCC((M+29)/30)=OR(IOCC((M+29)/30),
+!    1SHIFT(MND,2*((M+29)/30*30-M)))
+!PAM97      QOCC((M+29)/30)=PACK(QOCC((M+29)/30), MND, 2*M-(2*M-1)/60*60, 2)
       CALL ICPCK(ICASE,M,MND)
 412   CONTINUE
-CPAM97      NSJ=JSYM(L)-1
-CPAM97      JSY((L+9)/10)=IOR(JSY((L+9)/10),ISHFT(NSJ,29-3*MOD(L-1,10)))
+!PAM97      NSJ=JSYM(L)-1
+!PAM97      JSY((L+9)/10)=IOR(JSY((L+9)/10),ISHFT(NSJ,29-3*MOD(L-1,10)))
       CALL JSPCK(JSY,L,JSYM(L))
 411   CONTINUE
-*
+!
       Return
       End

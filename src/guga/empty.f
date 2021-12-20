@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1986, Per E. M. Siegbahn                               *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!***********************************************************************
       SUBROUTINE EMPTY(BUF,IBUF,LASTAD,SO,KBUF,NTPB)
       IMPLICIT REAL*8 (A-H,O-Z)
 
@@ -19,10 +19,10 @@
 #include "files_addr.fh"
       DIMENSION BUF(kBuf),IBUF(kBuf+2),LASTAD(*),SO(*)
 #include "d.fh"
-*
+!
       JO(L)=ICUNP(ICASE,L)
-*
-*
+!
+!
       ISUM=JRC(ILIM)
       IOUT=0
       NMAT=0
@@ -54,7 +54,7 @@
       NMAT=NMAT+NBUF
       IOUT=0
 460   IVL0=IV0-IVL
-*      IND=KK+2**16*IVL0
+!      IND=KK+2**16*IVL0
       IND=IOR(KK,ISHFT(IVL0,16))
       IOUT=IOUT+1
       ICOP1(IOUT)=IND
@@ -80,7 +80,7 @@
       IADR=LASTAD(NBX)
 110   CONTINUE
       IF(IADR.EQ.-1)GO TO 120
-C     FPS
+!     FPS
       CALL dDAFILE(Lu_11,2, BUF,KBUF,  IADR)
       CALL iDAFILE(Lu_11,2,IBUF,KBUF+2,IADR)
       LENGTH=IBUF(KBUF+1)
@@ -101,8 +101,8 @@ C     FPS
       IF(ITYP.EQ.1)IKK=I
       IF(SO(IN).EQ.D0)GO TO 25
       IOUT=IOUT+1
-CPAM96      ICOP1(IOUT)=IOR(ITYP,ISHFT(IKK,1))
-*      ICOP1(IOUT)=ITYP+2*IKK
+!PAM96      ICOP1(IOUT)=IOR(ITYP,ISHFT(IKK,1))
+!      ICOP1(IOUT)=ITYP+2*IKK
       ICOP1(IOUT)=IOR(ITYP,ISHFT(IKK,1))
       COP(IOUT)=SO(IN)
       IF(IOUT.LT.NBUF)GO TO 25

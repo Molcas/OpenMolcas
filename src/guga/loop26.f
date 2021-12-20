@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1986, Per E. M. Siegbahn                               *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!***********************************************************************
       SUBROUTINE LOOP26(KM,ISTOP,IFAI,IT1,IT2)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "real_guga.fh"
@@ -17,10 +17,10 @@
       ISTOP=0
       KM1=KM+1
       J2F=IPO(J2(KM1))
-C     FOUR POSSIBLE STARTS
+!     FOUR POSSIBLE STARTS
       IWAYKM=IWAY(KM)
       GO TO (34,35,36,37,55),IWAYKM
-C     (CC+,AA+)
+!     (CC+,AA+)
 34    IWAY(KM)=2
       IF(K0(IT1+J1(KM1)).EQ.0.OR.K0(IT2+J2(KM1)).EQ.0)GO TO 35
       IF(K1F(J2F).EQ.0)GO TO 135
@@ -48,7 +48,7 @@ C     (CC+,AA+)
       COUP1(KM)=D0
       COUP(KM)=D0
       GO TO 40
-C     BB+
+!     BB+
 35    IWAY(KM)=3
       IF(K1(IT1+J1(KM1)).EQ.0.OR.K1(IT2+J2(KM1)).EQ.0)GO TO 36
       IF(K3F(J2F).EQ.0)GO TO 138
@@ -67,7 +67,7 @@ C     BB+
       COUP1(KM)=D0
       COUP(KM)=D0
       GO TO 40
-C     DD+
+!     DD+
 36    IWAY(KM)=4
       IF(K2(IT1+J1(KM1)).EQ.0.OR.K2(IT2+J2(KM1)).EQ.0)GO TO 37
       IF(K3F(J2F).EQ.0)GO TO 139
@@ -86,7 +86,7 @@ C     DD+
       COUP1(KM)=D0
       COUP(KM)=D0
       GO TO 40
-C     BD+
+!     BD+
 37    IWAY(KM)=5
       IF(K1(IT1+J1(KM1)).EQ.0.OR.K2(IT2+J2(KM1)).EQ.0)GO TO 55
       IF(K3F(J2F).EQ.0)GO TO 55
