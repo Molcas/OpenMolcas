@@ -10,35 +10,40 @@
 !                                                                      *
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
 !***********************************************************************
-      SUBROUTINE LOOP7(KM,ISTOP,IT1,IT2)
-      IMPLICIT REAL*8 (A-H,O-Z)
+
+subroutine LOOP7(KM,ISTOP,IT1,IT2)
+
+implicit real*8(A-H,O-Z)
 #include "real_guga.fh"
 #include "integ.fh"
-      ISTOP=0
-      KM1=KM+1
-      J2F=IPO(J2(KM1))
-      IF(IWAY(KM).EQ.2)GO TO 55
-      IWAY(KM)=2
+
+ISTOP = 0
+KM1 = KM+1
+J2F = IPO(J2(KM1))
+if (IWAY(KM) == 2) GO TO 55
+IWAY(KM) = 2
 !     (CB,AD)
-      IF(K0(IT1+J1(KM1)).EQ.0.OR.K3(IT2+J2(KM1)).EQ.0)GO TO 55
-      IF(K1F(J2F).EQ.0)GO TO 141
-      J1(KM)=K0(IT1+J1(KM1))
-      J2(KM)=K3(IT2+J2(KM1))
-      ICOUP1(KM)=0
-      ICOUP(KM)=IY(IT2+J2(KM1),3)
-      COUP1(KM)=BS1(IB(J2(KM1))+1)
-      JM1(KM)=K1F(J2F)
-      IF(K2F(J2F).EQ.0)GO TO 40
-      GO TO 143
-141   IF(K2F(J2F).EQ.0)GO TO 55
-      J1(KM)=K0(IT1+J1(KM1))
-      J2(KM)=K3(IT2+J2(KM1))
-      ICOUP1(KM)=0
-      ICOUP(KM)=IY(IT2+J2(KM1),3)
-143   COUP(KM)=BS2(IB(J2(KM1))+1)
-      JM(KM)=K2F(J2F)
-      GO TO 40
-55    ISTOP=1
-40      Continue
-      RETURN
-      END
+if ((K0(IT1+J1(KM1)) == 0) .or. (K3(IT2+J2(KM1)) == 0)) GO TO 55
+if (K1F(J2F) == 0) GO TO 141
+J1(KM) = K0(IT1+J1(KM1))
+J2(KM) = K3(IT2+J2(KM1))
+ICOUP1(KM) = 0
+ICOUP(KM) = IY(IT2+J2(KM1),3)
+COUP1(KM) = BS1(IB(J2(KM1))+1)
+JM1(KM) = K1F(J2F)
+if (K2F(J2F) == 0) GO TO 40
+GO TO 143
+141 if (K2F(J2F) == 0) GO TO 55
+J1(KM) = K0(IT1+J1(KM1))
+J2(KM) = K3(IT2+J2(KM1))
+ICOUP1(KM) = 0
+ICOUP(KM) = IY(IT2+J2(KM1),3)
+143 COUP(KM) = BS2(IB(J2(KM1))+1)
+JM(KM) = K2F(J2F)
+GO TO 40
+55 ISTOP = 1
+40 continue
+
+return
+
+end subroutine LOOP7

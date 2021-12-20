@@ -10,9 +10,14 @@
 !                                                                      *
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
 !***********************************************************************
-      SUBROUTINE JTIME(ITIME)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      CALL TIMING(DTIM,DUM,DUM,DUM)
-      ITIME=INT(DTIM)
-      RETURN
-      END
+
+subroutine JTIME(ITIME)
+
+implicit real*8(A-H,O-Z)
+
+call TIMING(DTIM,DUM,DUM,DUM)
+ITIME = int(DTIM)
+
+return
+
+end subroutine JTIME

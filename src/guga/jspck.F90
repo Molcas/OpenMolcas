@@ -10,15 +10,19 @@
 !                                                                      *
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
 !***********************************************************************
-      SUBROUTINE JSPCK(INTSYM,L,ISYM)
-      DIMENSION INTSYM(*)
 
-!      INTW=INTSYM((L+9)/10)
-!      IPOW=2**(27-3*MOD(L-1,10))
-!      INTW=INTW+(ISYM-1)*IPOW
-!      INTSYM((L+9)/10)=INTW
-       My=(L+9)/10
-      IPOW=2**(27-3*MOD(L-1,10))
-      INTSYM(My)=INTSYM(My)+(ISYM-1)*IPOW
-      RETURN
-      END
+subroutine JSPCK(INTSYM,L,ISYM)
+
+dimension INTSYM(*)
+
+!INTW = INTSYM((L+9)/10)
+!IPOW = 2**(27-3*mod(L-1,10))
+!INTW = INTW+(ISYM-1)*IPOW
+!INTSYM((L+9)/10) = INTW
+My = (L+9)/10
+IPOW = 2**(27-3*mod(L-1,10))
+INTSYM(My) = INTSYM(My)+(ISYM-1)*IPOW
+
+return
+
+end subroutine JSPCK

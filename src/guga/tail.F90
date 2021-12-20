@@ -10,59 +10,63 @@
 !                                                                      *
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
 !***********************************************************************
-      SUBROUTINE TAIL(LL,IJJ,ITAI,ITAIL,L0,L1,L2,L3,IT1,IT2)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION ITAI(*),L0(*),L1(*),L2(*),L3(*)
+
+subroutine TAIL(LL,IJJ,ITAI,ITAIL,L0,L1,L2,L3,IT1,IT2)
+implicit real*8(A-H,O-Z)
+dimension ITAI(*), L0(*), L1(*), L2(*), L3(*)
 #include "integ.fh"
-       L=LL+1
-      IF(ITAIL.EQ.0)THEN
-        RETURN
-      END IF
-      DO 5 I=1,ITAIL
-      ITAI(I)=0
-5     CONTINUE
-      IF(L.EQ.LN+1)ITAI(1)=1
-      KM=L
-      J2(KM)=IJJ
-      ICOUP(L)=1
-      ICOUP1(L)=1
-11    KM=KM+1
-      IWAY(KM)=0
-12    KM1=KM-1
-      IF(IWAY(KM).GE.1)GO TO 14
-      IF(L0(IT1+J2(KM1)).EQ.0.OR.L0(IT2+J2(KM1)).EQ.0)GO TO 14
-      J2(KM)=L0(IT2+J2(KM1))
-      IWAY(KM)=1
-      ICOUP(KM)=ICOUP(KM1)
-      ICOUP1(KM)=ICOUP1(KM1)
-      GO TO 20
-14    IF(IWAY(KM).GE.2)GO TO 15
-      IF(L1(IT1+J2(KM1)).EQ.0.OR.L1(IT2+J2(KM1)).EQ.0)GO TO 15
-      J2(KM)=L1(IT2+J2(KM1))
-      IWAY(KM)=2
-      ICOUP(KM)=ICOUP(KM1)+IY(IT2+J2(KM),1)
-      ICOUP1(KM)=ICOUP1(KM1)+IY(IT1+J2(KM),1)
-      GO TO 20
-15    IF(IWAY(KM).GE.3)GO TO 16
-      IF(L2(IT1+J2(KM1)).EQ.0.OR.L2(IT2+J2(KM1)).EQ.0)GO TO 16
-      J2(KM)=L2(IT2+J2(KM1))
-      IWAY(KM)=3
-      ICOUP(KM)=ICOUP(KM1)+IY(IT2+J2(KM),2)
-      ICOUP1(KM)=ICOUP1(KM1)+IY(IT1+J2(KM),2)
-      GO TO 20
-16    IF(IWAY(KM).GE.4)GO TO 17
-      IF(L3(IT1+J2(KM1)).EQ.0.OR.L3(IT2+J2(KM1)).EQ.0)GO TO 17
-      J2(KM)=L3(IT2+J2(KM1))
-      IWAY(KM)=4
-      ICOUP(KM)=ICOUP(KM1)+IY(IT2+J2(KM),3)
-      ICOUP1(KM)=ICOUP1(KM1)+IY(IT1+J2(KM),3)
-      GO TO 20
-17    KM=KM-1
-      IF(KM.EQ.L)GO TO 10
-      GO TO 12
-20    IF(KM.NE.LN+1)GO TO 11
-      ITAI(ICOUP(LN+1))=ICOUP1(LN+1)
-      GO TO 12
-10      Continue
-      RETURN
-      END
+
+L = LL+1
+if (ITAIL == 0) then
+  return
+end if
+do I=1,ITAIL
+  ITAI(I) = 0
+end do
+if (L == LN+1) ITAI(1) = 1
+KM = L
+J2(KM) = IJJ
+ICOUP(L) = 1
+ICOUP1(L) = 1
+11 KM = KM+1
+IWAY(KM) = 0
+12 KM1 = KM-1
+if (IWAY(KM) >= 1) GO TO 14
+if ((L0(IT1+J2(KM1)) == 0) .or. (L0(IT2+J2(KM1)) == 0)) GO TO 14
+J2(KM) = L0(IT2+J2(KM1))
+IWAY(KM) = 1
+ICOUP(KM) = ICOUP(KM1)
+ICOUP1(KM) = ICOUP1(KM1)
+GO TO 20
+14 if (IWAY(KM) >= 2) GO TO 15
+if ((L1(IT1+J2(KM1)) == 0) .or. (L1(IT2+J2(KM1)) == 0)) GO TO 15
+J2(KM) = L1(IT2+J2(KM1))
+IWAY(KM) = 2
+ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM),1)
+ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J2(KM),1)
+GO TO 20
+15 if (IWAY(KM) >= 3) GO TO 16
+if ((L2(IT1+J2(KM1)) == 0) .or. (L2(IT2+J2(KM1)) == 0)) GO TO 16
+J2(KM) = L2(IT2+J2(KM1))
+IWAY(KM) = 3
+ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM),2)
+ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J2(KM),2)
+GO TO 20
+16 if (IWAY(KM) >= 4) GO TO 17
+if ((L3(IT1+J2(KM1)) == 0) .or. (L3(IT2+J2(KM1)) == 0)) GO TO 17
+J2(KM) = L3(IT2+J2(KM1))
+IWAY(KM) = 4
+ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM),3)
+ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J2(KM),3)
+GO TO 20
+17 KM = KM-1
+if (KM == L) GO TO 10
+GO TO 12
+20 if (KM /= LN+1) GO TO 11
+ITAI(ICOUP(LN+1)) = ICOUP1(LN+1)
+GO TO 12
+10 continue
+
+return
+
+end subroutine TAIL

@@ -19,127 +19,126 @@
 !                                                                      *
 ! UPDATED FOR MOLCAS-4 BY P-A MALMQVIST & NIGEL MORIARTY 1996          *
 !***********************************************************************
-      SUBROUTINE GUGA(IRETURN)
-      IMPLICIT REAL*8 (A-H,O-Z)
+
+subroutine GUGA(IRETURN)
+
+implicit real*8(A-H,O-Z)
 #include "SysDef.fh"
 #include "WrkSpc.fh"
 #include "real_guga.fh"
 #include "integ.fh"
 #include "files_addr.fh"
 #include "d.fh"
-!      DIMENSION JSYM(30000),SO(1 000 000),JSY(3000)
-      DIMENSION JSYM(30000),JSY(3000)
-      DIMENSION L0(4*MXVERT),L1(4*MXVERT),L2(4*MXVERT),L3(4*MXVERT)
-!
-!     Prologue
-!
+!dimension JSYM(30000), SO(1000000), JSY(3000)
+dimension JSYM(30000), JSY(3000)
+dimension L0(4*MXVERT), L1(4*MXVERT), L2(4*MXVERT), L3(4*MXVERT)
+
+! Prologue
+
 ! Allocate workspace through GETMEM:
 ! PAM Aug -06: Get rid of fixed upper limit of workspace
-! PAM      NCOR=1 000 000
-! PAM      Call GETMEM('SOArr','Allo','Real',LSOArr,NCOR)
+! PAM      NCOR = 1000000
+! PAM      call GETMEM('SOArr','Allo','Real',LSOArr,NCOR)
 ! Replace by: Find max possible allocatable
-      Call GETMEM('SOArr','Max','Inte',LDummy,NCOR)
+call GETMEM('SOArr','Max','Inte',LDummy,NCOR)
 ! Grab almost all of it, but leave a little to be safe:
-      NCOR=NCOR-100000
-      Call GETMEM('SOArr','Allo','Inte',LSOArr,NCOR)
-!     Call SetQue('Trace=On')
-      CALL SETTIM
-      !CALL XUFLOW
-      !CALL ERRSET(208,256,-1,1,1,208)
-      !CALL ERRSET(151,256,-1,1,1,151)
-      CALL JTIME(IST)
-!
-!     Print program header
-!
-!
-!     Initialize files
-!
-      Lu_11=11
-      CALL DANAME_wa(Lu_11,'TEMP01')
-      Lu_10=10
-      CALL DANAME(Lu_10,'CIGUGA')
-      DO 5 I=1,9
-         IAD10(I)=0
-5     CONTINUE
-      IADD10=0
-      CALL iDAFILE(Lu_10,1,IAD10,9,IADD10)
-!
-!     Read input
-!
-      IO=5
-      IW=6
-      ISPA=NCOR
-      LIX=500000
-      NBUF=600
+NCOR = NCOR-100000
+call GETMEM('SOArr','Allo','Inte',LSOArr,NCOR)
+!call SetQue('Trace=On')
+call SETTIM()
+!call XUFLOW()
+!call ERRSET(208,256,-1,1,1,208)
+!call ERRSET(151,256,-1,1,1,151)
+call JTIME(IST)
+
+! Print program header
+
+! Initialize files
+
+Lu_11 = 11
+call DANAME_wa(Lu_11,'TEMP01')
+Lu_10 = 10
+call DANAME(Lu_10,'CIGUGA')
+do I=1,9
+  IAD10(I) = 0
+end do
+IADD10 = 0
+call iDAFILE(Lu_10,1,IAD10,9,IADD10)
+
+! Read input
+
+IO = 5
+IW = 6
+ISPA = NCOR
+LIX = 500000
+NBUF = 600
 !PAM96: Use variable MCOP, size of buffers:
-      MCOP=NBUF*RTOI+NBUF+1
-      D0=0.0d0
-      D1=1.0d0
-      D2=2.0d0
-      CALL INPUT_GUGA(iWork(LSOArr),JSYM,JSY,L0,L1,L2,L3,ISPAC)
-!
-!     Main body
-!
-!     SORT ALLOCATION , ISPAC WORDS TO BE SORTED IN NCOR CORE SPACE
-!     TWO BUFFERS OF LENGTH NBINS NEEDED
-!     NCOR IS IN UNITS OF FLOATING-POINT WORDS, e.g. REAL*8
-!     NBINS=ISPAC/(NCORX-2*NBINS)+1
-      NCORX=NCOR-(MCOP+1)
-      A=D2
-      B=-NCORX-2
-      C=ISPAC+NCORX
-      NBINS=INT((-B-SQRT(B*B-D2*D2*A*C))/(D2*A))
-!     NUMBER OF WORDS IN EACH BIN
-      NTPB=(ISPAC-1)/NBINS+1
-!     SPACE IN CORE FOR EACH BIN
-      KB=RTOI*(NCORX-2*NBINS)/NBINS
-      KBUF=(KB-1)/(RTOI+1)
-      KBUF=(KBUF/2)*2
-      IF(KBUF.GT.600)KBUF=600
-      KBUF2=KBUF*RTOI+KBUF+2
-      IF(IPRINT.GE.2) WRITE(IW,10)KBUF,NBINS,NTPB,NCOR,ISPAC
-10    FORMAT(/6X,'SORTING INFORMATION',                                 &
-     &/6X,'KBUF=',I7,/6X,'NBINS=',I6,/6X,'NTPB=',I7,                    &
-     &/6X,'NCOR=',I7,/6X,'ISPAC=',I6)
-!     STORAGE FOR NBINS BINS EACH OF SIZE KBUF2 IN AIAI
-      LSTO=NBINS*KBUF2
-!     ALSO SPACE FOR NTPB WORDS IN EMPTY
-      IF(NTPB.GT.LSTO)LSTO=NTPB
-      LW1=LSTO+1
-      LW2=LW1+NBINS
-      LIM=LW2+NBINS
-      If (LIM.GT.NCOR) Then
-         Write (6,*) 'Guga: LIM.GT.NCOR, position 1'
-         Write (6,*) 'LIM,NCOR=',LIM,NCOR
-         Call Abend
-      End If
-      LIM=LW2+KBUF2
-      If (LIM.GT.NCOR) Then
-         Write (6,*) 'Guga: LIM.GT.NCOR, position 2'
-         Write (6,*) 'LIM,NCOR=',LIM,NCOR
-         Call Abend
-      End If
-      CALL ICOPY(LW1,[0],0,iWork(LSOArr),1)
-      CALL CI_SELECT(iWork(LSOArr),iWork(LSOArr-1+LW1),                 &
-     &               iWork(LSOArr-1+LW2),                               &
-     &               L0,L1,L2,L3,KBUF,NTPB,NBINS)
-      IADD10=0
-      CALL iDAFILE(Lu_10,1,IAD10,9,IADD10)
-!
-!     Epilogue, end
-      Call GETMEM('SOArr','Free','Inte',LSOArr,NCOR)
-!
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Close open dafiles
-!
-      Call DaClos(Lu_10)
-      Call DaClos(Lu_11)
+MCOP = NBUF*RTOI+NBUF+1
+D0 = 0.0d0
+D1 = 1.0d0
+D2 = 2.0d0
+call INPUT_GUGA(iWork(LSOArr),JSYM,JSY,L0,L1,L2,L3,ISPAC)
+
+! Main body
+
+! SORT ALLOCATION , ISPAC WORDS TO BE SORTED IN NCOR CORE SPACE
+! TWO BUFFERS OF LENGTH NBINS NEEDED
+! NCOR IS IN UNITS OF FLOATING-POINT WORDS, e.g. REAL*8
+! NBINS=ISPAC/(NCORX-2*NBINS)+1
+NCORX = NCOR-(MCOP+1)
+A = D2
+B = -NCORX-2
+C = ISPAC+NCORX
+NBINS = int((-B-sqrt(B*B-D2*D2*A*C))/(D2*A))
+! NUMBER OF WORDS IN EACH BIN
+NTPB = (ISPAC-1)/NBINS+1
+! SPACE IN CORE FOR EACH BIN
+KB = RTOI*(NCORX-2*NBINS)/NBINS
+KBUF = (KB-1)/(RTOI+1)
+KBUF = (KBUF/2)*2
+if (KBUF > 600) KBUF = 600
+KBUF2 = KBUF*RTOI+KBUF+2
+if (IPRINT >= 2) write(IW,10) KBUF,NBINS,NTPB,NCOR,ISPAC
+10 format(/6X,'SORTING INFORMATION',/6X,'KBUF=',I7,/6X,'NBINS=',I6,/6X,'NTPB=',I7,/6X,'NCOR=',I7,/6X,'ISPAC=',I6)
+! STORAGE FOR NBINS BINS EACH OF SIZE KBUF2 IN AIAI
+LSTO = NBINS*KBUF2
+! ALSO SPACE FOR NTPB WORDS IN EMPTY
+if (NTPB > LSTO) LSTO = NTPB
+LW1 = LSTO+1
+LW2 = LW1+NBINS
+LIM = LW2+NBINS
+if (LIM > NCOR) then
+  write(6,*) 'Guga: LIM > NCOR, position 1'
+  write(6,*) 'LIM,NCOR=',LIM,NCOR
+  call Abend()
+end if
+LIM = LW2+KBUF2
+if (LIM > NCOR) then
+  write(6,*) 'Guga: LIM > NCOR, position 2'
+  write(6,*) 'LIM,NCOR=',LIM,NCOR
+  call Abend()
+end if
+call ICOPY(LW1,[0],0,iWork(LSOArr),1)
+call CI_SELECT(iWork(LSOArr),iWork(LSOArr-1+LW1),iWork(LSOArr-1+LW2),L0,L1,L2,L3,KBUF,NTPB,NBINS)
+IADD10 = 0
+call iDAFILE(Lu_10,1,IAD10,9,IADD10)
+
+! Epilogue, end
+call GETMEM('SOArr','Free','Inte',LSOArr,NCOR)
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      ireturn=0
-      Return
-      End
+! Close open dafiles
+
+call DaClos(Lu_10)
+call DaClos(Lu_11)
+
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+ireturn = 0
+
+return
+
+end subroutine GUGA

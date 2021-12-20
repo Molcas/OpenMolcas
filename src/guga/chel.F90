@@ -10,20 +10,25 @@
 !                                                                      *
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
 !***********************************************************************
-      SUBROUTINE CHEL(IA,IB,IIM,IEL,ISTOP)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      IR=IIM-1
-!     CHECK FOR A=0 , B=IEL
-      IRR=IR-IA
-      IF(IRR.LT.0)GO TO 50
-      IF(IRR.GE.IB-IEL)GO TO 100
-50    IF(IEL.EQ.1)GO TO 90
-!     CHECK FOR A=1 , B=IEL-2
-      IRR=IR-IA+1
-      IF(IRR.LT.0)GO TO 90
-      IF(IRR.GE.IB-IEL+2)GO TO 100
-90    ISTOP=1
-      RETURN
-100   ISTOP=0
-      RETURN
-      END
+
+subroutine CHEL(IA,IB,IIM,IEL,ISTOP)
+
+implicit real*8(A-H,O-Z)
+
+IR = IIM-1
+! CHECK FOR A=0 , B=IEL
+IRR = IR-IA
+if (IRR < 0) GO TO 50
+if (IRR >= IB-IEL) GO TO 100
+50 if (IEL == 1) GO TO 90
+! CHECK FOR A=1 , B=IEL-2
+IRR = IR-IA+1
+if (IRR < 0) GO TO 90
+if (IRR >= IB-IEL+2) GO TO 100
+90 ISTOP = 1
+return
+100 ISTOP = 0
+
+return
+
+end subroutine CHEL

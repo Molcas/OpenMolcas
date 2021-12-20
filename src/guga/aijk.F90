@@ -10,125 +10,122 @@
 !                                                                      *
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
 !***********************************************************************
-      SUBROUTINE AIJK(ITAI,L0,L1,L2,L3)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      External Int8, Int2, int1, int4
+
+subroutine AIJK(ITAI,L0,L1,L2,L3)
+
+implicit real*8(A-H,O-Z)
+external int8, Int2, int1, int4
 #include "SysDef.fh"
 #include "files_addr.fh"
-      DIMENSION ITAI(*),L0(*),L1(*),L2(*),L3(*)
+dimension ITAI(*), L0(*), L1(*), L2(*), L3(*)
 #include "real_guga.fh"
 #include "integ.fh"
-!
-      IOUT=0
-      NMAT=0
-      L=0
-      DO 10 NI=1,LN
-      DO 20 NJ=1,NI
-      I=ICH(NI)
-      J=ICH(NJ)
-      IF(I.GT.J)GO TO 29
-      I=ICH(NJ)
-      J=ICH(NI)
-29    DO 30 NK=1,LN
-      IOUT=IOUT+1
-      ICOP1(IOUT)=0
-      IF(IOUT.LT.NBUF)GO TO 460
-      ICOP1(nCOP+1)=NBUF
-      CALL dDAFILE(Lu_10,1,COP,NCOP,IADD10)
-      CALL iDAFILE(Lu_10,1,iCOP1,NCOP+1,IADD10)
-      NMAT=NMAT+NBUF
-      IOUT=0
-460   K=ICH(NK)
-      IOUT=IOUT+1
-!      IND=I+2**10*J
-      IND=IOR(I,ISHFT(J,10))
-!      ICOP1(IOUT)=IND+2**20*K
-      ICOP1(IOUT)=IOR(IND,ISHFT(K,20))
-      IF(IOUT.LT.NBUF)GO TO 31
-      ICOP1(nCOP+1)=NBUF
-      CALL dDAFILE(Lu_10,1,COP,NCOP,IADD10)
-      CALL iDAFILE(Lu_10,1,iCOP1,NCOP+1,IADD10)
-      NMAT=NMAT+NBUF
-      IOUT=0
-!     DOUBLET-VALENCE INTERACTIONS
-31    ITURN=1
-      ITT1=1
-      ITT2=0
-150   IT1=ITT1*MXVERT
-      IT2=ITT2*MXVERT
-      JJ=0
-      IF(ITT1.NE.0)JJ=IRC(ITT1)
-      JJD=0
-      IF(ITT1.NE.0)JJD=JRC(ITT1)
-      II=0
-      IF(ITT2.NE.0)II=IRC(ITT2)
-      IID=0
-      IF(ITT2.NE.0)IID=JRC(ITT2)
-      IF(I.NE.K)GO TO 520
-      IF(J.EQ.K)GO TO 524
-      CALL INT61(L,J,I,IT1,IT2,II,IID,JJ,JJD,ITURN,ITAI,                &
-     &L0,L1,L2,L3)
-      CALL INT62(L,J,I,IT1,IT2,II,IID,JJ,JJD,ITURN,ITAI,                &
-     &L0,L1,L2,L3)
+
+IOUT = 0
+NMAT = 0
+L = 0
+do NI=1,LN
+  do NJ=1,NI
+    I = ICH(NI)
+    J = ICH(NJ)
+    if (I > J) GO TO 29
+    I = ICH(NJ)
+    J = ICH(NI)
+29  do NK=1,LN
+      IOUT = IOUT+1
+      ICOP1(IOUT) = 0
+      if (IOUT < NBUF) GO TO 460
+      ICOP1(nCOP+1) = NBUF
+      call dDAFILE(Lu_10,1,COP,NCOP,IADD10)
+      call iDAFILE(Lu_10,1,iCOP1,NCOP+1,IADD10)
+      NMAT = NMAT+NBUF
+      IOUT = 0
+460   K = ICH(NK)
+      IOUT = IOUT+1
+      !IND = I+2**10*J
+      IND = ior(I,ishft(J,10))
+      !ICOP1(IOUT) = IND+2**20*K
+      ICOP1(IOUT) = ior(IND,ishft(K,20))
+      if (IOUT < NBUF) GO TO 31
+      ICOP1(nCOP+1) = NBUF
+      call dDAFILE(Lu_10,1,COP,NCOP,IADD10)
+      call iDAFILE(Lu_10,1,iCOP1,NCOP+1,IADD10)
+      NMAT = NMAT+NBUF
+      IOUT = 0
+      ! DOUBLET-VALENCE INTERACTIONS
+31    ITURN = 1
+      ITT1 = 1
+      ITT2 = 0
+150   IT1 = ITT1*MXVERT
+      IT2 = ITT2*MXVERT
+      JJ = 0
+      if (ITT1 /= 0) JJ = IRC(ITT1)
+      JJD = 0
+      if (ITT1 /= 0) JJD = JRC(ITT1)
+      II = 0
+      if (ITT2 /= 0) II = IRC(ITT2)
+      IID = 0
+      if (ITT2 /= 0) IID = JRC(ITT2)
+      if (I /= K) GO TO 520
+      if (J == K) GO TO 524
+      call INT61(L,J,I,IT1,IT2,II,IID,JJ,JJD,ITURN,ITAI,L0,L1,L2,L3)
+      call INT62(L,J,I,IT1,IT2,II,IID,JJ,JJD,ITURN,ITAI,L0,L1,L2,L3)
       GO TO 35
-524   CALL INT9(L,K,I,IT1,IT2,II,IID,JJ,JJD,ITURN,ITAI,                 &
-     &L0,L1,L2,L3)
+524   call INT9(L,K,I,IT1,IT2,II,IID,JJ,JJD,ITURN,ITAI,L0,L1,L2,L3)
       GO TO 35
-520   IF(J.NE.K)GO TO 535
-      CALL INT4(L,K,I,IT1,IT2,II,IID,JJ,JJD,ITURN,ITAI,                 &
-     &L0,L1,L2,L3)
+520   if (J /= K) GO TO 535
+      call INT4(L,K,I,IT1,IT2,II,IID,JJ,JJD,ITURN,ITAI,L0,L1,L2,L3)
       GO TO 35
-535   IF(I.NE.J)GO TO 546
-      CALL INT8(L,K,I,IT1,IT2,II,IID,JJ,JJD,ITURN,ITAI,                 &
-     &L0,L1,L2,L3)
+535   if (I /= J) GO TO 546
+      call int8(L,K,I,IT1,IT2,II,IID,JJ,JJD,ITURN,ITAI,L0,L1,L2,L3)
       GO TO 35
-546   IF(K.LT.I)GO TO 540
-      CALL INT3(J,I,L,K,IT1,IT2,II,IID,JJ,JJD,ITURN,ITAI,               &
-     &L0,L1,L2,L3)
+546   if (K < I) GO TO 540
+      call INT3(J,I,L,K,IT1,IT2,II,IID,JJ,JJD,ITURN,ITAI,L0,L1,L2,L3)
       GO TO 35
-540   IF(K.LT.J)GO TO 545
-      CALL INT2(L,K,J,I,IT1,IT2,II,IID,JJ,JJD,ITURN,ITAI,               &
-     &L0,L1,L2,L3)
+540   if (K < J) GO TO 545
+      call INT2(L,K,J,I,IT1,IT2,II,IID,JJ,JJD,ITURN,ITAI,L0,L1,L2,L3)
       GO TO 35
-545   CALL INT1(L,K,J,I,IT1,IT2,II,IID,JJ,JJD,ITURN,ITAI,               &
-     &L0,L1,L2,L3)
-35    GO TO (101,102,103,104,105,30),ITURN
-!     TRIPLET-DOUBLET INTERACTIONS
-101   ITURN=2
-      ITT1=2
-      ITT2=1
+545   call INT1(L,K,J,I,IT1,IT2,II,IID,JJ,JJD,ITURN,ITAI,L0,L1,L2,L3)
+35    GO TO(101,102,103,104,105,30),ITURN
+      ! TRIPLET-DOUBLET INTERACTIONS
+101   ITURN = 2
+      ITT1 = 2
+      ITT2 = 1
       GO TO 150
-!     SINGLET-DOUBLET INTERACTIONS
-102   ITURN=3
-      ITT1=3
-      ITT2=1
+      ! SINGLET-DOUBLET INTERACTIONS
+102   ITURN = 3
+      ITT1 = 3
+      ITT2 = 1
       GO TO 150
-!     VALENCE-DOUBLET INTERACTIONS
-103   ITURN=4
-      ITT1=0
-      ITT2=1
+      ! VALENCE-DOUBLET INTERACTIONS
+103   ITURN = 4
+      ITT1 = 0
+      ITT2 = 1
       GO TO 150
-!     DOUBLET-TRIPLET INTERACTIONS
-104   ITURN=5
-      ITT1=1
-      ITT2=2
+      ! DOUBLET-TRIPLET INTERACTIONS
+104   ITURN = 5
+      ITT1 = 1
+      ITT2 = 2
       GO TO 150
-!     DOUBLET-SINGLET INTERACTIONS
-105   ITURN=6
-      ITT1=1
-      ITT2=3
+      ! DOUBLET-SINGLET INTERACTIONS
+105   ITURN = 6
+      ITT1 = 1
+      ITT2 = 3
       GO TO 150
-30    CONTINUE
-20    CONTINUE
-10    CONTINUE
-      ICOP1(nCOP+1)=IOUT
-      CALL dDAFILE(Lu_10,1,COP,NCOP,IADD10)
-      CALL iDAFILE(Lu_10,1,iCOP1,NCOP+1,IADD10)
-      NMAT=NMAT+IOUT
-      ICOP1(nCOP+1)=-1
-      CALL dDAFILE(Lu_10,1,COP,NCOP,IADD10)
-      CALL iDAFILE(Lu_10,1,iCOP1,NCOP+1,IADD10)
-      WRITE(IW,600)NMAT
-600   FORMAT(/6X,'COEFFICIENTS FOR AIJK',I9)
-      RETURN
-      END
+30    continue
+    end do
+  end do
+end do
+ICOP1(nCOP+1) = IOUT
+call dDAFILE(Lu_10,1,COP,NCOP,IADD10)
+call iDAFILE(Lu_10,1,iCOP1,NCOP+1,IADD10)
+NMAT = NMAT+IOUT
+ICOP1(nCOP+1) = -1
+call dDAFILE(Lu_10,1,COP,NCOP,IADD10)
+call iDAFILE(Lu_10,1,iCOP1,NCOP+1,IADD10)
+write(IW,600) NMAT
+600 format(/6X,'COEFFICIENTS FOR AIJK',I9)
+
+return
+
+end subroutine AIJK

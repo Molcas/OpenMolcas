@@ -10,15 +10,19 @@
 !                                                                      *
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
 !***********************************************************************
-      SUBROUTINE ICPCK(ICSPCK,L,ICASE)
-      DIMENSION ICSPCK(*)
 
-!      INTW=ICSPCK((L+14)/15)
-!      IPOW=2**(28-2*MOD(L-1,15))
-!      INTW=INTW+ICASE*IPOW
-!      ICSPCK((L+14)/15)=INTW
-       MY=(L+14)/15
-      IPOW=2**(28-2*MOD(L-1,15))
-      ICSPCK(MY)=ICSPCK(MY)+ICASE*IPOW
-      RETURN
-      END
+subroutine ICPCK(ICSPCK,L,ICASE)
+
+dimension ICSPCK(*)
+
+!INTW = ICSPCK((L+14)/15)
+!IPOW = 2**(28-2*mod(L-1,15))
+!INTW = INTW+ICASE*IPOW
+!ICSPCK((L+14)/15) = INTW
+MY = (L+14)/15
+IPOW = 2**(28-2*mod(L-1,15))
+ICSPCK(MY) = ICSPCK(MY)+ICASE*IPOW
+
+return
+
+end subroutine ICPCK

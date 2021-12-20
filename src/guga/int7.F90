@@ -10,112 +10,117 @@
 !                                                                      *
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
 !***********************************************************************
-      SUBROUTINE INT7(I,K,L,IDIAG,BUFOUT,INDOUT,ICAD,IBUFL,             &
-     &KBUF,NTPB)
-      IMPLICIT REAL*8 (A-H,O-Z)
+
+subroutine INT7(I,K,L,IDIAG,BUFOUT,INDOUT,ICAD,IBUFL,KBUF,NTPB)
+
+implicit real*8(A-H,O-Z)
 #include "SysDef.fh"
-      DIMENSION BUFOUT(*),INDOUT(*),ICAD(*),IBUFL(*)
-!     I.LT.L  I.EQ.K  J.EQ.L
+dimension BUFOUT(*), INDOUT(*), ICAD(*), IBUFL(*)
+! I < L  I == K  J == L
 #include "real_guga.fh"
 #include "integ.fh"
 #include "files_addr.fh"
 #include "d.fh"
-!
-      IJJ=0 ! dummy initialize
-      KBUF0=RTOI*KBUF
-      KBUF1=KBUF0+KBUF+1
-      KBUF2=KBUF1+1
-      IDIV=RTOI
-      ITYP=0
-      IF(IDIAG.EQ.1)IJJ=L*(L-1)/2+K
-      LJS=IJ(L+1)+1
-      LJM=IJ(L)
-      DO 100 ITT=1,ILIM
-      IT1=(ITT-1)*MXVERT
-      IT2=IT1
-      DO 10 LJ=LJS,LJM
-      ITURN=0
-      IF(IDIAG.EQ.1)ITURN=1
-33    IWAY(L)=1
-32    KM=L
-      J2(KM+1)=LJ
-      J1(KM+1)=LJ
-      JM(KM)=IVF0+1
-      JM1(KM)=IVF0+1
-      IF(ITURN.EQ.0)CALL LOOP7(KM,ISTOP,IT1,IT2)
-      IF(ITURN.EQ.1)CALL LOOP8(KM,ISTOP,IT1,IT2)
-      IF(ISTOP.EQ.1)GO TO 54
-      IF(IDIAG.EQ.1.AND.J1(KM).NE.J2(KM))GO TO 32
-      GO TO 53
-54    IF(ITURN.EQ.1)GO TO 10
-      ITURN=1
-      GO TO 33
-53    KM=KM-1
-      IWAY(KM)=1
-      IF(KM.EQ.I)GO TO 71
-62    JM(KM)=IVF0+1
-      JM1(KM)=IVF0+1
-      IF(ITURN.EQ.0)CALL LOOP17(KM,ISTOP,IT1,IT2)
-      IF(ITURN.EQ.1)CALL LOOP21(KM,ISTOP,IT1,IT2)
-      IF(ISTOP.EQ.1)GO TO 55
-      IF(IDIAG.EQ.1.AND.J1(KM).NE.J2(KM))GO TO 62
-      GO TO 53
-55    KM=KM+1
-      IF(KM.EQ.L)GO TO 32
-      GO TO 62
-71    KM=I
-      IF(ITURN.EQ.0)CALL LOOP14(KM,ISTOP,IT1,IT2)
-      IF(ITURN.EQ.1)CALL LOOP18(KM,ISTOP,IT1,IT2)
-      IF(ISTOP.EQ.1)GO TO 73
-      IF(ABS(COUP(I)).LT.1.D-06)GO TO 71
-      IF(IDIAG.EQ.0)GO TO 105
-      IF(ICOUP1(I).NE.ICOUP(I))GO TO 71
-      GO TO 106
-105   IF(ITURN.EQ.0.OR.IWAY(L).EQ.5)GO TO 106
-      IF(ICOUP1(I).LT.ICOUP(I))GO TO 71
-      IF(ICOUP1(I).EQ.ICOUP(I))GO TO 71
-106   IF(ITURN.EQ.0)COUP(I)=COUP(I)/D2
-      IF(IDIAG.EQ.1)GO TO 25
-      CALL COMP(I,LJ,ITYP,I,IT1,IT2)
-      GO TO 71
-25    KM=KM-1
-      IF(KM.EQ.0)GO TO 26
-      IWAY(KM)=1
-27    CALL PATH(KM,ISTOP,IT1,IT2)
-      IF(ISTOP.EQ.0)GO TO 25
-      KM=KM+1
-      IF(KM.EQ.I)GO TO 71
-      GO TO 27
-26    IVL=J2(1)
-      ITAIL=IX(IT1+LJ)
-      ISUM=IV0-IVL
-      ISU=0
-      IF(ISUM.NE.0)ISU=IRC(ISUM)
-      DO 104 IN=1,ITAIL
-        JND1=JNDX(ISU+ICOUP(1)+IN)
-        IF(JND1.EQ.0)GO TO 104
-        IPOS=(JND1-1)*LNP+IJJ
-        NBN=(IPOS-1)/NTPB+1
-        IBUFL(NBN)=IBUFL(NBN)+1
-        ICQ=ICAD(NBN)
-        ICP=ICQ/IDIV+IBUFL(NBN)
-        BUFOUT(ICP)=COUP(I)
-        ICPP=ICQ+KBUF0+IBUFL(NBN)
-        INDOUT(ICPP)=IPOS
-        IF(IBUFL(NBN).LT.KBUF)GO TO 104
-        INDOUT(ICQ+KBUF1)=KBUF
-        IAD110=IADD11
-        CALL iDAFILE(Lu_11,1,INDOUT(ICQ+1),KBUF2,IADD11)
-        INDOUT(ICQ+KBUF2)=IAD110
-        IBUFL(NBN)=0
-104   CONTINUE
-      IF(I.EQ.1)GO TO 71
-      KM=1
-      GO TO 27
-73    KM=KM+1
-      IF(KM.EQ.L)GO TO 32
-      GO TO 62
-10    CONTINUE
-100   CONTINUE
-      RETURN
-      END
+
+IJJ = 0 ! dummy initialize
+KBUF0 = RTOI*KBUF
+KBUF1 = KBUF0+KBUF+1
+KBUF2 = KBUF1+1
+IDIV = RTOI
+ITYP = 0
+if (IDIAG == 1) IJJ = L*(L-1)/2+K
+LJS = IJ(L+1)+1
+LJM = IJ(L)
+do ITT=1,ILIM
+  IT1 = (ITT-1)*MXVERT
+  IT2 = IT1
+  do LJ=LJS,LJM
+    ITURN = 0
+    if (IDIAG == 1) ITURN = 1
+33  IWAY(L) = 1
+32  KM = L
+    J2(KM+1) = LJ
+    J1(KM+1) = LJ
+    JM(KM) = IVF0+1
+    JM1(KM) = IVF0+1
+    if (ITURN == 0) call LOOP7(KM,ISTOP,IT1,IT2)
+    if (ITURN == 1) call LOOP8(KM,ISTOP,IT1,IT2)
+    if (ISTOP == 1) GO TO 54
+    if ((IDIAG == 1) .and. (J1(KM) /= J2(KM))) GO TO 32
+    GO TO 53
+54  if (ITURN == 1) GO TO 10
+    ITURN = 1
+    GO TO 33
+53  KM = KM-1
+    IWAY(KM) = 1
+    if (KM == I) GO TO 71
+62  JM(KM) = IVF0+1
+    JM1(KM) = IVF0+1
+    if (ITURN == 0) call LOOP17(KM,ISTOP,IT1,IT2)
+    if (ITURN == 1) call LOOP21(KM,ISTOP,IT1,IT2)
+    if (ISTOP == 1) GO TO 55
+    if ((IDIAG == 1) .and. (J1(KM) /= J2(KM))) GO TO 62
+    GO TO 53
+55  KM = KM+1
+    if (KM == L) GO TO 32
+    GO TO 62
+71  KM = I
+    if (ITURN == 0) call LOOP14(KM,ISTOP,IT1,IT2)
+    if (ITURN == 1) call LOOP18(KM,ISTOP,IT1,IT2)
+    if (ISTOP == 1) GO TO 73
+    if (abs(COUP(I)) < 1.D-06) GO TO 71
+    if (IDIAG == 0) GO TO 105
+    if (ICOUP1(I) /= ICOUP(I)) GO TO 71
+    GO TO 106
+105 if ((ITURN == 0) .or. (IWAY(L) == 5)) GO TO 106
+    if (ICOUP1(I) < ICOUP(I)) GO TO 71
+    if (ICOUP1(I) == ICOUP(I)) GO TO 71
+106 if (ITURN == 0) COUP(I) = COUP(I)/D2
+    if (IDIAG == 1) GO TO 25
+    call COMP(I,LJ,ITYP,I,IT1,IT2)
+    GO TO 71
+25  KM = KM-1
+    if (KM == 0) GO TO 26
+    IWAY(KM) = 1
+27  call PATH(KM,ISTOP,IT1,IT2)
+    if (ISTOP == 0) GO TO 25
+    KM = KM+1
+    if (KM == I) GO TO 71
+    GO TO 27
+26  IVL = J2(1)
+    ITAIL = IX(IT1+LJ)
+    ISUM = IV0-IVL
+    ISU = 0
+    if (ISUM /= 0) ISU = IRC(ISUM)
+    do IN=1,ITAIL
+      JND1 = JNDX(ISU+ICOUP(1)+IN)
+      if (JND1 == 0) GO TO 104
+      IPOS = (JND1-1)*LNP+IJJ
+      NBN = (IPOS-1)/NTPB+1
+      IBUFL(NBN) = IBUFL(NBN)+1
+      ICQ = ICAD(NBN)
+      ICP = ICQ/IDIV+IBUFL(NBN)
+      BUFOUT(ICP) = COUP(I)
+      ICPP = ICQ+KBUF0+IBUFL(NBN)
+      INDOUT(ICPP) = IPOS
+      if (IBUFL(NBN) < KBUF) GO TO 104
+      INDOUT(ICQ+KBUF1) = KBUF
+      IAD110 = IADD11
+      call iDAFILE(Lu_11,1,INDOUT(ICQ+1),KBUF2,IADD11)
+      INDOUT(ICQ+KBUF2) = IAD110
+      IBUFL(NBN) = 0
+104   continue
+    end do
+    if (I == 1) GO TO 71
+    KM = 1
+    GO TO 27
+73  KM = KM+1
+    if (KM == L) GO TO 32
+    GO TO 62
+10  continue
+  end do
+end do
+
+return
+
+end subroutine INT7
