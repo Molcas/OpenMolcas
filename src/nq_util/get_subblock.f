@@ -455,7 +455,6 @@ C              End If
             ip_dPB    =ip_Dummy
          End If
       Else
-         ip_dRho_dR=ip_Dummy
          ip_dW_dR  =ip_Dummy
          ip_dW_Temp=ip_Dummy
          ip_dPB    =ip_Dummy
@@ -701,7 +700,7 @@ c
      &                 nMOs,CMOs,nCMO,DoIt,
      &                 P2mo,P2unzip,np2act,D1mo,D1Unzip,nd1mo,P2_ontop,
      &                 Do_Grad,Grad,nGrad,
-     &                 dRho_dR,mdRho_dR,nGrad_Eff,
+     &                 mdRho_dR,nGrad_Eff,
      &                 list_g,IndGrd,iTab,Temp,F_xc,
      &                 Work(ip_dW_dR),iNQ,
      &                 Maps2p,dF_dRho,dF_dP2ontop,

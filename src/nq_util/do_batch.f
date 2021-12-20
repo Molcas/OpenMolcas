@@ -22,7 +22,7 @@
      &                    nMOs,CMOs,nCMO,DoIt,
      &                    P2mo,P2unzip,np2act,D1mo,D1Unzip,nd1mo,
      &                    P2_ontop,
-     &                    Do_Grad,Grad,nGrad,dRho_dR,ndRho_dR,nGrad_Eff,
+     &                    Do_Grad,Grad,nGrad,ndRho_dR,nGrad_Eff,
      &                    list_g,IndGrd,iTab,Temp,F_xc,dW_dR,iNQ,Maps2p,
      &                    dF_dRho,dF_dP2ontop,DFTFOCK,LOE_DB,LTEG_DB,
      &                    PDFTPot1,PDFTFocI,PDFTFocA)
@@ -37,7 +37,7 @@
       use Phase_Info
       use KSDFT_Info
       use nq_Grid, only: Grid, Weights, Rho, GradRho, Sigma, nRho
-      use nq_Grid, only: l_CASDFT, TabAO, TabAO_Pack
+      use nq_Grid, only: l_CASDFT, TabAO, TabAO_Pack, dRho_dR
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "SysDef.fh"
@@ -63,7 +63,7 @@
      &       TabMO(mAO,mGrid,nMOs),TabSO(mAO,mGrid,nMOs),
      &       CMOs(nCMO),P2mo(np2act),D1mo(nd1mo),
      &       P2_ontop(nP2_ontop,mGrid) , Temp(nGrad),
-     &       dRho_dR(ndRho_dR,mGrid,nGrad_Eff), F_xc(mGrid),
+     &       F_xc(mGrid),
      &       dW_dR(nGrad_Eff,mGrid),dF_dP2ontop(ndF_dP2ontop,mGrid),
      &       PDFTPot1(nPot1),PDFTFocI(nPot1),PDFTFocA(nPot1)
       Real*8 TmpPUVX(nTmpPUVX)
