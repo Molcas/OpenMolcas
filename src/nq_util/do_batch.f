@@ -388,15 +388,15 @@
       Call Mk_Rho(nD,mGrid,list_s,nlist_s,Work(ip_Fact),ndc,list_bas,
      &            Index,nIndex)
 
+      If (Do_Grad)
+     &      Call dRho_dR_LDA(nD,dRho_dR,ndRho_dr,mGrid,list_s,nlist_s,
+     &                      nGrad_Eff,list_g,list_bas)
+
       If (Functional_type.eq.LDA_type) Then
 *                                                                      *
 ************************************************************************
 ************************************************************************
 *                                                                      *
-         If (Do_Grad)
-     &      Call dRho_dR_LDA(nD,dRho_dR,ndRho_dr,mGrid,list_s,nlist_s,
-     &                       nGrad_Eff,list_g,list_bas)
-
 **************************************************************************
 * TLSDA,TLSDA5                                                           *
 **************************************************************************
@@ -693,14 +693,6 @@ cRKCft
 
 
 *      ^ end if for GLM stuff
-C        If (Do_Hess)
-C    &      Call d2Rho_dR2_LDA(Dens,nDens,nD,dRho_dR,d2Rho_dr2,
-C    &                         ndRho_dr,mGrid,list_s,nlist_s,
-C    &                         TabAO,ipTabAO,mAO,nTabAO,
-C    &                         nGrad_Eff,list_g,
-C    &                         Grid_Type,Fixed_Grid,
-C    &                         Work(ip_Fact),ndc,Work(ipTmp),T_X,
-C    &                         list_bas,Index,nIndex)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -710,10 +702,6 @@ C    &                         list_bas,Index,nIndex)
 ************************************************************************
 ************************************************************************
 *                                                                      *
-         If (Do_Grad)
-     &      Call dRho_dR_LDA(nD,dRho_dR,ndRho_dr,mGrid,list_s,nlist_s,
-     &                       nGrad_Eff,list_g,list_bas)
-
 *======================================================================*
 *======================================================================*
 ************************************************************************
@@ -1241,14 +1229,6 @@ C    &                         list_bas,Index,nIndex)
        end if
 *======================================================================*
 *======================================================================*
-C        If (Do_Hess)
-C    &      Call dRho_dR_GGA(Dens,nDens,nD,dRho_dR,d2Rho_dR2,
-C    &                       ndRho_dr,mGrid,list_s,nlist_s,
-C    &                       TabAO,ipTabAO,mAO,nTabAO,
-C    &                       nGrad_Eff,list_g,
-C    &                       Grid_Type,Fixed_Grid,
-C    &                       Work(ip_Fact),ndc,Work(ipTmp),T_X,
-C    &                       list_bas,Index,nIndex)
 
       If (l_casdft) Then
       If (nD.eq.1) Then
@@ -1281,22 +1261,6 @@ C    &                       list_bas,Index,nIndex)
 ************************************************************************
 *                                                                      *
 *
-C        If (Do_Grad)
-C    &      Call dRho_dR_CAS(Dens,nDens,nD,dRho_dR,ndRho_dr,
-C    &                       mGrid,list_s,nlist_s,
-C    &                       TabAO,ipTabAO,mAO,nTabAO,
-C    &                       nGrad_Eff,list_g,
-C    &                       Grid_Type,Fixed_Grid,
-C    &                       Work(ip_Fact),ndc,Work(ipTmp),T_X,
-C    &                       list_bas,Index,nIndex)
-C        If (Do_Hess)
-C    &      Call dRho_dR_CAS(Dens,nDens,nD,dRho_dR,d2Rho_dR2,
-C    &                       ndRho_dr,mGrid,list_s,nlist_s,
-C    &                       TabAO,ipTabAO,mAO,nTabAO,
-C    &                       nGrad_Eff,list_g,
-C    &                       Grid_Type,Fixed_Grid,
-C    &                       Work(ip_Fact),ndc,Work(ipTmp),T_X,
-C    &                       list_bas,Index,nIndex)
 *------- Compute P2_OnTop at the grid
          Call Do_P2new(P2mo,np2act,D1mo,nd1mo,TabMO,mAO,mGrid,
      &                 nMOs,P2_ontop,nP2_ontop,Work(ipRhoI),
@@ -1310,9 +1274,6 @@ C    &                       list_bas,Index,nIndex)
 ************************************************************************
 ************************************************************************
 *                                                                      *
-         If (Do_Grad)
-     &      Call dRho_dR_LDA(nD,dRho_dR,ndRho_dr,mGrid,list_s,nlist_s,
-     &                       nGrad_Eff,list_g,list_bas)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -1322,9 +1283,6 @@ C    &                       list_bas,Index,nIndex)
 ************************************************************************
 ************************************************************************
 *                                                                      *
-         If (Do_Grad)
-     &      Call dRho_dR_LDA(nD,dRho_dR,ndRho_dr,mGrid,list_s,nlist_s,
-     &                       nGrad_Eff,list_g,list_bas)
 *                                                                      *
 ************************************************************************
 ************************************************************************
