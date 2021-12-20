@@ -42,7 +42,8 @@
       use Basis_Info
       use Center_Info
       use nq_Grid, only: Grid, Weights, TabAO, Grid_AO, Dens_AO,
-     &                   TabAO_Pack, Ind_Grd, dRho_dR
+     &                   TabAO_Pack, Ind_Grd, dRho_dR, TabAO_Short,
+     &                   kAO
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "itmax.fh"
@@ -684,8 +685,10 @@ c
             End If
          End If
 *
-         Call mma_Allocate(Grid_AO,mAO,nogp,nBfn,nD,Label='Grid_AO')
+         Call mma_Allocate(Grid_AO,kAO,nogp,nBfn,nD,Label='Grid_AO')
          Call mma_Allocate(TabAO,mAO,nogp,nBfn,Label='TabAO')
+         If (Do_Grad) Call mma_Allocate(TabAO_Short,kAO,nogp,nBfn,
+     &                                  Label='TabAO_Short')
          TabAO_Pack(1:mAO*nogp*nBfn) => TabAO(:,:,:)
          If (Do_Grad) Then
            Call mma_allocate(dRho_dR,mdRho_dR,nogp,
@@ -713,6 +716,7 @@ c
      &                 PDFTFocA)
 *
          If (Allocated(dRho_dR)) Call mma_deallocate(dRho_dR)
+         If (Allocated(TabAO_Short)) Call mma_deallocate(TabAO_Short)
          TabAO_Pack => Null()
          Call mma_deallocate(TabAO)
          Call mma_deallocate(Grid_AO)
