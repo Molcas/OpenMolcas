@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2000,2002,2021, Roland Lindh                           *
 ************************************************************************
-      Subroutine dRho_dR_LDA(nD,dRho_dR,ndRho_dR,mGrid,
+      Subroutine Mk_dRho_dR(nD,dRho_dR,ndRho_dR,mGrid,
      &                       list_s,nlist_s,nGrad_Eff,list_g,list_bas)
 ************************************************************************
 *      Author:Roland Lindh, Department of Chemical Physics, University *

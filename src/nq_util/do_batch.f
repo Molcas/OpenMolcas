@@ -389,7 +389,7 @@
      &            Index,nIndex)
 
       If (Do_Grad)
-     &      Call dRho_dR_LDA(nD,dRho_dR,ndRho_dr,mGrid,list_s,nlist_s,
+     &      Call Mk_dRho_dR(nD,dRho_dR,ndRho_dr,mGrid,list_s,nlist_s,
      &                      nGrad_Eff,list_g,list_bas)
 
       If (Functional_type.eq.LDA_type) Then
