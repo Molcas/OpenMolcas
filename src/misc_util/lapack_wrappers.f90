@@ -20,6 +20,7 @@
 ! dstevr_
 ! dgetrs_
 ! dspev_
+! dgees_
 ! dgeev_
 ! dgesvd_
 ! dgetrf_
@@ -199,6 +200,31 @@ subroutine dspev_(jobz,uplo,n_,ap,w,z,ldz_,work,info_)
   info_=info
 #else
   call dspev(jobz,uplo,n_,ap,w,z,ldz_,work,info_)
+#endif
+end subroutine
+
+subroutine dgees_( jobvs, sort, select, n_, a, lda_, sdim_, wr, wi, &
+  &                   vs, ldvs_, work, lwork_, bwork, info_ )
+  implicit none
+  character          jobvs, sort
+  integer            n_, lda_, sdim_, ldvs_, lwork_, info_
+  real*8             a( lda_, * ), wr( * ), wi( * ), vs( ldvs_, *), work( * )
+  logical            select, bwork( * )
+  external           sdim
+#ifdef MOLCAS_TO_LAPACK_INT
+  LAPACKINT          n, lda, sdim, ldvs, lwork, info
+  n=n_
+  lda=lda_
+  ldvs=ldvs_
+  lwork=lwork_
+  info=info_
+  call dgees( jobvs, sort, select, n, a, lda, sdim, wr, wi, &
+    &                   vs, ldvs, work, lwork, bwork, info )
+  info_=info
+  sdim_=sdim
+#else
+  call dgees( jobvs, sort, select, n_, a, lda_, sdim_, wr, wi, &
+    &                   vs, ldvs_, work, lwork_, bwork, info_ )
 #endif
 end subroutine
 

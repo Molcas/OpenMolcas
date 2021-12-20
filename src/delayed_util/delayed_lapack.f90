@@ -79,6 +79,17 @@ subroutine dgecon( norm, n, a, lda, anorm, rcond, work, iwork, info )
   call lb_dgecon( norm, n, a, lda, anorm, rcond, work, iwork, info )
 end subroutine dgecon
 
+subroutine dgees( jobvs, sort, select, n, a, lda, sdim, wr, wi, vs, ldvs, work, lwork, bwork, info )
+  use link_blas
+  implicit none
+  character :: jobvs, sort
+  integer :: info, lda, ldvs, lwork, n, sdim
+  logical :: bwork( * )
+  real*8 :: a( lda, * ), vs( ldvs, * ), wi( * ), work( * ), wr( * )
+  logical, external :: select
+  call lb_dgees( jobvs, sort, select, n, a, lda, sdim, wr, wi, vs, ldvs, work, lwork, bwork, info )
+end subroutine dgees
+
 subroutine dgeev( jobvl, jobvr, n, a, lda, wr, wi, vl, ldvl, vr, ldvr, work, lwork, info )
   use link_blas
   implicit none
@@ -1550,6 +1561,28 @@ subroutine dtrexc( compq, n, t, ldt, q, ldq, ifst, ilst, work, info )
   real*8 :: q( ldq, * ), t( ldt, * ), work( * )
   call lb_dtrexc( compq, n, t, ldt, q, ldq, ifst, ilst, work, info )
 end subroutine dtrexc
+
+subroutine dtrsen( job, compq, select, n, t, ldt, q, ldq, wr, wi, m, s, sep, work, lwork, iwork, liwork, info )
+  use link_blas
+  implicit none
+  character :: compq, job
+  integer :: info, ldq, ldt, liwork, lwork, m, n
+  real*8 :: s, sep
+  logical :: select( * )
+  integer :: iwork( * )
+  real*8 :: q( ldq, * ), t( ldt, * ), wi( * ), work( * ), wr( * )
+  call lb_dtrsen( job, compq, select, n, t, ldt, q, ldq, wr, wi, m, s, sep, work, lwork, iwork, liwork, info )
+end subroutine dtrsen
+
+subroutine dtrsyl( trana, tranb, isgn, m, n, a, lda, b, ldb, c, ldc, scale, info )
+  use link_blas
+  implicit none
+  character :: trana, tranb
+  integer :: info, isgn, lda, ldb, ldc, m, n
+  real*8 :: scale
+  real*8 :: a( lda, * ), b( ldb, * ), c( ldc, * )
+  call lb_dtrsyl( trana, tranb, isgn, m, n, a, lda, b, ldb, c, ldc, scale, info )
+end subroutine dtrsyl
 
 subroutine dtrti2( uplo, diag, n, a, lda, info )
   use link_blas
