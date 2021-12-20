@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2000,2021, Roland Lindh                                *
 ************************************************************************
-      Subroutine Mk_Rho(nD,mGrid,list_s,nlist_s,Fact,mdc,list_bas,Index,
+      Subroutine Mk_Rho(mGrid,list_s,nlist_s,Fact,mdc,list_bas,Index,
      &                  nIndex)
 ************************************************************************
 *      Author:Roland Lindh, Department of Chemical Physics, University *
@@ -42,6 +42,7 @@
 ************************************************************************
 *                                                                      *
 *
+      nD = SIZE(Dens_AO,3)
       nAO = SIZE(Dens_AO,1)
       Dens_AO(:,:,:)=Zero
       mAO = SIZE(TabAO,1)
