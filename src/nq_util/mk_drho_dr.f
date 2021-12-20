@@ -10,16 +10,17 @@
 *                                                                      *
 * Copyright (C) 2000,2002,2021, Roland Lindh                           *
 ************************************************************************
-      Subroutine Mk_dRho_dR(dRho_dR,ndRho_dR,mGrid,
-     &                       list_s,nlist_s,nGrad_Eff,list_g,list_bas)
+      Subroutine Mk_dRho_dR(mGrid,list_s,nlist_s,nGrad_Eff,list_g,
+     &                      list_bas)
 ************************************************************************
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN.  2000                                   *
 *                                                                      *
 *             Modified May-June 2002 in Tokyo for DFT gradient by RL.  *
+*             Modified December 2021 in Uppsala by RL.                 *
 ************************************************************************
       use iSD_data
-      use nq_Grid, only: Grid_AO, Ind_Grd, TabAO
+      use nq_Grid, only: Grid_AO, Ind_Grd, TabAO, dRho_dR
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "disp.fh"
@@ -30,7 +31,6 @@
 #include "setup.fh"
 #include "nq_info.fh"
       Integer list_s(2,nlist_s), list_g(3,nlist_s), list_bas(2,nlist_s)
-      Real*8 dRho_dR(ndRho_dR,mGrid,nGrad_Eff)
       Integer, Parameter :: Index_d2(3,3)=
      &    Reshape([5,6,7, 6,8,9, 7,9,10],[3,3])
       Integer, Parameter :: Index_d3(3,3) =
@@ -307,8 +307,7 @@
 *                                                                      *
 #ifdef _DEBUGPRINT_
       Call RecPrt('dRho_dR_LDA: dRho_dR',' ',dRho_dR,
-     &                       ndRho_dR*mGrid,nGrad_Eff)
-*
+     &                       SIZE(dRho_dR,1)*mGrid,nGrad_Eff)
 #endif
       Return
       End
