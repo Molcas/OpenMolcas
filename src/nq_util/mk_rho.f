@@ -10,8 +10,7 @@
 *                                                                      *
 * Copyright (C) 2000,2021, Roland Lindh                                *
 ************************************************************************
-      Subroutine Mk_Rho(mGrid,list_s,nlist_s,Fact,mdc,list_bas,Index,
-     &                  nIndex)
+      Subroutine Mk_Rho(list_s,nlist_s,Fact,mdc,list_bas,Index,nIndex)
 ************************************************************************
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN.  2000                                   *
@@ -46,6 +45,7 @@
       nAO = SIZE(Dens_AO,1)
       Dens_AO(:,:,:)=Zero
       mAO = SIZE(TabAO,1)
+      mGrid = SIZE(TabAO,2)
 *#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Write (6,*) 'mAO=',mAO
@@ -90,12 +90,6 @@
             ijS=iTri(iShell,jShell)
             ip_Tmp=ipDijs
             Call Dens_Info(ijS,ipDij,ipDSij,mDCRij,ipDDij,ip_Tmp,nD)
-#ifdef _DEBUGPRINT_
-            Write (6,*)
-            Write (6,*) 'iS,jS=',iSkal,jSkal
-            Write (6,*) 'mDCRij,mDij=',mDCRij,mDij
-            Write (6,*) 'ipDij,ipDSij,ipDDij=',ipDij,ipDSij,ipDDij
-#endif
 *
             ij = (mdcj-1)*mdc + mdci
 *
@@ -107,19 +101,6 @@
             If (nD.ne.1) ip_D_b=ipDSij+lDCRER*mDij
             ipD(1)=ip_D_a
             ipD(2)=ip_D_b
-*
-#ifdef _DEBUGPRINT_
-            Write (6,*) 'Rho_LDA'
-            nBB = iBas*jBas
-            nCC = iCmp*jCmp
-            Write (6,*) 'iShell,jshell=', iShell,jshell
-            Write (6,*) 'kDCRE,kDCRR=', kDCRE,kDCRR
-            Write (6,*) 'iER,lDCRER=',iER,lDCRER
-            Write (6,*) 'Fact(ij)=',Fact(ij)
-            Call RecPrt('DAij',' ',DeDe(ip_D_a),nFunc_i,nFunc_j)
-            If (nD.ne.1) Call RecPrt('DBij',' ',DeDe(ip_D_b),nFunc_i,
-     &                                                       nFunc_j)
-#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -10,8 +10,7 @@
 *                                                                      *
 * Copyright (C) 2000,2002,2021, Roland Lindh                           *
 ************************************************************************
-      Subroutine Mk_dRho_dR(mGrid,list_s,nlist_s,nGrad_Eff,list_g,
-     &                      list_bas)
+      Subroutine Mk_dRho_dR(list_s,nlist_s,nGrad_Eff,list_g,list_bas)
 ************************************************************************
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN.  2000                                   *
@@ -45,6 +44,7 @@
       dRho_dR(:,:,:)=Zero
       nAO = SIZE(Grid_AO,3)
       nD  = SIZE(Grid_AO,4)
+      mGrid = SIZE(TabAO,2)
 *                                                                      *
 ************************************************************************
 *                                                                      *
