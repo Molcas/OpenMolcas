@@ -687,8 +687,12 @@ c
          Call mma_Allocate(Grid_AO,mAO,nogp,nBfn,nD,Label='Grid_AO')
          Call mma_Allocate(TabAO,mAO,nogp,nBfn,Label='TabAO')
          TabAO_Pack(1:mAO*nogp*nBfn) => TabAO(:,:,:)
-         If (Do_Grad) Call mma_allocate(dRho_dR,mdRho_dR,nogp,
+         If (Do_Grad) Then
+           Call mma_allocate(dRho_dR,mdRho_dR,nogp,
      &                                  nGrad_eff,Label='dRho_dR')
+         Else
+           Call mma_allocate(dRho_dR,1,1,1,Label='dRho_dR')
+         End If
 
          Call Do_Batch(Kernel,Func,nogp,
      &                 list_s,nlist_s,List_Exp,List_Bas,
@@ -708,7 +712,7 @@ c
      &                 DFTFOCK,LOE_DB,LTEG_DB,PDFTPot1,PDFTFocI,
      &                 PDFTFocA)
 *
-         If (Do_Grad) Call mma_deallocate(dRho_dR)
+         If (Allocated(dRho_dR)) Call mma_deallocate(dRho_dR)
          TabAO_Pack => Null()
          Call mma_deallocate(TabAO)
          Call mma_deallocate(Grid_AO)
