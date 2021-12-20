@@ -388,8 +388,7 @@
       Call Mk_Rho(list_s,nlist_s,Work(ip_Fact),ndc,list_bas,
      &            Index,nIndex)
 
-      If (Do_Grad) Call Mk_dRho_dR(list_s,nlist_s,nGrad_Eff,
-     &                             list_g,list_bas)
+      If (Do_Grad) Call Mk_dRho_dR(list_s,nlist_s,list_g,list_bas)
 
       If (Functional_type.eq.LDA_type) Then
 *                                                                      *
