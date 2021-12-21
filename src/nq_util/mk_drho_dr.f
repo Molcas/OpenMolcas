@@ -45,7 +45,6 @@
       nAO = SIZE(Grid_AO,3)
       nD  = SIZE(Grid_AO,4)
       mGrid = SIZE(TabAO,2)
-      nGrad_Eff = SIZE(dRho_dR,3)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -307,6 +306,7 @@
 ************************************************************************
 *                                                                      *
 #ifdef _DEBUGPRINT_
+      nGrad_Eff = SIZE(dRho_dR,3)
       Call RecPrt('dRho_dR_LDA: dRho_dR',' ',dRho_dR,
      &                       SIZE(dRho_dR,1)*mGrid,nGrad_Eff)
 #endif
