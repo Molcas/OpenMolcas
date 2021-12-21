@@ -12,7 +12,7 @@
 *                                                                      *
       Subroutine Do_NInt1_d(ndF_dRho,dF_dRho,
      &                      Weights,mGrid,
-     &                      Scr,TabAO1,iCmp,iBas,nGrid_Tot,iSpin,
+     &                      Scr,TabAO1,nBfn,nGrid_Tot,iSpin,
      &                      mAO,nFn)
 *                                                                      *
 ************************************************************************
@@ -21,14 +21,14 @@
 #include "real.fh"
 #include "nq_index.fh"
       Real*8 dF_dRho(ndF_dRho,mGrid), Weights(mGrid),
-     &       TabAO1(mAO,mGrid,iBas*iCmp),
-     &       Scr(iSpin*nFn,mGrid,iBas*iCmp)
+     &       TabAO1(mAO,mGrid,nBfn),
+     &       Scr(iSpin*nFn,mGrid,nBfn)
 
-      nGrid_Tot=nGrid_Tot+mGrid*iBas*iCmp*iBas*iCmp
+      nGrid_Tot=nGrid_Tot+mGrid*nBfn**2
 *
       If (iSpin.ne.1) Go To 99
 *
-      Do iCB = 1, iBas*iCmp
+      Do iCB = 1, nBfn
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -46,7 +46,7 @@
 *
  99   Continue
 *
-      Do iCB = 1, iBas*iCmp
+      Do iCB = 1, nBfn
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -151,7 +151,7 @@
 *                                                                      *
       Subroutine Do_NInt2_d(ndF_dRho, dF_dRho,
      &                      Weights,mGrid,
-     &                      Scr,TabAO1,iCmp,iBas,nGrid_Tot,iSpin,
+     &                      Scr,TabAO1,nBfn,nGrid_Tot,iSpin,
      &                      mAO,nFn)
 *                                                                      *
 ************************************************************************
@@ -162,10 +162,10 @@
 #include "nq_index.fh"
       Real*8 dF_dRho(ndF_dRho,mGrid),
      &       Weights(mGrid),
-     &       TabAO1(mAO,mGrid,iBas*iCmp),
-     &       Scr(iSpin*nFn,mGrid,iBas*iCmp)
+     &       TabAO1(mAO,mGrid,nBfn),
+     &       Scr(iSpin*nFn,mGrid,nBfn)
 *
-      nGrid_Tot=nGrid_Tot+mGrid*iBas*iCmp*iBas*iCmp
+      nGrid_Tot=nGrid_Tot+mGrid*nBfn**2
 *
       If (iSpin.ne.1) Go To 99
 *                                                                      *
@@ -175,7 +175,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Do iCB = 1, iBas*iCmp
+      Do iCB = 1, nBfn
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -214,7 +214,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Do iCB = 1, iBas*iCmp
+      Do iCB = 1, nBfn
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -383,7 +383,7 @@
 *                                                                      *
       Subroutine Do_NInt3_d(ndF_dRho,
      &                      dF_dRho,Weights,mGrid,
-     &                      Scr,TabAO1,iCmp,iBas,nGrid_Tot,iSpin,
+     &                      Scr,TabAO1,nBfn,nGrid_Tot,iSpin,
      &                      mAO,nFn)
 *                                                                      *
 ************************************************************************
@@ -394,8 +394,8 @@
 #include "nq_index.fh"
       Real*8 dF_dRho(ndF_dRho,mGrid),
      &       Weights(mGrid),
-     &       TabAO1(mAO,mGrid,iBas*iCmp),
-     &       Scr(iSpin*nFn,mGrid,iBas*iCmp)
+     &       TabAO1(mAO,mGrid,nBfn),
+     &       Scr(iSpin*nFn,mGrid,nBfn)
 *
       nGrid_Tot=nGrid_Tot+mGrid*iBas*iCmp*iBas*iCmp
 *
@@ -407,7 +407,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Do iCB = 1, iBas*iCmp
+      Do iCB = 1, nBfn
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -457,7 +457,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Do iCB = 1, iBas*iCmp
+      Do iCB = 1, nBfn
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -649,7 +649,7 @@
 *                                                                      *
       Subroutine Do_NInt4_d(ndF_dRho,
      &                      dF_dRho,Weights,mGrid,
-     &                      Scr,TabAO1,iCmp,iBas,nGrid_Tot,iSpin,
+     &                      Scr,TabAO1,nBfn,nGrid_Tot,iSpin,
      &                      mAO,nFn)
 *                                                                      *
 ************************************************************************
@@ -660,10 +660,10 @@
 #include "nq_index.fh"
       Real*8 dF_dRho(ndF_dRho,mGrid),
      &       Weights(mGrid),
-     &       TabAO1(mAO,mGrid,iBas*iCmp),
-     &       Scr(iSpin*nFn,mGrid,iBas*iCmp)
+     &       TabAO1(mAO,mGrid,nBfn),
+     &       Scr(iSpin*nFn,mGrid,nBfn)
 *
-      nGrid_Tot=nGrid_Tot+mGrid*iBas*iCmp*iBas*iCmp
+      nGrid_Tot=nGrid_Tot+mGrid*nBfn**2
 *
       If (iSpin.ne.1) Go To 99
 *                                                                      *
@@ -673,7 +673,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Do iCB = 1, iBas*iCmp
+      Do iCB = 1, nBfn
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -717,7 +717,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Do iCB = 1, iBas*iCmp
+      Do iCB = 1, nBfn
 *                                                                      *
 ************************************************************************
 *                                                                      *

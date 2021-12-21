@@ -72,8 +72,8 @@
          nOp(1) = NrOpr(kDCRE)
          Call Do_NInt_d(ndF_dRho, dF_dRho,
      &                  Weights,mGrid,
-     &                  Scr, TabAO_Pack(ipTabAO(iList_s)),iCmp,
-     &                  iBas_Eff,nGrid_Tot,iSpin,mAO,nFn)
+     &                  Scr, TabAO_Pack(ipTabAO(iList_s)),
+     &                  iCmp*iBas_Eff,nGrid_Tot,iSpin,mAO,nFn)
 *
          Do jlist_s=ilist_s,nlist_s
             jSkal = list_s(1,jlist_s)
