@@ -152,6 +152,7 @@
          End Do
 #endif
        Else If (Functional_Type.eq.meta_GGA_Type1) Then
+#ifdef _REDUNDANT_
          dRho_dR(:,:,:)=Zero
          Do iD = 1, nD                      ! index of rho
             Do iAO = 1, nAO
@@ -218,6 +219,7 @@
                End Do
             End Do
          End Do
+#endif
        Else If (Functional_Type.eq.meta_GGA_Type2) Then
          dRho_dR(:,:,:)=Zero
          Do iD = 1, nD                      ! index of rho
