@@ -54,10 +54,6 @@
 *---- Evaluate the desired AO integrand here from the AOs, accumulate
 *     contributions to the SO integrals on the fly.
 *
-*define _DEBUGPRINT_
-#ifdef _DEBUGPRINT_
-      Debug=.True.
-#endif
       iSmLbl=1
 *
       nGrid_Tot=0
@@ -74,6 +70,10 @@
          iShell= iSD(11,iSkal)
 *
          nOp(1) = NrOpr(kDCRE)
+         Call Do_NInt_d(ndF_dRho, dF_dRho,
+     &                  Weights,mGrid,
+     &                  Scr, TabAO_Pack(ipTabAO(iList_s)),iCmp,
+     &                  iBas_Eff,nGrid_Tot,iSpin,mAO,nFn)
 *
          Do jlist_s=ilist_s,nlist_s
             jSkal = list_s(1,jlist_s)
@@ -95,28 +95,13 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-            If (ilist_s.eq.jlist_s) Then
-               Call Do_NInt_d(ndF_dRho, dF_dRho,
-     &                        Weights,mGrid,
-     &                        Scr, TabAO_Pack(ipTabAO(iList_s)),iCmp,
-     &                        iBas_Eff,nGrid_Tot,iSpin,mAO,nFn)
-            End If
-               Call Do_NInt(AOInt,nAOInt,mGrid,
-     &                      Scr,iCmp,iBas_Eff,
-     &                      TabAO_Pack(ipTabAO(jList_s)),jCmp,jBas_Eff,
-     &                      nGrid_Tot,iSpin,mAO,nFn)
-*           End If
+            Call Do_NInt(AOInt,nAOInt,mGrid,
+     &                   Scr,iCmp,iBas_Eff,
+     &                   TabAO_Pack(ipTabAO(jList_s)),jCmp,jBas_Eff,
+     &                   nGrid_Tot,iSpin,mAO,nFn)
 *
             Do iD = 1, iSpin
 *
-#ifdef _DEBUGPRINT_
-               If (Debug) Then
-                  nAOInt_j=jBas_Eff*jCmp
-                  nAOInt_i=iBas_Eff*iCmp
-                  mAOInt=nAOInt_i*nAOInt_j
-                  Call RecPrt('Kernel: AOInt',' ',AOInt(1,iD),1,mAOInt)
-               End If
-#endif
                If (nIrrep.ne.1) Then
 *
 *---------------- Distribute contributions to the SO integrals
@@ -159,9 +144,6 @@
       End Do                        ! ilist_s
       Flop=Flop+DBLE(nGrid_Tot)
 *
-#ifdef _DEBUGPRINT_
-      Debug=.False.
-#endif
 #ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(nSym)
 #endif
