@@ -99,12 +99,12 @@
      &                        Weights,mGrid,
      &                        Scr, TabAO(ipTabAO(iList_s)),iCmp,
      &                        iBas_Eff,nGrid_Tot,iSpin,mAO,nFn)
-            Else
+            End If
                Call Do_NInt(AOInt,nAOInt,mGrid,
      &                      Scr,iCmp,iBas_Eff,
      &                      TabAO(ipTabAO(jList_s)),jCmp,jBas_Eff,
      &                      nGrid_Tot,iSpin,mAO,nFn)
-            End If
+*           End If
 *
             Do iD = 1, iSpin
 *

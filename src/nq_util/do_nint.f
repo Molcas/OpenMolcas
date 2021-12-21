@@ -25,54 +25,22 @@
      &       TabAO1(mAO,mGrid,iBas*iCmp),
      &       Scr(iSpin*nFn,mGrid,iBas*iCmp)
 
-      nBB = iBas*iBas
       nGrid_Tot=nGrid_Tot+mGrid*iBas*iCmp*iBas*iCmp
 *
       If (iSpin.ne.1) Go To 99
 *
       Do iCB = 1, iBas*iCmp
-         iC = (iCB-1)/iBas + 1
-         iB = iCB - (iC-1)*iBas
-         iiC = (iC-1)*iCmp + iC
-         iiB = (iB-1)*iBas + iB
-         ii = (iiC-1)*nBB + iiB
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         ToAdd1=Zero
          Do iGrid = 1, mGrid
             Tmp = TabAO1(1,iGrid,iCB)
      &                   * dF_dRho(ipR,iGrid) * Weights(iGrid)
-            ToAdd1 = ToAdd1 + Tmp*TabAO1(1,iGrid,iCB)
             Scr(1,iGrid,iCB) = Tmp
          End Do
-         AOInt(ii,1) = ToAdd1
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         Do jCB = iCB+1, iBas*iCmp
-            jC = (jCB-1)/iBas + 1
-            jB = jCB - (jC-1)*iBas
-            ijC = (jC-1)*iCmp + iC
-            ijB = (jB-1)*iBas + iB
-            ij = (ijC-1)*nBB + ijB
-            jiC= (iC-1)*iCmp + jC
-            jiB= (iB-1)*iBas + jB
-            ji = (jiC-1)*nBB + jiB
-*                                                                      *
-************************************************************************
-*                                                                      *
-            ToAdd1=Zero
-            Do iGrid = 1, mGrid
-               ToAdd1 = ToAdd1 + Scr(1,iGrid,iCB)*TabAO1(1,iGrid,jCB)
-            End Do
-            AOInt(ij,1) = ToAdd1
-            AOInt(ji,1) = ToAdd1
-*                                                                      *
-************************************************************************
-*                                                                      *
-         End Do
-*
       End Do
 *
       Return
@@ -80,56 +48,18 @@
  99   Continue
 *
       Do iCB = 1, iBas*iCmp
-         iC = (iCB-1)/iBas + 1
-         iB = iCB - (iC-1)*iBas
-         iiC = (iC-1)*iCmp + iC
-         iiB = (iB-1)*iBas + ib
-         ii = (iiC-1)*nBB + iiB
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         ToAdd1=Zero
-         ToAdd2=Zero
          Do iGrid = 1, mGrid
             Tmp1=TabAO1(1,iGrid,iCB)*dF_dRho(ipRa,iGrid)*Weights(iGrid)
             Tmp2=TabAO1(1,iGrid,iCB)*dF_dRho(ipRb,iGrid)*Weights(iGrid)
-            ToAdd1 = ToAdd1 + Tmp1*TabAO1(1,iGrid,iCB)
-            ToAdd2 = ToAdd2 + Tmp2*TabAO1(1,iGrid,iCB)
             Scr(1,iGrid,iCB) = Tmp1
             Scr(2,iGrid,iCB) = Tmp2
          End Do
-         AOInt(ii,1) = ToAdd1
-         AOInt(ii,2) = ToAdd2
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         Do jCB = iCB+1, iBas*iCmp
-            jC = (jCB-1)/iBas + 1
-            jB = jCB - (jC-1)*iBas
-            ijC = (jC-1)*iCmp + iC
-            ijB = (jB-1)*iBas + ib
-            ij = (ijC-1)*nBB + ijB
-            jiC= (iC-1)*iCmp + jC
-            jiB= (iB-1)*iBas + jB
-            ji = (jiC-1)*nBB + jiB
-*                                                                      *
-************************************************************************
-*                                                                      *
-            ToAdd1=Zero
-            ToAdd2=Zero
-            Do iGrid = 1, mGrid
-               ToAdd1 = ToAdd1 + Scr(1,iGrid,iCB)*TabAO1(1,iGrid,jCB)
-               ToAdd2 = ToAdd2 + Scr(2,iGrid,iCB)*TabAO1(1,iGrid,jCB)
-            End Do
-            AOInt(ij,1) = ToAdd1
-            AOInt(ji,1) = ToAdd1
-            AOInt(ij,2) = ToAdd2
-            AOInt(ji,2) = ToAdd2
-*                                                                      *
-************************************************************************
-*                                                                      *
-         End Do
-*
       End Do
 *
       Return
@@ -248,15 +178,9 @@
 ************************************************************************
 *                                                                      *
       Do iCB = 1, iBas*iCmp
-         iC = (iCB-1)/iBas + 1
-         iB = iCB - (iC-1)*iBas
-         iiC = (iC-1)*iCmp + iC
-         iiB = (iB-1)*iBas + iB
-         ii = (iiC-1)*nBB + iiB
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         ToAdd1=Zero
          Do iGrid = 1, mGrid
 
             gx=GradRho(1,iGrid)*Weights(iGrid)
@@ -275,42 +199,10 @@
             Scr(2,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp1
             Scr(3,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp2
             Scr(4,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp3
-            ToAdd1 = ToAdd1
-     &             + Scr(1,iGrid,iCB) * TabAO1(1,iGrid,iCB)
-     &             + Scr(2,iGrid,iCB) * TabAO1(2,iGrid,iCB)
-     &             + Scr(3,iGrid,iCB) * TabAO1(3,iGrid,iCB)
-     &             + Scr(4,iGrid,iCB) * TabAO1(4,iGrid,iCB)
          End Do
-         AOInt(ii,1)=            ToAdd1
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         Do jCB = iCB+1, iBas*iCmp
-            jC = (jCB-1)/iBas + 1
-            jB = jCB - (jC-1)*iBas
-            ijC = (jC-1)*iCmp + iC
-            ijB = (jB-1)*iBas + iB
-            ij = (ijC-1)*nBB + ijB
-            jiC = (iC-1)*iCmp + jC
-            jiB = (iB-1)*iBas + jB
-            ji = (jiC-1)*nBB + jiB
-*                                                                      *
-************************************************************************
-*                                                                      *
-            ToAdd1=Zero
-            Do iGrid = 1, mGrid
-               ToAdd1= ToAdd1
-     &               + Scr(1,iGrid,iCB) * TabAO1(1,iGrid,jCB)
-     &               + Scr(2,iGrid,iCB) * TabAO1(2,iGrid,jCB)
-     &               + Scr(3,iGrid,iCB) * TabAO1(3,iGrid,jCB)
-     &               + Scr(4,iGrid,iCB) * TabAO1(4,iGrid,jCB)
-            End Do
-            AOInt(ij,1)=            ToAdd1
-            AOInt(ji,1)=            ToAdd1
-*                                                                      *
-************************************************************************
-*                                                                      *
-         End Do
       End Do
       Return
 *                                                                      *
@@ -325,16 +217,9 @@
 ************************************************************************
 *                                                                      *
       Do iCB = 1, iBas*iCmp
-         iC = (iCB-1)/iBas + 1
-         iB = iCB - (iC-1)*iBas
-         iiC = (iC-1)*iCmp + iC
-         iiB = (iB-1)*iBas + iB
-         ii = (iiC-1)*nBB + iiB
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         ToAdd1=Zero
-         ToAdd2=Zero
          Do iGrid = 1, mGrid
 
             gxa=Gradrho(1,iGrid)*Weights(iGrid)
@@ -373,56 +258,10 @@
             Scr(6,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp1b
             Scr(7,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp2b
             Scr(8,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp3b
-            ToAdd1= ToAdd1
-     &            + Scr(1,iGrid,iCB) * TabAO1(1,iGrid,iCB)
-     &            + Scr(2,iGrid,iCB) * TabAO1(2,iGrid,iCB)
-     &            + Scr(3,iGrid,iCB) * TabAO1(3,iGrid,iCB)
-     &            + Scr(4,iGrid,iCB) * TabAO1(4,iGrid,iCB)
-            ToAdd2= ToAdd2
-     &            + Scr(5,iGrid,iCB) * TabAO1(1,iGrid,iCB)
-     &            + Scr(6,iGrid,iCB) * TabAO1(2,iGrid,iCB)
-     &            + Scr(7,iGrid,iCB) * TabAO1(3,iGrid,iCB)
-     &            + Scr(8,iGrid,iCB) * TabAO1(4,iGrid,iCB)
          End Do
-         AOInt(ii,1)=            ToAdd1
-         AOInt(ii,2)=            ToAdd2
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         Do jCB = iCB+1, iBas*iCmp
-            jC = (jCB-1)/iBas + 1
-            jB = jCB - (jC-1)*iBas
-            ijC = (jC-1)*iCmp + iC
-            ijB = (jB-1)*iBas + iB
-            ij = (ijC-1)*nBB + ijB
-            jiC = (iC-1)*iCmp + jC
-            jiB = (iB-1)*iBas + jB
-            ji = (jiC-1)*nBB + jiB
-*                                                                      *
-************************************************************************
-*                                                                      *
-            ToAdd1=Zero
-            ToAdd2=Zero
-            Do iGrid = 1, mGrid
-               ToAdd1= ToAdd1
-     &               + Scr( 1,iGrid,iCB) * TabAO1(1,iGrid,jCB)
-     &               + Scr( 2,iGrid,iCB) * TabAO1(2,iGrid,jCB)
-     &               + Scr( 3,iGrid,iCB) * TabAO1(3,iGrid,jCB)
-     &               + Scr( 4,iGrid,iCB) * TabAO1(4,iGrid,jCB)
-               ToAdd2= ToAdd2
-     &               + Scr( 5,iGrid,iCB) * TabAO1(1,iGrid,jCB)
-     &               + Scr( 6,iGrid,iCB) * TabAO1(2,iGrid,jCB)
-     &               + Scr( 7,iGrid,iCB) * TabAO1(3,iGrid,jCB)
-     &               + Scr( 8,iGrid,iCB) * TabAO1(4,iGrid,jCB)
-            End Do
-            AOInt(ij,1)=            ToAdd1
-            AOInt(ji,1)=            ToAdd1
-            AOInt(ij,2)=            ToAdd2
-            AOInt(ji,2)=            ToAdd2
-*                                                                      *
-************************************************************************
-*                                                                      *
-         End Do
       End Do
 *
       Return
@@ -572,15 +411,9 @@
 ************************************************************************
 *                                                                      *
       Do iCB = 1, iBas*iCmp
-         iC = (iCB-1)/iBas + 1
-         iB = iCB - (iC-1)*iBas
-         iiC = (iC-1)*iCmp + iC
-         iiB = (iB-1)*iBas + iB
-         ii = (iiC-1)*nBB + iiB
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         ToAdd1=Zero
          Do iGrid = 1, mGrid
 
             gx=GradRho(1,iGrid)*Weights(iGrid)
@@ -609,48 +442,10 @@
      &                       + TabAO1(4,iGrid,iCB) * Temp5
      &                       + TabAO1(4,iGrid,iCB) * Temp4
             Scr(5,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp5
-            ToAdd1 = ToAdd1
-     &             + Scr(1,iGrid,iCB) * TabAO1(1,iGrid,iCB)
-     &             + Scr(2,iGrid,iCB) * TabAO1(2,iGrid,iCB)
-     &             + Scr(3,iGrid,iCB) * TabAO1(3,iGrid,iCB)
-     &             + Scr(4,iGrid,iCB) * TabAO1(4,iGrid,iCB)
-     &             + Scr(5,iGrid,iCB) *(TabAO1(5,iGrid,iCB)
-     &                                 +TabAO1(8,iGrid,iCB)
-     &                                 +TabAO1(10,iGrid,iCB))
          End Do
-         AOInt(ii,1)=            ToAdd1
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         Do jCB = iCB+1, iBas*iCmp
-            jC = (jCB-1)/iBas + 1
-            jB = jCB - (jC-1)*iBas
-            ijC = (jC-1)*iCmp + iC
-            ijB = (jB-1)*iBas + iB
-            ij = (ijC-1)*nBB + ijB
-            jiC = (iC-1)*iCmp + jC
-            jiB = (iB-1)*iBas + jB
-            ji = (jiC-1)*nBB + jiB
-*                                                                      *
-************************************************************************
-*                                                                      *
-            ToAdd1=Zero
-            Do iGrid = 1, mGrid
-               ToAdd1= ToAdd1
-     &               + Scr(1,iGrid,iCB) * TabAO1(1,iGrid,jCB)
-     &               + Scr(2,iGrid,iCB) * TabAO1(2,iGrid,jCB)
-     &               + Scr(3,iGrid,iCB) * TabAO1(3,iGrid,jCB)
-     &               + Scr(4,iGrid,iCB) * TabAO1(4,iGrid,jCB)
-     &               + Scr(5,iGrid,iCB) *(TabAO1(5,iGrid,jCB)
-     &                                   +TabAO1(8,iGrid,jCB)
-     &                                   +TabAO1(10,iGrid,jCB))
-            End Do
-            AOInt(ij,1)=            ToAdd1
-            AOInt(ji,1)=            ToAdd1
-*                                                                      *
-************************************************************************
-*                                                                      *
-         End Do
       End Do
 *
       Return
@@ -666,16 +461,9 @@
 ************************************************************************
 *                                                                      *
       Do iCB = 1, iBas*iCmp
-         iC = (iCB-1)/iBas + 1
-         iB = iCB - (iC-1)*iBas
-         iiC = (iC-1)*iCmp + iC
-         iiB = (iB-1)*iBas + iB
-         ii = (iiC-1)*nBB + iiB
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         ToAdd1=Zero
-         ToAdd2=Zero
          Do iGrid = 1, mGrid
 
             gxa=Gradrho(1,iGrid)*Weights(iGrid)
@@ -728,68 +516,10 @@
 *
             Scr( 9,iGrid,iCB)= TabAO1(1,iGrid,iCB) * Temp5a
             Scr(10,iGrid,iCB)= TabAO1(1,iGrid,iCB) * Temp5b
-            ToAdd1= ToAdd1
-     &            + Scr( 1,iGrid,iCB) * TabAO1( 1,iGrid,iCB)
-     &            + Scr( 2,iGrid,iCB) * TabAO1( 2,iGrid,iCB)
-     &            + Scr( 3,iGrid,iCB) * TabAO1( 3,iGrid,iCB)
-     &            + Scr( 4,iGrid,iCB) * TabAO1( 4,iGrid,iCB)
-     &            + Scr( 9,iGrid,iCB) *(TabAO1( 5,iGrid,iCB)
-     &                                + TabAO1( 8,iGrid,iCB)
-     &                                + TabAO1(10,iGrid,iCB))
-            ToAdd2= ToAdd2
-     &            + Scr( 5,iGrid,iCB) * TabAO1( 1,iGrid,iCB)
-     &            + Scr( 6,iGrid,iCB) * TabAO1( 2,iGrid,iCB)
-     &            + Scr( 7,iGrid,iCB) * TabAO1( 3,iGrid,iCB)
-     &            + Scr( 8,iGrid,iCB) * TabAO1( 4,iGrid,iCB)
-     &            + Scr(10,iGrid,iCB) *(TabAO1( 5,iGrid,iCB)
-     &                                + TabAO1( 8,iGrid,iCB)
-     &                                + TabAO1(10,iGrid,iCB))
          End Do
-         AOInt(ii,1)=            ToAdd1
-         AOInt(ii,2)=            ToAdd2
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         Do jCB = iCB+1, iBas*iCmp
-            jC = (jCB-1)/iBas + 1
-            jB = jCB - (jC-1)*iBas
-            ijC = (jC-1)*iCmp + iC
-            ijB = (jB-1)*iBas + iB
-            ij = (ijC-1)*nBB + ijB
-            jiC = (iC-1)*iCmp + jC
-            jiB = (iB-1)*iBas + jB
-            ji = (jiC-1)*nBB + jiB
-*                                                                      *
-************************************************************************
-*                                                                      *
-            ToAdd1=Zero
-            ToAdd2=Zero
-            Do iGrid = 1, mGrid
-               ToAdd1= ToAdd1
-     &               + Scr( 1,iGrid,iCB) * TabAO1(1,iGrid,jCB)
-     &               + Scr( 2,iGrid,iCB) * TabAO1(2,iGrid,jCB)
-     &               + Scr( 3,iGrid,iCB) * TabAO1(3,iGrid,jCB)
-     &               + Scr( 4,iGrid,iCB) * TabAO1(4,iGrid,jCB)
-     &               + Scr( 9,iGrid,iCB) *(TabAO1(5,iGrid,jCB)
-     &                                   + TabAO1(8,iGrid,jCB)
-     &                                   + TabAO1(10,iGrid,jCB))
-               ToAdd2= ToAdd2
-     &               + Scr( 5,iGrid,iCB) * TabAO1(1,iGrid,jCB)
-     &               + Scr( 6,iGrid,iCB) * TabAO1(2,iGrid,jCB)
-     &               + Scr( 7,iGrid,iCB) * TabAO1(3,iGrid,jCB)
-     &               + Scr( 8,iGrid,iCB) * TabAO1(4,iGrid,jCB)
-     &               + Scr(10,iGrid,iCB)*( TabAO1(5,iGrid,jCB)
-     &                                   + TabAO1(8,iGrid,jCB)
-     &                                   + TabAO1(10,iGrid,jCB))
-            End Do
-            AOInt(ij,1)=            ToAdd1
-            AOInt(ji,1)=            ToAdd1
-            AOInt(ij,2)=            ToAdd2
-            AOInt(ji,2)=            ToAdd2
-*                                                                      *
-************************************************************************
-*                                                                      *
-         End Do
       End Do
 *
       Return
@@ -948,15 +678,9 @@
 ************************************************************************
 *                                                                      *
       Do iCB = 1, iBas*iCmp
-         iC = (iCB-1)/iBas + 1
-         iB = iCB - (iC-1)*iBas
-         iiC = (iC-1)*iCmp + iC
-         iiB = (iB-1)*iBas + iB
-         ii = (iiC-1)*nBB + iiB
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         ToAdd1=Zero
          Do iGrid = 1, mGrid
             gx=GradRho(1,iGrid)*Weights(iGrid)
             gy=GradRho(2,iGrid)*Weights(iGrid)
@@ -979,42 +703,10 @@
      &                       + TabAO1(3,iGrid,iCB) * Temp4
             Scr(4,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp3
      &                       + TabAO1(4,iGrid,iCB) * Temp4
-            ToAdd1 = ToAdd1
-     &             + Scr(1,iGrid,iCB) * TabAO1(1,iGrid,iCB)
-     &             + Scr(2,iGrid,iCB) * TabAO1(2,iGrid,iCB)
-     &             + Scr(3,iGrid,iCB) * TabAO1(3,iGrid,iCB)
-     &             + Scr(4,iGrid,iCB) * TabAO1(4,iGrid,iCB)
          End Do
-         AOInt(ii,1)=            ToAdd1
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         Do jCB = iCB+1, iBas*iCmp
-            jC = (jCB-1)/iBas + 1
-            jB = jCB - (jC-1)*iBas
-            ijC = (jC-1)*iCmp + iC
-            ijB = (jB-1)*iBas + iB
-            ij = (ijC-1)*nBB + ijB
-            jiC = (iC-1)*iCmp + jC
-            jiB = (iB-1)*iBas + jB
-            ji = (jiC-1)*nBB + jiB
-*                                                                      *
-************************************************************************
-*                                                                      *
-            ToAdd1=Zero
-            Do iGrid = 1, mGrid
-               ToAdd1= ToAdd1
-     &               + Scr(1,iGrid,iCB) * TabAO1(1,iGrid,jCB)
-     &               + Scr(2,iGrid,iCB) * TabAO1(2,iGrid,jCB)
-     &               + Scr(3,iGrid,iCB) * TabAO1(3,iGrid,jCB)
-     &               + Scr(4,iGrid,iCB) * TabAO1(4,iGrid,jCB)
-            End Do
-            AOInt(ij,1)=            ToAdd1
-            AOInt(ji,1)=            ToAdd1
-*                                                                      *
-************************************************************************
-*                                                                      *
-         End Do
       End Do
 *
       Return
@@ -1030,16 +722,9 @@
 ************************************************************************
 *                                                                      *
       Do iCB = 1, iBas*iCmp
-         iC = (iCB-1)/iBas + 1
-         iB = iCB - (iC-1)*iBas
-         iiC = (iC-1)*iCmp + iC
-         iiB = (iB-1)*iBas + iB
-         ii = (iiC-1)*nBB + iiB
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         ToAdd1=Zero
-         ToAdd2=Zero
          Do iGrid = 1, mGrid
 
             gxa=Gradrho(1,iGrid)*Weights(iGrid)
@@ -1088,56 +773,10 @@
             Scr( 8,iGrid,iCB)= TabAO1(1,iGrid,iCB) * Temp3b
      &                       + TabAO1(4,iGrid,iCB) * Temp4b
 *
-            ToAdd1= ToAdd1
-     &            + Scr( 1,iGrid,iCB) * TabAO1( 1,iGrid,iCB)
-     &            + Scr( 2,iGrid,iCB) * TabAO1( 2,iGrid,iCB)
-     &            + Scr( 3,iGrid,iCB) * TabAO1( 3,iGrid,iCB)
-     &            + Scr( 4,iGrid,iCB) * TabAO1( 4,iGrid,iCB)
-            ToAdd2= ToAdd2
-     &            + Scr( 5,iGrid,iCB) * TabAO1( 1,iGrid,iCB)
-     &            + Scr( 6,iGrid,iCB) * TabAO1( 2,iGrid,iCB)
-     &            + Scr( 7,iGrid,iCB) * TabAO1( 3,iGrid,iCB)
-     &            + Scr( 8,iGrid,iCB) * TabAO1( 4,iGrid,iCB)
          End Do
-         AOInt(ii,1)=            ToAdd1
-         AOInt(ii,2)=            ToAdd2
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         Do jCB = iCB+1, iBas*iCmp
-            jC = (jCB-1)/iBas + 1
-            jB = jCB - (jC-1)*iBas
-            ijC = (jC-1)*iCmp + iC
-            ijB = (jB-1)*iBas + iB
-            ij = (ijC-1)*nBB + ijB
-            jiC = (iC-1)*iCmp + jC
-            jiB = (iB-1)*iBas + jB
-            ji = (jiC-1)*nBB + jiB
-*                                                                      *
-************************************************************************
-*                                                                      *
-            ToAdd1=Zero
-            ToAdd2=Zero
-            Do iGrid = 1, mGrid
-               ToAdd1= ToAdd1
-     &               + Scr( 1,iGrid,iCB) * TabAO1(1,iGrid,jCB)
-     &               + Scr( 2,iGrid,iCB) * TabAO1(2,iGrid,jCB)
-     &               + Scr( 3,iGrid,iCB) * TabAO1(3,iGrid,jCB)
-     &               + Scr( 4,iGrid,iCB) * TabAO1(4,iGrid,jCB)
-               ToAdd2= ToAdd2
-     &               + Scr( 5,iGrid,iCB) * TabAO1(1,iGrid,jCB)
-     &               + Scr( 6,iGrid,iCB) * TabAO1(2,iGrid,jCB)
-     &               + Scr( 7,iGrid,iCB) * TabAO1(3,iGrid,jCB)
-     &               + Scr( 8,iGrid,iCB) * TabAO1(4,iGrid,jCB)
-            End Do
-            AOInt(ij,1)=            ToAdd1
-            AOInt(ji,1)=            ToAdd1
-            AOInt(ij,2)=            ToAdd2
-            AOInt(ji,2)=            ToAdd2
-*                                                                      *
-************************************************************************
-*                                                                      *
-         End Do
       End Do
 *
       Return
