@@ -10,7 +10,8 @@
 *                                                                      *
 * Copyright (C) 2000,2021, Roland Lindh                                *
 ************************************************************************
-      Subroutine Mk_Rho(list_s,nlist_s,Fact,mdc,list_bas,Index,nIndex)
+      Subroutine Mk_Rho(list_s,nlist_s,Fact,mdc,list_bas,Index,nIndex,
+     &                  list_g,Do_Grad)
 ************************************************************************
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN.  2000                                   *
@@ -19,6 +20,7 @@
       use k2_arrays, only: DeDe, ipDijS
       use nq_grid, only: Rho, TabAO, Dens_AO, Grid_AO, TabAO_Short
       use nq_grid, only: GradRho, Sigma, Tau, Lapl, kAO
+       use nq_Grid, only: Ind_Grd, dRho_dR
 #ifdef _DEBUGPRINT_
       use nq_grid, only: nRho
 #endif
@@ -29,9 +31,15 @@
 #include "nq_info.fh"
 #include "nsd.fh"
 #include "setup.fh"
-      Integer list_s(2,nlist_s), list_bas(2,nlist_s), Index(nIndex)
+      Integer Index(nIndex)
       Real*8 Fact(mdc**2)
       Integer ipD(2)
+      Integer list_s(2,nlist_s), list_g(3,nlist_s), list_bas(2,nlist_s)
+*     Integer, Parameter :: Index_d2(3,3)=
+*    &    Reshape([5,6,7, 6,8,9, 7,9,10],[3,3])
+*     Integer, Parameter :: Index_d3(3,3) =
+*    &    Reshape([11,14,16, 12,17,19, 13,18,19],[3,3])
+      Logical Do_Grad
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -46,6 +54,7 @@
       Dens_AO(:,:,:)=Zero
       mAO = SIZE(TabAO,1)
       mGrid = SIZE(TabAO,2)
+
 *#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Write (6,*) 'mAO=',mAO
@@ -75,6 +84,13 @@
          index_i=list_bas(2,ilist_s)
          nFunc_i=iBas*iCmp
          n_iBas=iBas_Eff*iCmp
+
+         If (Do_Grad) Then
+            Ind_Grd(1,iOff+1:iOff+n_iBas) = List_g(1,ilist_s)
+            Ind_Grd(2,iOff+1:iOff+n_iBas) = List_g(2,ilist_s)
+            Ind_Grd(3,iOff+1:iOff+n_iBas) = List_g(3,ilist_s)
+         End If
+
 *
          jOff = 0
          Do jlist_s=1,ilist_s
@@ -159,6 +175,7 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
+      If (Allocated(dRho_dR))  dRho_dR(:,:,:)=Zero
       If (Functional_Type.eq.LDA_Type) Then
 *                                                                      *
 ************************************************************************
@@ -172,6 +189,31 @@
      &                          + Grid_AO(1,iGrid,iAO,iD)
      &                          * TabAO(1,iGrid,iAO)
                End Do
+
+               If (Do_Grad) Then
+*
+*------------- Loop over cartesian components
+*
+               Do iCar = 1, 3
+
+                  Ind_xyz=Ind_Grd(iCar,iAO)
+                  j = iCar + 1
+
+                  If (Ind_xyz/=0) Then
+                     Do iGrid = 1, mGrid
+*
+*                       Cartesian derivative of the density.
+*
+                        dRho_dR(iD,iGrid,Ind_xyz)
+     &                                = dRho_dR(iD,iGrid,Ind_xyz)
+     &                                + Two * Grid_AO(1,iGrid,iAO,iD)
+     &                                * TabAO(j,iGrid,iAO)
+                     End Do
+                  End If
+
+               End Do
+
+               End If
             End Do
          End Do
 *                                                                      *

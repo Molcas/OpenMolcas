@@ -41,7 +41,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      dRho_dR(:,:,:)=Zero
       nAO = SIZE(Grid_AO,3)
       nD  = SIZE(Grid_AO,4)
       mGrid = SIZE(TabAO,2)
@@ -66,6 +65,8 @@
 ************************************************************************
 *                                                                      *
       If (Functional_Type.eq.LDA_Type) Then
+#ifdef _REDUNDANT_
+         dRho_dR(:,:,:)=Zero
          Do iD = 1, nD
             Do iAO = 1, nAO
 *
@@ -91,7 +92,9 @@
                End Do
             End Do
          End Do
-       Else If (Functional_Type.eq.GGA_Type) Then
+#endif
+      Else If (Functional_Type.eq.GGA_Type) Then
+         dRho_dR(:,:,:)=Zero
          Do iD = 1, nD                      ! index of rho
             Do iAO = 1, nAO
 *
@@ -147,6 +150,7 @@
             End Do
          End Do
        Else If (Functional_Type.eq.meta_GGA_Type1) Then
+         dRho_dR(:,:,:)=Zero
          Do iD = 1, nD                      ! index of rho
             Do iAO = 1, nAO
 *
@@ -213,6 +217,7 @@
             End Do
          End Do
        Else If (Functional_Type.eq.meta_GGA_Type2) Then
+         dRho_dR(:,:,:)=Zero
          Do iD = 1, nD                      ! index of rho
             Do iAO = 1, nAO
 *

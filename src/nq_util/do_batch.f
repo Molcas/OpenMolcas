@@ -386,7 +386,7 @@
 ************************************************************************
 *                                                                      *
       Call Mk_Rho(list_s,nlist_s,Work(ip_Fact),ndc,list_bas,
-     &            Index,nIndex)
+     &            Index,nIndex,list_g,Do_Grad)
 
       If (Do_Grad) Call Mk_dRho_dR(list_s,nlist_s,list_g,list_bas)
 
