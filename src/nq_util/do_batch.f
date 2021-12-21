@@ -1468,7 +1468,7 @@ cRKCft
              If(KSDFA(1:5).ne.'TLSDA'.and.KSDFA(1:6).ne.'FTLSDA') then
                  Call DFT_Int(Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                      FckInt,nFckInt,SOTemp,nSOTemp,
-     &                      TabAO,ipTabAO,nTabAO,dF_dRho,ndF_dRho,
+     &                      ipTabAO,dF_dRho,ndF_dRho,
      &                      nSym,nD,Flop,Work(ipTmp),nTmp,
      &                      Work(ip_Fact),ndc,mAO,
      &                      list_bas,Functional_type,nAOMax)
@@ -1589,7 +1589,7 @@ cRKCft
              If(.not.l_casdft) then
                Call DFT_Int(Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                      FckInt,nFckInt,SOTemp,nSOTemp,
-     &                      TabAO,ipTabAO,nTabAO,dF_dRho,ndF_dRho,
+     &                      ipTabAO,dF_dRho,ndF_dRho,
      &                      nSym,nD,Flop,Work(ipTmp),nTmp,
      &                      Work(ip_Fact),ndc,mAO,
      &                      list_bas,Functional_type,nAOMax)
@@ -1618,7 +1618,7 @@ cRKCft
 *
           Call DFT_Int(Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                 FckInt,nFckInt,SOTemp,nSOTemp,
-     &                 TabAO,ipTabAO,nTabAO,dF_dRho,ndF_dRho,
+     &                 ipTabAO,dF_dRho,ndF_dRho,
      &                 nSym,nD,Flop,Work(ipTmp),nTmp,
      &                 Work(ip_Fact),ndc,mAO,
      &                 list_bas,Functional_type,nAOMax)

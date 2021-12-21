@@ -14,7 +14,7 @@
       Subroutine DFT_IntX(Do_NInt_d,Do_NInt,
      &                    Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                    FckInt,nFckInt,SOTemp,nSOTemp,
-     &                    TabAO,ipTabAO,nTabAO,dF_dRho,ndF_dRho,
+     &                    ipTabAO,dF_dRho,ndF_dRho,
      &                    nSym,iSpin,Flop,Scr,nScr,
      &                    Fact,ndc,mAO,list_bas,nFn)
 ************************************************************************
@@ -33,6 +33,7 @@
 ************************************************************************
       use iSD_data
       use Symmetry_Info, only: nIrrep
+      use nq_Grid, only: TabAO_Pack
       Implicit Real*8 (A-H,O-Z)
       External Do_NInt_d, Do_NInt
 #include "real.fh"
@@ -42,7 +43,7 @@
 #include "nsd.fh"
 #include "setup.fh"
       Real*8 Weights(mGrid), SOTemp(nSOTemp,iSpin), Fact(ndc**2),
-     &       TabAO(nTabAO), Scr(nScr*mGrid),
+     &       Scr(nScr*mGrid),
      &       AOInt(nAOInt*nAOInt,iSpin), FckInt(nFckInt,iSpin),
      &       dF_dRho(ndF_dRho,mGrid)
       Integer nOp(2), list_s(2,nlist_s), ipTabAO(nlist_s),
@@ -95,14 +96,14 @@
 ************************************************************************
 *                                                                      *
             If (ilist_s.eq.jlist_s) Then
-               Call Do_NInt_d(AOInt,nAOInt,ndF_dRho, dF_dRho,
+               Call Do_NInt_d(ndF_dRho, dF_dRho,
      &                        Weights,mGrid,
-     &                        Scr, TabAO(ipTabAO(iList_s)),iCmp,
+     &                        Scr, TabAO_Pack(ipTabAO(iList_s)),iCmp,
      &                        iBas_Eff,nGrid_Tot,iSpin,mAO,nFn)
             End If
                Call Do_NInt(AOInt,nAOInt,mGrid,
      &                      Scr,iCmp,iBas_Eff,
-     &                      TabAO(ipTabAO(jList_s)),jCmp,jBas_Eff,
+     &                      TabAO_Pack(ipTabAO(jList_s)),jCmp,jBas_Eff,
      &                      nGrid_Tot,iSpin,mAO,nFn)
 *           End If
 *

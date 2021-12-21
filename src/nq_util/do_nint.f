@@ -10,7 +10,7 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-      Subroutine Do_NInt1_d(AOInt,nAOInt,ndF_dRho,dF_dRho,
+      Subroutine Do_NInt1_d(ndF_dRho,dF_dRho,
      &                      Weights,mGrid,
      &                      Scr,TabAO1,iCmp,iBas,nGrid_Tot,iSpin,
      &                      mAO,nFn)
@@ -20,8 +20,7 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-      Real*8 AOInt(nAOInt*nAOInt,iSpin),
-     &       dF_dRho(ndF_dRho,mGrid), Weights(mGrid),
+      Real*8 dF_dRho(ndF_dRho,mGrid), Weights(mGrid),
      &       TabAO1(mAO,mGrid,iBas*iCmp),
      &       Scr(iSpin*nFn,mGrid,iBas*iCmp)
 
@@ -150,7 +149,7 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-      Subroutine Do_NInt2_d(AOInt,nAOInt,ndF_dRho, dF_dRho,
+      Subroutine Do_NInt2_d(ndF_dRho, dF_dRho,
      &                      Weights,mGrid,
      &                      Scr,TabAO1,iCmp,iBas,nGrid_Tot,iSpin,
      &                      mAO,nFn)
@@ -161,12 +160,11 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-      Real*8 AOInt(nAOInt*nAOInt,iSpin), dF_dRho(ndF_dRho,mGrid),
+      Real*8 dF_dRho(ndF_dRho,mGrid),
      &       Weights(mGrid),
      &       TabAO1(mAO,mGrid,iBas*iCmp),
      &       Scr(iSpin*nFn,mGrid,iBas*iCmp)
 *
-      nBB = iBas*iBas
       nGrid_Tot=nGrid_Tot+mGrid*iBas*iCmp*iBas*iCmp
 *
       If (iSpin.ne.1) Go To 99
@@ -383,7 +381,7 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-      Subroutine Do_NInt3_d(AOInt,nAOInt,ndF_dRho,
+      Subroutine Do_NInt3_d(ndF_dRho,
      &                      dF_dRho,Weights,mGrid,
      &                      Scr,TabAO1,iCmp,iBas,nGrid_Tot,iSpin,
      &                      mAO,nFn)
@@ -394,12 +392,11 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-      Real*8 AOInt(nAOInt*nAOInt,iSpin), dF_dRho(ndF_dRho,mGrid),
+      Real*8 dF_dRho(ndF_dRho,mGrid),
      &       Weights(mGrid),
      &       TabAO1(mAO,mGrid,iBas*iCmp),
      &       Scr(iSpin*nFn,mGrid,iBas*iCmp)
 *
-      nBB = iBas*iBas
       nGrid_Tot=nGrid_Tot+mGrid*iBas*iCmp*iBas*iCmp
 *
       If (iSpin.ne.1) Go To 99
@@ -650,7 +647,7 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-      Subroutine Do_NInt4_d(AOInt,nAOInt,ndF_dRho,
+      Subroutine Do_NInt4_d(ndF_dRho,
      &                      dF_dRho,Weights,mGrid,
      &                      Scr,TabAO1,iCmp,iBas,nGrid_Tot,iSpin,
      &                      mAO,nFn)
@@ -661,12 +658,11 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-      Real*8 AOInt(nAOInt*nAOInt,iSpin), dF_dRho(ndF_dRho,mGrid),
+      Real*8 dF_dRho(ndF_dRho,mGrid),
      &       Weights(mGrid),
      &       TabAO1(mAO,mGrid,iBas*iCmp),
      &       Scr(iSpin*nFn,mGrid,iBas*iCmp)
 *
-      nBB = iBas*iBas
       nGrid_Tot=nGrid_Tot+mGrid*iBas*iCmp*iBas*iCmp
 *
       If (iSpin.ne.1) Go To 99
