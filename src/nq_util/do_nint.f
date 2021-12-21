@@ -22,7 +22,7 @@
 #include "nq_index.fh"
       Real*8 dF_dRho(ndF_dRho,mGrid), Weights(mGrid),
      &       TabAO1(mAO,mGrid,nBfn),
-     &       Scr(iSpin*nFn,mGrid,nBfn)
+     &       Scr(nFn,mGrid,nBfn,iSpin)
 
       nGrid_Tot=nGrid_Tot+mGrid*nBfn**2
 *
@@ -35,7 +35,7 @@
          Do iGrid = 1, mGrid
             Tmp = TabAO1(1,iGrid,iCB)
      &                   * dF_dRho(ipR,iGrid) * Weights(iGrid)
-            Scr(1,iGrid,iCB) = Tmp
+            Scr(1,iGrid,iCB,1) = Tmp
          End Do
 *                                                                      *
 ************************************************************************
@@ -53,8 +53,8 @@
          Do iGrid = 1, mGrid
             Tmp1=TabAO1(1,iGrid,iCB)*dF_dRho(ipRa,iGrid)*Weights(iGrid)
             Tmp2=TabAO1(1,iGrid,iCB)*dF_dRho(ipRb,iGrid)*Weights(iGrid)
-            Scr(1,iGrid,iCB) = Tmp1
-            Scr(2,iGrid,iCB) = Tmp2
+            Scr(1,iGrid,iCB,1) = Tmp1
+            Scr(1,iGrid,iCB,2) = Tmp2
          End Do
 *                                                                      *
 ************************************************************************
@@ -76,7 +76,7 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
       Real*8 AOInt(nAOInt*nAOInt,iSpin),
-     &       TabAO1(iSpin*nFn,mGrid,iBas*iCmp),
+     &       TabAO1(nFn,mGrid,iBas*iCmp,iSpin),
      &       TabAO2(mAO,mGrid,jBas*jCmp)
 
       nBB = iBas*jBas
@@ -101,7 +101,8 @@
 *                                                                      *
             ToAdd1=Zero
             Do iGrid = 1, mGrid
-               ToAdd1 = ToAdd1 + TabAO1(1,iGrid,iCB)*TabAO2(1,iGrid,jCB)
+               ToAdd1 = ToAdd1
+     &                + TabAO1(1,iGrid,iCB,1)*TabAO2(1,iGrid,jCB)
             End Do
             AOInt(ij,1) = ToAdd1
 *                                                                      *
@@ -132,8 +133,10 @@
             ToAdd1=Zero
             ToAdd2=Zero
             Do iGrid = 1, mGrid
-               ToAdd1 = ToAdd1 + TabAO1(1,iGrid,iCB)*TabAO2(1,iGrid,jCB)
-               ToAdd2 = ToAdd2 + TabAO1(2,iGrid,iCB)*TabAO2(1,iGrid,jCB)
+               ToAdd1 = ToAdd1
+     &                + TabAO1(1,iGrid,iCB,1)*TabAO2(1,iGrid,jCB)
+               ToAdd2 = ToAdd2
+     &                + TabAO1(1,iGrid,iCB,2)*TabAO2(1,iGrid,jCB)
             End Do
             AOInt(ij,1) = ToAdd1
             AOInt(ij,2) = ToAdd2
@@ -163,7 +166,7 @@
       Real*8 dF_dRho(ndF_dRho,mGrid),
      &       Weights(mGrid),
      &       TabAO1(mAO,mGrid,nBfn),
-     &       Scr(iSpin*nFn,mGrid,nBfn)
+     &       Scr(nFn,mGrid,nBfn,iSpin)
 *
       nGrid_Tot=nGrid_Tot+mGrid*nBfn**2
 *
@@ -190,13 +193,13 @@
             Temp2=gy*(2.0d0*dF_dRho(ipGxx,iGrid)+dF_dRho(ipGxy,iGrid))
             Temp3=gz*(2.0d0*dF_dRho(ipGxx,iGrid)+dF_dRho(ipGxy,iGrid))
 
-            Scr(1,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp0
-     &                       + TabAO1(2,iGrid,iCB) * Temp1
-     &                       + TabAO1(3,iGrid,iCB) * Temp2
-     &                       + TabAO1(4,iGrid,iCB) * Temp3
-            Scr(2,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp1
-            Scr(3,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp2
-            Scr(4,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp3
+            Scr(1,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp0
+     &                         + TabAO1(2,iGrid,iCB) * Temp1
+     &                         + TabAO1(3,iGrid,iCB) * Temp2
+     &                         + TabAO1(4,iGrid,iCB) * Temp3
+            Scr(2,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp1
+            Scr(3,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp2
+            Scr(4,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp3
          End Do
 *                                                                      *
 ************************************************************************
@@ -242,20 +245,20 @@
             Temp3b=2.0d0*dF_dRho(ipGbb,iGrid)*gzb
      &            +      dF_dRho(ipGab,iGrid)*gza
 *
-            Scr(1,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp0a
-     &                       + TabAO1(2,iGrid,iCB) * Temp1a
-     &                       + TabAO1(3,iGrid,iCB) * Temp2a
-     &                       + TabAO1(4,iGrid,iCB) * Temp3a
-            Scr(2,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp1a
-            Scr(3,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp2a
-            Scr(4,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp3a
-            Scr(5,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp0b
-     &                       + TabAO1(2,iGrid,iCB) * Temp1b
-     &                       + TabAO1(3,iGrid,iCB) * Temp2b
-     &                       + TabAO1(4,iGrid,iCB) * Temp3b
-            Scr(6,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp1b
-            Scr(7,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp2b
-            Scr(8,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp3b
+            Scr(1,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp0a
+     &                         + TabAO1(2,iGrid,iCB) * Temp1a
+     &                         + TabAO1(3,iGrid,iCB) * Temp2a
+     &                         + TabAO1(4,iGrid,iCB) * Temp3a
+            Scr(2,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp1a
+            Scr(3,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp2a
+            Scr(4,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp3a
+            Scr(1,iGrid,iCB,2) = TabAO1(1,iGrid,iCB) * Temp0b
+     &                         + TabAO1(2,iGrid,iCB) * Temp1b
+     &                         + TabAO1(3,iGrid,iCB) * Temp2b
+     &                         + TabAO1(4,iGrid,iCB) * Temp3b
+            Scr(2,iGrid,iCB,2) = TabAO1(1,iGrid,iCB) * Temp1b
+            Scr(3,iGrid,iCB,2) = TabAO1(1,iGrid,iCB) * Temp2b
+            Scr(4,iGrid,iCB,2) = TabAO1(1,iGrid,iCB) * Temp3b
          End Do
 *                                                                      *
 ************************************************************************
@@ -277,7 +280,7 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
       Real*8 AOInt(nAOInt*nAOInt,iSpin),
-     &       TabAO1(nFn*iSpin,mGrid,iBas*iCmp),
+     &       TabAO1(nFn,mGrid,iBas*iCmp,iSpin),
      &       TabAO2(mAO,mGrid,jBas*jCmp)
 *
       nBB = iBas*jBas
@@ -311,10 +314,10 @@
 *
             Do iGrid = 1, mGrid
                ToAdd1= ToAdd1
-     &               + TabAO1(1,iGrid,iCB) * TabAO2(1,iGrid,jCB)
-     &               + TabAO1(2,iGrid,iCB) * TabAO2(2,iGrid,jCB)
-     &               + TabAO1(3,iGrid,iCB) * TabAO2(3,iGrid,jCB)
-     &               + TabAO1(4,iGrid,iCB) * TabAO2(4,iGrid,jCB)
+     &               + TabAO1(1,iGrid,iCB,1) * TabAO2(1,iGrid,jCB)
+     &               + TabAO1(2,iGrid,iCB,1) * TabAO2(2,iGrid,jCB)
+     &               + TabAO1(3,iGrid,iCB,1) * TabAO2(3,iGrid,jCB)
+     &               + TabAO1(4,iGrid,iCB,1) * TabAO2(4,iGrid,jCB)
             End Do
             AOInt(ij,1)=            ToAdd1
 *                                                                      *
@@ -355,15 +358,15 @@
 *
             Do iGrid = 1, mGrid
                ToAdd1= ToAdd1
-     &               + TabAO1( 1,iGrid,iCB) * TabAO2(1,iGrid,jCB)
-     &               + TabAO1( 2,iGrid,iCB) * TabAO2(2,iGrid,jCB)
-     &               + TabAO1( 3,iGrid,iCB) * TabAO2(3,iGrid,jCB)
-     &               + TabAO1( 4,iGrid,iCB) * TabAO2(4,iGrid,jCB)
+     &               + TabAO1( 1,iGrid,iCB,1) * TabAO2(1,iGrid,jCB)
+     &               + TabAO1( 2,iGrid,iCB,1) * TabAO2(2,iGrid,jCB)
+     &               + TabAO1( 3,iGrid,iCB,1) * TabAO2(3,iGrid,jCB)
+     &               + TabAO1( 4,iGrid,iCB,1) * TabAO2(4,iGrid,jCB)
                ToAdd2= ToAdd2
-     &               + TabAO1( 5,iGrid,iCB) * TabAO2(1,iGrid,jCB)
-     &               + TabAO1( 6,iGrid,iCB) * TabAO2(2,iGrid,jCB)
-     &               + TabAO1( 7,iGrid,iCB) * TabAO2(3,iGrid,jCB)
-     &               + TabAO1( 8,iGrid,iCB) * TabAO2(4,iGrid,jCB)
+     &               + TabAO1( 1,iGrid,iCB,2) * TabAO2(1,iGrid,jCB)
+     &               + TabAO1( 2,iGrid,iCB,2) * TabAO2(2,iGrid,jCB)
+     &               + TabAO1( 3,iGrid,iCB,2) * TabAO2(3,iGrid,jCB)
+     &               + TabAO1( 4,iGrid,iCB,2) * TabAO2(4,iGrid,jCB)
             End Do
             AOInt(ij,1)=            ToAdd1
             AOInt(ij,2)=            ToAdd2
@@ -395,7 +398,7 @@
       Real*8 dF_dRho(ndF_dRho,mGrid),
      &       Weights(mGrid),
      &       TabAO1(mAO,mGrid,nBfn),
-     &       Scr(iSpin*nFn,mGrid,nBfn)
+     &       Scr(nFn,mGrid,nBfn,iSpin)
 *
       nGrid_Tot=nGrid_Tot+mGrid*iBas*iCmp*iBas*iCmp
 *
@@ -425,20 +428,20 @@
             Temp4=dF_dRho(ipT,iGrid)*Weights(iGrid)
             Temp5=dF_dRho(ipL,iGrid)*Weights(iGrid)
 
-            Scr(1,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp0
-     &                       + TabAO1(2,iGrid,iCB) * Temp1
-     &                       + TabAO1(3,iGrid,iCB) * Temp2
-     &                       + TabAO1(4,iGrid,iCB) * Temp3
-            Scr(2,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp1
-     &                       + TabAO1(2,iGrid,iCB) * Temp4
-     &                       + TabAO1(2,iGrid,iCB) * Temp5
-            Scr(3,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp2
-     &                       + TabAO1(3,iGrid,iCB) * Temp4
-     &                       + TabAO1(3,iGrid,iCB) * Temp5
-            Scr(4,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp3
-     &                       + TabAO1(4,iGrid,iCB) * Temp5
-     &                       + TabAO1(4,iGrid,iCB) * Temp4
-            Scr(5,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp5
+            Scr(1,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp0
+     &                         + TabAO1(2,iGrid,iCB) * Temp1
+     &                         + TabAO1(3,iGrid,iCB) * Temp2
+     &                         + TabAO1(4,iGrid,iCB) * Temp3
+            Scr(2,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp1
+     &                         + TabAO1(2,iGrid,iCB) * Temp4
+     &                         + TabAO1(2,iGrid,iCB) * Temp5
+            Scr(3,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp2
+     &                         + TabAO1(3,iGrid,iCB) * Temp4
+     &                         + TabAO1(3,iGrid,iCB) * Temp5
+            Scr(4,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp3
+     &                         + TabAO1(4,iGrid,iCB) * Temp5
+     &                         + TabAO1(4,iGrid,iCB) * Temp4
+            Scr(5,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp5
          End Do
 *                                                                      *
 ************************************************************************
@@ -489,30 +492,29 @@
             Temp5a= dF_dRho(ipLa,iGrid)*Weights(iGrid)
             Temp5b= dF_dRho(ipLb,iGrid)*Weights(iGrid)
 *
-            Scr(1,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp0a
+            Scr(1,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp0a
      &                       + TabAO1(2,iGrid,iCB) * Temp1a
      &                       + TabAO1(3,iGrid,iCB) * Temp2a
      &                       + TabAO1(4,iGrid,iCB) * Temp3a
-            Scr(2,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp1a
+            Scr(2,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp1a
      &                       + TabAO1(2,iGrid,iCB) * Temp4a
-            Scr(3,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp2a
+            Scr(3,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp2a
      &                       + TabAO1(3,iGrid,iCB) * Temp4a
-            Scr(4,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp3a
+            Scr(4,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp3a
      &                       + TabAO1(4,iGrid,iCB) * Temp4a
+            Scr(5,iGrid,iCB,1)= TabAO1(1,iGrid,iCB) * Temp5a
 *
-            Scr(5,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp0b
+            Scr(1,iGrid,iCB,2) = TabAO1(1,iGrid,iCB) * Temp0b
      &                       + TabAO1(2,iGrid,iCB) * Temp1b
      &                       + TabAO1(3,iGrid,iCB) * Temp2b
      &                       + TabAO1(4,iGrid,iCB) * Temp3b
-            Scr( 6,iGrid,iCB)= TabAO1(1,iGrid,iCB) * Temp1b
+            Scr(2,iGrid,iCB,2)= TabAO1(1,iGrid,iCB) * Temp1b
      &                       + TabAO1(2,iGrid,iCB) * Temp4b
-            Scr( 7,iGrid,iCB)= TabAO1(1,iGrid,iCB) * Temp2b
+            Scr(3,iGrid,iCB,2)= TabAO1(1,iGrid,iCB) * Temp2b
      &                       + TabAO1(3,iGrid,iCB) * Temp4b
-            Scr( 8,iGrid,iCB)= TabAO1(1,iGrid,iCB) * Temp3b
+            Scr(4,iGrid,iCB,2)= TabAO1(1,iGrid,iCB) * Temp3b
      &                       + TabAO1(4,iGrid,iCB) * Temp4b
-*
-            Scr( 9,iGrid,iCB)= TabAO1(1,iGrid,iCB) * Temp5a
-            Scr(10,iGrid,iCB)= TabAO1(1,iGrid,iCB) * Temp5b
+            Scr(5,iGrid,iCB,2)= TabAO1(1,iGrid,iCB) * Temp5b
          End Do
 *                                                                      *
 ************************************************************************
@@ -534,7 +536,7 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
       Real*8 AOInt(nAOInt*nAOInt,iSpin),
-     &       TabAO1(nFn*iSpin,mGrid,iBas*iCmp),
+     &       TabAO1(nFn,mGrid,iBas*iCmp,iSpin),
      &       TabAO2(mAO,mGrid,jBas*jCmp)
 *
       nBB = iBas*jBas
@@ -568,13 +570,13 @@
 *
             Do iGrid = 1, mGrid
                ToAdd1= ToAdd1
-     &               + TabAO1(1,iGrid,iCB) * TabAO2(1,iGrid,jCB)
-     &               + TabAO1(2,iGrid,iCB) * TabAO2(2,iGrid,jCB)
-     &               + TabAO1(3,iGrid,iCB) * TabAO2(3,iGrid,jCB)
-     &               + TabAO1(4,iGrid,iCB) * TabAO2(4,iGrid,jCB)
-     &               + TabAO1(5,iGrid,iCB) *(TabAO2(5,iGrid,jCB)
-     &                                      +TabAO2(8,iGrid,jCB)
-     &                                      +TabAO2(10,iGrid,jCB))
+     &               + TabAO1(1,iGrid,iCB,1) * TabAO2(1,iGrid,jCB)
+     &               + TabAO1(2,iGrid,iCB,1) * TabAO2(2,iGrid,jCB)
+     &               + TabAO1(3,iGrid,iCB,1) * TabAO2(3,iGrid,jCB)
+     &               + TabAO1(4,iGrid,iCB,1) * TabAO2(4,iGrid,jCB)
+     &               + TabAO1(5,iGrid,iCB,1) *(TabAO2(5,iGrid,jCB)
+     &                                        +TabAO2(8,iGrid,jCB)
+     &                                        +TabAO2(10,iGrid,jCB))
             End Do
             AOInt(ij,1)=            ToAdd1
 *                                                                      *
@@ -615,21 +617,21 @@
 *
             Do iGrid = 1, mGrid
                ToAdd1= ToAdd1
-     &               + TabAO1( 1,iGrid,iCB) * TabAO2(1,iGrid,jCB)
-     &               + TabAO1( 2,iGrid,iCB) * TabAO2(2,iGrid,jCB)
-     &               + TabAO1( 3,iGrid,iCB) * TabAO2(3,iGrid,jCB)
-     &               + TabAO1( 4,iGrid,iCB) * TabAO2(4,iGrid,jCB)
-     &               + TabAO1( 9,iGrid,iCB) *(TabAO2(5,iGrid,jCB)
-     &                                       +TabAO2(8,iGrid,jCB)
-     &                                       +TabAO2(10,iGrid,jCB))
+     &               + TabAO1(1,iGrid,iCB,1) * TabAO2(1,iGrid,jCB)
+     &               + TabAO1(2,iGrid,iCB,1) * TabAO2(2,iGrid,jCB)
+     &               + TabAO1(3,iGrid,iCB,1) * TabAO2(3,iGrid,jCB)
+     &               + TabAO1(4,iGrid,iCB,1) * TabAO2(4,iGrid,jCB)
+     &               + TabAO1(5,iGrid,iCB,1) *(TabAO2(5,iGrid,jCB)
+     &                                        +TabAO2(8,iGrid,jCB)
+     &                                        +TabAO2(10,iGrid,jCB))
                ToAdd2= ToAdd2
-     &               + TabAO1( 5,iGrid,iCB) * TabAO2(1,iGrid,jCB)
-     &               + TabAO1( 6,iGrid,iCB) * TabAO2(2,iGrid,jCB)
-     &               + TabAO1( 7,iGrid,iCB) * TabAO2(3,iGrid,jCB)
-     &               + TabAO1( 8,iGrid,iCB) * TabAO2(4,iGrid,jCB)
-     &               + TabAO1(10,iGrid,iCB) *(TabAO2(5,iGrid,jCB)
-     &                                       +TabAO2(8,iGrid,jCB)
-     &                                       +TabAO2(10,iGrid,jCB))
+     &               + TabAO1(1,iGrid,iCB,2) * TabAO2(1,iGrid,jCB)
+     &               + TabAO1(2,iGrid,iCB,2) * TabAO2(2,iGrid,jCB)
+     &               + TabAO1(3,iGrid,iCB,2) * TabAO2(3,iGrid,jCB)
+     &               + TabAO1(4,iGrid,iCB,2) * TabAO2(4,iGrid,jCB)
+     &               + TabAO1(5,iGrid,iCB,2) *(TabAO2(5,iGrid,jCB)
+     &                                        +TabAO2(8,iGrid,jCB)
+     &                                        +TabAO2(10,iGrid,jCB))
             End Do
             AOInt(ij,1)=            ToAdd1
             AOInt(ij,2)=            ToAdd2
@@ -661,7 +663,7 @@
       Real*8 dF_dRho(ndF_dRho,mGrid),
      &       Weights(mGrid),
      &       TabAO1(mAO,mGrid,nBfn),
-     &       Scr(iSpin*nFn,mGrid,nBfn)
+     &       Scr(nFn,mGrid,nBfn,iSpin)
 *
       nGrid_Tot=nGrid_Tot+mGrid*nBfn**2
 *
@@ -689,16 +691,16 @@
 
             Temp4=dF_dRho(ipT,iGrid)*Weights(iGrid)
 
-            Scr(1,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp0
-     &                       + TabAO1(2,iGrid,iCB) * Temp1
-     &                       + TabAO1(3,iGrid,iCB) * Temp2
-     &                       + TabAO1(4,iGrid,iCB) * Temp3
-            Scr(2,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp1
-     &                       + TabAO1(2,iGrid,iCB) * Temp4
-            Scr(3,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp2
-     &                       + TabAO1(3,iGrid,iCB) * Temp4
-            Scr(4,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp3
-     &                       + TabAO1(4,iGrid,iCB) * Temp4
+            Scr(1,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp0
+     &                         + TabAO1(2,iGrid,iCB) * Temp1
+     &                         + TabAO1(3,iGrid,iCB) * Temp2
+     &                         + TabAO1(4,iGrid,iCB) * Temp3
+            Scr(2,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp1
+     &                         + TabAO1(2,iGrid,iCB) * Temp4
+            Scr(3,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp2
+     &                         + TabAO1(3,iGrid,iCB) * Temp4
+            Scr(4,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp3
+     &                         + TabAO1(4,iGrid,iCB) * Temp4
          End Do
 *                                                                      *
 ************************************************************************
@@ -747,27 +749,27 @@
             Temp4a= dF_dRho(ipTa,iGrid)*Weights(iGrid)
             Temp4b= dF_dRho(ipTb,iGrid)*Weights(iGrid)
 *
-            Scr(1,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp0a
-     &                       + TabAO1(2,iGrid,iCB) * Temp1a
-     &                       + TabAO1(3,iGrid,iCB) * Temp2a
-     &                       + TabAO1(4,iGrid,iCB) * Temp3a
-            Scr(2,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp1a
-     &                       + TabAO1(2,iGrid,iCB) * Temp4a
-            Scr(3,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp2a
-     &                       + TabAO1(3,iGrid,iCB) * Temp4a
-            Scr(4,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp3a
-     &                       + TabAO1(4,iGrid,iCB) * Temp4a
+            Scr(1,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp0a
+     &                         + TabAO1(2,iGrid,iCB) * Temp1a
+     &                         + TabAO1(3,iGrid,iCB) * Temp2a
+     &                         + TabAO1(4,iGrid,iCB) * Temp3a
+            Scr(2,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp1a
+     &                         + TabAO1(2,iGrid,iCB) * Temp4a
+            Scr(3,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp2a
+     &                         + TabAO1(3,iGrid,iCB) * Temp4a
+            Scr(4,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp3a
+     &                         + TabAO1(4,iGrid,iCB) * Temp4a
 *
-            Scr(5,iGrid,iCB) = TabAO1(1,iGrid,iCB) * Temp0b
-     &                       + TabAO1(2,iGrid,iCB) * Temp1b
-     &                       + TabAO1(3,iGrid,iCB) * Temp2b
-     &                       + TabAO1(4,iGrid,iCB) * Temp3b
-            Scr( 6,iGrid,iCB)= TabAO1(1,iGrid,iCB) * Temp1b
-     &                       + TabAO1(2,iGrid,iCB) * Temp4b
-            Scr( 7,iGrid,iCB)= TabAO1(1,iGrid,iCB) * Temp2b
-     &                       + TabAO1(3,iGrid,iCB) * Temp4b
-            Scr( 8,iGrid,iCB)= TabAO1(1,iGrid,iCB) * Temp3b
-     &                       + TabAO1(4,iGrid,iCB) * Temp4b
+            Scr(1,iGrid,iCB,2) = TabAO1(1,iGrid,iCB) * Temp0b
+     &                         + TabAO1(2,iGrid,iCB) * Temp1b
+     &                         + TabAO1(3,iGrid,iCB) * Temp2b
+     &                         + TabAO1(4,iGrid,iCB) * Temp3b
+            Scr(2,iGrid,iCB,2) = TabAO1(1,iGrid,iCB) * Temp1b
+     &                         + TabAO1(2,iGrid,iCB) * Temp4b
+            Scr(3,iGrid,iCB,2) = TabAO1(1,iGrid,iCB) * Temp2b
+     &                         + TabAO1(3,iGrid,iCB) * Temp4b
+            Scr(4,iGrid,iCB,2) = TabAO1(1,iGrid,iCB) * Temp3b
+     &                         + TabAO1(4,iGrid,iCB) * Temp4b
 *
          End Do
 *                                                                      *
@@ -790,7 +792,7 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
       Real*8 AOInt(nAOInt*nAOInt,iSpin),
-     &       TabAO1(nFn*iSpin,mGrid,iBas*iCmp),
+     &       TabAO1(nFn,mGrid,iBas*iCmp,iSpin),
      &       TabAO2(mAO,mGrid,jBas*jCmp)
 *
       nBB = iBas*jBas
@@ -824,10 +826,10 @@
 *
             Do iGrid = 1, mGrid
                ToAdd1= ToAdd1
-     &               + TabAO1(1,iGrid,iCB) * TabAO2(1,iGrid,jCB)
-     &               + TabAO1(2,iGrid,iCB) * TabAO2(2,iGrid,jCB)
-     &               + TabAO1(3,iGrid,iCB) * TabAO2(3,iGrid,jCB)
-     &               + TabAO1(4,iGrid,iCB) * TabAO2(4,iGrid,jCB)
+     &               + TabAO1(1,iGrid,iCB,1) * TabAO2(1,iGrid,jCB)
+     &               + TabAO1(2,iGrid,iCB,1) * TabAO2(2,iGrid,jCB)
+     &               + TabAO1(3,iGrid,iCB,1) * TabAO2(3,iGrid,jCB)
+     &               + TabAO1(4,iGrid,iCB,1) * TabAO2(4,iGrid,jCB)
             End Do
             AOInt(ij,1)=            ToAdd1
 *                                                                      *
@@ -868,15 +870,15 @@
 *
             Do iGrid = 1, mGrid
                ToAdd1= ToAdd1
-     &               + TabAO1( 1,iGrid,iCB) * TabAO2(1,iGrid,jCB)
-     &               + TabAO1( 2,iGrid,iCB) * TabAO2(2,iGrid,jCB)
-     &               + TabAO1( 3,iGrid,iCB) * TabAO2(3,iGrid,jCB)
-     &               + TabAO1( 4,iGrid,iCB) * TabAO2(4,iGrid,jCB)
+     &               + TabAO1(1,iGrid,iCB,1) * TabAO2(1,iGrid,jCB)
+     &               + TabAO1(2,iGrid,iCB,1) * TabAO2(2,iGrid,jCB)
+     &               + TabAO1(3,iGrid,iCB,1) * TabAO2(3,iGrid,jCB)
+     &               + TabAO1(4,iGrid,iCB,1) * TabAO2(4,iGrid,jCB)
                ToAdd2= ToAdd2
-     &               + TabAO1( 5,iGrid,iCB) * TabAO2(1,iGrid,jCB)
-     &               + TabAO1( 6,iGrid,iCB) * TabAO2(2,iGrid,jCB)
-     &               + TabAO1( 7,iGrid,iCB) * TabAO2(3,iGrid,jCB)
-     &               + TabAO1( 8,iGrid,iCB) * TabAO2(4,iGrid,jCB)
+     &               + TabAO1(1,iGrid,iCB,2) * TabAO2(1,iGrid,jCB)
+     &               + TabAO1(2,iGrid,iCB,2) * TabAO2(2,iGrid,jCB)
+     &               + TabAO1(3,iGrid,iCB,2) * TabAO2(3,iGrid,jCB)
+     &               + TabAO1(4,iGrid,iCB,2) * TabAO2(4,iGrid,jCB)
             End Do
             AOInt(ij,1)=            ToAdd1
             AOInt(ij,2)=            ToAdd2
