@@ -13,14 +13,20 @@
 
 subroutine EMPTY(BUF,IBUF,LASTAD,SO,KBUF,NTPB)
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: KBUF, IBUF(KBUF+2), LASTAD(*), NTPB
+real(kind=wp) :: BUF(KBUF), SO(*)
 #include "SysDef.fh"
 #include "real_guga.fh"
 #include "integ.fh"
 #include "files_addr.fh"
-dimension BUF(kBuf), IBUF(kBuf+2), LASTAD(*), SO(*)
 #include "d.fh"
+integer(kind=iwp) :: I, IADR, ICLR, II, IIQQ, IJJ, IKK, IN, IND, IOFF, IQ, ISUM, ITYP, IVL, IVL0, J, JJ, JJ1, JJ2, KK, LENGTH, NBX
+integer(kind=iwp), external :: ICUNP
 ! statement function
+integer(kind=iwp) :: JO, L
 JO(L) = ICUNP(ICASE,L)
 
 ISUM = JRC(ILIM)

@@ -12,12 +12,15 @@
 !***********************************************************************
 
 subroutine INT1(I,J,K,L,IT1,IT2,II,IID,JJ,JJD,JTYP,ITAI,L0,L1,L2,L3)
-
-implicit real*8(A-H,O-Z)
-dimension ITAI(*), L0(*), L1(*), L2(*), L3(*)
 ! I < J < K < L
+
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: I, J, K, L, IT1, IT2, II, IID, JJ, JJD, JTYP, ITAI(*), L0(*), L1(*), L2(*), L3(*)
 #include "real_guga.fh"
 #include "integ.fh"
+integer(kind=iwp) :: ICP1I, ICPI, ISTOP, ITAIL, ITYP, KM, LJ, LJM, LJS
 
 LJS = IJ(L+1)+1
 LJM = IJ(L)
@@ -78,7 +81,7 @@ do LJ=LJS,LJM
   if (IT2 > IT1) call LOOP4(KM,ISTOP,IT1,IT2)
   if (ISTOP == 1) GO TO 153
   COUP(I) = COUP(I)*COUP(K)
-  if (abs(COUP(I)) < 1.D-06) GO TO 152
+  if (abs(COUP(I)) < 1.0e-6_wp) GO TO 152
   ICPI = ICOUP(I)
   ICP1I = ICOUP1(I)
   ICOUP(I) = ICOUP(J+1)+ICPI
@@ -92,7 +95,7 @@ do LJ=LJS,LJM
   if (KM == J) GO TO 132
   GO TO 142
 20 COUP(1) = COUP(1)*COUP(K)
-  if (abs(COUP(1)) < 1.D-06) GO TO 154
+  if (abs(COUP(1)) < 1.0e-6_wp) GO TO 154
   ICOUP(1) = ICOUP(J+1)+ICOUP(1)
   ICOUP1(1) = ICOUP1(J+1)+ICOUP1(1)
   call COMP1(LJ,ITYP,L,IT2,II,IID,JJ,JJD,JTYP,ITAI)

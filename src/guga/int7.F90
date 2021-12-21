@@ -12,15 +12,20 @@
 !***********************************************************************
 
 subroutine INT7(I,K,L,IDIAG,BUFOUT,INDOUT,ICAD,IBUFL,KBUF,NTPB)
-
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
-dimension BUFOUT(*), INDOUT(*), ICAD(*), IBUFL(*)
 ! I < L  I == K  J == L
+
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: I, K, L, IDIAG, INDOUT(*), ICAD(*), IBUFL(*), KBUF, NTPB
+real(kind=wp) :: BUFOUT(*)
+#include "SysDef.fh"
 #include "real_guga.fh"
 #include "integ.fh"
 #include "files_addr.fh"
 #include "d.fh"
+integer(kind=iwp) :: IAD110, ICP, ICPP, ICQ, IDIV, IJJ, IN, IPOS, ISTOP, ISU, ISUM, IT1, IT2, ITAIL, ITT, ITURN, ITYP, IVL, JND1, &
+                     KBUF0, KBUF1, KBUF2, KM, LJ, LJM, LJS, NBN
 
 IJJ = 0 ! dummy initialize
 KBUF0 = RTOI*KBUF
@@ -68,7 +73,7 @@ do ITT=1,ILIM
     if (ITURN == 0) call LOOP14(KM,ISTOP,IT1,IT2)
     if (ITURN == 1) call LOOP18(KM,ISTOP,IT1,IT2)
     if (ISTOP == 1) GO TO 73
-    if (abs(COUP(I)) < 1.D-06) GO TO 71
+    if (abs(COUP(I)) < 1.0e-6_wp) GO TO 71
     if (IDIAG == 0) GO TO 105
     if (ICOUP1(I) /= ICOUP(I)) GO TO 71
     GO TO 106

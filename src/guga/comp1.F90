@@ -13,15 +13,21 @@
 
 subroutine COMP1(LJ,ITYP,L,IT2,II,IID,JJ,JJD,JTYP,ITAI)
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: LJ, ITYP, L, IT2, II, IID, JJ, JJD, JTYP, ITAI(*)
 #include "SysDef.fh"
-dimension ITAI(*)
 #include "real_guga.fh"
 #include "integ.fh"
 #include "files_addr.fh"
 #include "d.fh"
+integer(kind=iwp) :: IC1, IC2, ICT, IN, IN2, IND, ITAIL, JND1, JND2, JOJ, KK1, KTYP
+real(kind=wp) :: FAC
+integer(kind=iwp), external :: ICUNP
 ! statement function
-JO(L) = ICUNP(ICASE,L)
+integer(kind=iwp) :: JO, I
+JO(I) = ICUNP(ICASE,I)
 
 FAC = D1
 ITAIL = IX(IT2+LJ)
@@ -57,12 +63,10 @@ do IN=1,ITAIL
   COP(IOUT) = FAC*COUP(1)
   if (IOUT < NBUF) GO TO 90
   ICOP1(nCOP+1) = NBUF
-  if (.false.) then
-    write(6,*) 'WRITING BUFFER IN COMP1'
-    write(6,*) '======================='
-    write(6,'(A,I6)') 'ICOP1(nCOP+1) ',ICOP1(nCOP+1)
-    write(6,'(A,I6)') 'IADD10     ',IADD10
-  end if
+  !write(u6,*) 'WRITING BUFFER IN COMP1'
+  !write(u6,*) '======================='
+  !write(u6,'(A,I6)') 'ICOP1(nCOP+1) ',ICOP1(nCOP+1)
+  !write(u6,'(A,I6)') 'IADD10     ',IADD10
   call dDAFILE(Lu_10,1,COP,NCOP,IADD10)
   call iDAFILE(Lu_10,1,iCOP1,NCOP+1,IADD10)
   NMAT = NMAT+NBUF

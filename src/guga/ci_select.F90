@@ -13,13 +13,16 @@
 
 subroutine CI_SELECT(INDOUT,ICAD,IBUFL,L0,L1,L2,L3,KBUF,NTPB,NBINS)
 
-implicit real*8(A-H,O-Z)
-external int8, Int2, int1, int4
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: INDOUT(*), ICAD(*), IBUFL(*), L0(*), L1(*), L2(*), L3(*), KBUF, NTPB, NBINS
 #include "SysDef.fh"
-dimension INDOUT(*), ICAD(*), IBUFL(*), L0(*), L1(*), L2(*), L3(*)
 #include "real_guga.fh"
 #include "integ.fh"
 #include "files_addr.fh"
+integer(kind=iwp) :: ID, IDIAG, IFIN, II, IID, IND1, IND2, IREC, IST, IT1, IT2, ITIM, ITT, JJ, JJD, JTYP, KBUF2, M1, M2, M2MIN, &
+                     M3, M4, NA, NB, NC, ND, NSA, NSABC, NSAV1, NSAV2, NSAVE, NSB, NSC, NSCD, NSD
 
 call JTIME(IST)
 call CI_SELECT_INTERNAL(INDOUT,IBUFL)
@@ -31,9 +34,11 @@ contains
 
 subroutine CI_SELECT_INTERNAL(INDOUT,IBUFL)
 
-  use iso_c_binding
-  integer, target :: INDOUT(*), IBUFL(*)
-  real*8, pointer :: dINDOUT(:), dIBUFL(:)
+  use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+
+  integer(kind=iwp), target :: INDOUT(*), IBUFL(*)
+  real(kind=wp), pointer :: dINDOUT(:), dIBUFL(:)
+
   call c_f_pointer(c_loc(INDOUT),dINDOUT,[1])
   call c_f_pointer(c_loc(IBUFL),dIBUFL,[1])
 
@@ -235,14 +240,14 @@ subroutine CI_SELECT_INTERNAL(INDOUT,IBUFL)
           do ITT=1,ILIM
             IT1 = (ITT-1)*MXVERT
             IT2 = IT1
-            call int8(NB,NA,NC,IT1,IT2,II,IID,JJ,JJD,JTYP,INDOUT,L0,L1,L2,L3)
+            call INT8(NB,NA,NC,IT1,IT2,II,IID,JJ,JJD,JTYP,INDOUT,L0,L1,L2,L3)
           end do
           GO TO 510
 546       if (NC == ND) GO TO 510
           do ITT=1,ILIM
             IT1 = (ITT-1)*MXVERT
             IT2 = IT1
-            call int8(ND,NC,NA,IT1,IT2,II,IID,JJ,JJD,JTYP,INDOUT,L0,L1,L2,L3)
+            call INT8(ND,NC,NA,IT1,IT2,II,IID,JJ,JJD,JTYP,INDOUT,L0,L1,L2,L3)
           end do
           GO TO 510
 547       if (NB > ND) GO TO 540

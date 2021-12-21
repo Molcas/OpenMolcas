@@ -13,15 +13,19 @@
 
 subroutine JSPCK(INTSYM,L,ISYM)
 
-dimension INTSYM(*)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: INTSYM(*), L, ISYM
+integer(kind=iwp) :: IPOW, MY
 
 !INTW = INTSYM((L+9)/10)
 !IPOW = 2**(27-3*mod(L-1,10))
 !INTW = INTW+(ISYM-1)*IPOW
 !INTSYM((L+9)/10) = INTW
-My = (L+9)/10
+MY = (L+9)/10
 IPOW = 2**(27-3*mod(L-1,10))
-INTSYM(My) = INTSYM(My)+(ISYM-1)*IPOW
+INTSYM(MY) = INTSYM(MY)+(ISYM-1)*IPOW
 
 return
 

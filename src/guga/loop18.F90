@@ -12,9 +12,15 @@
 !***********************************************************************
 
 subroutine LOOP18(KM,ISTOP,IT1,IT2)
-implicit real*8(A-H,O-Z)
+
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: KM, ISTOP, IT1, IT2
 #include "real_guga.fh"
 #include "integ.fh"
+integer(kind=iwp) :: IDIF, IWAYKM, KM1
+real(kind=wp) :: WM0, WP0
 
 ISTOP = 0
 KM1 = KM+1

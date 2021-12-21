@@ -13,10 +13,14 @@
 
 subroutine TAB2F(IVER,LV)
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: IVER, LV
 #include "real_guga.fh"
 #include "integ.fh"
-dimension IORB(MXVERT)
+integer(kind=iwp) :: I, IA1, IAT, IB1, IBT, IEL, II, IIM, IJD, IJR, IJRL, IJS, IJS1, IN, IORB(MXVERT), ISTOP, IUT, IUT1, J, J11, &
+                     J3, J4, JJ, JJ1, JJ2, K, NIJ, NIJ1, nijj
 
 nijj = 0
 IEL = 2
@@ -193,7 +197,7 @@ if (IPRINT >= 5) write(IW,101)
 101 format(///,6X,'TAB2F',//,8X,'J',7X,'AF',2X,'BF',6X,'K0F',1X,'K1F',1X,'K2F',1X,'K3F',/)
 if (IPRINT >= 5) write(IW,100) (J,IAF(J),IBF(J),K0F(J),K1F(J),K2F(J),K3F(J),J=1,IUT)
 100 format(6X,I3,5X,2I4,5X,4I4)
-write(6,*) ' Number of vertices',nijj,iut
+write(u6,*) ' Number of vertices',nijj,iut
 if (nijj > iver) go to 300
 return
 300 write(IW,310) IVER

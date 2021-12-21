@@ -10,4 +10,5 @@
 !***********************************************************************
 ! This file is used by GUGA, MRCI and CPFMCPF
 ! Value 20000 works. Upper limit is not known now.
+      INTEGER nIOCR
       Parameter (nIOCR=20000)

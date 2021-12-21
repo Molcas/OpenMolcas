@@ -13,13 +13,19 @@
 
 subroutine AI(JTYP,ITAI,L0,L1,L2,L3)
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: JTYP, ITAI(*), L0(*), L1(*), L2(*), L3(*)
 #include "SysDef.fh"
-dimension ITAI(*), L0(*), L1(*), L2(*), L3(*)
 #include "real_guga.fh"
 #include "integ.fh"
 #include "files_addr.fh"
 #include "d.fh"
+integer(kind=iwp) :: I, ICP1, ICP2, II, IID, IJJ, IJM, IJS, IN, IN2, IND, ISTOP, IT1, IT2, ITAIL, ITT1, ITT2, ITURN, ITYP, JJ, &
+                     JJD, JMAX, JND1, JND2, JOUT, KM, NI
+real(kind=wp) :: CHKSUM
 
 IOUT = 0
 NMAT = 0
@@ -130,7 +136,7 @@ NMAT = NMAT+IOUT
 ICOP1(NCOP+1) = -1
 call dDAFILE(Lu_10,1,COP,NCOP,IADD10)
 call iDAFILE(Lu_10,1,iCOP1,NCOP+1,IADD10)
-CHKSUM = 0.0d0
+CHKSUM = Zero
 do I=1,NCOP
   CHKSUM = CHKSUM+COP(I)
 end do

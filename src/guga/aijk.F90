@@ -13,13 +13,15 @@
 
 subroutine AIJK(ITAI,L0,L1,L2,L3)
 
-implicit real*8(A-H,O-Z)
-external int8, Int2, int1, int4
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: ITAI(*), L0(*), L1(*), L2(*), L3(*)
 #include "SysDef.fh"
 #include "files_addr.fh"
-dimension ITAI(*), L0(*), L1(*), L2(*), L3(*)
 #include "real_guga.fh"
 #include "integ.fh"
+integer(kind=iwp) :: I, II, IID, IND, IT1, IT2, ITT1, ITT2, ITURN, J, JJ, JJD, K, L, NI, NJ, NK
 
 IOUT = 0
 NMAT = 0
@@ -77,7 +79,7 @@ do NI=1,LN
       call INT4(L,K,I,IT1,IT2,II,IID,JJ,JJD,ITURN,ITAI,L0,L1,L2,L3)
       GO TO 35
 535   if (I /= J) GO TO 546
-      call int8(L,K,I,IT1,IT2,II,IID,JJ,JJD,ITURN,ITAI,L0,L1,L2,L3)
+      call INT8(L,K,I,IT1,IT2,II,IID,JJ,JJD,ITURN,ITAI,L0,L1,L2,L3)
       GO TO 35
 546   if (K < I) GO TO 540
       call INT3(J,I,L,K,IT1,IT2,II,IID,JJ,JJD,ITURN,ITAI,L0,L1,L2,L3)

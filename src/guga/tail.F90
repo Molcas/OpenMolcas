@@ -12,9 +12,13 @@
 !***********************************************************************
 
 subroutine TAIL(LL,IJJ,ITAI,ITAIL,L0,L1,L2,L3,IT1,IT2)
-implicit real*8(A-H,O-Z)
-dimension ITAI(*), L0(*), L1(*), L2(*), L3(*)
+
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: LL, IJJ, ITAI(*), ITAIL, L0(*), L1(*), L2(*), L3(*), IT1, IT2
 #include "integ.fh"
+integer(kind=iwp) :: I, KM, KM1, L
 
 L = LL+1
 if (ITAIL == 0) then

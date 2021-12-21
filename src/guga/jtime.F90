@@ -13,7 +13,11 @@
 
 subroutine JTIME(ITIME)
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: ITIME
+real(kind=wp) :: DTIM, DUM
 
 call TIMING(DTIM,DUM,DUM,DUM)
 ITIME = int(DTIM)

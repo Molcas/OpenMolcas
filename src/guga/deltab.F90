@@ -13,13 +13,16 @@
 
 subroutine DELTAB(NREF,IOCR,L0,L1,L2,L3,INTNUM,LV,IFCORE,ICOR,NONE,JONE,K00,K11,K22,K33,L00,L11,L22,L33)
 
-implicit real*8(A-H,O-Z)
-dimension IOCR(*), L0(*), L1(*), L2(*), L3(*), ICOR(*), JONE(*), K00(*), K11(*), K22(*), K33(*), L00(*), L11(*), L22(*), L33(*)
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: NREF, IOCR(*), L0(*), L1(*), L2(*), L3(*), INTNUM, LV, IFCORE, ICOR(*), NONE, JONE(*), K00(*), K11(*), &
+                     K22(*), K33(*), L00(*), L11(*), L22(*), L33(*)
 #include "real_guga.fh"
 #include "integ.fh"
-dimension IOC(55), ISP(55)
-dimension K0M(MXVERT), K1M(MXVERT), K2M(MXVERT), K3M(MXVERT)
-dimension L0M(MXVERT), L1M(MXVERT), L2M(MXVERT), L3M(MXVERT)
+integer(kind=iwp) :: I, IBS, IDIF, IEL, IIJ, IJJ, INHOLE, IOC(55), IPART, IREF, IRR, ISP(55), ISTA, JHOLE, JJ1, JPART, K, &
+                     K0M(MXVERT), K1M(MXVERT), K2M(MXVERT), K3M(MXVERT), KM, KM1, L0M(MXVERT), L1M(MXVERT), L2M(MXVERT), &
+                     L3M(MXVERT), LNS, LSYM, NCORR, NSJ
 
 do I=1,4*MXVERT
   K0(I) = 0
@@ -118,9 +121,9 @@ do IIJ=1,ILIM
 112   continue
     end do
     if (JPART /= JHOLE) then
-      write(6,*) 'DeltaB: JPART.NE.JHOLE'
-      write(6,*) 'JPART,JHOLE=',JPART,JHOLE
-      write(6,*) 'iREF=',iREF
+      write(u6,*) 'DeltaB: JPART.NE.JHOLE'
+      write(u6,*) 'JPART,JHOLE=',JPART,JHOLE
+      write(u6,*) 'iREF=',iREF
       call Abend()
     end if
     if (JPART <= IEL) GO TO 113

@@ -13,13 +13,17 @@
 
 subroutine TAB2(NREF,IOCR,nIOCR,L0,L1,L2,L3,INTNUM,LV,LSYM,ICIALL,IFCORE,ICOR,NONE,JONE)
 
-implicit real*8(A-H,O-Z)
-dimension IOCR(nIOCR), L0(*), L1(*), L2(*), L3(*), ICOR(*), JONE(*)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: NREF, nIOCR, IOCR(nIOCR), L0(*), L1(*), L2(*), L3(*), INTNUM, LV, LSYM, ICIALL, IFCORE, ICOR(*), NONE, JONE(*)
 #include "real_guga.fh"
 #include "integ.fh"
-dimension IORB(MXVERT)
-dimension K00(MXVERT), K11(MXVERT), K22(MXVERT), K33(MXVERT)
-dimension L00(MXVERT), L11(MXVERT), L22(MXVERT), L33(MXVERT)
+integer(kind=iwp) :: I, I0, I1, IA1, IAC, IAT, IB1, IBMAX, IBS, IBT, IEL, II, IIJ, IIJF, IIM, IIM2, IJD, IJFL, IJFS, IJL, IJR, &
+                     IJRL, IJS, IJS1, IL, IN, INUM, IORB(MXVERT), ISTA, ISTOP, ISUM, ITTT, IUT, IUT1, J, J11, J3, J4, JJ, JJ1, &
+                     JJ2, JL, JMAX, K, K00(MXVERT), K11(MXVERT), K22(MXVERT), K33(MXVERT), L00(MXVERT), L11(MXVERT), L22(MXVERT), &
+                     L33(MXVERT), LN1, NAC, NACU, NIJ, NIJ1
+real(kind=wp) :: FB, FBB
 
 IEL = 2
 if (IFIRST /= 0) IEL = 1
@@ -356,8 +360,8 @@ do I=2,ILIM
 end do
 ISUM = IRC(ILIM)
 if (ISUM > LIX) then
-  write(6,*) 'Tab2: ISUM > LIX'
-  write(6,*) 'ISUM,LIX=',ISUM,LIX
+  write(u6,*) 'Tab2: ISUM > LIX'
+  write(u6,*) 'ISUM,LIX=',ISUM,LIX
   call Abend()
 end if
 do I=1,10

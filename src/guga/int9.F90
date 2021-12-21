@@ -11,14 +11,17 @@
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
 !***********************************************************************
 
-
 subroutine INT9(I,J,L,IT1,IT2,II,IID,JJ,JJD,JTYP,ITAI,L0,L1,L2,L3)
-implicit real*8(A-H,O-Z)
-dimension ITAI(*), L0(*), L1(*), L2(*), L3(*)
 ! I < L . CASE 1 J=K=L , CASE 2 I=J=K .
+
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: I, J, L, IT1, IT2, II, IID, JJ, JJD, JTYP, ITAI(*), L0(*), L1(*), L2(*), L3(*)
 #include "real_guga.fh"
 #include "integ.fh"
-!common/ADDR/IADD10,IAD10(9),IADD11,IDUM,COP(600),ICOP1(601)
+integer(kind=iwp) :: ISTOP, ITAIL, ITYP, KM, LJ, LJM, LJS
+real(kind=wp) :: FAC
 
 ITYP = 0
 FAC = D1
@@ -53,7 +56,7 @@ do LJ=LJS,LJM
   FAC = D1
   if (IWAY(KM) == 2) FAC = D0
 54 if (FAC == D0) GO TO 52
-  if (abs(COUP(I)) < 1.D-06) GO TO 52
+  if (abs(COUP(I)) < 1.0e-6_wp) GO TO 52
   call COMP(I,LJ,ITYP,I,IT1,IT2)
   GO TO 52
 53 KM = KM+1

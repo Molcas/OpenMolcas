@@ -12,12 +12,15 @@
 !***********************************************************************
 
 subroutine INT3(I,J,K,L,IT1,IT2,II,IID,JJ,JJD,JTYP,ITAI,L0,L1,L2,L3)
-
-implicit real*8(A-H,O-Z)
-dimension ITAI(*), L0(*), L1(*), L2(*), L3(*)
 ! K < I < J < L
+
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: I, J, K, L, IT1, IT2, II, IID, JJ, JJD, JTYP, ITAI(*), L0(*), L1(*), L2(*), L3(*)
 #include "real_guga.fh"
 #include "integ.fh"
+integer(kind=iwp) :: ISTOP, ITAIL, ITURN, ITYP, KM, LJ, LJM, LJS
 
 ITYP = 0
 LJS = IJ(L+1)+1
@@ -85,7 +88,7 @@ do LJ=LJS,LJM
 71 KM = K
   call LOOP3(KM,ISTOP,IT1,IT2)
   if (ISTOP == 1) GO TO 73
-  if (abs(COUP(K)) < 1.D-06) GO TO 71
+  if (abs(COUP(K)) < 1.0e-6_wp) GO TO 71
   call COMP(K,LJ,ITYP,K,IT1,IT2)
   GO TO 71
 73 KM = KM+1

@@ -13,9 +13,13 @@
 
 subroutine LOOP9(KM,ISTOP,IT1,IT2)
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: KM, ISTOP, IT1, IT2
 #include "real_guga.fh"
 #include "integ.fh"
+integer(kind=iwp) :: IDIF, J1F, KM1
 
 ISTOP = 0
 KM1 = KM+1

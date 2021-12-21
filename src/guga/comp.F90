@@ -13,19 +13,26 @@
 
 subroutine COMP(I,LJ,ITYP,L,IT1,IT2)
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: I, LJ, ITYP, L, IT1, IT2
 #include "SysDef.fh"
 #include "real_guga.fh"
 #include "integ.fh"
 #include "files_addr.fh"
 #include "d.fh"
+integer(kind=iwp) :: IC1, IC2, II1, IN, IND, ISTOP, ITAIL, IVL, IVL0, IVV, JJ, JJD, JND1, JND2, JOJ, KM
+real(kind=wp) :: FAC
+integer(kind=iwp), external :: ICUNP
 ! statement function
-JO(L) = ICUNP(ICASE,L)
+integer(kind=iwp) :: JO, J
+JO(J) = ICUNP(ICASE,J)
 
 if (IT1 /= IT2) then
-  write(6,*) 'Comp: IT1.NE.IT2'
-  write(6,*) 'IT1,IT2=',IT1,IT2
-  write(6,*) 'ITYP,L=',ITYP,L
+  write(u6,*) 'Comp: IT1.NE.IT2'
+  write(u6,*) 'IT1,IT2=',IT1,IT2
+  write(u6,*) 'ITYP,L=',ITYP,L
   call Abend()
 end if
 FAC = D1

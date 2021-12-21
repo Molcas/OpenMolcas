@@ -10,6 +10,11 @@
 !                                                                      *
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
 !***********************************************************************
+      INTEGER MXVERT,MXCASE,ICASE,IO,IW,N,ISPIN,LN,IA,IB,IJ,ISPA,K0,K1, &
+     &        K2,K3,IAF,IBF,LNP,ILIM,IJF,IX,IY,IWAY,J1,J2,JM,JM1,ICOUP, &
+     &        ICOUP1,NBUF,IOUT,NMAT,NSYM,NSH,MUL,NSM,IRC,LIX,K0F,K1F,   &
+     &        K2F,K3F,IPO,IPRINT,JRC,ICH,IFIRST,IV0,IV1,IV2,IV3,IVF0,   &
+     &        IVF1,IVF2,IVF3,NIORB
       PARAMETER (MXVERT=1000, MXCASE=14000)
       COMMON/INTEG_GUGA/ICASE(MXCASE),IO,IW,N,ISPIN,LN,                 &
      &   IA(MXVERT),IB(MXVERT),IJ(55),ISPA,K0(4*MXVERT),                &

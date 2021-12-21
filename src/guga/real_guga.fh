@@ -10,6 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
 !***********************************************************************
+      INTEGER MAXB
+      REAL*8 S,BS1,BS2,BS3,BS4,BL1,BL2,COUP,COUP1,D0,D1,D2
       Parameter(MAXB=8)
       COMMON/REAL_GUGA/S,                                               &
      &            BS1(MAXB+3),BS2(MAXB+3),BS3(MAXB+3),                  &

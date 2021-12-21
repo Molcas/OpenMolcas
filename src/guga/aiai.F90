@@ -13,13 +13,19 @@
 
 subroutine AIAI(BUFOUT,INDOUT,ICAD,IBUFL,KBUF,NTPB,NBINS)
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: BUFOUT(*)
+integer(kind=iwp) :: INDOUT(*), ICAD(*), IBUFL(*), KBUF, NTPB, NBINS
 #include "SysDef.fh"
-dimension BUFOUT(*), INDOUT(*), ICAD(*), IBUFL(*)
 #include "real_guga.fh"
 #include "integ.fh"
 #include "files_addr.fh"
 #include "d.fh"
+integer(kind=iwp) :: I, IAD110, ICP, ICPP, ICQ, IDIV, IFAI, IIJ, IJJ, IJM, IJS, IN, IPOS, ISTOP, ISU, ISUM, IT1, IT2, ITAIL, ITT, &
+                     IVL, JND1, KBUF0, KBUF1, KBUF2, KM, NBN, NI
+real(kind=wp) :: CP
 
 KBUF0 = RTOI*KBUF
 KBUF1 = KBUF0+KBUF+1

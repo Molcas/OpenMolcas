@@ -22,16 +22,20 @@
 
 subroutine GUGA(IRETURN)
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp, u5, u6
+
+implicit none
+integer(kind=iwp) :: IRETURN
 #include "SysDef.fh"
 #include "WrkSpc.fh"
 #include "real_guga.fh"
 #include "integ.fh"
 #include "files_addr.fh"
 #include "d.fh"
-!dimension JSYM(30000), SO(1000000), JSY(3000)
-dimension JSYM(30000), JSY(3000)
-dimension L0(4*MXVERT), L1(4*MXVERT), L2(4*MXVERT), L3(4*MXVERT)
+integer(kind=iwp) :: I, ISPAC, IST, JSY(3000), JSYM(30000), KB, KBUF, KBUF2, L0(4*MXVERT), L1(4*MXVERT), L2(4*MXVERT), &
+                     L3(4*MXVERT), LDummy, LIM, LSOArr, LSTO, LW1, LW2, MCOP, NBINS, NCOR, NCORX, NTPB !, SO(1000000)
+real(kind=wp) :: A, B, C
 
 ! Prologue
 
@@ -67,16 +71,16 @@ call iDAFILE(Lu_10,1,IAD10,9,IADD10)
 
 ! Read input
 
-IO = 5
-IW = 6
+IO = u5
+IW = u6
 ISPA = NCOR
 LIX = 500000
 NBUF = 600
 !PAM96: Use variable MCOP, size of buffers:
 MCOP = NBUF*RTOI+NBUF+1
-D0 = 0.0d0
-D1 = 1.0d0
-D2 = 2.0d0
+D0 = Zero
+D1 = One
+D2 = Two
 call INPUT_GUGA(iWork(LSOArr),JSYM,JSY,L0,L1,L2,L3,ISPAC)
 
 ! Main body
@@ -108,14 +112,14 @@ LW1 = LSTO+1
 LW2 = LW1+NBINS
 LIM = LW2+NBINS
 if (LIM > NCOR) then
-  write(6,*) 'Guga: LIM > NCOR, position 1'
-  write(6,*) 'LIM,NCOR=',LIM,NCOR
+  write(u6,*) 'Guga: LIM > NCOR, position 1'
+  write(u6,*) 'LIM,NCOR=',LIM,NCOR
   call Abend()
 end if
 LIM = LW2+KBUF2
 if (LIM > NCOR) then
-  write(6,*) 'Guga: LIM > NCOR, position 2'
-  write(6,*) 'LIM,NCOR=',LIM,NCOR
+  write(u6,*) 'Guga: LIM > NCOR, position 2'
+  write(u6,*) 'LIM,NCOR=',LIM,NCOR
   call Abend()
 end if
 call ICOPY(LW1,[0],0,iWork(LSOArr),1)

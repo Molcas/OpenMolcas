@@ -12,12 +12,15 @@
 !***********************************************************************
 
 subroutine INT4(I,J,L,IT1,IT2,II,IID,JJ,JJD,JTYP,ITAI,L0,L1,L2,L3)
-
-implicit real*8(A-H,O-Z)
-dimension ITAI(*), L0(*), L1(*), L2(*), L3(*)
 ! I < J == K < L
+
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: I, J, L, IT1, IT2, II, IID, JJ, JJD, JTYP, ITAI(*), L0(*), L1(*), L2(*), L3(*)
 #include "real_guga.fh"
 #include "integ.fh"
+integer(kind=iwp) :: ISTOP, ITAIL, ITURN, ITYP, KM, LJ, LJM, LJS
 
 ITYP = 0
 LJS = IJ(L+1)+1
@@ -66,7 +69,7 @@ do LJ=LJS,LJM
   if (ITURN == 0) call LOOP3(KM,ISTOP,IT1,IT2)
   if (ITURN == 1) call LOOP4(KM,ISTOP,IT1,IT2)
   if (ISTOP == 1) GO TO 73
-  if (abs(COUP(I)) < 1.D-06) GO TO 71
+  if (abs(COUP(I)) < 1.0e-6_wp) GO TO 71
   call COMP(I,LJ,ITYP,I,IT1,IT2)
   GO TO 71
 73 KM = KM+1

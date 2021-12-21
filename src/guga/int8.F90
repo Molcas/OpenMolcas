@@ -12,13 +12,16 @@
 !***********************************************************************
 
 subroutine INT8(I,J,L,IT1,IT2,II,IID,JJT,JJD,JTYP,ITAI,L0,L1,L2,L3)
-
-implicit real*8(A-H,O-Z)
-dimension ITAI(*), L0(*), L1(*), L2(*), L3(*)
 ! K == L , I < J
+
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: I, J, L, IT1, IT2, II, IID, JJT, JJD, JTYP, ITAI(*), L0(*), L1(*), L2(*), L3(*)
 #include "real_guga.fh"
 #include "integ.fh"
-!common/ADDR/IADD10,IAD10(9),IADD11,IDUM,COP(600),ICOP1(601)
+integer(kind=iwp) :: ISTOP, ITAIL, ITYP, JJ, JJM, JJS, KM
+real(kind=wp) :: FAC
 
 ITYP = 0
 if ((L < I) .or. (L > J)) ITYP = 1
@@ -54,7 +57,7 @@ do JJ=JJS,JJM
 52 KM = I
   call LOOP3(KM,ISTOP,IT1,IT2)
   if (ISTOP == 1) GO TO 53
-  if (abs(COUP(I)) < 1.D-06) GO TO 52
+  if (abs(COUP(I)) < 1.0e-6_wp) GO TO 52
   COUP(I) = FAC*COUP(I)
   call COMP(I,JJ,ITYP,L,IT1,IT2)
   GO TO 52

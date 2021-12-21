@@ -11,5 +11,6 @@
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
 !***********************************************************************
 #include "cop.fh"
+      INTEGER Lu_10,Lu_11,IADD11,IDUM
       Common/files_guga/Lu_10, Lu_11
       COMMON/ADDR_GUGA/IADD11,IDUM

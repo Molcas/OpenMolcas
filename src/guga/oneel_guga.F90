@@ -13,11 +13,13 @@
 
 subroutine ONEEL_GUGA()
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: iwp
+implicit none
 #include "SysDef.fh"
 #include "real_guga.fh"
 #include "integ.fh"
 #include "files_addr.fh"
+integer(kind=iwp) :: I, ISTOP, IT1, IT2, ITT, ITYP, J, K, KJL, KJS, KM, NI, NK, NSI, NSK
 
 IOUT = 0
 NMAT = 0

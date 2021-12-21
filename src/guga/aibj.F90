@@ -13,15 +13,22 @@
 
 subroutine AIBJ(L0,L1,L2,L3,ITAI)
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: L0(*), L1(*), L2(*), L3(*), ITAI(*)
 #include "SysDef.fh"
-dimension L0(*), L1(*), L2(*), L3(*), ITAI(*)
 #include "real_guga.fh"
 #include "integ.fh"
 #include "files_addr.fh"
 #include "d.fh"
-dimension NUMM(7)
+integer(kind=iwp) :: I, IABIJ, IC1, IC11, IC2, IC22, ICP1, ICP2, IDIF, IFAB, IFAI, II, IID, IJJ, IJM, IJS, IN, IN2, IND1, IND2, &
+                     IND3, ISTOP, IT1, IT2, ITAIL, ITT1, ITT2, ITURN, ITYP, J, JJ, JJ1, JJD, JND1, JND2, JOJ, JTURN, KM, KM1, &
+                     LTYP, NI, NJ, NUMM(7)
+real(kind=wp) :: COPL, COPLA, COPLA0
+integer(kind=iwp), external :: ICUNP
 ! statement function
+integer(kind=iwp) :: JO, L
 JO(L) = ICUNP(ICASE,L)
 
 IC1 = 0    ! dummy initialize

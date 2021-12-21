@@ -13,7 +13,11 @@
 
 subroutine CHEL(IA,IB,IIM,IEL,ISTOP)
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: IA, IB, IIM, IEL, ISTOP
+integer(kind=iwp) :: IR, IRR
 
 IR = IIM-1
 ! CHECK FOR A=0 , B=IEL

@@ -12,12 +12,15 @@
 !***********************************************************************
 
 subroutine INT62(I,K,L,IT1,IT2,II,IID,JJ,JJD,JTYP,ITAI,L0,L1,L2,L3)
-
-implicit real*8(A-H,O-Z)
-dimension ITAI(*), L0(*), L1(*), L2(*), L3(*)
 ! I < K < L  J == L
+
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: I, K, L, IT1, IT2, II, IID, JJ, JJD, JTYP, ITAI(*), L0(*), L1(*), L2(*), L3(*)
 #include "real_guga.fh"
 #include "integ.fh"
+integer(kind=iwp) :: ISTOP, ITAIL, ITURN, ITYP, KM, LJ, LJM, LJS
 
 LJS = IJ(L+1)+1
 LJM = IJ(L)
@@ -71,7 +74,7 @@ do LJ=LJS,LJM
   if (ITURN == 0) call LOOP4(KM,ISTOP,IT1,IT2)
   if (ITURN == 1) call LOOP3(KM,ISTOP,IT1,IT2)
   if (ISTOP == 1) GO TO 73
-  if (abs(COUP(I)) < 1.D-06) GO TO 71
+  if (abs(COUP(I)) < 1.0e-6_wp) GO TO 71
   if ((ITYP == 2) .and. (ICOUP1(I) < ICOUP(I))) GO TO 71
   call COMP(I,LJ,ITYP,I,IT1,IT2)
   GO TO 71

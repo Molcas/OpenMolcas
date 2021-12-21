@@ -13,12 +13,17 @@
 
 subroutine CONFIG(NREF,IOCR,nIOCR,L0,L1,L2,L3,JSYM,JSY,INTNUM,LSYM,JJS,ISO,LV,IFCORE,ICOR,NONE,JONE,JREFX,NFREF)
 
-implicit real*8(A-H,O-Z)
-dimension IOCR(nIOCR), L0(*), L1(*), L2(*), L3(*), JSYM(*), JSY(*), JJS(*), ISO(*), ICOR(*), JONE(*), JREFX(*)
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: NREF, nIOCR, IOCR(nIOCR), L0(*), L1(*), L2(*), L3(*), JSYM(*), JSY(*), INTNUM, LSYM, JJS(*), ISO(*), LV, &
+                     IFCORE, ICOR(*), NONE, JONE(*), JREFX(*), NFREF
 #include "real_guga.fh"
 #include "integ.fh"
 #include "d.fh"
-dimension IOC(55), ISP(55)
+integer(kind=iwp) :: I, I1, IBS, IDIF, IEL, IFEXC, IFREF, IIJ, IJJ, IND, INHOLE, INTOT, IOC(55), IPART, IRC1, IRC2, IREF, IRR, &
+                     ISP(55), ISTA, ITEMP, ITU, IX1, IX2, IX3, IX4, J, JHOLE, JJ1, JND, JPART, JRC1, JRC2, JRC21, JRX, JSYL, &
+                     JSYLL, K, KM, KM1, L, LMN, LMN0, LNS, M, M1, M2, MND, NCORR, NSJ, NSJ1
 
 JSYL = 30000
 JSYLL = 3000
@@ -159,8 +164,8 @@ do IIJ=1,ILIM
 112   continue
     end do
     if (JPART /= JHOLE) then
-      write(6,*) 'Config: JPART.NE.JHOLE'
-      write(6,*) 'JPART,JHOLE=',JPART,JHOLE
+      write(u6,*) 'Config: JPART.NE.JHOLE'
+      write(u6,*) 'JPART,JHOLE=',JPART,JHOLE
       call Abend()
     end if
     if (JPART <= IEL) IFEXC = 1
@@ -191,17 +196,14 @@ do IIJ=1,ILIM
   if (IIJ == 1) then
     ! CONSTRUCT INDEX LIST FOR REFERENCE STATES
     if (LMN > JRX) then
-      write(6,*) 'Config: LMN > JRX'
-      write(6,*) 'LMN,JRX=',LMN,JRX
-      write(6,*) 'This error is almost certainly that the problem'
-      write(6,*) ' at hand requires larger arrays than GUGA is'
-      write(6,*) ' compiled for. Please check your input against'
-      write(6,*) ' the manual. If you are certain that this'
-      write(6,*) ' calculation should be possible, please report'
-      write(6,*) ' this as a bug to the Molcas developers. Use'
-      write(6,*) ' the link ''http://www.teokem.lu.se/molcas'' '
-      write(6,*) ' and then ''Entry for Users'' and'
-      write(6,*) ' ''Report a new bug''.'
+      write(u6,*) 'Config: LMN > JRX'
+      write(u6,*) 'LMN,JRX=',LMN,JRX
+      write(u6,*) 'This error is almost certainly that the problem'
+      write(u6,*) ' at hand requires larger arrays than GUGA is'
+      write(u6,*) ' compiled for. Please check your input against'
+      write(u6,*) ' the manual. If you are certain that this'
+      write(u6,*) ' calculation should be possible, please report'
+      write(u6,*) ' this as a bug.'
       call Abend()
     end if
     JREFX(LMN) = 0
@@ -222,15 +224,12 @@ do IIJ=1,ILIM
 985 continue
   M = (LMN-1)*LN
   if (M+LN > ISPA) then
-    write(6,*) 'Config: M+LN > ISPA'
-    write(6,*) 'M,LN,ISPA=',M,LN,ISPA
-    write(6,*) 'This error may be due to a bug.'
-    write(6,*) ' Please check your input against the manual.'
-    write(6,*) ' If there is no input errors, please report'
-    write(6,*) ' this as a bug to the Molcas developers. Use'
-    write(6,*) ' the link ''http://www.teokem.lu.se/molcas'' '
-    write(6,*) ' and then ''Entry for Users'' and'
-    write(6,*) ' ''Report a new bug''.'
+    write(u6,*) 'Config: M+LN > ISPA'
+    write(u6,*) 'M,LN,ISPA=',M,LN,ISPA
+    write(u6,*) 'This error may be due to a bug.'
+    write(u6,*) ' Please check your input against the manual.'
+    write(u6,*) ' If there is no input errors, please report'
+    write(u6,*) ' this as a bug.'
     call Abend()
   end if
   do K=1,LN
@@ -255,22 +254,19 @@ write(IW,215) IX1,IX2,IX3,IX4
 215 format(/,6X,'NUMBER OF VALENCE STATES',I16,/,6X,'NUMBER OF DOUBLET COUPLED SINGLES',I7,/,6X, &
            'NUMBER OF TRIPLET COUPLED DOUBLES',I7,/,6X,'NUMBER OF SINGLET COUPLED DOUBLES',I7)
 if (LMN > JSYL) then
-  write(6,*) 'Config: LMN > JSYL'
-  write(6,*) 'LMN,JSYL=',LMN,JSYL
+  write(u6,*) 'Config: LMN > JSYL'
+  write(u6,*) 'LMN,JSYL=',LMN,JSYL
   call Abend()
 end if
 if ((IX1 >= 8192) .or. (IX2 >= 8192) .or. (IX3 >= 8192) .or. (IX4 >= 8192)) then
-  write(6,*) 'Config: IX? >= 8192'
-  write(6,*) 'IX1,IX2,IX3,IX4=',IX1,IX2,IX3,IX4
-  write(6,*) 'This error is almost certainly that the problem'
-  write(6,*) ' at hand requires larger arrays than GUGA is'
-  write(6,*) ' compiled for. Please check your input against'
-  write(6,*) ' the manual. If you are certain that this'
-  write(6,*) ' calculation should be possible, please report'
-  write(6,*) ' this as a bug to the Molcas developers. Use'
-  write(6,*) ' the link ''http://www.teokem.lu.se/molcas'' '
-  write(6,*) ' and then ''Entry for Users'' and'
-  write(6,*) ' ''Report a new bug''.'
+  write(u6,*) 'Config: IX? >= 8192'
+  write(u6,*) 'IX1,IX2,IX3,IX4=',IX1,IX2,IX3,IX4
+  write(u6,*) 'This error is almost certainly that the problem'
+  write(u6,*) ' at hand requires larger arrays than GUGA is'
+  write(u6,*) ' compiled for. Please check your input against'
+  write(u6,*) ' the manual. If you are certain that this'
+  write(u6,*) ' calculation should be possible, please report'
+  write(u6,*) ' this as a bug.'
   call Abend()
 end if
 ! SORT BY SYMMETRY
@@ -330,8 +326,8 @@ GO TO 410
 205 write(IW,216) IX1,IX2
 216 format(/,6X,'NUMBER OF VALENCE STATES',I16,/,6X,'NUMBER OF DOUBLET COUPLED SINGLES',I7)
 if ((IX1 >= 8192) .or. (IX2 >= 8192)) then
-  write(6,*) 'Config: IX? >= 8192'
-  write(6,*) 'IX1,IX2=',IX1,IX2
+  write(u6,*) 'Config: IX? >= 8192'
+  write(u6,*) 'IX1,IX2=',IX1,IX2
   call Abend()
 end if
 
@@ -340,8 +336,8 @@ end if
 !PAM97 M1 = (LMN0+29)/30
 M1 = (LMN0+14)/15
 if (M1 > MXCASE) then
-  write(6,*) 'Config: M1 > MXCASE'
-  write(6,*) 'M1,MXCASE=',M1,MXCASE
+  write(u6,*) 'Config: M1 > MXCASE'
+  write(u6,*) 'M1,MXCASE=',M1,MXCASE
   call Abend()
 end if
 M = 0

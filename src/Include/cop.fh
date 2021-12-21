@@ -8,5 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+      INTEGER nCOP,IADD10,IAD10,ICOP1
+      REAL*8 COP
       Parameter (nCOP=600)
       COMMON/COP/IADD10,IAD10(9),COP(nCOP),ICOP1(nCOP+1)

@@ -13,10 +13,12 @@
 
 subroutine CIALL(LSYM,NREF,IOCR,nIOCR,L0,L1,L2,L3,LV)
 
-implicit real*8(A-H,O-Z)
-dimension IOCR(nIOCR), L0(*), L1(*), L2(*), L3(*)
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: LSYM, NREF, nIOCR, IOCR(nIOCR), L0(*), L1(*), L2(*), L3(*), LV
 #include "integ.fh"
-dimension IOC(55)
+integer(kind=iwp) :: I, IIN, IJJ, IOC(55), KM, KM1, NSJ
 
 IIN = 0
 NREF = 0
@@ -67,9 +69,9 @@ do I=1,LN
   if (I <= NIORB+LV) GO TO 111
   IIN = IIN+1
   if (IIN > nIOCR) then
-    write(6,*) 'CIall: IIN > nIOCR'
-    write(6,*) 'IIN=',IIN
-    write(6,*) 'nIOCR=',nIOCR
+    write(u6,*) 'CIall: IIN > nIOCR'
+    write(u6,*) 'IIN=',IIN
+    write(u6,*) 'nIOCR=',nIOCR
     call Abend()
   end if
   IOCR(IIN) = IOC(I)

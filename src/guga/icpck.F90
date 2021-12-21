@@ -13,7 +13,11 @@
 
 subroutine ICPCK(ICSPCK,L,ICASE)
 
-dimension ICSPCK(*)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: ICSPCK(*), L, ICASE
+integer(kind=iwp) :: IPOW, MY
 
 !INTW = ICSPCK((L+14)/15)
 !IPOW = 2**(28-2*mod(L-1,15))

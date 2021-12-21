@@ -13,16 +13,20 @@
 
 subroutine LOOP7(KM,ISTOP,IT1,IT2)
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: KM, ISTOP, IT1, IT2
 #include "real_guga.fh"
 #include "integ.fh"
+integer(kind=iwp) :: J2F, KM1
 
 ISTOP = 0
 KM1 = KM+1
 J2F = IPO(J2(KM1))
 if (IWAY(KM) == 2) GO TO 55
 IWAY(KM) = 2
-!     (CB,AD)
+! (CB,AD)
 if ((K0(IT1+J1(KM1)) == 0) .or. (K3(IT2+J2(KM1)) == 0)) GO TO 55
 if (K1F(J2F) == 0) GO TO 141
 J1(KM) = K0(IT1+J1(KM1))
