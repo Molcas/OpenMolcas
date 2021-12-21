@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 2000, Roland Lindh                                     *
+* Copyright (C) 2000,2021, Roland Lindh                                *
+*               2021, Jie Bao                                          *
 ************************************************************************
       Subroutine Do_Batch(Kernel,Func,mGrid,
      &                    list_s,nlist_s,List_Exp,List_Bas,
@@ -379,17 +380,22 @@
       End If
 *                                                                      *
 ************************************************************************
-*                                                                      *
-*---- Compute density and grad_density
-*                                                                      *
 ************************************************************************
 ************************************************************************
+************************************************************************
+*                                                                      *
+*---- Compute Rho, Grad Rho, Tau, Laplacian, and the Sigma vectors.
+*     In case of gradient calculations compute Cartesian derivatives
+*     of Rho, Grad Rho, Tau, and the Laplacian.
 *                                                                      *
       Call Mk_Rho(list_s,nlist_s,Work(ip_Fact),ndc,list_bas,
      &            Index,nIndex,list_g,Do_Grad)
-
-      If (Do_Grad) Call Mk_dRho_dR(list_s,nlist_s,list_g,list_bas)
-
+*                                                                      *
+************************************************************************
+************************************************************************
+************************************************************************
+************************************************************************
+*                                                                      *
       If (Functional_type.eq.LDA_type) Then
 *                                                                      *
 ************************************************************************

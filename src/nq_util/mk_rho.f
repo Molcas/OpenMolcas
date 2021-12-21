@@ -670,6 +670,11 @@
          Call RecPrt('Grid_AO',' ',Grid_AO(:,:,:,iD),mAO*mGrid,
      &                                               nAO)
       End Do
+      If (Do_Grad) Then
+         nGrad_Eff = SIZE(dRho_dR,3)
+         Call RecPrt('dRho_dR_LDA: dRho_dR',' ',dRho_dR,
+     &                       SIZE(dRho_dR,1)*mGrid,nGrad_Eff)
+      End If
 #endif
 *                                                                      *
 ************************************************************************
