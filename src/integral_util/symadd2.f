@@ -52,6 +52,13 @@
          iIC = iIC + 1
  10   Continue
 *
+*     We denote the basis functions as X(alpha,mu,m_l,A)
+*
+*     alpha : irrep index
+*     mu    : radial contraction index
+*     m_l   : angular index
+*     A     : Atomic center
+
       lSO = 0
       iAdd = iBas-iBas_Eff
       jAdd = jBas-jBas_Eff
@@ -67,6 +74,12 @@
                kIC = jIC(j12)
                xb = DBLE(iChTbl(j2,nOp(2)))
                jMx = jCmp
+*
+*              If two sets of basis functions have the same
+*              irrep index, and share atomic center and radial
+*              contractions retrict the angular index combinations
+*              to be the unique combinations.
+
                If (iShell.eq.jShell .and. j1.eq.j2) jMx = i1
 *
                Do 400 i2 = 1, jMx
@@ -82,7 +95,7 @@
                         iTo  =(jB    -1)*iBas    +iB
                         SOInt(iTo,lSO)=SOInt(iTo,lSO)
      &                                +xa*xb*AOInt(iFrom,i1,i2,kIC)
-                        If (iSkal.eq.jSkal.and.nOp(1).ne.nOp(2)) Then
+                        If (iShell.eq.jShell.and.nOp(1).ne.nOp(2)) Then
                            iTo  =(iB    -1)*jBas    +jB
                            SOInt(iTo,lSO)=SOInt(iTo,lSO)
      &                                   +xa*xb*AOInt(iFrom,i2,i1,kIC)
@@ -105,8 +118,6 @@
       If (iPrint.ge.99) Then
          Call RecPrt(' In SymAd1: SOInt',' ',SOInt,iBas*jBas,nSOInt)
       End If
-      If (iPrint.ge.59) Call GetMem(' Exit SymAd1','CHECK','REAL',
-     &                              iDum,iDum)
       Return
 c Avoid unused argument warnings
       If (.False.) Then
@@ -114,5 +125,7 @@ c Avoid unused argument warnings
          Call Unused_integer(jAng)
          Call Unused_integer(iShll)
          Call Unused_integer(jShll)
+         Call Unused_integer(iSkal)
+         Call Unused_integer(jSkal)
       End If
       End
