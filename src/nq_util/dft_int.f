@@ -24,10 +24,10 @@
 *             SWEDEN. November 2008                                    *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-      External Do_NInt1_d, Do_nInt1,
-     &         Do_NInt2_d, Do_nInt2,
-     &         Do_NInt3_d, Do_nInt3,
-     &         Do_NInt4_d, Do_nInt4
+      External Do_NInt1_d, Do_nInt1, Do_nInt1X,
+     &         Do_NInt2_d, Do_nInt2, Do_nInt2X,
+     &         Do_NInt3_d, Do_nInt3, Do_nInt3X,
+     &         Do_NInt4_d, Do_nInt4, Do_nInt4X
 #include "functional_types.fh"
       Integer Functional_type
       Real*8 Weights(mGrid), SOTemp(nSOTemp,iSpin), Fact(ndc**2),
@@ -41,7 +41,7 @@
       If (Functional_type.eq.LDA_type) Then
          nFn=1
          nScr=iSpin*nFn*nAOMax
-         Call DFT_IntX(Do_NInt1_d,Do_NInt1,
+         Call DFT_IntX(Do_NInt1_d,Do_NInt1,Do_nInt1X,
      &                 Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                 FckInt,nFckInt,SOTemp,nSOTemp,
      &                 ipTabAO,dF_dRho,ndF_dRho,
@@ -54,7 +54,7 @@
       Else If (Functional_type.eq.GGA_type) Then
          nFn=4
          nScr=iSpin*nFn*nAOMax
-         Call DFT_IntX(Do_NInt2_d,Do_NInt2,
+         Call DFT_IntX(Do_NInt2_d,Do_NInt2,Do_nInt2X,
      &                 Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                 FckInt,nFckInt,SOTemp,nSOTemp,
      &                 ipTabAO,dF_dRho,ndF_dRho,
@@ -67,7 +67,7 @@
       Else If (Functional_type.eq.meta_GGA_type1) Then
          nFn=4
          nScr=iSpin*nFn*nAOMax
-         Call DFT_IntX(Do_NInt4_d,Do_NInt4,
+         Call DFT_IntX(Do_NInt4_d,Do_NInt4,Do_nInt4X,
      &                 Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                 FckInt,nFckInt,SOTemp,nSOTemp,
      &                 ipTabAO,dF_dRho,ndF_dRho,
@@ -80,7 +80,7 @@
       Else If (Functional_type.eq.meta_GGA_type2) Then
          nFn=5
          nScr=iSpin*nFn*nAOMax
-         Call DFT_IntX(Do_NInt3_d,Do_NInt3,
+         Call DFT_IntX(Do_NInt3_d,Do_NInt3,Do_nInt3X,
      &                 Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                 FckInt,nFckInt,SOTemp,nSOTemp,
      &                 ipTabAO,dF_dRho,ndF_dRho,

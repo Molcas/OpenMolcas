@@ -11,7 +11,7 @@
 * Copyright (C) 2000, Roland Lindh                                     *
 *               Ajitha Devarajan                                       *
 ************************************************************************
-      Subroutine DFT_IntX(Do_NInt_d,Do_NInt,
+      Subroutine DFT_IntX(Do_NInt_d,Do_NInt, Do_NIntX,
      &                    Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                    FckInt,nFckInt,SOTemp,nSOTemp,
      &                    ipTabAO,dF_dRho,ndF_dRho,
@@ -33,9 +33,11 @@
 ************************************************************************
       use iSD_data
       use Symmetry_Info, only: nIrrep
-      use nq_Grid, only: TabAO_Pack
+      use nq_Grid, only: TabAO_Pack, TabAO, Grid_AO, iBfn_Index,
+     &                   AOIntegrals => Dens_AO
+      use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
-      External Do_NInt_d, Do_NInt
+      External Do_NInt_d, Do_NInt, Do_NIntX
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
@@ -55,8 +57,51 @@
 *     contributions to the SO integrals on the fly.
 *
       iSmLbl=1
-*
       nGrid_Tot=0
+*
+      nBfn = Size(Grid_AO,3)
+      Call Do_NInt_d(ndF_dRho, dF_dRho,Weights,mGrid,
+     &               Grid_AO, TabAO,nBfn,nGrid_Tot,iSpin,mAO,nFn)
+      Call Do_NIntX(AOIntegrals,mGrid,Grid_AO,TabAO,nBfn,
+     &                   nGrid_Tot,iSpin,mAO,nFn)
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Set up an indexation translation between the running index of
+*     the AOIntegrals and the actuall basis function index
+*
+      iBfn = 0
+      Do ilist_s=1,nlist_s
+         iSkal = list_s(1,ilist_s)
+         kDCRE = list_s(2,ilist_s)
+         iShll = iSD( 0,iSkal)
+         iAng  = iSD( 1,iSkal)
+         iCmp  = iSD( 2,iSkal)
+         iBas  = iSD( 3,iSkal)
+         iBas_Eff=list_bas(1,ilist_s)
+         iAO   = iSD( 7,iSkal)
+         mdci  = iSD(10,iSkal)
+         iShell= iSD(11,iSkal)
+
+         iAdd = iBas-iBas_Eff
+         Do i1 = 1, iCmp
+            iSO1 = iAOtSO(iAO+i1,0)
+            Do i2 = 0, iBas_Eff-1
+               IndAO1 = i2 + iAdd
+               Indi = iSO1 + indAO1
+
+               iBfn = iBfn + 1
+               iBfn_Index(iBfn) = Indi
+            End Do
+         End Do
+      End Do
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     The purpose of this loop is to symmetry adapt the contributions.
+*                                                                      *
+************************************************************************
+*                                                                      *
       Do ilist_s=1,nlist_s
          iSkal = list_s(1,ilist_s)
          kDCRE = list_s(2,ilist_s)
@@ -70,6 +115,7 @@
          iShell= iSD(11,iSkal)
 *
          nOp(1) = NrOpr(kDCRE)
+*... to be removed ...
          Call Do_NInt_d(ndF_dRho, dF_dRho,
      &                  Weights,mGrid,
      &                  Scr, TabAO_Pack(ipTabAO(iList_s)),
@@ -95,14 +141,18 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-            Call Do_NInt(AOInt,nAOInt,mGrid,
-     &                   Scr,iCmp,iBas_Eff,
-     &                   TabAO_Pack(ipTabAO(jList_s)),jCmp,jBas_Eff,
+*... to be removed
+            iOff = ipTabAO(jList_s)/(Size(TabAO,1)*Size(TabAO,2)) + 1
+            Call Do_NInt(AOInt,nAOInt,mGrid,Scr,iCmp,iBas_Eff,
+     &                   TabAO(:,:,iOff:),jCmp,jBas_Eff,
      &                   nGrid_Tot,iSpin,mAO,nFn)
 *
             Do iD = 1, iSpin
 *
                If (nIrrep.ne.1) Then
+*
+*                 Gather the proper set of integral in the correct order
+*                 for the symmetry adaptation.
 *
 *---------------- Distribute contributions to the SO integrals
 *
@@ -128,6 +178,10 @@
 *
                Else
 *
+*                 Here we simply accumulate the AO integrals to the
+*                 correct position in the full FckInt matrix.
+*                 This should eventually be done outside of the loop.
+*
                   Call AOAdd_nq(AOInt(1,iD),iBas,iBas_Eff,jBas,jBas_Eff,
      &                          FckInt(1,iD),nFckInt,
      &                          iCmp,jCmp,iShell,jShell,iAO,jAO)
@@ -142,6 +196,9 @@
 *
          End Do                     ! jlist_s
       End Do                        ! ilist_s
+*                                                                      *
+************************************************************************
+*                                                                      *
       Flop=Flop+DBLE(nGrid_Tot)
 *
 #ifdef _WARNING_WORKAROUND_

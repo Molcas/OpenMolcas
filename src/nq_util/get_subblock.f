@@ -43,7 +43,7 @@
       use Center_Info
       use nq_Grid, only: Grid, Weights, TabAO, Grid_AO, Dens_AO,
      &                   TabAO_Pack, Ind_Grd, dRho_dR, TabAO_Short,
-     &                   kAO
+     &                   kAO, iBfn_Index
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "itmax.fh"
@@ -349,7 +349,9 @@ C              End If
       Call Allocate_iWork(ipTabAO,2*(nlist_s+1))
       Call mma_Allocate(Dens_AO,nBfn,nBfn,nD,Label='Dens_AO')
       Call mma_Allocate(Ind_Grd,3,nBfn,Label='Ind_Grd')
+      Call mma_Allocate(iBfn_Index,nBfn,Label='iBfn_Index')
       Ind_Grd(:,:)=0
+      iBfn_Index(:)=0
 *
       If ((Functional_Type.eq.CASDFT_Type).or.Do_MO.or.DO_TwoEl) Then
          nTabMO=mAO*nMOs*mGrid
@@ -740,6 +742,7 @@ c
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Call mma_deAllocate(iBfn_Index)
       Call mma_deAllocate(Ind_Grd)
       Call GetMem('Index','Free','Real',ipIndex,nIndex)
       Call Free_iWork(ipTabAO)
