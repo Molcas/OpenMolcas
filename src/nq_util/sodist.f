@@ -76,7 +76,6 @@
          Call RecPrt(Label,' ',MOValue(1,1),mAO*nCoor,nMOs)
       End If
 *
-      Call GetMem('SODist ','CHEC','REAL',iDum,iDum)
       Return
       End
 

@@ -252,7 +252,6 @@ C        Debug=.True.
      &                     TmpPUVX,nTmpPUVX,nMOs,CMOs,nCMO,DoIt,
      &                  P2mo,P2Unzip,np2act,D1mo,D1Unzip,nd1mo,P2_ontop,
      &                     Do_Grad,Grad,nGrad,List_G,IndGrd,iTab,Temp,
-cGLM     &                     mGrad,F_xc,F_xca,F_xcb,dF_dRho,dF_dP2ontop,
      &                     mGrad,F_xc,dF_dRho,dF_dP2ontop,
      &                     DFTFOCK,mAO,mdRho_dR,
      &                     LOE_DB,LTEG_DB,PDFTPot1,PDFTFocI,PDFTFocA)

@@ -29,7 +29,7 @@
       use nq_Grid, only: Rho, GradRho, Sigma, Tau, Lapl
       use nq_Grid, only: Grid, Weights
       use nq_Grid, only: nRho, nGradRho, nTau, nSigma, nLapl, nGridMax
-      use nq_Grid, only: l_CASDFT
+      use nq_Grid, only: l_CASDFT, kAO
       use nq_Grid, only: Exc
       Implicit Real*8 (A-H,O-Z)
       External Kernel
@@ -219,6 +219,7 @@
 *        We need the AOs, for gradients we need the derivatives too.
 *
          mAO=1
+         kAO=mAO
          If (Do_Grad) mAO=4
 *
 *        We need rho.
@@ -250,6 +251,7 @@
 *        the second derivatives too.
 *
          mAO=4
+         kAO=mAO
          If (Do_Grad) mAO=10
 *
 *        We need rho and grad rho
@@ -284,6 +286,7 @@
 *        the second derivatives too.
 *
          mAO=4
+         kAO=mAO
          If (Do_Grad) mAO=10
 *
 *        We need rho, grad rho and tau.
@@ -321,6 +324,7 @@
 *        gradients we need the 3rd order derivatives too.
 *
          mAO=10
+         kAO=mAO
          If (Do_Grad) mAO=20
 *
 *        We need rho, grad rho, tau, and the Laplacian
@@ -358,11 +362,12 @@
 *        This needs to be restructured.
 *
          mAO=10
+         kAO=mAO
 
          nRho=nD
          nSigma=nD*(nD+1)/2
          nGradRho=nD*3
-         nTau=0
+         nTau=nD
          nLapl=0
          If (Do_Grad) mdRho_dR=4*nD
          If (Do_Grad) Then

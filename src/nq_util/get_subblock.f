@@ -42,7 +42,8 @@
       use Basis_Info
       use Center_Info
       use nq_Grid, only: Grid, Weights, TabAO, Grid_AO, Dens_AO,
-     &                   TabAO_Pack
+     &                   TabAO_Pack, Ind_Grd, dRho_dR, TabAO_Short,
+     &                   kAO
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "itmax.fh"
@@ -345,11 +346,10 @@ C              End If
          nBfn=nBfn+iBas*iCmp
       End Do
 *
-      Call mma_Allocate(TabAO,mAO,mGrid,nBfn,Label='TabAO')
-      TabAO_Pack(1:mAO*mGrid*nBfn) => TabAO(:,:,:)
       Call Allocate_iWork(ipTabAO,2*(nlist_s+1))
-      Call mma_Allocate(Grid_AO,mAO,mGrid,nBfn,nD,Label='Grid_AO')
-      Call mma_Allocate(Dens_AO,nBfn**2,nD,Label='Dens_AO')
+      Call mma_Allocate(Dens_AO,nBfn,nBfn,nD,Label='Dens_AO')
+      Call mma_Allocate(Ind_Grd,3,nBfn,Label='Ind_Grd')
+      Ind_Grd(:,:)=0
 *
       If ((Functional_Type.eq.CASDFT_Type).or.Do_MO.or.DO_TwoEl) Then
          nTabMO=mAO*nMOs*mGrid
@@ -443,8 +443,6 @@ C              End If
                End If
             End Do
          End Do
-         n_dRho_dR=Max(mdRho_dR*mGrid*nGrad_Eff,1)
-         Call Allocate_Work(ip_dRho_dR,n_dRho_dR)
 *
          If (Grid_Type.eq.Moving_Grid) Then
             ndW_dR=nGrad_Eff*mGrid
@@ -459,7 +457,6 @@ C              End If
             ip_dPB    =ip_Dummy
          End If
       Else
-         ip_dRho_dR=ip_Dummy
          ip_dW_dR  =ip_Dummy
          ip_dW_Temp=ip_Dummy
          ip_dPB    =ip_Dummy
@@ -688,27 +685,42 @@ c
             End If
          End If
 *
+         Call mma_Allocate(Grid_AO,kAO,nogp,nBfn,nD,Label='Grid_AO')
+         Call mma_Allocate(TabAO,mAO,nogp,nBfn,Label='TabAO')
+         If (Do_Grad) Call mma_Allocate(TabAO_Short,kAO,nogp,nBfn,
+     &                                  Label='TabAO_Short')
+         TabAO_Pack(1:mAO*nogp*nBfn) => TabAO(:,:,:)
+         If (Do_Grad) Then
+           Call mma_allocate(dRho_dR,mdRho_dR,nogp,
+     &                                  nGrad_eff,Label='dRho_dR')
+         Else
+           Call mma_allocate(dRho_dR,1,1,1,Label='dRho_dR')
+         End If
+
          Call Do_Batch(Kernel,Func,nogp,
      &                 list_s,nlist_s,List_Exp,List_Bas,
      &                 iWork(ipIndex),nIndex,AOInt,nAOInt,
-     &                 FckInt,nFckDim,nFckInt,
-     &                 SOTemp,nSOTemp,
-     &                 TabAO,iWork(ipTabAO),mAO,Size(TabAO),
-     &                 nSym,Dens,nDens,nD,
+     &                 FckInt,nFckDim,nFckInt,SOTemp,nSOTemp,
+     &                 iWork(ipTabAO),mAO,nSym,Dens,nDens,nD,
      &                 ndF_dRho,nP2_ontop,ndF_dP2ontop,
-     &                 nShell,
-     &                 Do_Mo,Do_TwoEl,l_Xhol,
-     &                 TmpPUVX,nTmpPUVX,
+     &                 nShell,Do_Mo,Do_TwoEl,l_Xhol,TmpPUVX,nTmpPUVX,
      &                 Work(ipTabMO),Work(ipTabSO),
      &                 nMOs,CMOs,nCMO,DoIt,
-     &          P2mo,P2unzip,np2act,D1mo,D1Unzip,nd1mo,P2_ontop,
+     &                 P2mo,P2unzip,np2act,D1mo,D1Unzip,nd1mo,P2_ontop,
      &                 Do_Grad,Grad,nGrad,
-     &                 Work(ip_dRho_dR),mdRho_dR,nGrad_Eff,
+     &                 mdRho_dR,nGrad_Eff,
      &                 list_g,IndGrd,iTab,Temp,F_xc,
      &                 Work(ip_dW_dR),iNQ,
      &                 Maps2p,dF_dRho,dF_dP2ontop,
-     &                DFTFOCK,LOE_DB,LTEG_DB,PDFTPot1,PDFTFocI,PDFTFocA)
+     &                 DFTFOCK,LOE_DB,LTEG_DB,PDFTPot1,PDFTFocI,
+     &                 PDFTFocA)
 *
+         If (Allocated(dRho_dR)) Call mma_deallocate(dRho_dR)
+         If (Allocated(TabAO_Short)) Call mma_deallocate(TabAO_Short)
+         TabAO_Pack => Null()
+         Call mma_deallocate(TabAO)
+         Call mma_deallocate(Grid_AO)
+
          nTotGP=nTotGP+nogp
 *        update the "LuGridFile":
          do i=1,nogp
@@ -728,13 +740,10 @@ c
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Call mma_deAllocate(Ind_Grd)
       Call GetMem('Index','Free','Real',ipIndex,nIndex)
       Call Free_iWork(ipTabAO)
       Call mma_deallocate(Dens_AO)
-      Call mma_deallocate(Grid_AO)
-      TabAO_Pack => Null()
-      Call mma_deallocate(TabAO)
-      If (Do_Grad) Call Free_Work(ip_dRho_dR)
       If (ipTabMO.ne.ip_Dummy) Call Free_Work(ipTabMO)
       If (ipTabSO.ne.ip_Dummy) Call Free_Work(ipTabSO)
       If (Do_Grad.and.Grid_Type.eq.Moving_Grid) Then
