@@ -19,7 +19,6 @@
 *             University of Lund, SWEDEN                               *
 *             December 2021                                            *
 ************************************************************************
-      use SOAO_Info, only: iAOtSO
       use nq_Grid, only: iBfn_Index
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
