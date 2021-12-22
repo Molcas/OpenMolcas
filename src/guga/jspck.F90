@@ -16,7 +16,8 @@ subroutine JSPCK(INTSYM,L,ISYM)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: INTSYM(*), L, ISYM
+integer(kind=iwp), intent(inout) :: INTSYM(*)
+integer(kind=iwp), intent(in) :: L, ISYM
 integer(kind=iwp) :: IPOW, MY
 
 !INTW = INTSYM((L+9)/10)

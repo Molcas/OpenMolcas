@@ -11,13 +11,16 @@
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
 !***********************************************************************
 
-subroutine CONFIG(NREF,IOCR,nIOCR,L0,L1,L2,L3,JSYM,JSY,INTNUM,LSYM,JJS,ISO,LV,IFCORE,ICOR,NONE,JONE,JREFX,NFREF)
+subroutine CONFIG(NREF,IOCR,nIOCR,L0,L1,L2,L3,JSYM,JSY,INTNUM,LSYM,JJS,ISO,LV,IFCORE,ICOR,NONE_,JONE,JREFX,NFREF)
 
 use Definitions, only: iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NREF, nIOCR, IOCR(nIOCR), L0(*), L1(*), L2(*), L3(*), JSYM(*), JSY(*), INTNUM, LSYM, JJS(*), ISO(*), LV, &
-                     IFCORE, ICOR(*), NONE, JONE(*), JREFX(*), NFREF
+integer(kind=iwp), intent(in) :: NREF, nIOCR, IOCR(nIOCR), L0(*), L1(*), L2(*), L3(*), INTNUM, LV, IFCORE, ICOR(*), NONE_, JONE(*)
+integer(kind=iwp), intent(_OUT_) :: JSYM(*), JSY(*), JJS(*), ISO(*), JREFX(*)
+integer(kind=iwp), intent(out) :: LSYM, NFREF
 #include "real_guga.fh"
 #include "integ.fh"
 #include "d.fh"
@@ -164,7 +167,7 @@ do IIJ=1,ILIM
 112   continue
     end do
     if (JPART /= JHOLE) then
-      write(u6,*) 'Config: JPART.NE.JHOLE'
+      write(u6,*) 'Config: JPART /= JHOLE'
       write(u6,*) 'JPART,JHOLE=',JPART,JHOLE
       call Abend()
     end if
@@ -185,8 +188,8 @@ do IIJ=1,ILIM
   end do
   if (NCORR > 1) GO TO 12
   ! SINGLY OCCUPIED ORBITALS
-116 if (NONE == 0) GO TO 118
-  do I=1,NONE
+116 if (NONE_ == 0) GO TO 118
+  do I=1,NONE_
     if (IOC(JONE(I)) /= 1) GO TO 12
   end do
 118 LMN = LMN+1

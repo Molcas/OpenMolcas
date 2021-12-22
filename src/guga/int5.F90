@@ -17,7 +17,7 @@ subroutine INT5(I,J,L)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: I, J, L
+integer(kind=iwp), intent(in) :: I, J, L
 #include "real_guga.fh"
 #include "integ.fh"
 integer(kind=iwp) :: IFAI, ISTOP, IT1, IT2, ITT, ITURN, ITYP, KM, LJ, LJM, LJS

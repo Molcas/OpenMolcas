@@ -16,7 +16,8 @@ subroutine ICPCK(ICSPCK,L,ICASE)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: ICSPCK(*), L, ICASE
+integer(kind=iwp), intent(inout) :: ICSPCK(*)
+integer(kind=iwp), intent(in) :: L, ICASE
 integer(kind=iwp) :: IPOW, MY
 
 !INTW = ICSPCK((L+14)/15)

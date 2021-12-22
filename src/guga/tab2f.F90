@@ -16,10 +16,10 @@ subroutine TAB2F(IVER,LV)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: IVER, LV
+integer(kind=iwp), intent(in) :: IVER, LV
 #include "real_guga.fh"
 #include "integ.fh"
-integer(kind=iwp) :: I, IA1, IAT, IB1, IBT, IEL, II, IIM, IJD, IJR, IJRL, IJS, IJS1, IN, IORB(MXVERT), ISTOP, IUT, IUT1, J, J11, &
+integer(kind=iwp) :: I, IA1, IAT, IB1, IBT, IEL, II, IIM, IJD, IJR, IJRL, IJS, IJS1, IN_, IORB(MXVERT), ISTOP, IUT, IUT1, J, J11, &
                      J3, J4, JJ, JJ1, JJ2, K, NIJ, NIJ1, nijj
 
 nijj = 0
@@ -87,7 +87,7 @@ do II=1,LN
   ! DELETE VERTICES
 15 continue
   NIJ1 = NIJ-1
-  IN = IJS
+  IN_ = IJS
   IUT = IJS
   if (NIJ1 < IJS) GO TO 21
   do IJD=IJS,NIJ1
@@ -109,13 +109,13 @@ do II=1,LN
   do J=IJS1,NIJ
     if (IAF(J) /= -1) GO TO 31
     if (IBF(J) /= -1) GO TO 31
-    IN = IN+1
+    IN_ = IN_+1
     GO TO 30
-31  IN = IN+1
+31  IN_ = IN_+1
     IUT = IUT+1
-    IAF(IUT) = IAF(IN)
-    IBF(IUT) = IBF(IN)
-    IORB(IUT) = IORB(IN)
+    IAF(IUT) = IAF(IN_)
+    IBF(IUT) = IBF(IN_)
+    IORB(IUT) = IORB(IN_)
 30  continue
   end do
   ! ORDER VERTICES

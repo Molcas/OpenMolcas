@@ -16,13 +16,13 @@ subroutine COMP(I,LJ,ITYP,L,IT1,IT2)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: I, LJ, ITYP, L, IT1, IT2
+integer(kind=iwp), intent(in) :: I, LJ, ITYP, L, IT1, IT2
 #include "SysDef.fh"
 #include "real_guga.fh"
 #include "integ.fh"
 #include "files_addr.fh"
 #include "d.fh"
-integer(kind=iwp) :: IC1, IC2, II1, IN, IND, ISTOP, ITAIL, IVL, IVL0, IVV, JJ, JJD, JND1, JND2, JOJ, KM
+integer(kind=iwp) :: IC1, IC2, II1, IN_, IND, ISTOP, ITAIL, IVL, IVL0, IVV, JJ, JJD, JND1, JND2, JOJ, KM
 real(kind=wp) :: FAC
 integer(kind=iwp), external :: ICUNP
 ! statement function
@@ -30,7 +30,7 @@ integer(kind=iwp) :: JO, J
 JO(J) = ICUNP(ICASE,J)
 
 if (IT1 /= IT2) then
-  write(u6,*) 'Comp: IT1.NE.IT2'
+  write(u6,*) 'Comp: IT1 /= IT2'
   write(u6,*) 'IT1,IT2=',IT1,IT2
   write(u6,*) 'ITYP,L=',ITYP,L
   call Abend()
@@ -52,9 +52,9 @@ JJ = 0
 JJD = 0
 if (IVV /= 0) JJ = IRC(IVV)
 if (IVV /= 0) JJD = JRC(IVV)
-do IN=1,ITAIL
-  IC1 = ICOUP(1)+IN
-  IC2 = ICOUP1(1)+IN
+do IN_=1,ITAIL
+  IC1 = ICOUP(1)+IN_
+  IC2 = ICOUP1(1)+IN_
   JND1 = JNDX(JJ+IC1)
   if (JND1 == 0) GO TO 90
   if (ITYP /= 1) GO TO 91

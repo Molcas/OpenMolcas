@@ -16,8 +16,11 @@ subroutine INPUT_GUGA(ISO,JSYM,JSY,L0,L1,L2,L3,ISPAC)
 use Constants, only: Half
 use Definitions, only: iwp, u5, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ISO(*), JSYM(*), JSY(*), L0(*), L1(*), L2(*), L3(*), ISPAC
+integer(kind=iwp), intent(_OUT_) :: ISO(*), JSYM(*), JSY(*), L0(*), L1(*), L2(*), L3(*)
+integer(kind=iwp), intent(out) :: ISPAC
 #include "niocr.fh"
 #include "SysDef.fh"
 #include "files_addr.fh"
@@ -25,9 +28,9 @@ integer(kind=iwp) :: ISO(*), JSYM(*), JSY(*), L0(*), L1(*), L2(*), L3(*), ISPAC
 #include "integ.fh"
 #include "warnings.h"
 integer(kind=iwp), parameter :: mxTit = 10, nCmd = 18
-integer(kind=iwp) :: I, ICIALL, iCmd, ICOR(55), IFCORE, IN, IN1, IN2, IN3, INTNUM, IOCR(nIOCR), IOM, IONE(8), iOpt, IR, IR1, IR2, &
-                     iRef, ISUM, IVER, J, jCmd, jEnd, JJS(18), JONE(8), JREFX(9000), jStart, LN1, LN2, LSYM, LV, MAX, MIN, NACTEL, &
-                     NCOR(8), NCORI, NFREF, NISH(8), NISHI, NISHT, nJJS, nJRC, nMUL, NN, NO, NONE, NREF, NRLN1, NSHI, nTit, &
+integer(kind=iwp) :: I, ICIALL, iCmd, ICOR(55), IFCORE, IN_, IN1, IN2, IN3, INTNUM, IOCR(nIOCR), IOM, IONE(8), iOpt, IR, IR1, IR2, &
+                     iRef, ISUM, IVER, J, jCmd, jEnd, JJS(18), JONE(8), JREFX(9000), jStart, LN1, LN2, LSYM, LV, MN, MX, NACTEL, &
+                     NCOR(8), NCORI, NFREF, NISH(8), NISHI, NISHT, nJJS, nJRC, nMUL, NN, NO, NONE_, NREF, NRLN1, NSHI, nTit, &
                      NVAL(8), NVALI
 character(len=132) :: ModLine
 character(len=72) :: Line, Title(mxTit)
@@ -55,7 +58,7 @@ INTNUM = 1
 !PAM97 IFCORE /= 0 means core-polarization orbitals (NOCO keyword).
 IFCORE = 0
 LSYM = 1
-IN = 0
+IN_ = 0
 do I=1,8
   NISH(I) = 0
   NVAL(I) = 0
@@ -63,8 +66,8 @@ do I=1,8
   NSH(I) = 0
   IONE(I) = 0
   do J=1,8
-    IN = IN+1
-    MUL(I,J) = MLL(IN)
+    IN_ = IN_+1
+    MUL(I,J) = MLL(IN_)
   end do
 end do
 do I=1,55
@@ -289,27 +292,27 @@ do I=1,NSYM
   LN = LN+NSH(I)+NISH(I)
   LV = LV+NVAL(I)
 end do
-NONE = 0
-IN = LV+NIORB
+NONE_ = 0
+IN_ = LV+NIORB
 do I=1,NSYM
   NN = IONE(I)
   if (NN == 0) GO TO 905
   do NO=1,NN
-    NONE = NONE+1
-    IN = IN+1
-    JONE(NONE) = IN
+    NONE_ = NONE_+1
+    IN_ = IN_+1
+    JONE(NONE_) = IN_
   end do
-905 IN = IN+NSH(I)-NN
+905 IN_ = IN_+NSH(I)-NN
 end do
 LN = LN+LV
 if (ICIALL == 1) LN1 = LN-LV-NIORB
 if (LN /= LN1+LV+NIORB) then
-  write(u6,*) 'Input: LN.NE.LN1+LV+NIORB'
+  write(u6,*) 'Input: LN /= LN1+LV+NIORB'
   write(u6,*) 'LN,LN1,LV,NIORB=',LN,LN1,LV,NIORB
   call Quit(_RC_INPUT_ERROR_)
 end if
 LNP = LN*(LN+1)/2
-IN = 0
+IN_ = 0
 IN3 = 0
 IN1 = LV
 IN2 = NIORB+LV
@@ -321,16 +324,16 @@ do I=1,NSYM
   if (NVALI == 0) GO TO 806
   do J=1,NVALI
     IN3 = IN3+1
-    IN = IN+1
+    IN_ = IN_+1
     NSM(IN3) = I
-    ICH(IN) = IN3
+    ICH(IN_) = IN3
   end do
 806 if (NISHI == 0) GO TO 804
   do J=1,NISHI
     IN1 = IN1+1
-    IN = IN+1
+    IN_ = IN_+1
     NSM(IN1) = I
-    ICH(IN) = IN1
+    ICH(IN_) = IN1
     if (J > NCORI) GO TO 805
     ICOR(IN1) = 1
 805 continue
@@ -338,9 +341,9 @@ do I=1,NSYM
 804 if (NSHI == 0) GO TO 801
   do J=1,NSHI
     IN2 = IN2+1
-    IN = IN+1
+    IN_ = IN_+1
     NSM(IN2) = I
-    ICH(IN) = IN2
+    ICH(IN_) = IN2
   end do
 801 continue
 end do
@@ -350,7 +353,7 @@ if (LN > IOM) then
   call Quit(_RC_INPUT_ERROR_)
 end if
 call TAB2F(IVER-1,LV)
-call TAB2(NREF,IOCR,nIOCR,L0,L1,L2,L3,INTNUM,LV,LSYM,ICIALL,IFCORE,ICOR,NONE,JONE)
+call TAB2(NREF,IOCR,nIOCR,L0,L1,L2,L3,INTNUM,LV,LSYM,ICIALL,IFCORE,ICOR,NONE_,JONE)
 LN2 = LN1
 if (LN1 > 8) LN2 = 16
 if (LN1 /= 0) GO TO 50
@@ -361,17 +364,17 @@ GO TO 75
 50 write(IW,107) (I,I=1,LN2)
 107 format(//,6X,'OCCUPATION OF REFERENCE STATES',//,6X,'REF.STATE',2X,'ORB:',I2,15I4)
 NO = N-2*NIORB
-MAX = 0
+MX = 0
 do IREF=1,NREF
-  MIN = MAX+1
-  MAX = MAX+LN1
-  write(IW,112) IREF,(IOCR(J),J=MIN,MAX)
+  MN = MX+1
+  MX = MX+LN1
+  write(IW,112) IREF,(IOCR(J),J=MN,MX)
 112 format(6X,I5,8X,16I4)
 
   ! Sum up the occupation numbers of the first reference:
   ISUM = 0
   do I=1,LN1
-    ISUM = ISUM+IOCR(MIN+I-1)
+    ISUM = ISUM+IOCR(MN+I-1)
   end do
   if (ISUM /= NO) then
     write(u6,*) ' Summed occupation nums of this reference does'
@@ -386,7 +389,7 @@ end do
 
 75 continue
 ! Here with ILIM=2 (FIRST command) or 4 (normal, default).
-call CONFIG(NREF,IOCR,nIOCR,L0,L1,L2,L3,JSYM,JSY,INTNUM,LSYM,JJS,ISO,LV,IFCORE,ICOR,NONE,JONE,JREFX,NFREF)
+call CONFIG(NREF,IOCR,nIOCR,L0,L1,L2,L3,JSYM,JSY,INTNUM,LSYM,JJS,ISO,LV,IFCORE,ICOR,NONE_,JONE,JREFX,NFREF)
 IR = JRC(ILIM)
 ISPAC = IR*LNP
 if (IPRINT >= 2) write(IW,9) ISPAC,ISPA

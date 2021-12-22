@@ -16,7 +16,8 @@ subroutine PATH(KM,ISTOP,IT1,IT2)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: KM, ISTOP, IT1, IT2
+integer(kind=iwp), intent(in) :: KM, IT1, IT2
+integer(kind=iwp), intent(out) :: ISTOP
 #include "real_guga.fh"
 #include "integ.fh"
 integer(kind=iwp) :: IWAYKM, KM1

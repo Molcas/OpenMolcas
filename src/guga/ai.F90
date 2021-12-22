@@ -16,14 +16,17 @@ subroutine AI(JTYP,ITAI,L0,L1,L2,L3)
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: JTYP, ITAI(*), L0(*), L1(*), L2(*), L3(*)
+integer(kind=iwp), intent(in) :: JTYP, L0(*), L1(*), L2(*), L3(*)
+integer(kind=iwp), intent(_OUT_) :: ITAI(*)
 #include "SysDef.fh"
 #include "real_guga.fh"
 #include "integ.fh"
 #include "files_addr.fh"
 #include "d.fh"
-integer(kind=iwp) :: I, ICP1, ICP2, II, IID, IJJ, IJM, IJS, IN, IN2, IND, ISTOP, IT1, IT2, ITAIL, ITT1, ITT2, ITURN, ITYP, JJ, &
+integer(kind=iwp) :: I, ICP1, ICP2, II, IID, IJJ, IJM, IJS, IN_, IN2, IND, ISTOP, IT1, IT2, ITAIL, ITT1, ITT2, ITURN, ITYP, JJ, &
                      JJD, JMAX, JND1, JND2, JOUT, KM, NI
 real(kind=wp) :: CHKSUM
 
@@ -84,12 +87,12 @@ do NI=1,LN
 53  KM = KM+1
     if (KM == I) GO TO 32
     GO TO 42
-51  do IN=1,ITAIL
-      ICP1 = ICOUP(1)+IN
+51  do IN_=1,ITAIL
+      ICP1 = ICOUP(1)+IN_
       JND1 = JNDX(II+ICP1)
       if (JND1 == 0) GO TO 80
       ICP1 = JND1-IID
-      IN2 = ITAI(IN)
+      IN2 = ITAI(IN_)
       if (IN2 == 0) GO TO 80
       ICP2 = ICOUP1(1)+IN2
       JND2 = JNDX(JJ+ICP2)

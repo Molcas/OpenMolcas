@@ -15,15 +15,19 @@ subroutine EMPTY(BUF,IBUF,LASTAD,SO,KBUF,NTPB)
 
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: KBUF, IBUF(KBUF+2), LASTAD(*), NTPB
-real(kind=wp) :: BUF(KBUF), SO(*)
+integer(kind=iwp), intent(in) :: KBUF, LASTAD(*), NTPB
+real(kind=wp), intent(out) :: BUF(KBUF)
+integer(kind=iwp), intent(out) :: IBUF(KBUF+2)
+real(kind=wp), intent(_OUT_) :: SO(*)
 #include "SysDef.fh"
 #include "real_guga.fh"
 #include "integ.fh"
 #include "files_addr.fh"
 #include "d.fh"
-integer(kind=iwp) :: I, IADR, ICLR, II, IIQQ, IJJ, IKK, IN, IND, IOFF, IQ, ISUM, ITYP, IVL, IVL0, J, JJ, JJ1, JJ2, KK, LENGTH, NBX
+integer(kind=iwp) :: I, IADR, ICLR, II, IIQQ, IJJ, IKK, IN_, IND, IOFF, IQ, ISUM, ITYP, IVL, IVL0, J, JJ, JJ1, JJ2, KK, LENGTH, NBX
 integer(kind=iwp), external :: ICUNP
 ! statement function
 integer(kind=iwp) :: JO, L
@@ -33,7 +37,7 @@ ISUM = JRC(ILIM)
 IOUT = 0
 NMAT = 0
 ICLR = NTPB
-IN = ICLR+1
+IN_ = ICLR+1
 NBX = 0
 IOFF = 0
 do II=1,ISUM
@@ -76,9 +80,9 @@ do II=1,ISUM
     JJ1 = JO(JJ+I)
     do J=1,I
       IJJ = IJJ+1
-      IN = IN+1
-      if (IN <= ICLR) GO TO 100
-      IN = 1
+      IN_ = IN_+1
+      if (IN_ <= ICLR) GO TO 100
+      IN_ = 1
       do IIQQ=1,ICLR
         SO(IIQQ) = D0
       end do
@@ -105,12 +109,12 @@ do II=1,ISUM
       if (I == J) ITYP = 1
       IKK = IJJ
       if (ITYP == 1) IKK = I
-      if (SO(IN) == D0) GO TO 25
+      if (SO(IN_) == D0) GO TO 25
       IOUT = IOUT+1
       !PAM96 ICOP1(IOUT) = ior(ITYP,ishft(IKK,1))
       !ICOP1(IOUT) = ITYP+2*IKK
       ICOP1(IOUT) = ior(ITYP,ishft(IKK,1))
-      COP(IOUT) = SO(IN)
+      COP(IOUT) = SO(IN_)
       if (IOUT < NBUF) GO TO 25
       ICOP1(nCOP+1) = NBUF
       call dDAFILE(Lu_10,1,COP,NCOP,IADD10)

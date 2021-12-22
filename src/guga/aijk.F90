@@ -15,8 +15,11 @@ subroutine AIJK(ITAI,L0,L1,L2,L3)
 
 use Definitions, only: iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ITAI(*), L0(*), L1(*), L2(*), L3(*)
+integer(kind=iwp), intent(_OUT_) :: ITAI(*)
+integer(kind=iwp), intent(in) :: L0(*), L1(*), L2(*), L3(*)
 #include "SysDef.fh"
 #include "files_addr.fh"
 #include "real_guga.fh"

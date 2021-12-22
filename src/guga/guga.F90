@@ -26,7 +26,7 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u5, u6
 
 implicit none
-integer(kind=iwp) :: IRETURN
+integer(kind=iwp), intent(out) :: IRETURN
 #include "SysDef.fh"
 #include "WrkSpc.fh"
 #include "real_guga.fh"

@@ -13,16 +13,20 @@
 
 subroutine CI_SELECT(INDOUT,ICAD,IBUFL,L0,L1,L2,L3,KBUF,NTPB,NBINS)
 
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: INDOUT(*), ICAD(*), IBUFL(*), L0(*), L1(*), L2(*), L3(*), KBUF, NTPB, NBINS
+integer(kind=iwp), intent(_OUT_) :: INDOUT(*), ICAD(*), IBUFL(*)
+integer(kind=iwp), intent(in) :: L0(*), L1(*), L2(*), L3(*), KBUF, NTPB, NBINS
 #include "SysDef.fh"
 #include "real_guga.fh"
 #include "integ.fh"
 #include "files_addr.fh"
-integer(kind=iwp) :: ID, IDIAG, IFIN, II, IID, IND1, IND2, IREC, IST, IT1, IT2, ITIM, ITT, JJ, JJD, JTYP, KBUF2, M1, M2, M2MIN, &
-                     M3, M4, NA, NB, NC, ND, NSA, NSABC, NSAV1, NSAV2, NSAVE, NSB, NSC, NSCD, NSD
+integer(kind=iwp) :: ID, IDIAG, IFIN, II, IID, IND1, IND2, IST, IT1, IT2, ITIM, JJ, JJD, JTYP, KBUF2, M2MIN, NA, NB, NC, ND, NSA, &
+                     NSABC, NSAV1, NSAV2, NSAVE, NSB, NSC, NSCD, NSD
 
 call JTIME(IST)
 call CI_SELECT_INTERNAL(INDOUT,IBUFL)
@@ -34,9 +38,8 @@ contains
 
 subroutine CI_SELECT_INTERNAL(INDOUT,IBUFL)
 
-  use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
-
-  integer(kind=iwp), target :: INDOUT(*), IBUFL(*)
+  integer(kind=iwp), target, intent(_OUT_) :: INDOUT(*), IBUFL(*)
+  integer(kind=iwp) :: IREC, ITT, M1, M2, M3, M4
   real(kind=wp), pointer :: dINDOUT(:), dIBUFL(:)
 
   call c_f_pointer(c_loc(INDOUT),dINDOUT,[1])

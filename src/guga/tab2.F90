@@ -11,16 +11,20 @@
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
 !***********************************************************************
 
-subroutine TAB2(NREF,IOCR,nIOCR,L0,L1,L2,L3,INTNUM,LV,LSYM,ICIALL,IFCORE,ICOR,NONE,JONE)
+subroutine TAB2(NREF,IOCR,nIOCR,L0,L1,L2,L3,INTNUM,LV,LSYM,ICIALL,IFCORE,ICOR,NONE_,JONE)
 
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NREF, nIOCR, IOCR(nIOCR), L0(*), L1(*), L2(*), L3(*), INTNUM, LV, LSYM, ICIALL, IFCORE, ICOR(*), NONE, JONE(*)
+integer(kind=iwp), intent(in) :: nIOCR, INTNUM, LV, LSYM, ICIALL, IFCORE, ICOR(*), NONE_, JONE(*)
+integer(kind=iwp), intent(inout) :: NREF, IOCR(nIOCR)
+integer(kind=iwp), intent(_OUT_) :: L0(*), L1(*), L2(*), L3(*)
 #include "real_guga.fh"
 #include "integ.fh"
 integer(kind=iwp) :: I, I0, I1, IA1, IAC, IAT, IB1, IBMAX, IBS, IBT, IEL, II, IIJ, IIJF, IIM, IIM2, IJD, IJFL, IJFS, IJL, IJR, &
-                     IJRL, IJS, IJS1, IL, IN, INUM, IORB(MXVERT), ISTA, ISTOP, ISUM, ITTT, IUT, IUT1, J, J11, J3, J4, JJ, JJ1, &
+                     IJRL, IJS, IJS1, IL, IN_, INUM, IORB(MXVERT), ISTA, ISTOP, ISUM, ITTT, IUT, IUT1, J, J11, J3, J4, JJ, JJ1, &
                      JJ2, JL, JMAX, K, K00(MXVERT), K11(MXVERT), K22(MXVERT), K33(MXVERT), L00(MXVERT), L11(MXVERT), L22(MXVERT), &
                      L33(MXVERT), LN1, NAC, NACU, NIJ, NIJ1
 real(kind=wp) :: FB, FBB
@@ -126,7 +130,7 @@ do II=1,LN
   GO TO 16
   ! DELETE VERTICES
 15 NIJ1 = NIJ-1
-  IN = IJS
+  IN_ = IJS
   IUT = IJS
   if (NIJ1 < IJS) GO TO 21
   do IJD=IJS,NIJ1
@@ -148,13 +152,13 @@ do II=1,LN
   do J=IJS1,NIJ
     if (IA(J) /= -1) GO TO 31
     if (IB(J) /= -1) GO TO 31
-    IN = IN+1
+    IN_ = IN_+1
     GO TO 30
-31  IN = IN+1
+31  IN_ = IN_+1
     IUT = IUT+1
-    IA(IUT) = IA(IN)
-    IB(IUT) = IB(IN)
-    IORB(IUT) = IORB(IN)
+    IA(IUT) = IA(IN_)
+    IB(IUT) = IB(IN_)
+    IORB(IUT) = IORB(IN_)
 30  continue
   end do
   ! ORDER VERTICES
@@ -286,7 +290,7 @@ K11(IUT+1) = 0
 K22(IUT+1) = 0
 K33(IUT+1) = 0
 if (ICIALL /= 0) call CIALL(LSYM,NREF,IOCR,nIOCR,L00,L11,L22,L33,LV)
-call DELTAB(NREF,IOCR,L0,L1,L2,L3,INTNUM,LV,IFCORE,ICOR,NONE,JONE,K00,K11,K22,K33,L00,L11,L22,L33)
+call DELTAB(NREF,IOCR,L0,L1,L2,L3,INTNUM,LV,IFCORE,ICOR,NONE_,JONE,K00,K11,K22,K33,L00,L11,L22,L33)
 do I=1,ILIM
   ISTA = (I-1)*MXVERT
   if (IPRINT >= 5) write(IW,101)
@@ -382,7 +386,7 @@ do I=1,LN
   COUP(I) = D0
   COUP1(I) = D0
 end do
-IN = 0
+IN_ = 0
 do I=1,LN
   II = LN-I+1
   IJS = IJ(II+1)+1

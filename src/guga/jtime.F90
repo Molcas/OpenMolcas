@@ -16,7 +16,7 @@ subroutine JTIME(ITIME)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ITIME
+integer(kind=iwp), intent(out) :: ITIME
 real(kind=wp) :: DTIM, DUM
 
 call TIMING(DTIM,DUM,DUM,DUM)

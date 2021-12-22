@@ -16,13 +16,13 @@ subroutine COMP1(LJ,ITYP,L,IT2,II,IID,JJ,JJD,JTYP,ITAI)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: LJ, ITYP, L, IT2, II, IID, JJ, JJD, JTYP, ITAI(*)
+integer(kind=iwp), intent(in) :: LJ, ITYP, L, IT2, II, IID, JJ, JJD, JTYP, ITAI(*)
 #include "SysDef.fh"
 #include "real_guga.fh"
 #include "integ.fh"
 #include "files_addr.fh"
 #include "d.fh"
-integer(kind=iwp) :: IC1, IC2, ICT, IN, IN2, IND, ITAIL, JND1, JND2, JOJ, KK1, KTYP
+integer(kind=iwp) :: IC1, IC2, ICT, IN_, IN2, IND, ITAIL, JND1, JND2, JOJ, KK1, KTYP
 real(kind=wp) :: FAC
 integer(kind=iwp), external :: ICUNP
 ! statement function
@@ -31,11 +31,11 @@ JO(I) = ICUNP(ICASE,I)
 
 FAC = D1
 ITAIL = IX(IT2+LJ)
-do IN=1,ITAIL
-  IC1 = ICOUP(1)+IN
+do IN_=1,ITAIL
+  IC1 = ICOUP(1)+IN_
   JND1 = JNDX(II+IC1)
   if (JND1 == 0) GO TO 90
-  IN2 = ITAI(IN)
+  IN2 = ITAI(IN_)
   if (IN2 == 0) GO TO 90
   IC2 = ICOUP1(1)+IN2
   if (ITYP /= 1) GO TO 91

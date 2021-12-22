@@ -17,14 +17,15 @@ subroutine INT7(I,K,L,IDIAG,BUFOUT,INDOUT,ICAD,IBUFL,KBUF,NTPB)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: I, K, L, IDIAG, INDOUT(*), ICAD(*), IBUFL(*), KBUF, NTPB
-real(kind=wp) :: BUFOUT(*)
+integer(kind=iwp), intent(in) :: I, K, L, IDIAG, ICAD(*), KBUF, NTPB
+real(kind=wp), intent(inout) :: BUFOUT(*)
+integer(kind=iwp), intent(inout) :: INDOUT(*), IBUFL(*)
 #include "SysDef.fh"
 #include "real_guga.fh"
 #include "integ.fh"
 #include "files_addr.fh"
 #include "d.fh"
-integer(kind=iwp) :: IAD110, ICP, ICPP, ICQ, IDIV, IJJ, IN, IPOS, ISTOP, ISU, ISUM, IT1, IT2, ITAIL, ITT, ITURN, ITYP, IVL, JND1, &
+integer(kind=iwp) :: IAD110, ICP, ICPP, ICQ, IDIV, IJJ, IN_, IPOS, ISTOP, ISU, ISUM, IT1, IT2, ITAIL, ITT, ITURN, ITYP, IVL, JND1, &
                      KBUF0, KBUF1, KBUF2, KM, LJ, LJM, LJS, NBN
 
 IJJ = 0 ! dummy initialize
@@ -97,8 +98,8 @@ do ITT=1,ILIM
     ISUM = IV0-IVL
     ISU = 0
     if (ISUM /= 0) ISU = IRC(ISUM)
-    do IN=1,ITAIL
-      JND1 = JNDX(ISU+ICOUP(1)+IN)
+    do IN_=1,ITAIL
+      JND1 = JNDX(ISU+ICOUP(1)+IN_)
       if (JND1 == 0) GO TO 104
       IPOS = (JND1-1)*LNP+IJJ
       NBN = (IPOS-1)/NTPB+1

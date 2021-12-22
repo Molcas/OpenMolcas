@@ -16,7 +16,9 @@ subroutine CIALL(LSYM,NREF,IOCR,nIOCR,L0,L1,L2,L3,LV)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: LSYM, NREF, nIOCR, IOCR(nIOCR), L0(*), L1(*), L2(*), L3(*), LV
+integer(kind=iwp), intent(in) :: LSYM, nIOCR, L0(*), L1(*), L2(*), L3(*), LV
+integer(kind=iwp), intent(out) :: NREF
+integer(kind=iwp), intent(inout) :: IOCR(nIOCR)
 #include "integ.fh"
 integer(kind=iwp) :: I, IIN, IJJ, IOC(55), KM, KM1, NSJ
 

@@ -11,13 +11,16 @@
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
 !***********************************************************************
 
-subroutine DELTAB(NREF,IOCR,L0,L1,L2,L3,INTNUM,LV,IFCORE,ICOR,NONE,JONE,K00,K11,K22,K33,L00,L11,L22,L33)
+subroutine DELTAB(NREF,IOCR,L0,L1,L2,L3,INTNUM,LV,IFCORE,ICOR,NONE_,JONE,K00,K11,K22,K33,L00,L11,L22,L33)
 
 use Definitions, only: iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NREF, IOCR(*), L0(*), L1(*), L2(*), L3(*), INTNUM, LV, IFCORE, ICOR(*), NONE, JONE(*), K00(*), K11(*), &
-                     K22(*), K33(*), L00(*), L11(*), L22(*), L33(*)
+integer(kind=iwp), intent(in) :: NREF, IOCR(*), INTNUM, LV, IFCORE, ICOR(*), NONE_, JONE(*), K00(*), K11(*), K22(*), K33(*), &
+                                 L00(*), L11(*), L22(*), L33(*)
+integer(kind=iwp), intent(_OUT_) :: L0(*), L1(*), L2(*), L3(*)
 #include "real_guga.fh"
 #include "integ.fh"
 integer(kind=iwp) :: I, IBS, IDIF, IEL, IIJ, IJJ, INHOLE, IOC(55), IPART, IREF, IRR, ISP(55), ISTA, JHOLE, JJ1, JPART, K, &
@@ -121,7 +124,7 @@ do IIJ=1,ILIM
 112   continue
     end do
     if (JPART /= JHOLE) then
-      write(u6,*) 'DeltaB: JPART.NE.JHOLE'
+      write(u6,*) 'DeltaB: JPART /= JHOLE'
       write(u6,*) 'JPART,JHOLE=',JPART,JHOLE
       write(u6,*) 'iREF=',iREF
       call Abend()
@@ -143,8 +146,8 @@ do IIJ=1,ILIM
   end do
   if (NCORR > 1) GO TO 12
   ! SINGLY OCCUPIED ORBITALS
-116 if (NONE == 0) GO TO 118
-  do I=1,NONE
+116 if (NONE_ == 0) GO TO 118
+  do I=1,NONE_
     if (IOC(JONE(I)) /= 1) GO TO 12
   end do
 118 do K=1,LN

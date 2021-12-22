@@ -15,14 +15,17 @@ subroutine AIBJ(L0,L1,L2,L3,ITAI)
 
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: L0(*), L1(*), L2(*), L3(*), ITAI(*)
+integer(kind=iwp), intent(in) :: L0(*), L1(*), L2(*), L3(*)
+integer(kind=iwp), intent(_OUT_) :: ITAI(*)
 #include "SysDef.fh"
 #include "real_guga.fh"
 #include "integ.fh"
 #include "files_addr.fh"
 #include "d.fh"
-integer(kind=iwp) :: I, IABIJ, IC1, IC11, IC2, IC22, ICP1, ICP2, IDIF, IFAB, IFAI, II, IID, IJJ, IJM, IJS, IN, IN2, IND1, IND2, &
+integer(kind=iwp) :: I, IABIJ, IC1, IC11, IC2, IC22, ICP1, ICP2, IDIF, IFAB, IFAI, II, IID, IJJ, IJM, IJS, IN_, IN2, IND1, IND2, &
                      IND3, ISTOP, IT1, IT2, ITAIL, ITT1, ITT2, ITURN, ITYP, J, JJ, JJ1, JJD, JND1, JND2, JOJ, JTURN, KM, KM1, &
                      LTYP, NI, NJ, NUMM(7)
 real(kind=wp) :: COPL, COPLA, COPLA0
@@ -168,15 +171,15 @@ do NI=1,LN
       if (IC11 == IC22) IFAB = 1
 70    COPLA0 = COPLA
       if (IFAB == 0) COPLA0 = D0
-      do IN=1,ITAIL
-        ICP1 = ICOUP(1)+IN
+      do IN_=1,ITAIL
+        ICP1 = ICOUP(1)+IN_
         JND1 = JNDX(II+ICP1)
         if (JND1 == 0) GO TO 80
         ICP1 = JND1-IID
         if (ITT1 /= ITT2) GO TO 289
-        IN2 = IN
+        IN2 = IN_
         GO TO 288
-289     IN2 = ITAI(IN)
+289     IN2 = ITAI(IN_)
         if (IN2 == 0) GO TO 80
 288     ICP2 = ICOUP1(1)+IN2
         JND2 = JNDX(JJ+ICP2)

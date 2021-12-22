@@ -16,7 +16,8 @@ subroutine CHEL(IA,IB,IIM,IEL,ISTOP)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: IA, IB, IIM, IEL, ISTOP
+integer(kind=iwp), intent(in) :: IA, IB, IIM, IEL
+integer(kind=iwp), intent(out) :: ISTOP
 integer(kind=iwp) :: IR, IRR
 
 IR = IIM-1

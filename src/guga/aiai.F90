@@ -16,14 +16,15 @@ subroutine AIAI(BUFOUT,INDOUT,ICAD,IBUFL,KBUF,NTPB,NBINS)
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: BUFOUT(*)
-integer(kind=iwp) :: INDOUT(*), ICAD(*), IBUFL(*), KBUF, NTPB, NBINS
+real(kind=wp), intent(inout) :: BUFOUT(*)
+integer(kind=iwp), intent(inout) :: INDOUT(*), ICAD(*), IBUFL(*)
+integer(kind=iwp), intent(in) :: KBUF, NTPB, NBINS
 #include "SysDef.fh"
 #include "real_guga.fh"
 #include "integ.fh"
 #include "files_addr.fh"
 #include "d.fh"
-integer(kind=iwp) :: I, IAD110, ICP, ICPP, ICQ, IDIV, IFAI, IIJ, IJJ, IJM, IJS, IN, IPOS, ISTOP, ISU, ISUM, IT1, IT2, ITAIL, ITT, &
+integer(kind=iwp) :: I, IAD110, ICP, ICPP, ICQ, IDIV, IFAI, IIJ, IJJ, IJM, IJS, IN_, IPOS, ISTOP, ISU, ISUM, IT1, IT2, ITAIL, ITT, &
                      IVL, JND1, KBUF0, KBUF1, KBUF2, KM, NBN, NI
 real(kind=wp) :: CP
 
@@ -69,8 +70,8 @@ do NI=1,LN
       ISU = IRC(ISUM)
       if (ISUM == 3) CP = COUP(1)
       if (ISUM /= 3) CP = COUP1(1)
-      do IN=1,ITAIL
-        JND1 = JNDX(ISU+ICOUP(1)+IN)
+      do IN_=1,ITAIL
+        JND1 = JNDX(ISU+ICOUP(1)+IN_)
         if (JND1 == 0) GO TO 62
         IPOS = (JND1-1)*LNP+IIJ
         NBN = (IPOS-1)/NTPB+1

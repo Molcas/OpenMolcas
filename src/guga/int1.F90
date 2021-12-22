@@ -16,8 +16,11 @@ subroutine INT1(I,J,K,L,IT1,IT2,II,IID,JJ,JJD,JTYP,ITAI,L0,L1,L2,L3)
 
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: I, J, K, L, IT1, IT2, II, IID, JJ, JJD, JTYP, ITAI(*), L0(*), L1(*), L2(*), L3(*)
+integer(kind=iwp), intent(in) :: I, J, K, L, IT1, IT2, II, IID, JJ, JJD, JTYP, L0(*), L1(*), L2(*), L3(*)
+integer(kind=iwp), intent(_OUT_) :: ITAI(*)
 #include "real_guga.fh"
 #include "integ.fh"
 integer(kind=iwp) :: ICP1I, ICPI, ISTOP, ITAIL, ITYP, KM, LJ, LJM, LJS

@@ -15,8 +15,11 @@ subroutine TAIL(LL,IJJ,ITAI,ITAIL,L0,L1,L2,L3,IT1,IT2)
 
 use Definitions, only: iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: LL, IJJ, ITAI(*), ITAIL, L0(*), L1(*), L2(*), L3(*), IT1, IT2
+integer(kind=iwp), intent(in) :: LL, IJJ, ITAIL, L0(*), L1(*), L2(*), L3(*), IT1, IT2
+integer(kind=iwp), intent(_OUT_) :: ITAI(*)
 #include "integ.fh"
 integer(kind=iwp) :: I, KM, KM1, L
 

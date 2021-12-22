@@ -16,7 +16,8 @@ subroutine LOOP26(KM,ISTOP,IFAI,IT1,IT2)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: KM, ISTOP, IFAI, IT1, IT2
+integer(kind=iwp), intent(in) :: KM, IFAI, IT1, IT2
+integer(kind=iwp), intent(out) :: ISTOP
 #include "real_guga.fh"
 #include "integ.fh"
 integer(kind=iwp) :: IWAYKM, J2F, KM1
