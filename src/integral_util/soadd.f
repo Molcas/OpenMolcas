@@ -35,9 +35,9 @@
 *                                                                      *
 
 *
+#ifdef _DEBUGPRINT_
       iRout = 130
       iPrint = nPrint(iRout)
-#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt(' In SOAdd:SOInt',' ',SOInt,iBas*jBas,nSOInt)
       End If

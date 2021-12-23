@@ -22,7 +22,7 @@
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
-*             January '91                                              *
+*             January 1991                                             *
 ************************************************************************
       use Symmetry_Info, only: nIrrep, iChTbl
       use SOAO_Info, only: iAOtSO
@@ -92,11 +92,15 @@
                         jB = jB_Eff + jAdd
 *
                         iFrom=(jB_Eff-1)*iBas_Eff+iB_Eff
-                        iTo  =(jB    -1)*iBas    +iB
+
+                        iTo  =(jB    -1)*iBas    +iB    ! (iB,jB)
                         SOInt(iTo,lSO)=SOInt(iTo,lSO)
      &                                +xa*xb*AOInt(iFrom,i1,i2,kIC)
+
                         If (iShell.eq.jShell.and.nOp(1).ne.nOp(2)) Then
-                           iTo  =(iB    -1)*jBas    +jB
+*                          If (iBas.ne.jBas) Stop 333
+*                          If (j1.ne.j2) Stop 444
+                           iTo  =(iB    -1)*jBas    +jB ! (jB,iB)
                            SOInt(iTo,lSO)=SOInt(iTo,lSO)
      &                                   +xa*xb*AOInt(iFrom,i2,i1,kIC)
                         End If

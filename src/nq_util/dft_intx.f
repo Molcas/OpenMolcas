@@ -115,10 +115,9 @@
          iShell= iSD(11,iSkal)
 *
          nOp(1) = NrOpr(kDCRE)
-*... to be removed ...
          Call Do_NInt_d(ndF_dRho, dF_dRho,
      &                  Weights,mGrid,
-     &                  Scr, TabAO_Pack(ipTabAO(iList_s)),
+     &                  Scr, TabAO_Pack(ipTabAO(iList_s):),
      &                  iCmp*iBas_Eff,nGrid_Tot,iSpin,mAO,nFn)
 *
          Do jlist_s=ilist_s,nlist_s
@@ -141,10 +140,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*... to be removed
-            iOff = ipTabAO(jList_s)/(Size(TabAO,1)*Size(TabAO,2)) + 1
             Call Do_NInt(AOInt,nAOInt,mGrid,Scr,iCmp,iBas_Eff,
-     &                   TabAO(:,:,iOff:),jCmp,jBas_Eff,
+     &                   TabAO_Pack(ipTabAO(jList_s):),jCmp,jBas_Eff,
      &                   nGrid_Tot,iSpin,mAO,nFn)
 *
             Do iD = 1, iSpin

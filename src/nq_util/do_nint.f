@@ -400,7 +400,7 @@
      &       TabAO1(mAO,mGrid,nBfn),
      &       Scr(nFn,mGrid,nBfn,iSpin)
 *
-      nGrid_Tot=nGrid_Tot+mGrid*iBas*iCmp*iBas*iCmp
+      nGrid_Tot=nGrid_Tot+mGrid*nBfn**2
 *
       If (iSpin.ne.1) Go To 99
 *                                                                      *
