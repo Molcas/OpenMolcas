@@ -28,7 +28,7 @@ Installation
 ------------
 
 For more detailed information, please refer to the [wiki
-pages](../../wikis/home).
+pages](https://gitlab.com/Molcas/OpenMolcas/-/wikis/home).
 
 OpenMolcas is configured with [CMake](https://cmake.org). A quick way to get it
 up and running is the following:
