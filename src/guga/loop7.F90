@@ -9,7 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!               2021, Ignacio Fdez. Galvan                             *
 !***********************************************************************
+! 2021: Remove GOTOs
 
 subroutine LOOP7(KM,ISTOP,IT1,IT2)
 
@@ -20,34 +22,40 @@ integer(kind=iwp), intent(in) :: KM, IT1, IT2
 integer(kind=iwp), intent(out) :: ISTOP
 #include "real_guga.fh"
 #include "integ.fh"
-integer(kind=iwp) :: J2F, KM1
+integer(kind=iwp) :: IWAYKM, J2F, KM1
 
 ISTOP = 0
 KM1 = KM+1
 J2F = IPO(J2(KM1))
-if (IWAY(KM) == 2) GO TO 55
-IWAY(KM) = 2
-! (CB,AD)
-if ((K0(IT1+J1(KM1)) == 0) .or. (K3(IT2+J2(KM1)) == 0)) GO TO 55
-if (K1F(J2F) == 0) GO TO 141
-J1(KM) = K0(IT1+J1(KM1))
-J2(KM) = K3(IT2+J2(KM1))
-ICOUP1(KM) = 0
-ICOUP(KM) = IY(IT2+J2(KM1),3)
-COUP1(KM) = BS1(IB(J2(KM1))+1)
-JM1(KM) = K1F(J2F)
-if (K2F(J2F) == 0) GO TO 40
-GO TO 143
-141 if (K2F(J2F) == 0) GO TO 55
-J1(KM) = K0(IT1+J1(KM1))
-J2(KM) = K3(IT2+J2(KM1))
-ICOUP1(KM) = 0
-ICOUP(KM) = IY(IT2+J2(KM1),3)
-143 COUP(KM) = BS2(IB(J2(KM1))+1)
-JM(KM) = K2F(J2F)
-GO TO 40
-55 ISTOP = 1
-40 continue
+IWAYKM = IWAY(KM)
+if (IWAYKM == 1) then
+  ! (CB,AD)
+  IWAY(KM) = 2
+  if ((K0(IT1+J1(KM1)) == 0) .or. (K3(IT2+J2(KM1)) == 0)) then
+    IWAYKM = 2
+  else if (K1F(J2F) /= 0) then
+    J1(KM) = K0(IT1+J1(KM1))
+    J2(KM) = K3(IT2+J2(KM1))
+    ICOUP1(KM) = 0
+    ICOUP(KM) = IY(IT2+J2(KM1),3)
+    COUP1(KM) = BS1(IB(J2(KM1))+1)
+    JM1(KM) = K1F(J2F)
+    if (K2F(J2F) /= 0) then
+      COUP(KM) = BS2(IB(J2(KM1))+1)
+      JM(KM) = K2F(J2F)
+    end if
+  else if (K2F(J2F) == 0) then
+    IWAYKM = 2
+  else
+    J1(KM) = K0(IT1+J1(KM1))
+    J2(KM) = K3(IT2+J2(KM1))
+    ICOUP1(KM) = 0
+    ICOUP(KM) = IY(IT2+J2(KM1),3)
+    COUP(KM) = BS2(IB(J2(KM1))+1)
+    JM(KM) = K2F(J2F)
+  end if
+end if
+if (IWAYKM == 2) ISTOP = 1
 
 return
 

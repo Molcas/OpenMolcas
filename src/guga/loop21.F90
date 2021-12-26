@@ -9,7 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!               2021, Ignacio Fdez. Galvan                             *
 !***********************************************************************
+! 2021: Remove GOTOs
 
 subroutine LOOP21(KM,ISTOP,IT1,IT2)
 
@@ -26,302 +28,418 @@ real(kind=wp) :: WMM, WMP, WPM, WPP
 ISTOP = 0
 KM1 = KM+1
 IDIF = IA(J1(KM1))-IA(J2(KM1))
-if ((IDIF < -1) .or. (IDIF > 1)) GO TO 55
-if (IDIF < 0) then
-  GO TO 51
+if ((IDIF < -1) .or. (IDIF > 1)) then
+  ISTOP = 1
+else if (IDIF < 0) then
+  IWAYKM = IWAY(KM)
+  if (IWAYKM == 1) then
+    ! (J+R,Q+O)
+    IWAY(KM) = 2
+    if ((K1(IT1+J1(KM1)) == 0) .or. (K2(IT2+J2(KM1)) == 0)) then
+      IWAYKM = 2
+    else if (K1F(JM(KM1)) /= 0) then
+      J1(KM) = K1(IT1+J1(KM1))
+      J2(KM) = K2(IT2+J2(KM1))
+      ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),1)
+      ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),2)
+      COUP1(KM) = -BL1(IB(J2(KM1))+3)*COUP(KM1)/(IB(J2(KM1))+2)
+      JM1(KM) = K1F(JM(KM1))
+      if (K2F(JM(KM1)) /= 0) then
+        COUP(KM) = BL2(IB(J2(KM1))+1)*COUP(KM1)/(IB(J2(KM1))+2)
+        JM(KM) = K2F(JM(KM1))
+      end if
+    else if (K2F(JM(KM1)) == 0) then
+      IWAYKM = 2
+    else
+      J1(KM) = K1(IT1+J1(KM1))
+      J2(KM) = K2(IT2+J2(KM1))
+      ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),1)
+      ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),2)
+      COUP(KM) = BL2(IB(J2(KM1))+1)*COUP(KM1)/(IB(J2(KM1))+2)
+      JM(KM) = K2F(JM(KM1))
+    end if
+  end if
+  if (IWAYKM == 2) then
+    ! I+M
+    IWAY(KM) = 3
+    if ((K0(IT1+J1(KM1)) == 0) .or. (K0(IT2+J2(KM1)) == 0)) then
+      IWAYKM = 3
+    else if (K0F(JM(KM1)) == 0) then
+      IWAYKM = 3
+    else
+      J1(KM) = K0(IT1+J1(KM1))
+      J2(KM) = K0(IT2+J2(KM1))
+      ICOUP1(KM) = ICOUP1(KM1)
+      ICOUP(KM) = ICOUP(KM1)
+      COUP(KM) = COUP(KM1)
+      JM(KM) = K0F(JM(KM1))
+    end if
+  end if
+  if (IWAYKM == 3) then
+    ! J+N
+    IWAY(KM) = 4
+    if ((K1(IT1+J1(KM1)) == 0) .or. (K1(IT2+J2(KM1)) == 0)) then
+      IWAYKM = 4
+    else if (K1F(JM(KM1)) == 0) then
+      IWAYKM = 4
+    else
+      J1(KM) = K1(IT1+J1(KM1))
+      J2(KM) = K1(IT2+J2(KM1))
+      ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),1)
+      ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),1)
+      COUP(KM) = -BL1(IB(J2(KM1))+3)*COUP(KM1)
+      JM(KM) = K1F(JM(KM1))
+    end if
+  end if
+  if (IWAYKM == 4) then
+    ! K+O
+    IWAY(KM) = 5
+    if ((K2(IT1+J1(KM1)) == 0) .or. (K2(IT2+J2(KM1)) == 0)) then
+      IWAYKM = 5
+    else if (K2F(JM(KM1)) == 0) then
+      IWAYKM = 5
+    else
+      J1(KM) = K2(IT1+J1(KM1))
+      J2(KM) = K2(IT2+J2(KM1))
+      ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),2)
+      ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),2)
+      COUP(KM) = -BL2(IB(J2(KM1))+1)*COUP(KM1)
+      JM(KM) = K2F(JM(KM1))
+    end if
+  end if
+  if (IWAYKM == 5) then
+    ! L+P
+    IWAY(KM) = 6
+    if ((K3(IT1+J1(KM1)) == 0) .or. (K3(IT2+J2(KM1)) == 0)) then
+      IWAYKM = 6
+    else if (K3F(JM(KM1)) == 0) then
+      IWAYKM = 6
+    else
+      J1(KM) = K3(IT1+J1(KM1))
+      J2(KM) = K3(IT2+J2(KM1))
+      ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),3)
+      ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),3)
+      COUP(KM) = COUP(KM1)
+      JM(KM) = K3F(JM(KM1))
+    end if
+  end if
+  if (IWAYKM == 6) ISTOP = 1
 else if (IDIF == 0) then
-  GO TO 52
+  IWAYKM = IWAY(KM)
+  if (IWAYKM == 1) then
+    ! (J+J,Q+Q,N+N)
+    IWAY(KM) = 2
+    WMP = D0
+    WPP = D0
+    if ((K1(IT1+J1(KM1)) == 0) .or. (K1(IT2+J2(KM1)) == 0)) then
+      IWAYKM = 2
+    else if (K1F(JM1(KM1)) /= 0) then
+      J1(KM) = K1(IT1+J1(KM1))
+      J2(KM) = K1(IT2+J2(KM1))
+      ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),1)
+      ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),1)
+      COUP1(KM) = COUP1(KM1)*BL1(IB(J2(KM1))+1)**2
+      JM1(KM) = K1F(JM1(KM1))
+      if (K2F(JM1(KM1)) /= 0) then
+        WMP = D1/(IB(J2(KM1))**2)
+        JM(KM) = K2F(JM1(KM1))
+        if (K1F(JM(KM1)) /= 0) then
+          WPP = D1
+          JM(KM) = K1F(JM(KM1))
+        end if
+        COUP(KM) = WMP*COUP1(KM1)+WPP*COUP(KM1)
+      else if (K1F(JM(KM1)) /= 0) then
+        WPP = D1
+        JM(KM) = K1F(JM(KM1))
+        COUP(KM) = WMP*COUP1(KM1)+WPP*COUP(KM1)
+      end if
+    else if (K2F(JM1(KM1)) /= 0) then
+      J1(KM) = K1(IT1+J1(KM1))
+      J2(KM) = K1(IT2+J2(KM1))
+      ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),1)
+      ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),1)
+      WMP = D1/(IB(J2(KM1))**2)
+      JM(KM) = K2F(JM1(KM1))
+      if (K1F(JM(KM1)) /= 0) then
+        WPP = D1
+        JM(KM) = K1F(JM(KM1))
+      end if
+      COUP(KM) = WMP*COUP1(KM1)+WPP*COUP(KM1)
+    else if (K1F(JM(KM1)) == 0) then
+      IWAYKM = 2
+    else
+      J1(KM) = K1(IT1+J1(KM1))
+      J2(KM) = K1(IT2+J2(KM1))
+      ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),1)
+      ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),1)
+      WPP = D1
+      JM(KM) = K1F(JM(KM1))
+      COUP(KM) = WMP*COUP1(KM1)+WPP*COUP(KM1)
+    end if
+  end if
+  if (IWAYKM == 2) then
+    ! (O+O,K+K,R+R)
+    IWAY(KM) = 3
+    WMM = D0
+    WPM = D0
+    if ((K2(IT1+J1(KM1)) == 0) .or. (K2(IT2+J2(KM1)) == 0)) then
+      IWAYKM = 3
+    else if (K2F(JM(KM1)) /= 0) then
+      J1(KM) = K2(IT1+J1(KM1))
+      J2(KM) = K2(IT2+J2(KM1))
+      ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),2)
+      ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),2)
+      COUP(KM) = COUP(KM1)*BL2(IB(J2(KM1))+1)**2
+      JM(KM) = K2F(JM(KM1))
+      if (K2F(JM1(KM1)) /= 0) then
+        WMM = D1
+        JM1(KM) = K2F(JM1(KM1))
+        if (K1F(JM(KM1)) /= 0) then
+          WPM = D1/((IB(J2(KM1))+2)**2)
+          JM1(KM) = K1F(JM(KM1))
+        end if
+        COUP1(KM) = WMM*COUP1(KM1)+WPM*COUP(KM1)
+      else if (K1F(JM(KM1)) /= 0) then
+        WPM = D1/((IB(J2(KM1))+2)**2)
+        JM1(KM) = K1F(JM(KM1))
+        COUP1(KM) = WMM*COUP1(KM1)+WPM*COUP(KM1)
+      end if
+    else if (K2F(JM1(KM1)) /= 0) then
+      J1(KM) = K2(IT1+J1(KM1))
+      J2(KM) = K2(IT2+J2(KM1))
+      ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),2)
+      ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),2)
+      WMM = D1
+      JM1(KM) = K2F(JM1(KM1))
+      if (K1F(JM(KM1)) /= 0) then
+        WPM = D1/((IB(J2(KM1))+2)**2)
+        JM1(KM) = K1F(JM(KM1))
+      end if
+      COUP1(KM) = WMM*COUP1(KM1)+WPM*COUP(KM1)
+    else if (K1F(JM(KM1)) == 0) then
+      IWAYKM = 3
+    else
+      J1(KM) = K2(IT1+J1(KM1))
+      J2(KM) = K2(IT2+J2(KM1))
+      ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),2)
+      ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),2)
+      WPM = D1/((IB(J2(KM1))+2)**2)
+      JM1(KM) = K1F(JM(KM1))
+      COUP1(KM) = WMM*COUP1(KM1)+WPM*COUP(KM1)
+    end if
+  end if
+  if (IWAYKM == 3) then
+    ! (I+I,M+M)
+    IWAY(KM) = 4
+    if ((K0(IT1+J1(KM1)) == 0) .or. (K0(IT2+J2(KM1)) == 0)) then
+      IWAYKM = 4
+    else if (K0F(JM1(KM1)) /= 0) then
+      J1(KM) = K0(IT1+J1(KM1))
+      J2(KM) = K0(IT2+J2(KM1))
+      ICOUP1(KM) = ICOUP1(KM1)
+      ICOUP(KM) = ICOUP(KM1)
+      COUP1(KM) = COUP1(KM1)
+      JM1(KM) = K0F(JM1(KM1))
+      if (K0F(JM(KM1)) /= 0) then
+        COUP(KM) = COUP(KM1)
+        JM(KM) = K0F(JM(KM1))
+      end if
+    else if (K0F(JM(KM1)) == 0) then
+      IWAYKM = 4
+    else
+      J1(KM) = K0(IT1+J1(KM1))
+      J2(KM) = K0(IT2+J2(KM1))
+      ICOUP1(KM) = ICOUP1(KM1)
+      ICOUP(KM) = ICOUP(KM1)
+      COUP(KM) = COUP(KM1)
+      JM(KM) = K0F(JM(KM1))
+    end if
+  end if
+  if (IWAYKM == 4) then
+    ! (L+L,P+P)
+    IWAY(KM) = 5
+    if ((K3(IT1+J1(KM1)) == 0) .or. (K3(IT2+J2(KM1)) == 0)) then
+      IWAYKM = 5
+    else if (K3F(JM1(KM1)) /= 0) then
+      J1(KM) = K3(IT1+J1(KM1))
+      J2(KM) = K3(IT2+J2(KM1))
+      ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),3)
+      ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),3)
+      COUP1(KM) = COUP1(KM1)
+      JM1(KM) = K3F(JM1(KM1))
+      if (K3F(JM(KM1)) /= 0) then
+        COUP(KM) = COUP(KM1)
+        JM(KM) = K3F(JM(KM1))
+      end if
+    else if (K3F(JM(KM1)) == 0) then
+      IWAYKM = 5
+    else
+      J1(KM) = K3(IT1+J1(KM1))
+      J2(KM) = K3(IT2+J2(KM1))
+      ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),3)
+      ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),3)
+      COUP(KM) = COUP(KM1)
+      JM(KM) = K3F(JM(KM1))
+    end if
+  end if
+  if (IWAYKM == 5) then
+    ! (K+Q,R+N)
+    IWAY(KM) = 6
+    if ((K2(IT1+J1(KM1)) == 0) .or. (K1(IT2+J2(KM1)) == 0)) then
+      IWAYKM = 6
+    else if (K2F(JM1(KM1)) /= 0) then
+      J1(KM) = K2(IT1+J1(KM1))
+      J2(KM) = K1(IT2+J2(KM1))
+      ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),2)
+      ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),1)
+      WMP = -D1/IB(J2(KM1))
+      if (K1F(JM(KM1)) == 0) then
+        WPP = D0
+        JM(KM) = K2F(JM1(KM1))
+      else
+        WPP = D1/(IB(J2(KM1))+2)
+        JM(KM) = K1F(JM(KM1))
+      end if
+      COUP(KM) = WMP*COUP1(KM1)+WPP*COUP(KM1)
+    else if (K1F(JM(KM1)) == 0) then
+      IWAYKM = 6
+    else
+      J1(KM) = K2(IT1+J1(KM1))
+      J2(KM) = K1(IT2+J2(KM1))
+      ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),2)
+      ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),1)
+      WPP = D1/(IB(J2(KM1))+2)
+      JM(KM) = K1F(JM(KM1))
+      COUP(KM) = WPP*COUP(KM1)
+    end if
+  end if
+  if (IWAYKM == 6) then
+    ! (Q+K,N+R)
+    IWAY(KM) = 7
+    if ((K1(IT1+J1(KM1)) == 0) .or. (K2(IT2+J2(KM1)) == 0)) then
+      IWAYKM = 7
+    else if (K2F(JM1(KM1)) /= 0) then
+      J1(KM) = K1(IT1+J1(KM1))
+      J2(KM) = K2(IT2+J2(KM1))
+      ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),1)
+      ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),2)
+      WMM = -D1/IB(J2(KM1))
+      if (K1F(JM(KM1)) == 0) then
+        WPM = D0
+        JM1(KM) = K2F(JM1(KM1))
+      else
+        WPM = D1/(IB(J2(KM1))+2)
+        JM1(KM) = K1F(JM(KM1))
+      end if
+      COUP1(KM) = WMM*COUP1(KM1)+WPM*COUP(KM1)
+    else if (K1F(JM(KM1)) == 0) then
+      IWAYKM = 7
+    else
+      J1(KM) = K1(IT1+J1(KM1))
+      J2(KM) = K2(IT2+J2(KM1))
+      ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),1)
+      ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),2)
+      WPM = D1/(IB(J2(KM1))+2)
+      JM1(KM) = K1F(JM(KM1))
+      COUP1(KM) = WPM*COUP(KM1)
+    end if
+  end if
+  if (IWAYKM == 7) ISTOP = 1
 else
-  GO TO 53
+  IWAYKM = IWAY(KM)
+  if (IWAYKM == 1) then
+    ! (R+J,O+Q)
+    IWAY(KM) = 2
+    if ((K2(IT1+J1(KM1)) == 0) .or. (K1(IT2+J2(KM1)) == 0)) then
+      IWAYKM = 2
+    else if (K1F(JM1(KM1)) /= 0) then
+      J1(KM) = K2(IT1+J1(KM1))
+      J2(KM) = K1(IT2+J2(KM1))
+      ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),2)
+      ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),1)
+      COUP1(KM) = -BL1(IB(J2(KM1))+1)*COUP1(KM1)/IB(J2(KM1))
+      JM1(KM) = K1F(JM1(KM1))
+      if (K2F(JM1(KM1)) /= 0) then
+        COUP(KM) = BL2(IB(J2(KM1))-1)*COUP1(KM1)/IB(J2(KM1))
+        JM(KM) = K2F(JM1(KM1))
+      end if
+    else if (K2F(JM1(KM1)) == 0) then
+      IWAYKM = 2
+    else
+      J1(KM) = K2(IT1+J1(KM1))
+      J2(KM) = K1(IT2+J2(KM1))
+      ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),2)
+      ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),1)
+      COUP(KM) = BL2(IB(J2(KM1))-1)*COUP1(KM1)/IB(J2(KM1))
+      JM(KM) = K2F(JM1(KM1))
+    end if
+  end if
+  if (IWAYKM == 2) then
+    ! M+I
+    IWAY(KM) = 3
+    if ((K0(IT1+J1(KM1)) == 0) .or. (K0(IT2+J2(KM1)) == 0)) then
+      IWAYKM = 3
+    else if (K0F(JM1(KM1)) == 0) then
+      IWAYKM = 3
+    else
+      J1(KM) = K0(IT1+J1(KM1))
+      J2(KM) = K0(IT2+J2(KM1))
+      ICOUP1(KM) = ICOUP1(KM1)
+      ICOUP(KM) = ICOUP(KM1)
+      COUP1(KM) = COUP1(KM1)
+      JM1(KM) = K0F(JM1(KM1))
+    end if
+  end if
+  if (IWAYKM == 3) then
+    ! N+J
+    IWAY(KM) = 4
+    if ((K1(IT1+J1(KM1)) == 0) .or. (K1(IT2+J2(KM1)) == 0)) then
+      IWAYKM = 4
+    else if (K1F(JM1(KM1)) == 0) then
+      IWAYKM = 4
+    else
+      J1(KM) = K1(IT1+J1(KM1))
+      J2(KM) = K1(IT2+J2(KM1))
+      ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),1)
+      ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),1)
+      COUP1(KM) = -BL1(IB(J2(KM1))+1)*COUP1(KM1)
+      JM1(KM) = K1F(JM1(KM1))
+    end if
+  end if
+  if (IWAYKM == 4) then
+    ! O+K
+    IWAY(KM) = 5
+    if ((K2(IT1+J1(KM1)) == 0) .or. (K2(IT2+J2(KM1)) == 0)) then
+      IWAYKM = 5
+    else if (K2F(JM1(KM1)) == 0) then
+      IWAYKM = 5
+    else
+      J1(KM) = K2(IT1+J1(KM1))
+      J2(KM) = K2(IT2+J2(KM1))
+      ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),2)
+      ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),2)
+      COUP1(KM) = -BL2(IB(J2(KM1))-1)*COUP1(KM1)
+      JM1(KM) = K2F(JM1(KM1))
+    end if
+  end if
+  if (IWAYKM == 5) then
+    ! P+L
+    IWAY(KM) = 6
+    if ((K3(IT1+J1(KM1)) == 0) .or. (K3(IT2+J2(KM1)) == 0)) then
+      IWAYKM = 6
+    else if (K3F(JM1(KM1)) == 0) then
+      IWAYKM = 6
+    else
+      J1(KM) = K3(IT1+J1(KM1))
+      J2(KM) = K3(IT2+J2(KM1))
+      ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),3)
+      ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),3)
+      COUP1(KM) = COUP1(KM1)
+      JM1(KM) = K3F(JM1(KM1))
+    end if
+  end if
+  if (IWAYKM == 6) ISTOP = 1
 end if
-51 IWAYKM = IWAY(KM)
-GO TO(39,41,42,43,44,55),IWAYKM
-39 IWAY(KM) = 2
-! (J+R,Q+O)
-if ((K1(IT1+J1(KM1)) == 0) .or. (K2(IT2+J2(KM1)) == 0)) GO TO 41
-if (K1F(JM(KM1)) == 0) GO TO 141
-J1(KM) = K1(IT1+J1(KM1))
-J2(KM) = K2(IT2+J2(KM1))
-ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),1)
-ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),2)
-COUP1(KM) = -BL1(IB(J2(KM1))+3)*COUP(KM1)/(IB(J2(KM1))+2)
-JM1(KM) = K1F(JM(KM1))
-if (K2F(JM(KM1)) == 0) GO TO 40
-GO TO 241
-141 if (K2F(JM(KM1)) == 0) GO TO 41
-J1(KM) = K1(IT1+J1(KM1))
-J2(KM) = K2(IT2+J2(KM1))
-ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),1)
-ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),2)
-241 COUP(KM) = BL2(IB(J2(KM1))+1)*COUP(KM1)/(IB(J2(KM1))+2)
-JM(KM) = K2F(JM(KM1))
-GO TO 40
-! I+M
-41 IWAY(KM) = 3
-if ((K0(IT1+J1(KM1)) == 0) .or. (K0(IT2+J2(KM1)) == 0)) GO TO 42
-if (K0F(JM(KM1)) == 0) GO TO 42
-J1(KM) = K0(IT1+J1(KM1))
-J2(KM) = K0(IT2+J2(KM1))
-ICOUP1(KM) = ICOUP1(KM1)
-ICOUP(KM) = ICOUP(KM1)
-COUP(KM) = COUP(KM1)
-JM(KM) = K0F(JM(KM1))
-GO TO 40
-! J+N
-42 IWAY(KM) = 4
-if ((K1(IT1+J1(KM1)) == 0) .or. (K1(IT2+J2(KM1)) == 0)) GO TO 43
-if (K1F(JM(KM1)) == 0) GO TO 43
-J1(KM) = K1(IT1+J1(KM1))
-J2(KM) = K1(IT2+J2(KM1))
-ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),1)
-ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),1)
-COUP(KM) = -BL1(IB(J2(KM1))+3)*COUP(KM1)
-JM(KM) = K1F(JM(KM1))
-GO TO 40
-! K+O
-43 IWAY(KM) = 5
-if ((K2(IT1+J1(KM1)) == 0) .or. (K2(IT2+J2(KM1)) == 0)) GO TO 44
-if (K2F(JM(KM1)) == 0) GO TO 44
-J1(KM) = K2(IT1+J1(KM1))
-J2(KM) = K2(IT2+J2(KM1))
-ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),2)
-ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),2)
-COUP(KM) = -BL2(IB(J2(KM1))+1)*COUP(KM1)
-JM(KM) = K2F(JM(KM1))
-GO TO 40
-! L+P
-44 IWAY(KM) = 6
-if ((K3(IT1+J1(KM1)) == 0) .or. (K3(IT2+J2(KM1)) == 0)) GO TO 55
-if (K3F(JM(KM1)) == 0) GO TO 55
-J1(KM) = K3(IT1+J1(KM1))
-J2(KM) = K3(IT2+J2(KM1))
-ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),3)
-ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),3)
-COUP(KM) = COUP(KM1)
-JM(KM) = K3F(JM(KM1))
-GO TO 40
-52 IWAYKM = IWAY(KM)
-GO TO(59,61,62,63,64,65,55),IWAYKM
-59 IWAY(KM) = 2
-! (J+J,Q+Q,N+N)
-if ((K1(IT1+J1(KM1)) == 0) .or. (K1(IT2+J2(KM1)) == 0)) GO TO 61
-WMP = D0
-WPP = D0
-if (K1F(JM1(KM1)) == 0) GO TO 161
-J1(KM) = K1(IT1+J1(KM1))
-J2(KM) = K1(IT2+J2(KM1))
-ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),1)
-ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),1)
-COUP1(KM) = COUP1(KM1)*BL1(IB(J2(KM1))+1)**2
-JM1(KM) = K1F(JM1(KM1))
-if (K2F(JM1(KM1)) /= 0) GO TO 162
-if (K1F(JM(KM1)) /= 0) GO TO 163
-GO TO 40
-161 if (K2F(JM1(KM1)) == 0) GO TO 164
-J1(KM) = K1(IT1+J1(KM1))
-J2(KM) = K1(IT2+J2(KM1))
-ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),1)
-ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),1)
-162 WMP = D1/(IB(J2(KM1))**2)
-JM(KM) = K2F(JM1(KM1))
-if (K1F(JM(KM1)) == 0) GO TO 165
-GO TO 163
-164 if (K1F(JM(KM1)) == 0) GO TO 61
-J1(KM) = K1(IT1+J1(KM1))
-J2(KM) = K1(IT2+J2(KM1))
-ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),1)
-ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),1)
-163 WPP = D1
-JM(KM) = K1F(JM(KM1))
-165 COUP(KM) = WMP*COUP1(KM1)+WPP*COUP(KM1)
-GO TO 40
-! (O+O,K+K,R+R)
-61 IWAY(KM) = 3
-if ((K2(IT1+J1(KM1)) == 0) .or. (K2(IT2+J2(KM1)) == 0)) GO TO 62
-WMM = D0
-WPM = D0
-if (K2F(JM(KM1)) == 0) GO TO 261
-J1(KM) = K2(IT1+J1(KM1))
-J2(KM) = K2(IT2+J2(KM1))
-ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),2)
-ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),2)
-COUP(KM) = COUP(KM1)*BL2(IB(J2(KM1))+1)**2
-JM(KM) = K2F(JM(KM1))
-if (K2F(JM1(KM1)) /= 0) GO TO 262
-if (K1F(JM(KM1)) /= 0) GO TO 263
-GO TO 40
-261 if (K2F(JM1(KM1)) == 0) GO TO 264
-J1(KM) = K2(IT1+J1(KM1))
-J2(KM) = K2(IT2+J2(KM1))
-ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),2)
-ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),2)
-262 WMM = D1
-JM1(KM) = K2F(JM1(KM1))
-if (K1F(JM(KM1)) == 0) GO TO 265
-GO TO 263
-264 if (K1F(JM(KM1)) == 0) GO TO 62
-J1(KM) = K2(IT1+J1(KM1))
-J2(KM) = K2(IT2+J2(KM1))
-ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),2)
-ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),2)
-263 WPM = D1/((IB(J2(KM1))+2)**2)
-JM1(KM) = K1F(JM(KM1))
-265 COUP1(KM) = WMM*COUP1(KM1)+WPM*COUP(KM1)
-GO TO 40
-! (I+I,M+M)
-62 IWAY(KM) = 4
-if ((K0(IT1+J1(KM1)) == 0) .or. (K0(IT2+J2(KM1)) == 0)) GO TO 63
-if (K0F(JM1(KM1)) == 0) GO TO 361
-J1(KM) = K0(IT1+J1(KM1))
-J2(KM) = K0(IT2+J2(KM1))
-ICOUP1(KM) = ICOUP1(KM1)
-ICOUP(KM) = ICOUP(KM1)
-COUP1(KM) = COUP1(KM1)
-JM1(KM) = K0F(JM1(KM1))
-if (K0F(JM(KM1)) == 0) GO TO 40
-GO TO 362
-361 if (K0F(JM(KM1)) == 0) GO TO 63
-J1(KM) = K0(IT1+J1(KM1))
-J2(KM) = K0(IT2+J2(KM1))
-ICOUP1(KM) = ICOUP1(KM1)
-ICOUP(KM) = ICOUP(KM1)
-362 COUP(KM) = COUP(KM1)
-JM(KM) = K0F(JM(KM1))
-GO TO 40
-! (L+L,P+P)
-63 IWAY(KM) = 5
-if ((K3(IT1+J1(KM1)) == 0) .or. (K3(IT2+J2(KM1)) == 0)) GO TO 64
-if (K3F(JM1(KM1)) == 0) GO TO 461
-J1(KM) = K3(IT1+J1(KM1))
-J2(KM) = K3(IT2+J2(KM1))
-ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),3)
-ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),3)
-COUP1(KM) = COUP1(KM1)
-JM1(KM) = K3F(JM1(KM1))
-if (K3F(JM(KM1)) == 0) GO TO 40
-GO TO 462
-461 if (K3F(JM(KM1)) == 0) GO TO 64
-J1(KM) = K3(IT1+J1(KM1))
-J2(KM) = K3(IT2+J2(KM1))
-ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),3)
-ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),3)
-462 COUP(KM) = COUP(KM1)
-JM(KM) = K3F(JM(KM1))
-GO TO 40
-! (K+Q,R+N)
-64 IWAY(KM) = 6
-if ((K2(IT1+J1(KM1)) == 0) .or. (K1(IT2+J2(KM1)) == 0)) GO TO 65
-WMP = D0
-WPP = D0
-if (K2F(JM1(KM1)) == 0) GO TO 561
-J1(KM) = K2(IT1+J1(KM1))
-J2(KM) = K1(IT2+J2(KM1))
-ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),2)
-ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),1)
-WMP = -D1/IB(J2(KM1))
-JM(KM) = K2F(JM1(KM1))
-if (K1F(JM(KM1)) == 0) GO TO 562
-GO TO 563
-561 if (K1F(JM(KM1)) == 0) GO TO 65
-J1(KM) = K2(IT1+J1(KM1))
-J2(KM) = K1(IT2+J2(KM1))
-ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),2)
-ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),1)
-563 WPP = D1/(IB(J2(KM1))+2)
-JM(KM) = K1F(JM(KM1))
-562 COUP(KM) = WMP*COUP1(KM1)+WPP*COUP(KM1)
-GO TO 40
-! (Q+K,N+R)
-65 IWAY(KM) = 7
-if ((K1(IT1+J1(KM1)) == 0) .or. (K2(IT2+J2(KM1)) == 0)) GO TO 55
-WMM = D0
-WPM = D0
-if (K2F(JM1(KM1)) == 0) GO TO 661
-J1(KM) = K1(IT1+J1(KM1))
-J2(KM) = K2(IT2+J2(KM1))
-ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),1)
-ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),2)
-WMM = -D1/IB(J2(KM1))
-JM1(KM) = K2F(JM1(KM1))
-if (K1F(JM(KM1)) == 0) GO TO 662
-GO TO 663
-661 if (K1F(JM(KM1)) == 0) GO TO 55
-J1(KM) = K1(IT1+J1(KM1))
-J2(KM) = K2(IT2+J2(KM1))
-ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),1)
-ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),2)
-663 WPM = D1/(IB(J2(KM1))+2)
-JM1(KM) = K1F(JM(KM1))
-662 COUP1(KM) = WMM*COUP1(KM1)+WPM*COUP(KM1)
-GO TO 40
-53 IWAYKM = IWAY(KM)
-GO TO(69,71,72,73,74,55),IWAYKM
-69 IWAY(KM) = 2
-! (R+J,O+Q)
-if ((K2(IT1+J1(KM1)) == 0) .or. (K1(IT2+J2(KM1)) == 0)) GO TO 71
-if (K1F(JM1(KM1)) == 0) GO TO 171
-J1(KM) = K2(IT1+J1(KM1))
-J2(KM) = K1(IT2+J2(KM1))
-ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),2)
-ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),1)
-COUP1(KM) = -BL1(IB(J2(KM1))+1)*COUP1(KM1)/IB(J2(KM1))
-JM1(KM) = K1F(JM1(KM1))
-if (K2F(JM1(KM1)) == 0) GO TO 40
-GO TO 172
-171 if (K2F(JM1(KM1)) == 0) GO TO 71
-J1(KM) = K2(IT1+J1(KM1))
-J2(KM) = K1(IT2+J2(KM1))
-ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),2)
-ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),1)
-172 COUP(KM) = BL2(IB(J2(KM1))-1)*COUP1(KM1)/IB(J2(KM1))
-JM(KM) = K2F(JM1(KM1))
-GO TO 40
-! M+I
-71 IWAY(KM) = 3
-if ((K0(IT1+J1(KM1)) == 0) .or. (K0(IT2+J2(KM1)) == 0)) GO TO 72
-if (K0F(JM1(KM1)) == 0) GO TO 72
-J1(KM) = K0(IT1+J1(KM1))
-J2(KM) = K0(IT2+J2(KM1))
-ICOUP1(KM) = ICOUP1(KM1)
-ICOUP(KM) = ICOUP(KM1)
-COUP1(KM) = COUP1(KM1)
-JM1(KM) = K0F(JM1(KM1))
-GO TO 40
-! N+J
-72 IWAY(KM) = 4
-if ((K1(IT1+J1(KM1)) == 0) .or. (K1(IT2+J2(KM1)) == 0)) GO TO 73
-if (K1F(JM1(KM1)) == 0) GO TO 73
-J1(KM) = K1(IT1+J1(KM1))
-J2(KM) = K1(IT2+J2(KM1))
-ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),1)
-ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),1)
-COUP1(KM) = -BL1(IB(J2(KM1))+1)*COUP1(KM1)
-JM1(KM) = K1F(JM1(KM1))
-GO TO 40
-! O+K
-73 IWAY(KM) = 5
-if ((K2(IT1+J1(KM1)) == 0) .or. (K2(IT2+J2(KM1)) == 0)) GO TO 74
-if (K2F(JM1(KM1)) == 0) GO TO 74
-J1(KM) = K2(IT1+J1(KM1))
-J2(KM) = K2(IT2+J2(KM1))
-ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),2)
-ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),2)
-COUP1(KM) = -BL2(IB(J2(KM1))-1)*COUP1(KM1)
-JM1(KM) = K2F(JM1(KM1))
-GO TO 40
-! P+L
-74 IWAY(KM) = 6
-if ((K3(IT1+J1(KM1)) == 0) .or. (K3(IT2+J2(KM1)) == 0)) GO TO 55
-if (K3F(JM1(KM1)) == 0) GO TO 55
-J1(KM) = K3(IT1+J1(KM1))
-J2(KM) = K3(IT2+J2(KM1))
-ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),3)
-ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),3)
-COUP1(KM) = COUP1(KM1)
-JM1(KM) = K3F(JM1(KM1))
-GO TO 40
-55 ISTOP = 1
-40 continue
 
 return
 

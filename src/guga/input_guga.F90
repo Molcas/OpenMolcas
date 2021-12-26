@@ -29,9 +29,10 @@ integer(kind=iwp), intent(out) :: ISPAC
 #include "warnings.h"
 integer(kind=iwp), parameter :: mxTit = 10, nCmd = 18
 integer(kind=iwp) :: I, ICIALL, iCmd, ICOR(55), IFCORE, IN_, IN1, IN2, IN3, INTNUM, IOCR(nIOCR), IOM, IONE(8), iOpt, IR, IR1, IR2, &
-                     iRef, ISUM, IVER, J, jCmd, jEnd, JJS(18), JONE(8), JREFX(9000), jStart, LN1, LN2, LSYM, LV, MN, MX, NACTEL, &
-                     NCOR(8), NCORI, NFREF, NISH(8), NISHI, NISHT, nJJS, nJRC, nMUL, NN, NO, NONE_, NREF, NRLN1, NSHI, nTit, &
-                     NVAL(8), NVALI
+                     iRef, istatus, ISUM, IVER, J, jCmd, jEnd, JJS(18), JONE(8), JREFX(9000), jStart, LN1, LN2, LSYM, LV, MN, MX, &
+                     NACTEL, NCOR(8), NCORI, NFREF, NISH(8), NISHI, NISHT, nJJS, nJRC, nMUL, NN, NO, NONE_, NREF, NRLN1, NSHI, &
+                     nTit, NVAL(8), NVALI
+logical(kind=iwp) :: skip
 character(len=132) :: ModLine
 character(len=72) :: Line, Title(mxTit)
 character(len=4) :: Command
@@ -74,164 +75,201 @@ do I=1,55
   ICOR(I) = 0
 end do
 nTit = 0
+jCmd = 0
 
 !---  Read input from standard input ----------------------------------*
 call RdNLst(u5,'GUGA')
-10 read(u5,'(A)',end=991) Line
-Command = Line(1:8)
-call UpCase(Command)
-if (Command(1:1) == '*') goto 10
-if (Command == ' ') goto 10
-jCmd = 0
-do iCmd=1,nCmd
-  if (Command == Cmd(iCmd)) jCmd = iCmd
+skip = .false.
+do
+  if (skip) then
+    skip = .false.
+  else
+    read(u5,'(A)',iostat=istatus) Line
+    if (istatus < 0) call Error(1)
+    Command = Line(1:8)
+    call UpCase(Command)
+    if (Command(1:1) == '*') cycle
+    if (Command == ' ') cycle
+    jCmd = 0
+    do iCmd=1,nCmd
+      if (Command == Cmd(iCmd)) jCmd = iCmd
+    end do
+  end if
+  select case (jCmd)
+    case default
+      write(u6,*) 'Input: Illegal Keyword'
+      write(u6,'(A,A)') 'Command=',Command
+      call Quit(_RC_INPUT_ERROR_)
+    case (1)
+      !---  process TITLE    command ----------------------------------*
+      do
+        do
+          read(u5,'(A)',iostat=istatus) Line
+          if (istatus < 0) call Error(1)
+          Command = Line(1:8)
+          call UpCase(Command)
+          if (Command(1:1) /= '*') exit
+        end do
+        jCmd = 0
+        do iCmd=1,nCmd
+          if (Command == Cmd(iCmd)) jCmd = iCmd
+        end do
+        if (jCmd /= 0) then
+          skip = .true.
+          exit
+        end if
+        nTit = nTit+1
+        if (nTit <= mxTit) Title(nTit) = Line
+      end do
+    case (2)
+      !---  process ELECTRON command ----------------------------------*
+      do
+        read(u5,'(A)',iostat=istatus) Line
+        if (istatus < 0) call Error(1)
+        if (Line(1:1) /= '*') exit
+      end do
+      read(Line,*,iostat=istatus) N
+      if (istatus > 0) call Error(2)
+    case (3)
+      !---  process SPIN     command ----------------------------------*
+      do
+        read(u5,'(A)',iostat=istatus) Line
+        if (istatus < 0) call Error(1)
+        if (Line(1:1) /= '*') exit
+      end do
+      read(Line,*,iostat=istatus) ISPIN
+      if (istatus > 0) call Error(2)
+    case (4)
+      !---  process SYMMETRY command ----------------------------------*
+      write(u6,*) 'Input_GUGA: keyword SYMMETRY is obsolete and ignored!'
+      do
+        read(u5,'(A)',iostat=istatus) Line
+        if (istatus < 0) call Error(1)
+        if (Line(1:1) /= '*') exit
+      end do
+      read(Line,*,iostat=istatus) I
+      if (istatus > 0) call Error(2)
+    case (5)
+      !---  process ACTIVE   command ----------------------------------*
+      do
+        read(u5,'(A)',iostat=istatus) Line
+        if (istatus < 0) call Error(1)
+        if (Line(1:1) /= '*') exit
+      end do
+      ModLine = Line//' 0 0 0 0 0 0 0 0'
+      read(ModLine,*,iostat=istatus) (NSH(I),I=1,8)
+      if (istatus > 0) call Error(2)
+    case (6)
+      !---  process PRINT    command ----------------------------------*
+      do
+        read(u5,'(A)',iostat=istatus) Line
+        if (istatus < 0) call Error(1)
+        if (Line(1:1) /= '*') exit
+      end do
+      read(Line,*,iostat=istatus) IPRINT
+      if (istatus > 0) call Error(2)
+    case (7)
+      !---  process REFERENC command ----------------------------------*
+      do
+        read(u5,'(A)',iostat=istatus) Line
+        if (istatus < 0) call Error(1)
+        if (Line(1:1) /= '*') exit
+      end do
+      read(Line,*,iostat=istatus) nRef,LN1
+      if (istatus > 0) call Error(2)
+      if (LN1 /= 0) then
+        jEnd = 0
+        do iRef=1,nRef
+          jStart = jEnd+1
+          jEnd = jEnd+LN1
+          read(u5,'(80I1)',iostat=istatus) (IOCR(j),j=jStart,jEnd)
+          if (istatus < 0) call Error(1)
+          if (istatus > 0) call Error(2)
+        end do
+      end if
+    case (8)
+      !---  process FIRST    command ----------------------------------*
+      IFIRST = 1
+      ILIM = 2
+    case (9)
+      !---  process INACTIVE command ----------------------------------*
+      do
+        read(u5,'(A)',iostat=istatus) Line
+        if (istatus < 0) call Error(1)
+        if (Line(1:1) /= '*') exit
+      end do
+      ModLine = Line//' 0 0 0 0 0 0 0 0'
+      read(ModLine,*,iostat=istatus) (NISH(I),I=1,8)
+      if (istatus > 0) call Error(2)
+      NISHT = 0
+      do I=1,8
+        NISHT = NISHT+NISH(I)
+      end do
+    case (10)
+      !---  process CIALL    command ----------------------------------*
+      do
+        read(u5,'(A)',iostat=istatus) Line
+        if (istatus < 0) call Error(1)
+        if (Line(1:1) /= '*') exit
+      end do
+      read(Line,*,iostat=istatus) LSYM
+      if (istatus > 0) call Error(2)
+      ICIALL = 1
+    case (11)
+      !---  process VALENCE  command ----------------------------------*
+      do
+        read(u5,'(A)',iostat=istatus) Line
+        if (istatus < 0) call Error(1)
+        if (Line(1:1) /= '*') exit
+      end do
+      ModLine = Line//' 0 0 0 0 0 0 0 0'
+      read(ModLine,*,iostat=istatus) (NVAL(I),I=1,8)
+      if (istatus > 0) call Error(2)
+    case (12)
+      !---  process INTERACT command ----------------------------------*
+      INTNUM = 1
+    case (13)
+      !---  process NOCORR   command ----------------------------------*
+      do
+        read(u5,'(A)',iostat=istatus) Line
+        if (istatus < 0) call Error(1)
+        if (Line(1:1) /= '*') exit
+      end do
+      ModLine = Line//' 0 0 0 0 0 0 0 0'
+      read(ModLine,*,iostat=istatus) (NCOR(I),I=1,8)
+      if (istatus > 0) call Error(2)
+      !PAM97 IFCORE was not set -- assume bug. Following line inserted:
+      IFCORE = 1
+    case (14)
+      !---  process ONEOCC   command ----------------------------------*
+      do
+        read(u5,'(A)',iostat=istatus) Line
+        if (istatus < 0) call Error(1)
+        if (Line(1:1) /= '*') exit
+      end do
+      ModLine = Line//' 0 0 0 0 0 0 0 0'
+      read(ModLine,*,iostat=istatus) (IONE(I),I=1,8)
+      if (istatus > 0) call Error(2)
+    case (15)
+      !---  process EXTRACT  command ----------------------------------*
+      write(u6,*) 'Input: EXTRACT option is redundant and is ignored!'
+    case (16)
+      !---  process NON-INTERACT command ------------------------------*
+      INTNUM = 0
+    case (17)
+      !---  process NACTEL       command ------------------------------*
+      do
+        read(u5,'(A)',iostat=istatus) Line
+        if (istatus < 0) call Error(1)
+        if (Line(1:1) /= '*') exit
+      end do
+      read(Line,*,iostat=istatus) NACTEL
+      if (istatus > 0) call Error(2)
+    case (18)
+      exit
+  end select
 end do
-20 goto(100,200,300,400,500,600,700,800,900,1000,1100,1200,1300,1400,1500,1600,1700,1800) jCmd
-write(u6,*) 'Input: Illegal Keyword'
-write(u6,'(A,A)') 'Command=',Command
-call Quit(_RC_INPUT_ERROR_)
-
-!---  process TITLE    command ----------------------------------------*
-100 continue
-read(u5,'(A)',end=991) Line
-Command = Line(1:8)
-call UpCase(Command)
-if (Command(1:1) == '*') goto 100
-jCmd = 0
-do iCmd=1,nCmd
-  if (Command == Cmd(iCmd)) jCmd = iCmd
-end do
-if (jCmd /= 0) goto 20
-nTit = nTit+1
-if (nTit <= mxTit) Title(nTit) = Line
-goto 100
-
-!---  process ELECTRON command ----------------------------------------*
-200 continue
-read(u5,'(A)',end=991) Line
-if (Line(1:1) == '*') goto 200
-read(Line,*,Err=992) N
-goto 10
-
-!---  process SPIN     command ----------------------------------------*
-300 continue
-read(u5,'(A)',end=991) Line
-if (Line(1:1) == '*') goto 300
-read(Line,*,Err=992) ISPIN
-goto 10
-
-!---  process SYMMETRY command ----------------------------------------*
-400 continue
-write(u6,*) 'Input_GUGA: keyword SYMMETRY is obsolete and ignored!'
-read(u5,'(A)',end=991) Line
-if (Line(1:1) == '*') goto 400
-read(Line,*,Err=992) I
-goto 10
-
-!---  process ACTIVE   command ----------------------------------------*
-500 continue
-read(u5,'(A)',end=991) Line
-if (Line(1:1) == '*') goto 500
-ModLine = Line//' 0 0 0 0 0 0 0 0'
-read(ModLine,*,Err=992) (NSH(I),I=1,8)
-goto 10
-
-!---  process PRINT    command ----------------------------------------*
-600 continue
-read(u5,'(A)',end=991) Line
-if (Line(1:1) == '*') goto 600
-read(Line,*,Err=992) IPRINT
-goto 10
-
-!---  process REFERENC command ----------------------------------------*
-700 continue
-read(u5,'(A)',end=991) Line
-if (Line(1:1) == '*') goto 700
-read(Line,*,Err=992) nRef,LN1
-if (LN1 == 0) goto 10
-jEnd = 0
-do iRef=1,nRef
-  jStart = jEnd+1
-  jEnd = jEnd+LN1
-  read(u5,'(80I1)',end=991,Err=992) (IOCR(j),j=jStart,jEnd)
-end do
-goto 10
-
-!---  process FIRST    command ----------------------------------------*
-800 continue
-IFIRST = 1
-ILIM = 2
-goto 10
-
-!---  process INACTIVE command ----------------------------------------*
-900 continue
-read(u5,'(A)',end=991) Line
-if (Line(1:1) == '*') goto 900
-ModLine = Line//' 0 0 0 0 0 0 0 0'
-read(ModLine,*,Err=992) (NISH(I),I=1,8)
-NISHT = 0
-do I=1,8
-  NISHT = NISHT+NISH(I)
-end do
-goto 10
-
-!---  process CIALL    command ----------------------------------------*
-1000 continue
-read(u5,'(A)',end=991) Line
-if (Line(1:1) == '*') goto 1000
-read(Line,*,Err=992) LSYM
-ICIALL = 1
-goto 10
-
-!---  process VALENCE  command ----------------------------------------*
-1100 continue
-read(u5,'(A)',end=991) Line
-if (Line(1:1) == '*') goto 1100
-ModLine = Line//' 0 0 0 0 0 0 0 0'
-read(ModLine,*,Err=992) (NVAL(I),I=1,8)
-goto 10
-
-!---  process INTERACT command ----------------------------------------*
-1200 continue
-INTNUM = 1
-goto 10
-
-!---  process NOCORR   command ----------------------------------------*
-1300 continue
-read(u5,'(A)',end=991) Line
-if (Line(1:1) == '*') goto 1300
-ModLine = Line//' 0 0 0 0 0 0 0 0'
-read(ModLine,*,Err=992) (NCOR(I),I=1,8)
-!PAM97 IFCORE was not set -- assume bug. Following line inserted:
-IFCORE = 1
-goto 10
-
-!---  process ONEOCC   command ----------------------------------------*
-1400 continue
-read(u5,'(A)',end=991) Line
-if (Line(1:1) == '*') goto 1400
-ModLine = Line//' 0 0 0 0 0 0 0 0'
-read(ModLine,*,Err=992) (IONE(I),I=1,8)
-goto 10
-
-!---  process EXTRACT  command ----------------------------------------*
-1500 write(u6,*) 'Input: EXTRACT option is redundant and is ignored!'
-goto 10
-
-!---  process NON-INTERACT command ------------------------------------*
-1600 continue
-INTNUM = 0
-goto 10
-
-!---  process NACTEL       command ------------------------------------*
-1700 continue
-read(u5,'(A)',end=991) Line
-if (Line(1:1) == '*') goto 200
-read(Line,*,Err=992) NACTEL
-goto 10
-
 !---  The end of the input is reached, print the title ----------------*
-1800 continue
 if (ntit == 0) then
   ntit = 1
   title(1) = ' (No title was given)'
@@ -267,23 +305,14 @@ write(u6,'(6X,120A1)') ('*',i=1,120)
 write(u6,*)
 S = (ISPIN-1)*Half
 if (IFIRST == 0) write(IW,2)
-2 format(//,6X,'ALL SINGLE AND DOUBLE REPLACEMENTS')
 if (IFIRST /= 0) write(IW,1)
-1 format(//,6X,'ONLY SINGLE REPLACEMENTS INCLUDED')
 write(IW,110) N,S
-110 format(/,6X,'NUMBER OF ELECTRONS IN CI',I10,/,6X,'TOTAL SPIN QUANTUM NUMBER',F10.2)
 write(IW,109) (I,I=1,NSYM)
-109 format(//,14X,'ORBITALS PER SYMMETRY',/,14X,8I5)
 write(IW,106) (NISH(I),I=1,NSYM)
-106 format(6X,'INACTIVE',8I5)
 write(IW,108) (NSH(I),I=1,NSYM)
-108 format(6X,'ACTIVE  ',8I5)
 write(IW,208) (NVAL(I),I=1,NSYM)
-208 format(6X,'VALENCE ',8I5)
 write(IW,206) (NCOR(I),I=1,NSYM)
-206 format(6X,'CORE    ',8I5)
 write(IW,209) (IONE(I),I=1,NSYM)
-209 format(6X,'ONEOCC  ',8I5)
 LN = 0
 LV = 0
 NIORB = 0
@@ -296,13 +325,12 @@ NONE_ = 0
 IN_ = LV+NIORB
 do I=1,NSYM
   NN = IONE(I)
-  if (NN == 0) GO TO 905
   do NO=1,NN
     NONE_ = NONE_+1
     IN_ = IN_+1
     JONE(NONE_) = IN_
   end do
-905 IN_ = IN_+NSH(I)-NN
+  IN_ = IN_+NSH(I)-NN
 end do
 LN = LN+LV
 if (ICIALL == 1) LN1 = LN-LV-NIORB
@@ -321,31 +349,25 @@ do I=1,NSYM
   NSHI = NSH(I)
   NVALI = NVAL(I)
   NCORI = NCOR(I)
-  if (NVALI == 0) GO TO 806
   do J=1,NVALI
     IN3 = IN3+1
     IN_ = IN_+1
     NSM(IN3) = I
     ICH(IN_) = IN3
   end do
-806 if (NISHI == 0) GO TO 804
   do J=1,NISHI
     IN1 = IN1+1
     IN_ = IN_+1
     NSM(IN1) = I
     ICH(IN_) = IN1
-    if (J > NCORI) GO TO 805
-    ICOR(IN1) = 1
-805 continue
+    if (J <= NCORI) ICOR(IN1) = 1
   end do
-804 if (NSHI == 0) GO TO 801
   do J=1,NSHI
     IN2 = IN2+1
     IN_ = IN_+1
     NSM(IN2) = I
     ICH(IN_) = IN2
   end do
-801 continue
 end do
 if (LN > IOM) then
   write(u6,*) 'Input: LN > IOM'
@@ -356,44 +378,39 @@ call TAB2F(IVER-1,LV)
 call TAB2(NREF,IOCR,nIOCR,L0,L1,L2,L3,INTNUM,LV,LSYM,ICIALL,IFCORE,ICOR,NONE_,JONE)
 LN2 = LN1
 if (LN1 > 8) LN2 = 16
-if (LN1 /= 0) GO TO 50
-write(IW,55)
-55 format(//,6X,'ONE CLOSED SHELL REFERENCE STATE')
-GO TO 75
+if (LN1 == 0) then
+  write(IW,55)
+else
+  write(IW,107) (I,I=1,LN2)
+  NO = N-2*NIORB
+  MX = 0
+  do IREF=1,NREF
+    MN = MX+1
+    MX = MX+LN1
+    write(IW,112) IREF,(IOCR(J),J=MN,MX)
 
-50 write(IW,107) (I,I=1,LN2)
-107 format(//,6X,'OCCUPATION OF REFERENCE STATES',//,6X,'REF.STATE',2X,'ORB:',I2,15I4)
-NO = N-2*NIORB
-MX = 0
-do IREF=1,NREF
-  MN = MX+1
-  MX = MX+LN1
-  write(IW,112) IREF,(IOCR(J),J=MN,MX)
-112 format(6X,I5,8X,16I4)
-
-  ! Sum up the occupation numbers of the first reference:
-  ISUM = 0
-  do I=1,LN1
-    ISUM = ISUM+IOCR(MN+I-1)
+    ! Sum up the occupation numbers of the first reference:
+    ISUM = 0
+    do I=1,LN1
+      ISUM = ISUM+IOCR(MN+I-1)
+    end do
+    if (ISUM /= NO) then
+      write(u6,*) ' Summed occupation nums of this reference does'
+      write(u6,*) ' not match nr of electrons.'
+      write(u6,*) ' In closed shells: 2*NIORB=',2*NIORB
+      write(u6,*) ' Summed occupation nums   =',NO
+      write(u6,*) ' Sum total is             =',2*NIORB+NO
+      write(u6,*) ' But input says nr of elec=',N
+      call Quit(_RC_INPUT_ERROR_)
+    end if
   end do
-  if (ISUM /= NO) then
-    write(u6,*) ' Summed occupation nums of this reference does'
-    write(u6,*) ' not match nr of electrons.'
-    write(u6,*) ' In closed shells: 2*NIORB=',2*NIORB
-    write(u6,*) ' Summed occupation nums   =',NO
-    write(u6,*) ' Sum total is             =',2*NIORB+NO
-    write(u6,*) ' But input says nr of elec=',N
-    call Quit(_RC_INPUT_ERROR_)
-  end if
-end do
+end if
 
-75 continue
 ! Here with ILIM=2 (FIRST command) or 4 (normal, default).
 call CONFIG(NREF,IOCR,nIOCR,L0,L1,L2,L3,JSYM,JSY,INTNUM,LSYM,JJS,ISO,LV,IFCORE,ICOR,NONE_,JONE,JREFX,NFREF)
 IR = JRC(ILIM)
 ISPAC = IR*LNP
 if (IPRINT >= 2) write(IW,9) ISPAC,ISPA
-9 format(//,6X,'ELEMENTS TO BE SORTED',I7,/6X,'SORTING AREA',I16)
 NRLN1 = NREF*LN1
 if (LN1 == 0) NRLN1 = 1
 !PAM97 IR1 = (LN*IR+29)/30
@@ -412,11 +429,35 @@ IAD10(2) = IADD10
 call iDAFILE(Lu_10,1,JREFX,JRC(1),IADD10)
 
 return
-991 write(u6,*) 'Input: End of input file encountered'
-write(u6,'(A,A)') 'Last Command: ',Command
-call Quit(_RC_INPUT_ERROR_)
-992 write(u6,*) 'Input: Error while reading input!'
-write(u6,'(A,A)') 'Last Command: ',Command
-call Quit(_RC_INPUT_ERROR_)
+
+1 format(//,6X,'ONLY SINGLE REPLACEMENTS INCLUDED')
+2 format(//,6X,'ALL SINGLE AND DOUBLE REPLACEMENTS')
+9 format(//,6X,'ELEMENTS TO BE SORTED',I7,/6X,'SORTING AREA',I16)
+55 format(//,6X,'ONE CLOSED SHELL REFERENCE STATE')
+106 format(6X,'INACTIVE',8I5)
+107 format(//,6X,'OCCUPATION OF REFERENCE STATES',//,6X,'REF.STATE',2X,'ORB:',I2,15I4)
+108 format(6X,'ACTIVE  ',8I5)
+109 format(//,14X,'ORBITALS PER SYMMETRY',/,14X,8I5)
+110 format(/,6X,'NUMBER OF ELECTRONS IN CI',I10,/,6X,'TOTAL SPIN QUANTUM NUMBER',F10.2)
+112 format(6X,I5,8X,16I4)
+206 format(6X,'CORE    ',8I5)
+208 format(6X,'VALENCE ',8I5)
+209 format(6X,'ONEOCC  ',8I5)
+
+contains
+
+subroutine Error(code)
+
+  integer(kind=iwp), intent(in) :: code
+
+  if (code == 1) then
+    write(u6,*) 'Input: End of input file encountered'
+  else if (code == 2) then
+    write(u6,*) 'Input: Error while reading input!'
+  end if
+  write(u6,'(A,A)') 'Last Command: ',Command
+  call Quit(_RC_INPUT_ERROR_)
+
+end subroutine Error
 
 end subroutine INPUT_GUGA

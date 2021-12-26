@@ -9,7 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!               2021, Ignacio Fdez. Galvan                             *
 !***********************************************************************
+! 2021: Remove GOTOs
 
 subroutine COMP(I,LJ,ITYP,L,IT1,IT2)
 
@@ -24,6 +26,7 @@ integer(kind=iwp), intent(in) :: I, LJ, ITYP, L, IT1, IT2
 #include "d.fh"
 integer(kind=iwp) :: IC1, IC2, II1, IN_, IND, ISTOP, ITAIL, IVL, IVL0, IVV, JJ, JJD, JND1, JND2, JOJ, KM
 real(kind=wp) :: FAC
+logical(kind=iwp) :: first
 integer(kind=iwp), external :: ICUNP
 ! statement function
 integer(kind=iwp) :: JO, J
@@ -37,57 +40,64 @@ if (IT1 /= IT2) then
 end if
 FAC = D1
 KM = I
-25 KM = KM-1
-if (KM == 0) GO TO 26
-IWAY(KM) = 1
-27 call PATH(KM,ISTOP,IT1,IT2)
-if (ISTOP == 0) GO TO 25
-KM = KM+1
-if (KM == I) GO TO 71
-GO TO 27
-26 IVL = J2(1)
-ITAIL = IX(IT1+LJ)
-IVV = IV0-IVL
-JJ = 0
-JJD = 0
-if (IVV /= 0) JJ = IRC(IVV)
-if (IVV /= 0) JJD = JRC(IVV)
-do IN_=1,ITAIL
-  IC1 = ICOUP(1)+IN_
-  IC2 = ICOUP1(1)+IN_
-  JND1 = JNDX(JJ+IC1)
-  if (JND1 == 0) GO TO 90
-  if (ITYP /= 1) GO TO 91
-  II1 = (JND1-1)*LN+L
-  JOJ = JO(II1)
-  if (JOJ > 1) JOJ = JOJ-1
-  FAC = JOJ
-  if (JOJ == 0) GO TO 90
-91 IC1 = JND1-JJD
-  JND2 = JNDX(JJ+IC2)
-  if (JND2 == 0) GO TO 90
-  IC2 = JND2-JJD
-  IOUT = IOUT+1
-  IVL0 = IV0-IVL
-  !IND = IVL0+2**6*IC2
-  !ICOP1(IOUT) = IND+2**19*IC1
-  IND = ior(IVL0,ishft(IC2,6))
-  ICOP1(IOUT) = ior(IND,ishft(IC1,19))
+first = .true.
+do
+  if (first) then
+    KM = KM-1
+    if (KM /= 0) IWAY(KM) = 1
+    first = .false.
+  end if
+  if (KM /= 0) then
+    call PATH(KM,ISTOP,IT1,IT2)
+    if (ISTOP == 0) then
+      first = .true.
+      cycle
+    end if
+    KM = KM+1
+    if (KM == I) exit
+  else
+    IVL = J2(1)
+    ITAIL = IX(IT1+LJ)
+    IVV = IV0-IVL
+    JJ = 0
+    JJD = 0
+    if (IVV /= 0) JJ = IRC(IVV)
+    if (IVV /= 0) JJD = JRC(IVV)
+    do IN_=1,ITAIL
+      IC1 = ICOUP(1)+IN_
+      IC2 = ICOUP1(1)+IN_
+      JND1 = JNDX(JJ+IC1)
+      if (JND1 == 0) cycle
+      if (ITYP == 1) then
+        II1 = (JND1-1)*LN+L
+        JOJ = JO(II1)
+        if (JOJ > 1) JOJ = JOJ-1
+        FAC = JOJ
+        if (JOJ == 0) cycle
+      end if
+      IC1 = JND1-JJD
+      JND2 = JNDX(JJ+IC2)
+      if (JND2 == 0) cycle
+      IC2 = JND2-JJD
+      IOUT = IOUT+1
+      IVL0 = IV0-IVL
+      !IND = IVL0+2**6*IC2
+      !ICOP1(IOUT) = IND+2**19*IC1
+      IND = ior(IVL0,ishft(IC2,6))
+      ICOP1(IOUT) = ior(IND,ishft(IC1,19))
 
-  COP(IOUT) = FAC*COUP(I)
-  if (IOUT < NBUF) GO TO 90
-  ICOP1(nCOP+1) = NBUF
-  call dDAFILE(Lu_10,1,COP,NCOP,IADD10)
-  call iDAFILE(Lu_10,1,iCOP1,NCOP+1,IADD10)
-  NMAT = NMAT+NBUF
-  IOUT = 0
-90 continue
+      COP(IOUT) = FAC*COUP(I)
+      if (IOUT < NBUF) cycle
+      ICOP1(nCOP+1) = NBUF
+      call dDAFILE(Lu_10,1,COP,NCOP,IADD10)
+      call iDAFILE(Lu_10,1,iCOP1,NCOP+1,IADD10)
+      NMAT = NMAT+NBUF
+      IOUT = 0
+    end do
+    if (I == 1) exit
+    KM = 1
+  end if
 end do
-if (I == 1) GO TO 71
-KM = 1
-GO TO 27
-
-71 continue
 
 return
 

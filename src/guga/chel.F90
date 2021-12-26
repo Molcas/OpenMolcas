@@ -9,7 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!               2021, Ignacio Fdez. Galvan                             *
 !***********************************************************************
+! 2021: Remove GOTOs
 
 subroutine CHEL(IA,IB,IIM,IEL,ISTOP)
 
@@ -23,16 +25,23 @@ integer(kind=iwp) :: IR, IRR
 IR = IIM-1
 ! CHECK FOR A=0 , B=IEL
 IRR = IR-IA
-if (IRR < 0) GO TO 50
-if (IRR >= IB-IEL) GO TO 100
-50 if (IEL == 1) GO TO 90
-! CHECK FOR A=1 , B=IEL-2
-IRR = IR-IA+1
-if (IRR < 0) GO TO 90
-if (IRR >= IB-IEL+2) GO TO 100
-90 ISTOP = 1
-return
-100 ISTOP = 0
+if (IRR >= 0) then
+  if (IRR >= IB-IEL) then
+    ISTOP = 0
+    return
+  end if
+end if
+if (IEL /= 1) then
+  ! CHECK FOR A=1 , B=IEL-2
+  IRR = IR-IA+1
+  if (IRR >= 0) then
+    if (IRR >= IB-IEL+2) then
+      ISTOP = 0
+      return
+    end if
+  end if
+end if
+ISTOP = 1
 
 return
 

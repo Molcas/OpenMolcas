@@ -9,7 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!               2021, Ignacio Fdez. Galvan                             *
 !***********************************************************************
+! 2021: Remove GOTOs
 
 subroutine LOOP14(KM,ISTOP,IT1,IT2)
 
@@ -20,37 +22,47 @@ integer(kind=iwp), intent(in) :: KM, IT1, IT2
 integer(kind=iwp), intent(out) :: ISTOP
 #include "real_guga.fh"
 #include "integ.fh"
-integer(kind=iwp) :: IDIF, KM1
+integer(kind=iwp) :: IDIF, IWAYKM, KM1
 real(kind=wp) :: WM0, WP0
 
 ISTOP = 0
 KM1 = KM+1
 IDIF = IA(J1(KM1))-IA(J2(KM1))
-if (IDIF /= 1) GO TO 55
-if (IWAY(KM) == 2) GO TO 55
-IWAY(KM) = 2
-! (HE,FG)
-if ((K3(IT1+J1(KM1)) == 0) .or. (K0(IT2+J2(KM1)) == 0)) GO TO 55
-WM0 = D0
-WP0 = D0
-if (K2F(JM1(KM1)) == 0) GO TO 141
-J2(KM) = K0(IT2+J2(KM1))
-J1(KM) = J2(KM)
-ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),3)
-ICOUP(KM) = ICOUP(KM1)
-WM0 = BS4(IB(J2(KM1)))
-if (K1F(JM(KM1)) == 0) GO TO 142
-GO TO 143
-141 if (K1F(JM(KM1)) == 0) GO TO 55
-J2(KM) = K0(IT2+J2(KM1))
-J1(KM) = J2(KM)
-ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),3)
-ICOUP(KM) = ICOUP(KM1)
-143 WP0 = BS3(IB(J2(KM1))+2)
-142 COUP(KM) = WM0*COUP1(KM1)+WP0*COUP(KM1)
-GO TO 40
-55 ISTOP = 1
-40 continue
+if (IDIF /= 1) then
+  ISTOP = 1
+else
+  IWAYKM = IWAY(KM)
+  if (IWAYKM == 1) then
+    ! (HE,FG)
+    IWAY(KM) = 2
+    if ((K3(IT1+J1(KM1)) == 0) .or. (K0(IT2+J2(KM1)) == 0)) then
+      IWAYKM = 2
+    else if (K2F(JM1(KM1)) /= 0) then
+      J2(KM) = K0(IT2+J2(KM1))
+      J1(KM) = J2(KM)
+      ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),3)
+      ICOUP(KM) = ICOUP(KM1)
+      WM0 = BS4(IB(J2(KM1)))
+      if (K1F(JM(KM1)) == 0) then
+        WP0 = D0
+      else
+        WP0 = BS3(IB(J2(KM1))+2)
+      end if
+      COUP(KM) = WM0*COUP1(KM1)+WP0*COUP(KM1)
+    else if (K1F(JM(KM1)) == 0) then
+      IWAYKM = 2
+    else
+      J2(KM) = K0(IT2+J2(KM1))
+      J1(KM) = J2(KM)
+      ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),3)
+      ICOUP(KM) = ICOUP(KM1)
+      WM0 = D0
+      WP0 = BS3(IB(J2(KM1))+2)
+      COUP(KM) = WM0*COUP1(KM1)+WP0*COUP(KM1)
+    end if
+  end if
+  if (IWAYKM == 2) ISTOP = 1
+end if
 
 return
 

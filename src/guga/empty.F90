@@ -41,87 +41,86 @@ IN_ = ICLR+1
 NBX = 0
 IOFF = 0
 do II=1,ISUM
-  if (II > JRC(1)) GO TO 11
-  IVL = IV0
-  KK = II
-  GO TO 15
-11 if (II > JRC(2)) GO TO 12
-  IVL = IV1
-  KK = II-JRC(1)
-  GO TO 15
-12 if (II > JRC(3)) GO TO 13
-  IVL = IV2
-  KK = II-JRC(2)
-  GO TO 15
-13 IVL = IV3
-  KK = II-JRC(3)
-15 IOUT = IOUT+1
+  if (II <= JRC(1)) then
+    IVL = IV0
+    KK = II
+  else if (II <= JRC(2)) then
+    IVL = IV1
+    KK = II-JRC(1)
+  else if (II <= JRC(3)) then
+    IVL = IV2
+    KK = II-JRC(2)
+  else
+    IVL = IV3
+    KK = II-JRC(3)
+  end if
+  IOUT = IOUT+1
   ICOP1(IOUT) = 0
-  if (IOUT < NBUF) GO TO 460
-  ICOP1(nCOP+1) = NBUF
-  call dDAFILE(Lu_10,1,COP,NCOP,IADD10)
-  call iDAFILE(Lu_10,1,iCOP1,NCOP+1,IADD10)
-  NMAT = NMAT+NBUF
-  IOUT = 0
-460 IVL0 = IV0-IVL
+  if (IOUT >= NBUF) then
+    ICOP1(nCOP+1) = NBUF
+    call dDAFILE(Lu_10,1,COP,NCOP,IADD10)
+    call iDAFILE(Lu_10,1,iCOP1,NCOP+1,IADD10)
+    NMAT = NMAT+NBUF
+    IOUT = 0
+  end if
+  IVL0 = IV0-IVL
   !IND = KK+2**16*IVL0
   IND = ior(KK,ishft(IVL0,16))
   IOUT = IOUT+1
   ICOP1(IOUT) = IND
-  if (IOUT < NBUF) GO TO 16
-  ICOP1(nCOP+1) = NBUF
-  call dDAFILE(Lu_10,1,COP,NCOP,IADD10)
-  call iDAFILE(Lu_10,1,iCOP1,NCOP+1,IADD10)
-  NMAT = NMAT+NBUF
-  IOUT = 0
-16 IJJ = 0
+  if (IOUT >= NBUF) then
+    ICOP1(nCOP+1) = NBUF
+    call dDAFILE(Lu_10,1,COP,NCOP,IADD10)
+    call iDAFILE(Lu_10,1,iCOP1,NCOP+1,IADD10)
+    NMAT = NMAT+NBUF
+    IOUT = 0
+  end if
+  IJJ = 0
   JJ = (II-1)*LN
   do I=1,LN
     JJ1 = JO(JJ+I)
     do J=1,I
       IJJ = IJJ+1
       IN_ = IN_+1
-      if (IN_ <= ICLR) GO TO 100
-      IN_ = 1
-      do IIQQ=1,ICLR
-        SO(IIQQ) = D0
-      end do
-      NBX = NBX+1
-      IADR = LASTAD(NBX)
-110   continue
-      if (IADR == -1) GO TO 120
-      ! FPS
-      call dDAFILE(Lu_11,2,BUF,KBUF,IADR)
-      call iDAFILE(Lu_11,2,IBUF,KBUF+2,IADR)
-      LENGTH = IBUF(KBUF+1)
-      IADR = IBUF(KBUF+2)
-      if (LENGTH == 0) GO TO 110
-      do IIQQ=1,LENGTH
-        IQ = IBUF(IIQQ)-IOFF
-        SO(IQ) = BUF(IIQQ)
-      end do
-      GO TO 110
-120   IOFF = IOFF+ICLR
-100   if (JJ1 == 0) GO TO 25
+      if (IN_ > ICLR) then
+        IN_ = 1
+        do IIQQ=1,ICLR
+          SO(IIQQ) = D0
+        end do
+        NBX = NBX+1
+        IADR = LASTAD(NBX)
+        do while (IADR /= -1)
+          ! FPS
+          call dDAFILE(Lu_11,2,BUF,KBUF,IADR)
+          call iDAFILE(Lu_11,2,IBUF,KBUF+2,IADR)
+          LENGTH = IBUF(KBUF+1)
+          IADR = IBUF(KBUF+2)
+          do IIQQ=1,LENGTH
+            IQ = IBUF(IIQQ)-IOFF
+            SO(IQ) = BUF(IIQQ)
+          end do
+        end do
+        IOFF = IOFF+ICLR
+      end if
+      if (JJ1 == 0) cycle
       JJ2 = JO(JJ+J)
-      if (JJ2 == 0) GO TO 25
+      if (JJ2 == 0) cycle
       ITYP = 0
       if (I == J) ITYP = 1
       IKK = IJJ
       if (ITYP == 1) IKK = I
-      if (SO(IN_) == D0) GO TO 25
+      if (SO(IN_) == D0) cycle
       IOUT = IOUT+1
       !PAM96 ICOP1(IOUT) = ior(ITYP,ishft(IKK,1))
       !ICOP1(IOUT) = ITYP+2*IKK
       ICOP1(IOUT) = ior(ITYP,ishft(IKK,1))
       COP(IOUT) = SO(IN_)
-      if (IOUT < NBUF) GO TO 25
+      if (IOUT < NBUF) cycle
       ICOP1(nCOP+1) = NBUF
       call dDAFILE(Lu_10,1,COP,NCOP,IADD10)
       call iDAFILE(Lu_10,1,iCOP1,NCOP+1,IADD10)
       NMAT = NMAT+NBUF
       IOUT = 0
-25    continue
     end do
   end do
 end do

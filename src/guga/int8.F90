@@ -9,7 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!               2021, Ignacio Fdez. Galvan                             *
 !***********************************************************************
+! 2021: Remove GOTOs
 
 subroutine INT8(I,J,L,IT1,IT2,II,IID,JJT,JJD,JTYP,ITAI,L0,L1,L2,L3)
 ! K == L , I < J
@@ -25,6 +27,7 @@ integer(kind=iwp), intent(_OUT_) :: ITAI(*)
 #include "integ.fh"
 integer(kind=iwp) :: ISTOP, ITAIL, ITYP, JJ, JJM, JJS, KM
 real(kind=wp) :: FAC
+logical(kind=iwp) :: first, skip
 
 ITYP = 0
 if ((L < I) .or. (L > J)) ITYP = 1
@@ -37,42 +40,57 @@ do JJ=JJS,JJM
   ITAIL = IX(IT2+JJ)
   if (IT1 /= IT2) call TAIL(J,JJ,ITAI,ITAIL,L0,L1,L2,L3,IT1,IT2)
   IWAY(J) = 1
-32 KM = J
-  J2(KM+1) = JJ
-  J1(KM+1) = JJ
-  call LOOP1(KM,ISTOP,IT1,IT2)
-  if (ISTOP == 1) GO TO 10
-41 KM = KM-1
-  if (KM == 0) GO TO 20
-  IWAY(KM) = 1
-  if (KM == I) GO TO 51
-42 call LOOP5(KM,ISTOP,IT1,IT2)
-  if (ISTOP == 1) GO TO 43
-  if (KM /= L) GO TO 41
-  if (IWAY(KM) == 2) GO TO 42
-  FAC = D1
-  if (IWAY(KM) == 5) FAC = D2
-  GO TO 41
-43 KM = KM+1
-  if (KM == J) GO TO 32
-  GO TO 42
-51 IWAY(I) = 1
-52 KM = I
-  call LOOP3(KM,ISTOP,IT1,IT2)
-  if (ISTOP == 1) GO TO 53
-  if (abs(COUP(I)) < 1.0e-6_wp) GO TO 52
-  COUP(I) = FAC*COUP(I)
-  call COMP(I,JJ,ITYP,L,IT1,IT2)
-  GO TO 52
-53 KM = KM+1
-  if (KM == J) GO TO 32
-  GO TO 42
-20 COUP(1) = FAC*COUP(1)
-  call COMP1(JJ,ITYP,L,IT2,II,IID,JJT,JJD,JTYP,ITAI)
-  KM = 1
-  if (KM == J) GO TO 32
-  GO TO 42
-10 continue
+  skip = .false.
+  loop_1: do
+    if (skip) then
+      skip = .false.
+    else
+      KM = J
+      J2(KM+1) = JJ
+      J1(KM+1) = JJ
+      call LOOP1(KM,ISTOP,IT1,IT2)
+      if (ISTOP == 1) exit loop_1
+    end if
+    KM = KM-1
+    first = .false.
+    if (KM == 0) then
+      COUP(1) = FAC*COUP(1)
+      call COMP1(JJ,ITYP,L,IT2,II,IID,JJT,JJD,JTYP,ITAI)
+      KM = 1
+      if (KM == J) cycle loop_1
+    else
+      IWAY(KM) = 1
+      if (KM == I) first = .true.
+    end if
+    do
+      if (first) then
+        IWAY(I) = 1
+        do
+          KM = I
+          call LOOP3(KM,ISTOP,IT1,IT2)
+          if (ISTOP == 1) exit
+          if (abs(COUP(I)) < 1.0e-6_wp) cycle
+          COUP(I) = FAC*COUP(I)
+          call COMP(I,JJ,ITYP,L,IT1,IT2)
+        end do
+        first = .false.
+      else
+        call LOOP5(KM,ISTOP,IT1,IT2)
+        if (ISTOP /= 1) then
+          if (KM == L) then
+            if (IWAY(KM) == 2) cycle
+            FAC = D1
+            if (IWAY(KM) == 5) FAC = D2
+          end if
+          skip = .true.
+          cycle loop_1
+        end if
+      end if
+      KM = KM+1
+      if (KM == J) cycle loop_1
+    end do
+    if (.true.) exit loop_1
+  end do loop_1
 end do
 
 return

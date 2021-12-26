@@ -9,7 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!               2021, Ignacio Fdez. Galvan                             *
 !***********************************************************************
+! 2021: Remove GOTOs
 
 subroutine AIAI(BUFOUT,INDOUT,ICAD,IBUFL,KBUF,NTPB,NBINS)
 
@@ -27,6 +29,7 @@ integer(kind=iwp), intent(in) :: KBUF, NTPB, NBINS
 integer(kind=iwp) :: I, IAD110, ICP, ICPP, ICQ, IDIV, IFAI, IIJ, IJJ, IJM, IJS, IN_, IPOS, ISTOP, ISU, ISUM, IT1, IT2, ITAIL, ITT, &
                      IVL, JND1, KBUF0, KBUF1, KBUF2, KM, NBN, NI
 real(kind=wp) :: CP
+logical(kind=iwp) :: do_loop
 
 KBUF0 = RTOI*KBUF
 KBUF1 = KBUF0+KBUF+1
@@ -43,56 +46,63 @@ do NI=1,LN
     do IJJ=IJS,IJM
       ITAIL = IX(IT1+IJJ)
       IWAY(I) = 1
-32    KM = I
-      J2(KM+1) = IJJ
-      J1(KM+1) = IJJ
-      JM(KM) = IVF0+1
-      JM1(KM) = IVF0+1
-      IFAI = 0
-      call LOOP26(KM,ISTOP,IFAI,IT1,IT2)
-      if (ISTOP == 1) GO TO 30
-      if (J1(KM) /= J2(KM)) GO TO 32
-41    KM = KM-1
-      if (KM == 0) GO TO 51
-      IWAY(KM) = 1
-42    JM(KM) = IVF0+1
-      JM1(KM) = IVF0+1
-      IFAI = 0
-      call LOOP23(KM,ISTOP,IFAI,IT1,IT2)
-      if (ISTOP == 1) GO TO 43
-      if (J1(KM) /= J2(KM)) GO TO 42
-      GO TO 41
-43    KM = KM+1
-      if (KM == I) GO TO 32
-      GO TO 42
-51    IVL = J2(1)
-      ISUM = IV0-IVL
-      ISU = IRC(ISUM)
-      if (ISUM == 3) CP = COUP(1)
-      if (ISUM /= 3) CP = COUP1(1)
-      do IN_=1,ITAIL
-        JND1 = JNDX(ISU+ICOUP(1)+IN_)
-        if (JND1 == 0) GO TO 62
-        IPOS = (JND1-1)*LNP+IIJ
-        NBN = (IPOS-1)/NTPB+1
-        IBUFL(NBN) = IBUFL(NBN)+1
-        ICQ = ICAD(NBN)
-        ICP = ICQ/IDIV+IBUFL(NBN)
-        BUFOUT(ICP) = CP
-        ICPP = ICQ+KBUF0+IBUFL(NBN)
-        INDOUT(ICPP) = IPOS
-        if (IBUFL(NBN) < KBUF) GO TO 62
-        INDOUT(ICQ+KBUF1) = KBUF
-        IAD110 = IADD11
-        call iDAFILE(Lu_11,1,INDOUT(ICQ+1),KBUF2,IADD11)
-        INDOUT(ICQ+KBUF2) = IAD110
-        IBUFL(NBN) = 0
-62      continue
-      end do
-      if (I == 1) GO TO 32
-      KM = 1
-      GO TO 42
-30    continue
+      loop_1: do
+        KM = I
+        J2(KM+1) = IJJ
+        J1(KM+1) = IJJ
+        JM(KM) = IVF0+1
+        JM1(KM) = IVF0+1
+        IFAI = 0
+        call LOOP26(KM,ISTOP,IFAI,IT1,IT2)
+        if (ISTOP == 1) exit
+        if (J1(KM) /= J2(KM)) cycle
+        do_loop = .true.
+        do while (do_loop)
+          KM = KM-1
+          if (KM == 0) then
+            IVL = J2(1)
+            ISUM = IV0-IVL
+            ISU = IRC(ISUM)
+            if (ISUM == 3) CP = COUP(1)
+            if (ISUM /= 3) CP = COUP1(1)
+            do IN_=1,ITAIL
+              JND1 = JNDX(ISU+ICOUP(1)+IN_)
+              if (JND1 == 0) cycle
+              IPOS = (JND1-1)*LNP+IIJ
+              NBN = (IPOS-1)/NTPB+1
+              IBUFL(NBN) = IBUFL(NBN)+1
+              ICQ = ICAD(NBN)
+              ICP = ICQ/IDIV+IBUFL(NBN)
+              BUFOUT(ICP) = CP
+              ICPP = ICQ+KBUF0+IBUFL(NBN)
+              INDOUT(ICPP) = IPOS
+              if (IBUFL(NBN) < KBUF) cycle
+              INDOUT(ICQ+KBUF1) = KBUF
+              IAD110 = IADD11
+              call iDAFILE(Lu_11,1,INDOUT(ICQ+1),KBUF2,IADD11)
+              INDOUT(ICQ+KBUF2) = IAD110
+              IBUFL(NBN) = 0
+            end do
+            if (I == 1) cycle loop_1
+            KM = 1
+          else
+            IWAY(KM) = 1
+          end if
+          do
+            JM(KM) = IVF0+1
+            JM1(KM) = IVF0+1
+            IFAI = 0
+            call LOOP23(KM,ISTOP,IFAI,IT1,IT2)
+            if (ISTOP == 1) then
+              KM = KM+1
+              if (KM == I) cycle loop_1
+            else if (J1(KM) == J2(KM)) then
+              exit
+            end if
+          end do
+        end do
+        do_loop = .false.
+      end do loop_1
     end do
   end do
 end do

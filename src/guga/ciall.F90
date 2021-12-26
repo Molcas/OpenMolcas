@@ -27,61 +27,58 @@ NREF = 0
 IJJ = IV0
 KM = 1
 J2(KM) = IJJ
-11 KM = KM+1
-IWAY(KM) = 0
-12 KM1 = KM-1
-if ((L0(J2(KM1)) == 0) .or. (IWAY(KM) >= 1)) GO TO 14
-J2(KM) = L0(J2(KM1))
-IWAY(KM) = 1
-IOC(KM1) = 0
-GO TO 20
-14 if ((L1(J2(KM1)) == 0) .or. (IWAY(KM) >= 2)) GO TO 15
-J2(KM) = L1(J2(KM1))
-IWAY(KM) = 2
-IOC(KM1) = 1
-GO TO 20
-15 if ((L2(J2(KM1)) == 0) .or. (IWAY(KM) >= 3)) GO TO 16
-J2(KM) = L2(J2(KM1))
-IWAY(KM) = 3
-IOC(KM1) = 1
-GO TO 20
-16 if ((L3(J2(KM1)) == 0) .or. (IWAY(KM) >= 4)) GO TO 17
-J2(KM) = L3(J2(KM1))
-IWAY(KM) = 4
-IOC(KM1) = 2
-GO TO 20
-17 KM = KM-1
-if (KM == 1) GO TO 10
-GO TO 12
-20 if (KM /= LN+1) GO TO 11
-NSJ = 1
-do I=1,LN
-  if (I > LV) GO TO 113
-  if (IOC(I) /= 0) GO TO 12
-  GO TO 110
-113 if (I > NIORB+LV) GO TO 114
-  if (IOC(I) /= 2) GO TO 12
-  GO TO 110
-114 if (IOC(I) == 1) NSJ = MUL(NSJ,NSM(I))
-110 continue
-end do
-if (NSJ /= LSYM) GO TO 12
-NREF = NREF+1
-do I=1,LN
-  if (I <= NIORB+LV) GO TO 111
-  IIN = IIN+1
-  if (IIN > nIOCR) then
-    write(u6,*) 'CIall: IIN > nIOCR'
-    write(u6,*) 'IIN=',IIN
-    write(u6,*) 'nIOCR=',nIOCR
-    call Abend()
-  end if
-  IOCR(IIN) = IOC(I)
-111 continue
-end do
-GO TO 12
-
-10 continue
+loop_1: do
+  KM = KM+1
+  IWAY(KM) = 0
+  loop_2: do
+    KM1 = KM-1
+    if ((L0(J2(KM1)) /= 0) .and. (IWAY(KM) < 1)) then
+      J2(KM) = L0(J2(KM1))
+      IWAY(KM) = 1
+      IOC(KM1) = 0
+    else if ((L1(J2(KM1)) /= 0) .and. (IWAY(KM) < 2)) then
+      J2(KM) = L1(J2(KM1))
+      IWAY(KM) = 2
+      IOC(KM1) = 1
+    else if ((L2(J2(KM1)) /= 0) .and. (IWAY(KM) < 3)) then
+      J2(KM) = L2(J2(KM1))
+      IWAY(KM) = 3
+      IOC(KM1) = 1
+    else if ((L3(J2(KM1)) /= 0) .and. (IWAY(KM) < 4)) then
+      J2(KM) = L3(J2(KM1))
+      IWAY(KM) = 4
+      IOC(KM1) = 2
+    else
+      KM = KM-1
+      if (KM == 1) exit loop_1
+      cycle
+    end if
+    if (KM /= LN+1) exit
+    NSJ = 1
+    do I=1,LN
+      if (I <= LV) then
+        if (IOC(I) /= 0) cycle loop_2
+      else if (I <= NIORB+LV) then
+        if (IOC(I) /= 2) cycle loop_2
+      else
+        if (IOC(I) == 1) NSJ = MUL(NSJ,NSM(I))
+      end if
+    end do
+    if (NSJ /= LSYM) cycle
+    NREF = NREF+1
+    do I=1,LN
+      if (I <= NIORB+LV) cycle
+      IIN = IIN+1
+      if (IIN > nIOCR) then
+        write(u6,*) 'CIall: IIN > nIOCR'
+        write(u6,*) 'IIN=',IIN
+        write(u6,*) 'nIOCR=',nIOCR
+        call Abend()
+      end if
+      IOCR(IIN) = IOC(I)
+    end do
+  end do loop_2
+end do loop_1
 
 return
 

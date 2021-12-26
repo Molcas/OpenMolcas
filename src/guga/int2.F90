@@ -9,7 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!               2021, Ignacio Fdez. Galvan                             *
 !***********************************************************************
+! 2021: Remove GOTOs
 
 subroutine INT2(I,J,K,L,IT1,IT2,II,IID,JJ,JJD,JTYP,ITAI,L0,L1,L2,L3)
 ! I < K < J < L
@@ -24,6 +26,7 @@ integer(kind=iwp), intent(_OUT_) :: ITAI(*)
 #include "real_guga.fh"
 #include "integ.fh"
 integer(kind=iwp) :: ISTOP, ITAIL, ITURN, ITYP, KM, LJ, LJM, LJS
+logical(kind=iwp) :: first1, first2, first3
 
 ITYP = 0
 LJS = IJ(L+1)+1
@@ -32,78 +35,138 @@ do LJ=LJS,LJM
   ITAIL = IX(IT2+LJ)
   if (IT1 /= IT2) call TAIL(L,LJ,ITAI,ITAIL,L0,L1,L2,L3,IT1,IT2)
   IWAY(L) = 1
-32 KM = L
-  J2(KM+1) = LJ
-  J1(KM+1) = LJ
-  call LOOP1(KM,ISTOP,IT1,IT2)
-  if (ISTOP == 1) GO TO 10
-41 KM = KM-1
-  IWAY(KM) = 1
-  if (KM == J) GO TO 51
-42 call LOOP5(KM,ISTOP,IT1,IT2)
-  if (ISTOP == 0) GO TO 41
-  KM = KM+1
-  if (KM == L) GO TO 32
-  GO TO 42
-51 ITURN = 0
-55 IWAY(J) = 1
-52 KM = J
-  JM(KM) = IVF0+1
-  JM1(KM) = IVF0+1
-  if (ITURN == 0) call LOOP10(KM,ISTOP,IT1,IT2)
-  if (ITURN == 1) call LOOP11(KM,ISTOP,IT1,IT2)
-  if (ISTOP == 0) GO TO 53
-  if (ITURN == 1) GO TO 54
-  ITURN = 1
-  GO TO 55
-54 KM = KM+1
-  if (KM == L) GO TO 32
-  GO TO 42
-53 KM = KM-1
-  IWAY(KM) = 1
-  if (KM == K) GO TO 61
-62 JM(KM) = IVF0+1
-  JM1(KM) = IVF0+1
-  if (ITURN == 0) call LOOP17(KM,ISTOP,IT1,IT2)
-  if (ITURN == 1) call LOOP21(KM,ISTOP,IT1,IT2)
-  if (ISTOP == 0) GO TO 53
-  KM = KM+1
-  if (KM == J) GO TO 52
-  GO TO 62
-61 IWAY(K) = 1
-72 KM = K
-  if (ITURN == 0) call LOOP16(KM,ISTOP,IT1,IT2)
-  if (ITURN == 1) call LOOP20(KM,ISTOP,IT1,IT2)
-  if (ISTOP == 0) GO TO 63
-  KM = KM+1
-  if (KM == J) GO TO 52
-  GO TO 62
-63 KM = KM-1
-  if (KM == 0) GO TO 20
-  IWAY(KM) = 1
-  if (KM == I) GO TO 74
-82 if (ITURN == 0) call LOOP5(KM,ISTOP,IT1,IT2)
-  if (ITURN == 1) call LOOP6(KM,ISTOP,IT1,IT2)
-  if (ISTOP == 0) GO TO 63
-  KM = KM+1
-  if (KM == K) GO TO 72
-  GO TO 82
-74 IWAY(I) = 1
-71 KM = I
-  if (ITURN == 0) call LOOP3(KM,ISTOP,IT1,IT2)
-  if (ITURN == 1) call LOOP4(KM,ISTOP,IT1,IT2)
-  if (ISTOP == 1) GO TO 73
-  if (abs(COUP(I)) < 1.0e-6_wp) GO TO 71
-  call COMP(I,LJ,ITYP,I,IT1,IT2)
-  GO TO 71
-73 KM = KM+1
-  if (KM == K) GO TO 72
-  GO TO 82
-20 call COMP1(LJ,ITYP,L,IT2,II,IID,JJ,JJD,JTYP,ITAI)
-  KM = 1
-  if (KM == K) GO TO 72
-  GO TO 82
-10 continue
+  loop_1: do
+    KM = L
+    J2(KM+1) = LJ
+    J1(KM+1) = LJ
+    call LOOP1(KM,ISTOP,IT1,IT2)
+    if (ISTOP == 1) exit loop_1
+    KM = KM-1
+    IWAY(KM) = 1
+    first1 = KM == J
+    loop_2: do
+      if (first1) then
+        first1 = .false.
+        ITURN = 0
+        IWAY(J) = 1
+        loop_3: do
+          KM = J
+          JM(KM) = IVF0+1
+          JM1(KM) = IVF0+1
+          if (ITURN == 0) then
+            call LOOP10(KM,ISTOP,IT1,IT2)
+          else if (ITURN == 1) then
+            call LOOP11(KM,ISTOP,IT1,IT2)
+          end if
+          first2 = .false.
+          if (ISTOP /= 0) then
+            if (ITURN /= 1) then
+              ITURN = 1
+              IWAY(J) = 1
+              cycle loop_3
+            else
+              KM = KM+1
+              if (KM == L) cycle loop_1
+              cycle loop_2
+            end if
+          else
+            KM = KM-1
+            IWAY(KM) = 1
+            if (KM == K) first2 = .true.
+          end if
+          loop_4: do
+            if (first2) then
+              first2 = .false.
+              IWAY(K) = 1
+              loop_5: do
+                KM = K
+                if (ITURN == 0) then
+                  call LOOP16(KM,ISTOP,IT1,IT2)
+                else if (ITURN == 1) then
+                  call LOOP20(KM,ISTOP,IT1,IT2)
+                end if
+                if (ISTOP /= 0) then
+                  KM = KM+1
+                  if (KM == J) cycle loop_3
+                  cycle loop_4
+                end if
+                loop_6: do
+                  KM = KM-1
+                  first3 = .false.
+                  if (KM == 0) then
+                    call COMP1(LJ,ITYP,L,IT2,II,IID,JJ,JJD,JTYP,ITAI)
+                    KM = 1
+                    if (KM == K) cycle loop_5
+                  else
+                    IWAY(KM) = 1
+                    if (KM == I) first3 = .true.
+                  end if
+                  do
+                    if (first3) then
+                      IWAY(I) = 1
+                      do
+                        KM = I
+                        if (ITURN == 0) then
+                          call LOOP3(KM,ISTOP,IT1,IT2)
+                        else if (ITURN == 1) then
+                          call LOOP4(KM,ISTOP,IT1,IT2)
+                        end if
+                        if (ISTOP == 1) exit
+                        if (abs(COUP(I)) < 1.0e-6_wp) cycle
+                        call COMP(I,LJ,ITYP,I,IT1,IT2)
+                      end do
+                      first3 = .false.
+                    else
+                      if (ITURN == 0) then
+                        call LOOP5(KM,ISTOP,IT1,IT2)
+                      else if (ITURN == 1) then
+                        call LOOP6(KM,ISTOP,IT1,IT2)
+                      end if
+                      if (ISTOP == 0) cycle loop_6
+                    end if
+                    KM = KM+1
+                    if (KM == K) cycle loop_5
+                  end do
+                  if (.true.) exit loop_6
+                end do loop_6
+                if (.true.) exit loop_5
+              end do loop_5
+              exit loop_4
+            else
+              JM(KM) = IVF0+1
+              JM1(KM) = IVF0+1
+              if (ITURN == 0) then
+                call LOOP17(KM,ISTOP,IT1,IT2)
+              else if (ITURN == 1) then
+                call LOOP21(KM,ISTOP,IT1,IT2)
+              end if
+              if (ISTOP == 0) then
+                KM = KM-1
+                IWAY(KM) = 1
+                if (KM == K) first2 = .true.
+              else
+                KM = KM+1
+                if (KM == J) cycle loop_3
+              end if
+            end if
+          end do loop_4
+          if (.true.) exit loop_3
+        end do loop_3
+        exit loop_2
+      else
+        call LOOP5(KM,ISTOP,IT1,IT2)
+        if (ISTOP == 0) then
+          KM = KM-1
+          IWAY(KM) = 1
+          if (KM == J) first1 = .true.
+        else
+          KM = KM+1
+          if (KM == L) cycle loop_1
+        end if
+      end if
+    end do loop_2
+    if (.true.) exit loop_1
+  end do loop_1
 end do
 
 return

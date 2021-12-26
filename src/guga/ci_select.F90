@@ -70,35 +70,37 @@ subroutine CI_SELECT_INTERNAL(INDOUT,IBUFL)
         M2MIN = 1
         if (M1 == M3) M2MIN = M4
         do M2=M2MIN,M1
-          if ((M1 /= M3) .or. (M2 /= M4)) GO TO 310
-          if (M1 == M2) GO TO 310
+          if ((M1 /= M3) .or. (M2 /= M4)) cycle
+          if (M1 == M2) cycle
           NA = ICH(M1)
           NB = ICH(M2)
-          if (NA >= NB) GO TO 131
-          NSAVE = NA
-          NA = NB
-          NB = NSAVE
-131       NC = ICH(M3)
+          if (NA < NB) then
+            NSAVE = NA
+            NA = NB
+            NB = NSAVE
+          end if
+          NC = ICH(M3)
           ND = ICH(M4)
-          if (NC >= ND) GO TO 130
-          NSAVE = NC
-          NC = ND
-          ND = NSAVE
-130       if (NA > NC) GO TO 132
-          if (NA == NC) GO TO 133
-          NSAV1 = NA
-          NSAV2 = NB
-          NA = NC
-          NB = ND
-          NC = NSAV1
-          ND = NSAV2
-          GO TO 132
-133       if (NB > ND) GO TO 132
-          NSAVE = NB
-          NB = ND
-          ND = NSAVE
-132       call INT7(ND,NB,NA,IDIAG,dINDOUT,INDOUT,ICAD,IBUFL,KBUF,NTPB)
-310       continue
+          if (NC < ND) then
+            NSAVE = NC
+            NC = ND
+            ND = NSAVE
+          end if
+          if (NA <= NC) then
+            if (NA /= NC) then
+              NSAV1 = NA
+              NSAV2 = NB
+              NA = NC
+              NB = ND
+              NC = NSAV1
+              ND = NSAV2
+            else if (NB <= ND) then
+              NSAVE = NB
+              NB = ND
+              ND = NSAVE
+            end if
+          end if
+          call INT7(ND,NB,NA,IDIAG,dINDOUT,INDOUT,ICAD,IBUFL,KBUF,NTPB)
         end do
       end do
     end do
@@ -113,11 +115,9 @@ subroutine CI_SELECT_INTERNAL(INDOUT,IBUFL)
   call dDAFILE(Lu_10,1,COP,NCOP,IADD10)
   call iDAFILE(Lu_10,1,iCOP1,NCOP+1,IADD10)
   write(IW,601) NMAT
-601 format(/6X,'COEFFICIENTS FOR DIAG',I9)
   call JTIME(IFIN)
   ITIM = IFIN-IST
   write(IW,701) ITIM
-701 format(6X,'TIME FOR DIAG',I17)
   IAD10(4) = IADD10
   IST = IFIN
   JTYP = 1
@@ -137,7 +137,6 @@ subroutine CI_SELECT_INTERNAL(INDOUT,IBUFL)
   call JTIME(IFIN)
   ITIM = IFIN-IST
   write(IW,702) ITIM
-702 format(6X,'TIME FOR ABCI',I17)
   IAD10(5) = IADD10
   IST = IFIN
   IOUT = 0
@@ -157,122 +156,128 @@ subroutine CI_SELECT_INTERNAL(INDOUT,IBUFL)
           NA = ICH(M1)
           NB = ICH(M2)
           NSB = NSM(NB)
-          if (NSB /= NSABC) GO TO 510
-          if (NA >= NB) GO TO 231
-          NSAVE = NA
-          NA = NB
-          NB = NSAVE
-231       NC = ICH(M3)
+          if (NSB /= NSABC) cycle
+          if (NA < NB) then
+            NSAVE = NA
+            NA = NB
+            NB = NSAVE
+          end if
+          NC = ICH(M3)
           ND = ICH(M4)
-          if (NC >= ND) GO TO 230
-          NSAVE = NC
-          NC = ND
-          ND = NSAVE
-230       if (NA > NC) GO TO 232
-          if (NA == NC) GO TO 233
-          NSAV1 = NA
-          NSAV2 = NB
-          NA = NC
-          NB = ND
-          NC = NSAV1
-          ND = NSAV2
-          GO TO 232
-233       if (NB > ND) GO TO 232
-          NSAVE = NB
-          NB = ND
-          ND = NSAVE
-232       IOUT = IOUT+1
+          if (NC < ND) then
+            NSAVE = NC
+            NC = ND
+            ND = NSAVE
+          end if
+          if (NA <= NC) then
+            if (NA /= NC) then
+              NSAV1 = NA
+              NSAV2 = NB
+              NA = NC
+              NB = ND
+              NC = NSAV1
+              ND = NSAV2
+            else if (NB <= ND) then
+              NSAVE = NB
+              NB = ND
+              ND = NSAVE
+            end if
+          end if
+          IOUT = IOUT+1
           ICOP1(IOUT) = 0
-          if (IOUT < NBUF) GO TO 460
-          ICOP1(nCOP+1) = NBUF
-          call dDAFILE(Lu_10,1,COP,NCOP,IADD10)
-          call iDAFILE(Lu_10,1,iCOP1,NCOP+1,IADD10)
-          NMAT = NMAT+NBUF
-          IOUT = 0
-460       IOUT = IOUT+1
+          if (IOUT >= NBUF) then
+            ICOP1(nCOP+1) = NBUF
+            call dDAFILE(Lu_10,1,COP,NCOP,IADD10)
+            call iDAFILE(Lu_10,1,iCOP1,NCOP+1,IADD10)
+            NMAT = NMAT+NBUF
+            IOUT = 0
+          end if
+          IOUT = IOUT+1
           !IND1 = NA+2**8*NB
           !IND2 = IND1+2**16*NC
           !ICOP1(IOUT) = IND2+2**24*ND
           IND1 = ior(NA,ishft(NB,8))
           IND2 = ior(IND1,ishft(NC,16))
           ICOP1(IOUT) = ior(IND2,ishft(ND,24))
-          if (IOUT < NBUF) GO TO 511
-          ICOP1(nCOP+1) = NBUF
-          call dDAFILE(Lu_10,1,COP,NCOP,IADD10)
-          call iDAFILE(Lu_10,1,iCOP1,NCOP+1,IADD10)
-          NMAT = NMAT+NBUF
-          IOUT = 0
-511       if (NA /= NC) GO TO 520
-          if (NB == ND) GO TO 525
-          if (NB == NC) GO TO 524
-          do ITT=1,ILIM
-            IT1 = (ITT-1)*MXVERT
-            IT2 = IT1
-            call INT61(ND,NB,NA,IT1,IT2,II,IID,JJ,JJD,JTYP,INDOUT,L0,L1,L2,L3)
-            call INT62(ND,NB,NA,IT1,IT2,II,IID,JJ,JJD,JTYP,INDOUT,L0,L1,L2,L3)
-          end do
-          GO TO 510
-524       do ITT=1,ILIM
-            IT1 = (ITT-1)*MXVERT
-            IT2 = IT1
-            call INT9(ND,NC,NA,IT1,IT2,II,IID,JJ,JJD,JTYP,INDOUT,L0,L1,L2,L3)
-          end do
-          GO TO 510
-525       if (NA == NB) GO TO 510
-          call INT7(ND,NB,NA,IDIAG,dINDOUT,INDOUT,ICAD,IBUFL,KBUF,NTPB)
-          GO TO 510
-520       if (NB /= ND) GO TO 530
-          if (NC == ND) GO TO 529
-          call INT5(ND,NC,NA)
-          GO TO 510
-529       do ITT=1,ILIM
-            IT1 = (ITT-1)*MXVERT
-            IT2 = IT1
-            call INT9(ND,NC,NA,IT1,IT2,II,IID,JJ,JJD,JTYP,INDOUT,L0,L1,L2,L3)
-          end do
-          GO TO 510
-530       if (NB /= NC) GO TO 535
-          do ITT=1,ILIM
-            IT1 = (ITT-1)*MXVERT
-            IT2 = IT1
-            call INT4(ND,NC,NA,IT1,IT2,II,IID,JJ,JJD,JTYP,INDOUT,L0,L1,L2,L3)
-          end do
-          GO TO 510
-535       if (NA == NB) GO TO 546
-          if (NC /= ND) GO TO 547
-          do ITT=1,ILIM
-            IT1 = (ITT-1)*MXVERT
-            IT2 = IT1
-            call INT8(NB,NA,NC,IT1,IT2,II,IID,JJ,JJD,JTYP,INDOUT,L0,L1,L2,L3)
-          end do
-          GO TO 510
-546       if (NC == ND) GO TO 510
-          do ITT=1,ILIM
-            IT1 = (ITT-1)*MXVERT
-            IT2 = IT1
-            call INT8(ND,NC,NA,IT1,IT2,II,IID,JJ,JJD,JTYP,INDOUT,L0,L1,L2,L3)
-          end do
-          GO TO 510
-547       if (NB > ND) GO TO 540
-          do ITT=1,ILIM
-            IT1 = (ITT-1)*MXVERT
-            IT2 = IT1
-            call INT3(ND,NC,NB,NA,IT1,IT2,II,IID,JJ,JJD,JTYP,INDOUT,L0,L1,L2,L3)
-          end do
-          GO TO 510
-540       if (NB > NC) GO TO 545
-          do ITT=1,ILIM
-            IT1 = (ITT-1)*MXVERT
-            IT2 = IT1
-            call INT2(ND,NC,NB,NA,IT1,IT2,II,IID,JJ,JJD,JTYP,INDOUT,L0,L1,L2,L3)
-          end do
-          GO TO 510
-545       do ITT=1,ILIM
-            IT1 = (ITT-1)*MXVERT
-            IT2 = IT1
-            call INT1(ND,NC,NB,NA,IT1,IT2,II,IID,JJ,JJD,JTYP,INDOUT,L0,L1,L2,L3)
-          end do
-510       continue
+          if (IOUT >= NBUF) then
+            ICOP1(nCOP+1) = NBUF
+            call dDAFILE(Lu_10,1,COP,NCOP,IADD10)
+            call iDAFILE(Lu_10,1,iCOP1,NCOP+1,IADD10)
+            NMAT = NMAT+NBUF
+            IOUT = 0
+          end if
+          if (NA /= NC) then
+            if (NB /= ND) then
+              if (NB /= NC) then
+                if (NA == NB) then
+                  if (NC /= ND) then
+                    do ITT=1,ILIM
+                      IT1 = (ITT-1)*MXVERT
+                      IT2 = IT1
+                      call INT8(ND,NC,NA,IT1,IT2,II,IID,JJ,JJD,JTYP,INDOUT,L0,L1,L2,L3)
+                    end do
+                  end if
+                else if (NC /= ND) then
+                  if (NB > ND) then
+                    if (NB > NC) then
+                      do ITT=1,ILIM
+                        IT1 = (ITT-1)*MXVERT
+                        IT2 = IT1
+                        call INT1(ND,NC,NB,NA,IT1,IT2,II,IID,JJ,JJD,JTYP,INDOUT,L0,L1,L2,L3)
+                      end do
+                    else
+                      do ITT=1,ILIM
+                        IT1 = (ITT-1)*MXVERT
+                        IT2 = IT1
+                        call INT2(ND,NC,NB,NA,IT1,IT2,II,IID,JJ,JJD,JTYP,INDOUT,L0,L1,L2,L3)
+                      end do
+                    end if
+                  else
+                    do ITT=1,ILIM
+                      IT1 = (ITT-1)*MXVERT
+                      IT2 = IT1
+                      call INT3(ND,NC,NB,NA,IT1,IT2,II,IID,JJ,JJD,JTYP,INDOUT,L0,L1,L2,L3)
+                    end do
+                  end if
+                else
+                  do ITT=1,ILIM
+                    IT1 = (ITT-1)*MXVERT
+                    IT2 = IT1
+                    call INT8(NB,NA,NC,IT1,IT2,II,IID,JJ,JJD,JTYP,INDOUT,L0,L1,L2,L3)
+                  end do
+                end if
+              else
+                do ITT=1,ILIM
+                  IT1 = (ITT-1)*MXVERT
+                  IT2 = IT1
+                  call INT4(ND,NC,NA,IT1,IT2,II,IID,JJ,JJD,JTYP,INDOUT,L0,L1,L2,L3)
+                end do
+              end if
+            else if (NC == ND) then
+              do ITT=1,ILIM
+                IT1 = (ITT-1)*MXVERT
+                IT2 = IT1
+                call INT9(ND,NC,NA,IT1,IT2,II,IID,JJ,JJD,JTYP,INDOUT,L0,L1,L2,L3)
+              end do
+            else
+              call INT5(ND,NC,NA)
+            end if
+          else if (NB == ND) then
+            if (NA /= NB) call INT7(ND,NB,NA,IDIAG,dINDOUT,INDOUT,ICAD,IBUFL,KBUF,NTPB)
+          else if (NB == NC) then
+            do ITT=1,ILIM
+              IT1 = (ITT-1)*MXVERT
+              IT2 = IT1
+              call INT9(ND,NC,NA,IT1,IT2,II,IID,JJ,JJD,JTYP,INDOUT,L0,L1,L2,L3)
+            end do
+          else
+            do ITT=1,ILIM
+              IT1 = (ITT-1)*MXVERT
+              IT2 = IT1
+              call INT61(ND,NB,NA,IT1,IT2,II,IID,JJ,JJD,JTYP,INDOUT,L0,L1,L2,L3)
+              call INT62(ND,NB,NA,IT1,IT2,II,IID,JJ,JJD,JTYP,INDOUT,L0,L1,L2,L3)
+            end do
+          end if
         end do
       end do
     end do
@@ -285,11 +290,9 @@ subroutine CI_SELECT_INTERNAL(INDOUT,IBUFL)
   call dDAFILE(Lu_10,1,COP,NCOP,IADD10)
   call iDAFILE(Lu_10,1,iCOP1,NCOP+1,IADD10)
   write(IW,600) NMAT
-600 format(/6X,'COEFFICIENTS FOR IJKL',I9)
   call JTIME(IFIN)
   ITIM = IFIN-IST
   write(IW,703) ITIM
-703 format(6X,'TIME FOR IJKL',I17)
   IAD10(6) = IADD10
   IST = IFIN
   NMAT = 0
@@ -297,14 +300,12 @@ subroutine CI_SELECT_INTERNAL(INDOUT,IBUFL)
   call JTIME(IFIN)
   ITIM = IFIN-IST
   write(IW,704) ITIM
-704 format(6X,'TIME FOR AIBJ',I17)
   IAD10(7) = IADD10
   IST = IFIN
   call AIJK(INDOUT,L0,L1,L2,L3)
   call JTIME(IFIN)
   ITIM = IFIN-IST
   write(IW,705) ITIM
-705 format(6X,'TIME FOR AIJK',I17)
   IAD10(8) = IADD10
   IST = IFIN
   call ONEEL_GUGA()
@@ -314,10 +315,18 @@ subroutine CI_SELECT_INTERNAL(INDOUT,IBUFL)
   call JTIME(IFIN)
   ITIM = IFIN-IST
   write(IW,706) ITIM
-706 format(6X,'TIME FOR ONEEL',I16)
   nullify(dINDOUT,dIBUFL)
 
   return
+
+600 format(/6X,'COEFFICIENTS FOR IJKL',I9)
+601 format(/6X,'COEFFICIENTS FOR DIAG',I9)
+701 format(6X,'TIME FOR DIAG',I17)
+702 format(6X,'TIME FOR ABCI',I17)
+703 format(6X,'TIME FOR IJKL',I17)
+704 format(6X,'TIME FOR AIBJ',I17)
+705 format(6X,'TIME FOR AIJK',I17)
+706 format(6X,'TIME FOR ONEEL',I16)
 
 end subroutine CI_SELECT_INTERNAL
 

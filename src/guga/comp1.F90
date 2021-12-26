@@ -34,34 +34,35 @@ ITAIL = IX(IT2+LJ)
 do IN_=1,ITAIL
   IC1 = ICOUP(1)+IN_
   JND1 = JNDX(II+IC1)
-  if (JND1 == 0) GO TO 90
+  if (JND1 == 0) cycle
   IN2 = ITAI(IN_)
-  if (IN2 == 0) GO TO 90
+  if (IN2 == 0) cycle
   IC2 = ICOUP1(1)+IN2
-  if (ITYP /= 1) GO TO 91
-  KK1 = (JND1-1)*LN+L
-  JOJ = JO(KK1)
-  if (JOJ > 1) JOJ = JOJ-1
-  FAC = JOJ
-  if (JOJ == 0) GO TO 90
-91 IC1 = JND1-IID
+  if (ITYP == 1) then
+    KK1 = (JND1-1)*LN+L
+    JOJ = JO(KK1)
+    if (JOJ > 1) JOJ = JOJ-1
+    FAC = JOJ
+    if (JOJ == 0) cycle
+  end if
+  IC1 = JND1-IID
   JND2 = JNDX(JJ+IC2)
-  if (JND2 == 0) GO TO 90
+  if (JND2 == 0) cycle
   IC2 = JND2-JJD
   IOUT = IOUT+1
   KTYP = JTYP
-  if (JTYP <= 3) GO TO 92
-  ICT = IC1
-  IC1 = IC2
-  IC2 = ICT
-  KTYP = JTYP-3
-92 continue
+  if (JTYP > 3) then
+    ICT = IC1
+    IC1 = IC2
+    IC2 = ICT
+    KTYP = JTYP-3
+  end if
   !IND = KTYP+2**6*IC2
   IND = ior(KTYP,ishft(IC2,6))
   !ICOP1(IOUT) = IND+2**19*IC1
   ICOP1(IOUT) = ior(IND,ishft(IC1,19))
   COP(IOUT) = FAC*COUP(1)
-  if (IOUT < NBUF) GO TO 90
+  if (IOUT < NBUF) cycle
   ICOP1(nCOP+1) = NBUF
   !write(u6,*) 'WRITING BUFFER IN COMP1'
   !write(u6,*) '======================='
@@ -71,7 +72,6 @@ do IN_=1,ITAIL
   call iDAFILE(Lu_10,1,iCOP1,NCOP+1,IADD10)
   NMAT = NMAT+NBUF
   IOUT = 0
-90 continue
 end do
 
 return
