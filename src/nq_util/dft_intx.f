@@ -11,7 +11,9 @@
 * Copyright (C) 2000, Roland Lindh                                     *
 *               Ajitha Devarajan                                       *
 ************************************************************************
-      Subroutine DFT_IntX(Do_NInt_d,Do_NInt, Do_NIntX,
+*#define _NEWCODE_
+#ifdef _NEWCODE_
+      Subroutine DFT_IntX(Do_NInt_d,Do_NInt
      &                    Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                    FckInt,nFckInt,SOTemp,nSOTemp,
      &                    ipTabAO,dF_dRho,ndF_dRho,
@@ -37,7 +39,7 @@
      &                   AOIntegrals => Dens_AO
       use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
-      External Do_NInt_d, Do_NInt, Do_NIntX
+      External Do_NInt_d, Do_NIntX
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
@@ -58,8 +60,6 @@
 *
       nGrid_Tot=0
 *
-*#define _NEWCODE_
-#ifdef _NEWCODE_
       nBfn = Size(Grid_AO,3)
       Call Do_NInt_d(ndF_dRho, dF_dRho,Weights,mGrid,
      &               Grid_AO, TabAO,nBfn,nGrid_Tot,iSpin,mAO,nFn)
@@ -106,7 +106,61 @@
      Else
      End If
      End Do
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Flop=Flop+DBLE(nGrid_Tot)
+*
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_integer(nSym)
+#endif
+      End
 #else
+      Subroutine DFT_IntX(Do_NInt_d,Do_NInt,
+     &                    Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
+     &                    FckInt,nFckInt,SOTemp,nSOTemp,
+     &                    ipTabAO,dF_dRho,ndF_dRho,
+     &                    nSym,iSpin,Flop,Scr,nScr,
+     &                    Fact,ndc,mAO,list_bas,nFn)
+************************************************************************
+*                                                                      *
+* Object: to compute contributions to                                  *
+*                                                                      *
+*         <m|dF/drho|n> ; integrals over the potential                 *
+*                                                                      *
+*         where                                                        *
+*                                                                      *
+*         F(r)=rho(r)*e(rho(r),grad[rho(r)])                           *
+*                                                                      *
+*      Author:Roland Lindh, Department of Chemical Physics, University *
+*             of Lund, SWEDEN. November 2000                           *
+*             D.Ajitha:Modifying for the new Kernel outputs            *
+************************************************************************
+      use iSD_data
+      use Symmetry_Info, only: nIrrep
+      use nq_Grid, only: TabAO_Pack
+      Implicit Real*8 (A-H,O-Z)
+      External Do_NInt_d, Do_NInt
+#include "real.fh"
+#include "WrkSpc.fh"
+#include "print.fh"
+#include "debug.fh"
+#include "nsd.fh"
+#include "setup.fh"
+      Real*8 Weights(mGrid), SOTemp(nSOTemp,iSpin), Fact(ndc**2),
+     &       Scr(nScr*mGrid),
+     &       AOInt(nAOInt*nAOInt,iSpin), FckInt(nFckInt,iSpin),
+     &       dF_dRho(ndF_dRho,mGrid)
+      Integer nOp(2), list_s(2,nlist_s), ipTabAO(nlist_s),
+     &        list_bas(2,nlist_s)
+*                                                                      *
+************************************************************************
+*                                                                      *
+*---- Evaluate the desired AO integrand here from the AOs, accumulate
+*     contributions to the SO integrals on the fly.
+*
+      nGrid_Tot=0
+*
       iSmLbl=1
 *                                                                      *
 ************************************************************************
@@ -206,7 +260,6 @@
 *
          End Do                     ! jlist_s
       End Do                        ! ilist_s
-#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -216,3 +269,4 @@
       If (.False.) Call Unused_integer(nSym)
 #endif
       End
+#endif

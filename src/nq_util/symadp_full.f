@@ -11,7 +11,7 @@
 * Copyright (C) 1991,2021, Roland Lindh                                *
 ************************************************************************
       Subroutine SymAdp_Full(lOper,
-     &                       AOIntegrals, nBfn, Prpnt, nPrp,
+     &                       AOIntegrals, nBfn, PrpInt, nPrp,
      &                       list_s,nlist_s,Fact,ndc)
 ************************************************************************
 *                                                                      *
@@ -29,7 +29,7 @@
       use Basis_Info,    only: nBas
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-      Real*8 AOIntIntegral(nBfn,nBfn), PrpInt(nPrp), Fact(ndc**2)
+      Real*8 AOIntegrals(nBfn,nBfn), PrpInt(nPrp), Fact(ndc**2)
       Integer list_s(2,nlist_s)
       Integer nOp(2)
       Integer, Parameter:: iTwoj(0:7)=[1,2,4,8,16,32,64,128]
@@ -117,8 +117,8 @@
                   End If
 
                   PrpInt(Indij) = PrpInt(Indij)
-     &                          + Factor(ij)*xa*xb
-     &                          * AOIntegral(iBfn,jBfn)
+     &                          + Fact(ij)*xa*xb
+     &                          * AOIntegrals(iBfn,jBfn)
 
 *                 If (.NOT.(iShell.eq.jShell.and.nOp(1).ne.nOp(2)))Cycle
 
