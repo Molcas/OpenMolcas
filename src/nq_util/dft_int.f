@@ -24,7 +24,7 @@
 *             SWEDEN. November 2008                                    *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-#define _NEWCODE_
+*#define _NEWCODE_
 #ifdef _NEWCODE_
       External Do_NInt1_d, Do_nInt1X,
      &         Do_NInt2_d, Do_nInt2X,

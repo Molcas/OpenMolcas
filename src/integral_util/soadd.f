@@ -63,25 +63,32 @@
           iSO2=iAOtSO(jAO+i2,j2)
 *
           iPnt = iPntSO(j1,j2,lOper,nbas)
-          Do 500 indAO1 = 0, iBas-1
+          Do 500 indAO1 = 1, iBas
 *         Diagonal block. Store only unique elements
-           jBsMax = jBas - 1
-           If (j1.eq.j2 .and. iSO1.eq.iSO2) jBsMax=indAO1
-           Do 600 indAO2 = 0, jBsMax
-            ip = indAO2*iBas + indAO1 + 1
+*          jBsMax = jBas
+*          If (j1.eq.j2 .and. iSO1.eq.iSO2) jBsMax=indAO1
+*          Do 600 indAO2 = 1, jBsMax
+           Do 600 indAO2 = 1, jBas
+            ip = (indAO2-1)*iBas + indAO1
 *
 *           Move one electron integral.
 *
+            iSO=iSO1+IndAO1-1
+            jSO=iSO2+IndAO2-1
+
+*           Diagonal block. Store only unique elements
+            If (j1.eq.j2 .and. iSO1.eq.iSO2 .and.
+     &          iSO<jSO) Cycle
+
             If (j1.eq.j2) Then
 *------------Diagonal symmetry block
-             Indij=iPnt + iTri(iSO1+indAO1,iSO2+indAO2)
+             Indij=iPnt + iTri(iSO,jSO)
             Else
 *------------Off-diagonal symmetry block j1>j2
-             Indi = iSO1+indAO1
-             Indj = iSO2+indAO2
              nRow = nBas(j1)
-             Indij=iPnt + nRow*(Indj-1) + Indi
+             Indij=iPnt + nRow*(jSO-1)*nRow + iSO
             End If
+
             PrpInt(Indij) = PrpInt(Indij) + SOInt(ip,lSO)
 *
  600       Continue
