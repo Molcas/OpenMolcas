@@ -119,6 +119,14 @@
                      indAO1 = iB_Eff + iAdd
                      Do jB_Eff = 1, jBas_Eff
                         indAO2 = jB_Eff + jAdd
+
+                        iSO=iSO1+IndAO2-1
+                        jSO=iSO2+IndAO1-1
+
+*           Diagonal block. Store only unique elements
+                        If (j1.eq.j2 .and. iSO1.eq.iSO2 .and.
+     &                      iSO<jSO) Cycle
+
 *
                         iFrom=(jB_Eff-1)*iBas_Eff+iB_Eff
 
