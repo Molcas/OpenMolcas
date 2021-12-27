@@ -228,12 +228,7 @@
      &                         iAO,jAO,AOInt(1,iD),
      &                         iBas,iBas_Eff,jBas,jBas_Eff,
      &                         nIC,iIC,SOTemp(1,iD),nSO,nOp,
-     &                         iSkal,jSkal)
-*
-*---------------- Here scatter the result
-*
-                  If (Fact(ij).ne.One)
-     &               Call DScal_(nSO*iBas*jBas,Fact(ij),SOTemp(1,iD),1)
+     &                         iSkal,jSkal,Fact(ij))
 *
                   Call SOAdd(SOTemp(1,iD),iBas,jBas,nSO,
      &                       FckInt(1,iD),nFckInt,iSmLbl,

@@ -14,7 +14,7 @@
      &                   iShll,jShll,iAO,jAO,
      &                               AOInt,iBas,iBas_Eff,
      &                                     jBas,jBas_Eff,nIC,iIC,
-     &                   SOInt,nSOInt,nOp,iSkal,jSkal)
+     &                   SOInt,nSOInt,nOp,iSkal,jSkal,Fact)
 ************************************************************************
 *                                                                      *
 * Object: to transform the one-electon matrix elements from AO basis   *
@@ -107,7 +107,7 @@
 
                         iTo  =(indAO2    -1)*iBas    +indAO1    ! (iB,jB)
                         SOInt(iTo,lSO)=SOInt(iTo,lSO)
-     &                                +xa*xb*AOInt(iFrom,i1,i2,kIC)
+     &                                +Fact*xa*xb*AOInt(iFrom,i1,i2,kIC)
 
                      End Do
                   End Do
@@ -132,7 +132,7 @@
 
                         iTo  =(indAO1    -1)*jBas    +indAO2 ! (jB,iB)
                         SOInt(iTo,lSO)=SOInt(iTo,lSO)
-     &                                +xa*xb*AOInt(iFrom,i2,i1,kIC)
+     &                                +Fact*xa*xb*AOInt(iFrom,i2,i1,kIC)
 *
                      End Do
                   End Do
@@ -143,6 +143,7 @@
 *
  200     Continue
  100  Continue
+
       If (lSO.ne.nSOInt) Then
          Call WarningMessage(2,'Error in SymAdd, lSO.ne.nSOInt')
          Call Abend()
