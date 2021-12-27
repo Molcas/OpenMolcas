@@ -73,17 +73,18 @@
                If (iAnd(lOper,iTwoj(j12)).eq.0) Go To 300
                kIC = jIC(j12)
                xb = DBLE(iChTbl(j2,nOp(2)))
-               jMx = jCmp
 *
 *              If two sets of basis functions have the same
 *              irrep index, and share atomic center and radial
 *              contractions retrict the angular index combinations
 *              to be the unique combinations.
 
-               If (iShell.eq.jShell .and. j1.eq.j2) jMx = i1
 *
-               Do 400 i2 = 1, jMx
+               Do 400 i2 = 1, jCmp
                   If (iAOtSO(jAO+i2,j2)<0) Cycle
+
+                  If (iShell.eq.jShell .and. j1.eq.j2 .and.
+     &               i1<i2) Cycle
                   lSO = lSO + 1
                   iSO1=iAOtSO(iAO+i1,j1)
                   iSO2=iAOtSO(jAO+i2,j2)

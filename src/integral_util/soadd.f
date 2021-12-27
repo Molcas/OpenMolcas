@@ -54,20 +54,18 @@
         Do 300 j2 = 0, j1
          j12 = iEor(j1,j2)
          If (iAnd(lOper,2**j12).eq.0) Cycle
-         jjMx = jCmp
-         If (iShell.eq.jShell .and. j1.eq.j2) jjMx = i1
-         Do 400 i2 = 1, jjMx
+
+         Do 400 i2 = 1, jCmp
           If (iAOtSO(jAO+i2,j2)<0) Cycle
+          If (iShell.eq.jShell .and. j1.eq.j2 .and.
+     &        i1<i2) Cycle
+
           lSO = lSO + 1
           iSO1=iAOtSO(iAO+i1,j1)
           iSO2=iAOtSO(jAO+i2,j2)
 *
           iPnt = iPntSO(j1,j2,lOper,nbas)
           Do 500 indAO1 = 1, iBas
-*         Diagonal block. Store only unique elements
-*          jBsMax = jBas
-*          If (j1.eq.j2 .and. iSO1.eq.iSO2) jBsMax=indAO1
-*          Do 600 indAO2 = 1, jBsMax
            Do 600 indAO2 = 1, jBas
             ip = (indAO2-1)*iBas + indAO1
 *
