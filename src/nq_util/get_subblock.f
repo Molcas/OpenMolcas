@@ -349,9 +349,9 @@ C              End If
       Call Allocate_iWork(ipTabAO,2*(nlist_s+1))
       Call mma_Allocate(Dens_AO,nBfn,nBfn,nD,Label='Dens_AO')
       Call mma_Allocate(Ind_Grd,3,nBfn,Label='Ind_Grd')
-      Call mma_Allocate(iBfn_Index,nBfn,Label='iBfn_Index')
+      Call mma_Allocate(iBfn_Index,5,nBfn,Label='iBfn_Index')
       Ind_Grd(:,:)=0
-      iBfn_Index(:)=0
+      iBfn_Index(:,:)=0
 *
       If ((Functional_Type.eq.CASDFT_Type).or.Do_MO.or.DO_TwoEl) Then
          nTabMO=mAO*nMOs*mGrid

@@ -85,6 +85,9 @@
                Do 400 i2 = 1, jMx
                   If (iAOtSO(jAO+i2,j2)<0) Cycle
                   lSO = lSO + 1
+                  iSO1=iAOtSO(iAO+i1,j1)
+                  iSO2=iAOtSO(jAO+i2,j2)
+
 *
                   Do iB_Eff = 1, iBas_Eff
                      iB = iB_Eff + iAdd
@@ -97,13 +100,22 @@
                         SOInt(iTo,lSO)=SOInt(iTo,lSO)
      &                                +xa*xb*AOInt(iFrom,i1,i2,kIC)
 
-                        If (iShell.eq.jShell.and.nOp(1).ne.nOp(2)) Then
-*                          If (iBas.ne.jBas) Stop 333
-*                          If (j1.ne.j2) Stop 444
-                           iTo  =(iB    -1)*jBas    +jB ! (jB,iB)
-                           SOInt(iTo,lSO)=SOInt(iTo,lSO)
-     &                                   +xa*xb*AOInt(iFrom,i2,i1,kIC)
-                        End If
+                     End Do
+                  End Do
+
+                  If (.Not.(iShell.eq.jShell.and.nOp(1).ne.nOp(2)))
+     &               Cycle
+
+                  Do iB_Eff = 1, iBas_Eff
+                     iB = iB_Eff + iAdd
+                     Do jB_Eff = 1, jBas_Eff
+                        jB = jB_Eff + jAdd
+*
+                        iFrom=(jB_Eff-1)*iBas_Eff+iB_Eff
+
+                        iTo  =(iB    -1)*jBas    +jB ! (jB,iB)
+                        SOInt(iTo,lSO)=SOInt(iTo,lSO)
+     &                                +xa*xb*AOInt(iFrom,i2,i1,kIC)
 *
                      End Do
                   End Do

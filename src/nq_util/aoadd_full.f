@@ -34,10 +34,10 @@
 
 *
       Do iBfn = 1, nBfn
-         Indi = iBfn_Index(iBfn)
+         Indi = iBfn_Index(1,iBfn)
 
          Do jBfn = 1, iBfn
-            Indj = iBfn_Index(jBfn)
+            Indj = iBfn_Index(1,jBfn)
 *
 *           Add one matrix element
 *

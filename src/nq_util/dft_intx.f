@@ -56,9 +56,10 @@
 *---- Evaluate the desired AO integrand here from the AOs, accumulate
 *     contributions to the SO integrals on the fly.
 *
-      iSmLbl=1
       nGrid_Tot=0
 *
+*#define _NEWCODE_
+#ifdef _NEWCODE_
       nBfn = Size(Grid_AO,3)
       Call Do_NInt_d(ndF_dRho, dF_dRho,Weights,mGrid,
      &               Grid_AO, TabAO,nBfn,nGrid_Tot,iSpin,mAO,nFn)
@@ -74,14 +75,11 @@
       Do ilist_s=1,nlist_s
          iSkal = list_s(1,ilist_s)
          kDCRE = list_s(2,ilist_s)
-         iShll = iSD( 0,iSkal)
-         iAng  = iSD( 1,iSkal)
          iCmp  = iSD( 2,iSkal)
          iBas  = iSD( 3,iSkal)
          iBas_Eff=list_bas(1,ilist_s)
          iAO   = iSD( 7,iSkal)
          mdci  = iSD(10,iSkal)
-         iShell= iSD(11,iSkal)
 
          iAdd = iBas-iBas_Eff
          Do i1 = 1, iCmp
@@ -91,10 +89,25 @@
                Indi = iSO1 + indAO1
 
                iBfn = iBfn + 1
-               iBfn_Index(iBfn) = Indi
+               iBfn_Index(1,iBfn) = Indi
+               iBfn_Index(2,iBfn) = ilist_s
+               iBfn_Index(3,iBfn) = i1
+               iBfn_Index(4,iBfn) = i2
+               iBfn_Index(5,iBfn) = mdci
             End Do
          End Do
       End Do
+*                                                                      *
+************************************************************************
+*                                                                      *
+     Do iD = 1, iSpin
+     If (nIrrep.eq.1) Then
+        Call AOAdd_Full(AOIntegrals(:,:,iD),nBfn,PrpInt(:,iD),nPrp)
+     Else
+     End If
+     End Do
+#else
+      iSmLbl=1
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -193,6 +206,7 @@
 *
          End Do                     ! jlist_s
       End Do                        ! ilist_s
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
