@@ -91,13 +91,21 @@
 
 *
                   Do iB_Eff = 1, iBas_Eff
-                     iB = iB_Eff + iAdd
+                     indAO1 = iB_Eff + iAdd
                      Do jB_Eff = 1, jBas_Eff
-                        jB = jB_Eff + jAdd
+                        indAO2 = jB_Eff + jAdd
+
+                        iSO=iSO1+IndAO1-1
+                        jSO=iSO2+IndAO2-1
+
+*           Diagonal block. Store only unique elements
+                        If (j1.eq.j2 .and. iSO1.eq.iSO2 .and.
+     &                      iSO<jSO) Cycle
+
 *
                         iFrom=(jB_Eff-1)*iBas_Eff+iB_Eff
 
-                        iTo  =(jB    -1)*iBas    +iB    ! (iB,jB)
+                        iTo  =(indAO2    -1)*iBas    +indAO1    ! (iB,jB)
                         SOInt(iTo,lSO)=SOInt(iTo,lSO)
      &                                +xa*xb*AOInt(iFrom,i1,i2,kIC)
 
@@ -108,13 +116,13 @@
      &               Cycle
 
                   Do iB_Eff = 1, iBas_Eff
-                     iB = iB_Eff + iAdd
+                     indAO1 = iB_Eff + iAdd
                      Do jB_Eff = 1, jBas_Eff
-                        jB = jB_Eff + jAdd
+                        indAO2 = jB_Eff + jAdd
 *
                         iFrom=(jB_Eff-1)*iBas_Eff+iB_Eff
 
-                        iTo  =(iB    -1)*jBas    +jB ! (jB,iB)
+                        iTo  =(indAO1    -1)*jBas    +indAO2 ! (jB,iB)
                         SOInt(iTo,lSO)=SOInt(iTo,lSO)
      &                                +xa*xb*AOInt(iFrom,i2,i1,kIC)
 *
