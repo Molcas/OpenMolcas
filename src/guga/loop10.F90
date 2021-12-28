@@ -15,13 +15,13 @@
 
 subroutine LOOP10(KM,ISTOP,IT1,IT2)
 
+use guga_global, only: BL1, BL2, BS1, BS2, COUP, COUP1, IA, IB, ICOUP, ICOUP1, IPO, IWAY, IY, J1, J2, JM, JM1, K0, K1, K1F, K2, &
+                       K2F, K3, K3F
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: KM, IT1, IT2
 integer(kind=iwp), intent(out) :: ISTOP
-#include "real_guga.fh"
-#include "integ.fh"
 integer(kind=iwp) :: IDIF, IWAYKM, J1F, KM1
 
 ISTOP = 0

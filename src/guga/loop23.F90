@@ -15,13 +15,13 @@
 
 subroutine LOOP23(KM,ISTOP,IFAI,IT1,IT2)
 
+use guga_global, only: BL1, BL2, COUP, COUP1, IA, IB, ICOUP, ICOUP1, IWAY, IY, J1, J2, JM, JM1, K0, K0F, K1, K1F, K2, K2F, K3, K3F
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: KM, IFAI, IT1, IT2
 integer(kind=iwp), intent(out) :: ISTOP
-#include "real_guga.fh"
-#include "integ.fh"
 integer(kind=iwp) :: IDIF, IWAYKM, KM1
 real(kind=wp) :: WMM, WMP, WPM, WPP
 
@@ -127,8 +127,8 @@ else if (IDIF == 0) then
   if (IWAYKM == 1) then
     ! (NN+,RR+JJ+)
     IWAY(KM) = 2
-    WMP = D0
-    WPP = D0
+    WMP = Zero
+    WPP = Zero
     if ((K1(IT1+J1(KM1)) == 0) .or. (K1(IT2+J2(KM1)) == 0)) then
       IWAYKM = 2
     else if (K1F(JM1(KM1)) /= 0) then
@@ -139,7 +139,7 @@ else if (IDIF == 0) then
       COUP1(KM) = COUP1(KM1)
       JM1(KM) = K1F(JM1(KM1))
       if (K2F(JM1(KM1)) /= 0) then
-        WMP = D1/((IB(J2(KM1))+1)**2)
+        WMP = One/((IB(J2(KM1))+1)**2)
         JM(KM) = K2F(JM1(KM1))
         if (K1F(JM(KM1)) /= 0) then
           WPP = BL1(IB(J2(KM1))+2)**2
@@ -149,14 +149,14 @@ else if (IDIF == 0) then
       else if (K1F(JM(KM1)) /= 0) then
         WPP = BL1(IB(J2(KM1))+2)**2
         JM(KM) = K1F(JM(KM1))
-        COUP(KM) = WMP*COUP1(KM1)+WPP*COUP(KM1)
+        COUP(KM) = WPP*COUP(KM1)
       end if
     else if (K2F(JM1(KM1)) /= 0) then
       J1(KM) = K1(IT1+J1(KM1))
       J2(KM) = K1(IT2+J2(KM1))
       ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),1)
       ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),1)
-      WMP = D1/((IB(J2(KM1))+1)**2)
+      WMP = One/((IB(J2(KM1))+1)**2)
       JM(KM) = K2F(JM1(KM1))
       if (K1F(JM(KM1)) /= 0) then
         WPP = BL1(IB(J2(KM1))+2)**2
@@ -170,7 +170,7 @@ else if (IDIF == 0) then
       ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),1)
       WPP = BL1(IB(J2(KM1))+2)**2
       JM(KM) = K1F(JM(KM1))
-      COUP(KM) = WMP*COUP1(KM1)+WPP*COUP(KM1)
+      COUP(KM) = WPP*COUP(KM1)
     else if (IFAI == 0) then
       IWAYKM = 2
     else
@@ -178,15 +178,15 @@ else if (IDIF == 0) then
       J2(KM) = K1(IT2+J2(KM1))
       ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),1)
       ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),1)
-      COUP1(KM) = D0
-      COUP(KM) = D0
+      COUP1(KM) = Zero
+      COUP(KM) = Zero
     end if
   end if
   if (IWAYKM == 2) then
     ! (KK+,OO+,QQ+)
     IWAY(KM) = 3
-    WMM = D0
-    WPM = D0
+    WMM = Zero
+    WPM = Zero
     if ((K2(IT1+J1(KM1)) == 0) .or. (K2(IT2+J2(KM1)) == 0)) then
       IWAYKM = 3
     else if (K2F(JM(KM1)) /= 0) then
@@ -200,14 +200,14 @@ else if (IDIF == 0) then
         WMM = BL2(IB(J2(KM1)))**2
         JM1(KM) = K2F(JM1(KM1))
         if (K1F(JM(KM1)) /= 0) then
-          WPM = D1/((IB(J2(KM1))+1)**2)
+          WPM = One/((IB(J2(KM1))+1)**2)
           JM1(KM) = K1F(JM(KM1))
         end if
         COUP1(KM) = WMM*COUP1(KM1)+WPM*COUP(KM1)
       else if (K1F(JM(KM1)) /= 0) then
-        WPM = D1/((IB(J2(KM1))+1)**2)
+        WPM = One/((IB(J2(KM1))+1)**2)
         JM1(KM) = K1F(JM(KM1))
-        COUP1(KM) = WMM*COUP1(KM1)+WPM*COUP(KM1)
+        COUP1(KM) = WPM*COUP(KM1)
       end if
     else if (K2F(JM1(KM1)) /= 0) then
       J1(KM) = K2(IT1+J1(KM1))
@@ -217,7 +217,7 @@ else if (IDIF == 0) then
       WMM = BL2(IB(J2(KM1)))**2
       JM1(KM) = K2F(JM1(KM1))
       if (K1F(JM(KM1)) /= 0) then
-        WPM = D1/((IB(J2(KM1))+1)**2)
+        WPM = One/((IB(J2(KM1))+1)**2)
         JM1(KM) = K1F(JM(KM1))
       end if
       COUP1(KM) = WMM*COUP1(KM1)+WPM*COUP(KM1)
@@ -226,9 +226,9 @@ else if (IDIF == 0) then
       J2(KM) = K2(IT2+J2(KM1))
       ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),2)
       ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),2)
-      WPM = D1/((IB(J2(KM1))+1)**2)
+      WPM = One/((IB(J2(KM1))+1)**2)
       JM1(KM) = K1F(JM(KM1))
-      COUP1(KM) = WMM*COUP1(KM1)+WPM*COUP(KM1)
+      COUP1(KM) = WPM*COUP(KM1)
     else if (IFAI == 0) then
       IWAYKM = 3
     else
@@ -236,8 +236,8 @@ else if (IDIF == 0) then
       J2(KM) = K2(IT2+J2(KM1))
       ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),2)
       ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),2)
-      COUP1(KM) = D0
-      COUP(KM) = D0
+      COUP1(KM) = Zero
+      COUP(KM) = Zero
     end if
   end if
   if (IWAYKM == 3) then
@@ -270,8 +270,8 @@ else if (IDIF == 0) then
       J2(KM) = K0(IT2+J2(KM1))
       ICOUP1(KM) = ICOUP1(KM1)
       ICOUP(KM) = ICOUP(KM1)
-      COUP1(KM) = D0
-      COUP(KM) = D0
+      COUP1(KM) = Zero
+      COUP(KM) = Zero
     end if
   end if
   if (IWAYKM == 4) then
@@ -304,8 +304,8 @@ else if (IDIF == 0) then
       J2(KM) = K3(IT2+J2(KM1))
       ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),3)
       ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),3)
-      COUP1(KM) = D0
-      COUP(KM) = D0
+      COUP1(KM) = Zero
+      COUP(KM) = Zero
     end if
   end if
   if (IWAYKM == 5) then
@@ -320,7 +320,7 @@ else if (IDIF == 0) then
       ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),1)
       WMP = -BL2(IB(J2(KM1)))/(IB(J2(KM1))+1)
       if (K1F(JM(KM1)) == 0) then
-        WPP = D0
+        WPP = Zero
         JM(KM) = K2F(JM1(KM1))
       else
         WPP = BL1(IB(J2(KM1))+2)/(IB(J2(KM1))+1)
@@ -351,7 +351,7 @@ else if (IDIF == 0) then
       ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),2)
       WMM = -BL2(IB(J2(KM1)))/(IB(J2(KM1))+1)
       if (K1F(JM(KM1)) == 0) then
-        WPM = D0
+        WPM = Zero
         JM1(KM) = K2F(JM1(KM1))
       else
         WPM = BL1(IB(J2(KM1))+2)/(IB(J2(KM1))+1)

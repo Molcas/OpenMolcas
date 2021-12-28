@@ -14,17 +14,16 @@
 subroutine CI_SELECT(INDOUT,ICAD,IBUFL,L0,L1,L2,L3,KBUF,NTPB,NBINS)
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
-use Definitions, only: wp, iwp
+use guga_global, only: IADD11, ICH, IFIRST, ILIM, IOUT, LN, Lu_10, MXVERT, NBUF, NMAT, NSM
+use Symmetry_Info, only: Mul
+use Definitions, only: wp, iwp, u6, RtoI
 
 #include "intent.fh"
 
 implicit none
 integer(kind=iwp), intent(_OUT_) :: INDOUT(*), ICAD(*), IBUFL(*)
 integer(kind=iwp), intent(in) :: L0(*), L1(*), L2(*), L3(*), KBUF, NTPB, NBINS
-#include "SysDef.fh"
-#include "real_guga.fh"
-#include "integ.fh"
-#include "files_addr.fh"
+#include "cop.fh"
 integer(kind=iwp) :: ID, IDIAG, IFIN, II, IID, IND1, IND2, IST, IT1, IT2, ITIM, JJ, JJD, JTYP, KBUF2, M2MIN, NA, NB, NC, ND, NSA, &
                      NSABC, NSAV1, NSAV2, NSAVE, NSB, NSC, NSCD, NSD
 
@@ -45,7 +44,7 @@ subroutine CI_SELECT_INTERNAL(INDOUT,IBUFL)
   call c_f_pointer(c_loc(INDOUT),dINDOUT,[1])
   call c_f_pointer(c_loc(IBUFL),dIBUFL,[1])
 
-  KBUF2 = (RTOI+1)*KBUF+2
+  KBUF2 = (RtoI+1)*KBUF+2
   ID = 0
   do IREC=1,NBINS
     IBUFL(IREC) = 0
@@ -114,10 +113,10 @@ subroutine CI_SELECT_INTERNAL(INDOUT,IBUFL)
   ICOP1(nCOP+1) = -1
   call dDAFILE(Lu_10,1,COP,NCOP,IADD10)
   call iDAFILE(Lu_10,1,iCOP1,NCOP+1,IADD10)
-  write(IW,601) NMAT
+  write(u6,601) NMAT
   call JTIME(IFIN)
   ITIM = IFIN-IST
-  write(IW,701) ITIM
+  write(u6,701) ITIM
   IAD10(4) = IADD10
   IST = IFIN
   JTYP = 1
@@ -136,7 +135,7 @@ subroutine CI_SELECT_INTERNAL(INDOUT,IBUFL)
   !FUE end modification
   call JTIME(IFIN)
   ITIM = IFIN-IST
-  write(IW,702) ITIM
+  write(u6,702) ITIM
   IAD10(5) = IADD10
   IST = IFIN
   IOUT = 0
@@ -146,10 +145,10 @@ subroutine CI_SELECT_INTERNAL(INDOUT,IBUFL)
     NSC = NSM(ICH(M3))
     do M4=1,M3
       NSD = NSM(ICH(M4))
-      NSCD = MUL(NSC,NSD)
+      NSCD = Mul(NSC,NSD)
       do M1=M3,LN
         NSA = NSM(ICH(M1))
-        NSABC = MUL(NSA,NSCD)
+        NSABC = Mul(NSA,NSCD)
         M2MIN = 1
         if (M1 == M3) M2MIN = M4
         do M2=M2MIN,M1
@@ -289,23 +288,23 @@ subroutine CI_SELECT_INTERNAL(INDOUT,IBUFL)
   ICOP1(nCOP+1) = -1
   call dDAFILE(Lu_10,1,COP,NCOP,IADD10)
   call iDAFILE(Lu_10,1,iCOP1,NCOP+1,IADD10)
-  write(IW,600) NMAT
+  write(u6,600) NMAT
   call JTIME(IFIN)
   ITIM = IFIN-IST
-  write(IW,703) ITIM
+  write(u6,703) ITIM
   IAD10(6) = IADD10
   IST = IFIN
   NMAT = 0
   call AIBJ(L0,L1,L2,L3,INDOUT)
   call JTIME(IFIN)
   ITIM = IFIN-IST
-  write(IW,704) ITIM
+  write(u6,704) ITIM
   IAD10(7) = IADD10
   IST = IFIN
   call AIJK(INDOUT,L0,L1,L2,L3)
   call JTIME(IFIN)
   ITIM = IFIN-IST
-  write(IW,705) ITIM
+  write(u6,705) ITIM
   IAD10(8) = IADD10
   IST = IFIN
   call ONEEL_GUGA()
@@ -314,7 +313,7 @@ subroutine CI_SELECT_INTERNAL(INDOUT,IBUFL)
   call AI(JTYP,INDOUT,L0,L1,L2,L3)
   call JTIME(IFIN)
   ITIM = IFIN-IST
-  write(IW,706) ITIM
+  write(u6,706) ITIM
   nullify(dINDOUT,dIBUFL)
 
   return

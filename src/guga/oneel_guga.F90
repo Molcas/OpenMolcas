@@ -15,13 +15,11 @@
 
 subroutine ONEEL_GUGA()
 
-use Definitions, only: iwp
+use guga_global, only: ICH, IJ, ILIM, IOUT, IWAY, J1, J2, LN, Lu_10, MXVERT, NBUF, NMAT, NSM
+use Definitions, only: iwp, u6
 
 implicit none
-#include "SysDef.fh"
-#include "real_guga.fh"
-#include "integ.fh"
-#include "files_addr.fh"
+#include "cop.fh"
 integer(kind=iwp) :: I, ISTOP, IT1, IT2, ITT, ITYP, J, K, KJL, KJS, KM, NI, NK, NSI, NSK
 logical(kind=iwp) :: first
 
@@ -109,7 +107,7 @@ NMAT = NMAT+IOUT
 ICOP1(nCOP+1) = -1
 call dDAFILE(Lu_10,1,COP,NCOP,IADD10)
 call iDAFILE(Lu_10,1,iCOP1,NCOP+1,IADD10)
-write(IW,100) NMAT
+write(u6,100) NMAT
 
 return
 

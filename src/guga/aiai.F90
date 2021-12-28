@@ -15,26 +15,23 @@
 
 subroutine AIAI(BUFOUT,INDOUT,ICAD,IBUFL,KBUF,NTPB,NBINS)
 
-use Definitions, only: wp, iwp
+use guga_global, only: COUP, COUP1, IADD11, ICH, ICOUP, IJ, ILIM, IRC, IV0, IVF0, IWAY, IX, J1, J2, JM, JM1, JNDX, LN, LNP, Lu_11, &
+                       MXVERT
+use Definitions, only: wp, iwp, RtoI
 
 implicit none
 real(kind=wp), intent(inout) :: BUFOUT(*)
 integer(kind=iwp), intent(inout) :: INDOUT(*), ICAD(*), IBUFL(*)
 integer(kind=iwp), intent(in) :: KBUF, NTPB, NBINS
-#include "SysDef.fh"
-#include "real_guga.fh"
-#include "integ.fh"
-#include "files_addr.fh"
-#include "d.fh"
 integer(kind=iwp) :: I, IAD110, ICP, ICPP, ICQ, IDIV, IFAI, IIJ, IJJ, IJM, IJS, IN_, IPOS, ISTOP, ISU, ISUM, IT1, IT2, ITAIL, ITT, &
                      IVL, JND1, KBUF0, KBUF1, KBUF2, KM, NBN, NI
 real(kind=wp) :: CP
 logical(kind=iwp) :: do_loop
 
-KBUF0 = RTOI*KBUF
+KBUF0 = RtoI*KBUF
 KBUF1 = KBUF0+KBUF+1
 KBUF2 = KBUF1+1
-IDIV = RTOI
+IDIV = RtoI
 do NI=1,LN
   I = ICH(NI)
   IIJ = (I*(I+1))/2

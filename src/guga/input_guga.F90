@@ -13,6 +13,8 @@
 
 subroutine INPUT_GUGA(ISO,JSYM,JSY,L0,L1,L2,L3,ISPAC)
 
+use guga_global, only: ICASE, ICH, IFIRST, ILIM, IPRINT, ISPA, ISPIN, JRC, LN, LNP, Lu_10, MXVERT, N, NIORB, NSM, NSYM, S
+use Symmetry_Info, only: Mul
 use Constants, only: Half
 use Definitions, only: iwp, u5, u6
 
@@ -22,15 +24,12 @@ implicit none
 integer(kind=iwp), intent(_OUT_) :: ISO(*), JSYM(*), JSY(*), L0(*), L1(*), L2(*), L3(*)
 integer(kind=iwp), intent(out) :: ISPAC
 #include "niocr.fh"
-#include "SysDef.fh"
-#include "files_addr.fh"
-#include "real_guga.fh"
-#include "integ.fh"
+#include "cop.fh"
 #include "warnings.h"
 integer(kind=iwp), parameter :: mxTit = 10, nCmd = 18
 integer(kind=iwp) :: I, ICIALL, iCmd, ICOR(55), IFCORE, IN_, IN1, IN2, IN3, INTNUM, IOCR(nIOCR), IOM, IONE(8), iOpt, IR, IR1, IR2, &
                      iRef, istatus, ISUM, IVER, J, jCmd, jEnd, JJS(18), JONE(8), JREFX(9000), jStart, LN1, LN2, LSYM, LV, MN, MX, &
-                     NACTEL, NCOR(8), NCORI, NFREF, NISH(8), NISHI, NISHT, nJJS, nJRC, nMUL, NN, NO, NONE_, NREF, NRLN1, NSHI, &
+                     NACTEL, NCOR(8), NCORI, NFREF, NISH(8), NISHI, NISHT, nJJS, nJRC, NN, NO, NONE_, NREF, NRLN1, NSH(8), NSHI, &
                      nTit, NVAL(8), NVALI
 logical(kind=iwp) :: skip
 character(len=132) :: ModLine
@@ -59,17 +58,12 @@ INTNUM = 1
 !PAM97 IFCORE /= 0 means core-polarization orbitals (NOCO keyword).
 IFCORE = 0
 LSYM = 1
-IN_ = 0
 do I=1,8
   NISH(I) = 0
   NVAL(I) = 0
   NCOR(I) = 0
   NSH(I) = 0
   IONE(I) = 0
-  do J=1,8
-    IN_ = IN_+1
-    MUL(I,J) = MLL(IN_)
-  end do
 end do
 do I=1,55
   ICOR(I) = 0
@@ -304,15 +298,15 @@ write(u6,'(6X,120A1)') '*',(' ',i=1,118),'*'
 write(u6,'(6X,120A1)') ('*',i=1,120)
 write(u6,*)
 S = (ISPIN-1)*Half
-if (IFIRST == 0) write(IW,2)
-if (IFIRST /= 0) write(IW,1)
-write(IW,110) N,S
-write(IW,109) (I,I=1,NSYM)
-write(IW,106) (NISH(I),I=1,NSYM)
-write(IW,108) (NSH(I),I=1,NSYM)
-write(IW,208) (NVAL(I),I=1,NSYM)
-write(IW,206) (NCOR(I),I=1,NSYM)
-write(IW,209) (IONE(I),I=1,NSYM)
+if (IFIRST == 0) write(u6,2)
+if (IFIRST /= 0) write(u6,1)
+write(u6,110) N,S
+write(u6,109) (I,I=1,NSYM)
+write(u6,106) (NISH(I),I=1,NSYM)
+write(u6,108) (NSH(I),I=1,NSYM)
+write(u6,208) (NVAL(I),I=1,NSYM)
+write(u6,206) (NCOR(I),I=1,NSYM)
+write(u6,209) (IONE(I),I=1,NSYM)
 LN = 0
 LV = 0
 NIORB = 0
@@ -379,15 +373,15 @@ call TAB2(NREF,IOCR,nIOCR,L0,L1,L2,L3,INTNUM,LV,LSYM,ICIALL,IFCORE,ICOR,NONE_,JO
 LN2 = LN1
 if (LN1 > 8) LN2 = 16
 if (LN1 == 0) then
-  write(IW,55)
+  write(u6,55)
 else
-  write(IW,107) (I,I=1,LN2)
+  write(u6,107) (I,I=1,LN2)
   NO = N-2*NIORB
   MX = 0
   do IREF=1,NREF
     MN = MX+1
     MX = MX+LN1
-    write(IW,112) IREF,(IOCR(J),J=MN,MX)
+    write(u6,112) IREF,(IOCR(J),J=MN,MX)
 
     ! Sum up the occupation numbers of the first reference:
     ISUM = 0
@@ -410,7 +404,7 @@ end if
 call CONFIG(NREF,IOCR,nIOCR,L0,L1,L2,L3,JSYM,JSY,INTNUM,LSYM,JJS,ISO,LV,IFCORE,ICOR,NONE_,JONE,JREFX,NFREF)
 IR = JRC(ILIM)
 ISPAC = IR*LNP
-if (IPRINT >= 2) write(IW,9) ISPAC,ISPA
+if (IPRINT >= 2) write(u6,9) ISPAC,ISPA
 NRLN1 = NREF*LN1
 if (LN1 == 0) NRLN1 = 1
 !PAM97 IR1 = (LN*IR+29)/30
@@ -418,11 +412,10 @@ IR1 = (LN*IR+14)/15
 IR2 = (IR+9)/10
 
 iOpt = 1
-nMUL = 64
 nJJS = 18
 nJRC = 4
-call WR_GUGA(Lu_10,iOpt,IADD10,NFREF,S,N,LN,NSYM,IR1,IR2,IFIRST,INTNUM,LSYM,NREF,LN1,NRLN1,MUL,nMUL,NSH,NISH,8,JRC,nJRC,JJS,nJJS, &
-             NVAL,IOCR,nIOCR)
+call WR_GUGA(Lu_10,iOpt,IADD10,NFREF,S,N,LN,NSYM,IR1,IR2,IFIRST,INTNUM,LSYM,NREF,LN1,NRLN1,Mul,size(Mul),NSH,NISH,8,JRC,nJRC,JJS, &
+             nJJS,NVAL,IOCR,nIOCR)
 call iDAFILE(Lu_10,1,ICASE,IR1,IADD10)
 call iDAFILE(Lu_10,1,JSY,IR2,IADD10)
 IAD10(2) = IADD10

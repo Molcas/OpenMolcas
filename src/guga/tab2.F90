@@ -15,6 +15,9 @@
 
 subroutine TAB2(NREF,IOCR,nIOCR,L0,L1,L2,L3,INTNUM,LV,LSYM,ICIALL,IFCORE,ICOR,NONE_,JONE)
 
+use guga_global, only: BL1, BL2, BS1, BS2, BS3, BS4, COUP, COUP1, IA, IAF, IB, IBF, IFIRST, IJ, IJF, ILIM, IPO, IPRINT, IRC, IV0, &
+                       IX, IY, JNDX, K0, K1, K2, K3, LN, MAXB, MXVERT, N, NIORB, S
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
@@ -23,8 +26,6 @@ implicit none
 integer(kind=iwp), intent(in) :: nIOCR, INTNUM, LV, LSYM, ICIALL, IFCORE, ICOR(*), NONE_, JONE(*)
 integer(kind=iwp), intent(inout) :: NREF, IOCR(nIOCR)
 integer(kind=iwp), intent(_OUT_) :: L0(*), L1(*), L2(*), L3(*)
-#include "real_guga.fh"
-#include "integ.fh"
 integer(kind=iwp) :: I, I0, I1, IA1, IAC, IAT, IB1, IBMAX, IBS, IBT, IEL, II, IIJ, IIJF, IIM, IIM2, IJD, IJFL, IJFS, IJL, IJR, &
                      IJRL, IJS, IJS1, IL, IN_, INUM, IORB(MXVERT), ISTA, ISTOP, ISUM, ITTT, IUT, IUT1, J, J11, J3, J4, JJ, JJ1, &
                      JJ2, JL, JMAX, K, K00(MXVERT), K11(MXVERT), K22(MXVERT), K33(MXVERT), L00(MXVERT), L11(MXVERT), L22(MXVERT), &
@@ -294,9 +295,6 @@ do II=1,LN
   end do
 end do
 IV0 = IUT
-IV1 = IUT-1
-IV2 = IUT-2
-IV3 = IUT-3
 K00(IUT) = 0
 K11(IUT) = 0
 K22(IUT) = 0
@@ -309,8 +307,8 @@ if (ICIALL /= 0) call CIALL(LSYM,NREF,IOCR,nIOCR,L00,L11,L22,L33,LV)
 call DELTAB(NREF,IOCR,L0,L1,L2,L3,INTNUM,LV,IFCORE,ICOR,NONE_,JONE,K00,K11,K22,K33,L00,L11,L22,L33)
 do I=1,ILIM
   ISTA = (I-1)*MXVERT
-  if (IPRINT >= 5) write(IW,101)
-  if (IPRINT >= 5) write(IW,100) (J,IA(J),IB(J),K0(ISTA+J),K1(ISTA+J),K2(ISTA+J),K3(ISTA+J),L0(ISTA+J),L1(ISTA+J),L2(ISTA+J), &
+  if (IPRINT >= 5) write(u6,101)
+  if (IPRINT >= 5) write(u6,100) (J,IA(J),IB(J),K0(ISTA+J),K1(ISTA+J),K2(ISTA+J),K3(ISTA+J),L0(ISTA+J),L1(ISTA+J),L2(ISTA+J), &
                                   L3(ISTA+J),J=1,IUT)
 end do
 IBMAX = 0
@@ -352,19 +350,19 @@ do IL=1,ILIM
 end do
 do I=1,ILIM
   ISTA = (I-1)*MXVERT
-  if (IPRINT >= 5) write(IW,102)
-  if (IPRINT >= 5) write(IW,200) (J,IY(ISTA+J,1),IY(ISTA+J,2),IY(ISTA+J,3),IX(ISTA+J),J=1,IUT)
+  if (IPRINT >= 5) write(u6,102)
+  if (IPRINT >= 5) write(u6,200) (J,IY(ISTA+J,1),IY(ISTA+J,2),IY(ISTA+J,3),IX(ISTA+J),J=1,IUT)
 end do
-if (IPRINT >= 2) write(IW,210) IUT
-write(IW,214)
+if (IPRINT >= 2) write(u6,210) IUT
+write(u6,214)
 
 if (IFIRST == 0) then
 ! This is a normal calculation, both singles and doubles included.
-  write(IW,215) (IX(IUT+1-ITTT+MXVERT*(ITTT-1)),ITTT=1,4)
+  write(u6,215) (IX(IUT+1-ITTT+MXVERT*(ITTT-1)),ITTT=1,4)
 else
   ! "FIRST" keyword has been given. Then this is just a so-called
   ! first-order CI, i.e., singles only.
-  write(IW,215) (IX(IUT+1-ITTT+MXVERT*(ITTT-1)),ITTT=1,2)
+  write(u6,215) (IX(IUT+1-ITTT+MXVERT*(ITTT-1)),ITTT=1,2)
 end if
 
 IRC(1) = IX(IUT)
@@ -373,29 +371,27 @@ do I=2,ILIM
   IRC(I) = IX(ISTA+IUT+1-I)+IRC(I-1)
 end do
 ISUM = IRC(ILIM)
-if (ISUM > LIX) then
+if (ISUM > size(JNDX)) then
   write(u6,*) 'Tab2: ISUM > LIX'
-  write(u6,*) 'ISUM,LIX=',ISUM,LIX
+  write(u6,*) 'ISUM,LIX=',ISUM,size(JNDX)
   call Abend()
 end if
-do I=1,10
-  FBB = I-1
+do I=1,MAXB+3
+  FBB = real(I-1,kind=wp)
   FB = FBB/(FBB+1)
   BS1(I) = sqrt(FB)
   FB = (FBB+2)/(FBB+1)
   BS2(I) = sqrt(FB)
-  if (I > 1) BS3(I) = D1/BS1(I)
-  BS4(I) = D1/BS2(I)
+  if (I > 1) BS3(I) = One/BS1(I)
+  BS4(I) = One/BS2(I)
   FB = FBB*FBB-1
   if (I > 1) BL1(I) = sqrt(FB)/FBB
   FB = (FBB+2)**2-1
   BL2(I) = sqrt(FB)/(FBB+2)
 end do
 ! PUT ZEROS IN VECTORS
-do I=1,LN
-  COUP(I) = D0
-  COUP1(I) = D0
-end do
+COUP(1:LN) = Zero
+COUP1(1:LN) = Zero
 IN_ = 0
 do I=1,LN
   II = LN-I+1
@@ -413,7 +409,7 @@ do I=1,LN
   end do
 end do
 IPO(IUT) = IJF(1)+1
-if (IPRINT >= 10) write(IW,350) (IPO(J),J=1,IUT)
+if (IPRINT >= 10) write(u6,350) (IPO(J),J=1,IUT)
 JMAX = 0
 LN1 = LN+1
 do I=2,LN1
@@ -423,8 +419,8 @@ do I=2,LN1
 end do
 
 if (IPRINT >= 2) then
-  write(IW,411) JMAX
-  write(IW,412) IBMAX,MAXB
+  write(u6,411) JMAX
+  write(u6,412) IBMAX,MAXB
   if (JMAX > 31) call Abend()
 end if
 if (IBMAX > MAXB) call Abend()

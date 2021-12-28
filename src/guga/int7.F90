@@ -16,26 +16,23 @@
 subroutine INT7(I,K,L,IDIAG,BUFOUT,INDOUT,ICAD,IBUFL,KBUF,NTPB)
 ! I < L  I == K  J == L
 
-use Definitions, only: wp, iwp
+use guga_global, only: COUP, IADD11, ICOUP, ICOUP1, ILIM, IJ, IRC, IV0, IVF0, IWAY, IX, J1, J2, JM, JM1, JNDX, LNP, Lu_11, MXVERT
+use Constants, only: Half
+use Definitions, only: wp, iwp, RtoI
 
 implicit none
 integer(kind=iwp), intent(in) :: I, K, L, IDIAG, ICAD(*), KBUF, NTPB
 real(kind=wp), intent(inout) :: BUFOUT(*)
 integer(kind=iwp), intent(inout) :: INDOUT(*), IBUFL(*)
-#include "SysDef.fh"
-#include "real_guga.fh"
-#include "integ.fh"
-#include "files_addr.fh"
-#include "d.fh"
 integer(kind=iwp) :: IAD110, ICP, ICPP, ICQ, IDIV, IJJ, IN_, IPOS, ISTOP, ISU, ISUM, IT1, IT2, ITAIL, ITT, ITURN, ITYP, IVL, JND1, &
                      KBUF0, KBUF1, KBUF2, KM, LJ, LJM, LJS, NBN
 logical(kind=iwp) :: first
 
 IJJ = 0 ! dummy initialize
-KBUF0 = RTOI*KBUF
+KBUF0 = RtoI*KBUF
 KBUF1 = KBUF0+KBUF+1
 KBUF2 = KBUF1+1
-IDIV = RTOI
+IDIV = RtoI
 ITYP = 0
 if (IDIAG == 1) IJJ = L*(L-1)/2+K
 LJS = IJ(L+1)+1
@@ -90,7 +87,7 @@ do ITT=1,ILIM
             else if ((ITURN /= 0) .and. (IWAY(L) /= 5)) then
               if (ICOUP1(I) <= ICOUP(I)) cycle loop_3
             end if
-            if (ITURN == 0) COUP(I) = COUP(I)/D2
+            if (ITURN == 0) COUP(I) = Half*COUP(I)
             if (IDIAG /= 1) then
               call COMP(I,LJ,ITYP,I,IT1,IT2)
               cycle loop_3

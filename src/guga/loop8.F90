@@ -15,13 +15,13 @@
 
 subroutine LOOP8(KM,ISTOP,IT1,IT2)
 
+use guga_global, only: BS1, BS2, COUP, COUP1, IB, ICOUP, ICOUP1, IPO, IWAY, IY, J1, J2, JM, JM1, K0F, K1, K1F, K2, K2F, K3
+use Constants, only: One
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: KM, IT1, IT2
 integer(kind=iwp), intent(out) :: ISTOP
-#include "real_guga.fh"
-#include "integ.fh"
 integer(kind=iwp) :: IWAYKM, J2F, KM1
 
 ISTOP = 0
@@ -67,7 +67,7 @@ if (IWAYKM == 2) then
     J2(KM) = J1(KM)
     ICOUP1(KM) = IY(IT1+J1(KM1),2)
     ICOUP(KM) = IY(IT2+J2(KM1),2)
-    COUP1(KM) = D1
+    COUP1(KM) = One
     JM1(KM) = K0F(J2F)
   end if
 end if
@@ -83,7 +83,7 @@ if (IWAYKM == 3) then
     J2(KM) = J1(KM)
     ICOUP1(KM) = IY(IT1+J1(KM1),1)
     ICOUP(KM) = IY(IT2+J2(KM1),1)
-    COUP(KM) = D1
+    COUP(KM) = One
     JM(KM) = K0F(J2F)
   end if
 end if
@@ -99,7 +99,7 @@ if (IWAYKM == 4) then
     J2(KM) = K2(IT2+J2(KM1))
     ICOUP1(KM) = IY(IT1+J1(KM1),1)
     ICOUP(KM) = IY(IT2+J2(KM1),2)
-    COUP1(KM) = D1
+    COUP1(KM) = One
     JM1(KM) = K0F(J2F)
   end if
 end if

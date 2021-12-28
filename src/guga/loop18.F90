@@ -15,13 +15,13 @@
 
 subroutine LOOP18(KM,ISTOP,IT1,IT2)
 
+use guga_global, only: BS3, BS4, COUP, COUP1, IA, IB, ICOUP, ICOUP1, IWAY, IY, J1, J2, JM, JM1, K0, K1, K1F, K2, K2F, K3F
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: KM, IT1, IT2
 integer(kind=iwp), intent(out) :: ISTOP
-#include "real_guga.fh"
-#include "integ.fh"
 integer(kind=iwp) :: IDIF, IWAYKM, KM1
 real(kind=wp) :: WM0, WP0
 
@@ -60,11 +60,11 @@ else if (IDIF == 0) then
       J1(KM) = J2(KM)
       ICOUP1(KM) = ICOUP1(KM1)
       ICOUP(KM) = ICOUP(KM1)
-      WM0 = D1
+      WM0 = One
       if (K1F(JM(KM1)) == 0) then
-        WP0 = D0
+        WP0 = Zero
       else
-        WP0 = D1
+        WP0 = One
       end if
       COUP(KM) = WM0*COUP1(KM1)+WP0*COUP(KM1)
     else if (K1F(JM(KM1)) == 0) then
@@ -74,7 +74,7 @@ else if (IDIF == 0) then
       J1(KM) = J2(KM)
       ICOUP1(KM) = ICOUP1(KM1)
       ICOUP(KM) = ICOUP(KM1)
-      WP0 = D1
+      WP0 = One
       COUP(KM) = WP0*COUP(KM1)
     end if
   end if

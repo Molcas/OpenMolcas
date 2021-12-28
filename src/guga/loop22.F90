@@ -15,13 +15,13 @@
 
 subroutine LOOP22(KM,ISTOP,IT1,IT2)
 
+use guga_global, only: BS3, BS4, COUP, COUP1, IA, IB, ICOUP, ICOUP1, IWAY, IY, J1, J2, JM, JM1, K0F, K1, K1F, K2, K2F, K3
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: KM, IT1, IT2
 integer(kind=iwp), intent(out) :: ISTOP
-#include "real_guga.fh"
-#include "integ.fh"
 integer(kind=iwp) :: IDIF, IWAYKM, KM1
 real(kind=wp) :: WM0, WP0
 
@@ -62,7 +62,7 @@ else if (IDIF == 0) then
       ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),3)
       WM0 = BS4(IB(J2(KM1)))**2
       if (K1F(JM(KM1)) == 0) then
-        WP0 = D0
+        WP0 = Zero
       else
         WP0 = BS3(IB(J2(KM1))+2)**2
       end if

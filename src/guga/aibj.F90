@@ -15,31 +15,27 @@
 
 subroutine AIBJ(L0,L1,L2,L3,ITAI)
 
-use Definitions, only: wp, iwp
+use guga_global, only: BS3, BS4, COUP, COUP1, IA, IB, ICASE, ICH, ICOUP, ICOUP1, IJ, IOUT, IRC, IVF0, IWAY, IX, J1, J2, JM, JM1, &
+                       JNDX, JRC, LN, Lu_10, MXVERT, NBUF, NMAT
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
 
 implicit none
 integer(kind=iwp), intent(in) :: L0(*), L1(*), L2(*), L3(*)
 integer(kind=iwp), intent(_OUT_) :: ITAI(*)
-#include "SysDef.fh"
-#include "real_guga.fh"
-#include "integ.fh"
-#include "files_addr.fh"
-#include "d.fh"
+#include "cop.fh"
 integer(kind=iwp) :: I, IABIJ, IC1, IC11, IC2, IC22, ICP1, ICP2, IDIF, IFAB, IFAI, II, IID, IJJ, IJM, IJS, IN_, IN2, IND1, IND2, &
                      IND3, ISTOP, IT1, IT2, ITAIL, ITT1, ITT2, ITURN, ITYP, J, JJ, JJ1, JJD, JND1, JND2, JOJ, JTURN, KM, KM1, &
                      LTYP, NI, NJ, NUMM(7)
 real(kind=wp) :: COPL, COPLA, COPLA0
 logical(kind=iwp) :: first1, first2, skip1, skip2
 integer(kind=iwp), external :: ICUNP
-! statement function
-integer(kind=iwp) :: JO, L
-JO(L) = ICUNP(ICASE,L)
 
-IC1 = 0    ! dummy initialize
-IC2 = 0    ! dummy initialize
-COPLA = D0 ! dummy initialize
+IC1 = 0      ! dummy initialize
+IC2 = 0      ! dummy initialize
+COPLA = Zero ! dummy initialize
 do I=1,7
   NUMM(I) = 0
 end do
@@ -86,9 +82,10 @@ do NI=1,LN
       IT1 = ITT1*MXVERT
       !ulf IT2 = ITT2*300
       IT2 = ITT2*MXVERT
-      II = 0
-      IID = 0
-      if (ITT2 /= 0) then
+      if (ITT2 == 0) then
+        II = 0
+        IID = 0
+      else
         II = IRC(ITT2)
         IID = JRC(ITT2)
       end if
@@ -213,7 +210,7 @@ do NI=1,LN
                   end if
                   if (.not. skip2) then
                     COPLA0 = COPLA
-                    if (IFAB == 0) COPLA0 = D0
+                    if (IFAB == 0) COPLA0 = Zero
                     do IN_=1,ITAIL
                       ICP1 = ICOUP(1)+IN_
                       JND1 = JNDX(II+ICP1)
@@ -231,7 +228,7 @@ do NI=1,LN
                       ICP2 = JND2-JJD
                       if ((ITT1 == ITT2) .and. (ICP1 == ICP2)) then
                         JJ1 = (JJD+ICP1-1)*LN+I
-                        JOJ = JO(JJ1)
+                        JOJ = ICUNP(ICASE,JJ1)
                         if (JOJ > 1) JOJ = JOJ-1
                         COPLA0 = JOJ-2
                         IFAB = 1
@@ -325,8 +322,8 @@ NMAT = NMAT+IOUT
 ICOP1(nCOP+1) = -1
 call dDAFILE(Lu_10,1,COP,NCOP,IADD10)
 call iDAFILE(Lu_10,1,iCOP1,NCOP+1,IADD10)
-write(IW,600) NMAT
-write(IW,610) (NUMM(I),I=1,7)
+write(u6,600) NMAT
+write(u6,610) (NUMM(I),I=1,7)
 
 return
 

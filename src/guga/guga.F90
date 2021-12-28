@@ -22,20 +22,18 @@
 
 subroutine GUGA(IRETURN)
 
-use Constants, only: Zero, One, Two
-use Definitions, only: wp, iwp, u5, u6
+use guga_global, only: IPRINT, ISPA, Lu_10, Lu_11, MXVERT, NBUF
+use Constants, only: Two, Four
+use Definitions, only: wp, iwp, u6, RtoI
 
 implicit none
 integer(kind=iwp), intent(out) :: IRETURN
-#include "SysDef.fh"
 #include "WrkSpc.fh"
-#include "real_guga.fh"
-#include "integ.fh"
-#include "files_addr.fh"
-#include "d.fh"
+#include "cop.fh"
 integer(kind=iwp) :: I, ISPAC, IST, JSY(3000), JSYM(30000), KB, KBUF, KBUF2, L0(4*MXVERT), L1(4*MXVERT), L2(4*MXVERT), &
                      L3(4*MXVERT), LDummy, LIM, LSOArr, LSTO, LW1, LW2, MCOP, NBINS, NCOR, NCORX, NTPB !, SO(1000000)
 real(kind=wp) :: A, B, C
+integer(kind=iwp), external :: isFreeUnit
 
 ! Prologue
 
@@ -59,9 +57,9 @@ call JTIME(IST)
 
 ! Initialize files
 
-Lu_11 = 11
+Lu_11 = isFreeUnit(11)
 call DANAME_wa(Lu_11,'TEMP01')
-Lu_10 = 10
+Lu_10 = isFreeUnit(10)
 call DANAME(Lu_10,'CIGUGA')
 do I=1,9
   IAD10(I) = 0
@@ -71,16 +69,10 @@ call iDAFILE(Lu_10,1,IAD10,9,IADD10)
 
 ! Read input
 
-IO = u5
-IW = u6
 ISPA = NCOR
-LIX = 500000
 NBUF = 600
 !PAM96: Use variable MCOP, size of buffers:
-MCOP = NBUF*RTOI+NBUF+1
-D0 = Zero
-D1 = One
-D2 = Two
+MCOP = NBUF*RtoI+NBUF+1
 call INPUT_GUGA(iWork(LSOArr),JSYM,JSY,L0,L1,L2,L3,ISPAC)
 
 ! Main body
@@ -90,19 +82,19 @@ call INPUT_GUGA(iWork(LSOArr),JSYM,JSY,L0,L1,L2,L3,ISPAC)
 ! NCOR IS IN UNITS OF FLOATING-POINT WORDS, e.g. REAL*8
 ! NBINS=ISPAC/(NCORX-2*NBINS)+1
 NCORX = NCOR-(MCOP+1)
-A = D2
+A = Two
 B = -NCORX-2
 C = ISPAC+NCORX
-NBINS = int((-B-sqrt(B*B-D2*D2*A*C))/(D2*A))
+NBINS = int((-B-sqrt(B*B-Four*A*C))/(Two*A))
 ! NUMBER OF WORDS IN EACH BIN
 NTPB = (ISPAC-1)/NBINS+1
 ! SPACE IN CORE FOR EACH BIN
-KB = RTOI*(NCORX-2*NBINS)/NBINS
-KBUF = (KB-1)/(RTOI+1)
+KB = RtoI*(NCORX-2*NBINS)/NBINS
+KBUF = (KB-1)/(RtoI+1)
 KBUF = (KBUF/2)*2
 if (KBUF > 600) KBUF = 600
-KBUF2 = KBUF*RTOI+KBUF+2
-if (IPRINT >= 2) write(IW,10) KBUF,NBINS,NTPB,NCOR,ISPAC
+KBUF2 = KBUF*RtoI+KBUF+2
+if (IPRINT >= 2) write(u6,10) KBUF,NBINS,NTPB,NCOR,ISPAC
 ! STORAGE FOR NBINS BINS EACH OF SIZE KBUF2 IN AIAI
 LSTO = NBINS*KBUF2
 ! ALSO SPACE FOR NTPB WORDS IN EMPTY

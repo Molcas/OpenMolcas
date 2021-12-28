@@ -15,22 +15,17 @@
 
 subroutine COMP(I,LJ,ITYP,L,IT1,IT2)
 
+use guga_global, only: COUP, ICASE, ICOUP, ICOUP1, IOUT, IRC, IV0, IWAY, IX, J2, JNDX, JRC, LN, Lu_10, NBUF, NMAT
+use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: I, LJ, ITYP, L, IT1, IT2
-#include "SysDef.fh"
-#include "real_guga.fh"
-#include "integ.fh"
-#include "files_addr.fh"
-#include "d.fh"
+#include "cop.fh"
 integer(kind=iwp) :: IC1, IC2, II1, IN_, IND, ISTOP, ITAIL, IVL, IVL0, IVV, JJ, JJD, JND1, JND2, JOJ, KM
 real(kind=wp) :: FAC
 logical(kind=iwp) :: first
 integer(kind=iwp), external :: ICUNP
-! statement function
-integer(kind=iwp) :: JO, J
-JO(J) = ICUNP(ICASE,J)
 
 if (IT1 /= IT2) then
   write(u6,*) 'Comp: IT1 /= IT2'
@@ -38,7 +33,7 @@ if (IT1 /= IT2) then
   write(u6,*) 'ITYP,L=',ITYP,L
   call Abend()
 end if
-FAC = D1
+FAC = One
 KM = I
 first = .true.
 do
@@ -59,10 +54,13 @@ do
     IVL = J2(1)
     ITAIL = IX(IT1+LJ)
     IVV = IV0-IVL
-    JJ = 0
-    JJD = 0
-    if (IVV /= 0) JJ = IRC(IVV)
-    if (IVV /= 0) JJD = JRC(IVV)
+    if (IVV == 0) then
+      JJ = 0
+      JJD = 0
+    else
+      JJ = IRC(IVV)
+      JJD = JRC(IVV)
+    end if
     do IN_=1,ITAIL
       IC1 = ICOUP(1)+IN_
       IC2 = ICOUP1(1)+IN_
@@ -70,7 +68,7 @@ do
       if (JND1 == 0) cycle
       if (ITYP == 1) then
         II1 = (JND1-1)*LN+L
-        JOJ = JO(II1)
+        JOJ = ICUNP(ICASE,II1)
         if (JOJ > 1) JOJ = JOJ-1
         FAC = JOJ
         if (JOJ == 0) cycle

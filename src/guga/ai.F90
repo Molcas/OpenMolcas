@@ -15,19 +15,16 @@
 
 subroutine AI(JTYP,ITAI,L0,L1,L2,L3)
 
+use guga_global, only: COUP, ICOUP, ICOUP1, ICH, IJ, IOUT, IRC, IWAY, IX, J1, J2, JNDX, JRC, LN, Lu_10, MXVERT, NBUF, NMAT
 use Constants, only: Zero
-use Definitions, only: wp, iwp
+use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
 
 implicit none
 integer(kind=iwp), intent(in) :: JTYP, L0(*), L1(*), L2(*), L3(*)
 integer(kind=iwp), intent(_OUT_) :: ITAI(*)
-#include "SysDef.fh"
-#include "real_guga.fh"
-#include "integ.fh"
-#include "files_addr.fh"
-#include "d.fh"
+#include "cop.fh"
 integer(kind=iwp) :: I, ICP1, ICP2, II, IID, IJJ, IJM, IJS, IN_, IN2, IND, ISTOP, IT1, IT2, ITAIL, ITT1, ITT2, ITURN, ITYP, JJ, &
                      JJD, JMAX, JND1, JND2, JOUT, KM, NI
 real(kind=wp) :: CHKSUM
@@ -72,14 +69,20 @@ do NI=1,LN
   do
     IT1 = ITT1*MXVERT
     IT2 = ITT2*MXVERT
-    JJ = 0
-    if (ITT1 /= 0) JJ = IRC(ITT1)
-    JJD = 0
-    if (ITT1 /= 0) JJD = JRC(ITT1)
-    II = 0
-    if (ITT2 /= 0) II = IRC(ITT2)
-    IID = 0
-    if (ITT2 /= 0) IID = JRC(ITT2)
+    if (ITT1 == 0) then
+      JJ = 0
+      JJD = 0
+    else
+      JJ = IRC(ITT1)
+      JJD = JRC(ITT1)
+    end if
+    if (ITT2 == 0) then
+      II = 0
+      IID = 0
+    else
+      II = IRC(ITT2)
+      IID = JRC(ITT2)
+    end if
     ITYP = ITURN
     do IJJ=IJS,IJM
       ITAIL = IX(IT2+IJJ)
@@ -169,13 +172,13 @@ do I=1,NCOP
   CHKSUM = CHKSUM+COP(I)
 end do
 call ADD_INFO('GUGA_CHKSUM',[CHKSUM],1,8)
-if (JTYP == 0) write(IW,600) NMAT
+if (JTYP == 0) write(u6,600) NMAT
 if (JTYP == 0) then
   return
 end if
-write(IW,601) NMAT
+write(u6,601) NMAT
 IAD10(1) = JMAX
-write(IW,602) JMAX
+write(u6,602) JMAX
 
 return
 

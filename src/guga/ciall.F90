@@ -13,13 +13,14 @@
 
 subroutine CIALL(LSYM,NREF,IOCR,nIOCR,L0,L1,L2,L3,LV)
 
+use guga_global, only: IV0, IWAY, J2, LN, NIORB, NSM
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: LSYM, nIOCR, L0(*), L1(*), L2(*), L3(*), LV
 integer(kind=iwp), intent(out) :: NREF
 integer(kind=iwp), intent(inout) :: IOCR(nIOCR)
-#include "integ.fh"
 integer(kind=iwp) :: I, IIN, IJJ, IOC(55), KM, KM1, NSJ
 
 IIN = 0
@@ -61,7 +62,7 @@ loop_1: do
       else if (I <= NIORB+LV) then
         if (IOC(I) /= 2) cycle loop_2
       else
-        if (IOC(I) == 1) NSJ = MUL(NSJ,NSM(I))
+        if (IOC(I) == 1) NSJ = Mul(NSJ,NSM(I))
       end if
     end do
     if (NSJ /= LSYM) cycle

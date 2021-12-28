@@ -15,13 +15,14 @@
 
 subroutine LOOP13(KM,ISTOP,IFAI,IT1,IT2)
 
+use guga_global, only: BL1, BL2, BS1, BS2, COUP, COUP1, IA, IB, ICOUP, ICOUP1, IPO, IWAY, IY, J1, J2, JM, JM1, K0, K1, K1F, K2, &
+                       K2F, K3, K3F
+use Constants, only: Zero
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: KM, IFAI, IT1, IT2
 integer(kind=iwp), intent(out) :: ISTOP
-#include "real_guga.fh"
-#include "integ.fh"
 integer(kind=iwp) :: IDIF, IWAYKM, J2F, KM1
 
 ISTOP = 0
@@ -62,8 +63,8 @@ else if (IDIF /= 1) then
       J2(KM) = K0(IT2+J2(KM1))
       ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),1)
       ICOUP(KM) = ICOUP(KM1)
-      COUP(KM) = D0
-      COUP1(KM) = D0
+      COUP(KM) = Zero
+      COUP1(KM) = Zero
     end if
   end if
   if (IWAYKM == 2) then
@@ -117,8 +118,8 @@ else if (IDIF /= 1) then
       J2(KM) = K2(IT2+J2(KM1))
       ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),3)
       ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),2)
-      COUP(KM) = D0
-      COUP1(KM) = D0
+      COUP(KM) = Zero
+      COUP1(KM) = Zero
     end if
   end if
   if (IWAYKM == 5) ISTOP = 1
@@ -154,8 +155,8 @@ else
       J2(KM) = K0(IT2+J2(KM1))
       ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),2)
       ICOUP(KM) = ICOUP(KM1)
-      COUP(KM) = D0
-      COUP1(KM) = D0
+      COUP(KM) = Zero
+      COUP1(KM) = Zero
     end if
   end if
   if (IWAYKM == 2) then
@@ -193,8 +194,8 @@ else
       J2(KM) = K1(IT2+J2(KM1))
       ICOUP1(KM) = ICOUP1(KM1)+IY(IT1+J1(KM1),3)
       ICOUP(KM) = ICOUP(KM1)+IY(IT2+J2(KM1),1)
-      COUP(KM) = D0
-      COUP1(KM) = D0
+      COUP(KM) = Zero
+      COUP1(KM) = Zero
     end if
   end if
   if (IWAYKM == 4) then

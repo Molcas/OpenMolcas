@@ -13,6 +13,8 @@
 
 subroutine EMPTY(BUF,IBUF,LASTAD,SO,KBUF,NTPB)
 
+use guga_global, only: ICASE, ILIM, IOUT, IV0, JRC, LN, Lu_10, Lu_11, NBUF, NMAT
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 #include "intent.fh"
@@ -22,16 +24,9 @@ integer(kind=iwp), intent(in) :: KBUF, LASTAD(*), NTPB
 real(kind=wp), intent(out) :: BUF(KBUF)
 integer(kind=iwp), intent(out) :: IBUF(KBUF+2)
 real(kind=wp), intent(_OUT_) :: SO(*)
-#include "SysDef.fh"
-#include "real_guga.fh"
-#include "integ.fh"
-#include "files_addr.fh"
-#include "d.fh"
+#include "cop.fh"
 integer(kind=iwp) :: I, IADR, ICLR, II, IIQQ, IJJ, IKK, IN_, IND, IOFF, IQ, ISUM, ITYP, IVL, IVL0, J, JJ, JJ1, JJ2, KK, LENGTH, NBX
 integer(kind=iwp), external :: ICUNP
-! statement function
-integer(kind=iwp) :: JO, L
-JO(L) = ICUNP(ICASE,L)
 
 ISUM = JRC(ILIM)
 IOUT = 0
@@ -45,13 +40,13 @@ do II=1,ISUM
     IVL = IV0
     KK = II
   else if (II <= JRC(2)) then
-    IVL = IV1
+    IVL = IV0-1
     KK = II-JRC(1)
   else if (II <= JRC(3)) then
-    IVL = IV2
+    IVL = IV0-2
     KK = II-JRC(2)
   else
-    IVL = IV3
+    IVL = IV0-3
     KK = II-JRC(3)
   end if
   IOUT = IOUT+1
@@ -78,15 +73,13 @@ do II=1,ISUM
   IJJ = 0
   JJ = (II-1)*LN
   do I=1,LN
-    JJ1 = JO(JJ+I)
+    JJ1 = ICUNP(ICASE,JJ+I)
     do J=1,I
       IJJ = IJJ+1
       IN_ = IN_+1
       if (IN_ > ICLR) then
         IN_ = 1
-        do IIQQ=1,ICLR
-          SO(IIQQ) = D0
-        end do
+        SO(1:ICLR) = Zero
         NBX = NBX+1
         IADR = LASTAD(NBX)
         do while (IADR /= -1)
@@ -103,13 +96,13 @@ do II=1,ISUM
         IOFF = IOFF+ICLR
       end if
       if (JJ1 == 0) cycle
-      JJ2 = JO(JJ+J)
+      JJ2 = ICUNP(ICASE,JJ+J)
       if (JJ2 == 0) cycle
       ITYP = 0
       if (I == J) ITYP = 1
       IKK = IJJ
       if (ITYP == 1) IKK = I
-      if (SO(IN_) == D0) cycle
+      if (SO(IN_) == Zero) cycle
       IOUT = IOUT+1
       !PAM96 ICOP1(IOUT) = ior(ITYP,ishft(IKK,1))
       !ICOP1(IOUT) = ITYP+2*IKK

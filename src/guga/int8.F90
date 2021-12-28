@@ -16,6 +16,8 @@
 subroutine INT8(I,J,L,IT1,IT2,II,IID,JJT,JJD,JTYP,ITAI,L0,L1,L2,L3)
 ! K == L , I < J
 
+use guga_global, only: COUP, IJ, IWAY, IX, J1, J2
+use Constants, only: One, Two
 use Definitions, only: wp, iwp
 
 #include "intent.fh"
@@ -23,8 +25,6 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: I, J, L, IT1, IT2, II, IID, JJT, JJD, JTYP, L0(*), L1(*), L2(*), L3(*)
 integer(kind=iwp), intent(_OUT_) :: ITAI(*)
-#include "real_guga.fh"
-#include "integ.fh"
 integer(kind=iwp) :: ISTOP, ITAIL, ITYP, JJ, JJM, JJS, KM
 real(kind=wp) :: FAC
 logical(kind=iwp) :: first, skip
@@ -33,7 +33,7 @@ ITYP = 0
 if ((L < I) .or. (L > J)) ITYP = 1
 if (I == 0) ITYP = 0
 if ((I == 0) .and. (L > J)) ITYP = 1
-FAC = D1
+FAC = One
 JJS = IJ(J+1)+1
 JJM = IJ(J)
 do JJ=JJS,JJM
@@ -79,8 +79,8 @@ do JJ=JJS,JJM
         if (ISTOP /= 1) then
           if (KM == L) then
             if (IWAY(KM) == 2) cycle
-            FAC = D1
-            if (IWAY(KM) == 5) FAC = D2
+            FAC = One
+            if (IWAY(KM) == 5) FAC = Two
           end if
           skip = .true.
           cycle loop_1

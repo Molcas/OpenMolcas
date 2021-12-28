@@ -13,23 +13,18 @@
 
 subroutine COMP1(LJ,ITYP,L,IT2,II,IID,JJ,JJD,JTYP,ITAI)
 
+use guga_global, only: COUP, ICASE, ICOUP, ICOUP1, IOUT, IX, JNDX, LN, Lu_10, NBUF, NMAT
+use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: LJ, ITYP, L, IT2, II, IID, JJ, JJD, JTYP, ITAI(*)
-#include "SysDef.fh"
-#include "real_guga.fh"
-#include "integ.fh"
-#include "files_addr.fh"
-#include "d.fh"
+#include "cop.fh"
 integer(kind=iwp) :: IC1, IC2, ICT, IN_, IN2, IND, ITAIL, JND1, JND2, JOJ, KK1, KTYP
 real(kind=wp) :: FAC
 integer(kind=iwp), external :: ICUNP
-! statement function
-integer(kind=iwp) :: JO, I
-JO(I) = ICUNP(ICASE,I)
 
-FAC = D1
+FAC = One
 ITAIL = IX(IT2+LJ)
 do IN_=1,ITAIL
   IC1 = ICOUP(1)+IN_
@@ -40,7 +35,7 @@ do IN_=1,ITAIL
   IC2 = ICOUP1(1)+IN2
   if (ITYP == 1) then
     KK1 = (JND1-1)*LN+L
-    JOJ = JO(KK1)
+    JOJ = ICUNP(ICASE,KK1)
     if (JOJ > 1) JOJ = JOJ-1
     FAC = JOJ
     if (JOJ == 0) cycle

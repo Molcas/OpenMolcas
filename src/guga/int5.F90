@@ -16,12 +16,11 @@
 subroutine INT5(I,J,L)
 ! I < J < L   I == K
 
+use guga_global, only: COUP, IJ, ILIM, IVF0, IWAY, J1, J2, JM, JM1, MXVERT
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: I, J, L
-#include "real_guga.fh"
-#include "integ.fh"
 integer(kind=iwp) :: IFAI, ISTOP, IT1, IT2, ITT, ITURN, ITYP, KM, LJ, LJM, LJS
 logical(kind=iwp) :: first1, first2, skip
 

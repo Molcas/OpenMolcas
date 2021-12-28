@@ -15,6 +15,8 @@
 
 subroutine CONFIG(NREF,IOCR,nIOCR,L0,L1,L2,L3,JSYM,JSY,INTNUM,LSYM,JJS,ISO,LV,IFCORE,ICOR,NONE_,JONE,JREFX,NFREF)
 
+use guga_global, only: IB, ICASE, IFIRST, ILIM, IRC, ISPA, ISPIN, IV0, IWAY, J2, JNDX, JRC, LN, MXVERT, N, NIORB, NSM, NSYM
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp, u6
 
 #include "intent.fh"
@@ -23,9 +25,6 @@ implicit none
 integer(kind=iwp), intent(in) :: NREF, nIOCR, IOCR(nIOCR), L0(*), L1(*), L2(*), L3(*), INTNUM, LV, IFCORE, ICOR(*), NONE_, JONE(*)
 integer(kind=iwp), intent(_OUT_) :: JSYM(*), JSY(*), JJS(*), ISO(*), JREFX(*)
 integer(kind=iwp), intent(out) :: LSYM, NFREF
-#include "real_guga.fh"
-#include "integ.fh"
-#include "d.fh"
 integer(kind=iwp) :: I, I1, IBS, IDIF, IEL, IFEXC, IFREF, IIJ, IJJ, IND, INHOLE, INTOT, IOC(55), IPART, IRC1, IRC2, IREF, IRR, &
                      ISP(55), ISTA, ITEMP, ITU, IX1, IX2, IX3, IX4, J, JHOLE, JJ1, JND, JPART, JRC1, JRC2, JRC21, JRX, JSYL, &
                      JSYLL, K, KM, KM1, L, LMN, LMN0, LNS, M, M1, M2, MND, NCORR, NSJ, NSJ1
@@ -43,9 +42,9 @@ LNS = NIORB+LV+1
 IRR = 0
 do I=LNS,LN
   IRR = IRR+1
-  if (IOCR(IRR) == 1) LSYM = MUL(LSYM,NSM(I))
+  if (IOCR(IRR) == 1) LSYM = Mul(LSYM,NSM(I))
 end do
-write(IW,'(6X,A,I3)') 'WAVE-FUNCTION SYMMETRY LABEL:',LSYM
+write(u6,'(6X,A,I3)') 'WAVE-FUNCTION SYMMETRY LABEL:',LSYM
 
 ! Initialize arrays JJS, JNDX, ICASE, JSY
 do I=1,18
@@ -53,14 +52,12 @@ do I=1,18
 end do
 ! CONSTRUCT JNDX
 ! ILIM=2 or ILIM=4 was set by input: Normally 4, but 2 if keyword FIRST
-! has been given. ILIM is in integ.fh
+! has been given.
 INTOT = IRC(ILIM)
 do I=1,INTOT
   JNDX(I) = 0
 end do
-do J=1,MXCASE
-  ICASE(J) = 0
-end do
+ICASE(:) = 0
 do I=1,JSYLL
   JSY(I) = 0
 end do
@@ -138,7 +135,7 @@ do IIJ=1,ILIM
     NSJ = 1
     INHOLE = 0
     do I=1,LN
-      if (IOC(I) == 1) NSJ = MUL(NSJ,NSM(I))
+      if (IOC(I) == 1) NSJ = Mul(NSJ,NSM(I))
       if ((I <= NIORB+LV) .and. (I > LV)) INHOLE = INHOLE+2-IOC(I)
     end do
     ! STRIKE OUT INTERNAL CONFIGURATIONS
@@ -247,7 +244,7 @@ do IIJ=1,ILIM
 end do
 
 JRC(ILIM) = LMN
-write(IW,214)
+write(u6,214)
 IX1 = JRC(1)
 IX2 = JRC(2)-JRC(1)
 if (IFIRST == 0) then
@@ -256,7 +253,7 @@ if (IFIRST == 0) then
 
   IX3 = JRC(3)-JRC(2)
   IX4 = JRC(4)-JRC(3)
-  write(IW,215) IX1,IX2,IX3,IX4
+  write(u6,215) IX1,IX2,IX3,IX4
   if (LMN > JSYL) then
     write(u6,*) 'Config: LMN > JSYL'
     write(u6,*) 'LMN,JSYL=',LMN,JSYL
@@ -311,8 +308,8 @@ if (IFIRST == 0) then
 
     ! JJS(2..9): JJS(I+1)=Nr of internal triplet states per symmetry I.
     ! JJS(11..18): JJS(I+10)=Nr of internal singlet states per symmetry I.
-    write(IW,407) (JJS(I+1),I=1,NSYM)
-    write(IW,408) (JJS(I+10),I=1,NSYM)
+    write(u6,407) (JJS(I+1),I=1,NSYM)
+    write(u6,408) (JJS(I+10),I=1,NSYM)
     do I=2,NSYM
       I1 = I+1
       JJS(I1) = JJS(I)+JJS(I1)
@@ -322,7 +319,7 @@ if (IFIRST == 0) then
     ! summed over the symmetries.
   end if
 else
-  write(IW,216) IX1,IX2
+  write(u6,216) IX1,IX2
   if ((IX1 >= 8192) .or. (IX2 >= 8192)) then
     write(u6,*) 'Config: IX? >= 8192'
     write(u6,*) 'IX1,IX2=',IX1,IX2
@@ -334,9 +331,9 @@ end if
 LMN0 = JRC(ILIM)*LN
 !PAM97 M1 = (LMN0+29)/30
 M1 = (LMN0+14)/15
-if (M1 > MXCASE) then
+if (M1 > size(ICASE)) then
   write(u6,*) 'Config: M1 > MXCASE'
-  write(u6,*) 'M1,MXCASE=',M1,MXCASE
+  write(u6,*) 'M1,MXCASE=',M1,size(ICASE)
   call Abend()
 end if
 M = 0

@@ -15,6 +15,7 @@
 
 subroutine TAIL(LL,IJJ,ITAI,ITAIL,L0,L1,L2,L3,IT1,IT2)
 
+use guga_global, only: ICOUP, ICOUP1, IWAY, IY, J2, LN
 use Definitions, only: iwp
 
 #include "intent.fh"
@@ -22,7 +23,6 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp), intent(in) :: LL, IJJ, ITAIL, L0(*), L1(*), L2(*), L3(*), IT1, IT2
 integer(kind=iwp), intent(_OUT_) :: ITAI(*)
-#include "integ.fh"
 integer(kind=iwp) :: I, IWAYKM, KM, KM1, L
 logical(kind=iwp) :: first
 

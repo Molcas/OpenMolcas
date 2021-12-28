@@ -15,13 +15,13 @@
 
 subroutine LOOP1(KM,ISTOP,IT1,IT2)
 
+use guga_global, only: BS1, BS2, COUP, IB, ICOUP, ICOUP1, IWAY, IY, J1, J2, K0, K1, K2, K3
+use Constants, only: One
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: KM, IT1, IT2
 integer(kind=iwp), intent(out) :: ISTOP
-#include "real_guga.fh"
-#include "integ.fh"
 integer(kind=iwp) :: IWAYKM, KM1
 
 ISTOP = 0
@@ -33,7 +33,7 @@ if (IWAYKM == 1) then
   if ((K0(IT1+J1(KM1)) == 0) .or. (K2(IT2+J2(KM1)) == 0)) then
     IWAYKM = 2
   else
-    COUP(KM) = D1
+    COUP(KM) = One
     J1(KM) = K0(IT1+J1(KM1))
     J2(KM) = K2(IT2+J2(KM1))
     ICOUP1(KM) = 0
@@ -57,7 +57,7 @@ if (IWAYKM == 3) then
   if ((K0(IT1+J1(KM1)) == 0) .or. (K1(IT2+J2(KM1)) == 0)) then
     IWAYKM = 4
   else
-    COUP(KM) = D1
+    COUP(KM) = One
     J1(KM) = K0(IT1+J1(KM1))
     J2(KM) = K1(IT2+J2(KM1))
     ICOUP1(KM) = 0

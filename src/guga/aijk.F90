@@ -15,17 +15,15 @@
 
 subroutine AIJK(ITAI,L0,L1,L2,L3)
 
-use Definitions, only: iwp
+use guga_global, only: ICH, IOUT, IRC, JRC, LN, Lu_10, MXVERT, NBUF, NMAT
+use Definitions, only: iwp, u6
 
 #include "intent.fh"
 
 implicit none
 integer(kind=iwp), intent(_OUT_) :: ITAI(*)
 integer(kind=iwp), intent(in) :: L0(*), L1(*), L2(*), L3(*)
-#include "SysDef.fh"
-#include "files_addr.fh"
-#include "real_guga.fh"
-#include "integ.fh"
+#include "cop.fh"
 integer(kind=iwp) :: I, II, IID, IND, IT1, IT2, ITT1, ITT2, ITURN, J, JJ, JJD, K, L, NI, NJ, NK
 
 IOUT = 0
@@ -69,14 +67,20 @@ do NI=1,LN
       do
         IT1 = ITT1*MXVERT
         IT2 = ITT2*MXVERT
-        JJ = 0
-        if (ITT1 /= 0) JJ = IRC(ITT1)
-        JJD = 0
-        if (ITT1 /= 0) JJD = JRC(ITT1)
-        II = 0
-        if (ITT2 /= 0) II = IRC(ITT2)
-        IID = 0
-        if (ITT2 /= 0) IID = JRC(ITT2)
+        if (ITT1 == 0) then
+          JJ = 0
+          JJD = 0
+        else
+         JJ = IRC(ITT1)
+         JJD = JRC(ITT1)
+        end if
+        if (ITT2 == 0) then
+          II = 0
+          IID = 0
+        else
+          II = IRC(ITT2)
+          IID = JRC(ITT2)
+        end if
         if (I == K) then
           if (J /= K) then
             call INT61(L,J,I,IT1,IT2,II,IID,JJ,JJD,ITURN,ITAI,L0,L1,L2,L3)
@@ -135,7 +139,7 @@ NMAT = NMAT+IOUT
 ICOP1(nCOP+1) = -1
 call dDAFILE(Lu_10,1,COP,NCOP,IADD10)
 call iDAFILE(Lu_10,1,iCOP1,NCOP+1,IADD10)
-write(IW,600) NMAT
+write(u6,600) NMAT
 
 return
 

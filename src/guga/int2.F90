@@ -16,6 +16,7 @@
 subroutine INT2(I,J,K,L,IT1,IT2,II,IID,JJ,JJD,JTYP,ITAI,L0,L1,L2,L3)
 ! I < K < J < L
 
+use guga_global, only: COUP, IJ, IVF0, IWAY, IX, J1, J2, JM, JM1
 use Definitions, only: wp, iwp
 
 #include "intent.fh"
@@ -23,8 +24,6 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: I, J, K, L, IT1, IT2, II, IID, JJ, JJD, JTYP, L0(*), L1(*), L2(*), L3(*)
 integer(kind=iwp), intent(_OUT_) :: ITAI(*)
-#include "real_guga.fh"
-#include "integ.fh"
 integer(kind=iwp) :: ISTOP, ITAIL, ITURN, ITYP, KM, LJ, LJM, LJS
 logical(kind=iwp) :: first1, first2, first3
 

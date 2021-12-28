@@ -15,13 +15,12 @@
 
 subroutine PATH(KM,ISTOP,IT1,IT2)
 
+use guga_global, only: ICOUP, ICOUP1, IWAY, IY, J1, J2, K0, K1, K2, K3
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: KM, IT1, IT2
 integer(kind=iwp), intent(out) :: ISTOP
-#include "real_guga.fh"
-#include "integ.fh"
 integer(kind=iwp) :: IWAYKM, KM1
 
 ISTOP = 0

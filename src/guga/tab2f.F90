@@ -15,12 +15,11 @@
 
 subroutine TAB2F(IVER,LV)
 
+use guga_global, only: IAF, IBF, IFIRST, IJF, IPRINT, IVF0, K0F, K1F, K2F, K3F, LN, MXVERT, N, S
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: IVER, LV
-#include "real_guga.fh"
-#include "integ.fh"
 integer(kind=iwp) :: I, IA1, IAT, IB1, IBT, IEL, II, IIM, IJD, IJR, IJRL, IJS, IJS1, IN_, IORB(MXVERT), ISTOP, IUT, IUT1, J, J11, &
                      J3, J4, JJ, JJ1, JJ2, K, NIJ, NIJ1, nijj
 
@@ -179,9 +178,6 @@ do II=1,LN
   end do
 end do
 IVF0 = IUT
-IVF1 = IUT-1
-IVF2 = IUT-2
-IVF3 = IUT-3
 K0F(IUT) = 0
 K1F(IUT) = 0
 K2F(IUT) = 0
@@ -190,11 +186,11 @@ K0F(IUT+1) = 0
 K1F(IUT+1) = 0
 K2F(IUT+1) = 0
 K3F(IUT+1) = 0
-if (IPRINT >= 5) write(IW,101)
-if (IPRINT >= 5) write(IW,100) (J,IAF(J),IBF(J),K0F(J),K1F(J),K2F(J),K3F(J),J=1,IUT)
+if (IPRINT >= 5) write(u6,101)
+if (IPRINT >= 5) write(u6,100) (J,IAF(J),IBF(J),K0F(J),K1F(J),K2F(J),K3F(J),J=1,IUT)
 write(u6,*) ' Number of vertices',nijj,iut
 if (nijj > iver) then
-  write(IW,310) IVER
+  write(u6,310) IVER
   call Abend()
 end if
 
