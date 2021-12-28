@@ -15,7 +15,7 @@
 #ifdef _NEWCODE_
       Subroutine DFT_IntX(Do_NInt_d,Do_NInt
      &                    Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
-     &                    FckInt,nFckInt,SOTemp,nSOTemp,
+     &                    FckInt,nFckInt,
      &                    ipTabAO,dF_dRho,ndF_dRho,
      &                    nSym,iSpin,Flop,Scr,nScr,
      &                    Fact,ndc,mAO,list_bas,nFn)
@@ -46,8 +46,7 @@
 #include "debug.fh"
 #include "nsd.fh"
 #include "setup.fh"
-      Real*8 Weights(mGrid), SOTemp(nSOTemp,iSpin), Fact(ndc**2),
-     &       Scr(nScr*mGrid),
+      Real*8 Weights(mGrid), Fact(ndc**2), Scr(nScr*mGrid),
      &       AOInt(nAOInt*nAOInt,iSpin), FckInt(nFckInt,iSpin),
      &       dF_dRho(ndF_dRho,mGrid)
       Integer nOp(2), list_s(2,nlist_s), ipTabAO(nlist_s),
@@ -118,7 +117,7 @@
 #else
       Subroutine DFT_IntX(Do_NInt_d,Do_NInt,
      &                    Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
-     &                    FckInt,nFckInt,SOTemp,nSOTemp,
+     &                    FckInt,nFckInt,
      &                    ipTabAO,dF_dRho,ndF_dRho,
      &                    nSym,iSpin,Flop,Scr,nScr,
      &                    Fact,ndc,mAO,list_bas,nFn)
@@ -147,8 +146,7 @@
 #include "debug.fh"
 #include "nsd.fh"
 #include "setup.fh"
-      Real*8 Weights(mGrid), SOTemp(nSOTemp,iSpin), Fact(ndc**2),
-     &       Scr(nScr*mGrid),
+      Real*8 Weights(mGrid), Fact(ndc**2), Scr(nScr*mGrid),
      &       AOInt(nAOInt*nAOInt,iSpin), FckInt(nFckInt,iSpin),
      &       dF_dRho(ndF_dRho,mGrid)
       Integer nOp(2), list_s(2,nlist_s), ipTabAO(nlist_s),
@@ -222,7 +220,6 @@
 *
                   nIC = 1
                   iIC = 1
-                  Call FZero(SOTemp(1,iD),iBas*jBas*nSO)
                   Call SymAdd2(iSmLbl,iAng,jAng,iCmp,jCmp,
      &                         iShell,jShell,iShll,jShll,
      &                         iAO,jAO,AOInt(1,iD),

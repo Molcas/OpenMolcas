@@ -136,7 +136,6 @@
             nSOTemp=Max(nSOTemp,iBas*jBas*nSO)
          End Do
       End Do
-      Call GetMem('SO_Temp','Allo','Real',ipSOTemp,nSOTemp*nD)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -564,7 +563,6 @@
      &            nShell,iWork(iplist_p),Work(ipR2_trail),nNQ,
      &            Work(ipAOInt),nAOInt,FckInt,nFckDim,
      &            Density,nFckInt,nD,
-     &            Work(ipSOTemp),nSOTemp,
      &            nGridMax,
      &            ndF_dRho,nP2_ontop,ndF_dP2ontop,
      &            Do_Mo,Do_TwoEl,l_Xhol,
@@ -639,7 +637,6 @@
       Call GetMem('NumRadEff','Free','Inte',ip_nR_eff,nNQ)
       Call GetMem('Coor','FREE','REAL',ipCoor,3*8*nAtoms)
 
-      Call GetMem('SO_Temp','Free','Real',ipSOTemp,nSOTemp)
       Call GetMem('AOInt','Free','Real',ipAOInt,nD*nAOInt**2)
       Call GetMem('nq_centers','Free','Real',ipNQ,nShell*l_NQ)
       Call GetMem('nMem','Free','Real',ipMem,nMem)

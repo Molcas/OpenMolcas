@@ -11,7 +11,7 @@
 * Copyright (C) 2008, Roland Lindh                                     *
 ************************************************************************
       Subroutine DFT_Int(Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
-     &                   FckInt,nFckInt,SOTemp,nSOTemp,
+     &                   FckInt,nFckInt,
      &                   ipTabAO,dF_dRho,ndF_dRho,
      &                   nSym,iSpin,Flop,Scr,mScr,
      &                   Fact,ndc,mAO,
@@ -32,8 +32,7 @@
      &         Do_NInt4_d, Do_nInt4X
 #include "functional_types.fh"
       Integer Functional_type
-      Real*8 Weights(mGrid), SOTemp(nSOTemp,iSpin), Fact(ndc**2),
-     &       Scr(mScr),
+      Real*8 Weights(mGrid), Fact(ndc**2), Scr(mScr),
      &       AOInt(nAOInt*nAOInt,iSpin), FckInt(nFckInt,iSpin),
      &       dF_dRho(ndF_dRho,mGrid)
       Integer list_s(2,nlist_s), ipTabAO(nlist_s), list_bas(2,nlist_s)
@@ -45,7 +44,7 @@
          nScr=iSpin*nFn*nAOMax
          Call DFT_IntX(Do_NInt1_d,Do_nInt1X,
      &                 Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
-     &                 FckInt,nFckInt,SOTemp,nSOTemp,
+     &                 FckInt,nFckInt,
      &                 ipTabAO,dF_dRho,ndF_dRho,
      &                 nSym,iSpin,Flop,Scr,nScr,
      &                 Fact,ndc,mAO,
@@ -58,7 +57,7 @@
          nScr=iSpin*nFn*nAOMax
          Call DFT_IntX(Do_NInt2_d,Do_nInt2X,
      &                 Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
-     &                 FckInt,nFckInt,SOTemp,nSOTemp,
+     &                 FckInt,nFckInt,
      &                 ipTabAO,dF_dRho,ndF_dRho,
      &                 nSym,iSpin,Flop,Scr,nScr,
      &                 Fact,ndc,mAO,
@@ -71,7 +70,7 @@
          nScr=iSpin*nFn*nAOMax
          Call DFT_IntX(Do_NInt4_d,Do_nInt4X,
      &                 Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
-     &                 FckInt,nFckInt,SOTemp,nSOTemp,
+     &                 FckInt,nFckInt,
      &                 ipTabAO,dF_dRho,ndF_dRho,
      &                 nSym,iSpin,Flop,Scr,nScr,
      &                 Fact,ndc,mAO,
@@ -84,7 +83,7 @@
          nScr=iSpin*nFn*nAOMax
          Call DFT_IntX(Do_NInt3_d,Do_nInt3X,
      &                 Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
-     &                 FckInt,nFckInt,SOTemp,nSOTemp,
+     &                 FckInt,nFckInt,
      &                 ipTabAO,dF_dRho,ndF_dRho,
      &                 nSym,iSpin,Flop,Scr,nScr,
      &                 Fact,ndc,mAO,
@@ -111,8 +110,7 @@
      &         Do_NInt4_d, Do_nInt4
 #include "functional_types.fh"
       Integer Functional_type
-      Real*8 Weights(mGrid), SOTemp(nSOTemp,iSpin), Fact(ndc**2),
-     &       Scr(mScr),
+      Real*8 Weights(mGrid), Fact(ndc**2), Scr(mScr),
      &       AOInt(nAOInt*nAOInt,iSpin), FckInt(nFckInt,iSpin),
      &       dF_dRho(ndF_dRho,mGrid)
       Integer list_s(2,nlist_s), ipTabAO(nlist_s), list_bas(2,nlist_s)
@@ -124,7 +122,7 @@
          nScr=iSpin*nFn*nAOMax
          Call DFT_IntX(Do_NInt1_d,Do_NInt1,
      &                 Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
-     &                 FckInt,nFckInt,SOTemp,nSOTemp,
+     &                 FckInt,nFckInt,
      &                 ipTabAO,dF_dRho,ndF_dRho,
      &                 nSym,iSpin,Flop,Scr,nScr,
      &                 Fact,ndc,mAO,
@@ -137,7 +135,7 @@
          nScr=iSpin*nFn*nAOMax
          Call DFT_IntX(Do_NInt2_d,Do_NInt2,
      &                 Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
-     &                 FckInt,nFckInt,SOTemp,nSOTemp,
+     &                 FckInt,nFckInt,
      &                 ipTabAO,dF_dRho,ndF_dRho,
      &                 nSym,iSpin,Flop,Scr,nScr,
      &                 Fact,ndc,mAO,
@@ -150,7 +148,7 @@
          nScr=iSpin*nFn*nAOMax
          Call DFT_IntX(Do_NInt4_d,Do_NInt4,
      &                 Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
-     &                 FckInt,nFckInt,SOTemp,nSOTemp,
+     &                 FckInt,nFckInt,
      &                 ipTabAO,dF_dRho,ndF_dRho,
      &                 nSym,iSpin,Flop,Scr,nScr,
      &                 Fact,ndc,mAO,
@@ -163,7 +161,7 @@
          nScr=iSpin*nFn*nAOMax
          Call DFT_IntX(Do_NInt3_d,Do_NInt3,
      &                 Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
-     &                 FckInt,nFckInt,SOTemp,nSOTemp,
+     &                 FckInt,nFckInt,
      &                 ipTabAO,dF_dRho,ndF_dRho,
      &                 nSym,iSpin,Flop,Scr,nScr,
      &                 Fact,ndc,mAO,

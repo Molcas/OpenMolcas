@@ -14,7 +14,7 @@
       Subroutine Do_Batch(Kernel,Func,mGrid,
      &                    list_s,nlist_s,List_Exp,List_Bas,
      &                    Index,nIndex,AOInt,nAOInt,
-     &                    FckInt,nFckDim,nFckInt,SOTemp,nSOTemp,
+     &                    FckInt,nFckDim,nFckInt,
      &                    ipTabAO,mAO,nSym,
      &                    Dens,nDens,nD,
      &                    ndF_dRho,nP2_ontop,ndF_dP2ontop,nShell,
@@ -59,8 +59,7 @@
      &        Maps2p(nShell,0:nSym-1), List_Bas(2,nlist_s)
       Real*8 A(3), RA(3), AOInt(nAOInt*nAOInt,nD),
      &       dF_dRho(ndF_dRho,mGrid), Grad(nGrad),
-     &       FckInt(nFckInt,nFckDim),
-     &       Dens(nDens,nD), SOTemp(nSOTemp,nD),
+     &       FckInt(nFckInt,nFckDim), Dens(nDens,nD),
      &       TabMO(mAO,mGrid,nMOs),TabSO(mAO,mGrid,nMOs),
      &       CMOs(nCMO),P2mo(np2act),D1mo(nd1mo),
      &       P2_ontop(nP2_ontop,mGrid) , Temp(nGrad),
@@ -1467,7 +1466,7 @@ cRKCft
 
              If(KSDFA(1:5).ne.'TLSDA'.and.KSDFA(1:6).ne.'FTLSDA') then
                  Call DFT_Int(Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
-     &                      FckInt,nFckInt,SOTemp,nSOTemp,
+     &                      FckInt,nFckInt,
      &                      ipTabAO,dF_dRho,ndF_dRho,
      &                      nSym,nD,Flop,Work(ipTmp),nTmp,
      &                      Work(ip_Fact),ndc,mAO,
@@ -1588,7 +1587,7 @@ cRKCft
              end if
              If(.not.l_casdft) then
                Call DFT_Int(Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
-     &                      FckInt,nFckInt,SOTemp,nSOTemp,
+     &                      FckInt,nFckInt,
      &                      ipTabAO,dF_dRho,ndF_dRho,
      &                      nSym,nD,Flop,Work(ipTmp),nTmp,
      &                      Work(ip_Fact),ndc,mAO,
@@ -1617,7 +1616,7 @@ cRKCft
 *         rho and/or tau.
 *
           Call DFT_Int(Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
-     &                 FckInt,nFckInt,SOTemp,nSOTemp,
+     &                 FckInt,nFckInt,
      &                 ipTabAO,dF_dRho,ndF_dRho,
      &                 nSym,nD,Flop,Work(ipTmp),nTmp,
      &                 Work(ip_Fact),ndc,mAO,
