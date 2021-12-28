@@ -30,7 +30,7 @@
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
-      Real*8 AOInt(iBas_Eff*jBas_Eff,iCmp,jCmp,nIC)
+      Real*8 AOInt(iBas_Eff*jBas_Eff,iCmp,jCmp)
       Real*8 PrpInt(nPrp)
       Integer nOp(2)
       Integer iTwoj(0:7), jIC(0:7)
@@ -50,21 +50,14 @@
       If (iPrint.ge.99) Then
          Write (6,*) ' lOper=',lOper
          Call RecPrt(' In SymAdd: AOInt',' ',AOInt,iBas*jBas,
-     &                iCmp*jCmp*nIC)
-         Write (6,*) ' iIC=',iIC
+     &                iCmp*jCmp)
       End If
 
 *... to be simplified
 
       loper=1
-      nIC = 1
-      iIC = 1
-      Do iIrrep = 0, nIrrep-1
-         jIC(iIrrep) = -999999999
-         If (iAnd(lOper,iTwoj(iIrrep)).eq.0) Cycle
-         jIC(iIrrep) = iIC
-         iIC = iIC + 1
-      End Do
+      jIC(:)=-999999999
+      jIC(0) = 1
 *
 *     We denote the basis functions as X(alpha,mu,m_l,A)
 *
@@ -84,7 +77,6 @@
                j12 = iEor(j1,j2)
 *
                If (iAnd(lOper,iTwoj(j12)).eq.0) Go To 300
-               kIC = jIC(j12)
                xb = DBLE(iChTbl(j2,nOp(2)))
 *
 *              If two sets of basis functions have the same
@@ -124,7 +116,7 @@
                         End If
 
                         PrpInt(Indij) = PrpInt(Indij)
-     &                                +Fact*xa*xb*AOInt(iFrom,i1,i2,kIC)
+     &                                +Fact*xa*xb*AOInt(iFrom,i1,i2)
                      End Do
                   End Do
 
@@ -154,7 +146,7 @@
                         End If
 
                         PrpInt(Indij) = PrpInt(Indij)
-     &                                +Fact*xa*xb*AOInt(iFrom,i2,i1,kIC)
+     &                                +Fact*xa*xb*AOInt(iFrom,i2,i1)
 *
                      End Do
                   End Do
