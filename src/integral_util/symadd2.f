@@ -67,7 +67,6 @@
 *     m_l   : angular index
 *     A     : Atomic center
 
-      lSO = 0
       iAdd = iBas-iBas_Eff
       jAdd = jBas-jBas_Eff
       Do 100 j1 = 0, nIrrep-1
@@ -93,7 +92,7 @@
 
                   If (iShell.eq.jShell .and. j1.eq.j2 .and.
      &               i1<i2) Cycle
-                  lSO = lSO + 1
+
                   iSO1=iAOtSO(iAO+i1,j1)
                   iSO2=iAOtSO(jAO+i2,j2)
 
@@ -106,16 +105,12 @@
 
                         iSO=iSO1+IndAO1-1
                         jSO=iSO2+IndAO2-1
-
-*           Diagonal block. Store only unique elements
-                        If (j1.eq.j2 .and. iSO1.eq.iSO2 .and.
-     &                      iSO<jSO) Cycle
-
 *
                         iFrom=(jB_Eff-1)*iBas_Eff+iB_Eff
                         If (j1.eq.j2) Then
 *------------            Diagonal symmetry block
-                         Indij=iPnt + iTri(iSO,jSO)
+                           If (iSO1.eq.iSO2 .and. iSO<jSO) Cycle
+                           Indij=iPnt + iTri(iSO,jSO)
                         Else
 *------------            Off-diagonal symmetry block j1>j2
                          nRow = nBas(j1)
@@ -139,14 +134,13 @@
                         jSO=iSO2+IndAO1-1
 
 *           Diagonal block. Store only unique elements
-                        If (j1.eq.j2 .and. iSO1.eq.iSO2 .and.
-     &                      iSO<jSO) Cycle
 
 *
                         iFrom=(jB_Eff-1)*iBas_Eff+iB_Eff
                         If (j1.eq.j2) Then
-*------------            Diagonal symmetry block
-                         Indij=iPnt + iTri(iSO,jSO)
+*------------              Diagonal symmetry block
+                           If (iSO1.eq.iSO2 .and. iSO<jSO) Cycle
+                           Indij=iPnt + iTri(iSO,jSO)
                         Else
 *------------            Off-diagonal symmetry block j1>j2
                          nRow = nBas(j1)

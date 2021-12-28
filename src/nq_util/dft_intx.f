@@ -91,8 +91,9 @@
                iBfn_Index(1,iBfn) = Indi
                iBfn_Index(2,iBfn) = ilist_s
                iBfn_Index(3,iBfn) = i1
-               iBfn_Index(4,iBfn) = i2
+               iBfn_Index(4,iBfn) = i2+1
                iBfn_Index(5,iBfn) = mdci
+               iBfn_Index(6,iBfn) = IndAO1
             End Do
          End Do
       End Do
