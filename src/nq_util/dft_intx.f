@@ -227,13 +227,9 @@
      &                         iShell,jShell,iShll,jShll,
      &                         iAO,jAO,AOInt(1,iD),
      &                         iBas,iBas_Eff,jBas,jBas_Eff,
-     &                         nIC,iIC,SOTemp(1,iD),nSO,nOp,
-     &                         iSkal,jSkal,Fact(ij))
-*
-                  Call SOAdd(SOTemp(1,iD),iBas,jBas,nSO,
-     &                       FckInt(1,iD),nFckInt,iSmLbl,
-     &                       iCmp,jCmp,iShell,jShell,
-     &                       iSkal.eq.jSkal,iAO,jAO)
+     &                         nIC,iIC,nOp,
+     &                         iSkal,jSkal,Fact(ij),
+     &                         FckInt(1,iD),nFclInt)
 *
                Else
 *

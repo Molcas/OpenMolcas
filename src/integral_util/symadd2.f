@@ -8,13 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1991, Roland Lindh                                     *
+* Copyright (C) 1991,2021, Roland Lindh                                *
 ************************************************************************
       Subroutine SymAdd2(lOper,iAng,jAng,iCmp,jCmp,iShell,jShell,
      &                   iShll,jShll,iAO,jAO,
      &                               AOInt,iBas,iBas_Eff,
      &                                     jBas,jBas_Eff,nIC,iIC,
-     &                   SOInt,nSOInt,nOp,iSkal,jSkal,Fact)
+     &                   nOp,iSkal,jSkal,Fact,PrpInt,nPrp)
 ************************************************************************
 *                                                                      *
 * Object: to transform the one-electon matrix elements from AO basis   *
@@ -26,23 +26,31 @@
 ************************************************************************
       use Symmetry_Info, only: nIrrep, iChTbl
       use SOAO_Info, only: iAOtSO
+      use Basis_Info, only: nBas
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
-      Real*8 AOInt(iBas_Eff*jBas_Eff,iCmp,jCmp,nIC),
-     &       SOInt(iBas*jBas,nSOInt)
+      Real*8 AOInt(iBas_Eff*jBas_Eff,iCmp,jCmp,nIC)
+      Real*8 PrpInt(nPrp)
       Integer nOp(2)
       Integer iTwoj(0:7), jIC(0:7)
       Data iTwoj/1,2,4,8,16,32,64,128/
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Statement functions
+      iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
+*                                                                      *
+************************************************************************
+*                                                                      *
+
 *
       iRout = 133
       iPrint = nPrint(iRout)
       If (iPrint.ge.99) Then
          Write (6,*) ' lOper=',lOper
-         Write (6,*) ' nSOInt=',nSOInt
          Call RecPrt(' In SymAdd: AOInt',' ',AOInt,iBas*jBas,
      &                iCmp*jCmp*nIC)
-         Call RecPrt(' In SymAdd: SOInt',' ',SOInt,iBas*jBas,nSOInt)
          Write (6,*) ' iIC=',iIC
       End If
       Do 10 iIrrep = 0, nIrrep-1
@@ -89,6 +97,7 @@
                   iSO1=iAOtSO(iAO+i1,j1)
                   iSO2=iAOtSO(jAO+i2,j2)
 
+                  iPnt = iPntSO(j1,j2,lOper,nbas)
 *
                   Do iB_Eff = 1, iBas_Eff
                      indAO1 = iB_Eff + iAdd
@@ -104,11 +113,17 @@
 
 *
                         iFrom=(jB_Eff-1)*iBas_Eff+iB_Eff
+                        If (j1.eq.j2) Then
+*------------            Diagonal symmetry block
+                         Indij=iPnt + iTri(iSO,jSO)
+                        Else
+*------------            Off-diagonal symmetry block j1>j2
+                         nRow = nBas(j1)
+                         Indij=iPnt + nRow*(jSO-1)*nRow + iSO
+                        End If
 
-                        iTo  =(indAO2    -1)*iBas    +indAO1    ! (iB,jB)
-                        SOInt(iTo,lSO)=SOInt(iTo,lSO)
+                        PrpInt(Indij) = PrpInt(Indij)
      &                                +Fact*xa*xb*AOInt(iFrom,i1,i2,kIC)
-
                      End Do
                   End Do
 
@@ -129,9 +144,16 @@
 
 *
                         iFrom=(jB_Eff-1)*iBas_Eff+iB_Eff
+                        If (j1.eq.j2) Then
+*------------            Diagonal symmetry block
+                         Indij=iPnt + iTri(iSO,jSO)
+                        Else
+*------------            Off-diagonal symmetry block j1>j2
+                         nRow = nBas(j1)
+                         Indij=iPnt + nRow*(jSO-1)*nRow + iSO
+                        End If
 
-                        iTo  =(indAO1    -1)*jBas    +indAO2 ! (jB,iB)
-                        SOInt(iTo,lSO)=SOInt(iTo,lSO)
+                        PrpInt(Indij) = PrpInt(Indij)
      &                                +Fact*xa*xb*AOInt(iFrom,i2,i1,kIC)
 *
                      End Do
@@ -144,14 +166,7 @@
  200     Continue
  100  Continue
 
-      If (lSO.ne.nSOInt) Then
-         Call WarningMessage(2,'Error in SymAdd, lSO.ne.nSOInt')
-         Call Abend()
-      End If
 *
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In SymAd1: SOInt',' ',SOInt,iBas*jBas,nSOInt)
-      End If
       Return
 c Avoid unused argument warnings
       If (.False.) Then
