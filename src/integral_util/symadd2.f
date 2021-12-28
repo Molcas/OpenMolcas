@@ -10,10 +10,10 @@
 *                                                                      *
 * Copyright (C) 1991,2021, Roland Lindh                                *
 ************************************************************************
-      Subroutine SymAdd2(lOper,iAng,jAng,iCmp,jCmp,iShell,jShell,
+      Subroutine SymAdd2(iAng,jAng,iCmp,jCmp,iShell,jShell,
      &                   iShll,jShll,iAO,jAO,
      &                               AOInt,iBas,iBas_Eff,
-     &                                     jBas,jBas_Eff,nIC,iIC,
+     &                                     jBas,jBas_Eff,
      &                   nOp,iSkal,jSkal,Fact,PrpInt,nPrp)
 ************************************************************************
 *                                                                      *
@@ -53,12 +53,18 @@
      &                iCmp*jCmp*nIC)
          Write (6,*) ' iIC=',iIC
       End If
-      Do 10 iIrrep = 0, nIrrep-1
+
+*... to be simplified
+
+      loper=1
+      nIC = 1
+      iIC = 1
+      Do iIrrep = 0, nIrrep-1
          jIC(iIrrep) = -999999999
-         If (iAnd(lOper,iTwoj(iIrrep)).eq.0) Go To 10
+         If (iAnd(lOper,iTwoj(iIrrep)).eq.0) Cycle
          jIC(iIrrep) = iIC
          iIC = iIC + 1
- 10   Continue
+      End Do
 *
 *     We denote the basis functions as X(alpha,mu,m_l,A)
 *
@@ -112,9 +118,9 @@
                            If (iSO1.eq.iSO2 .and. iSO<jSO) Cycle
                            Indij=iPnt + iTri(iSO,jSO)
                         Else
-*------------            Off-diagonal symmetry block j1>j2
-                         nRow = nBas(j1)
-                         Indij=iPnt + nRow*(jSO-1)*nRow + iSO
+*------------              Off-diagonal symmetry block j1>j2
+                           nRow = nBas(j1)
+                           Indij=iPnt + nRow*(jSO-1)*nRow + iSO
                         End If
 
                         PrpInt(Indij) = PrpInt(Indij)
@@ -142,9 +148,9 @@
                            If (iSO1.eq.iSO2 .and. iSO<jSO) Cycle
                            Indij=iPnt + iTri(iSO,jSO)
                         Else
-*------------            Off-diagonal symmetry block j1>j2
-                         nRow = nBas(j1)
-                         Indij=iPnt + nRow*(jSO-1)*nRow + iSO
+*------------              Off-diagonal symmetry block j1>j2
+                           nRow = nBas(j1)
+                           Indij=iPnt + nRow*(jSO-1)*nRow + iSO
                         End If
 
                         PrpInt(Indij) = PrpInt(Indij)

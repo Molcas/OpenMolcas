@@ -219,13 +219,11 @@
 *
 *---------------- Distribute contributions to the SO integrals
 *
-                  nIC = 1
-                  iIC = 1
-                  Call SymAdd2(iSmLbl,iAng,jAng,iCmp,jCmp,
+                  Call SymAdd2(iAng,jAng,iCmp,jCmp,
      &                         iShell,jShell,iShll,jShll,
      &                         iAO,jAO,AOInt(1,iD),
      &                         iBas,iBas_Eff,jBas,jBas_Eff,
-     &                         nIC,iIC,nOp,
+     &                         nOp,
      &                         iSkal,jSkal,Fact(ij),
      &                         FckInt(1,iD),nFclInt)
 *
