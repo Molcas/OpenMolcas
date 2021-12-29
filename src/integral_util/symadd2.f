@@ -113,7 +113,8 @@
                   End Do
                End Do
 
-               If ( iShell.ne.jShell .or. nOp(1).eq.nOp(2) ) Cycle
+               If ( iShell.ne.jShell ) Cycle
+               If ( nOp(1).eq.nOp(2) ) Cycle
 
                Do iB_Eff = 1, iBas_Eff
                   indAO1 = iB_Eff + iAdd
