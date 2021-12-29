@@ -85,7 +85,7 @@
 *           to be the unique combinations.
 
 *
-            Do 400 i2 = 1, jCmp
+            Do i2 = 1, jCmp
                If (iAOtSO(jAO+i2,j2)<0) Cycle
 
                If (iShell.eq.jShell .and. i1<i2) Cycle
@@ -113,8 +113,10 @@
                   End Do
                End Do
 
-               If (.Not.(iShell.eq.jShell.and.nOp(1).ne.nOp(2)))
-     &               Cycle
+*              If (.Not.(iShell.eq.jShell.and.nOp(1).ne.nOp(2)))
+*    &               Cycle
+               If (.Not.(iShell.eq.jShell) .or.
+     &             .Not.(nOp(1).ne.nOp(2)) ) Cycle
 
                Do iB_Eff = 1, iBas_Eff
                   indAO1 = iB_Eff + iAdd
@@ -135,7 +137,7 @@
                   End Do
                End Do
 *
- 400        Continue
+           End Do
 *
  200     Continue
  100  Continue
