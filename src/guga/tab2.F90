@@ -16,7 +16,8 @@
 subroutine TAB2(NREF,IOCR,nIOCR,L0,L1,L2,L3,INTNUM,LV,LSYM,ICIALL,IFCORE,ICOR,NONE_,JONE)
 
 use guga_global, only: BL1, BL2, BS1, BS2, BS3, BS4, COUP, COUP1, IA, IAF, IB, IBF, IFIRST, IJ, IJF, ILIM, IPO, IPRINT, IRC, IV0, &
-                       IX, IY, JNDX, K0, K1, K2, K3, LN, MAXB, MXVERT, N, NIORB, S
+                       IX, IY, JNDX, K0, K1, K2, K3, LN, MXVERT, N, NIORB, S
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -27,11 +28,11 @@ integer(kind=iwp), intent(in) :: nIOCR, INTNUM, LV, LSYM, ICIALL, IFCORE, ICOR(*
 integer(kind=iwp), intent(inout) :: NREF, IOCR(nIOCR)
 integer(kind=iwp), intent(_OUT_) :: L0(*), L1(*), L2(*), L3(*)
 integer(kind=iwp) :: I, I0, I1, IA1, IAC, IAT, IB1, IBMAX, IBS, IBT, IEL, II, IIJ, IIJF, IIM, IIM2, IJD, IJFL, IJFS, IJL, IJR, &
-                     IJRL, IJS, IJS1, IL, IN_, INUM, IORB(MXVERT), ISTA, ISTOP, ISUM, ITTT, IUT, IUT1, J, J11, J3, J4, JJ, JJ1, &
-                     JJ2, JL, JMAX, K, K00(MXVERT), K11(MXVERT), K22(MXVERT), K33(MXVERT), L00(MXVERT), L11(MXVERT), L22(MXVERT), &
-                     L33(MXVERT), LN1, NAC, NACU, NIJ, NIJ1
+                     IJRL, IJS, IJS1, IL, IN_, INUM, ISTA, ISTOP, ISUM, ITTT, IUT, IUT1, J, J11, J3, J4, JJ, JJ1, JJ2, JL, JMAX, &
+                     K, LN1, NAC, NACU, NIJ, NIJ1
 real(kind=wp) :: FB, FBB
 logical(kind=iwp) :: skip
+integer(kind=iwp), allocatable :: IORB(:), K00(:), K11(:), K22(:), K33(:), L00(:), L11(:), L22(:), L33(:)
 
 IEL = 2
 if (IFIRST /= 0) IEL = 1
@@ -51,6 +52,7 @@ NIJ = 1
 IJR = 1
 IJS = 2
 IJRL = IJR
+call mma_allocate(IORB,MXVERT,label='IORB')
 IORB(1) = 0
 do II=1,LN
   IIM = LN-II+1-LV
@@ -214,6 +216,7 @@ do II=1,LN
   IJRL = IUT
   NIJ = IUT
 end do
+call mma_deallocate(IORB)
 if (N == 2) then
   IUT = IUT+1
   IA(IUT) = 0
@@ -224,6 +227,14 @@ if (N == 2) then
   IB(IUT-2) = 2
 end if
 JJ2 = 0
+call mma_allocate(K00,MXVERT,label='K00')
+call mma_allocate(K11,MXVERT,label='K11')
+call mma_allocate(K22,MXVERT,label='K22')
+call mma_allocate(K33,MXVERT,label='K33')
+call mma_allocate(L00,MXVERT,label='L00')
+call mma_allocate(L11,MXVERT,label='L11')
+call mma_allocate(L22,MXVERT,label='L22')
+call mma_allocate(L33,MXVERT,label='L33')
 do II=1,LN
   I = LN-II+1-LV
   IIM2 = (I-1)*2
@@ -305,6 +316,14 @@ K22(IUT+1) = 0
 K33(IUT+1) = 0
 if (ICIALL /= 0) call CIALL(LSYM,NREF,IOCR,nIOCR,L00,L11,L22,L33,LV)
 call DELTAB(NREF,IOCR,L0,L1,L2,L3,INTNUM,LV,IFCORE,ICOR,NONE_,JONE,K00,K11,K22,K33,L00,L11,L22,L33)
+call mma_deallocate(K00)
+call mma_deallocate(K11)
+call mma_deallocate(K22)
+call mma_deallocate(K33)
+call mma_deallocate(L00)
+call mma_deallocate(L11)
+call mma_deallocate(L22)
+call mma_deallocate(L33)
 do I=1,ILIM
   ISTA = (I-1)*MXVERT
   if (IPRINT >= 5) write(u6,101)
@@ -315,6 +334,12 @@ IBMAX = 0
 do J=1,IUT
   if (IB(J) > IBMAX) IBMAX = IB(J)
 end do
+call mma_allocate(BS1,IBMAX+3,label='BS1')
+call mma_allocate(BS2,IBMAX+3,label='BS2')
+call mma_allocate(BS3,IBMAX+3,label='BS3')
+call mma_allocate(BS4,IBMAX+3,label='BS4')
+call mma_allocate(BL1,IBMAX+3,label='BL1')
+call mma_allocate(BL2,IBMAX+3,label='BL2')
 IUT1 = IUT-1
 do IL=1,ILIM
   ISTA = (IL-1)*MXVERT
@@ -371,12 +396,8 @@ do I=2,ILIM
   IRC(I) = IX(ISTA+IUT+1-I)+IRC(I-1)
 end do
 ISUM = IRC(ILIM)
-if (ISUM > size(JNDX)) then
-  write(u6,*) 'Tab2: ISUM > LIX'
-  write(u6,*) 'ISUM,LIX=',ISUM,size(JNDX)
-  call Abend()
-end if
-do I=1,MAXB+3
+call mma_allocate(JNDX,ISUM,label='JNDX')
+do I=1,IBMAX+3
   FBB = real(I-1,kind=wp)
   FB = FBB/(FBB+1)
   BS1(I) = sqrt(FB)
@@ -420,10 +441,9 @@ end do
 
 if (IPRINT >= 2) then
   write(u6,411) JMAX
-  write(u6,412) IBMAX,MAXB
+  write(u6,412) IBMAX
   if (JMAX > 31) call Abend()
 end if
-if (IBMAX > MAXB) call Abend()
 
 return
 
@@ -438,6 +458,6 @@ return
 !216 format(/,6X,'NUMBER OF VALENCE STATES',I16,/,6X,'NUMBER OF DOUBLET COUPLED SINGLES',I7)
 350 format(/,6X,5I5)
 411 format(/,6X,'NUMBER OF VERTICES IN ONE ROW',I6,6X,'(PRESENT LIMIT 31)')
-412 format(6X,'MAXIMUM B VALUE',I20,6X,'(PRESENT LIMIT ',I5,')')
+412 format(6X,'MAXIMUM B VALUE',I20,6X)
 
 end subroutine TAB2

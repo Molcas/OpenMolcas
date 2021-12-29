@@ -16,12 +16,14 @@
 subroutine TAB2F(IVER,LV)
 
 use guga_global, only: IAF, IBF, IFIRST, IJF, IPRINT, IVF0, K0F, K1F, K2F, K3F, LN, MXVERT, N, S
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: IVER, LV
-integer(kind=iwp) :: I, IA1, IAT, IB1, IBT, IEL, II, IIM, IJD, IJR, IJRL, IJS, IJS1, IN_, IORB(MXVERT), ISTOP, IUT, IUT1, J, J11, &
-                     J3, J4, JJ, JJ1, JJ2, K, NIJ, NIJ1, nijj
+integer(kind=iwp) :: I, IA1, IAT, IB1, IBT, IEL, II, IIM, IJD, IJR, IJRL, IJS, IJS1, IN_, ISTOP, IUT, IUT1, J, J11, J3, J4, JJ, &
+                     JJ1, JJ2, K, NIJ, NIJ1, nijj
+integer(kind=iwp), allocatable :: IORB(:)
 
 nijj = 0
 IEL = 2
@@ -36,6 +38,7 @@ NIJ = 1
 IJR = 1
 IJS = 2
 IJRL = IJR
+call mma_allocate(IORB,MXVERT,label='IORB')
 IORB(1) = 0
 do II=1,LN
   IIM = LN-II+1-LV
@@ -144,6 +147,7 @@ do II=1,LN
   IJRL = IUT
   NIJ = IUT
 end do
+call mma_deallocate(IORB)
 JJ2 = 0
 do II=1,LN
   I = LN-II+1

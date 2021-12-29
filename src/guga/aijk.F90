@@ -71,8 +71,8 @@ do NI=1,LN
           JJ = 0
           JJD = 0
         else
-         JJ = IRC(ITT1)
-         JJD = JRC(ITT1)
+          JJ = IRC(ITT1)
+          JJD = JRC(ITT1)
         end if
         if (ITT2 == 0) then
           II = 0

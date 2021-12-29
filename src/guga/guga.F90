@@ -22,17 +22,17 @@
 
 subroutine GUGA(IRETURN)
 
-use guga_global, only: IPRINT, ISPA, Lu_10, Lu_11, MXVERT, NBUF
+use guga_global, only: free_all, IPRINT, Lu_10, Lu_11, MXVERT, NBUF
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Two, Four
 use Definitions, only: wp, iwp, u6, RtoI
 
 implicit none
 integer(kind=iwp), intent(out) :: IRETURN
-#include "WrkSpc.fh"
 #include "cop.fh"
-integer(kind=iwp) :: I, ISPAC, IST, JSY(3000), JSYM(30000), KB, KBUF, KBUF2, L0(4*MXVERT), L1(4*MXVERT), L2(4*MXVERT), &
-                     L3(4*MXVERT), LDummy, LIM, LSOArr, LSTO, LW1, LW2, MCOP, NBINS, NCOR, NCORX, NTPB !, SO(1000000)
+integer(kind=iwp) :: I, ISPAC, IST, KB, KBUF, KBUF2, LSTO, LW1, MCOP, NBINS, NCOR, NCORX, NTPB
 real(kind=wp) :: A, B, C
+integer(kind=iwp), allocatable :: L0(:), L1(:), L2(:), L3(:)
 integer(kind=iwp), external :: isFreeUnit
 
 ! Prologue
@@ -42,10 +42,9 @@ integer(kind=iwp), external :: isFreeUnit
 ! PAM      NCOR = 1000000
 ! PAM      call GETMEM('SOArr','Allo','Real',LSOArr,NCOR)
 ! Replace by: Find max possible allocatable
-call GETMEM('SOArr','Max','Inte',LDummy,NCOR)
+call mma_maxINT(NCOR)
 ! Grab almost all of it, but leave a little to be safe:
 NCOR = NCOR-100000
-call GETMEM('SOArr','Allo','Inte',LSOArr,NCOR)
 !call SetQue('Trace=On')
 call SETTIM()
 !call XUFLOW()
@@ -69,11 +68,14 @@ call iDAFILE(Lu_10,1,IAD10,9,IADD10)
 
 ! Read input
 
-ISPA = NCOR
 NBUF = 600
 !PAM96: Use variable MCOP, size of buffers:
 MCOP = NBUF*RtoI+NBUF+1
-call INPUT_GUGA(iWork(LSOArr),JSYM,JSY,L0,L1,L2,L3,ISPAC)
+call mma_allocate(L0,4*MXVERT,label='L0')
+call mma_allocate(L1,4*MXVERT,label='L1')
+call mma_allocate(L2,4*MXVERT,label='L2')
+call mma_allocate(L3,4*MXVERT,label='L3')
+call INPUT_GUGA(L0,L1,L2,L3,ISPAC)
 
 ! Main body
 
@@ -100,26 +102,16 @@ LSTO = NBINS*KBUF2
 ! ALSO SPACE FOR NTPB WORDS IN EMPTY
 if (NTPB > LSTO) LSTO = NTPB
 LW1 = LSTO+1
-LW2 = LW1+NBINS
-LIM = LW2+NBINS
-if (LIM > NCOR) then
-  write(u6,*) 'Guga: LIM > NCOR, position 1'
-  write(u6,*) 'LIM,NCOR=',LIM,NCOR
-  call Abend()
-end if
-LIM = LW2+KBUF2
-if (LIM > NCOR) then
-  write(u6,*) 'Guga: LIM > NCOR, position 2'
-  write(u6,*) 'LIM,NCOR=',LIM,NCOR
-  call Abend()
-end if
-call ICOPY(LW1,[0],0,iWork(LSOArr),1)
-call CI_SELECT(iWork(LSOArr),iWork(LSOArr-1+LW1),iWork(LSOArr-1+LW2),L0,L1,L2,L3,KBUF,NTPB,NBINS)
+call CI_SELECT(L0,L1,L2,L3,KBUF,NTPB,NBINS,LW1)
+call mma_deallocate(L0)
+call mma_deallocate(L1)
+call mma_deallocate(L2)
+call mma_deallocate(L3)
 IADD10 = 0
 call iDAFILE(Lu_10,1,IAD10,9,IADD10)
 
 ! Epilogue, end
-call GETMEM('SOArr','Free','Inte',LSOArr,NCOR)
+call free_all()
 
 !                                                                      *
 !***********************************************************************

@@ -11,34 +11,32 @@
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
 !***********************************************************************
 
-subroutine INPUT_GUGA(ISO,JSYM,JSY,L0,L1,L2,L3,ISPAC)
+subroutine INPUT_GUGA(L0,L1,L2,L3,ISPAC)
 
-use guga_global, only: ICASE, ICH, IFIRST, ILIM, IPRINT, ISPA, ISPIN, JRC, LN, LNP, Lu_10, MXVERT, N, NIORB, NSM, NSYM, S
+use guga_global, only: ICASE, ICH, IFIRST, ILIM, IPRINT, ISPIN, JRC, LN, LNP, Lu_10, MXVERT, N, NIORB, NSM, NSYM, S
 use Symmetry_Info, only: Mul
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Half
 use Definitions, only: iwp, u5, u6
 
-#include "intent.fh"
-
 implicit none
-integer(kind=iwp), intent(_OUT_) :: ISO(*), JSYM(*), JSY(*), L0(*), L1(*), L2(*), L3(*)
-integer(kind=iwp), intent(out) :: ISPAC
+integer(kind=iwp), intent(out) :: L0(4*MXVERT), L1(4*MXVERT), L2(4*MXVERT), L3(4*MXVERT), ISPAC
 #include "niocr.fh"
 #include "cop.fh"
 #include "warnings.h"
 integer(kind=iwp), parameter :: mxTit = 10, nCmd = 18
-integer(kind=iwp) :: I, ICIALL, iCmd, ICOR(55), IFCORE, IN_, IN1, IN2, IN3, INTNUM, IOCR(nIOCR), IOM, IONE(8), iOpt, IR, IR1, IR2, &
-                     iRef, istatus, ISUM, IVER, J, jCmd, jEnd, JJS(18), JONE(8), JREFX(9000), jStart, LN1, LN2, LSYM, LV, MN, MX, &
-                     NACTEL, NCOR(8), NCORI, NFREF, NISH(8), NISHI, NISHT, nJJS, nJRC, NN, NO, NONE_, NREF, NRLN1, NSH(8), NSHI, &
-                     nTit, NVAL(8), NVALI
+integer(kind=iwp) :: I, ICIALL, iCmd, ICOR(55), IFCORE, IN_, IN1, IN2, IN3, INTNUM, IOM, IONE(8), iOpt, IR, IR1, IR2, iRef, &
+                     istatus, ISUM, IVER, J, jCmd, jEnd, JJS(18), JONE(8), jStart, LN1, LN2, LSYM, LV, MN, MX, NACTEL, NCOR(8), &
+                     NCORI, NFREF, NISH(8), NISHI, NISHT, nJJS, nJRC, NN, NO, NONE_, NREF, NRLN1, NSH(8), NSHI, nTit, NVAL(8), NVALI
 logical(kind=iwp) :: skip
 character(len=132) :: ModLine
 character(len=72) :: Line, Title(mxTit)
 character(len=4) :: Command
+integer(kind=iwp), allocatable :: IOCR(:), JREFX(:), JSY(:)
 integer(kind=iwp), parameter :: MLL(64) = [1,2,3,4,5,6,7,8,2,1,4,3,6,5,8,7,3,4,1,2,7,8,5,6,4,3,2,1,8,7,6,5,5,6,7,8,1,2,3,4,6,5,8, &
                                            7,2,1,4,3,7,8,5,6,3,4,1,2,8,7,6,5,4,3,2,1]
 character(len=4), parameter :: Cmd(nCmd) = ['TITL','ELEC','SPIN','SYMM','ACTI','PRIN','REFE','FIRS','INAC','CIAL','VALE','INTE', &
-                                            'NOCO','ONEO','EXTR','NONI','NACT', 'END ']
+                                            'NOCO','ONEO','EXTR','NONI','NACT','END ']
 
 !---  Initialize data and variables -----------------------------------*
 IOM = 55
@@ -70,6 +68,7 @@ do I=1,55
 end do
 nTit = 0
 jCmd = 0
+call mma_allocate(IOCR,nIOCR,label='IOCR')
 
 !---  Read input from standard input ----------------------------------*
 call RdNLst(u5,'GUGA')
@@ -401,10 +400,12 @@ else
 end if
 
 ! Here with ILIM=2 (FIRST command) or 4 (normal, default).
-call CONFIG(NREF,IOCR,nIOCR,L0,L1,L2,L3,JSYM,JSY,INTNUM,LSYM,JJS,ISO,LV,IFCORE,ICOR,NONE_,JONE,JREFX,NFREF)
+call mma_allocate(JSY,3000,label='JSY')
+call mma_allocate(JREFX,9000,label='JREFX')
+call CONFIG(NREF,IOCR,nIOCR,L0,L1,L2,L3,JSY,INTNUM,LSYM,JJS,LV,IFCORE,ICOR,NONE_,JONE,JREFX,NFREF)
 IR = JRC(ILIM)
 ISPAC = IR*LNP
-if (IPRINT >= 2) write(u6,9) ISPAC,ISPA
+if (IPRINT >= 2) write(u6,9) ISPAC
 NRLN1 = NREF*LN1
 if (LN1 == 0) NRLN1 = 1
 !PAM97 IR1 = (LN*IR+29)/30
@@ -412,20 +413,23 @@ IR1 = (LN*IR+14)/15
 IR2 = (IR+9)/10
 
 iOpt = 1
-nJJS = 18
-nJRC = 4
+nJJS = size(JJS)
+nJRC = size(JRC)
 call WR_GUGA(Lu_10,iOpt,IADD10,NFREF,S,N,LN,NSYM,IR1,IR2,IFIRST,INTNUM,LSYM,NREF,LN1,NRLN1,Mul,size(Mul),NSH,NISH,8,JRC,nJRC,JJS, &
              nJJS,NVAL,IOCR,nIOCR)
 call iDAFILE(Lu_10,1,ICASE,IR1,IADD10)
 call iDAFILE(Lu_10,1,JSY,IR2,IADD10)
 IAD10(2) = IADD10
 call iDAFILE(Lu_10,1,JREFX,JRC(1),IADD10)
+call mma_deallocate(IOCR)
+call mma_deallocate(JREFX)
+call mma_deallocate(JSY)
 
 return
 
 1 format(//,6X,'ONLY SINGLE REPLACEMENTS INCLUDED')
 2 format(//,6X,'ALL SINGLE AND DOUBLE REPLACEMENTS')
-9 format(//,6X,'ELEMENTS TO BE SORTED',I7,/6X,'SORTING AREA',I16)
+9 format(//,6X,'ELEMENTS TO BE SORTED',I7)
 55 format(//,6X,'ONE CLOSED SHELL REFERENCE STATE')
 106 format(6X,'INACTIVE',8I5)
 107 format(//,6X,'OCCUPATION OF REFERENCE STATES',//,6X,'REF.STATE',2X,'ORB:',I2,15I4)

@@ -13,26 +13,24 @@
 !***********************************************************************
 ! 2021: Remove GOTOs
 
-subroutine CONFIG(NREF,IOCR,nIOCR,L0,L1,L2,L3,JSYM,JSY,INTNUM,LSYM,JJS,ISO,LV,IFCORE,ICOR,NONE_,JONE,JREFX,NFREF)
+subroutine CONFIG(NREF,IOCR,nIOCR,L0,L1,L2,L3,JSY,INTNUM,LSYM,JJS,LV,IFCORE,ICOR,NONE_,JONE,JREFX,NFREF)
 
-use guga_global, only: IB, ICASE, IFIRST, ILIM, IRC, ISPA, ISPIN, IV0, IWAY, J2, JNDX, JRC, LN, MXVERT, N, NIORB, NSM, NSYM
+use guga_global, only: IB, ICASE, IFIRST, ILIM, IRC, ISPIN, IV0, IWAY, J2, JNDX, JRC, LN, MXVERT, N, NIORB, NSM, NSYM
+use stdalloc, only: mma_allocate, mma_deallocate
 use Symmetry_Info, only: Mul
 use Definitions, only: iwp, u6
 
-#include "intent.fh"
-
 implicit none
 integer(kind=iwp), intent(in) :: NREF, nIOCR, IOCR(nIOCR), L0(*), L1(*), L2(*), L3(*), INTNUM, LV, IFCORE, ICOR(*), NONE_, JONE(*)
-integer(kind=iwp), intent(_OUT_) :: JSYM(*), JSY(*), JJS(*), ISO(*), JREFX(*)
-integer(kind=iwp), intent(out) :: LSYM, NFREF
-integer(kind=iwp) :: I, I1, IBS, IDIF, IEL, IFEXC, IFREF, IIJ, IJJ, IND, INHOLE, INTOT, IOC(55), IPART, IRC1, IRC2, IREF, IRR, &
-                     ISP(55), ISTA, ITEMP, ITU, IX1, IX2, IX3, IX4, J, JHOLE, JJ1, JND, JPART, JRC1, JRC2, JRC21, JRX, JSYL, &
-                     JSYLL, K, KM, KM1, L, LMN, LMN0, LNS, M, M1, M2, MND, NCORR, NSJ, NSJ1
+integer(kind=iwp), intent(out) :: JSY(3000), LSYM, JJS(18), JREFX(9000), NFREF
+integer(kind=iwp) :: I, I1, IBS, IDIF, IEL, IFEXC, IFREF, IIJ, IJJ, IND, INHOLE, IOC(55), IPART, IRC1, IRC2, IREF, IRR, ISP(55), &
+                     ISTA, ITEMP, ITU, IX1, IX2, IX3, IX4, J, JHOLE, JJ1, JND, JPART, JRC1, JRC2, JRC21, JRX, JSYL, K, KM, KM1, L, &
+                     LMN, LMN0, LNS, M, MND, NCORR, NSJ, NSJ1
 logical(kind=iwp) :: first
+integer(kind=iwp), allocatable :: ISO(:,:), JSYM(:), TEMP(:)
 
 JSYL = 30000
-JSYLL = 3000
-JRX = 9000
+JRX = size(JREFX)
 IBS = 0
 IEL = 2
 LSYM = 1
@@ -46,24 +44,19 @@ do I=LNS,LN
 end do
 write(u6,'(6X,A,I3)') 'WAVE-FUNCTION SYMMETRY LABEL:',LSYM
 
-! Initialize arrays JJS, JNDX, ICASE, JSY
-do I=1,18
-  JJS(I) = 0
-end do
+! Initialize arrays JJS, JNDX, JSY
+JJS(:) = 0
 ! CONSTRUCT JNDX
 ! ILIM=2 or ILIM=4 was set by input: Normally 4, but 2 if keyword FIRST
 ! has been given.
-INTOT = IRC(ILIM)
-do I=1,INTOT
-  JNDX(I) = 0
-end do
-ICASE(:) = 0
-do I=1,JSYLL
-  JSY(I) = 0
-end do
+JNDX(:) = 0
+JSY(:) = 0
 JND = 0
 LMN = 0
 
+call mma_allocate(JSYM,JSYL,label='JSYM')
+call mma_allocate(ISO,LN,JRX,label='ISO')
+call mma_allocate(TEMP,LN,label='TEMP')
 do IIJ=1,ILIM
   ! Special cases:
   JRC(IIJ) = LMN
@@ -227,19 +220,16 @@ do IIJ=1,ILIM
       end if
     end if
 
-    M = (LMN-1)*LN
-    if (M+LN > ISPA) then
-      write(u6,*) 'Config: M+LN > ISPA'
-      write(u6,*) 'M,LN,ISPA=',M,LN,ISPA
+    if (LMN > JRX) then
+      write(u6,*) 'Config: LMN > JRX'
+      write(u6,*) 'LMN,JRX=',LMN,JRX
       write(u6,*) 'This error may be due to a bug.'
       write(u6,*) ' Please check your input against the manual.'
       write(u6,*) ' If there is no input errors, please report'
       write(u6,*) ' this as a bug.'
       call Abend()
     end if
-    do K=1,LN
-      ISO(M+K) = ISP(K)
-    end do
+    ISO(:,LMN) = ISP(1:LN)
   end do
 end do
 
@@ -286,13 +276,9 @@ if (IFIRST == 0) then
           ITEMP = JSYM(I)
           JSYM(I) = JSYM(J)
           JSYM(J) = ITEMP
-          M1 = (I-1)*LN
-          M2 = (J-1)*LN
-          do K=1,LN
-            ITEMP = ISO(M1+K)
-            ISO(M1+K) = ISO(M2+K)
-            ISO(M2+K) = ITEMP
-          end do
+          TEMP(:) = ISO(:,I)
+          ISO(:,I) = ISO(:,J)
+          ISO(:,J) = TEMP
           do K=IRC1,IRC2
             if (JNDX(K) == I) then
               JNDX(K) = J
@@ -329,18 +315,15 @@ end if
 
 ! PACK OCCUPATION AND SYMMETRY VECTORS FOR CI
 LMN0 = JRC(ILIM)*LN
-!PAM97 M1 = (LMN0+29)/30
-M1 = (LMN0+14)/15
-if (M1 > size(ICASE)) then
-  write(u6,*) 'Config: M1 > MXCASE'
-  write(u6,*) 'M1,MXCASE=',M1,size(ICASE)
-  call Abend()
-end if
+!PAM97 M = (LMN0+29)/30
+M = (LMN0+14)/15
+call mma_allocate(ICASE,M,label='ICASE')
+ICASE(:) = 0
 M = 0
 do L=1,LMN
   do K=1,LN
     M = M+1
-    MND = ISO(M)
+    MND = ISO(K,L)
     !IOCC((M+29)/30) = OR(IOCC((M+29)/30),1SHIFT(MND,2*((M+29)/30*30-M)))
     !PAM97 QOCC((M+29)/30) = PACK(QOCC((M+29)/30),MND,2*M-(2*M-1)/60*60,2)
     call ICPCK(ICASE,M,MND)
@@ -349,6 +332,9 @@ do L=1,LMN
   !PAM97 JSY((L+9)/10) = ior(JSY((L+9)/10),ishft(NSJ,29-3*mod(L-1,10)))
   call JSPCK(JSY,L,JSYM(L))
 end do
+call mma_deallocate(JSYM)
+call mma_deallocate(ISO)
+call mma_deallocate(TEMP)
 
 return
 

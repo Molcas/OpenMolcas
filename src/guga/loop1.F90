@@ -53,7 +53,7 @@ if (IWAYKM == 2) then
   end if
 end if
 if (IWAYKM == 3) then
-    IWAY(KM) = 4
+  IWAY(KM) = 4
   if ((K0(IT1+J1(KM1)) == 0) .or. (K1(IT2+J2(KM1)) == 0)) then
     IWAYKM = 4
   else

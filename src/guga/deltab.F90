@@ -16,6 +16,7 @@
 subroutine DELTAB(NREF,IOCR,L0,L1,L2,L3,INTNUM,LV,IFCORE,ICOR,NONE_,JONE,K00,K11,K22,K33,L00,L11,L22,L33)
 
 use guga_global, only: IB, ILIM, IV0, IWAY, J2, K0, K1, K2, K3, LN, MXVERT, NIORB, NSM
+use stdalloc, only: mma_allocate, mma_deallocate
 use Symmetry_Info, only: Mul
 use Definitions, only: iwp, u6
 
@@ -25,10 +26,10 @@ implicit none
 integer(kind=iwp), intent(in) :: NREF, IOCR(*), INTNUM, LV, IFCORE, ICOR(*), NONE_, JONE(*), K00(*), K11(*), K22(*), K33(*), &
                                  L00(*), L11(*), L22(*), L33(*)
 integer(kind=iwp), intent(_OUT_) :: L0(*), L1(*), L2(*), L3(*)
-integer(kind=iwp) :: I, IBS, IDIF, IEL, IIJ, IJJ, INHOLE, IOC(55), IPART, IREF, IRR, ISP(55), ISTA, JHOLE, JJ1, JPART, K, &
-                     K0M(MXVERT), K1M(MXVERT), K2M(MXVERT), K3M(MXVERT), KM, KM1, L0M(MXVERT), L1M(MXVERT), L2M(MXVERT), &
-                     L3M(MXVERT), LNS, LSYM, NCORR, NSJ
+integer(kind=iwp) :: I, IBS, IDIF, IEL, IIJ, IJJ, INHOLE, IOC(55), IPART, IREF, IRR, ISP(55), ISTA, JHOLE, JJ1, JPART, K, KM, KM1, &
+                     LNS, LSYM, NCORR, NSJ
 logical(kind=iwp) :: first, last
+integer(kind=iwp), allocatable :: K0M(:), K1M(:), K2M(:), K3M(:), L0M(:), L1M(:), L2M(:), L3M(:)
 
 K0(:) = 0
 K1(:) = 0
@@ -49,6 +50,14 @@ do I=LNS,LN
   IRR = IRR+1
   if (IOCR(IRR) == 1) LSYM = Mul(LSYM,NSM(I))
 end do
+call mma_allocate(K0M,MXVERT,label='K0M')
+call mma_allocate(K1M,MXVERT,label='K1M')
+call mma_allocate(K2M,MXVERT,label='K2M')
+call mma_allocate(K3M,MXVERT,label='K3M')
+call mma_allocate(L0M,MXVERT,label='L0M')
+call mma_allocate(L1M,MXVERT,label='L1M')
+call mma_allocate(L2M,MXVERT,label='L2M')
+call mma_allocate(L3M,MXVERT,label='L3M')
 do IIJ=1,ILIM
   ISTA = (IIJ-1)*MXVERT
   K0M(1:IV0) = 0
@@ -183,11 +192,19 @@ do IIJ=1,ILIM
         L3M(J2(K)) = L33(J2(K))
       else
         K2M(J2(K+1)) = K22(J2(K+1))
-          L2M(J2(K)) = L22(J2(K))
+        L2M(J2(K)) = L22(J2(K))
       end if
     end do
   end do
 end do
+call mma_deallocate(K0M)
+call mma_deallocate(K1M)
+call mma_deallocate(K2M)
+call mma_deallocate(K3M)
+call mma_deallocate(L0M)
+call mma_deallocate(L1M)
+call mma_deallocate(L2M)
+call mma_deallocate(L3M)
 
 return
 

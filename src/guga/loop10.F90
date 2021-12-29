@@ -64,7 +64,7 @@ else if (IDIF /= 0) then
     IWAY(KM) = 3
     if ((K0(IT1+J1(KM1)) == 0) .or. (K2(IT2+J2(KM1)) == 0)) then
       IWAYKM = 3
-    else if (K2F(J1F) == 0) THEN
+    else if (K2F(J1F) == 0) then
       IWAYKM = 3
     else
       J1(KM) = K0(IT1+J1(KM1))
