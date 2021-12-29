@@ -88,6 +88,34 @@
             Do i2 = 1, jCmp
                If (iAOtSO(jAO+i2,j2)<0) Cycle
 
+
+               If ( iShell.ne.jShell ) Then
+
+               iSO1=iAOtSO(iAO+i1,j1)
+               iSO2=iAOtSO(jAO+i2,j2)
+
+               iPnt = iPntSO(j1,j2,lOper,nbas)
+*
+               Do iB_Eff = 1, iBas_Eff
+                  indAO1 = iB_Eff + iAdd
+                  Do jB_Eff = 1, jBas_Eff
+                     indAO2 = jB_Eff + jAdd
+
+                     iSO=iSO1+IndAO1-1
+                     jSO=iSO2+IndAO2-1
+*
+                     iFrom=(jB_Eff-1)*iBas_Eff+iB_Eff
+*------------        Diagonal symmetry block
+                     If (iSO1.eq.iSO2 .and. iSO<jSO) Cycle
+                     Indij=iPnt + iTri(iSO,jSO)
+
+                     PrpInt(Indij) = PrpInt(Indij)
+     &                             +Fact*xa*xb*AOInt(iFrom,i1,i2)
+                  End Do
+               End Do
+
+               Else
+
                If (iShell.eq.jShell .and. i1<i2) Cycle
 
                iSO1=iAOtSO(iAO+i1,j1)
@@ -113,8 +141,7 @@
                   End Do
                End Do
 
-               If ( iShell.ne.jShell ) Cycle
-               If ( nOp(1).eq.nOp(2) ) Cycle
+               If ( iShell.eq.jShell .and. nOp(1).eq.nOp(2) ) Cycle
 
                Do iB_Eff = 1, iBas_Eff
                   indAO1 = iB_Eff + iAdd
@@ -134,6 +161,7 @@
 *
                   End Do
                End Do
+           End If
 *
            End Do
 *
