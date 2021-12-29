@@ -68,15 +68,17 @@
 
       iAdd = iBas-iBas_Eff
       jAdd = jBas-jBas_Eff
+
       Do 100 j1 = 0, nIrrep-1
          xa = DBLE(iChTbl(j1,nOp(1)))
          Do 200 i1 = 1, iCmp
             If (iAOtSO(iAO+i1,j1)<0) Cycle
 *
-            Do 300 j2 = 0, nIrrep-1
+*           Do 300 j2 = 0, nIrrep-1
+               j2=j1
                j12 = iEor(j1,j2)
 *
-               If (iAnd(lOper,iTwoj(j12)).eq.0) Go To 300
+*              If (iAnd(lOper,iTwoj(j12)).eq.0) Go To 300
                xb = DBLE(iChTbl(j2,nOp(2)))
 *
 *              If two sets of basis functions have the same
@@ -105,15 +107,15 @@
                         jSO=iSO2+IndAO2-1
 *
                         iFrom=(jB_Eff-1)*iBas_Eff+iB_Eff
-                        If (j1.eq.j2) Then
+*                       If (j1.eq.j2) Then
 *------------            Diagonal symmetry block
                            If (iSO1.eq.iSO2 .and. iSO<jSO) Cycle
                            Indij=iPnt + iTri(iSO,jSO)
-                        Else
+*                       Else
 *------------              Off-diagonal symmetry block j1>j2
-                           nRow = nBas(j1)
-                           Indij=iPnt + nRow*(jSO-1)*nRow + iSO
-                        End If
+*                          nRow = nBas(j1)
+*                          Indij=iPnt + nRow*(jSO-1)*nRow + iSO
+*                       End If
 
                         PrpInt(Indij) = PrpInt(Indij)
      &                                +Fact*xa*xb*AOInt(iFrom,i1,i2)
@@ -135,15 +137,15 @@
 
 *
                         iFrom=(jB_Eff-1)*iBas_Eff+iB_Eff
-                        If (j1.eq.j2) Then
+*                       If (j1.eq.j2) Then
 *------------              Diagonal symmetry block
                            If (iSO1.eq.iSO2 .and. iSO<jSO) Cycle
                            Indij=iPnt + iTri(iSO,jSO)
-                        Else
+*                       Else
 *------------              Off-diagonal symmetry block j1>j2
-                           nRow = nBas(j1)
-                           Indij=iPnt + nRow*(jSO-1)*nRow + iSO
-                        End If
+*                          nRow = nBas(j1)
+*                          Indij=iPnt + nRow*(jSO-1)*nRow + iSO
+*                       End If
 
                         PrpInt(Indij) = PrpInt(Indij)
      &                                +Fact*xa*xb*AOInt(iFrom,i2,i1)
@@ -153,7 +155,7 @@
 *
  400           Continue
 *
- 300        Continue
+*300        Continue
 *
  200     Continue
  100  Continue
