@@ -74,88 +74,68 @@
          Do 200 i1 = 1, iCmp
             If (iAOtSO(iAO+i1,j1)<0) Cycle
 *
-*           Do 300 j2 = 0, nIrrep-1
-               j2=j1
-               j12 = iEor(j1,j2)
+            j2=j1
+            j12 = iEor(j1,j2)
 *
-*              If (iAnd(lOper,iTwoj(j12)).eq.0) Go To 300
-               xb = DBLE(iChTbl(j2,nOp(2)))
+            xb = DBLE(iChTbl(j2,nOp(2)))
 *
-*              If two sets of basis functions have the same
-*              irrep index, and share atomic center and radial
-*              contractions retrict the angular index combinations
-*              to be the unique combinations.
+*           If two sets of basis functions have the same
+*           irrep index, and share atomic center and radial
+*           contractions retrict the angular index combinations
+*           to be the unique combinations.
 
 *
-               Do 400 i2 = 1, jCmp
-                  If (iAOtSO(jAO+i2,j2)<0) Cycle
+            Do 400 i2 = 1, jCmp
+               If (iAOtSO(jAO+i2,j2)<0) Cycle
 
-                  If (iShell.eq.jShell .and. j1.eq.j2 .and.
-     &               i1<i2) Cycle
+               If (iShell.eq.jShell .and. i1<i2) Cycle
 
-                  iSO1=iAOtSO(iAO+i1,j1)
-                  iSO2=iAOtSO(jAO+i2,j2)
+               iSO1=iAOtSO(iAO+i1,j1)
+               iSO2=iAOtSO(jAO+i2,j2)
 
-                  iPnt = iPntSO(j1,j2,lOper,nbas)
+               iPnt = iPntSO(j1,j2,lOper,nbas)
 *
-                  Do iB_Eff = 1, iBas_Eff
-                     indAO1 = iB_Eff + iAdd
-                     Do jB_Eff = 1, jBas_Eff
-                        indAO2 = jB_Eff + jAdd
+               Do iB_Eff = 1, iBas_Eff
+                  indAO1 = iB_Eff + iAdd
+                  Do jB_Eff = 1, jBas_Eff
+                     indAO2 = jB_Eff + jAdd
 
-                        iSO=iSO1+IndAO1-1
-                        jSO=iSO2+IndAO2-1
+                     iSO=iSO1+IndAO1-1
+                     jSO=iSO2+IndAO2-1
 *
-                        iFrom=(jB_Eff-1)*iBas_Eff+iB_Eff
-*                       If (j1.eq.j2) Then
-*------------            Diagonal symmetry block
-                           If (iSO1.eq.iSO2 .and. iSO<jSO) Cycle
-                           Indij=iPnt + iTri(iSO,jSO)
-*                       Else
-*------------              Off-diagonal symmetry block j1>j2
-*                          nRow = nBas(j1)
-*                          Indij=iPnt + nRow*(jSO-1)*nRow + iSO
-*                       End If
+                     iFrom=(jB_Eff-1)*iBas_Eff+iB_Eff
+*------------        Diagonal symmetry block
+                     If (iSO1.eq.iSO2 .and. iSO<jSO) Cycle
+                     Indij=iPnt + iTri(iSO,jSO)
 
-                        PrpInt(Indij) = PrpInt(Indij)
-     &                                +Fact*xa*xb*AOInt(iFrom,i1,i2)
-                     End Do
+                     PrpInt(Indij) = PrpInt(Indij)
+     &                             +Fact*xa*xb*AOInt(iFrom,i1,i2)
                   End Do
+               End Do
 
-                  If (.Not.(iShell.eq.jShell.and.nOp(1).ne.nOp(2)))
+               If (.Not.(iShell.eq.jShell.and.nOp(1).ne.nOp(2)))
      &               Cycle
 
-                  Do iB_Eff = 1, iBas_Eff
-                     indAO1 = iB_Eff + iAdd
-                     Do jB_Eff = 1, jBas_Eff
-                        indAO2 = jB_Eff + jAdd
+               Do iB_Eff = 1, iBas_Eff
+                  indAO1 = iB_Eff + iAdd
+                  Do jB_Eff = 1, jBas_Eff
+                     indAO2 = jB_Eff + jAdd
 
-                        iSO=iSO1+IndAO2-1
-                        jSO=iSO2+IndAO1-1
+                     iSO=iSO1+IndAO2-1
+                     jSO=iSO2+IndAO1-1
 
-*           Diagonal block. Store only unique elements
+                     iFrom=(jB_Eff-1)*iBas_Eff+iB_Eff
+*------------        Diagonal symmetry block
+                     If (iSO1.eq.iSO2 .and. iSO<jSO) Cycle
+                     Indij=iPnt + iTri(iSO,jSO)
 
+                     PrpInt(Indij) = PrpInt(Indij)
+     &                             +Fact*xa*xb*AOInt(iFrom,i2,i1)
 *
-                        iFrom=(jB_Eff-1)*iBas_Eff+iB_Eff
-*                       If (j1.eq.j2) Then
-*------------              Diagonal symmetry block
-                           If (iSO1.eq.iSO2 .and. iSO<jSO) Cycle
-                           Indij=iPnt + iTri(iSO,jSO)
-*                       Else
-*------------              Off-diagonal symmetry block j1>j2
-*                          nRow = nBas(j1)
-*                          Indij=iPnt + nRow*(jSO-1)*nRow + iSO
-*                       End If
-
-                        PrpInt(Indij) = PrpInt(Indij)
-     &                                +Fact*xa*xb*AOInt(iFrom,i2,i1)
-*
-                     End Do
                   End Do
+               End Do
 *
- 400           Continue
-*
-*300        Continue
+ 400        Continue
 *
  200     Continue
  100  Continue
