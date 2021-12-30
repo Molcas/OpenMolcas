@@ -33,8 +33,6 @@
       Real*8 AOInt(iBas_Eff*jBas_Eff,iCmp,jCmp)
       Real*8 PrpInt(nPrp)
       Integer nOp(2)
-      Integer iTwoj(0:7), jIC(0:7)
-      Data iTwoj/1,2,4,8,16,32,64,128/
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -56,8 +54,6 @@
 *... to be simplified
 
       loper=1
-      jIC(:)=-999999999
-      jIC(0) = 1
 *
 *     We denote the basis functions as X(alpha,mu,m_l,A)
 *
