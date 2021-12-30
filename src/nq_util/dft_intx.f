@@ -171,8 +171,6 @@
       Do ilist_s=1,nlist_s
          iSkal = list_s(1,ilist_s)
          kDCRE = list_s(2,ilist_s)
-         iShll = iSD( 0,iSkal)
-         iAng  = iSD( 1,iSkal)
          iCmp  = iSD( 2,iSkal)
          iBas  = iSD( 3,iSkal)
          iBas_Eff=list_bas(1,ilist_s)
@@ -189,8 +187,6 @@
          Do jlist_s=ilist_s,nlist_s
             jSkal = list_s(1,jlist_s)
             kDCRR = list_s(2,jlist_s)
-            jShll = iSD( 0,jSkal)
-            jAng  = iSD( 1,jSkal)
             jCmp  = iSD( 2,jSkal)
             jBas  = iSD( 3,jSkal)
             jBas_Eff=list_bas(1,jlist_s)
@@ -199,8 +195,6 @@
             jShell= iSD(11,jSkal)
 *
             nOp(2) = NrOpr(kDCRR)
-*
-            nSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
 *
             ij = (mdcj-1)*ndc + mdci
 *                                                                      *

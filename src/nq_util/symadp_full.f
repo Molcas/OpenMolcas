@@ -33,7 +33,6 @@
       Integer list_s(2,nlist_s)
       Integer nOp(2)
       Integer, Parameter:: iTwoj(0:7)=[1,2,4,8,16,32,64,128]
-      Integer :: jIC(0:7)=[-99,-99,-99,-99,-99,-99,-99,-99]
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -42,25 +41,16 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iIC = 1
-      Do iIrrep = 0, nIrrep-1
-         If (iAnd(lOper,iTwoj(iIrrep)).eq.0) Cycle
-         jIC(iIrrep) = iIC
-         iIC = iIC + 1
-      End Do
-*
       loper=1
       Do j1 = 0, nIrrep-1
          Do iBfn = 1, nBfn
             ilist_s = iBfn_Index(2,iBfn)
             iCmp    = iBfn_Index(3,iBfn)
-            iB_Eff  = iBfn_Index(4,iBfn)
             indAO1  = iBfn_Index(6,iBfn)
             iSkal   = list_s(1,ilist_s)
             kDCRE   = list_s(2,ilist_s)
             iAO     = iSD( 7,iSkal)
             mdci    = iSD(10,iSkal)
-            iShell  = iSD(11,iSkal)
             nOp(1) = NrOpr(kDCRE)
             xa = DBLE(iChTbl(j1,nOp(1)))
             If (iAOtSO(iAO+iCmp,j1)<0) Cycle
@@ -75,13 +65,11 @@
                Do jBfn = 1, nBfn
                   jlist_s = iBfn_Index(2,jBfn)
                   jCmp    = iBfn_Index(3,jBfn)
-                  iB_Eff  = iBfn_Index(4,iBfn)
                   indAO2  = iBfn_Index(6,iBfn)
                   jSkal   = list_s(1,jlist_s)
                   kDCRR   = list_s(2,jlist_s)
                   jAO     = iSD( 7,jSkal)
                   mdcj    = iSD(10,jSkal)
-                  jShell  = iSD(11,jSkal)
                   nOp(2) = NrOpr(kDCRR)
                   xb = DBLE(iChTbl(j2,nOp(2)))
                   If (iAOtSO(jAO+jCmp,j2)<0) Cycle
