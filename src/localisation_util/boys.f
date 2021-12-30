@@ -1,23 +1,23 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Thomas Bondo Pedersen                                  *
-************************************************************************
-      SubRoutine Boys(Functional,CMO,Thrs,ThrRot,ThrGrad,
-     &                nBas,nOrb2Loc,nFro,nSym,nMxIter,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Thomas Bondo Pedersen                                  *
+!***********************************************************************
+      SubRoutine Boys(Functional,CMO,Thrs,ThrRot,ThrGrad,               &
+     &                nBas,nOrb2Loc,nFro,nSym,nMxIter,                  &
      &                Maximisation,Converged,Debug,Silent)
-C
-C     Author: T.B. Pedersen
-C
-C     Purpose: Boys localisation of occupied orbitals.
-C
+!
+!     Author: T.B. Pedersen
+!
+!     Purpose: Boys localisation of occupied orbitals.
+!
       Implicit Real*8 (a-h,o-z)
       Real*8   CMO(*)
       Integer nBas(nSym), nOrb2Loc(nSym), nFro(nSym)
@@ -31,15 +31,15 @@ C
       Integer ipLbl(nComp), ipLbl_MO(nComp)
       Character*8 Label, AlloLbl(nComp), AlloLbl_MO(nComp)
 
-C     Symmetry is NOT allowed!!
-C     -------------------------
+!     Symmetry is NOT allowed!!
+!     -------------------------
 
       If (nSym .ne. 1) Then
          Call SysAbendMsg(SecNam,'Symmetry not implemented!','Sorry!')
       End If
 
-C     Initializations.
-C     ----------------
+!     Initializations.
+!     ----------------
 
       Functional = -9.9d9
 
@@ -49,8 +49,8 @@ C     ----------------
 
       Converged = .False.
 
-C     Read AO dipole moment integrals.
-C     --------------------------------
+!     Read AO dipole moment integrals.
+!     --------------------------------
 
       lLbl = nBasT*nBasT
       Do iComp = 1,nComp
@@ -82,30 +82,30 @@ C     --------------------------------
       End Do
       Call GetMem('DipAux','Free','Real',ipAux,lAux)
 
-C     Allocate MO arrays.
-C     -------------------
+!     Allocate MO arrays.
+!     -------------------
 
       lLbl_MO = nOrb2LocT*nOrb2LocT
       Do iComp = 1,nComp
          Write(AlloLbl_MO(iComp),'(A,I2)') 'MO dip',iComp
-         Call GetMem(AlloLbl_MO(iComp),'Allo','Real',ipLbl_MO(iComp),
+         Call GetMem(AlloLbl_MO(iComp),'Allo','Real',ipLbl_MO(iComp),   &
      &                                               lLbl_MO)
       End Do
 
-C     Localise orbitals.
-C     ------------------
+!     Localise orbitals.
+!     ------------------
 
       kOffC = nBasT*nFroT + 1
-      Call Boys_Iter(Functional,CMO(kOffC),Thrs,ThrRot,ThrGrad,
-     &               ipLbl,ipLbl_MO,
-     &               nBasT,nOrb2LocT,nComp,nMxIter,
+      Call Boys_Iter(Functional,CMO(kOffC),Thrs,ThrRot,ThrGrad,         &
+     &               ipLbl,ipLbl_MO,                                    &
+     &               nBasT,nOrb2LocT,nComp,nMxIter,                     &
      &               Maximisation,Converged,Debug,Silent)
 
-C     De-allocations.
-C     ---------------
+!     De-allocations.
+!     ---------------
 
       Do iComp = nComp,1,-1
-         Call GetMem(AlloLbl_MO(iComp),'Free','Real',ipLbl_MO(iComp),
+         Call GetMem(AlloLbl_MO(iComp),'Free','Real',ipLbl_MO(iComp),   &
      &                                               lLbl_MO)
       End Do
       Do iComp = nComp,1,-1

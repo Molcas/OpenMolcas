@@ -1,26 +1,26 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Yannick Carissan                                       *
-*               Thomas Bondo Pedersen                                  *
-************************************************************************
-      SubRoutine PipekMezey(Functional,CMO,Thrs,ThrRot,ThrGrad,
-     &                      Name,
-     &                      nBas,nOrb2Loc,nFro,
-     &                      nSym,nAtoms,nMxIter,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Yannick Carissan                                       *
+!               Thomas Bondo Pedersen                                  *
+!***********************************************************************
+      SubRoutine PipekMezey(Functional,CMO,Thrs,ThrRot,ThrGrad,         &
+     &                      Name,                                       &
+     &                      nBas,nOrb2Loc,nFro,                         &
+     &                      nSym,nAtoms,nMxIter,                        &
      &                      Maximisation,Converged,Debug,Silent)
-C
-C     Author: Y. Carissan [modified by T.B. Pedersen].
-C
-C     Purpose: Pipek-Mezey localisation of occupied orbitals.
-C
+!
+!     Author: Y. Carissan [modified by T.B. Pedersen].
+!
+!     Purpose: Pipek-Mezey localisation of occupied orbitals.
+!
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
       Real*8  CMO(*)
@@ -36,15 +36,15 @@ C
 
       Character*8 Label
 
-C     Symmetry is NOT allowed!!
-C     -------------------------
+!     Symmetry is NOT allowed!!
+!     -------------------------
 
       If (nSym .ne. 1) Then
          Call SysAbendMsg(SecNam,'Symmetry not implemented!','Sorry!')
       End If
 
-C     Initializations.
-C     ----------------
+!     Initializations.
+!     ----------------
 
       Functional = -9.9D9
 
@@ -54,8 +54,8 @@ C     ----------------
 
       Converged = .False.
 
-C     Read overlap matrix.
-C     --------------------
+!     Read overlap matrix.
+!     --------------------
 
       lOaux = nBasT*(nBasT+1)/2 + 4
       lOvlp = nBasT**2
@@ -84,40 +84,40 @@ C     --------------------
       Call Tri2Rec(Work(ipOaux),Work(ipOvlp),nBasT,Debug)
       Call GetMem('AuxOvlp','Free','Real',ipOaux,lOaux)
 
-C     Allocate and get index arrays for basis functions per atom.
-C     -----------------------------------------------------------
+!     Allocate and get index arrays for basis functions per atom.
+!     -----------------------------------------------------------
 
       l_nBas_per_Atom = nAtoms
       l_nBas_Start    = l_nBas_per_Atom
-      Call GetMem('nB_per_Atom','Allo','Inte',
+      Call GetMem('nB_per_Atom','Allo','Inte',                          &
      &            ip_nBas_per_Atom,l_nBas_per_Atom)
-      Call GetMem('nB_Start','Allo','Inte',
+      Call GetMem('nB_Start','Allo','Inte',                             &
      &            ip_nBas_Start,l_nBas_Start)
-      Call BasFun_Atom(iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),
+      Call BasFun_Atom(iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),    &
      &                 Name,nBasT,nAtoms,Debug)
 
-C     Allocate PA array.
-C     ------------------
+!     Allocate PA array.
+!     ------------------
       Call mma_Allocate(PA,nOrb2LocT,nOrb2LocT,nAtoms,Label='PA')
       PA(:,:,:)=0.0D0
 
-C     Localise orbitals.
-C     ------------------
+!     Localise orbitals.
+!     ------------------
 
       kOffC = nBasT*nFroT + 1
-      Call PipekMezey_Iter(Functional,CMO(kOffC),
-     &                     Work(ipOvlp),Thrs,ThrRot,ThrGrad,PA,
-     &                     iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),
-     &                     Name,nBasT,nOrb2LocT,nAtoms,nMxIter,
+      Call PipekMezey_Iter(Functional,CMO(kOffC),                       &
+     &                     Work(ipOvlp),Thrs,ThrRot,ThrGrad,PA,         &
+     &                     iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),&
+     &                     Name,nBasT,nOrb2LocT,nAtoms,nMxIter,         &
      &                     Maximisation,Converged,Debug,Silent)
 
-C     De-allocations.
-C     ---------------
+!     De-allocations.
+!     ---------------
 
       Call mma_deallocate(PA)
-      Call GetMem('nB_Start','Free','Inte',
+      Call GetMem('nB_Start','Free','Inte',                             &
      &            ip_nBas_Start,l_nBas_Start)
-      Call GetMem('nB_per_Atom','Free','Inte',
+      Call GetMem('nB_per_Atom','Free','Inte',                          &
      &            ip_nBas_per_Atom,l_nBas_per_Atom)
       Call GetMem('Ovlp','Free','Real',ipOvlp,lOvlp)
 

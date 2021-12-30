@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Yannick Carissan                                       *
-*               Thomas Bondo Pedersen                                  *
-************************************************************************
-      SubRoutine UpdateB(Col,nOrb2Loc,ipLbl,nComp,Gamma_rot,iMO_s,iMO_t,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Yannick Carissan                                       *
+!               Thomas Bondo Pedersen                                  *
+!***********************************************************************
+      SubRoutine UpdateB(Col,nOrb2Loc,ipLbl,nComp,Gamma_rot,iMO_s,iMO_t,&
      &                   Debug)
-C
-C     Author: T.B. Pedersen
-C
-C     Purpose: update MO dipole matrices for Boys localisation.
-C              (Almost exact copy of UpdateP by Y. Carissan.)
-C
+!
+!     Author: T.B. Pedersen
+!
+!     Purpose: update MO dipole matrices for Boys localisation.
+!              (Almost exact copy of UpdateP by Y. Carissan.)
+!
       Implicit Real*8 (a-h,o-z)
       Real*8  Col(nOrb2Loc,2)
       Integer ipLbl(nComp)
@@ -69,11 +69,11 @@ C
          Call dScal_(nOrb2Loc,cosg,Work(kOff_t+1),1)
          Call dAXPY_(nOrb2Loc,-sing,Col(1,1),1,Work(kOff_t+1),1)
 
-         Work(kOff_s+iMO_s) = Dss*cos2g + Dtt*sin2g
+         Work(kOff_s+iMO_s) = Dss*cos2g + Dtt*sin2g                     &
      &                      + 2.0d0*Dst*cosing
          Work(kOff_s+iMO_t) = (Dtt-Dss)*cosing + Dst*(cos2g-sin2g)
          Work(kOff_t+iMO_s) = Work(kOff_s+iMO_t)
-         Work(kOff_t+iMO_t) = Dtt*cos2g + Dss*sin2g
+         Work(kOff_t+iMO_t) = Dtt*cos2g + Dss*sin2g                     &
      &                      - 2.0d0*Dst*cosing
 
          Call dCopy_(nOrb2Loc,Work(kOff_s+1),1,Work(ip0+iMO_s),nOrb2Loc)

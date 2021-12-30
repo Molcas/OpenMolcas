@@ -1,65 +1,65 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Thomas Bondo Pedersen                                  *
-************************************************************************
-*  PAOLoc
-*
-*> @brief
-*>   Compute projected atomic orbitals (PAOs)
-*> @author Thomas Bondo Pedersen
-*>
-*> @details
-*> A set of linearly independent nonorthonormal
-*> Projected Atomic Orbitals (PAOs) are computed by projecting
-*> the AOs onto the virtual space. Subsequently, the linear
-*> dependence may be removed through Cholesky decomposition of a
-*> density-type matrix constructed from the linearly dependent
-*> PAOs according to \f$ D_{a,b} = \sum_c \mathit{PAO}_{a,c} \mathit{PAO}_{b,c} \f$. Finally,
-*> orthonormal linearly independent PAOs may be obtained by
-*> multiplying with the inverse square root of the PAO overlap
-*> matrix.
-*>
-*> The Mode input string controls which set is returned in array
-*> PAO:
-*>
-*> - \p Mode = ``'RAW'``: return linearly dependent nonorthonormal PAOs. In this case, array PAO
-*>                        should be dimensioned as \p nBas &timens \p nBas (in symmetry blocks).
-*> - \p Mode = ``'CHO'``: return linearly independent nonorthonormal PAOs obtained by Cholesky
-*>                        decomposition of the density-type matrix. In this case, array PAO should
-*>                        be dimensioned as \p nBas &times; \p nVir (in symmetry blocks).
-*> - \p Mode = ``'ORT'``: return linearly independent orthonormal PAOs. In this case, array PAO
-*>                        should be dimensioned as \p nBas &times; \p nVir (in symmetry blocks).
-*>
-*> If Mode is anything else, \p Mode = ``'ORT'`` is assumed.
-*> Note that if \p nOcc+nVir < \p nBas the remaining \p nBas-nOcc-nVir
-*> orbitals are considered part of the orthogonal complement of
-*> the virtual space (and are projected out of the AOs when
-*> obtaining the raw PAOs). Thus, one may obtain PAOs for any
-*> subset of orbitals by specifying \p nOcc and \p nVir arrays
-*> appropriately.
-*>
-*> @note
-*> Needs the AO overlap matrix on disk.
-*>
-*> @param[out] irc  return code
-*> @param[in]  CMO  MO coefficients
-*> @param[out] PAO  PAOs
-*> @param[in]  Thr  Cholesky decomposition threshold
-*> @param[in]  nBas Number of basis functions/irrep
-*> @param[in]  nOrb Number of orbitals/irrep
-*> @param[in]  nOcc Number of occupied orbs/irrep
-*> @param[in]  nVir Number of virtual orbs/irrep
-*> @param[in]  nSym Number of irreps
-*> @param[in]  Mode Mode of calculation
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Thomas Bondo Pedersen                                  *
+!***********************************************************************
+!  PAOLoc
+!
+!> @brief
+!>   Compute projected atomic orbitals (PAOs)
+!> @author Thomas Bondo Pedersen
+!>
+!> @details
+!> A set of linearly independent nonorthonormal
+!> Projected Atomic Orbitals (PAOs) are computed by projecting
+!> the AOs onto the virtual space. Subsequently, the linear
+!> dependence may be removed through Cholesky decomposition of a
+!> density-type matrix constructed from the linearly dependent
+!> PAOs according to \f$ D_{a,b} = \sum_c \mathit{PAO}_{a,c} \mathit{PAO}_{b,c} \f$. Finally,
+!> orthonormal linearly independent PAOs may be obtained by
+!> multiplying with the inverse square root of the PAO overlap
+!> matrix.
+!>
+!> The Mode input string controls which set is returned in array
+!> PAO:
+!>
+!> - \p Mode = ``'RAW'``: return linearly dependent nonorthonormal PAOs. In this case, array PAO
+!>                        should be dimensioned as \p nBas &timens \p nBas (in symmetry blocks).
+!> - \p Mode = ``'CHO'``: return linearly independent nonorthonormal PAOs obtained by Cholesky
+!>                        decomposition of the density-type matrix. In this case, array PAO should
+!>                        be dimensioned as \p nBas &times; \p nVir (in symmetry blocks).
+!> - \p Mode = ``'ORT'``: return linearly independent orthonormal PAOs. In this case, array PAO
+!>                        should be dimensioned as \p nBas &times; \p nVir (in symmetry blocks).
+!>
+!> If Mode is anything else, \p Mode = ``'ORT'`` is assumed.
+!> Note that if \p nOcc+nVir < \p nBas the remaining \p nBas-nOcc-nVir
+!> orbitals are considered part of the orthogonal complement of
+!> the virtual space (and are projected out of the AOs when
+!> obtaining the raw PAOs). Thus, one may obtain PAOs for any
+!> subset of orbitals by specifying \p nOcc and \p nVir arrays
+!> appropriately.
+!>
+!> @note
+!> Needs the AO overlap matrix on disk.
+!>
+!> @param[out] irc  return code
+!> @param[in]  CMO  MO coefficients
+!> @param[out] PAO  PAOs
+!> @param[in]  Thr  Cholesky decomposition threshold
+!> @param[in]  nBas Number of basis functions/irrep
+!> @param[in]  nOrb Number of orbitals/irrep
+!> @param[in]  nOcc Number of occupied orbs/irrep
+!> @param[in]  nVir Number of virtual orbs/irrep
+!> @param[in]  nSym Number of irreps
+!> @param[in]  Mode Mode of calculation
+!***********************************************************************
       SubRoutine PAOLoc(irc,CMO,PAO,Thr,nBas,nOrb,nOcc,nVir,nSym,Mode)
       Implicit Real*8 (a-h,o-z)
       Real*8  CMO(*), PAO(*)
@@ -84,13 +84,13 @@
       TestOrth = .False.
 #endif
 
-C     Set return code.
-C     ----------------
+!     Set return code.
+!     ----------------
 
       irc = 0
 
-C     Set DefLevel from DefMode.
-C     --------------------------
+!     Set DefLevel from DefMode.
+!     --------------------------
 
       If (DefMode .eq. 'RAW') Then
          DefLevel = 1
@@ -99,13 +99,13 @@ C     --------------------------
       Else If (DefMode .eq. 'ORT') Then
          DefLevel = 3
       Else
-         Call SysAbendMsg(SecNam,'DefMode not recognized!',
+         Call SysAbendMsg(SecNam,'DefMode not recognized!',             &
      &                    'Note: this is a programming error...')
          DefLevel = -999999
       End If
 
-C     Interpret Mode input.
-C     ---------------------
+!     Interpret Mode input.
+!     ---------------------
 
       lMode = len(Mode)
       If (lMode .lt. 3) Then
@@ -124,14 +124,14 @@ C     ---------------------
          End If
       End If
 
-C     Make a dummy allocation to enable de-allocation by flushing.
-C     ------------------------------------------------------------
+!     Make a dummy allocation to enable de-allocation by flushing.
+!     ------------------------------------------------------------
 
       l_Dum = 1
       Call GetMem('PAOL_Dummy','Allo','Real',ip_Dum,l_Dum)
 
-C     Compute raw projected AOs.
-C     --------------------------
+!     Compute raw projected AOs.
+!     --------------------------
 
       l_R = nBas(1)**2
       Do iSym = 2,nSym
@@ -147,9 +147,9 @@ C     --------------------------
          Go To 1 ! return after de-allocation
       End If
 
-C     Use Cholesky decomposition to compute a linearly independent set
-C     of nonorthonormal PAOs.
-C     ----------------------------------------------------------------
+!     Use Cholesky decomposition to compute a linearly independent set
+!     of nonorthonormal PAOs.
+!     ----------------------------------------------------------------
 
       l_D = nBas(1)**2
       Do iSym = 2,nSym
@@ -167,9 +167,9 @@ C     ----------------------------------------------------------------
       kOffP = 1
       Do iSym = 1,nSym
          If (nVir(iSym) .gt. 0) Then
-            Call GetDens_Localisation(Work(ip_D),Work(kOffR),
+            Call GetDens_Localisation(Work(ip_D),Work(kOffR),           &
      &                                nBas(iSym),nBas(iSym))
-            Call ChoLoc(irc,Work(ip_D),PAO(kOffP),ThrLoc,xNrm,
+            Call ChoLoc(irc,Work(ip_D),PAO(kOffP),ThrLoc,xNrm,          &
      &                  nBas(iSym),nVir(iSym))
             If (irc .ne. 0) Go To 1 ! return after de-allocation
          End If
@@ -181,8 +181,8 @@ C     ----------------------------------------------------------------
          Go To 1 ! return after de-allocation
       End If
 
-C     Orthonormalize the PAOs.
-C     ------------------------
+!     Orthonormalize the PAOs.
+!     ------------------------
 
       kOffP = 1
       kOffR = ip_R
@@ -193,7 +193,7 @@ C     ------------------------
          kOffR = kOffR + nBas(iSym)**2
       End Do
       nOrthPs = 2 ! orthonormalization passes to ensure num. accuracy
-      Call OrthoPAO_Localisation(Work(ip_R),nBas,nOcc,nVir,nSym,nOrthPs,
+      Call OrthoPAO_Localisation(Work(ip_R),nBas,nOcc,nVir,nSym,nOrthPs,&
      &                           TestOrth)
       kOffP = 1
       kOffR = ip_R
@@ -208,8 +208,8 @@ C     ------------------------
          Go To 1 ! return after de-allocation
       End If
 
-C     De-allocation by flushing.
-C     --------------------------
+!     De-allocation by flushing.
+!     --------------------------
 
     1 Call GetMem('PAOL_Dummy','Flus','Real',ip_Dum,l_Dum)
       Call GetMem('PAOL_Dummy','Free','Real',ip_Dum,l_Dum)

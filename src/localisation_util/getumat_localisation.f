@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Thomas Bondo Pedersen                                  *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Thomas Bondo Pedersen                                  *
+!***********************************************************************
       SubRoutine GetUmat_Localisation(U,C,S,X,Scr,lScr,nBas,nOrb)
-C
-C     Author: T.B. Pedersen
-C
-C     Purpose: compute transformation matrix U=C^TSX.
-C
+!
+!     Author: T.B. Pedersen
+!
+!     Purpose: compute transformation matrix U=C^TSX.
+!
       Implicit None
       Real*8  U(*), C(*), S(*), X(*)
       Integer lScr
@@ -35,9 +35,9 @@ C
 
       Need = nBas*nOrb
       If (lScr .lt. Need) Then
-         Write(Txt,'(A,I9,A,I9)')
+         Write(Txt,'(A,I9,A,I9)')                                       &
      &   'lScr =',lScr,'     Need =',Need
-         Call SysAbendMsg(SecNam,
+         Call SysAbendMsg(SecNam,                                       &
      &                   'Insufficient dimension of scratch array!',Txt)
       End If
 

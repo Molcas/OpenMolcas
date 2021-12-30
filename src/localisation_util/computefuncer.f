@@ -1,25 +1,25 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2005, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2005, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine ComputeFuncER(ERFun,CMO,nBas,nOcc,nFro,nSym,Timing)
-C
-C     Thomas Bondo Pedersen, November 2005.
-C
-C     Purpose: compute Edmiston-Ruedenberg functional.
-C
-C     =====================================================
-C        WORKS *ONLY* WITH CHOLESKY DECOMPOSED INTEGRALS
-C     =====================================================
-C
+!
+!     Thomas Bondo Pedersen, November 2005.
+!
+!     Purpose: compute Edmiston-Ruedenberg functional.
+!
+!     =====================================================
+!        WORKS *ONLY* WITH CHOLESKY DECOMPOSED INTEGRALS
+!     =====================================================
+!
       Implicit None
       Real*8  ERFun
       Real*8  CMO(*)
@@ -38,8 +38,8 @@ C
       Integer irc, ipERFun, lERFun, iSym, i, kOff, nFroT
       Integer nOccT(8)
 
-C     Initializations.
-C     ----------------
+!     Initializations.
+!     ----------------
 
       irc = 0
 
@@ -50,18 +50,18 @@ C     ----------------
          Call SysAbendMsg(SecNam,'Cholesky initialization failure!',Txt)
       End If
 
-C     Check dimensions.
-C     -----------------
+!     Check dimensions.
+!     -----------------
 
       Call ERChk_Localisation(irc,nBas,nOcc,nFro,nSym)
       If (irc .ne. 0) Then
          Write(Txt,'(A,I4)') 'ERChk_Localisation returned',irc
-         Call SysAbendMsg(SecNam,'Cholesky initialization mismatch!',
+         Call SysAbendMsg(SecNam,'Cholesky initialization mismatch!',   &
      &                    Txt)
       End If
 
-C     Compute ER functional.
-C     ----------------------
+!     Compute ER functional.
+!     ----------------------
 
       nOccT(1) = nOcc(1) + nFro(1)
       Do iSym = 2,nSym
@@ -89,8 +89,8 @@ C     ----------------------
       End If
       Call GetMem('ERFun','Free','Real',ipERFun,lERFun)
 
-C     Finalizations.
-C     --------------
+!     Finalizations.
+!     --------------
 
       Call Cho_X_Final(irc)
       If (irc .ne. 0) Then
@@ -151,7 +151,7 @@ C     --------------
       Call Cho_Get_ER(irc,CMO,nOcc,ERFunC,ERFun,Timing)
       If (irc .ne. 0) Then
          Write(Txt,'(A,I4)') 'Cho_Get_ER returned',irc
-         Call SysAbendMsg(SecNam,'ER evaluation failed!',
+         Call SysAbendMsg(SecNam,'ER evaluation failed!',               &
      &                    Txt)
       End If
 

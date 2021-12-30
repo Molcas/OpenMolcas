@@ -1,23 +1,23 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Yannick Carissan                                       *
-*               Thomas Bondo Pedersen                                  *
-*               Francesco Aquilante                                    *
-************************************************************************
-      SubRoutine BasFun_Atom_(nBas_per_Atom,nBas_Start,Name,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Yannick Carissan                                       *
+!               Thomas Bondo Pedersen                                  *
+!               Francesco Aquilante                                    *
+!***********************************************************************
+      SubRoutine BasFun_Atom_(nBas_per_Atom,nBas_Start,Name,            &
      &                        jBas,nBas,nAtoms,DoPrint)
-C
-C     Author: Y. Carissan / T. B. Pedersen
-C             [adapted to cases with symmetry by F. Aquilante]
-C
+!
+!     Author: Y. Carissan / T. B. Pedersen
+!             [adapted to cases with symmetry by F. Aquilante]
+!
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
       Integer jBas, nBas, nAtoms
@@ -35,11 +35,11 @@ C
       Character*80 Txt, Formt
 
 
-C     Counters.
-C     ---------
+!     Counters.
+!     ---------
 
-C IFG: To count basis functions per atom, we need a list of atom names,
-C      since there is no guarantee all atoms will be present in a give irrep
+! IFG: To count basis functions per atom, we need a list of atom names,
+!      since there is no guarantee all atoms will be present in a give irrep
       Call Get_cArray('Unique Atom Names',AtName,(LENIN)*nAtoms)
 
       kBas = jBas
@@ -52,8 +52,8 @@ C      since there is no guarantee all atoms will be present in a give irrep
          End Do
       End Do
 
-C     Offsets.
-C     --------
+!     Offsets.
+!     --------
 
       iCount = 0
       Do iAt = 1,nAtoms
@@ -66,15 +66,15 @@ C     --------
          Call SysAbendMsg(SecNam,'jCount.NE.nBas',Txt)
       End If
 
-C     Print.
-C     ------
+!     Print.
+!     ------
 
       If (DoPrint) Then
-         Write(Formt,'(3(a6,i3,a5))') '(/,a6,',nAtoms,'i5,/,',
-     &                                '   a6,',nAtoms,'i5,/,',
+         Write(Formt,'(3(a6,i3,a5))') '(/,a6,',nAtoms,'i5,/,',          &
+     &                                '   a6,',nAtoms,'i5,/,',          &
      &                                '   a6,',nAtoms,'i5)'
-         Write(6,Formt) 'Atom  ',(iAt,iAt=1,nAtoms),
-     &                  'Start ',(nBas_Start(iAt),iAt=1,nAtoms),
+         Write(6,Formt) 'Atom  ',(iAt,iAt=1,nAtoms),                    &
+     &                  'Start ',(nBas_Start(iAt),iAt=1,nAtoms),        &
      &                  'nBas  ',(nBas_per_Atom(iAt),iAt=1,nAtoms)
       End If
 

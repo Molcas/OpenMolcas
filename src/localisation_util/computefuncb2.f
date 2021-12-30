@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Thomas Bondo Pedersen                                  *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Thomas Bondo Pedersen                                  *
+!***********************************************************************
       SubRoutine ComputeFuncB2(nOrb2Loc,ipLbl,nComp,Functional,Debug)
-C
-C     Author: T.B. Pedersen
-C
-C     Purpose: compute Boys localisation functional B2.
-C
+!
+!     Author: T.B. Pedersen
+!
+!     Purpose: compute Boys localisation functional B2.
+!
       Implicit Real*8 (a-h,o-z)
       Integer ipLbl(nComp)
       Logical Debug
@@ -42,7 +42,7 @@ C
                Cmp = Cmp + Work(ip0+nOrb2Loc*(iMO-1)+iMO)
             End Do
             Cmp = 2.0d0*Cmp
-            Write(6,'(A,I5,1X,F15.8)')
+            Write(6,'(A,I5,1X,F15.8)')                                  &
      &      'Component, Exp. Val.:',iComp,Cmp
             Do j = 1,nOrb2Loc-1
                Do i = j+1,nOrb2Loc
@@ -56,7 +56,7 @@ C
                      Write(6,*) '  Dij      : ',Work(kij)
                      Write(6,*) '  Dji      : ',Work(kji)
                      Write(6,*) '  Diff.    : ',Tst
-                     Call SysAbendMsg('ComputeFuncB2',
+                     Call SysAbendMsg('ComputeFuncB2',                  &
      &                                'Broken symmetry!',' ')
                   End If
                End Do

@@ -1,27 +1,27 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Yannick Carissan                                       *
-*               2005, Thomas Bondo Pedersen                            *
-************************************************************************
-      Subroutine RotateOrb(cMO,PACol,nBasis,nAtoms,PA,
-     &                     Maximisation,nOrb2loc,Name,
-     &                     nBas_per_Atom,nBas_Start,ThrRot,PctSkp,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Yannick Carissan                                       *
+!               2005, Thomas Bondo Pedersen                            *
+!***********************************************************************
+      Subroutine RotateOrb(cMO,PACol,nBasis,nAtoms,PA,                  &
+     &                     Maximisation,nOrb2loc,Name,                  &
+     &                     nBas_per_Atom,nBas_Start,ThrRot,PctSkp,      &
      &                     Debug)
-c
-c     Author: Yannick Carissan.
-c
-c     Modifications:
-c        - October 6, 2005 (Thomas Bondo Pedersen):
-c          Array PACol introduced in argument list.
-c
+!
+!     Author: Yannick Carissan.
+!
+!     Modifications:
+!        - October 6, 2005 (Thomas Bondo Pedersen):
+!          Array PACol introduced in argument list.
+!
       Implicit Real*8(a-h,o-z)
 #include "WrkSpc.fh"
 #include "real.fh"
@@ -32,23 +32,23 @@ c
       Logical Maximisation, Debug
       Character*80 Txt
       Character*(LENIN8) Name(*),PALbl
-c
+!
       xDone = 0.0d0
       If (Debug) Then
-         Write(6,*) 'RotateOrb[Debug]: nBas_per_Atom: ',
+         Write(6,*) 'RotateOrb[Debug]: nBas_per_Atom: ',                &
      &              (nBas_per_Atom(i),i=1,nAtoms)
          iCouple=0
       End If
       Do iMO1=1,nOrb2Loc-1
         Do iMO2=iMO1+1,nOrb2Loc
-c
+!
           If (Debug) Then
             iCouple = iCouple + 1
             Write(6,'(a9,i5)') 'Couple n:',iCouple
             Write(6,'(a9,i5)') '    MO1 :',iMO1
             Write(6,'(a9,i5)') '    MO2 :',iMO2
           End If
-c
+!
           iMO_s=iMO1
           iMO_t=iMO2
           SumA=Zero
@@ -74,7 +74,7 @@ c
           End Do
           Ast=SumA
           Bst=SumB
-c
+!
           If ((Ast.eq.Zero).and.(Bst.eq.Zero)) Then
             cos4alpha=-One
             sin4alpha=Zero
@@ -86,7 +86,7 @@ c
           If (Tst .gt. 0.0d0) Then
             If (Tst .gt. 1.0d-10) Then
               Write(Txt,'(A,D18.10)') 'Actual: cos4alpha = ',cos4alpha
-              Call SysAbendMsg('RotateOrb','-1.0d0 < cos4alpha < 1.0d0',
+              Call SysAbendMsg('RotateOrb','-1.0d0 < cos4alpha < 1.0d0',&
      &                         Txt)
             Else
                If (cos4alpha .lt. 0.0d0) Then
@@ -96,9 +96,9 @@ c
                End If
             End If
           End If
-c
-c-------- On choisit le cos car Alpha IN [0;PI/2]
-c
+!
+!-------- On choisit le cos car Alpha IN [0;PI/2]
+!
           Alpha1=acos(cos4alpha)/4.0d0
           Alpha2=asin(sin4alpha)/4.0d0
           If (Alpha2.lt.Zero) Alpha1=Alpha2+PI
@@ -115,25 +115,25 @@ c
             Write(6,'(a9,f10.5)') 'Alpha2 :',Alpha2
             Write(6,'(a9,f10.5)') ' Gamma :',Gamma_rot
           End If
-c
+!
           Tsts = sin(Gamma_rot)
           Tstc = 1.0d0 - cos(Gamma_rot)
           If (abs(Tsts).gt.ThrRot .or. abs(Tstc).gt.ThrRot) Then
-             Call Rot_st(cMO(1,iMO_s),cMO(1,iMO_t),nBasis,Gamma_rot,
+             Call Rot_st(cMO(1,iMO_s),cMO(1,iMO_t),nBasis,Gamma_rot,    &
      &                   Debug)
-             Call UpdateP(PACol,Name,nBas_Start,
-     &                    nOrb2Loc,nAtoms,PA,Gamma_rot,
+             Call UpdateP(PACol,Name,nBas_Start,                        &
+     &                    nOrb2Loc,nAtoms,PA,Gamma_rot,                 &
      &                    iMO_s,iMO_t,Debug)
              xDone = xDone + 1.0d0
           End If
-c
+!
           If (Debug) Then
             Call RecPrt('MO after rotation',' ',cMO,nBasis,nBasis)
           End If
-c
+!
         End Do !iMO2
       End Do !iMO1
-c
+!
       If (nOrb2Loc .gt. 1) Then
          xOrb2Loc = dble(nOrb2Loc)
          xTotal = xOrb2Loc*(xOrb2Loc-1.0d0)/2.0d0
@@ -141,6 +141,6 @@ c
       Else
          PctSkp = 0.0d0
       End If
-c
+!
       Return
       End

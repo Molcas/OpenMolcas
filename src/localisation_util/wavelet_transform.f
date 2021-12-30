@@ -1,23 +1,23 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Francesco Aquilante                                    *
-************************************************************************
-      SubRoutine Wavelet_Transform(irc,CMO,nSym,nBas,nFro,nOrb2Loc,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Francesco Aquilante                                    *
+!***********************************************************************
+      SubRoutine Wavelet_Transform(irc,CMO,nSym,nBas,nFro,nOrb2Loc,     &
      &                                 inv,Silent,xNrm)
-C
-C     Author: F. Aquilante
-C
-C     Purpose: wavelet transform of the MO basis (inv=0)
-C              "       backtransform (inv=1)
-C
+!
+!     Author: F. Aquilante
+!
+!     Purpose: wavelet transform of the MO basis (inv=0)
+!              "       backtransform (inv=1)
+!
       Implicit Real*8 (a-h,o-z)
       Integer irc, nSym, nBas(nSym), nFro(nSym), nOrb2Loc(nSym)
       Real*8 CMO(*)
@@ -35,17 +35,17 @@ C
 
       real*8 ddot_
       external ddot_
-*
-*
+!
+!
       irc = 0
       xNrm = 0.0d0
       If (.not.Silent) Then
          If (inv.eq.0) Write(6,'(/,1X,A)')'Wavelet transform of the MOs'
-         If (inv.eq.1) Write(6,'(/,1X,A)')'Inverse wavelet transform'//
+         If (inv.eq.1) Write(6,'(/,1X,A)')'Inverse wavelet transform'// &
      &                                    ' of the MOs'
-         Write(6,'(1X,A,8(1X,I6))')
+         Write(6,'(1X,A,8(1X,I6))')                                     &
      &   'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
-         Write(6,'(1X,A,8(1X,I6))')
+         Write(6,'(1X,A,8(1X,I6))')                                     &
      &   'Orbitals to transform:',(nOrb2Loc(iSym),iSym=1,nSym)
       End If
 
@@ -70,7 +70,7 @@ C
               kOff2 = kOff2 + nBas(iSym)*njOrb
               njOrb = Log2(nOrb2Loc(iSym)-njOrb)
             End Do
-            xNrm = xNrm + dDot_(nBas(iSym)*nOrb2Loc(iSym),CMO(kOff1),1,
+            xNrm = xNrm + dDot_(nBas(iSym)*nOrb2Loc(iSym),CMO(kOff1),1, &
      &                                                    CMO(kOff1),1)
             If (irc .ne. 0) Then
                irc  = 1
@@ -83,7 +83,7 @@ C
       xNrm = sqrt(xNrm)
       Call GetMem('Scratch','Free','Real',ipScr,l_Scr)
       Return
-*
+!
 1000  Continue
       njOrb = Log2(nOrb2Loc(1))
       l_Scr = nBas(1)*2**njOrb
@@ -104,7 +104,7 @@ C
               kOff2 = kOff2 + nBas(iSym)*njOrb
               njOrb = Log2(nOrb2Loc(iSym)-njOrb)
             End Do
-            xNrm = xNrm + dDot_(nBas(iSym)*nOrb2Loc(iSym),CMO(kOff1),1,
+            xNrm = xNrm + dDot_(nBas(iSym)*nOrb2Loc(iSym),CMO(kOff1),1, &
      &                                                    CMO(kOff1),1)
             If (irc .ne. 0) Then
                irc  = 1
@@ -116,11 +116,11 @@ C
       End Do
       xNrm = sqrt(xNrm)
       Call GetMem('Scratch','Free','Real',iScr,l_Scr)
-*
+!
       End
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Integer Function Log2(n)
 
       Implicit none

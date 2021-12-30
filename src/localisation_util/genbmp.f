@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine GenBMp(irc,X,n,m,Lunit,nStp,StpSiz,Color)
       Implicit None
       Integer irc, n, m, Lunit, nStp
@@ -29,8 +29,8 @@
       Integer  iRnge
       External iRnge
 
-C     Defaults and limits.
-C     --------------------
+!     Defaults and limits.
+!     --------------------
 
       nBin_Def  = 5
       Step_Def  = 1.0d-2
@@ -39,8 +39,8 @@ C     --------------------
       i0        = 0
       i255      = 255
 
-C     Check input.
-C     ------------
+!     Check input.
+!     ------------
 
       irc = 0
       If (n.lt.1 .or. m.lt.1) Then
@@ -71,8 +71,8 @@ C     ------------
          myColor = Color_Def
       End If
 
-C     Set up bins.
-C     ------------
+!     Set up bins.
+!     ------------
 
       nCh = 255/(nBin-1)
 
@@ -90,9 +90,9 @@ C     ------------
          iWork(ipBMp-1+iBin) = iWork(ipBMp+iBin) - nCh
       End Do
 
-C     Generate bitmap file.
-C     Note the special loop structure.
-C     --------------------------------
+!     Generate bitmap file.
+!     Note the special loop structure.
+!     --------------------------------
 
       Write(Lunit,'(2(1X,I6))') m,n ! #col,#row
       If (myColor .eq. 'R') Then ! red
@@ -132,12 +132,12 @@ C     --------------------------------
             End Do
          End Do
       Else
-         Call SysAbendMsg(SecNam,'Logical error!',
+         Call SysAbendMsg(SecNam,'Logical error!',                      &
      &                    '(Should never happen)')
       End If
 
-C     De-allocations.
-C     ---------------
+!     De-allocations.
+!     ---------------
 
       Call GetMem('iBMp','Free','Inte',ipBMp,nBin)
       Call GetMem('Bins','Free','Real',ipBin,nBin)

@@ -1,17 +1,17 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      SUBROUTINE Get_Orb_Select(irc,CMO,XMO,Eorb,Smat,Saa,Name,NamAct,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      SUBROUTINE Get_Orb_Select(irc,CMO,XMO,Eorb,Smat,Saa,Name,NamAct,  &
      &                          nSym,nActa,mOrb,nBas,ortho,ThrSel,n_OK)
 
-************************************************************************
+!***********************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
       Real*8  CMO(*), XMO(*), Eorb(*), Smat(*), Saa(*), ThrSel
@@ -21,16 +21,16 @@
       Logical ortho
 #include "WrkSpc.fh"
       Character*(LENIN) tmp
-************************************************************************
+!***********************************************************************
       jD(i) = iWork(ip_iD-1+i)
-******
+!*****
       kD(i) = iWork(ip_iD+nBmx-1+i)
-******
+!*****
       lD(i) = iWork(ip_iD+nBmx+nOrbmx-1+i)
-************************************************************************
-*
+!***********************************************************************
+!
       irc=0
-*
+!
       nBmx=0
       nOrbmx=0
       Do iSym=1,nSym
@@ -50,7 +50,7 @@
       ip_Fock=iQ+nOrbmx
       jp_Fock=ip_Fock+nOrbmx
       Call Fzero(Work(iQ),nOrbmx)
-*
+!
       iOff=0
       jOff=0
       kOff=0
@@ -82,9 +82,9 @@
          End Do
          nBx=Max(1,nBas(iSym))
          nBax=Max(1,nBa)
-         Call DGEMM_('T','N',nBa,mOrb(iSym),nBas(iSym),
-     &                    1.0d0,Work(iSQ),nBx,
-     &                          Xmo(jOff+1),nBx,
+         Call DGEMM_('T','N',nBa,mOrb(iSym),nBas(iSym),                 &
+     &                    1.0d0,Work(iSQ),nBx,                          &
+     &                          Xmo(jOff+1),nBx,                        &
      &                    0.0d0,Work(iZ),nBax)
          Do i=0,mOrb(iSym)-1
             jQ=iQ+i
@@ -110,57 +110,57 @@
                n_KO=n_KO+1
             EndIf
          End Do
-*
+!
          mOx=Max(1,mOrb(iSym))
 
          If (.not.ortho) Then
 
-            Call Ortho_orb(Work(ip_X),Smat(iS),nBas(iSym),
+            Call Ortho_orb(Work(ip_X),Smat(iS),nBas(iSym),              &
      &                     n_OK(iSym),2,.false.)
-            Call Ortho_orb(Work(iZ),Smat(iS),nBas(iSym),
+            Call Ortho_orb(Work(iZ),Smat(iS),nBas(iSym),                &
      &                     n_KO,2,.false.)
          EndIf
-*
-         Call DGEMM_('T','N',mOrb(iSym),nBas(iSym),nBas(iSym),
-     &                           1.0d0,Cmo(jOff+1),nBx,
-     &                                 Smat(iS),nBx,
+!
+         Call DGEMM_('T','N',mOrb(iSym),nBas(iSym),nBas(iSym),          &
+     &                           1.0d0,Cmo(jOff+1),nBx,                 &
+     &                                 Smat(iS),nBx,                    &
      &                           0.0d0,Work(ip_CC),mOx)
 
          If (n_KO .gt. 0) Then
-           Call DGEMM_('N','N',mOrb(iSym),n_KO,nBas(iSym),
-     &                             1.0d0,Work(ip_CC),mOx,
-     &                                   Work(iZ),nBx,
+           Call DGEMM_('N','N',mOrb(iSym),n_KO,nBas(iSym),              &
+     &                             1.0d0,Work(ip_CC),mOx,               &
+     &                                   Work(iZ),nBx,                  &
      &                             0.0d0,Work(ip_U),mOx)
 
-           Call Get_Can_Lorb(Eorb(lOff+1),Work(ip_Fock),n_KO,mOrb(iSym),
+           Call Get_Can_Lorb(Eorb(lOff+1),Work(ip_Fock),n_KO,mOrb(iSym),&
      &                     iWork(ip_iD+nBmx+nOrbmx),Work(ip_U),iSym)
 
-           Call DGEMM_('N','N',nBas(iSym),n_KO,n_KO,
-     &                  1.0d0,Work(iZ),nBx,
-     &                        Work(ip_U),n_KO,
+           Call DGEMM_('N','N',nBas(iSym),n_KO,n_KO,                    &
+     &                  1.0d0,Work(iZ),nBx,                             &
+     &                        Work(ip_U),n_KO,                          &
      &                  0.0d0,Work(ipScr),nBx)
-*
-*  Reorder the final MOs such that those of the active site come first
+!
+!  Reorder the final MOs such that those of the active site come first
            km=jOff+nBas(iSym)*n_OK(iSym)+1
            call dcopy_(nBas(iSym)*n_KO,Work(ipScr),1,Cmo(km),1)
            call dcopy_(nOrbmx,Work(ip_Fock),1,Work(jp_Fock),1)
          EndIf
-*
-         Call DGEMM_('N','N',mOrb(iSym),n_OK(iSym),nBas(iSym),
-     &                           1.0d0,Work(ip_CC),mOx,
-     &                                 Work(ip_X),nBx,
+!
+         Call DGEMM_('N','N',mOrb(iSym),n_OK(iSym),nBas(iSym),          &
+     &                           1.0d0,Work(ip_CC),mOx,                 &
+     &                                 Work(ip_X),nBx,                  &
      &                           0.0d0,Work(ip_U),mOx)
-*
-         Call Get_Can_Lorb(Eorb(lOff+1),Work(ip_Fock),n_OK(iSym),
-     &                     mOrb(iSym),
+!
+         Call Get_Can_Lorb(Eorb(lOff+1),Work(ip_Fock),n_OK(iSym),       &
+     &                     mOrb(iSym),                                  &
      &                     iWork(ip_iD+nBmx),Work(ip_U),iSym)
-*
+!
          nOx=Max(1,n_OK(iSym))
-         Call DGEMM_('N','N',nBas(iSym),n_OK(iSym),n_OK(iSym),
-     &                1.0d0,Work(ip_X),nBx,
-     &                      Work(ip_U),nOx,
+         Call DGEMM_('N','N',nBas(iSym),n_OK(iSym),n_OK(iSym),          &
+     &                1.0d0,Work(ip_X),nBx,                             &
+     &                      Work(ip_U),nOx,                             &
      &                0.0d0,Work(ipScr),nBx)
-*
+!
          Do i=1,n_OK(iSym)
             j=kD(i)
             k=lOff+i
@@ -169,14 +169,14 @@
          End Do
          km=jOff+1
          call dcopy_(nBas(iSym)*n_OK(iSym),Work(ipScr),1,Cmo(km),1)
-*
+!
          Do i=1,n_KO
             j=lD(i)
             k=lOff+n_OK(iSym)+i
             l=jp_Fock+j-1
             Eorb(k)=Work(l)
          End Do
-*
+!
          iOff=iOff+nBas(iSym)
          jOff=jOff+nBas(iSym)*mOrb(iSym)
          kOff=kOff+nBas(iSym)**2
@@ -189,19 +189,19 @@
 
       Return
       End
-************************************************************************
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!***********************************************************************
       Subroutine Get_Can_Lorb(Ene,Fock,nO,nX,jOrb,Umat,iSym)
 
       Implicit Real*8 (a-h,o-z)
       Real*8  Ene(*), Fock(*), Umat(*)
       Integer nO, nX, jOrb(nO), iSym
 #include "WrkSpc.fh"
-*
-*
+!
+!
       If (nO.lt.1)  Return
-*
+!
       Call GetMem('eta_ik','Allo','Real',ip_eta,2*nX**2+1)
       ip_Z=ip_eta+nX**2
       ip_ZZ=ip_Z+nX
@@ -210,14 +210,14 @@
          ii=ip_eta+nX*(i-1)+i-1
          Work(ii)=Ene(i)
       End Do
-*
+!
       nXx=Max(1,nX)
       nOx=Max(1,nO)
-      Call DGEMM_('N','N',nX,nO,nX,1.0d0,Work(ip_eta),nXx,
-     &                                  Umat(1),nXx,
+      Call DGEMM_('N','N',nX,nO,nX,1.0d0,Work(ip_eta),nXx,              &
+     &                                  Umat(1),nXx,                    &
      &                            0.0d0,Work(ip_Z),nXx)
-      Call DGEMM_('T','N',nO,nO,nX,1.0d0,Umat(1),nXx,
-     &                                  Work(ip_Z),nXx,
+      Call DGEMM_('T','N',nO,nO,nX,1.0d0,Umat(1),nXx,                   &
+     &                                  Work(ip_Z),nXx,                 &
      &                            0.0d0,Work(ip_eta),nOx)
 
       Call Eigen_Molcas(nO,Work(ip_eta),Work(ip_Z),Work(ip_ZZ))
@@ -231,7 +231,7 @@
       Call GetMem('eta_ik','Free','Real',ip_eta,2*nX**2+1)
 
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_integer(iSym)
       End
-************************************************************************
+!***********************************************************************

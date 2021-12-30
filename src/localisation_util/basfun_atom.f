@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Yannick Carissan                                       *
-************************************************************************
-      SubRoutine BasFun_Atom(nBas_per_Atom,nBas_Start,Name,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Yannick Carissan                                       *
+!***********************************************************************
+      SubRoutine BasFun_Atom(nBas_per_Atom,nBas_Start,Name,             &
      &                       nBas,nAtoms,DoPrint)
-C
-C     Author: Y. Carissan [put in separate subroutine by T.B. Pedersen]
-C
+!
+!     Author: Y. Carissan [put in separate subroutine by T.B. Pedersen]
+!
       Implicit None
 #include "Molcas.fh"
       Integer nBas, nAtoms
@@ -30,8 +30,8 @@ C
       Character*(LENIN)  Lbl, LblOld
       Character*80 Txt, Formt
 
-C     Counters.
-C     ---------
+!     Counters.
+!     ---------
 
       iAt    = 1
       nBasAt = 1
@@ -55,8 +55,8 @@ C     ---------
          End Do
       End If
 
-C     Offsets.
-C     --------
+!     Offsets.
+!     --------
 
       iCount = 0
       Do iAt = 1,nAtoms
@@ -68,15 +68,15 @@ C     --------
          Call SysAbendMsg(SecNam,'iCount.NE.nBas',Txt)
       End If
 
-C     Print.
-C     ------
+!     Print.
+!     ------
 
       If (DoPrint) Then
-         Write(Formt,'(3(a6,i3,a5))') '(/,a6,',nAtoms,'i5,/,',
-     &                                '   a6,',nAtoms,'i5,/,',
+         Write(Formt,'(3(a6,i3,a5))') '(/,a6,',nAtoms,'i5,/,',          &
+     &                                '   a6,',nAtoms,'i5,/,',          &
      &                                '   a6,',nAtoms,'i5)'
-         Write(6,Formt) 'Atom  ',(iAt,iAt=1,nAtoms),
-     &                  'Start ',(nBas_Start(iAt),iAt=1,nAtoms),
+         Write(6,Formt) 'Atom  ',(iAt,iAt=1,nAtoms),                    &
+     &                  'Start ',(nBas_Start(iAt),iAt=1,nAtoms),        &
      &                  'nBas  ',(nBas_per_Atom(iAt),iAt=1,nAtoms)
       End If
 

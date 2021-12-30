@@ -1,60 +1,60 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2006, Thomas Bondo Pedersen                            *
-************************************************************************
-*  DefineDomain
-*
-*> @brief
-*>   Define orbital domains
-*> @author Thomas Bondo Pedersen
-*>
-*> @details
-*> Orbital domains are defined by summing up gross atomic Mulliken
-*> charges for each orbital. Once the sum is greater than or equal
-*> to the threshold \p ThrDomain(1), the domain is defined. The
-*> second threshold \p ThrDomain(2) is then used to check
-*> completeness (Pulay-style) of the definition and if needed,
-*> more atoms are added to the domain. To avoid the second step
-*> (i.e. the completeness check), simply put \p ThrDomain(2) > ``1.0d0`` in
-*> which case array \p f is undefined on exit.
-*>
-*> On exit, the contents of iDomain array are:
-*>
-*> - \p iDomain(0,i): number of atoms in domain \c i.
-*> - \p iDomain(n,i): id of atom \c n (\c n = ``1``, ``2``, ..., \p iDomain(0,i)) in domain \c i.
-*>
-*> Return codes:
-*>
-*> - \p irc = ``-1``: input error(s) detected.
-*> - \p irc =  ``0``: all OK.
-*> - \p irc =  ``1``: this indicates a bug in the charge setup.
-*> - \p irc =  ``2``: can only be set if debug is turned on; in that case, this code means
-*>                    that the computed charges do not sum up to the number of occupied orbitals, \p nOcc.
-*> - \p irc =  ``3``: can only be set if debug is turned on; in that case, this code means
-*>                    that at least one domain is defined as empty or having at least one atom index out of bounds.
-*>
-*> @param[out] irc           Return code
-*> @param[out] iDomain       Domain definition
-*> @param[out] QD            Final total charges for each domain
-*> @param[out] f             Function values from completeness check
-*> @param[in]  C             MO coefficients
-*> @param[in]  ThrDomain     Thresholds for domain definition
-*> @param[in]  nBas_per_Atom Number of basis functions on each atom
-*> @param[in]  nBas_Start    Start index for basis functions on each atom
-*> @param[in]  nAtom         Number of atoms
-*> @param[in]  nBas          Number of basis functions
-*> @param[in]  nOcc          Number of occupied orbitals
-************************************************************************
-      SubRoutine DefineDomain(irc,iDomain,QD,f,C,ThrDomain,
-     &                        nBas_per_Atom,nBas_Start,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2006, Thomas Bondo Pedersen                            *
+!***********************************************************************
+!  DefineDomain
+!
+!> @brief
+!>   Define orbital domains
+!> @author Thomas Bondo Pedersen
+!>
+!> @details
+!> Orbital domains are defined by summing up gross atomic Mulliken
+!> charges for each orbital. Once the sum is greater than or equal
+!> to the threshold \p ThrDomain(1), the domain is defined. The
+!> second threshold \p ThrDomain(2) is then used to check
+!> completeness (Pulay-style) of the definition and if needed,
+!> more atoms are added to the domain. To avoid the second step
+!> (i.e. the completeness check), simply put \p ThrDomain(2) > ``1.0d0`` in
+!> which case array \p f is undefined on exit.
+!>
+!> On exit, the contents of iDomain array are:
+!>
+!> - \p iDomain(0,i): number of atoms in domain \c i.
+!> - \p iDomain(n,i): id of atom \c n (\c n = ``1``, ``2``, ..., \p iDomain(0,i)) in domain \c i.
+!>
+!> Return codes:
+!>
+!> - \p irc = ``-1``: input error(s) detected.
+!> - \p irc =  ``0``: all OK.
+!> - \p irc =  ``1``: this indicates a bug in the charge setup.
+!> - \p irc =  ``2``: can only be set if debug is turned on; in that case, this code means
+!>                    that the computed charges do not sum up to the number of occupied orbitals, \p nOcc.
+!> - \p irc =  ``3``: can only be set if debug is turned on; in that case, this code means
+!>                    that at least one domain is defined as empty or having at least one atom index out of bounds.
+!>
+!> @param[out] irc           Return code
+!> @param[out] iDomain       Domain definition
+!> @param[out] QD            Final total charges for each domain
+!> @param[out] f             Function values from completeness check
+!> @param[in]  C             MO coefficients
+!> @param[in]  ThrDomain     Thresholds for domain definition
+!> @param[in]  nBas_per_Atom Number of basis functions on each atom
+!> @param[in]  nBas_Start    Start index for basis functions on each atom
+!> @param[in]  nAtom         Number of atoms
+!> @param[in]  nBas          Number of basis functions
+!> @param[in]  nOcc          Number of occupied orbitals
+!***********************************************************************
+      SubRoutine DefineDomain(irc,iDomain,QD,f,C,ThrDomain,             &
+     &                        nBas_per_Atom,nBas_Start,                 &
      &                        nAtom,nBas,nOcc)
       Implicit Real*8 (a-h,o-z)
       Integer iDomain(0:nAtom,nOcc)
@@ -73,14 +73,14 @@
       Parameter (LocDbg = .False.)
 #endif
 
-C     Check input.
-C     ------------
+!     Check input.
+!     ------------
 
       irc = 0
       If (nAtom.lt.1 .or. nBas.lt.1 .or. nOcc.lt.1) Return
 
-C     Allocate and read overlap matrix stored as full square.
-C     -------------------------------------------------------
+!     Allocate and read overlap matrix stored as full square.
+!     -------------------------------------------------------
 
       l_S = nBas*nBas
       Call GetMem('DfDm_S','Allo','Real',ip_S,l_S)
@@ -88,23 +88,23 @@ C     -------------------------------------------------------
       nB(1) = nBas
       Call GetOvlp_Localisation(Work(ip_S),'Sqr',nB,1)
 
-C     Allocations.
-C     ------------
+!     Allocations.
+!     ------------
 
       l_T = nBas*nOcc
       l_Q = nAtom*nOcc
       Call GetMem('DfDm_T','Allo','Real',ip_T,l_T)
       Call GetMem('DfDm_Q','Allo','Real',ip_Q,l_Q)
 
-C     Compute T=SC.
-C     -------------
+!     Compute T=SC.
+!     -------------
 
-      Call DGEMM_('N','N',nBas,nOcc,nBas,
-     &           1.0d0,Work(ip_S),nBas,C,nBas,
+      Call DGEMM_('N','N',nBas,nOcc,nBas,                               &
+     &           1.0d0,Work(ip_S),nBas,C,nBas,                          &
      &           0.0d0,Work(ip_T),nBas)
 
-C     Compute atomic contributions to Mulliken charges.
-C     -------------------------------------------------
+!     Compute atomic contributions to Mulliken charges.
+!     -------------------------------------------------
 
       Call dCopy_(l_Q,[0.0d0],0,Work(ip_Q),1)
       iOff0 = ip_T - 1
@@ -113,16 +113,16 @@ C     -------------------------------------------------
          iOff = iOff0 + nBas*(i-1)
          jOff = jOff0 + nAtom*(i-1)
          Do iAtom = 1,nAtom
-            Work(jOff+iAtom) = Work(jOff+iAtom)
-     &      + dDot_(nBas_per_Atom(iAtom),C(nBas_Start(iAtom),i),1,
+            Work(jOff+iAtom) = Work(jOff+iAtom)                         &
+     &      + dDot_(nBas_per_Atom(iAtom),C(nBas_Start(iAtom),i),1,      &
      &                                  Work(iOff+nBas_Start(iAtom)),1)
          End Do
       End Do
 
-C     Debug: check charges.
-C     The sum of them should equal the trace of the occupied MO overlap
-C     matrix, i.e. nOcc.
-C     -----------------------------------------------------------------
+!     Debug: check charges.
+!     The sum of them should equal the trace of the occupied MO overlap
+!     matrix, i.e. nOcc.
+!     -----------------------------------------------------------------
 
       If (LocDbg) Then
          Write(6,*)
@@ -157,10 +157,10 @@ C     -----------------------------------------------------------------
          End If
       End If
 
-C     For each orbital, create an index array in descending order of
-C     absolute contributions to charges. Array iDomain will then contain
-C     the list of atoms ordered according to contributions.
-C     ------------------------------------------------------------------
+!     For each orbital, create an index array in descending order of
+!     absolute contributions to charges. Array iDomain will then contain
+!     the list of atoms ordered according to contributions.
+!     ------------------------------------------------------------------
 
       l_iPivot = nAtom
       l_absQ = nAtom
@@ -172,7 +172,7 @@ C     ------------------------------------------------------------------
          Do iAtom = 0,nAtom-1
             Work(ip_absQ+iAtom) = abs(Work(iOff+iAtom))
          End Do
-         Call CD_DiaMax(Work(ip_absQ),nAtom,iWork(ip_iPivot),
+         Call CD_DiaMax(Work(ip_absQ),nAtom,iWork(ip_iPivot),           &
      &                  iDomain(1,i),nSrt,-1.0d0)
          If (nSrt .ne. nAtom) Then
             Call GetMem('DfDm_iPivot','Free','Inte',ip_iPivot,l_iPivot)
@@ -183,8 +183,8 @@ C     ------------------------------------------------------------------
       Call GetMem('DfDm_absQ','Free','Real',ip_absQ,l_absQ)
       Call GetMem('DfDm_iPivot','Free','Inte',ip_iPivot,l_iPivot)
 
-C     For each orbital, define domain according to charge threshold.
-C     --------------------------------------------------------------
+!     For each orbital, define domain according to charge threshold.
+!     --------------------------------------------------------------
 
       iOff0 = ip_Q - 1
       Do i = 1,nOcc
@@ -200,8 +200,8 @@ C     --------------------------------------------------------------
          iDomain(0,i) = iCount
       End Do
 
-C     Debug.
-C     ------
+!     Debug.
+!     ------
 
       If (LocDbg) Then
          nErr = 0
@@ -227,7 +227,7 @@ C     ------
                      nErr = nErr + 1
                   Else
                      kOff = kOff0 + iAtom
-                     Write(6,*) '  Atom: ',iAtom,
+                     Write(6,*) '  Atom: ',iAtom,                       &
      &                          '  Charge: ',Work(kOff)
                      Charge = Charge + Work(kOff)
                   End If
@@ -241,22 +241,22 @@ C     ------
          End If
       End If
 
-C     For each orbital, check completeness and add atoms as needed to
-C     meet the requirement f<=threshold.
-C     ---------------------------------------------------------------
+!     For each orbital, check completeness and add atoms as needed to
+!     meet the requirement f<=threshold.
+!     ---------------------------------------------------------------
 
       If (ThrDomain(2) .lt. 1.0d0) Then
          Do i = 1,nOcc
             kOffT = ip_T + nBas*(i-1)
-            Call MakeDomainComplete(iDomain(0,i),f(i),Work(ip_S),
-     &                              Work(kOffT),
-     &                              ThrDomain(2),nBas_per_Atom,
+            Call MakeDomainComplete(iDomain(0,i),f(i),Work(ip_S),       &
+     &                              Work(kOffT),                        &
+     &                              ThrDomain(2),nBas_per_Atom,         &
      &                              nBas_Start,nBas,nAtom)
          End Do
       End If
 
-C     Compute total charges for each domain.
-C     --------------------------------------
+!     Compute total charges for each domain.
+!     --------------------------------------
 
       Do i = 1,nOcc
          kOff = ip_Q - 1 + nAtom*(i-1)
@@ -267,8 +267,8 @@ C     --------------------------------------
          End Do
       End Do
 
-C     Debug.
-C     ------
+!     Debug.
+!     ------
 
       If (LocDbg) Then
          nErr = 0
@@ -295,7 +295,7 @@ C     ------
                         nErr = nErr + 1
                      Else
                         kOff = kOff0 + iAtom
-                        Write(6,*) '  Atom: ',iAtom,
+                        Write(6,*) '  Atom: ',iAtom,                    &
      &                             '  Charge: ',Work(kOff)
                         Charge = Charge + Work(kOff)
                      End If
@@ -317,22 +317,22 @@ C     ------
          End If
       End If
 
-C     Deallocations.
-C     --------------
+!     Deallocations.
+!     --------------
 
     1 Call GetMem('DfDm_Q','Free','Real',ip_Q,l_Q)
       Call GetMem('DfDm_T','Free','Real',ip_T,l_T)
       Call GetMem('DfDm_S','Free','Real',ip_S,l_S)
 
       End
-      SubRoutine MakeDomainComplete(iDomain,f,S,T,Threshold,
+      SubRoutine MakeDomainComplete(iDomain,f,S,T,Threshold,            &
      &                              nBas_per_Atom,nBas_Start,nBas,nAtom)
-C
-C     Thomas Bondo Pedersen, January 2006.
-C
-C     Purpose: Boughton-Pulay completeness check of an orbital domain.
-C              Extend domain as needed to obtain completeness.
-C
+!
+!     Thomas Bondo Pedersen, January 2006.
+!
+!     Purpose: Boughton-Pulay completeness check of an orbital domain.
+!              Extend domain as needed to obtain completeness.
+!
       Implicit Real*8 (a-h,o-z)
       Integer iDomain(0:nAtom)
       Real*8  S(nBas,nBas), T(nBas)
@@ -352,8 +352,8 @@ C
       Complete = nA.eq.nAtom
       Do While (nA.lt.nAtom .and. .not.Complete)
 
-C        Allocate S[i], T[i], and Scr[i].
-C        --------------------------------
+!        Allocate S[i], T[i], and Scr[i].
+!        --------------------------------
 
          nSize = nBas_per_Atom(iDomain(1))
          Do iA = 2,nA
@@ -368,8 +368,8 @@ C        --------------------------------
          Call GetMem('MkDmC_Ti','Allo','Real',ip_Ti,l_Ti)
          Call GetMem('MkDmC_Scr','Allo','Real',ip_Scr,l_Scr)
 
-C        Get S[i] and T[i].
-C        ------------------
+!        Get S[i] and T[i].
+!        ------------------
 
          kTi = ip_Ti
          iCol = 0
@@ -392,44 +392,44 @@ C        ------------------
             kTi = kTi + nnu
          End Do
 
-C        Solve S[i]Y=T[i] (Y stored in T[i] on exit).
-C        Use a scratch array for S[i], as it is ruined on exit from
-C        LinEqSolv.
-C        ----------------------------------------------------------
+!        Solve S[i]Y=T[i] (Y stored in T[i] on exit).
+!        Use a scratch array for S[i], as it is ruined on exit from
+!        LinEqSolv.
+!        ----------------------------------------------------------
 
          irc = 0
          Call dCopy_(l_Si,Work(ip_Si),1,Work(ip_Sl),1)
-         Call LinEqSolv(irc,'N',Work(ip_Sl),nSize,Work(ip_Ti),nSize,
+         Call LinEqSolv(irc,'N',Work(ip_Sl),nSize,Work(ip_Ti),nSize,    &
      &                  nSize,1)
          If (irc .ne. 0) Then
             Write(Txt,'(A,I9)') 'LinEqSolv returned',irc
             If (irc .lt. 0) Then
                Call SysAbendMsg(SecNam,Txt,'LinEqSolv input error!')
             Else
-               Call SysAbendMsg(SecNam,Txt,
+               Call SysAbendMsg(SecNam,Txt,                             &
      &                          'Singular domain overlap matrix!')
             End If
          End If
 
-C        Compute f=1-Y(T)S[i]Y.
-C        ----------------------
+!        Compute f=1-Y(T)S[i]Y.
+!        ----------------------
 
-         Call dGeMV_('N',nSize,nSize,1.0d0,Work(ip_Si),nSize,
+         Call dGeMV_('N',nSize,nSize,1.0d0,Work(ip_Si),nSize,           &
      &              Work(ip_Ti),1,0.0d0,Work(ip_Scr),1)
          f = 1.0d0 - dDot_(nSize,Work(ip_Ti),1,Work(ip_Scr),1)
 
-C        Deallocation.
-C        -------------
+!        Deallocation.
+!        -------------
 
          Call GetMem('MkDmC_Scr','Free','Real',ip_Scr,l_Scr)
          Call GetMem('MkDmC_Ti','Free','Real',ip_Ti,l_Ti)
          Call GetMem('MkDmC_Sl','Free','Real',ip_Sl,l_Sl)
          Call GetMem('MkDmC_Si','Free','Real',ip_Si,l_Si)
 
-C        Check completeness (f<=Threshold).
-C        If not complete, add next atom to domain.
-C        (If complete, we break the while loop.)
-C        -----------------------------------------
+!        Check completeness (f<=Threshold).
+!        If not complete, add next atom to domain.
+!        (If complete, we break the while loop.)
+!        -----------------------------------------
 
          Complete = f.le.Threshold
          If (.not.Complete) Then
@@ -438,8 +438,8 @@ C        -----------------------------------------
 
       End Do
 
-C     Set new domain size.
-C     --------------------
+!     Set new domain size.
+!     --------------------
 
       iDomain(0) = nA
 

@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2005, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2005, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine Sort_Localisation(CMO,nBas,nOcc,nFro,nSym)
-C
-C     Thomas Bondo Pedersen, November 2005.
-C
-C     Purpose: sort CMOs according to Cholesky orbital ordering.
-C
+!
+!     Thomas Bondo Pedersen, November 2005.
+!
+!     Purpose: sort CMOs according to Cholesky orbital ordering.
+!
       Implicit Real*8 (a-h,o-z)
       Real*8 CMO(*)
       Integer nBas(nSym), nOcc(nSym), nFro(nSym)
@@ -27,13 +27,13 @@ C
       Character*8  Label
       Character*80 Txt
 
-C     Static setting of decomposition threshold.
-C     ------------------------------------------
+!     Static setting of decomposition threshold.
+!     ------------------------------------------
 
       ThrCho = 1.0d-12
 
-C     Get a copy of the occupied orbitals: X=CMO.
-C     -------------------------------------------
+!     Get a copy of the occupied orbitals: X=CMO.
+!     -------------------------------------------
 
       lX = nBas(1)*nOcc(1)
       Do iSym = 2,nSym
@@ -49,8 +49,8 @@ C     -------------------------------------------
          kX = kX + nBas(iSym)*nOcc(iSym)
       End Do
 
-C     Get the overlap matrix.
-C     -----------------------
+!     Get the overlap matrix.
+!     -----------------------
 
       lOAux = nBas(1)*(nBas(1)+1)/2
       lOvlp = nBas(1)*nBas(1)
@@ -83,21 +83,21 @@ C     -----------------------
       End Do
       Call GetMem('AuxOvlp','Free','Real',ipOaux,lOaux)
 
-C     Sort each symmetry block.
-C     -------------------------
+!     Sort each symmetry block.
+!     -------------------------
 
       kX = ipX
       kC = 1
       kS = ipOvlp
       Do iSym = 1,nSym
 
-C        Cycle loop for empty symmetry blocks.
-C        -------------------------------------
+!        Cycle loop for empty symmetry blocks.
+!        -------------------------------------
 
          If (nBas(iSym).lt.1 .or. nOcc(iSym).lt.1) Go To 100
 
-C        Allocations.
-C        ------------
+!        Allocations.
+!        ------------
 
          lDen = nBas(iSym)*nBas(iSym)
          lU = nOcc(iSym)*nOcc(iSym)
@@ -106,78 +106,78 @@ C        ------------
          Call GetMem('SrtU','Allo','Real',ipU,lU)
          Call GetMem('SrtScr','Allo','Real',ipScr,lScr)
 
-C        Cholesky decompose D=C^TC and thus define the ordering.
-C        At this stage, X contains the original MOs (CMO).
-C        After the decomposition, X contains the Cholesky MOs.
-C        -------------------------------------------------------
+!        Cholesky decompose D=C^TC and thus define the ordering.
+!        At this stage, X contains the original MOs (CMO).
+!        After the decomposition, X contains the Cholesky MOs.
+!        -------------------------------------------------------
 
-         Call GetDens_Localisation(Work(ipDen),Work(kX),nBas(iSym),
+         Call GetDens_Localisation(Work(ipDen),Work(kX),nBas(iSym),     &
      &                             nOcc(iSym))
          irc = -1
-         Call ChoLoc(irc,Work(ipDen),Work(kX),ThrCho,xNrm,nBas(iSym),
+         Call ChoLoc(irc,Work(ipDen),Work(kX),ThrCho,xNrm,nBas(iSym),   &
      &               nOcc(iSym))
          If (irc .ne. 0) Then
             Write(6,*) SecNam,': ChoLoc returned ',irc
             Write(6,*) 'Symmetry block: ',iSym
             Write(6,*) 'Unable to continue...'
             Write(Txt,'(A,I6)') 'ChoLoc return code:',irc
-            Call SysAbendMsg(SecNam,
-     &                       'Density Cholesky decomposition failed!',
+            Call SysAbendMsg(SecNam,                                    &
+     &                       'Density Cholesky decomposition failed!',  &
      &                       Txt)
          End If
 
-C        Compute address in CMO, skipping frozen orbitals.
-C        -------------------------------------------------
+!        Compute address in CMO, skipping frozen orbitals.
+!        -------------------------------------------------
 
          k1 = kC + nBas(iSym)*nFro(iSym)
 
-C        Compute U = X^TSC.
-C        ------------------
+!        Compute U = X^TSC.
+!        ------------------
 
-         Call GetUmat_Localisation(Work(ipU),Work(kX),Work(kS),CMO(k1),
-     &                             Work(ipScr),lScr,nBas(iSym),
+         Call GetUmat_Localisation(Work(ipU),Work(kX),Work(kS),CMO(k1), &
+     &                             Work(ipScr),lScr,nBas(iSym),         &
      &                             nOcc(iSym))
 
-C        Sort.
-C        -----
+!        Sort.
+!        -----
 
-         Call Sort_Localisation_1(CMO(k1),Work(ipU),nBas(iSym),
+         Call Sort_Localisation_1(CMO(k1),Work(ipU),nBas(iSym),         &
      &                            nOcc(iSym))
 
-C        Update counters.
-C        ----------------
+!        Update counters.
+!        ----------------
 
          kX = kX + nBas(iSym)*nOcc(iSym)
          kC = kC + nBas(iSym)**2
          kS = kS + nBas(iSym)**2
 
-C        De-allocations.
-C        ---------------
+!        De-allocations.
+!        ---------------
 
          Call GetMem('SrtScr','Free','Real',ipScr,lScr)
          Call GetMem('SrtU','Free','Real',ipU,lU)
          Call GetMem('SrtDen','Free','Real',ipDen,lDen)
 
-C        Loop cycling (empty symmetries jump here).
-C        ------------------------------------------
+!        Loop cycling (empty symmetries jump here).
+!        ------------------------------------------
 
   100    Continue
 
       End Do
 
-C     De-allocations.
-C     ---------------
+!     De-allocations.
+!     ---------------
 
       Call GetMem('XCho','Free','Real',ipX,lX)
       Call GetMem('Ovlp','Free','Real',ipOvlp,lOvlp)
 
       End
       SubRoutine Sort_Localisation_1(CMO,U,nBas,nOcc)
-C
-C     Thomas Bondo Pedersen, November 2005.
-C
-C     Purpose: sort CMO columns according to U.
-C
+!
+!     Thomas Bondo Pedersen, November 2005.
+!
+!     Purpose: sort CMO columns according to U.
+!
       Implicit Real*8 (a-h,o-z)
       Real*8 CMO(nBas,nOcc), U(nOcc,nOcc)
 #include "WrkSpc.fh"
@@ -185,8 +185,8 @@ C
       I1(i)=iWork(ipI1-1+i)
       I2(i)=iWork(ipI2-1+i)
 
-C     Allocations.
-C     ------------
+!     Allocations.
+!     ------------
 
       lI1 = nOcc
       lI2 = nOcc
@@ -195,8 +195,8 @@ C     ------------
       Call GetMem('Sr1I2','Allo','Inte',ipI2,lI2)
       Call GetMem('Sr1C','Allo','Real',ipC,lC)
 
-C     Find max U element in each row.
-C     -------------------------------
+!     Find max U element in each row.
+!     -------------------------------
 
       ip1 = ipI1 - 1
       Do i = 1,nOcc
@@ -224,8 +224,8 @@ C     -------------------------------
          End If
       End Do
 
-C     Swap MOs according to I2.
-C     -------------------------
+!     Swap MOs according to I2.
+!     -------------------------
 
       Call dCopy_(nBas*nOcc,CMO,1,Work(ipC),1)
       Do i = 1,nOcc
@@ -233,8 +233,8 @@ C     -------------------------
          Call dCopy_(nBas,Work(kOff),1,CMO(1,i),1)
       End Do
 
-C     De-allocate.
-C     ------------
+!     De-allocate.
+!     ------------
 
       Call GetMem('Sr1C','Free','Real',ipC,lC)
       Call GetMem('Sr1I2','Free','Inte',ipI2,lI2)

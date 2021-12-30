@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      SubRoutine GetAt_Localisation(X,nBas,m,XAt,nAtoms,iOpt,
-     &                              nBas_per_Atom,nBas_Start,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      SubRoutine GetAt_Localisation(X,nBas,m,XAt,nAtoms,iOpt,           &
+     &                              nBas_per_Atom,nBas_Start,           &
      &                              Norm)
       Implicit Real*8 (a-h,o-z)
       Real*8  X(nBas,m), XAt(nAtoms,*)
@@ -49,7 +49,7 @@
          End If
       Else
          If (m .ne. nBas) Then
-            Call SysAbendMsg('GetAt_Localisation','Fatal error',
+            Call SysAbendMsg('GetAt_Localisation','Fatal error',        &
      &                       'm != nBas')
          End If
          Call dCopy_(nAtoms*nAtoms,[0.0d0],0,XAt,1)

@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Thomas Bondo Pedersen                                  *
-************************************************************************
-      SubRoutine EdmistonRuedenberg(Functional,CMO,Thrs,ThrRot,ThrGrad,
-     &                              nBas,nOrb2Loc,nFro,
-     &                              nSym,nMxIter,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Thomas Bondo Pedersen                                  *
+!***********************************************************************
+      SubRoutine EdmistonRuedenberg(Functional,CMO,Thrs,ThrRot,ThrGrad, &
+     &                              nBas,nOrb2Loc,nFro,                 &
+     &                              nSym,nMxIter,                       &
      &                              Maximisation,Converged,Debug,Silent)
-C
-C     Author: T.B. Pedersen
-C
-C     Purpose: Edmiston-Ruedenberg localisation of occupied orbitals.
-C
+!
+!     Author: T.B. Pedersen
+!
+!     Purpose: Edmiston-Ruedenberg localisation of occupied orbitals.
+!
       Implicit Real*8 (a-h,o-z)
       Real*8  CMO(*)
       Integer nBas(nSym), nOrb2Loc(nSym), nFro(nSym)
@@ -30,15 +30,15 @@ C
 
       Character*80 Txt
 
-C     Symmetry is NOT allowed.
-C     ------------------------
+!     Symmetry is NOT allowed.
+!     ------------------------
 
       If (nSym .ne. 1) Then
          Call SysAbendMsg(SecNam,'Symmetry not implemented!','Sorry!')
       End If
 
-C     Initializations.
-C     ----------------
+!     Initializations.
+!     ----------------
 
       Functional = -9.9D9
 
@@ -56,18 +56,18 @@ C     ----------------
          Call SysAbendMsg(SecNam,'Cholesky initialization error:',Txt)
       End If
 
-C     Localise orbitals.
-C     ------------------
+!     Localise orbitals.
+!     ------------------
 
       kOffC = nBasT*nFroT + 1
-      Call EdmistonRuedenberg_Iter(Functional,CMO(kOffC),Thrs,ThrRot,
-     &                             ThrGrad,
-     &                             nBasT,nOrb2LocT,nMxIter,
-     &                             Maximisation,Converged,Debug,
+      Call EdmistonRuedenberg_Iter(Functional,CMO(kOffC),Thrs,ThrRot,   &
+     &                             ThrGrad,                             &
+     &                             nBasT,nOrb2LocT,nMxIter,             &
+     &                             Maximisation,Converged,Debug,        &
      &                             Silent)
 
-C     Finalizations.
-C     --------------
+!     Finalizations.
+!     --------------
 
       irc = -1
       Call Cho_X_Final(irc)

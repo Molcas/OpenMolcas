@@ -1,31 +1,31 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2010, Francesco Aquilante                              *
-************************************************************************
-      SUBROUTINE Delete_Ghosts(irc,nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2010, Francesco Aquilante                              *
+!***********************************************************************
+      SUBROUTINE Delete_Ghosts(irc,nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,  &
      &                         NAME,nUniqAt,ThrS,isCASPT2,CMO,EOrb)
-************************************************************************
-*                                                                      *
-* Purpose:  Eliminates MOs of ghost atoms from PT2 treatment           *
-*                                                                      *
-* Author:   F. Aquilante  (Geneva, July 2010)                          *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+! Purpose:  Eliminates MOs of ghost atoms from PT2 treatment           *
+!                                                                      *
+! Author:   F. Aquilante  (Geneva, July 2010)                          *
+!                                                                      *
+!***********************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "Molcas.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
-*
-      Integer nBas(nSym),nFro(nSym),nIsh(nSym),nAsh(nSym),nSsh(nSym),
+!
+      Integer nBas(nSym),nFro(nSym),nIsh(nSym),nAsh(nSym),nSsh(nSym),   &
      &        nDel(nSym)
       Integer irc,nUniqAt
       Real*8  ThrS, CMO(*), EOrb(*)
@@ -33,18 +33,18 @@
       Character*(LENIN8) NAME(*)
       Character*(LENIN) blank, NamAct(mxAtom), tmp
       Integer n_OK(8)
-************************************************************************
+!***********************************************************************
       jD(i) = iWork(ip_iD-1+i)
-************************************************************************
-*
-*
+!***********************************************************************
+!
+!
       irc=0
       blank='   '
-*
-*----------------------------------------------------------------------*
-*     GET THE TOTAL NUMBER OF BASIS FUNCTIONS, etc. AND CHECK LIMITS   *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     GET THE TOTAL NUMBER OF BASIS FUNCTIONS, etc. AND CHECK LIMITS   *
+!----------------------------------------------------------------------*
+!
       nBasT=0
       ntri=0
       nSQ=0
@@ -61,13 +61,13 @@
       End Do
       NCMO=nSQ
       IF(nBasT.GT.mxBas) then
-       Write(6,'(/6X,A)')
+       Write(6,'(/6X,A)')                                               &
      & 'The number of basis functions exceeds the present limit'
        Call Abend
       Endif
-*
-*     nUniqAt = # of symm. unique atoms. Initialize NamAct to blanks.
-*     ---------------------------------------------------------------
+!
+!     nUniqAt = # of symm. unique atoms. Initialize NamAct to blanks.
+!     ---------------------------------------------------------------
 
       If (nUniqAt.lt.1 .or. nUniqAt.gt.MxAtom) Then
          Write(6,'(A,I9)') 'nUniqAt =',nUniqAt
@@ -77,19 +77,19 @@
          NamAct(iAt)=blank
       End Do
 
-C     Allocate and get index arrays for basis functions per atom.
-C     -----------------------------------------------------------
+!     Allocate and get index arrays for basis functions per atom.
+!     -----------------------------------------------------------
 
       l_nBas_per_Atom = nUniqAt
       l_nBas_Start    = nUniqAt
-      Call GetMem('nB_per_Atom','Allo','Inte',
+      Call GetMem('nB_per_Atom','Allo','Inte',                          &
      &            ip_nBas_per_Atom,l_nBas_per_Atom)
-      Call GetMem('nB_Start','Allo','Inte',
+      Call GetMem('nB_Start','Allo','Inte',                             &
      &            ip_nBas_Start,l_nBas_Start)
-*
-*----------------------------------------------------------------------*
-*     Read the overlap matrix                                          *
-*----------------------------------------------------------------------*
+!
+!----------------------------------------------------------------------*
+!     Read the overlap matrix                                          *
+!----------------------------------------------------------------------*
       CALL GetMem('SMAT','ALLO','REAL',ipSQ,nSQ)
       CALL GetMem('SLT','ALLO','REAL',ipS,nTri)
       isymlbl=1
@@ -98,20 +98,20 @@ C     -----------------------------------------------------------
       ltri=0
       lsq=0
       Do iSym=1,nSym
-         Call Square(Work(ipS+ltri),Work(ipSQ+lsq),1,nBas(iSym),
+         Call Square(Work(ipS+ltri),Work(ipSQ+lsq),1,nBas(iSym),        &
      &                                               nBas(iSym))
          ltri=ltri+nBas(iSym)*(nBas(iSym)+1)/2
          lsq=lsq+nBas(iSym)**2
       End Do
       CALL GetMem('SLT','FREE','REAL',ipS,nTri)
-*
+!
       CALL GETMEM('LCMO','ALLO','REAL',LCMO,NCMO)
       call dcopy_(NCMO,CMO,1,WORK(LCMO),1)
 
-*----------------------------------------------------------------------*
-*     Compute Mulliken atomic charges of each occupied orbital         *
-*             on each center to define the Active Site                 *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Compute Mulliken atomic charges of each occupied orbital         *
+!             on each center to define the Active Site                 *
+!----------------------------------------------------------------------*
       Call GetMem('Qai','Allo','Real',ipQ,nUniqAt*(mAsh+1))
       ipQa=ipQ+nUniqAt*mAsh
       Call Fzero(Work(ipQa),nUniqAt)
@@ -123,13 +123,13 @@ C     -----------------------------------------------------------
          iSQ=ipSQ+iOff
          ipAsh=LCMO+iOff+nBas(iSym)*nFro(iSym)
          nBx=Max(1,nBas(iSym))
-         Call DGEMM_('N','N',nBas(iSym),nOkk,nBas(iSym),
-     &                      1.0d0,Work(iSQ),nBx,
-     &                            Work(ipAsh),nBx,
+         Call DGEMM_('N','N',nBas(iSym),nOkk,nBas(iSym),                &
+     &                      1.0d0,Work(iSQ),nBx,                        &
+     &                            Work(ipAsh),nBx,                      &
      &                      0.0d0,Work(ipZ),nBx)
          jBas=lBas+1
          kBas=lBas+nBas(iSym)
-         Call BasFun_Atom_(iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),
+         Call BasFun_Atom_(iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),&
      &                     Name,jBas,kBas,nUniqAt,.false.)
          Do ik=0,nOkk-1
             nAk=nUniqAt*ik
@@ -148,12 +148,12 @@ C     -----------------------------------------------------------
          Do iAt=0,nUniqAt-1
             jQ=ipQ+iAt
             iQa=ipQa+iAt
-            Work(iQa) = Work(iQa)
-     &                + ddot_(nOkk,Work(jQ),nUniqAt,
+            Work(iQa) = Work(iQa)                                       &
+     &                + ddot_(nOkk,Work(jQ),nUniqAt,                    &
      &                            Work(jQ),nUniqAt)
             If (sqrt(Work(iQa)).ge.ThrS) Then
                jBat=iWork(ip_nBas_Start+iAt)+lBas
-               If (iWork(ip_nBas_per_Atom+iAt) .gt. 0)
+               If (iWork(ip_nBas_per_Atom+iAt) .gt. 0)                  &
      &            NamAct(iAt+1)=Name(jBat)(1:LENIN)
             EndIf
          End Do
@@ -163,8 +163,8 @@ C     -----------------------------------------------------------
       Call GetMem('Zm','Free','Real',ipZ,nBmx*mAsh)
       Call GetMem('Qai','Free','Real',ipQ,nUniqAt*(mAsh+1))
 
-*     We have now completed the definition of the active site
-*----------------------------------------------------------------------*
+!     We have now completed the definition of the active site
+!----------------------------------------------------------------------*
       Call GetMem('ID_A','Allo','Inte',iD,nUniqAt)
       nActa=0
       Do iAt=1,nUniqAt
@@ -198,14 +198,14 @@ C     -----------------------------------------------------------
       EndIf
 
       Call GetMem('ID_A','Free','Inte',iD,nUniqAt)
-      Call GetMem('nB_per_Atom','Free','Inte',
+      Call GetMem('nB_per_Atom','Free','Inte',                          &
      &            ip_nBas_per_Atom,l_nBas_per_Atom)
-      Call GetMem('nB_Start','Free','Inte',
+      Call GetMem('nB_Start','Free','Inte',                             &
      &            ip_nBas_Start,l_nBas_Start)
 
-*----------------------------------------------------------------------*
-*     Virtual orbital selection                                        *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Virtual orbital selection                                        *
+!----------------------------------------------------------------------*
       Call GetMem('ID_vir','Allo','Inte',ip_iD,nBmx+2*nSmx)
       nSmall=nBmx**2+nSmx+3*nBmx*nSmx
       Call GetMem('Small','Allo','Real',iS,nSmall)
@@ -213,7 +213,7 @@ C     -----------------------------------------------------------
       iC=iQ+nSmx
       iZ=iC+nBmx*nSmx
       iX=iZ+nBmx*nSmx
-*
+!
       iOff=0
       kOff=0
       Do iSym=1,nSym
@@ -247,9 +247,9 @@ C     -----------------------------------------------------------
 
          nBx=Max(1,nBas(iSym))
          nBax=Max(1,nBa)
-         Call DGEMM_('T','N',nBa,nSsh(iSym),nBas(iSym),
-     &                    1.0d0,Work(iS),nBx,
-     &                          Work(iCMO),nBx,
+         Call DGEMM_('T','N',nBa,nSsh(iSym),nBas(iSym),                 &
+     &                    1.0d0,Work(iS),nBx,                           &
+     &                          Work(iCMO),nBx,                         &
      &                    0.0d0,Work(iZ),nBax)
          Do i=0,nSsh(iSym)-1
             jQ=iQ+i
@@ -274,7 +274,7 @@ C     -----------------------------------------------------------
                n_KO=n_KO+1
             EndIf
          End Do
-*
+!
          call dcopy_(nBas(iSym)*n_OK(iSym),Work(iX),1,Work(iCMO),1)
          kCMO=iCMO+nBas(iSym)*n_OK(iSym)
          call dcopy_(nBas(iSym)*n_KO,Work(iZ),1,Work(kCMO),1)
@@ -292,25 +292,25 @@ C     -----------------------------------------------------------
             End Do
             call dcopy_(nSsh(iSym),Work(iZ),1,EOrb(1+jOff),1)
          EndIf
-*
+!
          iOff=iOff+nBas(iSym)
          kOff=kOff+nBas(iSym)**2
       End Do
       Call GetMem('Small','Free','Real',iS,nSmall)
       Call GetMem('ID_vir','Free','Inte',ip_iD,nBmx+2*nSmx)
-*                                                                      *
-*----------------------------------------------------------------------*
-*
-*     Update nSsh, nDel for the Active site PT2
+!                                                                      *
+!----------------------------------------------------------------------*
+!
+!     Update nSsh, nDel for the Active site PT2
       Do iSym=1,nSym
          nDel(iSym)=nDel(iSym)+nSsh(iSym)-n_OK(iSym)
          nSsh(iSym)=n_OK(iSym)
       End Do
-*
+!
       call dcopy_(NCMO,WORK(LCMO),1,CMO,1)
-*
+!
       CALL GETMEM('LCMO','FREE','REAL',LCMO,NCMO)
       CALL GetMem('SMAT','FREE','REAL',ipSQ,nSQ)
-*
+!
       Return
       End
