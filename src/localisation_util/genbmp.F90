@@ -8,138 +8,135 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine GenBMp(irc,X,n,m,Lunit,nStp,StpSiz,Color)
-      Implicit None
-      Integer irc, n, m, Lunit, nStp
-      Real*8  X(n,m), StpSiz
-      Character*1 Color
+
+subroutine GenBMp(irc,X,n,m,Lunit,nStp,StpSiz,Color)
+
+implicit none
+integer irc, n, m, Lunit, nStp
+real*8 X(n,m), StpSiz
+character*1 Color
 #include "WrkSpc.fh"
+character*6 SecNam
+parameter(SecNam='GenBMp')
+integer i, j, iBin, nBin, ipBin, ipBMp, nCh
+real*8 Step, absX
+character*1 myColor
+integer nBin_Def, iUpLim, i0, i255
+real*8 Step_Def
+character*1 Color_Def
+integer iRnge
+external iRnge
 
-      Character*6 SecNam
-      Parameter (SecNam = 'GenBMp')
+! Defaults and limits.
+! --------------------
 
-      Integer i, j, iBin, nBin, ipBin, ipBMp, nCh
-      Real*8  Step, absX
-      Character*1 myColor
+nBin_Def = 5
+Step_Def = 1.0d-2
+Color_Def = 'R'
+iUpLim = 999999
+i0 = 0
+i255 = 255
 
-      Integer nBin_Def, iUpLim, i0, i255
-      Real*8  Step_Def
-      Character*1 Color_Def
+! Check input.
+! ------------
 
-      Integer  iRnge
-      External iRnge
+irc = 0
+if ((n < 1) .or. (m < 1)) then
+  return
+end if
+if ((n > iUpLim) .or. (m > iUpLim)) then
+  irc = 1
+  return
+end if
+if (Lunit < 1) then
+  irc = 2
+  return
+end if
 
-!     Defaults and limits.
-!     --------------------
+if ((nStp < 2) .or. (nStp > 256)) then
+  nBin = nBin_Def
+else
+  nBin = nStp
+end if
+if (StpSiz <= 0.0d0) then
+  Step = Step_Def
+else
+  Step = StpSiz
+end if
+myColor = Color
+call UpCase(myColor)
+if ((myColor /= 'R') .and. (myColor /= 'G') .and. (myColor /= 'B')) then
+  myColor = Color_Def
+end if
 
-      nBin_Def  = 5
-      Step_Def  = 1.0d-2
-      Color_Def = 'R'
-      iUpLim    = 999999
-      i0        = 0
-      i255      = 255
+! Set up bins.
+! ------------
 
-!     Check input.
-!     ------------
+nCh = 255/(nBin-1)
 
-      irc = 0
-      If (n.lt.1 .or. m.lt.1) Then
-         Return
-      End If
-      If (n.gt.iUpLim .or. m.gt.iUpLim) Then
-         irc = 1
-         Return
-      End If
-      If (Lunit .lt. 1) Then
-         irc = 2
-         Return
-      End If
+call GetMem('Bins','Allo','Real',ipBin,nBin)
+call GetMem('iBMp','Allo','Inte',ipBMp,nBin)
 
-      If (nStp.lt.2 .or. nStp.gt.256) Then
-         nBin = nBin_Def
-      Else
-         nBin = nStp
-      End If
-      If (StpSiz .le. 0.0d0) Then
-         Step = Step_Def
-      Else
-         Step = StpSiz
-      End If
-      myColor = Color
-      Call UpCase(myColor)
-      If (myColor.ne.'R' .and. myColor.ne.'G' .and. myColor.ne.'B') Then
-         myColor = Color_Def
-      End If
+Work(ipBin) = 1.0d0
+do iBin=2,nBin-1
+  Work(ipBin-1+iBin) = Work(ipBin+iBin-2)*Step
+end do
+Work(ipBin-1+nBin) = -1.0d0
 
-!     Set up bins.
-!     ------------
+iWork(ipBMp-1+nBin) = 255
+do iBin=nBin-1,1,-1
+  iWork(ipBMp-1+iBin) = iWork(ipBMp+iBin)-nCh
+end do
 
-      nCh = 255/(nBin-1)
+! Generate bitmap file.
+! Note the special loop structure.
+! --------------------------------
 
-      Call GetMem('Bins','Allo','Real',ipBin,nBin)
-      Call GetMem('iBMp','Allo','Inte',ipBMp,nBin)
+write(Lunit,'(2(1X,I6))') m,n ! #col,#row
+if (myColor == 'R') then ! red
+  do i=n,1,-1
+    do j=1,m
+      absX = abs(X(i,j))
+      iBin = iRnge(absX,Work(ipBin),nBin)
+      if (iWork(ipBmp+iBin-1) == 255) then
+        write(Lunit,'(4(1X,I3))') i255,i255,i255,i0
+      else
+        write(Lunit,'(4(1X,I3))') iWork(ipBmp+iBin-1),i0,i0,i0
+      end if
+    end do
+  end do
+else if (myColor == 'G') then ! green
+  do i=n,1,-1
+    do j=1,m
+      absX = abs(X(i,j))
+      iBin = iRnge(absX,Work(ipBin),nBin)
+      if (iWork(ipBmp+iBin-1) == 0) then
+        write(Lunit,'(4(1X,I3))') i255,i255,i255,i0
+      else
+        write(Lunit,'(4(1X,I3))') i0,iWork(ipBmp+iBin-1),i0,i0
+      end if
+    end do
+  end do
+else if (myColor == 'B') then ! blue
+  do i=n,1,-1
+    do j=1,m
+      absX = abs(X(i,j))
+      iBin = iRnge(absX,Work(ipBin),nBin)
+      if (iWork(ipBmp+iBin-1) == 0) then
+        write(Lunit,'(4(1X,I3))') i255,i255,i255,i0
+      else
+        write(Lunit,'(4(1X,I3))') i0,i0,iWork(ipBmp+iBin-1),i0
+      end if
+    end do
+  end do
+else
+  call SysAbendMsg(SecNam,'Logical error!','(Should never happen)')
+end if
 
-      Work(ipBin) = 1.0d0
-      Do iBin = 2,nBin-1
-         Work(ipBin-1+iBin)  = Work(ipBin+iBin-2)*Step
-      End Do
-      Work(ipBin-1+nBin) = -1.0d0
+! De-allocations.
+! ---------------
 
-      iWork(ipBMp-1+nBin) = 255
-      Do iBin = nBin-1,1,-1
-         iWork(ipBMp-1+iBin) = iWork(ipBMp+iBin) - nCh
-      End Do
+call GetMem('iBMp','Free','Inte',ipBMp,nBin)
+call GetMem('Bins','Free','Real',ipBin,nBin)
 
-!     Generate bitmap file.
-!     Note the special loop structure.
-!     --------------------------------
-
-      Write(Lunit,'(2(1X,I6))') m,n ! #col,#row
-      If (myColor .eq. 'R') Then ! red
-         Do i = n,1,-1
-            Do j = 1,m
-               absX = abs(X(i,j))
-               iBin = iRnge(absX,Work(ipBin),nBin)
-               If (iWork(ipBmp+iBin-1) .eq. 255) Then
-                  Write(Lunit,'(4(1X,I3))') i255,i255,i255,i0
-               Else
-                  Write(Lunit,'(4(1X,I3))') iWork(ipBmp+iBin-1),i0,i0,i0
-               End If
-            End Do
-         End Do
-      Else If (myColor .eq. 'G') Then ! green
-         Do i = n,1,-1
-            Do j = 1,m
-               absX = abs(X(i,j))
-               iBin = iRnge(absX,Work(ipBin),nBin)
-               If (iWork(ipBmp+iBin-1) .eq. 0) Then
-                  Write(Lunit,'(4(1X,I3))') i255,i255,i255,i0
-               Else
-                  Write(Lunit,'(4(1X,I3))') i0,iWork(ipBmp+iBin-1),i0,i0
-               End If
-            End Do
-         End Do
-      Else If (myColor .eq. 'B') Then ! blue
-         Do i = n,1,-1
-            Do j = 1,m
-               absX = abs(X(i,j))
-               iBin = iRnge(absX,Work(ipBin),nBin)
-               If (iWork(ipBmp+iBin-1) .eq. 0) Then
-                  Write(Lunit,'(4(1X,I3))') i255,i255,i255,i0
-               Else
-                  Write(Lunit,'(4(1X,I3))') i0,i0,iWork(ipBmp+iBin-1),i0
-               End If
-            End Do
-         End Do
-      Else
-         Call SysAbendMsg(SecNam,'Logical error!',                      &
-     &                    '(Should never happen)')
-      End If
-
-!     De-allocations.
-!     ---------------
-
-      Call GetMem('iBMp','Free','Inte',ipBMp,nBin)
-      Call GetMem('Bins','Free','Real',ipBin,nBin)
-
-      End
+end subroutine GenBMp

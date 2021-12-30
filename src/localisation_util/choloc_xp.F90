@@ -8,47 +8,39 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2005, Thomas Bondo Pedersen                            *
+! Copyright (C) Francesco Aquilante                                    *
 !***********************************************************************
 
-subroutine Chk_Unitary(irc,U,n,Thr)
-! Thomas Bondo Pedersen, November 2005.
-!
-! Purpose: check that U is unitary.
+subroutine ChoLoc_xp(irc,Dens,CMO,Thrs,xNrm,nBas,nOcc,iD)
+! Same as ChoLoc_p but handles differently the irc=102
 
 implicit none
-integer irc, n
-real*8 U(n,n), Thr
-#include "WrkSpc.fh"
-integer n2, ipUTU, lUTU, i, ip0
-real*8 RMS, x2
+integer irc, nBas, nOcc, iD(nBas)
+real*8 Thrs, xNrm
+real*8 Dens(nBas,nBas), CMO(nBas,nOcc)
+character*9 SecNam
+parameter(SecNam='ChoLoc_xp')
+integer nVec
 real*8 ddot_
 external ddot_
 
-if (n < 1) then
-  irc = 0
+irc = 0
+xNrm = -9.9d9
+
+nVec = 0
+call CD_InCore_p(Dens,nBas,CMO,nOcc,iD,nVec,Thrs,irc)
+if ((irc /= 0) .and. (irc /= 102)) then
+  write(6,*) SecNam,': CD_InCore_p returned ',irc
+  return
+else if (irc == 102) then
+  irc = 0  ! reset because it is most likely a numerical noise
+else if (nVec /= nOcc) then
+  write(6,*) SecNam,': nVec /= nOcc'
+  write(6,*) '   nVec,nOcc = ',nVec,nOcc
+  irc = 1
   return
 end if
 
-n2 = n**2
-lUTU = n2
-call GetMem('UTU','Allo','Real',ipUTU,lUTU)
+xNrm = sqrt(dDot_(nBas*nOcc,CMO,1,CMO,1))
 
-call dCopy_(n2,[0.0d0],0,Work(ipUTU),1)
-ip0 = ipUTU-1
-do i=1,n
-  Work(ip0+n*(i-1)+i) = 1.0d0
-end do
-call DGEMM_('T','N',n,n,n,-1.0d0,U,n,U,n,1.0d0,Work(ipUTU),n)
-
-x2 = dble(n2)
-RMS = sqrt(dDot_(n2,Work(ipUTU),1,Work(ipUTU),1)/x2)
-if (RMS > Thr) then
-  irc = 1
-else
-  irc = 0
-end if
-
-call GetMem('UTU','Free','Real',ipUTU,lUTU)
-
-end subroutine Chk_Unitary
+end subroutine ChoLoc_xp

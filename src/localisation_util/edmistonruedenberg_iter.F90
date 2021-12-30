@@ -10,124 +10,107 @@
 !                                                                      *
 ! Copyright (C) 2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine EdmistonRuedenberg_Iter(Functional,CMO,Thrs,ThrRot,    &
-     &                                   ThrGrad,                       &
-     &                                   nBasis,nOrb2Loc,nMxIter,       &
-     &                                   Maximisation,Converged,Debug,  &
-     &                                   Silent)
+subroutine EdmistonRuedenberg_Iter(Functional,CMO,Thrs,ThrRot,ThrGrad,nBasis,nOrb2Loc,nMxIter,Maximisation,Converged,Debug,Silent)
+! Thomas Bondo Pedersen, November 2005.
 !
-!     Thomas Bondo Pedersen, November 2005.
+! Purpose: ER localisation of orbitals.
 !
-!     Purpose: ER localisation of orbitals.
+! The optimization algorithm is the "generalized eta step" of
+! Subotnik, Shao, Liang, and Head-Gordon, JCP 121, 9220 (2004).
 !
-!     The optimization algorithm is the "generalized eta step" of
-!     Subotnik, Shao, Liang, and Head-Gordon, JCP 121, 9220 (2004).
+! Redundant arguments that might be used at a later stage:
+!   ThrRot [might be used for DIIS]
+!   Maximisation [might be used for Jacobi sweeps]
 !
-!     Redundant arguments that might be used at a later stage:
-!       ThrRot [might be used for DIIS]
-!       Maximisation [might be used for Jacobi sweeps]
-!
-!     Note that two-electron integrals (Cholesky decomposed) must be
-!     available and appropriately set up when calling this routine.
-!
-      Implicit Real*8 (a-h,o-z)
-      Real*8  CMO(nBasis,nOrb2Loc)
-      Logical Maximisation, Converged, Debug, Silent
+! Note that two-electron integrals (Cholesky decomposed) must be
+! available and appropriately set up when calling this routine.
+
+implicit real*8(a-h,o-z)
+real*8 CMO(nBasis,nOrb2Loc)
+logical Maximisation, Converged, Debug, Silent
 #include "WrkSpc.fh"
 
-      Character*23 SecNam
-      Parameter (SecNam = 'EdmistonRuedenberg_Iter')
+character*23 SecNam
+parameter(SecNam='EdmistonRuedenberg_Iter')
 
-      Logical Timing
+logical Timing
 
-      If (Debug) Then
-         Write(6,*) SecNam,'[debug]: Maximisation: ',Maximisation
-         Write(6,*) SecNam,'[debug]: ThrRot      : ',ThrRot
-      End If
+if (Debug) then
+  write(6,*) SecNam,'[debug]: Maximisation: ',Maximisation
+  write(6,*) SecNam,'[debug]: ThrRot      : ',ThrRot
+end if
 
-!     Print iteration table header.
-!     -----------------------------
+! Print iteration table header.
+! -----------------------------
 
-      If (.not.Silent) Then
-         Write(6,'(//,1X,A,A,/,1X,A,A)')                                &
-     &   '                                                        CPU ',&
-     &   '      Wall',                                                  &
-     &   'nIter      Functional ER        Delta     Gradient     (sec)',&
-     &   '     (sec)'
-      End If
+if (.not. Silent) then
+  write(6,'(//,1X,A,/,1X,A)') '                                                        CPU       Wall', &
+                              'nIter      Functional ER        Delta     Gradient     (sec)     (sec)'
+end if
 
-!     Initialization.
-!     ---------------
+! Initialization.
+! ---------------
 
-      Converged = .False.
-      Timing = Debug
+Converged = .false.
+Timing = Debug
 
-      lRmat = nOrb2Loc**2
-      Call GetMem('Rmat','Allo','Real',ipRmat,lRmat)
+lRmat = nOrb2Loc**2
+call GetMem('Rmat','Allo','Real',ipRmat,lRmat)
 
-!     Iteration 0.
-!     ------------
+! Iteration 0.
+! ------------
 
-      If (.not.Silent) Call CWTime(C1,W1)
-      nIter = 0
-      Functional = 0.0d0
-      Call GetGrad_ER(Functional,GradNorm,Work(ipRmat),CMO,             &
-     &                nBasis,nOrb2Loc,Timing)
-      OldFunctional = Functional
-      FirstFunctional = Functional
-      Delta = Functional
-      If (.not.Silent) Then
-         Call CWTime(C2,W2)
-         TimC = C2 - C1
-         TimW = W2 - W1
-         Write(6,'(1X,I5,1X,F18.8,2(1X,D12.4),2(1X,F9.1))')             &
-     &   nIter,Functional,Delta,GradNorm,TimC,TimW
-      End If
+if (.not. Silent) call CWTime(C1,W1)
+nIter = 0
+Functional = 0.0d0
+call GetGrad_ER(Functional,GradNorm,Work(ipRmat),CMO,nBasis,nOrb2Loc,Timing)
+OldFunctional = Functional
+FirstFunctional = Functional
+Delta = Functional
+if (.not. Silent) then
+  call CWTime(C2,W2)
+  TimC = C2-C1
+  TimW = W2-W1
+  write(6,'(1X,I5,1X,F18.8,2(1X,D12.4),2(1X,F9.1))') nIter,Functional,Delta,GradNorm,TimC,TimW
+end if
 
-!     Iterations.
-!     -----------
+! Iterations.
+! -----------
 
-      Do While (nIter.lt.nMxIter .and. .not.Converged)
-         If (.not.Silent) Call CWTime(C1,W1)
-         Call RotateOrb_ER(Work(ipRmat),CMO,nBasis,nOrb2Loc,Debug)
-         Call GetGrad_ER(Functional,GradNorm,Work(ipRmat),              &
-     &                   CMO,nBasis,nOrb2Loc,Timing)
-         nIter = nIter + 1
-         Delta = Functional - OldFunctional
-         OldFunctional = Functional
-         If (.not.Silent) Then
-            Call CWTime(C2,W2)
-            TimC = C2 - C1
-            TimW = W2 - W1
-            Write(6,'(1X,I5,1X,F18.8,2(1X,D12.4),2(1X,F9.1))')          &
-     &      nIter,Functional,Delta,GradNorm,TimC,TimW
-         End If
-         Converged=GradNorm.le.ThrGrad .and. abs(Delta).le.Thrs
-      End Do
+do while ((nIter < nMxIter) .and. (.not. Converged))
+  if (.not. Silent) call CWTime(C1,W1)
+  call RotateOrb_ER(Work(ipRmat),CMO,nBasis,nOrb2Loc,Debug)
+  call GetGrad_ER(Functional,GradNorm,Work(ipRmat),CMO,nBasis,nOrb2Loc,Timing)
+  nIter = nIter+1
+  Delta = Functional-OldFunctional
+  OldFunctional = Functional
+  if (.not. Silent) then
+    call CWTime(C2,W2)
+    TimC = C2-C1
+    TimW = W2-W1
+    write(6,'(1X,I5,1X,F18.8,2(1X,D12.4),2(1X,F9.1))') nIter,Functional,Delta,GradNorm,TimC,TimW
+  end if
+  Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
+end do
 
-!     Print convergence message.
-!     --------------------------
+! Print convergence message.
+! --------------------------
 
-      If (.not.Silent) Then
-         If (.not.Converged) Then
-            Write(6,'(/,A,I4,A)')                                       &
-     &      'No convergence after',nIter,' iterations.'
-         Else
-            Write(6,'(/,A,I4,A)')                                       &
-     &      'Convergence after',nIter,' iterations.'
-            Write(6,*)
-            Write(6,'(A,I8)')    'Number of localised orbitals  : ',    &
-     &                                                 nOrb2loc
-            Write(6,'(A,F12.8)') 'Value of P before localisation: ',    &
-     &                                                 FirstFunctional
-            Write(6,'(A,F12.8)') 'Value of P after localisation : ',    &
-     &                                                 Functional
-         End If
-      End If
+if (.not. Silent) then
+  if (.not. Converged) then
+    write(6,'(/,A,I4,A)') 'No convergence after',nIter,' iterations.'
+  else
+    write(6,'(/,A,I4,A)') 'Convergence after',nIter,' iterations.'
+    write(6,*)
+    write(6,'(A,I8)') 'Number of localised orbitals  : ',nOrb2loc
+    write(6,'(A,F12.8)') 'Value of P before localisation: ',FirstFunctional
+    write(6,'(A,F12.8)') 'Value of P after localisation : ',Functional
+  end if
+end if
 
-!     Finalization.
-!     -------------
+! Finalization.
+! -------------
 
-      Call GetMem('Rmat','Free','Real',ipRmat,lRmat)
+call GetMem('Rmat','Free','Real',ipRmat,lRmat)
 
-      End
+end subroutine EdmistonRuedenberg_Iter

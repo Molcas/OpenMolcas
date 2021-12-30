@@ -8,44 +8,20 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2005, Thomas Bondo Pedersen                            *
+! Copyright (C) 2006, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Rmat,Debug)
-! Thomas Bondo Pedersen, December 2005.
-!
-! Purpose: compute the gradient of the Pipek-Mezey functional.
+subroutine Domain_Histo1(iDomain,nAtom,nOcc,iCount,i_min,i_max)
 
 implicit real*8(a-h,o-z)
-real*8 Rmat(nOrb2Loc,nOrb2Loc)
-real*8 PA(nOrb2Loc,nOrb2Loc,nAtoms)
-logical Debug
-#include "WrkSpc.fh"
+integer iDomain(0:nAtom,nOcc), iCount(*)
 
-RMat(:,:) = 0.0d0
-do iAtom=1,nAtoms
-  do j=1,nOrb2Loc
-    Rjj = PA(j,j,iAtom)
-    do i=1,nOrb2Loc
-      Rmat(i,j) = Rmat(i,j)+PA(i,j,iAtom)*Rjj
-    end do
-  end do
+nC = i_max-i_min+1
+call iCopy(nC,[0],0,iCount,1)
+
+do i=1,nOcc
+  iC = iDomain(0,i)-i_min+1
+  iCount(iC) = iCount(iC)+1
 end do
 
-GradNorm = 0.0d0
-do i=1,nOrb2Loc-1
-  do j=i+1,nOrb2Loc
-    GradNorm = GradNorm+(Rmat(i,j)-Rmat(j,i))**2
-  end do
-end do
-GradNorm = 4.0d0*sqrt(GradNorm)
-
-if (Debug) then
-  Fun = 0.0d0
-  do i=1,nOrb2Loc
-    Fun = Fun+Rmat(i,i)
-  end do
-  write(6,*) 'GetGrad_PM: functional = Tr(R) = ',Fun
-end if
-
-end subroutine GetGrad_PM
+end subroutine Domain_Histo1

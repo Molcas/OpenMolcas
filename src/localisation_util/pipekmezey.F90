@@ -11,114 +11,101 @@
 ! Copyright (C) Yannick Carissan                                       *
 !               Thomas Bondo Pedersen                                  *
 !***********************************************************************
-      SubRoutine PipekMezey(Functional,CMO,Thrs,ThrRot,ThrGrad,         &
-     &                      Name,                                       &
-     &                      nBas,nOrb2Loc,nFro,                         &
-     &                      nSym,nAtoms,nMxIter,                        &
-     &                      Maximisation,Converged,Debug,Silent)
+
+subroutine PipekMezey(Functional,CMO,Thrs,ThrRot,ThrGrad,Name,nBas,nOrb2Loc,nFro,nSym,nAtoms,nMxIter,Maximisation,Converged,Debug, &
+                      Silent)
+! Author: Y. Carissan [modified by T.B. Pedersen].
 !
-!     Author: Y. Carissan [modified by T.B. Pedersen].
-!
-!     Purpose: Pipek-Mezey localisation of occupied orbitals.
-!
-      Implicit Real*8 (a-h,o-z)
+! Purpose: Pipek-Mezey localisation of occupied orbitals.
+
+implicit real*8(a-h,o-z)
 #include "Molcas.fh"
-      Real*8  CMO(*)
-      Integer nBas(nSym), nOrb2Loc(nSym), nFro(nSym)
-      Logical Maximisation, Converged, Debug, Silent
-      Character*(LENIN8) Name(*) ! dimension should be tot. #bf
+real*8 CMO(*)
+integer nBas(nSym), nOrb2Loc(nSym), nFro(nSym)
+logical Maximisation, Converged, Debug, Silent
+character*(LENIN8) Name(*) ! dimension should be tot. #bf
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-      Real*8, Allocatable:: PA(:,:,:)
+real*8, allocatable :: PA(:,:,:)
+character*10 SecNam
+parameter(SecNam='PipekMezey')
+character*8 Label
 
-      Character*10 SecNam
-      Parameter (SecNam = 'PipekMezey')
+! Symmetry is NOT allowed!!
+! -------------------------
 
-      Character*8 Label
+if (nSym /= 1) then
+  call SysAbendMsg(SecNam,'Symmetry not implemented!','Sorry!')
+end if
 
-!     Symmetry is NOT allowed!!
-!     -------------------------
+! Initializations.
+! ----------------
 
-      If (nSym .ne. 1) Then
-         Call SysAbendMsg(SecNam,'Symmetry not implemented!','Sorry!')
-      End If
+Functional = -9.9d9
 
-!     Initializations.
-!     ----------------
+nBasT = nBas(1)
+nOrb2LocT = nOrb2Loc(1)
+nFroT = nFro(1)
 
-      Functional = -9.9D9
+Converged = .false.
 
-      nBasT     = nBas(1)
-      nOrb2LocT = nOrb2Loc(1)
-      nFroT     = nFro(1)
+! Read overlap matrix.
+! --------------------
 
-      Converged = .False.
+lOaux = nBasT*(nBasT+1)/2+4
+lOvlp = nBasT**2
+call GetMem('Ovlp','Allo','Real',ipOvlp,lOvlp)
+call GetMem('AuxOvlp','Allo','Real',ipOaux,lOaux)
 
-!     Read overlap matrix.
-!     --------------------
+irc = -1
+iOpt = 2
+iComp = 1
+iSyLbl = 1
+Label = 'Mltpl  0'
+call RdOne(irc,iOpt,Label,iComp,Work(ipOaux),iSyLbl)
+if (irc /= 0) then
+  write(6,*) SecNam,': RdOne returned ',irc
+  write(6,*) 'Label = ',Label,'  iSyLbl = ',iSyLbl
+  call SysAbendMsg(SecNam,'I/O error in RdOne',' ')
+end if
 
-      lOaux = nBasT*(nBasT+1)/2 + 4
-      lOvlp = nBasT**2
-      Call GetMem('Ovlp','Allo','Real',ipOvlp,lOvlp)
-      Call GetMem('AuxOvlp','Allo','Real',ipOaux,lOaux)
+if (Debug) then
+  write(6,*)
+  write(6,*) ' Triangular overlap matrix at start'
+  write(6,*) ' ----------------------------------'
+  call TriPrt('Overlap',' ',Work(ipOaux),nBasT)
+end if
 
-      irc    = -1
-      iOpt   = 2
-      iComp  = 1
-      iSyLbl = 1
-      Label  = 'Mltpl  0'
-      Call RdOne(irc,iOpt,Label,iComp,Work(ipOaux),iSyLbl)
-      If (irc .ne. 0) Then
-         Write(6,*) SecNam,': RdOne returned ',irc
-         Write(6,*) 'Label = ',Label,'  iSyLbl = ',iSyLbl
-         Call SysAbendMsg(SecNam,'I/O error in RdOne',' ')
-      End If
+call Tri2Rec(Work(ipOaux),Work(ipOvlp),nBasT,Debug)
+call GetMem('AuxOvlp','Free','Real',ipOaux,lOaux)
 
-      If (Debug) Then
-         Write (6,*)
-         Write (6,*) ' Triangular overlap matrix at start'
-         Write (6,*) ' ----------------------------------'
-         Call TriPrt('Overlap',' ',Work(ipOaux),nBasT)
-      End If
+! Allocate and get index arrays for basis functions per atom.
+! -----------------------------------------------------------
 
-      Call Tri2Rec(Work(ipOaux),Work(ipOvlp),nBasT,Debug)
-      Call GetMem('AuxOvlp','Free','Real',ipOaux,lOaux)
+l_nBas_per_Atom = nAtoms
+l_nBas_Start = l_nBas_per_Atom
+call GetMem('nB_per_Atom','Allo','Inte',ip_nBas_per_Atom,l_nBas_per_Atom)
+call GetMem('nB_Start','Allo','Inte',ip_nBas_Start,l_nBas_Start)
+call BasFun_Atom(iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),Name,nBasT,nAtoms,Debug)
 
-!     Allocate and get index arrays for basis functions per atom.
-!     -----------------------------------------------------------
+! Allocate PA array.
+! ------------------
+call mma_Allocate(PA,nOrb2LocT,nOrb2LocT,nAtoms,Label='PA')
+PA(:,:,:) = 0.0d0
 
-      l_nBas_per_Atom = nAtoms
-      l_nBas_Start    = l_nBas_per_Atom
-      Call GetMem('nB_per_Atom','Allo','Inte',                          &
-     &            ip_nBas_per_Atom,l_nBas_per_Atom)
-      Call GetMem('nB_Start','Allo','Inte',                             &
-     &            ip_nBas_Start,l_nBas_Start)
-      Call BasFun_Atom(iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),    &
-     &                 Name,nBasT,nAtoms,Debug)
+! Localise orbitals.
+! ------------------
 
-!     Allocate PA array.
-!     ------------------
-      Call mma_Allocate(PA,nOrb2LocT,nOrb2LocT,nAtoms,Label='PA')
-      PA(:,:,:)=0.0D0
+kOffC = nBasT*nFroT+1
+call PipekMezey_Iter(Functional,CMO(kOffC),Work(ipOvlp),Thrs,ThrRot,ThrGrad,PA,iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),Name, &
+                     nBasT,nOrb2LocT,nAtoms,nMxIter,Maximisation,Converged,Debug,Silent)
 
-!     Localise orbitals.
-!     ------------------
+! De-allocations.
+! ---------------
 
-      kOffC = nBasT*nFroT + 1
-      Call PipekMezey_Iter(Functional,CMO(kOffC),                       &
-     &                     Work(ipOvlp),Thrs,ThrRot,ThrGrad,PA,         &
-     &                     iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),&
-     &                     Name,nBasT,nOrb2LocT,nAtoms,nMxIter,         &
-     &                     Maximisation,Converged,Debug,Silent)
+call mma_deallocate(PA)
+call GetMem('nB_Start','Free','Inte',ip_nBas_Start,l_nBas_Start)
+call GetMem('nB_per_Atom','Free','Inte',ip_nBas_per_Atom,l_nBas_per_Atom)
+call GetMem('Ovlp','Free','Real',ipOvlp,lOvlp)
 
-!     De-allocations.
-!     ---------------
-
-      Call mma_deallocate(PA)
-      Call GetMem('nB_Start','Free','Inte',                             &
-     &            ip_nBas_Start,l_nBas_Start)
-      Call GetMem('nB_per_Atom','Free','Inte',                          &
-     &            ip_nBas_per_Atom,l_nBas_per_Atom)
-      Call GetMem('Ovlp','Free','Real',ipOvlp,lOvlp)
-
-      End
+end subroutine PipekMezey

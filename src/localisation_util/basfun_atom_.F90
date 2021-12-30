@@ -12,70 +12,61 @@
 !               Thomas Bondo Pedersen                                  *
 !               Francesco Aquilante                                    *
 !***********************************************************************
-      SubRoutine BasFun_Atom_(nBas_per_Atom,nBas_Start,Name,            &
-     &                        jBas,nBas,nAtoms,DoPrint)
-!
-!     Author: Y. Carissan / T. B. Pedersen
-!             [adapted to cases with symmetry by F. Aquilante]
-!
-      Implicit Real*8 (a-h,o-z)
+
+subroutine BasFun_Atom_(nBas_per_Atom,nBas_Start,Name,jBas,nBas,nAtoms,DoPrint)
+! Author: Y. Carissan / T. B. Pedersen
+!         [adapted to cases with symmetry by F. Aquilante]
+
+implicit real*8(a-h,o-z)
 #include "Molcas.fh"
-      Integer jBas, nBas, nAtoms
-      Integer nBas_per_Atom(nAtoms), nBas_Start(nAtoms)
-      Character*(LENIN8) Name(nBas)
-      Character*(LENIN) AtName(nAtoms)
-      Logical DoPrint
+integer jBas, nBas, nAtoms
+integer nBas_per_Atom(nAtoms), nBas_Start(nAtoms)
+character*(LENIN8) Name(nBas)
+character*(LENIN) AtName(nAtoms)
+logical DoPrint
+character*12 SecNam
+parameter(SecNam='BasFun_Atom_')
+integer iAt, kBas, iCount
+character*(LENIN) Lbl
+character*80 Txt, Formt
 
-      Character*12 SecNam
-      Parameter (SecNam = 'BasFun_Atom_')
-
-      Integer iAt, kBas, iCount
-
-      Character*(LENIN)  Lbl
-      Character*80 Txt, Formt
-
-
-!     Counters.
-!     ---------
+! Counters.
+! ---------
 
 ! IFG: To count basis functions per atom, we need a list of atom names,
 !      since there is no guarantee all atoms will be present in a give irrep
-      Call Get_cArray('Unique Atom Names',AtName,(LENIN)*nAtoms)
+call Get_cArray('Unique Atom Names',AtName,(LENIN)*nAtoms)
 
-      kBas = jBas
-      Do iAt = 1, nAtoms
-         nBas_per_Atom(iAt) = 0
-         Lbl = AtName(iAt)
-         Do While ((Name(kBas)(1:LENIN).eq.Lbl) .and. (kBas.le.nBas))
-            nBas_per_Atom(iAt) = nBas_per_Atom(iAt) + 1
-            kBas = kBas + 1
-         End Do
-      End Do
+kBas = jBas
+do iAt=1,nAtoms
+  nBas_per_Atom(iAt) = 0
+  Lbl = AtName(iAt)
+  do while ((Name(kBas)(1:LENIN) == Lbl) .and. (kBas <= nBas))
+    nBas_per_Atom(iAt) = nBas_per_Atom(iAt)+1
+    kBas = kBas+1
+  end do
+end do
 
-!     Offsets.
-!     --------
+! Offsets.
+! --------
 
-      iCount = 0
-      Do iAt = 1,nAtoms
-         nBas_Start(iAt) = iCount + 1
-         iCount = iCount + nBas_per_Atom(iAt)
-      End Do
-      jCount = iCount + jBas - 1
-      If (jCount .ne. nBas) Then
-         Write(Txt,'(A,I9,A,I9)') 'jCount =',jCount,'  nBas =',nBas
-         Call SysAbendMsg(SecNam,'jCount.NE.nBas',Txt)
-      End If
+iCount = 0
+do iAt=1,nAtoms
+  nBas_Start(iAt) = iCount+1
+  iCount = iCount+nBas_per_Atom(iAt)
+end do
+jCount = iCount+jBas-1
+if (jCount /= nBas) then
+  write(Txt,'(A,I9,A,I9)') 'jCount =',jCount,'  nBas =',nBas
+  call SysAbendMsg(SecNam,'jCount /= nBas',Txt)
+end if
 
-!     Print.
-!     ------
+! Print.
+! ------
 
-      If (DoPrint) Then
-         Write(Formt,'(3(a6,i3,a5))') '(/,a6,',nAtoms,'i5,/,',          &
-     &                                '   a6,',nAtoms,'i5,/,',          &
-     &                                '   a6,',nAtoms,'i5)'
-         Write(6,Formt) 'Atom  ',(iAt,iAt=1,nAtoms),                    &
-     &                  'Start ',(nBas_Start(iAt),iAt=1,nAtoms),        &
-     &                  'nBas  ',(nBas_per_Atom(iAt),iAt=1,nAtoms)
-      End If
+if (DoPrint) then
+  write(Formt,'(3(a6,i3,a5))') '(/,a6,',nAtoms,'i5,/,','   a6,',nAtoms,'i5,/,','   a6,',nAtoms,'i5)'
+  write(6,Formt) 'Atom  ',(iAt,iAt=1,nAtoms),'Start ',(nBas_Start(iAt),iAt=1,nAtoms),'nBas  ',(nBas_per_Atom(iAt),iAt=1,nAtoms)
+end if
 
-      End
+end subroutine BasFun_Atom_

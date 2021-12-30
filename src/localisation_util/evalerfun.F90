@@ -11,41 +11,24 @@
 ! Copyright (C) 2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Rmat,Debug)
-! Thomas Bondo Pedersen, December 2005.
-!
-! Purpose: compute the gradient of the Pipek-Mezey functional.
+subroutine EvalERFun(ERFun,ERFunC,CMO,nOcc,nSym,Timing)
 
-implicit real*8(a-h,o-z)
-real*8 Rmat(nOrb2Loc,nOrb2Loc)
-real*8 PA(nOrb2Loc,nOrb2Loc,nAtoms)
-logical Debug
-#include "WrkSpc.fh"
+implicit none
+real*8 ERFun
+real*8 ERFunC(*), CMO(*)
+integer nSym
+integer nOcc(nSym)
+logical Timing
+character*9 SecNam
+parameter(SecNam='EvalERFun')
+character*80 Txt
+integer irc
 
-RMat(:,:) = 0.0d0
-do iAtom=1,nAtoms
-  do j=1,nOrb2Loc
-    Rjj = PA(j,j,iAtom)
-    do i=1,nOrb2Loc
-      Rmat(i,j) = Rmat(i,j)+PA(i,j,iAtom)*Rjj
-    end do
-  end do
-end do
-
-GradNorm = 0.0d0
-do i=1,nOrb2Loc-1
-  do j=i+1,nOrb2Loc
-    GradNorm = GradNorm+(Rmat(i,j)-Rmat(j,i))**2
-  end do
-end do
-GradNorm = 4.0d0*sqrt(GradNorm)
-
-if (Debug) then
-  Fun = 0.0d0
-  do i=1,nOrb2Loc
-    Fun = Fun+Rmat(i,i)
-  end do
-  write(6,*) 'GetGrad_PM: functional = Tr(R) = ',Fun
+irc = 0
+call Cho_Get_ER(irc,CMO,nOcc,ERFunC,ERFun,Timing)
+if (irc /= 0) then
+  write(Txt,'(A,I4)') 'Cho_Get_ER returned',irc
+  call SysAbendMsg(SecNam,'ER evaluation failed!',Txt)
 end if
 
-end subroutine GetGrad_PM
+end subroutine EvalERFun

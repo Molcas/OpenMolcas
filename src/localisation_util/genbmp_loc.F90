@@ -8,33 +8,32 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine GenBMp_Loc(X,nRow,nCol,FilNam,Color)
-      Implicit None
-      Integer nRow, nCol
-      Real*8  X(nRow,nCol)
-      Character*(*) FilNam
-      Character*1   Color
 
-      Character*10 SecNam
-      Parameter (SecNam = 'GenBMp_Loc')
+subroutine GenBMp_Loc(X,nRow,nCol,FilNam,Color)
 
-      Integer  isFreeUnit
-      External isFreeUnit
+implicit none
+integer nRow, nCol
+real*8 X(nRow,nCol)
+character*(*) FilNam
+character*1 Color
+character*10 SecNam
+parameter(SecNam='GenBMp_Loc')
+integer isFreeUnit
+external isFreeUnit
+character*80 Txt
+integer Lunit, irc, nStp
+real*8 StpSiz
 
-      Character*80 Txt
-      Integer Lunit, irc, nStp
-      Real*8  StpSiz
+Lunit = isFreeUnit(11)
+call Molcas_Open(Lunit,FilNam)
+irc = 0
+nStp = -1
+StpSiz = -1.0d0
+call GenBMp(irc,X,nRow,nCol,Lunit,nStp,StpSiz,Color)
+if (irc /= 0) then
+  write(Txt,'(A,I4)') 'GenBMp returned',irc
+  call SysAbendMsg(SecNam,'GenBMp failed!',Txt)
+end if
+close(Lunit,Status='Keep')
 
-      Lunit = isFreeUnit(11)
-      Call Molcas_Open(Lunit,FilNam)
-      irc = 0
-      nStp = -1
-      StpSiz = -1.0d0
-      Call GenBMp(irc,X,nRow,nCol,Lunit,nStp,StpSiz,Color)
-      If (irc .ne. 0) Then
-         Write(Txt,'(A,I4)') 'GenBMp returned',irc
-         Call SysAbendMsg(SecNam,'GenBMp failed!',Txt)
-      End If
-      Close(Lunit,Status='Keep')
-
-      End
+end subroutine GenBMp_Loc

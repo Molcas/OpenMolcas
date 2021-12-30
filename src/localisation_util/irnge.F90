@@ -8,19 +8,19 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Integer Function iRnge(Val,Bin,nBin)
-      Implicit None
-      Integer nBin
-      Real*8 Val, Bin(nBin)
+integer function iRnge(Val,Bin,nBin)
+implicit none
+integer nBin
+real*8 Val, Bin(nBin)
 
-      Integer iBin
+integer iBin
 
-      iRnge = nBin
-      Do iBin = 1,nBin-1
-         If (Val .gt. Bin(iBin)) Then
-            iRnge = iBin
-            Return
-         End If
-      End Do
+iRnge = nBin
+do iBin=1,nBin-1
+  if (Val > Bin(iBin)) then
+    iRnge = iBin
+    return
+  end if
+end do
 
-      End
+end

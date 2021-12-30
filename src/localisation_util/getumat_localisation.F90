@@ -10,38 +10,33 @@
 !                                                                      *
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
-      SubRoutine GetUmat_Localisation(U,C,S,X,Scr,lScr,nBas,nOrb)
+
+subroutine GetUmat_Localisation(U,C,S,X,Scr,lScr,nBas,nOrb)
+! Author: T.B. Pedersen
 !
-!     Author: T.B. Pedersen
-!
-!     Purpose: compute transformation matrix U=C^TSX.
-!
-      Implicit None
-      Real*8  U(*), C(*), S(*), X(*)
-      Integer lScr
-      Real*8  Scr(lScr)
-      Integer nBas, nOrb
+! Purpose: compute transformation matrix U=C^TSX.
 
-      Character*80 Txt
-      Character*20 SecNam
-      Parameter (SecNam = 'GetUmat_Localisation')
+implicit none
+real*8 U(*), C(*), S(*), X(*)
+integer lScr
+real*8 Scr(lScr)
+integer nBas, nOrb
+character*80 Txt
+character*20 SecNam
+parameter(SecNam='GetUmat_Localisation')
+real*8 d0, d1
+parameter(d0=0.0d0,d1=1.0d0)
+integer Need
 
-      Real*8 d0, d1
-      Parameter (d0 = 0.0d0, d1 = 1.0d0)
+if ((nOrb < 1) .or. (nBas < 1)) return
 
-      Integer Need
+Need = nBas*nOrb
+if (lScr < Need) then
+  write(Txt,'(A,I9,A,I9)') 'lScr =',lScr,'     Need =',Need
+  call SysAbendMsg(SecNam,'Insufficient dimension of scratch array!',Txt)
+end if
 
-      If (nOrb.lt.1 .or. nBas.lt.1) Return
+call DGEMM_('N','N',nBas,nOrb,nBas,d1,S,nBas,X,nBas,d0,Scr,nBas)
+call DGEMM_('T','N',nOrb,nOrb,nBas,d1,C,nBas,Scr,nBas,d0,U,nOrb)
 
-      Need = nBas*nOrb
-      If (lScr .lt. Need) Then
-         Write(Txt,'(A,I9,A,I9)')                                       &
-     &   'lScr =',lScr,'     Need =',Need
-         Call SysAbendMsg(SecNam,                                       &
-     &                   'Insufficient dimension of scratch array!',Txt)
-      End If
-
-      Call DGEMM_('N','N',nBas,nOrb,nBas,d1,S,nBas,X,nBas,d0,Scr,nBas)
-      Call DGEMM_('T','N',nOrb,nOrb,nBas,d1,C,nBas,Scr,nBas,d0,U,nOrb)
-
-      End
+end subroutine GetUmat_Localisation

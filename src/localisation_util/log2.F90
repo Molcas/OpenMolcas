@@ -8,42 +8,21 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) Thomas Bondo Pedersen                                  *
-!***********************************************************************
-!  Sq2Tri
-!
-!> @brief
-!>   Convert from square to lower triangular storage
-!> @author Thomas Bondo Pedersen
-!>
-!> @param[in]  Sq  Square storage array
-!> @param[out] Tri Lower triangular storage array
-!> @param[in]  n   Dimension
-!>
-!> @details
-!> Perform the extraction
-!>
-!> \code
-!> Tri(i*(i-1)/2+j) = Sq(i,j)
-!> \endcode
-!>
-!> where \c i &ge; \c j.
+! Copyright (C) Francesco Aquilante                                    *
 !***********************************************************************
 
-subroutine Sq2Tri(Sq,Tri,n)
+integer function Log2(n)
 
 implicit none
-integer n
-real*8 Sq(n,n), Tri(n*(n+1)/2)
+integer n, m
 
-integer i, j, iTri
-
-iTri(i,j) = i*(i-1)/2+j
-
-do j=1,n
-  do i=j,n
-    Tri(iTri(i,j)) = Sq(i,j)
-  end do
+m = n
+Log2 = 0
+do while (m > 1)
+  m = m/2
+  Log2 = Log2+1
 end do
 
-end subroutine Sq2Tri
+return
+
+end function Log2

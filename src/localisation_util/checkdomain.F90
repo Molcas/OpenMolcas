@@ -10,29 +10,29 @@
 !                                                                      *
 ! Copyright (C) 2006, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine CheckDomain(irc,iDomain,nAtom,nOcc)
-!
-!     Thomas Bondo Pedersen, January 2006.
-!
-!     Purpose: check domain definition.
-!
-      Implicit Real*8 (a-h,o-z)
-      Integer iDomain(0:nAtom,nOcc)
 
-      irc = 0
-      Do i = 1,nOcc
-         If (iDomain(0,i).lt.1 .or. iDomain(0,i).gt.nAtom) Then
-            Write(6,*) 'Dimension of domain ',i,': ',iDomain(0,i)
-            irc = irc + 1
-         Else
-            Do iAt = 1,iDomain(0,i)
-               iAtom = iDomain(iAt,i)
-               If (iAtom.lt.1 .or. iAtom.gt.nAtom) Then
-                  Write(6,*) 'Atom ',iAt,' of domain ',i,': ',iAtom
-                  irc = irc + 1
-               End If
-            End Do
-         End If
-      End Do
+subroutine CheckDomain(irc,iDomain,nAtom,nOcc)
+! Thomas Bondo Pedersen, January 2006.
+!
+! Purpose: check domain definition.
 
-      End
+implicit real*8(a-h,o-z)
+integer iDomain(0:nAtom,nOcc)
+
+irc = 0
+do i=1,nOcc
+  if ((iDomain(0,i) < 1) .or. (iDomain(0,i) > nAtom)) then
+    write(6,*) 'Dimension of domain ',i,': ',iDomain(0,i)
+    irc = irc+1
+  else
+    do iAt=1,iDomain(0,i)
+      iAtom = iDomain(iAt,i)
+      if ((iAtom < 1) .or. (iAtom > nAtom)) then
+        write(6,*) 'Atom ',iAt,' of domain ',i,': ',iAtom
+        irc = irc+1
+      end if
+    end do
+  end if
+end do
+
+end subroutine CheckDomain

@@ -58,106 +58,103 @@
 !> @param[in]  nOcc        Number of orbitals for which domains are defined
 !> @param[in]  nRThr       Number of thresholds for classification
 !***********************************************************************
-      SubRoutine DefinePairDomain(irc,iPairDomain,iClass,Rmin,iDomain,  &
-     &                            RThr,Coord,nAtom,nOcc,nRThr)
-      Implicit Real*8 (a-h,o-z)
-      Integer iPairDomain(0:nAtom,*), iClass(*)
-      Real*8  Rmin(*)
-      Integer iDomain(0:nAtom,nOcc)
-      Real*8  RThr(*), Coord(3,nAtom)
+
+subroutine DefinePairDomain(irc,iPairDomain,iClass,Rmin,iDomain,RThr,Coord,nAtom,nOcc,nRThr)
+implicit real*8(a-h,o-z)
+integer iPairDomain(0:nAtom,*), iClass(*)
+real*8 Rmin(*)
+integer iDomain(0:nAtom,nOcc)
+real*8 RThr(*), Coord(3,nAtom)
 #include "WrkSpc.fh"
 
-!     Set return code.
-!     ----------------
+! Set return code.
+! ----------------
 
-      irc = 0
-      If (nOcc .lt. 2) Return
+irc = 0
+if (nOcc < 2) return
 
-!     Set pair domains as union of individual domains: [ij]=[i]U[j] for
-!     i>=j.
-!     -----------------------------------------------------------------
+! Set pair domains as union of individual domains: [ij]=[i]U[j] for i>=j.
+! -----------------------------------------------------------------------
 
-      nnOcc = nOcc*(nOcc+1)/2
-      lT = (nAtom+1)*nnOcc
-      Call iCopy(lT,[0],0,iPairDomain,1)
+nnOcc = nOcc*(nOcc+1)/2
+lT = (nAtom+1)*nnOcc
+call iCopy(lT,[0],0,iPairDomain,1)
 
-      l_Union = nAtom*nOcc
-      Call GetMem('Union','Allo','Inte',ip_Union,l_Union)
+l_Union = nAtom*nOcc
+call GetMem('Union','Allo','Inte',ip_Union,l_Union)
 
-      Call iCopy(l_Union,[0],0,iWork(ip_Union),1)
-      kOff = ip_Union - 1
-      Do i = 1,nOcc
-         iOff = kOff + nAtom*(i-1)
-         Do iA = 1,iDomain(0,i)
-            iAtom = iDomain(iA,i)
-            iWork(iOff+iAtom) = 1
-         End Do
-      End Do
+call iCopy(l_Union,[0],0,iWork(ip_Union),1)
+kOff = ip_Union-1
+do i=1,nOcc
+  iOff = kOff+nAtom*(i-1)
+  do iA=1,iDomain(0,i)
+    iAtom = iDomain(iA,i)
+    iWork(iOff+iAtom) = 1
+  end do
+end do
 
-      kOff = ip_Union - 1
-      ij = 0
-      Do j = 1,nOcc
-         ij = ij + 1
-         lD = iDomain(0,j) + 1
-         Call iCopy(lD,iDomain(0,j),1,iPairDomain(0,ij),1) ! case i=j
-         jOff = kOff + nAtom*(j-1)
-         Do i = j+1,nOcc
-            iOff = kOff + nAtom*(i-1)
-            iCount = 0
-            ij = ij + 1
-            Do kAtom = 1,nAtom
-               isThere = iWork(jOff+kAtom) + iWork(iOff+kAtom)
-               If (isThere .gt. 0) Then
-                  iCount = iCount + 1
-                  iPairDomain(iCount,ij) = kAtom
-               End If
-            End Do
-            iPairDomain(0,ij) = iCount
-         End Do
-      End Do
+kOff = ip_Union-1
+ij = 0
+do j=1,nOcc
+  ij = ij+1
+  lD = iDomain(0,j)+1
+  call iCopy(lD,iDomain(0,j),1,iPairDomain(0,ij),1) ! case i=j
+  jOff = kOff+nAtom*(j-1)
+  do i=j+1,nOcc
+    iOff = kOff+nAtom*(i-1)
+    iCount = 0
+    ij = ij+1
+    do kAtom=1,nAtom
+      isThere = iWork(jOff+kAtom)+iWork(iOff+kAtom)
+      if (isThere > 0) then
+        iCount = iCount+1
+        iPairDomain(iCount,ij) = kAtom
+      end if
+    end do
+    iPairDomain(0,ij) = iCount
+  end do
+end do
 
-      Call GetMem('Union','Free','Inte',ip_Union,l_Union)
+call GetMem('Union','Free','Inte',ip_Union,l_Union)
 
-!     Set min. distance between any two atoms in pairs of domains.
-!     ------------------------------------------------------------
+! Set min. distance between any two atoms in pairs of domains.
+! ------------------------------------------------------------
 
-      ij = 0
-      Do j = 1,nOcc
-         ij = ij + 1
-         Rmin(ij) = 0.0d0 ! case i=j
-         Do i = j+1,nOcc
-            ij = ij + 1
-            Rmin(ij) = 1.0d15
-            Do jA = 1,iDomain(0,j)
-               jAtom = iDomain(jA,j)
-               Do iA = 1,iDomain(0,i)
-                  iAtom = iDomain(iA,i)
-                  R = sqrt((Coord(1,iAtom)-Coord(1,jAtom))**2           &
-     &                    +(Coord(2,iAtom)-Coord(2,jAtom))**2           &
-     &                    +(Coord(3,iAtom)-Coord(3,jAtom))**2)
-                  Rmin(ij) = min(Rmin(ij),R)
-               End Do
-            End Do
-         End Do
-      End Do
+ij = 0
+do j=1,nOcc
+  ij = ij+1
+  Rmin(ij) = 0.0d0 ! case i=j
+  do i=j+1,nOcc
+    ij = ij+1
+    Rmin(ij) = 1.0d15
+    do jA=1,iDomain(0,j)
+      jAtom = iDomain(jA,j)
+      do iA=1,iDomain(0,i)
+        iAtom = iDomain(iA,i)
+        R = sqrt((Coord(1,iAtom)-Coord(1,jAtom))**2+(Coord(2,iAtom)-Coord(2,jAtom))**2+(Coord(3,iAtom)-Coord(3,jAtom))**2)
+        Rmin(ij) = min(Rmin(ij),R)
+      end do
+    end do
+  end do
+end do
 
-!     Set classification for each pair domain.
-!     Note that the caller must have ordered the thresholds according to
-!     RThr(1) < RThr(2) < RThr(3) < ... < RThr(nRThr)
-!     ------------------------------------------------------------------
+! Set classification for each pair domain.
+! Note that the caller must have ordered the thresholds according to
+! RThr(1) < RThr(2) < RThr(3) < ... < RThr(nRThr)
+! ------------------------------------------------------------------
 
-      If (nRThr .gt. 0) Then
-         Call iCopy(nnOcc,[nRThr],0,iClass,1)
-         Do ij = 1,nnOcc
-            i = 0
-            Do While (i .lt. nRThr)
-               i = i + 1
-               If (Rmin(ij) .le. RThr(i)) Then
-                  iClass(ij) = i - 1
-                  i = nRThr ! break while loop
-               End If
-            End Do
-         End Do
-      End If
+if (nRThr > 0) then
+  call iCopy(nnOcc,[nRThr],0,iClass,1)
+  do ij=1,nnOcc
+    i = 0
+    do while (i < nRThr)
+      i = i+1
+      if (Rmin(ij) <= RThr(i)) then
+        iClass(ij) = i-1
+        i = nRThr ! break while loop
+      end if
+    end do
+  end do
+end if
 
-      End
+end subroutine DefinePairDomain

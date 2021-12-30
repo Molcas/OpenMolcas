@@ -10,111 +10,103 @@
 !                                                                      *
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
-      SubRoutine RotateOrbB(CMO,Col,ipLbl,nComp,nBas,nOrb2Loc,          &
-     &                      Maximisation,ThrRot,PctSkp,Debug)
+
+subroutine RotateOrbB(CMO,Col,ipLbl,nComp,nBas,nOrb2Loc,Maximisation,ThrRot,PctSkp,Debug)
+! Author: T.B. Pedersen
 !
-!     Author: T.B. Pedersen
-!
-!     Purpose: rotate orbitals (Jacobi Sweeps) for Boys localisation.
-!
-      Implicit Real*8 (a-h,o-z)
-      Real*8  CMO(nBas,*), Col(nOrb2Loc,2)
-      Integer ipLbl(nComp)
-      Logical Maximisation, Debug
+! Purpose: rotate orbitals (Jacobi Sweeps) for Boys localisation.
+
+implicit real*8(a-h,o-z)
+real*8 CMO(nBas,*), Col(nOrb2Loc,2)
+integer ipLbl(nComp)
+logical Maximisation, Debug
 #include "WrkSpc.fh"
 #include "real.fh"
+character*10 SecNam
+parameter(SecNam='RotateOrbB')
+character*80 Txt
 
-      Character*10 SecNam
-      Parameter (SecNam = 'RotateOrbB')
+xDone = 0.0d0
+if (Debug) iCouple = 0
+do iMO1=1,nOrb2Loc-1
+  do iMO2=iMO1+1,nOrb2Loc
 
-      Character*80 Txt
+    if (Debug) then
+      iCouple = iCouple+1
+      write(6,'(A9,I5)') 'Couple n:',iCouple
+      write(6,'(A9,I5)') '    MO1 :',iMO1
+      write(6,'(A9,I5)') '    MO2 :',iMO2
+    end if
 
-      xDone = 0.0d0
-      If (Debug) iCouple=0
-      Do iMO1=1,nOrb2Loc-1
-        Do iMO2=iMO1+1,nOrb2Loc
+    iMO_s = iMO1
+    iMO_t = iMO2
 
-          If (Debug) Then
-            iCouple = iCouple + 1
-            Write(6,'(A9,I5)') 'Couple n:',iCouple
-            Write(6,'(A9,I5)') '    MO1 :',iMO1
-            Write(6,'(A9,I5)') '    MO2 :',iMO2
-          End If
+    Ast = 0.0d0
+    Bst = 0.0d0
+    do iComp=1,nComp
+      ip0 = ipLbl(iComp)-1
+      iss = ip0+nOrb2Loc*(iMO_s-1)+iMO_s
+      itt = ip0+nOrb2Loc*(iMO_t-1)+iMO_t
+      ist = ip0+nOrb2Loc*(iMO_t-1)+iMO_s
+      Ast = Ast+Work(ist)**2-2.5d-1*(Work(iss)-Work(itt))**2
+      Bst = Bst+Work(ist)*(Work(iss)-Work(itt))
+    end do
 
-          iMO_s = iMO1
-          iMO_t = iMO2
+    if ((Ast == 0.0d0) .and. (Bst == 0.0d0)) then
+      cos4alpha = -1.0d0
+      sin4alpha = 0.0d0
+    else
+      cos4alpha = -Ast/sqrt(Ast**2+Bst**2)
+      sin4alpha = Bst/sqrt(Ast**2+Bst**2)
+    end if
+    Tst = abs(cos4alpha)-1.0d0
+    if (Tst > 0.0d0) then
+      if (Tst > 1.0d-10) then
+        write(Txt,'(A,D18.10)') 'Actual: cos4alpha = ',cos4alpha
+        call SysAbendMsg(SecNam,'-1.0d0 < cos4alpha < 1.0d0',Txt)
+      else
+        if (cos4alpha < 0.0d0) then
+          cos4alpha = -1.0d0
+        else
+          cos4alpha = 1.0d0
+        end if
+      end if
+    end if
 
-          Ast = 0.0d0
-          Bst = 0.0d0
-          Do iComp = 1,nComp
-             ip0 = ipLbl(iComp) - 1
-             iss = ip0 + nOrb2Loc*(iMO_s-1) + iMO_s
-             itt = ip0 + nOrb2Loc*(iMO_t-1) + iMO_t
-             ist = ip0 + nOrb2Loc*(iMO_t-1) + iMO_s
-             Ast = Ast                                                  &
-     &           + Work(ist)**2                                         &
-     &           - 2.5d-1*(Work(iss)-Work(itt))**2
-             Bst = Bst                                                  &
-     &           + Work(ist)*(Work(iss)-Work(itt))
-          End Do
+    Alpha1 = acos(cos4alpha)/4.0d0
+    Alpha2 = asin(sin4alpha)/4.0d0
+    if (Alpha2 < 0.0d0) Alpha1 = Alpha2+PI
+    Alpha = Alpha1
+    if (.not. Maximisation) then
+      Gamma_rot = Alpha-PI/4.0d0
+    else
+      Gamma_rot = Alpha
+    end if
+    if (Debug) then
+      write(6,'(A9,F10.5)') '   Ast :',Ast
+      write(6,'(A9,F10.5)') '   Bst :',Bst
+      write(6,'(A9,F10.5)') 'Alpha1 :',Alpha1
+      write(6,'(A9,F10.5)') 'Alpha2 :',Alpha2
+      write(6,'(A9,F10.5)') ' Gamma :',Gamma_rot
+    end if
 
-          If ((Ast.eq.0.0d0).and.(Bst.eq.0.0d0)) Then
-            cos4alpha=-1.0d0
-            sin4alpha=0.0d0
-          Else
-            cos4alpha=-Ast/sqrt(Ast**2+Bst**2)
-            sin4alpha= Bst/sqrt(Ast**2+Bst**2)
-          End If
-          Tst=abs(cos4alpha)-1.0d0
-          If (Tst .gt. 0.0d0) Then
-            If (Tst .gt. 1.0d-10) Then
-              Write(Txt,'(A,D18.10)') 'Actual: cos4alpha = ',cos4alpha
-              Call SysAbendMsg(SecNam,'-1.0d0 < cos4alpha < 1.0d0',     &
-     &                         Txt)
-            Else
-               If (cos4alpha .lt. 0.0d0) Then
-                  cos4alpha=-1.0d0
-               Else
-                  cos4alpha=1.0d0
-               End If
-            End If
-          End If
+    Tsts = sin(Gamma_rot)
+    Tstc = 1.0d0-cos(Gamma_rot)
+    if ((abs(Tsts) > ThrRot) .or. (abs(Tstc) > ThrRot)) then
+      call Rot_st(CMO(1,iMO_s),CMO(1,iMO_t),nBas,Gamma_rot,Debug)
+      call UpdateB(Col,nOrb2Loc,ipLbl,nComp,Gamma_rot,iMO_s,iMO_t,Debug)
+      xDone = xDone+1.0d0
+    end if
 
-          Alpha1=acos(cos4alpha)/4.0d0
-          Alpha2=asin(sin4alpha)/4.0d0
-          If (Alpha2.lt.0.0d0) Alpha1=Alpha2+PI
-          Alpha=Alpha1
-          If (.Not.Maximisation) Then
-            Gamma_rot=Alpha-PI/4.0d0
-          Else
-            Gamma_rot=Alpha
-          End If
-          If (Debug) Then
-            Write(6,'(A9,F10.5)') '   Ast :',Ast
-            Write(6,'(A9,F10.5)') '   Bst :',Bst
-            Write(6,'(A9,F10.5)') 'Alpha1 :',Alpha1
-            Write(6,'(A9,F10.5)') 'Alpha2 :',Alpha2
-            Write(6,'(A9,F10.5)') ' Gamma :',Gamma_rot
-          End If
+  end do
+end do
 
-          Tsts = sin(Gamma_rot)
-          Tstc = 1.0d0 - cos(Gamma_rot)
-          If (abs(Tsts).gt.ThrRot .or. abs(Tstc).gt.ThrRot) Then
-             Call Rot_st(CMO(1,iMO_s),CMO(1,iMO_t),nBas,Gamma_rot,Debug)
-             Call UpdateB(Col,nOrb2Loc,ipLbl,nComp,Gamma_rot,           &
-     &                    iMO_s,iMO_t,Debug)
-             xDone = xDone + 1.0d0
-          End If
+if (nOrb2Loc > 1) then
+  xOrb2Loc = dble(nOrb2Loc)
+  xTotal = xOrb2Loc*(xOrb2Loc-1.0d0)/2.0d0
+  PctSkp = 1.0d2*(xTotal-xDone)/xTotal
+else
+  PctSkp = 0.0d0
+end if
 
-         End Do
-      End Do
-
-      If (nOrb2Loc .gt. 1) Then
-         xOrb2Loc = dble(nOrb2Loc)
-         xTotal = xOrb2Loc*(xOrb2Loc-1.0d0)/2.0d0
-         PctSkp = 1.0d2*(xTotal-xDone)/xTotal
-      Else
-         PctSkp = 0.0d0
-      End If
-
-      End
+end subroutine RotateOrbB

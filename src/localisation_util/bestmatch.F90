@@ -8,42 +8,44 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine BestMatch(nConstr,nOrb,Occ,Match,ldim)
 
-      Implicit Real*8 (a-h,o-z)
-      Integer nConstr, nOrb, ldim, Match(2,ldim)
-      Real*8  Occ(nOrb)
-!
-      jConstr=1
+subroutine BestMatch(nConstr,nOrb,Occ,Match,ldim)
 
-10    Continue
+implicit real*8(a-h,o-z)
+integer nConstr, nOrb, ldim, Match(2,ldim)
+real*8 Occ(nOrb)
 
-      delta0=2.0d0
-      Do i=1,nOrb
-         Do j=1,i-1
-            xOcc=Occ(i)+Occ(j)
-            delta=abs(2.0d0-xOcc)
-            If (delta.lt.delta0) Then
-               delta0=delta
-               If (Occ(i).gt.Occ(j)) Then
-                  Match(1,jConstr)=i
-                  Match(2,jConstr)=j
-               Else
-                  Match(1,jConstr)=j
-                  Match(2,jConstr)=i
-               EndIf
-            EndIf
-         End Do
-      End Do
-!
-      If (jConstr.lt.nConstr) Then ! note: Occ array destroyed here
-         k=Match(1,jConstr)
-         Occ(k)=-42.0d0
-         l=Match(2,jConstr)
-         Occ(l)=-42.0d0
-         jConstr=jConstr+1
-         Go To 10
-      EndIf
-!
-      Return
-      End
+jConstr = 1
+
+10 continue
+
+delta0 = 2.0d0
+do i=1,nOrb
+  do j=1,i-1
+    xOcc = Occ(i)+Occ(j)
+    delta = abs(2.0d0-xOcc)
+    if (delta < delta0) then
+      delta0 = delta
+      if (Occ(i) > Occ(j)) then
+        Match(1,jConstr) = i
+        Match(2,jConstr) = j
+      else
+        Match(1,jConstr) = j
+        Match(2,jConstr) = i
+      end if
+    end if
+  end do
+end do
+
+if (jConstr < nConstr) then ! note: Occ array destroyed here
+  k = Match(1,jConstr)
+  Occ(k) = -42.0d0
+  l = Match(2,jConstr)
+  Occ(l) = -42.0d0
+  jConstr = jConstr+1
+  Go To 10
+end if
+
+return
+
+end subroutine BestMatch

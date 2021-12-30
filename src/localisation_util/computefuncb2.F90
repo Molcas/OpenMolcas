@@ -10,58 +10,56 @@
 !                                                                      *
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
-      SubRoutine ComputeFuncB2(nOrb2Loc,ipLbl,nComp,Functional,Debug)
+
+subroutine ComputeFuncB2(nOrb2Loc,ipLbl,nComp,Functional,Debug)
+! Author: T.B. Pedersen
 !
-!     Author: T.B. Pedersen
-!
-!     Purpose: compute Boys localisation functional B2.
-!
-      Implicit Real*8 (a-h,o-z)
-      Integer ipLbl(nComp)
-      Logical Debug
+! Purpose: compute Boys localisation functional B2.
+
+implicit real*8(a-h,o-z)
+integer ipLbl(nComp)
+logical Debug
 #include "WrkSpc.fh"
 
-      Functional = 0.0d0
-      Do iComp = 1,nComp
-         ip0 = ipLbl(iComp) - 1
-         Do i = 1,nOrb2Loc
-            Functional = Functional + (Work(ip0+nOrb2Loc*(i-1)+i))**2
-         End Do
-      End Do
+Functional = 0.0d0
+do iComp=1,nComp
+  ip0 = ipLbl(iComp)-1
+  do i=1,nOrb2Loc
+    Functional = Functional+(Work(ip0+nOrb2Loc*(i-1)+i))**2
+  end do
+end do
 
-      If (Debug) Then
-         Write(6,*)
-         Write(6,*) 'In ComputeFuncB2'
-         Write(6,*) '----------------'
-         Write(6,*) 'Functional B2 = ',Functional
-         Write(6,*) '[Assuming doubly occupied orbitals]'
-         Do iComp = 1,nComp
-            ip0 = ipLbl(iComp) - 1
-            Cmp = 0.0d0
-            Do iMO = 1,nOrb2Loc
-               Cmp = Cmp + Work(ip0+nOrb2Loc*(iMO-1)+iMO)
-            End Do
-            Cmp = 2.0d0*Cmp
-            Write(6,'(A,I5,1X,F15.8)')                                  &
-     &      'Component, Exp. Val.:',iComp,Cmp
-            Do j = 1,nOrb2Loc-1
-               Do i = j+1,nOrb2Loc
-                  kij = ip0 + nOrb2Loc*(j-1) + i
-                  kji = ip0 + nOrb2Loc*(i-1) + j
-                  Tst = Work(kij) - Work(kji)
-                  If (abs(Tst) .gt. 1.0d-14) Then
-                     Write(6,*) 'ComputeFuncB2: broken symmetry!'
-                     Write(6,*) '  Component: ',iComp
-                     Write(6,*) '  i and j  : ',i,j
-                     Write(6,*) '  Dij      : ',Work(kij)
-                     Write(6,*) '  Dji      : ',Work(kji)
-                     Write(6,*) '  Diff.    : ',Tst
-                     Call SysAbendMsg('ComputeFuncB2',                  &
-     &                                'Broken symmetry!',' ')
-                  End If
-               End Do
-            End Do
-         End Do
-      End If
+if (Debug) then
+  write(6,*)
+  write(6,*) 'In ComputeFuncB2'
+  write(6,*) '----------------'
+  write(6,*) 'Functional B2 = ',Functional
+  write(6,*) '[Assuming doubly occupied orbitals]'
+  do iComp=1,nComp
+    ip0 = ipLbl(iComp)-1
+    Cmp = 0.0d0
+    do iMO=1,nOrb2Loc
+      Cmp = Cmp+Work(ip0+nOrb2Loc*(iMO-1)+iMO)
+    end do
+    Cmp = 2.0d0*Cmp
+    write(6,'(A,I5,1X,F15.8)') 'Component, Exp. Val.:',iComp,Cmp
+    do j=1,nOrb2Loc-1
+      do i=j+1,nOrb2Loc
+        kij = ip0+nOrb2Loc*(j-1)+i
+        kji = ip0+nOrb2Loc*(i-1)+j
+        Tst = Work(kij)-Work(kji)
+        if (abs(Tst) > 1.0d-14) then
+          write(6,*) 'ComputeFuncB2: broken symmetry!'
+          write(6,*) '  Component: ',iComp
+          write(6,*) '  i and j  : ',i,j
+          write(6,*) '  Dij      : ',Work(kij)
+          write(6,*) '  Dji      : ',Work(kji)
+          write(6,*) '  Diff.    : ',Tst
+          call SysAbendMsg('ComputeFuncB2','Broken symmetry!',' ')
+        end if
+      end do
+    end do
+  end do
+end if
 
-      End
+end subroutine ComputeFuncB2

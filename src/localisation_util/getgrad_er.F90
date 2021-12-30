@@ -10,69 +10,63 @@
 !                                                                      *
 ! Copyright (C) 2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine GetGrad_ER(Functional,GradNorm,R,CMO,nBasis,nOrb2Loc,  &
-     &                      Timing)
+
+subroutine GetGrad_ER(Functional,GradNorm,R,CMO,nBasis,nOrb2Loc,Timing)
+! Thomas Bondo Pedersen, November 2005.
 !
-!     Thomas Bondo Pedersen, November 2005.
+! Purpose: compute ER Functional and its gradient norm.
+!          The R matrix is computed as R(i,j) = (ij|jj).
 !
-!     Purpose: compute ER Functional and its gradient norm.
-!              The R matrix is computed as R(i,j) = (ij|jj).
-!
-!     Note: symmetry is NOT allowed (but is not tested!).
-!
-      use Data_structures, only: DSBA_Type
-      use Data_structures, only: Allocate_DSBA, Deallocate_DSBA
-      Implicit Real*8 (a-h,o-z)
-      Real*8  R(nOrb2Loc,nOrb2Loc), CMO(nBasis,nOrb2Loc)
-      Logical Timing
+! Note: symmetry is NOT allowed (but is not tested!).
 
-      Character(LEN=10), Parameter:: SecNam = 'GetGrad_ER'
+use Data_structures, only: DSBA_Type
+use Data_structures, only: Allocate_DSBA, Deallocate_DSBA
+implicit real*8(a-h,o-z)
+real*8 R(nOrb2Loc,nOrb2Loc), CMO(nBasis,nOrb2Loc)
+logical Timing
+character(LEN=10), parameter :: SecNam = 'GetGrad_ER'
+character*80 Txt
+integer, parameter :: nSym = 1
+integer nOcc(nSym)
+type(DSBA_Type) CMOt
 
-      Character*80 Txt
+! Initialization.
+! ---------------
 
-      Integer, Parameter:: nSym = 1
-      Integer nOcc(nSym)
+Functional = 0.0d0
+GradNorm = 0.0d0
+if ((nOrb2Loc < 1) .or. (nBasis < 1)) return
 
-      Type (DSBA_Type) CMOt
+! Transpose CMO (only the part to be localised).
+! ----------------------------------------------
 
-!     Initialization.
-!     ---------------
+call Allocate_DSBA(CMOt,[nOrb2Loc],[nBasis],nSym)
+do i=1,nOrb2Loc
+  CMOt%SB(1)%A2(i,:) = CMO(:,i)
+end do
 
-      Functional = 0.0d0
-      GradNorm = 0.0D0
-      If (nOrb2Loc.lt.1 .or. nBasis.lt.1) Return
+! Compute R.
+! ----------
 
-!     Transpose CMO (only the part to be localised).
-!     ----------------------------------------------
+nOcc(1) = nOrb2Loc
+irc = -1
+call Cho_Get_Rij(irc,CMOt,nOcc,R,Timing)
+if (irc /= 0) then
+  write(Txt,'(A,I6)') 'Cho_Get_Rij returned',irc
+  call SysAbendMsg(SecNam,'Calculation of ER gradient failed:',Txt)
+end if
+call Deallocate_DSBA(CMOt)
 
-      Call Allocate_DSBA(CMOt,[nOrb2Loc],[nBasis],nSym)
-      Do i = 1,nOrb2Loc
-         CMOt%SB(1)%A2(i,:) = CMO(:,i)
-      End Do
+! Compute gradient norm and functional.
+! -------------------------------------
 
-!     Compute R.
-!     ----------
+do i=1,nOrb2Loc-1
+  Functional = Functional+R(i,i)
+  do j=i+1,nOrb2Loc
+    GradNorm = GradNorm+(R(i,j)-R(j,i))**2
+  end do
+end do
+Functional = Functional+R(nOrb2Loc,nOrb2Loc)
+GradNorm = 4.0d0*sqrt(GradNorm)
 
-      nOcc(1) = nOrb2Loc
-      irc = -1
-      Call Cho_Get_Rij(irc,CMOt,nOcc,R,Timing)
-      If (irc .ne. 0) Then
-         Write(Txt,'(A,I6)') 'Cho_Get_Rij returned',irc
-         Call SysAbendMsg(SecNam,'Calculation of ER gradient failed:',  &
-     &                    Txt)
-      End If
-      Call Deallocate_DSBA(CMOt)
-
-!     Compute gradient norm and functional.
-!     -------------------------------------
-
-      Do i = 1,nOrb2Loc-1
-         Functional = Functional + R(i,i)
-         Do j = i+1,nOrb2Loc
-            GradNorm = GradNorm + (R(i,j)-R(j,i))**2
-         End Do
-      End Do
-      Functional = Functional + R(nOrb2Loc,nOrb2Loc)
-      GradNorm = 4.0d0*sqrt(GradNorm)
-
-      End
+end subroutine GetGrad_ER

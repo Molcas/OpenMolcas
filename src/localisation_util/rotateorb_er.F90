@@ -10,61 +10,58 @@
 !                                                                      *
 ! Copyright (C) 2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine RotateOrb_ER(R,CMO,nBasis,nOrb2Loc,Debug)
+
+subroutine RotateOrb_ER(R,CMO,nBasis,nOrb2Loc,Debug)
+! Thomas Bondo Pedersen, November 2005.
 !
-!     Thomas Bondo Pedersen, November 2005.
-!
-!     Purpose: rotate ER orbitals,
-!              CMO -> CMO * U
-!              U = R*[R^T*R]^(-1/2)
-!
-      Implicit Real*8 (a-h,o-z)
-      Real*8  R(nOrb2Loc,nOrb2Loc), CMO(nBasis,nOrb2Loc)
-      Logical Debug
+! Purpose: rotate ER orbitals,
+!          CMO -> CMO * U
+!          U = R*[R^T*R]^(-1/2)
+
+implicit real*8(a-h,o-z)
+real*8 R(nOrb2Loc,nOrb2Loc), CMO(nBasis,nOrb2Loc)
+logical Debug
 #include "WrkSpc.fh"
+character*12 SecNam
+parameter(SecNam='RotateOrb_ER')
 
-      Character*12 SecNam
-      Parameter (SecNam = 'RotateOrb_ER')
+if ((nOrb2Loc < 1) .or. (nBasis < 1)) return
 
-      If (nOrb2Loc.lt.1 .or. nBasis.lt.1) Return
+! Allocate transformation matrix U.
+! ---------------------------------
 
-!     Allocate transformation matrix U.
-!     ---------------------------------
+lU = nOrb2Loc**2
+call GetMem('Umat','Allo','Real',ipU,lU)
 
-      lU = nOrb2Loc**2
-      Call GetMem('Umat','Allo','Real',ipU,lU)
+! Compute U.
+! ----------
 
-!     Compute U.
-!     ----------
+call GetU_ER(Work(ipU),R,nOrb2Loc)
 
-      Call GetU_ER(Work(ipU),R,nOrb2Loc)
+! Debug: check that U is unitary.
+! -------------------------------
 
-!     Debug: check that U is unitary.
-!     -------------------------------
+if (Debug) then
+  ThrU = 1.0d-10
+  irc = -1
+  call Chk_Unitary(irc,Work(ipU),nOrb2Loc,ThrU)
+  if (irc /= 0) then
+    call SysAbendMsg(SecNam,'U matrix is not unitary!',' ')
+  end if
+end if
 
-      If (Debug) Then
-         ThrU = 1.0d-10
-         irc = -1
-         Call Chk_Unitary(irc,Work(ipU),nOrb2Loc,ThrU)
-         If (irc .ne. 0) Then
-            Call SysAbendMsg(SecNam,'U matrix is not unitary!',' ')
-         End If
-      End If
+! Update C.
+! ---------
 
-!     Update C.
-!     ---------
+lCMO = nBasis*nOrb2Loc
+call GetMem('CMOscr','Allo','Real',ipCMO,lCMO)
+call dCopy_(lCMO,CMO,1,Work(ipCMO),1)
+call DGEMM_('N','N',nBasis,nOrb2Loc,nOrb2Loc,1.0d0,Work(ipCMO),nBasis,Work(ipU),nOrb2Loc,0.0d0,CMO,nBasis)
+call GetMem('CMOscr','Free','Real',ipCMO,lCMO)
 
-      lCMO = nBasis*nOrb2Loc
-      Call GetMem('CMOscr','Allo','Real',ipCMO,lCMO)
-      Call dCopy_(lCMO,CMO,1,Work(ipCMO),1)
-      Call DGEMM_('N','N',nBasis,nOrb2Loc,nOrb2Loc,                     &
-     &           1.0d0,Work(ipCMO),nBasis,Work(ipU),nOrb2Loc,           &
-     &           0.0d0,CMO,nBasis)
-      Call GetMem('CMOscr','Free','Real',ipCMO,lCMO)
+! De-allocate U.
+! --------------
 
-!     De-allocate U.
-!     --------------
+call GetMem('Umat','Free','Real',ipU,lU)
 
-      Call GetMem('Umat','Free','Real',ipU,lU)
-
-      End
+end subroutine RotateOrb_ER

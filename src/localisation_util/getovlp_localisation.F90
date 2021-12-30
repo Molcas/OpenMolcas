@@ -10,64 +10,61 @@
 !                                                                      *
 ! Copyright (C) 2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine GetOvlp_Localisation(S,Storage,nBas,nSym)
+
+subroutine GetOvlp_Localisation(S,Storage,nBas,nSym)
+! Thomas Bondo Pedersen, Dec. 2005.
 !
-!     Thomas Bondo Pedersen, Dec. 2005.
-!
-!     Purpose: read the overlap matrix and return in S in lower
-!              triangular storage if Storage="Tri" else in full square
-!              storage.
-!
-      Implicit None
-      Real*8      S(*)
-      Character*3 Storage
-      Integer     nSym
-      Integer     nBas(nSym)
+! Purpose: read the overlap matrix and return in S in lower triangular
+! storage if Storage="Tri" else in full square storage.
+
+implicit none
+real*8 S(*)
+character*3 Storage
+integer nSym
+integer nBas(nSym)
 #include "WrkSpc.fh"
+character*20 SecNam
+parameter(SecNam='GetOvlp_Localisation')
+logical Debug
+parameter(Debug=.false.)
+character*3 myStorage
+character*8 Label
+integer irc, iOpt, iComp, iSyLbl
+integer iSym, l_Scr, ip_Scr, kTri, kSq, l_Tri
 
-      Character*20 SecNam
-      Parameter (SecNam = 'GetOvlp_Localisation')
-      Logical Debug
-      Parameter (Debug = .False.)
+l_Tri = nBas(1)*(nBas(1)+1)/2
+do iSym=2,nSym
+  l_Tri = l_Tri+nBas(iSym)*(nBas(iSym)+1)/2
+end do
+l_Scr = l_Tri+4
+call GetMem('OvlpScr','Allo','Real',ip_Scr,l_Scr)
 
-      Character*3 myStorage
-      Character*8 Label
-      Integer     irc, iOpt, iComp, iSyLbl
-      Integer     iSym, l_Scr, ip_Scr, kTri, kSq, l_Tri
+irc = -1
+iOpt = 2
+iComp = 1
+iSyLbl = 1
+Label = 'Mltpl  0'
+call RdOne(irc,iOpt,Label,iComp,Work(ip_Scr),iSyLbl)
+if (irc /= 0) then
+  write(6,*) SecNam,': RdOne returned ',irc
+  write(6,*) 'Label = ',Label,'  iSyLbl = ',iSyLbl
+  call SysAbendMsg(SecNam,'I/O error in RdOne',' ')
+end if
 
-      l_Tri = nBas(1)*(nBas(1)+1)/2
-      Do iSym = 2,nSym
-         l_Tri = l_Tri + nBas(iSym)*(nBas(iSym)+1)/2
-      End Do
-      l_Scr = l_Tri + 4
-      Call GetMem('OvlpScr','Allo','Real',ip_Scr,l_Scr)
+myStorage = Storage
+call UpCase(myStorage)
+if (myStorage == 'TRI') then
+  call dCopy_(l_Tri,Work(ip_Scr),1,S,1)
+else
+  kTri = ip_Scr
+  kSq = 1
+  do iSym=1,nSym
+    call Tri2Rec(Work(kTri),S(kSq),nBas(iSym),Debug)
+    kTri = kTri+nBas(iSym)*(nBas(iSym)+1)/2
+    kSq = kSq+nBas(iSym)**2
+  end do
+end if
 
-      irc    = -1
-      iOpt   = 2
-      iComp  = 1
-      iSyLbl = 1
-      Label  = 'Mltpl  0'
-      Call RdOne(irc,iOpt,Label,iComp,Work(ip_Scr),iSyLbl)
-      If (irc .ne. 0) Then
-         Write(6,*) SecNam,': RdOne returned ',irc
-         Write(6,*) 'Label = ',Label,'  iSyLbl = ',iSyLbl
-         Call SysAbendMsg(SecNam,'I/O error in RdOne',' ')
-      End If
+call GetMem('OvlpScr','Free','Real',ip_Scr,l_Scr)
 
-      myStorage = Storage
-      Call UpCase(myStorage)
-      If (myStorage .eq. 'TRI') Then
-         Call dCopy_(l_Tri,Work(ip_Scr),1,S,1)
-      Else
-         kTri = ip_Scr
-         kSq  = 1
-         Do iSym = 1,nSym
-            Call Tri2Rec(Work(kTri),S(kSq),nBas(iSym),Debug)
-            kTri = kTri + nBas(iSym)*(nBas(iSym)+1)/2
-            kSq  = kSq  + nBas(iSym)**2
-         End Do
-      End If
-
-      Call GetMem('OvlpScr','Free','Real',ip_Scr,l_Scr)
-
-      End
+end subroutine GetOvlp_Localisation

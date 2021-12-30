@@ -10,128 +10,100 @@
 !                                                                      *
 ! Copyright (C) Francesco Aquilante                                    *
 !***********************************************************************
-      SubRoutine Wavelet_Transform(irc,CMO,nSym,nBas,nFro,nOrb2Loc,     &
-     &                                 inv,Silent,xNrm)
-!
-!     Author: F. Aquilante
-!
-!     Purpose: wavelet transform of the MO basis (inv=0)
-!              "       backtransform (inv=1)
-!
-      Implicit Real*8 (a-h,o-z)
-      Integer irc, nSym, nBas(nSym), nFro(nSym), nOrb2Loc(nSym)
-      Real*8 CMO(*)
-      Integer inv
-      Logical Silent
-      Real*8  xNrm
 
+subroutine Wavelet_Transform(irc,CMO,nSym,nBas,nFro,nOrb2Loc,inv,Silent,xNrm)
+! Author: F. Aquilante
+!
+! Purpose: wavelet transform of the MO basis (inv=0)
+!          "       backtransform (inv=1)
+
+implicit real*8(a-h,o-z)
+integer irc, nSym, nBas(nSym), nFro(nSym), nOrb2Loc(nSym)
+real*8 CMO(*)
+integer inv
+logical Silent
+real*8 xNrm
 #include "WrkSpc.fh"
+character*17 SecNam
+parameter(SecNam='Wavelet_Transform')
+integer Log2
+external Log2
+real*8 ddot_
+external ddot_
 
-      Character*17 SecNam
-      Parameter (SecNam = 'Wavelet_Transform')
+irc = 0
+xNrm = 0.0d0
+if (.not. Silent) then
+  if (inv == 0) write(6,'(/,1X,A)') 'Wavelet transform of the MOs'
+  if (inv == 1) write(6,'(/,1X,A)') 'Inverse wavelet transform of the MOs'
+  write(6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
+  write(6,'(1X,A,8(1X,I6))') 'Orbitals to transform:',(nOrb2Loc(iSym),iSym=1,nSym)
+end if
 
-      Integer  Log2
-      External Log2
+if (inv == 1) go to 1000 ! Inverse wavelet transform
 
-      real*8 ddot_
-      external ddot_
-!
-!
-      irc = 0
-      xNrm = 0.0d0
-      If (.not.Silent) Then
-         If (inv.eq.0) Write(6,'(/,1X,A)')'Wavelet transform of the MOs'
-         If (inv.eq.1) Write(6,'(/,1X,A)')'Inverse wavelet transform'// &
-     &                                    ' of the MOs'
-         Write(6,'(1X,A,8(1X,I6))')                                     &
-     &   'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
-         Write(6,'(1X,A,8(1X,I6))')                                     &
-     &   'Orbitals to transform:',(nOrb2Loc(iSym),iSym=1,nSym)
-      End If
+njOrb = Log2(nOrb2Loc(1))
+l_Scr = nBas(1)*(2**njOrb-1)
+do iSym=2,nSym
+  njOrb = Log2(nOrb2Loc(iSym))
+  l_Scr = max(l_Scr,nBas(iSym)*(2**njOrb-1))
+end do
+call GetMem('Scratch','Allo','Real',ipScr,l_Scr)
+kOffC = 1
+do iSym=1,nSym
+  if (nOrb2Loc(iSym) > 0) then
+    kOff1 = kOffC+nBas(iSym)*nFro(iSym)
+    kOff2 = kOff1
+    njOrb = Log2(nOrb2Loc(iSym))
+    do while (njOrb >= 1)
+      call FWT_Haar(nBas(iSym),njOrb,Work(ipScr),CMO(kOff2))
+      njOrb = 2**njOrb
+      kOff2 = kOff2+nBas(iSym)*njOrb
+      njOrb = Log2(nOrb2Loc(iSym)-njOrb)
+    end do
+    xNrm = xNrm+dDot_(nBas(iSym)*nOrb2Loc(iSym),CMO(kOff1),1,CMO(kOff1),1)
+    if (irc /= 0) then
+      irc = 1
+      xNrm = -9.9d9
+      return
+    end if
+  end if
+  kOffC = kOffC+nBas(iSym)**2
+end do
+xNrm = sqrt(xNrm)
+call GetMem('Scratch','Free','Real',ipScr,l_Scr)
+return
 
-      If (inv.eq.1) go to 1000 ! Inverse wavelet transform
+1000 continue
+njOrb = Log2(nOrb2Loc(1))
+l_Scr = nBas(1)*2**njOrb
+do iSym=2,nSym
+  njOrb = Log2(nOrb2Loc(iSym))
+  l_Scr = max(l_Scr,nBas(iSym)*2**njOrb)
+end do
+call GetMem('Scratch','Allo','Real',iScr,l_Scr)
+kOffC = 1
+do iSym=1,nSym
+  if (nOrb2Loc(iSym) > 0) then
+    kOff1 = kOffC+nBas(iSym)*nFro(iSym)
+    kOff2 = kOff1
+    njOrb = Log2(nOrb2Loc(iSym))
+    do while (njOrb >= 1)
+      call Inv_FWT_Haar(nBas(iSym),njOrb,Work(iScr),CMO(kOff2))
+      njOrb = 2**njOrb
+      kOff2 = kOff2+nBas(iSym)*njOrb
+      njOrb = Log2(nOrb2Loc(iSym)-njOrb)
+    end do
+    xNrm = xNrm+dDot_(nBas(iSym)*nOrb2Loc(iSym),CMO(kOff1),1,CMO(kOff1),1)
+    if (irc /= 0) then
+      irc = 1
+      xNrm = -9.9d9
+      return
+    end if
+  end if
+  kOffC = kOffC+nBas(iSym)**2
+end do
+xNrm = sqrt(xNrm)
+call GetMem('Scratch','Free','Real',iScr,l_Scr)
 
-      njOrb = Log2(nOrb2Loc(1))
-      l_Scr = nBas(1)*(2**njOrb-1)
-      Do iSym = 2,nSym
-         njOrb = Log2(nOrb2Loc(iSym))
-         l_Scr = max(l_Scr,nBas(iSym)*(2**njOrb-1))
-      End Do
-      Call GetMem('Scratch','Allo','Real',ipScr,l_Scr)
-      kOffC = 1
-      Do iSym = 1,nSym
-         If (nOrb2Loc(iSym) .gt. 0) Then
-            kOff1 = kOffC + nBas(iSym)*nFro(iSym)
-            kOff2 = kOff1
-            njOrb = Log2(nOrb2Loc(iSym))
-            Do While (njOrb .ge. 1)
-              Call FWT_Haar(nBas(iSym),njOrb,Work(ipScr),CMO(kOff2))
-              njOrb = 2**njOrb
-              kOff2 = kOff2 + nBas(iSym)*njOrb
-              njOrb = Log2(nOrb2Loc(iSym)-njOrb)
-            End Do
-            xNrm = xNrm + dDot_(nBas(iSym)*nOrb2Loc(iSym),CMO(kOff1),1, &
-     &                                                    CMO(kOff1),1)
-            If (irc .ne. 0) Then
-               irc  = 1
-               xNrm = -9.9d9
-               Return
-            End If
-         End If
-         kOffC = kOffC + nBas(iSym)**2
-      End Do
-      xNrm = sqrt(xNrm)
-      Call GetMem('Scratch','Free','Real',ipScr,l_Scr)
-      Return
-!
-1000  Continue
-      njOrb = Log2(nOrb2Loc(1))
-      l_Scr = nBas(1)*2**njOrb
-      Do iSym = 2,nSym
-         njOrb = Log2(nOrb2Loc(iSym))
-         l_Scr = max(l_Scr,nBas(iSym)*2**njOrb)
-      End Do
-      Call GetMem('Scratch','Allo','Real',iScr,l_Scr)
-      kOffC = 1
-      Do iSym = 1,nSym
-         If (nOrb2Loc(iSym) .gt. 0) Then
-            kOff1 = kOffC + nBas(iSym)*nFro(iSym)
-            kOff2 = kOff1
-            njOrb = Log2(nOrb2Loc(iSym))
-            Do While (njOrb .ge. 1)
-              Call Inv_FWT_Haar(nBas(iSym),njOrb,Work(iScr),CMO(kOff2))
-              njOrb = 2**njOrb
-              kOff2 = kOff2 + nBas(iSym)*njOrb
-              njOrb = Log2(nOrb2Loc(iSym)-njOrb)
-            End Do
-            xNrm = xNrm + dDot_(nBas(iSym)*nOrb2Loc(iSym),CMO(kOff1),1, &
-     &                                                    CMO(kOff1),1)
-            If (irc .ne. 0) Then
-               irc  = 1
-               xNrm = -9.9d9
-               Return
-            End If
-         End If
-         kOffC = kOffC + nBas(iSym)**2
-      End Do
-      xNrm = sqrt(xNrm)
-      Call GetMem('Scratch','Free','Real',iScr,l_Scr)
-!
-      End
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Integer Function Log2(n)
-
-      Implicit none
-      Integer n, m
-
-      m=n
-      Log2=0
-      Do while (m .gt. 1)
-         m=m/2
-         Log2=Log2+1
-      End Do
-
-      Return
-      End
+end subroutine Wavelet_Transform

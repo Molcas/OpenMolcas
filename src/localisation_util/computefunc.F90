@@ -10,26 +10,27 @@
 !                                                                      *
 ! Copyright (C) Yannick Carissan                                       *
 !***********************************************************************
-      Subroutine ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,Debug)
-!
-!     Author: Y. Carissan
-!
-      Implicit Real*8 (a-h,o-z)
+
+subroutine ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,Debug)
+! Author: Y. Carissan
+
+implicit real*8(a-h,o-z)
 #include "WrkSpc.fh"
 #include "real.fh"
-      Real*8 PA(nOrb2Loc,nOrb2Loc,nAtoms)
-      Logical Debug
-!
-      Functional=Zero
-      Do iAt=1,nAtoms
-        Do iMO_s=1,nOrb2Loc
-          Functional=Functional+PA(iMO_s,iMO_s,iAt)**2
-        End Do
-      End Do
-!
-      If (Debug) Then
-         Write(6,*) 'ComputeFunc: Functional: ',Functional
-      End If
-!
-      Return
-      End
+real*8 PA(nOrb2Loc,nOrb2Loc,nAtoms)
+logical Debug
+
+Functional = Zero
+do iAt=1,nAtoms
+  do iMO_s=1,nOrb2Loc
+    Functional = Functional+PA(iMO_s,iMO_s,iAt)**2
+  end do
+end do
+
+if (Debug) then
+  write(6,*) 'ComputeFunc: Functional: ',Functional
+end if
+
+return
+
+end subroutine ComputeFunc

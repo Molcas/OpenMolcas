@@ -10,74 +10,66 @@
 !                                                                      *
 ! Copyright (C) Yannick Carissan                                       *
 !***********************************************************************
-      SubRoutine BasFun_Atom(nBas_per_Atom,nBas_Start,Name,             &
-     &                       nBas,nAtoms,DoPrint)
-!
-!     Author: Y. Carissan [put in separate subroutine by T.B. Pedersen]
-!
-      Implicit None
+
+subroutine BasFun_Atom(nBas_per_Atom,nBas_Start,Name,nBas,nAtoms,DoPrint)
+! Author: Y. Carissan [put in separate subroutine by T.B. Pedersen]
+
+implicit none
 #include "Molcas.fh"
-      Integer nBas, nAtoms
-      Integer nBas_per_Atom(nAtoms), nBas_Start(nAtoms)
-      Character*(LENIN8) Name(nBas)
-      Logical DoPrint
+integer nBas, nAtoms
+integer nBas_per_Atom(nAtoms), nBas_Start(nAtoms)
+character*(LENIN8) Name(nBas)
+logical DoPrint
+character*11 SecNam
+parameter(SecNam='BasFun_Atom')
+integer iAt, iAt1, nBasAt, iBas, iCount
+character*(LENIN) Lbl, LblOld
+character*80 Txt, Formt
 
-      Character*11 SecNam
-      Parameter (SecNam = 'BasFun_Atom')
+! Counters.
+! ---------
 
-      Integer iAt, iAt1, nBasAt, iBas, iCount
+iAt = 1
+nBasAt = 1
+LblOld = Name(1)(1:LENIN)
+do iBas=2,nBas
+  Lbl = Name(iBas)(1:LENIN)
+  if (Lbl /= LblOld) then
+    nBas_per_Atom(iAt) = nBasAt
+    iAt = iAt+1
+    nBasAt = 0
+    LblOld = Lbl
+  end if
+  nBasAt = nBasAt+1
+end do
+nBas_per_Atom(iAt) = nBasAt
 
-      Character*(LENIN)  Lbl, LblOld
-      Character*80 Txt, Formt
+if (iAt /= nAtoms) then ! centers without basis functions
+  iAt1 = iAt+1
+  do iAt=iAt1,nAtoms
+    nBas_per_Atom(iAt) = 0
+  end do
+end if
 
-!     Counters.
-!     ---------
+! Offsets.
+! --------
 
-      iAt    = 1
-      nBasAt = 1
-      LblOld = Name(1)(1:LENIN)
-      Do iBas = 2,nBas
-         Lbl = Name(iBas)(1:LENIN)
-         If (Lbl .ne. LblOld) Then
-            nBas_per_Atom(iAt) = nBasAt
-            iAt    = iAt + 1
-            nBasAt = 0
-            LblOld = Lbl
-         End If
-         nBasAt = nBasAt + 1
-      End Do
-      nBas_per_Atom(iAt) = nBasAt
+iCount = 0
+do iAt=1,nAtoms
+  nBas_Start(iAt) = iCount+1
+  iCount = iCount+nBas_per_Atom(iAt)
+end do
+if (iCount /= nBas) then
+  write(Txt,'(A,I9,A,I9)') 'iCount =',iCount,'  nBas =',nBas
+  call SysAbendMsg(SecNam,'iCount /= nBas',Txt)
+end if
 
-      If (iAt .ne. nAtoms) Then ! centers without basis functions
-         iAt1 = iAt + 1
-         Do iAt = iAt1,nAtoms
-            nBas_per_Atom(iAt) = 0
-         End Do
-      End If
+! Print.
+! ------
 
-!     Offsets.
-!     --------
+if (DoPrint) then
+  write(Formt,'(3(a6,i3,a5))') '(/,a6,',nAtoms,'i5,/,','   a6,',nAtoms,'i5,/,','   a6,',nAtoms,'i5)'
+  write(6,Formt) 'Atom  ',(iAt,iAt=1,nAtoms),'Start ',(nBas_Start(iAt),iAt=1,nAtoms),'nBas  ',(nBas_per_Atom(iAt),iAt=1,nAtoms)
+end if
 
-      iCount = 0
-      Do iAt = 1,nAtoms
-         nBas_Start(iAt) = iCount + 1
-         iCount = iCount + nBas_per_Atom(iAt)
-      End Do
-      If (iCount .ne. nBas) Then
-         Write(Txt,'(A,I9,A,I9)') 'iCount =',iCount,'  nBas =',nBas
-         Call SysAbendMsg(SecNam,'iCount.NE.nBas',Txt)
-      End If
-
-!     Print.
-!     ------
-
-      If (DoPrint) Then
-         Write(Formt,'(3(a6,i3,a5))') '(/,a6,',nAtoms,'i5,/,',          &
-     &                                '   a6,',nAtoms,'i5,/,',          &
-     &                                '   a6,',nAtoms,'i5)'
-         Write(6,Formt) 'Atom  ',(iAt,iAt=1,nAtoms),                    &
-     &                  'Start ',(nBas_Start(iAt),iAt=1,nAtoms),        &
-     &                  'nBas  ',(nBas_per_Atom(iAt),iAt=1,nAtoms)
-      End If
-
-      End
+end subroutine BasFun_Atom

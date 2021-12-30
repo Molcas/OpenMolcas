@@ -8,26 +8,28 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Tri2Rec(OvlTri,OvlRec,nBas,Debug)
-!
-      Implicit Real*8 (a-h,o-z)
-      Real*8 OvlTri(*),OvlRec(nBas,nBas)
-      Logical Debug
-!
-      ioffset=1
-      Do nlig=1,nBas
-        nElem=nlig
-        ioffset=ioffset+(nlig-1)
-        call dcopy_(nElem,OvlTri(ioffset),1,OvlRec(1,nlig),1)
-      End Do
-!
-      Do iBas=1,nBas
-        Do jBas=nBas,iBas,-1
-          OvlRec(jBas,iBas)=OvlRec(iBas,jBas)
-        End Do
-      End Do
-!
-      If (Debug) Call RecPrt('OvlRec ',' ',OvlRec,nBas,nBas)
-!
-      Return
-      End
+
+subroutine Tri2Rec(OvlTri,OvlRec,nBas,Debug)
+
+implicit real*8(a-h,o-z)
+real*8 OvlTri(*), OvlRec(nBas,nBas)
+logical Debug
+
+ioffset = 1
+do nlig=1,nBas
+  nElem = nlig
+  ioffset = ioffset+(nlig-1)
+  call dcopy_(nElem,OvlTri(ioffset),1,OvlRec(1,nlig),1)
+end do
+
+do iBas=1,nBas
+  do jBas=nBas,iBas,-1
+    OvlRec(jBas,iBas) = OvlRec(iBas,jBas)
+  end do
+end do
+
+if (Debug) call RecPrt('OvlRec ',' ',OvlRec,nBas,nBas)
+
+return
+
+end subroutine Tri2Rec

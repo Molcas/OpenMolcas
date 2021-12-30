@@ -8,44 +8,41 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2005, Thomas Bondo Pedersen                            *
+! Copyright (C) 2009, Francesco Aquilante                              *
 !***********************************************************************
 
-subroutine GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Rmat,Debug)
-! Thomas Bondo Pedersen, December 2005.
-!
-! Purpose: compute the gradient of the Pipek-Mezey functional.
+subroutine FWT_Haar_(n,m,B,X)
 
 implicit real*8(a-h,o-z)
-real*8 Rmat(nOrb2Loc,nOrb2Loc)
-real*8 PA(nOrb2Loc,nOrb2Loc,nAtoms)
-logical Debug
-#include "WrkSpc.fh"
+integer n, m
+real*8 B(n,*), X(n,*)
+parameter(hlf=0.5d0,one=1.0d0,xone=-1.0d0)
 
-RMat(:,:) = 0.0d0
-do iAtom=1,nAtoms
-  do j=1,nOrb2Loc
-    Rjj = PA(j,j,iAtom)
-    do i=1,nOrb2Loc
-      Rmat(i,j) = Rmat(i,j)+PA(i,j,iAtom)*Rjj
-    end do
+fac = sqrt(hlf)
+nv = 2**m
+mv = n*nv
+do j=m,1,-1  ! A[m]:=X
+  nv = nv/2
+  kB = nv
+  call dcopy_(n,X(1,1),1,B(1,kB),1)
+  call daxpy_(n,xone,X(1,2),1,B(1,kB),1)
+  call dscal_(n,fac,B(1,kB),1)
+  call daxpy_(n,one,X(1,2),1,X(1,1),1)
+  call dscal_(n,fac,X(1,1),1)
+  do k=2,nv
+    kB = kB+1
+    jB = 2*k
+    lB = jB-1
+    call dcopy_(n,X(1,lB),1,B(1,kB),1)
+    call daxpy_(n,xone,X(1,jB),1,B(1,kB),1)
+    call dscal_(n,fac,B(1,kB),1)
+    call daxpy_(n,one,X(1,jB),1,X(1,lB),1)
+    call dcopy_(n,X(1,lB),1,X(1,k),1)
+    call dscal_(n,fac,X(1,k),1)
   end do
 end do
+call dcopy_(mv-n,B(1,1),1,X(1,2),1) ! A[0] is already in place
 
-GradNorm = 0.0d0
-do i=1,nOrb2Loc-1
-  do j=i+1,nOrb2Loc
-    GradNorm = GradNorm+(Rmat(i,j)-Rmat(j,i))**2
-  end do
-end do
-GradNorm = 4.0d0*sqrt(GradNorm)
+return
 
-if (Debug) then
-  Fun = 0.0d0
-  do i=1,nOrb2Loc
-    Fun = Fun+Rmat(i,i)
-  end do
-  write(6,*) 'GetGrad_PM: functional = Tr(R) = ',Fun
-end if
-
-end subroutine GetGrad_PM
+end subroutine FWT_Haar_

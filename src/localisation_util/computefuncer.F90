@@ -10,149 +10,87 @@
 !                                                                      *
 ! Copyright (C) 2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine ComputeFuncER(ERFun,CMO,nBas,nOcc,nFro,nSym,Timing)
+
+subroutine ComputeFuncER(ERFun,CMO,nBas,nOcc,nFro,nSym,Timing)
+! Thomas Bondo Pedersen, November 2005.
 !
-!     Thomas Bondo Pedersen, November 2005.
+! Purpose: compute Edmiston-Ruedenberg functional.
 !
-!     Purpose: compute Edmiston-Ruedenberg functional.
-!
-!     =====================================================
-!        WORKS *ONLY* WITH CHOLESKY DECOMPOSED INTEGRALS
-!     =====================================================
-!
-      Implicit None
-      Real*8  ERFun
-      Real*8  CMO(*)
-      Integer nSym
-      Integer nBas(nSym), nOcc(nSym), nFro(nSym)
-      Logical Timing
+! =====================================================
+!    WORKS *ONLY* WITH CHOLESKY DECOMPOSED INTEGRALS
+! =====================================================
+
+implicit none
+real*8 ERFun
+real*8 CMO(*)
+integer nSym
+integer nBas(nSym), nOcc(nSym), nFro(nSym)
+logical Timing
 #include "WrkSpc.fh"
+character*13 SecNam
+parameter(SecNam='ComputeFuncER')
+character*80 Txt
+real*8 FracMem
+integer irc, ipERFun, lERFun, iSym, i, kOff, nFroT
+integer nOccT(8)
 
-      Character*13 SecNam
-      Parameter (SecNam = 'ComputeFuncER')
+! Initializations.
+! ----------------
 
-      Character*80 Txt
+irc = 0
 
-      Real*8 FracMem
+FracMem = 0.0d0 ! no buffer allocated
+call Cho_X_Init(irc,FracMem)
+if (irc /= 0) then
+  write(Txt,'(A,I4)') 'Cho_X_Init returned',irc
+  call SysAbendMsg(SecNam,'Cholesky initialization failure!',Txt)
+end if
 
-      Integer irc, ipERFun, lERFun, iSym, i, kOff, nFroT
-      Integer nOccT(8)
+! Check dimensions.
+! -----------------
 
-!     Initializations.
-!     ----------------
+call ERChk_Localisation(irc,nBas,nOcc,nFro,nSym)
+if (irc /= 0) then
+  write(Txt,'(A,I4)') 'ERChk_Localisation returned',irc
+  call SysAbendMsg(SecNam,'Cholesky initialization mismatch!',Txt)
+end if
 
-      irc = 0
+! Compute ER functional.
+! ----------------------
 
-      FracMem = 0.0d0 ! no buffer allocated
-      Call Cho_X_Init(irc,FracMem)
-      If (irc .ne. 0) Then
-         Write(Txt,'(A,I4)') 'Cho_X_Init returned',irc
-         Call SysAbendMsg(SecNam,'Cholesky initialization failure!',Txt)
-      End If
+nOccT(1) = nOcc(1)+nFro(1)
+do iSym=2,nSym
+  nOccT(iSym) = nOcc(iSym)+nFro(iSym)
+end do
 
-!     Check dimensions.
-!     -----------------
+lERFun = nOccT(1)
+nFroT = nFro(1)
+do iSym=2,nSym
+  lERFun = lERFun+nOccT(iSym)
+  nFroT = nFroT+nFro(iSym)
+end do
 
-      Call ERChk_Localisation(irc,nBas,nOcc,nFro,nSym)
-      If (irc .ne. 0) Then
-         Write(Txt,'(A,I4)') 'ERChk_Localisation returned',irc
-         Call SysAbendMsg(SecNam,'Cholesky initialization mismatch!',   &
-     &                    Txt)
-      End If
+call GetMem('ERFun','Allo','Real',ipERFun,lERFun)
+ERFun = 0.0d0
+call EvalERFun(ERFun,Work(ipERFun),CMO,nOccT,nSym,Timing)
+if (nFroT > 0) then
+  kOff = ipERFun-1
+  do iSym=1,nSym
+    do i=1,nFro(iSym)
+      ERFun = ERFun-Work(kOff+i)
+    end do
+    kOff = kOff+nOccT(iSym)
+  end do
+end if
+call GetMem('ERFun','Free','Real',ipERFun,lERFun)
 
-!     Compute ER functional.
-!     ----------------------
+! Finalizations.
+! --------------
 
-      nOccT(1) = nOcc(1) + nFro(1)
-      Do iSym = 2,nSym
-         nOccT(iSym) = nOcc(iSym) + nFro(iSym)
-      End Do
+call Cho_X_Final(irc)
+if (irc /= 0) then
+  write(Txt,'(A,I4)') 'Cho_X_Final returned',irc
+  call SysAbendMsg(SecNam,'Cholesky finalization failure!',Txt)
+end if
 
-      lERFun = nOccT(1)
-      nFroT = nFro(1)
-      Do iSym = 2,nSym
-         lERFun = lERFun + nOccT(iSym)
-         nFroT = nFroT + nFro(iSym)
-      End Do
-
-      Call GetMem('ERFun','Allo','Real',ipERFun,lERFun)
-      ERFun = 0.0d0
-      Call EvalERFun(ERFun,Work(ipERFun),CMO,nOccT,nSym,Timing)
-      If (nFroT .gt. 0) Then
-         kOff = ipERFun - 1
-         Do iSym = 1,nSym
-            Do i = 1,nFro(iSym)
-               ERFun = ERFun - Work(kOff+i)
-            End Do
-            kOff = kOff + nOccT(iSym)
-         End Do
-      End If
-      Call GetMem('ERFun','Free','Real',ipERFun,lERFun)
-
-!     Finalizations.
-!     --------------
-
-      Call Cho_X_Final(irc)
-      If (irc .ne. 0) Then
-         Write(Txt,'(A,I4)') 'Cho_X_Final returned',irc
-         Call SysAbendMsg(SecNam,'Cholesky finalization failure!',Txt)
-      End If
-
-      End
-      SubRoutine ERChk_Localisation(irc,lnBas,lnOcc,lnFro,lnSym)
-      Implicit None
-      Integer irc, lnSym
-      Integer lnBas(lnSym), lnOcc(lnSym), lnFro(lnSym)
-#include "cholesky.fh"
-#include "choorb.fh"
-
-      Integer iSym, nTst
-
-      irc = 0
-
-      If (lnSym.lt.1 .or. lnSym.gt.8) Then
-         irc = 1
-         Return
-      End If
-
-      If (lnSym .ne. nSym) Then
-         irc = 2
-         Return
-      End If
-
-      Do iSym = 1,nSym
-         If (lnBas(iSym) .ne. nBas(iSym)) Then
-            irc = 3
-            Return
-         End If
-         nTst = lnOcc(iSym)+lnFro(iSym)
-         If (nTst .gt. nBas(iSym)) Then
-            irc = 4
-            Return
-         End If
-      End Do
-
-      End
-      SubRoutine EvalERFun(ERFun,ERFunC,CMO,nOcc,nSym,Timing)
-      Implicit None
-      Real*8  ERFun
-      Real*8  ERFunC(*), CMO(*)
-      Integer nSym
-      Integer nOcc(nSym)
-      Logical Timing
-
-      Character*9 SecNam
-      Parameter (SecNam = 'EvalERFun')
-
-      Character*80 Txt
-      Integer irc
-
-      irc = 0
-      Call Cho_Get_ER(irc,CMO,nOcc,ERFunC,ERFun,Timing)
-      If (irc .ne. 0) Then
-         Write(Txt,'(A,I4)') 'Cho_Get_ER returned',irc
-         Call SysAbendMsg(SecNam,'ER evaluation failed!',               &
-     &                    Txt)
-      End If
-
-      End
+end subroutine ComputeFuncER

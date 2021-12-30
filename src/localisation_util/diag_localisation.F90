@@ -10,42 +10,40 @@
 !                                                                      *
 ! Copyright (C) 2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine Diag_Localisation(A,EVR,EVI,n,iGetVecs)
+
+subroutine Diag_Localisation(A,EVR,EVI,n,iGetVecs)
+! Thomas Bondo Pedersen, Dec. 2005.
 !
-!     Thomas Bondo Pedersen, Dec. 2005.
-!
-!     Purpose: diagonalize a real general matrix A and return
-!              the real and imaginary part of eigenvalues in EVR and
-!              EVI. If iGetVecs=0 no eigenvectors are computed; else,
-!              eigenvectors are returned in A (such that column one
-!              corresponds to eigenvalue 1 in EVR and EVI). Uses XEIGEN
-!              from the linalg_util directory (which uses LAPACK).
-!              See LAPACK for details about the storage of real and
-!              complex eigenvectors.
-!
-      Implicit None
-      Integer n, iGetVecs
-      Real*8  A(n,n), EVR(n), EVI(n)
+! Purpose: diagonalize a real general matrix A and return
+!          the real and imaginary part of eigenvalues in EVR and
+!          EVI. If iGetVecs=0 no eigenvectors are computed; else,
+!          eigenvectors are returned in A (such that column one
+!          corresponds to eigenvalue 1 in EVR and EVI). Uses XEIGEN
+!          from the linalg_util directory (which uses LAPACK).
+!          See LAPACK for details about the storage of real and
+!          complex eigenvectors.
+
+implicit none
+integer n, iGetVecs
+real*8 A(n,n), EVR(n), EVI(n)
 #include "WrkSpc.fh"
+character*17 SecNam
+parameter(SecNam='Diag_Localisation')
+integer iErr
+integer ip_Vecs, l_Vecs
 
-      Character*17 SecNam
-      Parameter (SecNam = 'Diag_Localisation')
+l_Vecs = n*n
+call GetMem('Vecs','Allo','Real',ip_Vecs,l_Vecs)
 
-      Integer iErr
-      Integer ip_Vecs, l_Vecs
+iErr = 0
+call xEigen(iGetVecs,n,n,A,EVR,EVI,Work(ip_Vecs),iErr)
+if (iErr /= 0) then
+  write(6,*) SecNam,': xEigen returned ',iErr
+  call SysAbendMsg(SecNam,'Error in xEigen',' ')
+end if
 
-      l_Vecs = n*n
-      Call GetMem('Vecs','Allo','Real',ip_Vecs,l_Vecs)
+if (iGetVecs /= 0) call dCopy_(n*n,Work(ip_Vecs),1,A,1)
 
-      iErr = 0
-      Call xEigen(iGetVecs,n,n,A,EVR,EVI,Work(ip_Vecs),iErr)
-      If (iErr .ne. 0) Then
-         Write(6,*) SecNam,': xEigen returned ',iErr
-         Call SysAbendMsg(SecNam,'Error in xEigen',' ')
-      End If
+call GetMem('Vecs','Free','Real',ip_Vecs,l_Vecs)
 
-      If (iGetVecs .ne. 0) Call dCopy_(n*n,Work(ip_Vecs),1,A,1)
-
-      Call GetMem('Vecs','Free','Real',ip_Vecs,l_Vecs)
-
-      End
+end subroutine Diag_Localisation

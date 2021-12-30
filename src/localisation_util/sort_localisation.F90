@@ -10,234 +10,158 @@
 !                                                                      *
 ! Copyright (C) 2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine Sort_Localisation(CMO,nBas,nOcc,nFro,nSym)
+
+subroutine Sort_Localisation(CMO,nBas,nOcc,nFro,nSym)
+! Thomas Bondo Pedersen, November 2005.
 !
-!     Thomas Bondo Pedersen, November 2005.
-!
-!     Purpose: sort CMOs according to Cholesky orbital ordering.
-!
-      Implicit Real*8 (a-h,o-z)
-      Real*8 CMO(*)
-      Integer nBas(nSym), nOcc(nSym), nFro(nSym)
+! Purpose: sort CMOs according to Cholesky orbital ordering.
+
+implicit real*8(a-h,o-z)
+real*8 CMO(*)
+integer nBas(nSym), nOcc(nSym), nFro(nSym)
 #include "WrkSpc.fh"
 
-      Character*17 SecNam
-      Parameter (SecNam = 'Sort_Localisation')
+character*17 SecNam
+parameter(SecNam='Sort_Localisation')
 
-      Character*8  Label
-      Character*80 Txt
+character*8 Label
+character*80 Txt
 
-!     Static setting of decomposition threshold.
-!     ------------------------------------------
+! Static setting of decomposition threshold.
+! ------------------------------------------
 
-      ThrCho = 1.0d-12
+ThrCho = 1.0d-12
 
-!     Get a copy of the occupied orbitals: X=CMO.
-!     -------------------------------------------
+! Get a copy of the occupied orbitals: X=CMO.
+! -------------------------------------------
 
-      lX = nBas(1)*nOcc(1)
-      Do iSym = 2,nSym
-         lX = lX + nBas(iSym)*nOcc(iSym)
-      End Do
-      Call GetMem('XCho','Allo','Real',ipX,lX)
-      k1 = 1
-      kX = ipX
-      Do iSym = 1,nSym
-         kC = k1 + nBas(iSym)*nFro(iSym)
-         Call dCopy_(nBas(1)*nOcc(1),CMO(kC),1,Work(kX),1)
-         k1 = k1 + nBas(iSym)**2
-         kX = kX + nBas(iSym)*nOcc(iSym)
-      End Do
+lX = nBas(1)*nOcc(1)
+do iSym=2,nSym
+  lX = lX+nBas(iSym)*nOcc(iSym)
+end do
+call GetMem('XCho','Allo','Real',ipX,lX)
+k1 = 1
+kX = ipX
+do iSym=1,nSym
+  kC = k1+nBas(iSym)*nFro(iSym)
+  call dCopy_(nBas(1)*nOcc(1),CMO(kC),1,Work(kX),1)
+  k1 = k1+nBas(iSym)**2
+  kX = kX+nBas(iSym)*nOcc(iSym)
+end do
 
-!     Get the overlap matrix.
-!     -----------------------
+! Get the overlap matrix.
+! -----------------------
 
-      lOAux = nBas(1)*(nBas(1)+1)/2
-      lOvlp = nBas(1)*nBas(1)
-      Do iSym = 1,nSym
-         lOaux = lOaux + nBas(iSym)*(nBas(iSym)+1)/2
-         lOvlp = lOvlp + nBas(iSym)*nBas(iSym)
-      End Do
-      lOaux = lOaux + 4
-      Call GetMem('Ovlp','Allo','Real',ipOvlp,lOvlp)
-      Call GetMem('AuxOvlp','Allo','Real',ipOaux,lOaux)
+lOAux = nBas(1)*(nBas(1)+1)/2
+lOvlp = nBas(1)*nBas(1)
+do iSym=1,nSym
+  lOaux = lOaux+nBas(iSym)*(nBas(iSym)+1)/2
+  lOvlp = lOvlp+nBas(iSym)*nBas(iSym)
+end do
+lOaux = lOaux+4
+call GetMem('Ovlp','Allo','Real',ipOvlp,lOvlp)
+call GetMem('AuxOvlp','Allo','Real',ipOaux,lOaux)
 
-      irc    = -1
-      iOpt   = 2
-      iComp  = 1
-      iSyLbl = 1
-      Label  = 'Mltpl  0'
-      Call RdOne(irc,iOpt,Label,iComp,Work(ipOaux),iSyLbl)
-      If (irc .ne. 0) Then
-         Write(6,*) SecNam,': RdOne returned ',irc
-         Write(6,*) 'Label = ',Label,'  iSyLbl = ',iSyLbl
-         Call SysAbendMsg(SecNam,'I/O error in RdOne',' ')
-      End If
+irc = -1
+iOpt = 2
+iComp = 1
+iSyLbl = 1
+Label = 'Mltpl  0'
+call RdOne(irc,iOpt,Label,iComp,Work(ipOaux),iSyLbl)
+if (irc /= 0) then
+  write(6,*) SecNam,': RdOne returned ',irc
+  write(6,*) 'Label = ',Label,'  iSyLbl = ',iSyLbl
+  call SysAbendMsg(SecNam,'I/O error in RdOne',' ')
+end if
 
-      kTri = ipOaux
-      kSqr = ipOvlp
-      Do iSym = 1,nSym
-         Call Tri2Rec(Work(kTri),Work(kSqr),nBas(iSym),.False.)
-         kTri = kTri + nBas(iSym)*(nBas(iSym)+1)/2
-         kSqr = kSqr + nBas(iSym)*nBas(iSym)
-      End Do
-      Call GetMem('AuxOvlp','Free','Real',ipOaux,lOaux)
+kTri = ipOaux
+kSqr = ipOvlp
+do iSym=1,nSym
+  call Tri2Rec(Work(kTri),Work(kSqr),nBas(iSym),.false.)
+  kTri = kTri+nBas(iSym)*(nBas(iSym)+1)/2
+  kSqr = kSqr+nBas(iSym)*nBas(iSym)
+end do
+call GetMem('AuxOvlp','Free','Real',ipOaux,lOaux)
 
-!     Sort each symmetry block.
-!     -------------------------
+! Sort each symmetry block.
+! -------------------------
 
-      kX = ipX
-      kC = 1
-      kS = ipOvlp
-      Do iSym = 1,nSym
+kX = ipX
+kC = 1
+kS = ipOvlp
+do iSym=1,nSym
 
-!        Cycle loop for empty symmetry blocks.
-!        -------------------------------------
+  ! Cycle loop for empty symmetry blocks.
+  ! -------------------------------------
 
-         If (nBas(iSym).lt.1 .or. nOcc(iSym).lt.1) Go To 100
+  if ((nBas(iSym) < 1) .or. (nOcc(iSym) < 1)) Go To 100
 
-!        Allocations.
-!        ------------
+  ! Allocations.
+  ! ------------
 
-         lDen = nBas(iSym)*nBas(iSym)
-         lU = nOcc(iSym)*nOcc(iSym)
-         lScr = nBas(iSym)*nOcc(iSym)
-         Call GetMem('SrtDen','Allo','Real',ipDen,lDen)
-         Call GetMem('SrtU','Allo','Real',ipU,lU)
-         Call GetMem('SrtScr','Allo','Real',ipScr,lScr)
+  lDen = nBas(iSym)*nBas(iSym)
+  lU = nOcc(iSym)*nOcc(iSym)
+  lScr = nBas(iSym)*nOcc(iSym)
+  call GetMem('SrtDen','Allo','Real',ipDen,lDen)
+  call GetMem('SrtU','Allo','Real',ipU,lU)
+  call GetMem('SrtScr','Allo','Real',ipScr,lScr)
 
-!        Cholesky decompose D=C^TC and thus define the ordering.
-!        At this stage, X contains the original MOs (CMO).
-!        After the decomposition, X contains the Cholesky MOs.
-!        -------------------------------------------------------
+  ! Cholesky decompose D=C^TC and thus define the ordering.
+  ! At this stage, X contains the original MOs (CMO).
+  ! After the decomposition, X contains the Cholesky MOs.
+  ! -------------------------------------------------------
 
-         Call GetDens_Localisation(Work(ipDen),Work(kX),nBas(iSym),     &
-     &                             nOcc(iSym))
-         irc = -1
-         Call ChoLoc(irc,Work(ipDen),Work(kX),ThrCho,xNrm,nBas(iSym),   &
-     &               nOcc(iSym))
-         If (irc .ne. 0) Then
-            Write(6,*) SecNam,': ChoLoc returned ',irc
-            Write(6,*) 'Symmetry block: ',iSym
-            Write(6,*) 'Unable to continue...'
-            Write(Txt,'(A,I6)') 'ChoLoc return code:',irc
-            Call SysAbendMsg(SecNam,                                    &
-     &                       'Density Cholesky decomposition failed!',  &
-     &                       Txt)
-         End If
+  call GetDens_Localisation(Work(ipDen),Work(kX),nBas(iSym),nOcc(iSym))
+  irc = -1
+  call ChoLoc(irc,Work(ipDen),Work(kX),ThrCho,xNrm,nBas(iSym),nOcc(iSym))
+  if (irc /= 0) then
+    write(6,*) SecNam,': ChoLoc returned ',irc
+    write(6,*) 'Symmetry block: ',iSym
+    write(6,*) 'Unable to continue...'
+    write(Txt,'(A,I6)') 'ChoLoc return code:',irc
+    call SysAbendMsg(SecNam,'Density Cholesky decomposition failed!',Txt)
+  end if
 
-!        Compute address in CMO, skipping frozen orbitals.
-!        -------------------------------------------------
+  ! Compute address in CMO, skipping frozen orbitals.
+  ! -------------------------------------------------
 
-         k1 = kC + nBas(iSym)*nFro(iSym)
+  k1 = kC+nBas(iSym)*nFro(iSym)
 
-!        Compute U = X^TSC.
-!        ------------------
+  ! Compute U = X^TSC.
+  ! ------------------
 
-         Call GetUmat_Localisation(Work(ipU),Work(kX),Work(kS),CMO(k1), &
-     &                             Work(ipScr),lScr,nBas(iSym),         &
-     &                             nOcc(iSym))
+  call GetUmat_Localisation(Work(ipU),Work(kX),Work(kS),CMO(k1),Work(ipScr),lScr,nBas(iSym),nOcc(iSym))
 
-!        Sort.
-!        -----
+  ! Sort.
+  ! -----
 
-         Call Sort_Localisation_1(CMO(k1),Work(ipU),nBas(iSym),         &
-     &                            nOcc(iSym))
+  call Sort_Localisation_1(CMO(k1),Work(ipU),nBas(iSym),nOcc(iSym))
 
-!        Update counters.
-!        ----------------
+  ! Update counters.
+  ! ----------------
 
-         kX = kX + nBas(iSym)*nOcc(iSym)
-         kC = kC + nBas(iSym)**2
-         kS = kS + nBas(iSym)**2
+  kX = kX+nBas(iSym)*nOcc(iSym)
+  kC = kC+nBas(iSym)**2
+  kS = kS+nBas(iSym)**2
 
-!        De-allocations.
-!        ---------------
+  ! De-allocations.
+  ! ---------------
 
-         Call GetMem('SrtScr','Free','Real',ipScr,lScr)
-         Call GetMem('SrtU','Free','Real',ipU,lU)
-         Call GetMem('SrtDen','Free','Real',ipDen,lDen)
+  call GetMem('SrtScr','Free','Real',ipScr,lScr)
+  call GetMem('SrtU','Free','Real',ipU,lU)
+  call GetMem('SrtDen','Free','Real',ipDen,lDen)
 
-!        Loop cycling (empty symmetries jump here).
-!        ------------------------------------------
+  ! Loop cycling (empty symmetries jump here).
+  ! ------------------------------------------
 
-  100    Continue
+100 continue
 
-      End Do
+end do
 
-!     De-allocations.
-!     ---------------
+! De-allocations.
+! ---------------
 
-      Call GetMem('XCho','Free','Real',ipX,lX)
-      Call GetMem('Ovlp','Free','Real',ipOvlp,lOvlp)
+call GetMem('XCho','Free','Real',ipX,lX)
+call GetMem('Ovlp','Free','Real',ipOvlp,lOvlp)
 
-      End
-      SubRoutine Sort_Localisation_1(CMO,U,nBas,nOcc)
-!
-!     Thomas Bondo Pedersen, November 2005.
-!
-!     Purpose: sort CMO columns according to U.
-!
-      Implicit Real*8 (a-h,o-z)
-      Real*8 CMO(nBas,nOcc), U(nOcc,nOcc)
-#include "WrkSpc.fh"
-
-      I1(i)=iWork(ipI1-1+i)
-      I2(i)=iWork(ipI2-1+i)
-
-!     Allocations.
-!     ------------
-
-      lI1 = nOcc
-      lI2 = nOcc
-      lC  = nBas*nOcc
-      Call GetMem('Sr1I1','Allo','Inte',ipI1,lI1)
-      Call GetMem('Sr1I2','Allo','Inte',ipI2,lI2)
-      Call GetMem('Sr1C','Allo','Real',ipC,lC)
-
-!     Find max U element in each row.
-!     -------------------------------
-
-      ip1 = ipI1 - 1
-      Do i = 1,nOcc
-         iWork(ip1+i) = i
-      End Do
-
-      ip2 = ipI2 - 1
-      Do i = 1,nOcc
-         jmax = 0
-         Umax = -1.0d15
-         Do j = 1,nOcc
-            If (I1(j) .eq. j) Then
-               Utst = abs(U(i,j))
-               If (Utst .gt. Umax) Then
-                  jmax = j
-                  Umax = Utst
-               End If
-            End If
-         End Do
-         If (jmax .eq. 0) Then
-            Call SysAbendMsg('Sort_Localisation_1','Error:','jmax=0')
-         Else
-            iWork(ip1+jmax) = 0
-            iWork(ip2+i) = jmax
-         End If
-      End Do
-
-!     Swap MOs according to I2.
-!     -------------------------
-
-      Call dCopy_(nBas*nOcc,CMO,1,Work(ipC),1)
-      Do i = 1,nOcc
-         kOff = ipC + nBas*(I2(i)-1)
-         Call dCopy_(nBas,Work(kOff),1,CMO(1,i),1)
-      End Do
-
-!     De-allocate.
-!     ------------
-
-      Call GetMem('Sr1C','Free','Real',ipC,lC)
-      Call GetMem('Sr1I2','Free','Inte',ipI2,lI2)
-      Call GetMem('Sr1I1','Free','Inte',ipI1,lI1)
-
-      End
+end subroutine Sort_Localisation

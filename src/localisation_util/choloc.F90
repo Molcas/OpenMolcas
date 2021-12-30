@@ -36,34 +36,34 @@
 !> @param[in]     nBas Number of basis functions
 !> @param[in]     nOcc Number of occupied orbitals
 !***********************************************************************
-      SubRoutine ChoLoc(irc,Dens,CMO,Thrs,xNrm,nBas,nOcc)
-      Implicit None
-      Integer irc, nBas, nOcc
-      Real*8  Thrs, xNrm
-      Real*8  Dens(nBas,nBas), CMO(nBas,nOcc)
 
-      Character*6 SecNam
-      Parameter (SecNam = 'ChoLoc')
+subroutine ChoLoc(irc,Dens,CMO,Thrs,xNrm,nBas,nOcc)
 
-      Integer  nVec
-      real*8 ddot_
-      external ddot_
+implicit none
+integer irc, nBas, nOcc
+real*8 Thrs, xNrm
+real*8 Dens(nBas,nBas), CMO(nBas,nOcc)
+character*6 SecNam
+parameter(SecNam='ChoLoc')
+integer nVec
+real*8 ddot_
+external ddot_
 
-      irc  = 0
-      xNrm = -9.9d9
+irc = 0
+xNrm = -9.9d9
 
-      nVec = 0
-      Call CD_InCore(Dens,nBas,CMO,nOcc,nVec,Thrs,irc)
-      If (irc .ne. 0) Then
-         Write(6,*) SecNam,': CD_InCore returned ',irc
-         Return
-      Else If (nVec .ne. nOcc) Then
-         Write(6,*) SecNam,': nVec.NE.nOcc'
-         Write(6,*) '   nVec,nOcc = ',nVec,nOcc
-         irc = 1
-         Return
-      End If
+nVec = 0
+call CD_InCore(Dens,nBas,CMO,nOcc,nVec,Thrs,irc)
+if (irc /= 0) then
+  write(6,*) SecNam,': CD_InCore returned ',irc
+  return
+else if (nVec /= nOcc) then
+  write(6,*) SecNam,': nVec /= nOcc'
+  write(6,*) '   nVec,nOcc = ',nVec,nOcc
+  irc = 1
+  return
+end if
 
-      xNrm = sqrt(dDot_(nBas*nOcc,CMO,1,CMO,1))
+xNrm = sqrt(dDot_(nBas*nOcc,CMO,1,CMO,1))
 
-      End
+end subroutine ChoLoc

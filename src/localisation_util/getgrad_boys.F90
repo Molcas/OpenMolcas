@@ -10,45 +10,43 @@
 !                                                                      *
 ! Copyright (C) 2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine GetGrad_Boys(nOrb2Loc,ipLbl,nComp,Rmat,GradNorm,Debug)
+
+subroutine GetGrad_Boys(nOrb2Loc,ipLbl,nComp,Rmat,GradNorm,Debug)
+! Thomas Bondo Pedersen, December 2005.
 !
-!     Thomas Bondo Pedersen, December 2005.
-!
-!     Purpose: compute R-matrix and gradient norm for Boys functional.
-!
-      Implicit Real*8 (a-h,o-z)
-      Integer ipLbl(nComp)
-      Real*8  Rmat(nOrb2Loc,nOrb2Loc)
-      Logical Debug
+! Purpose: compute R-matrix and gradient norm for Boys functional.
+
+implicit real*8(a-h,o-z)
+integer ipLbl(nComp)
+real*8 Rmat(nOrb2Loc,nOrb2Loc)
+logical Debug
 #include "WrkSpc.fh"
 
-      Call FZero(Rmat,nOrb2Loc**2)
-      Do iComp = 1,nComp
-         ip0 = ipLbl(iComp) - 1
-         Do j = 1,nOrb2Loc
-            Rjj = Work(ip0+nOrb2Loc*(j-1)+j)
-            Do i = 1,nOrb2Loc
-               Rmat(i,j) = Rmat(i,j) +                                  &
-     &                     Work(ip0+nOrb2Loc*(j-1)+i)*Rjj
-            End Do
-         End Do
-      End Do
+call FZero(Rmat,nOrb2Loc**2)
+do iComp=1,nComp
+  ip0 = ipLbl(iComp)-1
+  do j=1,nOrb2Loc
+    Rjj = Work(ip0+nOrb2Loc*(j-1)+j)
+    do i=1,nOrb2Loc
+      Rmat(i,j) = Rmat(i,j)+Work(ip0+nOrb2Loc*(j-1)+i)*Rjj
+    end do
+  end do
+end do
 
-      GradNorm = 0.0d0
-      Do i = 1,nOrb2Loc-1
-         Do j = i+1,nOrb2Loc
-            GradNorm = GradNorm                                         &
-     &               + (Rmat(i,j)-Rmat(j,i))**2
-         End Do
-      End Do
-      GradNorm = 4.0d0*sqrt(GradNorm)
+GradNorm = 0.0d0
+do i=1,nOrb2Loc-1
+  do j=i+1,nOrb2Loc
+    GradNorm = GradNorm+(Rmat(i,j)-Rmat(j,i))**2
+  end do
+end do
+GradNorm = 4.0d0*sqrt(GradNorm)
 
-      If (Debug) Then
-         Fun = 0.0d0
-         Do i = 1,nOrb2Loc
-            Fun = Fun + Rmat(i,i)
-         End Do
-         Write(6,*) 'GetGrad_Boys: functional = Tr(R) = ',Fun
-      End If
+if (Debug) then
+  Fun = 0.0d0
+  do i=1,nOrb2Loc
+    Fun = Fun+Rmat(i,i)
+  end do
+  write(6,*) 'GetGrad_Boys: functional = Tr(R) = ',Fun
+end if
 
-      End
+end subroutine GetGrad_Boys

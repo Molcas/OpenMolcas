@@ -10,70 +10,62 @@
 !                                                                      *
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
-      SubRoutine EdmistonRuedenberg(Functional,CMO,Thrs,ThrRot,ThrGrad, &
-     &                              nBas,nOrb2Loc,nFro,                 &
-     &                              nSym,nMxIter,                       &
-     &                              Maximisation,Converged,Debug,Silent)
+
+subroutine EdmistonRuedenberg(Functional,CMO,Thrs,ThrRot,ThrGrad,nBas,nOrb2Loc,nFro,nSym,nMxIter,Maximisation,Converged,Debug, &
+                              Silent)
+! Author: T.B. Pedersen
 !
-!     Author: T.B. Pedersen
-!
-!     Purpose: Edmiston-Ruedenberg localisation of occupied orbitals.
-!
-      Implicit Real*8 (a-h,o-z)
-      Real*8  CMO(*)
-      Integer nBas(nSym), nOrb2Loc(nSym), nFro(nSym)
-      Logical Maximisation, Converged, Debug, Silent
+! Purpose: Edmiston-Ruedenberg localisation of occupied orbitals.
+
+implicit real*8(a-h,o-z)
+real*8 CMO(*)
+integer nBas(nSym), nOrb2Loc(nSym), nFro(nSym)
+logical Maximisation, Converged, Debug, Silent
 #include "WrkSpc.fh"
+character*18 SecNam
+parameter(SecNam='EdmistonRuedenberg')
+character*80 Txt
 
-      Character*18 SecNam
-      Parameter (SecNam = 'EdmistonRuedenberg')
+! Symmetry is NOT allowed.
+! ------------------------
 
-      Character*80 Txt
+if (nSym /= 1) then
+  call SysAbendMsg(SecNam,'Symmetry not implemented!','Sorry!')
+end if
 
-!     Symmetry is NOT allowed.
-!     ------------------------
+! Initializations.
+! ----------------
 
-      If (nSym .ne. 1) Then
-         Call SysAbendMsg(SecNam,'Symmetry not implemented!','Sorry!')
-      End If
+Functional = -9.9d9
 
-!     Initializations.
-!     ----------------
+nBasT = nBas(1)
+nOrb2LocT = nOrb2Loc(1)
+nFroT = nFro(1)
 
-      Functional = -9.9D9
+Converged = .false.
 
-      nBasT     = nBas(1)
-      nOrb2LocT = nOrb2Loc(1)
-      nFroT     = nFro(1)
+irc = -1
+FracMem = 0.3d0 ! 30 percent of memory used as vector buffer
+call Cho_X_Init(irc,FracMem)
+if (irc /= 0) then
+  write(Txt,'(A,I6)') 'Cho_X_Init returned',irc
+  call SysAbendMsg(SecNam,'Cholesky initialization error:',Txt)
+end if
 
-      Converged = .False.
+! Localise orbitals.
+! ------------------
 
-      irc = -1
-      FracMem = 0.3d0 ! 30 percent of memory used as vector buffer
-      Call Cho_X_Init(irc,FracMem)
-      If (irc .ne. 0) Then
-         Write(Txt,'(A,I6)') 'Cho_X_Init returned',irc
-         Call SysAbendMsg(SecNam,'Cholesky initialization error:',Txt)
-      End If
+kOffC = nBasT*nFroT+1
+call EdmistonRuedenberg_Iter(Functional,CMO(kOffC),Thrs,ThrRot,ThrGrad,nBasT,nOrb2LocT,nMxIter,Maximisation,Converged,Debug,Silent)
 
-!     Localise orbitals.
-!     ------------------
+! Finalizations.
+! --------------
 
-      kOffC = nBasT*nFroT + 1
-      Call EdmistonRuedenberg_Iter(Functional,CMO(kOffC),Thrs,ThrRot,   &
-     &                             ThrGrad,                             &
-     &                             nBasT,nOrb2LocT,nMxIter,             &
-     &                             Maximisation,Converged,Debug,        &
-     &                             Silent)
+irc = -1
+call Cho_X_Final(irc)
+if (irc /= 0) then
+  write(Txt,'(A,I6)') 'Cho_X_Final returned',irc
+  call SysAbendMsg(SecNam,'Cholesky finalization error:',Txt)
+end if
 
-!     Finalizations.
-!     --------------
-
-      irc = -1
-      Call Cho_X_Final(irc)
-      If (irc .ne. 0) Then
-         Write(Txt,'(A,I6)') 'Cho_X_Final returned',irc
-         Call SysAbendMsg(SecNam,'Cholesky finalization error:',Txt)
-      End If
-
-      End
+end subroutine EdmistonRuedenberg

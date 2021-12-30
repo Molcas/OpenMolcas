@@ -8,42 +8,27 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) Thomas Bondo Pedersen                                  *
+! Copyright (C) 2017, Roland Lindh                                     *
 !***********************************************************************
-!  Sq2Tri
-!
-!> @brief
-!>   Convert from square to lower triangular storage
-!> @author Thomas Bondo Pedersen
-!>
-!> @param[in]  Sq  Square storage array
-!> @param[out] Tri Lower triangular storage array
-!> @param[in]  n   Dimension
-!>
-!> @details
-!> Perform the extraction
-!>
-!> \code
-!> Tri(i*(i-1)/2+j) = Sq(i,j)
-!> \endcode
-!>
-!> where \c i &ge; \c j.
-!***********************************************************************
+! Version of Oct 21
 
-subroutine Sq2Tri(Sq,Tri,n)
+subroutine XDIAXT(XDX,X,DIA,NDIM,SCR)
+! Obtain XDX = X * DIA * X(Transposed)
+! where DIA is an diagonal matrix stored as a vector
 
-implicit none
-integer n
-real*8 Sq(n,n), Tri(n*(n+1)/2)
+implicit real*8(A-H,O-Z)
+dimension XDX(NDIM,NDIM)
+dimension X(NDIM,NDIM), DIA(NDIM)
+dimension SCR(NDIM,NDIM)
 
-integer i, j, iTri
-
-iTri(i,j) = i*(i-1)/2+j
-
-do j=1,n
-  do i=j,n
-    Tri(iTri(i,j)) = Sq(i,j)
-  end do
+! DIA * X(transposed)
+do I=1,NDIM
+  call COPVEC(X(1,I),SCR(1,I),NDIM)
+  call SCALVE(SCR(1,I),DIA(I),NDIM)
 end do
+! X * DIA * X(Transposed)
+call MATML4(XDX,X,SCR,NDIM,NDIM,NDIM,NDIM,NDIM,NDIM,2)
 
-end subroutine Sq2Tri
+return
+
+end subroutine XDIAXT

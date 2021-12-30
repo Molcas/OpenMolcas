@@ -45,88 +45,86 @@
 !> @param[in]     nSym    Number of irreps
 !> @param[in]     Silent  Flag to avoid printing
 !***********************************************************************
-      SubRoutine PMLoc(irc,CMO,Thr,ThrGrad,ThrRot,MxIter,nBas,nOcc,nFro,&
-     &                 nSym,Silent)
-      Implicit Real*8 (a-h,o-z)
-      Real*8  CMO(*)
-      Integer nBas(nSym), nOcc(nSym), nFro(nSym)
-      Logical Silent
+
+subroutine PMLoc(irc,CMO,Thr,ThrGrad,ThrRot,MxIter,nBas,nOcc,nFro,nSym,Silent)
+
+implicit real*8(a-h,o-z)
+real*8 CMO(*)
+integer nBas(nSym), nOcc(nSym), nFro(nSym)
+logical Silent
 #include "Molcas.fh"
+character*5 SecNam
+parameter(SecNam='PMLoc')
+character*(LENIN8) myName(MxAtom)
+character*80 Txt
+logical Maximization, Converged, Debug
 
-      Character*5 SecNam
-      Parameter (SecNam = 'PMLoc')
+! Initialization.
+! ---------------
 
-      Character*(LENIN8)  myName(MxAtom)
-      Character*80 Txt
-      Logical Maximization, Converged, Debug
+irc = 0
+if (MxIter < 1) return
 
-!     Initialization.
-!     ---------------
+nBasT = nBas(1)
+do iSym=2,nSym
+  nBasT = nBasT+nBas(iSym)
+end do
+if (nBasT < 1) return
 
-      irc = 0
-      If (MxIter .lt. 1) Return
+nOccT = nOcc(1)
+do iSym=2,nSym
+  nOccT = nOccT+nOcc(iSym)
+end do
+if (nOccT < 1) return
 
-      nBasT = nBas(1)
-      Do iSym = 2,nSym
-         nBasT = nBasT + nBas(iSym)
-      End Do
-      If (nBasT .lt. 1) Return
+! Pipek-Mezey does not work with symmetry.
+! TODO/FIXME: we might consider de-symmetrization.
+! ------------------------------------------------
 
-      nOccT = nOcc(1)
-      Do iSym = 2,nSym
-         nOccT = nOccT + nOcc(iSym)
-      End Do
-      If (nOccT .lt. 1) Return
+if (nSym /= 1) then
+  irc = -1
+  return
+end if
 
-!     Pipek-Mezey does not work with symmetry.
-!     TODO/FIXME: we might consider de-symmetrization.
-!     ------------------------------------------------
+! Read number of atoms, atomic labels, and basis functions labels
+! from runfile.
+! ---------------------------------------------------------------
 
-      If (nSym .ne. 1) Then
-         irc = -1
-         Return
-      End If
+call Get_nAtoms_All(nAtoms)
+if ((nAtoms < 1) .or. (nAtoms > MxAtom)) then
+  write(Txt,'(A,I9)') 'nAtoms =',nAtoms
+  call SysAbendMsg(SecNam,'Atom limit exceeded!',Txt)
+end if
+call Get_cArray('Unique Basis Names',myName,LENIN8*nBasT)
 
-!     Read number of atoms, atomic labels, and basis functions labels
-!     from runfile.
-!     ---------------------------------------------------------------
+! Localize.
+! ---------
 
-      Call Get_nAtoms_All(nAtoms)
-      If (nAtoms.lt.1 .or. nAtoms.gt.MxAtom) Then
-         Write(Txt,'(A,I9)') 'nAtoms =',nAtoms
-         Call SysAbendMsg(SecNam,'Atom limit exceeded!',Txt)
-      End If
-      Call Get_cArray('Unique Basis Names',myName,LENIN8*nBasT)
+Functional = -9.9d9
+if (Thr <= 0.0d0) then
+  ThrLoc = 1.0d-6
+else
+  ThrLoc = Thr
+end if
+if (ThrGrad <= 0.0d0) then
+  ThrGLoc = 1.0d-3
+else
+  ThrGLoc = ThrGrad
+end if
+if (ThrRot < 0.0d0) then
+  ThrRotLoc = 1.0d-10
+else
+  ThrRotLoc = ThrRot
+end if
+Maximization = .true.
+Converged = .false.
+Debug = .false.
+call PipekMezey(Functional,CMO,ThrLoc,ThrRotLoc,ThrGLoc,myName,nBas,nOcc,nFro,nSym,nAtoms,MxIter,Maximization,Converged,Debug, &
+                Silent)
 
-!     Localize.
-!     ---------
+! Check convergence.
+! ------------------
 
-      Functional = -9.9d9
-      If (Thr .le. 0.0d0) Then
-         ThrLoc = 1.0d-6
-      Else
-         ThrLoc = Thr
-      End If
-      If (ThrGrad .le. 0.0d0) Then
-         ThrGLoc = 1.0d-3
-      Else
-         ThrGLoc = ThrGrad
-      End If
-      If (ThrRot .lt. 0.0d0) Then
-         ThrRotLoc = 1.0d-10
-      Else
-         ThrRotLoc = ThrRot
-      End If
-      Maximization = .True.
-      Converged = .False.
-      Debug = .False.
-      Call PipekMezey(Functional,CMO,ThrLoc,ThrRotLoc,ThrGLoc,myName,   &
-     &                nBas,nOcc,nFro,nSym,nAtoms,MxIter,                &
-     &                Maximization,Converged,Debug,Silent)
+if (.not. Converged) irc = 1
 
-!     Check convergence.
-!     ------------------
-
-      If (.not. Converged) irc = 1
-
-      End
+end subroutine PMLoc

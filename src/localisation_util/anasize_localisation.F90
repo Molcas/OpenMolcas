@@ -10,73 +10,73 @@
 !                                                                      *
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
-      SubRoutine Anasize_Localisation(Den,CMO,XMO,nShell,nOrb,iSym)
+
+subroutine Anasize_Localisation(Den,CMO,XMO,nShell,nOrb,iSym)
+! Author: T.B. Pedersen
 !
-!     Author: T.B. Pedersen
-!
-!     Purpose: sparsity analysis of shell-based matrices.
-!
-      Implicit Real*8 (a-h,o-z)
-      Real*8 Den(nShell,nShell), CMO(nShell,nOrb), XMO(nShell,nOrb)
+! Purpose: sparsity analysis of shell-based matrices.
+
+implicit real*8(a-h,o-z)
+real*8 Den(nShell,nShell), CMO(nShell,nOrb), XMO(nShell,nOrb)
 #include "WrkSpc.fh"
 
-      Character*17 XHead
-      Character*20 CHead
-      Character*36 DHead
+character*17 XHead
+character*20 CHead
+character*36 DHead
 
-!     Return if nothing to do.
-!     ------------------------
+! Return if nothing to do.
+! ------------------------
 
-      If (nShell .lt. 0) Return
+if (nShell < 0) return
 
-!     Set up bins.
-!     ------------
+! Set up bins.
+! ------------
 
-      lBin = 9
-      Call GetMem('Bin','Allo','Real',ipBin,lBin)
-      StpSiz = 1.0d-1
-      Work(ipBin) = 1.0d0
-      ip0 = ipBin - 1
-      Do iBin = 2,lBin
-         Work(ip0+iBin) = Work(ip0+iBin-1)*StpSiz
-      End Do
+lBin = 9
+call GetMem('Bin','Allo','Real',ipBin,lBin)
+StpSiz = 1.0d-1
+Work(ipBin) = 1.0d0
+ip0 = ipBin-1
+do iBin=2,lBin
+  Work(ip0+iBin) = Work(ip0+iBin-1)*StpSiz
+end do
 
-!     Density.
-!     --------
+! Density.
+! --------
 
-      lDLT = nShell*(nShell+1)/2
-      Call GetMem('LTDen','Allo','Real',ipDLT,lDLT)
-      Call Sq2Tri(Den,Work(ipDLT),nShell)
-      Write(DHead,'(A34,I2)') 'Histogram of density matrix , sym.',iSym
-      Call Cho_Head(DHead,'=',80,6)
-      Call Cho_Anasize(Work(ipDLT),lDlt,Work(ipBin),lBin,6)
-      Call GetMem('LTDen','Free','Real',ipDLT,lDLT)
+lDLT = nShell*(nShell+1)/2
+call GetMem('LTDen','Allo','Real',ipDLT,lDLT)
+call Sq2Tri(Den,Work(ipDLT),nShell)
+write(DHead,'(A34,I2)') 'Histogram of density matrix , sym.',iSym
+call Cho_Head(DHead,'=',80,6)
+call Cho_Anasize(Work(ipDLT),lDlt,Work(ipBin),lBin,6)
+call GetMem('LTDen','Free','Real',ipDLT,lDLT)
 
-      If (nOrb .lt. 1) Go To 1 ! return after de-allocation
+if (nOrb < 1) Go To 1 ! return after de-allocation
 
-!     Original MOs.
-!     -------------
+! Original MOs.
+! -------------
 
-      Write(CHead,'(A18,I2)') 'Original MOs, sym.',iSym
-      Call Cho_Head(CHead,'=',80,6)
-      Do i = 1,nOrb
-         Write(6,'(/,2X,A,I5)') 'Original MO no.',i
-         Call Cho_Anasize(CMO(1,i),nShell,Work(ipBin),lBin,6)
-      End Do
+write(CHead,'(A18,I2)') 'Original MOs, sym.',iSym
+call Cho_Head(CHead,'=',80,6)
+do i=1,nOrb
+  write(6,'(/,2X,A,I5)') 'Original MO no.',i
+  call Cho_Anasize(CMO(1,i),nShell,Work(ipBin),lBin,6)
+end do
 
-!     Local MOs.
-!     ----------
+! Local MOs.
+! ----------
 
-      Write(XHead,'(A15,I2)') 'Local MOs, sym.',iSym
-      Call Cho_Head(XHead,'=',80,6)
-      Do i = 1,nOrb
-         Write(6,'(/,2X,A,I5)') 'Local MO no.',i
-         Call Cho_Anasize(XMO(1,i),nShell,Work(ipBin),lBin,6)
-      End Do
+write(XHead,'(A15,I2)') 'Local MOs, sym.',iSym
+call Cho_Head(XHead,'=',80,6)
+do i=1,nOrb
+  write(6,'(/,2X,A,I5)') 'Local MO no.',i
+  call Cho_Anasize(XMO(1,i),nShell,Work(ipBin),lBin,6)
+end do
 
-!     De-allocate and return.
-!     -----------------------
+! De-allocate and return.
+! -----------------------
 
-    1 Call GetMem('Bin','Free','Real',ipBin,lBin)
+1 call GetMem('Bin','Free','Real',ipBin,lBin)
 
-      End
+end subroutine Anasize_Localisation

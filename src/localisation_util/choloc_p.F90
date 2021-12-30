@@ -38,75 +38,34 @@
 !> @param[in]     nOcc Number of occupied orbitals
 !> @param[in,out] iD   Index array of parent diagonals
 !***********************************************************************
-      SubRoutine ChoLoc_p(irc,Dens,CMO,Thrs,xNrm,nBas,nOcc,iD)
-      Implicit None
-      Integer irc, nBas, nOcc, iD(nBas)
-      Real*8  Thrs, xNrm
-      Real*8  Dens(nBas,nBas), CMO(nBas,nOcc)
 
-      Character*8 SecNam
-      Parameter (SecNam = 'ChoLoc_p')
+subroutine ChoLoc_p(irc,Dens,CMO,Thrs,xNrm,nBas,nOcc,iD)
 
-      Integer  nVec
-      real*8 ddot_
-      external ddot_
+implicit none
+integer irc, nBas, nOcc, iD(nBas)
+real*8 Thrs, xNrm
+real*8 Dens(nBas,nBas), CMO(nBas,nOcc)
+character*8 SecNam
+parameter(SecNam='ChoLoc_p')
+integer nVec
+real*8 ddot_
+external ddot_
 
-      irc  = 0
-      xNrm = -9.9d9
+irc = 0
+xNrm = -9.9d9
 
-      nVec = 0
-      Call CD_InCore_p(Dens,nBas,CMO,nOcc,iD,nVec,Thrs,irc)
-      If (irc .ne. 0) Then
-         Write(6,*) SecNam,': CD_InCore_p returned ',irc
-         Return
-      Else If (nVec .ne. nOcc) Then
-         Write(6,*) SecNam,': nVec.NE.nOcc'
-         Write(6,*) '   nVec,nOcc = ',nVec,nOcc
-         irc = 1
-         Return
-      End If
+nVec = 0
+call CD_InCore_p(Dens,nBas,CMO,nOcc,iD,nVec,Thrs,irc)
+if (irc /= 0) then
+  write(6,*) SecNam,': CD_InCore_p returned ',irc
+  return
+else if (nVec /= nOcc) then
+  write(6,*) SecNam,': nVec /= nOcc'
+  write(6,*) '   nVec,nOcc = ',nVec,nOcc
+  irc = 1
+  return
+end if
 
-      xNrm = sqrt(dDot_(nBas*nOcc,CMO,1,CMO,1))
+xNrm = sqrt(dDot_(nBas*nOcc,CMO,1,CMO,1))
 
-      End
-!
-!
-      SubRoutine ChoLoc_xp(irc,Dens,CMO,Thrs,xNrm,nBas,nOcc,iD)
-!*****************************************************************
-!
-!  Same as ChoLoc_p but handles differently the irc=102
-!
-!***********************************************************
-
-      Implicit None
-      Integer irc, nBas, nOcc, iD(nBas)
-      Real*8  Thrs, xNrm
-      Real*8  Dens(nBas,nBas), CMO(nBas,nOcc)
-
-      Character*9 SecNam
-      Parameter (SecNam = 'ChoLoc_xp')
-
-      Integer  nVec
-      real*8 ddot_
-      external ddot_
-
-      irc  = 0
-      xNrm = -9.9d9
-
-      nVec = 0
-      Call CD_InCore_p(Dens,nBas,CMO,nOcc,iD,nVec,Thrs,irc)
-      If (irc.ne.0 .and. irc.ne.102) Then
-         Write(6,*) SecNam,': CD_InCore_p returned ',irc
-         Return
-      Else If (irc.eq.102) Then
-         irc=0  ! reset because it is most likely a numerical noise
-      Else If (nVec .ne. nOcc) Then
-         Write(6,*) SecNam,': nVec.NE.nOcc'
-         Write(6,*) '   nVec,nOcc = ',nVec,nOcc
-         irc = 1
-         Return
-      End If
-
-      xNrm = sqrt(dDot_(nBas*nOcc,CMO,1,CMO,1))
-
-      End
+end subroutine ChoLoc_p

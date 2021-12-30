@@ -12,11 +12,12 @@
 !               1992, Markus P. Fuelscher                              *
 !               1992, Piotr Borowski                                   *
 !***********************************************************************
-      SubRoutine UnFold(A,nAA,B,nBB,nSym,nBas)
+
+subroutine UnFold(A,nAA,B,nBB,nSym,nBas)
 !***********************************************************************
 !                                                                      *
-!     purpose: Expand the density matrix to full storrage and scale    *
-!              off diagonal elements                                   *
+!     purpose: Expand the density matrix to full storage and scale     *
+!              off-diagonal elements                                   *
 !                                                                      *
 !                                                                      *
 !     input:                                                           *
@@ -40,38 +41,35 @@
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-!
-      Implicit Real*8 (a-h,o-z)
-!
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
-!
-      Real*8 A(nAA),B(nBB)
-      Integer nBas(nSym)
-!
+real*8 A(nAA), B(nBB)
+integer nBas(nSym)
+
 !----------------------------------------------------------------------*
 !     Start                                                            *
 !----------------------------------------------------------------------*
-!
-      k1 = 0
-      k2 = 0
-      Factor=Half
-      Do 10 iSym = 1, nSym
-        nb = nBas(iSym)
-        Do 20 ib = 1, nb
-          Do 30 jb = 1, (ib - 1)
-             l1    = jb + (ib - 1)*nb + k2
-             l2    = ib + (jb - 1)*nb + k2
-             l3    = jb + ib*(ib - 1)/2 + k1
-             B(l1) = Factor*A(l3)
-             B(l2) = Factor*A(l3)
-30        Continue
-          l2    = ib + (ib - 1)*nb + k2
-          l3    = ib + ib*(ib - 1)/2 + k1
-          B(l2) = A(l3)
-20      Continue
-        k1 = k1 + nb*(nb + 1)/2
-        k2 = k2 + nb*nb
-10    Continue
-!
 
-      End
+k1 = 0
+k2 = 0
+Factor = Half
+do iSym=1,nSym
+  nb = nBas(iSym)
+  do ib=1,nb
+    do jb=1,(ib-1)
+      l1 = jb+(ib-1)*nb+k2
+      l2 = ib+(jb-1)*nb+k2
+      l3 = jb+ib*(ib-1)/2+k1
+      B(l1) = Factor*A(l3)
+      B(l2) = Factor*A(l3)
+    end do
+    l2 = ib+(ib-1)*nb+k2
+    l3 = ib+ib*(ib-1)/2+k1
+    B(l2) = A(l3)
+  end do
+  k1 = k1+nb*(nb+1)/2
+  k2 = k2+nb*nb
+end do
+
+end subroutine UnFold

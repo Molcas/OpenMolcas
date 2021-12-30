@@ -12,7 +12,7 @@
 !               2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine GenerateP(Ovlp,cMO,Name,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug)
+subroutine GenerateP_1(Ovlp,cMO,Sbar,Name,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug)
 ! Author: Yannick Carissan.
 !
 ! Modifications:
@@ -20,17 +20,49 @@ subroutine GenerateP(Ovlp,cMO,Name,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Sta
 !      Reduce operation count and use BLAS.
 
 implicit real*8(a-h,o-z)
-#include "stdalloc.fh"
+#include "WrkSpc.fh"
+#include "real.fh"
 #include "Molcas.fh"
-real*8, allocatable :: SBar(:,:)
 integer nBas_per_Atom(*), nBas_Start(*)
 real*8 cMO(nBasis,*), Ovlp(nBasis,nBasis)
+real*8 Sbar(nBasis,nOrb2Loc)
 real*8 PA(nOrb2Loc,nOrb2Loc,nAtoms)
 logical Debug
-character*(LENIN8) Name(*)
+character*(LENIN8) Name(*), PALbl
 
-call mma_Allocate(SBar,nBasis,nOrb2Loc,Label='SBar')
-call GenerateP_1(Ovlp,cMO,Sbar,Name,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug)
-call mma_deallocate(SBar)
+! Compute Sbar(mu,s) = sum_{nu} Ovlp(mu,nu) * cMO(nu,s)
 
-end subroutine GenerateP
+call DGEMM_('N','N',nBasis,nOrb2Loc,nBasis,One,Ovlp,nBasis,cMO,nBasis,Zero,Sbar,nBasis)
+
+do iAt=1,nAtoms
+
+  ! Compute MA(s,t) = sum_{mu_in_A} cMO(mu,s) * Sbar(mu,t)
+
+  call DGEMM_('T','N',nOrb2Loc,nOrb2Loc,nBas_per_Atom(iAt),One,cMO(nBas_Start(iAt),1),nBasis,Sbar(nBas_Start(iAt),1),nBasis,Zero, &
+              PA(1,1,iAt),nOrb2Loc)
+
+  ! Compute <s|PA|t> by symmetrization of MA.
+
+  do iMO_s=1,nOrb2Loc
+    do iMO_t=iMO_s+1,nOrb2Loc
+      PAst = PA(iMO_s,iMO_t,iAt)
+      PAts = PA(iMO_t,iMO_s,iAt)
+      PA(iMO_s,iMO_t,iAt) = Half*(PAst+PAts)
+      PA(iMO_t,iMO_s,iAt) = PA(iMO_s,iMO_t,iAt)
+    end do !iMO_t
+  end do !iMO_s
+
+end do !iAt
+
+if (Debug) then
+  write(6,*) 'In GenerateP'
+  write(6,*) '------------'
+  do iAt=1,nAtoms
+    PALbl = 'PA__'//Name(nBas_Start(iAt))(1:LENIN)
+    call RecPrt(PALbl,' ',PA(1,1,iAt),nOrb2Loc,nOrb2Loc)
+  end do
+end if
+
+return
+
+end subroutine GenerateP_1

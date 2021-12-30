@@ -10,106 +10,98 @@
 !                                                                      *
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
-      SubRoutine Boys(Functional,CMO,Thrs,ThrRot,ThrGrad,               &
-     &                nBas,nOrb2Loc,nFro,nSym,nMxIter,                  &
-     &                Maximisation,Converged,Debug,Silent)
+
+subroutine Boys(Functional,CMO,Thrs,ThrRot,ThrGrad,nBas,nOrb2Loc,nFro,nSym,nMxIter,Maximisation,Converged,Debug,Silent)
+! Author: T.B. Pedersen
 !
-!     Author: T.B. Pedersen
-!
-!     Purpose: Boys localisation of occupied orbitals.
-!
-      Implicit Real*8 (a-h,o-z)
-      Real*8   CMO(*)
-      Integer nBas(nSym), nOrb2Loc(nSym), nFro(nSym)
-      Logical Maximisation, Converged, Debug, Silent
+! Purpose: Boys localisation of occupied orbitals.
+
+implicit real*8(a-h,o-z)
+real*8 CMO(*)
+integer nBas(nSym), nOrb2Loc(nSym), nFro(nSym)
+logical Maximisation, Converged, Debug, Silent
 #include "WrkSpc.fh"
+character*4 SecNam
+parameter(SecNam='Boys')
+parameter(nComp=3) ! 3 components of dipole operator
+integer ipLbl(nComp), ipLbl_MO(nComp)
+character*8 Label, AlloLbl(nComp), AlloLbl_MO(nComp)
 
-      Character*4 SecNam
-      Parameter (SecNam = 'Boys')
+! Symmetry is NOT allowed!!
+! -------------------------
 
-      Parameter (nComp = 3) ! 3 components of dipole operator
-      Integer ipLbl(nComp), ipLbl_MO(nComp)
-      Character*8 Label, AlloLbl(nComp), AlloLbl_MO(nComp)
+if (nSym /= 1) then
+  call SysAbendMsg(SecNam,'Symmetry not implemented!','Sorry!')
+end if
 
-!     Symmetry is NOT allowed!!
-!     -------------------------
+! Initializations.
+! ----------------
 
-      If (nSym .ne. 1) Then
-         Call SysAbendMsg(SecNam,'Symmetry not implemented!','Sorry!')
-      End If
+Functional = -9.9d9
 
-!     Initializations.
-!     ----------------
+nBasT = nBas(1)
+nOrb2LocT = nOrb2Loc(1)
+nFroT = nFro(1)
 
-      Functional = -9.9d9
+Converged = .false.
 
-      nBasT     = nBas(1)
-      nOrb2LocT = nOrb2Loc(1)
-      nFroT     = nFro(1)
+! Read AO dipole moment integrals.
+! --------------------------------
 
-      Converged = .False.
+lLbl = nBasT*nBasT
+do iComp=1,nComp
+  write(AlloLbl(iComp),'(A,I2)') 'Dipole',iComp
+  call GetMem(AlloLbl(iComp),'Allo','Real',ipLbl(iComp),lLbl)
+end do
 
-!     Read AO dipole moment integrals.
-!     --------------------------------
+lAux = nBasT*(nBasT+1)/2+4
+call GetMem('DipAux','Allo','Real',ipAux,lAux)
+Label = 'Mltpl  1'
+do iComp=1,nComp
+  irc = -1
+  iOpt = 2
+  iSym = 1
+  call RdOne(irc,iOpt,Label,iComp,Work(ipAux),iSym)
+  if (irc /= 0) then
+    write(6,*) SecNam,': RdOne returned ',irc
+    write(6,*) 'Label = ',Label,'   Component = ',iComp
+    call SysAbendMsg(SecNam,'I/O error in RdOne',' ')
+  end if
+  if (Debug) then
+    write(6,*)
+    write(6,*) ' Triangular dipole matrix at start'
+    write(6,*) ' ---------------------------------'
+    write(6,*) ' Component: ',iComp
+    call TriPrt(' ',' ',Work(ipAux),nBasT)
+  end if
+  call Tri2Rec(Work(ipAux),Work(ipLbl(iComp)),nBasT,Debug)
+end do
+call GetMem('DipAux','Free','Real',ipAux,lAux)
 
-      lLbl = nBasT*nBasT
-      Do iComp = 1,nComp
-         Write(AlloLbl(iComp),'(A,I2)') 'Dipole',iComp
-         Call GetMem(AlloLbl(iComp),'Allo','Real',ipLbl(iComp),lLbl)
-      End Do
+! Allocate MO arrays.
+! -------------------
 
-      lAux = nBasT*(nBasT+1)/2 + 4
-      Call GetMem('DipAux','Allo','Real',ipAux,lAux)
-      Label = 'Mltpl  1'
-      Do iComp = 1,nComp
-         irc = -1
-         iOpt = 2
-         iSym = 1
-         Call RdOne(irc,iOpt,Label,iComp,Work(ipAux),iSym)
-         If (irc .ne. 0) Then
-            Write(6,*) SecNam,': RdOne returned ',irc
-            Write(6,*) 'Label = ',Label,'   Component = ',iComp
-            Call SysAbendMsg(SecNam,'I/O error in RdOne',' ')
-         End If
-         If (Debug) Then
-            Write(6,*)
-            Write(6,*) ' Triangular dipole matrix at start'
-            Write(6,*) ' ---------------------------------'
-            Write(6,*) ' Component: ',iComp
-            Call TriPrt(' ',' ',Work(ipAux),nBasT)
-         End If
-         Call Tri2Rec(Work(ipAux),Work(ipLbl(iComp)),nBasT,Debug)
-      End Do
-      Call GetMem('DipAux','Free','Real',ipAux,lAux)
+lLbl_MO = nOrb2LocT*nOrb2LocT
+do iComp=1,nComp
+  write(AlloLbl_MO(iComp),'(A,I2)') 'MO dip',iComp
+  call GetMem(AlloLbl_MO(iComp),'Allo','Real',ipLbl_MO(iComp),lLbl_MO)
+end do
 
-!     Allocate MO arrays.
-!     -------------------
+! Localise orbitals.
+! ------------------
 
-      lLbl_MO = nOrb2LocT*nOrb2LocT
-      Do iComp = 1,nComp
-         Write(AlloLbl_MO(iComp),'(A,I2)') 'MO dip',iComp
-         Call GetMem(AlloLbl_MO(iComp),'Allo','Real',ipLbl_MO(iComp),   &
-     &                                               lLbl_MO)
-      End Do
+kOffC = nBasT*nFroT+1
+call Boys_Iter(Functional,CMO(kOffC),Thrs,ThrRot,ThrGrad,ipLbl,ipLbl_MO,nBasT,nOrb2LocT,nComp,nMxIter,Maximisation,Converged, &
+               Debug,Silent)
 
-!     Localise orbitals.
-!     ------------------
+! De-allocations.
+! ---------------
 
-      kOffC = nBasT*nFroT + 1
-      Call Boys_Iter(Functional,CMO(kOffC),Thrs,ThrRot,ThrGrad,         &
-     &               ipLbl,ipLbl_MO,                                    &
-     &               nBasT,nOrb2LocT,nComp,nMxIter,                     &
-     &               Maximisation,Converged,Debug,Silent)
+do iComp=nComp,1,-1
+  call GetMem(AlloLbl_MO(iComp),'Free','Real',ipLbl_MO(iComp),lLbl_MO)
+end do
+do iComp=nComp,1,-1
+  call GetMem(AlloLbl(iComp),'Free','Real',ipLbl(iComp),lLbl)
+end do
 
-!     De-allocations.
-!     ---------------
-
-      Do iComp = nComp,1,-1
-         Call GetMem(AlloLbl_MO(iComp),'Free','Real',ipLbl_MO(iComp),   &
-     &                                               lLbl_MO)
-      End Do
-      Do iComp = nComp,1,-1
-         Call GetMem(AlloLbl(iComp),'Free','Real',ipLbl(iComp),lLbl)
-      End Do
-
-      End
+end subroutine Boys

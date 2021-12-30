@@ -11,41 +11,37 @@
 ! Copyright (C) 2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Rmat,Debug)
-! Thomas Bondo Pedersen, December 2005.
-!
-! Purpose: compute the gradient of the Pipek-Mezey functional.
+subroutine ERChk_Localisation(irc,lnBas,lnOcc,lnFro,lnSym)
 
-implicit real*8(a-h,o-z)
-real*8 Rmat(nOrb2Loc,nOrb2Loc)
-real*8 PA(nOrb2Loc,nOrb2Loc,nAtoms)
-logical Debug
-#include "WrkSpc.fh"
+implicit none
+integer irc, lnSym
+integer lnBas(lnSym), lnOcc(lnSym), lnFro(lnSym)
+#include "cholesky.fh"
+#include "choorb.fh"
+integer iSym, nTst
 
-RMat(:,:) = 0.0d0
-do iAtom=1,nAtoms
-  do j=1,nOrb2Loc
-    Rjj = PA(j,j,iAtom)
-    do i=1,nOrb2Loc
-      Rmat(i,j) = Rmat(i,j)+PA(i,j,iAtom)*Rjj
-    end do
-  end do
-end do
+irc = 0
 
-GradNorm = 0.0d0
-do i=1,nOrb2Loc-1
-  do j=i+1,nOrb2Loc
-    GradNorm = GradNorm+(Rmat(i,j)-Rmat(j,i))**2
-  end do
-end do
-GradNorm = 4.0d0*sqrt(GradNorm)
-
-if (Debug) then
-  Fun = 0.0d0
-  do i=1,nOrb2Loc
-    Fun = Fun+Rmat(i,i)
-  end do
-  write(6,*) 'GetGrad_PM: functional = Tr(R) = ',Fun
+if ((lnSym < 1) .or. (lnSym > 8)) then
+  irc = 1
+  return
 end if
 
-end subroutine GetGrad_PM
+if (lnSym /= nSym) then
+  irc = 2
+  return
+end if
+
+do iSym=1,nSym
+  if (lnBas(iSym) /= nBas(iSym)) then
+    irc = 3
+    return
+  end if
+  nTst = lnOcc(iSym)+lnFro(iSym)
+  if (nTst > nBas(iSym)) then
+    irc = 4
+    return
+  end if
+end do
+
+end subroutine ERChk_Localisation

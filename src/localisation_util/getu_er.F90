@@ -10,65 +10,63 @@
 !                                                                      *
 ! Copyright (C) 2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      SubRoutine GetU_ER(U,R,n)
+
+subroutine GetU_ER(U,R,n)
+! Thomas Bondo Pedersen, November 2005.
 !
-!     Thomas Bondo Pedersen, November 2005.
+! Purpose: compute U = R*[R^T*R]^(-1/2).
 !
-!     Purpose: compute U = R*[R^T*R]^(-1/2).
-!
-!     (used by ER orbital localisation - hence the _ER)
-!
-      Implicit None
-      Integer n
-      Real*8 U(n,n), R(n,n)
+! (used by ER orbital localisation - hence the _ER)
+
+implicit none
+integer n
+real*8 U(n,n), R(n,n)
 #include "WrkSpc.fh"
+integer nn, n2
+integer ipRTR, lRTR
+integer ipSqrt, lSqrt, ipISqrt, lISqrt
+integer ipScr, lScr
+integer iTask
 
-      Integer nn,n2
-      Integer ipRTR, lRTR
-      Integer ipSqrt, lSqrt, ipISqrt, lISqrt
-      Integer ipScr, lScr
-      Integer iTask
+if (n < 1) return
 
-      If (n .lt. 1) Return
+! Allocations.
+! ------------
 
-!     Allocations.
-!     ------------
+nn = n*(n+1)/2
+n2 = n**2
 
-      nn = n*(n+1)/2
-      n2 = n**2
+lRTR = n2
+lSqrt = n2
+lISqrt = n2
+lScr = 2*n2+nn
+call GetMem('RTR','Allo','Real',ipRTR,lRTR)
+call GetMem('Sqrt','Allo','Real',ipSqrt,lSqrt)
+call GetMem('ISqrt','Allo','Real',ipISqrt,lISqrt)
+call GetMem('Scr','Allo','Real',ipScr,lScr)
 
-      lRTR = n2
-      lSqrt = n2
-      lISqrt = n2
-      lScr = 2*n2 + nn
-      Call GetMem('RTR','Allo','Real',ipRTR,lRTR)
-      Call GetMem('Sqrt','Allo','Real',ipSqrt,lSqrt)
-      Call GetMem('ISqrt','Allo','Real',ipISqrt,lISqrt)
-      Call GetMem('Scr','Allo','Real',ipScr,lScr)
+! Compute R^T*R.
+! --------------
 
-!     Compute R^T*R.
-!     --------------
+call DGEMM_('T','N',n,n,n,1.0d0,R,n,R,n,0.0d0,Work(ipRTR),n)
 
-      Call DGEMM_('T','N',n,n,n,1.0d0,R,n,R,n,0.0d0,Work(ipRTR),n)
+! Compute inverse square root of R^T*R.
+! -------------------------------------
 
-!     Compute inverse square root of R^T*R.
-!     -------------------------------------
+iTask = 2 ! compute sqrt as well as inverse sqrt
+call SqrtMt(Work(ipRTR),n,iTask,Work(ipSqrt),Work(ipISqrt),Work(ipScr))
 
-      iTask = 2 ! compute sqrt as well as inverse sqrt
-      Call SqrtMt(Work(ipRTR),n,iTask,Work(ipSqrt),Work(ipISqrt),       &
-     &            Work(ipScr))
+! Compute U.
+! ----------
 
-!     Compute U.
-!     ----------
+call DGEMM_('N','N',n,n,n,1.0d0,R,n,Work(ipISqrt),n,0.0d0,U,n)
 
-      Call DGEMM_('N','N',n,n,n,1.0d0,R,n,Work(ipISqrt),n,0.0d0,U,n)
+! De-allocations.
+! ---------------
 
-!     De-allocations.
-!     ---------------
+call GetMem('Scr','Free','Real',ipScr,lScr)
+call GetMem('ISqrt','Free','Real',ipISqrt,lISqrt)
+call GetMem('Sqrt','Free','Real',ipSqrt,lSqrt)
+call GetMem('RTR','Free','Real',ipRTR,lRTR)
 
-      Call GetMem('Scr','Free','Real',ipScr,lScr)
-      Call GetMem('ISqrt','Free','Real',ipISqrt,lISqrt)
-      Call GetMem('Sqrt','Free','Real',ipSqrt,lSqrt)
-      Call GetMem('RTR','Free','Real',ipRTR,lRTR)
-
-      End
+end subroutine GetU_ER

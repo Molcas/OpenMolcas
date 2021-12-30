@@ -10,20 +10,18 @@
 !                                                                      *
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
-      SubRoutine GetDens_Localisation(Dens,CMO,nBas,nOcc)
-!
-!     Author: T.B. Pedersen
-!
-!     Purpose: compute density from CMOs as Dens = CMO * (CMO)^T
-!
-      Implicit None
-      Real*8  Dens(*), CMO(*)
-      Integer nBas, nOcc
 
-      Integer nTBs
+subroutine GetDens_Localisation(Dens,CMO,nBas,nOcc)
+! Author: T.B. Pedersen
+!
+! Purpose: compute density from CMOs as Dens = CMO * (CMO)^T
 
-      nTBs = max(nBas,1)
-      Call DGEMM_('N','T',nBas,nBas,nOcc,1.0d0,CMO,nTBs,CMO,nTBs,       &
-     &           0.0d0,Dens,nTBs)
+implicit none
+real*8 Dens(*), CMO(*)
+integer nBas, nOcc
+integer nTBs
 
-      End
+nTBs = max(nBas,1)
+call DGEMM_('N','T',nBas,nBas,nOcc,1.0d0,CMO,nTBs,CMO,nTBs,0.0d0,Dens,nTBs)
+
+end subroutine GetDens_Localisation

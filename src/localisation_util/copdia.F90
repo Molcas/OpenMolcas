@@ -8,44 +8,37 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2005, Thomas Bondo Pedersen                            *
+! Copyright (C) 2017, Roland Lindh                                     *
 !***********************************************************************
+! Version of Oct 21
 
-subroutine GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Rmat,Debug)
-! Thomas Bondo Pedersen, December 2005.
+subroutine COPDIA(A,VEC,NDIM,IPACK)
+! Copy diagonal of matrix A into vector VEC
 !
-! Purpose: compute the gradient of the Pipek-Mezey functional.
+!   IPACK = 0 : Full matrix
+!   IPACK = 1 : Lower triangular matrix
 
-implicit real*8(a-h,o-z)
-real*8 Rmat(nOrb2Loc,nOrb2Loc)
-real*8 PA(nOrb2Loc,nOrb2Loc,nAtoms)
-logical Debug
+implicit real*8(A-H,O-Z)
+dimension A(*), VEC(*)
+integer ip_CPDIA
+
 #include "WrkSpc.fh"
-
-RMat(:,:) = 0.0d0
-do iAtom=1,nAtoms
-  do j=1,nOrb2Loc
-    Rjj = PA(j,j,iAtom)
-    do i=1,nOrb2Loc
-      Rmat(i,j) = Rmat(i,j)+PA(i,j,iAtom)*Rjj
-    end do
+!VVP
+!Workaround for dummy aliasing
+call GETMEM('CPDIA','ALLO','REAL',ip_CPDIA,NDIM)
+if (IPACK == 0) then
+  do I=1,NDIM
+    Work(ip_CPDIA+I-1) = A((I-1)*NDIM+I)
   end do
-end do
-
-GradNorm = 0.0d0
-do i=1,nOrb2Loc-1
-  do j=i+1,nOrb2Loc
-    GradNorm = GradNorm+(Rmat(i,j)-Rmat(j,i))**2
+else
+  do I=1,NDIM
+    Work(ip_CPDIA+I-1) = A(I*(I+1)/2)
   end do
-end do
-GradNorm = 4.0d0*sqrt(GradNorm)
-
-if (Debug) then
-  Fun = 0.0d0
-  do i=1,nOrb2Loc
-    Fun = Fun+Rmat(i,i)
-  end do
-  write(6,*) 'GetGrad_PM: functional = Tr(R) = ',Fun
 end if
 
-end subroutine GetGrad_PM
+call DCOPY_(NDIM,Work(ip_CPDIA),1,VEC,1)
+call GETMEM('CPDIA','FREE','REAL',ip_CPDIA,NDIM)
+
+return
+
+end subroutine COPDIA

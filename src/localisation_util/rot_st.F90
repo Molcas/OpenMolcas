@@ -10,30 +10,32 @@
 !                                                                      *
 ! Copyright (C) Yannick Carissan                                       *
 !***********************************************************************
-      Subroutine Rot_st(cMO_s,cMO_t,nBasis,Gamma_rot,Debug)
-!
-!     Author: Y. Carissan.
-!
-      Implicit Real*8(a-h,o-z)
+
+subroutine Rot_st(cMO_s,cMO_t,nBasis,Gamma_rot,Debug)
+
+! Author: Y. Carissan.
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
-      Real*8 cMO_s(nBasis),cMO_t(nBasis)
-      Logical Debug
-!
-      If (Gamma_rot.eq.Zero) Return
-!
-      cosGamma_rot=cos(Gamma_rot)
-      sinGamma_rot=sin(Gamma_rot)
-      If (Debug) Then
-        Write(6,*) 'cos(Gamma)=',cosGamma_rot
-        Write(6,*) 'sin(Gamma)=',sinGamma_rot
-      End If
-!
-      Do iBas=1,nBasis
-        cs=cMO_s(iBas)
-        ct=cMO_t(iBas)
-        cMO_s(iBas)= cosGamma_rot*cs + sinGamma_rot*ct
-        cMO_t(iBas)=-sinGamma_rot*cs + cosGamma_rot*ct
-      End Do
-!
-      Return
-      End
+real*8 cMO_s(nBasis), cMO_t(nBasis)
+logical Debug
+
+if (Gamma_rot == Zero) return
+
+cosGamma_rot = cos(Gamma_rot)
+sinGamma_rot = sin(Gamma_rot)
+if (Debug) then
+  write(6,*) 'cos(Gamma)=',cosGamma_rot
+  write(6,*) 'sin(Gamma)=',sinGamma_rot
+end if
+
+do iBas=1,nBasis
+  cs = cMO_s(iBas)
+  ct = cMO_t(iBas)
+  cMO_s(iBas) = cosGamma_rot*cs+sinGamma_rot*ct
+  cMO_t(iBas) = -sinGamma_rot*cs+cosGamma_rot*ct
+end do
+
+return
+
+end subroutine Rot_st

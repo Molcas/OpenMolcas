@@ -8,69 +8,67 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine GetSh_Localisation(X,nBas,m,XSh,nShell,iSO2Sh,iOpt,    &
-     &                              Norm)
-      Implicit Real*8 (a-h,o-z)
-      Real*8  X(nBas,m), XSh(nShell,*)
-      Integer iSO2Sh(*)
-      Character*3 Norm  ! 'MAX' or 'FRO'
 
-      Character*3 myNorm
+subroutine GetSh_Localisation(X,nBas,m,XSh,nShell,iSO2Sh,iOpt,Norm)
 
-      If (nBas.lt.1 .or. nShell.lt.1) Return
+implicit real*8(a-h,o-z)
+real*8 X(nBas,m), XSh(nShell,*)
+integer iSO2Sh(*)
+character*3 Norm  ! 'MAX' or 'FRO'
+character*3 myNorm
 
-      myNorm = Norm
-      Call UpCase(myNorm)
+if ((nBas < 1) .or. (nShell < 1)) return
 
-      If (iOpt .eq. 1) Then
-         Call dCopy_(nShell*m,[0.0d0],0,XSh,1)
-         If (myNorm .eq. 'MAX') Then
-            Do j = 1,m
-               Do i = 1,nBas
-                  iShell = iSO2Sh(i)
-                  XSh(iShell,j) = max(abs(X(i,j)),XSh(iShell,j))
-               End Do
-            End Do
-         Else If (myNorm .eq. 'FRO') Then
-            Do j = 1,m
-               Do i = 1,nBas
-                  iShell = iSO2Sh(i)
-                  XSh(iShell,j) = XSh(iShell,j) + X(i,j)**2
-               End Do
-               Do iShell = 1,nShell
-                  XSh(iShell,j) = sqrt(XSh(iShell,j))
-               End Do
-            End Do
-         End If
-      Else
-         If (m .ne. nBas) Then
-            Call SysAbendMsg('GetSh_Localisation','Fatal error',        &
-     &                       'm != nBas')
-         End If
-         Call dCopy_(nShell*nShell,[0.0d0],0,XSh,1)
-         If (myNorm .eq. 'MAX') Then
-            Do j = 1,nBas
-               jShell = iSO2Sh(j)
-               Do i = 1,nBas
-                  iShell = iSO2Sh(i)
-                  XSh(iShell,jShell) =                                  &
-     &               max(abs(X(i,j)),XSh(iShell,jShell))
-               End Do
-            End Do
-         Else If (myNorm .eq. 'FRO') Then
-            Do j = 1,nBas
-               jShell = iSO2Sh(j)
-               Do i = 1,nBas
-                  iShell = iSO2Sh(i)
-                  XSh(iShell,jShell) = XSh(iShell,jShell) + X(i,j)**2
-               End Do
-            End Do
-            Do jShell = 1,nShell
-               Do iShell = 1,nShell
-                  Xsh(iShell,jShell) = sqrt(Xsh(iShell,jShell))
-               End Do
-            End Do
-         End If
-      End If
+myNorm = Norm
+call UpCase(myNorm)
 
-      End
+if (iOpt == 1) then
+  call dCopy_(nShell*m,[0.0d0],0,XSh,1)
+  if (myNorm == 'MAX') then
+    do j=1,m
+      do i=1,nBas
+        iShell = iSO2Sh(i)
+        XSh(iShell,j) = max(abs(X(i,j)),XSh(iShell,j))
+      end do
+    end do
+  else if (myNorm == 'FRO') then
+    do j=1,m
+      do i=1,nBas
+        iShell = iSO2Sh(i)
+        XSh(iShell,j) = XSh(iShell,j)+X(i,j)**2
+      end do
+      do iShell=1,nShell
+        XSh(iShell,j) = sqrt(XSh(iShell,j))
+      end do
+    end do
+  end if
+else
+  if (m /= nBas) then
+    call SysAbendMsg('GetSh_Localisation','Fatal error','m != nBas')
+  end if
+  call dCopy_(nShell*nShell,[0.0d0],0,XSh,1)
+  if (myNorm == 'MAX') then
+    do j=1,nBas
+      jShell = iSO2Sh(j)
+      do i=1,nBas
+        iShell = iSO2Sh(i)
+        XSh(iShell,jShell) = max(abs(X(i,j)),XSh(iShell,jShell))
+      end do
+    end do
+  else if (myNorm == 'FRO') then
+    do j=1,nBas
+      jShell = iSO2Sh(j)
+      do i=1,nBas
+        iShell = iSO2Sh(i)
+        XSh(iShell,jShell) = XSh(iShell,jShell)+X(i,j)**2
+      end do
+    end do
+    do jShell=1,nShell
+      do iShell=1,nShell
+        Xsh(iShell,jShell) = sqrt(Xsh(iShell,jShell))
+      end do
+    end do
+  end if
+end if
+
+end subroutine GetSh_Localisation

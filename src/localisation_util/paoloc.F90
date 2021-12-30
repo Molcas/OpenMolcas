@@ -60,158 +60,153 @@
 !> @param[in]  nSym Number of irreps
 !> @param[in]  Mode Mode of calculation
 !***********************************************************************
-      SubRoutine PAOLoc(irc,CMO,PAO,Thr,nBas,nOrb,nOcc,nVir,nSym,Mode)
-      Implicit Real*8 (a-h,o-z)
-      Real*8  CMO(*), PAO(*)
-      Integer nBas(nSym), nOrb(nSym), nOcc(nSym), nVir(nSym)
-      Character*(*) Mode
+
+subroutine PAOLoc(irc,CMO,PAO,Thr,nBas,nOrb,nOcc,nVir,nSym,Mode)
+
+implicit real*8(a-h,o-z)
+real*8 CMO(*), PAO(*)
+integer nBas(nSym), nOrb(nSym), nOcc(nSym), nVir(nSym)
+character*(*) Mode
 #include "WrkSpc.fh"
-
-      Character*6 SecNam
-      Parameter (SecNam = 'PAOLoc')
-
-      Character*3 myMode, DefMode
-      Parameter (DefMode = 'ORT')
-      Integer DefLevel
-      Real*8  DefThr
-      Parameter (DefThr = 1.0d-12)
-
-      Logical TestOrth, Normalize
+character*6 SecNam
+parameter(SecNam='PAOLoc')
+character*3 myMode, DefMode
+parameter(DefMode='ORT')
+integer DefLevel
+real*8 DefThr
+parameter(DefThr=1.0d-12)
+logical TestOrth, Normalize
 
 #if defined (_DEBUGPRINT_)
-      TestOrth = .True.
+TestOrth = .true.
 #else
-      TestOrth = .False.
+TestOrth = .false.
 #endif
 
-!     Set return code.
-!     ----------------
+! Set return code.
+! ----------------
 
-      irc = 0
+irc = 0
 
-!     Set DefLevel from DefMode.
-!     --------------------------
+! Set DefLevel from DefMode.
+! --------------------------
 
-      If (DefMode .eq. 'RAW') Then
-         DefLevel = 1
-      Else If (DefMode .eq. 'CHO') Then
-         DefLevel = 2
-      Else If (DefMode .eq. 'ORT') Then
-         DefLevel = 3
-      Else
-         Call SysAbendMsg(SecNam,'DefMode not recognized!',             &
-     &                    'Note: this is a programming error...')
-         DefLevel = -999999
-      End If
+if (DefMode == 'RAW') then
+  DefLevel = 1
+else if (DefMode == 'CHO') then
+  DefLevel = 2
+else if (DefMode == 'ORT') then
+  DefLevel = 3
+else
+  call SysAbendMsg(SecNam,'DefMode not recognized!','Note: this is a programming error...')
+  DefLevel = -999999
+end if
 
-!     Interpret Mode input.
-!     ---------------------
+! Interpret Mode input.
+! ---------------------
 
-      lMode = len(Mode)
-      If (lMode .lt. 3) Then
-         Level = DefLevel
-      Else
-         myMode = Mode(1:3)
-         Call UpCase(myMode)
-         If (myMode .eq. 'RAW') Then
-            Level = 1
-         Else If (myMode .eq. 'CHO') Then
-            Level = 2
-         Else If (myMode .eq. 'ORT') Then
-            Level = 3
-         Else
-            Level = DefLevel
-         End If
-      End If
+lMode = len(Mode)
+if (lMode < 3) then
+  Level = DefLevel
+else
+  myMode = Mode(1:3)
+  call UpCase(myMode)
+  if (myMode == 'RAW') then
+    Level = 1
+  else if (myMode == 'CHO') then
+    Level = 2
+  else if (myMode == 'ORT') then
+    Level = 3
+  else
+    Level = DefLevel
+  end if
+end if
 
-!     Make a dummy allocation to enable de-allocation by flushing.
-!     ------------------------------------------------------------
+! Make a dummy allocation to enable de-allocation by flushing.
+! ------------------------------------------------------------
 
-      l_Dum = 1
-      Call GetMem('PAOL_Dummy','Allo','Real',ip_Dum,l_Dum)
+l_Dum = 1
+call GetMem('PAOL_Dummy','Allo','Real',ip_Dum,l_Dum)
 
-!     Compute raw projected AOs.
-!     --------------------------
+! Compute raw projected AOs.
+! --------------------------
 
-      l_R = nBas(1)**2
-      Do iSym = 2,nSym
-         l_R = l_R + nBas(iSym)**2
-      End Do
-      Call GetMem('PAOL_R','Allo','Real',ip_R,l_R)
+l_R = nBas(1)**2
+do iSym=2,nSym
+  l_R = l_R+nBas(iSym)**2
+end do
+call GetMem('PAOL_R','Allo','Real',ip_R,l_R)
 
-      Normalize = .True.
-      Call GetRawPAOs(Work(ip_R),CMO,nBas,nOrb,nOcc,nVir,nSym,Normalize)
+Normalize = .true.
+call GetRawPAOs(Work(ip_R),CMO,nBas,nOrb,nOcc,nVir,nSym,Normalize)
 
-      If (Level .eq. 1) Then
-         Call dCopy_(l_R,Work(ip_R),1,PAO,1)
-         Go To 1 ! return after de-allocation
-      End If
+if (Level == 1) then
+  call dCopy_(l_R,Work(ip_R),1,PAO,1)
+  Go To 1 ! return after de-allocation
+end if
 
-!     Use Cholesky decomposition to compute a linearly independent set
-!     of nonorthonormal PAOs.
-!     ----------------------------------------------------------------
+! Use Cholesky decomposition to compute a linearly independent set
+! of nonorthonormal PAOs.
+! ----------------------------------------------------------------
 
-      l_D = nBas(1)**2
-      Do iSym = 2,nSym
-         l_D = max(l_D,nBas(iSym)**2)
-      End Do
-      Call GetMem('PAOL_D','Allo','Real',ip_D,l_D)
+l_D = nBas(1)**2
+do iSym=2,nSym
+  l_D = max(l_D,nBas(iSym)**2)
+end do
+call GetMem('PAOL_D','Allo','Real',ip_D,l_D)
 
-      If (Thr .le. 0.0d0) Then
-         ThrLoc = DefThr
-      Else
-         ThrLoc = Thr
-      End If
+if (Thr <= 0.0d0) then
+  ThrLoc = DefThr
+else
+  ThrLoc = Thr
+end if
 
-      kOffR = ip_R
-      kOffP = 1
-      Do iSym = 1,nSym
-         If (nVir(iSym) .gt. 0) Then
-            Call GetDens_Localisation(Work(ip_D),Work(kOffR),           &
-     &                                nBas(iSym),nBas(iSym))
-            Call ChoLoc(irc,Work(ip_D),PAO(kOffP),ThrLoc,xNrm,          &
-     &                  nBas(iSym),nVir(iSym))
-            If (irc .ne. 0) Go To 1 ! return after de-allocation
-         End If
-         kOffR = kOffR + nBas(iSym)**2
-         kOffP = kOffP + nBas(iSym)*nVir(iSym)
-      End Do
+kOffR = ip_R
+kOffP = 1
+do iSym=1,nSym
+  if (nVir(iSym) > 0) then
+    call GetDens_Localisation(Work(ip_D),Work(kOffR),nBas(iSym),nBas(iSym))
+    call ChoLoc(irc,Work(ip_D),PAO(kOffP),ThrLoc,xNrm,nBas(iSym),nVir(iSym))
+    if (irc /= 0) Go To 1 ! return after de-allocation
+  end if
+  kOffR = kOffR+nBas(iSym)**2
+  kOffP = kOffP+nBas(iSym)*nVir(iSym)
+end do
 
-      If (Level .eq. 2) Then
-         Go To 1 ! return after de-allocation
-      End If
+if (Level == 2) then
+  Go To 1 ! return after de-allocation
+end if
 
-!     Orthonormalize the PAOs.
-!     ------------------------
+! Orthonormalize the PAOs.
+! ------------------------
 
-      kOffP = 1
-      kOffR = ip_R
-      Do iSym = 1,nSym
-         kOff1 = kOffR + nBas(iSym)*nOcc(iSym)
-         Call dCopy_(nBas(iSym)*nVir(iSym),PAO(kOffP),1,Work(kOff1),1)
-         kOffP = kOffP + nBas(iSym)*nVir(iSym)
-         kOffR = kOffR + nBas(iSym)**2
-      End Do
-      nOrthPs = 2 ! orthonormalization passes to ensure num. accuracy
-      Call OrthoPAO_Localisation(Work(ip_R),nBas,nOcc,nVir,nSym,nOrthPs,&
-     &                           TestOrth)
-      kOffP = 1
-      kOffR = ip_R
-      Do iSym = 1,nSym
-         kOff1 = kOffR + nBas(iSym)*nOcc(iSym)
-         Call dCopy_(nBas(iSym)*nVir(iSym),Work(kOff1),1,PAO(kOffP),1)
-         kOffP = kOffP + nBas(iSym)*nVir(iSym)
-         kOffR = kOffR + nBas(iSym)**2
-      End Do
+kOffP = 1
+kOffR = ip_R
+do iSym=1,nSym
+  kOff1 = kOffR+nBas(iSym)*nOcc(iSym)
+  call dCopy_(nBas(iSym)*nVir(iSym),PAO(kOffP),1,Work(kOff1),1)
+  kOffP = kOffP+nBas(iSym)*nVir(iSym)
+  kOffR = kOffR+nBas(iSym)**2
+end do
+nOrthPs = 2 ! orthonormalization passes to ensure num. accuracy
+call OrthoPAO_Localisation(Work(ip_R),nBas,nOcc,nVir,nSym,nOrthPs,TestOrth)
+kOffP = 1
+kOffR = ip_R
+do iSym=1,nSym
+  kOff1 = kOffR+nBas(iSym)*nOcc(iSym)
+  call dCopy_(nBas(iSym)*nVir(iSym),Work(kOff1),1,PAO(kOffP),1)
+  kOffP = kOffP+nBas(iSym)*nVir(iSym)
+  kOffR = kOffR+nBas(iSym)**2
+end do
 
-      If (Level .eq. 3) Then
-         Go To 1 ! return after de-allocation
-      End If
+if (Level == 3) then
+  Go To 1 ! return after de-allocation
+end if
 
-!     De-allocation by flushing.
-!     --------------------------
+! De-allocation by flushing.
+! --------------------------
 
-    1 Call GetMem('PAOL_Dummy','Flus','Real',ip_Dum,l_Dum)
-      Call GetMem('PAOL_Dummy','Free','Real',ip_Dum,l_Dum)
+1 call GetMem('PAOL_Dummy','Flus','Real',ip_Dum,l_Dum)
+call GetMem('PAOL_Dummy','Free','Real',ip_Dum,l_Dum)
 
-      End
+end subroutine PAOLoc
