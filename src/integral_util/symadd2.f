@@ -116,7 +116,7 @@
 
                Else
 
-               If (iShell.eq.jShell .and. i1<i2) Cycle
+               If (i1<i2) Cycle
 
                iSO1=iAOtSO(iAO+i1,j1)
                iSO2=iAOtSO(jAO+i2,j2)
@@ -141,7 +141,7 @@
                   End Do
                End Do
 
-               If ( iShell.eq.jShell .and. nOp(1).eq.nOp(2) ) Cycle
+               If (nOp(1).eq.nOp(2) ) Cycle
 
                Do iB_Eff = 1, iBas_Eff
                   indAO1 = iB_Eff + iAdd
