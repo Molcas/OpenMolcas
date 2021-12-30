@@ -219,13 +219,13 @@
 *
 *---------------- Distribute contributions to the SO integrals
 *
-                  Call SymAdd2(iAng,jAng,iCmp,jCmp,
-     &                         iShell,jShell,iShll,jShll,
+                  Call SymAdd2(iCmp,jCmp,
+     &                         iShell,jShell,
      &                         iAO,jAO,AOInt(1,iD),
      &                         iBas,iBas_Eff,jBas,jBas_Eff,
      &                         nOp,
-     &                         iSkal,jSkal,Fact(ij),
-     &                         FckInt(1,iD),nFclInt)
+     &                         Fact(ij),
+     &                         FckInt(1,iD),nFckInt)
 *
                Else
 *

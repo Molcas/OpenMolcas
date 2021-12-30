@@ -10,11 +10,11 @@
 *                                                                      *
 * Copyright (C) 1991,2021, Roland Lindh                                *
 ************************************************************************
-      Subroutine SymAdd2(iAng,jAng,iCmp,jCmp,iShell,jShell,
-     &                   iShll,jShll,iAO,jAO,
+      Subroutine SymAdd2(iCmp,jCmp,iShell,jShell,
+     &                   iAO,jAO,
      &                               AOInt,iBas,iBas_Eff,
      &                                     jBas,jBas_Eff,
-     &                   nOp,iSkal,jSkal,Fact,PrpInt,nPrp)
+     &                   nOp,Fact,PrpInt,nPrp)
 ************************************************************************
 *                                                                      *
 * Object: to transform the one-electon matrix elements from AO basis   *
@@ -65,9 +65,9 @@
       iAdd = iBas-iBas_Eff
       jAdd = jBas-jBas_Eff
 
-      Do 100 j1 = 0, nIrrep-1
+      Do j1 = 0, nIrrep-1
          xa = DBLE(iChTbl(j1,nOp(1)))
-         Do 200 i1 = 1, iCmp
+         Do i1 = 1, iCmp
             If (iAOtSO(iAO+i1,j1)<0) Cycle
 *
             j2=j1
@@ -103,6 +103,7 @@
                      iFrom=(jB_Eff-1)*iBas_Eff+iB_Eff
 *------------        Diagonal symmetry block
                      If (iSO1.eq.iSO2 .and. iSO<jSO) Cycle
+                     xaxb=xa*xb
                      Indij=iPnt + iTri(iSO,jSO)
 
                      PrpInt(Indij) = PrpInt(Indij)
@@ -110,9 +111,9 @@
                   End Do
                End Do
 
-               Else
+               Else  ! iShell.eq.jShell
 
-               If (i1<i2) Cycle
+               If (i1<i2 .and. nOp(1).eq.nOp(2)) Cycle
 
                iSO1=iAOtSO(iAO+i1,j1)
                iSO2=iAOtSO(jAO+i2,j2)
@@ -129,50 +130,24 @@
 *
                      iFrom=(jB_Eff-1)*iBas_Eff+iB_Eff
 *------------        Diagonal symmetry block
-                     If (iSO1.eq.iSO2 .and. iSO<jSO) Cycle
+                     If (iSO1.eq.iSO2 .and. nOp(1).eq.nOp(2) .and.
+     &                   iSO<jSO) Cycle
+                     xaxb=xa*xb
+                     If (iSO1.eq.iSO2 .and. nOp(1).ne.nOp(2) .and.
+     &                   iSO==jSO) xaxb=xaxb*Two
                      Indij=iPnt + iTri(iSO,jSO)
 
                      PrpInt(Indij) = PrpInt(Indij)
-     &                             +Fact*xa*xb*AOInt(iFrom,i1,i2)
+     &                             +Fact*xaxb*AOInt(iFrom,i1,i2)
                   End Do
                End Do
 
-               If (nOp(1).eq.nOp(2) ) Cycle
-
-               Do iB_Eff = 1, iBas_Eff
-                  indAO1 = iB_Eff + iAdd
-                  Do jB_Eff = 1, jBas_Eff
-                     indAO2 = jB_Eff + jAdd
-
-                     iSO=iSO1+IndAO2-1
-                     jSO=iSO2+IndAO1-1
-
-                     iFrom=(jB_Eff-1)*iBas_Eff+iB_Eff
-*------------        Diagonal symmetry block
-                     If (iSO1.eq.iSO2 .and. iSO<jSO) Cycle
-                     Indij=iPnt + iTri(iSO,jSO)
-
-                     PrpInt(Indij) = PrpInt(Indij)
-     &                             +Fact*xa*xb*AOInt(iFrom,i2,i1)
-*
-                  End Do
-               End Do
            End If
 *
            End Do
 *
- 200     Continue
- 100  Continue
-
+         End Do
+      End Do
 *
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer(iAng)
-         Call Unused_integer(jAng)
-         Call Unused_integer(iShll)
-         Call Unused_integer(jShll)
-         Call Unused_integer(iSkal)
-         Call Unused_integer(jSkal)
-      End If
       End
