@@ -71,7 +71,6 @@
             If (iAOtSO(iAO+i1,j1)<0) Cycle
 *
             j2=j1
-            j12 = iEor(j1,j2)
 *
             xb = DBLE(iChTbl(j2,nOp(2)))
 *

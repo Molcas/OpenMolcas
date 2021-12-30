@@ -159,8 +159,6 @@
 *     contributions to the SO integrals on the fly.
 *
       nGrid_Tot=0
-*
-      iSmLbl=1
 *                                                                      *
 ************************************************************************
 *                                                                      *
