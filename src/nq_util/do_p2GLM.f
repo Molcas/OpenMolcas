@@ -345,6 +345,7 @@ C            Write(6,'(A,1f28.20)') 'P2(4)   =',P2_ontop(4,iGrid)
 #include "nq_info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "print.fh"
 !Error could be TabAO...
       Integer list_s(2,nlist_s),list_bas(2,nlist_s),Index(nIndex),
@@ -362,7 +363,7 @@ C            Write(6,'(A,1f28.20)') 'P2(4)   =',P2_ontop(4,iGrid)
 !      Integer np2AO
       Real*8 RhoI(mRho,mGrid)
       Real*8 RhoA(mRho,mGrid)
-      Real*8,dimension(1:mRho,1:mGrid,1:nGrad_Eff) :: dRhoI,dRhoA
+      Real*8, Allocatable :: dRhoI(:,:,:) ,dRhoA(:,:,:)
 !      Real*8 dRhoA(mRho,mGrid,nGrad_Eff)
 !     Real*8 gf1(1:3)
       Logical Do_Grad
@@ -376,6 +377,8 @@ C            Write(6,'(A,1f28.20)') 'P2(4)   =',P2_ontop(4,iGrid)
 ************************************************************************
       Call unused_logical(do_grad)
       Call unused_integer(naos)
+      Call mma_allocate(dRhoI,mRho,mGrid,nGrad_Eff)
+      Call mma_allocate(dRhoA,mRho,mGrid,nGrad_Eff)
 
 !      write(*,*) 'CMO print'
 !      do i=1,nMOs
@@ -1022,6 +1025,8 @@ C            Write(6,'(A,1f28.20)') 'P2(4)   =',P2_ontop(4,iGrid)
       !end do
       !end do
       deAllocate(dTabMO)
+      Call mma_deallocate(dRhoI)
+      Call mma_deallocate(dRhoA)
       RETURN
 * Avoid unused argument warnings
       If (.False.) Call Unused_integer_array(Index)
