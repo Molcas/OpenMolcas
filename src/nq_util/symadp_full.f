@@ -51,7 +51,6 @@
 *
       loper=1
       Do j1 = 0, nIrrep-1
-         xa = DBLE(iChTbl(j1,nOp(1)))
          Do iBfn = 1, nBfn
             ilist_s = iBfn_Index(2,iBfn)
             iCmp    = iBfn_Index(3,iBfn)
@@ -63,15 +62,15 @@
             mdci    = iSD(10,iSkal)
             iShell  = iSD(11,iSkal)
             nOp(1) = NrOpr(kDCRE)
-            If (iAOtSO(iAO+i1,j1)<0) Cycle
-            iSO1=iAOtSO(iAO+i1,j1)
+            xa = DBLE(iChTbl(j1,nOp(1)))
+            If (iAOtSO(iAO+iCmp,j1)<0) Cycle
+            iSO1=iAOtSO(iAO+iCmp,j1)
 
             Do j2 = 0, nIrrep-1
                j12 = iEor(j1,j2)
                If (iAnd(lOper,iTwoj(j12)).eq.0) Cycle
 
                iPnt = iPntSO(j1,j2,lOper,nbas)
-               xb = DBLE(iChTbl(j2,nOp(2)))
 
                Do jBfn = 1, nBfn
                   jlist_s = iBfn_Index(2,jBfn)
@@ -84,8 +83,9 @@
                   mdcj    = iSD(10,jSkal)
                   jShell  = iSD(11,jSkal)
                   nOp(2) = NrOpr(kDCRR)
-                  If (iAOtSO(jAO+i2,j2)<0) Cycle
-                  iSO2=iAOtSO(jAO+i2,j2)
+                  xb = DBLE(iChTbl(j2,nOp(2)))
+                  If (iAOtSO(jAO+jCmp,j2)<0) Cycle
+                  iSO2=iAOtSO(jAO+jCmp,j2)
 *
                   iSO=iSO1+IndAO1-1
                   jSO=iSO2+IndAO2-1
