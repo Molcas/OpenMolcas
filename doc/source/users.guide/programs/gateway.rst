@@ -835,7 +835,7 @@ Advanced keywords:
               <HELP>
               Randomly modifies the initial coordinates of the atoms, maintaining the input (or computed)
               symmetry. This can be useful to avoid a geometry optimization converging to a higher-symmetry
-              saddle point. The maximum displacement in the axes x, y and z is read from the following
+              saddle point. The maximum displacement per atom is read from the following
               real number. This number can be followed by Bohr or Angstrom, which indicates
               the unit in which the displacement is specified, the default is Bohr.
               </HELP>

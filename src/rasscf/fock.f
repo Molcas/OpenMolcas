@@ -36,6 +36,7 @@ c     interaction matrix.
 c
 C          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 C
+      Use Fock_util_global, only: ALGO, DoCholesky
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
       integer ISTSQ(8),ISTAV(8)
@@ -45,13 +46,12 @@ C
 #include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
+#include "qmat.fh"
       Character*16 ROUTINE
       Parameter (ROUTINE='FOCK    ')
 #include "WrkSpc.fh"
       Dimension P2reo(1)
 
-#include "chotodo.fh"
-#include "chlcas.fh"
 C
       IPRLEV=IPRLOC(4)
       IF(IPRLEV.ge.DEBUG) THEN

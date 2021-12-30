@@ -35,27 +35,8 @@
      &       MO1(*), Scr(*)
       Logical Fake_CMO2,DoAct
       Real*8, Allocatable:: G2x(:)
-      Type (DSBA_Type) CVa(2), DLT, DI, DA, Kappa, JI, KI, JA, KA, FkI,
-     &                 FkA, QVec, CMO, CMO_Inv
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Interface
-        SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,kappa,
-     &                         JI,KI,JA,KA,FkI,FkA,
-     &                         MO_Int,QVec,Ash,CMO,CMO_inv,
-     &                         nOrb,nAsh,nIsh,doAct,Fake_CMO2,
-     &                         LuAChoVec,LuIChoVec,iAChoVec)
-        use Data_Structures, only: DSBA_Type
-        Type (DSBA_Type) DLT, DI, DA, Kappa, JI, KI, JA, KA, FkI, FkA,
-     &                   QVec, Ash(2), CMO, CMO_Inv
-        Real*8 G2(*), MO_Int(*)
-        Integer nOrb(8),nAsh(8),nIsh(8)
-        Logical DoAct,Fake_CMO2
-        Integer LuAChoVec(8),LuIChoVec(8)
-        Integer iAChoVec
-        End SUBROUTINE CHO_LK_MCLR
-      End Interface
+      Type (DSBA_Type) CVa(2), DLT, DI, DA, Kappa, JI(1), KI, JA, KA,
+     &                 FkI, FkA, QVec, CMO, CMO_Inv
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -401,8 +382,8 @@
         call dcopy_(nDens2,[0.0d0],0,Q,1)
 *
         Call Allocate_DSBA(DI,nBas,nBas,nSym,Ref=Temp2)
-        Call Allocate_DSBA(JI,nBas,nBas,nSym,aCase='TRI',Ref=Temp3)
-        JI%A0(:)=Zero
+        Call Allocate_DSBA(JI(1),nBas,nBas,nSym,aCase='TRI',Ref=Temp3)
+        JI(1)%A0(:)=Zero
         Call Allocate_DSBA(KI,nBas,nBas,nSym,Ref=Scr)
         KI%A0(:)=Zero
         Call Allocate_DSBA(FkI,nBas,nBas,nSym,Ref=FockI)
@@ -416,7 +397,7 @@
 
         CALL CHO_LK_MCLR(DLT,DI,DA,G2x,Kappa,JI,KI,JA,KA,FkI,FkA,
      &                   MO1,QVec,CVa,CMO,CMO_inv,
-     &                   nIsh,nAsh,nIsh,doAct,Fake_CMO2,
+     &                   nIsh,nAsh,doAct,Fake_CMO2,
      &                   LuAChoVec,LuIChoVec,istore)
 
         nAtri=nAct*(nAct+1)/2
@@ -430,7 +411,7 @@
         Call Deallocate_DSBA(FkA)
         Call Deallocate_DSBA(FkI)
         Call Deallocate_DSBA(KI)
-        Call Deallocate_DSBA(JI)
+        Call Deallocate_DSBA(JI(1))
         Call Deallocate_DSBA(DI)
         Call Deallocate_DSBA(JA)
         Call Deallocate_DSBA(KA)

@@ -13,7 +13,7 @@ subroutine FndTess(iPrint,Xs,Ys,Zs,Rs,pNs,m)
 
 use PCM_arrays, only: Centr, IntSph, MxSph, MxTs, MxVert, NewSph, NVert, PCM_N, PCMDM, PCMiSph, PCMSph, PCMTess, PCMTess, SSph, Vert
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Three, Half, Pi, Angstrom
+use Constants, only: Zero, One, Three, Half, Angstrom, deg2rad
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -27,7 +27,6 @@ real(kind=wp) :: AREA, COSOM2, FC, FC1, Fro, HH, Omega, PP(3), PROD, R2GN, REG, 
 logical(kind=iwp) :: FIRST
 integer(kind=iwp), allocatable :: JTR(:,:), pIntS(:,:), pISph(:), pNewS(:,:), pNVert(:)
 real(kind=wp), allocatable :: At(:), CCC(:,:), CV(:,:), pCentr(:,:,:), pSSph(:), PTS(:,:), pVert(:,:,:), Xt(:), Yt(:), Zt(:)
-real(kind=wp), parameter :: DEGREE = Pi/180.0_wp
 #include "rctfld.fh"
 #include "status.fh"
 
@@ -75,7 +74,7 @@ if (IPRINT == 2) write(u6,800)
 
 pNewS(:,1:NS) = 0
 ITYPC = 0
-OMEGA = OMEGA*DEGREE
+OMEGA = OMEGA*DEG2RAD
 SENOM = sin(OMEGA)
 COSOM2 = (cos(OMEGA))**2
 RTDD = RET+RSOLV
@@ -341,7 +340,7 @@ do I=1,NTS
   K = pISph(I)
   pSSph(K) = pSSph(K)+At(I)
 end do
-OMEGA = OMEGA/DEGREE
+OMEGA = OMEGA/DEG2RAD
 if (IPRINT == 2) write(u6,1100) OMEGA,RSOLV,RET,FRO,NS
 do I=1,NS
   if (IPRINT == 2) write(u6,1200) I,Xs(I),Ys(I),Zs(I),Rs(I),pSSph(I)

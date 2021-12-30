@@ -32,7 +32,7 @@ The theory and methodology can be found in :cite:`Wang:17` and :cite:`Kochetov:2
 The feature of the method is the treating core states and valence states
 on the same footing if the Hamiltonian is chosen properly; depending on the chosen active space
 different processes can be considered.
-Because of the faster timescale (as to fs), core-states dynamics are even more adequately described in the framework
+Because of the faster timescale (atto- to femtosecond), core-states dynamics are even more adequately described in the framework
 of TDCI since electron dynamics is isolated from nuclear effects.
 Nonetheless, such effects as population and phase relaxation due to nuclear bath, ionization, and Auger decay
 can be taken into account (see keywords).
@@ -40,7 +40,7 @@ Output of the program:
 
 * **Populations of basis states**
 
-  Configuration state functions, spin-free, spin--orbit coupled states can be chosen as a basis
+  Configuration state functions, spin-free, spin--orbit coupled states can be chosen as a basis.
 
 * **Full density matrix**
 
@@ -48,10 +48,12 @@ Output of the program:
 
 * **Time-evolution of dipole moment**
 
-  The value of an observable can be accessed as :math:`\left<\vec{d}\right> = \Tr[\rho \vec{d}]`.
-  If requested it is written to file :file:`DIPOLE.dat`
-  These data can be used to compute **Linear and non-linear spectra**, e.g.,
-  TD absorption, emission spectra, high harmonic generation, etc.
+  The value of an observable can be accessed as :math:`\langle\vec{d}\rangle = \Tr[\rho \vec{d}]`.
+  If requested it is written to file :file:`DIPOLE.dat`.
+
+These data can be used to compute
+
+* **Linear and non-linear spectra**, e.g., TD absorption, emission spectra, high harmonic generation, etc.
 
 .. _UG\:sec\:rhodyn_dependencies:
 

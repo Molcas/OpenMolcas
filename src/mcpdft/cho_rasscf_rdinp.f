@@ -16,6 +16,8 @@
 *             in RASSCF                                                *
 *                                                                      *
 ************************************************************************
+      Use Fock_util_global, only: ALGO, Deco, DensityCheck, dmpk,
+     &                            DoLock, Estimate, Nscreen, Update
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
@@ -27,11 +29,7 @@
       character*16 SECNAM
       parameter (SECNAM = 'CHO_RASSCF_RDINP')
 *
-#include "chlcas.fh"
-#include "chodensity.fh"
 #include "chotime.fh"
-#include "cholk.fh"
-#include "choscreen.fh"
 #include "chopar.fh"
 
 *
@@ -79,8 +77,6 @@
       dmpk_dfl=1.0d-1
 ************************************************************************
 *                                                                      *
-*                                                                      *
-************************************************************************
       iPrint=5
 *                                                                      *
 ************************************************************************

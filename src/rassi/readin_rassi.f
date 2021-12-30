@@ -15,6 +15,7 @@
       use rasscf_data, only: doDMRG
       use qcmaquis_interface_cfg
 #endif
+      use Fock_util_global, only: Deco, Estimate, PseudoChoMOs, Update
 
       IMPLICIT NONE
 #include "prgm.fh"
@@ -34,7 +35,6 @@
       Logical lExists
 #include "chorassi.fh"
 #include "chotime.fh"
-#include "lkscreen.fh"
       Integer I, J, ISTATE, JSTATE, IJOB, ILINE, LINENR
       Integer LuIn
       Integer NFLS

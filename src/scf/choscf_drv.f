@@ -73,6 +73,7 @@ C
      &                               nOcc,nOcc_ab)
 
       use Scf_Arrays, only: CMO
+      Use Fock_util_global, only: Deco, Lunit
       use Data_Structures, only: DSBA_Type, Integer_Pointer
       use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA
       Implicit Real*8 (a-h,o-z)
@@ -92,7 +93,6 @@ C
       Real*8 W_DLT(*),W_DLT_ab(*)
       character ww*512
 
-#include "chounit.fh"
 #include "choscf.fh"
 #include "choauf.fh"
 #include "spave.fh"
@@ -110,7 +110,7 @@ C  **************************************************
 
       rc=0
 
-      Lunit(:)=-1
+      Lunit(:) = -1
 *                                                                      *
 ************************************************************************
 ************************************************************************
