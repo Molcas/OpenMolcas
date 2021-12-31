@@ -182,6 +182,9 @@
              Do iCoord=1,3
               ICoordOff=IGridOff+(iCoord-1)*nMOs
               g_eff = list_g(iCoord,ilist_s)
+               ICoordOff1=0
+               ICoordOff2=0
+               ICoordOff3=0
               IF(lft.and.lGGA) THEN
                If(iCoord.eq.1) Then
                 iCoord1=4
