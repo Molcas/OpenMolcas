@@ -13,7 +13,8 @@
      &          list_s,nlist_s,list_bas,Index,nIndex,
      &          D1mo,nd1mo,TabMO,list_g,P2_ontop_d,
      &          RhoI,RhoA,mRho,nMOs,CMO,nAOs,nCMO,TabSO,nsym,ft,
-     &          P2MOCube,MOs)
+     &          P2MOCube,P2MOCubex,P2MOCubey,P2MOCubez,nPMO3p,MOs,
+     &          MOx,MOy,MOz)
 ************************************************************************
 *                                                                      *
 * Object: Calculation P2 ontop density and its derivatives             *
@@ -34,6 +35,7 @@
       use iSD_data
       use Center_Info
       use Basis_Info, only: nBas
+      use nq_pdft,    only: lft,lGGA
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "nq_info.fh"
@@ -62,9 +64,13 @@
       Logical Do_Grad
       integer g_eff,iGrid
       Real*8 TabSO(mAO,mGrid,nMOs)
-      Real*8,DIMENSION(mGrid*NASHT)::P2MOCube,MOs,dMOs
+      Real*8,DIMENSION(mGrid*NASHT)::P2MOCube,MOs,dMOs,MOx,MOy,MOz
       INTEGER IOff1,iOff2,iOff3,nPi,iCoordOff,iGridOff,iCoord,nBasf,
-     &        nOccO
+     &        nOccO,nPMO3p,
+     &        iCoord1,iCoord2,iCoord3,iCoordOff1,iCoordOff2,iCoordOff3
+      Real*8,DIMENSION(nPMO3p)::P2MOCubex,P2MOCubey,P2MOCubez,
+     &                          dMOx,dMOy,dMOz
+
       Real*8 TabSO2(mAO*mGrid*nMOs)
       Real*8 dTabMO2(nMOs)
 
@@ -176,6 +182,25 @@
              Do iCoord=1,3
               ICoordOff=IGridOff+(iCoord-1)*nMOs
               g_eff = list_g(iCoord,ilist_s)
+              IF(lft.and.lGGA) THEN
+               Select CASE (iCoord)
+                 CASE(1)
+                  iCoord1=4
+                  iCoord2=5
+                  iCoord3=6
+                 CASE(2)
+                  iCoord1=5
+                  iCoord2=7
+                  iCoord3=8
+                 CASE(3)
+                  iCoord1=6
+                  iCoord2=8
+                  iCoord3=9
+               End Select
+               ICoordOff1=IGridOff+(iCoord1-1)*nMOs
+               ICoordOff2=IGridOff+(iCoord2-1)*nMOs
+               ICoordOff3=IGridOff+(iCoord3-1)*nMOs
+              END IF
               do iIrrep=0,mIrrep-1
                nOccO=nIsh(iIrrep)+nAsh(iIrrep)
                IF(nOccO.eq.0) CYCLE
@@ -185,15 +210,42 @@
      &           CMO(OffBas2(iIrrep)),nBasF,
      &           TabSO2(iCoordOff+OffBas(iIrrep)),nBasF,
      &           0.0d0,dTabMO2,nOccO)
-
       CALL DAXPY_(nOccO,1.0d0,dTabMO2,1,
      &dTabMO(1,OffBas(iIrrep)+nFro(iIrrep),g_eff,iGrid),nP2_ontop)
-              end do
 
+               IF(lft.and.lGGA) THEN
+      CALL DGEMM_('T','N',nOccO,1,nBasF,1.0d0,
+     &           CMO(OffBas2(iIrrep)),nBasF,
+     &           TabSO2(iCoordOff1+OffBas(iIrrep)),nBasF,
+     &           0.0d0,dTabMO2,nOccO)
+      CALL DAXPY_(nOccO,1.0d0,dTabMO2,1,
+     &dTabMO(2,OffBas(iIrrep)+nFro(iIrrep),g_eff,iGrid),nP2_ontop)
+
+      CALL DGEMM_('T','N',nOccO,1,nBasF,1.0d0,
+     &           CMO(OffBas2(iIrrep)),nBasF,
+     &           TabSO2(iCoordOff2+OffBas(iIrrep)),nBasF,
+     &           0.0d0,dTabMO2,nOccO)
+      CALL DAXPY_(nOccO,1.0d0,dTabMO2,1,
+     &dTabMO(3,OffBas(iIrrep)+nFro(iIrrep),g_eff,iGrid),nP2_ontop)
+
+      CALL DGEMM_('T','N',nOccO,1,nBasF,1.0d0,
+     &           CMO(OffBas2(iIrrep)),nBasF,
+     &           TabSO2(iCoordOff3+OffBas(iIrrep)),nBasF,
+     &           0.0d0,dTabMO2,nOccO)
+      CALL DAXPY_(nOccO,1.0d0,dTabMO2,1,
+     &dTabMO(4,OffBas(iIrrep)+nFro(iIrrep),g_eff,iGrid),nP2_ontop)
+               END IF
+              end do
              End Do
             End Do
-
-
+C       DO iGrid=1,mGrid
+C        Do iCoord=1,3
+C         g_eff = list_g(iCoord,ilist_s)
+C         write(6,*)'dTabMO for g_eff,iGrid',g_eff,iGrid
+C         CALL RecPrt(' ',' ',dTabMO(1,1,g_eff,iGrid),
+C     &               4,nMOs)
+C        End Do
+C       END DO
       END DO
 ************************************************************************
 *          Inactive part:                                              *
@@ -369,20 +421,12 @@
      &    4.0d0*RhoI(3,iGrid)*dRhoA(1,iGrid,g_eff) +
      &    4.0d0*dRhoI(1,iGrid,g_eff)*RhoA(3,iGrid) +
      &    2.0d0*RhoI(1,iGrid)*dRhoA(3,iGrid,g_eff)
-!     &    2.0d0*(dRhoI(3,iGrid,g_eff)*RhoA(1,iGrid) +
-!     &           RhoI(3,iGrid)*dRhoA(1,iGrid,g_eff)) +
-!     &    2.0d0*(dRhoI(1,iGrid,g_eff)*RhoA(3,iGrid) +
-!     &           RhoI(1,iGrid)*dRhoA(3,iGrid,g_eff))
 
           P2_ontop_d(4,g_eff,iGrid) = P2_ontop_d(4,g_eff,iGrid) +
      &    2.0d0*dRhoI(4,iGrid,g_eff)*RhoA(1,iGrid) +
      &    4.0d0*RhoI(4,iGrid)*dRhoA(1,iGrid,g_eff) +
      &    4.0d0*dRhoI(1,iGrid,g_eff)*RhoA(4,iGrid) +
      &    2.0d0*RhoI(1,iGrid)*dRhoA(4,iGrid,g_eff)
-!     &    2.0d0*(dRhoI(4,iGrid,g_eff)*RhoA(1,iGrid) +
-!     &           RhoI(4,iGrid)*dRhoA(1,iGrid,g_eff)) +
-!     &    2.0d0*(dRhoI(1,iGrid,g_eff)*RhoA(4,iGrid) +
-!     &           RhoI(1,iGrid)*dRhoA(4,iGrid,g_eff))
           end if !GGA
         end do !g_eff
 
@@ -393,6 +437,8 @@
 *          Active-Active part:
 *
 ************************************************************************
+
+
       If (NumAsh.ne.0) Then
        nPi=nP2_ontop
 *
@@ -403,7 +449,15 @@
           IOff2=IOff_Ash(iIrrep)+1
           IOff3=IOff_BasAct(iIrrep)+1
           CALL DCopy_(nAsh(iIrrep),dTabMO(1,iOff3,g_eff,iGrid),nPi,
-     &                                dMOs(IOff1+IOff2)  ,1)
+     &                               dMOs(IOff1+IOff2)        ,1  )
+          if(lft.and.lGGA) then
+           CALL DCopy_(nAsh(iIrrep),dTabMO(2,iOff3,g_eff,iGrid),nPi,
+     &                                dMOx(IOff1+IOff2)        ,1  )
+           CALL DCopy_(nAsh(iIrrep),dTabMO(3,iOff3,g_eff,iGrid),nPi,
+     &                                dMOy(IOff1+IOff2)        ,1  )
+           CALL DCopy_(nAsh(iIrrep),dTabMO(4,iOff3,g_eff,iGrid),nPi,
+     &                                dMOz(IOff1+IOff2)        ,1  )
+          end if
          end do
         End Do
 
@@ -413,6 +467,17 @@
           IOff2=IOff1+iOff_Ash(IIrrep)+1
           P2_ontop_d(1,g_eff,iGrid)=P2_ontop_d(1,g_eff,iGrid)+
      &    4.0d0*ddot_(nAsh(IIrrep),dMOs(IOff2),1,P2MOCube(IOff2),1)
+          if(lft.and.lGGA) then
+           P2_ontop_d(2,g_eff,iGrid)=P2_ontop_d(2,g_eff,iGrid)+
+     &     4.0d0*ddot_(nAsh(IIrrep),dMOx(IOff2),1,P2MOCube(IOff2),1)+
+     &     4.0d0*ddot_(nAsh(IIrrep),dMOs(IOff2),1,P2MOCubex(IOff2),1)
+           P2_ontop_d(3,g_eff,iGrid)=P2_ontop_d(3,g_eff,iGrid)+
+     &     4.0d0*ddot_(nAsh(IIrrep),dMOy(IOff2),1,P2MOCube(IOff2),1)+
+     &     4.0d0*ddot_(nAsh(IIrrep),dMOs(IOff2),1,P2MOCubey(IOff2),1)
+           P2_ontop_d(4,g_eff,iGrid)=P2_ontop_d(4,g_eff,iGrid)+
+     &     4.0d0*ddot_(nAsh(IIrrep),dMOz(IOff2),1,P2MOCube(IOff2),1)+
+     &     4.0d0*ddot_(nAsh(IIrrep),dMOs(IOff2),1,P2MOCubez(IOff2),1)
+          end if
          end do
         End Do
        END DO
@@ -427,17 +492,25 @@
         End Do
        END DO
 
+       If(lGGA.and.lft) Then
+        DO iGrid=1,mGrid
+         IOff1=(iGrid-1)*NASHT
+         Do IIrrep=0,mIrrep-1
+          IOff2=IOff1+iOff_Ash(IIrrep)+1
+          P2_ontop(2,iGrid)=P2_ontop(2,iGrid)+
+     &    4.0d0*ddot_(nAsh(IIrrep),MOx(IOff2),1,P2MOCube(IOff2),1)
+          P2_ontop(3,iGrid)=P2_ontop(3,iGrid)+
+     &    4.0d0*ddot_(nAsh(IIrrep),MOy(IOff2),1,P2MOCube(IOff2),1)
+          P2_ontop(4,iGrid)=P2_ontop(4,iGrid)+
+     &    4.0d0*ddot_(nAsh(IIrrep),MOz(IOff2),1,P2MOCube(IOff2),1)
+C          write(6,*)'MOz used for dPiz'
+C          write(6,*) iGrid,iOff2-iOff1
+C          CALL RecPrt(' ',' ',MOz(iOff2),1,nAsh(iIrrep))
+         End Do
+        END DO
+       End If
 
       End If
-*
-      !P2_ontop_d(1:nGrad_eff,1:mGrid) = 0
-
-
-      !Do ilist_s=1,nlist_s !loop over AO shell lists
-      !Do nGrad=1,3
-      !  g_eff = list_g(nGrad,ilist_s)
-      !end do
-      !end do
       deAllocate(dTabMO)
       RETURN
 * Avoid unused argument warnings
