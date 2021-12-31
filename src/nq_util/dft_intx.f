@@ -17,7 +17,7 @@
      &                    Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                    FckInt,nFckInt,
      &                    ipTabAO,dF_dRho,ndF_dRho,
-     &                    nSym,iSpin,Flop,Scr,nScr,
+     &                    iSpin,Flop,Scr,nScr,
      &                    Fact,ndc,mAO,list_bas,nFn)
 ************************************************************************
 *                                                                      *
@@ -104,6 +104,8 @@
      If (nIrrep.eq.1) Then
         Call AOAdd_Full(AOIntegrals(:,:,iD),nBfn,PrpInt(:,iD),nPrp)
      Else
+        Call SymAdp_Full(AOIntegrals(:,:,iD) nBfn, PrpInt(:,iD),nPrp,
+     &                   list_s,nlist_s,Fact,ndc)
      End If
      End Do
 *                                                                      *
@@ -111,16 +113,13 @@
 *                                                                      *
       Flop=Flop+DBLE(nGrid_Tot)
 *
-#ifdef _WARNING_WORKAROUND_
-      If (.False.) Call Unused_integer(nSym)
-#endif
       End
 #else
       Subroutine DFT_IntX(Do_NInt_d,Do_NInt,
      &                    Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                    FckInt,nFckInt,
      &                    ipTabAO,dF_dRho,ndF_dRho,
-     &                    nSym,iSpin,Flop,Scr,nScr,
+     &                    iSpin,Flop,Scr,nScr,
      &                    Fact,ndc,mAO,list_bas,nFn)
 ************************************************************************
 *                                                                      *
@@ -244,8 +243,5 @@
 *                                                                      *
       Flop=Flop+DBLE(nGrid_Tot)
 *
-#ifdef _WARNING_WORKAROUND_
-      If (.False.) Call Unused_integer(nSym)
-#endif
       End
 #endif

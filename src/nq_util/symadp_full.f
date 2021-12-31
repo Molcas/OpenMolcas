@@ -10,8 +10,7 @@
 *                                                                      *
 * Copyright (C) 1991,2021, Roland Lindh                                *
 ************************************************************************
-      Subroutine SymAdp_Full(lOper,
-     &                       AOIntegrals, nBfn, PrpInt, nPrp,
+      Subroutine SymAdp_Full(AOIntegrals, nBfn, PrpInt, nPrp,
      &                       list_s,nlist_s,Fact,ndc)
 ************************************************************************
 *                                                                      *

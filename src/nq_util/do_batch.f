@@ -1468,7 +1468,7 @@ cRKCft
                  Call DFT_Int(Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                      FckInt,nFckInt,
      &                      ipTabAO,dF_dRho,ndF_dRho,
-     &                      nSym,nD,Flop,Work(ipTmp),nTmp,
+     &                      nD,Flop,Work(ipTmp),nTmp,
      &                      Work(ip_Fact),ndc,mAO,
      &                      list_bas,Functional_type,nAOMax)
              End If
@@ -1589,7 +1589,7 @@ cRKCft
                Call DFT_Int(Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                      FckInt,nFckInt,
      &                      ipTabAO,dF_dRho,ndF_dRho,
-     &                      nSym,nD,Flop,Work(ipTmp),nTmp,
+     &                      nD,Flop,Work(ipTmp),nTmp,
      &                      Work(ip_Fact),ndc,mAO,
      &                      list_bas,Functional_type,nAOMax)
              end if
@@ -1618,7 +1618,7 @@ cRKCft
           Call DFT_Int(Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                 FckInt,nFckInt,
      &                 ipTabAO,dF_dRho,ndF_dRho,
-     &                 nSym,nD,Flop,Work(ipTmp),nTmp,
+     &                 nD,Flop,Work(ipTmp),nTmp,
      &                 Work(ip_Fact),ndc,mAO,
      &                 list_bas,Functional_type,nAOMax)
 *                                                                      *

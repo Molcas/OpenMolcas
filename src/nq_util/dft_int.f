@@ -13,7 +13,7 @@
       Subroutine DFT_Int(Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                   FckInt,nFckInt,
      &                   ipTabAO,dF_dRho,ndF_dRho,
-     &                   nSym,iSpin,Flop,Scr,mScr,
+     &                   iSpin,Flop,Scr,mScr,
      &                   Fact,ndc,mAO,
      &                   list_bas,Functional_type,nAOMax)
 ************************************************************************
@@ -46,7 +46,7 @@
      &                 Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                 FckInt,nFckInt,
      &                 ipTabAO,dF_dRho,ndF_dRho,
-     &                 nSym,iSpin,Flop,Scr,nScr,
+     &                 iSpin,Flop,Scr,nScr,
      &                 Fact,ndc,mAO,
      &                 list_bas,nFn)
 *                                                                      *
@@ -59,7 +59,7 @@
      &                 Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                 FckInt,nFckInt,
      &                 ipTabAO,dF_dRho,ndF_dRho,
-     &                 nSym,iSpin,Flop,Scr,nScr,
+     &                 iSpin,Flop,Scr,nScr,
      &                 Fact,ndc,mAO,
      &                 list_bas,nFn)
 *                                                                      *
@@ -72,7 +72,7 @@
      &                 Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                 FckInt,nFckInt,
      &                 ipTabAO,dF_dRho,ndF_dRho,
-     &                 nSym,iSpin,Flop,Scr,nScr,
+     &                 iSpin,Flop,Scr,nScr,
      &                 Fact,ndc,mAO,
      &                 list_bas,nFn)
 *                                                                      *
@@ -85,7 +85,7 @@
      &                 Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                 FckInt,nFckInt,
      &                 ipTabAO,dF_dRho,ndF_dRho,
-     &                 nSym,iSpin,Flop,Scr,nScr,
+     &                 iSpin,Flop,Scr,nScr,
      &                 Fact,ndc,mAO,
      &                 list_bas,nFn)
 *                                                                      *
@@ -124,7 +124,7 @@
      &                 Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                 FckInt,nFckInt,
      &                 ipTabAO,dF_dRho,ndF_dRho,
-     &                 nSym,iSpin,Flop,Scr,nScr,
+     &                 iSpin,Flop,Scr,nScr,
      &                 Fact,ndc,mAO,
      &                 list_bas,nFn)
 *                                                                      *
@@ -137,7 +137,7 @@
      &                 Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                 FckInt,nFckInt,
      &                 ipTabAO,dF_dRho,ndF_dRho,
-     &                 nSym,iSpin,Flop,Scr,nScr,
+     &                 iSpin,Flop,Scr,nScr,
      &                 Fact,ndc,mAO,
      &                 list_bas,nFn)
 *                                                                      *
@@ -150,7 +150,7 @@
      &                 Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                 FckInt,nFckInt,
      &                 ipTabAO,dF_dRho,ndF_dRho,
-     &                 nSym,iSpin,Flop,Scr,nScr,
+     &                 iSpin,Flop,Scr,nScr,
      &                 Fact,ndc,mAO,
      &                 list_bas,nFn)
 *                                                                      *
@@ -163,7 +163,7 @@
      &                 Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                 FckInt,nFckInt,
      &                 ipTabAO,dF_dRho,ndF_dRho,
-     &                 nSym,iSpin,Flop,Scr,nScr,
+     &                 iSpin,Flop,Scr,nScr,
      &                 Fact,ndc,mAO,
      &                 list_bas,nFn)
 *                                                                      *
