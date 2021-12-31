@@ -294,6 +294,8 @@ C     &       RatioX,RatioY,RatioZ,GraddZdR,
          RdRdPi=4.0d0/RhoAB(iGrid)**2
          Rd2RdRho2=-3.0d0*RdRdRho/RhoAB(iGrid)
          Rd2RdRhodPi=-2.0d0*RdRdPi/RhoAB(iGrid)
+         Rd2ZdRdZ=0.0d0
+         Rd2ZdR2=0.0d0
          if(Pass2(iGrid)) Rd2ZdRdZ=0.5d0/ZetaA(iGrid)**2
          if(Pass3(iGrid)) then
           Diff1=RatioA(iGrid)-ThrsNT
@@ -319,7 +321,7 @@ C     &       RatioX,RatioY,RatioZ,GraddZdR,
      &               Rd2RdRhodPi*dRhodZ(iGrid)*dPi(1,iEGrad,iGrid)+
      &               RdRdRho*GradRhoZ(iOff1+iGrid)+
      &               RdRdPi*dPi(4,iEGrad,iGrid)
-
+          GraddZdR=0.0d0
           if(Pass2(iGrid)) then
            GraddZdR=Rd2ZdRdZ*dZeta(iOff1+iGrid)
           else if(Pass3(iGrid)) then
