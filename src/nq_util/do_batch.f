@@ -119,13 +119,6 @@
 #endif
 *                                                                      *
       mRho=-1
-      thrsrho=1.0d-15
-      thrsrho2=1.0d-15
-      thrsrho3=0.9000000000d0
-      thrsrho4=1.1500000000d0
-      Ab1=-4.756065601d+2
-      Bb1=-3.794733192d+2
-      Cb1=-8.538149682d+1
       l_tanhr=.false.
 
       CALL PDFTMemAlloc(mGrid,nOrbt)

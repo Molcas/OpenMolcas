@@ -26,9 +26,8 @@
       Real*8,DIMENSION(nPot2)::Pot2
 ******Internal
       INTEGER iGrid,nGOrb
-      Real*8 ThrsZ2,ThrsPi,ggaterm,ftggaterm,predEdPip
+      Real*8 ThrsPi,ggaterm,ftggaterm,predEdPip
 
-      ThrsZ2=1.0d-15
       ThrsPi=1.0d-30
 
       IF(lGGA.and.lft) THEN

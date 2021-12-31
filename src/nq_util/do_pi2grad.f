@@ -183,20 +183,19 @@
               ICoordOff=IGridOff+(iCoord-1)*nMOs
               g_eff = list_g(iCoord,ilist_s)
               IF(lft.and.lGGA) THEN
-               Select CASE (iCoord)
-                 CASE(1)
-                  iCoord1=4
-                  iCoord2=5
-                  iCoord3=6
-                 CASE(2)
-                  iCoord1=5
-                  iCoord2=7
-                  iCoord3=8
-                 CASE(3)
-                  iCoord1=6
-                  iCoord2=8
-                  iCoord3=9
-               End Select
+               If(iCoord.eq.1) Then
+                iCoord1=4
+                iCoord2=5
+                iCoord3=6
+               Else If(iCoord.eq.2) Then
+                iCoord1=5
+                iCoord2=7
+                iCoord3=8
+               Else If(iCoord.eq.3) Then
+                iCoord1=6
+                iCoord2=8
+                iCoord3=9
+               End If
                ICoordOff1=IGridOff+(iCoord1-1)*nMOs
                ICoordOff2=IGridOff+(iCoord2-1)*nMOs
                ICoordOff3=IGridOff+(iCoord3-1)*nMOs
