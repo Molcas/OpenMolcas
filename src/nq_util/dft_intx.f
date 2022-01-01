@@ -11,14 +11,12 @@
 * Copyright (C) 2000, Roland Lindh                                     *
 *               Ajitha Devarajan                                       *
 ************************************************************************
-*#define _NEWCODE_
+#define _NEWCODE_
 #ifdef _NEWCODE_
-      Subroutine DFT_IntX(Do_NInt_d,Do_NInt
-     &                    Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
-     &                    FckInt,nFckInt,
-     &                    ipTabAO,dF_dRho,ndF_dRho,
-     &                    iSpin,Flop,Scr,nScr,
-     &                    Fact,ndc,mAO,list_bas,nFn)
+      Subroutine DFT_IntX(Do_NInt_d,Do_NIntX,
+     &                    Weights,mGrid,list_s,nlist_s,
+     &                    FckInt,nFckInt,dF_dRho,ndF_dRho,
+     &                    iSpin,Flop,Fact,ndc,mAO,list_bas,nFn)
 ************************************************************************
 *                                                                      *
 * Object: to compute contributions to                                  *
@@ -35,7 +33,7 @@
 ************************************************************************
       use iSD_data
       use Symmetry_Info, only: nIrrep
-      use nq_Grid, only: TabAO_Pack, TabAO, Grid_AO, iBfn_Index,
+      use nq_Grid, only: TabAO, Grid_AO, iBfn_Index,
      &                   AOIntegrals => Dens_AO
       use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
@@ -46,11 +44,9 @@
 #include "debug.fh"
 #include "nsd.fh"
 #include "setup.fh"
-      Real*8 Weights(mGrid), Fact(ndc**2), Scr(nScr*mGrid),
-     &       AOInt(nAOInt*nAOInt,iSpin), FckInt(nFckInt,iSpin),
-     &       dF_dRho(ndF_dRho,mGrid)
-      Integer nOp(2), list_s(2,nlist_s), ipTabAO(nlist_s),
-     &        list_bas(2,nlist_s)
+      Real*8 Weights(mGrid), Fact(ndc**2),
+     &       FckInt(nFckInt,iSpin), dF_dRho(ndF_dRho,mGrid)
+      Integer list_s(2,nlist_s), list_bas(2,nlist_s)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -59,16 +55,16 @@
 *
       nGrid_Tot=0
 *
-      nBfn = Size(Grid_AO,3)
+      nBfn = Size(AOIntegrals,1)
       Call Do_NInt_d(ndF_dRho, dF_dRho,Weights,mGrid,
      &               Grid_AO, TabAO,nBfn,nGrid_Tot,iSpin,mAO,nFn)
       Call Do_NIntX(AOIntegrals,mGrid,Grid_AO,TabAO,nBfn,
-     &                   nGrid_Tot,iSpin,mAO,nFn)
+     &              nGrid_Tot,iSpin,mAO,nFn)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Set up an indexation translation between the running index of
-*     the AOIntegrals and the actuall basis function index
+*     the AOIntegrals and the actual basis function index
 *
       iBfn = 0
       Do ilist_s=1,nlist_s
@@ -83,7 +79,7 @@
          iAdd = iBas-iBas_Eff
          Do i1 = 1, iCmp
             iSO1 = iAOtSO(iAO+i1,0)
-            Do i2 = 0, iBas_Eff-1
+            Do i2 = 1, iBas_Eff
                IndAO1 = i2 + iAdd
                Indi = iSO1 + indAO1
 
@@ -91,7 +87,7 @@
                iBfn_Index(1,iBfn) = Indi
                iBfn_Index(2,iBfn) = ilist_s
                iBfn_Index(3,iBfn) = i1
-               iBfn_Index(4,iBfn) = i2+1
+               iBfn_Index(4,iBfn) = i2
                iBfn_Index(5,iBfn) = mdci
                iBfn_Index(6,iBfn) = IndAO1
             End Do
@@ -100,14 +96,15 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-     Do iD = 1, iSpin
-     If (nIrrep.eq.1) Then
-        Call AOAdd_Full(AOIntegrals(:,:,iD),nBfn,PrpInt(:,iD),nPrp)
-     Else
-        Call SymAdp_Full(AOIntegrals(:,:,iD) nBfn, PrpInt(:,iD),nPrp,
-     &                   list_s,nlist_s,Fact,ndc)
-     End If
-     End Do
+      Do iD = 1, iSpin
+         If (nIrrep.eq.1) Then
+            Call AOAdd_Full(AOIntegrals(:,:,iD),nBfn,FckInt(:,iD),
+     &                      nFckInt)
+         Else
+            Call SymAdp_Full(AOIntegrals(:,:,iD),nBfn,FckInt(:,iD),
+     &                       nFckInt,list_s,nlist_s,Fact,ndc)
+         End If
+      End Do
 *                                                                      *
 ************************************************************************
 *                                                                      *

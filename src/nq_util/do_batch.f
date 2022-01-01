@@ -11,9 +11,16 @@
 * Copyright (C) 2000,2021, Roland Lindh                                *
 *               2021, Jie Bao                                          *
 ************************************************************************
+#define _NEWCODE_
+#ifdef _NEWCODE_
+      Subroutine Do_Batch(Kernel,Func,mGrid,
+     &                    list_s,nlist_s,List_Exp,List_Bas,
+     &                    Index,nIndex,
+#else
       Subroutine Do_Batch(Kernel,Func,mGrid,
      &                    list_s,nlist_s,List_Exp,List_Bas,
      &                    Index,nIndex,AOInt,nAOInt,
+#endif
      &                    FckInt,nFckDim,nFckInt,
      &                    ipTabAO,mAO,nSym,
      &                    Dens,nDens,nD,
@@ -58,7 +65,11 @@
      &        ipTabAO(nlist_s+1,2), IndGrd(nGrad_Eff),
      &        list_g(3,nlist_s), iTab(4,nGrad_Eff), Index(nIndex),
      &        Maps2p(nShell,0:nSym-1), List_Bas(2,nlist_s)
+#ifdef _NEWCODE_
+      Real*8 A(3), RA(3),
+#else
       Real*8 A(3), RA(3), AOInt(nAOInt*nAOInt,nD),
+#endif
      &       dF_dRho(ndF_dRho,mGrid), Grad(nGrad),
      &       FckInt(nFckInt,nFckDim), Dens(nDens,nD),
      &       TabMO(mAO,mGrid,nMOs),TabSO(mAO,mGrid,nMOs),
@@ -938,10 +949,16 @@ cRKCft
              end if
 
              If(KSDFA(1:5).ne.'TLSDA'.and.KSDFA(1:6).ne.'FTLSDA') then
+#ifdef _NEWCODE_
+                 Call DFT_Int(Weights,mGrid,list_s,nlist_s,
+     &                        FckInt,nFckInt,dF_dRho,ndF_dRho,
+     &                        nD,Flop,
+#else
                  Call DFT_Int(Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                      FckInt,nFckInt,
      &                      ipTabAO,dF_dRho,ndF_dRho,
      &                      nD,Flop,Work(ipTmp),nTmp,
+#endif
      &                      Work(ip_Fact),ndc,mAO,
      &                      list_bas,Functional_type,nAOMax)
              End If
@@ -1027,10 +1044,16 @@ cRKCft
               end if
              end if
              If(.not.l_casdft) then
+#ifdef _NEWCODE_
+               Call DFT_Int(Weights,mGrid,list_s,nlist_s,
+     &                      FckInt,nFckInt,dF_dRho,ndF_dRho,
+     &                      nD,Flop,
+#else
                Call DFT_Int(Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                      FckInt,nFckInt,
      &                      ipTabAO,dF_dRho,ndF_dRho,
      &                      nD,Flop,Work(ipTmp),nTmp,
+#endif
      &                      Work(ip_Fact),ndc,mAO,
      &                      list_bas,Functional_type,nAOMax)
              end if
@@ -1056,10 +1079,16 @@ cRKCft
 *         from the derivatives of the functional with respect to nabla
 *         rho and/or tau.
 *
+#ifdef _NEWCODE_
+          Call DFT_Int(Weights,mGrid,list_s,nlist_s,
+     &                 FckInt,nFckInt,dF_dRho,ndF_dRho,
+     &                 nD,Flop,
+#else
           Call DFT_Int(Weights,mGrid,list_s,nlist_s,AOInt,nAOInt,
      &                 FckInt,nFckInt,
      &                 ipTabAO,dF_dRho,ndF_dRho,
      &                 nD,Flop,Work(ipTmp),nTmp,
+#endif
      &                 Work(ip_Fact),ndc,mAO,
      &                 list_bas,Functional_type,nAOMax)
 *                                                                      *

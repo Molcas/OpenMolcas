@@ -64,7 +64,7 @@
                Do jBfn = 1, nBfn
                   jlist_s = iBfn_Index(2,jBfn)
                   jCmp    = iBfn_Index(3,jBfn)
-                  indAO2  = iBfn_Index(6,iBfn)
+                  indAO2  = iBfn_Index(6,jBfn)
                   jSkal   = list_s(1,jlist_s)
                   kDCRR   = list_s(2,jlist_s)
                   jAO     = iSD( 7,jSkal)
@@ -77,23 +77,19 @@
                   iSO=iSO1+IndAO1-1
                   jSO=iSO2+IndAO2-1
 
-*                 Diagonal block. Store only unique elements
-                  If (.NOT.(j1.eq.j2 .and. iSO1.eq.iSO2 .and.
-     &                      iSO<jSO)) Then
+*------------     Diagonal symmetry block
+                  If (iShell.ne.jShell .and. iSO1.eq.iSO2 .and.
+     &                iSO<jSO) Cycle
+                  If (iShell.eq.jShell .and. iSO1.eq.iSO2 .and.
+     &                nOp(1).eq.nOp(2) .and. iSO<jSO) Cycle
+                  xaxb=xa*xb
+                  If (iShell.eq.jShell .and. iSO1.eq.iSO2 .and.
+     &                nOp(1).ne.nOp(2) .and. iSO==jSO) xaxb=xaxb*Two
+                  Indij=iPnt + iTri(iSO,jSO)
 
-                     If (j1.eq.j2) Then
-*------------           Diagonal symmetry block
-                        Indij=iPnt + iTri(iSO,jSO)
-                     Else
-*------------           Off-diagonal symmetry block j1>j2
-                        nRow = nBas(j1)
-                        Indij=iPnt + nRow*(jSO-1)*nRow + iSO
-                     End If
-
-                     PrpInt(Indij) = PrpInt(Indij)
-     &                             +Fact(mdci,mdcj)*xa*xb
-     &                             *AOIntegrals(iBfn,jBfn)
-                  End If
+                  PrpInt(Indij) = PrpInt(Indij)
+     &                          + Fact(mdci,mdcj)*xaxb
+     &                          * AOIntegrals(iBfn,jBfn)
 *
                End Do ! jBfn
             End Do    ! j2

@@ -10,11 +10,20 @@
 *                                                                      *
 * Copyright (C) 1999, Roland Lindh                                     *
 ************************************************************************
+#define _NEWCODE_
+#ifdef _NEWCODE_
+      Subroutine DrvNQ_Inner(
+     &                  Kernel,Func,
+     &                  Maps2p,nSym,list_s,list_exp,list_bas,
+     &                  nShell,list_p,R2_trial,nNQ,
+     &                  FckInt,nFckDim,
+#else
       Subroutine DrvNQ_Inner(
      &                  Kernel,Func,
      &                  Maps2p,nSym,list_s,list_exp,list_bas,
      &                  nShell,list_p,R2_trial,nNQ,
      &                  AOInt,nAOInt,FckInt,nFckDim,
+#endif
      &                  Density,nFckInt,nD,
      &                  mGrid,
      &                  ndF_dRho,nP2_ontop,ndF_dP2ontop,
@@ -56,7 +65,11 @@
      &        list_s(nSym*nShell), list_exp(nSym*nShell),
      &        list_p(nNQ), DoIt(nMOs), List_g(3,nSym*nShell),
      &        IndGrd(mGrad), iTab(4,mGrad), list_bas(2,nSym*nShell)
+#ifdef _NEWCODE_
+      Real*8 FckInt(nFckInt,nFckDim),
+#else
       Real*8 AOInt(nAOInt,nAOInt,nD), FckInt(nFckInt,nFckDim),
+#endif
      &       Density(nFckInt,nD), R2_trial(nNQ),
      &       CMOs(nCMO),P2mo(np2act),D1mo(nd1mo), Temp(mGrad),
      &       P2_ontop(nP2_ontop,mGrid), Grad(nGrad),
@@ -242,7 +255,11 @@ C        Debug=.True.
          Call Get_Subblock(Kernel,Func,iSB,
      &                     Maps2p,list_s,list_exp,list_bas,nShell,nSym,
      &                     list_p,R2_trial,nNQ,
+#ifdef _NEWCODE_
+     &                     FckInt,nFckDim,nFckInt,
+#else
      &                     AOInt,nAOInt,FckInt,nFckDim,nFckInt,
+#endif
      &                     Density,nFckInt,nD,
      &                     mGrid,
      &                     ndF_dRho,nP2_ontop,ndF_dP2ontop,
