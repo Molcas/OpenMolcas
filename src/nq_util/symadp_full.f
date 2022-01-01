@@ -40,6 +40,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+*     Call RecPrt('AOIntegrals',' ',AOIntegrals,nBfn,nBfn)
       loper=1
       Do j1 = 0, nIrrep-1
          Do iBfn = 1, nBfn
@@ -59,10 +60,12 @@
                j12 = iEor(j1,j2)
                If (iAnd(lOper,iTwoj(j12)).eq.0) Cycle
 
+
                iPnt = iPntSO(j1,j2,lOper,nbas)
 
                Do jBfn = 1, nBfn
                   jlist_s = iBfn_Index(2,jBfn)
+                  If (jlist_s<ilist_s) Cycle
                   jCmp    = iBfn_Index(3,jBfn)
                   indAO2  = iBfn_Index(6,jBfn)
                   jSkal   = list_s(1,jlist_s)
@@ -73,6 +76,9 @@
                   xb = DBLE(iChTbl(j2,nOp(2)))
                   If (iAOtSO(jAO+jCmp,j2)<0) Cycle
                   iSO2=iAOtSO(jAO+jCmp,j2)
+
+                  If (iShell.eq.jShell .and. i1<i2 .and.
+     &             nOp(1).eq.nOp(2)) Cycle
 *
                   iSO=iSO1+IndAO1-1
                   jSO=iSO2+IndAO2-1
@@ -87,6 +93,13 @@
      &                nOp(1).ne.nOp(2) .and. iSO==jSO) xaxb=xaxb*Two
                   Indij=iPnt + iTri(iSO,jSO)
 
+*                 If (Indij==1) Then
+*                 Write (*,*) 'Indij=',Indij
+*                 Write (*,*) 'Fact(mdci,mdcj),xaxb=',Fact(mdci,mdcj),
+*    &                                                xaxb
+*                 Write (*,*) 'AOIntegrals(iBfn,jBfn)=',
+*    &                         AOIntegrals(iBfn,jBfn)
+*                 End If
                   PrpInt(Indij) = PrpInt(Indij)
      &                          + Fact(mdci,mdcj)*xaxb
      &                          * AOIntegrals(iBfn,jBfn)
@@ -96,6 +109,7 @@
 
          End Do       ! iBfn
       End Do          ! j1
+*     Call RecPrt('PrpInt',' ',PrpInt,1,nPrp)
 *
       Return
       End

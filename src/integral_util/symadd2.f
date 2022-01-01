@@ -45,11 +45,10 @@
 *
       iRout = 133
       iPrint = nPrint(iRout)
-      If (iPrint.ge.99) Then
-         Write (6,*) ' lOper=',lOper
-         Call RecPrt(' In SymAdd: AOInt',' ',AOInt,iBas*jBas,
-     &                iCmp*jCmp)
-      End If
+*     If (iPrint.ge.99) Then
+*        Call RecPrt(' In SymAdd: AOInt',' ',AOInt,iBas*jBas,
+*    &                iCmp*jCmp)
+*     End If
 
 *... to be simplified
 
@@ -110,6 +109,13 @@
      &                   nOp(1).ne.nOp(2) .and. iSO==jSO) xaxb=xaxb*Two
                      Indij=iPnt + iTri(iSO,jSO)
 
+*                    If (Indij==1) Then
+*                    Write (*,*) 'Indij=',Indij
+*                    Write (*,*) 'Fact,xaxb=',Fact,xaxb
+*                    Write (*,*) 'AOInt(iFrom,i1,i2)=',
+*    &                            AOInt(iFrom,i1,i2)
+*                    End If
+
                      PrpInt(Indij) = PrpInt(Indij)
      &                             +Fact*xaxb*AOInt(iFrom,i1,i2)
                   End Do
@@ -119,6 +125,7 @@
 *
          End Do
       End Do
+*     Call RecPrt('PrpInt',' ',PrpInt,1,nPrp)
 *
       Return
       End
