@@ -81,7 +81,7 @@
             iSO1 = iAOtSO(iAO+i1,0)
             Do i2 = 1, iBas_Eff
                IndAO1 = i2 + iAdd
-               Indi = iSO1 + indAO1
+               Indi = iSO1 + indAO1 -1
 
                iBfn = iBfn + 1
                iBfn_Index(1,iBfn) = Indi
