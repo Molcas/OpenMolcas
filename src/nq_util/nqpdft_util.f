@@ -363,7 +363,7 @@ C      write(6,'(8(I5,2X))')(OffPUVX(iIrrep),iIrrep=0,mIrrep-1)
       END DO
 
 
-      IF (lftGGA) THEN
+      IF (lGGA) THEN
        DO iGrid=1,mGrid
         IOff1=(iGrid-1)*NASHT
         Do iIrrep=0,mIrrep-1
