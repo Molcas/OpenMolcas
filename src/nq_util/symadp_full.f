@@ -51,6 +51,7 @@
             kDCRE   = list_s(2,ilist_s)
             iAO     = iSD( 7,iSkal)
             mdci    = iSD(10,iSkal)
+            iShell  = iSD(11,iSkal)
             nOp(1) = NrOpr(kDCRE)
             xa = DBLE(iChTbl(j1,nOp(1)))
             If (iAOtSO(iAO+iCmp,j1)<0) Cycle
@@ -59,7 +60,6 @@
             Do j2 = 0, nIrrep-1
                j12 = iEor(j1,j2)
                If (iAnd(lOper,iTwoj(j12)).eq.0) Cycle
-
 
                iPnt = iPntSO(j1,j2,lOper,nbas)
 
@@ -72,13 +72,14 @@
                   kDCRR   = list_s(2,jlist_s)
                   jAO     = iSD( 7,jSkal)
                   mdcj    = iSD(10,jSkal)
+                  jShell  = iSD(11,jSkal)
                   nOp(2) = NrOpr(kDCRR)
                   xb = DBLE(iChTbl(j2,nOp(2)))
                   If (iAOtSO(jAO+jCmp,j2)<0) Cycle
                   iSO2=iAOtSO(jAO+jCmp,j2)
 
-                  If (iShell.eq.jShell .and. i1<i2 .and.
-     &             nOp(1).eq.nOp(2)) Cycle
+                  If (iShell.eq.jShell .and. iCmp<jCmp .and.
+     &                nOp(1).eq.nOp(2)) Cycle
 *
                   iSO=iSO1+IndAO1-1
                   jSO=iSO2+IndAO2-1
@@ -93,8 +94,13 @@
      &                nOp(1).ne.nOp(2) .and. iSO==jSO) xaxb=xaxb*Two
                   Indij=iPnt + iTri(iSO,jSO)
 
-*                 If (Indij==1) Then
+*                 If (Indij==9) Then
 *                 Write (*,*) 'Indij=',Indij
+*                 Write (*,*) 'iShell,jShell=',iShell,jShell
+*                 Write (*,*) 'iSO1,iSO2=',iSO1,iSO2
+*                 Write (*,*) 'iSO,jSO=',iSO,jSO
+*                 Write (*,*) 'iBfn,jBfn=',iBfn,jBfn
+*                 Write (*,*) 'nOp(1),nOp(2)=',nOp(1),nOp(2)
 *                 Write (*,*) 'Fact(mdci,mdcj),xaxb=',Fact(mdci,mdcj),
 *    &                                                xaxb
 *                 Write (*,*) 'AOIntegrals(iBfn,jBfn)=',

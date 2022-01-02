@@ -109,7 +109,7 @@
      &                   nOp(1).ne.nOp(2) .and. iSO==jSO) xaxb=xaxb*Two
                      Indij=iPnt + iTri(iSO,jSO)
 
-*                    If (Indij==1) Then
+*                    If (Indij==9) Then
 *                    Write (*,*) 'Indij=',Indij
 *                    Write (*,*) 'Fact,xaxb=',Fact,xaxb
 *                    Write (*,*) 'AOInt(iFrom,i1,i2)=',

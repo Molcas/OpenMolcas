@@ -351,10 +351,12 @@ C              End If
 *
       nBfn=0
       Do iList_s = 1, nList_s
-         iSkal = list_s(1,ilist_s)
+         iSkal    =list_s(1,ilist_s)
+         NrBas_Eff=list_bas(1,ilist_s)
          iCmp  = iSD( 2,iSkal)
          iBas  = iSD( 3,iSkal)
-         nBfn=nBfn+iBas*iCmp
+*        nBfn=nBfn+iBas*iCmp
+         nBfn=nBfn+NrBas_Eff*iCmp
       End Do
 *
       Call Allocate_iWork(ipTabAO,2*(nlist_s+1))

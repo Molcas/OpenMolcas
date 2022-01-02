@@ -78,10 +78,10 @@
 
          iAdd = iBas-iBas_Eff
          Do i1 = 1, iCmp
-            iSO1 = iAOtSO(iAO+i1,0)
+            iSO1 = iAOtSO(iAO+i1,0) ! just used when nIrrep=1
             Do i2 = 1, iBas_Eff
                IndAO1 = i2 + iAdd
-               Indi = iSO1 + indAO1 -1
+               Indi = iSO1 + IndAO1 -1
 
                iBfn = iBfn + 1
                iBfn_Index(1,iBfn) = Indi
