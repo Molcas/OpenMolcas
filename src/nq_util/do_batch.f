@@ -938,9 +938,7 @@ cRKCft
              If(KSDFA(1:5).ne.'TLSDA'.and.KSDFA(1:6).ne.'FTLSDA') then
                  Call DFT_Int(Weights,mGrid,list_s,nlist_s,
      &                        FckInt,nFckInt,dF_dRho,ndF_dRho,
-     &                        nD,Flop,
-     &                      Work(ip_Fact),ndc,mAO,
-     &                      list_bas,Functional_type)
+     &                        nD,Flop,Work(ip_Fact),ndc,mAO,list_bas)
              End If
            End If
 *                                                                      *
@@ -1026,9 +1024,7 @@ cRKCft
              If(.not.l_casdft) then
                Call DFT_Int(Weights,mGrid,list_s,nlist_s,
      &                      FckInt,nFckInt,dF_dRho,ndF_dRho,
-     &                      nD,Flop,
-     &                      Work(ip_Fact),ndc,mAO,
-     &                      list_bas,Functional_type)
+     &                      nD,Flop,Work(ip_Fact),ndc,mAO,list_bas)
              end if
            End If
 *                                                                      *
@@ -1054,9 +1050,7 @@ cRKCft
 *
           Call DFT_Int(Weights,mGrid,list_s,nlist_s,
      &                 FckInt,nFckInt,dF_dRho,ndF_dRho,
-     &                 nD,Flop,
-     &                 Work(ip_Fact),ndc,mAO,
-     &                 list_bas,Functional_type)
+     &                 nD,Flop,Work(ip_Fact),ndc,mAO,list_bas)
 *                                                                      *
 ************************************************************************
 *                                                                      *

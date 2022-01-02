@@ -11,9 +11,9 @@
 * Copyright (C) 2000,2022, Roland Lindh                                *
 *               Ajitha Devarajan                                       *
 ************************************************************************
-      Subroutine DFT_IntX(Weights,mGrid,list_s,nlist_s,
-     &                    FckInt,nFckInt,dF_dRho,ndF_dRho,
-     &                    iSpin,Flop,Fact,ndc,mAO,list_bas,nFn)
+      Subroutine DFT_Int(Weights,mGrid,list_s,nlist_s,
+     &                   FckInt,nFckInt,dF_dRho,ndF_dRho,
+     &                   iSpin,Flop,Fact,ndc,mAO,list_bas)
 ************************************************************************
 *                                                                      *
 * Object: to compute contributions to                                  *
@@ -52,6 +52,7 @@
       nGrid_Tot=0
 *
       nBfn = Size(AOIntegrals,1)
+      nFn  = Size(Grid_AO,1)
       Call Do_NInt_d(ndF_dRho, dF_dRho,Weights,mGrid,
      &               Grid_AO, TabAO,nBfn,nGrid_Tot,iSpin,mAO,nFn)
       Call Do_NIntX(AOIntegrals,mGrid,Grid_AO,TabAO,nBfn,
