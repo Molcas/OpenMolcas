@@ -10,17 +10,9 @@
 *                                                                      *
 * Copyright (C) 1999, Roland Lindh                                     *
 ************************************************************************
-#define _NEWCODE_
-#ifdef _NEWCODE_
       Subroutine Get_Subblock(Kernel,Func,ixyz,
      &                        Maps2p,list_s,list_exp,list_bas,
      &                        nShell,nSym, list_p,R2_trial,nNQ,
-#else
-      Subroutine Get_Subblock(Kernel,Func,ixyz,
-     &                        Maps2p,list_s,list_exp,list_bas,
-     &                        nShell,nSym, list_p,R2_trial,nNQ,
-     &                        AOInt,nAOInt,
-#endif
      &                        FckInt,nFckDim,nFckInt,
      &                        Dens,nDens,nD,
      &                        mGrid,
@@ -67,12 +59,7 @@
       Integer Maps2p(nShell,0:nSym-1), list_s(2,*), List_G(3,*),
      &        list_exp(nSym*nShell), list_bas(2,nSym*nShell),
      &        list_p(nNQ), DoIt(nMOs), iTab(4,mGrad),IndGrd(mGrad)
-#ifdef _NEWCODE_
       Real*8 R2_trial(nNQ), FckInt(nFckInt,nFckDim),
-#else
-      Real*8 R2_trial(nNQ), FckInt(nFckInt,nFckDim),
-     &       AOInt(nAOInt,nAOInt,nD),
-#endif
      &       Dens(nDens,nD), Grad(nGrad), Temp(mGrad),
      &       CMOs(nCMO), P2mo(np2act), D1mo(nD1mo),
      &       P2_ontop(nP2_ontop,mGrid), Roots(3,3), F_xc(mGrid),
@@ -714,11 +701,7 @@ c
 
          Call Do_Batch(Kernel,Func,nogp,
      &                 list_s,nlist_s,List_Exp,List_Bas,
-#ifdef _NEWCODE_
      &                 iWork(ipIndex),nIndex,
-#else
-     &                 iWork(ipIndex),nIndex,AOInt,nAOInt,
-#endif
      &                 FckInt,nFckDim,nFckInt,
      &                 iWork(ipTabAO),mAO,nSym,Dens,nDens,nD,
      &                 ndF_dRho,nP2_ontop,ndF_dP2ontop,

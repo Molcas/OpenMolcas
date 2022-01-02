@@ -10,7 +10,6 @@
 *                                                                      *
 * Copyright (C) 2001, Roland Lindh                                     *
 ************************************************************************
-#define _NEWCODE_
       Subroutine DrvNQ(Kernel,FckInt,nFckDim,Func,
      &                 Density,nFckInt,nD,
      &                 Do_Grad,Grad,nGrad,
@@ -101,23 +100,6 @@
      &              PThr,PMode,Work(ipR_Min),LMax_NQ)
 *
       Call GetMem('R_Min','Free','Real',ipR_Min,LMax_NQ)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*---- Allocate scratch memory for the temporary AO matrix
-*     elements
-*
-#ifdef _NEWCODE_
-#else
-      nAOInt=0
-      Do iShell = 1, nShell
-         iBas = iSD(3,iShell)
-         iCmp = iSD(2,iShell)
-         nAOInt=Max(nAOInt,iBas*iCmp)
-      End Do
-*
-      Call GetMem('AOInt','Allo','Real',ipAOInt,nD*nAOInt**2)
-#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -565,11 +547,7 @@
      &            iWork(ips2p),nIrrep,
      &            iWork(iplist_s),iWork(iplist_exp),iWork(iplist_bas),
      &            nShell,iWork(iplist_p),Work(ipR2_trail),nNQ,
-#ifdef _NEWCODE_
      &            FckInt,nFckDim,
-#else
-     &            Work(ipAOInt),nAOInt,FckInt,nFckDim,
-#endif
      &            Density,nFckInt,nD,
      &            nGridMax,
      &            ndF_dRho,nP2_ontop,ndF_dP2ontop,
@@ -645,10 +623,6 @@
       Call GetMem('NumRadEff','Free','Inte',ip_nR_eff,nNQ)
       Call GetMem('Coor','FREE','REAL',ipCoor,3*8*nAtoms)
 
-#ifdef _NEWCODE_
-#else
-      Call GetMem('AOInt','Free','Real',ipAOInt,nD*nAOInt**2)
-#endif
       Call GetMem('nq_centers','Free','Real',ipNQ,nShell*l_NQ)
       Call GetMem('nMem','Free','Real',ipMem,nMem)
       Call GetMem('Tmp','Free','Real',ipTmp,nTmp)
