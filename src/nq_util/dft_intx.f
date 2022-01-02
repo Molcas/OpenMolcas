@@ -11,8 +11,7 @@
 * Copyright (C) 2000,2022, Roland Lindh                                *
 *               Ajitha Devarajan                                       *
 ************************************************************************
-      Subroutine DFT_IntX(Do_NIntX,
-     &                    Weights,mGrid,list_s,nlist_s,
+      Subroutine DFT_IntX(Weights,mGrid,list_s,nlist_s,
      &                    FckInt,nFckInt,dF_dRho,ndF_dRho,
      &                    iSpin,Flop,Fact,ndc,mAO,list_bas,nFn)
 ************************************************************************
@@ -35,7 +34,6 @@
      &                   AOIntegrals => Dens_AO
       use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
-      External Do_NInt_d, Do_NIntX
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"

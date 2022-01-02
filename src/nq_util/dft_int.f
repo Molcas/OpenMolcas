@@ -22,7 +22,6 @@
 *             SWEDEN. November 2008                                    *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-      External Do_nInt1X, Do_nInt2X, Do_nInt3X, Do_nInt4X
 #include "functional_types.fh"
       Integer Functional_type
       Real*8 Weights(mGrid), Fact(ndc**2),
@@ -33,49 +32,21 @@
 *                                                                      *
       If (Functional_type.eq.LDA_type) Then
          nFn=1
-         Call DFT_IntX(Do_nInt1X,
-     &                 Weights,mGrid,list_s,nlist_s,
-     &                 FckInt,nFckInt,
-     &                 dF_dRho,ndF_dRho,
-     &                 iSpin,Flop,
-     &                 Fact,ndc,mAO,
-     &                 list_bas,nFn)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Else If (Functional_type.eq.GGA_type) Then
          nFn=4
-         Call DFT_IntX(Do_nInt2X,
-     &                 Weights,mGrid,list_s,nlist_s,
-     &                 FckInt,nFckInt,
-     &                 dF_dRho,ndF_dRho,
-     &                 iSpin,Flop,
-     &                 Fact,ndc,mAO,
-     &                 list_bas,nFn)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Else If (Functional_type.eq.meta_GGA_type1) Then
          nFn=4
-         Call DFT_IntX(Do_nInt4X,
-     &                 Weights,mGrid,list_s,nlist_s,
-     &                 FckInt,nFckInt,
-     &                 dF_dRho,ndF_dRho,
-     &                 iSpin,Flop,
-     &                 Fact,ndc,mAO,
-     &                 list_bas,nFn)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Else If (Functional_type.eq.meta_GGA_type2) Then
          nFn=5
-         Call DFT_IntX(Do_nInt3X,
-     &                 Weights,mGrid,list_s,nlist_s,
-     &                 FckInt,nFckInt,
-     &                 dF_dRho,ndF_dRho,
-     &                 iSpin,Flop,
-     &                 Fact,ndc,mAO,
-     &                 list_bas,nFn)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -86,6 +57,13 @@
 ************************************************************************
 *                                                                      *
       End If
+
+      Call DFT_IntX(Weights,mGrid,list_s,nlist_s,
+     &              FckInt,nFckInt,
+     &              dF_dRho,ndF_dRho,
+     &              iSpin,Flop,
+     &              Fact,ndc,mAO,
+     &              list_bas,nFn)
 *                                                                      *
 ************************************************************************
 *                                                                      *
