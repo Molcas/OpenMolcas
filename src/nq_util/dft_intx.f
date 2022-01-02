@@ -8,10 +8,10 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 2000, Roland Lindh                                     *
+* Copyright (C) 2000,2022, Roland Lindh                                *
 *               Ajitha Devarajan                                       *
 ************************************************************************
-      Subroutine DFT_IntX(Do_NInt_d,Do_NIntX,
+      Subroutine DFT_IntX(Do_NIntX,
      &                    Weights,mGrid,list_s,nlist_s,
      &                    FckInt,nFckInt,dF_dRho,ndF_dRho,
      &                    iSpin,Flop,Fact,ndc,mAO,list_bas,nFn)
