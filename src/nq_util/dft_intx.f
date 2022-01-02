@@ -67,7 +67,6 @@
       iBfn = 0
       Do ilist_s=1,nlist_s
          iSkal = list_s(1,ilist_s)
-         kDCRE = list_s(2,ilist_s)
          iCmp  = iSD( 2,iSkal)
          iBas  = iSD( 3,iSkal)
          iBas_Eff=list_bas(1,ilist_s)

@@ -13,7 +13,7 @@
       Subroutine DFT_Int(Weights,mGrid,list_s,nlist_s,
      &                   FckInt,nFckInt,dF_dRho,ndF_dRho,
      &                   iSpin,Flop,Fact,ndc,mAO,
-     &                   list_bas,Functional_type,nAOMax)
+     &                   list_bas,Functional_type)
 ************************************************************************
 *                                                                      *
 * Object: Front-end for compting DFT integrals                         *
@@ -36,7 +36,6 @@
 *                                                                      *
       If (Functional_type.eq.LDA_type) Then
          nFn=1
-         nScr=iSpin*nFn*nAOMax
          Call DFT_IntX(Do_NInt1_d,Do_nInt1X,
      &                 Weights,mGrid,list_s,nlist_s,
      &                 FckInt,nFckInt,
@@ -49,7 +48,6 @@
 *                                                                      *
       Else If (Functional_type.eq.GGA_type) Then
          nFn=4
-         nScr=iSpin*nFn*nAOMax
          Call DFT_IntX(Do_NInt2_d,Do_nInt2X,
      &                 Weights,mGrid,list_s,nlist_s,
      &                 FckInt,nFckInt,
@@ -62,7 +60,6 @@
 *                                                                      *
       Else If (Functional_type.eq.meta_GGA_type1) Then
          nFn=4
-         nScr=iSpin*nFn*nAOMax
          Call DFT_IntX(Do_NInt4_d,Do_nInt4X,
      &                 Weights,mGrid,list_s,nlist_s,
      &                 FckInt,nFckInt,
@@ -75,7 +72,6 @@
 *                                                                      *
       Else If (Functional_type.eq.meta_GGA_type2) Then
          nFn=5
-         nScr=iSpin*nFn*nAOMax
          Call DFT_IntX(Do_NInt3_d,Do_nInt3X,
      &                 Weights,mGrid,list_s,nlist_s,
      &                 FckInt,nFckInt,

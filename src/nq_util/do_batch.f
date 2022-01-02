@@ -244,7 +244,6 @@
                Do ilist_s=1,nlist_s
                   ish=list_s(1,ilist_s)
                   iCmp  = iSD( 2,iSh)
-                  iBas  = iSD( 3,iSh)
                   iBas_Eff = List_Bas(1,ilist_s)
                   nData=mAO*mGrid*iBas_Eff*iCmp
 *
@@ -290,7 +289,6 @@
          Do ilist_s=nlist_s,1,-1
             ish=list_s(1,ilist_s)
             iCmp  = iSD( 2,iSh)
-            iBas  = iSD( 3,iSh)
             iBas_Eff = List_Bas(1,ilist_s)
             nData=mAO*mGrid*iBas_Eff*iCmp
             nByte=ipTabAO(ilist_s,2)
@@ -942,7 +940,7 @@ cRKCft
      &                        FckInt,nFckInt,dF_dRho,ndF_dRho,
      &                        nD,Flop,
      &                      Work(ip_Fact),ndc,mAO,
-     &                      list_bas,Functional_type,nAOMax)
+     &                      list_bas,Functional_type)
              End If
            End If
 *                                                                      *
@@ -1030,7 +1028,7 @@ cRKCft
      &                      FckInt,nFckInt,dF_dRho,ndF_dRho,
      &                      nD,Flop,
      &                      Work(ip_Fact),ndc,mAO,
-     &                      list_bas,Functional_type,nAOMax)
+     &                      list_bas,Functional_type)
              end if
            End If
 *                                                                      *
@@ -1058,7 +1056,7 @@ cRKCft
      &                 FckInt,nFckInt,dF_dRho,ndF_dRho,
      &                 nD,Flop,
      &                 Work(ip_Fact),ndc,mAO,
-     &                 list_bas,Functional_type,nAOMax)
+     &                 list_bas,Functional_type)
 *                                                                      *
 ************************************************************************
 *                                                                      *
