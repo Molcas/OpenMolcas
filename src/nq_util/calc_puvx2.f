@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine Calc_PUVX2(PUVX,nPUVX,TabMO,mAO,nCoor,nTabMOs,
      &                     dF_dRho,ndF_dRho,nD,Weights)
+      use nq_Grid, only: vRho
       Implicit Real*8 (A-H,O-Z)
       Dimension PUVX(nPUVX)
 #include "rasdim.fh"

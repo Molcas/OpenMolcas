@@ -14,6 +14,7 @@
      &                         RhoI,RhoA,mRho,dF_dRho,ndF_dRho,
      &                         dFdP2ontop,ndFdP2ontop,
      &                         TmpPUVX,nTmpPUVX)
+      use nq_Grid, only: vRho
       Implicit Real*8 (A-H,O-Z)
 #include "nq_info.fh"
 #include "real.fh"
@@ -69,13 +70,13 @@
 *
                      FckInt(ijInd,1) = FckInt(ijInd,1)
      &                               + Weights(iGrid)
-     &                               *(OrbProd* dF_dRho(ipRa,iGrid)
+     &                               *(OrbProd* vRho(1,iGrid)
      &                                +OrbProdx*dF_dRho(ipdRxa,iGrid)
      &                                +OrbPrody*dF_dRho(ipdRya,iGrid)
      &                                +OrbProdz*dF_dRho(ipdRza,iGrid))
                      FckInt(ijInd,2) = FckInt(ijInd,2)
      &                               + Weights(iGrid)
-     &                               *(OrbProd* dF_dRho(ipRb,iGrid)
+     &                               *(OrbProd* vRho(2,iGrid)
      &                                +OrbProdx*dF_dRho(ipdRxb,iGrid)
      &                                +OrbPrody*dF_dRho(ipdRyb,iGrid)
      &                                +OrbProdz*dF_dRho(ipdRzb,iGrid))
@@ -86,10 +87,10 @@
                      OrbProd  = TabSO(1,iGrid,iBas)*TabSO(1,iGrid,jBas)
                      FckInt(ijInd,1) = FckInt(ijInd,1)
      &                               + Weights(iGrid)
-     &                               * OrbProd* dF_dRho(ipRa,iGrid)
+     &                               * OrbProd* vRho(1,iGrid)
                      FckInt(ijInd,2) = FckInt(ijInd,2)
      &                               + Weights(iGrid)
-     &                               * OrbProd* dF_dRho(ipRb,iGrid)
+     &                               * OrbProd* vRho(2,iGrid)
 *
                   End Do ! iGrid
                End If

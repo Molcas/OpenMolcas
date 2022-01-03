@@ -22,7 +22,7 @@
 *     Author: Roland Lindh, Dept. of Chemical Physics, University of   *
 *             Lund, Sweden.  May 2002 in Bologna, Italy.               *
 ************************************************************************
-      use nq_Grid, only: GradRho
+      use nq_Grid, only: GradRho, vRho
       use KSDFT_Info, only: KSDFA
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -129,7 +129,7 @@
                tmp=Zero
                ixyz=iTab(1,i_Eff)
                Do j = 1, mGrid
-                  dF_dr = dF_dRho(ipR,j)    *dRho_dR(1,j,i_Eff)
+                  dF_dr = vRho(1,j)    *dRho_dR(1,j,i_Eff)
 *
                   tmp = tmp + Weights(j) * dF_dr
 *
@@ -152,8 +152,8 @@
                tmp=Zero
                ixyz=iTab(1,i_Eff)
                Do j = 1, mGrid
-                  dF_dr = dF_dRho(ipRa,j)    *dRho_dR(1,j,i_Eff)
-     &                  +dF_dRho(ipRb,j)    *dRho_dR(2,j,i_Eff)
+                  dF_dr = vRho(1,j)    *dRho_dR(1,j,i_Eff)
+     &                  +vRho(2,j)    *dRho_dR(2,j,i_Eff)
                   tmp = tmp + Weights(j) * dF_dr
 *
 *                 Accumulate stuff for rotational invariance
@@ -184,7 +184,7 @@
                   gx=Gradrho(1,j)
                   gy=Gradrho(2,j)
                   gz=Gradrho(3,j)
-                  Temp0=dF_dRho(ipR,j)
+                  Temp0=vRho(1,j)
                   Temp1=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gx
                   Temp2=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gy
                   Temp3=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gz
@@ -221,8 +221,8 @@
                   gyb=Gradrho(5,j)
                   gzb=Gradrho(6,j)
 
-                  Temp0a=dF_dRho(ipRa,j)
-                  Temp0b=dF_dRho(ipRb,j)
+                  Temp0a=vRho(1,j)
+                  Temp0b=vRho(2,j)
                   Temp1a=( 2.0d0*dF_dRho(ipGaa,j)*gxa
      &                          +dF_dRho(ipGab,j)*gxb )
                   Temp1b=( 2.0d0*dF_dRho(ipGbb,j)*gxb
@@ -271,7 +271,7 @@
                   gx=Gradrho(1,j)
                   gy=Gradrho(2,j)
                   gz=Gradrho(3,j)
-                  Temp0=dF_dRho(ipR,j)
+                  Temp0=vRho(1,j)
                   Temp1=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gx
                   Temp2=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gy
                   Temp3=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gz
@@ -308,8 +308,8 @@
                   gyb=Gradrho(5,j)
                   gzb=Gradrho(6,j)
 
-                  Temp0a=dF_dRho(ipRa,j)
-                  Temp0b=dF_dRho(ipRb,j)
+                  Temp0a=vRho(1,j)
+                  Temp0b=vRho(2,j)
                   Temp1a=( 2.0d0*dF_dRho(ipGaa,j)*gxa
      &                          +dF_dRho(ipGab,j)*gxb )
                   Temp1b=( 2.0d0*dF_dRho(ipGbb,j)*gxb
@@ -362,7 +362,7 @@
                   gx=Gradrho(1,j)
                   gy=Gradrho(2,j)
                   gz=Gradrho(3,j)
-                  Temp0=dF_dRho(ipR,j)
+                  Temp0=vRho(1,j)
                   Temp1=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gx
                   Temp2=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gy
                   Temp3=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gz
@@ -401,8 +401,8 @@
                   gyb=Gradrho(5,j)
                   gzb=Gradrho(6,j)
 
-                  Temp0a=dF_dRho(ipRa,j)
-                  Temp0b=dF_dRho(ipRb,j)
+                  Temp0a=vRho(1,j)
+                  Temp0b=vRho(2,j)
                   Temp1a=( 2.0d0*dF_dRho(ipGaa,j)*gxa
      &                          +dF_dRho(ipGab,j)*gxb )
                   Temp1b=( 2.0d0*dF_dRho(ipGbb,j)*gxb

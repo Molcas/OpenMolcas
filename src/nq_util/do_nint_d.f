@@ -16,6 +16,7 @@
 ************************************************************************
 ************************************************************************
       use nq_Grid, only: GradRho, Weights
+      use nq_Grid, only: vRho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
@@ -39,7 +40,7 @@
 *                                                                      *
          Do iGrid = 1, mGrid
             Tmp = TabAO1(1,iGrid,iCB)
-     &                   * dF_dRho(ipR,iGrid) * Weights(iGrid)
+     &                   * vRho(1,iGrid) * Weights(iGrid)
             Grid_AO(1,iGrid,iCB,1) = Tmp
          End Do
 *                                                                      *
@@ -55,8 +56,8 @@
 ************************************************************************
 *                                                                      *
          Do iGrid = 1, mGrid
-            Tmp1=TabAO1(1,iGrid,iCB)*dF_dRho(ipRa,iGrid)*Weights(iGrid)
-            Tmp2=TabAO1(1,iGrid,iCB)*dF_dRho(ipRb,iGrid)*Weights(iGrid)
+            Tmp1=TabAO1(1,iGrid,iCB)*vRho(1,iGrid)*Weights(iGrid)
+            Tmp2=TabAO1(1,iGrid,iCB)*vRho(2,iGrid)*Weights(iGrid)
             Grid_AO(1,iGrid,iCB,1) = Tmp1
             Grid_AO(1,iGrid,iCB,2) = Tmp2
          End Do
@@ -93,7 +94,7 @@
             gy=GradRho(2,iGrid)*Weights(iGrid)
             gz=GradRho(3,iGrid)*Weights(iGrid)
 
-            Temp0=dF_dRho(ipR,iGrid)*Weights(iGrid)
+            Temp0=vRho(1,iGrid)*Weights(iGrid)
             Temp1=gx*(2.0d0*dF_dRho(ipGxx,iGrid)+dF_dRho(ipGxy,iGrid))
             Temp2=gy*(2.0d0*dF_dRho(ipGxx,iGrid)+dF_dRho(ipGxy,iGrid))
             Temp3=gz*(2.0d0*dF_dRho(ipGxx,iGrid)+dF_dRho(ipGxy,iGrid))
@@ -135,8 +136,8 @@
             gyb=Gradrho(5,iGrid)*Weights(iGrid)
             gzb=Gradrho(6,iGrid)*Weights(iGrid)
 
-            Temp0a=dF_dRho(ipRa,iGrid) * Weights(iGrid)
-            Temp0b=dF_dRho(ipRb,iGrid) * Weights(iGrid)
+            Temp0a=vRho(1,iGrid) * Weights(iGrid)
+            Temp0b=vRho(2,iGrid) * Weights(iGrid)
             Temp1a=2.0d0*dF_dRho(ipGaa,iGrid)*gxa
      &            +      dF_dRho(ipGab,iGrid)*gxb
             Temp1b=2.0d0*dF_dRho(ipGbb,iGrid)*gxb
@@ -197,7 +198,7 @@
             gy=GradRho(2,iGrid)*Weights(iGrid)
             gz=GradRho(3,iGrid)*Weights(iGrid)
 
-            Temp0=dF_dRho(ipR,iGrid)*Weights(iGrid)
+            Temp0=vRho(1,iGrid)*Weights(iGrid)
             Temp1=gx*(2.0d0*dF_dRho(ipGxx,iGrid)+dF_dRho(ipGxy,iGrid))
             Temp2=gy*(2.0d0*dF_dRho(ipGxx,iGrid)+dF_dRho(ipGxy,iGrid))
             Temp3=gz*(2.0d0*dF_dRho(ipGxx,iGrid)+dF_dRho(ipGxy,iGrid))
@@ -249,8 +250,8 @@
             gyb=Gradrho(5,iGrid)*Weights(iGrid)
             gzb=Gradrho(6,iGrid)*Weights(iGrid)
 
-            Temp0a=dF_dRho(ipRa,iGrid) * Weights(iGrid)
-            Temp0b=dF_dRho(ipRb,iGrid) * Weights(iGrid)
+            Temp0a=vRho(1,iGrid) * Weights(iGrid)
+            Temp0b=vRho(2,iGrid) * Weights(iGrid)
             Temp1a=2.0d0*dF_dRho(ipGaa,iGrid)*gxa
      &            +      dF_dRho(ipGab,iGrid)*gxb
             Temp1b=2.0d0*dF_dRho(ipGbb,iGrid)*gxb
@@ -324,7 +325,7 @@
             gy=GradRho(2,iGrid)*Weights(iGrid)
             gz=GradRho(3,iGrid)*Weights(iGrid)
 
-            Temp0=dF_dRho(ipR,iGrid)*Weights(iGrid)
+            Temp0=vRho(1,iGrid)*Weights(iGrid)
             Temp1=gx*(2.0d0*dF_dRho(ipGxx,iGrid)+dF_dRho(ipGxy,iGrid))
             Temp2=gy*(2.0d0*dF_dRho(ipGxx,iGrid)+dF_dRho(ipGxy,iGrid))
             Temp3=gz*(2.0d0*dF_dRho(ipGxx,iGrid)+dF_dRho(ipGxy,iGrid))
@@ -371,8 +372,8 @@
             gyb=Gradrho(5,iGrid)*Weights(iGrid)
             gzb=Gradrho(6,iGrid)*Weights(iGrid)
 
-            Temp0a=dF_dRho(ipRa,iGrid) * Weights(iGrid)
-            Temp0b=dF_dRho(ipRb,iGrid) * Weights(iGrid)
+            Temp0a=vRho(1,iGrid) * Weights(iGrid)
+            Temp0b=vRho(2,iGrid) * Weights(iGrid)
             Temp1a=2.0d0*dF_dRho(ipGaa,iGrid)*gxa
      &            +      dF_dRho(ipGab,iGrid)*gxb
             Temp1b=2.0d0*dF_dRho(ipGbb,iGrid)*gxb

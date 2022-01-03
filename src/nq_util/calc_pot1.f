@@ -18,6 +18,7 @@
      &                      nP2_ontop,dF_dRho,ndF_dRho,
      &                      MOs)
       use nq_Grid, only: GradRho,Weights
+      use nq_Grid, only: vRho
       use nq_pdft
 #include "nq_info.fh"
 #include "ksdft.fh"
@@ -47,8 +48,8 @@ C     calculation
 C      black terms in the notes
       DO iGrid=1,mGrid
        IF(Pass1(iGrid)) THEN
-        dF_dRhoapb(iGrid)=dF_dRho(1,iGrid)+dF_dRho(2,iGrid)
-        dF_dRhoamb(iGrid)=dF_dRho(1,iGrid)-dF_dRho(2,iGrid)
+        dF_dRhoapb(iGrid)=vRho(1,iGrid)+vRho(2,iGrid)
+        dF_dRhoamb(iGrid)=vRho(1,iGrid)-vRho(2,iGrid)
         dRdRho(iGrid)=RatioA(iGrid)*(-2.0d0/RhoAB(iGrid))
         dZdRho(iGrid)=dZdR(iGrid)*dRdRho(iGrid)
         dEdRho(iGrid)=dF_dRhoapb(iGrid)+dF_dRhoamb(iGrid)*

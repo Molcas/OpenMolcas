@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine P2Diff(mGrid,dF_dRho,ndF_dRho)
-      use nq_Grid, only: Rho, GradRho
+      use nq_Grid, only: Rho, GradRho, vRho
       Implicit Real*8 (A-H,O-Z)
       Dimension dF_dRho(ndF_dRho,mGrid)
 #include "nq_info.fh"
@@ -26,15 +26,15 @@
             If (Abs(Rho(1,iGrid)-Rho(2,iGrid)).le.MinDns  .or.
      &         (Rho(1,iGrid)+Rho(2,iGrid))**2-
      &          4.0d0*Rho(1,iGrid)*Rho(2,iGrid).le. MinDns) Then
-               dF_dRho(ipRa,iGrid) = 0.5d0*(dF_dRho(ipRa,iGrid) +
-     &                                   dF_dRho(ipRb,iGrid))
-               dF_dRho(ipRb,iGrid) = 0.0d0
+               vRho(1,iGrid) = 0.5d0*(vRho(1,iGrid) +
+     &                                   vRho(2,iGrid))
+               vRho(2,iGrid) = 0.0d0
             Else
                rab1 = 1.0d0/(Rho(1,iGrid)-Rho(2,iGrid))
-               dFdRa = dF_dRho(ipRa,iGrid)
-               dFdRb = dF_dRho(ipRb,iGrid)
-               dF_dRho(ipRb,iGrid) = rab1* (dFdRb-dFdRa)
-               dF_dRho(ipRa,iGrid) = rab1*
+               dFdRa = vRho(1,iGrid)
+               dFdRb = vRho(2,iGrid)
+               vRho(2,iGrid) = rab1* (dFdRb-dFdRa)
+               vRho(1,iGrid) = rab1*
      &                              (Rho(1,iGrid)*dFdRa-
      &                              Rho(2,iGrid)*dFdRb)
             End If
@@ -48,7 +48,7 @@
      &         4.0d0*Rho(1,iGrid)*Rho(2,iGrid).le.
      &         MinDns) Then
                dF_dRho_ = 0.5d0*(
-     &              dF_dRho(ipRa,iGrid) + dF_dRho(ipRb,iGrid))
+     &              vRho(1,iGrid) + vRho(2,iGrid))
                dF_dRhox = 0.5d0*(
      &              dF_dRho(ipdRxa,iGrid) + dF_dRho(ipdRxb,iGrid))
                dF_dRhoy = 0.5d0*(
@@ -57,21 +57,21 @@
      &              dF_dRho(ipdRza,iGrid) + dF_dRho(ipdRzb,iGrid))
 *
                If (.True.) Then
-               dF_dRho(ipRa,iGrid) = dF_dRho_
+               vRho(1,iGrid) = dF_dRho_
                dF_dRho(ipdRxa,iGrid) = dF_dRhox
                dF_dRho(ipdRya,iGrid) = dF_dRhoy
                dF_dRho(ipdRza,iGrid) = dF_dRhoz
-               dF_dRho(ipRb,iGrid) = 0.0d0
+               vRho(2,iGrid) = 0.0d0
                dF_dRho(ipdRxb,iGrid) = 0.0d0
                dF_dRho(ipdRyb,iGrid) = 0.0d0
                dF_dRho(ipdRzb,iGrid) = 0.0d0
                Else
                rho_tot=Rho(1,iGrid)+Rho(2,iGrid)
-               dF_dRho(ipRa,iGrid) = 0.0d0
+               vRho(1,iGrid) = 0.0d0
                dF_dRho(ipdRxa,iGrid) = 0.0d0
                dF_dRho(ipdRya,iGrid) = 0.0d0
                dF_dRho(ipdRza,iGrid) = 0.0d0
-               dF_dRho(ipRb,iGrid) = 2.0d0*dF_dRho_/rho_tot -
+               vRho(2,iGrid) = 2.0d0*dF_dRho_/rho_tot -
      &         4.0d0*(GradRho(1,iGrid)*dF_dRhox+
      &                GradRho(2,iGrid)*dF_dRhoy+
      &                GradRho(3,iGrid)*dF_dRhoz)/rho_tot/rho_tot
@@ -83,8 +83,8 @@
             Else
                rho_tot=Rho(1,iGrid)+Rho(2,iGrid)
                rab1 = 1.0d0/(Rho(1,iGrid)-Rho(2,iGrid))
-               dFdRa  = dF_dRho(ipRa,iGrid)
-               dFdRb  = dF_dRho(ipRb,iGrid)
+               dFdRa  = vRho(1,iGrid)
+               dFdRb  = vRho(2,iGrid)
                dFdRax = dF_dRho(ipdRxa,iGrid)
                dFdRbx = dF_dRho(ipdRxb,iGrid)
                dFdRay = dF_dRho(ipdRya,iGrid)
@@ -104,7 +104,7 @@
      &          (GradRho(5,iGrid)-GradRho(2,iGrid))*(dFdRby-dFdRay)+
      &          (GradRho(6,iGrid)-GradRho(3,iGrid))*(dFdRbz-dFdRaz)
 *
-               dF_dRho(ipRa,iGrid) = rab1*
+               vRho(1,iGrid) = rab1*
      &                             (Rho(1,iGrid)*dFdRa-
      &                              Rho(2,iGrid)*dFdRb)
      &                              -rab1*rab1*tmp1
@@ -118,7 +118,7 @@
      &                             (Rho(1,iGrid)*dFdRaz-
      &                              Rho(2,iGrid)*dFdRbz)
 *
-               dF_dRho(ipRb,iGrid) = rab1*
+               vRho(2,iGrid) = rab1*
      &                             (dFdRb-dFdRa) +
      &                              rab1*rab1*tmp2
                dF_dRho(ipdRxb,iGrid) = rab1*
