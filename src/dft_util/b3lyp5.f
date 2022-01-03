@@ -46,9 +46,7 @@
 *                                                                      *
 *---- Vosko-Wilk-Nusair Correlation Functional V                       *
 *                                                                      *
-      Call VWN_V(mGrid,
-     &           iSpin,F_xc,dF_dRho,
-     &           ndF_dRho,CoefR-Coeff_C,T_X)
+      Call VWN_V(mGrid,iSpin,F_xc,CoefR-Coeff_C,T_X)
 *                                                                      *
 *---- Lee-Yang-Parr Correlation Functional                             *
 *                                                                      *
