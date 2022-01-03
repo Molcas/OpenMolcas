@@ -249,12 +249,12 @@ C        Debug=.True.
      &                     mGrid,
      &                     ndF_dRho,nP2_ontop,ndF_dP2ontop,
      &                     Do_Mo,Do_TwoEl,l_Xhol,
-     &                     TmpPUVX,nTmpPUVX,nMOs,CMOs,nCMO,DoIt,
-     &                  P2mo,P2Unzip,np2act,D1mo,D1Unzip,nd1mo,P2_ontop,
+     &                     TmpPUVX,nTmpPUVX,nMOs,CMOs,nCMO,DoIt,P2MO,
+     &                     P2Unzip,np2act,D1mo,D1Unzip,nd1mo,P2_ontop,
      &                     Do_Grad,Grad,nGrad,List_G,IndGrd,iTab,Temp,
      &                     mGrad,F_xc,dF_dRho,dF_dP2ontop,
      &                     DFTFOCK,mAO,mdRho_dR,
-     &                     LOE_DB,LTEG_DB,PDFTPot1,PDFTFocI,PDFTFocA)
+     &                     LTEG_DB,PDFTPot1,PDFTFocI,PDFTFocA)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -348,12 +348,7 @@ C     End Do ! number_of_subblocks
 *     Data to be syncronized: FckInt, Func, Dens,  and Grad.
 *
 *
-        l_tgga = .false.
-        l_tgga =
-     &         KSDFA(1:5).eq.'TBLYP'   .or.
-     &         KSDFA(1:4).eq.'TPBE'    .or.
-     &         KSDFA(1:5).eq.'TOPBE'   .or.
-     &         KSDFA(1:7).eq.'TREVPBE'
+        l_tgga = .true.
       If (Do_Grad) Then
          Call GADSum(Grad,nGrad)
       Else
@@ -393,7 +388,7 @@ C     End Do ! number_of_subblocks
 !        CALL DCOPY_(nFckInt,Work(ifiv_n),1,WORK(ifiv),1)
 
         If(l_tgga) Then
-         CALL PackPot1(work(LOE_DB),PDFTPot1,nFckInt,dble(nIrrep))
+         CALL PackPot1(work(LOE_DB),PDFTPot1,nFckInt,dble(nIrrep)*0.5d0)
          CALL DScal_(nPot2,dble(nIrrep),WORK(LTEG_DB),1)
          CALL PackPot1(work(IFIV),PDFTFocI,nFckInt,dble(nIrrep)*0.25d0)
          CALL PackPot1(work(IFAV),PDFTFocA,nFckInt,dble(nIrrep)*0.5d0)
@@ -402,7 +397,6 @@ C     End Do ! number_of_subblocks
         Call Put_dArray('ONTOPT',work(LTEG_DB),nTmpPUVX)
         Call Put_dArray('FI_V',Work(ifiv),nFckInt)
         Call Put_dArray('FA_V',Work(ifav),nFckInt)
-
 
         CALL GETMEM('OE_OT','Free','REAL',LOE_DB,nFckInt)
         CALL GETMEM('TEG_OT','Free','REAL',LTEG_DB,nTmpPUVX)

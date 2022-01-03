@@ -25,6 +25,7 @@
       use Para_Info, Only: mpp_procid, mpp_nprocs
 #endif
 #endif
+      use Fock_util_global, only: DoCholesky
       use write_orbital_files, only: OrbFiles
       use fcidump, only: DumpOnly
       use fcidump_reorder, only: ReOrInp, ReOrFlag
@@ -88,11 +89,7 @@
 #endif
       Logical DBG, exist
 
-#include "chlcas.fh"
-#include "chodensity.fh"
 #include "chotime.fh"
-#include "cholk.fh"
-#include "choscreen.fh"
 #include "chopar.fh"
 
       Integer IScratch(10)

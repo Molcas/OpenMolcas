@@ -158,7 +158,7 @@
 #include "print.fh"
 #include "bdshell.fh"
       Logical add
-      Character(LEN=6) mode
+      Character mode
 
       Real*8, Allocatable:: Lrs(:,:), Drs(:,:), Diag(:), AbsC(:),
      &                      SvShp(:,:), MLk(:), Ylk(:,:), Drs2(:,:)
@@ -182,38 +182,6 @@
       End Type Special
 
       Type (Special), Target:: SumClk
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Interface
-
-        Subroutine Cho_X_getVtra(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,
-     &                         iSwap,IREDC,nDen,kDen,MOs,ChoT,
-     &                         DoRead)
-        use Data_Structures, only: DSBA_Type, SBA_Type
-        Integer irc, lRedVec
-        Real*8 RedVec(lRedVec)
-        Integer IVEC1,NUMV,ISYM,iSwap,IREDC
-        Integer   nDen,kDen
-
-        Type (DSBA_Type) MOs(nDen)
-        Type (SBA_Type) Chot(nDen)
-
-        Logical   DoRead
-        End Subroutine Cho_X_getVtra
-
-        SUBROUTINE CHO_GetShFull(LabJ,lLabJ,JNUM,JSYM,IREDC,ChoV,
-     &                          SvShp,mmShl,iShp_rs,mmShl_tot)
-        use Data_Structures, only: L_Full_Type
-        Integer lLabJ, JNUM, JSYM, IREDC
-        Integer mmShl, mmShl_tot
-        Real*8  LabJ(lLabJ)
-        Type (L_Full_Type) ChoV
-        Real*8  SvShp(mmShl , 2)
-        Integer iShp_rs( mmShl_tot )
-        End SUBROUTINE CHO_GetShFull
-
-      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -668,17 +636,16 @@ c           !set index arrays at iLoc
 
             If(JSYM.eq.1)Then
 C --- Transform the densities to reduced set storage
-               mode = 'toreds'
                add  = .false.
                nMat=1
                Do jDen=1,nJdens
-                  Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
+                  Call swap_full2rs(irc,iLoc,nRS,nMat,JSYM,
      &                              DLT(jDen),Drs(:,jDen),
-     &                              mode,add)
+     &                              add)
                End Do
                If(iMp2prpt .eq. 2) Then
-                  Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
-     &                              [DLT2],Drs2(:,1),mode,add)
+                  Call swap_full2rs(irc,iLoc,nRS,nMat,JSYM,
+     &                              [DLT2],Drs2(:,1),add)
                End If
             EndIf
 *
@@ -934,20 +901,20 @@ C------------------------------------------------------------------
 
                            If (lSym.ge.kSym) Then
 
-                              mode(1:1)='N'
+                              mode='N'
                               n1 = nBas(lSym)
                               n2 = nBas(kSym)
 
                            Else ! lSym<kSym
 
-                              mode(1:1)='T'
+                              mode='T'
                               n1 = nBas(kSym)
                               n2 = nBas(lSym)
 
                            EndIf
 
                            If (n1>0)
-     &                     CALL DGEMV_(Mode(1:1),n1,n2,
+     &                     CALL DGEMV_(Mode,n1,n2,
      &                                  ONE,DiaH%SB(lSym,kSym)%A2,n1,
      &                                      AbsC,1,
      &                                 ZERO,Ylk(1,jK_a),1)
@@ -1131,11 +1098,11 @@ C------------------------------------------------------------------
 **  LaJ,[k] = sum_b  L(aJ,b) * C(b)[k]
 ** ------------------------------------
 *
-                                    Mode(1:1)='N'
+                                    Mode='N'
                                     n1 = nBasSh(lSym,iaSh)*JNUM
                                     n2 = nBasSh(kSym,ibSh)
 
-                                   Call DGEMV_(Mode(1:1),n1,n2,
+                                   Call DGEMV_(Mode,n1,n2,
      &                    One,L_Full%SPB(lSym,iShp_rs(iShp),l1)%A21,n1,
      &                        MSQ(iMOleft)%SB(kSym)%A2(iOffShb+1:,jK),1,
      &                    ONE,Lab%SB(iaSh,lSym,1)%A,1)
@@ -1149,11 +1116,11 @@ C------------------------------------------------------------------
 **  LJa,[k] = sum_b  L(b,Ja) * C(b)[k]
 ** ------------------------------------
 *
-                                    Mode(1:1)='T'
+                                    Mode='T'
                                     n1 = nBasSh(kSym,ibSh)
                                     n2 = JNUM*nBasSh(lSym,iaSh)
 
-                                    Call DGEMV_(Mode(1:1),n1,n2,
+                                    Call DGEMV_(Mode,n1,n2,
      &                    One,L_Full%SPB(kSym,iShp_rs(iShp),l1)%A12,n1,
      &                        MSQ(iMOleft)%SB(kSym)%A2(iOffShb+1:,jK),1,
      &                    ONE,Lab%SB(iaSh,lSym,1)%A,1)
@@ -1199,7 +1166,7 @@ C------------------------------------------------------------------
 **  LJi[k] = sum_a  LaJ[k] * Cai
 ** ------------------------------
 *
-                                Mode(1:1)='T'
+                                Mode='T'
                                 n1 = nBasSh(lSym,iaSh)
                                 n2 = JNUM
 
@@ -1208,13 +1175,13 @@ C------------------------------------------------------------------
 **   LJi[k] = sum_a  LJa[k] * Cai
 ** --------------------------------
 *
-                                Mode(1:1)='N'
+                                Mode='N'
                                 n1 = JNUM
                                 n2 = nBasSh(lSym,iaSh)
 
                              EndIf
 
-                             CALL DGEMV_(Mode(1:1),n1,n2,
+                             CALL DGEMV_(Mode,n1,n2,
      &                          One,Lab%SB(iaSh,lSym,1)%A,n1,
      &                              MSQ(iMOright)%SB(lSym)%A2(iS:,it),1,
      &                          one,Lik(:,it),1)

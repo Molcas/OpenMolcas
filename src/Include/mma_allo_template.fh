@@ -110,7 +110,7 @@
         bufsize = storage_size(buffer) * ntot / 8
 #endif
         if (bufsize .gt. mma_avail) then
-          call mma_oom(bufsize,mma_avail)
+          call mma_oom(label,bufsize,mma_avail)
         else
 #if _DIMENSIONS_==0
           allocate(character(len=n0) :: buffer)
@@ -217,7 +217,7 @@
 #endif
         bufsize = storage_size(buffer) * ntot / 8
         if (bufsize .gt. mma_avail) then
-          call mma_oom(bufsize,mma_avail)
+          call mma_oom(label,bufsize,mma_avail)
         else
 #if _DIMENSIONS_==1
           allocate(buffer(l1(1):l1(2)))

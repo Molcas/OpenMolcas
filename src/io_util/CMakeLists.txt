@@ -54,7 +54,7 @@ set (sources
      lu2desc.F90
      lu2handle.F90
      molcas_binaryopen_vanilla.F90
-     molcas_open_ext.F90
+     molcas_open_ext2.F90
      molcas_open.F90
      mpdafile.F90
      next_non_comment.F90

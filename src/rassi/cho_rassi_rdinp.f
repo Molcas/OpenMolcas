@@ -16,6 +16,7 @@
 *             in RASSI
 *
 ************************************************************************
+      Use Fock_util_global, only: Deco, Estimate, PseudoChoMOs, Update
       Implicit Real*8 (A-H,O-Z)
 #include "rassi.fh"
 #include "print.fh"
@@ -27,7 +28,6 @@
 *
 #include "chorassi.fh"
 #include "chotime.fh"
-#include "lkscreen.fh"
 *
       iRout=1
       iPrint=nPrint(iRout)

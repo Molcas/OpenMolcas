@@ -471,6 +471,7 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
 *                                                                      *
 ************************************************************************
       Subroutine Get_Fmat_nondyn(Dma,Dmb,nBDT,DFTX)
+      Use Fock_util_global, only: Deco
       use Data_Structures, only: DSBA_type, Allocate_DSBA,
      &                           Deallocate_DSBA
       Implicit Real*8 (a-h,o-z)

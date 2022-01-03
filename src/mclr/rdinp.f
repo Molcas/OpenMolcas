@@ -25,6 +25,7 @@
       Use Center_Info, only: Center_Info_Get
       Use Exp, only: NewPre, nexp_max
       use negpre
+      Use Fock_util_global, only: Deco, dmpk, Estimate, Nscreen, Update
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
 #include "Files_mclr.fh"
@@ -36,7 +37,6 @@
       Character*8 Label
       Character*2 Element(MxAtom)
       Logical     Epsilon_Undef
-#include "chomclr.fh"
       Data ComTab/'TITL','DEBU','ROOT','EXTR','PRCI',
      &            'PROR','ITER','THRE','END ','TIME',
      &            'CALC','NOFI','SEWA','NOCO','NOTW',

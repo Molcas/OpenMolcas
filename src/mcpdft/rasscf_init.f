@@ -21,6 +21,9 @@
 *> Sets values in common blocks in rasscf.fh, general.fh, timers.fh
 ************************************************************************
       Subroutine RasScf_Init_m()
+      Use Fock_util_global, only: ALGO, Deco, DensityCheck, dmpk,
+     &                            DoLocK, DoCholesky, Estimate, Nscreen,
+     &                            Update
       Implicit Real*8 (A-H,O-Z)
       External Get_SuperName
       Character*100 ProgName, Get_SuperName
@@ -39,11 +42,7 @@
 * What to do with Cholesky stuff?
       Logical, External :: Is_First_Iter
 
-#include "chlcas.fh"
-#include "chodensity.fh"
 #include "chotime.fh"
-#include "cholk.fh"
-#include "choscreen.fh"
 #include "chopar.fh"
 *----------------------------------------------------------------------*
       ProgName=Get_SuperName()
