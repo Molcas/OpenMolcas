@@ -33,7 +33,7 @@
 *  YZ (10/07)                                                          *
 ************************************************************************
       use nq_Grid, only: Rho, Sigma, Tau
-      use nq_Grid, only: vRho
+      use nq_Grid, only: vRho, vTau
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
@@ -125,6 +125,7 @@ C     Parameters for M06-2X
             dF_dRho(ipGxx,iGrid)=dF_dRho(ipGxx,iGrid)+ FGA
 *           dF/dTau
             dF_dRho(ipT,iGrid)=dF_dRho(ipT,iGrid)+FTA
+            vTau(1,iGrid)=vTau(1,iGrid)+FTA
 110         Continue
 *
             P=2.0D0*PA
@@ -156,6 +157,7 @@ C     Parameters for M06-2X
                dF_dRho(ipGxx,iGrid)=dF_dRho(ipGxx,iGrid)+EUEG*dgdGA
 *              dF/dTau
                dF_dRho(ipT,iGrid)=dF_dRho(ipT,iGrid)+EUEG*dgdTA
+               vTau(1,iGrid)=vTau(1,iGrid)+EUEG*dgdTA
             ENDIF
          End Do
 *                                                                      *
@@ -177,6 +179,7 @@ C     Parameters for M06-2X
             dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)+ FGA
 *           dF/dTaua
             dF_dRho(ipTa,iGrid)=dF_dRho(ipTa,iGrid)+FTA
+            vTau(1,iGrid)=vTau(1,iGrid)+FTA
 100         Continue
 *
             PB=max(1.0D-24,Rho(2,iGrid),Ta)
@@ -193,6 +196,7 @@ C     Parameters for M06-2X
             dF_dRho(ipGbb,iGrid)=dF_dRho(ipGbb,iGrid)+ FGB
 *           dF/dTaub
             dF_dRho(ipTb,iGrid)=dF_dRho(ipTb,iGrid)+FTB
+            vTau(2,iGrid)=vTau(2,iGrid)+FTB
 111         Continue
 
             P=PA+PB
@@ -232,6 +236,8 @@ C     Parameters for M06-2X
 *              dF/dTau
                dF_dRho(ipTa,iGrid)=dF_dRho(ipTa,iGrid)+EUEG*dgdTA
                dF_dRho(ipTb,iGrid)=dF_dRho(ipTb,iGrid)+EUEG*dgdTB
+               vTau(1,iGrid)=vTau(1,iGrid)+EUEG*dgdTA
+               vTau(2,iGrid)=vTau(2,iGrid)+EUEG*dgdTB
             END IF
          End Do
 *

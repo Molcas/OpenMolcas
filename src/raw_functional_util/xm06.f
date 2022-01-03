@@ -31,7 +31,7 @@
 *  YZ (10/07)                                                          *
 ************************************************************************
       use nq_Grid, only: Rho, Sigma, Tau
-      use nq_Grid, only: vRho
+      use nq_Grid, only: vRho, vTau
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
@@ -180,6 +180,7 @@ C     Parameters for M06-2X
 *        dF/dTau
          dF_dRho(ipT,iGrid)
      &      =dF_dRho(ipT,iGrid)+rho43*(Ax*fL+fNL*E)*dFdTau
+         vTau(1,iGrid)=vTau(1,iGrid)+rho43*(Ax*fL+fNL*E)*dFdTau
 
 110     continue
        Enddo
@@ -243,6 +244,7 @@ C     Parameters for M06-2X
 *        dF/dTaua
          dF_dRho(ipTa,iGrid)
      &      =dF_dRho(ipTa,iGrid)+rho43*(Ax*fL+fNL*E)*dFdTau
+         vTau(1,iGrid)=vTau(1,iGrid)+rho43*(Ax*fL+fNL*E)*dFdTau
 210      continue
 *
 * beta component
@@ -293,6 +295,7 @@ C     Parameters for M06-2X
 *        dF/dTaub
          dF_dRho(ipTb,igrid)
      &      =dF_dRho(ipTb,iGrid)+rho43*(Ax*fL+fNL*E)*dFdTau
+         vTau(2,igrid)=vTau(2,iGrid)+rho43*(Ax*fL+fNL*E)*dFdTau
 310     continue
        enddo
 *                                                                      *

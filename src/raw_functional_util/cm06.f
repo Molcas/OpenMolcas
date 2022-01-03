@@ -31,7 +31,7 @@
 *  YZ (10/07)                                                          *
 ************************************************************************
       use nq_Grid, only: Rho, Sigma, Tau
-      use nq_Grid, only: vRho
+      use nq_Grid, only: vRho, vTau
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
@@ -103,6 +103,7 @@ C     Parameters for M06-2X Correlation
             dF_dRho(ipGxx,iGrid)=dF_dRho(ipGxx,iGrid)+ FGA
 *           dF/dTau
             dF_dRho(ipT,iGrid)=dF_dRho(ipT,iGrid)+FTA
+            vTau(1,iGrid)=vTau(1,iGrid)+FTA
 *
             P=2.D0*PA
             RS = (Pi34/P) ** F13
@@ -146,6 +147,7 @@ C     Parameters for M06-2X Correlation
             dF_dRho(ipGaa,igrid)=dF_dRho(ipGaa,iGrid)+ FGA
 *           dF/dTaua
             dF_dRho(ipTa,igrid)=dF_dRho(ipTa,iGrid)+FTA
+            vTau(1,igrid)=vTau(1,iGrid)+FTA
 
 100         continue
             PB=max(1.0D-24,Rho(2,iGrid))
@@ -162,6 +164,7 @@ C     Parameters for M06-2X Correlation
             dF_dRho(ipGbb,igrid)=dF_dRho(ipGbb,iGrid)+ FGB
 *           dF/dTaub
             dF_dRho(ipTb,igrid)=dF_dRho(ipTb,iGrid)+FTB
+            vTau(2,igrid)=vTau(2,iGrid)+FTB
 111         continue
 *
             P=PA+PB
