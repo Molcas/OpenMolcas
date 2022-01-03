@@ -31,6 +31,7 @@
 *  YZ (10/07)                                                          *
 ************************************************************************
       use nq_Grid, only: Rho, Sigma, Tau
+      use nq_Grid, only: vRho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
@@ -139,7 +140,7 @@ c
 c     functional derivatives
 c
 *        dF/dRho
-         dF_dRho(ipR,iGrid)=dF_dRho(ipR,iGrid)+ f43*rho13*gx +
+         vRho(1,iGrid)=vRho(1,iGrid)+ f43*rho13*gx +
      &                  rho43*(dgdx*dxdr + dgdz*dzdr)
 *        dF/dGamma
          dF_dRho(ipGxx,iGrid)=dF_dRho(ipGxx,iGrid)+rho43*(dgdx*dxdg)
@@ -179,7 +180,7 @@ c
 c     functional derivatives
 c
 *        dF/dRhoa
-         dF_dRho(ipRa,iGrid)=dF_dRho(ipRa,iGrid)+ f43*rho13*gx +
+         vRho(1,iGrid)=vRho(1,iGrid)+ f43*rho13*gx +
      &                  rho43*(dgdx*dxdr + dgdz*dzdr)
 *        dF/dGammaaa
          dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)+rho43*(dgdx*dxdg)
@@ -214,7 +215,7 @@ c
 c     functional derivatives
 c
 *        dF/dRhob
-         dF_dRho(ipRb,iGrid)=dF_dRho(ipRb,iGrid)+ f43*rho13*gx +
+         vRho(2,iGrid)=vRho(2,iGrid)+ f43*rho13*gx +
      &                  rho43*(dgdx*dxdr + dgdz*dzdr)
 *        dF/dGammabb
          dF_dRho(ipGbb,iGrid)=dF_dRho(ipGbb,iGrid)+rho43*(dgdx*dxdg)
