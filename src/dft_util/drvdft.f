@@ -30,7 +30,7 @@
       Real*8 h1(nh1), TwoHam(nh1), D(nh1,2), Grad(nGrad), Vxc_ref(2)
       Real*8 D1I(nD1),D1A(nD1)
       Logical First, Dff, lRF,  Do_Grad
-      Logical Do_MO,Do_TwoEl, Found
+      Logical Do_MO,Do_TwoEl
       Character*(*) KSDFT
       Character*4 DFTFOCK
       Real*8, Allocatable:: D_DS(:,:), F_DFT(:,:)

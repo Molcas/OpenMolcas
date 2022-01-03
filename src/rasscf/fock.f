@@ -50,7 +50,6 @@ C
       Character*16 ROUTINE
       Parameter (ROUTINE='FOCK    ')
 #include "WrkSpc.fh"
-      Dimension P2reo(1)
 
 C
       IPRLEV=IPRLOC(4)
