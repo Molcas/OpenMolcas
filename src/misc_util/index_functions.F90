@@ -16,7 +16,7 @@ use Definitions, only: iwp
 implicit none
 private
 
-public :: C_Ind, C_Ind3, nTri_Elem, nTri_Elem1, nTri3_Elem, nTri3_Elem1
+public :: C_Ind, C_Ind3, iTri, nTri_Elem, nTri_Elem1, nTri3_Elem, nTri3_Elem1
 
 #include "macros.fh"
 
@@ -90,5 +90,15 @@ pure function nTri3_Elem1(l)
   integer(kind=iwp), intent(in) :: l
   nTri3_Elem1 = (l+1)*(l+2)*(l+3)/6
 end function nTri3_Elem1
+
+! Index of element i,j in a triangularly stored matrix
+pure function iTri(i,j)
+  integer(kind=iwp) :: iTri
+  integer(kind=iwp), intent(in) :: i, j
+  integer(kind=iwp) :: ii, jj
+  ii = max(i,j)
+  jj = min(i,j)
+  iTri = ii*(ii-1)/2+jj
+end function iTri
 
 end module

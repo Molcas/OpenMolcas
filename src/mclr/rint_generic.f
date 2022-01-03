@@ -33,27 +33,8 @@
       Logical Fake_CMO2,DoAct
       Real*8, Allocatable:: MT1(:), MT2(:), MT3(:), QTemp(:),
      &                      Dens2(:),  G2x(:)
-      Type (DSBA_Type) CVa(2), DLT, DI, DA, Kappa, JI, KI, JA, KA, FkI,
-     &                 FkA, QVec, CMO, CMO_Inv
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Interface
-        SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,kappa,
-     &                         JI,KI,JA,KA,FkI,FkA,
-     &                         MO_Int,QVec,Ash,CMO,CMO_inv,
-     &                         nOrb,nAsh,nIsh,doAct,Fake_CMO2,
-     &                         LuAChoVec,LuIChoVec,iAChoVec)
-        use Data_Structures, only: DSBA_Type
-        Type (DSBA_Type) DLT, DI, DA, Kappa, JI, KI, JA, KA, FkI, FkA,
-     &                   QVec, Ash(2), CMO, CMO_Inv
-        Real*8 G2(*), MO_Int(*)
-        Integer nOrb(8),nAsh(8),nIsh(8)
-        Logical doAct,Fake_CMO2
-        Integer LuAChoVec(8),LuIChoVec(8)
-        Integer iAChoVec
-        End SUBROUTINE CHO_LK_MCLR
-      End Interface
+      Type (DSBA_Type) CVa(2), DLT, DI, DA, Kappa, JI(1), KI, JA, KA,
+     &                 FkI, FkA, QVec, CMO, CMO_Inv
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -271,8 +252,8 @@
 **      Compute the whole thing
 *
         Call Allocate_DSBA(Kappa,nBas,nBas,nSym,Ref=rKappa)
-        Call Allocate_DSBA(JI,nBas,nBas,nSym,aCase='TRI')
-        JI%A0(:)=Zero
+        Call Allocate_DSBA(JI(1),nBas,nBas,nSym,aCase='TRI')
+        JI(1)%A0(:)=Zero
         Call Allocate_DSBA(KI,nBas,nBas,nSym)
         KI%A0(:)=Zero
         Call Allocate_DSBA(JA,nBas,nBas,nSym)
@@ -290,7 +271,7 @@
 
         Call CHO_LK_MCLR(DLT,DI,DA,G2x,Kappa,JI,KI,JA,KA,FkI,FkA,
      &                   rMOs,QVec,CVa,CMO,CMO_inv,
-     &                   nIsh, nAsh,nIsh,DoAct,Fake_CMO2,
+     &                   nIsh, nAsh,DoAct,Fake_CMO2,
      &                   LuAChoVec,LuIChoVec,iread)
 
         Call Deallocate_DSBA(CMO_Inv)
@@ -301,7 +282,7 @@
         Call Deallocate_DSBA(KA)
         Call Deallocate_DSBA(JA)
         Call Deallocate_DSBA(KI)
-        Call Deallocate_DSBA(JI)
+        Call Deallocate_DSBA(JI(1))
         Call Deallocate_DSBA(Kappa)
         Call GADSum(FockI,nDens2)
         Call GADSum(FockA,nDens2)

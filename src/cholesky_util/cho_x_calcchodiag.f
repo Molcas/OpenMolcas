@@ -50,7 +50,7 @@
       Call fZero(Diag,nnBstRT(1))
 
 
-      IREDC= -1  ! unknwn reduced set
+      IREDC= -1  ! unknown reduced set
 
       iLoc = 3 ! use scratch location in reduced index arrays
 

@@ -25,7 +25,7 @@
      &                        Temp,mGrad,F_xc,dF_dRho,
      &                        dF_dP2ontop,
      &                        DFTFOCK,mAO,mdRho_dR,
-     &                        LOE_DB,LTEG_DB,PDFTPot1,PDFTFocI,PDFTFocA)
+     &                        LTEG_DB,PDFTPot1,PDFTFocI,PDFTFocA)
 ************************************************************************
 *                                                                      *
 * Object: to generate the list of the shell and exponent that have an  *
@@ -72,7 +72,7 @@
       Logical InBox(MxAtom), Do_Grad, More_to_come
       Logical Do_Mo,Do_TwoEl,l_Xhol
       Character*4 DFTFOCK
-      Integer LOE_DB,LTEG_DB
+      Integer LTEG_DB
       Real*8,DIMENSION(NASHT4)::P2Unzip
       Real*8,DIMENSION(NASHT**2)::D1Unzip
 *                                                                      *
@@ -712,7 +712,7 @@ c
      &                 list_g,IndGrd,iTab,Temp,F_xc,
      &                 Work(ip_dW_dR),iNQ,
      &                 Maps2p,dF_dRho,dF_dP2ontop,
-     &                 DFTFOCK,LOE_DB,LTEG_DB,PDFTPot1,PDFTFocI,
+     &                 DFTFOCK,LTEG_DB,PDFTPot1,PDFTFocI,
      &                 PDFTFocA)
 *
          If (Allocated(dRho_dR)) Call mma_deallocate(dRho_dR)

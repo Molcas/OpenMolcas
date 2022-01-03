@@ -51,6 +51,7 @@
 ************************************************************************
 
       use stdalloc, only : mma_allocate, mma_deallocate
+      use Fock_util_global, only: ALGO, DoActive, DoCholesky
       use OFembed, only: Do_OFemb, FMaux
       Implicit Real*8 (A-H,O-Z)
 
@@ -101,11 +102,9 @@
       Logical Gradient
 
 * --------- Cholesky stuff:
-#include "chotodo.fh"
-#include "chlcas.fh"
 #include "chopar.fh"
 #include "chotime.fh"
-#include "cholk.fh"
+#include "qmat_m.fh"
 * --------- End Cholesky stuff
       Character*8 EMILOOP
 

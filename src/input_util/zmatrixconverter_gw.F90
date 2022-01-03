@@ -25,14 +25,14 @@ subroutine ZMatrixConverter_GW(LuRd,LuWr,LuOut,nAskAtoms,iErr)
 use ZMatConv_Mod, only: BasReq, Coords, iZmat, NAT, Symbols, Zmat
 use isotopes, only: MaxAtomNum
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, Pi
+use Constants, only: Zero, deg2rad
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: LuRd, LuWr, LuOut, nAskAtoms
 integer(kind=iwp), intent(out) :: iErr
 integer(kind=iwp) :: i, iAtom, j, k, nAtoms, nBasis, nXAtoms
-real(kind=wp) :: r, torad
+real(kind=wp) :: r
 
 nAtoms = 0
 nBasis = 0
@@ -74,7 +74,6 @@ call mma_allocate(Coords,3,nAtoms+nXAtoms,label='Coords')
 Coords(:,:) = Zero
 
 ! Calculate coordinates
-torad = Pi/180.0_wp
 ! Atom #1
 if (nAtoms+nXAtoms > 1) then
   ! Atom #2
@@ -83,11 +82,11 @@ end if
 if (nAtoms+nXAtoms > 2) then
   ! Atom #3
   if (iZmat(1,3) == 1) then
-    Coords(1,3) = Zmat(1,3)*sin(Zmat(2,3)*torad) ! X(2)=R sin(A)
-    Coords(3,3) = Zmat(1,3)*cos(Zmat(2,3)*torad) ! Z(3)=R cos(A)
+    Coords(1,3) = Zmat(1,3)*sin(Zmat(2,3)*deg2rad) ! X(2)=R sin(A)
+    Coords(3,3) = Zmat(1,3)*cos(Zmat(2,3)*deg2rad) ! Z(3)=R cos(A)
   else
-    Coords(1,3) = Zmat(1,3)*sin(Zmat(2,3)*torad)
-    Coords(3,3) = Coords(3,2)-Zmat(1,3)*cos(Zmat(2,3)*torad)
+    Coords(1,3) = Zmat(1,3)*sin(Zmat(2,3)*deg2rad)
+    Coords(3,3) = Coords(3,2)-Zmat(1,3)*cos(Zmat(2,3)*deg2rad)
   end if
 end if
 if (nAtoms+nXAtoms > 3) then
