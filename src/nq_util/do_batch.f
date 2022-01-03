@@ -123,8 +123,6 @@
       CALL PDFTMemAlloc(mGrid,nOrbt)
       If (Functional_Type.eq.CASDFT_Type) Then
          mRho = nP2_ontop
-      Else If(DFTFOCK.eq.'DIFF'.and.nD.eq.2) Then
-         mRho = nRho/nD
       Else If(l_casdft) then !GLM
          mRho = nP2_ontop
       End If
@@ -786,21 +784,6 @@ cRKCft
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*        For New Functionals which use P2_OnTop (like NEWF)
-      If (DFTFOCK.eq.'DIFF'.and.nD.eq.2) Then
-*        For "Normal" Functionals
-         If (Do_MO.and..not.(Functional_type.eq.CASDFT_Type)) Then
-            Call Do_RhoIA(nRho,mGrid,Rho,Work(ipRhoI),
-     &                    Work(ipRhoA),mRho,TabMO,mAO,
-     &                    nMOs,D1mo,nd1mo)
-         Else
-            Call WarningMessage(2,' We need MO for RhoIA')
-            Call Abend()
-         End If
-      End If
-*                                                                      *
-************************************************************************
-*                                                                      *
 *-- (A.Ohrn): Here I add the routine which constructs the kernel for
 *   the Xhole application. A bit 'cheating' but hey what da hey!
 *
@@ -834,10 +817,6 @@ cRKCft
       Call Kernel(mGrid,Rho,nRho,P2_ontop,
      &            nP2_ontop,nD,F_xc,dF_dRho,
      &            ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_Rho)
-*
-      If (nD.eq.2.and.DFTFOCK.eq.'DIFF') Then
-         Call P2Diff(mGrid,dF_dRho,ndF_dRho)
-      End If
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -874,23 +853,6 @@ cRKCft
 *2)         form matrix elements for the potential, from derivative of
 *           the functional with  respect to rho, respectively.
 *
-            If (nD.eq.2.and.DFTFOCK.eq.'DIFF') Then
-*
-               If(Do_TwoEl) Call Calc_PUVX2(TmpPUVX,nTmpPUVX,TabMO,mAO,
-     &                                   mGrid,nMOs,dF_dRho,
-     &                                   ndF_dRho,nD,Weights)
-*
-               Call ConvdFdRho(mGrid,dF_dRho,ndF_dRho,
-     &                      Work(ipRhoI),Work(ipRhoA),mRho)
-               Call Do_Int_CASDFT2(Weights,mGrid,mAO,
-     &                             TabSO,nMOs,TabMO,nMOs,
-     &                             nD,FckInt,nFckInt,nFckDim,
-     &                             Work(ipRhoI),Work(ipRhoA),mRho,
-     &                             dF_dRho,ndF_dRho,
-     &                             dF_dP2ontop,ndF_dP2ontop,
-     &                             TmpPUVX,nTmpPUVX)
-*
-            Else
 !First, calculate some sizes:
 !             NFINT=nTmpPUVX
 !             NTOT1=nFckInt
@@ -940,7 +902,6 @@ cRKCft
      &                        FckInt,nFckInt,dF_dRho,ndF_dRho,
      &                        nD,Work(ip_Fact),ndc,list_bas)
              End If
-           End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -956,23 +917,6 @@ cRKCft
 *          from the derivative of the functional with respect to grad
 *          rho.
 *
-           If (nD.eq.2.and.DFTFOCK.eq.'DIFF') Then
-***************
-              If (Do_TwoEl) Call Calc_PUVX2(TmpPUVX,nTmpPUVX,TabMO,
-     &                                   mAO,mGrid,nMOs,dF_dRho,
-     &                                   ndF_dRho,nD,Weights)
-              If (.not.(Functional_Type.eq.CASDFT_Type))
-     &        Call ConvdFdRho(mGrid,dF_dRho,ndF_dRho,
-     &                             Work(ipRhoI),Work(ipRhoA),mRho)
-              Call Do_Int_CASDFT2(Weights,mGrid,mAO,
-     &                            TabSO,nMOs,TabMO,nMOs,
-     &                            nD,FckInt,nFckInt,nFckDim,
-     &                            Work(ipRhoI),Work(ipRhoA),mRho,
-     &                            dF_dRho,ndF_dRho,
-     &                            dF_dP2ontop,ndF_dP2ontop,
-     &                            TmpPUVX,nTmpPUVX)
-******************
-           Else
              If(KSDFA(1:4).eq.'TPBE'.or.
      &               KSDFA(1:5).eq.'TOPBE'.or.
      &               KSDFA(1:5).eq.'TBLYP'.or.
@@ -1026,7 +970,6 @@ cRKCft
      &                      FckInt,nFckInt,dF_dRho,ndF_dRho,
      &                      nD,Work(ip_Fact),ndc,list_bas)
              end if
-           End If
 *                                                                      *
 ************************************************************************
 *                                                                      *

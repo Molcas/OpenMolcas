@@ -69,7 +69,6 @@ c     Call SetQue('Trace=on')
 *
 *     What is this?
 *
-      If (DFTFOCK.eq.'DIFF') nD=2
       If (DFTFOCK.eq.'ROKS') nD=2
       Call mma_allocate(D_DS,nh1,nD,Label='D_DS')
 *
@@ -129,26 +128,6 @@ c     Call SetQue('Trace=on')
       Tau_I           =Zero
       Do_MO           =.False.
       Do_TwoEl        =.False.
-*
-      If (nD.eq.2.and.DFTFOCK.eq.'DIFF') Then
-         numAO=0
-         If(KSDFT(1:3).ne.'SCF') Then
-           Do iIrrep=0,mIrrep-1
-             nAsh(iIrrep)=0
-           End Do
-           Call qpg_iArray('nAsh',Found,nData)
-           If(Found .and. nData.eq.mIrrep) Then
-             Call Get_iArray('nAsh',nAsh,mIrrep)
-           End If
-           Do iIrrep=0,mIrrep-1
-             numAO=numAO+nAsh(iIrrep)
-           End Do
-        End If
-        If (numAO.ne.0)
-     &  Do_TwoEl        =.True.
-        Do_MO           =.True.
-
-      End If
 *
 *     nFckDim: number of different types of Fock matrices. Normally for
 *     conventional functionals we have one Fock matrix for closed shell
@@ -899,12 +878,6 @@ c         write(6,*) 'Func in drvdft :', Func
 *        The code, written by S.G. & C., will be now modified by       *
 *                      Giovanni Ghigo (CGG)                            *
 *                                                                      *
-         If (DFTFOCK.ne.'DIFF') Then
-            Call WarningMessage(2,
-     &                 ' This is CASDFT type functional !!!;'
-     &               //' You cannot use it in this calculation.')
-            Call Quit_OnUserError()
-         End If
          Do_Grad  = .False.
          Do_MO    = .True.
          Do_TwoEl = .True.
