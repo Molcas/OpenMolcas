@@ -10,9 +10,7 @@
 *                                                                      *
 * Copyright (C) Sergey Gusarov                                         *
 ************************************************************************
-      Subroutine PW92C(mGrid,
-     &                   dF_dRho,ndF_dRho,
-     &                   Coeff,iSpin,F_xc,T_X)
+      Subroutine PW92C(mGrid,Coeff,iSpin,F_xc,T_X)
 ************************************************************************
 *                                                                      *
 * Object:  PW92C Functional(Formula taken from Molpro Manual)          *
@@ -22,9 +20,10 @@
 *              Maple 8.0                                               *
 ************************************************************************
       use nq_Grid, only: Rho
+      use nq_Grid, only: vRho
       Implicit Real*8 (A-H,O-Z)
 #include "nq_index.fh"
-      Real*8 dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
+      Real*8 F_xc(mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -89,7 +88,7 @@
 
       Functional= F_term
       F_xc(iGrid)=F_xc(iGrid)+Coeff*functional
-      dF_dRho(ipR,iGrid)=dF_dRho(ipR,iGrid)+Coeff*dFdRhoa
+      vRho(1,iGrid)=vRho(1,iGrid)+Coeff*dFdRhoa
 
 100   Continue
       End Do
@@ -214,8 +213,8 @@
 ************************************************************************
 *                                                                      *
 *
-      dF_dRho(ipRa,iGrid)=dF_dRho(ipRa,iGrid)+Coeff*dFdRhoa
-      dF_dRho(ipRb,iGrid)=dF_dRho(ipRb,iGrid)+Coeff*dFdRhob
+      vRho(1,iGrid)=vRho(1,iGrid)+Coeff*dFdRhoa
+      vRho(2,iGrid)=vRho(2,iGrid)+Coeff*dFdRhob
 
 200   Continue
       End Do

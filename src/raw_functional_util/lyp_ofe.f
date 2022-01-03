@@ -25,6 +25,7 @@
 *              and adopt for closed shell case                         *
 ************************************************************************
       use nq_Grid, only: Rho, Sigma
+      use nq_Grid, only: vRho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
@@ -135,7 +136,7 @@
 ************************************************************************
 *                                                                      *
 *      dF/dRho
-       dF_dRho(ipR,iGrid)=dF_dRho(ipR,iGrid)
+       vRho(1,iGrid)=vRho(1,iGrid)
      &                   +Coeff*(dec1dra+dec2dra+dec3dra+dec4dra)
 *      dF/dGaa
        dF_dRho(ipGxx,iGrid)=dF_dRho(ipGxx,iGrid)
@@ -240,9 +241,9 @@
 ************************************************************************
 *                                                                      *
 *       dF/dRhoa, dF/dRhob
-        dF_dRho(ipRa,iGrid)=dF_dRho(ipRa,iGrid)
+        vRho(1,iGrid)=vRho(1,iGrid)
      &                   +Coeff*(dec1dra+dec2dra+dec3dra+dec4dra)
-        dF_dRho(ipRb,iGrid)=dF_dRho(ipRb,iGrid)
+        vRho(2,iGrid)=vRho(2,iGrid)
      &                   +Coeff*(dec1drb+dec2drb+dec3drb+dec4drb)
 *       dF/dGaa, dF/dGab, and dF/dGbb
         dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)

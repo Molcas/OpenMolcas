@@ -25,6 +25,7 @@
 *              and adopt for closed shell case                         *
 ************************************************************************
       use nq_Grid, only: Rho, GradRho, Sigma, Lapl
+      use nq_Grid, only: vRho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
@@ -110,7 +111,7 @@
 
 *
       F_xc(iGrid) = Fxc
-      dF_dRho(ipR,iGrid)= dFdDns + Grad
+      vRho(1,iGrid)= dFdDns + Grad
 *
 100   Continue
       End Do
@@ -215,9 +216,9 @@
 ************************************************************************
 *                                                                      *
 *
-      dF_dRho(ipRa,iGrid)=dF_dRho(ipRa,iGrid)
+      vRho(1,iGrid)=vRho(1,iGrid)
      &                   +Coeff*(dec1dra+dec2dra+dec3dra+dec4dra)
-      dF_dRho(ipRb,iGrid)=dF_dRho(ipRb,iGrid)
+      vRho(2,iGrid)=vRho(2,iGrid)
      &                   +Coeff*(dec1drb+dec2drb+dec3drb+dec4drb)
 
       dF_dRho(ipdRxa,iGrid)=dF_dRho(ipdRxa,iGrid)
