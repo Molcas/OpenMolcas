@@ -10,20 +10,19 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-      Subroutine Do_NInt_d(ndF_dRho,dF_dRho,
-     &                      Weights,mGrid,
-     &                      Scr,TabAO1,nBfn,nGrid_Tot,iSpin,
+      Subroutine Do_NInt_d(ndF_dRho,dF_dRho,mGrid,
+     &                      Grid_AO,TabAO1,nBfn,nGrid_Tot,iSpin,
      &                      mAO,nFn)
 *                                                                      *
 ************************************************************************
 ************************************************************************
-      use nq_Grid, only: GradRho
+      use nq_Grid, only: GradRho, Weights
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
 #include "nq_info.fh"
-      Real*8 dF_dRho(ndF_dRho,mGrid), Weights(mGrid),
-     &       TabAO1(mAO,mGrid,nBfn), Scr(nFn,mGrid,nBfn,iSpin)
+      Real*8 dF_dRho(ndF_dRho,mGrid),
+     &       TabAO1(mAO,mGrid,nBfn), Grid_AO(nFn,mGrid,nBfn,iSpin)
 
       nGrid_Tot=nGrid_Tot+mGrid*nBfn**2
 
@@ -45,7 +44,7 @@
          Do iGrid = 1, mGrid
             Tmp = TabAO1(1,iGrid,iCB)
      &                   * dF_dRho(ipR,iGrid) * Weights(iGrid)
-            Scr(1,iGrid,iCB,1) = Tmp
+            Grid_AO(1,iGrid,iCB,1) = Tmp
          End Do
 *                                                                      *
 ************************************************************************
@@ -62,8 +61,8 @@
          Do iGrid = 1, mGrid
             Tmp1=TabAO1(1,iGrid,iCB)*dF_dRho(ipRa,iGrid)*Weights(iGrid)
             Tmp2=TabAO1(1,iGrid,iCB)*dF_dRho(ipRb,iGrid)*Weights(iGrid)
-            Scr(1,iGrid,iCB,1) = Tmp1
-            Scr(1,iGrid,iCB,2) = Tmp2
+            Grid_AO(1,iGrid,iCB,1) = Tmp1
+            Grid_AO(1,iGrid,iCB,2) = Tmp2
          End Do
 *                                                                      *
 ************************************************************************
@@ -103,13 +102,13 @@
             Temp2=gy*(2.0d0*dF_dRho(ipGxx,iGrid)+dF_dRho(ipGxy,iGrid))
             Temp3=gz*(2.0d0*dF_dRho(ipGxx,iGrid)+dF_dRho(ipGxy,iGrid))
 
-            Scr(1,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp0
+            Grid_AO(1,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp0
      &                         + TabAO1(2,iGrid,iCB) * Temp1
      &                         + TabAO1(3,iGrid,iCB) * Temp2
      &                         + TabAO1(4,iGrid,iCB) * Temp3
-            Scr(2,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp1
-            Scr(3,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp2
-            Scr(4,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp3
+            Grid_AO(2,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp1
+            Grid_AO(3,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp2
+            Grid_AO(4,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp3
          End Do
 *                                                                      *
 ************************************************************************
@@ -155,20 +154,20 @@
             Temp3b=2.0d0*dF_dRho(ipGbb,iGrid)*gzb
      &            +      dF_dRho(ipGab,iGrid)*gza
 *
-            Scr(1,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp0a
+            Grid_AO(1,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp0a
      &                         + TabAO1(2,iGrid,iCB) * Temp1a
      &                         + TabAO1(3,iGrid,iCB) * Temp2a
      &                         + TabAO1(4,iGrid,iCB) * Temp3a
-            Scr(2,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp1a
-            Scr(3,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp2a
-            Scr(4,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp3a
-            Scr(1,iGrid,iCB,2) = TabAO1(1,iGrid,iCB) * Temp0b
+            Grid_AO(2,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp1a
+            Grid_AO(3,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp2a
+            Grid_AO(4,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp3a
+            Grid_AO(1,iGrid,iCB,2) = TabAO1(1,iGrid,iCB) * Temp0b
      &                         + TabAO1(2,iGrid,iCB) * Temp1b
      &                         + TabAO1(3,iGrid,iCB) * Temp2b
      &                         + TabAO1(4,iGrid,iCB) * Temp3b
-            Scr(2,iGrid,iCB,2) = TabAO1(1,iGrid,iCB) * Temp1b
-            Scr(3,iGrid,iCB,2) = TabAO1(1,iGrid,iCB) * Temp2b
-            Scr(4,iGrid,iCB,2) = TabAO1(1,iGrid,iCB) * Temp3b
+            Grid_AO(2,iGrid,iCB,2) = TabAO1(1,iGrid,iCB) * Temp1b
+            Grid_AO(3,iGrid,iCB,2) = TabAO1(1,iGrid,iCB) * Temp2b
+            Grid_AO(4,iGrid,iCB,2) = TabAO1(1,iGrid,iCB) * Temp3b
          End Do
 *                                                                      *
 ************************************************************************
@@ -210,20 +209,20 @@
             Temp4=dF_dRho(ipT,iGrid)*Weights(iGrid)
             Temp5=dF_dRho(ipL,iGrid)*Weights(iGrid)
 
-            Scr(1,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp0
+            Grid_AO(1,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp0
      &                         + TabAO1(2,iGrid,iCB) * Temp1
      &                         + TabAO1(3,iGrid,iCB) * Temp2
      &                         + TabAO1(4,iGrid,iCB) * Temp3
-            Scr(2,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp1
+            Grid_AO(2,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp1
      &                         + TabAO1(2,iGrid,iCB) * Temp4
      &                         + TabAO1(2,iGrid,iCB) * Temp5
-            Scr(3,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp2
+            Grid_AO(3,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp2
      &                         + TabAO1(3,iGrid,iCB) * Temp4
      &                         + TabAO1(3,iGrid,iCB) * Temp5
-            Scr(4,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp3
+            Grid_AO(4,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp3
      &                         + TabAO1(4,iGrid,iCB) * Temp5
      &                         + TabAO1(4,iGrid,iCB) * Temp4
-            Scr(5,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp5
+            Grid_AO(5,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp5
          End Do
 *                                                                      *
 ************************************************************************
@@ -273,29 +272,29 @@
             Temp5a= dF_dRho(ipLa,iGrid)*Weights(iGrid)
             Temp5b= dF_dRho(ipLb,iGrid)*Weights(iGrid)
 *
-            Scr(1,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp0a
+            Grid_AO(1,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp0a
      &                       + TabAO1(2,iGrid,iCB) * Temp1a
      &                       + TabAO1(3,iGrid,iCB) * Temp2a
      &                       + TabAO1(4,iGrid,iCB) * Temp3a
-            Scr(2,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp1a
+            Grid_AO(2,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp1a
      &                       + TabAO1(2,iGrid,iCB) * Temp4a
-            Scr(3,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp2a
+            Grid_AO(3,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp2a
      &                       + TabAO1(3,iGrid,iCB) * Temp4a
-            Scr(4,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp3a
+            Grid_AO(4,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp3a
      &                       + TabAO1(4,iGrid,iCB) * Temp4a
-            Scr(5,iGrid,iCB,1)= TabAO1(1,iGrid,iCB) * Temp5a
+            Grid_AO(5,iGrid,iCB,1)= TabAO1(1,iGrid,iCB) * Temp5a
 *
-            Scr(1,iGrid,iCB,2) = TabAO1(1,iGrid,iCB) * Temp0b
+            Grid_AO(1,iGrid,iCB,2) = TabAO1(1,iGrid,iCB) * Temp0b
      &                       + TabAO1(2,iGrid,iCB) * Temp1b
      &                       + TabAO1(3,iGrid,iCB) * Temp2b
      &                       + TabAO1(4,iGrid,iCB) * Temp3b
-            Scr(2,iGrid,iCB,2)= TabAO1(1,iGrid,iCB) * Temp1b
+            Grid_AO(2,iGrid,iCB,2)= TabAO1(1,iGrid,iCB) * Temp1b
      &                       + TabAO1(2,iGrid,iCB) * Temp4b
-            Scr(3,iGrid,iCB,2)= TabAO1(1,iGrid,iCB) * Temp2b
+            Grid_AO(3,iGrid,iCB,2)= TabAO1(1,iGrid,iCB) * Temp2b
      &                       + TabAO1(3,iGrid,iCB) * Temp4b
-            Scr(4,iGrid,iCB,2)= TabAO1(1,iGrid,iCB) * Temp3b
+            Grid_AO(4,iGrid,iCB,2)= TabAO1(1,iGrid,iCB) * Temp3b
      &                       + TabAO1(4,iGrid,iCB) * Temp4b
-            Scr(5,iGrid,iCB,2)= TabAO1(1,iGrid,iCB) * Temp5b
+            Grid_AO(5,iGrid,iCB,2)= TabAO1(1,iGrid,iCB) * Temp5b
          End Do
 *                                                                      *
 ************************************************************************
@@ -336,15 +335,15 @@
 
             Temp4=dF_dRho(ipT,iGrid)*Weights(iGrid)
 
-            Scr(1,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp0
+            Grid_AO(1,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp0
      &                         + TabAO1(2,iGrid,iCB) * Temp1
      &                         + TabAO1(3,iGrid,iCB) * Temp2
      &                         + TabAO1(4,iGrid,iCB) * Temp3
-            Scr(2,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp1
+            Grid_AO(2,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp1
      &                         + TabAO1(2,iGrid,iCB) * Temp4
-            Scr(3,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp2
+            Grid_AO(3,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp2
      &                         + TabAO1(3,iGrid,iCB) * Temp4
-            Scr(4,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp3
+            Grid_AO(4,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp3
      &                         + TabAO1(4,iGrid,iCB) * Temp4
          End Do
 *                                                                      *
@@ -393,26 +392,26 @@
             Temp4a= dF_dRho(ipTa,iGrid)*Weights(iGrid)
             Temp4b= dF_dRho(ipTb,iGrid)*Weights(iGrid)
 *
-            Scr(1,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp0a
+            Grid_AO(1,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp0a
      &                         + TabAO1(2,iGrid,iCB) * Temp1a
      &                         + TabAO1(3,iGrid,iCB) * Temp2a
      &                         + TabAO1(4,iGrid,iCB) * Temp3a
-            Scr(2,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp1a
+            Grid_AO(2,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp1a
      &                         + TabAO1(2,iGrid,iCB) * Temp4a
-            Scr(3,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp2a
+            Grid_AO(3,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp2a
      &                         + TabAO1(3,iGrid,iCB) * Temp4a
-            Scr(4,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp3a
+            Grid_AO(4,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp3a
      &                         + TabAO1(4,iGrid,iCB) * Temp4a
 *
-            Scr(1,iGrid,iCB,2) = TabAO1(1,iGrid,iCB) * Temp0b
+            Grid_AO(1,iGrid,iCB,2) = TabAO1(1,iGrid,iCB) * Temp0b
      &                         + TabAO1(2,iGrid,iCB) * Temp1b
      &                         + TabAO1(3,iGrid,iCB) * Temp2b
      &                         + TabAO1(4,iGrid,iCB) * Temp3b
-            Scr(2,iGrid,iCB,2) = TabAO1(1,iGrid,iCB) * Temp1b
+            Grid_AO(2,iGrid,iCB,2) = TabAO1(1,iGrid,iCB) * Temp1b
      &                         + TabAO1(2,iGrid,iCB) * Temp4b
-            Scr(3,iGrid,iCB,2) = TabAO1(1,iGrid,iCB) * Temp2b
+            Grid_AO(3,iGrid,iCB,2) = TabAO1(1,iGrid,iCB) * Temp2b
      &                         + TabAO1(3,iGrid,iCB) * Temp4b
-            Scr(4,iGrid,iCB,2) = TabAO1(1,iGrid,iCB) * Temp3b
+            Grid_AO(4,iGrid,iCB,2) = TabAO1(1,iGrid,iCB) * Temp3b
      &                         + TabAO1(4,iGrid,iCB) * Temp4b
 *
          End Do

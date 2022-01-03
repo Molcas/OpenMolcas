@@ -936,9 +936,9 @@ cRKCft
              end if
 
              If(KSDFA(1:5).ne.'TLSDA'.and.KSDFA(1:6).ne.'FTLSDA') then
-                 Call DFT_Int(Weights,mGrid,list_s,nlist_s,
+                 Call DFT_Int(list_s,nlist_s,
      &                        FckInt,nFckInt,dF_dRho,ndF_dRho,
-     &                        nD,Flop,Work(ip_Fact),ndc,mAO,list_bas)
+     &                        nD,Flop,Work(ip_Fact),ndc,list_bas)
              End If
            End If
 *                                                                      *
@@ -1022,9 +1022,9 @@ cRKCft
               end if
              end if
              If(.not.l_casdft) then
-               Call DFT_Int(Weights,mGrid,list_s,nlist_s,
+               Call DFT_Int(list_s,nlist_s,
      &                      FckInt,nFckInt,dF_dRho,ndF_dRho,
-     &                      nD,Flop,Work(ip_Fact),ndc,mAO,list_bas)
+     &                      nD,Flop,Work(ip_Fact),ndc,list_bas)
              end if
            End If
 *                                                                      *
@@ -1048,9 +1048,9 @@ cRKCft
 *         from the derivatives of the functional with respect to nabla
 *         rho and/or tau.
 *
-          Call DFT_Int(Weights,mGrid,list_s,nlist_s,
+          Call DFT_Int(list_s,nlist_s,
      &                 FckInt,nFckInt,dF_dRho,ndF_dRho,
-     &                 nD,Flop,Work(ip_Fact),ndc,mAO,list_bas)
+     &                 nD,Flop,Work(ip_Fact),ndc,list_bas)
 *                                                                      *
 ************************************************************************
 *                                                                      *

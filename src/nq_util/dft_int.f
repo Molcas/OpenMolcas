@@ -11,9 +11,8 @@
 * Copyright (C) 2000,2022, Roland Lindh                                *
 *               Ajitha Devarajan                                       *
 ************************************************************************
-      Subroutine DFT_Int(Weights,mGrid,list_s,nlist_s,
-     &                   FckInt,nFckInt,dF_dRho,ndF_dRho,
-     &                   iSpin,Flop,Fact,ndc,mAO,list_bas)
+      Subroutine DFT_Int(list_s,nlist_s,FckInt,nFckInt,dF_dRho,ndF_dRho,
+     &                   nD,Flop,Fact,ndc,list_bas)
 ************************************************************************
 *                                                                      *
 * Object: to compute contributions to                                  *
@@ -40,8 +39,8 @@
 #include "debug.fh"
 #include "nsd.fh"
 #include "setup.fh"
-      Real*8 Weights(mGrid), Fact(ndc**2),
-     &       FckInt(nFckInt,iSpin), dF_dRho(ndF_dRho,mGrid)
+      Real*8 Fact(ndc**2), FckInt(nFckInt,nD),
+     &       dF_dRho(ndF_dRho,mGrid)
       Integer list_s(2,nlist_s), list_bas(2,nlist_s)
 *                                                                      *
 ************************************************************************
@@ -50,13 +49,15 @@
 *     contributions to the SO integrals on the fly.
 *
       nGrid_Tot=0
+      mGrid=SIZE(TabAO,2)
+      mAO = SIZE(Grid_AO,1)
 *
       nBfn = Size(AOIntegrals,1)
       nFn  = Size(Grid_AO,1)
-      Call Do_NInt_d(ndF_dRho, dF_dRho,Weights,mGrid,
-     &               Grid_AO, TabAO,nBfn,nGrid_Tot,iSpin,mAO,nFn)
+      Call Do_NInt_d(ndF_dRho, dF_dRho,mGrid,
+     &               Grid_AO, TabAO,nBfn,nGrid_Tot,nD,mAO,nFn)
       Call Do_NIntX(AOIntegrals,mGrid,Grid_AO,TabAO,nBfn,
-     &              nGrid_Tot,iSpin,mAO,nFn)
+     &              nGrid_Tot,nD,mAO,nFn)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -92,7 +93,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Do iD = 1, iSpin
+      Do iD = 1, nD
          If (nIrrep.eq.1) Then
             Call AOAdd_Full(AOIntegrals(:,:,iD),nBfn,FckInt(:,iD),
      &                      nFckInt)
