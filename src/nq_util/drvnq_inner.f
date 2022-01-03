@@ -181,7 +181,6 @@ c        Call append_file(LuMT)
 *
 *-----Loop over subblocks
 *
-      Flop=Zero
       iSB = 0
 C     Do iSB = 1, number_of_subblocks
 *
@@ -261,7 +260,6 @@ C777     Continue
 C     End Do ! number_of_subblocks
  200  Continue ! Done!
       Call Free_Tsk(id)
-      Flop=Flop/DBLE(nFckInt)
 
 
 *                                                                      *

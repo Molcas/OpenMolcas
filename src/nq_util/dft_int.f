@@ -12,7 +12,7 @@
 *               Ajitha Devarajan                                       *
 ************************************************************************
       Subroutine DFT_Int(list_s,nlist_s,FckInt,nFckInt,dF_dRho,ndF_dRho,
-     &                   nD,Flop,Fact,ndc,list_bas)
+     &                   nD,Fact,ndc,list_bas)
 ************************************************************************
 *                                                                      *
 * Object: to compute contributions to                                  *
@@ -48,16 +48,14 @@
 *---- Evaluate the desired AO integrand here from the AOs, accumulate
 *     contributions to the SO integrals on the fly.
 *
-      nGrid_Tot=0
       mGrid=SIZE(TabAO,2)
       mAO = SIZE(Grid_AO,1)
 *
       nBfn = Size(AOIntegrals,1)
       nFn  = Size(Grid_AO,1)
       Call Do_NInt_d(ndF_dRho, dF_dRho,mGrid,
-     &               Grid_AO, TabAO,nBfn,nGrid_Tot,nD,mAO,nFn)
-      Call Do_NIntX(AOIntegrals,mGrid,Grid_AO,TabAO,nBfn,
-     &              nGrid_Tot,nD,mAO,nFn)
+     &               Grid_AO, TabAO,nBfn,nD,mAO,nFn)
+      Call Do_NIntX(AOIntegrals,mGrid,Grid_AO,TabAO,nBfn,nD,mAO,nFn)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -105,6 +103,4 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Flop=Flop+DBLE(nGrid_Tot)
-*
       End
