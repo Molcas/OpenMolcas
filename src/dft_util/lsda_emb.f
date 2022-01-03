@@ -25,8 +25,7 @@
 *---- Thomas-Fermi Kinetic energy functional
 *
       Coeff=One
-      Call TF_Ts(mGrid,nDmat,F_xc,
-     &                 dF_dRho,ndF_dRho,Coeff,T_X)
+      Call TF_Ts(mGrid,nDmat,F_xc,Coeff,T_X)
 
       If (KEonly) Return
 *

@@ -31,8 +31,7 @@
 *---- Vosko-Wilk-Nusair correlation functional III
 *
       Coeff=One*CoefR
-      Call VWN_III(mGrid,iSpin,F_xc,
-     &             dF_dRho,ndF_dRho,Coeff,T_X)
+      Call VWN_III(mGrid,iSpin,F_xc,Coeff,T_X)
 *
 *---- Dirac exchange
 *
@@ -45,7 +44,9 @@
 c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_Integer(nRho)
+         Call Unused_Integer(ndF_dRho)
          Call Unused_real_array(Rho)
+         Call Unused_real_array(dF_dRho)
          Call Unused_real_array(P2_ontop)
          Call Unused_real_array(dF_dP2ontop)
       End If

@@ -43,9 +43,7 @@
 *---- VWN-3 Correlation
 *
       Coeff=0.576727d0
-      Call VWN_III(mGrid,
-     &             iSpin,
-     &             F_xc,dF_dRho,ndF_dRho,Coeff,T_X)
+      Call VWN_III(mGrid,iSpin,F_xc,Coeff,T_X)
 
 *                                                                      *
 ************************************************************************
