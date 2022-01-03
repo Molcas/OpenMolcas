@@ -40,8 +40,7 @@
 *
 C      Coeff=1.079966d0
 C
-C      Call Diracx(mGrid,iSpin,F_xc,
-C     &            dF_dRho,ndF_dRho,Coeff,T_X)
+C      Call Diracx(mGrid,iSpin,F_xc,Coeff,T_X)
 *
 *---- S12g has its LDA part included!
 *

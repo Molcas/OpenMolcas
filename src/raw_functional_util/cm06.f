@@ -31,6 +31,7 @@
 *  YZ (10/07)                                                          *
 ************************************************************************
       use nq_Grid, only: Rho, Sigma, Tau
+      use nq_Grid, only: vRho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
@@ -97,7 +98,7 @@ C     Parameters for M06-2X Correlation
 
             F_xc(iGrid)=F_xc(iGrid)+(2.0D0*FA)
 *           dF/dRho
-            dF_dRho(ipR,iGrid)=dF_dRho(ipR,iGrid)+FPA
+            vRho(1,iGrid)=vRho(1,iGrid)+FPA
 *           dF/dGamma, no Gamma_ab term
             dF_dRho(ipGxx,iGrid)=dF_dRho(ipGxx,iGrid)+ FGA
 *           dF/dTau
@@ -123,7 +124,7 @@ C     Parameters for M06-2X Correlation
             dWdGA= dWdU*dUdGA
             EUEGPA = PotLC + P*dLdS*RSP + P*dLdZ*dZdA - EUPA
 *           dF/dRho
-            dF_dRho(ipR,iGrid)=dF_dRho(ipR,iGrid)+EUEGPA*W
+            vRho(1,iGrid)=vRho(1,iGrid)+EUEGPA*W
      &                                             +EUEG*dWdPA
 *           dF/dGamma
             dF_dRho(ipGxx,iGrid)=dF_dRho(ipGxx,iGrid)+EUEG*dWdGA
@@ -140,7 +141,7 @@ C     Parameters for M06-2X Correlation
 *
             F_xc(iGrid)=F_xc(iGrid)+FA
 *           dF/dRhoa
-            dF_dRho(ipRa,igrid)=dF_dRho(ipRa,igrid)+FPA
+            vRho(1,igrid)=vRho(1,igrid)+FPA
 *           dF/dGammaaa
             dF_dRho(ipGaa,igrid)=dF_dRho(ipGaa,iGrid)+ FGA
 *           dF/dTaua
@@ -156,7 +157,7 @@ C     Parameters for M06-2X Correlation
 
             F_xc(iGrid)=F_xc(iGrid)+FB
 *           dF/dRhob
-            dF_dRho(ipRb,igrid)=dF_dRho(ipRb,igrid)+FPB
+            vRho(2,igrid)=vRho(2,igrid)+FPB
 *           dF/dGammabb
             dF_dRho(ipGbb,igrid)=dF_dRho(ipGbb,iGrid)+ FGB
 *           dF/dTaub
@@ -190,9 +191,9 @@ C     Parameters for M06-2X Correlation
             EUEGPA = PotLC + P*dLdS*RSP + P*dLdZ*dZdA - EUPA
             EUEGPB = PotLC + P*dLdS*RSP + P*dLdZ*dZdB - EUPB
 *           dF/dRho
-            dF_dRho(ipRa,iGrid)=dF_dRho(ipRa,iGrid)+EUEGPA*W
+            vRho(1,iGrid)=vRho(1,iGrid)+EUEGPA*W
      &                                             +EUEG*dWdPA
-            dF_dRho(ipRb,iGrid)=dF_dRho(ipRb,iGrid)+EUEGPB*W
+            vRho(2,iGrid)=vRho(2,iGrid)+EUEGPB*W
      &                                             +EUEG*dWdPB
 *           dF/dGamma
             dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)+EUEG*dWdGA

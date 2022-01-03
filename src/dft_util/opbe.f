@@ -30,8 +30,7 @@
 *---- Dirac Exchange with the a1 OPTX factor!
 *
       Coeff= 1.051510d0*CoefX
-      Call Diracx(mGrid,iSpin,F_xc,
-     &            dF_dRho,ndF_dRho,Coeff,T_X)
+      Call Diracx(mGrid,iSpin,F_xc,Coeff,T_X)
 *
 *---- OPTX Exchange, the a2 coeff is here!
 *

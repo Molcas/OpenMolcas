@@ -38,9 +38,7 @@
 *                                                                      *
 *---- Dirac Exchange Functional                                        *
 *                                                                      *
-      Call Diracx(mGrid,
-     &            iSpin,F_xc,dF_dRho,
-     &            ndF_dRho,Coeff_A,T_X)
+      Call Diracx(mGrid,iSpin,F_xc,Coeff_A,T_X)
 *                                                                      *
 *---- OPTX Exchange Functional                                         *
 *                                                                      *

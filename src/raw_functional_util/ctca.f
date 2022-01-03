@@ -28,6 +28,7 @@
 *             Grigory Shamov, U of Manitoba (TCA) March 2010           *
 ************************************************************************
       use nq_Grid, only: Rho, Sigma
+      use nq_Grid, only: vRho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
@@ -80,7 +81,7 @@
          call ctca_(idord,rho_in,gamma_in,zeta_in,func0,func1,func2)
          F_xc(iGrid)=F_xc(iGrid)+Coeff*func0
 * dF_drhoa:
-         dF_dRho(ipR,iGrid)=dF_dRho(ipR,iGrid)+Coeff*func1(1)
+         vRho(1,iGrid)=vRho(1,iGrid)+Coeff*func1(1)
 * Maybe derivatives w.r.t. gamma_aa, gamma_ab, gamma_bb should be used instead.
          dF_dRho(ipGxx,iGrid)=dF_dRho(ipGxx,iGrid)+Coeff*func1(2)
          dF_dRho(ipGxy,iGrid)=dF_dRho(ipGxy,iGrid)+Coeff*2.0D0*func1(2)
@@ -98,9 +99,9 @@
          call ctca_(idord,rho_in,gamma_in,zeta_in,func0,func1,func2)
          F_xc(iGrid)=F_xc(iGrid)+Coeff*func0
 * dF_drhoa:
-         dF_dRho(ipRa,iGrid)=dF_dRho(ipRa,iGrid)+
+         vRho(1,iGrid)=vRho(1,iGrid)+
      &            Coeff*(func1(1)+(2.0D0*func1(3))*(rhob/rho_in**2))
-         dF_dRho(ipRb,iGrid)=dF_dRho(ipRb,iGrid)+
+         vRho(2,iGrid)=vRho(2,iGrid)+
      &            Coeff*(func1(1)-(2.0D0*func1(3))*(rhoa/rho_in**2))
 * Maybe derivatives w.r.t. gamma_aa, gamma_ab, gamma_bb should be used instead.
          dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)+Coeff*func1(2)

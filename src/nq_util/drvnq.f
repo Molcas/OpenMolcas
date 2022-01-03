@@ -27,6 +27,7 @@
       use Symmetry_Info, only: nIrrep
       use KSDFT_Info, only: KSDFA, F_xca, F_xcb, TmpB
       use nq_Grid, only: Rho, GradRho, Sigma, Tau, Lapl
+      use nq_Grid, only: vRho
       use nq_Grid, only: Grid, Weights
       use nq_Grid, only: nRho, nGradRho, nTau, nSigma, nLapl, nGridMax
       use nq_Grid, only: l_CASDFT, kAO
@@ -387,14 +388,19 @@
 ************************************************************************
 *                                                                      *
       Call mma_allocate(Rho,nRho,nGridMax,Label='Rho')
-      If (nSigma.ne.0) Call mma_Allocate(Sigma,nSigma,nGridMax,
-     &                                   Label='Sigma')
-      If (nGradRho.ne.0) Call mma_Allocate(GradRho,nGradRho,nGridMax,
-     &                                   Label='GradRho')
-      If (nTau.ne.0) Call mma_allocate(Tau,nTau,nGridMax,
-     &                                 Label='Tau')
-      If (nLapl.ne.0) Call mma_allocate(Lapl,nLapl,nGridMax,
-     &                                 Label='Lapl')
+*     Call mma_allocate(vRho,nRho,nGridMax,Label='vRho')
+      If (nSigma.ne.0) Then
+         Call mma_Allocate(Sigma,nSigma,nGridMax,Label='Sigma')
+      End If
+      If (nGradRho.ne.0) Then
+         Call mma_Allocate(GradRho,nGradRho,nGridMax,Label='GradRho')
+      End If
+      If (nTau.ne.0) Then
+         Call mma_allocate(Tau,nTau,nGridMax,Label='Tau')
+      End If
+      If (nLapl.ne.0) Then
+         Call mma_allocate(Lapl,nLapl,nGridMax,Label='Lapl')
+      End If
 
       Call mma_allocate(Exc,nGridMax,Label='Exc')
       If (l_casdft) Then
@@ -402,7 +408,7 @@
          Call mma_allocate(F_xcb,nGridMax,Label='F_xcb')
          Call mma_allocate(TmpB,nGridMax,Label='TmpB')
       End If
-      Call GetMem('dF_dRho','Allo','Real',ip_dFdRho,ndF_dRho*nGridMax)
+      Call mma_allocate(vRho,ndF_dRho,nGridMax,Label='vRho')
 *
       Call GetMem('list_s','Allo','Inte',iplist_s,2*nIrrep*nShell)
       Call GetMem('list_exp','Allo','Inte',iplist_exp,3*nIrrep*nShell)
@@ -558,7 +564,7 @@
      &            Work(ipP2mo),nP2,Work(ipD1mo),nd1mo,Work(ipp2_ontop),
      &            Do_Grad,Grad,nGrad,iWork(iplist_g),
      &            iWork(ipIndGrd),iWork(ipiTab),Work(ipTemp),mGrad,
-     &            Exc,Work(ip_dFdRho),work(ipdF_dP2ontop),
+     &            Exc,vRho,work(ipdF_dP2ontop),
      &            DFTFOCK,mAO,mdRho_dR)
 *                                                                      *
 ************************************************************************
@@ -576,7 +582,6 @@
       Call GetMem('list_p','Free','Inte',iplist_p,nNQ)
       Call GetMem('list_exp','Free','Inte',iplist_exp,3*nIrrep*nShell)
       Call GetMem('list_s','Free','Inte',iplist_s,2*nIrrep*nShell)
-      Call GetMem('dF_dRho','Free','Real',ip_dFdRho,ndF_dRho*nGridMax)
 *Do_TwoEl
       If(ipP2mo.ne.ip_Dummy) Call Free_Work(ipP2mo)
       If(ipD1MO.ne.ip_Dummy) Call Free_Work(ipD1MO)
@@ -598,6 +603,7 @@
       If (Allocated(Tau)) Call mma_deallocate(Tau)
       If (Allocated(GradRho)) Call mma_deallocate(GradRho)
       If (Allocated(Sigma)) Call mma_deallocate(Sigma)
+      Call mma_deallocate(vRho)
       Call mma_deallocate(Rho)
 
       Call mma_deallocate(Weights)

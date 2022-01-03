@@ -23,6 +23,7 @@
 *              University of LUnd, SWEDEN                              *
 ************************************************************************
       use nq_Grid, only: Rho, GradRho, Sigma, Lapl
+      use nq_Grid, only: vRho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
       Real*8 dF_dRho(ndF_dRho,mGrid),
@@ -117,7 +118,7 @@
       Functional= T2_term   +   T3_term
       F_xc(iGrid)=F_xc(iGrid)+Coeff*Functional
 *
-      dF_dRho(ipR,iGrid)= dT2_dRho + dT3_dRho
+      vRho(1,iGrid)= dT2_dRho + dT3_dRho
       dF_dP2ontop(1,iGrid)=dT3_dP2
       dF_dP2ontop(2,iGrid)=0.0D0
       dF_dP2ontop(3,iGrid)=0.0D0

@@ -67,8 +67,7 @@
 *---- Dirac Exchange
 *
       Coeff=Zero
-      Call Diracx_ofe(mGrid,iSpin,F_xc,
-     &                dF_dRho,ndF_dRho,Coeff,T_X)
+      Call Diracx_ofe(mGrid,iSpin,F_xc,Coeff,T_X)
 *                                                                      *
 *---- Becke 88 Exchange
 *

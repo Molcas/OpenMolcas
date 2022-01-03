@@ -41,9 +41,7 @@ C MP2 correlation energy to be scaled to 1 - Coeff_C = 0.25
 *                                                                      *
 *---- Dirac Exchange Functional     * 0.5 OPTX                         *
 *                                                                      *
-      Call Diracx(mGrid,
-     &            iSpin,F_xc,dF_dRho,
-     &            ndF_dRho,Coeff_A,T_X)
+      Call Diracx(mGrid,iSpin,F_xc,Coeff_A,T_X)
 *                                                                      *
 *---- OPTX Exchange Functional * 0.5  OPTX                             *
 *                                                                      *

@@ -32,8 +32,7 @@
 *---- Dirac Exchange
 *
       Coeff=One
-      Call Diracx(mGrid,iSpin,F_xc,
-     &            dF_dRho,ndF_dRho,Coeff,T_X)
+      Call Diracx(mGrid,iSpin,F_xc,Coeff,T_X)
 *
 *---- Becke 88 Exchange
 *
@@ -44,8 +43,7 @@
 *---- Wigner Correlation
 *
       Coeff=One
-      Call CWIG(mGrid,dF_dRho,ndF_dRho,
-     &         Coeff,iSpin,F_xc,T_X)
+      Call CWIG(mGrid,Coeff,iSpin,F_xc,T_X)
 *                                                                      *
 ************************************************************************
 *                                                                      *

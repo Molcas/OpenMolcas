@@ -11,8 +11,7 @@
 * Copyright (C) 2006, Per Ake Malmqvist                                *
 *               2010, Grigory A. Shamov                                *
 ************************************************************************
-      Subroutine CWIG(mGrid,dF_dRho,ndF_dRho,
-     &                   Coeff,iSpin,F_xc,T_X)
+      Subroutine CWIG(mGrid,Coeff,iSpin,F_xc,T_X)
 ************************************************************************
 *                                                                      *
 * Object: To compute the Powerful Wigner correlation functional        *
@@ -27,10 +26,11 @@
 *             University of Lund, SWEDEN. June 2006                    *
 ************************************************************************
       use nq_Grid, only: Rho
+      use nq_Grid, only: vRho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-      Real*8 dF_dRho(ndF_dRho,mGrid), F_xc(mGrid)
+      Real*8 F_xc(mGrid)
 
 * IDORD=Order of derivatives to request from XPBE:
       idord=1
@@ -47,7 +47,7 @@
          call cWIG_(idord,rhoa,rhoa,F,dFdrhoa,dFdrhob,
      &          d2Fdra2,d2Fdrb2,d2Fdrab)
          F_xc(iGrid)=F_xc(iGrid)+Coeff*(F)
-         dF_dRho(ipR,iGrid)=dF_dRho(ipR,iGrid)+Coeff*dFdrhoa
+         vRho(1,iGrid)=vRho(1,iGrid)+Coeff*dFdrhoa
 C     F is ok, but dFdrho comes in two pieces ? nope
 * Note: For xpbe, dFdgammaab is zero.
  110     continue
@@ -63,8 +63,8 @@ C     F is ok, but dFdrho comes in two pieces ? nope
      &          d2Fdra2,d2Fdrb2,d2Fdrab)
 
          F_xc(iGrid)=F_xc(iGrid)+Coeff*(F)
-         dF_dRho(ipRa,iGrid)=dF_dRho(ipRa,iGrid)+Coeff*dFdrhoa
-         dF_dRho(ipRb,iGrid)=dF_dRho(ipRb,iGrid)+Coeff*dFdrhob
+         vRho(1,iGrid)=vRho(1,iGrid)+Coeff*dFdrhoa
+         vRho(2,iGrid)=vRho(2,iGrid)+Coeff*dFdrhob
 
  210     continue
         end do

@@ -33,6 +33,7 @@
 *  YZ (10/07)                                                          *
 ************************************************************************
       use nq_Grid, only: Rho, Sigma, Tau
+      use nq_Grid, only: vRho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
@@ -119,7 +120,7 @@ C     Parameters for M06-2X
 
             F_xc(iGrid)=F_xc(iGrid)+(2.0D0*FA)
 *           dF/dRho
-            dF_dRho(ipR,iGrid)=dF_dRho(ipR,iGrid)+FPA
+            vRho(1,iGrid)=vRho(1,iGrid)+FPA
 *           dF/dGamma, no Gamma_ab term
             dF_dRho(ipGxx,iGrid)=dF_dRho(ipGxx,iGrid)+ FGA
 *           dF/dTau
@@ -149,7 +150,7 @@ C     Parameters for M06-2X
                EUEGPA = PotLC + P*dLdS*RSP + P*dLdZ*dZdA - EUPA
                EUEGPB = PotLC + P*dLdS*RSP - P*dLdZ*dZdA - EUPA
 *              dF/dRho
-               dF_dRho(ipR,iGrid)=dF_dRho(ipR,iGrid)
+               vRho(1,iGrid)=vRho(1,iGrid)
      &                           +(EUEGPA*gcab+EUEG*dgdPA)
 *              dF/dGamma
                dF_dRho(ipGxx,iGrid)=dF_dRho(ipGxx,iGrid)+EUEG*dgdGA
@@ -171,7 +172,7 @@ C     Parameters for M06-2X
 
             F_xc(iGrid)=F_xc(iGrid)+FA
 *           dF/dRhoa
-            dF_dRho(ipRa,iGrid)=dF_dRho(ipRa,iGrid)+FPA
+            vRho(1,iGrid)=vRho(1,iGrid)+FPA
 *           dF/dGammma_aa
             dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)+ FGA
 *           dF/dTaua
@@ -187,7 +188,7 @@ C     Parameters for M06-2X
 
             F_xc(iGrid)=F_xc(iGrid)+FB
 *           dF/dRhob
-            dF_dRho(ipRb,iGrid)=dF_dRho(ipRb,iGrid)+FPB
+            vRho(2,iGrid)=vRho(2,iGrid)+FPB
 *           dF/dGammma_bb
             dF_dRho(ipGbb,iGrid)=dF_dRho(ipGbb,iGrid)+ FGB
 *           dF/dTaub
@@ -221,9 +222,9 @@ C     Parameters for M06-2X
                EUEGPA = PotLC + P*dLdS*RSP + P*dLdZ*dZdA - EUPA
                EUEGPB = PotLC + P*dLdS*RSP + P*dLdZ*dZdB - EUPB
 *              dF/dRho
-               dF_dRho(ipRa,iGrid)=dF_dRho(ipRa,iGrid)
+               vRho(1,iGrid)=vRho(1,iGrid)
      &                            +(EUEGPA*gcab+EUEG*dgdPA)
-               dF_dRho(ipRb,iGrid)=dF_dRho(ipRb,iGrid)
+               vRho(2,iGrid)=vRho(2,iGrid)
      &                            +(EUEGPB*gcab+EUEG*dgdPB)
 *              dF/dGamma
                dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)+EUEG*dgdGA
