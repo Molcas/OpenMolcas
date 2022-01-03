@@ -341,8 +341,6 @@ C              End If
          iSkal    =list_s(1,ilist_s)
          NrBas_Eff=list_bas(1,ilist_s)
          iCmp  = iSD( 2,iSkal)
-         iBas  = iSD( 3,iSkal)
-*        nBfn=nBfn+iBas*iCmp
          nBfn=nBfn+NrBas_Eff*iCmp
       End Do
 *
