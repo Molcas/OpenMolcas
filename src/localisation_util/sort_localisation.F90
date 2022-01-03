@@ -16,21 +16,23 @@ subroutine Sort_Localisation(CMO,nBas,nOcc,nFro,nSym)
 !
 ! Purpose: sort CMOs according to Cholesky orbital ordering.
 
-implicit real*8(a-h,o-z)
-real*8 CMO(*)
-integer nBas(nSym), nOcc(nSym), nFro(nSym)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nSym, nBas(nSym), nOcc(nSym), nFro(nSym)
+real(kind=wp) :: CMO(*)
 #include "WrkSpc.fh"
-
-character*17 SecNam
-parameter(SecNam='Sort_Localisation')
-
-character*8 Label
-character*80 Txt
+integer(kind=iwp) :: iComp, iOpt, ipDen, ipOaux, ipOvlp, ipScr, ipU, ipX, irc, iSyLbl, iSym, k1, kC, kS, kSqr, kTri, kX, lDen, &
+                     lOAux, lOvlp, lScr, lU, lX
+real(kind=wp) :: ThrCho, xNrm
+character(len=80) :: Txt
+character(len=8) :: Label
+character(len=*), parameter :: SecNam = 'Sort_Localisation'
 
 ! Static setting of decomposition threshold.
 ! ------------------------------------------
 
-ThrCho = 1.0d-12
+ThrCho = 1.0e-12_wp
 
 ! Get a copy of the occupied orbitals: X=CMO.
 ! -------------------------------------------
@@ -69,8 +71,8 @@ iSyLbl = 1
 Label = 'Mltpl  0'
 call RdOne(irc,iOpt,Label,iComp,Work(ipOaux),iSyLbl)
 if (irc /= 0) then
-  write(6,*) SecNam,': RdOne returned ',irc
-  write(6,*) 'Label = ',Label,'  iSyLbl = ',iSyLbl
+  write(u6,*) SecNam,': RdOne returned ',irc
+  write(u6,*) 'Label = ',Label,'  iSyLbl = ',iSyLbl
   call SysAbendMsg(SecNam,'I/O error in RdOne',' ')
 end if
 
@@ -115,9 +117,9 @@ do iSym=1,nSym
   irc = -1
   call ChoLoc(irc,Work(ipDen),Work(kX),ThrCho,xNrm,nBas(iSym),nOcc(iSym))
   if (irc /= 0) then
-    write(6,*) SecNam,': ChoLoc returned ',irc
-    write(6,*) 'Symmetry block: ',iSym
-    write(6,*) 'Unable to continue...'
+    write(u6,*) SecNam,': ChoLoc returned ',irc
+    write(u6,*) 'Symmetry block: ',iSym
+    write(u6,*) 'Unable to continue...'
     write(Txt,'(A,I6)') 'ChoLoc return code:',irc
     call SysAbendMsg(SecNam,'Density Cholesky decomposition failed!',Txt)
   end if

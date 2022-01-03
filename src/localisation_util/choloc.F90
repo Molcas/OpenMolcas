@@ -19,7 +19,7 @@
 !> @details
 !> Localize orbitals by Cholesky decomposition of the density
 !> matrix. The threshold should be set such that the
-!> decomposition is essentially exact (e.g. ``1.0d-12``). If not, you
+!> decomposition is essentially exact (e.g. ``1.0e-12_wp``). If not, you
 !> might risk that the localization fails (non-zero return code),
 !> since the number of Cholesky vectors will be less than the
 !> number of occupied (\p nOcc) molecular orbitals. On sucessful
@@ -39,27 +39,26 @@
 
 subroutine ChoLoc(irc,Dens,CMO,Thrs,xNrm,nBas,nOcc)
 
+use Definitions, only: wp, iwp, u6, r8
+
 implicit none
-integer irc, nBas, nOcc
-real*8 Thrs, xNrm
-real*8 Dens(nBas,nBas), CMO(nBas,nOcc)
-character*6 SecNam
-parameter(SecNam='ChoLoc')
-integer nVec
-real*8 ddot_
-external ddot_
+integer(kind=iwp) :: irc, nBas, nOcc
+real(kind=wp) :: Dens(nBas,nBas), CMO(nBas,nOcc), Thrs, xNrm
+integer(kind=iwp) :: nVec
+character(len=*), parameter :: SecNam = 'ChoLoc'
+real(kind=r8), external :: ddot_
 
 irc = 0
-xNrm = -9.9d9
+xNrm = -huge(xNrm)
 
 nVec = 0
 call CD_InCore(Dens,nBas,CMO,nOcc,nVec,Thrs,irc)
 if (irc /= 0) then
-  write(6,*) SecNam,': CD_InCore returned ',irc
+  write(u6,*) SecNam,': CD_InCore returned ',irc
   return
 else if (nVec /= nOcc) then
-  write(6,*) SecNam,': nVec /= nOcc'
-  write(6,*) '   nVec,nOcc = ',nVec,nOcc
+  write(u6,*) SecNam,': nVec /= nOcc'
+  write(u6,*) '   nVec,nOcc = ',nVec,nOcc
   irc = 1
   return
 end if

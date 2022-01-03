@@ -13,35 +13,34 @@
 !               Francesco Aquilante                                    *
 !***********************************************************************
 
-subroutine BasFun_Atom_(nBas_per_Atom,nBas_Start,Name,jBas,nBas,nAtoms,DoPrint)
+subroutine BasFun_Atom_(nBas_per_Atom,nBas_Start,BName,jBas,nBas,nAtoms,DoPrint)
 ! Author: Y. Carissan / T. B. Pedersen
 !         [adapted to cases with symmetry by F. Aquilante]
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp, u6
+
+implicit none
 #include "Molcas.fh"
-integer jBas, nBas, nAtoms
-integer nBas_per_Atom(nAtoms), nBas_Start(nAtoms)
-character*(LENIN8) Name(nBas)
-character*(LENIN) AtName(nAtoms)
-logical DoPrint
-character*12 SecNam
-parameter(SecNam='BasFun_Atom_')
-integer iAt, kBas, iCount
-character*(LENIN) Lbl
-character*80 Txt, Formt
+integer(kind=iwp) :: nAtoms, nBas_per_Atom(nAtoms), nBas_Start(nAtoms), jBas, nBas
+character(len=LenIn8) :: BName(nBas)
+logical(kind=iwp) :: DoPrint
+integer(kind=iwp) :: iAt, iCount, jCount, kBas
+character(len=LenIn) :: AtName(nAtoms), Lbl !IFG
+character(len=80) :: Txt, Formt
+character(len=*), parameter :: SecNam = 'BasFun_Atom_'
 
 ! Counters.
 ! ---------
 
 ! IFG: To count basis functions per atom, we need a list of atom names,
 !      since there is no guarantee all atoms will be present in a give irrep
-call Get_cArray('Unique Atom Names',AtName,(LENIN)*nAtoms)
+call Get_cArray('Unique Atom Names',AtName,(LenIn)*nAtoms)
 
 kBas = jBas
 do iAt=1,nAtoms
   nBas_per_Atom(iAt) = 0
   Lbl = AtName(iAt)
-  do while ((Name(kBas)(1:LENIN) == Lbl) .and. (kBas <= nBas))
+  do while ((BName(kBas)(1:LenIn) == Lbl) .and. (kBas <= nBas))
     nBas_per_Atom(iAt) = nBas_per_Atom(iAt)+1
     kBas = kBas+1
   end do
@@ -66,7 +65,7 @@ end if
 
 if (DoPrint) then
   write(Formt,'(3(a6,i3,a5))') '(/,a6,',nAtoms,'i5,/,','   a6,',nAtoms,'i5,/,','   a6,',nAtoms,'i5)'
-  write(6,Formt) 'Atom  ',(iAt,iAt=1,nAtoms),'Start ',(nBas_Start(iAt),iAt=1,nAtoms),'nBas  ',(nBas_per_Atom(iAt),iAt=1,nAtoms)
+  write(u6,Formt) 'Atom  ',(iAt,iAt=1,nAtoms),'Start ',(nBas_Start(iAt),iAt=1,nAtoms),'nBas  ',(nBas_per_Atom(iAt),iAt=1,nAtoms)
 end if
 
 end subroutine BasFun_Atom_

@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
+
 subroutine EdmistonRuedenberg_Iter(Functional,CMO,Thrs,ThrRot,ThrGrad,nBasis,nOrb2Loc,nMxIter,Maximisation,Converged,Debug,Silent)
 ! Thomas Bondo Pedersen, November 2005.
 !
@@ -25,27 +26,30 @@ subroutine EdmistonRuedenberg_Iter(Functional,CMO,Thrs,ThrRot,ThrGrad,nBasis,nOr
 ! Note that two-electron integrals (Cholesky decomposed) must be
 ! available and appropriately set up when calling this routine.
 
-implicit real*8(a-h,o-z)
-real*8 CMO(nBasis,nOrb2Loc)
-logical Maximisation, Converged, Debug, Silent
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nBasis, nOrb2Loc, nMxIter
+real(kind=wp) :: Functional, CMO(nBasis,nOrb2Loc), Thrs, ThrRot, ThrGrad
+logical(kind=iwp) :: Maximisation, Converged, Debug, Silent
 #include "WrkSpc.fh"
-
-character*23 SecNam
-parameter(SecNam='EdmistonRuedenberg_Iter')
-
-logical Timing
+integer(kind=iwp) :: ipRmat, lRmat, nIter
+real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, TimC, TimW, W1, W2
+logical(kind=iwp) :: Timing
+character(len=*), parameter :: SecNam = 'EdmistonRuedenberg_Iter'
 
 if (Debug) then
-  write(6,*) SecNam,'[debug]: Maximisation: ',Maximisation
-  write(6,*) SecNam,'[debug]: ThrRot      : ',ThrRot
+  write(u6,*) SecNam,'[debug]: Maximisation: ',Maximisation
+  write(u6,*) SecNam,'[debug]: ThrRot      : ',ThrRot
 end if
 
 ! Print iteration table header.
 ! -----------------------------
 
 if (.not. Silent) then
-  write(6,'(//,1X,A,/,1X,A)') '                                                        CPU       Wall', &
-                              'nIter      Functional ER        Delta     Gradient     (sec)     (sec)'
+  write(u6,'(//,1X,A,/,1X,A)') '                                                        CPU       Wall', &
+                               'nIter      Functional ER        Delta     Gradient     (sec)     (sec)'
 end if
 
 ! Initialization.
@@ -62,7 +66,7 @@ call GetMem('Rmat','Allo','Real',ipRmat,lRmat)
 
 if (.not. Silent) call CWTime(C1,W1)
 nIter = 0
-Functional = 0.0d0
+Functional = Zero
 call GetGrad_ER(Functional,GradNorm,Work(ipRmat),CMO,nBasis,nOrb2Loc,Timing)
 OldFunctional = Functional
 FirstFunctional = Functional
@@ -71,7 +75,7 @@ if (.not. Silent) then
   call CWTime(C2,W2)
   TimC = C2-C1
   TimW = W2-W1
-  write(6,'(1X,I5,1X,F18.8,2(1X,D12.4),2(1X,F9.1))') nIter,Functional,Delta,GradNorm,TimC,TimW
+  write(u6,'(1X,I5,1X,F18.8,2(1X,D12.4),2(1X,F9.1))') nIter,Functional,Delta,GradNorm,TimC,TimW
 end if
 
 ! Iterations.
@@ -88,7 +92,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     call CWTime(C2,W2)
     TimC = C2-C1
     TimW = W2-W1
-    write(6,'(1X,I5,1X,F18.8,2(1X,D12.4),2(1X,F9.1))') nIter,Functional,Delta,GradNorm,TimC,TimW
+    write(u6,'(1X,I5,1X,F18.8,2(1X,D12.4),2(1X,F9.1))') nIter,Functional,Delta,GradNorm,TimC,TimW
   end if
   Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
 end do
@@ -98,13 +102,13 @@ end do
 
 if (.not. Silent) then
   if (.not. Converged) then
-    write(6,'(/,A,I4,A)') 'No convergence after',nIter,' iterations.'
+    write(u6,'(/,A,I4,A)') 'No convergence after',nIter,' iterations.'
   else
-    write(6,'(/,A,I4,A)') 'Convergence after',nIter,' iterations.'
-    write(6,*)
-    write(6,'(A,I8)') 'Number of localised orbitals  : ',nOrb2loc
-    write(6,'(A,F12.8)') 'Value of P before localisation: ',FirstFunctional
-    write(6,'(A,F12.8)') 'Value of P after localisation : ',Functional
+    write(u6,'(/,A,I4,A)') 'Convergence after',nIter,' iterations.'
+    write(u6,*)
+    write(u6,'(A,I8)') 'Number of localised orbitals  : ',nOrb2loc
+    write(u6,'(A,F12.8)') 'Value of P before localisation: ',FirstFunctional
+    write(u6,'(A,F12.8)') 'Value of P after localisation : ',Functional
   end if
 end if
 

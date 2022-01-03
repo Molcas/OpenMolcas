@@ -9,22 +9,24 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Get_Orb_Select(irc,CMO,XMO,Eorb,Smat,Saa,Name,NamAct,nSym,nActa,mOrb,nBas,ortho,ThrSel,n_OK)
+subroutine Get_Orb_Select(irc,CMO,XMO,Eorb,Smat,Saa,BName,NamAct,nSym,nActa,mOrb,nBas,ortho,ThrSel,n_OK)
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, r8
+
+implicit none
 #include "Molcas.fh"
-real*8 CMO(*), XMO(*), Eorb(*), Smat(*), Saa(*), ThrSel
-integer irc, nSym, nActa, mOrb(nSym), nBas(nSym), n_OK(nSym)
-character*(LENIN8) Name(*)
-character*(LENIN) NamAct(nActa)
-logical ortho
+integer(kind=iwp) :: irc, nSym, nActa, mOrb(nSym), nBas(nSym), n_OK(nSym)
+real(kind=wp) :: CMO(*), XMO(*), Eorb(*), Smat(*), Saa(*), ThrSel
+character(len=LenIn8) :: BName(*)
+character(len=LenIn) :: NamAct(nActa)
+logical(kind=iwp) :: ortho
 #include "WrkSpc.fh"
-character*(LENIN) tmp
-!***********************************************************************
-! Statement functions
-jD(i) = iWork(ip_iD-1+i)
-kD(i) = iWork(ip_iD+nBmx-1+i)
-lD(i) = iWork(ip_iD+nBmx+nOrbmx-1+i)
+integer(kind=iwp) :: i, ia, ifr, iOff, ip_C, ip_CC, ip_Fock, ip_iD, ip_U, ip_X, ipScr, iQ, iS, iSQ, iSym, ito, iZ, j, ja, jb, jC, &
+                     jfr, jOff, jp_Fock, jQ, jto, jX, jZ, k, km, kOff, l, lOff, lScr, mOx, n_KO, nBa, nBax, nBmx, nBx, nORbmx, nOx
+real(kind=wp) :: ThrS
+character(len=LenIn) :: tmp
+real(kind=r8), external :: ddot_
 
 irc = 0
 
@@ -57,7 +59,7 @@ do iSym=1,nSym
   nBa = 0
   do ia=1,nBas(iSym)
     ja = ia+iOff
-    tmp = Name(ja)(1:LENIN)
+    tmp = BName(ja)(1:LenIn)
     do j=1,nActa
       if (NamAct(j) == tmp) then
         iWork(ip_iD+nBa) = ia
@@ -66,20 +68,20 @@ do iSym=1,nSym
     end do
   end do
   do ia=1,nBa
-    ifr = jOff+jD(ia)
+    ifr = jOff+iWork(ip_iD-1+ia)
     ito = ip_C+ia-1
     call dcopy_(mOrb(iSym),Xmo(ifr),nBas(iSym),Work(ito),nBa)
   end do
   iS = kOff+1
   do ia=1,nBa
-    jb = jD(ia)
+    jb = iWork(ip_iD-1+ia)
     jfr = iS+nBas(iSym)*(jb-1)
     jto = iSQ+nBas(iSym)*(ia-1)
     call dcopy_(nbas(iSym),Smat(jfr),1,Work(jto),1)
   end do
   nBx = max(1,nBas(iSym))
   nBax = max(1,nBa)
-  call DGEMM_('T','N',nBa,mOrb(iSym),nBas(iSym),1.0d0,Work(iSQ),nBx,Xmo(jOff+1),nBx,0.0d0,Work(iZ),nBax)
+  call DGEMM_('T','N',nBa,mOrb(iSym),nBas(iSym),One,Work(iSQ),nBx,Xmo(jOff+1),nBx,Zero,Work(iZ),nBax)
   do i=0,mOrb(iSym)-1
     jQ = iQ+i
     jC = ip_C+nBa*i
@@ -113,14 +115,14 @@ do iSym=1,nSym
     call Ortho_orb(Work(iZ),Smat(iS),nBas(iSym),n_KO,2,.false.)
   end if
 
-  call DGEMM_('T','N',mOrb(iSym),nBas(iSym),nBas(iSym),1.0d0,Cmo(jOff+1),nBx,Smat(iS),nBx,0.0d0,Work(ip_CC),mOx)
+  call DGEMM_('T','N',mOrb(iSym),nBas(iSym),nBas(iSym),One,Cmo(jOff+1),nBx,Smat(iS),nBx,Zero,Work(ip_CC),mOx)
 
   if (n_KO > 0) then
-    call DGEMM_('N','N',mOrb(iSym),n_KO,nBas(iSym),1.0d0,Work(ip_CC),mOx,Work(iZ),nBx,0.0d0,Work(ip_U),mOx)
+    call DGEMM_('N','N',mOrb(iSym),n_KO,nBas(iSym),One,Work(ip_CC),mOx,Work(iZ),nBx,Zero,Work(ip_U),mOx)
 
     call Get_Can_Lorb(Eorb(lOff+1),Work(ip_Fock),n_KO,mOrb(iSym),iWork(ip_iD+nBmx+nOrbmx),Work(ip_U),iSym)
 
-    call DGEMM_('N','N',nBas(iSym),n_KO,n_KO,1.0d0,Work(iZ),nBx,Work(ip_U),n_KO,0.0d0,Work(ipScr),nBx)
+    call DGEMM_('N','N',nBas(iSym),n_KO,n_KO,One,Work(iZ),nBx,Work(ip_U),n_KO,Zero,Work(ipScr),nBx)
 
     ! Reorder the final MOs such that those of the active site come first
     km = jOff+nBas(iSym)*n_OK(iSym)+1
@@ -128,15 +130,15 @@ do iSym=1,nSym
     call dcopy_(nOrbmx,Work(ip_Fock),1,Work(jp_Fock),1)
   end if
 
-  call DGEMM_('N','N',mOrb(iSym),n_OK(iSym),nBas(iSym),1.0d0,Work(ip_CC),mOx,Work(ip_X),nBx,0.0d0,Work(ip_U),mOx)
+  call DGEMM_('N','N',mOrb(iSym),n_OK(iSym),nBas(iSym),One,Work(ip_CC),mOx,Work(ip_X),nBx,Zero,Work(ip_U),mOx)
 
   call Get_Can_Lorb(Eorb(lOff+1),Work(ip_Fock),n_OK(iSym),mOrb(iSym),iWork(ip_iD+nBmx),Work(ip_U),iSym)
 
   nOx = max(1,n_OK(iSym))
-  call DGEMM_('N','N',nBas(iSym),n_OK(iSym),n_OK(iSym),1.0d0,Work(ip_X),nBx,Work(ip_U),nOx,0.0d0,Work(ipScr),nBx)
+  call DGEMM_('N','N',nBas(iSym),n_OK(iSym),n_OK(iSym),One,Work(ip_X),nBx,Work(ip_U),nOx,Zero,Work(ipScr),nBx)
 
   do i=1,n_OK(iSym)
-    j = kD(i)
+    j = iWork(ip_iD+nBmx-1+i)
     k = lOff+i
     l = ip_Fock+j-1
     Eorb(k) = Work(l)
@@ -145,7 +147,7 @@ do iSym=1,nSym
   call dcopy_(nBas(iSym)*n_OK(iSym),Work(ipScr),1,Cmo(km),1)
 
   do i=1,n_KO
-    j = lD(i)
+    j = iWork(ip_iD+nBmx+nOrbmx-1+i)
     k = lOff+n_OK(iSym)+i
     l = jp_Fock+j-1
     Eorb(k) = Work(l)

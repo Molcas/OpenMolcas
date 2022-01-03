@@ -11,11 +11,15 @@
 
 subroutine Cho_ov_Loc(irc,Thrs,nSym,nBas,nFro,nIsh,nAsh,nSsh,CMO,SMAT,iD_vir)
 
-implicit real*8(a-h,o-z)
-integer nSym, nBas(nSym), nFro(nSym), nAsh(nSym)
-integer nIsh(nSym), nSsh(nSym), iD_vir(*)
-real*8 Thrs, CMO(*), SMAT(*)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: irc, nSym, nBas(nSym), nFro(nSym), nIsh(nSym), nAsh(nSym), nSsh(nSym), iD_vir(*)
+real(kind=wp) :: Thrs, CMO(*), SMAT(*)
 #include "WrkSpc.fh"
+integer(kind=iwp) :: i, ii, ip_Dens, ipD2, iSym, jD, kOff1, kOff2, kOffC, l_Dens, nOcc
+real(kind=wp) :: yNrm
 
 irc = 0
 l_Dens = 0
@@ -44,19 +48,19 @@ do iSym=1,nSym
     nOcc = nFro(iSym)+nIsh(iSym)+nAsh(iSym)
     call GetDens_Localisation(Work(ip_Dens),CMO(kOff1),nBas(iSym),nOcc)
     if (nOcc+nSsh(iSym) < nBas(iSym)) then  ! nDel > 0
-      write(6,*) ' ******************************************'
-      write(6,*) ' Cho_ov_Loc found Deleted orbitals in your '
-      write(6,*) ' original MOs. She cannot properly handle  '
-      write(6,*) ' this situation. The program may crash !! '
-      write(6,*) ' ******************************************'
+      write(u6,*) ' ******************************************'
+      write(u6,*) ' Cho_ov_Loc found Deleted orbitals in your '
+      write(u6,*) ' original MOs. She cannot properly handle  '
+      write(u6,*) ' this situation. The program may crash !! '
+      write(u6,*) ' ******************************************'
     end if
     ! compute -DS
-    call DGEMM_('N','N',nBas(iSym),nBas(iSym),nBas(iSym),-1.0d0,Work(ip_Dens),nBas(iSym),SMAT(kOff1),nBas(iSym),0.0d0,Work(ipD2), &
+    call DGEMM_('N','N',nBas(iSym),nBas(iSym),nBas(iSym),-One,Work(ip_Dens),nBas(iSym),SMAT(kOff1),nBas(iSym),Zero,Work(ipD2), &
                 nBas(iSym))
     ! compute 1-DS = 1 + (-DS)
     do i=0,nBas(iSym)-1
       ii = ipD2+nBas(iSym)*i+i
-      Work(ii) = 1.0d0+Work(ii)
+      Work(ii) = One+Work(ii)
     end do
     ! compute (1-DS)*(1-DS)'
     call GetDens_Localisation(Work(ip_Dens),Work(ipD2),nBas(iSym),nBas(iSym))

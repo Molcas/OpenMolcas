@@ -12,25 +12,26 @@
 !               2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine GenerateP(Ovlp,cMO,Name,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug)
+subroutine GenerateP(Ovlp,cMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug)
 ! Author: Yannick Carissan.
 !
 ! Modifications:
 !    - October 6, 2005 (Thomas Bondo Pedersen):
 !      Reduce operation count and use BLAS.
 
-implicit real*8(a-h,o-z)
-#include "stdalloc.fh"
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
+
+implicit none
 #include "Molcas.fh"
-real*8, allocatable :: SBar(:,:)
-integer nBas_per_Atom(*), nBas_Start(*)
-real*8 cMO(nBasis,*), Ovlp(nBasis,nBasis)
-real*8 PA(nOrb2Loc,nOrb2Loc,nAtoms)
-logical Debug
-character*(LENIN8) Name(*)
+integer(kind=iwp) :: nBasis, nOrb2Loc, nAtoms, nBas_per_Atom(*), nBas_Start(*)
+real(kind=wp) :: Ovlp(nBasis,nBasis), cMO(nBasis,*), PA(nOrb2Loc,nOrb2Loc,nAtoms)
+character(len=LenIn8) :: BName(*)
+logical(kind=iwp) :: Debug
+real(kind=wp), allocatable :: SBar(:,:)
 
 call mma_Allocate(SBar,nBasis,nOrb2Loc,Label='SBar')
-call GenerateP_1(Ovlp,cMO,Sbar,Name,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug)
+call GenerateP_1(Ovlp,cMO,Sbar,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug)
 call mma_deallocate(SBar)
 
 end subroutine GenerateP

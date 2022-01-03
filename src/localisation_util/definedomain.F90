@@ -23,7 +23,7 @@
 !> second threshold \p ThrDomain(2) is then used to check
 !> completeness (Pulay-style) of the definition and if needed,
 !> more atoms are added to the domain. To avoid the second step
-!> (i.e. the completeness check), simply put \p ThrDomain(2) > ``1.0d0`` in
+!> (i.e. the completeness check), simply put \p ThrDomain(2) > ``1.0`` in
 !> which case array \p f is undefined on exit.
 !>
 !> On exit, the contents of iDomain array are:
@@ -56,19 +56,23 @@
 
 subroutine DefineDomain(irc,iDomain,QD,f,C,ThrDomain,nBas_per_Atom,nBas_Start,nAtom,nBas,nOcc)
 
-implicit real*8(a-h,o-z)
-integer iDomain(0:nAtom,nOcc)
-integer nBas_per_Atom(nAtom), nBas_Start(nAtom)
-real*8 QD(nOcc), f(nOcc), C(nBas,nOcc), ThrDomain(2)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6, r8
+
+implicit none
+integer(kind=iwp) :: irc, nAtom, nOcc, iDomain(0:nAtom,nOcc), nBas_per_Atom(nAtom), nBas_Start(nAtom), nBas
+real(kind=wp) :: QD(nOcc), f(nOcc), C(nBas,nOcc), ThrDomain(2)
 #include "WrkSpc.fh"
-external ddot_
-integer nB(1)
-logical LocDbg
+integer(kind=iwp) :: i, iAt, iAtom, iCount, iOff, iOff0, ip_absQ, ip_iPivot, ip_Q, ip_S, ip_T, jOff, jOff0, kOff, kOff0, kOffT, &
+                     l_absQ, l_iPivot, l_Q, l_S, l_T, nB(1), nErr, nSrt
+real(kind=wp) :: Charge, Chrg, Diff
 #if defined (_DEBUGPRINT_)
-parameter(LocDbg=.true.)
+#define DBG .true.
 #else
-parameter(LocDbg=.false.)
+#define DBG .false.
 #endif
+logical(kind=iwp), parameter :: LocDbg = DBG
+real(kind=r8), external :: ddot_
 
 ! Check input.
 ! ------------
@@ -96,12 +100,12 @@ call GetMem('DfDm_Q','Allo','Real',ip_Q,l_Q)
 ! Compute T=SC.
 ! -------------
 
-call DGEMM_('N','N',nBas,nOcc,nBas,1.0d0,Work(ip_S),nBas,C,nBas,0.0d0,Work(ip_T),nBas)
+call DGEMM_('N','N',nBas,nOcc,nBas,One,Work(ip_S),nBas,C,nBas,Zero,Work(ip_T),nBas)
 
 ! Compute atomic contributions to Mulliken charges.
 ! -------------------------------------------------
 
-call dCopy_(l_Q,[0.0d0],0,Work(ip_Q),1)
+call dCopy_(l_Q,[Zero],0,Work(ip_Q),1)
 iOff0 = ip_T-1
 jOff0 = ip_Q-1
 do i=1,nOcc
@@ -118,33 +122,32 @@ end do
 ! -----------------------------------------------------------------
 
 if (LocDbg) then
-  write(6,*)
-  write(6,*) 'DefineDomain: checking charge calculation:'
-  Charge = 0.0d0
+  write(u6,*)
+  write(u6,*) 'DefineDomain: checking charge calculation:'
+  Charge = Zero
   kOff0 = ip_Q-1
   do i=1,nOcc
-    Chrg = 0.0d0
+    Chrg = Zero
     kOff = kOff0+nAtom*(i-1)
     do iAtom=1,nAtom
       Chrg = Chrg+Work(kOff+iAtom)
     end do
     Charge = Charge+Chrg
-    Diff = Chrg-1.0d0
-    if (abs(Diff) > 1.0d-10) then
-      x1 = 1.0d0
-      write(6,*)
-      write(6,*) '  Orbital ',i,':'
-      write(6,*) '  Charge    : ',Chrg
-      write(6,*) '  Expected  : ',x1
-      write(6,*) '  Difference: ',Diff
+    Diff = Chrg-One
+    if (abs(Diff) > 1.0e-10_wp) then
+      write(u6,*)
+      write(u6,*) '  Orbital ',i,':'
+      write(u6,*) '  Charge    : ',Chrg
+      write(u6,*) '  Expected  : ',One
+      write(u6,*) '  Difference: ',Diff
     end if
   end do
-  Diff = Charge-dble(nOcc)
-  write(6,*)
-  write(6,*) '  Total charge: ',Charge
-  write(6,*) '  Expected    : ',dble(nOcc)
-  write(6,*) '  Difference  : ',Diff
-  if (abs(Diff) > 1.0d-10) then
+  Diff = Charge-real(nOcc,kind=wp)
+  write(u6,*)
+  write(u6,*) '  Total charge: ',Charge
+  write(u6,*) '  Expected    : ',real(nOcc,kind=wp)
+  write(u6,*) '  Difference  : ',Diff
+  if (abs(Diff) > 1.0e-10_wp) then
     irc = 2
     Go To 1 ! return after deallocation
   end if
@@ -165,7 +168,7 @@ do i=1,nOcc
   do iAtom=0,nAtom-1
     Work(ip_absQ+iAtom) = abs(Work(iOff+iAtom))
   end do
-  call CD_DiaMax(Work(ip_absQ),nAtom,iWork(ip_iPivot),iDomain(1,i),nSrt,-1.0d0)
+  call CD_DiaMax(Work(ip_absQ),nAtom,iWork(ip_iPivot),iDomain(1,i),nSrt,-One)
   if (nSrt /= nAtom) then
     call GetMem('DfDm_iPivot','Free','Inte',ip_iPivot,l_iPivot)
     irc = 1 ! ooops: something is fishy here...
@@ -197,33 +200,33 @@ end do
 
 if (LocDbg) then
   nErr = 0
-  write(6,*)
-  write(6,*) 'DefineDomain: domains and charges after step 1:'
-  write(6,*) 'Threshold: ',ThrDomain(1)
+  write(u6,*)
+  write(u6,*) 'DefineDomain: domains and charges after step 1:'
+  write(u6,*) 'Threshold: ',ThrDomain(1)
   do i=1,nOcc
-    write(6,*)
-    write(6,*) 'Domain ',i,': ',iDomain(0,i),' atoms:'
+    write(u6,*)
+    write(u6,*) 'Domain ',i,': ',iDomain(0,i),' atoms:'
     if (iDomain(0,i) < 1) then
-      write(6,*) 'No atoms in domain !?!?!'
+      write(u6,*) 'No atoms in domain !?!?!'
       nErr = nErr+1
     else if (iDomain(0,i) > nAtom) then
-      write(6,*) 'Number of atoms > nAtom in domain !?!?!'
+      write(u6,*) 'Number of atoms > nAtom in domain !?!?!'
       nErr = nErr+1
     else
-      Charge = 0.0d0
+      Charge = Zero
       kOff0 = ip_Q-1+nAtom*(i-1)
       do iAt=1,iDomain(0,i)
         iAtom = iDomain(iAt,i)
         if ((iAtom < 1) .or. (iAtom > nAtom)) then
-          write(6,*) '  Atom: ',iAtom,' !?!?!'
+          write(u6,*) '  Atom: ',iAtom,' !?!?!'
           nErr = nErr+1
         else
           kOff = kOff0+iAtom
-          write(6,*) '  Atom: ',iAtom,'  Charge: ',Work(kOff)
+          write(u6,*) '  Atom: ',iAtom,'  Charge: ',Work(kOff)
           Charge = Charge+Work(kOff)
         end if
       end do
-      write(6,*) '  Total charge: ',Charge
+      write(u6,*) '  Total charge: ',Charge
     end if
   end do
   if (nErr /= 0) then
@@ -236,7 +239,7 @@ end if
 ! meet the requirement f<=threshold.
 ! ---------------------------------------------------------------
 
-if (ThrDomain(2) < 1.0d0) then
+if (ThrDomain(2) < One) then
   do i=1,nOcc
     kOffT = ip_T+nBas*(i-1)
     call MakeDomainComplete(iDomain(0,i),f(i),Work(ip_S),Work(kOffT),ThrDomain(2),nBas_per_Atom,nBas_Start,nBas,nAtom)
@@ -248,7 +251,7 @@ end if
 
 do i=1,nOcc
   kOff = ip_Q-1+nAtom*(i-1)
-  QD(i) = 0.0d0
+  QD(i) = Zero
   do iAt=1,iDomain(0,i)
     iAtom = iDomain(iAt,i)
     QD(i) = QD(i)+Work(kOff+iAtom)
@@ -260,43 +263,43 @@ end do
 
 if (LocDbg) then
   nErr = 0
-  write(6,*)
-  write(6,*) 'DefineDomain: domains and charges after step 2:'
-  write(6,*) 'Threshold: ',ThrDomain(2)
-  if (ThrDomain(2) < 1.0d0) then
+  write(u6,*)
+  write(u6,*) 'DefineDomain: domains and charges after step 2:'
+  write(u6,*) 'Threshold: ',ThrDomain(2)
+  if (ThrDomain(2) < One) then
     do i=1,nOcc
-      write(6,*)
-      write(6,*) 'Domain ',i,': ',iDomain(0,i),' atoms:'
+      write(u6,*)
+      write(u6,*) 'Domain ',i,': ',iDomain(0,i),' atoms:'
       if (iDomain(0,i) < 1) then
-        write(6,*) 'No atoms in domain !?!?!'
+        write(u6,*) 'No atoms in domain !?!?!'
         nErr = nErr+1
       else if (iDomain(0,i) > nAtom) then
-        write(6,*) 'Number of atoms > nAtom in domain !?!?!'
+        write(u6,*) 'Number of atoms > nAtom in domain !?!?!'
         nErr = nErr+1
       else
-        Charge = 0.0d0
+        Charge = Zero
         kOff0 = ip_Q-1+nAtom*(i-1)
         do iAt=1,iDomain(0,i)
           iAtom = iDomain(iAt,i)
           if ((iAtom < 1) .or. (iAtom > nAtom)) then
-            write(6,*) '  Atom: ',iAtom,' !?!?!'
+            write(u6,*) '  Atom: ',iAtom,' !?!?!'
             nErr = nErr+1
           else
             kOff = kOff0+iAtom
-            write(6,*) '  Atom: ',iAtom,'  Charge: ',Work(kOff)
+            write(u6,*) '  Atom: ',iAtom,'  Charge: ',Work(kOff)
             Charge = Charge+Work(kOff)
           end if
         end do
-        write(6,*) '  Total charge: ',Charge
-        if (abs(Charge-QD(i)) > 1.0d-12) then
-          write(6,*) 'Total charge is inconsistent with QD !'
+        write(u6,*) '  Total charge: ',Charge
+        if (abs(Charge-QD(i)) > 1.0e-12_wp) then
+          write(u6,*) 'Total charge is inconsistent with QD !'
           nErr = nErr+1
         end if
       end if
     end do
   else
-    write(6,*) 'Threshold >= 1.0d0: step 2 was skipped.'
-    write(6,*) 'Domains are unchanged from step 1.'
+    write(u6,*) 'Threshold >= 1.0: step 2 was skipped.'
+    write(u6,*) 'Domains are unchanged from step 1.'
   end if
   if (nErr /= 0) then
     irc = 3

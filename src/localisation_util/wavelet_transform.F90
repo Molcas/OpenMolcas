@@ -17,27 +17,26 @@ subroutine Wavelet_Transform(irc,CMO,nSym,nBas,nFro,nOrb2Loc,inv,Silent,xNrm)
 ! Purpose: wavelet transform of the MO basis (inv=0)
 !          "       backtransform (inv=1)
 
-implicit real*8(a-h,o-z)
-integer irc, nSym, nBas(nSym), nFro(nSym), nOrb2Loc(nSym)
-real*8 CMO(*)
-integer inv
-logical Silent
-real*8 xNrm
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6, r8
+
+implicit none
+integer(kind=iwp) :: irc, nSym, nBas(nSym), nFro(nSym), nOrb2Loc(nSym), inv
+real(kind=wp) :: CMO(*), xNrm
+logical(kind=iwp) :: Silent
 #include "WrkSpc.fh"
-character*17 SecNam
-parameter(SecNam='Wavelet_Transform')
-integer Log2
-external Log2
-real*8 ddot_
-external ddot_
+integer(kind=iwp) :: ipScr, iScr, iSym, kOff1, kOff2, kOffC, l_Scr, njOrb
+character(len=*), parameter :: SecNam = 'Wavelet_Transform'
+integer(kind=iwp), external :: Log2
+real(kind=r8), external :: ddot_
 
 irc = 0
-xNrm = 0.0d0
+xNrm = Zero
 if (.not. Silent) then
-  if (inv == 0) write(6,'(/,1X,A)') 'Wavelet transform of the MOs'
-  if (inv == 1) write(6,'(/,1X,A)') 'Inverse wavelet transform of the MOs'
-  write(6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
-  write(6,'(1X,A,8(1X,I6))') 'Orbitals to transform:',(nOrb2Loc(iSym),iSym=1,nSym)
+  if (inv == 0) write(u6,'(/,1X,A)') 'Wavelet transform of the MOs'
+  if (inv == 1) write(u6,'(/,1X,A)') 'Inverse wavelet transform of the MOs'
+  write(u6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
+  write(u6,'(1X,A,8(1X,I6))') 'Orbitals to transform:',(nOrb2Loc(iSym),iSym=1,nSym)
 end if
 
 if (inv == 1) go to 1000 ! Inverse wavelet transform
@@ -64,7 +63,7 @@ do iSym=1,nSym
     xNrm = xNrm+dDot_(nBas(iSym)*nOrb2Loc(iSym),CMO(kOff1),1,CMO(kOff1),1)
     if (irc /= 0) then
       irc = 1
-      xNrm = -9.9d9
+      xNrm = -huge(xNrm)
       return
     end if
   end if
@@ -97,7 +96,7 @@ do iSym=1,nSym
     xNrm = xNrm+dDot_(nBas(iSym)*nOrb2Loc(iSym),CMO(kOff1),1,CMO(kOff1),1)
     if (irc /= 0) then
       irc = 1
-      xNrm = -9.9d9
+      xNrm = -huge(xNrm)
       return
     end if
   end if

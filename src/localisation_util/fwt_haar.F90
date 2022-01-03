@@ -65,19 +65,23 @@ subroutine FWT_Haar(n,m,B,X)
 !
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-integer n, m
-real*8 B(n,*), X(n,*)
-parameter(hlf=0.5d0)
+use Constants, only: Half
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: n, m
+real(kind=wp) :: B(n,*), X(n,*)
+integer(kind=iwp) :: i, j, k, kA, kB, lA, nv
+real(kind=wp) :: fac
 
 if (m <= 0) then
 
-  write(6,*) ' FWT_Haar: Illegal value of m = ',m
+  write(u6,*) ' FWT_Haar: Illegal value of m = ',m
   call Abend()
 
 elseif (n <= 0) then
 
-  write(6,*) ' FWT_Haar: Illegal value of n = ',n
+  write(u6,*) ' FWT_Haar: Illegal value of n = ',n
   call Abend()
 
 elseif (n > 50) then  ! use BLAS
@@ -86,7 +90,7 @@ elseif (n > 50) then  ! use BLAS
 
 else  ! do not use BLAS
 
-  fac = sqrt(hlf)
+  fac = sqrt(Half)
   nv = 2**m
   do j=m,1,-1  ! A[m]:=X
     nv = nv/2

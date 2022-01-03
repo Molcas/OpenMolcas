@@ -60,12 +60,16 @@
 !***********************************************************************
 
 subroutine DefinePairDomain(irc,iPairDomain,iClass,Rmin,iDomain,RThr,Coord,nAtom,nOcc,nRThr)
-implicit real*8(a-h,o-z)
-integer iPairDomain(0:nAtom,*), iClass(*)
-real*8 Rmin(*)
-integer iDomain(0:nAtom,nOcc)
-real*8 RThr(*), Coord(3,nAtom)
+
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: irc, nAtom, iPairDomain(0:nAtom,*), iClass(*), nOcc, iDomain(0:nAtom,nOcc), nRThr
+real(kind=wp) :: Rmin(*), RThr(*), Coord(3,nAtom)
 #include "WrkSpc.fh"
+integer(kind=iwp) :: i, iA, iAtom, iCount, ij, iOff, ip_Union, isThere, j, jA, jAtom, jOff, kAtom, kOff, l_Union, lD, lT, nnOcc
+real(kind=wp) :: R
 
 ! Set return code.
 ! ----------------
@@ -123,10 +127,10 @@ call GetMem('Union','Free','Inte',ip_Union,l_Union)
 ij = 0
 do j=1,nOcc
   ij = ij+1
-  Rmin(ij) = 0.0d0 ! case i=j
+  Rmin(ij) = Zero ! case i=j
   do i=j+1,nOcc
     ij = ij+1
-    Rmin(ij) = 1.0d15
+    Rmin(ij) = huge(Rmin)
     do jA=1,iDomain(0,j)
       jAtom = iDomain(jA,j)
       do iA=1,iDomain(0,i)

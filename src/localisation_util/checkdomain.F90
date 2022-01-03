@@ -16,19 +16,22 @@ subroutine CheckDomain(irc,iDomain,nAtom,nOcc)
 !
 ! Purpose: check domain definition.
 
-implicit real*8(a-h,o-z)
-integer iDomain(0:nAtom,nOcc)
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: irc, nAtom, nOcc, iDomain(0:nAtom,nOcc)
+integer(kind=iwp) :: i, iAt, iAtom
 
 irc = 0
 do i=1,nOcc
   if ((iDomain(0,i) < 1) .or. (iDomain(0,i) > nAtom)) then
-    write(6,*) 'Dimension of domain ',i,': ',iDomain(0,i)
+    write(u6,*) 'Dimension of domain ',i,': ',iDomain(0,i)
     irc = irc+1
   else
     do iAt=1,iDomain(0,i)
       iAtom = iDomain(iAt,i)
       if ((iAtom < 1) .or. (iAtom > nAtom)) then
-        write(6,*) 'Atom ',iAt,' of domain ',i,': ',iAtom
+        write(u6,*) 'Atom ',iAt,' of domain ',i,': ',iAtom
         irc = irc+1
       end if
     end do

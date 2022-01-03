@@ -13,12 +13,13 @@
 
 subroutine ERChk_Localisation(irc,lnBas,lnOcc,lnFro,lnSym)
 
+use Definitions, only: iwp
+
 implicit none
-integer irc, lnSym
-integer lnBas(lnSym), lnOcc(lnSym), lnFro(lnSym)
+integer(kind=iwp) :: irc, lnSym, lnBas(lnSym), lnOcc(lnSym), lnFro(lnSym)
 #include "cholesky.fh"
 #include "choorb.fh"
-integer iSym, nTst
+integer(kind=iwp) :: iSym, nTst
 
 irc = 0
 

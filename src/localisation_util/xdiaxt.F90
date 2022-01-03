@@ -16,10 +16,12 @@ subroutine XDIAXT(XDX,X,DIA,NDIM,SCR)
 ! Obtain XDX = X * DIA * X(Transposed)
 ! where DIA is an diagonal matrix stored as a vector
 
-implicit real*8(A-H,O-Z)
-dimension XDX(NDIM,NDIM)
-dimension X(NDIM,NDIM), DIA(NDIM)
-dimension SCR(NDIM,NDIM)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: NDIM
+real(kind=wp) :: XDX(NDIM,NDIM), X(NDIM,NDIM), DIA(NDIM), SCR(NDIM,NDIM)
+integer(kind=iwp) :: I
 
 ! DIA * X(transposed)
 do I=1,NDIM

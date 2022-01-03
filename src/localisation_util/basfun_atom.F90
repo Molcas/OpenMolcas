@@ -11,29 +11,29 @@
 ! Copyright (C) Yannick Carissan                                       *
 !***********************************************************************
 
-subroutine BasFun_Atom(nBas_per_Atom,nBas_Start,Name,nBas,nAtoms,DoPrint)
+subroutine BasFun_Atom(nBas_per_Atom,nBas_Start,BName,nBas,nAtoms,DoPrint)
 ! Author: Y. Carissan [put in separate subroutine by T.B. Pedersen]
+
+use Definitions, only: iwp, u6
 
 implicit none
 #include "Molcas.fh"
-integer nBas, nAtoms
-integer nBas_per_Atom(nAtoms), nBas_Start(nAtoms)
-character*(LENIN8) Name(nBas)
-logical DoPrint
-character*11 SecNam
-parameter(SecNam='BasFun_Atom')
-integer iAt, iAt1, nBasAt, iBas, iCount
-character*(LENIN) Lbl, LblOld
-character*80 Txt, Formt
+integer(kind=iwp) :: nAtoms, nBas_per_Atom(nAtoms), nBas_Start(nAtoms), nBas
+character(len=LenIn8) :: BName(nBas)
+logical(kind=iwp) :: DoPrint
+integer(kind=iwp) :: iAt, iAt1, iBas, iCount, nBasAt
+character(len=LenIn) :: Lbl, LblOld
+character(len=80) :: Txt, Formt
+character(len=*), parameter :: SecNam = 'BasFun_Atom'
 
 ! Counters.
 ! ---------
 
 iAt = 1
 nBasAt = 1
-LblOld = Name(1)(1:LENIN)
+LblOld = BName(1)(1:LenIn)
 do iBas=2,nBas
-  Lbl = Name(iBas)(1:LENIN)
+  Lbl = BName(iBas)(1:LenIn)
   if (Lbl /= LblOld) then
     nBas_per_Atom(iAt) = nBasAt
     iAt = iAt+1
@@ -69,7 +69,7 @@ end if
 
 if (DoPrint) then
   write(Formt,'(3(a6,i3,a5))') '(/,a6,',nAtoms,'i5,/,','   a6,',nAtoms,'i5,/,','   a6,',nAtoms,'i5)'
-  write(6,Formt) 'Atom  ',(iAt,iAt=1,nAtoms),'Start ',(nBas_Start(iAt),iAt=1,nAtoms),'nBas  ',(nBas_per_Atom(iAt),iAt=1,nAtoms)
+  write(u6,Formt) 'Atom  ',(iAt,iAt=1,nAtoms),'Start ',(nBas_Start(iAt),iAt=1,nAtoms),'nBas  ',(nBas_per_Atom(iAt),iAt=1,nAtoms)
 end if
 
 end subroutine BasFun_Atom

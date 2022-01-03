@@ -13,16 +13,15 @@
 
 subroutine EvalERFun(ERFun,ERFunC,CMO,nOcc,nSym,Timing)
 
+use Definitions, only: wp, iwp
+
 implicit none
-real*8 ERFun
-real*8 ERFunC(*), CMO(*)
-integer nSym
-integer nOcc(nSym)
-logical Timing
-character*9 SecNam
-parameter(SecNam='EvalERFun')
-character*80 Txt
-integer irc
+real(kind=wp) :: ERFun, ERFunC(*), CMO(*)
+integer(kind=iwp) :: nSym, nOcc(nSym)
+logical(kind=iwp) :: Timing
+integer(kind=iwp) :: irc
+character(len=80) :: Txt
+character(len=*), parameter :: SecNam = 'EvalERFun'
 
 irc = 0
 call Cho_Get_ER(irc,CMO,nOcc,ERFunC,ERFun,Timing)

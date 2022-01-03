@@ -11,27 +11,25 @@
 
 subroutine GenBMp(irc,X,n,m,Lunit,nStp,StpSiz,Color)
 
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
 implicit none
-integer irc, n, m, Lunit, nStp
-real*8 X(n,m), StpSiz
-character*1 Color
+integer(kind=iwp) :: irc, n, m, Lunit, nStp
+real(kind=wp) :: X(n,m), StpSiz
+character :: Color
 #include "WrkSpc.fh"
-character*6 SecNam
-parameter(SecNam='GenBMp')
-integer i, j, iBin, nBin, ipBin, ipBMp, nCh
-real*8 Step, absX
-character*1 myColor
-integer nBin_Def, iUpLim, i0, i255
-real*8 Step_Def
-character*1 Color_Def
-integer iRnge
-external iRnge
+integer(kind=iwp) :: i, i0, i255, iBin, ipBin, ipBMp, iUpLim, j, nBin, nBin_Def, nCh
+real(kind=wp) :: absX, Step, Step_Def
+character :: Color_Def, myColor
+character(len=*), parameter :: SecNam = 'GenBMp'
+integer(kind=iwp), external :: iRnge
 
 ! Defaults and limits.
 ! --------------------
 
 nBin_Def = 5
-Step_Def = 1.0d-2
+Step_Def = 1.0e-2_wp
 Color_Def = 'R'
 iUpLim = 999999
 i0 = 0
@@ -58,7 +56,7 @@ if ((nStp < 2) .or. (nStp > 256)) then
 else
   nBin = nStp
 end if
-if (StpSiz <= 0.0d0) then
+if (StpSiz <= Zero) then
   Step = Step_Def
 else
   Step = StpSiz
@@ -77,11 +75,11 @@ nCh = 255/(nBin-1)
 call GetMem('Bins','Allo','Real',ipBin,nBin)
 call GetMem('iBMp','Allo','Inte',ipBMp,nBin)
 
-Work(ipBin) = 1.0d0
+Work(ipBin) = One
 do iBin=2,nBin-1
   Work(ipBin-1+iBin) = Work(ipBin+iBin-2)*Step
 end do
-Work(ipBin-1+nBin) = -1.0d0
+Work(ipBin-1+nBin) = -One
 
 iWork(ipBMp-1+nBin) = 255
 do iBin=nBin-1,1,-1

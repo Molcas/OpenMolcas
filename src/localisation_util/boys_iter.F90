@@ -16,20 +16,23 @@ subroutine Boys_Iter(Functional,CMO,Thrs,ThrRot,ThrGrad,ipLbl_AO,ipLbl,nBas,nOrb
 !
 ! Purpose: Boys localisation of orbitals.
 
-implicit real*8(a-h,o-z)
-real*8 CMO
-integer ipLbl_AO(nComp), ipLbl(nComp)
-integer nBas, nOrb2Loc
-logical Maximisation, Converged, Debug, Silent
-#include "real.fh"
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp) :: Functional, CMO(*), Thrs, ThrRot, ThrGrad
+integer(kind=iwp) :: nComp, ipLbl_AO(nComp), ipLbl(nComp), nBas, nOrb2Loc, nMxIter
+logical(kind=iwp) :: Maximisation, Converged, Debug, Silent
 #include "WrkSpc.fh"
+integer(kind=iwp) :: ipCol, ipRmat, lCol, lRmat, nIter
+real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2
 
 ! Print iteration table header.
 ! -----------------------------
 
 if (.not. Silent) then
-  write(6,'(//,1X,A,/,1X,A)') '                                                        CPU       Wall', &
-                              'nIter       Functional P        Delta     Gradient     (sec)     (sec) %Screen'
+  write(u6,'(//,1X,A,/,1X,A)') '                                                        CPU       Wall', &
+                               'nIter       Functional P        Delta     Gradient     (sec)     (sec) %Screen'
 end if
 
 ! Initialization (iter 0).
@@ -50,7 +53,7 @@ if (.not. Silent) then
   call CWTime(C2,W2)
   TimC = C2-C1
   TimW = W2-W1
-  write(6,'(1X,I5,1X,F18.8,2(1X,D12.4),2(1X,F9.1),1X,F7.2)') nIter,Functional,Delta,GradNorm,TimC,TimW,Zero
+  write(u6,'(1X,I5,1X,F18.8,2(1X,D12.4),2(1X,F9.1),1X,F7.2)') nIter,Functional,Delta,GradNorm,TimC,TimW,Zero
 end if
 
 ! Iterations.
@@ -70,7 +73,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     call CWTime(C2,W2)
     TimC = C2-C1
     TimW = W2-W1
-    write(6,'(1X,I5,1X,F18.8,2(1X,D12.4),2(1X,F9.1),1X,F7.2)') nIter,Functional,Delta,GradNorm,TimC,TimW,PctSkp
+    write(u6,'(1X,I5,1X,F18.8,2(1X,D12.4),2(1X,F9.1),1X,F7.2)') nIter,Functional,Delta,GradNorm,TimC,TimW,PctSkp
   end if
   Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
 end do
@@ -82,13 +85,13 @@ call GetMem('Rmat','Free','Real',ipRmat,lRmat)
 
 if (.not. Silent) then
   if (.not. Converged) then
-    write(6,'(/,A,I4,A)') 'No convergence after',nIter,' iterations.'
+    write(u6,'(/,A,I4,A)') 'No convergence after',nIter,' iterations.'
   else
-    write(6,'(/,A,I4,A)') 'Convergence after',nIter,' iterations.'
-    write(6,*)
-    write(6,'(A,1X,I4)') 'Number of localised orbitals  :',nOrb2Loc
-    write(6,'(A,1X,1P,D20.10)') 'Value of P before localisation:',FirstFunctional
-    write(6,'(A,1X,1P,D20.10)') 'Value of P after localisation :',Functional
+    write(u6,'(/,A,I4,A)') 'Convergence after',nIter,' iterations.'
+    write(u6,*)
+    write(u6,'(A,1X,I4)') 'Number of localised orbitals  :',nOrb2Loc
+    write(u6,'(A,1X,1P,D20.10)') 'Value of P before localisation:',FirstFunctional
+    write(u6,'(A,1X,1P,D20.10)') 'Value of P after localisation :',Functional
   end if
 end if
 

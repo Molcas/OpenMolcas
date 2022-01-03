@@ -18,12 +18,17 @@ subroutine RotateOrb_ER(R,CMO,nBasis,nOrb2Loc,Debug)
 !          CMO -> CMO * U
 !          U = R*[R^T*R]^(-1/2)
 
-implicit real*8(a-h,o-z)
-real*8 R(nOrb2Loc,nOrb2Loc), CMO(nBasis,nOrb2Loc)
-logical Debug
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nBasis, nOrb2Loc
+real(kind=wp) :: R(nOrb2Loc,nOrb2Loc), CMO(nBasis,nOrb2Loc)
+logical(kind=iwp) ::Debug
 #include "WrkSpc.fh"
-character*12 SecNam
-parameter(SecNam='RotateOrb_ER')
+integer(kind=iwp) :: ipCMO, ipU, irc, lCMO, lU
+real(kind=wp) :: ThrU
+character(len=*), parameter :: SecNam = 'RotateOrb_ER'
 
 if ((nOrb2Loc < 1) .or. (nBasis < 1)) return
 
@@ -42,7 +47,7 @@ call GetU_ER(Work(ipU),R,nOrb2Loc)
 ! -------------------------------
 
 if (Debug) then
-  ThrU = 1.0d-10
+  ThrU = 1.0e-10_wp
   irc = -1
   call Chk_Unitary(irc,Work(ipU),nOrb2Loc,ThrU)
   if (irc /= 0) then
@@ -56,7 +61,7 @@ end if
 lCMO = nBasis*nOrb2Loc
 call GetMem('CMOscr','Allo','Real',ipCMO,lCMO)
 call dCopy_(lCMO,CMO,1,Work(ipCMO),1)
-call DGEMM_('N','N',nBasis,nOrb2Loc,nOrb2Loc,1.0d0,Work(ipCMO),nBasis,Work(ipU),nOrb2Loc,0.0d0,CMO,nBasis)
+call DGEMM_('N','N',nBasis,nOrb2Loc,nOrb2Loc,One,Work(ipCMO),nBasis,Work(ipU),nOrb2Loc,Zero,CMO,nBasis)
 call GetMem('CMOscr','Free','Real',ipCMO,lCMO)
 
 ! De-allocate U.

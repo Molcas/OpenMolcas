@@ -11,9 +11,13 @@
 
 subroutine Tri2Rec(OvlTri,OvlRec,nBas,Debug)
 
-implicit real*8(a-h,o-z)
-real*8 OvlTri(*), OvlRec(nBas,nBas)
-logical Debug
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nBas
+real(kind=wp) :: OvlTri(*), OvlRec(nBas,nBas)
+logical(kind=iwp) :: Debug
+integer(kind=iwp) :: iBas, ioffset, jBas, nElem, nlig
 
 ioffset = 1
 do nlig=1,nBas

@@ -17,19 +17,22 @@ subroutine MakeDomainComplete(iDomain,f,S,T,Threshold,nBas_per_Atom,nBas_Start,n
 ! Purpose: Boughton-Pulay completeness check of an orbital domain.
 !          Extend domain as needed to obtain completeness.
 
-implicit real*8(a-h,o-z)
-integer iDomain(0:nAtom)
-real*8 S(nBas,nBas), T(nBas)
-integer nBas_per_Atom(nAtom), nBas_Start(nAtom)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nAtom, iDomain(0:nAtom), nBas_per_Atom(nAtom), nBas_Start(nAtom), nBas
+real(kind=wp) :: f, S(nBas,nBas), T(nBas), Threshold
 #include "WrkSpc.fh"
-external ddot_
-character*18 SecNam
-parameter(SecNam='MakeDomainComplete')
-character*80 Txt
-logical Complete
+integer(kind=iwp) :: iA, iB, iCol, ip_Scr, ip_Si, ip_Sl, ip_Ti, irc, iRow, kSi, kTi, l_Scr, l_Si, l_Sl, l_Ti, lnu, mu1, nA, nmu, &
+                     nnu, nSize, nu, nu1
+character(len=80) :: Txt
+logical(kind=iwp) :: Complete
+real(kind=wp), external :: ddot_
+character(len=*), parameter :: SecNam = 'MakeDomainComplete'
 
 nA = iDomain(0)
-f = 0.0d0
+f = Zero
 Complete = nA == nAtom
 do while ((nA < nAtom) .and. (.not. Complete))
 
@@ -93,8 +96,8 @@ do while ((nA < nAtom) .and. (.not. Complete))
   ! Compute f=1-Y(T)S[i]Y.
   ! ----------------------
 
-  call dGeMV_('N',nSize,nSize,1.0d0,Work(ip_Si),nSize,Work(ip_Ti),1,0.0d0,Work(ip_Scr),1)
-  f = 1.0d0-dDot_(nSize,Work(ip_Ti),1,Work(ip_Scr),1)
+  call dGeMV_('N',nSize,nSize,One,Work(ip_Si),nSize,Work(ip_Ti),1,Zero,Work(ip_Scr),1)
+  f = One-dDot_(nSize,Work(ip_Ti),1,Work(ip_Scr),1)
 
   ! Deallocation.
   ! -------------

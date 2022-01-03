@@ -8,12 +8,16 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-integer function iRnge(Val,Bin,nBin)
-implicit none
-integer nBin
-real*8 Val, Bin(nBin)
 
-integer iBin
+function iRnge(Val,Bin,nBin)
+
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: iRnge
+integer(kind=iwp) :: nBin
+real(kind=wp) :: Val, Bin(nBin)
+integer(kind=iwp) :: iBin
 
 iRnge = nBin
 do iBin=1,nBin-1
@@ -23,4 +27,4 @@ do iBin=1,nBin-1
   end if
 end do
 
-end
+end function iRnge

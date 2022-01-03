@@ -16,16 +16,18 @@ subroutine Boys(Functional,CMO,Thrs,ThrRot,ThrGrad,nBas,nOrb2Loc,nFro,nSym,nMxIt
 !
 ! Purpose: Boys localisation of occupied orbitals.
 
-implicit real*8(a-h,o-z)
-real*8 CMO(*)
-integer nBas(nSym), nOrb2Loc(nSym), nFro(nSym)
-logical Maximisation, Converged, Debug, Silent
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp) :: Functional, CMO(*), Thrs, ThrRot, ThrGrad
+integer(kind=iwp) :: nSym, nBas(nSym), nOrb2Loc(nSym), nFro(nSym), nMxIter
+logical(kind=iwp) :: Maximisation, Converged, Debug, Silent
 #include "WrkSpc.fh"
-character*4 SecNam
-parameter(SecNam='Boys')
-parameter(nComp=3) ! 3 components of dipole operator
-integer ipLbl(nComp), ipLbl_MO(nComp)
-character*8 Label, AlloLbl(nComp), AlloLbl_MO(nComp)
+integer(kind=iwp), parameter :: nComp = 3 ! 3 components of dipole operator
+integer(kind=iwp) :: iComp, ipLbl(nComp), ipLbl_MO(nComp), iOpt, ipAux, irc, iSym, kOffC, lAux, lLbl, lLbl_MO, nBasT, nFroT, &
+                     nOrb2LocT
+character(len=8) :: AlloLbl(nComp), AlloLbl_MO(nComp), Label
+character(len=*), parameter :: SecNam = 'Boys'
 
 ! Symmetry is NOT allowed!!
 ! -------------------------
@@ -37,7 +39,7 @@ end if
 ! Initializations.
 ! ----------------
 
-Functional = -9.9d9
+Functional = -huge(Functional)
 
 nBasT = nBas(1)
 nOrb2LocT = nOrb2Loc(1)
@@ -63,15 +65,15 @@ do iComp=1,nComp
   iSym = 1
   call RdOne(irc,iOpt,Label,iComp,Work(ipAux),iSym)
   if (irc /= 0) then
-    write(6,*) SecNam,': RdOne returned ',irc
-    write(6,*) 'Label = ',Label,'   Component = ',iComp
+    write(u6,*) SecNam,': RdOne returned ',irc
+    write(u6,*) 'Label = ',Label,'   Component = ',iComp
     call SysAbendMsg(SecNam,'I/O error in RdOne',' ')
   end if
   if (Debug) then
-    write(6,*)
-    write(6,*) ' Triangular dipole matrix at start'
-    write(6,*) ' ---------------------------------'
-    write(6,*) ' Component: ',iComp
+    write(u6,*)
+    write(u6,*) ' Triangular dipole matrix at start'
+    write(u6,*) ' ---------------------------------'
+    write(u6,*) ' Component: ',iComp
     call TriPrt(' ',' ',Work(ipAux),nBasT)
   end if
   call Tri2Rec(Work(ipAux),Work(ipLbl(iComp)),nBasT,Debug)

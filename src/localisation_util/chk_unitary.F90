@@ -16,14 +16,16 @@ subroutine Chk_Unitary(irc,U,n,Thr)
 !
 ! Purpose: check that U is unitary.
 
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, r8
+
 implicit none
-integer irc, n
-real*8 U(n,n), Thr
+integer(kind=iwp) :: irc, n
+real(kind=wp) :: U(n,n), Thr
 #include "WrkSpc.fh"
-integer n2, ipUTU, lUTU, i, ip0
-real*8 RMS, x2
-real*8 ddot_
-external ddot_
+integer(kind=iwp) :: i, ip0, ipUTU, lUTU, n2
+real(kind=wp) :: RMS, x2
+real(kind=r8), external :: ddot_
 
 if (n < 1) then
   irc = 0
@@ -34,14 +36,14 @@ n2 = n**2
 lUTU = n2
 call GetMem('UTU','Allo','Real',ipUTU,lUTU)
 
-call dCopy_(n2,[0.0d0],0,Work(ipUTU),1)
+call dCopy_(n2,[Zero],0,Work(ipUTU),1)
 ip0 = ipUTU-1
 do i=1,n
-  Work(ip0+n*(i-1)+i) = 1.0d0
+  Work(ip0+n*(i-1)+i) = One
 end do
-call DGEMM_('T','N',n,n,n,-1.0d0,U,n,U,n,1.0d0,Work(ipUTU),n)
+call DGEMM_('T','N',n,n,n,-One,U,n,U,n,One,Work(ipUTU),n)
 
-x2 = dble(n2)
+x2 = real(n2,kind=wp)
 RMS = sqrt(dDot_(n2,Work(ipUTU),1,Work(ipUTU),1)/x2)
 if (RMS > Thr) then
   irc = 1

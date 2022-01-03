@@ -12,21 +12,25 @@
 !***********************************************************************
 
 subroutine Rot_st(cMO_s,cMO_t,nBasis,Gamma_rot,Debug)
-
 ! Author: Y. Carissan.
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 cMO_s(nBasis), cMO_t(nBasis)
-logical Debug
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nBasis
+real(kind=wp) :: cMO_s(nBasis), cMO_t(nBasis), Gamma_rot
+logical(kind=iwp) :: Debug
+integer(kind=iwp) :: iBas
+real(kind=wp) :: cosGamma_rot, cs, ct, sinGamma_rot
 
 if (Gamma_rot == Zero) return
 
 cosGamma_rot = cos(Gamma_rot)
 sinGamma_rot = sin(Gamma_rot)
 if (Debug) then
-  write(6,*) 'cos(Gamma)=',cosGamma_rot
-  write(6,*) 'sin(Gamma)=',sinGamma_rot
+  write(u6,*) 'cos(Gamma)=',cosGamma_rot
+  write(u6,*) 'sin(Gamma)=',sinGamma_rot
 end if
 
 do iBas=1,nBasis

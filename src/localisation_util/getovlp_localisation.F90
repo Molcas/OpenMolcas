@@ -17,20 +17,18 @@ subroutine GetOvlp_Localisation(S,Storage,nBas,nSym)
 ! Purpose: read the overlap matrix and return in S in lower triangular
 ! storage if Storage="Tri" else in full square storage.
 
+use Definitions, only: wp, iwp, u6
+
 implicit none
-real*8 S(*)
-character*3 Storage
-integer nSym
-integer nBas(nSym)
+real(kind=wp) :: S(*)
+character(len=3) :: Storage
+integer(kind=iwp) :: nSym, nBas(nSym)
 #include "WrkSpc.fh"
-character*20 SecNam
-parameter(SecNam='GetOvlp_Localisation')
-logical Debug
-parameter(Debug=.false.)
-character*3 myStorage
-character*8 Label
-integer irc, iOpt, iComp, iSyLbl
-integer iSym, l_Scr, ip_Scr, kTri, kSq, l_Tri
+integer(kind=iwp) :: iComp, iOpt, ip_Scr, irc, iSyLbl, iSym, kSq, kTri, l_Scr, l_Tri
+character(len=8) :: Label
+character(len=3) :: myStorage
+logical(kind=iwp), parameter :: Debug = .false.
+character(len=*), parameter :: SecNam = 'GetOvlp_Localisation'
 
 l_Tri = nBas(1)*(nBas(1)+1)/2
 do iSym=2,nSym
@@ -46,8 +44,8 @@ iSyLbl = 1
 Label = 'Mltpl  0'
 call RdOne(irc,iOpt,Label,iComp,Work(ip_Scr),iSyLbl)
 if (irc /= 0) then
-  write(6,*) SecNam,': RdOne returned ',irc
-  write(6,*) 'Label = ',Label,'  iSyLbl = ',iSyLbl
+  write(u6,*) SecNam,': RdOne returned ',irc
+  write(u6,*) 'Label = ',Label,'  iSyLbl = ',iSyLbl
   call SysAbendMsg(SecNam,'I/O error in RdOne',' ')
 end if
 

@@ -11,29 +11,32 @@
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
 
-subroutine PipekMezey_Iter(Functional,CMO,Ovlp,Thrs,ThrRot,ThrGrad,PA,nBas_per_Atom,nBas_Start,Name,nBasis,nOrb2Loc,nAtoms, &
+subroutine PipekMezey_Iter(Functional,CMO,Ovlp,Thrs,ThrRot,ThrGrad,PA,nBas_per_Atom,nBas_Start,BName,nBasis,nOrb2Loc,nAtoms, &
                            nMxIter,Maximisation,Converged,Debug,Silent)
 ! Author: T.B. Pedersen
 !
 ! Based on the original routines by Y. Carissan.
 
-implicit real*8(a-h,o-z)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "Molcas.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-real*8 CMO(nBasis,*), Ovlp(nBasis,*)
-real*8 PA(nOrb2Loc,nOrb2Loc,nAtoms)
-integer nBas_per_Atom(nAtoms), nBas_Start(nAtoms)
-character*(LENIN8) Name(nBasis)
-logical Maximisation, Converged, Debug, Silent
-real*8, allocatable :: RMat(:,:), PACol(:,:)
+integer(kind=iwp) :: nAtoms, nBas_per_Atom(nAtoms), nBas_Start(nAtoms), nBasis, nOrb2Loc, nMxIter
+real(kind=wp) :: Functional, CMO(nBasis,*), Ovlp(nBasis,*), Thrs, ThrRot, ThrGrad, PA(nOrb2Loc,nOrb2Loc,nAtoms)
+character(len=LenIn8) :: BName(nBasis)
+logical(kind=iwp) :: Maximisation, Converged, Debug, Silent
+integer(kind=iwp) :: nIter
+real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2
+real(kind=wp), allocatable :: RMat(:,:), PACol(:,:)
 
 ! Print iteration table header.
 ! -----------------------------
 
 if (.not. Silent) then
-  write(6,'(//,1X,A,/,1X,A)') '                                                        CPU       Wall', &
-                              'nIter       Functional P        Delta     Gradient     (sec)     (sec) %Screen'
+  write(u6,'(//,1X,A,/,1X,A)') '                                                        CPU       Wall', &
+                               'nIter       Functional P        Delta     Gradient     (sec)     (sec) %Screen'
 end if
 
 ! Initialization (iteration 0).
@@ -42,7 +45,7 @@ end if
 if (.not. Silent) call CWTime(C1,W1)
 nIter = 0
 call mma_Allocate(RMat,nOrb2Loc,nOrb2Loc,Label='RMat')
-call GenerateP(Ovlp,CMO,Name,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug)
+call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug)
 call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,Debug)
 call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat,Debug)
 OldFunctional = Functional
@@ -52,7 +55,7 @@ if (.not. Silent) then
   call CWTime(C2,W2)
   TimC = C2-C1
   TimW = W2-W1
-  write(6,'(1X,I5,1X,F18.8,2(1X,D12.4),2(1X,F9.1),1X,F7.2)') nIter,Functional,Delta,GradNorm,TimC,TimW,Zero
+  write(u6,'(1X,I5,1X,F18.8,2(1X,D12.4),2(1X,F9.1),1X,F7.2)') nIter,Functional,Delta,GradNorm,TimC,TimW,Zero
 end if
 
 ! Iterations.
@@ -62,7 +65,7 @@ call mma_Allocate(PACol,nOrb2Loc,2,Label='PACol')
 Converged = .false.
 do while ((nIter < nMxIter) .and. (.not. Converged))
   if (.not. Silent) call CWTime(C1,W1)
-  call RotateOrb(CMO,PACol,nBasis,nAtoms,PA,Maximisation,nOrb2Loc,Name,nBas_per_Atom,nBas_Start,ThrRot,PctSkp,Debug)
+  call RotateOrb(CMO,PACol,nBasis,nAtoms,PA,Maximisation,nOrb2Loc,BName,nBas_per_Atom,nBas_Start,ThrRot,PctSkp,Debug)
   call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,Debug)
   call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat,Debug)
   nIter = nIter+1
@@ -72,7 +75,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     call CWTime(C2,W2)
     TimC = C2-C1
     TimW = W2-W1
-    write(6,'(1X,I5,1X,F18.8,2(1X,D12.4),2(1X,F9.1),1X,F7.2)') nIter,Functional,Delta,GradNorm,TimC,TimW,PctSkp
+    write(u6,'(1X,I5,1X,F18.8,2(1X,D12.4),2(1X,F9.1),1X,F7.2)') nIter,Functional,Delta,GradNorm,TimC,TimW,PctSkp
   end if
   Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
 end do
@@ -84,13 +87,13 @@ call mma_Deallocate(RMat)
 
 if (.not. Silent) then
   if (.not. Converged) then
-    write(6,'(/,A,I4,A)') 'No convergence after',nIter,' iterations.'
+    write(u6,'(/,A,I4,A)') 'No convergence after',nIter,' iterations.'
   else
-    write(6,'(/,A,I4,A)') 'Convergence after',nIter,' iterations.'
-    write(6,*)
-    write(6,'(A,I8)') 'Number of localised orbitals  : ',nOrb2loc
-    write(6,'(A,1P,D20.10)') 'Value of P before localisation: ',FirstFunctional
-    write(6,'(A,1P,D20.10)') 'Value of P after localisation : ',Functional
+    write(u6,'(/,A,I4,A)') 'Convergence after',nIter,' iterations.'
+    write(u6,*)
+    write(u6,'(A,I8)') 'Number of localised orbitals  : ',nOrb2loc
+    write(u6,'(A,1P,D20.10)') 'Value of P before localisation: ',FirstFunctional
+    write(u6,'(A,1P,D20.10)') 'Value of P after localisation : ',Functional
   end if
 end if
 

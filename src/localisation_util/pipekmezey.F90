@@ -12,24 +12,28 @@
 !               Thomas Bondo Pedersen                                  *
 !***********************************************************************
 
-subroutine PipekMezey(Functional,CMO,Thrs,ThrRot,ThrGrad,Name,nBas,nOrb2Loc,nFro,nSym,nAtoms,nMxIter,Maximisation,Converged,Debug, &
-                      Silent)
+subroutine PipekMezey(Functional,CMO,Thrs,ThrRot,ThrGrad,BName,nBas,nOrb2Loc,nFro,nSym,nAtoms,nMxIter,Maximisation,Converged, &
+            Debug,Silent)
 ! Author: Y. Carissan [modified by T.B. Pedersen].
 !
 ! Purpose: Pipek-Mezey localisation of occupied orbitals.
 
-implicit real*8(a-h,o-z)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "Molcas.fh"
-real*8 CMO(*)
-integer nBas(nSym), nOrb2Loc(nSym), nFro(nSym)
-logical Maximisation, Converged, Debug, Silent
-character*(LENIN8) Name(*) ! dimension should be tot. #bf
+real(kind=wp) :: Functional, CMO(*), Thrs, ThrRot, ThrGrad
+integer(kind=iwp) :: nSym, nBas(nSym), nOrb2Loc(nSym), nFro(nSym), nAtoms, nMxIter
+logical(kind=iwp) :: Maximisation, Converged, Debug, Silent
+character(len=LenIn8) :: BName(*) ! dimension should be tot. #bf
 #include "WrkSpc.fh"
-#include "stdalloc.fh"
-real*8, allocatable :: PA(:,:,:)
-character*10 SecNam
-parameter(SecNam='PipekMezey')
-character*8 Label
+integer(kind=iwp) :: iComp, iOpt, ip_nBas_per_Atom, ip_nBas_Start, ipOaux, ipOvlp, irc, iSyLbl, kOffC, l_nBas_per_Atom, &
+                     l_nBas_Start, lOaux, lOvlp, nBasT, nFroT, nOrb2LocT
+real(kind=wp), allocatable :: PA(:,:,:)
+character(len=8) :: Label
+character(len=*), parameter :: SecNam = 'PipekMezey'
 
 ! Symmetry is NOT allowed!!
 ! -------------------------
@@ -41,7 +45,7 @@ end if
 ! Initializations.
 ! ----------------
 
-Functional = -9.9d9
+Functional = -huge(Functional)
 
 nBasT = nBas(1)
 nOrb2LocT = nOrb2Loc(1)
@@ -64,15 +68,15 @@ iSyLbl = 1
 Label = 'Mltpl  0'
 call RdOne(irc,iOpt,Label,iComp,Work(ipOaux),iSyLbl)
 if (irc /= 0) then
-  write(6,*) SecNam,': RdOne returned ',irc
-  write(6,*) 'Label = ',Label,'  iSyLbl = ',iSyLbl
+  write(u6,*) SecNam,': RdOne returned ',irc
+  write(u6,*) 'Label = ',Label,'  iSyLbl = ',iSyLbl
   call SysAbendMsg(SecNam,'I/O error in RdOne',' ')
 end if
 
 if (Debug) then
-  write(6,*)
-  write(6,*) ' Triangular overlap matrix at start'
-  write(6,*) ' ----------------------------------'
+  write(u6,*)
+  write(u6,*) ' Triangular overlap matrix at start'
+  write(u6,*) ' ----------------------------------'
   call TriPrt('Overlap',' ',Work(ipOaux),nBasT)
 end if
 
@@ -86,18 +90,18 @@ l_nBas_per_Atom = nAtoms
 l_nBas_Start = l_nBas_per_Atom
 call GetMem('nB_per_Atom','Allo','Inte',ip_nBas_per_Atom,l_nBas_per_Atom)
 call GetMem('nB_Start','Allo','Inte',ip_nBas_Start,l_nBas_Start)
-call BasFun_Atom(iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),Name,nBasT,nAtoms,Debug)
+call BasFun_Atom(iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),BName,nBasT,nAtoms,Debug)
 
 ! Allocate PA array.
 ! ------------------
 call mma_Allocate(PA,nOrb2LocT,nOrb2LocT,nAtoms,Label='PA')
-PA(:,:,:) = 0.0d0
+PA(:,:,:) = Zero
 
 ! Localise orbitals.
 ! ------------------
 
 kOffC = nBasT*nFroT+1
-call PipekMezey_Iter(Functional,CMO(kOffC),Work(ipOvlp),Thrs,ThrRot,ThrGrad,PA,iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),Name, &
+call PipekMezey_Iter(Functional,CMO(kOffC),Work(ipOvlp),Thrs,ThrRot,ThrGrad,PA,iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),BName, &
                      nBasT,nOrb2LocT,nAtoms,nMxIter,Maximisation,Converged,Debug,Silent)
 
 ! De-allocations.

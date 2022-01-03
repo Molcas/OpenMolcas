@@ -11,19 +11,24 @@
 
 subroutine BestMatch(nConstr,nOrb,Occ,Match,ldim)
 
-implicit real*8(a-h,o-z)
-integer nConstr, nOrb, ldim, Match(2,ldim)
-real*8 Occ(nOrb)
+use Constants, only: Two
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nConstr, nOrb, ldim, Match(2,ldim)
+real(kind=wp) :: Occ(nOrb)
+integer(kind=iwp) :: i, j, jConstr, k, l
+real(kind=wp) :: delta, delta0, xOcc
 
 jConstr = 1
 
 10 continue
 
-delta0 = 2.0d0
+delta0 = Two
 do i=1,nOrb
   do j=1,i-1
     xOcc = Occ(i)+Occ(j)
-    delta = abs(2.0d0-xOcc)
+    delta = abs(Two-xOcc)
     if (delta < delta0) then
       delta0 = delta
       if (Occ(i) > Occ(j)) then
@@ -39,9 +44,9 @@ end do
 
 if (jConstr < nConstr) then ! note: Occ array destroyed here
   k = Match(1,jConstr)
-  Occ(k) = -42.0d0
+  Occ(k) = -42.0_wp
   l = Match(2,jConstr)
-  Occ(l) = -42.0d0
+  Occ(l) = -42.0_wp
   jConstr = jConstr+1
   Go To 10
 end if

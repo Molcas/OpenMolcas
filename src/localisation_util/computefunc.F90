@@ -14,11 +14,15 @@
 subroutine ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,Debug)
 ! Author: Y. Carissan
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nAtoms, nOrb2Loc
+real(kind=wp) :: PA(nOrb2Loc,nOrb2Loc,nAtoms), Functional
+logical(kind=iwp) :: Debug
 #include "WrkSpc.fh"
-#include "real.fh"
-real*8 PA(nOrb2Loc,nOrb2Loc,nAtoms)
-logical Debug
+integer(kind=iwp) :: iAt, iMO_s
 
 Functional = Zero
 do iAt=1,nAtoms
@@ -28,7 +32,7 @@ do iAt=1,nAtoms
 end do
 
 if (Debug) then
-  write(6,*) 'ComputeFunc: Functional: ',Functional
+  write(u6,*) 'ComputeFunc: Functional: ',Functional
 end if
 
 return

@@ -30,22 +30,26 @@ subroutine GetRawPAOs(R,C,nBas,nOrb,nFro,nOrb2Loc,nSym,Normalize)
 !
 !          If (Normalize): normalize each PAO (recommended).
 !                          Note that if the norm of the PAO is
-!                          smaller than 1.0d-6, it will not be
+!                          smaller than 1.0e-6_wp, it will not be
 !                          normalized (it is left unchanged).
 !
 !-------------------------------------------------------------
 !-TODO/FIXME: it is in most cases faster to use Do*S=C*(C^T*S)
 !-------------------------------------------------------------
 
-implicit real*8(a-h,o-z)
-integer nBas(nSym), nOrb(nSym), nFro(nSym), nOrb2Loc(nSym)
-real*8 R(*), C(*)
-logical Normalize
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, r8
+
+implicit none
+real(kind=wp) :: R(*), C(*)
+integer(kind=iwp) :: nSym, nBas(nSym), nOrb(nSym), nFro(nSym), nOrb2Loc(nSym)
+logical(kind=iwp) :: Normalize
 #include "WrkSpc.fh"
-character*10 SecNam
-parameter(SecNam='GetRawPAOs')
-character*80 Txt
-external ddot_
+integer(kind=iwp) :: i, ipDo, ipOvlp, iSym, kOff, kOffS, kR, kSR, lDo, lOff, lOvlp, mu, nB, nF, nO2L, nOrth, nRest
+real(kind=wp) :: Fac, Ovlp
+character(len=80) :: Txt
+character(len=*), parameter :: SecNam = 'GetRawPAOs'
+real(kind=r8), external :: ddot_
 
 ! Read the overlap matrix from disk.
 ! ----------------------------------
@@ -85,7 +89,7 @@ do iSym=1,nSym
     else if (nOrth == 0) then ! R = 1
       call fZero(R(kOff),nB**2)
       do i=1,nB
-        R(kOff-1+nB*(i-1)+i) = 1.0d0
+        R(kOff-1+nB*(i-1)+i) = One
       end do
     else if (nOrth < nO2L) then ! R = 1 - Do*S
       if (nRest > 0) then
@@ -96,16 +100,16 @@ do iSym=1,nSym
       end if
       if (nF > 0) then
         call GetDens_Localisation(R(kOff),C(kOff),nB,nF)
-        call dAXPY_(nB**2,1.0d0,R(kOff),1,Work(ipDo),1)
+        call dAXPY_(nB**2,One,R(kOff),1,Work(ipDo),1)
       end if
-      call DGEMM_('N','N',nB,nB,nB,-1.0d0,Work(ipDo),nB,Work(kOffS),nB,0.0d0,R(kOff),nB)
+      call DGEMM_('N','N',nB,nB,nB,-One,Work(ipDo),nB,Work(kOffS),nB,Zero,R(kOff),nB)
       do i=1,nB
-        R(kOff-1+nB*(i-1)+i) = R(kOff-1+nB*(i-1)+i)+1.0d0
+        R(kOff-1+nB*(i-1)+i) = R(kOff-1+nB*(i-1)+i)+One
       end do
     else ! R = D*S
       lOff = kOff+nB*nF
       call GetDens_Localisation(Work(ipDo),C(lOff),nB,nO2L)
-      call DGEMM_('N','N',nB,nB,nB,1.0d0,Work(ipDo),nB,Work(kOffS),nB,0.0d0,R(kOff),nB)
+      call DGEMM_('N','N',nB,nB,nB,One,Work(ipDo),nB,Work(kOffS),nB,Zero,R(kOff),nB)
     end if
 
     kOff = kOff+nB**2
@@ -124,15 +128,15 @@ if (Normalize) then
   do iSym=1,nSym
     nB = nBas(iSym)
     if (nB > 0) then
-      call DGEMM_('N','N',nB,nB,nB,1.0d0,Work(kOffS),nB,R(kOff),nB,0.0d0,Work(ipDo),nB)
+      call DGEMM_('N','N',nB,nB,nB,One,Work(kOffS),nB,R(kOff),nB,Zero,Work(ipDo),nB)
       do mu=0,nB-1
         kR = kOff+nB*mu
         kSR = ipDo+nB*mu
         Ovlp = dDot_(nB,R(kR),1,Work(kSR),1)
-        if (Ovlp > 1.0d-6) then
-          Fac = 1.0d0/sqrt(Ovlp)
+        if (Ovlp > 1.0e-6_wp) then
+          Fac = One/sqrt(Ovlp)
           call dScal_(nB,Fac,R(kR),1)
-        else if (Ovlp < 0.0d0) then
+        else if (Ovlp < Zero) then
           write(Txt,'(A,1P,D15.5)') 'Overlap = ',Ovlp
           call SysAbendMsg(SecNam,'Negative raw PAO overlap!',Txt)
         end if

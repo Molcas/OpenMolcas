@@ -9,22 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Get_Vir_Select(irc,CMO,XMO,Eorb,Smat,Name,NamAct,ind_V,nSym,nActa,mOrb,nBas,ortho,n_OK)
+subroutine Get_Vir_Select(irc,CMO,XMO,Eorb,Smat,BName,NamAct,ind_V,nSym,nActa,mOrb,nBas,ortho,n_OK)
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit None
 #include "Molcas.fh"
-real*8 CMO(*), XMO(*), Eorb(*), Smat(*)
-integer irc, nSym, nActa, mOrb(nSym), nBas(nSym), n_OK(nSym)
-integer ind_V(*)
-character*(LENIN8) Name(*)
-character*(LENIN) NamAct(nActa)
-logical ortho
+integer(kind=iwp) :: irc, ind_V(*), nSym, nActa, mOrb(nSym), nBas(nSym), n_OK(nSym)
+real(kind=wp) :: CMO(*), XMO(*), Eorb(*), Smat(*)
+character(len=LenIn8) :: BName(*)
+character(len=LenIn) :: NamAct(nActa)
+logical(kind=iwp) :: ortho
 #include "WrkSpc.fh"
-character*(LENIN) tmp
-!***********************************************************************
-! Statement functions
-kD(i) = iWork(ip_iD-1+i)
-lD(i) = iWork(ip_iD+nOrbmx-1+i)
+integer(kind=iwp) :: i, iOff, ip_C, ip_CC, ip_Fock, ip_iD, ip_U, ip_X, ipScr, iS, iSym, iZ, j, ja, jfr, jOff, jp_Fock, jX, jZ, k, &
+                     km, kOff, kx, l, lOff, lScr, mOx, n_KO, nBmx, nBx, nOrbmx, nOx
+character(len=LenIn) :: tmp
 
 irc = 0
 
@@ -56,11 +56,11 @@ do iSym=1,nSym
   n_KO = 0
   do i=1,mOrb(iSym)
     ja = iOff+ind_V(i+iOff)
-    tmp = Name(ja)(1:LENIN)
+    tmp = BName(ja)(1:LenIn)
     jfr = jOff+nBas(iSym)*(i-1)+1
     kx = 0
 
-    !write(6,*) ' We simulate Afreeze with all Vir'
+    !write(u6,*) ' We simulate Afreeze with all Vir'
     !kx = 1
 
     do j=1,nActa
@@ -88,14 +88,14 @@ do iSym=1,nSym
   nBx = max(1,nBas(iSym))
   mOx = max(1,mOrb(iSym))
 
-  call DGEMM_('T','N',mOrb(iSym),nBas(iSym),nBas(iSym),1.0d0,Cmo(jOff+1),nBx,Smat(iS),nBx,0.0d0,Work(ip_CC),mOx)
+  call DGEMM_('T','N',mOrb(iSym),nBas(iSym),nBas(iSym),One,Cmo(jOff+1),nBx,Smat(iS),nBx,Zero,Work(ip_CC),mOx)
 
   if (n_KO > 0) then
-    call DGEMM_('N','N',mOrb(iSym),n_KO,nBas(iSym),1.0d0,Work(ip_CC),mOx,Work(iZ),nBx,0.0d0,Work(ip_U),mOx)
+    call DGEMM_('N','N',mOrb(iSym),n_KO,nBas(iSym),One,Work(ip_CC),mOx,Work(iZ),nBx,Zero,Work(ip_U),mOx)
 
     call Get_Can_Lorb(Eorb(lOff+1),Work(ip_Fock),n_KO,mOrb(iSym),iWork(ip_iD+nOrbmx),Work(ip_U),iSym)
 
-    call DGEMM_('N','N',nBas(iSym),n_KO,n_KO,1.0d0,Work(iZ),nBx,Work(ip_U),n_KO,0.0d0,Work(ipScr),nBx)
+    call DGEMM_('N','N',nBas(iSym),n_KO,n_KO,One,Work(iZ),nBx,Work(ip_U),n_KO,Zero,Work(ipScr),nBx)
 
     ! Reorder the final MOs such that those of the active site come first
     km = jOff+nBas(iSym)*n_OK(iSym)+1
@@ -103,15 +103,15 @@ do iSym=1,nSym
     call dcopy_(nOrbmx,Work(ip_Fock),1,Work(jp_Fock),1)
   end if
 
-  call DGEMM_('N','N',mOrb(iSym),n_OK(iSym),nBas(iSym),1.0d0,Work(ip_CC),mOx,Work(ip_X),nBx,0.0d0,Work(ip_U),mOx)
+  call DGEMM_('N','N',mOrb(iSym),n_OK(iSym),nBas(iSym),One,Work(ip_CC),mOx,Work(ip_X),nBx,Zero,Work(ip_U),mOx)
 
   call Get_Can_Lorb(Eorb(lOff+1),Work(ip_Fock),n_OK(iSym),mOrb(iSym),iWork(ip_iD),Work(ip_U),iSym)
 
   nOx = max(1,n_OK(iSym))
-  call DGEMM_('N','N',nBas(iSym),n_OK(iSym),n_OK(iSym),1.0d0,Work(ip_X),nBx,Work(ip_U),nOx,0.0d0,Work(ipScr),nBx)
+  call DGEMM_('N','N',nBas(iSym),n_OK(iSym),n_OK(iSym),One,Work(ip_X),nBx,Work(ip_U),nOx,Zero,Work(ipScr),nBx)
 
   do i=1,n_OK(iSym)
-    j = kD(i)
+    j = iWork(ip_iD-1+i)
     k = lOff+i
     l = ip_Fock+j-1
     Eorb(k) = Work(l)
@@ -120,7 +120,7 @@ do iSym=1,nSym
   call dcopy_(nBas(iSym)*n_OK(iSym),Work(ipScr),1,Cmo(km),1)
 
   do i=1,n_KO
-    j = lD(i)
+    j = iWork(ip_iD+nOrbmx-1+i)
     k = lOff+n_OK(iSym)+i
     l = jp_Fock+j-1
     Eorb(k) = Work(l)

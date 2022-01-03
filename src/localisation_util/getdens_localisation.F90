@@ -16,12 +16,15 @@ subroutine GetDens_Localisation(Dens,CMO,nBas,nOcc)
 !
 ! Purpose: compute density from CMOs as Dens = CMO * (CMO)^T
 
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
 implicit none
-real*8 Dens(*), CMO(*)
-integer nBas, nOcc
-integer nTBs
+real(kind=wp) :: Dens(*), CMO(*)
+integer(kind=iwp) :: nBas, nOcc
+integer(kind=iwp) :: nTBs
 
 nTBs = max(nBas,1)
-call DGEMM_('N','T',nBas,nBas,nOcc,1.0d0,CMO,nTBs,CMO,nTBs,0.0d0,Dens,nTBs)
+call DGEMM_('N','T',nBas,nBas,nOcc,One,CMO,nTBs,CMO,nTBs,Zero,Dens,nTBs)
 
 end subroutine GetDens_Localisation

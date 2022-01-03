@@ -20,26 +20,25 @@ subroutine ComputeFuncER(ERFun,CMO,nBas,nOcc,nFro,nSym,Timing)
 !    WORKS *ONLY* WITH CHOLESKY DECOMPOSED INTEGRALS
 ! =====================================================
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
 implicit none
-real*8 ERFun
-real*8 CMO(*)
-integer nSym
-integer nBas(nSym), nOcc(nSym), nFro(nSym)
-logical Timing
+real(kind=wp) :: ERFun, CMO(*)
+integer(kind=iwp) :: nSym, nBas(nSym), nOcc(nSym), nFro(nSym)
+logical(kind=iwp) :: Timing
 #include "WrkSpc.fh"
-character*13 SecNam
-parameter(SecNam='ComputeFuncER')
-character*80 Txt
-real*8 FracMem
-integer irc, ipERFun, lERFun, iSym, i, kOff, nFroT
-integer nOccT(8)
+integer(kind=iwp) :: i, ipERFun, irc, iSym, kOff, lERFun, nFroT, nOccT(8)
+real(kind=wp) :: FracMem
+character(len=80) :: Txt
+character(len=*), parameter :: SecNam = 'ComputeFuncER'
 
 ! Initializations.
 ! ----------------
 
 irc = 0
 
-FracMem = 0.0d0 ! no buffer allocated
+FracMem = Zero ! no buffer allocated
 call Cho_X_Init(irc,FracMem)
 if (irc /= 0) then
   write(Txt,'(A,I4)') 'Cho_X_Init returned',irc
@@ -71,7 +70,7 @@ do iSym=2,nSym
 end do
 
 call GetMem('ERFun','Allo','Real',ipERFun,lERFun)
-ERFun = 0.0d0
+ERFun = Zero
 call EvalERFun(ERFun,Work(ipERFun),CMO,nOccT,nSym,Timing)
 if (nFroT > 0) then
   kOff = ipERFun-1

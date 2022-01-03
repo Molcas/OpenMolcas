@@ -13,8 +13,11 @@
 
 subroutine Domain_Histo1(iDomain,nAtom,nOcc,iCount,i_min,i_max)
 
-implicit real*8(a-h,o-z)
-integer iDomain(0:nAtom,nOcc), iCount(*)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: nAtom, nOcc, iDomain(0:nAtom,nOcc), iCount(*), i_min, i_max
+integer(kind=iwp) :: i, iC, nC
 
 nC = i_max-i_min+1
 call iCopy(nC,[0],0,iCount,1)

@@ -42,10 +42,14 @@ subroutine UnFold(A,nAA,B,nBB,nSym,nBas)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 A(nAA), B(nBB)
-integer nBas(nSym)
+use Constants, only: Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nAA, nBB, nSym, nBas(nSym)
+real(kind=wp) :: A(nAA), B(nBB)
+integer(kind=iwp) :: ib, iSym, jb, k1, k2, l1, l2, l3, nb
+real(kind=wp) :: Factor
 
 !----------------------------------------------------------------------*
 !     Start                                                            *

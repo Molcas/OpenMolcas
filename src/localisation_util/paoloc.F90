@@ -63,19 +63,20 @@
 
 subroutine PAOLoc(irc,CMO,PAO,Thr,nBas,nOrb,nOcc,nVir,nSym,Mode)
 
-implicit real*8(a-h,o-z)
-real*8 CMO(*), PAO(*)
-integer nBas(nSym), nOrb(nSym), nOcc(nSym), nVir(nSym)
-character*(*) Mode
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: irc, nSym, nBas(nSym), nOrb(nSym), nOcc(nSym), nVir(nSym)
+real(kind=wp) :: CMO(*), PAO(*), Thr
+character(len=*) :: Mode
 #include "WrkSpc.fh"
-character*6 SecNam
-parameter(SecNam='PAOLoc')
-character*3 myMode, DefMode
-parameter(DefMode='ORT')
-integer DefLevel
-real*8 DefThr
-parameter(DefThr=1.0d-12)
-logical TestOrth, Normalize
+integer(kind=iwp) :: DefLevel, ip_D, ip_Dum, ip_R, iSym, kOff1, kOffP, kOffR, l_D, l_Dum, l_R, Level, lMode, nOrthPs
+real(kind=wp) :: ThrLoc, xNrm
+logical(kind=iwp) :: Normalize, TestOrth
+character(len=3) :: myMode
+real(kind=wp), parameter :: DefThr = 1.0e-12_wp
+character(len=*), parameter :: DefMode = 'ORT', SecNam = 'PAOLoc'
 
 #if defined (_DEBUGPRINT_)
 TestOrth = .true.
@@ -155,7 +156,7 @@ do iSym=2,nSym
 end do
 call GetMem('PAOL_D','Allo','Real',ip_D,l_D)
 
-if (Thr <= 0.0d0) then
+if (Thr <= Zero) then
   ThrLoc = DefThr
 else
   ThrLoc = Thr

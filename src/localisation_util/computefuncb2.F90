@@ -16,12 +16,18 @@ subroutine ComputeFuncB2(nOrb2Loc,ipLbl,nComp,Functional,Debug)
 !
 ! Purpose: compute Boys localisation functional B2.
 
-implicit real*8(a-h,o-z)
-integer ipLbl(nComp)
-logical Debug
-#include "WrkSpc.fh"
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp, u6
 
-Functional = 0.0d0
+implicit none
+integer(kind=iwp) :: nOrb2Loc, nComp, ipLbl(nComp)
+real(kind=wp) :: Functional
+logical(kind=iwp) :: Debug
+#include "WrkSpc.fh"
+integer(kind=iwp) :: i, iComp, iMO, ip0, j, kij, kji
+real(kind=wp) :: Cmp, Tst
+
+Functional = Zero
 do iComp=1,nComp
   ip0 = ipLbl(iComp)-1
   do i=1,nOrb2Loc
@@ -30,31 +36,31 @@ do iComp=1,nComp
 end do
 
 if (Debug) then
-  write(6,*)
-  write(6,*) 'In ComputeFuncB2'
-  write(6,*) '----------------'
-  write(6,*) 'Functional B2 = ',Functional
-  write(6,*) '[Assuming doubly occupied orbitals]'
+  write(u6,*)
+  write(u6,*) 'In ComputeFuncB2'
+  write(u6,*) '----------------'
+  write(u6,*) 'Functional B2 = ',Functional
+  write(u6,*) '[Assuming doubly occupied orbitals]'
   do iComp=1,nComp
     ip0 = ipLbl(iComp)-1
-    Cmp = 0.0d0
+    Cmp = Zero
     do iMO=1,nOrb2Loc
       Cmp = Cmp+Work(ip0+nOrb2Loc*(iMO-1)+iMO)
     end do
-    Cmp = 2.0d0*Cmp
-    write(6,'(A,I5,1X,F15.8)') 'Component, Exp. Val.:',iComp,Cmp
+    Cmp = Two*Cmp
+    write(u6,'(A,I5,1X,F15.8)') 'Component, Exp. Val.:',iComp,Cmp
     do j=1,nOrb2Loc-1
       do i=j+1,nOrb2Loc
         kij = ip0+nOrb2Loc*(j-1)+i
         kji = ip0+nOrb2Loc*(i-1)+j
         Tst = Work(kij)-Work(kji)
-        if (abs(Tst) > 1.0d-14) then
-          write(6,*) 'ComputeFuncB2: broken symmetry!'
-          write(6,*) '  Component: ',iComp
-          write(6,*) '  i and j  : ',i,j
-          write(6,*) '  Dij      : ',Work(kij)
-          write(6,*) '  Dji      : ',Work(kji)
-          write(6,*) '  Diff.    : ',Tst
+        if (abs(Tst) > 1.0e-14_wp) then
+          write(u6,*) 'ComputeFuncB2: broken symmetry!'
+          write(u6,*) '  Component: ',iComp
+          write(u6,*) '  i and j  : ',i,j
+          write(u6,*) '  Dij      : ',Work(kij)
+          write(u6,*) '  Dji      : ',Work(kji)
+          write(u6,*) '  Diff.    : ',Tst
           call SysAbendMsg('ComputeFuncB2','Broken symmetry!',' ')
         end if
       end do

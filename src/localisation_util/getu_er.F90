@@ -18,15 +18,14 @@ subroutine GetU_ER(U,R,n)
 !
 ! (used by ER orbital localisation - hence the _ER)
 
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
 implicit none
-integer n
-real*8 U(n,n), R(n,n)
+integer(kind=iwp) :: n
+real(kind=wp) :: U(n,n), R(n,n)
 #include "WrkSpc.fh"
-integer nn, n2
-integer ipRTR, lRTR
-integer ipSqrt, lSqrt, ipISqrt, lISqrt
-integer ipScr, lScr
-integer iTask
+integer(kind=iwp) :: ipISqrt, ipRTR, ipScr, ipSqrt, iTask, lISqrt, lRTR, lScr, lSqrt, n2, nn
 
 if (n < 1) return
 
@@ -48,7 +47,7 @@ call GetMem('Scr','Allo','Real',ipScr,lScr)
 ! Compute R^T*R.
 ! --------------
 
-call DGEMM_('T','N',n,n,n,1.0d0,R,n,R,n,0.0d0,Work(ipRTR),n)
+call DGEMM_('T','N',n,n,n,One,R,n,R,n,Zero,Work(ipRTR),n)
 
 ! Compute inverse square root of R^T*R.
 ! -------------------------------------
@@ -59,7 +58,7 @@ call SqrtMt(Work(ipRTR),n,iTask,Work(ipSqrt),Work(ipISqrt),Work(ipScr))
 ! Compute U.
 ! ----------
 
-call DGEMM_('N','N',n,n,n,1.0d0,R,n,Work(ipISqrt),n,0.0d0,U,n)
+call DGEMM_('N','N',n,n,n,One,R,n,Work(ipISqrt),n,Zero,U,n)
 
 ! De-allocations.
 ! ---------------

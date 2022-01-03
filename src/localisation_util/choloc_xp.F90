@@ -14,29 +14,28 @@
 subroutine ChoLoc_xp(irc,Dens,CMO,Thrs,xNrm,nBas,nOcc,iD)
 ! Same as ChoLoc_p but handles differently the irc=102
 
+use Definitions, only: wp, iwp, u6, r8
+
 implicit none
-integer irc, nBas, nOcc, iD(nBas)
-real*8 Thrs, xNrm
-real*8 Dens(nBas,nBas), CMO(nBas,nOcc)
-character*9 SecNam
-parameter(SecNam='ChoLoc_xp')
-integer nVec
-real*8 ddot_
-external ddot_
+integer(kind=iwp) :: irc, nBas, nOcc, iD(nBas)
+real(kind=wp) :: Dens(nBas,nBas), CMO(nBas,nOcc), Thrs, xNrm
+integer(kind=iwp) :: nVec
+character(len=*), parameter :: SecNam = 'ChoLoc_xp'
+real(kind=r8), external :: ddot_
 
 irc = 0
-xNrm = -9.9d9
+xNrm = -huge(xNrm)
 
 nVec = 0
 call CD_InCore_p(Dens,nBas,CMO,nOcc,iD,nVec,Thrs,irc)
 if ((irc /= 0) .and. (irc /= 102)) then
-  write(6,*) SecNam,': CD_InCore_p returned ',irc
+  write(u6,*) SecNam,': CD_InCore_p returned ',irc
   return
 else if (irc == 102) then
   irc = 0  ! reset because it is most likely a numerical noise
 else if (nVec /= nOcc) then
-  write(6,*) SecNam,': nVec /= nOcc'
-  write(6,*) '   nVec,nOcc = ',nVec,nOcc
+  write(u6,*) SecNam,': nVec /= nOcc'
+  write(u6,*) '   nVec,nOcc = ',nVec,nOcc
   irc = 1
   return
 end if

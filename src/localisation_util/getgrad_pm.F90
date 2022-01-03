@@ -16,13 +16,18 @@ subroutine GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Rmat,Debug)
 !
 ! Purpose: compute the gradient of the Pipek-Mezey functional.
 
-implicit real*8(a-h,o-z)
-real*8 Rmat(nOrb2Loc,nOrb2Loc)
-real*8 PA(nOrb2Loc,nOrb2Loc,nAtoms)
-logical Debug
-#include "WrkSpc.fh"
+use Constants, only: Zero, Four
+use Definitions, only: wp, iwp, u6
 
-RMat(:,:) = 0.0d0
+implicit none
+integer(kind=iwp) :: nAtoms, nOrb2Loc
+real(kind=wp) :: PA(nOrb2Loc,nOrb2Loc,nAtoms), GradNorm, Rmat(nOrb2Loc,nOrb2Loc)
+logical(kind=iwp) :: Debug
+#include "WrkSpc.fh"
+integer(kind=iwp) :: i, iAtom, j
+real(kind=wp) :: Fun, Rjj
+
+RMat(:,:) = Zero
 do iAtom=1,nAtoms
   do j=1,nOrb2Loc
     Rjj = PA(j,j,iAtom)
@@ -32,20 +37,20 @@ do iAtom=1,nAtoms
   end do
 end do
 
-GradNorm = 0.0d0
+GradNorm = Zero
 do i=1,nOrb2Loc-1
   do j=i+1,nOrb2Loc
     GradNorm = GradNorm+(Rmat(i,j)-Rmat(j,i))**2
   end do
 end do
-GradNorm = 4.0d0*sqrt(GradNorm)
+GradNorm = Four*sqrt(GradNorm)
 
 if (Debug) then
-  Fun = 0.0d0
+  Fun = Zero
   do i=1,nOrb2Loc
     Fun = Fun+Rmat(i,i)
   end do
-  write(6,*) 'GetGrad_PM: functional = Tr(R) = ',Fun
+  write(u6,*) 'GetGrad_PM: functional = Tr(R) = ',Fun
 end if
 
 end subroutine GetGrad_PM

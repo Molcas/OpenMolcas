@@ -16,37 +16,41 @@ subroutine Domain_Histogram(iDomain,nAtom,nOcc,Title)
 !
 ! Purpose: print histogram of domain sizes.
 
-implicit real*8(a-h,o-z)
-integer iDomain(0:nAtom,nOcc)
-character*(*) Title
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nAtom, nOcc, iDomain(0:nAtom,nOcc)
+character(len=*) :: Title
 #include "WrkSpc.fh"
+integer(kind=iwp) :: i, i_max, i_min, iC, ip_iCount, l_iCount
+real(kind=wp) :: Fac, Pct, x_ave
 
 if ((nAtom < 1) .or. (nOcc < 1)) return
 
 i_min = iDomain(0,1)
 i_max = iDomain(0,1)
-x_ave = dble(iDomain(0,1))
+x_ave = real(iDomain(0,1),kind=wp)
 do i=2,nOcc
   i_min = min(i_min,iDomain(0,i))
   i_max = max(i_max,iDomain(0,i))
-  x_ave = x_ave+dble(iDomain(0,i))
+  x_ave = x_ave+real(iDomain(0,i),kind=wp)
 end do
-x_ave = x_ave/dble(nOcc)
+x_ave = x_ave/real(nOcc,kind=wp)
 
 l_iCount = i_max-i_min+1
 call GetMem('Dm_Histo','Allo','Inte',ip_iCount,l_iCount)
 
-call Cho_Head(Title,'=',80,6)
-write(6,'(/,A,3X,I10,/,A,3X,I10,/,A,F13.2)') 'Minimum size:',i_min,'Maximum size:',i_max,'Average size:',x_ave
+call Cho_Head(Title,'=',80,u6)
+write(u6,'(/,A,3X,I10,/,A,3X,I10,/,A,F13.2)') 'Minimum size:',i_min,'Maximum size:',i_max,'Average size:',x_ave
 call Domain_Histo1(iDomain,nAtom,nOcc,iWork(ip_iCount),i_min,i_max)
-Fac = 1.0d2/dble(nOcc)
-Pct = Fac*dble(iWork(ip_iCount))
+Fac = 1.0e2_wp/real(nOcc,kind=wp)
+Pct = Fac*real(iWork(ip_iCount),kind=wp)
 i = i_min
-write(6,'(/,A,I10,A,I10,3X,F7.2,A)') 'Number with size',i,':',iWork(ip_iCount),Pct,'%'
+write(u6,'(/,A,I10,A,I10,3X,F7.2,A)') 'Number with size',i,':',iWork(ip_iCount),Pct,'%'
 do iC=2,l_iCount
-  Pct = Fac*dble(iWork(ip_iCount-1+iC))
+  Pct = Fac*real(iWork(ip_iCount-1+iC),kind=wp)
   i = i+1
-  write(6,'(A,I10,A,I10,3X,F7.2,A)') 'Number with size',i,':',iWork(ip_iCount-1+iC),Pct,'%'
+  write(u6,'(A,I10,A,I10,3X,F7.2,A)') 'Number with size',i,':',iWork(ip_iCount-1+iC),Pct,'%'
 end do
 
 call GetMem('Dm_Histo','Free','Inte',ip_iCount,l_iCount)

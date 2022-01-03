@@ -23,14 +23,14 @@ subroutine Diag_Localisation(A,EVR,EVI,n,iGetVecs)
 !          See LAPACK for details about the storage of real and
 !          complex eigenvectors.
 
+use Definitions, only: wp, iwp, u6
+
 implicit none
-integer n, iGetVecs
-real*8 A(n,n), EVR(n), EVI(n)
+integer(kind=iwp) :: n, iGetVecs
+real(kind=wp) :: A(n,n), EVR(n), EVI(n)
 #include "WrkSpc.fh"
-character*17 SecNam
-parameter(SecNam='Diag_Localisation')
-integer iErr
-integer ip_Vecs, l_Vecs
+integer(kind=iwp) :: iErr, ip_Vecs, l_Vecs
+character(len=*), parameter :: SecNam = 'Diag_Localisation'
 
 l_Vecs = n*n
 call GetMem('Vecs','Allo','Real',ip_Vecs,l_Vecs)
@@ -38,7 +38,7 @@ call GetMem('Vecs','Allo','Real',ip_Vecs,l_Vecs)
 iErr = 0
 call xEigen(iGetVecs,n,n,A,EVR,EVI,Work(ip_Vecs),iErr)
 if (iErr /= 0) then
-  write(6,*) SecNam,': xEigen returned ',iErr
+  write(u6,*) SecNam,': xEigen returned ',iErr
   call SysAbendMsg(SecNam,'Error in xEigen',' ')
 end if
 

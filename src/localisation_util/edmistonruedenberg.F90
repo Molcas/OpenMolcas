@@ -17,14 +17,17 @@ subroutine EdmistonRuedenberg(Functional,CMO,Thrs,ThrRot,ThrGrad,nBas,nOrb2Loc,n
 !
 ! Purpose: Edmiston-Ruedenberg localisation of occupied orbitals.
 
-implicit real*8(a-h,o-z)
-real*8 CMO(*)
-integer nBas(nSym), nOrb2Loc(nSym), nFro(nSym)
-logical Maximisation, Converged, Debug, Silent
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: Functional, CMO(*), Thrs, ThrRot, ThrGrad
+integer(kind=iwp) :: nSym, nBas(nSym), nOrb2Loc(nSym), nFro(nSym), nMxIter
+logical(kind=iwp) :: Maximisation, Converged, Debug, Silent
 #include "WrkSpc.fh"
-character*18 SecNam
-parameter(SecNam='EdmistonRuedenberg')
-character*80 Txt
+integer(kind=iwp) :: irc, kOffC, nBasT, nFroT, nOrb2LocT
+real(kind=wp) :: FracMem
+character(len=80) :: Txt
+character(len=*), parameter :: SecNam = 'EdmistonRuedenberg'
 
 ! Symmetry is NOT allowed.
 ! ------------------------
@@ -36,7 +39,7 @@ end if
 ! Initializations.
 ! ----------------
 
-Functional = -9.9d9
+Functional = -huge(Functional)
 
 nBasT = nBas(1)
 nOrb2LocT = nOrb2Loc(1)
@@ -45,7 +48,7 @@ nFroT = nFro(1)
 Converged = .false.
 
 irc = -1
-FracMem = 0.3d0 ! 30 percent of memory used as vector buffer
+FracMem = 0.3_wp ! 30 percent of memory used as vector buffer
 call Cho_X_Init(irc,FracMem)
 if (irc /= 0) then
   write(Txt,'(A,I6)') 'Cho_X_Init returned',irc

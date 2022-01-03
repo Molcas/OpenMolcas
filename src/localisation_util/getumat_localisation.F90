@@ -16,17 +16,15 @@ subroutine GetUmat_Localisation(U,C,S,X,Scr,lScr,nBas,nOrb)
 !
 ! Purpose: compute transformation matrix U=C^TSX.
 
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
 implicit none
-real*8 U(*), C(*), S(*), X(*)
-integer lScr
-real*8 Scr(lScr)
-integer nBas, nOrb
-character*80 Txt
-character*20 SecNam
-parameter(SecNam='GetUmat_Localisation')
-real*8 d0, d1
-parameter(d0=0.0d0,d1=1.0d0)
-integer Need
+integer(kind=iwp) :: lScr, nBas, nOrb
+real(kind=wp) :: U(*), C(*), S(*), X(*), Scr(lScr)
+integer(kind=iwp) :: Need
+character(len=80) :: Txt
+character(len=*), parameter :: SecNam = 'GetUmat_Localisation'
 
 if ((nOrb < 1) .or. (nBas < 1)) return
 
@@ -36,7 +34,7 @@ if (lScr < Need) then
   call SysAbendMsg(SecNam,'Insufficient dimension of scratch array!',Txt)
 end if
 
-call DGEMM_('N','N',nBas,nOrb,nBas,d1,S,nBas,X,nBas,d0,Scr,nBas)
-call DGEMM_('T','N',nOrb,nOrb,nBas,d1,C,nBas,Scr,nBas,d0,U,nOrb)
+call DGEMM_('N','N',nBas,nOrb,nBas,One,S,nBas,X,nBas,Zero,Scr,nBas)
+call DGEMM_('T','N',nOrb,nOrb,nBas,One,C,nBas,Scr,nBas,Zero,U,nOrb)
 
 end subroutine GetUmat_Localisation

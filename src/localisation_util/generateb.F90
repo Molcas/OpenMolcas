@@ -17,47 +17,52 @@ subroutine GenerateB(CMO,nBas,nOrb2Loc,ipLbl_AO,ipLbl,nComp,Debug)
 ! Purpose: generate the dipole matrices for Boys localisation, i.e.
 !          transform from AO to MO basis.
 
-implicit real*8(a-h,o-z)
-real*8 CMO(*)
-integer ipLbl_AO(nComp), ipLbl(nComp)
-logical Debug
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp) :: CMO(*)
+integer(kind=iwp) :: nBas, nOrb2Loc, nComp, ipLbl_AO(nComp), ipLbl(nComp)
+logical(kind=iwp) :: Debug
 #include "WrkSpc.fh"
+integer(kind=iwp) :: i, iComp, iMO, ip0, ipDbar, j, kij, kji, lDbar
+real(kind=wp) :: Cmp, Tst
 
 if ((nBas < 1) .or. (nOrb2Loc < 1)) return
 
 lDbar = nBas*nOrb2Loc
 call GetMem('Dbar','Allo','Real',ipDbar,lDbar)
 do iComp=1,nComp
-  call DGEMM_('N','N',nBas,nOrb2Loc,nBas,1.0d0,Work(ipLbl_AO(iComp)),nBas,CMO,nBas,0.0d0,Work(ipDbar),nBas)
-  call DGEMM_('T','N',nOrb2Loc,nOrb2Loc,nBas,1.0d0,CMO,nBas,Work(ipDbar),nBas,0.0d0,Work(ipLbl(iComp)),nOrb2Loc)
+  call DGEMM_('N','N',nBas,nOrb2Loc,nBas,One,Work(ipLbl_AO(iComp)),nBas,CMO,nBas,Zero,Work(ipDbar),nBas)
+  call DGEMM_('T','N',nOrb2Loc,nOrb2Loc,nBas,One,CMO,nBas,Work(ipDbar),nBas,Zero,Work(ipLbl(iComp)),nOrb2Loc)
 end do
 call GetMem('Dbar','Free','Real',ipDbar,lDbar)
 
 if (Debug) then
-  write(6,*)
-  write(6,*) 'In GenerateB'
-  write(6,*) '------------'
-  write(6,*) '[Assuming doubly occupied orbitals]'
+  write(u6,*)
+  write(u6,*) 'In GenerateB'
+  write(u6,*) '------------'
+  write(u6,*) '[Assuming doubly occupied orbitals]'
   do iComp=1,nComp
     ip0 = ipLbl(iComp)-1
-    Cmp = 0.0d0
+    Cmp = Zero
     do iMO=1,nOrb2Loc
       Cmp = Cmp+Work(ip0+nOrb2Loc*(iMO-1)+iMO)
     end do
-    Cmp = 2.0d0*Cmp
-    write(6,'(A,I5,1X,F15.8)') 'Component, Exp. Val.:',iComp,Cmp
+    Cmp = Two*Cmp
+    write(u6,'(A,I5,1X,F15.8)') 'Component, Exp. Val.:',iComp,Cmp
     do j=1,nOrb2Loc-1
       do i=j+1,nOrb2Loc
         kij = ip0+nOrb2Loc*(j-1)+i
         kji = ip0+nOrb2Loc*(i-1)+j
         Tst = Work(kij)-Work(kji)
-        if (abs(Tst) > 1.0d-14) then
-          write(6,*) 'GenerateB: broken symmetry!'
-          write(6,*) '  Component: ',iComp
-          write(6,*) '  i and j  : ',i,j
-          write(6,*) '  Dij      : ',Work(kij)
-          write(6,*) '  Dji      : ',Work(kji)
-          write(6,*) '  Diff.    : ',Tst
+        if (abs(Tst) > 1.0e-14_wp) then
+          write(u6,*) 'GenerateB: broken symmetry!'
+          write(u6,*) '  Component: ',iComp
+          write(u6,*) '  i and j  : ',i,j
+          write(u6,*) '  Dij      : ',Work(kij)
+          write(u6,*) '  Dji      : ',Work(kji)
+          write(u6,*) '  Diff.    : ',Tst
           call SysAbendMsg('GenerateB','Broken symmetry!',' ')
         end if
       end do

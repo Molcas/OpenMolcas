@@ -64,23 +64,28 @@ subroutine Inv_FWT_Haar(n,m,B,X)
 !
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-integer n, m
-real*8 B(n,*), X(n,*)
+use Constants, only: Half
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: n, m
+real(kind=wp) :: B(n,*), X(n,*)
+integer(kind=iwp) :: i, j, k, kB, kv, lB, nv
+real(kind=wp) :: fac
 
 if (m <= 0) then
 
-  write(6,*) ' Inv_FWT_Haar: Illegal value of m = ',m
+  write(u6,*) ' Inv_FWT_Haar: Illegal value of m = ',m
   call Abend()
 
 elseif (n <= 0) then
 
-  write(6,*) ' Inv_FWT_Haar: Illegal value of n = ',n
+  write(u6,*) ' Inv_FWT_Haar: Illegal value of n = ',n
   call Abend()
 
 else  ! do not use BLAS
 
-  fac = sqrt(0.5d0)
+  fac = sqrt(Half)
   nv = 1
   do j=1,m
     kB = -1

@@ -29,10 +29,10 @@
 !> been done. If \p irc = ``1`` is returned, the iterative procedure did
 !> not converge to within the threshold (\p Thr, \p ThrGrad) in the
 !> requested max. number of iterations (\p MxIter). If the user
-!> specifies negative thresholds, \p Thr = ``1.0d-6`` and \p ThrGrad = ``1.0d-3``
+!> specifies negative thresholds, \p Thr = ``1.0e-6_wp`` and \p ThrGrad = ``1.0e-3_wp``
 !> will be used.
 !> If the user specifies a negative screening threshold,
-!> \p ThrRot = ``1.0d-10`` is used.
+!> \p ThrRot = ``1.0e-10_wp`` is used.
 !>
 !> @param[out]    irc     Return code
 !> @param[in,out] CMO     Molecular orbital coefficients
@@ -49,14 +49,18 @@
 
 subroutine ERLoc(irc,CMO,Thr,ThrGrad,ThrRot,MxIter,nBas,nOcc,nFro,nSym,Silent)
 
-implicit real*8(a-h,o-z)
-real*8 CMO(*)
-integer nBas(nSym), nOcc(nSym), nFro(nSym)
-logical Silent
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: irc, MxIter, nSym, nBas(nSym), nOcc(nSym), nFro(nSym)
+real(kind=wp) :: CMO(*), Thr, ThrGrad, ThrRot
+logical(kind=iwp) :: Silent
 #include "Molcas.fh"
-character*5 SecNam
-parameter(SecNam='ERLoc')
-logical Maximization, Converged, Debug
+integer(kind=iwp) :: iSym, nBasT, nOccT
+real(kind=wp) :: Functional, ThrGLoc, ThrLoc, ThrRotLoc
+logical(kind=iwp) :: Converged, Debug, Maximization
+character(len=*), parameter :: SecNam = 'ERLoc'
 
 ! Initialization.
 ! ---------------
@@ -88,19 +92,19 @@ end if
 ! Localize.
 ! ---------
 
-Functional = -9.9d9
-if (Thr <= 0.0d0) then
-  ThrLoc = 1.0d-6
+Functional = -huge(Functional)
+if (Thr <= Zero) then
+  ThrLoc = 1.0e-6_wp
 else
   ThrLoc = Thr
 end if
-if (ThrGrad <= 0.0d0) then
-  ThrGLoc = 1.0d-3
+if (ThrGrad <= Zero) then
+  ThrGLoc = 1.0e-3_wp
 else
   ThrGLoc = ThrGrad
 end if
-if (ThrRot < 0.0d0) then
-  ThrRotLoc = 1.0d-10
+if (ThrRot < Zero) then
+  ThrRotLoc = 1.0e-10_wp
 else
   ThrRotLoc = ThrRot
 end if

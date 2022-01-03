@@ -18,9 +18,12 @@ subroutine COPDIA(A,VEC,NDIM,IPACK)
 !   IPACK = 0 : Full matrix
 !   IPACK = 1 : Lower triangular matrix
 
-implicit real*8(A-H,O-Z)
-dimension A(*), VEC(*)
-integer ip_CPDIA
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: A(*), VEC(*)
+integer(kind=iwp) :: NDIM, IPACK
+integer(kind=iwp) :: I, ip_CPDIA
 
 #include "WrkSpc.fh"
 !VVP

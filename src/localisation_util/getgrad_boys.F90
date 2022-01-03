@@ -16,11 +16,16 @@ subroutine GetGrad_Boys(nOrb2Loc,ipLbl,nComp,Rmat,GradNorm,Debug)
 !
 ! Purpose: compute R-matrix and gradient norm for Boys functional.
 
-implicit real*8(a-h,o-z)
-integer ipLbl(nComp)
-real*8 Rmat(nOrb2Loc,nOrb2Loc)
-logical Debug
+use Constants, only: Zero, Four
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nOrb2Loc, nComp, ipLbl(nComp)
+real(kind=wp) :: Rmat(nOrb2Loc,nOrb2Loc), GradNorm
+logical(kind=iwp) :: Debug
 #include "WrkSpc.fh"
+integer(kind=iwp) :: i, iComp, ip0, j
+real(kind=wp) :: Fun, Rjj
 
 call FZero(Rmat,nOrb2Loc**2)
 do iComp=1,nComp
@@ -33,20 +38,20 @@ do iComp=1,nComp
   end do
 end do
 
-GradNorm = 0.0d0
+GradNorm = Zero
 do i=1,nOrb2Loc-1
   do j=i+1,nOrb2Loc
     GradNorm = GradNorm+(Rmat(i,j)-Rmat(j,i))**2
   end do
 end do
-GradNorm = 4.0d0*sqrt(GradNorm)
+GradNorm = Four*sqrt(GradNorm)
 
 if (Debug) then
-  Fun = 0.0d0
+  Fun = Zero
   do i=1,nOrb2Loc
     Fun = Fun+Rmat(i,i)
   end do
-  write(6,*) 'GetGrad_Boys: functional = Tr(R) = ',Fun
+  write(u6,*) 'GetGrad_Boys: functional = Tr(R) = ',Fun
 end if
 
 end subroutine GetGrad_Boys

@@ -12,22 +12,26 @@
 !               2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine UpdateP(PACol,Name,nBas_Start,nOrb2Loc,nAtoms,PA,gamma_rot,iMO_s,iMO_t,Debug)
+subroutine UpdateP(PACol,BName,nBas_Start,nOrb2Loc,nAtoms,PA,gamma_rot,iMO_s,iMO_t,Debug)
 ! Author: Yannick Carissan.
 !
 ! Modifications:
 !    - October 6, 2005 (Thomas Bondo Pedersen):
 !      Reduce operation count and use BLAS.
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "WrkSpc.fh"
+use Constants, only: Two
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "Molcas.fh"
-integer nBas_Start(*)
-real*8 PACol(nOrb2Loc,2)
-real*8 PA(nOrb2Loc,nOrb2Loc,nAtoms)
-character*(LENIN8) Name(*), PALbl
-logical Debug
+integer(kind=iwp) :: nBas_Start(*), nOrb2Loc, nAtoms, iMO_s, iMO_t
+real(kind=wp) :: PACol(nOrb2Loc,2), PA(nOrb2Loc,nOrb2Loc,nAtoms), gamma_rot
+character(len=LenIn8) :: BName(*)
+logical(kind=iwp) :: Debug
+#include "WrkSpc.fh"
+integer(kind=iwp) :: iAt
+real(kind=wp) :: cos2g, cosg, cosing, PA_ss, PA_st, PA_tt, sin2g, sing
+character(len=LenIn8) :: PALbl
 
 cosg = cos(gamma_rot)
 sing = sin(gamma_rot)
@@ -38,21 +42,21 @@ cosing = cosg*sing
 do iAt=1,nAtoms
   !call RecPrt('PA(1,1,iAt)',' ',PA(1,1,iAt),nOrb2Loc,nOrb2Loc)
 
-  ! Copy out the PAss, PAtt, and PAst elements.
+  ! Copy out the PA_ss, PA_tt, and PA_st elements.
 
-  pass = PA(iMO_s,iMO_s,iAt)
-  PAst = PA(iMO_s,iMO_t,iAt)
-  PAtt = PA(iMO_t,iMO_t,iAt)
-  !write(6,*) 'updateP:',PAss,PAst,PAtt
+  PA_ss = PA(iMO_s,iMO_s,iAt)
+  PA_st = PA(iMO_s,iMO_t,iAt)
+  PA_tt = PA(iMO_t,iMO_t,iAt)
+  !write(u6,*) 'updateP:',PA_ss,PA_st,PA_tt
 # if defined (_DEBUGPRINT_)
-  PAts = PA(iMO_t,iMO_s,iAt)
-  Tst = PAst-PAts
-  if (abs(Tst) > 1.0d-14) then
-    write(6,*) 'Broken symmetry in UpdateP!!'
-    write(6,*) 'MOs s and t: ',iMO_s,iMO_t
-    write(6,*) 'PAst = ',PAst
-    write(6,*) 'PAts = ',PAts
-    write(6,*) 'Diff = ',Tst
+  PA_ts = PA(iMO_t,iMO_s,iAt)
+  Tst = PA_st-PA_ts
+  if (abs(Tst) > 1.0e-14_wp) then
+    write(u6,*) 'Broken symmetry in UpdateP!!'
+    write(u6,*) 'MOs s and t: ',iMO_s,iMO_t
+    write(u6,*) 'PA_st = ',PA_st
+    write(u6,*) 'PA_ts = ',PA_ts
+    write(u6,*) 'Diff = ',Tst
     call SysAbendMsg('UpdateP','Broken symmetry!',' ')
   end if
 # endif
@@ -69,12 +73,12 @@ do iAt=1,nAtoms
   call dScal_(nOrb2Loc,cosg,PA(1,iMO_t,iAt),1)
   call dAXPY_(nOrb2Loc,-sing,PACol(1,1),1,PA(1,iMO_t,iAt),1)
 
-  ! Compute PAss, PAtt, PAst, and PAts (= PAst).
+  ! Compute PA_ss, PA_tt, PA_st, and PA_ts (= PA_st).
 
-  PA(iMO_s,iMO_s,iAt) = pass*cos2g+PAtt*sin2g+Two*PAst*cosing
-  PA(iMO_t,iMO_s,iAt) = (PAtt-pass)*cosing+PAst*(cos2g-sin2g)
+  PA(iMO_s,iMO_s,iAt) = PA_ss*cos2g+PA_tt*sin2g+Two*PA_st*cosing
+  PA(iMO_t,iMO_s,iAt) = (PA_tt-PA_ss)*cosing+PA_st*(cos2g-sin2g)
   PA(iMO_s,iMO_t,iAt) = PA(iMO_t,iMO_s,iAt)
-  PA(iMO_t,iMO_t,iAt) = PAtt*cos2g+pass*sin2g-Two*PAst*cosing
+  PA(iMO_t,iMO_t,iAt) = PA_tt*cos2g+PA_ss*sin2g-Two*PA_st*cosing
 
   ! Copy columns to rows.
 
@@ -84,10 +88,10 @@ do iAt=1,nAtoms
 end do
 
 if (Debug) then
-  write(6,*) 'In UpdateP'
-  write(6,*) '----------'
+  write(u6,*) 'In UpdateP'
+  write(u6,*) '----------'
   do iAt=1,nAtoms
-    PALbl = 'PA__'//Name(nBas_Start(iAt))(1:LENIN)
+    PALbl = 'PA__'//BName(nBas_Start(iAt))(1:LenIn)
     call RecPrt(PALbl,' ',PA(1,1,iAt),nOrb2Loc,nOrb2Loc)
   end do
 end if

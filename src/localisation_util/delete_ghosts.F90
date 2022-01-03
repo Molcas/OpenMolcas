@@ -11,7 +11,7 @@
 ! Copyright (C) 2010, Francesco Aquilante                              *
 !***********************************************************************
 
-subroutine Delete_Ghosts(irc,nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,NAME,nUniqAt,ThrS,isCASPT2,CMO,EOrb)
+subroutine Delete_Ghosts(irc,nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,BName,nUniqAt,ThrS,isCASPT2,CMO,EOrb)
 !***********************************************************************
 !                                                                      *
 ! Purpose:  Eliminates MOs of ghost atoms from PT2 treatment           *
@@ -20,25 +20,25 @@ subroutine Delete_Ghosts(irc,nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,NAME,nUniqAt,Thr
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "itmax.fh"
-#include "Molcas.fh"
-#include "real.fh"
-#include "WrkSpc.fh"
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6, r8
 
-integer nBas(nSym), nFro(nSym), nIsh(nSym), nAsh(nSym), nSsh(nSym),nDel(nSym)
-integer irc, nUniqAt
-real*8 ThrS, CMO(*), EOrb(*)
-logical isCASPT2
-character*(LENIN8) NAME(*)
-character*(LENIN) blank, NamAct(mxAtom), tmp
-integer n_OK(8)
-!***********************************************************************
-! Statement function
-jD(i) = iWork(ip_iD-1+i)
+implicit none
+#include "Molcas.fh"
+integer(kind=iwp) :: irc, nSym, nBas(nSym), nFro(nSym), nIsh(nSym), nAsh(nSym), nSsh(nSym), nDel(nSym), nUniqAt
+character(len=LenIn8) :: BName(*)
+real(kind=wp) :: ThrS, CMO(*), EOrb(*)
+logical(kind=iwp) :: isCASPT2
+#include "itmax.fh"
+#include "WrkSpc.fh"
+integer(kind=iwp) :: i, ia, iAt, iBat, iC, iCMO, iD, ifr, ik, iOff, ip_iD, ip_nBas_per_Atom, ip_nBas_Start, ipAsh, ipQ, ipQa, ipS, &
+                     ipSQ, ipZ, iQ, iQa, iQQ, iS, iSQ, iSym, isymlbl, ito, iv, iX, iZ, j, ja, jAt, jb, jBas, jBat, jC, jCMO, jfr, &
+                     jjCMO, jjZ, jOff, jQ, jto, jX, jZ, kBas, kCMO, kOff, l_nBas_per_Atom, l_nBas_Start, lBas, LCMO, lsq, ltri, &
+                     mAsh, n_KO, n_OK(8), nActa, nAk, nBa, nBasT, nBat, nBax, nBk, nBmx, nBx, NCMO, nOkk, nSmall, nSmx, nSQ, ntri
+character(len=LenIn) :: NamAct(mxAtom), tmp
+real(kind=r8), external :: ddot_
 
 irc = 0
-blank = ' '
 
 !----------------------------------------------------------------------*
 !     GET THE TOTAL NUMBER OF BASIS FUNCTIONS, etc. AND CHECK LIMITS   *
@@ -60,7 +60,7 @@ do i=1,nSym
 end do
 NCMO = nSQ
 if (nBasT > mxBas) then
-  write(6,'(/6X,A)') 'The number of basis functions exceeds the present limit'
+  write(u6,'(/6X,A)') 'The number of basis functions exceeds the present limit'
   call Abend()
 end if
 
@@ -68,11 +68,11 @@ end if
 ! ---------------------------------------------------------------
 
 if ((nUniqAt < 1) .or. (nUniqAt > MxAtom)) then
-  write(6,'(A,I9)') 'nUniqAt =',nUniqAt
+  write(u6,'(A,I9)') 'nUniqAt =',nUniqAt
   call Abend()
 end if
 do iAt=1,nUniqAt
-  NamAct(iAt) = blank
+  NamAct(iAt) = ' '
 end do
 
 ! Allocate and get index arrays for basis functions per atom.
@@ -118,10 +118,10 @@ do iSym=1,nSym
   iSQ = ipSQ+iOff
   ipAsh = LCMO+iOff+nBas(iSym)*nFro(iSym)
   nBx = max(1,nBas(iSym))
-  call DGEMM_('N','N',nBas(iSym),nOkk,nBas(iSym),1.0d0,Work(iSQ),nBx,Work(ipAsh),nBx,0.0d0,Work(ipZ),nBx)
+  call DGEMM_('N','N',nBas(iSym),nOkk,nBas(iSym),One,Work(iSQ),nBx,Work(ipAsh),nBx,Zero,Work(ipZ),nBx)
   jBas = lBas+1
   kBas = lBas+nBas(iSym)
-  call BasFun_Atom_(iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),Name,jBas,kBas,nUniqAt,.false.)
+  call BasFun_Atom_(iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),BName,jBas,kBas,nUniqAt,.false.)
   do ik=0,nOkk-1
     nAk = nUniqAt*ik
     nBk = nBas(iSym)*ik
@@ -142,7 +142,7 @@ do iSym=1,nSym
     Work(iQa) = Work(iQa)+ddot_(nOkk,Work(jQ),nUniqAt,Work(jQ),nUniqAt)
     if (sqrt(Work(iQa)) >= ThrS) then
       jBat = iWork(ip_nBas_Start+iAt)+lBas
-      if (iWork(ip_nBas_per_Atom+iAt) > 0) NamAct(iAt+1) = Name(jBat)(1:LENIN)
+      if (iWork(ip_nBas_per_Atom+iAt) > 0) NamAct(iAt+1) = BName(jBat)(1:LenIn)
     end if
   end do
   lBas = lBas+nBas(iSym)
@@ -156,7 +156,7 @@ call GetMem('Qai','Free','Real',ipQ,nUniqAt*(mAsh+1))
 call GetMem('ID_A','Allo','Inte',iD,nUniqAt)
 nActa = 0
 do iAt=1,nUniqAt
-  if (NamAct(iAt)(1:4) /= blank) then
+  if (NamAct(iAt)(1:4) /= ' ') then
     iWork(iD+nActa) = iAt
     nActa = nActa+1
   end if
@@ -166,22 +166,22 @@ do iAt=1,nActa
   NamAct(iAt) = NamAct(jAt)
 end do
 do iAt=nActa+1,nUniqAt
-  NamAct(iAt)(1:4) = trim(blank)
+  NamAct(iAt)(1:4) = ' '
 end do
-write(6,*)
-write(6,'(A,F6.3)') ' Threshold for atom selection: ',ThrS
-write(6,*)
+write(u6,*)
+write(u6,'(A,F6.3)') ' Threshold for atom selection: ',ThrS
+write(u6,*)
 if (nActa /= 0) then
-  write(6,'(A,I3,A)') ' Selected ',nActa,' atoms: '
-  write(6,*)
-  write(6,*) (NamAct(i),i=1,nActa)
-  write(6,*)
+  write(u6,'(A,I3,A)') ' Selected ',nActa,' atoms: '
+  write(u6,*)
+  write(u6,*) (NamAct(i),i=1,nActa)
+  write(u6,*)
 else
-  write(6,*) ' None of the occupied non-frozen orbitals has been '
-  write(6,*) ' assigned to the Active region of the molecule.    '
-  write(6,*) ' This is presumably NOT what you want !!!          '
-  write(6,*) ' I will Stop here. Bye Bye !! '
-  write(6,*)
+  write(u6,*) ' None of the occupied non-frozen orbitals has been '
+  write(u6,*) ' assigned to the Active region of the molecule.    '
+  write(u6,*) ' This is presumably NOT what you want !!!          '
+  write(u6,*) ' I will Stop here. Bye Bye !! '
+  write(u6,*)
   call Abend()
 end if
 
@@ -207,7 +207,7 @@ do iSym=1,nSym
   nBa = 0
   do ia=1,nBas(iSym)
     ja = ia+iOff
-    tmp = Name(ja)(1:LENIN)
+    tmp = BName(ja)(1:LenIn)
     do j=1,nActa
       if (NamAct(j) == tmp) then
         iWork(ip_iD+nBa) = ia
@@ -218,14 +218,14 @@ do iSym=1,nSym
 
   iCMO = LCMO+kOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym)+nAsh(iSym))
   do ia=1,nBa
-    ifr = iCMO+jD(ia)-1
+    ifr = iCMO+iWork(ip_iD-1+ia)-1
     ito = iC+ia-1
     call dcopy_(nSsh(iSym),Work(ifr),nBas(iSym),Work(ito),nBa)
   end do
 
   iSQ = ipSQ+kOff
   do ia=1,nBa
-    jb = jD(ia)
+    jb = iWork(ip_iD-1+ia)
     jfr = iSQ+nBas(iSym)*(jb-1)
     jto = iS+nBas(iSym)*(ia-1)
     call dcopy_(nBas(iSym),Work(jfr),1,Work(jto),1)
@@ -233,7 +233,7 @@ do iSym=1,nSym
 
   nBx = max(1,nBas(iSym))
   nBax = max(1,nBa)
-  call DGEMM_('T','N',nBa,nSsh(iSym),nBas(iSym),1.0d0,Work(iS),nBx,Work(iCMO),nBx,0.0d0,Work(iZ),nBax)
+  call DGEMM_('T','N',nBa,nSsh(iSym),nBas(iSym),One,Work(iS),nBx,Work(iCMO),nBx,Zero,Work(iZ),nBax)
   do i=0,nSsh(iSym)-1
     jQ = iQ+i
     jC = iC+nBa*i
@@ -265,12 +265,12 @@ do iSym=1,nSym
     jZ = iZ
     jOff = iOff+nFro(iSym)+nOkk
     do i=nBmx+1,nBmx+n_OK(iSym)
-      iv = jD(i)+jOff
+      iv = iWork(ip_iD-1+i)+jOff
       Work(jZ) = EOrb(iv)
       jZ = jZ+1
     end do
     do i=nBmx+nSmx+1,nBmx+nSmx+n_KO
-      iv = jD(i)+jOff
+      iv = iWork(ip_iD-1+i)+jOff
       Work(jZ) = EOrb(iv)
     end do
     call dcopy_(nSsh(iSym),Work(iZ),1,EOrb(1+jOff),1)

@@ -19,15 +19,19 @@ subroutine Ortho_Orb(Xmo,Smat,nBas,nOrb2Loc,nPass,Test)
 !          The orthonormalization is carried out nPass times.
 !          After this routine, X will satisfy X^T*S*X=1.
 
-implicit real*8(a-h,o-z)
-real*8 Xmo(*), Smat(*)
-integer nBas, nOrb2Loc
-logical Test
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp) :: Xmo(*), Smat(*)
+integer(kind=iwp) :: nBas, nOrb2Loc, nPass
+logical(kind=iwp) :: Test
 #include "WrkSpc.fh"
-character*9 SecNam
-parameter(SecNam='Ortho_Orb')
-parameter(Tol=1.0d-10)
-external ddot_
+integer(kind=iwp) :: i, ip_Scr, ip_V, ip_VISqrt, ip_VSqrt, iPass, iTask, kOff, l_Scr, l_V, l_VISqrt, l_VSqrt, nB, nErr, nO2L
+real(kind=wp) :: xNrm
+real(kind=wp), parameter :: Tol = 1.0e-10_wp
+character(len=*), parameter :: SecNam = 'Ortho_Orb'
+real(kind=wp), external :: ddot_
 
 ! Check for quick return.
 ! -----------------------
@@ -68,7 +72,7 @@ do iPass=1,nPass
   nB = max(nBas,1)
   nO2L = max(nOrb2Loc,1)
   call dCopy_(nBas*nOrb2Loc,Xmo(1),1,Work(ip_Scr),1)
-  call DGEMM_('N','N',nBas,nOrb2Loc,nOrb2Loc,1.0d0,Work(ip_Scr),nB,Work(ip_VISqrt),nO2L,0.0d0,Xmo(1),nB)
+  call DGEMM_('N','N',nBas,nOrb2Loc,nOrb2Loc,One,Work(ip_Scr),nB,Work(ip_VISqrt),nO2L,Zero,Xmo(1),nB)
 
 end do
 
@@ -80,15 +84,15 @@ if (Test) then
   call GetUmat_Localisation(Work(ip_V),Xmo(1),Smat(1),Xmo(1),Work(ip_Scr),l_Scr,nBas,nOrb2Loc)
   kOff = ip_V-1
   do i=1,nOrb2Loc
-    Work(kOff+nOrb2Loc*(i-1)+i) = Work(kOff+nOrb2Loc*(i-1)+i)-1.0d0
+    Work(kOff+nOrb2Loc*(i-1)+i) = Work(kOff+nOrb2Loc*(i-1)+i)-One
   end do
   xNrm = sqrt(dDot_(nOrb2Loc**2,Work(ip_V),1,Work(ip_V),1))
   if (xNrm > Tol) then
-    write(6,'(A,A,D16.8,A,I2,A)') SecNam,': ERROR: ||X^TSX - 1|| = ',xNrm
+    write(u6,'(A,A,D16.8,A,I2,A)') SecNam,': ERROR: ||X^TSX - 1|| = ',xNrm
     nErr = nErr+1
   end if
   if (nErr /= 0) then
-    write(6,*) SecNam,': failure after ',nPass,' passes'
+    write(u6,*) SecNam,': failure after ',nPass,' passes'
     call SysAbendMsg(SecNam,'Orthonormalization failure!',' ')
   end if
 end if

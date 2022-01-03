@@ -16,12 +16,14 @@ subroutine Sort_Localisation_1(CMO,U,nBas,nOcc)
 !
 ! Purpose: sort CMO columns according to U.
 
-implicit real*8(a-h,o-z)
-real*8 CMO(nBas,nOcc), U(nOcc,nOcc)
-#include "WrkSpc.fh"
+use Definitions, only: wp, iwp
 
-I1(i) = iWork(ipI1-1+i)
-I2(i) = iWork(ipI2-1+i)
+implicit none
+integer(kind=iwp) :: nBas, nOcc
+real(kind=wp) :: CMO(nBas,nOcc), U(nOcc,nOcc)
+#include "WrkSpc.fh"
+integer(kind=iwp) :: i, ip1, ip2, ipC, ipI1, ipI2, j, jmax, kOff, lC, lI1, lI2
+real(kind=wp) :: Umax, Utst
 
 ! Allocations.
 ! ------------
@@ -44,9 +46,9 @@ end do
 ip2 = ipI2-1
 do i=1,nOcc
   jmax = 0
-  Umax = -1.0d15
+  Umax = -huge(Umax)
   do j=1,nOcc
-    if (I1(j) == j) then
+    if (iWork(ipI1-1+j) == j) then
       Utst = abs(U(i,j))
       if (Utst > Umax) then
         jmax = j
@@ -67,7 +69,7 @@ end do
 
 call dCopy_(nBas*nOcc,CMO,1,Work(ipC),1)
 do i=1,nOcc
-  kOff = ipC+nBas*(I2(i)-1)
+  kOff = ipC+nBas*(iWork(ipI2-1+i)-1)
   call dCopy_(nBas,Work(kOff),1,CMO(1,i),1)
 end do
 

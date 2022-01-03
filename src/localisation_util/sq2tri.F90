@@ -32,13 +32,13 @@
 
 subroutine Sq2Tri(Sq,Tri,n)
 
+use Index_Functions, only: iTri, nTri_Elem
+use Definitions, only: wp, iwp
+
 implicit none
-integer n
-real*8 Sq(n,n), Tri(n*(n+1)/2)
-
-integer i, j, iTri
-
-iTri(i,j) = i*(i-1)/2+j
+integer(kind=iwp) :: n
+real(kind=wp) :: Sq(n,n), Tri(nTri_Elem(n))
+integer(kind=iwp) :: i, j
 
 do j=1,n
   do i=j,n

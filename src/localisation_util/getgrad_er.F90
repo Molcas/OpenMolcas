@@ -19,22 +19,25 @@ subroutine GetGrad_ER(Functional,GradNorm,R,CMO,nBasis,nOrb2Loc,Timing)
 !
 ! Note: symmetry is NOT allowed (but is not tested!).
 
-use Data_structures, only: DSBA_Type
-use Data_structures, only: Allocate_DSBA, Deallocate_DSBA
-implicit real*8(a-h,o-z)
-real*8 R(nOrb2Loc,nOrb2Loc), CMO(nBasis,nOrb2Loc)
-logical Timing
-character(LEN=10), parameter :: SecNam = 'GetGrad_ER'
-character*80 Txt
-integer, parameter :: nSym = 1
-integer nOcc(nSym)
-type(DSBA_Type) CMOt
+use Data_structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type
+use Constants, only: Zero, Four
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nBasis, nOrb2Loc
+real(kind=wp) :: Functional, GradNorm, R(nOrb2Loc,nOrb2Loc), CMO(nBasis,nOrb2Loc)
+integer(kind=iwp), parameter :: nSym = 1
+logical(kind=iwp) :: Timing
+integer(kind=iwp) :: i, irc, j, nOcc(nSym)
+character(len=80) :: Txt
+type(DSBA_Type) :: CMOt
+character(len=*), parameter :: SecNam = 'GetGrad_ER'
 
 ! Initialization.
 ! ---------------
 
-Functional = 0.0d0
-GradNorm = 0.0d0
+Functional = Zero
+GradNorm = Zero
 if ((nOrb2Loc < 1) .or. (nBasis < 1)) return
 
 ! Transpose CMO (only the part to be localised).
@@ -67,6 +70,6 @@ do i=1,nOrb2Loc-1
   end do
 end do
 Functional = Functional+R(nOrb2Loc,nOrb2Loc)
-GradNorm = 4.0d0*sqrt(GradNorm)
+GradNorm = Four*sqrt(GradNorm)
 
 end subroutine GetGrad_ER

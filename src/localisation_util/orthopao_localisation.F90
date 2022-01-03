@@ -26,15 +26,20 @@ subroutine OrthoPAO_Localisation(X,nBas,nFro,nOrb2Loc,nSym,nPass,Test)
 !
 ! NOTE: X is assumed to contain all orbitals!!
 
-implicit real*8(a-h,o-z)
-real*8 X(*)
-integer nBas(nSym), nFro(nSym), nOrb2Loc(nSym)
-logical Test
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp) :: X(*)
+integer(kind=iwp) :: nSym, nBas(nSym), nFro(nSym), nOrb2Loc(nSym), nPass
+logical(kind=iwp) :: Test
 #include "WrkSpc.fh"
-character*21 SecNam
-parameter(SecNam='OrthoPAO_Localisation')
-parameter(Tol=1.0d-10)
-external ddot_
+integer(kind=iwp) :: i, ip_S, ip_Scr, ip_V, ip_VISqrt, ip_VSqrt, iPass, iSym, iTask, kOff, kOffX, kS, kX, l_S, l_Scr, l_V, &
+                     l_VISqrt, l_VSqrt, nB, nBasMax, nErr, nO2L, nO2LMax
+real(kind=wp) :: xNrm
+real(kind=wp), parameter :: Tol = 1.0e-10_wp
+character(len=*), parameter :: SecNam = 'OrthoPAO_Localisation'
+real(kind=wp), external :: ddot_
 
 ! Check for quick return.
 ! -----------------------
@@ -100,7 +105,7 @@ do iPass=1,nPass
     nB = max(nBas(iSym),1)
     nO2L = max(nOrb2Loc(iSym),1)
     call dCopy_(nBas(iSym)*nOrb2Loc(iSym),X(kOffX),1,Work(ip_Scr),1)
-    call DGEMM_('N','N',nBas(iSym),nOrb2Loc(iSym),nOrb2Loc(iSym),1.0d0,Work(ip_Scr),nB,Work(ip_VISqrt),nO2L,0.0d0,X(kOffX),nB)
+    call DGEMM_('N','N',nBas(iSym),nOrb2Loc(iSym),nOrb2Loc(iSym),One,Work(ip_Scr),nB,Work(ip_VISqrt),nO2L,Zero,X(kOffX),nB)
 
     ! Update pointers.
     ! ----------------
@@ -123,18 +128,18 @@ if (Test) then
     call GetUmat_Localisation(Work(ip_V),X(kOffX),Work(kS),X(kOffX),Work(ip_Scr),l_Scr,nBas(iSym),nOrb2Loc(iSym))
     kOff = ip_V-1
     do i=1,nOrb2Loc(iSym)
-      Work(kOff+nOrb2Loc(iSym)*(i-1)+i) = Work(kOff+nOrb2Loc(iSym)*(i-1)+i)-1.0d0
+      Work(kOff+nOrb2Loc(iSym)*(i-1)+i) = Work(kOff+nOrb2Loc(iSym)*(i-1)+i)-One
     end do
     xNrm = sqrt(dDot_(nOrb2Loc(iSym)**2,Work(ip_V),1,Work(ip_V),1))
     if (xNrm > Tol) then
-      write(6,'(A,A,D16.8,A,I2,A)') SecNam,': ERROR: ||X^TSX - 1|| = ',xNrm,' (sym.',iSym,')'
+      write(u6,'(A,A,D16.8,A,I2,A)') SecNam,': ERROR: ||X^TSX - 1|| = ',xNrm,' (sym.',iSym,')'
       nErr = nErr+1
     end if
     kX = kX+nBas(iSym)**2
     kS = kS+nBas(iSym)**2
   end do
   if (nErr /= 0) then
-    write(6,*) SecNam,': failure after ',nPass,' passes'
+    write(u6,*) SecNam,': failure after ',nPass,' passes'
     call SysAbendMsg(SecNam,'Orthonormalization failure!',' ')
   end if
 end if

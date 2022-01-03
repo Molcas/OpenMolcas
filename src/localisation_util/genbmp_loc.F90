@@ -11,24 +11,25 @@
 
 subroutine GenBMp_Loc(X,nRow,nCol,FilNam,Color)
 
+use Constants, only: One
+use Definitions, only: wp, iwp
+
 implicit none
-integer nRow, nCol
-real*8 X(nRow,nCol)
-character*(*) FilNam
-character*1 Color
-character*10 SecNam
-parameter(SecNam='GenBMp_Loc')
-integer isFreeUnit
-external isFreeUnit
-character*80 Txt
-integer Lunit, irc, nStp
-real*8 StpSiz
+integer(kind=iwp) :: nRow, nCol
+real(kind=wp) X(nRow,nCol)
+character(len=*) :: FilNam
+character :: Color
+integer(kind=iwp) :: irc, Lunit, nStp
+real(kind=wp) :: StpSiz
+character(len=80) :: Txt
+character(len=*), parameter :: SecNam = 'GenBMp_Loc'
+integer(kind=iwp), external :: isFreeUnit
 
 Lunit = isFreeUnit(11)
 call Molcas_Open(Lunit,FilNam)
 irc = 0
 nStp = -1
-StpSiz = -1.0d0
+StpSiz = -One
 call GenBMp(irc,X,nRow,nCol,Lunit,nStp,StpSiz,Color)
 if (irc /= 0) then
   write(Txt,'(A,I4)') 'GenBMp returned',irc

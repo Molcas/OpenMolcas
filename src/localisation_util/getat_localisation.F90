@@ -11,11 +11,15 @@
 
 subroutine GetAt_Localisation(X,nBas,m,XAt,nAtoms,iOpt,nBas_per_Atom,nBas_Start,Norm)
 
-implicit real*8(a-h,o-z)
-real*8 X(nBas,m), XAt(nAtoms,*)
-integer nBas_per_Atom(nAtoms), nBas_Start(nAtoms)
-character*3 Norm  ! 'MAX' or 'FRO'
-character*3 myNorm
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nBas, m, nAtoms, iOpt, nBas_per_Atom(nAtoms), nBas_Start(nAtoms)
+real(kind=wp) :: X(nBas,m), XAt(nAtoms,*)
+character(len=3) :: Norm  ! 'MAX' or 'FRO'
+integer(kind=iwp) :: i, i1, i2, iAt, j, j1, j2, jAt
+character(len=3) :: myNorm
 
 if ((nBas < 1) .or. (nAtoms < 1)) return
 
@@ -23,7 +27,7 @@ myNorm = Norm
 call UpCase(myNorm)
 
 if (iOpt == 1) then
-  call dCopy_(nAtoms*m,[0.0d0],0,XAt,1)
+  call dCopy_(nAtoms*m,[Zero],0,XAt,1)
   if (myNorm == 'MAX') then
     do j=1,m
       do iAt=1,nAtoms
@@ -50,7 +54,7 @@ else
   if (m /= nBas) then
     call SysAbendMsg('GetAt_Localisation','Fatal error','m != nBas')
   end if
-  call dCopy_(nAtoms*nAtoms,[0.0d0],0,XAt,1)
+  call dCopy_(nAtoms*nAtoms,[Zero],0,XAt,1)
   if (myNorm == 'MAX') then
     do jAt=1,nAtoms
       j1 = nBas_Start(jAt)

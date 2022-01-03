@@ -11,10 +11,14 @@
 ! Copyright (C) Francesco Aquilante                                    *
 !***********************************************************************
 
-integer function Log2(n)
+function Log2(n)
+
+use Definitions, only: iwp
 
 implicit none
-integer n, m
+integer(kind=iwp) :: Log2
+integer(kind=iwp) :: n
+integer(kind=iwp) :: m
 
 m = n
 Log2 = 0
