@@ -40,7 +40,7 @@
 #include "nsd.fh"
 #include "setup.fh"
       Real*8 Fact(ndc**2), FckInt(nFckInt,nD),
-     &       dF_dRho(ndF_dRho,mGrid)
+     &       dF_dRho(ndF_dRho,*)
       Integer list_s(2,nlist_s), list_bas(2,nlist_s)
 *                                                                      *
 ************************************************************************
