@@ -29,6 +29,7 @@
 ************************************************************************
       use KSDFT_Info, only: F_xca, F_xcb, tmpB
       use nq_Grid, only: Rho, Sigma, l_casdft
+      use nq_Grid, only: vRho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
@@ -60,7 +61,7 @@
          call xpbe_(idord,rhoa,sigmaaa,Fa,dFdrhoa,dFdgammaaa,
      &          d2Fdra2,d2Fdradgaa,d2Fdgaa2)
          F_xc(iGrid)=F_xc(iGrid)+Coeff*(2.0D0*Fa)
-         dF_dRho(ipR,iGrid)=dF_dRho(ipR,iGrid)+Coeff*dFdrhoa
+         vRho(1,iGrid)=vRho(1,iGrid)+Coeff*dFdrhoa
 * Maybe derivatives w.r.t. gamma_aa, gamma_ab, gamma_bb should be used instead.
          dF_dRho(ipGxx,iGrid)=dF_dRho(ipGxx,iGrid)+Coeff*dFdgammaaa
 * Note: For xpbe, dFdgammaab is zero.
@@ -85,8 +86,8 @@
          F_xc (iGrid)=F_xc (iGrid)+Coeff*(Fa+Fb)
          F_xca(iGrid)=F_xca(iGrid)+Coeff*(Fa)
          F_xcb(iGrid)=F_xcb(iGrid)+Coeff*(   Fb)
-         dF_dRho(ipRa,iGrid)=dF_dRho(ipRa,iGrid)+Coeff*dFdrhoa
-         dF_dRho(ipRb,iGrid)=dF_dRho(ipRb,iGrid)+Coeff*dFdrhob
+         vRho(1,iGrid)=vRho(1,iGrid)+Coeff*dFdrhoa
+         vRho(2,iGrid)=vRho(2,iGrid)+Coeff*dFdrhob
 * Maybe derivatives w.r.t. gamma_aa, gamma_ab, gamma_bb should be used instead.
 * Note: For xpbe, dFdgammaab is zero.
          dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)+Coeff*dFdgammaaa
@@ -108,8 +109,8 @@
      &          d2Fdrb2,d2Fdrbdgbb,d2Fdgbb2)
 
          F_xc (iGrid)=F_xc (iGrid)+Coeff*(Fa+Fb)
-         dF_dRho(ipRa,iGrid)=dF_dRho(ipRa,iGrid)+Coeff*dFdrhoa
-         dF_dRho(ipRb,iGrid)=dF_dRho(ipRb,iGrid)+Coeff*dFdrhob
+         vRho(1,iGrid)=vRho(1,iGrid)+Coeff*dFdrhoa
+         vRho(2,iGrid)=vRho(2,iGrid)+Coeff*dFdrhob
 * Maybe derivatives w.r.t. gamma_aa, gamma_ab, gamma_bb should be used instead.
 * Note: For xpbe, dFdgammaab is zero.
          dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)+Coeff*dFdgammaaa

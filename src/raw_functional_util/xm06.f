@@ -31,6 +31,7 @@
 *  YZ (10/07)                                                          *
 ************************************************************************
       use nq_Grid, only: Rho, Sigma, Tau
+      use nq_Grid, only: vRho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
@@ -172,7 +173,7 @@ C     Parameters for M06-2X
          dFdTau=dFdW*dWdT*dTdTau
          dGGAdG =(fNL*dE/(Two*Gamma))
 *        dF/dRho
-         dF_dRho(ipR,igrid)=dF_dRho(ipR,igrid)+dGGAdR*Fsig
+         vRho(1,igrid)=vRho(1,igrid)+dGGAdR*Fsig
      &        + (fL*Ax+fNL*E)*rho43*dFdR
 *        dF/dGamma
          dF_dRho(ipGxx,igrid)=dF_dRho(ipGxx,iGrid)+ dGGAdG*Fsig
@@ -235,7 +236,7 @@ C     Parameters for M06-2X
          dFdTau=dFdW*dWdT*dTdTau
          dGGAdG =(fNL*dE/(Two*Gamma))
 *        dF/dRhoa
-         dF_dRho(ipRa,iGrid)=dF_dRho(ipRa,igrid)+dGGAdR*Fsig
+         vRho(1,iGrid)=vRho(1,igrid)+dGGAdR*Fsig
      &        + (fL*Ax+fNL*E)*rho43*dFdR
 *        dF/dGammaaa
          dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)+ dGGAdG*Fsig
@@ -285,7 +286,7 @@ C     Parameters for M06-2X
          dFdTau=dFdW*dWdT*dTdTau
          dGGAdG =(fNL*dE/(Two*Gamma))
 *        dF/dRhob
-         dF_dRho(ipRb,igrid)=dF_dRho(ipRb,igrid)+dGGAdR*Fsig
+         vRho(2,igrid)=vRho(2,igrid)+dGGAdR*Fsig
      &        + (fL*Ax+fNL*E)*rho43*dFdR
 *        dF/dGammabb
          dF_dRho(ipGbb,igrid)=dF_dRho(ipGbb,iGrid)+ dGGAdG*Fsig
