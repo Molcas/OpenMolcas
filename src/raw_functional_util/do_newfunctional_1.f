@@ -150,4 +150,9 @@ c      dT2_dRho = -aConst*t5-aConst*t2/t10*dConst/3
       End Do  ! iGrid
 c
       Return
+      If (.False.) Then
+         Call Unused_Integer(ndF_dRho)
+         Call Unused_real_array(dF_dRho)
+      End If
+
       End

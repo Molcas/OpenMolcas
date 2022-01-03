@@ -131,4 +131,9 @@
 c
 c
       return
+      If (.False.) Then
+         Call Unused_Integer(ndF_dRho)
+         Call Unused_real_array(dF_dRho)
+      End If
+
       end

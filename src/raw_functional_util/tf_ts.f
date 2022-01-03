@@ -8,18 +8,18 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine TF_Ts(mGrid,nDmat,F_xc,dF_dRho,
-     &                 ndF_dRho,Coeff,T_X)
+      Subroutine TF_Ts(mGrid,nDmat,F_xc,Coeff,T_X)
 ************************************************************************
 *                                                                      *
 * Object:  compute Func and potential for Thomas-Fermi KE functional   *
 *                                                                      *
 ************************************************************************
       use nq_Grid, only: Rho
+      use nq_Grid, only: vRho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-      Real*8 dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
+      Real*8 F_xc(mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -48,7 +48,7 @@
 *------- Contributions to the potential
 *
             dfunc_TF = Five3*Cf*d_sys**Two3
-            dF_dRho(1,iGrid) = dF_dRho(1,iGrid)
+            vRho(1,iGrid) = vRho(1,iGrid)
      &                       + Coeff*dfunc_TF
 *
  100        Continue
@@ -74,9 +74,9 @@
 *
             dfunc_TF_alpha=Five3*Cf*da_sys**Two3
             dfunc_TF_beta =Five3*Cf*db_sys**Two3
-            dF_dRho(1,iGrid) = dF_dRho(1,iGrid)
+            vRho(1,iGrid) = vRho(1,iGrid)
      &                       + Coeff*dfunc_TF_alpha
-            dF_dRho(2,iGrid) = dF_dRho(2,iGrid)
+            vRho(2,iGrid) = vRho(2,iGrid)
      &                       + Coeff*dfunc_TF_beta
 *
  200        Continue
