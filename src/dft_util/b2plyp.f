@@ -11,7 +11,7 @@
 * Copyright (C) 2001, Roland Lindh                                     *
 *               2009, Grigory A. Shamov                                *
 ************************************************************************
-      Subroutine B2PLYP(mGrid,Rho,nRho,
+      Subroutine B2PLYP(mGrid,
      &                  iSpin,F_xc)
 ************************************************************************
 *                                                                      *
@@ -26,8 +26,7 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "ksdft.fh"
-      Real*8 Rho(nRho,mGrid),
-     &       F_xc(mGrid)
+      Real*8 F_xc(mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -63,9 +62,4 @@ C--     &           CoefR-Coeff_C)
 *                                                                      *
 C
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer(nRho)
-         Call Unused_real_array(Rho)
-      End If
       End

@@ -10,8 +10,7 @@
 *                                                                      *
 * Copyright (C) 2001, Roland Lindh                                     *
 ************************************************************************
-      Subroutine BLYP(mGrid,Rho,nRho,
-     &                iSpin,F_xc)
+      Subroutine BLYP(mGrid,iSpin,F_xc)
 ************************************************************************
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. March 2001                              *
@@ -19,7 +18,7 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "ksdft.fh"
-      Real*8 Rho(nRho,mGrid), F_xc(mGrid)
+      Real*8 F_xc(mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -43,9 +42,4 @@
 ************************************************************************
 *                                                                      *
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer(nRho)
-         Call Unused_real_array(Rho)
-      End If
       End

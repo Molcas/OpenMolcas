@@ -11,8 +11,7 @@
 * Copyright (C) 2017, Giovanni Li Manni                                *
 *               2017, Aron Cohen                                       *
 ************************************************************************
-      Subroutine S12h(mGrid,Rho,nRho,
-     &                iSpin,F_xc)
+      Subroutine S12h(mGrid,iSpin,F_xc)
 ************************************************************************
 *                                                                      *
 * Object:     Combination of exchange S12h (25% HF exchange) and PBE   *
@@ -26,7 +25,7 @@
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-      Real*8 Rho(nRho,mGrid), F_xc(mGrid)
+      Real*8 F_xc(mGrid)
       Integer gh_switch
 *                                                                      *
 ************************************************************************
@@ -53,9 +52,4 @@ C      Call Diracx(mGrid,iSpin,F_xc,Coeff)
 ************************************************************************
 *                                                                      *
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_Integer(nRho)
-         Call Unused_real_array(Rho)
-      End If
       End

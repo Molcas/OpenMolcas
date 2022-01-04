@@ -8,8 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine NucAtt_EMB(mGrid,Rho,nRho,
-     &                      iSpin,F_xc)
+      Subroutine NucAtt_EMB(mGrid,iSpin,F_xc)
       use nq_Grid, only: Grid
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
@@ -19,8 +18,7 @@
 #include "nsd.fh"
 #include "setup.fh"
 #include "nq_info.fh"
-      Real*8  Rho(nRho,mGrid),
-     &        F_xc(mGrid)
+      Real*8  F_xc(mGrid)
       Real*8, Allocatable:: RA(:,:), ZA(:), Eff(:)
       Integer, Allocatable:: nStab(:)
 *
@@ -48,7 +46,7 @@
       Call mma_deallocate(Eff)
       Call mma_deallocate(nStab)
 *
-      Call Do_NucAtt_EMB(mGrid,Rho,nRho,
+      Call Do_NucAtt_EMB(mGrid,
      &                   iSpin,F_xc,
      &                   Grid,
      &                   RA,ZA,mCenter)
@@ -61,15 +59,15 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Subroutine Do_NucAtt_EMB(mGrid,Rho,nRho,
+      Subroutine Do_NucAtt_EMB(mGrid,
      &                         iSpin,F_xc,
      &                         Grid,RA,ZA,
      &                         mCenter)
 
-      use nq_Grid, only: vRho
+      use nq_Grid, only: Rho, vRho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-      Real*8 Rho(nRho,mGrid), F_xc(mGrid)
+      Real*8 F_xc(mGrid)
       Real*8 Grid(3,mGrid),RA(3,mCenter),ZA(mCenter)
       Real*8, Parameter:: T_X=1.0D-20
 *                                                                      *

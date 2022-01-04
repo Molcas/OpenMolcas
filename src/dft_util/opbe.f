@@ -8,8 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine OPBE(mGrid,Rho,nRho,
-     &                iSpin,F_xc)
+      Subroutine OPBE(mGrid,iSpin,F_xc)
 ************************************************************************
 *                                                                      *
 * Object:     OPTX + PBE combination                                   *
@@ -19,7 +18,7 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "ksdft.fh"
-      Real*8 Rho(nRho,mGrid), F_xc(mGrid)
+      Real*8 F_xc(mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -43,9 +42,4 @@
 ************************************************************************
 *                                                                      *
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_Integer(nRho)
-         Call Unused_real_array(Rho)
-      End If
       End

@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine BLYP_emb2(mGrid,Rho,nRho,
+      Subroutine BLYP_emb2(mGrid,
      &                     nDmat,F_xc)
 ************************************************************************
 *                                                                      *
@@ -19,8 +19,7 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "hflda.fh"
-      Real*8 Rho(nRho,mGrid),
-     &       F_xc(mGrid)
+      Real*8 F_xc(mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -34,8 +33,7 @@
 *
 *---- BLYP for exchange-correlation energy functional
 *
-      Call BLYP_(mGrid,Rho,nRho,
-     &                 nDmat,F_xc)
+      Call BLYP_(mGrid,nDmat,F_xc)
 
 *                                                                      *
 ************************************************************************
@@ -45,13 +43,11 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Subroutine BLYP_(mGrid,Rho,nRho,
-     &                 iSpin,F_xc)
+      Subroutine BLYP_(mGrid,iSpin,F_xc)
 
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-      Real*8 Rho(nRho,mGrid),
-     &       F_xc(mGrid)
+      Real*8 F_xc(mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -75,9 +71,4 @@
 ************************************************************************
 *                                                                      *
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_Integer(nRho)
-         Call Unused_real_array(Rho)
-      End If
       End

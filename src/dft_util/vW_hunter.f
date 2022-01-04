@@ -8,13 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine vW_hunter(mGrid,Rho,nRho,
-     &                     nDmat,F_xc)
+      Subroutine vW_hunter(mGrid,nDmat,F_xc)
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "hflda.fh"
-      Real*8 Rho(nRho,mGrid),
-     &       F_xc(mGrid)
+      Real*8 F_xc(mGrid)
 *
 ************************************************************************
 *
@@ -26,9 +24,4 @@
       Call vW_Ts(mGrid,nDmat,F_xc,Coeff)
 
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_Integer(nRho)
-         Call Unused_real_array(Rho)
-      End If
       End

@@ -10,8 +10,7 @@
 *                                                                      *
 * Copyright (C) 2009, Grigory A. Shamov                                *
 ************************************************************************
-      Subroutine O3LYP(mGrid,Rho,nRho,
-     &                 iSpin,F_xc)
+      Subroutine O3LYP(mGrid,iSpin,F_xc)
 ************************************************************************
 *                                                                      *
 * Object:  The O3LYP combination as defined in Hoe, Cohen  and Handy,  *
@@ -25,8 +24,7 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "ksdft.fh"
-      Real*8 Rho(nRho,mGrid),
-     &       F_xc(mGrid)
+      Real*8 F_xc(mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -55,9 +53,4 @@
 ************************************************************************
 *                                                                      *
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_Integer(nRho)
-         Call Unused_real_array(Rho)
-      End If
       End

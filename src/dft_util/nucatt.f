@@ -10,8 +10,7 @@
 *                                                                      *
 * Copyright (C) 2000, Roland Lindh                                     *
 ************************************************************************
-      Subroutine NucAtt(mGrid,Rho,nRho,
-     &                  iSpin,F_xc)
+      Subroutine NucAtt(mGrid,iSpin,F_xc)
 ************************************************************************
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. November 2000                           *
@@ -25,7 +24,7 @@
 #include "nsd.fh"
 #include "setup.fh"
 #include "nq_info.fh"
-      Real*8  Rho(nRho,mGrid), F_xc(mGrid)
+      Real*8  F_xc(mGrid)
       Real*8, Allocatable:: RA(:,:), ZA(:), Eff(:)
       Integer, Allocatable:: nStab(:)
 *
@@ -52,7 +51,7 @@
       Call mma_deallocate(Eff)
       Call mma_deallocate(nStab)
 *
-      Call Do_NucAtt_(mGrid,Rho,nRho,
+      Call Do_NucAtt_(mGrid,
      &                iSpin,F_xc,
      &                Grid,
      &                RA,ZA,mCenter)
@@ -62,17 +61,17 @@
 *
       Return
       End
-      Subroutine Do_NucAtt_(mGrid,Rho,nRho,
+      Subroutine Do_NucAtt_(mGrid,
      &                      iSpin,F_xc,
      &                      Grid,RA,ZA,mCenter)
 ************************************************************************
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. November 2000                           *
 ************************************************************************
-      use nq_Grid, only: vRho
+      use nq_Grid, only: Rho, vRho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-      Real*8 Rho(nRho,mGrid), F_xc(mGrid)
+      Real*8 F_xc(mGrid)
       Real*8 Grid(3,mGrid),RA(3,mCenter),ZA(mCenter)
 *                                                                      *
 ************************************************************************

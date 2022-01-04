@@ -10,8 +10,7 @@
 *                                                                      *
 * Copyright (C) 2009, Grigory A. Shamov                                *
 ************************************************************************
-      Subroutine O2PLYP(mGrid,Rho,nRho,
-     &                  iSpin,F_xc)
+      Subroutine O2PLYP(mGrid,iSpin,F_xc)
 ************************************************************************
 *                                                                      *
 * Object:   OPTX analog of Grimme's B2PLYP double hybrid               *
@@ -23,8 +22,7 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "ksdft.fh"
-      Real*8 Rho(nRho,mGrid),
-     &       F_xc(mGrid)
+      Real*8 F_xc(mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -55,9 +53,4 @@ C MP2 correlation energy to be scaled to 1 - Coeff_C = 0.25
 *                                                                      *
 C
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_Integer(nRho)
-         Call Unused_real_array(Rho)
-      End If
       End

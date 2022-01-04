@@ -8,14 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine cPBE_emb(mGrid,Rho,nRho,
-     &                    iSpin,F_xc)
+      Subroutine cPBE_emb(mGrid,iSpin,F_xc)
 ************************************************************************
       use OFembed, only: dFMD
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-      Real*8 Rho(nRho,mGrid),
-     &       F_xc(mGrid)
+      Real*8 F_xc(mGrid)
 *
       CoeffA=dFMD
       Call CPBE(mGrid,
@@ -23,9 +21,4 @@
 
 *
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_Integer(nRho)
-         Call Unused_real_array(Rho)
-      End If
       End
