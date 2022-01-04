@@ -32,6 +32,7 @@
       use nq_Grid, only: nRho, nGradRho, nTau, nSigma, nLapl, nGridMax
       use nq_Grid, only: l_CASDFT, kAO
       use nq_Grid, only: Exc
+      use nq_pdft, only: lft, lGGA
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "real.fh"
@@ -160,6 +161,7 @@
 *                                                                      *
 ************************************************************************
 * Global variable for MCPDFT functionals                               *
+
       l_casdft = KSDFA.eq.'TLSDA'   .or.
      &           KSDFA.eq.'TLSDA5'  .or.
      &           KSDFA.eq.'TBLYP'   .or.
@@ -174,6 +176,13 @@
      &           KSDFA.eq.'FTREVPBE'.or.
      &           KSDFA.eq.'FTLSDA'  .or.
      &           KSDFA.eq.'FTBLYP'
+
+      lft      = KSDFA.eq.'FTPBE'   .or.
+     &           KSDFA.eq.'FTOPBE'  .or.
+     &           KSDFA.eq.'FTREVPBE'.or.
+     &           KSDFA.eq.'FTLSDA'  .or.
+     &           KSDFA.eq.'FTBLYP'
+
       if(Debug) write(6,*) 'l_casdft value at drvnq.f:',l_casdft
       if(Debug.and.l_casdft) write(6,*) 'MCPDFT with functional:', KSDFA
 ************************************************************************
@@ -253,6 +262,7 @@
 *        need rho(beta) and gamma(beta,beta).
 *
          nP2_ontop=4
+         lGGA=.True.
 *                                                                      *
 ************************************************************************
 *                                                                      *

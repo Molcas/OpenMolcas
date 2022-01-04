@@ -403,9 +403,6 @@
        If(KSDFA(1:5).eq.'TLSDA'.or.KSDFA(1:6).eq.'TLSDA5') then !GLM
         if(Debug) write(6,*) 'in do_batch.f for TLSDA option'
 
-       lft=.false.
-       lGGA=.false.
-
        nPMO3p=1
        IF(lft.and.lGGA) THEN
         nPMO3p=mGrid*NASHT
@@ -463,9 +460,6 @@ cRKCft
 ************************************************************************
 
        If(KSDFA(1:6).eq.'FTLSDA') then !GLM
-
-       lft=.true.
-       lGGA=.false.
 
        nPMO3p=1
        IF(lft.and.lGGA) THEN
@@ -540,9 +534,6 @@ cRKCft
      &   KSDFA(1:5).eq.'TOPBE'.or.
      &   KSDFA(1:7).eq.'TREVPBE') then
 
-       lft=.false.
-       lGGA=.true.
-
        nPMO3p=1
        IF(lft.and.lGGA) THEN
         nPMO3p=mGrid*NASHT
@@ -602,9 +593,6 @@ cRKCft
      &   KSDFA(1:6).eq.'FTOPBE'.or.
      &   KSDFA(1:8).eq.'FTREVPBE') then
 *  *
-       lft=.true.
-       lGGA=.true.
-
        nPMO3p=1
        IF((lft.and.lGGA).and.Do_Grad) THEN
         nPMO3p=mGrid*NASHT
