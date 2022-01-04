@@ -26,7 +26,7 @@
 *
 *---- LSDA for exchange-correlation energy functional
 *
-      Call LSDA(mGrid,nDmat,F_xc)
+      Call LSDA(mGrid,nDmat)
 
 *                                                                      *
 ************************************************************************

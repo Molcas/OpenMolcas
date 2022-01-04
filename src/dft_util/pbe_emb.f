@@ -31,7 +31,7 @@
 *
 *---- PBE for exchange-correlation energy functional
 *
-      Call PBE(mGrid,nDmat,F_xc)
+      Call PBE(mGrid,nDmat)
 
 *                                                                      *
 ************************************************************************

@@ -31,7 +31,7 @@
 *
 *---- BLYP for exchange-correlation energy functional
 *
-      Call BLYP(mGrid,nDmat,F_xc)
+      Call BLYP(mGrid,nDmat)
 *                                                                      *
 ************************************************************************
 *                                                                      *
