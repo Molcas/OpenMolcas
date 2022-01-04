@@ -396,16 +396,6 @@
        If(KSDFA(1:5).eq.'TLSDA'.or.KSDFA(1:6).eq.'TLSDA5') then !GLM
         if(Debug) write(6,*) 'in do_batch.f for TLSDA option'
 
-**************************************************************************
-* Comp_d is a function to integrate densities or gradients or whatever...*
-* as long as it is worth integrating it.. to the limit of a horse! hehe  *
-* iSwitch (last entry) will dictate what quantity will be integrated:    *
-*  iSwitch = 0  total density                                            *
-*  iSwitch = 1  alpha density                                            *
-*  iSwitch = 2  beta density                                             *
-*  ......                                                                *
-*  iSwitch = 10 the horse!                                               *
-**************************************************************************
         T_Rho=T_X*1.0D-4
         Dens_t1=Dens_t1+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,0)
         Dens_a1=Dens_a1+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,1)
@@ -594,22 +584,9 @@ cRKCft
      &                   nPMO3p,MOs,MOx,MOy,MOz)
        End If
 
-       If(.not.Do_Grad) then
-        if(.not.l_tanhr) then
         CALL TranslateDens(P2_OnTop,dRho_dr,P2_OnTop_d,
      &                     l_tanhr,nRho,mGrid,nP2_OnTop,
      &                     ndRho_dR,nGrad_Eff,Do_Grad)
-        else
-        CALL TranslateDens(P2_OnTop,dRho_dr,P2_OnTop_d,
-     &                     l_tanhr,nRho,mGrid,nP2_OnTop,
-     &                     ndRho_dR,nGrad_Eff,Do_Grad)
-        end if
-       Else !GRADIENT CALCULATION
-        CALL TranslateDens(P2_OnTop,dRho_dr,P2_OnTop_d,
-     &                      l_tanhr,nRho,mGrid,nP2_OnTop,
-     &                      ndRho_dR,nGrad_Eff,Do_Grad)
-       End If!Gradient calculation
-*       ^ end loop over grid points
        CALL mma_deallocate(P2MOCube)
        CALL mma_deallocate(P2MOCubex)
        CALL mma_deallocate(P2MOCubey)
@@ -619,7 +596,6 @@ cRKCft
        CALL mma_deallocate(MOy)
        CALL mma_deallocate(MOz)
       end if
-*     ^ End if over GLM stuff
 *======================================================================*
 *======================================================================*
 ************************************************************************
@@ -675,16 +651,10 @@ cRKCft
 
        End If
 *
-       If(.not.Do_Grad) then
           CALL TranslateDens(P2_OnTop,dRho_dr,P2_OnTop_d,
      &                       l_tanhr,nRho,mGrid,nP2_OnTop,
      &                       ndRho_dR,nGrad_Eff,Do_Grad)
 
-        Else !GRADIENT CALCULATION
-          CALL TranslateDens(P2_OnTop,dRho_dr,P2_OnTop_d,
-     &                       l_tanhr,nRho,mGrid,nP2_OnTop,
-     &                       ndRho_dR,nGrad_Eff,Do_Grad)
-       end if!
        CALL mma_deallocate(P2MOCube)
        CALL mma_deallocate(P2MOCubex)
        CALL mma_deallocate(P2MOCubey)
