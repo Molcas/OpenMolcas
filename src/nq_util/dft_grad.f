@@ -22,7 +22,7 @@
 *     Author: Roland Lindh, Dept. of Chemical Physics, University of   *
 *             Lund, Sweden.  May 2002 in Bologna, Italy.               *
 ************************************************************************
-      use nq_Grid, only: GradRho, vRho
+      use nq_Grid, only: GradRho, vRho, vTau
       use KSDFT_Info, only: KSDFA
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -275,7 +275,7 @@
                   Temp1=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gx
                   Temp2=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gy
                   Temp3=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gz
-                  Temp4=Half*dF_dRho(ipT,j)
+                  Temp4=Half*vTau(1,j)
 *
                   dF_dr = Temp0*dRho_dR(1,j,i_Eff)
      &                  + Temp1*dRho_dR(2,j,i_Eff)
@@ -322,8 +322,8 @@
      &                          +dF_dRho(ipGab,j)*gzb )
                   Temp3b=( 2.0d0*dF_dRho(ipGbb,j)*gzb
      &                          +dF_dRho(ipGab,j)*gza )
-                  Temp4a=dF_dRho(ipTa,j)
-                  Temp4b=dF_dRho(ipTb,j)
+                  Temp4a=vTau(1,j)
+                  Temp4b=vTau(2,j)
 *
                   dF_dr = Temp0a*dRho_dR(1,j,i_Eff)
      &                  + Temp0b*dRho_dR(2,j,i_Eff)
@@ -366,7 +366,7 @@
                   Temp1=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gx
                   Temp2=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gy
                   Temp3=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gz
-                  Temp4=dF_dRho(ipT,j)
+                  Temp4=vTau(1,j)
                   Temp5=dF_dRho(ipL,j)
 *
                   dF_dr = Temp0*dRho_dR(1,j,i_Eff)
@@ -415,8 +415,8 @@
      &                          +dF_dRho(ipGab,j)*gzb )
                   Temp3b=( 2.0d0*dF_dRho(ipGbb,j)*gzb
      &                          +dF_dRho(ipGab,j)*gza )
-                  Temp4a=dF_dRho(ipTa,j)
-                  Temp4b=dF_dRho(ipTb,j)
+                  Temp4a=vTau(1,j)
+                  Temp4b=vTau(2,j)
                   Temp5a=dF_dRho(ipLa,j)
                   Temp5b=dF_dRho(ipLb,j)
 *

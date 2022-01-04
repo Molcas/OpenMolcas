@@ -16,7 +16,7 @@
 ************************************************************************
 ************************************************************************
       use nq_Grid, only: GradRho, Weights
-      use nq_Grid, only: vRho
+      use nq_Grid, only: vRho, vTau
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
@@ -203,7 +203,7 @@
             Temp2=gy*(2.0d0*dF_dRho(ipGxx,iGrid)+dF_dRho(ipGxy,iGrid))
             Temp3=gz*(2.0d0*dF_dRho(ipGxx,iGrid)+dF_dRho(ipGxy,iGrid))
 
-            Temp4=dF_dRho(ipT,iGrid)*Weights(iGrid)
+            Temp4=vTau(1,iGrid)*Weights(iGrid)
             Temp5=dF_dRho(ipL,iGrid)*Weights(iGrid)
 
             Grid_AO(1,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp0
@@ -264,8 +264,8 @@
      &            +      dF_dRho(ipGab,iGrid)*gzb
             Temp3b=2.0d0*dF_dRho(ipGbb,iGrid)*gzb
      &            +      dF_dRho(ipGab,iGrid)*gza
-            Temp4a= dF_dRho(ipTa,iGrid)*Weights(iGrid)
-            Temp4b= dF_dRho(ipTb,iGrid)*Weights(iGrid)
+            Temp4a= vTau(1,iGrid)*Weights(iGrid)
+            Temp4b= vTau(2,iGrid)*Weights(iGrid)
             Temp5a= dF_dRho(ipLa,iGrid)*Weights(iGrid)
             Temp5b= dF_dRho(ipLb,iGrid)*Weights(iGrid)
 *
@@ -330,7 +330,7 @@
             Temp2=gy*(2.0d0*dF_dRho(ipGxx,iGrid)+dF_dRho(ipGxy,iGrid))
             Temp3=gz*(2.0d0*dF_dRho(ipGxx,iGrid)+dF_dRho(ipGxy,iGrid))
 
-            Temp4=dF_dRho(ipT,iGrid)*Weights(iGrid)
+            Temp4=vTau(1,iGrid)*Weights(iGrid)
 
             Grid_AO(1,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp0
      &                         + TabAO1(2,iGrid,iCB) * Temp1
@@ -386,8 +386,8 @@
      &            +      dF_dRho(ipGab,iGrid)*gzb
             Temp3b=2.0d0*dF_dRho(ipGbb,iGrid)*gzb
      &            +      dF_dRho(ipGab,iGrid)*gza
-            Temp4a= dF_dRho(ipTa,iGrid)*Weights(iGrid)
-            Temp4b= dF_dRho(ipTb,iGrid)*Weights(iGrid)
+            Temp4a= vTau(1,iGrid)*Weights(iGrid)
+            Temp4b= vTau(2,iGrid)*Weights(iGrid)
 *
             Grid_AO(1,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp0a
      &                         + TabAO1(2,iGrid,iCB) * Temp1a
