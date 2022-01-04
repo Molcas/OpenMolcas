@@ -12,7 +12,7 @@
 *               Ajitha Devarajan                                       *
 ************************************************************************
       Subroutine LYP(mGrid,
-     &               Coeff,iSpin,F_xc,T_X)
+     &               Coeff,iSpin,F_xc)
 ************************************************************************
 *                                                                      *
 * Object:  Lyp Functional(Formula taken from Molpro Manual)            *
@@ -32,6 +32,7 @@
 #include "nq_index.fh"
 #include "ksdft.fh"
       Real*8 F_xc(mGrid)
+      Real*8, Parameter:: T_X=1.0D-20
 *
       data Cfconst / 2.8712340001881918D0 /
       data aconst,bconst,cconst,dconst

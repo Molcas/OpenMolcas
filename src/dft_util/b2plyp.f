@@ -13,7 +13,7 @@
 ************************************************************************
       Subroutine B2PLYP(mGrid,Rho,nRho,P2_ontop,
      &                  nP2_ontop,iSpin,F_xc,
-     &                  dF_dP2ontop,ndF_dP2ontop,T_X)
+     &                  dF_dP2ontop,ndF_dP2ontop)
 ************************************************************************
 *                                                                      *
 * Object:   DFT part for the Grimme's double hybrud functional.        *
@@ -43,23 +43,23 @@ C    requires 0.27 times MP2 correlation energy from MBPT2
 *---- Dirac Exchange Functional                                        *
 *                                                                      *
       Call Diracx(mGrid,
-     &            iSpin,F_xc,Coeff_A,T_X)
+     &            iSpin,F_xc,Coeff_A)
 *                                                                      *
 *---- Becke 88 Exchange Functional                                     *
 *                                                                      *
       Call xB88(mGrid,
-     &          Coeff_A,iSpin,F_xc,T_X)
+     &          Coeff_A,iSpin,F_xc)
 *                                                                      *
 *---- Vosko-Wilk-Nusair Correlation Functional V                       *
 *                                                                      *
 C--      Call VWN_V(mGrid,
 C--     &           iSpin,F_xc,
-C--     &           CoefR-Coeff_C,T_X)
+C--     &           CoefR-Coeff_C)
 *                                                                      *
 *---- Lee-Yang-Parr Correlation Functional                             *
 *                                                                      *
       Call LYP(mGrid,
-     &         Coeff_C,iSpin,F_xc,T_X)
+     &         Coeff_C,iSpin,F_xc)
 *                                                                      *
 ************************************************************************
 *                                                                      *

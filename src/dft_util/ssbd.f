@@ -15,8 +15,7 @@
 ************************************************************************
       Subroutine SSBD(mGrid,Rho,nRho,P2_ontop,
      &                nP2_ontop,iSpin,F_xc,
-     &                dF_dP2ontop,ndF_dP2ontop,
-     &                T_X)
+     &                dF_dP2ontop,ndF_dP2ontop)
 ************************************************************************
 *                                                                      *
 * Object:     Combination of exchange SSB-D and PBE correlation terms  *
@@ -37,12 +36,12 @@
 *---- SSB-D Exchange -- unlike OPTX, SSB-D has its LDA part included !
       Coeff=1.0d0*CoefX
       Call xSSBD(mGrid,
-     &          Coeff,iSpin,F_xc,T_X)
+     &          Coeff,iSpin,F_xc)
 
 *---- CSPBE Correlation
       Coeff=1.0d0*CoefR
       Call CSPBE(mGrid,
-     &         Coeff,iSpin,F_xc,T_X)
+     &         Coeff,iSpin,F_xc)
 *                                                                      *
 ************************************************************************
 *                                                                      *

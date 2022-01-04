@@ -11,7 +11,7 @@
 * Copyright (C) 2005, Per Ake Malmqvist                                *
 ************************************************************************
       Subroutine CPBEsol(mGrid,
-     &                Coeff,iSpin,F_xc,T_X)
+     &                Coeff,iSpin,F_xc)
 ************************************************************************
 *                                                                      *
 * Object: To compute the correlation part of the functional PBEsol     *
@@ -32,6 +32,7 @@
       Real*8 F_xc(mGrid)
 * Local arrays:
       Real*8 func1(3),func2(3,3)
+      Real*8, Parameter:: T_X=1.0D-20
 * Call arguments:
 * Rho(nRho,mGrid) (input) Density and density derivative values,
 *   Rho(1,iGrid) is rho_alpha values, Rho(2,iGrid) is rho_beta values

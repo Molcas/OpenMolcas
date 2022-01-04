@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2000, Roland Lindh                                     *
 ************************************************************************
-      Subroutine DiracX(mGrid,iSpin,F_xc,Coeff,T_X)
+      Subroutine DiracX(mGrid,iSpin,F_xc,Coeff)
 ************************************************************************
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. November 2000                           *
@@ -24,6 +24,7 @@ C-Ajitha Modifying the kernel output structure
 #include "nq_index.fh"
 #include "ksdft.fh"
       Real*8 F_xc(mGrid)
+      Real*8, Parameter:: T_X=1.0D-20
 *                                                                      *
 ************************************************************************
 *                                                                      *

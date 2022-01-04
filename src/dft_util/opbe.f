@@ -10,8 +10,7 @@
 ************************************************************************
       Subroutine OPBE(mGrid,Rho,nRho,P2_ontop,
      &                nP2_ontop,iSpin,F_xc,
-     &                dF_dP2ontop,ndF_dP2ontop,
-     &                T_X)
+     &                dF_dP2ontop,ndF_dP2ontop)
 ************************************************************************
 *                                                                      *
 * Object:     OPTX + PBE combination                                   *
@@ -30,19 +29,19 @@
 *---- Dirac Exchange with the a1 OPTX factor!
 *
       Coeff= 1.051510d0*CoefX
-      Call Diracx(mGrid,iSpin,F_xc,Coeff,T_X)
+      Call Diracx(mGrid,iSpin,F_xc,Coeff)
 *
 *---- OPTX Exchange, the a2 coeff is here!
 *
       Coeff= 1.431690d0*CoefX
       Call xOPT(mGrid,
-     &          Coeff,iSpin,F_xc,T_X)
+     &          Coeff,iSpin,F_xc)
 *
 *---- PBEc
 *
       Coeff=One*CoefR
       Call CPBE(mGrid,
-     &         Coeff,iSpin,F_xc,T_X)
+     &         Coeff,iSpin,F_xc)
 *                                                                      *
 ************************************************************************
 *                                                                      *

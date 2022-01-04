@@ -10,8 +10,7 @@
 ************************************************************************
       Subroutine VWN_III_emb(mGrid,Rho,nRho,P2_ontop,
      &                       nP2_ontop,iSpin,F_xc,
-     &                       dF_dP2ontop,ndF_dP2ontop,
-     &                       T_X)
+     &                       dF_dP2ontop,ndF_dP2ontop)
 ************************************************************************
       use OFembed, only: dFMD
       Implicit Real*8 (A-H,O-Z)
@@ -24,7 +23,7 @@
 *---- Vosko-Wilk-Nusair correlation functional III
 *
       Coeff=dFMD
-      Call VWN_III(mGrid,iSpin,F_xc,Coeff,T_X)
+      Call VWN_III(mGrid,iSpin,F_xc,Coeff)
 
       Return
 c Avoid unused argument warnings

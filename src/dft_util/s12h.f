@@ -13,8 +13,7 @@
 ************************************************************************
       Subroutine S12h(mGrid,Rho,nRho,P2_ontop,
      &                nP2_ontop,iSpin,F_xc,
-     &                dF_dP2ontop,ndF_dP2ontop,
-     &                T_X)
+     &                dF_dP2ontop,ndF_dP2ontop)
 ************************************************************************
 *                                                                      *
 * Object:     Combination of exchange S12h (25% HF exchange) and PBE   *
@@ -39,20 +38,20 @@
 *
 C      Coeff=1.079966d0
 C
-C      Call Diracx(mGrid,iSpin,F_xc,Coeff,T_X)
+C      Call Diracx(mGrid,iSpin,F_xc,Coeff)
 *
 *---- S12h has its LDA part included!
 *
       Coeff=0.75d0
       gh_switch = 2
       Call xS12gh(mGrid,
-     &          Coeff,iSpin,F_xc,T_X,gh_switch)
+     &          Coeff,iSpin,F_xc,gh_switch)
 *
 *---- PBE Correlation
 *
       Coeff=1.0d0
       Call CPBE(mGrid,
-     &         Coeff,iSpin,F_xc,T_X)
+     &         Coeff,iSpin,F_xc)
 *                                                                      *
 ************************************************************************
 *                                                                      *

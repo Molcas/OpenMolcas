@@ -12,7 +12,7 @@
 *               2009, Grigory A. Shamov                                *
 ************************************************************************
       Subroutine XPBEsol(mGrid,
-     &                   Coeff,iSpin,F_xc,T_X)
+     &                   Coeff,iSpin,F_xc)
 ************************************************************************
 *                                                                      *
 * Object: To compute the X part of PBEsol, PRL 100,136406,2008         *
@@ -31,6 +31,7 @@
 #include "real.fh"
 #include "nq_index.fh"
       Real*8 F_xc(mGrid)
+      Real*8, Parameter:: T_X=1.0D-20
 * Call arguments:
 * Weights(mGrid) (input) integration weights.
 * Rho(nRho,mGrid) (input) Density and density derivative values,

@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine TLYP(mGrid,Rho,nRho,P2_ontop,
      &                nP2_ontop,iSpin,F_xc,
-     &                dF_dP2ontop,ndF_dP2ontop,T_X)
+     &                dF_dP2ontop,ndF_dP2ontop)
 ************************************************************************
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. March 2001                              *
@@ -29,7 +29,7 @@
 *---- Lee-Yang-Parr Correlation
 *
       Coeff=One*CoefR
-      Call LYP(mGrid,Coeff,iSpin,F_xc,T_X)
+      Call LYP(mGrid,Coeff,iSpin,F_xc)
 *                                                                      *
 ************************************************************************
 *                                                                      *

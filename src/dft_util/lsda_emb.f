@@ -10,8 +10,7 @@
 ************************************************************************
       Subroutine LSDA_emb(mGrid,Rho,nRho,P2_ontop,
      &                    nP2_ontop,nDmat,F_xc,
-     &                    dF_dP2ontop,ndF_dP2ontop,
-     &                    T_X)
+     &                    dF_dP2ontop,ndF_dP2ontop)
       use OFembed, only: KEonly
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
@@ -25,7 +24,7 @@
 *---- Thomas-Fermi Kinetic energy functional
 *
       Coeff=One
-      Call TF_Ts(mGrid,nDmat,F_xc,Coeff,T_X)
+      Call TF_Ts(mGrid,nDmat,F_xc,Coeff)
 
       If (KEonly) Return
 *
@@ -33,8 +32,7 @@
 *
       Call LSDA(mGrid,Rho,nRho,P2_ontop,
      &                nP2_ontop,nDmat,F_xc,
-     &                dF_dP2ontop,ndF_dP2ontop,
-     &                T_X)
+     &                dF_dP2ontop,ndF_dP2ontop)
 
 *                                                                      *
 ************************************************************************

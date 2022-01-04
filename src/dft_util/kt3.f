@@ -12,8 +12,7 @@
 ************************************************************************
       Subroutine KT3(mGrid,Rho,nRho,P2_ontop,
      &                nP2_ontop,iSpin,F_xc,
-     &                dF_dP2ontop,ndF_dP2ontop,
-     &                T_X)
+     &                dF_dP2ontop,ndF_dP2ontop)
 ************************************************************************
 *                                                                      *
 * Object:     KT3 combination                                          *
@@ -37,25 +36,25 @@
 *---- Dirac Exchange with the non-UEG factor!
 *
       Coeff= 1.092d0*CoefX
-      Call Diracx(mGrid,iSpin,F_xc,Coeff,T_X)
+      Call Diracx(mGrid,iSpin,F_xc,Coeff)
 *
 *---- OPTX Exchange
 *
       Coeff= 0.925452d0*CoefX
       Call xOPT(mGrid,
-     &          Coeff,iSpin,F_xc,T_X)
+     &          Coeff,iSpin,F_xc)
 *
 *---- KT term Exchange
 *
       Coeff= -0.0040d0*CoefX
       Call KealTozer(mGrid,
-     &          Coeff,iSpin,F_xc,T_X)
+     &          Coeff,iSpin,F_xc)
 *
 *---- Lee-Yang-Parr Correlation
 *
       Coeff=0.864409d0*CoefR
       Call LYP(mGrid,
-     &         Coeff,iSpin,F_xc,T_X)
+     &         Coeff,iSpin,F_xc)
 *                                                                      *
 ************************************************************************
 *                                                                      *

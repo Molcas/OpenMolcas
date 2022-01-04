@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2005, Per Ake Malmqvist                                *
 ************************************************************************
-      Subroutine CPBE_ofe(mGrid,Coeff,iSpin,F_xc,T_X)
+      Subroutine CPBE_ofe(mGrid,Coeff,iSpin,F_xc)
 ************************************************************************
 *                                                                      *
 * Object: To compute the functional called c_pbe in the Density        *
@@ -32,6 +32,7 @@
 #include "real.fh"
 #include "nq_index.fh"
       Real*8 F_xc(mGrid)
+      Real*8, Parameter:: T_X=1.0D-20
 * Local arrays:
       Real*8 func1(3),func2(3,3)
 * Call arguments:

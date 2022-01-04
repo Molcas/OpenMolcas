@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine NDSD_Ts(mGrid,nDmat,F_xc,Coeff,T_X)
+      Subroutine NDSD_Ts(mGrid,nDmat,F_xc,Coeff)
 ************************************************************************
 *                                                                      *
 * Object:  compute Func for Thomas-Fermi KE functional                 *
@@ -31,6 +31,7 @@
       Real*8 Fexp, Vt_lim
       External Fexp, Vt_lim
       Real*8 wGradRho(1:3)
+      Real*8, Parameter:: T_X=1.0D-20
 *                                                                      *
 ************************************************************************
 *                                                                      *

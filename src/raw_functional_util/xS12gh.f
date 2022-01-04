@@ -12,7 +12,7 @@
 *               2009, Grigory A. Shamov                                *
 ************************************************************************
       Subroutine xS12gh(mGrid,
-     &                Coeff,iSpin,F_xc,T_X,gh_switch)
+     &                Coeff,iSpin,F_xc,gh_switch)
 ************************************************************************
 *                                                                      *
 * Object S12g from Marcel Swart                                        *
@@ -31,6 +31,7 @@
 #include "real.fh"
 #include "nq_index.fh"
       Real*8 F_xc(mGrid)
+      Real*8, Parameter:: T_X=1.0D-20
       integer gh_switch
 
 * IDORD=Order of derivatives to request from XPBE:

@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine cPBE_emb(mGrid,Rho,nRho,P2_ontop,
      &                    nP2_ontop,iSpin,F_xc,
-     &                    dF_dP2ontop,ndF_dP2ontop,T_X)
+     &                    dF_dP2ontop,ndF_dP2ontop)
 ************************************************************************
       use OFembed, only: dFMD
       Implicit Real*8 (A-H,O-Z)
@@ -21,7 +21,7 @@
 *
       CoeffA=dFMD
       Call CPBE(mGrid,
-     &          CoeffA,iSpin,F_xc,T_X)
+     &          CoeffA,iSpin,F_xc)
 
 *
       Return

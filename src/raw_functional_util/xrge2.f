@@ -12,7 +12,7 @@
 *               2010, Grigory A. Shamov                                *
 ************************************************************************
       Subroutine XRGE2(mGrid,
-     &                   Coeff,iSpin,F_xc,T_X)
+     &                   Coeff,iSpin,F_xc)
 ************************************************************************
 *                                                                      *
 * Object: To compute the exchange part of RGE2, by                     *
@@ -32,6 +32,7 @@
 #include "real.fh"
 #include "nq_index.fh"
       Real*8 F_xc(mGrid)
+      Real*8, Parameter:: T_X=1.0D-20
 
 * IDORD=Order of derivatives to request from XPBE:
       idord=1

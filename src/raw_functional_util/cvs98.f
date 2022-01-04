@@ -11,7 +11,7 @@
 * Copyright (C) 2010, Yan Zhao                                         *
 ************************************************************************
       Subroutine CVS98(mGrid,
-     &                 CoeffA,iSpin,F_xc,T_X,ijzy)
+     &                 CoeffA,iSpin,F_xc,ijzy)
 ************************************************************************
 *                                                                      *
 *  CVS98 evaluates the correlation part of the VS98 and M06 suite of   *
@@ -38,6 +38,7 @@
 #include "real.fh"
 #include "nq_index.fh"
       Real*8 F_xc(mGrid)
+      Real*8, Parameter:: T_X=1.0D-20
       Integer mGrid
 
       REAL*8 Pi34, F13,

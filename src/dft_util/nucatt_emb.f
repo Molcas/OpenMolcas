@@ -53,7 +53,7 @@
       Call Do_NucAtt_EMB(mGrid,Rho,nRho,P2_ontop,nP2_ontop,
      &                   iSpin,F_xc,
      &                   dF_dP2ontop,ndF_dP2ontop,Grid,
-     &                   RA,ZA,mCenter,T_X)
+     &                   RA,ZA,mCenter)
 *
       Call mma_deallocate(ZA)
       Call mma_deallocate(RA)
@@ -66,7 +66,7 @@
       Subroutine Do_NucAtt_EMB(mGrid,Rho,nRho,P2_ontop,nP2_ontop,
      &                         iSpin,F_xc,
      &                         dF_dP2ontop,ndF_dP2ontop,Grid,RA,ZA,
-     &                         mCenter,T_X)
+     &                         mCenter)
 
       use nq_Grid, only: vRho
       Implicit Real*8 (A-H,O-Z)
@@ -76,6 +76,7 @@
      &        dF_dP2ontop(ndF_dP2ontop,mGrid),
      &        P2_ontop(nP2_ontop,mGrid), F_xc(mGrid)
       Real*8 Grid(3,mGrid),RA(3,mCenter),ZA(mCenter)
+      Real*8, Parameter:: T_X=1.0D-20
 *                                                                      *
 ************************************************************************
 *                                                                      *

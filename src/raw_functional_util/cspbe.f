@@ -13,7 +13,7 @@
 *               2017, Aron Cohen                                       *
 ************************************************************************
       Subroutine CSPBE(mGrid,
-     &                Coeff,iSpin,F_xc,T_X)
+     &                Coeff,iSpin,F_xc)
 ************************************************************************
 *                                                                      *
 * Object: To compute the functional called c_spbe in the Density       *
@@ -33,6 +33,7 @@
 #include "nq_index.fh"
 #include "ksdft.fh"
       Real*8 F_xc(mGrid)
+      Real*8, Parameter:: T_X=1.0D-20
 * Local arrays:
       Real*8 func1(3),func2(3,3)
 * Call arguments:

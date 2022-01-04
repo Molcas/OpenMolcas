@@ -13,7 +13,7 @@
 ************************************************************************
       Subroutine PTCA(mGrid,Rho,nRho,P2_ontop,
      &               nP2_ontop,iSpin,F_xc,
-     &               dF_dP2ontop,ndF_dP2ontop,T_X)
+     &               dF_dP2ontop,ndF_dP2ontop)
 ************************************************************************
 *                                                                      *
 * Object: To compute the combination of PBE exchange and TCA           *
@@ -38,11 +38,11 @@
 *                                                                      *
       CoeffA=One*CoefR
       Call CTCA(mGrid,
-     &          CoeffA,iSpin,F_xc,T_X)
+     &          CoeffA,iSpin,F_xc)
 
       CoeffB=One*CoefX
       Call XPBE(mGrid,
-     &          CoeffB,iSpin,F_xc,T_X)
+     &          CoeffB,iSpin,F_xc)
 *                                                                      *
 ************************************************************************
 *                                                                      *

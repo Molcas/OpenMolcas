@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine TF_Ts(mGrid,nDmat,F_xc,Coeff,T_X)
+      Subroutine TF_Ts(mGrid,nDmat,F_xc,Coeff)
 ************************************************************************
 *                                                                      *
 * Object:  compute Func and potential for Thomas-Fermi KE functional   *
@@ -20,6 +20,7 @@
 #include "real.fh"
 #include "nq_index.fh"
       Real*8 F_xc(mGrid)
+      Real*8, Parameter:: T_X=1.0D-20
 *                                                                      *
 ************************************************************************
 *                                                                      *

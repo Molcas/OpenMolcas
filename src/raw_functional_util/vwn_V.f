@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2000, Roland Lindh                                     *
 ************************************************************************
-      Subroutine VWN_V(mGrid,iSpin,F_xc,Coeff,T_X)
+      Subroutine VWN_V(mGrid,iSpin,F_xc,Coeff)
 ************************************************************************
 *                                                                      *
 * Object: To compute functional V from the VWN80 paper which fits the  *
@@ -26,6 +26,7 @@
 #include "real.fh"
 #include "nq_index.fh"
       Real*8 F_xc(mGrid)
+      Real*8, Parameter:: T_X=1.0D-20
 *  LDA Stuff
       Real*8 A(3),b(3),c(3),x0(3),Q(3),Xx0(3),e(3),d_e(3)
       data A  / 0.0621814D+00,  0.0310907D+00, -0.0337740D+00/

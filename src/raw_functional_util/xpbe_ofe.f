@@ -11,7 +11,7 @@
 * Copyright (C) 2006, Per Ake Malmqvist                                *
 ************************************************************************
       Subroutine XPBE_ofe(mGrid,
-     &                    Coeff,iSpin,F_xc,T_X)
+     &                    Coeff,iSpin,F_xc)
 ************************************************************************
 *                                                                      *
 * Object: To compute the functional called x_pbe in the Density        *
@@ -33,6 +33,7 @@
 #include "real.fh"
 #include "nq_index.fh"
       Real*8 F_xc(mGrid)
+      Real*8, Parameter:: T_X=1.0D-20
 * Call arguments:
 * Weights(mGrid) (input) integration weights.
 * Rho(nRho,mGrid) (input) Density and density derivative values,

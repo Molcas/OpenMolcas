@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine PBEsol(mGrid,Rho,nRho,P2_ontop,
      &               nP2_ontop,iSpin,F_xc,
-     &               dF_dP2ontop,ndF_dP2ontop,T_X)
+     &               dF_dP2ontop,ndF_dP2ontop)
 ************************************************************************
 *                                                                      *
 * Object: To compute the sum of the functional c_pbesol and x_pbesol   *
@@ -35,11 +35,11 @@
 *                                                                      *
       CoeffA=One*CoefR
       Call CPBEsol(mGrid,
-     &          CoeffA,iSpin,F_xc,T_X)
+     &          CoeffA,iSpin,F_xc)
 
       CoeffB=One*CoefX
       Call XPBEsol(mGrid,
-     &          CoeffB,iSpin,F_xc,T_X)
+     &          CoeffB,iSpin,F_xc)
 *                                                                      *
 ************************************************************************
 *                                                                      *

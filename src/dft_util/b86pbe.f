@@ -12,8 +12,7 @@
 ************************************************************************
       Subroutine B86PBE(mGrid,Rho,nRho,P2_ontop,
      &                nP2_ontop,iSpin,F_xc,
-     &                dF_dP2ontop,ndF_dP2ontop,
-     &                T_X)
+     &                dF_dP2ontop,ndF_dP2ontop)
 ************************************************************************
 *                                                                      *
 * Object:    B86 + LYP combination                                     *
@@ -33,19 +32,19 @@
 *---- Dirac Exchange
 *
       Coeff=One*CoefX
-      Call Diracx(mGrid,iSpin,F_xc,Coeff,T_X)
+      Call Diracx(mGrid,iSpin,F_xc,Coeff)
 *
 *---- Becke 88 Exchange
 *
       Coeff=One*CoefX
       Call xB86(mGrid,
-     &          Coeff,iSpin,F_xc,T_X)
+     &          Coeff,iSpin,F_xc)
 *
 *---- Lee-Yang-Parr Correlation
 *
       Coeff=One*CoefR
       Call CPBE(mGrid,
-     &         Coeff,iSpin,F_xc,T_X)
+     &         Coeff,iSpin,F_xc)
 *                                                                      *
 ************************************************************************
 *                                                                      *

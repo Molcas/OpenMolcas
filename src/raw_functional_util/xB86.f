@@ -12,7 +12,7 @@
 *               2009, Grigory A. Shamov                                *
 ************************************************************************
       Subroutine xB86(mGrid,
-     &                Coeff,iSpin,F_xc,T_X)
+     &                Coeff,iSpin,F_xc)
 ************************************************************************
 *                                                                      *
 * Object: Becke86 exchange functional, from Appendix of Becke's B07 ref*
@@ -33,6 +33,8 @@
 #include "real.fh"
 #include "nq_index.fh"
       Real*8 F_xc(mGrid)
+      Real*8, Parameter:: T_X=1.0D-20
+
 
 * IDORD=Order of derivatives to request from XPBE:
       idord=1

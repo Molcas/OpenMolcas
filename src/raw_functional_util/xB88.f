@@ -11,7 +11,7 @@
 * Copyright (C) 2006, Per Ake Malmqvist                                *
 ************************************************************************
       Subroutine xB88(mGrid,
-     &                Coeff,iSpin,F_xc,T_X)
+     &                Coeff,iSpin,F_xc)
 ************************************************************************
 *                                                                      *
 * Object: To compute the functional called x_B88 in the Density        *
@@ -37,6 +37,7 @@
 #include "nq_index.fh"
 #include "ksdft.fh"
       Real*8 F_xc(mGrid)
+      Real*8, Parameter:: T_X=1.0D-20
 
 * IDORD=Order of derivatives to request from XPBE:
       idord=1

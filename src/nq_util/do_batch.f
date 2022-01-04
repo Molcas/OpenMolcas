@@ -824,7 +824,7 @@ cRKCft
 *
       Call Kernel(mGrid,Rho,nRho,P2_ontop,
      &            nP2_ontop,nD,F_xc,
-     &            dF_dP2ontop,ndF_dP2ontop,T_Rho)
+     &            dF_dP2ontop,ndF_dP2ontop)
 *                                                                      *
 ************************************************************************
 ************************************************************************

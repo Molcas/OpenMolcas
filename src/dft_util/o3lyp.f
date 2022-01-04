@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine O3LYP(mGrid,Rho,nRho,P2_ontop,
      &                 nP2_ontop,iSpin,F_xc,
-     &                 dF_dP2ontop,ndF_dP2ontop,T_X)
+     &                 dF_dP2ontop,ndF_dP2ontop)
 ************************************************************************
 *                                                                      *
 * Object:  The O3LYP combination as defined in Hoe, Cohen  and Handy,  *
@@ -38,21 +38,21 @@
 *                                                                      *
 *---- Dirac Exchange Functional                                        *
 *                                                                      *
-      Call Diracx(mGrid,iSpin,F_xc,Coeff_A,T_X)
+      Call Diracx(mGrid,iSpin,F_xc,Coeff_A)
 *                                                                      *
 *---- OPTX Exchange Functional                                         *
 *                                                                      *
       Call xOPT(mGrid,
-     &          Coeff_B,iSpin,F_xc,T_X)
+     &          Coeff_B,iSpin,F_xc)
 *                                                                      *
 *---- Vosko-Wilks-Nusair Correlation Functional III                    *
 *                                                                      *
-      Call VWN_III(mGrid,iSpin,F_xc,CoefR - Coeff_C,T_X)
+      Call VWN_III(mGrid,iSpin,F_xc,CoefR - Coeff_C)
 *                                                                      *
 *---- Lee-Yang-Parr Correlation Functional                             *
 *                                                                      *
       Call LYP(mGrid,
-     &         Coeff_C,iSpin,F_xc,T_X)
+     &         Coeff_C,iSpin,F_xc)
 *                                                                      *
 ************************************************************************
 *                                                                      *

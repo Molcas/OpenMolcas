@@ -11,7 +11,7 @@
 * Copyright (C) 2006, Per Ake Malmqvist                                *
 *               2010, Grigory A. Shamov                                *
 ************************************************************************
-      Subroutine CWIG(mGrid,Coeff,iSpin,F_xc,T_X)
+      Subroutine CWIG(mGrid,Coeff,iSpin,F_xc)
 ************************************************************************
 *                                                                      *
 * Object: To compute the Powerful Wigner correlation functional        *
@@ -31,6 +31,7 @@
 #include "real.fh"
 #include "nq_index.fh"
       Real*8 F_xc(mGrid)
+      Real*8, Parameter:: T_X=1.0D-20
 
 * IDORD=Order of derivatives to request from XPBE:
       idord=1

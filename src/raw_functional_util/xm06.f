@@ -11,7 +11,7 @@
 * Copyright (C) 2010, Yan Zhao                                         *
 ************************************************************************
       Subroutine XM06(mGrid,
-     &                CoeffA,iSpin,F_xc,T_X,ijzy)
+     &                CoeffA,iSpin,F_xc,ijzy)
 ************************************************************************
 *                                                                      *
 *  M06x evaluates the exchange part of the M06 suite of                *
@@ -36,6 +36,7 @@
 #include "real.fh"
 #include "nq_index.fh"
       Real*8 F_xc(mGrid)
+      Real*8, Parameter:: T_X=1.0D-20
       Integer mGrid
 
       integer ijzy

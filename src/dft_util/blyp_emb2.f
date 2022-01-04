@@ -1,4 +1,4 @@
-************************************************************************
+***********************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -10,8 +10,7 @@
 ************************************************************************
       Subroutine BLYP_emb2(mGrid,Rho,nRho,P2_ontop,
      &                     nP2_ontop,nDmat,F_xc,
-     &                     dF_dP2ontop,ndF_dP2ontop,
-     &                     T_X)
+     &                     dF_dP2ontop,ndF_dP2ontop)
 ************************************************************************
 *                                                                      *
 * Object:                                                              *
@@ -31,7 +30,7 @@
 *---- NDSD potential
 *
       Coeff=One
-      Call ndsd_Ts(mGrid,nDmat,F_xc,Coeff,T_X)
+      Call ndsd_Ts(mGrid,nDmat,F_xc,Coeff)
 
       If (KEonly) Return
 *
@@ -39,8 +38,7 @@
 *
       Call BLYP_(mGrid,Rho,nRho,P2_ontop,
      &                 nP2_ontop,nDmat,F_xc,
-     &                 dF_dP2ontop,ndF_dP2ontop,
-     &                 T_X)
+     &                 dF_dP2ontop,ndF_dP2ontop)
 
 *                                                                      *
 ************************************************************************
@@ -52,8 +50,7 @@
 *                                                                      *
       Subroutine BLYP_(mGrid,Rho,nRho,P2_ontop,
      &                 nP2_ontop,iSpin,F_xc,
-     &                 dF_dP2ontop,ndF_dP2ontop,
-     &                 T_X)
+     &                 dF_dP2ontop,ndF_dP2ontop)
 
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
@@ -66,19 +63,19 @@
 *---- Dirac Exchange
 *
       Coeff=Zero
-      Call Diracx_ofe(mGrid,iSpin,F_xc,Coeff,T_X)
+      Call Diracx_ofe(mGrid,iSpin,F_xc,Coeff)
 *                                                                      *
 *---- Becke 88 Exchange
 *
       Coeff=Zero
       Call xB88_ofe(mGrid,
-     &              Coeff,iSpin,F_xc,T_X)
+     &              Coeff,iSpin,F_xc)
 *
 *---- Lee-Yang-Parr Correlation
 *
       Coeff=Zero
       Call LYP_ofe(mGrid,
-     &             Coeff,iSpin,F_xc,T_X)
+     &             Coeff,iSpin,F_xc)
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine M062X(mGrid,Rho,nRho,P2_ontop,
      &                 nP2_ontop,iSpin,F_xc,
-     &                 dF_dP2ontop,ndF_dP2ontop,T_X)
+     &                 dF_dP2ontop,ndF_dP2ontop)
 ************************************************************************
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. March 2001                              *
@@ -30,13 +30,13 @@
       ijzy=4
       CoeffA=One*CoefX
       Call XM06(mGrid,
-     &          CoeffA,iSpin,F_xc,T_X,ijzy)
+     &          CoeffA,iSpin,F_xc,ijzy)
       CoeffA=One*CoefR
       Call CM06(mGrid,
-     &          CoeffA,iSpin,F_xc,T_X,ijzy)
+     &          CoeffA,iSpin,F_xc,ijzy)
       CoeffA=One*CoefR
       Call CVS98(mGrid,
-     &           CoeffA,iSpin,F_xc,T_X,ijzy+1)
+     &           CoeffA,iSpin,F_xc,ijzy+1)
 *                                                                      *
 ************************************************************************
 *                                                                      *

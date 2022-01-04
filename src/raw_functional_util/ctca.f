@@ -12,7 +12,7 @@
 *               2010, Grigory A. Shamov                                *
 ************************************************************************
       Subroutine CTCA(mGrid,
-     &                Coeff,iSpin,F_xc,T_X)
+     &                Coeff,iSpin,F_xc)
 ************************************************************************
 *                                                                      *
 * Object: To compute the Tognetti-Cortona-Adamo TCA functional         *
@@ -33,6 +33,7 @@
 #include "real.fh"
 #include "nq_index.fh"
       Real*8 F_xc(mGrid)
+      Real*8, Parameter:: T_X=1.0D-20
 * Local arrays:
       Real*8 func1(3),func2(3,3)
 * Call arguments:

@@ -12,7 +12,7 @@
 *               2009, Grigory A. Shamov                                *
 ************************************************************************
       Subroutine xOPT(mGrid,
-     &                Coeff,iSpin,F_xc,T_X)
+     &                Coeff,iSpin,F_xc)
 ************************************************************************
 *                                                                      *
 * Object: To compute the GGA term of the OPTX exchange functional.     *
@@ -35,6 +35,7 @@
 #include "real.fh"
 #include "nq_index.fh"
       Real*8 F_xc(mGrid)
+      Real*8, Parameter:: T_X=1.0D-20
 
 * IDORD=Order of derivatives to request from XPBE:
       idord=1

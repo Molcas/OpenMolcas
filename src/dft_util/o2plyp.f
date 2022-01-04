@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine O2PLYP(mGrid,Rho,nRho,P2_ontop,
      &                  nP2_ontop,iSpin,F_xc,
-     &                  dF_dP2ontop,ndF_dP2ontop,T_X)
+     &                  dF_dP2ontop,ndF_dP2ontop)
 ************************************************************************
 *                                                                      *
 * Object:   OPTX analog of Grimme's B2PLYP double hybrid               *
@@ -41,17 +41,17 @@ C MP2 correlation energy to be scaled to 1 - Coeff_C = 0.25
 *                                                                      *
 *---- Dirac Exchange Functional     * 0.5 OPTX                         *
 *                                                                      *
-      Call Diracx(mGrid,iSpin,F_xc,Coeff_A,T_X)
+      Call Diracx(mGrid,iSpin,F_xc,Coeff_A)
 *                                                                      *
 *---- OPTX Exchange Functional * 0.5  OPTX                             *
 *                                                                      *
       Call xOPT(mGrid,
-     &          Coeff_B,iSpin,F_xc,T_X)
+     &          Coeff_B,iSpin,F_xc)
 *                                                                      *
 *  LYP correlation                                                     *
 *                                                                      *
       Call LYP(mGrid,
-     &         Coeff_C,iSpin,F_xc,T_X)
+     &         Coeff_C,iSpin,F_xc)
 *                                                                      *
 ************************************************************************
 *                                                                      *

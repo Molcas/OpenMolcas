@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2010, Yan Zhao                                         *
 ************************************************************************
-      Subroutine CM06(mGrid,CoeffA,iSpin,F_xc,T_X,ijzy)
+      Subroutine CM06(mGrid,CoeffA,iSpin,F_xc,ijzy)
 ************************************************************************
 *                                                                      *
 *  CM06 evaluates the correlation part of the M06 suite of             *
@@ -47,6 +47,7 @@
      &dWdU,dWdPA,dWdPB, dWdGA,dWdGB,EUEGPA,EUEGPB
 
       REAL*8   F1, F2, F3, F4, COpp
+      REAL*8, Parameter:: T_X=1.0D-20
       Data COpp/0.0031d0/,F1/1.0d0/,F2/2.0d0/,F3/3.0d0/,F4/4.0d0/
 
       INTEGER ijzy

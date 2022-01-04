@@ -12,7 +12,7 @@
 ************************************************************************
        Subroutine HFB(mGrid,Rho,nRho,P2_ontop,
      &                nP2_ontop,iSpin,F_xc,
-     &                dF_dP2ontop,ndF_dP2ontop,T_X)
+     &                dF_dP2ontop,ndF_dP2ontop)
 ************************************************************************
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. March 2001                              *
@@ -32,13 +32,13 @@
 *---- Dirac (Slater) exchange                                          *
 *                                                                      *
       Coeff=One*CoefX
-      Call DiracX(mGrid,iSpin,F_xc,Coeff,T_X)
+      Call DiracX(mGrid,iSpin,F_xc,Coeff)
 *                                                                      *
 *---- Becke 88 Exchange Functional                                     *
 *                                                                      *
       Coeff=One*CoefX
       Call xB88(mGrid,
-     &          Coeff,iSpin,F_xc,T_X)
+     &          Coeff,iSpin,F_xc)
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine NucAtt(mGrid,Rho,nRho,P2_ontop,
      &                  nP2_ontop,iSpin,F_xc,
-     &                  dF_dP2ontop,ndF_dP2ontop,T_XX)
+     &                  dF_dP2ontop,ndF_dP2ontop)
 ************************************************************************
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. November 2000                           *
@@ -64,8 +64,6 @@
       Call mma_deallocate(RA)
 *
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_real(T_XX)
       End
       Subroutine Do_NucAtt_(mGrid,Rho,nRho,P2_ontop,nP2_ontop,
      &                      iSpin,F_xc,

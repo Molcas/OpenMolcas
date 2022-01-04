@@ -15,8 +15,7 @@
 ************************************************************************
       Subroutine SSBSW(mGrid,Rho,nRho,P2_ontop,
      &                nP2_ontop,iSpin,F_xc,
-     &                dF_dP2ontop,ndF_dP2ontop,
-     &                T_X)
+     &                dF_dP2ontop,ndF_dP2ontop)
 ************************************************************************
 *                                                                      *
 * Object:     Combination of excnange SSB-sw and PBE correlation terms *
@@ -38,12 +37,12 @@
 *---- SSBSW Exchange -- unlike OPTX, SSBSW has its LDA part included !
       Coeff=1.0d0*CoefX
       Call xSSBSW(mGrid,
-     &          Coeff,iSpin,F_xc,T_X)
+     &          Coeff,iSpin,F_xc)
 *
 *---- PBE Correlation
       Coeff=1.0d0*CoefR
       Call CPBE(mGrid,
-     &         Coeff,iSpin,F_xc,T_X)
+     &         Coeff,iSpin,F_xc)
 *                                                                      *
 ************************************************************************
 *                                                                      *

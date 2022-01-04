@@ -11,7 +11,7 @@
 * Copyright (C) 2000, Roland Lindh                                     *
 *               2001, Laura Gagliardi                                  *
 ************************************************************************
-      Subroutine VWN_III(mGrid,iSpin,F_xc,Coeff,T_X)
+      Subroutine VWN_III(mGrid,iSpin,F_xc,Coeff)
 ************************************************************************
 *                                                                      *
 * Object: To compute functional III from the VWN80 paper which fits the*
@@ -31,6 +31,7 @@
 #include "nq_index.fh"
 #include "ksdft.fh"
       Real*8 F_xc(mGrid)
+      Real*8, Parameter:: T_X=1.0D-20
 *  LDA Stuff
       Real*8 A(2),b(2),c(2),x0(2),Q(2),xx0(2),e(2),d_e(2)
       data A  / 0.0621814D+00,  0.0310907D+00/

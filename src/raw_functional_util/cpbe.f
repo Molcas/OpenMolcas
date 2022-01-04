@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2005, Per Ake Malmqvist                                *
 ************************************************************************
-      Subroutine CPBE(mGrid,Coeff,iSpin,F_xc,T_X)
+      Subroutine CPBE(mGrid,Coeff,iSpin,F_xc)
 ************************************************************************
 *                                                                      *
 * Object: To compute the functional called c_pbe in the Density        *
@@ -36,6 +36,7 @@
       Real*8 F_xc(mGrid)
 * Local arrays:
       Real*8 func1(3),func2(3,3)
+      Real*8, Parameter:: T_X=1.0D-20
 * Call arguments:
 * Rho(nRho,mGrid) (input) Density and density derivative values,
 *   Rho(1,iGrid) is rho_alpha values, Rho(2,iGrid) is rho_beta values

@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine vW_Ts(mGrid,nDmat,F_xc,
-     &                       Coeff,T_X)
+     &                       Coeff)
 ************************************************************************
 *                                                                      *
 * Object:  compute Func for von Weizsacker KE functional               *
@@ -21,6 +21,7 @@
 #include "real.fh"
 #include "nq_index.fh"
       Real*8 F_xc(mGrid)
+      Real*8, Parameter:: T_X=1.0D-20
 *                                                                      *
 ************************************************************************
 *                                                                      *
