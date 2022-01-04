@@ -398,7 +398,6 @@
 ************************************************************************
 *                                                                      *
        If (lft) then
-          if(Debug) write(6,*) 'in do_batch.f for TLSDA option'
 
        nPMO3p=1
        IF(lft.and.lGGA) THEN
@@ -616,27 +615,6 @@
 *======================================================================*
 *======================================================================*
 
-      If (l_casdft) Then
-      If (nD.eq.1) Then
-         Do iGrid=1, mGrid
-            Sigma(1,iGrid)=GradRho(1,iGrid)**2
-     &                    +GradRho(2,iGrid)**2
-     &                    +GradRho(3,iGrid)**2
-         End Do
-      Else
-         Do iGrid=1, mGrid
-            Sigma(1,iGrid)=GradRho(1,iGrid)**2
-     &                    +GradRho(2,iGrid)**2
-     &                    +GradRho(3,iGrid)**2
-            Sigma(2,iGrid)=GradRho(1,iGrid)*GradRho(4,iGrid)
-     &                    +GradRho(2,iGrid)*GradRho(5,iGrid)
-     &                    +GradRho(3,iGrid)*GradRho(6,iGrid)
-            Sigma(3,iGrid)=GradRho(4,iGrid)**2
-     &                    +GradRho(5,iGrid)**2
-     &                    +GradRho(6,iGrid)**2
-         End Do
-      End If
-      End If
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -678,7 +656,31 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-*
+      If (l_casdft.and.lGGA) Then
+         If (nD.eq.1) Then
+            Do iGrid=1, mGrid
+               Sigma(1,iGrid)=GradRho(1,iGrid)**2
+     &                       +GradRho(2,iGrid)**2
+     &                       +GradRho(3,iGrid)**2
+            End Do
+         Else
+            Do iGrid=1, mGrid
+               Sigma(1,iGrid)=GradRho(1,iGrid)**2
+     &                       +GradRho(2,iGrid)**2
+     &                       +GradRho(3,iGrid)**2
+               Sigma(2,iGrid)=GradRho(1,iGrid)*GradRho(4,iGrid)
+     &                       +GradRho(2,iGrid)*GradRho(5,iGrid)
+     &                       +GradRho(3,iGrid)*GradRho(6,iGrid)
+               Sigma(3,iGrid)=GradRho(4,iGrid)**2
+     &                       +GradRho(5,iGrid)**2
+     &                       +GradRho(6,iGrid)**2
+            End Do
+         End If
+      End If
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
 *     Integrate out the number of electrons
 *
       if(l_casdft) then
