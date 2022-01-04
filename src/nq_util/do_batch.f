@@ -397,7 +397,7 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-       If (lft) then
+       If (l_casdft.and.lft) then
 
        nPMO3p=1
        IF(lft.and.lGGA) THEN
@@ -448,7 +448,7 @@
        CALL mma_deallocate(MOy)
        CALL mma_deallocate(MOz)
 **************************************************************************
-       Else
+       ElseIf (l_casdft) Then
 
        nPMO3p=1
        IF(lft.and.lGGA) THEN
@@ -508,7 +508,7 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-      If (lft) Then
+      If (l_casdft.and.lft) Then
 
        nPMO3p=1
        IF(lft.and.lGGA) THEN
@@ -559,7 +559,7 @@
        CALL mma_deallocate(MOx)
        CALL mma_deallocate(MOy)
        CALL mma_deallocate(MOz)
-      Else
+       ElseIf (l_casdft) Then
 
        nPMO3p=1
        IF((lft.and.lGGA).and.Do_Grad) THEN
