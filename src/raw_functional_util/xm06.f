@@ -178,8 +178,6 @@ C     Parameters for M06-2X
 *        dF/dGamma
          dF_dRho(ipGxx,igrid)=dF_dRho(ipGxx,iGrid)+ dGGAdG*Fsig
 *        dF/dTau
-         dF_dRho(ipT,iGrid)
-     &      =dF_dRho(ipT,iGrid)+rho43*(Ax*fL+fNL*E)*dFdTau
          vTau(1,iGrid)=vTau(1,iGrid)+rho43*(Ax*fL+fNL*E)*dFdTau
 
 110     continue
@@ -242,8 +240,6 @@ C     Parameters for M06-2X
 *        dF/dGammaaa
          dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)+ dGGAdG*Fsig
 *        dF/dTaua
-         dF_dRho(ipTa,iGrid)
-     &      =dF_dRho(ipTa,iGrid)+rho43*(Ax*fL+fNL*E)*dFdTau
          vTau(1,iGrid)=vTau(1,iGrid)+rho43*(Ax*fL+fNL*E)*dFdTau
 210      continue
 *
@@ -293,8 +289,6 @@ C     Parameters for M06-2X
 *        dF/dGammabb
          dF_dRho(ipGbb,igrid)=dF_dRho(ipGbb,iGrid)+ dGGAdG*Fsig
 *        dF/dTaub
-         dF_dRho(ipTb,igrid)
-     &      =dF_dRho(ipTb,iGrid)+rho43*(Ax*fL+fNL*E)*dFdTau
          vTau(2,igrid)=vTau(2,iGrid)+rho43*(Ax*fL+fNL*E)*dFdTau
 310     continue
        enddo

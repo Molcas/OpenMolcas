@@ -145,8 +145,7 @@ c
 *        dF/dGamma
          dF_dRho(ipGxx,iGrid)=dF_dRho(ipGxx,iGrid)+rho43*(dgdx*dxdg)
 *        dF/dTau
-         dF_dRho(ipT,iGrid)=dF_dRho(ipT,iGrid)+ rho43*(dgdz*dzdt)
-*        vTau(1,iGrid)=vTau(1,iGrid)+ rho43*(dgdz*dzdt)
+         vTau(1,iGrid)=vTau(1,iGrid)+ rho43*(dgdz*dzdt)
 110     continue
         Enddo
        else
@@ -186,7 +185,6 @@ c
 *        dF/dGammaaa
          dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)+rho43*(dgdx*dxdg)
 *        dF/dTaua
-         dF_dRho(ipTa,iGrid)=dF_dRho(ipTa,iGrid)+ rho43*(dgdz*dzdt)
          vTau(1,iGrid)=vTau(1,iGrid)+ rho43*(dgdz*dzdt)
 210      continue
 c
@@ -222,7 +220,6 @@ c
 *        dF/dGammabb
          dF_dRho(ipGbb,iGrid)=dF_dRho(ipGbb,iGrid)+rho43*(dgdx*dxdg)
 *        dF/dTaub
-         dF_dRho(ipTb,iGrid)=dF_dRho(ipTb,iGrid)+ rho43*(dgdz*dzdt)
          vTau(2,iGrid)=vTau(2,iGrid)+ rho43*(dgdz*dzdt)
 310      continue
         enddo

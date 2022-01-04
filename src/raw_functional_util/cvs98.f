@@ -124,7 +124,6 @@ C     Parameters for M06-2X
 *           dF/dGamma, no Gamma_ab term
             dF_dRho(ipGxx,iGrid)=dF_dRho(ipGxx,iGrid)+ FGA
 *           dF/dTau
-            dF_dRho(ipT,iGrid)=dF_dRho(ipT,iGrid)+FTA
             vTau(1,iGrid)=vTau(1,iGrid)+FTA
 110         Continue
 *
@@ -156,7 +155,6 @@ C     Parameters for M06-2X
 *              dF/dGamma
                dF_dRho(ipGxx,iGrid)=dF_dRho(ipGxx,iGrid)+EUEG*dgdGA
 *              dF/dTau
-               dF_dRho(ipT,iGrid)=dF_dRho(ipT,iGrid)+EUEG*dgdTA
                vTau(1,iGrid)=vTau(1,iGrid)+EUEG*dgdTA
             ENDIF
          End Do
@@ -178,7 +176,6 @@ C     Parameters for M06-2X
 *           dF/dGammma_aa
             dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)+ FGA
 *           dF/dTaua
-            dF_dRho(ipTa,iGrid)=dF_dRho(ipTa,iGrid)+FTA
             vTau(1,iGrid)=vTau(1,iGrid)+FTA
 100         Continue
 *
@@ -195,7 +192,6 @@ C     Parameters for M06-2X
 *           dF/dGammma_bb
             dF_dRho(ipGbb,iGrid)=dF_dRho(ipGbb,iGrid)+ FGB
 *           dF/dTaub
-            dF_dRho(ipTb,iGrid)=dF_dRho(ipTb,iGrid)+FTB
             vTau(2,iGrid)=vTau(2,iGrid)+FTB
 111         Continue
 
@@ -234,8 +230,6 @@ C     Parameters for M06-2X
                dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)+EUEG*dgdGA
                dF_dRho(ipGbb,iGrid)=dF_dRho(ipGbb,iGrid)+EUEG*dgdGB
 *              dF/dTau
-               dF_dRho(ipTa,iGrid)=dF_dRho(ipTa,iGrid)+EUEG*dgdTA
-               dF_dRho(ipTb,iGrid)=dF_dRho(ipTb,iGrid)+EUEG*dgdTB
                vTau(1,iGrid)=vTau(1,iGrid)+EUEG*dgdTA
                vTau(2,iGrid)=vTau(2,iGrid)+EUEG*dgdTB
             END IF

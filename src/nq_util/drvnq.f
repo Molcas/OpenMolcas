@@ -397,7 +397,7 @@
       End If
       If (nTau.ne.0) Then
          Call mma_allocate(Tau,nTau,nGridMax,Label='Tau')
-         Call mma_allocate(vTau,nTau,nGridMax,Label='Tau')
+         Call mma_allocate(vTau,nTau,nGridMax,Label='vTau')
       End If
       If (nLapl.ne.0) Then
          Call mma_allocate(Lapl,nLapl,nGridMax,Label='Lapl')
