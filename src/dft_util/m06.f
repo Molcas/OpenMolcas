@@ -10,15 +10,15 @@
 *                                                                      *
 * Copyright (C) 2001, Roland Lindh                                     *
 ************************************************************************
-      Subroutine M06(mGrid,iSpin,F_xc)
+      Subroutine M06(mGrid,iSpin)
 ************************************************************************
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. March 2001                              *
 ************************************************************************
+      use nq_Grid, only: F_xc => Exc
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "ksdft.fh"
-      Real*8 F_xc(mGrid)
       integer ijzy
 *                                                                      *
 ************************************************************************

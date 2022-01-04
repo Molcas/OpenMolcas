@@ -8,12 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine LSDA_emb(mGrid,nDmat,F_xc)
+      Subroutine LSDA_emb(mGrid,nDmat)
+      use nq_Grid, only: F_xc => Exc
       use OFembed, only: KEonly
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "hflda.fh"
-      Real*8 F_xc(mGrid)
 *
 ************************************************************************
 *

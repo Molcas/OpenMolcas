@@ -13,7 +13,7 @@
 *               2017, Giovanni Li Manni                                *
 *               2017, Aron Cohen                                       *
 ************************************************************************
-      Subroutine SSBD(mGrid,iSpin,F_xc)
+      Subroutine SSBD(mGrid,iSpin)
 ************************************************************************
 *                                                                      *
 * Object:     Combination of exchange SSB-D and PBE correlation terms  *
@@ -22,10 +22,10 @@
 *      Author: G. Li Manni A. Cohen, Max Planck Institute Stuttgart    *
 *              Summer 2017, edited in Cambridge (UK) & Palermo (Sicily)*
 ************************************************************************
+      use nq_Grid, only: F_xc => Exc
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "ksdft.fh"
-      Real*8 F_xc(mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *

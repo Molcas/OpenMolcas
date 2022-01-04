@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2001, Roland Lindh                                     *
 ************************************************************************
-      Subroutine BWIG(mGrid,iSpin,F_xc)
+      Subroutine BWIG(mGrid,iSpin)
 ************************************************************************
 *                                                                      *
 * Object:    Powerful Becke Wigner functional combination              *
@@ -18,9 +18,9 @@
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. March 2001                              *
 ************************************************************************
+      use nq_Grid, only: F_xc => Exc
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-      Real*8 F_xc(mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *

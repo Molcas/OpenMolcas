@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2005, Per Ake Malmqvist                                *
 ************************************************************************
-      Subroutine PBE(mGrid,iSpin,F_xc)
+      Subroutine PBE(mGrid,iSpin)
 ************************************************************************
 *                                                                      *
 * Object: To compute the sum of the functional c_pbe and x_pbe as      *
@@ -27,10 +27,10 @@
 *      Author:Per Ake Malmqvist, Department of Theoretical Chemistry,  *
 *             University of Lund, SWEDEN. December 2005                *
 ************************************************************************
+      use nq_Grid, only: F_xc => Exc
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "ksdft.fh"
-      Real*8 F_xc(mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *

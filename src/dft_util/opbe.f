@@ -8,17 +8,17 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine OPBE(mGrid,iSpin,F_xc)
+      Subroutine OPBE(mGrid,iSpin)
 ************************************************************************
 *                                                                      *
 * Object:     OPTX + PBE combination                                   *
 *                 OPBE                                                 *
 *                                                                      *
 ************************************************************************
+      use nq_Grid, only: F_xc => Exc
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "ksdft.fh"
-      Real*8 F_xc(mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *

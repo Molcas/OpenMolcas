@@ -11,7 +11,7 @@
 * Copyright (C) 2005, Per Ake Malmqvist                                *
 *               2010, Grigory A. Shamov                                *
 ************************************************************************
-      Subroutine RGE2(mGrid,iSpin,F_xc)
+      Subroutine RGE2(mGrid,iSpin)
 ************************************************************************
 *                                                                      *
 * Object: To compute the sum of the RGE2 exchange functional           *
@@ -26,20 +26,18 @@
 *             University of Lund, SWEDEN. December 2005                *
 *              Grigory A Shamov. U of Manitoba, Feb 2010               *
 ************************************************************************
+      use nq_Grid, only: F_xc => Exc
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "ksdft.fh"
-      Real*8 F_xc(mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       CoeffA=One*CoefR
-      Call CPBEsol(mGrid,
-     &          CoeffA,iSpin,F_xc)
+      Call CPBEsol(mGrid,CoeffA,iSpin,F_xc)
 
       CoeffB=One*CoefX
-      Call XRGE2(mGrid,
-     &          CoeffB,iSpin,F_xc)
+      Call XRGE2(mGrid,CoeffB,iSpin,F_xc)
 *                                                                      *
 ************************************************************************
 *                                                                      *

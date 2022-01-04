@@ -11,8 +11,7 @@
 * Copyright (C) 2001, Roland Lindh                                     *
 *               2009, Grigory A. Shamov                                *
 ************************************************************************
-      Subroutine B2PLYP(mGrid,
-     &                  iSpin,F_xc)
+      Subroutine B2PLYP(mGrid,iSpin)
 ************************************************************************
 *                                                                      *
 * Object:   DFT part for the Grimme's double hybrud functional.        *
@@ -23,10 +22,10 @@
 *             of Lund, SWEDEN. March 2001                              *
 *              Grigory A Shamov, University of Manitoba, 2009          *
 ************************************************************************
+      use nq_Grid, only: F_xc => Exc
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "ksdft.fh"
-      Real*8 F_xc(mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *

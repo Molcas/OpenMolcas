@@ -11,7 +11,7 @@
 * Copyright (C) 2017, Giovanni Li Manni                                *
 *               2017, Aron Cohen                                       *
 ************************************************************************
-      Subroutine S12h(mGrid,iSpin,F_xc)
+      Subroutine S12h(mGrid,iSpin)
 ************************************************************************
 *                                                                      *
 * Object:     Combination of exchange S12h (25% HF exchange) and PBE   *
@@ -23,9 +23,9 @@
 *              Structure Theory, Max Planck Institute, Stuttgart       *
 *              2017                                                    *
 ************************************************************************
+      use nq_Grid, only: F_xc => Exc
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-      Real*8 F_xc(mGrid)
       Integer gh_switch
 *                                                                      *
 ************************************************************************

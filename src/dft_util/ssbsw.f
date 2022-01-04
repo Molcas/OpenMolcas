@@ -13,7 +13,7 @@
 *               2017, Giovanni Li Manni                                *
 *               2017, Aron Cohen                                       *
 ************************************************************************
-      Subroutine SSBSW(mGrid,iSpin,F_xc)
+      Subroutine SSBSW(mGrid,iSpin)
 ************************************************************************
 *                                                                      *
 * Object:     Combination of excnange SSB-sw and PBE correlation terms *
@@ -23,22 +23,20 @@
 *      Author: G. Li Manni & A. Cohen, Max Planck Institute Stuttgart  *
 *              Summer 2017, edited in Cambridge (UK) & Palermo (Sicily)*
 ************************************************************************
+      use nq_Grid, only: F_xc => Exc
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "ksdft.fh"
-      Real*8 F_xc(mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *---- SSBSW Exchange -- unlike OPTX, SSBSW has its LDA part included !
       Coeff=1.0d0*CoefX
-      Call xSSBSW(mGrid,
-     &          Coeff,iSpin,F_xc)
+      Call xSSBSW(mGrid,Coeff,iSpin,F_xc)
 *
 *---- PBE Correlation
       Coeff=1.0d0*CoefR
-      Call CPBE(mGrid,
-     &         Coeff,iSpin,F_xc)
+      Call CPBE(mGrid,Coeff,iSpin,F_xc)
 *                                                                      *
 ************************************************************************
 *                                                                      *

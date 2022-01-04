@@ -11,7 +11,7 @@
 * Copyright (C) 2005, Per Ake Malmqvist                                *
 *               2010, Grigory A. Shamov                                *
 ************************************************************************
-      Subroutine PTCA(mGrid,iSpin,F_xc)
+      Subroutine PTCA(mGrid,iSpin)
 ************************************************************************
 *                                                                      *
 * Object: To compute the combination of PBE exchange and TCA           *
@@ -25,20 +25,18 @@
 *             University of Lund, SWEDEN. December 2005                *
 *             TCA: Grigory Shamov, U. of Manitoba, Marct 2010          *
 ************************************************************************
+      use nq_Grid, only: F_xc => Exc
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "ksdft.fh"
-      Real*8 F_xc(mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       CoeffA=One*CoefR
-      Call CTCA(mGrid,
-     &          CoeffA,iSpin,F_xc)
+      Call CTCA(mGrid,CoeffA,iSpin,F_xc)
 
       CoeffB=One*CoefX
-      Call XPBE(mGrid,
-     &          CoeffB,iSpin,F_xc)
+      Call XPBE(mGrid,CoeffB,iSpin,F_xc)
 *                                                                      *
 ************************************************************************
 *                                                                      *

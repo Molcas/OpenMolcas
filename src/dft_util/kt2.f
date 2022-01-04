@@ -8,19 +8,16 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine KT2(mGrid,iSpin,F_xc)
+      Subroutine KT2(mGrid,iSpin)
 ************************************************************************
 *                                                                      *
 * Object:     KT2 combination, as described in Keal&Tozer paper        *
 *               J.Chem.Phys 119 (2003) 3015                            *
 *                                                                      *
 ************************************************************************
+      use nq_Grid, only: F_xc => Exc
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-      Real*8 F_xc(mGrid)
-*                                                                      *
-************************************************************************
-*                                                                      *
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2005, Per Ake Malmqvist                                *
 ************************************************************************
-      Subroutine PBEsol(mGrid,iSpin,F_xc)
+      Subroutine PBEsol(mGrid,iSpin)
 ************************************************************************
 *                                                                      *
 * Object: To compute the sum of the functional c_pbesol and x_pbesol   *
@@ -22,20 +22,18 @@
 *      Author:Per Ake Malmqvist, Department of Theoretical Chemistry,  *
 *             University of Lund, SWEDEN. December 2005                *
 ************************************************************************
+      use nq_Grid, only: F_xc => Exc
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "ksdft.fh"
-      Real*8 F_xc(mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       CoeffA=One*CoefR
-      Call CPBEsol(mGrid,
-     &          CoeffA,iSpin,F_xc)
+      Call CPBEsol(mGrid,CoeffA,iSpin,F_xc)
 
       CoeffB=One*CoefX
-      Call XPBEsol(mGrid,
-     &          CoeffB,iSpin,F_xc)
+      Call XPBEsol(mGrid,CoeffB,iSpin,F_xc)
 *                                                                      *
 ************************************************************************
 *                                                                      *

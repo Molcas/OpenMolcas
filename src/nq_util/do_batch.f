@@ -822,7 +822,7 @@ cRKCft
 *1)   evaluate the energy density, the derivative of the functional with
 *     respect to rho and grad rho.
 *
-      Call Kernel(mGrid,Rho,nRho,nD,F_xc)
+      Call Kernel(mGrid,nD)
 *                                                                      *
 ************************************************************************
 ************************************************************************

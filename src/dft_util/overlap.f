@@ -10,15 +10,15 @@
 *                                                                      *
 * Copyright (C) 2000, Roland Lindh                                     *
 ************************************************************************
-      Subroutine Overlap(mGrid,iSpin,F_xc)
+      Subroutine Overlap(mGrid,iSpin)
 ************************************************************************
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. November 2000                           *
 ************************************************************************
+      use nq_Grid, only: F_xc => Exc
       use nq_Grid, only: Rho, vRho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-      Real*8 F_xc(mGrid)
       Real*8, Parameter:: T_x=1.0D-20
 *                                                                      *
 ************************************************************************

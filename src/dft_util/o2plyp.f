@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2009, Grigory A. Shamov                                *
 ************************************************************************
-      Subroutine O2PLYP(mGrid,iSpin,F_xc)
+      Subroutine O2PLYP(mGrid,iSpin)
 ************************************************************************
 *                                                                      *
 * Object:   OPTX analog of Grimme's B2PLYP double hybrid               *
@@ -19,10 +19,10 @@
 *                                                                      *
 *      Author: Grigory A Shamov, U of Manitoba, 2009                   *
 ************************************************************************
+      use nq_Grid, only: F_xc => Exc
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "ksdft.fh"
-      Real*8 F_xc(mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *

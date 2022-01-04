@@ -11,11 +11,11 @@
 * Copyright (C) 2015, Francesco Aquilante                              *
 *               2015, Alexander Zech                                   *
 ************************************************************************
-      Subroutine Ts_only_emb(mGrid,nDmat,F_xc)
+      Subroutine Ts_only_emb(mGrid,nDmat)
+      use nq_Grid, only: F_xc => Exc
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "hflda.fh"
-      Real*8 F_xc(mGrid)
 *
 ************************************************************************
 *

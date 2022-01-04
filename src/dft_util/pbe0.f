@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2005, Per Ake Malmqvist                                *
 ************************************************************************
-      Subroutine PBE0(mGrid,iSpin,F_xc)
+      Subroutine PBE0(mGrid,iSpin)
 ************************************************************************
 *                                                                      *
 * Object: To compute the PBE0 density functional and its first         *
@@ -26,20 +26,18 @@
 *      Author:Per Ake Malmqvist, Department of Theoretical Chemistry,  *
 *             University of Lund, SWEDEN. December 2005                *
 ************************************************************************
+      use nq_Grid, only: F_xc => Exc
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "ksdft.fh"
-      Real*8 F_xc(mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       CoeffA=1.0D0*CoefR
-      Call CPBE(mGrid,
-     &          CoeffA,iSpin,F_xc)
+      Call CPBE(mGrid,CoeffA,iSpin,F_xc)
 
       CoeffB=0.75D0*CoefX
-      Call XPBE(mGrid,
-     &          CoeffB,iSpin,F_xc)
+      Call XPBE(mGrid,CoeffB,iSpin,F_xc)
 *                                                                      *
 ************************************************************************
 *                                                                      *
