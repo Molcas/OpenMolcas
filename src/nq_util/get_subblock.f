@@ -16,12 +16,12 @@
      &                        FckInt,nFckDim,nFckInt,
      &                        Dens,nDens,nD,
      &                        mGrid,
-     &                        ndF_dRho,nP2_ontop,ndF_dP2ontop,
+     &                        nP2_ontop,ndF_dP2ontop,
      &                        Do_Mo,Do_TwoEl,l_Xhol,
      &                        TmpPUVX,nTmpPUVX,nMOs,CMOs,nCMO,DoIt,
      &                  P2mo,P2Unzip,np2act,D1mo,D1Unzip,nD1mo,P2_ontop,
      &                        Do_Grad,Grad,nGrad,List_G,IndGrd,iTab,
-     &                        Temp,mGrad,F_xc,dF_dRho,
+     &                        Temp,mGrad,F_xc,
      &                        dF_dP2ontop,
      &                        DFTFOCK,mAO,mdRho_dR,
      &                        LTEG_DB,PDFTPot1,PDFTFocI,PDFTFocA)
@@ -63,7 +63,6 @@
      &       Dens(nDens,nD), Grad(nGrad), Temp(mGrad),
      &       CMOs(nCMO), P2mo(np2act), D1mo(nD1mo),
      &       P2_ontop(nP2_ontop,mGrid), Roots(3,3), F_xc(mGrid),
-     &       dF_dRho(ndF_dRho,mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid),
      &       xyz0(3,2),PDFTPot1(npot1),PDFTFocI(nPot1),PDFTFocA(nPot1)
       Real*8 TmpPUVX(nTmpPUVX)
@@ -702,7 +701,7 @@ c
      &                 iWork(ipIndex),nIndex,
      &                 FckInt,nFckDim,nFckInt,
      &                 iWork(ipTabAO),mAO,nSym,Dens,nDens,nD,
-     &                 ndF_dRho,nP2_ontop,ndF_dP2ontop,
+     &                 nP2_ontop,ndF_dP2ontop,
      &                 nShell,Do_Mo,Do_TwoEl,l_Xhol,TmpPUVX,nTmpPUVX,
      &                 Work(ipTabMO),Work(ipTabSO),
      &                 nMOs,CMOs,nCMO,DoIt,
@@ -711,7 +710,7 @@ c
      &                 mdRho_dR,nGrad_Eff,
      &                 list_g,IndGrd,iTab,Temp,F_xc,
      &                 Work(ip_dW_dR),iNQ,
-     &                 Maps2p,dF_dRho,dF_dP2ontop,
+     &                 Maps2p,dF_dP2ontop,
      &                 DFTFOCK,LTEG_DB,PDFTPot1,PDFTFocI,
      &                 PDFTFocA)
 *

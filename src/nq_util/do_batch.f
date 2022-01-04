@@ -17,7 +17,7 @@
      &                    FckInt,nFckDim,nFckInt,
      &                    ipTabAO,mAO,nSym,
      &                    Dens,nDens,nD,
-     &                    ndF_dRho,nP2_ontop,ndF_dP2ontop,nShell,
+     &                    nP2_ontop,ndF_dP2ontop,nShell,
      &                    Do_Mo,Do_TwoEl,l_Xhol,
      &                    TmpPUVX,nTmpPUVX,TabMO,TabSO,
      &                    nMOs,CMOs,nCMO,DoIt,
@@ -25,7 +25,7 @@
      &                    P2_ontop,
      &                    Do_Grad,Grad,nGrad,ndRho_dR,nGrad_Eff,
      &                    list_g,IndGrd,iTab,Temp,F_xc,dW_dR,iNQ,Maps2p,
-     &                    dF_dRho,dF_dP2ontop,DFTFOCK,LTEG_DB,
+     &                    dF_dP2ontop,DFTFOCK,LTEG_DB,
      &                    PDFTPot1,PDFTFocI,PDFTFocA)
 ************************************************************************
 *      Author:Roland Lindh, Department of Chemical Physics, University *
@@ -59,8 +59,7 @@
      &        ipTabAO(nlist_s+1,2), IndGrd(nGrad_Eff),
      &        list_g(3,nlist_s), iTab(4,nGrad_Eff), Index(nIndex),
      &        Maps2p(nShell,0:nSym-1), List_Bas(2,nlist_s)
-      Real*8 A(3), RA(3),
-     &       dF_dRho(ndF_dRho,mGrid), Grad(nGrad),
+      Real*8 A(3), RA(3), Grad(nGrad),
      &       FckInt(nFckInt,nFckDim), Dens(nDens,nD),
      &       TabMO(mAO,mGrid,nMOs),TabSO(mAO,mGrid,nMOs),
      &       CMOs(nCMO),P2mo(np2act),D1mo(nd1mo),
@@ -809,7 +808,6 @@ cRKCft
 ************************************************************************
 ************************************************************************
 *                                                                      *
-      dF_dRho(:,1:mGrid)=Zero
       vRho(:,1:mGrid)=Zero
       If (Allocated(vSigma)) vSigma(:,1:mGrid)=Zero
       If (Allocated(vTau)) vTau(:,1:mGrid)=Zero

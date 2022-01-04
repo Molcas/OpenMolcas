@@ -223,7 +223,6 @@
 *        rho(alpha). In case of open-shell calculations we also
 *        need rho(beta).
 *
-         ndF_dRho=nD
          nP2_ontop=1
          ndF_dP2ontop=1
 *                                                                      *
@@ -254,11 +253,6 @@
 *        In case of open-shell calculations we also
 *        need rho(beta) and gamma(beta,beta).
 *
-         If (nD.eq.1) Then
-            ndF_dRho=3
-         Else
-            ndF_dRho=5
-         End If
          nP2_ontop=4
          ndF_dP2ontop=4
 *                                                                      *
@@ -291,11 +285,6 @@
 *        tau(alpha). In case of open-shell calculations we also
 *        need rho(beta), gamma(beta,beta) and tau(beta).
 *
-         If (nD.eq.1) Then
-            ndF_dRho=4
-         Else
-            ndF_dRho=7
-         End If
          nP2_ontop=4
          ndF_dP2ontop=4
 *                                                                      *
@@ -330,11 +319,6 @@
 *        calculations we also need rho(beta), gamma(beta,beta),
 *        tau(beta) and laplacian(beta).
 *
-         If (nD.eq.1) Then
-            ndF_dRho=5
-         Else
-            ndF_dRho=9
-         End If
          nP2_ontop=4
          ndF_dP2ontop=4
 *                                                                      *
@@ -361,11 +345,6 @@
              Call Abend()
          End If
 *
-         If (nD.eq.1) Then
-            ndF_dRho=3 ! could be 2?
-         Else
-            ndF_dRho=5
-         Endif
          nP2_ontop=6
          ndF_dP2ontop=6
 *                                                                      *
@@ -379,7 +358,6 @@
          Call WarningMessage(2,'DrvNQ: Invalid Functional_type!')
          Call Abend()
          nRho=0
-         ndF_dRho=0
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -388,7 +366,7 @@
 ************************************************************************
 *                                                                      *
       Call mma_allocate(Rho,nRho,nGridMax,Label='Rho')
-*     Call mma_allocate(vRho,nRho,nGridMax,Label='vRho')
+      Call mma_allocate(vRho,nRho,nGridMax,Label='vRho')
       If (nSigma.ne.0) Then
          Call mma_Allocate(Sigma,nSigma,nGridMax,Label='Sigma')
          Call mma_Allocate(vSigma,nSigma,nGridMax,Label='vSigma')
@@ -411,7 +389,6 @@
          Call mma_allocate(F_xcb,nGridMax,Label='F_xcb')
          Call mma_allocate(TmpB,nGridMax,Label='TmpB')
       End If
-      Call mma_allocate(vRho,ndF_dRho,nGridMax,Label='vRho')
 *
       Call GetMem('list_s','Allo','Inte',iplist_s,2*nIrrep*nShell)
       Call GetMem('list_exp','Allo','Inte',iplist_exp,3*nIrrep*nShell)
@@ -559,7 +536,7 @@
      &            FckInt,nFckDim,
      &            Density,nFckInt,nD,
      &            nGridMax,
-     &            ndF_dRho,nP2_ontop,ndF_dP2ontop,
+     &            nP2_ontop,ndF_dP2ontop,
      &            Do_Mo,Do_TwoEl,l_Xhol,
      &            Work(ipTmpPUVX),nTmpPUVX,
      &            nMOs,Work(ipCMO),nCMO,
@@ -567,7 +544,7 @@
      &            Work(ipP2mo),nP2,Work(ipD1mo),nd1mo,Work(ipp2_ontop),
      &            Do_Grad,Grad,nGrad,iWork(iplist_g),
      &            iWork(ipIndGrd),iWork(ipiTab),Work(ipTemp),mGrad,
-     &            Exc,vRho,work(ipdF_dP2ontop),
+     &            Exc,work(ipdF_dP2ontop),
      &            DFTFOCK,mAO,mdRho_dR)
 *                                                                      *
 ************************************************************************

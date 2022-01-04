@@ -112,7 +112,7 @@ C     Parameters for M06-2X
 *
          Do iGrid = 1, mGrid
             PA=max(1.0D-24,Rho(1,iGrid),Ta)
-            If (Rho(ipR,iGrid).lt.Ta) goto 110
+            If (Rho(1,iGrid).lt.Ta) goto 110
             GAA=Sigma(1,iGrid)
             TauA = Tau(1,iGrid)
             Call vs98ss(PA,GAA,TauA,FA,FPA,FGA,FTA,EUA,ZA,
@@ -164,7 +164,7 @@ C     Parameters for M06-2X
       Else
          Do iGrid = 1, mGrid
             PA=max(1.0D-24,Rho(1,iGrid),Ta)
-            If(Rho(ipRa,iGrid).lt.Ta) goto 100
+            If(Rho(1,iGrid).lt.Ta) goto 100
             GAA=Sigma(1,iGrid)
             TauA = Tau(1,iGrid)
             Call vs98ss(PA,GAA,TauA,FA,FPA,FGA,FTA,EUA,ZA,
@@ -180,7 +180,7 @@ C     Parameters for M06-2X
 100         Continue
 *
             PB=max(1.0D-24,Rho(2,iGrid),Ta)
-            if(Rho(ipRb,iGrid).lt.Ta) goto 111
+            if(Rho(2,iGrid).lt.Ta) goto 111
             GBB=Sigma(3,iGrid)
             TauB = Tau(2,iGrid)
             Call vs98ss(PB,GBB,TauB,FB,FPB,FGB,FTB,EUB,ZB,
