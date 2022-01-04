@@ -29,7 +29,7 @@
 ************************************************************************
       use KSDFT_Info, only: tmpB
       use nq_Grid, only: Rho, Sigma, l_casdft
-      use nq_Grid, only: vRho
+      use nq_Grid, only: vRho, vSigma
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
@@ -87,7 +87,8 @@
 * Maybe derivatives w.r.t. gamma_aa, gamma_ab, gamma_bb should be used instead.
          dF_dRho(ipGxx,iGrid)=dF_dRho(ipGxx,iGrid)+Coeff*func1(2)
      &                                            +Coeff*func1(2)
-*        dF_dRho(ipGxy,iGrid)=dF_dRho(ipGxy,iGrid)+Coeff*2.0D0*func1(2)
+         vSigma(1,iGrid)=vSigma(1,iGrid)+Coeff*func1(2)
+     &                                  +Coeff*func1(2)
  110     continue
         end do
       else
@@ -114,6 +115,9 @@
          dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)+Coeff*func1(2)
          dF_dRho(ipGab,iGrid)=dF_dRho(ipGab,iGrid)+Coeff*2.0D0*func1(2)
          dF_dRho(ipGbb,iGrid)=dF_dRho(ipGbb,iGrid)+Coeff*func1(2)
+         vSigma(1,iGrid)=vSigma(1,iGrid)+Coeff*func1(2)
+         vSigma(2,iGrid)=vSigma(2,iGrid)+Coeff*2.0D0*func1(2)
+         vSigma(3,iGrid)=vSigma(3,iGrid)+Coeff*func1(2)
         end do
         Else
         do iGrid=1,mgrid
@@ -136,6 +140,9 @@
          dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)+Coeff*func1(2)
          dF_dRho(ipGab,iGrid)=dF_dRho(ipGab,iGrid)+Coeff*2.0D0*func1(2)
          dF_dRho(ipGbb,iGrid)=dF_dRho(ipGbb,iGrid)+Coeff*func1(2)
+         vSigma(1,iGrid)=vSigma(1,iGrid)+Coeff*func1(2)
+         vSigma(2,iGrid)=vSigma(2,iGrid)+Coeff*2.0D0*func1(2)
+         vSigma(3,iGrid)=vSigma(3,iGrid)+Coeff*func1(2)
         end do
         End If
       end if

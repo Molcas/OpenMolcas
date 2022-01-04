@@ -31,7 +31,7 @@
 *  YZ (10/07)                                                          *
 ************************************************************************
       use nq_Grid, only: Rho, Sigma, Tau
-      use nq_Grid, only: vRho, vTau
+      use nq_Grid, only: vRho, vSigma, vTau
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
@@ -101,6 +101,7 @@ C     Parameters for M06-2X Correlation
             vRho(1,iGrid)=vRho(1,iGrid)+FPA
 *           dF/dGamma, no Gamma_ab term
             dF_dRho(ipGxx,iGrid)=dF_dRho(ipGxx,iGrid)+ FGA
+            vSigma(1,iGrid)=vSigma(1,iGrid)+ FGA
 *           dF/dTau
             vTau(1,iGrid)=vTau(1,iGrid)+FTA
 *
@@ -128,6 +129,7 @@ C     Parameters for M06-2X Correlation
      &                                             +EUEG*dWdPA
 *           dF/dGamma
             dF_dRho(ipGxx,iGrid)=dF_dRho(ipGxx,iGrid)+EUEG*dWdGA
+            vSigma(1,iGrid)=vSigma(1,iGrid)+EUEG*dWdGA
 110         continue
          End Do
       Else
@@ -144,6 +146,7 @@ C     Parameters for M06-2X Correlation
             vRho(1,igrid)=vRho(1,igrid)+FPA
 *           dF/dGammaaa
             dF_dRho(ipGaa,igrid)=dF_dRho(ipGaa,iGrid)+ FGA
+            vSigma(1,igrid)=vSigma(1,iGrid)+ FGA
 *           dF/dTaua
             vTau(1,igrid)=vTau(1,iGrid)+FTA
 
@@ -160,6 +163,7 @@ C     Parameters for M06-2X Correlation
             vRho(2,igrid)=vRho(2,igrid)+FPB
 *           dF/dGammabb
             dF_dRho(ipGbb,igrid)=dF_dRho(ipGbb,iGrid)+ FGB
+            vSigma(3,igrid)=vSigma(3,iGrid)+ FGB
 *           dF/dTaub
             vTau(2,igrid)=vTau(2,iGrid)+FTB
 111         continue
@@ -198,6 +202,8 @@ C     Parameters for M06-2X Correlation
 *           dF/dGamma
             dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)+EUEG*dWdGA
             dF_dRho(ipGbb,iGrid)=dF_dRho(ipGbb,iGrid)+EUEG*dWdGB
+            vSigma(1,iGrid)=vSigma(1,iGrid)+EUEG*dWdGA
+            vSigma(3,iGrid)=vSigma(3,iGrid)+EUEG*dWdGB
  112        Continue
          End Do
       End If

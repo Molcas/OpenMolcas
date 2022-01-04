@@ -33,7 +33,7 @@
 *  YZ (10/07)                                                          *
 ************************************************************************
       use nq_Grid, only: Rho, Sigma, Tau
-      use nq_Grid, only: vRho, vTau
+      use nq_Grid, only: vRho, vSigma, vTau
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
@@ -123,6 +123,7 @@ C     Parameters for M06-2X
             vRho(1,iGrid)=vRho(1,iGrid)+FPA
 *           dF/dGamma, no Gamma_ab term
             dF_dRho(ipGxx,iGrid)=dF_dRho(ipGxx,iGrid)+ FGA
+            vSigma(1,iGrid)=vSigma(1,iGrid)+ FGA
 *           dF/dTau
             vTau(1,iGrid)=vTau(1,iGrid)+FTA
 110         Continue
@@ -154,6 +155,7 @@ C     Parameters for M06-2X
      &                           +(EUEGPA*gcab+EUEG*dgdPA)
 *              dF/dGamma
                dF_dRho(ipGxx,iGrid)=dF_dRho(ipGxx,iGrid)+EUEG*dgdGA
+               vSigma(1,iGrid)=vSigma(1,iGrid)+EUEG*dgdGA
 *              dF/dTau
                vTau(1,iGrid)=vTau(1,iGrid)+EUEG*dgdTA
             ENDIF
@@ -175,6 +177,7 @@ C     Parameters for M06-2X
             vRho(1,iGrid)=vRho(1,iGrid)+FPA
 *           dF/dGammma_aa
             dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)+ FGA
+            vSigma(1,iGrid)=vSigma(1,iGrid)+ FGA
 *           dF/dTaua
             vTau(1,iGrid)=vTau(1,iGrid)+FTA
 100         Continue
@@ -191,6 +194,7 @@ C     Parameters for M06-2X
             vRho(2,iGrid)=vRho(2,iGrid)+FPB
 *           dF/dGammma_bb
             dF_dRho(ipGbb,iGrid)=dF_dRho(ipGbb,iGrid)+ FGB
+            vSigma(3,iGrid)=vSigma(3,iGrid)+ FGB
 *           dF/dTaub
             vTau(2,iGrid)=vTau(2,iGrid)+FTB
 111         Continue
@@ -229,6 +233,8 @@ C     Parameters for M06-2X
 *              dF/dGamma
                dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)+EUEG*dgdGA
                dF_dRho(ipGbb,iGrid)=dF_dRho(ipGbb,iGrid)+EUEG*dgdGB
+               vSigma(1,iGrid)=vSigma(1,iGrid)+EUEG*dgdGA
+               vSigma(3,iGrid)=vSigma(3,iGrid)+EUEG*dgdGB
 *              dF/dTau
                vTau(1,iGrid)=vTau(1,iGrid)+EUEG*dgdTA
                vTau(2,iGrid)=vTau(2,iGrid)+EUEG*dgdTB
