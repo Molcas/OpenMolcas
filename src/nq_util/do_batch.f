@@ -458,6 +458,12 @@
             End Do
          End If
       End If
+*     Integrate out the number of electrons
+*
+        T_Rho=T_X*1.0D-4
+        Dens_t2=Dens_t2+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,0)
+        Dens_a2=Dens_a2+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,1)
+        Dens_b2=Dens_b2+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,2)
       End If
 
       If (Functional_type.eq.LDA_type) Then
@@ -515,19 +521,6 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-*     Integrate out the number of electrons
-*
-      if(l_casdft) then
-        T_Rho=T_X*1.0D-4
-        Dens_t2=Dens_t2+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,0)
-        Dens_a2=Dens_a2+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,1)
-        Dens_b2=Dens_b2+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,2)
-      end if
-*
 *     Integrate out the number of electrons, |grad|, and tau
 *
       T_Rho=T_X*1.0D-4
