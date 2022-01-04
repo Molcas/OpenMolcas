@@ -185,9 +185,9 @@
                   gy=Gradrho(2,j)
                   gz=Gradrho(3,j)
                   Temp0=vRho(1,j)
-                  Temp1=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gx
-                  Temp2=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gy
-                  Temp3=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gz
+                  Temp1=2.0d0*dF_dRho(ipGxx,j)*gx
+                  Temp2=2.0d0*dF_dRho(ipGxx,j)*gy
+                  Temp3=2.0d0*dF_dRho(ipGxx,j)*gz
 *
                   dF_dr = Temp0*dRho_dR(1,j,i_Eff)
      &                  + Temp1*dRho_dR(2,j,i_Eff)
@@ -272,9 +272,9 @@
                   gy=Gradrho(2,j)
                   gz=Gradrho(3,j)
                   Temp0=vRho(1,j)
-                  Temp1=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gx
-                  Temp2=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gy
-                  Temp3=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gz
+                  Temp1=2.0d0*dF_dRho(ipGxx,j)*gx
+                  Temp2=2.0d0*dF_dRho(ipGxx,j)*gy
+                  Temp3=2.0d0*dF_dRho(ipGxx,j)*gz
                   Temp4=Half*vTau(1,j)
 *
                   dF_dr = Temp0*dRho_dR(1,j,i_Eff)
@@ -363,9 +363,9 @@
                   gy=Gradrho(2,j)
                   gz=Gradrho(3,j)
                   Temp0=vRho(1,j)
-                  Temp1=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gx
-                  Temp2=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gy
-                  Temp3=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gz
+                  Temp1=2.0d0*dF_dRho(ipGxx,j)*gx
+                  Temp2=2.0d0*dF_dRho(ipGxx,j)*gy
+                  Temp3=2.0d0*dF_dRho(ipGxx,j)*gz
                   Temp4=vTau(1,j)
                   Temp5=vLapl(1,j)
 *
