@@ -410,12 +410,14 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-       If (l_casdft.and.lft) then
-
-
+       If (l_casdft) then
        CALL CalcP2MOCube(P2MOCube,P2MOCubex,P2MOCubey,P2MOCubez,nPMO3p,
      &                   MOs,MOx,MOy,MOz,TabMO,P2Unzip,mAO,mGrid,nMOs,
      &                   Do_Grad)
+       End if
+       If (l_casdft.and.lft) then
+
+
        Call Fzero(P2_ontop,nP2_ontop*mGrid)
        If (.not.Do_Grad) then !regular MO-based run
          Call Do_PI2(D1mo,nd1mo,TabMO,mAO,mGrid,
@@ -442,9 +444,6 @@
 **************************************************************************
        ElseIf (l_casdft) Then
 
-       CALL CalcP2MOCube(P2MOCube,P2MOCubex,P2MOCubey,P2MOCubez,nPMO3p,
-     &                   MOs,MOx,MOy,MOz,TabMO,P2Unzip,mAO,mGrid,nMOs,
-     &                   Do_Grad)
        Call Fzero(P2_ontop,nP2_ontop*mGrid)
        If (.not.Do_Grad) then !regular MO-based run
          Call Do_PI2(D1mo,nd1mo,TabMO,mAO,mGrid,
@@ -477,11 +476,13 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-      If (l_casdft.and.lft) Then
-
+       If (l_casdft) then
        CALL CalcP2MOCube(P2MOCube,P2MOCubex,P2MOCubey,P2MOCubez,nPMO3p,
      &                   MOs,MOx,MOy,MOz,TabMO,P2Unzip,mAO,mGrid,nMOs,
      &                   Do_Grad)
+       End if
+      If (l_casdft.and.lft) Then
+
        Call Fzero(P2_ontop,nP2_ontop*mGrid)
        If (.not.Do_Grad) then !regular MO-based run
          Call Do_PI2(D1mo,nd1mo,TabMO,mAO,mGrid,
@@ -508,9 +509,6 @@
      &                     ndRho_dR,nGrad_Eff,Do_Grad)
        ElseIf (l_casdft) Then
 
-       CALL CalcP2MOCube(P2MOCube,P2MOCubex,P2MOCubey,P2MOCubez,nPMO3p,
-     &                   MOs,MOx,MOy,MOz,TabMO,P2Unzip,mAO,mGrid,nMOs,
-     &                   Do_Grad)
        Call Fzero(P2_ontop,nP2_ontop*mGrid)
        If (.not.Do_Grad) then !regular MO-based run
          Call Do_PI2(D1mo,nd1mo,TabMO,mAO,mGrid,
