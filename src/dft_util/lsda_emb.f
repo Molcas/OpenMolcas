@@ -8,16 +8,14 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine LSDA_emb(mGrid,Rho,nRho,P2_ontop,
-     &                    nP2_ontop,nDmat,F_xc,
-     &                    dF_dP2ontop,ndF_dP2ontop)
+      Subroutine LSDA_emb(mGrid,Rho,nRho,
+     &                    nDmat,F_xc)
       use OFembed, only: KEonly
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "hflda.fh"
       Real*8 Rho(nRho,mGrid),
-     &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
-     &       dF_dP2ontop(ndF_dP2ontop,mGrid)
+     &       F_xc(mGrid)
 *
 ************************************************************************
 *
@@ -30,9 +28,7 @@
 *
 *---- LSDA for exchange-correlation energy functional
 *
-      Call LSDA(mGrid,Rho,nRho,P2_ontop,
-     &                nP2_ontop,nDmat,F_xc,
-     &                dF_dP2ontop,ndF_dP2ontop)
+      Call LSDA(mGrid,Rho,nRho,nDmat,F_xc)
 
 *                                                                      *
 ************************************************************************

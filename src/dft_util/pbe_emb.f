@@ -8,9 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine PBE_emb(mGrid,Rho,nRho,P2_ontop,
-     &                   nP2_ontop,nDmat,F_xc,
-     &                   dF_dP2ontop,ndF_dP2ontop)
+      Subroutine PBE_emb(mGrid,Rho,nRho,nDmat,F_xc)
 ************************************************************************
 *                                                                      *
 * Object:                                                              *
@@ -20,9 +18,7 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "hflda.fh"
-      Real*8 Rho(nRho,mGrid),
-     &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
-     &       dF_dP2ontop(ndF_dP2ontop,mGrid)
+      Real*8 Rho(nRho,mGrid), F_xc(mGrid)
 *
 ************************************************************************
 *
@@ -35,9 +31,7 @@
 *
 *---- PBE for exchange-correlation energy functional
 *
-      Call PBE(mGrid,Rho,nRho,P2_ontop,
-     &               nP2_ontop,nDmat,F_xc,
-     &               dF_dP2ontop,ndF_dP2ontop)
+      Call PBE(mGrid,Rho,nRho,nDmat,F_xc)
 
 *                                                                      *
 ************************************************************************

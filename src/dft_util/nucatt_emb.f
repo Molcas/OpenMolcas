@@ -8,9 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine NucAtt_EMB(mGrid,Rho,nRho,P2_ontop,
-     &                      nP2_ontop,iSpin,F_xc,
-     &                      dF_dP2ontop,ndF_dP2ontop)
+      Subroutine NucAtt_EMB(mGrid,Rho,nRho,
+     &                      iSpin,F_xc)
       use nq_Grid, only: Grid
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
@@ -21,8 +20,7 @@
 #include "setup.fh"
 #include "nq_info.fh"
       Real*8  Rho(nRho,mGrid),
-     &        dF_dP2ontop(ndF_dP2ontop,mGrid),
-     &        P2_ontop(nP2_ontop,mGrid), F_xc(mGrid)
+     &        F_xc(mGrid)
       Real*8, Allocatable:: RA(:,:), ZA(:), Eff(:)
       Integer, Allocatable:: nStab(:)
 *
@@ -50,9 +48,9 @@
       Call mma_deallocate(Eff)
       Call mma_deallocate(nStab)
 *
-      Call Do_NucAtt_EMB(mGrid,Rho,nRho,P2_ontop,nP2_ontop,
+      Call Do_NucAtt_EMB(mGrid,Rho,nRho,
      &                   iSpin,F_xc,
-     &                   dF_dP2ontop,ndF_dP2ontop,Grid,
+     &                   Grid,
      &                   RA,ZA,mCenter)
 *
       Call mma_deallocate(ZA)
@@ -63,18 +61,16 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Subroutine Do_NucAtt_EMB(mGrid,Rho,nRho,P2_ontop,nP2_ontop,
+      Subroutine Do_NucAtt_EMB(mGrid,Rho,nRho,
      &                         iSpin,F_xc,
-     &                         dF_dP2ontop,ndF_dP2ontop,Grid,RA,ZA,
+     &                         Grid,RA,ZA,
      &                         mCenter)
 
       use nq_Grid, only: vRho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-      Real*8 Rho(nRho,mGrid),
-     &        dF_dP2ontop(ndF_dP2ontop,mGrid),
-     &        P2_ontop(nP2_ontop,mGrid), F_xc(mGrid)
+      Real*8 Rho(nRho,mGrid), F_xc(mGrid)
       Real*8 Grid(3,mGrid),RA(3,mCenter),ZA(mCenter)
       Real*8, Parameter:: T_X=1.0D-20
 *                                                                      *
@@ -152,9 +148,4 @@
 *                                                                      *
 *
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_real_array(P2_ontop)
-         Call Unused_real_array(dF_dP2ontop)
-      End If
       End

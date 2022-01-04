@@ -8,15 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine vW_hunter(mGrid,Rho,nRho,P2_ontop,
-     &                     nP2_ontop,nDmat,F_xc,
-     &                     dF_dP2ontop,ndF_dP2ontop)
+      Subroutine vW_hunter(mGrid,Rho,nRho,
+     &                     nDmat,F_xc)
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "hflda.fh"
       Real*8 Rho(nRho,mGrid),
-     &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
-     &       dF_dP2ontop(ndF_dP2ontop,mGrid)
+     &       F_xc(mGrid)
 *
 ************************************************************************
 *
@@ -25,15 +23,12 @@
 *---- von Weizsacker kinetic energy functional (no potential!)
 *
       Coeff=One
-      Call vW_Ts(mGrid,nDmat,F_xc,
-     &                 Coeff)
+      Call vW_Ts(mGrid,nDmat,F_xc,Coeff)
 
       Return
 c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_Integer(nRho)
          Call Unused_real_array(Rho)
-         Call Unused_real_array(P2_ontop)
-         Call Unused_real_array(dF_dP2ontop)
       End If
       End

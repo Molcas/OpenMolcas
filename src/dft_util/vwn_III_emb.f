@@ -8,17 +8,15 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine VWN_III_emb(mGrid,Rho,nRho,P2_ontop,
-     &                       nP2_ontop,iSpin,F_xc,
-     &                       dF_dP2ontop,ndF_dP2ontop)
+      Subroutine VWN_III_emb(mGrid,Rho,nRho,
+     &                       iSpin,F_xc)
 ************************************************************************
       use OFembed, only: dFMD
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "hflda.fh"
       Real*8 Rho(nRho,mGrid),
-     &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
-     &       dF_dP2ontop(ndF_dP2ontop,mGrid)
+     &       F_xc(mGrid)
 *
 *---- Vosko-Wilk-Nusair correlation functional III
 *
@@ -30,7 +28,5 @@ c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_Integer(nRho)
          Call Unused_real_array(Rho)
-         Call Unused_real_array(P2_ontop)
-         Call Unused_real_array(dF_dP2ontop)
       End If
       End

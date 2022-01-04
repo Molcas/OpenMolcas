@@ -10,9 +10,7 @@
 *                                                                      *
 * Copyright (C) 2001, Roland Lindh                                     *
 ************************************************************************
-      Subroutine BWIG(mGrid,Rho,nRho,P2_ontop,
-     &                nP2_ontop,iSpin,F_xc,
-     &                dF_dP2ontop,ndF_dP2ontop)
+      Subroutine BWIG(mGrid,Rho,nRho,iSpin,F_xc)
 ************************************************************************
 *                                                                      *
 * Object:    Powerful Becke Wigner functional combination              *
@@ -22,9 +20,7 @@
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-      Real*8 Rho(nRho,mGrid),
-     &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
-     &       dF_dP2ontop(ndF_dP2ontop,mGrid)
+      Real*8 Rho(nRho,mGrid), F_xc(mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -36,8 +32,7 @@
 *---- Becke 88 Exchange
 *
       Coeff=One
-      Call xB88(mGrid,
-     &          Coeff,iSpin,F_xc)
+      Call xB88(mGrid,Coeff,iSpin,F_xc)
 *
 *---- Wigner Correlation
 *
@@ -51,7 +46,5 @@ c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_Integer(nRho)
          Call Unused_real_array(Rho)
-         Call Unused_real_array(P2_ontop)
-         Call Unused_real_array(dF_dP2ontop)
       End If
       End

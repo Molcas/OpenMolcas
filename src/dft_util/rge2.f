@@ -11,9 +11,8 @@
 * Copyright (C) 2005, Per Ake Malmqvist                                *
 *               2010, Grigory A. Shamov                                *
 ************************************************************************
-      Subroutine RGE2(mGrid,Rho,nRho,P2_ontop,
-     &               nP2_ontop,iSpin,F_xc,
-     &               dF_dP2ontop,ndF_dP2ontop)
+      Subroutine RGE2(mGrid,Rho,nRho,
+     &               iSpin,F_xc)
 ************************************************************************
 *                                                                      *
 * Object: To compute the sum of the RGE2 exchange functional           *
@@ -31,9 +30,7 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "ksdft.fh"
-      Real*8 Rho(nRho,mGrid),
-     &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
-     &       dF_dP2ontop(ndF_dP2ontop,mGrid)
+      Real*8 Rho(nRho,mGrid), F_xc(mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -52,7 +49,5 @@ c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_Integer(nRho)
          Call Unused_real_array(Rho)
-         Call Unused_real_array(P2_ontop)
-         Call Unused_real_array(dF_dP2ontop)
       End If
       End

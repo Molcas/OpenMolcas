@@ -11,9 +11,8 @@
 * Copyright (C) 2017, Giovanni Li Manni                                *
 *               2017, Aron Cohen                                       *
 ************************************************************************
-      Subroutine S12g(mGrid,Rho,nRho,P2_ontop,
-     &                nP2_ontop,iSpin,F_xc,
-     &                dF_dP2ontop,ndF_dP2ontop)
+      Subroutine S12g(mGrid,Rho,nRho,
+     &                iSpin,F_xc)
 ************************************************************************
 *                                                                      *
 * Object:     Combination of exchange S12g (or S12h) and PBE           *
@@ -28,9 +27,7 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 
-      Real*8 Rho(nRho,mGrid),
-     &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
-     &       dF_dP2ontop(ndF_dP2ontop,mGrid)
+      Real*8 Rho(nRho,mGrid), F_xc(mGrid)
       Integer gh_switch
 *                                                                      *
 ************************************************************************
@@ -62,7 +59,5 @@ c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_Integer(nRho)
          Call Unused_real_array(Rho)
-         Call Unused_real_array(P2_ontop)
-         Call Unused_real_array(dF_dP2ontop)
       End If
       End

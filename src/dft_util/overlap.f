@@ -10,9 +10,7 @@
 *                                                                      *
 * Copyright (C) 2000, Roland Lindh                                     *
 ************************************************************************
-      Subroutine Overlap(mGrid,Rho,nRho,P2_ontop,nP2_ontop,
-     &                   iSpin,F_xc,
-     &                   dF_dP2ontop,ndF_dP2ontop)
+      Subroutine Overlap(mGrid,Rho,nRho,iSpin,F_xc)
 ************************************************************************
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. November 2000                           *
@@ -21,9 +19,7 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-      Real*8 Rho(nRho,mGrid),
-     &       dF_dP2ontop(ndF_dP2ontop,mGrid),
-     &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid)
+      Real*8 Rho(nRho,mGrid), F_xc(mGrid)
       Real*8, Parameter:: T_x=1.0D-20
 *                                                                      *
 ************************************************************************
@@ -88,9 +84,4 @@
 *                                                                      *
 *
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_real_array(P2_ontop)
-         Call Unused_real_array(dF_dP2ontop)
-      End If
       End

@@ -89,11 +89,6 @@
 
       end if
 
-!      If (.False.) Then
-!         Call Unused_real_array(P2_ontop)
-!         Call Unused_real_array(dF_dP2ontop)
-!      End If
-
       Return
       End
 

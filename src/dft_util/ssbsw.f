@@ -13,9 +13,8 @@
 *               2017, Giovanni Li Manni                                *
 *               2017, Aron Cohen                                       *
 ************************************************************************
-      Subroutine SSBSW(mGrid,Rho,nRho,P2_ontop,
-     &                nP2_ontop,iSpin,F_xc,
-     &                dF_dP2ontop,ndF_dP2ontop)
+      Subroutine SSBSW(mGrid,Rho,nRho,
+     &                iSpin,F_xc)
 ************************************************************************
 *                                                                      *
 * Object:     Combination of excnange SSB-sw and PBE correlation terms *
@@ -29,8 +28,7 @@
 #include "real.fh"
 #include "ksdft.fh"
       Real*8 Rho(nRho,mGrid),
-     &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
-     &       dF_dP2ontop(ndF_dP2ontop,mGrid)
+     &       F_xc(mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -51,7 +49,5 @@ c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_Integer(nRho)
          Call Unused_real_array(Rho)
-         Call Unused_real_array(P2_ontop)
-         Call Unused_real_array(dF_dP2ontop)
       End If
       End
