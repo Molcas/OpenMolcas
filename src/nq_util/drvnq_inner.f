@@ -17,13 +17,13 @@
      &                  FckInt,nFckDim,
      &                  Density,nFckInt,nD,
      &                  mGrid,
-     &                  nP2_ontop,ndF_dP2ontop,
+     &                  nP2_ontop,
      &                  Do_Mo,Do_TwoEl,l_Xhol,
      &                  TmpPUVX,nTmpPUVX,
      &                  nMOs,
      &                  CMOs,nCMO,DoIt,P2mo,np2act,D1mo,nd1mo,P2_ontop,
      &                  Do_Grad,Grad,nGrad,list_g,IndGrd,iTab,Temp,
-     &                  mGrad,F_xc,dF_dP2ontop,
+     &                  mGrad,F_xc,
      &                  DFTFOCK,mAO,mdRho_dR)
 ************************************************************************
 *                                                                      *
@@ -60,8 +60,7 @@
      &       Density(nFckInt,nD), R2_trial(nNQ),
      &       CMOs(nCMO),P2mo(np2act),D1mo(nd1mo), Temp(mGrad),
      &       P2_ontop(nP2_ontop,mGrid), Grad(nGrad),
-     &       F_xc(mGrid),
-     &       dF_dP2ontop(ndF_dp2ontop,mGrid)
+     &       F_xc(mGrid)
       Real*8 TmpPUVX(nTmpPUVX)
       Logical Check, Do_Grad, Rsv_Tsk
       Logical Do_Mo,Do_TwoEl,l_Xhol,l_casdft,Exist,l_tgga
@@ -244,12 +243,12 @@ C        Debug=.True.
      &                     FckInt,nFckDim,nFckInt,
      &                     Density,nFckInt,nD,
      &                     mGrid,
-     &                     nP2_ontop,ndF_dP2ontop,
+     &                     nP2_ontop,
      &                     Do_Mo,Do_TwoEl,l_Xhol,
      &                     TmpPUVX,nTmpPUVX,nMOs,CMOs,nCMO,DoIt,P2MO,
      &                     P2Unzip,np2act,D1mo,D1Unzip,nd1mo,P2_ontop,
      &                     Do_Grad,Grad,nGrad,List_G,IndGrd,iTab,Temp,
-     &                     mGrad,F_xc,dF_dP2ontop,
+     &                     mGrad,F_xc,
      &                     DFTFOCK,mAO,mdRho_dR,
      &                     LTEG_DB,PDFTPot1,PDFTFocI,PDFTFocA)
 *                                                                      *

@@ -17,7 +17,7 @@
      &                    FckInt,nFckDim,nFckInt,
      &                    ipTabAO,mAO,nSym,
      &                    Dens,nDens,nD,
-     &                    nP2_ontop,ndF_dP2ontop,nShell,
+     &                    nP2_ontop,nShell,
      &                    Do_Mo,Do_TwoEl,l_Xhol,
      &                    TmpPUVX,nTmpPUVX,TabMO,TabSO,
      &                    nMOs,CMOs,nCMO,DoIt,
@@ -25,7 +25,7 @@
      &                    P2_ontop,
      &                    Do_Grad,Grad,nGrad,ndRho_dR,nGrad_Eff,
      &                    list_g,IndGrd,iTab,Temp,F_xc,dW_dR,iNQ,Maps2p,
-     &                    dF_dP2ontop,DFTFOCK,LTEG_DB,
+     &                    DFTFOCK,LTEG_DB,
      &                    PDFTPot1,PDFTFocI,PDFTFocA)
 ************************************************************************
 *      Author:Roland Lindh, Department of Chemical Physics, University *
@@ -65,7 +65,7 @@
      &       CMOs(nCMO),P2mo(np2act),D1mo(nd1mo),
      &       P2_ontop(nP2_ontop,mGrid) , Temp(nGrad),
      &       F_xc(mGrid),
-     &       dW_dR(nGrad_Eff,mGrid),dF_dP2ontop(ndF_dP2ontop,mGrid),
+     &       dW_dR(nGrad_Eff,mGrid),
      &       PDFTPot1(nPot1),PDFTFocI(nPot1),PDFTFocA(nPot1)
       Real*8 TmpPUVX(nTmpPUVX)
       Logical Do_Grad,Do_Mo,Do_TwoEl,Unpack
@@ -823,8 +823,7 @@ cRKCft
 *     respect to rho and grad rho.
 *
       Call Kernel(mGrid,Rho,nRho,P2_ontop,
-     &            nP2_ontop,nD,F_xc,
-     &            dF_dP2ontop,ndF_dP2ontop)
+     &            nP2_ontop,nD,F_xc)
 *                                                                      *
 ************************************************************************
 ************************************************************************

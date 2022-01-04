@@ -224,7 +224,6 @@
 *        need rho(beta).
 *
          nP2_ontop=1
-         ndF_dP2ontop=1
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -254,7 +253,6 @@
 *        need rho(beta) and gamma(beta,beta).
 *
          nP2_ontop=4
-         ndF_dP2ontop=4
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -286,7 +284,6 @@
 *        need rho(beta), gamma(beta,beta) and tau(beta).
 *
          nP2_ontop=4
-         ndF_dP2ontop=4
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -320,7 +317,6 @@
 *        tau(beta) and laplacian(beta).
 *
          nP2_ontop=4
-         ndF_dP2ontop=4
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -346,7 +342,6 @@
          End If
 *
          nP2_ontop=6
-         ndF_dP2ontop=6
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -476,11 +471,8 @@
       If (Functional_Type.eq.CASDFT_Type) Then
          Call GetMem('P2_ontop','Allo','Real',ipp2_ontop,
      &               nP2_ontop*nGridMax)
-         Call GetMem('dF_dP2ontop','Allo','Real',ipdF_dP2ontop,
-     &               ndF_dP2ontop*nGridMax)
       Else
          ipP2_ontop=ip_Dummy
-         ipdF_dp2ontop=ip_Dummy
       Endif
 *
       If (Do_Grad) Then
@@ -520,11 +512,7 @@
         END IF
          Call GetMem('P2_ontop','Allo','Real',ipp2_ontop,
      &               nP2_ontop*nGridMax)
-         Call GetMem('dF_dP2ontop','Allo','Real',ipdF_dP2ontop,
-     &               ndF_dP2ontop*nGridMax)
         Call dCopy_(nP2_ontop*nGridMax,[0.0d0],0,Work(ipp2_ontop),1)
-        Call dCopy_(ndF_dP2ontop*nGridMax,[0.0d0],0,
-     &                                    Work(ipdF_dP2ontop),1)
 
       end if
 
@@ -536,7 +524,7 @@
      &            FckInt,nFckDim,
      &            Density,nFckInt,nD,
      &            nGridMax,
-     &            nP2_ontop,ndF_dP2ontop,
+     &            nP2_ontop,
      &            Do_Mo,Do_TwoEl,l_Xhol,
      &            Work(ipTmpPUVX),nTmpPUVX,
      &            nMOs,Work(ipCMO),nCMO,
@@ -544,7 +532,7 @@
      &            Work(ipP2mo),nP2,Work(ipD1mo),nd1mo,Work(ipp2_ontop),
      &            Do_Grad,Grad,nGrad,iWork(iplist_g),
      &            iWork(ipIndGrd),iWork(ipiTab),Work(ipTemp),mGrad,
-     &            Exc,work(ipdF_dP2ontop),
+     &            Exc,
      &            DFTFOCK,mAO,mdRho_dR)
 *                                                                      *
 ************************************************************************
@@ -603,8 +591,6 @@
       If (Functional_type.eq.CASDFT_Type.or.l_casdft) Then
          Call GetMem('P2_ontop','Free','Real',ipP2_ontop,
      &               nP2_ontop*nGridMax)
-         Call GetMem('dF_dP2ontop','Free','Real',ipdF_dP2ontop,
-     &               ndF_dP2ontop*nGridMax)
       End If
 *
       Do iNQ = 1, nNQ
