@@ -426,6 +426,17 @@
      &                   P2MOCube,P2MOCubex,P2MOCubey,P2MOCubez,
      &                   nPMO3p,MOs,MOx,MOy,MOz)
        End If
+       CALL TranslateDens(P2_OnTop,dRho_dr,P2_OnTop_d,
+     &                     l_tanhr,nRho,mGrid,nP2_OnTop,
+     &                     ndRho_dR,nGrad_Eff,Do_Grad)
+         CALL mma_deallocate(P2MOCube)
+         CALL mma_deallocate(P2MOCubex)
+         CALL mma_deallocate(P2MOCubey)
+         CALL mma_deallocate(P2MOCubez)
+         CALL mma_deallocate(MOs)
+         CALL mma_deallocate(MOx)
+         CALL mma_deallocate(MOy)
+         CALL mma_deallocate(MOz)
       End If
 
       If (Functional_type.eq.LDA_type) Then
@@ -433,11 +444,6 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-       If (l_casdft) then
-       CALL TranslateDens(P2_OnTop,dRho_dr,P2_OnTop_d,
-     &                     l_tanhr,nRho,mGrid,nP2_OnTop,
-     &                     ndRho_dR,nGrad_Eff,Do_Grad)
-       End if
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -447,11 +453,6 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-       If (l_casdft) then
-        CALL TranslateDens(P2_OnTop,dRho_dr,P2_OnTop_d,
-     &                     l_tanhr,nRho,mGrid,nP2_OnTop,
-     &                     ndRho_dR,nGrad_Eff,Do_Grad)
-       End if
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -493,17 +494,6 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-      If (l_casdft) Then
-         CALL mma_deallocate(P2MOCube)
-         CALL mma_deallocate(P2MOCubex)
-         CALL mma_deallocate(P2MOCubey)
-         CALL mma_deallocate(P2MOCubez)
-         CALL mma_deallocate(MOs)
-         CALL mma_deallocate(MOx)
-         CALL mma_deallocate(MOy)
-         CALL mma_deallocate(MOz)
-      End If
-
       If (l_casdft.and.lGGA) Then
          If (nD.eq.1) Then
             Do iGrid=1, mGrid
