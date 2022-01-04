@@ -9,8 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine NucAtt_EMB(mGrid,Rho,nRho,P2_ontop,
-     &                      nP2_ontop,iSpin,F_xc,dF_dRho,
-     &                      ndF_dRho,dF_dP2ontop,ndF_dP2ontop)
+     &                      nP2_ontop,iSpin,F_xc,
+     &                      dF_dP2ontop,ndF_dP2ontop)
       use nq_Grid, only: Grid
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
@@ -20,7 +20,7 @@
 #include "nsd.fh"
 #include "setup.fh"
 #include "nq_info.fh"
-      Real*8  Rho(nRho,mGrid), dF_dRho(ndF_dRho,mGrid),
+      Real*8  Rho(nRho,mGrid),
      &        dF_dP2ontop(ndF_dP2ontop,mGrid),
      &        P2_ontop(nP2_ontop,mGrid), F_xc(mGrid)
       Real*8, Allocatable:: RA(:,:), ZA(:), Eff(:)
@@ -51,7 +51,7 @@
       Call mma_deallocate(nStab)
 *
       Call Do_NucAtt_EMB(mGrid,Rho,nRho,P2_ontop,nP2_ontop,
-     &                   iSpin,F_xc,dF_dRho,ndF_dRho,
+     &                   iSpin,F_xc,
      &                   dF_dP2ontop,ndF_dP2ontop,Grid,
      &                   RA,ZA,mCenter,T_X)
 *
@@ -64,14 +64,15 @@
 ************************************************************************
 *                                                                      *
       Subroutine Do_NucAtt_EMB(mGrid,Rho,nRho,P2_ontop,nP2_ontop,
-     &                         iSpin,F_xc,dF_dRho,ndF_dRho,
+     &                         iSpin,F_xc,
      &                         dF_dP2ontop,ndF_dP2ontop,Grid,RA,ZA,
      &                         mCenter,T_X)
 
+      use nq_Grid, only: vRho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-      Real*8 Rho(nRho,mGrid), dF_dRho(ndF_dRho,mGrid),
+      Real*8 Rho(nRho,mGrid),
      &        dF_dP2ontop(ndF_dP2ontop,mGrid),
      &        P2_ontop(nP2_ontop,mGrid), F_xc(mGrid)
       Real*8 Grid(3,mGrid),RA(3,mCenter),ZA(mCenter)
@@ -102,7 +103,7 @@
          End Do
          F_xc(iGrid)=F_xc(iGrid)-Attr*DTot
 *
-         dF_dRho(ipR,iGrid)=-Attr
+         vRho(1,iGrid)=-Attr
 *
 100      Continue
 *
@@ -135,8 +136,8 @@
          End Do
          F_xc(iGrid)=F_xc(iGrid)-Attr*DTot
 *
-         dF_dRho(ipRa,iGrid)=-Attr
-         dF_dRho(ipRb,iGrid)=-Attr
+         vRho(1,iGrid)=-Attr
+         vRho(2,iGrid)=-Attr
 *
 200      Continue
 *

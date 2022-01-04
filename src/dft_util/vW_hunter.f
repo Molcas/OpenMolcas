@@ -10,12 +10,12 @@
 ************************************************************************
       Subroutine vW_hunter(mGrid,Rho,nRho,P2_ontop,
      &                     nP2_ontop,nDmat,F_xc,
-     &                     dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,
+     &                     dF_dP2ontop,ndF_dP2ontop,
      &                     T_X)
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "hflda.fh"
-      Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
+      Real*8 Rho(nRho,mGrid),
      &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid)
 *
@@ -27,7 +27,7 @@
 *
       Coeff=One
       Call vW_Ts(mGrid,nDmat,F_xc,
-     &                 dF_dRho,ndF_dRho,Coeff,T_X)
+     &                 Coeff,T_X)
 
       Return
 c Avoid unused argument warnings

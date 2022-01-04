@@ -12,7 +12,6 @@
 *               2004, Giovanni Ghigo                                   *
 ************************************************************************
       Subroutine Do_NewFunctional_1(mGrid,
-     &                   dF_dRho,ndF_dRho,
      &                   Coeff,nD,F_xc,
      &                   P2_ontop,nP2_ontop,
      &                   dF_dP2ontop,ndF_dP2ontop,T_X)
@@ -31,8 +30,7 @@
 #include "real.fh"
 #include "nq_index.fh"
 #include "pamint.fh"
-      Real*8 dF_dRho(ndF_dRho,mGrid),
-     &       P2_ontop(nP2_ontop,mGrid),
+      Real*8 P2_ontop(nP2_ontop,mGrid),
      &       F_xc(mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid)
 #include "points.fh"
@@ -150,9 +148,5 @@ c      dT2_dRho = -aConst*t5-aConst*t2/t10*dConst/3
       End Do  ! iGrid
 c
       Return
-      If (.False.) Then
-         Call Unused_Integer(ndF_dRho)
-         Call Unused_real_array(dF_dRho)
-      End If
 
       End

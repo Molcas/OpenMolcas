@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2010, Yan Zhao                                         *
 ************************************************************************
-      Subroutine CVS98(mGrid,dF_dRho,ndF_dRho,
+      Subroutine CVS98(mGrid,
      &                 CoeffA,iSpin,F_xc,T_X,ijzy)
 ************************************************************************
 *                                                                      *
@@ -37,7 +37,7 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-      Real*8 dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
+      Real*8 F_xc(mGrid)
       Integer mGrid
 
       REAL*8 Pi34, F13,
@@ -122,7 +122,6 @@ C     Parameters for M06-2X
 *           dF/dRho
             vRho(1,iGrid)=vRho(1,iGrid)+FPA
 *           dF/dGamma, no Gamma_ab term
-            dF_dRho(ipGxx,iGrid)=dF_dRho(ipGxx,iGrid)+ FGA
             vSigma(1,iGrid)=vSigma(1,iGrid)+ FGA
 *           dF/dTau
             vTau(1,iGrid)=vTau(1,iGrid)+FTA
@@ -154,7 +153,6 @@ C     Parameters for M06-2X
                vRho(1,iGrid)=vRho(1,iGrid)
      &                           +(EUEGPA*gcab+EUEG*dgdPA)
 *              dF/dGamma
-               dF_dRho(ipGxx,iGrid)=dF_dRho(ipGxx,iGrid)+EUEG*dgdGA
                vSigma(1,iGrid)=vSigma(1,iGrid)+EUEG*dgdGA
 *              dF/dTau
                vTau(1,iGrid)=vTau(1,iGrid)+EUEG*dgdTA
@@ -176,7 +174,6 @@ C     Parameters for M06-2X
 *           dF/dRhoa
             vRho(1,iGrid)=vRho(1,iGrid)+FPA
 *           dF/dGammma_aa
-            dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)+ FGA
             vSigma(1,iGrid)=vSigma(1,iGrid)+ FGA
 *           dF/dTaua
             vTau(1,iGrid)=vTau(1,iGrid)+FTA
@@ -193,7 +190,6 @@ C     Parameters for M06-2X
 *           dF/dRhob
             vRho(2,iGrid)=vRho(2,iGrid)+FPB
 *           dF/dGammma_bb
-            dF_dRho(ipGbb,iGrid)=dF_dRho(ipGbb,iGrid)+ FGB
             vSigma(3,iGrid)=vSigma(3,iGrid)+ FGB
 *           dF/dTaub
             vTau(2,iGrid)=vTau(2,iGrid)+FTB
@@ -231,8 +227,6 @@ C     Parameters for M06-2X
                vRho(2,iGrid)=vRho(2,iGrid)
      &                            +(EUEGPB*gcab+EUEG*dgdPB)
 *              dF/dGamma
-               dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)+EUEG*dgdGA
-               dF_dRho(ipGbb,iGrid)=dF_dRho(ipGbb,iGrid)+EUEG*dgdGB
                vSigma(1,iGrid)=vSigma(1,iGrid)+EUEG*dgdGA
                vSigma(3,iGrid)=vSigma(3,iGrid)+EUEG*dgdGB
 *              dF/dTau

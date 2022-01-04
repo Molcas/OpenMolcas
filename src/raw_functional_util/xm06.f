@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2010, Yan Zhao                                         *
 ************************************************************************
-      Subroutine XM06(mGrid,dF_dRho,ndF_dRho,
+      Subroutine XM06(mGrid,
      &                CoeffA,iSpin,F_xc,T_X,ijzy)
 ************************************************************************
 *                                                                      *
@@ -35,8 +35,7 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-      Real*8 dF_dRho(ndF_dRho,mGrid),
-     &       F_xc(mGrid)
+      Real*8 F_xc(mGrid)
       Integer mGrid
 
       integer ijzy
@@ -176,7 +175,6 @@ C     Parameters for M06-2X
          vRho(1,igrid)=vRho(1,igrid)+dGGAdR*Fsig
      &        + (fL*Ax+fNL*E)*rho43*dFdR
 *        dF/dGamma
-         dF_dRho(ipGxx,igrid)=dF_dRho(ipGxx,iGrid)+ dGGAdG*Fsig
          vSigma(1,igrid)=vSigma(1,iGrid)+ dGGAdG*Fsig
 *        dF/dTau
          vTau(1,iGrid)=vTau(1,iGrid)+rho43*(Ax*fL+fNL*E)*dFdTau
@@ -239,7 +237,6 @@ C     Parameters for M06-2X
          vRho(1,iGrid)=vRho(1,igrid)+dGGAdR*Fsig
      &        + (fL*Ax+fNL*E)*rho43*dFdR
 *        dF/dGammaaa
-         dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)+ dGGAdG*Fsig
          vSigma(1,iGrid)=vSigma(1,iGrid)+ dGGAdG*Fsig
 *        dF/dTaua
          vTau(1,iGrid)=vTau(1,iGrid)+rho43*(Ax*fL+fNL*E)*dFdTau
@@ -289,7 +286,6 @@ C     Parameters for M06-2X
          vRho(2,igrid)=vRho(2,igrid)+dGGAdR*Fsig
      &        + (fL*Ax+fNL*E)*rho43*dFdR
 *        dF/dGammabb
-         dF_dRho(ipGbb,igrid)=dF_dRho(ipGbb,iGrid)+ dGGAdG*Fsig
          vSigma(3,igrid)=vSigma(3,iGrid)+ dGGAdG*Fsig
 *        dF/dTaub
          vTau(2,igrid)=vTau(2,iGrid)+rho43*(Ax*fL+fNL*E)*dFdTau

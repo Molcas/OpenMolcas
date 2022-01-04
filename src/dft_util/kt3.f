@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine KT3(mGrid,Rho,nRho,P2_ontop,
      &                nP2_ontop,iSpin,F_xc,
-     &                dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,
+     &                dF_dP2ontop,ndF_dP2ontop,
      &                T_X)
 ************************************************************************
 *                                                                      *
@@ -28,7 +28,7 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "ksdft.fh"
-      Real*8 Rho(nRho,mGrid), dF_dRho(ndF_dRho,mGrid),
+      Real*8 Rho(nRho,mGrid),
      &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid)
 *                                                                      *
@@ -42,19 +42,19 @@
 *---- OPTX Exchange
 *
       Coeff= 0.925452d0*CoefX
-      Call xOPT(mGrid,dF_dRho,ndF_dRho,
+      Call xOPT(mGrid,
      &          Coeff,iSpin,F_xc,T_X)
 *
 *---- KT term Exchange
 *
       Coeff= -0.0040d0*CoefX
-      Call KealTozer(mGrid,dF_dRho,ndF_dRho,
+      Call KealTozer(mGrid,
      &          Coeff,iSpin,F_xc,T_X)
 *
 *---- Lee-Yang-Parr Correlation
 *
       Coeff=0.864409d0*CoefR
-      Call LYP(mGrid,dF_dRho,ndF_dRho,
+      Call LYP(mGrid,
      &         Coeff,iSpin,F_xc,T_X)
 *                                                                      *
 ************************************************************************

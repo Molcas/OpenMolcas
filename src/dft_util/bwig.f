@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine BWIG(mGrid,Rho,nRho,P2_ontop,
      &                nP2_ontop,iSpin,F_xc,
-     &                dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,
+     &                dF_dP2ontop,ndF_dP2ontop,
      &                T_X)
 ************************************************************************
 *                                                                      *
@@ -23,7 +23,7 @@
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-      Real*8 Rho(nRho,mGrid), dF_dRho(ndF_dRho,mGrid),
+      Real*8 Rho(nRho,mGrid),
      &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid)
 *                                                                      *
@@ -37,7 +37,7 @@
 *---- Becke 88 Exchange
 *
       Coeff=One
-      Call xB88(mGrid,dF_dRho,ndF_dRho,
+      Call xB88(mGrid,
      &          Coeff,iSpin,F_xc,T_X)
 *
 *---- Wigner Correlation

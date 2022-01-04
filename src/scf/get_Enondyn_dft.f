@@ -74,7 +74,7 @@
      &         XAlpha, LSDA5, B3LYP5,TLYP,
      &         NucAtt, NEWF, NEWF1,
      &         PBE, PBE0, M06L, M06, M062X,
-     &         M06HF, Checker
+     &         M06HF
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "nq_info.fh"
@@ -320,19 +320,6 @@ c        ExFac=Get_ExFac(KSDFT)
 c        ExFac=Get_ExFac(KSDFT)
          Functional_type=meta_GGA_type1
          Call DrvNQ(M06HF,Work(ipF_DFT),nFckDim,Func,
-     &              Work(ip_D_DS),nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Checker
-*
-      Else If (KSDFT.eq.'CHECKER') Then
-c        ExFac=Zero
-         Functional_type=meta_GGA_type2
-         Call DrvNQ(Checker,Work(ipF_DFT),nFckDim,Func,
      &              Work(ip_D_DS),nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,

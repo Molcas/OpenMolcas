@@ -13,7 +13,7 @@
 ************************************************************************
       Subroutine B2PLYP(mGrid,Rho,nRho,P2_ontop,
      &                  nP2_ontop,iSpin,F_xc,
-     &                  dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X)
+     &                  dF_dP2ontop,ndF_dP2ontop,T_X)
 ************************************************************************
 *                                                                      *
 * Object:   DFT part for the Grimme's double hybrud functional.        *
@@ -27,7 +27,7 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "ksdft.fh"
-      Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
+      Real*8 Rho(nRho,mGrid),
      &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid)
 *                                                                      *
@@ -48,7 +48,6 @@ C    requires 0.27 times MP2 correlation energy from MBPT2
 *---- Becke 88 Exchange Functional                                     *
 *                                                                      *
       Call xB88(mGrid,
-     &          dF_dRho,ndF_dRho,
      &          Coeff_A,iSpin,F_xc,T_X)
 *                                                                      *
 *---- Vosko-Wilk-Nusair Correlation Functional V                       *
@@ -60,7 +59,6 @@ C--     &           CoefR-Coeff_C,T_X)
 *---- Lee-Yang-Parr Correlation Functional                             *
 *                                                                      *
       Call LYP(mGrid,
-     &         dF_dRho,ndF_dRho,
      &         Coeff_C,iSpin,F_xc,T_X)
 *                                                                      *
 ************************************************************************

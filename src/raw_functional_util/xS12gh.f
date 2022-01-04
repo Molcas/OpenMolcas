@@ -11,7 +11,7 @@
 * Copyright (C) 2006, Per Ake Malmqvist                                *
 *               2009, Grigory A. Shamov                                *
 ************************************************************************
-      Subroutine xS12gh(mGrid,dF_dRho,ndF_dRho,
+      Subroutine xS12gh(mGrid,
      &                Coeff,iSpin,F_xc,T_X,gh_switch)
 ************************************************************************
 *                                                                      *
@@ -30,7 +30,7 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-      Real*8 dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
+      Real*8 F_xc(mGrid)
       integer gh_switch
 
 * IDORD=Order of derivatives to request from XPBE:
@@ -52,7 +52,6 @@
          F_xc(iGrid)=F_xc(iGrid)+Coeff*(2.0D0*Fa)
          vRho(1,iGrid)=vRho(1,iGrid)+Coeff*dFdrhoa
 * Maybe derivatives w.r.t. gamma_aa, gamma_ab, gamma_bb should be used instead.
-         dF_dRho(ipGxx,iGrid)=dF_dRho(ipGxx,iGrid)+Coeff*dFdgammaaa
          vSigma(1,iGrid)=vSigma(1,iGrid)+Coeff*dFdgammaaa
 * Note: For xpbe, dFdgammaab is zero.
  110     continue
@@ -82,8 +81,6 @@
          vRho(2,iGrid)=vRho(2,iGrid)+Coeff*dFdrhob
 * Maybe derivatives w.r.t. gamma_aa, gamma_ab, gamma_bb should be used instead.
 * Note: For xpbe, dFdgammaab is zero.
-         dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)+Coeff*dFdgammaaa
-         dF_dRho(ipGbb,iGrid)=dF_dRho(ipGbb,iGrid)+Coeff*dFdgammabb
          vSigma(1,iGrid)=vSigma(1,iGrid)+Coeff*dFdgammaaa
          vSigma(3,iGrid)=vSigma(3,iGrid)+Coeff*dFdgammabb
  210     continue

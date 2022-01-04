@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine B86LYP(mGrid,Rho,nRho,P2_ontop,
      &                nP2_ontop,iSpin,F_xc,
-     &                dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,
+     &                dF_dP2ontop,ndF_dP2ontop,
      &                T_X)
 ************************************************************************
 *                                                                      *
@@ -24,7 +24,7 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "ksdft.fh"
-      Real*8 Rho(nRho,mGrid), dF_dRho(ndF_dRho,mGrid),
+      Real*8 Rho(nRho,mGrid),
      &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid)
 *                                                                      *
@@ -41,13 +41,13 @@
 *---- Becke 86 Exchange
 *
       Coeff=One*CoefX
-      Call xB86(mGrid,dF_dRho,ndF_dRho,
+      Call xB86(mGrid,
      &          Coeff,iSpin,F_xc,T_X)
 *
 *---- Lee-Yang-Parr Correlation
 *
       Coeff=One*CoefR
-      Call LYP(mGrid,dF_dRho,ndF_dRho,
+      Call LYP(mGrid,
      &         Coeff,iSpin,F_xc,T_X)
 *                                                                      *
 ************************************************************************

@@ -11,8 +11,8 @@
 * Copyright (C) 2000,2022, Roland Lindh                                *
 *               Ajitha Devarajan                                       *
 ************************************************************************
-      Subroutine DFT_Int(list_s,nlist_s,FckInt,nFckInt,dF_dRho,ndF_dRho,
-     &                   nD,Fact,ndc,list_bas)
+      Subroutine DFT_Int(list_s,nlist_s,FckInt,nFckInt,nD,Fact,ndc,
+     &                   list_bas)
 ************************************************************************
 *                                                                      *
 * Object: to compute contributions to                                  *
@@ -39,8 +39,7 @@
 #include "debug.fh"
 #include "nsd.fh"
 #include "setup.fh"
-      Real*8 Fact(ndc**2), FckInt(nFckInt,nD),
-     &       dF_dRho(ndF_dRho,*)
+      Real*8 Fact(ndc**2), FckInt(nFckInt,nD)
       Integer list_s(2,nlist_s), list_bas(2,nlist_s)
 *                                                                      *
 ************************************************************************
@@ -53,8 +52,7 @@
 *
       nBfn = Size(AOIntegrals,1)
       nFn  = Size(Grid_AO,1)
-      Call Do_NInt_d(ndF_dRho, dF_dRho,mGrid,
-     &               Grid_AO, TabAO,nBfn,nD,mAO,nFn)
+      Call Do_NInt_d(mGrid,Grid_AO, TabAO,nBfn,nD,mAO,nFn)
       Call Do_NIntX(AOIntegrals,mGrid,Grid_AO,TabAO,nBfn,nD,mAO,nFn)
 *                                                                      *
 ************************************************************************

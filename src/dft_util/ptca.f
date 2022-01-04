@@ -13,7 +13,7 @@
 ************************************************************************
       Subroutine PTCA(mGrid,Rho,nRho,P2_ontop,
      &               nP2_ontop,iSpin,F_xc,
-     &               dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X)
+     &               dF_dP2ontop,ndF_dP2ontop,T_X)
 ************************************************************************
 *                                                                      *
 * Object: To compute the combination of PBE exchange and TCA           *
@@ -30,18 +30,18 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "ksdft.fh"
-      Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
+      Real*8 Rho(nRho,mGrid),
      &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       CoeffA=One*CoefR
-      Call CTCA(mGrid,dF_dRho,ndF_dRho,
+      Call CTCA(mGrid,
      &          CoeffA,iSpin,F_xc,T_X)
 
       CoeffB=One*CoefX
-      Call XPBE(mGrid,dF_dRho,ndF_dRho,
+      Call XPBE(mGrid,
      &          CoeffB,iSpin,F_xc,T_X)
 *                                                                      *
 ************************************************************************

@@ -10,8 +10,7 @@
 *                                                                      *
 * Copyright (C) 2005, Per Ake Malmqvist                                *
 ************************************************************************
-      Subroutine CPBE_ofe(mGrid,dF_dRho,ndF_dRho,
-     &                    Coeff,iSpin,F_xc,T_X)
+      Subroutine CPBE_ofe(mGrid,Coeff,iSpin,F_xc,T_X)
 ************************************************************************
 *                                                                      *
 * Object: To compute the functional called c_pbe in the Density        *
@@ -32,7 +31,7 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-      Real*8 dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
+      Real*8 F_xc(mGrid)
 * Local arrays:
       Real*8 func1(3),func2(3,3)
 * Call arguments:
@@ -83,8 +82,6 @@
 * dF_drhoa:
          vRho(1,iGrid)=vRho(1,iGrid)+Coeff*func1(1)
 * Maybe derivatives w.r.t. gamma_aa, gamma_ab, gamma_bb should be used instead.
-         dF_dRho(ipGxx,iGrid)=dF_dRho(ipGxx,iGrid)+Coeff*func1(2)
-     &                                            +Coeff*func1(2)
          vSigma(1,iGrid)=vSigma(1,iGrid)+Coeff*func1(2)
      &                                  +Coeff*func1(2)
  110     continue
@@ -107,9 +104,6 @@
          vRho(2,iGrid)=vRho(2,iGrid)+
      &            Coeff*(func1(1)-(2.0D0*func1(3))*(rhoa/rho_in**2))
 * Maybe derivatives w.r.t. gamma_aa, gamma_ab, gamma_bb should be used instead.
-         dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)+Coeff*func1(2)
-         dF_dRho(ipGab,iGrid)=dF_dRho(ipGab,iGrid)+Coeff*2.0D0*func1(2)
-         dF_dRho(ipGbb,iGrid)=dF_dRho(ipGbb,iGrid)+Coeff*func1(2)
          vSigma(1,iGrid)=vSigma(1,iGrid)+Coeff*func1(2)
          vSigma(2,iGrid)=vSigma(2,iGrid)+Coeff*2.0D0*func1(2)
          vSigma(3,iGrid)=vSigma(3,iGrid)+Coeff*func1(2)

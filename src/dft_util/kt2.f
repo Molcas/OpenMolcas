@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine KT2(mGrid,Rho,nRho,P2_ontop,
      &                nP2_ontop,iSpin,F_xc,
-     &                dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,
+     &                dF_dP2ontop,ndF_dP2ontop,
      &                T_X)
 ************************************************************************
 *                                                                      *
@@ -20,7 +20,7 @@
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-      Real*8 Rho(nRho,mGrid), dF_dRho(ndF_dRho,mGrid),
+      Real*8 Rho(nRho,mGrid),
      &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid)
 *                                                                      *
@@ -37,7 +37,7 @@
 *---- KT term Exchange/Correlation
 *
       Coeff= - 0.0060d0
-      Call KealTozer(mGrid,dF_dRho,ndF_dRho,
+      Call KealTozer(mGrid,
      &          Coeff,iSpin,F_xc,T_X)
 *
 *---- VWN-3 Correlation

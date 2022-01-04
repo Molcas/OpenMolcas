@@ -11,7 +11,6 @@
 * Copyright (C) Per Ake Malmqvist                                      *
 ************************************************************************
       Subroutine Do_NewFunctional(mGrid,
-     &                   dF_dRho,ndF_dRho,
      &                   Coeff,nD,F_xc,
      &                   P2_ontop,nP2_ontop,
      &                   dF_dP2ontop,ndF_dP2ontop,T_X)
@@ -26,8 +25,7 @@
       use nq_Grid, only: vRho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-      Real*8 dF_dRho(ndF_dRho,mGrid),
-     &       P2_ontop(nP2_ontop,mGrid),
+      Real*8 P2_ontop(nP2_ontop,mGrid),
      &       F_xc(mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid)
 #include "points.fh"
@@ -131,9 +129,5 @@
 c
 c
       return
-      If (.False.) Then
-         Call Unused_Integer(ndF_dRho)
-         Call Unused_real_array(dF_dRho)
-      End If
 
       end

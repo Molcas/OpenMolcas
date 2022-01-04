@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2010, Yan Zhao                                         *
 ************************************************************************
-      Subroutine XVS98(mGrid,dF_dRho,ndF_dRho,
+      Subroutine XVS98(mGrid,
      &                 CoeffA,iSpin,F_xc,T_X,ijzy)
 ************************************************************************
 *                                                                      *
@@ -35,7 +35,7 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-      Real*8 dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
+      Real*8 F_xc(mGrid)
       Integer mGrid
 
       integer ijzy
@@ -143,7 +143,6 @@ c
          vRho(1,iGrid)=vRho(1,iGrid)+ f43*rho13*gx +
      &                  rho43*(dgdx*dxdr + dgdz*dzdr)
 *        dF/dGamma
-         dF_dRho(ipGxx,iGrid)=dF_dRho(ipGxx,iGrid)+rho43*(dgdx*dxdg)
          vSigma(1,iGrid)=vSigma(1,iGrid)+rho43*(dgdx*dxdg)
 *        dF/dTau
          vTau(1,iGrid)=vTau(1,iGrid)+ rho43*(dgdz*dzdt)
@@ -184,7 +183,6 @@ c
          vRho(1,iGrid)=vRho(1,iGrid)+ f43*rho13*gx +
      &                  rho43*(dgdx*dxdr + dgdz*dzdr)
 *        dF/dGammaaa
-         dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)+rho43*(dgdx*dxdg)
          vSigma(1,iGrid)=vSigma(1,iGrid)+rho43*(dgdx*dxdg)
 *        dF/dTaua
          vTau(1,iGrid)=vTau(1,iGrid)+ rho43*(dgdz*dzdt)
@@ -220,7 +218,6 @@ c
          vRho(2,iGrid)=vRho(2,iGrid)+ f43*rho13*gx +
      &                  rho43*(dgdx*dxdr + dgdz*dzdr)
 *        dF/dGammabb
-         dF_dRho(ipGbb,iGrid)=dF_dRho(ipGbb,iGrid)+rho43*(dgdx*dxdg)
          vSigma(3,iGrid)=vSigma(3,iGrid)+rho43*(dgdx*dxdg)
 *        dF/dTaub
          vTau(2,iGrid)=vTau(2,iGrid)+ rho43*(dgdz*dzdt)

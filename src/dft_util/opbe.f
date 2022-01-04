@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine OPBE(mGrid,Rho,nRho,P2_ontop,
      &                nP2_ontop,iSpin,F_xc,
-     &                dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,
+     &                dF_dP2ontop,ndF_dP2ontop,
      &                T_X)
 ************************************************************************
 *                                                                      *
@@ -21,7 +21,7 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "ksdft.fh"
-      Real*8 Rho(nRho,mGrid), dF_dRho(ndF_dRho,mGrid),
+      Real*8 Rho(nRho,mGrid),
      &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid)
 *                                                                      *
@@ -35,13 +35,13 @@
 *---- OPTX Exchange, the a2 coeff is here!
 *
       Coeff= 1.431690d0*CoefX
-      Call xOPT(mGrid,dF_dRho,ndF_dRho,
+      Call xOPT(mGrid,
      &          Coeff,iSpin,F_xc,T_X)
 *
 *---- PBEc
 *
       Coeff=One*CoefR
-      Call CPBE(mGrid,dF_dRho,ndF_dRho,
+      Call CPBE(mGrid,
      &         Coeff,iSpin,F_xc,T_X)
 *                                                                      *
 ************************************************************************

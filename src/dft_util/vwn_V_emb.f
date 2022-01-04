@@ -10,13 +10,13 @@
 ************************************************************************
       Subroutine VWN_V_emb(mGrid,Rho,nRho,P2_ontop,
      &                     nP2_ontop,iSpin,F_xc,
-     &                     dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,
+     &                     dF_dP2ontop,ndF_dP2ontop,
      &                     T_X)
 ************************************************************************
       use OFembed, only: dFMD
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-      Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
+      Real*8 Rho(nRho,mGrid),
      &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid)
 *
@@ -29,9 +29,7 @@
 c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_Integer(nRho)
-         Call Unused_Integer(ndF_dRho)
          Call Unused_real_array(Rho)
-         Call Unused_real_array(dF_dRho)
          Call Unused_real_array(P2_ontop)
          Call Unused_real_array(dF_dP2ontop)
       End If

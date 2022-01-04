@@ -12,8 +12,7 @@
 ************************************************************************
       Subroutine REVPBE(mGrid,Rho,nRho,P2_ontop,
      &               nP2_ontop,iSpin,F_xc,
-cGLM     &               nP2_ontop,iSpin,F_xc,F_xca,F_xcb,
-     &               dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,
+     &               dF_dP2ontop,ndF_dP2ontop,
      &               T_X)
 ************************************************************************
 *                                                                      *
@@ -34,20 +33,19 @@ cGLM     &               nP2_ontop,iSpin,F_xc,F_xca,F_xcb,
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "ksdft.fh"
-      Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
+      Real*8 Rho(nRho,mGrid),
      &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
-cGLM     &       F_xca(mGrid),F_xcb(mGrid),tmpB(mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 
       CoeffB=One*CoefX
-      Call XrevPBE(mGrid,dF_dRho,ndF_dRho,
+      Call XrevPBE(mGrid,
      &          CoeffB,iSpin,F_xc,T_X)
 
       CoeffA=One*CoefR
-      Call CPBE(mGrid,dF_dRho,ndF_dRho,
+      Call CPBE(mGrid,
      &          CoeffA,iSpin,F_xc,T_X)
 *                                                                      *
 ************************************************************************

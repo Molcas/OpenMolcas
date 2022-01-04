@@ -17,7 +17,7 @@
      &         XAlpha, LSDA5, B3LYP5, B2PLYP, TLYP,
      &         NucAtt, NEWF, NEWF1, OLYP, O3LYP, OPBE,
      &         PBE, PBE0, PBEsol, M06L, M06, M062X, HFO,
-     &         M06HF, Checker, SSBSW, SSBD, HFG, GLYP, GPBE,
+     &         M06HF, SSBSW, SSBD, HFG, GLYP, GPBE,
      &         HFB86, B86LYP, B86PBE, BWIG, KT3,
      &         O2PLYP,  KT2,  RGE2, REVPBE,
      &         PTCA,S12G, S12H
@@ -830,22 +830,6 @@ c         write(6,*) 'Func in drvdft :', Func
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
          Call DrvNQ(M06HF,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Checker                                                          *
-*                                                                      *
-      Else If (KSDFT.eq.'CHECKER') Then
-         ExFac=Zero
-         Functional_type=meta_GGA_type2
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
-         Call DrvNQ(Checker,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,

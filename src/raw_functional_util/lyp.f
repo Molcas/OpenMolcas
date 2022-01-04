@@ -11,7 +11,7 @@
 * Copyright (C) Per Ake Malmqvist                                      *
 *               Ajitha Devarajan                                       *
 ************************************************************************
-      Subroutine LYP(mGrid,dF_dRho,ndF_dRho,
+      Subroutine LYP(mGrid,
      &               Coeff,iSpin,F_xc,T_X)
 ************************************************************************
 *                                                                      *
@@ -31,7 +31,7 @@
 #include "real.fh"
 #include "nq_index.fh"
 #include "ksdft.fh"
-      Real*8 dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
+      Real*8 F_xc(mGrid)
 *
       data Cfconst / 2.8712340001881918D0 /
       data aconst,bconst,cconst,dconst
@@ -138,9 +138,6 @@
        vRho(1,iGrid)=vRho(1,iGrid)
      &                   +Coeff*(dec1dra+dec2dra+dec3dra+dec4dra)
 *      dF/dGaa
-       dF_dRho(ipGxx,iGrid)=dF_dRho(ipGxx,iGrid)
-     &                     +Coeff*(dec34dsa+dec34ds)
-     &                     +Coeff*(dec34ds)
        vSigma(1,iGrid)=vSigma(1,iGrid)
      &                     +Coeff*(dec34dsa+dec34ds)
      &                     +Coeff*(dec34ds)
@@ -255,11 +252,6 @@
         vRho(2,iGrid)=vRho(2,iGrid)
      &                   +Coeff*(dec1drb+dec2drb+dec3drb+dec4drb)
 *       dF/dGaa, dF/dGab, and dF/dGbb
-        dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)
-     &                      +Coeff*(dec34dsa+dec34ds)
-        dF_dRho(ipGbb,iGrid)=dF_dRho(ipGbb,iGrid)
-     &                      +Coeff*(dec34dsb+dec34ds)
-        dF_dRho(ipGab,iGrid)=dF_dRho(ipGab,iGrid)+2.0d0*Coeff*dec34ds
         vSigma(1,iGrid)=vSigma(1,iGrid)
      &                      +Coeff*(dec34dsa+dec34ds)
         vSigma(3,iGrid)=vSigma(3,iGrid)
@@ -362,11 +354,6 @@
         vRho(2,iGrid)=vRho(2,iGrid)
      &                   +Coeff*(dec1drb+dec2drb+dec3drb+dec4drb)
 *       dF/dGaa, dF/dGab, and dF/dGbb
-        dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)
-     &                      +Coeff*(dec34dsa+dec34ds)
-        dF_dRho(ipGbb,iGrid)=dF_dRho(ipGbb,iGrid)
-     &                      +Coeff*(dec34dsb+dec34ds)
-        dF_dRho(ipGab,iGrid)=dF_dRho(ipGab,iGrid)+2.0d0*Coeff*dec34ds
         vSigma(1,iGrid)=vSigma(1,iGrid)
      &                      +Coeff*(dec34dsa+dec34ds)
         vSigma(3,iGrid)=vSigma(3,iGrid)

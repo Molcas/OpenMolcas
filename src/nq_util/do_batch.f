@@ -825,8 +825,8 @@ cRKCft
 *     respect to rho and grad rho.
 *
       Call Kernel(mGrid,Rho,nRho,P2_ontop,
-     &            nP2_ontop,nD,F_xc,dF_dRho,
-     &            ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_Rho)
+     &            nP2_ontop,nD,F_xc,
+     &            dF_dP2ontop,ndF_dP2ontop,T_Rho)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -881,8 +881,7 @@ cRKCft
                CALL TransActMO(MOs, TabMO,mAO,mGrid,nMOs)
 
                Call Calc_Pot1(PDFTPot1,TabMO,mAO,mGrid,nMOs,P2_ontop,
-     &                        nP2_ontop,dF_dRho,ndF_dRho,
-     &                        MOas)
+     &                        nP2_ontop,MOas)
                Call Calc_Pot2(Work(LTEG_DB),mGrid,P2_ontop,nP2_ontop)
                Call PDFTFock(PDFTFocI,PDFTFocA,D1Unzip,mGrid,MOs)
               end if
@@ -900,16 +899,14 @@ cRKCft
                CALL TransActMO(MOs, TabMO,mAO,mGrid,nMOs)
 
                Call Calc_Pot1(PDFTPot1,TabMO,mAO,mGrid,nMOs,P2_ontop,
-     &                        nP2_ontop,dF_dRho,ndF_dRho,
-     &                        MOas)
+     &                        nP2_ontop,MOas)
                Call Calc_Pot2(Work(LTEG_DB),mGrid,P2_ontop,nP2_ontop)
                Call PDFTFock(PDFTFocI,PDFTFocA,D1Unzip,mGrid,MOs)
               end if
              end if
 
              If(KSDFA(1:5).ne.'TLSDA'.and.KSDFA(1:6).ne.'FTLSDA') then
-                 Call DFT_Int(list_s,nlist_s,
-     &                        FckInt,nFckInt,dF_dRho,ndF_dRho,
+                 Call DFT_Int(list_s,nlist_s,FckInt,nFckInt,
      &                        nD,Work(ip_Fact),ndc,list_bas)
              End If
 *                                                                      *
@@ -945,8 +942,7 @@ cRKCft
                CALL TransActMO(MOs, TabMO,mAO,mGrid,nMOs)
 
                Call Calc_Pot1(PDFTPot1,TabMO,mAO,mGrid,nMOs,P2_ontop,
-     &                        nP2_ontop,dF_dRho,ndF_dRho,
-     &                        MOas)
+     &                        nP2_ontop,MOas)
 
                Call Calc_Pot2(Work(LTEG_DB),mGrid,P2_ontop,nP2_ontop)
 
@@ -969,15 +965,13 @@ cRKCft
                CALL TransActMO(MOs, TabMO,mAO,mGrid,nMOs)
 
                Call Calc_Pot1(PDFTPot1,TabMO,mAO,mGrid,nMOs,P2_ontop,
-     &                        nP2_ontop,dF_dRho,ndF_dRho,
-     &                        MOas)
+     &                        nP2_ontop,MOas)
                Call Calc_Pot2(Work(LTEG_DB),mGrid,P2_ontop,nP2_ontop)
                Call PDFTFock(PDFTFocI,PDFTFocA,D1Unzip,mGrid,MOs)
               end if
              end if
              If(.not.l_casdft) then
-               Call DFT_Int(list_s,nlist_s,
-     &                      FckInt,nFckInt,dF_dRho,ndF_dRho,
+               Call DFT_Int(list_s,nlist_s,FckInt,nFckInt,
      &                      nD,Work(ip_Fact),ndc,list_bas)
              end if
 *                                                                      *
@@ -1001,8 +995,7 @@ cRKCft
 *         from the derivatives of the functional with respect to nabla
 *         rho and/or tau.
 *
-          Call DFT_Int(list_s,nlist_s,
-     &                 FckInt,nFckInt,dF_dRho,ndF_dRho,
+          Call DFT_Int(list_s,nlist_s,FckInt,nFckInt,
      &                 nD,Work(ip_Fact),ndc,list_bas)
 *                                                                      *
 ************************************************************************
@@ -1020,7 +1013,7 @@ cRKCft
 *                                                                      *
       Else
 *
-         Call DFT_Grad(Grad,nGrad,dF_dRho,ndF_dRho,nD,Grid,mGrid,
+         Call DFT_Grad(Grad,nGrad,nD,Grid,mGrid,
      &                 dRho_dR,ndRho_dR,nGrad_Eff,IndGrd,
      &                 Weights,iTab,Temp,F_xc,dW_dR,iNQ)
 *

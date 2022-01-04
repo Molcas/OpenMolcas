@@ -10,8 +10,7 @@
 *                                                                      *
 * Copyright (C) 2010, Yan Zhao                                         *
 ************************************************************************
-      Subroutine CM06(mGrid,dF_dRho,ndF_dRho,
-     &                 CoeffA,iSpin,F_xc,T_X,ijzy)
+      Subroutine CM06(mGrid,CoeffA,iSpin,F_xc,T_X,ijzy)
 ************************************************************************
 *                                                                      *
 *  CM06 evaluates the correlation part of the M06 suite of             *
@@ -35,8 +34,8 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-      Real*8 dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
       Integer mGrid
+      Real*8 F_xc(mGrid)
 
       REAL*8 Pi34, F13,
      &RS,RSP,Zeta,dZdA,dZdB,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ,
@@ -100,7 +99,6 @@ C     Parameters for M06-2X Correlation
 *           dF/dRho
             vRho(1,iGrid)=vRho(1,iGrid)+FPA
 *           dF/dGamma, no Gamma_ab term
-            dF_dRho(ipGxx,iGrid)=dF_dRho(ipGxx,iGrid)+ FGA
             vSigma(1,iGrid)=vSigma(1,iGrid)+ FGA
 *           dF/dTau
             vTau(1,iGrid)=vTau(1,iGrid)+FTA
@@ -128,7 +126,6 @@ C     Parameters for M06-2X Correlation
             vRho(1,iGrid)=vRho(1,iGrid)+EUEGPA*W
      &                                             +EUEG*dWdPA
 *           dF/dGamma
-            dF_dRho(ipGxx,iGrid)=dF_dRho(ipGxx,iGrid)+EUEG*dWdGA
             vSigma(1,iGrid)=vSigma(1,iGrid)+EUEG*dWdGA
 110         continue
          End Do
@@ -145,7 +142,6 @@ C     Parameters for M06-2X Correlation
 *           dF/dRhoa
             vRho(1,igrid)=vRho(1,igrid)+FPA
 *           dF/dGammaaa
-            dF_dRho(ipGaa,igrid)=dF_dRho(ipGaa,iGrid)+ FGA
             vSigma(1,igrid)=vSigma(1,iGrid)+ FGA
 *           dF/dTaua
             vTau(1,igrid)=vTau(1,iGrid)+FTA
@@ -162,7 +158,6 @@ C     Parameters for M06-2X Correlation
 *           dF/dRhob
             vRho(2,igrid)=vRho(2,igrid)+FPB
 *           dF/dGammabb
-            dF_dRho(ipGbb,igrid)=dF_dRho(ipGbb,iGrid)+ FGB
             vSigma(3,igrid)=vSigma(3,iGrid)+ FGB
 *           dF/dTaub
             vTau(2,igrid)=vTau(2,iGrid)+FTB
@@ -200,8 +195,6 @@ C     Parameters for M06-2X Correlation
             vRho(2,iGrid)=vRho(2,iGrid)+EUEGPB*W
      &                                             +EUEG*dWdPB
 *           dF/dGamma
-            dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)+EUEG*dWdGA
-            dF_dRho(ipGbb,iGrid)=dF_dRho(ipGbb,iGrid)+EUEG*dWdGB
             vSigma(1,iGrid)=vSigma(1,iGrid)+EUEG*dWdGA
             vSigma(3,iGrid)=vSigma(3,iGrid)+EUEG*dWdGB
  112        Continue
