@@ -407,14 +407,6 @@
      &                   MOs,MOx,MOy,MOz,TabMO,P2Unzip,mAO,mGrid,nMOs,
      &                   Do_Grad)
        Call Fzero(P2_ontop,nP2_ontop*mGrid)
-      End If
-
-      If (Functional_type.eq.LDA_type) Then
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-       If (l_casdft) then
        If (.not.Do_Grad) then !regular MO-based run
          Call Do_PI2(D1mo,nd1mo,TabMO,mAO,mGrid,
      &               nMOs,P2_ontop,nP2_ontop,Work(ipRhoI),
@@ -434,6 +426,14 @@
      &                   P2MOCube,P2MOCubex,P2MOCubey,P2MOCubez,
      &                   nPMO3p,MOs,MOx,MOy,MOz)
        End If
+      End If
+
+      If (Functional_type.eq.LDA_type) Then
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
+       If (l_casdft) then
        CALL TranslateDens(P2_OnTop,dRho_dr,P2_OnTop_d,
      &                     l_tanhr,nRho,mGrid,nP2_OnTop,
      &                     ndRho_dR,nGrad_Eff,Do_Grad)
@@ -448,25 +448,6 @@
 ************************************************************************
 *                                                                      *
        If (l_casdft) then
-       If (.not.Do_Grad) then !regular MO-based run
-         Call Do_PI2(D1mo,nd1mo,TabMO,mAO,mGrid,
-     &               nMOs,P2_ontop,nP2_ontop,Work(ipRhoI),
-     &               Work(ipRhoA),mRho,Do_Grad,
-     &               P2MOCube,MOs,MOx,MOy,MOz)
-       Else !AO-based run for gradients
-!        nP2_ontop_d = nP2_ontop*mGrid*nGrad_Eff
-        P2_ontop_d(:,:,:) = 0
-        !Determine number of AOs:
-        nAOs = nMOs
-        Call  Do_Pi2grad(TabAO,nTabAO,mAO,mGrid,ipTabAO,
-     &                   P2_ontop,nP2_ontop,Do_Grad,nGrad_Eff,
-     &                   list_s,nlist_s,list_bas,Index,nIndex,
-     &                   D1mo,nd1mo,TabMO,list_g,P2_ontop_d,
-     &                   Work(ipRhoI),Work(ipRhoA),mRho,nMOs,CMOs,
-     &                   nAOs,nCMO,TabSO,nsym,lft,
-     &                   P2MOCube,P2MOCubex,P2MOCubey,P2MOCubez,
-     &                   nPMO3p,MOs,MOx,MOy,MOz)
-       End If
         CALL TranslateDens(P2_OnTop,dRho_dr,P2_OnTop_d,
      &                     l_tanhr,nRho,mGrid,nP2_OnTop,
      &                     ndRho_dR,nGrad_Eff,Do_Grad)
