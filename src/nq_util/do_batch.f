@@ -397,11 +397,8 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-**************************************************************************
-* TLSDA,TLSDA5                                                           *
-**************************************************************************
-       If(KSDFA(1:5).eq.'TLSDA'.or.KSDFA(1:6).eq.'TLSDA5') then !GLM
-        if(Debug) write(6,*) 'in do_batch.f for TLSDA option'
+       If (lft) then
+          if(Debug) write(6,*) 'in do_batch.f for TLSDA option'
 
        nPMO3p=1
        IF(lft.and.lGGA) THEN
@@ -452,19 +449,13 @@
        CALL mma_deallocate(MOy)
        CALL mma_deallocate(MOz)
 **************************************************************************
-       End if !tlsda
-
-cRKCft
-************************************************************************
-* FTLSDA                                                               *
-************************************************************************
-
-       If(KSDFA(1:6).eq.'FTLSDA') then !GLM
+       Else
 
        nPMO3p=1
        IF(lft.and.lGGA) THEN
         nPMO3p=mGrid*NASHT
        END IF
+
        CALL mma_allocate(P2MOCube,mGrid*NASHT)
        CALL mma_allocate(P2MOCubex,nPMO3p)
        CALL mma_allocate(P2MOCubey,nPMO3p)
@@ -509,9 +500,6 @@ cRKCft
        CALL mma_deallocate(MOz)
 
        End if
-
-
-*      ^ end if for GLM stuff
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -521,23 +509,13 @@ cRKCft
 ************************************************************************
 ************************************************************************
 *                                                                      *
-*======================================================================*
-*======================================================================*
-************************************************************************
-* TBLYP,TPBE,TREVPBE,TSSBSW,TSSBD,TS12G                                *
-************************************************************************
-      if(KSDFA(1:5).eq.'TBLYP'.or. !GLM
-     &   KSDFA(1:4).eq.'TPBE'.or.
-     &   KSDFA(1:6).eq.'TSSBSW'.or.
-     &   KSDFA(1:5).eq.'TSSBD'.or.
-     &   KSDFA(1:5).eq.'TS12G'.or.
-     &   KSDFA(1:5).eq.'TOPBE'.or.
-     &   KSDFA(1:7).eq.'TREVPBE') then
+      If (lft) Then
 
        nPMO3p=1
        IF(lft.and.lGGA) THEN
         nPMO3p=mGrid*NASHT
        END IF
+
        CALL mma_allocate(P2MOCube,mGrid*NASHT)
        CALL mma_allocate(P2MOCubex,nPMO3p)
        CALL mma_allocate(P2MOCubey,nPMO3p)
@@ -582,17 +560,8 @@ cRKCft
        CALL mma_deallocate(MOx)
        CALL mma_deallocate(MOy)
        CALL mma_deallocate(MOz)
-      end if
-*======================================================================*
-*======================================================================*
-************************************************************************
-* FTBLYP,FTPBE,FTREVPBE                                                *
-************************************************************************
-      if(KSDFA(1:6).eq.'FTBLYP'.or. !GLM
-     &   KSDFA(1:5).eq.'FTPBE'.or.
-     &   KSDFA(1:6).eq.'FTOPBE'.or.
-     &   KSDFA(1:8).eq.'FTREVPBE') then
-*  *
+      Else
+
        nPMO3p=1
        IF((lft.and.lGGA).and.Do_Grad) THEN
         nPMO3p=mGrid*NASHT
