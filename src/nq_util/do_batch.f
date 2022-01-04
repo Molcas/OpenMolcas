@@ -406,6 +406,7 @@
        CALL CalcP2MOCube(P2MOCube,P2MOCubex,P2MOCubey,P2MOCubez,nPMO3p,
      &                   MOs,MOx,MOy,MOz,TabMO,P2Unzip,mAO,mGrid,nMOs,
      &                   Do_Grad)
+       Call Fzero(P2_ontop,nP2_ontop*mGrid)
       End If
 
       If (Functional_type.eq.LDA_type) Then
@@ -414,7 +415,6 @@
 ************************************************************************
 *                                                                      *
        If (l_casdft) then
-       Call Fzero(P2_ontop,nP2_ontop*mGrid)
        If (.not.Do_Grad) then !regular MO-based run
          Call Do_PI2(D1mo,nd1mo,TabMO,mAO,mGrid,
      &               nMOs,P2_ontop,nP2_ontop,Work(ipRhoI),
@@ -448,7 +448,6 @@
 ************************************************************************
 *                                                                      *
        If (l_casdft) then
-       Call Fzero(P2_ontop,nP2_ontop*mGrid)
        If (.not.Do_Grad) then !regular MO-based run
          Call Do_PI2(D1mo,nd1mo,TabMO,mAO,mGrid,
      &               nMOs,P2_ontop,nP2_ontop,Work(ipRhoI),
