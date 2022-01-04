@@ -33,7 +33,6 @@
       use nq_Grid, only: vRho, vSigma
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "nq_index.fh"
       Real*8 F_xc(mGrid)
       Real*8, Parameter:: T_X=1.0D-20
 

@@ -34,7 +34,6 @@
 #include "ksdft.fh"
       Parameter (Mxdc=MxAtom)
 #include "disp.fh"
-#include "nq_index.fh"
       Real*8 Grad(nGrad), Temp(nGrad_Eff), Grid(3,mGrid),
      &       dRho_dR(ndRho_dR,mGrid,nGrad_Eff), OV(3,3), V(3,3),
      &       R_Grid(3),

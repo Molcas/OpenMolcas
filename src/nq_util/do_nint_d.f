@@ -18,7 +18,6 @@
       use nq_Grid, only: vRho, vSigma, vTau, vLapl
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "nq_index.fh"
 #include "nq_info.fh"
       Real*8 TabAO1(mAO,mGrid,nBfn), Grid_AO(nFn,mGrid,nBfn,iSpin)
 *                                                                      *
