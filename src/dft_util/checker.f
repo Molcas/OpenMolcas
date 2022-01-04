@@ -13,7 +13,7 @@
      &                   dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_Z)
       Implicit Real*8 (A-H,O-Z)
       External LSDA, BLYP, BPBE, B3LYP, B2PLYP, HFS, HFB, HFO,
-     &  XAlpha, LSDA5, B3LYP5,TLYP,NLYP, OLYP, O3LYP, OPBE,
+     &  XAlpha, LSDA5, B3LYP5,TLYP, OLYP, O3LYP, OPBE,
      &  SSBSW, SSBD, PBE, PBESOL, PBE0, M06L, M06, M062X, M06HF, O2PLYP,
      & HFG, GLYP, GPBE, HFB86, B86LYP, B86PBE, BWIG, KT3,
      & KT2, RGE2, PTCA
@@ -201,16 +201,6 @@
      &              F_xc1,F_xc2,
      &              F_xc3,F_xc4,
      &              dF_temp,Rho_temp)
-#ifdef _SKIP_
-*---- NLYP
-      Call Checker_(mGrid,Rho,nRho,P2_ontop,
-     &              nP2_ontop,iSpin,F_xc,
-     &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
-     &              NLYP,Functional_type,'NLYP',
-     &              F_xc1,F_xc2,
-     &              F_xc3,F_xc4,
-     &              dF_temp,Rho_temp)
-#endif
 *---- B3LYP
       Call Checker_(mGrid,Rho,nRho,P2_ontop,
      &              nP2_ontop,iSpin,F_xc,

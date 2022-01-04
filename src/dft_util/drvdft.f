@@ -14,7 +14,7 @@
       use KSDFT_Info, only: KSDFA, funcaa, funcbb, funccc
       Implicit Real*8 (a-h,o-z)
       External LSDA, Overlap, BLYP, BPBE, B3LYP, HFS, HFB,
-     &         XAlpha, LSDA5, B3LYP5, B2PLYP, TLYP, NLYP,
+     &         XAlpha, LSDA5, B3LYP5, B2PLYP, TLYP,
      &         NucAtt, NEWF, NEWF1, OLYP, O3LYP, OPBE,
      &         PBE, PBE0, PBEsol, M06L, M06, M062X, HFO,
      &         M06HF, Checker, SSBSW, SSBD, HFG, GLYP, GPBE,
@@ -508,22 +508,6 @@ c         write(6,*) 'Func in drvdft :', Func
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
          Call DrvNQ(TLYP   ,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     NLYP                                                             *
-*                                                                      *
-      Else If (KSDFT.eq.'NLYP') Then
-         ExFac=Get_ExFac(KSDFT)
-         Functional_type=GGA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
-         Call DrvNQ(NLYP   ,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,

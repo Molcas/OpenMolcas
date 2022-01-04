@@ -71,7 +71,7 @@
      &                           KSDFT)
       Implicit Real*8 (a-h,o-z)
       External LSDA, Overlap, BLYP, B3LYP, HFS, HFB,
-     &         XAlpha, LSDA5, B3LYP5,TLYP,NLYP,
+     &         XAlpha, LSDA5, B3LYP5,TLYP,
      &         NucAtt, NEWF, NEWF1,
      &         PBE, PBE0, M06L, M06, M062X,
      &         M06HF, Checker
@@ -219,19 +219,6 @@ c        ExFac=Get_ExFac(KSDFT)
 c        ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Call DrvNQ(TLYP   ,Work(ipF_DFT),nFckDim,Func,
-     &              Work(ip_D_DS),nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     NLYP
-*
-      Else If (KSDFT.eq.'NLYP') Then
-c        ExFac=Get_ExFac(KSDFT)
-         Functional_type=GGA_type
-         Call DrvNQ(NLYP   ,Work(ipF_DFT),nFckDim,Func,
      &              Work(ip_D_DS),nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,

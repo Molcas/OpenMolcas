@@ -27,7 +27,7 @@
       use Symmetry_Info, only: nIrrep
       use KSDFT_Info, only: KSDFA, F_xca, F_xcb, TmpB
       use nq_Grid, only: Rho, GradRho, Sigma, Tau, Lapl
-      use nq_Grid, only: vRho, vTau
+      use nq_Grid, only: vRho, vTau, vLapl
       use nq_Grid, only: Grid, Weights
       use nq_Grid, only: nRho, nGradRho, nTau, nSigma, nLapl, nGridMax
       use nq_Grid, only: l_CASDFT, kAO
@@ -401,6 +401,7 @@
       End If
       If (nLapl.ne.0) Then
          Call mma_allocate(Lapl,nLapl,nGridMax,Label='Lapl')
+         Call mma_allocate(vLapl,nLapl,nGridMax,Label='vLapl')
       End If
 
       Call mma_allocate(Exc,nGridMax,Label='Exc')
@@ -600,7 +601,10 @@
       End If
       Call mma_deallocate(Exc)
 *
-      If (Allocated(Lapl)) Call mma_deallocate(Lapl)
+      If (Allocated(Lapl)) Then
+         Call mma_deallocate(vLapl)
+         Call mma_deallocate(Lapl)
+      End If
       If (Allocated(Tau)) Then
          Call mma_deallocate(vTau)
          Call mma_deallocate(Tau)
