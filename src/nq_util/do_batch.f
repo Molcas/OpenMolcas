@@ -437,6 +437,27 @@
          CALL mma_deallocate(MOx)
          CALL mma_deallocate(MOy)
          CALL mma_deallocate(MOz)
+      If (lGGA) Then
+         If (nD.eq.1) Then
+            Do iGrid=1, mGrid
+               Sigma(1,iGrid)=GradRho(1,iGrid)**2
+     &                       +GradRho(2,iGrid)**2
+     &                       +GradRho(3,iGrid)**2
+            End Do
+         Else
+            Do iGrid=1, mGrid
+               Sigma(1,iGrid)=GradRho(1,iGrid)**2
+     &                       +GradRho(2,iGrid)**2
+     &                       +GradRho(3,iGrid)**2
+               Sigma(2,iGrid)=GradRho(1,iGrid)*GradRho(4,iGrid)
+     &                       +GradRho(2,iGrid)*GradRho(5,iGrid)
+     &                       +GradRho(3,iGrid)*GradRho(6,iGrid)
+               Sigma(3,iGrid)=GradRho(4,iGrid)**2
+     &                       +GradRho(5,iGrid)**2
+     &                       +GradRho(6,iGrid)**2
+            End Do
+         End If
+      End If
       End If
 
       If (Functional_type.eq.LDA_type) Then
@@ -494,27 +515,6 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-      If (l_casdft.and.lGGA) Then
-         If (nD.eq.1) Then
-            Do iGrid=1, mGrid
-               Sigma(1,iGrid)=GradRho(1,iGrid)**2
-     &                       +GradRho(2,iGrid)**2
-     &                       +GradRho(3,iGrid)**2
-            End Do
-         Else
-            Do iGrid=1, mGrid
-               Sigma(1,iGrid)=GradRho(1,iGrid)**2
-     &                       +GradRho(2,iGrid)**2
-     &                       +GradRho(3,iGrid)**2
-               Sigma(2,iGrid)=GradRho(1,iGrid)*GradRho(4,iGrid)
-     &                       +GradRho(2,iGrid)*GradRho(5,iGrid)
-     &                       +GradRho(3,iGrid)*GradRho(6,iGrid)
-               Sigma(3,iGrid)=GradRho(4,iGrid)**2
-     &                       +GradRho(5,iGrid)**2
-     &                       +GradRho(6,iGrid)**2
-            End Do
-         End If
-      End If
 *                                                                      *
 ************************************************************************
 ************************************************************************
