@@ -15,7 +15,7 @@
       Implicit Real*8 (a-h,o-z)
       External LSDA, Overlap, BLYP, BPBE, B3LYP, HFS, HFB,
      &         XAlpha, LSDA5, B3LYP5, B2PLYP, TLYP,
-     &         NucAtt, NEWF, NEWF1, OLYP, O3LYP, OPBE,
+     &         NucAtt, OLYP, O3LYP, OPBE,
      &         PBE, PBE0, PBEsol, M06L, M06, M062X, HFO,
      &         M06HF, SSBSW, SSBD, HFG, GLYP, GPBE,
      &         HFB86, B86LYP, B86PBE, BWIG, KT3,
@@ -834,37 +834,6 @@ c         write(6,*) 'Func in drvdft :', Func
      &              Do_Grad,
      &              Grad,nGrad,
      &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*                                                                      *
-*     CASDFT functionals:                                              *
-*                                                                      *
-      Else If (KSDFT(1:4).eq.'NEWF') Then
-*                                                                      *
-*        These functionals are still under construction.               *
-*        The code, written by S.G. & C., will be now modified by       *
-*                      Giovanni Ghigo (CGG)                            *
-*                                                                      *
-         Do_Grad  = .False.
-         Do_MO    = .True.
-         Do_TwoEl = .True.
-*
-         ExFac=Get_ExFac(KSDFT)
-         Functional_type=CASDFT_type
-         nFckDim = 2
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
-         If ( KSDFT(5:5).eq.'0' )
-     &      Call DrvNQ(NEWF ,F_DFT,nFckDim,Func,
-     &                 D_DS,nh1,nD,Do_Grad,
-     &                 Grad,nGrad,
-     &                 Do_MO,Do_TwoEl,DFTFOCK)
-         If ( KSDFT(5:5).eq.'1' )
-     &      Call DrvNQ(NEWF1 ,F_DFT,nFckDim,Func,
-     &                 D_DS,nh1,nD,Do_Grad,
-     &                 Grad,nGrad,
-     &                 Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *

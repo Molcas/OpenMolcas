@@ -314,14 +314,6 @@ C   No changing about read in orbital information from INPORB yet.
          If(KSDFT(1:5).eq.'TOPBE')
      &     write(6,*) ' TOPBE functional aka OPBE for MCPDFT'
        End if
-CGG Calibration of A, B, C, and D coefficients in SG's NewFunctional 1
-       If ( KSDFT(1:4).eq.'NEWF') Then
-         ReadStatus=' Failure reading data following KSDF=NEWF.'
-         Read(LUInput,*,End=9910,Err=9920)
-     &                                       Acoef,Bcoef,Ccoef,Dcoef
-         ReadStatus=' O.K. after reading data following KSDF=NEWF.'
-       End If
-CGG This part will be removed. (PAM 2009: What on earth does he mean??)
       ExFac=Get_ExFac(KSDFT)
 *******
 *

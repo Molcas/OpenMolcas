@@ -72,7 +72,7 @@
       Implicit Real*8 (a-h,o-z)
       External LSDA, Overlap, BLYP, B3LYP, HFS, HFB,
      &         XAlpha, LSDA5, B3LYP5,TLYP,
-     &         NucAtt, NEWF, NEWF1,
+     &         NucAtt,
      &         PBE, PBE0, M06L, M06, M062X,
      &         M06HF
 #include "real.fh"
