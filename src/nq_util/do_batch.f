@@ -38,7 +38,7 @@
       use Phase_Info
       use KSDFT_Info
       use nq_Grid, only: Grid, Weights, Rho, GradRho, Sigma, nRho
-      use nq_Grid, only: vRho, vTau, vLapl
+      use nq_Grid, only: vRho, vSigma, vTau, vLapl
       use nq_Grid, only: l_CASDFT, TabAO, TabAO_Pack, dRho_dR
       use nq_pdft
       Implicit Real*8 (A-H,O-Z)
@@ -811,6 +811,7 @@ cRKCft
 *                                                                      *
       dF_dRho(:,1:mGrid)=Zero
       vRho(:,1:mGrid)=Zero
+      If (Allocated(vSigma)) vSigma(:,1:mGrid)=Zero
       If (Allocated(vTau)) vTau(:,1:mGrid)=Zero
       If (Allocated(vLapl)) vLapl(:,1:mGrid)=Zero
       F_xc(1:mGrid)=Zero

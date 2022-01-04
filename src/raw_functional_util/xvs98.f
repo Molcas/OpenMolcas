@@ -31,7 +31,7 @@
 *  YZ (10/07)                                                          *
 ************************************************************************
       use nq_Grid, only: Rho, Sigma, Tau
-      use nq_Grid, only: vRho, vTau
+      use nq_Grid, only: vRho, vSigma, vTau
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
@@ -144,6 +144,7 @@ c
      &                  rho43*(dgdx*dxdr + dgdz*dzdr)
 *        dF/dGamma
          dF_dRho(ipGxx,iGrid)=dF_dRho(ipGxx,iGrid)+rho43*(dgdx*dxdg)
+         vSigma(1,iGrid)=vSigma(1,iGrid)+rho43*(dgdx*dxdg)
 *        dF/dTau
          vTau(1,iGrid)=vTau(1,iGrid)+ rho43*(dgdz*dzdt)
 110     continue
@@ -184,6 +185,7 @@ c
      &                  rho43*(dgdx*dxdr + dgdz*dzdr)
 *        dF/dGammaaa
          dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)+rho43*(dgdx*dxdg)
+         vSigma(1,iGrid)=vSigma(1,iGrid)+rho43*(dgdx*dxdg)
 *        dF/dTaua
          vTau(1,iGrid)=vTau(1,iGrid)+ rho43*(dgdz*dzdt)
 210      continue
@@ -219,6 +221,7 @@ c
      &                  rho43*(dgdx*dxdr + dgdz*dzdr)
 *        dF/dGammabb
          dF_dRho(ipGbb,iGrid)=dF_dRho(ipGbb,iGrid)+rho43*(dgdx*dxdg)
+         vSigma(3,iGrid)=vSigma(3,iGrid)+rho43*(dgdx*dxdg)
 *        dF/dTaub
          vTau(2,iGrid)=vTau(2,iGrid)+ rho43*(dgdz*dzdt)
 310      continue

@@ -662,9 +662,7 @@ C        If (V_a.eq.Zero) Rel_Diff=Abs(V_n)
      &         +Rho(ipdRy,iGrid)**2
      &         +Rho(ipdRz,iGrid)**2
             Gaa1o2=Sqrt(Gaa)
-            Gab=Gaa
             V_a=dF_dRho(ipGxx,iGrid)*Two*Gaa1o2
-     &         +dF_dRho(ipGxy,iGrid)*Gab/Gaa1o2
             Delta0=Delta*Sqrt(Gaa)*Two
          Else
             If (Tf*Rho(ipRa,iGrid).lt.T_x) Go To 199
