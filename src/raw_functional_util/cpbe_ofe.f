@@ -84,7 +84,8 @@
          vRho(1,iGrid)=vRho(1,iGrid)+Coeff*func1(1)
 * Maybe derivatives w.r.t. gamma_aa, gamma_ab, gamma_bb should be used instead.
          dF_dRho(ipGxx,iGrid)=dF_dRho(ipGxx,iGrid)+Coeff*func1(2)
-         dF_dRho(ipGxy,iGrid)=dF_dRho(ipGxy,iGrid)+Coeff*2.0D0*func1(2)
+     &                                            +Coeff*func1(2)
+*        dF_dRho(ipGxy,iGrid)=dF_dRho(ipGxy,iGrid)+Coeff*2.0D0*func1(2)
  110     continue
         end do
       else

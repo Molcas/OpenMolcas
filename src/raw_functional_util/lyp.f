@@ -140,8 +140,9 @@
 *      dF/dGaa
        dF_dRho(ipGxx,iGrid)=dF_dRho(ipGxx,iGrid)
      &                     +Coeff*(dec34dsa+dec34ds)
+     &                     +Coeff*(dec34ds)
 *      dF/dGab
-       dF_dRho(ipGxy,iGrid)=dF_dRho(ipGxy,iGrid)+2.0d0*Coeff*(dec34ds)
+*      dF_dRho(ipGxy,iGrid)=dF_dRho(ipGxy,iGrid)+2.0d0*Coeff*(dec34ds)
 101   Continue
       End Do
 
