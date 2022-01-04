@@ -385,6 +385,13 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
+      If (l_casdft) then
+         T_Rho=T_X*1.0D-4
+         Dens_t1=Dens_t1+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,0)
+         Dens_a1=Dens_a1+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,1)
+         Dens_b1=Dens_b1+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,2)
+      End If
+
       If (Functional_type.eq.LDA_type) Then
 *                                                                      *
 ************************************************************************
@@ -396,10 +403,6 @@
        If(KSDFA(1:5).eq.'TLSDA'.or.KSDFA(1:6).eq.'TLSDA5') then !GLM
         if(Debug) write(6,*) 'in do_batch.f for TLSDA option'
 
-        T_Rho=T_X*1.0D-4
-        Dens_t1=Dens_t1+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,0)
-        Dens_a1=Dens_a1+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,1)
-        Dens_b1=Dens_b1+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,2)
        lft=.false.
        lGGA=.false.
 
@@ -407,6 +410,7 @@
        IF(lft.and.lGGA) THEN
         nPMO3p=mGrid*NASHT
        END IF
+
        CALL mma_allocate(P2MOCube,mGrid*NASHT)
        CALL mma_allocate(P2MOCubex,nPMO3p)
        CALL mma_allocate(P2MOCubey,nPMO3p)
@@ -459,11 +463,6 @@ cRKCft
 ************************************************************************
 
        If(KSDFA(1:6).eq.'FTLSDA') then !GLM
-
-         T_Rho=T_X*1.0D-4
-         Dens_t1=Dens_t1+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,0)
-         Dens_a1=Dens_a1+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,1)
-         Dens_b1=Dens_b1+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,2)
 
        lft=.true.
        lGGA=.false.
@@ -540,10 +539,7 @@ cRKCft
      &   KSDFA(1:5).eq.'TS12G'.or.
      &   KSDFA(1:5).eq.'TOPBE'.or.
      &   KSDFA(1:7).eq.'TREVPBE') then
-        T_Rho=T_X*1.0D-4
-        Dens_t1=Dens_t1+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,0)
-        Dens_a1=Dens_a1+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,1)
-        Dens_b1=Dens_b1+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,2)
+
        lft=.false.
        lGGA=.true.
 
@@ -608,10 +604,6 @@ cRKCft
 *  *
        lft=.true.
        lGGA=.true.
-       T_Rho=T_X*1.0D-4
-       Dens_t1=Dens_t1+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,0)
-       Dens_a1=Dens_a1+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,1)
-       Dens_b1=Dens_b1+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,2)
 
        nPMO3p=1
        IF((lft.and.lGGA).and.Do_Grad) THEN
