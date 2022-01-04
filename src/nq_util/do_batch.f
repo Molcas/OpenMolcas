@@ -394,6 +394,15 @@
          nPMO3p=1
          IF (lft.and.lGGA) nPMO3p=mGrid*NASHT
 
+         CALL mma_allocate(P2MOCube,mGrid*NASHT)
+         CALL mma_allocate(P2MOCubex,nPMO3p)
+         CALL mma_allocate(P2MOCubey,nPMO3p)
+         CALL mma_allocate(P2MOCubez,nPMO3p)
+         CALL mma_allocate(MOs,mGrid*NASHT)
+         CALL mma_allocate(MOx,mGrid*NASHT)
+         CALL mma_allocate(MOy,mGrid*NASHT)
+         CALL mma_allocate(MOz,mGrid*NASHT)
+
       End If
 
       If (Functional_type.eq.LDA_type) Then
@@ -403,14 +412,6 @@
 *                                                                      *
        If (l_casdft.and.lft) then
 
-       CALL mma_allocate(P2MOCube,mGrid*NASHT)
-       CALL mma_allocate(P2MOCubex,nPMO3p)
-       CALL mma_allocate(P2MOCubey,nPMO3p)
-       CALL mma_allocate(P2MOCubez,nPMO3p)
-       CALL mma_allocate(MOs,mGrid*NASHT)
-       CALL mma_allocate(MOx,mGrid*NASHT)
-       CALL mma_allocate(MOy,mGrid*NASHT)
-       CALL mma_allocate(MOz,mGrid*NASHT)
 
        CALL CalcP2MOCube(P2MOCube,P2MOCubex,P2MOCubey,P2MOCubez,nPMO3p,
      &                   MOs,MOx,MOy,MOz,TabMO,P2Unzip,mAO,mGrid,nMOs,
@@ -448,15 +449,6 @@
        CALL mma_deallocate(MOz)
 **************************************************************************
        ElseIf (l_casdft) Then
-
-       CALL mma_allocate(P2MOCube,mGrid*NASHT)
-       CALL mma_allocate(P2MOCubex,nPMO3p)
-       CALL mma_allocate(P2MOCubey,nPMO3p)
-       CALL mma_allocate(P2MOCubez,nPMO3p)
-       CALL mma_allocate(MOs,mGrid*NASHT)
-       CALL mma_allocate(MOx,mGrid*NASHT)
-       CALL mma_allocate(MOy,mGrid*NASHT)
-       CALL mma_allocate(MOz,mGrid*NASHT)
 
        CALL CalcP2MOCube(P2MOCube,P2MOCubex,P2MOCubey,P2MOCubez,nPMO3p,
      &                   MOs,MOx,MOy,MOz,TabMO,P2Unzip,mAO,mGrid,nMOs,
@@ -504,15 +496,6 @@
 *                                                                      *
       If (l_casdft.and.lft) Then
 
-       CALL mma_allocate(P2MOCube,mGrid*NASHT)
-       CALL mma_allocate(P2MOCubex,nPMO3p)
-       CALL mma_allocate(P2MOCubey,nPMO3p)
-       CALL mma_allocate(P2MOCubez,nPMO3p)
-       CALL mma_allocate(MOs,mGrid*NASHT)
-       CALL mma_allocate(MOx,mGrid*NASHT)
-       CALL mma_allocate(MOy,mGrid*NASHT)
-       CALL mma_allocate(MOz,mGrid*NASHT)
-
        CALL CalcP2MOCube(P2MOCube,P2MOCubex,P2MOCubey,P2MOCubez,nPMO3p,
      &                   MOs,MOx,MOy,MOz,TabMO,P2Unzip,mAO,mGrid,nMOs,
      &                   Do_Grad)
@@ -549,15 +532,6 @@
        CALL mma_deallocate(MOy)
        CALL mma_deallocate(MOz)
        ElseIf (l_casdft) Then
-
-       CALL mma_allocate(P2MOCube,mGrid*NASHT)
-       CALL mma_allocate(P2MOCubex,nPMO3p)
-       CALL mma_allocate(P2MOCubey,nPMO3p)
-       CALL mma_allocate(P2MOCubez,nPMO3p)
-       CALL mma_allocate(MOs,mGrid*NASHT)
-       CALL mma_allocate(MOx,mGrid*NASHT)
-       CALL mma_allocate(MOy,mGrid*NASHT)
-       CALL mma_allocate(MOz,mGrid*NASHT)
 
        CALL CalcP2MOCube(P2MOCube,P2MOCubex,P2MOCubey,P2MOCubez,nPMO3p,
      &                   MOs,MOx,MOy,MOz,TabMO,P2Unzip,mAO,mGrid,nMOs,
