@@ -390,6 +390,10 @@
          Dens_t1=Dens_t1+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,0)
          Dens_a1=Dens_a1+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,1)
          Dens_b1=Dens_b1+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,2)
+
+         nPMO3p=1
+         IF (lft.and.lGGA) nPMO3p=mGrid*NASHT
+
       End If
 
       If (Functional_type.eq.LDA_type) Then
@@ -398,11 +402,6 @@
 ************************************************************************
 *                                                                      *
        If (l_casdft.and.lft) then
-
-       nPMO3p=1
-       IF(lft.and.lGGA) THEN
-        nPMO3p=mGrid*NASHT
-       END IF
 
        CALL mma_allocate(P2MOCube,mGrid*NASHT)
        CALL mma_allocate(P2MOCubex,nPMO3p)
@@ -449,11 +448,6 @@
        CALL mma_deallocate(MOz)
 **************************************************************************
        ElseIf (l_casdft) Then
-
-       nPMO3p=1
-       IF(lft.and.lGGA) THEN
-        nPMO3p=mGrid*NASHT
-       END IF
 
        CALL mma_allocate(P2MOCube,mGrid*NASHT)
        CALL mma_allocate(P2MOCubex,nPMO3p)
@@ -510,11 +504,6 @@
 *                                                                      *
       If (l_casdft.and.lft) Then
 
-       nPMO3p=1
-       IF(lft.and.lGGA) THEN
-        nPMO3p=mGrid*NASHT
-       END IF
-
        CALL mma_allocate(P2MOCube,mGrid*NASHT)
        CALL mma_allocate(P2MOCubex,nPMO3p)
        CALL mma_allocate(P2MOCubey,nPMO3p)
@@ -561,10 +550,6 @@
        CALL mma_deallocate(MOz)
        ElseIf (l_casdft) Then
 
-       nPMO3p=1
-       IF((lft.and.lGGA).and.Do_Grad) THEN
-        nPMO3p=mGrid*NASHT
-       END IF
        CALL mma_allocate(P2MOCube,mGrid*NASHT)
        CALL mma_allocate(P2MOCubex,nPMO3p)
        CALL mma_allocate(P2MOCubey,nPMO3p)
