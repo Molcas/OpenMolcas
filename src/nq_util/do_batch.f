@@ -434,19 +434,9 @@
      &                   P2MOCube,P2MOCubex,P2MOCubey,P2MOCubez,
      &                   nPMO3p,MOs,MOx,MOy,MOz)
        End If
-       End if
-       If (l_casdft.and.lft) then
-
-
        CALL TranslateDens(P2_OnTop,dRho_dr,P2_OnTop_d,
      &                     l_tanhr,nRho,mGrid,nP2_OnTop,
      &                     ndRho_dR,nGrad_Eff,Do_Grad)
-**************************************************************************
-       ElseIf (l_casdft) Then
-
-       CALL TranslateDens(P2_OnTop,dRho_dr,P2_OnTop_d,
-     &                    l_tanhr,nRho,mGrid,nP2_OnTop,
-     &                    ndRho_dR,nGrad_Eff,Do_Grad)
        End if
 *                                                                      *
 ************************************************************************
@@ -481,24 +471,10 @@
      &                   P2MOCube,P2MOCubex,P2MOCubey,P2MOCubez,
      &                   nPMO3p,MOs,MOx,MOy,MOz)
        End If
-       End if
-      If (l_casdft.and.lft) Then
-
-
         CALL TranslateDens(P2_OnTop,dRho_dr,P2_OnTop_d,
      &                     l_tanhr,nRho,mGrid,nP2_OnTop,
      &                     ndRho_dR,nGrad_Eff,Do_Grad)
-       ElseIf (l_casdft) Then
-
-*
-          CALL TranslateDens(P2_OnTop,dRho_dr,P2_OnTop_d,
-     &                       l_tanhr,nRho,mGrid,nP2_OnTop,
-     &                       ndRho_dR,nGrad_Eff,Do_Grad)
-
-       end if
-*======================================================================*
-*======================================================================*
-
+       End if
 *                                                                      *
 ************************************************************************
 ************************************************************************
