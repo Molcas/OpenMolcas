@@ -31,8 +31,8 @@
       integer*4, parameter :: func_id = 1
 
       ! Initialize memory
-      func = 0.0
-      dfunc_drho = 0.0
+      func(:) = 0.0
+      dfunc_drho(:,:) = 0.0
 
       ! Initialize libxc functional: nRho = 2 means spin-polarized
       call xc_f03_func_init(xc_func, func_id, int(nRho, 4))
@@ -55,20 +55,13 @@
             vRho(1,iGrid) = vRho(1,iGrid) + Coeff*dfunc_drho(1, iGrid)
          End Do
       Else
+         Do iGrid = 1, mGrid
+            F_xc(iGrid) =F_xc(iGrid) +Coeff*func(iGrid)*(Rho(1, iGrid) + Rho(2, iGrid))
+            vRho(1,iGrid) = vRho(1,iGrid) + Coeff*dfunc_drho(1, iGrid)
+            vRho(2,iGrid) = vRho(2,iGrid) + Coeff*dfunc_drho(2, iGrid)
+         End Do
          If (l_casdft) Then
-            Do iGrid = 1, mGrid
-               F_xc(iGrid) =F_xc(iGrid) +Coeff*func(iGrid)*(Rho(1, iGrid) + Rho(2, iGrid))
-               F_xca(iGrid) =F_xca(iGrid) +Coeff*func(iGrid)*Rho(1, iGrid)
-               F_xcb(iGrid) =F_xcb(iGrid) +Coeff*func(iGrid)*Rho(2, iGrid)
-               vRho(1,iGrid) = vRho(1,iGrid) + Coeff*dfunc_drho(1, iGrid)
-               vRho(2,iGrid) = vRho(2,iGrid) + Coeff*dfunc_drho(2, iGrid)
-            End Do
-         Else
-            Do iGrid = 1, mGrid
-               F_xc(iGrid) =F_xc(iGrid) +Coeff*func(iGrid)*(Rho(1, iGrid) + Rho(2, iGrid))
-               vRho(1,iGrid) = vRho(1,iGrid) + Coeff*dfunc_drho(1, iGrid)
-               vRho(2,iGrid) = vRho(2,iGrid) + Coeff*dfunc_drho(2, iGrid)
-            End Do
+            ! more to come here.
          End If
       End If
 
