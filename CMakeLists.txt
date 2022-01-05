@@ -1640,7 +1640,7 @@ else ()
 endif ()
 message ("-- Libxc_INCLUDE_DIRS: ${Libxc_INCLUDE_DIRS}")
 message ("-- Libxc_LIBRARIES: ${Libxc_LIBRARIES}")
-list (APPEND dft_util_incs ${Libxc_INCLUDE_DIRS})
+list (APPEND raw_functional_util_incs ${Libxc_INCLUDE_DIRS})
 list (APPEND EXTERNAL_LIBRARIES ${Libxc_LIBRARIES})
 
 # Global Arrays settings
