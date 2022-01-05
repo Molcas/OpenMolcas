@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2001, Roland Lindh                                     *
 ************************************************************************
-      Subroutine DrvNQ(Kernel,FckInt,nFckDim,Func,
+      Subroutine DrvNQ(Kernel,FckInt,nFckDim,Funct,
      &                 Density,nFckInt,nD,
      &                 Do_Grad,Grad,nGrad,
      &                 Do_MO,Do_TwoEl,DFTFOCK)
@@ -33,6 +33,7 @@
       use nq_Grid, only: l_CASDFT, kAO
       use nq_Grid, only: Exc
       use nq_pdft, only: lft, lGGA
+      use libxc
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "real.fh"
@@ -372,6 +373,7 @@
 *                                                                      *
       Call mma_allocate(Rho,nRho,nGridMax,Label='Rho')
       Call mma_allocate(vRho,nRho,nGridMax,Label='vRho')
+      Call mma_allocate(dfunc_drho,nRho,nGridMax,Label='dfunc_drho')
       If (nSigma.ne.0) Then
          Call mma_Allocate(Sigma,nSigma,nGridMax,Label='Sigma')
          Call mma_Allocate(vSigma,nSigma,nGridMax,Label='vSigma')
@@ -389,6 +391,7 @@
       End If
 
       Call mma_allocate(Exc,nGridMax,Label='Exc')
+      Call mma_allocate(func,nGridMax,Label='func')
       If (l_casdft) Then
          Call mma_allocate(F_xca,nGridMax,Label='F_xca')
          Call mma_allocate(F_xcb,nGridMax,Label='F_xcb')
@@ -527,7 +530,7 @@
       end if
 
       Call DrvNQ_Inner(
-     &            Kernel,Func,
+     &            Kernel,Funct,
      &            iWork(ips2p),nIrrep,
      &            iWork(iplist_s),iWork(iplist_exp),iWork(iplist_bas),
      &            nShell,iWork(iplist_p),Work(ipR2_trail),nNQ,
@@ -575,6 +578,7 @@
          Call mma_deallocate(F_xcb)
          Call mma_deallocate(F_xca)
       End If
+      Call mma_deallocate(func)
       Call mma_deallocate(Exc)
 *
       If (Allocated(Lapl)) Then
@@ -590,6 +594,7 @@
          Call mma_deallocate(Sigma)
          Call mma_deallocate(vSigma)
       End If
+      Call mma_deallocate(dfunc_dRho)
       Call mma_deallocate(vRho)
       Call mma_deallocate(Rho)
 

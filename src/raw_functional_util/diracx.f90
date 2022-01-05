@@ -16,13 +16,11 @@
       use xc_f03_lib_m
       use nq_Grid, only: Rho, vRho, l_casdft
       use KSDFT_Info, only: F_xca, F_xcb
+      use libxc
       implicit none
       Real*8 :: F_xc(mGrid)
       Real*8 :: Coeff
       integer :: mgrid, nD, iGrid, nRho
-
-      ! Work memory for libxc
-      Real*8 :: func(mGrid), dfunc_drho(nD,mGrid)
 
       ! xc functional
       TYPE(xc_f03_func_t) :: xc_func
