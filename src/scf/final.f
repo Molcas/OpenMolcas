@@ -567,6 +567,7 @@ c make a fix for energies for deleted orbitals
       Write(6,Fmt)'- - - - - - - - - - - - - - - - - - - - - - - - -'
      &          //' - - - - - - - - -'
       Do iFld = 1, nFldP
+         If ((iFld.eq.11).or.(iFld.eq.12)) Cycle
          Write(6,'(2x,A45,2f10.2)')NamFld(iFld),TimFld(iFld),
      &                             TimFld(iFld)/TotCpu
       End Do

@@ -10,20 +10,20 @@
 *                                                                      *
 * Copyright (C) 2000, Roland Lindh                                     *
 ************************************************************************
-      Subroutine DiracX(mGrid,iSpin,F_xc,dF_dRho,
-     &                  ndF_dRho,Coeff,T_X)
+      Subroutine DiracX(mGrid,iSpin,F_xc,Coeff)
 ************************************************************************
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. November 2000                           *
 ************************************************************************
 C-Ajitha Modifying the kernel output structure
       use KSDFT_Info, only: F_xca, F_xcb
-      use nq_Grid, only: Rho
+      use nq_Grid, only: Rho, l_casdft
+      use nq_Grid, only: vRho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "nq_index.fh"
 #include "ksdft.fh"
-      Real*8 dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
+      Real*8 F_xc(mGrid)
+      Real*8, Parameter:: T_X=1.0D-20
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -62,7 +62,7 @@ C-Ajitha Modifying the kernel output structure
          func_d_rho_alpha=-CVX*d_alpha**THIRD
 *
 
-         dF_dRho(ipR,iGrid) = dF_dRho(ipR,iGrid)
+         vRho(1,iGrid) = vRho(1,iGrid)
      &                               + Coeff*func_d_rho_alpha
 *
  100     Continue
@@ -77,11 +77,12 @@ C-Ajitha Modifying the kernel output structure
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      If (l_casdft) Then
       Do iGrid = 1, mGrid
          d_alpha =Max(Rho_Min,Rho(1,iGrid))
          d_beta  =Max(Rho_Min,Rho(2,iGrid))
          DTot=d_alpha+d_beta
-         If (DTot.lt.T_X) Go To 200
+         If (DTot.lt.T_X) Cycle
 *------- Exchange contributions to energy
 *
          functional =-Three/Four*CVX*(d_alpha**FTHIRD+d_beta**FTHIRD)
@@ -96,14 +97,35 @@ C-Ajitha Modifying the kernel output structure
          func_d_rho_alpha=-CVX*d_alpha**THIRD
          func_d_rho_beta =-CVX*d_beta **THIRD
 *
-         dF_dRho(ipRa,iGrid) = dF_dRho(ipRa,iGrid)
+         vRho(1,iGrid) = vRho(1,iGrid)
      &                               + Coeff*func_d_rho_alpha
-         dF_dRho(ipRb,iGrid) = dF_dRho(ipRb,iGrid)
+         vRho(2,iGrid) = vRho(2,iGrid)
      &                               + Coeff*func_d_rho_beta
 *
- 200     Continue
+      End Do
+      Else
+      Do iGrid = 1, mGrid
+         d_alpha =Max(Rho_Min,Rho(1,iGrid))
+         d_beta  =Max(Rho_Min,Rho(2,iGrid))
+         DTot=d_alpha+d_beta
+         If (DTot.lt.T_X) Cycle
+*------- Exchange contributions to energy
+*
+         functional =-Three/Four*CVX*(d_alpha**FTHIRD+d_beta**FTHIRD)
+         F_xc(iGrid) =F_xc(iGrid) +Coeff*functional
+*
+*------- Exchange contributions to the AO integrals
+*
+         func_d_rho_alpha=-CVX*d_alpha**THIRD
+         func_d_rho_beta =-CVX*d_beta **THIRD
+*
+         vRho(1,iGrid) = vRho(1,iGrid)
+     &                               + Coeff*func_d_rho_alpha
+         vRho(2,iGrid) = vRho(2,iGrid)
+     &                               + Coeff*func_d_rho_beta
 *
       End Do
+      End If
 *
       End If
 *

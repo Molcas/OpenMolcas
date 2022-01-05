@@ -11,6 +11,10 @@
       Subroutine Proc_InpX(DSCF,iRc)
 
 ! module dependencies
+#ifdef module_DMRG
+!     use molcas_dmrg_interface !stknecht: Maquis-DMRG program
+#endif
+      use Fock_util_global, only: DoCholesky
 #ifdef _HDF5_
       Use mh5, Only: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,
      &               mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset,
@@ -57,11 +61,7 @@
 
       Logical DBG
 
-#include "chlcas.fh"
-#include "chodensity.fh"
 #include "chotime.fh"
-#include "cholk.fh"
-#include "choscreen.fh"
 #include "chopar.fh"
 
 * Local NBAS_L, NORB_L .. avoid collision with items in common.
@@ -314,14 +314,6 @@ C   No changing about read in orbital information from INPORB yet.
          If(KSDFT(1:5).eq.'TOPBE')
      &     write(6,*) ' TOPBE functional aka OPBE for MCPDFT'
        End if
-CGG Calibration of A, B, C, and D coefficients in SG's NewFunctional 1
-       If ( KSDFT(1:4).eq.'NEWF') Then
-         ReadStatus=' Failure reading data following KSDF=NEWF.'
-         Read(LUInput,*,End=9910,Err=9920)
-     &                                       Acoef,Bcoef,Ccoef,Dcoef
-         ReadStatus=' O.K. after reading data following KSDF=NEWF.'
-       End If
-CGG This part will be removed. (PAM 2009: What on earth does he mean??)
       ExFac=Get_ExFac(KSDFT)
 *******
 *

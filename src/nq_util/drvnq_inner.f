@@ -14,16 +14,16 @@
      &                  Kernel,Func,
      &                  Maps2p,nSym,list_s,list_exp,list_bas,
      &                  nShell,list_p,R2_trial,nNQ,
-     &                  AOInt,nAOInt,FckInt,nFckDim,
+     &                  FckInt,nFckDim,
      &                  Density,nFckInt,nD,
-     &                  SOTemp,nSOTemp,mGrid,
-     &                  ndF_dRho,nP2_ontop,ndF_dP2ontop,
+     &                  mGrid,
+     &                  nP2_ontop,
      &                  Do_Mo,Do_TwoEl,l_Xhol,
      &                  TmpPUVX,nTmpPUVX,
      &                  nMOs,
      &                  CMOs,nCMO,DoIt,P2mo,np2act,D1mo,nd1mo,P2_ontop,
      &                  Do_Grad,Grad,nGrad,list_g,IndGrd,iTab,Temp,
-     &                  mGrad,F_xc,dF_dRho,dF_dP2ontop,
+     &                  mGrad,F_xc,
      &                  DFTFOCK,mAO,mdRho_dR)
 ************************************************************************
 *                                                                      *
@@ -51,21 +51,22 @@
 #include "grid_on_disk.fh"
 #include "debug.fh"
 #include "ksdft.fh"
+#include "stdalloc.fh"
       Integer Maps2p(nShell,0:nSym-1),
      &        list_s(nSym*nShell), list_exp(nSym*nShell),
      &        list_p(nNQ), DoIt(nMOs), List_g(3,nSym*nShell),
      &        IndGrd(mGrad), iTab(4,mGrad), list_bas(2,nSym*nShell)
-      Real*8 AOInt(nAOInt,nAOInt,nD), FckInt(nFckInt,nFckDim),
-     &       Density(nFckInt,nD),
-     &       SOTemp(nSOTemp,nD), R2_trial(nNQ),
+      Real*8 FckInt(nFckInt,nFckDim),
+     &       Density(nFckInt,nD), R2_trial(nNQ),
      &       CMOs(nCMO),P2mo(np2act),D1mo(nd1mo), Temp(mGrad),
      &       P2_ontop(nP2_ontop,mGrid), Grad(nGrad),
-     &       F_xc(mGrid),dF_dRho(ndF_dRho,mGrid),
-     &       dF_dP2ontop(ndF_dp2ontop,mGrid)
+     &       F_xc(mGrid)
       Real*8 TmpPUVX(nTmpPUVX)
       Logical Check, Do_Grad, Rsv_Tsk
-      Logical Do_Mo,Do_TwoEl,l_Xhol,l_casdft,Exist
+      Logical Do_Mo,Do_TwoEl,l_Xhol,l_casdft,Exist,l_tgga
       Character*4 DFTFOCK
+      REAL*8,DIMENSION(:),Allocatable::P2Unzip,D1Unzip,
+     &PDFTPot1,PDFTFocI,PDFTFocA
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -126,6 +127,13 @@ c        Call append_file(LuMT)
      &                    '       dTot '
        END IF
       END IF
+
+      CALL CalcOrbOff()
+      NASHT4=NASHT**4
+      CALL mma_allocate(P2Unzip,NASHT4)
+      CALL mma_allocate(D1Unzip,NASHT**2)
+      CALL UnzipD1(D1Unzip,D1MO,nD1MO)
+      CALL UnzipP2(P2Unzip,P2MO,nP2Act)
 ************************************************************************
 *
 *----- Desymmetrize the 1-particle density matrix
@@ -134,6 +142,9 @@ c        Call append_file(LuMT)
       Call DeDe_Funi(Density,nFckInt,nD)
 *
       If(l_casdft.and.do_pdftPot) then
+        CALL mma_allocate(PDFTPot1,nPot1)
+        CALL mma_allocate(PDFTFocI,nPot1)
+        CALL mma_allocate(PDFTFocA,nPot1)
         CALL GETMEM('OE_OT','ALLO','REAL',LOE_DB,nFckInt)
         CALL GETMEM('TEG_OT','ALLO','REAL',LTEG_DB,nTmpPUVX)
         Call GETMEM('FI_V','ALLO','REAL',ifiv,nFckInt)
@@ -145,9 +156,17 @@ c        Call append_file(LuMT)
         CALL DCOPY_(nTmpPUVX,[0.0D0],0,WORK(LTEG_DB),1)
         CALL DCOPY_(nFckInt,[0.0D0],0,WORK(ifiv),1)
         CALL DCOPY_(nFckInt,[0.0D0],0,WORK(ifav),1)
+        CALL FZero(PDFTPot1,nPot1)
+        CALL FZero(PDFTFocI,nPot1)
+        CALL FZero(PDFTFocA,nPot1)
+        CALL CalcPUVXOff()
 !        CALL DCOPY_(nFckInt,[0.0D0],0,WORK(ifiv_n),1)
 !        CALL DCOPY_(nFckInt,[0.0D0],0,WORK(ifav_n),1)
       Else
+        nPot1=1
+        CALL mma_allocate(PDFTPot1,nPot1)
+        CALL mma_allocate(PDFTFocI,nPot1)
+        CALL mma_allocate(PDFTFocA,nPot1)
         LOE_DB = ip_dummy
         LTEG_DB = ip_dummy
       End If
@@ -161,7 +180,6 @@ c        Call append_file(LuMT)
 *
 *-----Loop over subblocks
 *
-      Flop=Zero
       iSB = 0
 C     Do iSB = 1, number_of_subblocks
 *
@@ -222,19 +240,17 @@ C        Debug=.True.
          Call Get_Subblock(Kernel,Func,iSB,
      &                     Maps2p,list_s,list_exp,list_bas,nShell,nSym,
      &                     list_p,R2_trial,nNQ,
-     &                     AOInt,nAOInt,FckInt,nFckDim,nFckInt,
-     &                     SOTemp,nSOTemp,
+     &                     FckInt,nFckDim,nFckInt,
      &                     Density,nFckInt,nD,
      &                     mGrid,
-     &                     ndF_dRho,nP2_ontop,ndF_dP2ontop,
+     &                     nP2_ontop,
      &                     Do_Mo,Do_TwoEl,l_Xhol,
-     &                     TmpPUVX,nTmpPUVX,nMOs,CMOs,nCMO,DoIt,
-     &                     P2mo,np2act,D1mo,nd1mo,P2_ontop,
+     &                     TmpPUVX,nTmpPUVX,nMOs,CMOs,nCMO,DoIt,P2MO,
+     &                     P2Unzip,np2act,D1mo,D1Unzip,nd1mo,P2_ontop,
      &                     Do_Grad,Grad,nGrad,List_G,IndGrd,iTab,Temp,
-cGLM     &                     mGrad,F_xc,F_xca,F_xcb,dF_dRho,dF_dP2ontop,
-     &                     mGrad,F_xc,dF_dRho,dF_dP2ontop,
+     &                     mGrad,F_xc,
      &                     DFTFOCK,mAO,mdRho_dR,
-     &                     LOE_DB,LTEG_DB)
+     &                     LTEG_DB,PDFTPot1,PDFTFocI,PDFTFocA)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -243,7 +259,6 @@ C777     Continue
 C     End Do ! number_of_subblocks
  200  Continue ! Done!
       Call Free_Tsk(id)
-      Flop=Flop/DBLE(nFckInt)
 
 
 *                                                                      *
@@ -315,6 +330,11 @@ C     End Do ! number_of_subblocks
  98      Continue
       End If
 #endif
+
+      IF(l_casdft) THEN
+        CALL mma_deallocate(D1Unzip)
+        CALL mma_deallocate(P2Unzip)
+      END IF
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -323,6 +343,7 @@ C     End Do ! number_of_subblocks
 *     Data to be syncronized: FckInt, Func, Dens,  and Grad.
 *
 *
+        l_tgga = .true.
       If (Do_Grad) Then
          Call GADSum(Grad,nGrad)
       Else
@@ -345,6 +366,11 @@ C     End Do ! number_of_subblocks
           Call GADSum(Work(LTEG_DB),nTmpPUVX)
           Call GADSum(Work(ifiv),nFckInt)
           Call GADSum(Work(ifav),nFckInt)
+          if(l_tgga) then
+           CALL GADSum(PDFTPot1,nPot1)
+           CALL GADSum(PDFTFocI,nPot1)
+           CALL GADSum(PDFTFocA,nPot1)
+          end if
         End If
       End If
 *                                                                      *
@@ -356,11 +382,16 @@ C     End Do ! number_of_subblocks
 !        CALL DCOPY_(nFckInt,Work(ifav_n),1,WORK(ifav),1)
 !        CALL DCOPY_(nFckInt,Work(ifiv_n),1,WORK(ifiv),1)
 
+        If(l_tgga) Then
+         CALL PackPot1(work(LOE_DB),PDFTPot1,nFckInt,dble(nIrrep)*0.5d0)
+         CALL DScal_(nPot2,dble(nIrrep),WORK(LTEG_DB),1)
+         CALL PackPot1(work(IFIV),PDFTFocI,nFckInt,dble(nIrrep)*0.25d0)
+         CALL PackPot1(work(IFAV),PDFTFocA,nFckInt,dble(nIrrep)*0.5d0)
+        End If
         Call Put_dArray('ONTOPO',work(LOE_DB),nFckInt)
         Call Put_dArray('ONTOPT',work(LTEG_DB),nTmpPUVX)
         Call Put_dArray('FI_V',Work(ifiv),nFckInt)
         Call Put_dArray('FA_V',Work(ifav),nFckInt)
-
 
         CALL GETMEM('OE_OT','Free','REAL',LOE_DB,nFckInt)
         CALL GETMEM('TEG_OT','Free','REAL',LTEG_DB,nTmpPUVX)
@@ -379,6 +410,9 @@ C     End Do ! number_of_subblocks
 !        FI_time = 0d0
 !        sp_time = 0d0
       End If
+        CALL mma_deallocate(PDFTPot1)
+        CALL mma_deallocate(PDFTFocI)
+        CALL mma_deallocate(PDFTFocA)
 
       IF(debug. and. l_casdft) THEN
         write(6,*) 'Dens_I in drvnq_ :', Dens_I

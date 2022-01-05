@@ -32,11 +32,11 @@ public :: u0, u5, u6
 
 ! This is the working precision and should be preferably used
 ! (we assume logical kinds are the same as integer kinds).
-#   ifdef _I8_
+#ifdef _I8_
 integer(kind=int64), parameter :: iwp = int64, MOLCAS_C_INT = c_long
-#   else
+#else
 integer(kind=int32), parameter :: iwp = int32, MOLCAS_C_INT = c_int
-#   endif
+#endif
 integer(kind=iwp), parameter :: wp = real64, MOLCAS_C_REAL = c_double
 
 ! "default" integer, without using `-i8` flag or equivalent,
@@ -62,18 +62,18 @@ integer(kind=iwp), parameter :: HDF5Int = int32
 
 ! Size ratios between the different types
 ! (assume 'a' uses 1 byte)
-#   include "compiler_features.h"
+#include "compiler_features.h"
 integer(kind=iwp), parameter :: &
-#   ifdef SIZE_INITIALIZATION
+#ifdef SIZE_INITIALIZATION
                                 ItoB = storage_size(1_iwp)/storage_size('a'), &
                                 RtoB = storage_size(1.0_wp)/storage_size('a'), &
                                 RtoI = storage_size(1.0_wp)/storage_size(1_iwp), &
                                 CtoR = storage_size((1.0_wp,0.0_wp))/storage_size(1.0_wp)
-#   elif defined(_I8_)
+#elif defined(_I8_)
                                 ItoB = 8, RtoB = 8, RtoI = 1, CtoR = 2
-#   else
+#else
                                 ItoB = 4, RtoB = 8, RtoI = 2, CtoR = 2
-#   endif
+#endif
 
 ! Output, input and error units, typically 6, 5 & 0, but they could be something else
 integer(kind=iwp), parameter :: u0 = error_unit, &

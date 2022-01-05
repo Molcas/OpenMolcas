@@ -10,10 +10,7 @@
 *                                                                      *
 * Copyright (C) 2001, Roland Lindh                                     *
 ************************************************************************
-      Subroutine BWIG(mGrid,Rho,nRho,P2_ontop,
-     &                nP2_ontop,iSpin,F_xc,
-     &                dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,
-     &                T_X)
+      Subroutine BWIG(mGrid,iSpin)
 ************************************************************************
 *                                                                      *
 * Object:    Powerful Becke Wigner functional combination              *
@@ -21,40 +18,28 @@
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. March 2001                              *
 ************************************************************************
+      use nq_Grid, only: F_xc => Exc
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-      Real*8 Rho(nRho,mGrid), dF_dRho(ndF_dRho,mGrid),
-     &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
-     &       dF_dP2ontop(ndF_dP2ontop,mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *---- Dirac Exchange
 *
       Coeff=One
-      Call Diracx(mGrid,iSpin,F_xc,
-     &            dF_dRho,ndF_dRho,Coeff,T_X)
+      Call Diracx(mGrid,iSpin,F_xc,Coeff)
 *
 *---- Becke 88 Exchange
 *
       Coeff=One
-      Call xB88(mGrid,dF_dRho,ndF_dRho,
-     &          Coeff,iSpin,F_xc,T_X)
+      Call xB88(mGrid,Coeff,iSpin,F_xc)
 *
 *---- Wigner Correlation
 *
       Coeff=One
-      Call CWIG(mGrid,dF_dRho,ndF_dRho,
-     &         Coeff,iSpin,F_xc,T_X)
+      Call CWIG(mGrid,Coeff,iSpin,F_xc)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_Integer(nRho)
-         Call Unused_real_array(Rho)
-         Call Unused_real_array(P2_ontop)
-         Call Unused_real_array(dF_dP2ontop)
-      End If
       End

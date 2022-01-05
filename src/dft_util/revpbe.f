@@ -10,11 +10,7 @@
 *                                                                      *
 * Copyright (C) 2005, Per Ake Malmqvist                                *
 ************************************************************************
-      Subroutine REVPBE(mGrid,Rho,nRho,P2_ontop,
-     &               nP2_ontop,iSpin,F_xc,
-cGLM     &               nP2_ontop,iSpin,F_xc,F_xca,F_xcb,
-     &               dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,
-     &               T_X)
+      Subroutine REVPBE(mGrid,iSpin)
 ************************************************************************
 *                                                                      *
 * Object: To compute the sum of the functional c_pbe and x_pbe as      *
@@ -31,33 +27,21 @@ cGLM     &               nP2_ontop,iSpin,F_xc,F_xca,F_xcb,
 *      Author:Per Ake Malmqvist, Department of Theoretical Chemistry,  *
 *             University of Lund, SWEDEN. December 2005                *
 ************************************************************************
+      use nq_Grid, only: F_xc => Exc
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "ksdft.fh"
-      Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
-     &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
-cGLM     &       F_xca(mGrid),F_xcb(mGrid),tmpB(mGrid),
-     &       dF_dP2ontop(ndF_dP2ontop,mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 
       CoeffB=One*CoefX
-      Call XrevPBE(mGrid,dF_dRho,ndF_dRho,
-     &          CoeffB,iSpin,F_xc,T_X)
+      Call XrevPBE(mGrid,CoeffB,iSpin,F_xc)
 
       CoeffA=One*CoefR
-      Call CPBE(mGrid,dF_dRho,ndF_dRho,
-     &          CoeffA,iSpin,F_xc,T_X)
+      Call CPBE(mGrid,CoeffA,iSpin,F_xc)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_Integer(nRho)
-         Call Unused_real_array(Rho)
-         Call Unused_real_array(P2_ontop)
-         Call Unused_real_array(dF_dP2ontop)
-      End If
       End

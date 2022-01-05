@@ -72,6 +72,7 @@
       int_dgebd2=>dgebd2, &
       int_dgebrd=>dgebrd, &
       int_dgecon=>dgecon, &
+      int_dgees=>dgees, &
       int_dgeev=>dgeev, &
       int_dgehd2=>dgehd2, &
       int_dgehrd=>dgehrd, &
@@ -233,6 +234,8 @@
       int_dsytrd=>dsytrd, &
       int_dtrevc3=>dtrevc3, &
       int_dtrexc=>dtrexc, &
+      int_dtrsen=>dtrsen, &
+      int_dtrsyl=>dtrsyl, &
       int_dtrti2=>dtrti2, &
       int_dtrtri=>dtrtri, &
       int_dtrtrs=>dtrtrs, &

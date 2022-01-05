@@ -66,6 +66,8 @@ if (sources)
   if (DEFINED ${prog}_defs)
     target_compile_definitions (${prog}_obj PRIVATE "${${prog}_defs}")
   endif ()
+  # public include directories
+  target_include_directories (${prog}_obj PRIVATE "${public_incs}")
   # program-specific include directories
   list (APPEND ${prog}_incs ${CMAKE_CURRENT_SOURCE_DIR})
   target_include_directories (${prog}_obj PRIVATE "${${prog}_incs}")

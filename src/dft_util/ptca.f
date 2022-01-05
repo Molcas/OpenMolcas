@@ -11,9 +11,7 @@
 * Copyright (C) 2005, Per Ake Malmqvist                                *
 *               2010, Grigory A. Shamov                                *
 ************************************************************************
-      Subroutine PTCA(mGrid,Rho,nRho,P2_ontop,
-     &               nP2_ontop,iSpin,F_xc,
-     &               dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X)
+      Subroutine PTCA(mGrid,iSpin)
 ************************************************************************
 *                                                                      *
 * Object: To compute the combination of PBE exchange and TCA           *
@@ -27,31 +25,20 @@
 *             University of Lund, SWEDEN. December 2005                *
 *             TCA: Grigory Shamov, U. of Manitoba, Marct 2010          *
 ************************************************************************
+      use nq_Grid, only: F_xc => Exc
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "ksdft.fh"
-      Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
-     &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
-     &       dF_dP2ontop(ndF_dP2ontop,mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       CoeffA=One*CoefR
-      Call CTCA(mGrid,dF_dRho,ndF_dRho,
-     &          CoeffA,iSpin,F_xc,T_X)
+      Call CTCA(mGrid,CoeffA,iSpin,F_xc)
 
       CoeffB=One*CoefX
-      Call XPBE(mGrid,dF_dRho,ndF_dRho,
-     &          CoeffB,iSpin,F_xc,T_X)
+      Call XPBE(mGrid,CoeffB,iSpin,F_xc)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_Integer(nRho)
-         Call Unused_real_array(Rho)
-         Call Unused_real_array(P2_ontop)
-         Call Unused_real_array(dF_dP2ontop)
-      End If
       End

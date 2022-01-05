@@ -22,7 +22,7 @@ real(kind=wp), intent(inout) :: W_DLT(*), W_DSQ(*), W_FLT(nFLT), W_FSQ(*)
 real(kind=wp), intent(in) :: ExFac
 integer(kind=iwp) :: i, irc, ja, nDen, NScreen, NumV, nXorb(8)
 real(kind=wp) :: ChFracMem, dFKmat, dmpk, Thr, Ymax
-type (DSBA_Type) FLT, KLT, MOs, DLT, DSQ
+type (DSBA_Type) FLT(1), KLT(1), MOs, DLT, DSQ
 
 !****************************************************************
 ! CALCULATE AND RETURN FMAT DUE TO FROZEN ORBITALS ONLY
@@ -70,18 +70,18 @@ do i=1,nSym
 end do
 
 nDen = 1
-Call Allocate_DSBA(FLT,nBas,nBas,nSym,aCase='TRI',Ref=W_FLT)
-Call Allocate_DSBA(KLT,nBas,nBas,nSym,aCase='TRI',Ref=W_FSQ) ! not needed on exit
+Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_FLT)
+Call Allocate_DSBA(KLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_FSQ) ! not needed on exit
 
-call CHO_LK_SCF(irc,nDen,[FLT],[KLT],nXorb,nFro,[MOs],[DLT],Half*ExFac,NScreen,dmpk,dFKmat)
+call CHO_LK_SCF(irc,nDen,FLT,KLT,nXorb,nFro,[MOs],[DLT],Half*ExFac,NScreen,dmpk,dFKmat)
 
 if (irc /= 0) then
   write(u6,*) 'Cho_Fock_Motra: Cho_LK_scf returns error code ',irc
   call AbEnd()
 end if
 
-call Deallocate_DSBA(KLT)
-call Deallocate_DSBA(FLT)
+call Deallocate_DSBA(KLT(1))
+call Deallocate_DSBA(FLT(1))
 
 call GADSUM(W_FLT,nFLT)
 

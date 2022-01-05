@@ -457,4 +457,4 @@ test:mpi:
   <<: *run-tests
   needs:
     - build:mpi
-  parallel: 6
+  parallel: 8

@@ -10,8 +10,7 @@
 *                                                                      *
 * Copyright (C) 2005, Per Ake Malmqvist                                *
 ************************************************************************
-      Subroutine CPBE(mGrid,dF_dRho,ndF_dRho,
-     &                Coeff,iSpin,F_xc,T_X)
+      Subroutine CPBE(mGrid,Coeff,iSpin,F_xc)
 ************************************************************************
 *                                                                      *
 * Object: To compute the functional called c_pbe in the Density        *
@@ -28,20 +27,20 @@
 *             University of Lund, SWEDEN. December 2005                *
 ************************************************************************
       use KSDFT_Info, only: tmpB
-      use nq_Grid, only: Rho, Sigma
+      use nq_Grid, only: Rho, Sigma, l_casdft
+      use nq_Grid, only: vRho, vSigma
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "nq_index.fh"
 #include "ksdft.fh"
-      Real*8 dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
+      Real*8 F_xc(mGrid)
 * Local arrays:
       Real*8 func1(3),func2(3,3)
+      Real*8, Parameter:: T_X=1.0D-20
 * Call arguments:
 * Rho(nRho,mGrid) (input) Density and density derivative values,
 *   Rho(1,iGrid) is rho_alpha values, Rho(2,iGrid) is rho_beta values
 *   Rho(i,iGrid) is grad_rho_alpha (i=3..5 for d/dx, d/dy, d/dz)
 *   Rho(i,iGrid) is grad_rho_beta  (i=6..8 for d/dx, d/dy, d/dz)
-* dF_dRho (inout) are (I believe) values of derivatives of the
 *   DFT functional (*NOT* derivatives of Fock matrix contributions).
 * F_xc is values of the DFT energy density functional (surprised?)
 
@@ -82,19 +81,20 @@
          call cpbe_(idord,rho_in,grdrho_in,zeta_in,func0,func1,func2)
          F_xc(iGrid)=F_xc(iGrid)+Coeff*func0
 * dF_drhoa:
-         dF_dRho(ipR,iGrid)=dF_dRho(ipR,iGrid)+Coeff*func1(1)
+         vRho(1,iGrid)=vRho(1,iGrid)+Coeff*func1(1)
 * Maybe derivatives w.r.t. gamma_aa, gamma_ab, gamma_bb should be used instead.
-         dF_dRho(ipGxx,iGrid)=dF_dRho(ipGxx,iGrid)+Coeff*func1(2)
-         dF_dRho(ipGxy,iGrid)=dF_dRho(ipGxy,iGrid)+Coeff*2.0D0*func1(2)
+         vSigma(1,iGrid)=vSigma(1,iGrid)+Coeff*func1(2)
+     &                                  +Coeff*func1(2)
  110     continue
         end do
       else
 * ispin .ne. 1, use both alpha and beta components.
+        If (l_casdft) Then
         do iGrid=1,mgrid
          rhoa=max(1.0D-24,Rho(1,iGrid))
          rhob=max(1.0D-24,Rho(2,iGrid))
          rho_in=rhoa+rhob
-         if(rho_in.lt.T_X) goto 210
+         if(rho_in.lt.T_X) Cycle
 
          gamma=Sigma(1,iGrid)+Two*Sigma(2,iGrid)+Sigma(3,iGrid)
          grdrho_in=sqrt(gamma)
@@ -103,16 +103,38 @@
          F_xc(iGrid)=F_xc(iGrid)+Coeff*func0
          tmpB(iGrid)=F_xc(iGrid)-tmpB(iGrid)
 * dF_drhoa:
-         dF_dRho(ipRa,iGrid)=dF_dRho(ipRa,iGrid)+
+         vRho(1,iGrid)=vRho(1,iGrid)+
      &            Coeff*(func1(1)+(2.0D0*func1(3))*(rhob/rho_in**2))
-         dF_dRho(ipRb,iGrid)=dF_dRho(ipRb,iGrid)+
+         vRho(2,iGrid)=vRho(2,iGrid)+
      &            Coeff*(func1(1)-(2.0D0*func1(3))*(rhoa/rho_in**2))
 * Maybe derivatives w.r.t. gamma_aa, gamma_ab, gamma_bb should be used instead.
-         dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)+Coeff*func1(2)
-         dF_dRho(ipGab,iGrid)=dF_dRho(ipGab,iGrid)+Coeff*2.0D0*func1(2)
-         dF_dRho(ipGbb,iGrid)=dF_dRho(ipGbb,iGrid)+Coeff*func1(2)
- 210     continue
+         vSigma(1,iGrid)=vSigma(1,iGrid)+Coeff*func1(2)
+         vSigma(2,iGrid)=vSigma(2,iGrid)+Coeff*2.0D0*func1(2)
+         vSigma(3,iGrid)=vSigma(3,iGrid)+Coeff*func1(2)
         end do
+        Else
+        do iGrid=1,mgrid
+         rhoa=max(1.0D-24,Rho(1,iGrid))
+         rhob=max(1.0D-24,Rho(2,iGrid))
+         rho_in=rhoa+rhob
+         if(rho_in.lt.T_X) Cycle
+
+         gamma=Sigma(1,iGrid)+Two*Sigma(2,iGrid)+Sigma(3,iGrid)
+         grdrho_in=sqrt(gamma)
+         zeta_in=(rhoa-rhob)/rho_in
+         call cpbe_(idord,rho_in,grdrho_in,zeta_in,func0,func1,func2)
+         F_xc(iGrid)=F_xc(iGrid)+Coeff*func0
+* dF_drhoa:
+         vRho(1,iGrid)=vRho(1,iGrid)+
+     &            Coeff*(func1(1)+(2.0D0*func1(3))*(rhob/rho_in**2))
+         vRho(2,iGrid)=vRho(2,iGrid)+
+     &            Coeff*(func1(1)-(2.0D0*func1(3))*(rhoa/rho_in**2))
+* Maybe derivatives w.r.t. gamma_aa, gamma_ab, gamma_bb should be used instead.
+         vSigma(1,iGrid)=vSigma(1,iGrid)+Coeff*func1(2)
+         vSigma(2,iGrid)=vSigma(2,iGrid)+Coeff*2.0D0*func1(2)
+         vSigma(3,iGrid)=vSigma(3,iGrid)+Coeff*func1(2)
+        end do
+        End If
       end if
 
       Return

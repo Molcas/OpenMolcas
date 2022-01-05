@@ -32,7 +32,6 @@
 #include "real.fh"
       Real*8 P2mo(np2act),D1mo(nd1mo),TabMO(mAO,mGrid,nMOs),
      &       P2_ontop(nP2_ontop,mGrid)
-      Integer iOff_Ash(0:7), iOff_Bas(0:7), iOff_BasAct(0:7)
       Real*8 RhoI(mRho,mGrid)
       Real*8 RhoA(mRho,mGrid)
 c

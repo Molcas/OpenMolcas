@@ -89,7 +89,7 @@ C     iPrint=99
 *                                                                      *
 *---- Initialize AOValue
 *
-      Call FZero(AOValue,mAO*nCoor*nBas*nCmp)
+      AOValue(:,:,:,:)=Zero
 *
 *---- Set the order of derivation
 *

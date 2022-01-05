@@ -29,7 +29,7 @@ import os.path
 blas_functions = []
 with open('../Include/blas.fh', 'r') as f:
   for line in f:
-    match = re.match('#include "(.*)\.[fF]"', line)
+    match = re.match('#include "(.*)\.[fF](90)?"', line)
     if (match):
       blas_functions.append(match.group(1))
     match = re.match('!.* defines (.*)', line)
@@ -40,7 +40,7 @@ blas_functions.sort()
 lapack_functions = []
 with open('../Include/lapack.fh', 'r') as f:
   for line in f:
-    match = re.match('#include "(.*)\.[fF]"', line)
+    match = re.match('#include "(.*)\.[fF](90)?"', line)
     if (match):
       lapack_functions.append(match.group(1))
     match = re.match('!.* defines (.*)', line)

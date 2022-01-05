@@ -36,6 +36,7 @@ c     interaction matrix.
 c
 C          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 C
+      Use Fock_util_global, only: ALGO, DoCholesky
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
       integer ISTSQ(8),ISTAV(8)
@@ -45,13 +46,11 @@ C
 #include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
+#include "qmat.fh"
       Character*16 ROUTINE
       Parameter (ROUTINE='FOCK    ')
 #include "WrkSpc.fh"
-      Dimension P2reo(1)
 
-#include "chotodo.fh"
-#include "chlcas.fh"
 C
       IPRLEV=IPRLOC(4)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -64,23 +63,6 @@ C
          ISTSQ(iSym) = ISTSQ(iSym-1) + nBas(iSym-1)**2
          ISTAV(iSym) = ISTAV(iSym-1) + nBas(iSym-1)*nAsh(iSym-1)
       End Do
-
-      ipFint = ip_Dummy
-      ipP2reo= ip_Dummy
-      If(KSDFT(1:3).ne.'SCF'.and.
-     &         DFTFOCK(1:4).eq.'DIFF'.and.
-     &         nac.ne.0) Then
-        Call GetMem('TmpPUVX','Allo','Real',ipFint,nFint)
-        Call Get_dArray('DFT_TwoEl',Work(ipFint),nFint)
-        HALFQ=0.0d0
-        HALFQ1=0.0d0
-        If(Exfac.ne.1.0d0) Then
-          Call Get_Temp('nP2reo  ',P2reo,1)
-          nP2reo=Int(P2reo(1))
-          CALL GETMEM('P2_reo','ALLO','REAL',ipP2reo,nP2reo)
-          Call Get_Temp('P2_reo  ',Work(ipP2reo),nP2reo)
-        End If
-      End If
 
 *********************************************************************************
 * add FI to FA to obtain FP
@@ -195,32 +177,6 @@ c --- Q(m,v) = C(a,m) * Q(a,v)
           write(6,*) 'Two-electron contribution (Q term):', ECAS-ECAS0
           write(6,*) 'ECAS aft adding Q in fock.f :', ECAS
         END IF
-
-*********************************************************************************
-* Is this relevant?
-          If(ipFint.ne.ip_Dummy) Then
-            Call GetMem('TmpQ','Allo','Real',ipQ,NAO*NO)
-            If (ipP2reo.ne.ip_Dummy) Then
-               CALL DGEMM_('N','N',
-     &                     NO,NAO,NUVX,
-     &                     1.0d0,Work(ipFint+JSTF-1),NO,
-     &                     Work(ipP2reo+ISTP-1),NUVX,
-     &                     0.0d0,Work(ipQ),NO)
-            Else
-               CALL DGEMM_('N','N',
-     &                     NO,NAO,NUVX,
-     &                     1.0d0,Work(ipFint+JSTF-1),NO,
-     &                     P(ISTP),NUVX,
-     &                     0.0d0,Work(ipQ),NO)
-            End If
-            Call DaXpY_(NAO*NO,1.0d0,Work(ipQ),1,Q,1)
-*
-            DO NT=1,NAO
-              NTT=(NT-1)*NO+NIO+NT
-              HALFQ=HALFQ+0.5D0*Work(ipQ+NTT-1)
-            END DO
-            Call GetMem('TmpQ','Free','Real',ipQ,NAO*NO)
-          End If
 
 *********************************************************************************
 * Continue... Fock matrix for first index active
@@ -347,14 +303,6 @@ C
 *********************************************************************************
       If (iFinal.eq.1) CALL FOCKOC(F,CMO)
 C
-      If(ipFint.ne.ip_Dummy) Then
-        Call GetMem('TmpPUVX','Free','Real',ipFint,nFint)
-      End If
-
-      If(ipP2reo.ne.ip_Dummy) Then
-        CALL GETMEM('P2_reo','FREE','REAL',ipP2reo,nP2reo)
-      End If
-
       If ( IPRLEV.ge.DEBUG ) then
          Write(LF,*)
          Write(LF,*) ' >>> Exit Fock <<< '

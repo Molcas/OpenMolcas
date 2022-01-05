@@ -44,7 +44,7 @@
       use OFembed, only: Func_AB,Func_A,Func_B,Energy_NAD,
      &                   V_Nuc_AB,V_Nuc_BA,V_emb
       Implicit Real*8 (a-h,o-z)
-      External LSDA_emb, Checker
+      External LSDA_emb
 #include "real.fh"
 #include "stdalloc.fh"
 #include "debug.fh"
@@ -457,8 +457,7 @@ c Avoid unused argument warnings
      &         LSDA5_emb,
      &         BLYP_emb, BLYP_emb2,
      &         PBE_emb, PBE_emb2,
-     &         Ts_only_emb, vW_hunter, nucatt_emb,
-     &         Checker
+     &         Ts_only_emb, vW_hunter, nucatt_emb
       Logical  Do_MO,Do_TwoEl,F_nAsh
 
 ************************************************************************
@@ -604,18 +603,6 @@ c Avoid unused argument warnings
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Checker
-      Else If (KSDFT.eq.'CHECKER') Then
-         !ExFac=Zero
-         Functional_type=meta_GGA_type2
-         Call DrvNQ(Checker,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD_DS,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
       Else
          lKSDFT=LEN(KSDFT)
          Call WarningMessage(2,
@@ -647,8 +634,7 @@ c Avoid unused argument warnings
       External VWN_III_emb,
      &         VWN_V_emb,
      &         cBLYP_emb,
-     &         cPBE_emb,
-     &         Checker
+     &         cPBE_emb
       Logical  Do_MO,Do_TwoEl,F_nAsh
 
 ************************************************************************
@@ -722,19 +708,6 @@ c Avoid unused argument warnings
          !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=GGA_type
          Call DrvNQ(cBLYP_emb,F_corr,nFckDim,Func,
-     &              D_DS,nh1,nD_DS,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Checker                                                          *
-*                                                                      *
-      Else If (KSDFT.eq.'CHECKER') Then
-         !ExFac=Zero
-         Functional_type=meta_GGA_type2
-         Call DrvNQ(Checker,F_corr,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
      &              Do_Grad,
      &              Grad,nGrad,

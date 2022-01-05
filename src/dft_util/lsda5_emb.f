@@ -8,39 +8,25 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine LSDA5_emb(mGrid,Rho,nRho,P2_ontop,
-     &                     nP2_ontop,nDmat,F_xc,
-     &                     dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,
-     &                     T_X)
-************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-************************************************************************
+      Subroutine LSDA5_emb(mGrid,nDmat)
+      use nq_Grid, only: F_xc => Exc
       use OFembed, only: KEonly
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "hflda.fh"
-      Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
-     &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
-     &       dF_dP2ontop(ndF_dP2ontop,mGrid)
 *
 ************************************************************************
 *
 *---- Thomas-Fermi Kinetic energy functional
 *
       Coeff=One
-      Call TF_Ts(mGrid,nDmat,F_xc,
-     &                 dF_dRho,ndF_dRho,Coeff,T_X)
+      Call TF_Ts(mGrid,nDmat,F_xc,Coeff)
 
       If (KEonly) Return
 *
 *---- LSDA5 for exchange-correlation energy functional
 *
-      Call LSDA5(mGrid,Rho,nRho,P2_ontop,
-     &                 nP2_ontop,nDmat,F_xc,
-     &                 dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,
-     &                 T_X)
+      Call LSDA5(mGrid,nDmat)
 
 *                                                                      *
 ************************************************************************

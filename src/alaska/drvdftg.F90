@@ -31,7 +31,7 @@ use Symmetry_Info, only: nIrrep
 use Para_Info, only: King
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use stdalloc, only : mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
@@ -42,17 +42,16 @@ real(kind=wp), intent(out) :: Temp(nGrad)
 #include "rctfld.fh"
 #include "disp.fh"
 #include "nq_info.fh"
-integer(kind=iwp) :: iDFT, iDumm, iEnd, iIrrep, iOpt, iPrint, iRout, iSpin, jPrint, LuWr, nDens, IK, ng1, ng2, nAsht, nRoots, iI
+integer(kind=iwp) :: iDFT, iDumm, iEnd, iI, iIrrep, IK, iOpt, iPrint, iRout, iSpin, jPrint, LuWr, nAct(nIrrep), nDens, ng1, ng2, &
+                     nRoots
 real(kind=wp) :: Dummy1(1), Dummy2(1), Dummy3(1), Dummy4, Dumm0(1), Dumm1(1), ExFac, TCpu1, TCpu2, TWall1, TWall2
 logical(kind=iwp) :: First, Dff, Do_Grad, l_casdft
 character(len=80) :: Label
 character(len=16) :: KSDFT
+character(len=8) Method
 character(len=4) :: DFTFOCK
-!Following declarations for MS-PDFT gradient calculations
-Character(len=8) Method
-integer(kind=iwp) ::  nAct(nIrrep)
-Real(kind=wp),DIMENSION(:),Allocatable::Temp2,R,G1qs,G2qs,G1qt,G2qt,D1AOMS,D1SAOMS,D1AOt,D1SAOt
-!End of declarations for MS-PDFT gradient
+real(kind=wp), allocatable :: Temp2(:), R(:), G1qs(:), G2qs(:), G1qt(:), G2qt(:), D1AOMS(:), D1SAOMS(:), D1AOt(:), D1SAOt(:)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -105,78 +104,78 @@ if (btest(iDFT,6)) then
   !write(LuWr,*) 'DrvDFTg: KSDFT=',KSDFT
   !write(LuWr,*) 'DrvDFTg: ExFac=',ExFac
   iDumm = 1
-  Call Get_cArray('Relax Method',Method,8)
-  if(Method /= 'MSPDFT') then
-  call DrvDFT(Dummy1,Dummy2,Dummy3,Dummy4,nDens,First,Dff,lRF,KSDFT,ExFac,Do_Grad,Temp,nGrad,iSpin,Dumm0,Dumm1,iDumm,DFTFOCK)
+  call Get_cArray('Relax Method',Method,8)
+  if (Method /= 'MSPDFT') then
+    call DrvDFT(Dummy1,Dummy2,Dummy3,Dummy4,nDens,First,Dff,lRF,KSDFT,ExFac,Do_Grad,Temp,nGrad,iSpin,Dumm0,Dumm1,iDumm,DFTFOCK)
   else
-! modifications for MS-PDFT gradient starting here
-   Call Get_iScalar('Number of roots',nRoots)
-   Call Get_iScalar('Relax CASSCF root',iI)
-   Call Get_iArray('nAsh',nAct,nIrrep)
-   nasht=0
-   DO iIrrep=1,nIrrep
-    NASHT=NASHT+nAct(IIrrep)
-   END DO
-   NG1=NASHT*(NASHT+1)/2
-   NG2=NG1*(NG1+1)/2
-   Call mma_allocate(R,nRoots**2)
-   Call mma_allocate(Temp2,nGrad)
-   CALL mma_allocate(G1qt,nG1)
-   CALL mma_allocate(G2qt,nG2)
-   CALL mma_allocate(G1qs,nG1*nRoots)
-   CALL mma_allocate(G2qs,nG2*nRoots)
-   CALL mma_allocate(D1AOMS,nDens*nRoots)
-   CALL mma_allocate(D1AOt,nDens)
-   IF(iSpin /= 1) THEN
-    CALL mma_allocate(D1SAOMS,nDens*nRoots)
-    CALL mma_allocate(D1SAOt,nDens)
-   END IF
-   CALL Get_DArray('MS_FINAL_ROT    ',R,nRoots**2)
-   CALL FZero(Temp,nGrad)
-   CALL Get_D1MO(G1qt,nG1)
-   CALL Get_P2MO(G2qt,nG2)
-   Call Get_DArray('D1INTER         ',G1qs,ng1*nRoots)
-   Call Get_DArray('P2INTER         ',G2qs,ng2*nRoots)
-   CALL Get_DArray('D1AO_MS         ',D1AOMS,nDens*nRoots)
-   Call Get_D1AO(D1AOt,nDens)
-   IF(iSpin /= 1)  THEN
-    CALL Get_DArray('D1SAO_MS        ',D1SAOMS,nDens*nRoots)
-    Call Get_D1SAO(D1SAOt,nDens)
-   END IF
-   DO IK=1,nRoots
-    Call Put_D1MO(G1qs((IK-1)*nG1+1),nG1)
-    Call Put_P2MO(G2qs((IK-1)*nG2+1),nG2)
-    Call Put_D1AO(D1AOMS((IK-1)*nDens+1),nDens)
-    IF (iSpin /= 1) THEN
-     Call Put_D1SAO(D1SAOMS((IK-1)*nDens+1),nDens)
-    END IF
-    Call FZero(Temp2,nGrad)
-    Call DrvDFT(Dummy1,Dummy2,Dummy3,Dummy4,nDens,First,Dff,lRF,KSDFT,ExFac,Do_Grad,Temp2,nGrad,iSpin,Dumm0,Dumm1,iDumm,DFTFOCK)
-    jPrint = nPrint(112)
-    if (jPrint >= 15) then
-     Label='DFT Int Contribution'
-     write(6,*) 'state, coeff',IK,R((II-1)*nRoots+IK)
-     Call PrGrad(Label,Temp2,nGrad,ChDisp)
+    ! modifications for MS-PDFT gradient starting here
+    call Get_iScalar('Number of roots',nRoots)
+    call Get_iScalar('Relax CASSCF root',iI)
+    call Get_iArray('nAsh',nAct,nIrrep)
+    nasht = 0
+    do iIrrep=1,nIrrep
+      NASHT = NASHT+nAct(IIrrep)
+    end do
+    NG1 = NASHT*(NASHT+1)/2
+    NG2 = NG1*(NG1+1)/2
+    call mma_allocate(R,nRoots**2)
+    call mma_allocate(Temp2,nGrad)
+    call mma_allocate(G1qt,nG1)
+    call mma_allocate(G2qt,nG2)
+    call mma_allocate(G1qs,nG1*nRoots)
+    call mma_allocate(G2qs,nG2*nRoots)
+    call mma_allocate(D1AOMS,nDens*nRoots)
+    call mma_allocate(D1AOt,nDens)
+    if (iSpin /= 1) then
+      call mma_allocate(D1SAOMS,nDens*nRoots)
+      call mma_allocate(D1SAOt,nDens)
     end if
-     Call DAXPY_(nGrad,R((II-1)*nRoots+IK)**2,Temp2,1,Temp,1)
-   END DO
-   CALL Put_D1MO(G1qt,nG1)
-   CALL Put_P2MO(G2qt,nG2)
-   Call Put_D1AO(D1AOt,nDens)
-   IF(ISpin /= 1) Call Put_D1SAO(D1SAOt,nDens)
-   Call mma_deallocate(R)
-   Call mma_deallocate(Temp2)
-   Call mma_deallocate(G1qt)
-   Call mma_deallocate(G2qt)
-   Call mma_deallocate(G1qs)
-   Call mma_deallocate(G2qs)
-   CALL mma_deallocate(D1AOMS)
-   CALL mma_deallocate(D1AOt)
-   IF(iSpin /= 1) THEN
-    CALL mma_deallocate(D1SAOMS)
-    CALL mma_deallocate(D1SAOt)
-   END IF
-! End of condition for MS-PDFT gradient
+    call Get_DArray('MS_FINAL_ROT',R,nRoots**2)
+    Temp(:) = Zero
+    call Get_D1MO(G1qt,nG1)
+    call Get_P2MO(G2qt,nG2)
+    call Get_DArray('D1INTER',G1qs,ng1*nRoots)
+    call Get_DArray('P2INTER',G2qs,ng2*nRoots)
+    call Get_DArray('D1AO_MS',D1AOMS,nDens*nRoots)
+    call Get_D1AO(D1AOt,nDens)
+    if (iSpin /= 1) then
+      call Get_DArray('D1SAO_MS',D1SAOMS,nDens*nRoots)
+      call Get_D1SAO(D1SAOt,nDens)
+    end if
+    do IK=1,nRoots
+      call Put_D1MO(G1qs((IK-1)*nG1+1),nG1)
+      call Put_P2MO(G2qs((IK-1)*nG2+1),nG2)
+      call Put_D1AO(D1AOMS((IK-1)*nDens+1),nDens)
+      if (iSpin /= 1) then
+        call Put_D1SAO(D1SAOMS((IK-1)*nDens+1),nDens)
+      end if
+      Temp2(:) = Zero
+      call DrvDFT(Dummy1,Dummy2,Dummy3,Dummy4,nDens,First,Dff,lRF,KSDFT,ExFac,Do_Grad,Temp2,nGrad,iSpin,Dumm0,Dumm1,iDumm,DFTFOCK)
+      jPrint = nPrint(112)
+      if (jPrint >= 15) then
+        Label = 'DFT Int Contribution'
+        write(u6,*) 'state, coeff',IK,R((II-1)*nRoots+IK)
+        call PrGrad(Label,Temp2,nGrad,ChDisp)
+      end if
+      call DAXPY_(nGrad,R((II-1)*nRoots+IK)**2,Temp2,1,Temp,1)
+    end do
+    call Put_D1MO(G1qt,nG1)
+    call Put_P2MO(G2qt,nG2)
+    call Put_D1AO(D1AOt,nDens)
+    if (ISpin /= 1) call Put_D1SAO(D1SAOt,nDens)
+    call mma_deallocate(R)
+    call mma_deallocate(Temp2)
+    call mma_deallocate(G1qt)
+    call mma_deallocate(G2qt)
+    call mma_deallocate(G1qs)
+    call mma_deallocate(G2qs)
+    call mma_deallocate(D1AOMS)
+    call mma_deallocate(D1AOt)
+    if (iSpin /= 1) then
+      call mma_deallocate(D1SAOMS)
+      call mma_deallocate(D1SAOt)
+    end if
+    ! End of condition for MS-PDFT gradient
   end if
   iEnd = 1
   do

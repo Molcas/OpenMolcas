@@ -31,10 +31,9 @@
 #include "choorb.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-      Type (DSBA_type) CVa, JA, KA, Fka, CMO, Scr
+      Type (DSBA_type) CVa, JA(1), KA, Fka, CMO, Scr
       Real*8 DA(*), G2(*), W_JA(*), W_KA(*), W_FkA(*), W_CMO(*)
       Real*8, parameter:: xone=-One, FactCI = -Two, FactXI = Half
-      Character*6 mode
       Integer , External :: Cho_LK_MaxVecPerBatch
       Integer, Allocatable:: kOffSh(:,:)
       Real*8, Allocatable::  Fab(:), Lrs(:), LF(:)
@@ -45,7 +44,7 @@
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
 ************************************************************************
 *
-      Call Allocate_DSBA(JA ,nBas,nBas,nSym,aCase='TRI',Ref=W_JA )
+      Call Allocate_DSBA(JA(1),nBas,nBas,nSym,aCase='TRI',Ref=W_JA )
       Call Allocate_DSBA(KA ,nBas,nBas,nSym,            Ref=W_KA )
       Call Allocate_DSBA(FkA,nBas,nBas,nSym,            Ref=W_FkA)
       Call Allocate_DSBA(CMO,nBas,nBas,nSym,            Ref=W_CMO)
@@ -295,11 +294,10 @@ C ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
 
 c --- backtransform fock matrix to full storage
           If(JSYM.eq.1)Then
-             mode = 'tofull'
              add = .True.
              nMat = 1
              Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
-     &                           [JA],Fab,mode,add)
+     &                           JA,Fab,add)
              Call mma_deallocate(Fab)
           EndIf
           Call mma_deallocate(Lrs)
@@ -334,7 +332,7 @@ c --- backtransform fock matrix to full storage
                   iabg= iTri(iag,ibg)
 
                   FkA%SB(iSym)%A2(iag,ibg)
-     &                    = JA%SB(iSym)%A1(iabg)
+     &                    = JA(1)%SB(iSym)%A1(iabg)
      &                    + KA%SB(iSym)%A2(iag,ibg)
      &                    + KA%SB(iSym)%A2(ibg,iag)
                 End Do
@@ -343,8 +341,8 @@ c --- backtransform fock matrix to full storage
          End Do
       End Do
 
-      Call Deallocate_DSBA(JA)
-      Call Allocate_DSBA(JA ,nBas,nBas,nSym,           Ref=W_JA )
+      Call Deallocate_DSBA(JA(1))
+      Call Allocate_DSBA(JA(1) ,nBas,nBas,nSym,           Ref=W_JA )
 *
 **Transform Fock and Q matrix to MO basis
 *
@@ -354,10 +352,10 @@ c --- backtransform fock matrix to full storage
           Call DGEMM_('T','N',nBas(jS),nBas(iS),nBas(iS),
      &                1.0d0,FkA%SB(iS)%A2,nBas(iS),
      &                      CMO%SB(iS)%A2,nBas(iS),
-     &                0.0d0,JA%SB(iS)%A2,nBas(jS))
+     &                0.0d0,JA(1)%SB(iS)%A2,nBas(jS))
           FkA%SB(is)%A2(:,:)=Zero
           Call DGEMM_('T','N',nBas(jS),nIsh(jS),nBas(iS),
-     &                1.0d0,JA%SB(iS)%A2,nBas(iS),
+     &                1.0d0,JA(1)%SB(iS)%A2,nBas(iS),
      &                      CMO%SB(jS)%A2,nBas(jS),
      &                0.0d0,FkA%SB(iS)%A2,nBas(jS))
 *         ioff=nIsh(iS)+1
@@ -379,7 +377,7 @@ c --- backtransform fock matrix to full storage
       Call Deallocate_DSBA(CMO)
       Call Deallocate_DSBA(FkA)
       Call Deallocate_DSBA(KA)
-      Call Deallocate_DSBA(JA)
+      Call Deallocate_DSBA(JA(1))
 
       Return
       END

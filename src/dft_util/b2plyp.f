@@ -11,9 +11,7 @@
 * Copyright (C) 2001, Roland Lindh                                     *
 *               2009, Grigory A. Shamov                                *
 ************************************************************************
-      Subroutine B2PLYP(mGrid,Rho,nRho,P2_ontop,
-     &                  nP2_ontop,iSpin,F_xc,
-     &                  dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X)
+      Subroutine B2PLYP(mGrid,iSpin)
 ************************************************************************
 *                                                                      *
 * Object:   DFT part for the Grimme's double hybrud functional.        *
@@ -24,12 +22,10 @@
 *             of Lund, SWEDEN. March 2001                              *
 *              Grigory A Shamov, University of Manitoba, 2009          *
 ************************************************************************
+      use nq_Grid, only: F_xc => Exc
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "ksdft.fh"
-      Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
-     &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
-     &       dF_dP2ontop(ndF_dP2ontop,mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -43,36 +39,26 @@ C    requires 0.27 times MP2 correlation energy from MBPT2
 *---- Dirac Exchange Functional                                        *
 *                                                                      *
       Call Diracx(mGrid,
-     &            iSpin,F_xc,dF_dRho,
-     &            ndF_dRho,Coeff_A,T_X)
+     &            iSpin,F_xc,Coeff_A)
 *                                                                      *
 *---- Becke 88 Exchange Functional                                     *
 *                                                                      *
       Call xB88(mGrid,
-     &          dF_dRho,ndF_dRho,
-     &          Coeff_A,iSpin,F_xc,T_X)
+     &          Coeff_A,iSpin,F_xc)
 *                                                                      *
 *---- Vosko-Wilk-Nusair Correlation Functional V                       *
 *                                                                      *
 C--      Call VWN_V(mGrid,
-C--     &           iSpin,F_xc,dF_dRho,
-C--     &           ndF_dRho,CoefR-Coeff_C,T_X)
+C--     &           iSpin,F_xc,
+C--     &           CoefR-Coeff_C)
 *                                                                      *
 *---- Lee-Yang-Parr Correlation Functional                             *
 *                                                                      *
       Call LYP(mGrid,
-     &         dF_dRho,ndF_dRho,
-     &         Coeff_C,iSpin,F_xc,T_X)
+     &         Coeff_C,iSpin,F_xc)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 C
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer(nRho)
-         Call Unused_real_array(Rho)
-         Call Unused_real_array(P2_ontop)
-         Call Unused_real_array(dF_dP2ontop)
-      End If
       End
