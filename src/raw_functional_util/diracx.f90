@@ -44,10 +44,10 @@
       If (nD.eq.1) Rho(:,:)=2.0D0*Rho(:,:)
 
       ! Evaluate energy depending on the family
-      select case (xc_f03_func_info_get_family(xc_info))
-      case(XC_FAMILY_LDA)
+!     select case (xc_f03_func_info_get_family(xc_info))
+!     case(XC_FAMILY_LDA)
          call xc_f03_lda_exc_vxc(xc_func, mGrid, Rho(1,1), func(1), dfunc_drho(1,1))
-      end select
+!     end select
 
       ! Libxc evaluates energy density per particle; multiply by
       ! density to get out what we really want
@@ -64,7 +64,21 @@
             vRho(2,iGrid) = vRho(2,iGrid) + Coeff*dfunc_drho(2, iGrid)
          End Do
          If (l_casdft) Then
-            ! more to come here.
+            dFunc_dRho(:,:)=Rho(:,:)
+            Rho(2,:)=0.0D0
+            func(:)=0.0D0
+            call xc_f03_lda_exc(xc_func, mGrid, Rho(1,1), func(1))
+            Do iGrid = 1, mGrid
+               F_xca(iGrid) = F_xca(iGrid) + Coeff*func(iGrid)*Rho(1, iGrid)
+            End Do
+            Rho(1,:)=0.0D0
+            Rho(2,:)=dFunc_dRho(2,:)
+            func(:)=0.0D0
+            call xc_f03_lda_exc(xc_func, mGrid, Rho(1,1), func(1))
+            Do iGrid = 1, mGrid
+               F_xcb(iGrid) = F_xcb(iGrid) + Coeff*func(iGrid)*Rho(2, iGrid)
+            End Do
+            Rho(:,:)=dFunc_dRho(:,:)
          End If
       End If
 
