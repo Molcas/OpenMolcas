@@ -17,7 +17,7 @@
       implicit none
       Real*8 :: F_xc(mGrid)
       Real*8 :: Coeff
-      integer :: mgrid, nD, iGrid
+      integer :: mgrid, nD, iGrid, nRho
 
       ! Work memory for libxc
       Real*8 :: func(mGrid), dfunc_drho(nD,mGrid)
@@ -34,6 +34,7 @@
       func(:) = 0.0
       dfunc_drho(:,:) = 0.0
 
+      nRho=SIZE(Rho,1)
       ! Initialize libxc functional: nRho = 2 means spin-polarized
       call xc_f03_func_init(xc_func, func_id, int(nRho, 4))
 
