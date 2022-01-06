@@ -24,9 +24,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: ERFun, CMO(*)
-integer(kind=iwp) :: nSym, nBas(nSym), nOcc(nSym), nFro(nSym)
-logical(kind=iwp) :: Timing
+real(kind=wp), intent(out) :: ERFun
+real(kind=wp), intent(in) :: CMO(*)
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOcc(nSym), nFro(nSym)
+logical(kind=iwp), intent(in) :: Timing
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, ipERFun, irc, iSym, kOff, lERFun, nFroT, nOccT(8)
 real(kind=wp) :: FracMem

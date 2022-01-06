@@ -26,8 +26,9 @@ subroutine Diag_Localisation(A,EVR,EVI,n,iGetVecs)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: n, iGetVecs
-real(kind=wp) :: A(n,n), EVR(n), EVI(n)
+integer(kind=iwp), intent(in) :: n, iGetVecs
+real(kind=wp), intent(inout) :: A(n,n)
+real(kind=wp), intent(out) :: EVR(n), EVI(n)
 #include "WrkSpc.fh"
 integer(kind=iwp) :: iErr, ip_Vecs, l_Vecs
 character(len=*), parameter :: SecNam = 'Diag_Localisation'

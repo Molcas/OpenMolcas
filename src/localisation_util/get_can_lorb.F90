@@ -15,8 +15,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Ene(*), Fock(*), Umat(*)
-integer(kind=iwp) :: nO, nX, jOrb(nO), iSym
+real(kind=wp), intent(in) :: Ene(*)
+real(kind=wp), intent(inout) :: Fock(*), Umat(*)
+integer(kind=iwp), intent(in) :: nO, nX, jOrb(nO), iSym
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, ii, ip_eta, ip_Z, ip_ZZ, j, nOx, nXx
 

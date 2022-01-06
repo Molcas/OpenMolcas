@@ -14,9 +14,14 @@ subroutine Cho_ov_Loc(irc,Thrs,nSym,nBas,nFro,nIsh,nAsh,nSsh,CMO,SMAT,iD_vir)
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: irc, nSym, nBas(nSym), nFro(nSym), nIsh(nSym), nAsh(nSym), nSsh(nSym), iD_vir(*)
-real(kind=wp) :: Thrs, CMO(*), SMAT(*)
+integer(kind=iwp), intent(out) :: irc
+real(kind=wp), intent(in) :: Thrs, SMAT(*)
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nFro(nSym), nIsh(nSym), nAsh(nSym), nSsh(nSym)
+real(kind=wp), intent(inout) :: CMO(*)
+integer(kind=iwp), intent(_OUT_) :: iD_vir(*)
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, ii, ip_Dens, ipD2, iSym, jD, kOff1, kOff2, kOffC, l_Dens, nOcc
 real(kind=wp) :: yNrm

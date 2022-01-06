@@ -23,9 +23,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: Xmo(*), Smat(*)
-integer(kind=iwp) :: nBas, nOrb2Loc, nPass
-logical(kind=iwp) :: Test
+real(kind=wp), intent(inout) :: Xmo(*)
+real(kind=wp), intent(in) :: Smat(*)
+integer(kind=iwp), intent(in) :: nBas, nOrb2Loc, nPass
+logical(kind=iwp), intent(in) :: Test
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, ip_Scr, ip_V, ip_VISqrt, ip_VSqrt, iPass, iTask, kOff, l_Scr, l_V, l_VISqrt, l_VSqrt, nB, nErr, nO2L
 real(kind=wp) :: xNrm
@@ -58,7 +59,7 @@ do iPass=1,nPass
   ! Compute V = X^T*S*X.
   ! --------------------
 
-  call GetUmat_Localisation(Work(ip_V),Xmo(1),Smat(1),Xmo(1),Work(ip_Scr),l_Scr,nBas,nOrb2Loc)
+  call GetUmat_Localisation(Work(ip_V),Xmo,Smat,Xmo,Work(ip_Scr),l_Scr,nBas,nOrb2Loc)
 
   ! Compute V^(-1/2).
   ! -----------------
@@ -71,8 +72,8 @@ do iPass=1,nPass
 
   nB = max(nBas,1)
   nO2L = max(nOrb2Loc,1)
-  call dCopy_(nBas*nOrb2Loc,Xmo(1),1,Work(ip_Scr),1)
-  call DGEMM_('N','N',nBas,nOrb2Loc,nOrb2Loc,One,Work(ip_Scr),nB,Work(ip_VISqrt),nO2L,Zero,Xmo(1),nB)
+  call dCopy_(nBas*nOrb2Loc,Xmo,1,Work(ip_Scr),1)
+  call DGEMM_('N','N',nBas,nOrb2Loc,nOrb2Loc,One,Work(ip_Scr),nB,Work(ip_VISqrt),nO2L,Zero,Xmo,nB)
 
 end do
 
@@ -81,7 +82,7 @@ end do
 
 if (Test) then
   nErr = 0
-  call GetUmat_Localisation(Work(ip_V),Xmo(1),Smat(1),Xmo(1),Work(ip_Scr),l_Scr,nBas,nOrb2Loc)
+  call GetUmat_Localisation(Work(ip_V),Xmo,Smat,Xmo,Work(ip_Scr),l_Scr,nBas,nOrb2Loc)
   kOff = ip_V-1
   do i=1,nOrb2Loc
     Work(kOff+nOrb2Loc*(i-1)+i) = Work(kOff+nOrb2Loc*(i-1)+i)-One

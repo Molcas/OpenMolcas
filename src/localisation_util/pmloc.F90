@@ -52,9 +52,11 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: irc, MxIter, nSym, nBas(nSym), nOcc(nSym), nFro(nSym)
-real(kind=wp) :: CMO(*), Thr, ThrGrad, ThrRot
-logical(kind=iwp) Silent
+integer(kind=iwp), intent(out) :: irc
+real(kind=wp), intent(inout) :: CMO(*)
+real(kind=wp), intent(in) :: Thr, ThrGrad, ThrRot
+integer(kind=iwp), intent(in) :: MxIter, nSym, nBas(nSym), nOcc(nSym), nFro(nSym)
+logical(kind=iwp), intent(in) :: Silent
 #include "Molcas.fh"
 integer(kind=iwp) :: iSym, nAtoms, nBasT, nOccT
 real(kind=wp) :: Functional, ThrGLoc, ThrLoc, ThrRotLoc

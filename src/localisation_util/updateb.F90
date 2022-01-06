@@ -22,9 +22,10 @@ use Constants, only: Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nOrb2Loc, nComp, ipLbl(nComp), iMO_s, iMO_t
-real(kind=wp) :: Col(nOrb2Loc,2), Gamma_rot
-logical(kind=iwp) :: Debug
+integer(kind=iwp), intent(in) :: nOrb2Loc, nComp, ipLbl(nComp), iMO_s, iMO_t
+real(kind=wp), intent(out) :: Col(nOrb2Loc,2)
+real(kind=wp), intent(in) :: Gamma_rot
+logical(kind=iwp), intent(in) :: Debug
 #include "WrkSpc.fh"
 integer(kind=iwp) :: iComp, ip, ip0, kOff_s, kOff_ss, kOff_st, kOff_t, kOff_tt
 real(kind=wp) :: cos2g, cosg, cosing, Dss, Dst, Dtt, sin2g, sing
@@ -64,13 +65,13 @@ do iComp=1,nComp
   end if
 # endif
 
-  call dCopy_(nOrb2Loc,Work(kOff_s+1),1,Col(1,1),1)
-  call dCopy_(nOrb2Loc,Work(kOff_t+1),1,Col(1,2),1)
+  call dCopy_(nOrb2Loc,Work(kOff_s+1),1,Col(:,1),1)
+  call dCopy_(nOrb2Loc,Work(kOff_t+1),1,Col(:,2),1)
 
   call dScal_(nOrb2Loc,cosg,Work(kOff_s+1),1)
-  call dAXPY_(nOrb2Loc,sing,Col(1,2),1,Work(kOff_s+1),1)
+  call dAXPY_(nOrb2Loc,sing,Col(:,2),1,Work(kOff_s+1),1)
   call dScal_(nOrb2Loc,cosg,Work(kOff_t+1),1)
-  call dAXPY_(nOrb2Loc,-sing,Col(1,1),1,Work(kOff_t+1),1)
+  call dAXPY_(nOrb2Loc,-sing,Col(:,1),1,Work(kOff_t+1),1)
 
   Work(kOff_s+iMO_s) = Dss*cos2g+Dtt*sin2g+Two*Dst*cosing
   Work(kOff_s+iMO_t) = (Dtt-Dss)*cosing+Dst*(cos2g-sin2g)

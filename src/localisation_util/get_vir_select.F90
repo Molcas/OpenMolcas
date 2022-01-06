@@ -14,13 +14,15 @@ subroutine Get_Vir_Select(irc,CMO,XMO,Eorb,Smat,BName,NamAct,ind_V,nSym,nActa,mO
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
-implicit None
+implicit none
 #include "Molcas.fh"
-integer(kind=iwp) :: irc, ind_V(*), nSym, nActa, mOrb(nSym), nBas(nSym), n_OK(nSym)
-real(kind=wp) :: CMO(*), XMO(*), Eorb(*), Smat(*)
-character(len=LenIn8) :: BName(*)
-character(len=LenIn) :: NamAct(nActa)
-logical(kind=iwp) :: ortho
+integer(kind=iwp), intent(in) :: ind_V(*), nSym, nActa, mOrb(nSym), nBas(nSym)
+integer(kind=iwp), intent(out) :: irc, n_OK(nSym)
+real(kind=wp), intent(inout) :: CMO(*), Eorb(*)
+real(kind=wp), intent(in) :: XMO(*), Smat(*)
+character(len=LenIn8), intent(in) :: BName(*)
+character(len=LenIn), intent(in) :: NamAct(nActa)
+logical(kind=iwp), intent(in) :: ortho
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, iOff, ip_C, ip_CC, ip_Fock, ip_iD, ip_U, ip_X, ipScr, iS, iSym, iZ, j, ja, jfr, jOff, jp_Fock, jX, jZ, k, &
                      km, kOff, kx, l, lOff, lScr, mOx, n_KO, nBmx, nBx, nOrbmx, nOx

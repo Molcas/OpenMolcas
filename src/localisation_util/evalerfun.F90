@@ -15,10 +15,14 @@ subroutine EvalERFun(ERFun,ERFunC,CMO,nOcc,nSym,Timing)
 
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: ERFun, ERFunC(*), CMO(*)
-integer(kind=iwp) :: nSym, nOcc(nSym)
-logical(kind=iwp) :: Timing
+real(kind=wp), intent(out) :: ERFun
+real(kind=wp), intent(_OUT_) :: ERFunC(*)
+real(kind=wp), intent(in) :: CMO(*)
+integer(kind=iwp), intent(in) :: nSym, nOcc(nSym)
+logical(kind=iwp), intent(in) :: Timing
 integer(kind=iwp) :: irc
 character(len=80) :: Txt
 character(len=*), parameter :: SecNam = 'EvalERFun'

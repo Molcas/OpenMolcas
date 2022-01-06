@@ -16,7 +16,8 @@ subroutine ERChk_Localisation(irc,lnBas,lnOcc,lnFro,lnSym)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: irc, lnSym, lnBas(lnSym), lnOcc(lnSym), lnFro(lnSym)
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: lnSym, lnBas(lnSym), lnOcc(lnSym), lnFro(lnSym)
 #include "cholesky.fh"
 #include "choorb.fh"
 integer(kind=iwp) :: iSym, nTst

@@ -20,9 +20,9 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nOrb2Loc, nComp, ipLbl(nComp)
-real(kind=wp) :: Functional
-logical(kind=iwp) :: Debug
+integer(kind=iwp), intent(in) :: nOrb2Loc, nComp, ipLbl(nComp)
+real(kind=wp), intent(out) :: Functional
+logical(kind=iwp), intent(in) :: Debug
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, iComp, iMO, ip0, j, kij, kji
 real(kind=wp) :: Cmp, Tst

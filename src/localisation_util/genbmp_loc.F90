@@ -15,10 +15,10 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nRow, nCol
-real(kind=wp) X(nRow,nCol)
-character(len=*) :: FilNam
-character :: Color
+integer(kind=iwp), intent(in) :: nRow, nCol
+real(kind=wp), intent(in) :: X(nRow,nCol)
+character(len=*), intent(in) :: FilNam
+character, intent(in) :: Color
 integer(kind=iwp) :: irc, Lunit, nStp
 real(kind=wp) :: StpSiz
 character(len=80) :: Txt

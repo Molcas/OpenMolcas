@@ -13,7 +13,7 @@
 !***********************************************************************
 
 subroutine PipekMezey(Functional,CMO,Thrs,ThrRot,ThrGrad,BName,nBas,nOrb2Loc,nFro,nSym,nAtoms,nMxIter,Maximisation,Converged, &
-            Debug,Silent)
+                      Debug,Silent)
 ! Author: Y. Carissan [modified by T.B. Pedersen].
 !
 ! Purpose: Pipek-Mezey localisation of occupied orbitals.
@@ -24,10 +24,13 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "Molcas.fh"
-real(kind=wp) :: Functional, CMO(*), Thrs, ThrRot, ThrGrad
-integer(kind=iwp) :: nSym, nBas(nSym), nOrb2Loc(nSym), nFro(nSym), nAtoms, nMxIter
-logical(kind=iwp) :: Maximisation, Converged, Debug, Silent
-character(len=LenIn8) :: BName(*) ! dimension should be tot. #bf
+real(kind=wp), intent(out) :: Functional
+real(kind=wp), intent(inout) :: CMO(*)
+real(kind=wp), intent(in) :: Thrs, ThrRot, ThrGrad
+character(len=LenIn8), intent(in) :: BName(*) ! dimension should be tot. #bf
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb2Loc(nSym), nFro(nSym), nAtoms, nMxIter
+logical(kind=iwp), intent(in) :: Maximisation, Debug, Silent
+logical(kind=iwp), intent(out) :: Converged
 #include "WrkSpc.fh"
 integer(kind=iwp) :: iComp, iOpt, ip_nBas_per_Atom, ip_nBas_Start, ipOaux, ipOvlp, irc, iSyLbl, kOffC, l_nBas_per_Atom, &
                      l_nBas_Start, lOaux, lOvlp, nBasT, nFroT, nOrb2LocT

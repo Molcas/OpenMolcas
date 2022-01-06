@@ -14,9 +14,10 @@ subroutine Tri2Rec(OvlTri,OvlRec,nBas,Debug)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nBas
-real(kind=wp) :: OvlTri(*), OvlRec(nBas,nBas)
-logical(kind=iwp) :: Debug
+integer(kind=iwp), intent(in) :: nBas
+real(kind=wp), intent(in) :: OvlTri(*)
+real(kind=wp), intent(out) :: OvlRec(nBas,nBas)
+logical(kind=iwp), intent(in) :: Debug
 integer(kind=iwp) :: iBas, ioffset, jBas, nElem, nlig
 
 ioffset = 1

@@ -40,10 +40,13 @@ subroutine GetRawPAOs(R,C,nBas,nOrb,nFro,nOrb2Loc,nSym,Normalize)
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, r8
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: R(*), C(*)
-integer(kind=iwp) :: nSym, nBas(nSym), nOrb(nSym), nFro(nSym), nOrb2Loc(nSym)
-logical(kind=iwp) :: Normalize
+real(kind=wp), intent(_OUT_) :: R(*)
+real(kind=wp), intent(in) :: C(*)
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb(nSym), nFro(nSym), nOrb2Loc(nSym)
+logical(kind=iwp), intent(in) :: Normalize
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, ipDo, ipOvlp, iSym, kOff, kOffS, kR, kSR, lDo, lOff, lOvlp, mu, nB, nF, nO2L, nOrth, nRest
 real(kind=wp) :: Fac, Ovlp

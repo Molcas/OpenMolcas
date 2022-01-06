@@ -16,11 +16,13 @@ use Definitions, only: wp, iwp, r8
 
 implicit none
 #include "Molcas.fh"
-integer(kind=iwp) :: irc, nSym, nActa, mOrb(nSym), nBas(nSym), n_OK(nSym)
-real(kind=wp) :: CMO(*), XMO(*), Eorb(*), Smat(*), Saa(*), ThrSel
-character(len=LenIn8) :: BName(*)
-character(len=LenIn) :: NamAct(nActa)
-logical(kind=iwp) :: ortho
+integer(kind=iwp), intent(in) :: nSym, nActa, mOrb(nSym), nBas(nSym)
+integer(kind=iwp), intent(out) :: irc, n_OK(nSym)
+real(kind=wp), intent(inout) :: CMO(*), Eorb(*)
+real(kind=wp), intent(in) :: XMO(*), Smat(*), Saa(*), ThrSel
+character(len=LenIn8), intent(in) :: BName(*)
+character(len=LenIn), intent(in) :: NamAct(nActa)
+logical(kind=iwp), intent(in) :: ortho
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, ia, ifr, iOff, ip_C, ip_CC, ip_Fock, ip_iD, ip_U, ip_X, ipScr, iQ, iS, iSQ, iSym, ito, iZ, j, ja, jb, jC, &
                      jfr, jOff, jp_Fock, jQ, jto, jX, jZ, k, km, kOff, l, lOff, lScr, mOx, n_KO, nBa, nBax, nBmx, nBx, nORbmx, nOx

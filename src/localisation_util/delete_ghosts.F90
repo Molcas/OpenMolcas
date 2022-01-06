@@ -25,10 +25,13 @@ use Definitions, only: wp, iwp, u6, r8
 
 implicit none
 #include "Molcas.fh"
-integer(kind=iwp) :: irc, nSym, nBas(nSym), nFro(nSym), nIsh(nSym), nAsh(nSym), nSsh(nSym), nDel(nSym), nUniqAt
-character(len=LenIn8) :: BName(*)
-real(kind=wp) :: ThrS, CMO(*), EOrb(*)
-logical(kind=iwp) :: isCASPT2
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nFro(nSym), nIsh(nSym), nAsh(nSym), nUniqAt
+integer(kind=iwp), intent(inout) :: nSsh(nSym), nDel(nSym)
+character(len=LenIn8), intent(in) :: BName(*)
+real(kind=wp), intent(in) :: ThrS
+logical(kind=iwp), intent(in) :: isCASPT2
+real(kind=wp), intent(inout) :: CMO(*), EOrb(*)
 #include "itmax.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, ia, iAt, iBat, iC, iCMO, iD, ifr, ik, iOff, ip_iD, ip_nBas_per_Atom, ip_nBas_Start, ipAsh, ipQ, ipQa, ipS, &

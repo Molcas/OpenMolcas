@@ -21,8 +21,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAtom, iDomain(0:nAtom), nBas_per_Atom(nAtom), nBas_Start(nAtom), nBas
-real(kind=wp) :: f, S(nBas,nBas), T(nBas), Threshold
+integer(kind=iwp), intent(in) :: nAtom, nBas_per_Atom(nAtom), nBas_Start(nAtom), nBas
+integer(kind=iwp), intent(inout) :: iDomain(0:nAtom)
+real(kind=wp), intent(out) :: f
+real(kind=wp), intent(in) :: S(nBas,nBas), T(nBas), Threshold
 #include "WrkSpc.fh"
 integer(kind=iwp) :: iA, iB, iCol, ip_Scr, ip_Si, ip_Sl, ip_Ti, irc, iRow, kSi, kTi, l_Scr, l_Si, l_Sl, l_Ti, lnu, mu1, nA, nmu, &
                      nnu, nSize, nu, nu1

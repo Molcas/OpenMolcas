@@ -24,14 +24,16 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "Molcas.fh"
-integer(kind=iwp) :: nBasis, nAtoms, nOrb2Loc, nBas_per_Atom(*), nBas_Start(*)
-real(kind=wp) :: cMO(nBasis,*), PACol(nOrb2Loc,2), PA(nOrb2Loc,nOrb2Loc,nAtoms), ThrRot, PctSkp
-logical(kind=iwp) :: Maximisation, Debug
-character(len=LenIn8) :: BName(*)
+integer(kind=iwp), intent(in) :: nBasis, nAtoms, nOrb2Loc, nBas_per_Atom(nAtoms), nBas_Start(nAtoms)
+real(kind=wp), intent(inout) :: cMO(nBasis,*), PA(nOrb2Loc,nOrb2Loc,nAtoms)
+real(kind=wp), intent(out) :: PACol(nOrb2Loc,2), PctSkp
+logical(kind=iwp), intent(in) :: Maximisation, Debug
+character(len=LenIn8), intent(in) :: BName(*)
+real(kind=wp), intent(in) :: ThrRot
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, iAt, iCouple, iMO1, iMO2, iMO_s, iMO_t
-real(kind=wp) :: Alpha, Alpha1, Alpha2, Ast, Bst, cos4alpha, Gamma_rot, pass, PAst, PAtt, sin4alpha, SumA, SumB, Tst, Tstc, Tsts, &
-                 xDone, xOrb2Loc, xTotal
+real(kind=wp) :: Alpha, Alpha1, Alpha2, Ast, Bst, cos4alpha, Gamma_rot, PA_ss, PA_st, PA_tt, sin4alpha, SumA, SumB, Tst, Tstc, &
+                 Tsts, xDone, xOrb2Loc, xTotal
 character(len=LenIn8) :: PALbl
 character(len=80) :: Txt
 
@@ -55,9 +57,9 @@ do iMO1=1,nOrb2Loc-1
     SumA = Zero
     SumB = Zero
     do iAt=1,nAtoms
-      PAst = PA(iMO_t,iMO_s,iAt)
-      pass = PA(iMO_s,iMO_s,iAt)
-      PAtt = PA(iMO_t,iMO_t,iAt)
+      PA_st = PA(iMO_t,iMO_s,iAt)
+      PA_ss = PA(iMO_s,iMO_s,iAt)
+      PA_tt = PA(iMO_t,iMO_t,iAt)
       if (Debug) then
         write(u6,*) 'In RotateOrb'
         write(u6,*) '------------'
@@ -65,13 +67,13 @@ do iMO1=1,nOrb2Loc-1
         call RecPrt(PALbl,' ',PA(1,1,iAt),nOrb2Loc,nOrb2Loc)
         write(u6,*) '**************************'
         write(u6,*) 'A :',iAt
-        write(u6,*) '<',iMO_s,'|PA|',iMO_t,'> = ',PAst
-        write(u6,*) '<',iMO_s,'|PA|',iMO_s,'> = ',pass
-        write(u6,*) '<',iMO_t,'|PA|',iMO_t,'> = ',PAtt
+        write(u6,*) '<',iMO_s,'|PA|',iMO_t,'> = ',PA_st
+        write(u6,*) '<',iMO_s,'|PA|',iMO_s,'> = ',PA_ss
+        write(u6,*) '<',iMO_t,'|PA|',iMO_t,'> = ',PA_tt
         write(u6,*) '**************************'
       end if
-      SumA = SumA+PAst**2-Quart*(pass-PAtt)**2
-      SumB = SumB+PAst*(pass-PAtt)
+      SumA = SumA+PA_st**2-Quart*(PA_ss-PA_tt)**2
+      SumB = SumB+PA_st*(PA_ss-PA_tt)
     end do
     Ast = SumA
     Bst = SumB

@@ -60,8 +60,11 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-integer(kind=iwp) :: irc, nAtom, nOcc, iDomain(0:nAtom,nOcc), nBas_per_Atom(nAtom), nBas_Start(nAtom), nBas
-real(kind=wp) :: QD(nOcc), f(nOcc), C(nBas,nOcc), ThrDomain(2)
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: nAtom, nOcc, nBas_per_Atom(nAtom), nBas_Start(nAtom), nBas
+integer(kind=iwp), intent(inout) :: iDomain(0:nAtom,nOcc)
+real(kind=wp), intent(out) :: QD(nOcc), f(nOcc)
+real(kind=wp), intent(in) :: C(nBas,nOcc), ThrDomain(2)
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, iAt, iAtom, iCount, iOff, iOff0, ip_absQ, ip_iPivot, ip_Q, ip_S, ip_T, jOff, jOff0, kOff, kOff0, kOffT, &
                      l_absQ, l_iPivot, l_Q, l_S, l_T, nB(1), nErr, nSrt

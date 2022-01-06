@@ -20,8 +20,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, r8
 
 implicit none
-integer(kind=iwp) :: irc, n
-real(kind=wp) :: U(n,n), Thr
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(in) :: U(n,n), Thr
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, ip0, ipUTU, lUTU, n2
 real(kind=wp) :: RMS, x2

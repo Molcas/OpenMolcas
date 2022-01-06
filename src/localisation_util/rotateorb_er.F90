@@ -22,9 +22,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nBasis, nOrb2Loc
-real(kind=wp) :: R(nOrb2Loc,nOrb2Loc), CMO(nBasis,nOrb2Loc)
-logical(kind=iwp) ::Debug
+integer(kind=iwp), intent(in) :: nBasis, nOrb2Loc
+real(kind=wp), intent(in) :: R(nOrb2Loc,nOrb2Loc)
+real(kind=wp), intent(inout) :: CMO(nBasis,nOrb2Loc)
+logical(kind=iwp), intent(in) :: Debug
 #include "WrkSpc.fh"
 integer(kind=iwp) :: ipCMO, ipU, irc, lCMO, lU
 real(kind=wp) :: ThrU

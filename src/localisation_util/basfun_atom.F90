@@ -18,9 +18,10 @@ use Definitions, only: iwp, u6
 
 implicit none
 #include "Molcas.fh"
-integer(kind=iwp) :: nAtoms, nBas_per_Atom(nAtoms), nBas_Start(nAtoms), nBas
-character(len=LenIn8) :: BName(nBas)
-logical(kind=iwp) :: DoPrint
+integer(kind=iwp), intent(in) :: nAtoms, nBas
+integer(kind=iwp), intent(out) :: nBas_per_Atom(nAtoms), nBas_Start(nAtoms)
+character(len=LenIn8), intent(in) :: BName(nBas)
+logical(kind=iwp), intent(in) :: DoPrint
 integer(kind=iwp) :: iAt, iAt1, iBas, iCount, nBasAt
 character(len=LenIn) :: Lbl, LblOld
 character(len=80) :: Txt, Formt

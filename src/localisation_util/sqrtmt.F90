@@ -21,9 +21,13 @@ subroutine SQRTMT(A,NDIM,ITASK,ASQRT,AMSQRT,SCR)
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NDIM, ITASK
-real(kind=wp) :: A(NDIM,NDIM), ASQRT(NDIM,NDIM), AMSQRT(NDIM,NDIM), SCR(*)
+integer(kind=iwp), intent(in) :: NDIM, ITASK
+real(kind=wp), intent(in) :: A(NDIM,NDIM)
+real(kind=wp), intent(out) :: ASQRT(NDIM,NDIM), AMSQRT(NDIM,NDIM)
+real(kind=wp), intent(_OUT_) :: SCR(*)
 integer(kind=iwp) :: I, KLASYM, KLAVAL, KLAVEC, KLFREE, NTEST
 
 ! Length of SCR should at least be 2 * NDIM ** 2 + NDIM*(NDIM+1)/2
@@ -44,7 +48,9 @@ call DCopy_(NDIM**2,[Zero],0,SCR(KLAVEC),1)
 call DCopy_(NDIM,[One],0,SCR(KLAVEC),1+NDIM)
 call NIDiag(SCR(KLASYM),SCR(KLAVEC),NDIM,NDIM)
 call JACORD(SCR(KLASYM),SCR(KLAVEC),NDIM,NDIM)
-call COPDIA(SCR(KLASYM),SCR(KLAVAL),NDIM,1)
+do I=2,NDIM
+  SCR(KLAVAL-1+I) = SCR(KLASYM-1+I*(I+1)/2)
+end do
 if (NTEST >= 1) then
   write(u6,*) ' Eigenvalues of matrix : '
   call WRTMAT(SCR(KLAVAL),NDIM,1,NDIM,1)

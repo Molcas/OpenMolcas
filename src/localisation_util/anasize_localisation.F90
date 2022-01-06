@@ -20,8 +20,8 @@ use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nShell, nOrb, iSym
-real(kind=wp) :: Den(nShell,nShell), CMO(nShell,nOrb), XMO(nShell,nOrb)
+integer(kind=iwp), intent(in) :: nShell, nOrb, iSym
+real(kind=wp), intent(in) :: Den(nShell,nShell), CMO(nShell,nOrb), XMO(nShell,nOrb)
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, iBin, ip0, ipBin, ipDLT, lBin, lDLT
 real(kind=wp) :: StpSiz

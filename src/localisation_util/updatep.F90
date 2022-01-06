@@ -24,10 +24,12 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "Molcas.fh"
-integer(kind=iwp) :: nBas_Start(*), nOrb2Loc, nAtoms, iMO_s, iMO_t
-real(kind=wp) :: PACol(nOrb2Loc,2), PA(nOrb2Loc,nOrb2Loc,nAtoms), gamma_rot
-character(len=LenIn8) :: BName(*)
-logical(kind=iwp) :: Debug
+integer(kind=iwp), intent(in) :: nAtoms, nBas_Start(nAtoms), nOrb2Loc, iMO_s, iMO_t
+real(kind=wp), intent(out) :: PACol(nOrb2Loc,2)
+character(len=LenIn8), intent(in) :: BName(*)
+real(kind=wp), intent(inout) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
+real(kind=wp), intent(in) :: gamma_rot
+logical(kind=iwp), intent(in) :: Debug
 #include "WrkSpc.fh"
 integer(kind=iwp) :: iAt
 real(kind=wp) :: cos2g, cosg, cosing, PA_ss, PA_st, PA_tt, sin2g, sing
@@ -63,15 +65,15 @@ do iAt=1,nAtoms
 
   ! Copy out columns s and t of PA.
 
-  call dCopy_(nOrb2Loc,PA(1,iMO_s,iAt),1,PACol(1,1),1)
-  call dCopy_(nOrb2Loc,PA(1,iMO_t,iAt),1,PACol(1,2),1)
+  PACol(:,1) = PA(:,iMO_s,iAt)
+  PACol(:,2) = PA(:,iMO_t,iAt)
 
   ! Compute transformed columns.
 
-  call dScal_(nOrb2Loc,cosg,PA(1,iMO_s,iAt),1)
-  call dAXPY_(nOrb2Loc,sing,PACol(1,2),1,PA(1,iMO_s,iAt),1)
-  call dScal_(nOrb2Loc,cosg,PA(1,iMO_t,iAt),1)
-  call dAXPY_(nOrb2Loc,-sing,PACol(1,1),1,PA(1,iMO_t,iAt),1)
+  call dScal_(nOrb2Loc,cosg,PA(:,iMO_s,iAt),1)
+  call dAXPY_(nOrb2Loc,sing,PACol(:,2),1,PA(:,iMO_s,iAt),1)
+  call dScal_(nOrb2Loc,cosg,PA(:,iMO_t,iAt),1)
+  call dAXPY_(nOrb2Loc,-sing,PACol(:,1),1,PA(:,iMO_t,iAt),1)
 
   ! Compute PA_ss, PA_tt, PA_st, and PA_ts (= PA_st).
 
@@ -82,8 +84,8 @@ do iAt=1,nAtoms
 
   ! Copy columns to rows.
 
-  call dCopy_(nOrb2Loc,PA(1,iMO_s,iAt),1,PA(iMO_s,1,iAt),nOrb2Loc)
-  call dCopy_(nOrb2Loc,PA(1,iMO_t,iAt),1,PA(iMO_t,1,iAt),nOrb2Loc)
+  PA(iMO_s,:,iAt) = PA(:,iMO_s,iAt)
+  PA(iMO_t,:,iAt) = PA(:,iMO_t,iAt)
 
 end do
 

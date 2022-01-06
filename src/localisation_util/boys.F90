@@ -19,9 +19,12 @@ subroutine Boys(Functional,CMO,Thrs,ThrRot,ThrGrad,nBas,nOrb2Loc,nFro,nSym,nMxIt
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: Functional, CMO(*), Thrs, ThrRot, ThrGrad
-integer(kind=iwp) :: nSym, nBas(nSym), nOrb2Loc(nSym), nFro(nSym), nMxIter
-logical(kind=iwp) :: Maximisation, Converged, Debug, Silent
+real(kind=wp), intent(out) :: Functional
+real(kind=wp), intent(inout) :: CMO(*)
+real(kind=wp), intent(in) :: Thrs, ThrRot, ThrGrad
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb2Loc(nSym), nFro(nSym), nMxIter
+logical(kind=iwp), intent(in) :: Maximisation, Debug, Silent
+logical(kind=iwp), intent(out) :: Converged
 #include "WrkSpc.fh"
 integer(kind=iwp), parameter :: nComp = 3 ! 3 components of dipole operator
 integer(kind=iwp) :: iComp, ipLbl(nComp), ipLbl_MO(nComp), iOpt, ipAux, irc, iSym, kOffC, lAux, lLbl, lLbl_MO, nBasT, nFroT, &

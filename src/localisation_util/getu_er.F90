@@ -22,8 +22,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n
-real(kind=wp) :: U(n,n), R(n,n)
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(out) :: U(n,n)
+real(kind=wp), intent(in) :: R(n,n)
 #include "WrkSpc.fh"
 integer(kind=iwp) :: ipISqrt, ipRTR, ipScr, ipSqrt, iTask, lISqrt, lRTR, lScr, lSqrt, n2, nn
 

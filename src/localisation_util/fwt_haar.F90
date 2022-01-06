@@ -69,9 +69,10 @@ use Constants, only: Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: n, m
-real(kind=wp) :: B(n,*), X(n,*)
-integer(kind=iwp) :: i, j, k, kA, kB, lA, nv
+integer(kind=iwp), intent(in) :: n, m
+real(kind=wp), intent(out) :: B(n,2**(m-1))
+real(kind=wp), intent(inout) :: X(n,2**m)
+integer(kind=iwp) :: j, k, kA, kB, lA, nv
 real(kind=wp) :: fac
 
 if (m <= 0) then
@@ -98,18 +99,14 @@ else  ! do not use BLAS
     do k=1,nv
       kA = 2*k
       lA = kA-1
-      do i=1,n
-        B(i,kB) = fac*(X(i,lA)-X(i,kA))
-        X(i,k) = fac*(X(i,lA)+X(i,kA))
-      end do
+      B(:,kB) = fac*(X(:,lA)-X(:,kA))
+      X(:,k) = fac*(X(:,lA)+X(:,kA))
       kB = kB+1
     end do
   end do
   do j=1,2**m-1
     k = j+1  ! A[0] is already in place
-    do i=1,n
-      X(i,k) = B(i,j)
-    end do
+    X(:,k) = B(:,j)
   end do
 
 end if

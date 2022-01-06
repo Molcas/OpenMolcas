@@ -66,10 +66,14 @@ subroutine PAOLoc(irc,CMO,PAO,Thr,nBas,nOrb,nOcc,nVir,nSym,Mode)
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: irc, nSym, nBas(nSym), nOrb(nSym), nOcc(nSym), nVir(nSym)
-real(kind=wp) :: CMO(*), PAO(*), Thr
-character(len=*) :: Mode
+integer(kind=iwp), intent(out) :: irc
+real(kind=wp), intent(in) :: CMO(*), Thr
+real(kind=wp), intent(_OUT_) :: PAO(*)
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb(nSym), nOcc(nSym), nVir(nSym)
+character(len=*), intent(in) :: Mode
 #include "WrkSpc.fh"
 integer(kind=iwp) :: DefLevel, ip_D, ip_Dum, ip_R, iSym, kOff1, kOffP, kOffR, l_D, l_Dum, l_R, Level, lMode, nOrthPs
 real(kind=wp) :: ThrLoc, xNrm

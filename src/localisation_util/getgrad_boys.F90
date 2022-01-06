@@ -20,14 +20,14 @@ use Constants, only: Zero, Four
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nOrb2Loc, nComp, ipLbl(nComp)
-real(kind=wp) :: Rmat(nOrb2Loc,nOrb2Loc), GradNorm
-logical(kind=iwp) :: Debug
+integer(kind=iwp), intent(in) :: nOrb2Loc, nComp, ipLbl(nComp)
+real(kind=wp), intent(out) :: Rmat(nOrb2Loc,nOrb2Loc), GradNorm
+logical(kind=iwp), intent(in) :: Debug
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, iComp, ip0, j
 real(kind=wp) :: Fun, Rjj
 
-call FZero(Rmat,nOrb2Loc**2)
+Rmat(:,:) = Zero
 do iComp=1,nComp
   ip0 = ipLbl(iComp)-1
   do j=1,nOrb2Loc

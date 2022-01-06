@@ -19,10 +19,12 @@ subroutine GetOvlp_Localisation(S,Storage,nBas,nSym)
 
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: S(*)
-character(len=3) :: Storage
-integer(kind=iwp) :: nSym, nBas(nSym)
+real(kind=wp), intent(_OUT_) :: S(*)
+character(len=3), intent(in) :: Storage
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym)
 #include "WrkSpc.fh"
 integer(kind=iwp) :: iComp, iOpt, ip_Scr, irc, iSyLbl, iSym, kSq, kTri, l_Scr, l_Tri
 character(len=8) :: Label

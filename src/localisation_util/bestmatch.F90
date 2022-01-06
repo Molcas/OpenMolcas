@@ -15,8 +15,9 @@ use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nConstr, nOrb, ldim, Match(2,ldim)
-real(kind=wp) :: Occ(nOrb)
+integer(kind=iwp), intent(in) :: nConstr, nOrb, ldim
+real(kind=wp), intent(inout) :: Occ(nOrb)
+integer(kind=iwp), intent(out) :: Match(2,ldim)
 integer(kind=iwp) :: i, j, jConstr, k, l
 real(kind=wp) :: delta, delta0, xOcc
 

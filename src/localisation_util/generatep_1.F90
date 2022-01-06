@@ -23,10 +23,11 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "Molcas.fh"
-integer(kind=iwp) :: nBasis, nOrb2Loc, nAtoms, nBas_per_Atom(*), nBas_Start(*)
-real(kind=wp) :: Ovlp(nBasis,nBasis), cMO(nBasis,*), Sbar(nBasis,nOrb2Loc), PA(nOrb2Loc,nOrb2Loc,nAtoms)
-character(len=LenIn8) :: BName(*)
-logical(kind=iwp) :: Debug
+integer(kind=iwp), intent(in) :: nBasis, nOrb2Loc, nAtoms, nBas_per_Atom(*), nBas_Start(*)
+real(kind=wp), intent(in) :: Ovlp(nBasis,nBasis), cMO(nBasis,*)
+real(kind=wp), intent(out) :: Sbar(nBasis,nOrb2Loc), PA(nOrb2Loc,nOrb2Loc,nAtoms)
+character(len=LenIn8), intent(in) :: BName(*)
+logical(kind=iwp), intent(in) :: Debug
 #include "WrkSpc.fh"
 #include "real.fh"
 integer(kind=iwp) :: iAt, iMO_s, iMO_t
@@ -62,7 +63,7 @@ if (Debug) then
   write(u6,*) '------------'
   do iAt=1,nAtoms
     PALbl = 'PA__'//BName(nBas_Start(iAt))(1:LenIn)
-    call RecPrt(PALbl,' ',PA(1,1,iAt),nOrb2Loc,nOrb2Loc)
+    call RecPrt(PALbl,' ',PA(:,:,iAt),nOrb2Loc,nOrb2Loc)
   end do
 end if
 

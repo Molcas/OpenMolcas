@@ -20,8 +20,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lScr, nBas, nOrb
-real(kind=wp) :: U(*), C(*), S(*), X(*), Scr(lScr)
+integer(kind=iwp), intent(in) :: lScr, nBas, nOrb
+real(kind=wp), intent(out) :: U(nOrb,nOrb), Scr(lScr)
+real(kind=wp), intent(in) :: C(nBas,nOrb), S(nBas,nBas), X(nBas,nOrb)
 integer(kind=iwp) :: Need
 character(len=80) :: Txt
 character(len=*), parameter :: SecNam = 'GetUmat_Localisation'

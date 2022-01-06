@@ -21,9 +21,9 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: CMO(*)
-integer(kind=iwp) :: nBas, nOrb2Loc, nComp, ipLbl_AO(nComp), ipLbl(nComp)
-logical(kind=iwp) :: Debug
+real(kind=wp), intent(in) :: CMO(*)
+integer(kind=iwp), intent(in) :: nBas, nOrb2Loc, nComp, ipLbl_AO(nComp), ipLbl(nComp)
+logical(kind=iwp), intent(in) :: Debug
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, iComp, iMO, ip0, ipDbar, j, kij, kji, lDbar
 real(kind=wp) :: Cmp, Tst

@@ -68,9 +68,10 @@ use Constants, only: Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: n, m
-real(kind=wp) :: B(n,*), X(n,*)
-integer(kind=iwp) :: i, j, k, kB, kv, lB, nv
+integer(kind=iwp), intent(in) :: n, m
+real(kind=wp), intent(out) :: B(n,2**m)
+real(kind=wp), intent(inout) :: X(n,2**m)
+integer(kind=iwp) :: j, k, kB, kv, lB, nv
 real(kind=wp) :: fac
 
 if (m <= 0) then
@@ -93,10 +94,8 @@ else  ! do not use BLAS
       kB = kB+2
       lB = kB+1
       kv = k+nv
-      do i=1,n
-        B(i,kB) = fac*(X(i,k)+X(i,kv))
-        B(i,lB) = fac*(X(i,k)-X(i,kv))
-      end do
+      B(:,kB) = fac*(X(:,k)+X(:,kv))
+      B(:,lB) = fac*(X(:,k)-X(:,kv))
     end do
     nv = nv*2
     call dcopy_(n*nv,B,1,X,1)

@@ -19,8 +19,8 @@ subroutine Domain_Histogram(iDomain,nAtom,nOcc,Title)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nAtom, nOcc, iDomain(0:nAtom,nOcc)
-character(len=*) :: Title
+integer(kind=iwp), intent(in) :: nAtom, nOcc, iDomain(0:nAtom,nOcc)
+character(len=*), intent(in) :: Title
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, i_max, i_min, iC, ip_iCount, l_iCount
 real(kind=wp) :: Fac, Pct, x_ave

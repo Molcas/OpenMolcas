@@ -20,9 +20,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nAtom, nOcc, iDomain(0:nAtom,nOcc), nBas_Start(nAtom), nBas
-real(kind=wp) :: QD(nOcc), f(nOcc), Coord(3,nAtom)
-character(len=4) :: AtomLbl(2,nBas)
+integer(kind=iwp), intent(in) :: nAtom, nOcc, iDomain(0:nAtom,nOcc), nBas_Start(nAtom), nBas
+real(kind=wp), intent(in) :: QD(nOcc), f(nOcc), Coord(3,nAtom)
+character(len=4), intent(in) :: AtomLbl(2,nBas)
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, iAt, iAtom, j, jAt, jAtom, nAt, nij
 real(kind=wp) :: R, Rave, Rmax, Rmin

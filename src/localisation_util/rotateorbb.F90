@@ -20,9 +20,11 @@ use Constants, only: Zero, One, Half, Quart, Pi
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nComp, ipLbl(nComp), nBas, nOrb2Loc
-real(kind=wp) :: CMO(nBas,*), Col(nOrb2Loc,2), ThrRot, PctSkp
-logical(kind=iwp) :: Maximisation, Debug
+integer(kind=iwp), intent(in) :: nComp, ipLbl(nComp), nBas, nOrb2Loc
+real(kind=wp), intent(inout) :: CMO(nBas,*)
+real(kind=wp), intent(out) :: Col(nOrb2Loc,2), PctSkp
+logical(kind=iwp), intent(in) :: Maximisation, Debug
+real(kind=wp), intent(in) :: ThrRot
 #include "WrkSpc.fh"
 integer(kind=iwp) :: iComp, iCouple, iMO1, iMO2, iMO_s, iMO_t, ip0, iss, ist, itt
 real(kind=wp) :: Alpha, Alpha1, Alpha2, Ast, Bst, cos4alpha, Gamma_rot, sin4alpha, Tst, Tstc, Tsts, xDone, xOrb2Loc, xTotal

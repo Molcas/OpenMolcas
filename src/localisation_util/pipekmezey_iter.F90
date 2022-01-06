@@ -23,10 +23,13 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "Molcas.fh"
-integer(kind=iwp) :: nAtoms, nBas_per_Atom(nAtoms), nBas_Start(nAtoms), nBasis, nOrb2Loc, nMxIter
-real(kind=wp) :: Functional, CMO(nBasis,*), Ovlp(nBasis,*), Thrs, ThrRot, ThrGrad, PA(nOrb2Loc,nOrb2Loc,nAtoms)
-character(len=LenIn8) :: BName(nBasis)
-logical(kind=iwp) :: Maximisation, Converged, Debug, Silent
+integer(kind=iwp), intent(in) :: nAtoms, nBas_per_Atom(nAtoms), nBas_Start(nAtoms), nBasis, nOrb2Loc, nMxIter
+real(kind=wp), intent(out) :: Functional, PA(nOrb2Loc,nOrb2Loc,nAtoms)
+real(kind=wp), intent(inout) :: CMO(nBasis,*)
+real(kind=wp), intent(in) :: Ovlp(nBasis,*), Thrs, ThrRot, ThrGrad
+character(len=LenIn8), intent(in) :: BName(nBasis)
+logical(kind=iwp), intent(in) :: Maximisation, Debug, Silent
+logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: nIter
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2
 real(kind=wp), allocatable :: RMat(:,:), PACol(:,:)

@@ -46,8 +46,9 @@ use Constants, only: Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAA, nBB, nSym, nBas(nSym)
-real(kind=wp) :: A(nAA), B(nBB)
+integer(kind=iwp), intent(in) :: nAA, nBB, nSym, nBas(nSym)
+real(kind=wp), intent(in) :: A(nAA)
+real(kind=wp), intent(out) :: B(nBB)
 integer(kind=iwp) :: ib, iSym, jb, k1, k2, l1, l2, l3, nb
 real(kind=wp) :: Factor
 

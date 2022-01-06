@@ -19,7 +19,8 @@ subroutine CheckDomain(irc,iDomain,nAtom,nOcc)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: irc, nAtom, nOcc, iDomain(0:nAtom,nOcc)
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: nAtom, nOcc, iDomain(0:nAtom,nOcc)
 integer(kind=iwp) :: i, iAt, iAtom
 
 irc = 0

@@ -18,9 +18,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nAtoms, nOrb2Loc
-real(kind=wp) :: PA(nOrb2Loc,nOrb2Loc,nAtoms), Functional
-logical(kind=iwp) :: Debug
+integer(kind=iwp), intent(in) :: nAtoms, nOrb2Loc
+real(kind=wp), intent(in) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
+real(kind=wp), intent(out) :: Functional
+logical(kind=iwp), intent(in) :: Debug
 #include "WrkSpc.fh"
 integer(kind=iwp) :: iAt, iMO_s
 

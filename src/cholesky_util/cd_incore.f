@@ -24,7 +24,7 @@
 *> (semi-)definite) and the output is ill-defined.
 *>
 *> @param[in,out] X      Matrix to be Cholesky decomposed
-*> @param[out]    n      Linear dimension of \p X
+*> @param[in]     n      Linear dimension of \p X
 *> @param[out]    Vec    Storage array for Cholesky vectors
 *> @param[in]     MxVec  Max. number of vectors allowed
 *> @param[out]    NumCho Number of Cholesky vectors

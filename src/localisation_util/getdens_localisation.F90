@@ -20,8 +20,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Dens(*), CMO(*)
-integer(kind=iwp) :: nBas, nOcc
+integer(kind=iwp), intent(in) :: nBas, nOcc
+real(kind=wp), intent(out) :: Dens(nBas,nBas)
+real(kind=wp), intent(in) :: CMO(nBas,nOcc)
 integer(kind=iwp) :: nTBs
 
 nTBs = max(nBas,1)

@@ -17,7 +17,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: Log2
-integer(kind=iwp) :: n
+integer(kind=iwp), intent(in) :: n
 integer(kind=iwp) :: m
 
 m = n

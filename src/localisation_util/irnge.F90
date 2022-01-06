@@ -15,8 +15,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: iRnge
-integer(kind=iwp) :: nBin
-real(kind=wp) :: Val, Bin(nBin)
+integer(kind=iwp), intent(in) :: nBin
+real(kind=wp), intent(in) :: Val, Bin(nBin)
 integer(kind=iwp) :: iBin
 
 iRnge = nBin

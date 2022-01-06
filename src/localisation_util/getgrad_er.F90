@@ -24,10 +24,11 @@ use Constants, only: Zero, Four
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nBasis, nOrb2Loc
-real(kind=wp) :: Functional, GradNorm, R(nOrb2Loc,nOrb2Loc), CMO(nBasis,nOrb2Loc)
+integer(kind=iwp), intent(in) :: nBasis, nOrb2Loc
+real(kind=wp), intent(out) :: Functional, GradNorm, R(nOrb2Loc,nOrb2Loc)
+real(kind=wp), intent(in) :: CMO(nBasis,nOrb2Loc)
+logical(kind=iwp), intent(in) :: Timing
 integer(kind=iwp), parameter :: nSym = 1
-logical(kind=iwp) :: Timing
 integer(kind=iwp) :: i, irc, j, nOcc(nSym)
 character(len=80) :: Txt
 type(DSBA_Type) :: CMOt

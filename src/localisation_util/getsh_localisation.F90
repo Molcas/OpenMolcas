@@ -14,10 +14,13 @@ subroutine GetSh_Localisation(X,nBas,m,XSh,nShell,iSO2Sh,iOpt,Norm)
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: nBas, m, nShell, iSO2Sh(*), iOpt
-real(kind=wp) :: X(nBas,m), XSh(nShell,*)
-character(len=3) :: Norm  ! 'MAX' or 'FRO'
+integer(kind=iwp), intent(in) :: nBas, m, nShell, iSO2Sh(*), iOpt
+real(kind=wp), intent(in) :: X(nBas,m)
+real(kind=wp), intent(_OUT_) :: XSh(nShell,*)
+character(len=3), intent(in) :: Norm  ! 'MAX' or 'FRO'
 integer(kind=iwp) :: i, iShell, j, jShell
 character(len=3) :: myNorm
 
@@ -27,7 +30,7 @@ myNorm = Norm
 call UpCase(myNorm)
 
 if (iOpt == 1) then
-  call dCopy_(nShell*m,[Zero],0,XSh,1)
+  XSh(:,1:m) = Zero
   if (myNorm == 'MAX') then
     do j=1,m
       do i=1,nBas
@@ -50,7 +53,7 @@ else
   if (m /= nBas) then
     call SysAbendMsg('GetSh_Localisation','Fatal error','m != nBas')
   end if
-  call dCopy_(nShell*nShell,[Zero],0,XSh,1)
+  XSh(:,1:nShell) = Zero
   if (myNorm == 'MAX') then
     do j=1,nBas
       jShell = iSO2Sh(j)
@@ -66,11 +69,7 @@ else
         iShell = iSO2Sh(i)
         XSh(iShell,jShell) = XSh(iShell,jShell)+X(i,j)**2
       end do
-    end do
-    do jShell=1,nShell
-      do iShell=1,nShell
-        Xsh(iShell,jShell) = sqrt(Xsh(iShell,jShell))
-      end do
+      Xsh(:,jShell) = sqrt(Xsh(:,jShell))
     end do
   end if
 end if

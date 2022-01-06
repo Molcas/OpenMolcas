@@ -17,8 +17,9 @@ use Constants, only: One, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n, m
-real(kind=wp) :: B(n,*), X(n,*)
+integer(kind=iwp), intent(in) :: n, m
+real(kind=wp), intent(out) :: B(n,2**(m-1))
+real(kind=wp), intent(inout) :: X(n,2**m)
 integer(kind=iwp) :: j, jB, k, kB, lB, mv, nv
 real(kind=wp) :: fac
 

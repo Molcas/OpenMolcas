@@ -17,8 +17,12 @@ subroutine ChoLoc_xp(irc,Dens,CMO,Thrs,xNrm,nBas,nOcc,iD)
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-integer(kind=iwp) :: irc, nBas, nOcc, iD(nBas)
-real(kind=wp) :: Dens(nBas,nBas), CMO(nBas,nOcc), Thrs, xNrm
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: nBas, nOcc
+real(kind=wp), intent(inout) :: Dens(nBas,nBas)
+real(kind=wp), intent(out) :: CMO(nBas,nOcc), xNrm
+real(kind=wp), intent(in) :: Thrs
+integer(kind=iwp), intent(inout) :: iD(nBas)
 integer(kind=iwp) :: nVec
 character(len=*), parameter :: SecNam = 'ChoLoc_xp'
 real(kind=r8), external :: ddot_
@@ -28,11 +32,11 @@ xNrm = -huge(xNrm)
 
 nVec = 0
 call CD_InCore_p(Dens,nBas,CMO,nOcc,iD,nVec,Thrs,irc)
-if ((irc /= 0) .and. (irc /= 102)) then
+if (irc == 102) then
+  irc = 0  ! reset because it is most likely a numerical noise
+else if (irc /= 0) then
   write(u6,*) SecNam,': CD_InCore_p returned ',irc
   return
-else if (irc == 102) then
-  irc = 0  ! reset because it is most likely a numerical noise
 else if (nVec /= nOcc) then
   write(u6,*) SecNam,': nVec /= nOcc'
   write(u6,*) '   nVec,nOcc = ',nVec,nOcc

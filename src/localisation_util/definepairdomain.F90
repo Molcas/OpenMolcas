@@ -64,9 +64,14 @@ subroutine DefinePairDomain(irc,iPairDomain,iClass,Rmin,iDomain,RThr,Coord,nAtom
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: irc, nAtom, iPairDomain(0:nAtom,*), iClass(*), nOcc, iDomain(0:nAtom,nOcc), nRThr
-real(kind=wp) :: Rmin(*), RThr(*), Coord(3,nAtom)
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: nAtom, nOcc, iDomain(0:nAtom,nOcc), nRThr
+integer(kind=iwp), intent(_OUT_) :: iPairDomain(0:nAtom,*), iClass(*)
+real(kind=wp), intent(_OUT_) :: Rmin(*)
+real(kind=wp), intent(in) :: RThr(*), Coord(3,nAtom)
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, iA, iAtom, iCount, ij, iOff, ip_Union, isThere, j, jA, jAtom, jOff, kAtom, kOff, l_Union, lD, lT, nnOcc
 real(kind=wp) :: R

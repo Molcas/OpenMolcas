@@ -29,10 +29,12 @@ subroutine OrthoPAO_Localisation(X,nBas,nFro,nOrb2Loc,nSym,nPass,Test)
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: X(*)
-integer(kind=iwp) :: nSym, nBas(nSym), nFro(nSym), nOrb2Loc(nSym), nPass
-logical(kind=iwp) :: Test
+real(kind=wp), intent(_OUT_) :: X(*)
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nFro(nSym), nOrb2Loc(nSym), nPass
+logical(kind=iwp), intent(in) :: Test
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, ip_S, ip_Scr, ip_V, ip_VISqrt, ip_VSqrt, iPass, iSym, iTask, kOff, kOffX, kS, kX, l_S, l_Scr, l_V, &
                      l_VISqrt, l_VSqrt, nB, nBasMax, nErr, nO2L, nO2LMax

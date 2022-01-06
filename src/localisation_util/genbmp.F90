@@ -15,9 +15,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: irc, n, m, Lunit, nStp
-real(kind=wp) :: X(n,m), StpSiz
-character :: Color
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: n, m, Lunit, nStp
+real(kind=wp), intent(in) :: X(n,m), StpSiz
+character, intent(in) :: Color
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, i0, i255, iBin, ipBin, ipBMp, iUpLim, j, nBin, nBin_Def, nCh
 real(kind=wp) :: absX, Step, Step_Def

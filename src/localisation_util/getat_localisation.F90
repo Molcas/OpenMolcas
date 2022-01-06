@@ -14,10 +14,13 @@ subroutine GetAt_Localisation(X,nBas,m,XAt,nAtoms,iOpt,nBas_per_Atom,nBas_Start,
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: nBas, m, nAtoms, iOpt, nBas_per_Atom(nAtoms), nBas_Start(nAtoms)
-real(kind=wp) :: X(nBas,m), XAt(nAtoms,*)
-character(len=3) :: Norm  ! 'MAX' or 'FRO'
+integer(kind=iwp), intent(in) :: nBas, m, nAtoms, iOpt, nBas_per_Atom(nAtoms), nBas_Start(nAtoms)
+real(kind=wp), intent(in) :: X(nBas,m)
+real(kind=wp), intent(_OUT_) :: XAt(nAtoms,*)
+character(len=3), intent(in) :: Norm  ! 'MAX' or 'FRO'
 integer(kind=iwp) :: i, i1, i2, iAt, j, j1, j2, jAt
 character(len=3) :: myNorm
 
@@ -27,7 +30,7 @@ myNorm = Norm
 call UpCase(myNorm)
 
 if (iOpt == 1) then
-  call dCopy_(nAtoms*m,[Zero],0,XAt,1)
+  XAt(:,1:m) = Zero
   if (myNorm == 'MAX') then
     do j=1,m
       do iAt=1,nAtoms
@@ -54,7 +57,7 @@ else
   if (m /= nBas) then
     call SysAbendMsg('GetAt_Localisation','Fatal error','m != nBas')
   end if
-  call dCopy_(nAtoms*nAtoms,[Zero],0,XAt,1)
+  XAt(:,1:nAtoms) = Zero
   if (myNorm == 'MAX') then
     do jAt=1,nAtoms
       j1 = nBas_Start(jAt)
@@ -82,11 +85,7 @@ else
           end do
         end do
       end do
-    end do
-    do jAt=1,nAtoms
-      do iAt=1,nAtoms
-        XAt(iAt,jAt) = sqrt(XAt(iAt,jAt))
-      end do
+      XAt(:,jAt) = sqrt(XAt(:,jAt))
     end do
   end if
 end if

@@ -36,8 +36,9 @@ use Index_Functions, only: iTri, nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n
-real(kind=wp) :: Sq(n,n), Tri(nTri_Elem(n))
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(in) :: Sq(n,n)
+real(kind=wp), intent(out) :: Tri(nTri_Elem(n))
 integer(kind=iwp) :: i, j
 
 do j=1,n

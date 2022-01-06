@@ -14,22 +14,23 @@
 
 subroutine XDIAXT(XDX,X,DIA,NDIM,SCR)
 ! Obtain XDX = X * DIA * X(Transposed)
-! where DIA is an diagonal matrix stored as a vector
+! where DIA is a diagonal matrix stored as a vector
 
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NDIM
-real(kind=wp) :: XDX(NDIM,NDIM), X(NDIM,NDIM), DIA(NDIM), SCR(NDIM,NDIM)
+integer(kind=iwp), intent(in) :: NDIM
+real(kind=wp), intent(out) :: XDX(NDIM,NDIM), SCR(NDIM,NDIM)
+real(kind=wp), intent(in) :: X(NDIM,NDIM), DIA(NDIM)
 integer(kind=iwp) :: I
 
-! DIA * X(transposed)
+! DIA * X
 do I=1,NDIM
-  call COPVEC(X(1,I),SCR(1,I),NDIM)
-  call SCALVE(SCR(1,I),DIA(I),NDIM)
+  SCR(:,I) = DIA(I)*X(:,I)
 end do
 ! X * DIA * X(Transposed)
-call MATML4(XDX,X,SCR,NDIM,NDIM,NDIM,NDIM,NDIM,NDIM,2)
+call dgemm_('N','T',NDIM,NDIM,NDIM,One,X,NDIM,SCR,NDIM,Zero,XDX,NDIM)
 
 return
 

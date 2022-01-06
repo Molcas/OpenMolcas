@@ -21,9 +21,11 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-integer(kind=iwp) :: irc, nSym, nBas(nSym), nFro(nSym), nOrb2Loc(nSym), inv
-real(kind=wp) :: CMO(*), xNrm
-logical(kind=iwp) :: Silent
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nFro(nSym), nOrb2Loc(nSym), inv
+real(kind=wp), intent(inout) :: CMO(*)
+real(kind=wp), intent(out) :: xNrm
+logical(kind=iwp), intent(in) :: Silent
 #include "WrkSpc.fh"
 integer(kind=iwp) :: ipScr, iScr, iSym, kOff1, kOff2, kOffC, l_Scr, njOrb
 character(len=*), parameter :: SecNam = 'Wavelet_Transform'

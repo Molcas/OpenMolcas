@@ -42,8 +42,11 @@ subroutine ChoLoc(irc,Dens,CMO,Thrs,xNrm,nBas,nOcc)
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-integer(kind=iwp) :: irc, nBas, nOcc
-real(kind=wp) :: Dens(nBas,nBas), CMO(nBas,nOcc), Thrs, xNrm
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: nBas, nOcc
+real(kind=wp), intent(inout) :: Dens(nBas,nBas)
+real(kind=wp), intent(out) :: CMO(nBas,nOcc), xNrm
+real(kind=wp), intent(in) :: Thrs
 integer(kind=iwp) :: nVec
 character(len=*), parameter :: SecNam = 'ChoLoc'
 real(kind=r8), external :: ddot_

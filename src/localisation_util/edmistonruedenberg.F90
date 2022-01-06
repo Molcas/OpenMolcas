@@ -20,9 +20,12 @@ subroutine EdmistonRuedenberg(Functional,CMO,Thrs,ThrRot,ThrGrad,nBas,nOrb2Loc,n
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Functional, CMO(*), Thrs, ThrRot, ThrGrad
-integer(kind=iwp) :: nSym, nBas(nSym), nOrb2Loc(nSym), nFro(nSym), nMxIter
-logical(kind=iwp) :: Maximisation, Converged, Debug, Silent
+real(kind=wp), intent(out) :: Functional
+real(kind=wp), intent(inout) :: CMO(*)
+real(kind=wp), intent(in) :: Thrs, ThrRot, ThrGrad
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb2Loc(nSym), nFro(nSym), nMxIter
+logical(kind=iwp), intent(in) :: Maximisation, Debug, Silent
+logical(kind=iwp), intent(out) :: Converged
 #include "WrkSpc.fh"
 integer(kind=iwp) :: irc, kOffC, nBasT, nFroT, nOrb2LocT
 real(kind=wp) :: FracMem

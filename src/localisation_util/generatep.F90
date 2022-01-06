@@ -24,10 +24,11 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "Molcas.fh"
-integer(kind=iwp) :: nBasis, nOrb2Loc, nAtoms, nBas_per_Atom(*), nBas_Start(*)
-real(kind=wp) :: Ovlp(nBasis,nBasis), cMO(nBasis,*), PA(nOrb2Loc,nOrb2Loc,nAtoms)
-character(len=LenIn8) :: BName(*)
-logical(kind=iwp) :: Debug
+integer(kind=iwp), intent(in) :: nBasis, nOrb2Loc, nAtoms, nBas_per_Atom(*), nBas_Start(*)
+real(kind=wp), intent(in) :: Ovlp(nBasis,nBasis), cMO(nBasis,*)
+real(kind=wp), intent(out) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
+character(len=LenIn8), intent(in) :: BName(*)
+logical(kind=iwp), intent(in) :: Debug
 real(kind=wp), allocatable :: SBar(:,:)
 
 call mma_Allocate(SBar,nBasis,nOrb2Loc,Label='SBar')

@@ -19,8 +19,9 @@ subroutine Sort_Localisation_1(CMO,U,nBas,nOcc)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nBas, nOcc
-real(kind=wp) :: CMO(nBas,nOcc), U(nOcc,nOcc)
+integer(kind=iwp), intent(in) :: nBas, nOcc
+real(kind=wp), intent(inout) :: CMO(nBas,nOcc)
+real(kind=wp), intent(in) :: U(nOcc,nOcc)
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, ip1, ip2, ipC, ipI1, ipI2, j, jmax, kOff, lC, lI1, lI2
 real(kind=wp) :: Umax, Utst

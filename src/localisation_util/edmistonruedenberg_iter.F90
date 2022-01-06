@@ -30,9 +30,12 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nBasis, nOrb2Loc, nMxIter
-real(kind=wp) :: Functional, CMO(nBasis,nOrb2Loc), Thrs, ThrRot, ThrGrad
-logical(kind=iwp) :: Maximisation, Converged, Debug, Silent
+real(kind=wp), intent(out) :: Functional
+integer(kind=iwp), intent(in) :: nBasis, nOrb2Loc, nMxIter
+real(kind=wp), intent(inout) :: CMO(nBasis,nOrb2Loc)
+real(kind=wp), intent(in) :: Thrs, ThrRot, ThrGrad
+logical(kind=iwp), intent(in) :: Maximisation, Debug, Silent
+logical(kind=iwp), intent(out) :: Converged
 #include "WrkSpc.fh"
 integer(kind=iwp) :: ipRmat, lRmat, nIter
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, TimC, TimW, W1, W2
