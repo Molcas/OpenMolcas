@@ -36,6 +36,7 @@
       Character*(*) KSDFT
       Character*4 DFTFOCK
       Real*8, Allocatable:: D_DS(:,:), F_DFT(:,:)
+
       abstract interface
           Subroutine DFT_FUNCTIONAL(mGrid,nD)
           Integer mGrid, nD
@@ -157,17 +158,10 @@ c     Call SetQue('Trace=on')
      &     .or.KSDFT.eq.'FTLSDA') Do_MO=.true. !GLM
          If(KSDFT.eq.'TLSDA'
      &     .or.KSDFT.eq.'FTLSDA') Do_TwoEl=.true. !GLM
+
          ExFac=Get_ExFac(KSDFT)
          Functional_type=LDA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => LSDA
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 c          write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 ************************************************************************
@@ -180,15 +174,7 @@ c          write(6,*) 'Func in drvdft :', Func
      &          KSDFT.eq.'SVWN5') Then
          ExFac=Get_ExFac(KSDFT)
          Functional_type=LDA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => LSDA5
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 ************************************************************************
@@ -198,15 +184,7 @@ c         write(6,*) 'Func in drvdft :', Func
        Else If (KSDFT.eq.'HFB') Then
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => HFB
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -215,15 +193,7 @@ c         write(6,*) 'Func in drvdft :', Func
        Else If (KSDFT.eq.'HFO') Then
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => HFO
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -232,15 +202,7 @@ c         write(6,*) 'Func in drvdft :', Func
        Else If (KSDFT.eq.'HFG') Then
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => HFG
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -249,15 +211,7 @@ c         write(6,*) 'Func in drvdft :', Func
        Else If (KSDFT.eq.'HFB86') Then
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => HFB86
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -266,15 +220,7 @@ c         write(6,*) 'Func in drvdft :', Func
        Else If (KSDFT.eq.'HFS') Then
          ExFac=Get_ExFac(KSDFT)
          Functional_type=LDA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => HFS
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -283,15 +229,7 @@ c         write(6,*) 'Func in drvdft :', Func
        Else If (KSDFT.eq.'XALPHA') Then
          ExFac=Get_ExFac(KSDFT)
          Functional_type=LDA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => XAlpha
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -300,15 +238,7 @@ c         write(6,*) 'Func in drvdft :', Func
       Else If (KSDFT.eq.'Overlap') Then
          ExFac=Get_ExFac(KSDFT)
          Functional_type=LDA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => Overlap
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -317,15 +247,7 @@ c         write(6,*) 'Func in drvdft :', Func
       Else If (KSDFT.eq.'NucAtt') Then
          ExFac=One
          Functional_type=LDA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => NucAtt
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -334,15 +256,7 @@ c         write(6,*) 'Func in drvdft :', Func
       Else If (KSDFT.eq.'BWIG') Then
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => BWIG
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -358,15 +272,7 @@ c         write(6,*) 'Func in drvdft :', Func
      &       .or. KSDFT.eq.'FTBLYP') Do_TwoEl=.true.
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => BLYP
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -375,15 +281,7 @@ c         write(6,*) 'Func in drvdft :', Func
       Else If (KSDFT.eq.'OLYP') Then
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => OLYP
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -392,15 +290,7 @@ c         write(6,*) 'Func in drvdft :', Func
       Else If (KSDFT.eq.'KT3') Then
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => KT3
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -409,15 +299,7 @@ c         write(6,*) 'Func in drvdft :', Func
       Else If (KSDFT.eq.'KT2') Then
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => KT2
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -426,15 +308,7 @@ c         write(6,*) 'Func in drvdft :', Func
       Else If (KSDFT.eq.'GLYP') Then
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => GLYP
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -443,15 +317,7 @@ c         write(6,*) 'Func in drvdft :', Func
       Else If (KSDFT.eq.'B86LYP') Then
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => B86LYP
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -460,15 +326,7 @@ c         write(6,*) 'Func in drvdft :', Func
       Else If (KSDFT.eq.'BPBE') Then
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => BPBE
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -484,15 +342,7 @@ c         write(6,*) 'Func in drvdft :', Func
      &     .or.KSDFT.eq.'FTOPBE') Do_TwoEl=.true.
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => OPBE
-         Call DrvNQ(Sub   ,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -501,15 +351,7 @@ c         write(6,*) 'Func in drvdft :', Func
       Else If (KSDFT.eq.'GPBE') Then
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => GPBE
-         Call DrvNQ(Sub   ,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -518,15 +360,7 @@ c         write(6,*) 'Func in drvdft :', Func
       Else If (KSDFT.eq.'B86PBE') Then
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => B86PBE
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -535,15 +369,7 @@ c         write(6,*) 'Func in drvdft :', Func
       Else If (KSDFT.eq.'TLYP') Then
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => TLYP
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -552,15 +378,7 @@ c         write(6,*) 'Func in drvdft :', Func
       Else If (KSDFT.eq.'B3LYP ') Then
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => B3LYP
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -569,15 +387,7 @@ c         write(6,*) 'Func in drvdft :', Func
       Else If (KSDFT.eq.'O3LYP ') Then
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => O3LYP
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -586,15 +396,7 @@ c         write(6,*) 'Func in drvdft :', Func
       Else If (KSDFT.eq.'B2PLYP') Then
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => B2PLYP
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -603,15 +405,7 @@ c         write(6,*) 'Func in drvdft :', Func
       Else If (KSDFT.eq.'O2PLYP') Then
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => O2PLYP
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -620,15 +414,7 @@ c         write(6,*) 'Func in drvdft :', Func
       Else If (KSDFT.eq.'B3LYP5') Then
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => B3LYP5
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -644,15 +430,7 @@ c         write(6,*) 'Func in drvdft :', Func
      &     .or.KSDFT.eq.'FTPBE') Do_TwoEl=.true.
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => PBE
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -668,15 +446,7 @@ c         write(6,*) 'Func in drvdft :', Func
      &     .or.KSDFT.eq.'FTREVPBE') Do_TwoEl=.true.
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => REVPBE
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -686,15 +456,7 @@ c         write(6,*) 'Func in drvdft :', Func
      &     .or.KSDFT.eq.'TSSBSW') Then !GLM
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => SSBSW
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -704,15 +466,7 @@ c         write(6,*) 'Func in drvdft :', Func
      &     .or.KSDFT.eq.'TSSBD') Then !GLM
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => SSBD
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 *                                                                      *
 ************************************************************************
@@ -722,15 +476,7 @@ c         write(6,*) 'Func in drvdft :', Func
       Else If (KSDFT.eq.'S12H') Then
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => S12H
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -740,15 +486,7 @@ c         write(6,*) 'Func in drvdft :', Func
      &     .or.KSDFT.eq.'TS12G') Then !GLM
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => S12G
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -757,15 +495,7 @@ c         write(6,*) 'Func in drvdft :', Func
       Else If (KSDFT.eq.'PBESOL') Then
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => PBESol
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -774,15 +504,7 @@ c         write(6,*) 'Func in drvdft :', Func
       Else If (KSDFT.eq.'RGE2') Then
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => RGE2
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -791,15 +513,7 @@ c         write(6,*) 'Func in drvdft :', Func
       Else If (KSDFT.eq.'PTCA') Then
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => PTCA
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -808,15 +522,7 @@ c         write(6,*) 'Func in drvdft :', Func
       Else If (KSDFT.eq.'PBE0') Then
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => PBE0
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -825,15 +531,7 @@ c         write(6,*) 'Func in drvdft :', Func
       Else If (KSDFT.eq.'M06L') Then
          ExFac=Get_ExFac(KSDFT)
          Functional_type=meta_GGA_type1
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => M06L
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -842,15 +540,7 @@ c         write(6,*) 'Func in drvdft :', Func
       Else If (KSDFT.eq.'M06 ') Then
          ExFac=Get_ExFac(KSDFT)
          Functional_type=meta_GGA_type1
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => M06
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -859,15 +549,7 @@ c         write(6,*) 'Func in drvdft :', Func
       Else If (KSDFT.eq.'M062X') Then
          ExFac=Get_ExFac(KSDFT)
          Functional_type=meta_GGA_type1
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => M062X
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -876,15 +558,7 @@ c         write(6,*) 'Func in drvdft :', Func
       Else If (KSDFT.eq.'M06HF') Then
          ExFac=Get_ExFac(KSDFT)
          Functional_type=meta_GGA_type1
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
          Sub => M06HF
-         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -894,6 +568,19 @@ c         write(6,*) 'Func in drvdft :', Func
          Write (6,*) '         Functional=',KSDFT(1:lKSDFT)
          Call Quit_OnUserError()
       End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+      nFckDim = nD
+      Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
+      F_DFT(:,:)=Zero
+      Call DrvNQ(Sub,F_DFT,nFckDim,Func,
+     &           D_DS,nh1,nD,
+     &           Do_Grad,
+     &           Grad,nGrad,
+     &           Do_MO,Do_TwoEl,DFTFOCK)
+
+      Sub => Null()
 *                                                                      *
 ************************************************************************
 *                                                                      *

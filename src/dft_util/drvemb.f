@@ -460,6 +460,15 @@ c Avoid unused argument warnings
      &         Ts_only_emb, vW_hunter, nucatt_emb
       Logical  Do_MO,Do_TwoEl,F_nAsh
 
+      abstract interface
+          Subroutine DFT_FUNCTIONAL(mGrid,nD)
+          Integer mGrid, nD
+          end subroutine
+      end interface
+
+      procedure(DFT_FUNCTIONAL), pointer :: sub => null()
+
+
 ************************************************************************
 *                                                                      *
 *     DFT functionals, compute integrals over the potential
@@ -490,11 +499,7 @@ c Avoid unused argument warnings
      &     KSDFT.eq.'LDTF/LDA  ') Then
          !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=LDA_type
-         Call DrvNQ(LSDA_emb,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD_DS,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
+         Sub => LSDA_emb
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -504,11 +509,7 @@ c Avoid unused argument warnings
      &          KSDFT.eq.'LDTF/LDA5 ') Then
          !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=LDA_type
-         Call DrvNQ(LSDA5_emb,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD_DS,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
+         Sub => LSDA5_emb
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -517,11 +518,7 @@ c Avoid unused argument warnings
        Else If (KSDFT.eq.'LDTF/PBE  ') Then
          !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=GGA_type
-         Call DrvNQ(PBE_emb,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD_DS,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
+         Sub => PBE_emb
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -530,11 +527,7 @@ c Avoid unused argument warnings
        Else If (KSDFT.eq.'NDSD/PBE  ') Then
          !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=meta_GGA_type2
-         Call DrvNQ(PBE_emb2,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD_DS,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
+         Sub => PBE_emb2
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -543,11 +536,7 @@ c Avoid unused argument warnings
        Else If (KSDFT.eq.'LDTF/BLYP ') Then
          !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=GGA_type
-         Call DrvNQ(BLYP_emb,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD_DS,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
+         Sub => BLYP_emb
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -556,11 +545,7 @@ c Avoid unused argument warnings
        Else If (KSDFT.eq.'NDSD/BLYP ') Then
          !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=meta_GGA_type2
-         Call DrvNQ(BLYP_emb2,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD_DS,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
+         Sub => BLYP_emb2
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -569,11 +554,7 @@ c Avoid unused argument warnings
        Else If (KSDFT.eq.'TF_only') Then
          !ExFac=Zero
          Functional_type=LDA_type
-         Call DrvNQ(Ts_only_emb,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD_DS,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
+         Sub => TS_Only_Emb
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -582,11 +563,7 @@ c Avoid unused argument warnings
        Else If (KSDFT.eq.'HUNTER') Then
          !ExFac=Zero
          Functional_type=GGA_type
-         Call DrvNQ(vW_hunter,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD_DS,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
+         Sub => vW_hunter
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -595,11 +572,7 @@ c Avoid unused argument warnings
        Else If (KSDFT.eq.'NUCATT_EMB') Then
          !ExFac=Zero
          Functional_type=LDA_type
-         Call DrvNQ(nucatt_emb,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD_DS,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
+         Sub => nucatt_emb
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -609,7 +582,20 @@ c Avoid unused argument warnings
      &               ' Wrap_DrvNQ: Undefined functional type!')
          Write (6,*) '         Functional=',KSDFT(1:lKSDFT)
          Call Quit_OnUserError()
+*                                                                      *
+************************************************************************
+*                                                                      *
       End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Call DrvNQ(Sub,F_DFT,nFckDim,Func,
+     &           D_DS,nh1,nD_DS,
+     &           Do_Grad,
+     &           Grad,nGrad,
+     &           Do_MO,Do_TwoEl,DFTFOCK)
+
+      Sub => Null()
 *
       Return
       End
@@ -636,6 +622,14 @@ c Avoid unused argument warnings
      &         cBLYP_emb,
      &         cPBE_emb
       Logical  Do_MO,Do_TwoEl,F_nAsh
+
+      abstract interface
+          Subroutine DFT_FUNCTIONAL(mGrid,nD)
+          Integer mGrid, nD
+          end subroutine
+      end interface
+
+      procedure(DFT_FUNCTIONAL), pointer :: sub => null()
 
 ************************************************************************
 *                                                                      *
@@ -665,11 +659,7 @@ c Avoid unused argument warnings
      &     KSDFT.eq.'LDTF/LDA  ') Then
          !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=LDA_type
-         Call DrvNQ(VWN_III_emb,F_corr,nFckDim,Func,
-     &              D_DS,nh1,nD_DS,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
+         Sub => VWN_III_emb
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -679,11 +669,7 @@ c Avoid unused argument warnings
      &          KSDFT.eq.'LDTF/LDA5 ') Then
          !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=LDA_type
-         Call DrvNQ(VWN_V_emb,F_corr,nFckDim,Func,
-     &              D_DS,nh1,nD_DS,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
+         Sub => VWN_V_emb
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -693,11 +679,7 @@ c Avoid unused argument warnings
      &          KSDFT.eq.'NDSD/PBE  ') Then
          !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=GGA_type
-         Call DrvNQ(cPBE_emb,F_corr,nFckDim,Func,
-     &              D_DS,nh1,nD_DS,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
+         Sub => cPBE_emb
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -707,11 +689,7 @@ c Avoid unused argument warnings
      &          KSDFT.eq.'NDSD/BLYP ') Then
          !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=GGA_type
-         Call DrvNQ(cBLYP_emb,F_corr,nFckDim,Func,
-     &              D_DS,nh1,nD_DS,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
+         Sub => cBLYP_emb
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -721,7 +699,20 @@ c Avoid unused argument warnings
      &               ' cWrap_DrvNQ: Undefined functional type!')
          Write (6,*) '         Functional=',KSDFT(1:lKSDFT)
          Call Quit_OnUserError()
+*                                                                      *
+************************************************************************
+*                                                                      *
       End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Call DrvNQ(Sub,F_corr,nFckDim,Func,
+     &           D_DS,nh1,nD_DS,
+     &           Do_Grad,
+     &           Grad,nGrad,
+     &           Do_MO,Do_TwoEl,DFTFOCK)
+
+      Sub => Null()
 *
       Return
 c Avoid unused argument warnings
