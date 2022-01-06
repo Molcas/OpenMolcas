@@ -10,9 +10,7 @@
 *                                                                      *
 * Copyright (C) 2009, Grigory A. Shamov                                *
 ************************************************************************
-      Subroutine O2PLYP(mGrid,Rho,nRho,P2_ontop,
-     &                  nP2_ontop,iSpin,F_xc,
-     &                  dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X)
+      Subroutine O2PLYP(mGrid,iSpin)
 ************************************************************************
 *                                                                      *
 * Object:   OPTX analog of Grimme's B2PLYP double hybrid               *
@@ -21,12 +19,10 @@
 *                                                                      *
 *      Author: Grigory A Shamov, U of Manitoba, 2009                   *
 ************************************************************************
+      use nq_Grid, only: F_xc => Exc
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "ksdft.fh"
-      Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
-     &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
-     &       dF_dP2ontop(ndF_dP2ontop,mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -41,31 +37,20 @@ C MP2 correlation energy to be scaled to 1 - Coeff_C = 0.25
 *                                                                      *
 *---- Dirac Exchange Functional     * 0.5 OPTX                         *
 *                                                                      *
-      Call Diracx(mGrid,
-     &            iSpin,F_xc,dF_dRho,
-     &            ndF_dRho,Coeff_A,T_X)
+      Call Diracx(mGrid,iSpin,F_xc,Coeff_A)
 *                                                                      *
 *---- OPTX Exchange Functional * 0.5  OPTX                             *
 *                                                                      *
       Call xOPT(mGrid,
-     &          dF_dRho,ndF_dRho,
-     &          Coeff_B,iSpin,F_xc,T_X)
+     &          Coeff_B,iSpin,F_xc)
 *                                                                      *
 *  LYP correlation                                                     *
 *                                                                      *
       Call LYP(mGrid,
-     &         dF_dRho,ndF_dRho,
-     &         Coeff_C,iSpin,F_xc,T_X)
+     &         Coeff_C,iSpin,F_xc)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 C
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_Integer(nRho)
-         Call Unused_real_array(Rho)
-         Call Unused_real_array(P2_ontop)
-         Call Unused_real_array(dF_dP2ontop)
-      End If
       End

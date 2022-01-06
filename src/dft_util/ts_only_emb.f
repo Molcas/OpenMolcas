@@ -11,33 +11,18 @@
 * Copyright (C) 2015, Francesco Aquilante                              *
 *               2015, Alexander Zech                                   *
 ************************************************************************
-      Subroutine Ts_only_emb(mGrid,Rho,nRho,P2_ontop,
-     &                    nP2_ontop,nDmat,F_xc,
-     &                    dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,
-     &                    T_X)
+      Subroutine Ts_only_emb(mGrid,nDmat)
+      use nq_Grid, only: F_xc => Exc
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "hflda.fh"
-      Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
-     &       F_xc(mGrid),
-     &       P2_ontop(nP2_ontop, mGrid),
-     &       dF_dP2ontop(ndF_dP2ontop, mGrid)
 *
 ************************************************************************
 *
 *---- Thomas-Fermi Kinetic energy functional
 *
       Coeff=One
-      Call TF_Ts(mGrid,nDmat,F_xc,
-     &                 dF_dRho,ndF_dRho,Coeff,T_X)
+      Call TF_Ts(mGrid,nDmat,F_xc,Coeff)
 ************************************************************************
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_Integer(nRho)
-         Call Unused_real_array(Rho)
-         Call Unused_real_array(P2_ontop)
-         Call Unused_real_array(dF_dP2ontop)
-      End If
-
       Return
       End

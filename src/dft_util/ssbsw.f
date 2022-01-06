@@ -13,10 +13,7 @@
 *               2017, Giovanni Li Manni                                *
 *               2017, Aron Cohen                                       *
 ************************************************************************
-      Subroutine SSBSW(mGrid,Rho,nRho,P2_ontop,
-     &                nP2_ontop,iSpin,F_xc,
-     &                dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,
-     &                T_X)
+      Subroutine SSBSW(mGrid,iSpin)
 ************************************************************************
 *                                                                      *
 * Object:     Combination of excnange SSB-sw and PBE correlation terms *
@@ -26,33 +23,22 @@
 *      Author: G. Li Manni & A. Cohen, Max Planck Institute Stuttgart  *
 *              Summer 2017, edited in Cambridge (UK) & Palermo (Sicily)*
 ************************************************************************
+      use nq_Grid, only: F_xc => Exc
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "ksdft.fh"
-      Real*8 Rho(nRho,mGrid), dF_dRho(ndF_dRho,mGrid),
-     &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
-     &       dF_dP2ontop(ndF_dP2ontop,mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *---- SSBSW Exchange -- unlike OPTX, SSBSW has its LDA part included !
       Coeff=1.0d0*CoefX
-      Call xSSBSW(mGrid,dF_dRho,ndF_dRho,
-     &          Coeff,iSpin,F_xc,T_X)
+      Call xSSBSW(mGrid,Coeff,iSpin,F_xc)
 *
 *---- PBE Correlation
       Coeff=1.0d0*CoefR
-      Call CPBE(mGrid,dF_dRho,ndF_dRho,
-     &         Coeff,iSpin,F_xc,T_X)
+      Call CPBE(mGrid,Coeff,iSpin,F_xc)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_Integer(nRho)
-         Call Unused_real_array(Rho)
-         Call Unused_real_array(P2_ontop)
-         Call Unused_real_array(dF_dP2ontop)
-      End If
       End

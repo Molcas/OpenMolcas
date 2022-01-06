@@ -14,10 +14,10 @@
       use KSDFT_Info, only: KSDFA, funcaa, funcbb, funccc
       Implicit Real*8 (a-h,o-z)
       External LSDA, Overlap, BLYP, BPBE, B3LYP, HFS, HFB,
-     &         XAlpha, LSDA5, B3LYP5, B2PLYP, TLYP, NLYP,
-     &         NucAtt, NEWF, NEWF1, OLYP, O3LYP, OPBE,
+     &         XAlpha, LSDA5, B3LYP5, B2PLYP, TLYP,
+     &         NucAtt, OLYP, O3LYP, OPBE,
      &         PBE, PBE0, PBEsol, M06L, M06, M062X, HFO,
-     &         M06HF, Checker, SSBSW, SSBD, HFG, GLYP, GPBE,
+     &         M06HF, SSBSW, SSBD, HFG, GLYP, GPBE,
      &         HFB86, B86LYP, B86PBE, BWIG, KT3,
      &         O2PLYP,  KT2,  RGE2, REVPBE,
      &         PTCA,S12G, S12H
@@ -30,7 +30,7 @@
       Real*8 h1(nh1), TwoHam(nh1), D(nh1,2), Grad(nGrad), Vxc_ref(2)
       Real*8 D1I(nD1),D1A(nD1)
       Logical First, Dff, lRF,  Do_Grad
-      Logical Do_MO,Do_TwoEl, Found
+      Logical Do_MO,Do_TwoEl
       Character*(*) KSDFT
       Character*4 DFTFOCK
       Real*8, Allocatable:: D_DS(:,:), F_DFT(:,:)
@@ -69,7 +69,6 @@ c     Call SetQue('Trace=on')
 *
 *     What is this?
 *
-      If (DFTFOCK.eq.'DIFF') nD=2
       If (DFTFOCK.eq.'ROKS') nD=2
       Call mma_allocate(D_DS,nh1,nD,Label='D_DS')
 *
@@ -129,26 +128,6 @@ c     Call SetQue('Trace=on')
       Tau_I           =Zero
       Do_MO           =.False.
       Do_TwoEl        =.False.
-*
-      If (nD.eq.2.and.DFTFOCK.eq.'DIFF') Then
-         numAO=0
-         If(KSDFT(1:3).ne.'SCF') Then
-           Do iIrrep=0,mIrrep-1
-             nAsh(iIrrep)=0
-           End Do
-           Call qpg_iArray('nAsh',Found,nData)
-           If(Found .and. nData.eq.mIrrep) Then
-             Call Get_iArray('nAsh',nAsh,mIrrep)
-           End If
-           Do iIrrep=0,mIrrep-1
-             numAO=numAO+nAsh(iIrrep)
-           End Do
-        End If
-        If (numAO.ne.0)
-     &  Do_TwoEl        =.True.
-        Do_MO           =.True.
-
-      End If
 *
 *     nFckDim: number of different types of Fock matrices. Normally for
 *     conventional functionals we have one Fock matrix for closed shell
@@ -536,22 +515,6 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     NLYP                                                             *
-*                                                                      *
-      Else If (KSDFT.eq.'NLYP') Then
-         ExFac=Get_ExFac(KSDFT)
-         Functional_type=GGA_type
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
-         Call DrvNQ(NLYP   ,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
 *     B3LYP                                                            *
 *                                                                      *
       Else If (KSDFT.eq.'B3LYP ') Then
@@ -871,59 +834,6 @@ c         write(6,*) 'Func in drvdft :', Func
      &              Do_Grad,
      &              Grad,nGrad,
      &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Checker                                                          *
-*                                                                      *
-      Else If (KSDFT.eq.'CHECKER') Then
-         ExFac=Zero
-         Functional_type=meta_GGA_type2
-         nFckDim = nD
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
-         Call DrvNQ(Checker,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*                                                                      *
-*     CASDFT functionals:                                              *
-*                                                                      *
-      Else If (KSDFT(1:4).eq.'NEWF') Then
-*                                                                      *
-*        These functionals are still under construction.               *
-*        The code, written by S.G. & C., will be now modified by       *
-*                      Giovanni Ghigo (CGG)                            *
-*                                                                      *
-         If (DFTFOCK.ne.'DIFF') Then
-            Call WarningMessage(2,
-     &                 ' This is CASDFT type functional !!!;'
-     &               //' You cannot use it in this calculation.')
-            Call Quit_OnUserError()
-         End If
-         Do_Grad  = .False.
-         Do_MO    = .True.
-         Do_TwoEl = .True.
-*
-         ExFac=Get_ExFac(KSDFT)
-         Functional_type=CASDFT_type
-         nFckDim = 2
-         Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-         F_DFT(:,:)=Zero
-         If ( KSDFT(5:5).eq.'0' )
-     &      Call DrvNQ(NEWF ,F_DFT,nFckDim,Func,
-     &                 D_DS,nh1,nD,Do_Grad,
-     &                 Grad,nGrad,
-     &                 Do_MO,Do_TwoEl,DFTFOCK)
-         If ( KSDFT(5:5).eq.'1' )
-     &      Call DrvNQ(NEWF1 ,F_DFT,nFckDim,Func,
-     &                 D_DS,nh1,nD,Do_Grad,
-     &                 Grad,nGrad,
-     &                 Do_MO,Do_TwoEl,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *

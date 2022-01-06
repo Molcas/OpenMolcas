@@ -8,37 +8,43 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 2000, Roland Lindh                                     *
+* Copyright (C) 1991,2021, Roland Lindh                                *
 ************************************************************************
-       Subroutine NEWF1(mGrid,Rho,nRho,P2_ontop,
-     &                  nP2_ontop,iSpin,F_xc,
-     &                  dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X)
+      SubRoutine AOAdd_Full(AOInt,nBfn,PrpInt,nPrp)
 ************************************************************************
-*      Author:Roland Lindh, Department of Chemical Physics, University *
-*             of Lund, SWEDEN. November 2000                           *
+*     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
+*             University of Lund, SWEDEN                               *
+*             January 1991                                             *
+*     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
+*             University of Lund, SWEDEN                               *
+*             December 2021                                            *
 ************************************************************************
+      use nq_Grid, only: iBfn_Index
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-      Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
-     &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
-     &       dF_dP2ontop(ndF_dP2ontop,mGrid)
+      Real*8 AOInt(nBfn,nBfn), PrpInt(nPrp)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Call Sergey's New Functional 1                                   *
-*                                                                      *
-      Coeff=One
-      Call Do_NewFunctional_1(mGrid,dF_dRho,ndF_dRho,
-     &                        Coeff,iSpin,F_xc,
-     &                        P2_ontop,nP2_ontop,dF_dP2ontop,
-     &                        ndF_dP2ontop,T_X)
+*     Statement function
+*
+      iTri(i,j)=Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 *                                                                      *
 ************************************************************************
-*                                                                      *
-      Return
-      If (.False.) Then
-         Call Unused_Integer(nRho)
-         Call Unused_real_array(Rho)
-      End If
 
+*
+      Do iBfn = 1, nBfn
+         Indi = iBfn_Index(1,iBfn)
+
+         Do jBfn = 1, iBfn
+            Indj = iBfn_Index(1,jBfn)
+*
+*           Add one matrix element
+*
+            PrpInt(iTri(Indi,Indj))=PrpInt(iTri(Indi,Indj))
+     &                             + AOInt(iBfn,jBfn)
+         End Do
+      End Do
+*
+      Return
       End

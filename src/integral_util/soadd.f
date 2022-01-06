@@ -25,12 +25,23 @@
 #include "real.fh"
       Real*8 SOInt(iBas*jBas,nSOInt), PrpInt(nPrp)
       Logical AeqB
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Statement functions
+      iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
+*                                                                      *
+************************************************************************
+*                                                                      *
+
 *
+#ifdef _DEBUGPRINT_
       iRout = 130
       iPrint = nPrint(iRout)
       If (iPrint.ge.99) Then
          Call RecPrt(' In SOAdd:SOInt',' ',SOInt,iBas*jBas,nSOInt)
       End If
+#endif
 *
       lSO = 0
       Do 100 j1 = 0, nIrrep-1
@@ -42,50 +53,41 @@
 *
         Do 300 j2 = 0, j1
          j12 = iEor(j1,j2)
-         If (iAnd(lOper,2**j12).eq.0) Go To 300
-         jjMx = jCmp
-         If (iShell.eq.jShell .and. j1.eq.j2) jjMx = i1
-         Do 400 i2 = 1, jjMx
+         If (iAnd(lOper,2**j12).eq.0) Cycle
+
+         Do 400 i2 = 1, jCmp
           If (iAOtSO(jAO+i2,j2)<0) Cycle
+          If (iShell.eq.jShell .and. j1.eq.j2 .and.
+     &        i1<i2) Cycle
+
           lSO = lSO + 1
           iSO1=iAOtSO(iAO+i1,j1)
           iSO2=iAOtSO(jAO+i2,j2)
-*         Write (*,*) iSO1,iAO,i1,j1,iSO2,jAO,i2,j2
 *
           iPnt = iPntSO(j1,j2,lOper,nbas)
-          Do 500 indAO1 = 0, iBas-1
-*         Diagonal block. Store only unique elements
-           jBsMax = jBas - 1
-           If (j1.eq.j2 .and. iSO1.eq.iSO2) jBsMax=indAO1
-           Do 600 indAO2 = 0, jBsMax
-            ip = indAO2*iBas + indAO1 + 1
+          Do 500 indAO1 = 1, iBas
+           Do 600 indAO2 = 1, jBas
+            ip = (indAO2-1)*iBas + indAO1
 *
 *           Move one electron integral.
 *
+            iSO=iSO1+IndAO1-1
+            jSO=iSO2+IndAO2-1
+
+*           Diagonal block. Store only unique elements
+            If (j1.eq.j2 .and. iSO1.eq.iSO2 .and.
+     &          iSO<jSO) Cycle
+
             If (j1.eq.j2) Then
 *------------Diagonal symmetry block
-             If (iSO1+indAO1.ge.iSO2+indAO2) Then
-              Indi = iSO1+indAO1
-              Indj = iSO2+indAO2
-              PrpInt(iPnt + (Indi-1)*Indi/2 + Indj) =
-     &        PrpInt(iPnt + (Indi-1)*Indi/2 + Indj) + SOInt(ip,lSO)
-             Else
-              Indj = iSO1+indAO1
-              Indi = iSO2+indAO2
-              PrpInt(iPnt + (Indi-1)*Indi/2 + Indj) =
-     &        PrpInt(iPnt + (Indi-1)*Indi/2 + Indj) + SOInt(ip,lSO)
-             End If
+             Indij=iPnt + iTri(iSO,jSO)
             Else
 *------------Off-diagonal symmetry block j1>j2
-             Indi = iSO1+indAO1
-             Indj = iSO2+indAO2
              nRow = nBas(j1)
-*            Write (*,'(11I4,E10.5)') iSO1,iAO,i1,j1,indAO1,
-*    &                                iSO2,jAO,i2,j2,indAO2,
-*    &                                ip,SOInt(ip,lSO)
-             PrpInt(iPnt + nRow*(Indj-1) + Indi ) =
-     &       PrpInt(iPnt + nRow*(Indj-1) + Indi ) + SOInt(ip,lSO)
+             Indij=iPnt + nRow*(jSO-1)*nRow + iSO
             End If
+
+            PrpInt(Indij) = PrpInt(Indij) + SOInt(ip,lSO)
 *
  600       Continue
  500      Continue
@@ -96,8 +98,6 @@
  200   Continue
  100  Continue
 *
-      If (iPrint.ge.99) Call GetMem(' Exit SOAdd','CHECK','ALLO',
-     &                              iDum,iDum)
       Return
 c Avoid unused argument warnings
       If (.False.) Then

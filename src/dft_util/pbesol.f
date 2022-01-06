@@ -10,9 +10,7 @@
 *                                                                      *
 * Copyright (C) 2005, Per Ake Malmqvist                                *
 ************************************************************************
-      Subroutine PBEsol(mGrid,Rho,nRho,P2_ontop,
-     &               nP2_ontop,iSpin,F_xc,
-     &               dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X)
+      Subroutine PBEsol(mGrid,iSpin)
 ************************************************************************
 *                                                                      *
 * Object: To compute the sum of the functional c_pbesol and x_pbesol   *
@@ -24,31 +22,20 @@
 *      Author:Per Ake Malmqvist, Department of Theoretical Chemistry,  *
 *             University of Lund, SWEDEN. December 2005                *
 ************************************************************************
+      use nq_Grid, only: F_xc => Exc
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "ksdft.fh"
-      Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
-     &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
-     &       dF_dP2ontop(ndF_dP2ontop,mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       CoeffA=One*CoefR
-      Call CPBEsol(mGrid,dF_dRho,ndF_dRho,
-     &          CoeffA,iSpin,F_xc,T_X)
+      Call CPBEsol(mGrid,CoeffA,iSpin,F_xc)
 
       CoeffB=One*CoefX
-      Call XPBEsol(mGrid,dF_dRho,ndF_dRho,
-     &          CoeffB,iSpin,F_xc,T_X)
+      Call XPBEsol(mGrid,CoeffB,iSpin,F_xc)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_Integer(nRho)
-         Call Unused_real_array(Rho)
-         Call Unused_real_array(P2_ontop)
-         Call Unused_real_array(dF_dP2ontop)
-      End If
       End

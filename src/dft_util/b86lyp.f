@@ -10,10 +10,7 @@
 *                                                                      *
 * Copyright (C) 2001, Roland Lindh                                     *
 ************************************************************************
-      Subroutine B86LYP(mGrid,Rho,nRho,P2_ontop,
-     &                nP2_ontop,iSpin,F_xc,
-     &                dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,
-     &                T_X)
+      Subroutine B86LYP(mGrid,iSpin)
 ************************************************************************
 *                                                                      *
 * Object:  Becke86 + YP combination                                    *
@@ -21,12 +18,10 @@
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. March 2001                              *
 ************************************************************************
+      use nq_Grid, only: F_xc => Exc
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "ksdft.fh"
-      Real*8 Rho(nRho,mGrid), dF_dRho(ndF_dRho,mGrid),
-     &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
-     &       dF_dP2ontop(ndF_dP2ontop,mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -36,29 +31,21 @@
 *---- Dirac Exchange
 *
       Coeff=One*CoefX
-      Call Diracx(mGrid,iSpin,F_xc,
-     &            dF_dRho,ndF_dRho,Coeff,T_X)
+      Call Diracx(mGrid,iSpin,F_xc,Coeff)
 *
 *---- Becke 86 Exchange
 *
       Coeff=One*CoefX
-      Call xB86(mGrid,dF_dRho,ndF_dRho,
-     &          Coeff,iSpin,F_xc,T_X)
+      Call xB86(mGrid,
+     &          Coeff,iSpin,F_xc)
 *
 *---- Lee-Yang-Parr Correlation
 *
       Coeff=One*CoefR
-      Call LYP(mGrid,dF_dRho,ndF_dRho,
-     &         Coeff,iSpin,F_xc,T_X)
+      Call LYP(mGrid,
+     &         Coeff,iSpin,F_xc)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_Integer(nRho)
-         Call Unused_real_array(Rho)
-         Call Unused_real_array(P2_ontop)
-         Call Unused_real_array(dF_dP2ontop)
-      End If
       End

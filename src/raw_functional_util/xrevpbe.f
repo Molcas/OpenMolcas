@@ -11,8 +11,8 @@
 * Copyright (C) 2006, Per Ake Malmqvist                                *
 *               2016, Andrew M. Sand                                   *
 ************************************************************************
-      Subroutine XrevPBE(mGrid,dF_dRho,ndF_dRho,
-     &                   Coeff,iSpin,F_xc,T_X)
+      Subroutine XrevPBE(mGrid,
+     &                   Coeff,iSpin,F_xc)
 ************************************************************************
 *                                                                      *
 * Object: To compute the functional called x_pbe in the Density        *
@@ -30,12 +30,13 @@
 *      Modified for revPBE: Andrew Sand, U. of Minnesota, March 2016   *
 ************************************************************************
       use KSDFT_Info, only: F_xca, F_xcb, tmpB
-      use nq_Grid, only: rho, Sigma, l_casdft
+      use nq_Grid, only: Rho, Sigma, l_casdft
+      use nq_Grid, only: vRho, vSigma
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "nq_index.fh"
 #include "ksdft.fh"
-      Real*8 dF_dRho(ndF_dRho,mGrid), F_xc(mGrid)
+      Real*8 F_xc(mGrid)
+      Real*8, Parameter:: T_X=1.0D-20
 * Call arguments:
 * Weights(mGrid) (input) integration weights.
 * Rho(nRho,mGrid) (input) Density and density derivative values,
@@ -62,9 +63,9 @@
          call xrevpbe_(idord,rhoa,sigmaaa,Fa,dFdrhoa,dFdgammaaa,
      &          d2Fdra2,d2Fdradgaa,d2Fdgaa2)
          F_xc(iGrid)=F_xc(iGrid)+Coeff*(2.0D0*Fa)
-         dF_dRho(ipR,iGrid)=dF_dRho(ipR,iGrid)+Coeff*dFdrhoa
+         vRho(1,iGrid)=vRho(1,iGrid)+Coeff*dFdrhoa
 * Maybe derivatives w.r.t. gamma_aa, gamma_ab, gamma_bb should be used instead.
-         dF_dRho(ipGxx,iGrid)=dF_dRho(ipGxx,iGrid)+Coeff*dFdgammaaa
+         vSigma(1,iGrid)=vSigma(1,iGrid)+Coeff*dFdgammaaa
 * Note: For xpbe, dFdgammaab is zero.
  110     continue
         end do
@@ -87,12 +88,12 @@
          F_xc (iGrid)=F_xc (iGrid)+Coeff*(Fa+Fb)
          F_xca(iGrid)=F_xca(iGrid)+Coeff*(Fa)
          F_xcb(iGrid)=F_xcb(iGrid)+Coeff*(   Fb)
-         dF_dRho(ipRa,iGrid)=dF_dRho(ipRa,iGrid)+Coeff*dFdrhoa
-         dF_dRho(ipRb,iGrid)=dF_dRho(ipRb,iGrid)+Coeff*dFdrhob
+         vRho(1,iGrid)=vRho(1,iGrid)+Coeff*dFdrhoa
+         vRho(2,iGrid)=vRho(2,iGrid)+Coeff*dFdrhob
 * Maybe derivatives w.r.t. gamma_aa, gamma_ab, gamma_bb should be used instead.
 * Note: For xpbe, dFdgammaab is zero.
-         dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)+Coeff*dFdgammaaa
-         dF_dRho(ipGbb,iGrid)=dF_dRho(ipGbb,iGrid)+Coeff*dFdgammabb
+         vSigma(1,iGrid)=vSigma(1,iGrid)+Coeff*dFdgammaaa
+         vSigma(3,iGrid)=vSigma(3,iGrid)+Coeff*dFdgammabb
         end do
         tmpB(:)=F_xc(:)
         Else
@@ -110,12 +111,12 @@
      &          d2Fdrb2,d2Fdrbdgbb,d2Fdgbb2)
 
          F_xc (iGrid)=F_xc (iGrid)+Coeff*(Fa+Fb)
-         dF_dRho(ipRa,iGrid)=dF_dRho(ipRa,iGrid)+Coeff*dFdrhoa
-         dF_dRho(ipRb,iGrid)=dF_dRho(ipRb,iGrid)+Coeff*dFdrhob
+         vRho(1,iGrid)=vRho(1,iGrid)+Coeff*dFdrhoa
+         vRho(2,iGrid)=vRho(2,iGrid)+Coeff*dFdrhob
 * Maybe derivatives w.r.t. gamma_aa, gamma_ab, gamma_bb should be used instead.
 * Note: For xpbe, dFdgammaab is zero.
-         dF_dRho(ipGaa,iGrid)=dF_dRho(ipGaa,iGrid)+Coeff*dFdgammaaa
-         dF_dRho(ipGbb,iGrid)=dF_dRho(ipGbb,iGrid)+Coeff*dFdgammabb
+         vSigma(1,iGrid)=vSigma(1,iGrid)+Coeff*dFdgammaaa
+         vSigma(3,iGrid)=vSigma(3,iGrid)+Coeff*dFdgammabb
         end do
         End If
 

@@ -10,10 +10,7 @@
 *                                                                      *
 * Copyright (C) 2009, Grigory A. Shamov                                *
 ************************************************************************
-      Subroutine KT3(mGrid,Rho,nRho,P2_ontop,
-     &                nP2_ontop,iSpin,F_xc,
-     &                dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,
-     &                T_X)
+      Subroutine KT3(mGrid,iSpin)
 ************************************************************************
 *                                                                      *
 * Object:     KT3 combination                                          *
@@ -25,47 +22,37 @@
 *                                                                      *
 * Author:      Grigory A Shamov, U of Manitoba, 2009                   *
 ************************************************************************
+      use nq_Grid, only: F_xc => Exc
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "ksdft.fh"
-      Real*8 Rho(nRho,mGrid), dF_dRho(ndF_dRho,mGrid),
-     &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
-     &       dF_dP2ontop(ndF_dP2ontop,mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *---- Dirac Exchange with the non-UEG factor!
 *
       Coeff= 1.092d0*CoefX
-      Call Diracx(mGrid,iSpin,F_xc,
-     &            dF_dRho,ndF_dRho,Coeff,T_X)
+      Call Diracx(mGrid,iSpin,F_xc,Coeff)
 *
 *---- OPTX Exchange
 *
       Coeff= 0.925452d0*CoefX
-      Call xOPT(mGrid,dF_dRho,ndF_dRho,
-     &          Coeff,iSpin,F_xc,T_X)
+      Call xOPT(mGrid,
+     &          Coeff,iSpin,F_xc)
 *
 *---- KT term Exchange
 *
       Coeff= -0.0040d0*CoefX
-      Call KealTozer(mGrid,dF_dRho,ndF_dRho,
-     &          Coeff,iSpin,F_xc,T_X)
+      Call KealTozer(mGrid,
+     &          Coeff,iSpin,F_xc)
 *
 *---- Lee-Yang-Parr Correlation
 *
       Coeff=0.864409d0*CoefR
-      Call LYP(mGrid,dF_dRho,ndF_dRho,
-     &         Coeff,iSpin,F_xc,T_X)
+      Call LYP(mGrid,
+     &         Coeff,iSpin,F_xc)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_Integer(nRho)
-         Call Unused_real_array(Rho)
-         Call Unused_real_array(P2_ontop)
-         Call Unused_real_array(dF_dP2ontop)
-      End If
       End

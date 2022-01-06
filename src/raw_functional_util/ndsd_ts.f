@@ -8,8 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine NDSD_Ts(mGrid,nDmat,F_xc,dF_dRho,
-     &                   ndF_dRho,Coeff,T_X)
+      Subroutine NDSD_Ts(mGrid,nDmat,F_xc,Coeff)
 ************************************************************************
 *                                                                      *
 * Object:  compute Func for Thomas-Fermi KE functional                 *
@@ -24,13 +23,14 @@
 *                                                                      *
 ************************************************************************
       use nq_Grid, only: Rho, GradRho, Lapl
+      use nq_Grid, only: vRho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "nq_index.fh"
-      Real*8 dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
+      Real*8 F_xc(mGrid)
       Real*8 Fexp, Vt_lim
       External Fexp, Vt_lim
       Real*8 wGradRho(1:3)
+      Real*8, Parameter:: T_X=1.0D-20
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -65,7 +65,7 @@
 *
             dfunc_NDSD = Fexp(d_sys,wGradRho(1))
      &                 * Vt_lim(d_sys,wGradRho(1),wLaplRho)
-            dF_dRho(1,iGrid) = dF_dRho(1,iGrid)
+            vRho(1,iGrid) = vRho(1,iGrid)
      &                       + Coeff*dfunc_NDSD
 *
  100        Continue
@@ -98,9 +98,9 @@
      &                       * Vt_lim(DTot,wGradRho(1),wLaplRho)
             dfunc_NDSD_beta  = dfunc_NDSD_alpha
 *
-            dF_dRho(1,iGrid) = dF_dRho(1,iGrid)
+            vRho(1,iGrid) = vRho(1,iGrid)
      &                       + Coeff*dfunc_NDSD_alpha
-            dF_dRho(2,iGrid) = dF_dRho(2,iGrid)
+            vRho(2,iGrid) = vRho(2,iGrid)
      &                       + Coeff*dfunc_NDSD_beta
 *
  200        Continue
