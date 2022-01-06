@@ -7,6 +7,8 @@
 * is provided "as is" and without any express or implied warranties.   *
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 2022, Roland Lindh                                     *
 ************************************************************************
       Subroutine DrvDFT(h1,TwoHam,D,RepNuc,nh1,First,Dff,
      &                  lRF,KSDFT,ExFac,Do_Grad,Grad,nGrad,iSpin,
@@ -34,6 +36,14 @@
       Character*(*) KSDFT
       Character*4 DFTFOCK
       Real*8, Allocatable:: D_DS(:,:), F_DFT(:,:)
+      abstract interface
+          Subroutine DFT_FUNCTIONAL(mGrid,nD)
+          Integer mGrid, nD
+          end subroutine
+      end interface
+
+      procedure(DFT_FUNCTIONAL), pointer :: sub => null()
+
 *
       KSDFA = KSDFT
       lKSDFT=LEN(KSDFT)
@@ -152,7 +162,8 @@ c     Call SetQue('Trace=on')
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(LSDA   ,F_DFT,nFckDim,Func,
+         Sub => LSDA
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -172,7 +183,8 @@ c          write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(LSDA5  ,F_DFT,nFckDim,Func,
+         Sub => LSDA5
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -189,7 +201,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(HFB    ,F_DFT,nFckDim,Func,
+         Sub => HFB
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -205,7 +218,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(HFO    ,F_DFT,nFckDim,Func,
+         Sub => HFO
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -221,7 +235,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(HFG    ,F_DFT,nFckDim,Func,
+         Sub => HFG
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -237,7 +252,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(HFB86   ,F_DFT,nFckDim,Func,
+         Sub => HFB86
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -253,7 +269,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(HFS    ,F_DFT,nFckDim,Func,
+         Sub => HFS
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -269,7 +286,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(XAlpha ,F_DFT,nFckDim,Func,
+         Sub => XAlpha
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -285,7 +303,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(Overlap,F_DFT,nFckDim,Func,
+         Sub => Overlap
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -301,7 +320,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(NucAtt,F_DFT,nFckDim,Func,
+         Sub => NucAtt
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -317,7 +337,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(BWIG   ,F_DFT,nFckDim,Func,
+         Sub => BWIG
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -340,7 +361,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(BLYP   ,F_DFT,nFckDim,Func,
+         Sub => BLYP
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -356,7 +378,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(OLYP   ,F_DFT,nFckDim,Func,
+         Sub => OLYP
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -372,7 +395,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(KT3   ,F_DFT,nFckDim,Func,
+         Sub => KT3
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -388,7 +412,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(KT2   ,F_DFT,nFckDim,Func,
+         Sub => KT2
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -404,7 +429,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(GLYP   ,F_DFT,nFckDim,Func,
+         Sub => GLYP
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -420,7 +446,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(B86LYP   ,F_DFT,nFckDim,Func,
+         Sub => B86LYP
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -436,7 +463,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(BPBE   ,F_DFT,nFckDim,Func,
+         Sub => BPBE
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -459,7 +487,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(OPBE   ,F_DFT,nFckDim,Func,
+         Sub => OPBE
+         Call DrvNQ(Sub   ,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -475,7 +504,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(GPBE   ,F_DFT,nFckDim,Func,
+         Sub => GPBE
+         Call DrvNQ(Sub   ,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -491,7 +521,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(B86PBE  ,F_DFT,nFckDim,Func,
+         Sub => B86PBE
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -507,7 +538,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(TLYP   ,F_DFT,nFckDim,Func,
+         Sub => TLYP
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -523,7 +555,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(B3LYP  ,F_DFT,nFckDim,Func,
+         Sub => B3LYP
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -539,7 +572,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(O3LYP  ,F_DFT,nFckDim,Func,
+         Sub => O3LYP
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -555,7 +589,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(B2PLYP  ,F_DFT,nFckDim,Func,
+         Sub => B2PLYP
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -571,7 +606,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(O2PLYP  ,F_DFT,nFckDim,Func,
+         Sub => O2PLYP
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -587,7 +623,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(B3LYP5 ,F_DFT,nFckDim,Func,
+         Sub => B3LYP5
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -610,7 +647,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(PBE   ,F_DFT,nFckDim,Func,
+         Sub => PBE
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -633,7 +671,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(REVPBE,F_DFT,nFckDim,Func,
+         Sub => REVPBE
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -650,7 +689,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(SSBSW   ,F_DFT,nFckDim,Func,
+         Sub => SSBSW
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -667,7 +707,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(SSBD ,F_DFT,nFckDim,Func,
+         Sub => SSBD
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -684,7 +725,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(S12H  ,F_DFT,nFckDim,Func,
+         Sub => S12H
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -701,7 +743,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(S12G  ,F_DFT,nFckDim,Func,
+         Sub => S12G
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -717,7 +760,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(PBEsol   ,F_DFT,nFckDim,Func,
+         Sub => PBESol
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -733,7 +777,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(RGE2   ,F_DFT,nFckDim,Func,
+         Sub => RGE2
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -749,7 +794,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(PTCA   ,F_DFT,nFckDim,Func,
+         Sub => PTCA
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -765,7 +811,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(PBE0  ,F_DFT,nFckDim,Func,
+         Sub => PBE0
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -781,7 +828,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(M06L,F_DFT,nFckDim,Func,
+         Sub => M06L
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -797,7 +845,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(M06,F_DFT,nFckDim,Func,
+         Sub => M06
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -813,7 +862,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(M062X,F_DFT,nFckDim,Func,
+         Sub => M062X
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
@@ -829,7 +879,8 @@ c         write(6,*) 'Func in drvdft :', Func
          nFckDim = nD
          Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
          F_DFT(:,:)=Zero
-         Call DrvNQ(M06HF,F_DFT,nFckDim,Func,
+         Sub => M06HF
+         Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
