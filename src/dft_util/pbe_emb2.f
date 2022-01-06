@@ -8,22 +8,17 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine PBE_emb2(mGrid,Rho,nRho,P2_ontop,
-     &                    nP2_ontop,nDmat,F_xc,
-     &                    dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,
-     &                    T_X)
+      Subroutine PBE_emb2(mGrid,nDmat)
 ************************************************************************
 *                                                                      *
 * Object:                                                              *
 *                                                                      *
 ************************************************************************
+      use nq_Grid, only: F_xc => Exc
       use OFembed, only: KEonly
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "hflda.fh"
-      Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
-     &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
-     &       dF_dP2ontop(ndF_dP2ontop,mGrid)
 *
 ************************************************************************
 *
@@ -31,17 +26,13 @@
 *---- NDSD potential
 *
       Coeff=One
-      Call ndsd_Ts(mGrid,nDmat,F_xc,
-     &                   dF_dRho,ndF_dRho,Coeff,T_X)
+      Call ndsd_Ts(mGrid,nDmat,F_xc,Coeff)
 
       If (KEonly) Return
 *
 *---- PBE for exchange-correlation energy functional (no potential)
 *
-      Call PBE_(mGrid,Rho,nRho,P2_ontop,
-     &                nP2_ontop,nDmat,F_xc,
-     &                dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,
-     &                T_X)
+      Call PBE_(mGrid,nDmat,F_xc)
 
 *                                                                      *
 ************************************************************************
@@ -52,35 +43,24 @@
 ************************************************************************
 *                                                                      *
 
-      Subroutine PBE_(mGrid,Rho,nRho,P2_ontop,
-     &                nP2_ontop,iSpin,F_xc,
-     &                dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X)
+      Subroutine PBE_(mGrid,iSpin,F_xc)
 ************************************************************************
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-      Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
-     &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
-     &       dF_dP2ontop(ndF_dP2ontop,mGrid)
+      Real*8 F_xc(mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       CoeffA=0.0D0
-      Call CPBE_ofe(mGrid,dF_dRho,ndF_dRho,
-     &              CoeffA,iSpin,F_xc,T_X)
+      Call CPBE_ofe(mGrid,
+     &              CoeffA,iSpin,F_xc)
 
       CoeffB=0.0D0
-      Call XPBE_ofe(mGrid,dF_dRho,ndF_dRho,
-     &              CoeffB,iSpin,F_xc,T_X)
+      Call XPBE_ofe(mGrid,
+     &              CoeffB,iSpin,F_xc)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_Integer(nRho)
-         Call Unused_real_array(Rho)
-         Call Unused_real_array(P2_ontop)
-         Call Unused_real_array(dF_dP2ontop)
-      End If
       End

@@ -14,16 +14,16 @@
      &                  Kernel,Func,
      &                  Maps2p,nSym,list_s,list_exp,list_bas,
      &                  nShell,list_p,R2_trial,nNQ,
-     &                  AOInt,nAOInt,FckInt,nFckDim,
+     &                  FckInt,nFckDim,
      &                  Density,nFckInt,nD,
-     &                  SOTemp,nSOTemp,mGrid,
-     &                  ndF_dRho,nP2_ontop,ndF_dP2ontop,
+     &                  mGrid,
+     &                  nP2_ontop,
      &                  Do_Mo,Do_TwoEl,l_Xhol,
      &                  TmpPUVX,nTmpPUVX,
      &                  nMOs,
      &                  CMOs,nCMO,DoIt,P2mo,np2act,D1mo,nd1mo,P2_ontop,
      &                  Do_Grad,Grad,nGrad,list_g,IndGrd,iTab,Temp,
-     &                  mGrad,F_xc,dF_dRho,dF_dP2ontop,
+     &                  mGrad,F_xc,
      &                  DFTFOCK,mAO,mdRho_dR)
 ************************************************************************
 *                                                                      *
@@ -56,13 +56,11 @@
      &        list_s(nSym*nShell), list_exp(nSym*nShell),
      &        list_p(nNQ), DoIt(nMOs), List_g(3,nSym*nShell),
      &        IndGrd(mGrad), iTab(4,mGrad), list_bas(2,nSym*nShell)
-      Real*8 AOInt(nAOInt,nAOInt,nD), FckInt(nFckInt,nFckDim),
-     &       Density(nFckInt,nD),
-     &       SOTemp(nSOTemp,nD), R2_trial(nNQ),
+      Real*8 FckInt(nFckInt,nFckDim),
+     &       Density(nFckInt,nD), R2_trial(nNQ),
      &       CMOs(nCMO),P2mo(np2act),D1mo(nd1mo), Temp(mGrad),
      &       P2_ontop(nP2_ontop,mGrid), Grad(nGrad),
-     &       F_xc(mGrid),dF_dRho(ndF_dRho,mGrid),
-     &       dF_dP2ontop(ndF_dp2ontop,mGrid)
+     &       F_xc(mGrid)
       Real*8 TmpPUVX(nTmpPUVX)
       Logical Check, Do_Grad, Rsv_Tsk
       Logical Do_Mo,Do_TwoEl,l_Xhol,l_casdft,Exist,l_tgga
@@ -182,7 +180,6 @@ c        Call append_file(LuMT)
 *
 *-----Loop over subblocks
 *
-      Flop=Zero
       iSB = 0
 C     Do iSB = 1, number_of_subblocks
 *
@@ -243,16 +240,15 @@ C        Debug=.True.
          Call Get_Subblock(Kernel,Func,iSB,
      &                     Maps2p,list_s,list_exp,list_bas,nShell,nSym,
      &                     list_p,R2_trial,nNQ,
-     &                     AOInt,nAOInt,FckInt,nFckDim,nFckInt,
-     &                     SOTemp,nSOTemp,
+     &                     FckInt,nFckDim,nFckInt,
      &                     Density,nFckInt,nD,
      &                     mGrid,
-     &                     ndF_dRho,nP2_ontop,ndF_dP2ontop,
+     &                     nP2_ontop,
      &                     Do_Mo,Do_TwoEl,l_Xhol,
      &                     TmpPUVX,nTmpPUVX,nMOs,CMOs,nCMO,DoIt,P2MO,
      &                     P2Unzip,np2act,D1mo,D1Unzip,nd1mo,P2_ontop,
      &                     Do_Grad,Grad,nGrad,List_G,IndGrd,iTab,Temp,
-     &                     mGrad,F_xc,dF_dRho,dF_dP2ontop,
+     &                     mGrad,F_xc,
      &                     DFTFOCK,mAO,mdRho_dR,
      &                     LTEG_DB,PDFTPot1,PDFTFocI,PDFTFocA)
 *                                                                      *
@@ -263,7 +259,6 @@ C777     Continue
 C     End Do ! number_of_subblocks
  200  Continue ! Done!
       Call Free_Tsk(id)
-      Flop=Flop/DBLE(nFckInt)
 
 
 *                                                                      *

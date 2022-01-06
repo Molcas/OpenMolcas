@@ -15,19 +15,19 @@
 * Jie J. Bao, on Dec. 22, 2021, created this file.               *
 * ****************************************************************
        Subroutine Calc_Pot1(Pot1,TabMO,mAO,mGrid,nMOs,P2_ontop,
-     &                      nP2_ontop,dF_dRho,ndF_dRho,
+     &                      nP2_ontop,
      &                      MOs)
       use nq_Grid, only: GradRho,Weights
+      use nq_Grid, only: vRho, vSigma
       use nq_pdft
 #include "nq_info.fh"
 #include "ksdft.fh"
 #include "stdalloc.fh"
 ******Input
-      INTEGER mAO,mGrid,nMOs,nP2_ontop,ndF_dRho
+      INTEGER mAO,mGrid,nMOs,nP2_ontop
       Real*8,DIMENSION(mAO,mGrid,nMOs)::TabMO
       Real*8,DIMENSION(mGrid*nOrbt)::MOs
       Real*8,DIMENSION(nP2_ontop,mGrid)::P2_ontop
-      Real*8,DIMENSION(ndF_dRho,mGrid)::dF_dRho
 ******Output
       Real*8,DIMENSION(nPot1)::Pot1
 ******Internal
@@ -47,8 +47,8 @@ C     calculation
 C      black terms in the notes
       DO iGrid=1,mGrid
        IF(Pass1(iGrid)) THEN
-        dF_dRhoapb(iGrid)=dF_dRho(1,iGrid)+dF_dRho(2,iGrid)
-        dF_dRhoamb(iGrid)=dF_dRho(1,iGrid)-dF_dRho(2,iGrid)
+        dF_dRhoapb(iGrid)=vRho(1,iGrid)+vRho(2,iGrid)
+        dF_dRhoamb(iGrid)=vRho(1,iGrid)-vRho(2,iGrid)
         dRdRho(iGrid)=RatioA(iGrid)*(-2.0d0/RhoAB(iGrid))
         dZdRho(iGrid)=dZdR(iGrid)*dRdRho(iGrid)
         dEdRho(iGrid)=dF_dRhoapb(iGrid)+dF_dRhoamb(iGrid)*
@@ -66,18 +66,18 @@ C     red terms in the notes
       IF(lGGA) THEN
        DO iGrid=1,mGrid
         If(Pass1(iGrid)) Then
-         dF_dRhoax=2.0D0*dF_dRho(3,iGrid)*GradRho(1,iGrid)+
-     &                  dF_dRho(4,iGrid)*GradRho(4,iGrid)
-         dF_dRhobx=2.0D0*dF_dRho(5,iGrid)*GradRho(4,iGrid)+
-     &                  dF_dRho(4,iGrid)*GradRho(1,iGrid)
-         dF_dRhoay=2.0D0*dF_dRho(3,iGrid)*GradRho(2,iGrid)+
-     &                  dF_dRho(4,iGrid)*GradRho(5,iGrid)
-         dF_dRhoby=2.0D0*dF_dRho(5,iGrid)*GradRho(5,iGrid)+
-     &                  dF_dRho(4,iGrid)*GradRho(2,iGrid)
-         dF_dRhoaz=2.0D0*dF_dRho(3,iGrid)*GradRho(3,iGrid)+
-     &                  dF_dRho(4,iGrid)*GradRho(6,iGrid)
-         dF_dRhobz=2.0D0*dF_dRho(5,iGrid)*GradRho(6,iGrid)+
-     &                  dF_dRho(4,iGrid)*GradRho(3,iGrid)
+         dF_dRhoax=2.0D0*vSigma(1,iGrid)*GradRho(1,iGrid)+
+     &                  vSigma(2,iGrid)*GradRho(4,iGrid)
+         dF_dRhobx=2.0D0*vSigma(3,iGrid)*GradRho(4,iGrid)+
+     &                  vSigma(2,iGrid)*GradRho(1,iGrid)
+         dF_dRhoay=2.0D0*vSigma(1,iGrid)*GradRho(2,iGrid)+
+     &                  vSigma(2,iGrid)*GradRho(5,iGrid)
+         dF_dRhoby=2.0D0*vSigma(3,iGrid)*GradRho(5,iGrid)+
+     &                  vSigma(2,iGrid)*GradRho(2,iGrid)
+         dF_dRhoaz=2.0D0*vSigma(1,iGrid)*GradRho(3,iGrid)+
+     &                  vSigma(2,iGrid)*GradRho(6,iGrid)
+         dF_dRhobz=2.0D0*vSigma(3,iGrid)*GradRho(6,iGrid)+
+     &                  vSigma(2,iGrid)*GradRho(3,iGrid)
          dF_dRhoxapb(iGrid)=dF_dRhoax+dF_dRhobx
          dF_dRhoxamb(iGrid)=dF_dRhoax-dF_dRhobx
          dF_dRhoyapb(iGrid)=dF_dRhoay+dF_dRhoby

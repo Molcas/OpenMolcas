@@ -27,10 +27,12 @@
       use Symmetry_Info, only: nIrrep
       use KSDFT_Info, only: KSDFA, F_xca, F_xcb, TmpB
       use nq_Grid, only: Rho, GradRho, Sigma, Tau, Lapl
+      use nq_Grid, only: vRho, vSigma, vTau, vLapl
       use nq_Grid, only: Grid, Weights
       use nq_Grid, only: nRho, nGradRho, nTau, nSigma, nLapl, nGridMax
       use nq_Grid, only: l_CASDFT, kAO
       use nq_Grid, only: Exc
+      use nq_pdft, only: lft, lGGA
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "real.fh"
@@ -103,20 +105,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*---- Allocate scratch memory for the temporary AO matrix
-*     elements
-*
-      nAOInt=0
-      Do iShell = 1, nShell
-         iBas = iSD(3,iShell)
-         iCmp = iSD(2,iShell)
-         nAOInt=Max(nAOInt,iBas*iCmp)
-      End Do
-*
-      Call GetMem('AOInt','Allo','Real',ipAOInt,nD*nAOInt**2)
-*                                                                      *
-************************************************************************
-*                                                                      *
 *---- Allocate scratch memory for the temporary SO matrix
 *     elements
 *
@@ -136,7 +124,6 @@
             nSOTemp=Max(nSOTemp,iBas*jBas*nSO)
          End Do
       End Do
-      Call GetMem('SO_Temp','Allo','Real',ipSOTemp,nSOTemp*nD)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -174,6 +161,7 @@
 *                                                                      *
 ************************************************************************
 * Global variable for MCPDFT functionals                               *
+
       l_casdft = KSDFA.eq.'TLSDA'   .or.
      &           KSDFA.eq.'TLSDA5'  .or.
      &           KSDFA.eq.'TBLYP'   .or.
@@ -188,6 +176,13 @@
      &           KSDFA.eq.'FTREVPBE'.or.
      &           KSDFA.eq.'FTLSDA'  .or.
      &           KSDFA.eq.'FTBLYP'
+
+      lft      = KSDFA.eq.'FTPBE'   .or.
+     &           KSDFA.eq.'FTOPBE'  .or.
+     &           KSDFA.eq.'FTREVPBE'.or.
+     &           KSDFA.eq.'FTLSDA'  .or.
+     &           KSDFA.eq.'FTBLYP'
+
       if(Debug) write(6,*) 'l_casdft value at drvnq.f:',l_casdft
       if(Debug.and.l_casdft) write(6,*) 'MCPDFT with functional:', KSDFA
 ************************************************************************
@@ -237,9 +232,7 @@
 *        rho(alpha). In case of open-shell calculations we also
 *        need rho(beta).
 *
-         ndF_dRho=nD
          nP2_ontop=1
-         ndF_dP2ontop=1
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -268,13 +261,8 @@
 *        In case of open-shell calculations we also
 *        need rho(beta) and gamma(beta,beta).
 *
-         If (nD.eq.1) Then
-            ndF_dRho=3
-         Else
-            ndF_dRho=5
-         End If
          nP2_ontop=4
-         ndF_dP2ontop=4
+         lGGA=.True.
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -305,13 +293,7 @@
 *        tau(alpha). In case of open-shell calculations we also
 *        need rho(beta), gamma(beta,beta) and tau(beta).
 *
-         If (nD.eq.1) Then
-            ndF_dRho=4
-         Else
-            ndF_dRho=7
-         End If
          nP2_ontop=4
-         ndF_dP2ontop=4
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -344,13 +326,7 @@
 *        calculations we also need rho(beta), gamma(beta,beta),
 *        tau(beta) and laplacian(beta).
 *
-         If (nD.eq.1) Then
-            ndF_dRho=5
-         Else
-            ndF_dRho=9
-         End If
          nP2_ontop=4
-         ndF_dP2ontop=4
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -375,13 +351,7 @@
              Call Abend()
          End If
 *
-         If (nD.eq.1) Then
-            ndF_dRho=3 ! could be 2?
-         Else
-            ndF_dRho=5
-         Endif
          nP2_ontop=6
-         ndF_dP2ontop=6
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -393,7 +363,6 @@
          Call WarningMessage(2,'DrvNQ: Invalid Functional_type!')
          Call Abend()
          nRho=0
-         ndF_dRho=0
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -402,14 +371,22 @@
 ************************************************************************
 *                                                                      *
       Call mma_allocate(Rho,nRho,nGridMax,Label='Rho')
-      If (nSigma.ne.0) Call mma_Allocate(Sigma,nSigma,nGridMax,
-     &                                   Label='Sigma')
-      If (nGradRho.ne.0) Call mma_Allocate(GradRho,nGradRho,nGridMax,
-     &                                   Label='GradRho')
-      If (nTau.ne.0) Call mma_allocate(Tau,nTau,nGridMax,
-     &                                 Label='Tau')
-      If (nLapl.ne.0) Call mma_allocate(Lapl,nLapl,nGridMax,
-     &                                 Label='Lapl')
+      Call mma_allocate(vRho,nRho,nGridMax,Label='vRho')
+      If (nSigma.ne.0) Then
+         Call mma_Allocate(Sigma,nSigma,nGridMax,Label='Sigma')
+         Call mma_Allocate(vSigma,nSigma,nGridMax,Label='vSigma')
+      End If
+      If (nGradRho.ne.0) Then
+         Call mma_Allocate(GradRho,nGradRho,nGridMax,Label='GradRho')
+      End If
+      If (nTau.ne.0) Then
+         Call mma_allocate(Tau,nTau,nGridMax,Label='Tau')
+         Call mma_allocate(vTau,nTau,nGridMax,Label='vTau')
+      End If
+      If (nLapl.ne.0) Then
+         Call mma_allocate(Lapl,nLapl,nGridMax,Label='Lapl')
+         Call mma_allocate(vLapl,nLapl,nGridMax,Label='vLapl')
+      End If
 
       Call mma_allocate(Exc,nGridMax,Label='Exc')
       If (l_casdft) Then
@@ -417,7 +394,6 @@
          Call mma_allocate(F_xcb,nGridMax,Label='F_xcb')
          Call mma_allocate(TmpB,nGridMax,Label='TmpB')
       End If
-      Call GetMem('dF_dRho','Allo','Real',ip_dFdRho,ndF_dRho*nGridMax)
 *
       Call GetMem('list_s','Allo','Inte',iplist_s,2*nIrrep*nShell)
       Call GetMem('list_exp','Allo','Inte',iplist_exp,3*nIrrep*nShell)
@@ -505,11 +481,8 @@
       If (Functional_Type.eq.CASDFT_Type) Then
          Call GetMem('P2_ontop','Allo','Real',ipp2_ontop,
      &               nP2_ontop*nGridMax)
-         Call GetMem('dF_dP2ontop','Allo','Real',ipdF_dP2ontop,
-     &               ndF_dP2ontop*nGridMax)
       Else
          ipP2_ontop=ip_Dummy
-         ipdF_dp2ontop=ip_Dummy
       Endif
 *
       If (Do_Grad) Then
@@ -549,11 +522,7 @@
         END IF
          Call GetMem('P2_ontop','Allo','Real',ipp2_ontop,
      &               nP2_ontop*nGridMax)
-         Call GetMem('dF_dP2ontop','Allo','Real',ipdF_dP2ontop,
-     &               ndF_dP2ontop*nGridMax)
         Call dCopy_(nP2_ontop*nGridMax,[0.0d0],0,Work(ipp2_ontop),1)
-        Call dCopy_(ndF_dP2ontop*nGridMax,[0.0d0],0,
-     &                                    Work(ipdF_dP2ontop),1)
 
       end if
 
@@ -562,11 +531,10 @@
      &            iWork(ips2p),nIrrep,
      &            iWork(iplist_s),iWork(iplist_exp),iWork(iplist_bas),
      &            nShell,iWork(iplist_p),Work(ipR2_trail),nNQ,
-     &            Work(ipAOInt),nAOInt,FckInt,nFckDim,
+     &            FckInt,nFckDim,
      &            Density,nFckInt,nD,
-     &            Work(ipSOTemp),nSOTemp,
      &            nGridMax,
-     &            ndF_dRho,nP2_ontop,ndF_dP2ontop,
+     &            nP2_ontop,
      &            Do_Mo,Do_TwoEl,l_Xhol,
      &            Work(ipTmpPUVX),nTmpPUVX,
      &            nMOs,Work(ipCMO),nCMO,
@@ -574,7 +542,7 @@
      &            Work(ipP2mo),nP2,Work(ipD1mo),nd1mo,Work(ipp2_ontop),
      &            Do_Grad,Grad,nGrad,iWork(iplist_g),
      &            iWork(ipIndGrd),iWork(ipiTab),Work(ipTemp),mGrad,
-     &            Exc,Work(ip_dFdRho),work(ipdF_dP2ontop),
+     &            Exc,
      &            DFTFOCK,mAO,mdRho_dR)
 *                                                                      *
 ************************************************************************
@@ -592,7 +560,6 @@
       Call GetMem('list_p','Free','Inte',iplist_p,nNQ)
       Call GetMem('list_exp','Free','Inte',iplist_exp,3*nIrrep*nShell)
       Call GetMem('list_s','Free','Inte',iplist_s,2*nIrrep*nShell)
-      Call GetMem('dF_dRho','Free','Real',ip_dFdRho,ndF_dRho*nGridMax)
 *Do_TwoEl
       If(ipP2mo.ne.ip_Dummy) Call Free_Work(ipP2mo)
       If(ipD1MO.ne.ip_Dummy) Call Free_Work(ipD1MO)
@@ -610,10 +577,20 @@
       End If
       Call mma_deallocate(Exc)
 *
-      If (Allocated(Lapl)) Call mma_deallocate(Lapl)
-      If (Allocated(Tau)) Call mma_deallocate(Tau)
+      If (Allocated(Lapl)) Then
+         Call mma_deallocate(vLapl)
+         Call mma_deallocate(Lapl)
+      End If
+      If (Allocated(Tau)) Then
+         Call mma_deallocate(vTau)
+         Call mma_deallocate(Tau)
+      End If
       If (Allocated(GradRho)) Call mma_deallocate(GradRho)
-      If (Allocated(Sigma)) Call mma_deallocate(Sigma)
+      If (Allocated(Sigma)) Then
+         Call mma_deallocate(Sigma)
+         Call mma_deallocate(vSigma)
+      End If
+      Call mma_deallocate(vRho)
       Call mma_deallocate(Rho)
 
       Call mma_deallocate(Weights)
@@ -624,8 +601,6 @@
       If (Functional_type.eq.CASDFT_Type.or.l_casdft) Then
          Call GetMem('P2_ontop','Free','Real',ipP2_ontop,
      &               nP2_ontop*nGridMax)
-         Call GetMem('dF_dP2ontop','Free','Real',ipdF_dP2ontop,
-     &               ndF_dP2ontop*nGridMax)
       End If
 *
       Do iNQ = 1, nNQ
@@ -639,8 +614,6 @@
       Call GetMem('NumRadEff','Free','Inte',ip_nR_eff,nNQ)
       Call GetMem('Coor','FREE','REAL',ipCoor,3*8*nAtoms)
 
-      Call GetMem('SO_Temp','Free','Real',ipSOTemp,nSOTemp)
-      Call GetMem('AOInt','Free','Real',ipAOInt,nD*nAOInt**2)
       Call GetMem('nq_centers','Free','Real',ipNQ,nShell*l_NQ)
       Call GetMem('nMem','Free','Real',ipMem,nMem)
       Call GetMem('Tmp','Free','Real',ipTmp,nTmp)

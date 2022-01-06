@@ -25,7 +25,7 @@ Real*8 :: fta      = -4.756065601d2
 Real*8 :: ftb      = -3.794733192d2
 Real*8 :: ftc      = -8.538149682d1
 
-Logical lGGA,lft
+Logical :: lGGA=.False., lft=.False.
 Logical,DIMENSION(:),Allocatable::Pass1,Pass2,Pass3
 Real*8 ,DIMENSION(:),Allocatable::RhoAB,OnePZ,OneMZ,RatioA,ZetaA
 Real*8 ,DIMENSION(:),Allocatable::dZdR,dRdRho,dZdRho,dRdPi

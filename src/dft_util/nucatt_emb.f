@@ -8,9 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine NucAtt_EMB(mGrid,Rho,nRho,P2_ontop,
-     &                      nP2_ontop,iSpin,F_xc,dF_dRho,
-     &                      ndF_dRho,dF_dP2ontop,ndF_dP2ontop)
+      Subroutine NucAtt_EMB(mGrid,iSpin)
       use nq_Grid, only: Grid
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
@@ -20,9 +18,6 @@
 #include "nsd.fh"
 #include "setup.fh"
 #include "nq_info.fh"
-      Real*8  Rho(nRho,mGrid), dF_dRho(ndF_dRho,mGrid),
-     &        dF_dP2ontop(ndF_dP2ontop,mGrid),
-     &        P2_ontop(nP2_ontop,mGrid), F_xc(mGrid)
       Real*8, Allocatable:: RA(:,:), ZA(:), Eff(:)
       Integer, Allocatable:: nStab(:)
 *
@@ -50,10 +45,10 @@
       Call mma_deallocate(Eff)
       Call mma_deallocate(nStab)
 *
-      Call Do_NucAtt_EMB(mGrid,Rho,nRho,P2_ontop,nP2_ontop,
-     &                   iSpin,F_xc,dF_dRho,ndF_dRho,
-     &                   dF_dP2ontop,ndF_dP2ontop,Grid,
-     &                   RA,ZA,mCenter,T_X)
+      Call Do_NucAtt_EMB(mGrid,
+     &                   iSpin,
+     &                   Grid,
+     &                   RA,ZA,mCenter)
 *
       Call mma_deallocate(ZA)
       Call mma_deallocate(RA)
@@ -63,18 +58,17 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Subroutine Do_NucAtt_EMB(mGrid,Rho,nRho,P2_ontop,nP2_ontop,
-     &                         iSpin,F_xc,dF_dRho,ndF_dRho,
-     &                         dF_dP2ontop,ndF_dP2ontop,Grid,RA,ZA,
-     &                         mCenter,T_X)
+      Subroutine Do_NucAtt_EMB(mGrid,
+     &                         iSpin,
+     &                         Grid,RA,ZA,
+     &                         mCenter)
 
+      use nq_Grid, only: F_xc => Exc
+      use nq_Grid, only: Rho, vRho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "nq_index.fh"
-      Real*8 Rho(nRho,mGrid), dF_dRho(ndF_dRho,mGrid),
-     &        dF_dP2ontop(ndF_dP2ontop,mGrid),
-     &        P2_ontop(nP2_ontop,mGrid), F_xc(mGrid)
       Real*8 Grid(3,mGrid),RA(3,mCenter),ZA(mCenter)
+      Real*8, Parameter:: T_X=1.0D-20
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -102,7 +96,7 @@
          End Do
          F_xc(iGrid)=F_xc(iGrid)-Attr*DTot
 *
-         dF_dRho(ipR,iGrid)=-Attr
+         vRho(1,iGrid)=-Attr
 *
 100      Continue
 *
@@ -135,8 +129,8 @@
          End Do
          F_xc(iGrid)=F_xc(iGrid)-Attr*DTot
 *
-         dF_dRho(ipRa,iGrid)=-Attr
-         dF_dRho(ipRb,iGrid)=-Attr
+         vRho(1,iGrid)=-Attr
+         vRho(2,iGrid)=-Attr
 *
 200      Continue
 *
@@ -150,9 +144,4 @@
 *                                                                      *
 *
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_real_array(P2_ontop)
-         Call Unused_real_array(dF_dP2ontop)
-      End If
       End

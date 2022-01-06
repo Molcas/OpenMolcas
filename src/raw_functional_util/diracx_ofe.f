@@ -10,18 +10,18 @@
 *                                                                      *
 * Copyright (C) 2000, Roland Lindh                                     *
 ************************************************************************
-      Subroutine DiracX_OFE(mGrid,iSpin,F_xc,dF_dRho,
-     &                      ndF_dRho,Coeff,T_X)
+      Subroutine DiracX_OFE(mGrid,iSpin,F_xc,Coeff)
 ************************************************************************
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. November 2000                           *
 ************************************************************************
 C-Ajitha Modifying the kernel output structure
       use nq_Grid, only: Rho
+      use nq_Grid, only: vRho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "nq_index.fh"
-      Real*8 dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
+      Real*8 F_xc(mGrid)
+      Real*8, Parameter:: T_X=1.0D-20
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -60,7 +60,7 @@ C-Ajitha Modifying the kernel output structure
          func_d_rho_alpha=-CVX*d_alpha**THIRD
 *
 
-        dF_dRho(ipR,iGrid) = dF_dRho(ipR,iGrid)
+        vRho(1,iGrid) = vRho(1,iGrid)
      &                               + Coeff*func_d_rho_alpha
 *
  100     Continue
@@ -90,9 +90,9 @@ C-Ajitha Modifying the kernel output structure
          func_d_rho_alpha=-CVX*d_alpha**THIRD
          func_d_rho_beta =-CVX*d_beta **THIRD
 *
-         dF_dRho(ipRa,iGrid) = dF_dRho(ipRa,iGrid)
+         vRho(1,iGrid) = vRho(1,iGrid)
      &                               + Coeff*func_d_rho_alpha
-         dF_dRho(ipRb,iGrid) = dF_dRho(ipRb,iGrid)
+         vRho(2,iGrid) = vRho(2,iGrid)
      &                               + Coeff*func_d_rho_beta
 *
  200     Continue

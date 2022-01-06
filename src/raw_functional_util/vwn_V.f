@@ -10,8 +10,7 @@
 *                                                                      *
 * Copyright (C) 2000, Roland Lindh                                     *
 ************************************************************************
-      Subroutine VWN_V(mGrid,iSpin,
-     &                 F_xc,dF_dRho,ndF_dRho,Coeff,T_X)
+      Subroutine VWN_V(mGrid,iSpin,F_xc,Coeff)
 ************************************************************************
 *                                                                      *
 * Object: To compute functional V from the VWN80 paper which fits the  *
@@ -22,10 +21,11 @@
 *             of Lund, SWEDEN. November 2000                           *
 ************************************************************************
       use nq_Grid, only: Rho
+      use nq_Grid, only: vRho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "nq_index.fh"
-      Real*8 dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
+      Real*8 F_xc(mGrid)
+      Real*8, Parameter:: T_X=1.0D-20
 *  LDA Stuff
       Real*8 A(3),b(3),c(3),x0(3),Q(3),Xx0(3),e(3),d_e(3)
       data A  / 0.0621814D+00,  0.0310907D+00, -0.0337740D+00/
@@ -114,7 +114,7 @@ C     CVX   =(two**THIRD)*((three/Pi)**THIRD)
 *
          func_d_rho_c = DTot*d_e(1)
 *
-         dF_dRho(ipR,iGrid) = dF_dRho(ipR,iGrid)
+         vRho(1,iGrid) = vRho(1,iGrid)
      &                       + Coeff*Half*(func_d_rho_c
      &                                            +half_func)
 *
@@ -211,10 +211,10 @@ c+++  original formula in Rydbergs -> 0.5 converts to hartree
      &                 +   fz*(  e(2)-  e(1))*d_z4
          func_d_rho_beta_c  = DTot*d_half_func_b
 *
-         dF_dRho(ipRa,iGrid) = dF_dRho(ipRa,iGrid)
+         vRho(1,iGrid) = vRho(1,iGrid)
      &                       + Coeff*Half*(func_d_rho_alpha_c
      &                                            +half_func)
-         dF_dRho(ipRb,iGrid) = dF_dRho(ipRb,iGrid)
+         vRho(2,iGrid) = vRho(2,iGrid)
      &                       + Coeff*Half*(func_d_rho_beta_c
      &                                            +half_func)
 *

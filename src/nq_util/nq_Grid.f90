@@ -14,14 +14,18 @@ Real*8, Allocatable:: Grid(:,:)
 !     nGridMax: size of the array Grid
 Integer :: nGridMax=128
 Real*8, Allocatable:: Rho(:,:)
+Real*8, Allocatable:: vRho(:,:)
 Integer :: nRho=0
 Real*8, Allocatable:: GradRho(:,:)
 Integer :: nGradRho=0
 Real*8, Allocatable:: Sigma(:,:)
+Real*8, Allocatable:: vSigma(:,:)
 Integer :: nSigma=0
 Real*8, Allocatable:: Lapl(:,:)
+Real*8, Allocatable:: vLapl(:,:)
 Integer :: nLapl=0
 Real*8, Allocatable:: Tau(:,:)
+Real*8, Allocatable:: vTau(:,:)
 Integer :: nTau=0
 Logical :: l_CASDFT=.FALSE.
 Real*8, Allocatable:: Exc(:)
@@ -32,5 +36,6 @@ Real*8, Allocatable:: Grid_AO(:,:,:,:)
 Real*8, Allocatable:: Dens_AO(:,:,:)
 Real*8, Allocatable:: dRho_dR(:,:,:)
 Integer, Allocatable:: Ind_Grd(:,:)
+Integer, Allocatable:: iBfn_Index(:,:)
 Integer :: kAO=0
 End Module nq_Grid
