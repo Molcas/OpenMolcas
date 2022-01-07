@@ -18,9 +18,9 @@
       use KSDFT_Info, only: F_xca, F_xcb
       use libxc
       implicit none
+      integer :: mGrid, nD, iGrid, nRho
       Real*8 :: F_xc(mGrid)
       Real*8 :: Coeff
-      integer :: mgrid, nD, iGrid, nRho
 
       ! xc functional
       TYPE(xc_f03_func_t) :: xc_func
@@ -44,10 +44,10 @@
       If (nD.eq.1) Rho(:,:)=2.0D0*Rho(:,:)
 
       ! Evaluate energy depending on the family
-!     select case (xc_f03_func_info_get_family(xc_info))
-!     case(XC_FAMILY_LDA)
+      select case (xc_f03_func_info_get_family(xc_info))
+      case(XC_FAMILY_LDA)
          call xc_f03_lda_exc_vxc(xc_func, mGrid, Rho(1,1), func(1), dfunc_drho(1,1))
-!     end select
+      end select
 
       ! Libxc evaluates energy density per particle; multiply by
       ! density to get out what we really want
