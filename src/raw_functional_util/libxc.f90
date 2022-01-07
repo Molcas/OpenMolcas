@@ -13,5 +13,6 @@
 Module libxc
 Real*8, Allocatable:: func(:)
 Real*8, Allocatable:: dfunc_drho(:,:)
+Real*8, Allocatable:: dfunc_dsigma(:,:)
 Logical :: Only_exc=.False.
 End Module libxc
