@@ -16,7 +16,7 @@ use nq_Grid, only: Rho, Sigma, vRho, vSigma, l_casdft
 use KSDFT_Info, only: F_xca, F_xcb
 use libxc
 implicit none
-integer :: mGrid, nD, iGrid, nRho
+integer :: mGrid, nD, iGrid
 Real*8 :: F_xc(mGrid)
 Real*8 :: Coeff
 

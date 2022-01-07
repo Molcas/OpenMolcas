@@ -17,7 +17,7 @@
       use nq_Grid, only: Rho
       use libxc
       implicit none
-      integer :: mGrid, nD, iGrid, nRho
+      integer :: mGrid, nD, nRho
       Real*8 :: F_xc(mGrid)
       Real*8 :: Coeff
 
@@ -36,13 +36,13 @@
       ! Get the functional's information
       xc_info = xc_f03_func_get_info(xc_func)
 
-      If (nD.eq.1) Rho(:,:)=2.0D0*Rho(:,:)
+      If (nD.eq.1) Rho(:,1:mGrid)=2.0D0*Rho(:,1:mGrid)
 
       call libxc_interface(xc_func,xc_info,mGrid,nD,F_xc,Coeff)
 
       call xc_f03_func_end(xc_func)
 
-      If (nD.eq.1) Rho(:,:)=0.5D0*Rho(:,:)
+      If (nD.eq.1) Rho(:,1:mGrid)=0.5D0*Rho(:,1:mGrid)
 !     Call RecPrt('F_xc',' ',F_xc,1,mGrid)
 !     Stop 123
       Return

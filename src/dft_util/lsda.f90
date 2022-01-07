@@ -21,7 +21,7 @@ Implicit Real*8 (A-H,O-Z)
 #include "ksdft.fh"
 Integer, parameter :: nFuncs=2
 Real*8 :: Coeffs(nFuncs)=[1.0D0,1.0D0]
-Integer*4, parameter :: func_id(nFuncs)=[1,8]
+Integer*4, parameter :: func_id(nFuncs)=[int(1,4),int(8,4)]
 TYPE(xc_f03_func_t) :: xc_func(nFuncs) ! xc functional
 TYPE(xc_f03_func_info_t) :: xc_info(nFuncs) ! xc functional info
 !                                                                      *
