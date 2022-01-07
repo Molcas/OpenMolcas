@@ -24,12 +24,12 @@ module libxc_wrapper
 
      ! Query libxc for the id numbers and weights of the mixture, e.g.
      ! B3LYP = 0.08 Slater + 0.72 Becke'88 + 0.19 VWN5 + 0.81 LYP
-     integer(c_int) function libxc_get_aux_funcs(id, ids, weights) bind(C)
+     subroutine libxc_get_aux_funcs(id, ids, weights) bind(C)
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: id
        integer(c_int), pointer :: ids(:)
        real(c_double), pointer :: weights(:)
-     end function libxc_get_aux_funcs
+     end subroutine libxc_get_aux_funcs
   end interface
 end module libxc_wrapper
