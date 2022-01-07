@@ -39,7 +39,9 @@ Do iFunc = 1, nFuncs
    call xc_f03_func_init(xc_func(iFunc), func_id(iFunc), int(nD, 4))
    ! Get the functional's information
    xc_info = xc_f03_func_get_info(xc_func(iFunc))
+End Do
 
+Do iFunc = 1, nFuncs
    Coeff = Coeffs(iFunc)
    Select case(xc_f03_func_info_get_kind(xc_info(iFunc)))
      case (XC_EXCHANGE)
@@ -49,7 +51,9 @@ Do iFunc = 1, nFuncs
    End Select
 
    call libxc_interface(xc_func(iFunc),xc_info(iFunc),mGrid,nD,F_xc,Coeff)
+End Do
 
+Do iFunc = 1, nFuncs
    call xc_f03_func_end(xc_func(iFunc))
 End Do
 If (nD.eq.1) Rho(:,:)=0.5D0*Rho(:,:)
