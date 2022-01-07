@@ -8,14 +8,13 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Roland Lindh                                     *
+! Copyright (C) 2022, Roland Lindh                                     *
 !***********************************************************************
 #define _NEWCODE_
 #ifdef _NEWCODE_
       Subroutine DiracX(mGrid,nD,F_xc,Coeff)
       use xc_f03_lib_m
-      use nq_Grid, only: Rho, vRho, l_casdft
-      use KSDFT_Info, only: F_xca, F_xcb
+      use nq_Grid, only: Rho
       use libxc
       implicit none
       integer :: mGrid, nD, iGrid, nRho
@@ -30,10 +29,6 @@
       ! Slater exchange
       integer*4, parameter :: func_id = 1
 
-      ! Initialize memory
-      func(:) = 0.0
-      dfunc_drho(:,:) = 0.0
-
       nRho=SIZE(Rho,1)
       ! Initialize libxc functional: nRho = 2 means spin-polarized
       call xc_f03_func_init(xc_func, func_id, int(nRho, 4))
@@ -43,47 +38,13 @@
 
       If (nD.eq.1) Rho(:,:)=2.0D0*Rho(:,:)
 
-      ! Evaluate energy depending on the family
-      select case (xc_f03_func_info_get_family(xc_info))
-      case(XC_FAMILY_LDA)
-         call xc_f03_lda_exc_vxc(xc_func, mGrid, Rho(1,1), func(1), dfunc_drho(1,1))
-      end select
-
-      ! Libxc evaluates energy density per particle; multiply by
-      ! density to get out what we really want
-      ! Collect the potential
-      If (nD.eq.1) Then
-         Do iGrid = 1, mGrid
-            F_xc(iGrid) = F_xc(iGrid) + Coeff*func(iGrid)*Rho(1, iGrid)
-            vRho(1,iGrid) = vRho(1,iGrid) + Coeff*dfunc_drho(1, iGrid)
-         End Do
-      Else
-         Do iGrid = 1, mGrid
-            F_xc(iGrid) =F_xc(iGrid) +Coeff*func(iGrid)*(Rho(1, iGrid) + Rho(2, iGrid))
-            vRho(1,iGrid) = vRho(1,iGrid) + Coeff*dfunc_drho(1, iGrid)
-            vRho(2,iGrid) = vRho(2,iGrid) + Coeff*dfunc_drho(2, iGrid)
-         End Do
-         If (l_casdft) Then
-            dFunc_dRho(:,:)=Rho(:,:)
-            Rho(2,:)=0.0D0
-            func(:)=0.0D0
-            call xc_f03_lda_exc(xc_func, mGrid, Rho(1,1), func(1))
-            Do iGrid = 1, mGrid
-               F_xca(iGrid) = F_xca(iGrid) + Coeff*func(iGrid)*Rho(1, iGrid)
-            End Do
-            Rho(1,:)=0.0D0
-            Rho(2,:)=dFunc_dRho(2,:)
-            func(:)=0.0D0
-            call xc_f03_lda_exc(xc_func, mGrid, Rho(1,1), func(1))
-            Do iGrid = 1, mGrid
-               F_xcb(iGrid) = F_xcb(iGrid) + Coeff*func(iGrid)*Rho(2, iGrid)
-            End Do
-            Rho(:,:)=dFunc_dRho(:,:)
-         End If
-      End If
+      call libxc_interface(xc_func,xc_info,mGrid,nD,F_xc,Coeff)
 
       call xc_f03_func_end(xc_func)
+
       If (nD.eq.1) Rho(:,:)=0.5D0*Rho(:,:)
+!     Call RecPrt('F_xc',' ',F_xc,1,mGrid)
+!     Stop 123
       Return
 
     End Subroutine DiracX
@@ -215,6 +176,8 @@
 !
       End If
 !
+!     Call RecPrt('F_xc',' ',F_xc,1,mGrid)
+!     Stop 123
       Return
       End
 #endif

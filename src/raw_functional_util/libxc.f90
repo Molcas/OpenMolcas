@@ -11,5 +11,7 @@
 ! Copyright (C) 2021, Roland Lindh                                     *
 !***********************************************************************
 Module libxc
-Real*8, Allocatable:: func(:), dfunc_drho(:,:)
+Real*8, Allocatable:: func(:)
+Real*8, Allocatable:: dfunc_drho(:,:)
+Logical :: Only_exc=.False.
 End Module libxc
