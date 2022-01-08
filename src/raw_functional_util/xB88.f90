@@ -1,4 +1,4 @@
-!#define _NEWCODE_
+#define _NEWCODE_
 #ifdef _NEWCODE_
 !***********************************************************************
 ! This file is part of OpenMolcas.                                     *
@@ -15,6 +15,7 @@
       Subroutine xB88(mGrid,Coeff,nD,F_xc)
       use xc_f03_lib_m
       use nq_Grid, only: Rho, Sigma
+      use nq_Grid, only: vRho, vSigma
       use libxc
       implicit none
       integer :: mGrid, nD, nRho
@@ -39,6 +40,12 @@
       If (nD.eq.1) Then
          Rho(:,1:mGrid)=2.00D0*Rho(:,1:mGrid)
          Sigma(:,1:mGrid)=4.00D0*Sigma(:,1:mGrid)
+
+!        F_xc(1:mGrid)=0.0D0
+!         Rho(:,1:mGrid)=0.2D0
+!        vRho(:,1:mGrid)=0.0D0
+!         Sigma(:,1:mGrid)=0.04D0
+!        vSigma(:,1:mGrid)=0.0D0
       End If
 
       call libxc_interface(xc_func,xc_info,mGrid,nD,F_xc,Coeff)
@@ -48,9 +55,12 @@
       If (nD.eq.1) Then
          Rho(:,1:mGrid)=0.50D0*Rho(:,1:mGrid)
          Sigma(:,1:mGrid)=0.25D0*Sigma(:,1:mGrid)
+         vSigma(:,1:mGrid)=2.00D0*vSigma(:,1:mGrid)
       End If
 
 !     Call RecPrt('F_xc',' ',F_xc,1,mGrid)
+!     Call RecPrt('vRho',' ',vRho,SIZE(vRho,1),mGrid)
+!     Call RecPrt('vSigma',' ',vSigma,SIZE(vSigma,1),mGrid)
 !     Stop 123
       Return
 
@@ -94,6 +104,12 @@
 #include "ksdft.fh"
       Real*8 F_xc(mGrid)
       Real*8, Parameter:: T_X=1.0D-20
+
+!     F_xc(1:mGrid)=0.0D0
+!      Rho(:,1:mGrid)=0.1D0
+!     vRho(:,1:mGrid)=0.0D0
+!      Sigma(:,1:mGrid)=0.01D0
+!     vSigma(:,1:mGrid)=0.0D0
 
       Call DiracX(mGrid,iSpin,F_xc,Coeff)
 ! IDORD=Order of derivatives to request from XPBE:
@@ -168,6 +184,8 @@
         End If
       end if
 !     Call RecPrt('F_xc',' ',F_xc,1,mGrid)
+!     Call RecPrt('vRho',' ',vRho,SIZE(vRho,1),mGrid)
+!     Call RecPrt('vSigma',' ',vSigma,SIZE(vSigma,1),mGrid)
 !     Stop 123
 
       Return
@@ -181,8 +199,10 @@
       parameter(dcoef=0.0042d0)
 !     parameter(xldacff=0.930525736349100025D0)
 
-      rho=rho_s+1.0D-16
-      gamma=gamma_s+1.0D-16
+!     rho=rho_s+1.0D-16
+!     gamma=gamma_s+1.0D-16
+      rho=rho_s
+      gamma=gamma_s
       r43 = rho**four3
       rhoinv=1.0d0/rho
 ! lda part:
