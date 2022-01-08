@@ -86,6 +86,7 @@ case(XC_FAMILY_LDA)
              case (XC_CORRELATION);
                Do iGrid = 1, mGrid
                   tmpB(iGrid) = tmpB(iGrid) + Coeff*func(iGrid)*(Rho(1, iGrid)+Rho(2, iGrid))
+!                 tmpB(iGrid) = F_xc(iGrid) - tmpB(iGrid)
                End Do
             case default;
                Write (6,*) 'Wrong libxc kind!'
@@ -157,6 +158,7 @@ case(XC_FAMILY_GGA, XC_FAMILY_HYB_GGA)
             case (XC_CORRELATION);
                Do iGrid = 1, mGrid
                   tmpB(iGrid) = tmpB(iGrid) + Coeff*func(iGrid)*(Rho(1, iGrid)+Rho(2, iGrid))
+!                 tmpB(iGrid) = F_xc(iGrid) - tmpB(iGrid)
                End Do
             case default;
                Write (6,*) 'Wrong libxc kind!'

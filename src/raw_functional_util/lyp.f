@@ -11,8 +11,7 @@
 * Copyright (C) Per Ake Malmqvist                                      *
 *               Ajitha Devarajan                                       *
 ************************************************************************
-      Subroutine LYP(mGrid,
-     &               Coeff,iSpin,F_xc)
+      Subroutine LYP(mGrid,Coeff,iSpin,F_xc)
 ************************************************************************
 *                                                                      *
 * Object:  Lyp Functional(Formula taken from Molpro Manual)            *
@@ -242,8 +241,7 @@
 
       Functional= ec1+ec2+ec3+ec4
       F_xc(iGrid)=F_xc(iGrid)+Coeff*functional
-*     tmpB(iGrid)=F_xc(iGrid)-tmpB(iGrid)
-      tmpB(iGrid)=tmpB(iGrid)+Coeff*functional
+      tmpB(iGrid)=F_xc(iGrid)-tmpB(iGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *

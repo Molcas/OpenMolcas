@@ -592,7 +592,8 @@
       If (l_casdft) Then
          Funcaa=Funcaa+DDot_(mGrid,Weights,1,F_xca,1)
          Funcbb=Funcbb+DDot_(mGrid,Weights,1,F_xcb,1)
-         Funccc=Funccc+DDot_(mGrid,Weights,1,tmpB,1)
+         Funccc=Func-Funcaa-Funcbb
+*        Funccc=Funccc+DDot_(mGrid,Weights,1,tmpB,1)
       End If
 *                                                                      *
 ************************************************************************
