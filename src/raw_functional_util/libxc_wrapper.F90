@@ -12,6 +12,7 @@
 ! ************************************************************************
 
 module libxc_wrapper
+#if 0
   use, intrinsic :: iso_c_binding
   implicit none
   interface
@@ -32,4 +33,5 @@ module libxc_wrapper
        real(c_double), pointer :: weights(:)
      end subroutine libxc_get_aux_funcs
   end interface
+#endif
 end module libxc_wrapper
