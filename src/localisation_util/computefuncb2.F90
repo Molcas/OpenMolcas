@@ -11,7 +11,7 @@
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
 
-subroutine ComputeFuncB2(nOrb2Loc,ipLbl,nComp,Functional,Debug)
+subroutine ComputeFuncB2(nOrb2Loc,Lbl,nComp,Functional,Debug)
 ! Author: T.B. Pedersen
 !
 ! Purpose: compute Boys localisation functional B2.
@@ -20,18 +20,17 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nOrb2Loc, nComp, ipLbl(nComp)
+integer(kind=iwp), intent(in) :: nOrb2Loc, nComp
+real(kind=wp), intent(in) :: Lbl(nOrb2Loc,nOrb2Loc,nComp)
 real(kind=wp), intent(out) :: Functional
 logical(kind=iwp), intent(in) :: Debug
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, iComp, iMO, ip0, j, kij, kji
+integer(kind=iwp) :: i, iComp, iMO, j
 real(kind=wp) :: Cmp, Tst
 
 Functional = Zero
 do iComp=1,nComp
-  ip0 = ipLbl(iComp)-1
   do i=1,nOrb2Loc
-    Functional = Functional+(Work(ip0+nOrb2Loc*(i-1)+i))**2
+    Functional = Functional+Lbl(i,i,iComp)**2
   end do
 end do
 
@@ -42,24 +41,21 @@ if (Debug) then
   write(u6,*) 'Functional B2 = ',Functional
   write(u6,*) '[Assuming doubly occupied orbitals]'
   do iComp=1,nComp
-    ip0 = ipLbl(iComp)-1
     Cmp = Zero
     do iMO=1,nOrb2Loc
-      Cmp = Cmp+Work(ip0+nOrb2Loc*(iMO-1)+iMO)
+      Cmp = Cmp+Lbl(iMO,iMO,iComp)
     end do
     Cmp = Two*Cmp
     write(u6,'(A,I5,1X,F15.8)') 'Component, Exp. Val.:',iComp,Cmp
     do j=1,nOrb2Loc-1
       do i=j+1,nOrb2Loc
-        kij = ip0+nOrb2Loc*(j-1)+i
-        kji = ip0+nOrb2Loc*(i-1)+j
-        Tst = Work(kij)-Work(kji)
+        Tst = Lbl(i,j,iComp)-Lbl(j,i,iComp)
         if (abs(Tst) > 1.0e-14_wp) then
           write(u6,*) 'ComputeFuncB2: broken symmetry!'
           write(u6,*) '  Component: ',iComp
           write(u6,*) '  i and j  : ',i,j
-          write(u6,*) '  Dij      : ',Work(kij)
-          write(u6,*) '  Dji      : ',Work(kji)
+          write(u6,*) '  Dij      : ',Lbl(i,j,iComp)
+          write(u6,*) '  Dji      : ',Lbl(j,i,iComp)
           write(u6,*) '  Diff.    : ',Tst
           call SysAbendMsg('ComputeFuncB2','Broken symmetry!',' ')
         end if

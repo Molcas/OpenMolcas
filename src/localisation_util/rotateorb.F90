@@ -30,7 +30,6 @@ real(kind=wp), intent(out) :: PACol(nOrb2Loc,2), PctSkp
 logical(kind=iwp), intent(in) :: Maximisation, Debug
 character(len=LenIn8), intent(in) :: BName(*)
 real(kind=wp), intent(in) :: ThrRot
-#include "WrkSpc.fh"
 integer(kind=iwp) :: i, iAt, iCouple, iMO1, iMO2, iMO_s, iMO_t
 real(kind=wp) :: Alpha, Alpha1, Alpha2, Ast, Bst, cos4alpha, Gamma_rot, PA_ss, PA_st, PA_tt, sin4alpha, SumA, SumB, Tst, Tstc, &
                  Tsts, xDone, xOrb2Loc, xTotal

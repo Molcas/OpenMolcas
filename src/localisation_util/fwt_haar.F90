@@ -85,10 +85,6 @@ elseif (n <= 0) then
   write(u6,*) ' FWT_Haar: Illegal value of n = ',n
   call Abend()
 
-elseif (n > 50) then  ! use BLAS
-
-  call FWT_Haar_(n,m,B,X)
-
 else  ! do not use BLAS
 
   fac = sqrt(Half)
@@ -104,10 +100,7 @@ else  ! do not use BLAS
       kB = kB+1
     end do
   end do
-  do j=1,2**m-1
-    k = j+1  ! A[0] is already in place
-    X(:,k) = B(:,j)
-  end do
+  X(:,2:nv) = B(:,1:nv-1)  ! A[0] is already in place
 
 end if
 

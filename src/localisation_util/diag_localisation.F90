@@ -23,28 +23,28 @@ subroutine Diag_Localisation(A,EVR,EVI,n,iGetVecs)
 !          See LAPACK for details about the storage of real and
 !          complex eigenvectors.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: n, iGetVecs
 real(kind=wp), intent(inout) :: A(n,n)
 real(kind=wp), intent(out) :: EVR(n), EVI(n)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: iErr, ip_Vecs, l_Vecs
+integer(kind=iwp) :: iErr
+real(kind=wp), allocatable :: Vecs(:,:)
 character(len=*), parameter :: SecNam = 'Diag_Localisation'
 
-l_Vecs = n*n
-call GetMem('Vecs','Allo','Real',ip_Vecs,l_Vecs)
+call mma_allocate(Vecs,n,n,label='Vecs')
 
 iErr = 0
-call xEigen(iGetVecs,n,n,A,EVR,EVI,Work(ip_Vecs),iErr)
+call xEigen(iGetVecs,n,n,A,EVR,EVI,Vecs,iErr)
 if (iErr /= 0) then
   write(u6,*) SecNam,': xEigen returned ',iErr
   call SysAbendMsg(SecNam,'Error in xEigen',' ')
 end if
 
-if (iGetVecs /= 0) call dCopy_(n*n,Work(ip_Vecs),1,A,1)
+if (iGetVecs /= 0) A(:,:) = Vecs
 
-call GetMem('Vecs','Free','Real',ip_Vecs,l_Vecs)
+call mma_deallocate(Vecs)
 
 end subroutine Diag_Localisation

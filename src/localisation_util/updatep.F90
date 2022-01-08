@@ -30,7 +30,6 @@ character(len=LenIn8), intent(in) :: BName(*)
 real(kind=wp), intent(inout) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(in) :: gamma_rot
 logical(kind=iwp), intent(in) :: Debug
-#include "WrkSpc.fh"
 integer(kind=iwp) :: iAt
 real(kind=wp) :: cos2g, cosg, cosing, PA_ss, PA_st, PA_tt, sin2g, sing
 character(len=LenIn8) :: PALbl
@@ -70,10 +69,8 @@ do iAt=1,nAtoms
 
   ! Compute transformed columns.
 
-  call dScal_(nOrb2Loc,cosg,PA(:,iMO_s,iAt),1)
-  call dAXPY_(nOrb2Loc,sing,PACol(:,2),1,PA(:,iMO_s,iAt),1)
-  call dScal_(nOrb2Loc,cosg,PA(:,iMO_t,iAt),1)
-  call dAXPY_(nOrb2Loc,-sing,PACol(:,1),1,PA(:,iMO_t,iAt),1)
+  PA(:,iMO_s,iAt) = cosg*PACol(:,1)+sing*PACol(:,2)
+  PA(:,iMO_t,iAt) = cosg*PACol(:,2)-sing*PACol(:,1)
 
   ! Compute PA_ss, PA_tt, PA_st, and PA_ts (= PA_st).
 

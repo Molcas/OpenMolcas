@@ -11,32 +11,33 @@
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
 
-subroutine GenerateB(CMO,nBas,nOrb2Loc,ipLbl_AO,ipLbl,nComp,Debug)
+subroutine GenerateB(CMO,nBas,nOrb2Loc,Lbl_AO,Lbl,nComp,Debug)
 ! Author: T.B. Pedersen
 !
 ! Purpose: generate the dipole matrices for Boys localisation, i.e.
 !          transform from AO to MO basis.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp), intent(in) :: CMO(*)
-integer(kind=iwp), intent(in) :: nBas, nOrb2Loc, nComp, ipLbl_AO(nComp), ipLbl(nComp)
+integer(kind=iwp), intent(in) :: nBas, nOrb2Loc, nComp
+real(kind=wp), intent(in) :: CMO(*), Lbl_AO(nBas,nBas,nComp)
+real(kind=wp), intent(out) :: Lbl(nOrb2Loc,nOrb2Loc,nComp)
 logical(kind=iwp), intent(in) :: Debug
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, iComp, iMO, ip0, ipDbar, j, kij, kji, lDbar
+integer(kind=iwp) :: i, iComp, iMO, j
 real(kind=wp) :: Cmp, Tst
+real(kind=wp), allocatable :: Dbar(:,:)
 
 if ((nBas < 1) .or. (nOrb2Loc < 1)) return
 
-lDbar = nBas*nOrb2Loc
-call GetMem('Dbar','Allo','Real',ipDbar,lDbar)
+call mma_allocate(Dbar,nBas,nOrb2Loc,label='Dbar')
 do iComp=1,nComp
-  call DGEMM_('N','N',nBas,nOrb2Loc,nBas,One,Work(ipLbl_AO(iComp)),nBas,CMO,nBas,Zero,Work(ipDbar),nBas)
-  call DGEMM_('T','N',nOrb2Loc,nOrb2Loc,nBas,One,CMO,nBas,Work(ipDbar),nBas,Zero,Work(ipLbl(iComp)),nOrb2Loc)
+  call DGEMM_('N','N',nBas,nOrb2Loc,nBas,One,Lbl_AO(:,:,iComp),nBas,CMO,nBas,Zero,Dbar,nBas)
+  call DGEMM_('T','N',nOrb2Loc,nOrb2Loc,nBas,One,CMO,nBas,Dbar,nBas,Zero,Lbl(:,:,iComp),nOrb2Loc)
 end do
-call GetMem('Dbar','Free','Real',ipDbar,lDbar)
+call mma_deallocate(Dbar)
 
 if (Debug) then
   write(u6,*)
@@ -44,24 +45,21 @@ if (Debug) then
   write(u6,*) '------------'
   write(u6,*) '[Assuming doubly occupied orbitals]'
   do iComp=1,nComp
-    ip0 = ipLbl(iComp)-1
     Cmp = Zero
     do iMO=1,nOrb2Loc
-      Cmp = Cmp+Work(ip0+nOrb2Loc*(iMO-1)+iMO)
+      Cmp = Cmp+Lbl(iMO,iMO,iComp)
     end do
     Cmp = Two*Cmp
     write(u6,'(A,I5,1X,F15.8)') 'Component, Exp. Val.:',iComp,Cmp
     do j=1,nOrb2Loc-1
       do i=j+1,nOrb2Loc
-        kij = ip0+nOrb2Loc*(j-1)+i
-        kji = ip0+nOrb2Loc*(i-1)+j
-        Tst = Work(kij)-Work(kji)
+        Tst = Lbl(i,j,iComp)-Lbl(j,i,iComp)
         if (abs(Tst) > 1.0e-14_wp) then
           write(u6,*) 'GenerateB: broken symmetry!'
           write(u6,*) '  Component: ',iComp
           write(u6,*) '  i and j  : ',i,j
-          write(u6,*) '  Dij      : ',Work(kij)
-          write(u6,*) '  Dji      : ',Work(kji)
+          write(u6,*) '  Dij      : ',Lbl(i,j,iComp)
+          write(u6,*) '  Dji      : ',Lbl(j,i,iComp)
           write(u6,*) '  Diff.    : ',Tst
           call SysAbendMsg('GenerateB','Broken symmetry!',' ')
         end if

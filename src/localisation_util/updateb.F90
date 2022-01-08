@@ -12,7 +12,7 @@
 !               Thomas Bondo Pedersen                                  *
 !***********************************************************************
 
-subroutine UpdateB(Col,nOrb2Loc,ipLbl,nComp,Gamma_rot,iMO_s,iMO_t,Debug)
+subroutine UpdateB(Col,nOrb2Loc,Lbl,nComp,Gamma_rot,iMO_s,iMO_t,Debug)
 ! Author: T.B. Pedersen
 !
 ! Purpose: update MO dipole matrices for Boys localisation.
@@ -22,14 +22,17 @@ use Constants, only: Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nOrb2Loc, nComp, ipLbl(nComp), iMO_s, iMO_t
+integer(kind=iwp), intent(in) :: nOrb2Loc, nComp, iMO_s, iMO_t
 real(kind=wp), intent(out) :: Col(nOrb2Loc,2)
+real(kind=wp), intent(inout) :: Lbl(nOrb2Loc,nOrb2Loc,nComp)
 real(kind=wp), intent(in) :: Gamma_rot
 logical(kind=iwp), intent(in) :: Debug
-#include "WrkSpc.fh"
-integer(kind=iwp) :: iComp, ip, ip0, kOff_s, kOff_ss, kOff_st, kOff_t, kOff_tt
+integer(kind=iwp) :: iComp
 real(kind=wp) :: cos2g, cosg, cosing, Dss, Dst, Dtt, sin2g, sing
 character(len=18) :: Label
+#ifdef _DEBUGPRINT_
+real(kind=wp) :: Dts, Tst
+#endif
 
 cosg = cos(Gamma_rot)
 sing = sin(Gamma_rot)
@@ -39,20 +42,11 @@ cosing = cosg*sing
 
 do iComp=1,nComp
 
-  ip = ipLbl(iComp)
-  ip0 = ip-1
-
-  kOff_s = ip0+nOrb2Loc*(iMO_s-1)
-  kOff_t = ip0+nOrb2Loc*(iMO_t-1)
-  kOff_ss = kOff_s+iMO_s
-  kOff_st = kOff_t+iMO_s
-  kOff_tt = kOff_t+iMO_t
-  Dss = Work(kOff_ss)
-  Dst = Work(kOff_st)
-  Dtt = Work(kOff_tt)
-# if defined (_DEBUGPRINT_)
-  kOff_ts = kOff_s+iMO_t
-  Dts = Work(kOff_ts)
+  Dss = Lbl(iMO_s,iMO_s,iComp)
+  Dst = Lbl(iMO_s,iMO_t,iComp)
+  Dtt = Lbl(iMO_t,iMO_t,iComp)
+# ifdef _DEBUGPRINT_
+  Dts = Lbl(iMO_t,iMO_s,iComp)
   Tst = Dst-Dts
   if (abs(Tst) > 1.0e-14_wp) then
     write(u6,*) 'Broken symmetry in UpdateB!!'
@@ -65,25 +59,23 @@ do iComp=1,nComp
   end if
 # endif
 
-  call dCopy_(nOrb2Loc,Work(kOff_s+1),1,Col(:,1),1)
-  call dCopy_(nOrb2Loc,Work(kOff_t+1),1,Col(:,2),1)
+  Col(:,1) = Lbl(:,iMO_s,iComp)
+  Col(:,2) = Lbl(:,iMO_t,iComp)
 
-  call dScal_(nOrb2Loc,cosg,Work(kOff_s+1),1)
-  call dAXPY_(nOrb2Loc,sing,Col(:,2),1,Work(kOff_s+1),1)
-  call dScal_(nOrb2Loc,cosg,Work(kOff_t+1),1)
-  call dAXPY_(nOrb2Loc,-sing,Col(:,1),1,Work(kOff_t+1),1)
+  Lbl(:,iMO_s,iComp) = cosg*Col(:,1)+sing*Col(:,2)
+  Lbl(:,iMO_t,iComp) = cosg*Col(:,2)-sing*Col(:,1)
 
-  Work(kOff_s+iMO_s) = Dss*cos2g+Dtt*sin2g+Two*Dst*cosing
-  Work(kOff_s+iMO_t) = (Dtt-Dss)*cosing+Dst*(cos2g-sin2g)
-  Work(kOff_t+iMO_s) = Work(kOff_s+iMO_t)
-  Work(kOff_t+iMO_t) = Dtt*cos2g+Dss*sin2g-Two*Dst*cosing
+  Lbl(iMO_s,iMO_s,iComp) = Dss*cos2g+Dtt*sin2g+Two*Dst*cosing
+  Lbl(iMO_t,iMO_s,iComp) = (Dtt-Dss)*cosing+Dst*(cos2g-sin2g)
+  Lbl(iMO_s,iMO_t,iComp) = Lbl(iMO_t,iMO_s,iComp)
+  Lbl(iMO_t,iMO_t,iComp) = Dtt*cos2g+Dss*sin2g-Two*Dst*cosing
 
-  call dCopy_(nOrb2Loc,Work(kOff_s+1),1,Work(ip0+iMO_s),nOrb2Loc)
-  call dCopy_(nOrb2Loc,Work(kOff_t+1),1,Work(ip0+iMO_t),nOrb2Loc)
+  Lbl(iMO_s,:,iComp) = Lbl(:,iMO_s,iComp)
+  Lbl(iMO_t,:,iComp) = Lbl(:,iMO_t,iComp)
 
-# if defined (_DEBUGPRINT_)
-  Dst = Work(kOff_st)
-  Dts = Work(kOff_ts)
+# ifdef _DEBUGPRINT_
+  Dst = Lbl(iMO_s,iMO_t,iComp)
+  Dts = Lbl(iMO_t,iMO_s,iComp)
   Tst = Dst-Dts
   if (abs(Tst) > 1.0e-14_wp) then
     write(u6,*) 'Broken symmetry in UpdateB!!'
@@ -103,11 +95,9 @@ if (Debug) then
   write(u6,*) '----------'
   do iComp=1,nComp
     write(Label,'(A,I2,A,I4)') 'MO Dip',iComp,'   col',iMO_s
-    ip = ipLbl(iComp)+nOrb2Loc*(iMO_s-1)
-    call RecPrt(Label,' ',Work(ip),nOrb2Loc,1)
+    call RecPrt(Label,' ',Lbl(:,iMO_s,iComp),nOrb2Loc,1)
     write(Label,'(A,I2,A,I4)') 'MO Dip',iComp,'   col',iMO_t
-    ip = ipLbl(iComp)+nOrb2Loc*(iMO_t-1)
-    call RecPrt(Label,' ',Work(ip),nOrb2Loc,1)
+    call RecPrt(Label,' ',Lbl(:,iMO_t,iComp),nOrb2Loc,1)
   end do
 end if
 

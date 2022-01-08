@@ -11,6 +11,7 @@
 
 subroutine GenBMp(irc,X,n,m,Lunit,nStp,StpSiz,Color)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -19,10 +20,11 @@ integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp), intent(in) :: n, m, Lunit, nStp
 real(kind=wp), intent(in) :: X(n,m), StpSiz
 character, intent(in) :: Color
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, i0, i255, iBin, ipBin, ipBMp, iUpLim, j, nBin, nBin_Def, nCh
+integer(kind=iwp) :: i, iBin, iUpLim, j, nBin, nBin_Def, nCh
 real(kind=wp) :: absX, Step, Step_Def
 character :: Color_Def, myColor
+integer(kind=iwp), allocatable :: BMp(:)
+real(kind=wp), allocatable :: Bin(:)
 character(len=*), parameter :: SecNam = 'GenBMp'
 integer(kind=iwp), external :: iRnge
 
@@ -33,8 +35,6 @@ nBin_Def = 5
 Step_Def = 1.0e-2_wp
 Color_Def = 'R'
 iUpLim = 999999
-i0 = 0
-i255 = 255
 
 ! Check input.
 ! ------------
@@ -73,18 +73,18 @@ end if
 
 nCh = 255/(nBin-1)
 
-call GetMem('Bins','Allo','Real',ipBin,nBin)
-call GetMem('iBMp','Allo','Inte',ipBMp,nBin)
+call mma_allocate(Bin,nBin,label='Bins')
+call mma_allocate(BMp,nBin,label='iBMp')
 
-Work(ipBin) = One
+Bin(1) = One
 do iBin=2,nBin-1
-  Work(ipBin-1+iBin) = Work(ipBin+iBin-2)*Step
+  Bin(iBin) = Bin(iBin-1)*Step
 end do
-Work(ipBin-1+nBin) = -One
+Bin(nBin) = -One
 
-iWork(ipBMp-1+nBin) = 255
+BMp(nBin) = 255
 do iBin=nBin-1,1,-1
-  iWork(ipBMp-1+iBin) = iWork(ipBMp+iBin)-nCh
+  BMp(iBin) = BMp(iBin+1)-nCh
 end do
 
 ! Generate bitmap file.
@@ -96,11 +96,11 @@ if (myColor == 'R') then ! red
   do i=n,1,-1
     do j=1,m
       absX = abs(X(i,j))
-      iBin = iRnge(absX,Work(ipBin),nBin)
-      if (iWork(ipBmp+iBin-1) == 255) then
-        write(Lunit,'(4(1X,I3))') i255,i255,i255,i0
+      iBin = iRnge(absX,Bin,nBin)
+      if (BMp(iBin) == 255) then
+        write(Lunit,'(4(1X,I3))') 255,255,255,0
       else
-        write(Lunit,'(4(1X,I3))') iWork(ipBmp+iBin-1),i0,i0,i0
+        write(Lunit,'(4(1X,I3))') BMp(iBin),0,0,0
       end if
     end do
   end do
@@ -108,11 +108,11 @@ else if (myColor == 'G') then ! green
   do i=n,1,-1
     do j=1,m
       absX = abs(X(i,j))
-      iBin = iRnge(absX,Work(ipBin),nBin)
-      if (iWork(ipBmp+iBin-1) == 0) then
-        write(Lunit,'(4(1X,I3))') i255,i255,i255,i0
+      iBin = iRnge(absX,Bin,nBin)
+      if (BMp(iBin) == 0) then
+        write(Lunit,'(4(1X,I3))') 255,255,255,0
       else
-        write(Lunit,'(4(1X,I3))') i0,iWork(ipBmp+iBin-1),i0,i0
+        write(Lunit,'(4(1X,I3))') 0,BMp(iBin),0,0
       end if
     end do
   end do
@@ -120,11 +120,11 @@ else if (myColor == 'B') then ! blue
   do i=n,1,-1
     do j=1,m
       absX = abs(X(i,j))
-      iBin = iRnge(absX,Work(ipBin),nBin)
-      if (iWork(ipBmp+iBin-1) == 0) then
-        write(Lunit,'(4(1X,I3))') i255,i255,i255,i0
+      iBin = iRnge(absX,Bin,nBin)
+      if (BMp(iBin) == 0) then
+        write(Lunit,'(4(1X,I3))') 255,255,255,0
       else
-        write(Lunit,'(4(1X,I3))') i0,i0,iWork(ipBmp+iBin-1),i0
+        write(Lunit,'(4(1X,I3))') 0,0,BMp(iBin),0
       end if
     end do
   end do
@@ -135,7 +135,7 @@ end if
 ! De-allocations.
 ! ---------------
 
-call GetMem('iBMp','Free','Inte',ipBMp,nBin)
-call GetMem('Bins','Free','Real',ipBin,nBin)
+call mma_deallocate(Bin)
+call mma_deallocate(BMp)
 
 end subroutine GenBMp

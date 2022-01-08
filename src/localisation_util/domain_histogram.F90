@@ -16,14 +16,15 @@ subroutine Domain_Histogram(iDomain,nAtom,nOcc,Title)
 !
 ! Purpose: print histogram of domain sizes.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtom, nOcc, iDomain(0:nAtom,nOcc)
 character(len=*), intent(in) :: Title
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, i_max, i_min, iC, ip_iCount, l_iCount
+integer(kind=iwp) :: i, i_max, i_min, iC, nC
 real(kind=wp) :: Fac, Pct, x_ave
+integer(kind=iwp), allocatable :: iCount(:)
 
 if ((nAtom < 1) .or. (nOcc < 1)) return
 
@@ -37,22 +38,25 @@ do i=2,nOcc
 end do
 x_ave = x_ave/real(nOcc,kind=wp)
 
-l_iCount = i_max-i_min+1
-call GetMem('Dm_Histo','Allo','Inte',ip_iCount,l_iCount)
+nC = i_max-i_min+1
+call mma_allocate(iCount,nC,label='Dm_Histo')
+iCount(:) = 0
 
 call Cho_Head(Title,'=',80,u6)
 write(u6,'(/,A,3X,I10,/,A,3X,I10,/,A,F13.2)') 'Minimum size:',i_min,'Maximum size:',i_max,'Average size:',x_ave
-call Domain_Histo1(iDomain,nAtom,nOcc,iWork(ip_iCount),i_min,i_max)
-Fac = 1.0e2_wp/real(nOcc,kind=wp)
-Pct = Fac*real(iWork(ip_iCount),kind=wp)
-i = i_min
-write(u6,'(/,A,I10,A,I10,3X,F7.2,A)') 'Number with size',i,':',iWork(ip_iCount),Pct,'%'
-do iC=2,l_iCount
-  Pct = Fac*real(iWork(ip_iCount-1+iC),kind=wp)
-  i = i+1
-  write(u6,'(A,I10,A,I10,3X,F7.2,A)') 'Number with size',i,':',iWork(ip_iCount-1+iC),Pct,'%'
+
+do i=1,nOcc
+  iC = iDomain(0,i)-i_min+1
+  iCount(iC) = iCount(iC)+1
 end do
 
-call GetMem('Dm_Histo','Free','Inte',ip_iCount,l_iCount)
+Fac = 1.0e2_wp/real(nOcc,kind=wp)
+write(u6,*)
+do iC=1,nC
+  Pct = Fac*real(iCount(iC),kind=wp)
+  write(u6,'(A,I10,A,I10,3X,F7.2,A)') 'Number with size',i_min+iC,':',iCount(iC),Pct,'%'
+end do
+
+call mma_deallocate(iCount)
 
 end subroutine Domain_Histogram

@@ -18,6 +18,7 @@ subroutine GetU_ER(U,R,n)
 !
 ! (used by ER orbital localisation - hence the _ER)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -25,8 +26,8 @@ implicit none
 integer(kind=iwp), intent(in) :: n
 real(kind=wp), intent(out) :: U(n,n)
 real(kind=wp), intent(in) :: R(n,n)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: ipISqrt, ipRTR, ipScr, ipSqrt, iTask, lISqrt, lRTR, lScr, lSqrt, n2, nn
+integer(kind=iwp) :: iTask, lScr, n2, nn
+real(kind=wp), allocatable :: ISqrt(:,:), RTR(:,:), Scr(:), Sqroot(:,:)
 
 if (n < 1) return
 
@@ -35,38 +36,34 @@ if (n < 1) return
 
 nn = n*(n+1)/2
 n2 = n**2
-
-lRTR = n2
-lSqrt = n2
-lISqrt = n2
 lScr = 2*n2+nn
-call GetMem('RTR','Allo','Real',ipRTR,lRTR)
-call GetMem('Sqrt','Allo','Real',ipSqrt,lSqrt)
-call GetMem('ISqrt','Allo','Real',ipISqrt,lISqrt)
-call GetMem('Scr','Allo','Real',ipScr,lScr)
+call mma_allocate(RTR,n,n,label='RTR')
+call mma_allocate(Sqroot,n,n,label='Sqrt')
+call mma_allocate(ISqrt,n,n,label='ISqrt')
+call mma_allocate(Scr,lScr,label='Scr')
 
 ! Compute R^T*R.
 ! --------------
 
-call DGEMM_('T','N',n,n,n,One,R,n,R,n,Zero,Work(ipRTR),n)
+call DGEMM_('T','N',n,n,n,One,R,n,R,n,Zero,RTR,n)
 
 ! Compute inverse square root of R^T*R.
 ! -------------------------------------
 
 iTask = 2 ! compute sqrt as well as inverse sqrt
-call SqrtMt(Work(ipRTR),n,iTask,Work(ipSqrt),Work(ipISqrt),Work(ipScr))
+call SqrtMt(RTR,n,iTask,Sqroot,ISqrt,Scr)
 
 ! Compute U.
 ! ----------
 
-call DGEMM_('N','N',n,n,n,One,R,n,Work(ipISqrt),n,Zero,U,n)
+call DGEMM_('N','N',n,n,n,One,R,n,ISqrt,n,Zero,U,n)
 
 ! De-allocations.
 ! ---------------
 
-call GetMem('Scr','Free','Real',ipScr,lScr)
-call GetMem('ISqrt','Free','Real',ipISqrt,lISqrt)
-call GetMem('Sqrt','Free','Real',ipSqrt,lSqrt)
-call GetMem('RTR','Free','Real',ipRTR,lRTR)
+call mma_deallocate(RTR)
+call mma_deallocate(Sqroot)
+call mma_deallocate(ISqrt)
+call mma_deallocate(Scr)
 
 end subroutine GetU_ER

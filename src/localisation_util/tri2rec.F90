@@ -18,13 +18,13 @@ integer(kind=iwp), intent(in) :: nBas
 real(kind=wp), intent(in) :: OvlTri(*)
 real(kind=wp), intent(out) :: OvlRec(nBas,nBas)
 logical(kind=iwp), intent(in) :: Debug
-integer(kind=iwp) :: iBas, ioffset, jBas, nElem, nlig
+integer(kind=iwp) :: iBas, ifr, ito, jBas, nlig
 
-ioffset = 1
+ifr = 1
 do nlig=1,nBas
-  nElem = nlig
-  ioffset = ioffset+(nlig-1)
-  call dcopy_(nElem,OvlTri(ioffset),1,OvlRec(1,nlig),1)
+  ito = ifr+nlig-1
+  OvlRec(1:nlig,nlig) = OvlTri(ifr:ito)
+  ifr = ito+1
 end do
 
 do iBas=1,nBas

@@ -23,7 +23,7 @@ iRnge = nBin
 do iBin=1,nBin-1
   if (Val > Bin(iBin)) then
     iRnge = iBin
-    return
+    exit
   end if
 end do
 

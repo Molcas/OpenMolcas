@@ -17,6 +17,7 @@ subroutine GetOvlp_Localisation(S,Storage,nBas,nSym)
 ! Purpose: read the overlap matrix and return in S in lower triangular
 ! storage if Storage="Tri" else in full square storage.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
@@ -25,10 +26,10 @@ implicit none
 real(kind=wp), intent(_OUT_) :: S(*)
 character(len=3), intent(in) :: Storage
 integer(kind=iwp), intent(in) :: nSym, nBas(nSym)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: iComp, iOpt, ip_Scr, irc, iSyLbl, iSym, kSq, kTri, l_Scr, l_Tri
+integer(kind=iwp) :: iComp, iOpt, irc, iSyLbl, iSym, kSq, kTri, l_Tri
 character(len=8) :: Label
 character(len=3) :: myStorage
+real(kind=wp), allocatable :: Scr(:)
 logical(kind=iwp), parameter :: Debug = .false.
 character(len=*), parameter :: SecNam = 'GetOvlp_Localisation'
 
@@ -36,15 +37,14 @@ l_Tri = nBas(1)*(nBas(1)+1)/2
 do iSym=2,nSym
   l_Tri = l_Tri+nBas(iSym)*(nBas(iSym)+1)/2
 end do
-l_Scr = l_Tri+4
-call GetMem('OvlpScr','Allo','Real',ip_Scr,l_Scr)
+call mma_allocate(Scr,l_Tri+4,label='OvlpScr')
 
 irc = -1
 iOpt = 2
 iComp = 1
 iSyLbl = 1
 Label = 'Mltpl  0'
-call RdOne(irc,iOpt,Label,iComp,Work(ip_Scr),iSyLbl)
+call RdOne(irc,iOpt,Label,iComp,Scr,iSyLbl)
 if (irc /= 0) then
   write(u6,*) SecNam,': RdOne returned ',irc
   write(u6,*) 'Label = ',Label,'  iSyLbl = ',iSyLbl
@@ -54,17 +54,17 @@ end if
 myStorage = Storage
 call UpCase(myStorage)
 if (myStorage == 'TRI') then
-  call dCopy_(l_Tri,Work(ip_Scr),1,S,1)
+  S(1:l_Tri) = Scr(1:l_Tri)
 else
-  kTri = ip_Scr
+  kTri = 1
   kSq = 1
   do iSym=1,nSym
-    call Tri2Rec(Work(kTri),S(kSq),nBas(iSym),Debug)
+    call Tri2Rec(Scr(kTri),S(kSq),nBas(iSym),Debug)
     kTri = kTri+nBas(iSym)*(nBas(iSym)+1)/2
     kSq = kSq+nBas(iSym)**2
   end do
 end if
 
-call GetMem('OvlpScr','Free','Real',ip_Scr,l_Scr)
+call mma_deallocate(Scr)
 
 end subroutine GetOvlp_Localisation

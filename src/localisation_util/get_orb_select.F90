@@ -11,6 +11,8 @@
 
 subroutine Get_Orb_Select(irc,CMO,XMO,Eorb,Smat,Saa,BName,NamAct,nSym,nActa,mOrb,nBas,ortho,ThrSel,n_OK)
 
+use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, r8
 
@@ -23,10 +25,13 @@ real(kind=wp), intent(in) :: XMO(*), Smat(*), Saa(*), ThrSel
 character(len=LenIn8), intent(in) :: BName(*)
 character(len=LenIn), intent(in) :: NamAct(nActa)
 logical(kind=iwp), intent(in) :: ortho
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, ia, ifr, iOff, ip_C, ip_CC, ip_Fock, ip_iD, ip_U, ip_X, ipScr, iQ, iS, iSQ, iSym, ito, iZ, j, ja, jb, jC, &
-                     jfr, jOff, jp_Fock, jQ, jto, jX, jZ, k, km, kOff, l, lOff, lScr, mOx, n_KO, nBa, nBax, nBmx, nBx, nORbmx, nOx
+integer(kind=iwp) :: i, ia, iOff, iSym, j, ja, km, lOff, mOx, n_KO, nBa, nBax, nBmx, nBx, nORbmx, nOx
 real(kind=wp) :: ThrS
+type(DSBA_Type) :: C, S, X
+integer(kind=iwp), allocatable :: iD(:)
+real(kind=wp), allocatable :: Fock(:,:), Q(:), U(:,:)
+real(kind=wp), allocatable, target :: Scr1(:,:), SQt(:)
+real(kind=wp), pointer :: C2(:,:), CC(:,:), Scr(:,:), SQ(:,:), X2(:,:), Z(:,:)
 character(len=LenIn) :: tmp
 real(kind=r8), external :: ddot_
 
@@ -38,74 +43,64 @@ do iSym=1,nSym
   nBmx = max(nBmx,nBas(iSym))
   nOrbmx = max(nOrbmx,mOrb(iSym))
 end do
-call GetMem('iD','Allo','Inte',ip_iD,2*nOrbmx+nBmx)
-call GetMem('Smx','Allo','Real',iSQ,nBmx**2)
-call GetMem('LCMO','Allo','Real',ip_C,(5*nBmx+nOrbmx+3)*nOrbmx)
-lScr = nBmx*nOrbmx
-ip_CC = ip_C+lScr
-ip_X = ip_CC+lScr
-iZ = ip_X+lScr
-ipScr = iZ+lScr
-ip_U = ipScr+lScr
-iQ = ip_U+nOrbmx**2
-ip_Fock = iQ+nOrbmx
-jp_Fock = ip_Fock+nOrbmx
-call Fzero(Work(iQ),nOrbmx)
+call mma_allocate(iD,2*nOrbmx+nBmx,label='iD')
+call mma_allocate(SQt,nBmx**2,label='Smx')
+call mma_allocate(Scr1,nBmx*nOrbmx,5,label='Scr1')
+call mma_allocate(U,nOrbmx,nOrbmx,label='U')
+call mma_allocate(Q,nOrbmx,label='Q')
+call mma_allocate(Fock,nOrbmx,2,label='Fock')
+Q(:) = Zero
+
+call Allocate_DSBA(C,nBas,mOrb,nSym,label='C',Ref=CMO)
+call Allocate_DSBA(X,nBas,mOrb,nSym,label='X',Ref=XMO)
+call Allocate_DSBA(S,nBas,nBas,nSym,label='S',Ref=Smat)
 
 iOff = 0
-jOff = 0
-kOff = 0
 lOff = 0
 do iSym=1,nSym
 
   nBa = 0
   do ia=1,nBas(iSym)
-    ja = ia+iOff
+    ja = iOff+ia
     tmp = BName(ja)(1:LenIn)
     do j=1,nActa
       if (NamAct(j) == tmp) then
-        iWork(ip_iD+nBa) = ia
         nBa = nBa+1
+        iD(nBa) = ia
       end if
     end do
   end do
+  SQ(1:nBas(iSym),1:nBas(iSym)) => SQt(1:nBas(iSym)**2)
+  C2(1:nBa,1:mOrb(iSym)) => Scr1(1:nBa*mOrb(iSym),1)
+  CC(1:mOrb(iSym),1:nBas(iSym)) => Scr1(1:mOrb(iSym)*nBas(iSym),2)
+  X2(1:nBas(iSym),1:mOrb(iSym)) => Scr1(1:nBas(iSym)*mOrb(iSym),3)
+  Z(1:nBa,1:mOrb(iSym)) => Scr1(1:nBa*mOrb(iSym),4)
+  Scr(1:nBas(iSym),1:mOrb(iSym)) => Scr1(1:nBas(iSym)*mOrb(iSym),5)
   do ia=1,nBa
-    ifr = jOff+iWork(ip_iD-1+ia)
-    ito = ip_C+ia-1
-    call dcopy_(mOrb(iSym),Xmo(ifr),nBas(iSym),Work(ito),nBa)
+    C2(ia,:) = X%SB(iSym)%A2(iD(ia),:)
   end do
-  iS = kOff+1
   do ia=1,nBa
-    jb = iWork(ip_iD-1+ia)
-    jfr = iS+nBas(iSym)*(jb-1)
-    jto = iSQ+nBas(iSym)*(ia-1)
-    call dcopy_(nbas(iSym),Smat(jfr),1,Work(jto),1)
+    SQ(:,ia) = S%SB(iSym)%A2(:,iD(ia))
   end do
   nBx = max(1,nBas(iSym))
   nBax = max(1,nBa)
-  call DGEMM_('T','N',nBa,mOrb(iSym),nBas(iSym),One,Work(iSQ),nBx,Xmo(jOff+1),nBx,Zero,Work(iZ),nBax)
-  do i=0,mOrb(iSym)-1
-    jQ = iQ+i
-    jC = ip_C+nBa*i
-    jZ = iZ+nBa*i
-    Work(jQ) = ddot_(nBa,Work(jC),1,Work(jZ),1)**2
+  call DGEMM_('T','N',nBa,mOrb(iSym),nBas(iSym),One,SQ,nBx,X%SB(iSym)%A2,nBx,Zero,Z,nBax)
+  do i=1,mOrb(iSym)
+    Q(i) = ddot_(nBa,C2(:,i),1,Z(:,i),1)**2
   end do
+  Z(1:nBas(iSym),1:mOrb(iSym)) => Scr1(1:nBas(iSym)*mOrb(iSym),4)
   n_OK(iSym) = 0
   n_KO = 0
   do i=1,mOrb(iSym)
     ThrS = ThrSel*Saa(lOff+i)
-    jQ = iQ+i-1
-    jfr = jOff+nBas(iSym)*(i-1)+1
-    if (sqrt(Work(jQ)) >= ThrS) then
-      jX = ip_X+nBas(iSym)*n_OK(iSym)
-      call dcopy_(nBas(iSym),Xmo(jfr),1,Work(jX),1)
-      iWork(ip_iD+nBmx+n_OK(iSym)) = i
+    if (sqrt(Q(i)) >= ThrS) then
       n_OK(iSym) = n_OK(iSym)+1
+      X2(:,n_OK(iSym)) = X%SB(iSym)%A2(:,i)
+      iD(nBmx+n_OK(iSym)) = i
     else
-      jZ = iZ+nBas(iSym)*n_KO
-      call dcopy_(nBas(iSym),Xmo(jfr),1,Work(jZ),1)
-      iWork(ip_iD+nBmx+nOrbmx+n_KO) = i
       n_KO = n_KO+1
+      Z(:,n_KO) = X%SB(iSym)%A2(:,i)
+      iD(nBmx+nOrbmx+n_KO) = i
     end if
   end do
 
@@ -113,57 +108,61 @@ do iSym=1,nSym
 
   if (.not. ortho) then
 
-    call Ortho_orb(Work(ip_X),Smat(iS),nBas(iSym),n_OK(iSym),2,.false.)
-    call Ortho_orb(Work(iZ),Smat(iS),nBas(iSym),n_KO,2,.false.)
+    call Ortho_orb(X2,S%SB(iSym)%A2,nBas(iSym),n_OK(iSym),2,.false.)
+    call Ortho_orb(Z,S%SB(iSym)%A2,nBas(iSym),n_KO,2,.false.)
   end if
 
-  call DGEMM_('T','N',mOrb(iSym),nBas(iSym),nBas(iSym),One,Cmo(jOff+1),nBx,Smat(iS),nBx,Zero,Work(ip_CC),mOx)
+  call DGEMM_('T','N',mOrb(iSym),nBas(iSym),nBas(iSym),One,C%SB(iSym)%A2,nBx,S%SB(iSym)%A2,nBx,Zero,CC,mOx)
 
   if (n_KO > 0) then
-    call DGEMM_('N','N',mOrb(iSym),n_KO,nBas(iSym),One,Work(ip_CC),mOx,Work(iZ),nBx,Zero,Work(ip_U),mOx)
+    call DGEMM_('N','N',mOrb(iSym),n_KO,nBas(iSym),One,CC,mOx,Z,nBx,Zero,U,mOx)
 
-    call Get_Can_Lorb(Eorb(lOff+1),Work(ip_Fock),n_KO,mOrb(iSym),iWork(ip_iD+nBmx+nOrbmx),Work(ip_U),iSym)
+    call Get_Can_Lorb(Eorb(lOff+1),Fock(:,1),n_KO,mOrb(iSym),iD(nBmx+nOrbmx+1:),U)
 
-    call DGEMM_('N','N',nBas(iSym),n_KO,n_KO,One,Work(iZ),nBx,Work(ip_U),n_KO,Zero,Work(ipScr),nBx)
+    call DGEMM_('N','N',nBas(iSym),n_KO,n_KO,One,Z,nBx,U,n_KO,Zero,Scr,nBx)
 
     ! Reorder the final MOs such that those of the active site come first
-    km = jOff+nBas(iSym)*n_OK(iSym)+1
-    call dcopy_(nBas(iSym)*n_KO,Work(ipScr),1,Cmo(km),1)
-    call dcopy_(nOrbmx,Work(ip_Fock),1,Work(jp_Fock),1)
+    km = n_OK(iSym)+1
+    C%SB(iSym)%A2(:,km:km+n_KO-1) = Scr(:,1:n_KO)
+    Fock(:,2) = Fock(:,1)
   end if
 
-  call DGEMM_('N','N',mOrb(iSym),n_OK(iSym),nBas(iSym),One,Work(ip_CC),mOx,Work(ip_X),nBx,Zero,Work(ip_U),mOx)
+  call DGEMM_('N','N',mOrb(iSym),n_OK(iSym),nBas(iSym),One,CC,mOx,X2,nBx,Zero,U,mOx)
 
-  call Get_Can_Lorb(Eorb(lOff+1),Work(ip_Fock),n_OK(iSym),mOrb(iSym),iWork(ip_iD+nBmx),Work(ip_U),iSym)
+  call Get_Can_Lorb(Eorb(lOff+1),Fock(:,1),n_OK(iSym),mOrb(iSym),iD(nBmx+1:),U)
 
   nOx = max(1,n_OK(iSym))
-  call DGEMM_('N','N',nBas(iSym),n_OK(iSym),n_OK(iSym),One,Work(ip_X),nBx,Work(ip_U),nOx,Zero,Work(ipScr),nBx)
+  call DGEMM_('N','N',nBas(iSym),n_OK(iSym),n_OK(iSym),One,X2,nBx,U,nOx,Zero,Scr,nBx)
 
   do i=1,n_OK(iSym)
-    j = iWork(ip_iD+nBmx-1+i)
-    k = lOff+i
-    l = ip_Fock+j-1
-    Eorb(k) = Work(l)
+    Eorb(lOff+i) = Fock(iD(nBmx+i),1)
   end do
-  km = jOff+1
-  call dcopy_(nBas(iSym)*n_OK(iSym),Work(ipScr),1,Cmo(km),1)
+  C%SB(iSym)%A2(:,1:n_OK(iSym)) = Scr(:,1:n_OK(iSym))
 
   do i=1,n_KO
-    j = iWork(ip_iD+nBmx+nOrbmx-1+i)
-    k = lOff+n_OK(iSym)+i
-    l = jp_Fock+j-1
-    Eorb(k) = Work(l)
+    Eorb(lOff+n_OK(iSym)+i) = Fock(iD(nBmx+nOrbmx+i),2)
   end do
 
   iOff = iOff+nBas(iSym)
-  jOff = jOff+nBas(iSym)*mOrb(iSym)
-  kOff = kOff+nBas(iSym)**2
   lOff = lOff+mOrb(iSym)
 end do
 
-call GetMem('LCMO','Free','Real',ip_C,(5*nBmx+nOrbmx+3)*nOrbmx)
-call GetMem('Smx','Free','Real',iSQ,nBmx**2)
-call GetMem('iD','Free','Inte',ip_iD,2*nOrbmx+nBmx)
+nullify(SQ)
+nullify(C2)
+nullify(CC)
+nullify(X2)
+nullify(Z)
+nullify(Scr)
+
+call mma_deallocate(iD)
+call mma_deallocate(SQt)
+call mma_deallocate(Scr1)
+call mma_deallocate(U)
+call mma_deallocate(Q)
+call mma_deallocate(Fock)
+call Deallocate_DSBA(C)
+call Deallocate_DSBA(X)
+call Deallocate_DSBA(S)
 
 return
 

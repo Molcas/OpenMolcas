@@ -16,40 +16,37 @@ subroutine Sort_Localisation_1(CMO,U,nBas,nOcc)
 !
 ! Purpose: sort CMO columns according to U.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nBas, nOcc
 real(kind=wp), intent(inout) :: CMO(nBas,nOcc)
 real(kind=wp), intent(in) :: U(nOcc,nOcc)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, ip1, ip2, ipC, ipI1, ipI2, j, jmax, kOff, lC, lI1, lI2
+integer(kind=iwp) :: i, j, jmax
 real(kind=wp) :: Umax, Utst
+integer(kind=iwp), allocatable :: I1(:), I2(:)
+real(kind=wp), allocatable :: C(:,:)
 
 ! Allocations.
 ! ------------
 
-lI1 = nOcc
-lI2 = nOcc
-lC = nBas*nOcc
-call GetMem('Sr1I1','Allo','Inte',ipI1,lI1)
-call GetMem('Sr1I2','Allo','Inte',ipI2,lI2)
-call GetMem('Sr1C','Allo','Real',ipC,lC)
+call mma_allocate(I1,nOcc,label='Sr1I1')
+call mma_allocate(I2,nOcc,label='Sr1I2')
+call mma_allocate(C,nBas,nOcc,label='Sr1C')
 
 ! Find max U element in each row.
 ! -------------------------------
 
-ip1 = ipI1-1
 do i=1,nOcc
-  iWork(ip1+i) = i
+  I1(i) = i
 end do
 
-ip2 = ipI2-1
 do i=1,nOcc
   jmax = 0
   Umax = -huge(Umax)
   do j=1,nOcc
-    if (iWork(ipI1-1+j) == j) then
+    if (I1(j) == j) then
       Utst = abs(U(i,j))
       if (Utst > Umax) then
         jmax = j
@@ -60,25 +57,24 @@ do i=1,nOcc
   if (jmax == 0) then
     call SysAbendMsg('Sort_Localisation_1','Error:','jmax=0')
   else
-    iWork(ip1+jmax) = 0
-    iWork(ip2+i) = jmax
+    I1(jmax) = 0
+    I2(i) = jmax
   end if
 end do
 
 ! Swap MOs according to I2.
 ! -------------------------
 
-call dCopy_(nBas*nOcc,CMO,1,Work(ipC),1)
+C(:,:) = CMO
 do i=1,nOcc
-  kOff = ipC+nBas*(iWork(ipI2-1+i)-1)
-  call dCopy_(nBas,Work(kOff),1,CMO(1,i),1)
+  CMO(:,i) = C(:,I2(i))
 end do
 
 ! De-allocate.
 ! ------------
 
-call GetMem('Sr1C','Free','Real',ipC,lC)
-call GetMem('Sr1I2','Free','Inte',ipI2,lI2)
-call GetMem('Sr1I1','Free','Inte',ipI1,lI1)
+call mma_deallocate(I1)
+call mma_deallocate(I2)
+call mma_deallocate(C)
 
 end subroutine Sort_Localisation_1

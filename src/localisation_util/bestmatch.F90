@@ -23,34 +23,36 @@ real(kind=wp) :: delta, delta0, xOcc
 
 jConstr = 1
 
-10 continue
+do
 
-delta0 = Two
-do i=1,nOrb
-  do j=1,i-1
-    xOcc = Occ(i)+Occ(j)
-    delta = abs(Two-xOcc)
-    if (delta < delta0) then
-      delta0 = delta
-      if (Occ(i) > Occ(j)) then
-        Match(1,jConstr) = i
-        Match(2,jConstr) = j
-      else
-        Match(1,jConstr) = j
-        Match(2,jConstr) = i
+  delta0 = Two
+  do i=1,nOrb
+    do j=1,i-1
+      xOcc = Occ(i)+Occ(j)
+      delta = abs(Two-xOcc)
+      if (delta < delta0) then
+        delta0 = delta
+        if (Occ(i) > Occ(j)) then
+          Match(1,jConstr) = i
+          Match(2,jConstr) = j
+        else
+          Match(1,jConstr) = j
+          Match(2,jConstr) = i
+        end if
       end if
-    end if
+    end do
   end do
-end do
 
-if (jConstr < nConstr) then ! note: Occ array destroyed here
+  if (jConstr >= nConstr) exit
+
+  ! note: Occ array destroyed here
   k = Match(1,jConstr)
   Occ(k) = -42.0_wp
   l = Match(2,jConstr)
   Occ(l) = -42.0_wp
   jConstr = jConstr+1
-  Go To 10
-end if
+
+end do
 
 return
 

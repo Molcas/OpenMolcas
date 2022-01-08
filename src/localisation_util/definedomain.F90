@@ -56,6 +56,7 @@
 
 subroutine DefineDomain(irc,iDomain,QD,f,C,ThrDomain,nBas_per_Atom,nBas_Start,nAtom,nBas,nOcc)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
@@ -65,10 +66,10 @@ integer(kind=iwp), intent(in) :: nAtom, nOcc, nBas_per_Atom(nAtom), nBas_Start(n
 integer(kind=iwp), intent(inout) :: iDomain(0:nAtom,nOcc)
 real(kind=wp), intent(out) :: QD(nOcc), f(nOcc)
 real(kind=wp), intent(in) :: C(nBas,nOcc), ThrDomain(2)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, iAt, iAtom, iCount, iOff, iOff0, ip_absQ, ip_iPivot, ip_Q, ip_S, ip_T, jOff, jOff0, kOff, kOff0, kOffT, &
-                     l_absQ, l_iPivot, l_Q, l_S, l_T, nB(1), nErr, nSrt
+integer(kind=iwp) :: i, iAt, iAtom, iCount, nB(1), nErr, nSrt
 real(kind=wp) :: Charge, Chrg, Diff
+integer(kind=iwp), allocatable :: iPivot(:)
+real(kind=wp), allocatable :: absQ(:), Q(:,:), S(:,:), T(:,:)
 #if defined (_DEBUGPRINT_)
 #define DBG .true.
 #else
@@ -86,36 +87,29 @@ if ((nAtom < 1) .or. (nBas < 1) .or. (nOcc < 1)) return
 ! Allocate and read overlap matrix stored as full square.
 ! -------------------------------------------------------
 
-l_S = nBas*nBas
-call GetMem('DfDm_S','Allo','Real',ip_S,l_S)
+call mma_allocate(S,nBas,nBas,label='DfDm_S')
 
 nB(1) = nBas
-call GetOvlp_Localisation(Work(ip_S),'Sqr',nB,1)
+call GetOvlp_Localisation(S,'Sqr',nB,1)
 
 ! Allocations.
 ! ------------
 
-l_T = nBas*nOcc
-l_Q = nAtom*nOcc
-call GetMem('DfDm_T','Allo','Real',ip_T,l_T)
-call GetMem('DfDm_Q','Allo','Real',ip_Q,l_Q)
+call mma_allocate(T,nBas,nOcc,label='DfDm_T')
+call mma_allocate(Q,nAtom,nOcc,label='DfDm_Q')
 
 ! Compute T=SC.
 ! -------------
 
-call DGEMM_('N','N',nBas,nOcc,nBas,One,Work(ip_S),nBas,C,nBas,Zero,Work(ip_T),nBas)
+call DGEMM_('N','N',nBas,nOcc,nBas,One,S,nBas,C,nBas,Zero,T,nBas)
 
 ! Compute atomic contributions to Mulliken charges.
 ! -------------------------------------------------
 
-call dCopy_(l_Q,[Zero],0,Work(ip_Q),1)
-iOff0 = ip_T-1
-jOff0 = ip_Q-1
+Q(:,:) = Zero
 do i=1,nOcc
-  iOff = iOff0+nBas*(i-1)
-  jOff = jOff0+nAtom*(i-1)
   do iAtom=1,nAtom
-    Work(jOff+iAtom) = Work(jOff+iAtom)+dDot_(nBas_per_Atom(iAtom),C(nBas_Start(iAtom),i),1,Work(iOff+nBas_Start(iAtom)),1)
+    Q(iAtom,i) = Q(iAtom,i)+dDot_(nBas_per_Atom(iAtom),C(nBas_Start(iAtom),i),1,T(nBas_Start(iAtom),i),1)
   end do
 end do
 
@@ -128,12 +122,10 @@ if (LocDbg) then
   write(u6,*)
   write(u6,*) 'DefineDomain: checking charge calculation:'
   Charge = Zero
-  kOff0 = ip_Q-1
   do i=1,nOcc
     Chrg = Zero
-    kOff = kOff0+nAtom*(i-1)
     do iAtom=1,nAtom
-      Chrg = Chrg+Work(kOff+iAtom)
+      Chrg = Chrg+Q(iAtom,i)
     end do
     Charge = Charge+Chrg
     Diff = Chrg-One
@@ -152,7 +144,8 @@ if (LocDbg) then
   write(u6,*) '  Difference  : ',Diff
   if (abs(Diff) > 1.0e-10_wp) then
     irc = 2
-    Go To 1 ! return after deallocation
+    call FreeMem()
+    return
   end if
 end if
 
@@ -161,39 +154,35 @@ end if
 ! the list of atoms ordered according to contributions.
 ! ------------------------------------------------------------------
 
-l_iPivot = nAtom
-l_absQ = nAtom
-call GetMem('DfDm_iPivot','Allo','Inte',ip_iPivot,l_iPivot)
-call GetMem('DfDm_absQ','Allo','Real',ip_absQ,l_absQ)
+call mma_allocate(iPivot,nAtom,label='DfDm_iPivot')
+call mma_allocate(absQ,nAtom,label='DfDm_absQ')
 do i=1,nOcc
-  iOff = ip_Q+nAtom*(i-1)
   nSrt = nAtom
-  do iAtom=0,nAtom-1
-    Work(ip_absQ+iAtom) = abs(Work(iOff+iAtom))
+  do iAtom=1,nAtom
+    absQ(iAtom) = abs(Q(iAtom,i))
   end do
-  call CD_DiaMax(Work(ip_absQ),nAtom,iWork(ip_iPivot),iDomain(1,i),nSrt,-One)
+  call CD_DiaMax(absQ,nAtom,iPivot,iDomain(1,i),nSrt,-One)
   if (nSrt /= nAtom) then
-    call GetMem('DfDm_iPivot','Free','Inte',ip_iPivot,l_iPivot)
+    call mma_deallocate(iPivot)
     irc = 1 ! ooops: something is fishy here...
-    Go To 1 ! return after deallocations
+    call FreeMem()
+    return
   end if
 end do
-call GetMem('DfDm_absQ','Free','Real',ip_absQ,l_absQ)
-call GetMem('DfDm_iPivot','Free','Inte',ip_iPivot,l_iPivot)
+call mma_deallocate(absQ)
+call mma_deallocate(iPivot)
 
 ! For each orbital, define domain according to charge threshold.
 ! --------------------------------------------------------------
 
-iOff0 = ip_Q-1
 do i=1,nOcc
-  iOff = iOff0+nAtom*(i-1)
   iCount = 1
   iAtom = iDomain(iCount,i)
-  Charge = Work(iOff+iAtom)
+  Charge = Q(iAtom,i)
   do while ((iCount < nAtom) .and. (Charge < ThrDomain(1)))
     iCount = iCount+1
     iAtom = iDomain(iCount,i)
-    Charge = Charge+Work(iOff+iAtom)
+    Charge = Charge+Q(iAtom,i)
   end do
   iDomain(0,i) = iCount
 end do
@@ -217,16 +206,14 @@ if (LocDbg) then
       nErr = nErr+1
     else
       Charge = Zero
-      kOff0 = ip_Q-1+nAtom*(i-1)
       do iAt=1,iDomain(0,i)
         iAtom = iDomain(iAt,i)
         if ((iAtom < 1) .or. (iAtom > nAtom)) then
           write(u6,*) '  Atom: ',iAtom,' !?!?!'
           nErr = nErr+1
         else
-          kOff = kOff0+iAtom
-          write(u6,*) '  Atom: ',iAtom,'  Charge: ',Work(kOff)
-          Charge = Charge+Work(kOff)
+          write(u6,*) '  Atom: ',iAtom,'  Charge: ',Q(iAtom,i)
+          Charge = Charge+Q(iAtom,i)
         end if
       end do
       write(u6,*) '  Total charge: ',Charge
@@ -234,7 +221,8 @@ if (LocDbg) then
   end do
   if (nErr /= 0) then
     irc = 3
-    Go To 1 ! return after deallocation
+    call FreeMem()
+    return
   end if
 end if
 
@@ -244,8 +232,7 @@ end if
 
 if (ThrDomain(2) < One) then
   do i=1,nOcc
-    kOffT = ip_T+nBas*(i-1)
-    call MakeDomainComplete(iDomain(0,i),f(i),Work(ip_S),Work(kOffT),ThrDomain(2),nBas_per_Atom,nBas_Start,nBas,nAtom)
+    call MakeDomainComplete(iDomain(0,i),f(i),S,T(:,i),ThrDomain(2),nBas_per_Atom,nBas_Start,nBas,nAtom)
   end do
 end if
 
@@ -253,11 +240,10 @@ end if
 ! --------------------------------------
 
 do i=1,nOcc
-  kOff = ip_Q-1+nAtom*(i-1)
   QD(i) = Zero
   do iAt=1,iDomain(0,i)
     iAtom = iDomain(iAt,i)
-    QD(i) = QD(i)+Work(kOff+iAtom)
+    QD(i) = QD(i)+Q(iAtom,i)
   end do
 end do
 
@@ -281,16 +267,14 @@ if (LocDbg) then
         nErr = nErr+1
       else
         Charge = Zero
-        kOff0 = ip_Q-1+nAtom*(i-1)
         do iAt=1,iDomain(0,i)
           iAtom = iDomain(iAt,i)
           if ((iAtom < 1) .or. (iAtom > nAtom)) then
             write(u6,*) '  Atom: ',iAtom,' !?!?!'
             nErr = nErr+1
           else
-            kOff = kOff0+iAtom
-            write(u6,*) '  Atom: ',iAtom,'  Charge: ',Work(kOff)
-            Charge = Charge+Work(kOff)
+            write(u6,*) '  Atom: ',iAtom,'  Charge: ',Q(iAtom,i)
+            Charge = Charge+Q(iAtom,i)
           end if
         end do
         write(u6,*) '  Total charge: ',Charge
@@ -306,15 +290,26 @@ if (LocDbg) then
   end if
   if (nErr /= 0) then
     irc = 3
-    Go To 1 ! return after deallocation
+    call FreeMem()
+    return
   end if
 end if
 
-! Deallocations.
-! --------------
+call FreeMem()
 
-1 call GetMem('DfDm_Q','Free','Real',ip_Q,l_Q)
-call GetMem('DfDm_T','Free','Real',ip_T,l_T)
-call GetMem('DfDm_S','Free','Real',ip_S,l_S)
+return
+
+contains
+
+subroutine FreeMem()
+
+  ! Deallocations.
+  ! --------------
+
+  call mma_deallocate(S)
+  call mma_deallocate(T)
+  call mma_deallocate(Q)
+
+end subroutine FreeMem
 
 end subroutine DefineDomain

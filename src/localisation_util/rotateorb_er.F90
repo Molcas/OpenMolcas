@@ -18,6 +18,7 @@ subroutine RotateOrb_ER(R,CMO,nBasis,nOrb2Loc,Debug)
 !          CMO -> CMO * U
 !          U = R*[R^T*R]^(-1/2)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -26,9 +27,9 @@ integer(kind=iwp), intent(in) :: nBasis, nOrb2Loc
 real(kind=wp), intent(in) :: R(nOrb2Loc,nOrb2Loc)
 real(kind=wp), intent(inout) :: CMO(nBasis,nOrb2Loc)
 logical(kind=iwp), intent(in) :: Debug
-#include "WrkSpc.fh"
-integer(kind=iwp) :: ipCMO, ipU, irc, lCMO, lU
+integer(kind=iwp) :: irc
 real(kind=wp) :: ThrU
+real(kind=wp), allocatable :: CMOscr(:,:), U(:,:)
 character(len=*), parameter :: SecNam = 'RotateOrb_ER'
 
 if ((nOrb2Loc < 1) .or. (nBasis < 1)) return
@@ -36,13 +37,12 @@ if ((nOrb2Loc < 1) .or. (nBasis < 1)) return
 ! Allocate transformation matrix U.
 ! ---------------------------------
 
-lU = nOrb2Loc**2
-call GetMem('Umat','Allo','Real',ipU,lU)
+call mma_allocate(U,nOrb2Loc,nOrb2Loc,label='Umat')
 
 ! Compute U.
 ! ----------
 
-call GetU_ER(Work(ipU),R,nOrb2Loc)
+call GetU_ER(U,R,nOrb2Loc)
 
 ! Debug: check that U is unitary.
 ! -------------------------------
@@ -50,7 +50,7 @@ call GetU_ER(Work(ipU),R,nOrb2Loc)
 if (Debug) then
   ThrU = 1.0e-10_wp
   irc = -1
-  call Chk_Unitary(irc,Work(ipU),nOrb2Loc,ThrU)
+  call Chk_Unitary(irc,U,nOrb2Loc,ThrU)
   if (irc /= 0) then
     call SysAbendMsg(SecNam,'U matrix is not unitary!',' ')
   end if
@@ -59,15 +59,14 @@ end if
 ! Update C.
 ! ---------
 
-lCMO = nBasis*nOrb2Loc
-call GetMem('CMOscr','Allo','Real',ipCMO,lCMO)
-call dCopy_(lCMO,CMO,1,Work(ipCMO),1)
-call DGEMM_('N','N',nBasis,nOrb2Loc,nOrb2Loc,One,Work(ipCMO),nBasis,Work(ipU),nOrb2Loc,Zero,CMO,nBasis)
-call GetMem('CMOscr','Free','Real',ipCMO,lCMO)
+call mma_allocate(CMOscr,nBasis,nOrb2Loc,label='CMOscr')
+CMOscr(:,:) = CMO
+call DGEMM_('N','N',nBasis,nOrb2Loc,nOrb2Loc,One,CMOscr,nBasis,U,nOrb2Loc,Zero,CMO,nBasis)
+call mma_deallocate(CMOscr)
 
 ! De-allocate U.
 ! --------------
 
-call GetMem('Umat','Free','Real',ipU,lU)
+call mma_deallocate(U)
 
 end subroutine RotateOrb_ER

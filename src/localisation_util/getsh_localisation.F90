@@ -50,9 +50,7 @@ if (iOpt == 1) then
     end do
   end if
 else
-  if (m /= nBas) then
-    call SysAbendMsg('GetSh_Localisation','Fatal error','m != nBas')
-  end if
+  if (m /= nBas) call SysAbendMsg('GetSh_Localisation','Fatal error','m != nBas')
   XSh(:,1:nShell) = Zero
   if (myNorm == 'MAX') then
     do j=1,nBas

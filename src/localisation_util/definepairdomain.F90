@@ -61,6 +61,7 @@
 
 subroutine DefinePairDomain(irc,iPairDomain,iClass,Rmin,iDomain,RThr,Coord,nAtom,nOcc,nRThr)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -72,9 +73,9 @@ integer(kind=iwp), intent(in) :: nAtom, nOcc, iDomain(0:nAtom,nOcc), nRThr
 integer(kind=iwp), intent(_OUT_) :: iPairDomain(0:nAtom,*), iClass(*)
 real(kind=wp), intent(_OUT_) :: Rmin(*)
 real(kind=wp), intent(in) :: RThr(*), Coord(3,nAtom)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, iA, iAtom, iCount, ij, iOff, ip_Union, isThere, j, jA, jAtom, jOff, kAtom, kOff, l_Union, lD, lT, nnOcc
+integer(kind=iwp) :: i, iA, iAtom, iCount, ij, isThere, j, jA, jAtom, kAtom, lD, nnOcc
 real(kind=wp) :: R
+integer(kind=iwp), allocatable :: Union(:,:)
 
 ! Set return code.
 ! ----------------
@@ -86,35 +87,28 @@ if (nOcc < 2) return
 ! -----------------------------------------------------------------------
 
 nnOcc = nOcc*(nOcc+1)/2
-lT = (nAtom+1)*nnOcc
-call iCopy(lT,[0],0,iPairDomain,1)
+iPairDomain(:,1:nnOcc) = 0
 
-l_Union = nAtom*nOcc
-call GetMem('Union','Allo','Inte',ip_Union,l_Union)
+call mma_allocate(Union,nAtom,nOcc,label='Union')
 
-call iCopy(l_Union,[0],0,iWork(ip_Union),1)
-kOff = ip_Union-1
+Union(:,:) = 0
 do i=1,nOcc
-  iOff = kOff+nAtom*(i-1)
   do iA=1,iDomain(0,i)
     iAtom = iDomain(iA,i)
-    iWork(iOff+iAtom) = 1
+    Union(iAtom,i) = 1
   end do
 end do
 
-kOff = ip_Union-1
 ij = 0
 do j=1,nOcc
   ij = ij+1
-  lD = iDomain(0,j)+1
-  call iCopy(lD,iDomain(0,j),1,iPairDomain(0,ij),1) ! case i=j
-  jOff = kOff+nAtom*(j-1)
+  lD = iDomain(0,j)
+  iPairDomain(0:lD,ij) = iDomain(0:lD,j) ! case i=j
   do i=j+1,nOcc
-    iOff = kOff+nAtom*(i-1)
     iCount = 0
     ij = ij+1
     do kAtom=1,nAtom
-      isThere = iWork(jOff+kAtom)+iWork(iOff+kAtom)
+      isThere = Union(kAtom,j)+Union(kAtom,i)
       if (isThere > 0) then
         iCount = iCount+1
         iPairDomain(iCount,ij) = kAtom
@@ -124,7 +118,7 @@ do j=1,nOcc
   end do
 end do
 
-call GetMem('Union','Free','Inte',ip_Union,l_Union)
+call mma_deallocate(Union)
 
 ! Set min. distance between any two atoms in pairs of domains.
 ! ------------------------------------------------------------
@@ -153,7 +147,7 @@ end do
 ! ------------------------------------------------------------------
 
 if (nRThr > 0) then
-  call iCopy(nnOcc,[nRThr],0,iClass,1)
+  iClass(1:nnOcc) = nRThr
   do ij=1,nnOcc
     i = 0
     do while (i < nRThr)

@@ -11,7 +11,7 @@
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
 
-subroutine RotateOrbB(CMO,Col,ipLbl,nComp,nBas,nOrb2Loc,Maximisation,ThrRot,PctSkp,Debug)
+subroutine RotateOrbB(CMO,Col,Lbl,nComp,nBas,nOrb2Loc,Maximisation,ThrRot,PctSkp,Debug)
 ! Author: T.B. Pedersen
 !
 ! Purpose: rotate orbitals (Jacobi Sweeps) for Boys localisation.
@@ -20,13 +20,12 @@ use Constants, only: Zero, One, Half, Quart, Pi
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nComp, ipLbl(nComp), nBas, nOrb2Loc
-real(kind=wp), intent(inout) :: CMO(nBas,*)
+integer(kind=iwp), intent(in) :: nComp, nBas, nOrb2Loc
+real(kind=wp), intent(inout) :: CMO(nBas,*), Lbl(nOrb2Loc,nOrb2Loc,nComp)
 real(kind=wp), intent(out) :: Col(nOrb2Loc,2), PctSkp
 logical(kind=iwp), intent(in) :: Maximisation, Debug
 real(kind=wp), intent(in) :: ThrRot
-#include "WrkSpc.fh"
-integer(kind=iwp) :: iComp, iCouple, iMO1, iMO2, iMO_s, iMO_t, ip0, iss, ist, itt
+integer(kind=iwp) :: iComp, iCouple, iMO1, iMO2, iMO_s, iMO_t
 real(kind=wp) :: Alpha, Alpha1, Alpha2, Ast, Bst, cos4alpha, Gamma_rot, sin4alpha, Tst, Tstc, Tsts, xDone, xOrb2Loc, xTotal
 character(len=80) :: Txt
 character(len=*), parameter :: SecNam = 'RotateOrbB'
@@ -49,12 +48,8 @@ do iMO1=1,nOrb2Loc-1
     Ast = Zero
     Bst = Zero
     do iComp=1,nComp
-      ip0 = ipLbl(iComp)-1
-      iss = ip0+nOrb2Loc*(iMO_s-1)+iMO_s
-      itt = ip0+nOrb2Loc*(iMO_t-1)+iMO_t
-      ist = ip0+nOrb2Loc*(iMO_t-1)+iMO_s
-      Ast = Ast+Work(ist)**2-Quart*(Work(iss)-Work(itt))**2
-      Bst = Bst+Work(ist)*(Work(iss)-Work(itt))
+      Ast = Ast+Lbl(iMO_s,iMO_t,iComp)**2-Quart*(Lbl(iMO_s,iMO_s,iComp)-Lbl(iMO_t,iMO_t,iComp))**2
+      Bst = Bst+Lbl(iMO_s,iMO_t,iComp)*(Lbl(iMO_s,iMO_s,iComp)-Lbl(iMO_t,iMO_t,iComp))
     end do
 
     if ((Ast == Zero) .and. (Bst == Zero)) then
@@ -99,7 +94,7 @@ do iMO1=1,nOrb2Loc-1
     Tstc = One-cos(Gamma_rot)
     if ((abs(Tsts) > ThrRot) .or. (abs(Tstc) > ThrRot)) then
       call Rot_st(CMO(1,iMO_s),CMO(1,iMO_t),nBas,Gamma_rot,Debug)
-      call UpdateB(Col,nOrb2Loc,ipLbl,nComp,Gamma_rot,iMO_s,iMO_t,Debug)
+      call UpdateB(Col,nOrb2Loc,Lbl,nComp,Gamma_rot,iMO_s,iMO_t,Debug)
       xDone = xDone+One
     end if
 

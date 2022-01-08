@@ -24,7 +24,6 @@ integer(kind=iwp), intent(in) :: nAtoms, nOrb2Loc
 real(kind=wp), intent(in) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(out) :: GradNorm, Rmat(nOrb2Loc,nOrb2Loc)
 logical(kind=iwp), intent(in) :: Debug
-#include "WrkSpc.fh"
 integer(kind=iwp) :: i, iAtom, j
 real(kind=wp) :: Fun, Rjj
 

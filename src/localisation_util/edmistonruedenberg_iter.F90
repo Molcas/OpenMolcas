@@ -26,6 +26,7 @@ subroutine EdmistonRuedenberg_Iter(Functional,CMO,Thrs,ThrRot,ThrGrad,nBasis,nOr
 ! Note that two-electron integrals (Cholesky decomposed) must be
 ! available and appropriately set up when calling this routine.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -36,10 +37,10 @@ real(kind=wp), intent(inout) :: CMO(nBasis,nOrb2Loc)
 real(kind=wp), intent(in) :: Thrs, ThrRot, ThrGrad
 logical(kind=iwp), intent(in) :: Maximisation, Debug, Silent
 logical(kind=iwp), intent(out) :: Converged
-#include "WrkSpc.fh"
-integer(kind=iwp) :: ipRmat, lRmat, nIter
+integer(kind=iwp) :: nIter
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, TimC, TimW, W1, W2
 logical(kind=iwp) :: Timing
+real(kind=wp), allocatable :: Rmat(:,:)
 character(len=*), parameter :: SecNam = 'EdmistonRuedenberg_Iter'
 
 if (Debug) then
@@ -61,8 +62,7 @@ end if
 Converged = .false.
 Timing = Debug
 
-lRmat = nOrb2Loc**2
-call GetMem('Rmat','Allo','Real',ipRmat,lRmat)
+call mma_allocate(Rmat,nOrb2Loc,nOrb2Loc,label='Rmat')
 
 ! Iteration 0.
 ! ------------
@@ -70,7 +70,7 @@ call GetMem('Rmat','Allo','Real',ipRmat,lRmat)
 if (.not. Silent) call CWTime(C1,W1)
 nIter = 0
 Functional = Zero
-call GetGrad_ER(Functional,GradNorm,Work(ipRmat),CMO,nBasis,nOrb2Loc,Timing)
+call GetGrad_ER(Functional,GradNorm,Rmat,CMO,nBasis,nOrb2Loc,Timing)
 OldFunctional = Functional
 FirstFunctional = Functional
 Delta = Functional
@@ -86,8 +86,8 @@ end if
 
 do while ((nIter < nMxIter) .and. (.not. Converged))
   if (.not. Silent) call CWTime(C1,W1)
-  call RotateOrb_ER(Work(ipRmat),CMO,nBasis,nOrb2Loc,Debug)
-  call GetGrad_ER(Functional,GradNorm,Work(ipRmat),CMO,nBasis,nOrb2Loc,Timing)
+  call RotateOrb_ER(Rmat,CMO,nBasis,nOrb2Loc,Debug)
+  call GetGrad_ER(Functional,GradNorm,Rmat,CMO,nBasis,nOrb2Loc,Timing)
   nIter = nIter+1
   Delta = Functional-OldFunctional
   OldFunctional = Functional
@@ -118,6 +118,6 @@ end if
 ! Finalization.
 ! -------------
 
-call GetMem('Rmat','Free','Real',ipRmat,lRmat)
+call mma_deallocate(Rmat)
 
 end subroutine EdmistonRuedenberg_Iter

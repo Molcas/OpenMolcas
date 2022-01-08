@@ -37,6 +37,8 @@ subroutine GetRawPAOs(R,C,nBas,nOrb,nFro,nOrb2Loc,nSym,Normalize)
 !-TODO/FIXME: it is in most cases faster to use Do*S=C*(C^T*S)
 !-------------------------------------------------------------
 
+use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, r8
 
@@ -47,22 +49,23 @@ real(kind=wp), intent(_OUT_) :: R(*)
 real(kind=wp), intent(in) :: C(*)
 integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb(nSym), nFro(nSym), nOrb2Loc(nSym)
 logical(kind=iwp), intent(in) :: Normalize
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, ipDo, ipOvlp, iSym, kOff, kOffS, kR, kSR, lDo, lOff, lOvlp, mu, nB, nF, nO2L, nOrth, nRest
-real(kind=wp) :: Fac, Ovlp
+integer(kind=iwp) :: i, iSym, lDo, lOff, mu, nB, nF, nO2L, nOrth, nRest
+real(kind=wp) :: OvlpR
 character(len=80) :: Txt
+type(DSBA_Type) :: CB, Ovlp, RB
+real(kind=wp), allocatable, target :: DoRt(:)
+real(kind=wp), pointer :: DoR(:,:)
 character(len=*), parameter :: SecNam = 'GetRawPAOs'
 real(kind=r8), external :: ddot_
 
 ! Read the overlap matrix from disk.
 ! ----------------------------------
 
-lOvlp = nBas(1)**2
-do iSym=2,nSym
-  lOvlp = lOvlp+nBas(iSym)**2
-end do
-call GetMem('Ovlp','Allo','Real',ipOvlp,lOvlp)
-call GetOvlp_Localisation(Work(ipOvlp),'Sqr',nBas,nSym)
+call Allocate_DSBA(Ovlp,nBas,nBas,nSym,label='Ovlp')
+call GetOvlp_Localisation(Ovlp%A0,'Sqr',nBas,nSym)
+
+call Allocate_DSBA(RB,nBas,nBas,nSym,label='RB',Ref=R)
+call Allocate_DSBA(CB,nBas,nBas,nSym,label='RB',Ref=C)
 
 ! Compute R.
 ! ----------
@@ -71,13 +74,12 @@ lDo = nBas(1)**2
 do iSym=2,nSym
   lDo = max(lDo,nBas(iSym)**2)
 end do
-call GetMem('Do','Allo','Real',ipDo,lDo)
+call mma_allocate(DoRt,lDo,label='Do')
 
-kOff = 1
-kOffS = ipOvlp
 do iSym=1,nSym
 
   nB = nBas(iSym)
+  DoR(1:nB,1:nB) => DoRt(1:nB**2)
   if (nB > 0) then
 
     nF = nFro(iSym)
@@ -86,37 +88,34 @@ do iSym=1,nSym
     nOrth = nF+nRest ! dim. of orthogonal complement
 
     if (nO2L < 1) then ! R = 0
-      call fZero(R(kOff),nB**2)
+      RB%SB(iSym)%A2(:,:) = Zero
     else if (nOrth < 0) then ! error
       call SysAbendMsg(SecNam,'Dimension of orthogonal complement space < 0',' ')
     else if (nOrth == 0) then ! R = 1
-      call fZero(R(kOff),nB**2)
+      RB%SB(iSym)%A2(:,:) = Zero
       do i=1,nB
-        R(kOff-1+nB*(i-1)+i) = One
+        RB%SB(iSym)%A2(i,i) = One
       end do
     else if (nOrth < nO2L) then ! R = 1 - Do*S
       if (nRest > 0) then
-        lOff = kOff+nB*(nF+nO2L)
-        call GetDens_Localisation(Work(ipDo),C(lOff),nB,nRest)
+        lOff = nF+nO2L+1
+        call GetDens_Localisation(DoR,CB%SB(iSym)%A2(:,lOff:),nB,nRest)
       else
-        call fZero(Work(ipDo),nB**2)
+        DoR(:,:) = Zero
       end if
       if (nF > 0) then
-        call GetDens_Localisation(R(kOff),C(kOff),nB,nF)
-        call dAXPY_(nB**2,One,R(kOff),1,Work(ipDo),1)
+        call GetDens_Localisation(RB%SB(iSym)%A2,CB%SB(iSym)%A2,nB,nF)
+        DoR(:,:) = DoR(:,:)+RB%SB(iSym)%A2(:,:)
       end if
-      call DGEMM_('N','N',nB,nB,nB,-One,Work(ipDo),nB,Work(kOffS),nB,Zero,R(kOff),nB)
+      call DGEMM_('N','N',nB,nB,nB,-One,DoR,nB,Ovlp%SB(iSym)%A2,nB,Zero,RB%SB(iSym)%A2,nB)
       do i=1,nB
-        R(kOff-1+nB*(i-1)+i) = R(kOff-1+nB*(i-1)+i)+One
+        RB%SB(iSym)%A2(i,i) = RB%SB(iSym)%A2(i,i)+One
       end do
     else ! R = D*S
-      lOff = kOff+nB*nF
-      call GetDens_Localisation(Work(ipDo),C(lOff),nB,nO2L)
-      call DGEMM_('N','N',nB,nB,nB,One,Work(ipDo),nB,Work(kOffS),nB,Zero,R(kOff),nB)
+      lOff = nF+1
+      call GetDens_Localisation(DoR,CB%SB(iSym)%A2(:,lOff:),nB,nO2L)
+      call DGEMM_('N','N',nB,nB,nB,One,DoR,nB,Ovlp%SB(iSym)%A2,nB,Zero,RB%SB(iSym)%A2,nB)
     end if
-
-    kOff = kOff+nB**2
-    kOffS = kOffS+nB**2
 
   end if
 
@@ -126,31 +125,28 @@ end do
 ! ---------------------------------
 
 if (Normalize) then
-  kOff = 1
-  kOffS = ipOvlp
   do iSym=1,nSym
     nB = nBas(iSym)
+    DoR(1:nB,1:nB) => DoRt(1:nB**2)
     if (nB > 0) then
-      call DGEMM_('N','N',nB,nB,nB,One,Work(kOffS),nB,R(kOff),nB,Zero,Work(ipDo),nB)
-      do mu=0,nB-1
-        kR = kOff+nB*mu
-        kSR = ipDo+nB*mu
-        Ovlp = dDot_(nB,R(kR),1,Work(kSR),1)
-        if (Ovlp > 1.0e-6_wp) then
-          Fac = One/sqrt(Ovlp)
-          call dScal_(nB,Fac,R(kR),1)
-        else if (Ovlp < Zero) then
-          write(Txt,'(A,1P,D15.5)') 'Overlap = ',Ovlp
+      call DGEMM_('N','N',nB,nB,nB,One,Ovlp%SB(iSym)%A2,nB,RB%SB(iSym)%A2,nB,Zero,DoR,nB)
+      do mu=1,nB
+        OvlpR = dDot_(nB,RB%SB(iSym)%A2(:,mu),1,DoR(:,mu),1)
+        if (OvlpR > 1.0e-6_wp) then
+          RB%SB(iSym)%A2(:,mu) = RB%SB(iSym)%A2(:,mu)/sqrt(OvlpR)
+        else if (OvlpR < Zero) then
+          write(Txt,'(A,1P,D15.5)') 'Overlap = ',OvlpR
           call SysAbendMsg(SecNam,'Negative raw PAO overlap!',Txt)
         end if
       end do
-      kOff = kOff+nB**2
-      kOffS = kOffS+nB**2
     end if
   end do
 end if
 
-call GetMem('Do','Free','Real',ipDo,lDo)
-call GetMem('Ovlp','Free','Real',ipOvlp,lOvlp)
+nullify(DoR)
+call mma_deallocate(DoRt)
+call Deallocate_DSBA(Ovlp)
+call Deallocate_DSBA(RB)
+call Deallocate_DSBA(CB)
 
 end subroutine GetRawPAOs

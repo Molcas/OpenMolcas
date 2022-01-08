@@ -19,6 +19,7 @@ subroutine Ortho_Orb(Xmo,Smat,nBas,nOrb2Loc,nPass,Test)
 !          The orthonormalization is carried out nPass times.
 !          After this routine, X will satisfy X^T*S*X=1.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -27,9 +28,9 @@ real(kind=wp), intent(inout) :: Xmo(*)
 real(kind=wp), intent(in) :: Smat(*)
 integer(kind=iwp), intent(in) :: nBas, nOrb2Loc, nPass
 logical(kind=iwp), intent(in) :: Test
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, ip_Scr, ip_V, ip_VISqrt, ip_VSqrt, iPass, iTask, kOff, l_Scr, l_V, l_VISqrt, l_VSqrt, nB, nErr, nO2L
+integer(kind=iwp) :: i, iPass, iTask, l_Scr, nB, nErr, nO2L
 real(kind=wp) :: xNrm
+real(kind=wp), allocatable :: Scr(:), V(:,:), VISqrt(:,:), VSqrt(:,:)
 real(kind=wp), parameter :: Tol = 1.0e-10_wp
 character(len=*), parameter :: SecNam = 'Ortho_Orb'
 real(kind=wp), external :: ddot_
@@ -42,14 +43,11 @@ if (nPass < 1) return
 ! Allocations.
 ! ------------
 
-l_V = nOrb2Loc**2
-l_VSqrt = l_V
-l_VISqrt = l_V
 l_Scr = 2*(nBas**2)+nBas*(nBas+1)/2 ! needed in SqrtMt
-call GetMem('V','Allo','Real',ip_V,l_V)
-call GetMem('VSqrt','Allo','Real',ip_VSqrt,l_VSqrt)
-call GetMem('VISqrt','Allo','Real',ip_VISqrt,l_VISqrt)
-call GetMem('Scr','Allo','Real',ip_Scr,l_Scr)
+call mma_allocate(V,nOrb2Loc,nOrb2Loc,label='V')
+call mma_allocate(VSqrt,nOrb2Loc,nOrb2Loc,label='VSqrt')
+call mma_allocate(VISqrt,nOrb2Loc,nOrb2Loc,label='VISqrt')
+call mma_allocate(Scr,l_Scr,label='Scr')
 
 ! Orthonormalization passes.
 ! --------------------------
@@ -59,21 +57,22 @@ do iPass=1,nPass
   ! Compute V = X^T*S*X.
   ! --------------------
 
-  call GetUmat_Localisation(Work(ip_V),Xmo,Smat,Xmo,Work(ip_Scr),l_Scr,nBas,nOrb2Loc)
+  call GetUmat_Localisation(V,Xmo,Smat,Xmo,Scr,nBas,nOrb2Loc)
 
   ! Compute V^(-1/2).
   ! -----------------
 
   iTask = 2 ! compute sqrt as well as inverse sqrt
-  call SqrtMt(Work(ip_V),nOrb2Loc,iTask,Work(ip_VSqrt),Work(ip_VISqrt),Work(ip_Scr))
+  call SqrtMt(V,nOrb2Loc,iTask,VSqrt,VISqrt,Scr)
 
   ! Compute orthonormal X <- X*V^(-1/2).
   ! ------------------------------------
 
   nB = max(nBas,1)
   nO2L = max(nOrb2Loc,1)
-  call dCopy_(nBas*nOrb2Loc,Xmo,1,Work(ip_Scr),1)
-  call DGEMM_('N','N',nBas,nOrb2Loc,nOrb2Loc,One,Work(ip_Scr),nB,Work(ip_VISqrt),nO2L,Zero,Xmo,nB)
+  l_Scr = nBas*nOrb2Loc
+  Scr(1:l_Scr) = Xmo(1:l_Scr)
+  call DGEMM_('N','N',nBas,nOrb2Loc,nOrb2Loc,One,Scr,nB,VISqrt,nO2L,Zero,Xmo,nB)
 
 end do
 
@@ -82,12 +81,11 @@ end do
 
 if (Test) then
   nErr = 0
-  call GetUmat_Localisation(Work(ip_V),Xmo,Smat,Xmo,Work(ip_Scr),l_Scr,nBas,nOrb2Loc)
-  kOff = ip_V-1
+  call GetUmat_Localisation(V,Xmo,Smat,Xmo,Scr,nBas,nOrb2Loc)
   do i=1,nOrb2Loc
-    Work(kOff+nOrb2Loc*(i-1)+i) = Work(kOff+nOrb2Loc*(i-1)+i)-One
+    V(i,i) = V(i,i)-One
   end do
-  xNrm = sqrt(dDot_(nOrb2Loc**2,Work(ip_V),1,Work(ip_V),1))
+  xNrm = sqrt(dDot_(nOrb2Loc**2,V,1,V,1))
   if (xNrm > Tol) then
     write(u6,'(A,A,D16.8,A,I2,A)') SecNam,': ERROR: ||X^TSX - 1|| = ',xNrm
     nErr = nErr+1
@@ -101,10 +99,10 @@ end if
 ! De-allocations.
 ! ---------------
 
-call GetMem('Scr','Free','Real',ip_Scr,l_Scr)
-call GetMem('VISqrt','Free','Real',ip_VISqrt,l_VISqrt)
-call GetMem('VSqrt','Free','Real',ip_VSqrt,l_VSqrt)
-call GetMem('V','Free','Real',ip_V,l_V)
+call mma_deallocate(V)
+call mma_deallocate(VSqrt)
+call mma_deallocate(VISqrt)
+call mma_deallocate(Scr)
 
 return
 

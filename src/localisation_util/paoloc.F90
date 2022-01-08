@@ -63,6 +63,8 @@
 
 subroutine PAOLoc(irc,CMO,PAO,Thr,nBas,nOrb,nOcc,nVir,nSym,Mode)
 
+use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -74,13 +76,14 @@ real(kind=wp), intent(in) :: CMO(*), Thr
 real(kind=wp), intent(_OUT_) :: PAO(*)
 integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb(nSym), nOcc(nSym), nVir(nSym)
 character(len=*), intent(in) :: Mode
-#include "WrkSpc.fh"
-integer(kind=iwp) :: DefLevel, ip_D, ip_Dum, ip_R, iSym, kOff1, kOffP, kOffR, l_D, l_Dum, l_R, Level, lMode, nOrthPs
+integer(kind=iwp) :: DefLevel, i, iSym, kOff, l_D, Level, lMode, nOrthPs
 real(kind=wp) :: ThrLoc, xNrm
 logical(kind=iwp) :: Normalize, TestOrth
 character(len=3) :: myMode
+type(DSBA_Type) :: P, R
+real(kind=wp), allocatable :: D(:)
 real(kind=wp), parameter :: DefThr = 1.0e-12_wp
-character(len=*), parameter :: DefMode = 'ORT', SecNam = 'PAOLoc'
+character(len=*), parameter :: DefMode = 'ORT', LevMode(3) = ['RAW','CHO','ORT'], SecNam = 'PAOLoc'
 
 #if defined (_DEBUGPRINT_)
 TestOrth = .true.
@@ -96,13 +99,14 @@ irc = 0
 ! Set DefLevel from DefMode.
 ! --------------------------
 
-if (DefMode == 'RAW') then
-  DefLevel = 1
-else if (DefMode == 'CHO') then
-  DefLevel = 2
-else if (DefMode == 'ORT') then
-  DefLevel = 3
-else
+DefLevel = 0
+do i=1,size(LevMode)
+  if (DefMode == LevMode(i)) then
+    DefLevel = i
+    exit
+  end if
+end do
+if (DefLevel == 0) then
   call SysAbendMsg(SecNam,'DefMode not recognized!','Note: this is a programming error...')
   DefLevel = -999999
 end if
@@ -116,39 +120,30 @@ if (lMode < 3) then
 else
   myMode = Mode(1:3)
   call UpCase(myMode)
-  if (myMode == 'RAW') then
-    Level = 1
-  else if (myMode == 'CHO') then
-    Level = 2
-  else if (myMode == 'ORT') then
-    Level = 3
-  else
-    Level = DefLevel
-  end if
+  Level = DefLevel
+  do i=1,size(LevMode)
+    if (myMode == LevMode(i)) then
+      Level = i
+      exit
+    end if
+  end do
 end if
-
-! Make a dummy allocation to enable de-allocation by flushing.
-! ------------------------------------------------------------
-
-l_Dum = 1
-call GetMem('PAOL_Dummy','Allo','Real',ip_Dum,l_Dum)
 
 ! Compute raw projected AOs.
 ! --------------------------
 
-l_R = nBas(1)**2
-do iSym=2,nSym
-  l_R = l_R+nBas(iSym)**2
-end do
-call GetMem('PAOL_R','Allo','Real',ip_R,l_R)
+call Allocate_DSBA(R,nBas,nBas,nSym,label='R')
 
 Normalize = .true.
-call GetRawPAOs(Work(ip_R),CMO,nBas,nOrb,nOcc,nVir,nSym,Normalize)
+call GetRawPAOs(R%A0,CMO,nBas,nOrb,nOcc,nVir,nSym,Normalize)
 
 if (Level == 1) then
-  call dCopy_(l_R,Work(ip_R),1,PAO,1)
-  Go To 1 ! return after de-allocation
+  PAO(1:size(R%A0)) = R%A0
+  call FreeMem()
+  return
 end if
+
+call Allocate_DSBA(P,nBas,nVir,nSym,label='P',Ref=PAO)
 
 ! Use Cholesky decomposition to compute a linearly independent set
 ! of nonorthonormal PAOs.
@@ -158,7 +153,7 @@ l_D = nBas(1)**2
 do iSym=2,nSym
   l_D = max(l_D,nBas(iSym)**2)
 end do
-call GetMem('PAOL_D','Allo','Real',ip_D,l_D)
+call mma_allocate(D,l_D,label='PAOL_D')
 
 if (Thr <= Zero) then
   ThrLoc = DefThr
@@ -166,52 +161,48 @@ else
   ThrLoc = Thr
 end if
 
-kOffR = ip_R
-kOffP = 1
 do iSym=1,nSym
   if (nVir(iSym) > 0) then
-    call GetDens_Localisation(Work(ip_D),Work(kOffR),nBas(iSym),nBas(iSym))
-    call ChoLoc(irc,Work(ip_D),PAO(kOffP),ThrLoc,xNrm,nBas(iSym),nVir(iSym))
-    if (irc /= 0) Go To 1 ! return after de-allocation
+    call GetDens_Localisation(D,R%SB(iSym)%A2,nBas(iSym),nBas(iSym))
+    call ChoLoc(irc,D,P%SB(iSym)%A2,ThrLoc,xNrm,nBas(iSym),nVir(iSym))
+    if (irc /= 0) then
+      call FreeMem()
+      return
+    end if
   end if
-  kOffR = kOffR+nBas(iSym)**2
-  kOffP = kOffP+nBas(iSym)*nVir(iSym)
 end do
 
 if (Level == 2) then
-  Go To 1 ! return after de-allocation
+  call FreeMem()
+  return
 end if
 
 ! Orthonormalize the PAOs.
 ! ------------------------
 
-kOffP = 1
-kOffR = ip_R
 do iSym=1,nSym
-  kOff1 = kOffR+nBas(iSym)*nOcc(iSym)
-  call dCopy_(nBas(iSym)*nVir(iSym),PAO(kOffP),1,Work(kOff1),1)
-  kOffP = kOffP+nBas(iSym)*nVir(iSym)
-  kOffR = kOffR+nBas(iSym)**2
+  kOff = nOcc(iSym)+1
+  R%SB(iSym)%A2(:,kOff:kOff+nVir(iSym)-1) = P%SB(iSym)%A2(:,1:nVir(iSym))
 end do
 nOrthPs = 2 ! orthonormalization passes to ensure num. accuracy
-call OrthoPAO_Localisation(Work(ip_R),nBas,nOcc,nVir,nSym,nOrthPs,TestOrth)
-kOffP = 1
-kOffR = ip_R
+call OrthoPAO_Localisation(R%A0,nBas,nOcc,nVir,nSym,nOrthPs,TestOrth)
 do iSym=1,nSym
-  kOff1 = kOffR+nBas(iSym)*nOcc(iSym)
-  call dCopy_(nBas(iSym)*nVir(iSym),Work(kOff1),1,PAO(kOffP),1)
-  kOffP = kOffP+nBas(iSym)*nVir(iSym)
-  kOffR = kOffR+nBas(iSym)**2
+  kOff = nOcc(iSym)+1
+  P%SB(iSym)%A2(:,1:nVir(iSym)) = R%SB(iSym)%A2(:,kOff:kOff+nVir(iSym)-1)
 end do
 
-if (Level == 3) then
-  Go To 1 ! return after de-allocation
-end if
+call FreeMem()
 
-! De-allocation by flushing.
-! --------------------------
+return
 
-1 call GetMem('PAOL_Dummy','Flus','Real',ip_Dum,l_Dum)
-call GetMem('PAOL_Dummy','Free','Real',ip_Dum,l_Dum)
+contains
+
+subroutine FreeMem()
+
+  call Deallocate_DSBA(R)
+  call Deallocate_DSBA(P)
+  if (allocated(D)) call mma_deallocate(D)
+
+end subroutine FreeMem
 
 end subroutine PAOLoc

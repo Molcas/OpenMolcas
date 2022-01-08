@@ -31,10 +31,9 @@ character(len=LenIn8), intent(in) :: BName(*) ! dimension should be tot. #bf
 integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb2Loc(nSym), nFro(nSym), nAtoms, nMxIter
 logical(kind=iwp), intent(in) :: Maximisation, Debug, Silent
 logical(kind=iwp), intent(out) :: Converged
-#include "WrkSpc.fh"
-integer(kind=iwp) :: iComp, iOpt, ip_nBas_per_Atom, ip_nBas_Start, ipOaux, ipOvlp, irc, iSyLbl, kOffC, l_nBas_per_Atom, &
-                     l_nBas_Start, lOaux, lOvlp, nBasT, nFroT, nOrb2LocT
-real(kind=wp), allocatable :: PA(:,:,:)
+integer(kind=iwp) :: iComp, iOpt, irc, iSyLbl, kOffC, lOaux, nBasT, nFroT, nOrb2LocT
+integer(kind=iwp), allocatable :: nBas_per_Atom(:), nBas_Start(:)
+real(kind=wp), allocatable :: Oaux(:), Ovlp(:,:), PA(:,:,:)
 character(len=8) :: Label
 character(len=*), parameter :: SecNam = 'PipekMezey'
 
@@ -60,16 +59,15 @@ Converged = .false.
 ! --------------------
 
 lOaux = nBasT*(nBasT+1)/2+4
-lOvlp = nBasT**2
-call GetMem('Ovlp','Allo','Real',ipOvlp,lOvlp)
-call GetMem('AuxOvlp','Allo','Real',ipOaux,lOaux)
+call mma_allocate(Ovlp,nBasT,nBasT,label='Ovlp')
+call mma_allocate(Oaux,lOaux,label='AuxOvlp')
 
 irc = -1
 iOpt = 2
 iComp = 1
 iSyLbl = 1
 Label = 'Mltpl  0'
-call RdOne(irc,iOpt,Label,iComp,Work(ipOaux),iSyLbl)
+call RdOne(irc,iOpt,Label,iComp,Oaux,iSyLbl)
 if (irc /= 0) then
   write(u6,*) SecNam,': RdOne returned ',irc
   write(u6,*) 'Label = ',Label,'  iSyLbl = ',iSyLbl
@@ -80,20 +78,18 @@ if (Debug) then
   write(u6,*)
   write(u6,*) ' Triangular overlap matrix at start'
   write(u6,*) ' ----------------------------------'
-  call TriPrt('Overlap',' ',Work(ipOaux),nBasT)
+  call TriPrt('Overlap',' ',Oaux,nBasT)
 end if
 
-call Tri2Rec(Work(ipOaux),Work(ipOvlp),nBasT,Debug)
-call GetMem('AuxOvlp','Free','Real',ipOaux,lOaux)
+call Tri2Rec(Oaux,Ovlp,nBasT,Debug)
+call mma_deallocate(Oaux)
 
 ! Allocate and get index arrays for basis functions per atom.
 ! -----------------------------------------------------------
 
-l_nBas_per_Atom = nAtoms
-l_nBas_Start = l_nBas_per_Atom
-call GetMem('nB_per_Atom','Allo','Inte',ip_nBas_per_Atom,l_nBas_per_Atom)
-call GetMem('nB_Start','Allo','Inte',ip_nBas_Start,l_nBas_Start)
-call BasFun_Atom(iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),BName,nBasT,nAtoms,Debug)
+call mma_allocate(nBas_per_Atom,nAtoms,label='nB_per_Atom')
+call mma_allocate(nBas_Start,nAtoms,label='nB_Start')
+call BasFun_Atom(nBas_per_Atom,nBas_Start,BName,nBasT,nAtoms,Debug)
 
 ! Allocate PA array.
 ! ------------------
@@ -104,15 +100,15 @@ PA(:,:,:) = Zero
 ! ------------------
 
 kOffC = nBasT*nFroT+1
-call PipekMezey_Iter(Functional,CMO(kOffC),Work(ipOvlp),Thrs,ThrRot,ThrGrad,PA,iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),BName, &
-                     nBasT,nOrb2LocT,nAtoms,nMxIter,Maximisation,Converged,Debug,Silent)
+call PipekMezey_Iter(Functional,CMO(kOffC),Ovlp,Thrs,ThrRot,ThrGrad,PA,nBas_per_Atom,nBas_Start,BName,nBasT,nOrb2LocT,nAtoms, &
+                     nMxIter,Maximisation,Converged,Debug,Silent)
 
 ! De-allocations.
 ! ---------------
 
 call mma_deallocate(PA)
-call GetMem('nB_Start','Free','Inte',ip_nBas_Start,l_nBas_Start)
-call GetMem('nB_per_Atom','Free','Inte',ip_nBas_per_Atom,l_nBas_per_Atom)
-call GetMem('Ovlp','Free','Real',ipOvlp,lOvlp)
+call mma_deallocate(nBas_per_Atom)
+call mma_deallocate(nBas_Start)
+call mma_deallocate(Ovlp)
 
 end subroutine PipekMezey

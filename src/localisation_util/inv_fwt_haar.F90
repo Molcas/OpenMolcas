@@ -98,7 +98,7 @@ else  ! do not use BLAS
       B(:,lB) = fac*(X(:,k)-X(:,kv))
     end do
     nv = nv*2
-    call dcopy_(n*nv,B,1,X,1)
+    X(:,1:nv) = B(:,1:nv)
   end do
 
 end if

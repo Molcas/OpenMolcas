@@ -9,46 +9,50 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Get_Can_Lorb(Ene,Fock,nO,nX,jOrb,Umat,iSym)
+subroutine Get_Can_Lorb(Ene,Fock,nO,nX,jOrb,Umat)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(in) :: Ene(*)
 real(kind=wp), intent(inout) :: Fock(*), Umat(*)
-integer(kind=iwp), intent(in) :: nO, nX, jOrb(nO), iSym
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, ii, ip_eta, ip_Z, ip_ZZ, j, nOx, nXx
+integer(kind=iwp), intent(in) :: nO, nX, jOrb(nO)
+integer(kind=iwp) :: i, nOx, nXx
+real(kind=wp), allocatable, target :: eta_t(:), Zt(:)
+real(kind=wp), pointer :: eta(:,:), Z(:,:)
 
 if (nO < 1) return
 
-call GetMem('eta_ik','Allo','Real',ip_eta,2*nX**2+1)
-ip_Z = ip_eta+nX**2
-ip_ZZ = ip_Z+nX
-call FZero(Work(ip_eta),nX**2)
+call mma_allocate(eta_t,nX**2,label='eta_ik')
+eta(1:nX,1:nX) => eta_t(1:nX**2)
+call mma_allocate(Zt,max(nX,2)*nO,label='Zt')
+Z(1:nX,1:nO) => Zt(1:nX*nO)
+eta(:,:) = Zero
 do i=1,nX
-  ii = ip_eta+nX*(i-1)+i-1
-  Work(ii) = Ene(i)
+  eta(i,i) = Ene(i)
 end do
 
 nXx = max(1,nX)
 nOx = max(1,nO)
-call DGEMM_('N','N',nX,nO,nX,One,Work(ip_eta),nXx,Umat(1),nXx,Zero,Work(ip_Z),nXx)
-call DGEMM_('T','N',nO,nO,nX,One,Umat(1),nXx,Work(ip_Z),nXx,Zero,Work(ip_eta),nOx)
+call DGEMM_('N','N',nX,nO,nX,One,eta,nXx,Umat,nXx,Zero,Z,nXx)
+eta(1:nO,1:nO) => eta_t(1:nO**2)
+call DGEMM_('T','N',nO,nO,nX,One,Umat,nXx,Z,nXx,Zero,eta,nOx)
 
-call Eigen_Molcas(nO,Work(ip_eta),Work(ip_Z),Work(ip_ZZ))
+Z(1:nO,1:2) => Zt(1:nO*2)
+call Eigen_Molcas(nO,eta,Z(:,1),Z(:,2))
 
-call dcopy_(nO**2,Work(ip_eta),1,Umat,1)
+call dcopy_(nO**2,eta,1,Umat,1)
 do i=1,nO
-  ii = ip_Z+i-1
-  j = jOrb(i)
-  Fock(j) = Work(ii)
+  Fock(jOrb(i)) = Z(i,1)
 end do
-call GetMem('eta_ik','Free','Real',ip_eta,2*nX**2+1)
+
+nullify(eta)
+nullify(Z)
+call mma_deallocate(eta_t)
+call mma_deallocate(Zt)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(iSym)
 
 end subroutine Get_Can_Lorb

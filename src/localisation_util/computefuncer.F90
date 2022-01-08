@@ -20,6 +20,7 @@ subroutine ComputeFuncER(ERFun,CMO,nBas,nOcc,nFro,nSym,Timing)
 !    WORKS *ONLY* WITH CHOLESKY DECOMPOSED INTEGRALS
 ! =====================================================
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -28,10 +29,10 @@ real(kind=wp), intent(out) :: ERFun
 real(kind=wp), intent(in) :: CMO(*)
 integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOcc(nSym), nFro(nSym)
 logical(kind=iwp), intent(in) :: Timing
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, ipERFun, irc, iSym, kOff, lERFun, nFroT, nOccT(8)
+integer(kind=iwp) :: i, irc, iSym, kOff, lERFun, nFroT, nOccT(8)
 real(kind=wp) :: FracMem
 character(len=80) :: Txt
+real(kind=wp), allocatable :: ERFunVec(:)
 character(len=*), parameter :: SecNam = 'ComputeFuncER'
 
 ! Initializations.
@@ -70,19 +71,19 @@ do iSym=2,nSym
   nFroT = nFroT+nFro(iSym)
 end do
 
-call GetMem('ERFun','Allo','Real',ipERFun,lERFun)
+call mma_allocate(ERFunVec,lERFun,label='ERFun')
 ERFun = Zero
-call EvalERFun(ERFun,Work(ipERFun),CMO,nOccT,nSym,Timing)
+call EvalERFun(ERFun,ERFunVec,CMO,nOccT,nSym,Timing)
 if (nFroT > 0) then
-  kOff = ipERFun-1
+  kOff = 0
   do iSym=1,nSym
     do i=1,nFro(iSym)
-      ERFun = ERFun-Work(kOff+i)
+      ERFun = ERFun-ERFunVec(kOff+i)
     end do
     kOff = kOff+nOccT(iSym)
   end do
 end if
-call GetMem('ERFun','Free','Real',ipERFun,lERFun)
+call mma_deallocate(ERFunVec)
 
 ! Finalizations.
 ! --------------

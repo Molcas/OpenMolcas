@@ -16,6 +16,7 @@ subroutine Chk_Unitary(irc,U,n,Thr)
 !
 ! Purpose: check that U is unitary.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, r8
 
@@ -23,9 +24,9 @@ implicit none
 integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp), intent(in) :: n
 real(kind=wp), intent(in) :: U(n,n), Thr
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, ip0, ipUTU, lUTU, n2
+integer(kind=iwp) :: i, n2
 real(kind=wp) :: RMS, x2
+real(kind=wp), allocatable :: UTU(:,:)
 real(kind=r8), external :: ddot_
 
 if (n < 1) then
@@ -34,24 +35,21 @@ if (n < 1) then
 end if
 
 n2 = n**2
-lUTU = n2
-call GetMem('UTU','Allo','Real',ipUTU,lUTU)
+call mma_allocate(UTU,n,n,label='UTU')
 
-call dCopy_(n2,[Zero],0,Work(ipUTU),1)
-ip0 = ipUTU-1
+call DGEMM_('T','N',n,n,n,One,U,n,U,n,Zero,UTU,n)
 do i=1,n
-  Work(ip0+n*(i-1)+i) = One
+  UTU(i,i) = UTU(i,i)-One
 end do
-call DGEMM_('T','N',n,n,n,-One,U,n,U,n,One,Work(ipUTU),n)
 
 x2 = real(n2,kind=wp)
-RMS = sqrt(dDot_(n2,Work(ipUTU),1,Work(ipUTU),1)/x2)
+RMS = sqrt(dDot_(n2,UTU,1,UTU,1)/x2)
 if (RMS > Thr) then
   irc = 1
 else
   irc = 0
 end if
 
-call GetMem('UTU','Free','Real',ipUTU,lUTU)
+call mma_deallocate(UTU)
 
 end subroutine Chk_Unitary

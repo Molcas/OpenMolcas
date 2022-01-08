@@ -22,7 +22,6 @@ integer(kind=iwp), intent(in) :: nAtoms, nOrb2Loc
 real(kind=wp), intent(in) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(out) :: Functional
 logical(kind=iwp), intent(in) :: Debug
-#include "WrkSpc.fh"
 integer(kind=iwp) :: iAt, iMO_s
 
 Functional = Zero

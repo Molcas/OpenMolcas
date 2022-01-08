@@ -16,18 +16,20 @@ subroutine Anasize_Localisation(Den,CMO,XMO,nShell,nOrb,iSym)
 !
 ! Purpose: sparsity analysis of shell-based matrices.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nShell, nOrb, iSym
 real(kind=wp), intent(in) :: Den(nShell,nShell), CMO(nShell,nOrb), XMO(nShell,nOrb)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, iBin, ip0, ipBin, ipDLT, lBin, lDLT
-real(kind=wp) :: StpSiz
+integer(kind=iwp), parameter :: lBin = 9
+integer(kind=iwp) :: i, iBin, lDLT
+real(kind=wp) :: Bin(lBin), StpSiz
 character(len=36) :: DHead
 character(len=20) :: CHead
 character(len=17) :: XHead
+real(kind=wp), allocatable :: DLT(:)
 
 ! Return if nothing to do.
 ! ------------------------
@@ -37,51 +39,45 @@ if (nShell < 0) return
 ! Set up bins.
 ! ------------
 
-lBin = 9
-call GetMem('Bin','Allo','Real',ipBin,lBin)
 StpSiz = 0.1_wp
-Work(ipBin) = One
-ip0 = ipBin-1
+Bin(1) = One
 do iBin=2,lBin
-  Work(ip0+iBin) = Work(ip0+iBin-1)*StpSiz
+  Bin(iBin) = Bin(iBin-1)*StpSiz
 end do
 
 ! Density.
 ! --------
 
 lDLT = nShell*(nShell+1)/2
-call GetMem('LTDen','Allo','Real',ipDLT,lDLT)
-call Sq2Tri(Den,Work(ipDLT),nShell)
+call mma_allocate(DLT,lDLT,label='LTDen')
+call Sq2Tri(Den,DLT,nShell)
 write(DHead,'(A34,I2)') 'Histogram of density matrix , sym.',iSym
 call Cho_Head(DHead,'=',80,u6)
-call Cho_Anasize(Work(ipDLT),lDlt,Work(ipBin),lBin,u6)
-call GetMem('LTDen','Free','Real',ipDLT,lDLT)
+call Cho_Anasize(DLT,lDlt,Bin,lBin,u6)
+call mma_deallocate(DLT)
 
-if (nOrb < 1) Go To 1 ! return after de-allocation
+if (nOrb >= 1) then
 
-! Original MOs.
-! -------------
+  ! Original MOs.
+  ! -------------
 
-write(CHead,'(A18,I2)') 'Original MOs, sym.',iSym
-call Cho_Head(CHead,'=',80,u6)
-do i=1,nOrb
-  write(u6,'(/,2X,A,I5)') 'Original MO no.',i
-  call Cho_Anasize(CMO(1,i),nShell,Work(ipBin),lBin,u6)
-end do
+  write(CHead,'(A18,I2)') 'Original MOs, sym.',iSym
+  call Cho_Head(CHead,'=',80,u6)
+  do i=1,nOrb
+    write(u6,'(/,2X,A,I5)') 'Original MO no.',i
+    call Cho_Anasize(CMO(1,i),nShell,Bin,lBin,u6)
+  end do
 
-! Local MOs.
-! ----------
+  ! Local MOs.
+  ! ----------
 
-write(XHead,'(A15,I2)') 'Local MOs, sym.',iSym
-call Cho_Head(XHead,'=',80,u6)
-do i=1,nOrb
-  write(u6,'(/,2X,A,I5)') 'Local MO no.',i
-  call Cho_Anasize(XMO(1,i),nShell,Work(ipBin),lBin,u6)
-end do
+  write(XHead,'(A15,I2)') 'Local MOs, sym.',iSym
+  call Cho_Head(XHead,'=',80,u6)
+  do i=1,nOrb
+    write(u6,'(/,2X,A,I5)') 'Local MO no.',i
+    call Cho_Anasize(XMO(1,i),nShell,Bin,lBin,u6)
+  end do
 
-! De-allocate and return.
-! -----------------------
-
-1 call GetMem('Bin','Free','Real',ipBin,lBin)
+end if
 
 end subroutine Anasize_Localisation

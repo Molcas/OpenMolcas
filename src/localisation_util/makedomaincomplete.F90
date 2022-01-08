@@ -17,6 +17,7 @@ subroutine MakeDomainComplete(iDomain,f,S,T,Threshold,nBas_per_Atom,nBas_Start,n
 ! Purpose: Boughton-Pulay completeness check of an orbital domain.
 !          Extend domain as needed to obtain completeness.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -25,11 +26,10 @@ integer(kind=iwp), intent(in) :: nAtom, nBas_per_Atom(nAtom), nBas_Start(nAtom),
 integer(kind=iwp), intent(inout) :: iDomain(0:nAtom)
 real(kind=wp), intent(out) :: f
 real(kind=wp), intent(in) :: S(nBas,nBas), T(nBas), Threshold
-#include "WrkSpc.fh"
-integer(kind=iwp) :: iA, iB, iCol, ip_Scr, ip_Si, ip_Sl, ip_Ti, irc, iRow, kSi, kTi, l_Scr, l_Si, l_Sl, l_Ti, lnu, mu1, nA, nmu, &
-                     nnu, nSize, nu, nu1
+integer(kind=iwp) :: iA, iB, iCol, irc, iRow, kTi, lnu, mu1, nA, nmu, nnu, nSize, nu, nu1
 character(len=80) :: Txt
 logical(kind=iwp) :: Complete
+real(kind=wp), allocatable :: Scr(:), Si(:,:), Sl(:,:), Ti(:)
 real(kind=wp), external :: ddot_
 character(len=*), parameter :: SecNam = 'MakeDomainComplete'
 
@@ -45,19 +45,15 @@ do while ((nA < nAtom) .and. (.not. Complete))
   do iA=2,nA
     nSize = nSize+nBas_per_Atom(iDomain(iA))
   end do
-  l_Si = nSize*nSize
-  l_Sl = l_Si
-  l_Ti = nSize
-  l_Scr = nSize
-  call GetMem('MkDmC_Si','Allo','Real',ip_Si,l_Si)
-  call GetMem('MkDmC_Sl','Allo','Real',ip_Sl,l_Sl)
-  call GetMem('MkDmC_Ti','Allo','Real',ip_Ti,l_Ti)
-  call GetMem('MkDmC_Scr','Allo','Real',ip_Scr,l_Scr)
+  call mma_allocate(Si,nSize,nSize,label='MkDmC_Si')
+  call mma_allocate(Sl,nSize,nSize,label='MkDmC_Sl')
+  call mma_allocate(Ti,nSize,label='MkDmC_Ti')
+  call mma_allocate(Scr,nSize,label='MkDmC_Scr')
 
   ! Get S[i] and T[i].
   ! ------------------
 
-  kTi = ip_Ti
+  kTi = 1
   iCol = 0
   do iB=1,nA
     nu1 = nBas_Start(iDomain(iB))
@@ -66,15 +62,14 @@ do while ((nA < nAtom) .and. (.not. Complete))
       nu = nu1+lnu
       iCol = iCol+1
       iRow = 0
-      kSi = ip_Si+nSize*(iCol-1)
       do iA=1,nA
         mu1 = nBas_Start(iDomain(iA))
         nmu = nBas_per_Atom(iDomain(iA))
-        call dCopy_(nmu,S(mu1,nu),1,Work(kSi+iRow),1)
+        Si(:,iCol) = S(mu1:mu1+nmu-1,nu)
         iRow = iRow+nmu
       end do
     end do
-    call dCopy_(nnu,T(nu1),1,Work(kTi),1)
+    Ti(kTi:kTi+nnu-1) = T(nu1:nu1+nnu-1)
     kTi = kTi+nnu
   end do
 
@@ -84,8 +79,8 @@ do while ((nA < nAtom) .and. (.not. Complete))
   ! ----------------------------------------------------------
 
   irc = 0
-  call dCopy_(l_Si,Work(ip_Si),1,Work(ip_Sl),1)
-  call LinEqSolv(irc,'N',Work(ip_Sl),nSize,Work(ip_Ti),nSize,nSize,1)
+  Sl(:,:) = Si
+  call LinEqSolv(irc,'N',Sl,nSize,Ti,nSize,nSize,1)
   if (irc /= 0) then
     write(Txt,'(A,I9)') 'LinEqSolv returned',irc
     if (irc < 0) then
@@ -98,16 +93,16 @@ do while ((nA < nAtom) .and. (.not. Complete))
   ! Compute f=1-Y(T)S[i]Y.
   ! ----------------------
 
-  call dGeMV_('N',nSize,nSize,One,Work(ip_Si),nSize,Work(ip_Ti),1,Zero,Work(ip_Scr),1)
-  f = One-dDot_(nSize,Work(ip_Ti),1,Work(ip_Scr),1)
+  call dGeMV_('N',nSize,nSize,One,Si,nSize,Ti,1,Zero,Scr,1)
+  f = One-dDot_(nSize,Ti,1,Scr,1)
 
   ! Deallocation.
   ! -------------
 
-  call GetMem('MkDmC_Scr','Free','Real',ip_Scr,l_Scr)
-  call GetMem('MkDmC_Ti','Free','Real',ip_Ti,l_Ti)
-  call GetMem('MkDmC_Sl','Free','Real',ip_Sl,l_Sl)
-  call GetMem('MkDmC_Si','Free','Real',ip_Si,l_Si)
+  call mma_deallocate(Si)
+  call mma_deallocate(Sl)
+  call mma_deallocate(Ti)
+  call mma_deallocate(Scr)
 
   ! Check completeness (f<=Threshold).
   ! If not complete, add next atom to domain.
@@ -115,9 +110,7 @@ do while ((nA < nAtom) .and. (.not. Complete))
   ! -----------------------------------------
 
   Complete = f <= Threshold
-  if (.not. Complete) then
-    nA = nA+1
-  end if
+  if (.not. Complete) nA = nA+1
 
 end do
 

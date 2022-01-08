@@ -26,7 +26,6 @@ real(kind=wp), intent(in) :: Thrs, ThrRot, ThrGrad
 integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb2Loc(nSym), nFro(nSym), nMxIter
 logical(kind=iwp), intent(in) :: Maximisation, Debug, Silent
 logical(kind=iwp), intent(out) :: Converged
-#include "WrkSpc.fh"
 integer(kind=iwp) :: irc, kOffC, nBasT, nFroT, nOrb2LocT
 real(kind=wp) :: FracMem
 character(len=80) :: Txt

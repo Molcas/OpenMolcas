@@ -17,6 +17,8 @@ subroutine Wavelet_Transform(irc,CMO,nSym,nBas,nFro,nOrb2Loc,inv,Silent,xNrm)
 ! Purpose: wavelet transform of the MO basis (inv=0)
 !          "       backtransform (inv=1)
 
+use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6, r8
 
@@ -26,8 +28,9 @@ integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nFro(nSym), nOrb2Loc(nSym), i
 real(kind=wp), intent(inout) :: CMO(*)
 real(kind=wp), intent(out) :: xNrm
 logical(kind=iwp), intent(in) :: Silent
-#include "WrkSpc.fh"
-integer(kind=iwp) :: ipScr, iScr, iSym, kOff1, kOff2, kOffC, l_Scr, njOrb
+integer(kind=iwp) :: iSym, kOff1, kOff2, l_Scr, njOrb
+type(DSBA_Type) :: C
+real(kind=wp), allocatable :: Scr(:)
 character(len=*), parameter :: SecNam = 'Wavelet_Transform'
 integer(kind=iwp), external :: Log2
 real(kind=r8), external :: ddot_
@@ -41,70 +44,82 @@ if (.not. Silent) then
   write(u6,'(1X,A,8(1X,I6))') 'Orbitals to transform:',(nOrb2Loc(iSym),iSym=1,nSym)
 end if
 
-if (inv == 1) go to 1000 ! Inverse wavelet transform
+call Allocate_DSBA(C,nBas,nBas,nSym,label='C',Ref=CMO)
 
-njOrb = Log2(nOrb2Loc(1))
-l_Scr = nBas(1)*(2**njOrb-1)
-do iSym=2,nSym
-  njOrb = Log2(nOrb2Loc(iSym))
-  l_Scr = max(l_Scr,nBas(iSym)*(2**njOrb-1))
-end do
-call GetMem('Scratch','Allo','Real',ipScr,l_Scr)
-kOffC = 1
-do iSym=1,nSym
-  if (nOrb2Loc(iSym) > 0) then
-    kOff1 = kOffC+nBas(iSym)*nFro(iSym)
-    kOff2 = kOff1
+if (inv == 1) then
+  ! Inverse wavelet transform
+  njOrb = Log2(nOrb2Loc(1))
+  l_Scr = nBas(1)*(2**njOrb)
+  do iSym=2,nSym
     njOrb = Log2(nOrb2Loc(iSym))
-    do while (njOrb >= 1)
-      call FWT_Haar(nBas(iSym),njOrb,Work(ipScr),CMO(kOff2))
-      njOrb = 2**njOrb
-      kOff2 = kOff2+nBas(iSym)*njOrb
-      njOrb = Log2(nOrb2Loc(iSym)-njOrb)
-    end do
-    xNrm = xNrm+dDot_(nBas(iSym)*nOrb2Loc(iSym),CMO(kOff1),1,CMO(kOff1),1)
-    if (irc /= 0) then
-      irc = 1
-      xNrm = -huge(xNrm)
-      return
+    l_Scr = max(l_Scr,nBas(iSym)*(2**njOrb))
+  end do
+  call mma_allocate(Scr,l_Scr,label='Scratch')
+  do iSym=1,nSym
+    if (nOrb2Loc(iSym) > 0) then
+      kOff1 = nFro(iSym)+1
+      kOff2 = kOff1
+      njOrb = Log2(nOrb2Loc(iSym))
+      do while (njOrb >= 1)
+        call Inv_FWT_Haar(nBas(iSym),njOrb,Scr,C%SB(iSym)%A2(:,kOff2:))
+        njOrb = 2**njOrb
+        kOff2 = kOff2+njOrb
+        njOrb = Log2(nOrb2Loc(iSym)-njOrb)
+      end do
+      xNrm = xNrm+dDot_(nBas(iSym)*nOrb2Loc(iSym),C%SB(iSym)%A2(:,kOff1:),1,C%SB(iSym)%A2(:,kOff1:),1)
+      if (irc /= 0) then
+        irc = 1
+        xNrm = -huge(xNrm)
+        call FreeMem()
+        return
+      end if
     end if
-  end if
-  kOffC = kOffC+nBas(iSym)**2
-end do
-xNrm = sqrt(xNrm)
-call GetMem('Scratch','Free','Real',ipScr,l_Scr)
+  end do
+  xNrm = sqrt(xNrm)
+  call mma_deallocate(Scr)
+else
+  njOrb = Log2(nOrb2Loc(1))
+  l_Scr = nBas(1)*(2**njOrb-1)
+  do iSym=2,nSym
+    njOrb = Log2(nOrb2Loc(iSym))
+    l_Scr = max(l_Scr,nBas(iSym)*(2**njOrb-1))
+  end do
+  call mma_allocate(Scr,l_Scr,label='Scratch')
+  do iSym=1,nSym
+    if (nOrb2Loc(iSym) > 0) then
+      kOff1 = nFro(iSym)+1
+      kOff2 = kOff1
+      njOrb = Log2(nOrb2Loc(iSym))
+      do while (njOrb >= 1)
+        call FWT_Haar(nBas(iSym),njOrb,Scr,C%SB(iSym)%A2(:,kOff2:))
+        njOrb = 2**njOrb
+        kOff2 = kOff2+njOrb
+        njOrb = Log2(nOrb2Loc(iSym)-njOrb)
+      end do
+      xNrm = xNrm+dDot_(nBas(iSym)*nOrb2Loc(iSym),C%SB(iSym)%A2(:,kOff1:),1,C%SB(iSym)%A2(:,kOff1:),1)
+      if (irc /= 0) then
+        irc = 1
+        xNrm = -huge(xNrm)
+        call FreeMem()
+        return
+      end if
+    end if
+  end do
+  xNrm = sqrt(xNrm)
+  call mma_deallocate(Scr)
+end if
+
+call FreeMem()
+
 return
 
-1000 continue
-njOrb = Log2(nOrb2Loc(1))
-l_Scr = nBas(1)*2**njOrb
-do iSym=2,nSym
-  njOrb = Log2(nOrb2Loc(iSym))
-  l_Scr = max(l_Scr,nBas(iSym)*2**njOrb)
-end do
-call GetMem('Scratch','Allo','Real',iScr,l_Scr)
-kOffC = 1
-do iSym=1,nSym
-  if (nOrb2Loc(iSym) > 0) then
-    kOff1 = kOffC+nBas(iSym)*nFro(iSym)
-    kOff2 = kOff1
-    njOrb = Log2(nOrb2Loc(iSym))
-    do while (njOrb >= 1)
-      call Inv_FWT_Haar(nBas(iSym),njOrb,Work(iScr),CMO(kOff2))
-      njOrb = 2**njOrb
-      kOff2 = kOff2+nBas(iSym)*njOrb
-      njOrb = Log2(nOrb2Loc(iSym)-njOrb)
-    end do
-    xNrm = xNrm+dDot_(nBas(iSym)*nOrb2Loc(iSym),CMO(kOff1),1,CMO(kOff1),1)
-    if (irc /= 0) then
-      irc = 1
-      xNrm = -huge(xNrm)
-      return
-    end if
-  end if
-  kOffC = kOffC+nBas(iSym)**2
-end do
-xNrm = sqrt(xNrm)
-call GetMem('Scratch','Free','Real',iScr,l_Scr)
+contains
+
+subroutine FreeMem()
+
+  call Deallocate_DSBA(C)
+  if (allocated(Scr)) call mma_deallocate(Scr)
+
+end subroutine FreeMem
 
 end subroutine Wavelet_Transform

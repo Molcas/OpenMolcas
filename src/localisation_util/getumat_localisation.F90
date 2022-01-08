@@ -11,7 +11,7 @@
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
 
-subroutine GetUmat_Localisation(U,C,S,X,Scr,lScr,nBas,nOrb)
+subroutine GetUmat_Localisation(U,C,S,X,Scr,nBas,nOrb)
 ! Author: T.B. Pedersen
 !
 ! Purpose: compute transformation matrix U=C^TSX.
@@ -20,20 +20,12 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: lScr, nBas, nOrb
-real(kind=wp), intent(out) :: U(nOrb,nOrb), Scr(lScr)
+integer(kind=iwp), intent(in) :: nBas, nOrb
+real(kind=wp), intent(out) :: U(nOrb,nOrb), Scr(nBas,nOrb)
 real(kind=wp), intent(in) :: C(nBas,nOrb), S(nBas,nBas), X(nBas,nOrb)
-integer(kind=iwp) :: Need
-character(len=80) :: Txt
 character(len=*), parameter :: SecNam = 'GetUmat_Localisation'
 
 if ((nOrb < 1) .or. (nBas < 1)) return
-
-Need = nBas*nOrb
-if (lScr < Need) then
-  write(Txt,'(A,I9,A,I9)') 'lScr =',lScr,'     Need =',Need
-  call SysAbendMsg(SecNam,'Insufficient dimension of scratch array!',Txt)
-end if
 
 call DGEMM_('N','N',nBas,nOrb,nBas,One,S,nBas,X,nBas,Zero,Scr,nBas)
 call DGEMM_('T','N',nOrb,nOrb,nBas,One,C,nBas,Scr,nBas,Zero,U,nOrb)
