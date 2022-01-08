@@ -25,19 +25,18 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Coeff_A=0.80D0*CoefX
+*     Coeff_A=0.80D0*CoefX
+      Coeff_A=0.08D0*CoefX
       Coeff_B=0.72D0*CoefX
       Coeff_C=0.81D0*CoefR
 *                                                                      *
 *---- Dirac Exchange Functional                                        *
 *                                                                      *
-      Call Diracx(mGrid,
-     &            iSpin,F_xc,Coeff_A)
+      Call Diracx(mGrid,iSpin,F_xc,Coeff_A)
 *                                                                      *
 *---- Becke 88 Exchange Functional                                     *
 *                                                                      *
-      Call xB88(mGrid,
-     &          Coeff_B,iSpin,F_xc)
+      Call xB88(mGrid,Coeff_B,iSpin,F_xc)
 *                                                                      *
 *---- Vosko-Wilks-Nusair Correlation Functional III                    *
 *                                                                      *

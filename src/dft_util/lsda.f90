@@ -38,7 +38,7 @@ Do iFunc = 1, nFuncs
    ! Initialize libxc functional: nD = 2 means spin-polarized
    call xc_f03_func_init(xc_func(iFunc), func_id(iFunc), int(nD, 4))
    ! Get the functional's information
-   xc_info = xc_f03_func_get_info(xc_func(iFunc))
+   xc_info(iFunc) = xc_f03_func_get_info(xc_func(iFunc))
 End Do
 
 Do iFunc = 1, nFuncs

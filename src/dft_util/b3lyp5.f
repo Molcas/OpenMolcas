@@ -25,7 +25,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Coeff_A=0.80D0*CoefX
+*     Coeff_A=0.80D0*CoefX
+      Coeff_A=0.08D0*CoefX
       Coeff_B=0.72D0*CoefX
       Coeff_C=0.81D0*CoefR
 *                                                                      *

@@ -13,7 +13,7 @@
 Subroutine libxc_interface(xc_func,xc_info,mGrid,nD,F_xc,Coeff)
 use xc_f03_lib_m
 use nq_Grid, only: Rho, Sigma, vRho, vSigma, l_casdft
-use KSDFT_Info, only: F_xca, F_xcb
+use KSDFT_Info, only: F_xca, F_xcb, tmpB
 use libxc
 implicit none
 integer :: mGrid, nD, iGrid
@@ -66,21 +66,28 @@ case(XC_FAMILY_LDA)
       End If
 
       If (l_casdft) Then
-         dFunc_dRho(:,:)=Rho(:,:)
-         Rho(2,:)=0.0D0
-         func(:)=0.0D0
-         call xc_f03_lda_exc(xc_func, mGrid, Rho(1,1), func(1))
-         Do iGrid = 1, mGrid
-            F_xca(iGrid) = F_xca(iGrid) + Coeff*func(iGrid)*Rho(1, iGrid)
-         End Do
-         Rho(1,:)=0.0D0
-         Rho(2,:)=dFunc_dRho(2,:)
-         func(:)=0.0D0
-         call xc_f03_lda_exc(xc_func, mGrid, Rho(1,1), func(1))
-         Do iGrid = 1, mGrid
-            F_xcb(iGrid) = F_xcb(iGrid) + Coeff*func(iGrid)*Rho(2, iGrid)
-         End Do
-         Rho(:,:)=dFunc_dRho(:,:)
+         select case(xc_f03_func_info_get_kind(xc_info))
+            case (XC_EXCHANGE)
+               dFunc_dRho(:,:)=Rho(:,:)
+               Rho(2,:)=0.0D0
+               func(:)=0.0D0
+               call xc_f03_lda_exc(xc_func, mGrid, Rho(1,1), func(1))
+               Do iGrid = 1, mGrid
+                  F_xca(iGrid) = F_xca(iGrid) + Coeff*func(iGrid)*Rho(1, iGrid)
+               End Do
+               Rho(1,:)=0.0D0
+               Rho(2,:)=dFunc_dRho(2,:)
+               func(:)=0.0D0
+               call xc_f03_lda_exc(xc_func, mGrid, Rho(1,1), func(1))
+               Do iGrid = 1, mGrid
+                  F_xcb(iGrid) = F_xcb(iGrid) + Coeff*func(iGrid)*Rho(2, iGrid)
+               End Do
+               Rho(:,:)=dFunc_dRho(:,:)
+            case (XC_CORRELATION)
+               Do iGrid = 1, mGrid
+                  tmpB(iGrid) = tmpB(iGrid) + Coeff*func(iGrid)*(Rho(1, iGrid)+Rho(2, iGrid))
+               End Do
+         end Select
       End If
    End If
 case(XC_FAMILY_GGA, XC_FAMILY_HYB_GGA)

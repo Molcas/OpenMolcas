@@ -377,6 +377,8 @@
       If (nSigma.ne.0) Then
          Call mma_Allocate(Sigma,nSigma,nGridMax,Label='Sigma')
          Call mma_Allocate(vSigma,nSigma,nGridMax,Label='vSigma')
+         Call mma_Allocate(dfunc_dSigma,nSigma,nGridMax,
+     &                     Label='dfunc_dSigma')
       End If
       If (nGradRho.ne.0) Then
          Call mma_Allocate(GradRho,nGradRho,nGridMax,Label='GradRho')
@@ -591,8 +593,9 @@
       End If
       If (Allocated(GradRho)) Call mma_deallocate(GradRho)
       If (Allocated(Sigma)) Then
-         Call mma_deallocate(Sigma)
+         Call mma_deallocate(dfunc_dSigma)
          Call mma_deallocate(vSigma)
+         Call mma_deallocate(Sigma)
       End If
       Call mma_deallocate(dfunc_dRho)
       Call mma_deallocate(vRho)

@@ -27,8 +27,8 @@
 *                                                                      *
 *---- Dirac (Slater) exchange                                          *
 *                                                                      *
-      Coeff=One*CoefX
-      Call DiracX(mGrid,iSpin,F_xc,Coeff)
+*     Coeff=One*CoefX
+*     Call DiracX(mGrid,iSpin,F_xc,Coeff)
 *                                                                      *
 *---- Becke 88 Exchange Functional                                     *
 *                                                                      *

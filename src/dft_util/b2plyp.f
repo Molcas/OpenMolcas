@@ -38,8 +38,8 @@ C    requires 0.27 times MP2 correlation energy from MBPT2
 *                                                                      *
 *---- Dirac Exchange Functional                                        *
 *                                                                      *
-      Call Diracx(mGrid,
-     &            iSpin,F_xc,Coeff_A)
+*     Call Diracx(mGrid,
+*    &            iSpin,F_xc,Coeff_A)
 *                                                                      *
 *---- Becke 88 Exchange Functional                                     *
 *                                                                      *
