@@ -242,7 +242,8 @@
 
       Functional= ec1+ec2+ec3+ec4
       F_xc(iGrid)=F_xc(iGrid)+Coeff*functional
-      tmpB(iGrid)=F_xc(iGrid)-tmpB(iGrid)
+*     tmpB(iGrid)=F_xc(iGrid)-tmpB(iGrid)
+      tmpB(iGrid)=tmpB(iGrid)+Coeff*functional
 *                                                                      *
 ************************************************************************
 *                                                                      *

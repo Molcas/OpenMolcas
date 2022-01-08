@@ -30,14 +30,12 @@
 *---- Becke 88 Exchange
 *
       Coeff=One*CoefX
-      Call xB88(mGrid,
-     &          Coeff,iSpin,F_xc)
+      Call xB88(mGrid,Coeff,iSpin,F_xc)
 *
 *---- Lee-Yang-Parr Correlation
 *
       Coeff=One*CoefR
-      Call LYP(mGrid,
-     &         Coeff,iSpin,F_xc)
+      Call LYP(mGrid,Coeff,iSpin,F_xc)
 *                                                                      *
 ************************************************************************
 *                                                                      *

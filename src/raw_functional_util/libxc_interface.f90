@@ -67,7 +67,7 @@ case(XC_FAMILY_LDA)
 
       If (l_casdft) Then
          select case(xc_f03_func_info_get_kind(xc_info))
-            case (XC_EXCHANGE)
+            case (XC_EXCHANGE);
                dFunc_dRho(:,:)=Rho(:,:)
                Rho(2,:)=0.0D0
                func(:)=0.0D0
@@ -83,10 +83,13 @@ case(XC_FAMILY_LDA)
                   F_xcb(iGrid) = F_xcb(iGrid) + Coeff*func(iGrid)*Rho(2, iGrid)
                End Do
                Rho(:,:)=dFunc_dRho(:,:)
-            case (XC_CORRELATION)
+             case (XC_CORRELATION);
                Do iGrid = 1, mGrid
                   tmpB(iGrid) = tmpB(iGrid) + Coeff*func(iGrid)*(Rho(1, iGrid)+Rho(2, iGrid))
                End Do
+            case default;
+               Write (6,*) 'Wrong libxc kind!'
+               Call abend()
          end Select
       End If
    End If
@@ -134,21 +137,31 @@ case(XC_FAMILY_GGA, XC_FAMILY_HYB_GGA)
       End If
 
       If (l_casdft) Then
-         dFunc_dRho(:,:)=Rho(:,:)
-         Rho(2,:)=0.0D0
-         func(:)=0.0D0
-         call xc_f03_gga_exc(xc_func, mGrid, Rho(1,1), Sigma(1,1), func(1))
-         Do iGrid = 1, mGrid
-            F_xca(iGrid) = F_xca(iGrid) + Coeff*func(iGrid)*Rho(1, iGrid)
-         End Do
-         Rho(1,:)=0.0D0
-         Rho(2,:)=dFunc_dRho(2,:)
-         func(:)=0.0D0
-         call xc_f03_gga_exc(xc_func, mGrid, Rho(1,1), Sigma(1,1), func(1))
-         Do iGrid = 1, mGrid
-            F_xcb(iGrid) = F_xcb(iGrid) + Coeff*func(iGrid)*Rho(2, iGrid)
-         End Do
-         Rho(:,:)=dFunc_dRho(:,:)
+         select case(xc_f03_func_info_get_kind(xc_info))
+            case (XC_EXCHANGE);
+               dFunc_dRho(:,:)=Rho(:,:)
+               Rho(2,:)=0.0D0
+               func(:)=0.0D0
+               call xc_f03_gga_exc(xc_func, mGrid, Rho(1,1), Sigma(1,1), func(1))
+               Do iGrid = 1, mGrid
+                  F_xca(iGrid) = F_xca(iGrid) + Coeff*func(iGrid)*Rho(1, iGrid)
+               End Do
+               Rho(1,:)=0.0D0
+               Rho(2,:)=dFunc_dRho(2,:)
+               func(:)=0.0D0
+               call xc_f03_gga_exc(xc_func, mGrid, Rho(1,1), Sigma(1,1), func(1))
+               Do iGrid = 1, mGrid
+                  F_xcb(iGrid) = F_xcb(iGrid) + Coeff*func(iGrid)*Rho(2, iGrid)
+               End Do
+               Rho(:,:)=dFunc_dRho(:,:)
+            case (XC_CORRELATION);
+               Do iGrid = 1, mGrid
+                  tmpB(iGrid) = tmpB(iGrid) + Coeff*func(iGrid)*(Rho(1, iGrid)+Rho(2, iGrid))
+               End Do
+            case default;
+               Write (6,*) 'Wrong libxc kind!'
+               Call abend()
+         end Select
       End If
    End If
 end select
