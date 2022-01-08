@@ -13,7 +13,7 @@
 Subroutine libxc_interface(xc_func,xc_info,mGrid,nD,F_xc,Coeff)
 use xc_f03_lib_m
 use nq_Grid, only: Rho, Sigma, vRho, vSigma, l_casdft
-use KSDFT_Info, only: F_xca, F_xcb, tmpB
+use KSDFT_Info, only: F_xca, F_xcb
 use libxc
 implicit none
 integer :: mGrid, nD, iGrid
@@ -83,14 +83,6 @@ case(XC_FAMILY_LDA)
                   F_xcb(iGrid) = F_xcb(iGrid) + Coeff*func(iGrid)*Rho(2, iGrid)
                End Do
                Rho(:,:)=dFunc_dRho(:,:)
-             case (XC_CORRELATION);
-               Do iGrid = 1, mGrid
-                  tmpB(iGrid) = tmpB(iGrid) + Coeff*func(iGrid)*(Rho(1, iGrid)+Rho(2, iGrid))
-!                 tmpB(iGrid) = F_xc(iGrid) - tmpB(iGrid)
-               End Do
-            case default;
-               Write (6,*) 'Wrong libxc kind!'
-               Call abend()
          end Select
       End If
    End If
@@ -155,14 +147,6 @@ case(XC_FAMILY_GGA, XC_FAMILY_HYB_GGA)
                   F_xcb(iGrid) = F_xcb(iGrid) + Coeff*func(iGrid)*Rho(2, iGrid)
                End Do
                Rho(:,:)=dFunc_dRho(:,:)
-            case (XC_CORRELATION);
-               Do iGrid = 1, mGrid
-                  tmpB(iGrid) = tmpB(iGrid) + Coeff*func(iGrid)*(Rho(1, iGrid)+Rho(2, iGrid))
-!                 tmpB(iGrid) = F_xc(iGrid) - tmpB(iGrid)
-               End Do
-            case default;
-               Write (6,*) 'Wrong libxc kind!'
-               Call abend()
          end Select
       End If
    End If

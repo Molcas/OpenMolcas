@@ -23,7 +23,6 @@
 *              Modify Per-AAke's code for open shell case              *
 *              and adopt for closed shell case                         *
 ************************************************************************
-      use KSDFT_Info, only: tmpB
       use nq_Grid, only: Rho, Sigma, l_casdft
       use nq_Grid, only: vRho, vSigma
       Implicit Real*8 (A-H,O-Z)
@@ -241,7 +240,6 @@
 
       Functional= ec1+ec2+ec3+ec4
       F_xc(iGrid)=F_xc(iGrid)+Coeff*functional
-      tmpB(iGrid)=F_xc(iGrid)-tmpB(iGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *

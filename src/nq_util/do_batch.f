@@ -574,7 +574,6 @@
       If (l_casdft) Then
          F_xca(1:mGrid)=Zero
          F_xcb(1:mGrid)=Zero
-         tmpB(1:mGrid)=Zero
       End If
 *
 *1)   evaluate the energy density, the derivative of the functional with

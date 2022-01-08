@@ -1,4 +1,4 @@
-#define _NEWCODE_
+!#define _NEWCODE_
 #ifdef _NEWCODE_
 !***********************************************************************
 ! This file is part of OpenMolcas.                                     *
@@ -86,7 +86,7 @@
 !      Author:Per Ake Malmqvist, Department of Theoretical Chemistry,  *
 !             University of Lund, SWEDEN. June 2006                    *
 !***********************************************************************
-      use KSDFT_Info, only: F_xca, F_xcb, tmpB
+      use KSDFT_Info, only: F_xca, F_xcb
       use nq_Grid, only: Rho, Sigma, l_casdft
       use nq_Grid, only: vRho, vSigma
       Implicit Real*8 (A-H,O-Z)
@@ -145,7 +145,6 @@
          vSigma(1,iGrid)=vSigma(1,iGrid)+Coeff*dFdgammaaa
          vSigma(3,iGrid)=vSigma(3,iGrid)+Coeff*dFdgammabb
         end do
-        tmpB(:)=F_xc(:)
         Else
         do iGrid=1,mgrid
          rhoa=Max(Rho_Min,rho(1,iGrid))

@@ -25,7 +25,6 @@
 *      Author: G. Li Manni & A. Cohen, Max Planck Institute Stuttgart  *
 *              Summer 2017, edited in Cambridge (UK) & Palermo (Sicily)*
 ************************************************************************
-      use KSDFT_Info, only: tmpB
       use nq_Grid, only: Rho, Sigma, l_casdft
       use nq_Grid, only: vRho, vSigma
       Implicit Real*8 (A-H,O-Z)
@@ -101,7 +100,6 @@
          zeta_in=(rhoa-rhob)/rho_in
          call cspbe_(idord,rho_in,grdrho_in,zeta_in,func0,func1,func2)
          F_xc(iGrid)=F_xc(iGrid)+Coeff*func0
-         tmpB(iGrid)=F_xc(iGrid)-tmpB(iGrid)
 * dF_drhoa:
          vRho(1,iGrid)=vRho(1,iGrid)+
      &            Coeff*(func1(1)+(2.0D0*func1(3))*(rhob/rho_in**2))

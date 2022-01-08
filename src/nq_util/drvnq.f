@@ -25,7 +25,7 @@
 ************************************************************************
       use iSD_data
       use Symmetry_Info, only: nIrrep
-      use KSDFT_Info, only: KSDFA, F_xca, F_xcb, TmpB
+      use KSDFT_Info, only: KSDFA, F_xca, F_xcb
       use nq_Grid, only: Rho, GradRho, Sigma, Tau, Lapl
       use nq_Grid, only: vRho, vSigma, vTau, vLapl
       use nq_Grid, only: Grid, Weights
@@ -397,7 +397,6 @@
       If (l_casdft) Then
          Call mma_allocate(F_xca,nGridMax,Label='F_xca')
          Call mma_allocate(F_xcb,nGridMax,Label='F_xcb')
-         Call mma_allocate(TmpB,nGridMax,Label='TmpB')
       End If
 *
       Call GetMem('list_s','Allo','Inte',iplist_s,2*nIrrep*nShell)
@@ -576,7 +575,6 @@
          Call GetMem('TmpPUVX','Free','Real',ipTmpPUVX,nTmpPUVX)
       End If
       If (l_casdft) Then
-         Call mma_deallocate(TmpB)
          Call mma_deallocate(F_xcb)
          Call mma_deallocate(F_xca)
       End If
