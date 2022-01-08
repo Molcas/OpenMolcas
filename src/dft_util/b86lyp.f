@@ -30,8 +30,8 @@
 *                                                                      *
 *---- Dirac Exchange
 *
-      Coeff=One*CoefX
-      Call Diracx(mGrid,iSpin,F_xc,Coeff)
+!     Coeff=One*CoefX
+!     Call Diracx(mGrid,iSpin,F_xc,Coeff)
 *
 *---- Becke 86 Exchange
 *
