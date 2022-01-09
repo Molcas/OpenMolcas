@@ -29,8 +29,10 @@
 C "physically motivated" values from Grimme's B2PLYP paper are 0.5 * GGA XC
 * + 0.5* HF; since the parent GGA OLYP is non-UEG Grigory took 0.5* OLYP's
 * LDA and GGA coefficients here
-      Coeff_A=0.525755D0*CoefX
-      Coeff_B=0.715845D0*CoefX
+!     Coeff_A=0.525755D0*CoefX
+      Coeff_A=(0.525755D0-1.051510d0*(0.715845D0/1.431690d0))*CoefX
+!     Coeff_B=0.715845D0*CoefX
+      Coeff_B=(0.715845D0/1.431690d0)*CoefX
       Coeff_C=0.75D0*CoefR
 C MP2 correlation energy to be scaled to 1 - Coeff_C = 0.25
 
@@ -41,16 +43,17 @@ C MP2 correlation energy to be scaled to 1 - Coeff_C = 0.25
 *                                                                      *
 *---- OPTX Exchange Functional * 0.5  OPTX                             *
 *                                                                      *
-      Call xOPT(mGrid,
-     &          Coeff_B,iSpin,F_xc)
+      Call xOPT(mGrid,Coeff_B,iSpin,F_xc)
 *                                                                      *
 *  LYP correlation                                                     *
 *                                                                      *
-      Call LYP(mGrid,
-     &         Coeff_C,iSpin,F_xc)
+      Call LYP(mGrid,Coeff_C,iSpin,F_xc)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 C
+!     Coeff= 1.051510d0*CoefX
+!     Coeff= 1.431690d0*CoefX
+
       Return
       End

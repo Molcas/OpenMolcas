@@ -27,20 +27,19 @@
 *                                                                      *
 *---- Dirac Exchange with OLYP factor!
 *
-      Coeff= 1.051510d0*CoefX
-      Call Diracx(mGrid,iSpin,F_xc,Coeff)
+!     Coeff= 1.051510d0*CoefX
+!     Call Diracx(mGrid,iSpin,F_xc,Coeff)
 *
 *---- OPTX Exchange
 *
-      Coeff= 1.431690d0*CoefX
-      Call xOPT(mGrid,
-     &          Coeff,iSpin,F_xc)
+!     Coeff= 1.431690d0*CoefX
+      Coeff= One*CoefX
+      Call xOPT(mGrid,Coeff,iSpin,F_xc)
 *
 *---- Lee-Yang-Parr Correlation
 *
       Coeff=One*CoefR
-      Call LYP(mGrid,
-     &         Coeff,iSpin,F_xc)
+      Call LYP(mGrid,Coeff,iSpin,F_xc)
 *                                                                      *
 ************************************************************************
 *                                                                      *

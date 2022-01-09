@@ -27,14 +27,14 @@
 *                                                                      *
 *---- Dirac (Slater) exchange                                          *
 *                                                                      *
-      Coeff=1.051510d0*CoefX
-      Call DiracX(mGrid,iSpin,F_xc,Coeff)
+!     Coeff=1.051510d0*CoefX
+!     Call DiracX(mGrid,iSpin,F_xc,Coeff)
 *                                                                      *
 *---- OPTX Exchange Functional                                         *
 *                                                                      *
-      Coeff=1.431690d0*CoefX
-      Call xOPT(mGrid,
-     &          Coeff,iSpin,F_xc)
+!     Coeff=1.431690d0*CoefX
+      Coeff=One*CoefX
+      Call xOPT(mGrid,Coeff,iSpin,F_xc)
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -24,12 +24,13 @@
 *                                                                      *
 *---- Dirac Exchange with the a1 OPTX factor!
 *
-      Coeff= 1.051510d0*CoefX
-      Call Diracx(mGrid,iSpin,F_xc,Coeff)
+!     Coeff= 1.051510d0*CoefX
+!     Call Diracx(mGrid,iSpin,F_xc,Coeff)
 *
 *---- OPTX Exchange, the a2 coeff is here!
 *
-      Coeff= 1.431690d0*CoefX
+!     Coeff= 1.431690d0*CoefX
+      Coeff= One*CoefX
       Call xOPT(mGrid,
      &          Coeff,iSpin,F_xc)
 *
