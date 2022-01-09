@@ -15,7 +15,7 @@
       Subroutine xB86(mGrid,Coeff,nD,F_xc)
       use xc_f03_lib_m
       use nq_Grid, only: Rho, Sigma
-      use nq_Grid, only: vRho, vSigma
+      use nq_Grid, only: vSigma
       use libxc
       implicit none
       integer :: mGrid, nD, nRho
@@ -40,6 +40,7 @@
       If (nD.eq.1) Then
          Rho(:,1:mGrid)=2.00D0*Rho(:,1:mGrid)
          Sigma(:,1:mGrid)=4.00D0*Sigma(:,1:mGrid)
+         vSigma(:,1:mGrid)=0.50D0*vSigma(:,1:mGrid)
 
 !        F_xc(1:mGrid)=0.0D0
 !         Rho(:,1:mGrid)=0.2D0

@@ -34,7 +34,7 @@
 *                                                                      *
       CoeffA=One*CoefR
       Call CTCA(mGrid,CoeffA,iSpin,F_xc)
-
+*
       CoeffB=One*CoefX
       Call XPBE(mGrid,CoeffB,iSpin,F_xc)
 *                                                                      *

@@ -12,10 +12,11 @@
 !                                                                      *
 ! Copyright (C) 2022, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine xB88(mGrid,Coeff,nD,F_xc)
+      Subroutine xPBE(mGrid,Coeff,nD,F_xc)
       use xc_f03_lib_m
       use nq_Grid, only: Rho, Sigma
       use nq_Grid, only: vSigma
+      use nq_Grid, only: vRho ! to be removed
       use libxc
       implicit none
       integer :: mGrid, nD, nRho
@@ -27,8 +28,8 @@
       ! xc functional info
       TYPE(xc_f03_func_info_t) :: xc_info
 
-      ! Becke exchange 88 exchange
-      integer*4, parameter :: func_id = 106
+      ! pbe exchange
+      integer*4, parameter :: func_id = 101
 
       nRho=SIZE(Rho,1)
       ! Initialize libxc functional: nRho = 2 means spin-polarized
@@ -42,6 +43,7 @@
          Sigma(:,1:mGrid)=4.00D0*Sigma(:,1:mGrid)
          vSigma(:,1:mGrid)=0.50D0*vSigma(:,1:mGrid)
 
+!        F_xc(1:mGrid)=0.0D0
 !         Rho(:,1:mGrid)=0.2D0
 !        vRho(:,1:mGrid)=0.0D0
 !         Sigma(:,1:mGrid)=0.04D0
@@ -58,13 +60,13 @@
          vSigma(:,1:mGrid)=2.00D0*vSigma(:,1:mGrid)
       End If
 
-!     Call RecPrt('F_xc',' ',F_xc,1,mGrid)
-!     Call RecPrt('vRho',' ',vRho,SIZE(vRho,1),mGrid)
-!     Call RecPrt('vSigma',' ',vSigma,SIZE(vSigma,1),mGrid)
+!     Call RecPrt('F_xc(new)',' ',F_xc,1,mGrid)
+!     Call RecPrt('vRho(new)',' ',vRho,SIZE(vRho,1),mGrid)
+!     Call RecPrt('vSigma(new)',' ',vSigma,SIZE(vSigma,1),mGrid)
 !     Stop 123
       Return
 
-    End Subroutine xB88
+    End Subroutine xPBE
 #else
 !***********************************************************************
 ! This file is part of OpenMolcas.                                     *
@@ -78,16 +80,14 @@
 !                                                                      *
 ! Copyright (C) 2006, Per Ake Malmqvist                                *
 !***********************************************************************
-      Subroutine xB88(mGrid,Coeff,iSpin,F_xc)
+      Subroutine XPBE(mGrid,Coeff,iSpin,F_xc)
 !***********************************************************************
 !                                                                      *
-! Object: To compute the functional called x_B88 in the Density        *
+! Object: To compute the functional called x_pbe in the Density        *
 ! Functional Repository (http://www.cse.clrc.ac.uk/qcg/dft)            *
-! Following older code by Roland Lindh, this routine computes only     *
-! the GGA addition to the LDA part.                                    *
-! Original reference article:                                          *
-!                                                                      *
-!                                                                      *
+! Original reference article: J.P. Perdew, K. Burke, and M. Ernzerhof, *
+!  "Generalized gradient approximation made simple,"                   *
+!      Phys. Rev. Lett. 77 (1996) 3865-3868.                           *
 !                                                                      *
 ! Called from:                                                         *
 !                                                                      *
@@ -104,30 +104,30 @@
 #include "ksdft.fh"
       Real*8 F_xc(mGrid)
       Real*8, Parameter:: T_X=1.0D-20
+! Call arguments:
+! Weights(mGrid) (input) integration weights.
+! Rho(nRho,mGrid) (input) Density and density derivative values,
+!   Rho(1,iGrid) is rho_alpha values, Rho(2,iGrid) is rho_beta values
+!   Rho(i,iGrid) is grad_rho_alpha (i=3..5 for d/dx, d/dy, d/dz)
+!   Rho(i,iGrid) is grad_rho_beta  (i=6..8 for d/dx, d/dy, d/dz)
+! dF_dRho (inout) are (I believe) values of derivatives of the
+!   DFT functional (*NOT* derivatives of Fock matrix contributions).
+! F_xc is values of the DFT energy density functional (surprised?)
 
-!     F_xc(1:mGrid)=0.0D0
-!      Rho(:,1:mGrid)=0.1D0
-!     vRho(:,1:mGrid)=0.0D0
-!      Sigma(:,1:mGrid)=0.01D0
-!     vSigma(:,1:mGrid)=0.0D0
-
-      Call DiracX(mGrid,iSpin,F_xc,Coeff)
 ! IDORD=Order of derivatives to request from XPBE:
       idord=1
-!
-      Rho_Min=T_X*1.0D-2
-!
+
+
       if (ispin.eq.1) then
 ! ispin=1 means spin zero.
-
 ! T_X: Screening threshold of total density.
         Ta=0.5D0*T_X
         do iGrid=1,mgrid
-         Rhoa=Rho(1,iGrid)
-         if(Rhoa.lt.Ta) goto 110
+         rhoa=max(1.0D-24,Rho(1,iGrid))
+         if(rhoa.lt.Ta) goto 110
          sigmaaa=Sigma(1,iGrid)
 
-         call xB88_(idord,rhoa,sigmaaa,Fa,dFdrhoa,dFdgammaaa,d2Fdra2,d2Fdradgaa,d2Fdgaa2)
+         call xpbe_(idord,rhoa,sigmaaa,Fa,dFdrhoa,dFdgammaaa,d2Fdra2,d2Fdradgaa,d2Fdgaa2)
          F_xc(iGrid)=F_xc(iGrid)+Coeff*(2.0D0*Fa)
          vRho(1,iGrid)=vRho(1,iGrid)+Coeff*dFdrhoa
 ! Maybe derivatives w.r.t. gamma_aa, gamma_ab, gamma_bb should be used instead.
@@ -135,23 +135,21 @@
 ! Note: For xpbe, dFdgammaab is zero.
  110     continue
         end do
-
       else
 ! ispin .ne. 1, use both alpha and beta components.
-
         If (l_casdft) Then
         do iGrid=1,mgrid
-         rhoa=Max(Rho_Min,rho(1,iGrid))
-         rhob=Max(Rho_Min,rho(2,iGrid))
+         rhoa=max(1.0D-24,Rho(1,iGrid))
+         rhob=max(1.0D-24,Rho(2,iGrid))
          rho_tot=rhoa+rhob
          if(rho_tot.lt.T_X) Cycle
          sigmaaa=Sigma(1,iGrid)
-         call xB88_(idord,rhoa,sigmaaa,Fa,dFdrhoa,dFdgammaaa,d2Fdra2,d2Fdradgaa,d2Fdgaa2)
+         call xpbe_(idord,rhoa,sigmaaa,Fa,dFdrhoa,dFdgammaaa,d2Fdra2,d2Fdradgaa,d2Fdgaa2)
 
          sigmabb=Sigma(3,iGrid)
-         call xB88_(idord,rhob,sigmabb,Fb,dFdrhob,dFdgammabb,d2Fdrb2,d2Fdrbdgbb,d2Fdgbb2)
+         call xpbe_(idord,rhob,sigmabb,Fb,dFdrhob,dFdgammabb,d2Fdrb2,d2Fdrbdgbb,d2Fdgbb2)
 
-         F_xc(iGrid) =F_xc(iGrid) +Coeff*(Fa+Fb)
+         F_xc (iGrid)=F_xc (iGrid)+Coeff*(Fa+Fb)
          F_xca(iGrid)=F_xca(iGrid)+Coeff*(Fa)
          F_xcb(iGrid)=F_xcb(iGrid)+Coeff*(   Fb)
          vRho(1,iGrid)=vRho(1,iGrid)+Coeff*dFdrhoa
@@ -163,17 +161,17 @@
         end do
         Else
         do iGrid=1,mgrid
-         rhoa=Max(Rho_Min,rho(1,iGrid))
-         rhob=Max(Rho_Min,rho(2,iGrid))
+         rhoa=max(1.0D-24,Rho(1,iGrid))
+         rhob=max(1.0D-24,Rho(2,iGrid))
          rho_tot=rhoa+rhob
          if(rho_tot.lt.T_X) Cycle
          sigmaaa=Sigma(1,iGrid)
-         call xB88_(idord,rhoa,sigmaaa,Fa,dFdrhoa,dFdgammaaa,d2Fdra2,d2Fdradgaa,d2Fdgaa2)
+         call xpbe_(idord,rhoa,sigmaaa,Fa,dFdrhoa,dFdgammaaa,d2Fdra2,d2Fdradgaa,d2Fdgaa2)
 
          sigmabb=Sigma(3,iGrid)
-         call xB88_(idord,rhob,sigmabb,Fb,dFdrhob,dFdgammabb,d2Fdrb2,d2Fdrbdgbb,d2Fdgbb2)
+         call xpbe_(idord,rhob,sigmabb,Fb,dFdrhob,dFdgammabb,d2Fdrb2,d2Fdrbdgbb,d2Fdgbb2)
 
-         F_xc(iGrid) =F_xc(iGrid) +Coeff*(Fa+Fb)
+         F_xc (iGrid)=F_xc (iGrid)+Coeff*(Fa+Fb)
          vRho(1,iGrid)=vRho(1,iGrid)+Coeff*dFdrhoa
          vRho(2,iGrid)=vRho(2,iGrid)+Coeff*dFdrhob
 ! Maybe derivatives w.r.t. gamma_aa, gamma_ab, gamma_bb should be used instead.
@@ -182,72 +180,13 @@
          vSigma(3,iGrid)=vSigma(3,iGrid)+Coeff*dFdgammabb
         end do
         End If
+
       end if
-!     Call RecPrt('F_xc',' ',F_xc,1,mGrid)
-!     Call RecPrt('vRho',' ',vRho,SIZE(vRho,1),mGrid)
-!     Call RecPrt('vSigma',' ',vSigma,SIZE(vSigma,1),mGrid)
-!     Stop 123
+*     Call RecPrt('F_xc',' ',F_xc,1,mGrid)
+*     Call RecPrt('vRho',' ',vRho,SIZE(vRho,1),mGrid)
+*     Call RecPrt('vSigma',' ',vSigma,SIZE(vSigma,1),mGrid)
+*     Stop 123
 
       Return
       End
-
-      subroutine xB88_(idord,rho_s,gamma_s,B88,dB88dr,dB88dg,d2B88dr2,d2B88drdg,d2B88dg2)
-      implicit real*8 (a-h,o-z)
-      parameter(third=1.0d0/3.0d0)
-      parameter(four3=4.0d0/3.0d0)
-      parameter(seven3=7.0d0/3.0d0)
-      parameter(dcoef=0.0042d0)
-!     parameter(xldacff=0.930525736349100025D0)
-
-!     rho=rho_s+1.0D-16
-!     gamma=gamma_s+1.0D-16
-      rho=rho_s
-      gamma=gamma_s
-      r43 = rho**four3
-      rhoinv=1.0d0/rho
-! lda part:
-!     xlda=-xldacff*r43
-! Note: Use x=sqrt(gamma)/rho**four3
-      x = sqrt(gamma_s)/r43
-      hgi = 0.5D0/gamma
-      p =sqrt(1.0D0+x**2)
-      ash = log(x+p)
-      d6 = 6.0D0*dcoef
-      a = 1.0D0+d6*x*ash
-      f = x**2/a
-
-! Let b88(rho,gamma)=b(rho,x)
-      dr43=-dcoef*r43
-! The LDA part has been removed, just GGA part left.
-!     b=dr43*f+xlda
-      b=dr43*f
-      b88 = b
-
-      if(idord.lt.1) goto 99
-      dxdr = -four3*x*rhoinv
-      dxdg = hgi*x
-      dadx = d6*(ash+x/p)
-      dfdx = (2.0D0*x-f*dadx)/a
-      dbdr = four3*b*rhoinv
-      dbdx = dr43*dfdx
-      db88dr = dbdr+dxdr*dbdx
-      db88dg = dxdg*dbdx
-
-      if(idord.lt.2) goto 99
-      d2xdr2 = -seven3*dxdr*rhoinv
-      d2xdrdg = hgi*dxdr
-      d2xdg2 = -hgi*dxdg
-      d2adx2 = d6*(1.0D0+p**2)/(p**3)
-      d2fdx2 = (2.0D0-2.0D0*dadx*dfdx-d2adx2*f)/a
-      d2bdr2 = third*dbdr*rhoinv
-      d2bdx2 = dr43*d2fdx2
-      d2bdrdx = four3*dbdx*rhoinv
-      d2b88dr2 = d2bdr2+2.D0*dxdr*d2bdrdx+d2xdr2*dbdx+dxdr**2*d2bdx2
-      d2b88dg2 = d2xdg2*dbdx+dxdg**2*d2bdx2
-      d2b88drdg = dxdg*d2bdrdx+d2xdrdg*dbdx+dxdr*dxdg*d2bdx2
-
-  99  continue
-
-      return
-      end
 #endif

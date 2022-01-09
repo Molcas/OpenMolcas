@@ -165,3 +165,86 @@
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(idord)
       End
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 2006, Per Ake Malmqvist                                *
+************************************************************************
+      Subroutine XPBE_(idord,rho_s,sigma_s,
+     &                        f,dFdr,dFdg,d2Fdr2,d2Fdrdg,d2Fdg2)
+************************************************************************
+*                                                                      *
+* Object: To compute the functional called x_pbe in the Density        *
+* Functional Repository (http://www.cse.clrc.ac.uk/qcg/dft)            *
+* Original reference article: J.P. Perdew, K. Burke, and M. Ernzerhof, *
+*  "Generalized gradient approximation made simple,"                   *
+*      Phys. Rev. Lett. 77 (1996) 3865-3868.                           *
+*                                                                      *
+* Called from:                                                         *
+*                                                                      *
+* Calling    :                                                         *
+*                                                                      *
+*      Author:Per Ake Malmqvist, Department of Theoretical Chemistry,  *
+*             University of Lund, SWEDEN. December 2006                *
+************************************************************************
+      Implicit Real*8 (A-H,O-Z)
+      Data Ckp, Cmu / 0.804D0, 0.2195149727645171D0/
+      Data CkF / 3.0936677262801359310D0/
+      Data CeX /-0.73855876638202240588D0/
+
+      rho=max(1.0D-24,rho_s)
+      sigma=max(1.0D-24,sigma_s)
+
+      rthrd=(2.D0*rho)**(1.0D0/3.0D0)
+      XkF=CkF*rthrd
+
+* FX, and its derivatives wrt S:
+      s2=sigma/((2.D0*rho)*XkF)**2
+      s=sqrt(s2)
+      Cmus2=Cmu*s2
+      t=1.0D0/(Ckp+Cmus2)
+      fx=(Cmus2+Ckp*(1.0D0+Cmus2))*t
+      a=2.0D0*Cmu*(Ckp*t)**2
+      dfxds=a*s
+      d2fxds2=-a*(3.0D0*Cmus2-Ckp)*t
+
+* The derivatives of S wrt rho (r)  and sigma (g)
+      a=1.0D0/(3.0D0*rho)
+      b=1.0D0/(2.0D0*sigma)
+      dsdr=-4.0D0*s*a
+      dsdg=s*b
+      d2sdr2=-7.0D0*dsdr*a
+      d2sdrdg=dsdr*b
+      d2sdg2=-dsdg*b
+
+* Thus, derivatives of fx wrt rho and sigma
+      dfxdr=dsdr*dfxds
+      dfxdg=dsdg*dfxds
+      d2fxdr2=d2sdr2*dfxds+dsdr**2*d2fxds2
+      d2fxdrdg=d2sdrdg*dfxds+dsdr*dsdg*d2fxds2
+      d2fxdg2=d2sdg2*dfxds+dsdg**2*d2fxds2
+
+* rho*XeX, and its derivatives wrt rho
+      rX=rho*CeX*rthrd
+      drXdr=4.0d0*rX*a
+      d2rXdr2=drXdr*a
+
+* Put it together:
+      F=rX*fx
+      dFdr=drXdr*fx+rX*dfxdr
+      dFdg=rX*dfxdg
+      d2Fdr2=d2rXdr2*fx+2.0D0*drXdr*dfxdr+rX*d2fxdr2
+      d2Fdrdg=drXdr*dfxdg +rX*d2fxdrdg
+      d2Fdg2=rX*d2fxdg2
+
+      Return
+c Avoid unused argument warnings
+      If (.False.) Call Unused_integer(idord)
+      End

@@ -28,8 +28,8 @@ select case (xc_f03_func_info_get_family(xc_info))
 !
 case(XC_FAMILY_LDA)
 !
-   func(:) = 0.0 ! Initialize memory
-   dfunc_drho(:,:) = 0.0
+   func(1:mGrid) = 0.0D0! Initialize memory
+   dfunc_drho(:,1:mGrid) = 0.0D0
 
    If (Only_exc) Then
       call xc_f03_lda_exc(xc_func, mGrid, Rho(1,1), func(1))
@@ -87,9 +87,9 @@ case(XC_FAMILY_LDA)
       End If
    End If
 case(XC_FAMILY_GGA, XC_FAMILY_HYB_GGA)
-   func(:) = 0.0 ! Initialize memory
-   dfunc_drho(:,:) = 0.0
-   dfunc_dSigma(:,:) = 0.0
+   func(1:mGrid) = 0.0D0 ! Initialize memory
+   dfunc_drho(:,1:mGrid) = 0.0D0
+   dfunc_dSigma(:,:mGrid) = 0.0D0
 
    If (Only_exc) Then
       call xc_f03_gga_exc(xc_func, mGrid, Rho(1,1), Sigma(1,1), func(1))
