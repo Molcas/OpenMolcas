@@ -16,7 +16,6 @@
       use xc_f03_lib_m
       use nq_Grid, only: Rho, Sigma
       use nq_Grid, only: vSigma
-      use nq_Grid, only: vRho ! to be removed
       use libxc
       implicit none
       integer :: mGrid, nD, nRho
@@ -42,12 +41,6 @@
          Rho(:,1:mGrid)=2.00D0*Rho(:,1:mGrid)
          Sigma(:,1:mGrid)=4.00D0*Sigma(:,1:mGrid)
          vSigma(:,1:mGrid)=0.50D0*vSigma(:,1:mGrid)
-
-!        F_xc(1:mGrid)=0.0D0
-!         Rho(:,1:mGrid)=0.2D0
-!        vRho(:,1:mGrid)=0.0D0
-!         Sigma(:,1:mGrid)=0.04D0
-!        vSigma(:,1:mGrid)=0.0D0
       End If
 
       call libxc_interface(xc_func,xc_info,mGrid,nD,F_xc,Coeff)
@@ -60,10 +53,6 @@
          vSigma(:,1:mGrid)=2.00D0*vSigma(:,1:mGrid)
       End If
 
-!     Call RecPrt('F_xc(new)',' ',F_xc,1,mGrid)
-!     Call RecPrt('vRho(new)',' ',vRho,SIZE(vRho,1),mGrid)
-!     Call RecPrt('vSigma(new)',' ',vSigma,SIZE(vSigma,1),mGrid)
-!     Stop 123
       Return
 
     End Subroutine xPBE
