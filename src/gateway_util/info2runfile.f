@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2006, Roland Lindh                                     *
-*               2019, Ignacio Fdez. Galvan                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2006, Roland Lindh                                     *
+!               2019, Ignacio Fdez. Galvan                             *
+!***********************************************************************
       SubRoutine Info2Runfile()
-************************************************************************
-*                                                                      *
-*     Object: dump misc. information to the runfile.                   *
-*                                                                      *
-*     Author: Roland Lindh, Dept Chem. Phys., Lund University, Sweden  *
-*             October 2006                                             *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     Object: dump misc. information to the runfile.                   *
+!                                                                      *
+!     Author: Roland Lindh, Dept Chem. Phys., Lund University, Sweden  *
+!             October 2006                                             *
+!***********************************************************************
       use Period
       use Basis_Info
       use Center_Info
@@ -40,13 +40,13 @@
       Logical Pseudo
       Integer nDel(8)
       Logical Found
-*
+!
 #include "embpcharg.fh"
       Real*8, Dimension(:,:), Allocatable :: DCo
       Real*8, Dimension(:), Allocatable :: DCh, DCh_Eff
       Integer, Allocatable :: NTC(:), ICh(:), IsMM(:), nStab(:)
-************************************************************************
-*                                                                      *
+!***********************************************************************
+!                                                                      *
       Call ICopy(8,[0],0,nDel,1)
       Call Put_iArray('nFro',nDel,nIrrep) ! put to 0
       Call qpg_iArray('nDel',Found,nData)
@@ -57,13 +57,13 @@
          nDel(i)=nBas(i-1)-nDel(i)
       End Do
       Call Put_iArray('nOrb',nDel,nIrrep) ! nDel is corrupted here!
-*
-*     VarR and VarT
-*
+!
+!     VarR and VarT
+!
       If (lRF.and..not.PCM) VarT=.True.
       Pseudo=.False.
       Do iCnttp = 1, nCnttp
-         Pseudo = Pseudo .or. (dbsc(iCnttp)%pChrg .and.
+         Pseudo = Pseudo .or. (dbsc(iCnttp)%pChrg .and.                 &
      &                         dbsc(iCnttp)%Fixed)
       End Do
       If (.not.DoEMPC) Then
@@ -72,9 +72,9 @@
             VarT=.True.
          End If
       End If
-*
-*     Manipulate the option flag
-*
+!
+!     Manipulate the option flag
+!
       iOption=0
       If (DirInt) iOption=iOr(iOption,1)
       If (Expert) iOption=iOr(iOption,2)
@@ -86,12 +86,12 @@
          Call Put_iScalar('PCM info length',nPCM_Info)
       End If
       iOption=iOr(iOption,32)
-*  2el-integrals from the Cholesky vectors
+!  2el-integrals from the Cholesky vectors
       If (Cholesky.or.Do_RI) iOption=iOr(iOption,2**9)
-*  RI-Option
+!  RI-Option
       If (Do_RI) Then
          iOption=iOr(iOption,2**10)
-*  Local or non-local
+!  Local or non-local
          If (LocalDF) Then
             Call Put_LDFAccuracy()
             Call Put_LDFConstraint()
@@ -101,7 +101,7 @@
          End If
          Call Put_iScalar('DF Mode',iLocalDF)
       End If
-*  1C-CD
+!  1C-CD
       If (Cholesky.and.Cho_1Center) iOption=iOr(iOption,2**12)
       Cho_OneCenter=Cho_1Center
       Call Put_iScalar('System BitSwitch',iOption)
@@ -112,30 +112,30 @@
       iFMM = 0
       If (DoFMM) iFMM = 1
       Call Put_iScalar('FMM',iFMM)
-*
+!
       Call qpg_iScalar('Saddle Iter',Found)
       If (.NOT.Found) Then
          iter_S=0
          Call Put_iScalar('Saddle Iter',iter_S)
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Generate list of unique centers (atoms+pseudo)
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Generate list of unique centers (atoms+pseudo)
+!
       nNuc = 0
       Do iCnttp = 1, nCnttp
-         If (.Not.dbsc(iCnttp)%Frag.and.
+         If (.Not.dbsc(iCnttp)%Frag.and.                                &
      &       .Not.dbsc(iCnttp)%Aux) nNuc = nNuc + dbsc(iCnttp)%nCntr
       End Do
-*
+!
       Call mma_allocate(DCo,3,nNuc,label='DCo')
       Call mma_allocate(ICh,nNuc,label='ICh')
       Call mma_allocate(DCh_Eff,nNuc,label='DCh_Eff')
       mdc = 0
       iNuc = 0
       Do iCnttp = 1, nCnttp
-         If (.Not.dbsc(iCnttp)%Frag.and.
+         If (.Not.dbsc(iCnttp)%Frag.and.                                &
      &       .Not.dbsc(iCnttp)%Aux) Then
             Do iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = mdc + 1
@@ -149,28 +149,28 @@
             mdc  = mdc + dbsc(iCnttp)%nCntr
          End If
       End Do
-*
+!
       Call Put_iScalar('Unique centers',nNuc)
       Call Put_dArray('Un_cen Coordinates',DCo,3*nNuc)
       Call Put_iArray('Un_cen charge',ICh,nNuc)
       Call Put_dArray('Un_cen effective charge',DCh_Eff,nNuc)
       Call Put_cArray('Un_cen Names',xLblCnt(1),(LENIN)*nNuc)
-*
+!
       Call mma_deallocate(DCh_Eff)
       Call mma_deallocate(ICh)
       Call mma_deallocate(DCo)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Generate list of unique atoms
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Generate list of unique atoms
+!
       nNuc = 0
       Do iCnttp = 1, nCnttp
-         If (.Not.dbsc(iCnttp)%pChrg.and.
-     &       .Not.dbsc(iCnttp)%Frag.and.
+         If (.Not.dbsc(iCnttp)%pChrg.and.                               &
+     &       .Not.dbsc(iCnttp)%Frag.and.                                &
      &       .Not.dbsc(iCnttp)%Aux) nNuc = nNuc + dbsc(iCnttp)%nCntr
       End Do
-*
+!
       Call mma_allocate(DCo,3,nNuc,label='DCo')
       Call mma_allocate(DCh,nNuc,label='DCh')
       Call mma_allocate(DCh_Eff,nNuc,label='DCh_Eff')
@@ -178,8 +178,8 @@
       mdc = 0
       iNuc = 0
       Do iCnttp = 1, nCnttp
-         If (.Not.dbsc(iCnttp)%pChrg.and.
-     &       .Not.dbsc(iCnttp)%Frag.and.
+         If (.Not.dbsc(iCnttp)%pChrg.and.                               &
+     &       .Not.dbsc(iCnttp)%Frag.and.                                &
      &       .Not.dbsc(iCnttp)%Aux) Then
             Do iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = mdc + 1
@@ -194,16 +194,16 @@
             mdc  = mdc + dbsc(iCnttp)%nCntr
          End If
       End Do
-*
+!
       Call Put_iScalar('Unique atoms',nNuc)
-*
+!
       Call mma_allocate(IsMM,SIZE(dbsc),Label='IsMM')
       Do i = 1, SIZE(dbsc)
          IsMM(i)=dbsc(i)%IsMM
       End Do
       Call Put_iArray('IsMM',IsMM,SIZE(dbsc))
       Call mma_deallocate(IsMM)
-*
+!
       Call Put_dArray('Unique Coordinates',DCo,3*nNuc)
       Call Put_dArray('Center of Mass',CoM,3)
       Call Put_dArray('Center of Charge',CoC,3)
@@ -218,26 +218,26 @@
          Call Put_iScalar('Unit Cell NAtoms',lthCell)
          Call Put_iArray('Unit Cell Atoms',AdCell,lthCell)
       End IF
-*
-*     Initiate entry to zero.
+!
+!     Initiate entry to zero.
       call dcopy_(nNuc,[0.0D0],0,DCh_Eff,1)
       Call Put_dArray('Mulliken Charge',DCh_Eff,nNuc)
-*
+!
       Call mma_deallocate(nStab)
       Call mma_deallocate(DCh_Eff)
       Call mma_deallocate(DCh)
       Call mma_deallocate(DCo)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Generate a translation array iNuc -> iCnttp (for espf)
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Generate a translation array iNuc -> iCnttp (for espf)
+!
       Call mma_allocate(NTC,nNuc,label='NTC')
-*
+!
       iNTC = 0
       Do iCnttp = 1, nCnttp
-         If (.Not.dbsc(iCnttp)%pChrg.and.
-     &       .Not.dbsc(iCnttp)%Frag.and.
+         If (.Not.dbsc(iCnttp)%pChrg.and.                               &
+     &       .Not.dbsc(iCnttp)%Frag.and.                                &
      &       .Not.dbsc(iCnttp)%Aux) Then
             Do iNuc = 1, dbsc(iCnttp)%nCntr
                NTC(iNTC+iNuc) = iCnttp
@@ -245,25 +245,25 @@
             iNTC = iNTC + dbsc(iCnttp)%nCntr
          End If
       End Do
-*
+!
       Call Put_iArray('Atom -> Basis',NTC,nNuc)
       Call mma_deallocate(NTC)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Coordinate list as above but for all centers with proper basis
-*     functions.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Coordinate list as above but for all centers with proper basis
+!     functions.
+!
       nNuc = 0
       Do iCnttp = 1, nCnttp
-         If (.Not.dbsc(iCnttp)%Frag.and.
+         If (.Not.dbsc(iCnttp)%Frag.and.                                &
      &       .Not.dbsc(iCnttp)%Aux) nNuc = nNuc + dbsc(iCnttp)%nCntr
       End Do
-*
+!
       Call mma_allocate(DCo,3,nNuc,label='DCo')
       iNuc = 0
       Do iCnttp = 1, nCnttp
-         If (.Not.dbsc(iCnttp)%Frag.and.
+         If (.Not.dbsc(iCnttp)%Frag.and.                                &
      &       .Not.dbsc(iCnttp)%Aux) Then
             Do iCnt = 1, dbsc(iCnttp)%nCntr
                iNuc = iNuc+ 1
@@ -271,21 +271,21 @@
             End Do
          End If
       End Do
-*
+!
       Call Put_iScalar('Bfn atoms',nNuc)
       Call Put_dArray('Bfn Coordinates',DCo,3*nNuc)
-*
+!
       Call mma_deallocate(DCo)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Coordinate list as above but for only pseudo centers
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Coordinate list as above but for only pseudo centers
+!
       nNuc = 0
       Do iCnttp = 1, nCnttp
          If (dbsc(iCnttp)%pChrg) nNuc = nNuc + dbsc(iCnttp)%nCntr
       End Do
-*
+!
       Call mma_allocate(DCo,3,nNuc,label='DCo')
       Call mma_allocate(DCh,nNuc,label='DCh')
       iNuc = 0
@@ -299,20 +299,20 @@
          Else
          End If
       End Do
-*
+!
       Call Put_iScalar('Pseudo atoms',nNuc)
       Call Put_dArray('Pseudo Coordinates',DCo,3*nNuc)
       Call Put_dArray('Pseudo charge',DCh,nNuc)
-*
+!
       Call mma_deallocate(DCh)
       Call mma_deallocate(DCo)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Call Mk_ChDisp()
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Return
       End
       Subroutine Put_LDFAccuracy()

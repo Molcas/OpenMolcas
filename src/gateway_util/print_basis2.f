@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine Print_Basis2()
       use Basis_Info
       use Center_Info
@@ -19,12 +19,12 @@
 #include "print.fh"
       Logical output
       Logical lAux, lPam2, lECP, lPP, lFAIEMP
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       iRout=2
       iPrint=nPrint(iRout)
-*
+!
       LuWr=6
       lAux =.False.
       lPam2=.False.
@@ -38,30 +38,30 @@
          lPP   = lPP   .or. dbsc(i)%nPP.ne.0
          lFAIEMP = lFAIEMP .or. dbsc(i)%Frag
       End Do
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       If (iPrint.ge.6) Then
          Write (LuWr,*)
          Call CollapseOutput(1,'   Primitive basis info:')
          Write (LuWr,'(3X,A)') '   ---------------------'
          Write (LuWr,*)
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Generate list of primitive basis functions
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Generate list of primitive basis functions
+!
       If (iPrint.ge.6) Then
          Write (LuWr,*)
-         Write (LuWr,'(19X,A)')
+         Write (LuWr,'(19X,A)')                                         &
      &         ' *****************************************************'
-         Write (LuWr,'(19X,A)')
+         Write (LuWr,'(19X,A)')                                         &
      &         ' ******** Primitive Basis Functions (Valence) ********'
-         Write (LuWr,'(19X,A)')
+         Write (LuWr,'(19X,A)')                                         &
      &         ' *****************************************************'
       End If
-*     Loop over distinct shell types
+!     Loop over distinct shell types
       jExp  =0
       iPrim = 0
       iPrim_Aux = -1
@@ -70,12 +70,12 @@
       iBas_Aux  = -1
       iBas_Frag = 0
       iShell=0
-*     Loop over basis sets
+!     Loop over basis sets
       Do iCnttp = 1, nCnttp
          mdc = dbsc(iCnttp)%mdci
          output=iPrint.ge.6
-         If (dbsc(iCnttp)%Aux.or.dbsc(iCnttp)%Frag)
-     &     output = output .and. iPrint.ge.10
+         If (dbsc(iCnttp)%Aux.or.dbsc(iCnttp)%Frag)                     &
+     &     output = output .and. iPrint.ge.10                           &
      &                     .and. iCnttp.ne.iCnttp_Dummy
          If(output) then
             Write (LuWr,*)
@@ -83,48 +83,48 @@
             Write (LuWr,'(A,A)') ' Basis set:',dbsc(iCnttp)%Bsl
          End If
          iShSrt = dbsc(iCnttp)%iVal
-*        Loop over distinct centers
+!        Loop over distinct centers
          Do icnt = 1, dbsc(iCnttp)%nCntr
             mdc = mdc + 1
             if (mdc.gt.MxAtom) then
                Call WarningMessage(2,'MxAtom too small')
                write(LuWr,*) 'MxAtom=',MxAtom
-               write(LuWr,*) 'Increase MxAtom in Molcas.fh and',
+               write(LuWr,*) 'Increase MxAtom in Molcas.fh and',        &
      &                       ' recompile the code!'
                Call Abend()
             end if
-*           Loop over shells associated with this center
-*           Start with s type shells
+!           Loop over shells associated with this center
+!           Start with s type shells
             jSh = iShSrt
             Do iAng = 0, dbsc(iCnttp)%nVal-1
                iShell = iShell + 1
                nExpj=Shells(jSh)%nExp
                nBasisj=Shells(jSh)%nBasis
-               If (S%MaxPrm(iAng).gt.0 .and. nExpj.gt.0 .and.
-     &             nBasisj.gt.0 .and. output .and.
+               If (S%MaxPrm(iAng).gt.0 .and. nExpj.gt.0 .and.           &
+     &             nBasisj.gt.0 .and. output .and.                      &
      &             iCnt.eq.1) Then
                   Write (LuWr,*)
                   Write (LuWr,*) '                 Type         '
-                  Write (LuWr,'(19X,A)')
+                  Write (LuWr,'(19X,A)')                                &
      &                                         AngTp(iAng)
-                  Write (LuWr,*) '          No.      Exponent   ',
+                  Write (LuWr,*) '          No.      Exponent   ',      &
      &                        ' Contraction Coefficients'
                End If
-*
+!
                If (nBasisj.gt.0 .and. output) Then
                   Do kExp = 1, nExpj
                      jExp  = jExp  + 1
-                     If (iCnt.eq.1)
-     &               Write (LuWr,'( 9X,I4,1X,D16.9,10(1X,F10.6),'//
-     &                        '1X,3(/,30X,10(1X,F10.6)))')
-     &                     jExp , Shells(jSh)%Exp(kExp),
-     &                     ( Shells(jSh)%Cff_c(kExp,ib,2),
+                     If (iCnt.eq.1)                                     &
+     &               Write (LuWr,'( 9X,I4,1X,D16.9,10(1X,F10.6),'//     &
+     &                        '1X,3(/,30X,10(1X,F10.6)))')              &
+     &                     jExp , Shells(jSh)%Exp(kExp),                &
+     &                     ( Shells(jSh)%Cff_c(kExp,ib,2),              &
      &                     ib=1,nBasisj)
                   End Do
                End If
                If (iShell.gt.MxShll) Then
                   Call WarningMessage(2,'iShell.gt.MxShll')
-                  Write (LuWr,*) ' Change MxShll in Molcas.fh and re'
+                  Write (LuWr,*) ' Change MxShll in Molcas.fh and re'   &
      &                      //'compile the code!'
                   Call Abend()
                End If
@@ -132,26 +132,26 @@
                If (Shells(jSh)%Prjct) kCmp=2*iAng+1
                If (nBasisj.ne.0 ) Then
                   If (Shells(jSh)%Aux) Then
-                     iPrim_Aux = iPrim_Aux + nExpj   * kCmp
+                     iPrim_Aux = iPrim_Aux + nExpj   * kCmp             &
      &                         * nIrrep/dc(mdc)%nStab
-                     iBas_Aux  = iBas_Aux  + nBasisj * kCmp
+                     iBas_Aux  = iBas_Aux  + nBasisj * kCmp             &
      &                         * nIrrep/dc(mdc)%nStab
                   Else If (Shells(jSh)%Frag) Then
-                     iPrim_Frag = iPrim_Frag + nExpj   * kCmp
+                     iPrim_Frag = iPrim_Frag + nExpj   * kCmp           &
      &                          * nIrrep/dc(mdc)%nStab
-                     iBas_Frag = iBas_Frag  + nBasisj * kCmp
+                     iBas_Frag = iBas_Frag  + nBasisj * kCmp            &
      &                         * nIrrep/dc(mdc)%nStab
                   Else
-                     iPrim = iPrim + nExpj   * kCmp
+                     iPrim = iPrim + nExpj   * kCmp                     &
      &                      * nIrrep/dc(mdc)%nStab
-                     iBas  = iBas  + nBasisj * kCmp
+                     iBas  = iBas  + nBasisj * kCmp                     &
      &                     * nIrrep/dc(mdc)%nStab
                   End If
                End If
                jSh = jSh + 1
             End Do
          End Do
-*
+!
       End Do
       If (iBas.ge.2*MaxBfn) Then
          Call WarningMessage(2,'MaxBfn too small')
@@ -163,97 +163,97 @@
          Write(LuWr,*) ' Number of primitives                ', iPrim
          Write(LuWr,*) ' Number of basis functions           ', iBas
          If (lAux .and. iPrint.ge.10) Then
-             Write(LuWr,*) ' Number of primitive aux. functions  ',
+             Write(LuWr,*) ' Number of primitive aux. functions  ',     &
      &                      iPrim_Aux
-             Write(LuWr,*) ' Number of auxiliary basis functions ',
+             Write(LuWr,*) ' Number of auxiliary basis functions ',     &
      &                       iBas_Aux
          End If
          If (lFAIEMP .and. iPrint.ge.10) Then
-             Write(LuWr,*) ' Number of primitive frag. functions ',
+             Write(LuWr,*) ' Number of primitive frag. functions ',     &
      &                      iPrim_Frag
-             Write(LuWr,*) ' Number of fragment basis functions  ',
+             Write(LuWr,*) ' Number of fragment basis functions  ',     &
      &                       iBas_Frag
          End If
          Write (LuWr,*)
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       If (lPAM2) Then
          Write (LuWr,*)
-         Write (LuWr,'(19X,A)')
+         Write (LuWr,'(19X,A)')                                         &
      &         ' *************************************************'
-         Write (LuWr,'(19X,A)')
+         Write (LuWr,'(19X,A)')                                         &
      &         ' ******** Primitive Basis Functions (PAM) ********'
-         Write (LuWr,'(19X,A)')
+         Write (LuWr,'(19X,A)')                                         &
      &         ' *************************************************'
          Do iCnttp=1,nCnttp
          If (dbsc(iCnttp)%lPAM2) Then
-*            If (iPrint.ge.10) Then
+!            If (iPrint.ge.10) Then
             Write (LuWr,*)
             Write (LuWr,*)
             Write (LuWr,'(A,A)') ' Basis set:',dbsc(iCnttp)%Bsl
             If (dbsc(iCnttp)%nPAM2.ne.-1) Then
                Write (LuWr,*)
-               Write (LuWr,*) 'Angular momentum of PAM operator: ',
+               Write (LuWr,*) 'Angular momentum of PAM operator: ',     &
      &                         AngTp(dbsc(iCnttp)%nPAM2)
                iAddr=1
-*
+!
                Do iAngl=0,dbsc(iCnttp)%nPAM2
                   iPrimm = INT(dbsc(iCnttp)%PAM2(iAddr)  )
                   iBass =  INT(dbsc(iCnttp)%PAM2(iAddr+1))
                   Write(LuWr,'(14H Ang. moment: ,3x,a1)') AngTp(iAngl)
-                  Write(LuWr,'(22H Number of  primitive:,i4,'
-     &                      //'22H Number of contracted:,i4)')
+                  Write(LuWr,'(22H Number of  primitive:,i4,'           &
+     &                      //'22H Number of contracted:,i4)')          &
      &                         iPrimm,iBass
                   Write (LuWr,*)
-                  Write(LuWr,'(21H  N.        Exponents,'
+                  Write(LuWr,'(21H  N.        Exponents,'               &
      &                      //'23H            Coefficent:)')
-*
+!
                   Do ir=0,iPrimm - 1
-                     Write (LuWr,'(i4,1x,f18.12,1x,12(1x,f12.8))')
-     &               ir+1,dbsc(iCnttp)%PAM2(iAddr+2+ir),
-     &                   (dbsc(iCnttp)%PAM2(iAddr+2+iPrimm+ic),
+                     Write (LuWr,'(i4,1x,f18.12,1x,12(1x,f12.8))')      &
+     &               ir+1,dbsc(iCnttp)%PAM2(iAddr+2+ir),                &
+     &                   (dbsc(iCnttp)%PAM2(iAddr+2+iPrimm+ic),         &
      &               ic=ir,(iPrimm)*iBass-1,iPrimm)
                   End Do
-*
+!
                iAddr = iAddr + 2 + iPrimm + iPrimm*iBass
                End Do
             End If
-*            End If
+!            End If
          End If
          End Do
-*
+!
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       If (iPrint.ge.10 .and. (lECP.or.lPP)) Then
          Write (LuWr,*)
-         Write (LuWr,'(19X,A)')
+         Write (LuWr,'(19X,A)')                                         &
      &         ' *************************************************'
-         Write (LuWr,'(19X,A)')
+         Write (LuWr,'(19X,A)')                                         &
      &         ' ******** Primitive Basis Functions (ECP) ********'
-         Write (LuWr,'(19X,A)')
+         Write (LuWr,'(19X,A)')                                         &
      &         ' *************************************************'
-C     Else
-Cstart Molcas
-C        If (iPrint.lt.6) Write (LuWr,*)
-C    &                  'To display basis set information use the key',
-C    &                  ' "BSSHOW" in the input.'
-C        If ((lECP.or.lPP).and.iPrint.lt.10) Write (LuWr,*)
-C    &                  'To display ECP information use the key',
-C    &                  ' "ECPSHOW" in the input.'
-C        If (lAUX .and. iPrint.lt.10 ) Write (LuWr,*)
-C    &      'To display auxiliary basis information use the key',
-C    &      ' "AUXSHOW" in the input.'
-Cend
+!     Else
+!start Molcas
+!        If (iPrint.lt.6) Write (LuWr,*)
+!    &                  'To display basis set information use the key',
+!    &                  ' "BSSHOW" in the input.'
+!        If ((lECP.or.lPP).and.iPrint.lt.10) Write (LuWr,*)
+!    &                  'To display ECP information use the key',
+!    &                  ' "ECPSHOW" in the input.'
+!        If (lAUX .and. iPrint.lt.10 ) Write (LuWr,*)
+!    &      'To display auxiliary basis information use the key',
+!    &      ' "AUXSHOW" in the input.'
+!end
       End If
-*
+!
       Do iCnttp = 1, nCnttp
-*
-*------- Pseudo potential type ECP
-*
+!
+!------- Pseudo potential type ECP
+!
          If (dbsc(iCnttp)%nPP.ne.0 .and. iPrint.ge.10) Then
             Write (LuWr,*)
             Write (LuWr,*)
@@ -270,7 +270,7 @@ Cend
                   If (lSh.eq.0) Then
                      Write (LuWr,'(4X,A)') '  H Potential'
                   Else
-                     Write (LuWr,'(4X,A)') AngTp(lSh-1)//
+                     Write (LuWr,'(4X,A)') AngTp(lSh-1)//               &
      &                      '-H Potential'
                   End If
                End If
@@ -283,43 +283,43 @@ Cend
                   Write (LuWr,'(2x,I1,3X,2F15.10)') ncr,zcr,ccr
                End Do
                Write (LuWr,*)
-*
+!
             End Do
          End If
-*
-*------- Huzinaga type ECP
-*
+!
+!------- Huzinaga type ECP
+!
          If (dbsc(iCnttp)%ECP) Then
             If (iPrint.ge.10) Then
                Write (LuWr,*)
                Write (LuWr,*)
                Write (LuWr,'(A,A)') ' Basis set:',dbsc(iCnttp)%Bsl
-*
+!
                If (dbsc(iCnttp)%nM1.ne.0) Then
                   Write (LuWr,*)
-                  Write (LuWr,*) ' M1 operator       Exponent   ',
+                  Write (LuWr,*) ' M1 operator       Exponent   ',      &
      &                           ' Contraction Coefficients'
                   Do irow = 1, dbsc(iCnttp)%nM1
-                     Write (LuWr,'(14X,D16.9,1X,D19.9)')
-     &                  dbsc(iCnttp)%M1xp(irow),
+                     Write (LuWr,'(14X,D16.9,1X,D19.9)')                &
+     &                  dbsc(iCnttp)%M1xp(irow),                        &
      &                  dbsc(iCnttp)%M1cf(irow)
                   End Do
                End If ! If (dbsc(iCnttp)%nM1.ne.0) Then
-*
+!
                If (dbsc(iCnttp)%nM2.ne.0) Then
                   Write (LuWr,*)
-                  Write (LuWr,*) ' M2 operator       Exponent   ',
+                  Write (LuWr,*) ' M2 operator       Exponent   ',      &
      &                           ' Contraction Coefficients'
                   Do irow = 1, dbsc(iCnttp)%nM2
-                     Write (LuWr,'(14X,D16.9,1X,D19.9)')
-     &                  dbsc(iCnttp)%M2xp(irow),
+                     Write (LuWr,'(14X,D16.9,1X,D19.9)')                &
+     &                  dbsc(iCnttp)%M2xp(irow),                        &
      &                  dbsc(iCnttp)%M2cf(irow)
                   End Do
                End If ! If (dbsc(iCnttp)%nM2.ne.0) Then
             End If ! If (iPrint.ge.10) Then
-*
-*--------------Projection Basis Set
-*
+!
+!--------------Projection Basis Set
+!
             iSh = dbsc(iCnttp)%iPrj
             nSumB = 0
             jSh = iSh
@@ -336,33 +336,33 @@ Cend
                If (Shells(iSh)%nBk.ne.0) Then
                   If (iPrint.ge.10) Then
                      Write (LuWr,*)
-                     Write (LuWr,'(19X,A,A)')
+                     Write (LuWr,'(19X,A,A)')                           &
      &                     '        Angular Type: ', AngTp(iAng)
-                     Write (LuWr,*) '                   Exponent   ',
+                     Write (LuWr,*) '                   Exponent   ',   &
      &                              ' Contraction Coefficients'
                      Write (LuWr,*)
-                     Write (LuWr,
-     &                  '(A,18X,8(G12.5),/,5(32X,8(G12.5),/))')
-     &                  '     Bk-values',
+                     Write (LuWr,                                       &
+     &                  '(A,18X,8(G12.5),/,5(32X,8(G12.5),/))')         &
+     &                  '     Bk-values',                               &
      &                  (Shells(iSh)%Bk(i),i=1,Shells(iSh)%nBk)
-                     Write (LuWr,
-     &                  '(A,18X,8(G12.5),/,5(32X,8(G12.5),/))')
-     &                  '     Frac.Occ.',
+                     Write (LuWr,                                       &
+     &                  '(A,18X,8(G12.5),/,5(32X,8(G12.5),/))')         &
+     &                  '     Frac.Occ.',                               &
      &                  (Shells(iSh)%Occ(i),i=1,Shells(iSh)%nBk)
                   End If
-*
+!
                   Do i=1,Shells(iSh)%nBk
-                     Shells(iSh)%Bk(i)=Shells(iSh)%Bk(i)
+                     Shells(iSh)%Bk(i)=Shells(iSh)%Bk(i)                &
      &                                *Shells(iSh)%Occ(i)
                   End Do
-*
+!
                   If (iPrint.ge.10) Then
                      Do kExp = 1, Shells(iSh)%nExp
                         jExp  = jExp  + 1
-                        Write (LuWr,'(14X,D16.9,8(G12.5),'//
-     &                        '3(/,30X,8(G12.5)))')
-     &                          Shells(ish)%Exp(kExp),
-     &                        ( Shells(ish)%Cff_c(kExp,ib,2),
+                        Write (LuWr,'(14X,D16.9,8(G12.5),'//            &
+     &                        '3(/,30X,8(G12.5)))')                     &
+     &                          Shells(ish)%Exp(kExp),                  &
+     &                        ( Shells(ish)%Cff_c(kExp,ib,2),           &
      &                     ib=1,Shells(iSh)%nBk)
                      End Do
                   End If ! If (iPrint.ge.10) Then
@@ -370,9 +370,9 @@ Cend
                iSh = iSh + 1
             End Do    ! iAng
 
-*
-*--------------Auxilliary core basis
-*
+!
+!--------------Auxilliary core basis
+!
             If (iPrint.ge.10) Then
                iSh = dbsc(iCnttp)%iSOC
                nSumB = 0
@@ -389,26 +389,26 @@ Cend
                Do iAng = 0, dbsc(iCnttp)%nSOC-1
                   If (Shells(iSh)%nBasis.ne.0) Then
                      Write (LuWr,*)
-                     Write (LuWr,'(19X,A,A)')
+                     Write (LuWr,'(19X,A,A)')                           &
      &                     '        Angular Type: ', AngTp(iAng)
-                     Write (LuWr,*) '                   Exponent   ',
+                     Write (LuWr,*) '                   Exponent   ',   &
      &                              ' Contraction Coefficients'
                      Write (LuWr,*)
                      Do kExp = 1, Shells(iSh)%nExp
                         jExp  = jExp  + 1
-                        Write (LuWr,'(14X,D16.9,10(1X,F10.6),'//
-     &                           '3(/,30X,10(1X,F10.6)))')
-     &                        Shells(iSh)%Exp(kExp),
-     &                      ( Shells(iSh)%Cff_c(kExp,ib,1),
+                        Write (LuWr,'(14X,D16.9,10(1X,F10.6),'//        &
+     &                           '3(/,30X,10(1X,F10.6)))')              &
+     &                        Shells(iSh)%Exp(kExp),                    &
+     &                      ( Shells(iSh)%Cff_c(kExp,ib,1),             &
      &                        ib=1,Shells(iSh)%nBasis)
                      End Do
                   End If
                   iSh = iSh + 1
                End Do
             End If ! If (iPrint.ge.10) Then
-*
-*-----------Spectral Resolution Basis Set
-*
+!
+!-----------Spectral Resolution Basis Set
+!
             If (iPrint.ge.10) Then
                iSh = dbsc(iCnttp)%iSRO
                nSumA = 0
@@ -426,16 +426,16 @@ Cend
                   nExpi=Shells(iSh)%nExp
                   If (nExpi.ne.0) Then
                      Write (LuWr,*)
-                     Write (LuWr,'(19X,A,A)')
+                     Write (LuWr,'(19X,A,A)')                           &
      &                     '        Angular Type: ', AngTp(iAng)
-                     Call RecPrt(' Exponents',' ',
+                     Call RecPrt(' Exponents',' ',                      &
      &                           Shells(iSh)%Exp,nExpi,1)
                      If (iPrint.ge.11) Then
-                        Call RecPrt(' The Akl matrix','(5D20.13)',
-     &                              Shells(iSh)%Akl(1,1,1),nExpi,
+                        Call RecPrt(' The Akl matrix','(5D20.13)',      &
+     &                              Shells(iSh)%Akl(1,1,1),nExpi,       &
      &                                                     nExpi)
-                        Call RecPrt(' The Adl matrix','(5D20.13)',
-     &                              Shells(iSh)%Akl(1,1,2),nExpi,
+                        Call RecPrt(' The Adl matrix','(5D20.13)',      &
+     &                              Shells(iSh)%Akl(1,1,2),nExpi,       &
      &                                                     nExpi)
                      End If
                   End If
@@ -443,15 +443,15 @@ Cend
                End Do ! iAng
             End If  ! If (iPrint.ge.10) Then
          End If ! If (dbsc(iCnttp)%ECP) Then
-*
+!
       End Do
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       If (iPrint.ge.6) Then
          Call CollapseOutput(0,'   Primitive basis info:')
          Write (LuWr,*)
       End If
-*
+!
       Return
       End

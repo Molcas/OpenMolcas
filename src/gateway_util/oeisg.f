@@ -1,52 +1,52 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      SUBROUTINE OEISG(REL,SREL,TREL,UREL,ZETA,
-     &                 ZN, MX100, NSYM, NBAS1,
-     &                 unrel, tnrel, hcorr, iprint,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      SUBROUTINE OEISG(REL,SREL,TREL,UREL,ZETA,                         &
+     &                 ZN, MX100, NSYM, NBAS1,                          &
+     &                 unrel, tnrel, hcorr, iprint,                     &
      &                  VEXTT,PVPT,EVN1,EVN2,RE1R,AUXI,W1W1,W1E0W1)
 
       IMPLICIT REAL*8 (A-H,O-Z)
-C
-      dimension REL(nBAS1*(nBAS1+1)/2),SREL(nBAS1*(nBAS1+1)/2),
-     &          TREL(nBAS1*(nBAS1+1)/2),UREL(nBAS1*(nBAS1+1)/2),
-     &          ZETA(nBAS1),
-     &          unrel(nBAS1*(nBAS1+1)/2), tnrel(nBAS1*(nBAS1+1)/2),
+!
+      dimension REL(nBAS1*(nBAS1+1)/2),SREL(nBAS1*(nBAS1+1)/2),         &
+     &          TREL(nBAS1*(nBAS1+1)/2),UREL(nBAS1*(nBAS1+1)/2),        &
+     &          ZETA(nBAS1),                                            &
+     &          unrel(nBAS1*(nBAS1+1)/2), tnrel(nBAS1*(nBAS1+1)/2),     &
      &          hcorr(nBAS1*(nBAS1+1)/2)
-C
+!
       dimension facto(16)
 #include "relmp.fh"
-      Real*8 VEXTT(*),PVPT(*),
-     &       EVN1(NBAS1,NBAS1),EVN2(NBAS1,NBAS1),
-     &       RE1R(NBAS1,NBAS1),
-     &       AUXI(NBAS1,NBAS1),
+      Real*8 VEXTT(*),PVPT(*),                                          &
+     &       EVN1(NBAS1,NBAS1),EVN2(NBAS1,NBAS1),                       &
+     &       RE1R(NBAS1,NBAS1),                                         &
+     &       AUXI(NBAS1,NBAS1),                                         &
      &       W1W1(NBAS1,NBAS1),W1E0W1(NBAS1,NBAS1)
-C
-C     ONE CONFIGURATION
-C     ONE ELECTRON INTEGRAL PROGRAM
-C     COMPUTES THE MATRICES S,U,T WITH SLATER (NFLAG1=0) OR GAUSSIAN
-C      (NFLAG1=1) ORBITALS AS  BASIS
-C
-C
-C
+!
+!     ONE CONFIGURATION
+!     ONE ELECTRON INTEGRAL PROGRAM
+!     COMPUTES THE MATRICES S,U,T WITH SLATER (NFLAG1=0) OR GAUSSIAN
+!      (NFLAG1=1) ORBITALS AS  BASIS
+!
+!
+!
       CALL OEISG_INTERNAL(REL)
-*
-*     This is to allow type punning without an explicit interface
+!
+!     This is to allow type punning without an explicit interface
       CONTAINS
       SUBROUTINE OEISG_INTERNAL(REL)
       USE ISO_C_BINDING
       REAL*8, TARGET :: REL(*)
       INTEGER, POINTER :: iREL(:)
-c     initialize
+!     initialize
       CALL RELOP
-c     coefficients
+!     coefficients
       FACTO(1)=1.D0
       FACTO(2)=1.D0
       DO 1301 I=3,16
@@ -54,8 +54,8 @@ c     coefficients
       FACTO(I)=IM1*FACTO(I-2)
  1301 CONTINUE
       iparm=2
-*     WRITE (6,*) ' MX100=',MX100
-*     write(6,*) ' nsym',nsym
+!     WRITE (6,*) ' MX100=',MX100
+!     write(6,*) ' nsym',nsym
       if(iprint.ge.10) then
          write(6,*) ' symmetry', nsym
          write(6,*) ' number of basis functions', nbas1
@@ -65,7 +65,7 @@ c     coefficients
          enddo
       endif
       L=NSYM
-C
+!
       IJ=0
       np=L
       NQ=NP
@@ -95,7 +95,7 @@ C
       UREL(IJ)=TERM1*VPQ1
       UNREL(IJ)=TERM1*VPQ1
       TNREL(IJ)=0.5D0*ZP*ZQ*TERM1*TERM2
-C.    TNRE=0.5D0*ZP*ZQ*TERM1*TERM2
+!.    TNRE=0.5D0*ZP*ZQ*TERM1*TERM2
       IF (IPARM.GT.0)   THEN
          I1=np-1
          I2=0
@@ -103,58 +103,58 @@ C.    TNRE=0.5D0*ZP*ZQ*TERM1*TERM2
          J1=nq-1
          J2=0
          J3=0
-C*
-C*     PVP FOR XY-FUNCTIONS
-C*
+!*
+!*     PVP FOR XY-FUNCTIONS
+!*
          if (np.eq.3) then
             REL(IJ)=EXTC(L,ZP,ZQ,1,1,0,1,1,0)
             GOTO 900
          endif
-C*
-C*     PVP FOR XYZ-FUNCTIONS
-C*
+!*
+!*     PVP FOR XYZ-FUNCTIONS
+!*
          if (np.eq.4) then
             REL(IJ)=EXTC(L,ZP,ZQ,1,1,1,1,1,1)
             GOTO 900
          endif
-C*
-C*     PVP FOR X**(NP-1)-FUNCTIONS
-C*
+!*
+!*     PVP FOR X**(NP-1)-FUNCTIONS
+!*
          REL(IJ)=EXTC(L,ZP,ZQ,I1,I2,I3,J1,J2,J3)
-C.       TREL(IJ)=SQROPY(ZP,ZQ,I1,I2,I3,J1,J2,J3)
+!.       TREL(IJ)=SQROPY(ZP,ZQ,I1,I2,I3,J1,J2,J3)
 900      TREL(IJ)=0.5D0*ZP*ZQ*TERM1*TERM2
       ELSE
          TREL(IJ)=0.5D0*ZP*ZQ*TERM1*TERM2
-C.       TNRE=0.5D0*ZP*ZQ*TERM1*TERM2
+!.       TNRE=0.5D0*ZP*ZQ*TERM1*TERM2
       ENDIF
    11 CONTINUE
    10 CONTINUE
-C
-C     CONVERT TO RELATIVISTIC INTEGRALS
-C
+!
+!     CONVERT TO RELATIVISTIC INTEGRALS
+!
       NBSZ=NBAS1*(NBAS1+1)/2
       NBSZ5=5*NBSZ
       NBSQ=NBAS1*NBAS1
       NBSQ5=5*NBSQ
       CALL C_F_POINTER(C_LOC(REL(NBSZ+1)),iREL,[NBSZ])
-      CALL AT34R(NBAS1,NBSZ  ,ZN,
-     *SREL,UREL,TREL,REL(1),
-C     OVERLAP    POTENTIAL  KIN.ENERGY PVP
-     *iREL,REL(2*NBSZ+1),REL(3*NBSZ+1),REL(4*NBSZ+1),
-C     MULT      BU          P           G
-     *REL(NBSZ5+1),REL(NBSZ5+NBSQ+1),REL(NBSZ5+2*NBSQ+1),
-C     EIG            SINV                REVT
-     *REL(NBSZ5+3*NBSQ+1),REL(NBSZ5+4*NBSQ+1),REL(NBSZ5+5*NBSQ+1),
-C     AUX                   OVE                   EW
-     *REL(NBSZ5+NBSQ5+MX100+1),REL(NBSZ5+NBSQ5+2*MX100+1),
-C     E                         AA
-     *REL(NBSZ5+NBSQ5+3*MX100+1),REL(NBSZ5+NBSQ5+4*MX100+1),iprint,
-C    RR                         TT
-     *VEXTT,PVPT,EVN1,EVN2,RE1R,AUXI,W1W1,W1E0W1)
+      CALL AT34R(NBAS1,NBSZ  ,ZN,                                       &
+     &SREL,UREL,TREL,REL(1),                                            &
+!     OVERLAP    POTENTIAL  KIN.ENERGY PVP
+     &iREL,REL(2*NBSZ+1),REL(3*NBSZ+1),REL(4*NBSZ+1),                   &
+!     MULT      BU          P           G
+     &REL(NBSZ5+1),REL(NBSZ5+NBSQ+1),REL(NBSZ5+2*NBSQ+1),               &
+!     EIG            SINV                REVT
+     &REL(NBSZ5+3*NBSQ+1),REL(NBSZ5+4*NBSQ+1),REL(NBSZ5+5*NBSQ+1),      &
+!     AUX                   OVE                   EW
+     &REL(NBSZ5+NBSQ5+MX100+1),REL(NBSZ5+NBSQ5+2*MX100+1),              &
+!     E                         AA
+     &REL(NBSZ5+NBSQ5+3*MX100+1),REL(NBSZ5+NBSQ5+4*MX100+1),iprint,     &
+!    RR                         TT
+     &VEXTT,PVPT,EVN1,EVN2,RE1R,AUXI,W1W1,W1E0W1)
       NULLIFY(iREL)
-C
-C     TRANSFER RELATIVISTIC KINETIC ENERGY AND POTENTIAL INTEGRALS
-C
+!
+!     TRANSFER RELATIVISTIC KINETIC ENERGY AND POTENTIAL INTEGRALS
+!
       if(iprint.ge.10) then
          write(6,*) ' matrices'
           write(6,*)  l,nbas1
@@ -188,5 +188,5 @@ C
  12   format(4f18.14)
       RETURN
       END SUBROUTINE OEISG_INTERNAL
-*
+!
       END

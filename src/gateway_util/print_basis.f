@@ -1,23 +1,23 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2006, Roland Lindh                                     *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2006, Roland Lindh                                     *
+!***********************************************************************
       SubRoutine Print_Basis(lOPTO)
-************************************************************************
-*                                                                      *
-*     Object: to print the basis set                                   *
-*                                                                      *
-*     Author: Roland Lindh, Dept Chem. Phys., Lund University, Sweden  *
-*             September 2006                                           *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     Object: to print the basis set                                   *
+!                                                                      *
+!     Author: Roland Lindh, Dept Chem. Phys., Lund University, Sweden  *
+!             September 2006                                           *
+!***********************************************************************
       use Basis_Info
       use Center_Info
       use RICD_Info, only: Thrshld_CD
@@ -29,42 +29,42 @@
       Character DBas*4
       Character ChCo*1, ChCa*1, ChSph*1
       Logical Output, Type(0:7), lOPTO
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       iRout=2
       iPrint = nPrint(iRout)
       If (iPrint.eq.0) Return
       LuWr = 6
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       If (Show) Then
          Write (LuWr,*)
          Call CollapseOutput(1,'   Basis set information:')
          Write (LuWr,'(3X,A)') '   ----------------------'
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Write out basis set information
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Valence basis set
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Write out basis set information
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Valence basis set
+!
       Do iCnttp = 1, nCnttp
          mdc = dbsc(iCnttp)%mdci
          lSh= 0
          output=Show
-         If (dbsc(iCnttp)%Aux.or.dbsc(iCnttp)%Frag)
-     &     output = output .and. iPrint.ge.10
+         If (dbsc(iCnttp)%Aux.or.dbsc(iCnttp)%Frag)                     &
+     &     output = output .and. iPrint.ge.10                           &
      &                     .and. iCnttp.ne.iCnttp_Dummy
          If (output) Then
             Write (LuWr,*)
             Write (LuWr,*)
-            Write (LuWr,'(6X,A,1X,A)') 'Basis set label:',
-     *        Trim(dbsc(iCnttp)%Bsl)
+            Write (LuWr,'(6X,A,1X,A)') 'Basis set label:',              &
+     &        Trim(dbsc(iCnttp)%Bsl)
             If (lOPTO) GoTo 100
             Write (LuWr,*)
             dbas=dc(mdc+1)%LblCnt(1:4)
@@ -73,7 +73,7 @@
                Write (LuWr,'(6X,A)') 'Diffuse basis set for R-matrix:'
                Write (LuWr,'(6X,A)') '==============================='
                If (dbsc(iCnttp)%nCntr.ne.1) Then
-                  Call WarningMessage(2,
+                  Call WarningMessage(2,                                &
      &                        'Too many centers, should only be one!')
                   Call Quit_OnUserError()
                End If
@@ -82,9 +82,9 @@
                   Write (LuWr,'(6X,A)') 'Auxiliary basis set:'
                   Write (LuWr,'(6X,A)') '=================='
                   If (dbsc(iCnttp)%aCD_Thr.ne.One) Then
-                     Write (LuWr,'(6X,A,G9.2)') 'Threshold in the '
-     &                    //'auxiliary basis set generation is '
-     &                    //'modified to ',
+                     Write (LuWr,'(6X,A,G9.2)') 'Threshold in the '     &
+     &                    //'auxiliary basis set generation is '        &
+     &                    //'modified to ',                             &
      &                    dbsc(iCnttp)%aCD_Thr*Thrshld_CD
                   End If
                Else If (dbsc(iCnttp)%Frag) Then
@@ -92,7 +92,7 @@
                   Write (LuWr,'(6X,A)') '=================='
                Else
                   If (dbsc(iCnttp)%fMass.eq.One) Then
-                     Write (LuWr,'(6X,A)')
+                     Write (LuWr,'(6X,A)')                              &
      &                      'Electronic valence basis set:'
                      Write (LuWr,'(6X,A)') '------------------'
                   Else
@@ -101,40 +101,40 @@
                   End If
                End If
             End If
-            If (dbsc(iCnttp)%Fixed) Write (LuWr,'(6X,A)')
+            If (dbsc(iCnttp)%Fixed) Write (LuWr,'(6X,A)')               &
      &          'Centers of this basis set are frozen!'
             If (dbsc(iCnttp)%IsMM.eq.1) Then
                Write (LuWr,'(6X,A)') 'This is a MM atom: no basis set'
             Else
                If (dbsc(iCnttp)%pChrg) Then
-                  Write (LuWr,'(6X,A,F10.6,A)')
-     &                'Associated Effective Charge ',
-     &               dbsc(iCnttp)%Charge,
+                  Write (LuWr,'(6X,A,F10.6,A)')                         &
+     &                'Associated Effective Charge ',                   &
+     &               dbsc(iCnttp)%Charge,                               &
      &                ' au (this is a pseudo charge)'
                Else
-                  Write (LuWr,'(6X,A,F10.6,A)')
-     &                'Associated Effective Charge ',
+                  Write (LuWr,'(6X,A,F10.6,A)')                         &
+     &                'Associated Effective Charge ',                   &
      &               dbsc(iCnttp)%Charge, ' au'
                End If
-               Write (LuWr,'(6X,A,F10.6,A)')
-     &               'Associated Actual Charge    ',
+               Write (LuWr,'(6X,A,F10.6,A)')                            &
+     &               'Associated Actual Charge    ',                    &
      &               Max(Zero,DBLE(dbsc(iCnttp)%AtmNr)), ' au'
-*
+!
                If (Nuclear_Model.eq.Point_Charge) Then
                   Write (LuWr,'(6X,A)') 'Nuclear Model: Point charge'
                Else If (Nuclear_Model.eq.Gaussian_type) Then
-                  Write (LuWr,'(6X,A)')
-     &                  'Nuclear Model: Finite nucleus - '
+                  Write (LuWr,'(6X,A)')                                 &
+     &                  'Nuclear Model: Finite nucleus - '              &
      &                             //'Gaussian distribution'
-                  Write (LuWr,'(6X,A,E12.5)')
-     &               '  Gaussian exponent, Xi/bohr**(-2): ',
+                  Write (LuWr,'(6X,A,E12.5)')                           &
+     &               '  Gaussian exponent, Xi/bohr**(-2): ',            &
      &               dbsc(iCnttp)%ExpNuc
                Else If (Nuclear_Model.eq.mGaussian_type) Then
-                  Write (LuWr,'(6X,A)')
-     &                'Nuclear Model: Finite nucleus - '
+                  Write (LuWr,'(6X,A)')                                 &
+     &                'Nuclear Model: Finite nucleus - '                &
      &                             //'Modified Gaussian distribution'
-                  Write (LuWr,'(6X,A,E12.5,A,E12.5)')
-     &               '  Parameters, Xi/bohr**(-2), w/bohr**(-2): ',
+                  Write (LuWr,'(6X,A,E12.5,A,E12.5)')                   &
+     &               '  Parameters, Xi/bohr**(-2), w/bohr**(-2): ',     &
      &               dbsc(iCnttp)%ExpNuc,', ',dbsc(iCnttp)%w_mGauss
                Else
                   Call WarningMessage(2,'Illegal Nuclear Model!')
@@ -143,7 +143,7 @@
             End If
             Write (LuWr,*)
   100    Continue
-*
+!
          End If
          kShStr = dbsc(iCnttp)%iVal
          kShEnd = dbsc(iCnttp)%iVal+dbsc(iCnttp)%nVal-1
@@ -153,7 +153,7 @@
             Type(0) = Type(0) .or. nExpk*Shells(kSh)%nBasis.ne.0
          End Do
          If (output.and.Type(0) .AND..NOT.lOPTO) Then
-            Write (LuWr,'(6X,A)')
+            Write (LuWr,'(6X,A)')                                       &
      &          'Shell  nPrim  nBasis  Cartesian Spherical Contaminant'
          End If
          Do kSh = kShStr, kShEnd
@@ -165,25 +165,25 @@
                ChCa='X'
                ChSph=' '
             End if
-            If (Shells(kSh)%Transf .and.
+            If (Shells(kSh)%Transf .and.                                &
      &    .not. Shells(kSh)%Prjct ) ChCo='X'
-            If (output.and.nExpk*Shells(kSh)%nBasis.ne.0.AND..NOT.lOPTO)
-     &         Write (LuWr,'(9X,A,5X,I3,5X,I3,8X,A,8X,A,8X,A)')
+            If (output.and.nExpk*Shells(kSh)%nBasis.ne.0.AND..NOT.lOPTO)&
+     &         Write (LuWr,'(9X,A,5X,I3,5X,I3,8X,A,8X,A,8X,A)')         &
      &            AngTp(lSh),nExpk,Shells(kSh)%nBasis,ChCa,ChSph,ChCo
             lSh = lSh + 1
          End Do
-*                                                                      *
-************************************************************************
-*                                                                      *
-*        Process PP part, if any.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!        Process PP part, if any.
+!
          kShStr=dbsc(iCnttp)%iPP
          kShEnd = kShStr + dbsc(iCnttp)%nPP-1
          If (output.and.dbsc(iCnttp)%nPP.ne.0 .AND..NOT.lOPTO) Then
             Write (LuWr,*)
-            Write (LuWr,'(6X,A)')
+            Write (LuWr,'(6X,A)')                                       &
      &             'Pseudo Potential specification:'
-            Write (LuWr,'(6X,A)')
+            Write (LuWr,'(6X,A)')                                       &
      &             '======================================='
             Type(0)=.False.
             Do kSh = kShStr, kShEnd
@@ -198,39 +198,39 @@
          lSh= 0
          Do kSh = kShStr, kShEnd
             nExpk=Shells(kSh)%nExp/3
-C           Write (*,*) 'kSh,lSh=',kSh,lSh
+!           Write (*,*) 'kSh,lSh=',kSh,lSh
             If (output.and.nExpk.ne.0 .AND..NOT.lOPTO) Then
                If (lSh.eq.0) Then
-                  Write (LuWr,'(9X,A,6X,I2)')
+                  Write (LuWr,'(9X,A,6X,I2)')                           &
      &               '  H',nExpk
                Else
-                  Write (LuWr,'(9X,A,6X,I2)')
+                  Write (LuWr,'(9X,A,6X,I2)')                           &
      &               AngTp(lSh-1)//'-H',nExpk
                End If
             End If
             lSh = lSh + 1
          End Do
-*                                                                      *
-************************************************************************
-*                                                                      *
-*        Process ECP part, if any.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!        Process ECP part, if any.
+!
          kShStr = dbsc(iCnttp)%iPrj
          kShEnd = kShStr + dbsc(iCnttp)%nPrj-1
          If (output.and.dbsc(iCnttp)%ECP .AND..NOT.lOPTO) Then
             Write (LuWr,*)
-            Write (LuWr,'(6X,A)')
+            Write (LuWr,'(6X,A)')                                       &
      &             'Effective Core Potential specification:'
-            Write (LuWr,'(6X,A)')
+            Write (LuWr,'(6X,A)')                                       &
      &             '======================================='
             If (dbsc(iCnttp)%nM1.gt.0) Then
                Write (LuWr,*)
-               Write (LuWr,'(6X,A,I5)')
+               Write (LuWr,'(6X,A,I5)')                                 &
      &               ' Number of M1 terms:',dbsc(iCnttp)%nM1
             End If
             If (dbsc(iCnttp)%nM2.gt.0) Then
                Write (LuWr,*)
-               Write (LuWr,'(6X,A,I5)')
+               Write (LuWr,'(6X,A,I5)')                                 &
      &               ' Number of M2 terms:',dbsc(iCnttp)%nM2
             End If
             Type(0)=.False.
@@ -249,12 +249,12 @@ C           Write (*,*) 'kSh,lSh=',kSh,lSh
          Do kSh = kShStr, kShEnd
             nExpk=Shells(kSh)%nExp
             nBasisk=Shells(kSh)%nBasis
-            If (output.and.nExpk*nBasisk.ne.0 .AND..NOT.lOPTO)
-     &         Write (LuWr,'(9X,A,6X,I2,6X,I2)')
+            If (output.and.nExpk*nBasisk.ne.0 .AND..NOT.lOPTO)          &
+     &         Write (LuWr,'(9X,A,6X,I2,6X,I2)')                        &
      &            AngTp(lSh),nExpk,nBasisk
             lSh = lSh + 1
          End Do
-*--------Spectral resolution basis set
+!--------Spectral resolution basis set
          kShStr = dbsc(iCnttp)%iSRO
          kShEnd = kShStr + dbsc(iCnttp)%nSRO-1
          If (output.and.dbsc(iCnttp)%ECP .AND..NOT.lOPTO) Then
@@ -267,39 +267,39 @@ C           Write (*,*) 'kSh,lSh=',kSh,lSh
                If (dbsc(iCnttp)%nOpt.ne.0) Then
                   Write (LuWr,*)
                   Write (LuWr,'(6X,A)') 'Spectral Resolvent Operators :'
-                  If (iAnd(2**0,dbsc(iCnttp)%nOpt).ne.0)
+                  If (iAnd(2**0,dbsc(iCnttp)%nOpt).ne.0)                &
      &               Write (LuWr,'(8X,A)') ' Exchange'
-                  If (iAnd(2**1,dbsc(iCnttp)%nOpt).ne.0)
+                  If (iAnd(2**1,dbsc(iCnttp)%nOpt).ne.0)                &
      &               Write (LuWr,'(8X,A)') ' Mass-Velocity'
-                  If (iAnd(2**2,dbsc(iCnttp)%nOpt).ne.0)
-     &               Write (LuWr,'(8X,A)') ' Darwin 1-electron'
+                  If (iAnd(2**2,dbsc(iCnttp)%nOpt).ne.0)                &
+     &               Write (LuWr,'(8X,A)') ' Darwin 1-electron'         &
      &                      //' contact term'
                   If (iAnd(2**3,dbsc(iCnttp)%nOpt).ne.0) Then
                      If (IRELMP.EQ.0) Then
                         Write (LuWr,'(8X,A)') ' No-Pair approximation'
                      Else If (IRELMP.EQ.1) Then
-                        Write (LuWr,'(8X,A)')
+                        Write (LuWr,'(8X,A)')                           &
      &                        ' No-Pair approximation (DK1)'
                      Else If (IRELMP.EQ.2) Then
-                        Write (LuWr,'(8X,A)')
+                        Write (LuWr,'(8X,A)')                           &
      &                        ' No-Pair approximation (DK2)'
                      Else If (IRELMP.EQ.3) Then
-                        Write (LuWr,'(8X,A)')
+                        Write (LuWr,'(8X,A)')                           &
      &                        ' No-Pair approximation (DK3)'
                      Else If (IRELMP.EQ.4) Then
-                        Write (LuWr,'(8X,A)')
+                        Write (LuWr,'(8X,A)')                           &
      &                        ' No-Pair approximation (DK3)'
                      Else If (IRELMP.EQ.11) Then
-                        Write (LuWr,'(8X,A)')
+                        Write (LuWr,'(8X,A)')                           &
      &                        ' RESC approximation'
                      Else If (IRELMP.EQ.21) Then
-                        Write (LuWr,'(8X,A)')
+                        Write (LuWr,'(8X,A)')                           &
      &                        ' ZORA approximation'
                      Else If (IRELMP.EQ.22) Then
-                        Write (LuWr,'(8X,A)')
+                        Write (LuWr,'(8X,A)')                           &
      &                        ' ZORA-FP approximation'
                      Else If (IRELMP.EQ.23) Then
-                        Write (LuWr,'(8X,A)')
+                        Write (LuWr,'(8X,A)')                           &
      &                        ' IORA approximation'
                      End If
                   End If
@@ -312,14 +312,14 @@ C           Write (*,*) 'kSh,lSh=',kSh,lSh
          lSh= 0
          Do kSh = kShStr, kShEnd
             nExpk=Shells(kSh)%nExp
-            If (output.and.nExpk.ne.0 .AND..NOT.lOPTO)
-     &         Write (LuWr,'(9X,A,6X,I2)')
+            If (output.and.nExpk.ne.0 .AND..NOT.lOPTO)                  &
+     &         Write (LuWr,'(9X,A,6X,I2)')                              &
      &            AngTp(lSh),nExpk
             lSh = lSh + 1
          End Do
-*
-*--------Auxilliary SO core
-*
+!
+!--------Auxilliary SO core
+!
          kShStr = dbsc(iCnttp)%iSOC
          kShEnd = kShStr + dbsc(iCnttp)%nSOC-1
          If (output.and.dbsc(iCnttp)%ECP .AND..NOT.lOPTO) Then
@@ -341,30 +341,30 @@ C           Write (*,*) 'kSh,lSh=',kSh,lSh
          lSh= 0
          Do kSh = kShStr, kShEnd
             nExpk=Shells(kSh)%nExp
-            If (output.and.nExpk.ne.0)
-     &         Write (LuWr,'(9X,A,6X,I2)')
+            If (output.and.nExpk.ne.0)                                  &
+     &         Write (LuWr,'(9X,A,6X,I2)')                              &
      &            AngTp(lSh),nExpk
             lSh = lSh + 1
          End Do
-*
+!
          If (output.and.iPrint.ge.6) Then
             Write (LuWr,*)
-            Write (LuWr,'(6X,A)')
+            Write (LuWr,'(6X,A)')                                       &
      &              ' Label   Cartesian Coordinates / Bohr'
             Write (LuWr,*)
             Do iCnt = 1, dbsc(iCnttp)%nCntr
-               Write (LuWr,'(1X,A,1X,3F20.10)') dc(mdc+iCnt)%LblCnt,
+               Write (LuWr,'(1X,A,1X,3F20.10)') dc(mdc+iCnt)%LblCnt,    &
      &                                    dbsc(iCnttp)%Coor(1:3,iCnt)
             End Do
          End If
       End Do
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       If (Show) Then
          Call CollapseOutput(0,'   Basis set information:')
          Write (LuWr,*)
       End If
-*
+!
       Return
       End

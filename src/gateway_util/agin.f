@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE AGIN
       IMPLICIT REAL*8 (A-H,O-Z)
-C...  auxiliar constant pool:       ready only up to g-valence/g-core
+!...  auxiliar constant pool:       ready only up to g-valence/g-core
 #include "const.fh"
-C
+!
       DFAC(1)=1.D0
       DFAC(2)=1.D0
       DO 10 I=3,lp12
@@ -23,12 +23,12 @@ C
       RCA(I,J)=0.D0
    21 CONTINUE
    20 CONTINUE
-C
-C...  RCA(i,j) = c(k) (la,0;lb,0) * sqrt((2*la+1)(2*lb+1))
-C       j identifies la,lb:  ss,ps,pp,ds,dp,dd,... 1,2,3,4,5,6,...
-C       i identifies k: i=1 for the lowest k whose c(k) is non-zero,
-C                       i=2 for the next   k  "     "    "   ", etc.
-C
+!
+!...  RCA(i,j) = c(k) (la,0;lb,0) * sqrt((2*la+1)(2*lb+1))
+!       j identifies la,lb:  ss,ps,pp,ds,dp,dd,... 1,2,3,4,5,6,...
+!       i identifies k: i=1 for the lowest k whose c(k) is non-zero,
+!                       i=2 for the next   k  "     "    "   ", etc.
+!
       RCA(1,1)=1.D0
       RCA(1,2)=1.D0/3.D0
       RCA(1,3)=1.D0/3.D0
@@ -64,7 +64,7 @@ C
       RCA(3,15)=162.D0/9009.D0
       RCA(4,15)=20.D0/1287.D0
       RCA(5,15)=490.D0/21879.D0
-C
+!
       IJ=0
       DO 30 I=1,lp1
         DO 31 J=1,I
@@ -72,7 +72,7 @@ C
           KOSUU(IJ)=J
 31      CONTINUE
 30    CONTINUE
-C
+!
       ICOL=0
       DO 40 L=1,lp1
         DO 41 I=1,L
@@ -84,6 +84,6 @@ C
 42        CONTINUE
 41      CONTINUE
 40    CONTINUE
-C
+!
       RETURN
       END

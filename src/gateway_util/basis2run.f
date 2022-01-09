@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine basis2run()
       use Basis_Info
       use Center_Info
@@ -21,30 +21,30 @@
       real*8, allocatable :: primitives(:,:)
       integer, allocatable :: primitive_ids(:,:), IndC(:)
       integer :: iyy, iCo, iAtoms, index_center
-*
-************************************************************************
-*
+!
+!***********************************************************************
+!
       iAtoms=0
-************************************************************************
-*     Generate list of primitive basis functions
-*
-*     Loop over distinct shell types
+!***********************************************************************
+!     Generate list of primitive basis functions
+!
+!     Loop over distinct shell types
       nPrim=0
-*     Loop over basis sets
+!     Loop over basis sets
       Do iCnttp = 1, nCnttp
         If (iCnttp.eq.iCnttp_Dummy) cycle
         If (dbsc(iCnttp)%iVal.eq.0) Cycle
         mdc = dbsc(iCnttp)%mdci
         iShSrt = dbsc(iCnttp)%iVal
-*       Loop over distinct centers
+!       Loop over distinct centers
         Do icnt = 1, dbsc(iCnttp)%nCntr
           mdc = mdc + 1
-*         Loop over symmetry-related centers
+!         Loop over symmetry-related centers
           Do iCo = 0, nIrrep/dc(mdc)%nStab-1
-*           Loop over shells associated with this center
-*           Start with s type shells
+!           Loop over shells associated with this center
+!           Start with s type shells
             jSh = iShSrt
-            if (Shells(jSh)%Aux.or.
+            if (Shells(jSh)%Aux.or.                                     &
      &          Shells(jSh)%Frag) cycle
             Do iAng = 0, dbsc(iCnttp)%nVal-1
               nPrim = nPrim + Shells(jSh)%nExp * Shells(jSh)%nBasis
@@ -60,28 +60,28 @@
       call mma_allocate(primitive_ids, 3, nPrim,label='primitive_ids')
       call mma_allocate(primitives, 2, nPrim,label='primitives')
 
-*     Loop over distinct shell types
+!     Loop over distinct shell types
       iPrim  =0
-*     Loop over basis sets
+!     Loop over basis sets
       Do iCnttp = 1, nCnttp
         if (iCnttp.eq.iCnttp_Dummy) cycle
         If (dbsc(iCnttp)%iVal.eq.0) Cycle
         mdc = dbsc(iCnttp)%mdci
         iShSrt = dbsc(iCnttp)%iVal
-*     Loop over distinct centers
+!     Loop over distinct centers
         Do icnt = 1, dbsc(iCnttp)%nCntr
           mdc = mdc + 1
-*     Loop over symmetry-related centers
+!     Loop over symmetry-related centers
           Do iCo = 0, nIrrep/dc(mdc)%nStab-1
-*     Loop over shells associated with this center
-*     Start with s type shells
+!     Loop over shells associated with this center
+!     Start with s type shells
             jSh = iShSrt
-            if (Shells(jSh)%Aux.or.
+            if (Shells(jSh)%Aux.or.                                     &
      &          ShellS(jSh)%Frag) cycle
-*     Get the flat, desymmetrized id of the center
+!     Get the flat, desymmetrized id of the center
             iyy=Index_Center(mdc,iCo,IndC,iAtoms,S%mCentr)
             Do iAng = 0, dbsc(iCnttp)%nVal-1
-*     Pointer to the untouched contraction matrix as after input.
+!     Pointer to the untouched contraction matrix as after input.
               Do iBasis = 1, Shells(jSh)%nBasis
                 Do kExp = 1, Shells(jSh)%nExp
                   iPrim  = iPrim  + 1
@@ -96,7 +96,7 @@
             End Do
           End Do
         End Do
-*
+!
       End Do
 
       call put_iArray('primitive ids', primitive_ids, 3*nPrim)

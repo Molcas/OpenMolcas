@@ -1,40 +1,40 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1991, Bjorn O. Roos                                    *
-*               1991, Roland Lindh                                     *
-*               Valera Veryazov                                        *
-************************************************************************
-      Subroutine Rdbsl(BasDir,BSLbl,Type,nCGTO,mCGTO,lAng,lCGTO,lUnit,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1991, Bjorn O. Roos                                    *
+!               1991, Roland Lindh                                     *
+!               Valera Veryazov                                        *
+!***********************************************************************
+      Subroutine Rdbsl(BasDir,BSLbl,Type,nCGTO,mCGTO,lAng,lCGTO,lUnit,  &
      &                 iAtmNr,BasisTypes,ExtBasDir)
-************************************************************************
-* Object: Decode the basis set label and read the basis set            *
-*         from the library                                             *
-*                                                                      *
-* Called from: GetBS                                                   *
-* Subroutines called: Decode                                           *
-*                                                                      *
-* Author: Bjoern Roos, Theoretical Chemistry, Chemical Centre          *
-*         University of Lund, Lund, Sweden                             *
-*         February 1991                                                *
-* Patched: Valera Veryazov                                             *
-************************************************************************
+!***********************************************************************
+! Object: Decode the basis set label and read the basis set            *
+!         from the library                                             *
+!                                                                      *
+! Called from: GetBS                                                   *
+! Subroutines called: Decode                                           *
+!                                                                      *
+! Author: Bjoern Roos, Theoretical Chemistry, Chemical Centre          *
+!         University of Lund, Lund, Sweden                             *
+!         February 1991                                                *
+! Patched: Valera Veryazov                                             *
+!***********************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "getlnqoe.fh"
       Dimension nCGTO(0:lCGTO),mCGTO(0:lCGTO)
-      Character*80 BSLBl,BSLB*180,string,atom,type,author,basis,blank,
-     &            CGTO,CGTOm,atomb, aux, aux2,
+      Character*80 BSLBl,BSLB*180,string,atom,type,author,basis,blank,  &
+     &            CGTO,CGTOm,atomb, aux, aux2,                          &
      &            Get_Ln_Quit*180
       Character *(*) BasDir, ExtBasDir
-* In case anyone would wonder: basis set path fixed to 100 char max,
-* (but no problem in increasing this later on) JR 2005
+! In case anyone would wonder: basis set path fixed to 100 char max,
+! (but no problem in increasing this later on) JR 2005
       Character*256 BasLoc
 #include "angtp.fh"
       Character*1 kAng(0:iTabMx),Str16*16, FileName*256, TmpString*256
@@ -45,12 +45,12 @@
       Integer iLast_JR,iLast1
       Integer BasisTypes(4)
       Data IfTest/.False./
-*#define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       IfTest=.True.
 #endif
       If (iTabMx.lt.lCGTO) Then
-         Call WarningMessage(2,'RdBsL: iTabMx.lt.lCGTO;'//
+         Call WarningMessage(2,'RdBsL: iTabMx.lt.lCGTO;'//              &
      &                         'Update the code!')
          Call Abend()
       Else
@@ -87,60 +87,60 @@
          iLast_JR=iLast_JR+9
       End If
       Call BasisTbl(BSLBl,BasLoc(1:iLast_JR))
-*
+!
       Hit=.True.
       Call Decode(BSLBl(1:80),atom,1,Hit)
       If (IfTest) write(6,'(1x,a,a)') 'Atom=',atom
       iAtmNr=Lbl2Nr(atom)
-*
+!
       Hit=.True.
       Call Decode(BSLBl(1:80),type,2,Hit)
       If (IfTest) write(6,'(1x,a,a)') 'Type=',type
-*
+!
       Hit=.True.
       Call Decode(BSLBl(1:80),author,3,Hit)
       If (IfTest) write(6,'(1x,a,a)') 'Author=',author
-*
+!
       Hit=.True.
       Call Decode(BSLBl(1:80),basis,4,Hit)
       If (IfTest) write(6,'(1x,a,a)') 'Basis=',basis
-*
+!
       Hit=.True.
       Call Decode(BSLBl(1:80),CGTO,5,Hit)
       If (IfTest) write(6,'(1x,a,a)') 'CGTO=',CGTO
-*
+!
       Hit=.False.
       Call Decode(BSLBl(1:80),Aux,6,Hit)
       If (.Not.Hit) Aux = ' '
       If (IfTest) write(6,'(1x,a,a)') 'Aux=',Aux
-*
+!
       Hit=.False.
       Call Decode(BSLBl(1:80),Aux2,7,Hit)
       If (.Not.Hit) Aux2 = ' '
       If (IfTest) write(6,'(1x,a,a)') 'Aux2=',Aux2
-*
+!
       blank=' '
-      If(CGTO.eq.blank .and.
-     &   (type.eq.'ECP'.or.
-     &    type.eq.'PSD'.or.
+      If(CGTO.eq.blank .and.                                            &
+     &   (type.eq.'ECP'.or.                                             &
+     &    type.eq.'PSD'.or.                                             &
      &    type.eq.'ANO')) Then
          If (IfTest) Write (6,*) ' Early exit'
-         Call WarningMessage(2,
+         Call WarningMessage(2,                                         &
      &     'Abend in RdBsl:No CGTO basis set provided in basis label')
          Call Quit_OnUserError()
       End If
-*
-*     We do not need more than 10 dots
-*
+!
+!     We do not need more than 10 dots
+!
       j=0
       Do i=1,10
          j=j+Index(BsLbl(j+1:80),'.')
          If (j.eq.0) Exit
       End Do
       If (j.gt.0) BsLbl=BsLbl(1:j)
-*
-*     Open basis library
-*
+!
+!     Open basis library
+!
       TmpString=Type
       Call Upcase(TmpString)
       Call LeftAd(BasDir)
@@ -163,47 +163,47 @@
       If (IfTest) Write (6,'(A,A)') 'Filename=',Filename
       Call f_Inquire(Filename,Exist)
       If (.not.Exist) then
-c Try to find name in trans.tbl file
+! Try to find name in trans.tbl file
         Call TransTbl(Filename)
         Call f_Inquire(Filename,Exist)
         If (.not.Exist) then
          iLast3=StrnLn(Filename)
-         Call WarningMessage(2,'Basis set file '//
-     &         Filename(1:iLast3)// ' does not exist!;;'//
-     &         '(1) For a valence basis set: check the'//
-     &         ' spelling of the basis set label'//
-     &         ' and that the basis set file is present in the'//
-     &         ' basis set library directory.;;'//
-     &         '(2) For an external auxiliary basis set: check that '//
-     &         'the basis set file is present in the appropiate '//
+         Call WarningMessage(2,'Basis set file '//                      &
+     &         Filename(1:iLast3)// ' does not exist!;;'//              &
+     &         '(1) For a valence basis set: check the'//               &
+     &         ' spelling of the basis set label'//                     &
+     &         ' and that the basis set file is present in the'//       &
+     &         ' basis set library directory.;;'//                      &
+     &         '(2) For an external auxiliary basis set: check that '// &
+     &         'the basis set file is present in the appropiate '//     &
      &         'basis set library subdirectory.')
          Call Quit_OnUserError()
         End If
       endif
-c check basistype
+! check basistype
       Call BasisType(Filename,0,BasisTypes)
-      call molcas_open_ext2(lUnit,FileName,'sequential','formatted',
+      call molcas_open_ext2(lUnit,FileName,'sequential','formatted',    &
      & iostat,.false.,irecl,'unknown',is_error)
-c      Open(Unit=lUnit,File=Filename,
-c     &        Form='FORMATTED',IOSTAT=IOStat)
+!      Open(Unit=lUnit,File=Filename,
+!     &        Form='FORMATTED',IOSTAT=IOStat)
       If (IOStat.ne.0) Then
          iLast3=StrnLn(Filename)
-         Call WarningMessage(2,
-     &         ' Problems opening basis set file '//
+         Call WarningMessage(2,                                         &
+     &         ' Problems opening basis set file '//                    &
      &         Filename(1:iLast3))
          Call Quit_OnUserError()
        End If
        ReWind (lUnit)
-*
-*     loop over the basis set library to find the correct label
-*
+!
+!     loop over the basis set library to find the correct label
+!
       If (IfTest) Write (6,*) ' Locate basis set label in library'
    10 BSLB = Get_Ln_Quit(lUnit,0)
       If (Quit_On_Error) Then
          iLast3=StrnLn(BsLbl)
-         Call WarningMessage(2,
-     &          'The requested basis set label: '//
-     &          BsLbl(:iLast3)//';'//
+         Call WarningMessage(2,                                         &
+     &          'The requested basis set label: '//                     &
+     &          BsLbl(:iLast3)//';'//                                   &
      &          'was not found in basis library: '//Filename)
          Call Abend()
       End If
@@ -216,79 +216,79 @@ c     &        Form='FORMATTED',IOSTAT=IOStat)
       Hit=.True.
       Call Decode(BSLB(2:80),atomb,1,Hit)
       If (atomb.ne.atom) Go To 10
-*
+!
       If (type.ne.blank) then
          Hit=.True.
          Call Decode(BSLB(2:80),string,2,Hit)
          If (string.ne.type) Go To 10
       Endif
-*
+!
       If (author.ne.blank) then
          Hit=.True.
          Call Decode(BSLB(2:80),string,3,Hit)
          If (string.ne.author) Go To 10
       Endif
-*
+!
       If (basis.ne.blank) then
          Hit=.True.
          Call Decode(BSLB(2:80),string,4,Hit)
          If (string.ne.basis) Go To 10
       Endif
-*
-*     If a contraction sequence has been specified it must be identical
-*     to what is in the library file if the basis set type does not
-*     not allow any other contraction sequence.
-*
-      If (CGTO.ne.blank .and.
-     &    type(1:3).ne.'ANO'.and.type.ne.'ECP'.and.type.ne.'PSD'.and.
+!
+!     If a contraction sequence has been specified it must be identical
+!     to what is in the library file if the basis set type does not
+!     not allow any other contraction sequence.
+!
+      If (CGTO.ne.blank .and.                                           &
+     &    type(1:3).ne.'ANO'.and.type.ne.'ECP'.and.type.ne.'PSD'.and.   &
      &    type.ne.'RYDBERG'.and.Aux.ne.'ECP' ) Then
          Hit=.True.
          Call Decode(BSLB(2:80),string,5,Hit)
          If (string.ne.CGTO) Go To 10
       End If
-*
+!
       Hit=.True.
       Call Decode(BSLB(2:80),string,6,Hit)
       If (Aux.ne.blank) Then
          If (string.ne.aux) Go To 10
       Else If (string.eq.'ECP') Then
-*        If the library basis (BSLB) has ECP, add it to the BsLbl
+!        If the library basis (BSLB) has ECP, add it to the BsLbl
          j=0
          Do i=1,5
             j=j+Index(BsLbl(j+1:80),'.')
          End Do
          BsLbl=BsLbl(1:j)//'ECP'//BsLbl(j+1:)
          Aux='ECP'
-*
+!
       End If
-*
+!
       If (Aux2.ne.blank) Then
          Hit=.True.
          Call Decode(BSLB(2:80),string,7,Hit)
          If (string.ne.aux2) Go To 10
       End If
-*
+!
       If (IfTest) Write (6,*) ' Process library label'
       Hit=.True.
       Call Decode(BSLB(2:80),CGTOm,5,Hit)
       If (CGTO.eq.blank) CGTO=CGTOm
-*
-*     Here when the basis set label has been identified on the file
-*     Now decode the CGTO label
-*
+!
+!     Here when the basis set label has been identified on the file
+!     Now decode the CGTO label
+!
       lAng=-1
       i1=1
       Do 20 i=1,80
          If(CGTO(i:i).eq.blank) go to 21
          Do k=0,lCGTO
             If (CGTO(i:i).eq.kAng(k)) then
-*              Read(CGTO(i1:i-1),*) nCGTO(k)
+!              Read(CGTO(i1:i-1),*) nCGTO(k)
                Str16 = CGTO(i1:i-1)
                Read(Str16,'(F16.0)') cg
                nCGTO(k)=nint(cg)
                i1=i+1
                If (k.ne.lAng+1) Then
-                  Call WarningMessage(2,
+                  Call WarningMessage(2,                                &
      &                     'RdBsl: Error in contraction label')
                   Write (6,*) 'Conflict for ',kAng(k),' shell'
                   Write (6,*) 'Erroneous label:',CGTO
@@ -302,23 +302,23 @@ c     &        Form='FORMATTED',IOSTAT=IOStat)
    21 Continue
 #ifdef _DEMO_
        If (lAng.gt.1) Then
-          Call WarningMessage(2,
-     &             'Demo version can handle only '//
+          Call WarningMessage(2,                                        &
+     &             'Demo version can handle only '//                    &
      &             's and p basis functions')
           Call Quit_OnUserError()
        End If
 #endif
-*     Write (*,*) ' lAng=',lAng
-*
-*     Check for size of contracted basis set
-*
+!     Write (*,*) ' lAng=',lAng
+!
+!     Check for size of contracted basis set
+!
       lAngm=0
       i1=1
       Do 30 i=1,80
        If(CGTOm(i:i).eq.blank) go to 31
        Do 25 k=0,lCGTO
         If(CGTOm(i:i).eq.kAng(k)) then
-*        Read(CGTOm(i1:i-1),*) mCGTO(k)
+!        Read(CGTOm(i1:i-1),*) mCGTO(k)
          Str16 = CGTOm(i1:i-1)
          Read(Str16,'(F16.0)') cg
          mCGTO(k)=nint(cg)
@@ -334,17 +334,17 @@ c     &        Form='FORMATTED',IOSTAT=IOStat)
          Write (6,*) 'nCGTO=',(nCGTO(k),k=0,lCGTO)
          Write (6,*) 'mCGTO=',(mCGTO(k),k=0,lCGTO)
       End If
-*     Write (*,*) ' lAngm=',lAngm
+!     Write (*,*) ' lAngm=',lAngm
       If (lAngM.lt.lAng) Then
-         Call WarningMessage(2,
+         Call WarningMessage(2,                                         &
      &    'Abend in RdBsl:Too high angular momentum in basis set input')
          Call Quit_OnUserError()
       End If
       lStop = .False.
       If(type.eq.'ANO') then
-*       Gen.cont.: never more contracted functions than available
+!       Gen.cont.: never more contracted functions than available
         Do 40 i=0,lang
-           If (IfTest) Write (6,*) 'i,nCGTO(i),mCGTO(i)=',
+           If (IfTest) Write (6,*) 'i,nCGTO(i),mCGTO(i)=',              &
      &                             i,nCGTO(i),mCGTO(i)
          If(nCGTO(i).gt.mCGTO(i)) then
           Write(6,4000) kAng(i),nCGTO(i),mCGTO(i)
@@ -353,43 +353,43 @@ c     &        Form='FORMATTED',IOSTAT=IOStat)
          Endif
    40   Continue
       Else If(type.eq.'ECP') then
-*       Segmented basis set: never more functions than primitives
-*       (to be checked later (getbs.f)) and never less functions
-*       than available
+!       Segmented basis set: never more functions than primitives
+!       (to be checked later (getbs.f)) and never less functions
+!       than available
         Do 41 i=0,lang
-           If (IfTest) Write (6,*) 'i,nCGTO(i),mCGTO(i)=',
+           If (IfTest) Write (6,*) 'i,nCGTO(i),mCGTO(i)=',              &
      &                             i,nCGTO(i),mCGTO(i)
          If(nCGTO(i).lt.mCGTO(i)) then
           Write(6,4100) kAng(i),nCGTO(i),mCGTO(i)
- 4100     Format(/1x,'Too few segmented CGTOs of ',a,'-type ',I3
+ 4100     Format(/1x,'Too few segmented CGTOs of ',a,'-type ',I3        &
      &           ,' Min=',I3)
           lStop = .True.
          Endif
    41   Continue
       Endif
       If (lStop) Then
-         Call WarningMessage(2,
+         Call WarningMessage(2,                                         &
      &     'Abend in RdBsl:Requested basis inconsistent with library')
          Call Quit_OnUserError()
       End If
       Return
       End
-c
+!
       Function Lbl2Nr(Atom)
       Integer Lbl2Nr, StrnLn
       Character*80 Atom
       Character*2 TmpLbl(2)
 #include "periodic_table.fh"
-*
+!
       If (StrnLn(Atom).gt.2.or.StrnLn(Atom).le.0) Then
-         Call WarningMessage(2,'The atom label;'//
-     &                '-->'//Atom(1:4)//'<--;'//
+         Call WarningMessage(2,'The atom label;'//                      &
+     &                '-->'//Atom(1:4)//'<--;'//                        &
      &                ' is not a proper string to define an element.')
          Call Quit_OnUserError()
       End If
-*
+!
       Lbl2Nr=-1
-*
+!
       lAtom=0
       Do i = 1, 80
          If (atom(i:i).ne.' ') Then
@@ -419,11 +419,11 @@ c
       End Do
 98    Continue
       If (Lbl2Nr.eq.-1) Then
-         Call WarningMessage(2,'The atom label;'//
-     &               '-->'//Atom(1:4)//'<--;'//
+         Call WarningMessage(2,'The atom label;'//                      &
+     &               '-->'//Atom(1:4)//'<--;'//                         &
      &               ' does not define an element.')
          Call Quit_OnUserError()
       End If
       Return
       End
-c
+!

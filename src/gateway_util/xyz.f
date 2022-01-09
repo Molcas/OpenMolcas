@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2016, Morgane Vacher                                   *
-*               2017,2018, Ignacio Fdez. Galvan                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2016, Morgane Vacher                                   *
+!               2017,2018, Ignacio Fdez. Galvan                        *
+!***********************************************************************
 
-* Module to handle the COORD keyword in gateway/seward
+! Module to handle the COORD keyword in gateway/seward
 
 #include "compiler_features.h"
 #define MAXLEN 180
@@ -38,7 +38,7 @@
       Integer, Dimension(7) :: Oper
       Integer :: FileNum=0
 
-      Public :: Read_XYZ, Write_SewInp, Clear_XYZ, Out_Raw,
+      Public :: Read_XYZ, Write_SewInp, Clear_XYZ, Out_Raw,             &
      &          Parse_Basis, Parse_Group, Symmetry
 
       Contains
@@ -48,7 +48,7 @@
 ! If Replace=.T., the coordinates will replace existing ones, but labels will not be changed
       Subroutine Read_XYZ(Lu,Rot,Trans,Replace)
 #ifdef _HDF5_
-      Use mh5, Only: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_attr,
+      Use mh5, Only: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_attr,      &
      &               mh5_fetch_dset, mh5_close_file
 #endif
       Integer, Intent(In) :: Lu
@@ -132,9 +132,9 @@
       FileNum = FileNum+1
 
 #ifdef _HDF5_
-************************************************************************
-* For HDF5 formatted file
-************************************************************************
+!***********************************************************************
+! For HDF5 formatted file
+!***********************************************************************
       If (isH5) Then
         Write(6,*) 'Reading xyz coordinates from h5 file '//Trim(FName)
         Coord_id = mh5_open_file_r(Trim(FName))
@@ -172,10 +172,10 @@
         End Do
 !       read atom coordinates
         If (nSym .gt. 1) then
-          Call mh5_fetch_dset(Coord_id,
+          Call mh5_fetch_dset(Coord_id,                                 &
      &         'DESYM_CENTER_COORDINATES',Coords)
         Else
-          Call mh5_fetch_dset(Coord_id,
+          Call mh5_fetch_dset(Coord_id,                                 &
      &         'CENTER_COORDINATES',Coords)
         End If
         Call mh5_close_file(Coord_id)
@@ -188,9 +188,9 @@
         Deallocate(Labels,Coords)
       Else
 #endif
-************************************************************************
-* For .xyz format file
-************************************************************************
+!***********************************************************************
+! For .xyz format file
+!***********************************************************************
         Allocate(ThisGeom(NumAt))
         Read(Lxyz,'(A)',IOStat=Error) Line
         If (Error .ne. 0) Then
@@ -217,11 +217,11 @@
 #endif
 
 !     Obtain/read transformation matrix and transform the geometry in this file
-      Mat = Reshape([One, One,  One,
-     &               One, Zero, Zero,
-     &               Zero, One, Zero,
-     &               Zero, Zero, One,
-     &               Zero, Zero, Zero],
+      Mat = Reshape([One, One,  One,                                    &
+     &               One, Zero, Zero,                                   &
+     &               Zero, One, Zero,                                   &
+     &               Zero, Zero, One,                                   &
+     &               Zero, Zero, Zero],                                 &
      &              Shape(Mat))
       Idx = Index(' '//Line, ' SCALE ')
       If (Idx .gt. 0) Then
@@ -400,8 +400,8 @@
       Call UpCase(Symmetry)
       If (Symmetry .eq. 'FULL') Then
         Call DetectSym(Thr)
-      Else If ((Symmetry(1:5) .eq. 'NOSYM') .or.
-     &         (Symmetry .eq. 'E') .or.
+      Else If ((Symmetry(1:5) .eq. 'NOSYM') .or.                        &
+     &         (Symmetry .eq. 'E') .or.                                 &
      &         (Symmetry .eq. 'C1')) Then
         Symmetry = ''
       End If
@@ -533,8 +533,8 @@
           SymB = Trim(Sym)//Trim(Lab)
           Call UpCase(SymB)
           If (SymB .ne. SymA) Cycle
-          Dist = (New(1)-Geom(j)%Coord(1))**2 +
-     &           (New(2)-Geom(j)%Coord(2))**2 +
+          Dist = (New(1)-Geom(j)%Coord(1))**2 +                         &
+     &           (New(2)-Geom(j)%Coord(2))**2 +                         &
      &           (New(3)-Geom(j)%Coord(3))**2
           If (Dist*Angstrom**2 .le. Thr**2) Then
             Done(j) = .True.
@@ -583,8 +583,8 @@
             Call UpCase(SymB)
             If (SymB .ne. SymA) Cycle
             New = ApplySym(Oper(Op), Geom(j)%Coord)
-            Dist = (New(1)-Geom(i)%Coord(1))**2 +
-     &             (New(2)-Geom(i)%Coord(2))**2 +
+            Dist = (New(1)-Geom(i)%Coord(1))**2 +                       &
+     &             (New(2)-Geom(i)%Coord(2))**2 +                       &
      &             (New(3)-Geom(i)%Coord(3))**2
             If (Dist*Angstrom**2 .le. Thr**2) Then
               Found = .True.
@@ -608,10 +608,10 @@
         ! Make sure the axes that should be zero are exactly zero
         Geom(i)%Coord = Merge([Zero,Zero,Zero],Aver/Dble(nOp),ZeroAxis)
       End Do
-      If (Moved)
-     &  Call WarningMessage(0,
-     &   'Warning! XYZ coordinates will be modified to match '//
-     &   'the specified/detected symmetry. Use SYMT = 0.0 if '//
+      If (Moved)                                                        &
+     &  Call WarningMessage(0,                                          &
+     &   'Warning! XYZ coordinates will be modified to match '//        &
+     &   'the specified/detected symmetry. Use SYMT = 0.0 if '//        &
      &   'this is not desired.')
       End Subroutine AdaptSym
 
@@ -661,7 +661,7 @@
 !     Remove digits and compute Num
       Do i = Len_Trim(Sym),1,-1
         c = Sym(i:i)
-        If ((IChar(c) .ge. IChar('0')) .and.
+        If ((IChar(c) .ge. IChar('0')) .and.                            &
      &      (IChar(c) .le. IChar('9'))) Then
           Read(c,*) j
           Num = Num + j*10**k

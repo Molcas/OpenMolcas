@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2010, Mickael G. Delcey                                *
-*               2017, Ignacio Fdez. Galvan                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2010, Mickael G. Delcey                                *
+!               2017, Ignacio Fdez. Galvan                             *
+!***********************************************************************
       subroutine processRP(KeepGroup,SymThr)
       use External_Centers
       Use Iso_C_Binding
@@ -27,30 +27,30 @@
       Real*8, Dimension(:,:), Allocatable :: DumTrans
       Real*8, pointer:: p1Dim(:)
 #endif
-************************************************************************
-*                                                                      *
-*    A silly routine to try to handle symmetry in RP-Coord section     *
-*    verify that R, P and the standard structures have one common      *
-*    symmetry. The user should preferably use a defined symmetry if    *
-*    the TS symmetry is lower than R and P                             *
-*                                                                      *
-*    M.G. Delcey     June 2010                                         *
-*    Lund University                                                   *
-*                                                                      *
-*    Adaptation to OpenMolcas                                          *
-*    I. Fdez. Galvan   July 2017                                       *
-*                                                                      *
-************************************************************************
-*
-**   If C1, all is already done
-*
+!***********************************************************************
+!                                                                      *
+!    A silly routine to try to handle symmetry in RP-Coord section     *
+!    verify that R, P and the standard structures have one common      *
+!    symmetry. The user should preferably use a defined symmetry if    *
+!    the TS symmetry is lower than R and P                             *
+!                                                                      *
+!    M.G. Delcey     June 2010                                         *
+!    Lund University                                                   *
+!                                                                      *
+!    Adaptation to OpenMolcas                                          *
+!    I. Fdez. Galvan   July 2017                                       *
+!                                                                      *
+!***********************************************************************
+!
+!*   If C1, all is already done
+!
       KG=KeepGroup
       Call UpCase(KG)
       if (KG(1:1).eq.'E'.or.KG(1:2).eq.'C1') then
            KG='NOSYM'
       endif
       If (KG(1:5).eq.'NOSYM') Go To 30
-*
+!
 #ifdef _HAVE_EXTRA_
       LuRP=IsFreeUnit(10)
       Call molcas_open(LuRP,'findsym.out')
@@ -58,9 +58,9 @@
       minGroup = Get_Ln(LuRP)
       close(LuRP)
       If (index(KWord,'C1').ne.0) Go To 30
-*
-**    Else findsym will find the group
-*
+!
+!*    Else findsym will find the group
+!
       Call findsymf('findsym.RP1',KG,SymThr,ierr)
       If (ierr.ne.0) Go To 20
       Call molcas_open(LuRP,'findsym.out')
@@ -72,7 +72,7 @@
       Key = Get_Ln(LuRP)
       KWord = Get_Ln(LuRP)
       Call Get_I(1,nRP,1)
-*  Only read the second structure in findsym.out
+!  Only read the second structure in findsym.out
       Do i=1,nRP+3
         Read(LuRP,*)
       End Do
@@ -81,30 +81,30 @@
       EndDo
       nRP=nRP*3
       close(LuRP)
-*
-**    Compare with the one of the current structure
-**    no need if user defined
-*
+!
+!*    Compare with the one of the current structure
+!*    no need if user defined
+!
       Write(6,*) Key,minGroup
       If (KG(1:4).eq.'FULL') Then
         If (Key.ne.minGroup) Go To 21
       EndIf
-*
-**
-*
+!
+!*
+!
       Call findsymf('findsym.RP2',KG,SymThr,ierr)
       If (ierr.ne.0) Go To 20
       Call molcas_open(LuRP,'findsym.out')
       Read(LuRP,*)
       KWord = Get_Ln(LuRP)
-*
+!
       If (KG(1:4).eq.'FULL') Then
         If (KWord.ne.minGroup) Then
           Close(LuRP)
           Go To 21
         End If
       EndIf
-*
+!
       KWord = Get_Ln(LuRP)
       Call Get_I(1,i,1)
       If (3*i.ne.nRP) Go To 20
@@ -145,13 +145,13 @@
 #endif
  30   Continue
       return
-************************************************************************
+!***********************************************************************
  20   Continue
-      Call WarningMessage(2,
+      Call WarningMessage(2,                                            &
      &       'Error in RP-Coord section, check symmetry')
       Call Quit_OnUserError()
  21   Continue
-      KWord='Error in RP-Coord section, structures do not have the '//
+      KWord='Error in RP-Coord section, structures do not have the '//  &
      &      'same symmetry. Please define manually the symmetry group.'
       Call WarningMessage(2,KWord)
       Call Quit_OnUserError()

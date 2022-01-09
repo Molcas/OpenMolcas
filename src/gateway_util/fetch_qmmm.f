@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
 #ifdef _GROMACS_
       SUBROUTINE Fetch_QMMM(CastMM,nCastMM)
 
@@ -45,14 +45,14 @@
           TYPE(c_ptr), VALUE :: cr
           CHARACTER(kind=c_char) :: log_(*)
         END FUNCTION mmslave_init
-        FUNCTION mmslave_get_atomnumber(gms,id)
+        FUNCTION mmslave_get_atomnumber(gms,id)                         &
      &           BIND(C,NAME='mmslave_get_atomnumber_')
           USE, INTRINSIC :: iso_c_binding, only: c_int, c_ptr
           INTEGER(kind=c_int) :: mmslave_get_atomnumber
           TYPE(c_ptr), VALUE :: gms
           INTEGER(kind=c_int), VAlUE :: id
         END FUNCTION mmslave_get_atomnumber
-        FUNCTION mmslave_get_group_id(gms,id)
+        FUNCTION mmslave_get_group_id(gms,id)                           &
      &           BIND(C,NAME='mmslave_get_group_id_')
           USE, INTRINSIC :: iso_c_binding, only: c_int, c_ptr
           INTEGER(kind=c_int) :: mmslave_get_group_id
@@ -64,7 +64,7 @@
           INTEGER(kind=c_int) :: mmslave_natoms
           TYPE(c_ptr), VALUE :: gms
         END FUNCTION mmslave_natoms
-        FUNCTION mmslave_read_tpr(tpr,gms)
+        FUNCTION mmslave_read_tpr(tpr,gms)                              &
      &           BIND(C,NAME='mmslave_read_tpr_')
           USE, INTRINSIC :: iso_c_binding, ONLY: c_char, c_int, c_ptr
           INTEGER(kind=c_int) :: mmslave_read_tpr
@@ -158,7 +158,7 @@
       CALL mma_allocate(LabMMO,nAtOut)
       iAtOut = 1
       DO iAtGMX = 1,nAtGMX
-         iAtNmbGMX = mmslave_get_atomnumber(ipGMS,
+         iAtNmbGMX = mmslave_get_atomnumber(ipGMS,                      &
      &                                      INT(iAtGMX-1,kind=c_int))
          iFirst = INDEX(PTab(iAtNmbGMX),' ')+1
          IF (AT(iAtGMX)==QM) THEN
@@ -167,7 +167,7 @@
             Symbol = PTab(iAtNmbGMX)(iFirst:2)//'_MM'
          END IF
          IF (AT(iAtGMX)==QM.OR.AT(iAtGMX)==MMI) THEN
-            WRITE(LuXYZ,'(a8,3E24.15E3)') Symbol(1:5),
+            WRITE(LuXYZ,'(a8,3E24.15E3)') Symbol(1:5),                  &
      &           (CoordGMX(iXYZ,iAtGMX)*NmToAng,iXYZ=1,3)
          ELSE
             DO iXYZ = 1,3
@@ -200,7 +200,7 @@
       INTEGER(kind=c_int) :: natoms
       REAL*8, TARGET :: x(*)
       INTERFACE
-        FUNCTION mmslave_copyx(gms,natoms,x)
+        FUNCTION mmslave_copyx(gms,natoms,x)                            &
      &           BIND(C,NAME='mmslave_copyx_')
           USE, INTRINSIC :: iso_c_binding, only: c_int, c_ptr
           INTEGER(kind=c_int) :: mmslave_copyx

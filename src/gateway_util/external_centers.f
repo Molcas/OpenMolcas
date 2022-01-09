@@ -1,26 +1,26 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2020, Roland Lindh                                     *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2020, Roland Lindh                                     *
+!***********************************************************************
       Module External_Centers
       Implicit None
       Private
 #include "stdalloc.fh"
-      Public :: nEF, EF_Centers,
-     &          OAM_Center, OMQ_Center, nDMS, DMS_Centers, Dxyz,
-     &          nWel, Wel_Info, AMP_Center, nRP, RP_Centers,
-     &          nData_XF, nXF, nXMolnr, XF, XEle, XMolnr,
-     &          nOrdEF, nOrd_XF, iXPolType,
-     &          External_Centers_Dmp,
-     &          External_Centers_Free,
+      Public :: nEF, EF_Centers,                                        &
+     &          OAM_Center, OMQ_Center, nDMS, DMS_Centers, Dxyz,        &
+     &          nWel, Wel_Info, AMP_Center, nRP, RP_Centers,            &
+     &          nData_XF, nXF, nXMolnr, XF, XEle, XMolnr,               &
+     &          nOrdEF, nOrd_XF, iXPolType,                             &
+     &          External_Centers_Dmp,                                   &
+     &          External_Centers_Free,                                  &
      &          External_Centers_Get
       Integer :: nEF=0, nOrdEF=-1
       Real*8, Allocatable:: EF_Centers(:,:)
@@ -37,13 +37,13 @@
       Integer :: nData_XF=0, nXF=0, nXMolnr=0, nOrd_XF=1, iXPolType=0
       Real*8, Allocatable:: XF(:,:)
       Integer, Allocatable:: XEle(:), XMolnr(:,:)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Contains
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Subroutine External_Centers_Dmp()
 #include "angtp.fh"
       Real*8, Allocatable:: RP_Temp(:,:,:)
@@ -95,9 +95,9 @@
       Call mma_deallocate(iDmp)
       Return
       End Subroutine External_Centers_Dmp
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Subroutine External_Centers_Free()
       If (Allocated(EF_Centers)) Then
          Call mma_deallocate(EF_Centers)
@@ -131,9 +131,9 @@
       End If
       Return
       End Subroutine External_Centers_Free
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Subroutine External_Centers_Get()
       Integer, Allocatable:: iDmp(:)
       Real*8, Allocatable:: DMS_Ext(:,:)
@@ -152,7 +152,7 @@
          End If
          Call Get_dArray('EF_Centers',EF_Centers,3*nEF)
       End If
-*
+!
       Call qpg_dArray('OAM_Center',Found,Len2)
       If (Found) Then
          If (.Not.Allocated(OAM_Center)) Then
@@ -160,7 +160,7 @@
          End If
          Call Get_dArray('OAM_Center',OAM_Center,3)
       End If
-*
+!
       Call qpg_dArray('OMQ_Center',Found,Len2)
       If (Found) Then
          If (.Not.Allocated(OMQ_Center)) Then
@@ -168,7 +168,7 @@
          End If
          Call Get_dArray('OMQ_Center',OMQ_Center,3)
       End If
-*
+!
       Call qpg_dArray('DMS_Centers',Found,Len2)
       If (Found) Then
          nDMS=Len2/3-1
@@ -186,7 +186,7 @@
          Dxyz(1:3) =              DMS_Centers(1:3,nDMS+1)
          call mma_deallocate(DMS_Ext)
       End If
-*
+!
       Call qpg_dArray('Wel_Info',Found,Len2)
       If (Found) Then
          nWel=Len2/3
@@ -200,7 +200,7 @@
          End If
          Call Get_dArray('Wel_Info',Wel_Info,3*nWel)
       End If
-*
+!
       Call qpg_dArray('AMP_Center',Found,Len2)
       If (Found) Then
          If (.Not.Allocated(AMP_Center)) Then
@@ -208,7 +208,7 @@
          End If
          Call Get_dArray('AMP_Center',AMP_Center,3)
       End If
-*
+!
       Call qpg_dArray('RP_Centers',Found,Len2)
       If (Found) Then
          nRP=Len2/2
@@ -222,7 +222,7 @@
          End If
          Call Get_dArray('RP_Centers',RP_Centers,2*nRP)
       End If
-*
+!
       Call qpg_iArray('XEle',Found,Len2)
       If (Found) Then
          nXF=Len2
@@ -230,14 +230,14 @@
             Call mma_allocate(XEle,nXF,Label='XEle')
          End If
          Call Get_iArray('XEle',XEle,nXF)
-*
+!
          Call qpg_iArray('XMolnr',Found,Len2)
          nXMolnr=Len2/nXF
          If (.Not.Allocated(XMolnr)) Then
             Call mma_allocate(XMolnr,nXMolnr,nXF,Label='XMolnr')
          End If
          Call Get_iArray('XMolnr',XMolnr,nXMolnr*nXF)
-*
+!
          Call qpg_dArray('XF',Found,Len2)
          nData_XF=Len2/nXF
          If (.Not.Allocated(XF)) Then
@@ -252,7 +252,7 @@
       iXPolType = iDmp(3)
       Call mma_deallocate(iDmp)
       End Subroutine External_Centers_Get
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       End Module External_Centers
