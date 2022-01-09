@@ -16,9 +16,7 @@ use Definitions, only: iwp
 implicit none
 private
 
-integer(kind=iwp), parameter :: G_Mode = 1, &
-                                S_Mode = 2, &
-                                GS_Mode = 3
+integer(kind=iwp), parameter :: G_Mode = 1, S_Mode = 2, GS_Mode = 3
 integer(kind=iwp) :: Run_Mode
 
 public :: Run_Mode, G_Mode, S_Mode, GS_Mode

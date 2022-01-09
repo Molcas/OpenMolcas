@@ -8,13 +8,9 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module AMFI_Info
-  Implicit None
-  Private
-  Public:: No_AMFI
-!
-  Integer, Parameter:: nSize=120
-  Integer i
-  Logical:: No_AMFI(0:nSize)= (/ (.False., i=0, nSize) /)
-!
-  End Module AMFI_Info
+
+module SW_File
+
+character(LEN=512) :: SW_FileOrb = 'INPORB'
+
+end module SW_File

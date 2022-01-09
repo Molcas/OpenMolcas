@@ -25,124 +25,123 @@
 !>
 !> @param[in] iPrint Print level
 !***********************************************************************
-      SUBROUTINE Process_Weights(iPrint)
-      use Basis_Info
-      use Center_Info
-      use Symmetry_Info, only: nIrrep
-      IMPLICIT REAL*8 (a-h,o-z)
+
+subroutine Process_Weights(iPrint)
+
+use Basis_Info
+use Center_Info
+use Symmetry_Info, only: nIrrep
+
+implicit real*8(a-h,o-z)
 #include "constants2.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-      Character(LEN=512) Align_Weights
-      LOGICAL Small
-      PARAMETER ( thr=1.0d-6 )
-      REAL*8, DIMENSION(:), ALLOCATABLE :: W
+character(LEN=512) Align_Weights
+logical Small
+parameter(thr=1.0d-6)
+real*8, dimension(:), allocatable :: W
 
-      Call Get_cArray('Align_Weights',Align_Weights,512)
-!
-!---- Count the total and symmetry-unique number of atoms
-      nAt=0
-      nSymAt=0
-      ndc=0
-      DO i=1,nCnttp
-        DO j=1,dbsc(i)%nCntr
-          ndc=ndc+1
-          IF (.NOT.(dbsc(i)%pChrg.OR.dbsc(i)%Frag.OR.dbsc(i)%Aux)) THEN
-            nAt=nAt+nIrrep/dc(ndc)%nStab
-            nSymAt=nSymAt+1
-          END IF
-        END DO
-      END DO
-      CALL mma_allocate(W,nAt,label='W')
-!
-!---- By default, all weights are 1
-      call dcopy_(nAt,[One],0,W,1)
-!
-      IF (Align_Weights(1:4).EQ.'MASS') Then
-!---- Set the weights to the mass of each atom
-        j=1
-        DO i=1,nCnttp
-          IF (.NOT.(dbsc(i)%pChrg.OR.dbsc(i)%Frag.OR.dbsc(i)%Aux)) THEN
-            DO iCnt=1,dbsc(i)%nCntr
-              W(j)=dbsc(i)%CntMass/UTOAU
-              j=j+1
-            END DO
-          END IF
-        END DO
-      ELSE IF (Align_Weights(1:5).EQ.'HEAVY') THEN
-!---- Set the the weight to 1 for heavy atoms, 0 for hydrogens
-        j=1
-        DO i=1,nCnttp
-          IF (.NOT.(dbsc(i)%pChrg.OR.dbsc(i)%Frag.OR.dbsc(i)%Aux)) THEN
-            DO iCnt=1,dbsc(i)%nCntr
-              IF (dbsc(i)%AtmNr.LE.1) W(j)=Zero
-              j=j+1
-            END DO
-          END IF
-        END DO
-      ELSE IF (Align_Weights(1:5).EQ.'EQUAL') THEN
-!---- EQUAL is already the default: 1 for all
-        !CONTINUE
-      ELSE
-!---- Read the weights from the input line
-        READ(Align_Weights,*,IOSTAT=iErr) (W(i),i=1,nAt)
-        IF (iErr.GT.0) THEN
-          CALL WarningMessage(2,'Unable to read data from WEIG')
-          CALL Quit_OnUserError()
-        END IF
-      END IF
-!
-!---- Unfold the symmetry
-      iSymAt=1
-      iAt=1+nSymAt
-      ndc=0
-      DO i=1,nCnttp
-        DO j=1,dbsc(i)%ncntr
-          ndc=ndc+1
-          IF (.NOT.(dbsc(i)%pChrg.OR.dbsc(i)%Frag.OR.dbsc(i)%Aux)) THEN
-            DO k=1,nIrrep/dc(ndc)%nStab-1
-              W(iAt)=W(iSymAt)
-              iAt=iAt+1
-            END DO
-            iSymAt=iSymAt+1
-          END IF
-        END DO
-      END DO
-!
-!---- Check for zero total weight
-      wTot=Zero
-      DO i=1,nAt
-        wTot=wTot+W(i)
-      END DO
-      IF (wTot.LT.thr) THEN
-        CALL WarningMessage(1,                                          &
-     &       'Total weight too small. Setting equal weights.')
-        DO i=1,nAt
-          W(i)=One
-        END DO
-      END IF
-!---- Prevent zero weights, it could break the "sphere" constraint
-!     (a value between 1e-6 and 1e-1 can still be used)
-      Small=.FALSE.
-      DO i=1,nAt
-        IF (W(i).LT.thr) THEN
-          W(i)=1.0d-1
-          Small=.TRUE.
-        END IF
-      END DO
-      IF (iPrint.GE.6) THEN
-        IF (Small) THEN
-          CALL WarningMessage(1,                                        &
-     &         'Small weights were increased to avoid problems with'//  &
-     &         ' constraints.')
-        END IF
-        CALL RecPrt('Weights used for alignment and distance',' ',      &
-     &              W,nAt,1)
-        WRITE(6,*)
-      END IF
-!
-!---- Store weights in the runfile too
-      CALL Put_dArray('Weights',W,nAt)
-      CALL mma_deallocate(W)
-!
-      END
+call Get_cArray('Align_Weights',Align_Weights,512)
+
+! Count the total and symmetry-unique number of atoms
+nAt = 0
+nSymAt = 0
+ndc = 0
+do i=1,nCnttp
+  do j=1,dbsc(i)%nCntr
+    ndc = ndc+1
+    if (.not. (dbsc(i)%pChrg .or. dbsc(i)%Frag .or. dbsc(i)%Aux)) then
+      nAt = nAt+nIrrep/dc(ndc)%nStab
+      nSymAt = nSymAt+1
+    end if
+  end do
+end do
+call mma_allocate(W,nAt,label='W')
+
+! By default, all weights are 1
+call dcopy_(nAt,[One],0,W,1)
+
+if (Align_Weights(1:4) == 'MASS') then
+  ! Set the weights to the mass of each atom
+  j = 1
+  do i=1,nCnttp
+    if (.not. (dbsc(i)%pChrg .or. dbsc(i)%Frag .or. dbsc(i)%Aux)) then
+      do iCnt=1,dbsc(i)%nCntr
+        W(j) = dbsc(i)%CntMass/UTOAU
+        j = j+1
+      end do
+    end if
+  end do
+else if (Align_Weights(1:5) == 'HEAVY') then
+  ! Set the the weight to 1 for heavy atoms, 0 for hydrogens
+  j = 1
+  do i=1,nCnttp
+    if (.not. (dbsc(i)%pChrg .or. dbsc(i)%Frag .or. dbsc(i)%Aux)) then
+      do iCnt=1,dbsc(i)%nCntr
+        if (dbsc(i)%AtmNr <= 1) W(j) = Zero
+        j = j+1
+      end do
+    end if
+  end do
+else if (Align_Weights(1:5) == 'EQUAL') then
+  ! EQUAL is already the default: 1 for all
+  !continue
+else
+  ! Read the weights from the input line
+  read(Align_Weights,*,IOSTAT=iErr) (W(i),i=1,nAt)
+  if (iErr > 0) then
+    call WarningMessage(2,'Unable to read data from WEIG')
+    call Quit_OnUserError()
+  end if
+end if
+
+! Unfold the symmetry
+iSymAt = 1
+iAt = 1+nSymAt
+ndc = 0
+do i=1,nCnttp
+  do j=1,dbsc(i)%ncntr
+    ndc = ndc+1
+    if (.not. (dbsc(i)%pChrg .or. dbsc(i)%Frag .or. dbsc(i)%Aux)) then
+      do k=1,nIrrep/dc(ndc)%nStab-1
+        W(iAt) = W(iSymAt)
+        iAt = iAt+1
+      end do
+      iSymAt = iSymAt+1
+    end if
+  end do
+end do
+
+! Check for zero total weight
+wTot = Zero
+do i=1,nAt
+  wTot = wTot+W(i)
+end do
+if (wTot < thr) then
+  call WarningMessage(1,'Total weight too small. Setting equal weights.')
+  do i=1,nAt
+    W(i) = One
+  end do
+end if
+! Prevent zero weights, it could break the "sphere" constraint
+! (a value between 1e-6 and 1e-1 can still be used)
+Small = .false.
+do i=1,nAt
+  if (W(i) < thr) then
+    W(i) = 1.0d-1
+    Small = .true.
+  end if
+end do
+if (iPrint >= 6) then
+  if (Small) then
+    call WarningMessage(1,'Small weights were increased to avoid problems with constraints.')
+  end if
+  call RecPrt('Weights used for alignment and distance',' ',W,nAt,1)
+  write(6,*)
+end if
+
+! Store weights in the runfile too
+call Put_dArray('Weights',W,nAt)
+call mma_deallocate(W)
+
+end subroutine Process_Weights

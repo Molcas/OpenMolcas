@@ -11,8 +11,8 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine Nrmlx(Exp,nPrim,Coeff,nCntrc,                          &
-     &                 Scrt1,nScrt1,Scrt2,nScrt2,iAng)
+
+subroutine Nrmlx(Exp,nPrim,Coeff,nCntrc,Scrt1,nScrt1,Scrt2,nScrt2,iAng)
 !***********************************************************************
 !                                                                      *
 ! Object: normalize the contraction coefficients with respect to the   *
@@ -27,58 +27,52 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             January '90                                              *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
-      Real*8 Exp(nPrim), Coeff(nPrim,nCntrc), Scrt1(nScrt1),            &
-     &       Scrt2(nScrt2)
+
+implicit real*8(A-H,O-Z)
+real*8 exp(nPrim), Coeff(nPrim,nCntrc), Scrt1(nScrt1), Scrt2(nScrt2)
 #include "real.fh"
-!
-!#define _DEBUGPRINT_
+
 #ifdef _DEBUGPRINT_
-      Write (6,*) ' In Nrmlz: iAng=',iAng
-      Call RecPrt(' In Nrmlz: Coefficients',' ',Coeff,nPrim,nCntrc)
-      Call RecPrt(' In Nrmlz: Exponents',' ',Exp,nPrim,1)
+write(6,*) ' In Nrmlz: iAng=',iAng
+call RecPrt(' In Nrmlz: Coefficients',' ',Coeff,nPrim,nCntrc)
+call RecPrt(' In Nrmlz: Exponents',' ',Exp,nPrim,1)
 #endif
-!
-!     Normalize the coefficients (only radial normalization)
-!
-!     Compute overlap for all primitives of this shell.
-!     This formula includes the normalization constant for each
-!     primitive as well as the overlap factor of between the primitives.
-!     Hence, the overlap matrix elements correspond to those of the
-!     normalized primitive gaussian functions.
-!
-      Do 200 iExp = 1, nPrim
-         Do 210 jExp = 1, iExp-1
-               Temp =  ( Two*Sqrt(Exp(iExp)*Exp(jExp)) /                &
-     &                   (Exp(iExp)+Exp(jExp)))**(Dble(iAng)+Three/Two)
-               Scrt1(nPrim*(iExp-1)+jExp)=Temp
-               Scrt1(nPrim*(jExp-1)+iExp)=Temp
- 210        Continue
-            Scrt1(nPrim*(iExp-1)+iExp)=One
- 200     Continue
-!     Contract right side
-      Call DGEMM_('N','N',                                              &
-     &            nPrim,nCntrc,nPrim,                                   &
-     &            1.0d0,Scrt1,nPrim,                                    &
-     &            Coeff,nPrim,                                          &
-     &            0.0d0,Scrt2,nPrim)
+
+! Normalize the coefficients (only radial normalization)
+
+! Compute overlap for all primitives of this shell.
+! This formula includes the normalization constant for each
+! primitive as well as the overlap factor of between the primitives.
+! Hence, the overlap matrix elements correspond to those of the
+! normalized primitive gaussian functions.
+
+do iExp=1,nPrim
+  do jExp=1,iExp-1
+    Temp = (Two*sqrt(exp(iExp)*exp(jExp))/(exp(iExp)+exp(jExp)))**(dble(iAng)+Three/Two)
+    Scrt1(nPrim*(iExp-1)+jExp) = Temp
+    Scrt1(nPrim*(jExp-1)+iExp) = Temp
+  end do
+  Scrt1(nPrim*(iExp-1)+iExp) = One
+end do
+! Contract right side
+call DGEMM_('N','N',nPrim,nCntrc,nPrim,1.0d0,Scrt1,nPrim,Coeff,nPrim,0.0d0,Scrt2,nPrim)
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' Overlap primitives',' ',Scrt1,nPrim,nPrim)
-      Call RecPrt(' Overlap PrimCon',' ',Scrt2,nPrim,nCntrc)
+call RecPrt(' Overlap primitives',' ',Scrt1,nPrim,nPrim)
+call RecPrt(' Overlap PrimCon',' ',Scrt2,nPrim,nCntrc)
 #endif
-!     Compute the overlap for each contracted basis function, <i|i>
-      Call DnDot(nCntrc,nPrim,Scrt1,1,1,Scrt2,1,nPrim,Coeff,1,nPrim)
-!     Normalize coefficients, i.e. combine the normalization factor
-!     of the primitive and the overlap of the unnormalized contracted
-!     basis function.
-      Do i = 1, nCntrc
-         Tmp = 1/Sqrt(Scrt1(i))
-         Call DScal_(nPrim,Tmp,Coeff(1,i),1)
-      End Do
+! Compute the overlap for each contracted basis function, <i|i>
+call DnDot(nCntrc,nPrim,Scrt1,1,1,Scrt2,1,nPrim,Coeff,1,nPrim)
+! Normalize coefficients, i.e. combine the normalization factor
+! of the primitive and the overlap of the unnormalized contracted
+! basis function.
+do i=1,nCntrc
+  Tmp = 1/sqrt(Scrt1(i))
+  call DScal_(nPrim,Tmp,Coeff(1,i),1)
+end do
 #ifdef _DEBUGPRINT_
-      Call Recprt(' In Nrmlz: Normalized coefficients',' ',             &
-     &            Coeff,nPrim,nCntrc)
+call Recprt(' In Nrmlz: Normalized coefficients',' ',Coeff,nPrim,nCntrc)
 #endif
-!
-      Return
-      End
+
+return
+
+end subroutine Nrmlx

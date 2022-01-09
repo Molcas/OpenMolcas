@@ -8,102 +8,106 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine basis2run()
-      use Basis_Info
-      use Center_Info
-      use Sizes_of_Seward, only: S
-      use Symmetry_Info, only: nIrrep
-      Implicit None
+
+subroutine basis2run()
+
+use Basis_Info
+use Center_Info
+use Sizes_of_Seward, only: S
+use Symmetry_Info, only: nIrrep
+
+implicit none
 #include "stdalloc.fh"
-      integer :: nPrim
-      integer :: kExp
-      integer :: iPrim, iCnttp, icnt, mdc, jSh, iShSrt, iAng, iBasis
-      real*8, allocatable :: primitives(:,:)
-      integer, allocatable :: primitive_ids(:,:), IndC(:)
-      integer :: iyy, iCo, iAtoms, index_center
+integer :: nPrim
+integer :: kExp
+integer :: iPrim, iCnttp, icnt, mdc, jSh, iShSrt, iAng, iBasis
+real*8, allocatable :: primitives(:,:)
+integer, allocatable :: primitive_ids(:,:), IndC(:)
+integer :: iyy, iCo, iAtoms, index_center
+
 !
 !***********************************************************************
 !
-      iAtoms=0
+iAtoms = 0
 !***********************************************************************
-!     Generate list of primitive basis functions
+! Generate list of primitive basis functions
 !
-!     Loop over distinct shell types
-      nPrim=0
-!     Loop over basis sets
-      Do iCnttp = 1, nCnttp
-        If (iCnttp.eq.iCnttp_Dummy) cycle
-        If (dbsc(iCnttp)%iVal.eq.0) Cycle
-        mdc = dbsc(iCnttp)%mdci
-        iShSrt = dbsc(iCnttp)%iVal
-!       Loop over distinct centers
-        Do icnt = 1, dbsc(iCnttp)%nCntr
-          mdc = mdc + 1
-!         Loop over symmetry-related centers
-          Do iCo = 0, nIrrep/dc(mdc)%nStab-1
-!           Loop over shells associated with this center
-!           Start with s type shells
-            jSh = iShSrt
-            if (Shells(jSh)%Aux.or.                                     &
-     &          Shells(jSh)%Frag) cycle
-            Do iAng = 0, dbsc(iCnttp)%nVal-1
-              nPrim = nPrim + Shells(jSh)%nExp * Shells(jSh)%nBasis
-              jSh = jSh + 1
-            End Do
-          End Do
-        End Do
-      End Do
+! Loop over distinct shell types
+nPrim = 0
+! Loop over basis sets
+do iCnttp=1,nCnttp
+  if (iCnttp == iCnttp_Dummy) cycle
+  if (dbsc(iCnttp)%iVal == 0) cycle
+  mdc = dbsc(iCnttp)%mdci
+  iShSrt = dbsc(iCnttp)%iVal
+  ! Loop over distinct centers
+  do icnt=1,dbsc(iCnttp)%nCntr
+    mdc = mdc+1
+    ! Loop over symmetry-related centers
+    do iCo=0,nIrrep/dc(mdc)%nStab-1
+      ! Loop over shells associated with this center
+      ! Start with s type shells
+      jSh = iShSrt
+      if (Shells(jSh)%Aux .or. Shells(jSh)%Frag) cycle
+      do iAng=0,dbsc(iCnttp)%nVal-1
+        nPrim = nPrim+Shells(jSh)%nExp*Shells(jSh)%nBasis
+        jSh = jSh+1
+      end do
+    end do
+  end do
+end do
 
-      call put_iScalar('nPrim',nPrim)
+call put_iScalar('nPrim',nPrim)
 
-      Call mma_allocate(IndC,2*S%mCentr,label='IndC')
-      call mma_allocate(primitive_ids, 3, nPrim,label='primitive_ids')
-      call mma_allocate(primitives, 2, nPrim,label='primitives')
+call mma_allocate(IndC,2*S%mCentr,label='IndC')
+call mma_allocate(primitive_ids,3,nPrim,label='primitive_ids')
+call mma_allocate(primitives,2,nPrim,label='primitives')
 
-!     Loop over distinct shell types
-      iPrim  =0
-!     Loop over basis sets
-      Do iCnttp = 1, nCnttp
-        if (iCnttp.eq.iCnttp_Dummy) cycle
-        If (dbsc(iCnttp)%iVal.eq.0) Cycle
-        mdc = dbsc(iCnttp)%mdci
-        iShSrt = dbsc(iCnttp)%iVal
-!     Loop over distinct centers
-        Do icnt = 1, dbsc(iCnttp)%nCntr
-          mdc = mdc + 1
-!     Loop over symmetry-related centers
-          Do iCo = 0, nIrrep/dc(mdc)%nStab-1
-!     Loop over shells associated with this center
-!     Start with s type shells
-            jSh = iShSrt
-            if (Shells(jSh)%Aux.or.                                     &
-     &          ShellS(jSh)%Frag) cycle
-!     Get the flat, desymmetrized id of the center
-            iyy=Index_Center(mdc,iCo,IndC,iAtoms,S%mCentr)
-            Do iAng = 0, dbsc(iCnttp)%nVal-1
-!     Pointer to the untouched contraction matrix as after input.
-              Do iBasis = 1, Shells(jSh)%nBasis
-                Do kExp = 1, Shells(jSh)%nExp
-                  iPrim  = iPrim  + 1
-                  primitive_ids(1,iPrim) = iyy
-                  primitive_ids(2,iPrim) = iAng
-                  primitive_ids(3,iPrim) = iBasis
-                  primitives(1,iPrim) = Shells(jSh)%Exp(kExp)
-                  primitives(2,iPrim) = Shells(jSh)%Cff_c(kExp,iBasis,2)
-                End Do
-              End Do
-              jSh = jSh + 1
-            End Do
-          End Do
-        End Do
-!
-      End Do
+! Loop over distinct shell types
+iPrim = 0
+! Loop over basis sets
+do iCnttp=1,nCnttp
+  if (iCnttp == iCnttp_Dummy) cycle
+  if (dbsc(iCnttp)%iVal == 0) cycle
+  mdc = dbsc(iCnttp)%mdci
+  iShSrt = dbsc(iCnttp)%iVal
+  ! Loop over distinct centers
+  do icnt=1,dbsc(iCnttp)%nCntr
+    mdc = mdc+1
+    ! Loop over symmetry-related centers
+    do iCo=0,nIrrep/dc(mdc)%nStab-1
+      ! Loop over shells associated with this center
+      ! Start with s type shells
+      jSh = iShSrt
+      if (Shells(jSh)%Aux .or. ShellS(jSh)%Frag) cycle
+      ! Get the flat, desymmetrized id of the center
+      iyy = Index_Center(mdc,iCo,IndC,iAtoms,S%mCentr)
+      do iAng=0,dbsc(iCnttp)%nVal-1
+        ! Pointer to the untouched contraction matrix as after input.
+        do iBasis=1,Shells(jSh)%nBasis
+          do kExp=1,Shells(jSh)%nExp
+            iPrim = iPrim+1
+            primitive_ids(1,iPrim) = iyy
+            primitive_ids(2,iPrim) = iAng
+            primitive_ids(3,iPrim) = iBasis
+            primitives(1,iPrim) = Shells(jSh)%exp(kExp)
+            primitives(2,iPrim) = Shells(jSh)%Cff_c(kExp,iBasis,2)
+          end do
+        end do
+        jSh = jSh+1
+      end do
+    end do
+  end do
 
-      call put_iArray('primitive ids', primitive_ids, 3*nPrim)
-      call put_dArray('primitives', primitives, 2*nPrim)
+end do
 
-      call mma_deallocate(primitive_ids)
-      call mma_deallocate(primitives)
-      call mma_deallocate(IndC)
-      Return
-      End
+call put_iArray('primitive ids',primitive_ids,3*nPrim)
+call put_dArray('primitives',primitives,2*nPrim)
+
+call mma_deallocate(primitive_ids)
+call mma_deallocate(primitives)
+call mma_deallocate(IndC)
+
+return
+
+end subroutine basis2run

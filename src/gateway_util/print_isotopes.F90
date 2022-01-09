@@ -10,70 +10,76 @@
 !                                                                      *
 ! Copyright (C) 2018, Ignacio Fdez. Galvan                             *
 !***********************************************************************
-      SubRoutine Print_Isotopes()
-      use Period
-      use Basis_Info, only: nCnttp, dbsc
-      Implicit Real*8 (A-H,O-Z)
+
+subroutine Print_Isotopes()
+
+use Period
+use Basis_Info, only: nCnttp, dbsc
+
+implicit real*8(A-H,O-Z)
 #include "print.fh"
 #include "constants2.fh"
-      Logical Changed
+logical Changed
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      iRout=2
-      iPrint = nPrint(iRout)
-      If (iPrint.eq.0) Return
-      LuWr=6
+iRout = 2
+iPrint = nPrint(iRout)
+if (iPrint == 0) return
+LuWr = 6
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Determine whether any mass is different from default
-!
-      Changed = .False.
-      Do i=1,nCnttp
-        If (dbsc(i)%Aux.or.dbsc(i)%Frag) Cycle
-        iAtom=dbsc(i)%AtmNr
-        If (dbsc(i)%CntMass.ne.rMass(iAtom)) Then
-          Changed = .True.
-          Exit
-        End If
-      End Do
-      If (.not.Changed.and.iPrint.le.5) Return
+! Determine whether any mass is different from default
+
+Changed = .false.
+do i=1,nCnttp
+  if (dbsc(i)%Aux .or. dbsc(i)%Frag) cycle
+  iAtom = dbsc(i)%AtmNr
+  if (dbsc(i)%CntMass /= rMass(iAtom)) then
+    Changed = .true.
+    exit
+  end if
+end do
+if ((.not. Changed) .and. (iPrint <= 5)) return
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Write (LuWr,*)
-      Call CollapseOutput(1,'   Isotope specification:')
-      Write (LuWr,'(3X,A)') '   ----------------------'
-      Write (LuWr,*)
-      If (Changed) Then
-        Write(LuWr,10) 'Center                     [     Default     ]'
-        Write(LuWr,10) 'Type   Z    A    mass (Da) [   A    mass (Da)]'
-        Write(LuWr,10) '---------------------------------------------'
-      Else
-        Write(LuWr,10) 'Center'
-        Write(LuWr,10) 'Type   Z    A    mass (Da)'
-        Write(LuWr,10) '--------------------------'
-      End If
-      Do i=1,nCnttp
-        If (dbsc(i)%Aux.or.dbsc(i)%Frag) Cycle
-        iAtom=dbsc(i)%AtmNr
-        act_Mass=dbsc(i)%CntMass/UToAU
-        def_Mass=rmass(iAtom)/UToAU
-        If (act_Mass.ne.def_Mass) Then
-          Write(LuWr,101) i,iAtom,nInt(act_Mass),act_Mass,              &
-     &                            nInt(def_Mass),def_Mass
-        Else
-          Write(LuWr,100) i,iAtom,nInt(act_Mass),act_Mass
-        End If
-      End Do
-      Call CollapseOutput(0,'   Isotope specification:')
-      Write (LuWr,*)
+write(LuWr,*)
+call CollapseOutput(1,'   Isotope specification:')
+write(LuWr,'(3X,A)') '   ----------------------'
+write(LuWr,*)
+if (Changed) then
+  write(LuWr,10) 'Center                     [     Default     ]'
+  write(LuWr,10) 'Type   Z    A    mass (Da) [   A    mass (Da)]'
+  write(LuWr,10) '---------------------------------------------'
+else
+  write(LuWr,10) 'Center'
+  write(LuWr,10) 'Type   Z    A    mass (Da)'
+  write(LuWr,10) '--------------------------'
+end if
+do i=1,nCnttp
+  if (dbsc(i)%Aux .or. dbsc(i)%Frag) cycle
+  iAtom = dbsc(i)%AtmNr
+  act_Mass = dbsc(i)%CntMass/UToAU
+  def_Mass = rmass(iAtom)/UToAU
+  if (act_Mass /= def_Mass) then
+    write(LuWr,101) i,iAtom,nint(act_Mass),act_Mass,nint(def_Mass),def_Mass
+  else
+    write(LuWr,100) i,iAtom,nint(act_Mass),act_Mass
+  end if
+end do
+call CollapseOutput(0,'   Isotope specification:')
+write(LuWr,*)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
- 10   Format(1X,A)
-100   Format(I5,1X,I3,1X,I4,1X,F12.6)
-101   Format(I5,1X,I3,1X,I4,1X,F12.6,1X,'[',I4,1X,F12.6,']')
-      Return
-      End
+
+return
+
+10 format(1X,A)
+100 format(I5,1X,I3,1X,I4,1X,F12.6)
+101 format(I5,1X,I3,1X,I4,1X,F12.6,1X,'[',I4,1X,F12.6,']')
+
+end subroutine Print_Isotopes

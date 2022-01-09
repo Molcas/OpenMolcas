@@ -8,20 +8,10 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!
-!     This module contains seward parameters which are not supposed to be carried between programs.
-Module Temporary_Parameters
-      Logical :: Onenly=.False.
-      Logical :: Test  =.False.
-      Logical :: PrPrt =.False.
-      Logical :: Short =.True.
-      Logical :: IfAllOrb =.False.
-      Logical :: force_part_c = .False.
-      Logical :: force_part_p = .False.
-      Logical :: force_out_of_core = .False.
-      Logical :: Primitive_Pass=.True.
-      Logical :: Expert=.True.
-      Integer :: IsChi=0
-      Logical :: DirInt=.False.
-      Logical :: Fake_ERIs=.False.
-End Module Temporary_Parameters
+
+! This module contains seward parameters which are not supposed to be carried between programs.
+module Integral_Parameters
+
+integer :: iPack = 0, iWRopt = 0
+
+end module Integral_Parameters

@@ -11,7 +11,8 @@
 ! Copyright (C) 2001,2020,  Roland Lindh                               *
 !               Sergey Gusarov                                         *
 !***********************************************************************
-      SubRoutine GetPAM(lUnit,iCnttp)
+
+subroutine GetPAM(lUnit,iCnttp)
 !***********************************************************************
 !                                                                      *
 !    Objective: To read potential information, for DMFT calculations   *
@@ -26,76 +27,75 @@
 !                                                                      *
 !     Modified: Sergey Gusarov SPb State Ubiv, Russia.                 *
 !***********************************************************************
-      Use Basis_Info
-      Implicit Real*8 (A-H,O-Z)
+
+use Basis_Info
+
+implicit real*8(A-H,O-Z)
 #include "itmax.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-      Real*8, Allocatable:: Array(:)
-      Character*180 Line, Get_Ln
-!     External Get_Ln
-      Integer nPAM2
-      Logical test
+real*8, allocatable :: Array(:)
+character*180 Line, Get_Ln
+!external Get_Ln
+integer nPAM2
+logical test
 #ifdef _DEBUGPRINT_
-      data test /.True./
+data test/.true./
 #else
-      data test /.False./
+data test/.false./
 #endif
-!
-      if (test) Write (6,*) ' Reading PAM potencials'
-      nArray=10000
-      Call mma_Allocate(Array,nArray,Label='Array')
-!
-      iStrt = 1
-      Line=Get_Ln(lUnit)
-      If (Index(Line,'PAM').eq.0) Then
-         Call WarningMessage(2,                                         &
-     &              'ERROR: Keyword PAM expected, offending line : '    &
-     &            //Line)
-         Call Quit_OnUserError()
-      Endif
-      Line=Get_Ln(lUnit)
-      Call Get_i1(1,nPAM2)
-      dbsc(iCnttp)%nPAM2=nPAM2
-      Do iPAM_Ang=0, nPAM2
-         Line=Get_Ln(lUnit)
-         Call Get_i1(1,nPAM2Prim)
-         Call Get_i1(2,nPAM2Bas)
-         Array(iStrt)=DBLE(nPAM2Prim)
-         Array(iStrt+1)=DBLE(nPAM2Bas)
-         iStrt=iStrt+2
-         iEnd = iStrt + nPAM2Prim - 1
-!
-!   Read exponents
-!
-         If (nPAM2Prim.gt.0) then
-            Call read_v(lUnit,Array,iStrt,iEnd,1,Ierr)
-            If (Ierr.ne.0) Then
-               Call WarningMessage(2,                                   &
-     &                     'GetBS: Error reading GPA exponents')
-               Call Abend()
-            End If
-         End If
-!
-!   Read coefficents
-!
-      iStrt = iEnd + 1
-         iEnd  = iStrt + nPAM2Prim*nPAM2Bas - 1
-         Do 288 iPrim = 0, nPAM2Prim - 1
-            Call Read_v(lUnit,Array,iStrt+iPrim,iEnd,nPAM2Prim,ierr)
-            If(ierr.ne.0) Then
-               Call WarningMessage(2,                                   &
-     &                         'GetBS: Error in reading GPA!!!')
-               Call Abend()
-            End if
- 288     Continue
-         iStrt = iEnd + 1
-      End Do
-!
-      Call mma_allocate(dbsc(iCnttp)%PAM2,iEnd,Label='PAM2')
-      dbsc(iCnttp)%PAM2(:)=Array(:)
-!
-      Call mma_deAllocate(Array)
-      Return
-      End
-!
+
+if (test) write(6,*) ' Reading PAM potencials'
+nArray = 10000
+call mma_Allocate(Array,nArray,Label='Array')
+
+iStrt = 1
+Line = Get_Ln(lUnit)
+if (index(Line,'PAM') == 0) then
+  call WarningMessage(2,'ERROR: Keyword PAM expected, offending line : '//Line)
+  call Quit_OnUserError()
+end if
+Line = Get_Ln(lUnit)
+call Get_i1(1,nPAM2)
+dbsc(iCnttp)%nPAM2 = nPAM2
+do iPAM_Ang=0,nPAM2
+  Line = Get_Ln(lUnit)
+  call Get_i1(1,nPAM2Prim)
+  call Get_i1(2,nPAM2Bas)
+  Array(iStrt) = dble(nPAM2Prim)
+  Array(iStrt+1) = dble(nPAM2Bas)
+  iStrt = iStrt+2
+  iEnd = iStrt+nPAM2Prim-1
+
+  ! Read exponents
+
+  if (nPAM2Prim > 0) then
+    call read_v(lUnit,Array,iStrt,iEnd,1,Ierr)
+    if (Ierr /= 0) then
+      call WarningMessage(2,'GetPAM: Error reading GPA exponents')
+      call Abend()
+    end if
+  end if
+
+  ! Read coefficents
+
+  iStrt = iEnd+1
+  iEnd = iStrt+nPAM2Prim*nPAM2Bas-1
+  do iPrim=0,nPAM2Prim-1
+    call Read_v(lUnit,Array,iStrt+iPrim,iEnd,nPAM2Prim,ierr)
+    if (ierr /= 0) then
+      call WarningMessage(2,'GetPAM: Error in reading GPA!!!')
+      call Abend()
+    end if
+  end do
+  iStrt = iEnd+1
+end do
+
+call mma_allocate(dbsc(iCnttp)%PAM2,iEnd,Label='PAM2')
+dbsc(iCnttp)%PAM2(:) = Array(:)
+
+call mma_deAllocate(Array)
+
+return
+
+end subroutine GetPAM

@@ -35,64 +35,66 @@
 !> @param[out] l     \f$ l \f$ number (\f$ -l \f$ for Cartesians)
 !> @param[out] m     \f$ m \f$ number (see details for Cartesians)
 !***********************************************************************
-      Subroutine Name_to_lm(BName,l,m)
-      Implicit None
-      Character(Len=*), Intent(In) :: BName
-      Integer, Intent(Out) :: l, m
-      Character :: Letter
-      Integer :: i, lx, ly, lz
+
+subroutine Name_to_lm(BName,l,m)
+implicit none
+character(Len=*), intent(In) :: BName
+integer, intent(Out) :: l, m
+character :: Letter
+integer :: i, lx, ly, lz
 #include "angtp.fh"
-!
-      Letter = BName(3:3)
-      Call LoCase(Letter)
-      l = 0
+
+Letter = BName(3:3)
+call LoCase(Letter)
+l = 0
+m = 0
+if (Letter == 's') then
+  ! Default is s
+  return
+else if (Letter == 'p') then
+  ! p usually appear as px, py, pz, except when they are contaminants
+  l = 1
+  if (BName(4:4) /= '0') then
+    Letter = BName(4:4)
+    call LoCase(Letter)
+    if (Letter == 'x') then
+      m = 1
+    else if (Letter == 'y') then
+      m = -1
+    else if (Letter == 'z') then
       m = 0
-      If (Letter .eq. 's') Then
-!     Default is s
-        Return
-      Else if (Letter .eq. 'p') Then
-!       p usually appear as px, py, pz, except when they are contaminants
-        l = 1
-        If (BName(4:4) .ne. '0') Then
-          Letter = BName(4:4)
-          Call LoCase(Letter)
-          If (Letter .eq. 'x') Then
-            m = 1
-          Else If (Letter .eq. 'y') Then
-            m = -1
-          Else If (Letter .eq. 'z') Then
-            m = 0
-          End If
-          Return
-        End If
-      End If
-!     Parse the label for other cases
-      l = -1
-!     Find if there is an angular label
-      Do i=Sum(LBound(AngTp)),Sum(UBound(AngTp))
-        If (Letter .eq. AngTp(i)) Then
-          l = i
-          Exit
-        End If
-      End Do
-      If (l .ge. 0) Then
-!       If a label is found it is a spherical shell, just read m
-        Read(BName(4:5),*) m
-        If (BName(6:6) .eq. '-') m = -m
-      Else
-!       If no label, this is a Cartesian shell, return -l and some convention for m.
-!       We use m=T(ly+lz)-(lx+ly), where T(n) is the nth triangular number: n*(n+1)/2).
-!       From here, ly+lz can be recovered as the (int) triangular root of m+l: (sqrt(8*(m+l)+1)-1)/2,
-!       lz is m+l-T(ly+lz) and lx is l-(ly+lz). This has the property that all
-!       possible combinations of lx,ly,lz are encoded in -l plus a number from -l to l*(l+1)/2,
-!       in descending order with priority lx>ly>lz: (3,0,0), (2,1,0), (2,0,1), (1,2,0),
-!       (1,1,1), (1,0,2), (0,3,0), (0,2,1), (0,1,2), (0,0,3)
-        Read(BName(2:3),*) lx
-        Read(BName(4:5),*) ly
-        Read(BName(6:7),*) lz
-        l = -lx-ly-lz
-        m = (ly+lz)*(ly+lz+1)/2-(lx+ly)
-      End If
-      Return
-!
-      End Subroutine Name_to_lm
+    end if
+    return
+  end if
+end if
+! Parse the label for other cases
+l = -1
+! Find if there is an angular label
+do i=sum(lbound(AngTp)),sum(ubound(AngTp))
+  if (Letter == AngTp(i)) then
+    l = i
+    exit
+  end if
+end do
+if (l >= 0) then
+  ! If a label is found it is a spherical shell, just read m
+  read(BName(4:5),*) m
+  if (BName(6:6) == '-') m = -m
+else
+  ! If no label, this is a Cartesian shell, return -l and some convention for m.
+  ! We use m=T(ly+lz)-(lx+ly), where T(n) is the nth triangular number: n*(n+1)/2).
+  ! From here, ly+lz can be recovered as the (int) triangular root of m+l: (sqrt(8*(m+l)+1)-1)/2,
+  ! lz is m+l-T(ly+lz) and lx is l-(ly+lz). This has the property that all
+  ! possible combinations of lx,ly,lz are encoded in -l plus a number from -l to l*(l+1)/2,
+  ! in descending order with priority lx>ly>lz: (3,0,0), (2,1,0), (2,0,1), (1,2,0),
+  ! (1,1,1), (1,0,2), (0,3,0), (0,2,1), (0,1,2), (0,0,3)
+  read(BName(2:3),*) lx
+  read(BName(4:5),*) ly
+  read(BName(6:7),*) lz
+  l = -lx-ly-lz
+  m = (ly+lz)*(ly+lz+1)/2-(lx+ly)
+end if
+
+return
+
+end subroutine Name_to_lm

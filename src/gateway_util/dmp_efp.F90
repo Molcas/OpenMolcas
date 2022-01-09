@@ -10,18 +10,24 @@
 !                                                                      *
 ! Copyright (C) 2017, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine DMP_EFP()
-      use EFP_Module
-      Integer CoorType
-      Call Put_lScalar('EFP',lEFP)
-      If (lEFP) Then
-         Call Put_iScalar('nEFP_fragments',nEFP_fragments)
-         CoorType=Coor_Type
-         Call Put_iScalar('Coor_Type',CoorType)
-         Call Put_cArray('FRAG_Type',FRAG_Type(1),180*nEFP_fragments)
-         Call Put_cArray('ABC',ABC(1,1),3*180*nEFP_fragments)
-         Call Put_iScalar('nEFP_Coor',nEFP_Coor)
-         Call Put_dArray('EFP_COORS',EFP_COORS,nEFP_Coor*nEFP_fragments)
-      End If
-      Return
-      End
+
+subroutine DMP_EFP()
+
+use EFP_Module
+
+integer CoorType
+
+call Put_lScalar('EFP',lEFP)
+if (lEFP) then
+  call Put_iScalar('nEFP_fragments',nEFP_fragments)
+  CoorType = Coor_Type
+  call Put_iScalar('Coor_Type',CoorType)
+  call Put_cArray('FRAG_Type',FRAG_Type(1),180*nEFP_fragments)
+  call Put_cArray('ABC',ABC(1,1),3*180*nEFP_fragments)
+  call Put_iScalar('nEFP_Coor',nEFP_Coor)
+  call Put_dArray('EFP_COORS',EFP_COORS,nEFP_Coor*nEFP_fragments)
+end if
+
+return
+
+end subroutine DMP_EFP

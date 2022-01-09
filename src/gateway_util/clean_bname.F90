@@ -25,45 +25,45 @@
 !>
 !> @return Cleaned basis function name
 !***********************************************************************
-      Function Clean_BName(BName,Offset)
-      Implicit None
+
+function Clean_BName(BName,Offset)
+
+implicit none
 #include "Molcas.fh"
-      Character(Len=*), Intent(In) :: BName
-      Integer, Intent(In) :: Offset
-      Character(Len=LENIN8) :: Clean_BName
-      Character(Len=8) :: Clean
-      Integer :: i,Err
-      Logical :: Cart
-!
-      Clean=BName(Offset+1:)
+character(Len=*), intent(In) :: BName
+integer, intent(In) :: Offset
+character(Len=LENIN8) :: Clean_BName
+character(Len=8) :: Clean
+integer :: i, Err
+logical :: Cart
+
+Clean = BName(Offset+1:)
 ! For spherical functions, the 3rd character is a letter
 !   (counting s and p as spherical),
 ! for Cartesian functions, it is a number
-      Read(Clean(3:3),'(I1)',IOStat=Err) i
-      Cart=(Err.eq.0)
-!
-      If (Cart) Then
-! For Cartesian functions, remove zeros if all indices are below 10,
-! and shift everything one space to the right
-        If ((Clean(2:2).eq.'0').And.                                    &
-     &      (Clean(4:4).eq.'0').And.                                    &
-     &      (Clean(6:6).eq.'0'))                                        &
-     &     Clean(2:)=Clean(3:3)//Clean(5:5)//Clean(7:7)
-        Clean(2:)=Clean(1:)
-        Clean(1:1)=' '
-      Else
-! For spherical functions, remove leading zero in m number,
-! replace leading zero in shell number with space,
-! replace "*0" tag with a single *
-        If (Clean(1:1).eq.'0') Clean(1:1)=' '
-        If (Clean(1:2).eq.'*0') Clean(1:2)=' *'
-        If (Clean(4:4).eq.'0') Clean(4:)=Clean(5:)
-      End If
-!
-      Clean_BName=BName(1:Offset)//Clean
-      Return
+read(Clean(3:3),'(I1)',IOStat=Err) i
+Cart = (Err == 0)
+
+if (Cart) then
+  ! For Cartesian functions, remove zeros if all indices are below 10,
+  ! and shift everything one space to the right
+  if ((Clean(2:2) == '0') .and. (Clean(4:4) == '0') .and. (Clean(6:6) == '0')) Clean(2:) = Clean(3:3)//Clean(5:5)//Clean(7:7)
+  Clean(2:) = Clean(1:)
+  Clean(1:1) = ' '
+else
+  ! For spherical functions, remove leading zero in m number,
+  ! replace leading zero in shell number with space,
+  ! replace "*0" tag with a single *
+  if (Clean(1:1) == '0') Clean(1:1) = ' '
+  if (Clean(1:2) == '*0') Clean(1:2) = ' *'
+  if (Clean(4:4) == '0') Clean(4:) = Clean(5:)
+end if
+
+Clean_BName = BName(1:Offset)//Clean
+
+return
 #ifdef _WARNING_WORKAROUND_
-      If (.False.) Call Unused_integer(i)
+if (.false.) call Unused_integer(i)
 #endif
-!
-      End Function Clean_BName
+
+end function Clean_BName

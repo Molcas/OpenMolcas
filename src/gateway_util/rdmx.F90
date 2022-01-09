@@ -10,46 +10,48 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine RdMx(RadMax,Exp,nExp,Cff,nCff,cdMax,EtMax)
+
+subroutine RdMx(RadMax,Exp,nExp,Cff,nCff,cdMax,EtMax)
 !***********************************************************************
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
 !             August '91                                               *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
-      Real*8 Exp(nExp), Cff(nExp,nCff)
+
+implicit real*8(A-H,O-Z)
+real*8 exp(nExp), Cff(nExp,nCff)
 #include "real.fh"
-!define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 #include "print.fh"
-!
-      iRout = 201
-      iPrint = nPrint(iRout)
-!
-      Call RecPrt('Exp',' ',Exp,nExp,1)
-      Call RecPrt('Cff',' ',Cff,nExp,nCff)
 #endif
-      Do iExp = 1, nExp
-!
-         cc = DDot_(nCff,Cff(iExp,1),nExp,Cff(iExp,1),nExp)
-         c = Sqrt(cc)
-!
-         Alpha=Exp(iExp)
-         Beta =Exp(iExp)
-         Zeta=Alpha+Beta
-         If (Zeta.gt.Zero) Then
-            Eta=Alpha+Beta
-            Rho=(Zeta*Eta)/(Zeta+Eta)
-!
-            ssss = c**4 * Two*Sqrt(Rho/Pi)*(Pi/Zeta)**(Three/Two)       &
-     &                                    *(Pi/Eta )**(Three/Two)
-            If (Sqrt(ssss).gt.RadMax) Then
-               RadMax = Sqrt(ssss)
-               EtMax  = Eta
-               cdMax  = Sqrt(ssss)
-            End If
-         End If
-!
-      End Do
-!
-      End
+
+#ifdef _DEBUGPRINT_
+iRout = 201
+iPrint = nPrint(iRout)
+
+call RecPrt('Exp',' ',Exp,nExp,1)
+call RecPrt('Cff',' ',Cff,nExp,nCff)
+#endif
+do iExp=1,nExp
+
+  cc = DDot_(nCff,Cff(iExp,1),nExp,Cff(iExp,1),nExp)
+  c = sqrt(cc)
+
+  Alpha = exp(iExp)
+  Beta = exp(iExp)
+  Zeta = Alpha+Beta
+  if (Zeta > Zero) then
+    Eta = Alpha+Beta
+    Rho = (Zeta*Eta)/(Zeta+Eta)
+
+    ssss = c**4*Two*sqrt(Rho/Pi)*(Pi/Zeta)**(Three/Two)*(Pi/Eta)**(Three/Two)
+    if (sqrt(ssss) > RadMax) then
+      RadMax = sqrt(ssss)
+      EtMax = Eta
+      cdMax = sqrt(ssss)
+    end if
+  end if
+
+end do
+
+end subroutine RdMx

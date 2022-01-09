@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine GeoNew(Print)
+
+subroutine GeoNew(print)
 !***********************************************************************
 !                                                                      *
 ! Object: to pick up the geometry from a special file. This will only  *
@@ -22,89 +23,91 @@
 !             University of Lund, SWEDEN                               *
 !             March 1991                                               *
 !***********************************************************************
-      use Basis_Info
-      Implicit Real*8 (A-H,O-Z)
-      Logical Print
+
+use Basis_Info
+
+implicit real*8(A-H,O-Z)
+logical print
 #include "real.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
-      Logical Exist
-      Real*8, Dimension (:,:), Allocatable :: CN
-      Interface
-        Subroutine Get_Coord_New(CN,lBuf)
-        Real*8, Dimension (:,:), Allocatable :: CN
-        Integer lBuf
-        End Subroutine
-      End Interface
+logical Exist
+real*8, dimension(:,:), allocatable :: CN
+interface
+  subroutine Get_Coord_New(CN,lBuf)
+    real*8, dimension(:,:), allocatable :: CN
+    integer lBuf
+  end subroutine
+end interface
 
-!
-!     Prologue
-!
-!     Check if there is a data field called 'NewGeom'
-!
-      Call Get_Coord_New(CN,lBuf)
-!
-!     Quit if the datadfield 'NewGeom' is not available. However,
-!     if the field is available on RUNOLD pick it up there.
-!
-      If ( lBuf.eq.0 ) Then
-!
-!        Check RUNOLD
-!
-         Call f_Inquire('RUNOLD',Exist)
-         If (Exist) Then
-            Call NameRun('RUNOLD')
-            Call Get_Coord_New(CN,lBuf)
-            If (lBuf.eq.0) Then
-               nNuc=0
-               Call NameRun('RUNFILE')
-               Return
-            Else
-               Call Get_iScalar('Unique atoms',nNuc)
-               Call NameRun('RUNFILE')
-               If (Print) Then
-                  Write (6,*)
-                  Write (6,'(A)') '    Geometry read from RUNOLD'
-                  Write (6,*)
-               End If
-            End If
-         Else
-            nNuc=0
-            Return
-         End If
-      Else
-         Call Get_iScalar('Unique atoms',nNuc)
-         If (Print) Then
-            Write (6,*)
-            Write (6,'(A)') '    Geometry read from RUNFILE'
-            Write (6,*)
-         End If
-      End If
+! Prologue
+
+! Check if there is a data field called 'NewGeom'
+
+call Get_Coord_New(CN,lBuf)
+
+! Quit if the datadfield 'NewGeom' is not available. However,
+! if the field is available on RUNOLD pick it up there.
+
+if (lBuf == 0) then
+
+  ! Check RUNOLD
+
+  call f_Inquire('RUNOLD',Exist)
+  if (Exist) then
+    call NameRun('RUNOLD')
+    call Get_Coord_New(CN,lBuf)
+    if (lBuf == 0) then
+      nNuc = 0
+      call NameRun('RUNFILE')
+      return
+    else
+      call Get_iScalar('Unique atoms',nNuc)
+      call NameRun('RUNFILE')
+      if (print) then
+        write(6,*)
+        write(6,'(A)') '    Geometry read from RUNOLD'
+        write(6,*)
+      end if
+    end if
+  else
+    nNuc = 0
+    return
+  end if
+else
+  call Get_iScalar('Unique atoms',nNuc)
+  if (print) then
+    write(6,*)
+    write(6,'(A)') '    Geometry read from RUNFILE'
+    write(6,*)
+  end if
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Replace coodinates read in subroutine input
-!
-      iDC = 1
-      iNuc = 0
-!     Call RecPrt('CN',' ',CN,3,nNuc)
-      Do iCnttp = 1, nCnttp
-         If (.Not.dbsc(iCnttp)%pChrg.and..Not.dbsc(iCnttp)%Frag .and.   &
-     &       .Not.dbsc(iCnttp)%Aux) Then
-            Do iCnt = 1, dbsc(iCnttp)%nCntr
-               dbsc(iCnttp)%Coor(1:3,iCnt)=CN(1:3,iDC)
-               iDC = iDC + 1
-               iNuc = iNuc + 1
-               If (iNuc.eq.nNuc) Go To 999
-            End Do
-         End If
-      End Do
- 999  Continue
+! Replace coodinates read in subroutine input
+
+iDC = 1
+iNuc = 0
+!call RecPrt('CN',' ',CN,3,nNuc)
+do iCnttp=1,nCnttp
+  if (.not. (dbsc(iCnttp)%pChrg .or. dbsc(iCnttp)%Frag .or. dbsc(iCnttp)%Aux)) then
+    do iCnt=1,dbsc(iCnttp)%nCntr
+      dbsc(iCnttp)%Coor(1:3,iCnt) = CN(1:3,iDC)
+      iDC = iDC+1
+      iNuc = iNuc+1
+      if (iNuc == nNuc) Go To 999
+    end do
+  end if
+end do
+999 continue
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Epilogue, end
-!
-      Call mma_deallocate(CN)
-      Return
-      End
+! Epilogue, end
+
+call mma_deallocate(CN)
+
+return
+
+end subroutine GeoNew

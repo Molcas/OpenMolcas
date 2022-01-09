@@ -167,13 +167,13 @@ do i=1,nBas(1)
         else
           if (.not. Atoms(k)) cycle
         end if
-        OneOrNot1 = i >= iSelection(1,k) .and. i <= iSelection(2,k)
-        OneOrNot2 = j >= iSelection(1,l) .and. j <= iSelection(2,l)
-        OneOrNot3 = i >= iSelection(1,l) .and. i <= iSelection(2,l)
-        OneOrNot4 = j >= iSelection(1,k) .and. j <= iSelection(2,k)
+        OneOrNot1 = (i >= iSelection(1,k)) .and. (i <= iSelection(2,k))
+        OneOrNot2 = (j >= iSelection(1,l)) .and. (j <= iSelection(2,l))
+        OneOrNot3 = (i >= iSelection(1,l)) .and. (i <= iSelection(2,l))
+        OneOrNot4 = (j >= iSelection(1,k)) .and. (j <= iSelection(2,k))
         OneOrNot = (OneOrNot1 .and. OneOrNot2) .or. (OneOrNot3 .and. OneOrNot4)
         CrazySet = (OneOrNot1 .and. OneOrNot2) .and. (OneOrNot3 .and. OneOrNot4)
-        if (CrazySet .and. Bonds(k,l) .and. .not. Atoms(k)) then
+        if (CrazySet .and. Bonds(k,l) .and. (.not. Atoms(k))) then
           write(u6,*) 'Your set selection is not exclusive!'
         end if
         if (OneOrNot) Siff = One

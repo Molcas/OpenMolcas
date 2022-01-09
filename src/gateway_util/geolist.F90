@@ -8,6 +8,9 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Module GeoList
-      Real*8, Allocatable :: Chrg(:), Mass(:), Centr(:,:)
-      End Module GeoList
+
+module GeoList
+
+real*8, allocatable :: Chrg(:), Mass(:), Centr(:,:)
+
+end module GeoList

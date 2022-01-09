@@ -8,104 +8,107 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Gen_GeoList()
-      use GeoList
-      use Basis_Info
-      use Center_Info
-      use Symmetry_Info, only: nIrrep, iChCar
-      use Sizes_of_Seward, only: S
-      use Real_Info, only: TMass, qNuc, CoM, CoC
-      Implicit Real*8 (A-H,O-Z)
+
+subroutine Gen_GeoList()
+
+use GeoList
+use Basis_Info
+use Center_Info
+use Symmetry_Info, only: nIrrep, iChCar
+use Sizes_of_Seward, only: S
+use Real_Info, only: TMass, qNuc, CoM, CoC
+
+implicit real*8(A-H,O-Z)
 #include "real.fh"
 #include "stdalloc.fh"
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Call mma_allocate(Centr,3,S%mCentr,label='Centr')
-      Call mma_allocate(Mass,S%mCentr,label='Mass')
-      Call mma_allocate(Chrg,S%mCentr,label='Chrg')
+call mma_allocate(Centr,3,S%mCentr,label='Centr')
+call mma_allocate(Mass,S%mCentr,label='Mass')
+call mma_allocate(Chrg,S%mCentr,label='Chrg')
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Generate the center list.
-!
-      S%kCentr=0
-!
-      nc = 1
-      Do jCnttp = 1, nCnttp
-         mCnt = dbsc(jCnttp)%nCntr
-!
-!        Do not include Auxiliary basis sets, or fragment basis sets
-!
-         If (dbsc(jCnttp)%Aux.or.dbsc(jCnttp)%Frag) Cycle
-!
-!        Do not include ECP basis sets which does not have any valence
-!        basis set.
-!
-         If (dbsc(jCnttp)%ECP.and.dbsc(jCnttp)%nVal.eq.0) Cycle
-!
-         Do jCnt = 1, mCnt
-            ndc = jCnt + dbsc(jCnttp)%mdci
-            Do i = 0, nIrrep/dc(ndc)%nStab - 1
-               Call OA(dc(ndc)%iCoSet(i,0),dbsc(jCnttp)%Coor(1:3,jCnt), &
-     &                 Centr(1:3,nc))
-               nchr=dbsc(jCnttp)%AtmNr
-               If (nchr.ge.0) Then
-                  Mass(nc) = dbsc(jCnttp)%CntMass
-               Else
-                  Mass(nc) = Zero
-               End If
-               nchr=dbsc(jCnttp)%AtmNr
-               If (nchr.ge.0) Then
-                  Chrg(nc) = DBLE(nchr)
-               Else
-                  Chrg(nc) = Zero
-               End If
-               nc = nc + 1
-            End Do
-            S%kCentr = S%kCentr + nIrrep/dc(ndc)%nStab
-         End Do
-      End Do
+! Generate the center list.
+
+S%kCentr = 0
+
+nc = 1
+do jCnttp=1,nCnttp
+  mCnt = dbsc(jCnttp)%nCntr
+
+  ! Do not include Auxiliary basis sets, or fragment basis sets
+
+  if (dbsc(jCnttp)%Aux .or. dbsc(jCnttp)%Frag) cycle
+
+  ! Do not include ECP basis sets which does not have any valence basis set.
+
+  if (dbsc(jCnttp)%ECP .and. (dbsc(jCnttp)%nVal == 0)) cycle
+
+  do jCnt=1,mCnt
+    ndc = jCnt+dbsc(jCnttp)%mdci
+    do i=0,nIrrep/dc(ndc)%nStab-1
+      call OA(dc(ndc)%iCoSet(i,0),dbsc(jCnttp)%Coor(1:3,jCnt),Centr(1:3,nc))
+      nchr = dbsc(jCnttp)%AtmNr
+      if (nchr >= 0) then
+        Mass(nc) = dbsc(jCnttp)%CntMass
+      else
+        Mass(nc) = Zero
+      end if
+      nchr = dbsc(jCnttp)%AtmNr
+      if (nchr >= 0) then
+        Chrg(nc) = dble(nchr)
+      else
+        Chrg(nc) = Zero
+      end if
+      nc = nc+1
+    end do
+    S%kCentr = S%kCentr+nIrrep/dc(ndc)%nStab
+  end do
+end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Compute Total Charge and Center of Charge centroid
-!
-      Call CoW(Centr,CoC,Chrg,S%kCentr,qNuc)
-      If (iChCar(1).ne.0) CoC(1)=Zero
-      If (iChCar(2).ne.0) CoC(2)=Zero
-      If (iChCar(3).ne.0) CoC(3)=Zero
+! Compute Total Charge and Center of Charge centroid
+
+call CoW(Centr,CoC,Chrg,S%kCentr,qNuc)
+if (iChCar(1) /= 0) CoC(1) = Zero
+if (iChCar(2) /= 0) CoC(2) = Zero
+if (iChCar(3) /= 0) CoC(3) = Zero
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Modify charges to effective charges.
-!
-      nc = 1
-      Do jCnttp = 1, nCnttp
-         Z = dbsc(jCnttp)%Charge
-         mCnt = dbsc(jCnttp)%nCntr
-         If (dbsc(jCnttp)%Aux.or.dbsc(jCnttp)%Frag) Cycle
-         If (dbsc(jCnttp)%ECP.and.dbsc(jCnttp)%nVal.eq.0) Cycle
-         Do jCnt = 1, mCnt
-            ndc = jCnt + dbsc(jCnttp)%mdci
-            Do i = 0, nIrrep/dc(ndc)%nStab - 1
-               nchr=dbsc(jCnttp)%AtmNr
-               Chrg(nc) = Z
-               nc = nc + 1
-            End Do
-         End Do
-      End Do
+! Modify charges to effective charges.
+
+nc = 1
+do jCnttp=1,nCnttp
+  Z = dbsc(jCnttp)%Charge
+  mCnt = dbsc(jCnttp)%nCntr
+  if (dbsc(jCnttp)%Aux .or. dbsc(jCnttp)%Frag) cycle
+  if (dbsc(jCnttp)%ECP .and. (dbsc(jCnttp)%nVal == 0)) cycle
+  do jCnt=1,mCnt
+    ndc = jCnt+dbsc(jCnttp)%mdci
+    do i=0,nIrrep/dc(ndc)%nStab-1
+      nchr = dbsc(jCnttp)%AtmNr
+      Chrg(nc) = Z
+      nc = nc+1
+    end do
+  end do
+end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Compute Total Mass and Center of Mass
-!
-      Call CoW(Centr,CoM,Mass,S%kCentr,TMass)
-      If (iChCar(1).ne.0) CoM(1)=Zero
-      If (iChCar(2).ne.0) CoM(2)=Zero
-      If (iChCar(3).ne.0) CoM(3)=Zero
+! Compute Total Mass and Center of Mass
+
+call CoW(Centr,CoM,Mass,S%kCentr,TMass)
+if (iChCar(1) /= 0) CoM(1) = Zero
+if (iChCar(2) /= 0) CoM(2) = Zero
+if (iChCar(3) /= 0) CoM(3) = Zero
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End
+return
+
+end subroutine Gen_GeoList

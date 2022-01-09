@@ -8,6 +8,33 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module SW_File
-Character(LEN=512):: SW_FileOrb='INPORB'
-End Module SW_File
+
+
+subroutine LDF_SetOptionFlag(Option,value)
+implicit none
+character*4 Option
+logical value
+#include "localdf.fh"
+
+if (Option == 'LDF2') then
+  LDF2 = value
+else if (Option == 'CHEC') then
+  CheckPairIntegrals = value
+else if (Option == 'VERI') then
+  VerifyFit = value
+else if (Option == 'OVER') then
+  CheckOverlapIntegrals = value
+else if (Option == 'WRUC') then
+  WriteUnconstrainedC = value
+else if (Option == 'UNIQ') then
+  UseUniqueAtomPairs = value
+else
+  call WarningMessage(2,'LDF_SetOptionFlag: unknown Option')
+  write(6,'(A,A)') 'Option=',Option
+  write(6,'(A,L1)') 'Value=',value
+  call LDF_Quit(1)
+end if
+
+return
+
+end subroutine LDF_SetOptionFlag

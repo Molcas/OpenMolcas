@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1991,2003, Roland Lindh                                *
 !***********************************************************************
-      SubRoutine GeoNew_PC()
+
+subroutine GeoNew_PC()
 !***********************************************************************
 !                                                                      *
 ! Object: to pick up the geometry from a special file. This will only  *
@@ -24,39 +25,43 @@
 !                                                                      *
 !     Modified to work with point charges. RL 20030507                 *
 !***********************************************************************
-      use external_centers
-      Implicit Real*8 (A-H,O-Z)
+
+use external_centers
+
+implicit real*8(A-H,O-Z)
 #include "real.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
-      Real*8, Dimension(:), Allocatable :: CN
-      Interface
-        Subroutine Get_PC_Coord_New(CN,lBuf)
-        Real*8, Dimension(:), Allocatable :: CN
-        Integer lBuf
-        End Subroutine
-      End Interface
-!
-!     Check if there is a data field called 'GeoNewPC'
-!
-      Call Get_PC_Coord_New(CN,lBuf)
-      nAtoms=lbuf/nData_XF
-!
-!     Quit if the datadfield 'NewGeom' is not available
-!
-      If ( lBuf.eq.0 ) then
-         Return
-      End If
-!
-!     Replace coodinates read in subroutine input
-!
-      call dcopy_(nAtoms*nData_XF,CN,1,XF,1)
-      Write (6,*)
-      Write (6,'(A)') '    Point Charge data read from RUNFILE'
-      Write (6,*)
-!
-!     Epilogue, end
-!
-      Call mma_deallocate(CN)
-      Return
-      End
+real*8, dimension(:), allocatable :: CN
+interface
+  subroutine Get_PC_Coord_New(CN,lBuf)
+    real*8, dimension(:), allocatable :: CN
+    integer lBuf
+  end subroutine
+end interface
+
+! Check if there is a data field called 'GeoNewPC'
+
+call Get_PC_Coord_New(CN,lBuf)
+nAtoms = lbuf/nData_XF
+
+! Quit if the datadfield 'NewGeom' is not available
+
+if (lBuf == 0) then
+  return
+end if
+
+! Replace coodinates read in subroutine input
+
+call dcopy_(nAtoms*nData_XF,CN,1,XF,1)
+write(6,*)
+write(6,'(A)') '    Point Charge data read from RUNFILE'
+write(6,*)
+
+! Epilogue, end
+
+call mma_deallocate(CN)
+
+return
+
+end subroutine GeoNew_PC

@@ -8,23 +8,25 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Integer Function Index_Center(iCnt,iR,Index,iAtoms,nAtoms)
-      Integer Index(2,nAtoms)
-!
- 98   Continue
-      Index_Center=0
-      Do i = 1, iAtoms
-         If (Index(1,i).eq.iCnt .and.                                   &
-     &       Index(2,i).eq.iR   ) Then
-            Index_Center=i
-            Go To 99
-         End If
-      End Do
-!
-      iAtoms=iAtoms+1
-      Index(1,iAtoms)=iCnt
-      Index(2,iAtoms)=iR
-      Go To 98
-!
- 99   Return
-      End
+
+integer function Index_Center(iCnt,iR,Index,iAtoms,nAtoms)
+
+integer index(2,nAtoms)
+
+98 continue
+Index_Center = 0
+do i=1,iAtoms
+  if ((index(1,i) == iCnt) .and. (index(2,i) == iR)) then
+    Index_Center = i
+    Go To 99
+  end if
+end do
+
+iAtoms = iAtoms+1
+index(1,iAtoms) = iCnt
+index(2,iAtoms) = iR
+Go To 98
+
+99 return
+
+end function Index_Center

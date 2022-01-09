@@ -8,28 +8,30 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module PSO_Stuff
+
+module PSO_Stuff
+
 use Data_structures, only: DSBA_Type
 
-Logical lPSO,lsa, Case_3C, Case_2C, Case_mp2
+logical lPSO, lsa, Case_3C, Case_2C, Case_mp2
 
-Integer nnP(0:7), iOff_ij2K(8),npos(0:7,3)
+integer nnP(0:7), iOff_ij2K(8), npos(0:7,3)
 
-Real*8, Allocatable:: DMdiag(:,:), Thpkl(:), G2(:,:), CMO(:,:)
-Real*8, Allocatable:: Txy(:,:), V_k(:,:), U_k(:), Z_p_k(:,:)
-Real*8, Allocatable:: G1(:,:), D0(:,:), DVar(:,:), DS(:), DSVar(:)
-Integer, Allocatable:: ij2K(:)
+real*8, allocatable :: DMdiag(:,:), Thpkl(:), G2(:,:), CMO(:,:)
+real*8, allocatable :: Txy(:,:), V_k(:,:), U_k(:), Z_p_k(:,:)
+real*8, allocatable :: G1(:,:), D0(:,:), DVar(:,:), DS(:), DSVar(:)
+integer, allocatable :: ij2K(:)
 
-Integer nG2, mG2
-Integer nG1, mG1
-Integer mCMO, kCMO
-Integer nDens, mDens
-Integer n_Txy, m_Txy
-Integer n_ij2K
-Integer nZ_p_k
-Integer nV_K, nSOs1
-Integer iD0Lbl
+integer nG2, mG2
+integer nG1, mG1
+integer mCMO, kCMO
+integer nDens, mDens
+integer n_Txy, m_Txy
+integer n_ij2K
+integer nZ_p_k
+integer nV_K, nSOs1
+integer iD0Lbl
 
-Type (DSBA_Type), Allocatable, Target:: AOrb(:)
+type(DSBA_Type), allocatable, target :: AOrb(:)
 
-End Module PSO_Stuff
+end module PSO_Stuff

@@ -8,49 +8,51 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine OrdExp1(nExp,Exp,nCntrc,Cff)
-      Implicit Real*8 (A-H,O-Z)
+
+subroutine OrdExp1(nExp,Exp,nCntrc,Cff)
+
+implicit real*8(A-H,O-Z)
 #include "real.fh"
-      Real*8 Exp(nExp), Cff(nExp,nCntrc)
-!
-!     Order exponents
-!     Make the subsequent change in the contraction
-!     matrix
-!
-      Do iExp = 1, nExp-1
-         Exp1 = Exp(iExp)
-         kExp = iExp
-         Do jExp = iExp+1, nExp
-            Exp2 = Exp(jExp)
-            If (Exp2.gt.Exp1) Then
-               Exp1 = Exp2
-               kExp = jExp
-            End If
-         End Do
-         If (kExp.ne.iExp) Then
-            Call DSwap_(1,Exp(iExp),1,Exp(kExp),1)
-            Call DSwap_(nCntrc,Cff(iExp,1),nExp,Cff(kExp,1),nExp)
-         End If
-      End Do
-!
-!     Move any exponent which are already decontracted to the bottom
-!
-      iBottom=nExp
-      Do iCntrc = nCntrc, 1, -1
-         mExp=0
-         jExp=-1
-         Do iExp = 1, nExp
-            If (Cff(iExp,iCntrc).ne.Zero) Then
-               jExp=iExp
-               mExp=mExp+1
-            End If
-         End Do
-         If (mExp.eq.1) Then
-            Call DSwap_(1,Exp(jExp),1,Exp(iBottom),1)
-            Call DSwap_(nCntrc,Cff(jExp,1),nExp,Cff(iBottom,1),nExp)
-            iBottom=iBottom-1
-         End If
-      End Do
-!
-      Return
-      End
+real*8 exp(nExp), Cff(nExp,nCntrc)
+
+! Order exponents
+! Make the subsequent change in the contraction matrix
+
+do iExp=1,nExp-1
+  Exp1 = exp(iExp)
+  kExp = iExp
+  do jExp=iExp+1,nExp
+    Exp2 = exp(jExp)
+    if (Exp2 > Exp1) then
+      Exp1 = Exp2
+      kExp = jExp
+    end if
+  end do
+  if (kExp /= iExp) then
+    call DSwap_(1,exp(iExp),1,exp(kExp),1)
+    call DSwap_(nCntrc,Cff(iExp,1),nExp,Cff(kExp,1),nExp)
+  end if
+end do
+
+! Move any exponent which are already decontracted to the bottom
+
+iBottom = nExp
+do iCntrc=nCntrc,1,-1
+  mExp = 0
+  jExp = -1
+  do iExp=1,nExp
+    if (Cff(iExp,iCntrc) /= Zero) then
+      jExp = iExp
+      mExp = mExp+1
+    end if
+  end do
+  if (mExp == 1) then
+    call DSwap_(1,exp(jExp),1,exp(iBottom),1)
+    call DSwap_(nCntrc,Cff(jExp,1),nExp,Cff(iBottom,1),nExp)
+    iBottom = iBottom-1
+  end if
+end do
+
+return
+
+end subroutine OrdExp1

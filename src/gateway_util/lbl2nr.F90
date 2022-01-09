@@ -1,0 +1,65 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1991, Bjorn O. Roos                                    *
+!               1991, Roland Lindh                                     *
+!               Valera Veryazov                                        *
+!***********************************************************************
+
+function Lbl2Nr(Atom)
+
+integer Lbl2Nr, StrnLn
+character*80 Atom
+character*2 TmpLbl(2)
+#include "periodic_table.fh"
+
+if ((StrnLn(Atom) > 2) .or. (StrnLn(Atom) <= 0)) then
+  call WarningMessage(2,'The atom label;-->'//Atom(1:4)//'<--; is not a proper string to define an element.')
+  call Quit_OnUserError()
+end if
+
+Lbl2Nr = -1
+
+lAtom = 0
+do i=1,80
+  if (atom(i:i) /= ' ') then
+    lAtom = lAtom+1
+  else
+    Go To 99
+  end if
+end do
+99 continue
+if (lAtom > 2) lAtom = 2
+TmpLbl(1) = '  '
+if (lAtom == 1) then
+  TmpLbl(1)(2:2) = atom(1:1)
+else if (lAtom == 2) then
+  TmpLbl(1) = atom(1:2)
+else
+  Go To 98
+end if
+call UpCase(TmpLbl(1))
+do i=0,Num_Elem
+  TmpLbl(2) = PTab(i)
+  call UpCase(TmpLbl(2))
+  if (TmpLbl(2) == TmpLbl(1)) then
+    Lbl2Nr = i
+    Go To 98
+  end if
+end do
+98 continue
+if (Lbl2Nr == -1) then
+  call WarningMessage(2,'The atom label;-->'//Atom(1:4)//'<--; does not define an element.')
+  call Quit_OnUserError()
+end if
+
+return
+
+end function Lbl2Nr

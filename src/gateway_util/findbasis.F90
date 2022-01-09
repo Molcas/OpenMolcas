@@ -10,63 +10,65 @@
 !                                                                      *
 ! Copyright (C) Valera Veryazov                                        *
 !***********************************************************************
-          Subroutine Find_Basis_Set(DirName,ExtBasDir,type)
+
+subroutine Find_Basis_Set(DirName,ExtBasDir,type)
 !***********************************************************************
 ! Object: make a guess for a file                                      *
 ! Author: Valera Veryazov, Theoretical Chemistry, Chemical Centre      *
 !         University of Lund, Lund, Sweden                             *
 !***********************************************************************
 
-          Character*(*) DirName,ExtBasDir,type
-          Character*512 tmp
-          character Molcas*256, CurrDir*256
-          integer iAbsName
-          logical Exist
-          if(ExtBasDir.ne.' ') then
-             i=index(ExtBasDir,' ')
-             iAbsName=0
-             if(ExtBasDir(1:1).ne.'/') then
-              iAbsName=1
-              CurrDir=' '
-              call getenvf('CurrDir',CurrDir)
-             endif
-             if(iAbsName.eq.0) then
-             tmp=ExtBasDir(1:i-1)//'/'//type
-             else
-             tmp=CurrDir(1:index(CurrDir,' ')-1)//                      &
-     &             '/'//ExtBasDir(1:i-1)//'/'//type
-             endif
-!             print *,tmp
-          Call f_Inquire(tmp,Exist)
-          if (Exist) then
-             if(iAbsName.eq.0) then
-             tmp=ExtBasDir(1:i-1)
-             else
-             tmp=CurrDir(1:index(CurrDir,' ')-1)//                      &
-     &             '/'//ExtBasDir(1:i-1)
-             endif
-             i=index(tmp,' ')
-             DirName=tmp(1:i-1)
-!          Print *,'>',DirName(1:i-1),'<'
-             return
-          endif
-          endif
-          if(DirName(1:13).ne.'basis_library') return
+character*(*) DirName, ExtBasDir, type
+character*512 tmp
+character Molcas*256, CurrDir*256
+integer iAbsName
+logical Exist
 
-          Molcas=' '
-          call getenvf('MOLCAS_BASIS',Molcas)
-          If (Molcas.eq.' ') Then
-             call getenvf('MOLCAS',Molcas)
-             i=index(Molcas,' ')
-             DirName=Molcas(1:i-1)//'/basis_library'
-          Else
-             i=index(Molcas,' ')
-             DirName=Molcas(1:i-1)
-          End If
-          i=index(DirName,' ')
-          if(i.eq.0) then
-             Call WarningMessage(2,'Too long path to Molcas')
-             Call Abend()
-          endif
-          Return
-          End
+if (ExtBasDir /= ' ') then
+  i = index(ExtBasDir,' ')
+  iAbsName = 0
+  if (ExtBasDir(1:1) /= '/') then
+    iAbsName = 1
+    CurrDir = ' '
+    call getenvf('CurrDir',CurrDir)
+  end if
+  if (iAbsName == 0) then
+    tmp = ExtBasDir(1:i-1)//'/'//type
+  else
+    tmp = CurrDir(1:index(CurrDir,' ')-1)//'/'//ExtBasDir(1:i-1)//'/'//type
+  end if
+  !write(6,*) tmp
+  call f_Inquire(tmp,Exist)
+  if (Exist) then
+    if (iAbsName == 0) then
+      tmp = ExtBasDir(1:i-1)
+    else
+      tmp = CurrDir(1:index(CurrDir,' ')-1)//'/'//ExtBasDir(1:i-1)
+    end if
+    i = index(tmp,' ')
+    DirName = tmp(1:i-1)
+    !write(6,*) '>',DirName(1:i-1),'<'
+    return
+  end if
+end if
+if (DirName(1:13) /= 'basis_library') return
+
+Molcas = ' '
+call getenvf('MOLCAS_BASIS',Molcas)
+if (Molcas == ' ') then
+  call getenvf('MOLCAS',Molcas)
+  i = index(Molcas,' ')
+  DirName = Molcas(1:i-1)//'/basis_library'
+else
+  i = index(Molcas,' ')
+  DirName = Molcas(1:i-1)
+end if
+i = index(DirName,' ')
+if (i == 0) then
+  call WarningMessage(2,'Too long path to Molcas')
+  call Abend()
+end if
+
+return
+
+end subroutine Find_Basis_Set

@@ -8,15 +8,16 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Module Gateway_Interfaces
 
-      Private
-      Public :: GetBS
+module Gateway_Interfaces
 
-      Contains
+private
+public :: GetBS
+
+contains
 
 #define _IN_MODULE_
 #include "getbs.F90"
 #include "getecp.F90"
 
-      End Module Gateway_Interfaces
+end module Gateway_Interfaces

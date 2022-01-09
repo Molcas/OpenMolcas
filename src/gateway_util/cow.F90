@@ -10,43 +10,46 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine CoW(Coor,CoF,W,nAtom,T)
+
+subroutine CoW(Coor,CoF,W,nAtom,T)
 !***********************************************************************
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
 !             January '91                                              *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+
+implicit real*8(A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
-      Real*8 Coor(3,nAtom), CoF(3), T, W(nAtom)
-!
-      iRout = 140
-      iPrint = nPrint(iRout)
-!
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In CoW: Coor',' ',Coor,3,nAtom)
-         Call RecPrt(' In CoW: W',' ',W,nAtom,1)
-      End If
-      T = Zero
-      Do 10 iAtom = 1, nAtom
-         T=T+W(iAtom)
- 10   Continue
-      Do 20 iCar = 1, 3
-         CoF(iCar) = Zero
-         Do 21 iAtom = 1, nAtom
-            CoF(iCar)=CoF(iCar) + Coor(iCar,iAtom)*W(iAtom)
- 21      Continue
-         If (T.ne.Zero) Then
-            CoF(iCar)= CoF(iCar) / T
-         Else
-            CoF(iCar)= Zero
-         End If
- 20   Continue
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In CoW: CoF',' ',CoF,1,3)
-         Call RecPrt(' In CoW: T',' ',[T],1,1)
-      End If
-!
-      Return
-      End
+real*8 Coor(3,nAtom), CoF(3), T, W(nAtom)
+
+iRout = 140
+iPrint = nPrint(iRout)
+
+if (iPrint >= 99) then
+  call RecPrt(' In CoW: Coor',' ',Coor,3,nAtom)
+  call RecPrt(' In CoW: W',' ',W,nAtom,1)
+end if
+T = Zero
+do iAtom=1,nAtom
+  T = T+W(iAtom)
+end do
+do iCar=1,3
+  CoF(iCar) = Zero
+  do iAtom=1,nAtom
+    CoF(iCar) = CoF(iCar)+Coor(iCar,iAtom)*W(iAtom)
+  end do
+  if (T /= Zero) then
+    CoF(iCar) = CoF(iCar)/T
+  else
+    CoF(iCar) = Zero
+  end if
+end do
+if (iPrint >= 99) then
+  call RecPrt(' In CoW: CoF',' ',CoF,1,3)
+  call RecPrt(' In CoW: T',' ',[T],1,1)
+end if
+
+return
+
+end subroutine CoW

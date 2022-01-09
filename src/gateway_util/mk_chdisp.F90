@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1991,1992,2008, Roland Lindh                           *
 !***********************************************************************
-      SubRoutine Mk_ChDisp()
+
+subroutine Mk_ChDisp()
 !***********************************************************************
 !                                                                      *
 ! Object: To generate the displacement labels
@@ -23,84 +24,85 @@
 !                                                                      *
 !             Modified to complement GetInf, January '92.              *
 !***********************************************************************
-      use Basis_Info
-      use Center_Info
-      use Symmetry_Info, only: nIrrep
-      Implicit Real*8 (A-H,O-Z)
+
+use Basis_Info
+use Center_Info
+use Symmetry_Info, only: nIrrep
+
+implicit real*8(A-H,O-Z)
 #include "Molcas.fh"
-      Integer nDisp(0:7), DegDisp(MxAtom*3)
-      Character ChDisp(MxAtom*3)*(LENIN6)
-      Logical TstFnc
-      Character*1 xyz(0:2)
-      Data xyz/'x','y','z'/
+integer nDisp(0:7), DegDisp(MxAtom*3)
+character ChDisp(MxAtom*3)*(LENIN6)
+logical TstFnc
+character*1 xyz(0:2)
+data xyz/'x','y','z'/
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      nCnttp_Valence=0
-      Do iCnttp = 1, nCnttp
-         If (dbsc(iCnttp)%Aux) Exit
-         nCnttp_Valence = nCnttp_Valence+1
-      End Do
-!
-      mDisp = 0
-      mdc = 0
-      Do 10 iCnttp = 1, nCnttp_Valence
-         If (dbsc(iCnttp)%pChrg) Then
-             mdc = mdc + dbsc(iCnttp)%nCntr
-             Go To 10
-         End If
-         Do iCnt = 1, dbsc(iCnttp)%nCntr
-            mdc = mdc + 1
-            mDisp = mDisp + 3*(nIrrep/dc(mdc)%nStab)
-         End Do
- 10   Continue
+nCnttp_Valence = 0
+do iCnttp=1,nCnttp
+  if (dbsc(iCnttp)%Aux) exit
+  nCnttp_Valence = nCnttp_Valence+1
+end do
+
+mDisp = 0
+mdc = 0
+do iCnttp=1,nCnttp_Valence
+  if (dbsc(iCnttp)%pChrg) then
+    mdc = mdc+dbsc(iCnttp)%nCntr
+    Go To 10
+  end if
+  do iCnt=1,dbsc(iCnttp)%nCntr
+    mdc = mdc+1
+    mDisp = mDisp+3*(nIrrep/dc(mdc)%nStab)
+  end do
+10 continue
+end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      iDisp = 0
-      Do iIrrep = 0, nIrrep-1
-!        Loop over basis function definitions
-         mdc = 0
-         mc = 1
-         nDisp(iIrrep)=0
-         Do iCnttp = 1, nCnttp_Valence
-!           Loop over unique centers associated with this basis set.
-            Do iCnt = 1, dbsc(iCnttp)%nCntr
-               mdc = mdc + 1
-!              Loop over the cartesian components
-               Do iCar = 0, 2
-                  iComp = 2**iCar
-                  If ( TstFnc(dc(mdc)%iCoSet,                           &
-     &                       iIrrep,iComp,dc(mdc)%nStab) .and.          &
-     &                .Not.dbsc(iCnttp)%pChrg ) Then
-                     iDisp = iDisp + 1
-                     ChDisp(iDisp)=' '
-                     Write (ChDisp(iDisp)(1:(LENIN6)),'(A,1X,A1)')      &
-     &                     dc(mdc)%LblCnt(1:LENIN4),xyz(iCar)
-                     DegDisp(iDisp)=nIrrep/dc(mdc)%nStab
-                     nDisp(iIrrep)=nDisp(iIrrep)+1
-                  End If
-!
-               End Do
-               mc = mc + nIrrep/dc(mdc)%nStab
-            End Do
-         End Do
-!
-      End Do
-!
-      If (iDisp.ne.mDisp) Then
-         Call WarningMessage(2,                                         &
-     &              ' Wrong number of symmetry adapted displacements')
-         Write (6,*) iDisp,'=/=',mDisp
-         Call Abend()
-      End If
-!
-      Call Put_iScalar('nChDisp',iDisp)
-      Call Put_cArray('ChDisp',ChDisp(1),(LENIN6)*iDisp)
-      Call Put_iArray('nDisp',nDisp,nIrrep)
-      Call Put_iArray('DegDisp',DegDisp,iDisp)
+iDisp = 0
+do iIrrep=0,nIrrep-1
+  ! Loop over basis function definitions
+  mdc = 0
+  mc = 1
+  nDisp(iIrrep) = 0
+  do iCnttp=1,nCnttp_Valence
+    ! Loop over unique centers associated with this basis set.
+    do iCnt=1,dbsc(iCnttp)%nCntr
+      mdc = mdc+1
+      ! Loop over the cartesian components
+      do iCar=0,2
+        iComp = 2**iCar
+        if (TstFnc(dc(mdc)%iCoSet,iIrrep,iComp,dc(mdc)%nStab) .and. (.not. dbsc(iCnttp)%pChrg)) then
+          iDisp = iDisp+1
+          ChDisp(iDisp) = ' '
+          write(ChDisp(iDisp)(1:(LENIN6)),'(A,1X,A1)') dc(mdc)%LblCnt(1:LENIN4),xyz(iCar)
+          DegDisp(iDisp) = nIrrep/dc(mdc)%nStab
+          nDisp(iIrrep) = nDisp(iIrrep)+1
+        end if
+
+      end do
+      mc = mc+nIrrep/dc(mdc)%nStab
+    end do
+  end do
+
+end do
+
+if (iDisp /= mDisp) then
+  call WarningMessage(2,' Wrong number of symmetry adapted displacements')
+  write(6,*) iDisp,'=/=',mDisp
+  call Abend()
+end if
+
+call Put_iScalar('nChDisp',iDisp)
+call Put_cArray('ChDisp',ChDisp(1),(LENIN6)*iDisp)
+call Put_iArray('nDisp',nDisp,nIrrep)
+call Put_iArray('DegDisp',DegDisp,iDisp)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End
+return
+
+end subroutine Mk_ChDisp

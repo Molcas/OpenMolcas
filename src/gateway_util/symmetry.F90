@@ -8,10 +8,15 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      integer function symmetry(isym,jsym)
+
+integer function symmetry(isym,jsym)
+
 !SVC: returns the product of two irreps (1-based indexing of irreps!)
-      implicit none
-      integer isym, jsym
-      symmetry = IEOR(isym-1,jsym-1)+1
-      return
-      end
+implicit none
+integer isym, jsym
+
+symmetry = ieor(isym-1,jsym-1)+1
+
+return
+
+end function symmetry
