@@ -1,74 +1,74 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2005, Per Ake Malmqvist                                *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2005, Per Ake Malmqvist                                *
+!***********************************************************************
       Subroutine CPBE(mGrid,Coeff,iSpin,F_xc)
-************************************************************************
-*                                                                      *
-* Object: To compute the functional called c_pbe in the Density        *
-* Functional Repository (http://www.cse.clrc.ac.uk/qcg/dft)            *
-* Original reference article: J.P. Perdew, K. Burke, and M. Ernzerhof, *
-*  "Generalized gradient approximation made simple,"                   *
-*      Phys. Rev. Lett. 77 (1996) 3865-3868.                           *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    :                                                         *
-*                                                                      *
-*      Author:Per Ake Malmqvist, Department of Theoretical Chemistry,  *
-*             University of Lund, SWEDEN. December 2005                *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+! Object: To compute the functional called c_pbe in the Density        *
+! Functional Repository (http://www.cse.clrc.ac.uk/qcg/dft)            *
+! Original reference article: J.P. Perdew, K. Burke, and M. Ernzerhof, *
+!  "Generalized gradient approximation made simple,"                   *
+!      Phys. Rev. Lett. 77 (1996) 3865-3868.                           *
+!                                                                      *
+! Called from:                                                         *
+!                                                                      *
+! Calling    :                                                         *
+!                                                                      *
+!      Author:Per Ake Malmqvist, Department of Theoretical Chemistry,  *
+!             University of Lund, SWEDEN. December 2005                *
+!***********************************************************************
       use nq_Grid, only: Rho, Sigma, l_casdft
       use nq_Grid, only: vRho, vSigma
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "ksdft.fh"
       Real*8 F_xc(mGrid)
-* Local arrays:
+! Local arrays:
       Real*8 func1(3),func2(3,3)
       Real*8, Parameter:: T_X=1.0D-20
-* Call arguments:
-* Rho(nRho,mGrid) (input) Density and density derivative values,
-*   Rho(1,iGrid) is rho_alpha values, Rho(2,iGrid) is rho_beta values
-*   Rho(i,iGrid) is grad_rho_alpha (i=3..5 for d/dx, d/dy, d/dz)
-*   Rho(i,iGrid) is grad_rho_beta  (i=6..8 for d/dx, d/dy, d/dz)
-*   DFT functional (*NOT* derivatives of Fock matrix contributions).
-* F_xc is values of the DFT energy density functional (surprised?)
+! Call arguments:
+! Rho(nRho,mGrid) (input) Density and density derivative values,
+!   Rho(1,iGrid) is rho_alpha values, Rho(2,iGrid) is rho_beta values
+!   Rho(i,iGrid) is grad_rho_alpha (i=3..5 for d/dx, d/dy, d/dz)
+!   Rho(i,iGrid) is grad_rho_beta  (i=6..8 for d/dx, d/dy, d/dz)
+!   DFT functional (*NOT* derivatives of Fock matrix contributions).
+! F_xc is values of the DFT energy density functional (surprised?)
 
-* IDORD=Order of derivatives to request from CPBE:
+! IDORD=Order of derivatives to request from CPBE:
       idord=1
 
-* cpbe has three input variables apart from idord=1:
-*  The density (rho_in), its gradient (abs value!) grdrho_in,
-*  and spin polarization zeta (zeta_in).
-* The result is returned as follows:
-*   func0 = Correlation energy density
-*   func1(1) = Its first derivative wrt rho
-*   func1(2) = Its first derivative wrt gamma
-*   func1(3) = Its first derivative wrt zeta
-*   func2(1,1) = Second derivative wrt rho
-*   func2(2,2) = Second derivative wrt gamma
-*   func2(3,3) = Second derivative wrt zeta
-*   func2(1,2) = Mixed derivative wrt rho and gamma
-*   func2(1,3) = Mixed derivative wrt rho and zeta
-*   func2(2,3) = Mixed derivative wrt gamma and zeta
-* Here, gamma=(grad rho)**2; AKA sigma in some formulas.
-* The derivatives w.r.t. spin components rhoa, rhob, and to the
-* gradients grdrhoa_x, etcetc, ..., grdrhob_z are then:
-*  Let F(rhoa,rhob,grdrhoa_x,...,grdrhob_z) = CPBE(rho,gamma,zeta),
-* then dF_drhoa = func1(1)+2*rhob*func1(3)/rho**2
-*      dF_drhob = func1(1)-2*rhoa*func1(3)/rho**2
-*      dF_dgrdrhoa_x = dF_dgrdrhob_x = 2*func1(2)*grdrho_x and so on.
+! cpbe has three input variables apart from idord=1:
+!  The density (rho_in), its gradient (abs value!) grdrho_in,
+!  and spin polarization zeta (zeta_in).
+! The result is returned as follows:
+!   func0 = Correlation energy density
+!   func1(1) = Its first derivative wrt rho
+!   func1(2) = Its first derivative wrt gamma
+!   func1(3) = Its first derivative wrt zeta
+!   func2(1,1) = Second derivative wrt rho
+!   func2(2,2) = Second derivative wrt gamma
+!   func2(3,3) = Second derivative wrt zeta
+!   func2(1,2) = Mixed derivative wrt rho and gamma
+!   func2(1,3) = Mixed derivative wrt rho and zeta
+!   func2(2,3) = Mixed derivative wrt gamma and zeta
+! Here, gamma=(grad rho)**2; AKA sigma in some formulas.
+! The derivatives w.r.t. spin components rhoa, rhob, and to the
+! gradients grdrhoa_x, etcetc, ..., grdrhob_z are then:
+!  Let F(rhoa,rhob,grdrhoa_x,...,grdrhob_z) = CPBE(rho,gamma,zeta),
+! then dF_drhoa = func1(1)+2*rhob*func1(3)/rho**2
+!      dF_drhob = func1(1)-2*rhoa*func1(3)/rho**2
+!      dF_dgrdrhoa_x = dF_dgrdrhob_x = 2*func1(2)*grdrho_x and so on.
       if (ispin.eq.1) then
-* ispin=1 means spin zero.
+! ispin=1 means spin zero.
         do iGrid=1,mgrid
          rhoa=Rho(1,iGrid)
          rho_in=2.0D0*rhoa
@@ -79,15 +79,14 @@
          zeta_in=0.0D0
          call cpbe_(idord,rho_in,grdrho_in,zeta_in,func0,func1,func2)
          F_xc(iGrid)=F_xc(iGrid)+Coeff*func0
-* dF_drhoa:
+! dF_drhoa:
          vRho(1,iGrid)=vRho(1,iGrid)+Coeff*func1(1)
-* Maybe derivatives w.r.t. gamma_aa, gamma_ab, gamma_bb should be used instead.
-         vSigma(1,iGrid)=vSigma(1,iGrid)+Coeff*func1(2)
-     &                                  +Coeff*func1(2)
+! Maybe derivatives w.r.t. gamma_aa, gamma_ab, gamma_bb should be used instead.
+         vSigma(1,iGrid)=vSigma(1,iGrid)+Coeff*func1(2)+Coeff*func1(2)
  110     continue
         end do
       else
-* ispin .ne. 1, use both alpha and beta components.
+! ispin .ne. 1, use both alpha and beta components.
         If (l_casdft) Then
         do iGrid=1,mgrid
          rhoa=max(1.0D-24,Rho(1,iGrid))
@@ -100,12 +99,10 @@
          zeta_in=(rhoa-rhob)/rho_in
          call cpbe_(idord,rho_in,grdrho_in,zeta_in,func0,func1,func2)
          F_xc(iGrid)=F_xc(iGrid)+Coeff*func0
-* dF_drhoa:
-         vRho(1,iGrid)=vRho(1,iGrid)+
-     &            Coeff*(func1(1)+(2.0D0*func1(3))*(rhob/rho_in**2))
-         vRho(2,iGrid)=vRho(2,iGrid)+
-     &            Coeff*(func1(1)-(2.0D0*func1(3))*(rhoa/rho_in**2))
-* Maybe derivatives w.r.t. gamma_aa, gamma_ab, gamma_bb should be used instead.
+! dF_drhoa:
+         vRho(1,iGrid)=vRho(1,iGrid)+Coeff*(func1(1)+(2.0D0*func1(3))*(rhob/rho_in**2))
+         vRho(2,iGrid)=vRho(2,iGrid)+Coeff*(func1(1)-(2.0D0*func1(3))*(rhoa/rho_in**2))
+! Maybe derivatives w.r.t. gamma_aa, gamma_ab, gamma_bb should be used instead.
          vSigma(1,iGrid)=vSigma(1,iGrid)+Coeff*func1(2)
          vSigma(2,iGrid)=vSigma(2,iGrid)+Coeff*2.0D0*func1(2)
          vSigma(3,iGrid)=vSigma(3,iGrid)+Coeff*func1(2)
@@ -122,12 +119,10 @@
          zeta_in=(rhoa-rhob)/rho_in
          call cpbe_(idord,rho_in,grdrho_in,zeta_in,func0,func1,func2)
          F_xc(iGrid)=F_xc(iGrid)+Coeff*func0
-* dF_drhoa:
-         vRho(1,iGrid)=vRho(1,iGrid)+
-     &            Coeff*(func1(1)+(2.0D0*func1(3))*(rhob/rho_in**2))
-         vRho(2,iGrid)=vRho(2,iGrid)+
-     &            Coeff*(func1(1)-(2.0D0*func1(3))*(rhoa/rho_in**2))
-* Maybe derivatives w.r.t. gamma_aa, gamma_ab, gamma_bb should be used instead.
+! dF_drhoa:
+         vRho(1,iGrid)=vRho(1,iGrid)+Coeff*(func1(1)+(2.0D0*func1(3))*(rhob/rho_in**2))
+         vRho(2,iGrid)=vRho(2,iGrid)+Coeff*(func1(1)-(2.0D0*func1(3))*(rhoa/rho_in**2))
+! Maybe derivatives w.r.t. gamma_aa, gamma_ab, gamma_bb should be used instead.
          vSigma(1,iGrid)=vSigma(1,iGrid)+Coeff*func1(2)
          vSigma(2,iGrid)=vSigma(2,iGrid)+Coeff*2.0D0*func1(2)
          vSigma(3,iGrid)=vSigma(3,iGrid)+Coeff*func1(2)
@@ -141,9 +136,9 @@
       subroutine cpbe_(idord,rho_in,grdrho_in,zeta_in,func0,func1,func2)
       implicit none
 
-C
-C     Parameter variables
-C
+!
+!     Parameter variables
+!
       REAL*8        ONE
       PARAMETER     (ONE = 1.0D0)
       REAL*8        TWO
@@ -172,15 +167,15 @@ C
       PARAMETER     (RHO2RS = 0.62035049088842779322331643499916D0)
       REAL*8        BETA
       PARAMETER     (BETA = 0.06672455060314922D0)
-C
-C     Argument variables
-C
+!
+!     Argument variables
+!
       REAL*8        FUNC0,       FUNC1(3),    FUNC2(3,3)
       REAL*8        GRDRHO_IN,   RHO_IN,      ZETA_IN
       INTEGER       IDORD
-C
-C     Local variables
-C
+!
+!     Local variables
+!
       REAL*8        AC,          AI,          CFF1
       REAL*8        CFF2,        CFF3,        CFF4,        CFF5
       REAL*8        CFF6,        D2ACDR2,     D2AIDR2
@@ -246,10 +241,10 @@ C
       x=sqrt(rs)
       kF=kFcnst/rs
       ks=sqrt(four/pi)*sqrt(kF)
-*--------------------------------------------------------------
-* PAM 2009: Some compilers doing code checking erroneously conclude that
-* a lot of variables may get used uninitialized (due to if-statements).
-* So they must get initialized here:
+!--------------------------------------------------------------
+! PAM 2009: Some compilers doing code checking erroneously conclude that
+! a lot of variables may get used uninitialized (due to if-statements).
+! So they must get initialized here:
       d2acdr2=9.9D99
       d2aidr2=9.9D99
       d2aidrdz=9.9D99
@@ -330,8 +325,8 @@ C
       d2hdrds=9.9D99
       d2hdsdz=9.9D99
       d2hds2=9.9D99
-*--------------------------------------------------------------
-* Ac, and its derivatives w.r.t. rho:
+!--------------------------------------------------------------
+! Ac, and its derivatives w.r.t. rho:
       cff1=2.D0*0.016887D0
       cff2=0.11125D0
       cff3=10.357d0
@@ -353,12 +348,11 @@ C
        d2xdr2=-(7.0d0*dxdr*rhoi)/6.0d0
        d2Qdx2=cff1*(2.D0*cff4+x*(6.D0*cff5+x*12.D0*cff6))
        d2Pdx2=(dQdx**2.D0*(two-one/(Q+one))/Q-d2Qdx2)/(Q*(Q+one))
-       d2Gdx2=-cff1*(2.D0*cff2*P+4.D0*cff2*x*dPdx
-     &       +(one+cff2*x**2)*d2Pdx2)
+       d2Gdx2=-cff1*(2.D0*cff2*P+4.D0*cff2*x*dPdx+(one+cff2*x**2)*d2Pdx2)
        d2Acdr2=d2Gdx2*(dxdr**2)+dGdx*d2xdr2
       end if
-*--------------------------------------------------------------
-* EcP, and its derivatives:
+!--------------------------------------------------------------
+! EcP, and its derivatives:
       cff1=2.D0*0.0310907D0
       cff2=0.21370D0
       cff3=7.5957d0
@@ -378,12 +372,11 @@ C
       if(idord.ge.2) then
        d2Qdx2=cff1*(2.D0*cff4+x*(6.D0*cff5+x*12.D0*cff6))
        d2Pdx2=(dQdx**2.D0*(two-one/(Q+one))/Q-d2Qdx2)/(Q*(Q+one))
-       d2Gdx2=-cff1*(2.D0*cff2*P+4.D0*cff2*x*dPdx
-     &       +(one+cff2*x**2)*d2Pdx2)
+       d2Gdx2=-cff1*(2.D0*cff2*P+4.D0*cff2*x*dPdx+(one+cff2*x**2)*d2Pdx2)
        d2EcPdr2=d2Gdx2*(dxdr**2)+dGdx*d2xdr2
       end if
-*--------------------------------------------------------------
-* EcF, and its derivatives:
+!--------------------------------------------------------------
+! EcF, and its derivatives:
       cff1=2.D0*0.015545D0
       cff2=0.20548D0
       cff3=14.1189D0
@@ -403,12 +396,11 @@ C
       if(idord.ge.2) then
        d2Qdx2=cff1*(2.D0*cff4+x*(6.D0*cff5+x*12.D0*cff6))
        d2Pdx2=(dQdx**2.D0*(two-one/(Q+one))/Q-d2Qdx2)/(Q*(Q+one))
-       d2Gdx2=-cff1*(2.D0*cff2*P+4.D0*cff2*x*dPdx
-     &       +(one+cff2*x**2)*d2Pdx2)
+       d2Gdx2=-cff1*(2.D0*cff2*P+4.D0*cff2*x*dPdx+(one+cff2*x**2)*d2Pdx2)
        d2EcFdr2=d2Gdx2*(dxdr**2)+dGdx*d2xdr2
       end if
-*--------------------------------------------------------------
-* fz, and its derivatives:
+!--------------------------------------------------------------
+! fz, and its derivatives:
       P=(one+zeta)**(fothrd)
       Q=(one-zeta)**(fothrd)
       fz=fzcnst*(P+Q-two)
@@ -422,8 +414,8 @@ C
        d2Qdz2=-third*dQdz/(one-zeta)
        d2fzdz2=fzcnst*(d2Pdz2+d2Qdz2)
       end if
-*--------------------------------------------------------------
-* Ec(rho,zeta), and its derivatives:
+!--------------------------------------------------------------
+! Ec(rho,zeta), and its derivatives:
       z2=zeta**2
       z3=z2*zeta
       z4=z3*zeta
@@ -443,8 +435,8 @@ C
        d2Ecdrdz=four*dQdr*z3*fz+(dQdr*z4-dPdr)*dfzdz
        d2Ecdz2=12.0D0*Q*z2*fz+8.0d0*Q*z3*dfzdz+(Q*z4-P)*d2fzdz2
       end if
-*--------------------------------------------------------------
-* phi(zeta), and derivatives:
+!--------------------------------------------------------------
+! phi(zeta), and derivatives:
       kF=kFcnst/rs
       ks=sqrt(four/pi)*sqrt(kF)
       P=half*(one+zeta)**(tothrd)
@@ -460,15 +452,15 @@ C
        d2Qdz2= third*dQdz/(one-zeta)
        d2phidz2=d2Pdz2+d2Qdz2
       end if
-*--------------------------------------------------------------
-* A(rho,zeta)=(beta/gammas)/(exp(-Ec/(phi**3*gammas))-1.0D0)
+!--------------------------------------------------------------
+! A(rho,zeta)=(beta/gammas)/(exp(-Ec/(phi**3*gammas))-1.0D0)
       gammas=0.031090690869654895034940863712730D0
       phi3g=phi**3*gammas
 
-* and then used below in the combination "A*t**2".
-* Here, we use the inverse Ai instead.
+! and then used below in the combination "A*t**2".
+! Here, we use the inverse Ai instead.
 
-* P=Ec/(phi**3*gammas)
+! P=Ec/(phi**3*gammas)
 
       P=Ec/phi3g
       Q=(gammas/beta)*exp(-P)
@@ -483,15 +475,14 @@ C
       if(idord.ge.2) then
        d2Pdr2=d2Ecdr2/phi3g
        d2Pdrdz=(d2Ecdrdz-3.D0*dEcdr*y)/phi3g
-       d2Pdz2=(d2Ecdz2-6.D0*dEcdz*y+(12.D0*y**2-3.D0*(d2phidz2/phi))*Ec)
-     &       /phi3g
+       d2Pdz2=(d2Ecdz2-6.D0*dEcdz*y+(12.D0*y**2-3.D0*(d2phidz2/phi))*Ec)/phi3g
        d2Aidr2=Q*(dPdr**2-d2Pdr2)
        d2Aidrdz=Q*(dPdr*dPdz-d2Pdrdz)
        d2Aidz2=Q*(dPdz**2-d2Pdz2)
       end if
-* Ai and its derivatives have been checked OK.
+! Ai and its derivatives have been checked OK.
 
-* T in the code is T**2 in the original formula
+! T in the code is T**2 in the original formula
       s=grdrho**2
       d2Tdg2=half/(phi*ks*rho)**2
       T=half*d2Tdg2*s
@@ -507,7 +498,7 @@ C
        d2Tdz2=-3.D0*y*dTdz-2.D0*d2phidz2*T/phi
        d2Tdrdz=-2.D0*dTdr*y
       end if
-* T and its derivatives have been checked OK.
+! T and its derivatives have been checked OK.
       x=Ai*(Ai+T)
       if(idord.ge.1) then
        dxdr=Ai*(2.D0*dAidr+dTdr)+T*dAidr
@@ -517,13 +508,12 @@ C
       if(idord.ge.2) then
        d2xdr2=2.D0*dAidr*(dAidr+dTdr)+Ai*(2.D0*d2Aidr2+d2Tdr2)+T*d2Aidr2
        d2xdrdg=Ai*d2Tdrdg+dTdg*dAidr
-       d2xdrdz=dAidz*(2.D0*dAidr+dTdr)+Ai*(2.D0*d2Aidrdz+d2Tdrdz)+
-     &         dTdz*dAidr+T*d2Aidrdz
+       d2xdrdz=dAidz*(2.D0*dAidr+dTdr)+Ai*(2.D0*d2Aidrdz+d2Tdrdz)+dTdz*dAidr+T*d2Aidrdz
        d2xdg2=Ai*d2Tdg2
        d2xdgdz=Ai*d2Tdgdz+dAidz*dTdg
        d2xdz2=2.D0*dAidz*(dAidz+dTdz)+Ai*(2.D0*d2Aidz2+d2Tdz2)+T*d2Aidz2
       end if
-*
+!
       P=T*x
       if(idord.ge.1) then
        dPdr=dTdr*x+T*dxdr
@@ -592,14 +582,13 @@ C
       if(idord.ge.2) then
        d2Hdr2=phi3g*d2Pdr2
        d2Hdrdz=phi3g*(d2Pdrdz+3.D0*y*dPdr)
-       d2Hdz2=phi3g*(d2Pdz2+6.D0*y*dPdz+
-     &          (6.D0*y**2+3.D0*(d2phidz2/phi))*P)
+       d2Hdz2=phi3g*(d2Pdz2+6.D0*y*dPdz+(6.D0*y**2+3.D0*(d2phidz2/phi))*P)
        d2Hdg2=phi3g*d2Pdg2
        d2Hdrdg=phi3g*d2Pdrdg
        d2Hdgdz=phi3g*(d2Pdgdz+3.D0*y*dPdg)
       end if
 
-* Change derivatives w.r.t. grad_rho into derivatives w.r.t. sigma:
+! Change derivatives w.r.t. grad_rho into derivatives w.r.t. sigma:
       if(idord.ge.1) then
        dHds=dHdg/(2.D0*grdrho)
       end if
@@ -608,9 +597,9 @@ C
        d2Hdsdz=d2Hdgdz/(2.D0*grdrho)
        d2Hds2 =(d2Hdg2-2.D0*dHds) /(4.D0*s)
       end if
-* Finally, the functional is defined as the integrand in the
-* expression for the correlation energy, i.e. there is a factor
-* rho:
+! Finally, the functional is defined as the integrand in the
+! expression for the correlation energy, i.e. there is a factor
+! rho:
       func0=rho_in*(Ec+H)
       if(idord.ge.1) then
        func1(1)=rho_in*(dEcdr+dHdr)+(Ec+H)
