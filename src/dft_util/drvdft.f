@@ -145,43 +145,39 @@ c     Call SetQue('Trace=on')
 *     calculations and two (F_alpha and F_beta) for open shell systems.
 *     For CASDFT we have always two (F_inactive and F_active)
 *
+*                                                                      *
 ************************************************************************
 *                                                                      *
-*      LSDA LDA SVWN  GLM stuff                                        *
+       Select Case(KSDFT)
 *                                                                      *
-       If (KSDFT.eq.'LSDA ' .or.
-     &     KSDFT.eq.'LDA '  .or.
-     &     KSDFT.eq.'TLSDA'  .or. !GLM
-     &     KSDFT.eq.'FTLSDA'  .or. !AMS
-     &     KSDFT.eq.'SVWN ') Then
-         If(KSDFT.eq.'TLSDA'
-     &     .or.KSDFT.eq.'FTLSDA') Do_MO=.true. !GLM
-         If(KSDFT.eq.'TLSDA'
-     &     .or.KSDFT.eq.'FTLSDA') Do_TwoEl=.true. !GLM
-
+************************************************************************
+*                                                                      *
+*      LSDA LDA SVWN                                                   *
+*                                                                      *
+      Case('LSDA ','LDA ','TLSDA','FTLSDA','SVWN ')
          ExFac=Get_ExFac(KSDFT)
          Functional_type=LDA_type
          Sub => LSDA
-c          write(6,*) 'Func in drvdft :', Func
+         If(KSDFT.eq.'TLSDA'
+     &     .or.KSDFT.eq.'FTLSDA') Do_MO=.true.
+         If(KSDFT.eq.'TLSDA'
+     &     .or.KSDFT.eq.'FTLSDA') Do_TwoEl=.true.
+
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *      LSDA5 LDA5 SVWN5                                                *
 *                                                                      *
-       Else If (KSDFT.eq.'LSDA5' .or.
-     &          KSDFT.eq.'LDA5'  .or.
-     &          KSDFT.eq.'TLSDA5 '.or.
-     &          KSDFT.eq.'SVWN5') Then
+       Case('LSDA5','LDA5','TLSDA5 ','SVWN5')
          ExFac=Get_ExFac(KSDFT)
          Functional_type=LDA_type
          Sub => LSDA5
-c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     HFB                                                              *
 *                                                                      *
-       Else If (KSDFT.eq.'HFB') Then
+       Case('HFB')
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => HFB
@@ -190,7 +186,7 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *     HFO                                                              *
 *                                                                      *
-       Else If (KSDFT.eq.'HFO') Then
+       Case('HFO')
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => HFO
@@ -199,7 +195,7 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *     HFG                                                              *
 *                                                                      *
-       Else If (KSDFT.eq.'HFG') Then
+       Case('HFG')
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => HFG
@@ -208,7 +204,7 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *     HFB86                                                            *
 *                                                                      *
-       Else If (KSDFT.eq.'HFB86') Then
+       Case('HFB86')
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => HFB86
@@ -217,7 +213,7 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *      HFS                                                             *
 *                                                                      *
-       Else If (KSDFT.eq.'HFS') Then
+       Case('HFS')
          ExFac=Get_ExFac(KSDFT)
          Functional_type=LDA_type
          Sub => HFS
@@ -226,7 +222,7 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *      XALPHA                                                          *
 *                                                                      *
-       Else If (KSDFT.eq.'XALPHA') Then
+       Case('XALPHA')
          ExFac=Get_ExFac(KSDFT)
          Functional_type=LDA_type
          Sub => XAlpha
@@ -235,7 +231,7 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *     Overlap                                                          *
 *                                                                      *
-      Else If (KSDFT.eq.'Overlap') Then
+      Case('Overlap')
          ExFac=Get_ExFac(KSDFT)
          Functional_type=LDA_type
          Sub => Overlap
@@ -244,7 +240,7 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *     NucAtt                                                           *
 *                                                                      *
-      Else If (KSDFT.eq.'NucAtt') Then
+      Case('NucAtt')
          ExFac=One
          Functional_type=LDA_type
          Sub => NucAtt
@@ -253,7 +249,7 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *     BWIG                                                             *
 *                                                                      *
-      Else If (KSDFT.eq.'BWIG') Then
+      Case('BWIG')
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => BWIG
@@ -262,23 +258,20 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *     BLYP                                                             *
 *                                                                      *
-      Else If (KSDFT.eq.'BLYP'
-     &       .or.  KSDFT.eq.'TBLYP' !GLM
-     &       .or.  KSDFT.eq.'FTBLYP' !AMS
-     &        ) Then
+      Case('BLYP','TBLYP','FTBLYP')
+         ExFac=Get_ExFac(KSDFT)
+         Functional_type=GGA_type
+         Sub => BLYP
        If(KSDFT.eq.'TBLYP'
      &       .or. KSDFT.eq.'FTBLYP') Do_MO=.true.
        If(KSDFT.eq.'TBLYP'
      &       .or. KSDFT.eq.'FTBLYP') Do_TwoEl=.true.
-         ExFac=Get_ExFac(KSDFT)
-         Functional_type=GGA_type
-         Sub => BLYP
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     OLYP                                                             *
 *                                                                      *
-      Else If (KSDFT.eq.'OLYP') Then
+      Case ('OLYP')
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => OLYP
@@ -287,7 +280,7 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *     KT3                                                              *
 *                                                                      *
-      Else If (KSDFT.eq.'KT3') Then
+      Case('KT3')
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => KT3
@@ -296,7 +289,7 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *     KT2                                                              *
 *                                                                      *
-      Else If (KSDFT.eq.'KT2') Then
+      Case('KT2')
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => KT2
@@ -305,7 +298,7 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *     GLYP                                                             *
 *                                                                      *
-      Else If (KSDFT.eq.'GLYP') Then
+      Case('GLYP')
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => GLYP
@@ -314,7 +307,7 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *     B86LYP                                                           *
 *                                                                      *
-      Else If (KSDFT.eq.'B86LYP') Then
+      Case('B86LYP')
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => B86LYP
@@ -323,7 +316,7 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *     BPBE                                                             *
 *                                                                      *
-      Else If (KSDFT.eq.'BPBE') Then
+      Case('BPBE')
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => BPBE
@@ -332,23 +325,20 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *     OPBE                                                             *
 *                                                                      *
-      Else If (KSDFT.eq.'OPBE'
-     &     .or.KSDFT.eq.'TOPBE' !GLM
-     &     .or.KSDFT.eq.'FTOPBE'!AMS
-     &         ) then
+      Case('OPBE','TOPBE','FTOPBE')
+         ExFac=Get_ExFac(KSDFT)
+         Functional_type=GGA_type
+         Sub => OPBE
          If(KSDFT.eq.'TOPBE'
      &     .or.KSDFT.eq.'FTOPBE') Do_MO=.true.
          If(KSDFT.eq.'TOPBE'
      &     .or.KSDFT.eq.'FTOPBE') Do_TwoEl=.true.
-         ExFac=Get_ExFac(KSDFT)
-         Functional_type=GGA_type
-         Sub => OPBE
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     GPBE                                                             *
 *                                                                      *
-      Else If (KSDFT.eq.'GPBE') Then
+      Case('GPBE')
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => GPBE
@@ -357,7 +347,7 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *     B86PBE                                                           *
 *                                                                      *
-      Else If (KSDFT.eq.'B86PBE') Then
+      Case('B86PBE')
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => B86PBE
@@ -366,7 +356,7 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *     TLYP                                                             *
 *                                                                      *
-      Else If (KSDFT.eq.'TLYP') Then
+      Case('TLYP')
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => TLYP
@@ -375,7 +365,7 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *     B3LYP                                                            *
 *                                                                      *
-      Else If (KSDFT.eq.'B3LYP ') Then
+      Case('B3LYP ')
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => B3LYP
@@ -384,7 +374,7 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *     O3LYP                                                            *
 *                                                                      *
-      Else If (KSDFT.eq.'O3LYP ') Then
+      Case('O3LYP ')
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => O3LYP
@@ -393,7 +383,7 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *     B2PLYP                                                           *
 *                                                                      *
-      Else If (KSDFT.eq.'B2PLYP') Then
+      Case('B2PLYP')
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => B2PLYP
@@ -402,7 +392,7 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *     O2PLYP                                                           *
 *                                                                      *
-      Else If (KSDFT.eq.'O2PLYP') Then
+      Case('O2PLYP')
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => O2PLYP
@@ -411,7 +401,7 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *     B3LYP5                                                           *
 *                                                                      *
-      Else If (KSDFT.eq.'B3LYP5') Then
+      Case('B3LYP5')
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => B3LYP5
@@ -420,40 +410,33 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *     PBE                                                              *
 *                                                                      *
-      Else If (KSDFT.eq.'PBE'
-     &     .or.KSDFT.eq.'TPBE' !GLM
-     &     .or.KSDFT.eq.'FTPBE'!AMS
-     &         ) then
+      Case('PBE','TPBE','FTPBE')
+         ExFac=Get_ExFac(KSDFT)
+         Functional_type=GGA_type
+         Sub => PBE
          If(KSDFT.eq.'TPBE'
      &     .or.KSDFT.eq.'FTPBE') Do_MO=.true.
          If(KSDFT.eq.'TPBE'
      &     .or.KSDFT.eq.'FTPBE') Do_TwoEl=.true.
-         ExFac=Get_ExFac(KSDFT)
-         Functional_type=GGA_type
-         Sub => PBE
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     revPBE                                                           *
 *                                                                      *
-      Else If (KSDFT.eq.'REVPBE'
-     &     .or.KSDFT.eq.'TREVPBE' !GLM
-     &     .or.KSDFT.eq.'FTREVPBE'!AMS
-     &         ) then
+      Case('REVPBE','TREVPBE','FTREVPBE')
+         ExFac=Get_ExFac(KSDFT)
+         Functional_type=GGA_type
+         Sub => REVPBE
          If(KSDFT.eq.'TREVPBE'
      &     .or.KSDFT.eq.'FTREVBPE') Do_MO=.true.
          If(KSDFT.eq.'TREVPBE'
      &     .or.KSDFT.eq.'FTREVPBE') Do_TwoEl=.true.
-         ExFac=Get_ExFac(KSDFT)
-         Functional_type=GGA_type
-         Sub => REVPBE
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     SSBSW                                                              *
 *                                                                      *
-      Else If (KSDFT.eq.'SSBSW'
-     &     .or.KSDFT.eq.'TSSBSW') Then !GLM
+      Case('SSBSW','TSSBSW')
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => SSBSW
@@ -462,8 +445,7 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *     SSBD                                                             *
 *                                                                      *
-      Else If (KSDFT.eq.'SSBD'
-     &     .or.KSDFT.eq.'TSSBD') Then !GLM
+      Case('SSBD','TSSBD')
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => SSBD
@@ -473,7 +455,7 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *     S12H                                                             *
 *                                                                      *
-      Else If (KSDFT.eq.'S12H') Then
+      Case('S12H')
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => S12H
@@ -482,8 +464,7 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *     S12G                                                             *
 *                                                                      *
-      Else If (KSDFT.eq.'S12G'
-     &     .or.KSDFT.eq.'TS12G') Then !GLM
+      Case('S12G','TS12G')
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => S12G
@@ -492,7 +473,7 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *     PBEsol                                                           *
 *                                                                      *
-      Else If (KSDFT.eq.'PBESOL') Then
+      Case('PBESOL')
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => PBESol
@@ -501,7 +482,7 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *     RGE2                                                             *
 *                                                                      *
-      Else If (KSDFT.eq.'RGE2') Then
+      Case('RGE2')
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => RGE2
@@ -510,7 +491,7 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *     PTCA                                                             *
 *                                                                      *
-      Else If (KSDFT.eq.'PTCA') Then
+      Case('PTCA')
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => PTCA
@@ -519,7 +500,7 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *     PBE0                                                             *
 *                                                                      *
-      Else If (KSDFT.eq.'PBE0') Then
+      Case('PBE0')
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => PBE0
@@ -528,7 +509,7 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *     M06-L                                                            *
 *                                                                      *
-      Else If (KSDFT.eq.'M06L') Then
+      Case('M06L')
          ExFac=Get_ExFac(KSDFT)
          Functional_type=meta_GGA_type1
          Sub => M06L
@@ -537,7 +518,7 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *     M06                                                              *
 *                                                                      *
-      Else If (KSDFT.eq.'M06 ') Then
+      Case('M06 ')
          ExFac=Get_ExFac(KSDFT)
          Functional_type=meta_GGA_type1
          Sub => M06
@@ -546,7 +527,7 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *     M06-2X                                                           *
 *                                                                      *
-      Else If (KSDFT.eq.'M062X') Then
+      Case('M062X')
          ExFac=Get_ExFac(KSDFT)
          Functional_type=meta_GGA_type1
          Sub => M062X
@@ -555,19 +536,19 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *     M06-HF                                                           *
 *                                                                      *
-      Else If (KSDFT.eq.'M06HF') Then
+      Case('M06HF')
          ExFac=Get_ExFac(KSDFT)
          Functional_type=meta_GGA_type1
          Sub => M06HF
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Else
+      Case default
          Call WarningMessage(2,
      &               ' DrvDFT: Undefined functional type!')
          Write (6,*) '         Functional=',KSDFT(1:lKSDFT)
          Call Quit_OnUserError()
-      End If
+       End Select
 *                                                                      *
 ************************************************************************
 *                                                                      *
