@@ -16,7 +16,7 @@
       Contains
 
 #define _IN_MODULE_
-#include "getbs.f"
-#include "getecp.f"
+#include "getbs.F90"
+#include "getecp.F90"
 
       End Module Gateway_Interfaces
