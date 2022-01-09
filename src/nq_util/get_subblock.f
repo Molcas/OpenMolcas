@@ -19,7 +19,7 @@
      &                        nP2_ontop,
      &                        Do_Mo,Do_TwoEl,l_Xhol,
      &                        TmpPUVX,nTmpPUVX,nMOs,CMOs,nCMO,DoIt,
-     &                  P2mo,P2Unzip,np2act,D1mo,D1Unzip,nD1mo,P2_ontop,
+     &                        P2Unzip,D1mo,D1Unzip,nD1mo,P2_ontop,
      &                        Do_Grad,Grad,nGrad,List_G,IndGrd,iTab,
      &                        Temp,mGrad,F_xc,
      &                        DFTFOCK,mAO,mdRho_dR,
@@ -60,7 +60,7 @@
      &        list_p(nNQ), DoIt(nMOs), iTab(4,mGrad),IndGrd(mGrad)
       Real*8 R2_trial(nNQ), FckInt(nFckInt,nFckDim),
      &       Dens(nDens,nD), Grad(nGrad), Temp(mGrad),
-     &       CMOs(nCMO), P2mo(np2act), D1mo(nD1mo),
+     &       CMOs(nCMO), D1mo(nD1mo),
      &       P2_ontop(nP2_ontop,mGrid), Roots(3,3), F_xc(mGrid),
      &       xyz0(3,2),PDFTPot1(npot1),PDFTFocI(nPot1),PDFTFocA(nPot1)
       Real*8 TmpPUVX(nTmpPUVX)
@@ -703,7 +703,7 @@ c
      &                 nShell,Do_Mo,Do_TwoEl,l_Xhol,TmpPUVX,nTmpPUVX,
      &                 Work(ipTabMO),Work(ipTabSO),
      &                 nMOs,CMOs,nCMO,DoIt,
-     &                 P2mo,P2unzip,np2act,D1mo,D1Unzip,nd1mo,P2_ontop,
+     &                 P2unzip,D1mo,D1Unzip,nd1mo,P2_ontop,
      &                 Do_Grad,Grad,nGrad,
      &                 mdRho_dR,nGrad_Eff,
      &                 list_g,IndGrd,iTab,Temp,F_xc,

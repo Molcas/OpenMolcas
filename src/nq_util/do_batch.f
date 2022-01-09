@@ -21,7 +21,7 @@
      &                    Do_Mo,Do_TwoEl,l_Xhol,
      &                    TmpPUVX,nTmpPUVX,TabMO,TabSO,
      &                    nMOs,CMOs,nCMO,DoIt,
-     &                    P2mo,P2unzip,np2act,D1mo,D1Unzip,nd1mo,
+     &                    P2unzip,D1mo,D1Unzip,nd1mo,
      &                    P2_ontop,
      &                    Do_Grad,Grad,nGrad,ndRho_dR,nGrad_Eff,
      &                    list_g,IndGrd,iTab,Temp,F_xc,dW_dR,iNQ,Maps2p,
@@ -62,7 +62,7 @@
       Real*8 A(3), RA(3), Grad(nGrad),
      &       FckInt(nFckInt,nFckDim), Dens(nDens,nD),
      &       TabMO(mAO,mGrid,nMOs),TabSO(mAO,mGrid,nMOs),
-     &       CMOs(nCMO),P2mo(np2act),D1mo(nd1mo),
+     &       CMOs(nCMO),D1mo(nd1mo),
      &       P2_ontop(nP2_ontop,mGrid) , Temp(nGrad),
      &       F_xc(mGrid),
      &       dW_dR(nGrad_Eff,mGrid),
@@ -471,58 +471,6 @@
          Dens_b2=Dens_b2+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,2)
 
       End If
-
-      If (Functional_type.eq.LDA_type) Then
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-      Else If (Functional_type.eq.GGA_type) Then
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-      Else If (Functional_type.eq.CASDFT_type) Then
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-*
-*------- Compute P2_OnTop at the grid
-         Call Do_P2new(P2mo,np2act,D1mo,nd1mo,TabMO,mAO,mGrid,
-     &                 nMOs,P2_ontop,nP2_ontop,Work(ipRhoI),
-     &                 Work(ipRhoA),mRho)
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-      Else If (Functional_type.eq.meta_GGA_type1) Then
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-      Else If (Functional_type.eq.meta_GGA_type2) Then
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-      End If
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -592,15 +540,12 @@
          Funcaa=Funcaa+DDot_(mGrid,Weights,1,F_xca,1)
          Funcbb=Funcbb+DDot_(mGrid,Weights,1,F_xcb,1)
          Funccc=Func-Funcaa-Funcbb
-*        Funccc=Funccc+DDot_(mGrid,Weights,1,tmpB,1)
       End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
 1979  Continue  !Jump here and skip the call to the kernel.
-      IF(do_pdftPot) THEN
-       CALL mma_allocate(MOs ,mGrid*NASHT)
-      END IF
+      IF (do_pdftPot) CALL mma_allocate(MOs ,mGrid*NASHT)
 
       If (.Not.Do_Grad) Then
 *                                                                      *
@@ -773,12 +718,11 @@
 *
       End If
 *                                                                      *
-      If(do_pdftPot) then
-       CALL mma_deallocate(MOs   )
-      End If
+      If(do_pdftPot) CALL mma_deallocate(MOs)
 ************************************************************************
 *                                                                      *
       CALL PDFTMemDeAlloc()
+
       If(mRho.ne.-1) Then
         Call GetMem('Rho_I','Free','Real',ipRhoI,mGrid*mRho)
         Call GetMem('Rho_A','Free','Real',ipRhoA,mGrid*mRho)
