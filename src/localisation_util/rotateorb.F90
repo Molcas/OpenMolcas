@@ -30,7 +30,7 @@ real(kind=wp), intent(out) :: PACol(nOrb2Loc,2), PctSkp
 logical(kind=iwp), intent(in) :: Maximisation, Debug
 character(len=LenIn8), intent(in) :: BName(*)
 real(kind=wp), intent(in) :: ThrRot
-integer(kind=iwp) :: i, iAt, iCouple, iMO1, iMO2, iMO_s, iMO_t
+integer(kind=iwp) :: iAt, iCouple, iMO1, iMO2, iMO_s, iMO_t
 real(kind=wp) :: Alpha, Alpha1, Alpha2, Ast, Bst, cos4alpha, Gamma_rot, PA_ss, PA_st, PA_tt, sin4alpha, SumA, SumB, Tst, Tstc, &
                  Tsts, xDone, xOrb2Loc, xTotal
 character(len=LenIn8) :: PALbl
@@ -38,7 +38,7 @@ character(len=80) :: Txt
 
 xDone = Zero
 if (Debug) then
-  write(u6,*) 'RotateOrb[Debug]: nBas_per_Atom: ',(nBas_per_Atom(i),i=1,nAtoms)
+  write(u6,*) 'RotateOrb[Debug]: nBas_per_Atom: ',nBas_per_Atom(:)
   iCouple = 0
 end if
 do iMO1=1,nOrb2Loc-1

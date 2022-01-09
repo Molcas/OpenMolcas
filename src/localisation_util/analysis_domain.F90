@@ -23,7 +23,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nAtom, nOcc, iDomain(0:nAtom,nOcc), nBas_Start(nAtom), nBas
 real(kind=wp), intent(in) :: QD(nOcc), f(nOcc), Coord(3,nAtom)
 character(len=4), intent(in) :: AtomLbl(2,nBas)
-integer(kind=iwp) :: i, iAt, iAtom, j, jAt, jAtom, nAt, nij
+integer(kind=iwp) :: i, iAt, iAtom, jAt, jAtom, nAt, nij
 real(kind=wp) :: R, Rave, Rmax, Rmin
 
 if ((nAtom < 1) .or. (nOcc < 1)) return
@@ -57,7 +57,7 @@ do i=1,nOcc
   write(u6,'(A,1P,3(1X,D15.5))') '  Rmin, Rmax, Rave             :',Rmin,Rmax,Rave
   do iAt=1,nAt
     iAtom = iDomain(iAt,i)
-    write(u6,'(A,I6,2X,A,1X,3(1X,F12.3))') '  Atom:',iAtom,AtomLbl(1,nBas_Start(iAtom)),(Coord(j,iAtom),j=1,3)
+    write(u6,'(A,I6,2X,A,1X,3(1X,F12.3))') '  Atom:',iAtom,AtomLbl(1,nBas_Start(iAtom)),Coord(:,iAtom)
   end do
 end do
 

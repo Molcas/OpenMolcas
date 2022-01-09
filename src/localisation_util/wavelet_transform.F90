@@ -40,8 +40,8 @@ xNrm = Zero
 if (.not. Silent) then
   if (inv == 0) write(u6,'(/,1X,A)') 'Wavelet transform of the MOs'
   if (inv == 1) write(u6,'(/,1X,A)') 'Inverse wavelet transform of the MOs'
-  write(u6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
-  write(u6,'(1X,A,8(1X,I6))') 'Orbitals to transform:',(nOrb2Loc(iSym),iSym=1,nSym)
+  write(u6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',nFro(:)
+  write(u6,'(1X,A,8(1X,I6))') 'Orbitals to transform:',nOrb2Loc(:)
 end if
 
 call Allocate_DSBA(C,nBas,nBas,nSym,label='C',Ref=CMO)

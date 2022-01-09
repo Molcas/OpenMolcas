@@ -70,7 +70,7 @@ end if
 
 if (DoPrint) then
   write(Formt,'(3(a6,i3,a5))') '(/,a6,',nAtoms,'i5,/,','   a6,',nAtoms,'i5,/,','   a6,',nAtoms,'i5)'
-  write(u6,Formt) 'Atom  ',(iAt,iAt=1,nAtoms),'Start ',(nBas_Start(iAt),iAt=1,nAtoms),'nBas  ',(nBas_per_Atom(iAt),iAt=1,nAtoms)
+  write(u6,Formt) 'Atom  ',(iAt,iAt=1,nAtoms),'Start ',nBas_Start(:),'nBas  ',nBas_per_Atom(:)
 end if
 
 end subroutine BasFun_Atom

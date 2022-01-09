@@ -115,7 +115,7 @@ do iSym=1,nSym
   call DGEMM_('N','N',nBas(iSym),nOkk,nBas(iSym),One,SQ%SB(iSym)%A2,nBx,LCMO%SB(iSym)%A2(:,nFro(iSym)+1:),nBx,Zero,Z,nBx)
   jBas = lBas+1
   kBas = lBas+nBas(iSym)
-  call BasFun_Atom_(nBas_per_Atom,nBas_Start,BName,jBas,kBas,nUniqAt,.false.)
+  call BasFun_Atom_Sym(nBas_per_Atom,nBas_Start,BName,jBas,kBas,nUniqAt,.false.)
   do ik=1,nOkk
     do iAt=1,nUniqAt
       Q(iAt,ik) = ddot_(nBas_per_Atom(iAt),LCMO%SB(iSym)%A2(nBas_Start(iAt):,nFro(iSym)+ik),1,Z(nBas_Start(iAt):,ik),1)
