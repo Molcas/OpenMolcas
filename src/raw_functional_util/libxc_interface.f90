@@ -104,7 +104,7 @@ case(XC_FAMILY_GGA, XC_FAMILY_HYB_GGA)
 !                                                                      *
    func(1:mGrid) = 0.0D0 ! Initialize memory
    dfunc_drho(:,1:mGrid) = 0.0D0
-   dfunc_dSigma(:,:mGrid) = 0.0D0
+   dfunc_dSigma(:,1:mGrid) = 0.0D0
 
    If (Only_exc) Then
       call xc_f03_gga_exc(xc_func, mGrid, Rho(1,1), Sigma(1,1), func(1))
@@ -174,9 +174,9 @@ case(XC_FAMILY_MGGA)
 !                                                                      *
    func(1:mGrid) = 0.0D0 ! Initialize memory
    dfunc_drho(:,1:mGrid) = 0.0D0
-   dfunc_dSigma(:,:mGrid) = 0.0D0
-   if (Allocated(Tau)) dfunc_dTau(:,:mGrid) = 0.0D0
-   if (Allocated(Lapl)) dfunc_dLapl(:,:mGrid) = 0.0D0
+   dfunc_dSigma(:,1:mGrid) = 0.0D0
+   if (Allocated(Tau)) dfunc_dTau(:,1:mGrid) = 0.0D0
+   if (Allocated(Lapl)) dfunc_dLapl(:,1:mGrid) = 0.0D0
 
    If (Only_exc) Then
       call xc_f03_mgga_exc(xc_func, mGrid, Rho(1,1), Sigma(1,1), Lapl(1,1), Tau(1,1), func(1) )

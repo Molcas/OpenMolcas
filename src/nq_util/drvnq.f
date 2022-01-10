@@ -284,7 +284,8 @@
          nRho=nD
          nSigma=nD*(nD+1)/2
          nGradRho=nD*3
-         nLapl=0
+*        nLapl=0
+         nLapl=nD
          nTau=nD
          mdRho_dR=0
          If (Do_Grad) mdRho_dR=5*nD
@@ -387,12 +388,14 @@
          Call mma_allocate(Tau,nTau,nGridMax,Label='Tau')
          Call mma_allocate(vTau,nTau,nGridMax,Label='vTau')
          Call mma_allocate(dfunc_dTau,nTau,nGridMax,Label='dfunc_dTau')
+         Tau(:,:)=Zero
       End If
       If (nLapl.ne.0) Then
          Call mma_allocate(Lapl,nLapl,nGridMax,Label='Lapl')
          Call mma_allocate(vLapl,nLapl,nGridMax,Label='vLapl')
          Call mma_allocate(dfunc_dLapl,nLapl,nGridMax,
      &                     Label='dfunc_dLapl')
+         Lapl(:,:)=Zero
       End If
 
       Call mma_allocate(Exc,nGridMax,Label='Exc')

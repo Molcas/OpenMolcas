@@ -32,7 +32,7 @@
 !     Call CM06(mGrid,CoeffA,iSpin,F_xc,ijzy)
       Call CM06_L(mGrid,CoeffA,iSpin,F_xc)
       CoeffA=One*CoefR
-      Call CVS98(mGrid,CoeffA,iSpin,F_xc,ijzy+1)
+!     Call CVS98(mGrid,CoeffA,iSpin,F_xc,ijzy+1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
