@@ -105,11 +105,13 @@
 *
 ************************************************************************
 *                                                                      *
+       Select Case(KSDFT)
+*
+************************************************************************
+*                                                                      *
 *      LSDA LDA SVWN
 *
-       If (KSDFT.eq.'LSDA ' .or.
-     &     KSDFT.eq.'LDA '  .or.
-     &     KSDFT.eq.'SVWN ') Then
+       Case ('LSDA ','LDA ','SVWN ')
 c        ExFac=Get_ExFac(KSDFT)
          Functional_type=LDA_type
          Call DrvNQ(LSDA   ,Work(ipF_DFT),nFckDim,Func,
@@ -122,9 +124,7 @@ c        ExFac=Get_ExFac(KSDFT)
 *                                                                      *
 *      LSDA5 LDA5 SVWN5
 *
-       Else If (KSDFT.eq.'LSDA5' .or.
-     &          KSDFT.eq.'LDA5'  .or.
-     &          KSDFT.eq.'SVWN5') Then
+       Case('LSDA5','LDA5','SVWN5')
 c        ExFac=Get_ExFac(KSDFT)
          Functional_type=LDA_type
          Call DrvNQ(LSDA5  ,Work(ipF_DFT),nFckDim,Func,
@@ -137,7 +137,7 @@ c        ExFac=Get_ExFac(KSDFT)
 *                                                                      *
 *     HFB
 *
-       Else If (KSDFT.eq.'HFB') Then
+       Case('HFB')
 c        ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Call DrvNQ(HFB    ,Work(ipF_DFT),nFckDim,Func,
@@ -150,7 +150,7 @@ c        ExFac=Get_ExFac(KSDFT)
 *                                                                      *
 *      HFS
 *
-       Else If (KSDFT.eq.'HFS') Then
+       Case('HFS')
 c        ExFac=Get_ExFac(KSDFT)
          Functional_type=LDA_type
          Call DrvNQ(HFS    ,Work(ipF_DFT),nFckDim,Func,
@@ -163,7 +163,7 @@ c        ExFac=Get_ExFac(KSDFT)
 *                                                                      *
 *      XALPHA
 *
-       Else If (KSDFT.eq.'XALPHA') Then
+       Case('XALPHA')
 c        ExFac=Get_ExFac(KSDFT)
          Functional_type=LDA_type
          Call DrvNQ(XAlpha ,Work(ipF_DFT),nFckDim,Func,
@@ -176,7 +176,7 @@ c        ExFac=Get_ExFac(KSDFT)
 *                                                                      *
 *     Overlap
 *
-      Else If (KSDFT.eq.'Overlap') Then
+      Case('Overlap')
 c        ExFac=Get_ExFac(KSDFT)
          Functional_type=LDA_type
          Call DrvNQ(Overlap,Work(ipF_DFT),nFckDim,Func,
@@ -189,7 +189,7 @@ c        ExFac=Get_ExFac(KSDFT)
 *                                                                      *
 *     NucAtt
 *
-      Else If (KSDFT.eq.'NucAtt') Then
+      Case('NucAtt')
 c        ExFac=One
          Functional_type=LDA_type
          Call DrvNQ(NucAtt,Work(ipF_DFT),nFckDim,Func,
@@ -202,7 +202,7 @@ c        ExFac=One
 *                                                                      *
 *     BLYP
 *
-      Else If (KSDFT.eq.'BLYP') Then
+      Case('BLYP')
 c        ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Call DrvNQ(BLYP   ,Work(ipF_DFT),nFckDim,Func,
@@ -215,7 +215,7 @@ c        ExFac=Get_ExFac(KSDFT)
 *                                                                      *
 *     TLYP
 *
-      Else If (KSDFT.eq.'TLYP') Then
+      Case('TLYP')
 c        ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Call DrvNQ(TLYP   ,Work(ipF_DFT),nFckDim,Func,
@@ -228,7 +228,7 @@ c        ExFac=Get_ExFac(KSDFT)
 *                                                                      *
 *     B3LYP
 *
-      Else If (KSDFT.eq.'B3LYP ') Then
+      Case('B3LYP ')
 c        ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Call DrvNQ(B3LYP  ,Work(ipF_DFT),nFckDim,Func,
@@ -241,7 +241,7 @@ c        ExFac=Get_ExFac(KSDFT)
 *                                                                      *
 *     B3LYP5
 *
-      Else If (KSDFT.eq.'B3LYP5') Then
+      Case('B3LYP5')
 c        ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Call DrvNQ(B3LYP5 ,Work(ipF_DFT),nFckDim,Func,
@@ -254,7 +254,7 @@ c        ExFac=Get_ExFac(KSDFT)
 *                                                                      *
 *     PBE
 *
-      Else If (KSDFT.eq.'PBE') Then
+      Case('PBE')
 c        ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Call DrvNQ(PBE   ,Work(ipF_DFT),nFckDim,Func,
@@ -267,7 +267,7 @@ c        ExFac=Get_ExFac(KSDFT)
 *                                                                      *
 *     PBE0
 *
-      Else If (KSDFT.eq.'PBE0') Then
+      Case('PBE0')
 c        ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Call DrvNQ(PBE0  ,Work(ipF_DFT),nFckDim,Func,
@@ -280,7 +280,7 @@ c        ExFac=Get_ExFac(KSDFT)
 *                                                                      *
 *     M06-L
 *
-      Else If (KSDFT.eq.'M06L') Then
+      Case('M06L')
 c        ExFac=Get_ExFac(KSDFT)
          Functional_type=meta_GGA_type1
          Call DrvNQ(M06L,Work(ipF_DFT),nFckDim,Func,
@@ -292,7 +292,7 @@ c        ExFac=Get_ExFac(KSDFT)
 ************************************************************************
 *                                                                      *
 *     M06
-      Else If (KSDFT.eq.'M06 ') Then
+      Case('M06 ')
 c        ExFac=Get_ExFac(KSDFT)
          Functional_type=meta_GGA_type1
          Call DrvNQ(M06,Work(ipF_DFT),nFckDim,Func,
@@ -304,7 +304,7 @@ c        ExFac=Get_ExFac(KSDFT)
 ************************************************************************
 *                                                                      *
 *     M06-2X
-      Else If (KSDFT.eq.'M062X') Then
+      Case('M062X')
 c        ExFac=Get_ExFac(KSDFT)
          Functional_type=meta_GGA_type1
          Call DrvNQ(M062X,Work(ipF_DFT),nFckDim,Func,
@@ -316,7 +316,7 @@ c        ExFac=Get_ExFac(KSDFT)
 ************************************************************************
 *                                                                      *
 *     M06-HF
-      Else If (KSDFT.eq.'M06HF') Then
+      Case('M06HF')
 c        ExFac=Get_ExFac(KSDFT)
          Functional_type=meta_GGA_type1
          Call DrvNQ(M06HF,Work(ipF_DFT),nFckDim,Func,
@@ -327,12 +327,12 @@ c        ExFac=Get_ExFac(KSDFT)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Else
+      Case Default
          Call WarningMessage(2,
      &               ' Get_Exc_dft: Undefined functional type!')
          Write (6,*) '         Functional=',KSDFT(1:lKSDFT)
          Call Quit_OnUserError()
-      End If
+       End Select
 *                                                                      *
 ************************************************************************
 *                                                                      *
