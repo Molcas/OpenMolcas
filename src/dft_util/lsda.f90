@@ -33,7 +33,7 @@ TYPE(xc_f03_func_info_t) :: xc_info(nFuncs) ! xc functional info
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-If (nD.eq.1) Rho(:,:)=2.0D0*Rho(:,:)
+If (nD.eq.1) Rho(:,1:mGrid)=2.0D0*Rho(:,1:mGrid)
 Do iFunc = 1, nFuncs
    ! Initialize libxc functional: nD = 2 means spin-polarized
    call xc_f03_func_init(xc_func(iFunc), func_id(iFunc), int(nD, 4))
@@ -56,7 +56,7 @@ End Do
 Do iFunc = 1, nFuncs
    call xc_f03_func_end(xc_func(iFunc))
 End Do
-If (nD.eq.1) Rho(:,:)=0.5D0*Rho(:,:)
+If (nD.eq.1) Rho(:,1:mGrid)=0.5D0*Rho(:,1:mGrid)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

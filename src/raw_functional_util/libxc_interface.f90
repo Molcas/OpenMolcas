@@ -68,21 +68,21 @@ case(XC_FAMILY_LDA)
       If (l_casdft) Then
          select case(xc_f03_func_info_get_kind(xc_info))
             case (XC_EXCHANGE);
-               dFunc_dRho(:,:)=Rho(:,:)
-               Rho(2,:)=0.0D0
-               func(:)=0.0D0
+               dFunc_dRho(:,1:mGrid)=Rho(:,1:mGrid)
+               Rho(2,1:mGrid)=0.0D0
+               func(1:mGrid)=0.0D0
                call xc_f03_lda_exc(xc_func, mGrid, Rho(1,1), func(1))
                Do iGrid = 1, mGrid
                   F_xca(iGrid) = F_xca(iGrid) + Coeff*func(iGrid)*Rho(1, iGrid)
                End Do
-               Rho(1,:)=0.0D0
-               Rho(2,:)=dFunc_dRho(2,:)
+               Rho(1,1:mGrid)=0.0D0
+               Rho(2,1:mGrid)=dFunc_dRho(2,1:mGrid)
                func(:)=0.0D0
                call xc_f03_lda_exc(xc_func, mGrid, Rho(1,1), func(1))
                Do iGrid = 1, mGrid
                   F_xcb(iGrid) = F_xcb(iGrid) + Coeff*func(iGrid)*Rho(2, iGrid)
                End Do
-               Rho(:,:)=dFunc_dRho(:,:)
+               Rho(:,1:mGrid)=dFunc_dRho(:,1:mGrid)
          end Select
       End If
    End If
@@ -132,21 +132,21 @@ case(XC_FAMILY_GGA, XC_FAMILY_HYB_GGA)
       If (l_casdft) Then
          select case(xc_f03_func_info_get_kind(xc_info))
             case (XC_EXCHANGE);
-               dFunc_dRho(:,:)=Rho(:,:)
-               Rho(2,:)=0.0D0
-               func(:)=0.0D0
+               dFunc_dRho(:,1:mGrid)=Rho(:,1:mGrid)
+               Rho(2,1:mGrid)=0.0D0
+               func(1:mGrid)=0.0D0
                call xc_f03_gga_exc(xc_func, mGrid, Rho(1,1), Sigma(1,1), func(1))
                Do iGrid = 1, mGrid
                   F_xca(iGrid) = F_xca(iGrid) + Coeff*func(iGrid)*Rho(1, iGrid)
                End Do
-               Rho(1,:)=0.0D0
-               Rho(2,:)=dFunc_dRho(2,:)
-               func(:)=0.0D0
+               Rho(1,1:mGrid)=0.0D0
+               Rho(2,1:mGrid)=dFunc_dRho(2,:)
+               func(1:mGrid)=0.0D0
                call xc_f03_gga_exc(xc_func, mGrid, Rho(1,1), Sigma(1,1), func(1))
                Do iGrid = 1, mGrid
                   F_xcb(iGrid) = F_xcb(iGrid) + Coeff*func(iGrid)*Rho(2, iGrid)
                End Do
-               Rho(:,:)=dFunc_dRho(:,:)
+               Rho(:,1:mGrid)=dFunc_dRho(:,1:mGrid)
          end Select
       End If
    End If
