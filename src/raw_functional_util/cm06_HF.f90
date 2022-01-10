@@ -16,7 +16,7 @@
       use xc_f03_lib_m
       use nq_Grid, only: Rho, Sigma, Tau, Lapl
       use nq_Grid, only: vSigma
-      use nq_Grid, only: vRho, vTau
+      use nq_Grid, only: vTau
       use libxc
       implicit none
       integer :: mGrid, nD, nRho
