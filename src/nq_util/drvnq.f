@@ -386,10 +386,13 @@
       If (nTau.ne.0) Then
          Call mma_allocate(Tau,nTau,nGridMax,Label='Tau')
          Call mma_allocate(vTau,nTau,nGridMax,Label='vTau')
+         Call mma_allocate(dfunc_dTau,nTau,nGridMax,Label='dfunc_dTau')
       End If
       If (nLapl.ne.0) Then
          Call mma_allocate(Lapl,nLapl,nGridMax,Label='Lapl')
          Call mma_allocate(vLapl,nLapl,nGridMax,Label='vLapl')
+         Call mma_allocate(dfunc_dLapl,nLapl,nGridMax,
+     &                     Label='dfunc_dLapl')
       End If
 
       Call mma_allocate(Exc,nGridMax,Label='Exc')
@@ -582,10 +585,12 @@
       Call mma_deallocate(Exc)
 *
       If (Allocated(Lapl)) Then
+         Call mma_deallocate(dfunc_dLapl)
          Call mma_deallocate(vLapl)
          Call mma_deallocate(Lapl)
       End If
       If (Allocated(Tau)) Then
+         Call mma_deallocate(dfunc_dTau)
          Call mma_deallocate(vTau)
          Call mma_deallocate(Tau)
       End If

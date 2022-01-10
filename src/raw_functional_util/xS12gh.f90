@@ -16,7 +16,6 @@
       use xc_f03_lib_m
       use nq_Grid, only: Rho, Sigma
       use nq_Grid, only: vSigma
-      use nq_Grid, only: vRho
       use libxc
       implicit none
       integer :: mGrid, nD, nRho
@@ -61,7 +60,6 @@
       use xc_f03_lib_m
       use nq_Grid, only: Rho, Sigma
       use nq_Grid, only: vSigma
-      use nq_Grid, only: vRho
       use libxc
       implicit none
       integer :: mGrid, nD, nRho
