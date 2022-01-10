@@ -493,10 +493,13 @@ c Avoid unused argument warnings
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Select Case(KSDFT)
+*                                                                      *
+************************************************************************
+*                                                                      *
 *      LDTF/LSDA (Thomas-Fermi for KE)                                 *
 *                                                                      *
-       If (KSDFT.eq.'LDTF/LSDA ' .or.
-     &     KSDFT.eq.'LDTF/LDA  ') Then
+       Case('LDTF/LSDA ','LDTF/LDA  ')
          !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=LDA_type
          Sub => LSDA_emb
@@ -505,8 +508,7 @@ c Avoid unused argument warnings
 *                                                                      *
 *      LDTF/LSDA5 (Thomas-Fermi for KE)                                *
 *                                                                      *
-       Else If (KSDFT.eq.'LDTF/LSDA5' .or.
-     &          KSDFT.eq.'LDTF/LDA5 ') Then
+       Case('LDTF/LSDA5','LDTF/LDA5 ')
          !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=LDA_type
          Sub => LSDA5_emb
@@ -515,7 +517,7 @@ c Avoid unused argument warnings
 *                                                                      *
 *      LDTF/PBE   (Thomas-Fermi for KE)                                *
 *                                                                      *
-       Else If (KSDFT.eq.'LDTF/PBE  ') Then
+       Case('LDTF/PBE  ')
          !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=GGA_type
          Sub => PBE_emb
@@ -524,7 +526,7 @@ c Avoid unused argument warnings
 *                                                                      *
 *      NDSD/PBE   (NDSD for KE)                                        *
 *                                                                      *
-       Else If (KSDFT.eq.'NDSD/PBE  ') Then
+       Case('NDSD/PBE  ')
          !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=meta_GGA_type2
          Sub => PBE_emb2
@@ -533,7 +535,7 @@ c Avoid unused argument warnings
 *                                                                      *
 *      LDTF/BLYP  (Thomas-Fermi for KE)                                *
 *                                                                      *
-       Else If (KSDFT.eq.'LDTF/BLYP ') Then
+       Case('LDTF/BLYP ')
          !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=GGA_type
          Sub => BLYP_emb
@@ -542,7 +544,7 @@ c Avoid unused argument warnings
 *                                                                      *
 *      NDSD/BLYP  (NDSD for KE)                                        *
 *                                                                      *
-       Else If (KSDFT.eq.'NDSD/BLYP ') Then
+       Case('NDSD/BLYP ')
          !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=meta_GGA_type2
          Sub => BLYP_emb2
@@ -551,7 +553,7 @@ c Avoid unused argument warnings
 *                                                                      *
 *      Kinetic only  (Thomas-Fermi)                                    *
 *                                                                      *
-       Else If (KSDFT.eq.'TF_only') Then
+       Case('TF_only')
          !ExFac=Zero
          Functional_type=LDA_type
          Sub => TS_Only_Emb
@@ -560,7 +562,7 @@ c Avoid unused argument warnings
 *                                                                      *
 *      HUNTER  (von Weizsacker KE, no calc of potential)               *
 *                                                                      *
-       Else If (KSDFT.eq.'HUNTER') Then
+       Case('HUNTER')
          !ExFac=Zero
          Functional_type=GGA_type
          Sub => vW_hunter
@@ -569,14 +571,14 @@ c Avoid unused argument warnings
 *                                                                      *
 *      NUCATT                                                          *
 *                                                                      *
-       Else If (KSDFT.eq.'NUCATT_EMB') Then
+       Case('NUCATT_EMB')
          !ExFac=Zero
          Functional_type=LDA_type
          Sub => nucatt_emb
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Else
+      Case default
          lKSDFT=LEN(KSDFT)
          Call WarningMessage(2,
      &               ' Wrap_DrvNQ: Undefined functional type!')
@@ -585,7 +587,7 @@ c Avoid unused argument warnings
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      End If
+      End Select
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -653,10 +655,13 @@ c Avoid unused argument warnings
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Select Case(KSDFT)
+*                                                                      *
+************************************************************************
+*                                                                      *
 *      LDTF/LSDA (Fractional) correlation potential only               *
 *                                                                      *
-       If (KSDFT.eq.'LDTF/LSDA ' .or.
-     &     KSDFT.eq.'LDTF/LDA  ') Then
+       Case('LDTF/LSDA ','LDTF/LDA  ')
          !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=LDA_type
          Sub => VWN_III_emb
@@ -665,8 +670,7 @@ c Avoid unused argument warnings
 *                                                                      *
 *      LDTF/LSDA5 (Fractional) correlation potential only              *
 *                                                                      *
-       Else If (KSDFT.eq.'LDTF/LSDA5' .or.
-     &          KSDFT.eq.'LDTF/LDA5 ') Then
+       Case('LDTF/LSDA5','LDTF/LDA5 ')
          !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=LDA_type
          Sub => VWN_V_emb
@@ -675,8 +679,7 @@ c Avoid unused argument warnings
 *                                                                      *
 *      LDTF/PBE   (Fractional) correlation potential only              *
 *                                                                      *
-       Else If (KSDFT.eq.'LDTF/PBE  ' .or.
-     &          KSDFT.eq.'NDSD/PBE  ') Then
+       Case('LDTF/PBE  ','NDSD/PBE  ')
          !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=GGA_type
          Sub => cPBE_emb
@@ -685,15 +688,14 @@ c Avoid unused argument warnings
 *                                                                      *
 *      LDTF/BLYP  (Fractional) correlation potential only              *
 *                                                                      *
-       Else If (KSDFT.eq.'LDTF/BLYP ' .or.
-     &          KSDFT.eq.'NDSD/BLYP ') Then
+       Case('LDTF/BLYP ','NDSD/BLYP ')
          !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=GGA_type
          Sub => cBLYP_emb
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Else
+      Case default
          lKSDFT=LEN(KSDFT)
          Call WarningMessage(2,
      &               ' cWrap_DrvNQ: Undefined functional type!')
@@ -702,7 +704,7 @@ c Avoid unused argument warnings
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      End If
+      End Select
 *                                                                      *
 ************************************************************************
 *                                                                      *
