@@ -38,16 +38,14 @@ C      Call Diracx(mGrid,iSpin,F_xc,Coeff)
 *
 *---- S12h has its LDA part included!
 *
-      Coeff=0.75d0
-      gh_switch = 2
-      Call xS12gh(mGrid,
-     &          Coeff,iSpin,F_xc,gh_switch)
+!     Coeff=0.75d0
+      Coeff=One
+      Call xS12h(mGrid,Coeff,iSpin,F_xc)
 *
 *---- PBE Correlation
 *
       Coeff=1.0d0
-      Call CPBE(mGrid,
-     &         Coeff,iSpin,F_xc)
+      Call CPBE(mGrid,Coeff,iSpin,F_xc)
 *                                                                      *
 ************************************************************************
 *                                                                      *

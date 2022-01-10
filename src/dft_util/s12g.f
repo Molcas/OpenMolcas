@@ -40,15 +40,12 @@ C      Call Diracx(mGrid,iSpin,F_xc,Coeff)
 *
       Coeff=1.0d0
 
-      gh_switch = 1
-      Call xS12gh(mGrid,
-     &          Coeff,iSpin,F_xc,gh_switch)
+      Call xS12g(mGrid,Coeff,iSpin,F_xc)
 *
 *---- PBE Correlation
 *
       Coeff=1.0d0
-      Call CPBE(mGrid,
-     &         Coeff,iSpin,F_xc)
+      Call CPBE(mGrid,Coeff,iSpin,F_xc)
 *                                                                      *
 ************************************************************************
 *                                                                      *
