@@ -32,7 +32,9 @@
 *---- Dirac Exchange with the non-UEG factor!
 *
 *     Coeff= 1.092d0*CoefX
-      Coeff= (1.092d0-1.051510d0*(0.925452d0/1.431690d0))*CoefX
+*     Coeff= (1.092d0-1.051510d0*(0.925452d0/1.431690d0))*CoefX
+      Coeff= (1.092d0-1.051510d0*(0.925452d0/1.431690d0)
+     &               - (0.004d0/0.006d0))*CoefX
       Call Diracx(mGrid,iSpin,F_xc,Coeff)
 *
 *---- OPTX Exchange
@@ -44,7 +46,8 @@
 *
 *---- KT term Exchange
 *
-      Coeff= -0.0040d0*CoefX
+*     Coeff= -0.0040d0*CoefX
+      Coeff=(0.0040d0/0.006d0) *CoefX
       Call KealTozer(mGrid,
      &          Coeff,iSpin,F_xc)
 *

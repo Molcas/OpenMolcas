@@ -23,12 +23,14 @@
 *                                                                      *
 *---- Dirac Exchange with non-UEG factor
 *
-      Coeff= 1.07173d0
+*     Coeff= 1.07173d0
+      Coeff= 0.07173d0
       Call Diracx(mGrid,iSpin,F_xc,Coeff)
 *
 *---- KT term Exchange/Correlation
 *
-      Coeff= - 0.0060d0
+*     Coeff= - 0.0060d0
+      Coeff= One
       Call KealTozer(mGrid,
      &          Coeff,iSpin,F_xc)
 *
