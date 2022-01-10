@@ -155,7 +155,6 @@ c     Call SetQue('Trace=on')
 *      LSDA LDA SVWN                                                   *
 *                                                                      *
       Case('LSDA ','LDA ','TLSDA','FTLSDA','SVWN ')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=LDA_type
          Sub => LSDA
          If(KSDFT.eq.'TLSDA'
@@ -169,7 +168,6 @@ c     Call SetQue('Trace=on')
 *      LSDA5 LDA5 SVWN5                                                *
 *                                                                      *
        Case('LSDA5','LDA5','TLSDA5 ','SVWN5')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=LDA_type
          Sub => LSDA5
 *                                                                      *
@@ -178,7 +176,6 @@ c     Call SetQue('Trace=on')
 *     HFB                                                              *
 *                                                                      *
        Case('HFB')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => HFB
 *                                                                      *
@@ -187,7 +184,6 @@ c     Call SetQue('Trace=on')
 *     HFO                                                              *
 *                                                                      *
        Case('HFO')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => HFO
 *                                                                      *
@@ -196,7 +192,6 @@ c     Call SetQue('Trace=on')
 *     HFG                                                              *
 *                                                                      *
        Case('HFG')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => HFG
 *                                                                      *
@@ -205,7 +200,6 @@ c     Call SetQue('Trace=on')
 *     HFB86                                                            *
 *                                                                      *
        Case('HFB86')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => HFB86
 *                                                                      *
@@ -214,7 +208,6 @@ c     Call SetQue('Trace=on')
 *      HFS                                                             *
 *                                                                      *
        Case('HFS')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=LDA_type
          Sub => HFS
 *                                                                      *
@@ -223,7 +216,6 @@ c     Call SetQue('Trace=on')
 *      XALPHA                                                          *
 *                                                                      *
        Case('XALPHA')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=LDA_type
          Sub => XAlpha
 *                                                                      *
@@ -232,7 +224,6 @@ c     Call SetQue('Trace=on')
 *     Overlap                                                          *
 *                                                                      *
       Case('Overlap')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=LDA_type
          Sub => Overlap
 *                                                                      *
@@ -241,7 +232,6 @@ c     Call SetQue('Trace=on')
 *     NucAtt                                                           *
 *                                                                      *
       Case('NucAtt')
-         ExFac=One
          Functional_type=LDA_type
          Sub => NucAtt
 *                                                                      *
@@ -250,7 +240,6 @@ c     Call SetQue('Trace=on')
 *     BWIG                                                             *
 *                                                                      *
       Case('BWIG')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => BWIG
 *                                                                      *
@@ -259,7 +248,6 @@ c     Call SetQue('Trace=on')
 *     BLYP                                                             *
 *                                                                      *
       Case('BLYP','TBLYP','FTBLYP')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => BLYP
        If(KSDFT.eq.'TBLYP'
@@ -272,7 +260,6 @@ c     Call SetQue('Trace=on')
 *     OLYP                                                             *
 *                                                                      *
       Case ('OLYP')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => OLYP
 *                                                                      *
@@ -281,7 +268,6 @@ c     Call SetQue('Trace=on')
 *     KT3                                                              *
 *                                                                      *
       Case('KT3')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => KT3
 *                                                                      *
@@ -290,7 +276,6 @@ c     Call SetQue('Trace=on')
 *     KT2                                                              *
 *                                                                      *
       Case('KT2')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => KT2
 *                                                                      *
@@ -299,7 +284,6 @@ c     Call SetQue('Trace=on')
 *     GLYP                                                             *
 *                                                                      *
       Case('GLYP')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => GLYP
 *                                                                      *
@@ -308,7 +292,6 @@ c     Call SetQue('Trace=on')
 *     B86LYP                                                           *
 *                                                                      *
       Case('B86LYP')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => B86LYP
 *                                                                      *
@@ -317,7 +300,6 @@ c     Call SetQue('Trace=on')
 *     BPBE                                                             *
 *                                                                      *
       Case('BPBE')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => BPBE
 *                                                                      *
@@ -326,7 +308,6 @@ c     Call SetQue('Trace=on')
 *     OPBE                                                             *
 *                                                                      *
       Case('OPBE','TOPBE','FTOPBE')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => OPBE
          If(KSDFT.eq.'TOPBE'
@@ -339,7 +320,6 @@ c     Call SetQue('Trace=on')
 *     GPBE                                                             *
 *                                                                      *
       Case('GPBE')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => GPBE
 *                                                                      *
@@ -348,7 +328,6 @@ c     Call SetQue('Trace=on')
 *     B86PBE                                                           *
 *                                                                      *
       Case('B86PBE')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => B86PBE
 *                                                                      *
@@ -357,7 +336,6 @@ c     Call SetQue('Trace=on')
 *     TLYP                                                             *
 *                                                                      *
       Case('TLYP')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => TLYP
 *                                                                      *
@@ -366,7 +344,6 @@ c     Call SetQue('Trace=on')
 *     B3LYP                                                            *
 *                                                                      *
       Case('B3LYP ')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => B3LYP
 *                                                                      *
@@ -375,7 +352,6 @@ c     Call SetQue('Trace=on')
 *     O3LYP                                                            *
 *                                                                      *
       Case('O3LYP ')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => O3LYP
 *                                                                      *
@@ -384,7 +360,6 @@ c     Call SetQue('Trace=on')
 *     B2PLYP                                                           *
 *                                                                      *
       Case('B2PLYP')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => B2PLYP
 *                                                                      *
@@ -393,7 +368,6 @@ c     Call SetQue('Trace=on')
 *     O2PLYP                                                           *
 *                                                                      *
       Case('O2PLYP')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => O2PLYP
 *                                                                      *
@@ -402,7 +376,6 @@ c     Call SetQue('Trace=on')
 *     B3LYP5                                                           *
 *                                                                      *
       Case('B3LYP5')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => B3LYP5
 *                                                                      *
@@ -411,7 +384,6 @@ c     Call SetQue('Trace=on')
 *     PBE                                                              *
 *                                                                      *
       Case('PBE','TPBE','FTPBE')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => PBE
          If(KSDFT.eq.'TPBE'
@@ -424,7 +396,6 @@ c     Call SetQue('Trace=on')
 *     revPBE                                                           *
 *                                                                      *
       Case('REVPBE','TREVPBE','FTREVPBE')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => REVPBE
          If(KSDFT.eq.'TREVPBE'
@@ -437,7 +408,6 @@ c     Call SetQue('Trace=on')
 *     SSBSW                                                              *
 *                                                                      *
       Case('SSBSW','TSSBSW')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => SSBSW
 *                                                                      *
@@ -446,7 +416,6 @@ c     Call SetQue('Trace=on')
 *     SSBD                                                             *
 *                                                                      *
       Case('SSBD','TSSBD')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => SSBD
 *                                                                      *
@@ -456,7 +425,6 @@ c     Call SetQue('Trace=on')
 *     S12H                                                             *
 *                                                                      *
       Case('S12H')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => S12H
 *                                                                      *
@@ -465,7 +433,6 @@ c     Call SetQue('Trace=on')
 *     S12G                                                             *
 *                                                                      *
       Case('S12G','TS12G')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => S12G
 *                                                                      *
@@ -474,7 +441,6 @@ c     Call SetQue('Trace=on')
 *     PBEsol                                                           *
 *                                                                      *
       Case('PBESOL')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => PBESol
 *                                                                      *
@@ -483,7 +449,6 @@ c     Call SetQue('Trace=on')
 *     RGE2                                                             *
 *                                                                      *
       Case('RGE2')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => RGE2
 *                                                                      *
@@ -492,7 +457,6 @@ c     Call SetQue('Trace=on')
 *     PTCA                                                             *
 *                                                                      *
       Case('PTCA')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => PTCA
 *                                                                      *
@@ -501,7 +465,6 @@ c     Call SetQue('Trace=on')
 *     PBE0                                                             *
 *                                                                      *
       Case('PBE0')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Sub => PBE0
 *                                                                      *
@@ -510,7 +473,6 @@ c     Call SetQue('Trace=on')
 *     M06-L                                                            *
 *                                                                      *
       Case('M06L')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=meta_GGA_type1
          Sub => M06L
 *                                                                      *
@@ -519,7 +481,6 @@ c     Call SetQue('Trace=on')
 *     M06                                                              *
 *                                                                      *
       Case('M06 ')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=meta_GGA_type1
          Sub => M06
 *                                                                      *
@@ -528,7 +489,6 @@ c     Call SetQue('Trace=on')
 *     M06-2X                                                           *
 *                                                                      *
       Case('M062X')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=meta_GGA_type1
          Sub => M062X
 *                                                                      *
@@ -537,7 +497,6 @@ c     Call SetQue('Trace=on')
 *     M06-HF                                                           *
 *                                                                      *
       Case('M06HF')
-         ExFac=Get_ExFac(KSDFT)
          Functional_type=meta_GGA_type1
          Sub => M06HF
 *                                                                      *
@@ -552,6 +511,7 @@ c     Call SetQue('Trace=on')
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      ExFac=Get_ExFac(KSDFT)
       nFckDim = nD
       Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
       F_DFT(:,:)=Zero
