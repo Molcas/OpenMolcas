@@ -23,10 +23,6 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
       Character*4 DFTFOCK
 
       External Overlap, NucAtt
-      External LSDA, BLYP, BPBE, B3LYP, HFS, HFB,XAlpha, LSDA5, B3LYP5, B2PLYP, TLYP
-      External OLYP, O3LYP, OPBE,PBE, PBE0, PBEsol, M06L, M06, M062X, HFO
-      External M06HF, SSBSW, SSBD, HFG, GLYP, GPBE, HFB86, B86LYP, B86PBE, BWIG, KT3
-      External O2PLYP, KT2, RGE2, REVPBE, PTCA, S12G, S12H
 
       abstract interface
           Subroutine DFT_FUNCTIONAL(mGrid,nD)
@@ -587,7 +583,15 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
       Case('PBE0')
          Functional_type=GGA_type
-         Sub => PBE0
+
+!----    Perdew-Burk-Ernzerhof exchange
+!
+!----    Perdew-Burk-Ernzerhof correlation
+
+         nFuncs=2
+         func_id(1:nFuncs)=[int(101,4),int(130,4)]
+         Coeffs(1)=0.75D0
+!        Coeffs(2)=1,00D0
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -595,7 +599,13 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
       Case('M06L')
          Functional_type=meta_GGA_type1
-         Sub => M06L
+
+!----    Minnesota 2006 L exchange
+!
+!----    Minnesota 2006 L correlation
+
+         nFuncs=2
+         func_id(1:nFuncs)=[int(203,4),int(233,4)]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -603,7 +613,13 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
       Case('M06 ')
          Functional_type=meta_GGA_type1
-         Sub => M06
+
+!----    Minnesota 2006 exchange
+!
+!----    Minnesota 2006 correlation
+
+         nFuncs=2
+         func_id(1:nFuncs)=[int(449,4),int(235,4)]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -611,7 +627,13 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
       Case('M062X')
          Functional_type=meta_GGA_type1
-         Sub => M062X
+
+!----    Minnesota 2006 2X exchange
+!
+!----    Minnesota 2006 2X correlation
+
+         nFuncs=2
+         func_id(1:nFuncs)=[int(450,4),int(236,4)]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -619,7 +641,13 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
       Case('M06HF')
          Functional_type=meta_GGA_type1
-         Sub => M06HF
+
+!----    Minnesota 2006 HF exchange
+!
+!----    Minnesota 2006 HF correlation
+
+         nFuncs=2
+         func_id(1:nFuncs)=[int(444,4),int(234,4)]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
