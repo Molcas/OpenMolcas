@@ -374,7 +374,21 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
       Case('O3LYP ')
          Functional_type=GGA_type
-         Sub => O3LYP
+
+!----    Slater exchange + OPT exchange
+!
+!----    Perdew-Burk-Ernzerhof correlation
+!
+!----    Vosko-Wilk-Nusair correlation functional III
+!
+!----    Lee-Yang-Parr correlation
+
+         nFuncs=4
+         func_id(1:nFuncs)=[int(1,4),int(110,4),int(8,4),int(131,4)]
+         Coeffs(1)=(0.9262D0-1.051510d0*(0.8133D0/1.431690d0))
+         Coeffs(2)=(0.8133D0/1.431690d0)
+         Coeffs(3)=1.0D0-0.81D0
+         Coeffs(4)=0.81D0
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -382,7 +396,15 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
       Case('B2PLYP')
          Functional_type=GGA_type
-         Sub => B2PLYP
+
+!----    Slater exchange + Becke 88 exchange
+!
+!----    Lee-Yang-Parr correlation
+
+         nFuncs=2
+         func_id(1:nFuncs)=[int(106,4),int(131,4)]
+         Coeffs(1)=0.470D0
+         Coeffs(2)=0.73D0
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -390,7 +412,18 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
       Case('O2PLYP')
          Functional_type=GGA_type
-         Sub => O2PLYP
+
+!----    Slater exchange + OPT exchange
+!
+!----    OPT exchange
+!
+!----    Lee-Yang-Parr correlation
+
+         nFuncs=3
+         func_id(1:nFuncs)=[int(1,4),int(110,4),int(131,4)]
+         Coeffs(1)=(0.525755D0-1.051510d0*(0.715845D0/1.431690d0))
+         Coeffs(2)=(0.715845D0/1.431690d0)
+         Coeffs(3)=0.75D0
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -398,7 +431,21 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
       Case('B3LYP5')
          Functional_type=GGA_type
-         Sub => B3LYP5
+
+!----    Slater exchange + Becke 88 exchange
+!
+!----    Perdew-Burk-Ernzerhof correlation
+!
+!----    Vosko-Wilk-Nusair correlation functional V
+!
+!----    Lee-Yang-Parr correlation
+
+         nFuncs=4
+         func_id(1:nFuncs)=[int(1,4),int(106,4),int(7,4),int(131,4)]
+         Coeffs(1)=0.08D0
+         Coeffs(2)=0.72D0
+         Coeffs(3)=1.0D0-0.81D0
+         Coeffs(4)=0.81D0
 !                                                                      *
 !***********************************************************************
 !                                                                      *
