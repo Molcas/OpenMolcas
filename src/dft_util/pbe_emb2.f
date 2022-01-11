@@ -34,7 +34,7 @@
 *---- PBE for exchange-correlation energy functional (no potential)
 *
       Only_exc=.True.
-      Call PBE(mGrid,nDmat,F_xc)
+      Call PBE(mGrid,nDmat)
       Only_exc=.False.
 *                                                                      *
 ************************************************************************
