@@ -16,6 +16,7 @@
 ************************************************************************
       use nq_Grid, only: F_xc => Exc
       use OFembed, only: KEonly
+      use libxc, only: Only_exc
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "hflda.fh"
@@ -32,33 +33,9 @@
 *
 *---- PBE for exchange-correlation energy functional (no potential)
 *
-      Call PBE_(mGrid,nDmat,F_xc)
-
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Return
-      End
-*                                                                      *
-************************************************************************
-*                                                                      *
-
-      Subroutine PBE_(mGrid,iSpin,F_xc)
-************************************************************************
-************************************************************************
-      Implicit Real*8 (A-H,O-Z)
-#include "real.fh"
-      Real*8 F_xc(mGrid)
-*                                                                      *
-************************************************************************
-*                                                                      *
-      CoeffA=0.0D0
-      Call CPBE_ofe(mGrid,
-     &              CoeffA,iSpin,F_xc)
-
-      CoeffB=0.0D0
-      Call XPBE_ofe(mGrid,
-     &              CoeffB,iSpin,F_xc)
+      Only_exc=.True.
+      Call PBE(mGrid,nDmat,F_xc)
+      Only_exc=.False.
 *                                                                      *
 ************************************************************************
 *                                                                      *

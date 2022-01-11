@@ -16,6 +16,7 @@
 ************************************************************************
       use nq_Grid, only: F_xc => Exc
       use OFembed, only: KEonly
+      use libxc, only: Only_exc
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "hflda.fh"
@@ -32,39 +33,9 @@
 *
 *---- BLYP for exchange-correlation energy functional
 *
-      Call BLYP_(mGrid,nDmat)
-
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Return
-      End
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Subroutine BLYP_(mGrid,iSpin)
-      use nq_Grid, only: F_xc => Exc
-      Implicit Real*8 (A-H,O-Z)
-#include "real.fh"
-*                                                                      *
-************************************************************************
-*                                                                      *
-*---- Dirac Exchange
-*
-      Coeff=Zero
-      Call Diracx_ofe(mGrid,iSpin,F_xc,Coeff)
-*                                                                      *
-*---- Becke 88 Exchange
-*
-      Coeff=Zero
-      Call xB88_ofe(mGrid,
-     &              Coeff,iSpin,F_xc)
-*
-*---- Lee-Yang-Parr Correlation
-*
-      Coeff=Zero
-      Call LYP_ofe(mGrid,
-     &             Coeff,iSpin,F_xc)
+      Only_exc=.True.
+      Call BLYP(mGrid,nDmat)
+      Only_exc=.False.
 *                                                                      *
 ************************************************************************
 *                                                                      *
