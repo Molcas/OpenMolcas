@@ -453,22 +453,8 @@ c Avoid unused argument warnings
 #include "real.fh"
 #include "nq_info.fh"
 #include "debug.fh"
-      External LSDA_emb,
-     &         LSDA5_emb,
-     &         BLYP_emb, BLYP_emb2,
-     &         PBE_emb, PBE_emb2,
-     &         Ts_only_emb, vW_hunter, nucatt_emb
       Logical  Do_MO,Do_TwoEl,F_nAsh
-
-      abstract interface
-          Subroutine DFT_FUNCTIONAL(mGrid,nD)
-          Integer mGrid, nD
-          end subroutine
-      end interface
-
-      procedure(DFT_FUNCTIONAL), pointer :: sub => null()
-
-
+*                                                                      *
 ************************************************************************
 *                                                                      *
 *     DFT functionals, compute integrals over the potential
@@ -493,103 +479,11 @@ c Avoid unused argument warnings
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Select Case(KSDFT)
+      Call Driver(KSDFT,Do_Grad,Func,Grad,nGrad,
+     &            Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nFckDim,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*      LDTF/LSDA (Thomas-Fermi for KE)                                 *
-*                                                                      *
-       Case('LDTF/LSDA ','LDTF/LDA  ')
-         Functional_type=LDA_type
-         Sub => LSDA_emb
-*                                                                      *
-************************************************************************
-*                                                                      *
-*      LDTF/LSDA5 (Thomas-Fermi for KE)                                *
-*                                                                      *
-       Case('LDTF/LSDA5','LDTF/LDA5 ')
-         Functional_type=LDA_type
-         Sub => LSDA5_emb
-*                                                                      *
-************************************************************************
-*                                                                      *
-*      LDTF/PBE   (Thomas-Fermi for KE)                                *
-*                                                                      *
-       Case('LDTF/PBE  ')
-         Functional_type=GGA_type
-         Sub => PBE_emb
-*                                                                      *
-************************************************************************
-*                                                                      *
-*      NDSD/PBE   (NDSD for KE)                                        *
-*                                                                      *
-       Case('NDSD/PBE  ')
-         Functional_type=meta_GGA_type2
-         Sub => PBE_emb2
-*                                                                      *
-************************************************************************
-*                                                                      *
-*      LDTF/BLYP  (Thomas-Fermi for KE)                                *
-*                                                                      *
-       Case('LDTF/BLYP ')
-         Functional_type=GGA_type
-         Sub => BLYP_emb
-*                                                                      *
-************************************************************************
-*                                                                      *
-*      NDSD/BLYP  (NDSD for KE)                                        *
-*                                                                      *
-       Case('NDSD/BLYP ')
-         Functional_type=meta_GGA_type2
-         Sub => BLYP_emb2
-*                                                                      *
-************************************************************************
-*                                                                      *
-*      Kinetic only  (Thomas-Fermi)                                    *
-*                                                                      *
-       Case('TF_only')
-         Functional_type=LDA_type
-         Sub => TS_Only_Emb
-*                                                                      *
-************************************************************************
-*                                                                      *
-*      HUNTER  (von Weizsacker KE, no calc of potential)               *
-*                                                                      *
-       Case('HUNTER')
-         Functional_type=GGA_type
-         Sub => vW_hunter
-*                                                                      *
-************************************************************************
-*                                                                      *
-*      NUCATT                                                          *
-*                                                                      *
-       Case('NUCATT_EMB')
-         Functional_type=LDA_type
-         Sub => nucatt_emb
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Case default
-         lKSDFT=LEN(KSDFT)
-         Call WarningMessage(2,
-     &               ' Wrap_DrvNQ: Undefined functional type!')
-         Write (6,*) '         Functional=',KSDFT(1:lKSDFT)
-         Call Quit_OnUserError()
-*                                                                      *
-************************************************************************
-*                                                                      *
-      End Select
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Call DrvNQ(Sub,F_DFT,nFckDim,Func,
-     &           D_DS,nh1,nD_DS,
-     &           Do_Grad,
-     &           Grad,nGrad,
-     &           Do_MO,Do_TwoEl,DFTFOCK)
-
-      Sub => Null()
-*
       Return
       End
 ************************************************************************
