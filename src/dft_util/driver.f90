@@ -453,7 +453,14 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
       Case('PBE','TPBE','FTPBE')
          Functional_type=GGA_type
-         Sub => PBE
+
+!----    Perdew-Burk-Ernzerhof exchange
+!
+!----    Perdew-Burk-Ernzerhof correlation
+
+         nFuncs=2
+         func_id(1:nFuncs)=[int(101,4),int(130,4)]
+
          If(KSDFT.eq.'TPBE'.or.KSDFT.eq.'FTPBE') Do_MO=.true.
          If(KSDFT.eq.'TPBE'.or.KSDFT.eq.'FTPBE') Do_TwoEl=.true.
 !                                                                      *
@@ -463,7 +470,14 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
       Case('REVPBE','TREVPBE','FTREVPBE')
          Functional_type=GGA_type
-         Sub => REVPBE
+
+!----    Revised Perdew-Burk-Ernzerhof exchange
+!
+!----    Perdew-Burk-Ernzerhof correlation
+
+         nFuncs=2
+         func_id(1:nFuncs)=[int(102,4),int(130,4)]
+
          If(KSDFT.eq.'TREVPBE'.or.KSDFT.eq.'FTREVBPE') Do_MO=.true.
          If(KSDFT.eq.'TREVPBE'.or.KSDFT.eq.'FTREVPBE') Do_TwoEl=.true.
 !                                                                      *
@@ -473,7 +487,13 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
       Case('SSBSW','TSSBSW')
          Functional_type=GGA_type
-         Sub => SSBSW
+
+!----    Swarts-Solo-Bickelhaupt sw exchange
+!
+!----    Perdew-Burk-Ernzerhof correlation
+
+         nFuncs=2
+         func_id(1:nFuncs)=[int(90,4),int(130,4)]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -481,7 +501,13 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
       Case('SSBD','TSSBD')
          Functional_type=GGA_type
-         Sub => SSBD
+
+!----    Swarts-Solo-Bickelhaupt-D exchange
+!
+!----    Perdew-Burk-Ernzerhof correlation
+
+         nFuncs=2
+         func_id(1:nFuncs)=[int(92,4),int(130,4)]
 !                                                                      *
 !                                                                      *
 !***********************************************************************
@@ -490,7 +516,13 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
       Case('S12H')
          Functional_type=GGA_type
-         Sub => S12H
+
+!----    Swarts hybrid exchange
+!
+!----    Perdew-Burk-Ernzerhof correlation
+
+         nFuncs=2
+         func_id(1:nFuncs)=[int(496,4),int(130,4)]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -498,7 +530,13 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
       Case('S12G','TS12G')
          Functional_type=GGA_type
-         Sub => S12G
+
+!----    Swarts GGA exchange
+!
+!----    Perdew-Burk-Ernzerhof correlation
+
+         nFuncs=2
+         func_id(1:nFuncs)=[int(495,4),int(130,4)]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
