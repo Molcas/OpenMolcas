@@ -266,7 +266,7 @@ case(XC_FAMILY_MGGA, XC_FAMILY_HYB_MGGA)
 !***********************************************************************
 !                                                                      *
    Case Default
-     Write (6,*) 'Libxc family not properly identified.
+     Write (6,*) "Libxc family not properly identified."
      Call Abend()
 !                                                                      *
 !***********************************************************************
