@@ -22,8 +22,9 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
       Real*8 :: D_DS(nh1,nD), F_DFT(nh1,nD)
       Character*4 DFTFOCK
 
-      External LSDA, Overlap, BLYP, BPBE, B3LYP, HFS, HFB,XAlpha, LSDA5, B3LYP5, B2PLYP, TLYP
-      External NucAtt, OLYP, O3LYP, OPBE,PBE, PBE0, PBEsol, M06L, M06, M062X, HFO
+      External Overlap, NucAtt
+      External LSDA, BLYP, BPBE, B3LYP, HFS, HFB,XAlpha, LSDA5, B3LYP5, B2PLYP, TLYP
+      External OLYP, O3LYP, OPBE,PBE, PBE0, PBEsol, M06L, M06, M062X, HFO
       External M06HF, SSBSW, SSBD, HFG, GLYP, GPBE, HFB86, B86LYP, B86PBE, BWIG, KT3
       External O2PLYP, KT2, RGE2, REVPBE, PTCA, S12G, S12H
 
@@ -243,7 +244,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
          nFuncs=3
          func_id(1:nFuncs)=[int(1,4),int(145,4),int(8,4)]
          Coeffs(1)= 0.07173d0
-!        Coeffs(2)= One
+!        Coeffs(2)= 1.0D0
          Coeffs(3)= 0.576727d0
 !                                                                      *
 !***********************************************************************
@@ -252,7 +253,13 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
       Case('GLYP')
          Functional_type=GGA_type
-         Sub => GLYP
+
+!----    Slater exchange + Gill 96 exchange
+!
+!----    Lee-Yang-Parr correlation
+
+         nFuncs=2
+         func_id(1:nFuncs)=[int(107,4),int(131,4)]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -260,7 +267,13 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
       Case('B86LYP')
          Functional_type=GGA_type
-         Sub => B86LYP
+
+!----    Slater exchange + Becke 86 exchange
+!
+!----    Lee-Yang-Parr correlation
+
+         nFuncs=2
+         func_id(1:nFuncs)=[int(103,4),int(131,4)]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -268,7 +281,13 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
       Case('BPBE')
          Functional_type=GGA_type
-         Sub => BPBE
+
+!----    Slater exchange + Becke 88 exchange
+!
+!----    Perdew-Burk-Ernzerhof correlation
+
+         nFuncs=2
+         func_id(1:nFuncs)=[int(106,4),int(130,4)]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -276,7 +295,14 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
       Case('OPBE','TOPBE','FTOPBE')
          Functional_type=GGA_type
-         Sub => OPBE
+
+!----    Slater exchange + OPT exchange
+!
+!----    Perdew-Burk-Ernzerhof correlation
+
+         nFuncs=2
+         func_id(1:nFuncs)=[int(110,4),int(130,4)]
+
          If(KSDFT.eq.'TOPBE'.or.KSDFT.eq.'FTOPBE') Do_MO=.true.
          If(KSDFT.eq.'TOPBE'.or.KSDFT.eq.'FTOPBE') Do_TwoEl=.true.
 !                                                                      *
@@ -286,7 +312,13 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
       Case('GPBE')
          Functional_type=GGA_type
-         Sub => GPBE
+
+!----    Slater exchange + Gill 96 exchange
+!
+!----    Perdew-Burk-Ernzerhof correlation
+
+         nFuncs=2
+         func_id(1:nFuncs)=[int(107,4),int(130,4)]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -294,7 +326,13 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
       Case('B86PBE')
          Functional_type=GGA_type
-         Sub => B86PBE
+
+!----    Slater exchange + Becke 86 exchange
+!
+!----    Perdew-Burk-Ernzerhof correlation
+
+         nFuncs=2
+         func_id(1:nFuncs)=[int(103,4),int(130,4)]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -302,7 +340,11 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
       Case('TLYP')
          Functional_type=GGA_type
-         Sub => TLYP
+
+!----    Lee-Yang-Parr correlation
+
+         nFuncs=1
+         func_id(1:nFuncs)=[int(131,4)]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -310,7 +352,21 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
       Case('B3LYP ')
          Functional_type=GGA_type
-         Sub => B3LYP
+
+!----    Slater exchange + Becke 88 exchange
+!
+!----    Perdew-Burk-Ernzerhof correlation
+!
+!----    Vosko-Wilk-Nusair correlation functional III
+!
+!----    Lee-Yang-Parr correlation
+
+         nFuncs=4
+         func_id(1:nFuncs)=[int(1,4),int(106,4),int(8,4),int(131,4)]
+         Coeffs(1)=0.08D0
+         Coeffs(2)=0.72D0
+         Coeffs(3)=1.0D0-0.81D0
+         Coeffs(4)=0.81D0
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -464,13 +520,16 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !***********************************************************************
 !                                                                      *
       Case default
-         Call WarningMessage(2,' DrvDFT: Undefined functional type!')
+         Call WarningMessage(2,' Driver: Undefined functional type!')
          Write (6,*) '         Functional=',KSDFT(1:LEN(KSDFT))
          Call Quit_OnUserError()
        End Select
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+!     Now let's do some integration!
+!     If the libxc interface is used to the proper initialization and closure.
+
       If (Associated(Sub,libxc_functionals)) Call Initiate_libxc_functionals(nD)
 
       Call DrvNQ(Sub,F_DFT,nD,Func,                                     &
