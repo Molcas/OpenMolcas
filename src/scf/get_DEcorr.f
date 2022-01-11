@@ -115,6 +115,14 @@
      &         VWN_V_emb,
      &         cBLYP_emb,
      &         cPBE_emb
+
+      abstract interface
+          Subroutine DFT_FUNCTIONAL(mGrid,nD)
+          Integer mGrid, nD
+          end subroutine
+      end interface
+
+      procedure(DFT_FUNCTIONAL), pointer :: sub => null()
 *
       lKSDFT=LEN(KSDFT)
       Debug=.False.
@@ -138,71 +146,58 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Select Case (KSDFT)
+*                                                                      *
+************************************************************************
+*                                                                      *
 *      LSDA LDA SVWN
 *
-       If (KSDFT.eq.'LSDA ' .or.
-     &     KSDFT.eq.'LDA '  .or.
-     &     KSDFT.eq.'SVWN ') Then
-c        ExFac=Get_ExFac(KSDFT)
+       Case ('LSDA ','LDA ','SVWN ')
          Functional_type=LDA_type
-         Call DrvNQ(VWN_III_emb,Work(ipF_DFT),nFckDim,Func,
-     &              Work(ip_D_DS),nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
+         Sub => VWN_III_emb
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *      LSDA5 LDA5 SVWN5
 *
-       Else If (KSDFT.eq.'LSDA5' .or.
-     &          KSDFT.eq.'LDA5'  .or.
-     &          KSDFT.eq.'SVWN5') Then
-c        ExFac=Get_ExFac(KSDFT)
+       Case ('LSDA5','LDA5','SVWN5')
          Functional_type=LDA_type
-         Call DrvNQ(VWN_V_emb,Work(ipF_DFT),nFckDim,Func,
-     &              Work(ip_D_DS),nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
+         Sub => VWN_V_emb
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     BLYP
 *
-      Else If (KSDFT.eq.'BLYP') Then
-c        ExFac=Get_ExFac(KSDFT)
+      Case('BLYP')
          Functional_type=GGA_type
-         Call DrvNQ(cBLYP_emb,Work(ipF_DFT),nFckDim,Func,
-     &              Work(ip_D_DS),nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
+         Sub => cBLYP_emb
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     PBE
 *
-      Else If (KSDFT.eq.'PBE') Then
-c        ExFac=Get_ExFac(KSDFT)
+      Case('PBE')
          Functional_type=GGA_type
-         Call DrvNQ(cPBE_emb,Work(ipF_DFT),nFckDim,Func,
-     &              Work(ip_D_DS),nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
+         Sub => cPBE_emb
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Else
+      Case Default
          Call WarningMessage(2,
      &               ' Get_Ecorr_dft: Unsupported functional type!')
          Write (6,*) '         Functional=',KSDFT(1:lKSDFT)
          Call Quit_OnUserError()
-      End If
+      End Select
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Call DrvNQ(Sub,Work(ipF_DFT),nFckDim,Func,
+     &              Work(ip_D_DS),nh1,nD,
+     &              Do_Grad,
+     &              Grad,nGrad,
+     &              Do_MO,Do_TwoEl,DFTFOCK)
+      Sub => Null()
+
       Ec_AB=Func
 *
 #ifdef _DEBUGPRINT_
