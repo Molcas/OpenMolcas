@@ -1,0 +1,71 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2000,2022, Roland Lindh                                *
+!***********************************************************************
+Module libxc_parameters
+use xc_f03_lib_m
+Implicit None
+#include "ksdft.fh"
+
+Integer, parameter :: nFuncs_max=4
+Integer :: i, iFunc
+Integer :: nFuncs=0
+Real*8 :: Coeffs(nFuncs_Max)=[(0.0D0,i=1,nFuncs_Max)]
+Integer*4 :: func_id(nFuncs_Max)=[(int(0,4),i=1,nFuncs_Max)]
+
+TYPE(xc_f03_func_t)      :: xc_func(nFuncs_Max) ! xc functional
+TYPE(xc_f03_func_info_t) :: xc_info(nFuncs_Max) ! xc functional info
+
+!
+!***********************************************************************
+!
+Contains
+!
+!***********************************************************************
+!
+Subroutine Initiate_Libxc_functionals(nD)
+Integer nD
+Real*8 :: Coeff
+
+Do iFunc = 1, nFuncs
+   ! Initialize libxc functional: nD = 2 means spin-polarized
+   call xc_f03_func_init(xc_func(iFunc), func_id(iFunc), int(nD, 4))
+   ! Get the functional's information
+   xc_info(iFunc) = xc_f03_func_get_info(xc_func(iFunc))
+
+! Reset coefficiants according to input
+
+   Coeff = Coeffs(iFunc)
+   Select case(xc_f03_func_info_get_kind(xc_info(iFunc)))
+     case (XC_EXCHANGE)
+        Coeff = Coeff * CoefX
+     case (XC_CORRELATION)
+        Coeff = Coeff * CoefR
+   End Select
+   Coeffs(iFunc) = Coeff
+
+End Do
+
+End Subroutine Initiate_Libxc_functionals
+!
+!***********************************************************************
+!
+Subroutine Remove_Libxc_functionals()
+Do iFunc = 1, nFuncs
+   call xc_f03_func_end(xc_func(iFunc))
+End Do
+Coeffs(:)=0.0D0
+func_id(:)=0
+End Subroutine Remove_Libxc_functionals
+!
+!***********************************************************************
+!
+End Module libxc_parameters
