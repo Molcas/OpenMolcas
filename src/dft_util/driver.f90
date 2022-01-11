@@ -53,8 +53,6 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
       Case('LSDA ','LDA ','TLSDA','FTLSDA','SVWN ')
          Functional_type=LDA_type
-         If(KSDFT.eq.'TLSDA'.or.KSDFT.eq.'FTLSDA') Do_MO=.true.
-         If(KSDFT.eq.'TLSDA'.or.KSDFT.eq.'FTLSDA') Do_TwoEl=.true.
 
 !----    Slater exchange
 !
@@ -62,6 +60,9 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 
          nFuncs=2
          func_id(1:nFuncs)=[int(1,4),int(8,4)]
+
+         If(KSDFT.eq.'TLSDA'.or.KSDFT.eq.'FTLSDA') Do_MO=.true.
+         If(KSDFT.eq.'TLSDA'.or.KSDFT.eq.'FTLSDA') Do_TwoEl=.true.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -544,7 +545,13 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
       Case('PBESOL')
          Functional_type=GGA_type
-         Sub => PBESol
+
+!----    Perdew-Burk-Ernzerhof SOL exchange
+!
+!----    Perdew-Burk-Ernzerhof SOL correlation
+
+         nFuncs=2
+         func_id(1:nFuncs)=[int(116,4),int(133,4)]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -552,7 +559,13 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
       Case('RGE2')
          Functional_type=GGA_type
-         Sub => RGE2
+
+!----    Ruzsinzsky-Csonka-Scusceria exchange
+!
+!----    Perdew-Burk-Ernzerhof SOL correlation
+
+         nFuncs=2
+         func_id(1:nFuncs)=[int(142,4),int(133,4)]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -560,7 +573,13 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
       Case('PTCA')
          Functional_type=GGA_type
-         Sub => PTCA
+
+!----    Perdew-Burk-Ernzerhof exchange
+!
+!----    Tognotti-Cortona-Adamo correlation
+
+         nFuncs=2
+         func_id(1:nFuncs)=[int(101,4),int(100,4)]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -617,11 +636,8 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 
       If (Associated(Sub,libxc_functionals)) Call Initiate_libxc_functionals(nD)
 
-      Call DrvNQ(Sub,F_DFT,nD,Func,                                     &
-     &           D_DS,nh1,nD,                                           &
-     &           Do_Grad,                                               &
-     &           Grad,nGrad,                                            &
-     &           Do_MO,Do_TwoEl,DFTFOCK)
+      Call DrvNQ(Sub,F_DFT,nD,Func,D_DS,nh1,nD,                         &
+     &           Do_Grad,Grad,nGrad,Do_MO,Do_TwoEl,DFTFOCK)
 
       If (Associated(Sub,libxc_functionals)) Call Remove_libxc_functionals()
 
