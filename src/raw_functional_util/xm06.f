@@ -10,14 +10,6 @@
 *                                                                      *
 * Copyright (C) 2010, Yan Zhao                                         *
 ************************************************************************
-      Subroutine XM06_L(mGrid,CoeffA,iSpin,F_xc)
-      Implicit None
-      Integer mGrid, iSpin
-      Real*8 CoeffA, F_xc(mGrid)
-      Integer, parameter :: ijzy=1
-      Call XM06(mGrid,CoeffA,iSpin,F_xc,ijzy)
-      End Subroutine XM06_L
-
       Subroutine XM06(mGrid,CoeffA,iSpin,F_xc,ijzy)
 ************************************************************************
 *                                                                      *
