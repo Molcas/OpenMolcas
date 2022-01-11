@@ -145,6 +145,9 @@ c     Call SetQue('Trace=on')
 *     calculations and two (F_alpha and F_beta) for open shell systems.
 *     For CASDFT we have always two (F_inactive and F_active)
 *
+      nFckDim = nD
+      Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
+      F_DFT(:,:)=Zero
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -511,10 +514,6 @@ c     Call SetQue('Trace=on')
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      ExFac=Get_ExFac(KSDFT)
-      nFckDim = nD
-      Call mma_allocate(F_DFT,nh1,nFckDim,Label='F_DFT')
-      F_DFT(:,:)=Zero
       Call DrvNQ(Sub,F_DFT,nFckDim,Func,
      &           D_DS,nh1,nD,
      &           Do_Grad,
@@ -522,6 +521,8 @@ c     Call SetQue('Trace=on')
      &           Do_MO,Do_TwoEl,DFTFOCK)
 
       Sub => Null()
+
+      ExFac=Get_ExFac(KSDFT)
 *                                                                      *
 ************************************************************************
 *                                                                      *
