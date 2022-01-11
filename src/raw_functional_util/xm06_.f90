@@ -1,4 +1,4 @@
-!#define _NEWCODE_
+#define _NEWCODE_
 #ifdef _NEWCODE_
 !***********************************************************************
 ! This file is part of OpenMolcas.                                     *

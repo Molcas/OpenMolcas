@@ -168,7 +168,7 @@ case(XC_FAMILY_GGA, XC_FAMILY_HYB_GGA)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-case(XC_FAMILY_MGGA)
+case(XC_FAMILY_MGGA, XC_FAMILY_HYB_MGGA)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -262,6 +262,12 @@ case(XC_FAMILY_MGGA)
          end Select
       End If
    End If
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+   Case Default
+     Write (6,*) 'Libxc family not properly identified.
+     Call Abend()
 !                                                                      *
 !***********************************************************************
 !                                                                      *
