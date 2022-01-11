@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine vW_hunter(mGrid,nDmat)
       use nq_Grid, only: F_xc => Exc
+      use libxc, only: Only_exc
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "hflda.fh"
@@ -21,7 +22,9 @@
 *---- von Weizsacker kinetic energy functional (no potential!)
 *
       Coeff=One
+      Only_exc=.True.
       Call vW_Ts(mGrid,nDmat,F_xc,Coeff)
+      Only_exc=.False.
 
       Return
       End
