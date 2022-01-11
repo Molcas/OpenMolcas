@@ -19,11 +19,11 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "ksdft.fh"
-      integer ijzy
+!     integer ijzy
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      ijzy=3
+!     ijzy=3
       CoeffA=One*CoefR
 !     Call CVS98(mGrid,CoeffA,iSpin,F_xc,ijzy+1)
       CoeffA=One*CoefR
