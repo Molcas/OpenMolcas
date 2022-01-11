@@ -18,14 +18,6 @@
       Call XM06(mGrid,CoeffA,iSpin,F_xc,ijzy)
       End Subroutine XM06_L
 
-      Subroutine XM06_HF(mGrid,CoeffA,iSpin,F_xc)
-      Implicit None
-      Integer mGrid, iSpin
-      Real*8 CoeffA, F_xc(mGrid)
-      Integer, parameter :: ijzy=2
-      Call XM06(mGrid,CoeffA,iSpin,F_xc,ijzy)
-      End Subroutine XM06_HF
-
       Subroutine XM06(mGrid,CoeffA,iSpin,F_xc,ijzy)
 ************************************************************************
 *                                                                      *
