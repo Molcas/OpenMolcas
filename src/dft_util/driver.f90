@@ -12,6 +12,8 @@
 !***********************************************************************
 Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD,DFTFOCK)
       use libxc_parameters
+      use OFembed, only: KEOnly
+      use libxc,   only: Only_exc
       Implicit None
 #include "nq_info.fh"
       Character*(*) KSDFT
@@ -22,8 +24,6 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
       Real*8 :: D_DS(nh1,nD), F_DFT(nh1,nD)
       Character*4 DFTFOCK
 
-      External Overlap, NucAtt
-      External LSDA_emb,LSDA5_emb,BLYP_emb, BLYP_emb2,PBE_emb, PBE_emb2,Ts_only_emb, vW_hunter, nucatt_emb
 
       abstract interface
           Subroutine DFT_FUNCTIONAL(mGrid,nD)
@@ -31,8 +31,12 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
           end subroutine
       end interface
 
-      procedure(DFT_FUNCTIONAL), pointer :: sub => null()
+      External:: Overlap, NucAtt, ndsd_ts
 
+      procedure(DFT_FUNCTIONAL), pointer :: sub => null()
+!     Sometime we need an external routine which covers something which
+!     Libxc doesn't support.
+      procedure(DFT_FUNCTIONAL), pointer :: External_sub => null()
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -656,7 +660,14 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
        Case('LDTF/LSDA ','LDTF/LDA  ')
          Functional_type=LDA_type
-         Sub => LSDA_emb
+
+         If (KEOnly) Then
+            nFuncs=1
+            func_id(1:nFuncs)=[int(50,4)]
+         Else
+            nFuncs=3
+            func_id(1:nFuncs)=[int(50,4),int(1,4),int(8,4)]
+         End If
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -664,7 +675,14 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
        Case('LDTF/LSDA5','LDTF/LDA5 ')
          Functional_type=LDA_type
-         Sub => LSDA5_emb
+
+         If (KEOnly) Then
+            nFuncs=1
+            func_id(1:nFuncs)=[int(50,4)]
+         Else
+            nFuncs=3
+            func_id(1:nFuncs)=[int(50,4),int(1,4),int(7,4)]
+         End If
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -672,7 +690,14 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
        Case('LDTF/PBE  ')
          Functional_type=GGA_type
-         Sub => PBE_emb
+
+         If (KEOnly) Then
+            nFuncs=1
+            func_id(1:nFuncs)=[int(50,4)]
+         Else
+            nFuncs=3
+            func_id(1:nFuncs)=[int(50,4),int(101,4),int(130,4)]
+         End If
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -680,7 +705,15 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
        Case('NDSD/PBE  ')
          Functional_type=meta_GGA_type2
-         Sub => PBE_emb2
+
+         If (KEOnly) Then
+            Sub => ndsd_ts
+         Else
+            Only_exc=.True.
+            nFuncs=2
+            func_id(1:nFuncs)=[int(101,4),int(130,4)]
+            External_Sub => ndsd_ts
+         End If
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -688,7 +721,14 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
        Case('LDTF/BLYP ')
          Functional_type=GGA_type
-         Sub => BLYP_emb
+
+         If (KEOnly) Then
+            nFuncs=1
+            func_id(1:nFuncs)=[int(50,4)]
+         Else
+            nFuncs=3
+            func_id(1:nFuncs)=[int(50,4),int(106,4),int(131,4)]
+         End If
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -696,7 +736,15 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
        Case('NDSD/BLYP ')
          Functional_type=meta_GGA_type2
-         Sub => BLYP_emb2
+
+         If (KEOnly) Then
+            Sub => ndsd_ts
+         Else
+            Only_exc=.True.
+            nFuncs=2
+            func_id(1:nFuncs)=[int(106,4),int(131,4)]
+            External_Sub => ndsd_ts
+         End If
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -704,7 +752,9 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
        Case('TF_only')
          Functional_type=LDA_type
-         Sub => TS_Only_Emb
+
+         nFuncs=1
+         func_id(1:nFuncs)=[int(50,4)]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -712,15 +762,10 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
        Case('HUNTER')
          Functional_type=GGA_type
-         Sub => vW_hunter
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!      NUCATT                                                          *
-!                                                                      *
-       Case('NUCATT_EMB')
-         Functional_type=LDA_type
-         Sub => nucatt_emb
+
+         nFuncs=1
+         func_id(1:nFuncs)=[int(52,4)]
+         Only_exc=.True.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -742,7 +787,12 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 
       If (Associated(Sub,libxc_functionals)) Call Remove_libxc_functionals()
 
-      Sub => Null()
+      If (Associated(External_Sub)) Call DrvNQ(External_Sub,F_DFT,nD,Func,D_DS,nh1,nD,         &
+     &           Do_Grad,Grad,nGrad,Do_MO,Do_TwoEl,DFTFOCK)
+
+      Sub          => Null()
+      External_Sub => Null()
+      Only_exc=.False.
 !                                                                      *
 !***********************************************************************
 !                                                                      *

@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine NDSD_Ts(mGrid,nDmat,F_xc,Coeff)
+      Subroutine NDSD_Ts(mGrid,nDmat)
 !***********************************************************************
 !                                                                      *
 ! Object:  compute Func for Thomas-Fermi KE functional                 *
@@ -24,17 +24,17 @@
 !***********************************************************************
       use nq_Grid, only: Rho, GradRho, Lapl
       use nq_Grid, only: vRho
+      use nq_Grid, only: F_xc => exc
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-      Real*8 F_xc(mGrid)
       Real*8 Fexp, Vt_lim
       External Fexp, Vt_lim
       Real*8 wGradRho(1:3)
       Real*8, Parameter:: T_X=1.0D-20
+      Real*8, Parameter:: Coeff=1.0D0
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!
       Two3=Two/Three
       Five3=Five/Three
       Cf=(Three/Ten)*(three*Pi**Two)**Two3
