@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2022, Roland Lindh                                     *
 !***********************************************************************
-Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nD,DFTFOCK)
+Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD,DFTFOCK)
       Implicit None
 #include "nq_info.fh"
       Character*(*) KSDFT
@@ -24,7 +24,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nD,DFT
       External LSDA, Overlap, BLYP, BPBE, B3LYP, HFS, HFB,XAlpha, LSDA5, B3LYP5, B2PLYP, TLYP
       External NucAtt, OLYP, O3LYP, OPBE,PBE, PBE0, PBEsol, M06L, M06, M062X, HFO
       External M06HF, SSBSW, SSBD, HFG, GLYP, GPBE, HFB86, B86LYP, B86PBE, BWIG, KT3
-      External O2PLYP,  KT2,  RGE2, REVPBE, PTCA,S12G, S12
+      External O2PLYP, KT2, RGE2, REVPBE, PTCA, S12G, S12H
 
       abstract interface
           Subroutine DFT_FUNCTIONAL(mGrid,nD)
