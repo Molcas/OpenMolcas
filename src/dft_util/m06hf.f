@@ -25,7 +25,8 @@
 *                                                                      *
       ijzy=2
       CoeffA=One*CoefX
-      Call XM06(mGrid,CoeffA,iSpin,F_xc,ijzy)
+!     Call XM06(mGrid,CoeffA,iSpin,F_xc,ijzy)
+      Call XM06_HF(mGrid,CoeffA,iSpin,F_xc)
       CoeffA=One*CoefX
       Call XVS98(mGrid,CoeffA,iSpin,F_xc,ijzy+1)
 

@@ -19,13 +19,14 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "ksdft.fh"
-      integer ijzy
+!     integer ijzy
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      ijzy=4
+!     ijzy=4
       CoeffA=One*CoefX
-      Call XM06(mGrid,CoeffA,iSpin,F_xc,ijzy)
+!     Call XM06(mGrid,CoeffA,iSpin,F_xc,ijzy)
+      Call XM06_2X(mGrid,CoeffA,iSpin,F_xc)
       CoeffA=One*CoefR
 !     Call CM06(mGrid,CoeffA,iSpin,F_xc,ijzy)
       Call CM06_2X(mGrid,CoeffA,iSpin,F_xc)

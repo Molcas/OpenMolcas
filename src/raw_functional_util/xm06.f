@@ -10,8 +10,39 @@
 *                                                                      *
 * Copyright (C) 2010, Yan Zhao                                         *
 ************************************************************************
-      Subroutine XM06(mGrid,
-     &                CoeffA,iSpin,F_xc,ijzy)
+      Subroutine XM06_L(mGrid,CoeffA,iSpin,F_xc)
+      Implicit None
+      Integer mGrid, iSpin
+      Real*8 CoeffA, F_xc(mGrid)
+      Integer, parameter :: ijzy=1
+      Call XM06(mGrid,CoeffA,iSpin,F_xc,ijzy)
+      End Subroutine XM06_L
+
+      Subroutine XM06_HF(mGrid,CoeffA,iSpin,F_xc)
+      Implicit None
+      Integer mGrid, iSpin
+      Real*8 CoeffA, F_xc(mGrid)
+      Integer, parameter :: ijzy=2
+      Call XM06(mGrid,CoeffA,iSpin,F_xc,ijzy)
+      End Subroutine XM06_HF
+
+      Subroutine XM06_(mGrid,CoeffA,iSpin,F_xc)
+      Implicit None
+      Integer mGrid, iSpin
+      Real*8 CoeffA, F_xc(mGrid)
+      Integer, parameter :: ijzy=3
+      Call XM06(mGrid,CoeffA,iSpin,F_xc,ijzy)
+      End Subroutine XM06_
+
+      Subroutine XM06_2X(mGrid,CoeffA,iSpin,F_xc)
+      Implicit None
+      Integer mGrid, iSpin
+      Real*8 CoeffA, F_xc(mGrid)
+      Integer, parameter :: ijzy=4
+      Call XM06(mGrid,CoeffA,iSpin,F_xc,ijzy)
+      End Subroutine XM06_2X
+
+      Subroutine XM06(mGrid,CoeffA,iSpin,F_xc,ijzy)
 ************************************************************************
 *                                                                      *
 *  M06x evaluates the exchange part of the M06 suite of                *
