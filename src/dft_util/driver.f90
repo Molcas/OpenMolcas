@@ -11,6 +11,7 @@
 ! Copyright (C) 2022, Roland Lindh                                     *
 !***********************************************************************
 Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD,DFTFOCK)
+      use libxc_parameters
       Implicit None
 #include "nq_info.fh"
       Character*(*) KSDFT
@@ -37,6 +38,8 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+       Sub => libxc_functionals     ! Default
+       Coeffs(:)=1.0D0              ! Default
        Select Case(KSDFT)
 !                                                                      *
 !***********************************************************************
@@ -45,10 +48,15 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
       Case('LSDA ','LDA ','TLSDA','FTLSDA','SVWN ')
          Functional_type=LDA_type
-         Sub => LSDA
          If(KSDFT.eq.'TLSDA'.or.KSDFT.eq.'FTLSDA') Do_MO=.true.
          If(KSDFT.eq.'TLSDA'.or.KSDFT.eq.'FTLSDA') Do_TwoEl=.true.
 
+!----    Slater exchange
+!
+!----    Vosko-Wilk-Nusair correlation functional III
+
+         nFuncs=2
+         func_id(1:nFuncs)=[int(1,4),int(8,4)]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -56,7 +64,13 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
        Case('LSDA5','LDA5','TLSDA5 ','SVWN5')
          Functional_type=LDA_type
-         Sub => LSDA5
+
+!----    Slater exchange
+!
+!----    Vosko-Wilk-Nusair correlation functional V
+
+         nFuncs=2
+         func_id(1:nFuncs)=[int(1,4),int(7,4)]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -64,7 +78,11 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
        Case('HFB')
          Functional_type=GGA_type
-         Sub => HFB
+
+!----    Slate exchange + Becke 88 exchange
+
+         nFuncs=1
+         func_id(1:nFuncs)=[int(106,4)]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -72,7 +90,11 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
        Case('HFO')
          Functional_type=GGA_type
-         Sub => HFO
+
+!----    Slate exchange + OPTx exchange
+
+         nFuncs=1
+         func_id(1:nFuncs)=[int(110,4)]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -80,7 +102,11 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
        Case('HFG')
          Functional_type=GGA_type
-         Sub => HFG
+
+!----    Slate exchange + G96 exchange
+
+         nFuncs=1
+         func_id(1:nFuncs)=[int(107,4)]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -88,7 +114,11 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
        Case('HFB86')
          Functional_type=GGA_type
-         Sub => HFB86
+
+!----    Slate exchange + B86 exchange
+
+         nFuncs=1
+         func_id(1:nFuncs)=[int(103,4)]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -96,7 +126,11 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
        Case('HFS')
          Functional_type=LDA_type
-         Sub => HFS
+
+!----    Slate exchange
+
+         nFuncs=1
+         func_id(1:nFuncs)=[int(1,4)]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -104,7 +138,12 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
        Case('XALPHA')
          Functional_type=LDA_type
-         Sub => XAlpha
+
+!----    Slate exchange
+
+         nFuncs=1
+         func_id(1:nFuncs)=[int(1,4)]
+         Coeffs(1)=0.70D0
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -389,11 +428,15 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+      If (Associated(Sub,libxc_functionals)) Call Initiate_libxc_functionals(nD)
+
       Call DrvNQ(Sub,F_DFT,nD,Func,                                     &
      &           D_DS,nh1,nD,                                           &
      &           Do_Grad,                                               &
      &           Grad,nGrad,                                            &
      &           Do_MO,Do_TwoEl,DFTFOCK)
+
+      If (Associated(Sub,libxc_functionals)) Call Remove_libxc_functionals()
 
       Sub => Null()
 !                                                                      *
