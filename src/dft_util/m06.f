@@ -25,12 +25,12 @@
 *                                                                      *
       ijzy=3
       CoeffA=One*CoefR
-*     Call CVS98(mGrid,CoeffA,iSpin,F_xc,ijzy+1)
+!     Call CVS98(mGrid,CoeffA,iSpin,F_xc,ijzy+1)
       CoeffA=One*CoefR
-*     Call CM06(mGrid,CoeffA,iSpin,F_xc,ijzy)
+!     Call CM06(mGrid,CoeffA,iSpin,F_xc,ijzy)
       Call CM06_(mGrid,CoeffA,iSpin,F_xc)
       CoeffA=One*CoefX
-*     Call XM06(mGrid,CoeffA,iSpin,F_xc,ijzy)
+!     Call XM06(mGrid,CoeffA,iSpin,F_xc,ijzy)
       Call XM06_(mGrid,CoeffA,iSpin,F_xc)
       CoeffA=One*CoefX
       Call XVS98(mGrid,CoeffA,iSpin,F_xc,ijzy+1)
