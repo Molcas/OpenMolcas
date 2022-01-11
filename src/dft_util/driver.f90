@@ -38,6 +38,10 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+
+!      Default is to use the libxc interface
+!      Coefficient for the individual contibutions are defaulted to 1.0D0
+
        Sub => libxc_functionals     ! Default
        Coeffs(:)=1.0D0              ! Default
        Select Case(KSDFT)
@@ -167,7 +171,13 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
       Case('BWIG')
          Functional_type=GGA_type
-         Sub => BWIG
+
+!----    Slater exchange + B88 exchange
+!
+!----    Wigner correlation
+
+         nFuncs=2
+         func_id(1:nFuncs)=[int(106,4),int(573,4)]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -175,9 +185,16 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
       Case('BLYP','TBLYP','FTBLYP')
          Functional_type=GGA_type
-         Sub => BLYP
-       If(KSDFT.eq.'TBLYP'.or. KSDFT.eq.'FTBLYP') Do_MO=.true.
-       If(KSDFT.eq.'TBLYP'.or. KSDFT.eq.'FTBLYP') Do_TwoEl=.true.
+
+!----    Slater exchange + B88 exchange
+!
+!----    Lee-Yang-Parr correlation
+
+         nFuncs=2
+         func_id(1:nFuncs)=[int(106,4),int(131,4)]
+
+         If(KSDFT.eq.'TBLYP'.or. KSDFT.eq.'FTBLYP') Do_MO=.true.
+         If(KSDFT.eq.'TBLYP'.or. KSDFT.eq.'FTBLYP') Do_TwoEl=.true.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -185,7 +202,13 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
       Case ('OLYP')
          Functional_type=GGA_type
-         Sub => OLYP
+
+!----    Slater exchange + OPT exchange
+!
+!----    Lee-Yang-Parr correlation
+
+         nFuncs=2
+         func_id(1:nFuncs)=[int(110,4),int(131,4)]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -193,7 +216,18 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
       Case('KT3')
          Functional_type=GGA_type
-         Sub => KT3
+
+!----    Slater exchange + + OPT exchange + Keal-Tozer exchange
+!
+!----    Lee-Yang-Parr correlation
+
+         nFuncs=4
+         func_id(1:nFuncs)=[int(1,4),int(110,4),int(145,4),int(131,4)]
+         Coeffs(1)= (1.092d0-1.051510d0*(0.925452d0/1.431690d0)-(0.004d0/0.006d0))
+         Coeffs(2)= (0.925452d0/1.431690d0)
+         Coeffs(3)= (0.0040d0/0.006d0)
+         Coeffs(4)= 0.864409d0
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -201,7 +235,16 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
       Case('KT2')
          Functional_type=GGA_type
-         Sub => KT2
+
+!----    Slater exchange + Keal-Tozer exchange
+!
+!----    Vosko-Wilk-Nusair correlation functional III
+
+         nFuncs=3
+         func_id(1:nFuncs)=[int(1,4),int(145,4),int(8,4)]
+         Coeffs(1)= 0.07173d0
+!        Coeffs(2)= One
+         Coeffs(3)= 0.576727d0
 !                                                                      *
 !***********************************************************************
 !                                                                      *
