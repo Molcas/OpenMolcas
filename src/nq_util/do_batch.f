@@ -611,6 +611,12 @@
         Else If (Functional_type.eq.GGA_type   .or.
      &           Functional_type.eq.CASDFT_type     ) Then     ! CGG
 *
+             If (l_casdft) Then
+               If (do_pdftPot) then
+                  CALL TransferMO(MOas,TabMO,mAO,mGrid,nMOs,1)
+               End If
+             End If
+
              If(KSDFA(1:4).eq.'TPBE'.or.
      &               KSDFA(1:5).eq.'TOPBE'.or.
      &               KSDFA(1:5).eq.'TBLYP'.or.
@@ -618,7 +624,6 @@
 
               If(do_pdftPot) then
 
-               CALL TransferMO(MOas,TabMO,mAO,mGrid,nMOs,1)
                IF(lft.and.lGGA) THEN
                 CALL TransferMO(MOax,TabMO,mAO,mGrid,nMOs,2)
                 CALL TransferMO(MOay,TabMO,mAO,mGrid,nMOs,3)
@@ -638,10 +643,7 @@
      &               KSDFA(1:6).eq.'FTBLYP'.or.
      &               KSDFA(1:8).eq.'FTREVPBE') then
                If(do_pdftPot) then
-               lft=.true.
-               lGGA=.true.
 
-               CALL TransferMO(MOas,TabMO,mAO,mGrid,nMOs,1)
                IF(lft.and.lGGA) THEN
                 CALL TransferMO(MOax,TabMO,mAO,mGrid,nMOs,2)
                 CALL TransferMO(MOay,TabMO,mAO,mGrid,nMOs,3)
