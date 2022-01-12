@@ -16,7 +16,7 @@ Implicit None
 #include "ksdft.fh"
 
 Integer, parameter :: nFuncs_max=4
-Integer :: i, iFunc
+Integer :: i
 Integer :: nFuncs=0
 Real*8 :: Coeffs(nFuncs_Max)=[(0.0D0,i=1,nFuncs_Max)]
 Integer*4 :: func_id(nFuncs_Max)=[(int(0,4),i=1,nFuncs_Max)]
@@ -32,7 +32,8 @@ Contains
 !***********************************************************************
 !
 Subroutine Initiate_Libxc_functionals(nD)
-Integer nD
+Implicit None
+Integer nD, iFunc
 Real*8 :: Coeff
 
 Do iFunc = 1, nFuncs
@@ -59,6 +60,8 @@ End Subroutine Initiate_Libxc_functionals
 !***********************************************************************
 !
 Subroutine Remove_Libxc_functionals()
+Implicit None
+Integer iFunc
 Do iFunc = 1, nFuncs
    call xc_f03_func_end(xc_func(iFunc))
 End Do
@@ -73,7 +76,7 @@ use nq_Grid, only: F_xc => Exc
 use nq_Grid, only: Rho, Sigma, Tau, Lapl
 use nq_Grid, only:     vSigma,vTau
 Implicit None
-Integer mGrid,nD
+Integer mGrid,nD, iFunc
 Real*8 Coeff
 
 If (nD.eq.1) Then

@@ -127,7 +127,6 @@
       Do_Grad=.false.
 *
       nFckDim=2
-      nD=2
       dFMD_=dFMD
       dFMD=1.0d0
 *                                                                      *
