@@ -548,6 +548,22 @@
       IF (do_pdftPot) CALL mma_allocate(MOs ,mGrid*NASHT)
 
       If (.Not.Do_Grad) Then
+
+         If (l_casdft) Then
+           If (do_pdftPot) then
+              CALL TransferMO(MOas,TabMO,mAO,mGrid,nMOs,1)
+              IF (lft.and.lGGA) THEN
+                 CALL TransferMO(MOax,TabMO,mAO,mGrid,nMOs,2)
+                 CALL TransferMO(MOay,TabMO,mAO,mGrid,nMOs,3)
+                 CALL TransferMO(MOaz,TabMO,mAO,mGrid,nMOs,4)
+              END IF
+              CALL TransActMO(MOs, TabMO,mAO,mGrid,nMOs)
+              Call Calc_Pot1(PDFTPot1,TabMO,mAO,mGrid,nMOs,P2_ontop,
+     &                       nP2_ontop,MOas)
+              Call Calc_Pot2(Work(LTEG_DB),mGrid,P2_ontop,nP2_ontop)
+              Call PDFTFock(PDFTFocI,PDFTFocA,D1Unzip,mGrid,MOs)
+           End If
+         End If
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -562,22 +578,6 @@
 *2)         form matrix elements for the potential, from derivative of
 *           the functional with  respect to rho, respectively.
 *
-             If (l_casdft) Then
-               If (do_pdftPot) then
-                  CALL TransferMO(MOas,TabMO,mAO,mGrid,nMOs,1)
-                  IF (lft.and.lGGA) THEN
-                     CALL TransferMO(MOax,TabMO,mAO,mGrid,nMOs,2)
-                     CALL TransferMO(MOay,TabMO,mAO,mGrid,nMOs,3)
-                     CALL TransferMO(MOaz,TabMO,mAO,mGrid,nMOs,4)
-                  END IF
-                  CALL TransActMO(MOs, TabMO,mAO,mGrid,nMOs)
-                  Call Calc_Pot1(PDFTPot1,TabMO,mAO,mGrid,nMOs,P2_ontop,
-     &                           nP2_ontop,MOas)
-                  Call Calc_Pot2(Work(LTEG_DB),mGrid,P2_ontop,nP2_ontop)
-                  Call PDFTFock(PDFTFocI,PDFTFocA,D1Unzip,mGrid,MOs)
-               End If
-             End If
-
              If(KSDFA(1:5).ne.'TLSDA'.and.KSDFA(1:6).ne.'FTLSDA') then
                  Call DFT_Int(list_s,nlist_s,FckInt,nFckInt,
      &                        nD,Work(ip_Fact),ndc,list_bas)
@@ -588,22 +588,6 @@
         Else If (Functional_type.eq.GGA_type   .or.
      &           Functional_type.eq.CASDFT_type     ) Then     ! CGG
 *
-             If (l_casdft) Then
-               If (do_pdftPot) then
-                  CALL TransferMO(MOas,TabMO,mAO,mGrid,nMOs,1)
-                  IF(lft.and.lGGA) THEN
-                   CALL TransferMO(MOax,TabMO,mAO,mGrid,nMOs,2)
-                   CALL TransferMO(MOay,TabMO,mAO,mGrid,nMOs,3)
-                   CALL TransferMO(MOaz,TabMO,mAO,mGrid,nMOs,4)
-                  END IF
-                  CALL TransActMO(MOs, TabMO,mAO,mGrid,nMOs)
-                  Call Calc_Pot1(PDFTPot1,TabMO,mAO,mGrid,nMOs,P2_ontop,
-     &                           nP2_ontop,MOas)
-                  Call Calc_Pot2(Work(LTEG_DB),mGrid,P2_ontop,nP2_ontop)
-                  Call PDFTFock(PDFTFocI,PDFTFocA,D1Unzip,mGrid,MOs)
-               End If
-             End If
-
              If(.not.l_casdft) then
                Call DFT_Int(list_s,nlist_s,FckInt,nFckInt,
      &                      nD,Work(ip_Fact),ndc,list_bas)
