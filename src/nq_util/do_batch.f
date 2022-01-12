@@ -571,14 +571,14 @@
                      CALL TransferMO(MOaz,TabMO,mAO,mGrid,nMOs,4)
                   END IF
                   CALL TransActMO(MOs, TabMO,mAO,mGrid,nMOs)
+                  Call Calc_Pot1(PDFTPot1,TabMO,mAO,mGrid,nMOs,P2_ontop,
+     &                           nP2_ontop,MOas)
                End If
              End If
 
              If(KSDFA(1:5).eq.'TLSDA') then
                If(do_pdftPot) then
 
-               Call Calc_Pot1(PDFTPot1,TabMO,mAO,mGrid,nMOs,P2_ontop,
-     &                        nP2_ontop,MOas)
                Call Calc_Pot2(Work(LTEG_DB),mGrid,P2_ontop,nP2_ontop)
                Call PDFTFock(PDFTFocI,PDFTFocA,D1Unzip,mGrid,MOs)
               end if
@@ -586,8 +586,6 @@
              else If(KSDFA(1:6).eq.'FTLSDA') then
                If(do_pdftPot) then
 
-               Call Calc_Pot1(PDFTPot1,TabMO,mAO,mGrid,nMOs,P2_ontop,
-     &                        nP2_ontop,MOas)
                Call Calc_Pot2(Work(LTEG_DB),mGrid,P2_ontop,nP2_ontop)
                Call PDFTFock(PDFTFocI,PDFTFocA,D1Unzip,mGrid,MOs)
               end if
@@ -612,6 +610,8 @@
                    CALL TransferMO(MOaz,TabMO,mAO,mGrid,nMOs,4)
                   END IF
                   CALL TransActMO(MOs, TabMO,mAO,mGrid,nMOs)
+                  Call Calc_Pot1(PDFTPot1,TabMO,mAO,mGrid,nMOs,P2_ontop,
+     &                           nP2_ontop,MOas)
                End If
              End If
 
@@ -621,9 +621,6 @@
      &               KSDFA(1:7).eq.'TREVPBE') then
 
               If(do_pdftPot) then
-
-               Call Calc_Pot1(PDFTPot1,TabMO,mAO,mGrid,nMOs,P2_ontop,
-     &                        nP2_ontop,MOas)
 
                Call Calc_Pot2(Work(LTEG_DB),mGrid,P2_ontop,nP2_ontop)
 
@@ -635,8 +632,6 @@
      &               KSDFA(1:8).eq.'FTREVPBE') then
                If(do_pdftPot) then
 
-               Call Calc_Pot1(PDFTPot1,TabMO,mAO,mGrid,nMOs,P2_ontop,
-     &                        nP2_ontop,MOas)
                Call Calc_Pot2(Work(LTEG_DB),mGrid,P2_ontop,nP2_ontop)
                Call PDFTFock(PDFTFocI,PDFTFocA,D1Unzip,mGrid,MOs)
               end if
