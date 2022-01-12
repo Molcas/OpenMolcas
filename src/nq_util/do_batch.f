@@ -545,12 +545,12 @@
 ************************************************************************
 *                                                                      *
 1979  Continue  !Jump here and skip the call to the kernel.
-      IF (do_pdftPot) CALL mma_allocate(MOs ,mGrid*NASHT)
 
       If (.Not.Do_Grad) Then
 
          If (l_casdft) Then
            If (do_pdftPot) then
+              CALL mma_allocate(MOs ,mGrid*NASHT)
               CALL TransferMO(MOas,TabMO,mAO,mGrid,nMOs,1)
               IF (lft.and.lGGA) THEN
                  CALL TransferMO(MOax,TabMO,mAO,mGrid,nMOs,2)
@@ -562,6 +562,7 @@
      &                       nP2_ontop,MOas)
               Call Calc_Pot2(Work(LTEG_DB),mGrid,P2_ontop,nP2_ontop)
               Call PDFTFock(PDFTFocI,PDFTFocA,D1Unzip,mGrid,MOs)
+              CALL mma_deallocate(MOs)
            End If
          End If
 *                                                                      *
@@ -589,7 +590,6 @@
 *
       End If
 *                                                                      *
-      If(do_pdftPot) CALL mma_deallocate(MOs)
 ************************************************************************
 *                                                                      *
       CALL PDFTMemDeAlloc()
