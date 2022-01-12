@@ -59,8 +59,14 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !
 !----    Vosko-Wilk-Nusair correlation functional III
 
-         nFuncs=2
-         func_id(1:nFuncs)=[int(1,4),int(8,4)]
+         If (Do_Core) Then
+            nFuncs=1
+            func_id(1:nFuncs)=[int(8,4)]
+            Coeffs(1)=dFMD
+         Else
+            nFuncs=2
+            func_id(1:nFuncs)=[int(1,4),int(8,4)]
+         End If
 
          If(KSDFT.eq.'TLSDA'.or.KSDFT.eq.'FTLSDA') Do_MO=.true.
          If(KSDFT.eq.'TLSDA'.or.KSDFT.eq.'FTLSDA') Do_TwoEl=.true.
@@ -76,8 +82,14 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !
 !----    Vosko-Wilk-Nusair correlation functional V
 
-         nFuncs=2
-         func_id(1:nFuncs)=[int(1,4),int(7,4)]
+         If (Do_Core) Then
+            nFuncs=1
+            func_id(1:nFuncs)=[int(7,4)]
+            Coeffs(1)=dFMD
+         Else
+            nFuncs=2
+            func_id(1:nFuncs)=[int(1,4),int(7,4)]
+         End If
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -193,8 +205,14 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !
 !----    Lee-Yang-Parr correlation
 
-         nFuncs=2
-         func_id(1:nFuncs)=[int(106,4),int(131,4)]
+         If (Do_Core) Then
+            nFuncs=1
+            func_id(1:nFuncs)=[int(131,4)]
+            Coeffs(1)=dFMD
+         Else
+            nFuncs=2
+            func_id(1:nFuncs)=[int(106,4),int(131,4)]
+         End If
 
          If(KSDFT.eq.'TBLYP'.or. KSDFT.eq.'FTBLYP') Do_MO=.true.
          If(KSDFT.eq.'TBLYP'.or. KSDFT.eq.'FTBLYP') Do_TwoEl=.true.
@@ -460,8 +478,14 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !
 !----    Perdew-Burk-Ernzerhof correlation
 
-         nFuncs=2
-         func_id(1:nFuncs)=[int(101,4),int(130,4)]
+         If (Do_Core) Then
+            nFuncs=1
+            func_id(1:nFuncs)=[int(130,4)]
+            Coeffs(1)=dFMD
+         Else
+            nFuncs=2
+            func_id(1:nFuncs)=[int(101,4),int(130,4)]
+         End If
 
          If(KSDFT.eq.'TPBE'.or.KSDFT.eq.'FTPBE') Do_MO=.true.
          If(KSDFT.eq.'TPBE'.or.KSDFT.eq.'FTPBE') Do_TwoEl=.true.

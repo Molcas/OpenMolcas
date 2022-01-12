@@ -101,7 +101,7 @@
 ************************************************************************
 *                                                                      *
       Call Driver(KSDFT,Do_Grad,Func,Grad,nGrad,
-     &            Do_MO,Do_TwoEl,Work(ip_DS),
+     &            Do_MO,Do_TwoEl,Work(ip_D_DS),
      &                          Work(ipF_DFT),nh1,nFckDim,DFTFOCK)
 *                                                                      *
 ************************************************************************

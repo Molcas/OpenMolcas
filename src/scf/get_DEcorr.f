@@ -100,7 +100,7 @@
 *                                                                      *
       Subroutine Get_Ecorr_dft(nh1,Grad,nGrad,DFTFOCK,ipF_DFT,ip_D_DS,
      &                             KSDFT,Ec_AB)
-      use OFembed, only: dFMD
+      use OFembed, only: dFMD, Do_Core
       Implicit Real*8 (a-h,o-z)
 
 #include "real.fh"
@@ -111,20 +111,7 @@
       Logical Do_MO,Do_TwoEl,Do_Grad
       Character*4 DFTFOCK
       Character*16  KSDFT
-      External VWN_III_emb,
-     &         VWN_V_emb,
-     &         cBLYP_emb,
-     &         cPBE_emb
 
-      abstract interface
-          Subroutine DFT_FUNCTIONAL(mGrid,nD)
-          Integer mGrid, nD
-          end subroutine
-      end interface
-
-      procedure(DFT_FUNCTIONAL), pointer :: sub => null()
-*
-      lKSDFT=LEN(KSDFT)
       Debug=.False.
 *                                                                      *
 ************************************************************************
@@ -146,58 +133,14 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Select Case (KSDFT)
+      Do_Core=.True.
+      Call Driver(KSDFT,Do_Grad,Func,Grad,nGrad,
+     &            Do_MO,Do_TwoEl,Work(ip_D_DS),
+     &                          Work(ipF_DFT),nh1,nFckDim,DFTFOCK)
+      Do_Core=.False.
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*      LSDA LDA SVWN
-*
-       Case ('LSDA ','LDA ','SVWN ')
-         Functional_type=LDA_type
-         Sub => VWN_III_emb
-*                                                                      *
-************************************************************************
-*                                                                      *
-*      LSDA5 LDA5 SVWN5
-*
-       Case ('LSDA5','LDA5','SVWN5')
-         Functional_type=LDA_type
-         Sub => VWN_V_emb
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     BLYP
-*
-      Case('BLYP')
-         Functional_type=GGA_type
-         Sub => cBLYP_emb
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     PBE
-*
-      Case('PBE')
-         Functional_type=GGA_type
-         Sub => cPBE_emb
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Case Default
-         Call WarningMessage(2,
-     &               ' Get_Ecorr_dft: Unsupported functional type!')
-         Write (6,*) '         Functional=',KSDFT(1:lKSDFT)
-         Call Quit_OnUserError()
-      End Select
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Call DrvNQ(Sub,Work(ipF_DFT),nFckDim,Func,
-     &              Work(ip_D_DS),nh1,nD,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-      Sub => Null()
-
       Ec_AB=Func
 *
 #ifdef _DEBUGPRINT_

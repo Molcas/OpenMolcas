@@ -531,7 +531,7 @@ c Avoid unused argument warnings
 *                                                                      *
       Do_Core=.True.
       Call Driver(KSDFT,Do_Grad,Func,Grad,nGrad,
-     &            Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nFckDim,DFTFOCK)
+     &            Do_MO,Do_TwoEl,D_DS,F_corr,nh1,nFckDim,DFTFOCK)
       Do_Core=.False.
 *                                                                      *
 ************************************************************************
