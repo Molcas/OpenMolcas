@@ -562,14 +562,15 @@
 *2)         form matrix elements for the potential, from derivative of
 *           the functional with  respect to rho, respectively.
 *
-!First, calculate some sizes:
-!             NFINT=nTmpPUVX
-!             NTOT1=nFckInt
+             If (l_casdft) Then
+               If (do_pdftPot) then
+                  CALL TransferMO(MOas,TabMO,mAO,mGrid,nMOs,1)
+               End If
+             End If
 
              If(KSDFA(1:5).eq.'TLSDA') then
                If(do_pdftPot) then
 
-               CALL TransferMO(MOas,TabMO,mAO,mGrid,nMOs,1)
                IF(lft.and.lGGA) THEN
                 CALL TransferMO(MOax,TabMO,mAO,mGrid,nMOs,2)
                 CALL TransferMO(MOay,TabMO,mAO,mGrid,nMOs,3)
@@ -582,10 +583,10 @@
                Call Calc_Pot2(Work(LTEG_DB),mGrid,P2_ontop,nP2_ontop)
                Call PDFTFock(PDFTFocI,PDFTFocA,D1Unzip,mGrid,MOs)
               end if
+
              else If(KSDFA(1:6).eq.'FTLSDA') then
                If(do_pdftPot) then
 
-               CALL TransferMO(MOas,TabMO,mAO,mGrid,nMOs,1)
                IF(lft.and.lGGA) THEN
                 CALL TransferMO(MOax,TabMO,mAO,mGrid,nMOs,2)
                 CALL TransferMO(MOay,TabMO,mAO,mGrid,nMOs,3)
@@ -609,15 +610,6 @@
 *                                                                      *
         Else If (Functional_type.eq.GGA_type   .or.
      &           Functional_type.eq.CASDFT_type     ) Then     ! CGG
-*
-*2)        form matrix elements for the potential, from derivative of
-*          the functional with  respect to rho, respectively.
-*
-*          and
-*
-*3)        form contributions to the matrix elements of the potenial
-*          from the derivative of the functional with respect to grad
-*          rho.
 *
              If(KSDFA(1:4).eq.'TPBE'.or.
      &               KSDFA(1:5).eq.'TOPBE'.or.
