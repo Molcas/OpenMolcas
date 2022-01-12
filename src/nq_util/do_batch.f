@@ -573,20 +573,19 @@
                   CALL TransActMO(MOs, TabMO,mAO,mGrid,nMOs)
                   Call Calc_Pot1(PDFTPot1,TabMO,mAO,mGrid,nMOs,P2_ontop,
      &                           nP2_ontop,MOas)
+                  Call Calc_Pot2(Work(LTEG_DB),mGrid,P2_ontop,nP2_ontop)
                End If
              End If
 
              If(KSDFA(1:5).eq.'TLSDA') then
                If(do_pdftPot) then
 
-               Call Calc_Pot2(Work(LTEG_DB),mGrid,P2_ontop,nP2_ontop)
                Call PDFTFock(PDFTFocI,PDFTFocA,D1Unzip,mGrid,MOs)
               end if
 
              else If(KSDFA(1:6).eq.'FTLSDA') then
                If(do_pdftPot) then
 
-               Call Calc_Pot2(Work(LTEG_DB),mGrid,P2_ontop,nP2_ontop)
                Call PDFTFock(PDFTFocI,PDFTFocA,D1Unzip,mGrid,MOs)
               end if
              end if
@@ -612,6 +611,7 @@
                   CALL TransActMO(MOs, TabMO,mAO,mGrid,nMOs)
                   Call Calc_Pot1(PDFTPot1,TabMO,mAO,mGrid,nMOs,P2_ontop,
      &                           nP2_ontop,MOas)
+                  Call Calc_Pot2(Work(LTEG_DB),mGrid,P2_ontop,nP2_ontop)
                End If
              End If
 
@@ -622,8 +622,6 @@
 
               If(do_pdftPot) then
 
-               Call Calc_Pot2(Work(LTEG_DB),mGrid,P2_ontop,nP2_ontop)
-
                Call PDFTFock(PDFTFocI,PDFTFocA,D1Unzip,mGrid,MOs)
               end if
              Else If(KSDFA(1:5).eq.'FTPBE'.or.
@@ -632,7 +630,6 @@
      &               KSDFA(1:8).eq.'FTREVPBE') then
                If(do_pdftPot) then
 
-               Call Calc_Pot2(Work(LTEG_DB),mGrid,P2_ontop,nP2_ontop)
                Call PDFTFock(PDFTFocI,PDFTFocA,D1Unzip,mGrid,MOs)
               end if
              end if
