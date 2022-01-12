@@ -32,8 +32,6 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
       end interface
 
       External:: Overlap, NucAtt, ndsd_ts
-      External VWN_III_emb, VWN_V_emb, cBLYP_emb, cPBE_emb
-
 
       procedure(DFT_FUNCTIONAL), pointer :: sub => null()
 !     Sometime we need an external routine which covers something which
@@ -816,7 +814,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !***********************************************************************
 !                                                                      *
 !     Now let's do some integration!
-!     If the libxc interface is used to the proper initialization and closure.
+!     If the libxc interface is used do the proper initialization and closure.
 
       If (Associated(Sub,libxc_functionals)) Call Initiate_libxc_functionals(nD)
 
