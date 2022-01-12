@@ -493,6 +493,7 @@ c Avoid unused argument warnings
      &                       D_DS,nh1,nD_DS,
      &                       Do_Grad,
      &                       Grad,nGrad,DFTFOCK,F_corr)
+      use OFembed, only: Do_Core
       Implicit Real*8 (a-h,o-z)
       Character*(*) KSDFT
       Integer nh1, nFckDim, nD_DS
@@ -504,20 +505,8 @@ c Avoid unused argument warnings
 #include "real.fh"
 #include "nq_info.fh"
 #include "debug.fh"
-      External VWN_III_emb,
-     &         VWN_V_emb,
-     &         cBLYP_emb,
-     &         cPBE_emb
       Logical  Do_MO,Do_TwoEl,F_nAsh
-
-      abstract interface
-          Subroutine DFT_FUNCTIONAL(mGrid,nD)
-          Integer mGrid, nD
-          end subroutine
-      end interface
-
-      procedure(DFT_FUNCTIONAL), pointer :: sub => null()
-
+*                                                                      *
 ************************************************************************
 *                                                                      *
       Func            =Zero
@@ -540,62 +529,13 @@ c Avoid unused argument warnings
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Select Case(KSDFT)
+      Do_Core=.True.
+      Call Driver(KSDFT,Do_Grad,Func,Grad,nGrad,
+     &            Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nFckDim,DFTFOCK)
+      Do_Core=.False.
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*      LDTF/LSDA (Fractional) correlation potential only               *
-*                                                                      *
-       Case('LDTF/LSDA ','LDTF/LDA  ')
-         Functional_type=LDA_type
-         Sub => VWN_III_emb
-*                                                                      *
-************************************************************************
-*                                                                      *
-*      LDTF/LSDA5 (Fractional) correlation potential only              *
-*                                                                      *
-       Case('LDTF/LSDA5','LDTF/LDA5 ')
-         Functional_type=LDA_type
-         Sub => VWN_V_emb
-*                                                                      *
-************************************************************************
-*                                                                      *
-*      LDTF/PBE   (Fractional) correlation potential only              *
-*                                                                      *
-       Case('LDTF/PBE  ','NDSD/PBE  ')
-         Functional_type=GGA_type
-         Sub => cPBE_emb
-*                                                                      *
-************************************************************************
-*                                                                      *
-*      LDTF/BLYP  (Fractional) correlation potential only              *
-*                                                                      *
-       Case('LDTF/BLYP ','NDSD/BLYP ')
-         Functional_type=GGA_type
-         Sub => cBLYP_emb
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Case default
-         lKSDFT=LEN(KSDFT)
-         Call WarningMessage(2,
-     &               ' cWrap_DrvNQ: Undefined functional type!')
-         Write (6,*) '         Functional=',KSDFT(1:lKSDFT)
-         Call Quit_OnUserError()
-*                                                                      *
-************************************************************************
-*                                                                      *
-      End Select
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Call DrvNQ(Sub,F_corr,nFckDim,Func,
-     &           D_DS,nh1,nD_DS,
-     &           Do_Grad,
-     &           Grad,nGrad,
-     &           Do_MO,Do_TwoEl,DFTFOCK)
-
-      Sub => Null()
 *
       Return
 c Avoid unused argument warnings

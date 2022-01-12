@@ -12,7 +12,7 @@
 !***********************************************************************
 Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD,DFTFOCK)
       use libxc_parameters
-      use OFembed, only: KEOnly
+      use OFembed, only: KEOnly, dFMD, Do_Core
       use libxc,   only: Only_exc
       Implicit None
 #include "nq_info.fh"
@@ -32,6 +32,8 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
       end interface
 
       External:: Overlap, NucAtt, ndsd_ts
+      External VWN_III_emb, VWN_V_emb, cBLYP_emb, cPBE_emb
+
 
       procedure(DFT_FUNCTIONAL), pointer :: sub => null()
 !     Sometime we need an external routine which covers something which
@@ -661,12 +663,18 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
        Case('LDTF/LSDA ','LDTF/LDA  ')
          Functional_type=LDA_type
 
-         If (KEOnly) Then
+         If (Do_Core) Then
             nFuncs=1
-            func_id(1:nFuncs)=[int(50,4)]
+            func_id(1:nFuncs)=[int(8,4)]
+            Coeffs(1)=dFMD
          Else
-            nFuncs=3
-            func_id(1:nFuncs)=[int(50,4),int(1,4),int(8,4)]
+            If (KEOnly) Then
+               nFuncs=1
+               func_id(1:nFuncs)=[int(50,4)]
+            Else
+               nFuncs=3
+               func_id(1:nFuncs)=[int(50,4),int(1,4),int(8,4)]
+            End If
          End If
 !                                                                      *
 !***********************************************************************
@@ -676,12 +684,18 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
        Case('LDTF/LSDA5','LDTF/LDA5 ')
          Functional_type=LDA_type
 
-         If (KEOnly) Then
+         If (Do_Core) Then
             nFuncs=1
-            func_id(1:nFuncs)=[int(50,4)]
+            func_id(1:nFuncs)=[int(7,4)]
+            Coeffs(1)=dFMD
          Else
-            nFuncs=3
-            func_id(1:nFuncs)=[int(50,4),int(1,4),int(7,4)]
+              If (KEOnly) Then
+                 nFuncs=1
+                 func_id(1:nFuncs)=[int(50,4)]
+              Else
+                 nFuncs=3
+                 func_id(1:nFuncs)=[int(50,4),int(1,4),int(7,4)]
+             End If
          End If
 !                                                                      *
 !***********************************************************************
@@ -691,12 +705,18 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
        Case('LDTF/PBE  ')
          Functional_type=GGA_type
 
-         If (KEOnly) Then
+         If (Do_Core) Then
             nFuncs=1
-            func_id(1:nFuncs)=[int(50,4)]
+            func_id(1:nFuncs)=[int(130,4)]
+            Coeffs(1)=dFMD
          Else
-            nFuncs=3
-            func_id(1:nFuncs)=[int(50,4),int(101,4),int(130,4)]
+            If (KEOnly) Then
+               nFuncs=1
+               func_id(1:nFuncs)=[int(50,4)]
+            Else
+               nFuncs=3
+               func_id(1:nFuncs)=[int(50,4),int(101,4),int(130,4)]
+            End If
          End If
 !                                                                      *
 !***********************************************************************
@@ -706,13 +726,19 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
        Case('NDSD/PBE  ')
          Functional_type=meta_GGA_type2
 
-         If (KEOnly) Then
-            Sub => ndsd_ts
+         If (Do_Core) Then
+            nFuncs=1
+            func_id(1:nFuncs)=[int(130,4)]
+            Coeffs(1)=dFMD
          Else
-            Only_exc=.True.
-            nFuncs=2
-            func_id(1:nFuncs)=[int(101,4),int(130,4)]
-            External_Sub => ndsd_ts
+            If (KEOnly) Then
+               Sub => ndsd_ts
+            Else
+               Only_exc=.True.
+               nFuncs=2
+               func_id(1:nFuncs)=[int(101,4),int(130,4)]
+               External_Sub => ndsd_ts
+            End If
          End If
 !                                                                      *
 !***********************************************************************
@@ -722,12 +748,18 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
        Case('LDTF/BLYP ')
          Functional_type=GGA_type
 
-         If (KEOnly) Then
+         If (Do_Core) Then
             nFuncs=1
-            func_id(1:nFuncs)=[int(50,4)]
+            func_id(1:nFuncs)=[int(131,4)]
+            Coeffs(1)=dFMD
          Else
-            nFuncs=3
-            func_id(1:nFuncs)=[int(50,4),int(106,4),int(131,4)]
+            If (KEOnly) Then
+               nFuncs=1
+               func_id(1:nFuncs)=[int(50,4)]
+            Else
+               nFuncs=3
+               func_id(1:nFuncs)=[int(50,4),int(106,4),int(131,4)]
+            End If
          End If
 !                                                                      *
 !***********************************************************************
@@ -737,13 +769,19 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
        Case('NDSD/BLYP ')
          Functional_type=meta_GGA_type2
 
-         If (KEOnly) Then
-            Sub => ndsd_ts
+         If (Do_Core) Then
+            nFuncs=1
+            func_id(1:nFuncs)=[int(131,4)]
+            Coeffs(1)=dFMD
          Else
-            Only_exc=.True.
-            nFuncs=2
-            func_id(1:nFuncs)=[int(106,4),int(131,4)]
-            External_Sub => ndsd_ts
+            If (KEOnly) Then
+               Sub => ndsd_ts
+            Else
+               Only_exc=.True.
+               nFuncs=2
+               func_id(1:nFuncs)=[int(106,4),int(131,4)]
+               External_Sub => ndsd_ts
+            End If
          End If
 !                                                                      *
 !***********************************************************************
