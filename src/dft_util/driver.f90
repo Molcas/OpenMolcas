@@ -31,21 +31,28 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
           end subroutine
       end interface
 
-      External:: Overlap, NucAtt, ndsd_ts
+!***********************************************************************
+!     Define external functions not defined in LibXC. These are either
+!     accessed through the procedure pointer sub or External_sub.
 
+      External:: Overlap, NucAtt, ndsd_ts
+!***********************************************************************
       procedure(DFT_FUNCTIONAL), pointer :: sub => null()
 !     Sometime we need an external routine which covers something which
 !     Libxc doesn't support.
       procedure(DFT_FUNCTIONAL), pointer :: External_sub => null()
 !                                                                      *
 !***********************************************************************
+!***********************************************************************
 !                                                                      *
-
 !      Default is to use the libxc interface
 !      Coefficient for the individual contibutions are defaulted to 1.0D0
 
        Sub => libxc_functionals     ! Default
        Coeffs(:)=1.0D0              ! Default
+!                                                                      *
+!***********************************************************************
+!                                                                      *
        Select Case(KSDFT)
 !                                                                      *
 !***********************************************************************
