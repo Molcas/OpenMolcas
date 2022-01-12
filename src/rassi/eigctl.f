@@ -311,7 +311,7 @@ C especially for already diagonal Hamiltonian matrix.
 
       IF(IPGLOB.GE.TERSE) THEN
        DO ISTATE=1,NSTATE
-        Call PrintResult(6,'(6x,A,I5,5X,A,F16.8)',
+        Call PrintResult(6,'(6x,A,I5,5X,A,F23.14)',
      &    'RASSI State',ISTATE,'Total energy:',ENERGY(ISTATE),1)
        END DO
       END IF
