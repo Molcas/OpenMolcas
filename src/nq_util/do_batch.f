@@ -80,6 +80,7 @@
       Real*8,DIMENSION(NASHT4)::P2Unzip
       Real*8,DIMENSION(NASHT**2)::D1Unzip
       Integer LTEG_DB,nPMO3p
+      Real*8, Allocatable:: RhoI(:,:), RhoA(:,:)
 *define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Logical Debug_Save
@@ -133,13 +134,10 @@
       End If
 *
       If (mRho.ne.-1) Then
-         Call GetMem('Rho_I','Allo','Real',ipRhoI,mGrid*mRho)
-         Call GetMem('Rho_A','Allo','Real',ipRhoA,mGrid*mRho)
-         call dcopy_(mGrid*mRho,[Zero],0 ,Work(ipRhoI), 1)
-         call dcopy_(mGrid*mRho,[Zero],0 ,Work(ipRhoA), 1)
-      Else
-         ipRhoI = ip_Dummy
-         ipRhoA = ip_Dummy
+         Call mma_allocate(RhoI,mRho,mGrid,Label='RhoI')
+         Call mma_allocate(RhoA,mRho,mGrid,Label='RhoA')
+         RhoI(:,:)=Zero
+         RhoA(:,:)=Zero
       End If
 ************************************************************************
 *                                                                      *
@@ -411,8 +409,8 @@
 
          If (.not.Do_Grad) then !regular MO-based run
             Call Do_PI2(D1mo,nd1mo,TabMO,mAO,mGrid,
-     &                  nMOs,P2_ontop,nP2_ontop,Work(ipRhoI),
-     &                  Work(ipRhoA),mRho,Do_Grad,
+     &                  nMOs,P2_ontop,nP2_ontop,RhoI,
+     &                  RhoA,mRho,Do_Grad,
      &                  P2MOCube,MOs,MOx,MOy,MOz)
          Else !AO-based run for gradients
 !           nP2_ontop_d = nP2_ontop*mGrid*nGrad_Eff
@@ -423,7 +421,7 @@
      &                       P2_ontop,nP2_ontop,Do_Grad,nGrad_Eff,
      &                       list_s,nlist_s,list_bas,Index,nIndex,
      &                       D1mo,nd1mo,TabMO,list_g,P2_ontop_d,
-     &                       Work(ipRhoI),Work(ipRhoA),mRho,nMOs,CMOs,
+     &                       RhoI,RhoA,mRho,nMOs,CMOs,
      &                       nAOs,nCMO,TabSO,nsym,lft,
      &                       P2MOCube,P2MOCubex,P2MOCubey,P2MOCubez,
      &                       nPMO3p,MOs,MOx,MOy,MOz)
@@ -594,10 +592,11 @@
 *                                                                      *
       CALL PDFTMemDeAlloc()
 
-      If(mRho.ne.-1) Then
-        Call GetMem('Rho_I','Free','Real',ipRhoI,mGrid*mRho)
-        Call GetMem('Rho_A','Free','Real',ipRhoA,mGrid*mRho)
+      If (Allocated(RhoI)) Then
+         Call mma_deallocate(RhoI)
+         Call mma_deallocate(RhoA)
       End If
+
 #ifdef _DEBUGPRINT_
       Debug=Debug_Save
 #endif
