@@ -574,21 +574,9 @@
                   Call Calc_Pot1(PDFTPot1,TabMO,mAO,mGrid,nMOs,P2_ontop,
      &                           nP2_ontop,MOas)
                   Call Calc_Pot2(Work(LTEG_DB),mGrid,P2_ontop,nP2_ontop)
+                  Call PDFTFock(PDFTFocI,PDFTFocA,D1Unzip,mGrid,MOs)
                End If
              End If
-
-             If(KSDFA(1:5).eq.'TLSDA') then
-               If(do_pdftPot) then
-
-               Call PDFTFock(PDFTFocI,PDFTFocA,D1Unzip,mGrid,MOs)
-              end if
-
-             else If(KSDFA(1:6).eq.'FTLSDA') then
-               If(do_pdftPot) then
-
-               Call PDFTFock(PDFTFocI,PDFTFocA,D1Unzip,mGrid,MOs)
-              end if
-             end if
 
              If(KSDFA(1:5).ne.'TLSDA'.and.KSDFA(1:6).ne.'FTLSDA') then
                  Call DFT_Int(list_s,nlist_s,FckInt,nFckInt,
@@ -612,27 +600,10 @@
                   Call Calc_Pot1(PDFTPot1,TabMO,mAO,mGrid,nMOs,P2_ontop,
      &                           nP2_ontop,MOas)
                   Call Calc_Pot2(Work(LTEG_DB),mGrid,P2_ontop,nP2_ontop)
+                  Call PDFTFock(PDFTFocI,PDFTFocA,D1Unzip,mGrid,MOs)
                End If
              End If
 
-             If(KSDFA(1:4).eq.'TPBE'.or.
-     &               KSDFA(1:5).eq.'TOPBE'.or.
-     &               KSDFA(1:5).eq.'TBLYP'.or.
-     &               KSDFA(1:7).eq.'TREVPBE') then
-
-              If(do_pdftPot) then
-
-               Call PDFTFock(PDFTFocI,PDFTFocA,D1Unzip,mGrid,MOs)
-              end if
-             Else If(KSDFA(1:5).eq.'FTPBE'.or.
-     &               KSDFA(1:6).eq.'FTOPBE'.or.
-     &               KSDFA(1:6).eq.'FTBLYP'.or.
-     &               KSDFA(1:8).eq.'FTREVPBE') then
-               If(do_pdftPot) then
-
-               Call PDFTFock(PDFTFocI,PDFTFocA,D1Unzip,mGrid,MOs)
-              end if
-             end if
              If(.not.l_casdft) then
                Call DFT_Int(list_s,nlist_s,FckInt,nFckInt,
      &                      nD,Work(ip_Fact),ndc,list_bas)
