@@ -573,29 +573,8 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-         If(.not.l_casdft) then
-            Call DFT_Int(list_s,nlist_s,FckInt,nFckInt,
-     &                   nD,Work(ip_Fact),ndc,list_bas)
-         End if
-
-         If (Functional_type.eq.LDA_Type) Then
-*                                                                      *
-************************************************************************
-*                                                                      *
-        Else If (Functional_type.eq.GGA_type   .or.
-     &           Functional_type.eq.CASDFT_type     ) Then     ! CGG
-*                                                                      *
-************************************************************************
-*                                                                      *
-        Else If (Functional_type.eq.meta_GGA_type1 .or.
-     &           Functional_Type.eq.meta_GGA_type2) Then
-*                                                                      *
-************************************************************************
-*                                                                      *
-         Else
-            Call WarningMessage(2,'Wrong type of functional')
-            Call Abend()
-         End If    !  Functional Type
+         If(.not.l_casdft) Call DFT_Int(list_s,nlist_s,FckInt,nFckInt,
+     &                                  nD,Work(ip_Fact),ndc,list_bas)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -605,9 +584,8 @@
 *                                                                      *
       Else
 *
-         Call DFT_Grad(Grad,nGrad,nD,Grid,mGrid,
-     &                 dRho_dR,ndRho_dR,nGrad_Eff,IndGrd,
-     &                 Weights,iTab,Temp,F_xc,dW_dR,iNQ)
+         Call DFT_Grad(Grad,nGrad,nD,Grid,mGrid,dRho_dR,ndRho_dR,
+     &                nGrad_Eff,IndGrd,Weights,iTab,Temp,F_xc,dW_dR,iNQ)
 *
       End If
 *                                                                      *
