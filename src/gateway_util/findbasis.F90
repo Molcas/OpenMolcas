@@ -11,18 +11,21 @@
 ! Copyright (C) Valera Veryazov                                        *
 !***********************************************************************
 
-subroutine Find_Basis_Set(DirName,ExtBasDir,type)
+subroutine Find_Basis_Set(DirName,ExtBasDir,bType)
 !***********************************************************************
 ! Object: make a guess for a file                                      *
 ! Author: Valera Veryazov, Theoretical Chemistry, Chemical Centre      *
 !         University of Lund, Lund, Sweden                             *
 !***********************************************************************
 
-character*(*) DirName, ExtBasDir, type
-character*512 tmp
-character Molcas*256, CurrDir*256
-integer iAbsName
-logical Exist
+use Definitions, only: iwp
+
+implicit none
+character(len=*) :: DirName, ExtBasDir, bType
+integer(kind=iwp) :: i, iAbsName
+logical(kind=iwp) :: Exists
+character(len=512) :: tmp
+character(len=256) :: Molcas, CurrDir
 
 if (ExtBasDir /= ' ') then
   i = index(ExtBasDir,' ')
@@ -33,13 +36,13 @@ if (ExtBasDir /= ' ') then
     call getenvf('CurrDir',CurrDir)
   end if
   if (iAbsName == 0) then
-    tmp = ExtBasDir(1:i-1)//'/'//type
+    tmp = ExtBasDir(1:i-1)//'/'//bType
   else
-    tmp = CurrDir(1:index(CurrDir,' ')-1)//'/'//ExtBasDir(1:i-1)//'/'//type
+    tmp = CurrDir(1:index(CurrDir,' ')-1)//'/'//ExtBasDir(1:i-1)//'/'//bType
   end if
-  !write(6,*) tmp
-  call f_Inquire(tmp,Exist)
-  if (Exist) then
+  !write(u6,*) tmp
+  call f_Inquire(tmp,Exists)
+  if (Exists) then
     if (iAbsName == 0) then
       tmp = ExtBasDir(1:i-1)
     else
@@ -47,7 +50,7 @@ if (ExtBasDir /= ' ') then
     end if
     i = index(tmp,' ')
     DirName = tmp(1:i-1)
-    !write(6,*) '>',DirName(1:i-1),'<'
+    !write(u6,*) '>',DirName(1:i-1),'<'
     return
   end if
 end if

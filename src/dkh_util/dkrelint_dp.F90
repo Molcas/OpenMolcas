@@ -32,7 +32,7 @@ implicit none
 integer(kind=iwp) :: dkhorder, dkhparam, i, i_Dim, iAngr, iBas, icnt, iCnttp, iComp, idbg, idum(1), iExp, iibas, iMEF, iOpt, &
                      iPrint, iProps, iRC, iRout, iSize, iSizec, iSizep, iSizes, iTemp, jCent, jExp, k, kAng, kC, kCof, kCofi, &
                      kCofj, kExp, kExpi, kExpj, ks, kz, L, lOper, lOper_save, Lu_One, n, n_Int, nAtoms, nBas_cont(8), &
-                     nBas_prim(8), nbl, nComp, nrSym, nSym, numb_props, Op, relmethod, xorder
+                     nBas_prim(8), nbl, nComp, nSym, numb_props, Op, relmethod, xorder
 real(kind=wp) :: rCofi, rCofj, rEpsilon, rExpi, rExpj, rI, rNorm, rSum, VELIT
 logical(kind=iwp) :: DoFullLT
 !character(len=3) :: paramtype

@@ -9,26 +9,32 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function Index_NoSym(iCntr,iCmp,iCnt,iAng,iR,Index,iBas,nBas)
+function Index_NoSym(iCntr,iCmp,iCnt,iAng,iR,cIndex,iBas,nBas)
 
-integer index(5,nBas)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: Index_NoSym
+integer(kind=iwp), intent(in) :: iCntr, iCmp, iCnt, iAng, iR, nBas
+integer(kind=iwp), intent(inout) :: cIndex(5,nBas), iBas
+integer(kind=iwp) :: i
 
 98 continue
 Index_NoSym = 0
 do i=1,iBas
-  if ((index(1,i) == iCntr) .and. (index(2,i) == iCmp) .and. (index(3,i) == iCnt) .and. (index(4,i) == iAng) .and. &
-      (index(5,i) == iR)) then
+  if ((cIndex(1,i) == iCntr) .and. (cIndex(2,i) == iCmp) .and. (cIndex(3,i) == iCnt) .and. (cIndex(4,i) == iAng) .and. &
+      (cIndex(5,i) == iR)) then
     Index_NoSym = i
     Go To 99
   end if
 end do
 
 iBas = iBas+1
-index(1,iBas) = iCntr
-index(2,iBas) = iCmp
-index(3,iBas) = iCnt
-index(4,iBas) = iAng
-index(5,iBas) = iR
+cIndex(1,iBas) = iCntr
+cIndex(2,iBas) = iCmp
+cIndex(3,iBas) = iCnt
+cIndex(4,iBas) = iAng
+cIndex(5,iBas) = iR
 Go To 98
 
 99 return

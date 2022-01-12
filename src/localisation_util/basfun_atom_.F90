@@ -17,6 +17,7 @@ subroutine BasFun_Atom_Sym(nBas_per_Atom,nBas_Start,BName,jBas,nBas,nAtoms,DoPri
 ! Author: Y. Carissan / T. B. Pedersen
 !         [adapted to cases with symmetry by F. Aquilante]
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
@@ -26,8 +27,9 @@ integer(kind=iwp), intent(out) :: nBas_per_Atom(nAtoms), nBas_Start(nAtoms)
 character(len=LenIn8), intent(in) :: BName(nBas)
 logical(kind=iwp), intent(in) :: DoPrint
 integer(kind=iwp) :: iAt, iCount, jCount, kBas
-character(len=LenIn) :: AtName(nAtoms), Lbl !IFG
+character(len=LenIn) :: Lbl
 character(len=80) :: Txt, Formt
+character(len=LenIn), allocatable :: AtName(:)
 character(len=*), parameter :: SecNam = 'BasFun_Atom_Sym'
 
 ! Counters.
@@ -35,6 +37,7 @@ character(len=*), parameter :: SecNam = 'BasFun_Atom_Sym'
 
 ! IFG: To count basis functions per atom, we need a list of atom names,
 !      since there is no guarantee all atoms will be present in a give irrep
+call mma_allocate(AtName,nAtoms,label='AtName')
 call Get_cArray('Unique Atom Names',AtName,LenIn*nAtoms)
 
 kBas = jBas
@@ -46,6 +49,7 @@ do iAt=1,nAtoms
     kBas = kBas+1
   end do
 end do
+call mma_deallocate(AtName)
 
 ! Offsets.
 ! --------

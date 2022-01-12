@@ -11,10 +11,12 @@
 
 subroutine SetTargetAccuracy_LDF()
 
+use Constants, only: Zero
+
 implicit none
 #include "localdf.fh"
 
-if (Thr_Accuracy < 0.0d0) call LDF_SetDefaultThrs()
+if (Thr_Accuracy < Zero) call LDF_SetDefaultThrs()
 
 return
 

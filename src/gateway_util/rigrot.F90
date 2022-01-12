@@ -30,18 +30,21 @@ subroutine RigRot(CoorIn,rM,nAtm)
 !***********************************************************************
 
 use Sizes_of_Seward, only: S
-use Real_Info, only: TMass, CoM, rMI, Prin, PAX
+use Real_Info, only: CoM, PAX, Prin, rMI, TMass
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Four, Eight, Half, auTocm, auToHz, uToau
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "stdalloc.fh"
+implicit none
+integer(kind=iwp) :: nAtm
+real(kind=wp) :: CoorIn(3,nAtm), rM(nAtm)
 #include "print.fh"
-real*8 CoorIn(3,nAtm), rM(nAtm), XI(3)
-real*8, dimension(:,:), allocatable :: Coor, Vec
-real*8, dimension(:), allocatable :: Hess, En
-character*80 Label
-logical Linear, RR_Show
-#include "constants2.fh"
+integer(kind=iwp) :: i, iAtom, iCar, iEn, ii, iPrint, iRout, j, jCar, k, k1, k2, kappa, kk, kk2, mDim, nEn, nHess, nTri
+real(kind=wp) :: A, B, C, keep, rKappa, XI(3)
+logical(kind=iwp) :: Linear, RR_Show
+character(len=80) :: Label
+real(kind=wp), allocatable :: Coor(:,:), En(:), Hess(:), Vec(:,:)
+integer(kind=iwp), external :: iprintlevel
 
 iRout = 117
 iPrint = nPrint(iRout)
@@ -49,10 +52,10 @@ RR_Show = iPrint >= 6
 if (iprintlevel(-1) < 3) RR_Show = .false.
 
 if (RR_Show) then
-  write(6,*)
+  write(u6,*)
   call CollapseOutput(1,'   Rigid rotor info:')
-  write(6,'(3X,A)') '   -----------------'
-  write(6,*)
+  write(u6,'(3X,A)') '   -----------------'
+  write(u6,*)
 end if
 
 call dcopy_(9,[Zero],0,PAx,1)
@@ -64,13 +67,13 @@ if (iPrint >= 99) then
   call RecPrt(' In RigRot: Mass',' ',rM,1,nAtm)
 end if
 if (RR_Show) then
-  write(6,*)
-  write(6,'(19X,A,F10.5)') ' Total mass (a) :',TMass/uToau
-  write(6,*)
-  write(6,'(19X,A)') ' Center of mass '
-  write(6,'(19X,3A11)') '       X   ','       Y          Z   '
-  write(6,'(19X,3F11.5)') (CoM(i),i=1,3)
-  write(6,*)
+  write(u6,*)
+  write(u6,'(19X,A,F10.5)') ' Total mass (a) :',TMass/uToau
+  write(u6,*)
+  write(u6,'(19X,A)') ' Center of mass '
+  write(u6,'(19X,3A11)') '       X   ','       Y          Z   '
+  write(u6,'(19X,3F11.5)') (CoM(i),i=1,3)
+  write(u6,*)
 end if
 
 ! Translate coordinate system to center of mass.
@@ -83,11 +86,11 @@ do iCar=1,3
 end do
 
 if (RR_Show) then
-  write(6,'(19X,A)') ' Reference system based on center of mass'
-  write(6,'(19X,A)') ' Coordinates and Masses of Atoms, in au and A'
-  write(6,'(19X,A)') '       X          Y          Z        Mass'
-  write(6,'(19X,4F11.5)') ((Coor(j,i),j=1,3),rM(i)/utoau,i=1,nAtm)
-  write(6,*)
+  write(u6,'(19X,A)') ' Reference system based on center of mass'
+  write(u6,'(19X,A)') ' Coordinates and Masses of Atoms, in au and A'
+  write(u6,'(19X,A)') '       X          Y          Z        Mass'
+  write(u6,'(19X,4F11.5)') ((Coor(j,i),j=1,3),rM(i)/utoau,i=1,nAtm)
+  write(u6,*)
 end if
 if (nAtm == 1) then
   call mma_deallocate(Coor)
@@ -113,12 +116,12 @@ do iCar=1,3
 end do
 call mma_deallocate(Coor)
 if (RR_Show) then
-  write(6,'(19X,A)') ' The Moment of Inertia Tensor / au'
-  write(6,'(19X,14X,3A)') '    X     ','     Y    ','    Z     '
-  write(6,'(19X,A,12X,3(E11.4))') ' X',rMI(1)
-  write(6,'(19X,A,12X,3(E11.4))') ' Y',rMI(2),rMI(3)
-  write(6,'(19X,A,12X,3(E11.4))') ' Z',rMI(4),rMI(5),rMI(6)
-  write(6,*)
+  write(u6,'(19X,A)') ' The Moment of Inertia Tensor / au'
+  write(u6,'(19X,14X,3A)') '    X     ','     Y    ','    Z     '
+  write(u6,'(19X,A,12X,3(E11.4))') ' X',rMI(1)
+  write(u6,'(19X,A,12X,3(E11.4))') ' Y',rMI(2),rMI(3)
+  write(u6,'(19X,A,12X,3(E11.4))') ' Z',rMI(4),rMI(5),rMI(6)
+  write(u6,*)
 end if
 
 ! Diagonalize and find principle axis
@@ -135,42 +138,42 @@ Prin(3) = Hess(6)
 do i=1,2
   do j=i+1,3
     if (Prin(i) < Prin(j)) then
-      save = Prin(i)
+      keep = Prin(i)
       Prin(i) = Prin(j)
-      Prin(j) = save
+      Prin(j) = keep
       call DSwap_(3,PAx(1+(i-1)*3),1,PAx(1+(j-1)*3),1)
     end if
   end do
 end do
 call mma_deallocate(Hess)
 if (RR_Show) then
-  write(6,'(19X,A)') ' The Principal Axes and Moments of Inertia (au)'
-  write(6,'(19X,A,3(E11.4))') ' Eigenvalues :',(Prin(i),i=1,3)
-  write(6,'(19X,14X,3A)') '    X''    ','     Y''   ','    Z''    '
-  write(6,'(19X,A)') ' Eigenvectors:'
-  write(6,'(19X,A,3(E11.4))') ' X            ',Pax(1),Pax(4),Pax(7)
-  write(6,'(19X,A,3(E11.4))') ' Y            ',Pax(2),Pax(5),Pax(8)
-  write(6,'(19X,A,3(E11.4))') ' Z            ',Pax(3),Pax(6),Pax(9)
-  write(6,*)
+  write(u6,'(19X,A)') ' The Principal Axes and Moments of Inertia (au)'
+  write(u6,'(19X,A,3(E11.4))') ' Eigenvalues :',(Prin(i),i=1,3)
+  write(u6,'(19X,14X,3A)') '    X''    ','     Y''   ','    Z''    '
+  write(u6,'(19X,A)') ' Eigenvectors:'
+  write(u6,'(19X,A,3(E11.4))') ' X            ',Pax(1),Pax(4),Pax(7)
+  write(u6,'(19X,A,3(E11.4))') ' Y            ',Pax(2),Pax(5),Pax(8)
+  write(u6,'(19X,A,3(E11.4))') ' Z            ',Pax(3),Pax(6),Pax(9)
+  write(u6,*)
   !call Put_dArray('PAX',Pax,9)
-  write(6,'(19X,A)') ' The Rotational Constants'
-  write(6,'(19X,A)') '         (cm-1)            (GHz)'
-  if (Prin(1) >= 1.D-3) write(6,'(19X,F16.3,1X,F16.3)') auTocm*Half/Prin(1),1.0D-9*auToHz*Half/Prin(1)
-  if (Prin(2) >= 1.D-3) write(6,'(19X,F16.3,1X,F16.3)') auTocm*Half/Prin(2),1.0D-9*auToHz*Half/Prin(2)
-  if (Prin(3) >= 1D-3) write(6,'(19X,F16.3,1X,F16.3)') auTocm*Half/Prin(3),1.0D-9*auToHz*Half/Prin(3)
+  write(u6,'(19X,A)') ' The Rotational Constants'
+  write(u6,'(19X,A)') '         (cm-1)            (GHz)'
+  if (Prin(1) >= 1.0e-3_wp) write(u6,'(19X,F16.3,1X,F16.3)') auTocm*Half/Prin(1),1.0e-9_wp*auToHz*Half/Prin(1)
+  if (Prin(2) >= 1.0e-3_wp) write(u6,'(19X,F16.3,1X,F16.3)') auTocm*Half/Prin(2),1.0e-9_wp*auToHz*Half/Prin(2)
+  if (Prin(3) >= 1.0e-3_wp) write(u6,'(19X,F16.3,1X,F16.3)') auTocm*Half/Prin(3),1.0e-9_wp*auToHz*Half/Prin(3)
 end if
 if ((Prin(1) == Zero) .and. (Prin(2) == Zero) .and. (Prin(3) == Zero)) Go To 99
 if (RR_Show) then
-  write(6,*)
-  write(6,*)
-  write(6,'(19X,A)') ' *******************************************'
-  write(6,'(19X,A)') ' *                                         *'
-  write(6,'(19X,A)') ' * R I G I D - R O T O R   A N A L Y S I S *'
-  write(6,'(19X,A)') ' *                                         *'
-  write(6,'(19X,A)') ' *******************************************'
-  write(6,*)
-  write(6,'(19X,A,I3)') ' j(Max):',S%jMax
-  write(6,*)
+  write(u6,*)
+  write(u6,*)
+  write(u6,'(19X,A)') ' *******************************************'
+  write(u6,'(19X,A)') ' *                                         *'
+  write(u6,'(19X,A)') ' * R I G I D - R O T O R   A N A L Y S I S *'
+  write(u6,'(19X,A)') ' *                                         *'
+  write(u6,'(19X,A)') ' *******************************************'
+  write(u6,*)
+  write(u6,'(19X,A,I3)') ' j(Max):',S%jMax
+  write(u6,*)
 end if
 
 ! Order the three principal moments of inertia, Ia<=Ib<=Ic
@@ -182,13 +185,13 @@ call Order_Axis(XI,3)
 
 B = Half/XI(2)
 C = Half/XI(3)
-if (XI(1) <= 1.D-3) then
+if (XI(1) <= 1.0e-3_wp) then
   Linear = .true.
   rKappa = -One
 else
   A = Half/XI(1)
-  if (abs(A-C) <= 1.D-10) then
-    rKappa = 0.0d00
+  if (abs(A-C) <= 1.0e-10_wp) then
+    rKappa = Zero
   else
     rKappa = (Two*B-A-C)/(A-C)
   end if
@@ -196,10 +199,10 @@ end if
 
 ! Change order if molecule is oblate, Ia=Ib<=Ic
 
-if ((abs(XI(1)-XI(2)) < 1.0d-6) .and. (abs(XI(1)-XI(3)) > 1.0d-6)) then
-  save = XI(1)
+if ((abs(XI(1)-XI(2)) < 1.0e-6_wp) .and. (abs(XI(1)-XI(3)) > 1.0e-6_wp)) then
+  keep = XI(1)
   XI(1) = XI(3)
-  XI(3) = save
+  XI(3) = keep
 end if
 
 ! Construct Hessian Matrix
@@ -207,7 +210,7 @@ end if
 
 ! Set up constants, see Tinkham fomula 7-89a and 7-89b.
 
-if (abs(XI(1)) > 1.0D-3) then
+if (abs(XI(1)) > 1.0e-3_wp) then
   A = Half/XI(1)
 else
   A = Zero
@@ -218,13 +221,13 @@ do i=1,80
   Label(i:i) = ' '
 end do
 ! Iz=0 linear rotor
-if (abs(A) < 1.0d-3) then
+if (abs(A) < 1.0e-3_wp) then
   Label(1:13) = ' Linear Rotor'
 ! Ix=/=Iy asymmetric top
-else if (C > 1.0D-3) then
+else if (C > 1.0e-3_wp) then
   Label(1:15) = ' Asymmetric Top'
 ! Iz=Ix=Iy
-else if (abs(A-B) < 1.0D-10) then
+else if (abs(A-B) < 1.0e-10_wp) then
   Label(1:14) = ' Spherical Top'
 else if (A > B) then
   Label(1:25) = ' Symmetric Top, Prolate'
@@ -232,11 +235,11 @@ else
   Label(1:24) = ' Symmetric Top, Oblate'
 end if
 if (RR_Show) then
-  write(6,'(19X,A,A)') ' Rotor Type:',trim(Label)
-  write(6,'(19X,A,F7.3)') ' Asymmetry parameter:',rKappa
-  write(6,'(19X,A)') ' Prolate = -1'
-  write(6,'(19X,A)') ' Oblate  =  1'
-  write(6,*)
+  write(u6,'(19X,A,A)') ' Rotor Type:',trim(Label)
+  write(u6,'(19X,A,F7.3)') ' Asymmetry parameter:',rKappa
+  write(u6,'(19X,A)') ' Prolate = -1'
+  write(u6,'(19X,A)') ' Oblate  =  1'
+  write(u6,*)
 end if
 
 nEn = (S%jMax+1)*(S%jMax+2)*(S%jMax+3)/6
@@ -258,15 +261,15 @@ do j=0,S%jMax
 
     ! Formula 7-89a, (j,k|H|j,k), diagonal term
 
-    Hess(kk) = B*dble(j*(j+1))+(A-B)*dble(k**2)
-    if (Linear) Hess(kk) = B*dble(j*(j+1))
+    Hess(kk) = B*real(j*(j+1),kind=wp)+(A-B)*real(k**2,kind=wp)
+    if (Linear) Hess(kk) = B*real(j*(j+1),kind=wp)
     if ((k+2 > j) .or. Linear) Go to 82
     k2 = k1+2
     kk2 = k2*(k2-1)/2+k1
 
     ! Formula 7-89b, (j,k+2|H|j,k), the only off diagonal term.
 
-    Hess(kk2) = C*sqrt(dble((j*(j+1)-k*(k+1))*(j*(j+1)-(k+1)*(k+2))))
+    Hess(kk2) = C*sqrt(real((j*(j+1)-k*(k+1))*(j*(j+1)-(k+1)*(k+2)),kind=wp))
 82  k1 = k1+1
   end do
   if (iPrint >= 99) call TriPrt(' Hessian',' ',Hess,mDim)
@@ -284,17 +287,17 @@ call mma_deallocate(Hess)
 ! Output
 
 if (RR_Show) then
-  write(6,*)
-  write(6,'(19X,A)') ' Rotational energies / cm-1'
+  write(u6,*)
+  write(u6,'(19X,A)') ' Rotational energies / cm-1'
   iEn = 1
   do j=0,S%jMax
-    write(6,*)
+    write(u6,*)
     if (Linear) then
-      write(6,'(19X,A,I2,A,F8.3)') ' E(J=',J,') = ',En(iEn)
+      write(u6,'(19X,A,I2,A,F8.3)') ' E(J=',J,') = ',En(iEn)
       iEn = iEn+(2*j+1)
     else
       do kappa=-j,j
-        write(6,'(19X,A,I2,A,I2,A,F12.3)') ' E(J=',J,',kappa=',kappa,') = ',En(iEn)
+        write(u6,'(19X,A,I2,A,I2,A,F12.3)') ' E(J=',J,',kappa=',kappa,') = ',En(iEn)
         iEn = iEn+1
       end do
     end if
@@ -305,7 +308,7 @@ call mma_deallocate(En)
 99 continue
 if (RR_Show) then
   call CollapseOutput(0,'   Rigid rotor info:')
-  write(6,*)
+  write(u6,*)
 end if
 
 return

@@ -38,6 +38,7 @@
 *             grals for Schwartz inequality in a k2 loop.              *
 *             Modified for direct SCF, January '93                     *
 ************************************************************************
+      use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
       use Real_Spherical
       use Basis_Info
       use Center_Info
@@ -73,7 +74,6 @@
 *     This is to allow type punning without an explicit interface
       Contains
       Subroutine k2loop_internal(Data)
-      Use Iso_C_Binding
       Real*8, Target :: Data((nZeta*(nDArray+2*ijCmp)+nDScalar+nHm),
      &                       nDCRR)
       Integer, Pointer :: iData(:)

@@ -12,26 +12,20 @@
 module PSO_Stuff
 
 use Data_structures, only: DSBA_Type
+use Definitions, only: wp, iwp
 
-logical lPSO, lsa, Case_3C, Case_2C, Case_mp2
+implicit none
+private
 
-integer nnP(0:7), iOff_ij2K(8), npos(0:7,3)
-
-real*8, allocatable :: DMdiag(:,:), Thpkl(:), G2(:,:), CMO(:,:)
-real*8, allocatable :: Txy(:,:), V_k(:,:), U_k(:), Z_p_k(:,:)
-real*8, allocatable :: G1(:,:), D0(:,:), DVar(:,:), DS(:), DSVar(:)
-integer, allocatable :: ij2K(:)
-
-integer nG2, mG2
-integer nG1, mG1
-integer mCMO, kCMO
-integer nDens, mDens
-integer n_Txy, m_Txy
-integer n_ij2K
-integer nZ_p_k
-integer nV_K, nSOs1
-integer iD0Lbl
-
+integer(kind=iwp) :: iD0Lbl, iOff_ij2K(8), kCMO, m_Txy, mCMO, mDens, mG1, mG2, n_ij2K, n_Txy, nDens, nG1, nG2, nnP(0:7), &
+                     npos(0:7,3), nSOs1, nV_K, nZ_p_k
+logical(kind=iwp) :: lPSO, lsa, Case_3C, Case_2C, Case_mp2
+integer(kind=iwp), allocatable :: ij2K(:)
+real(wp), allocatable :: CMO(:,:), D0(:,:), DMdiag(:,:), DS(:), DSVar(:), DVar(:,:), G1(:,:), G2(:,:), Thpkl(:), Txy(:,:), U_k(:), &
+                         V_k(:,:), Z_p_k(:,:)
 type(DSBA_Type), allocatable, target :: AOrb(:)
+
+public :: AOrb, Case_2C, Case_3C, Case_mp2, CMO, D0, DMdiag, DS, DSVar, DVar, G1, G2, iD0Lbl, ij2K, iOff_ij2K, kCMO, lPSO, lsa, &
+          m_Txy, mCMO, mDens, mG1, mG2, n_ij2K, n_Txy, nDens, nG1, nG2, nnP, npos, nSOs1, nV_K, nZ_p_k, Thpkl, Txy, U_k, V_k, Z_p_k
 
 end module PSO_Stuff

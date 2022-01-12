@@ -28,24 +28,24 @@ subroutine GetPAM(lUnit,iCnttp)
 !     Modified: Sergey Gusarov SPb State Ubiv, Russia.                 *
 !***********************************************************************
 
-use Basis_Info
+use Basis_Info, only: dbsc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "itmax.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-real*8, allocatable :: Array(:)
-character*180 Line, Get_Ln
-!external Get_Ln
-integer nPAM2
-logical test
+implicit none
+integer(iwp) :: lUnit, iCnttp
+integer(kind=iwp) :: iENd, Ierr, iPAM_Ang, iPrim, iStrt, nArray, nPAM2, nPAM2Bas, nPAM2Prim
+character(len=180) :: Line
+real(kind=wp), allocatable :: Array(:)
 #ifdef _DEBUGPRINT_
-data test/.true./
+#define _TEST_ .true.
 #else
-data test/.false./
+#define _TEST_ .false.
 #endif
+logical(kind=iwp), parameter :: test = _TEST_
+character(len=180), external ::Get_Ln
 
-if (test) write(6,*) ' Reading PAM potencials'
+if (test) write(u6,*) ' Reading PAM potencials'
 nArray = 10000
 call mma_Allocate(Array,nArray,Label='Array')
 
@@ -62,8 +62,8 @@ do iPAM_Ang=0,nPAM2
   Line = Get_Ln(lUnit)
   call Get_i1(1,nPAM2Prim)
   call Get_i1(2,nPAM2Bas)
-  Array(iStrt) = dble(nPAM2Prim)
-  Array(iStrt+1) = dble(nPAM2Bas)
+  Array(iStrt) = real(nPAM2Prim,kind=wp)
+  Array(iStrt+1) = real(nPAM2Bas,kind=wp)
   iStrt = iStrt+2
   iEnd = iStrt+nPAM2Prim-1
 

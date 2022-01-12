@@ -11,15 +11,20 @@
 
 subroutine ORDER_AXIS(A,N)
 
-implicit real*8(a-h,o-z)
-real*8 A(N)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: N
+real(kind=wp) :: A(N)
+integer(kind=iwp) :: i, j
+real(kind=wp) :: keep
 
 do I=1,N-1
   do J=I+1,N
     if (A(I) > A(J)) then
-      save = A(I)
+      keep = A(I)
       A(I) = A(J)
-      A(J) = save
+      A(J) = keep
     end if
   end do
 end do

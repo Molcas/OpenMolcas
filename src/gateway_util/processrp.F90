@@ -14,22 +14,25 @@
 
 subroutine processRP(KeepGroup,SymThr)
 
-use External_Centers
-use iso_c_binding
+use External_Centers, only: nRP, RP_Centers
 #ifndef _HAVE_EXTRA_
-use XYZ
+use XYZ, only: Clear_XYZ, Out_Raw, Parse_Group, Read_XYZ, Symmetry
 #endif
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-character KeepGroup*180, KWord*180, KG*180
+implicit none
+character(len=180) :: KeepGroup
+real(kind=wp) :: SymThr
+integer(kind=iwp) :: i, LuRP
+character(len=180) :: KG, KWord
 #ifdef _HAVE_EXTRA_
-character*180 minGroup, Key
-character*180, external :: Get_Ln
+character(len=180) :: Key, minGroup
+character(len=180), external :: Get_Ln
 #else
-real*8, dimension(:,:,:), allocatable :: DumRot
-real*8, dimension(:,:), allocatable :: DumTrans
-real*8, pointer :: p1Dim(:)
+real(kind=wp), allocatable :: DumRot(:,:,:), DumTrans(:,:)
 #endif
+integer(kind=iwp), external :: IsFreeUnit
+
 !***********************************************************************
 !                                                                      *
 !    A silly routine to try to handle symmetry in RP-Coord section     *
@@ -88,7 +91,6 @@ close(LuRP)
 ! Compare with the one of the current structure
 ! no need if user defined
 
-write(6,*) Key,minGroup
 if (KG(1:4) == 'FULL') then
   if (Key /= minGroup) Go To 21
 end if
@@ -126,9 +128,7 @@ call Molcas_Open(LuRP,'findsym.RP1')
 call Read_XYZ(LuRP,DumRot,DumTrans)
 close(LuRP)
 call Parse_Group(KeepGroup,SymThr)
-call c_f_pointer(c_loc(RP_Centers(1,1,1)),p1Dim,[nRP])
-nRP = Out_Raw(p1Dim)
-nullify(p1Dim)
+nRP = Out_Raw(RP_Centers(:,:,1))
 call Clear_XYZ()
 
 KG = trim(Symmetry)
@@ -137,9 +137,7 @@ call Molcas_Open(LuRP,'findsym.RP2')
 call Read_XYZ(LuRP,DumRot,DumTrans)
 close(LuRP)
 call Parse_Group(KeepGroup,SymThr)
-call c_f_pointer(c_loc(RP_Centers(1,1,2)),p1Dim,[nRP])
-i = Out_Raw(p1Dim)
-nullify(p1Dim)
+i = Out_Raw(RP_Centers(:,:,2))
 if (i /= nRP) Go To 20
 call Clear_XYZ()
 if (Symmetry /= KG) Go To 21

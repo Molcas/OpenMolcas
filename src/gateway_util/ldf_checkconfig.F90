@@ -14,6 +14,7 @@ subroutine LDF_CheckConfig()
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: nProcs, Is_Real_Par
 #endif
+use Definitions, only: u6
 
 implicit none
 #include "localdf.fh"
@@ -33,7 +34,7 @@ end if
 ! Using unique atom pairs is buggy, warn!
 if (UseUniqueAtomPairs) then
   call WarningMessage(1,'WARNING: using unique atom pairs may cause erroneous results')
-  call xFlush(6)
+  call xFlush(u6)
 end if
 
 return

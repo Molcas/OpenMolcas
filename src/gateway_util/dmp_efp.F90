@@ -13,9 +13,11 @@
 
 subroutine DMP_EFP()
 
-use EFP_Module
+use EFP_Module, only: ABC, Coor_Type, EFP_COORS, FRAG_Type, lEFP, nEFP_Coor, nEFP_fragments
+use Definitions, only: iwp
 
-integer CoorType
+implicit none
+integer(kind=iwp) :: CoorType
 
 call Put_lScalar('EFP',lEFP)
 if (lEFP) then

@@ -28,18 +28,21 @@
 
 subroutine Process_Weights(iPrint)
 
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, nCnttp
+use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, UtoAU
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-#include "constants2.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-character(LEN=512) Align_Weights
-logical Small
-parameter(thr=1.0d-6)
-real*8, dimension(:), allocatable :: W
+implicit none
+integer(kind=iwp) :: iPrint
+integer(kind=iwp) :: i, iAt, iCnt, iErr, iSymAt, j, k, nAt, ndc, nSymAt
+real(kind=wp) :: wTot
+logical(kind=iwp) :: Small
+character(len=512) :: Align_Weights
+real(kind=wp), allocatable :: W(:)
+real(kind=wp), parameter :: thr = 1.0e-6_wp
 
 call Get_cArray('Align_Weights',Align_Weights,512)
 
@@ -67,7 +70,7 @@ if (Align_Weights(1:4) == 'MASS') then
   do i=1,nCnttp
     if (.not. (dbsc(i)%pChrg .or. dbsc(i)%Frag .or. dbsc(i)%Aux)) then
       do iCnt=1,dbsc(i)%nCntr
-        W(j) = dbsc(i)%CntMass/UTOAU
+        W(j) = dbsc(i)%CntMass/UtoAU
         j = j+1
       end do
     end if
@@ -88,7 +91,7 @@ else if (Align_Weights(1:5) == 'EQUAL') then
   !continue
 else
   ! Read the weights from the input line
-  read(Align_Weights,*,IOSTAT=iErr) (W(i),i=1,nAt)
+  read(Align_Weights,*,iostat=iErr) (W(i),i=1,nAt)
   if (iErr > 0) then
     call WarningMessage(2,'Unable to read data from WEIG')
     call Quit_OnUserError()
@@ -128,7 +131,7 @@ end if
 Small = .false.
 do i=1,nAt
   if (W(i) < thr) then
-    W(i) = 1.0d-1
+    W(i) = 1.0e-1_wp
     Small = .true.
   end if
 end do
@@ -137,7 +140,7 @@ if (iPrint >= 6) then
     call WarningMessage(1,'Small weights were increased to avoid problems with constraints.')
   end if
   call RecPrt('Weights used for alignment and distance',' ',W,nAt,1)
-  write(6,*)
+  write(u6,*)
 end if
 
 ! Store weights in the runfile too

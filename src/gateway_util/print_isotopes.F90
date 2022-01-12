@@ -13,13 +13,16 @@
 
 subroutine Print_Isotopes()
 
-use Period
-use Basis_Info, only: nCnttp, dbsc
+use Basis_Info, only: dbsc, nCnttp
+use Constants, only: UtoAU
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
 #include "print.fh"
-#include "constants2.fh"
-logical Changed
+integer(kind=iwp) :: i, iAtom, iPrint, iRout
+real(kind=wp) :: act_Mass, def_Mass
+logical(kind=iwp) :: Changed
+real(kind=wp), external :: rMass
 
 !                                                                      *
 !***********************************************************************
@@ -27,7 +30,6 @@ logical Changed
 iRout = 2
 iPrint = nPrint(iRout)
 if (iPrint == 0) return
-LuWr = 6
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -46,18 +48,18 @@ if ((.not. Changed) .and. (iPrint <= 5)) return
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-write(LuWr,*)
+write(u6,*)
 call CollapseOutput(1,'   Isotope specification:')
-write(LuWr,'(3X,A)') '   ----------------------'
-write(LuWr,*)
+write(u6,'(3X,A)') '   ----------------------'
+write(u6,*)
 if (Changed) then
-  write(LuWr,10) 'Center                     [     Default     ]'
-  write(LuWr,10) 'Type   Z    A    mass (Da) [   A    mass (Da)]'
-  write(LuWr,10) '---------------------------------------------'
+  write(u6,10) 'Center                     [     Default     ]'
+  write(u6,10) 'Type   Z    A    mass (Da) [   A    mass (Da)]'
+  write(u6,10) '---------------------------------------------'
 else
-  write(LuWr,10) 'Center'
-  write(LuWr,10) 'Type   Z    A    mass (Da)'
-  write(LuWr,10) '--------------------------'
+  write(u6,10) 'Center'
+  write(u6,10) 'Type   Z    A    mass (Da)'
+  write(u6,10) '--------------------------'
 end if
 do i=1,nCnttp
   if (dbsc(i)%Aux .or. dbsc(i)%Frag) cycle
@@ -65,13 +67,13 @@ do i=1,nCnttp
   act_Mass = dbsc(i)%CntMass/UToAU
   def_Mass = rmass(iAtom)/UToAU
   if (act_Mass /= def_Mass) then
-    write(LuWr,101) i,iAtom,nint(act_Mass),act_Mass,nint(def_Mass),def_Mass
+    write(u6,101) i,iAtom,nint(act_Mass),act_Mass,nint(def_Mass),def_Mass
   else
-    write(LuWr,100) i,iAtom,nint(act_Mass),act_Mass
+    write(u6,100) i,iAtom,nint(act_Mass),act_Mass
   end if
 end do
 call CollapseOutput(0,'   Isotope specification:')
-write(LuWr,*)
+write(u6,*)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

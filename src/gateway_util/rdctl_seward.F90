@@ -11,125 +11,112 @@
 
 subroutine RdCtl_Seward(LuRd,lOPTO,Do_OneEl)
 
-use SW_File
-use AMFI_Info
-use Basis_Info
-use Center_Info
-use Her_RW
-use Period
-use MpmC
-use EFP_Module
+use SW_File, only: SW_FileOrb
+use AMFI_Info, only: No_AMFI
+use Basis_Info, only: dbsc, Gaussian_Type, Max_Shells, mGaussian_Type, MolWgh, nCnttp, Nuclear_Model, Point_Charge, Shells
+use Center_Info, only: dc, n_dc
+use Her_RW, only: nPrp
+use Period, only: AdCell, Cell_l, lthCell, ispread, VCell
+use MpmC, only: Coor_MPM
+use EFP_Module, only: ABC, Coor_Type, EFP_COORS, FRAG_TYPE, lEFP, nEFP_Coor, nEFP_fragments, POINTS_TYPE, ROTMAT_type, XYZABC_type
 use Real_Spherical, only: Sphere
 use fortran_strings, only: str
-use External_Centers
-use Symmetry_Info, only: Symmetry_Info_Setup, iSkip, nIrrep, VarR, VarT
-use Temporary_Parameters
-use Integral_Parameters
+use External_Centers, only: AMP_Center, DMS_Centers, Dxyz, EF_Centers, iXPolType, nData_XF, nDMS, nEF, nOrd_XF, nOrdEF, nRP, nWel, &
+                            nXF, nXMolnr, OAM_Center, OMQ_Center, RP_Centers, Wel_Info, XEle, XF, XMolnr
+use Symmetry_Info, only: iSkip, nIrrep, Symmetry_Info_Setup, VarR, VarT
+use Temporary_Parameters, only: DirInt, Expert, Fake_ERIs, Force_Out_of_Core, force_part_c, force_part_p, ifallorb, Onenly, Prprt, &
+                                Short, Test
+use Integral_Parameters, only: iPack, iWRopt
 use Sizes_of_Seward, only: S
-use Real_Info, only: ThrInt, Rtrnc, CutInt, PkAcc, Thrs, E1, E2, RPQMin, SadStep, Shake, kVector, CoM
-use DKH_Info
-use RICD_Info, only: iRI_Type, LDF, Do_RI, Cholesky, Do_acCD_Basis, Skip_High_AC, DiagCheck, LocalDF, Do_nacCD_Basis, Thrshld_CD
-use Logical_Info
-use Gateway_Interfaces, only: GetBS
-use Gateway_global, only: Run_Mode, G_Mode, S_Mode
+use Real_Info, only: CoM, CutInt, E1, E2, kVector, PkAcc, RPQMin, Rtrnc, SadStep, Shake, ThrInt, Thrs
+use DKH_Info, only: iCtrLD, BSS, CLightAU, DKroll, IRELAE, IRFLAG1, LDKRoll, nCtrlD, radiLD
+use RICD_Info, only: Cholesky, DiagCheck, Do_acCD_Basis, Do_nacCD_Basis, Do_RI, iRI_Type, LDF, LocalDF, Skip_High_AC, Thrshld_CD
+use Logical_Info, only: Align_Only, Do_Align, Do_FckInt, Do_GuessOrb, DoFMM, EMFR, FNMC, GIAO, lAMFI, lDOWNONLY, lMXTC, lRel, lRP, &
+                        lSchw, lUPONLY, NEMO, UnNorm, Vlct
+use Gateway_global, only: G_Mode, Run_Mode, S_Mode
 #ifdef _FDE_
-use Embedding_Global, only: embPot, embPotInBasis, embPotPath, outGridPathGiven, embWriteDens, embWriteEsp, embWriteGrad, &
-                            embWriteHess
+use Embedding_Global, only: embOutDensPath, embOutEspPath, embOutGradPath, embOutHessPath, embPot, embPotInBasis, embPotPath, &
+                            embWriteDens, embWriteEsp, embWriteGrad, embWriteHess, outGridPath, outGridPathGiven
 #endif
 #ifndef _HAVE_EXTRA_
-use XYZ
+use XYZ, only: Clear_XYZ, Parse_Basis, Parse_Group, Read_XYZ, Write_SewInp
 #endif
 use Para_Info, only: MyRank
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Three, Four, Ten, Pi, Angstrom, mu2elmass, UtoAU
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-external NucExp
+implicit none
+integer(kind=iwp) :: LuRd
+logical(kind=iwp) :: lOPTO, Do_OneEl
 #include "Molcas.fh"
 #include "angtp.fh"
-#include "constants.fh"
-#include "constants2.fh"
-#include "SysDef.fh"
 #include "notab.fh"
-#include "WrkSpc.fh"
-#include "stdalloc.fh"
 #include "rctfld.fh"
 #include "rmat.fh"
-#include "real.fh"
 #include "print.fh"
+#include "embpcharg.fh"
+#include "cgetl.fh"
 #ifdef _HAVE_EXTRA_
 #include "hyper.fh"
 #endif
-real*8 Lambda
-character Key*180, KWord*180, Oper(3)*3, BSLbl*80, Fname*256, DefNm*13, Ref(2)*180, ChSkip*80, AngTyp(0:iTabMx)*1, dbas*(LENIN), &
-          filename*180, KeepBasis*256, KeepGroup*180, Previous_Command*12, CtrLDK(10)*(LENIN), Directory*256, BasLib*256, &
-          ExtBasDir*256
-character(LEN=72) :: Header(2) = ['','']
-character(LEN=80) :: Title(10) = ['','','','','','','','','','']
-character(LEN=14) :: Vrsn = 'Gateway/Seward'
-character(LEN=512) :: Align_Weights = 'MASS'
-#include "cgetl.fh"
-character*180 Get_Ln
-external Get_Ln
-logical lTtl, lSkip, lMltpl, DoRys, RF_read, Convert, IfTest, Exist, CutInt_UsrDef, ThrInt_UsrDef, MolWgh_UsrDef, CholeskyWasSet, &
-        GWInput, NoAMFI, lOPTO, Do_OneEl
-logical do1CCD
-logical :: CSPF = .false.
-logical APThr_UsrDef, Write_BasLib
-integer Cho_MolWgh, BasisTypes(4), BasisTypes_Save(4), iGeoInfo(2), iOpt_XYZ, RC
-parameter(Cho_CutInt=1.0D-40,Cho_ThrInt=1.0D-40, Cho_MolWgh=2)
-real*8 NucExp, WellCff(3), WellExp(3), WellRad(3), OAMt(3), OMQt(3)
-real*8, allocatable :: RTmp(:,:), EFt(:,:), DMSt(:,:), OrigTrans(:,:), OrigRot(:,:,:), mIsot(:)
-integer, allocatable :: ITmp(:), nIsot(:,:), iScratch(:)
-! Temporary buffer
-integer, parameter :: nBuff = 10000
-real*8, allocatable :: Buffer(:), Isotopes(:)
-character*180, allocatable :: STDINP(:)
-character Basis_lib*256, CHAR4*4
-character*256 Project, GeoDir, temp1, temp2
-integer StrnLn
-external StrnLn
-logical SymmSet
-logical CoordSet, RPSet
-logical BasisSet
-logical GroupSet
-logical DoneCoord
-logical NoZMAT
-logical ForceZMAT
-logical NoDKroll
-logical DoTinker
-logical DoGromacs
-logical OrigInput
-logical OriginSet
-logical FragSet
-logical HyperParSet
-logical WriteZMat
+integer(kind=iwp), parameter :: MAX_XBAS = 20
+integer(kind=iwp) :: BasisTypes(4), BasisTypes_Save(4), i, i1, i2, iAng, iAt, iAtom_Number, ib, ibla, iBSSE, iChk_CH, iChk_DC, &
+                     iChk_RI, iChrct, iChxyz, iCLDF, iCnt, iCnttp, iCoord, idk_ord, iDMS, iDNG, iDummy_basis, iEF, ierr, ifile, &
+                     ifnr, iFound_Label, iFrag, iFrst, iGeoInfo(2), iglobal, ign, ii, iIso, ik, imix, iMltpl, Indx, iOff, iOff0, &
+                     iOpt_XYZ, iOptimType, iOrd_XF, iPrint, iprop_ord, iRout, iSh, iShll, isnumber, ist, isxbas, isXfield, iTemp, &
+                     ITkQMMM, iTtl, itype, iUnique, iWel, ix, iXF, j, jAtmNr, jDim, jend, jRout, jShll, jTmp, k, lAng, Last, lAW, &
+                     lSTDINP, Lu_UDC, LuFS, LuIn, LuRd_saved, LuRdSave, LuRP, mdc, n, n1, n2, n3, nAtom, nc, nc2, nCnt, nCnt0, &
+                     nDataRead, nDiff, nDone, nFragment, nIsotopes, nMass, nOper, nReadEle, nRP_prev, nTemp, nTtl, nxbas, RC
+real(kind=wp) :: APThr, CholeskyThr, dm, dMass, Fact, gradLim, HypParam(3), Lambda, OAMt(3), OMQt(3), RandVect(3), ScaleFactor, &
+                 sDel, spanCD, stepFac1, SymThr, Target_Accuracy, tDel, Temp, v
+
+logical(kind=iwp) :: APThr_UsrDef, Basis_test, BasisSet, CholeskyWasSet, Convert, CoordSet, CSPF = .false., CutInt_UsrDef, do1CCD, &
+                     DoGromacs, DoneCoord, DoRys, DoTinker, EFgiven, Exists, ForceZMAT, FOUND, FragSet, GroupSet, GWInput, &
+                     HyperParSet, Invert, lDMS = .false., lECP, lFAIEMP = .false., lMltpl, lOAM = .false., lOMQ = .false., lPP, &
+                     lSkip, lTtl, lXF = .false., MolWgh_UsrDef, nmwarn, NoAMFI, NoDKroll, NoZMAT, OrigInput, OriginSet, RF_read, &
+                     RPSet, SymmSet, ThrInt_UsrDef, Vlct_, Write_BasLib, WriteZMat
+character(len=LenIn) :: CtrLDK(10), dbas
+character(len=512) :: Align_Weights = 'MASS'
+character(len=256) :: BasLib, Basis_lib, Directory, ExtBasDir, Fname, GeoDir, KeepBasis, Message, Project, temp1, temp2
+character(len=180) :: filename, KeepGroup, Key, KWord, Ref(2)
+character(len=80) :: BSLbl, ChSkip, Title(10) = ''
+character(len=72) :: Header(2) = ''
+character(len=14) :: Vrsn = 'Gateway/Seward'
+character(len=12) :: Previous_Command
+character(len=4) :: CHAR4
+character(len=3) :: Oper(3)
+character :: AngTyp(0:iTabMx)
+integer(kind=iwp), allocatable :: ITmp(:), iScratch(:), nIsot(:,:)
+real(kind=wp), allocatable :: Buffer(:), DMSt(:,:), EFt(:,:), Isotopes(:), mIsot(:), OrigRot(:,:,:), OrigTrans(:,:), RTmp(:,:)
+character(len=180), allocatable :: STDINP(:)
+character(len=128), allocatable :: xb_bas(:)
+character(len=12), allocatable :: xb_label(:)
 #ifdef _HAVE_EXTRA_
-logical geoInput, oldZmat, zConstraints
+logical(kind=iwp) :: geoInput, oldZmat, zConstraints
 #endif
-logical EFgiven
-logical Invert
-real*8 HypParam(3), RandVect(3)
-logical Vlct_, nmwarn, FOUND
-logical Basis_test, lECP, lPP
-logical :: lDMS = .false., lOAM = .false., lOMQ = .false., lXF = .false., lFAIEMP = .false.
-#include "embpcharg.fh"
 #ifdef _GROMACS_
-integer, dimension(:), allocatable :: CastMM
-integer, dimension(:,:), allocatable :: DefLA
-real*8, dimension(:), allocatable :: FactLA
+integer(kind=iwp), allocatable :: CastMM(:), DefLA(:,:)
+real(kind=wp), allocatable :: FactLA(:)
 #endif
-character*256 Message
-parameter(MAX_XBAS=20)
-character*12 xb_label(MAX_XBAS)
-character*128 xb_bas(MAX_XBAS)
-data WellCff/.35d0,0.25d0,5.2d0/
-data WellExp/4.0d0,3.0d0,2.0d0/
-data WellRad/-1.22d0,-3.20d0,-6.20d0/
-#include "angstr.fh"
-data DefNm/'basis_library'/
-data IfTest/.false./
+#ifdef _DEBUGPRINT_
+#define _TEST_ .true.
+#else
+#define _TEST_ .false.
+#endif
+integer(kind=iwp), parameter :: Cho_MolWgh = 2, nBuff = 10000
+real(kind=wp), parameter :: Cho_CutInt = 1.0e-40_wp, Cho_ThrInt = 1.0e-40_wp, &
+                            WellCff(3) = [0.35_wp,0.25_wp,5.2_wp], &
+                            WellExp(3) = [Four,Three,Two], &
+                            WellRad(3) = [-1.22_wp,-3.20_wp,-6.20_wp]
+logical(kind=iwp), parameter :: IfTest = _TEST_
+character(len=*), parameter :: DefNm = 'basis_library'
+integer(kind=iwp), external :: iCFrst, iChAtm, IsFreeUnit
+real(kind=wp), external :: NucExp, rMass, rMassx
+character(len=180), external :: Get_Ln
 interface
   subroutine datimx(TimeStamp) bind(C,name='datimx_')
     use, intrinsic :: iso_c_binding, only: c_char
@@ -142,9 +129,6 @@ end interface
 !                                                                      *
 iRout = 3
 iPrint = nPrint(iRout)
-#ifdef _DEBUGPRINT_
-IfTest = .true.
-#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -188,13 +172,12 @@ iChk_DC = 0
 iOpt_XYZ = -1
 
 isXfield = 0
-CholeskyThr = -9.99d9
+CholeskyThr = -huge(CholeskyThr)
 
 Basis_Test = .false.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-LuWr = 6
 LuFS = -1
 LuRdSave = -1
 
@@ -203,7 +186,7 @@ lMltpl = .false.
 
 CholeskyWasSet = .false.
 do1CCD = .false.
-spanCD = -9.9d9
+spanCD = -huge(spanCD)
 lTtl = .false.
 RF_read = .false.
 lSkip = .false.
@@ -234,9 +217,9 @@ iFrag = 0
 FragSet = .false.
 OriginSet = .false.
 HyperParSet = .false.
-stepFac1 = 60.0d0
+stepFac1 = 60.0_wp
 iOptimType = 1
-gradLim = 0.0d0
+gradLim = Zero
 Do_OneEl = .true.
 Vlct_ = .false.
 #ifdef _FDE_
@@ -256,11 +239,11 @@ EFgiven = .false.
 Invert = .false.
 call Put_iScalar('agrad',0)
 
-ScaleFactor = 1.0d0
+ScaleFactor = One
 lSTDINP = 0
 iCoord = 0
 iBSSE = -1
-SymThr = 0.01d0
+SymThr = 0.01_wp
 nTtl = 0
 
 imix = 0
@@ -270,6 +253,9 @@ itype = 0
 ExtBasDir = ' '
 isxbas = 0
 nmwarn = .true.
+
+call mma_allocate(xb_bas,MAX_XBAS,label='xb_bas')
+call mma_allocate(xb_label,MAX_XBAS,label='xb_label')
 
 ! Selective initialization
 
@@ -294,8 +280,8 @@ KeepBasis = ' '
 lthCell = 0
 Cell_l = .false.
 call izero(ispread,3)
-call fzero(VCell,9)
-!     Set local DF variables (dummy)
+VCell(:,:) = Zero
+! Set local DF variables (dummy)
 call LDF_SetInc()
 rewind(LuRd)
 ! Count the number of calls to coord to set the number of fragments
@@ -311,7 +297,7 @@ if ((KWord(1:4) == 'HYPE') .or. (KWord(1:4) == 'GEO ')) then
   temp2 = GeoDir(1:index(GeoDir,' ')-1)//'/'//Project(1:index(Project,' ')-1)//'.gwcopy.input'
   call fCopy(temp1,temp2,ierr)
   if (ierr /= 0) then
-    write(6,*) '*** Detect Hyper input, but no GEO loop'
+    write(u6,*) '*** Detect Hyper input, but no GEO loop'
     call Quit_OnUserError()
   end if
 end if
@@ -361,20 +347,20 @@ Key = Get_Ln(LuRd)
 
 9989 if ((Run_Mode == G_Mode) .and. (.not. GWInput)) then
   call WarningMessage(2,'Gateway input error!')
-  write(LuWr,*) 'The keyword : "',Previous_Command,'" is not allowed in the Gateway input!'
-  write(LuWr,*) 'This keyword most likely belongs in the Seward input section!.'
-  write(LuWr,*)
+  write(u6,*) 'The keyword : "',Previous_Command,'" is not allowed in the Gateway input!'
+  write(u6,*) 'This keyword most likely belongs in the Seward input section!.'
+  write(u6,*)
   call Quit_OnUserError()
 else if ((Run_Mode == S_Mode) .and. GWInput) then
   call WarningMessage(2,'Seward input error!')
-  write(LuWr,*) 'The keyword : "',Previous_Command,'" is not allowed in the Seward input when the Gateway is used!'
-  write(LuWr,*) ' Try putting the keyword in the Gateway input section!'
-  write(LuWr,*)
+  write(u6,*) 'The keyword : "',Previous_Command,'" is not allowed in the Seward input when the Gateway is used!'
+  write(u6,*) ' Try putting the keyword in the Gateway input section!'
+  write(u6,*)
   call Quit_OnUserError()
 end if
 GWInput = .false.
 
-if (IfTest) write(LuWr,*) ' RdCtl: Processing:',Key
+if (IfTest) write(u6,*) ' RdCtl: Processing:',Key
 KWord = Key
 call UpCase(KWord)
 Previous_Command = KWord(1:4)
@@ -600,9 +586,8 @@ if (Basis_test) then
   nDone = 0
   Go To 9201
 end if
-iChrct = len(KWord)
-Last = iCLast(KWord,iChrct)
-write(LuWr,*)
+Last = len_trim(KWord)
+write(u6,*)
 call WarningMessage(2,KWord(1:Last)//' is not a keyword!, Error in keyword.')
 call Quit_OnUserError()
 
@@ -632,7 +617,7 @@ end if
 ! representation instead of grid representation
 if (KWord(1:4) == 'BASI') then
   embPotInBasis = .true.
-  write(LuWr,*) 'Set embPotInBasis to ',embPotInBasis
+  write(u6,*) 'Set embPotInBasis to ',embPotInBasis
   Go To 667
 end if
 ! Get the EMBInfile path containing an embedding pot. on a grid
@@ -701,13 +686,13 @@ if ((.not. DoneCoord) .and. (iCoord /= 0)) then
 end if
 if (Run_Mode == S_Mode) then
   call WarningMessage(2,'Seward input error!')
-  write(LuWr,'(A,A,A)') 'The command : "',Previous_Command,'" is not allowed in Seward input when Gateway is used!'
-  write(LuWr,*)
+  write(u6,'(A,A,A)') 'The command : "',Previous_Command,'" is not allowed in Seward input when Gateway is used!'
+  write(u6,*)
   call Quit_OnUserError()
 end if
 call UpCase(KWord)
 iChrct = len(KWord)
-901 Last = iCLast(KWord,iChrct)
+901 Last = len_trim(KWord)
 iFrst = iCFrst(KWord,iChrct)
 if (iFrst <= Last) then
   nOper = nOper+1
@@ -785,7 +770,7 @@ if (nTtl > 10) then
   call Quit_OnUserError()
 end if
 i1 = iCFrst(Key,80)
-i2 = iCLast(Key,80)
+i2 = len_trim(Key(1:len(Title)))
 nc = 80-(i2-i1+1)
 nc2 = nc/2
 Title(nTtl) = ''
@@ -834,7 +819,7 @@ Go To 998
 
 1920 continue
 if (isxbas == 0) call Quit_OnUserError()
-call ZMatrixConverter(LuRd,LuWr,mxAtom,STDINP,lSTDINP,iglobal,nxbas,xb_label,xb_bas,iErr)
+call ZMatrixConverter(LuRd,u6,mxAtom,STDINP,lSTDINP,iglobal,nxbas,xb_label,xb_bas,iErr)
 if (iErr /= 0) call Quit_OnUserError()
 GWInput = .true.
 call StdSewInput(LuRd,ifnr,mdc,iShll,BasisTypes,STDINP,lSTDINP,iErr)
@@ -854,7 +839,7 @@ goto 998
 !                                                                      *
 1917 continue
 if (isxbas == 0) call Quit_OnUserError()
-call XMatrixConverter(LuRd,LuWr,mxAtom,STDINP,lSTDINP,iglobal,nxbas,xb_label,xb_bas,iErr)
+call XMatrixConverter(LuRd,u6,mxAtom,STDINP,lSTDINP,iglobal,nxbas,xb_label,xb_bas,iErr)
 if (iErr /= 0) call Quit_OnUserError()
 GWInput = .true.
 call StdSewInput(LuRd,ifnr,mdc,iShll,BasisTypes,STDINP,lSTDINP,iErr)
@@ -922,9 +907,9 @@ if (temp1(1:4) == 'FULL') goto 6015
 if (temp1(1:1) == 'E') goto 6015
 if (temp1(1:2) == 'C1') goto 6015
 if (temp1(1:5) == 'NOSYM') goto 6015
-do i=1,StrnLn(temp1)
+do i=1,len_trim(temp1)
   if ((temp1(i:i) /= 'X') .and. (temp1(i:i) /= 'Y') .and. (temp1(i:i) /= 'Z') .and. (temp1(i:i) /= ' ')) then
-    call WarningMessage(2,'Illegal symmetry group or operator: '//temp1(:StrnLn(temp1)))
+    call WarningMessage(2,'Illegal symmetry group or operator: '//trim(temp1))
     call Quit_OnUserError()
   end if
 end do
@@ -1000,8 +985,8 @@ goto 998
 !           TDELete  at 7072
 
 7070 continue
-call Put_dScalar('S delete thr',0.0d0)
-call Put_dScalar('T delete thr',1.0d15)
+call Put_dScalar('S delete thr',Zero)
+call Put_dScalar('T delete thr',1.0e15_wp)
 goto 998
 7071 continue
 KWord = Get_Ln(LuRd)
@@ -1043,9 +1028,9 @@ end if
 temp1 = KeepBasis
 call UpCase(temp1)
 !if (INDEX(temp1,'INLINE') /= 0) then
-!  write(LuWr,*) 'XYZ input and Inline basis set are not compatible'
-!  write(LuWr,*) 'Consult the manual how to change inline basis set'
-!  write(LuWr,*) ' into basis set library'
+!  write(u6,*) 'XYZ input and Inline basis set are not compatible'
+!  write(u6,*) 'Consult the manual how to change inline basis set'
+!  write(u6,*) ' into basis set library'
 !  call Quit_OnUserError()
 !end if
 iOpt_XYZ = 1
@@ -1057,8 +1042,8 @@ GWInput = .true.
 nCnttp = nCnttp+1
 if (Run_Mode == S_Mode) then
   call WarningMessage(2,'Seward input error!')
-  write(LuWr,*) 'The command : "',Previous_Command,'" is not allowed in the Seward input when the Gateway is used!'
-  write(LuWr,*)
+  write(u6,*) 'The command : "',Previous_Command,'" is not allowed in the Seward input when the Gateway is used!'
+  write(u6,*)
   call Quit_OnUserError()
 end if
 if (nCnttp > Mxdbsc) then
@@ -1085,8 +1070,7 @@ if ((BSLbl(1:2) == 'X.') .and. (index(BSLbl,'INLINE') == 0) .and. (index(BSLbl,'
   iDummy_basis = 1
 end if
 !call UpCase(BSLbl)
-LenBSL = len(BSLbl)
-Last = iCLast(BSLbl,LenBSL)
+Last = len_trim(BSLbl)
 GWInput = .true.
 Indx = index(BSLbl,'/')
 if (Indx == 0) then
@@ -1114,10 +1098,10 @@ do i=n,80
 end do
 
 if ((Show .and. (nPrint(2) >= 6)) .or. Write_BasLib) then
-  write(LuWr,*)
-  write(LuWr,*)
-  write(LuWr,'(1X,A,I5,A,A)') 'Basis Set ',nCnttp,' Label: ',BSLbl(1:Indx-1)
-  write(LuWr,'(1X,A,A)') 'Basis set is read from library:',Fname(1:index(Fname,' '))
+  write(u6,*)
+  write(u6,*)
+  write(u6,'(1X,A,I5,A,A)') 'Basis Set ',nCnttp,' Label: ',BSLbl(1:Indx-1)
+  write(u6,'(1X,A,A)') 'Basis set is read from library:',Fname(1:index(Fname,' '))
 end if
 
 jShll = iShll
@@ -1159,11 +1143,11 @@ else if (abs(BasisTypes(4)) /= abs(ign)) then
 end if
 
 if (Show .and. (nPrint(2) >= 6) .and. (Ref(1) /= '') .and. (Ref(2) /= '')) then
-  write(LuWr,'(1x,a)') 'Basis Set Reference(s):'
-  if (Ref(1) /= '') write(LuWr,'(5x,a)') trim(Ref(1))
-  if (Ref(2) /= '') write(LuWr,'(5x,a)') trim(Ref(2))
-  write(LuWr,*)
-  write(LuWr,*)
+  write(u6,'(1x,a)') 'Basis Set Reference(s):'
+  if (Ref(1) /= '') write(u6,'(5x,a)') trim(Ref(1))
+  if (Ref(2) /= '') write(u6,'(5x,a)') trim(Ref(2))
+  write(u6,*)
+  write(u6,*)
 end if
 dbsc(nCnttp)%ECP = (dbsc(nCnttp)%nPP+dbsc(nCnttp)%nPrj+dbsc(nCnttp)%nSRO+dbsc(nCnttp)%nSOC+dbsc(nCnttp)%nM1+dbsc(nCnttp)%nM2) /= 0
 
@@ -1202,9 +1186,9 @@ KWord = ''
 KWord(1:Indx-1) = BSLbl(1:Indx-1)
 call UpCase(KWord)
 if (index(KWord,'MUONIC') /= 0) then
-  dbsc(nCnttp)%fMass = CONST_MUON_MASS_IN_SI_/CONST_ELECTRON_MASS_IN_SI_
+  dbsc(nCnttp)%fMass = mu2elmass
   FNMC = .true.
-  tDel = 1.0d50
+  tDel = 1.0e50_wp
   call Put_dScalar('T delete thr',tDel)
 end if
 !                                                                      *
@@ -1234,7 +1218,7 @@ if (KWord(1:4) == 'ACDT') then
   Go To 777
 end if
 if (KWord(1:4) == 'MUON') then
-  dbsc(nCnttp)%fMass = CONST_MUON_MASS_IN_SI_/CONST_ELECTRON_MASS_IN_SI_
+  dbsc(nCnttp)%fMass = mu2elmass
   Go To 777
 end if
 if (KWord(1:4) == 'NUCL') then
@@ -1338,15 +1322,15 @@ nCnt = nCnt+1
 n_dc = max(mdc+nCnt,n_dc)
 if (mdc+nCnt > MxAtom) then
   call WarningMessage(2,' RdCtl: Increase MxAtom')
-  write(LuWr,*) '        MxAtom=',MxAtom
+  write(u6,*) '        MxAtom=',MxAtom
   call Quit_OnUserError()
 end if
 jend = index(KWord,' ')
-if (jEnd > LENIN+1) then
-  write(6,*) 'Warning: the label ',KWord(1:jEnd),' will be truncated to ',LENIN,' characters!'
+if (jEnd > LenIn+1) then
+  write(u6,*) 'Warning: the label ',KWord(1:jEnd),' will be truncated to ',LenIn,' characters!'
 end if
-dc(mdc+nCnt)%LblCnt = KWord(1:min(LENIN,jend-1))
-dbas = dc(mdc+nCnt)%LblCnt(1:LENIN)
+dc(mdc+nCnt)%LblCnt = KWord(1:min(LenIn,jend-1))
+dbas = dc(mdc+nCnt)%LblCnt(1:LenIn)
 call Upcase(dbas)
 if (dbas == 'DBAS') then
   RMat_On = .true.
@@ -1358,7 +1342,7 @@ iOff = 1+(nCnt-1)*3
 call Get_F(2,Buffer(iOff),3)
 if (index(KWord,'ANGSTROM') /= 0) then
   do i=0,2
-    Buffer(iOff+i) = Buffer(iOff+i)/angstr
+    Buffer(iOff+i) = Buffer(iOff+i)/Angstrom
   end do
 end if
 
@@ -1391,15 +1375,15 @@ if (Cell_l) then
         n_dc = max(mdc+nCnt,n_dc)
         if (mdc+nCnt > MxAtom) then
           call WarningMessage(2,' RdCtl: Increase MxAtom')
-          write(LuWr,*) '        MxAtom=',MxAtom
+          write(u6,*) '        MxAtom=',MxAtom
           call Quit_OnUserError()
         end if
 
         jend = index(KWord,' ')
         if (jEnd > 5) then
-          write(6,*) 'Warning: the label ',KWord(1:jEnd),' will be truncated to ',LENIN,' characters!'
+          write(u6,*) 'Warning: the label ',KWord(1:jEnd),' will be truncated to ',LenIn,' characters!'
         end if
-        dc(mdc+nCnt)%LblCnt = KWord(1:min(LENIN,jend-1))//CHAR4
+        dc(mdc+nCnt)%LblCnt = KWord(1:min(LenIn,jend-1))//CHAR4
 
         call Chk_LblCnt(dc(mdc+nCnt)%LblCnt,mdc+nCnt-1)
 
@@ -1407,9 +1391,9 @@ if (Cell_l) then
 
         ! Copy old coordinate  first
         call DCOPY_(3,Buffer(iOff0),1,Buffer(iOff),1)
-        call DAXPY_(3,dble(n1),VCell(1,1),1,Buffer(iOff),1)
-        call DAXPY_(3,dble(n2),VCell(1,2),1,Buffer(iOff),1)
-        call DAXPY_(3,dble(n3),VCell(1,3),1,Buffer(iOff),1)
+        call DAXPY_(3,real(n1,kind=wp),VCell(1,1),1,Buffer(iOff),1)
+        call DAXPY_(3,real(n2,kind=wp),VCell(1,2),1,Buffer(iOff),1)
+        call DAXPY_(3,real(n3,kind=wp),VCell(1,3),1,Buffer(iOff),1)
 
 110     continue
 
@@ -1470,7 +1454,7 @@ Go To 998
 call Upcase(KWord)
 call Get_I1(1,S%Max_Center)
 call Get_F1(2,rtrnc)
-if (index(KWord,'ANGSTROM') /= 0) Rtrnc = Rtrnc/angstr
+if (index(KWord,'ANGSTROM') /= 0) Rtrnc = Rtrnc/Angstrom
 GWInput = .true.
 Go To 998
 !                                                                      *
@@ -1576,7 +1560,7 @@ do i=1,nTemp
   call Upcase(KWord)
   call Get_I1(1,iMltpl)
   call Get_F(2,RTmp(1,i),3)
-  if (index(KWord,'ANGSTROM') /= 0) call DScal_(3,One/angstr,RTmp(1,i),1)
+  if (index(KWord,'ANGSTROM') /= 0) call DScal_(3,One/Angstrom,RTmp(1,i),1)
   ITmp(i) = iMltpl
 end do
 Go To 998
@@ -1611,12 +1595,12 @@ if (ibla < 0) goto 9751
 goto 9752
 9751 LuRd = 1
 call Get_S(1,filename,1)
-9753 call OpnFl(filename(1:(index(filename,' ')-1)),LuRd,Exist)
-if (.not. Exist) then
+9753 call OpnFl(filename(1:(index(filename,' ')-1)),LuRd,Exists)
+if (.not. Exists) then
   call WarningMessage(2,'Error! File not found: '//filename(1:(index(filename,' ')-1)))
   call Quit_OnUserError()
 end if
-write(LuWr,*) 'Reading external field from file: ',filename(1:(index(filename,' ')-1))
+write(u6,*) 'Reading external field from file: ',filename(1:(index(filename,' ')-1))
 KWord = Get_Ln(LuRd)
 9752 call Get_I1(1,nXF)
 Convert = .false.
@@ -1645,22 +1629,22 @@ if (nReadEle == -2) nReadEle = 0
 
 if ((nOrd_XF > 2) .or. (nOrd_XF < -1)) then
   call WarningMessage(2,'Error! Illegal value of nOrd_XF')
-  write(LuWr,*) 'nOrd_XF= ',nOrd_XF
+  write(u6,*) 'nOrd_XF= ',nOrd_XF
   call Quit_OnUserError()
 end if
 if ((iXPolType > 2) .or. (iXPolType < 0)) then
   call WarningMessage(2,'Error! Illegal value of iXPolType')
-  write(LuWr,*) 'iXPolType= ',iXPolType
+  write(u6,*) 'iXPolType= ',iXPolType
   call Quit_OnUserError()
 end if
 if ((nXMolnr > 100) .or. (nXMolnr < 0)) then
   call WarningMessage(2,'Error! Illegal value of nXMolnr')
-  write(LuWr,*) 'nXMolnr= ',nXMolnr
+  write(u6,*) 'nXMolnr= ',nXMolnr
   call Quit_OnUserError()
 end if
 if ((nReadEle > 1) .or. (nReadEle < 0)) then
   call WarningMessage(2,'Error! Illegal value of nReadEle')
-  write(LuWr,*) 'nReadEle= ',nReadEle
+  write(u6,*) 'nReadEle= ',nReadEle
   call Quit_OnUserError()
 end if
 
@@ -1720,7 +1704,7 @@ do iXF=1,nXF
   end if
 
   XF(1:3,iXF) = XF(1:3,iXF)*ScaleFactor
-  if (Convert) XF(1:3,iXF) = XF(1:3,iXF)/angstr
+  if (Convert) XF(1:3,iXF) = XF(1:3,iXF)/Angstrom
 
 end do
 
@@ -1962,8 +1946,8 @@ else
     call Get_F1(3,Wel_Info(1,iWel))
     call Upcase(KWord)
     if (index(KWord,'ANGSTROM') /= 0) then
-      Wel_Info(1,iWel) = Wel_Info(1,iWel)/angstr
-      Wel_Info(2,iWel) = Wel_Info(2,iWel)*angstr
+      Wel_Info(1,iWel) = Wel_Info(1,iWel)/Angstrom
+      Wel_Info(2,iWel) = Wel_Info(2,iWel)*Angstrom
     end if
   end do
 end if
@@ -2078,7 +2062,7 @@ do iEF=1,nEF
   else
     call Get_F(1,EFt(1,iEF),3)
     call Upcase(KWord)
-    if (index(KWord,'ANGSTROM') /= 0) call DScal_(3,One/angstr,EFt(1,iEF),1)
+    if (index(KWord,'ANGSTROM') /= 0) call DScal_(3,One/Angstrom,EFt(1,iEF),1)
   end if
 end do
 Go To 998
@@ -2092,7 +2076,7 @@ GWInput = .true.
 KWord = Get_Ln(LuRd)
 call Upcase(KWord)
 call Get_F(1,OAMt,3)
-if (index(KWord,'ANGSTROM') /= 0) call DScal_(3,One/angstr,OAMt,1)
+if (index(KWord,'ANGSTROM') /= 0) call DScal_(3,One/Angstrom,OAMt,1)
 Go To 998
 !                                                                      *
 !***** ANGM derivative restriction *************************************
@@ -2114,7 +2098,7 @@ GWInput = .true.
 KWord = Get_Ln(LuRd)
 call Upcase(KWord)
 call Get_F(1,OMQt,3)
-if (index(KWord,'ANGSTROM') /= 0) call DScal_(3,One/angstr,OMQt,1)
+if (index(KWord,'ANGSTROM') /= 0) call DScal_(3,One/Angstrom,OMQt,1)
 Go To 998
 !                                                                      *
 !***** AMPR ************************************************************
@@ -2127,7 +2111,7 @@ call mma_allocate(AMP_Center,3,Label='AMP_Center')
 KWord = Get_Ln(LuRd)
 call Upcase(KWord)
 call Get_F(1,AMP_Center,3)
-if (index(KWord,'ANGSTROM') /= 0) AMP_Center(:) = (One/angstr)*AMP_Center(:)
+if (index(KWord,'ANGSTROM') /= 0) AMP_Center(:) = (One/Angstrom)*AMP_Center(:)
 Go To 998
 !                                                                      *
 !***** DSHD ************************************************************
@@ -2149,7 +2133,7 @@ do iDMS=1,nDMS
   KWord = Get_Ln(LuRd)
   call Upcase(KWord)
   call Get_F(1,DMSt(1,iDMS),3)
-  if (index(KWord,'ANGSTROM') /= 0) call DScal_(3,One/angstr,DMSt(1,iDMS),1)
+  if (index(KWord,'ANGSTROM') /= 0) call DScal_(3,One/Angstrom,DMSt(1,iDMS),1)
 end do
 Go To 998
 !                                                                      *
@@ -2177,7 +2161,7 @@ Go To 998
 !                                                                      *
 !***** PKTH ************************************************************
 !                                                                      *
-! Read desired packing accuracy ( Default = 1.0D-14 )
+! Read desired packing accuracy ( Default = 1.0e-14 )
 ! Note      : this flag is only active if iWRopt=0
 
 9940 KWord = Get_Ln(LuRd)
@@ -2203,7 +2187,7 @@ Go To 998
 !                                                                      *
 ! Put the program name and the time stamp onto the extract file
 
-9960 write(LuWr,*) 'RdCtl: keyword EXTRACT is obsolete and is ignored!'
+9960 write(u6,*) 'RdCtl: keyword EXTRACT is obsolete and is ignored!'
 Go To 998
 !                                                                      *
 !***** REAC ************************************************************
@@ -2240,7 +2224,7 @@ Go To 998
 9000 KWord = Get_Ln(LuRd)
 call Get_F1(1,CLightAU)
 CLightAU = abs(CLightAU)
-write(LuWr,*) 'The speed of light in this calculation =',CLightAU
+write(u6,*) 'The speed of light in this calculation =',CLightAU
 Go To 998
 !                                                                      *
 !**** NEMO *************************************************************
@@ -2335,7 +2319,7 @@ if (.not. CholeskyWasSet) then
   Cholesky = .true.
   Do_RI = .false.
   DirInt = .true.
-  call Cho_Inp(.true.,-1,6)
+  call Cho_Inp(.true.,-1,u6)
   iChk_CH = 1
 end if
 if ((iChk_RI+iChk_DC) > 0) then
@@ -2385,7 +2369,7 @@ Do_RI = .false.
 CholeskyWasSet = .true.
 Cholesky = .true.
 DirInt = .true.
-call Cho_Inp(.false.,LuRd,6)
+call Cho_Inp(.false.,LuRd,u6)
 iChk_CH = 1
 if ((iChk_RI+iChk_DC) > 0) then
   call WarningMessage(2,'Cholesky is incompatible with RI and Direct keywords')
@@ -2417,7 +2401,7 @@ call mma_allocate(RP_Centers,3,nRP/3,2,Label='RP_Centers')
 
 call UpCase(KWord)
 if (index(KWord,'ANGSTROM') /= 0) then
-  Fact = One/Angstr
+  Fact = One/Angstrom
 else
   Fact = One
 end if
@@ -2439,7 +2423,7 @@ RPSet = .true.
 jTmp = jTmp+1
 ifile = index(KWord,' ')
 if (KWord(1:1) == '/') then
-  call f_inquire(KWord(1:ifile-1),Exist)
+  call f_inquire(KWord(1:ifile-1),Exists)
   Key = KWord
 else
   call getenvf('MOLCAS_SUBMIT_DIR',Directory)
@@ -2447,17 +2431,17 @@ else
     i = index(Directory,' ')
     Key = Directory(1:i-1)//'/'//KWord(1:ifile-1)
     ifile = i+ifile
-    call f_inquire(Key(1:iFile-1),Exist)
+    call f_inquire(Key(1:iFile-1),Exists)
   else
-    Exist = .false.
+    Exists = .false.
   end if
-  if (.not. Exist) then
+  if (.not. Exists) then
     Key = Key(i+1:iFile-1)
     ifile = ifile-i
-    call f_inquire(Key(1:iFile-1),Exist)
+    call f_inquire(Key(1:iFile-1),Exists)
   end if
 end if
-if (.not. Exist) then
+if (.not. Exists) then
   call WarningMessage(2,'File '//Key(1:ifile)//' is not found')
   call Quit_OnUserError()
 end if
@@ -2479,7 +2463,7 @@ call UpCase(KWord)
 if (index(KWord,'BOHR') /= 0) then
   Fact = One
 else
-  Fact = One/Angstr
+  Fact = One/Angstrom
 end if
 if (jTmp == 1) then
   LuRP = 10
@@ -2498,7 +2482,7 @@ if (jTmp == 1) then
   do i=1,nRP/3
     KWord = Get_Ln(LuIn)
     read(KWord,*,err=9083) Key,(RP_Centers(j,i,1),j=1,3)
-    write(LuRP,'(A,3F20.12)') Key(1:LENIN),(RP_Centers(j,i,1)*Fact,j=1,3)
+    write(LuRP,'(A,3F20.12)') Key(1:LenIn),(RP_Centers(j,i,1)*Fact,j=1,3)
   end do
   KWord = Get_Ln(LuRd)
   close(LuIn)
@@ -2518,7 +2502,7 @@ else
   do i=1,nRP/3
     KWord = Get_Ln(LuIn)
     read(KWord,*,err=9083) Key,(RP_Centers(j,i,2),j=1,3)
-    write(LuRP,'(A,3F20.12)') Key(1:LENIN),(RP_Centers(j,i,2)*Fact,j=1,3)
+    write(LuRP,'(A,3F20.12)') Key(1:LenIn),(RP_Centers(j,i,2)*Fact,j=1,3)
   end do
   close(LuRP)
 end if
@@ -2531,8 +2515,8 @@ Go To 998
 ! Error
 
 9083 continue
-write(6,'(a,a)') 'Error reading from file ',Key(1:iFile-1)
-write(6,'(a,a)') 'unable to process line: ',KWord
+write(u6,'(a,a)') 'Error reading from file ',Key(1:iFile-1)
+write(u6,'(a,a)') 'unable to process line: ',KWord
 call Quit_OnUserError()
 !                                                                      *
 !**** SADD *************************************************************
@@ -2555,7 +2539,7 @@ KWord = Get_Ln(LuRd)
 call Get_F(1,VCell(1,2),3)
 KWord = Get_Ln(LuRd)
 call Get_F(1,VCell(1,3),3)
-if (index(Key,'ANGSTROM') /= 0) call DScal_(9,One/angstr,VCell,1)
+if (index(Key,'ANGSTROM') /= 0) call DScal_(9,One/Angstrom,VCell,1)
 Cell_l = .true.
 call mma_allocate(AdCell,MxAtom)
 Go To 998
@@ -2590,9 +2574,9 @@ if (.not. CholeskyWasSet) then
   CholeskyWasSet = .true.
   Cholesky = .true.
   DirInt = .true.
-  call Cho_Inp(.true.,-1,6)
+  call Cho_Inp(.true.,-1,u6)
   call Cho_InpMod('LOW ')
-  Thrshld_CD = 1.0D-4
+  Thrshld_CD = 1.0e-4_wp
 end if
 Go To 998
 !                                                                      *
@@ -2606,9 +2590,9 @@ if (.not. CholeskyWasSet) then
   CholeskyWasSet = .true.
   Cholesky = .true.
   DirInt = .true.
-  call Cho_Inp(.true.,-1,6)
+  call Cho_Inp(.true.,-1,u6)
   call Cho_InpMod('MEDI')
-  Thrshld_CD = 1.0D-6
+  Thrshld_CD = 1.0e-6_wp
 end if
 Go To 998
 !                                                                      *
@@ -2622,9 +2606,9 @@ if (.not. CholeskyWasSet) then
   CholeskyWasSet = .true.
   Cholesky = .true.
   DirInt = .true.
-  call Cho_Inp(.true.,-1,6)
+  call Cho_Inp(.true.,-1,u6)
   call Cho_InpMod('HIGH')
-  Thrshld_CD = 1.0D-8
+  Thrshld_CD = 1.0e-8_wp
 end if
 Go To 998
 !                                                                      *
@@ -2745,13 +2729,13 @@ Go To 998
 658 LDKroll = .true.
 !GWInput = .True.
 nCtrLD = 0
-radiLD = 5.5d0
+radiLD = 5.5_wp
 
 KWord = Get_Ln(LuRd)
 call Upcase(KWord)
 if (KWord(1:3) == 'DLU') Go To 998
 if (KWord(1:3) == 'DLH') then
-  radiLD = 0.0d0
+  radiLD = Zero
   Go To 998
 end if
 read(KWord,*,end=6582,err=6582) nCtrLD,radiLD
@@ -2760,7 +2744,7 @@ if (nCtrLD > 10) then
   call Quit_OnUserError()
 end if
 if (index(KWord,'ANGSTROM') /= 0) then
-  radiLD = radiLD/angstr
+  radiLD = radiLD/Angstrom
 end if
 
 KWord = Get_Ln(LuRd)
@@ -2772,7 +2756,7 @@ call Get_nAtoms_all(nAtom)
 k = 0
 do i=1,nAtom
   do j=1,nCtrLD
-    if (CtrLDK(j) == dc(i)%LblCnt(1:LENIN)) then
+    if (CtrLDK(j) == dc(i)%LblCnt(1:LenIn)) then
       iCtrLD(j) = i
       k = k+1
     end if
@@ -2787,7 +2771,7 @@ Go To 998
 ! Automatic choice: all heavy elements (from K 19)
 
 6582 continue
-!DP if (nCtrLD == 0) radiLD = 0.0d0
+!DP if (nCtrLD == 0) radiLD = Zero
 Key = KWord
 Go To 9989
 !                                                                      *
@@ -3101,25 +3085,17 @@ if (MyRank == 0) then
   close(ITkQMMM)
 
   call Getenvf('TINKER ',Key)
-  mLine = len(Key)
-  iLast = iCLast(Key,mLine)
-  if (iLast == 0) then
+  if (Key == '') then
     call Getenvf('MOLCAS',Key)
-    mLine = len(Key)
-    iLast = iCLast(Key,mLine)
-    Key = Key(1:iLast)//'/tinker/bin'
+    Key = trim(Key)//'/tinker/bin'
   end if
-  iLast = iCLast(Key,mLine)
   call Getenvf('Project',Project)
-  mLine = len(Project)
-  jLast = iCLast(Project,mLine)
-  Key = Key(1:iLast)//'/tkr2qm_s '//Project(1:jLast)//'.xyz>'//Project(1:jLast)//'.Tinker.log'
-  mLine = len(Key)
-  iLast = iCLast(Key,mLine)
-  write(6,*) 'TINKER keyword found, run ',Key(1:iLast)
+  Project = Project(1:index(Project,' ')-1)
+  Key = trim(Key)//'/tkr2qm_s '//trim(Project)//'.xyz>'//trim(Project)//'.Tinker.log'
+  write(u6,*) 'TINKER keyword found, run ',trim(Key)
   call StatusLine(' Gateway:',' Read input from Tinker')
   RC = 0
-  call Systemf(Key(1:iLast),RC)
+  call Systemf(trim(Key),RC)
   if (RC /= 0) then
     Key = 'RdCtl_Seward: Tinker call terminated abnormally'
     call WarningMessage(2,Key)
@@ -3173,7 +3149,7 @@ Go To 998
 Origin_input = .true.
 #endif
 if (FragSet) then
-  write(6,*) 'Keywords FRGM and ORIG are mutually exclusive!'
+  write(u6,*) 'Keywords FRGM and ORIG are mutually exclusive!'
   call Quit_OnUserError()
 end if
 if (.not. OriginSet) then
@@ -3272,9 +3248,9 @@ writeZMat = .true.
 ! Parameters for the gridsize is set to default-values if geo is
 ! used instead of hyper
 if (.not. HyperParSet) then
-  HypParam(1) = 0.15d0
-  HypParam(2) = 2.5d0
-  HypParam(3) = 2.5d0
+  HypParam(1) = 0.15_wp
+  HypParam(2) = 2.5_wp
+  HypParam(3) = 2.5_wp
 end if
 GWinput = .true.
 Go To 998
@@ -3286,7 +3262,7 @@ Go To 998
 9023 if (IRELAE == 101) then
   lMXTC = .true.
 else
-  write(6,*) 'Keyword MXTC must be preceded by keyword RX2C!'
+  write(u6,*) 'Keyword MXTC must be preceded by keyword RX2C!'
   call Quit_OnUserError()
 end if
 Go To 998
@@ -3299,20 +3275,18 @@ Origin_input = .true.
 #endif
 GWinput = .true.
 if (OriginSet) then
-  write(6,*) 'Keywords FRGM and ORIG are mutually exclusive!'
+  write(u6,*) 'Keywords FRGM and ORIG are mutually exclusive!'
   call Quit_OnUserError()
 end if
 if (.not. FragSet) then
   call mma_allocate(OrigTrans,3,nFragment,label='OrigTrans')
   call mma_allocate(OrigRot,3,3,nFragment,label='OrogRot')
   ! Set up no translation and no rotation as default
-  call FZero(OrigTrans,3*nFragment)
-  call FZero(OrigRot,9*nFragment)
-  do i=1,nFragment
-    OrigRot(1,1,i) = 1.0d0
-    OrigRot(2,2,i) = 1.0d0
-    OrigRot(3,3,i) = 1.0d0
-  end do
+  OrigTrans(:,:) = Zero
+  OrigRot(:,:,:) = Zero
+  OrigRot(1,1,:) = One
+  OrigRot(2,2,:) = One
+  OrigRot(3,3,:) = One
   FragSet = .true.
 end if
 Kword = Get_Ln(LuRd)
@@ -3322,7 +3296,7 @@ Go To 998
 !**** TRAN *************************************************************
 !                                                                      *
 8026 if (.not. FragSet) then
-  write(6,*) 'Keyword TRANS must be preceded by keyword FRAG!'
+  write(u6,*) 'Keyword TRANS must be preceded by keyword FRAG!'
   call Quit_OnUserError()
 end if
 GWinput = .true.
@@ -3333,7 +3307,7 @@ Go To 998
 !***** ROT  ************************************************************
 !                                                                      *
 8027 if (.not. FragSet) then
-  write(6,*) 'Keyword ROT must be preceded by keyword FRAG!'
+  write(u6,*) 'Keyword ROT must be preceded by keyword FRAG!'
 
 end if
 GWinput = .true.
@@ -3379,7 +3353,7 @@ GWinput = .true.
 KWord = Get_Ln(LuRd)
 call Upcase(KWord)
 call Get_F1(1,Shake)
-if (index(KWord,'ANGSTROM') /= 0) Shake = Shake/angstr
+if (index(KWord,'ANGSTROM') /= 0) Shake = Shake/Angstrom
 Go To 998
 !                                                                      *
 !***** PAMF ************************************************************
@@ -3495,8 +3469,8 @@ if (nLA <= 0) then
   call Quit_OnUserError()
 end if
 #ifdef _DEBUGPRINT_
-write(LuWr,'(/,a)') ' Link atoms (Gromacs numbering):'
-write(LuWr,'(/,a)') '      LA     QM     MM     Scaling factor'
+write(u6,'(/,a)') ' Link atoms (Gromacs numbering):'
+write(u6,'(/,a)') '      LA     QM     MM     Scaling factor'
 #endif
 call mma_allocate(DefLA,3,nLA)
 call mma_allocate(FactLA,nLA)
@@ -3505,7 +3479,7 @@ do iLA=1,nLA
   call Get_I(1,DefLA(1,iLA),3)
   call Get_F(4,FactLA(iLA),1)
 # ifdef _DEBUGPRINT_
-  write(LuWr,'(i8,2i7,F19.8)') (DefLA(i,iLA),i=1,3),FactLA(iLA)
+  write(u6,'(i8,2i7,F19.8)') (DefLA(i,iLA),i=1,3),FactLA(iLA)
 # endif
   if (DefLA(1,iLA) <= 0) then
     call WarningMessage(2,'LA definition: index of LA atom < 1')
@@ -3545,9 +3519,9 @@ KVector(2) = KVector(2)/Temp
 KVector(3) = KVector(3)/Temp
 ! Get the wavelength in atomic units.
 call Get_F1(4,Lambda)
-if (index(KWord,'ANGSTROM') /= 0) Lambda = Lambda/angstr
+if (index(KWord,'ANGSTROM') /= 0) Lambda = Lambda/Angstrom
 if (index(KWord,'NANOMETER') /= 0) then
-  Lambda = Ten*Lambda/angstr
+  Lambda = Ten*Lambda/Angstrom
 end if
 KVector(1) = ((Two*Pi)/Lambda)*KVector(1)
 KVector(2) = ((Two*Pi)/Lambda)*KVector(2)
@@ -3609,7 +3583,7 @@ if (KWord == 'XYZABC') then
   Coor_Type = XYZABC_type
   nEFP_Coor = 6
   allocate(EFP_COORS(nEFP_Coor,nEFP_fragments))
-  write(LuWr,*) 'XYZABC option to be implemented'
+  write(u6,*) 'XYZABC option to be implemented'
   call Abend()
 else if (KWord == 'POINTS') then
   Coor_Type = POINTS_type
@@ -3621,10 +3595,10 @@ else if (KWord == 'POINTS') then
     do i=1,3
       KWord = Get_Ln(LuRd)
       jend = index(KWord,' ')
-      if (jEnd > LENIN+1) then
-        write(LuWr,*) 'Warning: the label ',KWord(1:jEnd),' will be truncated to ',LENIN,' characters!'
+      if (jEnd > LenIn+1) then
+        write(u6,*) 'Warning: the label ',KWord(1:jEnd),' will be truncated to ',LenIn,' characters!'
       end if
-      ABC(i,iFrag) = KWord(1:min(LENIN,jend-1))
+      ABC(i,iFrag) = KWord(1:min(LenIn,jend-1))
       call Get_F(2,EFP_COORS((i-1)*3+1,iFrag),3)
     end do
   end do
@@ -3632,14 +3606,14 @@ else if (KWord == 'ROTMAT') then
   Coor_Type = ROTMAT_type
   nEFP_Coor = 12
   allocate(EFP_COORS(nEFP_Coor,nEFP_fragments))
-  write(LuWr,*) 'ROTMAT option to be implemented'
+  write(u6,*) 'ROTMAT option to be implemented'
   call Abend()
 else
-  write(LuWr,*) 'Illegal EFP format :',KWord
-  write(LuWr,*)
-  write(LuWr,*) 'Allowed format: XYZABC,'
-  write(LuWr,*) '                POINTS, and'
-  write(LuWr,*) '                ROTMAT'
+  write(u6,*) 'Illegal EFP format :',KWord
+  write(u6,*)
+  write(u6,*) 'Allowed format: XYZABC,'
+  write(u6,*) '                POINTS, and'
+  write(u6,*) '                ROTMAT'
 end if
 lEFP = .true.
 Go To 998
@@ -3917,7 +3891,7 @@ do iCnttp=1,nCnttp
 
     jAtmNr = dbsc(iCnttp)%AtmNr
     nMass = nint(dbsc(iCnttp)%CntMass/UToAU)
-    call ModGauss(dble(jAtmNr),nMass,dbsc(iCnttp)%ExpNuc,dbsc(iCnttp)%w_mGauss)
+    call ModGauss(real(jAtmNr,kind=wp),nMass,dbsc(iCnttp)%ExpNuc,dbsc(iCnttp)%w_mGauss)
 
   else
 
@@ -3946,7 +3920,7 @@ end do
 if (do1CCD) then
   if (.not. Cholesky) then
     DirInt = .true.
-    call Cho_Inp(.true.,-1,6)
+    call Cho_Inp(.true.,-1,u6)
   end if
   Cholesky = .true.
   call Cho_InpMod('1CCD')
@@ -3965,18 +3939,18 @@ if (Cholesky) then
       end if
     end if
     if (iWrOpt == 2) then
-      write(LuWr,*) 'Acess II format not allowed with Cholesky!!'
+      write(u6,*) 'Acess II format not allowed with Cholesky!!'
       call Quit_OnUserError()
     else if ((iWrOpt /= 0) .and. (iWrOpt /= 3)) then
       iWrOpt = 0
     end if
-    if (CholeskyThr >= 0.0d0) then
+    if (CholeskyThr >= Zero) then
       Thrshld_CD = CholeskyThr
       call Cho_SetDecompositionThreshold(Thrshld_CD)
       call Put_Thr_Cho(Thrshld_CD)
     end if
-    if (spanCD >= 0.0d0) then
-      v = min(spanCD,1.0d0)
+    if (spanCD >= Zero) then
+      v = min(spanCD,One)
       call Cho_SetSpan(v)
     end if
   end if
@@ -4170,7 +4144,7 @@ do iCnttp=1,nCnttp
     n_dc = max(mdc,n_dc)
     if (mdc > MxAtom) then
       call WarningMessage(2,' mdc > MxAtom!; Increase MxAtom in Molcas.fh.')
-      write(LuWr,*) ' MxAtom=',MxAtom
+      write(u6,*) ' MxAtom=',MxAtom
       call Abend()
     end if
 
@@ -4181,7 +4155,7 @@ do iCnttp=1,nCnttp
     if (dbsc(iCnttp)%Frag) then
       !  Check the FragExpand routine!
       if (abs(dbsc(iCnttp)%nFragCoor) > mdc) then
-        write(6,*) 'rdctl_seward: incorrect mdc index'
+        write(u6,*) 'rdctl_seward: incorrect mdc index'
         call Abend()
       end if
       iChxyz = dc(abs(dbsc(iCnttp)%nFragCoor))%iChCnt
@@ -4233,10 +4207,10 @@ do iCnttp=1,nCnttp
 end do
 if (S%mCentr > MxAtom) then
   call WarningMessage(2,'RdCtl: S%mCentr > MxAtom')
-  write(6,*) 'S%mCentr=',S%mCentr
-  write(6,*) 'Edit src/Include/Molcas.fh'
-  write(6,*) 'Set MxAtom to the value of S%mCentr.'
-  write(6,*) 'Recompile MOLCAS and try again!'
+  write(u6,*) 'S%mCentr=',S%mCentr
+  write(u6,*) 'Edit src/Include/Molcas.fh'
+  write(u6,*) 'Set MxAtom to the value of S%mCentr.'
+  write(u6,*) 'Recompile MOLCAS and try again!'
   call Abend()
 end if
 !                                                                      *
@@ -4262,21 +4236,21 @@ end if
 !                                                                      *
 if ((nTtl /= 0) .and. (Run_Mode == G_Mode)) then
   if (iPrint >= 6) then
-    write(LuWr,*)
-    write(LuWr,'(15X,88A)') ('*',i=1,88)
-    write(LuWr,'(15X,88A)') '*',(' ',i=1,86),'*'
+    write(u6,*)
+    write(u6,'(15X,88A)') ('*',i=1,88)
+    write(u6,'(15X,88A)') '*',(' ',i=1,86),'*'
     do iTtl=1,nTtl
-      write(LuWr,'(15X,A,A,A)') '*   ',Title(iTtl),'   *'
+      write(u6,'(15X,A,A,A)') '*   ',Title(iTtl),'   *'
     end do
-    write(LuWr,'(15X,88A)') '*',(' ',i=1,86),'*'
-    write(LuWr,'(15X,88A)') ('*',i=1,88)
+    write(u6,'(15X,88A)') '*',(' ',i=1,86),'*'
+    write(u6,'(15X,88A)') ('*',i=1,88)
   else
-    write(LuWr,*)
-    write(LuWr,'(A)') ' Title:'
+    write(u6,*)
+    write(u6,'(A)') ' Title:'
     do iTtl=1,nTtl
-      write(LuWr,'(8X,A)') Title(iTtl)
+      write(u6,'(8X,A)') Title(iTtl)
     end do
-    write(LuWr,*)
+    write(u6,*)
   end if
 end if
 !                                                                      *
@@ -4305,6 +4279,8 @@ end if
 !***********************************************************************
 !                                                                      *
 call Gen_GeoList()
+call mma_deallocate(xb_bas)
+call mma_deallocate(xb_label)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

@@ -21,32 +21,30 @@ subroutine Info2Runfile()
 !             October 2006                                             *
 !***********************************************************************
 
-use Period
-use Basis_Info
-use Center_Info
-use external_centers, only: iXPolType, XF
+use Period, only: AdCell, Cell_l, ispread, lthCell, VCell
+use Basis_Info, only: dbsc, nBas, nCnttp
+use Center_Info, only: dc
+use External_Centers, only: iXPolType, XF, nXF
 use Temporary_Parameters, only: Expert, DirInt
 use Sizes_of_Seward, only: S
 use RICD_Info, only: Do_RI, Cholesky, Cho_OneCenter, LocalDF
 use Real_Info, only: CoC, CoM
 use Logical_Info, only: DoFMM
 use Symmetry_Info, only: nIrrep, VarR, VarT
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
+implicit none
 #include "Molcas.fh"
 #include "cholesky.fh"
-#include "real.fh"
 #include "rctfld.fh"
-#include "stdalloc.fh"
-#include "print.fh"
-character xLblCnt(MxAtom)*(LENIN)
-logical Pseudo
-integer nDel(8)
-logical Found
 #include "embpcharg.fh"
-real*8, dimension(:,:), allocatable :: DCo
-real*8, dimension(:), allocatable :: DCh, DCh_Eff
-integer, allocatable :: NTC(:), ICh(:), IsMM(:), nStab(:)
+integer(kind=iwp) :: i, iCnt, iCnttp, iFMM, iGO, iLocalDF, iNTC, iNuc, iOption, iter_S, mdc, nData, nNuc, nDel(8)
+logical(kind=iwp) :: Found, Pseudo
+integer(kind=iwp), allocatable :: ICh(:), IsMM(:), nStab(:), NTC(:)
+real(kind=wp), allocatable :: DCh(:), DCh_Eff(:), DCo(:,:)
+character(len=LenIn), allocatable :: xLblCnt(:)
 
 !                                                                      *
 !***********************************************************************
@@ -134,6 +132,7 @@ end do
 call mma_allocate(DCo,3,nNuc,label='DCo')
 call mma_allocate(ICh,nNuc,label='ICh')
 call mma_allocate(DCh_Eff,nNuc,label='DCh_Eff')
+call mma_allocate(xLblCnt,MxAtom,label='xLblCnt')
 mdc = 0
 iNuc = 0
 do iCnttp=1,nCnttp
@@ -144,7 +143,7 @@ do iCnttp=1,nCnttp
       DCo(1:3,iNuc) = dbsc(iCnttp)%Coor(1:3,iCnt)
       DCh_Eff(iNuc) = dbsc(iCnttp)%Charge
       ICh(iNuc) = dbsc(iCnttp)%AtmNr
-      xLblCnt(iNuc) = dc(mdc)%LblCnt(1:LENIN)
+      xLblCnt(iNuc) = dc(mdc)%LblCnt(1:LenIn)
     end do
   else
     mdc = mdc+dbsc(iCnttp)%nCntr
@@ -155,7 +154,7 @@ call Put_iScalar('Unique centers',nNuc)
 call Put_dArray('Un_cen Coordinates',DCo,3*nNuc)
 call Put_iArray('Un_cen charge',ICh,nNuc)
 call Put_dArray('Un_cen effective charge',DCh_Eff,nNuc)
-call Put_cArray('Un_cen Names',xLblCnt(1),(LENIN)*nNuc)
+call Put_cArray('Un_cen Names',xLblCnt(1),LenIn*nNuc)
 
 call mma_deallocate(DCh_Eff)
 call mma_deallocate(ICh)
@@ -183,8 +182,8 @@ do iCnttp=1,nCnttp
       iNuc = iNuc+1
       DCo(1:3,iNuc) = dbsc(iCnttp)%Coor(1:3,iCnt)
       DCh_Eff(iNuc) = dbsc(iCnttp)%Charge
-      DCh(iNuc) = dble(dbsc(iCnttp)%AtmNr)
-      xLblCnt(iNuc) = dc(mdc)%LblCnt(1:LENIN)
+      DCh(iNuc) = real(dbsc(iCnttp)%AtmNr,kind=wp)
+      xLblCnt(iNuc) = dc(mdc)%LblCnt(1:LenIn)
       nStab(iNuc) = dc(mdc)%nStab
     end do
   else
@@ -206,7 +205,7 @@ call Put_dArray('Center of Mass',CoM,3)
 call Put_dArray('Center of Charge',CoC,3)
 call Put_dArray('Nuclear charge',DCh,nNuc)
 call Put_dArray('Effective nuclear Charge',DCh_Eff,nNuc)
-call Put_cArray('Unique Atom Names',xLblCnt(1),(LENIN)*nNuc)
+call Put_cArray('Unique Atom Names',xLblCnt(1),LenIn*nNuc)
 call Put_iArray('nStab',nStab,nNuc)
 if (allocated(XF)) call Put_iScalar('nXF',nXF)
 if (Cell_l) then
@@ -217,9 +216,10 @@ if (Cell_l) then
 end if
 
 ! Initiate entry to zero.
-call dcopy_(nNuc,[0.0d0],0,DCh_Eff,1)
+call dcopy_(nNuc,[Zero],0,DCh_Eff,1)
 call Put_dArray('Mulliken Charge',DCh_Eff,nNuc)
 
+call mma_deallocate(xLblCnt)
 call mma_deallocate(nStab)
 call mma_deallocate(DCh_Eff)
 call mma_deallocate(DCh)
@@ -287,7 +287,7 @@ do iCnttp=1,nCnttp
     do iCnt=1,dbsc(iCnttp)%nCntr
       iNuc = iNuc+1
       DCo(1:3,iNuc) = dbsc(iCnttp)%Coor(1:3,iCnt)
-      DCh(iNuc) = dble(dbsc(iCnttp)%AtmNr)
+      DCh(iNuc) = real(dbsc(iCnttp)%AtmNr,kind=wp)
     end do
   else
   end if

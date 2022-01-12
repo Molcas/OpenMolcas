@@ -11,5 +11,6 @@
       character*180 Line
       common/cgetlc/ Line
 !     mxn should be len(line)/2+1
+      integer mxn, iend, istrt, ncol
       parameter (mxn=91)
       common/cgetln/ ncol, istrt(mxn),iend(mxn)

@@ -12,8 +12,11 @@
 subroutine Fill_rInfo1()
 
 use Basis_Info
+use Definitions, only: iwp, u6
 
+implicit none
 #include "Molcas.fh"
+integer(kind=iwp) :: iAng, icnt, iCnttp, jSh, kCof, kExp, krBas, krCnt, krCof, krExp, nExpj
 #include "rinfo.fh"
 
 !                                                                      *
@@ -40,8 +43,8 @@ do iCnttp=1,nCnttp
       krBas = krBas+1
       if (krBas > MxAO) then
         call WarningMessage(2,'Too many shells')
-        write(6,*) 'MORE THAN ',MxAO,' SHELLS'
-        write(6,*) 'Increase MxAO in maxbfn.fh and recompile the code!'
+        write(u6,*) 'MORE THAN ',MxAO,' SHELLS'
+        write(u6,*) 'Increase MxAO in maxbfn.fh and recompile the code!'
         call Abend()
       end if
       nExpj = Shells(jSh)%nExp
@@ -50,21 +53,21 @@ do iCnttp=1,nCnttp
 
       if (krExp+nExpj > MxPrim) then
         call WarningMessage(2,'Too many primitives')
-        write(6,*) 'MORE THAN ',MxPrim,' PRIMITIVES'
-        write(6,*) 'Increase MxPrim in rinfo.fh and recompile the code!'
+        write(u6,*) 'MORE THAN ',MxPrim,' PRIMITIVES'
+        write(u6,*) 'Increase MxPrim in rinfo.fh and recompile the code!'
         call Abend()
       end if
       do kExp=1,nExpj
         krExp = krExp+1
-        rExp(krExp) = Shells(jSh)%exp(kExp)
+        rExp(krExp) = Shells(jSh)%Exp(kExp)
       end do
 
       ! Pointer to the untouched contraction matrix as after input.
 
       if (krCof+nExpj*Shells(jSh)%nBasis > MxrCof) then
         call WarningMessage(2,'Too many contraction coefficients')
-        write(6,*) 'MORE THAN ',MxrCof,' CONTRACTION COEFFICIENTS'
-        write(6,*) 'Increase MxrCof in rinfo.fh and recompile the code!'
+        write(u6,*) 'MORE THAN ',MxrCof,' CONTRACTION COEFFICIENTS'
+        write(u6,*) 'Increase MxrCof in rinfo.fh and recompile the code!'
         call Abend()
       end if
       do kCof=1,Shells(jSh)%nBasis_C

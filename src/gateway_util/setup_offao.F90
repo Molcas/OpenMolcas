@@ -11,9 +11,11 @@
 
 subroutine Setup_OffAO()
 
-use Basis_Info, only: nCnttp, Shells, dbsc
+use Basis_Info, only: dbsc, nCnttp, Shells
+use Definitions, only: iwp
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp) :: iCnttp, kComp, kSh, lComp, lSh
 
 ! For some reason we need a counter which for a given shell index,
 ! kSh, counts how many angular functions have been in the

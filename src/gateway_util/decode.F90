@@ -23,13 +23,17 @@ subroutine Decode(LBL,string,N,Hit)
 ! Author: Bjoern Roos, University of Lund, Sweden                      *
 !***********************************************************************
 
-character*(*) LBL, string
-character*80 xstring
-character*1 dot
-logical Hit
-data dot/'.'/
+use Definitions, only: iwp, u6
 
-!write(6,'(1x,a)') LBL
+implicit none
+character(len=*) :: LBL, string
+integer(kind=iwp) :: N
+logical(kind=iwp) :: Hit
+integer(kind=iwp) :: i, i1, idot, lLBL, lstring
+character(len=80) :: xstring
+character, parameter :: dot = '.'
+
+!write(u6,'(1x,a)') LBL
 i1 = 1
 idot = 0
 lstring = 0
@@ -40,9 +44,9 @@ do i=1,lLBL
   if (idot == N-1) i1 = i+1
   if (idot == N) then
     xstring = ' '
-    !write(6,'(1x,A,/,1X,A)') ' xstring=',xstring
+    !write(u6,'(1x,A,/,1X,A)') ' xstring=',xstring
     if (i > i1) xstring = LBL(i1:i-1)
-    !write(6,'(1x,A,/,1X,A)') ' xstring=',xstring
+    !write(u6,'(1x,A,/,1X,A)') ' xstring=',xstring
     lstring = i-i1
     go to 20
   end if
@@ -50,7 +54,7 @@ do i=1,lLBL
 end do
 if (Hit) then
   call WarningMessage(2,'Decode: error in basis set label')
-  write(6,'(A,A)') 'LBL=',LBL
+  write(u6,'(A,A)') 'LBL=',LBL
   call Abend()
 else
   return

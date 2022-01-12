@@ -26,17 +26,18 @@ subroutine GeoNew_PC()
 !     Modified to work with point charges. RL 20030507                 *
 !***********************************************************************
 
-use external_centers
+use External_Centers, only: nData_XF, XF
+use stdalloc, only: mma_deallocate
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "stdalloc.fh"
-#include "SysDef.fh"
-real*8, dimension(:), allocatable :: CN
+implicit none
+integer(kind=iwp) :: lBuf, nAtoms
+real(kind=wp), allocatable :: CN(:)
 interface
   subroutine Get_PC_Coord_New(CN,lBuf)
-    real*8, dimension(:), allocatable :: CN
-    integer lBuf
+    import :: wp, iwp
+    real(kind=wp), allocatable :: CN(:)
+    integer(iwp) :: lBuf
   end subroutine
 end interface
 
@@ -54,9 +55,9 @@ end if
 ! Replace coodinates read in subroutine input
 
 call dcopy_(nAtoms*nData_XF,CN,1,XF,1)
-write(6,*)
-write(6,'(A)') '    Point Charge data read from RUNFILE'
-write(6,*)
+write(u6,*)
+write(u6,'(A)') '    Point Charge data read from RUNFILE'
+write(u6,*)
 
 ! Epilogue, end
 

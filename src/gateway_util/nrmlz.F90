@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine Nrmlz(Exp,nPrim,Coeff,nCntrc,iAng)
+subroutine Nrmlz(rExp,nPrim,Coeff,nCntrc,iAng)
 !***********************************************************************
 !                                                                      *
 ! Object: normalize the contraction coefficients with respect to the   *
@@ -27,11 +27,17 @@ subroutine Nrmlz(Exp,nPrim,Coeff,nCntrc,iAng)
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             January '90                                              *
 !***********************************************************************
-implicit real*8(A-H,O-Z)
-real*8 exp(nPrim), Coeff(nPrim,nCntrc)
-#include "real.fh"
-#include "stdalloc.fh"
-real*8, dimension(:), allocatable :: Scrt1, Scrt2
+
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half, OneHalf, TwoP34
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nPrim, nCntrc, iAng
+real(kind=wp) :: rExp(nPrim), Coeff(nPrim,nCntrc)
+integer(kind=iwp) :: i, iExp, j, jExp, nScrt1, nScrt2
+real(kind=wp) :: Power, Pro_ij, Qtemp, Rtemp, Sum_ij, Temp, vR2, vRR
+real(kind=wp), allocatable :: Scrt1(:), Scrt2(:)
 
 if (nPrim*nCntrc == 0) return
 
@@ -41,9 +47,9 @@ call mma_allocate(Scrt1,nScrt1)
 call mma_allocate(Scrt2,nScrt2)
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' In Nrmlz: iAng=',iAng
+write(u6,*) ' In Nrmlz: iAng=',iAng
 call RecPrt(' In Nrmlz: Coefficients',' ',Coeff,nPrim,nCntrc)
-call RecPrt(' In Nrmlz: Exponents',' ',Exp,nPrim,1)
+call RecPrt(' In Nrmlz: Exponents',' ',rExp,nPrim,1)
 #endif
 
 ! Normalize the coefficients (only radial normalization)
@@ -56,9 +62,9 @@ call RecPrt(' In Nrmlz: Exponents',' ',Exp,nPrim,1)
 
 do iExp=1,nPrim
   do jExp=1,iExp-1
-    Pro_ij = sqrt(exp(iExp)*exp(jExp))
-    Sum_ij = (exp(iExp)+exp(jExp))/Two
-    Power = dble(iAng)+OneHalf
+    Pro_ij = sqrt(rExp(iExp)*rExp(jExp))
+    Sum_ij = (rExp(iExp)+rExp(jExp))/Two
+    Power = real(iAng,kind=wp)+OneHalf
     Temp = (Pro_ij/Sum_ij)**Power
     Scrt1(nPrim*(iExp-1)+jExp) = Temp
     Scrt1(nPrim*(jExp-1)+iExp) = Temp
@@ -66,7 +72,7 @@ do iExp=1,nPrim
   Scrt1(nPrim*(iExp-1)+iExp) = One
 end do
 ! Contract right side
-call DGEMM_('N','N',nPrim,nCntrc,nPrim,1.0d0,Scrt1,nPrim,Coeff,nPrim,0.0d0,Scrt2,nPrim)
+call DGEMM_('N','N',nPrim,nCntrc,nPrim,One,Scrt1,nPrim,Coeff,nPrim,Zero,Scrt2,nPrim)
 #ifdef _DEBUGPRINT_
 call RecPrt(' Overlap primitives',' ',Scrt1,nPrim,nPrim)
 call RecPrt(' Overlap PrimCon',' ',Scrt2,nPrim,nCntrc)
@@ -84,22 +90,22 @@ call RecPrt(' Overlap Contracted',' ',Scrt1,nCntrc,1)
 ! basis function.
 
 do i=1,nCntrc
-  if (abs(Scrt1(i)) < 1.0D-12) then
+  if (abs(Scrt1(i)) < 1.0e-12_wp) then
     call WarningMessage(2,'; Error in contraction matrix, zero column; ; Abend in subroutine NRMLZ')
     call Abend()
   end if
 end do
 
-Rtemp = 0.5d0*dble(iAng)+0.75d0
-Qtemp = 2.0d0**(iAng+1)*sqrt(2.0d0)*TwoP34
+Rtemp = Half*real(iAng,kind=wp)+0.75_wp
+Qtemp = Two**(iAng+1)*sqrt(Two)*TwoP34
 do i=1,nCntrc
-  vRR = Scrt1(i)**(-0.5d0)
+  vRR = Scrt1(i)**(-Half)
   do j=1,nPrim
-    vR2 = exp(j)**Rtemp
+    vR2 = rExp(j)**Rtemp
     Coeff(j,i) = Coeff(j,i)*Qtemp*vRR*vR2
   end do
 end do
-if ((nPrim == 1) .and. (nCntrc == 1) .and. (exp(1) == Zero)) then
+if ((nPrim == 1) .and. (nCntrc == 1) .and. (rExp(1) == Zero)) then
   Coeff(1,1) = One
 end if
 #ifdef _DEBUGPRINT_

@@ -11,16 +11,20 @@
 ! Copyright (C) 2020, Roland Lindh                                     *
 !***********************************************************************
 
+#include "compiler_features.h"
+
 module Basis_Info
+
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
 private
 
-public :: Basis_Info_Dmp, Basis_Info_Get, Basis_Info_Free, Distinct_Basis_set_Centers, dbsc, nFrag_LineWords, PAMExp, Shells, &
-          Max_Shells, nCnttp, iCnttp_Dummy, Point_Charge, Gaussian_type, mGaussian_Type, Nuclear_Model, Basis_Info_Init, nBas, &
-          nBas_Aux, nBas_Frag, MolWgh
+public :: Basis_Info_Dmp, Basis_Info_Free, Basis_Info_Get, Basis_Info_Init, dbsc, Distinct_Basis_set_Centers, Gaussian_Type, &
+          iCnttp_Dummy, Max_Shells, mGaussian_Type, MolWgh, nBas, nBas_Aux, nBas_Frag, nCnttp, nFrag_LineWords, Nuclear_Model, &
+          PAMExp, Point_Charge, Shells
 
-#include "stdalloc.fh"
 #include "Molcas.fh"
 #include "itmax.fh"
 
@@ -32,112 +36,114 @@ public :: Basis_Info_Dmp, Basis_Info_Get, Basis_Info_Free, Distinct_Basis_set_Ce
 
 ! Work in progress
 !
-! nCntr : number of centers associated with a dbsc
-! Coor  : the coordinates of a dbsc
+! nCntr     : number of centers associated with a dbsc
+! Coor      : the coordinates of a dbsc
 !
-! nM1   : number of ECP M1 type terms on the i''th unique center
-! M1xp  : ECP M1-type exponents for i''th unq center
-! M1cf  : ECP M1 type coefficients for i''th unq cntr
-! nM2   : number of ECP M2 type terms on the i''th unique center
-! M2xp  : ECP M2-type exponents for i''th unq center
-! M2cf  : ECP M2 type coefficients for i''th unq cntr
+! nM1       : number of ECP M1 type terms on the ith unique center
+! M1xp      : ECP M1-type exponents for ith unique center
+! M1cf      : ECP M1 type coefficients for ith unique cntr
+! nM2       : number of ECP M2 type terms on the ith unique center
+! M2xp      : ECP M2-type exponents for ith unique center
+! M2cf      : ECP M2 type coefficients for ith unique cntr
 !
-! nFragType:  number of unique centers in a fragment (0=not a frag)
-! nFragCoor:  total number of centers in a fragment
-! nFragEner:  number of orbital energies/occupied orbitals in a given fragment
-! nFragDens:  size of the fragments density matrix
-! FragType : the data of the fragment''s unique centers (associated basis set, size nFragType)
-! FragCoor : the data of all fragment''s centers (atom type / relative coordinates, size nFragCoor)
-! FragEner : the fragment''s orbital''s energies (size nFragEner)
-! FragCoef : the fragment''s MO coefficients (size nFragDens*nFragEner)
-! ECP      : Flag if dbsc is a ECP basis set
-! Frag     : Flag if dbsc is a Fragment basis set
-! Aux      : Flag if dbsc is an auxiliary basis set
-! FOp      : Flag if dbsc has a Fock Operator
-! IsMM     : integer flag to indicate that associated centers are treated as MM centers in QM/MM calculations
+! nFragType : number of unique centers in a fragment (0=not a frag)
+! nFragCoor : total number of centers in a fragment
+! nFragEner : number of orbital energies/occupied orbitals in a given fragment
+! nFragDens : size of the fragments density matrix
+! FragType  : the data of the fragment's unique centers (associated basis set, size nFragType)
+! FragCoor  : the data of all fragment's centers (atom type / relative coordinates, size nFragCoor)
+! FragEner  : the fragment's orbital's energies (size nFragEner)
+! FragCoef  : the fragment's MO coefficients (size nFragDens*nFragEner)
+! ECP       : Flag if dbsc is a ECP basis set
+! Frag      : Flag if dbsc is a Fragment basis set
+! Aux       : Flag if dbsc is an auxiliary basis set
+! FOp       : Flag if dbsc has a Fock Operator
+! IsMM      : integer flag to indicate that associated centers are treated as MM centers in QM/MM calculations
 
 type Distinct_Basis_set_centers
-  sequence
-  real*8, pointer :: Coor(:,:) => null()
-  real*8, allocatable :: Coor_Hidden(:,:)
-  integer :: nCntr = 0
-  integer :: nM1 = 0
-  real*8, allocatable :: M1xp(:), M1cf(:)
-  integer :: nM2 = 0
-  real*8, allocatable :: M2xp(:), M2cf(:)
-  integer :: nFragType = 0, nFragCoor = 0, nFragEner = 0, nFragDens = 0
-  real*8, allocatable :: FragType(:,:), FragCoor(:,:), FragEner(:), FragCoef(:,:)
-  logical :: lPAM2 = .false.
-  integer :: nPAM2 = -1
-  real*8, allocatable :: PAM2(:)
-  logical :: ECP = .false.
-  logical :: Aux = .false.
-  logical :: Frag = .false.
-  logical :: FOp = .false.
-  integer :: IsMM = 0
-  integer :: Parent_iCnttp = 0
-  integer :: lOffAO = 0
-  integer :: nOpt = 0
-  integer :: mdci = 0
-  integer :: iVal = 0, nVal = 0
-  integer :: iPrj = 0, nPrj = 0
-  integer :: iSRO = 0, nSRO = 0
-  integer :: iSOC = 0, nSOC = 0
-  integer :: kDel(0:iTabMx)
-  integer :: iPP = 0, nPP = 0
-  integer :: nShells = 0
-  integer :: AtmNr = 0
-  real*8 :: Charge = 0.0d0
-  logical :: NoPair = .false.
-  logical :: SODK = .false.
-  logical :: pChrg = .false.
-  logical :: Fixed = .false.
-  real*8 :: CrRep = 0.0d0
-  real*8 :: FragCharge = 0.0d0
-  real*8 :: aCD_Thr = 1.0d0
-  real*8 :: fmass = 1.0d0
-  real*8 :: CntMass = 0.0d0
-  real*8 :: ExpNuc = -1.0d0
-  real*8 :: w_mGauss = 1.0d0
-  character(LEN=80) :: Bsl
-  character(LEN=80) :: Bsl_Old
+  real(kind=wp), pointer :: Coor(:,:) => null()
+  real(kind=wp), allocatable :: Coor_Hidden(:,:)
+  integer(kind=iwp) :: nCntr = 0
+  integer(kind=iwp) :: nM1 = 0
+  real(kind=wp), allocatable :: M1xp(:), M1cf(:)
+  integer(kind=iwp) :: nM2 = 0
+  real(kind=wp), allocatable :: M2xp(:), M2cf(:)
+  integer(kind=iwp) :: nFragType = 0, nFragCoor = 0, nFragEner = 0, nFragDens = 0
+  real(kind=wp), allocatable :: FragType(:,:), FragCoor(:,:), FragEner(:), FragCoef(:,:)
+  logical(kind=iwp) :: lPAM2 = .false.
+  integer(kind=iwp) :: nPAM2 = -1
+  real(kind=wp), allocatable :: PAM2(:)
+  logical(kind=iwp) :: ECP = .false.
+  logical(kind=iwp) :: Aux = .false.
+  logical(kind=iwp) :: Frag = .false.
+  logical(kind=iwp) :: FOp = .false.
+  integer(kind=iwp) :: IsMM = 0
+  integer(kind=iwp) :: Parent_iCnttp = 0
+  integer(kind=iwp) :: lOffAO = 0
+  integer(kind=iwp) :: nOpt = 0
+  integer(kind=iwp) :: mdci = 0
+  integer(kind=iwp) :: iVal = 0, nVal = 0
+  integer(kind=iwp) :: iPrj = 0, nPrj = 0
+  integer(kind=iwp) :: iSRO = 0, nSRO = 0
+  integer(kind=iwp) :: iSOC = 0, nSOC = 0
+  integer(kind=iwp) :: kDel(0:iTabMx)
+  integer(kind=iwp) :: iPP = 0, nPP = 0
+  integer(kind=iwp) :: nShells = 0
+  integer(kind=iwp) :: AtmNr = 0
+  real(kind=wp) :: Charge = Zero
+  logical(kind=iwp) :: NoPair = .false.
+  logical(kind=iwp) :: SODK = .false.
+  logical(kind=iwp) :: pChrg = .false.
+  logical(kind=iwp) :: Fixed = .false.
+  real(kind=wp) :: CrRep = Zero
+  real(kind=wp) :: FragCharge = Zero
+  real(kind=wp) :: aCD_Thr = One
+  real(kind=wp) :: fmass = One
+  real(kind=wp) :: CntMass = Zero
+  real(kind=wp) :: ExpNuc = -One
+  real(kind=wp) :: w_mGauss = One
+# ifdef CHAR_MEMBER_INIT
+  ! Some GCC versions give spurious warning with initialization of character members
+  ! if there is more than one allocatable member...
+  character(len=80) :: Bsl = '', Bsl_Old = ''
+# else
+  character(len=80) :: Bsl, Bsl_Old
+# endif
 end type Distinct_Basis_set_centers
 
-! nExp  : number of exponents of the i''th shell
-! Exp   : the exponents of the i''th shell
-! nBasis: number of contracted radial functions of the i''th shell
-! Cff_c : Contraction coefficients in processed and raw input form
-! Cff_p : Contraction coefficient in the case of no contraction, processed and raw
-! Cff   : copy of Cff_c or Cff_p
-! Transf: Cartesian transformed to real sphericals.
-! Projct: real sphericals without contaminations (3s, 4d, etc.)
-! Bk    : ECP proj shift parameters for i''th shell.
-!         the number of parameters is given by nBasis
-! Occ   : Occupation numbers for core ECP orbitals
-! FockOp: the Fock operator matrix
-! Aux   : Logical flag for auxiliary basis set shells
-! Frag  : Logical flag for fragment shells
+! nExp   : number of exponents of the ith shell
+! Exp    : the exponents of the ith shell
+! nBasis : number of contracted radial functions of the ith shell
+! Cff_c  : Contraction coefficients in processed and raw input form
+! Cff_p  : Contraction coefficient in the case of no contraction, processed and raw
+! Cff    : copy of Cff_c or Cff_p
+! Transf : Cartesian transformed to real sphericals.
+! Projct : real sphericals without contaminations (3s, 4d, etc.)
+! Bk     : ECP proj shift parameters for ith shell, the number of parameters is given by nBasis
+! Occ    : Occupation numbers for core ECP orbitals
+! FockOp : the Fock operator matrix
+! Aux    : Logical flag for auxiliary basis set shells
+! Frag   : Logical flag for fragment shells
 
 type Shell_Info
-  sequence
-  integer :: nExp = 0
-  real*8, allocatable :: exp(:)
-  integer :: nBasis = 0
-  integer :: nBasis_c = 0
-  real*8, allocatable :: pCff(:,:)
-  real*8, allocatable :: Cff_c(:,:,:), Cff_p(:,:,:)
-  logical :: Transf = .true.
-  logical :: Prjct = .true.
-  integer :: nBk = 0
-  real*8, allocatable :: Bk(:)
-  real*8, allocatable :: Occ(:)
-  integer :: nAkl = 0
-  real*8, allocatable :: Akl(:,:,:)
-  integer :: nFockOp = 0
-  real*8, allocatable :: FockOp(:,:)
-  logical :: Aux = .false.
-  logical :: Frag = .false.
-  integer :: kOffAO = 0
+  integer(kind=iwp) :: nExp = 0
+  real(kind=wp), allocatable :: Exp(:)
+  integer(kind=iwp) :: nBasis = 0
+  integer(kind=iwp) :: nBasis_c = 0
+  real(kind=wp), allocatable :: pCff(:,:)
+  real(kind=wp), allocatable :: Cff_c(:,:,:), Cff_p(:,:,:)
+  logical(kind=iwp) :: Transf = .true.
+  logical(kind=iwp) :: Prjct = .true.
+  integer(kind=iwp) :: nBk = 0
+  real(kind=wp), allocatable :: Bk(:)
+  real(kind=wp), allocatable :: Occ(:)
+  integer(kind=iwp) :: nAkl = 0
+  real(kind=wp), allocatable :: Akl(:,:,:)
+  integer(kind=iwp) :: nFockOp = 0
+  real(kind=wp), allocatable :: FockOp(:,:)
+  logical(kind=iwp) :: Aux = .false.
+  logical(kind=iwp) :: Frag = .false.
+  integer(kind=iwp) :: kOffAO = 0
 end type Shell_Info
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -148,67 +154,37 @@ end type Shell_Info
 
 ! Actual content of Basis_Info
 
-integer, parameter :: Point_Charge = 0
-integer, parameter :: Gaussian_type = 1
-integer, parameter :: mGaussian_Type = 2
-
-real*8, allocatable :: PAMexp(:,:)
-integer :: nFrag_LineWords = 0, nFields = 33+(1+iTabMx), mFields = 11
-integer :: nCnttp = 0, iCnttp_Dummy = 0
-integer :: Max_Shells = 0
-logical :: Initiated = .false.
-integer :: Nuclear_Model = Point_Charge
-integer :: nBas(0:7) = [0,0,0,0,0,0,0,0]
-integer :: nBas_Aux(0:7) = [0,0,0,0,0,0,0,0]
-integer :: nBas_Frag(0:7) = [0,0,0,0,0,0,0,0]
-integer :: MolWgh = 2
 ! MolWgh: integer flag to indicate the normalization of the symmetry transformation
-!         0: double coset represetative normalization
+!         0: double coset representative normalization
 !         1: as in MOLECULE
 !         2: as in MOLPRO
+
+integer(kind=iwp), parameter :: Point_Charge = 0, Gaussian_Type = 1, mGaussian_Type = 2
+
+real(kind=wp), allocatable :: PAMexp(:,:)
+integer(kind=iwp) :: iCnttp_Dummy = 0, Max_Shells = 0, mFields = 11, MolWgh = 2, nBas(0:7) = 0, nBas_Aux(0:7) = 0, &
+                     nBas_Frag(0:7) = 0, nCnttp = 0, nFields = 33+(1+iTabMx), nFrag_LineWords = 0, Nuclear_Model = Point_Charge
+logical(kind=iwp) :: Initiated = .false.
 
 type(Distinct_Basis_set_centers), allocatable, target :: dbsc(:)
 type(Shell_Info), allocatable :: Shells(:)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-interface
-  subroutine Abend()
-  end subroutine Abend
-  subroutine Put_iArray(Label,data,nData)
-    character*(*) Label
-    integer nData
-    integer data(nData)
-  end subroutine Put_iArray
-  subroutine Get_iArray(Label,data,nData)
-    character*(*) Label
-    integer nData
-    integer data(nData)
-  end subroutine Get_iArray
-  subroutine Qpg_iArray(Label,Found,nData)
-    character*(*) Label
-    logical Found
-    integer nData
-  end subroutine Qpg_iArray
-  subroutine Put_dArray(Label,data,nData)
-    character*(*) Label
-    integer nData
-    real*8 data(nData)
-  end subroutine Put_dArray
-  subroutine Get_dArray(Label,data,nData)
-    character*(*) Label
-    integer nData
-    real*8 data(nData)
-  end subroutine Get_dArray
-  subroutine Qpg_dArray(Label,Found,nData)
-    character*(*) Label
-    logical Found
-    integer nData
-  end subroutine Qpg_dArray
-end interface
+! Private extensions to mma interfaces
 
-!***********************************************************************
-!***********************************************************************
+interface cptr2loff
+  module procedure dbsc_cptr2loff
+  module procedure shell_cptr2loff
+end interface
+interface mma_Allocate
+  module procedure dbsc_mma_allo_1D, dbsc_mma_allo_1D_lim
+  module procedure shell_mma_allo_1D, shell_mma_allo_1D_lim
+end interface
+interface mma_Deallocate
+  module procedure dbsc_mma_free_1D
+  module procedure shell_mma_free_1D
+end interface
 
 contains
 
@@ -221,35 +197,42 @@ contains
 
 subroutine Basis_Info_Init()
 
+  use Definitions, only: u6
+
+# include "macros.fh"
+  unused_proc(mma_allocate(dbsc,[0,0]))
+  unused_proc(mma_allocate(Shells,[0,0]))
+
 # ifdef _DEBUGPRINT_
-  write(6,*)
-  write(6,*) 'Enter Basis_Info_Init'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) 'Enter Basis_Info_Init'
+  write(u6,*)
 # endif
   if (Initiated) then
-    write(6,*) ' Basis_Info already initiated!'
-    write(6,*) ' Maybe there is missing a Basis_Info_Free call.'
+    write(u6,*) ' Basis_Info already initiated!'
+    write(u6,*) ' Maybe there is missing a Basis_Info_Free call.'
     call Abend()
   end if
   if (nCnttp == 0) then
-    allocate(dbsc(1:Mxdbsc))
-    dbsc(1:Mxdbsc)%Bsl = '' ! I could not get this to work at the point of declaring the member.
-    dbsc(1:Mxdbsc)%Bsl_Old = ''
+    call mma_allocate(dbsc,Mxdbsc,label='dbsc')
   else
-    allocate(dbsc(1:nCnttp))
-    dbsc(1:nCnttp)%Bsl = ''
-    dbsc(1:nCnttp)%Bsl_Old = ''
+    call mma_allocate(dbsc,nCnttp,label='dbsc')
   end if
+# ifndef CHAR_MEMBER_INIT
+  ! See above
+  dbsc(:)%Bsl = ''
+  dbsc(:)%Bsl_Old = ''
+# endif
   if (Max_Shells == 0) then
-    allocate(Shells(1:MxShll))
+    call mma_allocate(Shells,MxShll,label='Shells')
   else
-    allocate(Shells(1:Max_Shells))
+    call mma_allocate(Shells,Max_Shells,label='Shells')
   end if
   Initiated = .true.
 # ifdef _DEBUGPRINT_
-  write(6,*)
-  write(6,*) 'Exit Basis_Info_Init'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) 'Exit Basis_Info_Init'
+  write(u6,*)
 # endif
 
   return
@@ -261,20 +244,23 @@ end subroutine Basis_Info_Init
 
 subroutine Basis_Info_Dmp()
 
-  integer i, j, nAtoms, nAux, nM1, nM2, nFragCoor, nAux2, nBk, nAkl, nFockOp, nExp, nBasis, lcDmp
-  integer, allocatable :: iDmp(:,:)
-  real*8, allocatable, target :: rDmp(:,:)
-  real*8, pointer :: qDmp(:,:)
-  character(LEN=160), allocatable :: cDmp(:)
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Definitions, only: u6
+
+  integer(kind=iwp) :: i, j, lcDmp, nAkl, nAtoms, nAux, nAux2, nBasis, nBk, nExp, nFockOp, nFragCoor, nM1, nM2
+  integer(kind=iwp), allocatable :: iDmp(:,:)
+  real(kind=wp), allocatable, target :: rDmp(:,:)
+  real(kind=wp), pointer :: qDmp(:,:)
+  character(len=2*80), allocatable :: cDmp(:)
 
 # ifdef _DEBUGPRINT_
-  write(6,*)
-  write(6,*) 'Enter Basis_Info_Dmp'
-  write(6,*)
-  write(6,*) 'Coordinates:'
+  write(u6,*)
+  write(u6,*) 'Enter Basis_Info_Dmp'
+  write(u6,*)
+  write(u6,*) 'Coordinates:'
   do i=1,nCnttp
     do j=1,dbsc(i)%nCntr
-      write(6,*) dbsc(i)%Coor(:,j)
+      write(u6,*) dbsc(i)%Coor(:,j)
     end do
   end do
 # endif
@@ -337,12 +323,12 @@ subroutine Basis_Info_Dmp()
     nAux = nAux+2*dbsc(i)%nM1+2*dbsc(i)%nM2+nFrag_LineWords*dbsc(i)%nFragType+5*nFragCoor+dbsc(i)%nFragEner+ &
            dbsc(i)%nFragDens*dbsc(i)%nFragEner
 #   ifdef _DEBUGPRINT_
-    write(6,'(A,8I4)') 'iCnttp=',i,nFrag_LineWords,dbsc(i)%nFragType,dbsc(i)%nFragCoor,dbsc(i)%nFragEner,dbsc(i)%nFragDens,nAux, &
-                       dbsc(i)%iVal
+    write(u6,'(A,8I4)') 'iCnttp=',i,nFrag_LineWords,dbsc(i)%nFragType,dbsc(i)%nFragCoor,dbsc(i)%nFragEner,dbsc(i)%nFragDens,nAux, &
+                        dbsc(i)%iVal
 #   endif
 
     if (dbsc(i)%nPAM2 /= -1) then
-      write(6,*) 'Not yet implemented for PAM2 integrals.'
+      write(u6,*) 'Not yet implemented for PAM2 integrals.'
       call Abend()
     end if
   end do
@@ -381,14 +367,14 @@ subroutine Basis_Info_Dmp()
     nAux2 = nAux2+2*Shells(i)%nBK+2*Shells(i)%nAkl**2+Shells(i)%nFockOp**2+Shells(i)%nExp+2*Shells(i)%nExp*Shells(i)%nBasis+ &
             2*Shells(i)%nExp**2
 #   ifdef _DEBUGPRINT_
-    write(6,'(A,7I4)') 'iShll=',i,Shells(i)%nBK,Shells(i)%nAkl,Shells(i)%nFockOp,Shells(i)%nExp,Shells(i)%nBasis
+    write(u6,'(A,7I4)') 'iShll=',i,Shells(i)%nBK,Shells(i)%nAkl,Shells(i)%nFockOp,Shells(i)%nExp,Shells(i)%nBasis
 #   endif
 
   end do
   call Put_iArray('iDmp:S',iDmp,mFields*(Max_Shells-1))
   call mma_deallocate(iDmp)
 
-  ! Real*8 Stuff
+  ! Real Stuff
 
   call mma_allocate(rDmp,3,nAtoms+3*nCnttp,Label='rDmp')
   nAtoms = 0
@@ -411,13 +397,13 @@ subroutine Basis_Info_Dmp()
     nAtoms = nAtoms+1
     rDmp(1,nAtoms) = dbsc(i)%ExpNuc
     rDmp(2,nAtoms) = dbsc(i)%w_mGauss
-    rDmp(3,nAtoms) = 0.0d0
+    rDmp(3,nAtoms) = Zero
   end do
   call Put_dArray('rDmp',rDmp,3*nAtoms)
   call mma_deallocate(rDmp)
 
   if (nAux > 0) then
-    !write(6,*) 'nAux=',nAux
+    !write(u6,*) 'nAux=',nAux
     call mma_allocate(rDmp,nAux,1,Label='rDmp')
     nAux = 0
     do i=1,nCnttp
@@ -440,15 +426,15 @@ subroutine Basis_Info_Dmp()
         nAux = nAux+nM2
       end if
 
-      !write(6,*) 'iAux=',nAux
-      !write(6,*) nFrag_LineWords, dbsc(i)%nFragType
+      !write(u6,*) 'iAux=',nAux
+      !write(u6,*) nFrag_LineWords, dbsc(i)%nFragType
       if (dbsc(i)%nFragType > 0) then
         qDmp(1:nFrag_LineWords,1:dbsc(i)%nFragType) => rDmp(nAux+1:nAux+nFrag_LineWords*dbsc(i)%nFragType,1)
         qDmp(:,:) = dbsc(i)%FragType(:,:)
         nAux = nAux+nFrag_LineWords*dbsc(i)%nFragType
         nullify(qDmp)
       end if
-      !write(6,*) dbsc(i)%nFragCoor
+      !write(u6,*) dbsc(i)%nFragCoor
       nFragCoor = max(0,dbsc(i)%nFragCoor)
       if (nFragCoor > 0) then
         qDmp(1:5,1:nFragCoor) => rDmp(nAux+1:nAux+5*nFragCoor,1)
@@ -456,12 +442,12 @@ subroutine Basis_Info_Dmp()
         nAux = nAux+5*nFragCoor
         nullify(qDmp)
       end if
-      !write(6,*) dbsc(i)%nFragEner
+      !write(u6,*) dbsc(i)%nFragEner
       if (dbsc(i)%nFragEner > 0) then
         rDmp(nAux+1:nAux+dbsc(i)%nFragEner,1) = dbsc(i)%FragEner(:)
         nAux = nAux+dbsc(i)%nFragEner
       end if
-      !write(6,*) dbsc(i)%nFragDens
+      !write(u6,*) dbsc(i)%nFragDens
       if (dbsc(i)%nFragDens*dbsc(i)%nFragEner > 0) then
         qDmp(1:dbsc(i)%nFragDens,1:dbsc(i)%nFragEner) => rDmp(nAux+1:nAux+dbsc(i)%nFragDens*dbsc(i)%nFragEner,1)
         qDmp(:,:) = dbsc(i)%FragCoef(:,:)
@@ -522,14 +508,14 @@ subroutine Basis_Info_Dmp()
     cDmp(i)(1:80) = dbsc(i)%Bsl
     cDmp(i)(81:160) = dbsc(i)%Bsl_Old
   end do
-  lcDmp = 160*nCnttp
+  lcDmp = 2*80*nCnttp
   call Put_cArray('cDmp',cDmp(1),lcDmp)
   call mma_deallocate(cDmp)
 
 # ifdef _DEBUGPRINT_
-  write(6,*)
-  write(6,*) 'Exit Basis_Info_Dmp'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) 'Exit Basis_Info_Dmp'
+  write(u6,*)
 # endif
 
   return
@@ -541,27 +527,30 @@ end subroutine Basis_Info_Dmp
 
 subroutine Basis_Info_Get()
 
-  integer, allocatable :: iDmp(:,:)
-  real*8, allocatable, target :: rDmp(:,:)
-  real*8, pointer :: qDmp(:,:), pDmp(:)
-  character(LEN=160), allocatable :: cDmp(:)
-  logical Found
-  integer Len, i, j, nAtoms, nAux, nM1, nM2, nBK, nAux2, nAkl, nFockOp, nExp, nBasis, Len2, lcDmp
-  integer nFragType, nFragCoor, nFragEner, nFragDens
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Definitions, only: u6
+
+  integer(kind=iwp) :: i, j, lcDmp, Len1, Len2, nAkl, nAtoms, nAux, nAux2, nBasis, nBK, nExp, nFockOp, nFragCoor, nFragDens, &
+                       nFragEner, nFragType, nM1, nM2
+  logical(kind=iwp) :: Found
+  integer(kind=iwp), allocatable :: iDmp(:,:)
+  real(kind=wp), allocatable, target :: rDmp(:,:)
+  real(kind=wp), pointer :: pDmp(:), qDmp(:,:)
+  character(len=2*80), allocatable :: cDmp(:)
 
 # ifdef _DEBUGPRINT_
-  write(6,*)
-  write(6,*) 'Enter Basis_Info_Get'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) 'Enter Basis_Info_Get'
+  write(u6,*)
 # endif
 
-  call qpg_iArray('iDmp',Found,Len)
-  Len2 = Len/nFields
+  call qpg_iArray('iDmp',Found,Len1)
+  Len2 = Len1/nFields
   call mma_Allocate(iDmp,nFields,Len2,Label='iDmp')
   if (Found) then
-    call Get_iArray('iDmp',iDmp,Len)
+    call Get_iArray('iDmp',iDmp,Len1)
   else
-    write(6,*) 'Basis_Info_Get: iDmp not found!'
+    write(u6,*) 'Basis_Info_Get: iDmp not found!'
     call Abend()
   end if
   nFrag_LineWords = iDmp(1,Len2)
@@ -620,18 +609,18 @@ subroutine Basis_Info_Get()
     nAux = nAux+2*dbsc(i)%nM1+2*dbsc(i)%nM2+nFrag_LineWords*dbsc(i)%nFragType+5*nFragCoor+dbsc(i)%nFragEner+ &
            dbsc(i)%nFragDens*dbsc(i)%nFragEner
 #   ifdef _DEBUGPRINT_
-    write(6,'(A,8I4)') 'iCnttp=',i,nFrag_LineWords,dbsc(i)%nFragType,dbsc(i)%nFragCoor,dbsc(i)%nFragEner,dbsc(i)%nFragDens,nAux, &
-                       dbsc(i)%iVal
+    write(u6,'(A,8I4)') 'iCnttp=',i,nFrag_LineWords,dbsc(i)%nFragType,dbsc(i)%nFragCoor,dbsc(i)%nFragEner,dbsc(i)%nFragDens,nAux, &
+                        dbsc(i)%iVal
 #   endif
   end do
   call mma_deallocate(iDmp)
 
-  call qpg_iArray('iDmp:S',Found,Len)
-  call mma_Allocate(iDmp,mFields,Len/mFields,Label='iDmp')
+  call qpg_iArray('iDmp:S',Found,Len1)
+  call mma_Allocate(iDmp,mFields,Len1/mFields,Label='iDmp')
   if (Found) then
-    call get_iArray('iDmp:S',iDmp,Len)
+    call get_iArray('iDmp:S',iDmp,Len1)
   else
-    write(6,*) 'Basis_Info_Get: iDmp:S not found!'
+    write(u6,*) 'Basis_Info_Get: iDmp:S not found!'
     call Abend()
   end if
   nAux2 = 0
@@ -655,12 +644,12 @@ subroutine Basis_Info_Get()
   end do
   call mma_deallocate(iDmp)
 
-  call qpg_dArray('rDmp',Found,Len)
+  call qpg_dArray('rDmp',Found,Len1)
   if (.not. Found) then
-    write(6,*) 'rDMP not found on the run file.'
+    write(u6,*) 'rDMP not found on the run file.'
     call Abend()
   end if
-  nAtoms = Len/3
+  nAtoms = Len1/3
   call mma_allocate(rDmp,3,nAtoms,Label='rDmp')
   call Get_dArray('rDmp',rDmp,3*nAtoms)
   nAtoms = 0
@@ -693,10 +682,10 @@ subroutine Basis_Info_Get()
   call mma_deallocate(rDmp)
 
   if (nAux > 0) then
-    call qpg_dArray('rDmp:A',Found,Len)
-    !write(6,*) 'nAux=',nAux
+    call qpg_dArray('rDmp:A',Found,Len1)
+    !write(u6,*) 'nAux=',nAux
     call mma_allocate(rDmp,nAux,1,Label='rDmp')
-    call Get_dArray('rDmp:A',rDmp,Len)
+    call Get_dArray('rDmp:A',rDmp,Len1)
     nAux = 0
     do i=1,nCnttp
 
@@ -764,9 +753,9 @@ subroutine Basis_Info_Get()
   end if
 
   if (nAux2 > 0) then
-    call qpg_dArray('rDmp:S',Found,Len)
+    call qpg_dArray('rDmp:S',Found,Len1)
     call mma_allocate(rDmp,nAux2,1,Label='rDmp')
-    call Get_dArray('rDmp:S',rDmp,Len)
+    call Get_dArray('rDmp:S',rDmp,Len1)
     nAux2 = 0
     do i=1,Max_Shells-1
 
@@ -823,24 +812,24 @@ subroutine Basis_Info_Get()
   ! Character stuff
 
   call mma_allocate(cDmp,nCnttp,Label='cDmp')
-  lcDmp = 160*nCnttp
-  call Get_cArray('cDmp',cDmp(1),lcDmp)
+  lcDmp = 2*80*nCnttp
+  call Get_cArray('cDmp',cDmp,lcDmp)
   do i=1,nCnttp
     dbsc(i)%Bsl = cDmp(i)(1:80)
     dbsc(i)%Bsl_Old = cDmp(i)(81:160)
   end do
   call mma_deallocate(cDmp)
 # ifdef _DEBUGPRINT_
-  write(6,*)
-  write(6,*) 'Coordinates:'
+  write(u6,*)
+  write(u6,*) 'Coordinates:'
   do i=1,nCnttp
     do j=1,dbsc(i)%nCntr
-      write(6,*) dbsc(i)%Coor(:,j)
+      write(u6,*) dbsc(i)%Coor(:,j)
     end do
   end do
-  write(6,*)
-  write(6,*) 'Exit Basis_Info_Get'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) 'Exit Basis_Info_Get'
+  write(u6,*)
 # endif
 
   return
@@ -852,10 +841,15 @@ end subroutine Basis_Info_Get
 
 subroutine Basis_Info_Free()
 
-  integer i
+  use stdalloc, only: mma_deallocate
+# ifdef _DEBUGPRINT_
+  use Definitions, only: u6
+# endif
+
+  integer(kind=iwp) :: i
 
 # ifdef _DEBUGPRINT_
-  write(6,*) 'Basis_Info_Free()'
+  write(u6,*) 'Basis_Info_Free()'
 # endif
 
   ! Deallocate all allocatable parts of dbsc.
@@ -900,7 +894,7 @@ subroutine Basis_Info_Free()
   nCnttp = 0
   iCnttp_Dummy = 0
 
-  ! Stuff on unqiue basis set shells
+  ! Stuff on unique basis set shells
 
   do i=1,Max_Shells-1
     if (allocated(Shells(i)%Bk)) call mma_deallocate(Shells(i)%Bk)
@@ -920,8 +914,8 @@ subroutine Basis_Info_Free()
   end do
   Max_Shells = 0
 
-  if (allocated(dbsc)) deallocate(dbsc)
-  if (allocated(Shells)) deallocate(Shells)
+  if (allocated(dbsc)) call mma_deallocate(dbsc)
+  if (allocated(Shells)) call mma_deallocate(Shells)
   Initiated = .false.
 
   return
@@ -930,5 +924,42 @@ end subroutine Basis_Info_Free
 
 !***********************************************************************
 !***********************************************************************
+
+! Private extensions to mma_interfaces, using preprocessor templates
+! (see src/mma_util/stdalloc.f)
+
+! Define dbsc_cptr2loff, dbsc_mma_allo_1D, dbsc_mma_allo_1D_lim, dbsc_mma_free_1D
+! (using _NO_GARBLE_ because all members are initialized)
+#define _TYPE_ type(Distinct_Basis_set_centers)
+#  define _FUNC_NAME_ dbsc_cptr2loff
+#  define _NO_GARBLE_
+#  include "cptr2loff_template.fh"
+#  undef _FUNC_NAME_
+#  define _SUBR_NAME_ dbsc_mma
+#  define _DIMENSIONS_ 1
+#  define _DEF_LABEL_ 'dbsc_mma'
+#  include "mma_allo_template.fh"
+#  undef _SUBR_NAME_
+#  undef _DIMENSIONS_
+#  undef _DEF_LABEL_
+#  undef _NO_GARBLE_
+#undef _TYPE_
+
+! Define shell_cptr2loff, shell_mma_allo_1D, shell_mma_allo_1D_lim, shell_mma_free_1D
+! (using _NO_GARBLE_ because all members are initialized)
+#define _TYPE_ type(Shell_Info)
+#  define _FUNC_NAME_ shell_cptr2loff
+#  define _NO_GARBLE_
+#  include "cptr2loff_template.fh"
+#  undef _FUNC_NAME_
+#  define _SUBR_NAME_ shell_mma
+#  define _DIMENSIONS_ 1
+#  define _DEF_LABEL_ 'shell_mma'
+#  include "mma_allo_template.fh"
+#  undef _SUBR_NAME_
+#  undef _DIMENSIONS_
+#  undef _DEF_LABEL_
+#  undef _NO_GARBLE_
+#undef _TYPE_
 
 end module Basis_Info

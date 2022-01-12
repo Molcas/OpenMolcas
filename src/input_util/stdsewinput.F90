@@ -20,7 +20,6 @@ use Basis_Info, only: dbsc, nCnttp, Shells
 use Center_Info, only: dc, n_dc
 use Sizes_of_Seward, only: S
 use Logical_Info, only: UnNorm, Do_FckInt
-use Gateway_Interfaces, only: GetBS
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Angstrom
 use Definitions, only: wp, iwp, u6

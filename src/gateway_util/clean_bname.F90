@@ -28,21 +28,25 @@
 
 function Clean_BName(BName,Offset)
 
+use Definitions, only: iwp
+
 implicit none
 #include "Molcas.fh"
-character(Len=*), intent(In) :: BName
-integer, intent(In) :: Offset
-character(Len=LENIN8) :: Clean_BName
-character(Len=8) :: Clean
-integer :: i, Err
-logical :: Cart
+character(len=LenIn8) :: Clean_BName
+character(len=*), intent(in) :: BName
+integer(kind=iwp), intent(in) :: Offset
+integer(kind=iwp) :: i, Err
+logical(kind=iwp) :: Cart
+character(len=8) :: Clean
 
 Clean = BName(Offset+1:)
 ! For spherical functions, the 3rd character is a letter
 !   (counting s and p as spherical),
 ! for Cartesian functions, it is a number
-read(Clean(3:3),'(I1)',IOStat=Err) i
-Cart = (Err == 0)
+read(Clean(3:3),'(I1)',iostat=Err) i
+Cart = Err == 0
+#include "macros.fh"
+unused_var(i)
 
 if (Cart) then
   ! For Cartesian functions, remove zeros if all indices are below 10,
@@ -62,8 +66,5 @@ end if
 Clean_BName = BName(1:Offset)//Clean
 
 return
-#ifdef _WARNING_WORKAROUND_
-if (.false.) call Unused_integer(i)
-#endif
 
 end function Clean_BName

@@ -11,23 +11,19 @@
 
 subroutine basis2run()
 
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, iCnttp_Dummy, nCnttp, Shells
+use Center_Info, only: dc
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
-#include "stdalloc.fh"
-integer :: nPrim
-integer :: kExp
-integer :: iPrim, iCnttp, icnt, mdc, jSh, iShSrt, iAng, iBasis
-real*8, allocatable :: primitives(:,:)
-integer, allocatable :: primitive_ids(:,:), IndC(:)
-integer :: iyy, iCo, iAtoms, index_center
+integer(kind=iwp) :: iAng, iAtoms, iBasis, icnt, iCnttp, iCo, index_center, iPrim, iShSrt, iyy, jSh, kExp, mdc, nPrim
+integer(kind=iwp), allocatable :: IndC(:), primitive_ids(:,:)
+real(kind=wp), allocatable :: primitives(:,:)
 
-!
-!***********************************************************************
-!
+
 iAtoms = 0
 !***********************************************************************
 ! Generate list of primitive basis functions
@@ -90,7 +86,7 @@ do iCnttp=1,nCnttp
             primitive_ids(1,iPrim) = iyy
             primitive_ids(2,iPrim) = iAng
             primitive_ids(3,iPrim) = iBasis
-            primitives(1,iPrim) = Shells(jSh)%exp(kExp)
+            primitives(1,iPrim) = Shells(jSh)%Exp(kExp)
             primitives(2,iPrim) = Shells(jSh)%Cff_c(kExp,iBasis,2)
           end do
         end do

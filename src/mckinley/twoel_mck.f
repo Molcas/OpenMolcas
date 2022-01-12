@@ -86,6 +86,7 @@
 *     total Fock matrix                                                *
 *                                                                      *
 ************************************************************************
+      use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
       use Real_Spherical
       use Basis_Info
       use Center_Info
@@ -146,7 +147,6 @@
 
       Contains
       Subroutine TwoEl_mck_Internal(Data1,Data2)
-      Use Iso_C_Binding
       Real*8, Target :: Data1(nZeta*nDArray+nDScalar,nData1),
      &                  Data2( nEta*nDArray+nDScalar,nData2)
       Integer, Pointer :: iData1(:), iData2(:)

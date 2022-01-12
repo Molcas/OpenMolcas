@@ -11,87 +11,75 @@
 
 module RICD_Info
 
-private
-public :: iRI_Type, LDF, Do_RI, Cholesky, Do_acCD_Basis, Skip_High_AC, &
-          Cho_OneCenter, DiagCheck, LocalDF, Do_nacCD_Basis, Thrshld_CD, &
-          RICD_Info_Dmp, RICD_Info_Get
+use Definitions, only: wp, iwp
 
-integer :: iRI_Type = -1
-logical :: LDF = .false.
-logical :: Do_RI = .false.
-logical :: Cholesky = .false.
-logical :: Do_acCD_Basis = .true.
-logical :: Skip_High_AC = .false.
-logical :: Cho_OneCenter = .false.
-logical :: DiagCheck = .false.
-logical :: LocalDF = .false.
-logical :: Do_nacCD_Basis = .false.
-real*8 :: Thrshld_CD = 1.0D-4
-#include "stdalloc.fh"
+implicit none
+private
+
+integer(kind=iwp), parameter :: nLen = 11 ! number of elements
+integer(kind=iwp) :: iRI_Type = -1
+real(kind=wp) :: Thrshld_CD = 1.0e-4_wp
+logical(kind=iwp) :: Cho_OneCenter = .false., &
+                     Cholesky = .false., &
+                     DiagCheck = .false., &
+                     Do_acCD_Basis = .true., &
+                     Do_nacCD_Basis = .false., &
+                     Do_RI = .false., &
+                     LDF = .false., &
+                     LocalDF = .false., &
+                     Skip_High_AC = .false.
+
+public :: Cho_OneCenter, Cholesky, DiagCheck, Do_acCD_Basis, Do_nacCD_Basis, Do_RI, iRI_Type, LDF, LocalDF, RICD_Info_Dmp, &
+          RICD_Info_Get, Skip_High_AC, Thrshld_CD
 
 contains
 
 subroutine RICD_Info_Dmp()
 
-  real*8, allocatable :: rDmp(:)
-  integer i
-  integer :: Len = 11
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: Zero, One
 
-  call mma_allocate(rDmp,Len,Label='rDmp:RICD')
+  real(kind=wp), allocatable :: rDmp(:)
 
-  rDmp(1) = dble(iRI_Type)
-  i = 0
-  if (LDF) i = 1
-  rDmp(2) = dble(i)
-  i = 0
-  if (Do_RI) i = 1
-  rDmp(3) = dble(i)
-  i = 0
-  if (Cholesky) i = 1
-  rDmp(4) = dble(i)
-  i = 0
-  if (Do_acCD_Basis) i = 1
-  rDmp(5) = dble(i)
-  i = 0
-  if (Skip_High_AC) i = 1
-  rDmp(6) = dble(i)
-  i = 0
-  if (Cho_OneCenter) i = 1
-  rDmp(7) = dble(i)
-  i = 0
-  if (DiagCheck) i = 1
-  rDmp(8) = dble(i)
-  i = 0
-  if (LocalDF) i = 1
-  rDmp(9) = dble(i)
-  i = 0
-  if (Do_nacCD_Basis) i = 1
-  rDmp(10) = dble(i)
+  call mma_allocate(rDmp,nLen,Label='rDmp:RICD')
+
+  rDmp(01) = real(iRI_Type,kind=wp)
+  rDmp(02) = merge(One,Zero,LDF)
+  rDmp(03) = merge(One,Zero,Do_RI)
+  rDmp(04) = merge(One,Zero,Cholesky)
+  rDmp(05) = merge(One,Zero,Do_acCD_Basis)
+  rDmp(06) = merge(One,Zero,Skip_High_AC)
+  rDmp(07) = merge(One,Zero,Cho_OneCenter)
+  rDmp(08) = merge(One,Zero,DiagCheck)
+  rDmp(09) = merge(One,Zero,LocalDF)
+  rDmp(10) = merge(One,Zero,Do_nacCD_Basis)
   rDmp(11) = Thrshld_CD
 
-  call Put_dArray('RICD_Info',rDmp,Len)
+  call Put_dArray('RICD_Info',rDmp,nLen)
   call mma_deallocate(rDmp)
 
 end subroutine RICD_Info_Dmp
 
 subroutine RICD_Info_Get()
 
-  real*8, allocatable :: rDmp(:)
-  integer :: Len = 11
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: Zero
 
-  call mma_allocate(rDmp,Len,Label='rDmp:RICD')
-  call Get_dArray('RICD_Info',rDmp,Len)
+  real(kind=wp), allocatable :: rDmp(:)
+
+  call mma_allocate(rDmp,nLen,Label='rDmp:RICD')
+  call Get_dArray('RICD_Info',rDmp,nLen)
 
   iRI_Type = nint(rDmp(1))
-  LDF = nint(rDmp(2)) == 1
-  Do_RI = nint(rDmp(3)) == 1
-  Cholesky = nint(rDmp(4)) == 1
-  Do_acCD_Basis = nint(rDmp(5)) == 1
-  Skip_High_AC = nint(rDmp(6)) == 1
-  Cho_OneCenter = nint(rDmp(7)) == 1
-  DiagCheck = nint(rDmp(8)) == 1
-  LocalDF = nint(rDmp(9)) == 1
-  Do_nacCD_Basis = nint(rDmp(10)) == 1
+  LDF = rDmp(2) > Zero
+  Do_RI = rDmp(3) > Zero
+  Cholesky = rDmp(4) > Zero
+  Do_acCD_Basis = rDmp(5) > Zero
+  Skip_High_AC = rDmp(6) > Zero
+  Cho_OneCenter = rDmp(7) > Zero
+  DiagCheck = rDmp(8) > Zero
+  LocalDF = rDmp(9) > Zero
+  Do_nacCD_Basis = rDmp(10) > Zero
   Thrshld_CD = rDmp(11)
 
   call mma_deallocate(rDmp)

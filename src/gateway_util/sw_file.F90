@@ -11,6 +11,11 @@
 
 module SW_File
 
-character(LEN=512) :: SW_FileOrb = 'INPORB'
+implicit none
+private
+
+character(len=512) :: SW_FileOrb = 'INPORB'
+
+public :: SW_FileOrb
 
 end module SW_File

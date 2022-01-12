@@ -18,10 +18,14 @@ subroutine CoW(Coor,CoF,W,nAtom,T)
 !             January '91                                              *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nAtom
+real(kind=wp) :: Coor(3,nAtom), CoF(3), W(nAtom), T
 #include "print.fh"
-#include "real.fh"
-real*8 Coor(3,nAtom), CoF(3), T, W(nAtom)
+integer(kind=iwp) :: iAtom, iCar, iPrint, iRout
 
 iRout = 140
 iPrint = nPrint(iRout)

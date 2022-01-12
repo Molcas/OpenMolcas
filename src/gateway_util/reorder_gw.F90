@@ -11,17 +11,17 @@
 
 subroutine Reorder_GW(A,B,k,l,n,m)
 
-implicit real*8(a-h,o-z)
-real*8 A(k,l,n,m), B(k,n,l,m)
+use Definitions, only: wp, iwp
 
-do ik=1,k
-  do il=1,l
-    do in=1,n
-      do im=1,m
+implicit none
+integer(kind=iwp) :: k, l, n, m
+real(kind=wp) :: A(k,l,n,m), B(k,n,l,m)
+integer(kind=iwp) :: l_, n_, m_
 
-        B(ik,in,il,im) = A(ik,il,in,im)
-
-      end do
+do m_=1,m
+  do n_=1,n
+    do l_=1,l
+      B(:,n_,l_,m_) = A(:,l_,n_,m_)
     end do
   end do
 end do

@@ -11,13 +11,13 @@
 
 module AMFI_Info
 
+use Definitions, only: iwp
+
 implicit none
 private
 
-public :: No_AMFI
+logical(kind=iwp) :: No_AMFI(0:120) = .false.
 
-integer, parameter :: nSize = 120
-integer :: i
-logical :: No_AMFI(0:nSize) = (/(.false.,i=0,nSize)/)
+public :: No_AMFI
 
 end module AMFI_Info

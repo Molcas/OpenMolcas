@@ -11,50 +11,54 @@
 
 subroutine SOCtl_Seward(Mamn,nMamn)
 
-use Basis_Info
-use Center_Info
-use Symmetry_Info, only: iChTbl, iOper, iChBas, lIrrep, lBsFnc, iSkip, nIrrep
-use SOAO_Info, only: SOAO_Info_Init, nSOInf, iSOInf, iAOtSO, iOffSO
+use Basis_Info, only: dbsc, iCnttp_Dummy, nBas, nBas_Aux, nBas_Frag, nCnttp, MolWgh, Shells
+use Center_Info, only: dc
+use Symmetry_Info, only: iChBas, iChTbl, iOper, iSkip, lBsFnc, lIrrep, nIrrep
+use SOAO_Info, only: iAOtSO, iSOInf, iOffSO, nSOInf, SOAO_Info_Init
 use real_spherical, only: iSphCr, LblCBs, LblSBs
 use Temporary_Parameters, only: Primitive_Pass
 use Sizes_of_Seward, only: S
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-#include "itmax.fh"
+implicit none
 #include "Molcas.fh"
+integer(kind=iwp) :: nMamn
+character(len=LenIn8) :: Mamn(nMamn)
+#include "itmax.fh"
 #include "rinfo.fh"
-#include "real.fh"
 #include "print.fh"
-#include "stdalloc.fh"
-logical lFAIEMP
-character ChOper(0:7)*3, ChTemp*8, Mamn(nMamn)*(LENIN8)
-character LP_Names(MxAtom)*(LENIN4)
-character*60 Fmt
-logical type(0:7), lSkip, kECP, TstFnc, output, Get_BasisType
-logical IsBasisAE
-logical IsBasisANO
-logical IsBasisUNK
-integer Occ, Vir
-parameter(Occ=1,Vir=0)
-integer List(0:iTabMx), nFCore(0:7), nCore_Sh(0:iTabMx), List_AE(0:iTabMx)
-integer jOffSO(0:7)
-integer, dimension(:), allocatable :: Index, Index2, IndC, iCI, jCI, iOT, LPA, LPMM
-real*8, dimension(:), allocatable :: LPQ
-real*8, dimension(:,:), allocatable :: SM, LPC
-character*(LENIN8) Clean_BName, ChTmp
-external Clean_BName
+integer(kind=iwp) :: i, iAng, iAO, iAtoms, iBas, iBas_Aux, iBas_Frag, iChBs, iChxyz, iCnt, iCntrc, iCnttp, iCo, iComp, iCounter, &
+                     iIrrep, imc, iPrint, iR, iRout, iSh, iShell, iSO, iSO_, iSO_Aux, iSO_Frag, iSO_Tot, isymunit, itest1, itest2, &
+                     ixxx, iyy, j, jAO, jCnttp, jComp, jCounter, jIrrep, jOffSO(0:7), jSO, jxxx, k, kComp, kculf, kIrrep, lComp, &
+                     lculf, llab, lMax, mc, mdc, mlab, nBasisi, nCore, nExpi, nFCore(0:7), Nr
+real(kind=wp) :: FacN, fact
+logical(kind=iwp) :: IsBasisAE, IsBasisANO, IsBasisUNK, kECP, lFAIEMP, lSkip, output, TstFnc, bType(0:7)
+character(len=LenIn8) :: ChTmp
+character(len=8) :: ChTemp
+character(len=60) :: Frmt
 !SVC: the basis ids are tuples (c,n,l,m) with c the center index,
 !     n the shell index, l the angmom value, and m the angmom component.
 !     the angmom components of p are mapped (x,y,z) -> (1,-1,0)
 !     examples: 3d1+ on atom 1: (1,3,2,1); 2py on atom 5: (5,2,1,-1)
 !IFG: for Cartesian shells, l -> -l, m -> T(ly+lz)-(lx+ly), where T(n)=n*(n+1)/2
-integer :: llab, mlab
-integer, allocatable :: basis_ids(:,:), desym_basis_ids(:,:)
-integer, allocatable :: fermion_type(:)
-data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
-! LVAL end MVAL dimensioned for L = iTabMx
-dimension LVAL((iTabMx+1)*(iTabMx+1))
-dimension MVAL((iTabMx+1)*(iTabMx+1))
+integer(kind=iwp), allocatable :: basis_ids(:,:), desym_basis_ids(:,:), fermion_type(:), iCI(:), IndC(:), Index1(:), Index2(:), &
+                                  iOT(:), jCI(:), List(:), List_AE(:), LPA(:), LPMM(:), LVAL(:), MVAL(:), nCore_Sh(:)
+real(kind=wp), allocatable :: LPC(:,:), LPQ(:), SM(:,:)
+character(len=LenIn4), allocatable :: LP_Names(:)
+integer(kind=iwp), parameter :: Occ = 1, Vir = 0
+character(len=*), parameter :: ChOper(0:7) = ['E  ', &
+                                              'x  ', &
+                                              'y  ', &
+                                              'xy ', &
+                                              'z  ', &
+                                              'xz ', &
+                                              'yz ', &
+                                              'xyz']
+integer(kind=iwp), external :: Index_Center, Index_Nosym, iPrmt, isfreeunit, NrOpr
+logical(kind=iwp), external :: Get_BasisType
+character(len=LenIn8), external :: Clean_BName
 
 !                                                                      *
 !***********************************************************************
@@ -65,10 +69,9 @@ IsBasisUNK = .false.
 iRout = 2
 iPrint = nPrint(iRout)
 !vv LP_NAMES was used later without initialization.
-do i=1,MxAtom
-  LP_NAMES(i)(1:LENIN) = 'crap'
-  LP_NAMES(i)(LENIN1:LENIN4) = 'crap'
-end do
+call mma_allocate(LP_Names,MxAtom,label='LP_Names')
+LP_NAMES(:)(1:LenIn) = 'crap'
+LP_NAMES(:)(LenIn1:) = 'crap'
 lFAIEMP = .false.
 do i=1,nCnttp
   lFAIEMP = lFAIEMP .or. dbsc(i)%Frag
@@ -88,6 +91,8 @@ call SOAO_Info_Init(iBas+iBas_Frag+iBas_Aux,nIrrep)
 ! initialize LVAL and MVAL
 ! (note: this is wrong for Cartesian shells)
 
+call mma_allocate(LVAL,(iTabMx+1)**2,label='LVAL')
+call mma_allocate(MVAL,(iTabMx+1)**2,label='MVAL')
 k = 0
 do i=0,iTabMx
   do j=-i,i
@@ -96,17 +101,20 @@ do i=0,iTabMx
     mval(k) = j
   end do
 end do
-!write(6,*) ' lval',k,(iTabMx+1)**2
+!write(u6,*) ' lval',k,(iTabMx+1)**2
 ! correct mval order for p-functions
 mval(2) = 1
 mval(3) = -1
 mval(4) = 0
 call ICopy(MxAO,[-99],0,iCent,1)
 call ICopy(MxAO,[-99],0,lnAng,1)
-!write(6,'(20i4)') (lval(i),i=1,k)
-!write(6,*) ' lval',k
-!write(6,'(20i4)') (mval(i),i=1,k)
+!write(u6,'(20i4)') (lval(i),i=1,k)
+!write(u6,*) ' lval',k
+!write(u6,'(20i4)') (mval(i),i=1,k)
 
+call mma_allocate(nCore_Sh,[0,iTabMx],label='nCore_Sh')
+call mma_allocate(List,[0,iTabMx],label='List')
+call mma_allocate(List_AE,[0,iTabMx],label='List_AE')
 call ICopy(1+iTabMx,[0],0,List,1)
 call ICopy(1+iTabMx,[0],0,List_AE,1)
 
@@ -148,9 +156,9 @@ IsBasisAE = Get_BasisType('AE_')
 IsBasisANO = Get_BasisType('ANO')
 IsBasisUNK = Get_BasisType('UNK')
 if (Show .and. (iPrint >= 6)) then
-  write(6,*)
+  write(u6,*)
   call CollapseOutput(1,'   SO/AO info:')
-  write(6,'(3X,A)') '   -----------'
+  write(u6,'(3X,A)') '   -----------'
 end if
 if (nIrrep == 1) Go To 199
 !                                                                      *
@@ -159,16 +167,16 @@ if (nIrrep == 1) Go To 199
 ! Symmetry case.
 
 if (Show .and. (iPrint >= 6)) then
-  write(6,*)
-  write(6,'(19x,a)') ' **************************************************'
-  write(6,'(19x,a)') ' ******** Symmetry adapted Basis Functions ********'
-  write(6,'(19x,a)') ' **************************************************'
-  write(6,*)
+  write(u6,*)
+  write(u6,'(19x,a)') ' **************************************************'
+  write(u6,'(19x,a)') ' ******** Symmetry adapted Basis Functions ********'
+  write(u6,'(19x,a)') ' **************************************************'
+  write(u6,*)
 end if
 
-call mma_allocate(Index,5*iBas,label='Index')
+call mma_allocate(Index1,5*iBas,label='Index1')
 call mma_allocate(Index2,5*iBas,label='Index2')
-call ICopy(5*iBas,[0],0,Index,1)
+call ICopy(5*iBas,[0],0,Index1,1)
 call ICopy(5*iBas,[0],0,Index2,1)
 iCounter = 0
 jCounter = 0
@@ -192,16 +200,16 @@ do iIrrep=0,nIrrep-1
   nBas(iIrrep) = 0
   nBas_Aux(iIrrep) = 0
   nBas_Frag(iIrrep) = 0
-  type(iIrrep) = .true.
+  bType(iIrrep) = .true.
 
   ! Loop over distinct shell types
 
   mc = 1
   iShell = 0
   if (iSkip(iIrrep) /= 0) then
-    write(6,*)
-    write(6,*) ' All basis functions of Irrep',iIrrep+1,' are removed!'
-    write(6,*)
+    write(u6,*)
+    write(u6,*) ' All basis functions of Irrep',iIrrep+1,' are removed!'
+    write(u6,*)
     lSkip = .true.
     Go To 2011
   end if
@@ -279,7 +287,7 @@ do iIrrep=0,nIrrep-1
           LPQ(iyy) = dbsc(iCnttp)%Charge
           LPA(iyy) = dbsc(iCnttp)%AtmNr
           LPMM(iyy) = dbsc(iCnttp)%IsMM
-          LP_Names(iyy) = dc(mdc)%LblCnt(1:LENIN)//':'//ChOper(iOper(iR))
+          LP_Names(iyy) = dc(mdc)%LblCnt(1:LenIn)//':'//ChOper(iOper(iR))
         end do
       end if
       do iAng=0,dbsc(iCnttp)%nVal-1
@@ -300,7 +308,7 @@ do iIrrep=0,nIrrep-1
           iAO = iAO+1
           if (iAO > MxAO) then
             call ErrTra()
-            write(6,*) ' Increase MxAO'
+            write(u6,*) ' Increase MxAO'
             call Abend()
           end if
           lComp = kComp+iComp
@@ -313,13 +321,13 @@ do iIrrep=0,nIrrep-1
 
           if (.not. TstFnc(dc(mdc)%iCoSet,iIrrep,iChBs,dc(mdc)%nStab)) Go To 204
           if (.not. (Shells(iSh)%Frag .or. dbsc(iCnttp)%Aux)) nFCore(iIrrep) = nFCore(iIrrep)+nCore
-          if (output .and. type(iIrrep)) then
-            write(6,*)
-            write(6,'(10X,A,A)') ' Irreducible representation : ',lIrrep(iIrrep)
-            write(6,'(10X,2A)') ' Basis function(s) of irrep: ',lBsFnc(iIrrep)
-            write(6,*)
-            write(6,'(A)') ' Basis Label        Type   Center Phase'
-            type(iIrrep) = .false.
+          if (output .and. bType(iIrrep)) then
+            write(u6,*)
+            write(u6,'(10X,A,A)') ' Irreducible representation : ',lIrrep(iIrrep)
+            write(u6,'(10X,2A)') ' Basis function(s) of irrep: ',lBsFnc(iIrrep)
+            write(u6,*)
+            write(u6,'(A)') ' Basis Label        Type   Center Phase'
+            bType(iIrrep) = .false.
           end if
 
           if (S%MaxBas(iAng) > 0) iAOtSO(iAO,iIrrep) = jSO+1
@@ -340,8 +348,8 @@ do iIrrep=0,nIrrep-1
               nBas(iIrrep) = nBas(iIrrep)+1
             end if
             if (iSO_ > nMamn) then
-              write(6,*) ' iSO_ > nMamn'
-              write(6,*) 'nMamn=',nMamn
+              write(u6,*) ' iSO_ > nMamn'
+              write(u6,*) 'nMamn=',nMamn
               call Abend()
             end if
             jSO = jSO+1
@@ -381,12 +389,12 @@ do iIrrep=0,nIrrep-1
             end if
             ChTmp = Clean_BName(ChTemp,0)
 
-            if (output) write(6,'(I5,3X,A8,4X,A8,8(I3,4X,I2,4X))') iSO_,dc(mdc)%LblCnt,ChTmp, &
+            if (output) write(u6,'(I5,3X,A8,4X,A8,8(I3,4X,I2,4X))') iSO_,dc(mdc)%LblCnt,ChTmp, &
               (mc+iCo,iPrmt(NrOpr(dc(mdc)%iCoSet(iCo,0)),iChbs)*iChTbl(iIrrep,NrOpr(dc(mdc)%iCoSet(iCo,0))), &
                iCo=0,nIrrep/dc(mdc)%nStab-1)
 
             if (iSO_ > nSOInf) then
-              write(6,*) 'iSO_ > nSOInf'
+              write(u6,*) 'iSO_ > nSOInf'
               call Abend()
             end if
             iSOInf(1,iSO_) = iCnttp
@@ -405,11 +413,11 @@ do iIrrep=0,nIrrep-1
             ! Stuff (not just) for LoProp
 
             do iCo=0,nIrrep/dc(mdc)%nStab-1
-              ixxx = Index_NoSym(iCntrc,iComp,iAng,mdc,iCo,Index,iCounter,iBas)
+              ixxx = Index_NoSym(iCntrc,iComp,iAng,mdc,iCo,Index1,iCounter,iBas)
               jxxx = Index_NoSym(iCntrc,iComp,iAng,mdc,iirrep,Index2,jCounter,iBas)
-              fact = dble(iPrmt(NrOpr(dc(mdc)%iCoSet(iCo,0)),iChbs)*iChTbl(iIrrep,NrOpr(dc(mdc)%iCoSet(iCo,0))))
+              fact = real(iPrmt(NrOpr(dc(mdc)%iCoSet(iCo,0)),iChbs)*iChTbl(iIrrep,NrOpr(dc(mdc)%iCoSet(iCo,0))),kind=wp)
 
-              FacN = One/dble(nIrrep/dc(mdc)%nStab)
+              FacN = One/real(nIrrep/dc(mdc)%nStab,kind=wp)
               if (MolWgh == 1) then
                 FacN = One
               else if (MolWgh == 2) then
@@ -421,7 +429,7 @@ do iIrrep=0,nIrrep-1
               iCI(ixxx) = iyy
               jCI(jxxx) = icnt
 
-              if (iCntrc <= list(iAng)) then
+              if (iCntrc <= List(iAng)) then
                 iOT(ixxx) = Occ
               else
                 iOT(ixxx) = Vir
@@ -437,7 +445,7 @@ do iIrrep=0,nIrrep-1
               LPMM(iyy) = dbsc(iCnttp)%IsMM
               LPA(iyy) = dbsc(iCnttp)%AtmNr
 
-              LP_Names(iyy) = dc(mdc)%LblCnt(1:LENIN)//':'//ChOper(iOper(iR))
+              LP_Names(iyy) = dc(mdc)%LblCnt(1:LenIn)//':'//ChOper(iOper(iR))
               desym_basis_ids(1,ixxx) = iyy
               desym_basis_ids(2,ixxx) = iCntrc
               desym_basis_ids(3,ixxx) = llab
@@ -446,13 +454,13 @@ do iIrrep=0,nIrrep-1
             !                                                          *
             !***********************************************************
             !                                                          *
-            Mamn(iSO) = dc(mdc)%LblCnt(1:LENIN)//ChTemp(1:8)
+            Mamn(iSO) = dc(mdc)%LblCnt(1:LenIn)//ChTemp(1:8)
             basis_ids(1,iSO) = mdc
             basis_ids(2,iSO) = iCntrc
             basis_ids(3,iSO) = llab
             basis_ids(4,iSO) = mlab
             fermion_type(iSO) = 0
-            if (dbsc(iCnttp)%fMass /= 1.0d0) fermion_type(iSO) = 1
+            if (dbsc(iCnttp)%fMass /= One) fermion_type(iSO) = 1
             if (.not. Primitive_Pass) then
               kIrrep = kIrrep+1
               icent(kIrrep) = mdc
@@ -476,17 +484,17 @@ do iIrrep=0,nIrrep-1
   !ulf
   nrSym = nIrrep
   nrBas(iIrrep+1) = nBas(iIrrep)
-  !write(6,*) ' nBas(iIrrep)', iIrrep, nBas(iIrrep)
+  !write(u6,*) ' nBas(iIrrep)', iIrrep, nBas(iIrrep)
   S%nDim = S%nDim+nBas(iIrrep)
   S%n2Tot = S%n2Tot+nBas(iIrrep)**2
 end do ! iIrrep
 !if (lSkip) S%nDim = iBas
 if ((iBas /= iSO) .and. (iBas_Aux /= iSO_Aux-iSO) .and. (.not. lSkip)) then
-  write(6,*) 'iBas=',iBas
-  write(6,*) 'iBas_Aux=',iBas_Aux
-  write(6,*) 'iSO=',iSO
-  write(6,*) 'iSO_Aux=',iSO_Aux-iSO
-  write(6,*) 'iSO_Tot=',iSO_Tot
+  write(u6,*) 'iBas=',iBas
+  write(u6,*) 'iBas_Aux=',iBas_Aux
+  write(u6,*) 'iSO=',iSO
+  write(u6,*) 'iSO_Aux=',iSO_Aux-iSO
+  write(u6,*) 'iSO_Tot=',iSO_Tot
   call ErrTra()
   call Abend()
 end if
@@ -510,7 +518,7 @@ end if
 
 call mma_deallocate(IndC)
 call mma_deallocate(SM)
-call mma_deallocate(Index)
+call mma_deallocate(Index1)
 call mma_deallocate(Index2)
 Go To 198
 !                                                                      *
@@ -520,11 +528,11 @@ Go To 198
 
 199 continue
 if (Show .and. (iPrint >= 6)) then
-  write(6,*)
-  write(6,'(19x,a)') ' **************************************************'
-  write(6,'(19x,a)') ' ********** Petite list Basis Functions ***********'
-  write(6,'(19x,a)') ' **************************************************'
-  write(6,*)
+  write(u6,*)
+  write(u6,'(19x,a)') ' **************************************************'
+  write(u6,'(19x,a)') ' ********** Petite list Basis Functions ***********'
+  write(u6,'(19x,a)') ' **************************************************'
+  write(u6,*)
 end if
 
 kIrrep = 0
@@ -535,7 +543,7 @@ do iIrrep=0,nIrrep-1
   nBas(iIrrep) = 0
   nBas_Aux(iIrrep) = 0
   nBas_Frag(iIrrep) = 0
-  type(iIrrep) = .true.
+  bType(iIrrep) = .true.
 
   ! Loop over distinct shell types
 
@@ -587,7 +595,7 @@ do iIrrep=0,nIrrep-1
         LPQ(mdc) = dbsc(iCnttp)%Charge
         LPMM(mdc) = dbsc(iCnttp)%IsMM
         LPA(mdc) = dbsc(iCnttp)%AtmNr
-        LP_Names(mdc) = dc(mdc)%LblCnt(1:LENIN)//'    '
+        LP_Names(mdc) = dc(mdc)%LblCnt(1:LenIn)//'    '
       end if
       do iAng=0,dbsc(iCnttp)%nVal-1
         nCore = nCore_Sh(iAng)
@@ -606,7 +614,7 @@ do iIrrep=0,nIrrep-1
           iAO = iAO+1
           if (iAO > MxAO) then
             call ErrTra()
-            write(6,*) ' Increase MxAO'
+            write(u6,*) ' Increase MxAO'
             call Abend()
           end if
           lComp = kComp+iComp
@@ -619,12 +627,12 @@ do iIrrep=0,nIrrep-1
           end do
           Go To 304
 307       continue
-          if (output .and. type(iIrrep)) then
-            write(6,*)
-            write(6,'(10X,2A)') ' Basis functions generated by ',ChOper(iIrrep)
-            write(6,*)
-            write(6,'(A)') ' Basis Label        Type   Center'
-            type(iIrrep) = .false.
+          if (output .and. bType(iIrrep)) then
+            write(u6,*)
+            write(u6,'(10X,2A)') ' Basis functions generated by ',ChOper(iIrrep)
+            write(u6,*)
+            write(u6,'(A)') ' Basis Label        Type   Center'
+            bType(iIrrep) = .false.
           end if
 
           if (S%MaxBas(iAng) > 0) iAOtSO(iAO,iIrrep) = jSO+1
@@ -649,8 +657,8 @@ do iIrrep=0,nIrrep-1
               nBas(iIrrep) = nBas(iIrrep)+1
             end if
             if (iSO_ > nMamn) then
-              write(6,*) ' iSO_ > nMamn'
-              write(6,*) 'nMamn=',nMamn
+              write(u6,*) ' iSO_ > nMamn'
+              write(u6,*) 'nMamn=',nMamn
               call Abend()
             end if
             jSO = jSO+1
@@ -689,10 +697,10 @@ do iIrrep=0,nIrrep-1
             end if
             ChTmp = Clean_BName(ChTemp,0)
 
-            if (output) write(6,'(I5,2X,A8,5X,A8,I3)') iSO_,dc(mdc)%LblCnt,ChTmp,mc+imc
+            if (output) write(u6,'(I5,2X,A8,5X,A8,I3)') iSO_,dc(mdc)%LblCnt,ChTmp,mc+imc
 
             if (iSO_ > nSOInf) then
-              write(6,*) 'iSO_ > nSOInf'
+              write(u6,*) 'iSO_ > nSOInf'
               call Abend()
             end if
             iSOInf(1,iSO_) = iCnttp
@@ -709,7 +717,7 @@ do iIrrep=0,nIrrep-1
 
             iCI(iSO) = mdc
             jCI(iSO) = mdc
-            if (iCntrc <= list(iAng)) then
+            if (iCntrc <= List(iAng)) then
               iOT(iSO) = Occ
             else
               iOT(iSO) = Vir
@@ -718,17 +726,17 @@ do iIrrep=0,nIrrep-1
             LPQ(mdc) = dbsc(iCnttp)%Charge
             LPMM(mdc) = dbsc(iCnttp)%IsMM
             LPA(mdc) = dbsc(iCnttp)%AtmNr
-            LP_Names(mdc) = dc(mdc)%LblCnt(1:LENIN)//'    '
+            LP_Names(mdc) = dc(mdc)%LblCnt(1:LenIn)//'    '
             !                                                          *
             !***********************************************************
             !                                                          *
-            Mamn(iSO) = dc(mdc)%LblCnt(1:LENIN)//ChTemp(1:8)
+            Mamn(iSO) = dc(mdc)%LblCnt(1:LenIn)//ChTemp(1:8)
             basis_ids(1,iSO) = mdc
             basis_ids(2,iSO) = iCntrc
             basis_ids(3,iSO) = llab
             basis_ids(4,iSO) = mlab
             fermion_type(iSO) = 0
-            if (dbsc(iCnttp)%fMass /= 1.0d0) fermion_type(iSO) = 1
+            if (dbsc(iCnttp)%fMass /= One) fermion_type(iSO) = 1
             if (.not. Primitive_Pass) then
               kIrrep = kIrrep+1
               icent(kIrrep) = mdc
@@ -799,7 +807,7 @@ do iCnttp=1,nCnttp
         iAO = iAO+1
         if (iAO > MxAO) then
           call ErrTra()
-          write(6,*) ' Increase MxAO'
+          write(u6,*) ' Increase MxAO'
           call Abend()
         end if
         lComp = kComp+iComp
@@ -831,11 +839,11 @@ if (Show) then
 
     ! Print out basis set information
 
-    Fmt = '(6X,A,T30,8I4)'
-    write(6,*)
-    write(6,'(6X,A)') 'Basis set specifications :'
-    write(6,'(6X,A,T30,8(1X,A))') 'Symmetry species',(lIrrep(i),i=0,nIrrep-1)
-    write(6,Fmt) 'Basis functions',(nBas(i),i=0,nIrrep-1)
+    Frmt = '(6X,A,T30,8I4)'
+    write(u6,*)
+    write(u6,'(6X,A)') 'Basis set specifications :'
+    write(u6,'(6X,A,T30,8(1X,A))') 'Symmetry species',(lIrrep(i),i=0,nIrrep-1)
+    write(u6,Frmt) 'Basis functions',(nBas(i),i=0,nIrrep-1)
 
   end if
 end if
@@ -845,7 +853,7 @@ end if
 ! Write info (not just) for LoProp
 
 if (.not. Primitive_Pass) then
-  call Put_cArray('LP_L',LP_Names(1),(LENIN4)*S%mCentr)
+  call Put_cArray('LP_L',LP_Names(1),(LenIn4)*S%mCentr)
   call Put_iArray('LP_A',LPA,S%mCentr)
   call Put_dArray('LP_Q',LPQ,S%mCentr)
   call Put_dArray('LP_Coor',LPC,3*S%mCentr)
@@ -858,6 +866,7 @@ else
   call Put_iArray('Ctr Index Prim',jCI,iBas)
 
 end if
+call mma_deallocate(LP_Names)
 call mma_deallocate(fermion_type)
 call mma_deallocate(desym_basis_ids)
 call mma_deallocate(basis_ids)
@@ -868,18 +877,23 @@ call mma_deallocate(LPC)
 call mma_deallocate(iCI)
 call mma_deallocate(jCI)
 call mma_deallocate(iOT)
+call mma_deallocate(List)
+call mma_deallocate(List_AE)
+call mma_deallocate(LVAL)
+call mma_deallocate(MVAL)
+call mma_deallocate(nCore_Sh)
 
 if (Show .and. (iPrint >= 6)) then
   call CollapseOutput(0,'   SO/AO info:')
-  write(6,*)
+  write(u6,*)
 end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-write(6,*) ' *** iAOtSO ***'
+write(u6,*) ' *** iAOtSO ***'
 do jAO=1,iAO
-  write(6,*) (iAOtSO(jAO,jIrrep),jIrrep=0,nIrrep-1)
+  write(u6,*) (iAOtSO(jAO,jIrrep),jIrrep=0,nIrrep-1)
 end do
 #endif
 

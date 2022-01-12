@@ -25,17 +25,19 @@ subroutine Mk_ChDisp()
 !             Modified to complement GetInf, January '92.              *
 !***********************************************************************
 
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, nCnttp
+use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
 #include "Molcas.fh"
-integer nDisp(0:7), DegDisp(MxAtom*3)
-character ChDisp(MxAtom*3)*(LENIN6)
-logical TstFnc
-character*1 xyz(0:2)
-data xyz/'x','y','z'/
+integer(kind=iwp) :: iCar, iCnt, iCnttp, iComp, iDisp, iIrrep, mc, mdc, mDisp, nCnttp_Valence, nDisp(0:7)
+logical(kind=iwp) :: TstFnc
+integer(kind=iwp), allocatable :: DegDisp(:)
+character(len=LenIn6), allocatable :: ChDisp(:)
+character, parameter :: xyz(0:2) = ['x','y','z']
 
 !                                                                      *
 !***********************************************************************
@@ -62,6 +64,8 @@ end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+call mma_allocate(ChDisp,mDisp,label='ChDisp')
+call mma_allocate(DegDisp,mDisp,label='DegDisp')
 iDisp = 0
 do iIrrep=0,nIrrep-1
   ! Loop over basis function definitions
@@ -78,7 +82,7 @@ do iIrrep=0,nIrrep-1
         if (TstFnc(dc(mdc)%iCoSet,iIrrep,iComp,dc(mdc)%nStab) .and. (.not. dbsc(iCnttp)%pChrg)) then
           iDisp = iDisp+1
           ChDisp(iDisp) = ' '
-          write(ChDisp(iDisp)(1:(LENIN6)),'(A,1X,A1)') dc(mdc)%LblCnt(1:LENIN4),xyz(iCar)
+          write(ChDisp(iDisp)(1:(LenIn6)),'(A,1X,A1)') dc(mdc)%LblCnt(1:LenIn4),xyz(iCar)
           DegDisp(iDisp) = nIrrep/dc(mdc)%nStab
           nDisp(iIrrep) = nDisp(iIrrep)+1
         end if
@@ -92,14 +96,16 @@ end do
 
 if (iDisp /= mDisp) then
   call WarningMessage(2,' Wrong number of symmetry adapted displacements')
-  write(6,*) iDisp,'=/=',mDisp
+  write(u6,*) iDisp,'=/=',mDisp
   call Abend()
 end if
 
 call Put_iScalar('nChDisp',iDisp)
-call Put_cArray('ChDisp',ChDisp(1),(LENIN6)*iDisp)
+call Put_cArray('ChDisp',ChDisp(1),LenIn6*iDisp)
 call Put_iArray('nDisp',nDisp,nIrrep)
 call Put_iArray('DegDisp',DegDisp,iDisp)
+call mma_deallocate(ChDisp)
+call mma_deallocate(DegDisp)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

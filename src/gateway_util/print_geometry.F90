@@ -21,24 +21,26 @@ subroutine Print_Geometry(iOpt)
 !             September 2006                                           *
 !***********************************************************************
 
-use Basis_Info
-use Center_Info
-use Period
+use Basis_Info, only: dbsc, nCnttp
+use Center_Info, only: dc
+use Period, only: AdCell, Cell_l, lthCell
 use Temporary_Parameters, only: Expert
 use Sizes_of_Seward, only: S
 use Real_Info, only: Rtrnc
 use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Angstrom
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp) :: iOpt
 #include "Molcas.fh"
-#include "real.fh"
-#include "stdalloc.fh"
 #include "print.fh"
-character(LEN=1) help_c
-character(LEN=16) FMT
-character(LEN=LENIN), allocatable :: Lblxxx(:)
-real*8, dimension(:,:), allocatable :: Centr
-#include "angstr.fh"
+integer(kind=iwp) :: i, iPrint, iRout, j, jCnt, jCnttp, mCnt, nc, ndc
+character(len=16) :: frmt
+character :: help_c
+real(kind=wp), allocatable :: Centr(:,:)
+character(len=LenIn), allocatable :: Lblxxx(:)
 
 !                                                                      *
 !***********************************************************************
@@ -46,7 +48,6 @@ real*8, dimension(:,:), allocatable :: Centr
 iRout = 2
 iPrint = nPrint(iRout)
 if (iPrint == 0) return
-LuWr = 6
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -56,26 +57,26 @@ call mma_allocate(Lblxxx,S%mCentr,Label='Lblxxx')
 !***********************************************************************
 !                                                                      *
 
-write(LuWr,*)
+write(u6,*)
 call CollapseOutput(1,'   Molecular structure info:')
-write(LuWr,'(3X,A)') '   -------------------------'
-write(LuWr,*)
-if (iOpt == 0) FMT = '(19X,A)'
-if (iOpt == 1) FMT = '(11X,A)'
+write(u6,'(3X,A)') '   -------------------------'
+write(u6,*)
+if (iOpt == 0) frmt = '(19X,A)'
+if (iOpt == 1) frmt = '(11X,A)'
 
-write(LuWr,FMT) ' ************************************************ '
+write(u6,frmt) ' ************************************************ '
 if (iOpt == 0) then
-  write(LuWr,FMT) ' **** Cartesian Coordinates / Bohr, Angstrom **** '
+  write(u6,frmt) ' **** Cartesian Coordinates / Bohr, Angstrom **** '
 else
-  write(LuWr,FMT) ' **** Cartesian Coordinates / Angstrom       **** '
+  write(u6,frmt) ' **** Cartesian Coordinates / Angstrom       **** '
 end if
-write(LuWr,FMT) ' ************************************************ '
-write(LuWr,*)
+write(u6,frmt) ' ************************************************ '
+write(u6,*)
 if (iOpt == 0) then
-  write(LuWr,'(A)') '     Center  Label                x              y              z'// &
-                                 '                     x              y              z'
+  write(u6,'(A)') '     Center  Label                x              y              z'// &
+                               '                     x              y              z'
 else
-  write(LuWr,'(A)') '     Center  Label                x              y              z'
+  write(u6,'(A)') '     Center  Label                x              y              z'
 end if
 !                                                                      *
 !***********************************************************************
@@ -100,16 +101,16 @@ do jCnttp=1,nCnttp
           end do
         end if
         if (iOpt == 0) then
-          write(LuWr,'(6X,I3,A1,5X,A,3F15.6,7X,3F15.6)') nc,help_c,dc(ndc)%LblCnt,Centr(1:3,nc),Centr(1:3,nc)*angstr
+          write(u6,'(6X,I3,A1,5X,A,3F15.6,7X,3F15.6)') nc,help_c,dc(ndc)%LblCnt,Centr(1:3,nc),Centr(1:3,nc)*Angstrom
         else
-          write(LuWr,'(6X,I3,A1,5X,A,3F15.6)') nc,help_c,dc(ndc)%LblCnt,Centr(1:3,nc)*angstr
+          write(u6,'(6X,I3,A1,5X,A,3F15.6)') nc,help_c,dc(ndc)%LblCnt,Centr(1:3,nc)*Angstrom
         end if
       end if
       if (nc > 8*MxAtom) then
         call WarningMessage(2,'lblxxx too small')
         call Abend()
       end if
-      lblxxx(nc) = dc(ndc)%LblCnt(1:LENIN)
+      lblxxx(nc) = dc(ndc)%LblCnt(1:LenIn)
       nc = nc+1
     end do
   end do
@@ -122,7 +123,7 @@ nc = nc-1
 ! Compute distances
 
 if (S%mCentr <= 2) Go To 55
-call Dstncs(lblxxx,Centr,nc,angstr,S%Max_Center,6)
+call Dstncs(lblxxx,Centr,nc,Angstrom,S%Max_Center,6)
 if (.not. Expert) call DstChk(Centr,lblxxx,nc)
 
 ! Compute valence bond angles
@@ -145,7 +146,7 @@ call mma_deallocate(Centr)
 !***********************************************************************
 !                                                                      *
 call CollapseOutput(0,'   Molecular structure info:')
-write(LuWr,*)
+write(u6,*)
 
 return
 

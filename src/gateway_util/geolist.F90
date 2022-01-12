@@ -11,6 +11,13 @@
 
 module GeoList
 
-real*8, allocatable :: Chrg(:), Mass(:), Centr(:,:)
+use Definitions, only: wp
+
+implicit none
+private
+
+real(kind=wp), allocatable :: Centr(:,:), Chrg(:), Mass(:)
+
+public :: Centr, Chrg, Mass
 
 end module GeoList

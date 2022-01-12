@@ -13,59 +13,27 @@
 
 module Symmetry_Info
 
+use Definitions, only: iwp
+
 implicit none
 private
 
-public :: nIrrep, iOper, iChTbl, iChCar, Mul, iChBas, lIrrep, lBsFnc, SymLab, iSkip, Symmetry_Info_Set, Symmetry_Info_Dmp, &
-          Symmetry_Info_Get, Symmetry_Info_Back, Symmetry_Info_Free, Symmetry_Info_Setup, VarR, VarT
-
-#include "stdalloc.fh"
-integer :: nIrrep = 1
-integer :: iOper(0:7) = [0,0,0,0,0,0,0,0]
-integer :: iChTbl(0:7,0:7) = reshape([0,0,0,0,0,0,0,0, &
-                                      0,0,0,0,0,0,0,0, &
-                                      0,0,0,0,0,0,0,0, &
-                                      0,0,0,0,0,0,0,0, &
-                                      0,0,0,0,0,0,0,0, &
-                                      0,0,0,0,0,0,0,0, &
-                                      0,0,0,0,0,0,0,0, &
-                                      0,0,0,0,0,0,0,0],[8,8])
-integer :: iChCar(3) = [0,0,0]
-integer :: MxFnc
-integer, parameter :: Mul(8,8) = reshape([1,2,3,4,5,6,7,8, &
-                                          2,1,4,3,6,5,8,7, &
-                                          3,4,1,2,7,8,5,6, &
-                                          4,3,2,1,8,7,6,5, &
-                                          5,6,7,8,1,2,3,4, &
-                                          6,5,8,7,2,1,4,3, &
-                                          7,8,5,6,3,4,1,2, &
-                                          8,7,6,5,4,3,2,1],[8,8])
+integer(kind=iwp) :: iChCar(3) = 0, iChTbl(0:7,0:7) = 0, iOper(0:7) = 0, iSkip(0:7) = 0, MxFnc, nIrrep = 1
+logical(kind=iwp) :: VarR = .false., VarT = .false.
+character(len=80) :: lBsFnc(0:7) = ''
+character(len=3) :: lIrrep(0:7) = '', SymLab
 integer, allocatable :: iChBas(:)
-character(LEN=3) :: lIrrep(0:7) = ['','','','','','','','']
-character(LEN=80) :: lBsFnc(0:7) = ['','','','','','','','']
-character(LEN=3) SymLab
-integer :: iSkip(0:7) = [0,0,0,0,0,0,0,0]
-logical :: VarR = .false., VarT = .false.
+integer(kind=iwp), parameter :: Mul(8,8) = reshape([1,2,3,4,5,6,7,8, &
+                                                    2,1,4,3,6,5,8,7, &
+                                                    3,4,1,2,7,8,5,6, &
+                                                    4,3,2,1,8,7,6,5, &
+                                                    5,6,7,8,1,2,3,4, &
+                                                    6,5,8,7,2,1,4,3, &
+                                                    7,8,5,6,3,4,1,2, &
+                                                    8,7,6,5,4,3,2,1],[8,8])
 
-interface
-  subroutine Abend()
-  end subroutine Abend
-  subroutine Put_iArray(Label,data,nData)
-    character*(*) Label
-    integer nData
-    integer data(nData)
-  end subroutine Put_iArray
-  subroutine Get_iArray(Label,data,nData)
-    character*(*) Label
-    integer nData
-    integer data(nData)
-  end subroutine Get_iArray
-  subroutine Qpg_iArray(Label,Found,nData)
-    character*(*) Label
-    logical Found
-    integer nData
-  end subroutine Qpg_iArray
-end interface
+public :: iChBas, iChCar, iChTbl, iOper, iSkip, lBsFnc, lIrrep, Mul, nIrrep, SymLab, Symmetry_Info_Dmp, Symmetry_Info_Free, &
+          Symmetry_Info_Get, Symmetry_Info_Set, Symmetry_Info_Setup, VarR, VarT
 
 !***********************************************************************
 !***********************************************************************
@@ -75,27 +43,17 @@ contains
 !***********************************************************************
 !***********************************************************************
 
-! temporary routine!
-subroutine Symmetry_Info_Back(mIrrep)
-
-  integer :: mIrrep
-
-  mIrrep = nIrrep
-# ifdef _DEBUGPRINT_
-  write(6,*) 'Call Symmetry_Info_Back'
-  write(6,'(A,I4)') 'nIrrep=',nIrrep
-# endif
-
-end subroutine Symmetry_Info_Back
-
-!***********************************************************************
-!***********************************************************************
-
 subroutine Symmetry_Info_Dmp()
 
-  integer i, j, k, liDmp, lcDmp
-  integer, allocatable :: iDmp(:)
-  character(LEN=1), allocatable :: cDmp(:)
+  use fortran_strings, only: char_array
+  use stdalloc, only: mma_allocate, mma_deallocate
+# ifdef _DEBUGPRINT_
+  use Definitions, only: u6
+# endif
+
+  integer(kind=iwp) :: i, j, lcDmp, liDmp
+  integer(kind=iwp), allocatable :: iDmp(:)
+  character, allocatable :: cDmp(:)
 
   liDmp = 1+8+8*8+3+MxFnc+8+2
   call mma_allocate(iDmp,liDmp,Label='iDmp')
@@ -105,50 +63,38 @@ subroutine Symmetry_Info_Dmp()
   i = i+1
   iDmp(i+1:i+8) = iOper(:)
   i = i+8
-  iDmp(i+1:i+8) = iChTbl(:,0)
-  i = i+8
-  iDmp(i+1:i+8) = iChTbl(:,1)
-  i = i+8
-  iDmp(i+1:i+8) = iChTbl(:,2)
-  i = i+8
-  iDmp(i+1:i+8) = iChTbl(:,3)
-  i = i+8
-  iDmp(i+1:i+8) = iChTbl(:,4)
-  i = i+8
-  iDmp(i+1:i+8) = iChTbl(:,5)
-  i = i+8
-  iDmp(i+1:i+8) = iChTbl(:,6)
-  i = i+8
-  iDmp(i+1:i+8) = iChTbl(:,7)
-  i = i+8
+  iDmp(i+1:i+8*8) = reshape(iChTbl(:,:),[8*8])
+  i = i+8*8
   iDmp(i+1:i+3) = iChCar(1:3)
   i = i+3
   iDmp(i+1:i+MxFnc) = iChBas(1:MxFnc)
   i = i+MxFnc
   iDmp(i+1:i+8) = iSkip(0:7)
   i = i+8
-  iDmp(i+1:i+2) = merge([1,1],[0,0],[VarR,VarT])
-  i = i+2
+  iDmp(i+1) = merge(1,0,VarR)
+  i = i+1
+  iDmp(i+1) = merge(1,0,VarT)
+  i = i+1
 
 # ifdef _DEBUGPRINT_
-  write(6,*) 'Symmetry_Info_Dmp'
-  write(6,*) 'liDmp=',liDmp
-  write(6,*) 'MxFnc=',MxFnc
-  write(6,*) 'nIrrep=',nIrrep
-  write(6,*) 'iOper:'
-  write(6,'(8I4)') (iOper(i),i=0,nIrrep-1)
-  write(6,*)
-  write(6,'(9I4)') (iDmp(i),i=1,liDmp)
-  write(6,*)
-  write(6,*) 'lIrrep:'
+  write(u6,*) 'Symmetry_Info_Dmp'
+  write(u6,*) 'liDmp=',liDmp
+  write(u6,*) 'MxFnc=',MxFnc
+  write(u6,*) 'nIrrep=',nIrrep
+  write(u6,*) 'iOper:'
+  write(u6,'(8I4)') (iOper(i),i=0,nIrrep-1)
+  write(u6,*)
+  write(u6,'(9I4)') (iDmp(i),i=1,liDmp)
+  write(u6,*)
+  write(u6,*) 'lIrrep:'
   do i=0,nIrrep-1
-    write(6,'(A)') lIrrep(i)
+    write(u6,'(A)') lIrrep(i)
   end do
-  write(6,*) 'lBsFnc:'
+  write(u6,*) 'lBsFnc:'
   do i=0,nIrrep-1
-    write(6,'(A)') lBsFnc(i)
+    write(u6,'(A)') lBsFnc(i)
   end do
-  write(6,'(2A)') 'SymLab:',SymLab
+  write(u6,'(2A)') 'SymLab:',SymLab
 # endif
 
   call Put_iArray('Symmetry Info',iDmp,liDmp)
@@ -156,23 +102,17 @@ subroutine Symmetry_Info_Dmp()
 
   lcDmp = 3*8+80*8+3
   call mma_allocate(cDmp,lcDmp,Label='cDmp')
-  k = 0
+  j = 0
   do i=0,7
-    do j=1,3
-      cDmp(j+k) = lIrrep(i)(j:j)
-    end do
-    k = k+3
+    cDmp(j+1:j+3) = char_array(lIrrep(i))
+    j = j+3
   end do
   do i=0,7
-    do j=1,80
-      cDmp(j+k) = lBsFnc(i)(j:j)
-    end do
-    k = k+80
+    cDmp(j+1:j+80) = char_array(lBsFnc(i))
+    j = j+80
   end do
-  do i=1,3
-    cDmp(i+k) = SymLab(i:i)
-  end do
-  k = k+3
+  cDmp(j+1:j+3) = char_array(SymLab)
+  j = j+3
   call put_cArray('SymmetryCInfo',cDmp(1),lcDmp)
   call mma_deallocate(cDmp)
 
@@ -183,10 +123,16 @@ end subroutine Symmetry_Info_Dmp
 
 subroutine Symmetry_Info_Get()
 
-  integer i, j, k, liDmp, lcDmp
-  integer, allocatable :: iDmp(:)
-  logical Found
-  character(LEN=1), allocatable :: cDmp(:)
+  use fortran_strings, only: str
+  use stdalloc, only: mma_allocate, mma_deallocate
+# ifdef _DEBUGPRINT_
+  use Definitions, only: u6
+# endif
+
+  integer(kind=iwp) i, j, liDmp, lcDmp
+  logical(kind=iwp) :: Found
+  integer(kind=iwp), allocatable :: iDmp(:)
+  character, allocatable :: cDmp(:)
 
   if (allocated(iChBas)) return
   call Qpg_iArray('Symmetry Info',Found,liDmp)
@@ -201,69 +147,51 @@ subroutine Symmetry_Info_Get()
   i = i+1
   iOper(:) = iDmp(i+1:i+8)
   i = i+8
-  iChTbl(:,0) = iDmp(i+1:i+8)
-  i = i+8
-  iChTbl(:,1) = iDmp(i+1:i+8)
-  i = i+8
-  iChTbl(:,2) = iDmp(i+1:i+8)
-  i = i+8
-  iChTbl(:,3) = iDmp(i+1:i+8)
-  i = i+8
-  iChTbl(:,4) = iDmp(i+1:i+8)
-  i = i+8
-  iChTbl(:,5) = iDmp(i+1:i+8)
-  i = i+8
-  iChTbl(:,6) = iDmp(i+1:i+8)
-  i = i+8
-  iChTbl(:,7) = iDmp(i+1:i+8)
-  i = i+8
+  iChTbl(:,:) = reshape(iDmp(i+1:i+8*8),[8,8])
+  i = i+8*8
   iChCar(1:3) = iDmp(i+1:i+3)
   i = i+3
   iChBas(1:MxFnc) = iDmp(i+1:i+MxFnc)
   i = i+MxFnc
   iSKip(0:7) = iDmp(i+1:i+8)
   i = i+8
-  VarR = iDmp(i+1) /= 0
-  VarT = iDmp(i+2) /= 0
-  i = i+2
+  VarR = iDmp(i+1) > 0
+  i = i+1
+  VarT = iDmp(i+1) > 0
+  i = i+1
   call mma_deallocate(iDmp)
 
   lcDmp = 3*8+80*8+3
   call mma_allocate(cDmp,lcDmp,Label='cDmp')
   call get_carray('SymmetryCInfo',cDmp(1),lcDmp)
-  k = 0
+  j = 0
   do i=0,7
-    do j=1,3
-      lIrrep(i)(j:j) = cDmp(j+k)
-    end do
-    k = k+3
+    lIrrep(i) = str(cDmp(j+1:j+3))
+    j = j+3
   end do
   do i=0,7
-    do j=1,80
-      lBsFnc(i)(j:j) = cDmp(j+k)
-    end do
-    k = k+80
+    lBsFnc(i) = str(cDmp(j+1:j+80))
+    j = j+80
   end do
-  do i=1,3
-    SymLab(i:i) = cDmp(i+k)
-  end do
+  SymLab = str(cDmp(j+1:j+3))
+  j = j+3
   call mma_deallocate(cDmp)
 # ifdef _DEBUGPRINT_
-  write(6,*) 'Symmetry_Info_Get'
-  write(6,*) 'liDmp=',liDmp
-  write(6,*) 'MxFnc=',MxFnc
-  write(6,*) 'nIrrep=',nIrrep
-  write(6,*)
-  write(6,'(2A)') 'SymLab:',SymLab
-  write(6,*) 'iOper:'
-  write(6,'(8I4)') (iOper(i),i=0,nIrrep-1)
-  write(6,*)
-  write(6,*) 'lIrrep:'
+  write(u6,*) 'Symmetry_Info_Get'
+  write(u6,*) 'liDmp=',liDmp
+  write(u6,*) 'MxFnc=',MxFnc
+  write(u6,*) 'nIrrep=',nIrrep
+  write(u6,*)
+  write(u6,'(2A)') 'SymLab:',SymLab
+  write(u6,*) 'iOper:'
+  write(u6,'(8I4)') (iOper(i),i=0,nIrrep-1)
+  write(u6,*)
+  write(u6,*) 'lIrrep:'
   do i=0,nIrrep-1
-    write(6,'(A)') lIrrep(i)
+    write(u6,'(A)') lIrrep(i)
   end do
   do i=0,nIrrep-1
-    write(6,'(A)') lBsFnc(i)
+    write(u6,'(A)') lBsFnc(i)
   end do
 # endif
 
@@ -273,6 +201,8 @@ end subroutine Symmetry_Info_Get
 !***********************************************************************
 
 subroutine Symmetry_Info_Free()
+
+  use stdalloc, only: mma_deallocate
 
   if (.not. allocated(iChBas)) return
   call mma_deallocate(iChBas)
@@ -285,9 +215,11 @@ end subroutine Symmetry_Info_Free
 
 subroutine Symmetry_Info_Setup(nOper,Oper,iAng)
 
-  implicit none
-  integer :: nOper, iAng, i, j
-  character(LEN=3) :: Oper(3)
+  use Definitions, only: u6
+
+  integer(kind=iwp) :: nOper, iAng
+  character(len=3) :: Oper(3)
+  integer(kind=iwp) :: i, j
 
   if (allocated(iChBas)) return   ! Return if already initiated.
 
@@ -304,8 +236,8 @@ subroutine Symmetry_Info_Setup(nOper,Oper,iAng)
     end do
     if (iOper(i) == 0) then
       call WarningMessage(2,'RdCtl: Illegal symmetry operator!')
-      write(6,*) 'Oper=',Oper(i)
-      write(6,*)
+      write(u6,*) 'Oper=',Oper(i)
+      write(u6,*)
       call Abend()
     end if
   end do
@@ -351,9 +283,13 @@ end subroutine Symmetry_Info_Setup
 
 subroutine Symmetry_Info_Set(iAng)
 
-  integer :: iIrrep, jIrrep
-  integer :: iSymX, iSymY, iSymZ, i
-  integer :: iAng, lxyz, ixyz, ix, jx, iyMax, iy, jy, iz, jz, jxyz
+  use stdalloc, only: mma_allocate
+# ifdef _DEBUGPRINT_
+  use Definitions, only: u6
+# endif
+
+  integer(kind=iwp), intent(in) :: iAng
+  integer(kind=iwp) :: i, iIrrep, iSymX, iSymY, iSymZ, ix, ixyz, iy, iyMax, iz, jIrrep, jx, jxyz, jy, jz, lxyz
 
   if (allocated(iChBas)) return
 
@@ -377,8 +313,8 @@ subroutine Symmetry_Info_Set(iAng)
   MxFnc = (iAng+1)*(iAng+2)*(iAng+3)/6
   call mma_allocate(iChBas,MxFnc,Label='iChBas')
 # ifdef _DEBUGPRINT_
-  write(6,*) 'Symmetry_Info_Set:'
-  write(6,*) 'iAng,MxFnc=',iAng,MxFnc
+  write(u6,*) 'Symmetry_Info_Set:'
+  write(u6,*) 'iAng,MxFnc=',iAng,MxFnc
 # endif
 
   lxyz = 0
@@ -407,13 +343,13 @@ subroutine Symmetry_Info_Set(iAng)
     end do
   end do
 # ifdef _DEBUGPRINT_
-  write(6,*) 'Symmetry_Info_Set:'
-  write(6,*) 'MxFnc=',MxFnc
-  write(6,*) 'nIrrep=',nIrrep
-  write(6,'(A,8I4)') 'iOper:',iOper(0:nIrrep-1)
-  write(6,*) 'iChTbl:'
+  write(u6,*) 'Symmetry_Info_Set:'
+  write(u6,*) 'MxFnc=',MxFnc
+  write(u6,*) 'nIrrep=',nIrrep
+  write(u6,'(A,8I4)') 'iOper:',iOper(0:nIrrep-1)
+  write(u6,*) 'iChTbl:'
   do i=0,nIrrep-1
-    write(6,'(8I4)') iChTbl(0:nIrrep-1,i)
+    write(u6,'(8I4)') iChTbl(0:nIrrep-1,i)
   end do
 # endif
 
@@ -433,18 +369,21 @@ subroutine ChTab(iOper,nIrrep,iChTbl)
   !             September '91                                          *
   !*********************************************************************
 
-  implicit none
-  integer nIrrep
-  integer iOper(nIrrep), iChTbl(1:8,1:8) ! ugly dimensions change to 0:7!
-  integer iTest(8)
-  integer :: iSigma = 1
-  character(Len=80) Tmp
-  logical Inv, Rot
-  character(LEN=6) :: xyz(0:7) = ['      ','x     ','y     ','xy, Rz','z     ','xz, Ry','yz, Rx','I     ']
-  integer i, i1, i2, ia, ib, iCh, iFnc, iIrrep, iRot, iSub, iSymX, iSymY, iSymZ, ix, iy, iz, jIrrep
-  integer j, jx, jy, jz, Lenlbs, LenlIrr, LenTmp
-  integer iclast
-  external iclast
+  use Definitions, only: u6
+
+  integer(kind=iwp) :: nIrrep, iOper(nIrrep), iChTbl(1:8,1:8) ! ugly dimensions change to 0:7!
+  integer(kind=iwp) :: i, i1, ia, ib, iCh, iFnc, iIrrep, iRot, iSigma = 1, iSub, iSymX, iSymY, iSymZ, iTest(8), ix, iy, iz, j, &
+                       jIrrep, jx, jy, jz
+  logical(kind=iwp) :: Inv, Rot
+  character(len=80) :: Tmp
+  character(len=*), parameter :: xyz(0:7) = ['      ', &
+                                             'x     ', &
+                                             'y     ', &
+                                             'xy, Rz', &
+                                             'z     ', &
+                                             'xz, Ry', &
+                                             'yz, Rx', &
+                                             'I     ']
 
   !                                                                    *
   !*********************************************************************
@@ -485,7 +424,7 @@ subroutine ChTab(iOper,nIrrep,iChTbl)
     iSigma = 2
   else
     call WarningMessage(2,'ChTab: Illegal value of nIrrep')
-    write(6,*) 'nIrrep=',nIrrep
+    write(u6,*) 'nIrrep=',nIrrep
     call Abend()
   end if
   ichTbl(:,:) = 0
@@ -537,18 +476,14 @@ subroutine ChTab(iOper,nIrrep,iChTbl)
     else
       jIrrep = -1
       call WarningMessage(2,'ChTab: Illegal nIrrep value!')
-      write(6,*) 'nIrrep=',nIrrep
+      write(u6,*) 'nIrrep=',nIrrep
       call Abend()
     end if
     if (lBsFnc(jIrrep-1)(1:1) == ' ') then
       lBsFnc(jIrrep-1) = Tmp
       call ICopy(nIrrep,iTest,1,iChTbl(jIrrep,1),8)
     else
-      LenlBs = len(lBsFnc(jIrrep-1))
-      LenTmp = len(Tmp)
-      i1 = iCLast(lBsFnc(jIrrep-1),LenlBs)
-      i2 = iCLast(Tmp,LenTmp)
-      lBsFnc(jIrrep-1) = lBsFnc(jIrrep-1)(1:i1)//', '//Tmp(1:i2)
+      lBsFnc(jIrrep-1) = trim(lBsFnc(jIrrep-1))//', '//trim(Tmp)
     end if
   end do
 
@@ -650,8 +585,7 @@ subroutine ChTab(iOper,nIrrep,iChTbl)
     ! Loop over each Irrep
 
     do iIrrep=1,nIrrep
-      LenlIrr = len(lIrrep(iIrrep-1))
-      i1 = 1+iCLast(lIrrep(iIrrep-1),LenlIrr)
+      i1 = 1+len_trim(lIrrep(iIrrep-1))
 
       ! Loop over operators
 

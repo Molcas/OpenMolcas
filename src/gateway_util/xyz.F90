@@ -26,21 +26,35 @@
 
 module XYZ
 
+use Definitions, only: wp, iwp
+
 implicit none
 private
 
 type XYZAtom
-  character(Len=MAXLEN) :: Lab
-  real*8, dimension(3) :: Coord
-  integer :: FileNum
+  character(len=MAXLEN) :: Lab
+  real(kind=wp) :: Coord(3)
+  integer(kind=iwp) :: FileNum
 end type XYZAtom
-type(XYZAtom), dimension(:), allocatable :: Geom
-character(Len=256) :: BasisAll, Symmetry
-character(Len=256), dimension(:,:), allocatable :: BasisSets
-integer, dimension(7) :: Oper
-integer :: FileNum = 0
 
-public :: Read_XYZ, Write_SewInp, Clear_XYZ, Out_Raw, Parse_Basis, Parse_Group, Symmetry
+integer(kind=iwp) :: FileNum = 0, Oper(7)
+character(len=256) :: BasisAll, Symmetry
+character(len=256), allocatable :: BasisSets(:,:)
+type(XYZAtom), dimension(:), allocatable :: Geom
+
+public :: Clear_XYZ, Out_Raw, Parse_Basis, Parse_Group, Read_XYZ, Symmetry, Write_SewInp
+
+! Private extensions to mma interfaces
+
+interface cptr2loff
+  module procedure xyz_cptr2loff
+end interface
+interface mma_Allocate
+  module procedure xyz_mma_allo_1D, xyz_mma_allo_1D_lim
+end interface
+interface mma_Deallocate
+  module procedure xyz_mma_free_1D
+end interface
 
 contains
 
@@ -52,29 +66,31 @@ subroutine Read_XYZ(Lu,Rot,Trans,Replace)
 # ifdef _HDF5_
   use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_attr, mh5_fetch_dset, mh5_close_file
 # endif
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: Zero, One, Angstrom
+  use Definitions, only: u6
 
-  integer, intent(In) :: Lu
-  real*8, dimension(:,:,:), allocatable, intent(In) :: Rot
-  real*8, dimension(:,:), allocatable, intent(In) :: Trans
-  logical, optional, intent(In) :: Replace
-  character(Len=MAXLEN) :: Line, FName, CurrDir
-  integer :: Error, NumAt, i, Lxyz, Idx
-  logical :: Found, Rep
-  integer, external :: IsFreeUnit
-  type(XYZAtom), dimension(:), allocatable :: ThisGeom, TmpGeom
-  real*8, dimension(3,5) :: Mat
-  real*8 :: Factor
-# include "real.fh"
-# include "constants2.fh"
+  integer, intent(in) :: Lu
+  real(kind=wp), allocatable, intent(in) :: Rot(:,:,:), Trans(:,:)
+  logical(kind=iwp), optional, intent(in) :: Replace
+  integer(kind=iwp) :: i, Idx, Error, Lxyz, NumAt
+  real(kind=wp) :: Factor, Mat(3,5)
+  logical(kind=iwp) :: Found, Rep
+  character(len=MAXLEN) :: Line, FName, CurrDir
+  type(XYZAtom), allocatable :: ThisGeom(:), TmpGeom(:)
+  integer(kind=iwp), external :: IsFreeUnit
 # ifdef _HDF5_
 # include "Molcas.fh"
-  logical :: isH5
-  integer :: Coord_id, nSym, j, c
-  character(Len=LenIn), dimension(:), allocatable :: Labels
-  character(Len=LenIn4), dimension(:), allocatable :: Labels4
-  real*8, dimension(:,:), allocatable :: Coords
+  integer(kind=iwp) :: c, Coord_id, j, nSym
+  logical(kind=iwp) :: isH5
+  real(kind=wp), allocatable :: Coords(:,:)
+  character(len=LenIn4), allocatable :: Labels4(:)
+  character(len=LenIn), allocatable :: Labels(:)
   isH5 = .false.
 # endif
+
+# include "macros.fh"
+  unused_proc(mma_allocate(TmpGeom,[0,0]))
 
   Factor = One
   read(Lu,'(A)') Line
@@ -83,7 +99,7 @@ subroutine Read_XYZ(Lu,Rot,Trans,Replace)
   ! Try to read a number, if it fails, try to open a file
   ! Note that the slash means end-of-line in list-directed input
   NumAt = -1
-  read(Line,*,IOStat=Error) NumAt
+  read(Line,*,iostat=Error) NumAt
   ! And make sure there's nothing but numbers in the first word
   ! (the above is not 100% reliable in some compilers)
   do i=1,len(Line)
@@ -116,16 +132,16 @@ subroutine Read_XYZ(Lu,Rot,Trans,Replace)
         Lxyz = IsFreeUnit(Lxyz)
         call Molcas_Open(Lxyz,FName)
         read(Lxyz,'(A)') Line
-        read(Line,*,IOStat=Error) NumAt
+        read(Line,*,iostat=Error) NumAt
         if (Error /= 0) then
-          write(6,*) 'Error reading file ',trim(FName)
+          write(u6,*) 'Error reading file ',trim(FName)
           call Quit_OnUserError()
         end if
 #     ifdef _HDF5_
       end if
 #     endif
     else
-      write(6,*) 'File ',trim(FName),' not found!'
+      write(u6,*) 'File ',trim(FName),' not found!'
       call Quit_OnUserError()
     end if
   end if
@@ -138,7 +154,7 @@ subroutine Read_XYZ(Lu,Rot,Trans,Replace)
     !*******************************************************************
     ! For HDF5 formatted file
     !*******************************************************************
-    write(6,*) 'Reading xyz coordinates from h5 file '//trim(FName)
+    write(u6,*) 'Reading xyz coordinates from h5 file '//trim(FName)
     Coord_id = mh5_open_file_r(trim(FName))
     ! check if symmetry was used
     call mh5_fetch_attr(Coord_id,'NSYM',nSym)
@@ -148,16 +164,17 @@ subroutine Read_XYZ(Lu,Rot,Trans,Replace)
     else
       call mh5_fetch_attr(Coord_id,'NATOMS_UNIQUE',NumAt)
     end if
-    allocate(ThisGeom(NumAt))
-    allocate(Labels(NumAt),Coords(3,NumAt))
+    call mma_allocate(ThisGeom,NumAt,label='ThisGeom')
+    call mma_allocate(Labels,NumAt,label='Labels')
+    call mma_allocate(Coords,3,NumAt,label='Coords')
     ! read atom labels
     if (nSym > 1) then
-      allocate(Labels4(NumAt))
+      call mma_allocate(Labels4,NumAt,label='Labels4')
       call mh5_fetch_dset(Coord_id,'DESYM_CENTER_LABELS',Labels4)
       do i=1,NumAt
         Labels(i) = Labels4(i)(1:LenIn)
       end do
-      deallocate(Labels4)
+      call mma_deallocate(Labels4)
     else
       call mh5_fetch_dset(Coord_id,'CENTER_LABELS',Labels)
     end if
@@ -185,16 +202,17 @@ subroutine Read_XYZ(Lu,Rot,Trans,Replace)
       ThisGeom(i)%Coord(:) = Coords(:,i)
       ThisGeom(i)%FileNum = FileNum
     end do
-    deallocate(Labels,Coords)
+    call mma_deallocate(Labels)
+    call mma_deallocate(Coords)
   else
 # endif
     !*******************************************************************
     ! For .xyz format file
     !*******************************************************************
-    allocate(ThisGeom(NumAt))
-    read(Lxyz,'(A)',IOStat=Error) Line
+    call mma_allocate(ThisGeom,NumAt,label='ThisGeom')
+    read(Lxyz,'(A)',iostat=Error) Line
     if (Error /= 0) then
-      write(6,*) 'Error reading geometry'
+      write(u6,*) 'Error reading geometry'
       call Quit_OnUserError()
     end if
     call UpCase(Line)
@@ -203,9 +221,9 @@ subroutine Read_XYZ(Lu,Rot,Trans,Replace)
       Factor = One/Angstrom
     end if
     do i=1,NumAt
-      read(Lxyz,*,IOStat=Error) ThisGeom(i)%Lab,ThisGeom(i)%Coord(:)
+      read(Lxyz,*,iostat=Error) ThisGeom(i)%Lab,ThisGeom(i)%Coord(:)
       if (Error /= 0) then
-        write(6,*) 'Error reading geometry'
+        write(u6,*) 'Error reading geometry'
         call Quit_OnUserError()
       end if
       ThisGeom(i)%Coord(:) = ThisGeom(i)%Coord(:)*Factor
@@ -220,22 +238,21 @@ subroutine Read_XYZ(Lu,Rot,Trans,Replace)
   Mat = reshape([One,One,One,One,Zero,Zero,Zero,One,Zero,Zero,Zero,One,Zero,Zero,Zero],shape(Mat))
   Idx = index(' '//Line,' SCALE ')
   if (Idx > 0) then
-    read(Line(Idx+5:),*,IOStat=Error) Mat(1,1)
+    read(Line(Idx+5:),*,iostat=Error) Mat(1,1)
     Mat(2,1) = Mat(1,1)
     Mat(3,1) = Mat(1,1)
   end if
   Idx = index(' '//Line,' SCALEX ')
-  if (Idx > 0) read(Line(Idx+6:),*,IOStat=Error) Mat(1,1)
+  if (Idx > 0) read(Line(Idx+6:),*,iostat=Error) Mat(1,1)
   Idx = index(' '//Line,' SCALEY ')
-  if (Idx > 0) read(Line(Idx+6:),*,IOStat=Error) Mat(2,1)
+  if (Idx > 0) read(Line(Idx+6:),*,iostat=Error) Mat(2,1)
   Idx = index(' '//Line,' SCALEZ ')
-  if (Idx > 0) read(Line(Idx+6:),*,IOStat=Error) Mat(3,1)
+  if (Idx > 0) read(Line(Idx+6:),*,iostat=Error) Mat(3,1)
   Idx = index(' '//Line,' ROT ')
-  if (Idx > 0) read(Line(Idx+3:),*,IOStat=Error) Mat(:,2:4)
+  if (Idx > 0) read(Line(Idx+3:),*,iostat=Error) Mat(:,2:4)
   Idx = index(' '//Line,' TRANS ')
-  if (Idx > 0) read(Line(Idx+5:),*,IOStat=Error) Mat(:,5)
-  ! If Rot and Trans are given in the input, they override
-  ! the inline transformations
+  if (Idx > 0) read(Line(Idx+5:),*,iostat=Error) Mat(:,5)
+  ! If Rot and Trans are given in the input, they override the inline transformations
   if (allocated(Rot)) then
     Mat(:,2:4) = Rot(:,:,FileNum)
   end if
@@ -252,21 +269,22 @@ subroutine Read_XYZ(Lu,Rot,Trans,Replace)
   if (allocated(Geom)) then
     if (Rep) then
       if (size(ThisGeom) /= size(Geom)) then
-        write(6,*) 'New system size does not match previous one'
+        write(u6,*) 'New system size does not match previous one'
         call Quit_OnUserError()
       end if
       do i=1,size(Geom)
         Geom(i)%Coord = ThisGeom(i)%Coord
       end do
+      call mma_deallocate(ThisGeom)
     else
       ! Append the just read geometry to the general one
       call move_alloc(Geom,TmpGeom)
       NumAt = size(TmpGeom)+size(ThisGeom)
-      allocate(Geom(NumAt))
+      call mma_allocate(Geom,NumAt,label='Geom')
       Geom(1:size(TmpGeom)) = TmpGeom(:)
       Geom(size(TmpGeom)+1:) = ThisGeom(:)
-      deallocate(TmpGeom)
-      deallocate(ThisGeom)
+      call mma_deallocate(TmpGeom)
+      call mma_deallocate(ThisGeom)
     end if
   else
     call move_alloc(ThisGeom,Geom)
@@ -275,10 +293,12 @@ subroutine Read_XYZ(Lu,Rot,Trans,Replace)
 end subroutine Read_XYZ
 
 ! Clear allocations
-subroutine Clear_XYZ
+subroutine Clear_XYZ()
 
-  if (allocated(Geom)) deallocate(Geom)
-  if (allocated(BasisSets)) deallocate(BasisSets)
+  use stdalloc, only: mma_deallocate
+
+  if (allocated(Geom)) call mma_deallocate(Geom)
+  if (allocated(BasisSets)) call mma_deallocate(BasisSets)
   FileNum = 0
 
 end subroutine Clear_XYZ
@@ -287,15 +307,16 @@ end subroutine Clear_XYZ
 ! Atoms belonging to GhostFiles have no charge
 subroutine Write_SewInp(FName,GhostFiles)
 
-  character(Len=*), intent(In) :: FName
-  integer, dimension(:), intent(In) :: GhostFiles
-  integer :: Lu, Num, i, j
-  integer, external :: IsFreeUnit
-  character(Len=MAXLEN) :: New, Old, Sym, Lab, Bas
-  logical :: Ghost
+  use Constants, only: Zero
 
-  Lu = 10
-  Lu = IsFreeUnit(Lu)
+  character(len=*), intent(in) :: FName
+  integer, intent(in) :: GhostFiles(:)
+  integer(kind=iwp) :: i, j, Lu, Num
+  logical(kind=iwp) :: Ghost
+  character(len=MAXLEN) :: Bas, Lab, New, Old, Sym
+  integer(kind=iwp), external :: IsFreeUnit
+
+  Lu = IsFreeUnit(10)
   call Molcas_Open(Lu,FName)
   ! Write symmetry
   if (Symmetry /= '') write(Lu,40) 'Symmetry',trim(Symmetry)
@@ -315,7 +336,7 @@ subroutine Write_SewInp(FName,GhostFiles)
       if (i > 1) write(Lu,10) 'End of Basis'
       write(Lu,10) 'Basis Set'
       write(Lu,10) FindBasis(Sym,Lab,Bas)
-      if (Ghost) write(Lu,30) 'Charge',0.0
+      if (Ghost) write(Lu,30) 'Charge',Zero
       Old = New
     end if
     ! Add a sequential number if the label had none
@@ -325,10 +346,11 @@ subroutine Write_SewInp(FName,GhostFiles)
   write(Lu,10) 'End of Basis'
   write(Lu,10) 'End of Coord'
   close(Lu)
-10 format(A)
-20 format(A,I0,3(1X,ES30.20E3))
-30 format(A,/,F4.1)
-40 format(A,/,A)
+
+  10 format(A)
+  20 format(A,I0,3(1X,ES30.20E3))
+  30 format(A,/,F4.1)
+  40 format(A,/,A)
 
 end subroutine Write_SewInp
 
@@ -336,9 +358,9 @@ end subroutine Write_SewInp
 ! Output is the number of saved coordinates
 function Out_Raw(Array)
 
-  real*8, dimension(*), intent(InOut) :: Array
-  integer :: Out_Raw
-  integer :: i, j
+  integer(kind=iwp) :: Out_Raw
+  real(kind=wp), intent(inout) :: Array(*)
+  integer(kind=iwp) :: i, j
 
   j = 0
   do i=1,size(Geom)
@@ -354,14 +376,17 @@ end function Out_Raw
 ! each atom + label
 subroutine Parse_Basis(Basis)
 
-  character(Len=*), intent(In) :: Basis
-  integer :: Num, Idx, IdxDot, Next, i
+  use fortran_strings
+  use stdalloc, only: mma_allocate, mma_deallocate
+
+  character(len=*), intent(in) :: Basis
+  integer(kind=iwp) :: i, Idx, IdxDot, Next, Num
 
   ! Count number of commas
-  Num = count(transfer(Basis,'x',len_trim(Basis)) == ',')+1
+  Num = count(char_array(trim(Basis)) == ',')+1
   BasisAll = ''
-  if (allocated(BasisSets)) deallocate(BasisSets)
-  allocate(BasisSets(2,Num))
+  if (allocated(BasisSets)) call mma_deallocate(BasisSets)
+  call mma_allocate(BasisSets,2,Num,label='BasisSets')
   ! For each comma-separated word, split it at the first dot
   ! If the first part is empty, use it as a general basis set
   Idx = 0
@@ -390,10 +415,10 @@ end subroutine Parse_Basis
 ! the symmetry
 subroutine Parse_Group(Group,Thr)
 
-  character(Len=*), intent(In) :: Group
-  real*8, intent(In) :: Thr
-  character(Len=3), dimension(3) :: Gen
-  integer :: Error, i, j, k
+  character(len=*), intent(in) :: Group
+  real(kind=wp), intent(in) :: Thr
+  integer(kind=iwp) :: Error, i, j, k
+  character(len=3) :: Gen(3)
 
   Symmetry = Group
   call UpCase(Symmetry)
@@ -403,7 +428,7 @@ subroutine Parse_Group(Group,Thr)
     Symmetry = ''
   end if
   Gen = ''
-  read(Symmetry,*,IOStat=Error) Gen
+  read(Symmetry,*,iostat=Error) Gen
   ! Encode generators
   Oper = 0
   do i=1,3
@@ -445,8 +470,10 @@ end subroutine Parse_Group
 ! The result is stored in Symmetry (compatible with molcas-extra)
 subroutine DetectSym(Thr)
 
-  real*8, intent(In) :: Thr
-  logical, dimension(7) :: Op
+  use Definitions, only: u6
+
+  real(kind=wp), intent(in) :: Thr
+  logical(kind=iwp) :: Op(7)
 
   Op = .false.
   Op(iX) = CheckOp(iX,Thr)
@@ -501,29 +528,33 @@ subroutine DetectSym(Thr)
       end select
   end select
   Symmetry = adjustl(Symmetry)
-  if (Symmetry /= '') write(6,10) trim(Symmetry)
+  if (Symmetry /= '') write(u6,10) trim(Symmetry)
   call UpCase(Symmetry)
-10 format(6X,'Found SYMMETRY generators: ',A)
+
+  10 format(6X,'Found SYMMETRY generators: ',A)
 
 end subroutine DetectSym
 
 ! Function to check if a symmetry operation conserves the geometry
 function CheckOp(Op,Thr)
 
-  integer, intent(In) :: Op
-  real*8, intent(In) :: Thr
-  logical :: CheckOp, Found
-  logical, dimension(size(Geom)) :: Done
-  real*8, dimension(3) :: New
-  real*8 :: Dist
-  character(Len=MAXLEN) :: Sym, SymA, SymB, Lab, Bas
-  integer :: Num, i, j
-# include "constants2.fh"
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: Angstrom
 
+  integer(kind=iwp), intent(in) :: Op
+  real(kind=wp), intent(in) :: Thr
+  integer(kind=iwp) :: i, j, Num
+  real(kind=wp) :: Dist, New(3)
+  logical(kind=iwp) :: CheckOp, Found
+  character(len=MAXLEN) :: Bas, Lab, Sym, SymA, SymB
+  logical(kind=iwp), allocatable :: Done(:)
+
+  call mma_allocate(Done,size(Geom),label='Done')
   Done = .false.
   ! For each atom, check if any of the following atoms (including itself)
   ! matches the result of the symmetry operation
-  do i=1,size(Geom)
+  Found = .false.
+  outer: do i=1,size(Geom)
     if (Done(i)) cycle
     call SplitLabel(Geom(i)%Lab,Sym,Num,Lab,Bas)
     SymA = trim(Sym)//trim(Lab)
@@ -539,15 +570,13 @@ function CheckOp(Op,Thr)
       if (Dist*Angstrom**2 <= Thr**2) then
         Done(j) = .true.
         Found = .true.
-        exit
+        cycle outer
       end if
     end do
-    if (.not. Found) then
-      CheckOp = .false.
-      return
-    end if
-  end do
-  CheckOp = .true.
+    if (.not. Found) exit
+  end do outer
+  CheckOp = Found
+  call mma_deallocate(Done)
 
 end function CheckOp
 
@@ -556,15 +585,14 @@ end function CheckOp
 ! Symmetry-superfluous atoms are marked with FileNum=0
 subroutine AdaptSym(Thr)
 
-  real*8, intent(In) :: Thr
-  real*8, dimension(3) :: Aver, New
-  real*8 :: Dist
-  integer :: Op, nOp, Num, i, j
-  character(Len=MAXLEN) :: Sym, SymA, SymB, Lab, Bas
-  logical :: Found, Moved
-  logical, dimension(3) :: ZeroAxis
-# include "constants2.fh"
-# include "real.fh"
+  use Constants, only: Zero, Angstrom
+  use Definitions, only: wp, u6
+
+  real(kind=wp), intent(in) :: Thr
+  integer(kind=iwp) :: i, j, nOp, Num, Op
+  real(kind=wp) :: Aver(3), Dist, New(3)
+  logical(kind=iwp) :: Found, Moved, ZeroAxis(3)
+  character(len=MAXLEN) :: Bas, Lab, Sym, SymA, SymB
 
   Moved = .false.
   ! Count the non-trivial operations
@@ -602,12 +630,12 @@ subroutine AdaptSym(Thr)
         end if
       end do
       if (.not. Found) then
-        write(6,*) 'Symmetry operators do not match the geometry'
+        write(u6,*) 'Symmetry operators do not match the geometry'
         call Quit_OnUserError()
       end if
     end do
     ! Make sure the axes that should be zero are exactly zero
-    Geom(i)%Coord = merge([Zero,Zero,Zero],Aver/dble(nOp),ZeroAxis)
+    Geom(i)%Coord = merge([Zero,Zero,Zero],Aver/real(nOp,kind=wp),ZeroAxis)
   end do
   if (Moved) call WarningMessage(0,'Warning! XYZ coordinates will be modified to match the specified/detected symmetry. '// &
                                  'Use SYMT = 0.0 if this is not desired.')
@@ -618,9 +646,9 @@ end subroutine AdaptSym
 ! The operation is simply a possible change of sign of each axis
 function ApplySym(Op,Coord)
 
-  integer, intent(In) :: Op
-  real*8, dimension(3), intent(In) :: Coord
-  real*8, dimension(3) :: ApplySym
+  integer(kind=iwp), intent(in) :: Op
+  real(kind=wp), intent(in) :: Coord(3)
+  real(kind=wp) :: ApplySym(3)
 
   ApplySym = Coord
   if (iand(Op,iX) > 0) ApplySym(1) = -ApplySym(1)
@@ -634,12 +662,12 @@ end function ApplySym
 ! Lab and Bas include the _ or .
 subroutine SplitLabel(At,Sym,Num,Lab,Bas)
 
-  character(Len=*), intent(In) :: At
-  character(Len=*), intent(Out) :: Sym, Lab, Bas
-  integer, intent(Out) :: Num
-  character(Len=len(At)) :: String
+  character(len=*), intent(in) :: At
+  character(len=*), intent(out) :: Sym, Lab, Bas
+  integer(kind=iwp), intent(out) :: Num
+  integer(kind=iwp) :: i, Idx, j, k
+  character(len=len(At)) :: String
   character :: c
-  integer :: Idx, i, j, k
 
   String = At
   ! Get the Bas part
@@ -678,15 +706,17 @@ end subroutine SplitLabel
 ! Function to find the basis set that applies to a given atom
 function FindBasis(AtSym,AtLab,AtBas)
 
-  character(Len=*), intent(In) :: AtSym, AtLab, AtBas
+  use Definitions, only: u6
+
+  character(len=*), intent(in) :: AtSym, AtLab, AtBas
+  integer(kind=iwp) :: i
+  character(len=len(AtSym)) :: UpSym
+  character(len=len(AtLab)) :: UpLab
 # ifdef ALLOC_ASSIGN
-  character(Len=:), allocatable :: FindBasis
+  character(len=:), allocatable :: FindBasis
 # else
-  character(Len=MAXLEN) :: FindBasis
+  character(len=MAXLEN) :: FindBasis
 # endif
-  character(Len=len(AtSym)) :: UpSym
-  character(Len=len(AtLab)) :: UpLab
-  integer :: i
 
   ! Prepare for case-insensitive comparisons
   UpSym = AtSym
@@ -712,7 +742,7 @@ function FindBasis(AtSym,AtLab,AtBas)
   end do
   ! If none found, use the general basis
   if (BasisAll == '') then
-    write(6,*) 'No basis found for '//trim(AtSym)//trim(AtLab)
+    write(u6,*) 'No basis found for '//trim(AtSym)//trim(AtLab)
     call Quit_OnUserError()
   end if
   FindBasis = trim(AtSym)//'.'//trim(BasisAll)
@@ -722,11 +752,13 @@ end function FindBasis
 ! Subroutine to transform a geometry according to the matrix M
 subroutine TransformGeom(G,M)
 
-  type(XYZAtom), dimension(:), intent(InOut) :: G
-  real*8, dimension(3,5), intent(In) :: M
-  real*8, dimension(3) :: Old
-  real*8, external :: DDot_
-  integer :: i, j
+  use Definitions, only: r8
+
+  type(XYZAtom), dimension(:), intent(inout) :: G
+  real(kind=wp), intent(in) :: M(3,5)
+  real(kind=wp) :: Old(3)
+  integer(kind=iwp) :: i, j
+  real(kind=r8), external :: DDot_
 
   ! The matrix has 5 colums: scale (1), rotate (2-4), translate (5)
   do i=1,size(G)
@@ -738,5 +770,22 @@ subroutine TransformGeom(G,M)
   end do
 
 end subroutine TransformGeom
+
+! Private extensions to mma_interfaces, using preprocessor templates
+! (see src/mma_util/stdalloc.f)
+
+! Define xyz_cptr2loff, xyz_mma_allo_1D, xyz_mma_allo_1D_lim, xyz_mma_free_1D
+#define _TYPE_ type(XYZAtom)
+#  define _FUNC_NAME_ xyz_cptr2loff
+#  include "cptr2loff_template.fh"
+#  undef _FUNC_NAME_
+#  define _SUBR_NAME_ xyz_mma
+#  define _DIMENSIONS_ 1
+#  define _DEF_LABEL_ 'xyz_mma'
+#  include "mma_allo_template.fh"
+#  undef _SUBR_NAME_
+#  undef _DIMENSIONS_
+#  undef _DEF_LABEL_
+#undef _TYPE_
 
 end module XYZ

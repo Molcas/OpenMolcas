@@ -13,10 +13,15 @@
 
 module Phase_Info
 
-implicit none
+use Definitions, only: iwp
 
-integer :: iPhase(3,0:7) = reshape([1, 1, 1,-1, 1, 1, 1,-1, &
-                                    1,-1,-1, 1, 1, 1,-1,-1, &
-                                    1,-1, 1,-1,-1,-1,-1,-1],[3,8])
+implicit none
+private
+
+integer(kind=iwp) :: iPhase(3,0:7) = reshape([1, 1, 1,-1, 1, 1, 1,-1, &
+                                              1,-1,-1, 1, 1, 1,-1,-1, &
+                                              1,-1, 1,-1,-1,-1,-1,-1],[3,8])
+
+public :: iPhase
 
 end module Phase_Info

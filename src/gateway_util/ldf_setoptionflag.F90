@@ -9,29 +9,31 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+subroutine LDF_SetOptionFlag(Option,Val)
 
-subroutine LDF_SetOptionFlag(Option,value)
+use Definitions, only: iwp, u6
+
 implicit none
-character*4 Option
-logical value
+character(len=4) :: Option
+logical(kind=iwp) :: Val
 #include "localdf.fh"
 
 if (Option == 'LDF2') then
-  LDF2 = value
+  LDF2 = Val
 else if (Option == 'CHEC') then
-  CheckPairIntegrals = value
+  CheckPairIntegrals = Val
 else if (Option == 'VERI') then
-  VerifyFit = value
+  VerifyFit = Val
 else if (Option == 'OVER') then
-  CheckOverlapIntegrals = value
+  CheckOverlapIntegrals = Val
 else if (Option == 'WRUC') then
-  WriteUnconstrainedC = value
+  WriteUnconstrainedC = Val
 else if (Option == 'UNIQ') then
-  UseUniqueAtomPairs = value
+  UseUniqueAtomPairs = Val
 else
   call WarningMessage(2,'LDF_SetOptionFlag: unknown Option')
-  write(6,'(A,A)') 'Option=',Option
-  write(6,'(A,L1)') 'Value=',value
+  write(u6,'(A,A)') 'Option=',Option
+  write(u6,'(A,L1)') 'Val=',Val
   call LDF_Quit(1)
 end if
 

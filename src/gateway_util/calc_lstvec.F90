@@ -15,17 +15,21 @@
 
 subroutine calc_LSTvec(mynRP,Reac,Prod,TanVec,Invar)
 
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, nCnttp
+use Center_Info, only: dc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
+use Definitions, only: wp, iwp, r8
 
-implicit real*8(a-h,o-z)
-real*8 Reac(mynRP), Prod(mynRP), TanVec(mynRP), norm
-logical Found, Invar
-#include "real.fh"
-#include "stdalloc.fh"
-integer, dimension(:), allocatable :: iStab
-real*8, dimension(:), allocatable :: W
-real*8, dimension(:,:), allocatable :: XYZ
+implicit none
+integer(kind=iwp) :: mynRP
+real(kind=wp) :: Reac(mynRP), Prod(mynRP), TanVec(mynRP), norm
+integer(kind=iwp) :: i, iAt, iCnt, iProdA, iReacA, j, jTmp, mAt, nAt, nData, nsc
+real(kind=wp) :: RMax, RMSD
+logical(kind=iwp) :: Found, Invar
+integer(kind=iwp), allocatable :: iStab(:)
+real(kind=wp), allocatable :: W(:), XYZ(:,:)
+real(kind=r8), external :: DDot_
 
 !***********************************************************************
 !                                                                      *

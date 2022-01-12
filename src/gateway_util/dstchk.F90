@@ -20,16 +20,16 @@ subroutine DstChk(xyz,Lbls,mCentr)
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero, Angstrom
+use Definitions, only: wp, iwp, u6
 
-#include "print.fh"
-#include "real.fh"
-#include "angstr.fh"
-#include "Molcas.fh"
-real*8 xyz(3,mCentr)
-character*(LENIN) Lbls(mCentr)
-
-lu = 6
+implicit none
+#include "LenIn.fh"
+integer(kind=iwp) :: mCentr
+real(kind=wp) :: xyz(3,mCentr)
+character(len=LenIn) :: Lbls(mCentr)
+integer(kind=iwp) :: icc, iLarge, jcc
+real(kind=wp) :: R, RMax, RMin, x1, x2, y1, y2, z1, z2
 
 if (mCentr < 5) Go To 99
 
@@ -39,8 +39,8 @@ do icc=1,mCentr
 end do
 if (iLarge == 1) goto 99
 
-RMax = 0.0d0
-RMin = 1.0d10
+RMax = Zero
+RMin = huge(RMin)
 do icc=1,mCentr
   x1 = xyz(1,icc)
   y1 = xyz(2,icc)
@@ -55,16 +55,16 @@ do icc=1,mCentr
   end do
 end do
 
-if (RMax*Angstr < 0.7d0) then
-  write(lu,*) 'All bonds shorter than 0.7 angstrom, this is probably wrong!'
-  write(lu,*) 'The program will stop execution. To proceed, correct the '
-  write(lu,*) 'input or use the "Expert" keyword to force execution'
+if (RMax*Angstrom < 0.7_wp) then
+  write(u6,*) 'All bonds shorter than 0.7 angstrom, this is probably wrong!'
+  write(u6,*) 'The program will stop execution. To proceed, correct the '
+  write(u6,*) 'input or use the "Expert" keyword to force execution'
   call AbEnd()
 end if
-if (RMin*Angstr > 2.8d0) then
-  write(lu,*) 'All bonds longer than 2.8 angstrom, this is probably wrong!'
-  write(lu,*) 'The program will stop execution. To proceed, correct the '
-  write(lu,*) 'input or use the "Expert" keyword to force execution'
+if (RMin*Angstrom > 2.8_wp) then
+  write(u6,*) 'All bonds longer than 2.8 angstrom, this is probably wrong!'
+  write(u6,*) 'The program will stop execution. To proceed, correct the '
+  write(u6,*) 'input or use the "Expert" keyword to force execution'
   call AbEnd()
 end if
 

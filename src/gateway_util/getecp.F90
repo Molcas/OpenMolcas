@@ -29,36 +29,23 @@
 !     Modified: Per Boussard -93.                                      *
 !***********************************************************************
 
-#include "compiler_features.h"
-#ifdef _IN_MODULE_
-
 subroutine GetECP(lUnit,iShll,nProj,UnNorm)
 
-use Basis_Info
+use Basis_Info, only: dbsc, nCnttp, Shells
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "itmax.fh"
+implicit none
+integer(kind=iwp) :: lUnit, iShll, nProj
+logical(kind=iwp) :: UnNorm
 #include "Molcas.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-integer lUnit
-integer iShll
-integer nProj
-logical UnNorm
-! Local variables
-character(LEN=180) Line, Get_Ln
-! External Get_Ln
-integer mPP(2)
-real*8, dimension(:), allocatable :: Scrt1, Scrt2
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine Read_v(lunit,Work,istrt,iend,inc,ierr)
-    integer lUnit, iStrt, Inc, iErr
-    real*8 Work(iend)
-  end subroutine Read_v
-end interface
+integer(kind=iwp) :: i, iAng, iEE, ierr, iPP, iPrim, iSS, iStrt, jcr, kcr, mPP(2), n_Elec, n_Occ, nCntrc, ncr, nExpi, nM1, nM2, &
+                     nPrim
+real(kind=wp) :: ccr, zcr
+character(len=180) :: Line
+real(kind=wp), allocatable :: Scrt1(:), Scrt2(:)
+character(len=180), external :: Get_Ln
 
 !                                                                      *
 !***********************************************************************
@@ -71,19 +58,19 @@ if (index(Line,'PP') /= 0) then
 
   dbsc(nCnttp)%iPP = iShll+1
 
-  !write(6,*) 'Line=',Line
+  !write(u6,*) 'Line=',Line
   if (index(Line,'PPSO') /= 0) then
     call Get_i(4,mPP,2)
   else
     call Get_i(4,mPP,1)
     mPP(2) = 0
   end if
-  !write(6,*) 'mPP=',mPP
+  !write(u6,*) 'mPP=',mPP
   dbsc(nCnttp)%nPP = 1+mPP(1)+mPP(2)
 
   do iPP=0,mPP(1)
     iShll = iShll+1
-    !write(6,*) 'iPP,dbsc(nCnttp)%nPP=',iPP,dbsc(nCnttp)%nPP
+    !write(u6,*) 'iPP,dbsc(nCnttp)%nPP=',iPP,dbsc(nCnttp)%nPP
     if (iShll > MxShll) then
       call WarningMessage(2,'Abend in GetECP: Increase MxShll')
       call Abend()
@@ -91,9 +78,9 @@ if (index(Line,'PP') /= 0) then
 
     ! Pick up the number of terms in the shell
     Line = Get_Ln(lUnit)
-    !write(6,*) 'Line=',Line
+    !write(u6,*) 'Line=',Line
     call Get_i1(1,kcr)
-    !write(6,*) 'kcr,iShll=',kcr,iShll
+    !write(u6,*) 'kcr,iShll=',kcr,iShll
     Shells(iShll)%nExp = 3*kcr
     call mma_allocate(Shells(iShll)%Exp,3*kcr,Label='Exp')
 
@@ -102,34 +89,34 @@ if (index(Line,'PP') /= 0) then
       Line = Get_Ln(lUnit)
 
       call Get_I1(1,ncr)
-      !write(6,*) 'ncr=',ncr
-      Shells(iShll)%exp(iStrt) = dble(ncr)
+      !write(u6,*) 'ncr=',ncr
+      Shells(iShll)%Exp(iStrt) = real(ncr,kind=wp)
       iStrt = iStrt+1
       call Get_F1(2,zcr)
-      !write(6,*) 'zcr=',zcr
-      Shells(iShll)%exp(iStrt) = zcr
+      !write(u6,*) 'zcr=',zcr
+      Shells(iShll)%Exp(iStrt) = zcr
       iStrt = iStrt+1
       call Get_F1(3,ccr)
-      !write(6,*) 'ccr=',ccr
-      Shells(iShll)%exp(iStrt) = ccr
+      !write(u6,*) 'ccr=',ccr
+      Shells(iShll)%Exp(iStrt) = ccr
       iStrt = iStrt+1
     end do
 
   end do
   do iPP=1,mPP(2)
     iShll = iShll+1
-    !write(6,*) 'iPP,dbsc(nCnttp)%nPP=',iPP,dbsc(nCnttp)%nPP
+    !write(u6,*) 'iPP,dbsc(nCnttp)%nPP=',iPP,dbsc(nCnttp)%nPP
     if (iShll > MxShll) then
       call ErrTra()
-      write(6,*) 'Abend in GetECP: Increase MxShll'
+      write(u6,*) 'Abend in GetECP: Increase MxShll'
       call Abend()
     end if
 
     ! Pick up the number of terms in the shell
     Line = Get_Ln(lUnit)
-    !write(6,*) 'Line=',Line
+    !write(u6,*) 'Line=',Line
     call Get_i1(1,kcr)
-    !write(6,*) 'kcr,iShll=',kcr,iShll
+    !write(u6,*) 'kcr,iShll=',kcr,iShll
     Shells(iShll)%nExp = 3*kcr
     call mma_allocate(Shells(iShll)%Exp,3*kcr,Label='Exp')
 
@@ -138,22 +125,22 @@ if (index(Line,'PP') /= 0) then
       Line = Get_Ln(lUnit)
 
       call Get_I1(1,ncr)
-      !write(6,*) 'ncr=',ncr
+      !write(u6,*) 'ncr=',ncr
       ncr = ncr+1000
-      Shells(iShll)%exp(iStrt) = dble(ncr)
+      Shells(iShll)%Exp(iStrt) = real(ncr,kind=wp)
       iStrt = iStrt+1
       call Get_F1(2,zcr)
-      !write(6,*) 'zcr=',zcr
-      Shells(iShll)%exp(iStrt) = zcr
+      !write(u6,*) 'zcr=',zcr
+      Shells(iShll)%Exp(iStrt) = zcr
       iStrt = iStrt+1
       call Get_F1(3,ccr)
-      !write(6,*) 'ccr=',ccr
-      Shells(iShll)%exp(iStrt) = ccr
+      !write(u6,*) 'ccr=',ccr
+      Shells(iShll)%Exp(iStrt) = ccr
       iStrt = iStrt+1
     end do
 
   end do
-  !write(6,*) 'Done'
+  !write(u6,*) 'Done'
 
   return
 end if
@@ -162,7 +149,7 @@ end if
 !                                                                      *
 ! M1 section
 
-!write(6,*) ' Reading M1'
+!write(u6,*) ' Reading M1'
 if (index(Line,'M1') == 0) then
   call WarningMessage(2,'ERROR: Keyword M1 expected, offending line : '//Line)
   call Quit_OnUserError()
@@ -181,7 +168,7 @@ end if
 !                                                                      *
 ! M2 section
 
-!write(6,*) ' Reading M2'
+!write(u6,*) ' Reading M2'
 Line = Get_Ln(lUnit)
 if (index(Line,'M2') == 0) then
   call WarningMessage(2,'ERROR: Keyword M2 expected, offending line : '//Line)
@@ -201,7 +188,7 @@ end if
 !                                                                      *
 ! Read core-repulsion parameter
 
-!write(6,*) ' Reading Core-repulsion'
+!write(u6,*) ' Reading Core-repulsion'
 Line = Get_Ln(lUnit)
 if (index(Line,'COREREP') == 0) then
   call WarningMessage(2,'ERROR: Keyword COREREP expected, offending line : '//Line)
@@ -214,7 +201,7 @@ call Get_F1(1,dbsc(nCnttp)%CrRep)
 !                                                                      *
 ! Now read Projection parameters
 
-!write(6,*) ' Reading projection operator'
+!write(u6,*) ' Reading projection operator'
 Line = Get_Ln(lUnit)
 if (index(Line,'PROJOP') == 0) then
   call WarningMessage(2,'ERROR: Keyword PROJOP expected, offending line : '//Line)
@@ -230,7 +217,7 @@ call Get_I1(1,nProj)
 
 if (nProj < 0) return
 do iAng=0,nProj
-  !write(6,*) ' iAng=',iAng
+  !write(u6,*) ' iAng=',iAng
   n_Elec = 2*(2*iAng+1)
   iShll = iShll+1
   if (iShll > MxShll) then
@@ -257,8 +244,8 @@ do iAng=0,nProj
   if (iEE > 0) then
     do i=1,nCntrc
       call Get_i1(2+i,n_Occ)
-      Shells(iShll)%Occ(i) = dble(n_Occ)/dble(n_Elec)
-      !write(6,*) 'n_Occ=',n_Occ
+      Shells(iShll)%Occ(i) = real(n_Occ,kind=wp)/real(n_Elec,kind=wp)
+      !write(u6,*) 'n_Occ=',n_Occ
     end do
   else
     Shells(iShll)%Occ(:) = One
@@ -266,7 +253,7 @@ do iAng=0,nProj
 
   ! Read "orbital energies"
 
-  !write(6,*) ' Reading Bk'
+  !write(u6,*) ' Reading Bk'
   call mma_allocate(Shells(iShll)%Bk,nCntrc,Label='Bk')
   Shells(iShll)%nBk = nCntrc
   if (nCntrc > 0) call Read_v(lUnit,Shells(iShll)%Bk,1,nCntrc,1,ierr)
@@ -274,7 +261,7 @@ do iAng=0,nProj
 
   ! Read gaussian EXPonents
 
-  !write(6,*) ' Reading Exponents'
+  !write(u6,*) ' Reading Exponents'
   call mma_allocate(Shells(iShll)%Exp,nPrim,Label='Exp')
   Shells(iShll)%nExp = nPrim
   if (nPrim > 0) call Read_v(lUnit,Shells(iShll)%Exp,1,nPrim,1,ierr)
@@ -289,7 +276,7 @@ do iAng=0,nProj
   ! Read contraction coefficients
   ! Observe that the matrix will have nPrim rows and nCntrc columns
 
-  !write(6,*) ' Reading coefficients'
+  !write(u6,*) ' Reading coefficients'
   do iPrim=1,nPrim
     call Read_v(lUnit,Shells(iShll)%Cff_c(1,1,1),iPrim,nPrim*nCntrc,nPrim,ierr)
     if (ierr /= 0) goto 991
@@ -329,11 +316,3 @@ call WarningMessage(2,'Abend in GetBS: Error while reading the coefficients')
 call Quit_OnUserError()
 
 end subroutine GetECP
-
-#elif !defined (EMPTY_FILES)
-
-! Some compilers do not like empty files
-#include "macros.fh"
-dummy_empty_procedure(GetECP)
-
-#endif

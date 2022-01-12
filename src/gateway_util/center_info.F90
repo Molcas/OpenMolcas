@@ -13,10 +13,12 @@
 
 module Center_Info
 
+use Definitions, only: iwp
+
 implicit none
 private
 
-public :: dc, n_dc, Center_Info_Init, Center_Info_Dmp, Center_Info_Get, Center_Info_Free
+public :: Center_Info_Dmp, Center_Info_Free, Center_Info_Get, Center_Info_Init, dc, n_dc
 
 #include "Molcas.fh"
 #include "stdalloc.fh"
@@ -28,19 +30,11 @@ public :: dc, n_dc, Center_Info_Init, Center_Info_Dmp, Center_Info_Get, Center_I
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 type Distinct_centers
-  !sequence
-  integer :: iChCnt = 0
-  integer :: iStab(0:7) = [0,0,0,0,0,0,0,0]
-  integer :: nStab = 0
-  integer :: iCoSet(0:7,0:7) = reshape([0,0,0,0,0,0,0,0, &
-                                        0,0,0,0,0,0,0,0, &
-                                        0,0,0,0,0,0,0,0, &
-                                        0,0,0,0,0,0,0,0, &
-                                        0,0,0,0,0,0,0,0, &
-                                        0,0,0,0,0,0,0,0, &
-                                        0,0,0,0,0,0,0,0, &
-                                        0,0,0,0,0,0,0,0],[8,8])
-  character(LEN=LENIN4) :: LblCnt = ''
+  integer(kind=iwp) :: iChCnt = 0
+  integer(kind=iwp) :: iStab(0:7) = 0
+  integer(kind=iwp) :: nStab = 0
+  integer(kind=iwp) :: iCoSet(0:7,0:7) = 0
+  character(len=LenIn4) :: LblCnt = ''
 end type Distinct_centers
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -49,64 +43,58 @@ end type Distinct_centers
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-integer, parameter :: nFields = 1+8+1+64
-logical :: Initiated = .false.
-integer :: n_dc = 0
+integer(kind=iwp), parameter :: nFields = 1+8+1+8**2
+integer(kind=iwp) :: n_dc = 0
+logical(kind=iwp) :: Initiated = .false.
 type(Distinct_centers), allocatable :: dc(:)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-interface
-  subroutine Abend()
-  end subroutine Abend
-  subroutine Put_iArray(Label,data,nData)
-    character*(*) Label
-    integer nData
-    integer data(nData)
-  end subroutine Put_iArray
-  subroutine Get_iArray(Label,data,nData)
-    character*(*) Label
-    integer nData
-    integer data(nData)
-  end subroutine Get_iArray
-  subroutine Qpg_iArray(Label,Found,nData)
-    character*(*) Label
-    logical Found
-    integer nData
-  end subroutine Qpg_iArray
-end interface
+! Private extensions to mma interfaces
 
-!***********************************************************************
-!***********************************************************************
+interface cptr2loff
+  module procedure dc_cptr2loff
+end interface
+interface mma_Allocate
+  module procedure dc_mma_allo_1D, dc_mma_allo_1D_lim
+end interface
+interface mma_Deallocate
+  module procedure dc_mma_free_1D
+end interface
 
 contains
 
 !***********************************************************************
 !***********************************************************************
 !
-! This to make either the initial allocation of dbsc and Shells according to the default sizes
+! This to make either the initial allocation of dc according to the default sizes
 ! as defined by the parameters in Molcas.fh or according to the actual sizes as recorded on the
 ! run file.
 
 subroutine Center_Info_Init()
 
+  use Definitions, only: u6
+
+# include "macros.fh"
+  unused_proc(mma_allocate(dc,[0,0]))
+
   if (Initiated) then
-    write(6,*) 'Center_Info already initiated!'
-    write(6,*) 'May the is a missing call to Center_Info_Free.'
+    write(u6,*) 'Center_Info already initiated!'
+    write(u6,*) 'May the is a missing call to Center_Info_Free.'
     call Abend()
   end if
 # ifdef _DEBUGPRINT_
-  write(6,*)
-  write(6,*) 'Enter Center_Info_Init'
+  write(u6,*)
+  write(u6,*) 'Enter Center_Info_Init'
 # endif
   if (n_dc == 0) then
-    allocate(dc(1:MxAtom))
+    call mma_allocate(dc,MxAtom,label='dc')
   else
-    allocate(dc(1:n_dc))
+    call mma_allocate(dc,n_dc,label='dc')
   end if
   Initiated = .true.
 # ifdef _DEBUGPRINT_
-  write(6,*) 'Exit Center_Info_Init'
+  write(u6,*) 'Exit Center_Info_Init'
 # endif
 
   return
@@ -118,16 +106,20 @@ end subroutine Center_Info_Init
 
 subroutine Center_Info_Dmp()
 
-  integer i, j, k, licDmp, lcDmp
-  integer, allocatable :: iDmp(:)
-  character(LEN=1), allocatable :: cDmp(:)
+# ifdef _DEBUGPRINT_
+  use Definitions, only: u6
+# endif
+
+  integer(kind=iwp) :: i, j, lcDmp, licDmp
+  integer(kind=iwp), allocatable :: iDmp(:)
+  character(len=LenIn4), allocatable :: cDmp(:)
 
   ! Integer dc stuff
 
 # ifdef _DEBUGPRINT_
-  write(6,*)
-  write(6,*) 'Enter Center_Info_Dmp'
-  write(6,*) 'n_dc=',n_dc
+  write(u6,*)
+  write(u6,*) 'Enter Center_Info_Dmp'
+  write(u6,*) 'n_dc=',n_dc
 # endif
   licDmp = n_dc*nFields
   call mma_Allocate(iDmp,licDmp+1,Label='iDmp')
@@ -139,46 +131,25 @@ subroutine Center_Info_Dmp()
     j = j+8
     iDmp(j+1) = dc(i)%nStab
     j = j+1
-    iDmp(j+1:j+8) = dc(i)%iCoSet(:,0)
-    j = j+8
-    iDmp(j+1:j+8) = dc(i)%iCoSet(:,1)
-    j = j+8
-    iDmp(j+1:j+8) = dc(i)%iCoSet(:,2)
-    j = j+8
-    iDmp(j+1:j+8) = dc(i)%iCoSet(:,3)
-    j = j+8
-    iDmp(j+1:j+8) = dc(i)%iCoSet(:,4)
-    j = j+8
-    iDmp(j+1:j+8) = dc(i)%iCoSet(:,5)
-    j = j+8
-    iDmp(j+1:j+8) = dc(i)%iCoSet(:,6)
-    j = j+8
-    iDmp(j+1:j+8) = dc(i)%iCoSet(:,7)
-    j = j+8
+    iDmp(j+1:j+8*8) = reshape(dc(i)%iCoSet(:,:),[8*8])
+    j = j+8*8
   end do
   iDmp(licDmp+1) = n_dc
   call Put_iArray('icDmp',iDmp,licDmp+1)
   call mma_deallocate(iDmp)
 
-  lcDmp = n_dc*LENIN4
-# ifdef _DEBUGPRINT_
-  write(6,*) 'lcDmp=',n_dc
-# endif
-  call mma_allocate(cDmp,lcDmp,Label='cDmp')
-  k = 0
+  call mma_allocate(cDmp,n_dc,Label='cDmp')
   do i=1,n_dc
-    do j=1,LENIN4
-      cDmp(k+j) = dc(i)%LblCnt(j:j)
-    end do
-    k = k+LENIN4
+    cDmp(i) = dc(i)%LblCnt
   end do
+  lcDmp = n_dc*LenIn4
 # ifdef _DEBUGPRINT_
-  write(6,*) 'cDmp=',cDmp(1:lcDmp)
+  write(u6,*) 'cDmp=',cDmp(1:lcDmp)
 # endif
   call Put_cArray('dc: cDmp',cDmp(1),lcDmp)
   call mma_deallocate(cDmp)
 # ifdef _DEBUGPRINT_
-  write(6,*) 'Exit Center_Info_Dmp'
+  write(u6,*) 'Exit Center_Info_Dmp'
 # endif
 
   return
@@ -190,34 +161,36 @@ end subroutine Center_Info_Dmp
 
 subroutine Center_Info_Get()
 
-  integer, allocatable :: iDmp(:)
-  character(LEN=1), allocatable :: cDmp(:)
-  logical Found
-  integer i, j, k, Len, lcDmp
+  use Definitions, only: u6
+
+  integer(kind=iwp) :: i, j, lcDmp, Len1
+  logical(kind=iwp) :: Found
+  integer(kind=iwp), allocatable :: iDmp(:)
+  character(len=LenIn4), allocatable :: cDmp(:)
 
 # ifdef _DEBUGPRINT_
-  write(6,*)
-  write(6,*) 'Enter Center_Info_Get'
+  write(u6,*)
+  write(u6,*) 'Enter Center_Info_Get'
 # endif
-  call qpg_iArray('icDmp',Found,Len)
-  call mma_Allocate(iDmp,Len,Label='iDmp')
+  call qpg_iArray('icDmp',Found,Len1)
+  call mma_Allocate(iDmp,Len1,Label='iDmp')
   if (Found) then
-    call Get_iArray('icDmp',iDmp,Len)
+    call Get_iArray('icDmp',iDmp,Len1)
   else
-    write(6,*) 'Center_Info_Get: icDmp not found!'
+    write(u6,*) 'Center_Info_Get: icDmp not found!'
     call Abend()
   end if
-  lcDmp = Len-1
+  lcDmp = Len1-1
   n_dc = lcDmp/nFields
 
   ! Initiate the memory allocation of dc
 
   if (.not. Initiated) call Center_Info_Init()
 # ifdef _DEBUGPRINT_
-  write(6,*) 'iDmp(1:Len)=',iDmp(1:Len)
-  write(6,*) 'Len=',Len
-  write(6,*) 'n_dc=',n_dc
-  write(6,*) 'lcDmp=',lcDmp
+  write(u6,*) 'iDmp(1:Len1)=',iDmp(1:Len1)
+  write(u6,*) 'Len1=',Len1
+  write(u6,*) 'n_dc=',n_dc
+  write(u6,*) 'lcDmp=',lcDmp
 # endif
   j = 0
   do i=1,n_dc
@@ -227,50 +200,32 @@ subroutine Center_Info_Get()
     j = j+8
     dc(i)%nStab = iDmp(j+1)
     j = j+1
-    dc(i)%iCoSet(:,0) = iDmp(j+1:j+8)
-    j = j+8
-    dc(i)%iCoSet(:,1) = iDmp(j+1:j+8)
-    j = j+8
-    dc(i)%iCoSet(:,2) = iDmp(j+1:j+8)
-    j = j+8
-    dc(i)%iCoSet(:,3) = iDmp(j+1:j+8)
-    j = j+8
-    dc(i)%iCoSet(:,4) = iDmp(j+1:j+8)
-    j = j+8
-    dc(i)%iCoSet(:,5) = iDmp(j+1:j+8)
-    j = j+8
-    dc(i)%iCoSet(:,6) = iDmp(j+1:j+8)
-    j = j+8
-    dc(i)%iCoSet(:,7) = iDmp(j+1:j+8)
-    j = j+8
+    dc(i)%iCoSet(:,:) = reshape(iDmp(j+1:j+8*8),[8,8])
+    j = j+8*8
   end do
   call mma_deAllocate(iDmp)
 
-  lcDmp = n_dc*LENIN4
+  lcDmp = n_dc*LenIn4
 # ifdef _DEBUGPRINT_
-  write(6,*) 'lcDmp=',lcDmp
+  write(u6,*) 'lcDmp=',lcDmp
 # endif
 
-  call qpg_cArray('dc: cDmp',Found,Len)
-  if (Len /= lcDmp) then
-    write(6,*) 'Center_Info_Get: Len /= lcDmp'
+  call qpg_cArray('dc: cDmp',Found,Len1)
+  if (Len1 /= lcDmp) then
+    write(u6,*) 'Center_Info_Get: Len1 /= lcDmp'
     call Abend()
   end if
   call mma_Allocate(cDmp,lcDmp,Label='cDmp')
-  call Get_cArray('dc: cDmp',cDmp(1),lcDmp)
+  call Get_cArray('dc: cDmp',cDmp,lcDmp)
 # ifdef _DEBUGPRINT_
-  write(6,*) 'cDmp=',cDmp(1:lcDmp)
+  write(u6,*) 'cDmp=',cDmp(1:lcDmp)
 # endif
-  k = 0
   do i=1,n_dc
-    do j=1,LENIN4
-      dc(i)%LblCnt(j:j) = cDmp(k+j)
-    end do
-    k = k+LENIN4
+    dc(i)%LblCnt = cDmp(i)
   end do
   call mma_deAllocate(cDmp)
 # ifdef _DEBUGPRINT_
-  write(6,*) 'Exit Center_Info_Get'
+  write(u6,*) 'Exit Center_Info_Get'
 # endif
 
 end subroutine Center_Info_Get
@@ -280,19 +235,23 @@ end subroutine Center_Info_Get
 
 subroutine Center_Info_Free()
 
+# ifdef _DEBUGPRINT_
+  use Definitions, only: u6
+# endif
+
   ! Deallocate all allocatable parts of dc.
 
   if (.not. allocated(dc)) return
 # ifdef _DEBUGPRINT_
-  write(6,*)
-  write(6,*) 'Enter Center_Info_Free'
+  write(u6,*)
+  write(u6,*) 'Enter Center_Info_Free'
 # endif
-  deallocate(dc)
+  call mma_deallocate(dc)
   n_dc = 0
   Initiated = .false.
 
 # ifdef _DEBUGPRINT_
-  write(6,*) 'Exit Center_Info_Free'
+  write(u6,*) 'Exit Center_Info_Free'
 # endif
 
   return
@@ -301,5 +260,25 @@ end subroutine Center_Info_Free
 
 !***********************************************************************
 !***********************************************************************
+
+! Private extensions to mma_interfaces, using preprocessor templates
+! (see src/mma_util/stdalloc.f)
+
+! Define dc_cptr2loff, dc_mma_allo_1D, dc_mma_allo_1D_lim, dc_mma_free_1D
+! (using _NO_GARBLE_ because all members are initialized)
+#define _TYPE_ type(Distinct_centers)
+#  define _FUNC_NAME_ dc_cptr2loff
+#  define _NO_GARBLE_
+#  include "cptr2loff_template.fh"
+#  undef _FUNC_NAME_
+#  define _SUBR_NAME_ dc_mma
+#  define _DIMENSIONS_ 1
+#  define _DEF_LABEL_ 'dc_mma'
+#  include "mma_allo_template.fh"
+#  undef _SUBR_NAME_
+#  undef _DIMENSIONS_
+#  undef _DEF_LABEL_
+#  undef _NO_GARBLE_
+#undef _TYPE_
 
 end module Center_Info

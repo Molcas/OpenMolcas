@@ -11,25 +11,31 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine RdMx(RadMax,Exp,nExp,Cff,nCff,cdMax,EtMax)
+subroutine RdMx(RadMax,rExp,nExp,Cff,nCff,cdMax,EtMax)
 !***********************************************************************
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
 !             August '91                                               *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-real*8 exp(nExp), Cff(nExp,nCff)
-#include "real.fh"
+use Constants, only: Zero, Two, Three, Pi
+use Definitions, only: wp, iwp, r8
+
+implicit none
+integer(kind=iwp) :: nExp, nCff
+real(kind=wp) :: RadMax, rExp(nExp), Cff(nExp,nCff), cdMax, EtMax
 #ifdef _DEBUGPRINT_
 #include "print.fh"
 #endif
+integer(kind=iwp) :: iExp
+real(kind=wp) :: Alpha, Beta, c, cc, Eta, Rho, ssss, Zeta
+real(kind=r8), external :: DDot_
 
 #ifdef _DEBUGPRINT_
 iRout = 201
 iPrint = nPrint(iRout)
 
-call RecPrt('Exp',' ',Exp,nExp,1)
+call RecPrt('rExp',' ',rExp,nExp,1)
 call RecPrt('Cff',' ',Cff,nExp,nCff)
 #endif
 do iExp=1,nExp
@@ -37,8 +43,8 @@ do iExp=1,nExp
   cc = DDot_(nCff,Cff(iExp,1),nExp,Cff(iExp,1),nExp)
   c = sqrt(cc)
 
-  Alpha = exp(iExp)
-  Beta = exp(iExp)
+  Alpha = rExp(iExp)
+  Beta = rExp(iExp)
   Zeta = Alpha+Beta
   if (Zeta > Zero) then
     Eta = Alpha+Beta

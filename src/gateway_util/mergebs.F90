@@ -11,22 +11,25 @@
 
 subroutine MergeBS(z1,n1,z2,n2,z,n,RatioThres,iDominantSet)
 
-implicit real*8(a-h,o-z)
-real*8 z1(n1), z2(n2), z(*)
-parameter(mPrim=60)
-integer ix1(mPrim), ix2(mPrim)
-logical IfTest
-data IfTest/.false./
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
+implicit none
+integer(kind=iwp) :: n1, n2, n, iDominantSet
+real(kind=wp) :: z1(n1), z2(n2), z(*), RatioThres
+integer(kind=iwp) :: i, i1, i2, idum, iSetPrev, iSetThis, j, mPrim
+real(kind=wp) :: ratio
+integer(kind=iwp), allocatable :: ix1(:), ix2(:)
 #ifdef _DEBUGPRINT_
-IfTest = .true.
+#define _TEST_ .true.
+#else
+#define _TEST_ .false.
 #endif
-if ((n1 > mPrim) .or. (n2 > mPrim)) then
-  call WarningMessage(2,'Error in MergeBS')
-  write(6,*) ' MergeBS: n1,n2 > mPrim',n1,n2,mPrim
-  write(6,*) ' MergeBS: rise mPrim and recompile'
-  call Abend()
-end if
+logical(kind=iwp), parameter :: IfTest = _TEST_
+
+mPrim = n1+n2
+call mma_allocate(ix1,mPrim,label='ix1')
+call mma_allocate(ix2,mPrim,label='ix2')
 
 iSetPrev = 0
 
@@ -55,10 +58,12 @@ do i=1,n2-1
   end do
 end do
 
-if (IfTest) write(6,'(A)')
-if (IfTest) write(6,'(4f20.4)') (z1(ix1(i)),i=1,n1)
-if (IfTest) write(6,'(A)')
-if (IfTest) write(6,'(4f20.4)') (z2(ix2(i)),i=1,n2)
+if (IfTest) then
+  write(u6,'(A)')
+  write(u6,'(4f20.4)') (z1(ix1(i)),i=1,n1)
+  write(u6,'(A)')
+  write(u6,'(4f20.4)') (z2(ix2(i)),i=1,n2)
+end if
 
 i = 0
 i1 = 1
@@ -67,8 +72,8 @@ do while ((i1 <= n1) .or. (i2 <= n2))
   i = i+1
   if (i > mPrim) then
     call WarningMessage(2,'Error in MergeBS')
-    write(6,*) ' MergeBS: i > mPrim',i,mPrim
-    write(6,*) ' MergeBS: rise mPrim and recompile'
+    write(u6,*) ' MergeBS: i > mPrim',i,mPrim
+    write(u6,*) ' MergeBS: raise mPrim and recompile'
     call Abend()
   end if
   if (i1 > n1) then
@@ -110,8 +115,13 @@ do while ((i1 <= n1) .or. (i2 <= n2))
 
 end do
 
+call mma_deallocate(ix1)
+call mma_deallocate(ix2)
+
 n = i
-if (IfTest) write(6,'(I4)') n
-if (IfTest) write(6,'(4f20.4)') (z(i),i=1,n)
+if (IfTest) then
+  write(u6,'(I4)') n
+  write(u6,'(4f20.4)') (z(i),i=1,n)
+end if
 
 end subroutine MergeBS

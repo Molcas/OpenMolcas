@@ -15,12 +15,16 @@
 
 function Lbl2Nr(Atom)
 
-integer Lbl2Nr, StrnLn
-character*80 Atom
-character*2 TmpLbl(2)
-#include "periodic_table.fh"
+use Isotopes, only: MaxAtomNum, PTab
+use Definitions, only: iwp
 
-if ((StrnLn(Atom) > 2) .or. (StrnLn(Atom) <= 0)) then
+implicit none
+integer(kind=iwp) :: Lbl2Nr
+character(len=*) :: Atom
+integer(kind=iwp) :: i, lAtom
+character(len=2) :: TmpLbl(2)
+
+if ((len_trim(Atom) > 2) .or. (len_trim(Atom) <= 0)) then
   call WarningMessage(2,'The atom label;-->'//Atom(1:4)//'<--; is not a proper string to define an element.')
   call Quit_OnUserError()
 end if
@@ -46,7 +50,7 @@ else
   Go To 98
 end if
 call UpCase(TmpLbl(1))
-do i=0,Num_Elem
+do i=0,MaxAtomNum
   TmpLbl(2) = PTab(i)
   call UpCase(TmpLbl(2))
   if (TmpLbl(2) == TmpLbl(1)) then

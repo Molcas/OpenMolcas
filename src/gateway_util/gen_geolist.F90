@@ -11,16 +11,19 @@
 
 subroutine Gen_GeoList()
 
-use GeoList
-use Basis_Info
-use Center_Info
+use GeoList, only: Centr, Chrg, Mass
+use Basis_Info, only: dbsc, nCnttp
+use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, iChCar
 use Sizes_of_Seward, only: S
 use Real_Info, only: TMass, qNuc, CoM, CoC
+use stdalloc, only: mma_allocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "stdalloc.fh"
+implicit none
+integer(kind=iwp) :: i, jCnt, jCnttp, mCnt, nc, nchr, ndc
+real(kind=wp) :: Z
 
 !                                                                      *
 !***********************************************************************
@@ -59,7 +62,7 @@ do jCnttp=1,nCnttp
       end if
       nchr = dbsc(jCnttp)%AtmNr
       if (nchr >= 0) then
-        Chrg(nc) = dble(nchr)
+        Chrg(nc) = real(nchr,kind=wp)
       else
         Chrg(nc) = Zero
       end if

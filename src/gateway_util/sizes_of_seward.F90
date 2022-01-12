@@ -11,95 +11,143 @@
 
 module Sizes_of_Seward
 
+use Definitions, only: iwp
+
 implicit none
 private
 
 public :: S, Size_Dmp, Size_Get
 
-#include  "itmax.fh"
-integer i
+#include "itmax.fh"
+integer(kind=iwp), parameter :: nLen = 16+2*iTabMx ! number of elements
 type Sizes_of_Stuff
-  sequence
-  integer :: Low_Anchor
-  integer :: m2Max = 0
-  integer :: mCentr = 0
-  integer :: mCentr_Aux = 0
-  integer :: mCentr_Frag = 0
-  integer :: Mx_mdc = 0
-  integer :: Mx_Shll = 0
-  integer :: n2Tot = 0
-  integer :: jMax = 5
-  integer :: MaxPrm(0:iTabMx) = [(0,i=0,iTabMx)]
-  integer :: MaxBas(0:iTabMx) = [(0,i=0,iTabMx)]
-  integer :: nDim = 0
-  integer :: nShlls = 0
-  integer :: Max_Center = 15
-  integer :: kCentr = 0
-  integer :: nMltpl = 2
-  integer :: iAngMx = -1
-  integer :: High_Anchor
+  integer(kind=iwp) :: m2Max = 0
+  integer(kind=iwp) :: mCentr = 0
+  integer(kind=iwp) :: mCentr_Aux = 0
+  integer(kind=iwp) :: mCentr_Frag = 0
+  integer(kind=iwp) :: Mx_mdc = 0
+  integer(kind=iwp) :: Mx_Shll = 0
+  integer(kind=iwp) :: n2Tot = 0
+  integer(kind=iwp) :: jMax = 5
+  integer(kind=iwp) :: MaxPrm(0:iTabMx) = 0
+  integer(kind=iwp) :: MaxBas(0:iTabMx) = 0
+  integer(kind=iwp) :: nDim = 0
+  integer(kind=iwp) :: nShlls = 0
+  integer(kind=iwp) :: Max_Center = 15
+  integer(kind=iwp) :: kCentr = 0
+  integer(kind=iwp) :: nMltpl = 2
+  integer(kind=iwp) :: iAngMx = -1
 end type Sizes_of_Stuff
 
-type(Sizes_of_Stuff), target :: S
-integer, pointer :: p_ix(:)
-integer Len, Len2
-logical Found
-
-interface
-  subroutine Abend()
-  end subroutine Abend
-  subroutine Put_iArray(Label,data,nData)
-    character*(*) Label
-    integer nData
-    integer data(nData)
-  end subroutine Put_iArray
-  subroutine Get_iArray(Label,data,nData)
-    character*(*) Label
-    integer nData
-    integer data(nData)
-  end subroutine Get_iArray
-  subroutine Qpg_iArray(Label,Found,nData)
-    character*(*) Label
-    logical Found
-    integer nData
-  end subroutine Qpg_iArray
-end interface
+type(Sizes_of_Stuff) :: S
 
 contains
 
-subroutine Size_Init()
-
-  use iso_c_binding
-
-  integer, external :: ip_of_iWork
-
-  Len = ip_of_iWork(S%High_Anchor)-ip_of_iWork(S%Low_Anchor)+1
-  call c_f_pointer(c_loc(S%Low_Anchor),p_ix,[Len])
-
-end subroutine Size_Init
-
 subroutine Size_Dmp()
 
-  call Size_Init()
-  call Put_iArray('Sizes',p_ix,Len)
-  nullify(p_ix)
+  use stdalloc, only: mma_allocate, mma_deallocate
+
+  integer(kind=iwp) :: i
+  integer(kind=iwp), allocatable :: iDmp(:)
+
+  call mma_allocate(iDmp,nLen,Label='iDmp')
+
+  i = 0
+  iDmp(i+1) = S%m2Max
+  i = i+1
+  iDmp(i+1) = S%mCentr
+  i = i+1
+  iDmp(i+1) = S%mCentr_Aux
+  i = i+1
+  iDmp(i+1) = S%mCentr_Frag
+  i = i+1
+  iDmp(i+1) = S%Mx_mdc
+  i = i+1
+  iDmp(i+1) = S%Mx_Shll
+  i = i+1
+  iDmp(i+1) = S%n2Tot
+  i = i+1
+  iDmp(i+1) = S%jMax
+  i = i+1
+  iDmp(i+1:i+iTabMx+1) = S%MaxPrm(0:iTabMx)
+  i = i+iTabMx+1
+  iDmp(i+1:i+iTabMx+1) = S%MaxBas(0:iTabMx)
+  i = i+iTabMx+1
+  iDmp(i+1) = S%nDim
+  i = i+1
+  iDmp(i+1) = S%nShlls
+  i = i+1
+  iDmp(i+1) = S%Max_Center
+  i = i+1
+  iDmp(i+1) = S%kCentr
+  i = i+1
+  iDmp(i+1) = S%nMltpl
+  i = i+1
+  iDmp(i+1) = S%iAngMx
+  i = i+1
+
+  call Put_iArray('Sizes',iDmp,nLen)
+  call mma_deallocate(iDmp)
 
 end subroutine Size_Dmp
 
 subroutine Size_Get()
 
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Definitions, only: u6
+
+  integer(kind=iwp) :: i, Len2
+  logical(kind=iwp) :: Found
+  integer(kind=iwp), allocatable :: iDmp(:)
+
+  call mma_allocate(iDmp,nLen,Label='iDmp')
+
   call Qpg_iArray('Sizes',Found,Len2)
   if (.not. Found) then
-    write(6,*) 'Size_Get: Sizes not found.'
+    write(u6,*) 'Size_Get: Sizes not found.'
     call Abend()
   end if
-  call Size_Init()
-  if (Len /= Len2) then
-    write(6,*) 'Size_Get: Len/=Len2.'
+  if (nLen /= Len2) then
+    write(u6,*) 'Size_Get: nLen /= Len2.'
     call Abend()
   end if
-  call Get_iArray('Sizes',p_ix,Len)
-  nullify(p_ix)
+  call Get_iArray('Sizes',iDmp,nLen)
+
+  i = 0
+  S%m2Max = iDmp(i+1)
+  i = i+1
+  S%mCentr = iDmp(i+1)
+  i = i+1
+  S%mCentr_Aux = iDmp(i+1)
+  i = i+1
+  S%mCentr_Frag = iDmp(i+1)
+  i = i+1
+  S%Mx_mdc = iDmp(i+1)
+  i = i+1
+  S%Mx_Shll = iDmp(i+1)
+  i = i+1
+  S%n2Tot = iDmp(i+1)
+  i = i+1
+  S%jMax = iDmp(i+1)
+  i = i+1
+  S%MaxPrm(0:iTabMx) = iDmp(i+1:i+1+iTabMx)
+  i = i+iTabMx+1
+  S%MaxBas(0:iTabMx) = iDmp(i+1:i+1+iTabMx)
+  i = i+iTabMx+1
+  S%nDim = iDmp(i+1)
+  i = i+1
+  S%nShlls = iDmp(i+1)
+  i = i+1
+  S%Max_Center = iDmp(i+1)
+  i = i+1
+  S%kCentr = iDmp(i+1)
+  i = i+1
+  S%nMltpl = iDmp(i+1)
+  i = i+1
+  S%iAngMx = iDmp(i+1)
+  i = i+1
+
+  call mma_deallocate(iDmp)
 
 end subroutine Size_Get
 

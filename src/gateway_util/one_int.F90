@@ -12,22 +12,21 @@
 subroutine One_Int(Kernel,Array,nArray,A,iAng,iComp,nOrdOp,Scr1,nScr1,Scr2,nScr2,naa,SAR,nSAR,iShll_a,nPrim_a,Exp_a,nCntrc_a, &
            Cff_a,iCmp_a,iShll_r,nPrim_r,Exp_r,nCntrc_r,Cff_r,iCmp_r)
 
-use Basis_Info
-use Her_RW
-use Real_Spherical
+use Basis_Info, only: Shells
+use Real_Spherical, only: ipSph, RSph
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-#include "stdalloc.fh"
-external Kernel
-real*8 Array(nArray)
-real*8, intent(Out) :: SAR(nSAR)
-real*8, intent(In) :: A(3)
-real*8, intent(In) :: Exp_a(nPrim_a), Exp_r(nPrim_r)
-real*8, intent(In) :: Cff_a(nPrim_a,nCntrc_a)
-real*8, intent(In) :: Cff_r(nPrim_r,nCntrc_r)
-real*8 Scr1(nScr1), Scr2(nScr2)
-real*8, allocatable :: ZAR(:), ZIAR(:), KAR(:), PAR(:,:)
-real*8, allocatable :: pSAR(:)
+implicit none
+external :: Kernel
+integer(kind=iwp) :: nArray, iAng, iComp, nOrdOp, nScr1, nScr2, naa, nSAR, iShll_a, nPrim_a, nCntrc_a, iCmp_a, iShll_r, nPrim_r, &
+                     nCntrc_r, iCmp_r
+real(kind=wp) :: Array(nArray), Scr1(nScr1), Scr2(nScr2)
+real(kind=wp), intent(in) :: A(3), Exp_a(nPrim_a), Cff_a(nPrim_a,nCntrc_a), Exp_r(nPrim_r), Cff_r(nPrim_r,nCntrc_r)
+real(kind=wp), intent(out) :: SAR(nSAR)
+integer(kind=iwp) :: mArr, mSar, nHer
+real(kind=wp), allocatable :: KAR(:), PAR(:,:), pSAR(:), ZAR(:), ZIAR(:)
 
 mArr = nArray/(nPrim_a*nPrim_r)
 call mma_allocate(ZAR,nPrim_a*nPrim_r,Label='ZAR')
@@ -49,8 +48,8 @@ call mma_deallocate(ZIAR)
 call mma_deallocate(KAR)
 call mma_deallocate(PAR)
 
-call DGEMM_('T','N',nPrim_r*naa,nCntrc_a,nPrim_a,1.0d0,pSAR,nPrim_a,Cff_a,nPrim_a,0.0d0,Scr1,nPrim_r*naa)
-call DGEMM_('T','N',naa*nCntrc_a,nCntrc_r,nPrim_r,1.0d0,Scr1,nPrim_r,Cff_r,nPrim_r,0.0d0,Scr2,naa*nCntrc_a)
+call DGEMM_('T','N',nPrim_r*naa,nCntrc_a,nPrim_a,One,pSAR,nPrim_a,Cff_a,nPrim_a,Zero,Scr1,nPrim_r*naa)
+call DGEMM_('T','N',naa*nCntrc_a,nCntrc_r,nPrim_r,One,Scr1,nPrim_r,Cff_r,nPrim_r,Zero,Scr2,naa*nCntrc_a)
 #ifdef _DEBUGPRINT_
 call RecPrt('S_AR in Cartesian',' ',Scr2,naa,nCntrc_a*nCntrc_r)
 #endif

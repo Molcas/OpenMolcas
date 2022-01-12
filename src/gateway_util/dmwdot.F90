@@ -13,18 +13,22 @@
 !               2020, Ignacio Fdez. Galvan                             *
 !***********************************************************************
 
-real*8 function dmwdot(nAt,mAt,A,B)
+function dmwdot(nAt,mAt,A,B)
 
-use Basis_Info
+use Basis_Info, only: dbsc, nCnttp
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-integer nAt, mAt
-real*8 A(3,nAt), B(3,nAt)
-logical Found
-#include "real.fh"
-#include "stdalloc.fh"
-real*8 TMass
-real*8, dimension(:), allocatable :: W
+implicit none
+real(kind=wp) :: dmwdot
+integer(kind=iwp) :: nAt, mAt
+real(kind=wp) :: A(3,nAt), B(3,nAt)
+real(kind=wp) :: Fact, TMass, tmp, xMass
+integer(kind=iwp) :: i, iAt, iCnt, iCnttp, nData
+logical(kind=iwp) :: Found
+real(kind=wp), allocatable :: W(:)
+integer(kind=iwp), external :: iDeg
 
 !***********************************************************************
 !                                                                      *
@@ -45,7 +49,7 @@ do iCnttp=1,nCnttp
   if (.not. (dbsc(iCnttp)%pChrg .or. dbsc(iCnttp)%Frag .or. dbsc(iCnttp)%Aux)) then
     do iCnt=1,dbsc(iCnttp)%nCntr
       iAt = iAt+1
-      Fact = dble(iDeg(A(1,iAt)))
+      Fact = real(iDeg(A(1,iAt)),kind=wp)
       xMass = Fact*W(iAt)
       TMass = TMass+xMass
       do i=1,3

@@ -26,7 +26,6 @@
       use Sizes_of_Seward, only: S
       use RICD_Info, only: iRI_Type
       use Logical_Info, only: UnNorm
-      use Gateway_Interfaces, only: GetBS
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "stdalloc.fh"

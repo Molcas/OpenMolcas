@@ -13,38 +13,19 @@
 
 module SOAO_Info
 
+use Definitions, only: iwp
+
 implicit none
 private
 
-public :: iSOInf, iAOtSO, nSOInf, SOAO_Info_Init, SOAO_Info_Dmp, SOAO_Info_Get, SOAO_Info_Free, iOffSO
+integer(kind=iwp), allocatable :: iAOtSO(:,:), iSOInf(:,:)
+integer(kind=iwp) :: iOffSO(0:7) = 0, nIrrep = 0, nSOInf = 0
 
-#include "stdalloc.fh"
-#include "itmax.fh"
-integer, allocatable :: iSOInf(:,:)
-integer, allocatable :: iAOtSO(:,:)
-integer :: iOffSO(0:7) = [0,0,0,0,0,0,0,0]
-integer :: nSOInf = 0
-integer :: nIrrep = 0
+! Do not change this value, since it also explicitly signals symmetry information.
+! This is explicitly used in some routines. (where?)
+integer(kind=iwp) :: initValue = -99999999
 
-interface
-  subroutine Abend()
-  end subroutine Abend
-  subroutine Put_iArray(Label,data,nData)
-    character*(*) Label
-    integer nData
-    integer data(nData)
-  end subroutine Put_iArray
-  subroutine Get_iArray(Label,data,nData)
-    character*(*) Label
-    integer nData
-    integer data(nData)
-  end subroutine Get_iArray
-  subroutine Qpg_iArray(Label,Found,nData)
-    character*(*) Label
-    logical Found
-    integer nData
-  end subroutine Qpg_iArray
-end interface
+public :: iAOtSO, iOffSO, iSOInf, nSOInf, SOAO_Info_Dmp, SOAO_Info_Free, SOAO_Info_Get, SOAO_Info_Init
 
 !***********************************************************************
 !***********************************************************************
@@ -54,26 +35,19 @@ contains
 !***********************************************************************
 !***********************************************************************
 
-! This to make either the initial allocation of dbsc and Shells according to the default sizes
-! as defined by the parameters in Molcas.fh or according to the actual sizes as recorded on the
-! run file.
-
-!***********************************************************************
-
 subroutine SOAO_Info_Init(nSize,mIrrep)
 
-  implicit none
-  integer nSize, mIrrep
+  use stdalloc, only: mma_allocate
+
+  integer(kind=iwp) :: mIrrep, nSize
 
   if (allocated(iSOInf) .or. allocated(iAOtSO)) call SOAO_Info_Free()
   nSOInf = nSize
   nIrrep = mIrrep
   call mma_allocate(iSOInf,3,nSOInf,Label='iSOInf')
-  iSOInf(:,:) = -99999999
-  ! Do not change this value, since it also explicitly signals symmetry information.
-  ! This is explicitly used in some routines.
+  iSOInf(:,:) = initValue
   call mma_allocate(iAOtSO,[1,nSOInf],[0,nIrrep-1],Label='iAOtSO')
-  iAOtSO(:,:) = -99999999        ! Dito
+  iAOtSO(:,:) = initValue
 
 end subroutine SOAO_Info_Init
 
@@ -81,17 +55,22 @@ end subroutine SOAO_Info_Init
 
 subroutine SOAO_Info_Dmp()
 
-  integer, allocatable :: iDmp(:)
-  integer i, j
+  use stdalloc, only: mma_allocate, mma_deallocate
+# ifdef _DEBUGPRINT_
+  use Definitions, only: u6
+# endif
+
+  integer(kind=iwp) :: i, j
+  integer(kind=iwp), allocatable :: iDmp(:)
 
 # ifdef _DEBUGPRINT_
-  write(6,*)
-  write(6,*) 'Enter SOAO_Info_Dmp'
-  write(6,*)
-  write(6,*)
-  write(6,*) 'iAOtSO:'
+  write(u6,*)
+  write(u6,*) 'Enter SOAO_Info_Dmp'
+  write(u6,*)
+  write(u6,*)
+  write(u6,*) 'iAOtSO:'
   do i=0,nIrrep-1
-    write(6,'(8I9)') iAOtSO(1:nSOInf,i)
+    write(u6,'(8I9)') iAOtSO(1:nSOInf,i)
   end do
 # endif
   call mma_allocate(iDmp,3*nSOInf+8,Label='iDmp')
@@ -111,19 +90,23 @@ end subroutine SOAO_Info_Dmp
 
 subroutine SOAO_Info_Get()
 
-  integer, allocatable :: iDmp(:)
-  integer i, j
-  logical Found
+  use Definitions, only: u6
+
+  use stdalloc, only: mma_allocate, mma_deallocate
+
+  integer(kind=iwp) :: i, j
+  logical(kind=iwp) :: Found
+  integer(kind=iwp), allocatable :: iDmp(:)
 
 # ifdef _DEBUGPRINT_
-  write(6,*)
-  write(6,*) 'Enter SOAO_Info_Get'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) 'Enter SOAO_Info_Get'
+  write(u6,*)
 # endif
   if (allocated(iSOInf) .or. allocated(iAOtSO)) call SOAO_Info_Free()
   call Qpg_iArray('iSOInf',Found,nSOInf)
   if (.not. Found) then
-    write(6,*) 'SOAO_Info_Get: iSOInf not found.'
+    write(u6,*) 'SOAO_Info_Get: iSOInf not found.'
     call Abend()
   end if
   nSOInf = (nSOInf-8)/3
@@ -140,21 +123,21 @@ subroutine SOAO_Info_Get()
 
   call Qpg_iArray('iAOtSO',Found,nIrrep)
   if (.not. Found) then
-    write(6,*) 'SOAO_Info_Get: iAOtSO not found.'
+    write(u6,*) 'SOAO_Info_Get: iAOtSO not found.'
     call Abend()
   end if
   nIrrep = nIrrep/nSOInf
   call mma_allocate(iAOtSO,[1,nSOInf],[0,nIrrep-1],Label='iAOtSO')
   call Get_iArray('iAOtSO',iAOtSO,nSOInf*nIrrep)
 # ifdef _DEBUGPRINT_
-  write(6,*)
-  write(6,*) 'iAOtSO:'
+  write(u6,*)
+  write(u6,*) 'iAOtSO:'
   do i=0,nIrrep-1
-    write(6,'(8I9)') iAOtSO(1:nSOInf,i)
+    write(u6,'(8I9)') iAOtSO(1:nSOInf,i)
   end do
-  write(6,*)
-  write(6,*) 'Exit SOAO_Info_Get'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) 'Exit SOAO_Info_Get'
+  write(u6,*)
 # endif
 
 end subroutine SOAO_Info_Get
@@ -162,6 +145,8 @@ end subroutine SOAO_Info_Get
 !***********************************************************************
 
 subroutine SOAO_Info_Free()
+
+  use stdalloc, only: mma_deallocate
 
   if (allocated(iSOInf)) call mma_deallocate(iSOInf)
   if (allocated(iAOtSO)) call mma_deallocate(iAOtSO)

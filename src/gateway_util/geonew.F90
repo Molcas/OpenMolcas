@@ -11,7 +11,7 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine GeoNew(print)
+subroutine GeoNew(lprint)
 !***********************************************************************
 !                                                                      *
 ! Object: to pick up the geometry from a special file. This will only  *
@@ -24,19 +24,20 @@ subroutine GeoNew(print)
 !             March 1991                                               *
 !***********************************************************************
 
-use Basis_Info
+use Basis_Info, only: dbsc, nCnttp
+use stdalloc, only: mma_deallocate
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-logical print
-#include "real.fh"
-#include "stdalloc.fh"
-#include "SysDef.fh"
-logical Exist
-real*8, dimension(:,:), allocatable :: CN
+implicit none
+logical(kind=iwp) :: lprint
+integer(kind=iwp) :: iCnt, iCnttp, iDC, iNuc, lBuf, nNuc
+logical(kind=iwp) :: Exists
+real(kind=wp), allocatable :: CN(:,:)
 interface
   subroutine Get_Coord_New(CN,lBuf)
-    real*8, dimension(:,:), allocatable :: CN
-    integer lBuf
+    import :: wp, iwp
+    real(kind=wp), allocatable :: CN(:,:)
+    integer(kind=iwp) :: lBuf
   end subroutine
 end interface
 
@@ -46,15 +47,15 @@ end interface
 
 call Get_Coord_New(CN,lBuf)
 
-! Quit if the datadfield 'NewGeom' is not available. However,
+! Quit if the datafield 'NewGeom' is not available. However,
 ! if the field is available on RUNOLD pick it up there.
 
 if (lBuf == 0) then
 
   ! Check RUNOLD
 
-  call f_Inquire('RUNOLD',Exist)
-  if (Exist) then
+  call f_Inquire('RUNOLD',Exists)
+  if (Exists) then
     call NameRun('RUNOLD')
     call Get_Coord_New(CN,lBuf)
     if (lBuf == 0) then
@@ -64,10 +65,10 @@ if (lBuf == 0) then
     else
       call Get_iScalar('Unique atoms',nNuc)
       call NameRun('RUNFILE')
-      if (print) then
-        write(6,*)
-        write(6,'(A)') '    Geometry read from RUNOLD'
-        write(6,*)
+      if (lprint) then
+        write(u6,*)
+        write(u6,'(A)') '    Geometry read from RUNOLD'
+        write(u6,*)
       end if
     end if
   else
@@ -76,10 +77,10 @@ if (lBuf == 0) then
   end if
 else
   call Get_iScalar('Unique atoms',nNuc)
-  if (print) then
-    write(6,*)
-    write(6,'(A)') '    Geometry read from RUNFILE'
-    write(6,*)
+  if (lprint) then
+    write(u6,*)
+    write(u6,'(A)') '    Geometry read from RUNFILE'
+    write(u6,*)
   end if
 end if
 !                                                                      *

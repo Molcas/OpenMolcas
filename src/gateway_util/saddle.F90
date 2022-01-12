@@ -23,32 +23,33 @@ subroutine Saddle()
 !             January 2009                                             *
 !***********************************************************************
 
-use Basis_Info
-use Center_Info
-use external_centers
+use Basis_Info, only: dbsc, nCnttp
+use Center_Info, only: dc
+use External_Centers, only: nRP, RP_Centers
+use Isotopes, only: PTab
 use Sizes_of_Seward, only: S
 use Real_Info, only: E1, E2, SadStep, Shake
 use Logical_Info, only: Align_Only, Do_Align, lRP, lRP_Post
 use Symmetry_Info, only: nIrrep, VarR, VarT
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Four, Half, OneHalf, Angstrom
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "stdalloc.fh"
-#include "SysDef.fh"
-character*1 Mode
-character*16 StdIn
-logical Not_First_Iter, FindTS, Found, quadratic, Invar
-#include "angstr.fh"
+implicit none
 #include "warnings.h"
-character*2, dimension(:), allocatable :: Elm
-real*8, dimension(:), allocatable :: TanVec, TmpA, W
-real*8, dimension(:,:), allocatable :: Vec, MEP
-integer, dimension(:), allocatable :: iStab
-integer ipX2, ipX3
-integer iRef, iOpt
-real*8, dimension(:,:), allocatable :: XYZ
-real*8 RandVect(3)
-#include "periodic_table.fh"
+integer(kind=iwp) :: i, iAt, iAtSym, iCnt, iCnttp, iOff, iOff_Iter, iOpt, iOptExp, iProd, ipX2, ipX3, iRA1, iRA2, iReac, iRef, &
+                     iRefAlign, iReturn, iRP, iSaddle, iX0, iX1, iX3, iXA0, iXA1, iXA2, iXA3, ixyz, j, jAt, jDim, jTmp, Lu_UDC, &
+                     LuInput, mAt, nAt, nData, ndc, nSaddle, nSaddle_Max, nsc
+real(kind=wp) :: C, D, Delta, deviation, dHSR, diff, HSR, HSR0, R11, R1_2, R1R2, R22, RandVect(3), RMax, RMSD, RMSMax, tmp, &
+                 Update, wTot
+logical(kind=iwp) :: FindTS, Found, Invar, Not_First_Iter, quadratic
+character(len=16) :: StdIn
+character :: Mode
+integer(kind=iwp), allocatable :: iStab(:)
+real(kind=wp), allocatable :: MEP(:,:), TanVec(:), TmpA(:), Vec(:,:), W(:), XYZ(:,:)
+character(len=2), allocatable :: Elm(:)
+integer(kind=iwp), external :: IsFreeUnit
+real(kind=wp), external :: dmwdot
 
 !***********************************************************************
 !                                                                      *
@@ -180,9 +181,9 @@ if (lRP) then
 
     if (Do_Align .and. Invar) then
       ! Note: this might break symmetry
-      call Superpose_w(XYZ(1,iReac),XYZ(1,iProd),W,mAt,RMS,RMSMax)
+      call Superpose_w(XYZ(1,iReac),XYZ(1,iProd),W,mAt,RMSD,RMSMax)
       call Fix_Symmetry(XYZ(1,iReac),nAt,iStab)
-      call Add_Info('RMSD',[RMS],1,6)
+      call Add_Info('RMSD',[RMSD],1,6)
       call Add_Info('RMSMax',[RMSMax],1,6)
       call dcopy_(3*nAt,XYZ(1,iReac),1,RP_Centers(1,1,1),1)
       call dcopy_(3*nAt,XYZ(1,iProd),1,RP_Centers(1,1,2),1)
@@ -209,29 +210,29 @@ if (lRP) then
           end do
         end do
 
-        write(6,*)
-        write(6,*) 'Aligned Reactants and Products'
-        write(6,*) '=============================='
-        write(6,*)
-        write(6,*)
-        write(6,*) ' Reactants / Angstrom'
-        write(6,*) '====================='
-        write(6,*)
+        write(u6,*)
+        write(u6,*) 'Aligned Reactants and Products'
+        write(u6,*) '=============================='
+        write(u6,*)
+        write(u6,*)
+        write(u6,*) ' Reactants / Angstrom'
+        write(u6,*) '====================='
+        write(u6,*)
         do iAt=1,mAt
-          write(6,'(A,1X,3F15.8)') Elm(iAt),(XYZ((iAt-1)*3+jAt,iReac)*Angstr,jAt=1,3)
+          write(u6,'(A,1X,3F15.8)') Elm(iAt),(XYZ((iAt-1)*3+jAt,iReac)*Angstrom,jAt=1,3)
         end do
-        write(6,*)
-        write(6,*)
-        write(6,*) ' Products / Angstrom'
-        write(6,*) '===================='
-        write(6,*)
+        write(u6,*)
+        write(u6,*)
+        write(u6,*) ' Products / Angstrom'
+        write(u6,*) '===================='
+        write(u6,*)
         do iAt=1,mAt
-          write(6,'(A,1X,3F15.8)') Elm(iAt),(XYZ((iAt-1)*3+jAt,iProd)*Angstr,jAt=1,3)
+          write(u6,'(A,1X,3F15.8)') Elm(iAt),(XYZ((iAt-1)*3+jAt,iProd)*Angstrom,jAt=1,3)
         end do
-        write(6,*)
-        write(6,*)
+        write(u6,*)
+        write(u6,*)
         call WarningMessage(2,'Molecular alignment completed')
-        write(6,*)
+        write(u6,*)
         iReturn = _RC_ALL_IS_WELL_
         call mma_deallocate(XYZ)
         call mma_deallocate(iStab)
@@ -283,7 +284,7 @@ if (lRP) then
   if (.not. Invar) then
 
     ! If the energy is not trans/rot invariant, compute the weighted
-    ! RMS with the current structures
+    ! RMSD with the current structures
 
     HSR = Zero
     wTot = Zero
@@ -317,15 +318,15 @@ if (lRP) then
 
     ! FindTS
 
-    FindTS = HSR <= (1.5d0*SadStep)
+    FindTS = HSR <= (OneHalf*SadStep)
     if (FindTS) then
-      write(6,*) '**************************'
-      write(6,*) '* Enable TS optimization *'
-      write(6,*) '**************************'
-      Update = 2.0d0
-      Delta = 0.5d0-6.25d0*(E2-E1)
-      Delta = min(Delta,0.75d0)
-      Delta = max(Delta,0.25d0)
+      write(u6,*) '**************************'
+      write(u6,*) '* Enable TS optimization *'
+      write(u6,*) '**************************'
+      Update = Two
+      Delta = Half-6.25_wp*(E2-E1)
+      Delta = min(Delta,0.75_wp)
+      Delta = max(Delta,0.25_wp)
       if (Mode == 'R') then
         HSR = (One-Delta)*HSR
       else
@@ -405,9 +406,9 @@ if (lRP) then
           R11 = dmwdot(nAt,mAt,Vec(1,2),Vec(1,2))
           R22 = dmwdot(nAt,mAt,Vec(1,1),Vec(1,1))
           deviation = deviation/sqrt(R11*R22)
-          if (deviation < 0.85d0) then
+          if (deviation < 0.85_wp) then
             quadratic = .false.
-            dHSR = SadStep*0.8d0
+            dHSR = SadStep*0.8_wp
             Go To 35
           end if
         end if
@@ -425,16 +426,16 @@ if (lRP) then
         ! The direction of the previous iteration is far from the R-P direction
 
         tmp = R1R2/(sqrt(R11)*sqrt(R22))
-        if (tmp < 0.3d0) then
+        if (tmp < 0.3_wp) then
           quadratic = .false.
-          dHSR = SadStep*0.8d0
+          dHSR = SadStep*0.8_wp
         elseif (tmp < Zero) then
           quadratic = .false.
-          dHSR = SadStep*0.6
+          dHSR = SadStep*0.6_wp
         else
-          dHSR = SadStep*1.0d0
+          dHSR = SadStep
           if (isaddle > 1) then
-            dHSR = SadStep*1.3d0
+            dHSR = SadStep*1.3_wp
           end if
         end if
 35      continue
@@ -444,13 +445,13 @@ if (lRP) then
 
         ! Slow down close to the TS or in the first iteration
 
-        if (HSR <= 2.5d0*SadStep) then
-          dHSR = SadStep*0.55d0
-        elseif (quadratic .and. (HSR <= 4.0d0*SadStep)) then
-          dHSR = SadStep*0.75d0
+        if (HSR <= 2.5_wp*SadStep) then
+          dHSR = SadStep*0.55_wp
+        elseif (quadratic .and. (HSR <= Four*SadStep)) then
+          dHSR = SadStep*0.75_wp
         end if
       else
-        dHSR = SadStep*0.7d0
+        dHSR = SadStep*0.7_wp
       end if
       Delta = dHSR/HSR
       if (Mode == 'P') Delta = One-Delta
@@ -469,15 +470,15 @@ if (lRP) then
 
     ! Already findTS!
 
-    FindTS = HSR <= (1.5d0*SadStep)
+    FindTS = HSR <= (OneHalf*SadStep)
     if (FindTS) then
-      write(6,*) '**************************'
-      write(6,*) '* Enable TS optimization *'
-      write(6,*) '**************************'
-      Update = 2.0d0
-      Delta = 0.5d0-6.25d0*(E2-E1)
-      Delta = min(Delta,0.75d0)
-      Delta = max(Delta,0.25d0)
+      write(u6,*) '**************************'
+      write(u6,*) '* Enable TS optimization *'
+      write(u6,*) '**************************'
+      Update = Two
+      Delta = Half-6.25_wp*(E2-E1)
+      Delta = min(Delta,0.75_wp)
+      Delta = max(Delta,0.25_wp)
       if (Mode == 'R') then
         HSR = (One-Delta)*HSR
       else
@@ -498,7 +499,7 @@ if (lRP) then
 
       ! Do not go too fast the first time
 
-      dHSR = SadStep*0.7d0
+      dHSR = SadStep*0.7_wp
       Delta = dHSR/HSR
       HSR = HSR-dHSR
       if (Mode == 'P') Delta = One-Delta
@@ -523,28 +524,28 @@ if (lRP) then
   ! Set the point with the highest energy as the reference
   ! structure. Put the reference structure on the runfile.
 
-  write(6,*)
-  write(6,'(A)') ' -- TS optimization a la the Saddle approach'
+  write(u6,*)
+  write(u6,'(A)') ' -- TS optimization a la the Saddle approach'
   if (FindTS) then
-    write(6,'(A)') '   Last Macro iteration'
+    write(u6,'(A)') '   Last Macro iteration'
     call Merge_Lists(Mode,nAt)
   end if
   if (Mode == 'R') then
     iRef = 2
     iOpt = 1
-    write(6,'(A)') '     Reference structure: product side'
-    write(6,'(A,F15.8)') '       Associated Energy: ',E2
-    write(6,'(A)') '     Optimized structure: reactant side'
-    write(6,'(A,F15.8)') '       Associated Energy: ',E1
+    write(u6,'(A)') '     Reference structure: product side'
+    write(u6,'(A,F15.8)') '       Associated Energy: ',E2
+    write(u6,'(A)') '     Optimized structure: reactant side'
+    write(u6,'(A,F15.8)') '       Associated Energy: ',E1
   else
     iRef = 1
     iOpt = 2
-    write(6,'(A)') '     Reference structure: reactant side'
-    write(6,'(A,F15.8)') '       Associated Energy: ',E1
-    write(6,'(A)') '     Optimized structure: product side'
-    write(6,'(A,F15.8)') '       Associated Energy: ',E2
+    write(u6,'(A)') '     Reference structure: reactant side'
+    write(u6,'(A,F15.8)') '       Associated Energy: ',E1
+    write(u6,'(A)') '     Optimized structure: product side'
+    write(u6,'(A,F15.8)') '       Associated Energy: ',E2
   end if
-  write(6,*)
+  write(u6,*)
 
   ! Align the reference structure with the current structure
 
@@ -611,7 +612,7 @@ if (lRP) then
     R1_2 = R11-Two*R1R2+R22
     Delta = HSR**2*(R11*R22*R1_2+HSR**2*(R1R2**2-R11*R22))
     if (Delta < Zero) then
-      write(6,*) 'Delta is negative!!!'
+      write(u6,*) 'Delta is negative!!!'
       quadratic = .false.
       Go To 30
     end if
@@ -661,7 +662,7 @@ if (lRP) then
     ! Linear interpolation
 
     call mma_allocate(TmpA,nRP,label='TmpA')
-    call DZero(TmpA,nRP)
+    TmpA(:) = Zero
     call mma_allocate(XYZ,3*nAt*8,2,label='XYZ')
     iRA1 = 1
     iRA2 = 2

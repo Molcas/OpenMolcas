@@ -11,14 +11,16 @@
 
 subroutine LDF_CheckThrs()
 
+use Constants, only: Zero
+
 implicit none
 #include "localdf.fh"
 
-if (Thr_Accuracy < 0.0d0) then
+if (Thr_Accuracy < Zero) then
   call WarningMessage(2,'LDF: Thr_Accuracy<0')
   call Quit_OnUserError()
 end if
-if (Thr_Prescreen < 0.0d0) then
+if (Thr_Prescreen < Zero) then
   call WarningMessage(2,'LDF: Thr_Prescreen<0')
   call Quit_OnUserError()
 end if

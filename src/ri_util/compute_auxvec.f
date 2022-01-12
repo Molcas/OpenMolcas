@@ -16,6 +16,7 @@
       use Symmetry_Info, only: nIrrep
       use Data_Structures, only: Allocate_DSBA
       use Data_Structures, only: Deallocate_DSBA
+      use Data_Structures, only: DSBA_Type
       use ExTerm, only: iMP2prpt, DMLT
       Implicit Real*8 (a-h,o-z)
       Integer ipVk(nProc), ipZpk(nProc)

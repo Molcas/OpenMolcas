@@ -29,42 +29,21 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !***********************************************************************
 
-#include "compiler_features.h"
-#ifdef _IN_MODULE_
-
 subroutine GetBS(DDname,BSLbl,iShll,Ref,UnNorm,LuRd,BasisTypes,STDINP,iSTDINP,L_STDINP,Expert,ExtBasDir)
 
-use Basis_Info
+use Basis_Info, only: dbsc, nCnttp, Shells
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u5, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
 #include "Molcas.fh"
+character(len=*) :: DDname, ExtBasDir
+character(len=80) :: BSLbl
+integer(kind=iwp) :: iShll, BasisTypes(4), iSTDINP
+character(len=180) :: Ref(2), STDINP(MxAtom*2)
+logical(kind=iwp) :: UnNorm, L_STDINP, Expert
 #include "angtp.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-character*(*) DDname
-character(LEN=80) BSLbl
-integer iShll
-character(LEN=180) Ref(2)
-logical UnNorm
-integer LuRd, BasisTypes(4)
-character(LEN=180) STDINP(MxAtom*2)
-logical L_STDINP, Expert
-character*(*) ExtBasDir
-! Local variables
-character(LEN=80) MPLbl*20, Filenm, Atom, type
-character(LEN=256) DirName
-character Basis_Lib*256, Filename*263, DefNm*13
-integer StrnLn
-external StrnLn
-logical UnContracted
-character*180 Line, Get_Ln
-external Get_Ln
-character*24 Words(2)                     ! CGGn
-logical inLn1, inLn2, inLn3, Hit, IfTest, isEorb, isFock
-integer nCGTO(0:iTabMx), mCGTO(0:iTabMx)
-logical Found, Cart(0:iTabMx)
-real*8, allocatable :: ExpMerged(:), Temp(:,:)
-data DefNm/'basis_library'/
 #include "relmp.fh"
 ! IRELMP =0  .... NOPAIR (DK2)
 ! IRELMP =1  .... NOPAIR (DK1)
@@ -75,17 +54,21 @@ data DefNm/'basis_library'/
 ! IRELMP =21 .... ZORA
 ! IRELMP =22 .... ZORA-FP
 ! IRELMP =23 .... IORA
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine RecPrt(Title,FmtIn,A,nRow,nCol)
-    character*(*) Title
-    character*(*) FmtIn
-    integer nRow, nCol
-    real*8 A(nRow,nCol)
-  end subroutine RecPrt
-end interface
+integer(kind=iwp) :: i, iAdded, iAIMP, iAng, iDominantSet, iEnd, iErr, iFlgOne, iFrst, iMPShll, iNow, iPrevNow, iPrim, iPrint, &
+                     iPrSh, iValSh, j, j1, j2, jNow, jPrSh, jValSh, lAng, lUnit, LUQRP, LuRd, mCGTO(0:iTabMx), mDel, mSOC, mVal, &
+                     nAdded, nAIMP, nCGTO(0:iTabMx), nCntrc, nEorb, nPrim, nProj, Nwords
+real(kind=wp) :: Coeff, RatioThres
+character(len=263) :: Filename
+character(len=256) :: Basis_Lib, DirName
+character(len=180) :: Line
+character(len=80) :: Atom, Filenm, bType
+character(len=24) :: Words(2)  ! CGGn
+character(len=20) :: MPLbl
+logical(kind=iwp) :: Cart(0:iTabMx), Found, Hit, IfTest, inLn1, inLn2, inLn3, isEorb, isFock, UnContracted
+real(kind=wp), allocatable :: ExpMerged(:), Temp(:,:)
+integer(kind=iwp), external :: Lbl2Nr, StrnLn
+character(len=180), external :: Get_Ln
+character(len=*), parameter :: DefNm = 'basis_library'
 
 !                                                                      *
 !***********************************************************************
@@ -102,14 +85,14 @@ dbsc(nCnttp)%FOp = .true.
 lAng = 0
 
 Cart(:) = .false.
-if (IfTest) write(6,'(A,A)') 'DDName=',DDName
+if (IfTest) write(u6,'(A,A)') 'DDName=',DDName
 Line = DDName
 call UpCase(Line)
 if ((index(Line,'INLINE') /= 0) .and. (index(Line,'EXPERT') == 0)) then
   if (.not. Expert) then
-    write(6,*) 'INLINE keyword is detected'
-    write(6,*) 'EXPERT keyword is not set...'
-    write(6,*) '       We better abort right now!'
+    write(u6,*) 'INLINE keyword is detected'
+    write(u6,*) 'EXPERT keyword is not set...'
+    write(u6,*) '       We better abort right now!'
     call abend()
   end if
 end if
@@ -148,14 +131,14 @@ if (index(DDName(iFrst:iEnd),'INLINE') /= 0) then
     inLn2 = .false.
   end if
 end if
-if (IfTest) write(6,*) inLn1,inLn2,inLn3
+if (IfTest) write(u6,*) inLn1,inLn2,inLn3
 
 if (.not. inLn1) then
   lUnit = 11
 
   ! Find and decode basis set label
 
-  call Rdbsl(DirName,BSLbl,type,nCGTO,mCGTO,lAng,Itabmx,lUnit,dbsc(nCnttp)%AtmNr,BasisTypes,ExtBasDir)
+  call Rdbsl(DirName,BSLbl,bType,nCGTO,mCGTO,lAng,Itabmx,lUnit,dbsc(nCnttp)%AtmNr,BasisTypes,ExtBasDir)
   Line = Get_Ln(lUnit)
   Ref(1) = Line
   Line = Get_Ln(lUnit)
@@ -168,20 +151,20 @@ else
   Ref(1) = ''
   Ref(2) = ''
   Hit = .true.
-  call Decode(BSLBl(1:80),type,2,Hit)
+  call Decode(BSLBl(1:80),bType,2,Hit)
   Basis_Lib = ' '
   i = 1
   Basis_Lib = DefNm
   call Find_Basis_Set(Basis_Lib,' ',' ')
   i = StrnLn(Basis_Lib)
-  call BasisType(Basis_Lib(1:i)//'/'//type,0,BasisTypes)
+  call BasisType(Basis_Lib(1:i)//'/'//bType,0,BasisTypes)
 end if
-Line(1:3) = type(1:3)
+Line(1:3) = bType(1:3)
 call UpCase(Line(1:3))
 if (Line(1:3) == 'AUX') dbsc(nCnttp)%Aux = .true.
 if (IfTest) then
-  write(6,'(A,A)') 'Ref(1):',trim(Ref(1))
-  write(6,'(A,A)') 'Ref(2):',trim(Ref(2))
+  write(u6,'(A,A)') 'Ref(1):',trim(Ref(1))
+  write(u6,'(A,A)') 'Ref(2):',trim(Ref(2))
 end if
 Uncontracted = BasisTypes(1) == 6
 if (dbsc(nCnttp)%IsMM == 1) then
@@ -204,10 +187,10 @@ if (Line == 'Options') then
     Line = Get_Ln(lUnit)
     if (Line /= 'EndOptions') then
       if (Line == 'OrbitalEnergies') then
-        if (IfTest) write(6,*) 'Orbital energies are included'
+        if (IfTest) write(u6,*) 'Orbital energies are included'
         isEorb = .true.
       else if (Line == 'FockOperator') then
-        if (IfTest) write(6,*) 'Fock operator is included'
+        if (IfTest) write(u6,*) 'Fock operator is included'
         isEorb = .true.
         isFock = .true.
       else if (Line(1:9) == 'Cartesian') then
@@ -222,7 +205,7 @@ if (Line == 'Options') then
           end do
         end if
       else
-        write(6,*) 'Illegal option: ',Line
+        write(u6,*) 'Illegal option: ',Line
         call Abend()
       end if
     else
@@ -232,7 +215,7 @@ if (Line == 'Options') then
   Line = Get_Ln(lUnit)
 end if
 ! end parsing options
-if (IfTest) write(6,'(A,A)') 'Line=',Line
+if (IfTest) write(u6,'(A,A)') 'Line=',Line
 if (L_STDINP .and. inLn1) then                         ! CGGn
   call Pick_Words(Line,2,Nwords,Words)                 ! CGGn
   if (Nwords /= 2) call Abend()                        ! CGGn
@@ -245,12 +228,12 @@ else                                                   ! CGGn
   if (inLn1) call get_i1(2,lAng)
 end if                                                 ! CGGn
 if (iPrint >= 99) then
-  write(6,*) 'lAng, Charge=',lAng,dbsc(nCnttp)%Charge
-  write(6,*) ' Start reading valence basis'
+  write(u6,*) 'lAng, Charge=',lAng,dbsc(nCnttp)%Charge
+  write(u6,*) ' Start reading valence basis'
 end if
 if (lAng > iTabMx) then
-  write(6,*) 'GetBS: lAng > iTabMx'
-  write(6,*) 'lAng,iTabMx=',lAng,iTabMx
+  write(u6,*) 'GetBS: lAng > iTabMx'
+  write(u6,*) 'lAng,iTabMx=',lAng,iTabMx
   call Abend()
 end if
 ! Loop over each shell type (s,p,d,etc....)
@@ -259,16 +242,16 @@ dbsc(nCnttp)%nVal = lAng+1
 mVal = 0
 dbsc(nCnttp)%iVal = iShll+1
 do iAng=0,lAng
-  if (IfTest) write(6,*) 'iAng=',iAng
+  if (IfTest) write(u6,*) 'iAng=',iAng
   iShll = iShll+1
   if (iShll > MxShll) then
-    write(6,*) 'GetBS: iShll > MxShll'
-    write(6,*) 'iShll,MxShll=',iShll,MxShll
+    write(u6,*) 'GetBS: iShll > MxShll'
+    write(u6,*) 'iShll,MxShll=',iShll,MxShll
     call Abend()
   end if
   if (IfTest) then
-    write(6,'(A,A)') 'Line=',Line
-    write(6,*) L_STDINP,inLn1
+    write(u6,'(A,A)') 'Line=',Line
+    write(u6,*) L_STDINP,inLn1
   end if
   if (L_STDINP .and. inLn1) then            ! CGGn
     iSTDINP = iSTDINP+1                     ! CGGn
@@ -283,7 +266,7 @@ do iAng=0,lAng
     mCGTO(iAng) = 0                         ! CGGn
   else                                      ! CGGn
     Line = Get_Ln(lUnit)
-    if (IfTest) write(6,'(A,A)') 'Line=',Line
+    if (IfTest) write(u6,'(A,A)') 'Line=',Line
     call Get_i1(1,nPrim)
     if (inLn1) then
       call Get_i1(2,nCntrc)
@@ -293,7 +276,7 @@ do iAng=0,lAng
       nCntrc = nCGTO(iAng)
     end if
   end if                                    ! CGGn
-  if (IfTest) write(6,*) ' nPrim, nCntrc=',nPrim,nCntrc
+  if (IfTest) write(u6,*) ' nPrim, nCntrc=',nPrim,nCntrc
 
   Shells(iShll)%nExp = nPrim
   Shells(iShll)%nBasis_c = nCntrc
@@ -304,13 +287,13 @@ do iAng=0,lAng
   call mma_allocate(Shells(iShll)%Exp,nPrim,Label='Exp')
   ! Read gaussian exponents
   if (nPrim > 0) then
-    if (IfTest) write(6,*) 'Read gaussian exponents'
+    if (IfTest) write(u6,*) 'Read gaussian exponents'
     call Read_v(lUnit,Shells(iShll)%Exp,1,nPrim,1,Ierr)
     if (Ierr /= 0) then
       call WarningMessage(2,'GetBS: Error while reading the exponents')
       call Quit_OnUserError()
     end if
-    if (IfTest) write(6,*) 'Done with exponents'
+    if (IfTest) write(u6,*) 'Done with exponents'
   end if
   if (iPrint >= 99) call RecPrt(' Exponents',' ',Shells(iShll)%Exp,nPrim,1)
 
@@ -324,16 +307,16 @@ do iAng=0,lAng
   ! Read contraction coefficients
   ! Observe that the matrix will have nPrim rows and nCntrc columns
   if (IfTest) then
-    write(6,'(2A)') ' Type=',type
-    write(6,*) 'mCGTO(iAng)=',mCGTO(iAng)
-    write(6,*) 'nCGTO(iAng)=',nCGTO(iAng)
-    write(6,*) 'nCntrc=',nCntrc
+    write(u6,'(2A)') ' Type=',bType
+    write(u6,*) 'mCGTO(iAng)=',mCGTO(iAng)
+    write(u6,*) 'nCGTO(iAng)=',nCGTO(iAng)
+    write(u6,*) 'nCntrc=',nCntrc
   end if
-  if (IfTest) write(6,*) ' Read/Process coefficients'
+  if (IfTest) write(u6,*) ' Read/Process coefficients'
 
   if ((inLn1 .or. (mCGTO(iAng) == nCntrc)) .or. (nCntrc == 0)) then
     ! Read in coeffs. in GC format, as the standard case
-    if (IfTest) write(6,*) ' Standard case'
+    if (IfTest) write(u6,*) ' Standard case'
     Shells(iShll)%Cff_c(:,:,:) = Zero
     if (UnContracted) then
       do i=1,nPrim
@@ -366,7 +349,7 @@ do iAng=0,lAng
     !                  x x 0                          x x 0 1 0
     !                  0 0 1                          0 0 0 0 1
 
-    if (IfTest) write(6,*) ' Initial GC + outermost primitives'
+    if (IfTest) write(u6,*) ' Initial GC + outermost primitives'
     if (nCntrc > nPrim) then
       call WarningMessage(2,'Number of contracted more than the number of primitive: correct the basis set label!')
       call Quit_OnUserError()
@@ -403,12 +386,12 @@ do iAng=0,lAng
         end if
       end do
       iAdded = iAdded+1
-      if (IfTest) write(6,*) 'function',jNow,' is an added one'
+      if (IfTest) write(u6,*) 'function',jNow,' is an added one'
     end do Outer
 
     nAdded = iAdded
     if (nAdded == mCGTO(iAng)) nAdded = 0
-    if (IfTest) write(6,*) ' nAdded=',nAdded
+    if (IfTest) write(u6,*) ' nAdded=',nAdded
     if (nAdded > 0) then
       ! shift the added polarization and diffuse functions to the right
       do jNow=1,nAdded
@@ -421,7 +404,7 @@ do iAng=0,lAng
     end if
     ! insert/append the outermost primitives (in GC format)
     do jNow=mCGTO(iAng)+1-nAdded,nCntrc-nAdded
-      if (IfTest) write(6,*) 'jNow=',jNow
+      if (IfTest) write(u6,*) 'jNow=',jNow
       Temp(:,jNow) = Zero
       j = jNow-(mCGTO(iAng)-nAdded)
       iPrevNow = nPrim-nAdded-(nCntrc-mCGTO(iAng))
@@ -432,7 +415,7 @@ do iAng=0,lAng
     call mma_deallocate(Temp)
   end if
 
-  if (IfTest) write(6,*) ' Done! Now Process.'
+  if (IfTest) write(u6,*) ' Done! Now Process.'
 
   ! Order the exponents
 
@@ -532,19 +515,19 @@ if (mVal == 0) dbsc(nCnttp)%nVal = 0
 ! If PAM basis set read the potentials and coefficient!
 
 if (inLn2 .and. (.not. inLn1)) then
-  if (IfTest) write(6,*) ' Close library and start to read from standard input'
+  if (IfTest) write(u6,*) ' Close library and start to read from standard input'
   close(lUnit)
-  lUnit = 5
+  lUnit = u5
 end if
 if (index(BSLBl,'.PAM.') /= 0) then
-  if (IfTest) write(6,*) ' Process PAM'
+  if (IfTest) write(u6,*) ' Process PAM'
   dbsc(nCnttp)%lPAM2 = .true.
-  if (iPrint >= 99) write(6,*) ' Start reading PAMs'
+  if (iPrint >= 99) write(u6,*) ' Start reading PAMs'
   call GetPAM(lUnit,nCnttp)
-!
+
   if (inLn3 .and. (.not. inLn2)) then
     close(lUnit)
-    lUnit = 5
+    lUnit = u5
   end if
 end if
 !***********************************************************************
@@ -553,18 +536,18 @@ end if
 ! orbital energies and density matrix
 
 if (inLn2 .and. (.not. inLn1)) then
-  if (IfTest) write(6,*) ' Close library and start to read from standard input'
+  if (IfTest) write(u6,*) ' Close library and start to read from standard input'
   close(lUnit)
-  lUnit = 5
+  lUnit = u5
 end if
 if (index(BSLBl,'.FRAGMENT.') /= 0) then
-  if (IfTest) write(6,*) ' Process FRAGMENT'
-  if (iPrint >= 99) write(6,*) ' Start reading fragment data'
+  if (IfTest) write(u6,*) ' Process FRAGMENT'
+  if (iPrint >= 99) write(u6,*) ' Start reading fragment data'
   call GetFragment(lUnit,nCnttp)
 
   if (inLn3 .and. (.not. inLn2)) then
     close(lUnit)
-    lUnit = 5
+    lUnit = u5
   end if
 end if
 !***********************************************************************
@@ -572,26 +555,26 @@ end if
 ! If ECP basis set read the rest!
 
 if (inLn2 .and. (.not. inLn1)) then
-  if (IfTest) write(6,*) ' Close library and start to read from standard input'
+  if (IfTest) write(u6,*) ' Close library and start to read from standard input'
   close(lUnit)
-  lUnit = 5
+  lUnit = u5
 end if
 
 nProj = -1
 nAIMP = -1
 mSOC = -1
 if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
-  if (IfTest) write(6,*) ' Process ECPs/RELs'
+  if (IfTest) write(u6,*) ' Process ECPs/RELs'
   dbsc(nCnttp)%ECP = .true.
   iPrSh = iShll
-  if (iPrint >= 99) write(6,*) ' Start reading ECPs/RELs'
+  if (iPrint >= 99) write(u6,*) ' Start reading ECPs/RELs'
   dbsc(nCnttp)%iPrj = iShll+1
   call GetECP(lUnit,iShll,nProj,UnNorm)
   dbsc(nCnttp)%nPrj = nProj+1
 
   if (inLn3 .and. (.not. inLn2)) then
     close(lUnit)
-    lUnit = 5
+    lUnit = u5
   end if
 
   ! Now read the spectral resolvent basis set
@@ -644,13 +627,13 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
   do iAIMP=0,nAIMP
     iShll = iShll+1
     if (iShll > MxShll) then
-      write(6,*) 'GetBS: iShll > MxShll'
-      write(6,*) 'iShll,MxShll=',iShll,MxShll
+      write(u6,*) 'GetBS: iShll > MxShll'
+      write(u6,*) 'iShll,MxShll=',iShll,MxShll
       call Abend()
     end if
     jValSh = jValSh+1
     call mma_allocate(Shells(iShll)%Exp,Shells(jValSh)%nExp,Label='Exp')
-    Shells(iShll)%exp(:) = Shells(jValSh)%exp(:)
+    Shells(iShll)%Exp(:) = Shells(jValSh)%Exp(:)
     Shells(iShll)%nExp = Shells(jValSh)%nExp
     Shells(iShll)%nBasis = 0
   end do
@@ -670,13 +653,13 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
   do iAIMP=0,nAIMP
     iShll = iShll+1
     if (iShll > MxShll) then
-      write(6,*) 'GetBS: iShll > MxShll'
-      write(6,*) 'iShll,MxShll=',iShll,MxShll
+      write(u6,*) 'GetBS: iShll > MxShll'
+      write(u6,*) 'iShll,MxShll=',iShll,MxShll
       call Abend()
     end if
     jPrSh = jPrSh+1
     call mma_allocate(Shells(iShll)%Exp,Shells(jPrSh)%nExp,Label='Exp')
-    Shells(iShll)%exp(:) = Shells(jPrSh)%exp(:)
+    Shells(iShll)%Exp(:) = Shells(jPrSh)%Exp(:)
     Shells(iShll)%nExp = Shells(jPrSh)%nExp
     Shells(iShll)%nBasis = 0
   end do
@@ -697,8 +680,8 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
   do iAIMP=0,nAIMP
     iShll = iShll+1
     if (iShll > MxShll) then
-      write(6,*) 'GetBS: iShll > MxShll'
-      write(6,*) 'iShll,MxShll=',iShll,MxShll
+      write(u6,*) 'GetBS: iShll > MxShll'
+      write(u6,*) 'iShll,MxShll=',iShll,MxShll
       call Abend()
     end if
     Line = Get_Ln(lUnit)
@@ -745,8 +728,8 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
   do iAIMP=0,nAIMP
     iShll = iShll+1
     if (iShll > MxShll) then
-      write(6,*) 'GetBS: iShll > MxShll'
-      write(6,*) 'iShll,MxShll=',iShll,MxShll
+      write(u6,*) 'GetBS: iShll > MxShll'
+      write(u6,*) 'iShll,MxShll=',iShll,MxShll
       call Abend()
     end if
 
@@ -761,14 +744,14 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
       call MergeBS(Shells(jPrSh)%Exp,Shells(jPrSh)%nExp,Shells(jValSh)%Exp,Shells(jValSh)%nExp,ExpMerged,Shells(iShll)%nExp, &
                    RatioThres,iDominantSet)
       call mma_allocate(Shells(iShll)%Exp,Shells(iShll)%nExp,Label='Exp')
-      Shells(iShll)%exp(:) = ExpMerged(1:Shells(iShll)%nExp)
+      Shells(iShll)%Exp(:) = ExpMerged(1:Shells(iShll)%nExp)
       call mma_deallocate(ExpMerged)
 
     else
 
       Shells(iShll)%nExp = Shells(jValSh)%nExp
       call mma_allocate(Shells(iShll)%Exp,Shells(iShll)%nExp,Label='Exp')
-      Shells(iShll)%exp(:) = Shells(jValSh)%exp(:)
+      Shells(iShll)%Exp(:) = Shells(jValSh)%Exp(:)
 
     end if
 
@@ -790,10 +773,10 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
   Line = Get_Ln(lUnit)
   call Get_I1(1,mSOC)
   dbsc(nCnttp)%nSOC = mSOC+1
-  if (IfTest) write(6,'(A,I4)') 'dbsc(nCnttp)%nSOC =',dbsc(nCnttp)%nSOC
+  if (IfTest) write(u6,'(A,I4)') 'dbsc(nCnttp)%nSOC =',dbsc(nCnttp)%nSOC
   if (mSOC < 0) Go To 990
   do iAng=0,mSOC
-    if (IfTest) write(6,'(A,I4)') ' iAng=',iAng
+    if (IfTest) write(u6,'(A,I4)') ' iAng=',iAng
     iShll = iShll+1
     if (iShll > MxShll) then
       call WarningMessage(2,'Abend in GetBS: Increase MxShll')
@@ -804,13 +787,13 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
     call Get_I1(2,nCntrc)
     call Get_I1(3,mDel)
     dbsc(nCnttp)%kDel(iAng) = mDel
-    if (IfTest) write(6,*) 'nPrim = ',nPrim,' nCntrc = ',nCntrc
-    if (IfTest) write(6,*) 'nDeleted = ',mDel
+    if (IfTest) write(u6,*) 'nPrim = ',nPrim,' nCntrc = ',nCntrc
+    if (IfTest) write(u6,*) 'nDeleted = ',mDel
     call mma_allocate(Shells(iShll)%Exp,nPrim,Label='Exp')
     Shells(iShll)%nExp = nPrim
     Shells(iShll)%nBasis = nCntrc
-    if (IfTest) write(6,*) 'getBS: ishll,nCntrc',ishll,nCntrc
-    if (IfTest) write(6,'(A)') ' Reading Exponents'
+    if (IfTest) write(u6,*) 'getBS: ishll,nCntrc',ishll,nCntrc
+    if (IfTest) write(u6,'(A)') ' Reading Exponents'
     if (nPrim > 0) call Read_v(lUnit,Shells(iShll)%Exp,1,nPrim,1,ierr)
     if (IfTest) call RecPrt('Exponents',' ',Shells(iShll)%Exp,1,nPrim)
     call mma_allocate(Shells(iShll)%Cff_c,nPrim,nCntrc,2,Label='Cff_c')
@@ -818,7 +801,7 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
     Shells(iShll)%nBasis = nCntrc
     call mma_allocate(Shells(iShll)%Cff_p,nPrim,nPrim,2,Label='Cff_p')
     Shells(iShll)%Cff_p(:,:,:) = Zero
-    if (IfTest) write(6,'(A)') ' Reading coefficients'
+    if (IfTest) write(u6,'(A)') ' Reading coefficients'
     do iPrim=1,nPrim
       call Read_v(lUnit,Shells(iShll)%Cff_c(1,1,1),iPrim,nPrim*nCntrc,nPrim,ierr)
     end do
@@ -944,13 +927,13 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
     Filename = trim(Basis_Lib)//'/QRPLIB'
     call f_Inquire(Filename,Found)
     if (.not. Found) then
-      write(6,*) 'File '//trim(Filename)//' not found'
+      write(u6,*) 'File '//trim(Filename)//' not found'
       call abend()
     end if
     LUQRP = 33
     call molcas_open(LUQRP,Filename)
     !open(LUQRP,file='QRPLIB',form='formatted')
-    call CalcAMt(dbsc(nCnttp)%nOpt,LUQRP,MPLbl,nAIMP,iMPShll+1,nProj,iPrSh+1,dble(dbsc(nCnttp)%AtmNr))
+    call CalcAMt(dbsc(nCnttp)%nOpt,LUQRP,MPLbl,nAIMP,iMPShll+1,nProj,iPrSh+1,real(dbsc(nCnttp)%AtmNr,kind=wp))
     close(LUQRP)
   end if
 end if
@@ -961,11 +944,3 @@ if (.not. inLn3) close(lUnit)
 return
 
 end subroutine GetBS
-
-#elif !defined (EMPTY_FILES)
-
-! Some compilers do not like empty files
-#include "macros.fh"
-dummy_empty_procedure(GetBS)
-
-#endif

@@ -29,47 +29,37 @@ subroutine Fix_FockOp(LuRd)
 !     Modified for muons by R. Lindh January 2017                      *
 !***********************************************************************
 
-use Her_RW
-use Real_Spherical
-use Basis_Info
+use Her_RW, only: nPrp
+use Basis_Info, only: dbsc, nCnttp, Shells
 use Sizes_of_Seward, only: S
 use Logical_Info, only: UnNorm, Do_FckInt, FNMC
-use Gateway_Interfaces, only: GetBS
+use Isotopes, only: PTab
+use Index_Functions, only: nTri_Elem1
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Six, Eight, Ten, Twelve
+use Definitions, only: wp, iwp, u6, r8
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp) :: LuRd
 #include "itmax.fh"
 #include "Molcas.fh"
-#include "stdalloc.fh"
-#include "real.fh"
-#include "print.fh"
-#include "status.fh"
-#include "periodic_table.fh"
-external MltPrm, KnEPrm, NAPrm
-real*8, allocatable :: FockOp_t(:)
-real*8, allocatable :: Scr1(:), Scr2(:), Scr3(:)
-real*8, allocatable :: S12i(:,:), EVec(:,:), EVal(:)
-real*8, allocatable :: FPrim(:,:), Temp(:,:), C(:,:)
-real*8, allocatable :: Hm1(:,:), Ovr(:,:)
-real*8, allocatable :: S_AA(:), S_AR(:), E_R(:)
-real*8, allocatable :: Tmp1(:), Tmp2(:), Tmp3(:)
-real*8, allocatable :: KnE(:), NAE(:), Ovrlp(:)
-real*8, allocatable :: SAA(:), SAR(:)
-character*13 DefNm
-character*180 Ref(2)
-character*80 Bsl_, BSLbl
-character*256 Basis_lib, Fname
-character*180, allocatable :: STDINP(:) ! CGGn
-integer BasisTypes(4)
-integer List_AE(0:iTabMx), List(0:iTabMx), List_Add(0:iTabMx)
-logical Try_Again, lPP
-real*8 A(4)
-data DefNm/'basis_library'/
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Statement function for Cartesian index
-!
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
+integer(kind=iwp) :: BasisTypes(4), i, iAng, iAngMax_Proj, iAtom, iB, iBF, iC, iCmp_a, iCmp_r, iCnttp, iComp, iFerm, iFrom, ijB, &
+                     ijC, ijTri, Indx, iOff_t, ipFockOp_t, iShll, iShll_a, iShll_Proj_r, iShll_r, iSing, iTo, jB, jBF, jShll, &
+                     kEval, Last, List(0:iTabMx), List_Add(0:iTabMx), List_AE(0:iTabMx), lSTDINP, mCnttp, MemNA, MmKnEP, MmMltp, &
+                     naa, nBF, nCntrc_a, nCntrc_Proj, nCntrc_r, nCntrc_t, nHer, nOrdOp, nPrim_a, nPrim_r, nRemove, nSAA, nSAR, &
+                     nSBB, nSCC, nScr1, nScr2, nScr3, nSRR
+real(kind=wp) :: A(4), C_ik, C_jk, Charge_Actual, Charge_Effective, Check, D, e, e12i, qTest, Test_Charge, Tmp, xFactor, xMass
+logical(kind=iwp) :: lPP, Try_Again
+character(len=256) :: Basis_lib, Fname
+character(len=180) :: Ref(2)
+character(len=80) :: Bsl_, BSLbl
+real(kind=wp), allocatable :: C(:,:), E_R(:), EVal(:), EVec(:,:), FockOp_t(:), FPrim(:,:), Hm1(:,:), KnE(:), NAE(:), Ovr(:,:), &
+                              Ovrlp(:), S12i(:,:), S_AA(:), S_AR(:), SAA(:), SAR(:), Scr1(:), Scr2(:), Scr3(:), Temp(:,:), &
+                              Tmp1(:), Tmp2(:), Tmp3(:)
+character(len=180), allocatable :: STDINP(:) ! CGGn
+character(len=*), parameter :: DefNm = 'basis_library'
+real(kind=r8), external :: DDot_
+external :: KnEPrm, MltPrm, NAPrm
 
 !                                                                      *
 !***********************************************************************
@@ -117,9 +107,9 @@ do iCnttp=1,mCnttp
 !***********************************************************************
 !                                                                      *
   iFerm = 1
-  if (dbsc(iCnttp)%fMass /= 1.0d0) iFerm = 2
+  if (dbsc(iCnttp)%fMass /= One) iFerm = 2
 
-  if (dbsc(iCnttp)%FOp .and. (dbsc(iCnttp)%Charge == 0.0d0)) then
+  if (dbsc(iCnttp)%FOp .and. (dbsc(iCnttp)%Charge == Zero)) then
     do iAng=0,dbsc(iCnttp)%nVal-1
       iShll_a = dbsc(iCnttp)%iVal+iAng
       Shells(iShll_a)%FockOp(:,:) = Zero
@@ -140,13 +130,13 @@ do iCnttp=1,mCnttp
     ! The Fock operator will simply be the one-particle
     ! Hamiltonian (kinetic + nuclear-attraction operator)
 
-    xFactor = 1.0d0/dbsc(iCnttp)%fMass
+    xFactor = One/dbsc(iCnttp)%fMass
     if (FNMC) then
       iAtom = dbsc(iCnttp)%AtmNr
       ! Get the atom mass in au (me=1)
       xMass = dbsc(iCnttp)%CntMass
       ! Substract the electron mass to get the nuclear mass.
-      xMass = xMass-dble(iAtom)
+      xMass = xMass-real(iAtom,kind=wp)
       xfactor = xfactor+One/xMass
     end if
 
@@ -158,7 +148,7 @@ do iCnttp=1,mCnttp
       nCntrc_a = Shells(iShll_a)%nBasis_C
       iCmp_a = (iAng+1)*(iAng+2)/2
       if (Shells(iShll_a)%Prjct) iCmp_a = 2*iAng+1
-      naa = nElem(iAng)*nElem(iAng)
+      naa = nTri_Elem1(iAng)*nTri_Elem1(iAng)
       nScr1 = max(nPrim_a,nPrim_a)*max(nCntrc_a,nCntrc_a)*naa
       nScr2 = max(nCntrc_a,nCntrc_a)**2*naa
       call mma_allocate(Scr1,nScr1,Label='Scr1')
@@ -183,7 +173,7 @@ do iCnttp=1,mCnttp
 #     ifdef _DEBUGPRINT_
       call DScal_(nCntrc_a**2*iCmp_a**2,xFactor,KnE,1)
       call RecPrt('Kinetric Energy Integrals',' ',KnE,nCntrc_a**2,iCmp_a**2)
-      call DScal_(nCntrc_a**2*iCmp_a**2,1.0d0/xFactor,KnE,1)
+      call DScal_(nCntrc_a**2*iCmp_a**2,One/xFactor,KnE,1)
 #     endif
       !                                                                *
       !*****************************************************************
@@ -191,7 +181,7 @@ do iCnttp=1,mCnttp
       ! Compute the nuclear-attraction integrals
 
       nOrdOp = 0
-      A(4) = dble(iCnttp) ! Dirty tweak
+      A(4) = real(iCnttp,kind=wp) ! Dirty tweak
       nSBB = nCntrc_a**2*naa
       call mma_Allocate(NAE,nSBB,Label='NAE')
 
@@ -280,7 +270,7 @@ do iCnttp=1,mCnttp
 
       do kEval=1,nBF
         e = EVal(kEval*(kEval+1)/2)
-        e12i = 1.0d0/sqrt(e)
+        e12i = One/sqrt(e)
         do iBF=1,nBF
           C_ik = EVec(iBF,kEVal)
           do jBF=1,nBF
@@ -295,8 +285,8 @@ do iCnttp=1,mCnttp
       call mma_allocate(FPrim,nBF,nBF,Label='FPrim')
       FPrim(:,:) = Zero
       call mma_allocate(Temp,nBF,nBF,Label='Temp')
-      call DGEMM_('N','N',nBF,nBF,nBF,1.0d0,S12i,nBF,Hm1,nBF,0.0d0,Temp,nBF)
-      call DGEMM_('N','N',nBF,nBF,nBF,1.0d0,Temp,nBF,S12i,nBF,0.0d0,FPrim,nBF)
+      call DGEMM_('N','N',nBF,nBF,nBF,One,S12i,nBF,Hm1,nBF,Zero,Temp,nBF)
+      call DGEMM_('N','N',nBF,nBF,nBF,One,Temp,nBF,S12i,nBF,Zero,FPrim,nBF)
 
       ! 4) Compute C' and the eigenvalues
 
@@ -316,7 +306,7 @@ do iCnttp=1,mCnttp
 
       call mma_allocate(C,nBF,nBF,Label='C')
       C(:,:) = Zero
-      call DGEMM_('N','N',nBF,nBF,nBF,1.0d0,S12i,nBF,EVec,nBF,0.0d0,C,nBF)
+      call DGEMM_('N','N',nBF,nBF,nBF,One,S12i,nBF,EVec,nBF,Zero,C,nBF)
 #     ifdef _DEBUGPRINT_
       call RecPrt('Cs for F',' ',C,nBF,nBF)
 #     endif
@@ -352,7 +342,7 @@ do iCnttp=1,mCnttp
             iFrom = (ijC-1)*nCntrc_a**2+ijB
             Tmp = Tmp+NAE(iFrom)
           end do
-          Shells(iShll_a)%FockOp(iB,jB) = Tmp/dble(iCmp_a)
+          Shells(iShll_a)%FockOp(iB,jB) = Tmp/real(iCmp_a,kind=wp)
         end do
       end do
       call mma_deallocate(NAE)
@@ -390,8 +380,7 @@ do iCnttp=1,mCnttp
     BSLbl = BSLbl(1:2)//'.ANO-RCC.....'
   end if
 
-  LenBSL = len(BSLbl)
-  Last = iCLast(BSLbl,LenBSL)
+  Last = len_trim(BSLbl)
   Indx = index(BSLbl,'/')
 
   Bsl_ = ' '
@@ -421,10 +410,10 @@ do iCnttp=1,mCnttp
   end if
 
 # ifdef _DEBUGPRINT_
-  write(6,*)
-  write(6,*)
-  write(6,'(1X,A,I5,A,A)') 'Basis Set ',nCnttp,' Label: ',BSLbl(1:Indx-1)
-  write(6,'(1X,A,A)') 'Basis set is read from library:',Fname
+  write(u6,*)
+  write(u6,*)
+  write(u6,'(1X,A,I5,A,A)') 'Basis Set ',nCnttp,' Label: ',BSLbl(1:Indx-1)
+  write(u6,'(1X,A,A)') 'Basis set is read from library:',Fname
 # endif
 
   ! Let's get the reference basis set (ANO-RCC).
@@ -434,7 +423,7 @@ do iCnttp=1,mCnttp
   call GetBS(Fname,Bsl_,iShll,Ref,UnNorm,LuRd,BasisTypes,STDINP,lSTDINP,.false.,.true.,' ')
 
   if (.not. dbsc(nCnttp)%FOp) then
-    write(6,*) 'Fix_FockOp: reference basis doesn''t contain a proper Fock operator'
+    write(u6,*) 'Fix_FockOp: reference basis doesn''t contain a proper Fock operator'
     cycle
   end if
   Shells(jShll+1)%Transf = .false.
@@ -469,7 +458,7 @@ do iCnttp=1,mCnttp
     iShll_r = dbsc(nCnttp)%iVal+iAng
     nPrim_r = Shells(iShll_r)%nExp
     if (nPrim_r == 0) then
-      write(6,*) 'GuessOrb option turned off!'
+      write(u6,*) 'GuessOrb option turned off!'
       dbsc(iCnttp)%FOp = .false.
       exit
     end if
@@ -483,9 +472,9 @@ do iCnttp=1,mCnttp
     if (dbsc(iCnttp)%ECP) then
 #     ifdef _DEBUGPRINT_
       if (lPP) then
-        write(6,*) 'Reference is ECP (Pseudo Potential)'
+        write(u6,*) 'Reference is ECP (Pseudo Potential)'
       else
-        write(6,*) 'Reference is ECP (Huzinaga type)'
+        write(u6,*) 'Reference is ECP (Huzinaga type)'
       end if
       call RecPrt('Reference Exponents',' ',Shells(iShll_r)%Exp,1,nPrim_r)
       call RecPrt('Reference Coefficients',' ',Shells(iShll_r)%Cff_c(1,1,1),nPrim_r,nCntrc_r)
@@ -520,14 +509,14 @@ do iCnttp=1,mCnttp
 
       end if ! lPP
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'nRemove=',nRemove
-      write(6,*) 'List_Add(iAng)=',List_Add(iAng)
+      write(u6,*) 'nRemove=',nRemove
+      write(u6,*) 'List_Add(iAng)=',List_Add(iAng)
 #     endif
       nRemove = nRemove-List_Add(iAng)
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'nRemove=',nRemove
+      write(u6,*) 'nRemove=',nRemove
 #     endif
-      Test_Charge = Test_Charge+dble(2*(2*iAng+1)*nRemove)
+      Test_Charge = Test_Charge+real(2*(2*iAng+1)*nRemove,kind=wp)
 
       ! Update pointers in case of ECP
 
@@ -572,7 +561,7 @@ do iCnttp=1,mCnttp
     !                                                                  *
     !*******************************************************************
     !                                                                  *
-    naa = nElem(iAng)*nElem(iAng)
+    naa = nTri_Elem1(iAng)*nTri_Elem1(iAng)
     nScr1 = max(nPrim_a,nPrim_r)*max(nCntrc_a,nCntrc_r)*naa
     nScr2 = max(nCntrc_a,nCntrc_r)**2*naa
     call mma_allocate(Scr1,nScr1,Label='Scr1')
@@ -626,8 +615,8 @@ do iCnttp=1,mCnttp
     call MInv(S_AA,SAA,iSing,D,nCntrc_a*iCmp_a)
     call mma_deallocate(S_AA)
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'iSing=',iSing
-    write(6,*) 'Det=',D
+    write(u6,*) 'iSing=',iSing
+    write(u6,*) 'Det=',D
     call RecPrt('Inverse of SAA',' ',SAA,nCntrc_a*iCmp_a,nCntrc_a*iCmp_a)
 #   endif
 
@@ -682,7 +671,7 @@ do iCnttp=1,mCnttp
     ! Form (SAA)-1 SAR
 
     call mma_allocate(Tmp1,nSAR,Label='Tmp1')
-    call DGEMM_('N','N',nCntrc_a*iCmp_a,nCntrc_r*iCmp_r,nCntrc_a*iCmp_a,1.0d0,SAA,nCntrc_a*iCmp_a,S_AR,nCntrc_a*iCmp_a,0.0d0,Tmp1, &
+    call DGEMM_('N','N',nCntrc_a*iCmp_a,nCntrc_r*iCmp_r,nCntrc_a*iCmp_a,One,SAA,nCntrc_a*iCmp_a,S_AR,nCntrc_a*iCmp_a,Zero,Tmp1, &
                 nCntrc_a*iCmp_a)
 #   ifdef _DEBUGPRINT_
     call RecPrt('(SAA)^-1 SAR',' ',Tmp1,nCntrc_a*iCmp_a,nCntrc_r*iCmp_r)
@@ -692,7 +681,7 @@ do iCnttp=1,mCnttp
     ! Form (SAA)-1 SAR ER
 
     call mma_allocate(Tmp2,nSAR,Label='Tmp2')
-    call DGEMM_('N','N',nCntrc_a*iCmp_a,nCntrc_r*iCmp_r,nCntrc_r*iCmp_r,1.0d0,Tmp1,nCntrc_a*iCmp_a,E_R,nCntrc_r*iCmp_r,0.0d0,Tmp2, &
+    call DGEMM_('N','N',nCntrc_a*iCmp_a,nCntrc_r*iCmp_r,nCntrc_r*iCmp_r,One,Tmp1,nCntrc_a*iCmp_a,E_R,nCntrc_r*iCmp_r,Zero,Tmp2, &
                 nCntrc_a*iCmp_a)
 #   ifdef _DEBUGPRINT_
     call RecPrt('(SAA)^-1 SAR ER',' ',Tmp2,nCntrc_a*iCmp_a,nCntrc_r*iCmp_r)
@@ -701,7 +690,7 @@ do iCnttp=1,mCnttp
 
     ! Form (SAA)-1 SAR ER (SAR)^T (SAA)-1
 
-    call DGEMM_('N','T',nCntrc_a*iCmp_a,nCntrc_a*iCmp_a,nCntrc_r*iCmp_r,1.0d0,Tmp2,nCntrc_a*iCmp_a,Tmp1,nCntrc_a*iCmp_a,0.0d0,SAA, &
+    call DGEMM_('N','T',nCntrc_a*iCmp_a,nCntrc_a*iCmp_a,nCntrc_r*iCmp_r,One,Tmp2,nCntrc_a*iCmp_a,Tmp1,nCntrc_a*iCmp_a,Zero,SAA, &
                 nCntrc_a*iCmp_a)
 #   ifdef _DEBUGPRINT_
     call RecPrt('EA',' ',SAA,nCntrc_a*iCmp_a,nCntrc_a*iCmp_a)
@@ -729,7 +718,7 @@ do iCnttp=1,mCnttp
           iFrom = ijB+(ijC-1)*nCntrc_a**2
           Tmp = Tmp+Tmp3(iFrom)
         end do
-        Shells(iShll_a)%FockOp(iB,jB) = Tmp/dble(iCmp_a)
+        Shells(iShll_a)%FockOp(iB,jB) = Tmp/real(iCmp_a,kind=wp)
       end do
     end do
     if (allocated(FockOp_t)) call mma_deallocate(FockOp_t)
@@ -763,41 +752,41 @@ do iCnttp=1,mCnttp
   !*********************************************************************
   !                                                                    *
 
-  Charge_Actual = dble(dbsc(iCnttp)%AtmNr)
+  Charge_Actual = real(dbsc(iCnttp)%AtmNr,kind=wp)
   Charge_Effective = dbsc(iCnttp)%Charge
   qTest = Test_Charge-(Charge_Actual-Charge_Effective)
-  !write(6,*) 'qtest, Test_Charge = ',qtest,Test_Charge
-  !write(6,*) 'Charge_Actual,Charge_Effective = ',Charge_Actual,Charge_Effective
+  !write(u6,*) 'qtest, Test_Charge = ',qtest,Test_Charge
+  !write(u6,*) 'Charge_Actual,Charge_Effective = ',Charge_Actual,Charge_Effective
   if ((qTest == Zero) .or. (dbsc(iCnttp)%Charge == Zero)) then
     dbsc(iCnttp)%FOp = .true.
   else if (Try_Again) then
-    if (qTest == 2.0d0) then
+    if (qTest == Two) then
       ! s
       List_Add(0) = 1
-    else if (qTest == 6.0d0) then
+    else if (qTest == Six) then
       ! p
       List_Add(1) = 1
-    else if (qTest == 10.0d0) then
+    else if (qTest == Ten) then
       ! d
       List_Add(2) = 1
-    else if (qTest == 8.0d0) then
+    else if (qTest == Eight) then
       ! s,p
       List_Add(0) = 1
       List_Add(1) = 1
-    else if (qTest == 12.0d0) then
+    else if (qTest == Twelve) then
       ! s,d
       List_Add(0) = 1
       List_Add(2) = 1
-    else if (qTest == 16.0d0) then
+    else if (qTest == 16.0_wp) then
       ! p,d
       List_Add(1) = 1
       List_Add(2) = 1
-    else if (qTest == 18.0d0) then
+    else if (qTest == 18.0_wp) then
       ! s,p,d
       List_Add(0) = 1
       List_Add(1) = 1
       List_Add(2) = 1
-    else if (qTest == 26.0d0) then
+    else if (qTest == 26.0_wp) then
       ! 2s,2p,d
       List_Add(0) = 2
       List_Add(1) = 2
@@ -806,7 +795,7 @@ do iCnttp=1,mCnttp
     Try_Again = .false.
     Go To 777
   else
-    write(6,*) 'GuessOrb option turned off!'
+    write(u6,*) 'GuessOrb option turned off!'
     dbsc(iCnttp)%FOp = .false.
   end if
   !                                                                    *

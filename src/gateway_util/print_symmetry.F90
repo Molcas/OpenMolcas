@@ -20,16 +20,29 @@ subroutine Print_Symmetry()
 !             September '06                                            *
 !***********************************************************************
 
-use Symmetry_Info, only: nIrrep, iChTbl, iOper, lIrrep, lBsFnc,SymLab
+use Symmetry_Info, only: iChTbl, iOper, lBsFnc, lIrrep, nIrrep, SymLab
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
+implicit none
 #include "print.fh"
-character SymOpr(0:7)*29, format*80, ChSymO(0:7)*5
-data SymOpr/' Unit operation              ',' Reflection in the yz-plane  ',' Reflection in the xz-plane  ', &
-            ' Rotation around the z-axis  ',' Reflection in the xy-plane  ',' Rotation around the y-axis  ', &
-            ' Rotation around the x-axis  ',' Inversion through the origin'/
-data ChSymO/'  E  ','s(yz)','s(xz)','C2(z)','s(xy)','C2(y)','C2(x)','  i  '/
+integer(kind=iwp) :: i, iIrrep, iPrint, iRout, j, jIrrep, nOper
+character(len=80) :: frmt
+character(len=*), parameter :: ChSymO(0:7) = ['  E  ', &
+                                              's(yz)', &
+                                              's(xz)', &
+                                              'C2(z)', &
+                                              's(xy)', &
+                                              'C2(y)', &
+                                              'C2(x)', &
+                                              '  i  '], &
+                               SymOpr(0:7) = [' Unit operation              ', &
+                                              ' Reflection in the yz-plane  ', &
+                                              ' Reflection in the xz-plane  ', &
+                                              ' Rotation around the z-axis  ', &
+                                              ' Reflection in the xy-plane  ', &
+                                              ' Rotation around the y-axis  ', &
+                                              ' Rotation around the x-axis  ', &
+                                              ' Inversion through the origin']
 
 !                                                                      *
 !***********************************************************************
@@ -37,19 +50,18 @@ data ChSymO/'  E  ','s(yz)','s(xz)','C2(z)','s(xy)','C2(y)','C2(x)','  i  '/
 iRout = 2
 iPrint = nPrint(iRout)
 if (iPrint == 0) return
-LuWr = 6
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-write(LuWr,*)
+write(u6,*)
 call CollapseOutput(1,'   Symmetry information:')
-write(LuWr,'(3X,A)') '   ---------------------'
-write(LuWr,*)
+write(u6,'(3X,A)') '   ---------------------'
+write(u6,*)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 if (nIrrep /= 1) then
-  write(LuWr,'(19X,A)') ' --- Group Generators ---'
+  write(u6,'(19X,A)') ' --- Group Generators ---'
   nOper = 0
   if (nIrrep == 8) nOper = 3
   if (nIrrep == 4) nOper = 2
@@ -57,26 +69,25 @@ if (nIrrep /= 1) then
   do i=1,nOper
     j = i
     if (i == 3) j = 4
-    write(LuWr,'(19X,A)') SymOpr(iOper(j))
+    write(u6,'(19X,A)') SymOpr(iOper(j))
   end do
-  write(LuWr,*)
+  write(u6,*)
 end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-write(LuWr,'(19X,A,A)') ' Character Table for ',SymLab
-write(LuWr,*)
-write(format,'(A,I1,A)') '(20X,A3,1X,',nIrrep,'(1X,I5),2X,A)'
-write(LuWr,'(27X,8(A5,1X))') (ChSymO(iOper(iIrrep)),iIrrep=0,nIrrep-1)
+write(u6,'(19X,A,A)') ' Character Table for ',SymLab
+write(u6,*)
+write(frmt,'(A,I1,A)') '(20X,A3,1X,',nIrrep,'(1X,I5),2X,A)'
+write(u6,'(27X,8(A5,1X))') (ChSymO(iOper(iIrrep)),iIrrep=0,nIrrep-1)
 do iIrrep=0,nIrrep-1
-  LenlBs = len(lBsFnc(iIrrep))
-  write(LuWr,format) lIrrep(iIrrep),(iChTbl(iIrrep,jIrrep),jIrrep=0,nIrrep-1),lBsFnc(iIrrep)(1:iCLast(lBsFnc(iIrrep),LenlBs))
+  write(u6,frmt) lIrrep(iIrrep),(iChTbl(iIrrep,jIrrep),jIrrep=0,nIrrep-1),trim(lBsFnc(iIrrep))
 end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 call CollapseOutput(0,'  Symmetry information:')
-write(LuWr,*)
+write(u6,*)
 
 return
 

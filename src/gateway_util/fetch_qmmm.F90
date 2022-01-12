@@ -15,25 +15,25 @@
 subroutine Fetch_QMMM(CastMM,nCastMM)
 
 use, intrinsic :: iso_c_binding, only: c_int, c_loc, c_ptr
+use Isotopes, only: PTab
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-#include "Molcas.fh"
-#include "periodic_table.fh"
+#include "LenIn.fh"
+integer(kind=iwp), intent(in) :: nCastMM
+integer(kind=iwp), intent(in) :: CastMM(nCastMM)
 #include "qmmm.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-integer, intent(IN) :: nCastMM
-integer, dimension(nCastMM), intent(IN) :: CastMM
-integer :: iAtGMX, iAtNmbGMX, iAtOut, iCastMM, iFirst, iGrpGMX, iLast
-integer :: iOk, iXYZ, LuWr, LuXYZ, nAtGMX, nAtIn, nAtOut
+integer(kind=iwp) :: iAtGMX, iAtNmbGMX, iAtOut, iCastMM, iFirst, iGrpGMX, iLast, iOk, iXYZ, LuXYZ, nAtGMX, nAtIn, nAtOut
+logical(kind=iwp) :: Exists
+character(len=LenIn) :: Symbol
+character(len=256) :: LogFileName, Message, TPRFileName
 type(c_ptr) :: ipCR, ipGMS
-integer, dimension(:), allocatable :: AT
-real*8, dimension(:,:), allocatable :: CoordGMX, CoordMMO
-character(LEN=256) :: LogFileName, Message, TPRFileName
-character(LEN=LENIN) :: Symbol
-character(LEN=LENIN), dimension(:), allocatable :: LabMMO
-logical :: Exist
-integer, external :: isFreeUnit
+integer(kind=iwp), allocatable :: AT(:)
+real(kind=wp), allocatable :: CoordGMX(:,:), CoordMMO(:,:)
+character(len=LenIn), allocatable :: LabMMO(:)
+integer(kind=iwp), external :: isFreeUnit
 interface
   subroutine mmslave_done(gms) bind(C,NAME='mmslave_done_')
     use, intrinsic :: iso_c_binding, only: c_ptr
@@ -74,8 +74,6 @@ interface
   end function init_commrec
 end interface
 
-LuWr = 6
-
 ! Initialize Gromacs mmslave
 ipCR = init_commrec()
 call prgmtranslate('GMX.LOG',LogFileName,iLast)
@@ -85,8 +83,8 @@ ipGMS = mmslave_init(ipCR,LogFileName)
 ! Tell Gromacs to read tpr file
 TPRFileName = TPRDefName
 iLast = len_trim(TPRFileName)
-call f_inquire(TPRFileName,Exist)
-if (.not. Exist) then
+call f_inquire(TPRFileName,Exists)
+if (.not. Exists) then
   Message = 'File '//TPRFileName(1:iLast)//' not found'
   call WarningMessage(2,Message)
   call Quit_OnUserError()
@@ -176,7 +174,7 @@ close(LuXYZ)
 call Put_iArray('Atom Types',AT,nAtGMX)
 call dscal_(3*nAtOut,One/AuToNm,CoordMMO,1)
 call Put_dArray('MMO Coords',CoordMMO,3*nAtOut)
-call Put_cArray('MMO Labels',LabMMO,LENIN*nAtOut)
+call Put_cArray('MMO Labels',LabMMO(1),LenIn*nAtOut)
 
 ! Clean up
 call mma_deallocate(CoordGMX)
@@ -191,10 +189,10 @@ contains
 
 function mmslave_copyx_wrapper(gms,natoms,x)
 
-  integer :: mmslave_copyx_wrapper
+  integer(kind=iwp) :: mmslave_copyx_wrapper
   type(c_ptr) :: gms
   integer(kind=c_int) :: natoms
-  real*8, target :: x(*)
+  real(kind=wp), target :: x(*)
   interface
     function mmslave_copyx(gms,natoms,x) bind(C,NAME='mmslave_copyx_')
       use, intrinsic :: iso_c_binding, only: c_int, c_ptr

@@ -11,13 +11,19 @@
 
 subroutine OEISG(REL,SREL,TREL,UREL,ZETA,ZN,MX100,NSYM,NBAS1,unrel,tnrel,hcorr,iprint,VEXTT,PVPT,EVN1,EVN2,RE1R,AUXI,W1W1,W1E0W1)
 
-implicit real*8(A-H,O-Z)
-dimension REL(nBAS1*(nBAS1+1)/2), SREL(nBAS1*(nBAS1+1)/2), TREL(nBAS1*(nBAS1+1)/2), UREL(nBAS1*(nBAS1+1)/2), ZETA(nBAS1), &
-          unrel(nBAS1*(nBAS1+1)/2), tnrel(nBAS1*(nBAS1+1)/2), hcorr(nBAS1*(nBAS1+1)/2)
-dimension facto(16)
-#include "relmp.fh"
-real*8 VEXTT(*), PVPT(*), EVN1(NBAS1,NBAS1), EVN2(NBAS1,NBAS1), RE1R(NBAS1,NBAS1), AUXI(NBAS1,NBAS1), W1W1(NBAS1,NBAS1), &
-       W1E0W1(NBAS1,NBAS1)
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use Constants, only: One, Two, Eight, Half, Pi
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: MX100, NSYM, NBAS1, iprint
+real(kind=wp) :: REL(nBAS1*(nBAS1+1)/2), SREL(nBAS1*(nBAS1+1)/2), TREL(nBAS1*(nBAS1+1)/2), UREL(nBAS1*(nBAS1+1)/2), ZETA(nBAS1), &
+                 ZN, unrel(nBAS1*(nBAS1+1)/2), tnrel(nBAS1*(nBAS1+1)/2), hcorr(nBAS1*(nBAS1+1)/2), VEXTT(*), PVPT(*), &
+                 EVN1(NBAS1,NBAS1), EVN2(NBAS1,NBAS1), RE1R(NBAS1,NBAS1), AUXI(NBAS1,NBAS1), W1W1(NBAS1,NBAS1), W1E0W1(NBAS1,NBAS1)
+integer(kind=iwp) :: I1, I2, I3, IJ, IM1, iparm, J1, J2, J3, L, NBSQ, NBSQ5, NBSZ, NBSZ5, np, NPQ, NPQ1, NPQ2, NQ
+real(kind=wp) :: facto(16), TERM1, TERM2, VP, VPQ, VPQ1, VPQM2, VPQP2, VQ, W_P, WQ, ZP, ZPQ, ZQ
+real(kind=wp), parameter :: SQRT8PI = sqrt(Eight/Pi)
+real(kind=wp), external :: EXTC
 
 ! ONE CONFIGURATION
 ! ONE ELECTRON INTEGRAL PROGRAM
@@ -31,28 +37,30 @@ contains
 
 subroutine OEISG_INTERNAL(REL)
 
-  use iso_c_binding
-  real*8, target :: REL(*)
+  use Definitions, only: u6
+
+  real(kind=wp), target :: REL(*)
   integer, pointer :: iREL(:)
+  integer(kind=iwp) :: I, J
 
   ! initialize
   call RELOP()
   ! coefficients
-  FACTO(1) = 1.d0
-  FACTO(2) = 1.d0
+  FACTO(1) = One
+  FACTO(2) = One
   do I=3,16
     IM1 = I-1
     FACTO(I) = IM1*FACTO(I-2)
   end do
   iparm = 2
-  !write(6,*) ' MX100=',MX100
-  !write(6,*) ' nsym',nsym
+  !write(u6,*) ' MX100=',MX100
+  !write(u6,*) ' nsym',nsym
   if (iprint >= 10) then
-    write(6,*) ' symmetry',nsym
-    write(6,*) ' number of basis functions',nbas1
-    write(6,*) ' charge',zn
+    write(u6,*) ' symmetry',nsym
+    write(u6,*) ' number of basis functions',nbas1
+    write(u6,*) ' charge',zn
     do i=1,nbas1
-      write(6,*) zeta(i)
+      write(u6,*) zeta(i)
     end do
   end if
   L = NSYM
@@ -62,31 +70,31 @@ subroutine OEISG_INTERNAL(REL)
   NQ = NP
   do I=1,NBAS1
     ZP = ZETA(I)
-    WP = 2.d0*(NP-L)/ZP
+    W_P = Two*(NP-L)/ZP
     do J=1,I
       IJ = IJ+1
       ZQ = ZETA(J)
-      ZPQ = 0.5d0*(ZP+ZQ)
+      ZPQ = Half*(ZP+ZQ)
       NPQ = NP+NQ+1
-      WQ = 2.d0*(NQ-L)/ZQ
+      WQ = Two*(NQ-L)/ZQ
       NPQ1 = NPQ-1
       NPQ2 = NPQ-2
-      VPQ = FACTO(NPQ1)/ZPQ**(0.5d0*NPQ)
-      VP = FACTO(2*NP)/ZP**(NP+0.5d0)
-      VQ = FACTO(2*NQ)/ZQ**(NQ+0.5d0)
+      VPQ = FACTO(NPQ1)/ZPQ**(Half*NPQ)
+      VP = FACTO(2*NP)/ZP**(NP+Half)
+      VQ = FACTO(2*NQ)/ZQ**(NQ+Half)
       if (NPQ1 > 2) GO TO 3
-      VPQM2 = 1.d0
+      VPQM2 = One
       GO TO 4
-3     VPQM2 = FACTO(NPQ2-1)/ZPQ**(0.5d0*NPQ2)
-4     VPQ1 = FACTO(NPQ2)*1.595769121605731d0/ZPQ**(0.5d0*NPQ1)
-      VPQP2 = FACTO(NPQ+1)/ZPQ**(0.5d0*(NPQ+2))
-      TERM2 = VPQP2-VPQ*(WP+WQ)+WP*WQ*VPQM2
-      TERM1 = 1.d0/sqrt(VP*VQ)
+3     VPQM2 = FACTO(NPQ2-1)/ZPQ**(Half*NPQ2)
+4     VPQ1 = FACTO(NPQ2)*SQRT8PI/ZPQ**(Half*NPQ1)
+      VPQP2 = FACTO(NPQ+1)/ZPQ**(Half*(NPQ+2))
+      TERM2 = VPQP2-VPQ*(W_P+WQ)+W_P*WQ*VPQM2
+      TERM1 = One/sqrt(VP*VQ)
       SREL(IJ) = TERM1*VPQ
       UREL(IJ) = TERM1*VPQ1
       UNREL(IJ) = TERM1*VPQ1
-      TNREL(IJ) = 0.5d0*ZP*ZQ*TERM1*TERM2
-      !TNRE = 0.5D0*ZP*ZQ*TERM1*TERM2
+      TNREL(IJ) = Half*ZP*ZQ*TERM1*TERM2
+      !TNRE = Half*ZP*ZQ*TERM1*TERM2
       if (IPARM > 0) then
         I1 = np-1
         I2 = 0
@@ -113,10 +121,10 @@ subroutine OEISG_INTERNAL(REL)
 
         REL(IJ) = EXTC(L,ZP,ZQ,I1,I2,I3,J1,J2,J3)
         !TREL(IJ) = SQROPY(ZP,ZQ,I1,I2,I3,J1,J2,J3)
-900     TREL(IJ) = 0.5d0*ZP*ZQ*TERM1*TERM2
+900     TREL(IJ) = Half*ZP*ZQ*TERM1*TERM2
       else
-        TREL(IJ) = 0.5d0*ZP*ZQ*TERM1*TERM2
-        !TNRE = 0.5D0*ZP*ZQ*TERM1*TERM2
+        TREL(IJ) = Half*ZP*ZQ*TERM1*TERM2
+        !TNRE = Half*ZP*ZQ*TERM1*TERM2
       end if
     end do
   end do
@@ -138,20 +146,20 @@ subroutine OEISG_INTERNAL(REL)
   ! TRANSFER RELATIVISTIC KINETIC ENERGY AND POTENTIAL INTEGRALS
 
   if (iprint >= 10) then
-    write(6,*) ' matrices'
-    write(6,*) l,nbas1
-    write(6,*) ' srel'
-    write(6,12) (srel(j),j=1,(nbas1*(nbas1+1))/2)
-    write(6,*) ' trel'
-    write(6,12) (trel(j),j=1,(nbas1*(nbas1+1))/2)
-    write(6,*) ' urel'
-    write(6,12) (urel(j),j=1,(nbas1*(nbas1+1))/2)
-    write(6,*) ' tnrel'
-    write(6,12) (tnrel(j),j=1,(nbas1*(nbas1+1))/2)
-    write(6,*) ' unrel'
-    write(6,12) (unrel(j),j=1,(nbas1*(nbas1+1))/2)
-    write(6,*) ' rel'
-    write(6,12) (rel(j),j=1,(nbas1*(nbas1+1))/2)
+    write(u6,*) ' matrices'
+    write(u6,*) l,nbas1
+    write(u6,*) ' srel'
+    write(u6,12) (srel(j),j=1,(nbas1*(nbas1+1))/2)
+    write(u6,*) ' trel'
+    write(u6,12) (trel(j),j=1,(nbas1*(nbas1+1))/2)
+    write(u6,*) ' urel'
+    write(u6,12) (urel(j),j=1,(nbas1*(nbas1+1))/2)
+    write(u6,*) ' tnrel'
+    write(u6,12) (tnrel(j),j=1,(nbas1*(nbas1+1))/2)
+    write(u6,*) ' unrel'
+    write(u6,12) (unrel(j),j=1,(nbas1*(nbas1+1))/2)
+    write(u6,*) ' rel'
+    write(u6,12) (rel(j),j=1,(nbas1*(nbas1+1))/2)
   end if
   ij = 0
   do i=1,nbas1
@@ -163,9 +171,9 @@ subroutine OEISG_INTERNAL(REL)
     end do
   end do
   if (iprint >= 20) then
-    write(6,*) ' full correction metrix'
-    write(6,*) l,nbas1
-    write(6,12) (hcorr(j),j=1,(nbas1*(nbas1+1))/2)
+    write(u6,*) ' full correction metrix'
+    write(u6,*) l,nbas1
+    write(u6,12) (hcorr(j),j=1,(nbas1*(nbas1+1))/2)
   end if
 12 format(4f18.14)
 

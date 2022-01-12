@@ -13,29 +13,22 @@
 
 module External_Centers
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
 implicit none
 private
 
-#include "stdalloc.fh"
+integer(kind=iwp) :: iXPolType = 0, nData_XF = 0, nDMS = 0, nEF = 0, nOrd_XF = 1, nOrdEF = -1, nRP = 0, nWel = 0, nXF = 0, &
+                     nXMolnr = 0
+real(kind=wp) :: Dxyz(3) = Zero
+integer(kind=iwp), allocatable :: XEle(:), XMolnr(:,:)
+real(kind=wp), allocatable :: AMP_Center(:), DMS_Centers(:,:), EF_Centers(:,:), OAM_Center(:), OMQ_Center(:), RP_Centers(:,:,:), &
+                              Wel_Info(:,:), XF(:,:)
 
-public :: nEF, EF_Centers, OAM_Center, OMQ_Center, nDMS, DMS_Centers, Dxyz, nWel, Wel_Info, AMP_Center, nRP, RP_Centers, nData_XF, &
-          nXF, nXMolnr, XF, XEle, XMolnr, nOrdEF, nOrd_XF, iXPolType, External_Centers_Dmp, External_Centers_Free, &
-          External_Centers_Get
-integer :: nEF = 0, nOrdEF = -1
-real*8, allocatable :: EF_Centers(:,:)
-real*8, allocatable :: OAM_Center(:)
-real*8, allocatable :: OMQ_Center(:)
-integer :: nDMS = 0
-real*8, allocatable :: DMS_Centers(:,:)
-real*8 :: Dxyz(3) = [0.0d0,0.0d0,0.0d0]
-integer :: nWel = 0
-real*8, allocatable :: Wel_Info(:,:)
-real*8, allocatable :: AMP_Center(:)
-integer :: nRP = 0
-real*8, target, allocatable :: RP_Centers(:,:,:)
-integer :: nData_XF = 0, nXF = 0, nXMolnr = 0, nOrd_XF = 1, iXPolType = 0
-real*8, allocatable :: XF(:,:)
-integer, allocatable :: XEle(:), XMolnr(:,:)
+public :: AMP_Center, DMS_Centers, Dxyz, EF_Centers, External_Centers_Dmp, External_Centers_Free, External_Centers_Get, iXPolType, &
+          nData_XF, nDMS, nEF, nOrd_XF, nOrdEF, nRP, nWel, nXF, nXMolnr, OAM_Center, OMQ_Center, RP_Centers, Wel_Info, XEle, XF, &
+          XMolnr
 
 !                                                                      *
 !***********************************************************************
@@ -46,10 +39,10 @@ contains
 !                                                                      *
 subroutine External_Centers_Dmp()
 
-# include "angtp.fh"
-  real*8, allocatable :: RP_Temp(:,:,:)
-  integer, allocatable :: iDmp(:)
-  real*8, allocatable :: DMS_Ext(:,:)
+  use stdalloc, only: mma_allocate, mma_deallocate
+
+  integer(kind=iwp), allocatable :: iDmp(:)
+  real(kind=wp), allocatable :: DMS_Ext(:,:), RP_Temp(:,:,:)
 
   if (allocated(EF_Centers)) then
     call Put_dArray('EF_Centers',EF_Centers,3*nEF)
@@ -104,6 +97,8 @@ end subroutine External_Centers_Dmp
 !                                                                      *
 subroutine External_Centers_Free()
 
+  use stdalloc, only: mma_deallocate
+
   if (allocated(EF_Centers)) then
     call mma_deallocate(EF_Centers)
     nEF = 0
@@ -143,17 +138,20 @@ end subroutine External_Centers_Free
 !                                                                      *
 subroutine External_Centers_Get()
 
-  integer, allocatable :: iDmp(:)
-  real*8, allocatable :: DMS_Ext(:,:)
-  logical Found
-  integer Len2
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Definitions, only: u6
+
+  integer(kind=iwp) :: Len2
+  logical(kind=iwp) :: Found
+  integer(kind=iwp), allocatable :: iDmp(:)
+  real(kind=wp), allocatable :: DMS_Ext(:,:)
 
   call qpg_dArray('EF_Centers',Found,Len2)
   if (Found) then
     nEF = Len2/3
     if (allocated(EF_Centers)) then
       if (size(EF_Centers,2) /= nEF) then
-        write(6,*) 'SIZE(EF_Centers,2) /= nEF'
+        write(u6,*) 'SIZE(EF_Centers,2) /= nEF'
         call Abend()
       end if
     else
@@ -183,7 +181,7 @@ subroutine External_Centers_Get()
     nDMS = Len2/3-1
     if (allocated(DMS_Centers)) then
       if (size(DMS_Centers,2) /= nDMS) then
-        write(6,*) 'SIZE(DMS_Centers,2) /= nDMS'
+        write(u6,*) 'SIZE(DMS_Centers,2) /= nDMS'
         call Abend()
       end if
     else
@@ -201,7 +199,7 @@ subroutine External_Centers_Get()
     nWel = Len2/3
     if (allocated(Wel_Info)) then
       if (size(Wel_Info,2) /= nWel) then
-        write(6,*) 'SIZE(Wel_Info,2) /= nWel'
+        write(u6,*) 'SIZE(Wel_Info,2) /= nWel'
         call Abend()
       end if
     else
@@ -223,7 +221,7 @@ subroutine External_Centers_Get()
     nRP = Len2/2
     if (allocated(RP_Centers)) then
       if (size(RP_Centers,2) /= nRP/3) then
-        write(6,*) 'SIZE(RP_Centers,2) /= nRP/3'
+        write(u6,*) 'SIZE(RP_Centers,2) /= nRP/3'
         call Abend()
       end if
     else

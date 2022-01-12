@@ -12,20 +12,26 @@
 subroutine Print_OpInfo()
 
 #ifdef _EFP_
-use EFP_Module
-use EFP
+use EFP_Module, only: ABC, Coor_Type, EFP_Coors, FRAG_TYPE, nEFP_fragments, POINTS_type, ROTMAT_type, XYZABC_type
+use EFP, only: EFP_PRINT_BANNER
 #endif
-use External_Centers
+use External_Centers, only: DMS_Centers, Dxyz, EF_Centers, iXPolType, nData_XF, nDMS, nEF, nOrd_XF, nOrdEF, nWel, nXF, Wel_Info, XF
 use Symmetry_Info, only: nIrrep
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
 #include "print.fh"
 #include "rmat.fh"
-character*72 tempStr
-character*14 Format_XF
-logical PrintOperators
-real*8 A(3)
-integer iStb(0:7), jCoSet(8,8)
+integer(kind=iwp) :: i, iChxyz, iDum, iPrint, iRout, iStb(0:7), iWel, iXF, j, jCoSet(8,8), nSTab_iXF
+#ifdef _EFP_
+integer(kind=iwp) :: k
+#endif
+real(kind=wp) :: A(3), Charge_iXF, XnetCharg
+logical(kind=iwp) :: PrintOperators
+character(len=72) :: tempStr
+character(len=14) :: Format_XF
+integer(kind=iwp), external :: iChAtm
 
 !                                                                      *
 !***********************************************************************
@@ -33,7 +39,6 @@ integer iStb(0:7), jCoSet(8,8)
 iRout = 2
 iPrint = nPrint(iRout)
 if (iPrint == 0) return
-LuWr = 6
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -44,24 +49,24 @@ PrintOperators = PrintOperators .or. (nWel /= 0)
 PrintOperators = PrintOperators .or. allocated(XF)
 PrintOperators = PrintOperators .or. RMat_On
 if (PrintOperators) then
-  write(LuWr,*)
+  write(u6,*)
   call CollapseOutput(1,'   Operator info:')
-  write(LuWr,'(3X,A)') '   --------------'
-  write(LuWr,*)
+  write(u6,'(3X,A)') '   --------------'
+  write(u6,*)
 end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 if (nEF /= 0) then
   if (nOrdEF == 0) then
-    write(LuWr,'(2X,A,1X,I8)') 'Centers for electric potential option:',nEF
+    write(u6,'(2X,A,1X,I8)') 'Centers for electric potential option:',nEF
   else if (nOrdEF == 1) then
-    write(LuWr,'(2X,A,1X,I8)') 'Centers for electric field option:',nEF
+    write(u6,'(2X,A,1X,I8)') 'Centers for electric field option:',nEF
   else if (nOrdEF == 2) then
-    write(LuWr,'(2X,A,1X,I8)') 'Centers for electric field gradient and contact option:',nEF
+    write(u6,'(2X,A,1X,I8)') 'Centers for electric field gradient and contact option:',nEF
   end if
   do i=1,nEF
-    write(LuWr,'(4X,I8,3(1X,F14.8))') i,(EF_Centers(j,i),j=1,3)
+    write(u6,'(4X,I8,3(1X,F14.8))') i,(EF_Centers(j,i),j=1,3)
   end do
 end if
 !                                                                      *
@@ -75,14 +80,14 @@ end if
 !***********************************************************************
 !                                                                      *
 if (nWel /= 0) then
-  write(LuWr,*)
-  write(LuWr,*) ' Spherical well specification in au'
-  write(LuWr,*) ' =================================='
-  write(LuWr,*) '   Coeff.      Exp.        R0      '
+  write(u6,*)
+  write(u6,*) ' Spherical well specification in au'
+  write(u6,*) ' =================================='
+  write(u6,*) '   Coeff.      Exp.        R0      '
   do iWel=1,nWel
-    write(LuWr,'(3(F10.6,2x))') Wel_Info(3,iWel),Wel_Info(2,iWel),Wel_Info(1,iWel)
+    write(u6,'(3(F10.6,2x))') Wel_Info(3,iWel),Wel_Info(2,iWel),Wel_Info(1,iWel)
   end do
-  write(LuWr,*)
+  write(u6,*)
 end if
 !                                                                      *
 !***********************************************************************
@@ -95,18 +100,18 @@ if (allocated(XF)) then
   else
     tempStr = ' '
   end if
-  write(LuWr,*)
-  write(LuWr,*) ' External field specification in au'
-  write(LuWr,*) ' =================================='
+  write(u6,*)
+  write(u6,*) ' External field specification in au'
+  write(u6,*) ' =================================='
   if (nOrd_XF == 0) then
-    write(LuWr,*) '     x           y           z           Z'//tempStr
+    write(u6,*) '     x           y           z           Z'//tempStr
   elseif (nOrd_XF == 1) then
-    write(LuWr,*) '     x           y           z           Z         my(x)       my(y)       my(z)'//tempStr
+    write(u6,*) '     x           y           z           Z         my(x)       my(y)       my(z)'//tempStr
   elseif (nOrd_XF == 2) then
-    write(LuWr,*) '     x           y           z           Z         my(x)       my(y)       my(z)'// &
+    write(u6,*) '     x           y           z           Z         my(x)       my(y)       my(z)'// &
                   '       Q(xx)       Q(xy)       Q(xz)       Q(yy)       Q(yz)       Q(zz)'//tempStr
   elseif (nOrd_XF == -1) then
-    write(LuWr,*) '     x           y           z '//tempstr
+    write(u6,*) '     x           y           z '//tempstr
   else
     call WarningMessage(2,'Option not implemented yet!')
     call Abend()
@@ -115,34 +120,34 @@ if (allocated(XF)) then
 666 continue
 
   write(Format_XF,'(A,I2.2,A)') '(',nData_XF,'(F10.6,2x))'
-  XnetCharg = 0.0
+  XnetCharg = Zero
   do iXF=1,nXF
     A(1:3) = XF(1:3,iXF)
     Charge_iXF = XF(4,iXF)
     iChxyz = iChAtm(A)
     iDum = 0
     call Stblz(iChxyz,nStab_iXF,iStb,iDum,jCoSet)
-    if (nPrint(2) >= 6) write(LuWr,Format_XF) (XF(i,iXF),i=1,nData_XF)
-    XnetCharg = XnetCharg+dble(nIrrep/nStab_iXF)*Charge_iXF
+    if (nPrint(2) >= 6) write(u6,Format_XF) (XF(i,iXF),i=1,nData_XF)
+    XnetCharg = XnetCharg+real(nIrrep/nStab_iXF,kind=wp)*Charge_iXF
   end do
-  write(LuWr,*)
-  write(LuWr,*) ' Net charge from external field: ',XnetCharg
+  write(u6,*)
+  write(u6,*) ' Net charge from external field: ',XnetCharg
 end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 if (RMat_On) then
-  write(LuWr,*) ' Parameters for radial integration (R-matrix option)'
-  write(LuWr,*) ' ==================================================='
-  write(LuWr,'(A,G12.5)') '   rmatr     :',RmatR
-  write(LuWr,'(A,G12.5)') '   epsabs    :',Epsabs
-  write(LuWr,'(A,G12.5)') '   epsrel    :',Epsrel
-  write(LuWr,'(A,G12.5)') '   qcoul     :',qCoul
-  write(LuWr,'(A,G12.5)') '   dipol(1)  :',dipol(1)
-  write(LuWr,'(A,G12.5)') '   dipol(2)  :',dipol(2)
-  write(LuWr,'(A,G12.5)') '   dipol(3)  :',dipol(3)
-  write(LuWr,'(A,G12.5)') '   epsq      :',epsq
-  write(LuWr,'(A,G12.5)') '   bparm     :',bParm
+  write(u6,*) ' Parameters for radial integration (R-matrix option)'
+  write(u6,*) ' ==================================================='
+  write(u6,'(A,G12.5)') '   rmatr     :',RmatR
+  write(u6,'(A,G12.5)') '   epsabs    :',Epsabs
+  write(u6,'(A,G12.5)') '   epsrel    :',Epsrel
+  write(u6,'(A,G12.5)') '   qcoul     :',qCoul
+  write(u6,'(A,G12.5)') '   dipol(1)  :',dipol(1)
+  write(u6,'(A,G12.5)') '   dipol(2)  :',dipol(2)
+  write(u6,'(A,G12.5)') '   dipol(3)  :',dipol(3)
+  write(u6,'(A,G12.5)') '   epsq      :',epsq
+  write(u6,'(A,G12.5)') '   bparm     :',bParm
 end if
 !                                                                      *
 !***********************************************************************
@@ -150,26 +155,26 @@ end if
 #ifdef _EFP_
 if (nEFP_fragments /= 0) then
   call EFP_PRINT_BANNER()
-  write(LuWr,*)
-  write(LuWr,*) ' Specification of Effective Fragment Potentials'
-  write(LuWr,*)
+  write(u6,*)
+  write(u6,*) ' Specification of Effective Fragment Potentials'
+  write(u6,*)
   if (Coor_Type == XYZABC_type) then
-    write(LuWr,*) 'In XYZABC format'
+    write(u6,*) 'In XYZABC format'
   elseif (Coor_Type == POINTS_type) then
-    write(LuWr,*) 'In Points format'
+    write(u6,*) 'In Points format'
   elseif (Coor_Type == ROTMAT_type) then
-    write(LuWr,*) 'In RotMat format'
+    write(u6,*) 'In RotMat format'
   else
-    write(LuWr,*) 'Illegal Coor_type:',Coor_Type
+    write(u6,*) 'Illegal Coor_type:',Coor_Type
     call Abend()
   end if
   do i=1,nEFP_Fragments
-    write(LuWr,*)
-    write(LuWr,*) 'Fragment:',FRAG_TYPE(i)
+    write(u6,*)
+    write(u6,*) 'Fragment:',FRAG_TYPE(i)
     if (Coor_Type == XYZABC_type) then
     elseif (Coor_Type == POINTS_type) then
       do j=1,3
-        write(LuWr,'(A10,3F20.10)') ABC(j,i)(1:10),(EFP_Coors((j-1)*3+k,i),k=1,3)
+        write(u6,'(A10,3F20.10)') ABC(j,i)(1:10),(EFP_Coors((j-1)*3+k,i),k=1,3)
       end do
     elseif (Coor_Type == ROTMAT_type) then
     end if
@@ -181,7 +186,7 @@ end if
 !                                                                      *
 if (PrintOperators) then
   call CollapseOutput(0,'   Operator info:')
-  write(LuWr,*)
+  write(u6,*)
 end if
 
 return

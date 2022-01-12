@@ -11,19 +11,18 @@
 
 subroutine Misc_Seward(iBas,iBas_Aux,iBas_Frag)
 
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, iCnttp_Dummy, nCnttp, Shells
+use Center_Info, only: dc
 use Sizes_of_Seward, only: S
 use Real_Info, only: RadMax, cdMax, EtMax
 use Symmetry_Info, only: nIrrep
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp) :: iBas, iBas_Aux, iBas_Frag
 #include "Molcas.fh"
+integer(kind=iwp) :: iAng, iCnt, iCnttp, iShell, jCnttp, jSh, kCmp, kdc, mc, mdc
 
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-LuWr = 6
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -57,8 +56,8 @@ do jCnttp=1,nCnttp
     mdc = iCnt+dbsc(iCnttp)%mdci
     if (max(mdc,kdc) > MxAtom) then
       call WarningMessage(2,'MxAtom too small:')
-      write(LuWr,*) 'MxAtom=',MxAtom
-      write(LuWr,*) 'Increase mxAtom in Molcas.fh and recompile the code!'
+      write(u6,*) 'MxAtom=',MxAtom
+      write(u6,*) 'Increase mxAtom in Molcas.fh and recompile the code!'
       call Abend()
     end if
     ! Loop over shells associated with this center
@@ -94,7 +93,7 @@ end do
 S%nShlls = iShell
 if (iBas >= 2*MaxBfn) then
   call WarningMessage(2,'MaxBfn too small')
-  write(LuWr,*) 'Increase 2*MaxBfn to ',iBas
+  write(u6,*) 'Increase 2*MaxBfn to ',iBas
   call Abend()
 end if
 !                                                                      *

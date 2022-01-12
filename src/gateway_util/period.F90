@@ -16,12 +16,16 @@ module Period
 ! VCell   - unit cell vectors
 ! ispread - how many steps to spread the unit cell along each unit cell vector
 
-integer mAdCell, lthCell, nAtC
-equivalence(lthCell,nAtC)
+use Definitions, only: wp, iwp
 
-integer ispread(3)
-real*8 VCell(3,3)
-logical Cell_l
-integer, allocatable :: AdCell(:)
+implicit none
+private
+
+integer(kind=iwp) :: ispread(3), lthCell, mAdCell
+real(kind=wp) :: VCell(3,3)
+logical(kind=iwp) :: Cell_l
+integer(kind=iwp), allocatable :: AdCell(:)
+
+public :: AdCell, Cell_l, ispread, lthCell, mAdCell, VCell
 
 end module Period

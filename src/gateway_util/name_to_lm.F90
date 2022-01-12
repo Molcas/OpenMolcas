@@ -37,11 +37,14 @@
 !***********************************************************************
 
 subroutine Name_to_lm(BName,l,m)
+
+use Definitions, only: iwp
+
 implicit none
-character(Len=*), intent(In) :: BName
-integer, intent(Out) :: l, m
+character(len=*), intent(in) :: BName
+integer(kind=iwp), intent(out) :: l, m
 character :: Letter
-integer :: i, lx, ly, lz
+integer(kind=iwp) :: i, lx, ly, lz
 #include "angtp.fh"
 
 Letter = BName(3:3)

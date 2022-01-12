@@ -9,27 +9,31 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine OrdExp(nExp,Exp,nCntrc,Cff)
+subroutine OrdExp(nExp,rExp,nCntrc,Cff)
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-real*8 exp(nExp), Cff(nExp,nCntrc)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nExp, nCntrc
+real(kind=wp) :: rExp(nExp), Cff(nExp,nCntrc)
+integer(kind=iwp) :: iExp, jExp, kExp
+real(kind=wp) :: Exp1, Exp2
 
 ! Order exponents
 ! Make the subsequent change in the contraction matrix
 
 do iExp=1,nExp-1
-  Exp1 = exp(iExp)
+  Exp1 = rExp(iExp)
   kExp = iExp
   do jExp=iExp+1,nExp
-    Exp2 = exp(jExp)
+    Exp2 = rExp(jExp)
     if (Exp2 > Exp1) then
       Exp1 = Exp2
       kExp = jExp
     end if
   end do
   if (kExp /= iExp) then
-    call DSwap_(1,exp(iExp),1,exp(kExp),1)
+    call DSwap_(1,rExp(iExp),1,rExp(kExp),1)
     call DSwap_(nCntrc,Cff(iExp,1),nExp,Cff(kExp,1),nExp)
   end if
 end do

@@ -9,22 +9,28 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function Index_Center(iCnt,iR,Index,iAtoms,nAtoms)
+function Index_Center(iCnt,iR,cIndex,iAtoms,nAtoms)
 
-integer index(2,nAtoms)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: Index_Center
+integer(kind=iwp), intent(in) :: iCnt, iR, nAtoms
+integer(kind=iwp), intent(inout) :: cIndex(2,nAtoms), iAtoms
+integer(kind=iwp) :: i
 
 98 continue
 Index_Center = 0
 do i=1,iAtoms
-  if ((index(1,i) == iCnt) .and. (index(2,i) == iR)) then
+  if ((cIndex(1,i) == iCnt) .and. (cIndex(2,i) == iR)) then
     Index_Center = i
     Go To 99
   end if
 end do
 
 iAtoms = iAtoms+1
-index(1,iAtoms) = iCnt
-index(2,iAtoms) = iR
+cIndex(1,iAtoms) = iCnt
+cIndex(2,iAtoms) = iR
 Go To 98
 
 99 return

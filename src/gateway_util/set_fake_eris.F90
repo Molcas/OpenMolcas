@@ -9,22 +9,23 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Set_Fake_ERIs
+subroutine Set_Fake_ERIs()
 
 use Basis_Info, only: nBas
-use RICD_Info, only: Do_RI, Cholesky
+use RICD_Info, only: Cholesky, Do_RI
 use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
-#include "stdalloc.fh"
+implicit none
 #include "cholesky.fh"
-character(LEN=16) NamRfil
-integer, dimension(:), allocatable :: iSOShl
-integer nVec_RI(8)
+integer(kind=iwp) :: i, nBasT, nVec_RI(8)
+character(len=16) :: NamRfil
+integer(kind=iwp), allocatable :: iSOShl(:)
 
-write(6,*)
-write(6,*) '   *** Skipping anything related to ERIs ***'
-write(6,*)
+write(u6,*)
+write(u6,*) '   *** Skipping anything related to ERIs ***'
+write(u6,*)
 
 if (.not. (Cholesky .or. Do_RI)) return
 

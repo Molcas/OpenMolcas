@@ -12,6 +12,13 @@
 ! This module contains seward parameters which are not supposed to be carried between programs.
 module Integral_Parameters
 
-integer :: iPack = 0, iWRopt = 0
+use Definitions, only: iwp
+
+implicit none
+private
+
+integer(kind=iwp) :: iPack = 0, iWRopt = 0
+
+public :: iPack, iWRopt
 
 end module Integral_Parameters

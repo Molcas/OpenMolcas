@@ -11,47 +11,50 @@
 
 module Real_Info
 
-private
-public :: AccMch, ThrInt, PotNuc, Rtrnc, CutInt, TMass, qNuc, PkAcc, &
-          Thrs, RadMax, cdMax, EtMax, E1, E2, RPQMin, SadStep, Shake, &
-          ChiI2, CoM, rMI, Prin, PAX, CoC, kVector, &
-          Real_Info_Dmp, Real_Info_Get
+use Constants, only: Zero, One, Three
+use Definitions, only: wp, iwp
 
-#include "stdalloc.fh"
-integer i
-real*8 :: AccMch = 1.d-15
-real*8 :: ThrInt = 1.d-14
-real*8 :: PotNuc = 0.0d0
-real*8 :: Rtrnc = 3.d0
-real*8 :: CutInt = 1.d-16
-real*8 :: TMass = 0.0d0
-real*8 :: qNuc = 0.0d0
-real*8 :: PkAcc = 1.d-14
-real*8 :: Thrs = 1.d-6
-real*8 :: RadMax = 0.0d0
-real*8 :: cdMax = 0.0d0
-real*8 :: EtMax = 0.0d0
-real*8 :: E1 = 0.0d0
-real*8 :: E2 = 0.0d0
-real*8 :: RPQMin = 0.4d0
-real*8 :: SadStep = 0.1d0
-real*8 :: Shake = -1.0d0
-real*8 :: ChiI2 = 0.0d0
-real*8 :: CoM(3) = [(0.0d0,i=1,3)]
-real*8 :: rMI(6) = [(0.0d0,i=1,6)]
-real*8 :: Prin(3) = [(0.0d0,i=1,3)]
-real*8 :: PAX(9) = [(0.0d0,i=1,9)]
-real*8 :: CoC(3) = [(0.0d0,i=1,3)]
-real*8 :: kVector(3) = [(0.0d0,i=1,3)]
+implicit none
+private
+
+integer(kind=iwp), parameter :: rLen = 45 ! number of elements
+real(kind=wp) :: AccMch = 1.0e-15_wp, &
+                 cdMax = Zero, &
+                 ChiI2 = Zero, &
+                 CoC(3) = Zero, &
+                 CoM(3) = Zero, &
+                 CutInt = 1.0e-16_wp, &
+                 E1 = Zero, &
+                 E2 = Zero, &
+                 EtMax = Zero, &
+                 kVector(3) = Zero, &
+                 PAX(9) = Zero, &
+                 PkAcc = 1.0e-14_wp, &
+                 PotNuc = Zero, &
+                 Prin(3) = Zero, &
+                 qNuc = Zero, &
+                 RadMax = Zero, &
+                 rMI(6) = Zero, &
+                 RPQMin = 0.4_wp, &
+                 Rtrnc = Three, &
+                 SadStep = 0.1_wp, &
+                 Shake = -One, &
+                 ThrInt = 1.0e-14_wp, &
+                 Thrs = 1.0e-6_wp, &
+                 TMass = Zero
+
+public :: AccMch, cdMax, ChiI2, CoC, CoM, CutInt, E1, E2, EtMax, kVector, PAX, PkAcc, PotNuc, Prin, qNuc, RadMax, Real_Info_Dmp, &
+          Real_Info_Get, rMI, RPQMin, Rtrnc, SadStep, Shake, ThrInt, Thrs, TMass
 
 contains
 
 subroutine Real_Info_Dmp()
 
-  real*8, allocatable :: rDmp(:)
-  integer :: Len = 45
+  use stdalloc, only: mma_allocate, mma_deallocate
 
-  call mma_allocate(rDmp,Len,Label='rDmp:Real')
+  real(kind=wp), allocatable :: rDmp(:)
+
+  call mma_allocate(rDmp,rLen,Label='rDmp:Real')
 
   rDmp(01) = AccMch
   rDmp(02) = ThrInt
@@ -78,18 +81,19 @@ subroutine Real_Info_Dmp()
   rDmp(40:42) = CoC(1:3)
   rDmp(43:45) = kVector(1:3)
 
-  call Put_dArray('Real_Info',rDmp,Len)
+  call Put_dArray('Real_Info',rDmp,rLen)
   call mma_deallocate(rDmp)
 
 end subroutine Real_Info_Dmp
 
 subroutine Real_Info_Get()
 
-  real*8, allocatable :: rDmp(:)
-  integer :: Len = 45
+  use stdalloc, only: mma_allocate, mma_deallocate
 
-  call mma_allocate(rDmp,Len,Label='rDmp:Real')
-  call Get_dArray('Real_Info',rDmp,Len)
+  real(kind=wp), allocatable :: rDmp(:)
+
+  call mma_allocate(rDmp,rLen,Label='rDmp:Real')
+  call Get_dArray('Real_Info',rDmp,rLen)
 
   AccMch = rDmp(01)
   ThrInt = rDmp(02)

@@ -33,8 +33,8 @@ subroutine DmpInf()
 ! - changed to used communication file                                 *
 !***********************************************************************
 
-use iso_c_binding
-use External_Centers
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use External_Centers, only: External_Centers_Dmp
 use Basis_Info, only: Basis_Info_Dmp
 use Center_Info, only: Center_Info_Dmp
 use Symmetry_Info, only: Symmetry_Info_Dmp
@@ -45,11 +45,12 @@ use Real_Info, only: Real_Info_Dmp
 use RICD_Info, only: RICD_Info_Dmp
 use Logical_Info, only: Logical_Info_Dmp
 use nq_Info
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-#include "stdalloc.fh"
-#include "real.fh"
+implicit none
 #include "rctfld.fh"
+integer(kind=iwp) :: Length
+integer(kind=iwp), external :: ip_of_iWork, ip_of_Work
 
 call DmpInf_Internal(cRFStrt,iRFStrt,lRFStrt,rRFStrt,cQStrt,iQStrt,rQStrt)
 
@@ -58,10 +59,11 @@ contains
 
 subroutine DmpInf_Internal(cRFStrt,iRFStrt,lRFStrt,rRFStrt,cQStrt,iQStrt,rQStrt)
 
-  integer, target :: cRFStrt, iRFStrt, lRFStrt, cQStrt, iQStrt
-  real*8, target :: rRFStrt, rQStrt
-  integer, pointer :: p_cRF(:), p_iRF(:), p_lRF(:), p_cQ(:), p_iQ(:)
-  real*8, pointer :: p_rRF(:), p_rQ(:)
+  integer(kind=iwp), target :: cRFStrt, iRFStrt, lRFStrt, cQStrt, iQStrt
+  real(kind=wp), target :: rRFStrt, rQStrt
+  integer(kind=iwp), pointer :: p_cQ(:), p_cRF(:), p_iQ(:), p_iRF(:), p_lRF(:)
+  real(kind=wp), pointer :: p_rQ(:), p_rRF(:)
+
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -79,21 +81,21 @@ subroutine DmpInf_Internal(cRFStrt,iRFStrt,lRFStrt,rRFStrt,cQStrt,iQStrt,rQStrt)
   !                                                                    *
   ! Reaction field parameters
 
-  Len = ip_of_iWork(lRFEnd)-ip_of_iWork(lRFStrt)+1
-  call c_f_pointer(c_loc(lRFStrt),p_lRF,[Len])
-  call Put_iArray('RFlInfo',p_lRF,Len)
+  Length = ip_of_iWork(lRFEnd)-ip_of_iWork(lRFStrt)+1
+  call c_f_pointer(c_loc(lRFStrt),p_lRF,[Length])
+  call Put_iArray('RFlInfo',p_lRF,Length)
 
-  Len = ip_of_Work(rRFEnd)-ip_of_Work(rRFStrt)+1
-  call c_f_pointer(c_loc(rRFStrt),p_rRF,[Len])
-  call Put_dArray('RFrInfo',p_rRF,Len)
+  Length = ip_of_Work(rRFEnd)-ip_of_Work(rRFStrt)+1
+  call c_f_pointer(c_loc(rRFStrt),p_rRF,[Length])
+  call Put_dArray('RFrInfo',p_rRF,Length)
 
-  Len = ip_of_iWork(iRFEnd)-ip_of_iWork(iRFStrt)+1
-  call c_f_pointer(c_loc(iRFStrt),p_iRF,[Len])
-  call Put_iArray('RFiInfo',p_iRF,Len)
+  Length = ip_of_iWork(iRFEnd)-ip_of_iWork(iRFStrt)+1
+  call c_f_pointer(c_loc(iRFStrt),p_iRF,[Length])
+  call Put_iArray('RFiInfo',p_iRF,Length)
 
-  Len = ip_of_iWork(cRFEnd)-ip_of_iWork(cRFStrt)+1
-  call c_f_pointer(c_loc(cRFStrt),p_cRF,[Len])
-  call Put_iArray('RFcInfo',p_cRF,Len)
+  Length = ip_of_iWork(cRFEnd)-ip_of_iWork(cRFStrt)+1
+  call c_f_pointer(c_loc(cRFStrt),p_cRF,[Length])
+  call Put_iArray('RFcInfo',p_cRF,Length)
 
   nullify(p_lRF,p_rRF,p_iRF,p_cRF)
   !                                                                    *
@@ -101,17 +103,17 @@ subroutine DmpInf_Internal(cRFStrt,iRFStrt,lRFStrt,rRFStrt,cQStrt,iQStrt,rQStrt)
   !                                                                    *
   ! Numerical integration information and parameters
 
-  Len = ip_of_Work(rQEnd)-ip_of_Work(rQStrt)+1
-  call c_f_pointer(c_loc(rQStrt),p_rQ,[Len])
-  call Put_dArray('Quad_r',p_rQ,Len)
+  Length = ip_of_Work(rQEnd)-ip_of_Work(rQStrt)+1
+  call c_f_pointer(c_loc(rQStrt),p_rQ,[Length])
+  call Put_dArray('Quad_r',p_rQ,Length)
 
-  Len = ip_of_iWork(iQEnd)-ip_of_iWork(iQStrt)+1
-  call c_f_pointer(c_loc(iQStrt),p_iQ,[Len])
-  call Put_iArray('Quad_i',p_iQ,Len)
+  Length = ip_of_iWork(iQEnd)-ip_of_iWork(iQStrt)+1
+  call c_f_pointer(c_loc(iQStrt),p_iQ,[Length])
+  call Put_iArray('Quad_i',p_iQ,Length)
 
-  Len = ip_of_iWork(cQEnd)-ip_of_iWork(cQStrt)+1
-  call c_f_pointer(c_loc(cQStrt),p_cQ,[Len])
-  call Put_iArray('Quad_c',p_cQ,Len)
+  Length = ip_of_iWork(cQEnd)-ip_of_iWork(cQStrt)+1
+  call c_f_pointer(c_loc(cQStrt),p_cQ,[Length])
+  call Put_iArray('Quad_c',p_cQ,Length)
 
   nullify(p_rQ,p_iQ,p_cQ)
   !                                                                    *

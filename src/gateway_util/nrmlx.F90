@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine Nrmlx(Exp,nPrim,Coeff,nCntrc,Scrt1,nScrt1,Scrt2,nScrt2,iAng)
+subroutine Nrmlx(rExp,nPrim,Coeff,nCntrc,Scrt1,nScrt1,Scrt2,nScrt2,iAng)
 !***********************************************************************
 !                                                                      *
 ! Object: normalize the contraction coefficients with respect to the   *
@@ -28,14 +28,19 @@ subroutine Nrmlx(Exp,nPrim,Coeff,nCntrc,Scrt1,nScrt1,Scrt2,nScrt2,iAng)
 !             January '90                                              *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-real*8 exp(nPrim), Coeff(nPrim,nCntrc), Scrt1(nScrt1), Scrt2(nScrt2)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nPrim, nCntrc, nScrt1, nScrt2, iAng
+real(kind=wp) :: rExp(nPrim), Coeff(nPrim,nCntrc), Scrt1(nScrt1), Scrt2(nScrt2)
 #include "real.fh"
+integer(kind=iwp) :: i, iExp, jExp
+real(kind=wp) :: Temp, Tmp
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' In Nrmlz: iAng=',iAng
+write(u6,*) ' In Nrmlz: iAng=',iAng
 call RecPrt(' In Nrmlz: Coefficients',' ',Coeff,nPrim,nCntrc)
-call RecPrt(' In Nrmlz: Exponents',' ',Exp,nPrim,1)
+call RecPrt(' In Nrmlz: Exponents',' ',rExp,nPrim,1)
 #endif
 
 ! Normalize the coefficients (only radial normalization)
@@ -48,14 +53,14 @@ call RecPrt(' In Nrmlz: Exponents',' ',Exp,nPrim,1)
 
 do iExp=1,nPrim
   do jExp=1,iExp-1
-    Temp = (Two*sqrt(exp(iExp)*exp(jExp))/(exp(iExp)+exp(jExp)))**(dble(iAng)+Three/Two)
+    Temp = (Two*sqrt(rExp(iExp)*rExp(jExp))/(rExp(iExp)+rExp(jExp)))**(real(iAng,kind=wp)+Three/Two)
     Scrt1(nPrim*(iExp-1)+jExp) = Temp
     Scrt1(nPrim*(jExp-1)+iExp) = Temp
   end do
   Scrt1(nPrim*(iExp-1)+iExp) = One
 end do
 ! Contract right side
-call DGEMM_('N','N',nPrim,nCntrc,nPrim,1.0d0,Scrt1,nPrim,Coeff,nPrim,0.0d0,Scrt2,nPrim)
+call DGEMM_('N','N',nPrim,nCntrc,nPrim,One,Scrt1,nPrim,Coeff,nPrim,Zero,Scrt2,nPrim)
 #ifdef _DEBUGPRINT_
 call RecPrt(' Overlap primitives',' ',Scrt1,nPrim,nPrim)
 call RecPrt(' Overlap PrimCon',' ',Scrt2,nPrim,nCntrc)
