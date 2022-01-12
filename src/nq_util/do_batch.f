@@ -568,8 +568,6 @@
 
              If(KSDFA(1:5).eq.'TLSDA') then
                If(do_pdftPot) then
-               lft=.false.
-               lGGA=.false.
 
                CALL TransferMO(MOas,TabMO,mAO,mGrid,nMOs,1)
                IF(lft.and.lGGA) THEN
@@ -586,8 +584,6 @@
               end if
              else If(KSDFA(1:6).eq.'FTLSDA') then
                If(do_pdftPot) then
-               lft=.true.
-               lGGA=.false.
 
                CALL TransferMO(MOas,TabMO,mAO,mGrid,nMOs,1)
                IF(lft.and.lGGA) THEN
@@ -629,8 +625,6 @@
      &               KSDFA(1:7).eq.'TREVPBE') then
 
               If(do_pdftPot) then
-               lft=.false.
-               lGGA=.true.
 
                CALL TransferMO(MOas,TabMO,mAO,mGrid,nMOs,1)
                IF(lft.and.lGGA) THEN
@@ -678,21 +672,6 @@
 *                                                                      *
         Else If (Functional_type.eq.meta_GGA_type1 .or.
      &           Functional_Type.eq.meta_GGA_type2) Then
-*
-*2)        form matrix elements for the potential, from derivative of
-*          the functional with  respect to rho, respectively.
-*
-*          and
-*
-*3)        form contributions to the matrix elements of the potenial
-*          from the derivative of the functional with respect to grad
-*          rho.
-*
-*         and
-*
-*4)       form contributions to the matrix elements of the potential
-*         from the derivatives of the functional with respect to nabla
-*         rho and/or tau.
 *
           Call DFT_Int(list_s,nlist_s,FckInt,nFckInt,
      &                 nD,Work(ip_Fact),ndc,list_bas)
