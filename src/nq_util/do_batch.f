@@ -573,33 +573,22 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
+         If(.not.l_casdft) then
+            Call DFT_Int(list_s,nlist_s,FckInt,nFckInt,
+     &                   nD,Work(ip_Fact),ndc,list_bas)
+         End if
+
          If (Functional_type.eq.LDA_Type) Then
-*
-*2)         form matrix elements for the potential, from derivative of
-*           the functional with  respect to rho, respectively.
-*
-             If(KSDFA(1:5).ne.'TLSDA'.and.KSDFA(1:6).ne.'FTLSDA') then
-                 Call DFT_Int(list_s,nlist_s,FckInt,nFckInt,
-     &                        nD,Work(ip_Fact),ndc,list_bas)
-             End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
         Else If (Functional_type.eq.GGA_type   .or.
      &           Functional_type.eq.CASDFT_type     ) Then     ! CGG
-*
-             If(.not.l_casdft) then
-               Call DFT_Int(list_s,nlist_s,FckInt,nFckInt,
-     &                      nD,Work(ip_Fact),ndc,list_bas)
-             end if
 *                                                                      *
 ************************************************************************
 *                                                                      *
         Else If (Functional_type.eq.meta_GGA_type1 .or.
      &           Functional_Type.eq.meta_GGA_type2) Then
-*
-          Call DFT_Int(list_s,nlist_s,FckInt,nFckInt,
-     &                 nD,Work(ip_Fact),ndc,list_bas)
 *                                                                      *
 ************************************************************************
 *                                                                      *
