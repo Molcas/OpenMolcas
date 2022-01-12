@@ -570,13 +570,12 @@
                      CALL TransferMO(MOay,TabMO,mAO,mGrid,nMOs,3)
                      CALL TransferMO(MOaz,TabMO,mAO,mGrid,nMOs,4)
                   END IF
+                  CALL TransActMO(MOs, TabMO,mAO,mGrid,nMOs)
                End If
              End If
 
              If(KSDFA(1:5).eq.'TLSDA') then
                If(do_pdftPot) then
-
-               CALL TransActMO(MOs, TabMO,mAO,mGrid,nMOs)
 
                Call Calc_Pot1(PDFTPot1,TabMO,mAO,mGrid,nMOs,P2_ontop,
      &                        nP2_ontop,MOas)
@@ -586,8 +585,6 @@
 
              else If(KSDFA(1:6).eq.'FTLSDA') then
                If(do_pdftPot) then
-
-               CALL TransActMO(MOs, TabMO,mAO,mGrid,nMOs)
 
                Call Calc_Pot1(PDFTPot1,TabMO,mAO,mGrid,nMOs,P2_ontop,
      &                        nP2_ontop,MOas)
@@ -609,12 +606,13 @@
              If (l_casdft) Then
                If (do_pdftPot) then
                   CALL TransferMO(MOas,TabMO,mAO,mGrid,nMOs,1)
+                  IF(lft.and.lGGA) THEN
+                   CALL TransferMO(MOax,TabMO,mAO,mGrid,nMOs,2)
+                   CALL TransferMO(MOay,TabMO,mAO,mGrid,nMOs,3)
+                   CALL TransferMO(MOaz,TabMO,mAO,mGrid,nMOs,4)
+                  END IF
+                  CALL TransActMO(MOs, TabMO,mAO,mGrid,nMOs)
                End If
-               IF(lft.and.lGGA) THEN
-                CALL TransferMO(MOax,TabMO,mAO,mGrid,nMOs,2)
-                CALL TransferMO(MOay,TabMO,mAO,mGrid,nMOs,3)
-                CALL TransferMO(MOaz,TabMO,mAO,mGrid,nMOs,4)
-               END IF
              End If
 
              If(KSDFA(1:4).eq.'TPBE'.or.
@@ -623,8 +621,6 @@
      &               KSDFA(1:7).eq.'TREVPBE') then
 
               If(do_pdftPot) then
-
-               CALL TransActMO(MOs, TabMO,mAO,mGrid,nMOs)
 
                Call Calc_Pot1(PDFTPot1,TabMO,mAO,mGrid,nMOs,P2_ontop,
      &                        nP2_ontop,MOas)
@@ -638,8 +634,6 @@
      &               KSDFA(1:6).eq.'FTBLYP'.or.
      &               KSDFA(1:8).eq.'FTREVPBE') then
                If(do_pdftPot) then
-
-               CALL TransActMO(MOs, TabMO,mAO,mGrid,nMOs)
 
                Call Calc_Pot1(PDFTPot1,TabMO,mAO,mGrid,nMOs,P2_ontop,
      &                        nP2_ontop,MOas)
