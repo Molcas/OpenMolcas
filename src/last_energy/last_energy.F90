@@ -35,23 +35,21 @@ end if
 
 call DecideOnESPF(Do_ESPF)
 
-if (Method(5:7) == 'SCF'     .or. &
-    Method(1:6) == 'KS-DFT'  .or. &
-    Method(1:6) == 'CASSCF'  .or. &
-    Method(1:6) == 'RASSCF'  .or. &
-    Method(1:6) == 'CASPT2'  .or. &
-    Method(1:5) == 'MBPT2'   .or. &
-    Method(1:5) == 'CCSDT'   .or. &
-    Method(1:4) == 'CHCC'    .or. &
-    Method(1:6) == 'MCPDFT'  .or. &
-    Method(1:6) == 'MSPDFT'  .or. &
+if (Method(5:7) /= 'SCF'     .and. &
+    Method(1:6) /= 'KS-DFT'  .and. &
+    Method(1:6) /= 'CASSCF'  .and. &
+    Method(1:6) /= 'RASSCF'  .and. &
+    Method(1:6) /= 'CASPT2'  .and. &
+    Method(1:5) /= 'MBPT2'   .and. &
+    Method(1:5) /= 'CCSDT'   .and. &
+    Method(1:4) /= 'CHCC'    .and. &
+    Method(1:6) /= 'MCPDFT'  .and. &
+    Method(1:6) /= 'MSPDFT'  .and. &
 #   ifdef _DMRG_
-    Method(1:7) == 'DMRGSCF' .or. &
+    Method(1:7) /= 'DMRGSCF' .and. &
 #   endif
-    Method(1:4) == 'CHT3'    .or. &
-    Method(1:8) == 'EXTERNAL') then
-  continue
-else
+    Method(1:4) /= 'CHT3'    .and. &
+    Method(1:8) /= 'EXTERNAL') then
   write(u6,'(A,A,A)') 'Last Energy for ',Method,' is not implemented yet.'
   call Abend()
 end if

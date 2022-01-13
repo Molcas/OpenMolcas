@@ -341,7 +341,7 @@ recursive subroutine mergesort_work(A,compare,work)
 
   half = (size(A)-1)/2+1
   if (size(A) < 2) then
-    continue
+    !continue
   else if (size(A) == 2) then
     call bubble_sort(A,compare)
   else
