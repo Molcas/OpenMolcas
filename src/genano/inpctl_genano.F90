@@ -64,9 +64,9 @@ do
   !write(u6,*) 'echo> ',KeyIn
   call zlcase(Key)
   if (Key(1:1) == '*') then
-    continue
+    !continue
   else if (Key == ' ') then
-    continue
+    !continue
   else if (Key == 'title') then
     RdHead = .true.
   else if (Key == 'sets') then
