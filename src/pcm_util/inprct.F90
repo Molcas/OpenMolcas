@@ -95,7 +95,7 @@ rotGamma = Zero
 rsca = One
 
 ! Controls wheather a sparse grid should be used outside
-! a distance distSparce from ALL atoms and XF points
+! a distance distSparse from ALL atoms and XF points
 ! nSparse = scala(sparse) / scala(normal)
 LSparse = .false.
 nSparse = 1

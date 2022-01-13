@@ -68,11 +68,11 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 
          If (Do_Core) Then
             nFuncs=1
-            func_id(1:nFuncs)=[int(8,4)]
+            func_id(1:nFuncs)=[XC_LDA_C_VWN_RPA]
             Coeffs(1)=dFMD
          Else
             nFuncs=2
-            func_id(1:nFuncs)=[int(1,4),int(8,4)]
+            func_id(1:nFuncs)=[XC_LDA_X,XC_LDA_C_VWN_RPA]
          End If
 
          If(KSDFT.eq.'TLSDA'.or.KSDFT.eq.'FTLSDA') Do_MO=.true.
@@ -91,11 +91,11 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 
          If (Do_Core) Then
             nFuncs=1
-            func_id(1:nFuncs)=[int(7,4)]
+            func_id(1:nFuncs)=[XC_LDA_C_VWN]
             Coeffs(1)=dFMD
          Else
             nFuncs=2
-            func_id(1:nFuncs)=[int(1,4),int(7,4)]
+            func_id(1:nFuncs)=[XC_LDA_X,XC_LDA_C_VWN]
          End If
 !                                                                      *
 !***********************************************************************
@@ -105,10 +105,10 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
        Case('HFB')
          Functional_type=GGA_type
 
-!----    Slate exchange + Becke 88 exchange
+!----    Slater exchange + Becke 88 exchange
 
          nFuncs=1
-         func_id(1:nFuncs)=[int(106,4)]
+         func_id(1:nFuncs)=[XC_GGA_X_B88]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -117,10 +117,10 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
        Case('HFO')
          Functional_type=GGA_type
 
-!----    Slate exchange + OPTx exchange
+!----    Slater exchange + OPTx exchange
 
          nFuncs=1
-         func_id(1:nFuncs)=[int(110,4)]
+         func_id(1:nFuncs)=[XC_GGA_X_OPTX]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -129,10 +129,10 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
        Case('HFG')
          Functional_type=GGA_type
 
-!----    Slate exchange + G96 exchange
+!----    Slater exchange + G96 exchange
 
          nFuncs=1
-         func_id(1:nFuncs)=[int(107,4)]
+         func_id(1:nFuncs)=[XC_GGA_X_G96]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -141,10 +141,10 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
        Case('HFB86')
          Functional_type=GGA_type
 
-!----    Slate exchange + B86 exchange
+!----    Slater exchange + B86 exchange
 
          nFuncs=1
-         func_id(1:nFuncs)=[int(103,4)]
+         func_id(1:nFuncs)=[XC_GGA_X_B86]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -153,10 +153,10 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
        Case('HFS')
          Functional_type=LDA_type
 
-!----    Slate exchange
+!----    Slater exchange
 
          nFuncs=1
-         func_id(1:nFuncs)=[int(1,4)]
+         func_id(1:nFuncs)=[XC_LDA_X]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -165,10 +165,10 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
        Case('XALPHA')
          Functional_type=LDA_type
 
-!----    Slate exchange
+!----    Slater exchange
 
          nFuncs=1
-         func_id(1:nFuncs)=[int(1,4)]
+         func_id(1:nFuncs)=[XC_LDA_X]
          Coeffs(1)=0.70D0
 !                                                                      *
 !***********************************************************************
@@ -199,7 +199,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !----    Wigner correlation
 
          nFuncs=2
-         func_id(1:nFuncs)=[int(106,4),int(573,4)]
+         func_id(1:nFuncs)=[XC_GGA_X_B88,XC_LDA_C_OW_LYP]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -214,11 +214,11 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 
          If (Do_Core) Then
             nFuncs=1
-            func_id(1:nFuncs)=[int(131,4)]
+            func_id(1:nFuncs)=[XC_GGA_C_LYP]
             Coeffs(1)=dFMD
          Else
             nFuncs=2
-            func_id(1:nFuncs)=[int(106,4),int(131,4)]
+            func_id(1:nFuncs)=[XC_GGA_X_B88,XC_GGA_C_LYP]
          End If
 
          If(KSDFT.eq.'TBLYP'.or. KSDFT.eq.'FTBLYP') Do_MO=.true.
@@ -236,7 +236,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !----    Lee-Yang-Parr correlation
 
          nFuncs=2
-         func_id(1:nFuncs)=[int(110,4),int(131,4)]
+         func_id(1:nFuncs)=[XC_GGA_X_OPTX,XC_GGA_C_LYP]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -250,7 +250,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !----    Lee-Yang-Parr correlation
 
          nFuncs=4
-         func_id(1:nFuncs)=[int(1,4),int(110,4),int(145,4),int(131,4)]
+         func_id(1:nFuncs)=[XC_LDA_X,XC_GGA_X_OPTX,XC_GGA_X_KT1,XC_GGA_C_LYP]
          Coeffs(1)= (1.092d0-1.051510d0*(0.925452d0/1.431690d0)-(0.004d0/0.006d0))
          Coeffs(2)= (0.925452d0/1.431690d0)
          Coeffs(3)= (0.0040d0/0.006d0)
@@ -269,7 +269,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !----    Vosko-Wilk-Nusair correlation functional III
 
          nFuncs=3
-         func_id(1:nFuncs)=[int(1,4),int(145,4),int(8,4)]
+         func_id(1:nFuncs)=[XC_LDA_X,XC_GGA_X_KT1,XC_LDA_C_VWN_RPA]
          Coeffs(1)= 0.07173d0
 !        Coeffs(2)= 1.0D0
          Coeffs(3)= 0.576727d0
@@ -286,7 +286,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !----    Lee-Yang-Parr correlation
 
          nFuncs=2
-         func_id(1:nFuncs)=[int(107,4),int(131,4)]
+         func_id(1:nFuncs)=[XC_GGA_X_G96,XC_GGA_C_LYP]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -300,7 +300,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !----    Lee-Yang-Parr correlation
 
          nFuncs=2
-         func_id(1:nFuncs)=[int(103,4),int(131,4)]
+         func_id(1:nFuncs)=[XC_GGA_X_B86,XC_GGA_C_LYP]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -314,7 +314,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !----    Perdew-Burk-Ernzerhof correlation
 
          nFuncs=2
-         func_id(1:nFuncs)=[int(106,4),int(130,4)]
+         func_id(1:nFuncs)=[XC_GGA_X_B88,XC_GGA_C_PBE]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -328,7 +328,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !----    Perdew-Burk-Ernzerhof correlation
 
          nFuncs=2
-         func_id(1:nFuncs)=[int(110,4),int(130,4)]
+         func_id(1:nFuncs)=[XC_GGA_X_OPTX,XC_GGA_C_PBE]
 
          If(KSDFT.eq.'TOPBE'.or.KSDFT.eq.'FTOPBE') Do_MO=.true.
          If(KSDFT.eq.'TOPBE'.or.KSDFT.eq.'FTOPBE') Do_TwoEl=.true.
@@ -345,7 +345,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !----    Perdew-Burk-Ernzerhof correlation
 
          nFuncs=2
-         func_id(1:nFuncs)=[int(107,4),int(130,4)]
+         func_id(1:nFuncs)=[XC_GGA_X_G96,XC_GGA_C_PBE]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -359,7 +359,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !----    Perdew-Burk-Ernzerhof correlation
 
          nFuncs=2
-         func_id(1:nFuncs)=[int(103,4),int(130,4)]
+         func_id(1:nFuncs)=[XC_GGA_X_B86,XC_GGA_C_PBE]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -371,7 +371,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !----    Lee-Yang-Parr correlation
 
          nFuncs=1
-         func_id(1:nFuncs)=[int(131,4)]
+         func_id(1:nFuncs)=[XC_GGA_C_LYP]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -389,7 +389,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !----    Lee-Yang-Parr correlation
 
          nFuncs=4
-         func_id(1:nFuncs)=[int(1,4),int(106,4),int(8,4),int(131,4)]
+         func_id(1:nFuncs)=[XC_LDA_X,XC_GGA_X_B88,XC_LDA_C_VWN_RPA,XC_GGA_C_LYP]
          Coeffs(1)=0.08D0
          Coeffs(2)=0.72D0
          Coeffs(3)=1.0D0-0.81D0
@@ -411,7 +411,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !----    Lee-Yang-Parr correlation
 
          nFuncs=4
-         func_id(1:nFuncs)=[int(1,4),int(110,4),int(8,4),int(131,4)]
+         func_id(1:nFuncs)=[XC_LDA_X,XC_GGA_X_OPTX,XC_LDA_C_VWN_RPA,XC_GGA_C_LYP]
          Coeffs(1)=(0.9262D0-1.051510d0*(0.8133D0/1.431690d0))
          Coeffs(2)=(0.8133D0/1.431690d0)
          Coeffs(3)=1.0D0-0.81D0
@@ -429,7 +429,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !----    Lee-Yang-Parr correlation
 
          nFuncs=2
-         func_id(1:nFuncs)=[int(106,4),int(131,4)]
+         func_id(1:nFuncs)=[XC_GGA_X_B88,XC_GGA_C_LYP]
          Coeffs(1)=0.470D0
          Coeffs(2)=0.73D0
 !                                                                      *
@@ -447,7 +447,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !----    Lee-Yang-Parr correlation
 
          nFuncs=3
-         func_id(1:nFuncs)=[int(1,4),int(110,4),int(131,4)]
+         func_id(1:nFuncs)=[XC_LDA_X,XC_GGA_X_OPTX,XC_GGA_C_LYP]
          Coeffs(1)=(0.525755D0-1.051510d0*(0.715845D0/1.431690d0))
          Coeffs(2)=(0.715845D0/1.431690d0)
          Coeffs(3)=0.75D0
@@ -468,7 +468,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !----    Lee-Yang-Parr correlation
 
          nFuncs=4
-         func_id(1:nFuncs)=[int(1,4),int(106,4),int(7,4),int(131,4)]
+         func_id(1:nFuncs)=[XC_LDA_X,XC_GGA_X_B88,XC_LDA_C_VWN,XC_GGA_C_LYP]
          Coeffs(1)=0.08D0
          Coeffs(2)=0.72D0
          Coeffs(3)=1.0D0-0.81D0
@@ -487,11 +487,11 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 
          If (Do_Core) Then
             nFuncs=1
-            func_id(1:nFuncs)=[int(130,4)]
+            func_id(1:nFuncs)=[XC_GGA_C_PBE]
             Coeffs(1)=dFMD
          Else
             nFuncs=2
-            func_id(1:nFuncs)=[int(101,4),int(130,4)]
+            func_id(1:nFuncs)=[XC_GGA_X_PBE,XC_GGA_C_PBE]
          End If
 
          If(KSDFT.eq.'TPBE'.or.KSDFT.eq.'FTPBE') Do_MO=.true.
@@ -509,7 +509,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !----    Perdew-Burk-Ernzerhof correlation
 
          nFuncs=2
-         func_id(1:nFuncs)=[int(102,4),int(130,4)]
+         func_id(1:nFuncs)=[XC_GGA_X_PBE_R,XC_GGA_C_PBE]
 
          If(KSDFT.eq.'TREVPBE'.or.KSDFT.eq.'FTREVBPE') Do_MO=.true.
          If(KSDFT.eq.'TREVPBE'.or.KSDFT.eq.'FTREVPBE') Do_TwoEl=.true.
@@ -526,7 +526,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !----    Perdew-Burk-Ernzerhof correlation
 
          nFuncs=2
-         func_id(1:nFuncs)=[int(90,4),int(130,4)]
+         func_id(1:nFuncs)=[XC_GGA_X_SSB_SW,XC_GGA_C_PBE]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -540,7 +540,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !----    Perdew-Burk-Ernzerhof correlation
 
          nFuncs=2
-         func_id(1:nFuncs)=[int(92,4),int(130,4)]
+         func_id(1:nFuncs)=[XC_GGA_X_SSB_D,XC_GGA_C_PBE]
 !                                                                      *
 !                                                                      *
 !***********************************************************************
@@ -555,7 +555,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !----    Perdew-Burk-Ernzerhof correlation
 
          nFuncs=2
-         func_id(1:nFuncs)=[int(496,4),int(130,4)]
+         func_id(1:nFuncs)=[XC_HYB_GGA_X_S12H,XC_GGA_C_PBE]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -569,7 +569,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !----    Perdew-Burk-Ernzerhof correlation
 
          nFuncs=2
-         func_id(1:nFuncs)=[int(495,4),int(130,4)]
+         func_id(1:nFuncs)=[XC_GGA_X_S12G,XC_GGA_C_PBE]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -583,7 +583,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !----    Perdew-Burk-Ernzerhof SOL correlation
 
          nFuncs=2
-         func_id(1:nFuncs)=[int(116,4),int(133,4)]
+         func_id(1:nFuncs)=[XC_GGA_X_PBE_SOL,XC_GGA_C_PBE_SOL]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -597,7 +597,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !----    Perdew-Burk-Ernzerhof SOL correlation
 
          nFuncs=2
-         func_id(1:nFuncs)=[int(142,4),int(133,4)]
+         func_id(1:nFuncs)=[XC_GGA_X_RGE2,XC_GGA_C_PBE_SOL]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -611,7 +611,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !----    Tognotti-Cortona-Adamo correlation
 
          nFuncs=2
-         func_id(1:nFuncs)=[int(101,4),int(100,4)]
+         func_id(1:nFuncs)=[XC_GGA_X_PBE,XC_GGA_C_TCA]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -625,7 +625,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !----    Perdew-Burk-Ernzerhof correlation
 
          nFuncs=2
-         func_id(1:nFuncs)=[int(101,4),int(130,4)]
+         func_id(1:nFuncs)=[XC_GGA_X_PBE,XC_GGA_C_PBE]
          Coeffs(1)=0.75D0
 !        Coeffs(2)=1,00D0
 !                                                                      *
@@ -641,7 +641,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !----    Minnesota 2006 L correlation
 
          nFuncs=2
-         func_id(1:nFuncs)=[int(203,4),int(233,4)]
+         func_id(1:nFuncs)=[XC_MGGA_X_M06_L,XC_MGGA_C_M06_L]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -655,7 +655,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !----    Minnesota 2006 correlation
 
          nFuncs=2
-         func_id(1:nFuncs)=[int(449,4),int(235,4)]
+         func_id(1:nFuncs)=[XC_HYB_MGGA_X_M06,XC_MGGA_C_M06]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -669,7 +669,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !----    Minnesota 2006 2X correlation
 
          nFuncs=2
-         func_id(1:nFuncs)=[int(450,4),int(236,4)]
+         func_id(1:nFuncs)=[XC_HYB_MGGA_X_M06_2X,XC_MGGA_C_M06_2X]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -683,7 +683,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !----    Minnesota 2006 HF correlation
 
          nFuncs=2
-         func_id(1:nFuncs)=[int(444,4),int(234,4)]
+         func_id(1:nFuncs)=[XC_HYB_MGGA_X_M06_HF,XC_MGGA_C_M06_HF]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -694,15 +694,15 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 
          If (Do_Core) Then
             nFuncs=1
-            func_id(1:nFuncs)=[int(8,4)]
+            func_id(1:nFuncs)=[XC_LDA_C_VWN_RPA]
             Coeffs(1)=dFMD
          Else
             If (KEOnly) Then
                nFuncs=1
-               func_id(1:nFuncs)=[int(50,4)]
+               func_id(1:nFuncs)=[XC_LDA_K_TF]
             Else
                nFuncs=3
-               func_id(1:nFuncs)=[int(50,4),int(1,4),int(8,4)]
+               func_id(1:nFuncs)=[XC_LDA_K_TF,XC_LDA_X,XC_LDA_C_VWN_RPA]
             End If
          End If
 !                                                                      *
@@ -715,15 +715,15 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 
          If (Do_Core) Then
             nFuncs=1
-            func_id(1:nFuncs)=[int(7,4)]
+            func_id(1:nFuncs)=[XC_LDA_C_VWN]
             Coeffs(1)=dFMD
          Else
               If (KEOnly) Then
                  nFuncs=1
-                 func_id(1:nFuncs)=[int(50,4)]
+                 func_id(1:nFuncs)=[XC_LDA_K_TF]
               Else
                  nFuncs=3
-                 func_id(1:nFuncs)=[int(50,4),int(1,4),int(7,4)]
+                 func_id(1:nFuncs)=[XC_LDA_K_TF,XC_LDA_X,XC_LDA_C_VWN]
              End If
          End If
 !                                                                      *
@@ -736,15 +736,15 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 
          If (Do_Core) Then
             nFuncs=1
-            func_id(1:nFuncs)=[int(130,4)]
+            func_id(1:nFuncs)=[XC_GGA_C_PBE]
             Coeffs(1)=dFMD
          Else
             If (KEOnly) Then
                nFuncs=1
-               func_id(1:nFuncs)=[int(50,4)]
+               func_id(1:nFuncs)=[XC_LDA_K_TF]
             Else
                nFuncs=3
-               func_id(1:nFuncs)=[int(50,4),int(101,4),int(130,4)]
+               func_id(1:nFuncs)=[XC_LDA_K_TF,XC_GGA_X_PBE,XC_GGA_C_PBE]
             End If
          End If
 !                                                                      *
@@ -757,7 +757,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 
          If (Do_Core) Then
             nFuncs=1
-            func_id(1:nFuncs)=[int(130,4)]
+            func_id(1:nFuncs)=[XC_GGA_C_PBE]
             Coeffs(1)=dFMD
          Else
             If (KEOnly) Then
@@ -765,7 +765,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
             Else
                Only_exc=.True.
                nFuncs=2
-               func_id(1:nFuncs)=[int(101,4),int(130,4)]
+               func_id(1:nFuncs)=[XC_GGA_X_PBE,XC_GGA_C_PBE]
                External_Sub => ndsd_ts
             End If
          End If
@@ -779,15 +779,15 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 
          If (Do_Core) Then
             nFuncs=1
-            func_id(1:nFuncs)=[int(131,4)]
+            func_id(1:nFuncs)=[XC_GGA_C_LYP]
             Coeffs(1)=dFMD
          Else
             If (KEOnly) Then
                nFuncs=1
-               func_id(1:nFuncs)=[int(50,4)]
+               func_id(1:nFuncs)=[XC_LDA_K_TF]
             Else
                nFuncs=3
-               func_id(1:nFuncs)=[int(50,4),int(106,4),int(131,4)]
+               func_id(1:nFuncs)=[XC_LDA_K_TF,XC_GGA_X_B88,XC_GGA_C_LYP]
             End If
          End If
 !                                                                      *
@@ -800,7 +800,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 
          If (Do_Core) Then
             nFuncs=1
-            func_id(1:nFuncs)=[int(131,4)]
+            func_id(1:nFuncs)=[XC_GGA_C_LYP]
             Coeffs(1)=dFMD
          Else
             If (KEOnly) Then
@@ -808,7 +808,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
             Else
                Only_exc=.True.
                nFuncs=2
-               func_id(1:nFuncs)=[int(106,4),int(131,4)]
+               func_id(1:nFuncs)=[XC_GGA_X_B88,XC_GGA_C_LYP]
                External_Sub => ndsd_ts
             End If
          End If
@@ -821,7 +821,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
          Functional_type=LDA_type
 
          nFuncs=1
-         func_id(1:nFuncs)=[int(50,4)]
+         func_id(1:nFuncs)=[XC_LDA_K_TF]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -831,7 +831,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
          Functional_type=GGA_type
 
          nFuncs=1
-         func_id(1:nFuncs)=[int(52,4)]
+         func_id(1:nFuncs)=[XC_GGA_K_TFVW]
          Only_exc=.True.
 !                                                                      *
 !***********************************************************************

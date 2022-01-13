@@ -153,7 +153,7 @@
       set (DEFMOLCASMEM "256" CACHE STRING "reduce memory to get more speed")
       # -w=obs : disable fixed source form, statement function
       # -w=x77 : disable real*8
-      set (EXTRA_FFLAGS "-ieee=full -w=obs -w=x77 -unsharedrts" CACHE STRING "extra Fortran flags")
+      set (EXTRA_FFLAGS "-w=obs -w=x77 -unsharedrts" CACHE STRING "extra Fortran flags")
     pre_compile_script: |
       rm -rf ${install_path}
     pre_make_script: |
@@ -168,7 +168,7 @@
       # More reasonable paths
       sed -E 's%/[^ ]*OpenMolcas/src%src%' nag.log > nag2.log ; mv nag2.log nag.log
       # Filter only NAG message lines
-      sed -n -E '/^(Info|Warning|Questionable|Extension|Obsolescent|Deleted feature used|Error):.*/p' nag.log > nag2.log ; mv nag2.log nag.log
+      sed -n -E '/^(Info|Warning|Questionable|Note|Extension|Obsolescent|Deleted feature used|Error):.*/p' nag.log > nag2.log ; mv nag2.log nag.log
       cp nag.log ${install_path}
       # Fail if any warning remains
       if [ "$$(wc -l < nag.log)" == "0" ] ; then
@@ -181,8 +181,6 @@
         echo "***************************************"
         false
       fi
-      # Try to ensure Libxc will not be rebuilt
-      cmake .
     CC: "gcc"
     CXX: "g++"
     FC: "nagfor"

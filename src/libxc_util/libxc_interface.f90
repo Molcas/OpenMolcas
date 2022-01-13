@@ -17,14 +17,19 @@ use nq_Grid, only:vRho, vSigma, vTau, vLapl
 use nq_Grid, only: l_casdft
 use KSDFT_Info, only: F_xca, F_xcb
 use libxc
+use Definitions, only: wp, iwp, LibxcReal, LibxcSize
 implicit none
-integer :: mGrid, nD, iGrid
-Real*8 :: F_xc(mGrid)
-Real*8 :: Coeff
+integer(kind=iwp) :: mGrid, nD, iGrid
+Real(kind=wp) :: F_xc(mGrid)
+Real(kind=wp) :: Coeff
 
 TYPE(xc_f03_func_t) :: xc_func      ! xc functional
 TYPE(xc_f03_func_info_t) :: xc_info ! xc functional info
 
+if ((LibxcSize /= iwp) .or. (LibxcReal /= wp)) then
+  write(6,*) 'Libxc type mismatch!'
+  call abend()
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *

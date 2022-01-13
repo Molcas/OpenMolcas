@@ -157,7 +157,7 @@
 #ifdef _ANALYSIS_
       Thr=1.0D-15
       Write (6,*)
-      Write (6,*)  ' Sparcity analysis of D(i,j)'
+      Write (6,*)  ' Sparsity analysis of D(i,j)'
       Write (6,*)  ' Threshold: ',Thr
       Write (6,*)  ' Grid size: ',mGrid
       Write (6,*)  ' Dimension: ',n,' x ',n
@@ -170,7 +170,7 @@
             If (Abs(Dens_AO(i,j,iD))<Thr) m=m+1
          End Do
       End Do
-      Write (6,*) 'Total Sparcity in %', 1.0D2*DBLE(m)/DBLE(n2)
+      Write (6,*) 'Total Sparsity in %', 1.0D2*DBLE(m)/DBLE(n2)
       k=0
       Do i = 1, n
          m = 0
@@ -179,7 +179,7 @@
          End Do
          If (m==n) k=k+1
       End Do
-      Write (6,*) 'Column Sparcity in %', 1.0D2*DBLE(k)/DBLE(n)
+      Write (6,*) 'Column Sparsity in %', 1.0D2*DBLE(k)/DBLE(n)
       k=0
       Do j = 1, n
          m = 0
@@ -188,7 +188,7 @@
          End Do
          If (m==n) k=k+1
       End Do
-      Write (6,*) 'Row Sparcity in %', 1.0D2*DBLE(k)/DBLE(n)
+      Write (6,*) 'Row Sparsity in %', 1.0D2*DBLE(k)/DBLE(n)
       End Do
 #endif
 *                                                                      *
@@ -680,7 +680,7 @@
 *                                                                      *
 #ifdef _ANALYSIS_
       Write (6,*)
-      Write (6,*) 'Rho Sparcity analysis'
+      Write (6,*) 'Rho Sparsity analysis'
       n=0
       Do iGrid = 1, mGrid
          tmp = Zero
@@ -689,7 +689,7 @@
          End Do
          If (tmp<Thr) n=n+1
       End Do
-      Write (6,*) 'Rho Sparcity in %: ',1.0D2*DBLE(n)/DBLE(mGrid)
+      Write (6,*) 'Rho Sparsity in %: ',1.0D2*DBLE(n)/DBLE(mGrid)
 #endif
 *                                                                      *
 ************************************************************************
