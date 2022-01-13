@@ -203,6 +203,10 @@ c           Call Abend()
          Call Funi_Print
          If (jPrint.ge.2) Then
             Write(6,*)
+            Write(6,'(6X,A)')
+     &            'DFT functional and quadrature specifications'
+            Write(6,'(6X,A)')'------------------------------'
+            Call libxc_version()
             If (One_Grid) Then
                Write (6,'(6X,A)') 'The same grid will be used for all'
      &                          //' iterations.'
