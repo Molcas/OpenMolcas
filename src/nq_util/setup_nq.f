@@ -505,8 +505,9 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
 *                                                                      *
 *-----Determine the spatial extension of the molecular system
 *
+!     Box_Size=Four           ! Angstrom
       Box_Size=Two            ! Angstrom
-      !Box_Size=1.0d0/Two            ! Angstrom
+!     Box_Size=1.0d0/Two      ! Angstrom
       Block_size=Box_Size
       x_min=1.0D99
       y_min=1.0D99

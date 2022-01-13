@@ -152,6 +152,47 @@
       End Do                         ! ilist_s
 *                                                                      *
 ************************************************************************
+*                                                                      *
+*#define _ANALYSIS_
+#ifdef _ANALYSIS_
+      Thr=1.0D-15
+      Write (6,*)
+      Write (6,*)  ' Sparcity analysis of D(i,j)'
+      Write (6,*)  ' Threshold: ',Thr
+      Write (6,*)  ' Grid size: ',mGrid
+      Write (6,*)  ' Dimension: ',n,' x ',n
+      n=SIZE(Dens_AO,1)
+      n2 = n**2
+      Do iD = 1, nD
+      m=0
+      Do i = 1, n
+         Do j = 1, n
+            If (Abs(Dens_AO(i,j,iD))<Thr) m=m+1
+         End Do
+      End Do
+      Write (6,*) 'Total Sparcity in %', 1.0D2*DBLE(m)/DBLE(n2)
+      k=0
+      Do i = 1, n
+         m = 0
+         Do j = 1, n
+            If (Abs(Dens_AO(i,j,iD))<Thr) m=m+1
+         End Do
+         If (m==n) k=k+1
+      End Do
+      Write (6,*) 'Column Sparcity in %', 1.0D2*DBLE(k)/DBLE(n)
+      k=0
+      Do j = 1, n
+         m = 0
+         Do i = 1, n
+            If (Abs(Dens_AO(i,j,iD))<Thr) m=m+1
+         End Do
+         If (m==n) k=k+1
+      End Do
+      Write (6,*) 'Row Sparcity in %', 1.0D2*DBLE(k)/DBLE(n)
+      End Do
+#endif
+*                                                                      *
+************************************************************************
 ************************************************************************
 *                                                                      *
 *     During a gradient calculation the size of the fast index of
@@ -633,6 +674,23 @@
 ************************************************************************
 *                                                                      *
       End If
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
+#ifdef _ANALYSIS_
+      Write (6,*)
+      Write (6,*) 'Rho Sparcity analysis'
+      n=0
+      Do iGrid = 1, mGrid
+         tmp = Zero
+         Do iD = 1, nD
+            tmp = tmp + Rho(iD,iGrid)
+         End Do
+         If (tmp<Thr) n=n+1
+      End Do
+      Write (6,*) 'Rho Sparcity in %: ',1.0D2*DBLE(n)/DBLE(mGrid)
+#endif
 *                                                                      *
 ************************************************************************
 ************************************************************************
