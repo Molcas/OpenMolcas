@@ -10,7 +10,7 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-#define _ALTERNATIVE_CODE_
+*#define _ALTERNATIVE_CODE_
 #ifdef _ALTERNATIVE_CODE_
       Subroutine Do_NIntX(AOInt,mGrid,TabAO1,TabAO2,nBfn,nD,mAO,nFn)
 *                                                                      *

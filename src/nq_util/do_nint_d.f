@@ -16,6 +16,7 @@
 *                                                                      *
 ************************************************************************
 ************************************************************************
+!     use nq_Grid, only: Rho
       use nq_Grid, only: GradRho, Weights
       use nq_Grid, only: vRho, vSigma, vTau, vLapl
       Implicit Real*8 (A-H,O-Z)
@@ -26,6 +27,9 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
+!     Thr=1.0D-14
+!     If (nD.eq.1) Thr=Thr/Two
+
       If (Functional_type.eq.LDA_type) Then
 *                                                                      *
 ************************************************************************
@@ -35,7 +39,9 @@
 *
       Do iGrid = 1, mGrid
 
+!        If (Rho(1,iGrid)<Thr) Cycle
          Tmp =  vRho(1,iGrid) * Weights(iGrid)
+
 
          Do iCB = 1, nBfn
             Grid_AO(1,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Tmp
@@ -51,6 +57,7 @@
 *
       Do iGrid = 1, mGrid
 
+!        If (Rho(1,iGrid)+Rho(2,iGrid)<Thr) Cycle
          Tmp1=  vRho(1,iGrid) * Weights(iGrid)
          Tmp2=  vRho(2,iGrid) * Weights(iGrid)
 
@@ -81,6 +88,7 @@
 *                                                                      *
       Do iGrid = 1, mGrid
 
+!        If (Rho(1,iGrid)<Thr) Cycle
          gx=GradRho(1,iGrid)*Weights(iGrid)
          gy=GradRho(2,iGrid)*Weights(iGrid)
          gz=GradRho(3,iGrid)*Weights(iGrid)
@@ -116,6 +124,7 @@
 *                                                                      *
       Do iGrid = 1, mGrid
 
+!        If (Rho(1,iGrid)+Rho(2,iGrid)<Thr) Cycle
          gxa=Gradrho(1,iGrid)*Weights(iGrid)
          gya=Gradrho(2,iGrid)*Weights(iGrid)
          gza=Gradrho(3,iGrid)*Weights(iGrid)
@@ -172,6 +181,7 @@
 
       Do iGrid = 1, mGrid
 
+!        If (Rho(1,iGrid)<Thr) Cycle
          gx=GradRho(1,iGrid)*Weights(iGrid)
          gy=GradRho(2,iGrid)*Weights(iGrid)
          gz=GradRho(3,iGrid)*Weights(iGrid)
@@ -217,6 +227,7 @@
 *                                                                      *
       Do iGrid = 1, mGrid
 
+!        If (Rho(1,iGrid)+Rho(2,iGrid)<Thr) Cycle
          gxa=Gradrho(1,iGrid)*Weights(iGrid)
          gya=Gradrho(2,iGrid)*Weights(iGrid)
          gza=Gradrho(3,iGrid)*Weights(iGrid)
@@ -286,6 +297,7 @@
 *                                                                      *
       Do iGrid = 1, mGrid
 
+!        If (Rho(1,iGrid)<Thr) Cycle
          gx=GradRho(1,iGrid)*Weights(iGrid)
          gy=GradRho(2,iGrid)*Weights(iGrid)
          gz=GradRho(3,iGrid)*Weights(iGrid)
@@ -326,6 +338,7 @@
 *                                                                      *
       Do iGrid = 1, mGrid
 
+!        If (Rho(1,iGrid)+Rho(2,iGrid)<Thr) Cycle
          gxa=Gradrho(1,iGrid)*Weights(iGrid)
          gya=Gradrho(2,iGrid)*Weights(iGrid)
          gza=Gradrho(3,iGrid)*Weights(iGrid)
