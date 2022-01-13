@@ -98,6 +98,7 @@ character(len=*), parameter :: SECNAM = 'CHO_LK_MCLR'
 integer(kind=iwp), external :: Cho_LK_MaxVecPerBatch
 real(kind=wp), external :: Cho_LK_ScreeningThreshold
 real(kind=r8), external :: ddot_
+real(kind=wp) :: mydmpk
 
 !***********************************************************************
 #ifdef _DEBUGPRINT_
@@ -227,23 +228,23 @@ MaxVecPerBatch = Cho_LK_MaxVecPerBatch()
 ! Define the screening threshold
 
 LKThr = Cho_LK_ScreeningThreshold(-One)
-!dmpk = 1.0e-2_wp
-!dmpk = Zero
+mydmpk = dmpk
+!mydmpk = Zero
 
 ! Vector MO transformation screening thresholds
 NumVT = NumChT
 call GAIGOP_SCAL(NumVT,'+')
-thrv(1) = (LKThr/(max(1,nnO)*NumVT))*dmpk**2
-xtau(1) = sqrt((LKThr/max(1,nnO))*dmpk)
+thrv(1) = (LKThr/(max(1,nnO)*NumVT))*mydmpk**2
+xtau(1) = sqrt((LKThr/max(1,nnO))*mydmpk)
 xtau(2) = xtau(1) ! dummy init
 
 if (.not. Fake_CMO2) then
   norm = sqrt(ddot_(size(Kappa%A0),Kappa%A0,1,Kappa%A0,1))
-  xtau(2) = sqrt((LKThr/max(1,nnO))*dmpk)*norm
-  dmpk = min(norm,1.0e-2_wp)
-  thrv(2) = (LKThr/(max(1,nnO)*NumVT))*dmpk**2
+  xtau(2) = sqrt((LKThr/max(1,nnO))*mydmpk)*norm
+  mydmpk = min(norm,mydmpk)
+  thrv(2) = (LKThr/(max(1,nnO)*NumVT))*mydmpk**2
 end if
-tau = (LKThr/max(1,nnO))*dmpk
+tau = (LKThr/max(1,nnO))*mydmpk
 
 MaxRedT = MaxRed
 call GAIGOP_SCAL(MaxRedT,'+')
