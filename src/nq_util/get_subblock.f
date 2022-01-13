@@ -17,11 +17,10 @@
      &                        mGrid,
      &                        nP2_ontop,
      &                        Do_Mo,Do_TwoEl,l_Xhol,
-     &                        TmpPUVX,nTmpPUVX,nMOs,CMOs,nCMO,DoIt,
+     &                        nMOs,CMOs,nCMO,DoIt,
      &                        P2Unzip,D1mo,D1Unzip,nD1mo,P2_ontop,
      &                        Do_Grad,Grad,nGrad,List_G,IndGrd,iTab,
-     &                        Temp,mGrad,F_xc,
-     &                        DFTFOCK,mAO,mdRho_dR,
+     &                        Temp,mGrad,F_xc,mAO,mdRho_dR,
      &                        LTEG_DB,PDFTPot1,PDFTFocI,PDFTFocA)
 ************************************************************************
 *                                                                      *
@@ -61,10 +60,8 @@
      &       Grad(nGrad), Temp(mGrad), CMOs(nCMO), D1mo(nD1mo),
      &       P2_ontop(nP2_ontop,mGrid), Roots(3,3), F_xc(mGrid),
      &       xyz0(3,2),PDFTPot1(npot1),PDFTFocI(nPot1),PDFTFocA(nPot1)
-      Real*8 TmpPUVX(nTmpPUVX)
       Logical InBox(MxAtom), Do_Grad, More_to_come
       Logical Do_Mo,Do_TwoEl,l_Xhol
-      Character*4 DFTFOCK
       Integer LTEG_DB
       Real*8,DIMENSION(NASHT4)::P2Unzip
       Real*8,DIMENSION(NASHT**2)::D1Unzip
@@ -697,7 +694,7 @@ c
      &                 iWork(ipIndex),nIndex,
      &                 FckInt,nFckDim,nFckInt,
      &                 iWork(ipTabAO),mAO,nSym,nD,nP2_ontop,
-     &                 Do_Mo,Do_TwoEl,l_Xhol,TmpPUVX,nTmpPUVX,
+     &                 Do_Mo,Do_TwoEl,l_Xhol,
      &                 Work(ipTabMO),Work(ipTabSO),
      &                 nMOs,CMOs,nCMO,DoIt,
      &                 P2unzip,D1mo,D1Unzip,nd1mo,P2_ontop,
@@ -705,8 +702,7 @@ c
      &                 mdRho_dR,nGrad_Eff,
      &                 list_g,IndGrd,iTab,Temp,F_xc,
      &                 Work(ip_dW_dR),iNQ,
-     &                 DFTFOCK,LTEG_DB,PDFTPot1,PDFTFocI,
-     &                 PDFTFocA)
+     &                 LTEG_DB,PDFTPot1,PDFTFocI,PDFTFocA)
 *
          If (Allocated(dRho_dR)) Call mma_deallocate(dRho_dR)
          If (Allocated(TabAO_Short)) Call mma_deallocate(TabAO_Short)

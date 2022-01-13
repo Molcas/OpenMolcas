@@ -17,14 +17,13 @@
      &                    FckInt,nFckDim,nFckInt,
      &                    ipTabAO,mAO,nSym,nD,
      &                    nP2_ontop,Do_Mo,Do_TwoEl,l_Xhol,
-     &                    TmpPUVX,nTmpPUVX,TabMO,TabSO,
+     &                    TabMO,TabSO,
      &                    nMOs,CMOs,nCMO,DoIt,
      &                    P2unzip,D1mo,D1Unzip,nd1mo,
      &                    P2_ontop,
      &                    Do_Grad,Grad,nGrad,ndRho_dR,nGrad_Eff,
      &                    list_g,IndGrd,iTab,Temp,F_xc,dW_dR,iNQ,
-     &                    DFTFOCK,LTEG_DB,
-     &                    PDFTPot1,PDFTFocI,PDFTFocA)
+     &                    LTEG_DB,PDFTPot1,PDFTFocI,PDFTFocA)
 ************************************************************************
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. November 2000                           *
@@ -64,10 +63,8 @@
      &       F_xc(mGrid),
      &       dW_dR(nGrad_Eff,mGrid),
      &       PDFTPot1(nPot1),PDFTFocI(nPot1),PDFTFocA(nPot1)
-      Real*8 TmpPUVX(nTmpPUVX)
       Logical Do_Grad,Do_Mo,Do_TwoEl,Unpack
       Logical l_Xhol, l_tanhr
-      Character*4 DFTFOCK
       Integer nAOs
       Real*8 P2_ontop_d(nP2_ontop,nGrad_Eff,mGrid)
       Real*8,DIMENSION(:),ALLOCATABLE::P2MOCube,P2MOCubex,P2MOCubey,
@@ -96,13 +93,6 @@
       iPrint = nPrint(iRout)
 #endif
 *                                                                      *
-************************************************************************
-*                                                                      *
-      If (Do_Twoel.and.nTmpPUVX.eq.1) Then
-         TmpPUVX(1)=0.0D0
-         Write (6,*) DFTFOCK
-         Call abend()
-      End If
 ************************************************************************
 *                                                                      *
       nTabAO=Size(TabAO)

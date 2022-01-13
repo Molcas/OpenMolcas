@@ -19,12 +19,11 @@
      &                  mGrid,
      &                  nP2_ontop,
      &                  Do_Mo,Do_TwoEl,l_Xhol,
-     &                  TmpPUVX,nTmpPUVX,
+     &                  nTmpPUVX,
      &                  nMOs,
      &                  CMOs,nCMO,DoIt,P2mo,np2act,D1mo,nd1mo,P2_ontop,
      &                  Do_Grad,Grad,nGrad,list_g,IndGrd,iTab,Temp,
-     &                  mGrad,F_xc,
-     &                  DFTFOCK,mAO,mdRho_dR)
+     &                  mGrad,F_xc,mAO,mdRho_dR)
 ************************************************************************
 *                                                                      *
 * Object: Driver for numerical quadrature.                             *
@@ -62,10 +61,8 @@
      &       CMOs(nCMO),P2mo(np2act),D1mo(nd1mo), Temp(mGrad),
      &       P2_ontop(nP2_ontop,mGrid), Grad(nGrad),
      &       F_xc(mGrid)
-      Real*8 TmpPUVX(nTmpPUVX)
       Logical Check, Do_Grad, Rsv_Tsk
       Logical Do_Mo,Do_TwoEl,l_Xhol,Exist,l_tgga
-      Character*4 DFTFOCK
       REAL*8,DIMENSION(:),Allocatable::P2Unzip,D1Unzip,
      &PDFTPot1,PDFTFocI,PDFTFocA
 *                                                                      *
@@ -226,11 +223,11 @@ C        Debug=.True.
      &                     mGrid,
      &                     nP2_ontop,
      &                     Do_Mo,Do_TwoEl,l_Xhol,
-     &                     TmpPUVX,nTmpPUVX,nMOs,CMOs,nCMO,DoIt,
+     &                     nMOs,CMOs,nCMO,DoIt,
      &                     P2Unzip,D1mo,D1Unzip,nd1mo,P2_ontop,
      &                     Do_Grad,Grad,nGrad,List_G,IndGrd,iTab,Temp,
      &                     mGrad,F_xc,
-     &                     DFTFOCK,mAO,mdRho_dR,
+     &                     mAO,mdRho_dR,
      &                     LTEG_DB,PDFTPot1,PDFTFocI,PDFTFocA)
 *                                                                      *
 ************************************************************************
@@ -264,8 +261,6 @@ C     End Do ! number_of_subblocks
          Tau_I  = DBLE(nIrrep)*Tau_I
 *
          Call DScal_(nFckInt*nFckDim,DBLE(nIrrep),FckInt,1)
-         If (Do_TwoEl)
-     &   Call DScal_(nTmpPUVX,DBLE(nIrrep),TmpPUVX,1)
 *
       End If
 

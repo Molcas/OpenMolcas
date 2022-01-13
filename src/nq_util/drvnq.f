@@ -147,7 +147,6 @@
       ipCmo=ip_Dummy
       ipD1mo=ip_Dummy
       ipDoIt=ip_iDummy
-      ipTmpPUVX=ip_Dummy
 *
       NQNAC=0
       If (DFTFOCK.ne.'SCF ') Then
@@ -484,8 +483,6 @@
          End Do
          nTmpPUVX=iStack
 *
-         Call GetMem('TmpPUVX','Allo','Real',ipTmpPUVX,nTmpPUVX)
-         Call dCopy_(nTmpPUVX,[0.0d0],0,Work(ipTmpPUVX),1)
       End If
 *
       If (Functional_Type.eq.CASDFT_Type) Then
@@ -546,14 +543,14 @@
      &            nGridMax,
      &            nP2_ontop,
      &            Do_Mo,Do_TwoEl,l_Xhol,
-     &            Work(ipTmpPUVX),nTmpPUVX,
+     &            nTmpPUVX,
      &            nMOs,Work(ipCMO),nCMO,
      &            iWork(ipDoIt),
      &            Work(ipP2mo),nP2,Work(ipD1mo),nd1mo,Work(ipp2_ontop),
      &            Do_Grad,Grad,nGrad,iWork(iplist_g),
      &            iWork(ipIndGrd),iWork(ipiTab),Work(ipTemp),mGrad,
      &            Exc,
-     &            DFTFOCK,mAO,mdRho_dR)
+     &            mAO,mdRho_dR)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -576,10 +573,6 @@
       If(ipCMO.ne.ip_Dummy)  Call Free_Work(ipCMO)
       If(ipDoIt.ne.ip_iDummy) Call GetMem('DoIt','Free','Inte',
      &                                    ipDoIt,nMOs)
-      If(ipTmpPUVX.ne.ip_Dummy) Then
-         Call Put_dArray('DFT_TwoEl',Work(ipTmpPUVX),nTmpPUVX)
-         Call GetMem('TmpPUVX','Free','Real',ipTmpPUVX,nTmpPUVX)
-      End If
       If (l_casdft) Then
          Call mma_deallocate(F_xcb)
          Call mma_deallocate(F_xca)
