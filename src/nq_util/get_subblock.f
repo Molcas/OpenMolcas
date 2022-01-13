@@ -13,8 +13,7 @@
       Subroutine Get_Subblock(Kernel,Func,ixyz,
      &                        Maps2p,list_s,list_exp,list_bas,
      &                        nShell,nSym, list_p,R2_trial,nNQ,
-     &                        FckInt,nFckDim,nFckInt,
-     &                        Dens,nDens,nD,
+     &                        FckInt,nFckDim,nFckInt,nD,
      &                        mGrid,
      &                        nP2_ontop,
      &                        Do_Mo,Do_TwoEl,l_Xhol,
@@ -59,8 +58,7 @@
      &        list_exp(nSym*nShell), list_bas(2,nSym*nShell),
      &        list_p(nNQ), DoIt(nMOs), iTab(4,mGrad),IndGrd(mGrad)
       Real*8 R2_trial(nNQ), FckInt(nFckInt,nFckDim),
-     &       Dens(nDens,nD), Grad(nGrad), Temp(mGrad),
-     &       CMOs(nCMO), D1mo(nD1mo),
+     &       Grad(nGrad), Temp(mGrad), CMOs(nCMO), D1mo(nD1mo),
      &       P2_ontop(nP2_ontop,mGrid), Roots(3,3), F_xc(mGrid),
      &       xyz0(3,2),PDFTPot1(npot1),PDFTFocI(nPot1),PDFTFocA(nPot1)
       Real*8 TmpPUVX(nTmpPUVX)
@@ -698,9 +696,8 @@ c
      &                 list_s,nlist_s,List_Exp,List_Bas,
      &                 iWork(ipIndex),nIndex,
      &                 FckInt,nFckDim,nFckInt,
-     &                 iWork(ipTabAO),mAO,nSym,Dens,nDens,nD,
-     &                 nP2_ontop,
-     &                 nShell,Do_Mo,Do_TwoEl,l_Xhol,TmpPUVX,nTmpPUVX,
+     &                 iWork(ipTabAO),mAO,nSym,nD,nP2_ontop,
+     &                 Do_Mo,Do_TwoEl,l_Xhol,TmpPUVX,nTmpPUVX,
      &                 Work(ipTabMO),Work(ipTabSO),
      &                 nMOs,CMOs,nCMO,DoIt,
      &                 P2unzip,D1mo,D1Unzip,nd1mo,P2_ontop,
@@ -708,7 +705,6 @@ c
      &                 mdRho_dR,nGrad_Eff,
      &                 list_g,IndGrd,iTab,Temp,F_xc,
      &                 Work(ip_dW_dR),iNQ,
-     &                 Maps2p,
      &                 DFTFOCK,LTEG_DB,PDFTPot1,PDFTFocI,
      &                 PDFTFocA)
 *

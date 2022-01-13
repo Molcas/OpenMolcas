@@ -15,16 +15,14 @@
      &                    list_s,nlist_s,List_Exp,List_Bas,
      &                    Index,nIndex,
      &                    FckInt,nFckDim,nFckInt,
-     &                    ipTabAO,mAO,nSym,
-     &                    Dens,nDens,nD,
-     &                    nP2_ontop,nShell,
-     &                    Do_Mo,Do_TwoEl,l_Xhol,
+     &                    ipTabAO,mAO,nSym,nD,
+     &                    nP2_ontop,Do_Mo,Do_TwoEl,l_Xhol,
      &                    TmpPUVX,nTmpPUVX,TabMO,TabSO,
      &                    nMOs,CMOs,nCMO,DoIt,
      &                    P2unzip,D1mo,D1Unzip,nd1mo,
      &                    P2_ontop,
      &                    Do_Grad,Grad,nGrad,ndRho_dR,nGrad_Eff,
-     &                    list_g,IndGrd,iTab,Temp,F_xc,dW_dR,iNQ,Maps2p,
+     &                    list_g,IndGrd,iTab,Temp,F_xc,dW_dR,iNQ,
      &                    DFTFOCK,LTEG_DB,
      &                    PDFTPot1,PDFTFocI,PDFTFocA)
 ************************************************************************
@@ -58,9 +56,8 @@
       Integer list_s(2,nlist_s),List_Exp(nlist_s),DoIt(nMOs),
      &        ipTabAO(nlist_s+1,2), IndGrd(nGrad_Eff),
      &        list_g(3,nlist_s), iTab(4,nGrad_Eff), Index(nIndex),
-     &        Maps2p(nShell,0:nSym-1), List_Bas(2,nlist_s)
-      Real*8 A(3), RA(3), Grad(nGrad),
-     &       FckInt(nFckInt,nFckDim), Dens(nDens,nD),
+     &        List_Bas(2,nlist_s)
+      Real*8 A(3), RA(3), Grad(nGrad), FckInt(nFckInt,nFckDim),
      &       TabMO(mAO,mGrid,nMOs),TabSO(mAO,mGrid,nMOs),
      &       CMOs(nCMO),D1mo(nd1mo),
      &       P2_ontop(nP2_ontop,mGrid) , Temp(nGrad),
@@ -601,7 +598,4 @@
       Debug=Debug_Save
 #endif
       Return
-* Avoid unused argument warnings
-      If (.False.) Call Unused_integer_array(Maps2p)
-      If (.False.) Call Unused_real_array(Dens)
       End
