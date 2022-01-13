@@ -474,6 +474,6 @@
       subroutine cleanup()
         ! Add your deallocations here.
         ! This routine will be called when exiting rasscf.
-        continue
+        !continue
       end subroutine
       end module fciqmc_read_RDM

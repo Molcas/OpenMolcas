@@ -300,7 +300,6 @@ C              Call DScal_(nInter,One/RR_,drdq(1,iLambda,iIter),1)
                   End If
                End Do
 *
-               Continue
 #ifdef _DEBUGPRINT_
                Call RecPrt('Con_Opt; drdq(2)',' ',drdq,nInter,
      &                                            nLambda*nIter)

@@ -1183,7 +1183,6 @@ CIgorS End
 
 * CORE is probably becoming obsolete.
 *---  Process CORE command --------------------------------------------*
-      Continue
       If (KeyCORE) Then
        If (DBG) Write(6,*)' CORE command was used.'
         IF (IPRLEV.ge.VERBOSE) Write(LF,*)
@@ -2223,7 +2222,6 @@ C orbitals accordingly
       END IF
 *
 *---  Process CLEA command ---
-      Continue
       If (KeyCLEA) Then
        If (DBG) Write(6,*) ' CLEAN (Orbital Cleaning) keyword.'
        If (DBG) Write(6,*) ' (Awkward input -- replace??).'
