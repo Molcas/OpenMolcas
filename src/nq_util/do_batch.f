@@ -16,7 +16,7 @@
      &                    Index,nIndex,
      &                    FckInt,nFckDim,nFckInt,
      &                    ipTabAO,mAO,nSym,nD,
-     &                    nP2_ontop,Do_Mo,Do_TwoEl,l_Xhol,
+     &                    nP2_ontop,Do_Mo,l_Xhol,
      &                    TabMO,TabSO,
      &                    nMOs,CMOs,nCMO,DoIt,
      &                    P2unzip,D1mo,D1Unzip,nd1mo,
@@ -63,7 +63,7 @@
      &       F_xc(mGrid),
      &       dW_dR(nGrad_Eff,mGrid),
      &       PDFTPot1(nPot1),PDFTFocI(nPot1),PDFTFocA(nPot1)
-      Logical Do_Grad,Do_Mo,Do_TwoEl,Unpack
+      Logical Do_Grad,Do_Mo,Unpack
       Logical l_Xhol, l_tanhr
       Integer nAOs
       Real*8 P2_ontop_d(nP2_ontop,nGrad_Eff,mGrid)
@@ -587,6 +587,5 @@
 #ifdef _DEBUGPRINT_
       Debug=Debug_Save
 #endif
-      Call unused_logical(Do_Twoel)
       Return
       End

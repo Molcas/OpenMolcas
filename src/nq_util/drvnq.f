@@ -67,11 +67,11 @@
 ************************************************************************
 *                                                                      *
       If (Functional_Type.eq.CASDFT_Type) Then
-      Do_TwoEl        =.True.
+         Do_TwoEl        =.True.
       End If
 *
       If (Do_TwoEl) Then
-      Do_MO           =.True.
+         Do_MO           =.True.
       End If
 *                                                                      *
 ************************************************************************
@@ -542,7 +542,7 @@
      &            Density,nFckInt,nD,
      &            nGridMax,
      &            nP2_ontop,
-     &            Do_Mo,Do_TwoEl,l_Xhol,
+     &            Do_Mo,l_Xhol,
      &            nTmpPUVX,
      &            nMOs,Work(ipCMO),nCMO,
      &            iWork(ipDoIt),
