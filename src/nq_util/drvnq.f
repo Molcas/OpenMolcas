@@ -25,13 +25,13 @@
 ************************************************************************
       use iSD_data
       use Symmetry_Info, only: nIrrep
-      use KSDFT_Info, only: KSDFA, F_xca, F_xcb
+      use KSDFT_Info, only: KSDFA
       use nq_Grid, only: Rho, GradRho, Sigma, Tau, Lapl
       use nq_Grid, only: vRho, vSigma, vTau, vLapl
       use nq_Grid, only: Grid, Weights
       use nq_Grid, only: nRho, nGradRho, nTau, nSigma, nLapl, nGridMax
       use nq_Grid, only: l_CASDFT, kAO
-      use nq_Grid, only: Exc
+      use nq_Grid, only: Exc, F_xca, F_xcb
       use nq_pdft, only: lft, lGGA
       use libxc
       Implicit Real*8 (A-H,O-Z)

@@ -11,6 +11,5 @@
 Module KSDFT_Info
 Character(LEN=16) KSDFA
 Real*8 :: funcaa=0.0D0, funcbb=0.0D0 ,funccc=0.0D0
-Real*8, Allocatable:: F_xca(:), F_xcb(:)
 Integer :: LuMC,LuMT
 End Module KSDFT_Info

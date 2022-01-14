@@ -37,6 +37,7 @@
       use nq_Grid, only: Grid, Weights, Rho, GradRho, Sigma, nRho
       use nq_Grid, only: vRho, vSigma, vTau, vLapl
       use nq_Grid, only: l_CASDFT, TabAO, TabAO_Pack, dRho_dR
+      use nq_Grid, only: F_xca, F_xcb
       use nq_pdft
       Implicit Real*8 (A-H,O-Z)
       External Kernel
