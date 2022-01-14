@@ -23,7 +23,7 @@
      &                  nMOs,
      &                  CMOs,nCMO,DoIt,P2mo,np2act,D1mo,nd1mo,P2_ontop,
      &                  Do_Grad,Grad,nGrad,list_g,IndGrd,iTab,Temp,
-     &                  mGrad,F_xc,mAO,mdRho_dR)
+     &                  mGrad,mAO,mdRho_dR)
 ************************************************************************
 *                                                                      *
 * Object: Driver for numerical quadrature.                             *
@@ -59,8 +59,7 @@
       Real*8 FckInt(nFckInt,nFckDim),
      &       Density(nFckInt,nD), R2_trial(nNQ),
      &       CMOs(nCMO),P2mo(np2act),D1mo(nd1mo), Temp(mGrad),
-     &       P2_ontop(nP2_ontop,mGrid), Grad(nGrad),
-     &       F_xc(mGrid)
+     &       P2_ontop(nP2_ontop,mGrid), Grad(nGrad)
       Logical Check, Do_Grad, Rsv_Tsk
       Logical Do_Mo,Exist,l_tgga
       REAL*8,DIMENSION(:),Allocatable::P2Unzip,D1Unzip,
@@ -224,8 +223,7 @@ C        Debug=.True.
      &                     nMOs,CMOs,nCMO,DoIt,
      &                     P2Unzip,D1mo,D1Unzip,nd1mo,P2_ontop,
      &                     Do_Grad,Grad,nGrad,List_G,IndGrd,iTab,Temp,
-     &                     mGrad,F_xc,
-     &                     mAO,mdRho_dR,
+     &                     mGrad,mAO,mdRho_dR,
      &                     LTEG_DB,PDFTPot1,PDFTFocI,PDFTFocA)
 *                                                                      *
 ************************************************************************

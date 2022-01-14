@@ -22,7 +22,7 @@
      &                    P2unzip,D1mo,D1Unzip,nd1mo,
      &                    P2_ontop,
      &                    Do_Grad,Grad,nGrad,ndRho_dR,nGrad_Eff,
-     &                    list_g,IndGrd,iTab,Temp,F_xc,dW_dR,iNQ,
+     &                    list_g,IndGrd,iTab,Temp,dW_dR,iNQ,
      &                    LTEG_DB,PDFTPot1,PDFTFocI,PDFTFocA)
 ************************************************************************
 *      Author:Roland Lindh, Department of Chemical Physics, University *
@@ -37,7 +37,7 @@
       use nq_Grid, only: Grid, Weights, Rho, GradRho, Sigma, nRho
       use nq_Grid, only: vRho, vSigma, vTau, vLapl
       use nq_Grid, only: l_CASDFT, TabAO, TabAO_Pack, dRho_dR
-      use nq_Grid, only: F_xca, F_xcb
+      use nq_Grid, only: F_xc, F_xca, F_xcb
       use nq_pdft
       Implicit Real*8 (A-H,O-Z)
       External Kernel
@@ -61,7 +61,6 @@
      &       TabMO(mAO,mGrid,nMOs),TabSO(mAO,mGrid,nMOs),
      &       CMOs(nCMO),D1mo(nd1mo),
      &       P2_ontop(nP2_ontop,mGrid) , Temp(nGrad),
-     &       F_xc(mGrid),
      &       dW_dR(nGrad_Eff,mGrid),
      &       PDFTPot1(nPot1),PDFTFocI(nPot1),PDFTFocA(nPot1)
       Logical Do_Grad,Do_Mo,Unpack
@@ -557,7 +556,7 @@
       Else
 *
          Call DFT_Grad(Grad,nGrad,nD,Grid,mGrid,dRho_dR,ndRho_dR,
-     &                nGrad_Eff,IndGrd,Weights,iTab,Temp,F_xc,dW_dR,iNQ)
+     &                nGrad_Eff,IndGrd,Weights,iTab,Temp,dW_dR,iNQ)
 *
       End If
 *                                                                      *

@@ -530,7 +530,7 @@
      &            Work(ipP2mo),nP2,Work(ipD1mo),nd1mo,Work(ipp2_ontop),
      &            Do_Grad,Grad,nGrad,iWork(iplist_g),
      &            iWork(ipIndGrd),iWork(ipiTab),Work(ipTemp),mGrad,
-     &            F_xc,mAO,mdRho_dR)
+     &            mAO,mdRho_dR)
 *                                                                      *
 ************************************************************************
 *                                                                      *

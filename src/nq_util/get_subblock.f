@@ -18,7 +18,7 @@
      &                        nMOs,CMOs,nCMO,DoIt,
      &                        P2Unzip,D1mo,D1Unzip,nD1mo,P2_ontop,
      &                        Do_Grad,Grad,nGrad,List_G,IndGrd,iTab,
-     &                        Temp,mGrad,F_xc,mAO,mdRho_dR,
+     &                        Temp,mGrad,mAO,mdRho_dR,
      &                        LTEG_DB,PDFTPot1,PDFTFocI,PDFTFocA)
 ************************************************************************
 *                                                                      *
@@ -56,7 +56,7 @@
      &        list_p(nNQ), DoIt(nMOs), iTab(4,mGrad),IndGrd(mGrad)
       Real*8 R2_trial(nNQ), FckInt(nFckInt,nFckDim),
      &       Grad(nGrad), Temp(mGrad), CMOs(nCMO), D1mo(nD1mo),
-     &       P2_ontop(nP2_ontop,mGrid), Roots(3,3), F_xc(mGrid),
+     &       P2_ontop(nP2_ontop,mGrid), Roots(3,3),
      &       xyz0(3,2),PDFTPot1(npot1),PDFTFocI(nPot1),PDFTFocA(nPot1)
       Logical InBox(MxAtom), Do_Grad, More_to_come
       Logical Do_Mo
@@ -698,7 +698,7 @@ c
      &                 P2unzip,D1mo,D1Unzip,nd1mo,P2_ontop,
      &                 Do_Grad,Grad,nGrad,
      &                 mdRho_dR,nGrad_Eff,
-     &                 list_g,IndGrd,iTab,Temp,F_xc,
+     &                 list_g,IndGrd,iTab,Temp,
      &                 Work(ip_dW_dR),iNQ,
      &                 LTEG_DB,PDFTPot1,PDFTFocI,PDFTFocA)
 *

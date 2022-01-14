@@ -12,8 +12,7 @@
 ************************************************************************
       Subroutine DFT_Grad(Grad,nGrad,iSpin,
      &                    Grid,mGrid,dRho_dR,ndRho_dR,nGrad_Eff,
-     &                    IndGrd,Weights,iTab,Temp,F_xc,
-     &                    dW_dR,iNQ)
+     &                    IndGrd,Weights,iTab,Temp,dW_dR,iNQ)
 ************************************************************************
 *                                                                      *
 *     Object: to trace the correct parts to get the contributions to   *
@@ -22,7 +21,7 @@
 *     Author: Roland Lindh, Dept. of Chemical Physics, University of   *
 *             Lund, Sweden.  May 2002 in Bologna, Italy.               *
 ************************************************************************
-      use nq_Grid, only: GradRho, vRho, vSigma, vTau, vLapl
+      use nq_Grid, only: F_xc, GradRho, vRho, vSigma, vTau, vLapl
       use KSDFT_Info, only: KSDFA
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -36,12 +35,8 @@
 #include "disp.fh"
       Real*8 Grad(nGrad), Temp(nGrad_Eff), Grid(3,mGrid),
      &       dRho_dR(ndRho_dR,mGrid,nGrad_Eff), OV(3,3), V(3,3),
-     &       R_Grid(3),
-     &       Weights(mGrid), F_xc(mGrid), dW_dR(nGrad_Eff,mGrid)
+     &       R_Grid(3), Weights(mGrid), dW_dR(nGrad_Eff,mGrid)
       Integer IndGrd(nGrad_Eff), iTab(4,nGrad_Eff)
-*                                                                      *
-************************************************************************
-*                                                                      *
 *                                                                      *
 ************************************************************************
 *                                                                      *
