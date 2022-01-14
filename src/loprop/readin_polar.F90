@@ -10,7 +10,7 @@
 !***********************************************************************
 
 subroutine ReadIn_Polar(NoField,Delta,MpProp_Level,Bond_Threshold,iPlot,iPrint,Standard,Opt_Method,UserDen,PrintDen,SubtractDen, &
-                        SubScale,Restart,TDensity,nStateI,nStateF,XHole,Diffuse,dLimmo,Thrs1,Thrs2,nThrs,ThrsMul,Alpha,LIonize)
+                        SubScale,Restart,TDensity,nStateI,nStateF,Diffuse,dLimmo,Thrs1,Thrs2,nThrs,ThrsMul,Alpha,LIonize)
 
 use Constants, only: One, Two, OneHalf
 use Definitions, only: wp, iwp, u6
@@ -19,7 +19,7 @@ implicit none
 logical(kind=iwp), intent(inout) :: NoField
 real(kind=wp), intent(out) :: Delta, Bond_Threshold, SubScale, dLimmo(2), Thrs1, Thrs2, ThrsMul, Alpha
 integer(kind=iwp), intent(out) :: MpProp_Level, iPlot, iPrint, nStateI, nStateF, nThrs
-logical(kind=iwp), intent(out) :: Standard, UserDen, PrintDen, SubtractDen, Restart, TDensity, XHole, Diffuse(3), LIonize
+logical(kind=iwp), intent(out) :: Standard, UserDen, PrintDen, SubtractDen, Restart, TDensity, Diffuse(3), LIonize
 character(len=12), intent(out) :: Opt_Method
 !---- Define local variables
 integer(kind=iwp) :: LuSpool, iRestart, lMax
@@ -55,7 +55,6 @@ nStateI = 1
 nStateF = 2
 Opt_Method = ' '
 TDensity = .false.
-XHole = .false.
 Diffuse(:) = .false.
 dLimmo(:) = [0.65_wp,Two]
 Thrs1 = 1.0e-5_wp
@@ -183,13 +182,6 @@ do
       call Get_I1(1,nStateI)
       call Get_I1(2,nStateF)
 
-    case ('XHOL')
-      !>>>>>>>>>>>>>>> XHOLe <<<<<<<<<<<<<<<<<<<<<<<<<<<<
-      ! Compute and distribute exchange-hole dipole moments for
-      ! dispersion coefficients.
-      XHole = .true.
-      NoField = .true.
-
     case ('DIFF')
       !>>>>>>>>>>>>>>>> DIFFuse <<<<<<<<<<<<<<<<<<<<<<<<<<
       ! Section for turning the LoProp moments into diffuse
@@ -290,10 +282,6 @@ if (UserDen) then
 end if
 if (TDensity) then
   write(u6,*) ' Use transition density matrix from Rassi.'
-  write(u6,*)
-end if
-if (XHole) then
-  write(u6,*) ' Exchange hole second moment computation and localization.'
   write(u6,*)
 end if
 if (Diffuse(1)) then

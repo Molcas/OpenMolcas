@@ -49,7 +49,6 @@
 #include "ksdft.fh"
       Real*8 FckInt(nFckInt,nFckDim),Density(nFckInt,nD), Grad(nGrad)
       Logical Do_Grad, Do_MO,Do_TwoEl,PMode
-      Logical l_XHol
       Character*4 DFTFOCK
       Integer nBas(8), nDel(8)
 *                                                                      *
@@ -73,21 +72,6 @@
       If (Do_TwoEl) Then
          Do_MO           =.True.
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
-*-- Additions for Xhole. DFTFOCK is here reset to SCF, but we
-*   define a new logical variable. This is no DFT-integrations,
-*   just dummy-stuff for getting the numerical LoProp-
-*   integrations. (A.Ohrn)
-*
-      If (DFTFOCK(1:4).eq.'XHOL') then
-      Write(DFTFOCK,'(A)')'SCF '
-      l_Xhol=.true.
-      Else
-      l_Xhol=.false.
-      Endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -540,17 +524,13 @@
      &            nShell,iWork(iplist_p),Work(ipR2_trail),nNQ,
      &            FckInt,nFckDim,
      &            Density,nFckInt,nD,
-     &            nGridMax,
-     &            nP2_ontop,
-     &            Do_Mo,l_Xhol,
-     &            nTmpPUVX,
+     &            nGridMax,nP2_ontop,Do_Mo,nTmpPUVX,
      &            nMOs,Work(ipCMO),nCMO,
      &            iWork(ipDoIt),
      &            Work(ipP2mo),nP2,Work(ipD1mo),nd1mo,Work(ipp2_ontop),
      &            Do_Grad,Grad,nGrad,iWork(iplist_g),
      &            iWork(ipIndGrd),iWork(ipiTab),Work(ipTemp),mGrad,
-     &            Exc,
-     &            mAO,mdRho_dR)
+     &            Exc,mAO,mdRho_dR)
 *                                                                      *
 ************************************************************************
 *                                                                      *

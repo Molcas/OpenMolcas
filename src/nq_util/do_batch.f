@@ -16,7 +16,7 @@
      &                    Index,nIndex,
      &                    FckInt,nFckDim,nFckInt,
      &                    ipTabAO,mAO,nSym,nD,
-     &                    nP2_ontop,Do_Mo,l_Xhol,
+     &                    nP2_ontop,Do_Mo,
      &                    TabMO,TabSO,
      &                    nMOs,CMOs,nCMO,DoIt,
      &                    P2unzip,D1mo,D1Unzip,nd1mo,
@@ -64,7 +64,7 @@
      &       dW_dR(nGrad_Eff,mGrid),
      &       PDFTPot1(nPot1),PDFTFocI(nPot1),PDFTFocA(nPot1)
       Logical Do_Grad,Do_Mo,Unpack
-      Logical l_Xhol, l_tanhr
+      Logical l_tanhr
       Integer nAOs
       Real*8 P2_ontop_d(nP2_ontop,nGrad_Eff,mGrid)
       Real*8,DIMENSION(:),ALLOCATABLE::P2MOCube,P2MOCubex,P2MOCubey,
@@ -479,19 +479,6 @@
       End If
 *                                                                      *
 ************************************************************************
-*                                                                      *
-*-- (A.Ohrn): Here I add the routine which constructs the kernel for
-*   the Xhole application. A bit 'cheating' but hey what da hey!
-*
-      If(l_Xhol) then
-#ifdef _NOT_USED_TESTED_OR_MAINTAINED_
-        Call Xhole(nRho,mGrid,Rho,Grid,mAO,nMOs,TabMO,ndF_dRho,nD,
-     &             dF_dRho,Weights,ip_OrbDip,Func)
-#endif
-        Go To 1979
-      Endif
-*                                                                      *
-************************************************************************
 ************************************************************************
 *                                                                      *
 *---- Evaluate the functional on the grid                              *
@@ -529,8 +516,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-1979  Continue  !Jump here and skip the call to the kernel.
-
       If (.Not.Do_Grad) Then
 
          If (l_casdft) Then

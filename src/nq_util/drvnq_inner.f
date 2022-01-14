@@ -18,7 +18,7 @@
      &                  Density,nFckInt,nD,
      &                  mGrid,
      &                  nP2_ontop,
-     &                  Do_Mo,l_Xhol,
+     &                  Do_Mo,
      &                  nTmpPUVX,
      &                  nMOs,
      &                  CMOs,nCMO,DoIt,P2mo,np2act,D1mo,nd1mo,P2_ontop,
@@ -62,7 +62,7 @@
      &       P2_ontop(nP2_ontop,mGrid), Grad(nGrad),
      &       F_xc(mGrid)
       Logical Check, Do_Grad, Rsv_Tsk
-      Logical Do_Mo,l_Xhol,Exist,l_tgga
+      Logical Do_Mo,Exist,l_tgga
       REAL*8,DIMENSION(:),Allocatable::P2Unzip,D1Unzip,
      &PDFTPot1,PDFTFocI,PDFTFocA
 *                                                                      *
@@ -220,9 +220,7 @@ C        Debug=.True.
      &                     Maps2p,list_s,list_exp,list_bas,nShell,nSym,
      &                     list_p,R2_trial,nNQ,
      &                     FckInt,nFckDim,nFckInt,nD,
-     &                     mGrid,
-     &                     nP2_ontop,
-     &                     Do_Mo,l_Xhol,
+     &                     mGrid,nP2_ontop,Do_Mo,
      &                     nMOs,CMOs,nCMO,DoIt,
      &                     P2Unzip,D1mo,D1Unzip,nd1mo,P2_ontop,
      &                     Do_Grad,Grad,nGrad,List_G,IndGrd,iTab,Temp,

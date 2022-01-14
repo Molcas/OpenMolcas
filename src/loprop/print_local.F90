@@ -10,7 +10,7 @@
 !***********************************************************************
 
 subroutine Print_Local(rMP,nij,nElem,Coor,nAtoms,C_o_C,Q_Nuc,lMax,Lbl_Center,rMPq,EC,Polar,NoField,Temp,xrMP,xxRMP,xnrMP,iANr, &
-                       nOcOb,Energy_Without_FFPT,Ene_Occ,MpProp_Level,Bond_Threshold,XHole,XHoleLoc,D2,ChPolBB,LIonize)
+                       nOcOb,Energy_Without_FFPT,Ene_Occ,MpProp_Level,Bond_Threshold,D2,ChPolBB,LIonize)
 
 use Real_Spherical, only: Sphere, Sphere_Free
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -22,9 +22,9 @@ implicit none
 integer(kind=iwp), intent(in) :: nij, nElem, nAtoms, lMax, iANr(nAtoms), nOcOb, MpProp_Level
 real(kind=wp), intent(inout) :: rMP(nij,nElem), Temp(nij)
 real(kind=wp), intent(in) :: Coor(3,nAtoms), C_o_C(3), Q_Nuc(nAtoms), rMPq(nElem), EC(3,nij), Polar(6,nij), Energy_Without_FFPT, &
-                             Ene_Occ(nOcOb), Bond_Threshold, XHoleLoc(nij), D2, ChPolBB(6,nij)
+                             Ene_Occ(nOcOb), Bond_Threshold, D2, ChPolBB(6,nij)
 character(len=LenIn), intent(in) :: Lbl_Center(nAtoms)
-logical(kind=iwp), intent(in) :: NoField, XHole, LIonize
+logical(kind=iwp), intent(in) :: NoField, LIonize
 real(kind=wp), intent(out) :: xrMP(nij,nElem), xxrMP(nij,nElem), xnrMP(nij,nElem)
 integer(kind=iwp) :: iAtom, i_Dim, iElem, iEnd, ij, iPol, iPrint, iStrt, ix, iy, iz, jAtom, l, nReal_Centers
 real(kind=wp) :: A(3), Charge_center, CRN, CRX, CRY, CRZ, CX(3), Dip_Tot, DR, LA, LI, LI_MIN, LI_TOT, Pol_Tot, Polar_M(6), &
@@ -204,11 +204,6 @@ do iAtom=1,nAtoms
         write(u6,'(A,F12.8)') 'Isotropic Polarizability:',Pol_Tot
         write(u6,*)
       end if
-      if (XHole) then
-        x2Dip = XHoleLoc(ij)
-        write(u6,'(A,F12.8)') 'Exchange hole second-moment:',x2Dip
-        write(u6,*)
-      end if
     end if ! Center_OK
 
     !debug
@@ -325,11 +320,6 @@ if (.not. NoField) then
   !call mma_deallocate(EVal)
   !call mma_deallocate(EVec)
   !debug
-end if
-if (XHole) then
-  write(u6,*)
-  write(u6,'(A,F12.8)') 'Molecular exchange hole second moment:',D2
-  write(u6,*)
 end if
 
 !------ Generate mpprop file

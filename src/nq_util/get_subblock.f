@@ -14,9 +14,7 @@
      &                        Maps2p,list_s,list_exp,list_bas,
      &                        nShell,nSym, list_p,R2_trial,nNQ,
      &                        FckInt,nFckDim,nFckInt,nD,
-     &                        mGrid,
-     &                        nP2_ontop,
-     &                        Do_Mo,l_Xhol,
+     &                        mGrid,nP2_ontop,Do_Mo,
      &                        nMOs,CMOs,nCMO,DoIt,
      &                        P2Unzip,D1mo,D1Unzip,nD1mo,P2_ontop,
      &                        Do_Grad,Grad,nGrad,List_G,IndGrd,iTab,
@@ -61,7 +59,7 @@
      &       P2_ontop(nP2_ontop,mGrid), Roots(3,3), F_xc(mGrid),
      &       xyz0(3,2),PDFTPot1(npot1),PDFTFocI(nPot1),PDFTFocA(nPot1)
       Logical InBox(MxAtom), Do_Grad, More_to_come
-      Logical Do_Mo,l_Xhol
+      Logical Do_Mo
       Integer LTEG_DB
       Real*8,DIMENSION(NASHT4)::P2Unzip
       Real*8,DIMENSION(NASHT**2)::D1Unzip
@@ -694,7 +692,7 @@ c
      &                 iWork(ipIndex),nIndex,
      &                 FckInt,nFckDim,nFckInt,
      &                 iWork(ipTabAO),mAO,nSym,nD,nP2_ontop,
-     &                 Do_Mo,l_Xhol,
+     &                 Do_Mo,
      &                 Work(ipTabMO),Work(ipTabSO),
      &                 nMOs,CMOs,nCMO,DoIt,
      &                 P2unzip,D1mo,D1Unzip,nd1mo,P2_ontop,
