@@ -31,7 +31,7 @@ integer(kind=iwp), intent(out) :: ireturn
 #include "timtra.fh"
 integer(kind=iwp) :: i, i_f, iPert, iPlot, iPrint, lMax, LoProp_Mode, LuYou, mElem, MpProp_Level, nAtoms, nBas(8), nBas1, nBas2, &
                      nBasMax, nDim, nij, nOcOb, nOrb(8), nPert, nSize, nStateF, nStateI, nSym, nTemp, nThrs
-real(kind=wp) :: Alpha, Bond_Threshold, CoC(3), Delta, Dlt, dLimmo(2), dMolExpec, Energy_Without_FFPT, Ep, SubScale, Thrs1, Thrs2, &
+real(kind=wp) :: Alpha, Bond_Threshold, CoC(3), Delta, Dlt, dLimmo(2), Energy_Without_FFPT, Ep, SubScale, Thrs1, Thrs2, &
                  ThrsMul
 logical(kind=iwp) :: NoField, Standard, Utility, UserDen, PrintDen, SubtractDen, Restart, TDensity, Diffuse(3), Exists, &
                      LIonize
@@ -220,7 +220,7 @@ call mma_allocate(xMP,nDim,label='xMP')
 call mma_allocate(xxMP,nDim,label='xxMP')
 call mma_allocate(nxMP,nDim,label='nxMP')
 call Print_Local(MP,nij,mElem,LP_context%C,nAtoms,CoC,LP_context%Q_Nuc,lMax,LblCnt,MPq,EC,Pol,NoField,tmp,xMP,xxMP,nxMP, &
-                 LP_context%ANr,nOcOb,Energy_Without_FFPT,Ene_Occ,MpProp_Level,Bond_Threshold,dMolExpec,CplT,LIonize)
+                 LP_context%ANr,nOcOb,Energy_Without_FFPT,Ene_Occ,MpProp_Level,Bond_Threshold,CplT,LIonize)
 
 call mma_deallocate(LblCnt)
 call mma_deallocate(Ene_Occ)

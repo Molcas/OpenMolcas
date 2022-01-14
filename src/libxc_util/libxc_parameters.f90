@@ -72,7 +72,7 @@ End Subroutine Remove_Libxc_functionals
 !***********************************************************************
 !
 Subroutine libxc_functionals(mGrid,nD)
-use nq_Grid, only: F_xc => Exc
+use nq_Grid, only: F_xc
 use nq_Grid, only: Rho, Sigma, Tau, Lapl
 use nq_Grid, only:     vSigma,vTau
 Implicit None

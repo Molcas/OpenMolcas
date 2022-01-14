@@ -31,7 +31,7 @@
       use nq_Grid, only: Grid, Weights
       use nq_Grid, only: nRho, nGradRho, nTau, nSigma, nLapl, nGridMax
       use nq_Grid, only: l_CASDFT, kAO
-      use nq_Grid, only: Exc, F_xca, F_xcb
+      use nq_Grid, only: F_xc, F_xca, F_xcb
       use nq_pdft, only: lft, lGGA
       use libxc
       Implicit Real*8 (A-H,O-Z)
@@ -381,7 +381,7 @@
          Lapl(:,:)=Zero
       End If
 
-      Call mma_allocate(Exc,nGridMax,Label='Exc')
+      Call mma_allocate(F_xc,nGridMax,Label='F_xc')
       Call mma_allocate(func,nGridMax,Label='func')
       If (l_casdft) Then
          Call mma_allocate(F_xca,nGridMax,Label='F_xca')
@@ -530,7 +530,7 @@
      &            Work(ipP2mo),nP2,Work(ipD1mo),nd1mo,Work(ipp2_ontop),
      &            Do_Grad,Grad,nGrad,iWork(iplist_g),
      &            iWork(ipIndGrd),iWork(ipiTab),Work(ipTemp),mGrad,
-     &            Exc,mAO,mdRho_dR)
+     &            F_xc,mAO,mdRho_dR)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -558,7 +558,7 @@
          Call mma_deallocate(F_xca)
       End If
       Call mma_deallocate(func)
-      Call mma_deallocate(Exc)
+      Call mma_deallocate(F_xc)
 *
       If (Allocated(Lapl)) Then
          Call mma_deallocate(dfunc_dLapl)

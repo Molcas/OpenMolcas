@@ -24,7 +24,7 @@
 !***********************************************************************
       use nq_Grid, only: Rho, GradRho, Lapl
       use nq_Grid, only: vRho
-      use nq_Grid, only: F_xc => exc
+      use nq_Grid, only: F_xc
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
       Real*8 Fexp, Vt_lim

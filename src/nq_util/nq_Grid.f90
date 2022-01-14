@@ -28,8 +28,7 @@ Real*8, Allocatable:: Tau(:,:)
 Real*8, Allocatable:: vTau(:,:)
 Integer :: nTau=0
 Logical :: l_CASDFT=.FALSE.
-Real*8, Allocatable:: Exc(:)
-Real*8, Allocatable:: F_xca(:), F_xcb(:)
+Real*8, Allocatable:: F_xc(:), F_xca(:), F_xcb(:)
 Real*8, Allocatable, Target:: TabAO(:,:,:)
 Real*8, Allocatable, Target:: TabAO_Short(:,:,:)
 Real*8, Pointer:: TabAO_pack(:) => Null()
