@@ -1643,7 +1643,7 @@ message ("-- Libxc_LIBRARIES: ${Libxc_LIBRARIES}")
 list (APPEND EXTERNAL_LIBRARIES ${Libxc_LIBRARIES})
 
 foreach (prog
-  df_util
+  dft_util
   libxc_util
 )
   list (APPEND ${prog}_incs ${Libxc_INCLUDE_DIRS})
