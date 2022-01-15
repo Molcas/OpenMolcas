@@ -151,6 +151,7 @@
       set (HDF5_USE_STATIC_LIBRARIES "ON" CACHE STRING "use static HDF5")
       set (HDF5 "ON" CACHE STRING "turn on HDF5")
       set (DEFMOLCASMEM "256" CACHE STRING "reduce memory to get more speed")
+      set (Libxc_EXTRA_CMakeArgs "-DENABLE_XHOST=OFF;-DENABLE_GENERIC=ON" CACHE STRING "extra Libxc args") # more portable Libxc build
       # -w=obs : disable fixed source form, statement function
       # -w=x77 : disable real*8
       set (EXTRA_FFLAGS "-w=obs -w=x77 -unsharedrts" CACHE STRING "extra Fortran flags")

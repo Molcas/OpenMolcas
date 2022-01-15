@@ -1580,7 +1580,7 @@ else ()
   set (Libxc_REPO https://gitlab.com/libxc/libxc.git)
   set (Libxc_HASH df9ba8d9) # Release 5.1.7
 
-  # Note shared libraries won't work here because installation issues.
+  # Note shared libraries won't work here because of installation issues.
   # TODO: Solving this will require creating a wrapper main project that includes
   #       both Libxc and OpenMolcas as ExternalProject. This could also simplify
   #       the handling of other codes like GlobalArrays or QCMaquis
@@ -1597,6 +1597,8 @@ else ()
         -D DISABLE_LXC=ON
         -D BUILD_TESTING=NO
   )
+  # "Hidden" option to pass extra arguments to Libxc CMake
+  list (APPEND LibxcCMakeArgs ${Libxc_EXTRA_CMakeArgs})
 
   # Workaround for ExternalProject's shortcoming
   # (see https://gitlab.kitware.com/cmake/cmake/-/issues/16419)
