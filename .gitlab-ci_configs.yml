@@ -153,7 +153,7 @@
       set (DEFMOLCASMEM "256" CACHE STRING "reduce memory to get more speed")
       # -w=obs : disable fixed source form, statement function
       # -w=x77 : disable real*8
-      set (EXTRA_FFLAGS "-ieee=full -w=obs -w=x77 -unsharedrts" CACHE STRING "extra Fortran flags")
+      set (EXTRA_FFLAGS "-w=obs -w=x77 -unsharedrts" CACHE STRING "extra Fortran flags")
     pre_compile_script: |
       rm -rf ${install_path}
     pre_make_script: |
