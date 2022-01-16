@@ -10,4 +10,5 @@
 !***********************************************************************
 Module nq_MO
   Integer, Allocatable:: DoIt(:)
+  Real*8, Allocatable:: CMO(:)
 End Module nq_MO
