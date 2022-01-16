@@ -51,6 +51,8 @@
       Logical Do_Grad, Do_MO,Do_TwoEl,PMode
       Character*4 DFTFOCK
       Integer nBas(8), nDel(8)
+      Integer, Allocatable:: Maps2p(:,:)
+      Real*8, Allocatable:: R_Min(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -79,36 +81,14 @@
 *
       Call Set_Basis_Mode('Valence')
       Call Nr_Shells(nShell)
-      Call GetMem('s2p','Allo','Inte',ips2p,nShell*nIrrep)
-      Call GetMem('R_Min','Allo','Real',ipR_Min,LMax_NQ+1)
+      Call mma_allocate(Maps2p,nShell,nIrrep,Label='Maps2p')
+      Call mma_allocate(R_Min,LMax_NQ+1,Label='R_Min')
 *
         NQ_Status=Inactive
-      Call Setup_NQ(iWork(ips2p),nShell,nIrrep,nNQ,Do_Grad,Do_MO,nD,
+      Call Setup_NQ(Maps2p,nShell,nIrrep,nNQ,Do_Grad,Do_MO,nD,
      &              PThr,PMode,Work(ipR_Min),LMax_NQ)
 *
-      Call GetMem('R_Min','Free','Real',ipR_Min,LMax_NQ)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*---- Allocate scratch memory for the temporary SO matrix
-*     elements
-*
-      iSmLbl=1
-      nSOTemp=0
-      Do iSkal = 1, nShell
-         iCmp  = iSD( 2,iSkal)
-         iBas  = iSD( 3,iSkal)
-         iAO   = iSD( 7,iSkal)
-         iShell= iSD(11,iSkal)
-         Do jSkal = 1, iSkal
-            jCmp  = iSD( 2,jSkal)
-            jBas  = iSD( 3,jSkal)
-            jAO   = iSD( 7,jSkal)
-            jShell= iSD(11,jSkal)
-            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
-            nSOTemp=Max(nSOTemp,iBas*jBas*nSO)
-         End Do
-      End Do
+      Call mma_deallocate(R_Min)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -519,7 +499,7 @@
 
       Call DrvNQ_Inner(
      &            Kernel,Funct,
-     &            iWork(ips2p),nIrrep,
+     &            Maps2p,nIrrep,
      &            iWork(iplist_s),iWork(iplist_exp),iWork(iplist_bas),
      &            nShell,iWork(iplist_p),Work(ipR2_trail),nNQ,
      &            FckInt,nFckDim,
@@ -605,7 +585,7 @@
       Call GetMem('nMem','Free','Real',ipMem,nMem)
       Call GetMem('Tmp','Free','Real',ipTmp,nTmp)
       Call Free_Work(ip_Fact)
-      Call GetMem('s2p','Free','Inte',ips2p,nshell)
+      Call mma_deallocate(Maps2p)
       NQ_Status=Inactive
 *                                                                      *
 ************************************************************************

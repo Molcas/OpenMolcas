@@ -10,17 +10,11 @@
 *                                                                      *
 * Copyright (C) 1999, Roland Lindh                                     *
 ************************************************************************
-      Subroutine DrvNQ_Inner(
-     &                  Kernel,Func,
+      Subroutine DrvNQ_Inner(Kernel,Func,
      &                  Maps2p,nSym,list_s,list_exp,list_bas,
      &                  nShell,list_p,R2_trial,nNQ,
-     &                  FckInt,nFckDim,
-     &                  Density,nFckInt,nD,
-     &                  mGrid,
-     &                  nP2_ontop,
-     &                  Do_Mo,
-     &                  nTmpPUVX,
-     &                  nMOs,
+     &                  FckInt,nFckDim,Density,nFckInt,nD,
+     &                  mGrid,nP2_ontop,Do_Mo,nTmpPUVX,nMOs,
      &                  CMOs,nCMO,DoIt,P2mo,np2act,D1mo,nd1mo,P2_ontop,
      &                  Do_Grad,Grad,nGrad,list_g,IndGrd,iTab,Temp,
      &                  mGrad,mAO,mdRho_dR)
