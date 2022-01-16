@@ -34,7 +34,6 @@
       use Symmetry_Info, only: nIrrep, iOper
       use KSDFT_Info, only: KSDFA, LuMC, LuMT, Funcaa, Funcbb, Funccc
       use nq_Grid, only: l_casdft
-      use nq_MO, only: CMO
       Implicit Real*8 (A-H,O-Z)
       External Kernel, Rsv_Tsk
 #include "real.fh"
@@ -66,7 +65,6 @@
 *
       Check(i,j)=iAnd(i,2**(j-1)).ne.0
       iGridInfo(i,iNQ)=iWork(ip_GridInfo+(iNQ-1)*2+i-1)
-      nCMO = Size(CMO)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -216,7 +214,6 @@ C        Debug=.True.
      &                     list_p,R2_trial,nNQ,
      &                     FckInt,nFckDim,nFckInt,nD,
      &                     mGrid,nP2_ontop,Do_Mo,
-     &                     CMO,nCMO,
      &                     P2Unzip,D1mo,D1Unzip,nd1mo,P2_ontop,
      &                     Do_Grad,Grad,nGrad,List_G,IndGrd,iTab,Temp,
      &                     mGrad,mAO,mdRho_dR,

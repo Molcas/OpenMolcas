@@ -15,7 +15,6 @@
      &                        nShell,nSym, list_p,R2_trial,nNQ,
      &                        FckInt,nFckDim,nFckInt,nD,
      &                        mGrid,nP2_ontop,Do_Mo,
-     &                        CMOs,nCMO,
      &                        P2Unzip,D1mo,D1Unzip,nD1mo,P2_ontop,
      &                        Do_Grad,Grad,nGrad,List_G,IndGrd,iTab,
      &                        Temp,mGrad,mAO,mdRho_dR,
@@ -56,7 +55,7 @@
      &        list_exp(nSym*nShell), list_bas(2,nSym*nShell),
      &        list_p(nNQ), iTab(4,mGrad),IndGrd(mGrad)
       Real*8 R2_trial(nNQ), FckInt(nFckInt,nFckDim),
-     &       Grad(nGrad), Temp(mGrad), CMOs(nCMO), D1mo(nD1mo),
+     &       Grad(nGrad), Temp(mGrad), D1mo(nD1mo),
      &       P2_ontop(nP2_ontop,mGrid), Roots(3,3),
      &       xyz0(3,2),PDFTPot1(npot1),PDFTFocI(nPot1),PDFTFocA(nPot1)
       Logical InBox(MxAtom), Do_Grad, More_to_come
@@ -682,8 +681,7 @@ c
      &                 FckInt,nFckDim,nFckInt,
      &                 iWork(ipTabAO),mAO,nSym,nD,nP2_ontop,
      &                 Do_Mo,
-     &                 Work(ipTabMO),Work(ipTabSO),
-     &                 nMOs,CMOs,nCMO,
+     &                 Work(ipTabMO),Work(ipTabSO),nMOs,
      &                 P2unzip,D1mo,D1Unzip,nd1mo,P2_ontop,
      &                 Do_Grad,Grad,nGrad,
      &                 mdRho_dR,nGrad_Eff,

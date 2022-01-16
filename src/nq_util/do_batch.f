@@ -17,8 +17,7 @@
      &                    FckInt,nFckDim,nFckInt,
      &                    ipTabAO,mAO,nSym,nD,
      &                    nP2_ontop,Do_Mo,
-     &                    TabMO,TabSO,
-     &                    nMOs,CMOs,nCMO,
+     &                    TabMO,TabSO,nMOs,
      &                    P2unzip,D1mo,D1Unzip,nd1mo,
      &                    P2_ontop,
      &                    Do_Grad,Grad,nGrad,ndRho_dR,nGrad_Eff,
@@ -39,14 +38,13 @@
       use nq_Grid, only: l_CASDFT, TabAO, TabAO_Pack, dRho_dR
       use nq_Grid, only: F_xc, F_xca, F_xcb
       use nq_pdft
-      use nq_MO, only: DoIt
+      use nq_MO, only: DoIt, CMO
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "SysDef.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-#include "print.fh"
 #include "debug.fh"
 #include "ksdft.fh"
 #include "nq_info.fh"
@@ -60,7 +58,7 @@
      &        List_Bas(2,nlist_s)
       Real*8 A(3), RA(3), Grad(nGrad), FckInt(nFckInt,nFckDim),
      &       TabMO(mAO,mGrid,nMOs),TabSO(mAO,mGrid,nMOs),
-     &       CMOs(nCMO),D1mo(nd1mo),
+     &       D1mo(nd1mo),
      &       P2_ontop(nP2_ontop,mGrid) , Temp(nGrad),
      &       dW_dR(nGrad_Eff,mGrid),
      &       PDFTPot1(nPot1),PDFTFocI(nPot1),PDFTFocA(nPot1)
@@ -90,14 +88,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUGPRINT_
-      iRout = 112
-      iPrint = nPrint(iRout)
-#endif
-*                                                                      *
-************************************************************************
-*                                                                      *
       nTabAO=Size(TabAO)
+      nCMO  =Size(CMO)
 #ifdef _DEBUGPRINT_
       Debug_Save=Debug
       Debug=Debug.or.iPrint.ge.99
@@ -346,7 +338,7 @@
      &                    nMOs,iAO,TmpCMO,nCMO,TDoIt)
 *
             Call  SODist(Work(ipSOs),mAO,mGrid,iBas,iCmp,nDeg,TabMO,
-     &                   nMOs,iAO,CMOs,nCMO,DoIt)
+     &                   nMOs,iAO,CMO,nCMO,DoIt)
 *
          End Do
          Call mma_deAllocate(TDoIt)
@@ -408,7 +400,7 @@
      &                       P2_ontop,nP2_ontop,nGrad_Eff,
      &                       list_s,nlist_s,list_bas,
      &                       D1mo,nd1mo,TabMO,list_g,P2_ontop_d,
-     &                       RhoI,RhoA,mRho,nMOs,CMOs,
+     &                       RhoI,RhoA,mRho,nMOs,CMO,
      &                       nCMO,TabSO,nsym,lft,
      &                       P2MOCube,P2MOCubex,P2MOCubey,P2MOCubez,
      &                       nPMO3p,MOs,MOx,MOy,MOz)
