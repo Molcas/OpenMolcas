@@ -15,7 +15,7 @@
      &                        nShell,nSym, list_p,R2_trial,nNQ,
      &                        FckInt,nFckDim,nFckInt,nD,
      &                        mGrid,nP2_ontop,Do_Mo,
-     &                        nMOs,CMOs,nCMO,
+     &                        CMOs,nCMO,
      &                        P2Unzip,D1mo,D1Unzip,nD1mo,P2_ontop,
      &                        Do_Grad,Grad,nGrad,List_G,IndGrd,iTab,
      &                        Temp,mGrad,mAO,mdRho_dR,
@@ -38,6 +38,7 @@
       use nq_Grid, only: Grid, Weights, TabAO, Grid_AO, Dens_AO,
      &                   TabAO_Pack, Ind_Grd, dRho_dR, TabAO_Short,
      &                   kAO, iBfn_Index
+      use nq_MO, only: DoIt
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "itmax.fh"
@@ -329,6 +330,7 @@
       iBfn_Index(:,:)=0
 *
       If ((Functional_Type.eq.CASDFT_Type).or.Do_MO) Then
+         nMOs=SIZE(DoIt)
          nTabMO=mAO*nMOs*mGrid
          Call Allocate_Work(ipTabMO,nTabMO)
          nTabSO=mAO*nMOs*mGrid

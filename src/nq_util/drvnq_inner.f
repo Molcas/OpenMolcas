@@ -14,7 +14,7 @@
      &                  Maps2p,nSym,list_s,list_exp,list_bas,
      &                  nShell,list_p,R2_trial,nNQ,
      &                  FckInt,nFckDim,Density,nFckInt,nD,
-     &                  mGrid,nP2_ontop,Do_Mo,nTmpPUVX,nMOs,
+     &                  mGrid,nP2_ontop,Do_Mo,nTmpPUVX,
      &                  CMOs,nCMO,P2mo,np2act,D1mo,nd1mo,P2_ontop,
      &                  Do_Grad,Grad,nGrad,list_g,IndGrd,iTab,Temp,
      &                  mGrad,mAO,mdRho_dR)
@@ -214,7 +214,7 @@ C        Debug=.True.
      &                     list_p,R2_trial,nNQ,
      &                     FckInt,nFckDim,nFckInt,nD,
      &                     mGrid,nP2_ontop,Do_Mo,
-     &                     nMOs,CMOs,nCMO,
+     &                     CMOs,nCMO,
      &                     P2Unzip,D1mo,D1Unzip,nd1mo,P2_ontop,
      &                     Do_Grad,Grad,nGrad,List_G,IndGrd,iTab,Temp,
      &                     mGrad,mAO,mdRho_dR,

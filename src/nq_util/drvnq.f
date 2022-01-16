@@ -88,7 +88,7 @@
 *
         NQ_Status=Inactive
       Call Setup_NQ(Maps2p,nShell,nIrrep,nNQ,Do_Grad,Do_MO,nD,
-     &              PThr,PMode,Work(ipR_Min),LMax_NQ)
+     &              PThr,PMode,R_Min,LMax_NQ)
 *
       Call mma_deallocate(R_Min)
 *                                                                      *
@@ -107,7 +107,6 @@
       nP2=1
       nCmo=1
       nD1mo=1
-      nMos=1
       nTmpPUVX=1
       ipP2mo=ip_Dummy
       ipCmo=ip_Dummy
@@ -502,7 +501,7 @@
      &                 List_bas,nShell,iWork(iplist_p),Work(ipR2_trail),
      &                 nNQ,FckInt,nFckDim,Density,nFckInt,nD,
      &                 nGridMax,nP2_ontop,Do_Mo,nTmpPUVX,
-     &                 nMOs,Work(ipCMO),nCMO,
+     &                 Work(ipCMO),nCMO,
      &                 Work(ipP2mo),nP2,Work(ipD1mo),nd1mo,
      &                 Work(ipp2_ontop),Do_Grad,Grad,nGrad,
      &                 iWork(iplist_g),iWork(ipIndGrd),iWork(ipiTab),
