@@ -12,6 +12,7 @@
 !***********************************************************************
 Module libxc_parameters
 use xc_f03_lib_m
+use Definitions, only: LibxcInt
 Implicit None
 #include "ksdft.fh"
 
@@ -19,7 +20,7 @@ Integer, parameter :: nFuncs_max=4
 Integer :: i
 Integer :: nFuncs=0
 Real*8 :: Coeffs(nFuncs_Max)=[(0.0D0,i=1,nFuncs_Max)]
-Integer*4 :: func_id(nFuncs_Max)=[(int(0,4),i=1,nFuncs_Max)]
+Integer(kind=LibxcInt) :: func_id(nFuncs_Max)=[(0_LibxcInt,i=1,nFuncs_Max)]
 
 TYPE(xc_f03_func_t)      :: xc_func(nFuncs_Max) ! xc functional
 TYPE(xc_f03_func_info_t) :: xc_info(nFuncs_Max) ! xc functional info
@@ -38,7 +39,7 @@ Real*8 :: Coeff
 
 Do iFunc = 1, nFuncs
    ! Initialize libxc functional: nD = 2 means spin-polarized
-   call xc_f03_func_init(xc_func(iFunc), func_id(iFunc), int(nD, 4))
+   call xc_f03_func_init(xc_func(iFunc), func_id(iFunc), int(nD, kind=LibxcInt))
    ! Get the functional's information
    xc_info(iFunc) = xc_f03_func_get_info(xc_func(iFunc))
 
