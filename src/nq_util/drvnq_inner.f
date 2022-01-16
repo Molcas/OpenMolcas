@@ -15,7 +15,7 @@
      &                  nShell,list_p,R2_trial,nNQ,
      &                  FckInt,nFckDim,Density,nFckInt,nD,
      &                  mGrid,nP2_ontop,Do_Mo,nTmpPUVX,
-     &                  P2mo,np2act,D1mo,nd1mo,P2_ontop,
+     &                  D1mo,nd1mo,P2_ontop,
      &                  Do_Grad,Grad,nGrad,list_g,IndGrd,iTab,Temp,
      &                  mGrad,mAO,mdRho_dR)
 ************************************************************************
@@ -34,6 +34,7 @@
       use Symmetry_Info, only: nIrrep, iOper
       use KSDFT_Info, only: KSDFA, LuMC, LuMT, Funcaa, Funcbb, Funccc
       use nq_Grid, only: l_casdft
+      use nq_MO, only: P2MO
       Implicit Real*8 (A-H,O-Z)
       External Kernel, Rsv_Tsk
 #include "real.fh"
@@ -52,7 +53,7 @@
      &        IndGrd(mGrad), iTab(4,mGrad), list_bas(2,nSym*nShell)
       Real*8 FckInt(nFckInt,nFckDim),
      &       Density(nFckInt,nD), R2_trial(nNQ),
-     &       P2mo(np2act),D1mo(nd1mo), Temp(mGrad),
+     &       D1mo(nd1mo), Temp(mGrad),
      &       P2_ontop(nP2_ontop,mGrid), Grad(nGrad)
       Logical Check, Do_Grad, Rsv_Tsk
       Logical Do_Mo,Exist,l_tgga
@@ -109,7 +110,7 @@ c        Call append_file(LuMT)
       CALL mma_allocate(P2Unzip,NASHT4)
       CALL mma_allocate(D1Unzip,NASHT**2)
       CALL UnzipD1(D1Unzip,D1MO,nD1MO)
-      CALL UnzipP2(P2Unzip,P2MO,nP2Act)
+      CALL UnzipP2(P2Unzip,P2MO,SIZE(P2MO))
 ************************************************************************
 *
 *----- Desymmetrize the 1-particle density matrix
