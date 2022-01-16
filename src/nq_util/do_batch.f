@@ -75,6 +75,7 @@
       Real*8,DIMENSION(NASHT**2)::D1Unzip
       Integer LTEG_DB,nPMO3p
       Real*8, Allocatable:: RhoI(:,:), RhoA(:,:)
+      Real*8, Allocatable:: TmpCMO(:), TDoIt(:)
 *define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Logical Debug_Save
@@ -310,6 +311,8 @@
          Call FZero(TabMO,mAO*mGrid*nMOs)
          Call FZero(TabSO,mAO*mGrid*nMOs)
 *
+         Call mma_Allocate(TmpCMO,nCMO,Label='TmpCMO')
+         Call mma_Allocate(TDoIt,nMOs,Label='TDoIt')
          Do ilist_s=1,nlist_s
             ish=list_s(1,ilist_s)
             iCmp  = iSD( 2,iSh)
@@ -338,19 +341,15 @@
      &                     iBas,iBas_Eff,iCmp,iSym,Work(ipSOs),nDeg,
      &                     iAO)
 *
-            Call GetMem('TmpCM','Allo','Real',ipTmpCMO,nCMO)
-            Call GetMem('TDoIt','Allo','Inte',ipTDoIt,nMOs)
-            Call  SODist2(Work(ipSOs),mAO,mGrid,iBas,
-     &                   iCmp,nDeg,TabSO,
-     &                   nMOs,iAO,Work(ipTmpCMO),
-     &                   nCMO,iWork(ipTDoIt))
-            Call GetMem('TmpCM','Free','Real',ipTmpCMO,nCMO)
-            Call GetMem('TDoIt','Free','Inte',ipTDoIt,nMOs)
+            Call  SODist2(Work(ipSOs),mAO,mGrid,iBas,iCmp,nDeg,TabSO,
+     &                    nMOs,iAO,TmpCMO,nCMO,TDoIt)
 *
             Call  SODist(Work(ipSOs),mAO,mGrid,iBas,iCmp,nDeg,TabMO,
-     &                  nMOs,iAO,CMOs,nCMO,DoIt)
+     &                   nMOs,iAO,CMOs,nCMO,DoIt)
 *
          End Do
+         Call mma_deAllocate(TDoIt)
+         Call mma_deAllocate(TmpCMO)
       End If
 *                                                                      *
 ************************************************************************
