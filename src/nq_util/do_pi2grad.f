@@ -9,10 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Do_Pi2Grad(TabAO,nTabAO,mAO,mGrid,ipTabAO,
-     &          P2_ontop,nP2_ontop,Do_Grad,nGrad_Eff,
-     &          list_s,nlist_s,list_bas,Index,nIndex,
+     &          P2_ontop,nP2_ontop,nGrad_Eff,
+     &          list_s,nlist_s,list_bas,
      &          D1mo,nd1mo,TabMO,list_g,P2_ontop_d,
-     &          RhoI,RhoA,mRho,nMOs,CMO,nAOs,nCMO,TabSO,nsym,ft,
+     &          RhoI,RhoA,mRho,nMOs,CMO,nCMO,TabSO,nsym,ft,
      &          P2MOCube,P2MOCubex,P2MOCubey,P2MOCubez,nPMO3p,MOs,
      &          MOx,MOy,MOz)
 ************************************************************************
@@ -44,7 +44,7 @@
 #include "stdalloc.fh"
 #include "print.fh"
 !Error could be TabAO...
-      Integer list_s(2,nlist_s),list_bas(2,nlist_s),Index(nIndex),
+      Integer list_s(2,nlist_s),list_bas(2,nlist_s),
      &        list_g(3,nlist_s),ipTabAO(nlist_s,2),
      &        mAO,nAOs,mGrid,nP2_ontop,nGrad_Eff,nd1mo,nTabAO,
      &        mRho,nCMO,nsym
@@ -56,7 +56,6 @@
       Real*8 RhoI(mRho,mGrid)
       Real*8 RhoA(mRho,mGrid)
       Real*8,dimension(1:mRho,1:mGrid,1:nGrad_Eff) :: dRhoI,dRhoA
-      Logical Do_Grad
       integer g_eff,iGrid
       Real*8 TabSO(mAO,mGrid,nMOs)
       Real*8,DIMENSION(mGrid*NASHT)::P2MOCube,MOs,dMOs,MOx,MOy,MOz
@@ -75,7 +74,6 @@
       iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 *                                                                      *
 ************************************************************************
-      Call unused_logical(do_grad)
       Call unused_integer(naos)
 
       If (nP2_ontop.eq.4) Then
@@ -476,7 +474,5 @@ C          CALL RecPrt(' ',' ',MOz(iOff2),1,nAsh(iIrrep))
       End If
       Call mma_deAllocate(dTabMO)
       RETURN
-* Avoid unused argument warnings
-      If (.False.) Call Unused_integer_array(Index)
       END subroutine
 

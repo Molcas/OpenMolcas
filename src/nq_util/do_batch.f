@@ -404,11 +404,11 @@
             !Determine number of AOs:
             nAOs = nMOs
             Call  Do_Pi2grad(TabAO,nTabAO,mAO,mGrid,ipTabAO,
-     &                       P2_ontop,nP2_ontop,Do_Grad,nGrad_Eff,
-     &                       list_s,nlist_s,list_bas,Index,nIndex,
+     &                       P2_ontop,nP2_ontop,nGrad_Eff,
+     &                       list_s,nlist_s,list_bas,
      &                       D1mo,nd1mo,TabMO,list_g,P2_ontop_d,
      &                       RhoI,RhoA,mRho,nMOs,CMOs,
-     &                       nAOs,nCMO,TabSO,nsym,lft,
+     &                       nCMO,TabSO,nsym,lft,
      &                       P2MOCube,P2MOCubex,P2MOCubey,P2MOCubez,
      &                       nPMO3p,MOs,MOx,MOy,MOz)
          End If
