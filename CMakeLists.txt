@@ -772,7 +772,7 @@ set (FFLAGS_NAG_OPENMP "-openmp")
 set (FFLAGS_NAG_ILP64 "-i8")
 # build targets
 set (FFLAGS_NAG_DEBUG "-O0 -g -gline -ieee=full")
-set (FFLAGS_NAG_GARBLE "-O2 -g -gline -ieee=full -nan")
+set (FFLAGS_NAG_GARBLE "-O2 -g -gline -nan")
 set (FFLAGS_NAG_RELWITHDEBINFO "-O2 -g -ieee=full")
 set (FFLAGS_NAG_RELEASE "-O2 -ieee=full")
 set (FFLAGS_NAG_FAST "-O4 -ieee=full")
@@ -788,7 +788,7 @@ endif ()
 
 # The option does not exist, or I cannot find it
 #set (FFLAGS_NAG_BIGOT "???")
-#set (NAG_TRAP "-ieee=stop") # not compatible with -ieee=full
+set (NAG_TRAP "-ieee=stop") # not compatible with -ieee=full
 
 # Generate the actual flags used in the build
 #============================================
