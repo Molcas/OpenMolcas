@@ -252,27 +252,14 @@
                list_s(1,ilist_s)=iShell
                list_s(2,ilist_s)=iSym
                list_exp(ilist_s)=nExpTmp
-*              Write (6,*) 'iShell,NrExp,nExpTmp=',
-*    &                      iShell,NrExp,nExpTm
 *
 *              Examine if contracted basis functions can be ignored.
 *              This will be the case for segmented basis sets.
 *
-c              list_bas(1,ilist_s)=NrBas ! temporary full shell!
-c              write (6,*) 'ilist_s,NrBas=',ilist_s,NrBas
-c              crite (*,*) 'ilist_s,NrBas=',ilist_s,NrBas
                list_bas(1,ilist_s)=nBas_Eff(NrExp,NrBas,
      &                                      Shells(iShll)%Exp,
      &                                      Shells(iShll)%pCff,
      &                                      list_exp(ilist_s))
-C              If (list_bas(1,ilist_s).ne.NrBas) Then
-C                 Write (6,*) 'x,y=',list_bas(1,ilist_s),NrBas,'*'
-C                 Call RecPrt('Exponents',' ',Shells(iShll)%Exp,1,
-C    &                        list_exp(1,ilist_s))
-C                 Call RecPrt('Cff',' ',Shells(iShll)%pCff,NrExp,NrBas)
-C              Else
-C                 Write (6,*) 'x,y=',list_bas(1,ilist_s),NrBas
-C              End If
             End If
  20         Continue
          End Do ! iSym

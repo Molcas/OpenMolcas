@@ -51,7 +51,8 @@
       Logical Do_Grad, Do_MO,Do_TwoEl,PMode
       Character*4 DFTFOCK
       Integer nBas(8), nDel(8)
-      Integer, Allocatable:: Maps2p(:,:)
+      Integer, Allocatable:: Maps2p(:,:), List_s(:,:), List_Exp(:),
+     &                       List_Bas(:,:)
       Real*8, Allocatable:: R_Min(:)
 *                                                                      *
 ************************************************************************
@@ -368,10 +369,9 @@
          Call mma_allocate(F_xcb,nGridMax,Label='F_xcb')
       End If
 *
-      Call GetMem('list_s','Allo','Inte',iplist_s,2*nIrrep*nShell)
-      Call mma_a
-      Call GetMem('list_exp','Allo','Inte',iplist_exp,3*nIrrep*nShell)
-      iplist_bas=iplist_exp+nIrrep*nShell
+      Call mma_allocate(List_S,2,nIrrep*nShell,Label='List_S')
+      Call mma_allocate(List_Exp,nIrrep*nShell,Label='List_Exp')
+      Call mma_allocate(List_Bas,2,nIrrep*nShell,Label='List_Bas')
       Call GetMem('list_p','Allo','Inte',iplist_p,nNQ)
       Call GetMem('R2_trail','Allo','Real',ipR2_trail,nNQ)
 
@@ -498,20 +498,15 @@
 
       end if
 
-      Call DrvNQ_Inner(
-     &            Kernel,Funct,
-     &            Maps2p,nIrrep,
-     &            iWork(iplist_s),iWork(iplist_exp),iWork(iplist_bas),
-     &            nShell,iWork(iplist_p),Work(ipR2_trail),nNQ,
-     &            FckInt,nFckDim,
-     &            Density,nFckInt,nD,
-     &            nGridMax,nP2_ontop,Do_Mo,nTmpPUVX,
-     &            nMOs,Work(ipCMO),nCMO,
-     &            iWork(ipDoIt),
-     &            Work(ipP2mo),nP2,Work(ipD1mo),nd1mo,Work(ipp2_ontop),
-     &            Do_Grad,Grad,nGrad,iWork(iplist_g),
-     &            iWork(ipIndGrd),iWork(ipiTab),Work(ipTemp),mGrad,
-     &            mAO,mdRho_dR)
+      Call DrvNQ_Inner(Kernel,Funct,Maps2p,nIrrep,List_S,List_Exp,
+     &                 List_bas,nShell,iWork(iplist_p),Work(ipR2_trail),
+     &                 nNQ,FckInt,nFckDim,Density,nFckInt,nD,
+     &                 nGridMax,nP2_ontop,Do_Mo,nTmpPUVX,
+     &                 nMOs,Work(ipCMO),nCMO,iWork(ipDoIt),
+     &                 Work(ipP2mo),nP2,Work(ipD1mo),nd1mo,
+     &                 Work(ipp2_ontop),Do_Grad,Grad,nGrad,
+     &                 iWork(iplist_g),iWork(ipIndGrd),iWork(ipiTab),
+     &                 Work(ipTemp),mGrad,mAO,mdRho_dR)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -526,8 +521,9 @@
       End If
       Call GetMem('R2_trail','Free','Real',ipR2_trail,nNQ)
       Call GetMem('list_p','Free','Inte',iplist_p,nNQ)
-      Call GetMem('list_exp','Free','Inte',iplist_exp,3*nIrrep*nShell)
-      Call GetMem('list_s','Free','Inte',iplist_s,2*nIrrep*nShell)
+      Call mma_deallocate(List_Bas)
+      Call mma_deallocate(List_Exp)
+      Call mma_deallocate(List_S)
 *Do_TwoEl
       If(ipP2mo.ne.ip_Dummy) Call Free_Work(ipP2mo)
       If(ipD1MO.ne.ip_Dummy) Call Free_Work(ipD1MO)
