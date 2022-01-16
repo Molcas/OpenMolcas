@@ -369,6 +369,7 @@
       End If
 *
       Call GetMem('list_s','Allo','Inte',iplist_s,2*nIrrep*nShell)
+      Call mma_a
       Call GetMem('list_exp','Allo','Inte',iplist_exp,3*nIrrep*nShell)
       iplist_bas=iplist_exp+nIrrep*nShell
       Call GetMem('list_p','Allo','Inte',iplist_p,nNQ)
