@@ -41,6 +41,7 @@
 #include "nq_info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "print.fh"
 !Error could be TabAO...
       Integer list_s(2,nlist_s),list_bas(2,nlist_s),Index(nIndex),
@@ -50,17 +51,11 @@
       Real*8 D1mo(nd1mo),TabMO(mAO,mGrid,nMOs),
      &     P2_ontop(nP2_ontop,mGrid),TabAO(nTabAO),
      &     P2_ontop_d(np2_ontop,nGrad_Eff,mGrid),CMO(nCMO)
-!      Real*8 P2AO(np2AO)
       logical ft
-!      Real*8, allocatable, dimension(:,:,:) :: AO_vals
       Real*8, allocatable, dimension(:,:,:,:) :: dTabMO
-!      Real*8, allocatable,dimension(:,:) :: CMO_u
-!      Integer np2AO
       Real*8 RhoI(mRho,mGrid)
       Real*8 RhoA(mRho,mGrid)
       Real*8,dimension(1:mRho,1:mGrid,1:nGrad_Eff) :: dRhoI,dRhoA
-!      Real*8 dRhoA(mRho,mGrid,nGrad_Eff)
-!     Real*8 gf1(1:3)
       Logical Do_Grad
       integer g_eff,iGrid
       Real*8 TabSO(mAO,mGrid,nMOs)
@@ -73,6 +68,7 @@
 
       Real*8 TabSO2(mAO*mGrid*nMOs)
       Real*8 dTabMO2(nMOs)
+      Real*8, Allocatable:: TmpCMO(:), TDoIt(:)
 
 ************************************************************************
 *                                                                      *
@@ -81,32 +77,6 @@
 ************************************************************************
       Call unused_logical(do_grad)
       Call unused_integer(naos)
-
-      if (.false.) then
-      Do ilist_s=1,nlist_s
-        write(6,*) 'INFO FOR SHELL',ilist_s
-        iSkal=list_s(1,ilist_s)
-        write(6,*) 'iskal',iskal
-        iCmp  = iSD( 2,iSkal)
-        write(6,*) 'icmp',icmp
-        iBas  = iSD( 3,iSkal)
-        write(6,*) 'ibas',ibas
-        iBas_Eff = List_Bas(1,ilist_s)
-        write(6,*) 'iBas_eff',ibas_eff
-        mdci  = iSD(10,iSkal)
-        iShell= iSD(11,iSkal)
-        write(6,*) 'ishell',ishell
-        index_i=list_bas(2,ilist_s)
-        write(6,*) 'index_i',index_i
-        iR = list_s(2,ilist_s)
-        write(6,*) 'iR',iR
-!        isym = NrOpr(iR)
-!        write(6,*) 'isym',isym
-        iAO = iSD(7,iSkal)
-      end do
-      end if
-
-
 
       If (nP2_ontop.eq.4) Then
          If (mAO.ne.10.or.mRho.ne.4) Then
@@ -138,10 +108,13 @@
 *   P(2,...), P(3,...), P(4,...) - grad P_2                            *
 ************************************************************************
 
-      Allocate(dTabMO(1:nP2_ontop,1:nMOs,1:nGrad_eff,1:mgrid))
-      dTabMO(1:nP2_ontop,1:nMOs,1:nGrad_eff,1:mGrid)=0.0d0
+      Call mma_Allocate(dTabMO,nP2_ontop,nMOs,nGrad_eff,mgrid,
+     &                  Label='dTabMO')
+      dTabMO(:,:,:,:)=Zero
 
 !::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+         Call mma_allocate(TmpCMO,nCMO,Label='TmpCMO')
+         Call mma_allocate(TDoIt,nMOs,Label='TDoIt')
          Do ilist_s=1,nlist_s
             ish=list_s(1,ilist_s)
             iCmp  = iSD( 2,iSh)
@@ -164,16 +137,10 @@
             Call SOAdpt_NQ(TabAO(ipTabAO(iList_s,1)),mAO,mGrid,iBas,
      &                  iBas_Eff,iCmp,iSym,Work(ipSOs),nDeg,iAO)
 
-            Call GetMem('TmpCM','Allo','Real',ipTmpCMO,nCMO)
-            Call GetMem('TDoIt','Allo','Inte',ipTDoIt,nMOs)
             Call FZero(TabSO,mAO*mGrid*nMOs)
 
-            Call  SODist2(Work(ipSOs),mAO,mGrid,iBas,
-     &                   iCmp,nDeg,TabSO,
-     &                   nMOs,iAO,Work(ipTmpCMO),
-     &                   nCMO,iWork(ipTDoIt))
-            Call GetMem('TmpCM','Free','Real',ipTmpCMO,nCMO)
-            Call GetMem('TDoIt','Free','Inte',ipTDoIt,nMOs)
+            Call  SODist2(Work(ipSOs),mAO,mGrid,iBas,iCmp,nDeg,TabSO,
+     &                    nMOs,iAO,TmpCMO,nCMO,TDoIt)
 
             CALL ConvertTabSO(TabSO2,TabSO,mAO,mGrid,nMOs)
 
@@ -237,18 +204,12 @@
       CALL DAXPY_(nOccO,1.0d0,dTabMO2,1,
      &dTabMO(4,OffBas(iIrrep)+nFro(iIrrep),g_eff,iGrid),nP2_ontop)
                END IF
-              end do
-             End Do
-            End Do
-C       DO iGrid=1,mGrid
-C        Do iCoord=1,3
-C         g_eff = list_g(iCoord,ilist_s)
-C         write(6,*)'dTabMO for g_eff,iGrid',g_eff,iGrid
-C         CALL RecPrt(' ',' ',dTabMO(1,1,g_eff,iGrid),
-C     &               4,nMOs)
-C        End Do
-C       END DO
-      END DO
+              end do ! iIrrep
+             End Do  ! iCoord
+            End Do   ! iGrid
+      END DO         ! iList_s
+      Call mma_deallocate(TmpCMO)
+      Call mma_deallocate(TDoIt)
 ************************************************************************
 *          Inactive part:                                              *
 ************************************************************************
@@ -513,7 +474,7 @@ C          CALL RecPrt(' ',' ',MOz(iOff2),1,nAsh(iIrrep))
        End If
 
       End If
-      deAllocate(dTabMO)
+      Call mma_deAllocate(dTabMO)
       RETURN
 * Avoid unused argument warnings
       If (.False.) Call Unused_integer_array(Index)
