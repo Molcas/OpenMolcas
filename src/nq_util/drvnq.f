@@ -53,7 +53,7 @@
       Character*4 DFTFOCK
       Integer nBas(8), nDel(8)
       Integer, Allocatable:: Maps2p(:,:), List_s(:,:), List_Exp(:),
-     &                       List_Bas(:,:)
+     &                       List_Bas(:,:), List_P(:)
       Real*8, Allocatable:: R_Min(:)
 *                                                                      *
 ************************************************************************
@@ -86,7 +86,7 @@
       Call mma_allocate(Maps2p,nShell,nIrrep,Label='Maps2p')
       Call mma_allocate(R_Min,LMax_NQ+1,Label='R_Min')
 *
-        NQ_Status=Inactive
+      NQ_Status=Inactive
       Call Setup_NQ(Maps2p,nShell,nIrrep,nNQ,Do_Grad,Do_MO,nD,
      &              PThr,PMode,R_Min,LMax_NQ)
 *
@@ -365,7 +365,7 @@
       Call mma_allocate(List_S,2,nIrrep*nShell,Label='List_S')
       Call mma_allocate(List_Exp,nIrrep*nShell,Label='List_Exp')
       Call mma_allocate(List_Bas,2,nIrrep*nShell,Label='List_Bas')
-      Call GetMem('list_p','Allo','Inte',iplist_p,nNQ)
+      Call mma_allocate(List_P,nNQ,Label='List_P')
       Call GetMem('R2_trail','Allo','Real',ipR2_trail,nNQ)
 
       If (Do_MO) Then
@@ -492,7 +492,7 @@
       end if
 
       Call DrvNQ_Inner(Kernel,Funct,Maps2p,nIrrep,List_S,List_Exp,
-     &                 List_bas,nShell,iWork(iplist_p),Work(ipR2_trail),
+     &                 List_bas,nShell,list_p,Work(ipR2_trail),
      &                 nNQ,FckInt,nFckDim,Density,nFckInt,nD,
      &                 nGridMax,nP2_ontop,Do_Mo,nTmpPUVX,
      &                 Work(ipp2_ontop),Do_Grad,Grad,nGrad,
@@ -511,7 +511,7 @@
          Call GetMem('list_g','Free','Inte',iplist_g,3*nShell*nIrrep)
       End If
       Call GetMem('R2_trail','Free','Real',ipR2_trail,nNQ)
-      Call GetMem('list_p','Free','Inte',iplist_p,nNQ)
+      Call mma_deallocate(List_P)
       Call mma_deallocate(List_Bas)
       Call mma_deallocate(List_Exp)
       Call mma_deallocate(List_S)
