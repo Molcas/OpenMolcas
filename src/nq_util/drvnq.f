@@ -32,6 +32,7 @@
       use nq_Grid, only: nRho, nGradRho, nTau, nSigma, nLapl, nGridMax
       use nq_Grid, only: l_CASDFT, kAO
       use nq_Grid, only: F_xc, F_xca, F_xcb
+      use nq_Grid, only: Coor
       use nq_pdft, only: lft, lGGA
       use nq_MO, only: DoIt, CMO, D1MO, P2MO
       use libxc
@@ -566,7 +567,7 @@
          Call GetMem('ip_Angular','Free','Inte',ip_A,iDum)
       End Do
       Call GetMem('NumRadEff','Free','Inte',ip_nR_eff,nNQ)
-      Call GetMem('Coor','FREE','REAL',ipCoor,3*8*nAtoms)
+      Call mma_deallocate(Coor)
 
       Call GetMem('nq_centers','Free','Real',ipNQ,nShell*l_NQ)
       Call GetMem('nMem','Free','Real',ipMem,nMem)

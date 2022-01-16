@@ -28,7 +28,7 @@
       use Basis_Info
       use Center_Info
       use Symmetry_Info, only: nIrrep, iOper
-      use nq_Grid, only: nGridMax
+      use nq_Grid, only: nGridMax, Coor
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "real.fh"
@@ -106,8 +106,8 @@ c     Write(6,*) '********** Setup_NQ ***********'
          XYZ(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
          Call Process_Coor(XYZ,TempC,nAtoms,nSym,iOper)
       End Do
-      Call Allocate_Work(ipCoor,3*nAtoms)
-      call dcopy_(3*nAtoms,TempC,1,Work(ipCoor),1)
+      Call mma_allocate(Coor,3,nAtoms,Label='Coor')
+      call dcopy_(3*nAtoms,TempC,1,Coor,1)
       Call mma_deallocate(TempC)
 *                                                                      *
 ************************************************************************
@@ -116,10 +116,8 @@ c     Write(6,*) '********** Setup_NQ ***********'
 *
       nNQ=nAtoms
       Call GetMem('nq_centers','Allo','Real',ipNQ,nNQ*l_NQ)
-      ipTmp1=ipCoor
       Do iNQ = 1, nNQ
-         call dcopy_(3,Work(ipTmp1),1,Work(ip_Coor(iNQ)),1)
-         ipTmp1=ipTmp1+3
+         call dcopy_(3,Coor(1:3,iNQ),1,Work(ip_Coor(iNQ)),1)
       End Do
 *                                                                      *
 ************************************************************************
@@ -516,13 +514,13 @@ c     Write(6,*) '********** Setup_NQ ***********'
       x_max=-1.0D99
       y_max=-1.0D99
       z_max=-1.0D99
-      Do iAt = 0, nAtoms-1
-         x_min=Min(x_min,Work(ipCoor+iAt*3+0))
-         y_min=Min(y_min,Work(ipCoor+iAt*3+1))
-         z_min=Min(z_min,Work(ipCoor+iAt*3+2))
-         x_max=Max(x_max,Work(ipCoor+iAt*3+0))
-         y_max=Max(y_max,Work(ipCoor+iAt*3+1))
-         z_max=Max(z_max,Work(ipCoor+iAt*3+2))
+      Do iAt = 1, nAtoms
+         x_min=Min(x_min,Coor(1,iAt))
+         y_min=Min(y_min,Coor(2,iAt))
+         z_min=Min(z_min,Coor(3,iAt))
+         x_max=Max(x_max,Coor(1,iAt))
+         y_max=Max(y_max,Coor(2,iAt))
+         z_max=Max(z_max,Coor(3,iAt))
       End Do
 *
 *---- Add half an box size around the whole molecule
