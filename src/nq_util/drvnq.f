@@ -105,11 +105,9 @@
 *     CASDFT stuff:
 *
       nP2=1
-      nCmo=1
       nD1mo=1
       nTmpPUVX=1
       ipP2mo=ip_Dummy
-      ipCmo=ip_Dummy
       ipD1mo=ip_Dummy
 *
       NQNAC=0
@@ -501,7 +499,6 @@
      &                 List_bas,nShell,iWork(iplist_p),Work(ipR2_trail),
      &                 nNQ,FckInt,nFckDim,Density,nFckInt,nD,
      &                 nGridMax,nP2_ontop,Do_Mo,nTmpPUVX,
-     &                 CMO,nCMO,
      &                 Work(ipP2mo),nP2,Work(ipD1mo),nd1mo,
      &                 Work(ipp2_ontop),Do_Grad,Grad,nGrad,
      &                 iWork(iplist_g),iWork(ipIndGrd),iWork(ipiTab),
