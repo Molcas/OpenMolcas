@@ -1,4 +1,4 @@
-************************************************************************
+***********************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -15,7 +15,7 @@
      &                  nShell,list_p,R2_trial,nNQ,
      &                  FckInt,nFckDim,Density,nFckInt,nD,
      &                  mGrid,nP2_ontop,Do_Mo,nTmpPUVX,nMOs,
-     &                  CMOs,nCMO,DoIt,P2mo,np2act,D1mo,nd1mo,P2_ontop,
+     &                  CMOs,nCMO,P2mo,np2act,D1mo,nd1mo,P2_ontop,
      &                  Do_Grad,Grad,nGrad,list_g,IndGrd,iTab,Temp,
      &                  mGrad,mAO,mdRho_dR)
 ************************************************************************
@@ -48,7 +48,7 @@
 #include "stdalloc.fh"
       Integer Maps2p(nShell,0:nSym-1),
      &        list_s(nSym*nShell), list_exp(nSym*nShell),
-     &        list_p(nNQ), DoIt(nMOs), List_g(3,nSym*nShell),
+     &        list_p(nNQ), List_g(3,nSym*nShell),
      &        IndGrd(mGrad), iTab(4,mGrad), list_bas(2,nSym*nShell)
       Real*8 FckInt(nFckInt,nFckDim),
      &       Density(nFckInt,nD), R2_trial(nNQ),
@@ -214,7 +214,7 @@ C        Debug=.True.
      &                     list_p,R2_trial,nNQ,
      &                     FckInt,nFckDim,nFckInt,nD,
      &                     mGrid,nP2_ontop,Do_Mo,
-     &                     nMOs,CMOs,nCMO,DoIt,
+     &                     nMOs,CMOs,nCMO,
      &                     P2Unzip,D1mo,D1Unzip,nd1mo,P2_ontop,
      &                     Do_Grad,Grad,nGrad,List_G,IndGrd,iTab,Temp,
      &                     mGrad,mAO,mdRho_dR,

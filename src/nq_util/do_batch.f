@@ -18,7 +18,7 @@
      &                    ipTabAO,mAO,nSym,nD,
      &                    nP2_ontop,Do_Mo,
      &                    TabMO,TabSO,
-     &                    nMOs,CMOs,nCMO,DoIt,
+     &                    nMOs,CMOs,nCMO,
      &                    P2unzip,D1mo,D1Unzip,nd1mo,
      &                    P2_ontop,
      &                    Do_Grad,Grad,nGrad,ndRho_dR,nGrad_Eff,
@@ -39,6 +39,7 @@
       use nq_Grid, only: l_CASDFT, TabAO, TabAO_Pack, dRho_dR
       use nq_Grid, only: F_xc, F_xca, F_xcb
       use nq_pdft
+      use nq_MO, only: DoIt
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "SysDef.fh"
@@ -53,7 +54,7 @@
 #include "setup.fh"
 #include "pamint.fh"
 #include "grid_on_disk.fh"
-      Integer list_s(2,nlist_s),List_Exp(nlist_s),DoIt(nMOs),
+      Integer list_s(2,nlist_s),List_Exp(nlist_s),
      &        ipTabAO(nlist_s+1,2), IndGrd(nGrad_Eff),
      &        list_g(3,nlist_s), iTab(4,nGrad_Eff), Index(nIndex),
      &        List_Bas(2,nlist_s)

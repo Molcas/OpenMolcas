@@ -33,6 +33,7 @@
       use nq_Grid, only: l_CASDFT, kAO
       use nq_Grid, only: F_xc, F_xca, F_xcb
       use nq_pdft, only: lft, lGGA
+      use nq_MO, only: DoIt
       use libxc
       Implicit Real*8 (A-H,O-Z)
       External Kernel
@@ -111,7 +112,6 @@
       ipP2mo=ip_Dummy
       ipCmo=ip_Dummy
       ipD1mo=ip_Dummy
-      ipDoIt=ip_iDummy
 *
       NQNAC=0
       If (DFTFOCK.ne.'SCF ') Then
@@ -401,16 +401,16 @@
          Do iIrrep = 0, mIrrep-1
             nMOs=nMOs+mBas(iIrrep)
          End Do
-         Call GetMem('DoIt','Allo','Inte',ipDoIt,nMOs)
-         iMO=ipDoIt-1
+         Call mma_Allocate(DoIt,nMOs,Label='DoIt')
+         iMO=0
          Do iIrrep = 0, mIrrep-1
             Do jMO = 1, nISh(iIrrep)+nASh(iIrrep)
                iMO=iMO+1
-               iWork(iMO)=1
+               DoIt(iMO)=1
             End Do
             Do jMO = 1, mBas(iIrrep)-nISh(iIrrep)-nASh(iIrrep)
                iMO=iMO+1
-               iWork(iMO)=1
+               DoIt(iMO)=1
             End Do
          End Do
       End If
@@ -502,7 +502,7 @@
      &                 List_bas,nShell,iWork(iplist_p),Work(ipR2_trail),
      &                 nNQ,FckInt,nFckDim,Density,nFckInt,nD,
      &                 nGridMax,nP2_ontop,Do_Mo,nTmpPUVX,
-     &                 nMOs,Work(ipCMO),nCMO,iWork(ipDoIt),
+     &                 nMOs,Work(ipCMO),nCMO,
      &                 Work(ipP2mo),nP2,Work(ipD1mo),nd1mo,
      &                 Work(ipp2_ontop),Do_Grad,Grad,nGrad,
      &                 iWork(iplist_g),iWork(ipIndGrd),iWork(ipiTab),
@@ -528,8 +528,7 @@
       If(ipP2mo.ne.ip_Dummy) Call Free_Work(ipP2mo)
       If(ipD1MO.ne.ip_Dummy) Call Free_Work(ipD1MO)
       If(ipCMO.ne.ip_Dummy)  Call Free_Work(ipCMO)
-      If(ipDoIt.ne.ip_iDummy) Call GetMem('DoIt','Free','Inte',
-     &                                    ipDoIt,nMOs)
+      If (Allocated(DoIt)) Call mma_deallocate(DoIt)
       If (l_casdft) Then
          Call mma_deallocate(F_xcb)
          Call mma_deallocate(F_xca)

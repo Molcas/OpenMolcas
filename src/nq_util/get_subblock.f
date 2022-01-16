@@ -15,7 +15,7 @@
      &                        nShell,nSym, list_p,R2_trial,nNQ,
      &                        FckInt,nFckDim,nFckInt,nD,
      &                        mGrid,nP2_ontop,Do_Mo,
-     &                        nMOs,CMOs,nCMO,DoIt,
+     &                        nMOs,CMOs,nCMO,
      &                        P2Unzip,D1mo,D1Unzip,nD1mo,P2_ontop,
      &                        Do_Grad,Grad,nGrad,List_G,IndGrd,iTab,
      &                        Temp,mGrad,mAO,mdRho_dR,
@@ -53,7 +53,7 @@
 #include "ksdft.fh"
       Integer Maps2p(nShell,0:nSym-1), list_s(2,*), List_G(3,*),
      &        list_exp(nSym*nShell), list_bas(2,nSym*nShell),
-     &        list_p(nNQ), DoIt(nMOs), iTab(4,mGrad),IndGrd(mGrad)
+     &        list_p(nNQ), iTab(4,mGrad),IndGrd(mGrad)
       Real*8 R2_trial(nNQ), FckInt(nFckInt,nFckDim),
      &       Grad(nGrad), Temp(mGrad), CMOs(nCMO), D1mo(nD1mo),
      &       P2_ontop(nP2_ontop,mGrid), Roots(3,3),
@@ -681,7 +681,7 @@ c
      &                 iWork(ipTabAO),mAO,nSym,nD,nP2_ontop,
      &                 Do_Mo,
      &                 Work(ipTabMO),Work(ipTabSO),
-     &                 nMOs,CMOs,nCMO,DoIt,
+     &                 nMOs,CMOs,nCMO,
      &                 P2unzip,D1mo,D1Unzip,nd1mo,P2_ontop,
      &                 Do_Grad,Grad,nGrad,
      &                 mdRho_dR,nGrad_Eff,
