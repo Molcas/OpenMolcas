@@ -33,18 +33,20 @@
 #include "itmax.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "status.fh"
 #include "nq_info.fh"
 #include "nsd.fh"
 #include "setup.fh"
 #include "grid_on_disk.fh"
 #include "print.fh"
-      Real*8 Coor(3), C(3)
+      Real*8 XYZ(3), C(3)
       Logical EQ, Do_Grad, On_Top, PMode_Old
       Real*8 Alpha(2),rm(2), R_Min(0:nR_Min)
       Integer Maps2p(nShell,0:nSym-1)
       Integer iDCRR(0:7)
       Dimension Dummy(1)
+      Real*8, Allocatable:: TempC(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -90,7 +92,7 @@ c     Write(6,*) '********** Setup_NQ ***********'
 *     Note that this will be all centers with valence basis sets on
 *     them. Hence this will also include any pseudo centers!
 *
-      Call Allocate_Work(ipTempC,3*nShell*nSym)
+      Call mma_allocate(TempC,3,nShell*nSym,Label='TempC')
       nAtoms = 0
       If (nShell.gt.nskal_iSD) Then
          Write (6,*) 'nShell.gt.nSkal_iSD'
@@ -101,13 +103,12 @@ c     Write(6,*) '********** Setup_NQ ***********'
       Do iShell = 1, nShell
          iCnttp=iSD(13,iShell)
          iCnt  =iSD(14,iShell)
-         Coor(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
-         Call Process_Coor(Coor,Work(ipTempC),nAtoms,nSym,iOper)
+         XYZ(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
+         Call Process_Coor(XYZ,TempC,nAtoms,nSym,iOper)
       End Do
       Call Allocate_Work(ipCoor,3*nAtoms)
-      call dcopy_(3*nAtoms,Work(ipTempC),1,Work(ipCoor),1)
-C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
-      Call Free_Work(ipTempC)
+      call dcopy_(3*nAtoms,TempC,1,Work(ipCoor),1)
+      Call mma_deallocate(TempC)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -186,11 +187,11 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
          iCnt  =iSD(14,iShell)
          C(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
          Do iIrrep = 0, nIrrep-1
-            Call OA(iOper(iIrrep),C,Coor)
+            Call OA(iOper(iIrrep),C,XYZ)
          Do iNQ=1,nNQ
             jNQ=ip_Coor(iNQ)
 *
-            If (EQ(Work(jNQ  ),Coor)) Then
+            If (EQ(Work(jNQ  ),XYZ)) Then
 *
                Work(ip_Atom_Nr(iNQ))=DBLE(iANR)
 *
@@ -243,7 +244,7 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
          Alpha(2)=Work(ip_A_high(iNQ))
 *
 *--------Get the coordinates of the atom
-         call dcopy_(3,Work(ip_Coor(iNQ)),1,Coor,1)
+         call dcopy_(3,Work(ip_Coor(iNQ)),1,XYZ,1)
 *
 *        For a special center we can increase the accuracy.
 *
@@ -275,7 +276,7 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
          rm(1)=Work(ip_lMax(iNQ))
          rm(2)=Threshold
 *
-         Call GenVoronoi(Coor,iWork(ip_nR_eff),nNQ,Alpha,rm,iNQ)
+         Call GenVoronoi(XYZ,iWork(ip_nR_eff),nNQ,Alpha,rm,iNQ)
 *
          If (iReset.eq.1) Then
             nR=nR_tmp
