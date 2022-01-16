@@ -14,8 +14,7 @@
      &                  Maps2p,nSym,list_s,list_exp,list_bas,
      &                  nShell,list_p,R2_trial,nNQ,
      &                  FckInt,nFckDim,Density,nFckInt,nD,
-     &                  mGrid,nP2_ontop,Do_Mo,nTmpPUVX,
-     &                  D1mo,nd1mo,P2_ontop,
+     &                  mGrid,nP2_ontop,Do_Mo,nTmpPUVX,P2_ontop,
      &                  Do_Grad,Grad,nGrad,list_g,IndGrd,iTab,Temp,
      &                  mGrad,mAO,mdRho_dR)
 ************************************************************************
@@ -34,7 +33,7 @@
       use Symmetry_Info, only: nIrrep, iOper
       use KSDFT_Info, only: KSDFA, LuMC, LuMT, Funcaa, Funcbb, Funccc
       use nq_Grid, only: l_casdft
-      use nq_MO, only: P2MO
+      use nq_MO, only: D1MO, P2MO
       Implicit Real*8 (A-H,O-Z)
       External Kernel, Rsv_Tsk
 #include "real.fh"
@@ -51,10 +50,8 @@
      &        list_s(nSym*nShell), list_exp(nSym*nShell),
      &        list_p(nNQ), List_g(3,nSym*nShell),
      &        IndGrd(mGrad), iTab(4,mGrad), list_bas(2,nSym*nShell)
-      Real*8 FckInt(nFckInt,nFckDim),
-     &       Density(nFckInt,nD), R2_trial(nNQ),
-     &       D1mo(nd1mo), Temp(mGrad),
-     &       P2_ontop(nP2_ontop,mGrid), Grad(nGrad)
+      Real*8 FckInt(nFckInt,nFckDim),Density(nFckInt,nD), R2_trial(nNQ),
+     &       Temp(mGrad),P2_ontop(nP2_ontop,mGrid), Grad(nGrad)
       Logical Check, Do_Grad, Rsv_Tsk
       Logical Do_Mo,Exist,l_tgga
       REAL*8,DIMENSION(:),Allocatable::P2Unzip,D1Unzip,
@@ -109,7 +106,7 @@ c        Call append_file(LuMT)
       NASHT4=NASHT**4
       CALL mma_allocate(P2Unzip,NASHT4)
       CALL mma_allocate(D1Unzip,NASHT**2)
-      CALL UnzipD1(D1Unzip,D1MO,nD1MO)
+      CALL UnzipD1(D1Unzip,D1MO,SIZE(D1MO))
       CALL UnzipP2(P2Unzip,P2MO,SIZE(P2MO))
 ************************************************************************
 *
@@ -215,7 +212,7 @@ C        Debug=.True.
      &                     list_p,R2_trial,nNQ,
      &                     FckInt,nFckDim,nFckInt,nD,
      &                     mGrid,nP2_ontop,Do_Mo,
-     &                     P2Unzip,D1mo,D1Unzip,nd1mo,P2_ontop,
+     &                     P2Unzip,D1Unzip,P2_ontop,
      &                     Do_Grad,Grad,nGrad,List_G,IndGrd,iTab,Temp,
      &                     mGrad,mAO,mdRho_dR,
      &                     LTEG_DB,PDFTPot1,PDFTFocI,PDFTFocA)

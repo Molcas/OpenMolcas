@@ -33,7 +33,7 @@
       use nq_Grid, only: l_CASDFT, kAO
       use nq_Grid, only: F_xc, F_xca, F_xcb
       use nq_pdft, only: lft, lGGA
-      use nq_MO, only: DoIt, CMO, P2MO
+      use nq_MO, only: DoIt, CMO, D1MO, P2MO
       use libxc
       Implicit Real*8 (A-H,O-Z)
       External Kernel
@@ -104,9 +104,7 @@
 *                                                                      *
 *     CASDFT stuff:
 *
-      nD1mo=1
       nTmpPUVX=1
-      ipD1mo=ip_Dummy
 *
       NQNAC=0
       If (DFTFOCK.ne.'SCF ') Then
@@ -375,8 +373,8 @@
            If(.not.l_casdft) Then
              NQNACPAR = ( NQNAC**2 + NQNAC )/2
              nd1mo=NQNACPAR
-             Call GetMem('D1MO','Allo','Real',ipD1MO,nd1mo)
-             Call Get_D1MO(Work(ipD1mo),nd1mo)
+             Call mma_allocate(D1MO,nd1mo,Label='D1MO')
+             Call Get_D1MO(D1MO,nD1MO)
              NQNACPR2 = ( NQNACPAR**2 + NQNACPAR )/2
              Call mma_Allocate(P2MO,nP2,Label='P2MO')
              Call Get_P2mo(P2MO,nP2)
@@ -480,9 +478,9 @@
         IF(NQNAC.ne.0) then
           NQNACPAR = ( NQNAC**2 + NQNAC )/2
           NQNACPR2 = ( NQNACPAR**2 + NQNACPAR )/2
-          nd1mo = NQNACPAR
-          Call GetMem('D1MO','Allo','Real',ipD1MO,nd1mo)
-          Call Get_D1MO(Work(ipD1mo),nd1mo)
+          nD1MO = NQNACPAR
+          Call mma_allocate(D1MO,nD1MO,Label='D1MO')
+          Call Get_D1MO(D1MO,nD1MO)
           nP2 = NQNACPR2
           Call mma_Allocate(P2MO,nP2,Label='P2MO')
           call Get_P2mo(P2MO,nP2)
@@ -497,7 +495,6 @@
      &                 List_bas,nShell,iWork(iplist_p),Work(ipR2_trail),
      &                 nNQ,FckInt,nFckDim,Density,nFckInt,nD,
      &                 nGridMax,nP2_ontop,Do_Mo,nTmpPUVX,
-     &                 Work(ipD1mo),nd1mo,
      &                 Work(ipp2_ontop),Do_Grad,Grad,nGrad,
      &                 iWork(iplist_g),iWork(ipIndGrd),iWork(ipiTab),
      &                 Work(ipTemp),mGrad,mAO,mdRho_dR)
@@ -519,8 +516,8 @@
       Call mma_deallocate(List_Exp)
       Call mma_deallocate(List_S)
 *Do_TwoEl
+      If (Allocated(D1MO)) Call mma_deallocate(D1MO)
       If (Allocated(P2MO)) Call mma_deallocate(P2MO)
-      If(ipD1MO.ne.ip_Dummy) Call Free_Work(ipD1MO)
       If (Allocated(CMO)) Call mma_deallocate(CMO)
       If (Allocated(DoIt)) Call mma_deallocate(DoIt)
       If (l_casdft) Then

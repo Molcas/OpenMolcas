@@ -11,5 +11,5 @@
 Module nq_MO
   Integer, Allocatable:: DoIt(:)
   Real*8, Allocatable:: CMO(:)
-  Real*8, Allocatable:: P2MO(:)
+  Real*8, Allocatable:: D1MO(:), P2MO(:)
 End Module nq_MO
