@@ -25,7 +25,6 @@
 !
 ! Pointer
 !
-!     ipcoor      : Pointer to the coordinates of the atoms.
 !     ip_ioffsh   : Pointer to the offset of the shells in the
 !                    overlap matrix.
 !
@@ -52,7 +51,7 @@
      &                 ipNQ,nx,ny,nz,number_of_subblocks,               &
      &                 ip_nR_Eff,ip_R,ipMem,nMem,                       &
      &                 L_Quad,nR,nAtoms,nMaxExp,                        &
-     &                 nTotGP,nbrmxbas,iAngMax,ip_ioffsh,ipcoor,        &
+     &                 nTotGP,nbrmxbas,iAngMax,ip_ioffsh,               &
      &                 iOpt_Angular,ip_O,mIrrep,                        &
      &                 ipTmp,nTmp,mTmp,mRad,nAOMax,                     &
      &                 ipTabAOMax,NQ_Direct,                            &
@@ -64,7 +63,7 @@
      &                 ipNQ,nx,ny,nz,number_of_subblocks,               &
      &                 ip_nR_Eff,ip_R,ipMem,nMem,                       &
      &                 L_Quad,nR,nAtoms,nMaxExp,                        &
-     &                 nTotGP,nbrmxbas,iAngMax,ip_ioffsh,ipcoor,        &
+     &                 nTotGP,nbrmxbas,iAngMax,ip_ioffsh,               &
      &                 iOpt_Angular,ip_O,                               &
      &                 mIrrep, nISh, nAsh, mBas,Functional_type,mOrb,   &
      &                 Grid_Type, Rotational_Invariance,                &
