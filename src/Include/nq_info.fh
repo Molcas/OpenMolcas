@@ -53,8 +53,8 @@
      &                 L_Quad,nR,nAtoms,nMaxExp,                        &
      &                 nTotGP,nbrmxbas,iAngMax,ip_ioffsh,               &
      &                 iOpt_Angular,ip_O,mIrrep,                        &
-     &                 ipTmp,nTmp,mTmp,mRad,nAOMax,                     &
-     &                 ipTabAOMax,NQ_Direct,                            &
+     &                            mTmp,mRad,nAOMax,                     &
+     &                            NQ_Direct,                            &
      &                 iQEnd,ip_OrbDip(3)
       Common /Quad_i / iQStrt,NASHT,NASHT4,NPot1,nOrbt,nPot2,maxUVX,    &
      &                          ndc,                                    &
@@ -67,8 +67,8 @@
      &                 iOpt_Angular,ip_O,                               &
      &                 mIrrep, nISh, nAsh, mBas,Functional_type,mOrb,   &
      &                 Grid_Type, Rotational_Invariance,                &
-     &                 ipTmp,nTmp,mTmp,mRad,nAOMax,                     &
-     &                 ipTabAOMax,NQ_Direct,Packing,OffPUVX,            &
+     &                            mTmp,mRad,nAOMax,                     &
+     &                            NQ_Direct,Packing,OffPUVX,            &
      &                 iQEnd,ip_OrbDip,ioff_ash,ioff_bas,ioff_basact,   &
      &                 OffBas,OffOrb,OffOrb2,OffOrbTri,OffBas2,         &
      &                 OffBasFro,OffUVX,nUVX,nUVXt,OffVX,nVX,nVXt

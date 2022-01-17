@@ -32,7 +32,7 @@
       use nq_Grid, only: nRho, nGradRho, nTau, nSigma, nLapl, nGridMax
       use nq_Grid, only: l_CASDFT, kAO
       use nq_Grid, only: F_xc, F_xca, F_xcb
-      use nq_Grid, only: Coor, R2_trial, Pax, Fact
+      use nq_Grid, only: Coor, R2_trial, Pax, Fact, Tmp
       use nq_pdft, only: lft, lGGA
       use nq_MO, only: DoIt, CMO, D1MO, P2MO, P2_ontop
       use libxc
@@ -560,7 +560,7 @@
 
       Call GetMem('nq_centers','Free','Real',ipNQ,nShell*l_NQ)
       Call GetMem('nMem','Free','Real',ipMem,nMem)
-      Call GetMem('Tmp','Free','Real',ipTmp,nTmp)
+      Call mma_deallocate(Tmp)
       Call mma_deallocate(Fact)
       Call mma_deallocate(Maps2p)
       NQ_Status=Inactive

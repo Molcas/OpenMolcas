@@ -13,6 +13,7 @@ Real*8, Allocatable:: Pax(:,:)
 Real*8, Allocatable:: Coor(:,:)
 Real*8, Allocatable:: R2_trial(:)
 Real*8, Allocatable:: Fact(:,:)
+Real*8, Allocatable:: Tmp(:)
 
 Real*8, Allocatable:: Weights(:)
 Real*8, Allocatable:: Grid(:,:)

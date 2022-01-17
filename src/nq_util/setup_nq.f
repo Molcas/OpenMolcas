@@ -28,7 +28,7 @@
       use Basis_Info
       use Center_Info
       use Symmetry_Info, only: nIrrep, iOper
-      use nq_Grid, only: nGridMax, Coor, Pax, Fact
+      use nq_Grid, only: nGridMax, Coor, Pax, Fact, Tmp
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "real.fh"
@@ -607,9 +607,7 @@ c     Write(6,*) '********** Setup_NQ ***********'
 *     Allocate scratch for processing AO's on the grid
 *
       nTmp=nGridMax*Max(mTmp,nScr)
-      Call GetMem('Tmp','Allo','Real',ipTmp,nTmp+nShell*nIrrep)
-
-      ipTabAOMax=ipTmp+nTmp
+      Call mma_allocate(Tmp,nTmp,Label='Tmp')
 *
       nMem=0
       nSO =0

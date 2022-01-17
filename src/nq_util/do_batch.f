@@ -36,7 +36,7 @@
       use nq_Grid, only: vRho, vSigma, vTau, vLapl
       use nq_Grid, only: l_CASDFT, TabAO, TabAO_Pack, dRho_dR
       use nq_Grid, only: F_xc, F_xca, F_xcb
-      use nq_Grid, only: Fact
+      use nq_Grid, only: Fact, Tmp
       use nq_pdft
       use nq_MO, only: DoIt, CMO, D1MO, P2_ontop
       Implicit Real*8 (A-H,O-Z)
@@ -215,14 +215,12 @@
 *                 Check if we should store any AOs at all!
 *
                   iOff = ipTabAO(ilist_s,1)
-                  If (nData.gt.nTmp) Then
-                     Call WarningMessage(2,'nData.gt.nTmp')
+                  If (nData.gt.SIZE(Tmp)) Then
+                     Call WarningMessage(2,'nData.gt.SIZE(Tmp)')
                      Call Abend()
                   End If
-                  call dcopy_(nData,TabAO_Pack(iOff:),1,
-     &                              Work(ipTmp),1)
-                  Call PkR8(0,nData,nByte,Work(ipTmp),
-     &                                    TabAO_Pack(jOff:))
+                  call dcopy_(nData,TabAO_Pack(iOff:),1,Tmp,1)
+                  Call PkR8(0,nData,nByte,Tmp,TabAO_Pack(jOff:))
                   mData = (nByte+RtoB-1)/RtoB
                   If (mData.gt.nData) Then
                      Call WarningMessage(2,'mData.gt.nData')
@@ -262,12 +260,12 @@
             If (nByte.gt.0) Then
                mData = (nByte+RtoB-1)/RtoB
                jOff = jOff - mData
-               If (mData.gt.nTmp) Then
-                  Call WarningMessage(2,'mData.gt.nTmp')
+               If (mData.gt.SIZE(Tmp)) Then
+                  Call WarningMessage(2,'mData.gt.SIZE(Tmp)')
                   Call Abend()
                End If
-               Call UpkR8(0,nData,nByte,TabAO_Pack(jOff:),Work(ipTmp))
-               call dcopy_(nData,Work(ipTmp),1,TabAO_Pack(iOff:),1)
+               Call UpkR8(0,nData,nByte,TabAO_Pack(jOff:),Tmp)
+               call dcopy_(nData,Tmp,1,TabAO_Pack(iOff:),1)
             Else
                mData=0
                TabAO_Pack(1:nData)=Zero
