@@ -19,10 +19,12 @@
 #include "nq_info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
       Parameter (nSet=11)
       Integer Lebedev_order(nSet), Lebedev_npoints(nSet)
       Data Lebedev_order/5,7,11,17,23,29,35,41,47,53,59/
       Data Lebedev_npoints/14,26,50,110,194,302,434,590,770,974,1202/
+      Real*8, Allocatable:: TempR(:,:), TempW(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -32,29 +34,31 @@
          If (Lebedev_order(iSet).eq.L_Eff) Then
             mPt=Lebedev_npoints(iSet)
             Call GetMem('AngRW','Allo','Real',ipR,4*mPt)
-            Call GetMem('temp','Allo','Real',iptemp,4*mPt)
+            Call mma_allocate(TempR,3,mPt,Label='TempR')
+            Call mma_allocate(TempW,mPt,Label='TempW')
 *
             iOffR=iptemp
             iOffW=iOffR+3*mPt
-            Call Lebedev(Work(iOffR),Work(iOffW),nPt,mPt,L_Eff)
+            Call Lebedev(TempR,TempW,nPt,mPt,L_Eff)
             If (nPt.ne.mPt) Then
                Call WarningMessage(2,'Lebedev_Grid: nPt.ne.mPt')
                Write (6,*) 'nPt=',nPt
                Write (6,*) 'mPt=',mPt
                Call Abend()
             End If
-            Call DScal_(nPt,Four*Pi,Work(iOffW),1)
+            Call DScal_(nPt,Four*Pi,TempW,1)
 *
             Call DGEMM_('N','N',
      &                  3,nPt,3,
      &                  1.0d0,Pax,3,
-     &                  Work(iOffR),3,
+     &                        TempR,3,
      &                  0.0d0,Work(ipR),4)
-            call dcopy_(nPt,Work(iOffW  ),1,Work(ipR+3),4)
+            call dcopy_(nPt,TempW,1,Work(ipR+3),4)
 *
-            Call GetMem('temp','Free','Real',iptemp,4*nPt)
+            Call mma_deallocate(TempW)
+            Call mma_deallocate(TempR)
 *
-            Go To 99
+            Return
 *
          End If
       End Do
@@ -65,5 +69,4 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
- 99   Return
       End

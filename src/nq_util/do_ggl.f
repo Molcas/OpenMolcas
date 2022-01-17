@@ -19,6 +19,8 @@
 #include "nq_info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
+      Real*8, Allocatable:: Th(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -35,14 +37,14 @@
       mPt    = nTheta*nPhi
       Call GetMem('AngRW','Allo','Real',ipR,4*mPt)
 *
-      Call GetMem('Theta','Allo','Real',ipTh,2*nTheta)
+      Call mma_allocate(Th,2,nTheta,Label='Th')
 *
-      Call GauLeg(-One,One,Work(ipTh),nTheta)
+      Call GauLeg(-One,One,Th,nTheta)
 *
       iOff = ipR
       Do iTheta = 1, nTheta
-         Cos_Theta = Work(ipTh+(iTheta-1)*2  )
-         w_Theta   = Work(ipTh+(iTheta-1)*2+1)
+         Cos_Theta = Th(1,iTheta)
+         w_Theta   = Th(2,iTheta)
          Sin_Theta = Sqrt(One-Cos_Theta**2)
 *
          Do iPhi = 1, nPhi
@@ -61,7 +63,7 @@
 *
       End Do       ! iTheta
 *
-      Call GetMem('Theta','Free','Real',ipTh,2*nTheta)
+      Call mma_deallocate(Th)
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -19,6 +19,8 @@
 #include "nq_info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
+      Real*8, Allocatable:: Labatto(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -40,17 +42,17 @@
 *
       nTheta = (L_Eff+3)/2
       nLabatto=3*(nTheta+2)*(nTheta+3)/2
-      Call GetMem('Labatto','Allo','Real',ipLabatto,nLabatto)
-      Call Lobatto(ntheta,Work(ipLabatto))
+      Call mma_allocate(Labatto,nLabatto,Label='Labatto')
+      Call Lobatto(ntheta,Labatto)
 *
       mTheta=nTheta-1
-      iOffT=ipLabatto + 3*mTheta*(mTheta+1)/2
+      iOffT=1 + 3*mTheta*(mTheta+1)/2
       iOff   = ipR
       Do iTheta = 1, nTheta
 *
-         Cos_Theta=Work(iOffT)
+         Cos_Theta=Labatto(iOffT)
          Sin_Theta=Sqrt(One-Cos_Theta**2)
-         w_Theta  =Work(iOffT+1)
+         w_Theta  =Labatto(iOffT+1)
          iOffT = iOffT + 3
 *
          nPhi = L_Eff
@@ -73,7 +75,7 @@
          End Do  ! iPhi
 *
       End Do     ! iTheta
-      Call GetMem('Labatto','Free','Real',ipLabatto,nLabatto)
+      Call mma_deallocate(Labatto)
 *                                                                      *
 ************************************************************************
 *                                                                      *
