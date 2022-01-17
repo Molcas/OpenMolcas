@@ -9,8 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine NQGrid_Init()
+      use Grid_On_Disk
       Implicit Real*8 (A-H,O-Z)
-#include "grid_on_disk.fh"
       Integer Other_Type
       Parameter (Other_Type=2)
 *                                                                      *

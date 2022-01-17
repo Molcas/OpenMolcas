@@ -9,11 +9,11 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Modify_NQ_grid
+      use Grid_On_Disk
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
 #include "nq_info.fh"
-#include "grid_on_disk.fh"
       Parameter (L_Quad_Low=23, Threshold_High=1.0D-7, nR_Low=50)
 *                                                                      *
 ************************************************************************

@@ -37,6 +37,7 @@
       use nq_pdft, only: lft, lGGA
       use nq_MO, only: DoIt, CMO, D1MO, P2MO, P2_ontop
       use nq_Structure, only: Close_NQ_Data
+      use Grid_On_Disk
       use libxc
       Implicit Real*8 (A-H,O-Z)
       External Kernel
@@ -48,7 +49,6 @@
 #include "setup.fh"
 #include "nsd.fh"
 #include "debug.fh"
-#include "grid_on_disk.fh"
 #include "status.fh"
 #include "ksdft.fh"
       Real*8 FckInt(nFckInt,nFckDim),Density(nFckInt,nD), Grad(nGrad)
@@ -558,12 +558,12 @@
       iDisk_Grid=0
       Call iDaFile(Lu_Grid,1,G_S,5,iDisk_Grid)
       iDisk_Grid=iDisk_Set(iGrid_Set)
-      Call iDaFile(Lu_Grid,1,iWork(ip_GridInfo),
+      Call iDaFile(Lu_Grid,1,GridInfo,
      &             2*number_of_subblocks,iDisk_Grid)
 *
       Call DaClos(Lu_Grid)
 *
-      Call Free_iWork(ip_GridInfo)
+      Call mma_deallocate(GridInfo)
 *                                                                      *
 ************************************************************************
 *                                                                      *

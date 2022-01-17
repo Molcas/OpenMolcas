@@ -38,6 +38,7 @@
       use nq_Grid, only: D1UnZip, P2UnZip
       use nq_pdft
       use nq_MO, only: DoIt, CMO, D1MO, P2_ontop
+      use Grid_On_Disk
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "SysDef.fh"
@@ -50,7 +51,6 @@
 #include "nsd.fh"
 #include "setup.fh"
 #include "pamint.fh"
-#include "grid_on_disk.fh"
       Integer list_s(2,nlist_s),List_Exp(nlist_s),
      &        ipTabAO(nlist_s+1,2),Index(nIndex),
      &        List_Bas(2,nlist_s)

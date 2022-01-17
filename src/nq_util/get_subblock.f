@@ -39,6 +39,7 @@
       use nq_Grid, only: List_G, IndGrd, iTab, dW_dR, nR_Eff
       use nq_MO, only: DoIt
       use NQ_Structure, only: NQ_Data
+      use Grid_On_Disk
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "itmax.fh"
@@ -47,7 +48,6 @@
 #include "nsd.fh"
 #include "setup.fh"
 #include "real.fh"
-#include "grid_on_disk.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "debug.fh"
@@ -62,12 +62,6 @@
       Real*8 EG_OT(nTmpPUVX)
       Integer, Allocatable:: Index(:)
       Real*8, Allocatable:: dW_Temp(:,:), dPB(:,:,:)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Statement functions
-*
-      iGridInfo(i,iNQ)=iWork(ip_GridInfo+(iNQ-1)*2+i-1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -571,8 +565,8 @@ c
          If (Debug) write(6,*) 'Subblock ----> Get_Subblock'
 #endif
       End Do
-      iWork(ip_GridInfo+(ixyz-1)*2)=iDisk_Grid
-      iWork(ip_GridInfo+(ixyz-1)*2+1)=nBatch
+      GridInfo(1,ixyz)=iDisk_Grid
+      GridInfo(2,ixyz)=nBatch
       Call iDaFile(Lu_Grid,1,iBatchInfo,3*nBatch,iDisk_Grid)
 *                                                                      *
 ************************************************************************
@@ -581,8 +575,8 @@ c
 *
  997  Continue
 *
-      iDisk_Grid =iGridInfo(1,ixyz)
-      nBatch=iGridInfo(2,ixyz)
+      iDisk_Grid =GridInfo(1,ixyz)
+      nBatch=GridInfo(2,ixyz)
       Call iDaFile(Lu_Grid,2,iBatchInfo,3*nBatch,iDisk_Grid)
 *
       iBatch = 0

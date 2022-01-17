@@ -30,13 +30,13 @@
 *             August 1999                                              *
 ************************************************************************
       use NQ_structure, only: NQ_Data
+      use Grid_On_Disk
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "setup.fh"
 #include "nq_info.fh"
-#include "grid_on_disk.fh"
 #include "nsd.fh"
 #include "debug.fh"
       Integer list_p(nlist_p)

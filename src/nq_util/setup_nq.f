@@ -30,6 +30,7 @@
       use Symmetry_Info, only: nIrrep, iOper
       use nq_Grid, only: nGridMax, Coor, Pax, Fact, Tmp, nR_Eff
       use nq_structure, only: NQ_Data
+      use Grid_On_Disk
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "real.fh"
@@ -39,7 +40,6 @@
 #include "nq_info.fh"
 #include "nsd.fh"
 #include "setup.fh"
-#include "grid_on_disk.fh"
 #include "print.fh"
       Real*8 XYZ(3), C(3)
       Logical EQ, Do_Grad, On_Top, PMode_Old
@@ -642,8 +642,8 @@ c         nMem=Max(nMem,nxyz+nAngular+nRad+nRadial+nSO)
       iDisk_Grid=iDisk_Set(iGrid_Set)
 *
 *---- Allocate memory for the master TOC.
-      Call GetMem('GridInfo','Allo','Inte',ip_GridInfo,
-     &            2*number_of_subblocks)
+      Call mma_Allocate(GridInfo,2,number_of_subblocks,
+     &                  Label='GridInfo')
 *
 *---- Retrieve the TOC or regenerate it.
 *
@@ -653,13 +653,13 @@ c         nMem=Max(nMem,nxyz+nAngular+nRad+nRadial+nSO)
       If (Grid_Status.eq.Regenerate) Then
 C        Write (6,*) 'Grid_Status.eq.Regenerate'
          Grid_Status=Regenerate
-         Call ICopy(2*number_of_subblocks,[0],0,iWork(ip_GridInfo),1)
-         Call iDaFile(Lu_Grid,1,iWork(ip_GridInfo),
+         GridInfo(:,:)=0
+         Call iDaFile(Lu_Grid,1,GridInfo,
      &                2*number_of_subblocks,iDisk_Grid)
          Old_Functional_Type=Functional_Type
       Else If (Grid_Status.eq.Use_Old) Then
 C        Write (6,*) 'Grid_Status.eq.Use_Old'
-         Call iDaFile(Lu_Grid,2,iWork(ip_GridInfo),
+         Call iDaFile(Lu_Grid,2,GridInfo,
      &                2*number_of_subblocks,iDisk_Grid)
       Else
          Call WarningMessage(2,'Illegal Grid Status!')
