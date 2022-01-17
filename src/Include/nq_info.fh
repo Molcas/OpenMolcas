@@ -45,7 +45,7 @@
       Integer Packing
       Parameter(On=1, Off=0)
       Integer          iQStrt,NASHT,NASHT4,NPOt1,nOrbt,nPot2,maxUVX,    &
-     &                 ip_Fact, ndc,nUVXt ,nVXt,                        &
+     &                          ndc,nUVXt ,nVXt,                        &
      &                           nAngularGrids,                         &
      &                 L_Quad_save, nR_Save,                            &
      &                 ipNQ,nx,ny,nz,number_of_subblocks,               &
@@ -57,7 +57,7 @@
      &                 ipTabAOMax,NQ_Direct,                            &
      &                 iQEnd,ip_OrbDip(3)
       Common /Quad_i / iQStrt,NASHT,NASHT4,NPot1,nOrbt,nPot2,maxUVX,    &
-     &                 ip_Fact, ndc,                                    &
+     &                          ndc,                                    &
      &                 Info_Ang, nAngularGrids,                         &
      &                 L_Quad_save, nR_Save, Angular_Prunning,          &
      &                 ipNQ,nx,ny,nz,number_of_subblocks,               &

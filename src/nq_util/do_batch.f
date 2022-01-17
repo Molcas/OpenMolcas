@@ -36,6 +36,7 @@
       use nq_Grid, only: vRho, vSigma, vTau, vLapl
       use nq_Grid, only: l_CASDFT, TabAO, TabAO_Pack, dRho_dR
       use nq_Grid, only: F_xc, F_xca, F_xcb
+      use nq_Grid, only: Fact
       use nq_pdft
       use nq_MO, only: DoIt, CMO, D1MO, P2_ontop
       Implicit Real*8 (A-H,O-Z)
@@ -336,8 +337,8 @@
 *     In case of gradient calculations compute Cartesian derivatives
 *     of Rho, Grad Rho, Tau, and the Laplacian.
 *                                                                      *
-      Call Mk_Rho(list_s,nlist_s,Work(ip_Fact),ndc,list_bas,
-     &            Index,nIndex,list_g,Do_Grad)
+      Call Mk_Rho(list_s,nlist_s,Fact,ndc,list_bas,Index,nIndex,list_g,
+     &            Do_Grad)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -519,7 +520,7 @@
 ************************************************************************
 *                                                                      *
          If(.not.l_casdft) Call DFT_Int(list_s,nlist_s,FckInt,nFckInt,
-     &                                  nD,Work(ip_Fact),ndc,list_bas)
+     &                                  nD,Fact,ndc,list_bas)
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -28,7 +28,7 @@
       use Basis_Info
       use Center_Info
       use Symmetry_Info, only: nIrrep, iOper
-      use nq_Grid, only: nGridMax, Coor, Pax
+      use nq_Grid, only: nGridMax, Coor, Pax, Fact
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "real.fh"
@@ -766,8 +766,7 @@ C        Write (6,*) 'Grid_Status.eq.Use_Old'
       Do iSh = 1, nShell
          ndc = Max(ndc,iSD(10,iSh))
       End Do
-      ndc2 = ndc**2
-      Call GetMem('Fact','Allo','Real',ip_Fact,ndc2)
+      Call mma_allocate(Fact,ndc,ndc,Label='Fact')
       Do mdci = 1, ndc
          nDegi=nIrrep/dc(mdci)%nStab
          Do mdcj = 1, ndc
@@ -778,18 +777,17 @@ C        Write (6,*) 'Grid_Status.eq.Use_Old'
 *
             iuv = dc(mdci)%nStab*dc(mdcj)%nStab
             If (MolWgh.eq.1) Then
-               Fact = DBLE(nIrrep) / DBLE(LmbdR)
+               Fct = DBLE(nIrrep) / DBLE(LmbdR)
             Else If (MolWgh.eq.0) Then
-               Fact = DBLE(iuv) / DBLE(nIrrep * LmbdR)
+               Fct = DBLE(iuv) / DBLE(nIrrep * LmbdR)
             Else
-               Fact = Sqrt(DBLE(iuv))/ DBLE(LmbdR)
+               Fct = Sqrt(DBLE(iuv))/ DBLE(LmbdR)
             End If
-            Fact=Fact*DBLE(nDCRR)/DBLE(nDegi*nDegj)
+            Fct=Fct*DBLE(nDCRR)/DBLE(nDegi*nDegj)
 *
 *---------- Save: Fact
 *
-            ij = (mdcj-1)*ndc + mdci
-            Work(ip_Fact+ij-1) = Fact
+            Fact(mdci,mdcj) = Fct
 *
          End Do
       End Do

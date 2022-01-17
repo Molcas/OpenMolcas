@@ -20,7 +20,7 @@
       use k2_arrays, only: DeDe, ipDijS
       use nq_grid, only: Rho, TabAO, Dens_AO, Grid_AO, TabAO_Short
       use nq_grid, only: GradRho, Sigma, Tau, Lapl, kAO
-       use nq_Grid, only: Ind_Grd, dRho_dR
+      use nq_Grid, only: Ind_Grd, dRho_dR
 #ifdef _DEBUGPRINT_
       use nq_grid, only: nRho
 #endif
