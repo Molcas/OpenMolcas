@@ -21,7 +21,7 @@
      &                    P2unzip,D1Unzip,
      &                    Do_Grad,Grad,nGrad,ndRho_dR,nGrad_Eff,
      &                    list_g,IndGrd,iTab,Temp,dW_dR,iNQ,
-     &                    LTEG_DB,PDFTPot1,PDFTFocI,PDFTFocA)
+     &                    EG_OT,nTmpPUVX,PDFTPot1,PDFTFocI,PDFTFocA)
 ************************************************************************
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. November 2000                           *
@@ -69,7 +69,8 @@
 *     MOas is for all MOs.
       Real*8,DIMENSION(NASHT4)::P2Unzip
       Real*8,DIMENSION(NASHT**2)::D1Unzip
-      Integer LTEG_DB,nPMO3p
+      Integer nPMO3p
+      Real*8 EG_OT(nTmpPUVX)
       Real*8, Allocatable:: RhoI(:,:), RhoA(:,:)
       Real*8, Allocatable:: TmpCMO(:)
       Integer, Allocatable:: TDoIt(:)
@@ -503,7 +504,7 @@
               CALL TransActMO(MOs, TabMO,mAO,mGrid,nMOs)
               Call Calc_Pot1(PDFTPot1,TabMO,mAO,mGrid,nMOs,P2_ontop,
      &                       nP2_ontop,MOas)
-              Call Calc_Pot2(Work(LTEG_DB),mGrid,P2_ontop,nP2_ontop)
+              Call Calc_Pot2(EG_OT,mGrid,P2_ontop,nP2_ontop)
               Call PDFTFock(PDFTFocI,PDFTFocA,D1Unzip,mGrid,MOs)
               CALL mma_deallocate(MOs)
            End If

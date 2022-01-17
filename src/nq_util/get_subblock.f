@@ -18,7 +18,7 @@
      &                        P2Unzip,D1Unzip,
      &                        Do_Grad,Grad,nGrad,List_G,IndGrd,iTab,
      &                        Temp,mGrad,mAO,mdRho_dR,
-     &                        LTEG_DB,PDFTPot1,PDFTFocI,PDFTFocA)
+     &                        EG_OT,nTmpPUVX,PDFTPot1,PDFTFocI,PDFTFocA)
 ************************************************************************
 *                                                                      *
 * Object: to generate the list of the shell and exponent that have an  *
@@ -59,7 +59,7 @@
      &       xyz0(3,2),PDFTPot1(npot1),PDFTFocI(nPot1),PDFTFocA(nPot1)
       Logical InBox(MxAtom), Do_Grad, More_to_come
       Logical Do_Mo
-      Integer LTEG_DB
+      Real*8 EG_OT(nTmpPUVX)
       Real*8,DIMENSION(NASHT4)::P2Unzip
       Real*8,DIMENSION(NASHT**2)::D1Unzip
       Integer, Allocatable:: Index(:)
@@ -677,7 +677,7 @@ c
      &                 mdRho_dR,nGrad_Eff,
      &                 list_g,IndGrd,iTab,Temp,
      &                 dW_dR,iNQ,
-     &                 LTEG_DB,PDFTPot1,PDFTFocI,PDFTFocA)
+     &                 EG_OT,nTmpPUVX,PDFTPot1,PDFTFocI,PDFTFocA)
 *
          If (Allocated(dRho_dR)) Call mma_deallocate(dRho_dR)
          If (Allocated(TabAO_Short)) Call mma_deallocate(TabAO_Short)
