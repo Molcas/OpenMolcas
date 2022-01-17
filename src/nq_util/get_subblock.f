@@ -38,6 +38,7 @@
      &                   TabAO_Pack, Ind_Grd, dRho_dR, TabAO_Short,
      &                   kAO, iBfn_Index, R2_trial
       use nq_MO, only: DoIt
+      use NQ_Structure, only: NQ_Data
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "itmax.fh"
@@ -70,7 +71,6 @@
 *     Statement functions
 *
 #include "nq_structure.fh"
-      declare_ip_coor
       declare_ip_r_max
       declare_ip_angular
       iGridInfo(i,iNQ)=iWork(ip_GridInfo+(iNQ-1)*2+i-1)
@@ -129,9 +129,9 @@
       Do 10 iNQ=1,nNQ
          InBox(iNQ)=.False.
 *--------Get the coordinates of the partitionning
-         x_NQ =Work(ip_Coor(iNQ)  )
-         y_NQ =Work(ip_Coor(iNQ)+1)
-         z_NQ =Work(ip_Coor(iNQ)+2)
+         x_NQ =NQ_Data(iNQ)%Coor(1)
+         y_NQ =NQ_Data(iNQ)%Coor(2)
+         z_NQ =NQ_Data(iNQ)%Coor(3)
 *
 *        1) center is in the box
 *
@@ -372,8 +372,8 @@
                   iTab(1,nGrad_Eff)=iCar+1
                   iTab(3,nGrad_Eff)=iNQ
                   kNQ=Maps2p(iShell,0)
-                  Xref=Work(ip_Coor(kNQ)+iCar)
-                  X   =Work(ip_Coor(iNQ)+iCar)
+                  Xref=NQ_Data(kNQ)%Coor(iCar+1)
+                  X   =NQ_Data(iNQ)%Coor(iCar+1)
                   If (X.eq.Xref) Then
                      iTab(4,nGrad_Eff)=dc(mdci)%nStab
                   Else
@@ -478,9 +478,9 @@
          End If
 *
 *--------Get the coordinates of the partition
-         x_NQ =Work(ip_Coor(iNQ)  )
-         y_NQ =Work(ip_Coor(iNQ)+1)
-         z_NQ =Work(ip_Coor(iNQ)+2)
+         x_NQ =NQ_Data(iNQ)%Coor(1)
+         y_NQ =NQ_Data(iNQ)%Coor(2)
+         z_NQ =NQ_Data(iNQ)%Coor(3)
 *--------Get the maximum radius on which we have to integrate for the
 *        partition
          RMax=Work(ip_R_Max(iNQ))

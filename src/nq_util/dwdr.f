@@ -11,6 +11,7 @@
       Subroutine dWdR(R,ilist_p,Weights,list_p,nlist_p,
      &                dW_dR,nGrad_Eff,iTab,dW_Temp,dPB,nGrid)
       use nq_Grid, only: Pax
+      use NQ_Structure, only: NQ_data
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -25,7 +26,6 @@
 ************************************************************************
 *                                                                      *
 #include "nq_structure.fh"
-      declare_ip_coor
       declare_ip_dodx
       p(x)=(x*0.5D0)*(3.0D0-x**2)
 *                                                                      *
@@ -56,9 +56,7 @@
 *------- The current grid point is associated with center A and the
 *        "atomic" displacement vector relative to center A is computed.
 *
-         Osxyz(1) = R(1,iGrid)-Work(ip_Coor(iNQ)  )
-         Osxyz(2) = R(2,iGrid)-Work(ip_Coor(iNQ)+1)
-         Osxyz(3) = R(3,iGrid)-Work(ip_Coor(iNQ)+2)
+         Osxyz(:) = R(:,iGrid)-NQ_data(iNQ)%Coor(:)
 *
          sxyz(1)=O11*Osxyz(1)+O12*Osxyz(2)+O13*Osxyz(3)
          sxyz(2)=O21*Osxyz(1)+O22*Osxyz(2)+O23*Osxyz(3)
@@ -81,10 +79,9 @@ C        P_A=Zero
             End If
 *
             kNQ=list_p(iB)
-            kx=ip_Coor(kNQ)
-            r_Bx=R(1,iGrid)-Work(kx  )
-            r_By=R(2,iGrid)-Work(kx+1)
-            r_Bz=R(3,iGrid)-Work(kx+2)
+            r_Bx=R(1,iGrid)-NQ_Data(kNQ)%Coor(1)
+            r_By=R(2,iGrid)-NQ_Data(kNQ)%Coor(2)
+            r_Bz=R(3,iGrid)-NQ_Data(kNQ)%Coor(3)
             r_B=sqrt(r_Bx**2+r_By**2+r_Bz**2)
 *
 *           loop over C=/=B for all s(mu_BC), see Eq. B3
@@ -94,14 +91,13 @@ C        P_A=Zero
 *
                If (iC.ne.iB) Then
                   lNQ=list_p(iC)
-                  lx=ip_Coor(lNQ)
-                  r_Cx=R(1,iGrid)-Work(lx  )
-                  r_Cy=R(2,iGrid)-Work(lx+1)
-                  r_Cz=R(3,iGrid)-Work(lx+2)
+                  r_Cx=R(1,iGrid)-NQ_Data(lNQ)%Coor(1)
+                  r_Cy=R(2,iGrid)-NQ_Data(lNQ)%Coor(2)
+                  r_Cz=R(3,iGrid)-NQ_Data(lNQ)%Coor(3)
                   r_C=sqrt(r_Cx**2+r_Cy**2+r_Cz**2)
-                  R_BCx=Work(kx  )-Work(lx  )
-                  R_BCy=Work(kx+1)-Work(lx+1)
-                  R_BCz=Work(kx+2)-Work(lx+2)
+                  R_BCx=NQ_Data(kNQ)%Coor(1)-NQ_Data(lNQ)%Coor(1)
+                  R_BCy=NQ_Data(kNQ)%Coor(2)-NQ_Data(lNQ)%Coor(2)
+                  R_BCz=NQ_Data(kNQ)%Coor(3)-NQ_Data(lNQ)%Coor(3)
                   R_BC=sqrt(R_BCx**2+R_BCy**2+R_BCz**2)
 *
 *                 Eq. B6

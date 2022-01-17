@@ -29,6 +29,7 @@
       use Center_Info
       use Symmetry_Info, only: nIrrep, iOper
       use nq_Grid, only: nGridMax, Coor, Pax, Fact, Tmp
+      use nq_structure, only: NQ_Data
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "real.fh"
@@ -53,7 +54,6 @@
 *     Statement Functions
 *
 #include "nq_structure.fh"
-      declare_ip_coor
       declare_ip_a_high
       declare_ip_a_low
       declare_ip_r_rs
@@ -116,8 +116,11 @@ c     Write(6,*) '********** Setup_NQ ***********'
 *
       nNQ=nAtoms
       Call GetMem('nq_centers','Allo','Real',ipNQ,nNQ*l_NQ)
+      Allocate(NQ_data(1:nNQ))
       Do iNQ = 1, nNQ
-         call dcopy_(3,Coor(1:3,iNQ),1,Work(ip_Coor(iNQ)),1)
+         Call mma_allocate(NQ_data(iNQ)%Coor,3,
+     &              Label='NQ_data(iNQ)%Coor')
+         call dcopy_(3,Coor(1:3,iNQ),1,NQ_data(iNQ)%Coor,1)
       End Do
 *                                                                      *
 ************************************************************************
@@ -187,9 +190,8 @@ c     Write(6,*) '********** Setup_NQ ***********'
          Do iIrrep = 0, nIrrep-1
             Call OA(iOper(iIrrep),C,XYZ)
          Do iNQ=1,nNQ
-            jNQ=ip_Coor(iNQ)
 *
-            If (EQ(Work(jNQ  ),XYZ)) Then
+            If (EQ(NQ_data(iNQ)%Coor,XYZ)) Then
 *
                Work(ip_Atom_Nr(iNQ))=DBLE(iANR)
 *
@@ -242,17 +244,16 @@ c     Write(6,*) '********** Setup_NQ ***********'
          Alpha(2)=Work(ip_A_high(iNQ))
 *
 *--------Get the coordinates of the atom
-         call dcopy_(3,Work(ip_Coor(iNQ)),1,XYZ,1)
+         call dcopy_(3,NQ_Data(iNQ)%Coor,1,XYZ,1)
 *
 *        For a special center we can increase the accuracy.
 *
-         jNQ=ip_Coor(iNQ)
          If (MBC.ne.' ') Then
             Do iS = 1, nShell
                iCnttp=iSD(13,iS)
                iCnt  =iSD(14,iS)
                C(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
-               If ( EQ(Work(jNQ),C) ) Then
+               If ( EQ(NQ_Data(iNQ)%Coor,C) ) Then
                   mdci=iSD(10,iS)
                   If (dc(mdci)%LblCnt.eq.MBC) Then
                      nR_tmp=nR
@@ -300,7 +301,7 @@ c     Write(6,*) '********** Setup_NQ ***********'
 *
       Do iNQ = 1, nNQ
          ZA(iNQ)=Work(ip_Atom_Nr(iNQ))
-         call dcopy_(3,Work(ip_Coor(iNQ)),1,Crd(:,iNQ),1)
+         call dcopy_(3,NQ_data(iNQ)%Coor,1,Crd(:,iNQ),1)
       End Do
 *
       Call RotGrd(Crd,ZA,Pax,dOdx,Dummy,nNQ,Do_Grad,.False.)

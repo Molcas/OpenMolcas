@@ -35,6 +35,7 @@
       use nq_Grid, only: Coor, R2_trial, Pax, Fact, Tmp
       use nq_pdft, only: lft, lGGA
       use nq_MO, only: DoIt, CMO, D1MO, P2MO, P2_ontop
+      use nq_Structure, only: Close_NQ_Data
       use libxc
       Implicit Real*8 (A-H,O-Z)
       External Kernel
@@ -558,6 +559,7 @@
       Call GetMem('NumRadEff','Free','Inte',ip_nR_eff,nNQ)
       Call mma_deallocate(Coor)
 
+      Call Close_NQ_Data()
       Call GetMem('nq_centers','Free','Real',ipNQ,nShell*l_NQ)
       Call GetMem('nMem','Free','Real',ipMem,nMem)
       Call mma_deallocate(Tmp)

@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine W(R,ilist_p,Weights,list_p,nlist_p,nGrid,nRemoved)
+      use NQ_Structure, only: NQ_Data
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -20,8 +21,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#include "nq_structure.fh"
-      declare_ip_coor
       p(x)=(x*0.5D0)*(3.0D0-x**2)
 *                                                                      *
 ************************************************************************
@@ -45,34 +44,30 @@ C     Write (*,*) 'iNQ=',iNQ
 *        Write (*,*) 'iGrid=',iGrid
 *                                                                      *
 ************************************************************************
-*                                                                      *
-*----    Becke's partitioning
-*
+!                                                                      *
+!----    Becke's partitioning
+!
          Sum_P_k=Zero
          Do klist_p = 1, nlist_p
             kNQ=list_p(klist_p)
-*           Write (*,*) 'kNQ=',kNQ
-            kx=ip_Coor(kNQ)
-            ky=kx+1
-            kz=ky+1
-            r_k=sqrt((R(1,iGrid)-Work(kx))**2
-     &               +(R(2,iGrid)-Work(ky))**2
-     &               +(R(3,iGrid)-Work(kz))**2)
+            r_k=sqrt((R(1,iGrid)-NQ_Data(kNQ)%Coor(1))**2
+     &              +(R(2,iGrid)-NQ_Data(kNQ)%Coor(2))**2
+     &              +(R(3,iGrid)-NQ_Data(kNQ)%Coor(3))**2)
             P_k=One
             Do llist_p = 1, nlist_p
                lNQ=list_p(llist_p)
 *
                If (kNQ.ne.lNQ) Then
-                  lx=ip_Coor(lNQ)
-                  ly=lx+1
-                  lz=ly+1
 *
-                  r_l=sqrt((R(1,iGrid)-Work(lx))**2
-     &                     +(R(2,iGrid)-Work(ly))**2
-     &                     +(R(3,iGrid)-Work(lz))**2)
-                  R_kl=sqrt((Work(kx)-Work(lx))**2
-     &                      +(Work(ky)-Work(ly))**2
-     &                      +(Work(kz)-Work(lz))**2)
+                  r_l=sqrt((R(1,iGrid)-NQ_Data(lNQ)%Coor(1))**2
+     &                    +(R(2,iGrid)-NQ_Data(lNQ)%Coor(2))**2
+     &                    +(R(3,iGrid)-NQ_Data(lNQ)%Coor(3))**2)
+                  R_kl=sqrt((NQ_Data(kNQ)%Coor(1)-
+     &                       NQ_Data(lNQ)%Coor(1))**2
+     &                     +(NQ_Data(kNQ)%Coor(2)-
+     &                       NQ_Data(lNQ)%Coor(2))**2
+     &                     +(NQ_Data(kNQ)%Coor(3)-
+     &                       NQ_Data(lNQ)%Coor(3))**2)
                   rMU_kl=(r_k-r_l)/R_kl
                   If (rMU_kl.le.0.5D0) Then
                      p1=p(rMU_kl)

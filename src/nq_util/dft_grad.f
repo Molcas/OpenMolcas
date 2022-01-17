@@ -23,6 +23,7 @@
 ************************************************************************
       use nq_Grid, only: F_xc, GradRho, vRho, vSigma, vTau, vLapl
       use nq_Grid, only: Pax
+      use nq_Structure, only: NQ_data
       use KSDFT_Info, only: KSDFA
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -42,14 +43,11 @@
 ************************************************************************
 *                                                                      *
 #include "nq_structure.fh"
-      declare_ip_coor
       declare_ip_dodx
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      R_Grid(1)=Work(ip_Coor(iNQ)  )
-      R_Grid(2)=Work(ip_Coor(iNQ)+1)
-      R_Grid(3)=Work(ip_Coor(iNQ)+2)
+      R_Grid(:)=NQ_Data(iNQ)%Coor(:)
 *define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Debug=.True.
