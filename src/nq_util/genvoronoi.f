@@ -28,15 +28,6 @@
       Real*8 Alpha(2), rm(2)
       Logical Process
       Dimension Dum(2,1)
-************************************************************************
-*                                                                      *
-*     Statement functions                                              *
-*                                                                      *
-#include "nq_structure.fh"
-      declare_ip_atom_nr
-#ifdef _DEBUGPRINT_
-      iROff(i,ir)=2*(ir-1)+i-1
-#endif
 *
 ************************************************************************
 *
@@ -68,7 +59,7 @@ C     Write (6,*)
 *
       If (Quadrature.eq.'MHL') Then
 *
-         iANr=Int(Work(ip_Atom_Nr(iNQ)))
+         iANr=NQ_Data(iNQ)%Atom_Nr
          RBS=Bragg_Slater(iANr)
          Alpha(1)=RBS
          mR=nR-1
@@ -86,7 +77,7 @@ C     Write (6,*)
          rm(1)=Three
 *------- alpha=5 (alpha=7 for alkali and rare earth metals)
          Alpha(1)=Five
-         iANr=Int(Work(ip_Atom_Nr(iNQ)))
+         iANr=NQ_Data(iNQ)%Atom_Nr
          If (iANr.eq.3 .or.
      &       iANr.eq.4 .or.
      &       iANr.eq.11.or.
@@ -111,7 +102,7 @@ C     Write (6,*)
 *
       Else If (Quadrature.eq.'BECKE') Then
 *
-         iANr=Int(Work(ip_Atom_Nr(iNQ)))
+         iANr=NQ_Data(iNQ)%Atom_Nr
          RBS=Bragg_Slater(iANr)
          If (iANr.eq.1) Then
             Alpha(1)=RBS
@@ -130,7 +121,7 @@ C     Write (6,*)
       Else If (Quadrature.eq.'TA') Then
 *
          Alpha(1)=-One
-         iANr=Int(Work(ip_Atom_Nr(iNQ)))
+         iANr=NQ_Data(iNQ)%Atom_Nr
          If (iANr.eq. 1) Then
             Alpha(1)=0.8D00
          Else If (iANr.eq. 2) Then

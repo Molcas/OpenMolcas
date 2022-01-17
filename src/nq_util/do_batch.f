@@ -20,7 +20,7 @@
      &                    TabMO,TabSO,nMOs,
      &                    P2unzip,D1Unzip,
      &                    Do_Grad,Grad,nGrad,ndRho_dR,nGrad_Eff,
-     &                    list_g,IndGrd,iTab,Temp,dW_dR,iNQ,
+     &                    dW_dR,iNQ,
      &                    EG_OT,nTmpPUVX,PDFTPot1,PDFTFocI,PDFTFocA)
 ************************************************************************
 *      Author:Roland Lindh, Department of Chemical Physics, University *
@@ -53,12 +53,11 @@
 #include "pamint.fh"
 #include "grid_on_disk.fh"
       Integer list_s(2,nlist_s),List_Exp(nlist_s),
-     &        ipTabAO(nlist_s+1,2), IndGrd(nGrad_Eff),
-     &        list_g(3,nlist_s), iTab(4,nGrad_Eff), Index(nIndex),
+     &        ipTabAO(nlist_s+1,2),Index(nIndex),
      &        List_Bas(2,nlist_s)
       Real*8 A(3), RA(3), Grad(nGrad), FckInt(nFckInt,nFckDim),
      &       TabMO(mAO,mGrid,nMOs),TabSO(mAO,mGrid,nMOs),
-     &       Temp(nGrad), dW_dR(nGrad_Eff,mGrid),
+     &       dW_dR(nGrad_Eff,mGrid),
      &       PDFTPot1(nPot1),PDFTFocI(nPot1),PDFTFocA(nPot1)
       Logical Do_Grad,Do_Mo,Unpack
       Logical l_tanhr
@@ -335,8 +334,7 @@
 *     In case of gradient calculations compute Cartesian derivatives
 *     of Rho, Grad Rho, Tau, and the Laplacian.
 *                                                                      *
-      Call Mk_Rho(list_s,nlist_s,Fact,ndc,list_bas,Index,nIndex,list_g,
-     &            Do_Grad)
+      Call Mk_Rho(list_s,nlist_s,Fact,ndc,list_bas,Index,nIndex,Do_Grad)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -380,7 +378,7 @@
             Call  Do_Pi2grad(TabAO,nTabAO,mAO,mGrid,ipTabAO,
      &                       P2_ontop,nP2_ontop,nGrad_Eff,
      &                       list_s,nlist_s,list_bas,
-     &                       D1MO,SIZE(D1MO),TabMO,list_g,P2_ontop_d,
+     &                       D1MO,SIZE(D1MO),TabMO,P2_ontop_d,
      &                       RhoI,RhoA,mRho,nMOs,CMO,
      &                       nCMO,TabSO,nsym,lft,
      &                       P2MOCube,P2MOCubex,P2MOCubey,P2MOCubez,
@@ -529,7 +527,7 @@
       Else
 *
          Call DFT_Grad(Grad,nGrad,nD,Grid,mGrid,dRho_dR,ndRho_dR,
-     &                nGrad_Eff,IndGrd,Weights,iTab,Temp,dW_dR,iNQ)
+     &                nGrad_Eff,Weights,dW_dR,iNQ)
 *
       End If
 *                                                                      *

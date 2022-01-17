@@ -15,6 +15,11 @@ Real*8, Allocatable:: R2_trial(:)
 Real*8, Allocatable:: Fact(:,:)
 Real*8, Allocatable:: Tmp(:)
 
+Integer, Allocatable:: List_G(:,:)
+Integer, Allocatable:: iTab(:,:)
+Integer, Allocatable:: IndGrd(:)
+Real*8, Allocatable:: Temp(:)
+
 Real*8, Allocatable:: Weights(:)
 Real*8, Allocatable:: Grid(:,:)
 !     nGridMax: size of the array Grid

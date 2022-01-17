@@ -15,8 +15,7 @@
      &                  nShell,list_p,nNQ,
      &                  FckInt,nFckDim,Density,nFckInt,nD,
      &                  mGrid,nP2_ontop,Do_Mo,nTmpPUVX,
-     &                  Do_Grad,Grad,nGrad,list_g,IndGrd,iTab,Temp,
-     &                  mGrad,mAO,mdRho_dR)
+     &                  Do_Grad,Grad,nGrad,mAO,mdRho_dR)
 ************************************************************************
 *                                                                      *
 * Object: Driver for numerical quadrature.                             *
@@ -48,10 +47,8 @@
 #include "stdalloc.fh"
       Integer Maps2p(nShell,0:nSym-1),
      &        list_s(nSym*nShell), list_exp(nSym*nShell),
-     &        list_p(nNQ), List_g(3,nSym*nShell),
-     &        IndGrd(mGrad), iTab(4,mGrad), list_bas(2,nSym*nShell)
-      Real*8 FckInt(nFckInt,nFckDim),Density(nFckInt,nD),
-     &       Temp(mGrad), Grad(nGrad)
+     &        list_p(nNQ), list_bas(2,nSym*nShell)
+      Real*8 FckInt(nFckInt,nFckDim),Density(nFckInt,nD), Grad(nGrad)
       Logical Check, Do_Grad, Rsv_Tsk
       Logical Do_Mo,Exist,l_tgga
       REAL*8,DIMENSION(:),Allocatable::P2Unzip,D1Unzip,
@@ -216,8 +213,8 @@ C        Debug=.True.
      &                     list_p,nNQ,FckInt,nFckDim,nFckInt,nD,
      &                     mGrid,nP2_ontop,Do_Mo,
      &                     P2Unzip,D1Unzip,
-     &                     Do_Grad,Grad,nGrad,List_G,IndGrd,iTab,Temp,
-     &                     mGrad,mAO,mdRho_dR,
+     &                     Do_Grad,Grad,nGrad,
+     &                     mAO,mdRho_dR,
      &                     EG_OT,nTmpPUVX,PDFTPot1,PDFTFocI,PDFTFocA)
 *                                                                      *
 ************************************************************************

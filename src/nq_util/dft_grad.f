@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine DFT_Grad(Grad,nGrad,iSpin,
      &                    Grid,mGrid,dRho_dR,ndRho_dR,nGrad_Eff,
-     &                    IndGrd,Weights,iTab,Temp,dW_dR,iNQ)
+     &                    Weights,dW_dR,iNQ)
 ************************************************************************
 *                                                                      *
 *     Object: to trace the correct parts to get the contributions to   *
@@ -23,6 +23,7 @@
 ************************************************************************
       use nq_Grid, only: F_xc, GradRho, vRho, vSigma, vTau, vLapl
       use nq_Grid, only: Pax
+      use nq_Grid, only: IndGrd, iTab, Temp
       use nq_Structure, only: NQ_data
       use KSDFT_Info, only: KSDFA
       Implicit Real*8 (a-h,o-z)
@@ -35,10 +36,9 @@
 #include "ksdft.fh"
       Parameter (Mxdc=MxAtom)
 #include "disp.fh"
-      Real*8 Grad(nGrad), Temp(nGrad_Eff), Grid(3,mGrid),
+      Real*8 Grad(nGrad), Grid(3,mGrid),
      &       dRho_dR(ndRho_dR,mGrid,nGrad_Eff), OV(3,3), V(3,3),
      &       R_Grid(3), Weights(mGrid), dW_dR(nGrad_Eff,mGrid)
-      Integer IndGrd(nGrad_Eff), iTab(4,nGrad_Eff)
 *                                                                      *
 ************************************************************************
 *                                                                      *

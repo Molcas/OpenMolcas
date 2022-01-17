@@ -11,7 +11,7 @@
 * Copyright (C) 2000,2021, Roland Lindh                                *
 ************************************************************************
       Subroutine Mk_Rho(list_s,nlist_s,Fact,mdc,list_bas,Index,nIndex,
-     &                  list_g,Do_Grad)
+     &                  Do_Grad)
 ************************************************************************
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN.  2000                                   *
@@ -21,6 +21,7 @@
       use nq_grid, only: Rho, TabAO, Dens_AO, Grid_AO, TabAO_Short
       use nq_grid, only: GradRho, Sigma, Tau, Lapl, kAO
       use nq_Grid, only: Ind_Grd, dRho_dR
+      use nq_Grid, only: List_G
 #ifdef _DEBUGPRINT_
       use nq_grid, only: nRho
 #endif
@@ -34,7 +35,7 @@
       Integer Index(nIndex)
       Real*8 Fact(mdc**2)
       Integer ipD(2)
-      Integer list_s(2,nlist_s), list_g(3,nlist_s), list_bas(2,nlist_s)
+      Integer list_s(2,nlist_s), list_bas(2,nlist_s)
       Integer, Parameter :: Index_d2(3,3)=
      &    Reshape([5,6,7, 6,8,9, 7,9,10],[3,3])
       Integer, Parameter :: Index_d3(3,3) =

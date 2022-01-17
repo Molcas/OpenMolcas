@@ -1,4 +1,4 @@
-************************************************************************
+***********************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -16,8 +16,8 @@
      &                        FckInt,nFckDim,nFckInt,nD,
      &                        mGrid,nP2_ontop,Do_Mo,
      &                        P2Unzip,D1Unzip,
-     &                        Do_Grad,Grad,nGrad,List_G,IndGrd,iTab,
-     &                        Temp,mGrad,mAO,mdRho_dR,
+     &                        Do_Grad,Grad,nGrad,
+     &                        mAO,mdRho_dR,
      &                        EG_OT,nTmpPUVX,PDFTPot1,PDFTFocI,PDFTFocA)
 ************************************************************************
 *                                                                      *
@@ -37,6 +37,7 @@
       use nq_Grid, only: Grid, Weights, TabAO, Grid_AO, Dens_AO,
      &                   TabAO_Pack, Ind_Grd, dRho_dR, TabAO_Short,
      &                   kAO, iBfn_Index, R2_trial
+      use nq_Grid, only: List_G, IndGrd, iTab
       use nq_MO, only: DoIt
       use NQ_Structure, only: NQ_Data
       Implicit Real*8 (A-H,O-Z)
@@ -52,11 +53,10 @@
 #include "stdalloc.fh"
 #include "debug.fh"
 #include "ksdft.fh"
-      Integer Maps2p(nShell,0:nSym-1), list_s(2,*), List_G(3,*),
+      Integer Maps2p(nShell,0:nSym-1), list_s(2,*),
      &        list_exp(nSym*nShell), list_bas(2,nSym*nShell),
-     &        list_p(nNQ), iTab(4,mGrad),IndGrd(mGrad)
-      Real*8 FckInt(nFckInt,nFckDim),Grad(nGrad), Temp(mGrad),
-     &       Roots(3,3),
+     &        list_p(nNQ)
+      Real*8 FckInt(nFckInt,nFckDim),Grad(nGrad),Roots(3,3),
      &       xyz0(3,2),PDFTPot1(npot1),PDFTFocI(nPot1),PDFTFocA(nPot1)
       Logical InBox(MxAtom), Do_Grad, More_to_come
       Logical Do_Mo
@@ -70,8 +70,6 @@
 *                                                                      *
 *     Statement functions
 *
-#include "nq_structure.fh"
-      declare_ip_angular
       iGridInfo(i,iNQ)=iWork(ip_GridInfo+(iNQ-1)*2+i-1)
 *                                                                      *
 ************************************************************************
@@ -566,14 +564,12 @@ c        translational invariance on the atomic contributions to the
 c        gradient.
 c
          nTotGP_Save = nTotGP
-         ip_iA=ip_of_iWork_d(Work(ip_Angular(iNQ)))
-         ip_A=iWork(ip_iA)
          nR_Eff=iWork(ip_nR_eff-1+iNQ)
          Call Subblock(iNQ,x_NQ,y_NQ,z_NQ,InBox(iNQ),
      &                 x_min_,x_max_, y_min_,y_max_, z_min_,z_max_,
      &                 list_p,nlist_p,Grid,Weights,mGrid,.True.,
      &                 number_of_grid_points,R_Box_Min,R_Box_Max,
-     &                 iList_p,xyz0,iWork(ip_A),nR_Eff)
+     &                 iList_p,xyz0,NQ_Data(iNQ)%Angular,nR_Eff)
          nTotGP = nTotGP_Save
 *
 #ifdef _DEBUGPRINT_
@@ -674,7 +670,6 @@ c
      &                 P2unzip,D1Unzip,
      &                 Do_Grad,Grad,nGrad,
      &                 mdRho_dR,nGrad_Eff,
-     &                 list_g,IndGrd,iTab,Temp,
      &                 dW_dR,iNQ,
      &                 EG_OT,nTmpPUVX,PDFTPot1,PDFTFocI,PDFTFocA)
 *

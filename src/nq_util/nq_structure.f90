@@ -17,12 +17,7 @@ Public :: NQ_data, Close_NQ_Data
 
 #include "stdalloc.fh"
 
-!Parameter(l_NQ=15+(iTabMx+1)+27)
-!define declare_ip_r_quad   ip_R_Quad(iNQ)   =ipNQ+(iNQ-1)*l_NQ+11
-!define declare_ip_angular  ip_Angular(iNQ)  =ipNQ+(iNQ-1)*l_NQ+12
-!define declare_ip_k_max    ip_k_Max(iNQ)    =ipNQ+(iNQ-1)*l_NQ+13
 !define declare_ip_atom_nr  ip_Atom_Nr(iNQ)  =ipNQ+(iNQ-1)*l_NQ+14
-!define declare_ip_r_low    ip_R_low(iNQ,l)  =ipNQ+(iNQ-1)*l_NQ+15+l
 !define declare_ip_dodx     ip_dOdx(iNQ,i)   =ipNQ+(iNQ-1)*l_NQ+15+(iTabMx+1)+(i-1)*9
 
 Type NQ_data_raw
@@ -34,6 +29,8 @@ Type NQ_data_raw
   Real*8 :: R_max =0.0D0
   Integer :: l_max=-1
   Real*8, Allocatable :: R_Quad(:,:)
+  Integer, Allocatable :: Angular(:)
+  Integer :: Atom_Nr=-1
 End Type NQ_data_raw
 
 Type (NQ_data_raw), Allocatable:: NQ_data(:)
@@ -52,6 +49,7 @@ Integer iNQ, nNQ
      NQ_data(iNQ)%R_max =0.0D0
      NQ_data(iNQ)%l_Max =-1
      Call mma_deallocate(NQ_data(iNQ)%R_Quad)
+     Call mma_deallocate(NQ_data(iNQ)%Angular)
    End Do
    Deallocate(NQ_Data)
 End Subroutine Close_NQ_Data

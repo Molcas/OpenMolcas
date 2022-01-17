@@ -11,7 +11,7 @@
       Subroutine Do_Pi2Grad(TabAO,nTabAO,mAO,mGrid,ipTabAO,
      &          P2_ontop,nP2_ontop,nGrad_Eff,
      &          list_s,nlist_s,list_bas,
-     &          D1mo,nd1mo,TabMO,list_g,P2_ontop_d,
+     &          D1mo,nd1mo,TabMO,P2_ontop_d,
      &          RhoI,RhoA,mRho,nMOs,CMO,nCMO,TabSO,nsym,ft,
      &          P2MOCube,P2MOCubex,P2MOCubey,P2MOCubez,nPMO3p,MOs,
      &          MOx,MOy,MOz)
@@ -36,6 +36,7 @@
       use Center_Info
       use Basis_Info, only: nBas
       use nq_pdft,    only: lft,lGGA
+      use nq_Grid,    only: List_G
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "nq_info.fh"
@@ -45,7 +46,7 @@
 #include "print.fh"
 !Error could be TabAO...
       Integer list_s(2,nlist_s),list_bas(2,nlist_s),
-     &        list_g(3,nlist_s),ipTabAO(nlist_s,2),
+     &        ipTabAO(nlist_s,2),
      &        mAO,nAOs,mGrid,nP2_ontop,nGrad_Eff,nd1mo,nTabAO,
      &        mRho,nCMO,nsym
       Real*8 D1mo(nd1mo),TabMO(mAO,mGrid,nMOs),

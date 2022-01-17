@@ -54,8 +54,6 @@
 *     Statement Functions
 *
 #include "nq_structure.fh"
-      declare_ip_angular
-      declare_ip_atom_nr
       declare_ip_dodx
       nElem(i)=(i+1)*(i+2)/2
 *                                                                      *
@@ -181,7 +179,7 @@ c     Write(6,*) '********** Setup_NQ ***********'
 *
             If (EQ(NQ_data(iNQ)%Coor,XYZ)) Then
 *
-               Work(ip_Atom_Nr(iNQ))=DBLE(iANR)
+               NQ_Data(iNQ)%Atom_Nr=iANR
 *
 *------------- Assign the BS radius to the center
                NQ_Data(iNQ)%R_RS=Bragg_Slater(iANr)
@@ -288,7 +286,7 @@ c     Write(6,*) '********** Setup_NQ ***********'
 *     Collect coordinates and charges of the nuclei
 *
       Do iNQ = 1, nNQ
-         ZA(iNQ)=Work(ip_Atom_Nr(iNQ))
+         ZA(iNQ)=DBLE(NQ_Data(iNQ)%Atom_Nr)
          call dcopy_(3,NQ_data(iNQ)%Coor,1,Crd(:,iNQ),1)
       End Do
 *
@@ -334,10 +332,8 @@ c     Write(6,*) '********** Setup_NQ ***********'
 *        Assign the angular grid to be used with each radial grid point
 *
          nR_Eff=iWork(ip_nR_eff-1+iNQ)
-         Call GetMem('ip_Angular','Allo','Inte',ip_A,nR_Eff)
-         ip_iA=ip_of_iWork_d(Work(ip_Angular(iNQ)))
-         iWork(ip_iA)=ip_A
-         Call ICopy(nR_Eff,[nAngularGrids],0,iWork(ip_A),1)
+         Call mma_allocate(NQ_Data(iNQ)%Angular,nR_Eff,Label='Angular')
+         NQ_Data(iNQ)%Angular(:)=nAngularGrids
 *
 *        Prune the angular grid
 *
@@ -385,8 +381,8 @@ c     Write(6,*) '********** Setup_NQ ***********'
                iReset=1
             End If
 *
-            Call Angular_Prune(NQ_Data(iNQ)%R_Quad,nR_Eff,iWork(ip_A),
-     &                         Crowding,
+            Call Angular_Prune(NQ_Data(iNQ)%R_Quad,nR_Eff,
+     &                         NQ_Data(iNQ)%Angular,Crowding,
      &                         Fade,R_BS,L_Quad,R_Min,lAng,
      &                         nAngularGrids,Info_Ang,LMax_NQ)
 *
@@ -415,7 +411,7 @@ c     Write(6,*) '********** Setup_NQ ***********'
       Write (6,*)
       Write (6,'(A)') ' iNQ ANr  nR'
       Do iNQ=1,nNQ
-         iANr=Int(Work(ip_Atom_Nr(iNQ)))
+         iANr=NQ_Data(iNQ)%Atom_Nr
          kR=iWork(ip_nR_Eff+iNQ-1)
          Write (6,'(3I4)') iNQ, iANr, kR
       End Do
