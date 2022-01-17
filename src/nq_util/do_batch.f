@@ -18,9 +18,7 @@
      &                    ipTabAO,mAO,nSym,nD,
      &                    nP2_ontop,Do_Mo,
      &                    TabMO,TabSO,nMOs,
-     &                    P2unzip,D1Unzip,
-     &                    Do_Grad,Grad,nGrad,ndRho_dR,nGrad_Eff,
-     &                    dW_dR,iNQ,
+     &                    Do_Grad,Grad,nGrad,ndRho_dR,nGrad_Eff,iNQ,
      &                    EG_OT,nTmpPUVX,PDFTPot1,PDFTFocI,PDFTFocA)
 ************************************************************************
 *      Author:Roland Lindh, Department of Chemical Physics, University *
@@ -37,6 +35,7 @@
       use nq_Grid, only: l_CASDFT, TabAO, TabAO_Pack, dRho_dR
       use nq_Grid, only: F_xc, F_xca, F_xcb
       use nq_Grid, only: Fact, Tmp
+      use nq_Grid, only: D1UnZip, P2UnZip
       use nq_pdft
       use nq_MO, only: DoIt, CMO, D1MO, P2_ontop
       Implicit Real*8 (A-H,O-Z)
@@ -57,7 +56,6 @@
      &        List_Bas(2,nlist_s)
       Real*8 A(3), RA(3), Grad(nGrad), FckInt(nFckInt,nFckDim),
      &       TabMO(mAO,mGrid,nMOs),TabSO(mAO,mGrid,nMOs),
-     &       dW_dR(nGrad_Eff,mGrid),
      &       PDFTPot1(nPot1),PDFTFocI(nPot1),PDFTFocA(nPot1)
       Logical Do_Grad,Do_Mo,Unpack
       Logical l_tanhr
@@ -67,8 +65,6 @@
      &                                 P2MOCubez,MOs,MOx,MOy,MOz
 *     MOs,MOx,MOy and MOz are for active MOs.
 *     MOas is for all MOs.
-      Real*8,DIMENSION(NASHT4)::P2Unzip
-      Real*8,DIMENSION(NASHT**2)::D1Unzip
       Integer nPMO3p
       Real*8 EG_OT(nTmpPUVX)
       Real*8, Allocatable:: RhoI(:,:), RhoA(:,:)
@@ -527,7 +523,7 @@
       Else
 *
          Call DFT_Grad(Grad,nGrad,nD,Grid,mGrid,dRho_dR,ndRho_dR,
-     &                nGrad_Eff,Weights,dW_dR,iNQ)
+     &                nGrad_Eff,Weights,iNQ)
 *
       End If
 *                                                                      *

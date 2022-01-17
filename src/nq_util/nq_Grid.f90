@@ -19,6 +19,8 @@ Integer, Allocatable:: List_G(:,:)
 Integer, Allocatable:: iTab(:,:)
 Integer, Allocatable:: IndGrd(:)
 Real*8, Allocatable:: Temp(:)
+Real*8, Allocatable:: P2Unzip(:), D1Unzip(:)
+Real*8, Allocatable:: dW_dR(:,:)
 
 Real*8, Allocatable:: Weights(:)
 Real*8, Allocatable:: Grid(:,:)

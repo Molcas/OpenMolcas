@@ -15,7 +15,6 @@
      &                        nShell,nSym, list_p,nNQ,
      &                        FckInt,nFckDim,nFckInt,nD,
      &                        mGrid,nP2_ontop,Do_Mo,
-     &                        P2Unzip,D1Unzip,
      &                        Do_Grad,Grad,nGrad,
      &                        mAO,mdRho_dR,
      &                        EG_OT,nTmpPUVX,PDFTPot1,PDFTFocI,PDFTFocA)
@@ -37,7 +36,7 @@
       use nq_Grid, only: Grid, Weights, TabAO, Grid_AO, Dens_AO,
      &                   TabAO_Pack, Ind_Grd, dRho_dR, TabAO_Short,
      &                   kAO, iBfn_Index, R2_trial
-      use nq_Grid, only: List_G, IndGrd, iTab
+      use nq_Grid, only: List_G, IndGrd, iTab, dW_dR
       use nq_MO, only: DoIt
       use NQ_Structure, only: NQ_Data
       Implicit Real*8 (A-H,O-Z)
@@ -61,10 +60,8 @@
       Logical InBox(MxAtom), Do_Grad, More_to_come
       Logical Do_Mo
       Real*8 EG_OT(nTmpPUVX)
-      Real*8,DIMENSION(NASHT4)::P2Unzip
-      Real*8,DIMENSION(NASHT**2)::D1Unzip
       Integer, Allocatable:: Index(:)
-      Real*8, Allocatable:: dW_dR(:,:), dW_Temp(:,:), dPB(:,:,:)
+      Real*8, Allocatable:: dW_Temp(:,:), dPB(:,:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -667,10 +664,8 @@ c
      &                 iWork(ipTabAO),mAO,nSym,nD,nP2_ontop,
      &                 Do_Mo,
      &                 Work(ipTabMO),Work(ipTabSO),nMOs,
-     &                 P2unzip,D1Unzip,
      &                 Do_Grad,Grad,nGrad,
-     &                 mdRho_dR,nGrad_Eff,
-     &                 dW_dR,iNQ,
+     &                 mdRho_dR,nGrad_Eff,iNQ,
      &                 EG_OT,nTmpPUVX,PDFTPot1,PDFTFocI,PDFTFocA)
 *
          If (Allocated(dRho_dR)) Call mma_deallocate(dRho_dR)

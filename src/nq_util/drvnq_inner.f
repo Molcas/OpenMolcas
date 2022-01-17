@@ -31,7 +31,7 @@
       use Real_Spherical
       use Symmetry_Info, only: nIrrep, iOper
       use KSDFT_Info, only: KSDFA, LuMC, LuMT, Funcaa, Funcbb, Funccc
-      use nq_Grid, only: l_casdft
+      use nq_Grid, only: l_casdft, D1UnZip, P2UnZip
       use nq_MO, only: D1MO, P2MO
       Implicit Real*8 (A-H,O-Z)
       External Kernel, Rsv_Tsk
@@ -51,8 +51,7 @@
       Real*8 FckInt(nFckInt,nFckDim),Density(nFckInt,nD), Grad(nGrad)
       Logical Check, Do_Grad, Rsv_Tsk
       Logical Do_Mo,Exist,l_tgga
-      REAL*8,DIMENSION(:),Allocatable::P2Unzip,D1Unzip,
-     &                                 PDFTPot1,PDFTFocI,PDFTFocA
+      REAL*8,DIMENSION(:),Allocatable:: PDFTPot1,PDFTFocI,PDFTFocA
       Real*8, Allocatable:: OE_OT(:), EG_OT(:)
       Real*8, Allocatable:: FI_V(:), FA_V(:)
 *                                                                      *
@@ -99,7 +98,6 @@ c        Call append_file(LuMT)
      &                    '       dTot*W    ,       Weights   ,'//
      &                    '       dTot '
        END IF
-      END IF
 
       CALL CalcOrbOff()
       NASHT4=NASHT**4
@@ -107,6 +105,7 @@ c        Call append_file(LuMT)
       CALL mma_allocate(D1Unzip,NASHT**2)
       CALL UnzipD1(D1Unzip,D1MO,SIZE(D1MO))
       CALL UnzipP2(P2Unzip,P2MO,SIZE(P2MO))
+      END IF
 ************************************************************************
 *
 *----- Desymmetrize the 1-particle density matrix
@@ -212,7 +211,6 @@ C        Debug=.True.
      &                     Maps2p,list_s,list_exp,list_bas,nShell,nSym,
      &                     list_p,nNQ,FckInt,nFckDim,nFckInt,nD,
      &                     mGrid,nP2_ontop,Do_Mo,
-     &                     P2Unzip,D1Unzip,
      &                     Do_Grad,Grad,nGrad,
      &                     mAO,mdRho_dR,
      &                     EG_OT,nTmpPUVX,PDFTPot1,PDFTFocI,PDFTFocA)
