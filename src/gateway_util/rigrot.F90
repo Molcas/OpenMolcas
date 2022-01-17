@@ -60,7 +60,10 @@ end if
 
 call dcopy_(9,[Zero],0,PAx,1)
 call dcopy_(3,[One],0,PAx,4)
-if (TMass == Zero) Go To 99
+if (TMass == Zero) then
+  call FinishUp()
+  return
+end if
 Linear = .false.
 if (iPrint >= 99) then
   call RecPrt(' In RigRot: CoorIn',' ',CoorIn,3,nAtm)
@@ -94,7 +97,8 @@ if (RR_Show) then
 end if
 if (nAtm == 1) then
   call mma_deallocate(Coor)
-  Go To 99
+  call FinishUp()
+  return
 end if
 
 ! Construct the moment of inertia tensor
@@ -162,7 +166,10 @@ if (RR_Show) then
   if (Prin(2) >= 1.0e-3_wp) write(u6,'(19X,F16.3,1X,F16.3)') auTocm*Half/Prin(2),1.0e-9_wp*auToHz*Half/Prin(2)
   if (Prin(3) >= 1.0e-3_wp) write(u6,'(19X,F16.3,1X,F16.3)') auTocm*Half/Prin(3),1.0e-9_wp*auToHz*Half/Prin(3)
 end if
-if ((Prin(1) == Zero) .and. (Prin(2) == Zero) .and. (Prin(3) == Zero)) Go To 99
+if ((Prin(1) == Zero) .and. (Prin(2) == Zero) .and. (Prin(3) == Zero)) then
+  call FinishUp()
+  return
+end if
 if (RR_Show) then
   write(u6,*)
   write(u6,*)
@@ -263,14 +270,15 @@ do j=0,S%jMax
 
     Hess(kk) = B*real(j*(j+1),kind=wp)+(A-B)*real(k**2,kind=wp)
     if (Linear) Hess(kk) = B*real(j*(j+1),kind=wp)
-    if ((k+2 > j) .or. Linear) Go to 82
-    k2 = k1+2
-    kk2 = k2*(k2-1)/2+k1
+    if ((k+2 <= j) .and. (.not. Linear)) then
+      k2 = k1+2
+      kk2 = k2*(k2-1)/2+k1
 
-    ! Formula 7-89b, (j,k+2|H|j,k), the only off diagonal term.
+      ! Formula 7-89b, (j,k+2|H|j,k), the only off diagonal term.
 
-    Hess(kk2) = C*sqrt(real((j*(j+1)-k*(k+1))*(j*(j+1)-(k+1)*(k+2)),kind=wp))
-82  k1 = k1+1
+      Hess(kk2) = C*sqrt(real((j*(j+1)-k*(k+1))*(j*(j+1)-(k+1)*(k+2)),kind=wp))
+    end if
+    k1 = k1+1
   end do
   if (iPrint >= 99) call TriPrt(' Hessian',' ',Hess,mDim)
   call Jacob(Hess,Vec,mDim,mDim)
@@ -305,12 +313,19 @@ if (RR_Show) then
 end if
 call mma_deallocate(En)
 
-99 continue
-if (RR_Show) then
-  call CollapseOutput(0,'   Rigid rotor info:')
-  write(u6,*)
-end if
+call FinishUp()
 
 return
+
+contains
+
+subroutine FinishUp()
+
+  if (RR_Show) then
+    call CollapseOutput(0,'   Rigid rotor info:')
+    write(u6,*)
+  end if
+
+end subroutine FinishUp
 
 end subroutine RigRot

@@ -82,11 +82,12 @@ subroutine OEISG_INTERNAL(REL)
       VPQ = FACTO(NPQ1)/ZPQ**(Half*NPQ)
       VP = FACTO(2*NP)/ZP**(NP+Half)
       VQ = FACTO(2*NQ)/ZQ**(NQ+Half)
-      if (NPQ1 > 2) GO TO 3
-      VPQM2 = One
-      GO TO 4
-3     VPQM2 = FACTO(NPQ2-1)/ZPQ**(Half*NPQ2)
-4     VPQ1 = FACTO(NPQ2)*SQRT8PI/ZPQ**(Half*NPQ1)
+      if (NPQ1 > 2) then
+        VPQM2 = FACTO(NPQ2-1)/ZPQ**(Half*NPQ2)
+      else
+        VPQM2 = One
+      end if
+      VPQ1 = FACTO(NPQ2)*SQRT8PI/ZPQ**(Half*NPQ1)
       VPQP2 = FACTO(NPQ+1)/ZPQ**(Half*(NPQ+2))
       TERM2 = VPQP2-VPQ*(W_P+WQ)+W_P*WQ*VPQM2
       TERM1 = One/sqrt(VP*VQ)
@@ -103,25 +104,25 @@ subroutine OEISG_INTERNAL(REL)
         J2 = 0
         J3 = 0
 
-        ! PVP FOR XY-FUNCTIONS
-
         if (np == 3) then
+          ! PVP FOR XY-FUNCTIONS
+
           REL(IJ) = EXTC(L,ZP,ZQ,1,1,0,1,1,0)
-          goto 900
-        end if
 
-        ! PVP FOR XYZ-FUNCTIONS
+        else if (np == 4) then
+          ! PVP FOR XYZ-FUNCTIONS
 
-        if (np == 4) then
           REL(IJ) = EXTC(L,ZP,ZQ,1,1,1,1,1,1)
-          goto 900
+
+        else
+          ! PVP FOR X**(NP-1)-FUNCTIONS
+
+          REL(IJ) = EXTC(L,ZP,ZQ,I1,I2,I3,J1,J2,J3)
+
         end if
 
-        ! PVP FOR X**(NP-1)-FUNCTIONS
-
-        REL(IJ) = EXTC(L,ZP,ZQ,I1,I2,I3,J1,J2,J3)
         !TREL(IJ) = SQROPY(ZP,ZQ,I1,I2,I3,J1,J2,J3)
-900     TREL(IJ) = Half*ZP*ZQ*TERM1*TERM2
+        TREL(IJ) = Half*ZP*ZQ*TERM1*TERM2
       else
         TREL(IJ) = Half*ZP*ZQ*TERM1*TERM2
         !TNRE = Half*ZP*ZQ*TERM1*TERM2

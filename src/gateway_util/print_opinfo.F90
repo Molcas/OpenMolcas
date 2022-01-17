@@ -94,30 +94,29 @@ end if
 !                                                                      *
 if (allocated(XF)) then
 
-  if (nPrint(2) < 6) Go To 666
-  if (iXPolType > 0) then
-    tempStr = '       a(xx)       a(xy)       a(xz)       a(yy)       a(yz)       a(zz)'
-  else
-    tempStr = ' '
-  end if
-  write(u6,*)
-  write(u6,*) ' External field specification in au'
-  write(u6,*) ' =================================='
-  if (nOrd_XF == 0) then
-    write(u6,*) '     x           y           z           Z'//tempStr
-  elseif (nOrd_XF == 1) then
-    write(u6,*) '     x           y           z           Z         my(x)       my(y)       my(z)'//tempStr
-  elseif (nOrd_XF == 2) then
-    write(u6,*) '     x           y           z           Z         my(x)       my(y)       my(z)'// &
+  if (nPrint(2) >= 6) then
+    if (iXPolType > 0) then
+      tempStr = '       a(xx)       a(xy)       a(xz)       a(yy)       a(yz)       a(zz)'
+    else
+      tempStr = ' '
+    end if
+    write(u6,*)
+    write(u6,*) ' External field specification in au'
+    write(u6,*) ' =================================='
+    if (nOrd_XF == 0) then
+      write(u6,*) '     x           y           z           Z'//tempStr
+    elseif (nOrd_XF == 1) then
+      write(u6,*) '     x           y           z           Z         my(x)       my(y)       my(z)'//tempStr
+    elseif (nOrd_XF == 2) then
+      write(u6,*) '     x           y           z           Z         my(x)       my(y)       my(z)'// &
                   '       Q(xx)       Q(xy)       Q(xz)       Q(yy)       Q(yz)       Q(zz)'//tempStr
-  elseif (nOrd_XF == -1) then
-    write(u6,*) '     x           y           z '//tempstr
-  else
-    call WarningMessage(2,'Option not implemented yet!')
-    call Abend()
+    elseif (nOrd_XF == -1) then
+      write(u6,*) '     x           y           z '//tempstr
+    else
+      call WarningMessage(2,'Option not implemented yet!')
+      call Abend()
+    end if
   end if
-
-666 continue
 
   write(Format_XF,'(A,I2.2,A)') '(',nData_XF,'(F10.6,2x))'
   XnetCharg = Zero

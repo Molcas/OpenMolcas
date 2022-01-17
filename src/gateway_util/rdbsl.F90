@@ -37,7 +37,7 @@ integer(kind=iwp) :: lCGTO, nCGTO(0:lCGTO), mCGTO(0:lCGTO), lAng, lUnit, iAtmNr,
 #include "angtp.fh"
 integer(kind=iwp) :: i, i1, iLast1, iLast2, iLast3, iLast4, iLast_JR, irecl, istatus, j, k, lAngm, n
 real(kind=wp) :: cg
-logical(kind=iwp) :: Exists, Hit, is_error, lStop
+logical(kind=iwp) :: Do_Cycle, Exists, Hit, is_error, lStop
 character(len=256) :: BasLoc, FileName, TmpString
 character(len=180) :: BSLB
 character(len=80) :: atom, atomb, author, aux, aux2, basis, CGTO, CGTOm, string
@@ -186,71 +186,78 @@ rewind(lUnit)
 ! loop over the basis set library to find the correct label
 
 if (IfTest) write(u6,*) ' Locate basis set label in library'
-10 BSLB = Get_Ln_Quit(lUnit,0)
-if (Quit_On_Error) then
-  iLast3 = len_trim(BsLbl)
+
+Do_Cycle = .true.
+do while (Do_Cycle)
+
+  BSLB = Get_Ln_Quit(lUnit,0)
+  if (Quit_On_Error) then
+    iLast3 = len_trim(BsLbl)
   call WarningMessage(2,'The requested basis set label: '//BsLbl(:iLast3)//';'//'was not found in basis library: '//Filename)
-  call Abend()
-end if
-call UpCase(BSLB)
-if (BSLB(1:1) /= '/') Go To 10
-n = index(BSLB,' ')
-do i=n,80
-  BSLB(i:i) = '.'
-end do
-Hit = .true.
-call Decode(BSLB(2:80),atomb,1,Hit)
-if (atomb /= atom) Go To 10
-
-if (bType /= '') then
-  Hit = .true.
-  call Decode(BSLB(2:80),string,2,Hit)
-  if (string /= bType) Go To 10
-end if
-
-if (author /= '') then
-  Hit = .true.
-  call Decode(BSLB(2:80),string,3,Hit)
-  if (string /= author) Go To 10
-end if
-
-if (basis /= '') then
-  Hit = .true.
-  call Decode(BSLB(2:80),string,4,Hit)
-  if (string /= basis) Go To 10
-end if
-
-! If a contraction sequence has been specified it must be identical
-! to what is in the library file if the basis set type does not
-! not allow any other contraction sequence.
-
-if ((CGTO /= '') .and. (bType(1:3) /= 'ANO') .and. (bType /= 'ECP') .and. (bType /= 'PSD') .and. (bType /= 'RYDBERG') .and. &
-    (Aux /= 'ECP')) then
-  Hit = .true.
-  call Decode(BSLB(2:80),string,5,Hit)
-  if (string /= CGTO) Go To 10
-end if
-
-Hit = .true.
-call Decode(BSLB(2:80),string,6,Hit)
-if (Aux /= '') then
-  if (string /= aux) Go To 10
-else if (string == 'ECP') then
-  ! If the library basis (BSLB) has ECP, add it to the BsLbl
-  j = 0
-  do i=1,5
-    j = j+index(BsLbl(j+1:80),'.')
+    call Abend()
+  end if
+  call UpCase(BSLB)
+  if (BSLB(1:1) /= '/') cycle
+  n = index(BSLB,' ')
+  do i=n,80
+    BSLB(i:i) = '.'
   end do
-  BsLbl = BsLbl(1:j)//'ECP'//BsLbl(j+1:)
-  Aux = 'ECP'
-
-end if
-
-if (Aux2 /= '') then
   Hit = .true.
-  call Decode(BSLB(2:80),string,7,Hit)
-  if (string /= aux2) Go To 10
-end if
+  call Decode(BSLB(2:80),atomb,1,Hit)
+  if (atomb /= atom) cycle
+
+  if (bType /= '') then
+    Hit = .true.
+    call Decode(BSLB(2:80),string,2,Hit)
+    if (string /= bType) cycle
+  end if
+
+  if (author /= '') then
+    Hit = .true.
+    call Decode(BSLB(2:80),string,3,Hit)
+    if (string /= author) cycle
+  end if
+
+  if (basis /= '') then
+    Hit = .true.
+    call Decode(BSLB(2:80),string,4,Hit)
+    if (string /= basis) cycle
+  end if
+
+  ! If a contraction sequence has been specified it must be identical
+  ! to what is in the library file if the basis set type does not
+  ! not allow any other contraction sequence.
+
+  if ((CGTO /= '') .and. (bType(1:3) /= 'ANO') .and. (bType /= 'ECP') .and. (bType /= 'PSD') .and. (bType /= 'RYDBERG') .and. &
+      (Aux /= 'ECP')) then
+    Hit = .true.
+    call Decode(BSLB(2:80),string,5,Hit)
+    if (string /= CGTO) cycle
+  end if
+
+  Hit = .true.
+  call Decode(BSLB(2:80),string,6,Hit)
+  if (Aux /= '') then
+    if (string /= aux) cycle
+  else if (string == 'ECP') then
+    ! If the library basis (BSLB) has ECP, add it to the BsLbl
+    j = 0
+    do i=1,5
+      j = j+index(BsLbl(j+1:80),'.')
+    end do
+    BsLbl = BsLbl(1:j)//'ECP'//BsLbl(j+1:)
+    Aux = 'ECP'
+
+  end if
+
+  if (Aux2 /= '') then
+    Hit = .true.
+    call Decode(BSLB(2:80),string,7,Hit)
+    if (string /= aux2) cycle
+  end if
+
+  Do_Cycle = .false.
+end do
 
 if (IfTest) write(u6,*) ' Process library label'
 Hit = .true.
@@ -263,7 +270,7 @@ if (CGTO == '') CGTO = CGTOm
 lAng = -1
 i1 = 1
 do i=1,80
-  if (CGTO(i:i) == '') go to 21
+  if (CGTO(i:i) == '') exit
   do k=0,lCGTO
     if (CGTO(i:i) == kAng(k)) then
       !read(CGTO(i1:i-1),*) nCGTO(k)
@@ -278,12 +285,10 @@ do i=1,80
         call Abend()
       end if
       lAng = max(lAng,k)
-      Go To 20
+      exit
     end if
   end do
-20 continue
 end do
-21 continue
 #ifdef _DEMO_
 if (lAng > 1) then
   call WarningMessage(2,'Demo version can handle only s and p basis functions')
@@ -297,7 +302,7 @@ end if
 lAngm = 0
 i1 = 1
 do i=1,80
-  if (CGTOm(i:i) == '') go to 31
+  if (CGTOm(i:i) == '') exit
   do k=0,lCGTO
     if (CGTOm(i:i) == kAng(k)) then
       !read(CGTOm(i1:i-1),*) mCGTO(k)
@@ -306,12 +311,10 @@ do i=1,80
       mCGTO(k) = nint(cg)
       i1 = i+1
       lAngM = max(lAngM,k)
-      go to 30
+      exit
     end if
   end do
-30 continue
 end do
-31 continue
 if (IfTest) then
   write(u6,'(2a)') 'Type=',bType
   write(u6,*) 'nCGTO=',(nCGTO(k),k=0,lCGTO)

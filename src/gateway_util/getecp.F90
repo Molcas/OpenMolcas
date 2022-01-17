@@ -257,7 +257,10 @@ do iAng=0,nProj
   call mma_allocate(Shells(iShll)%Bk,nCntrc,Label='Bk')
   Shells(iShll)%nBk = nCntrc
   if (nCntrc > 0) call Read_v(lUnit,Shells(iShll)%Bk,1,nCntrc,1,ierr)
-  if (ierr /= 0) goto 992
+  if (ierr /= 0) then
+    call WarningMessage(2,'Abend in GetBS: Error while reading the exponents')
+    call Quit_OnUserError()
+  end if
 
   ! Read gaussian EXPonents
 
@@ -265,7 +268,10 @@ do iAng=0,nProj
   call mma_allocate(Shells(iShll)%Exp,nPrim,Label='Exp')
   Shells(iShll)%nExp = nPrim
   if (nPrim > 0) call Read_v(lUnit,Shells(iShll)%Exp,1,nPrim,1,ierr)
-  if (ierr /= 0) goto 992
+  if (ierr /= 0) then
+    call WarningMessage(2,'Abend in GetBS: Error while reading the exponents')
+    call Quit_OnUserError()
+  end if
   !call RecPrt(' Exponents',Shells(iShll)%nExp,nPrim,1)
   call mma_allocate(Shells(iShll)%Cff_c,nPrim,nCntrc,2,Label='Cff_c')
   call mma_allocate(Shells(iShll)%pCff,nPrim,nCntrc,Label='pCff')
@@ -279,7 +285,10 @@ do iAng=0,nProj
   !write(u6,*) ' Reading coefficients'
   do iPrim=1,nPrim
     call Read_v(lUnit,Shells(iShll)%Cff_c(1,1,1),iPrim,nPrim*nCntrc,nPrim,ierr)
-    if (ierr /= 0) goto 991
+    if (ierr /= 0) then
+      call WarningMessage(2,'Abend in GetBS: Error while reading the coefficients')
+      call Quit_OnUserError()
+    end if
   end do
 
   ! Renormalize
@@ -305,14 +314,5 @@ do iAng=0,nProj
 end do
 
 return
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-992 continue
-call WarningMessage(2,'Abend in GetBS: Error while reading the exponents')
-call Quit_OnUserError()
-991 continue
-call WarningMessage(2,'Abend in GetBS: Error while reading the coefficients')
-call Quit_OnUserError()
 
 end subroutine GetECP

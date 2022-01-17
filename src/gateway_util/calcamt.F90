@@ -84,7 +84,7 @@ do lP1=1,lMax+1
   nP = Shells(iSRSh)%nExp
   N = lP1
   LAM = lP1
-  if (nP <= 0) Go To 1000
+  if (nP <= 0) cycle
 
   Rel(:) = Zero
   if ((iand(iOpt,iMVPot) /= 0) .and. (iand(iOpt,iDWPot) /= 0)) then
@@ -163,7 +163,6 @@ do lP1=1,lMax+1
     IJAM0 = IJAM0+NP**2
   end do
 
-1000 continue
 end do
 
 call mma_deallocate(rel)

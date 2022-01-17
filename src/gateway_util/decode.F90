@@ -39,7 +39,7 @@ idot = 0
 lstring = 0
 lLBL = len(LBL)
 do i=1,lLBL
-  if (LBL(i:i) /= dot) go to 10
+  if (LBL(i:i) /= dot) cycle
   idot = idot+1
   if (idot == N-1) i1 = i+1
   if (idot == N) then
@@ -48,30 +48,25 @@ do i=1,lLBL
     if (i > i1) xstring = LBL(i1:i-1)
     !write(u6,'(1x,A,/,1X,A)') ' xstring=',xstring
     lstring = i-i1
-    go to 20
+    exit
   end if
-10 continue
 end do
-if (Hit) then
+if (idot == N) then
+  ! Pack the string
+
+  Hit = .true.
+  i1 = 0
+  string = ' '
+  do i=1,lstring
+    if (xstring(i:i) == ' ') cycle
+    i1 = i1+1
+    string(i1:i1) = xstring(i:i)
+  end do
+else if (Hit) then
   call WarningMessage(2,'Decode: error in basis set label')
   write(u6,'(A,A)') 'LBL=',LBL
   call Abend()
-else
-  return
 end if
-
-! Pack the string
-
-20 continue
-Hit = .true.
-i1 = 0
-string = ' '
-do i=1,lstring
-  if (xstring(i:i) == ' ') go to 30
-  i1 = i1+1
-  string(i1:i1) = xstring(i:i)
-30 continue
-end do
 
 return
 

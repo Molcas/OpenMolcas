@@ -19,20 +19,20 @@ integer(kind=iwp), intent(in) :: iCnt, iR, nAtoms
 integer(kind=iwp), intent(inout) :: cIndex(2,nAtoms), iAtoms
 integer(kind=iwp) :: i
 
-98 continue
-Index_Center = 0
-do i=1,iAtoms
-  if ((cIndex(1,i) == iCnt) .and. (cIndex(2,i) == iR)) then
-    Index_Center = i
-    Go To 99
-  end if
-end do
+outer: do
+  Index_Center = 0
+  do i=1,iAtoms
+    if ((cIndex(1,i) == iCnt) .and. (cIndex(2,i) == iR)) then
+      Index_Center = i
+      exit outer
+    end if
+  end do
 
-iAtoms = iAtoms+1
-cIndex(1,iAtoms) = iCnt
-cIndex(2,iAtoms) = iR
-Go To 98
+  iAtoms = iAtoms+1
+  cIndex(1,iAtoms) = iCnt
+  cIndex(2,iAtoms) = iR
+end do outer
 
-99 return
+return
 
 end function Index_Center

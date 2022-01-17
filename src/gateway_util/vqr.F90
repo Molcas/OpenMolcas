@@ -54,24 +54,24 @@ if (NPOINT > MPoint) then
 end if
 read(LUQRP,'(4d20.13)') (R(k),k=1,Npoint)
 
-1 read(LUQRP,'(a80)',end=999) Line
-if (Line(1:8) == MPLbl(1:8)) then
-  ! there is no potential for this symmetry
-  !write(u6,603)
-  do IJ=1,NZ*(NZ+1)/2
-    OPMAT(IJ) = Zero
-  end do
-  return
-else
-  read(Line,'(a4)') OrbLab
-  read(LUQRP,'(4d20.13)') (V(k),k=1,Npoint)
+do
+  read(LUQRP,'(a80)',end=999) Line
+  if (Line(1:8) == MPLbl(1:8)) then
+    ! there is no potential for this symmetry
+    !write(u6,603)
+    do IJ=1,NZ*(NZ+1)/2
+      OPMAT(IJ) = Zero
+    end do
+    return
+  else
+    read(Line,'(a4)') OrbLab
+    read(LUQRP,'(4d20.13)') (V(k),k=1,Npoint)
 
-  ! check the symmetry
-  if (((index(ORBLAB,'S') /= 0) .and. (ISIM /= 1)) .or. ((index(ORBLAB,'P') /= 0) .and. (ISIM /= 2)) .or. &
-      ((index(ORBLAB,'D') /= 0) .and. (ISIM /= 3)) .or. ((index(ORBLAB,'F') /= 0) .and. (ISIM /= 4))) then
-    GO TO 1
+    ! check the symmetry
+    if (((index(ORBLAB,'S') == 0) .or. (ISIM == 1)) .and. ((index(ORBLAB,'P') == 0) .or. (ISIM == 2)) .and. &
+        ((index(ORBLAB,'D') == 0) .or. (ISIM == 3)) .and. ((index(ORBLAB,'F') == 0) .or. (ISIM == 4))) exit
   end if
-end if
+end do
 !write(u6,601) ORBLAB,NPOINT,R(1),R(NPOINT)
 
 ! Matrix of a numerical local operator V(r) given in a logarithmic mesh

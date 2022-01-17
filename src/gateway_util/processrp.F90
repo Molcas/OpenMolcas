@@ -24,9 +24,9 @@ implicit none
 character(len=180) :: KeepGroup
 real(kind=wp) :: SymThr
 integer(kind=iwp) :: i, LuRP
-character(len=180) :: KG, KWord
+character(len=180) :: KG
 #ifdef _HAVE_EXTRA_
-character(len=180) :: Key, minGroup
+character(len=180) :: Key, KWord, minGroup
 character(len=180), external :: Get_Ln
 #else
 real(kind=wp), allocatable :: DumRot(:,:,:), DumTrans(:,:)
@@ -55,7 +55,7 @@ call UpCase(KG)
 if ((KG(1:1) == 'E') .or. (KG(1:2) == 'C1')) then
   KG = 'NOSYM'
 end if
-if (KG(1:5) == 'NOSYM') Go To 30
+if (KG(1:5) == 'NOSYM') return
 
 #ifdef _HAVE_EXTRA_
 LuRP = IsFreeUnit(10)
@@ -63,17 +63,17 @@ call molcas_open(LuRP,'findsym.out')
 KWord = Get_Ln(LuRP)
 minGroup = Get_Ln(LuRP)
 close(LuRP)
-if (index(KWord,'C1') /= 0) Go To 30
+if (index(KWord,'C1') /= 0) return
 
 ! Else findsym will find the group
 
 call findsymf('findsym.RP1',KG,SymThr,ierr)
-if (ierr /= 0) Go To 20
+if (ierr /= 0) call Error(1)
 call molcas_open(LuRP,'findsym.out')
 Key = Get_Ln(LuRP)
 if (index(Key,'C1') /= 0) then
   close(LuRP)
-  Go To 30
+  return
 end if
 Key = Get_Ln(LuRP)
 KWord = Get_Ln(LuRP)
@@ -92,11 +92,11 @@ close(LuRP)
 ! no need if user defined
 
 if (KG(1:4) == 'FULL') then
-  if (Key /= minGroup) Go To 21
+  if (Key /= minGroup) call Error(2)
 end if
 
 call findsymf('findsym.RP2',KG,SymThr,ierr)
-if (ierr /= 0) Go To 20
+if (ierr /= 0) call Error(1)
 call molcas_open(LuRP,'findsym.out')
 read(LuRP,*)
 KWord = Get_Ln(LuRP)
@@ -104,13 +104,13 @@ KWord = Get_Ln(LuRP)
 if (KG(1:4) == 'FULL') then
   if (KWord /= minGroup) then
     close(LuRP)
-    Go To 21
+    call Error(2)
   end if
 end if
 
 KWord = Get_Ln(LuRP)
 call Get_I(1,i,1)
-if (3*i /= nRP) Go To 20
+if (3*i /= nRP) call Error(1)
 do i=1,nRP/3+3
   read(LuRP,*)
 end do
@@ -120,7 +120,7 @@ end do
 #else
 ! If manual symmetry, trust it
 ! Only check if automatic symmetry requested
-if (KG(1:4) /= 'FULL') Go To 30
+if (KG(1:4) /= 'FULL') return
 ! The detected symmetry for the two structures must match
 LuRP = 10
 LuRP = IsFreeUnit(LuRP)
@@ -138,20 +138,28 @@ call Read_XYZ(LuRP,DumRot,DumTrans)
 close(LuRP)
 call Parse_Group(KeepGroup,SymThr)
 i = Out_Raw(RP_Centers(:,:,2))
-if (i /= nRP) Go To 20
+if (i /= nRP) call Error(1)
 call Clear_XYZ()
-if (Symmetry /= KG) Go To 21
+if (Symmetry /= KG) call Error(2)
 #endif
-30 continue
 
 return
 
-20 continue
-call WarningMessage(2,'Error in RP-Coord section, check symmetry')
-call Quit_OnUserError()
-21 continue
-KWord = 'Error in RP-Coord section, structures do not have the same symmetry. Please define manually the symmetry group.'
-call WarningMessage(2,KWord)
-call Quit_OnUserError()
+contains
+
+subroutine Error(code)
+
+  integer(kind=iwp), intent(in) :: code
+
+  select case (code)
+    case (1)
+      call WarningMessage(2,'Error in RP-Coord section, check symmetry')
+    case (2)
+      call WarningMessage(2,'Error in RP-Coord section, structures do not have the same symmetry. '// &
+                          'Please define manually the symmetry group.')
+  end select
+  call Quit_OnUserError()
+
+end subroutine Error
 
 end subroutine processRP

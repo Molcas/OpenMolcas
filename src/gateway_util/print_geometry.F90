@@ -87,7 +87,7 @@ do jCnttp=1,nCnttp
   mCnt = dbsc(jCnttp)%nCntr
   if (dbsc(jCnttp)%Aux .or. dbsc(jCnttp)%Frag) then
     ndc = ndc+mCnt
-    Go To 32
+    cycle
   end if
   do jCnt=1,mCnt
     ndc = ndc+1
@@ -114,7 +114,6 @@ do jCnttp=1,nCnttp
       nc = nc+1
     end do
   end do
-32 continue
 end do
 nc = nc-1
 !                                                                      *
@@ -122,23 +121,27 @@ nc = nc-1
 !                                                                      *
 ! Compute distances
 
-if (S%mCentr <= 2) Go To 55
-call Dstncs(lblxxx,Centr,nc,Angstrom,S%Max_Center,6)
-if (.not. Expert) call DstChk(Centr,lblxxx,nc)
+if (S%mCentr > 2) then
+  call Dstncs(lblxxx,Centr,nc,Angstrom,S%Max_Center,6)
+  if (.not. Expert) call DstChk(Centr,lblxxx,nc)
 
-! Compute valence bond angles
+  if (iPrint >= 5) then
+    ! Compute valence bond angles
 
-if ((iPrint < 5) .or. (S%mCentr < 3) .or. (iOpt == 1)) Go To 55
-call Angles(lblxxx,Centr,nc,rtrnc,S%Max_Center)
+    if ((S%mCentr >= 3) .and. (iOpt /= 1)) then
+      call Angles(lblxxx,Centr,nc,rtrnc,S%Max_Center)
+    end if
 
-! Compute dihedral angles
+    ! Compute dihedral angles
 
-if ((iPrint < 5) .or. (S%mCentr < 4)) Go To 55
-call Dihedr(lblxxx,Centr,nc,rtrnc,S%Max_Center)
+    if (S%mCentr >= 4) then
+      call Dihedr(lblxxx,Centr,nc,rtrnc,S%Max_Center)
+    end if
+  end if
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-55 continue
 
 call mma_deallocate(Lblxxx)
 call mma_deallocate(Centr)

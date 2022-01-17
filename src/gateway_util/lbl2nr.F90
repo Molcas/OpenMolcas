@@ -33,32 +33,27 @@ Lbl2Nr = -1
 
 lAtom = 0
 do i=1,80
-  if (atom(i:i) /= ' ') then
-    lAtom = lAtom+1
-  else
-    Go To 99
-  end if
+  if (atom(i:i) == ' ') exit
+  lAtom = lAtom+1
 end do
-99 continue
 if (lAtom > 2) lAtom = 2
 TmpLbl(1) = '  '
-if (lAtom == 1) then
-  TmpLbl(1)(2:2) = atom(1:1)
-else if (lAtom == 2) then
-  TmpLbl(1) = atom(1:2)
-else
-  Go To 98
-end if
-call UpCase(TmpLbl(1))
-do i=0,MaxAtomNum
-  TmpLbl(2) = PTab(i)
-  call UpCase(TmpLbl(2))
-  if (TmpLbl(2) == TmpLbl(1)) then
-    Lbl2Nr = i
-    Go To 98
+if (lAtom > 0) then
+  if (lAtom == 1) then
+    TmpLbl(1)(2:2) = atom(1:1)
+  else
+    TmpLbl(1) = atom(1:2)
   end if
-end do
-98 continue
+  call UpCase(TmpLbl(1))
+  do i=0,MaxAtomNum
+    TmpLbl(2) = PTab(i)
+    call UpCase(TmpLbl(2))
+    if (TmpLbl(2) == TmpLbl(1)) then
+      Lbl2Nr = i
+      exit
+    end if
+  end do
+end if
 if (Lbl2Nr == -1) then
   call WarningMessage(2,'The atom label;-->'//Atom(1:4)//'<--; does not define an element.')
   call Quit_OnUserError()

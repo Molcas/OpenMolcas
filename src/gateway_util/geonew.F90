@@ -91,17 +91,16 @@ end if
 iDC = 1
 iNuc = 0
 !call RecPrt('CN',' ',CN,3,nNuc)
-do iCnttp=1,nCnttp
+outer: do iCnttp=1,nCnttp
   if (.not. (dbsc(iCnttp)%pChrg .or. dbsc(iCnttp)%Frag .or. dbsc(iCnttp)%Aux)) then
     do iCnt=1,dbsc(iCnttp)%nCntr
       dbsc(iCnttp)%Coor(1:3,iCnt) = CN(1:3,iDC)
       iDC = iDC+1
       iNuc = iNuc+1
-      if (iNuc == nNuc) Go To 999
+      if (iNuc == nNuc) exit outer
     end do
   end if
-end do
-999 continue
+end do outer
 !                                                                      *
 !***********************************************************************
 !                                                                      *

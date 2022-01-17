@@ -55,6 +55,11 @@ subroutine Symmetry_Info_Dmp()
   integer(kind=iwp), allocatable :: iDmp(:)
   character, allocatable :: cDmp(:)
 
+  if (.not. allocated(iChBas)) then
+    call WarningMessage(2,'Symmetry_Info_Dmp: iChBas is not allocated!')
+    call Abend()
+  end if
+
   liDmp = 1+8+8*8+3+MxFnc+8+2
   call mma_allocate(iDmp,liDmp,Label='iDmp')
 

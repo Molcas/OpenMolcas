@@ -69,6 +69,8 @@ real(kind=wp), allocatable :: ExpMerged(:), Temp(:,:)
 integer(kind=iwp), external :: Lbl2Nr, StrnLn
 character(len=180), external :: Get_Ln
 character(len=*), parameter :: DefNm = 'basis_library'
+character(len=*), parameter :: KWord(18) = ['END ','VALE','CORE','EXTE','EXCH','1STO','NOPA','NOP1','NOP2','NOP3','NOPF','RESC', &
+                                            'RA0H','RA0F','RAIH','MIXE','SOC ','DKSO']
 
 !                                                                      *
 !***********************************************************************
@@ -424,38 +426,38 @@ do iAng=0,lAng
 
   ! Decontract if integrals required in the primitive basis
 
-  if (nPrim == 0) Go To 777
-  Shells(iShll)%Cff_p(:,:,1) = Zero
-  do i=1,nPrim
-    Shells(iShll)%Cff_p(i,i,1) = One
-  end do
+  if (nPrim /= 0) then
+    Shells(iShll)%Cff_p(:,:,1) = Zero
+    do i=1,nPrim
+      Shells(iShll)%Cff_p(i,i,1) = One
+    end do
 
-  ! Save the contraction coefficients once more after the coefficients.
-  ! The second set will not be normalized!
+    ! Save the contraction coefficients once more after the coefficients.
+    ! The second set will not be normalized!
 
-  Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_c(:,:,1)
-  Shells(iShll)%Cff_c(:,:,2) = Shells(iShll)%Cff_c(:,:,1)
-  Shells(iShll)%Cff_p(:,:,2) = Shells(iShll)%Cff_p(:,:,1)
+    Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_c(:,:,1)
+    Shells(iShll)%Cff_c(:,:,2) = Shells(iShll)%Cff_c(:,:,1)
+    Shells(iShll)%Cff_p(:,:,2) = Shells(iShll)%Cff_p(:,:,1)
 
-  ! The normalization coefficients are assumed to be for
-  ! normalized Gaussians. In Nrmlz the contraction coefficients are
-  ! multiplied with the normalization coefficient of each primitive
-  ! Gaussian. The contracted Gaussian are then normalized with respect
-  ! the radial overlap.
+    ! The normalization coefficients are assumed to be for
+    ! normalized Gaussians. In Nrmlz the contraction coefficients are
+    ! multiplied with the normalization coefficient of each primitive
+    ! Gaussian. The contracted Gaussian are then normalized with respect
+    ! the radial overlap.
 
-  if (.not. UnNorm) then
-    call Nrmlz(Shells(iShll)%Exp,nPrim,Shells(iShll)%Cff_c(1,1,1),nCntrc,iAng)
-    call Nrmlz(Shells(iShll)%Exp,nPrim,Shells(iShll)%Cff_p(1,1,1),nPrim,iAng)
+    if (.not. UnNorm) then
+      call Nrmlz(Shells(iShll)%Exp,nPrim,Shells(iShll)%Cff_c(1,1,1),nCntrc,iAng)
+      call Nrmlz(Shells(iShll)%Exp,nPrim,Shells(iShll)%Cff_p(1,1,1),nPrim,iAng)
+    end if
+
+    if (iPrint >= 99) then
+      nPrim = Shells(iShll)%nExp
+      nCntrc = Shells(iShll)%nBasis_C
+      call RecPrt(' Coefficients (normalized)',' ',Shells(iShll)%Cff_c(1,1,1),nPrim,nCntrc)
+      call RecPrt(' Coefficients (unnormalized)',' ',Shells(iShll)%Cff_c(1,1,2),nPrim,nCntrc)
+    end if
   end if
-
-  if (iPrint >= 99) then
-    nPrim = Shells(iShll)%nExp
-    nCntrc = Shells(iShll)%nBasis_C
-    call RecPrt(' Coefficients (normalized)',' ',Shells(iShll)%Cff_c(1,1,1),nPrim,nCntrc)
-    call RecPrt(' Coefficients (unnormalized)',' ',Shells(iShll)%Cff_c(1,1,2),nPrim,nCntrc)
-  end if
-777 continue
-  if (nPrim == 0) Go To 778
+  if (nPrim == 0) cycle
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -507,7 +509,6 @@ do iAng=0,lAng
   !*********************************************************************
   !                                                                    *
 
-778 continue
 end do
 if (mVal == 0) dbsc(nCnttp)%nVal = 0
 !***********************************************************************
@@ -587,336 +588,306 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
   end if
 
   iMPShll = iShll
-9988 continue
-  Line = Get_Ln(lUnit)
-  call UpCase(Line)
-  if (Line(1:4) == 'END ') Go To 999
-  if (Line(1:4) == 'VALE') Go To 1001
-  if (Line(1:4) == 'CORE') Go To 1011
-  if (Line(1:4) == 'EXTE') Go To 1012
-  if (Line(1:4) == 'EXCH') Go To 1002
-  if (Line(1:4) == '1STO') Go To 1003
-  if (Line(1:4) == 'NOPA') Go To 1005
-
-  if (Line(1:4) == 'NOP1') Go To 1006
-  if (Line(1:4) == 'NOP2') Go To 1007
-  if (Line(1:4) == 'NOP3') Go To 1008
-  if (Line(1:4) == 'NOPF') Go To 1010
-  if (Line(1:4) == 'RESC') Go To 1009
-  if (Line(1:4) == 'RA0H') Go To 9001
-  if (Line(1:4) == 'RA0F') Go To 9002
-  if (Line(1:4) == 'RAIH') Go To 9003
-
-  if (Line(1:4) == 'MIXE') Go To 1013
-  if (Line(1:4) == 'SOC ') Go To 1014
-  if (Line(1:4) == 'DKSO') Go To 1015
-  call WarningMessage(2,' Invalid keyword in GetBS;'//Line)
-  call Quit_OnUserError()
-
-  ! Valence basis set
-
-1001 continue
-  if (nAIMP /= -1) then
-    call WarningMessage(2,' SR basis set is already defined!')
-    call Quit_OnUserError()
-  end if
-  nAIMP = lAng
-  dbsc(nCnttp)%nSRO = nAIMP+1
-  dbsc(nCnttp)%iSRO = iShll+1
-  jValSh = iValSh
-  do iAIMP=0,nAIMP
-    iShll = iShll+1
-    if (iShll > MxShll) then
-      write(u6,*) 'GetBS: iShll > MxShll'
-      write(u6,*) 'iShll,MxShll=',iShll,MxShll
-      call Abend()
-    end if
-    jValSh = jValSh+1
-    call mma_allocate(Shells(iShll)%Exp,Shells(jValSh)%nExp,Label='Exp')
-    Shells(iShll)%Exp(:) = Shells(jValSh)%Exp(:)
-    Shells(iShll)%nExp = Shells(jValSh)%nExp
-    Shells(iShll)%nBasis = 0
-  end do
-  Go To 9988
-
-  ! Core basis set
-
-1011 continue
-  if (nAIMP /= -1) then
-    call WarningMessage(2,' SR basis set is already defined!')
-    call Quit_OnUserError()
-  end if
-  nAIMP = nProj
-  dbsc(nCnttp)%nSRO = nAIMP+1
-  dbsc(nCnttp)%iSRO = iShll+1
-  jPrSh = iPrSh
-  do iAIMP=0,nAIMP
-    iShll = iShll+1
-    if (iShll > MxShll) then
-      write(u6,*) 'GetBS: iShll > MxShll'
-      write(u6,*) 'iShll,MxShll=',iShll,MxShll
-      call Abend()
-    end if
-    jPrSh = jPrSh+1
-    call mma_allocate(Shells(iShll)%Exp,Shells(jPrSh)%nExp,Label='Exp')
-    Shells(iShll)%Exp(:) = Shells(jPrSh)%Exp(:)
-    Shells(iShll)%nExp = Shells(jPrSh)%nExp
-    Shells(iShll)%nBasis = 0
-  end do
-  Go To 9988
-
-  ! External basis set
-
-1012 continue
-  if (nAIMP /= -1) then
-    call WarningMessage(2,' SR basis set is already defined!')
-    call Quit_OnUserError()
-  end if
-  !Line = GetLn(lUnit)
-  Line = Get_Ln(lUnit)
-  call Get_i1(1,nAIMP)
-  dbsc(nCnttp)%nSRO = nAIMP+1
-  dbsc(nCnttp)%iSRO = iShll+1
-  do iAIMP=0,nAIMP
-    iShll = iShll+1
-    if (iShll > MxShll) then
-      write(u6,*) 'GetBS: iShll > MxShll'
-      write(u6,*) 'iShll,MxShll=',iShll,MxShll
-      call Abend()
-    end if
+  do
     Line = Get_Ln(lUnit)
-    call Get_i1(1,nPrim)
-    call mma_allocate(Shells(iShll)%Exp,nPrim,Label='Exp')
-    Shells(iShll)%nExp = nPrim
-    Shells(iShll)%nBasis = 0
+    call UpCase(Line)
+    select case (Line(1:4))
 
-    if (nPrim > 0) then
-      call read_v(lUnit,Shells(iShll)%Exp,1,nPrim,1,Ierr)
-      if (Ierr /= 0) then
-        call WarningMessage(2,'GetBS: Error reading SRO exponents')
+      case default
+        call WarningMessage(2,' Invalid keyword in GetBS;'//Line)
         call Quit_OnUserError()
-      end if
-    end if
 
+      case (KWord(1)) ! END
+        exit
+
+      case (KWord(2)) ! VALE
+        ! Valence basis set
+
+        if (nAIMP /= -1) then
+          call WarningMessage(2,' SR basis set is already defined!')
+          call Quit_OnUserError()
+        end if
+        nAIMP = lAng
+        dbsc(nCnttp)%nSRO = nAIMP+1
+        dbsc(nCnttp)%iSRO = iShll+1
+        jValSh = iValSh
+        do iAIMP=0,nAIMP
+          iShll = iShll+1
+          if (iShll > MxShll) then
+            write(u6,*) 'GetBS: iShll > MxShll'
+            write(u6,*) 'iShll,MxShll=',iShll,MxShll
+            call Abend()
+          end if
+          jValSh = jValSh+1
+          call mma_allocate(Shells(iShll)%Exp,Shells(jValSh)%nExp,Label='Exp')
+          Shells(iShll)%Exp(:) = Shells(jValSh)%Exp(:)
+          Shells(iShll)%nExp = Shells(jValSh)%nExp
+          Shells(iShll)%nBasis = 0
+        end do
+
+      case (KWord(3)) ! CORE
+        ! Core basis set
+
+        if (nAIMP /= -1) then
+          call WarningMessage(2,' SR basis set is already defined!')
+          call Quit_OnUserError()
+        end if
+        nAIMP = nProj
+        dbsc(nCnttp)%nSRO = nAIMP+1
+        dbsc(nCnttp)%iSRO = iShll+1
+        jPrSh = iPrSh
+        do iAIMP=0,nAIMP
+          iShll = iShll+1
+          if (iShll > MxShll) then
+            write(u6,*) 'GetBS: iShll > MxShll'
+            write(u6,*) 'iShll,MxShll=',iShll,MxShll
+            call Abend()
+          end if
+          jPrSh = jPrSh+1
+          call mma_allocate(Shells(iShll)%Exp,Shells(jPrSh)%nExp,Label='Exp')
+          Shells(iShll)%Exp(:) = Shells(jPrSh)%Exp(:)
+          Shells(iShll)%nExp = Shells(jPrSh)%nExp
+          Shells(iShll)%nBasis = 0
+        end do
+
+      case (KWord(4)) ! EXTE
+        ! External basis set
+
+        if (nAIMP /= -1) then
+          call WarningMessage(2,' SR basis set is already defined!')
+          call Quit_OnUserError()
+        end if
+        !Line = GetLn(lUnit)
+        Line = Get_Ln(lUnit)
+        call Get_i1(1,nAIMP)
+        dbsc(nCnttp)%nSRO = nAIMP+1
+        dbsc(nCnttp)%iSRO = iShll+1
+        do iAIMP=0,nAIMP
+          iShll = iShll+1
+          if (iShll > MxShll) then
+            write(u6,*) 'GetBS: iShll > MxShll'
+            write(u6,*) 'iShll,MxShll=',iShll,MxShll
+            call Abend()
+          end if
+          Line = Get_Ln(lUnit)
+          call Get_i1(1,nPrim)
+          call mma_allocate(Shells(iShll)%Exp,nPrim,Label='Exp')
+          Shells(iShll)%nExp = nPrim
+          Shells(iShll)%nBasis = 0
+
+          if (nPrim > 0) then
+            call read_v(lUnit,Shells(iShll)%Exp,1,nPrim,1,Ierr)
+            if (Ierr /= 0) then
+              call WarningMessage(2,'GetBS: Error reading SRO exponents')
+              call Quit_OnUserError()
+            end if
+          end if
+
+        end do
+
+      case (KWord(5)) ! NOPA
+        ! Exchange operator
+
+        dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**0)
+
+      case (KWord(6)) ! 1STO
+        ! 1st order relativistic correction
+
+        dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**1)
+        dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**2)
+        Line = Get_Ln(lUnit)
+        MPLbl = Line(1:20)
+
+      case (KWord(7)) ! NOPA
+        ! one-centre no-pair operators
+
+        dbsc(nCnttp)%NoPair = .true.
+        dbsc(nCnttp)%SODK = .true.
+        IRELMP = 0
+        dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**3)
+
+      case (KWord(8)) ! NOP1
+        ! one-centre no-pair operators (DK1)
+
+        dbsc(nCnttp)%NoPair = .true.
+        dbsc(nCnttp)%SODK = .true.
+        IRELMP = 1
+        dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**3)
+
+      case (KWord(9)) ! NOP2
+        ! one-centre no-pair operators (DK2)
+
+        dbsc(nCnttp)%NoPair = .true.
+        dbsc(nCnttp)%SODK = .true.
+        IRELMP = 2
+        dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**3)
+
+      case (KWord(10)) ! NOP3
+        ! one-centre no-pair operators (DK3)
+
+        dbsc(nCnttp)%NoPair = .true.
+        dbsc(nCnttp)%SODK = .true.
+        IRELMP = 3
+        dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**3)
+
+      case (KWord(11)) ! NOPF
+        ! one-centre no-pair operators (DK3)
+
+        dbsc(nCnttp)%NoPair = .true.
+        dbsc(nCnttp)%SODK = .true.
+        IRELMP = 4
+        dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**3)
+
+      case (KWord(12)) ! RESC
+        ! one-centre RESC operators
+
+        dbsc(nCnttp)%NoPair = .true.
+        IRELMP = 11
+        dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**3)
+
+      case (KWord(13)) ! RA0H
+        ! one-centre ZORA operators
+
+        dbsc(nCnttp)%NoPair = .true.
+        IRELMP = 21
+        dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**3)
+
+      case (KWord(14)) ! RA0F
+        ! one-centre ZORA-FP operators
+
+        dbsc(nCnttp)%NoPair = .true.
+        dbsc(nCnttp)%SODK = .true.
+        IRELMP = 22
+        dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**3)
+
+      case (Kword(15)) ! RAIH
+        ! one-centre IORA operators
+
+        dbsc(nCnttp)%NoPair = .true.
+        dbsc(nCnttp)%SODK = .true.
+        IRELMP = 23
+        dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**3)
+
+      case (KWord(16)) ! MIXE
+        ! Mixed basis set (valence + core), with dominance of the
+        ! valence basis set, i.e. the valence basis set plus those
+        ! exponents in the core primitives not too close to the
+        ! valence ones.
+
+        if (nAIMP /= -1) then
+          call WarningMessage(2,' SR basis set is already defined!')
+          call Quit_OnUserError()
+        end if
+
+        ! Threshold for the ratio between consecutive exponents
+        ! (if the ratio between two consecutive exponents is lower
+        ! than the threshold, the exponent of the core basis set
+        ! will be removed)
+
+        Line = Get_Ln(lUnit)
+        call Get_F1(1,RatioThres)
+
+        nAIMP = lAng
+        dbsc(nCnttp)%iSRO = iShll+1
+        dbsc(nCnttp)%nSRO = nAIMP+1
+        jValSh = iValSh
+        jPrSh = iPrSh
+
+        do iAIMP=0,nAIMP
+          iShll = iShll+1
+          if (iShll > MxShll) then
+            write(u6,*) 'GetBS: iShll > MxShll'
+            write(u6,*) 'iShll,MxShll=',iShll,MxShll
+            call Abend()
+          end if
+
+          jValSh = jValSh+1
+          nCntrc = Shells(jValSh)%nBasis
+
+          if (iAIMP <= nProj) then
+            jPrSh = jPrSh+1
+
+            iDominantSet = 2
+            call mma_allocate(ExpMerged,Shells(jPrSh)%nExp+Shells(jValSh)%nExp,Label='ExpMerged')
+            call MergeBS(Shells(jPrSh)%Exp,Shells(jPrSh)%nExp,Shells(jValSh)%Exp,Shells(jValSh)%nExp,ExpMerged,Shells(iShll)%nExp, &
+                         RatioThres,iDominantSet)
+            call mma_allocate(Shells(iShll)%Exp,Shells(iShll)%nExp,Label='Exp')
+            Shells(iShll)%Exp(:) = ExpMerged(1:Shells(iShll)%nExp)
+            call mma_deallocate(ExpMerged)
+
+          else
+
+            Shells(iShll)%nExp = Shells(jValSh)%nExp
+            call mma_allocate(Shells(iShll)%Exp,Shells(iShll)%nExp,Label='Exp')
+            Shells(iShll)%Exp(:) = Shells(jValSh)%Exp(:)
+
+          end if
+
+          Shells(iShll)%nBasis = 0
+
+        end do
+
+      case (KWord(17)) ! SOC
+        ! SOC basis set
+
+        if (mSOC /= -1) then
+          call WarningMessage(2,' SOC basis set is already defined!')
+          call Quit_OnUserError()
+        end if
+
+        dbsc(nCnttp)%iSOC = iShll+1
+        Line = Get_Ln(lUnit)
+        call Get_I1(1,mSOC)
+        dbsc(nCnttp)%nSOC = mSOC+1
+        if (IfTest) write(u6,'(A,I4)') 'dbsc(nCnttp)%nSOC =',dbsc(nCnttp)%nSOC
+        if (mSOC >= 0) then
+          do iAng=0,mSOC
+            if (IfTest) write(u6,'(A,I4)') ' iAng=',iAng
+            iShll = iShll+1
+            if (iShll > MxShll) then
+              call WarningMessage(2,'Abend in GetBS: Increase MxShll')
+              call Quit_OnUserError()
+            end if
+            Line = Get_Ln(lUnit)
+            call Get_I1(1,nPrim)
+            call Get_I1(2,nCntrc)
+            call Get_I1(3,mDel)
+            dbsc(nCnttp)%kDel(iAng) = mDel
+            if (IfTest) write(u6,*) 'nPrim = ',nPrim,' nCntrc = ',nCntrc
+            if (IfTest) write(u6,*) 'nDeleted = ',mDel
+            call mma_allocate(Shells(iShll)%Exp,nPrim,Label='Exp')
+            Shells(iShll)%nExp = nPrim
+            Shells(iShll)%nBasis = nCntrc
+            if (IfTest) write(u6,*) 'getBS: ishll,nCntrc',ishll,nCntrc
+            if (IfTest) write(u6,'(A)') ' Reading Exponents'
+            if (nPrim > 0) call Read_v(lUnit,Shells(iShll)%Exp,1,nPrim,1,ierr)
+            if (IfTest) call RecPrt('Exponents',' ',Shells(iShll)%Exp,1,nPrim)
+            call mma_allocate(Shells(iShll)%Cff_c,nPrim,nCntrc,2,Label='Cff_c')
+            call mma_allocate(Shells(iShll)%pCff,nPrim,nCntrc,Label='pCff')
+            Shells(iShll)%nBasis = nCntrc
+            call mma_allocate(Shells(iShll)%Cff_p,nPrim,nPrim,2,Label='Cff_p')
+            Shells(iShll)%Cff_p(:,:,:) = Zero
+            if (IfTest) write(u6,'(A)') ' Reading coefficients'
+            do iPrim=1,nPrim
+              call Read_v(lUnit,Shells(iShll)%Cff_c(1,1,1),iPrim,nPrim*nCntrc,nPrim,ierr)
+            end do
+
+            Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_c(:,:,1)
+            Shells(iShll)%Cff_c(:,:,2) = Shells(iShll)%Cff_c(:,:,1)
+            Shells(iShll)%Cff_p(:,:,2) = Shells(iShll)%Cff_p(:,:,1)
+
+            if (IfTest) call RecPrt('Coefficients',' ',Shells(iShll)%Cff_c(1,1,1),nPrim,nCntrc)
+
+          end do
+        end if
+
+      case (KWord(18)) ! DKSO
+        ! Use DKSO on request
+
+        dbsc(nCnttp)%SODK = .true.
+
+    end select
   end do
-  Go To 9988
-  ! Mixed basis set (valence + core), with dominance of the
-  ! valence basis set, i.e. the valence basis set plus those
-  ! exponents in the core primitives not too close to the
-  ! valence ones.
-
-1013 continue
-  if (nAIMP /= -1) then
-    call WarningMessage(2,' SR basis set is already defined!')
-    call Quit_OnUserError()
-  end if
-
-  ! Threshold for the ratio between consecutive exponents
-  ! (if the ratio between two consecutive exponents is lower
-  ! than the threshold, the exponent of the core basis set
-  ! will be removed)
-
-  Line = Get_Ln(lUnit)
-  call Get_F1(1,RatioThres)
-
-  nAIMP = lAng
-  dbsc(nCnttp)%iSRO = iShll+1
-  dbsc(nCnttp)%nSRO = nAIMP+1
-  jValSh = iValSh
-  jPrSh = iPrSh
-
-  do iAIMP=0,nAIMP
-    iShll = iShll+1
-    if (iShll > MxShll) then
-      write(u6,*) 'GetBS: iShll > MxShll'
-      write(u6,*) 'iShll,MxShll=',iShll,MxShll
-      call Abend()
-    end if
-
-    jValSh = jValSh+1
-    nCntrc = Shells(jValSh)%nBasis
-
-    if (iAIMP <= nProj) then
-      jPrSh = jPrSh+1
-
-      iDominantSet = 2
-      call mma_allocate(ExpMerged,Shells(jPrSh)%nExp+Shells(jValSh)%nExp,Label='ExpMerged')
-      call MergeBS(Shells(jPrSh)%Exp,Shells(jPrSh)%nExp,Shells(jValSh)%Exp,Shells(jValSh)%nExp,ExpMerged,Shells(iShll)%nExp, &
-                   RatioThres,iDominantSet)
-      call mma_allocate(Shells(iShll)%Exp,Shells(iShll)%nExp,Label='Exp')
-      Shells(iShll)%Exp(:) = ExpMerged(1:Shells(iShll)%nExp)
-      call mma_deallocate(ExpMerged)
-
-    else
-
-      Shells(iShll)%nExp = Shells(jValSh)%nExp
-      call mma_allocate(Shells(iShll)%Exp,Shells(iShll)%nExp,Label='Exp')
-      Shells(iShll)%Exp(:) = Shells(jValSh)%Exp(:)
-
-    end if
-
-    Shells(iShll)%nBasis = 0
-
-  end do
-  Go To 9988
-
-  ! SOC basis set
-
-1014 continue
-
-  if (mSOC /= -1) then
-    call WarningMessage(2,' SOC basis set is already defined!')
-    call Quit_OnUserError()
-  end if
-
-  dbsc(nCnttp)%iSOC = iShll+1
-  Line = Get_Ln(lUnit)
-  call Get_I1(1,mSOC)
-  dbsc(nCnttp)%nSOC = mSOC+1
-  if (IfTest) write(u6,'(A,I4)') 'dbsc(nCnttp)%nSOC =',dbsc(nCnttp)%nSOC
-  if (mSOC < 0) Go To 990
-  do iAng=0,mSOC
-    if (IfTest) write(u6,'(A,I4)') ' iAng=',iAng
-    iShll = iShll+1
-    if (iShll > MxShll) then
-      call WarningMessage(2,'Abend in GetBS: Increase MxShll')
-      call Quit_OnUserError()
-    end if
-    Line = Get_Ln(lUnit)
-    call Get_I1(1,nPrim)
-    call Get_I1(2,nCntrc)
-    call Get_I1(3,mDel)
-    dbsc(nCnttp)%kDel(iAng) = mDel
-    if (IfTest) write(u6,*) 'nPrim = ',nPrim,' nCntrc = ',nCntrc
-    if (IfTest) write(u6,*) 'nDeleted = ',mDel
-    call mma_allocate(Shells(iShll)%Exp,nPrim,Label='Exp')
-    Shells(iShll)%nExp = nPrim
-    Shells(iShll)%nBasis = nCntrc
-    if (IfTest) write(u6,*) 'getBS: ishll,nCntrc',ishll,nCntrc
-    if (IfTest) write(u6,'(A)') ' Reading Exponents'
-    if (nPrim > 0) call Read_v(lUnit,Shells(iShll)%Exp,1,nPrim,1,ierr)
-    if (IfTest) call RecPrt('Exponents',' ',Shells(iShll)%Exp,1,nPrim)
-    call mma_allocate(Shells(iShll)%Cff_c,nPrim,nCntrc,2,Label='Cff_c')
-    call mma_allocate(Shells(iShll)%pCff,nPrim,nCntrc,Label='pCff')
-    Shells(iShll)%nBasis = nCntrc
-    call mma_allocate(Shells(iShll)%Cff_p,nPrim,nPrim,2,Label='Cff_p')
-    Shells(iShll)%Cff_p(:,:,:) = Zero
-    if (IfTest) write(u6,'(A)') ' Reading coefficients'
-    do iPrim=1,nPrim
-      call Read_v(lUnit,Shells(iShll)%Cff_c(1,1,1),iPrim,nPrim*nCntrc,nPrim,ierr)
-    end do
-
-    Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_c(:,:,1)
-    Shells(iShll)%Cff_c(:,:,2) = Shells(iShll)%Cff_c(:,:,1)
-    Shells(iShll)%Cff_p(:,:,2) = Shells(iShll)%Cff_p(:,:,1)
-
-    if (IfTest) call RecPrt('Coefficients',' ',Shells(iShll)%Cff_c(1,1,1),nPrim,nCntrc)
-
-  end do
-990 continue
-  Go To 9988
-
-  ! Use DKSO on request
-
-1015 continue
-  dbsc(nCnttp)%SODK = .true.
-  Go To 9988
-
-  ! Exchange operator
-
-1002 continue
-  dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**0)
-  Go To 9988
-
-  ! 1st order relativistic correction
-
-1003 continue
-  dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**1)
-  dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**2)
-  Line = Get_Ln(lUnit)
-  MPLbl = Line(1:20)
-  Go To 9988
-
-  ! one-centre no-pair operators
-
-1005 continue
-  dbsc(nCnttp)%NoPair = .true.
-  dbsc(nCnttp)%SODK = .true.
-  IRELMP = 0
-  dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**3)
-  Go To 9988
-
-  ! one-centre no-pair operators (DK1)
-
-1006 continue
-  dbsc(nCnttp)%NoPair = .true.
-  dbsc(nCnttp)%SODK = .true.
-  IRELMP = 1
-  dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**3)
-  Go To 9988
-
-  ! one-centre no-pair operators (DK2)
-
-1007 continue
-  dbsc(nCnttp)%NoPair = .true.
-  dbsc(nCnttp)%SODK = .true.
-  IRELMP = 2
-  dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**3)
-  Go To 9988
-
-  ! one-centre no-pair operators (DK3)
-
-1008 continue
-  dbsc(nCnttp)%NoPair = .true.
-  dbsc(nCnttp)%SODK = .true.
-  IRELMP = 3
-  dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**3)
-  Go To 9988
-
-  ! one-centre no-pair operators (DK3)
-
-1010 continue
-  dbsc(nCnttp)%NoPair = .true.
-  dbsc(nCnttp)%SODK = .true.
-  IRELMP = 4
-  dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**3)
-  Go To 9988
-
-  ! one-centre RESC operators
-
-1009 continue
-  dbsc(nCnttp)%NoPair = .true.
-  IRELMP = 11
-  dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**3)
-  Go To 9988
-
-  ! one-centre ZORA operators
-
-9001 continue
-  dbsc(nCnttp)%NoPair = .true.
-  IRELMP = 21
-  dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**3)
-  Go To 9988
-
-  ! one-centre ZORA-FP operators
-
-9002 continue
-  dbsc(nCnttp)%NoPair = .true.
-  dbsc(nCnttp)%SODK = .true.
-  IRELMP = 22
-  dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**3)
-  Go To 9988
-
-  ! one-centre IORA operators
-
-9003 continue
-  dbsc(nCnttp)%NoPair = .true.
-  dbsc(nCnttp)%SODK = .true.
-  IRELMP = 23
-  dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**3)
-  Go To 9988
-
-999 continue
   if ((iand(dbsc(nCnttp)%nOpt,2**1) /= 0) .and. (iand(dbsc(nCnttp)%nOpt,2**3) /= 0)) then
     call WarningMessage(2,' 1st order relativistic correction and no-pair approximation can not be used simultaneously!')
     call Quit_OnUserError()

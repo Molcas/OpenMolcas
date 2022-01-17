@@ -68,65 +68,65 @@ do iCnttp=1,nCnttp
     write(u6,*)
     write(u6,*)
     write(u6,'(6X,A,1X,A)') 'Basis set label:',trim(dbsc(iCnttp)%Bsl)
-    if (lOPTO) goto 100
-    write(u6,*)
-    dbas = dc(mdc+1)%LblCnt(1:4)
-    call Upcase(dbas)
-    if (dbas == 'DBAS') then
-      write(u6,'(6X,A)') 'Diffuse basis set for R-matrix:'
-      write(u6,'(6X,A)') '==============================='
-      if (dbsc(iCnttp)%nCntr /= 1) then
-        call WarningMessage(2,'Too many centers, should only be one!')
-        call Quit_OnUserError()
-      end if
-    else
-      if (dbsc(iCnttp)%Aux) then
-        write(u6,'(6X,A)') 'Auxiliary basis set:'
-        write(u6,'(6X,A)') '=================='
-        if (dbsc(iCnttp)%aCD_Thr /= One) then
-          write(u6,'(6X,A,G9.2)') 'Threshold in the auxiliary basis set generation is modified to ', &
+    if (.not. lOPTO) then
+      write(u6,*)
+      dbas = dc(mdc+1)%LblCnt(1:4)
+      call Upcase(dbas)
+      if (dbas == 'DBAS') then
+        write(u6,'(6X,A)') 'Diffuse basis set for R-matrix:'
+        write(u6,'(6X,A)') '==============================='
+        if (dbsc(iCnttp)%nCntr /= 1) then
+          call WarningMessage(2,'Too many centers, should only be one!')
+          call Quit_OnUserError()
+        end if
+      else
+        if (dbsc(iCnttp)%Aux) then
+          write(u6,'(6X,A)') 'Auxiliary basis set:'
+          write(u6,'(6X,A)') '=================='
+          if (dbsc(iCnttp)%aCD_Thr /= One) then
+            write(u6,'(6X,A,G9.2)') 'Threshold in the auxiliary basis set generation is modified to ', &
                                     dbsc(iCnttp)%aCD_Thr*Thrshld_CD
-        end if
-      else if (dbsc(iCnttp)%Frag) then
-        write(u6,'(6X,A)') 'Fragment basis set:'
-        write(u6,'(6X,A)') '=================='
-      else
-        if (dbsc(iCnttp)%fMass == One) then
-          write(u6,'(6X,A)') 'Electronic valence basis set:'
-          write(u6,'(6X,A)') '------------------'
+          end if
+        else if (dbsc(iCnttp)%Frag) then
+          write(u6,'(6X,A)') 'Fragment basis set:'
+          write(u6,'(6X,A)') '=================='
         else
-          write(u6,'(6X,A)') 'Muonic valence basis set:'
-          write(u6,'(6X,A)') '------------------'
+          if (dbsc(iCnttp)%fMass == One) then
+            write(u6,'(6X,A)') 'Electronic valence basis set:'
+            write(u6,'(6X,A)') '------------------'
+          else
+            write(u6,'(6X,A)') 'Muonic valence basis set:'
+            write(u6,'(6X,A)') '------------------'
+          end if
         end if
       end if
-    end if
-    if (dbsc(iCnttp)%Fixed) write(u6,'(6X,A)') 'Centers of this basis set are frozen!'
-    if (dbsc(iCnttp)%IsMM == 1) then
-      write(u6,'(6X,A)') 'This is a MM atom: no basis set'
-    else
-      if (dbsc(iCnttp)%pChrg) then
-        write(u6,'(6X,A,F10.6,A)') 'Associated Effective Charge ',dbsc(iCnttp)%Charge,' au (this is a pseudo charge)'
+      if (dbsc(iCnttp)%Fixed) write(u6,'(6X,A)') 'Centers of this basis set are frozen!'
+      if (dbsc(iCnttp)%IsMM == 1) then
+        write(u6,'(6X,A)') 'This is a MM atom: no basis set'
       else
-        write(u6,'(6X,A,F10.6,A)') 'Associated Effective Charge ',dbsc(iCnttp)%Charge,' au'
-      end if
-      write(u6,'(6X,A,F10.6,A)') 'Associated Actual Charge    ',max(Zero,real(dbsc(iCnttp)%AtmNr,kind=wp)),' au'
+        if (dbsc(iCnttp)%pChrg) then
+          write(u6,'(6X,A,F10.6,A)') 'Associated Effective Charge ',dbsc(iCnttp)%Charge,' au (this is a pseudo charge)'
+        else
+          write(u6,'(6X,A,F10.6,A)') 'Associated Effective Charge ',dbsc(iCnttp)%Charge,' au'
+        end if
+        write(u6,'(6X,A,F10.6,A)') 'Associated Actual Charge    ',max(Zero,real(dbsc(iCnttp)%AtmNr,kind=wp)),' au'
 
-      if (Nuclear_Model == Point_Charge) then
-        write(u6,'(6X,A)') 'Nuclear Model: Point charge'
-      else if (Nuclear_Model == Gaussian_type) then
-        write(u6,'(6X,A)') 'Nuclear Model: Finite nucleus - Gaussian distribution'
-        write(u6,'(6X,A,E12.5)') '  Gaussian exponent, Xi/bohr**(-2): ',dbsc(iCnttp)%ExpNuc
-      else if (Nuclear_Model == mGaussian_type) then
-        write(u6,'(6X,A)') 'Nuclear Model: Finite nucleus - Modified Gaussian distribution'
-        write(u6,'(6X,A,E12.5,A,E12.5)') '  Parameters, Xi/bohr**(-2), w/bohr**(-2): ',dbsc(iCnttp)%ExpNuc,', ', &
+        if (Nuclear_Model == Point_Charge) then
+          write(u6,'(6X,A)') 'Nuclear Model: Point charge'
+        else if (Nuclear_Model == Gaussian_type) then
+          write(u6,'(6X,A)') 'Nuclear Model: Finite nucleus - Gaussian distribution'
+          write(u6,'(6X,A,E12.5)') '  Gaussian exponent, Xi/bohr**(-2): ',dbsc(iCnttp)%ExpNuc
+        else if (Nuclear_Model == mGaussian_type) then
+          write(u6,'(6X,A)') 'Nuclear Model: Finite nucleus - Modified Gaussian distribution'
+          write(u6,'(6X,A,E12.5,A,E12.5)') '  Parameters, Xi/bohr**(-2), w/bohr**(-2): ',dbsc(iCnttp)%ExpNuc,', ', &
                                            dbsc(iCnttp)%w_mGauss
-      else
-        call WarningMessage(2,'Illegal Nuclear Model!')
-        call Abend()
+        else
+          call WarningMessage(2,'Illegal Nuclear Model!')
+          call Abend()
+        end if
       end if
+      write(u6,*)
     end if
-    write(u6,*)
-100 continue
 
   end if
   kShStr = dbsc(iCnttp)%iVal

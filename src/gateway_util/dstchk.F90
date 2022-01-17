@@ -31,13 +31,13 @@ character(len=LenIn) :: Lbls(mCentr)
 integer(kind=iwp) :: icc, iLarge, jcc
 real(kind=wp) :: R, RMax, RMin, x1, x2, y1, y2, z1, z2
 
-if (mCentr < 5) Go To 99
+if (mCentr < 5) return
 
 iLarge = 0
 do icc=1,mCentr
   if (index('1234567890',Lbls(icc)(2:2)) == 0) iLarge = 1
 end do
-if (iLarge == 1) goto 99
+if (iLarge == 1)  return
 
 RMax = Zero
 RMin = huge(RMin)
@@ -67,8 +67,6 @@ if (RMin*Angstrom > 2.8_wp) then
   write(u6,*) 'input or use the "Expert" keyword to force execution'
   call AbEnd()
 end if
-
-99 continue
 
 return
 

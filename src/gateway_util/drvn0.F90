@@ -57,17 +57,21 @@ ZB = Zero
 do iCnttp=1,nCnttp
   ZA = dbsc(iCnttp)%Charge
   if (dbsc(iCnttp)%Frag) ZA = dbsc(iCnttp)%FragCharge
-  if (ZA == Zero) Go To 101
+  mdc = mdc+dbsc(iCnttp)%nCntr
+  if (ZA == Zero) cycle
+  mdc = mdc-dbsc(iCnttp)%nCntr
   do iCnt=1,dbsc(iCnttp)%nCntr
     A(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
 
     ndc = 0
     do jCnttp=1,iCnttp
-      if (dbsc(iCnttp)%pChrg .and. dbsc(jCnttp)%pChrg) Go To 201
-      if (dbsc(iCnttp)%Frag .and. dbsc(jCnttp)%Frag) Go To 201
+      ndc = ndc+dbsc(jCnttp)%nCntr
+      if (dbsc(iCnttp)%pChrg .and. dbsc(jCnttp)%pChrg) cycle
+      if (dbsc(iCnttp)%Frag .and. dbsc(jCnttp)%Frag) cycle
       ZB = dbsc(jCnttp)%Charge
       if (dbsc(jCnttp)%Frag) ZB = dbsc(jCnttp)%FragCharge
-      if (ZB == Zero) Go To 201
+      if (ZB == Zero) cycle
+      ndc = ndc-dbsc(jCnttp)%nCntr
       ZAZB = ZA*ZB
       jCntMx = dbsc(jCnttp)%nCntr
       if (iCnttp == jCnttp) jCntMx = iCnt
@@ -140,11 +144,9 @@ do iCnttp=1,nCnttp
 
         jxyz = jxyz+3
       end do
-201   continue
       ndc = ndc+dbsc(jCnttp)%nCntr
     end do
   end do
-101 continue
   mdc = mdc+dbsc(iCnttp)%nCntr
 end do
 
@@ -200,7 +202,7 @@ if (allocated(XF) .and. (nOrd_XF >= 0)) then
       call WarningMessage(2,'Option not implemented yet!')
       call Quit_OnUserError()
     end if
-    if (NoLoop) Go To 102
+    if (NoLoop) cycle
     A(1:3) = XF(1:3,iFd)
     iChxyz = iChAtm(A)
     call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
@@ -208,9 +210,11 @@ if (allocated(XF) .and. (nOrd_XF >= 0)) then
     ndc = 0
     do jCnttp=1,nCnttp
       ZB = dbsc(jCnttp)%Charge
-      if (dbsc(jCnttp)%pChrg) Go To 202
-      if (ZB == Zero) Go To 202
-      if (dbsc(jCnttp)%Frag) Go To 202
+      ndc = ndc+dbsc(jCnttp)%nCntr
+      if (dbsc(jCnttp)%pChrg) cycle
+      if (ZB == Zero) cycle
+      if (dbsc(jCnttp)%Frag) cycle
+      ndc = ndc-dbsc(jCnttp)%nCntr
       ZAZB = ZA*ZB
       do jCnt=1,dbsc(jCnttp)%nCntr
         B(1:3) = dbsc(jCnttp)%Coor(1:3,jCnt)
@@ -261,10 +265,8 @@ if (allocated(XF) .and. (nOrd_XF >= 0)) then
         PNX = PNX+((ZAZB*temp0+ZB*(temp1+temp2))*real(nIrrep,kind=wp))/real(LmbdR,kind=wp)
 
       end do
-202   continue
       ndc = ndc+dbsc(jCnttp)%nCntr
     end do
-102 continue
   end do
 
   if (Show) then
@@ -286,209 +288,207 @@ if (allocated(XF) .and. (nOrd_XF >= 0)) then
   !     As a first attempt to optimize this part of the code, we skip
   !     the computation of the self interaction of the external field.
 
-  if (nXF > 9999) go to 1254
+  if (nXF <= 9999) then
 
-  PXX = Zero
+    PXX = Zero
 
-  DAx = Zero
-  DAy = Zero
-  DAz = Zero
-  QAxx = Zero
-  QAxy = Zero
-  QAxz = Zero
-  QAyy = Zero
-  QAyz = Zero
-  QAzz = Zero
-  DBx = Zero
-  DBy = Zero
-  DBz = Zero
-  QBxx = Zero
-  QBxy = Zero
-  QBxz = Zero
-  QByy = Zero
-  QByz = Zero
-  QBzz = Zero
+    DAx = Zero
+    DAy = Zero
+    DAz = Zero
+    QAxx = Zero
+    QAxy = Zero
+    QAxz = Zero
+    QAyy = Zero
+    QAyz = Zero
+    QAzz = Zero
+    DBx = Zero
+    DBy = Zero
+    DBz = Zero
+    QBxx = Zero
+    QBxy = Zero
+    QBxz = Zero
+    QByy = Zero
+    QByz = Zero
+    QBzz = Zero
 
-  iDum = 0
-  do iFd=1,nXF
-    if (nOrd_XF == 0) then
-      ZA = XF(4,iFd)
-      NoLoop = ZA == Zero
-    elseif (nOrd_XF == 1) then
-      ZA = XF(4,iFd)
-      DAx = XF(5,iFd)
-      DAy = XF(6,iFd)
-      DAz = XF(7,iFd)
-      NoLoop = (ZA == Zero) .and. (DAx == Zero) .and. (DAy == Zero) .and. (DAz == Zero)
-    elseif (nOrd_XF == 2) then
-      ZA = XF(4,iFd)
-      DAx = XF(5,iFd)
-      DAy = XF(6,iFd)
-      DAz = XF(7,iFd)
-      QAxx = XF(8,iFd)
-      QAxy = XF(9,iFd)
-      QAxz = XF(10,iFd)
-      QAyy = XF(11,iFd)
-      QAyz = XF(12,iFd)
-      QAzz = XF(13,iFd)
-      NoLoop = (ZA == Zero) .and. (DAx == Zero) .and. (DAy == Zero) .and. (DAz == Zero) .and. (QAxx == Zero) .and. &
-               (QAxy == Zero) .and. (QAxz == Zero) .and. (QAyy == Zero) .and. (QAyz == Zero) .and. (QAzz == Zero)
-    else
-      call WarningMessage(2,'Option not implemented yet!')
-      call Quit_OnUserError()
-    end if
-
-    if (NoLoop) Go To 103
-    A(1:3) = XF(1:3,iFd)
-    iChxyz = iChAtm(A)
-    call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
-
-    do jFd=1,iFd
+    iDum = 0
+    do iFd=1,nXF
       if (nOrd_XF == 0) then
-        ZB = XF(4,jFd)
-        NoLoop = ZB == Zero
+        ZA = XF(4,iFd)
+        NoLoop = ZA == Zero
       elseif (nOrd_XF == 1) then
-        ZB = XF(4,jFd)
-        DBx = XF(5,jFd)
-        DBy = XF(6,jFd)
-        DBz = XF(7,jFd)
-        NoLoop = (ZB == Zero) .and. (DBx == Zero) .and. (DBy == Zero) .and. (DBz == Zero)
+        ZA = XF(4,iFd)
+        DAx = XF(5,iFd)
+        DAy = XF(6,iFd)
+        DAz = XF(7,iFd)
+        NoLoop = (ZA == Zero) .and. (DAx == Zero) .and. (DAy == Zero) .and. (DAz == Zero)
       elseif (nOrd_XF == 2) then
-        ZB = XF(4,jFd)
-        DBx = XF(5,jFd)
-        DBy = XF(6,jFd)
-        DBz = XF(7,jFd)
-        QBxx = XF(8,jFd)
-        QBxy = XF(9,jFd)
-        QBxz = XF(10,jFd)
-        QByy = XF(11,jFd)
-        QByz = XF(12,jFd)
-        QBzz = XF(13,jFd)
-        NoLoop = (ZB == Zero) .and. (DBx == Zero) .and. (DBy == Zero) .and. (DBz == Zero) .and. (QBxx == Zero) .and. &
-                 (QBxy == Zero) .and. (QBxz == Zero) .and. (QByy == Zero) .and. (QByz == Zero) .and. (QBzz == Zero)
+        ZA = XF(4,iFd)
+        DAx = XF(5,iFd)
+        DAy = XF(6,iFd)
+        DAz = XF(7,iFd)
+        QAxx = XF(8,iFd)
+        QAxy = XF(9,iFd)
+        QAxz = XF(10,iFd)
+        QAyy = XF(11,iFd)
+        QAyz = XF(12,iFd)
+        QAzz = XF(13,iFd)
+        NoLoop = (ZA == Zero) .and. (DAx == Zero) .and. (DAy == Zero) .and. (DAz == Zero) .and. (QAxx == Zero) .and. &
+                 (QAxy == Zero) .and. (QAxz == Zero) .and. (QAyy == Zero) .and. (QAyz == Zero) .and. (QAzz == Zero)
       else
         call WarningMessage(2,'Option not implemented yet!')
         call Quit_OnUserError()
       end if
 
-      if (NoLoop) Go To 203
-      ZAZB = ZA*ZB
-      B(1:3) = XF(1:3,jFd)
-      iChxyz = iChAtm(B)
-      call Stblz(iChxyz,mStb,jStb,iDum,jCoSet)
-      ! Introduce factor to ensure that contributions from
-      ! A>B are the only to be accumulated.
-      Fact = One
-      if (iFd == jFd) Fact = Half
+      if (NoLoop) cycle
+      A(1:3) = XF(1:3,iFd)
+      iChxyz = iChAtm(A)
+      call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
 
-      ! Find the DCR for the two centers
-
-      call DCR(LmbdR,iStb,nStb,jStb,mStb,iDCRR,nDCRR)
-
-      temp = Zero
-      do iR=0,nDCRR-1
-        RB(1) = real(iPhase(1,iDCRR(iR)),kind=wp)*B(1)
-        RB(2) = real(iPhase(2,iDCRR(iR)),kind=wp)*B(2)
-        RB(3) = real(iPhase(3,iDCRR(iR)),kind=wp)*B(3)
-        DRBx = real(iPhase(1,iDCRR(iR)),kind=wp)*DBx
-        DRBy = real(iPhase(2,iDCRR(iR)),kind=wp)*DBy
-        DRBz = real(iPhase(3,iDCRR(iR)),kind=wp)*DBz
-        QRBxx = QBxx
-        QRByy = QByy
-        QRBzz = QBzz
-        QRBxy = real(iPhase(1,iDCRR(iR))*iPhase(2,iDCRR(iR)),kind=wp)*QBxy
-        QRBxz = real(iPhase(1,iDCRR(iR))*iPhase(3,iDCRR(iR)),kind=wp)*QBxz
-        QRByz = real(iPhase(2,iDCRR(iR))*iPhase(3,iDCRR(iR)),kind=wp)*QByz
-
-        ! The index A=RB is illegal.
-        if (.not. EQ(A,RB)) then
-          x = A(1)-RB(1)
-          y = A(2)-RB(2)
-          z = A(3)-RB(3)
-          r12 = sqrt(x**2+y**2+z**2)
-
-          eZZ = ZAZB*One/r12
-          eDZ = ZB*(-(DAx*x+DAy*y+DAz*z))/r12**3
-          eZD = ZA*(DRBx*x+DRBy*y+DRBz*z)/r12**3
-          eDD = (DAx*DRBx+DAy*DRBy+DAz*DRBz)/r12**3-Three*(DAx*x+DAy*y+DAz*z)*(DRBx*x+DRBy*y+DRBz*z)/r12**5
-
-          if (nOrd_XF < 2) then
-            eTOT = eZZ+eZD+eDZ+eDD
-          else
-
-            QAsum = (QAxx*x*x+QAyy*y*y+QAzz*z*z+Two*(QAxy*x*y+QAxz*x*z+QAyz*y*z))
-            QBsum = (QRBxx*x*x+QRByy*y*y+QRBzz*z*z+Two*(QRBxy*x*y+QRBxz*x*z+QRByz*y*z))
-
-            ! Q-Z
-            eZQ = Half*Three/r12**5*ZA*QBsum-Half/r12**3*ZA*(QRBxx+QRByy+QRBzz)
-            eQZ = Half*Three/r12**5*ZB*QAsum-Half/r12**3*ZB*(QAxx+QAyy+QAzz)
-
-            ! Q-D
-            eDQ = Half*(-15.0_wp/r12**7*(DAx*x+DAy*y+DAz*z)*QBsum+Three/r12**5* &
-                  (Three*DAx*QRBxx*x+DAy*QRBxx*y+DAz*QRBxx*z+Two*DAx*QRBxy*y+Two*DAy*QRBxy*x+Two*DAx*QRBxz*z+Two*DAz*QRBxz*x+ &
-                   DAx*QRByy*x+Three*DAy*QRByy*y+DAz*QRByy*z+Two*DAy*QRByz*z+Two*DAz*QRByz*y+DAx*QRBzz*x+DAy*QRBzz*y+ &
-                   Three*DAz*QRBzz*z))
-
-            eQD = -Half*(-15.0_wp/r12**7*(DRBx*x+DRBy*y+DRBz*z)*QAsum+Three/r12**5* &
-                  (Three*DRBx*QAxx*x+DRBy*QAxx*y+DRBz*QAxx*z+Two*DRBx*QAxy*y+Two*DRBy*QAxy*x+Two*DRBx*QAxz*z+Two*DRBz*QAxz*x+ &
-                   DRBx*QAyy*x+Three*DRBy*QAyy*y+DRBz*QAyy*z+Two*DRBy*QAyz*z+Two*DRBz*QAyz*y+DRBx*QAzz*x+DRBy*QAzz*y+ &
-                   Three*DRBz*QAzz*z))
-
-            ! Q-Q
-            eQQ = Quart*(105.0_wp/r12**9*QAsum*QBsum-15.0_wp/r12**7* &
-                  (Six*QAxx*QRBxx*x*x+Six*QAxx*QRBxy*x*y+Six*QAxx*QRBxz*x*z+QAxx*QRByy*x*x+QAxx*QRByy*y*y+Two*QAxx*QRByz*y*z+ &
-                   QAxx*QRBzz*x*x+QAxx*QRBzz*z*z+Six*QAxy*QRBxx*x*y+Four*QAxy*QRBxy*x*x+Four*QAxy*QRBxy*y*y+Four*QAxy*QRBxz*y*z+ &
-                   Six*QAxy*QRByy*x*y+Four*QAxy*QRByz*x*z+Two*QAxy*QRBzz*x*y+Six*QAxz*QRBxx*x*z+Four*QAxz*QRBxy*y*z+ &
-                   Four*QAxz*QRBxz*x*x+Four*QAxz*QRBxz*z*z+Two*QAxz*QRByy*x*z+Four*QAxz*QRByz*x*y+Six*QAxz*QRBzz*x*z+ &
-                   QAyy*QRBxx*x*x+QAyy*QRBxx*y*y+Six*QAyy*QRBxy*x*y+Two*QAyy*QRBxz*x*z+Six*QAyy*QRByy*y*y+Six*QAyy*QRByz*y*z+ &
-                   QAyy*QRBzz*y*y+QAyy*QRBzz*z*z+Two*QAyz*QRBxx*y*z+Four*QAyz*QRBxy*x*z+Four*QAyz*QRBxz*x*y+Six*QAyz*QRByy*y*z+ &
-                   Four*QAyz*QRByz*y*y+Four*QAyz*QRByz*z*z+Six*QAyz*QRBzz*y*z+QAzz*QRBxx*x*x+QAzz*QRBxx*z*z+Two*QAzz*QRBxy*x*y+ &
-                   Six*QAzz*QRBxz*x*z+QAzz*QRByy*y*y+QAzz*QRByy*z*z+Six*QAzz*QRByz*y*z+Six*QAzz*QRBzz*z*z)+ &
-                  Three/r12**5* &
-                  (Three*QAxx*QRBxx+QAxx*QRByy+QAxx*QRBzz+Four*QAxy*QRBxy+Four*QAxz*QRBxz+QAyy*QRBxx+Three*QAyy*QRByy+QAyy*QRBzz+ &
-                   Four*QAyz*QRByz+QAzz*QRBxx+QAzz*QRByy+Three*QAzz*QRBzz))
-
-            eTOT = eZZ+eZD+eDZ+eDD+eZQ+eQZ+eDQ+eQD+eQQ
-            !write(u6,*)'eZZ',eZZ
-            !write(u6,*)'eDZ',eDZ
-            !write(u6,*)'eZD',eZD
-            !write(u6,*)'eDD',eDD
-            !write(u6,*)'eZQ',eZQ
-            !write(u6,*)'eQZ',eQZ
-            !write(u6,*)'eDQ',eDQ
-            !write(u6,*)'eQD',eQD
-            !write(u6,*)'eQQ',eQQ
-            !write(u6,*)'eTOT',eTOT
-
-          end if ! if quadrupoles are present
-
-          temp = temp+eTOT
-
+      do jFd=1,iFd
+        if (nOrd_XF == 0) then
+          ZB = XF(4,jFd)
+          NoLoop = ZB == Zero
+        elseif (nOrd_XF == 1) then
+          ZB = XF(4,jFd)
+          DBx = XF(5,jFd)
+          DBy = XF(6,jFd)
+          DBz = XF(7,jFd)
+          NoLoop = (ZB == Zero) .and. (DBx == Zero) .and. (DBy == Zero) .and. (DBz == Zero)
+        elseif (nOrd_XF == 2) then
+          ZB = XF(4,jFd)
+          DBx = XF(5,jFd)
+          DBy = XF(6,jFd)
+          DBz = XF(7,jFd)
+          QBxx = XF(8,jFd)
+          QBxy = XF(9,jFd)
+          QBxz = XF(10,jFd)
+          QByy = XF(11,jFd)
+          QByz = XF(12,jFd)
+          QBzz = XF(13,jFd)
+          NoLoop = (ZB == Zero) .and. (DBx == Zero) .and. (DBy == Zero) .and. (DBz == Zero) .and. (QBxx == Zero) .and. &
+                   (QBxy == Zero) .and. (QBxz == Zero) .and. (QByy == Zero) .and. (QByz == Zero) .and. (QBzz == Zero)
+        else
+          call WarningMessage(2,'Option not implemented yet!')
+          call Quit_OnUserError()
         end if
+
+        if (NoLoop) cycle
+        ZAZB = ZA*ZB
+        B(1:3) = XF(1:3,jFd)
+        iChxyz = iChAtm(B)
+        call Stblz(iChxyz,mStb,jStb,iDum,jCoSet)
+        ! Introduce factor to ensure that contributions from
+        ! A>B are the only to be accumulated.
+        Fact = One
+        if (iFd == jFd) Fact = Half
+
+        ! Find the DCR for the two centers
+
+        call DCR(LmbdR,iStb,nStb,jStb,mStb,iDCRR,nDCRR)
+
+        temp = Zero
+        do iR=0,nDCRR-1
+          RB(1) = real(iPhase(1,iDCRR(iR)),kind=wp)*B(1)
+          RB(2) = real(iPhase(2,iDCRR(iR)),kind=wp)*B(2)
+          RB(3) = real(iPhase(3,iDCRR(iR)),kind=wp)*B(3)
+          DRBx = real(iPhase(1,iDCRR(iR)),kind=wp)*DBx
+          DRBy = real(iPhase(2,iDCRR(iR)),kind=wp)*DBy
+          DRBz = real(iPhase(3,iDCRR(iR)),kind=wp)*DBz
+          QRBxx = QBxx
+          QRByy = QByy
+          QRBzz = QBzz
+          QRBxy = real(iPhase(1,iDCRR(iR))*iPhase(2,iDCRR(iR)),kind=wp)*QBxy
+          QRBxz = real(iPhase(1,iDCRR(iR))*iPhase(3,iDCRR(iR)),kind=wp)*QBxz
+          QRByz = real(iPhase(2,iDCRR(iR))*iPhase(3,iDCRR(iR)),kind=wp)*QByz
+
+          ! The index A=RB is illegal.
+          if (.not. EQ(A,RB)) then
+            x = A(1)-RB(1)
+            y = A(2)-RB(2)
+            z = A(3)-RB(3)
+            r12 = sqrt(x**2+y**2+z**2)
+
+            eZZ = ZAZB*One/r12
+            eDZ = ZB*(-(DAx*x+DAy*y+DAz*z))/r12**3
+            eZD = ZA*(DRBx*x+DRBy*y+DRBz*z)/r12**3
+            eDD = (DAx*DRBx+DAy*DRBy+DAz*DRBz)/r12**3-Three*(DAx*x+DAy*y+DAz*z)*(DRBx*x+DRBy*y+DRBz*z)/r12**5
+
+            if (nOrd_XF < 2) then
+              eTOT = eZZ+eZD+eDZ+eDD
+            else
+
+              QAsum = (QAxx*x*x+QAyy*y*y+QAzz*z*z+Two*(QAxy*x*y+QAxz*x*z+QAyz*y*z))
+              QBsum = (QRBxx*x*x+QRByy*y*y+QRBzz*z*z+Two*(QRBxy*x*y+QRBxz*x*z+QRByz*y*z))
+
+              ! Q-Z
+              eZQ = Half*Three/r12**5*ZA*QBsum-Half/r12**3*ZA*(QRBxx+QRByy+QRBzz)
+              eQZ = Half*Three/r12**5*ZB*QAsum-Half/r12**3*ZB*(QAxx+QAyy+QAzz)
+
+              ! Q-D
+              eDQ = Half*(-15.0_wp/r12**7*(DAx*x+DAy*y+DAz*z)*QBsum+Three/r12**5* &
+                    (Three*DAx*QRBxx*x+DAy*QRBxx*y+DAz*QRBxx*z+Two*DAx*QRBxy*y+Two*DAy*QRBxy*x+Two*DAx*QRBxz*z+Two*DAz*QRBxz*x+ &
+                     DAx*QRByy*x+Three*DAy*QRByy*y+DAz*QRByy*z+Two*DAy*QRByz*z+Two*DAz*QRByz*y+DAx*QRBzz*x+DAy*QRBzz*y+ &
+                     Three*DAz*QRBzz*z))
+
+              eQD = -Half*(-15.0_wp/r12**7*(DRBx*x+DRBy*y+DRBz*z)*QAsum+Three/r12**5* &
+                    (Three*DRBx*QAxx*x+DRBy*QAxx*y+DRBz*QAxx*z+Two*DRBx*QAxy*y+Two*DRBy*QAxy*x+Two*DRBx*QAxz*z+Two*DRBz*QAxz*x+ &
+                     DRBx*QAyy*x+Three*DRBy*QAyy*y+DRBz*QAyy*z+Two*DRBy*QAyz*z+Two*DRBz*QAyz*y+DRBx*QAzz*x+DRBy*QAzz*y+ &
+                     Three*DRBz*QAzz*z))
+
+              ! Q-Q
+              eQQ = Quart*(105.0_wp/r12**9*QAsum*QBsum-15.0_wp/r12**7* &
+                    (Six*QAxx*QRBxx*x*x+Six*QAxx*QRBxy*x*y+Six*QAxx*QRBxz*x*z+QAxx*QRByy*x*x+QAxx*QRByy*y*y+Two*QAxx*QRByz*y*z+ &
+                     QAxx*QRBzz*x*x+QAxx*QRBzz*z*z+Six*QAxy*QRBxx*x*y+Four*QAxy*QRBxy*x*x+Four*QAxy*QRBxy*y*y+Four*QAxy*QRBxz*y*z+ &
+                     Six*QAxy*QRByy*x*y+Four*QAxy*QRByz*x*z+Two*QAxy*QRBzz*x*y+Six*QAxz*QRBxx*x*z+Four*QAxz*QRBxy*y*z+ &
+                     Four*QAxz*QRBxz*x*x+Four*QAxz*QRBxz*z*z+Two*QAxz*QRByy*x*z+Four*QAxz*QRByz*x*y+Six*QAxz*QRBzz*x*z+ &
+                     QAyy*QRBxx*x*x+QAyy*QRBxx*y*y+Six*QAyy*QRBxy*x*y+Two*QAyy*QRBxz*x*z+Six*QAyy*QRByy*y*y+Six*QAyy*QRByz*y*z+ &
+                     QAyy*QRBzz*y*y+QAyy*QRBzz*z*z+Two*QAyz*QRBxx*y*z+Four*QAyz*QRBxy*x*z+Four*QAyz*QRBxz*x*y+Six*QAyz*QRByy*y*z+ &
+                     Four*QAyz*QRByz*y*y+Four*QAyz*QRByz*z*z+Six*QAyz*QRBzz*y*z+QAzz*QRBxx*x*x+QAzz*QRBxx*z*z+Two*QAzz*QRBxy*x*y+ &
+                     Six*QAzz*QRBxz*x*z+QAzz*QRByy*y*y+QAzz*QRByy*z*z+Six*QAzz*QRByz*y*z+Six*QAzz*QRBzz*z*z)+ &
+                    Three/r12**5* &
+                    (Three*QAxx*QRBxx+QAxx*QRByy+QAxx*QRBzz+Four*QAxy*QRBxy+Four*QAxz*QRBxz+QAyy*QRBxx+ &
+                     Three*QAyy*QRByy+QAyy*QRBzz+Four*QAyz*QRByz+QAzz*QRBxx+QAzz*QRByy+Three*QAzz*QRBzz))
+
+              eTOT = eZZ+eZD+eDZ+eDD+eZQ+eQZ+eDQ+eQD+eQQ
+              !write(u6,*)'eZZ',eZZ
+              !write(u6,*)'eDZ',eDZ
+              !write(u6,*)'eZD',eZD
+              !write(u6,*)'eDD',eDD
+              !write(u6,*)'eZQ',eZQ
+              !write(u6,*)'eQZ',eQZ
+              !write(u6,*)'eDQ',eDQ
+              !write(u6,*)'eQD',eQD
+              !write(u6,*)'eQQ',eQQ
+              !write(u6,*)'eTOT',eTOT
+
+            end if ! if quadrupoles are present
+
+            temp = temp+eTOT
+
+          end if
+        end do
+        !PXX = PXX+(Fact*(ZAZB*temp0+ZB*temp1+ZA*temp2+temp3)*real(nIrrep,kind=wp))/real(LmbdR,kind=wp)
+        PXX = PXX+(Fact*temp*real(nIrrep,kind=wp))/real(LmbdR,kind=wp)
+
       end do
-      !PXX = PXX+(Fact*(ZAZB*temp0+ZB*temp1+ZA*temp2+temp3)*real(nIrrep,kind=wp))/real(LmbdR,kind=wp)
-      PXX = PXX+(Fact*temp*real(nIrrep,kind=wp))/real(LmbdR,kind=wp)
-
-203   continue
     end do
-103 continue
-  end do
 
-  if (Show) then
-    write(u6,'(19X,A,F16.8,A)') ' External Field Potential Energy         ',PXX,' au '
+    if (Show) then
+      write(u6,'(19X,A,F16.8,A)') ' External Field Potential Energy         ',PXX,' au '
+    end if
+    call Put_dScalar('PC Self Energy',PXX)
+
+    !PotNuc = PotNuc+PXX
+
+    if (Show) then
+      write(u6,*)
+      write(u6,*)
+      write(u6,'(11X,A,F16.8,A)') ' Total Nuclear Potential Energy        ',PotNuc,' au'
+      write(u6,*)
+    end if
+
   end if
-  call Put_dScalar('PC Self Energy',PXX)
-
-  !PotNuc = PotNuc+PXX
-
-  if (Show) then
-    write(u6,*)
-    write(u6,*)
-    write(u6,'(11X,A,F16.8,A)') ' Total Nuclear Potential Energy        ',PotNuc,' au'
-    write(u6,*)
-  end if
-
-1254 continue
 end if
 
 call Put_dScalar('PotNuc',PotNuc)
