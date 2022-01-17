@@ -57,6 +57,7 @@
       REAL*8,DIMENSION(:),Allocatable::P2Unzip,D1Unzip,
      &                                 PDFTPot1,PDFTFocI,PDFTFocA
       Real*8, Allocatable:: OE_OT(:), EG_OT(:)
+      Real*8, Allocatable:: FI_V(:), FA_V(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -122,13 +123,13 @@ c        Call append_file(LuMT)
         CALL mma_allocate(PDFTFocA,nPot1)
         CALL mma_allocate(OE_OT,nFckInt,Label='OE_OT')
         CALL mma_allocate(EG_OT,nTmpPUVX,Label='EG_OT')
-        Call GETMEM('FI_V','ALLO','REAL',ifiv,nFckInt)
-        Call GETMEM('FI_A','ALLO','REAL',ifav,nFckInt)
+        Call mma_allocate(FI_V,nFckInt,Label='FI_V')
+        Call mma_allocate(FA_V,nFckInt,Label='FA_V')
 
         OE_OT(:)=Zero
         EG_OT(:)=Zero
-        CALL DCOPY_(nFckInt,[0.0D0],0,WORK(ifiv),1)
-        CALL DCOPY_(nFckInt,[0.0D0],0,WORK(ifav),1)
+        FI_V(:)=Zero
+        FA_V(:)=Zero
         CALL FZero(PDFTPot1,nPot1)
         CALL FZero(PDFTFocI,nPot1)
         CALL FZero(PDFTFocA,nPot1)
@@ -325,8 +326,8 @@ C     End Do ! number_of_subblocks
         If(l_casdft.and.do_pdftPot) then
           Call GADSum(OE_OT,nFckInt)
           Call GADSum(EG_OT,nTmpPUVX)
-          Call GADSum(Work(ifiv),nFckInt)
-          Call GADSum(Work(ifav),nFckInt)
+          Call GADSum(FI_V,nFckInt)
+          Call GADSum(FA_V,nFckInt)
           if(l_tgga) then
            CALL GADSum(PDFTPot1,nPot1)
            CALL GADSum(PDFTFocI,nPot1)
@@ -343,18 +344,18 @@ C     End Do ! number_of_subblocks
         If(l_tgga) Then
          CALL PackPot1(OE_OT,PDFTPot1,nFckInt,dble(nIrrep)*0.5d0)
          CALL DScal_(nPot2,dble(nIrrep),EG_OT,1)
-         CALL PackPot1(work(IFIV),PDFTFocI,nFckInt,dble(nIrrep)*0.25d0)
-         CALL PackPot1(work(IFAV),PDFTFocA,nFckInt,dble(nIrrep)*0.5d0)
+         CALL PackPot1(FI_V,PDFTFocI,nFckInt,dble(nIrrep)*0.25d0)
+         CALL PackPot1(FA_V,PDFTFocA,nFckInt,dble(nIrrep)*0.5d0)
         End If
         Call Put_dArray('ONTOPO',OE_OT,nFckInt)
         Call Put_dArray('ONTOPT',EG_OT,nTmpPUVX)
-        Call Put_dArray('FI_V',Work(ifiv),nFckInt)
-        Call Put_dArray('FA_V',Work(ifav),nFckInt)
+        Call Put_dArray('FI_V',FI_V,nFckInt)
+        Call Put_dArray('FA_V',FA_V,nFckInt)
 
         Call mma_deallocate(OE_OT)
         Call mma_deallocate(EG_OT)
-        CALL GETMEM('FI_V','FREE','REAL',ifiv,nFckInt)
-        CALL GETMEM('FA_V','FREE','REAL',ifav,nFckInt)
+        Call mma_deallocate(FA_V)
+        Call mma_deallocate(FI_V)
 
       End If
         CALL mma_deallocate(PDFTPot1)
