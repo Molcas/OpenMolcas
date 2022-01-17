@@ -62,6 +62,8 @@
       Integer LTEG_DB
       Real*8,DIMENSION(NASHT4)::P2Unzip
       Real*8,DIMENSION(NASHT**2)::D1Unzip
+      Integer, Allocatable:: Index(:)
+      Real*8, Allocatable:: dW_dR(:,:), dW_Temp(:,:), dPB(:,:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -283,7 +285,7 @@
          nIndex=nIndex + NrBas_Eff*iCmp
       End Do
 *
-      Call GetMem('Index','Allo','Inte',ipIndex,nIndex)
+      Call mma_allocate(Index,nIndex,Label='Index')
 *
       iIndex=1
       nAOs=0
@@ -296,7 +298,7 @@
          nAOs=nAOs+NrBas*iCmp
          nAOs_Eff=nAOs_Eff+NrBas_Eff*iCmp
          list_bas(2,ilist_s)=iIndex
-         Call Do_Index(iWork(ipIndex-1+iIndex),NrBas,NrBas_Eff,iCmp)
+         Call Do_Index(Index(iIndex),NrBas,NrBas_Eff,iCmp)
          iIndex=iIndex + NrBas_Eff*iCmp
       End Do
 *                                                                      *
@@ -422,21 +424,10 @@
          End Do
 *
          If (Grid_Type.eq.Moving_Grid) Then
-            ndW_dR=nGrad_Eff*mGrid
-            Call GetMem('dW_dR','Allo','Real',ip_dW_dR,ndW_dR)
-            ndW_Temp=3*nlist_p
-            Call GetMem('dW_Temp','Allo','Real',ip_dW_Temp,ndW_Temp)
-            ndPB=3*nlist_p**2
-            Call GetMem('dPB','Allo','Real',ip_dPB,ndPB)
-         Else
-            ip_dW_dR  =ip_Dummy
-            ip_dW_Temp=ip_Dummy
-            ip_dPB    =ip_Dummy
+            Call mma_allocate(dW_dR,nGrad_Eff,mGrid,Label='dW_dR')
+            Call mma_allocate(dW_Temp,3,nList_P,Label='dW_Temp')
+            Call mma_allocate(dPB,3,nlist_p,nlist_p,Label='dPB')
          End If
-      Else
-         ip_dW_dR  =ip_Dummy
-         ip_dW_Temp=ip_Dummy
-         ip_dPB    =ip_Dummy
       End If
       If (Do_Grad.and.nGrad_Eff.eq.0) Go To 998
       If (Grid_Status.eq.Use_Old) Go To 997
@@ -657,8 +648,8 @@ c
 *              if needed.
 *
                Call dWdR(Grid,ilist_p,Weights,list_p,nlist_p,
-     &                   Work(ip_dW_dR),nGrad_Eff,iTab,Work(ip_dW_Temp),
-     &                   Work(ip_dPB),number_of_grid_points)
+     &                   dW_dR,nGrad_Eff,iTab,dW_Temp,
+     &                   dPB,number_of_grid_points)
             End If
          End If
 *
@@ -676,7 +667,7 @@ c
 
          Call Do_Batch(Kernel,Func,nogp,
      &                 list_s,nlist_s,List_Exp,List_Bas,
-     &                 iWork(ipIndex),nIndex,
+     &                 Index,nIndex,
      &                 FckInt,nFckDim,nFckInt,
      &                 iWork(ipTabAO),mAO,nSym,nD,nP2_ontop,
      &                 Do_Mo,
@@ -685,7 +676,7 @@ c
      &                 Do_Grad,Grad,nGrad,
      &                 mdRho_dR,nGrad_Eff,
      &                 list_g,IndGrd,iTab,Temp,
-     &                 Work(ip_dW_dR),iNQ,
+     &                 dW_dR,iNQ,
      &                 LTEG_DB,PDFTPot1,PDFTFocI,PDFTFocA)
 *
          If (Allocated(dRho_dR)) Call mma_deallocate(dRho_dR)
@@ -715,15 +706,15 @@ c
 *                                                                      *
       Call mma_deAllocate(iBfn_Index)
       Call mma_deAllocate(Ind_Grd)
-      Call GetMem('Index','Free','Real',ipIndex,nIndex)
+      Call mma_deAllocate(Index)
       Call Free_iWork(ipTabAO)
       Call mma_deallocate(Dens_AO)
       If (ipTabMO.ne.ip_Dummy) Call Free_Work(ipTabMO)
       If (ipTabSO.ne.ip_Dummy) Call Free_Work(ipTabSO)
       If (Do_Grad.and.Grid_Type.eq.Moving_Grid) Then
-         Call GetMem('dPB','Free','Real',ip_dPB,ndPB)
-         Call GetMem('dW_Temp','Free','Real',ip_dW_Temp,ndW_Temp)
-         Call GetMem('dW_dR','Free','Real',ip_dW_dR,ndW_dR)
+         Call mma_deAllocate(dPB)
+         Call mma_deAllocate(dW_Temp)
+         Call mma_deAllocate(dW_dR)
       End If
 *                                                                      *
 ************************************************************************
