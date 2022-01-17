@@ -54,7 +54,7 @@
       Character*4 DFTFOCK
       Integer nBas(8), nDel(8)
       Integer, Allocatable:: Maps2p(:,:), List_s(:,:), List_Exp(:),
-     &                       List_Bas(:,:), List_P(:)
+     &                       List_Bas(:,:), List_P(:), List_G(:,:)
       Real*8, Allocatable:: R_Min(:)
 *                                                                      *
 ************************************************************************
@@ -449,13 +449,12 @@
       Endif
 *
       If (Do_Grad) Then
-         Call GetMem('list_g','Allo','Inte',iplist_g,3*nShell*nIrrep)
+         Call mma_allocate(List_g,3,nShell*nIrrep,Label='List_G')
          mGrad=3*nAtoms
          Call GetMem('IndGrd','Allo','Inte',ipIndGrd,mGrad)
          Call GetMem('iTab','Allo','Inte',ipiTab,4*mGrad)
          Call GetMem('Temp','Allo','Real',ipTemp,mGrad)
       Else
-         iplist_g=ip_iDummy
          ipIndGrd=ip_iDummy
          ipiTab  =ip_iDummy
          ipTemp  =ip_Dummy
@@ -492,7 +491,7 @@
      &                 FckInt,nFckDim,Density,nFckInt,nD,
      &                 nGridMax,nP2_ontop,Do_Mo,nTmpPUVX,
      &                 Do_Grad,Grad,nGrad,
-     &                 iWork(iplist_g),iWork(ipIndGrd),iWork(ipiTab),
+     &                 List_G,iWork(ipIndGrd),iWork(ipiTab),
      &                 Work(ipTemp),mGrad,mAO,mdRho_dR)
 *                                                                      *
 ************************************************************************
@@ -504,7 +503,7 @@
          Call GetMem('Temp','Free','Real',ipTemp,mGrad)
          Call GetMem('iTab','Free','Inte',ipiTab,4*mGrad)
          Call GetMem('IndGrd','Free','Inte',ipIndGrd,mGrad)
-         Call GetMem('list_g','Free','Inte',iplist_g,3*nShell*nIrrep)
+         Call mma_deallocate(List_G)
       End If
       Call mma_deallocate(R2_trial)
       Call mma_deallocate(List_P)
