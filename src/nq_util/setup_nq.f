@@ -46,7 +46,7 @@
       Integer Maps2p(nShell,0:nSym-1)
       Integer iDCRR(0:7)
       Dimension Dummy(1)
-      Real*8, Allocatable:: TempC(:,:)
+      Real*8, Allocatable:: TempC(:,:), ZA(:), Crd(:,:), dOdx(:,:,:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -291,65 +291,19 @@ c     Write(6,*) '********** Setup_NQ ***********'
 *     compute the gradient of the rotationally invariant DFT energy.
 *
       Call mma_allocate(Pax,3,3,Label='Pax')
-      Call GetMem('dOdx','Allo','Real',ipdOdx,3*3*nNQ*3)
-      Call FZero(Work(ipdOdx),3*3*nNQ*3)
-      Call GetMem('ZA','Allo','Real',ip_ZA,nNQ)
-      Call Allocate_Work(ip_Crd,3*nNQ)
+      Call mma_allocate(dOdx,3,3,nNQ,3,Label='dOdx')
+      dOdx(:,:,:,:)=Zero
+      Call mma_Allocate(ZA,nNQ,Label='ZA')
+      Call mma_Allocate(Crd,3,nNQ)
 *
 *     Collect coordinates and charges of the nuclei
 *
-      iOff = ip_Crd
       Do iNQ = 1, nNQ
-         Work(ip_ZA+(iNQ-1))=Work(ip_Atom_Nr(iNQ))
-         call dcopy_(3,Work(ip_Coor(iNQ)),1,Work(iOff),1)
-         iOff = iOff + 3
+         ZA(iNQ)=Work(ip_Atom_Nr(iNQ))
+         call dcopy_(3,Work(ip_Coor(iNQ)),1,Crd(:,iNQ),1)
       End Do
 *
-#ifdef _DEBUGPRINT_
-      If (Do_Grad) Then
-      delta=1.0D-8
-      Call Allocate_Work(ip_Dbg,9)
-      Do iNQ = 1, nNQ
-         Do iCar = 1, 3
-*
-            Write (6,*) 'iCar,iNQ=',iCar,iNQ
-*
-            Call RotGrd(Work(ip_Crd),Work(ip_ZA),Pax,
-     &                  Dummy,Dummy,nNQ,.False.,.False.)
-            Call RecPrt('O(original)',' ',Pax,3,3)
-*
-            i3 = (iNQ-1)*3+iCar-1+ip_Crd
-            temp=Work(i3)
-*
-            Work(i3)=temp+delta
-            Call RotGrd(Work(ip_Crd),Work(ip_ZA),Pax,
-     &                  Dummy,Dummy,nNQ,.False.,.False.)
-            call dcopy_(9,Pax,1,Work(ip_Dbg),1)
-            Call RecPrt('O',' ',Pax,3,3)
-*
-            Work(i3)=temp-delta
-            Call RotGrd(Work(ip_Crd),Work(ip_ZA),Pax,
-     &                  Dummy,Dummy,nNQ,.False.,.False.)
-            Call RecPrt('O',' ',Pax,3,3)
-*
-            Work(i3)=temp
-*
-            Do i = 0, 8
-               i2 = i/3  + 1
-               i1 = i - (i2-1)*3
-               temp = (Work(ip_Dbg+i) - Pax(i1,i2))/(2.0D0*delta)
-               Pax(i1,i2) = temp
-            End Do
-            Call RecPrt('dOdx(numerical)',' ',Pax,3,3)
-            call dcopy_(9,Pax,1,Work(ip_dOdx(iNQ,iCar)),1)
-*
-         End Do
-      End Do
-      Call Free_Work(ip_Dbg)
-      End If
-#endif
-      Call RotGrd(Work(ip_Crd),Work(ip_ZA),Pax,Work(ipdOdx),
-     &            Dummy,nNQ,Do_Grad,.False.)
+      Call RotGrd(Crd,ZA,Pax,dOdx,Dummy,nNQ,Do_Grad,.False.)
 *
 *     Distribute derivative of the principle axis system
 *
@@ -357,37 +311,15 @@ c     Write(6,*) '********** Setup_NQ ***********'
       iOff = ipdOdx
       Do iCar = 1, 3
          Do iNQ = 1, nNQ
-#ifdef _DEBUGPRINT_
-         Call RecPrt('dOdx','(3G20.10)',Work(iOff),3,3)
-         Call RecPrt('dOdx(numerical)','(3G20.10)',
-     &               Work(ip_dOdx(iNQ,iCar)),3,3)
-#endif
-            call dcopy_(9,Work(iOff),1,Work(ip_dOdx(iNQ,iCar)),1)
+           call dcopy_(9,dOdx(:,:,iNQ,iCar),1,Work(ip_dOdx(iNQ,iCar)),1)
             iOff = iOff + 9
          End Do
       End Do
       End If
-#ifdef _DEBUGPRINT_
 *
-*     Check translational invariance
-*
-      Call Allocate_Work(ip_debug,9)
-      Do iCar = 1, 3
-         Call FZero(Work(ip_debug),9)
-         Do iNQ = 1, nNQ
-            Call DaXpY_(9,1.0D0,Work(ip_dOdx(iNQ,iCar)),1,
-     &                         Work(ip_debug),1)
-         End Do
-         Call RecPrt('Debug',' ',Work(ip_debug),3,3)
-      End Do
-      Call Free_Work(ip_debug)
-*
-#endif
-*
-
-      Call Free_Work(ipdOdx)
-      Call Free_Work(ip_Crd)
-      Call Free_Work(ip_ZA)
+      Call mma_deallocate(dOdX)
+      Call mma_deallocate(Crd)
+      Call mma_deallocate(ZA)
 *                                                                      *
 ************************************************************************
 *                                                                      *
