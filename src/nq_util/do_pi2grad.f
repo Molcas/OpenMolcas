@@ -67,7 +67,8 @@
 
       Real*8 TabSO2(mAO*mGrid*nMOs)
       Real*8 dTabMO2(nMOs)
-      Real*8, Allocatable:: TmpCMO(:), TDoIt(:)
+      Real*8, Allocatable:: TmpCMO(:)
+      Integer, Allocatable:: TDoIt(:)
 
 ************************************************************************
 *                                                                      *
