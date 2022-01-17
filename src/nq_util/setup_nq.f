@@ -54,8 +54,6 @@
 *     Statement Functions
 *
 #include "nq_structure.fh"
-      declare_ip_a_high
-      declare_ip_a_low
       declare_ip_r_rs
       declare_ip_l_max
       declare_ip_r_quad
@@ -139,8 +137,8 @@ c     Write(6,*) '********** Setup_NQ ***********'
 *-----Initialize the exponents to extreme values.
       Do iNQ=1,nNQ
          Work(ip_lMax(iNQ))=DBLE(-1)
-         Work(ip_A_high(iNQ))=-1.0D99
-         Work(ip_A_low(iNQ) )= 1.0D99
+         NQ_Data(iNQ)%A_high=-1.0D99
+         NQ_Data(iNQ)%A_low = 1.0D99
       End Do
 *
       iAngMax=0
@@ -202,8 +200,8 @@ c     Write(6,*) '********** Setup_NQ ***********'
                Work(ip_lMax(iNQ))=Max(Work(ip_lMax(iNQ)),DBLE(iAng))
 *
 *------------- Get the extreme exponents for the atom
-               Work(ip_A_high(iNQ))=Max(Work(ip_A_high(iNQ)),A_High)
-               Work(ip_A_low(iNQ) )=Min(Work(ip_A_low(iNQ) ),A_low)
+               NQ_Data(iNQ)%A_high=Max(NQ_Data(iNQ)%A_high,A_High)
+               NQ_Data(iNQ)%A_low =Min(NQ_Data(iNQ)%A_low ,A_low)
 *
                Maps2p(iShell,iIrrep)=iNQ
                Go To 100
@@ -240,8 +238,8 @@ c     Write(6,*) '********** Setup_NQ ***********'
       nR_tmp=0
       Do iNQ=1,nNQ
 *--------Get the extreme exponents for the atom
-         Alpha(1)=Work(ip_A_low(iNQ) )
-         Alpha(2)=Work(ip_A_high(iNQ))
+         Alpha(1)=NQ_Data(iNQ)%A_low
+         Alpha(2)=NQ_Data(iNQ)%A_high
 *
 *--------Get the coordinates of the atom
          call dcopy_(3,NQ_Data(iNQ)%Coor,1,XYZ,1)
