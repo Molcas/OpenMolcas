@@ -111,6 +111,8 @@ set_property (CACHE LINALG PROPERTY STRINGS Internal Runtime MKL OpenBLAS AOCL A
 option (CUBLAS "Enable CUDA BLAS library." OFF)
 option (NVBLAS "Enable NVidia BLAS library." OFF)
 
+set (EXTERNAL_LIBXC "" CACHE STRING "Location for an external Libxc build")
+
 option (FDE "Enable Frozen-density-embedding (FDE) interface." OFF)
 option (GROMACS "Compile Gromacs interface." OFF)
 option (BLOCK "Activate BLOCK-DMRG support." OFF)
@@ -1556,6 +1558,99 @@ else ()
   mark_as_advanced (FORCE CUDAROOT)
 endif ()
 
+# Libxc settings
+#===============
+message ("Configuring Libxc:")
+
+if (EXTERNAL_LIBXC)
+  message ("-- External Libxc root specified at: ${EXTERNAL_LIBXC}")
+  find_library (xcf03 xcf03 ${EXTERNAL_LIBXC} PATH_SUFFIXES lib lib32 lib64)
+  if (NOT xc OR NOT xcf03)
+    message (FATAL_ERROR "Libxc could not be found in ${EXTERNAL_LIBXC}.")
+  endif ()
+  set (Libxc_INCLUDE_DIRS ${EXTERNAL_LIBXC}/include)
+  set (Libxc_LIBRARIES ${xcf03})
+else ()
+  message ("-- Configuring built-in Libxc")
+  include (ExternalProject)
+  set (EP_PROJECT Libxc)
+  set (EP_PATH ${PROJECT_BINARY_DIR}/External/${EP_PROJECT})
+  set (EP_INSTALL ${PROJECT_BINARY_DIR}/External/${EP_PROJECT}_install)
+
+  set (Libxc_REPO https://gitlab.com/libxc/libxc.git)
+  set (Libxc_HASH df9ba8d9) # Release 5.1.7
+
+  # Note shared libraries won't work here because of installation issues.
+  # TODO: Solving this will require creating a wrapper main project that includes
+  #       both Libxc and OpenMolcas as ExternalProject. This could also simplify
+  #       the handling of other codes like GlobalArrays or QCMaquis
+  list (APPEND LibxcCMakeArgs
+        -D CMAKE_INSTALL_PREFIX=${EP_INSTALL}
+        -D BUILD_SHARED_LIBS=NO
+        -D CMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+        -D CMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER}
+        -D CMAKE_Fortran_FLAGS=${CMAKE_Fortran_FLAGS_DEFAULT}
+        -D CMAKE_INSTALL_LIBDIR=lib
+        -D ENABLE_FORTRAN=ON
+        -D ENABLE_PYTHON=OFF
+        -D DISABLE_KXC=ON
+        -D DISABLE_LXC=ON
+        -D BUILD_TESTING=NO
+  )
+  # "Hidden" option to pass extra arguments to Libxc CMake
+  list (APPEND LibxcCMakeArgs ${Libxc_EXTRA_CMakeArgs})
+
+  # Workaround for ExternalProject's shortcoming
+  # (see https://gitlab.kitware.com/cmake/cmake/-/issues/16419)
+  # UPDATE_DISCONNECTED is ON if the current commit has already
+  # been built, and OFF when the commit changes, but it requires
+  # to run cmake for detection
+  set (last_hash "None")
+  set (hash_file ${EP_PATH}/${EP_PROJECT}.hash)
+  if (EXISTS ${hash_file})
+    file (READ ${hash_file} last_hash)
+    string (REGEX REPLACE "\n$" "" last_hash "${last_hash}")
+  endif ()
+  if (last_hash STREQUAL ${Libxc_HASH})
+    set (LibxcSkipUpdate ON)
+  else ()
+    set (LibxcSkipUpdate OFF)
+  endif ()
+
+  ExternalProject_Add (${EP_PROJECT}
+                       PREFIX ${EP_PATH}
+                       GIT_REPOSITORY ${Libxc_REPO}
+                       GIT_TAG ${Libxc_HASH}
+                       CMAKE_ARGS ${LibxcCMakeArgs}
+                       UPDATE_DISCONNECTED ${LibxcSkipUpdate}
+  )
+
+  if (NOT LibxcSkipUpdate)
+    ExternalProject_add_patches (${EP_PROJECT} "cmake/custom/libxc.patch")
+  endif ()
+
+  ExternalProject_Add_Step (${EP_PROJECT} update_hash
+                            COMMAND echo ${Libxc_HASH} > ${hash_file}
+                            DEPENDEES build
+  )
+
+  link_directories(${EP_INSTALL}/lib)
+
+  set (Libxc_INCLUDE_DIRS ${EP_INSTALL}/include)
+  set (Libxc_LIBRARIES xcf03 xc)
+
+endif ()
+message ("-- Libxc_INCLUDE_DIRS: ${Libxc_INCLUDE_DIRS}")
+message ("-- Libxc_LIBRARIES: ${Libxc_LIBRARIES}")
+list (APPEND EXTERNAL_LIBRARIES ${Libxc_LIBRARIES})
+
+foreach (prog
+  dft_util
+  libxc_util
+)
+  list (APPEND ${prog}_incs ${Libxc_INCLUDE_DIRS})
+endforeach ()
+
 # Global Arrays settings
 #=======================
 
@@ -1601,11 +1696,7 @@ if (GA AND MPI)
       )
     endif ()
 
-    # Workaround for ExternalProject's shortcoming
-    # (see https://gitlab.kitware.com/cmake/cmake/-/issues/16419)
-    # UPDATE_DISCONNECTED is ON if the current GA commit has already
-    # been built, and OFF when the commit changes, but it requires
-    # to run cmake for detection
+    # Same workaround as for Libxc (see above)
     set (last_hash "None")
     set (hash_file ${EP_PATH}/${EP_PROJECT}.hash)
     if (EXISTS ${hash_file})
@@ -1649,9 +1740,8 @@ if (GA AND MPI)
     else ()
       set (lib_ext ".a")
     endif ()
-    set (ga_file ${EP_INSTALL}/lib/libga${lib_ext})
-    set (armci_file ${EP_INSTALL}/lib/libarmci${lib_ext})
     foreach (lib ${GA_LIBRARIES})
+      set (${lib}_file ${EP_INSTALL}/lib/lib${lib}${lib_ext})
       add_library (${lib} UNKNOWN IMPORTED)
       set_target_properties (${lib} PROPERTIES IMPORTED_LOCATION ${${lib}_file})
     endforeach ()
@@ -1959,7 +2049,7 @@ if (DMRG)
     set (QCMaquis_ROOT $ENV{QCMaquis_ROOT})
   endif ()
   if (QCMaquis_ROOT)
-    message (STATUS "External QCMaquis root specified at: ${QCMaquis_ROOT}")
+    message ("-- External QCMaquis root specified at: ${QCMaquis_ROOT}")
     set (QCMaquis_ROOT ${QCMaquis_ROOT} CACHE STRING "Specify path to existing QCMaquis installation. This will allow to skip the installation of QCMaquis.")
     set (MAQUIS_DMRG_DIR ${QCMaquis_ROOT}/share/cmake)
     find_package (MAQUIS_DMRG PATHS ${QCMaquis_ROOT} NO_DEFAULT_PATH)
@@ -2782,6 +2872,9 @@ endif ()
 # dependency using the "mods_obj" target.
 # note that mods_obj is empty at the beginning, source files will be added later
 add_library (mods_obj OBJECT)
+if (TARGET Libxc)
+  add_dependencies (mods_obj Libxc)
+endif ()
 if (GA_BUILD AND MPI)
   add_dependencies (mods_obj GlobalArrays)
 endif ()

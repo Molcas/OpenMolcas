@@ -19,12 +19,11 @@
      &                  mGrid,
      &                  nP2_ontop,
      &                  Do_Mo,Do_TwoEl,l_Xhol,
-     &                  TmpPUVX,nTmpPUVX,
+     &                  nTmpPUVX,
      &                  nMOs,
      &                  CMOs,nCMO,DoIt,P2mo,np2act,D1mo,nd1mo,P2_ontop,
      &                  Do_Grad,Grad,nGrad,list_g,IndGrd,iTab,Temp,
-     &                  mGrad,F_xc,
-     &                  DFTFOCK,mAO,mdRho_dR)
+     &                  mGrad,F_xc,mAO,mdRho_dR)
 ************************************************************************
 *                                                                      *
 * Object: Driver for numerical quadrature.                             *
@@ -40,6 +39,7 @@
       use Real_Spherical
       use Symmetry_Info, only: nIrrep, iOper
       use KSDFT_Info, only: KSDFA, LuMC, LuMT, Funcaa, Funcbb, Funccc
+      use nq_Grid, only: l_casdft
       Implicit Real*8 (A-H,O-Z)
       External Kernel, Rsv_Tsk
 #include "real.fh"
@@ -61,10 +61,8 @@
      &       CMOs(nCMO),P2mo(np2act),D1mo(nd1mo), Temp(mGrad),
      &       P2_ontop(nP2_ontop,mGrid), Grad(nGrad),
      &       F_xc(mGrid)
-      Real*8 TmpPUVX(nTmpPUVX)
       Logical Check, Do_Grad, Rsv_Tsk
-      Logical Do_Mo,Do_TwoEl,l_Xhol,l_casdft,Exist,l_tgga
-      Character*4 DFTFOCK
+      Logical Do_Mo,Do_TwoEl,l_Xhol,Exist,l_tgga
       REAL*8,DIMENSION(:),Allocatable::P2Unzip,D1Unzip,
      &PDFTPot1,PDFTFocI,PDFTFocA
 *                                                                      *
@@ -80,21 +78,6 @@
 ************************************************************************
 * Initializations for MC-PDFT                                          *
 ************************************************************************
-      l_casdft = .false.
-      l_casdft = KSDFA(1:5).eq.'TLSDA'   .or.
-     &           KSDFA(1:6).eq.'TLSDA5'  .or.
-     &           KSDFA(1:5).eq.'TBLYP'   .or.
-     &           KSDFA(1:6).eq.'TSSBSW'  .or.
-     &           KSDFA(1:5).eq.'TSSBD'   .or.
-     &           KSDFA(1:5).eq.'TS12G'   .or.
-     &           KSDFA(1:4).eq.'TPBE'    .or.
-     &           KSDFA(1:5).eq.'FTPBE'   .or.
-     &           KSDFA(1:5).eq.'TOPBE'   .or.
-     &           KSDFA(1:6).eq.'FTOPBE'  .or.
-     &           KSDFA(1:7).eq.'TREVPBE' .or.
-     &           KSDFA(1:8).eq.'FTREVPBE'.or.
-     &           KSDFA(1:6).eq.'FTLSDA'  .or.
-     &           KSDFA(1:6).eq.'FTBLYP'
 ************************************************************************
 * Open file for MC-PDFT to store density, pair density and ratio:      *
 *                   ratio = 4pi/rho^2                                  *
@@ -149,8 +132,6 @@ c        Call append_file(LuMT)
         CALL GETMEM('TEG_OT','ALLO','REAL',LTEG_DB,nTmpPUVX)
         Call GETMEM('FI_V','ALLO','REAL',ifiv,nFckInt)
         Call GETMEM('FI_A','ALLO','REAL',ifav,nFckInt)
-!        Call GETMEM('FI_V','ALLO','REAL',ifiv_n,nFckInt)
-!        Call GETMEM('FI_A','ALLO','REAL',ifav_n,nFckInt)
 
         CALL DCOPY_(nFckInt,[0.0D0],0,WORK(LOE_DB),1)!NTOT1
         CALL DCOPY_(nTmpPUVX,[0.0D0],0,WORK(LTEG_DB),1)
@@ -160,8 +141,6 @@ c        Call append_file(LuMT)
         CALL FZero(PDFTFocI,nPot1)
         CALL FZero(PDFTFocA,nPot1)
         CALL CalcPUVXOff()
-!        CALL DCOPY_(nFckInt,[0.0D0],0,WORK(ifiv_n),1)
-!        CALL DCOPY_(nFckInt,[0.0D0],0,WORK(ifav_n),1)
       Else
         nPot1=1
         CALL mma_allocate(PDFTPot1,nPot1)
@@ -240,16 +219,15 @@ C        Debug=.True.
          Call Get_Subblock(Kernel,Func,iSB,
      &                     Maps2p,list_s,list_exp,list_bas,nShell,nSym,
      &                     list_p,R2_trial,nNQ,
-     &                     FckInt,nFckDim,nFckInt,
-     &                     Density,nFckInt,nD,
+     &                     FckInt,nFckDim,nFckInt,nD,
      &                     mGrid,
      &                     nP2_ontop,
      &                     Do_Mo,Do_TwoEl,l_Xhol,
-     &                     TmpPUVX,nTmpPUVX,nMOs,CMOs,nCMO,DoIt,P2MO,
-     &                     P2Unzip,np2act,D1mo,D1Unzip,nd1mo,P2_ontop,
+     &                     nMOs,CMOs,nCMO,DoIt,
+     &                     P2Unzip,D1mo,D1Unzip,nd1mo,P2_ontop,
      &                     Do_Grad,Grad,nGrad,List_G,IndGrd,iTab,Temp,
      &                     mGrad,F_xc,
-     &                     DFTFOCK,mAO,mdRho_dR,
+     &                     mAO,mdRho_dR,
      &                     LTEG_DB,PDFTPot1,PDFTFocI,PDFTFocA)
 *                                                                      *
 ************************************************************************
@@ -283,8 +261,6 @@ C     End Do ! number_of_subblocks
          Tau_I  = DBLE(nIrrep)*Tau_I
 *
          Call DScal_(nFckInt*nFckDim,DBLE(nIrrep),FckInt,1)
-         If (Do_TwoEl)
-     &   Call DScal_(nTmpPUVX,DBLE(nIrrep),TmpPUVX,1)
 *
       End If
 
@@ -379,9 +355,6 @@ C     End Do ! number_of_subblocks
       If(l_casdft.and.do_pdftPot) then
 
 
-!        CALL DCOPY_(nFckInt,Work(ifav_n),1,WORK(ifav),1)
-!        CALL DCOPY_(nFckInt,Work(ifiv_n),1,WORK(ifiv),1)
-
         If(l_tgga) Then
          CALL PackPot1(work(LOE_DB),PDFTPot1,nFckInt,dble(nIrrep)*0.5d0)
          CALL DScal_(nPot2,dble(nIrrep),WORK(LTEG_DB),1)
@@ -396,19 +369,8 @@ C     End Do ! number_of_subblocks
         CALL GETMEM('OE_OT','Free','REAL',LOE_DB,nFckInt)
         CALL GETMEM('TEG_OT','Free','REAL',LTEG_DB,nTmpPUVX)
         CALL GETMEM('FI_V','FREE','REAL',ifiv,nFckInt)
-!        CALL GETMEM('FI_V','FREE','REAL',ifiv_n,nFckInt)
         CALL GETMEM('FA_V','FREE','REAL',ifav,nFckInt)
-!        CALL GETMEM('FA_V','FREE','REAL',ifav_n,nFckInt)
 
-!      write(*,*) 'Potential timings:'
-!      write(*,*) 'PUVX time: ',PUVX_Time
-!      write(*,*) 'FA time: ',FA_Time
-!      write(*,*) 'FI time: ',FI_Time
-!      write(*,*) 'SP time: ',SP_Time
-!        PUVX_Time= 0d0
-!        FA_Time = 0d0
-!        FI_time = 0d0
-!        sp_time = 0d0
       End If
         CALL mma_deallocate(PDFTPot1)
         CALL mma_deallocate(PDFTFocI)

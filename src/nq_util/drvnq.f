@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2001, Roland Lindh                                     *
 ************************************************************************
-      Subroutine DrvNQ(Kernel,FckInt,nFckDim,Func,
+      Subroutine DrvNQ(Kernel,FckInt,nFckDim,Funct,
      &                 Density,nFckInt,nD,
      &                 Do_Grad,Grad,nGrad,
      &                 Do_MO,Do_TwoEl,DFTFOCK)
@@ -25,7 +25,7 @@
 ************************************************************************
       use iSD_data
       use Symmetry_Info, only: nIrrep
-      use KSDFT_Info, only: KSDFA, F_xca, F_xcb, TmpB
+      use KSDFT_Info, only: KSDFA, F_xca, F_xcb
       use nq_Grid, only: Rho, GradRho, Sigma, Tau, Lapl
       use nq_Grid, only: vRho, vSigma, vTau, vLapl
       use nq_Grid, only: Grid, Weights
@@ -33,6 +33,7 @@
       use nq_Grid, only: l_CASDFT, kAO
       use nq_Grid, only: Exc
       use nq_pdft, only: lft, lGGA
+      use libxc
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "real.fh"
@@ -146,7 +147,6 @@
       ipCmo=ip_Dummy
       ipD1mo=ip_Dummy
       ipDoIt=ip_iDummy
-      ipTmpPUVX=ip_Dummy
 *
       NQNAC=0
       If (DFTFOCK.ne.'SCF ') Then
@@ -283,7 +283,8 @@
          nRho=nD
          nSigma=nD*(nD+1)/2
          nGradRho=nD*3
-         nLapl=0
+*        nLapl=0
+         nLapl=nD
          nTau=nD
          mdRho_dR=0
          If (Do_Grad) mdRho_dR=5*nD
@@ -372,9 +373,12 @@
 *                                                                      *
       Call mma_allocate(Rho,nRho,nGridMax,Label='Rho')
       Call mma_allocate(vRho,nRho,nGridMax,Label='vRho')
+      Call mma_allocate(dfunc_drho,nRho,nGridMax,Label='dfunc_drho')
       If (nSigma.ne.0) Then
          Call mma_Allocate(Sigma,nSigma,nGridMax,Label='Sigma')
          Call mma_Allocate(vSigma,nSigma,nGridMax,Label='vSigma')
+         Call mma_Allocate(dfunc_dSigma,nSigma,nGridMax,
+     &                     Label='dfunc_dSigma')
       End If
       If (nGradRho.ne.0) Then
          Call mma_Allocate(GradRho,nGradRho,nGridMax,Label='GradRho')
@@ -382,17 +386,22 @@
       If (nTau.ne.0) Then
          Call mma_allocate(Tau,nTau,nGridMax,Label='Tau')
          Call mma_allocate(vTau,nTau,nGridMax,Label='vTau')
+         Call mma_allocate(dfunc_dTau,nTau,nGridMax,Label='dfunc_dTau')
+         Tau(:,:)=Zero
       End If
       If (nLapl.ne.0) Then
          Call mma_allocate(Lapl,nLapl,nGridMax,Label='Lapl')
          Call mma_allocate(vLapl,nLapl,nGridMax,Label='vLapl')
+         Call mma_allocate(dfunc_dLapl,nLapl,nGridMax,
+     &                     Label='dfunc_dLapl')
+         Lapl(:,:)=Zero
       End If
 
       Call mma_allocate(Exc,nGridMax,Label='Exc')
+      Call mma_allocate(func,nGridMax,Label='func')
       If (l_casdft) Then
          Call mma_allocate(F_xca,nGridMax,Label='F_xca')
          Call mma_allocate(F_xcb,nGridMax,Label='F_xcb')
-         Call mma_allocate(TmpB,nGridMax,Label='TmpB')
       End If
 *
       Call GetMem('list_s','Allo','Inte',iplist_s,2*nIrrep*nShell)
@@ -474,8 +483,6 @@
          End Do
          nTmpPUVX=iStack
 *
-         Call GetMem('TmpPUVX','Allo','Real',ipTmpPUVX,nTmpPUVX)
-         Call dCopy_(nTmpPUVX,[0.0d0],0,Work(ipTmpPUVX),1)
       End If
 *
       If (Functional_Type.eq.CASDFT_Type) Then
@@ -527,7 +534,7 @@
       end if
 
       Call DrvNQ_Inner(
-     &            Kernel,Func,
+     &            Kernel,Funct,
      &            iWork(ips2p),nIrrep,
      &            iWork(iplist_s),iWork(iplist_exp),iWork(iplist_bas),
      &            nShell,iWork(iplist_p),Work(ipR2_trail),nNQ,
@@ -536,14 +543,14 @@
      &            nGridMax,
      &            nP2_ontop,
      &            Do_Mo,Do_TwoEl,l_Xhol,
-     &            Work(ipTmpPUVX),nTmpPUVX,
+     &            nTmpPUVX,
      &            nMOs,Work(ipCMO),nCMO,
      &            iWork(ipDoIt),
      &            Work(ipP2mo),nP2,Work(ipD1mo),nd1mo,Work(ipp2_ontop),
      &            Do_Grad,Grad,nGrad,iWork(iplist_g),
      &            iWork(ipIndGrd),iWork(ipiTab),Work(ipTemp),mGrad,
      &            Exc,
-     &            DFTFOCK,mAO,mdRho_dR)
+     &            mAO,mdRho_dR)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -566,30 +573,30 @@
       If(ipCMO.ne.ip_Dummy)  Call Free_Work(ipCMO)
       If(ipDoIt.ne.ip_iDummy) Call GetMem('DoIt','Free','Inte',
      &                                    ipDoIt,nMOs)
-      If(ipTmpPUVX.ne.ip_Dummy) Then
-         Call Put_dArray('DFT_TwoEl',Work(ipTmpPUVX),nTmpPUVX)
-         Call GetMem('TmpPUVX','Free','Real',ipTmpPUVX,nTmpPUVX)
-      End If
       If (l_casdft) Then
-         Call mma_deallocate(TmpB)
          Call mma_deallocate(F_xcb)
          Call mma_deallocate(F_xca)
       End If
+      Call mma_deallocate(func)
       Call mma_deallocate(Exc)
 *
       If (Allocated(Lapl)) Then
+         Call mma_deallocate(dfunc_dLapl)
          Call mma_deallocate(vLapl)
          Call mma_deallocate(Lapl)
       End If
       If (Allocated(Tau)) Then
+         Call mma_deallocate(dfunc_dTau)
          Call mma_deallocate(vTau)
          Call mma_deallocate(Tau)
       End If
       If (Allocated(GradRho)) Call mma_deallocate(GradRho)
       If (Allocated(Sigma)) Then
-         Call mma_deallocate(Sigma)
+         Call mma_deallocate(dfunc_dSigma)
          Call mma_deallocate(vSigma)
+         Call mma_deallocate(Sigma)
       End If
+      Call mma_deallocate(dfunc_dRho)
       Call mma_deallocate(vRho)
       Call mma_deallocate(Rho)
 

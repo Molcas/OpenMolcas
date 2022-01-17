@@ -7,5 +7,15 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2022, Roland Lindh                                     *
 !***********************************************************************
-        common /HFLDA/ HFLDA
+Subroutine libxc_version()
+  use xc_f03_lib_m
+  use Definitions, only: LibxcInt
+  implicit none
+  integer(kind=LibxcInt) :: vmajor, vminor, vmicro
+  ! Print out the version
+  call xc_f03_version(vmajor, vminor, vmicro)
+  write(6,'(6X,"Libxc version: ",I0,".",I0,".",I0)') vmajor, vminor, vmicro
+End Subroutine libxc_version

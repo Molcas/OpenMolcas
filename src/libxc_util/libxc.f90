@@ -7,5 +7,14 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2021, Roland Lindh                                     *
 !***********************************************************************
-        common /HFLDA/ HFLDA
+Module libxc
+Real*8, Allocatable:: func(:)
+Real*8, Allocatable:: dfunc_drho(:,:)
+Real*8, Allocatable:: dfunc_dsigma(:,:)
+Real*8, Allocatable:: dfunc_dtau(:,:)
+Real*8, Allocatable:: dfunc_dlapl(:,:)
+Logical :: Only_exc=.False.
+End Module libxc
