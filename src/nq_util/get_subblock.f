@@ -71,7 +71,6 @@
 *     Statement functions
 *
 #include "nq_structure.fh"
-      declare_ip_r_max
       declare_ip_angular
       iGridInfo(i,iNQ)=iWork(ip_GridInfo+(iNQ-1)*2+i-1)
 *                                                                      *
@@ -147,7 +146,7 @@
 *
 *        2) atomic grid of this center extends inside the box.
 *
-         RMax = Work(ip_R_Max(iNQ))
+         RMax = NQ_Data(iNQ)%R_Max
          t1=(x_NQ-x_min_)/(x_max_-x_min_)
          If (t1.lt.Zero) t1=Zero
          If (t1.gt.One ) t1=One
@@ -197,7 +196,7 @@
 #endif
 *
             iNQ=Maps2p(iShell,NrOpr(iSym))
-            RMax_NQ = Work(ip_R_Max(iNQ))
+            RMax_NQ = NQ_Data(iNQ)%R_Max
 #ifdef _DEBUGPRINT_
             If (debug) Then
                Write (6,*) 'iNQ=',iNQ
@@ -483,7 +482,7 @@
          z_NQ =NQ_Data(iNQ)%Coor(3)
 *--------Get the maximum radius on which we have to integrate for the
 *        partition
-         RMax=Work(ip_R_Max(iNQ))
+         RMax=NQ_Data(iNQ)%R_Max
 *
          Call Box_On_Sphere(x_Min_-x_NQ,x_Max_-x_NQ, y_Min_-y_NQ,
      &                      y_Max_-y_NQ, z_Min_-z_NQ,z_Max_-z_NQ,

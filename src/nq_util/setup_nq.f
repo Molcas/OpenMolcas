@@ -54,7 +54,6 @@
 *     Statement Functions
 *
 #include "nq_structure.fh"
-      declare_ip_r_rs
       declare_ip_l_max
       declare_ip_r_quad
       declare_ip_angular
@@ -194,7 +193,7 @@ c     Write(6,*) '********** Setup_NQ ***********'
                Work(ip_Atom_Nr(iNQ))=DBLE(iANR)
 *
 *------------- Assign the BS radius to the center
-               Work(ip_R_RS(iNQ))=Bragg_Slater(iANr)
+               NQ_Data(iNQ)%R_RS=Bragg_Slater(iANr)
 *
 *------------- What is the maximum angular momentum for the active center ?
                Work(ip_lMax(iNQ))=Max(Work(ip_lMax(iNQ)),DBLE(iAng))
@@ -389,7 +388,7 @@ c     Write(6,*) '********** Setup_NQ ***********'
 *
             ip_iRx=ip_of_iWork_d(Work(ip_R_Quad(iNQ)))
             ip_Rx=iWork(ip_iRx)
-            R_BS = Work(ip_R_RS(iNQ))
+            R_BS = NQ_Data(iNQ)%R_RS
 *
             If (iNQ.eq.iNQ_MBC) Then
                Crowding_tmp=Crowding
