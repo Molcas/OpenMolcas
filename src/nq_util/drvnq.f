@@ -32,7 +32,7 @@
       use nq_Grid, only: nRho, nGradRho, nTau, nSigma, nLapl, nGridMax
       use nq_Grid, only: l_CASDFT, kAO
       use nq_Grid, only: F_xc, F_xca, F_xcb
-      use nq_Grid, only: Coor
+      use nq_Grid, only: Coor, R2_trial
       use nq_pdft, only: lft, lGGA
       use nq_MO, only: DoIt, CMO, D1MO, P2MO
       use libxc
@@ -367,7 +367,7 @@
       Call mma_allocate(List_Exp,nIrrep*nShell,Label='List_Exp')
       Call mma_allocate(List_Bas,2,nIrrep*nShell,Label='List_Bas')
       Call mma_allocate(List_P,nNQ,Label='List_P')
-      Call GetMem('R2_trail','Allo','Real',ipR2_trail,nNQ)
+      Call mma_allocate(R2_trial,nNQ,Label='R2_trial')
 
       If (Do_MO) Then
          If (NQNAC.ne.0) Then
@@ -493,8 +493,8 @@
       end if
 
       Call DrvNQ_Inner(Kernel,Funct,Maps2p,nIrrep,List_S,List_Exp,
-     &                 List_bas,nShell,list_p,Work(ipR2_trail),
-     &                 nNQ,FckInt,nFckDim,Density,nFckInt,nD,
+     &                 List_bas,nShell,List_P,nNQ,
+     &                 FckInt,nFckDim,Density,nFckInt,nD,
      &                 nGridMax,nP2_ontop,Do_Mo,nTmpPUVX,
      &                 Work(ipp2_ontop),Do_Grad,Grad,nGrad,
      &                 iWork(iplist_g),iWork(ipIndGrd),iWork(ipiTab),
@@ -511,7 +511,7 @@
          Call GetMem('IndGrd','Free','Inte',ipIndGrd,mGrad)
          Call GetMem('list_g','Free','Inte',iplist_g,3*nShell*nIrrep)
       End If
-      Call GetMem('R2_trail','Free','Real',ipR2_trail,nNQ)
+      Call mma_deallocate(R2_trial)
       Call mma_deallocate(List_P)
       Call mma_deallocate(List_Bas)
       Call mma_deallocate(List_Exp)

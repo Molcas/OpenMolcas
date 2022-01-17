@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine Get_Subblock(Kernel,Func,ixyz,
      &                        Maps2p,list_s,list_exp,list_bas,
-     &                        nShell,nSym, list_p,R2_trial,nNQ,
+     &                        nShell,nSym, list_p,nNQ,
      &                        FckInt,nFckDim,nFckInt,nD,
      &                        mGrid,nP2_ontop,Do_Mo,
      &                        P2Unzip,D1Unzip,P2_ontop,
@@ -36,7 +36,7 @@
       use Center_Info
       use nq_Grid, only: Grid, Weights, TabAO, Grid_AO, Dens_AO,
      &                   TabAO_Pack, Ind_Grd, dRho_dR, TabAO_Short,
-     &                   kAO, iBfn_Index
+     &                   kAO, iBfn_Index, R2_trial
       use nq_MO, only: DoIt
       Implicit Real*8 (A-H,O-Z)
       External Kernel
@@ -54,8 +54,7 @@
       Integer Maps2p(nShell,0:nSym-1), list_s(2,*), List_G(3,*),
      &        list_exp(nSym*nShell), list_bas(2,nSym*nShell),
      &        list_p(nNQ), iTab(4,mGrad),IndGrd(mGrad)
-      Real*8 R2_trial(nNQ), FckInt(nFckInt,nFckDim),
-     &       Grad(nGrad), Temp(mGrad),
+      Real*8 FckInt(nFckInt,nFckDim),Grad(nGrad), Temp(mGrad),
      &       P2_ontop(nP2_ontop,mGrid), Roots(3,3),
      &       xyz0(3,2),PDFTPot1(npot1),PDFTFocI(nPot1),PDFTFocA(nPot1)
       Logical InBox(MxAtom), Do_Grad, More_to_come

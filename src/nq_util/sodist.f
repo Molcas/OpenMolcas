@@ -8,8 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine SODist(SOValue,mAO,nCoor,mBas,nCmp,
-     &                  nDeg,MOValue,
+      Subroutine SODist(SOValue,mAO,nCoor,mBas,nCmp,nDeg,MOValue,
      &                  nMOs,iAO,CMOs,nCMO,DoIt)
       use SOAO_Info, only: iAOtSO
       use Basis_Info, only: nBas
@@ -18,8 +17,7 @@
 #include "real.fh"
 #include "print.fh"
       Real*8 SOValue(mAO*nCoor,mBas,nCmp*nDeg),
-     &       MOValue(mAO*nCoor,nMOs),
-     &       CMOs(nCMO)
+     &       MOValue(mAO*nCoor,nMOs),CMOs(nCMO)
       Integer DoIt(nMOs)
       Integer   iOff_MO(0:7), iOff_CMO(0:7)
       Character*80 Label
@@ -58,9 +56,9 @@
             iDeg=iDeg+1
             iOff=(i1-1)*nDeg+iDeg
 
-*
-*---------- Distribute contribution to all MO's in this irrep
-*
+!
+!---------- Distribute contribution to all MO's in this irrep
+!
             iMO=iOff_MO(iIrrep)
             iCMO=iOff_CMO(iIrrep)+iSO
             Call MyDGeMM(DoIt(iMO),
@@ -120,6 +118,7 @@
       RETURN
       END
 *
+
       Subroutine SODist2(SOValue,mAO,nCoor,mBas,nCmp,nDeg,SO,
      &                  nSOs,iAO,TmpCMOs,nCMO,TmpDoIt)
       use Basis_Info, only: nBas

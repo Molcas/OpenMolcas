@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine DrvNQ_Inner(Kernel,Func,
      &                  Maps2p,nSym,list_s,list_exp,list_bas,
-     &                  nShell,list_p,R2_trial,nNQ,
+     &                  nShell,list_p,nNQ,
      &                  FckInt,nFckDim,Density,nFckInt,nD,
      &                  mGrid,nP2_ontop,Do_Mo,nTmpPUVX,P2_ontop,
      &                  Do_Grad,Grad,nGrad,list_g,IndGrd,iTab,Temp,
@@ -50,7 +50,7 @@
      &        list_s(nSym*nShell), list_exp(nSym*nShell),
      &        list_p(nNQ), List_g(3,nSym*nShell),
      &        IndGrd(mGrad), iTab(4,mGrad), list_bas(2,nSym*nShell)
-      Real*8 FckInt(nFckInt,nFckDim),Density(nFckInt,nD), R2_trial(nNQ),
+      Real*8 FckInt(nFckInt,nFckDim),Density(nFckInt,nD),
      &       Temp(mGrad),P2_ontop(nP2_ontop,mGrid), Grad(nGrad)
       Logical Check, Do_Grad, Rsv_Tsk
       Logical Do_Mo,Exist,l_tgga
@@ -209,8 +209,7 @@ C        Debug=.True.
 *
          Call Get_Subblock(Kernel,Func,iSB,
      &                     Maps2p,list_s,list_exp,list_bas,nShell,nSym,
-     &                     list_p,R2_trial,nNQ,
-     &                     FckInt,nFckDim,nFckInt,nD,
+     &                     list_p,nNQ,FckInt,nFckDim,nFckInt,nD,
      &                     mGrid,nP2_ontop,Do_Mo,
      &                     P2Unzip,D1Unzip,P2_ontop,
      &                     Do_Grad,Grad,nGrad,List_G,IndGrd,iTab,Temp,

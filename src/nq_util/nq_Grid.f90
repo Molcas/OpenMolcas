@@ -10,6 +10,8 @@
 !***********************************************************************
 Module nq_Grid
 Real*8, Allocatable:: Coor(:,:)
+Real*8, Allocatable:: R2_trial(:)
+
 Real*8, Allocatable:: Weights(:)
 Real*8, Allocatable:: Grid(:,:)
 !     nGridMax: size of the array Grid
