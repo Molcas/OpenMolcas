@@ -117,38 +117,3 @@
 *
       RETURN
       END
-*
-
-      Subroutine SODist2(SOValue,mAO,nCoor,mBas,nCmp,nDeg,SO,
-     &                  nSOs,iAO,TmpCMOs,nCMO,TmpDoIt)
-      use Basis_Info, only: nBas
-      use Symmetry_Info, only: nIrrep
-      Implicit Real*8 (A-H,O-Z)
-*
-      Real*8  SOValue(mAO*nCoor,mBas,nCmp*nDeg),
-     &        SO(mAO*nCoor,nSOs),
-     &        TmpCMOs(nCMO)
-      Integer TmpDoIt(nSOs)
-*
-      Do k=1,nSOs
-         TmpDoIt(k) = 1
-      End Do
-*
-      call dcopy_(nCMO,[0.0d0],0,TmpCMOs,1)
-*
-      iOff=0
-      Do i=0,nIrrep-1
-         iBas=nBas(i)
-         Do j=1,iBas
-            ii = iOff+(j-1)*iBas + j
-            TmpCMOs(ii) = 1.0d0
-         End Do
-         iOff=iOff+nBas(i)**2
-      End Do
-*
-      Call SODist(SOValue,mAO,nCoor,mBas,nCmp,nDeg,SO,
-     &            nSOs,iAO,TmpCMOs,nCMO,TmpDoIt)
-*
-      Return
-      End
-

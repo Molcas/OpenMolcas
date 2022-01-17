@@ -71,11 +71,8 @@
       Real*8,DIMENSION(NASHT**2)::D1Unzip
       Integer LTEG_DB,nPMO3p
       Real*8, Allocatable:: RhoI(:,:), RhoA(:,:)
-      Real*8, Allocatable:: TmpCMO(:), TDoIt(:)
-*define _DEBUGPRINT_
-#ifdef _DEBUGPRINT_
-      Logical Debug_Save
-#endif
+      Real*8, Allocatable:: TmpCMO(:)
+      Integer, Allocatable:: TDoIt(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -87,19 +84,6 @@
 *                                                                      *
       nTabAO=Size(TabAO)
       nCMO  =Size(CMO)
-#ifdef _DEBUGPRINT_
-      Debug_Save=Debug
-      Debug=Debug.or.iPrint.ge.99
-*
-      If (Debug) Then
-         Write (6,*) ' In Do_Batch'
-         Write (6,*) ' nRho=',nRho
-         Write (6,*) 'Grid=',DDot_(mGrid,Grid(1,1),3,Grid(1,1),3),
-     &                       DDot_(mGrid,Grid(2,1),3,Grid(2,1),3),
-     &                       DDot_(mGrid,Grid(3,1),3,Grid(3,1),3),
-     &                       DDot_(mGrid,Weights  ,1,Weights  ,1), mGrid
-      End If
-#endif
 *                                                                      *
       mRho=-1
       l_tanhr=.false.
@@ -558,8 +542,5 @@
          Call mma_deallocate(RhoA)
       End If
 
-#ifdef _DEBUGPRINT_
-      Debug=Debug_Save
-#endif
       Return
       End
