@@ -53,8 +53,6 @@
 *                                                                      *
 *     Statement Functions
 *
-#include "nq_structure.fh"
-      declare_ip_dodx
       nElem(i)=(i+1)*(i+2)/2
 *                                                                      *
 ************************************************************************
@@ -108,7 +106,6 @@ c     Write(6,*) '********** Setup_NQ ***********'
 *---- Get the symmetry unique coordinates
 *
       nNQ=nAtoms
-      Call GetMem('nq_centers','Allo','Real',ipNQ,nNQ*l_NQ)
       Allocate(NQ_data(1:nNQ))
       Do iNQ = 1, nNQ
          Call mma_allocate(NQ_data(iNQ)%Coor,3,
@@ -295,11 +292,11 @@ c     Write(6,*) '********** Setup_NQ ***********'
 *     Distribute derivative of the principle axis system
 *
       If (Do_Grad) Then
-      iOff = ipdOdx
-      Do iCar = 1, 3
-         Do iNQ = 1, nNQ
-           call dcopy_(9,dOdx(:,:,iNQ,iCar),1,Work(ip_dOdx(iNQ,iCar)),1)
-            iOff = iOff + 9
+      Do iNQ = 1, nNQ
+         Call mma_allocate(NQ_Data(iNQ)%dOdx,3,3,3,Label='dOdx')
+         Do iCar = 1, 3
+           call dcopy_(9,dOdx(:,:,iNQ,iCar),1,
+     &                   NQ_Data(iNQ)%dOdx(:,:,iCar),1)
          End Do
       End Do
       End If
@@ -314,9 +311,9 @@ c     Write(6,*) '********** Setup_NQ ***********'
          Call FZero(Pax,9)
          call dcopy_(3,[One],0,Pax,4)
          Do iNQ = 1, nNQ
-            Do iCar = 1, 3
-               Call FZero(Work(ip_dOdx(iNQ,iCar)),9)
-            End Do
+            If (.Not.Allocated(NQ_Data(iNQ)%dOdx))
+     &         Call mma_allocate(NQ_Data(iNQ)%dOdx,3,3,3,Label='dOdx')
+               NQ_Data(iNQ)%dOdx(:,:,:)=Zero
          End Do
       End If
 *                                                                      *

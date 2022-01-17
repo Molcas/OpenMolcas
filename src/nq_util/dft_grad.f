@@ -42,11 +42,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#include "nq_structure.fh"
-      declare_ip_dodx
-*                                                                      *
-************************************************************************
-*                                                                      *
       R_Grid(:)=NQ_Data(iNQ)%Coor(:)
 *define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
@@ -545,15 +540,15 @@
      &        KSDFA(1:5).eq.'TOPBE'.or.
      &        KSDFA(1:6).eq.'FTOPBE'.or.
      &        KSDFA(1:4).eq.'TPBE') then
-            Tmp = DDot_(9,Work(ip_dOdx(jNQ,iCar)),1,V,1)*0.5
+            Tmp = DDot_(9,NQ_Data(jNQ)%dOdx(:,:,iCar),1,V,1)*0.5D0
       else
-            Tmp = DDot_(9,Work(ip_dOdx(jNQ,iCar)),1,V,1)
+            Tmp = DDot_(9,NQ_Data(jNQ)%dOdx(:,:,iCar),1,V,1)
       end if
 #ifdef _DEBUGPRINT_
             If (Debug) Then
                Write (6,*)
                Write (6,*) 'iCar,jNQ=',iCar,jNQ
-               Call RecPrt('dOdx',' ',Work(ip_dOdx(jNQ,iCar)),3,3)
+               Call RecPrt('dOdx',' ',NQ_Data(jNQ)%dOdx(:,:,iCar),3,3)
                Write (6,*) 'Tmp=',Tmp
             End If
 #endif

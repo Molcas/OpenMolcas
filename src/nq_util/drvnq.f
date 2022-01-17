@@ -541,7 +541,6 @@
       Call mma_deallocate(Coor)
 
       Call Close_NQ_Data()
-      Call GetMem('nq_centers','Free','Real',ipNQ,nShell*l_NQ)
       Call GetMem('nMem','Free','Real',ipMem,nMem)
       Call mma_deallocate(Tmp)
       Call mma_deallocate(Fact)

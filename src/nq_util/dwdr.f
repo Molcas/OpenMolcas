@@ -25,8 +25,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#include "nq_structure.fh"
-      declare_ip_dodx
       p(x)=(x*0.5D0)*(3.0D0-x**2)
 *                                                                      *
 ************************************************************************
@@ -215,19 +213,15 @@ C                    jNQ=list_p(iD)
 *
                      jNQ=list_p(iD)
                      Do iCar = 1, 3
-C                       Call xxDGeMul(Work(ip_dOdx(jNQ,iCar)),3,'N',
-C    &                              sxyz,3,'N',
-C    &                              dOdxs,3,
-C    &                              3,3,1)
-                        dOdx_11=Work(ip_dOdx(jNQ,iCar))
-                        dOdx_21=Work(ip_dOdx(jNQ,iCar)+1)
-                        dOdx_31=Work(ip_dOdx(jNQ,iCar)+2)
-                        dOdx_12=Work(ip_dOdx(jNQ,iCar)+3)
-                        dOdx_22=Work(ip_dOdx(jNQ,iCar)+4)
-                        dOdx_32=Work(ip_dOdx(jNQ,iCar)+5)
-                        dOdx_13=Work(ip_dOdx(jNQ,iCar)+6)
-                        dOdx_23=Work(ip_dOdx(jNQ,iCar)+7)
-                        dOdx_33=Work(ip_dOdx(jNQ,iCar)+8)
+                        dOdx_11= NQ_Data(jNQ)%dOdx(1,1,iCar)
+                        dOdx_21= NQ_Data(jNQ)%dOdx(2,1,iCar)
+                        dOdx_31= NQ_Data(jNQ)%dOdx(3,1,iCar)
+                        dOdx_12= NQ_Data(jNQ)%dOdx(1,2,iCar)
+                        dOdx_22= NQ_Data(jNQ)%dOdx(2,2,iCar)
+                        dOdx_32= NQ_Data(jNQ)%dOdx(3,2,iCar)
+                        dOdx_13= NQ_Data(jNQ)%dOdx(1,3,iCar)
+                        dOdx_23= NQ_Data(jNQ)%dOdx(2,3,iCar)
+                        dOdx_33= NQ_Data(jNQ)%dOdx(3,3,iCar)
                         dOdxs(1)=dOdx_11*sxyz(1)
      &                          +dOdx_12*sxyz(2)
      &                          +dOdx_13*sxyz(3)

@@ -48,11 +48,11 @@
      &                          ndc,nUVXt ,nVXt,                        &
      &                           nAngularGrids,                         &
      &                 L_Quad_save, nR_Save,                            &
-     &                 ipNQ,nx,ny,nz,number_of_subblocks,               &
+     &                      nx,ny,nz,number_of_subblocks,               &
      &                 ip_nR_Eff,ip_R,ipMem,nMem,                       &
      &                 L_Quad,nR,nAtoms,nMaxExp,                        &
      &                 nTotGP,nbrmxbas,iAngMax,ip_ioffsh,               &
-     &                 iOpt_Angular,ip_O,mIrrep,                        &
+     &                 iOpt_Angular,     mIrrep,                        &
      &                            mTmp,mRad,nAOMax,                     &
      &                            NQ_Direct,                            &
      &                 iQEnd,ip_OrbDip(3)
@@ -60,11 +60,11 @@
      &                          ndc,                                    &
      &                 Info_Ang, nAngularGrids,                         &
      &                 L_Quad_save, nR_Save, Angular_Prunning,          &
-     &                 ipNQ,nx,ny,nz,number_of_subblocks,               &
+     &                      nx,ny,nz,number_of_subblocks,               &
      &                 ip_nR_Eff,ip_R,ipMem,nMem,                       &
      &                 L_Quad,nR,nAtoms,nMaxExp,                        &
      &                 nTotGP,nbrmxbas,iAngMax,ip_ioffsh,               &
-     &                 iOpt_Angular,ip_O,                               &
+     &                 iOpt_Angular,                                    &
      &                 mIrrep, nISh, nAsh, mBas,Functional_type,mOrb,   &
      &                 Grid_Type, Rotational_Invariance,                &
      &                            mTmp,mRad,nAOMax,                     &
