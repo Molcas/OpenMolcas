@@ -136,6 +136,10 @@ c        Call append_file(LuMT)
         CALL CalcPUVXOff()
       Else
         nPot1=1
+        CALL mma_allocate(OE_OT,nPot1,Label='OE_OT')
+        CALL mma_allocate(EG_OT,nPot1,Label='EG_OT')
+        Call mma_allocate(FI_V,nPot1,Label='FI_V')
+        Call mma_allocate(FA_V,nPot1,Label='FA_V')
         CALL mma_allocate(PDFTPot1,nPot1)
         CALL mma_allocate(PDFTFocI,nPot1)
         CALL mma_allocate(PDFTFocA,nPot1)
@@ -352,15 +356,14 @@ C     End Do ! number_of_subblocks
         Call Put_dArray('FI_V',FI_V,nFckInt)
         Call Put_dArray('FA_V',FA_V,nFckInt)
 
-        Call mma_deallocate(OE_OT)
-        Call mma_deallocate(EG_OT)
-        Call mma_deallocate(FA_V)
-        Call mma_deallocate(FI_V)
-
       End If
-        CALL mma_deallocate(PDFTPot1)
-        CALL mma_deallocate(PDFTFocI)
-        CALL mma_deallocate(PDFTFocA)
+      Call mma_deallocate(OE_OT)
+      Call mma_deallocate(EG_OT)
+      Call mma_deallocate(FA_V)
+      Call mma_deallocate(FI_V)
+      CALL mma_deallocate(PDFTPot1)
+      CALL mma_deallocate(PDFTFocI)
+      CALL mma_deallocate(PDFTFocA)
 
       IF(debug. and. l_casdft) THEN
         write(6,*) 'Dens_I in drvnq_ :', Dens_I

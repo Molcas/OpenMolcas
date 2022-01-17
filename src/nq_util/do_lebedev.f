@@ -37,8 +37,6 @@
             Call mma_allocate(TempR,3,mPt,Label='TempR')
             Call mma_allocate(TempW,mPt,Label='TempW')
 *
-            iOffR=iptemp
-            iOffW=iOffR+3*mPt
             Call Lebedev(TempR,TempW,nPt,mPt,L_Eff)
             If (nPt.ne.mPt) Then
                Call WarningMessage(2,'Lebedev_Grid: nPt.ne.mPt')

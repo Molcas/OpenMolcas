@@ -1,4 +1,4 @@
-************************************************************************
+*st***********************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -64,7 +64,6 @@
 *     Statement functions
 *
 #include "nq_structure.fh"
-      declare_ip_r_quad
       declare_ip_angular
 *                                                                      *
 ************************************************************************
@@ -379,6 +378,7 @@
              Call mma_allocate(D1MO,nd1mo,Label='D1MO')
              Call Get_D1MO(D1MO,nD1MO)
              NQNACPR2 = ( NQNACPAR**2 + NQNACPAR )/2
+             nP2= NQNACPR2
              Call mma_Allocate(P2MO,nP2,Label='P2MO')
              Call Get_P2mo(P2MO,nP2)
 
@@ -456,6 +456,11 @@
          Call mma_allocate(IndGrd,mGrad,Label='IndGrd')
          Call mma_allocate(iTab,4,mGrad,Label='iTab')
          Call mma_allocate(Temp,mGrad,Label='Temp')
+      Else
+         Call mma_allocate(List_g,3,1,Label='List_G')
+         Call mma_allocate(IndGrd,1,Label='IndGrd')
+         Call mma_allocate(iTab,4,1,Label='iTab')
+         Call mma_allocate(Temp,1,Label='Temp')
       End If
 
       If (.Not.Do_Grad) Call FZero(FckInt,nFckInt*nFckDim)
@@ -471,18 +476,32 @@
           NQNAC = NQNAC + nAsh(iIrrep)
         End Do
         IF(NQNAC.ne.0) then
+             NQNACPAR = ( NQNAC**2 + NQNAC )/2
+             nd1mo=NQNACPAR
+             Call mma_allocate(D1MO,nd1mo,Label='D1MO')
+             Call Get_D1MO(D1MO,nD1MO)
+             NQNACPR2 = ( NQNACPAR**2 + NQNACPAR )/2
+             Call mma_Allocate(P2MO,nP2,Label='P2MO')
+             Call Get_P2mo(P2MO,nP2)
+
           NQNACPAR = ( NQNAC**2 + NQNAC )/2
-          NQNACPR2 = ( NQNACPAR**2 + NQNACPAR )/2
           nD1MO = NQNACPAR
           Call mma_allocate(D1MO,nD1MO,Label='D1MO')
           Call Get_D1MO(D1MO,nD1MO)
+          NQNACPR2 = ( NQNACPAR**2 + NQNACPAR )/2
           nP2 = NQNACPR2
           Call mma_Allocate(P2MO,nP2,Label='P2MO')
           call Get_P2mo(P2MO,nP2)
+
         END IF
         Call mma_allocate(P2_ontop,nP2_ontop,nGridMax,Label='P2_ontop')
         P2_ontop(:,:)=Zero
       end if
+
+      If (.Not.Allocated(D1MO)) Then
+         Call mma_allocate(D1MO,1,Label='D1MO')
+         Call mma_Allocate(P2MO,1,Label='P2MO')
+      End If
 
       Call DrvNQ_Inner(Kernel,Funct,Maps2p,nIrrep,List_S,List_Exp,
      &                 List_bas,nShell,List_P,nNQ,
@@ -496,12 +515,12 @@
 *-----Deallocate the memory
 *
       Call mma_deallocate(Pax)
-      If (Do_Grad) Then
+*     If (Do_Grad) Then
          Call mma_deallocate(Temp)
          Call mma_deallocate(iTab)
          Call mma_deallocate(IndGrd)
          Call mma_deallocate(List_G)
-      End If
+*     End If
       Call mma_deallocate(R2_trial)
       Call mma_deallocate(List_P)
       Call mma_deallocate(List_Bas)
@@ -549,9 +568,6 @@
       End If
 *
       Do iNQ = 1, nNQ
-         ip_iRx=ip_of_iWork_d(Work(ip_R_Quad(iNQ)))
-         ip_Rx=iWork(ip_iRx)
-         Call GetMem('Radial','Free','Real',ip_Rx,iDum)
          ip_iA=ip_of_iWork_d(Work(ip_Angular(iNQ)))
          ip_A=iWork(ip_iA)
          Call GetMem('ip_Angular','Free','Inte',ip_A,iDum)

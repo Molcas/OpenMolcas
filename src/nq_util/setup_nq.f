@@ -54,8 +54,6 @@
 *     Statement Functions
 *
 #include "nq_structure.fh"
-      declare_ip_l_max
-      declare_ip_r_quad
       declare_ip_angular
       declare_ip_atom_nr
       declare_ip_dodx
@@ -133,13 +131,6 @@ c     Write(6,*) '********** Setup_NQ ***********'
 *     information will be used to design the radial grid associated    *
 *     with this center.                                                *
 *                                                                      *
-*-----Initialize the exponents to extreme values.
-      Do iNQ=1,nNQ
-         Work(ip_lMax(iNQ))=DBLE(-1)
-         NQ_Data(iNQ)%A_high=-1.0D99
-         NQ_Data(iNQ)%A_low = 1.0D99
-      End Do
-*
       iAngMax=0
       NbrMxBas=0
       Do iShell=1,nShell
@@ -196,7 +187,7 @@ c     Write(6,*) '********** Setup_NQ ***********'
                NQ_Data(iNQ)%R_RS=Bragg_Slater(iANr)
 *
 *------------- What is the maximum angular momentum for the active center ?
-               Work(ip_lMax(iNQ))=Max(Work(ip_lMax(iNQ)),DBLE(iAng))
+               NQ_Data(iNQ)%l_Max=Max(NQ_Data(iNQ)%l_max,iAng)
 *
 *------------- Get the extreme exponents for the atom
                NQ_Data(iNQ)%A_high=Max(NQ_Data(iNQ)%A_high,A_High)
@@ -269,7 +260,7 @@ c     Write(6,*) '********** Setup_NQ ***********'
 *
 *        Max angular momentum for the atom -> rm(1)
 *        Max Relative Error -> rm(2)
-         rm(1)=Work(ip_lMax(iNQ))
+         rm(1)=DBLE(NQ_Data(iNQ)%l_Max)
          rm(2)=Threshold
 *
          Call GenVoronoi(XYZ,iWork(ip_nR_eff),nNQ,Alpha,rm,iNQ)
@@ -355,7 +346,7 @@ c     Write(6,*) '********** Setup_NQ ***********'
 *
 *---------- Find the R_min values of each angular shell
 *
-            lAng=Int(Work(ip_lMax(iNQ)))
+            lAng=NQ_Data(iNQ)%l_max
             Do iAng = 0, lAng
                R_Min(iAng)=Zero
                ValExp=-One
@@ -386,8 +377,6 @@ c     Write(6,*) '********** Setup_NQ ***********'
                End If
             End Do
 *
-            ip_iRx=ip_of_iWork_d(Work(ip_R_Quad(iNQ)))
-            ip_Rx=iWork(ip_iRx)
             R_BS = NQ_Data(iNQ)%R_RS
 *
             If (iNQ.eq.iNQ_MBC) Then
@@ -396,7 +385,8 @@ c     Write(6,*) '********** Setup_NQ ***********'
                iReset=1
             End If
 *
-            Call Angular_Prune(Work(ip_Rx),nR_Eff,iWork(ip_A),Crowding,
+            Call Angular_Prune(NQ_Data(iNQ)%R_Quad,nR_Eff,iWork(ip_A),
+     &                         Crowding,
      &                         Fade,R_BS,L_Quad,R_Min,lAng,
      &                         nAngularGrids,Info_Ang,LMax_NQ)
 *

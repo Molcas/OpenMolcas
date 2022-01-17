@@ -18,7 +18,6 @@ Public :: NQ_data, Close_NQ_Data
 #include "stdalloc.fh"
 
 !Parameter(l_NQ=15+(iTabMx+1)+27)
-!define declare_ip_l_max    ip_lMax(iNQ)     =ipNQ+(iNQ-1)*l_NQ+9
 !define declare_ip_r_quad   ip_R_Quad(iNQ)   =ipNQ+(iNQ-1)*l_NQ+11
 !define declare_ip_angular  ip_Angular(iNQ)  =ipNQ+(iNQ-1)*l_NQ+12
 !define declare_ip_k_max    ip_k_Max(iNQ)    =ipNQ+(iNQ-1)*l_NQ+13
@@ -29,13 +28,14 @@ Public :: NQ_data, Close_NQ_Data
 Type NQ_data_raw
   Sequence
   Real*8, Allocatable:: Coor(:)
-  Real*8 :: A_High=0.0D0
-  Real*8 :: A_Low =0.0D0
+  Real*8 :: A_High=-1.0D99
+  Real*8 :: A_Low = 1.0D99
   Real*8 :: R_RS  =0.0D0
   Real*8 :: R_max =0.0D0
+  Integer :: l_max=-1
+  Real*8, Allocatable :: R_Quad(:,:)
 End Type NQ_data_raw
 
-Integer :: nNQ=0
 Type (NQ_data_raw), Allocatable:: NQ_data(:)
 
 Contains
@@ -46,10 +46,12 @@ Integer iNQ, nNQ
   nNQ = SIZE(NQ_data)
   Do iNQ = 1, nNQ
      Call mma_deallocate(NQ_data(iNQ)%Coor)
-     NQ_data(iNQ)%A_High=0.0D0
-     NQ_data(iNQ)%A_Low =0.0D0
+     NQ_data(iNQ)%A_High=-1.0D99
+     NQ_data(iNQ)%A_Low = 1.0D99
      NQ_data(iNQ)%R_RS  =0.0D0
      NQ_data(iNQ)%R_max =0.0D0
+     NQ_data(iNQ)%l_Max =-1
+     Call mma_deallocate(NQ_data(iNQ)%R_Quad)
    End Do
    Deallocate(NQ_Data)
 End Subroutine Close_NQ_Data

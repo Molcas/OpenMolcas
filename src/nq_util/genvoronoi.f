@@ -22,6 +22,7 @@
 #include "nq_info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
       Real*8 Coor(3)
       Integer nR_Eff(nNQ)
       Real*8 Alpha(2), rm(2)
@@ -33,7 +34,6 @@
 *                                                                      *
 #include "nq_structure.fh"
       declare_ip_atom_nr
-      declare_ip_r_quad
 #ifdef _DEBUGPRINT_
       iROff(i,ir)=2*(ir-1)+i-1
 #endif
@@ -72,14 +72,14 @@ C     Write (6,*)
          RBS=Bragg_Slater(iANr)
          Alpha(1)=RBS
          mR=nR-1
-         Call GetMem('Radial','Allo','Real',ip_Rx,2*mR)
-         Call FZero(Work(ip_Rx),2*mR)
-         ip_iRx=ip_of_iWork_d(Work(ip_R_Quad(iNQ)))
-         iWork(ip_iRx)=ip_Rx
-         Call GenRadQuad_MHL(Work(ip_Rx),nR,nR_Eff(iNQ),Alpha(1))
-         Call Truncate_Grid(Work(ip_Rx),mR,nR_Eff(iNQ),Radius_Max)
+         Call mma_allocate(NQ_Data(iNQ)%R_Quad,2,mR,Label='R_Quad')
+         NQ_Data(iNQ)%R_Quad(:,:)=Zero
+         Call GenRadQuad_MHL(NQ_Data(iNQ)%R_Quad,nR,nR_Eff(iNQ),
+     &                       Alpha(1))
+         Call Truncate_Grid(NQ_Data(iNQ)%R_Quad,mR,nR_Eff(iNQ),
+     &                      Radius_Max)
          mR=nR_Eff(iNQ)
-         NQ_Data(iNQ)%R_max =Work(ip_Rx-1+(mR-1)*2+1)
+         NQ_Data(iNQ)%R_max =NQ_Data(iNQ)%R_Quad(1,mR)
 *
       Else If (Quadrature.eq.'LOG3') Then
 *
@@ -100,14 +100,14 @@ C     Write (6,*)
      &       iANr.eq.87.or.
      &       iANr.eq.88    ) Alpha(1)=Seven
          mR=nR-1
-         Call GetMem('Radial','Allo','Real',ip_Rx,2*mR)
-         ip_iRx=ip_of_iWork_d(Work(ip_R_Quad(iNQ)))
-         iWork(ip_iRx)=ip_Rx
-         Call GenRadQuad_MK(Work(ip_Rx),nR,nR_Eff(iNQ),rm(1),Alpha(1),
-     &                      iNQ)
-         Call Truncate_Grid(Work(ip_Rx),mR,nR_Eff(iNQ),Radius_Max)
+         Call mma_allocate(NQ_Data(iNQ)%R_Quad,2,mR,Label='R_Quad')
+         NQ_Data(iNQ)%R_Quad(:,:)=Zero
+         Call GenRadQuad_MK(NQ_Data(iNQ)%R_Quad,nR,nR_Eff(iNQ),rm(1),
+     &                      Alpha(1),iNQ)
+         Call Truncate_Grid(NQ_Data(iNQ)%r_Quad,mR,nR_Eff(iNQ),
+     &                      Radius_Max)
          mR=nR_Eff(iNQ)
-         NQ_Data(iNQ)%R_max=Work(ip_Rx-1+(mR-1)*2+1)
+         NQ_Data(iNQ)%R_max =NQ_Data(iNQ)%R_Quad(1,mR)
 *
       Else If (Quadrature.eq.'BECKE') Then
 *
@@ -119,13 +119,13 @@ C     Write (6,*)
             Alpha(1)=Half*RBS
          End If
          mR=nR-1
-         Call GetMem('Radial','Allo','Real',ip_Rx,2*mR)
-         ip_iRx=ip_of_iWork_d(Work(ip_R_Quad(iNQ)))
-         iWork(ip_iRx)=ip_Rx
-         Call GenRadQuad_B(Work(ip_Rx),nR,nR_Eff(iNQ),Alpha(1))
-         Call Truncate_Grid(Work(ip_Rx),mR,nR_Eff(iNQ),Radius_Max)
+         Call mma_allocate(NQ_Data(iNQ)%R_Quad,2,mR,Label='R_Quad')
+         NQ_Data(iNQ)%R_Quad(:,:)=Zero
+         Call GenRadQuad_B(NQ_Data(iNQ)%R_Quad,nR,nR_Eff(iNQ),Alpha(1))
+         Call Truncate_Grid(NQ_Data(iNQ)%R_Quad,mR,nR_Eff(iNQ),
+     &                      Radius_Max)
          mR=nR_Eff(iNQ)
-         NQ_Data(iNQ)%R_max=Work(ip_Rx-1+(mR-1)*2+1)
+         NQ_Data(iNQ)%R_max =NQ_Data(iNQ)%R_Quad(1,mR)
 *
       Else If (Quadrature.eq.'TA') Then
 *
@@ -209,13 +209,13 @@ C     Write (6,*)
             Call Abend()
          End If
          mR=nR-1
-         Call GetMem('Radial','Allo','Real',ip_Rx,2*mR)
-         ip_iRx=ip_of_iWork_d(Work(ip_R_Quad(iNQ)))
-         iWork(ip_iRx)=ip_Rx
-         Call GenRadQuad_TA(Work(ip_Rx),nR,nR_Eff(iNQ),Alpha(1))
-         Call Truncate_Grid(Work(ip_Rx),mR,nR_Eff(iNQ),Radius_Max)
+         Call mma_allocate(NQ_Data(iNQ)%R_Quad,2,mR,Label='R_Quad')
+         NQ_Data(iNQ)%R_Quad(:,:)=Zero
+         Call GenRadQuad_TA(NQ_Data(iNQ)%R_Quad,nR,nR_Eff(iNQ),Alpha(1))
+         Call Truncate_Grid(NQ_Data(iNQ)%R_Quad,mR,nR_Eff(iNQ),
+     &                      Radius_Max)
          mR=nR_Eff(iNQ)
-         NQ_Data(iNQ)%R_Max=Work(ip_Rx-1+(mR-1)*2+1)
+         NQ_Data(iNQ)%R_max =NQ_Data(iNQ)%R_Quad(1,mR)
 *
       Else If (Quadrature.eq.'LMG') Then
 *
@@ -231,13 +231,12 @@ C     Write (6,*)
      &                       Process,Dum,nR)
 *
          nR=nR_Eff(iNQ)
-         Call GetMem('Radial','Allo','Real',ip_Rx,2*nR)
-         ip_iRx=ip_of_iWork_d(Work(ip_R_Quad(iNQ)))
-         iWork(ip_iRx)=ip_Rx
+         Call mma_allocate(NQ_Data(iNQ)%R_Quad,2,nR,Label='R_Quad')
+         NQ_Data(iNQ)%R_Quad(:,:)=Zero
          Process=.True.
          Call GenRadQuad_PAM(iNQ,nR_Eff(iNQ),rm,Alpha(1),
-     &                       Process,Work(ip_Rx),nR)
-         NQ_Data(iNQ)%R_max=Work(ip_Rx-1+(nR-1)*2+1)
+     &                       Process,NQ_Data(iNQ)%R_Quad,nR)
+         NQ_Data(iNQ)%R_max =NQ_Data(iNQ)%R_Quad(1,nR)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -261,8 +260,8 @@ C     Write (6,*)
       Write (6,*) 'iNQ=',iNQ
       Write (6,*) 'Effective number of radial grid points=',nR_Eff(iNQ)
       Do iR = 1, nR_Eff(iNQ)
-         Write (6,*) Work(ip_Rx+iROff(1,iR)),
-     &               Work(ip_Rx+iROff(2,iR))
+         Write (6,*) NQ_Data(iNQ)%R_Quad(1,iR),
+     &               NQ_Data(iNQ)%R_Quad(2,iR)
       End Do
       Write (6,*)
       Write (6,*) ' *********************************'

@@ -29,6 +29,7 @@
 *             University of Lund, Sweden                               *
 *             August 1999                                              *
 ************************************************************************
+      use NQ_structure, only: NQ_Data
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "real.fh"
@@ -47,9 +48,6 @@
 *                                                                      *
 *     Statement functions                                              *
 *                                                                      *
-#include "nq_structure.fh"
-      declare_ip_r_quad
-      iROff(i,ir)=2*(ir-1)+i-1
       Check(i,j)=iAnd(i,2**(j-1)).ne.0
       x_a(i,iSet)=Work(Info_Ang(3,iSet)+(i-1)*4  )
       y_a(i,iSet)=Work(Info_Ang(3,iSet)+(i-1)*4+1)
@@ -65,11 +63,8 @@
 *                                                                      *
 *---- Start loop over the atomic grid
 *
-      ip_iRx=ip_of_iWork_d(Work(ip_R_Quad(iNQ)))
-      ip_Rx=iWork(ip_iRx)
 #ifdef _DEBUGPRINT_
       If (Debug) Then
-         Write (6,*) 'ip_Rx=',ip_Rx
          Write (6,*) ' x_NQ=',x_NQ
          Write (6,*) ' y_NQ=',y_NQ
          Write (6,*) ' z_NQ=',z_NQ
@@ -95,7 +90,7 @@ c        Write (*,*) 'Find R subrange!'
 *
          iR_End = iEnd_R
          Do iR = iEnd_R, iStart_R
-            R_Value = Work(ip_Rx+iROff(1,iR))
+            R_Value = NQ_Data(iNQ)%R_Quad(1,iR)
             If (R_Value.le.R_box_Min) Then
                iR_End = iR
             Else
@@ -106,7 +101,7 @@ c        Write (*,*) 'Find R subrange!'
 *
          iR_Start = iStart_R
          Do iR = iStart_R, iR_End, -1
-            R_Value = Work(ip_Rx+iROff(1,iR))
+            R_Value = NQ_Data(iNQ)%R_Quad(1,iR)
             If (R_Value.ge.R_Box_Max) Then
                iR_Start = iR
             Else
@@ -171,9 +166,9 @@ c     Write (*,*) 'Actual range:',iEnd_R, iStart_R
 *
 *------ Branch out if subrange is outside the box
 *
-         R_Value_Min = Work(ip_Rx+iROff(1,iR_End))
+         R_Value_Min = NQ_Data(iNQ)%R_Quad(1,iR_End)
          If (R_Value_Min.gt.R_box_Max) Go To 8887
-         R_Value_Max = Work(ip_Rx+iROff(1,iR_Start))
+         R_Value_Max = NQ_Data(iNQ)%R_Quad(1,iR_Start)
          If (R_Value_Max.lt.R_box_Min) Go To 8887
 *
 c        Write (*,*) 'Selected range:',iR_End, iR_Start
@@ -207,7 +202,7 @@ c           Write (*,*) 'Select angular points!'
 *------- Radial loop over the reduced range
 *
          Do iR = iR_End,iR_Start
-            Radius=Work(ip_Rx+iROff(1,iR))
+            Radius=NQ_Data(iNQ)%R_Quad(1,iR)
 *           In the atomic referential
             xpt=Radius*x_a(iPoint,iSet)
             ypt=Radius*y_a(iPoint,iSet)
@@ -255,7 +250,7 @@ c           Write (*,*) 'Select angular points!'
 #endif
 *
 *              Radial weight
-               weight=Work(ip_Rx+iROff(2,iR))
+               weight=NQ_Data(iNQ)%R_Quad(2,iR)
 *              Combine the radial and angular weight
                w_g=weight*w_a(iPoint,iSet)
                If (w_g*Fact>=1.0D-15) Then
