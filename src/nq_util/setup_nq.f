@@ -28,7 +28,7 @@
       use Basis_Info
       use Center_Info
       use Symmetry_Info, only: nIrrep, iOper
-      use nq_Grid, only: nGridMax, Coor, Pax, Fact, Tmp
+      use nq_Grid, only: nGridMax, Coor, Pax, Fact, Tmp, nR_Eff
       use nq_structure, only: NQ_Data
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
@@ -215,7 +215,7 @@ c     Write(6,*) '********** Setup_NQ ***********'
 *
 *-----Allocate memory to store the number of effective radial points for
 *     each center and the radius of this center.
-      Call GetMem('NumRadEff','Allo','Inte',ip_nR_eff,nNQ)
+      Call mma_Allocate(nR_Eff,nNQ,Label='nR_Eff')
 *
       iNQ_MBC=0
       iReset=0
@@ -258,7 +258,7 @@ c     Write(6,*) '********** Setup_NQ ***********'
          rm(1)=DBLE(NQ_Data(iNQ)%l_Max)
          rm(2)=Threshold
 *
-         Call GenVoronoi(XYZ,iWork(ip_nR_eff),nNQ,Alpha,rm,iNQ)
+         Call GenVoronoi(XYZ,nR_Eff,nNQ,Alpha,rm,iNQ)
 *
          If (iReset.eq.1) Then
             nR=nR_tmp
@@ -328,8 +328,8 @@ c     Write(6,*) '********** Setup_NQ ***********'
 *
 *        Assign the angular grid to be used with each radial grid point
 *
-         nR_Eff=iWork(ip_nR_eff-1+iNQ)
-         Call mma_allocate(NQ_Data(iNQ)%Angular,nR_Eff,Label='Angular')
+         Call mma_allocate(NQ_Data(iNQ)%Angular,nR_Eff(iNQ),
+     &                     Label='Angular')
          NQ_Data(iNQ)%Angular(:)=nAngularGrids
 *
 *        Prune the angular grid
@@ -378,7 +378,7 @@ c     Write(6,*) '********** Setup_NQ ***********'
                iReset=1
             End If
 *
-            Call Angular_Prune(NQ_Data(iNQ)%R_Quad,nR_Eff,
+            Call Angular_Prune(NQ_Data(iNQ)%R_Quad,nR_Eff(iNQ),
      &                         NQ_Data(iNQ)%Angular,Crowding,
      &                         Fade,R_BS,L_Quad,R_Min,lAng,
      &                         nAngularGrids,Info_Ang,LMax_NQ)
@@ -409,7 +409,7 @@ c     Write(6,*) '********** Setup_NQ ***********'
       Write (6,'(A)') ' iNQ ANr  nR'
       Do iNQ=1,nNQ
          iANr=NQ_Data(iNQ)%Atom_Nr
-         kR=iWork(ip_nR_Eff+iNQ-1)
+         kR=nR_Eff(iNQ)
          Write (6,'(3I4)') iNQ, iANr, kR
       End Do
       Write (6,*)

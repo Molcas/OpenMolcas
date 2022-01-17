@@ -36,7 +36,7 @@
       use nq_Grid, only: Grid, Weights, TabAO, Grid_AO, Dens_AO,
      &                   TabAO_Pack, Ind_Grd, dRho_dR, TabAO_Short,
      &                   kAO, iBfn_Index, R2_trial
-      use nq_Grid, only: List_G, IndGrd, iTab, dW_dR
+      use nq_Grid, only: List_G, IndGrd, iTab, dW_dR, nR_Eff
       use nq_MO, only: DoIt
       use NQ_Structure, only: NQ_Data
       Implicit Real*8 (A-H,O-Z)
@@ -74,7 +74,6 @@
 #ifdef _DEBUGPRINT_
       If (Debug) Then
          Write(6,*) 'Enter Get_Subblock'
-         Write(6,*) 'ip_nR_Eff GET_SBK',ip_nR_Eff
       End If
 #endif
 *
@@ -561,12 +560,11 @@ c        translational invariance on the atomic contributions to the
 c        gradient.
 c
          nTotGP_Save = nTotGP
-         nR_Eff=iWork(ip_nR_eff-1+iNQ)
          Call Subblock(iNQ,x_NQ,y_NQ,z_NQ,InBox(iNQ),
      &                 x_min_,x_max_, y_min_,y_max_, z_min_,z_max_,
      &                 list_p,nlist_p,Grid,Weights,mGrid,.True.,
      &                 number_of_grid_points,R_Box_Min,R_Box_Max,
-     &                 iList_p,xyz0,NQ_Data(iNQ)%Angular,nR_Eff)
+     &                 iList_p,xyz0,NQ_Data(iNQ)%Angular,nR_Eff(iNQ))
          nTotGP = nTotGP_Save
 *
 #ifdef _DEBUGPRINT_

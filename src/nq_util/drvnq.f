@@ -33,7 +33,7 @@
       use nq_Grid, only: l_CASDFT, kAO
       use nq_Grid, only: F_xc, F_xca, F_xcb
       use nq_Grid, only: List_G, IndGrd, iTab, Temp
-      use nq_Grid, only: Coor, R2_trial, Pax, Fact, Tmp
+      use nq_Grid, only: Coor, R2_trial, Pax, Fact, Tmp, nR_Eff
       use nq_pdft, only: lft, lGGA
       use nq_MO, only: DoIt, CMO, D1MO, P2MO, P2_ontop
       use nq_Structure, only: Close_NQ_Data
@@ -537,7 +537,7 @@
          Call mma_deallocate(P2_ontop)
       End If
 *
-      Call GetMem('NumRadEff','Free','Inte',ip_nR_eff,nNQ)
+      Call mma_deallocate(nR_Eff)
       Call mma_deallocate(Coor)
 
       Call Close_NQ_Data()
