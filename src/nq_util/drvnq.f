@@ -34,7 +34,7 @@
       use nq_Grid, only: F_xc, F_xca, F_xcb
       use nq_Grid, only: Coor, R2_trial
       use nq_pdft, only: lft, lGGA
-      use nq_MO, only: DoIt, CMO, D1MO, P2MO
+      use nq_MO, only: DoIt, CMO, D1MO, P2MO, P2_ontop
       use libxc
       Implicit Real*8 (A-H,O-Z)
       External Kernel
@@ -445,10 +445,7 @@
       End If
 *
       If (Functional_Type.eq.CASDFT_Type) Then
-         Call GetMem('P2_ontop','Allo','Real',ipp2_ontop,
-     &               nP2_ontop*nGridMax)
-      Else
-         ipP2_ontop=ip_Dummy
+         Call mma_allocate(P2_ontop,nP2_ontop,nGridMax,Label='P2_ontop')
       Endif
 *
       If (Do_Grad) Then
@@ -486,17 +483,15 @@
           Call mma_Allocate(P2MO,nP2,Label='P2MO')
           call Get_P2mo(P2MO,nP2)
         END IF
-         Call GetMem('P2_ontop','Allo','Real',ipp2_ontop,
-     &               nP2_ontop*nGridMax)
-        Call dCopy_(nP2_ontop*nGridMax,[0.0d0],0,Work(ipp2_ontop),1)
-
+        Call mma_allocate(P2_ontop,nP2_ontop,nGridMax,Label='P2_ontop')
+        P2_ontop(:,:)=Zero
       end if
 
       Call DrvNQ_Inner(Kernel,Funct,Maps2p,nIrrep,List_S,List_Exp,
      &                 List_bas,nShell,List_P,nNQ,
      &                 FckInt,nFckDim,Density,nFckInt,nD,
      &                 nGridMax,nP2_ontop,Do_Mo,nTmpPUVX,
-     &                 Work(ipp2_ontop),Do_Grad,Grad,nGrad,
+     &                 Do_Grad,Grad,nGrad,
      &                 iWork(iplist_g),iWork(ipIndGrd),iWork(ipiTab),
      &                 Work(ipTemp),mGrad,mAO,mdRho_dR)
 *                                                                      *
@@ -554,8 +549,7 @@
       if(Debug) write(6,*) 'l_casdft value at drvnq.f:',l_casdft
       if(Debug.and.l_casdft) write(6,*) 'MCPDFT with functional:', KSDFA
       If (Functional_type.eq.CASDFT_Type.or.l_casdft) Then
-         Call GetMem('P2_ontop','Free','Real',ipP2_ontop,
-     &               nP2_ontop*nGridMax)
+         Call mma_deallocate(P2_ontop)
       End If
 *
       Do iNQ = 1, nNQ

@@ -14,7 +14,7 @@
      &                  Maps2p,nSym,list_s,list_exp,list_bas,
      &                  nShell,list_p,nNQ,
      &                  FckInt,nFckDim,Density,nFckInt,nD,
-     &                  mGrid,nP2_ontop,Do_Mo,nTmpPUVX,P2_ontop,
+     &                  mGrid,nP2_ontop,Do_Mo,nTmpPUVX,
      &                  Do_Grad,Grad,nGrad,list_g,IndGrd,iTab,Temp,
      &                  mGrad,mAO,mdRho_dR)
 ************************************************************************
@@ -51,7 +51,7 @@
      &        list_p(nNQ), List_g(3,nSym*nShell),
      &        IndGrd(mGrad), iTab(4,mGrad), list_bas(2,nSym*nShell)
       Real*8 FckInt(nFckInt,nFckDim),Density(nFckInt,nD),
-     &       Temp(mGrad),P2_ontop(nP2_ontop,mGrid), Grad(nGrad)
+     &       Temp(mGrad), Grad(nGrad)
       Logical Check, Do_Grad, Rsv_Tsk
       Logical Do_Mo,Exist,l_tgga
       REAL*8,DIMENSION(:),Allocatable::P2Unzip,D1Unzip,
@@ -211,7 +211,7 @@ C        Debug=.True.
      &                     Maps2p,list_s,list_exp,list_bas,nShell,nSym,
      &                     list_p,nNQ,FckInt,nFckDim,nFckInt,nD,
      &                     mGrid,nP2_ontop,Do_Mo,
-     &                     P2Unzip,D1Unzip,P2_ontop,
+     &                     P2Unzip,D1Unzip,
      &                     Do_Grad,Grad,nGrad,List_G,IndGrd,iTab,Temp,
      &                     mGrad,mAO,mdRho_dR,
      &                     LTEG_DB,PDFTPot1,PDFTFocI,PDFTFocA)

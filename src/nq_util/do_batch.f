@@ -19,7 +19,6 @@
      &                    nP2_ontop,Do_Mo,
      &                    TabMO,TabSO,nMOs,
      &                    P2unzip,D1Unzip,
-     &                    P2_ontop,
      &                    Do_Grad,Grad,nGrad,ndRho_dR,nGrad_Eff,
      &                    list_g,IndGrd,iTab,Temp,dW_dR,iNQ,
      &                    LTEG_DB,PDFTPot1,PDFTFocI,PDFTFocA)
@@ -38,7 +37,7 @@
       use nq_Grid, only: l_CASDFT, TabAO, TabAO_Pack, dRho_dR
       use nq_Grid, only: F_xc, F_xca, F_xcb
       use nq_pdft
-      use nq_MO, only: DoIt, CMO, D1MO
+      use nq_MO, only: DoIt, CMO, D1MO, P2_ontop
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "SysDef.fh"
@@ -58,8 +57,7 @@
      &        List_Bas(2,nlist_s)
       Real*8 A(3), RA(3), Grad(nGrad), FckInt(nFckInt,nFckDim),
      &       TabMO(mAO,mGrid,nMOs),TabSO(mAO,mGrid,nMOs),
-     &       P2_ontop(nP2_ontop,mGrid) , Temp(nGrad),
-     &       dW_dR(nGrad_Eff,mGrid),
+     &       Temp(nGrad), dW_dR(nGrad_Eff,mGrid),
      &       PDFTPot1(nPot1),PDFTFocI(nPot1),PDFTFocA(nPot1)
       Logical Do_Grad,Do_Mo,Unpack
       Logical l_tanhr
