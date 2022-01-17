@@ -14,16 +14,11 @@
 *     Computes datas useful for the angular quadrature.                *
 *                                                                      *
 ************************************************************************
+      use nq_Grid, only: Pax
       Implicit Real*8 (a-h,o-z)
 #include "nq_info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Statement Function
-*
-      Pax(i) = Work(ip_O-1+i)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -56,9 +51,9 @@
             x = Sin_Theta*Cos_Phi
             y = Sin_Theta*Sin_Phi
             z = Cos_Theta
-            Work(iOff  )=Pax(1)*x+Pax(4)*y+Pax(7)*z
-            Work(iOff+1)=Pax(2)*x+Pax(5)*y+Pax(8)*z
-            Work(iOff+2)=Pax(3)*x+Pax(6)*y+Pax(9)*z
+            Work(iOff  )=Pax(1,1)*x+Pax(1,2)*y+Pax(1,3)*z
+            Work(iOff+1)=Pax(2,1)*x+Pax(2,2)*y+Pax(2,3)*z
+            Work(iOff+2)=Pax(3,1)*x+Pax(3,2)*y+Pax(3,3)*z
             Work(iOff+3)=w_Theta*w_Phi
             iOff = iOff + 4
 *

@@ -28,7 +28,7 @@
       use Basis_Info
       use Center_Info
       use Symmetry_Info, only: nIrrep, iOper
-      use nq_Grid, only: nGridMax, Coor
+      use nq_Grid, only: nGridMax, Coor, Pax
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "real.fh"
@@ -290,7 +290,7 @@ c     Write(6,*) '********** Setup_NQ ***********'
 *     compute derivatives of the principal axis. Needed in order to
 *     compute the gradient of the rotationally invariant DFT energy.
 *
-      Call GetMem('O','Allo','Real',ip_O,3*3)
+      Call mma_allocate(Pax,3,3,Label='Pax')
       Call GetMem('dOdx','Allo','Real',ipdOdx,3*3*nNQ*3)
       Call FZero(Work(ipdOdx),3*3*nNQ*3)
       Call GetMem('ZA','Allo','Real',ip_ZA,nNQ)
@@ -314,39 +314,41 @@ c     Write(6,*) '********** Setup_NQ ***********'
 *
             Write (6,*) 'iCar,iNQ=',iCar,iNQ
 *
-            Call RotGrd(Work(ip_Crd),Work(ip_ZA),Work(ip_O),
+            Call RotGrd(Work(ip_Crd),Work(ip_ZA),Pax,
      &                  Dummy,Dummy,nNQ,.False.,.False.)
-            Call RecPrt('O(original)',' ',Work(ip_O),3,3)
+            Call RecPrt('O(original)',' ',Pax,3,3)
 *
             i3 = (iNQ-1)*3+iCar-1+ip_Crd
             temp=Work(i3)
 *
             Work(i3)=temp+delta
-            Call RotGrd(Work(ip_Crd),Work(ip_ZA),Work(ip_O),
+            Call RotGrd(Work(ip_Crd),Work(ip_ZA),Pax,
      &                  Dummy,Dummy,nNQ,.False.,.False.)
-            call dcopy_(9,Work(ip_O),1,Work(ip_Dbg),1)
-            Call RecPrt('O',' ',Work(ip_O),3,3)
+            call dcopy_(9,Pax,1,Work(ip_Dbg),1)
+            Call RecPrt('O',' ',Pax,3,3)
 *
             Work(i3)=temp-delta
-            Call RotGrd(Work(ip_Crd),Work(ip_ZA),Work(ip_O),
+            Call RotGrd(Work(ip_Crd),Work(ip_ZA),Pax,
      &                  Dummy,Dummy,nNQ,.False.,.False.)
-            Call RecPrt('O',' ',Work(ip_O),3,3)
+            Call RecPrt('O',' ',Pax,3,3)
 *
             Work(i3)=temp
 *
             Do i = 0, 8
-               temp = (Work(ip_Dbg+i) - Work(ip_O+i))/(2.0D0*delta)
-               Work(ip_O+i) = temp
+               i2 = i/3  + 1
+               i1 = i - (i2-1)*3
+               temp = (Work(ip_Dbg+i) - Pax(i1,i2))/(2.0D0*delta)
+               Pax(i1,i2) = temp
             End Do
-            Call RecPrt('dOdx(numerical)',' ',Work(ip_O),3,3)
-            call dcopy_(9,Work(ip_O),1,Work(ip_dOdx(iNQ,iCar)),1)
+            Call RecPrt('dOdx(numerical)',' ',Pax,3,3)
+            call dcopy_(9,Pax,1,Work(ip_dOdx(iNQ,iCar)),1)
 *
          End Do
       End Do
       Call Free_Work(ip_Dbg)
       End If
 #endif
-      Call RotGrd(Work(ip_Crd),Work(ip_ZA),Work(ip_O),Work(ipdOdx),
+      Call RotGrd(Work(ip_Crd),Work(ip_ZA),Pax,Work(ipdOdx),
      &            Dummy,nNQ,Do_Grad,.False.)
 *
 *     Distribute derivative of the principle axis system
@@ -390,8 +392,8 @@ c     Write(6,*) '********** Setup_NQ ***********'
 ************************************************************************
 *                                                                      *
       If (Rotational_Invariance.eq.Off) Then
-         Call FZero(Work(ip_O),9)
-         call dcopy_(3,[One],0,Work(ip_O),4)
+         Call FZero(Pax,9)
+         call dcopy_(3,[One],0,Pax,4)
          Do iNQ = 1, nNQ
             Do iCar = 1, 3
                Call FZero(Work(ip_dOdx(iNQ,iCar)),9)

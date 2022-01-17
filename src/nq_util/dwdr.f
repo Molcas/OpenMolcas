@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine dWdR(R,ilist_p,Weights,list_p,nlist_p,
      &                dW_dR,nGrad_Eff,iTab,dW_Temp,dPB,nGrid)
+      use nq_Grid, only: Pax
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -35,15 +36,15 @@
 *
       iNQ=list_p(ilist_p)
       iA=ilist_p
-      O11=Work(ip_O)
-      O12=Work(ip_O+1)
-      O13=Work(ip_O+2)
-      O21=Work(ip_O+3)
-      O22=Work(ip_O+4)
-      O23=Work(ip_O+5)
-      O31=Work(ip_O+6)
-      O32=Work(ip_O+7)
-      O33=Work(ip_O+8)
+      O11=Pax(1,1)
+      O12=Pax(2,1)
+      O13=Pax(3,1)
+      O21=Pax(1,2)
+      O22=Pax(2,2)
+      O23=Pax(3,2)
+      O31=Pax(1,3)
+      O32=Pax(2,3)
+      O33=Pax(3,3)
 *                                                                      *
 ************************************************************************
 *                                                                      *

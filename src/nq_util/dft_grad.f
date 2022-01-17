@@ -22,6 +22,7 @@
 *             Lund, Sweden.  May 2002 in Bologna, Italy.               *
 ************************************************************************
       use nq_Grid, only: F_xc, GradRho, vRho, vSigma, vTau, vLapl
+      use nq_Grid, only: Pax
       use KSDFT_Info, only: KSDFA
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -524,7 +525,7 @@
          Call DGEMM_('N','N',
      &               3,3,3,
      &               1.0d0,OV,3,
-     &               Work(ip_O),3,
+     &               Pax,3,
      &               0.0d0,V,3)
 #ifdef _DEBUGPRINT_
       If (Debug) Call RecPrt('V',' ',V,3,3)

@@ -32,7 +32,7 @@
       use nq_Grid, only: nRho, nGradRho, nTau, nSigma, nLapl, nGridMax
       use nq_Grid, only: l_CASDFT, kAO
       use nq_Grid, only: F_xc, F_xca, F_xcb
-      use nq_Grid, only: Coor, R2_trial
+      use nq_Grid, only: Coor, R2_trial, Pax
       use nq_pdft, only: lft, lGGA
       use nq_MO, only: DoIt, CMO, D1MO, P2MO, P2_ontop
       use libxc
@@ -499,7 +499,7 @@
 *                                                                      *
 *-----Deallocate the memory
 *
-      Call GetMem('O','Free','Real',ip_O,3*3)
+      Call mma_deallocate(Pax)
       If (Do_Grad) Then
          Call GetMem('Temp','Free','Real',ipTemp,mGrad)
          Call GetMem('iTab','Free','Inte',ipiTab,4*mGrad)

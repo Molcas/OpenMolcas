@@ -14,6 +14,7 @@
 *     Computes datas useful for the angular quadrature.                *
 *                                                                      *
 ************************************************************************
+      use nq_Grid, only: Pax
       Implicit Real*8 (a-h,o-z)
 #include "nq_info.fh"
 #include "real.fh"
@@ -46,7 +47,7 @@
 *
             Call DGEMM_('N','N',
      &                  3,nPt,3,
-     &                  1.0d0,Work(ip_O),3,
+     &                  1.0d0,Pax,3,
      &                  Work(iOffR),3,
      &                  0.0d0,Work(ipR),4)
             call dcopy_(nPt,Work(iOffW  ),1,Work(ipR+3),4)
