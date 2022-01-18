@@ -23,6 +23,7 @@
       use nq_Grid, only: F_xc, GradRho, vRho, vSigma, vTau, vLapl
       use nq_Grid, only: Pax
       use nq_Grid, only: IndGrd, iTab, Temp, dW_dR
+      use nq_Grid, only: l_casdft
       use nq_Structure, only: NQ_data
       use KSDFT_Info, only: KSDFA
       Implicit Real*8 (a-h,o-z)
@@ -528,20 +529,12 @@
 *
 *           Compute < nabla_r f * r^x > as Tr (O^x V)
 *
-      If(KSDFA(1:5).eq.'TLSDA'.or. !GLM
-     &        KSDFA(1:6).eq.'FTLSDA'.or.
-     &        KSDFA(1:6).eq.'FTBLYP'.or.
-     &        KSDFA(1:5).eq.'FTPBE'.or.
-     &        KSDFA(1:7).eq.'TREVPBE'.or.
-     &        KSDFA(1:8).eq.'FTREVPBE'.or.
-     &        KSDFA(1:5).eq.'TBLYP'.or.
-     &        KSDFA(1:5).eq.'TOPBE'.or.
-     &        KSDFA(1:6).eq.'FTOPBE'.or.
-     &        KSDFA(1:4).eq.'TPBE') then
-            Tmp = DDot_(9,NQ_Data(jNQ)%dOdx(:,:,iCar),1,V,1)*0.5D0
-      else
-            Tmp = DDot_(9,NQ_Data(jNQ)%dOdx(:,:,iCar),1,V,1)
-      end if
+            If (l_casdft) Then
+               Factor=Half
+            else
+               Factor=One
+            end if
+            Tmp = DDot_(9,NQ_Data(jNQ)%dOdx(:,:,iCar),1,V,1)*Factor
 #ifdef _DEBUGPRINT_
             If (Debug) Then
                Write (6,*)

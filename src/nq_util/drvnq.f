@@ -107,30 +107,6 @@
       LuGridFile=31
       LuGridFile=IsFreeUnit(LuGridFile)
       Call Molcas_Open(LuGridFile,'GRIDFILE')
-*                                                                      *
-************************************************************************
-* Global variable for MCPDFT functionals                               *
-
-      l_casdft = KSDFA.eq.'TLSDA'   .or.
-     &           KSDFA.eq.'TLSDA5'  .or.
-     &           KSDFA.eq.'TBLYP'   .or.
-     &           KSDFA.eq.'TSSBSW'  .or.
-     &           KSDFA.eq.'TSSBD'   .or.
-     &           KSDFA.eq.'TS12G'   .or.
-     &           KSDFA.eq.'TPBE'    .or.
-     &           KSDFA.eq.'FTPBE'   .or.
-     &           KSDFA.eq.'TOPBE'   .or.
-     &           KSDFA.eq.'FTOPBE'  .or.
-     &           KSDFA.eq.'TREVPBE' .or.
-     &           KSDFA.eq.'FTREVPBE'.or.
-     &           KSDFA.eq.'FTLSDA'  .or.
-     &           KSDFA.eq.'FTBLYP'
-
-      lft      = KSDFA.eq.'FTPBE'   .or.
-     &           KSDFA.eq.'FTOPBE'  .or.
-     &           KSDFA.eq.'FTREVPBE'.or.
-     &           KSDFA.eq.'FTLSDA'  .or.
-     &           KSDFA.eq.'FTBLYP'
 
       if(Debug) write(6,*) 'l_casdft value at drvnq.f:',l_casdft
       if(Debug.and.l_casdft) write(6,*) 'MCPDFT with functional:', KSDFA
