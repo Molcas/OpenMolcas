@@ -48,7 +48,6 @@
 #include "nsd.fh"
 #include "setup.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "debug.fh"
 #include "ksdft.fh"

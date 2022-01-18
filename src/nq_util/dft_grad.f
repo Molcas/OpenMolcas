@@ -28,7 +28,6 @@
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "nq_info.fh"
-#include "WrkSpc.fh"
 #include "debug.fh"
 #include "Molcas.fh"
 #include "itmax.fh"

@@ -21,7 +21,6 @@
 #include "itmax.fh"
 #include "nq_info.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       Real*8 Coor(3)
       Integer nR_Eff(nNQ)

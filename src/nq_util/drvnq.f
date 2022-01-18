@@ -42,7 +42,6 @@
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "itmax.fh"
 #include "nq_info.fh"

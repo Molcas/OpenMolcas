@@ -38,7 +38,6 @@
       Implicit Real*8 (A-H,O-Z)
       External Kernel, Rsv_Tsk
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "nsd.fh"
 #include "setup.fh"
 #include "status.fh"

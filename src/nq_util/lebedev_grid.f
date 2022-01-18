@@ -18,7 +18,6 @@
       Implicit Real*8 (a-h,o-z)
 #include "nq_info.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
       Parameter (nSet=11)
       Integer Lebedev_order(nSet)
       Data Lebedev_order/5,7,11,17,23,29,35,41,47,53,59/

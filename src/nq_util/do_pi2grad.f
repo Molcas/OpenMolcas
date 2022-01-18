@@ -41,7 +41,6 @@
 #include "SysDef.fh"
 #include "nq_info.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "print.fh"
 !Error could be TabAO...

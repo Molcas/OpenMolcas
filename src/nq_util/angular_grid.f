@@ -20,7 +20,6 @@
 #include "nq_info.fh"
 #include "real.fh"
 #include "debug.fh"
-#include "WrkSpc.fh"
       Logical Check
 *                                                                      *
 ************************************************************************

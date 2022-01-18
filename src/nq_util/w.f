@@ -12,7 +12,6 @@
       use NQ_Structure, only: NQ_Data
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "itmax.fh"
 #include "nq_info.fh"
 #include "debug.fh"
