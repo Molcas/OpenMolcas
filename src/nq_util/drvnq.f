@@ -34,7 +34,7 @@
       use nq_Grid, only: F_xc, F_xca, F_xcb
       use nq_Grid, only: List_G, IndGrd, iTab, Temp, SOs, Angular, Mem
       use nq_Grid, only: Coor, R2_trial, Pax, Fact, Tmp, nR_Eff
-      use nq_pdft, only: lft, lGGA
+      use nq_pdft, only: lGGA
       use nq_MO, only: DoIt, CMO, D1MO, P2MO, P2_ontop
       use nq_Structure, only: Close_NQ_Data
       use Grid_On_Disk
