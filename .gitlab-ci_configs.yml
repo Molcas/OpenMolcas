@@ -171,7 +171,7 @@
       # More reasonable paths
       sed -E 's%/[^ ]*OpenMolcas/src%src%' nag.log > nag2.log ; mv nag2.log nag.log
       # Remove annoying notes from cmake
-      sed -n -E '/^Note: switching to/d' nag.log > nag2.log ; mv nag2.log nag.log
+      sed -E '/^Note: switching to/d' nag.log > nag2.log ; mv nag2.log nag.log
       cp nag.log ${install_path}
       # Fail if any warning remains
       if [ "$$(wc -l < nag.log)" == "0" ] ; then

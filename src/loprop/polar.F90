@@ -31,18 +31,15 @@ integer(kind=iwp), intent(out) :: ireturn
 #include "timtra.fh"
 integer(kind=iwp) :: i, i_f, iPert, iPlot, iPrint, lMax, LoProp_Mode, LuYou, mElem, MpProp_Level, nAtoms, nBas(8), nBas1, nBas2, &
                      nBasMax, nDim, nij, nOcOb, nOrb(8), nPert, nSize, nStateF, nStateI, nSym, nTemp, nThrs
-real(kind=wp) :: Alpha, Bond_Threshold, CoC(3), Delta, Dlt, dLimmo(2), Energy_Without_FFPT, Ep, SubScale, Thrs1, Thrs2, &
-                 ThrsMul
-logical(kind=iwp) :: NoField, Standard, Utility, UserDen, PrintDen, SubtractDen, Restart, TDensity, Diffuse(3), Exists, &
-                     LIonize
+real(kind=wp) :: Alpha, Bond_Threshold, CoC(3), Delta, Dlt, dLimmo(2), Energy_Without_FFPT, Ep, SubScale, Thrs1, Thrs2, ThrsMul
+logical(kind=iwp) :: NoField, Standard, Utility, UserDen, PrintDen, SubtractDen, Restart, TDensity, Diffuse(3), Exists, LIonize
 character(len=12) :: Opt_Method
 type(LP_context_type) :: LP_context
 type(Alloc1DArray_Type) :: D(0:6)
 character(len=LenIn), allocatable :: LblCnt(:)
 character(len=LenIn4), allocatable :: LblCnt4(:)
 real(kind=wp), allocatable :: Cpl(:,:), CplT(:,:), EC(:,:), Ene_Occ(:), h0(:), MP(:,:,:), MPp(:,:), MPq(:), nxMP(:), Origin(:,:), &
-                              Pol(:,:), sq_mu(:,:), sq_temp(:), tmp(:), TP(:), Ttot(:,:), Ttot_Inv(:,:),                          &
-                              xMP(:), xxMP(:)
+                              Pol(:,:), sq_mu(:,:), sq_temp(:), tmp(:), TP(:), Ttot(:,:), Ttot_Inv(:,:), xMP(:), xxMP(:)
 type(Alloc1DArray_Type), allocatable :: imu(:)
 integer(kind=iwp), external :: IsFreeUnit
 
@@ -138,7 +135,7 @@ call Free_Alloc1DArray(imu)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!---- Compute localized multipole moments
+! Compute localized multipole moments
 
 nPert = 2*3+1
 if (NoField) nPert = 1
@@ -150,8 +147,8 @@ call mma_allocate(EC,3,nij,label='EC')
 call Local_Properties(LP_context%C,nAtoms,sq_mu,mElem,sq_temp,Origin,LP_context%center,Ttot_Inv,tmp,nij,nPert,D,MP,lMax,MPq,CoC, &
                       EC,LP_context%ANr,Standard,nBas1,nTemp,LP_context%Q_Nuc,Bond_Threshold,Opt_Method,iPlot,iPrint,nSym)
 
-!-- If the dear user has requested to get diffuse distributions
-!   associated to the multipoles, go here.
+! If the dear user has requested to get diffuse distributions
+! associated to the multipoles, go here.
 if (Diffuse(1)) then
   call mma_allocate(TP,nAtoms,label='ToPoint')
   call mma_allocate(MPp,nij,mElem,label='NotToPoint')
