@@ -121,7 +121,7 @@
             iBas_Eff = List_Bas(1,ilist_s)
             iAO   = iSD( 7,iSh)
             mdci  = iSD(10,iSh)
-            iShell= iSD(11,iSh)
+!           iShell= iSD(11,iSh)
 
             kAO   = iCmp*iBas*mGrid
             nDeg  = nSym/dc(mdci)%nStab

@@ -58,7 +58,6 @@
      &       PDFTPot1(nPot1),PDFTFocI(nPot1),PDFTFocA(nPot1)
       Logical Do_Grad,Do_Mo,Unpack
       Logical l_tanhr
-      Integer nAOs
       Real*8 P2_ontop_d(nP2_ontop,nGrad_Eff,mGrid)
       Real*8,DIMENSION(:),ALLOCATABLE::P2MOCube,P2MOCubex,P2MOCubey,
      &                                 P2MOCubez,MOs,MOx,MOy,MOz
@@ -146,7 +145,7 @@
             End Do
             nTerm    = 2**nDrv
             nxyz     = mGrid*3*(iAng+mRad)
-            nRadial  = iBas_Eff*mGrid*mRad
+!           nRadial  = iBas_Eff*mGrid*mRad
             ipRadial = ipxyz + nxyz
 *
             iR=list_s(2,ilist_s)
@@ -356,8 +355,6 @@
          Else !AO-based run for gradients
 !           nP2_ontop_d = nP2_ontop*mGrid*nGrad_Eff
             P2_ontop_d(:,:,:) = 0
-            !Determine number of AOs:
-            nAOs = nMOs
             Call  Do_Pi2grad(TabAO,nTabAO,mAO,mGrid,ipTabAO,
      &                       P2_ontop,nP2_ontop,nGrad_Eff,
      &                       list_s,nlist_s,list_bas,
