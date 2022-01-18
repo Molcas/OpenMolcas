@@ -15,6 +15,7 @@ Real*8, Allocatable:: R2_trial(:)
 Real*8, Allocatable:: Fact(:,:)
 Real*8, Allocatable:: Tmp(:)
 Real*8, Allocatable:: SOs(:)
+Real*8, Allocatable:: Mem(:)
 Integer, Allocatable:: Angular(:)
 Integer, Allocatable:: nR_Eff(:)
 

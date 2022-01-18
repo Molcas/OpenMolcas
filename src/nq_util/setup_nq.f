@@ -29,7 +29,7 @@
       use Center_Info
       use Symmetry_Info, only: nIrrep, iOper
       use nq_Grid, only: nGridMax, Coor, Pax, Fact, Tmp, nR_Eff, SOs
-      use nq_Grid, only: Angular
+      use nq_Grid, only: Angular, Mem
       use nq_structure, only: NQ_Data
       use Grid_On_Disk
       Implicit Real*8 (A-H,O-Z)
@@ -583,11 +583,11 @@ c     Write(6,*) '********** Setup_NQ ***********'
          Call WarningMessage(2,'Functional_type.eq.Other_type')
          Call Abend()
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Allocate scratch for processing AO's on the grid
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Allocate scratch for processing AO's on the grid
+!
       nTmp=nGridMax*Max(mTmp,nScr)
       Call mma_allocate(Tmp,nTmp,Label='Tmp')
 *
@@ -621,9 +621,9 @@ c     Write(6,*) '********** Setup_NQ ***********'
          lAngular=Max(lAngular,nAngular)
       End Do
 *
-      Call mma_allocate(SOs,2*nSO,Label='SOs')
+      Call mma_allocate(SOs,2*lSO,Label='SOs')
       Call mma_allocate(Angular,lAngular,Label='Angular')
-      Call GetMem('nMem','Allo','Real',ipMem,nMem)
+      Call mma_allocate(Mem,nMem,Label='Mem')
 *                                                                      *
 ************************************************************************
 *                                                                      *

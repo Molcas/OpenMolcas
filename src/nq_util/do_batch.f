@@ -34,7 +34,7 @@
       use nq_Grid, only: vRho, vSigma, vTau, vLapl
       use nq_Grid, only: l_CASDFT, TabAO, TabAO_Pack, dRho_dR
       use nq_Grid, only: F_xc, F_xca, F_xcb
-      use nq_Grid, only: Fact, Tmp, SOs, Angular
+      use nq_Grid, only: Fact, Tmp, SOs, Angular, Mem
       use nq_Grid, only: D1UnZip, P2UnZip
       use nq_pdft
       use nq_MO, only: DoIt, CMO, D1MO, P2_ontop
@@ -122,8 +122,8 @@
 *
 *------- Generate the values of the AOs on the grid
 *
-         Call FZero(Work(ipMem),nMem)
-         ipxyz=ipMem
+         Mem(:)=Zero
+         ipxyz=1
 *
          iOff = 1
          Do ilist_s=1,nlist_s
@@ -170,13 +170,12 @@
 *
             ipTabAO(iList_s,1)=iOff
 *                                                                      *
-            Call AOEval(iAng,mGrid,Grid,Work(ipxyz),RA,
+            Call AOEval(iAng,mGrid,Grid,Mem(ipxyz),RA,
      &                  Shells(iShll)%Transf,
      &                  RSph(ipSph(iAng)),nElem(iAng),iCmp,
      &                  Angular,nTerm,nForm,T_X,mRad,
      &                  iPrim,iPrim_Eff,Shells(iShll)%Exp,
-     &                  Work(ipRadial),
-     &                  iBas_Eff,
+     &                  Mem(ipRadial),iBas_Eff,
      &                  Shells(iShll)%pCff(1,iBas-iBas_Eff+1),
      &                  TabAO_Pack(iOff:),
      &                  mAO,px,py,pz,ipx,ipy,ipz)

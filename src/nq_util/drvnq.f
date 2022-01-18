@@ -32,7 +32,7 @@
       use nq_Grid, only: nRho, nGradRho, nTau, nSigma, nLapl, nGridMax
       use nq_Grid, only: l_CASDFT, kAO
       use nq_Grid, only: F_xc, F_xca, F_xcb
-      use nq_Grid, only: List_G, IndGrd, iTab, Temp, SOs, Angular
+      use nq_Grid, only: List_G, IndGrd, iTab, Temp, SOs, Angular, Mem
       use nq_Grid, only: Coor, R2_trial, Pax, Fact, Tmp, nR_Eff
       use nq_pdft, only: lft, lGGA
       use nq_MO, only: DoIt, CMO, D1MO, P2MO, P2_ontop
@@ -541,7 +541,7 @@
       Call mma_deallocate(Coor)
 
       Call Close_NQ_Data()
-      Call GetMem('nMem','Free','Real',ipMem,nMem)
+      Call mma_deallocate(Mem)
       Call mma_deallocate(Angular)
       Call mma_deallocate(SOs)
       Call mma_deallocate(Tmp)
