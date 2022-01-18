@@ -63,6 +63,7 @@
       Integer, Allocatable:: Index(:)
       Real*8, Allocatable:: dW_Temp(:,:), dPB(:,:,:)
       Integer, Allocatable:: ipTabAO(:,:)
+      Real*8, Allocatable:: ipTabMO(:), ipTabSO(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -320,13 +321,13 @@
       If ((Functional_Type.eq.CASDFT_Type).or.Do_MO) Then
          nMOs=SIZE(DoIt)
          nTabMO=mAO*nMOs*mGrid
-         Call Allocate_Work(ipTabMO,nTabMO)
          nTabSO=mAO*nMOs*mGrid
-         Call Allocate_Work(ipTabSO,nTabSO)
       Else
-         ipTabMO=ip_Dummy
-         ipTabSO=ip_Dummy
+         nTabMO=1
+         nTabSO=1
       End If
+      Call mma_allocate(ipTabMO,nTabMO,Label='ipTabMO')
+      Call mma_allocate(ipTabSO,nTabSO,Label='ipTabSO')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -655,8 +656,7 @@ c
      &                 Index,nIndex,
      &                 FckInt,nFckDim,nFckInt,
      &                 ipTabAO,mAO,nSym,nD,nP2_ontop,
-     &                 Do_Mo,
-     &                 Work(ipTabMO),Work(ipTabSO),nMOs,
+     &                 Do_Mo,ipTabMO,ipTabSO,nMOs,
      &                 Do_Grad,Grad,nGrad,
      &                 mdRho_dR,nGrad_Eff,iNQ,
      &                 EG_OT,nTmpPUVX,PDFTPot1,PDFTFocI,PDFTFocA)
@@ -691,8 +691,8 @@ c
       Call mma_deAllocate(Index)
       Call mma_deallocate(ipTabAO)
       Call mma_deallocate(Dens_AO)
-      If (ipTabMO.ne.ip_Dummy) Call Free_Work(ipTabMO)
-      If (ipTabSO.ne.ip_Dummy) Call Free_Work(ipTabSO)
+      If (Allocated(ipTabMO)) Call mma_deallocate(ipTabMO)
+      If (Allocated(ipTabSO)) Call mma_deallocate(ipTabSO)
       If (Do_Grad.and.Grid_Type.eq.Moving_Grid) Then
          Call mma_deAllocate(dPB)
          Call mma_deAllocate(dW_Temp)
