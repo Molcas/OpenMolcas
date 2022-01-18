@@ -94,7 +94,7 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
 !      LSDA LDA SVWN                                                   *
 !                                                                      *
-      Case('LSDA ','LDA ','TLSDA','FTLSDA','SVWN ')
+      Case('LSDA ','LDA ','SVWN ')
          Functional_type=LDA_type
 
 !----    Slater exchange
@@ -109,15 +109,12 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
             nFuncs=2
             func_id(1:nFuncs)=[XC_LDA_X,XC_LDA_C_VWN_RPA]
          End If
-
-         If(KSDFA.eq.'TLSDA'.or.KSDFA.eq.'FTLSDA') Do_MO=.true.
-         If(KSDFA.eq.'TLSDA'.or.KSDFA.eq.'FTLSDA') Do_TwoEl=.true.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 !      LSDA5 LDA5 SVWN5                                                *
 !                                                                      *
-       Case('LSDA5','LDA5','TLSDA5 ','SVWN5')
+       Case('LSDA5','LDA5','SVWN5')
          Functional_type=LDA_type
 
 !----    Slater exchange
@@ -240,7 +237,7 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
 !     BLYP                                                             *
 !                                                                      *
-      Case('BLYP','TBLYP','FTBLYP')
+      Case('BLYP')
          Functional_type=GGA_type
 
 !----    Slater exchange + B88 exchange
@@ -255,9 +252,6 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
             nFuncs=2
             func_id(1:nFuncs)=[XC_GGA_X_B88,XC_GGA_C_LYP]
          End If
-
-         If(KSDFA.eq.'TBLYP'.or. KSDFA.eq.'FTBLYP') Do_MO=.true.
-         If(KSDFA.eq.'TBLYP'.or. KSDFA.eq.'FTBLYP') Do_TwoEl=.true.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -355,7 +349,7 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
 !     OPBE                                                             *
 !                                                                      *
-      Case('OPBE','TOPBE','FTOPBE')
+      Case('OPBE')
          Functional_type=GGA_type
 
 !----    Slater exchange + OPT exchange
@@ -364,9 +358,6 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 
          nFuncs=2
          func_id(1:nFuncs)=[XC_GGA_X_OPTX,XC_GGA_C_PBE]
-
-         If(KSDFA.eq.'TOPBE'.or.KSDFA.eq.'FTOPBE') Do_MO=.true.
-         If(KSDFA.eq.'TOPBE'.or.KSDFA.eq.'FTOPBE') Do_TwoEl=.true.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -513,7 +504,7 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
 !     PBE                                                              *
 !                                                                      *
-      Case('PBE','TPBE','FTPBE')
+      Case('PBE')
          Functional_type=GGA_type
 
 !----    Perdew-Burk-Ernzerhof exchange
@@ -528,15 +519,12 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
             nFuncs=2
             func_id(1:nFuncs)=[XC_GGA_X_PBE,XC_GGA_C_PBE]
          End If
-
-         If(KSDFA.eq.'TPBE'.or.KSDFA.eq.'FTPBE') Do_MO=.true.
-         If(KSDFA.eq.'TPBE'.or.KSDFA.eq.'FTPBE') Do_TwoEl=.true.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 !     revPBE                                                           *
 !                                                                      *
-      Case('REVPBE','TREVPBE','FTREVPBE')
+      Case('REVPBE')
          Functional_type=GGA_type
 
 !----    Revised Perdew-Burk-Ernzerhof exchange
@@ -546,14 +534,12 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
          nFuncs=2
          func_id(1:nFuncs)=[XC_GGA_X_PBE_R,XC_GGA_C_PBE]
 
-         If(KSDFA.eq.'TREVPBE'.or.KSDFA.eq.'FTREVBPE') Do_MO=.true.
-         If(KSDFA.eq.'TREVPBE'.or.KSDFA.eq.'FTREVPBE') Do_TwoEl=.true.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 !     SSBSW                                                              *
 !                                                                      *
-      Case('SSBSW','TSSBSW')
+      Case('SSBSW')
          Functional_type=GGA_type
 
 !----    Swarts-Solo-Bickelhaupt sw exchange
@@ -567,7 +553,7 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
 !     SSBD                                                             *
 !                                                                      *
-      Case('SSBD','TSSBD')
+      Case('SSBD')
          Functional_type=GGA_type
 
 !----    Swarts-Solo-Bickelhaupt-D exchange
@@ -596,7 +582,7 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
 !     S12G                                                             *
 !                                                                      *
-      Case('S12G','TS12G')
+      Case('S12G')
          Functional_type=GGA_type
 
 !----    Swarts GGA exchange
