@@ -95,14 +95,20 @@
 *                                                                      *
 *     CASDFT stuff:
 *
+!     Note, l_CASDFT=.True. implies that both Do_MO and Do_Twoel are
+!     true.
+
       nTmpPUVX=1
 *
       NQNAC=0
-      If (DFTFOCK.ne.'SCF ') Then
+      If (l_casdft) Call Get_iArray('nAsh',nAsh,mIrrep)
+      If (DFTFOCK.ne.'SCF '.or.l_CASDFT) Then
          Do iIrrep = 0, mIrrep - 1
             NQNAC = NQNAC + nAsh(iIrrep)
          End Do
       End If
+      NQNACPAR = ( NQNAC**2 + NQNAC )/2
+      NQNACPR2 = ( NQNACPAR**2 + NQNACPAR )/2
 *
       LuGridFile=31
       LuGridFile=IsFreeUnit(LuGridFile)
@@ -338,11 +344,9 @@
       If (Do_MO) Then
          If (NQNAC.ne.0) Then
            If(.not.l_casdft) Then
-             NQNACPAR = ( NQNAC**2 + NQNAC )/2
              nd1mo=NQNACPAR
              Call mma_allocate(D1MO,nd1mo,Label='D1MO')
              Call Get_D1MO(D1MO,nD1MO)
-             NQNACPR2 = ( NQNACPAR**2 + NQNACPAR )/2
              nP2= NQNACPR2
              Call mma_Allocate(P2MO,nP2,Label='P2MO')
              Call Get_P2mo(P2MO,nP2)
@@ -429,15 +433,9 @@
 *                                                                      *
       if(Debug) write(6,*) 'l_casdft value at drvnq.f:',l_casdft
       if(Debug.and.l_casdft) write(6,*) 'MCPDFT with functional:', KSDFA
+
       If(l_casdft) then
-        NQNAC=0
-        Call Get_iArray('nAsh',nAsh,mIrrep)
-        Do iIrrep = 0, mIrrep - 1
-          NQNAC = NQNAC + nAsh(iIrrep)
-        End Do
         IF(NQNAC.ne.0) then
-          NQNACPAR = ( NQNAC**2 + NQNAC )/2
-          NQNACPR2 = ( NQNACPAR**2 + NQNACPAR )/2
           nD1MO = NQNACPAR
           Call mma_allocate(D1MO,nD1MO,Label='D1MO')
           Call Get_D1MO(D1MO,nD1MO)

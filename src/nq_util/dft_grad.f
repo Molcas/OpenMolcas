@@ -25,7 +25,6 @@
       use nq_Grid, only: IndGrd, iTab, Temp, dW_dR
       use nq_Grid, only: l_casdft
       use nq_Structure, only: NQ_data
-      use KSDFT_Info, only: KSDFA
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "nq_info.fh"
