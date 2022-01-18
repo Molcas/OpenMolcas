@@ -15,7 +15,7 @@
 module test_sorting_mod
     use fruit
     use sorting, only: sort, argsort
-    use isotopes, only: initialize_isotopes, elementlist
+    use isotopes, only: maxatomnum, ptab
     use definitions, only: wp
     implicit none
     private
@@ -70,9 +70,19 @@ contains
     subroutine test_sort_isotopes
         integer, allocatable :: idx(:)
 
+        ! not using the ElementList from the isotopes module because
+        ! it is protected and proper initialization would require
+        ! access to the isotopes_data.txt file
         integer :: i
+        type Element
+          character(len=2) :: symbol
+        end type Element
+        type(Element), allocatable :: ElementList(:)
 
-        call initialize_isotopes()
+        allocate(ElementList(MaxAtomNum))
+        do i=1,MaxAtomNum
+          ElementList(i)%symbol = adjustl(PTab(i))
+        end do
 
         allocate(idx(lbound(elementlist, 1) : ubound(elementlist, 1)))
 
@@ -80,6 +90,7 @@ contains
 
         call sort(idx, lex_alphabet_leq)
 
+        print * , elementlist(idx(: 10))%symbol
         call assert_true(all(elementlist(idx(: 10))%symbol &
             == ['Ac', 'Ag', 'Al', 'Am', 'Ar', 'As', 'At', 'Au', 'B ', 'Ba']))
 

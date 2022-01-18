@@ -3078,11 +3078,12 @@ file (COPY "${OPENMOLCAS_DIR}/CONTRIBUTORS.md" DESTINATION ${PROJECT_BINARY_DIR}
 
 # copy the necessary files from data
 file (REMOVE_RECURSE ${PROJECT_BINARY_DIR}/data)
-configure_file (${OPENMOLCAS_DIR}/data/rysrw.ascii  data/rysrw        COPYONLY)
-configure_file (${OPENMOLCAS_DIR}/data/abdata.ascii data/abdata       COPYONLY)
-configure_file (${OPENMOLCAS_DIR}/data/banner.src   data/banner.txt   COPYONLY)
-configure_file (${OPENMOLCAS_DIR}/data/modalias.src data/modalias.txt COPYONLY)
-configure_file (${OPENMOLCAS_DIR}/data/landing.src  data/landing.txt  COPYONLY)
+configure_file (${OPENMOLCAS_DIR}/data/rysrw.ascii      data/rysrw            COPYONLY)
+configure_file (${OPENMOLCAS_DIR}/data/abdata.ascii     data/abdata           COPYONLY)
+configure_file (${OPENMOLCAS_DIR}/data/banner.src       data/banner.txt       COPYONLY)
+configure_file (${OPENMOLCAS_DIR}/data/modalias.src     data/modalias.txt     COPYONLY)
+configure_file (${OPENMOLCAS_DIR}/data/landing.src      data/landing.txt      COPYONLY)
+configure_file (${OPENMOLCAS_DIR}/data/isotope_data.src data/isotope_data.txt COPYONLY)
 file (COPY ${OPENMOLCAS_DIR}/data/inputs.tpl DESTINATION ${PROJECT_BINARY_DIR}/data)
 if (DEFINED EXTRA_DIR)
   foreach (f alias.plx auto.prgm landing.txt)
