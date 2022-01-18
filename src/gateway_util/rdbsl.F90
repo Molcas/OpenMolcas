@@ -30,9 +30,12 @@ subroutine Rdbsl(BasDir,BSLbl,bType,nCGTO,mCGTO,lAng,lCGTO,lUnit,iAtmNr,BasisTyp
 use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=*) :: BasDir, ExtBasDir
-character(len=80) :: BSLbl, bType
-integer(kind=iwp) :: lCGTO, nCGTO(0:lCGTO), mCGTO(0:lCGTO), lAng, lUnit, iAtmNr, BasisTypes(4)
+character(len=*), intent(inout) :: BasDir
+character(len=80), intent(inout) :: BSLbl
+character(len=80), intent(out) :: bType
+integer(kind=iwp), intent(in) :: lCGTO, lUnit
+integer(kind=iwp), intent(out) :: nCGTO(0:lCGTO), mCGTO(0:lCGTO), lAng, iAtmNr, BasisTypes(4)
+character(len=*), intent(in) :: ExtBasDir
 #include "getlnqoe.fh"
 #include "angtp.fh"
 integer(kind=iwp) :: i, i1, iLast1, iLast2, iLast3, iLast4, iLast_JR, irecl, istatus, j, k, lAngm, n
@@ -140,8 +143,8 @@ if (j > 0) BsLbl = BsLbl(1:j)
 
 TmpString = bType
 call Upcase(TmpString)
-call LeftAd(BasDir)
-call LeftAd(TmpString)
+BasDir = adjustl(BasDir)
+TmpString = adjustl(TmpString)
 iLast1 = len_trim(BasDir)
 iLast2 = len_trim(TmpString)
 if (IfTest) then

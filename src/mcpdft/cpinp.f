@@ -39,7 +39,7 @@
       write(LUnit,'(A180)') line
   10  continue
       read(luspool,'(A180)',err=9910,end=9910) line
-      call leftad(line)
+      line = adjustl(line)
       ch=line(1:1)
       if(ch.ne.' ' .and. ch.ne.'*' .and. ch.ne.'!') then
        write(LUnit,'(A180)') line

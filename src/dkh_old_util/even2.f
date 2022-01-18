@@ -10,8 +10,7 @@
 *                                                                      *
 * Copyright (C) 1986, Bernd Artur Hess                                 *
 ************************************************************************
-      SUBROUTINE EVEN2(N,V,G,E,A,R,TT,AUXF,AUXG,AUXH,
-     &                 W1W1,W1E0W1,EVN2)
+      SUBROUTINE EVEN2(N,V,G,E,A,R,TT,AUXF,AUXG,AUXH,W1W1)
 C
 C     EVEN2 - BERND HESS - V 1.0 - 5.2.86
 C     CALCULATE EVEN2 OPERATORS
@@ -30,8 +29,7 @@ C
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION V(N*(N+1)/2),G(N*(N+1)/2),E(N),R(N),A(N),TT(N),
      &          AUXF(N,N),AUXG(N,N),AUXH(N,N)
-      DIMENSION W1W1(N,N),W1E0W1(N,N)
-      DIMENSION EVN2(N,N)
+      DIMENSION W1W1(N,N)
 *
       M=N
       IJ=0
@@ -165,9 +163,4 @@ C
  430  CONTINUE
 CCC   CALL PRM('OUTPUT  ',G,N)
       RETURN
-c Avoid unused argument warnings
-      IF (.FALSE.) THEN
-        CALL Unused_real_array(W1E0W1)
-        CALL Unused_real_array(EVN2)
-      END IF
       END

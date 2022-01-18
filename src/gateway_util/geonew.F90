@@ -29,7 +29,7 @@ use stdalloc, only: mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-logical(kind=iwp) :: lprint
+logical(kind=iwp), intent(in) :: lprint
 integer(kind=iwp) :: iCnt, iCnttp, iDC, iNuc, lBuf, nNuc
 logical(kind=iwp) :: Exists
 real(kind=wp), allocatable :: CN(:,:)

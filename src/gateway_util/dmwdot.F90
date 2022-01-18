@@ -22,8 +22,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: dmwdot
-integer(kind=iwp) :: nAt, mAt
-real(kind=wp) :: A(3,nAt), B(3,nAt)
+integer(kind=iwp), intent(in) :: nAt, mAt
+real(kind=wp), intent(in) :: A(3,nAt), B(3,nAt)
 real(kind=wp) :: Fact, TMass, tmp, xMass
 integer(kind=iwp) :: i, iAt, iCnt, iCnttp, nData
 logical(kind=iwp) :: Found

@@ -24,8 +24,8 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "Molcas.fh"
-integer(kind=iwp) :: nMamn
-character(len=LenIn8) :: Mamn(nMamn)
+integer(kind=iwp), intent(in) :: nMamn
+character(len=LenIn8), intent(out) :: Mamn(nMamn)
 #include "itmax.fh"
 #include "rinfo.fh"
 #include "print.fh"

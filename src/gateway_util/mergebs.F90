@@ -14,9 +14,13 @@ subroutine MergeBS(z1,n1,z2,n2,z,n,RatioThres,iDominantSet)
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: n1, n2, n, iDominantSet
-real(kind=wp) :: z1(n1), z2(n2), z(*), RatioThres
+integer(kind=iwp), intent(in) :: n1, n2, iDominantSet
+real(kind=wp), intent(in) :: z1(n1), z2(n2), RatioThres
+real(kind=wp), intent(_OUT_) :: z(*)
+integer(kind=iwp), intent(out) :: n
 integer(kind=iwp) :: i, i1, i2, idum, iSetPrev, iSetThis, j, mPrim
 real(kind=wp) :: ratio
 integer(kind=iwp), allocatable :: ix1(:), ix2(:)

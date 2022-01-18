@@ -38,11 +38,14 @@ use Definitions, only: wp, iwp, u5, u6
 
 implicit none
 #include "Molcas.fh"
-character(len=*) :: DDname, ExtBasDir
-character(len=80) :: BSLbl
-integer(kind=iwp) :: iShll, BasisTypes(4), iSTDINP
-character(len=180) :: Ref(2), STDINP(MxAtom*2)
-logical(kind=iwp) :: UnNorm, L_STDINP, Expert
+character(len=*), intent(in) :: DDname, ExtBasDir
+character(len=80), intent(inout) :: BSLbl
+integer(kind=iwp), intent(inout) :: iShll, iSTDINP
+character(len=180), intent(out) :: Ref(2)
+logical(kind=iwp), intent(in) :: UnNorm, L_STDINP, Expert
+integer(kind=iwp), intent(in) :: LuRd
+integer(kind=iwp), intent(out) :: BasisTypes(4)
+character(len=180), intent(in) :: STDINP(MxAtom*2)
 #include "angtp.fh"
 #include "relmp.fh"
 ! IRELMP =0  .... NOPAIR (DK2)
@@ -55,8 +58,8 @@ logical(kind=iwp) :: UnNorm, L_STDINP, Expert
 ! IRELMP =22 .... ZORA-FP
 ! IRELMP =23 .... IORA
 integer(kind=iwp) :: i, iAdded, iAIMP, iAng, iDominantSet, iEnd, iErr, iFlgOne, iFrst, iMPShll, iNow, iPrevNow, iPrim, iPrint, &
-                     iPrSh, iValSh, j, j1, j2, jNow, jPrSh, jValSh, lAng, lUnit, LUQRP, LuRd, mCGTO(0:iTabMx), mDel, mSOC, mVal, &
-                     nAdded, nAIMP, nCGTO(0:iTabMx), nCntrc, nEorb, nPrim, nProj, Nwords
+                     iPrSh, iValSh, j, j1, j2, jNow, jPrSh, jValSh, lAng, lUnit, LUQRP, mCGTO(0:iTabMx), mDel, mSOC, mVal, nAdded, &
+                     nAIMP, nCGTO(0:iTabMx), nCntrc, nEorb, nPrim, nProj, Nwords
 real(kind=wp) :: Coeff, RatioThres
 character(len=263) :: Filename
 character(len=256) :: Basis_Lib, DirName

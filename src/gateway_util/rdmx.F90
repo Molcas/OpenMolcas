@@ -22,8 +22,9 @@ use Constants, only: Zero, Two, Three, Pi
 use Definitions, only: wp, iwp, r8
 
 implicit none
-integer(kind=iwp) :: nExp, nCff
-real(kind=wp) :: RadMax, rExp(nExp), Cff(nExp,nCff), cdMax, EtMax
+real(kind=wp), intent(inout) :: RadMax, cdMax, EtMax
+integer(kind=iwp), intent(in) :: nExp, nCff
+real(kind=wp), intent(in) :: rExp(nExp), Cff(nExp,nCff)
 #ifdef _DEBUGPRINT_
 #include "print.fh"
 #endif

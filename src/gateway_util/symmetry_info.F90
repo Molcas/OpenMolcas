@@ -222,8 +222,8 @@ subroutine Symmetry_Info_Setup(nOper,Oper,iAng)
 
   use Definitions, only: u6
 
-  integer(kind=iwp) :: nOper, iAng
-  character(len=3) :: Oper(3)
+  integer(kind=iwp), intent(in) :: nOper, iAng
+  character(len=3), intent(in) :: Oper(3)
   integer(kind=iwp) :: i, j
 
   if (allocated(iChBas)) return   ! Return if already initiated.
@@ -376,7 +376,8 @@ subroutine ChTab(iOper,nIrrep,iChTbl)
 
   use Definitions, only: u6
 
-  integer(kind=iwp) :: nIrrep, iOper(nIrrep), iChTbl(1:8,1:8) ! ugly dimensions change to 0:7!
+  integer(kind=iwp), intent(in) :: nIrrep, iOper(nIrrep)
+  integer(kind=iwp), intent(out) :: iChTbl(1:8,1:8) ! ugly dimensions change to 0:7!
   integer(kind=iwp) :: i, i1, ia, ib, iCh, iFnc, iIrrep, iRot, iSigma = 1, iSub, iSymX, iSymY, iSymZ, iTest(8), ix, iy, iz, j, &
                        jIrrep, jx, jy, jz
   logical(kind=iwp) :: Inv, Rot

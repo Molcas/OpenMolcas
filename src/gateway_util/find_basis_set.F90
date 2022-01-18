@@ -21,7 +21,8 @@ subroutine Find_Basis_Set(DirName,ExtBasDir,bType)
 use Definitions, only: iwp
 
 implicit none
-character(len=*) :: DirName, ExtBasDir, bType
+character(len=*), intent(inout) :: DirName
+character(len=*), intent(in) :: ExtBasDir, bType
 integer(kind=iwp) :: i, iAbsName
 logical(kind=iwp) :: Exists
 character(len=512) :: tmp

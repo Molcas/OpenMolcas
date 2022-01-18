@@ -521,8 +521,8 @@ outer: do
       end do
       call UpCase(Line)
       do i=1,nActa
-        call LeftAd(Line)
         if (Line == '') call error()
+        Line = adjustl(Line)
         j = index(Line,' ')
         namAct(i) = Line(1:j-1)
         Line(1:j-1) = ''

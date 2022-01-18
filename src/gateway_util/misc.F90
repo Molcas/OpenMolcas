@@ -19,7 +19,7 @@ use Symmetry_Info, only: nIrrep
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: iBas, iBas_Aux, iBas_Frag
+integer(kind=iwp), intent(out) :: iBas, iBas_Aux, iBas_Frag
 #include "Molcas.fh"
 integer(kind=iwp) :: iAng, iCnt, iCnttp, iShell, jCnttp, jSh, kCmp, kdc, mc, mdc
 

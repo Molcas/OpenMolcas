@@ -353,7 +353,7 @@ do
         if ((KWord(1:1) /= '*') .and. (KWord /= '')) exit
       end do
       call UpCase(KWord)
-      call LeftAd(KWord)
+      KWord = adjustl(KWord)
       read(KWord,'(A)') OFE_KSDFT
       Do_OFemb = .true.
     case ('KEON')

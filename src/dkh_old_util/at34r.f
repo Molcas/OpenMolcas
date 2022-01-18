@@ -11,7 +11,7 @@
       SUBROUTINE AT34R(N,ISIZE,CHARGE,
      *                 SMAT,V,H,EV2,MULT,BU,P,G,EIG,SINV,REVT,
      *                 AUX,OVE,EW,E,AA,RR,TT,iprint,
-     *                 VEXTT,PVPT,EVN1,EVN2,RE1R,AUXI,W1W1,W1E0W1)
+     *                 VEXTT,PVPT,EVN1,RE1R,AUXI,W1W1)
 C
 C     INPUT: SMAT    OVERLAP MATRIX
 C            V     POTENTIAL
@@ -26,10 +26,10 @@ C
      *          EW(N),E(N),AA(N),RR(N),TT(N)
 #include "relmp.fh"
       DIMENSION VEXTT(ISIZE),PVPT(ISIZE)
-      DIMENSION EVN1(N,N),EVN2(N,N)
+      DIMENSION EVN1(N,N)
       DIMENSION RE1R(N,N)
       DIMENSION AUXI(N,N)
-      DIMENSION W1W1(N,N),W1E0W1(N,N)
+      DIMENSION W1W1(N,N)
 *
 C      CALL PRMAT(6,SMAT,N,0,'SMAT    ')
       VELIT=CLightAU
@@ -197,8 +197,7 @@ C     CALCULATE EVEN2 OPERATOR
 C
 C@    CALL PRMAT(6,TT,N,1,'TT      ')
 C@    CALL PRMAT(6,E,N,1,'E       ')
-      CALL EVEN2(N,P,G,E,AA,RR,TT,EIG,AUX,OVE,
-     &           W1W1,W1E0W1,EVN2)
+      CALL EVEN2(N,P,G,E,AA,RR,TT,EIG,AUX,OVE,W1W1)
 *
 *    TRANSFORM BACK
 *

@@ -33,8 +33,9 @@ use Constants, only: Zero, One, Two, Half, OneHalf, TwoP34
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nPrim, nCntrc, iAng
-real(kind=wp) :: rExp(nPrim), Coeff(nPrim,nCntrc)
+integer(kind=iwp), intent(in) :: nPrim, nCntrc, iAng
+real(kind=wp), intent(in) :: rExp(nPrim)
+real(kind=wp), intent(inout) :: Coeff(nPrim,nCntrc)
 integer(kind=iwp) :: i, iExp, j, jExp, nScrt1, nScrt2
 real(kind=wp) :: Power, Pro_ij, Qtemp, Rtemp, Sum_ij, Temp, vR2, vRR
 real(kind=wp), allocatable :: Scrt1(:), Scrt2(:)

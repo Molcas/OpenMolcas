@@ -36,8 +36,8 @@ use Constants, only: Zero, One, Two, Four, Eight, Half, auTocm, auToHz, uToau
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nAtm
-real(kind=wp) :: CoorIn(3,nAtm), rM(nAtm)
+integer(kind=iwp), intent(in) :: nAtm
+real(kind=wp), intent(in) :: CoorIn(3,nAtm), rM(nAtm)
 #include "print.fh"
 integer(kind=iwp) :: i, iAtom, iCar, iEn, ii, iPrint, iRout, j, jCar, k, k1, k2, kappa, kk, kk2, mDim, nEn, nHess, nTri
 real(kind=wp) :: A, B, C, keep, rKappa, XI(3)

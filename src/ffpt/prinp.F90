@@ -143,7 +143,7 @@ do iSub1=1,nSub1
         ist = ist+4
         z = ComVal(2,iSub1,iSub2,iParm)
         write(sData,'(F10.6)') z
-        call LeftAd(sData)
+        sData = adjustl(sData)
         iPoint = index(sData,'.')
         nice = .true.
         do i=iPoint+1,len_trim(sData)

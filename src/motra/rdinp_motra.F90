@@ -170,7 +170,7 @@ input: do
       !---  Process the "CTonly" to perform exclusively CD vectors transform-*
       Line = Get_Ln(LuSpool)
       call UpCase(Line)
-      call LeftAd(Line)
+      Line = adjustl(Line)
       tv2disk = Line(1:3)
       if ((tv2disk /= 'PQK') .and. (tv2disk /= 'KPQ')) tv2disk = 'PQK' !def
       iCTonly = 1

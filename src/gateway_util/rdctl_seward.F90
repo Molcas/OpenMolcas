@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine RdCtl_Seward(LuRd,lOPTO,Do_OneEl)
+subroutine RdCtl_Seward(LuRd_,lOPTO,Do_OneEl)
 
 use SW_File, only: SW_FileOrb
 use AMFI_Info, only: No_AMFI
@@ -50,8 +50,9 @@ use Constants, only: Zero, One, Two, Three, Four, Ten, Pi, Angstrom, mu2elmass, 
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: LuRd
-logical(kind=iwp) :: lOPTO, Do_OneEl
+integer(kind=iwp), intent(in) :: LuRd_
+logical(kind=iwp), intent(inout) :: lOPTO
+logical(kind=iwp), intent(out) :: Do_OneEl
 #include "Molcas.fh"
 #include "angtp.fh"
 #include "notab.fh"
@@ -69,7 +70,7 @@ integer(kind=iwp) :: BasisTypes(4), BasisTypes_Save(4), i, i1, i2, iAng, iAt, iA
                      ifnr, iFound_Label, iFrag, iFrst, iGeoInfo(2), iglobal, ign, ii, iIso, ik, imix, iMltpl, Indx, iOff, iOff0, &
                      iOpt_XYZ, iOptimType, iPrint, iprop_ord, iRout, iShll, ist, istatus, isxbas, isXfield, iTemp, ITkQMMM, iTtl, &
                      itype, iUnique, iWel, ix, j, jAtmNr, jDim, jend, jRout, jShll, jTmp, k, lAng, Last, lAW, lSTDINP, Lu_UDC, &
-                     LuFS, LuIn, LuRd_saved, LuRdSave, LuRP, mdc, n, nAtom, nc, nc2, nCnt, nCnt0, nDataRead, nDiff, nDone, &
+                     LuFS, LuIn, LuRd, LuRd_saved, LuRdSave, LuRP, mdc, n, nAtom, nc, nc2, nCnt, nCnt0, nDataRead, nDiff, nDone, &
                      nFragment, nIsotopes, nMass, nOper, nReadEle, nRP_prev, nTemp, nTtl, nxbas, RC
 real(kind=wp) :: APThr, CholeskyThr, dm, dMass, Fact, gradLim, HypParam(3), Lambda, OAMt(3), OMQt(3), RandVect(3), ScaleFactor, &
                  sDel, spanCD, stepFac1, SymThr, Target_Accuracy, tDel, Temp, v
@@ -195,6 +196,7 @@ Basis_Test = .false.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+LuRd = LuRd_
 LuFS = -1
 LuRdSave = -1
 
@@ -4062,7 +4064,7 @@ subroutine ProcessBasis()
   do
     KWord = Get_Ln(LuRd)
     call UpCase(KWord)
-    call LeftAd(KWord)
+    KWord = adjustl(KWord)
     select case (KWord(1:4))
       case ('PSEU')
         dbsc(nCnttp)%pChrg = .true.
@@ -4253,8 +4255,8 @@ subroutine ProcessEF(KWName)
       KWord = Get_Ln(LuRd)
       ! Check whether a label is specified instead of a coordinate
       call Get_S(1,Key,1)
-      call LeftAd(Key)
       call Upcase(Key)
+      Key = adjustl(Key)
       jTmp = ichar(Key(1:1))
       if ((jTmp >= 65) .and. (jTmp <= 90)) then
         jEnd = index(Key,' ')-1

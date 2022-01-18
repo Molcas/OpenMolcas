@@ -15,8 +15,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-character :: Mode
-integer(kind=iwp) :: nAt
+character, intent(in) :: Mode
+integer(kind=iwp), intent(in) :: nAt
 integer(kind=iwp) :: i_1, i_2, i_P, i_R, iOff_1, iOff_2, iOff_3, iOff_Iter, ip_Dummy, ipCx_1, ipCx_2, ipCx_P, ipCx_R, ipEner_1, &
                      ipEner_2, ipEner_P, ipEner_R, ipGx_1, ipGx_2, ipGx_P, ipGx_R, iter_1, iter_2, iter_3, iter_P, iter_R, n1, n2
 logical(kind=iwp) :: Found

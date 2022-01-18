@@ -14,8 +14,8 @@ subroutine ORDER_AXIS(A,N)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: N
-real(kind=wp) :: A(N)
+integer(kind=iwp), intent(in) :: N
+real(kind=wp), intent(inout) :: A(N)
 integer(kind=iwp) :: i, j
 real(kind=wp) :: keep
 

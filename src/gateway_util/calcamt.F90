@@ -25,15 +25,15 @@ use Constants, only: Zero, Two, Four, Pi
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iOpt, LUQRP, lMax, iSRShll, nProj, iCoShll
-character(len=20) :: MPLbl
-real(kind=wp) :: rcharge
+integer(kind=iwp), intent(in) :: iOpt, LUQRP, lMax, iSRShll, nProj, iCoShll
+character(len=20), intent(in) :: MPLbl
+real(kind=wp), intent(in) :: rcharge
 ! working variables (change this)
 integer(kind=iwp), parameter :: mx100 = 100, Mxlpq = mx100*(mx100+1)/2
 integer(kind=iwp) :: i, IJ, IJAM0, iprint, iq, iSRSh, J, K, L, LAM, lP1, lpq, maxprim, maxprimt, N, nmat, nnexp, nP, Nrel
 real(kind=wp) :: ADUM, AuxLs, PreFac, ZI, ZJ
-real(kind=wp), allocatable :: AUXI(:), COREK(:,:,:), EVN1(:), EVN2(:), hcorr(:), OVL(:,:), PVPT(:), RE1R(:), rel(:), srel(:), &
-                              tnrel(:), trel(:), unrel(:), urel(:), VEXTT(:), W1E0W1(:), W1W1(:)
+real(kind=wp), allocatable :: AUXI(:), COREK(:,:,:), EVN1(:), hcorr(:), OVL(:,:), PVPT(:), RE1R(:), rel(:), srel(:), tnrel(:), &
+                              trel(:), unrel(:), urel(:), VEXTT(:), W1W1(:)
 integer(kind=iwp), parameter :: iExch = 1, iMVPot = 2, iDWPot = 4, iNPPot = 8
 real(kind=wp), external :: OVLMP, Vexch
 
@@ -51,7 +51,7 @@ end do
 Nrel = max(4*lpq,7*Mxlpq+5*mx100*mx100+5*mx100)
 maxprimt = maxprim*(maxprim+1)/2
 #ifdef _DEBUGPRINT_
-write(u6,*) ' basis:',(Shells(isrshll+i-1)%nExp,i=1,lmax+1)
+write(u6,*) ' basis:',(Shells(iSRShll+i-1)%nExp,i=1,lmax+1)
 do i=1,lmax+1
   nnExp = Shells(iSRShll+i-1)%nExp
   write(u6,*) ' number of exponents',nnExp
@@ -71,10 +71,8 @@ call mma_allocate(hcorr,maxprimt,label='hcorr')
 call mma_allocate(VEXTT,maxprimt,label='VEXTT')
 call mma_allocate(PVPT,maxprimt,label='PVPT')
 call mma_allocate(EVN1,maxprim**2,label='EVN1')
-call mma_allocate(EVN2,maxprim**2,label='EVN2')
 call mma_allocate(AUXI,maxprim**2,label='AUXI')
-call mma_allocate(RE1R,maxprim**2,label='EVN2')
-call mma_allocate(W1E0W1,maxprim**2,label='W1E0W1')
+call mma_allocate(RE1R,maxprim**2,label='RE1R')
 call mma_allocate(W1W1,maxprim**2,label='W1W1')
 call mma_allocate(OVL,maxprim,maxprim,label='OVL')
 call mma_allocate(COREK,maxprim,maxprim,2,label='COREK')
@@ -97,8 +95,7 @@ do lP1=1,lMax+1
   end if
 
   if (iand(iOpt,iNPPot) /= 0) then   ! Zero
-    call oeisg(rel,srel,trel,urel,Shells(iSRSh)%Exp,rCharge,mx100,lp1,nP,unrel,tnrel,hcorr,iprint,VEXTT,PVPT,EVN1,EVN2,RE1R,AUXI, &
-               W1W1,W1E0W1)
+    call oeisg(rel,srel,trel,urel,Shells(iSRSh)%Exp,rCharge,mx100,lp1,nP,unrel,tnrel,hcorr,iprint,VEXTT,PVPT,EVN1,RE1R,AUXI,W1W1)
     nmat = nP*(nP+1)/2
     if (iprint >= 10) then
       write(u6,*) ' relativistic integrals'
@@ -175,10 +172,8 @@ call mma_deallocate(hcorr)
 call mma_deallocate(VEXTT)
 call mma_deallocate(PVPT)
 call mma_deallocate(EVN1)
-call mma_deallocate(EVN2)
 call mma_deallocate(AUXI)
 call mma_deallocate(RE1R)
-call mma_deallocate(W1E0W1)
 call mma_deallocate(W1W1)
 call mma_deallocate(OVL)
 call mma_deallocate(COREK)

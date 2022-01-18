@@ -14,8 +14,8 @@ subroutine OrdExp(nExp,rExp,nCntrc,Cff)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nExp, nCntrc
-real(kind=wp) :: rExp(nExp), Cff(nExp,nCntrc)
+integer(kind=iwp), intent(in) :: nExp, nCntrc
+real(kind=wp), intent(inout) :: rExp(nExp), Cff(nExp,nCntrc)
 integer(kind=iwp) :: iExp, jExp, kExp
 real(kind=wp) :: Exp1, Exp2
 

@@ -18,8 +18,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: OVLMP
-integer(kind=iwp) :: NP, NQ
-real(kind=wp) :: ZP, ZQ
+integer(kind=iwp), intent(in) :: NP, NQ
+real(kind=wp), intent(in) :: ZP, ZQ
 ! auxiliary constant pool:       ready only up to g-valence/g-core
 #include "const.fh"
 integer(kind=iwp) :: IT11, IT22, IT33

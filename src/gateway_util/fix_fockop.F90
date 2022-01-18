@@ -40,7 +40,7 @@ use Constants, only: Zero, One, Two, Six, Eight, Ten, Twelve
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-integer(kind=iwp) :: LuRd
+integer(kind=iwp), intent(in) :: LuRd
 #include "itmax.fh"
 #include "Molcas.fh"
 integer(kind=iwp) :: BasisTypes(4), i, iAng, iAngMax_Proj, iAtom, iB, iBF, iC, iCmp_a, iCmp_r, iCnttp, iComp, iFerm, iFrom, ijB, &

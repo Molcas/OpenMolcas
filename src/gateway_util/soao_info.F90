@@ -39,7 +39,7 @@ subroutine SOAO_Info_Init(nSize,mIrrep)
 
   use stdalloc, only: mma_allocate
 
-  integer(kind=iwp) :: mIrrep, nSize
+  integer(kind=iwp), intent(in) :: mIrrep, nSize
 
   if (allocated(iSOInf) .or. allocated(iAOtSO)) call SOAO_Info_Free()
   nSOInf = nSize

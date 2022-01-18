@@ -15,8 +15,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nExp, nCntrc
-real(kind=wp) :: rExp(nExp), Cff(nExp,nCntrc)
+integer(kind=iwp), intent(in) :: nExp, nCntrc
+real(kind=wp), intent(inout) :: rExp(nExp), Cff(nExp,nCntrc)
 integer(kind=iwp) :: iBottom, iCntrc, iExp, jExp, kExp, mExp
 real(kind=wp) :: Exp1, Exp2
 

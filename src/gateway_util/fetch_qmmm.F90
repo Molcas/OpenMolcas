@@ -14,7 +14,7 @@
 
 subroutine Fetch_QMMM(CastMM,nCastMM)
 
-use, intrinsic :: iso_c_binding, only: c_int, c_loc, c_ptr
+use, intrinsic :: iso_c_binding, only: c_char, c_int, c_loc, c_ptr
 use Isotopes, only: PTab
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -36,40 +36,40 @@ character(len=LenIn), allocatable :: LabMMO(:)
 integer(kind=iwp), external :: isFreeUnit
 interface
   subroutine mmslave_done(gms) bind(C,NAME='mmslave_done_')
-    use, intrinsic :: iso_c_binding, only: c_ptr
+    import :: c_ptr
     type(c_ptr), value :: gms
   end subroutine mmslave_done
   function mmslave_init(cr,log_) bind(C,NAME='mmslave_init_')
-    use, intrinsic :: iso_c_binding, only: c_char, c_ptr
+    import :: c_char, c_ptr
     type(c_ptr) :: mmslave_init
     type(c_ptr), value :: cr
     character(kind=c_char) :: log_(*)
   end function mmslave_init
   function mmslave_get_atomnumber(gms,id) bind(C,NAME='mmslave_get_atomnumber_')
-    use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+    import :: c_int, c_ptr
     integer(kind=c_int) :: mmslave_get_atomnumber
     type(c_ptr), value :: gms
     integer(kind=c_int), value :: id
   end function mmslave_get_atomnumber
   function mmslave_get_group_id(gms,id) bind(C,NAME='mmslave_get_group_id_')
-    use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+    import :: c_int, c_ptr
     integer(kind=c_int) :: mmslave_get_group_id
     type(c_ptr), value :: gms
     integer(kind=c_int), value :: id
   end function mmslave_get_group_id
   function mmslave_natoms(gms) bind(C,NAME='mmslave_natoms_')
-    use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+    import :: c_int, c_ptr
     integer(kind=c_int) :: mmslave_natoms
     type(c_ptr), value :: gms
   end function mmslave_natoms
   function mmslave_read_tpr(tpr,gms) bind(C,NAME='mmslave_read_tpr_')
-    use, intrinsic :: iso_c_binding, only: c_char, c_int, c_ptr
+    import :: c_char, c_int, c_ptr
     integer(kind=c_int) :: mmslave_read_tpr
     character(kind=c_char) :: tpr(*)
     type(c_ptr), value :: gms
   end function mmslave_read_tpr
   function init_commrec() bind(C,NAME='init_commrec_')
-    use, intrinsic :: iso_c_binding, only: c_ptr
+    import :: c_ptr
     type(c_ptr) :: init_commrec
   end function init_commrec
 end interface
@@ -195,7 +195,7 @@ function mmslave_copyx_wrapper(gms,natoms,x)
   real(kind=wp), target :: x(*)
   interface
     function mmslave_copyx(gms,natoms,x) bind(C,NAME='mmslave_copyx_')
-      use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+      import :: c_int, c_ptr
       integer(kind=c_int) :: mmslave_copyx
       type(c_ptr), value :: gms, x
       integer(kind=c_int), value :: natoms

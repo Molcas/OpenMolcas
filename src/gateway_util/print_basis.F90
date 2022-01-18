@@ -27,7 +27,7 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-logical(kind=iwp) :: lOPTO
+logical(kind=iwp), intent(in) :: lOPTO
 #include "angtp.fh"
 #include "relmp.fh"
 #include "print.fh"

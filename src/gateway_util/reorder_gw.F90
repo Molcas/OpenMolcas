@@ -14,8 +14,9 @@ subroutine Reorder_GW(A,B,k,l,n,m)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: k, l, n, m
-real(kind=wp) :: A(k,l,n,m), B(k,n,l,m)
+integer(kind=iwp), intent(in) :: k, l, n, m
+real(kind=wp), intent(in) :: A(k,l,n,m)
+real(kind=wp), intent(out) :: B(k,n,l,m)
 integer(kind=iwp) :: l_, n_, m_
 
 do m_=1,m

@@ -49,7 +49,7 @@
 *
       ProgName=Get_ProgName()
       Call Upcase(ProgName)
-      Call LeftAd(ProgName)
+      ProgName = adjustl(ProgName)
 *
       iEnd = 1
  99   If (ProgName(iEnd:iEnd).ne.' ') Then

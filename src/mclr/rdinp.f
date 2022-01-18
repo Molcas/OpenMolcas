@@ -108,7 +108,7 @@
 *     Read the input stream line by line and identify key command      *
 *----------------------------------------------------------------------*
 100   Read(5,'(A)',Err=998,End=999) Line
-      Call LeftAd(Line)
+      Line = adjustl(Line)
       If ( Line(1:1).eq.' ' .or. Line(1:1).eq.'*' ) Goto 100
       Call StdFmt(Line,Command)
       jCom=0
@@ -203,7 +203,7 @@
 *---  TITL ------------------------------------------------------------*
 10    Continue
 15    Read(5,'(A)',Err=998,End=999) Line
-      Call LeftAd(Line)
+      Line = adjustl(Line)
       If ( Line(1:1).eq.'*' ) Goto 15
       Call StdFmt(Line,Command)
       jCom=0
@@ -305,7 +305,7 @@
 
  185  Continue
  186  Read(5,'(A)',Err=998,End=999) Line
-      Call LeftAd(Line)
+      Line = adjustl(Line)
       Call StdFmt(Line,Command)
       If ( Command(1:1).eq.' ' .or. Line(1:1).eq.'*' ) Goto 186
       If (debug) Write(6,*) 'SEWARD INPUT'
@@ -350,7 +350,7 @@
 *---  Process the "root" input card -----------------------------------*
 20    Continue
 25    Read(5,'(A)',Err=998,End=999) Line
-      Call LeftAd(Line)
+      Line = adjustl(Line)
       If ( Line(1:1).eq.' ' .or. Line(1:1).eq.'*' ) Goto 25
       Read(Line,*,Err=998,End=999) lRoots
       If (debug) Write(6,*) 'LROOT'
@@ -367,7 +367,7 @@
 40    Continue
       PrCI=.true.
 45    Read(5,'(A)',Err=998,End=999) Line
-      Call LeftAd(Line)
+      Line = adjustl(Line)
       If ( Line(1:1).eq.' ' .or. Line(1:1).eq.'*' ) Goto 45
       Read(Line,*,Err=998,End=999) CIthrs
       Goto 100
@@ -378,14 +378,14 @@
 *---  Process the "ITER" input card -----------------------------------*
 60     Continue
 65    Read(5,'(A)',Err=998,End=999) Line
-      Call LeftAd(Line)
+      Line = adjustl(Line)
       If ( Line(1:1).eq.' ' .or. Line(1:1).eq.'*' ) Goto 65
       Read(Line,*,Err=998,End=999) nIter
       Goto 100
 *---  Process the "THRE" input card -----------------------------------*
 70    Continue
 75    Read(5,'(A)',Err=998,End=999) Line
-      Call LeftAd(Line)
+      Line = adjustl(Line)
       If ( Line(1:1).eq.' ' .or. Line(1:1).eq.'*' ) Goto 75
       Read(Line,*,Err=998,End=999) epsilon
       Epsilon_Undef=.False.
@@ -393,7 +393,7 @@
 *---  Process the "TIME" input card -----------------------------------*
 80    Continue
       Read(5,'(A)',Err=998,End=999) Line
-      Call LeftAd(Line)
+      Line = adjustl(Line)
       If ( Line(1:1).eq.' ' .or. Line(1:1).eq.'*' ) Goto 80
       Read(Line,*,Err=998,End=999) Omega
       TimeDep=.true.
@@ -431,7 +431,7 @@
       Goto 100
 *---  Process the "NAC " input card -----------------------------------*
 204   Read(5,'(A)',Err=998,End=999) Line
-      Call LeftAd(Line)
+      Line = adjustl(Line)
       If ( Line(1:1).eq.' ' .or. Line(1:1).eq.'*' ) Goto 25
       Read(Line,*,Err=998,End=999) NACstates(1),NACstates(2)
       isNAC=.true.
@@ -445,15 +445,15 @@
       Goto 100
 *---  Process the "THERmochemistry input card -------------------------*
 206   Read(5,'(A)',Err=998,End=999) Line
-      Call LeftAd(Line)
+      Line = adjustl(Line)
       If (Line(1:1).eq.'*' ) Goto 206
       Read(Line,*,Err=998,End=999) nsRot
 2060  Read(5,'(A)',Err=998,End=999) Line
-      Call LeftAd(Line)
+      Line = adjustl(Line)
       If (Line(1:1).eq.'*' ) Goto 2060
       Read(Line,*,Err=998,End=999) UserP
 2061  Read(5,'(A)',Err=998,End=999) Line
-      Call LeftAd(Line)
+      Line = adjustl(Line)
       If (Line(1:1).eq.'*' ) Goto 2061
       Call UpCase(Line)
       If (Line(1:4).eq.'END ') then
@@ -471,8 +471,8 @@
       Goto 100
 *---  Process the "TWOStep" input card --------------------------------*
 220   Read(5,'(A)',Err=998,End=999) Line
-      Call LeftAd(Line)
       Call UpCase(Line)
+      Line = adjustl(Line)
       If (Line(1:1).eq.'*' ) Goto 220
       Read(Line,*,Err=998,End=999) StepType
       If (debug) Write(6,*) 'TWOSTEP kind: '//StepType

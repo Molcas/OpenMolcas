@@ -1025,7 +1025,7 @@ c      End If
  4600 Continue
       Line=Get_Ln(LuSpool)
       Call UpCase(Line)
-      Call LeftAd(Line)
+      Line = adjustl(Line)
       KSDFT=Line(1:16)
       GoTo 1000
 *
@@ -1043,7 +1043,7 @@ c      End If
       Do_OFemb=.true.
       Line=Get_Ln(LuSpool)
       Call UpCase(Line)
-      Call LeftAd(Line)
+      Line = adjustl(Line)
       OFE_KSDFT=Line(1:16)
       write(6,*)  '  --------------------------------------'
       write(6,*)  '   Orbital-Free Embedding Calculation'
@@ -1102,7 +1102,7 @@ c      End If
       Do_Addc=.True.
       Line=Get_Ln(LuSpool)
       Call UpCase(Line)
-      Call LeftAd(Line)
+      Line = adjustl(Line)
       ADDC_KSDFT=Line(1:16)
       GoTo 1000
 *

@@ -20,11 +20,10 @@ use Definitions, only: wp, iwp
 
 implicit none
 external :: Kernel
-integer(kind=iwp) :: nArray, iAng, iComp, nOrdOp, nScr1, nScr2, naa, nSAR, iShll_a, nPrim_a, nCntrc_a, iCmp_a, iShll_r, nPrim_r, &
-                     nCntrc_r, iCmp_r
-real(kind=wp) :: Array(nArray), Scr1(nScr1), Scr2(nScr2)
+integer(kind=iwp), intent(in) :: nArray, iAng, iComp, nOrdOp, nScr1, nScr2, naa, nSAR, iShll_a, nPrim_a, nCntrc_a, iCmp_a, &
+                                 iShll_r, nPrim_r, nCntrc_r, iCmp_r
+real(kind=wp), intent(out) :: Array(nArray), Scr1(nScr1), Scr2(nScr2), SAR(nSAR)
 real(kind=wp), intent(in) :: A(3), Exp_a(nPrim_a), Cff_a(nPrim_a,nCntrc_a), Exp_r(nPrim_r), Cff_r(nPrim_r,nCntrc_r)
-real(kind=wp), intent(out) :: SAR(nSAR)
 integer(kind=iwp) :: mArr, mSar, nHer
 real(kind=wp), allocatable :: KAR(:), PAR(:,:), pSAR(:), ZAR(:), ZIAR(:)
 

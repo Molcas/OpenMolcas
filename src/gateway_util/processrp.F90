@@ -21,8 +21,8 @@ use XYZ, only: Clear_XYZ, Out_Raw, Parse_Group, Read_XYZ, Symmetry
 use Definitions, only: wp, iwp
 
 implicit none
-character(len=180) :: KeepGroup
-real(kind=wp) :: SymThr
+character(len=180), intent(in) :: KeepGroup
+real(kind=wp), intent(inout) :: SymThr
 integer(kind=iwp) :: i, LuRP
 character(len=180) :: KG
 #ifdef _HAVE_EXTRA_

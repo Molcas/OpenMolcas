@@ -18,15 +18,16 @@ subroutine calc_LSTvec(mynRP,Reac,Prod,TanVec,Invar)
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
 use Definitions, only: wp, iwp, r8
 
 implicit none
-integer(kind=iwp) :: mynRP
-real(kind=wp) :: Reac(mynRP), Prod(mynRP), TanVec(mynRP), norm
+integer(kind=iwp), intent(in) :: mynRP
+real(kind=wp), intent(in) :: Reac(mynRP), Prod(mynRP)
+real(kind=wp), intent(out) :: TanVec(mynRP)
+logical(kind=iwp), intent(in) :: Invar
 integer(kind=iwp) :: i, iAt, iCnt, iProdA, iReacA, j, jTmp, mAt, nAt, nData, nsc
-real(kind=wp) :: RMax, RMSD
-logical(kind=iwp) :: Found, Invar
+real(kind=wp) :: norm, RMax, RMSD
+logical(kind=iwp) :: Found
 integer(kind=iwp), allocatable :: iStab(:)
 real(kind=wp), allocatable :: W(:), XYZ(:,:)
 real(kind=r8), external :: DDot_
@@ -79,8 +80,7 @@ if (Invar) then
   call Superpose_w(XYZ(1,iReacA),XYZ(1,iProdA),W,mAt,RMSD,RMax)
   call Fix_Symmetry(XYZ(1,iReacA),nAt,iStab)
 end if
-call dcopy_(mynRP,XYZ(1,iReacA),1,TanVec,1)
-call daxpy_(mynRP,-One,XYZ(1,iProdA),1,TanVec,1)
+TanVec(:) = XYZ(1:mynRP,iReacA)-XYZ(1:mynRP,iProdA)
 call mma_deallocate(XYZ)
 call mma_deallocate(iStab)
 call mma_deallocate(W)
@@ -88,7 +88,7 @@ call mma_deallocate(W)
 ! And normalize it
 
 norm = DDot_(mynRP,TanVec,1,TanVec,1)
-call dScal_(mynRP,One/sqrt(norm),TanVec,1)
+TanVec(:) = TanVec/sqrt(norm)
 !call RecPrt('TanVec',' ',TanVec,3,nAt)
 
 end subroutine calc_LSTvec

@@ -22,7 +22,7 @@
 !                                                                      *
 ! Called from: Input                                                   *
 !                                                                      *
-! Calling    : RecPrt, Rdbsl                                           *
+! Calling    : RecPrt                                                  *
 !                                                                      *
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !                                                                      *
@@ -37,8 +37,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: lUnit, iShll, nProj
-logical(kind=iwp) :: UnNorm
+integer(kind=iwp), intent(in) :: lUnit
+integer(kind=iwp), intent(inout) :: iShll
+integer(kind=iwp), intent(out) :: nProj
+logical(kind=iwp), intent(in) :: UnNorm
 #include "Molcas.fh"
 integer(kind=iwp) :: i, iAng, iEE, ierr, iPP, iPrim, iSS, iStrt, jcr, kcr, mPP(2), n_Elec, n_Occ, nCntrc, ncr, nExpi, nM1, nM2, &
                      nPrim
@@ -160,8 +162,8 @@ dbsc(nCnttp)%nM1 = nM1
 if (nM1 > 0) then
   call mma_allocate(dbsc(nCnttp)%M1xp,nM1,Label='dbsc:M1xp')
   call mma_allocate(dbsc(nCnttp)%M1cf,nM1,Label='dbsc:M1cf')
-  call Read_v(lUnit,dbsc(nCnttp)%M1xp(1),1,nM1,1,ierr)
-  call Read_v(lUnit,dbsc(nCnttp)%M1cf(1),1,nM1,1,ierr)
+  call Read_v(lUnit,dbsc(nCnttp)%M1xp,1,nM1,1,ierr)
+  call Read_v(lUnit,dbsc(nCnttp)%M1cf,1,nM1,1,ierr)
 end if
 !                                                                      *
 !***********************************************************************
@@ -284,7 +286,7 @@ do iAng=0,nProj
 
   !write(u6,*) ' Reading coefficients'
   do iPrim=1,nPrim
-    call Read_v(lUnit,Shells(iShll)%Cff_c(1,1,1),iPrim,nPrim*nCntrc,nPrim,ierr)
+    call Read_v(lUnit,Shells(iShll)%Cff_c,iPrim,nPrim*nCntrc,nPrim,ierr)
     if (ierr /= 0) then
       call WarningMessage(2,'Abend in GetBS: Error while reading the coefficients')
       call Quit_OnUserError()

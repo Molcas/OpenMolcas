@@ -23,8 +23,8 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: VExch
-real(kind=wp) :: ZP, ZQ
-integer(kind=iwp) :: NP, NQ, LA, nProj, iCoShll
+real(kind=wp), intent(in) :: ZP, ZQ
+integer(kind=iwp), intent(in) :: NP, NQ, LA, nProj, iCoShll
 ! auxiliary constant pool:       ready only up to g-valence/g-core
 #include "const.fh"
 integer(kind=iwp) :: ICORB, iCoSh, INU, ISIM, IT1, IT2, IT3, IT4, K, KOMAX, L, L1, L2, LMT, nExpon, NR, NS, NU, NUT

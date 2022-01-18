@@ -26,9 +26,10 @@ subroutine Decode(LBL,string,N,Hit)
 use Definitions, only: iwp, u6
 
 implicit none
-character(len=*) :: LBL, string
-integer(kind=iwp) :: N
-logical(kind=iwp) :: Hit
+character(len=*), intent(in) :: LBL
+character(len=*), intent(out) :: string
+integer(kind=iwp), intent(in) :: N
+logical(kind=iwp), intent(inout) :: Hit
 integer(kind=iwp) :: i, i1, idot, lLBL, lstring
 character(len=80) :: xstring
 character, parameter :: dot = '.'

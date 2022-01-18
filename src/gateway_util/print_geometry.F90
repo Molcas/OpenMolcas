@@ -33,7 +33,7 @@ use Constants, only: Angstrom
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iOpt
+integer(kind=iwp), intent(in) :: iOpt
 #include "Molcas.fh"
 #include "print.fh"
 integer(kind=iwp) :: i, iPrint, iRout, j, jCnt, jCnttp, mCnt, nc, ndc

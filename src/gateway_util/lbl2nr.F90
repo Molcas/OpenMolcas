@@ -20,7 +20,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: Lbl2Nr
-character(len=*) :: Atom
+character(len=*), intent(in) :: Atom
 integer(kind=iwp) :: i, lAtom
 character(len=2) :: TmpLbl(2)
 
@@ -33,16 +33,16 @@ Lbl2Nr = -1
 
 lAtom = 0
 do i=1,80
-  if (atom(i:i) == ' ') exit
+  if (Atom(i:i) == ' ') exit
   lAtom = lAtom+1
 end do
 if (lAtom > 2) lAtom = 2
 TmpLbl(1) = '  '
 if (lAtom > 0) then
   if (lAtom == 1) then
-    TmpLbl(1)(2:2) = atom(1:1)
+    TmpLbl(1)(2:2) = Atom(1:1)
   else
-    TmpLbl(1) = atom(1:2)
+    TmpLbl(1) = Atom(1:2)
   end if
   call UpCase(TmpLbl(1))
   do i=0,MaxAtomNum

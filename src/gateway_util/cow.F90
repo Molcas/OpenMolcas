@@ -22,10 +22,11 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAtom
-real(kind=wp) :: Coor(3,nAtom), CoF(3), W(nAtom), T
+integer(kind=iwp), intent(in) :: nAtom
+real(kind=wp), intent(in) :: Coor(3,nAtom), W(nAtom)
+real(kind=wp), intent(out) :: CoF(3), T
 #include "print.fh"
-integer(kind=iwp) :: iAtom, iCar, iPrint, iRout
+integer(kind=iwp) :: iAtom, iPrint, iRout
 
 iRout = 140
 iPrint = nPrint(iRout)
@@ -38,17 +39,15 @@ T = Zero
 do iAtom=1,nAtom
   T = T+W(iAtom)
 end do
-do iCar=1,3
-  CoF(iCar) = Zero
-  do iAtom=1,nAtom
-    CoF(iCar) = CoF(iCar)+Coor(iCar,iAtom)*W(iAtom)
-  end do
-  if (T /= Zero) then
-    CoF(iCar) = CoF(iCar)/T
-  else
-    CoF(iCar) = Zero
-  end if
+CoF(:) = Zero
+do iAtom=1,nAtom
+  CoF(:) = CoF(:)+Coor(:,iAtom)*W(iAtom)
 end do
+if (T /= Zero) then
+  CoF(:) = CoF(:)/T
+else
+  CoF(:) = Zero
+end if
 if (iPrint >= 99) then
   call RecPrt(' In CoW: CoF',' ',CoF,1,3)
   call RecPrt(' In CoW: T',' ',[T],1,1)

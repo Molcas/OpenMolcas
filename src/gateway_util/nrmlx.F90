@@ -31,11 +31,13 @@ subroutine Nrmlx(rExp,nPrim,Coeff,nCntrc,Scrt1,nScrt1,Scrt2,nScrt2,iAng)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nPrim, nCntrc, nScrt1, nScrt2, iAng
-real(kind=wp) :: rExp(nPrim), Coeff(nPrim,nCntrc), Scrt1(nScrt1), Scrt2(nScrt2)
+integer(kind=iwp), intent(in) :: nPrim, nCntrc, nScrt1, nScrt2, iAng
+real(kind=wp), intent(in) :: rExp(nPrim)
+real(kind=wp), intent(inout) :: Coeff(nPrim,nCntrc)
+real(kind=wp), intent(out) :: Scrt1(nScrt1), Scrt2(nScrt2)
 #include "real.fh"
 integer(kind=iwp) :: i, iExp, jExp
-real(kind=wp) :: Temp, Tmp
+real(kind=wp) :: Temp
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' In Nrmlz: iAng=',iAng
@@ -71,8 +73,7 @@ call DnDot(nCntrc,nPrim,Scrt1,1,1,Scrt2,1,nPrim,Coeff,1,nPrim)
 ! of the primitive and the overlap of the unnormalized contracted
 ! basis function.
 do i=1,nCntrc
-  Tmp = 1/sqrt(Scrt1(i))
-  call DScal_(nPrim,Tmp,Coeff(1,i),1)
+  Coeff(:,i) = Coeff(:,i)/sqrt(Scrt1(i))
 end do
 #ifdef _DEBUGPRINT_
 call Recprt(' In Nrmlz: Normalized coefficients',' ',Coeff,nPrim,nCntrc)

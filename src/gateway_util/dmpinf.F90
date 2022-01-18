@@ -59,8 +59,8 @@ contains
 
 subroutine DmpInf_Internal(cRFStrt,iRFStrt,lRFStrt,rRFStrt,cQStrt,iQStrt,rQStrt)
 
-  integer(kind=iwp), target :: cRFStrt, iRFStrt, lRFStrt, cQStrt, iQStrt
-  real(kind=wp), target :: rRFStrt, rQStrt
+  integer(kind=iwp), target, intent(inout) :: cRFStrt, iRFStrt, lRFStrt, cQStrt, iQStrt
+  real(kind=wp), target, intent(inout) :: rRFStrt, rQStrt
   integer(kind=iwp), pointer :: p_cQ(:), p_cRF(:), p_iQ(:), p_iRF(:), p_lRF(:)
   real(kind=wp), pointer :: p_rQ(:), p_rRF(:)
 

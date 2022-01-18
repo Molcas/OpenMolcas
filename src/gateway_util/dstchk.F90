@@ -25,9 +25,9 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "LenIn.fh"
-integer(kind=iwp) :: mCentr
-real(kind=wp) :: xyz(3,mCentr)
-character(len=LenIn) :: Lbls(mCentr)
+integer(kind=iwp), intent(in) :: mCentr
+real(kind=wp), intent(in) :: xyz(3,mCentr)
+character(len=LenIn), intent(in) :: Lbls(mCentr)
 integer(kind=iwp) :: icc, iLarge, jcc
 real(kind=wp) :: R, RMax, RMin, x1, x2, y1, y2, z1, z2
 

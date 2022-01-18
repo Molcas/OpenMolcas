@@ -18,9 +18,10 @@ use Constants, only: Zero, Two, Three, Pi
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: LUQRP, ISIM, NZ
-character(len=20) :: MPLbl
-real(kind=wp) :: ZETA(NZ), OPMAT(NZ*(NZ+1)/2)
+integer(kind=iwp), intent(in) :: LUQRP, ISIM, NZ
+character(len=20), intent(in) :: MPLbl
+real(kind=wp), intent(in) :: ZETA(NZ)
+real(kind=wp), intent(out) :: OPMAT(NZ*(NZ+1)/2)
 ! auxiliary constant pool:    only DFAC is used here.
 #include "const.fh"
 integer(kind=iwp), parameter :: MPoint = 250
@@ -59,9 +60,7 @@ do
   if (Line(1:8) == MPLbl(1:8)) then
     ! there is no potential for this symmetry
     !write(u6,603)
-    do IJ=1,NZ*(NZ+1)/2
-      OPMAT(IJ) = Zero
-    end do
+    OPMAT(:) = Zero
     return
   else
     read(Line,'(a4)') OrbLab

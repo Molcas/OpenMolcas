@@ -14,8 +14,8 @@ subroutine LDF_SetOptionFlag(Option,Val)
 use Definitions, only: iwp, u6
 
 implicit none
-character(len=4) :: Option
-logical(kind=iwp) :: Val
+character(len=4), intent(in) :: Option
+logical(kind=iwp), intent(in) :: Val
 #include "localdf.fh"
 
 if (Option == 'LDF2') then

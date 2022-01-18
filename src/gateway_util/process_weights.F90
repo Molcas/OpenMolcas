@@ -36,7 +36,7 @@ use Constants, only: Zero, One, UtoAU
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iPrint
+integer(kind=iwp), intent(in) :: iPrint
 integer(kind=iwp) :: i, iAt, iCnt, iErr, iSymAt, j, k, nAt, ndc, nSymAt
 real(kind=wp) :: wTot
 logical(kind=iwp) :: Small
