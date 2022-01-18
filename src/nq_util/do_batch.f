@@ -34,7 +34,7 @@
       use nq_Grid, only: vRho, vSigma, vTau, vLapl
       use nq_Grid, only: l_CASDFT, TabAO, TabAO_Pack, dRho_dR
       use nq_Grid, only: F_xc, F_xca, F_xcb
-      use nq_Grid, only: Fact, Tmp
+      use nq_Grid, only: Fact, Tmp, SOs, Angular
       use nq_Grid, only: D1UnZip, P2UnZip
       use nq_pdft
       use nq_MO, only: DoIt, CMO, D1MO, P2_ontop
@@ -98,9 +98,6 @@
          RhoI(:,:)=Zero
          RhoA(:,:)=Zero
       End If
-************************************************************************
-*                                                                      *
-      ipSOS=0 ! dummy initialize
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -155,8 +152,6 @@
             nxyz     = mGrid*3*(iAng+mRad)
             nRadial  = iBas_Eff*mGrid*mRad
             ipRadial = ipxyz + nxyz
-            ipAng_   = ipRadial + nRadial
-            ipAng    = ip_of_iWork_d(Work(ipAng_))
 *
             iR=list_s(2,ilist_s)
 *
@@ -178,7 +173,7 @@
             Call AOEval(iAng,mGrid,Grid,Work(ipxyz),RA,
      &                  Shells(iShll)%Transf,
      &                  RSph(ipSph(iAng)),nElem(iAng),iCmp,
-     &                  iWork(ipAng),nTerm,nForm,T_X,mRad,
+     &                  Angular,nTerm,nForm,T_X,mRad,
      &                  iPrim,iPrim_Eff,Shells(iShll)%Exp,
      &                  Work(ipRadial),
      &                  iBas_Eff,
@@ -296,8 +291,7 @@
             kAO   = iCmp*iBas*mGrid
             nDeg  = nSym/dc(mdci)%nStab
             nSO   = kAO*nDeg*mAO
-            ipSOs = ipMem
-            Call FZero(Work(ipSOs),nSO)
+            Call FZero(SOs,nSO)
 *
             iR=list_s(2,ilist_s)
             iSym=NrOpr(iR)
@@ -307,13 +301,12 @@
 *           temporarily!
 *
             Call SOAdpt_NQ(TabAO_Pack(ipTabAO(iList_s,1):),mAO,mGrid,
-     &                     iBas,iBas_Eff,iCmp,iSym,Work(ipSOs),nDeg,
-     &                     iAO)
+     &                     iBas,iBas_Eff,iCmp,iSym,SOs,nDeg,iAO)
 *
-            Call  SODist2(Work(ipSOs),mAO,mGrid,iBas,iCmp,nDeg,TabSO,
+            Call  SODist2(SOs,mAO,mGrid,iBas,iCmp,nDeg,TabSO,
      &                    nMOs,iAO,TmpCMO,nCMO,TDoIt)
 *
-            Call  SODist(Work(ipSOs),mAO,mGrid,iBas,iCmp,nDeg,TabMO,
+            Call  SODist(SOs,mAO,mGrid,iBas,iCmp,nDeg,TabMO,
      &                   nMOs,iAO,CMO,nCMO,DoIt)
 *
          End Do

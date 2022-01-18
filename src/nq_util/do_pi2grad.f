@@ -36,7 +36,7 @@
       use Center_Info
       use Basis_Info, only: nBas
       use nq_pdft,    only: lft,lGGA
-      use nq_Grid,    only: List_G
+      use nq_Grid,    only: List_G, SOs
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "nq_info.fh"
@@ -127,19 +127,18 @@
             kAO   = iCmp*iBas*mGrid
             nDeg  = nSym/dc(mdci)%nStab
             nSO   = kAO*nDeg*mAO
-            ipSOs = ipMem
 
-            Call FZero(Work(ipSOs),nSO)
+            Call FZero(SOs,nSO)
 
             iR=list_s(2,ilist_s)
             iSym=NrOpr(iR)
 
             Call SOAdpt_NQ(TabAO(ipTabAO(iList_s,1)),mAO,mGrid,iBas,
-     &                  iBas_Eff,iCmp,iSym,Work(ipSOs),nDeg,iAO)
+     &                  iBas_Eff,iCmp,iSym,SOs,nDeg,iAO)
 
             Call FZero(TabSO,mAO*mGrid*nMOs)
 
-            Call  SODist2(Work(ipSOs),mAO,mGrid,iBas,iCmp,nDeg,TabSO,
+            Call  SODist2(SOs,mAO,mGrid,iBas,iCmp,nDeg,TabSO,
      &                    nMOs,iAO,TmpCMO,nCMO,TDoIt)
 
             CALL ConvertTabSO(TabSO2,TabSO,mAO,mGrid,nMOs)

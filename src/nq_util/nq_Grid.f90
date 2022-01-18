@@ -14,6 +14,8 @@ Real*8, Allocatable:: Coor(:,:)
 Real*8, Allocatable:: R2_trial(:)
 Real*8, Allocatable:: Fact(:,:)
 Real*8, Allocatable:: Tmp(:)
+Real*8, Allocatable:: SOs(:)
+Integer, Allocatable:: Angular(:)
 Integer, Allocatable:: nR_Eff(:)
 
 Integer, Allocatable:: List_G(:,:)

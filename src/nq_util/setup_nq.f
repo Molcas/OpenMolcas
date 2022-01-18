@@ -28,7 +28,8 @@
       use Basis_Info
       use Center_Info
       use Symmetry_Info, only: nIrrep, iOper
-      use nq_Grid, only: nGridMax, Coor, Pax, Fact, Tmp, nR_Eff
+      use nq_Grid, only: nGridMax, Coor, Pax, Fact, Tmp, nR_Eff, SOs
+      use nq_Grid, only: Angular
       use nq_structure, only: NQ_Data
       use Grid_On_Disk
       Implicit Real*8 (A-H,O-Z)
@@ -592,6 +593,8 @@ c     Write(6,*) '********** Setup_NQ ***********'
 *
       nMem=0
       nSO =0
+      lSO =0
+      lAngular=0
       Do ish = 1, nShell
          iAng  = iSD( 1,iSh)
          iCmp  = iSD( 2,iSh)
@@ -613,10 +616,13 @@ c     Write(6,*) '********** Setup_NQ ***********'
             kAO=iCmp*iBas*nGridMax
             nSO=kAO*nSym/dc(mdci)%nStab*mAO
          End If
-c         nMem=Max(nMem,nxyz+nAngular+nRad+nRadial+nSO)
-         nMem=Max(nMem,nxyz+nAngular+nRad+nRadial,2*nSO)
+         nMem=Max(nMem,nxyz+nRad+nRadial)
+         lSO=Max(lSO,nSO)
+         lAngular=Max(lAngular,nAngular)
       End Do
 *
+      Call mma_allocate(SOs,2*nSO,Label='SOs')
+      Call mma_allocate(Angular,lAngular,Label='Angular')
       Call GetMem('nMem','Allo','Real',ipMem,nMem)
 *                                                                      *
 ************************************************************************
