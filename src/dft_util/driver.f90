@@ -75,6 +75,7 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
          End If
          Do_MO=.true.
          Do_TwoEl=.true.
+         If (.NOT.Do_PDFTPOT .and. .Not.DO_Grad) Only_exc=.True.
       End If
 !                                                                      *
 !***********************************************************************
