@@ -228,6 +228,23 @@
 ************************************************************************
 *                                                                      *
       End If
+*#define _ANALYSIS_
+#ifdef _ANALYSIS_
+      Write (6,*)
+      Write (6,*)  ' Analysing AOInt'
+      Thr=1.0D-14
+      Do iD = 1, nD
+         lBfn = 0
+         Do iBfn = 1, nBfn
+            Do jBfn = 1, nBfn
+               If (Abs(AOInt(iBfn,jBfn,iD))<Thr) lBfn = lBfn + 1
+            End Do
+         End Do
+         Total = 1.0D2 * DBLE(lBfn)/DBLE(nBfn**2)
+         Write (6,*) 'Sparsity analysis, iD', iD
+         Write (6,*) ' Total parcity in %:', 1.0D2 * Total
+      End Do
+#endif
 *                                                                      *
 ************************************************************************
 ************************************************************************
