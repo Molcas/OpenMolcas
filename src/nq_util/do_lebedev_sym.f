@@ -19,15 +19,25 @@
       Integer :: mPt_, ipR_, i, j, ii, jj
       Real*8, Parameter :: Thr = 1.0D-16
       Real*8, Allocatable:: R(:,:)
-
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+         Subroutine Do_Lebedev(L_Eff,nPoints,R)
+         Implicit None
+         Integer L_Eff, nPoints
+         Real*8, Allocatable:: R(:,:)
+         End Subroutine Do_Lebedev
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
       Call Do_Lebedev(L_Eff,mPt_,R)
       mPt=0
       outer: Do i=1,mPt_
-        ii = ipR_+(i-1)*4
         Do j=1,i-1
-          jj = ipR_+(j-1)*4
-          If (All(Abs(Work(jj:jj+2)+Work(ii:ii+2)).lt.Thr)) Then
-            Work(ii+3)=0.0D0
+          If (All(Abs(R(1:3,j)+R(1:3,j)).lt.Thr)) Then
+            R(4,i)=0.0D0
             Cycle outer
           End If
         End Do
