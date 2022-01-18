@@ -343,15 +343,12 @@
 
       If (Do_MO) Then
          If (NQNAC.ne.0) Then
-           If(.not.l_casdft) Then
-             nd1mo=NQNACPAR
-             Call mma_allocate(D1MO,nd1mo,Label='D1MO')
-             Call Get_D1MO(D1MO,nD1MO)
-             nP2= NQNACPR2
-             Call mma_Allocate(P2MO,nP2,Label='P2MO')
-             Call Get_P2mo(P2MO,nP2)
-
-           End If
+            nD1MO = NQNACPAR
+            Call mma_allocate(D1MO,nD1MO,Label='D1MO')
+            Call Get_D1MO(D1MO,nD1MO)
+            nP2 = NQNACPR2
+            Call mma_Allocate(P2MO,nP2,Label='P2MO')
+            call Get_P2mo(P2MO,nP2)
          End If
          Call Get_iArray('nBas',nBas,mIrrep)
          Call Get_iArray('nDel',nDel,mIrrep)
@@ -435,14 +432,6 @@
       if(Debug.and.l_casdft) write(6,*) 'MCPDFT with functional:', KSDFA
 
       If(l_casdft) then
-        IF(NQNAC.ne.0) then
-          nD1MO = NQNACPAR
-          Call mma_allocate(D1MO,nD1MO,Label='D1MO')
-          Call Get_D1MO(D1MO,nD1MO)
-          nP2 = NQNACPR2
-          Call mma_Allocate(P2MO,nP2,Label='P2MO')
-          call Get_P2mo(P2MO,nP2)
-        END IF
         Call mma_allocate(P2_ontop,nP2_ontop,nGridMax,Label='P2_ontop')
         P2_ontop(:,:)=Zero
       end if
