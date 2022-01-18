@@ -16,7 +16,7 @@
 #include "stdalloc.fh"
       Integer, Intent(In) :: L_Eff
       Integer, Intent(Out) :: mPt, ipR
-      Integer :: mPt_, ipR_, i, j, ii, jj
+      Integer :: mPt_, i, j
       Real*8, Parameter :: Thr = 1.0D-16
       Real*8, Allocatable:: R(:,:)
 *                                                                      *
