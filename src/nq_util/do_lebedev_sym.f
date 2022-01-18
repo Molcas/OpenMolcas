@@ -36,7 +36,7 @@
       mPt=0
       outer: Do i=1,mPt_
         Do j=1,i-1
-          If (All(Abs(R(1:3,j)+R(1:3,j)).lt.Thr)) Then
+          If (All(Abs(R(1:3,j)+R(1:3,i)).lt.Thr)) Then
             R(4,i)=0.0D0
             Cycle outer
           End If

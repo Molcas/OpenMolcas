@@ -80,22 +80,19 @@
 *                                                                      *
       nTabAO=Size(TabAO)
       nCMO  =Size(CMO)
-*                                                                      *
-      mRho=-1
+      T_Rho=T_X*1.0D-4
       l_tanhr=.false.
 
       CALL PDFTMemAlloc(mGrid,nOrbt)
-      If (Functional_Type.eq.CASDFT_Type) Then
+      If ( Functional_Type.eq.CASDFT_Type .or.
+     &     l_casdft ) Then
          mRho = nP2_ontop
-      Else If(l_casdft) then !GLM
-         mRho = nP2_ontop
-      End If
-*
-      If (mRho.ne.-1) Then
          Call mma_allocate(RhoI,mRho,mGrid,Label='RhoI')
          Call mma_allocate(RhoA,mRho,mGrid,Label='RhoA')
          RhoI(:,:)=Zero
          RhoA(:,:)=Zero
+      Else
+         mRho=-1
       End If
 *                                                                      *
 ************************************************************************
@@ -329,7 +326,6 @@
 ************************************************************************
 *                                                                      *
       If (l_casdft) then
-         T_Rho=T_X*1.0D-4
          Dens_t1=Dens_t1+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,0)
          Dens_a1=Dens_a1+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,1)
          Dens_b1=Dens_b1+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,2)
@@ -408,7 +404,6 @@
          End If
 
 *        Integrate out the number of electrons
-         T_Rho=T_X*1.0D-4
          Dens_t2=Dens_t2+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,0)
          Dens_a2=Dens_a2+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,1)
          Dens_b2=Dens_b2+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,2)
@@ -420,7 +415,6 @@
 *                                                                      *
 *     Integrate out the number of electrons, |grad|, and tau
 *
-      T_Rho=T_X*1.0D-4
       If (Functional_type.eq.LDA_Type) Then
          Dens_I=Dens_I+Compute_Rho (Weights,mGrid,nD,T_Rho)
       Else If (Functional_type.eq.GGA_type) Then
@@ -473,10 +467,33 @@
       End If
 *                                                                      *
 ************************************************************************
+************************************************************************
 *                                                                      *
-      If (.Not.Do_Grad) Then
-
+      If (Do_Grad) Then
+*                                                                      *
+************************************************************************
+*                                                                      *
+*        Compute the DFT contribution to the gradient                  *
+*                                                                      *
+************************************************************************
+*                                                                      *
+         Call DFT_Grad(Grad,nGrad,nD,Grid,mGrid,dRho_dR,ndRho_dR,
+     &                nGrad_Eff,Weights,iNQ)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Else
+*                                                                      *
+************************************************************************
+*                                                                      *
          If (l_casdft) Then
+*                                                                      *
+************************************************************************
+*                                                                      *
+*------- For MC-PDFT optionally compute stuff for the CP-MC-PDFT       *
+*                                                                      *
+************************************************************************
+*                                                                      *
            If (do_pdftPot) then
               CALL mma_allocate(MOs ,mGrid*NASHT)
               CALL TransferMO(MOas,TabMO,mAO,mGrid,nMOs,1)
@@ -492,30 +509,26 @@
               Call PDFTFock(PDFTFocI,PDFTFocA,D1Unzip,mGrid,MOs)
               CALL mma_deallocate(MOs)
            End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+         Else
+*                                                                      *
+************************************************************************
+*                                                                      *
+*------- Compute the DFT contribution to the Fock matrix               *
+*                                                                      *
+************************************************************************
+*                                                                      *
+           Call DFT_Int(list_s,nlist_s,FckInt,nFckInt,nD,Fact,ndc,
+     &                  list_bas)
+*                                                                      *
+************************************************************************
+*                                                                      *
          End If
 *                                                                      *
 ************************************************************************
-************************************************************************
 *                                                                      *
-*---- Compute the DFT contribution to the Fock matrix                  *
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-         If(.not.l_casdft) Call DFT_Int(list_s,nlist_s,FckInt,nFckInt,
-     &                                  nD,Fact,ndc,list_bas)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*    Compute the DFT contribution to the gradient                      *
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Else
-*
-         Call DFT_Grad(Grad,nGrad,nD,Grid,mGrid,dRho_dR,ndRho_dR,
-     &                nGrad_Eff,Weights,iNQ)
-*
       End If
 *                                                                      *
 ************************************************************************

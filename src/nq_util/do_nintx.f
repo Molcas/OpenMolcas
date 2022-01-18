@@ -25,8 +25,55 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
+*#define _ANALYSIS_
+#ifdef _ANALYSIS_
+      Write (6,*)
+      Write (6,*)  ' Analysing TabAO1'
+      Thr=1.0D-14
+      Do iD = 1, nD
+      Do iFn = 1, nFn
+         lBfn = 0
+         Total=0.0D0
+         Do iBfn = 1, nBfn
+            lGrid = 0
+            Do iGrid = 1, mGrid
+               If (Abs(TabAO1(iFn,iGrid,iBfn,iD))<Thr) lGrid = lGrid + 1
+            End Do
+            If (lGrid==mGrid) lBfn=lBfn+1
+            Total = Total + DBLE(lGrid)/DBLE(mGrid)
+         End Do
+         Total = Total / DBLE(nBfn)
+         Write (6,*) 'Sparsity analysis, iD, iFn', iD, iFn
+         Write (6,*) ' Total parcity in %:', 1.0D2 * Total
+         Write (6,*) ' Complete Bfn sparcity in %:',
+     &                1.0D2*DBLE(lBfn)/DBLE(nBfn)
+         Write (6,*)
+      End Do
+      End Do
+      Write (6,*)
+      Write (6,*)  ' Analysing TabAO2'
+      Do iAO = 1, mAO
+         lBfn = 0
+         Total=0.0D0
+         Do iBfn = 1, nBfn
+            lGrid = 0
+            Do iGrid = 1, mGrid
+               If (Abs(TabAO2(iAO,iGrid,iBfn))<Thr) lGrid = lGrid + 1
+            End Do
+            If (lGrid==mGrid) lBfn=lBfn+1
+            Total = Total + DBLE(lGrid)/DBLE(mGrid)
+         End Do
+         Total = Total / DBLE(nBfn)
+         Write (6,*) 'Sparsity analysis, iAO', iAO
+         Write (6,*) ' Total parcity in %:', 1.0D2 * Total
+         Write (6,*) ' Complete Bfn sparcity in %:',
+     &                1.0D2*DBLE(lBfn)/DBLE(nBfn)
+         Write (6,*)
+      End Do
+#endif
       Call mma_allocate(A1,mGrid,nBfn,Label='A1')
       Call mma_allocate(A2,mGrid,nBfn,Label='A2')
+
       If (Functional_type.eq.LDA_type) Then
 *                                                                      *
 ************************************************************************

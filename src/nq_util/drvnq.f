@@ -386,8 +386,6 @@
      &              ' Can''t produce 2 el dft integrals without MO')
             Call Abend()
          End If
-         NQNACPAR = ( NQNAC**2 + NQNAC )/2
-         NQNACPR2 = ( NQNACPAR**2 + NQNACPAR )/2
 *
          iStack = 0
          Do iIrrep = 0, mIrrep-1
