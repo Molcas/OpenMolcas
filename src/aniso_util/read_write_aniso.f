@@ -638,7 +638,10 @@ c compatibility with the present version: of aniso_i.input file
       Complex(kind=8), intent(in) ::    U(nss,nss)
       Complex(kind=8), intent(in) ::  HSO(nss,nss)
       ! local stuff
+#include "Molcas.fh"
+#include "real.fh"
 #include "stdalloc.fh"
+#include "angstr.fh"
       Integer                     :: njob, mxjob, mult, iss, ipar, ist
       Integer                     :: data_file_format
       Integer                     :: i,IsFreeUnit,Lu,Lutmp
@@ -649,7 +652,10 @@ c compatibility with the present version: of aniso_i.input file
       Character(len=128)          :: Filename
       Character(len=1024)         :: molcas,fname,molcasversion
       LOGICAL                     :: dbg
-
+      !
+      Integer                     :: nAtoms, iAt, l
+      Character(LEN=LENIN)        :: AtomLbl(MxAtom), Byte4
+      Real*8, Allocatable         :: xyz(:,:)
       dbg=.false.
 
       !-------------------------------------------------------------
@@ -701,6 +707,14 @@ c compatibility with the present version: of aniso_i.input file
       CLOSE(Lutmp)
 
 
+      !----------------------------------------------------------------------*
+      ! add coordinates
+      nAtoms=0
+      Call Get_iScalar('Unique atoms',nAtoms)
+      Call Get_cArray('Unique Atom Names',AtomLbl,LENIN*nAtoms)
+      Call mma_Allocate(xyz,3,8*nAtoms)
+      Call Get_dArray('Unique Coordinates',xyz,3*nAtoms)
+
       !-------------------------------------------------------------
       ! write the data to the new aniso file
       FileName='ANISOFILE'
@@ -724,6 +738,22 @@ c compatibility with the present version: of aniso_i.input file
       ! DATA FILE FORMAT VERSION:
       WRITE(Lu,'(        A)') '$format '
       WRITE(Lu,'(40(I0,1x))')  data_file_format
+      WRITE(Lu,'(        A)')
+      !-------------------------------------------------------------
+      ! Atom labels and coordinates
+      WRITE(Lu,'(        A)') '$natoms '
+      WRITE(Lu,'(40(I0,1x))')  nAtoms
+      WRITE(Lu,'(        A)')
+      WRITE(Lu,'(        A)') '$atomlbl'
+      WRITE(Lu,'(40(I0,1x))')  nAtoms
+      WRITE(Lu,'(40(A8,1x))')  (AtomLbl(iAt),iAt=1,nAtoms)
+      WRITE(Lu,'(        A)')
+      WRITE(Lu,'(        A)') '$coords (in Angstrom)'
+      WRITE(Lu,'(40(I0,1x))')  nAtoms
+      DO iAt=1,nAtoms
+        WRITE(Lu,'(i3,1x,A8,1x,3(ES22.14,1x))')
+     &                    iAt, AtomLbl(iAt), (Angstr*XYZ(l,iAt),l=1,3)
+      END DO
       WRITE(Lu,'(        A)')
       !-------------------------------------------------------------
       ! Number of spin orbit states
