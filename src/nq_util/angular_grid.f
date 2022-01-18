@@ -14,6 +14,7 @@
 *     Computes datas useful for the angular quadrature.                *
 *                                                                      *
 ************************************************************************
+      use nq_Structure, only: Info_Ang
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "nq_info.fh"
@@ -68,11 +69,10 @@
 *
       If (Debug) Then
          Do iSet = 1, nAngularGrids
-            iR =Info_Ang(3,iSet)
-            nGP=Info_Ang(2,iSet)
-            l  =Info_Ang(1,iSet)
+            nGP=Info_Ang(iSet)%nPoints
+            l  =Info_Ang(iSet)%L_eff
             Write (6,*) 'l=',l
-            Call RecPrt('Angular grid',' ',Work(iR),4,nGP)
+            Call RecPrt('Angular grid',' ',Info_Ang(iSet)%R,4,nGP)
          End Do
       End If
 *

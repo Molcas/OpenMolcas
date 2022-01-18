@@ -62,6 +62,7 @@
       Real*8 EG_OT(nTmpPUVX)
       Integer, Allocatable:: Index(:)
       Real*8, Allocatable:: dW_Temp(:,:), dPB(:,:,:)
+      Integer, Allocatable:: ipTabAO(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -309,7 +310,7 @@
          nBfn=nBfn+NrBas_Eff*iCmp
       End Do
 *
-      Call Allocate_iWork(ipTabAO,2*(nlist_s+1))
+      Call mma_Allocate(ipTabAO,(nlist_s+1),2,Label='ipTabAO')
       Call mma_Allocate(Dens_AO,nBfn,nBfn,nD,Label='Dens_AO')
       Call mma_Allocate(Ind_Grd,3,nBfn,Label='Ind_Grd')
       Call mma_Allocate(iBfn_Index,6,nBfn,Label='iBfn_Index')
@@ -653,7 +654,7 @@ c
      &                 list_s,nlist_s,List_Exp,List_Bas,
      &                 Index,nIndex,
      &                 FckInt,nFckDim,nFckInt,
-     &                 iWork(ipTabAO),mAO,nSym,nD,nP2_ontop,
+     &                 ipTabAO,mAO,nSym,nD,nP2_ontop,
      &                 Do_Mo,
      &                 Work(ipTabMO),Work(ipTabSO),nMOs,
      &                 Do_Grad,Grad,nGrad,
@@ -688,7 +689,7 @@ c
       Call mma_deAllocate(iBfn_Index)
       Call mma_deAllocate(Ind_Grd)
       Call mma_deAllocate(Index)
-      Call Free_iWork(ipTabAO)
+      Call mma_deallocate(ipTabAO)
       Call mma_deallocate(Dens_AO)
       If (ipTabMO.ne.ip_Dummy) Call Free_Work(ipTabMO)
       If (ipTabSO.ne.ip_Dummy) Call Free_Work(ipTabSO)

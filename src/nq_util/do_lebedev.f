@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Do_Lebedev(L_Eff,mPt,ipR)
+      Subroutine Do_Lebedev(L_Eff,mPt,R)
 ************************************************************************
 *                                                                      *
 *     Computes datas useful for the angular quadrature.                *
@@ -18,13 +18,13 @@
       Implicit Real*8 (a-h,o-z)
 #include "nq_info.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       Parameter (nSet=11)
       Integer Lebedev_order(nSet), Lebedev_npoints(nSet)
       Data Lebedev_order/5,7,11,17,23,29,35,41,47,53,59/
       Data Lebedev_npoints/14,26,50,110,194,302,434,590,770,974,1202/
       Real*8, Allocatable:: TempR(:,:), TempW(:)
+      Real*8, Allocatable:: R(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -33,7 +33,7 @@
       Do iSet = 1, nSet
          If (Lebedev_order(iSet).eq.L_Eff) Then
             mPt=Lebedev_npoints(iSet)
-            Call GetMem('AngRW','Allo','Real',ipR,4*mPt)
+            Call mma_allocate(R,4,mPt,Label='R')
             Call mma_allocate(TempR,3,mPt,Label='TempR')
             Call mma_allocate(TempW,mPt,Label='TempW')
 *
@@ -50,8 +50,8 @@
      &                  3,nPt,3,
      &                  1.0d0,Pax,3,
      &                        TempR,3,
-     &                  0.0d0,Work(ipR),4)
-            call dcopy_(nPt,TempW,1,Work(ipR+3),4)
+     &                  0.0d0,R,4)
+            call dcopy_(nPt,TempW,1,R(4,1),4)
 *
             Call mma_deallocate(TempW)
             Call mma_deallocate(TempR)

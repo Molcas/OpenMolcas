@@ -30,7 +30,6 @@
 !
       Integer LMax_NQ
       Parameter(LMax_NQ=62)
-      Integer Info_Ang(3,LMax_NQ)
       Integer mBas(0:7),nISh(0:7), nAsh(0:7), nFro(0:7),mOrb(0:7)
       Integer IOff_Ash(0:7),IOff_Bas(0:7),IOff_BasAct(0:7)
       Integer OffOrb(0:7),OffOrb2(0:7),OffOrbTri(0:7),OffBas2(0:7)
@@ -58,7 +57,7 @@
      &                 iQEnd,ip_OrbDip(3)
       Common /Quad_i / iQStrt,NASHT,NASHT4,NPot1,nOrbt,nPot2,maxUVX,    &
      &                          ndc,                                    &
-     &                 Info_Ang, nAngularGrids,                         &
+     &                           nAngularGrids,                         &
      &                 L_Quad_save, nR_Save, Angular_Prunning,          &
      &                      nx,ny,nz,number_of_subblocks,               &
      &                 ip_nR_Eff,ip_R,ipMem,nMem,                       &

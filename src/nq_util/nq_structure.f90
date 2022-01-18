@@ -13,7 +13,7 @@
 Module NQ_Structure
 Implicit None
 Private
-Public :: NQ_data, Close_NQ_Data
+Public :: NQ_data, Close_NQ_Data, Info_Ang, Close_Info_Ang, LMax_NQ
 
 #include "stdalloc.fh"
 
@@ -35,7 +35,27 @@ End Type NQ_data_raw
 
 Type (NQ_data_raw), Allocatable:: NQ_data(:)
 
+Type Info_A
+  Sequence
+  Integer :: L_eff=0
+  Integer :: nPoints=0
+  Real*8, Allocatable:: R(:,:)
+End Type Info_A
+
+Integer, Parameter:: LMax_NQ=62
+Type (Info_A) Info_Ang(LMax_NQ)
+
 Contains
+
+Subroutine Close_Info_Ang()
+
+Integer iAngular
+Do iAngular = 1, SIZE(Info_Ang)
+   Info_Ang(iAngular)%L_eff=0
+   Info_Ang(iAngular)%nPoints=0
+   If (Allocated(Info_Ang(iAngular)%R)) Call mma_deallocate(Info_Ang(iAngular)%R)
+End Do
+End Subroutine Close_Info_Ang
 
 Subroutine Close_NQ_Data()
 Integer iNQ, nNQ

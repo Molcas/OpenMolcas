@@ -382,7 +382,7 @@ c     Write(6,*) '********** Setup_NQ ***********'
             Call Angular_Prune(NQ_Data(iNQ)%R_Quad,nR_Eff(iNQ),
      &                         NQ_Data(iNQ)%Angular,Crowding,
      &                         Fade,R_BS,L_Quad,R_Min,lAng,
-     &                         nAngularGrids,Info_Ang,LMax_NQ)
+     &                         nAngularGrids)
 *
             If (iReset.eq.1) Then
                Crowding=Crowding_tmp

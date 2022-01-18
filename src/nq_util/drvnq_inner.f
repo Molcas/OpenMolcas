@@ -33,6 +33,7 @@
       use KSDFT_Info, only: KSDFA, LuMC, LuMT, Funcaa, Funcbb, Funccc
       use nq_Grid, only: l_casdft, D1UnZip, P2UnZip
       use nq_MO, only: D1MO, P2MO
+      use nq_Structure, only: Close_Info_Ang
       use Grid_On_Disk
       Implicit Real*8 (A-H,O-Z)
       External Kernel, Rsv_Tsk
@@ -257,9 +258,7 @@ C     End Do ! number_of_subblocks
 *
 *---- Free memory for angular grids
 *
-      Do iSet = 1, nAngularGrids
-         Call GetMem('AngRW','Free','Real',Info_Ang(3,iSet),nDum)
-      End Do
+      Call Close_Info_Ang()
 *                                                                      *
 ************************************************************************
 *                                                                      *

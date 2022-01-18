@@ -14,6 +14,7 @@
 *     Computes datas useful for the angular quadrature.                *
 *                                                                      *
 ************************************************************************
+      use nq_Structure, only: Info_Ang
       Implicit Real*8 (a-h,o-z)
 #include "nq_info.fh"
 #include "real.fh"
@@ -24,14 +25,29 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Interface
+         Subroutine Do_GGL(L_Eff,nPoints,R)
+         Implicit None
+         Integer L_Eff, nPoints
+         Real*8, Allocatable:: R(:,:)
+         End Subroutine Do_GGL
+         Subroutine Do_Lebedev(L_Eff,nPoints,R)
+         Implicit None
+         Integer L_Eff, nPoints
+         Real*8, Allocatable:: R(:,:)
+         End Subroutine Do_Lebedev
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
 *     Use the GGL grids to minimize the number of grid points.
 *
-      If (L_Max.lt.3) Go To 99
-      Call Do_GGL(3,nPoints,ipR)
+      If (L_Max.lt.3) Return
       nAngularGrids=nAngularGrids+1
-      Info_Ang(1,nAngularGrids)=3
-      Info_Ang(2,nAngularGrids)=nPoints
-      Info_Ang(3,nAngularGrids)=ipR
+      Info_Ang(nAngularGrids)%L_Eff=3
+      Call Do_GGL(3,
+     &            Info_Ang(nAngularGrids)%nPoints,
+     &            Info_Ang(nAngularGrids)%R)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -42,20 +58,18 @@
             nAngularGrids=nAngularGrids+1
             L_Eff=Lebedev_order(iSet)
 *
-            Call Do_Lebedev(L_Eff,nPoints,ipR)
-*
-            Info_Ang(1,nAngularGrids)=L_Eff
-            Info_Ang(2,nAngularGrids)=nPoints
-            Info_Ang(3,nAngularGrids)=ipR
+            Info_Ang(nAngularGrids)%L_Eff=L_Eff
+            Call Do_Lebedev(L_Eff,
+     &                      Info_Ang(nAngularGrids)%nPoints,
+     &                      Info_Ang(nAngularGrids)%R)
          Else
 *
-            Go To 99
+            Return
 *
          End If
       End Do
 *                                                                      *
 ************************************************************************
 *                                                                      *
- 99   Continue
       Return
       End

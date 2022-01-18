@@ -29,7 +29,7 @@
 *             University of Lund, Sweden                               *
 *             August 1999                                              *
 ************************************************************************
-      use NQ_structure, only: NQ_Data
+      use NQ_structure, only: NQ_Data, Info_Ang
       use Grid_On_Disk
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
@@ -49,10 +49,10 @@
 *     Statement functions                                              *
 *                                                                      *
       Check(i,j)=iAnd(i,2**(j-1)).ne.0
-      x_a(i,iSet)=Work(Info_Ang(3,iSet)+(i-1)*4  )
-      y_a(i,iSet)=Work(Info_Ang(3,iSet)+(i-1)*4+1)
-      z_a(i,iSet)=Work(Info_Ang(3,iSet)+(i-1)*4+2)
-      w_a(i,iSet)=Work(Info_Ang(3,iSet)+(i-1)*4+3)
+      x_a(i,iSet)=Info_Ang(iSet)%R(1,i)
+      y_a(i,iSet)=Info_Ang(iSet)%R(2,i)
+      z_a(i,iSet)=Info_Ang(iSet)%R(3,i)
+      w_a(i,iSet)=Info_Ang(iSet)%R(4,i)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -172,13 +172,13 @@ c     Write (*,*) 'Actual range:',iEnd_R, iStart_R
          If (R_Value_Max.lt.R_box_Min) Go To 8887
 *
 c        Write (*,*) 'Selected range:',iR_End, iR_Start
-c        Write (*,*) 'l_max=',Info_Ang(1,iSet)
+c        Write (*,*) 'l_max=',Info_Ang(iSet)%L_Eff
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *---- Angular loop
 *
-      Do iPoint=1,Info_Ang(2,iSet)
+      Do iPoint=1,Info_Ang(iSet)%nPoints
 #ifdef _DEBUGPRINT_
          If (Debug) Then
             Write (6,*) 'X,Y,Z*',x_a(iPoint,iSet),

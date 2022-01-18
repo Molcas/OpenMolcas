@@ -13,12 +13,14 @@
       Subroutine Do_Lebedev_Sym(L_Eff,mPt,ipR)
       Implicit None
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
       Integer, Intent(In) :: L_Eff
       Integer, Intent(Out) :: mPt, ipR
       Integer :: mPt_, ipR_, i, j, ii, jj
       Real*8, Parameter :: Thr = 1.0D-16
+      Real*8, Allocatable:: R(:,:)
 
-      Call Do_Lebedev(L_Eff,mPt_,ipR_)
+      Call Do_Lebedev(L_Eff,mPt_,R)
       mPt=0
       outer: Do i=1,mPt_
         ii = ipR_+(i-1)*4
@@ -31,14 +33,15 @@
         End Do
         mPt=mPt+1
       End Do outer
+
       Call GetMem('AngRW','Allo','Real',ipR,4*mPt)
+
       j=1
       Do i=1,mPt_
-        ii = ipR_+(i-1)*4
-        If (Work(ii+3).ne.0.0D0) Then
-          Call DCopy_(4,Work(ii),1,Work(ipR+(j-1)*4),1)
+        If (R(4,i).ne.0.0D0) Then
+          Call DCopy_(4,R(:,i),1,Work(ipR+(j-1)*4),1)
           j=j+1
         End if
       End Do
-      Call GetMem('AngRW','Free','Real',ipR_,4*mPt_)
+      Call mma_deallocate(R)
       End Subroutine Do_Lebedev_Sym
