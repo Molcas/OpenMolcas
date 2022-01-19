@@ -10,10 +10,8 @@
 *                                                                      *
 * Copyright (C) 2002, Roland Lindh                                     *
 ************************************************************************
-      Subroutine DFT_Grad(Grad,nGrad,iSpin,
-     &                    Grid,mGrid,dRho_dR,ndRho_dR,nGrad_Eff,
-     &                    IndGrd,Weights,iTab,Temp,F_xc,
-     &                    dW_dR,iNQ)
+      Subroutine DFT_Grad(Grad,nGrad,iSpin,Grid,mGrid,dRho_dR,ndRho_dR,
+     &                    nGrad_Eff,Weights,iNQ)
 ************************************************************************
 *                                                                      *
 *     Object: to trace the correct parts to get the contributions to   *
@@ -22,38 +20,27 @@
 *     Author: Roland Lindh, Dept. of Chemical Physics, University of   *
 *             Lund, Sweden.  May 2002 in Bologna, Italy.               *
 ************************************************************************
-      use nq_Grid, only: GradRho, vRho, vSigma, vTau, vLapl
-      use KSDFT_Info, only: KSDFA
+      use nq_Grid, only: F_xc, GradRho, vRho, vSigma, vTau, vLapl
+      use nq_Grid, only: Pax
+      use nq_Grid, only: IndGrd, iTab, Temp, dW_dR
+      use nq_Grid, only: l_casdft
+      use nq_Structure, only: NQ_data
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "nq_info.fh"
-#include "WrkSpc.fh"
 #include "debug.fh"
 #include "Molcas.fh"
 #include "itmax.fh"
 #include "ksdft.fh"
       Parameter (Mxdc=MxAtom)
 #include "disp.fh"
-      Real*8 Grad(nGrad), Temp(nGrad_Eff), Grid(3,mGrid),
+      Real*8 Grad(nGrad), Grid(3,mGrid),
      &       dRho_dR(ndRho_dR,mGrid,nGrad_Eff), OV(3,3), V(3,3),
-     &       R_Grid(3),
-     &       Weights(mGrid), F_xc(mGrid), dW_dR(nGrad_Eff,mGrid)
-      Integer IndGrd(nGrad_Eff), iTab(4,nGrad_Eff)
+     &       R_Grid(3), Weights(mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*                                                                      *
-************************************************************************
-*                                                                      *
-#include "nq_structure.fh"
-      declare_ip_coor
-      declare_ip_dodx
-*                                                                      *
-************************************************************************
-*                                                                      *
-      R_Grid(1)=Work(ip_Coor(iNQ)  )
-      R_Grid(2)=Work(ip_Coor(iNQ)+1)
-      R_Grid(3)=Work(ip_Coor(iNQ)+2)
+      R_Grid(:)=NQ_Data(iNQ)%Coor(:)
 *define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Debug=.True.
@@ -529,7 +516,7 @@
          Call DGEMM_('N','N',
      &               3,3,3,
      &               1.0d0,OV,3,
-     &               Work(ip_O),3,
+     &               Pax,3,
      &               0.0d0,V,3)
 #ifdef _DEBUGPRINT_
       If (Debug) Call RecPrt('V',' ',V,3,3)
@@ -541,25 +528,17 @@
 *
 *           Compute < nabla_r f * r^x > as Tr (O^x V)
 *
-      If(KSDFA(1:5).eq.'TLSDA'.or. !GLM
-     &        KSDFA(1:6).eq.'FTLSDA'.or.
-     &        KSDFA(1:6).eq.'FTBLYP'.or.
-     &        KSDFA(1:5).eq.'FTPBE'.or.
-     &        KSDFA(1:7).eq.'TREVPBE'.or.
-     &        KSDFA(1:8).eq.'FTREVPBE'.or.
-     &        KSDFA(1:5).eq.'TBLYP'.or.
-     &        KSDFA(1:5).eq.'TOPBE'.or.
-     &        KSDFA(1:6).eq.'FTOPBE'.or.
-     &        KSDFA(1:4).eq.'TPBE') then
-            Tmp = DDot_(9,Work(ip_dOdx(jNQ,iCar)),1,V,1)*0.5
-      else
-            Tmp = DDot_(9,Work(ip_dOdx(jNQ,iCar)),1,V,1)
-      end if
+            If (l_casdft) Then
+               Factor=Half
+            else
+               Factor=One
+            end if
+            Tmp = DDot_(9,NQ_Data(jNQ)%dOdx(:,:,iCar),1,V,1)*Factor
 #ifdef _DEBUGPRINT_
             If (Debug) Then
                Write (6,*)
                Write (6,*) 'iCar,jNQ=',iCar,jNQ
-               Call RecPrt('dOdx',' ',Work(ip_dOdx(jNQ,iCar)),3,3)
+               Call RecPrt('dOdx',' ',NQ_Data(jNQ)%dOdx(:,:,iCar),3,3)
                Write (6,*) 'Tmp=',Tmp
             End If
 #endif

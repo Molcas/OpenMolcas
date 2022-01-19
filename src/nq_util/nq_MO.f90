@@ -8,8 +8,9 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module KSDFT_Info
-Character(LEN=16) KSDFA
-Real*8 :: funcaa=0.0D0, funcbb=0.0D0 ,funccc=0.0D0
-Integer :: LuMC,LuMT
-End Module KSDFT_Info
+Module nq_MO
+  Integer, Allocatable:: DoIt(:)
+  Real*8, Allocatable:: CMO(:)
+  Real*8, Allocatable:: D1MO(:), P2MO(:)
+  Real*8, Allocatable:: P2_ontop(:,:)
+End Module nq_MO

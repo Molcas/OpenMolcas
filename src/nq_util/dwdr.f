@@ -10,9 +10,10 @@
 ************************************************************************
       Subroutine dWdR(R,ilist_p,Weights,list_p,nlist_p,
      &                dW_dR,nGrad_Eff,iTab,dW_Temp,dPB,nGrid)
+      use nq_Grid, only: Pax
+      use NQ_Structure, only: NQ_data
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "itmax.fh"
 #include "nq_info.fh"
 #include "debug.fh"
@@ -23,9 +24,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#include "nq_structure.fh"
-      declare_ip_coor
-      declare_ip_dodx
       p(x)=(x*0.5D0)*(3.0D0-x**2)
 *                                                                      *
 ************************************************************************
@@ -35,15 +33,15 @@
 *
       iNQ=list_p(ilist_p)
       iA=ilist_p
-      O11=Work(ip_O)
-      O12=Work(ip_O+1)
-      O13=Work(ip_O+2)
-      O21=Work(ip_O+3)
-      O22=Work(ip_O+4)
-      O23=Work(ip_O+5)
-      O31=Work(ip_O+6)
-      O32=Work(ip_O+7)
-      O33=Work(ip_O+8)
+      O11=Pax(1,1)
+      O12=Pax(2,1)
+      O13=Pax(3,1)
+      O21=Pax(1,2)
+      O22=Pax(2,2)
+      O23=Pax(3,2)
+      O31=Pax(1,3)
+      O32=Pax(2,3)
+      O33=Pax(3,3)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -55,9 +53,7 @@
 *------- The current grid point is associated with center A and the
 *        "atomic" displacement vector relative to center A is computed.
 *
-         Osxyz(1) = R(1,iGrid)-Work(ip_Coor(iNQ)  )
-         Osxyz(2) = R(2,iGrid)-Work(ip_Coor(iNQ)+1)
-         Osxyz(3) = R(3,iGrid)-Work(ip_Coor(iNQ)+2)
+         Osxyz(:) = R(:,iGrid)-NQ_data(iNQ)%Coor(:)
 *
          sxyz(1)=O11*Osxyz(1)+O12*Osxyz(2)+O13*Osxyz(3)
          sxyz(2)=O21*Osxyz(1)+O22*Osxyz(2)+O23*Osxyz(3)
@@ -80,10 +76,9 @@ C        P_A=Zero
             End If
 *
             kNQ=list_p(iB)
-            kx=ip_Coor(kNQ)
-            r_Bx=R(1,iGrid)-Work(kx  )
-            r_By=R(2,iGrid)-Work(kx+1)
-            r_Bz=R(3,iGrid)-Work(kx+2)
+            r_Bx=R(1,iGrid)-NQ_Data(kNQ)%Coor(1)
+            r_By=R(2,iGrid)-NQ_Data(kNQ)%Coor(2)
+            r_Bz=R(3,iGrid)-NQ_Data(kNQ)%Coor(3)
             r_B=sqrt(r_Bx**2+r_By**2+r_Bz**2)
 *
 *           loop over C=/=B for all s(mu_BC), see Eq. B3
@@ -93,14 +88,13 @@ C        P_A=Zero
 *
                If (iC.ne.iB) Then
                   lNQ=list_p(iC)
-                  lx=ip_Coor(lNQ)
-                  r_Cx=R(1,iGrid)-Work(lx  )
-                  r_Cy=R(2,iGrid)-Work(lx+1)
-                  r_Cz=R(3,iGrid)-Work(lx+2)
+                  r_Cx=R(1,iGrid)-NQ_Data(lNQ)%Coor(1)
+                  r_Cy=R(2,iGrid)-NQ_Data(lNQ)%Coor(2)
+                  r_Cz=R(3,iGrid)-NQ_Data(lNQ)%Coor(3)
                   r_C=sqrt(r_Cx**2+r_Cy**2+r_Cz**2)
-                  R_BCx=Work(kx  )-Work(lx  )
-                  R_BCy=Work(kx+1)-Work(lx+1)
-                  R_BCz=Work(kx+2)-Work(lx+2)
+                  R_BCx=NQ_Data(kNQ)%Coor(1)-NQ_Data(lNQ)%Coor(1)
+                  R_BCy=NQ_Data(kNQ)%Coor(2)-NQ_Data(lNQ)%Coor(2)
+                  R_BCz=NQ_Data(kNQ)%Coor(3)-NQ_Data(lNQ)%Coor(3)
                   R_BC=sqrt(R_BCx**2+R_BCy**2+R_BCz**2)
 *
 *                 Eq. B6
@@ -218,19 +212,15 @@ C                    jNQ=list_p(iD)
 *
                      jNQ=list_p(iD)
                      Do iCar = 1, 3
-C                       Call xxDGeMul(Work(ip_dOdx(jNQ,iCar)),3,'N',
-C    &                              sxyz,3,'N',
-C    &                              dOdxs,3,
-C    &                              3,3,1)
-                        dOdx_11=Work(ip_dOdx(jNQ,iCar))
-                        dOdx_21=Work(ip_dOdx(jNQ,iCar)+1)
-                        dOdx_31=Work(ip_dOdx(jNQ,iCar)+2)
-                        dOdx_12=Work(ip_dOdx(jNQ,iCar)+3)
-                        dOdx_22=Work(ip_dOdx(jNQ,iCar)+4)
-                        dOdx_32=Work(ip_dOdx(jNQ,iCar)+5)
-                        dOdx_13=Work(ip_dOdx(jNQ,iCar)+6)
-                        dOdx_23=Work(ip_dOdx(jNQ,iCar)+7)
-                        dOdx_33=Work(ip_dOdx(jNQ,iCar)+8)
+                        dOdx_11= NQ_Data(jNQ)%dOdx(1,1,iCar)
+                        dOdx_21= NQ_Data(jNQ)%dOdx(2,1,iCar)
+                        dOdx_31= NQ_Data(jNQ)%dOdx(3,1,iCar)
+                        dOdx_12= NQ_Data(jNQ)%dOdx(1,2,iCar)
+                        dOdx_22= NQ_Data(jNQ)%dOdx(2,2,iCar)
+                        dOdx_32= NQ_Data(jNQ)%dOdx(3,2,iCar)
+                        dOdx_13= NQ_Data(jNQ)%dOdx(1,3,iCar)
+                        dOdx_23= NQ_Data(jNQ)%dOdx(2,3,iCar)
+                        dOdx_33= NQ_Data(jNQ)%dOdx(3,3,iCar)
                         dOdxs(1)=dOdx_11*sxyz(1)
      &                          +dOdx_12*sxyz(2)
      &                          +dOdx_13*sxyz(3)

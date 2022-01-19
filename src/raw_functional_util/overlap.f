@@ -15,7 +15,7 @@
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. November 2000                           *
 ************************************************************************
-      use nq_Grid, only: F_xc => Exc
+      use nq_Grid, only: F_xc
       use nq_Grid, only: Rho, vRho
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"

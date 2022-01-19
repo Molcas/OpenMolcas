@@ -15,7 +15,7 @@ use xc_f03_lib_m
 use nq_Grid, only: Rho,  Sigma,  Tau,  Lapl
 use nq_Grid, only:vRho, vSigma, vTau, vLapl
 use nq_Grid, only: l_casdft
-use KSDFT_Info, only: F_xca, F_xcb
+use nq_Grid, only: F_xca, F_xcb
 use libxc
 use Definitions, only: wp, iwp, LibxcReal, LibxcSize
 implicit none

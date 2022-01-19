@@ -10,20 +10,21 @@
 !                                                                      *
 ! Copyright (C) 2022, Roland Lindh                                     *
 !***********************************************************************
-Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD,DFTFOCK)
+Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD,DFTFOCK)
       use libxc_parameters
       use OFembed, only: KEOnly, dFMD, Do_Core
       use libxc,   only: Only_exc
+      use nq_Grid, only: l_casdft
+      use nq_pdft, only: lft
       Implicit None
 #include "nq_info.fh"
-      Character*(*) KSDFT
+      Character*(*) KSDFA
       Logical Do_Grad
       Integer :: nGrad, nh1, nD
       Real*8 :: Func, Grad(nGrad)
       Logical Do_MO, Do_TwoEl
       Real*8 :: D_DS(nh1,nD), F_DFT(nh1,nD)
       Character*4 DFTFOCK
-
 
       abstract interface
           Subroutine DFT_FUNCTIONAL(mGrid,nD)
@@ -43,6 +44,41 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
       procedure(DFT_FUNCTIONAL), pointer :: External_sub => null()
 !                                                                      *
 !***********************************************************************
+! Global variable for MCPDFT functionals                               *
+
+      l_casdft = KSDFA.eq.'TLSDA'   .or.                                       &
+     &           KSDFA.eq.'TLSDA5'  .or.                                       &
+     &           KSDFA.eq.'TBLYP'   .or.                                       &
+     &           KSDFA.eq.'TSSBSW'  .or.                                       &
+     &           KSDFA.eq.'TSSBD'   .or.                                       &
+     &           KSDFA.eq.'TS12G'   .or.                                       &
+     &           KSDFA.eq.'TPBE'    .or.                                       &
+     &           KSDFA.eq.'FTPBE'   .or.                                       &
+     &           KSDFA.eq.'TOPBE'   .or.                                       &
+     &           KSDFA.eq.'FTOPBE'  .or.                                       &
+     &           KSDFA.eq.'TREVPBE' .or.                                       &
+     &           KSDFA.eq.'FTREVPBE'.or.                                       &
+     &           KSDFA.eq.'FTLSDA'  .or.                                       &
+     &           KSDFA.eq.'FTBLYP'
+
+      lft      = KSDFA.eq.'FTPBE'   .or.                                       &
+     &           KSDFA.eq.'FTOPBE'  .or.                                       &
+     &           KSDFA.eq.'FTREVPBE'.or.                                       &
+     &           KSDFA.eq.'FTLSDA'  .or.                                       &
+     &           KSDFA.eq.'FTBLYP'
+
+      If (l_casdft) Then
+         If (lft) Then
+            KSDFA(:)=KSDFA(3:)//'  '
+         Else
+            KSDFA(:)=KSDFA(2:)//' '
+         End If
+         Do_MO=.true.
+         Do_TwoEl=.true.
+         If (.NOT.Do_PDFTPOT .and. .Not.DO_Grad) Only_exc=.True.
+      End If
+!                                                                      *
+!***********************************************************************
 !***********************************************************************
 !                                                                      *
 !      Default is to use the libxc interface
@@ -53,13 +89,13 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-       Select Case(KSDFT)
+       Select Case(KSDFA)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 !      LSDA LDA SVWN                                                   *
 !                                                                      *
-      Case('LSDA ','LDA ','TLSDA','FTLSDA','SVWN ')
+      Case('LSDA ','LDA ','SVWN ')
          Functional_type=LDA_type
 
 !----    Slater exchange
@@ -74,15 +110,12 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
             nFuncs=2
             func_id(1:nFuncs)=[XC_LDA_X,XC_LDA_C_VWN_RPA]
          End If
-
-         If(KSDFT.eq.'TLSDA'.or.KSDFT.eq.'FTLSDA') Do_MO=.true.
-         If(KSDFT.eq.'TLSDA'.or.KSDFT.eq.'FTLSDA') Do_TwoEl=.true.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 !      LSDA5 LDA5 SVWN5                                                *
 !                                                                      *
-       Case('LSDA5','LDA5','TLSDA5 ','SVWN5')
+       Case('LSDA5','LDA5','SVWN5')
          Functional_type=LDA_type
 
 !----    Slater exchange
@@ -205,7 +238,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
 !     BLYP                                                             *
 !                                                                      *
-      Case('BLYP','TBLYP','FTBLYP')
+      Case('BLYP')
          Functional_type=GGA_type
 
 !----    Slater exchange + B88 exchange
@@ -220,9 +253,6 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
             nFuncs=2
             func_id(1:nFuncs)=[XC_GGA_X_B88,XC_GGA_C_LYP]
          End If
-
-         If(KSDFT.eq.'TBLYP'.or. KSDFT.eq.'FTBLYP') Do_MO=.true.
-         If(KSDFT.eq.'TBLYP'.or. KSDFT.eq.'FTBLYP') Do_TwoEl=.true.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -320,7 +350,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
 !     OPBE                                                             *
 !                                                                      *
-      Case('OPBE','TOPBE','FTOPBE')
+      Case('OPBE')
          Functional_type=GGA_type
 
 !----    Slater exchange + OPT exchange
@@ -329,9 +359,6 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 
          nFuncs=2
          func_id(1:nFuncs)=[XC_GGA_X_OPTX,XC_GGA_C_PBE]
-
-         If(KSDFT.eq.'TOPBE'.or.KSDFT.eq.'FTOPBE') Do_MO=.true.
-         If(KSDFT.eq.'TOPBE'.or.KSDFT.eq.'FTOPBE') Do_TwoEl=.true.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -478,7 +505,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
 !     PBE                                                              *
 !                                                                      *
-      Case('PBE','TPBE','FTPBE')
+      Case('PBE')
          Functional_type=GGA_type
 
 !----    Perdew-Burk-Ernzerhof exchange
@@ -493,15 +520,12 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
             nFuncs=2
             func_id(1:nFuncs)=[XC_GGA_X_PBE,XC_GGA_C_PBE]
          End If
-
-         If(KSDFT.eq.'TPBE'.or.KSDFT.eq.'FTPBE') Do_MO=.true.
-         If(KSDFT.eq.'TPBE'.or.KSDFT.eq.'FTPBE') Do_TwoEl=.true.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 !     revPBE                                                           *
 !                                                                      *
-      Case('REVPBE','TREVPBE','FTREVPBE')
+      Case('REVPBE')
          Functional_type=GGA_type
 
 !----    Revised Perdew-Burk-Ernzerhof exchange
@@ -511,14 +535,12 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
          nFuncs=2
          func_id(1:nFuncs)=[XC_GGA_X_PBE_R,XC_GGA_C_PBE]
 
-         If(KSDFT.eq.'TREVPBE'.or.KSDFT.eq.'FTREVBPE') Do_MO=.true.
-         If(KSDFT.eq.'TREVPBE'.or.KSDFT.eq.'FTREVPBE') Do_TwoEl=.true.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 !     SSBSW                                                              *
 !                                                                      *
-      Case('SSBSW','TSSBSW')
+      Case('SSBSW')
          Functional_type=GGA_type
 
 !----    Swarts-Solo-Bickelhaupt sw exchange
@@ -532,7 +554,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
 !     SSBD                                                             *
 !                                                                      *
-      Case('SSBD','TSSBD')
+      Case('SSBD')
          Functional_type=GGA_type
 
 !----    Swarts-Solo-Bickelhaupt-D exchange
@@ -561,7 +583,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
 !     S12G                                                             *
 !                                                                      *
-      Case('S12G','TS12G')
+      Case('S12G')
          Functional_type=GGA_type
 
 !----    Swarts GGA exchange
@@ -838,7 +860,7 @@ Subroutine Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
       Case default
          Call WarningMessage(2,' Driver: Undefined functional type!')
-         Write (6,*) '         Functional=',KSDFT(1:LEN(KSDFT))
+         Write (6,*) '         Functional=',KSDFA(1:LEN(KSDFA))
          Call Quit_OnUserError()
        End Select
 !                                                                      *
