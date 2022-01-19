@@ -654,7 +654,7 @@ c compatibility with the present version: of aniso_i.input file
       LOGICAL                     :: dbg
       !
       Integer                     :: nAtoms, iAt, l
-      Character(LEN=LENIN)        :: AtomLbl(MxAtom), Byte4
+      Character(LEN=LENIN)        :: AtomLbl(MxAtom)
       Real*8, Allocatable         :: xyz(:,:)
       dbg=.false.
 
