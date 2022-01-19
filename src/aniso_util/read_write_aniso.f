@@ -712,7 +712,7 @@ c compatibility with the present version: of aniso_i.input file
       nAtoms=0
       Call Get_iScalar('Unique atoms',nAtoms)
       Call Get_cArray('Unique Atom Names',AtomLbl,LENIN*nAtoms)
-      Call mma_Allocate(xyz,3,8*nAtoms)
+      Call mma_allocate(xyz,3,8*nAtoms)
       Call Get_dArray('Unique Coordinates',xyz,3*nAtoms)
 
       !-------------------------------------------------------------
@@ -824,6 +824,7 @@ c compatibility with the present version: of aniso_i.input file
       Call mma_deallocate(jbnum)
       Call mma_deallocate(mltplt)
       Call mma_deallocate(nroot)
+      Call mma_deallocate(xyz)
 
       Return
       End
