@@ -93,11 +93,10 @@
 *
 *
 *     .. Local Scalars ..
-      INTEGER            I, J, L
-      REAL*8   TEMP
+      INTEGER            J, L
 *     .. Parameters ..
-      REAL*8   ZERO,One
-      PARAMETER        ( ZERO = 0.0D+0, One= 1.0D0 )
+      REAL*8   ZERO
+      PARAMETER        ( ZERO = 0.0D+0 )
 *     ..
 *
 *     Form  C := A*B + C.
