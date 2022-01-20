@@ -26,7 +26,7 @@ use k2_arrays, only: pDq, pFq
 use Basis_Info, only: dbsc, nBas, nBas_Frag, nCnttp
 use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, iOper
-use Real_Info, only: ThrInt, CutInt
+use Gateway_Info, only: ThrInt, CutInt
 use Integral_Interfaces, only: DeDe_SCF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Quart

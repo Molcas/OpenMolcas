@@ -13,7 +13,7 @@
 ************************************************************************
       Subroutine DKRelint
       use Basis_Info
-      use Temporary_Parameters, only: force_out_of_core
+      use Gateway_global, only: force_out_of_core
       use DKH_Info
       use Symmetry_Info, only: nIrrep
 c

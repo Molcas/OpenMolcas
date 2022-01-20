@@ -14,7 +14,7 @@ subroutine Misc_Seward(iBas,iBas_Aux,iBas_Frag)
 use Basis_Info, only: dbsc, iCnttp_Dummy, nCnttp, Shells
 use Center_Info, only: dc
 use Sizes_of_Seward, only: S
-use Real_Info, only: RadMax, cdMax, EtMax
+use Gateway_Info, only: RadMax, cdMax, EtMax
 use Symmetry_Info, only: nIrrep
 use Definitions, only: iwp, u6
 

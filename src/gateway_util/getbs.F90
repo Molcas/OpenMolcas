@@ -32,6 +32,7 @@
 subroutine GetBS(DDname,BSLbl,iShll,Ref,UnNorm,LuRd,BasisTypes,STDINP,iSTDINP,L_STDINP,Expert,ExtBasDir)
 
 use Basis_Info, only: dbsc, nCnttp, Shells
+use DKH_Info, only: iRELMP
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u5, u6
@@ -47,16 +48,6 @@ integer(kind=iwp), intent(in) :: LuRd
 integer(kind=iwp), intent(out) :: BasisTypes(4)
 character(len=180), intent(in) :: STDINP(MxAtom*2)
 #include "angtp.fh"
-#include "relmp.fh"
-! IRELMP =0  .... NOPAIR (DK2)
-! IRELMP =1  .... NOPAIR (DK1)
-! IRELMP =2  .... NOPAIR (DK2)
-! IRELMP =3  .... NOPAIR (DK3)
-! IRELMP =4  .... full NOPAIR (DK3)
-! IRELMP =11 .... RESC
-! IRELMP =21 .... ZORA
-! IRELMP =22 .... ZORA-FP
-! IRELMP =23 .... IORA
 integer(kind=iwp) :: i, iAdded, iAIMP, iAng, iDominantSet, iEnd, iErr, iFlgOne, iFrst, iMPShll, iNow, iPrevNow, iPrim, iPrint, &
                      iPrSh, iValSh, j, j1, j2, jNow, jPrSh, jValSh, lAng, lUnit, LUQRP, mCGTO(0:iTabMx), mDel, mSOC, mVal, nAdded, &
                      nAIMP, nCGTO(0:iTabMx), nCntrc, nEorb, nPrim, nProj, Nwords
@@ -706,6 +697,7 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
 
         dbsc(nCnttp)%NoPair = .true.
         dbsc(nCnttp)%SODK = .true.
+        if ((IRELMP >= 0) .and. (IRELMP /= 0)) call Error()
         IRELMP = 0
         dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**3)
 
@@ -714,6 +706,7 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
 
         dbsc(nCnttp)%NoPair = .true.
         dbsc(nCnttp)%SODK = .true.
+        if ((IRELMP >= 0) .and. (IRELMP /= 1)) call Error()
         IRELMP = 1
         dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**3)
 
@@ -722,6 +715,7 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
 
         dbsc(nCnttp)%NoPair = .true.
         dbsc(nCnttp)%SODK = .true.
+        if ((IRELMP >= 0) .and. (IRELMP /= 2)) call Error()
         IRELMP = 2
         dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**3)
 
@@ -730,6 +724,7 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
 
         dbsc(nCnttp)%NoPair = .true.
         dbsc(nCnttp)%SODK = .true.
+        if ((IRELMP >= 0) .and. (IRELMP /= 3)) call Error()
         IRELMP = 3
         dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**3)
 
@@ -738,6 +733,7 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
 
         dbsc(nCnttp)%NoPair = .true.
         dbsc(nCnttp)%SODK = .true.
+        if ((IRELMP >= 0) .and. (IRELMP /= 4)) call Error()
         IRELMP = 4
         dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**3)
 
@@ -745,6 +741,7 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
         ! one-centre RESC operators
 
         dbsc(nCnttp)%NoPair = .true.
+        if ((IRELMP >= 0) .and. (IRELMP /= 11)) call Error()
         IRELMP = 11
         dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**3)
 
@@ -752,6 +749,7 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
         ! one-centre ZORA operators
 
         dbsc(nCnttp)%NoPair = .true.
+        if ((IRELMP >= 0) .and. (IRELMP /= 21)) call Error()
         IRELMP = 21
         dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**3)
 
@@ -760,6 +758,7 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
 
         dbsc(nCnttp)%NoPair = .true.
         dbsc(nCnttp)%SODK = .true.
+        if ((IRELMP >= 0) .and. (IRELMP /= 22)) call Error()
         IRELMP = 22
         dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**3)
 
@@ -768,6 +767,7 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
 
         dbsc(nCnttp)%NoPair = .true.
         dbsc(nCnttp)%SODK = .true.
+        if ((IRELMP >= 0) .and. (IRELMP /= 23)) call Error()
         IRELMP = 23
         dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**3)
 
@@ -916,5 +916,14 @@ lAng = max(lAng,nProj,nAIMP)
 if (.not. inLn3) close(lUnit)
 
 return
+
+contains
+
+subroutine Error()
+
+  call WarningMessage(2,'Mixing of iRELMP values')
+  call Untested('GetBS')
+
+end subroutine Error
 
 end subroutine GetBS

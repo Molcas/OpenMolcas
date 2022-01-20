@@ -28,6 +28,7 @@ subroutine Nrmlx(rExp,nPrim,Coeff,nCntrc,Scrt1,nScrt1,Scrt2,nScrt2,iAng)
 !             January '90                                              *
 !***********************************************************************
 
+use Constants, only: Zero, One, Two, Three, Three
 use Definitions, only: wp, iwp
 
 implicit none
@@ -35,7 +36,6 @@ integer(kind=iwp), intent(in) :: nPrim, nCntrc, nScrt1, nScrt2, iAng
 real(kind=wp), intent(in) :: rExp(nPrim)
 real(kind=wp), intent(inout) :: Coeff(nPrim,nCntrc)
 real(kind=wp), intent(out) :: Scrt1(nScrt1), Scrt2(nScrt2)
-#include "real.fh"
 integer(kind=iwp) :: i, iExp, jExp
 real(kind=wp) :: Temp
 

@@ -11,7 +11,7 @@
 
 subroutine Fill_rInfo1()
 
-use Basis_Info
+use Basis_Info, only: dbsc, nCnttp, Shells
 use Definitions, only: iwp, u6
 
 implicit none

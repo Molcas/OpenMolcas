@@ -11,7 +11,6 @@
 
 subroutine RdCtl_Seward(LuRd_,lOPTO,Do_OneEl)
 
-use SW_File, only: SW_FileOrb
 use AMFI_Info, only: No_AMFI
 use Basis_Info, only: dbsc, Gaussian_Type, Max_Shells, mGaussian_Type, MolWgh, nCnttp, Nuclear_Model, Point_Charge, Shells
 use Center_Info, only: dc, n_dc
@@ -24,16 +23,14 @@ use fortran_strings, only: str
 use External_Centers, only: AMP_Center, DMS_Centers, Dxyz, EF_Centers, iXPolType, nData_XF, nDMS, nEF, nOrd_XF, nOrdEF, nRP, nWel, &
                             nXF, nXMolnr, OAM_Center, OMQ_Center, RP_Centers, Wel_Info, XEle, XF, XMolnr
 use Symmetry_Info, only: iSkip, nIrrep, Symmetry_Info_Setup, VarR, VarT
-use Temporary_Parameters, only: DirInt, Expert, Fake_ERIs, Force_Out_of_Core, force_part_c, force_part_p, ifallorb, Onenly, Prprt, &
-                                Short, Test
-use Integral_Parameters, only: iPack, iWRopt
 use Sizes_of_Seward, only: S
-use Real_Info, only: CoM, CutInt, E1, E2, kVector, PkAcc, RPQMin, Rtrnc, SadStep, Shake, ThrInt, Thrs
+use Gateway_Info, only: Align_Only, CoM, CutInt, Do_Align, Do_FckInt, Do_GuessOrb, DoFMM, E1, E2, EMFR, FNMC, GIAO, kVector, &
+                        lAMFI, lDOWNONLY, lMXTC, lRel, lRP, lSchw, lUPONLY, NEMO, PkAcc, RPQMin, Rtrnc, SadStep, Shake, ThrInt, &
+                        Thrs, UnNorm, Vlct
 use DKH_Info, only: iCtrLD, BSS, CLightAU, DKroll, IRELAE, IRFLAG1, LDKRoll, nCtrlD, radiLD
 use RICD_Info, only: Cholesky, DiagCheck, Do_acCD_Basis, Do_nacCD_Basis, Do_RI, iRI_Type, LDF, LocalDF, Skip_High_AC, Thrshld_CD
-use Logical_Info, only: Align_Only, Do_Align, Do_FckInt, Do_GuessOrb, DoFMM, EMFR, FNMC, GIAO, lAMFI, lDOWNONLY, lMXTC, lRel, lRP, &
-                        lSchw, lUPONLY, NEMO, UnNorm, Vlct
-use Gateway_global, only: G_Mode, Run_Mode, S_Mode
+use Gateway_global, only: DirInt, Expert, Fake_ERIs, Force_Out_of_Core, force_part_c, force_part_p, G_Mode, ifallorb, iPack, &
+                          iWRopt, Onenly, Prprt, Run_Mode, S_Mode, Short, SW_FileOrb, Test
 #ifdef _FDE_
 use Embedding_Global, only: embOutDensPath, embOutEspPath, embOutGradPath, embOutHessPath, embPot, embPotInBasis, embPotPath, &
                             embWriteDens, embWriteEsp, embWriteGrad, embWriteHess, outGridPath, outGridPathGiven
@@ -1025,8 +1022,8 @@ do
           KWord = Get_Ln(LuRd)
           call Upcase(KWord)
           call Get_I1(1,iMltpl)
-          call Get_F(2,RTmp(1,i),3)
-          if (index(KWord,'ANGSTROM') /= 0) call DScal_(3,One/Angstrom,RTmp(1,i),1)
+          call Get_F(2,RTmp(:,i),3)
+          if (index(KWord,'ANGSTROM') /= 0) RTmp(:,i) = RTmp(:,i)/Angstrom
           ITmp(i) = iMltpl
         end do
 
@@ -1428,7 +1425,7 @@ do
         KWord = Get_Ln(LuRd)
         call Upcase(KWord)
         call Get_F(1,OAMt,3)
-        if (index(KWord,'ANGSTROM') /= 0) call DScal_(3,One/Angstrom,OAMt,1)
+        if (index(KWord,'ANGSTROM') /= 0) OAMt(:) = OAMt/Angstrom
 
       case (KeyW(81))
         !                                                              *
@@ -1457,7 +1454,7 @@ do
         KWord = Get_Ln(LuRd)
         call Upcase(KWord)
         call Get_F(1,OMQt,3)
-        if (index(KWord,'ANGSTROM') /= 0) call DScal_(3,One/Angstrom,OMQt,1)
+        if (index(KWord,'ANGSTROM') /= 0) OMQt(:) = OMQt/Angstrom
 
       case (KeyW(84))
         !                                                              *
@@ -1497,7 +1494,7 @@ do
             KWord = Get_Ln(LuRd)
             call Upcase(KWord)
             call Get_F(1,DMSt(1,iDMS),3)
-            if (index(KWord,'ANGSTROM') /= 0) call DScal_(3,One/Angstrom,DMSt(1,iDMS),1)
+            if (index(KWord,'ANGSTROM') /= 0) DMSt(:,iDMS) = DMSt(:,iDMS)/Angstrom
           end do
         end if
 
@@ -1909,7 +1906,7 @@ do
         call Get_F(1,VCell(1,2),3)
         KWord = Get_Ln(LuRd)
         call Get_F(1,VCell(1,3),3)
-        if (index(Key,'ANGSTROM') /= 0) call DScal_(9,One/Angstrom,VCell,1)
+        if (index(Key,'ANGSTROM') /= 0) VCell(:,:) = VCell/Angstrom
         Cell_l = .true.
         call mma_allocate(AdCell,MxAtom)
 
@@ -3785,7 +3782,7 @@ call SetMltplCenters()
 if (lMltpl) then
   do i=1,nTemp
     iMltpl = ITmp(i)
-    if (iMltpl <= S%nMltpl) call dcopy_(3,RTmp(1,i),1,Coor_MPM(1,iMltpl+1),1)
+    if (iMltpl <= S%nMltpl) Coor_MPM(:,iMltpl+1) = RTmp(:,i)
   end do
   call mma_deallocate(RTmp)
   call mma_deallocate(ITmp)
@@ -3801,10 +3798,10 @@ call RecPrt(' Multipole centers',' ',Coor_MPM,3,S%nMltpl+1)
 
 if (lOAM .and. (Run_Mode /= S_Mode)) then
   call mma_allocate(OAM_Center,3,Label='OAM_Center')
-  call dcopy_(3,OAMt,1,OAM_Center,1)
+  OAM_Center(:) = OAMt
 else if (.not. allocated(OAM_Center)) then
   call mma_allocate(OAM_Center,3,Label='OAM_Center')
-  call dcopy_(3,CoM,1,OAM_Center,1)
+  OAM_Center(:) = CoM
 end if
 !                                                                      *
 !***********************************************************************
@@ -3814,7 +3811,7 @@ end if
 
 if (lOMQ .and. (Run_Mode /= S_Mode)) then
   call mma_allocate(OMQ_Center,3,Label='OMQ_Center')
-  call DCopy_(3,OMQt,1,OMQ_Center,1)
+  OMQ_Center(:) = OMQt
 end if
 !                                                                      *
 !***********************************************************************
@@ -4227,10 +4224,7 @@ subroutine ProcessBasis()
                 iOff = 1+(nCnt-1)*3
 
                 ! Copy old coordinate  first
-                call DCOPY_(3,Buffer(iOff0),1,Buffer(iOff),1)
-                call DAXPY_(3,real(n1,kind=wp),VCell(1,1),1,Buffer(iOff),1)
-                call DAXPY_(3,real(n2,kind=wp),VCell(1,2),1,Buffer(iOff),1)
-                call DAXPY_(3,real(n3,kind=wp),VCell(1,3),1,Buffer(iOff),1)
+                Buffer(iOff:iOff+2) = Buffer(iOff0:iOff0+2)+n1*VCell(:,1)+n2*VCell(:,2)+n3*VCell(:,3)
 
               end do
             end do
@@ -4278,9 +4272,9 @@ subroutine ProcessEF(KWName)
           call Quit_OnUserError()
         end if
       else
-        call Get_F(1,EFt(1,iEF),3)
+        call Get_F(1,EFt(:,iEF),3)
         call Upcase(KWord)
-        if (index(KWord,'ANGSTROM') /= 0) call DScal_(3,One/Angstrom,EFt(1,iEF),1)
+        if (index(KWord,'ANGSTROM') /= 0) EFt(:,i) = EFt(:,i)/Angstrom
       end if
     end do
   end if

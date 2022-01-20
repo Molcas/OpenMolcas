@@ -28,8 +28,7 @@ use Center_Info, only: dc
 use External_Centers, only: nRP, RP_Centers
 use Isotopes, only: PTab
 use Sizes_of_Seward, only: S
-use Real_Info, only: E1, E2, SadStep, Shake
-use Logical_Info, only: Align_Only, Do_Align, lRP, lRP_Post
+use Gateway_Info, only: Align_Only, Do_Align, E1, E2, lRP, lRP_Post, SadStep, Shake
 use Symmetry_Info, only: nIrrep, VarR, VarT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Four, Half, OneHalf, Angstrom
@@ -105,8 +104,8 @@ if (Not_First_Iter) then
   end if
   Update = Zero
 
-  call dcopy_(3*nAt,TmpA(1),1,RP_Centers(1,1,1),1)
-  call dcopy_(3*nAt,TmpA(1+3*nAt),1,RP_Centers(1,1,2),1)
+  call dcopy_(3*nAt,TmpA(1),1,RP_Centers(:,:,1),1)
+  call dcopy_(3*nAt,TmpA(1+3*nAt),1,RP_Centers(:,:,2),1)
   E1 = TmpA(6*nAt+1)
   E2 = TmpA(6*nAt+2)
   HSR0 = TmpA(6*nAt+3)
@@ -186,8 +185,8 @@ else
     call Fix_Symmetry(XYZ(1,iReac),nAt,iStab)
     call Add_Info('RMSD',[RMSD],1,6)
     call Add_Info('RMSMax',[RMSMax],1,6)
-    call dcopy_(3*nAt,XYZ(1,iReac),1,RP_Centers(1,1,1),1)
-    call dcopy_(3*nAt,XYZ(1,iProd),1,RP_Centers(1,1,2),1)
+    call dcopy_(3*nAt,XYZ(:,iReac),1,RP_Centers(:,:,1),1)
+    call dcopy_(3*nAt,XYZ(:,iProd),1,RP_Centers(:,:,2),1)
 
     if (Align_Only) then
 
@@ -400,10 +399,9 @@ if (Not_First_Iter) then
 
       Skip = .false.
       if (iSaddle > 2) then
-        call dcopy_(nRP,XYZ(1,iX1),1,Vec(1,1),1)
-        call daxpy_(nRP,-One,XYZ(1,iX0),1,Vec(1,1),1)
-        call dcopy_(nRP,RP_Centers(1,1,ipX2),1,Vec(1,2),1)
-        call daxpy_(nRP,-One,XYZ(1,iX1),1,Vec(1,2),1)
+        Vec(:,1) = XYZ(1:nRP,iX1)-XYZ(1:nRP,iX0)
+        call dcopy_(nRP,RP_Centers(:,:,ipX2),1,Vec(:,2),1)
+        Vec(:,2) = Vec(:,2)-XYZ(1:nRP,iX1)
         deviation = dmwdot(nAt,mAt,Vec(1,1),Vec(1,2))
         R11 = dmwdot(nAt,mAt,Vec(1,2),Vec(1,2))
         R22 = dmwdot(nAt,mAt,Vec(1,1),Vec(1,1))
@@ -418,11 +416,10 @@ if (Not_First_Iter) then
       if (.not. Skip) then
         ! Compute R11=(X3-X1)**2 and R22=(X2-X1)**2
 
-        call dcopy_(nRP,XYZ(1,iX3),1,Vec(1,1),1)
-        call daxpy_(nRP,-One,XYZ(1,iX1),1,Vec(1,1),1)
+        Vec(:,1) = XYZ(1:nRP,iX3)-XYZ(1:nRP,iX1)
         R11 = dmwdot(nAt,mAt,Vec(1,1),Vec(1,1))
-        call dcopy_(nRP,RP_Centers(1,1,ipX2),1,Vec(1,2),1)
-        call daxpy_(nRP,-One,XYZ(1,iX1),1,Vec(1,2),1)
+        call dcopy_(nRP,RP_Centers(:,:,ipX2),1,Vec(:,2),1)
+        Vec(:,2) = Vec(:,2)-XYZ(1:nRP,iX1)
         R22 = dmwdot(nAt,mAt,Vec(1,2),Vec(1,2))
         R1R2 = dmwdot(nAt,mAt,Vec(1,2),Vec(1,1))
 
@@ -507,8 +504,8 @@ else
     HSR = HSR-dHSR
     if (Mode == 'P') Delta = One-Delta
   end if
-  call dcopy_(3*nAt,RP_Centers(1,1,1),1,TmpA(1),1)
-  call dcopy_(3*nAt,RP_Centers(1,1,2),1,TmpA(1+3*nAt),1)
+  call dcopy_(3*nAt,RP_Centers(:,:,1),1,TmpA(1),1)
+  call dcopy_(3*nAt,RP_Centers(:,:,2),1,TmpA(1+3*nAt),1)
   TmpA(6*nAt+1) = E1
   TmpA(6*nAt+2) = E2
   TmpA(6*nAt+3) = HSR0
@@ -624,8 +621,7 @@ if (quadratic) then
 
   ! Compute the next structure
 
-  call daxpy_(nRP,(C-One),Vec(1,1),1,Vec(1,1),1)
-  call daxpy_(nRP,D,Vec(1,2),1,Vec(1,1),1)
+  Vec(:,1) = C*Vec(:,1)+D*Vec(:,2)
   call mma_allocate(XYZ,3*nAt*8,2,label='XYZ')
   iRA1 = 1
   iRA2 = 2
@@ -636,13 +632,13 @@ if (quadratic) then
       call Superpose_w(XYZ(1,iRA2),XYZ(1,iRA1),W,mAt,RMSD,RMax)
       call Fix_Symmetry(XYZ(1,iRA2),nAt,iStab)
     end if
-    call daxpy_(nRP,One,XYZ(1,iRA2),1,Vec(1,1),1)
+    Vec(:,1) = Vec(:,1)+XYZ(1:nRP,iRA2)
   else
     if (Invar) then
       call Superpose_w(XYZ(1,iRA1),XYZ(1,iRA2),W,mAt,RMSD,RMax)
       call Fix_Symmetry(XYZ(1,iRA1),nAt,iStab)
     end if
-    call daxpy_(nRP,One,XYZ(1,iRA1),1,Vec(1,1),1)
+    Vec(:,1) = Vec(:,1)+XYZ(1:nRP,iRA1)
   end if
   call mma_deallocate(XYZ)
   j = 1
@@ -680,8 +676,7 @@ else
       call Fix_Symmetry(XYZ(1,iRA1),nAt,iStab)
     end if
   end if
-  call daxpy_(nRP,(One-Delta),XYZ(1,iRA1),1,TmpA,1)
-  call daxpy_(nRP,(Delta),XYZ(1,iRA2),1,TmpA,1)
+  TmpA(1:nRP) = TmpA(1:nRP)+(One-Delta)*XYZ(1:nRP,iRA1)+Delta*XYZ(1:nRP,iRA2)
   call mma_deallocate(XYZ)
   j = 1
   do iCnttp=1,nCnttp

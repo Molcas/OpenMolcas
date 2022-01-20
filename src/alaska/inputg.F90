@@ -27,8 +27,8 @@ use Alaska_Info, only: Am, Auto, ForceNAC
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, iChTbl, iOper, lIrrep, lBsFnc
-use Temporary_Parameters, only: Onenly, Test
-use Real_Info, only: CutInt
+use Gateway_global, only: Onenly, Test
+use Gateway_Info, only: CutInt
 use OFembed, only: Do_OFemb, KEonly, OFE_first, Xsigma, dFMD, OFE_KSDFT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One

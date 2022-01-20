@@ -41,10 +41,10 @@ use Symmetry_Info, only: Symmetry_Info_Dmp
 use SOAO_Info, only: SOAO_Info_Dmp
 use Sizes_of_Seward, only: Size_Dmp
 use DKH_Info, only: DKH_Info_Dmp
-use Real_Info, only: Real_Info_Dmp
 use RICD_Info, only: RICD_Info_Dmp
 use Logical_Info, only: Logical_Info_Dmp
 use nq_Info
+use Gateway_Info, only: Gateway_Info_Dmp
 use Definitions, only: wp, iwp
 
 implicit none
@@ -73,9 +73,8 @@ subroutine DmpInf_Internal(cRFStrt,iRFStrt,lRFStrt,rRFStrt,cQStrt,iQStrt,rQStrt)
   call Symmetry_Info_Dmp()
   call Size_Dmp()
   call DKH_Info_Dmp()
-  call Real_Info_Dmp()
+  call Gateway_Info_Dmp()
   call RICD_Info_Dmp()
-  call Logical_Info_Dmp()
   !                                                                    *
   !*********************************************************************
   !                                                                    *

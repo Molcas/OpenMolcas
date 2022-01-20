@@ -9,11 +9,19 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Put_LDFAccuracy()
+! auxiliary constant pool: ready only up to g-valence/g-core
+
+module AMatrix
+
+use Definitions, only: wp, iwp
 
 implicit none
-#include "localdf.fh"
+private
 
-call Put_dScalar('LDF Accuracy',Thr_Accuracy)
+integer(kind=iwp), parameter :: lp1 = 5, lp12 = lp1**2, lp13 = lp1*(lp1+1)/2
+integer(kind=iwp) :: KOSUU(lp13), NYU(lp1,lp13)
+real(kind=wp) :: DFAC(lp12), RCA(lp1,lp13)
 
-end subroutine Put_LDFAccuracy
+public :: DFAC, KOSUU, lp1, lp12, NYU, RCA
+
+end module AMatrix

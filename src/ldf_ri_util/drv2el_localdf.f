@@ -90,7 +90,8 @@ C=============
          Write(6,'(A,1P,D15.6)')
      &   'Target Accuracy...............................',Thr_Accuracy
          Write(6,'(A,1P,D15.6)')
-     &   'Prescreening Threshold........................',Thr_Prescreen
+     &   'Prescreening Threshold........................',
+     &   Thr_LDFPrescreen
          Write(6,'(A,5X,I10)')
      &   'Print Level...................................',iPrint
          Call xFlush(6)

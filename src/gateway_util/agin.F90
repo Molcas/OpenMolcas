@@ -11,12 +11,11 @@
 
 subroutine AGIN()
 
+use AMatrix, only: DFAC, KOSUU, lp1, lp12, NYU, RCA
 use Constants, only: Zero, One, Two, Three, Four, Five, Seven, Nine, Ten
 use Definitions, only: wp, iwp
 
 implicit none
-! auxiliary constant pool: ready only up to g-valence/g-core
-#include "const.fh"
 integer(kind=iwp) :: I, ICOL, IJ, IROW, IVAL, J, L
 
 DFAC(1) = One
@@ -24,17 +23,13 @@ DFAC(2) = One
 do I=3,lp12
   DFAC(I) = DFAC(I-2)*real(I-1,kind=wp)
 end do
-do J=1,lp13
-  do I=1,lp1
-    RCA(I,J) = Zero
-  end do
-end do
 
 ! RCA(i,j) = c(k) (la,0;lb,0) * sqrt((2*la+1)(2*lb+1))
 !   j identifies la,lb:  ss,ps,pp,ds,dp,dd,... 1,2,3,4,5,6,...
 !   i identifies k: i=1 for the lowest k whose c(k) is non-zero,
 !                   i=2 for the next   k  "     "    "   ", etc.
 
+RCA(:,:) = Zero
 RCA(1,1) = One
 RCA(1,2) = One/Three
 RCA(1,3) = One/Three

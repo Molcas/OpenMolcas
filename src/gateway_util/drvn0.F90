@@ -26,8 +26,8 @@ use External_Centers, only: XF, nOrd_XF, nXF
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use Phase_Info, only: iPhase
-use Temporary_Parameters, only: Expert
-use Real_Info, only: PotNuc
+use Gateway_global, only: Expert
+use Gateway_Info, only: PotNuc
 use Symmetry_Info, only: nIrrep
 use Constants, only: Zero, One, Two, Three, Four, Six, Half, Quart
 use Definitions, only: wp, iwp, u6

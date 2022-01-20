@@ -28,12 +28,12 @@ implicit none
 integer(kind=iwp), intent(in) :: iOpt, LUQRP, lMax, iSRShll, nProj, iCoShll
 character(len=20), intent(in) :: MPLbl
 real(kind=wp), intent(in) :: rcharge
-! working variables (change this)
-integer(kind=iwp), parameter :: mx100 = 100, Mxlpq = mx100*(mx100+1)/2
-integer(kind=iwp) :: i, IJ, IJAM0, iprint, iq, iSRSh, J, K, L, LAM, lP1, lpq, maxprim, maxprimt, N, nmat, nnexp, nP, Nrel
+integer(kind=iwp) :: i, IJ, IJAM0, iprint, iq, iSRSh, J, K, L, LAM, lP1, lpq, maxprim, maxprimt, N, nmat, nnexp, nP, nP1, nP2, &
+                     Nrel, nscr
 real(kind=wp) :: ADUM, AuxLs, PreFac, ZI, ZJ
-real(kind=wp), allocatable :: AUXI(:), COREK(:,:,:), EVN1(:), hcorr(:), OVL(:,:), PVPT(:), RE1R(:), rel(:), srel(:), tnrel(:), &
-                              trel(:), unrel(:), urel(:), VEXTT(:), W1W1(:)
+integer(kind=iwp), allocatable :: iScratch(:)
+real(kind=wp), allocatable :: AUXI(:), COREK(:,:,:), EVN1(:), hcorr(:), OVL(:,:), PVPT(:), RE1R(:), rel(:), Scratch(:), srel(:), &
+                              tnrel(:), trel(:), unrel(:), urel(:), VEXTT(:), W1W1(:)
 integer(kind=iwp), parameter :: iExch = 1, iMVPot = 2, iDWPot = 4, iNPPot = 8
 real(kind=wp), external :: OVLMP, Vexch
 
@@ -48,8 +48,9 @@ do i=1,lmax+1
   maxprim = max(maxprim,nnExp)
   lpq = lpq+nnExp*(nnExp+1)/2
 end do
-Nrel = max(4*lpq,7*Mxlpq+5*mx100*mx100+5*mx100)
 maxprimt = maxprim*(maxprim+1)/2
+Nrel = max(4*lpq,maxprimt)
+nscr = 3*maxprimt+5*maxprim*maxprim+5*maxprim
 #ifdef _DEBUGPRINT_
 write(u6,*) ' basis:',(Shells(iSRShll+i-1)%nExp,i=1,lmax+1)
 do i=1,lmax+1
@@ -76,6 +77,8 @@ call mma_allocate(RE1R,maxprim**2,label='RE1R')
 call mma_allocate(W1W1,maxprim**2,label='W1W1')
 call mma_allocate(OVL,maxprim,maxprim,label='OVL')
 call mma_allocate(COREK,maxprim,maxprim,2,label='COREK')
+call mma_allocate(iScratch,maxprimt,label='iScratch')
+call mma_allocate(Scratch,nscr,label='Scratch')
 COREK(:,:,:) = Zero
 do lP1=1,lMax+1
   iSRSh = iSRShll+lP1-1
@@ -95,12 +98,14 @@ do lP1=1,lMax+1
   end if
 
   if (iand(iOpt,iNPPot) /= 0) then   ! Zero
-    call oeisg(rel,srel,trel,urel,Shells(iSRSh)%Exp,rCharge,mx100,lp1,nP,unrel,tnrel,hcorr,iprint,VEXTT,PVPT,EVN1,RE1R,AUXI,W1W1)
+    nP1 = 3*nP*(nP+1)/2
+    nP2 = nP1+5*nP*nP
+    call oeisg(rel,srel,trel,urel,Shells(iSRSh)%Exp,rCharge,lp1,nP,unrel,tnrel,hcorr,iprint,VEXTT,PVPT,EVN1,RE1R,AUXI,W1W1, &
+               iScratch,Scratch(1:nP1),Scratch(nP1+1:nP2),Scratch(nP2+1:))
     nmat = nP*(nP+1)/2
     if (iprint >= 10) then
       write(u6,*) ' relativistic integrals'
-      write(u6,12) (hcorr(i),i=1,nmat)
-12    format(4d19.12)
+      write(u6,'(4d19.12)') (hcorr(i),i=1,nmat)
     end if
     Rel(:) = Zero
   end if
@@ -177,6 +182,8 @@ call mma_deallocate(RE1R)
 call mma_deallocate(W1W1)
 call mma_deallocate(OVL)
 call mma_deallocate(COREK)
+call mma_deallocate(iScratch)
+call mma_deallocate(Scratch)
 
 return
 

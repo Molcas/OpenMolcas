@@ -16,7 +16,7 @@ use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, iChCar
 use Sizes_of_Seward, only: S
-use Real_Info, only: TMass, qNuc, CoM, CoC
+use Gateway_Info, only: TMass, qNuc, CoM, CoC
 use stdalloc, only: mma_allocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp

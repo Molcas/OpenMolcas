@@ -25,11 +25,10 @@ use Period, only: AdCell, Cell_l, ispread, lthCell, VCell
 use Basis_Info, only: dbsc, nBas, nCnttp
 use Center_Info, only: dc
 use External_Centers, only: iXPolType, XF, nXF
-use Temporary_Parameters, only: Expert, DirInt
+use Gateway_global, only: Expert, DirInt
 use Sizes_of_Seward, only: S
 use RICD_Info, only: Do_RI, Cholesky, Cho_OneCenter, LocalDF
-use Real_Info, only: CoC, CoM
-use Logical_Info, only: DoFMM
+use Gateway_Info, only: CoC, CoM, DoFMM
 use Symmetry_Info, only: nIrrep, VarR, VarT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -40,6 +39,7 @@ implicit none
 #include "cholesky.fh"
 #include "rctfld.fh"
 #include "embpcharg.fh"
+#include "localdf.fh"
 integer(kind=iwp) :: i, iCnt, iCnttp, iFMM, iGO, iLocalDF, iNTC, iNuc, iOption, iter_S, mdc, nData, nNuc, nDel(8)
 logical(kind=iwp) :: Found, Pseudo
 integer(kind=iwp), allocatable :: ICh(:), IsMM(:), nStab(:), NTC(:)
@@ -94,8 +94,8 @@ if (Do_RI) then
   iOption = ior(iOption,2**10)
   ! Local or non-local
   if (LocalDF) then
-    call Put_LDFAccuracy()
-    call Put_LDFConstraint()
+    call Put_dScalar('LDF Accuracy',Thr_Accuracy)
+    call Put_iScalar('LDF Constraint',LDF_Constraint)
     iLocalDF = 1
   else
     iLocalDF = 0
@@ -216,7 +216,7 @@ if (Cell_l) then
 end if
 
 ! Initiate entry to zero.
-call dcopy_(nNuc,[Zero],0,DCh_Eff,1)
+DCh_Eff(:) = Zero
 call Put_dArray('Mulliken Charge',DCh_Eff,nNuc)
 
 call mma_deallocate(xLblCnt)

@@ -30,7 +30,7 @@ subroutine RigRot(CoorIn,rM,nAtm)
 !***********************************************************************
 
 use Sizes_of_Seward, only: S
-use Real_Info, only: CoM, PAX, Prin, rMI, TMass
+use Gateway_Info, only: CoM, PAX, Prin, rMI, TMass
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Four, Eight, Half, auTocm, auToHz, uToau
 use Definitions, only: wp, iwp, u6
@@ -43,7 +43,7 @@ integer(kind=iwp) :: i, iAtom, iCar, iEn, ii, iPrint, iRout, j, jCar, k, k1, k2,
 real(kind=wp) :: A, B, C, keep, rKappa, XI(3)
 logical(kind=iwp) :: Linear, RR_Show
 character(len=80) :: Label
-real(kind=wp), allocatable :: Coor(:,:), En(:), Hess(:), Vec(:,:)
+real(kind=wp), allocatable :: Coor(:,:), En(:), Hess(:), Vec(:)
 integer(kind=iwp), external :: iprintlevel
 
 iRout = 117
@@ -58,8 +58,7 @@ if (RR_Show) then
   write(u6,*)
 end if
 
-call dcopy_(9,[Zero],0,PAx,1)
-call dcopy_(3,[One],0,PAx,4)
+PAx(:,:) = reshape([One,Zero,Zero,Zero,One,Zero,Zero,Zero,One],[3,3])
 if (TMass == Zero) then
   call FinishUp()
   return
@@ -131,7 +130,7 @@ end if
 ! Diagonalize and find principle axis
 
 call mma_Allocate(Hess,6)
-call dcopy_(6,rMI,1,Hess,1)
+Hess(:) = rMI
 call Jacob(Hess,Pax,3,3)
 Prin(1) = Hess(1)
 Prin(2) = Hess(3)
@@ -145,7 +144,7 @@ do i=1,2
       keep = Prin(i)
       Prin(i) = Prin(j)
       Prin(j) = keep
-      call DSwap_(3,PAx(1+(i-1)*3),1,PAx(1+(j-1)*3),1)
+      call DSwap_(3,PAx(:,i),1,PAx(:,j),1)
     end if
   end do
 end do
@@ -155,9 +154,9 @@ if (RR_Show) then
   write(u6,'(19X,A,3(E11.4))') ' Eigenvalues :',(Prin(i),i=1,3)
   write(u6,'(19X,14X,3A)') '    X''    ','     Y''   ','    Z''    '
   write(u6,'(19X,A)') ' Eigenvectors:'
-  write(u6,'(19X,A,3(E11.4))') ' X            ',Pax(1),Pax(4),Pax(7)
-  write(u6,'(19X,A,3(E11.4))') ' Y            ',Pax(2),Pax(5),Pax(8)
-  write(u6,'(19X,A,3(E11.4))') ' Z            ',Pax(3),Pax(6),Pax(9)
+  write(u6,'(19X,A,3(E11.4))') ' X            ',Pax(1,:)
+  write(u6,'(19X,A,3(E11.4))') ' Y            ',Pax(2,:)
+  write(u6,'(19X,A,3(E11.4))') ' Z            ',Pax(3,:)
   write(u6,*)
   !call Put_dArray('PAX',Pax,9)
   write(u6,'(19X,A)') ' The Rotational Constants'
@@ -185,7 +184,7 @@ end if
 
 ! Order the three principal moments of inertia, Ia<=Ib<=Ic
 
-call dcopy_(3,Prin,1,XI,1)
+XI(:) = Prin
 call Order_Axis(XI,3)
 
 ! Asymmetry parameter, Tinkham formula 7-96
@@ -254,12 +253,12 @@ call mma_Allocate(En,nEn)
 iEn = 1
 nHess = (2*S%jMax+1)*(2*S%jMax+2)/2
 call mma_allocate(Hess,nHess)
-call mma_Allocate(Vec,2*S%jMax+1,2*S%jMax+1)
+call mma_Allocate(Vec,(2*S%jMax+1)**2)
 do j=0,S%jMax
   mDim = 2*j+1
   nTri = mDim*(mDim+1)/2
-  call dcopy_(nTri,[Zero],0,Hess,1)
-  call dcopy_(mDim**2,[Zero],0,Vec,1)
+  Hess(1:nTri) = Zero
+  Vec(1:mDim**2) = Zero
   call dcopy_(mDim,[One],0,Vec,mDim+1)
   if (iPrint >= 99) call RecPrt(' Vec',' ',Vec,mDim,mDim)
   k1 = 1

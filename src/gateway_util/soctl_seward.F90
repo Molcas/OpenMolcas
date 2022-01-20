@@ -16,7 +16,7 @@ use Center_Info, only: dc
 use Symmetry_Info, only: iChBas, iChTbl, iOper, iSkip, lBsFnc, lIrrep, nIrrep
 use SOAO_Info, only: iAOtSO, iSOInf, iOffSO, nSOInf, SOAO_Info_Init
 use real_spherical, only: iSphCr, LblCBs, LblSBs
-use Temporary_Parameters, only: Primitive_Pass
+use Gateway_global, only: Primitive_Pass
 use Sizes_of_Seward, only: S
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One

@@ -46,7 +46,7 @@ end interface
 call Get_PC_Coord_New(CN,lBuf)
 nAtoms = lbuf/nData_XF
 
-! Quit if the datadfield 'NewGeom' is not available
+! Quit if the datafield 'NewGeom' is not available
 
 if (lBuf == 0) then
   return

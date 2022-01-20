@@ -335,7 +335,6 @@ if (bType == 'ANO') then
     if (IfTest) write(u6,*) 'i,nCGTO(i),mCGTO(i)=',i,nCGTO(i),mCGTO(i)
     if (nCGTO(i) > mCGTO(i)) then
       write(u6,4000) kAng(i),nCGTO(i),mCGTO(i)
-4000  format(/1x,'Too many CGTOs of ',a,'-type ',I3,' Max=',I3)
       lStop = .true.
     end if
   end do
@@ -346,7 +345,6 @@ else if (bType == 'ECP') then
     if (IfTest) write(u6,*) 'i,nCGTO(i),mCGTO(i)=',i,nCGTO(i),mCGTO(i)
     if (nCGTO(i) < mCGTO(i)) then
       write(u6,4100) kAng(i),nCGTO(i),mCGTO(i)
-4100  format(/1x,'Too few segmented CGTOs of ',a,'-type ',I3,' Min=',I3)
       lStop = .true.
     end if
   end do
@@ -357,5 +355,8 @@ if (lStop) then
 end if
 
 return
+
+4000 format(/1x,'Too many CGTOs of ',a,'-type ',I3,' Max=',I3)
+4100 format(/1x,'Too few segmented CGTOs of ',a,'-type ',I3,' Min=',I3)
 
 end subroutine Rdbsl

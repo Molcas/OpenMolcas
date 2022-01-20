@@ -100,7 +100,7 @@ end if
 ! Fetch coordinates from Gromacs
 nAtGMX = mmslave_natoms(ipGMS)
 call mma_allocate(CoordGMX,3,nAtGMX)
-call dcopy_(3*nAtGMX,Zero,0,CoordGMX,1)
+CoordGMX(:,:) = Zero
 iOk = mmslave_copyX_wrapper(ipGMS,int(nAtGMX,kind=c_int),CoordGMX)
 if (iOk /= 1) then
   Message = 'Fetch_QMMM: mmslave_copyx is not ok'
@@ -172,7 +172,7 @@ do iAtGMX=1,nAtGMX
 end do
 close(LuXYZ)
 call Put_iArray('Atom Types',AT,nAtGMX)
-call dscal_(3*nAtOut,One/AuToNm,CoordMMO,1)
+CoordMMO(:,:) = CoordMMO/AuToNm
 call Put_dArray('MMO Coords',CoordMMO,3*nAtOut)
 call Put_cArray('MMO Labels',LabMMO(1),LenIn*nAtOut)
 

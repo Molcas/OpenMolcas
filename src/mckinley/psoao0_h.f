@@ -38,7 +38,7 @@
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 ************************************************************************
-      use Integral_Parameters, only: iWROpt
+      use Gateway_global, only: iWROpt
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"

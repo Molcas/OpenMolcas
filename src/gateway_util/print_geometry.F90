@@ -24,9 +24,9 @@ subroutine Print_Geometry(iOpt)
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use Period, only: AdCell, Cell_l, lthCell
-use Temporary_Parameters, only: Expert
+use Gateway_global, only: Expert
 use Sizes_of_Seward, only: S
-use Real_Info, only: Rtrnc
+use Gateway_Info, only: Rtrnc
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Angstrom

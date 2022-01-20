@@ -23,13 +23,13 @@ subroutine Print_Basis(lOPTO)
 use Basis_Info, only: dbsc, Gaussian_type, iCnttp_Dummy, mGaussian_type, nCnttp, Nuclear_Model, Point_Charge, Shells
 use Center_Info, only: dc
 use RICD_Info, only: Thrshld_CD
+use DKH_Info, only: iRELMP
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 logical(kind=iwp), intent(in) :: lOPTO
 #include "angtp.fh"
-#include "relmp.fh"
 #include "print.fh"
 integer(kind=iwp) :: iCnt, iCnttp, iPrint, iRout, kSh, kShEnd, kShStr, lSh, mdc, nBasisk, nExpk
 character(len=4) :: DBas
@@ -242,25 +242,26 @@ do iCnttp=1,nCnttp
         if (iand(2**1,dbsc(iCnttp)%nOpt) /= 0) write(u6,'(8X,A)') ' Mass-Velocity'
         if (iand(2**2,dbsc(iCnttp)%nOpt) /= 0) write(u6,'(8X,A)') ' Darwin 1-electron contact term'
         if (iand(2**3,dbsc(iCnttp)%nOpt) /= 0) then
-          if (IRELMP == 0) then
-            write(u6,'(8X,A)') ' No-Pair approximation'
-          else if (IRELMP == 1) then
-            write(u6,'(8X,A)') ' No-Pair approximation (DK1)'
-          else if (IRELMP == 2) then
-            write(u6,'(8X,A)') ' No-Pair approximation (DK2)'
-          else if (IRELMP == 3) then
-            write(u6,'(8X,A)') ' No-Pair approximation (DK3)'
-          else if (IRELMP == 4) then
-            write(u6,'(8X,A)') ' No-Pair approximation (DK3)'
-          else if (IRELMP == 11) then
-            write(u6,'(8X,A)') ' RESC approximation'
-          else if (IRELMP == 21) then
-            write(u6,'(8X,A)') ' ZORA approximation'
-          else if (IRELMP == 22) then
-            write(u6,'(8X,A)') ' ZORA-FP approximation'
-          else if (IRELMP == 23) then
-            write(u6,'(8X,A)') ' IORA approximation'
-          end if
+          select case (IRELMP)
+            case (0)
+              write(u6,'(8X,A)') ' No-Pair approximation'
+            case (1)
+              write(u6,'(8X,A)') ' No-Pair approximation (DK1)'
+            case (2)
+              write(u6,'(8X,A)') ' No-Pair approximation (DK2)'
+            case (3)
+              write(u6,'(8X,A)') ' No-Pair approximation (DK3)'
+            case (4)
+              write(u6,'(8X,A)') ' No-Pair approximation (DK3)'
+            case (11)
+              write(u6,'(8X,A)') ' RESC approximation'
+            case (21)
+              write(u6,'(8X,A)') ' ZORA approximation'
+            case (22)
+              write(u6,'(8X,A)') ' ZORA-FP approximation'
+            case (23)
+              write(u6,'(8X,A)') ' IORA approximation'
+          end select
         end if
       end if
       write(u6,*)

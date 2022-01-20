@@ -23,7 +23,7 @@ subroutine DKRelint_DP()
 use Basis_Info, only: dbsc, nBas, ncnttp
 use DKH_Info, only: CLightAU, iRelae, iRFlag1, LDKroll, radiLD
 use Symmetry_Info, only: nIrrep
-use Logical_Info, only: lMXTC
+use Gateway_Info, only: lMXTC
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6

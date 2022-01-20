@@ -21,7 +21,6 @@ private
 public :: Center_Info_Dmp, Center_Info_Free, Center_Info_Get, Center_Info_Init, dc, n_dc
 
 #include "Molcas.fh"
-#include "stdalloc.fh"
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
@@ -106,6 +105,7 @@ end subroutine Center_Info_Init
 
 subroutine Center_Info_Dmp()
 
+  use stdalloc, only: mma_allocate, mma_deallocate
 # ifdef _DEBUGPRINT_
   use Definitions, only: u6
 # endif
@@ -122,7 +122,7 @@ subroutine Center_Info_Dmp()
   write(u6,*) 'n_dc=',n_dc
 # endif
   licDmp = n_dc*nFields
-  call mma_Allocate(iDmp,licDmp+1,Label='iDmp')
+  call mma_allocate(iDmp,licDmp+1,Label='iDmp')
   j = 0
   do i=1,n_dc
     iDmp(j+1) = dc(i)%iChCnt
@@ -161,6 +161,7 @@ end subroutine Center_Info_Dmp
 
 subroutine Center_Info_Get()
 
+  use stdalloc, only: mma_allocate, mma_deallocate
   use Definitions, only: u6
 
   integer(kind=iwp) :: i, j, lcDmp, Len1

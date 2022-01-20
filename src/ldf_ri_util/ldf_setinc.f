@@ -54,7 +54,7 @@ C     ===========
       VerifyFit=.False.
       CheckPairIntegrals=.False.
       CheckOverlapIntegrals=.False.
-      Thr_Prescreen=-1.0d9
+      Thr_LDFPrescreen=-1.0d9
       Thr_Accuracy=-1.0d9
       LDF_Run_Mode=0
       LDF_Constraint=-1

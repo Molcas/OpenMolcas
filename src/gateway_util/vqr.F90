@@ -15,6 +15,7 @@ subroutine Vqr(LUQRP,MPLBL,ISIM,ZETA,NZ,OPMAT)
 ! which are read from the library in atomic units.
 
 use Constants, only: Zero, Two, Three, Pi
+use AMatrix, only: DFAC
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -22,10 +23,8 @@ integer(kind=iwp), intent(in) :: LUQRP, ISIM, NZ
 character(len=20), intent(in) :: MPLbl
 real(kind=wp), intent(in) :: ZETA(NZ)
 real(kind=wp), intent(out) :: OPMAT(NZ*(NZ+1)/2)
-! auxiliary constant pool:    only DFAC is used here.
-#include "const.fh"
 integer(kind=iwp), parameter :: MPoint = 250
-integer(kind=iwp) :: I, IJ, J, k, N, N2P1, Npoint
+integer(kind=iwp) :: I, IJ, istatus, J, k, N, N2P1, Npoint
 character(len=80) :: Line
 character(len=40) :: DumCha, Keyw
 character(len=4) :: OrbLab
@@ -56,7 +55,8 @@ end if
 read(LUQRP,'(4d20.13)') (R(k),k=1,Npoint)
 
 do
-  read(LUQRP,'(a80)',end=999) Line
+  read(LUQRP,'(a80)',iostat=istatus) Line
+  if (istatus < 0) call Error()
   if (Line(1:8) == MPLbl(1:8)) then
     ! there is no potential for this symmetry
     !write(u6,603)
@@ -105,13 +105,19 @@ do I=1,NZ
 end do
 
 return
-999 continue
-write(u6,*) ' Troubles reading MV and DW potentials from QRP library'
-call Quit_OnUserError()
 
 !600   FORMAT (/1X,'Symmetry ',I1,' : ','Mass Velocity and Darwin potentials are read from unit ',I2)
 !601   FORMAT (/' Orbital ',A4,' : ',I5,' points in the logarithmic mesh from ',F10.6,' to ',F10.6)
 !602   FORMAT (/1X,' The symmetry label of one of the relativistic potentials is not S, P, D, or F')
 !603   FORMAT (/1X,' There is no potential for this symmetry.')
+
+contains
+
+subroutine Error()
+
+  write(u6,*) ' Troubles reading MV and DW potentials from QRP library'
+  call Quit_OnUserError()
+
+end subroutine Error
 
 end subroutine Vqr

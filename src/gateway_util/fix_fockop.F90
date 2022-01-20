@@ -32,7 +32,7 @@ subroutine Fix_FockOp(LuRd)
 use Her_RW, only: nPrp
 use Basis_Info, only: dbsc, nCnttp, Shells
 use Sizes_of_Seward, only: S
-use Logical_Info, only: UnNorm, Do_FckInt, FNMC
+use Gateway_Info, only: UnNorm, Do_FckInt, FNMC
 use Isotopes, only: PTab
 use Index_Functions, only: nTri_Elem1
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -44,16 +44,16 @@ integer(kind=iwp), intent(in) :: LuRd
 #include "itmax.fh"
 #include "Molcas.fh"
 integer(kind=iwp) :: BasisTypes(4), i, iAng, iAngMax_Proj, iAtom, iB, iBF, iC, iCmp_a, iCmp_r, iCnttp, iComp, iFerm, iFrom, ijB, &
-                     ijC, ijTri, Indx, iOff_t, ipFockOp_t, iShll, iShll_a, iShll_Proj_r, iShll_r, iSing, iTo, jB, jBF, jShll, &
-                     kEval, Last, List(0:iTabMx), List_Add(0:iTabMx), List_AE(0:iTabMx), lSTDINP, mCnttp, MemNA, MmKnEP, MmMltp, &
-                     naa, nBF, nCntrc_a, nCntrc_Proj, nCntrc_r, nCntrc_t, nHer, nOrdOp, nPrim_a, nPrim_r, nRemove, nSAA, nSAR, &
-                     nSBB, nSCC, nScr1, nScr2, nScr3, nSRR
+                     ijC, ijTri, Indx, iShll, iShll_a, iShll_Proj_r, iShll_r, iSing, iTo, jB, jBF, jShll, kEval, Last, &
+                     List(0:iTabMx), List_Add(0:iTabMx), List_AE(0:iTabMx), lSTDINP, mCnttp, MemNA, MmKnEP, MmMltp, naa, nBF, &
+                     nCntrc_a, nCntrc_Proj, nCntrc_r, nCntrc_t, nHer, nOrdOp, nPrim_a, nPrim_r, nRemove, nSAA, nSAR, nSBB, nSCC, &
+                     nScr1, nScr2, nScr3, nSRR
 real(kind=wp) :: A(4), C_ik, C_jk, Charge_Actual, Charge_Effective, Check, D, e, e12i, qTest, Test_Charge, Tmp, xFactor, xMass
 logical(kind=iwp) :: Do_Cycle, lPP, Try_Again
 character(len=256) :: Basis_lib, Fname
 character(len=180) :: Ref(2)
 character(len=80) :: Bsl_, BSLbl
-real(kind=wp), allocatable :: C(:,:), E_R(:), EVal(:), EVec(:,:), FockOp_t(:), FPrim(:,:), Hm1(:,:), KnE(:), NAE(:), Ovr(:,:), &
+real(kind=wp), allocatable :: C(:,:), E_R(:), EVal(:), EVec(:,:), FockOp_t(:,:), FPrim(:,:), Hm1(:,:), KnE(:), NAE(:), Ovr(:,:), &
                               Ovrlp(:), S12i(:,:), S_AA(:), S_AR(:), SAA(:), SAR(:), Scr1(:), Scr2(:), Scr3(:), Temp(:,:), &
                               Tmp1(:), Tmp2(:), Tmp3(:)
 character(len=180), allocatable :: STDINP(:) ! CGGn
@@ -520,12 +520,9 @@ do iCnttp=1,mCnttp
         ! Update the number of contracted functions of ref.
         nCntrc_t = nCntrc_r-nRemove
         ! Pick up relevant parts of the FockOp matrix of ref.
-        call mma_allocate(FockOp_t,nCntrc_t**2)
-        ipFockOp_t = 1
-        iOff_t = ipFockOp_t
+        call mma_allocate(FockOp_t,nCntrc_t,nCntrc_t)
         do i=1,nCntrc_t
-          call dcopy_(nCntrc_t,Shells(iShll_r)%FockOp(nRemove+1,nRemove+i),1,FockOp_t(iOff_t),1)
-          iOff_t = iOff_t+nCntrc_t
+          FockOp_t(:,i) = Shells(iShll_r)%FockOp(nRemove+1:nRemove+nCntrc_t,nRemove+i)
         end do
         nCntrc_r = nCntrc_t
       else
@@ -549,7 +546,7 @@ do iCnttp=1,mCnttp
       if (allocated(FockOp_t)) then
         Check = DDot_(nCntrc_r**2,FockOp_t,1,FockOp_t,1)
       else
-      Check = DDot_(nCntrc_r**2,Shells(iShll_r)%FockOp,1,Shells(iShll_r)%FockOp,1)
+        Check = DDot_(nCntrc_r**2,Shells(iShll_r)%FockOp,1,Shells(iShll_r)%FockOp,1)
       end if
       if ((Check == Zero) .or. (dbsc(iCnttp)%Charge == Zero)) then
         if (allocated(FockOp_t)) call mma_deallocate(FockOp_t)
@@ -634,12 +631,10 @@ do iCnttp=1,mCnttp
         do iB=1,nCntrc_r
           do jB=1,nCntrc_r
             ijB = (jB-1)*nCntrc_r+iB
-            iFrom = ipFockOp_t-1+(jB-1)*nCntrc_r+iB
-            Tmp = FockOp_t(iFrom)
             do iC=1,iCmp_r
               ijC = (iC-1)*iCmp_r+iC
               iTo = (ijC-1)*nCntrc_r**2+ijB
-              Tmp1(iTo) = Tmp
+              Tmp1(iTo) = FockOp_t(iB,jB)
             end do
           end do
         end do

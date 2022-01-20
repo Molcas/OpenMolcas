@@ -11,7 +11,7 @@
       Subroutine Compute_AuxVec(ipVk,ipZpk,myProc,nProc,ipUk)
       use pso_stuff
       use Basis_Info, only: nBas, nBas_Aux
-      use Temporary_Parameters, only: force_out_of_core
+      use Gateway_global, only: force_out_of_core
       use RICD_Info, only: Do_RI, Cholesky
       use Symmetry_Info, only: nIrrep
       use Data_Structures, only: Allocate_DSBA

@@ -13,6 +13,7 @@ function OVLMP(NP,ZP,NQ,ZQ)
 !     <NP,ZP|NQ,ZQ>
 ! Note that both NP and NQ should be either even or odd, but not mixed.
 
+use AMatrix, only: DFAC
 use Constants, only: Half
 use Definitions, only: wp, iwp
 
@@ -20,8 +21,6 @@ implicit none
 real(kind=wp) :: OVLMP
 integer(kind=iwp), intent(in) :: NP, NQ
 real(kind=wp), intent(in) :: ZP, ZQ
-! auxiliary constant pool:       ready only up to g-valence/g-core
-#include "const.fh"
 integer(kind=iwp) :: IT11, IT22, IT33
 real(kind=wp) :: RT1, ZAV
 

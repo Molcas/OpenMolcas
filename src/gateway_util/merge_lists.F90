@@ -17,8 +17,8 @@ use Definitions, only: wp, iwp
 implicit none
 character, intent(in) :: Mode
 integer(kind=iwp), intent(in) :: nAt
-integer(kind=iwp) :: i_1, i_2, i_P, i_R, iOff_1, iOff_2, iOff_3, iOff_Iter, ip_Dummy, ipCx_1, ipCx_2, ipCx_P, ipCx_R, ipEner_1, &
-                     ipEner_2, ipEner_P, ipEner_R, ipGx_1, ipGx_2, ipGx_P, ipGx_R, iter_1, iter_2, iter_3, iter_P, iter_R, n1, n2
+integer(kind=iwp) :: i_1, i_2, i_P, i_R, iOff_1, iOff_2, iOff_3, iOff_Iter, ipCx_1, ipCx_2, ipCx_P, ipCx_R, ipEner_1, ipEner_2, &
+                     ipEner_P, ipEner_R, ipGx_1, ipGx_2, ipGx_P, ipGx_R, iter_1, iter_2, iter_3, iter_P, iter_R, n1, n2
 logical(kind=iwp) :: Found
 real(kind=wp), allocatable :: rList(:,:)
 integer(kind=iwp), allocatable :: iList(:,:)
@@ -35,16 +35,6 @@ call qpg_dArray('Slapaf Info 2',Found,n2)
 !                                                                      *
 ! Loop over both files and pick up the fields and pick up pointers,
 ! and interations counts.
-
-ip_Dummy = -1
-i_R = 0
-ipEner_R = ip_Dummy
-ipCx_R = ip_Dummy
-ipGx_R = ip_Dummy
-i_P = 0
-ipEner_P = ip_Dummy
-ipCx_P = ip_Dummy
-ipGx_P = ip_Dummy
 
 call mma_allocate(iList,n1,2,label='iList')
 call mma_allocate(rList,n2,2,label='rList')
@@ -110,15 +100,15 @@ iOff_3 = (iter_3-1)*3*nAt
 ! Move the last item(s) in the "to" file up one step.
 
 rList(ipEner_2+iter_3-1,i_2) = rList(ipEner_2+iter_2-1,i_2)
-call dcopy_(3*nAt,rList(ipCx_2+iOff_2,i_2),1,rlist(ipCx_2+iOff_3,i_2),1)
-call dcopy_(3*nAt,rList(ipGx_2+iOff_2,i_2),1,rlist(ipGx_2+iOff_3,i_2),1)
+rlist(ipCx_2+iOff_3:ipCx_2+iOff_3+3*nAt-1,i_2) = rList(ipCx_2+iOff_2:ipCx_2+iOff_2+3*nAt-1,i_2)
+rlist(ipGx_2+iOff_3:ipGx_2+iOff_3+3*nAt-1,i_2) = rList(ipGx_2+iOff_2:ipGx_2+iOff_2+3*nAt-1,i_2)
 
 ! Copy the last item(s) in the "from" file into the
 ! second last position of the "to" file.
 
 rList(ipEner_2+iter_2-1,i_2) = rList(ipEner_1+iter_1-1,i_1)
-call dcopy_(3*nAt,rList(ipCx_1+iOff_1,i_1),1,rlist(ipCx_2+iOff_2,i_2),1)
-call dcopy_(3*nAt,rList(ipGx_1+iOff_1,i_1),1,rlist(ipGx_2+iOff_2,i_2),1)
+rlist(ipCx_2+iOff_2:ipCx_2+iOff_2+3*nAt-1,i_2) = rList(ipCx_1+iOff_1:ipCx_1+iOff_1+3*nAt-1,i_1)
+rlist(ipGx_2+iOff_2:ipGx_2+iOff_2+3*nAt-1,i_2) = rList(ipGx_1+iOff_1:ipGx_1+iOff_1+3*nAt-1,i_1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

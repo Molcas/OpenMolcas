@@ -18,13 +18,12 @@ C            V     POTENTIAL
 C            H     RELATIVISTIC KINETIC ENERGY
 C            EV2   PVP INTEGRALS
 C
-      USE DKH_Info, ONLY: CLightAU
+      USE DKH_Info, ONLY: CLightAU, IRELMP
       IMPLICIT REAL*8(A-H,O-Z)
       DIMENSION V(ISIZE),SMAT(ISIZE),MULT(ISIZE),P(ISIZE),G(ISIZE),
      *          H(ISIZE),BU(ISIZE),EV2(ISIZE),
      *          EIG(N,N),SINV(N,N),REVT(N,N),AUX(N,N),OVE(N,N),
      *          EW(N),E(N),AA(N),RR(N),TT(N)
-#include "relmp.fh"
       DIMENSION VEXTT(ISIZE),PVPT(ISIZE)
       DIMENSION EVN1(N,N)
       DIMENSION RE1R(N,N)

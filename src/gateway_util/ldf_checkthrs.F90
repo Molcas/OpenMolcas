@@ -20,11 +20,11 @@ if (Thr_Accuracy < Zero) then
   call WarningMessage(2,'LDF: Thr_Accuracy<0')
   call Quit_OnUserError()
 end if
-if (Thr_Prescreen < Zero) then
-  call WarningMessage(2,'LDF: Thr_Prescreen<0')
+if (Thr_LDFPrescreen < Zero) then
+  call WarningMessage(2,'LDF: Thr_LDFPrescreen<0')
   call Quit_OnUserError()
 end if
-Thr_Prescreen = min(Thr_Prescreen,Thr_Accuracy)
+Thr_LDFPrescreen = min(Thr_LDFPrescreen,Thr_Accuracy)
 
 return
 

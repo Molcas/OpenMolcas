@@ -45,7 +45,7 @@ C
 
       ! Get rough list of significant atom pairs based on Cauchy-Schwarz
       ! and estimated integral diagonals.
-      tau=Thr_Prescreen**2
+      tau=Thr_LDFPrescreen**2
       nRSAP=0
       ip_RSAP=0
       Call LDF_RoughSAP(tau,nRSAP,ip_RSAP,irc)
@@ -58,7 +58,7 @@ C
 
       ! Set up list of significant atom pairs, computing integral
       ! diagonals as a biproduct.
-      tau=Thr_Prescreen**2
+      tau=Thr_LDFPrescreen**2
       Call LDF_SAP(tau,nRSAP,iWork(ip_RSAP),irc)
       If (irc.ne.0) Then
          Write(6,'(A,A,I8)')
@@ -479,7 +479,7 @@ C     Count significant atom pairs.
 C     =============================
 
       ! Set screening threshold
-      tau=Thr_Prescreen**2
+      tau=Thr_LDFPrescreen**2
 
       ! Allocate atom pair max diag
       l_APDmax=nRSAP

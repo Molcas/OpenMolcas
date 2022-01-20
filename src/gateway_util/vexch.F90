@@ -18,6 +18,7 @@ function VExch(ZP,NP,ZQ,NQ,LA,nProj,iCoShll)
 !***********************************************************************
 
 use Basis_Info, only: Shells
+use AMatrix, only: DFAC, KOSUU, NYU, RCA
 use Constants, only: Zero, One, Two, Half, Pi
 use Definitions, only: wp, iwp, u6
 
@@ -25,8 +26,6 @@ implicit none
 real(kind=wp) :: VExch
 real(kind=wp), intent(in) :: ZP, ZQ
 integer(kind=iwp), intent(in) :: NP, NQ, LA, nProj, iCoShll
-! auxiliary constant pool:       ready only up to g-valence/g-core
-#include "const.fh"
 integer(kind=iwp) :: ICORB, iCoSh, INU, ISIM, IT1, IT2, IT3, IT4, K, KOMAX, L, L1, L2, LMT, nExpon, NR, NS, NU, NUT
 real(kind=wp) :: CR, CS, DL2, FOcc, OrbPS, RCAT, RTT1, RTT2, RTT3, RTT4, RTT5, RTT6, RTT7, SUMA, VPQ, VR, VS, ZR, ZS
 real(kind=wp), parameter :: SQRT2PI = sqrt(Two/Pi)
