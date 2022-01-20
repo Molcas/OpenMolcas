@@ -707,7 +707,7 @@ c compatibility with the present version: of aniso_i.input file
       CLOSE(Lutmp)
 
 
-      !----------------------------------------------------------------------*
+      !-------------------------------------------------------------
       ! add coordinates
       nAtoms=0
       Call Get_iScalar('Unique atoms',nAtoms)
