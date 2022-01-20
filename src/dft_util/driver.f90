@@ -452,17 +452,17 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !
 !----    Lee-Yang-Parr correlation
 
-!        If (l_CASDFT) Then
+         If (l_CASDFT) Then
          nFuncs=4
-         func_id(1:nFuncs)=[XC_LDA_X,XC_GGA_X_OPTX,XC_LDA_C_VWN_RPA,XC_GGA_C_LYP]
-         Coeffs(1)=(0.9262D0-1.051510d0*(0.8133D0/1.431690d0))
-         Coeffs(2)=(0.8133D0/1.431690d0)
+         func_id(1:nFuncs)=[XC_LDA_X,XC_GGA_X_OPTX,XC_LDA_C_VWN,XC_GGA_C_LYP]
+         Coeffs(1)=0.071006917D0
+         Coeffs(2)=0.8133D0
          Coeffs(3)=1.0D0-0.81D0
          Coeffs(4)=0.81D0
-!        Else
-!        nFuncs=1
-!        func_id(1:nFuncs)=[XC_HYB_GGA_XC_O3LYP]
-!        End If
+         Else
+         nFuncs=1
+         func_id(1:nFuncs)=[XC_HYB_GGA_XC_O3LYP]
+         End If
 !                                                                      *
 !***********************************************************************
 !                                                                      *
