@@ -16,10 +16,11 @@ use Definitions, only: wp, iwp
 implicit none
 private
 
-logical(kind=iwp) :: tullyL, decoherence, tullySubVerb, fixedrandL, iseedL
+logical(kind=iwp) :: tullyL, decoherence, tullySubVerb, fixedrandL, iseedL, rassi_ovlp, Run_rassi, firststep
 real(kind=wp) :: DECO, Ethreshold, RandThreshold, FixedRand
 integer(kind=iwp) :: NSUBSTEPS, InitSeed
 
-public :: tullyL, decoherence, tullySubVerb, fixedrandL, iseedL, DECO, Ethreshold, RandThreshold, FixedRand, NSUBSTEPS, InitSeed
+public :: tullyL, decoherence, tullySubVerb, fixedrandL, iseedL, DECO, Ethreshold, RandThreshold, FixedRand, NSUBSTEPS, InitSeed, &
+                           rassi_ovlp, Run_rassi, firststep
 
 end module
