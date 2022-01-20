@@ -86,6 +86,7 @@
       Case (LDA_type)
 *                                                                      *
       Do iD = 1, nD
+      ! Rho part
       Call DCopy_(mGrid*nBfn,TabAO1(1,1,1,iD),nFn,A1,1)
       Call DCopy_(mGrid*nBfn,TabAO2(1,1,1)   ,mAO,A2,1)
       Call DGEMM_('T','N',nBfn,nBfn,mGrid,
@@ -100,26 +101,22 @@
       Case (GGA_type)
 *                                                                      *
       Do iD = 1, nD
-      Call DCopy_(mGrid*nBfn,TabAO1(1,1,1,iD),nFn,A1,1)
+      ! Grad Rho part first because we need to symmetrize
+      Call DCopy_(mGrid*nBfn,TabAO1(2,1,1,iD),nFn,A1,1)
       Call DCopy_(mGrid*nBfn,TabAO2(1,1,1)   ,mAO,A2,1)
       Call DGEMM_('T','N',nBfn,nBfn,mGrid,
      &             One,A1,mGrid,
      &                 A2,mGrid,
      &             Zero,AOInt(1,1,iD),nBfn)
-      Call DCopy_(mGrid*nBfn,TabAO1(2,1,1,iD),nFn,A1,1)
-      Call DCopy_(mGrid*nBfn,TabAO2(2,1,1)   ,mAO,A2,1)
-      Call DGEMM_('T','N',nBfn,nBfn,mGrid,
-     &             One,A1,mGrid,
-     &                 A2,mGrid,
-     &             One ,AOInt(1,1,iD),nBfn)
-      Call DCopy_(mGrid*nBfn,TabAO1(3,1,1,iD),nFn,A1,1)
-      Call DCopy_(mGrid*nBfn,TabAO2(3,1,1)   ,mAO,A2,1)
-      Call DGEMM_('T','N',nBfn,nBfn,mGrid,
-     &             One,A1,mGrid,
-     &                 A2,mGrid,
-     &             One ,AOInt(1,1,iD),nBfn)
-      Call DCopy_(mGrid*nBfn,TabAO1(4,1,1,iD),nFn,A1,1)
-      Call DCopy_(mGrid*nBfn,TabAO2(4,1,1)   ,mAO,A2,1)
+      Do iBfn = 1, nBfn
+         Do jBfn = 1, iBfn
+            AOInt_Sym = AOInt(iBfn,jBfn,iD) +  AOInt(jBfn,iBfn,iD)
+            AOInt(iBfn,jBfn,iD) = AOInt_Sym
+            AOInt(jBfn,iBfn,iD) = AOInt_Sym
+         End Do
+      End Do
+      !Rho Part
+      Call DCopy_(mGrid*nBfn,TabAO1(1,1,1,iD),nFn,A1,1)
       Call DGEMM_('T','N',nBfn,nBfn,mGrid,
      &             One,A1,mGrid,
      &                 A2,mGrid,
@@ -156,6 +153,7 @@
      &             One,A1,mGrid,
      &                 A2,mGrid,
      &             One ,AOInt(1,1,iD),nBfn)
+      ! Tau part
       Call DCopy_(mGrid*nBfn,TabAO1(5,1,1,iD),nFn,A1,1)
       Call DCopy_(mGrid*nBfn,TabAO2(5,1,1)   ,mAO,A2,1)
       Call DaXpY_(mGrid*nBfn,One,TabAO2( 8,1,1),mAO,A2,1)

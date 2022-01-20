@@ -201,15 +201,15 @@
 *     the part of TabAO which we need to TabAO_Short before we make the
 *     contraction with the 1-particle density matrix.
 *
-      If (mAO.eq.kAO) Then
-         Call DGEMM_('N','N',mAO*mGrid,nAO*nD,nAO,
-     &               One,TabAO,mAO*mGrid,
-     &                   Dens_AO,nAO,
-     &               Zero,Grid_AO,mAO*mGrid)
-      Else
+      If (Do_Grad) Then
          TabAO_Short(1:kAO,:,:) = TabAO(1:kAO,:,:)
          Call DGEMM_('N','N',kAO*mGrid,nAO*nD,nAO,
      &               One,TabAO_Short,kAO*mGrid,
+     &                   Dens_AO,nAO,
+     &               Zero,Grid_AO,kAO*mGrid)
+      Else
+         Call DGEMM_('N','N',kAO*mGrid,nAO*nD,nAO,
+     &               One,TabAO,mAO*mGrid,
      &                   Dens_AO,nAO,
      &               Zero,Grid_AO,kAO*mGrid)
       End If
