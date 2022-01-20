@@ -304,15 +304,15 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !
 !----    Vosko-Wilk-Nusair correlation functional III
 
-!        If (l_CASDFT) Then
+         If (l_CASDFT) Then
          nFuncs=3
-         func_id(1:nFuncs)=[XC_LDA_X,XC_GGA_X_KT1,XC_LDA_C_VWN_RPA]
+         func_id(1:nFuncs)=[XC_LDA_X,XC_GGA_X_KT1,XC_LDA_C_VWN]
          Coeffs(1)= 0.07173d0
          Coeffs(3)= 0.576727d0
-!        Else                         ! There seems to be an error in the original
-!        nFuncs=1                     ! implementation
-!        func_id(1:nFuncs)=[XC_GGA_XC_KT2]
-!        Endif
+         Else
+         nFuncs=1
+         func_id(1:nFuncs)=[XC_GGA_XC_KT2]
+         Endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
