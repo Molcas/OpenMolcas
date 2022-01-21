@@ -196,7 +196,7 @@ do while (Do_Cycle)
   BSLB = Get_Ln_Quit(lUnit,0)
   if (Quit_On_Error) then
     iLast3 = len_trim(BsLbl)
-  call WarningMessage(2,'The requested basis set label: '//BsLbl(:iLast3)//';'//'was not found in basis library: '//Filename)
+    call WarningMessage(2,'The requested basis set label: '//BsLbl(:iLast3)//';'//'was not found in basis library: '//Filename)
     call Abend()
   end if
   call UpCase(BSLB)

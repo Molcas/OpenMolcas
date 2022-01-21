@@ -16,9 +16,12 @@
 
 #include "compiler_features.h"
 #define MAXLEN 180
-#define iX 1
-#define iY 2
-#define iZ 4
+#define iX_ 0
+#define iY_ 1
+#define iZ_ 2
+#define iX 2**iX_
+#define iY 2**iY_
+#define iZ 2**iZ_
 #define iXY iX+iY
 #define iXZ iX+iZ
 #define iYZ iY+iZ
@@ -481,8 +484,8 @@ subroutine DetectSym(Thr)
   Op(iZ) = CheckOp(iZ,Thr)
   Symmetry = ''
   select case (count(Op))
-    ! Two or three reflections: all is known
     case (3,2)
+      ! Two or three reflections: all is known
       Op(iXY) = Op(iX) .and. Op(iY)
       Op(iXZ) = Op(iX) .and. Op(iZ)
       Op(iYZ) = Op(iY) .and. Op(iZ)
@@ -494,8 +497,8 @@ subroutine DetectSym(Thr)
         if (Op(iXZ)) Symmetry = 'xz z'
         if (Op(iYZ)) Symmetry = 'yz z'
       end if
-    ! One reflection: possibly inversion and complementary rotation
     case (1)
+      ! One reflection: possibly inversion and complementary rotation
       Op(iXYZ) = CheckOp(iXYZ,Thr)
       if (Op(iXYZ)) then
         Op(iXY) = Op(iZ)
@@ -509,18 +512,18 @@ subroutine DetectSym(Thr)
         if (Op(iY)) Symmetry = 'y'
         if (Op(iZ)) Symmetry = 'z'
       end if
-    ! No reflection: check rotations (only two initially)
     case (0)
+      ! No reflection: check rotations (only two initially)
       Op(iXY) = CheckOp(iXY,Thr)
       Op(iXZ) = CheckOp(iXZ,Thr)
       if (Op(iXY)) Symmetry = 'xy'
       if (Op(iXZ)) Symmetry = trim(Symmetry)//' xz'
       select case (count(Op))
-        ! Two or one rotation: the third is known
         case (2,1)
+          ! Two or one rotation: the third is known
           Op(iYZ) = Op(iXY) .and. Op(iXZ)
-        ! No rotation: check the third, and inversion if necessary
         case (0)
+          ! No rotation: check the third, and inversion if necessary
           Op(iYZ) = CheckOp(iYZ,Thr)
           if (.not. Op(iYZ)) Op(iXYZ) = CheckOp(iXYZ,Thr)
           if (Op(iXY)) Symmetry = 'yz'
@@ -619,9 +622,9 @@ subroutine AdaptSym(Thr)
           Found = .true.
           Aver = Aver+New
           if (j == i) then
-            if (iand(Oper(Op),iX) > 0) ZeroAxis(1) = .true.
-            if (iand(Oper(Op),iY) > 0) ZeroAxis(2) = .true.
-            if (iand(Oper(Op),iZ) > 0) ZeroAxis(3) = .true.
+            if (btest(Oper(Op),iX_)) ZeroAxis(1) = .true.
+            if (btest(Oper(Op),iY_)) ZeroAxis(2) = .true.
+            if (btest(Oper(Op),iZ_)) ZeroAxis(3) = .true.
           else
             Geom(j)%FileNum = 0
           end if
@@ -651,9 +654,9 @@ function ApplySym(Op,Coord)
   real(kind=wp) :: ApplySym(3)
 
   ApplySym = Coord
-  if (iand(Op,iX) > 0) ApplySym(1) = -ApplySym(1)
-  if (iand(Op,iY) > 0) ApplySym(2) = -ApplySym(2)
-  if (iand(Op,iZ) > 0) ApplySym(3) = -ApplySym(3)
+  if (btest(Op,iX_)) ApplySym(1) = -ApplySym(1)
+  if (btest(Op,iY_)) ApplySym(2) = -ApplySym(2)
+  if (btest(Op,iZ_)) ApplySym(3) = -ApplySym(3)
 
 end function ApplySym
 

@@ -238,10 +238,10 @@ do iCnttp=1,nCnttp
       if (dbsc(iCnttp)%nOpt /= 0) then
         write(u6,*)
         write(u6,'(6X,A)') 'Spectral Resolvent Operators :'
-        if (iand(2**0,dbsc(iCnttp)%nOpt) /= 0) write(u6,'(8X,A)') ' Exchange'
-        if (iand(2**1,dbsc(iCnttp)%nOpt) /= 0) write(u6,'(8X,A)') ' Mass-Velocity'
-        if (iand(2**2,dbsc(iCnttp)%nOpt) /= 0) write(u6,'(8X,A)') ' Darwin 1-electron contact term'
-        if (iand(2**3,dbsc(iCnttp)%nOpt) /= 0) then
+        if (btest(dbsc(iCnttp)%nOpt,0)) write(u6,'(8X,A)') ' Exchange'
+        if (btest(dbsc(iCnttp)%nOpt,1)) write(u6,'(8X,A)') ' Mass-Velocity'
+        if (btest(dbsc(iCnttp)%nOpt,2)) write(u6,'(8X,A)') ' Darwin 1-electron contact term'
+        if (btest(dbsc(iCnttp)%nOpt,3)) then
           select case (IRELMP)
             case (0)
               write(u6,'(8X,A)') ' No-Pair approximation'

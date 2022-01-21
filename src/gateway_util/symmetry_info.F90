@@ -307,9 +307,9 @@ subroutine Symmetry_Info_Set(iAng)
   iSymY = 0
   iSymZ = 0
   do i=0,nIrrep-1
-    if (iand(iOper(i),1) /= 0) iSymX = 1
-    if (iand(iOper(i),2) /= 0) iSymY = 2
-    if (iand(iOper(i),4) /= 0) iSymZ = 4
+    if (btest(iOper(i),0)) iSymX = 2**0
+    if (btest(iOper(i),1)) iSymY = 2**1
+    if (btest(iOper(i),2)) iSymZ = 2**2
   end do
   iChCar(1) = iSymX
   iChCar(2) = iSymY
@@ -378,9 +378,8 @@ subroutine ChTab(iOper,nIrrep,iChTbl)
 
   integer(kind=iwp), intent(in) :: nIrrep, iOper(nIrrep)
   integer(kind=iwp), intent(out) :: iChTbl(1:8,1:8) ! ugly dimensions change to 0:7!
-  integer(kind=iwp) :: i, i1, ia, ib, iCh, iFnc, iIrrep, iRot, iSigma = 1, iSub, iSymX, iSymY, iSymZ, iTest(8), ix, iy, iz, j, &
-                       jIrrep, jx, jy, jz
-  logical(kind=iwp) :: Inv, Rot
+  integer(kind=iwp) :: i, i1, ia, ib, iCh, iFnc, iIrrep, iRot, iSigma = 1, iSub, iTest(8), ix, iy, iz, j, jIrrep, jx, jy, jz
+  logical(kind=iwp) :: Inv, Rot, SymX, SymY, SymZ
   character(len=80) :: Tmp
   character(len=*), parameter :: xyz(0:7) = ['      ', &
                                              'x     ', &
@@ -437,13 +436,13 @@ subroutine ChTab(iOper,nIrrep,iChTbl)
 
   ! Go through the functions x, y, and z, and the dyadic functions.
 
-  iSymX = 0
-  iSymY = 0
-  iSymZ = 0
+  SymX = .false.
+  SymY = .false.
+  SymZ = .false.
   do i=1,nIrrep
-    if (iand(iOper(i),1) /= 0) iSymX = 1
-    if (iand(iOper(i),2) /= 0) iSymY = 2
-    if (iand(iOper(i),4) /= 0) iSymZ = 4
+    SymX = SymX .or. btest(iOper(i),0)
+    SymY = SymY .or. btest(iOper(i),1)
+    SymZ = SymZ .or. btest(iOper(i),2)
   end do
 
   ! Loop over basis functions (a' la Malmqvist)
@@ -454,14 +453,14 @@ subroutine ChTab(iOper,nIrrep,iChTbl)
 
     ! Generate a row in the character table of this function
 
-    ix = iand(iFnc,iSymX)
-    iy = iand(iFnc,iSymY)/2
-    iz = iand(iFnc,iSymZ)/4
+    ix = merge(1,0,SymX .and. btest(iFnc,0))
+    iy = merge(1,0,SymY .and. btest(iFnc,1))
+    iz = merge(1,0,SymZ .and. btest(iFnc,2))
     ! Loop over all operators
     do i=1,nIrrep
-      jx = iand(iOper(i),iSymX)
-      jy = iand(iOper(i),iSymY)/2
-      jz = iand(iOper(i),iSymZ)/4
+      jx = merge(1,0,SymX .and. btest(iOper(i),0))
+      jy = merge(1,0,SymY .and. btest(iOper(i),1))
+      jz = merge(1,0,SymZ .and. btest(iOper(i),2))
       iCh = 1
       if ((ix /= 0) .and. (jx /= 0)) iCh = -iCh
       if ((iy /= 0) .and. (jy /= 0)) iCh = -iCh

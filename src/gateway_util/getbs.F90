@@ -682,13 +682,13 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
       case (KWord(5)) ! NOPA
         ! Exchange operator
 
-        dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**0)
+        dbsc(nCnttp)%nOpt = ibset(dbsc(nCnttp)%nOpt,0)
 
       case (KWord(6)) ! 1STO
         ! 1st order relativistic correction
 
-        dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**1)
-        dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**2)
+        dbsc(nCnttp)%nOpt = ibset(dbsc(nCnttp)%nOpt,1)
+        dbsc(nCnttp)%nOpt = ibset(dbsc(nCnttp)%nOpt,2)
         Line = Get_Ln(lUnit)
         MPLbl = Line(1:20)
 
@@ -699,7 +699,7 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
         dbsc(nCnttp)%SODK = .true.
         if ((IRELMP >= 0) .and. (IRELMP /= 0)) call Error()
         IRELMP = 0
-        dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**3)
+        dbsc(nCnttp)%nOpt = ibset(dbsc(nCnttp)%nOpt,3)
 
       case (KWord(8)) ! NOP1
         ! one-centre no-pair operators (DK1)
@@ -708,7 +708,7 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
         dbsc(nCnttp)%SODK = .true.
         if ((IRELMP >= 0) .and. (IRELMP /= 1)) call Error()
         IRELMP = 1
-        dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**3)
+        dbsc(nCnttp)%nOpt = ibset(dbsc(nCnttp)%nOpt,3)
 
       case (KWord(9)) ! NOP2
         ! one-centre no-pair operators (DK2)
@@ -717,7 +717,7 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
         dbsc(nCnttp)%SODK = .true.
         if ((IRELMP >= 0) .and. (IRELMP /= 2)) call Error()
         IRELMP = 2
-        dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**3)
+        dbsc(nCnttp)%nOpt = ibset(dbsc(nCnttp)%nOpt,3)
 
       case (KWord(10)) ! NOP3
         ! one-centre no-pair operators (DK3)
@@ -726,7 +726,7 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
         dbsc(nCnttp)%SODK = .true.
         if ((IRELMP >= 0) .and. (IRELMP /= 3)) call Error()
         IRELMP = 3
-        dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**3)
+        dbsc(nCnttp)%nOpt = ibset(dbsc(nCnttp)%nOpt,3)
 
       case (KWord(11)) ! NOPF
         ! one-centre no-pair operators (DK3)
@@ -735,7 +735,7 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
         dbsc(nCnttp)%SODK = .true.
         if ((IRELMP >= 0) .and. (IRELMP /= 4)) call Error()
         IRELMP = 4
-        dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**3)
+        dbsc(nCnttp)%nOpt = ibset(dbsc(nCnttp)%nOpt,3)
 
       case (KWord(12)) ! RESC
         ! one-centre RESC operators
@@ -743,7 +743,7 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
         dbsc(nCnttp)%NoPair = .true.
         if ((IRELMP >= 0) .and. (IRELMP /= 11)) call Error()
         IRELMP = 11
-        dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**3)
+        dbsc(nCnttp)%nOpt = ibset(dbsc(nCnttp)%nOpt,3)
 
       case (KWord(13)) ! RA0H
         ! one-centre ZORA operators
@@ -751,7 +751,7 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
         dbsc(nCnttp)%NoPair = .true.
         if ((IRELMP >= 0) .and. (IRELMP /= 21)) call Error()
         IRELMP = 21
-        dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**3)
+        dbsc(nCnttp)%nOpt = ibset(dbsc(nCnttp)%nOpt,3)
 
       case (KWord(14)) ! RA0F
         ! one-centre ZORA-FP operators
@@ -760,7 +760,7 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
         dbsc(nCnttp)%SODK = .true.
         if ((IRELMP >= 0) .and. (IRELMP /= 22)) call Error()
         IRELMP = 22
-        dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**3)
+        dbsc(nCnttp)%nOpt = ibset(dbsc(nCnttp)%nOpt,3)
 
       case (Kword(15)) ! RAIH
         ! one-centre IORA operators
@@ -769,7 +769,7 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
         dbsc(nCnttp)%SODK = .true.
         if ((IRELMP >= 0) .and. (IRELMP /= 23)) call Error()
         IRELMP = 23
-        dbsc(nCnttp)%nOpt = ior(dbsc(nCnttp)%nOpt,2**3)
+        dbsc(nCnttp)%nOpt = ibset(dbsc(nCnttp)%nOpt,3)
 
       case (KWord(16)) ! MIXE
         ! Mixed basis set (valence + core), with dominance of the
@@ -891,7 +891,7 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
 
     end select
   end do
-  if ((iand(dbsc(nCnttp)%nOpt,2**1) /= 0) .and. (iand(dbsc(nCnttp)%nOpt,2**3) /= 0)) then
+  if (btest(dbsc(nCnttp)%nOpt,1) .and. btest(dbsc(nCnttp)%nOpt,3)) then
     call WarningMessage(2,' 1st order relativistic correction and no-pair approximation can not be used simultaneously!')
     call Quit_OnUserError()
   end if

@@ -3114,7 +3114,7 @@ do
   if (CoordSet) then
     do ik=len(KeepBasis),1,-1
       if ((KeepBasis(ik:ik) /= ' ') .and. (KeepBasis(ik:ik) /= '.')) exit
-  end do
+    end do
     KeepBasis = KeepBasis(1:ik)
 #   ifdef _HAVE_EXTRA_
     call ProcessXYZ(BasisSet,KeepBasis,KeepGroup,iBSSE,SymThr,isHold,ScaleFactor,HyperParSet,isXfield)
@@ -3672,13 +3672,13 @@ do iCnttp=1,nCnttp
       end do
       S%nDim = 0
       do j=0,2
-        if (iand(jTmp,2**j) == 0) S%nDim = S%nDim+1
+        if (.not. btest(jTmp,j)) S%nDim = S%nDim+1
       end do
       if (S%nDim > 0) then
         call Random_Vector(S%nDim,RandVect(1:S%nDim),.false.)
         jDim = 0
         do j=0,2
-          if (iand(jTmp,2**j) == 0) then
+          if (.not. btest(jTmp,j)) then
             jDim = jDim+1
             dbsc(iCnttp)%Coor(j+1,iCnt) = dbsc(iCnttp)%Coor(j+1,iCnt)+Shake*RandVect(jDim)
           end if

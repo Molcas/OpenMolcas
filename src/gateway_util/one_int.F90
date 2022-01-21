@@ -10,7 +10,7 @@
 !***********************************************************************
 
 subroutine One_Int(Kernel,Array,nArray,A,iAng,iComp,nOrdOp,Scr1,nScr1,Scr2,nScr2,naa,SAR,nSAR,iShll_a,nPrim_a,Exp_a,nCntrc_a, &
-           Cff_a,iCmp_a,iShll_r,nPrim_r,Exp_r,nCntrc_r,Cff_r,iCmp_r)
+                   Cff_a,iCmp_a,iShll_r,nPrim_r,Exp_r,nCntrc_r,Cff_r,iCmp_r)
 
 use Basis_Info, only: Shells
 use Real_Spherical, only: ipSph, RSph

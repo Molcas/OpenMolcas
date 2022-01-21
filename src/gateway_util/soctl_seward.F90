@@ -281,9 +281,9 @@ if (nIrrep /= 1) then
               iR = NrOpr(dc(mdc)%iCoSet(iCo,0))
 
               LPC(1:3,iyy) = dbsc(iCnttp)%Coor(1:3,iCnt)
-              if (iand(iOper(iR),1) /= 0) LPC(1,iyy) = -LPC(1,iyy)
-              if (iand(iOper(iR),2) /= 0) LPC(2,iyy) = -LPC(2,iyy)
-              if (iand(iOper(iR),4) /= 0) LPC(3,iyy) = -LPC(3,iyy)
+              if (btest(iOper(iR),0)) LPC(1,iyy) = -LPC(1,iyy)
+              if (btest(iOper(iR),1)) LPC(2,iyy) = -LPC(2,iyy)
+              if (btest(iOper(iR),2)) LPC(3,iyy) = -LPC(3,iyy)
               LPQ(iyy) = dbsc(iCnttp)%Charge
               LPA(iyy) = dbsc(iCnttp)%AtmNr
               LPMM(iyy) = dbsc(iCnttp)%IsMM
@@ -437,9 +437,9 @@ if (nIrrep /= 1) then
 
                     iR = NrOpr(dc(mdc)%iCoSet(iCo,0))
                     LPC(1:3,iyy) = dbsc(iCnttp)%Coor(1:3,iCnt)
-                    if (iand(iOper(iR),1) /= 0) LPC(1,iyy) = -LPC(1,iyy)
-                    if (iand(iOper(iR),2) /= 0) LPC(2,iyy) = -LPC(2,iyy)
-                    if (iand(iOper(iR),4) /= 0) LPC(3,iyy) = -LPC(3,iyy)
+                    if (btest(iOper(iR),0)) LPC(1,iyy) = -LPC(1,iyy)
+                    if (btest(iOper(iR),1)) LPC(2,iyy) = -LPC(2,iyy)
+                    if (btest(iOper(iR),2)) LPC(3,iyy) = -LPC(3,iyy)
 
                     LPQ(iyy) = dbsc(iCnttp)%Charge
                     LPMM(iyy) = dbsc(iCnttp)%IsMM

@@ -77,21 +77,21 @@ end if
 ! Manipulate the option flag
 
 iOption = 0
-if (DirInt) iOption = ior(iOption,1)
-if (Expert) iOption = ior(iOption,2)
-if (lRF) iOption = ior(iOption,4)
-if (lLangevin .or. (iXPolType > 0)) iOption = ior(iOption,8)
+if (DirInt) iOption = ibset(iOption,0)
+if (Expert) iOption = ibset(iOption,1)
+if (lRF) iOption = ibset(iOption,2)
+if (lLangevin .or. (iXPolType > 0)) iOption = ibset(iOption,3)
 if (PCM) then
-  iOption = ior(iOption,16)
+  iOption = ibset(iOption,4)
   nPCM_Info = 0
   call Put_iScalar('PCM info length',nPCM_Info)
 end if
-iOption = ior(iOption,32)
+iOption = ibset(iOption,5)
 ! 2el-integrals from the Cholesky vectors
-if (Cholesky .or. Do_RI) iOption = ior(iOption,2**9)
+if (Cholesky .or. Do_RI) iOption = ibset(iOption,9)
 ! RI-Option
 if (Do_RI) then
-  iOption = ior(iOption,2**10)
+  iOption = ibset(iOption,10)
   ! Local or non-local
   if (LocalDF) then
     call Put_dScalar('LDF Accuracy',Thr_Accuracy)
@@ -103,7 +103,7 @@ if (Do_RI) then
   call Put_iScalar('DF Mode',iLocalDF)
 end if
 ! 1C-CD
-if (Cholesky .and. Cho_1Center) iOption = ior(iOption,2**12)
+if (Cholesky .and. Cho_1Center) iOption = ibset(iOption,12)
 Cho_OneCenter = Cho_1Center
 call Put_iScalar('System BitSwitch',iOption)
 

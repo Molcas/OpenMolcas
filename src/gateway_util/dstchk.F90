@@ -37,7 +37,7 @@ iLarge = 0
 do icc=1,mCentr
   if (index('1234567890',Lbls(icc)(2:2)) == 0) iLarge = 1
 end do
-if (iLarge == 1)  return
+if (iLarge == 1) return
 
 RMax = Zero
 RMin = huge(RMin)

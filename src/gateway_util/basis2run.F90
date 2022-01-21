@@ -23,7 +23,6 @@ integer(kind=iwp) :: iAng, iAtoms, iBasis, icnt, iCnttp, iCo, index_center, iPri
 integer(kind=iwp), allocatable :: IndC(:), primitive_ids(:,:)
 real(kind=wp), allocatable :: primitives(:,:)
 
-
 iAtoms = 0
 !***********************************************************************
 ! Generate list of primitive basis functions

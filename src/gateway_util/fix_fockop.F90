@@ -790,7 +790,7 @@ do iCnttp=1,mCnttp
       write(u6,*) 'GuessOrb option turned off!'
       dbsc(iCnttp)%FOp = .false.
     end if
-  Do_Cycle = .false.
+    Do_Cycle = .false.
   end do
   !                                                                    *
   !*********************************************************************

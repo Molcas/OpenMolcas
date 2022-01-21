@@ -34,7 +34,8 @@ real(kind=wp) :: ADUM, AuxLs, PreFac, ZI, ZJ
 integer(kind=iwp), allocatable :: iScratch(:)
 real(kind=wp), allocatable :: AUXI(:), COREK(:,:,:), EVN1(:), hcorr(:), OVL(:,:), PVPT(:), RE1R(:), rel(:), Scratch(:), srel(:), &
                               tnrel(:), trel(:), unrel(:), urel(:), VEXTT(:), W1W1(:)
-integer(kind=iwp), parameter :: iExch = 1, iMVPot = 2, iDWPot = 4, iNPPot = 8
+!integer(kind=iwp), parameter :: iExch = 1, iMVPot = 2, iDWPot = 4, iNPPot = 8
+integer(kind=iwp), parameter :: iExch = 0, iMVPot = 1, iDWPot = 2, iNPPot = 3
 real(kind=wp), external :: OVLMP, Vexch
 
 iprint = 0
@@ -88,16 +89,16 @@ do lP1=1,lMax+1
   if (nP <= 0) cycle
 
   Rel(:) = Zero
-  if ((iand(iOpt,iMVPot) /= 0) .and. (iand(iOpt,iDWPot) /= 0)) then
+  if (btest(iOpt,iMVPot) .and. btest(iOpt,iDWPot)) then
     ! Mass-velocity and/or Darwin potentials
     call Vqr(LUQRP,MPLbl,lP1,Shells(iSRSh)%Exp,nP,rel)
-  else if ((iand(iOpt,iMVPot) /= 0) .or. (iand(iOpt,iDWPot) /= 0)) then
+  else if (btest(iOpt,iMVPot) .or. btest(iOpt,iDWPot)) then
     write(u6,*) 'Mass-Velocity and Darwin potentials must be'
     write(u6,*) 'active simultaneosly.'
     call Abend()
   end if
 
-  if (iand(iOpt,iNPPot) /= 0) then   ! Zero
+  if (btest(iOpt,iNPPot)) then   ! Zero
     nP1 = 3*nP*(nP+1)/2
     nP2 = nP1+5*nP*nP
     call oeisg(rel,srel,trel,urel,Shells(iSRSh)%Exp,rCharge,lp1,nP,unrel,tnrel,hcorr,iprint,VEXTT,PVPT,EVN1,RE1R,AUXI,W1W1, &
@@ -118,8 +119,8 @@ do lP1=1,lMax+1
       IJ = IJ+1
       ZJ = Shells(iSRSh)%Exp(J)
       COREK(I,J,1) = rel(ij)
-      if (iand(iOpt,iNPPot) /= 0) COREK(I,J,2) = hcorr(ij)
-      if (iand(iOpt,iExch) /= 0) then
+      if (btest(iOpt,iNPPot)) COREK(I,J,2) = hcorr(ij)
+      if (btest(iOpt,iExch)) then
         ! minus exchange potential
         AuxLs = VExch(ZI,N,ZJ,N,LAM,nProj,iCoShll)
         COREK(I,J,1) = COREK(I,J,1)-AuxLs

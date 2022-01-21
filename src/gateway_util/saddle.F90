@@ -143,14 +143,14 @@ else
     do iAt=1,nAt
       S%nDim = 0
       do j=0,2
-        if (iand(iStab(iAt),2**j) == 0) S%nDim = S%nDim+1
+        if (.not. btest(iStab(iAt),j)) S%nDim = S%nDim+1
       end do
       if (S%nDim > 0) then
         do iRP=1,2
           call Random_Vector(S%nDim,RandVect(1:S%nDim),.false.)
           jDim = 0
           do j=0,2
-            if (iand(iStab(iAt),2**j) == 0) then
+            if (.not. btest(iStab(iAt),j)) then
               jDim = jDim+1
               RP_Centers(jDim,iAt,iRP) = RP_Centers(jDim,iAt,iRP)+Shake*RandVect(jDim)
             end if

@@ -43,7 +43,7 @@ real(kind=wp), allocatable :: Array(:)
 #define _TEST_ .false.
 #endif
 logical(kind=iwp), parameter :: test = _TEST_
-character(len=180), external ::Get_Ln
+character(len=180), external :: Get_Ln
 
 if (test) write(u6,*) ' Reading PAM potencials'
 nArray = 10000
