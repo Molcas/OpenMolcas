@@ -59,8 +59,15 @@ c      Get_ExFac=HFLDA
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     We bring in olny cases where it is different from zero.
+*     We bring in only cases where it is different from zero.
       Select Case(KSDFT)
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     BR89G1                                                           *
+*                                                                      *
+      Case ('BR89G1')
+         Get_ExFac=0.22D0
 *                                                                      *
 ************************************************************************
 *                                                                      *

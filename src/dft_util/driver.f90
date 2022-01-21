@@ -734,6 +734,16 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+!     Becke-Roussel 89 Gamma=1
+!                                                                      *
+      Case('BR89G1')
+         Functional_type=meta_GGA_type2
+
+         nFuncs=1
+         func_id(1:nFuncs)=[XC_MGGA_X_BR89_1]
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 !      LDTF/LSDA (Thomas-Fermi for KE)                                 *
 !                                                                      *
        Case('LDTF/LSDA ','LDTF/LDA  ')

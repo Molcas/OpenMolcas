@@ -83,8 +83,8 @@ Real*8 Coeff
 If (nD.eq.1) Then
                           Rho(:,1:mGrid)   =2.00D0*Rho(:,1:mGrid)
    If (Allocated(Sigma))  Sigma(:,1:mGrid) =4.00D0*Sigma(:,1:mGrid)
-   If (Allocated(Lapl))   Lapl(:,1:mGrid)  =2.00D0*Lapl(:,1:mGrid)
    If (Allocated(vSigma)) vSigma(:,1:mGrid)=0.50D0*vSigma(:,1:mGrid)
+   If (Allocated(Lapl))   Lapl(:,1:mGrid)  =2.00D0*Lapl(:,1:mGrid)
    If (Allocated(vTau))   vTau(:,1:mGrid)  =2.00D0*vTau(:,1:mGrid)
 Else
    If (Allocated(Tau))    Tau(:,1:mGrid)   =0.50D0*Tau(:,1:mGrid)
@@ -99,8 +99,8 @@ End Do
 If (nD.eq.1) Then
                           Rho(:,1:mGrid)   =0.50D0*Rho(:,1:mGrid)
    If (Allocated(Sigma))  Sigma(:,1:mGrid) =0.25D0*Sigma(:,1:mGrid)
-   If (Allocated(Lapl))   Lapl(:,1:mGrid)  =0.50D0*Lapl(:,1:mGrid)
    If (Allocated(vSigma)) vSigma(:,1:mGrid)=2.00D0*vSigma(:,1:mGrid)
+   If (Allocated(Lapl))   Lapl(:,1:mGrid)  =0.50D0*Lapl(:,1:mGrid)
    If (Allocated(vTau))   vTau(:,1:mGrid)  =0.50D0*vTau(:,1:mGrid)
 Else
    If (Allocated(Tau))    Tau(:,1:mGrid)   =2.00D0*Tau(:,1:mGrid)
