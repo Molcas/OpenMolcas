@@ -12,7 +12,7 @@
 subroutine Restart_SurfaceHop
 
 #ifdef _HDF5_
-use Tully_variables, only: NSUBSTEPS, rassi_ovlp
+use Tully_variables, only: NSUBSTEPS
 use stdalloc, only: mma_allocate, mma_deallocate
 use mh5, only: mh5_open_file_r, mh5_fetch_attr, mh5_exists_attr, mh5_exists_dset, mh5_fetch_dset, mh5_close_file
 use surfacehop_globals, only: File_H5Res

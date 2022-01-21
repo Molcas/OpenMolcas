@@ -20,7 +20,6 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, r8, u6
 
 #include "warnings.h"
-use stdalloc, only: mma_allocate,mma_deallocate
 
 implicit none
 integer(kind=iwp), intent(in) :: NSTATE, NCI
@@ -160,7 +159,6 @@ if (rassi_ovlp) then
     RASSI_time_run=0 ! Reset for next iteration
     call put_iscalar('SH RASSI run', RASSI_time_run)
     write(u6,*) ''
-    write(u6,*) '<t-dt|t> RASSI Overlap (pre-root correction)'
     call get_dArray('State Overlaps',readOVLP,NSTATE*2*NSTATE*2)
 !    do i=1,NSTATE*NSTATE*NSTATE*NSTATE
 !      write(u6,*) readOVLP(i)
@@ -172,10 +170,6 @@ if (rassi_ovlp) then
         currOVLP_ras_2(tt,t)=readOVLP(o)  ! Make extra copy for root flipping correction
       end do
     end do
-    do i=1,NSTATE
-      write(u6,*) (currOVLP_ras(i,j),j=1,NSTATE,1)
-    end do
-  write(u6,*) ''
   end if
 end if
 
@@ -300,7 +294,7 @@ else
 ! Sign correction and root reordering using RASSI overlap matrix <t-dt|t>
 ! currOVLP has sign/root correction applied so |t> is changed - to match with prevOVLP
 ! saveOVLP has sign/root correction applied so <t-dt| is changed - to match with next timesteps calculated overlap
-
+  write(u6,*) ''
   write(u6,*) 'Using RASSI overlap matrix for sign correction/root ordering'
 
   ! For current Overlap (swapping rows)
@@ -343,6 +337,13 @@ else
     end if
   end do
 
+  write(u6,*) ''
+  write(u6,*) 'Corrected <t-dt|t> RASSI Overlap'
+  do i=1,NSTATE
+    write(u6,*) (currOVLP(i,j),j=1,NSTATE,1)
+  end do
+  write(u6,*) ''
+
   ! For save Overlap (swapping columns)
 
   ! Root flipping
@@ -356,11 +357,11 @@ else
         root_ovlp = abs(currOVLP_ras_2(i,j))
       end if
     end do
-    if (root_ovlp < 0.4) then
-      write(u6,*) 'WARNING: No overlap greater than 0.4 for root:', i
-    end if
+!    if (root_ovlp < 0.4) then
+!      write(u6,*) 'WARNING: No overlap greater than 0.4 for root:', i
+!    end if
     if (root_ovlp_el /= i) then
-      write(u6,*) 'Root rotation detected'
+!      write(u6,*) 'Root rotation detected'
       do ii=1,NSTATE
         saveOVLP(ii,i) = currOVLP_ras_2(ii,root_ovlp_el)
         currOVLP_ras_2(ii,root_ovlp_el) = currOVLP_ras_2(ii,i)
@@ -382,7 +383,6 @@ else
     end if
   end do
 
-!  write(u6,*) 'NOT YET IMPLEMENTED'
 
 end if
 !                                                                       !
@@ -745,7 +745,7 @@ end do substeps
 write(u6,*) 'Gnuplot:',(Popul(j),j=1,NSTATE,1),(Venergy(j),j=1,NSTATE,1),Venergy(temproot)
 !write(u6,*) 'Gnuplot:',(Popul(j),j=1,NSTATE,1),(V(j,j),j=1,NSTATE,1),V(temproot,temproot)
 
-write(u6,*) 'CASSCF rlxrt', iRlxRoot
+!write(u6,*) 'CASSCF rlxrt', iRlxRoot
 
 if (temproot == iRlxRoot) then
   HOPPED = .false.
