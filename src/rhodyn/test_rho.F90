@@ -10,39 +10,37 @@
 !                                                                      *
 ! Copyright (C) 2021, Vladislav Kochetov                               *
 !***********************************************************************
-subroutine test_rho (densityt_time, time)
-  use rhodyn_data, only: Nstate, threshold
-  use definitions, only: wp, iwp
-  use constants, only: auToFs
-  implicit none
-!
+
+subroutine test_rho(densityt_time,time)
 !***********************************************************************
 ! Purpose: test density matrix on hermicity and positivity (?)
-!
 !***********************************************************************
-!
-  complex(kind=wp), dimension(:,:), intent(in) :: densityt_time
-  real(kind=wp), intent(in) :: time
-  real(kind=wp) :: abserror
-  integer(kind=iwp) :: i, j
 
-  abserror=0d0
-  do i=1,Nstate
-    do j=(i+1),Nstate
-      if ((abs(dble(densityt_time(i,j))-dble(densityt_time(j,i)))>=&
-                      threshold).and.(abs(dble(densityt_time(i,j))-&
-                      dble(densityt_time(j,i)))>=abserror)) then
-        abserror = abs(dble(densityt_time(i,j))-&
-                       dble(densityt_time(j,i)))
-      endif
-      if ((abs(aimag(densityt_time(i,j))+aimag(densityt_time(j,i)))>=&
-          threshold).and.(abs(aimag(densityt_time(i,j))+&
-          aimag(densityt_time(j,i)))>=abserror)) then
-        abserror = abs(aimag(densityt_time(i,j)) + aimag(densityt_time(j,i)))
-      endif
-    enddo
-  enddo
-  if (abserror>=threshold) then
-    write(6,'(2(a,1x,g28.16,1x))')'time=',time*auToFs,'error=',abserror
-  endif
-end
+use rhodyn_data, only: Nstate, threshold
+use definitions, only: wp, iwp
+use constants, only: auToFs
+
+implicit none
+complex(kind=wp), dimension(:,:), intent(in) :: densityt_time
+real(kind=wp), intent(in) :: time
+real(kind=wp) :: abserror
+integer(kind=iwp) :: i, j
+
+abserror = 0d0
+do i=1,Nstate
+  do j=(i+1),Nstate
+    if ((abs(dble(densityt_time(i,j))-dble(densityt_time(j,i))) >= threshold) .and. &
+        (abs(dble(densityt_time(i,j))-dble(densityt_time(j,i))) >= abserror)) then
+      abserror = abs(dble(densityt_time(i,j))-dble(densityt_time(j,i)))
+    end if
+    if ((abs(aimag(densityt_time(i,j))+aimag(densityt_time(j,i))) >= threshold) .and. &
+        (abs(aimag(densityt_time(i,j))+aimag(densityt_time(j,i))) >= abserror)) then
+      abserror = abs(aimag(densityt_time(i,j))+aimag(densityt_time(j,i)))
+    end if
+  end do
+end do
+if (abserror >= threshold) then
+  write(6,'(2(a,1x,g28.16,1x))') 'time=',time*auToFs,'error=',abserror
+end if
+
+end subroutine test_rho

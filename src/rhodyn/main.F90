@@ -8,18 +8,24 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-program main
+
+program Main
+
 #ifdef _FPE_TRAP_
-  use, intrinsic :: IEEE_Exceptions
+use, intrinsic :: IEEE_Exceptions, only: IEEE_Set_Halting_Mode, IEEE_Usual
+use Definitions, only: DefInt
 #endif
-  implicit none
-  integer :: ireturn
-  character(len=*), parameter :: module_name = 'rhodyn'
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: rc
+
 #ifdef _FPE_TRAP_
-  call IEEE_Set_Halting_Mode(IEEE_Usual,.true._4)
+call IEEE_Set_Halting_Mode(IEEE_Usual,.true._DefInt)
 #endif
 
-  call start(module_name)
-  call rhodyn(ireturn)
-  call finish(ireturn)
-end program main
+call start('rhodyn')
+call rhodyn(rc)
+call finish(rc)
+
+end program Main

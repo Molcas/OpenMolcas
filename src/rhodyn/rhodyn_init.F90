@@ -10,83 +10,84 @@
 !                                                                      *
 ! Copyright (C) 2021, Vladislav Kochetov                               *
 !***********************************************************************
+
 subroutine rhodyn_init()
 !***********************************************************************
-!
-!     input parameters set by default. Later they can be overwritten
-!     when reading input file
-!
+! input parameters set by default. Later they can be overwritten
+! when reading input file
 !***********************************************************************
-  use rhodyn_data
-  use stdalloc, only: mma_allocate
-  use constants, only: auToFs, auToCm, auToeV
-  implicit none
+
+use rhodyn_data
+use stdalloc, only: mma_allocate
+use constants, only: auToFs, auToCm, auToeV
+
+implicit none
 
 ! runmode 1 means standard program workflow (see rhodyn_data)
-  runmode       = 1
-  flag_test     = .False.
-  p_style       = 'SF'
-  N_Populated   = 1
+runmode = 1
+flag_test = .false.
+p_style = 'SF'
+N_Populated = 1
 ! temperature T needed if p_style includes 'thermal'
-  T             = 300
-  Nmode         = 0
+T = 300
+Nmode = 0
 ! be default propagation basis is spin free states
-  basis         = 'SF'
-  DM_basis      = 'SF_SO'
-  tout          = 0.05d0/auToFs
-  initialtime   = 0.0d0/auToFs
-  finaltime     = 10.0d0/auToFs
-  timestep      = 0.0005d0/auToFs
-  method        = 'CLASSIC_RK4'
-  errorthreshold= 1.0d-06
+basis = 'SF'
+DM_basis = 'SF_SO'
+tout = 0.05d0/auToFs
+initialtime = 0.0d0/auToFs
+finaltime = 10.0d0/auToFs
+timestep = 0.0005d0/auToFs
+method = 'CLASSIC_RK4'
+errorthreshold = 1.0d-06
 ! safety parameter for adaptive-size methods can be set to 0.95
 ! for acceleration of calculations
-  safety        = 0.9
-  deltaE        = 50d0/auToCm
-  V             = 100d0/auToCm
-  Nval          = 160
-  N_L3          = 175
-  tau_L3        = 0.4d0/autoev ! Auger decay rate for Fe L3
-  N_L2          = 585
-  tau_L2        = 1.04d0/autoev ! Auger decay rate for Fe L2
-  flag_dyson    = .False.
-  alpha         = 1d-3
-  ion_diss      = 0d0
-  ion_blocks    = (/.True.,.False.,.True.,.False.,.True./)
-  flag_diss     = .False.
-  gamma         = 300/auToCm
-  HRSO          = .False.
-  kext          = .False.
+safety = 0.9
+deltaE = 50d0/auToCm
+V = 100d0/auToCm
+Nval = 160
+N_L3 = 175
+tau_L3 = 0.4d0/autoev ! Auger decay rate for Fe L3
+N_L2 = 585
+tau_L2 = 1.04d0/autoev ! Auger decay rate for Fe L2
+flag_dyson = .false.
+alpha = 1d-3
+ion_diss = 0d0
+ion_blocks = (/.true.,.false.,.true.,.false.,.true./)
+flag_diss = .false.
+gamma = 300/auToCm
+HRSO = .false.
+kext = .false.
 ! full density matrix saving time step
-  time_fdm      = 1.0d0/auToFs
+time_fdm = 1.0d0/auToFs
 ! general idea is that additional features are disabled by default
 ! except for pulse flag
-  flag_so       = .False.
-  flag_decay    = .False.
-  flag_fdm      = .False.
-  flag_dipole   = .False.
-  flag_emiss    = .False.
+flag_so = .false.
+flag_decay = .false.
+flag_fdm = .false.
+flag_dipole = .false.
+flag_emiss = .false.
 ! number of incoming pulses N_pulse supposed to be 1 by default
 ! later when reading input it can be changed with
 ! reallocation of all corresponding arrays
-  flag_pulse    = .True.
-  flag_acorrection=.False.
-  pulse_type    = 'GAUSS'
-  N_pulse       = 1
-  call mma_allocate(amp,N_pulse)
-  call mma_allocate(taushift,N_pulse)
-  call mma_allocate(pulse_vector,N_pulse,3)
-  call mma_allocate(sigma,N_pulse)
-  call mma_allocate(omega,N_pulse)
-  call mma_allocate(phi,N_pulse)
-  amp(1)           = 2.5d0
-  taushift(1)      = 3.0d0/auToFs
-  pulse_vector(1,1)= one
-  pulse_vector(1,2)= zero
-  pulse_vector(1,3)= zero
-  sigma(1)         = 1.0d0/auToFs
-  omega(1)         = 10d0/autoev
-  phi(1)           = 0.0d0
-  linear_chirp     = 0.0d0
+flag_pulse = .true.
+flag_acorrection = .false.
+pulse_type = 'GAUSS'
+N_pulse = 1
+call mma_allocate(amp,N_pulse)
+call mma_allocate(taushift,N_pulse)
+call mma_allocate(pulse_vector,N_pulse,3)
+call mma_allocate(sigma,N_pulse)
+call mma_allocate(omega,N_pulse)
+call mma_allocate(phi,N_pulse)
+amp(1) = 2.5d0
+taushift(1) = 3.0d0/auToFs
+pulse_vector(1,1) = one
+pulse_vector(1,2) = zero
+pulse_vector(1,3) = zero
+sigma(1) = 1.0d0/auToFs
+omega(1) = 10d0/autoev
+phi(1) = 0.0d0
+linear_chirp = 0.0d0
 
-end
+end subroutine rhodyn_init

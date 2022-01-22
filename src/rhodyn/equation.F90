@@ -10,14 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2021, Vladislav Kochetov                               *
 !***********************************************************************
-subroutine equation (time,rhot,res)
-  use rhodyn_data, only: pulse_func, flag_pulse, d, onei, zero, one, &
-                         flag_decay, ion_diss, flag_diss, decay, &
-                         hamiltonian, hamiltoniant, &
-                         K_bar_basis, kab_basis
-  use definitions, only: wp, iwp
-  implicit none
-!
+
+subroutine equation(time,rhot,res)
 !***********************************************************************
 ! Purpose : Liouville equation is solved here
 !
@@ -26,36 +20,43 @@ subroutine equation (time,rhot,res)
 !  time   : current time
 !  rhot   : density matrix at current time
 !  res    : obtained left part of Liouville equation d(rhot)/d(time)
-!
-  real(kind=wp), intent(in) :: time
-  complex(kind=wp), dimension(:,:), intent(in) :: rhot
-  complex(kind=wp), dimension(:,:), intent(out):: res
-  procedure(pulse_func) :: pulse
-  integer(kind=iwp) :: i, j
 
-! if pulse is enabled, modify hamiltonian at time t:
-  if (flag_pulse) call pulse(hamiltonian,hamiltoniant,time,-1)
+use rhodyn_data, only: pulse_func, flag_pulse, d, onei, zero, one, &
+                       flag_decay, ion_diss, flag_diss, decay, &
+                       hamiltonian, hamiltoniant, &
+                       K_bar_basis, kab_basis
+use definitions, only: wp, iwp
+
+implicit none
+real(kind=wp), intent(in) :: time
+complex(kind=wp), dimension(:,:), intent(in) :: rhot
+complex(kind=wp), dimension(:,:), intent(out) :: res
+procedure(pulse_func) :: pulse
+integer(kind=iwp) :: i, j
+
+! if pulse is enabled, modify Hamiltonian at time t:
+if (flag_pulse) call pulse(hamiltonian,hamiltoniant,time,-1)
 
 ! get right part of Liouville equation
-  call zgemm_('N','N',d,d,d,-onei,hamiltoniant,d,rhot,d,zero,res,d)
-  call zgemm_('N','N',d,d,d, onei,rhot,d,hamiltoniant,d, one,res,d)
+call zgemm_('N','N',d,d,d,-onei,hamiltoniant,d,rhot,d,zero,res,d)
+call zgemm_('N','N',d,d,d,onei,rhot,d,hamiltoniant,d,one,res,d)
 
-! auger decay part
-  if (flag_decay.or.ion_diss/=0d0) then
-    call zgemm_('N','N',d,d,d,one,decay,d,rhot,d,one,res,d)
-  endif
+! Auger decay part
+if (flag_decay .or. (ion_diss /= 0d0)) then
+  call zgemm_('N','N',d,d,d,one,decay,d,rhot,d,one,res,d)
+end if
 
 ! if dissipation (nuclear bath) is considered
-  if (flag_diss) then
-    do i=1,d
-      do j=1,d
-        if (i/=j) then
-          res(i,j) = res(i,j) - K_bar_basis(i,j) * rhot(i,j)
-        endif
-        res(i,i) = res(i,i) - Kab_basis(i,j) * rhot(i,i) + &
-                              Kab_basis(j,i) * rhot(j,j)
-      enddo
-    enddo
-  endif
+if (flag_diss) then
+  do i=1,d
+    do j=1,d
+      if (i /= j) then
+        res(i,j) = res(i,j)-K_bar_basis(i,j)*rhot(i,j)
+      end if
+      res(i,i) = res(i,i)-Kab_basis(i,j)*rhot(i,i)+ &
+                 Kab_basis(j,i)*rhot(j,j)
+    end do
+  end do
+end if
 
-end
+end subroutine equation
