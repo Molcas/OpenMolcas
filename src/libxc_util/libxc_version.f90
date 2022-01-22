@@ -25,5 +25,5 @@ Subroutine libxc_version()
   write(6,'(6X,"Using Libxc version: ",I0,".",I0,".",I0)') vmajor, vminor, vmicro
   ! Print out the Libxc literature reference
   write(6,'(6X,"Please cite the following reference")')
-  write(6,'(6X,A," doi ",A)') trim(libxc_reference), trim(libxc_reference_doi)
+  write(6,'(6X,A," doi:",A)') trim(libxc_reference), trim(libxc_reference_doi)
 End Subroutine libxc_version
