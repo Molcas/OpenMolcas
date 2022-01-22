@@ -101,8 +101,7 @@
       Case (GGA_type)
 *                                                                      *
       Do iD = 1, nD
-      ! Grad Rho part first because we need to symmetrize
-      Call DCopy_(mGrid*nBfn,TabAO1(2,1,1,iD),nFn,A1,1)
+      Call DCopy_(mGrid*nBfn,TabAO1(1,1,1,iD),nFn,A1,1)
       Call DCopy_(mGrid*nBfn,TabAO2(1,1,1)   ,mAO,A2,1)
       Call DGEMM_('T','N',nBfn,nBfn,mGrid,
      &             One,A1,mGrid,
@@ -115,12 +114,6 @@
             AOInt(jBfn,iBfn,iD) = AOInt_Sym
          End Do
       End Do
-      !Rho Part
-      Call DCopy_(mGrid*nBfn,TabAO1(1,1,1,iD),nFn,A1,1)
-      Call DGEMM_('T','N',nBfn,nBfn,mGrid,
-     &             One,A1,mGrid,
-     &                 A2,mGrid,
-     &             One ,AOInt(1,1,iD),nBfn)
       End Do
 *                                                                      *
 ************************************************************************

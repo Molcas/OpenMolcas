@@ -116,14 +116,13 @@
 !     +  {Grad(phi_i) GradRho} 2 (dF/dSigma) phi_j
 !
 !        Grid_AO contains
-!        1: phi_i dF/dRho
-!        2: {Grad(phi_i GradRho} 2 (dF/dSigma)
+!        1:  0.5 * phi_i dF/dRho
+!          + {Grad(phi_i GradRho} 2 (dF/dSigma)
 !
 !        Final integral assembled as, done in do_nIntx.
 !
 !        Grid_AO(1)_i phi_j
-!      + Grid_AO(2)_i phi_j
-!      + phi_i Grid_AO(2)_j
+!      + phi_i Grid_AO(1)_j
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -144,7 +143,7 @@
          gy=GradRho(2,iGrid)*Weights(iGrid)
          gz=GradRho(3,iGrid)*Weights(iGrid)
 
-         Temp0=vRho(1,iGrid)*Weights(iGrid)
+         Temp0=0.5D0*vRho(1,iGrid)*Weights(iGrid)
          Temp1=gx*2.0d0*vSigma(1,iGrid)
          Temp2=gy*2.0d0*vSigma(1,iGrid)
          Temp3=gz*2.0d0*vSigma(1,iGrid)
@@ -152,7 +151,7 @@
          Do iCB = 1, nBfn
 
             Grid_AO(1,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp0
-            Grid_AO(2,iGrid,iCB,1) = TabAO1(2,iGrid,iCB) * Temp1
+     &                             + TabAO1(2,iGrid,iCB) * Temp1
      &                             + TabAO1(3,iGrid,iCB) * Temp2
      &                             + TabAO1(4,iGrid,iCB) * Temp3
          End Do
@@ -175,8 +174,8 @@
          gyb=Gradrho(5,iGrid)*Weights(iGrid)
          gzb=Gradrho(6,iGrid)*Weights(iGrid)
 
-         Temp0a=vRho(1,iGrid) * Weights(iGrid)
-         Temp0b=vRho(2,iGrid) * Weights(iGrid)
+         Temp0a=0.5D0*vRho(1,iGrid) * Weights(iGrid)
+         Temp0b=0.5D0*vRho(2,iGrid) * Weights(iGrid)
          Temp1a=2.0d0*vSigma(1,iGrid)*gxa + vSigma(2,iGrid)*gxb
          Temp1b=2.0d0*vSigma(3,iGrid)*gxb + vSigma(2,iGrid)*gxa
          Temp2a=2.0d0*vSigma(1,iGrid)*gya + vSigma(2,iGrid)*gyb
@@ -187,11 +186,11 @@
          Do iCB = 1, nBfn
 *
             Grid_AO(1,iGrid,iCB,1) = TabAO1(1,iGrid,iCB) * Temp0a
-            Grid_AO(2,iGrid,iCB,1) = TabAO1(2,iGrid,iCB) * Temp1a
+     &                             + TabAO1(2,iGrid,iCB) * Temp1a
      &                             + TabAO1(3,iGrid,iCB) * Temp2a
      &                             + TabAO1(4,iGrid,iCB) * Temp3a
             Grid_AO(1,iGrid,iCB,2) = TabAO1(1,iGrid,iCB) * Temp0b
-            Grid_AO(2,iGrid,iCB,2) = TabAO1(2,iGrid,iCB) * Temp1b
+     &                             + TabAO1(2,iGrid,iCB) * Temp1b
      &                             + TabAO1(3,iGrid,iCB) * Temp2b
      &                             + TabAO1(4,iGrid,iCB) * Temp3b
          End Do
