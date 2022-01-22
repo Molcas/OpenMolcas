@@ -9,13 +9,21 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 2022, Roland Lindh                                     *
+!               2022, Susi Lehtola                                     *
 !***********************************************************************
 Subroutine libxc_version()
   use xc_f03_lib_m
   use Definitions, only: LibxcInt
   implicit none
   integer(kind=LibxcInt) :: vmajor, vminor, vmicro
-  ! Print out the version
+  character(len=128) :: libxc_reference, libxc_reference_doi
+  ! Get the data from libxc
   call xc_f03_version(vmajor, vminor, vmicro)
-  write(6,'(6X,"Libxc version: ",I0,".",I0,".",I0)') vmajor, vminor, vmicro
+  call xc_f03_reference(libxc_reference)
+  call xc_f03_reference_doi(libxc_reference_doi)
+  ! Print out the version
+  write(6,'(6X,"Using Libxc version: ",I0,".",I0,".",I0)') vmajor, vminor, vmicro
+  ! Print out the Libxc literature reference
+  write(6,'(6X,"Please cite the following reference")')
+  write(6,'(6X,A," doi ",A)"') trim(libxc_reference), trim(libxc_reference_doi)
 End Subroutine libxc_version
