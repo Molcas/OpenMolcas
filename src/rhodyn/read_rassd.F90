@@ -16,9 +16,9 @@ subroutine read_rassd(nfile)
 ! Purpose: reading input RASSCF file RASSDX, where X = nfile
 !***********************************************************************
 
-use rhodyn_data
-use definitions, only: iwp, u6
-use mh5, only: mh5_open_file_r, mh5_exists_attr, mh5_fetch_attr, mh5_fetch_dset, mh5_exists_dset, mh5_close_file
+use rhodyn_data, only: CI, DTOC, E, H_CSF, i_rasscf, ipglob, lroots, nconf, NDET, rassd_list
+use mh5, only: mh5_close_file, mh5_exists_attr, mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset, mh5_open_file_r
+use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nfile
@@ -36,14 +36,14 @@ i_rasscf = 0
 ! reading ci vectors and energies
 if (mh5_exists_attr(fileid,'MOLCAS_MODULE')) then
   call mh5_fetch_attr(fileid,'MOLCAS_MODULE',molcas_module)
-  if (trim(molcas_module(1:6)) == 'RASSCF') then
+  if (molcas_module(1:6) == 'RASSCF') then
     ! rasscf input file:
     i_rasscf = 2
     if (ipglob > 2) write(u6,*) 'reading CI_VECTORS'
     call mh5_fetch_dset(fileid,'CI_VECTORS',CI(1:nconf(nfile),1:lroots(nfile),nfile),[nconf(nfile),lroots(nfile)],[0,0])
     if (ipglob > 2) write(u6,*) 'reading ROOT_ENERGIES'
     call mh5_fetch_dset(fileid,'ROOT_ENERGIES',E(1:lroots(nfile),nfile))
-  else if (trim(molcas_module(1:6)) == 'CASPT2') then
+  else if (molcas_module(1:6) == 'CASPT2') then
     ! caspt2 input file:
     i_rasscf = 3
     !call mh5_fetch_dset(fileid,'H_EFF',H_CSF(1:nconf(nfile),1:nconf(nfile),nfile))

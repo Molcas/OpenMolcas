@@ -17,54 +17,57 @@ module rhodyn_utils
 ! module contains some auxiliary routines
 
 use linalg_mod, only: abort_
-use definitions, only: wp, iwp
+use Definitions, only: wp, iwp
 
 implicit none
+private
 
-public :: mult, removeColumn, removeLineAndColumn, dashes, transform
+public :: dashes, mult, removeColumn, removeLineAndColumn, sortci, transform
 
 interface mult
   module procedure mult_2D, multZ_2D
 end interface
 interface removeLineAndColumn
-  module procedure removeLineAndColumnZ, removeLineAndColumnR
+  module procedure removeLineAndColumnR, removeLineAndColumnZ
 end interface
 interface removeColumn
-  module procedure removeColumnZ, removeColumnR
+  module procedure removeColumnR, removeColumnZ
 end interface
 interface transform
-  module procedure transformZ, transformR
+  module procedure transformR, transformZ
 end interface
 
 contains
 
 subroutine dashes(length)
-  ! print the line of dashes of length 'length'
-  ! to the standard output fileunit 6
+  ! print the line of dashes of length 'length' to the standard output
 
-  integer(kind=iwp) :: i, l, fileunit
+  use Definitions, only: u6
+
   integer(kind=iwp), intent(in), optional :: length
+  integer(kind=iwp) :: i, l
 
   if (present(length)) then
     l = length
   else
     l = 72
   end if
-  fileunit = 6
   do i=1,l
-    write(fileunit,'(A)',advance='no') '-'
+    write(u6,'(A)',advance='no') '-'
   end do
-  write(fileunit,*)
+  write(u6,*)
 
 end subroutine dashes
 
 subroutine mult_2D(a,b,c,transpA,transpB)
 
+  use Constants, only: Zero, One
+
   real(kind=wp), intent(in) :: a(:,:), b(:,:)
   real(kind=wp), intent(out) :: c(:,:)
-  logical, intent(in), optional :: transpA, transpB
-  logical :: transpA_, transpB_
-  integer(kind=iwp) :: m, n, k, k1, k2
+  logical(kind=iwp), intent(in), optional :: transpA, transpB
+  integer(kind=iwp) :: k, k1, k2, m, n
+  logical(kind=iwp) :: transpA_, transpB_
 
   if (present(transpA)) then
     transpA_ = transpA
@@ -84,17 +87,19 @@ subroutine mult_2D(a,b,c,transpA,transpB)
   k2 = size(b,merge(2,1,transpB_))
   ASSERT(k1 == k2)
   k = k1
-  call dgemm_(merge('T','N',transpA_),merge('T','N',transpB_),m,n,k,1.d0,a,size(a,1),b,size(b,1),0.d0,c,size(c,1))
+  call dgemm_(merge('T','N',transpA_),merge('T','N',transpB_),m,n,k,One,a,size(a,1),b,size(b,1),Zero,c,size(c,1))
 
 end subroutine mult_2D
 
 subroutine multZ_2D(a,b,c,transpA,transpB)
 
+  use Constants, only: cZero, cOne
+
   complex(kind=wp), intent(in) :: a(:,:), b(:,:)
   complex(kind=wp), intent(out) :: c(:,:)
-  logical, intent(in), optional :: transpA, transpB
-  logical :: transpA_, transpB_
-  integer(kind=iwp) :: m, n, k, k1, k2
+  logical(kind=iwp), intent(in), optional :: transpA, transpB
+  integer(kind=iwp) :: k, k1, k2, m, n
+  logical(kind=iwp) :: transpA_, transpB_
 
   if (present(transpA)) then
     transpA_ = transpA
@@ -114,7 +119,7 @@ subroutine multZ_2D(a,b,c,transpA,transpB)
   k2 = size(b,merge(2,1,transpB_))
   ASSERT(k1 == k2)
   k = k1
-  call zgemm_(merge('C','N',transpA_),merge('C','N',transpB_),m,n,k,(1.0d0,0.0d0),a,size(a,1),b,size(b,1),(0.0d0,0.0d0),c,size(c,1))
+  call zgemm_(merge('C','N',transpA_),merge('C','N',transpB_),m,n,k,cOne,a,size(a,1),b,size(b,1),cZero,c,size(c,1))
 
 end subroutine multZ_2D
 
@@ -122,12 +127,11 @@ subroutine removeLineAndColumnZ(a,remLCarray)
 
   use stdalloc, only: mma_allocate, mma_deallocate
 
-  complex(kind=wp), dimension(:,:), allocatable, intent(inout) :: a
-  integer(kind=iwp), dimension(:), intent(in) :: remLCarray
-  ! temp variables
-  complex(kind=wp), dimension(:), allocatable :: b
-  logical, dimension(:,:), allocatable :: mask
+  complex(kind=wp), allocatable, intent(inout) :: a(:,:)
+  integer(kind=iwp), intent(in) :: remLCarray(:)
   integer(kind=iwp) :: i, j, l, m, n, k
+  complex(kind=wp), allocatable :: b(:)
+  logical(kind=iwp), allocatable :: mask(:,:)
 
   ! sizes
   n = size(a,1)
@@ -136,7 +140,7 @@ subroutine removeLineAndColumnZ(a,remLCarray)
   call mma_allocate(mask,n,m,label='mask')
   ! mask creation
   l = 0
-  mask = .false.
+  mask(:,:) = .false.
   do i=1,n
     do j=1,m
       if (any(remLCarray == i) .and. any(remLCarray == j)) then
@@ -151,7 +155,7 @@ subroutine removeLineAndColumnZ(a,remLCarray)
   call mma_deallocate(a)
   call mma_allocate(a,k,k,label='a')
   ! copy back
-  a(:,:) = reshape(b,(/k,k/))
+  a(:,:) = reshape(b,[k,k])
   call mma_deallocate(b)
   call mma_deallocate(mask)
 
@@ -161,12 +165,11 @@ subroutine removeLineAndColumnR(a,remLCarray)
 
   use stdalloc, only: mma_allocate, mma_deallocate
 
-  real(kind=wp), dimension(:,:), allocatable, intent(inout) :: a
-  integer(kind=iwp), dimension(:), intent(in) :: remLCarray
-  ! temp variables
-  real(kind=wp), dimension(:), allocatable :: b
-  logical, dimension(:,:), allocatable :: mask
+  real(kind=wp), allocatable, intent(inout) :: a(:,:)
+  integer(kind=iwp), intent(in) :: remLCarray(:)
   integer(kind=iwp) :: i, j, l, m, n, k
+  real(kind=wp), allocatable :: b(:)
+  logical(kind=iwp), allocatable :: mask(:,:)
 
   ! sizes
   n = size(a,1)
@@ -175,7 +178,7 @@ subroutine removeLineAndColumnR(a,remLCarray)
   call mma_allocate(mask,n,m,label='a')
   ! mask creation
   l = 0
-  mask = .false.
+  mask(:,:) = .false.
   do i=1,n
     do j=1,m
       if (any(remLCarray == i) .and. any(remLCarray == j)) then
@@ -190,7 +193,7 @@ subroutine removeLineAndColumnR(a,remLCarray)
   call mma_deallocate(a)
   call mma_allocate(a,k,k,label='a')
   ! copy back
-  a(:,:) = reshape(b,(/k,k/))
+  a(:,:) = reshape(b,[k,k])
   call mma_deallocate(b)
   call mma_deallocate(mask)
 
@@ -200,12 +203,11 @@ subroutine removeColumnZ(a,remCarray)
 
   use stdalloc, only: mma_allocate, mma_deallocate
 
-  complex(kind=wp), dimension(:,:), allocatable, intent(inout) :: a
-  integer(kind=iwp), dimension(:), intent(in) :: remCarray
-  ! temp variables
-  complex(kind=wp), dimension(:), allocatable :: b
-  logical, dimension(:,:), allocatable :: mask
+  complex(kind=wp), allocatable, intent(inout) :: a(:,:)
+  integer(kind=iwp), intent(in) :: remCarray(:)
   integer(kind=iwp) :: j, l, m, n, k
+  complex(kind=wp), allocatable :: b(:)
+  logical(kind=iwp), allocatable :: mask(:,:)
 
   ! sizes
   n = size(a,1)
@@ -214,7 +216,7 @@ subroutine removeColumnZ(a,remCarray)
   call mma_allocate(mask,n,m,label='mask')
   ! mask creation
   l = 0
-  mask = .false.
+  mask(:,:) = .false.
   do j=1,m
     if (any(remCarray == j)) then
       mask(:,j) = .true.
@@ -227,7 +229,7 @@ subroutine removeColumnZ(a,remCarray)
   call mma_deallocate(a)
   call mma_allocate(a,n,k,label='a')
   ! copy back
-  a(:,:) = reshape(b,(/n,k/))
+  a(:,:) = reshape(b,[n,k])
   call mma_deallocate(b)
   call mma_deallocate(mask)
 
@@ -237,12 +239,11 @@ subroutine removeColumnR(a,remCarray)
 
   use stdalloc, only: mma_allocate, mma_deallocate
 
-  real(kind=wp), dimension(:,:), allocatable, intent(inout) :: a
-  integer(kind=iwp), dimension(:), intent(in) :: remCarray
-  ! temp variables
-  real(kind=wp), dimension(:), allocatable :: b
-  logical, dimension(:,:), allocatable :: mask
+  real(kind=wp), allocatable, intent(inout) :: a(:,:)
+  integer(kind=iwp), intent(in) :: remCarray(:)
   integer(kind=iwp) :: j, l, m, n, k
+  real(kind=wp), allocatable :: b(:)
+  logical(kind=iwp), allocatable :: mask(:,:)
 
   ! sizes
   n = size(a,1)
@@ -251,7 +252,7 @@ subroutine removeColumnR(a,remCarray)
   call mma_allocate(mask,n,m,label='mask')
   ! mask creation
   l = 0
-  mask = .false.
+  mask(:,:) = .false.
   do j=1,m
     if (any(remCarray == j)) then
       mask(:,j) = .true.
@@ -264,7 +265,7 @@ subroutine removeColumnR(a,remCarray)
   call mma_deallocate(a)
   call mma_allocate(a,n,k,label='a')
   ! copy back
-  a(:,:) = reshape(b,(/n,k/))
+  a(:,:) = reshape(b,[n,k])
   call mma_deallocate(b)
   call mma_deallocate(mask)
 
@@ -277,12 +278,12 @@ subroutine transformZ(a,u,b,order)
 
   use stdalloc, only: mma_allocate, mma_deallocate
 
-  complex(kind=wp), dimension(:,:), intent(in) :: a, u
-  complex(kind=wp), dimension(:,:), intent(out) :: b
-  complex(kind=wp), dimension(:,:), allocatable :: temp
-  logical, optional, intent(in) :: order
-  logical :: order_
+  complex(kind=wp), intent(in) :: a(:,:), u(:,:)
+  complex(kind=wp), intent(out) :: b(:,:)
+  logical(kind=iwp), optional, intent(in) :: order
   integer(kind=iwp) :: m, n
+  complex(kind=wp), allocatable :: temp(:,:)
+  logical(kind=iwp) :: order_
 
   if (present(order)) then
     order_ = order
@@ -310,14 +311,15 @@ subroutine transformR(a,u,b,order)
   ! perform orthogonal transformation with transformation matrix
   ! order = True (default): direct transform : b = u^T * a * u
   ! order = False       : inverse transform: b = u   * a * u^T
+
   use stdalloc, only: mma_allocate, mma_deallocate
 
-  real(kind=wp), dimension(:,:), intent(in) :: a, u
-  real(kind=wp), dimension(:,:), intent(out) :: b
-  real(kind=wp), dimension(:,:), allocatable :: temp
-  logical, optional, intent(in) :: order
-  logical :: order_
+  real(kind=wp), intent(in) :: a(:,:), u(:,:)
+  real(kind=wp), intent(out) :: b(:,:)
+  logical(kind=iwp), optional, intent(in) :: order
   integer(kind=iwp) :: m, n
+  real(kind=wp), allocatable :: temp(:,:)
+  logical(kind=iwp) :: order_
 
   if (present(order)) then
     order_ = order
@@ -343,30 +345,40 @@ end subroutine transformR
 
 subroutine sortci(N1,A,WR,C,print_level)
 
-  integer(kind=iwp) :: N1, INFO, LWORK
-  integer(kind=iwp), intent(in) :: print_level
-  real(kind=wp), dimension(N1,N1) :: A, C, diag, B
-  real(kind=wp), dimension(N1) :: WR
-  real(kind=wp), dimension(2*N1) :: WORK
-  integer(kind=iwp) :: k, l
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Definitions, only: u6
 
-  B = A
+  integer(kind=iwp), intent(in) :: N1, print_level
+  real(kind=wp), intent(inout) :: A(N1,N1)
+  real(kind=wp), intent(out) :: WR(N1), C(N1,N1)
+  integer(kind=iwp) :: INFO, k, l, LWORK
+  real(kind=wp), allocatable :: diag(:,:), B(:,:), WORK(:)
+
+  if (print_level > 3) then
+    call mma_allocate(B,N1,N1,label='B')
+    call mma_allocate(diag,N1,N1,label='diag')
+    B(:,:) = A
+  end if
   LWORK = 2*N1
+  call mma_allocate(WORK,LWORK,label='WORK')
   call dsyev_('V','U',N1,A,N1,WR,WORK,LWORK,INFO)
   if (INFO /= 0) then
-    write(6,*) 'ERROR in sortci'
+    write(u6,*) 'ERROR in sortci'
     call Abend()
   end if
   call dsyev_('V','U',N1,A,N1,WR,WORK,LWORK,INFO)
+  call mma_deallocate(WORK)
   C = A
   if (print_level > 3) then
     call transform(B,C,diag)
     call dashes()
-    write(6,*) 'Printout the diagonalized matrix:'
+    write(u6,*) 'Printout the diagonalized matrix:'
     call dashes()
     do k=1,10
-      write(6,*) (diag(k,l),l=1,10)
+      write(u6,*) (diag(k,l),l=1,10)
     end do
+    call mma_deallocate(B)
+    call mma_deallocate(diag)
   end if
 
 end subroutine sortci

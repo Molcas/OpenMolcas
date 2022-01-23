@@ -14,17 +14,20 @@
 subroutine read_input()
 ! Purpose: process input file and print summary at the end
 
-use rhodyn_data
+use rhodyn_data, only: alpha, amp, basis, dm_basis, errorthreshold, finaltime, flag_acorrection, flag_decay, flag_dipole, &
+                       flag_diss, flag_dyson, flag_emiss, flag_fdm, flag_pulse, flag_so, cgamma, HRSO, initialtime, ion_diss, &
+                       ipglob, ispin, istates, kext, linear_chirp, lroots, method, N, N_L2, N_L3, N_Populated, N_pulse, nconf, &
+                       ndet, Nmode, Nstate, Nval, omega, p_style, phi, power_shape, pulse_type, pulse_vector, runmode, safety, &
+                       scha, scmp, sdbl, sigma, sint, slog, T, tau_L2, tau_L3, taushift, time_fdm, timestep, tout
 use rhodyn_utils, only: dashes
-use definitions, only: iwp, u6
-use constants, only: auToFs, auToCm, auToeV, pi
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, cZero, cOne, auToFs, auToCm, auToeV, pi
+use definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: luin
-integer(kind=iwp) :: i, j
-character(len=32) :: tryname
+integer(kind=iwp) :: i, j, luin
 character(len=256) :: line
+character(len=32) :: tryname
 character(len=*), parameter :: input_id = '&RHODYN'
 
 call SpoolInp(luin)
@@ -77,7 +80,7 @@ do
       call mma_allocate(istates,Nstate)
       call UpCase(tryname)
       if (tryname == 'ALL') then
-        istates(:) = (/(i,i=1,Nstate)/)
+        istates(:) = [(i,i=1,Nstate)]
       else
         backspace(luin)
         read(luin,*) Nstate,(istates(i),i=1,Nstate)
@@ -108,12 +111,12 @@ do
       read(luin,*) errorthreshold
     case ('RKSA')
       read(luin,*) safety
-    case ('DELT')
-      read(luin,*) deltaE
-      deltaE = deltaE/auToCm
-    case ('VCOU')
-      read(luin,*) V
-      V = V/auToCm
+    !case ('DELT')
+    !  read(luin,*) deltaE
+    !  deltaE = deltaE/auToCm
+    !case ('VCOU')
+    !  read(luin,*) V
+    !  V = V/auToCm
     case ('AUGE')
       flag_decay = .true.
     case ('NVAL')
@@ -134,8 +137,8 @@ do
     case ('IOND')
       read(luin,*) ion_diss
     case ('GAMM')
-      read(luin,*) gamma
-      gamma = gamma/auToCm
+      read(luin,*) cgamma
+      cgamma = cgamma/auToCm
     case ('HRSO')
       HRSO = .true.
     case ('KEXT')
@@ -175,14 +178,14 @@ do
         call mma_allocate(omega,N_pulse)
         call mma_allocate(phi,N_pulse)
         do i=1,N_pulse
-          amp(i) = 0.0d0
-          taushift(i) = 0.0d0
-          pulse_vector(i,1) = one
-          pulse_vector(i,2) = zero
-          pulse_vector(i,3) = zero
-          sigma(i) = 1.0d0/auToFs
-          omega(i) = 710d0/autoev
-          phi(i) = 0d0*pi
+          amp(i) = Zero
+          taushift(i) = Zero
+          pulse_vector(i,1) = cOne
+          pulse_vector(i,2) = cZero
+          pulse_vector(i,3) = cZero
+          sigma(i) = One/auToFs
+          omega(i) = 710.0_wp/autoev
+          phi(i) = Zero
         end do
       else if (N_pulse == 0) then
         flag_pulse = .false.
@@ -260,13 +263,13 @@ if (ipglob > 1) then
   if (flag_diss) then
     !write(u6,sdbl) 'DeltaE:',         deltaE
     !write(u6,sdbl) 'Coupling (cm-1):',V
-    write(u6,sdbl) 'Gamma (Hartree):',gamma
+    write(u6,sdbl) 'Gamma (Hartree):',cgamma
   end if
   call dashes()
   write(u6,*) 'Pulse characteristics:'
   write(u6,sint) 'Number of pulses:',N_pulse
   call dashes()
-  if (flag_pulse .and. (amp(1) /= 0d0)) then
+  if (flag_pulse .and. (amp(1) /= Zero)) then
     do i=1,N_pulse
       write(u6,scha) 'Pulse type:',trim(pulse_type)
       write(u6,sint) 'Pulse # ',i

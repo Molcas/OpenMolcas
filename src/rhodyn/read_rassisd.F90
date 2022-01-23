@@ -17,18 +17,16 @@ subroutine read_rassisd()
 !            hamiltonian from the MOLCAS output rassisd file (SO)
 !***********************************************************************
 
-use rhodyn_data, only: Nstate, lrootstot, ipglob, HSOCX, E_SO, SO_CI, runmode, V_SO, dipole, flag_so, flag_dyson, dysamp, E_SF
+use rhodyn_data, only: dipole, dysamp, E_SF, E_SO, flag_dyson, flag_so, HSOCX, ipglob, lrootstot, Nstate, runmode, SO_CI, V_SO
 use rhodyn_utils, only: dashes
-use definitions, only: wp, iwp, u6
+use mh5, only: mh5_close_file, mh5_exists_dset, mh5_fetch_dset, mh5_open_file_r
 use stdalloc, only: mma_allocate, mma_deallocate
-use mh5, only: mh5_open_file_r, mh5_exists_dset, mh5_fetch_dset, mh5_close_file
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp), dimension(:), allocatable :: tmpe
-real(kind=wp), dimension(:,:), allocatable :: tmpr, tmpi
-real(kind=wp), allocatable, dimension(:,:,:) :: DIPR, DIPI
-integer(kind=iwp) :: fileid
-integer(kind=iwp) :: i
+integer(kind=iwp) :: i, fileid
+real(kind=wp), allocatable :: DIPI(:,:,:), DIPR(:,:,:), tmpe(:), tmpi(:,:), tmpr(:,:)
 
 if (ipglob > 3) then
   call dashes()
@@ -57,7 +55,7 @@ if (runmode == 4) then
       write(u6,*) 'nor HSO_MATRIX_REAL/IMAG datasets'
       call abend()
     end if
-    HSOCX(:,:) = dcmplx(tmpr,tmpi)
+    HSOCX(:,:) = cmplx(tmpr,tmpi,kind=wp)
     if (allocated(tmpr)) call mma_deallocate(tmpr)
     if (allocated(tmpi)) call mma_deallocate(tmpi)
     ! filling in energies
@@ -92,7 +90,7 @@ if ((runmode /= 4) .and. flag_so) then
     write(u6,*) 'Error in reading RASSISD file, no V_SO matrix'
     call abend()
   end if
-  V_SO(:,:) = dcmplx(tmpr,tmpi)
+  V_SO(:,:) = cmplx(tmpr,tmpi,kind=wp)
   if (allocated(tmpr)) call mma_deallocate(tmpr)
   if (allocated(tmpi)) call mma_deallocate(tmpi)
 end if
@@ -112,7 +110,7 @@ if (flag_so) then
     write(u6,*) 'Error in reading RASSI file, no SOCOEFF matrix'
     call abend()
   end if
-  SO_CI(:,:) = dcmplx(tmpr,tmpi)
+  SO_CI(:,:) = cmplx(tmpr,tmpi,kind=wp)
   if (allocated(tmpr)) call mma_deallocate(tmpr)
   if (allocated(tmpi)) call mma_deallocate(tmpi)
 end if
@@ -131,7 +129,7 @@ if (flag_so) then
 else ! to read SFS_EDIPMOM (flag_so = off)
   if (mh5_exists_dset(fileid,'SFS_EDIPMOM')) then
     call mh5_fetch_dset(fileid,'SFS_EDIPMOM',DIPR)
-    DIPI = 0d0
+    DIPI = Zero
   else
     write(u6,*) 'Error in reading RASSISD file, no dipole matrix in SF basis'
     call abend()
@@ -150,7 +148,7 @@ else
   end if
 end if
 !write(u6,*) 'dysorb has been read'
-dipole(:,:,:) = dcmplx(DIPR,DIPI)
+dipole(:,:,:) = cmplx(DIPR,DIPI,kind=wp)
 if (allocated(DIPR)) call mma_deallocate(DIPR)
 if (allocated(DIPI)) call mma_deallocate(DIPI)
 

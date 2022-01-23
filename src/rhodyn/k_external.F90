@@ -16,20 +16,19 @@ subroutine k_external()
 ! Purpose :  calculate dissipation rates k_ab
 !***********************************************************************
 
-use rhodyn_data
-use rhodyn_utils, only: transform, dashes
-use definitions, only: wp, iwp, u6
-use constants, only: auToeV
+use rhodyn_data, only: basis, E_SO, ipglob, ispin, k_bar_basis, kab_basis, lroots, n, nconftot, Nstate, SO_CI, U_CI
+use rhodyn_utils, only: dashes, transform
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Half, cZero, auToeV
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: max_i, max_j, n_sf, lu
-integer(kind=iwp) :: i, j, k, l, ii, jj, kk, ll, iii, jjj
-integer(kind=iwp), external :: isFreeUnit
+integer(kind=iwp) :: i, j, k, l, ii, jj, kk, ll, iii, jjj, lu, max_i, max_j, n_sf
 real(kind=wp) :: max_k
-real(kind=wp), dimension(:,:), allocatable :: omega_ab, kab_real
-complex(kind=wp), dimension(:,:), allocatable :: k_ab
-character(len=256) :: format1 = '(2(i8),2(g15.8,1x))'
+real(kind=wp), allocatable :: omega_ab(:,:), kab_real(:,:)
+complex(kind=wp), allocatable :: k_ab(:,:)
+character(len=256), parameter :: format1 = '(2(i8),2(g15.8,1x))'
+integer(kind=iwp), external :: isFreeUnit
 
 n_sf = sum(lroots)
 
@@ -57,7 +56,7 @@ write(u6,*) ' End read data '
 call dashes()
 
 ! expand Kab to pseudo SF
-k_ab = zero
+k_ab = cZero
 ii = 0
 jj = 0
 kk = 0
@@ -86,10 +85,9 @@ lu = isFreeUnit(20)
 call molcas_open(lu,'kab_out.dat')
 do i=1,Nstate
   do j=1,Nstate
-    omega_ab(i,j) = dble(E_SO(i)-E_SO(j))
-    if (real(k_ab(i,j)) >= (0.01/autoeV)) then
-      write(lu,format1) i,j,dble(k_ab(i,j))*autoev, &
-        omega_ab(i,j)
+    omega_ab(i,j) = real(E_SO(i)-E_SO(j))
+    if (real(k_ab(i,j)) >= (0.01_wp/autoeV)) then
+      write(lu,format1) i,j,real(k_ab(i,j))*autoev,omega_ab(i,j)
     end if
   end do
 end do
@@ -104,28 +102,27 @@ if (ipglob > 3) then
   call molcas_open(lu,'Kab_matrix_eV.dat')
   !!vk!! write procedure for printing matrices
   do i=1,Nstate
-    write(lu,*) (dble(k_ab(i,j))*autoev,j=1,Nstate)
+    write(lu,*) (real(k_ab(i,j))*autoev,j=1,Nstate)
   end do
   close(lu)
-  max_k = 0d0
+  max_k = Zero
   do i=1,Nstate
     do j=1,Nstate
       if (real(k_ab(i,j)) >= max_k) then
-        max_k = dble(k_ab(i,j))
+        max_k = real(k_ab(i,j))
         max_i = i
         max_j = j
       end if
     end do
   end do
-  write(u6,*) Max_I,Max_J,Max_K*autoev,' eV', &
-    omega_ab(max_i,max_j)
+  write(u6,*) Max_I,Max_J,Max_K*autoev,' eV',omega_ab(max_i,max_j)
 end if
 
 ! transform the k_ab matrix to the required basis
 
 select case (basis)
   case ('CSF')
-    call transform(k_ab,dcmplx(U_CI,0d0),kab_basis,.false.)
+    call transform(k_ab,cmplx(U_CI,kind=wp),kab_basis,.false.)
   case ('SO')
     call transform(k_ab,SO_CI,kab_basis)
   case ('SF')
@@ -136,7 +133,7 @@ end select
 
 lu = isFreeUnit(22)
 call molcas_open(lu,'max_kab_basis.dat')
-max_k = 0d0
+max_k = Zero
 do i=1,Nstate
   do j=1,Nstate
     if (abs(kab_basis(i,j)) >= max_k) then
@@ -150,9 +147,8 @@ write(lu,*) 'the maximum of Kab in ',basis
 write(lu,'(2(i8),g15.8,a)') Max_I,Max_J,Max_K*autoev,' eV'
 do i=1,Nstate
   do j=1,Nstate
-    if (abs(Kab_basis(i,j)) >= (0.01/autoeV)) then
-      write(lu,'(2(i8),3(g15.8,1x))') i,j,abs(kab_basis(i,j)), &
-        dble(Kab_basis(i,j))*autoev,aimag(Kab_basis(i,j))*autoev
+    if (abs(Kab_basis(i,j)) >= (0.01_wp/autoeV)) then
+      write(lu,'(2(i8),3(g15.8,1x))') i,j,abs(kab_basis(i,j)),real(Kab_basis(i,j))*autoev,aimag(Kab_basis(i,j))*autoev
     end if
   end do
 end do
@@ -162,8 +158,7 @@ close(lu)
 do i=1,Nstate
   do j=1,Nstate
     do k=1,Nstate
-      k_bar_basis(j,i) = abs(k_bar_basis(j,i)+0.5d0* &
-                             (kab_basis(j,k)+kab_basis(i,k)))
+      k_bar_basis(j,i) = abs(k_bar_basis(j,i)+Half*(kab_basis(j,k)+kab_basis(i,k)))
     end do
   end do
 end do

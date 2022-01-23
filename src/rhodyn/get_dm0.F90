@@ -19,18 +19,18 @@ subroutine get_dm0()
 !
 !***********************************************************************
 
-use rhodyn_data
+use rhodyn_data, only: CSF2SO, DM0, DTOC, E, E_SF, E_SO, flag_so, ipglob, k_B, lroots, lrootstot, N, N_Populated, nconf, nconftot, &
+                       ndet, ndet_tot, NState, p_style, prep_dm_i, prep_dm_r, runmode, sint, T, U_CI
 use rhodyn_utils, only: transform, dashes
-use definitions, only: wp, iwp, u6
-use stdalloc, only: mma_allocate, mma_deallocate
 use mh5, only: mh5_put_dset
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, cZero, cOne
+use Definitions, only: wp, iwp, u6
 
 implicit none
-complex(kind=wp), dimension(:,:), allocatable :: DET2CSF, DM0_bas
+integer(kind=iwp) :: i, j, k, ii, jj, kk, lu !temporary io unit
 complex(kind=wp) :: Z
-complex(kind=wp), dimension(:), allocatable :: temp_dm
-integer(kind=iwp) :: lu !temporary io unit
-integer(kind=iwp) :: i, j, k, ii, jj, kk
+complex(kind=wp), allocatable :: DET2CSF(:,:), DM0_bas(:,:), temp_dm(:)
 integer(kind=iwp), external :: isFreeUnit
 
 if (ipglob > 3) write(u6,*) 'Begin get_dm0'
@@ -47,12 +47,12 @@ if (runmode /= 4) then
 else ! in charge migration case prepare DM in SF/SO basis
   call mma_allocate(DM0,lrootstot,lrootstot)
 end if
-DM0 = zero
+DM0 = cZero
 
 ! If populate DET, read the transform matrix from DET to CSF to DET2CSF
 if (p_style == 'DET') then
   call mma_allocate(DET2CSF,ndet_tot,nconftot)
-  DET2CSF = zero
+  DET2CSF = cZero
   ii = 0
   jj = 0
   kk = 0
@@ -84,50 +84,50 @@ if (flag_so) then
         call abend()
       end if
       if (runmode /= 4) then
-        DM0(N_Populated,N_Populated) = one
+        DM0(N_Populated,N_Populated) = cOne
       else
         call mma_allocate(DM0_bas,nconftot,nconftot)
-        DM0_bas = zero
-        DM0_bas(N_Populated,N_Populated) = one
+        DM0_bas = cZero
+        DM0_bas(N_Populated,N_Populated) = cOne
         write(u6,*) 'DM element ',N_populated,' set to 1'
         call transform(DM0_bas,CSF2SO,DM0)
       end if
 
     case ('DET')
       call mma_allocate(DM0_bas,ndet_tot,ndet_tot)
-      DM0_bas = zero
+      DM0_bas = cZero
       if ((N_Populated > ndet_tot) .or. (N_populated <= 0)) then
         call dashes()
         write(u6,*) 'WARNING!!! Nr of the populated states',N_populated,' read from the input file is wrong'
         call dashes()
         call abend()
       end if
-      DM0_bas(N_Populated,N_Populated) = one
+      DM0_bas(N_Populated,N_Populated) = cOne
       call transform(DM0_bas,DET2CSF,DM0)
       call mma_deallocate(DET2CSF)
 
     case ('SF')
       call mma_allocate(DM0_bas,lrootstot,lrootstot)
-      DM0_bas = zero
+      DM0_bas = cZero
       if ((N_Populated > lrootstot) .or. (N_populated <= 0)) then
         call dashes()
         write(u6,*) 'WARNING!!! Nr of the populated is wrong'
         call dashes()
         call abend()
       end if
-      DM0_bas(N_Populated,N_Populated) = one
-      call transform(DM0_bas,dcmplx(U_CI,0d0),DM0,.false.)
+      DM0_bas(N_Populated,N_Populated) = cOne
+      call transform(DM0_bas,cmplx(U_CI,kind=wp),DM0,.false.)
 
     case ('SO')
       call mma_allocate(DM0_bas,lrootstot,lrootstot)
-      DM0_bas = zero
+      DM0_bas = cZero
       if ((N_Populated > lrootstot) .or. (N_populated <= 0)) then
         call dashes()
         write(u6,*) 'WARNING!!! Nr of the populated states',N_populated,' read from the input file is wrong'
         call dashes()
         call abend()
       end if
-      DM0_bas(N_Populated,N_Populated) = one
+      DM0_bas(N_Populated,N_Populated) = cOne
       call transform(DM0_bas,CSF2SO,DM0,.false.)
 
     case ('SO_THERMAL')
@@ -140,12 +140,12 @@ if (flag_so) then
           write(u6,*) E_SO(i)
         end do
       end if
-      Z = zero
+      Z = cZero
       do i=1,lrootstot
         Z = Z+exp(-(E_SO(i)-E_SO(1))/(k_B*T))
       end do
       call mma_allocate(DM0_bas,lrootstot,lrootstot)
-      DM0_bas = zero
+      DM0_bas = cZero
       if (ipglob > 3) then
         call dashes()
         write(u6,*) 'I            E_SO(I)-E_SO(1)               exp(-(E_SO(I)-E_SO(1))/(k_B*T)),   '// &
@@ -164,7 +164,7 @@ if (flag_so) then
         DM0(:,:) = DM0_bas
       end if
     case default
-      write(6,*) 'Population style ',p_style,' is not recognized'
+      write(u6,*) 'Population style ',p_style,' is not recognized'
       call abend()
   end select
 
@@ -180,40 +180,40 @@ else
         call abend()
       end if
       if (runmode /= 4) then
-        DM0(N_Populated,N_Populated) = one
+        DM0(N_Populated,N_Populated) = cOne
       else
         call mma_allocate(DM0_bas,nconftot,nconftot)
-        DM0_bas = zero
-        DM0_bas(N_Populated,N_Populated) = one
+        DM0_bas = cZero
+        DM0_bas(N_Populated,N_Populated) = cOne
         write(u6,*) 'DM element ',N_populated,' set to 1'
         ! transform right to SF basis for propagation
-        call transform(DM0_bas,dcmplx(U_CI,0d0),DM0)
+        call transform(DM0_bas,cmplx(U_CI,kind=wp),DM0)
       end if
 
     case ('DET')
       call mma_allocate(DM0_bas,ndet_tot,ndet_tot)
-      DM0_bas = zero
+      DM0_bas = cZero
       if ((N_Populated > NDET_TOT) .or. (N_populated <= 0)) then
         call dashes()
         write(u6,*) 'WARNING!!! Nr of the populated states',N_populated,' read from the input file is wrong'
         call dashes()
         call abend()
       end if
-      DM0_bas(N_Populated,N_Populated) = one
+      DM0_bas(N_Populated,N_Populated) = cOne
       call transform(DM0_bas,DET2CSF,DM0)
       call mma_deallocate(DET2CSF)
 
     case ('SF')
       call mma_allocate(DM0_bas,lrootstot,lrootstot)
-      DM0_bas = zero
+      DM0_bas = cZero
       if ((N_Populated > lrootstot) .or. (N_populated <= 0)) then
         call dashes()
         write(u6,*) 'WARNING!!! Nr of the populated states',N_populated,' read from the input file is wrong'
         call dashes()
         call abend()
       end if
-      DM0_bas(N_Populated,N_Populated) = one
-      call transform(DM0_bas,dcmplx(U_CI,0d0),DM0,.false.)
+      DM0_bas(N_Populated,N_Populated) = cOne
+      call transform(DM0_bas,cmplx(U_CI,kind=wp),DM0,.false.)
 
     case ('SO')
       call dashes()
@@ -230,12 +230,12 @@ else
           E_SF(ii) = E(i,j)
         end do
       end do
-      Z = 0d0
+      Z = cZero
       do i=1,nconftot
         Z = Z+exp(-(E_SF(i)-E_SF(1))/(k_B*T))
       end do
       call mma_allocate(DM0_bas,lrootstot,lrootstot)
-      DM0_bas = zero
+      DM0_bas = cZero
       call dashes()
       write(u6,*) ' I               (E_SF(I)-E_SF(1))/(k_B*T)              exp(-(E_SF(I)-E_SF(1))/(k_B*T))  '// &
                   'exp(-(E_SF(I)-E_SF(1))/(k_B*T))/Z'
@@ -244,9 +244,9 @@ else
         write(u6,*) i,(E_SF(i)-E_SF(1))/(k_B*T),exp(-(E_SF(i)-E_SF(1))/(k_B*T)),exp(-(E_SF(i)-E_SF(1))/(k_B*T))/Z
         DM0_bas(i,i) = exp(-(E_SF(i)-E_SF(1))/(k_B*T))/Z
       end do
-      call transform(DM0_bas,dcmplx(U_CI,0d0),DM0,.false.)
+      call transform(DM0_bas,cmplx(U_CI,kind=wp),DM0,.false.)
     case default
-      write(6,*) 'Population style ',p_style,' is not recognized'
+      write(u6,*) 'Population style ',p_style,' is not recognized'
       call abend()
   end select
 end if !ifso
@@ -260,7 +260,7 @@ if (p_style == 'FROMFILE') then
     do j=1,Nstate
       read(lu,'(E16.8)',advance='no') temp_dm(j)
     end do
-    DM0(i,:) = dcmplx(temp_dm)
+    DM0(i,:) = temp_dm
     read(lu,*)
   end do
   close(lu) ! close INDENS file
@@ -277,7 +277,7 @@ if (runmode /= 4) then
     write(u6,*) 'The initial density matrix is saved in SDPREP'
     call dashes()
   end if
-  call mh5_put_dset(prep_dm_r,dble(DM0))
+  call mh5_put_dset(prep_dm_r,real(DM0))
   call mh5_put_dset(prep_dm_i,aimag(DM0))
 end if
 

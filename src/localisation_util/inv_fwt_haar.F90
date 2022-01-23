@@ -79,7 +79,7 @@ if (m <= 0) then
   write(u6,*) ' Inv_FWT_Haar: Illegal value of m = ',m
   call Abend()
 
-elseif (n <= 0) then
+else if (n <= 0) then
 
   write(u6,*) ' Inv_FWT_Haar: Illegal value of n = ',n
   call Abend()

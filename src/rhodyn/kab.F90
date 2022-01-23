@@ -16,22 +16,20 @@ subroutine kab()
 ! Purpose :  calculate dissipation rates k_ab
 !***********************************************************************
 
-use rhodyn_data
-use rhodyn_utils, only: transform, dashes
-use definitions, only: wp, iwp, u6
-use constants, only: auToCm, auToeV
+use rhodyn_data, only: basis, CSF2SO, d, E_SO, cgamma, HRSO, ipglob, ispin, k_b, K_bar_basis, kab_basis, n, nconf, nconftot, &
+                       Nmode, Nstate, SO_CI, T
+use rhodyn_utils, only: dashes, transform
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half, auToCm, auToeV
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: max_i, max_j, n_sf, lu
-integer(kind=iwp) :: i, j, k, ii, jj, iii, jjj
-integer(kind=iwp), external :: isFreeUnit
+integer(kind=iwp) :: i, j, k, ii, jj, iii, jjj, lu, max_i, max_j, n_sf
 real(kind=wp) :: max_k
-real(kind=wp), dimension(:,:), allocatable :: G, G_SF, omega_ab, n_w, J_w, r_ab_SO
-real(kind=wp), dimension(:), allocatable :: freq, temp_gk
-complex(kind=wp), dimension(:,:), allocatable :: k_ab, gamma_pd, gamma_pd_basis
-complex(kind=wp), dimension(:,:,:), allocatable :: G_SO
-character(len=256) :: format1 = '(2(i8),4(g15.8,1x))'
+real(kind=wp), allocatable :: freq(:), G(:,:), G_SF(:,:), J_w(:,:), n_w(:,:), omega_ab(:,:), r_ab_SO(:,:), temp_gk(:)
+complex(kind=wp), allocatable :: G_SO(:,:,:), gamma_pd(:,:), gamma_pd_basis(:,:), k_ab(:,:)
+character(len=256), parameter :: format1 = '(2(i8),4(g15.8,1x))'
+integer(kind=iwp), external :: isFreeUnit
 
 n_sf = sum(nconf)
 
@@ -71,7 +69,7 @@ if (HRSO) then
       do j=1,Nstate
         read(lu,'(E16.8)',advance='no') temp_gk(j)
         write(u6,*) temp_gk(j)
-        G_SO(k,i,j) = dcmplx(temp_gk(j))
+        G_SO(k,i,j) = cmplx(temp_gk(j),kind=wp)
       end do
       read(lu,*)
     end do
@@ -79,7 +77,7 @@ if (HRSO) then
 else
   do k=1,Nmode
     read(lu,*) (G(k,j),j=2,n_sf)
-    G(k,1) = 0d0
+    G(k,1) = Zero
     write(u6,*) k,(G(k,j),j=2,n_sf)
   end do
   !!!!
@@ -135,36 +133,36 @@ call mma_allocate(n_w,Nstate,Nstate)
 call mma_allocate(J_w,Nstate,Nstate)
 call mma_allocate(omega_ab,Nstate,Nstate)
 
-write(u6,*) 'Gamma=',gamma,'Hartree',gamma*auToCm,'cm-1'
+write(u6,*) 'Gamma=',cgamma,'Hartree',cgamma*auToCm,'cm-1'
 
 lu = isFreeUnit(20)
 call molcas_open(lu,'kab_out.dat')
-J_w = 0d0
+J_w = Zero
 do i=1,Nstate
   ! let us cut the spectral density (no), if yes then j=1,i
   do j=1,Nstate
-    omega_ab(i,j) = dble(E_SO(i)-E_SO(j))
+    omega_ab(i,j) = real(E_SO(i)-E_SO(j))
     do k=1,Nmode
       J_w(i,j) = J_w(i,j)+abs(G_SO(k,i,j))**2*Freq(k)**2* &
-                 (abs(omega_ab(i,j))*Freq(k)*gamma/((abs(omega_ab(i,j))**2-Freq(k)**2)**2+omega_ab(i,j)**2*gamma**2))
+                 (abs(omega_ab(i,j))*Freq(k)*cgamma/((abs(omega_ab(i,j))**2-Freq(k)**2)**2+omega_ab(i,j)**2*cgamma**2))
     end do
     if (i == j) then
-      n_w(i,j) = 0d0
+      n_w(i,j) = Zero
     else
-      n_w(i,j) = 1d0/(exp(abs(omega_ab(i,j))/(k_b*T))-1d0)
+      n_w(i,j) = One/(exp(abs(omega_ab(i,j))/(k_b*T))-One)
     end if
     ! note that the K_ab matrix should be real matrix, but here we define
     ! it to be complex for the convernient of the following transform
-    if (omega_ab(i,j) >= 0d0) then
+    if (omega_ab(i,j) >= Zero) then
       k_ab(i,j) = 4*(1+n_w(i,j))*J_w(i,j)
     else
       k_ab(i,j) = 4*n_w(i,j)*J_w(i,j)
     end if
-    if (real(k_ab(i,j)) >= (0.01/autoeV)) then
-      if (omega_ab(i,j) >= 0d0) then
-        write(lu,format1) i,j,dble(k_ab(i,j))*autoev,omega_ab(i,j)**2,(1.0+n_w(i,j)),J_w(i,j)
+    if (real(k_ab(i,j)) >= (0.01_wp/autoeV)) then
+      if (omega_ab(i,j) >= Zero) then
+        write(lu,format1) i,j,real(k_ab(i,j))*autoev,omega_ab(i,j)**2,(One+n_w(i,j)),J_w(i,j)
       else
-        write(lu,format1) i,j,dble(k_ab(i,j))*autoev,omega_ab(i,j)**2,n_w(i,j),J_w(i,j)
+        write(lu,format1) i,j,real(k_ab(i,j))*autoev,omega_ab(i,j)**2,n_w(i,j),J_w(i,j)
       end if
     end if
 
@@ -174,10 +172,10 @@ end do
 close(lu) ! close kab_out.dat
 
 ! for this  spectral density the pure decay matrix gamma_pd equal
-! to 0.0d0 always because when the frequency equal
-! to 0d0, J_w(0d0)=0d0 so gamma_pd=0
+! to 0.0 always because when the frequency equal
+! to 0.0, J_w(0.0)=0.0 so gamma_pd=0.0
 call mma_allocate(gamma_pd,Nstate,Nstate)
-gamma_pd = 0d0
+gamma_pd = Zero
 
 if (ipglob > 3) then
   call dashes()
@@ -188,14 +186,14 @@ if (ipglob > 3) then
   call molcas_open(lu,'Kab_matrix_eV.dat')
   !!vk!! write procedure for printing matrices
   do i=1,Nstate
-    write(lu,*) (dble(k_ab(i,j))*autoev,j=1,Nstate)
+    write(lu,*) (real(k_ab(i,j))*autoev,j=1,Nstate)
   end do
   close(lu)
-  max_k = 0d0
+  max_k = Zero
   do i=1,Nstate
     do j=1,Nstate
       if (real(k_ab(i,j)) >= max_k) then
-        max_k = dble(k_ab(i,j))
+        max_k = real(k_ab(i,j))
         max_i = i
         max_j = j
       end if
@@ -219,7 +217,7 @@ select case (basis)
     call transform(k_ab,SO_CI,kab_basis,.false.)
     ! gamma_pd SO->SF
     call transform(gamma_pd,SO_CI,gamma_pd_basis,.false.)
-    ! Kab_basis = dble(Kab_basis)
+    ! Kab_basis = real(Kab_basis)
   case ('SO')
     kab_basis(:,:) = k_ab
     gamma_pd_basis(:,:) = gamma_pd
@@ -230,7 +228,7 @@ end select
 lu = isFreeUnit(22)
 call molcas_open(lu,'max_Kab_basis.dat')
 
-max_k = 0d0
+max_k = Zero
 do i=1,d
   do j=1,d
     if (abs(kab_basis(i,k)) >= max_k) then
@@ -246,14 +244,14 @@ write(lu,'(2(i8),g15.8,a)') max_i,max_j,max_k*autoev,' eV'
 
 do i=1,d
   do j=1,d
-    if (abs(kab_basis(i,j)) >= (0.01/autoeV)) then
-      write(lu,'(2(i8),3(g15.8,1x))') i,j,abs(kab_basis(i,j)),dble(kab_basis(I,J))*autoev,aimag(kab_basis(I,J))*autoev
+    if (abs(kab_basis(i,j)) >= (0.01_wp/autoeV)) then
+      write(lu,'(2(i8),3(g15.8,1x))') i,j,abs(kab_basis(i,j)),real(kab_basis(I,J))*autoev,aimag(kab_basis(I,J))*autoev
     end if
   end do
 end do
 
 !if (basis == 'SO') then
-!  Max_K = 0d0
+!  Max_K = Zero
 !  do i=161,Nstate
 !    do j=161,Nstate
 !      if (abs(Kab_basis(i,j)) >= Max_K) then
@@ -269,15 +267,15 @@ end do
 
 !  do i=1,Nstate
 !    do j=1,Nstate
-!      if ((abs(Kab_basis(i,j)) <= 0.01/autoeV) .and. (abs(Kab_basis(i,j)) >= 0.005/autoeV)) then
-!        write(lu,'(2(I8),3(G15.8,X))') I,J,abs(Kab_basis(i,j)),dble(Kab_basis(i,j))*autoev,aimag(Kab_basis(i,j))*autoev
+!      if ((abs(Kab_basis(i,j)) <= 0.01_wp/autoeV) .and. (abs(Kab_basis(i,j)) >= 0.005_wp/autoeV)) then
+!        write(lu,'(2(I8),3(G15.8,X))') I,J,abs(Kab_basis(i,j)),real(Kab_basis(i,j))*autoev,aimag(Kab_basis(i,j))*autoev
 !      end if
 !    end do
 !  end do
 
 !else if (basis == 'SF') then
 
-!  Max_k = 0d0
+!  Max_k = Zero
 !  do i=26,175
 !    do j=26,175
 !      if (abs(Kab_basis(I,J)) >= Max_K) then
@@ -291,7 +289,7 @@ end do
 !  write(lu,*) 'Maximum of Kab in quintet core states in basis of ',Basis
 !  write(lu,'(2(I8),G15.8,A)') Max_I,Max_J,Max_K*autoev,' eV'
 
-!  Max_k = 0d0
+!  Max_k = Zero
 !  do i=311,Nstate
 !    do j=311,Nstate
 !      if (abs(Kab_basis(I,J)) >= Max_K) then
@@ -307,8 +305,8 @@ end do
 
 !  do i=1,Nstate
 !    do j=1,Nstate
-!      if ((abs(Kab_basis(i,J)) <= 0.01/autoeV) .and. (abs(Kab_basis(I,J)) >= 0.005/autoeV)) then
-!        write(lu,'(2(I8),3(G15.8,X))') I,J,abs(Kab_basis(I,J)),dble(Kab_basis(I,J))*autoev,aimag(Kab_basis(I,J))*autoev
+!      if ((abs(Kab_basis(i,J)) <= 0.01_wp/autoeV) .and. (abs(Kab_basis(I,J)) >= 0.005_wp/autoeV)) then
+!        write(lu,'(2(I8),3(G15.8,X))') I,J,abs(Kab_basis(I,J)),real(Kab_basis(I,J))*autoev,aimag(Kab_basis(I,J))*autoev
 !      end if
 !    end do
 !  end do
@@ -321,7 +319,7 @@ close(lu) ! close file max_Kab_basis.dat
 do i=1,d
   do j=1,d
     do k=1,d
-      k_bar_basis(j,i) = abs(k_bar_basis(j,i)+0.5d0*(kab_basis(j,k)+kab_basis(i,k)))
+      k_bar_basis(j,i) = abs(k_bar_basis(j,i)+Half*(kab_basis(j,k)+kab_basis(i,k)))
     end do
   end do
 end do
@@ -334,14 +332,14 @@ call molcas_open(lu,'r_ab_SO.dat')
 do i=1,Nstate
   do j=1,Nstate
     do k=1,Nstate
-      r_ab_SO(j,i) = r_ab_SO(j,i)+0.5d0*(dble(K_ab(j,k))+dble(K_ab(i,k)))
+      r_ab_SO(j,i) = r_ab_SO(j,i)+Half*(real(K_ab(j,k))+real(K_ab(i,k)))
     end do
   end do
 end do
 
 do i=1,Nstate
   do j=1,Nstate
-    if (r_ab_SO(i,j) <= 0d0) then
+    if (r_ab_SO(i,j) <= Zero) then
       write(lu,*) 'R_ab_SO<0',i,j,r_ab_SO(i,j)
     end if
   end do

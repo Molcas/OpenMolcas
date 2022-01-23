@@ -21,29 +21,28 @@ subroutine equation(time,rhot,res)
 !  rhot   : density matrix at current time
 !  res    : obtained left part of Liouville equation d(rhot)/d(time)
 
-use rhodyn_data, only: pulse_func, flag_pulse, d, onei, zero, one, &
-                       flag_decay, ion_diss, flag_diss, decay, &
-                       hamiltonian, hamiltoniant, &
-                       K_bar_basis, kab_basis
-use definitions, only: wp, iwp
+use rhodyn_data, only: d, decay, flag_decay, flag_diss, flag_pulse, hamiltonian, hamiltoniant, ion_diss, K_bar_basis, kab_basis, &
+                       pulse_func
+use Constants, only: Zero, cZero, cOne, Onei
+use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(in) :: time
-complex(kind=wp), dimension(:,:), intent(in) :: rhot
-complex(kind=wp), dimension(:,:), intent(out) :: res
-procedure(pulse_func) :: pulse
+complex(kind=wp), intent(in) :: rhot(:,:)
+complex(kind=wp), intent(out) :: res(:,:)
 integer(kind=iwp) :: i, j
+procedure(pulse_func) :: pulse
 
 ! if pulse is enabled, modify Hamiltonian at time t:
 if (flag_pulse) call pulse(hamiltonian,hamiltoniant,time,-1)
 
 ! get right part of Liouville equation
-call zgemm_('N','N',d,d,d,-onei,hamiltoniant,d,rhot,d,zero,res,d)
-call zgemm_('N','N',d,d,d,onei,rhot,d,hamiltoniant,d,one,res,d)
+call zgemm_('N','N',d,d,d,-Onei,hamiltoniant,d,rhot,d,cZero,res,d)
+call zgemm_('N','N',d,d,d,Onei,rhot,d,hamiltoniant,d,cOne,res,d)
 
 ! Auger decay part
-if (flag_decay .or. (ion_diss /= 0d0)) then
-  call zgemm_('N','N',d,d,d,one,decay,d,rhot,d,one,res,d)
+if (flag_decay .or. (ion_diss /= Zero)) then
+  call zgemm_('N','N',d,d,d,cOne,decay,d,rhot,d,cOne,res,d)
 end if
 
 ! if dissipation (nuclear bath) is considered
@@ -53,8 +52,7 @@ if (flag_diss) then
       if (i /= j) then
         res(i,j) = res(i,j)-K_bar_basis(i,j)*rhot(i,j)
       end if
-      res(i,i) = res(i,i)-Kab_basis(i,j)*rhot(i,i)+ &
-                 Kab_basis(j,i)*rhot(j,j)
+      res(i,i) = res(i,i)-Kab_basis(i,j)*rhot(i,i)+Kab_basis(j,i)*rhot(j,j)
     end do
   end do
 end if

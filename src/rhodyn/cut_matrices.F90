@@ -16,14 +16,14 @@ subroutine cut_matrices()
 ! cut dynamics matrices from size (lrootstot,lrootstot) to size (d,d)
 !***********************************************************************
 
-use rhodyn_data, only: istates, hamiltonian, density0, dipole_basis, flag_dyson, dysamp_bas, ipglob, lrootstot, d, U_CI, CSF2SO, &
-                       SO_CI
+use rhodyn_data, only: CSF2SO, d, density0, dipole_basis, dysamp_bas, flag_dyson, hamiltonian, ipglob, istates, lrootstot, SO_CI, &
+                       U_CI
 use rhodyn_utils, only: dashes, removeLineAndColumn, removeColumn
 use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: wp, u6
+use Definitions, only: wp, u6
 
 implicit none
-complex(kind=wp), dimension(:,:), allocatable :: d1, d2, d3
+complex(kind=wp), allocatable :: d1(:,:), d2(:,:), d3(:,:)
 
 if (ipglob > 2) then
   call dashes()

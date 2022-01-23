@@ -11,7 +11,7 @@
 ! Copyright (C) 2021, Vladislav Kochetov                               *
 !***********************************************************************
 
-subroutine uci
+subroutine uci()
 !***********************************************************************
 ! Purpose: construct the transformation matrix U_CI from the basis
 !          of CSFs to the basis of spin-free states (accounting for
@@ -20,15 +20,17 @@ subroutine uci
 !
 !  UTU    : overlap matrix UTU=U_CI**T*U_CI for the spin-free states
 
-use rhodyn_data
-use rhodyn_utils, only: mult, dashes
-use definitions, only: wp, iwp, u6
+use rhodyn_data, only: CI, flag_so, ipglob, ispin, lroots, lrootstot, N, nconf, nconftot, prep_id, prep_uci, runmode, sint, &
+                       threshold, U_CI
+use rhodyn_utils, only: dashes, mult
+use mh5, only: mh5_create_dset_real, mh5_init_attr, mh5_put_dset
 use stdalloc, only: mma_allocate, mma_deallocate
-use mh5, only: mh5_put_dset, mh5_create_dset_real, mh5_init_attr
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp), dimension(:,:), allocatable :: UTU
-integer(kind=iwp) :: i, j, k, l, ii, jj, kk, ll
+real(kind=wp), allocatable :: UTU(:,:)
+integer(kind=iwp) :: i, j, k, l, ii, jj, kk, ll, prep_utu
 
 if (ipglob > 2) then
   call dashes()
@@ -41,7 +43,7 @@ if (ipglob > 2) then
   call dashes()
 end if
 
-U_CI = 0d0
+U_CI = Zero
 ii = 0
 jj = 0
 kk = 0
@@ -93,7 +95,7 @@ if (ipglob > 3) then
           write(u6,*) 'ERROR INFO!!! CI coeffs are not orthonormalized',i,j,UTU(i,j)
         end if
       else if (i == j) then
-        if (abs(UTU(i,j)-1d0) >= threshold) then
+        if (abs(UTU(i,j)-One) >= threshold) then
           write(u6,*) 'ERROR INFO!!! CI coeffs are not orthonormalized',i,j,UTU(i,j)
         end if
       end if

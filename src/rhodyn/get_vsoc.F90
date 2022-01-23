@@ -22,15 +22,15 @@ subroutine get_vsoc()
 ! REV_CSF : U_CI*REV_SO*U_CI**T
 ! IMV_CSF : U_CI*IMV_SO*U_CI**T
 
-use rhodyn_data, only: lrootstot, nconftot, ipglob, threshold, V_SO, V_CSF, U_CI, prep_vcsfr, prep_vcsfi, int2real
-use rhodyn_utils, only: transform, dashes
-use definitions, only: wp, iwp, u6
-use stdalloc, only: mma_allocate, mma_deallocate
+use rhodyn_data, only: int2real, ipglob, lrootstot, nconftot, prep_vcsfi, prep_vcsfr, threshold, U_CI, V_CSF, V_SO
+use rhodyn_utils, only: dashes, transform
 use mh5, only: mh5_put_dset
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp), dimension(:,:), allocatable :: REV_SO, REV_CSF, IMV_SO, IMV_CSF
 integer(kind=iwp) :: i, j
+real(kind=wp), allocatable :: REV_SO(:,:), REV_CSF(:,:), IMV_SO(:,:), IMV_CSF(:,:)
 
 if (ipglob > 2) write(u6,*) 'Begin of get_vsoc'
 if (ipglob > 2) call dashes()
@@ -40,7 +40,7 @@ call mma_allocate(IMV_SO,lrootstot,lrootstot)
 call mma_allocate(REV_CSF,nconftot,nconftot)
 call mma_allocate(IMV_CSF,nconftot,nconftot)
 
-REV_SO(:,:) = dble(V_SO)
+REV_SO(:,:) = real(V_SO)
 IMV_SO(:,:) = aimag(V_SO)
 
 ! check whether V_SO in SF basis is hermitian.
@@ -95,7 +95,7 @@ if (ipglob > 3) then
   call dashes()
 end if
 
-V_CSF(:,:) = dcmplx(REV_CSF,IMV_CSF)
+V_CSF(:,:) = cmplx(REV_CSF,IMV_CSF,kind=wp)
 
 ! Store pure SOC matrix in CSF basis to PREP file
 call mh5_put_dset(prep_vcsfr,REV_CSF)

@@ -16,9 +16,11 @@ subroutine hamdens()
 ! the initial density matrix, which are currently present
 ! in CSF basis
 
-use rhodyn_data
+use rhodyn_data, only: alpha, basis, CSF2SO, d, density0, dipole, dipole_basis, DM0, dysamp_bas, flag_dyson, flag_pulse, flag_so, &
+                       flag_test, hamiltonian, HTOT_CSF, initialtime, ipglob, Nstate, SO_CI, tmp, U_CI, U_CI_compl
 use rhodyn_utils, only: transform, mult, dashes
-use definitions, only: iwp, u6
+use Constants, only: Zero, cZero
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: i, j, k, ii
@@ -30,15 +32,15 @@ if (ipglob > 2) then
 end if
 
 if (.not. flag_test) then
-  U_CI_compl(:,:) = dcmplx(U_CI,0d0)
+  U_CI_compl(:,:) = cmplx(U_CI,kind=wp)
 end if
-hamiltonian = zero
-density0 = zero
+hamiltonian(:,:) = cZero
+density0(:,:) = cZero
 
 ! construct the initial hamiltonian and density matrix
 
 write(u6,*) 'Basis: ',basis
-if (initialtime == 0d0) then
+if (initialtime == Zero) then
   if (basis == 'CSF') then
     hamiltonian(:,:) = HTOT_CSF
     density0(:,:) = DM0
@@ -53,7 +55,7 @@ if (initialtime == 0d0) then
     ! density CSF->SO
     call transform(DM0,CSF2SO,density0)
   end if
-else if (initialtime /= 0d0) then
+else if (initialtime /= Zero) then
   ! if initialtime /= 0, then the initial density matrix in basis
   ! of "Basis", not in CSF basis, in this case, the density matrix
   ! readin was printout directly from the propagate part, so we can

@@ -13,8 +13,10 @@
 
 subroutine cre_prep()
 
-use rhodyn_data
-use mh5, only: mh5_create_file, mh5_create_dset_real, mh5_init_attr
+use rhodyn_data, only: flag_dyson, flag_so, lrootstot, maxlroots, maxnconf, N, nconftot, prep_ci, prep_csfsoi, prep_csfsor, &
+                       prep_dipolei, prep_dipoler, prep_dm_i, prep_dm_r, prep_do, prep_fhi, prep_fhr, prep_hcsf, prep_id, &
+                       prep_uci, prep_vcsfi, prep_vcsfr
+use mh5, only: mh5_create_dset_real, mh5_create_file, mh5_init_attr
 
 implicit none
 

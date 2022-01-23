@@ -13,15 +13,14 @@
 
 subroutine read_prep()
 
-use rhodyn_data
+use rhodyn_data, only: CSF2SO, dipole, DM0, flag_pulse, flag_test, HTOT_CSF, Nstate, prep_id, U_CI
 use rhodyn_utils, only: dashes
-use definitions, only: wp, u6
+use mh5, only: mh5_close_file, mh5_exists_dset, mh5_fetch_dset, mh5_is_hdf5, mh5_open_file_r
 use stdalloc, only: mma_allocate, mma_deallocate
-use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_exists_dset, mh5_fetch_dset, mh5_close_file
+use Definitions, only: wp, u6
 
 implicit none
-real(kind=wp), allocatable, dimension(:,:,:) :: DIPR, DIPI
-real(kind=wp), dimension(:,:), allocatable :: tmpr, tmpi
+real(kind=wp), allocatable :: DIPI(:,:,:), DIPR(:,:,:), tmpi(:,:), tmpr(:,:)
 
 if (mh5_is_hdf5('RDPREP')) then
   call dashes()
@@ -41,7 +40,7 @@ write(u6,*) 'hamiltonian extraction'
 if (mh5_exists_dset(prep_id,'FULL_H_R') .and. mh5_exists_dset(prep_id,'FULL_H_I')) then
   call mh5_fetch_dset(prep_id,'FULL_H_R',tmpr)
   call mh5_fetch_dset(prep_id,'FULL_H_I',tmpi)
-  HTOT_CSF(:,:) = dcmplx(tmpr,tmpi)
+  HTOT_CSF(:,:) = cmplx(tmpr,tmpi,kind=wp)
 else
   write(u6,*) 'RDPREP does not contain Hamiltonian'
   call abend()
@@ -51,7 +50,7 @@ write(u6,*) 'dm extraction'
 if (mh5_exists_dset(prep_id,'DM0_R') .and. mh5_exists_dset(prep_id,'DM0_I')) then
   call mh5_fetch_dset(prep_id,'DM0_R',tmpr)
   call mh5_fetch_dset(prep_id,'DM0_I',tmpi)
-  DM0(:,:) = dcmplx(tmpr,tmpi)
+  DM0(:,:) = cmplx(tmpr,tmpi,kind=wp)
 else
   write(u6,*) 'RDPREP does not contain density matrix'
   call abend()
@@ -61,7 +60,7 @@ write(u6,*) 'csfso extraction'
 if (mh5_exists_dset(prep_id,'CSF2SO_R') .and. mh5_exists_dset(prep_id,'CSF2SO_I')) then
   call mh5_fetch_dset(prep_id,'CSF2SO_R',tmpr)
   call mh5_fetch_dset(prep_id,'CSF2SO_I',tmpi)
-  CSF2SO(:,:) = dcmplx(tmpr,tmpi)
+  CSF2SO(:,:) = cmplx(tmpr,tmpi,kind=wp)
 else
   write(u6,*) 'RDPREP does not contain CSF2SO matrix'
   write(u6,*) 'Propagation will be performed in the given basis!'
@@ -75,7 +74,7 @@ if (mh5_exists_dset(prep_id,'SOS_EDIPMOM_REAL') .and. mh5_exists_dset(prep_id,'S
   call mma_allocate(DIPI,Nstate,Nstate,3)
   call mh5_fetch_dset(prep_id,'SOS_EDIPMOM_REAL',DIPR)
   call mh5_fetch_dset(prep_id,'SOS_EDIPMOM_IMAG',DIPI)
-  dipole(:,:,:) = dcmplx(DIPR,DIPI)
+  dipole(:,:,:) = cmplx(DIPR,DIPI,kind=wp)
   call mma_deallocate(DIPR)
   call mma_deallocate(DIPI)
   flag_pulse = .true.

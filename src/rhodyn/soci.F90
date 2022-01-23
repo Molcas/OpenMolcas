@@ -11,7 +11,7 @@
 ! Copyright (C) 2021, Vladislav Kochetov                               *
 !***********************************************************************
 
-subroutine soci
+subroutine soci()
 ! Purpose: Read in the SO Coefficient from MOLCAS output, The prepare
 ! for the density matrix which used in propagation
 !
@@ -21,21 +21,20 @@ subroutine soci
 !  CH_SO    : H(RASSCF)_diag+H(SO), eigenvalue of the spin-free states
 !             plus spin-orbit coupling
 !  SO_CI2   : SO_CI^T*SO_CI
-!  SO_eig   : SO_CI^T*CH_SO*SO_CI, diagnolize the Hamiltonian
+!  SO_eig   : SO_CI^T*CH_SO*SO_CI, diagonalize the Hamiltonian
 !  Hfull    : HTOT_CSF hamiltonian diagonalized
 
-use rhodyn_data
-use rhodyn_utils, only: transform, mult, dashes
-use definitions, only: wp, iwp, u6
+use rhodyn_data, only: CSF2SO, E_SO, HTOT_CSF, ipglob, lrootstot, nconftot, prep_csfsoi, prep_csfsor, sint, threshold, SO_CI, U_CI
+use rhodyn_utils, only: dashes, mult, transform
 use stdalloc, only: mma_allocate, mma_deallocate
 use mh5, only: mh5_put_dset
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
 implicit none
-complex(kind=wp), dimension(:,:), allocatable :: SO_CI2, Hfull, hdiag, Hfull2
-integer(kind=iwp) :: INFO, LWORK
-integer(kind=iwp) :: i, j
-complex(kind=wp), dimension(:), allocatable :: WORK
-real(kind=wp) :: RWORK(3*nconftot-2), W(nconftot)
+integer(kind=iwp) :: i, INFO, j, LWORK
+real(kind=wp), allocatable :: RWORK(:), W(:)
+complex(kind=wp), allocatable :: Hdiag(:,:), Hfull(:,:), Hfull2(:,:), SO_CI2(:,:), WORK(:)
 
 if (ipglob > 2) write(u6,*) 'Begin of soci'
 
@@ -44,8 +43,10 @@ call mma_allocate(Hfull2,nconftot,nconftot)
 call mma_allocate(Hdiag,nconftot,nconftot)
 call mma_allocate(SO_CI2,lrootstot,lrootstot)
 call mma_allocate(Work,1)
+call mma_allocate(RWORK,3*nconftot-2,label='RWORK')
+call mma_allocate(W,nconftot,label='W')
 
-Hfull = 0d0
+Hfull(:,:) = Zero
 Hfull(:,:) = HTOT_CSF
 if (ipglob > 4) then
   call dashes()
@@ -112,9 +113,9 @@ if (ipglob > 3) then
   call dashes()
   do i=1,nconftot
     do j=1,nconftot
-      if ((i == j) .and. ((dble(Hfull2(I,J))-1.0d0 >= threshold) .or. (aimag(Hfull2(I,J)) >= threshold))) then
+      if ((i == j) .and. ((real(Hfull2(I,J))-One >= threshold) .or. (aimag(Hfull2(I,J)) >= threshold))) then
         write(u6,*) 'ERROR INFO!!!: Hfull is not orthonomalized:',I,J,Hfull2(I,J)
-      else if ((i /= j) .and. ((dble(Hfull2(i,j)) >= threshold) .or. (aimag(Hfull2(i,j)) >= threshold))) then
+      else if ((i /= j) .and. ((real(Hfull2(i,j)) >= threshold) .or. (aimag(Hfull2(i,j)) >= threshold))) then
         write(u6,*) 'ERROR INFO!!!: Hfull is not orhtonomalized:',i,j,Hfull2(i,j)
       end if
     end do
@@ -125,7 +126,7 @@ if (ipglob > 3) then
   call dashes()
 end if
 
-Hdiag = 0d0
+Hdiag(:,:) = Zero
 
 call transform(HTOT_CSF,Hfull,Hdiag)
 
@@ -158,11 +159,11 @@ if (ipglob > 4) then
   do i=1,lrootstot
     do j=1,lrootstot
       if (i /= j) then
-        if ((abs(dble(SO_CI2(i,j))) >= threshold) .or. (abs(aimag(SO_CI2(i,j))) >= threshold)) then
+        if ((abs(real(SO_CI2(i,j))) >= threshold) .or. (abs(aimag(SO_CI2(i,j))) >= threshold)) then
           write(u6,*) 'ERROR! SO_CI is not orthonormal:',i,j,SO_CI2(i,j)
         end if
       else if (i == j) then
-        if ((abs(dble(SO_CI2(i,j))-1d0) >= threshold) .or. (abs(aimag(SO_CI2(i,j))) >= threshold)) then
+        if ((abs(real(SO_CI2(i,j))-One) >= threshold) .or. (abs(aimag(SO_CI2(i,j))) >= threshold)) then
           write(u6,*) 'ERROR! SO_CI is not orthonormal',i,j,SO_CI2(i,j)
         end if
       end if
@@ -177,7 +178,7 @@ end if
 ! CSF2SO=U_CI*SO_CI and check whether CSF2SO coincide with
 ! the eigenvector VR of the full Hamiltonian HTOT_CSF which
 ! was obtained at the begining of this subroutine
-call mult(dcmplx(U_CI),SO_CI,CSF2SO)
+call mult(cmplx(U_CI,kind=wp),SO_CI,CSF2SO)
 
 if (ipglob > 4) then
   call dashes()
@@ -194,11 +195,11 @@ if (ipglob > 4) then
   call dashes()
   do i=1,nconftot
     do j=1,lrootstot
-      if ((abs(abs(dble(CSF2SO(i,j)))-abs(dble(Hfull(i,j)))) >= threshold) .or. &
+      if ((abs(abs(real(CSF2SO(i,j)))-abs(real(Hfull(i,j)))) >= threshold) .or. &
           (abs(abs(aimag(CSF2SO(i,j)))-abs(aimag(Hfull(i,j)))) >= threshold)) then
-        if (((dble(CSF2SO(i,j))**2)+(aimag(CSF2SO(i,j))**2))-((dble(Hfull(i,j)))**2+(aimag(Hfull(i,j)))**2) >= threshold) then
-          write(u6,*) 'WARNING! CSF2SO does not concide with Hfull:',i,j,dble(CSF2SO(i,j)),aimag(CSF2SO(i,j)),dble(Hfull(i,j)), &
-                      aimag(Hfull(i,j)),dble(CSF2SO(i,j))**2+aimag(CSF2SO(i,j))**2,dble(Hfull(i,j))**2+(aimag(Hfull(i,j)))**2
+        if (((real(CSF2SO(i,j))**2)+(aimag(CSF2SO(i,j))**2))-((real(Hfull(i,j)))**2+(aimag(Hfull(i,j)))**2) >= threshold) then
+          write(u6,*) 'WARNING! CSF2SO does not concide with Hfull:',i,j,real(CSF2SO(i,j)),aimag(CSF2SO(i,j)),real(Hfull(i,j)), &
+                      aimag(Hfull(i,j)),real(CSF2SO(i,j))**2+aimag(CSF2SO(i,j))**2,real(Hfull(i,j))**2+(aimag(Hfull(i,j)))**2
         end if
       end if
     end do
@@ -208,7 +209,7 @@ if (ipglob > 4) then
   call dashes()
 end if
 
-call mh5_put_dset(prep_csfsor,dble(CSF2SO))
+call mh5_put_dset(prep_csfsor,real(CSF2SO))
 call mh5_put_dset(prep_csfsoi,aimag(CSF2SO))
 
 if (ipglob > 2) write(u6,*) 'End of soci'
@@ -218,5 +219,7 @@ if (allocated(Hfull2)) call mma_deallocate(Hfull2)
 if (allocated(Hdiag)) call mma_deallocate(Hdiag)
 if (allocated(SO_CI2)) call mma_deallocate(SO_CI2)
 if (allocated(WORK)) call mma_deallocate(WORK)
+if (allocated(RWORK)) call mma_deallocate(RWORK)
+if (allocated(W)) call mma_deallocate(W)
 
 end subroutine soci

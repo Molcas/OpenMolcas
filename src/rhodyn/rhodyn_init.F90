@@ -17,9 +17,13 @@ subroutine rhodyn_init()
 ! when reading input file
 !***********************************************************************
 
-use rhodyn_data
+use rhodyn_data, only: alpha, amp, basis, DM_basis, errorthreshold, finaltime, flag_acorrection, flag_decay, flag_dipole, &
+                       flag_diss, flag_dyson, flag_emiss, flag_fdm, flag_pulse, flag_so, flag_test, cgamma, HRSO, initialtime, &
+                       ion_diss, kext, linear_chirp, method, N_L2, N_L3, N_Populated, N_pulse, Nmode, Nval, omega, p_style, phi, &
+                       pulse_type, pulse_vector, runmode, safety, sigma, T, tau_L2, tau_L3, taushift, time_fdm, timestep, tout
 use stdalloc, only: mma_allocate
-use constants, only: auToFs, auToCm, auToeV
+use Constants, only: Zero, One, Three, Ten, cZero, cOne, auToFs, auToCm, auToeV
+use Definitions, only: wp
 
 implicit none
 
@@ -34,32 +38,31 @@ Nmode = 0
 ! be default propagation basis is spin free states
 basis = 'SF'
 DM_basis = 'SF_SO'
-tout = 0.05d0/auToFs
-initialtime = 0.0d0/auToFs
-finaltime = 10.0d0/auToFs
-timestep = 0.0005d0/auToFs
+tout = 0.05_wp/auToFs
+initialtime = Zero/auToFs
+finaltime = Ten/auToFs
+timestep = 0.0005_wp/auToFs
 method = 'CLASSIC_RK4'
-errorthreshold = 1.0d-06
+errorthreshold = 1.0e-06_wp
 ! safety parameter for adaptive-size methods can be set to 0.95
 ! for acceleration of calculations
-safety = 0.9
-deltaE = 50d0/auToCm
-V = 100d0/auToCm
+safety = 0.9_wp
+!deltaE = 50.0_wp/auToCm
+!V = 100.0_wp/auToCm
 Nval = 160
 N_L3 = 175
-tau_L3 = 0.4d0/autoev ! Auger decay rate for Fe L3
+tau_L3 = 0.4_wp/autoev ! Auger decay rate for Fe L3
 N_L2 = 585
-tau_L2 = 1.04d0/autoev ! Auger decay rate for Fe L2
+tau_L2 = 1.04_wp/autoev ! Auger decay rate for Fe L2
 flag_dyson = .false.
-alpha = 1d-3
-ion_diss = 0d0
-ion_blocks = (/.true.,.false.,.true.,.false.,.true./)
+alpha = 1.0e-3_wp
+ion_diss = Zero
 flag_diss = .false.
-gamma = 300/auToCm
+cgamma = 300.0_wp/auToCm
 HRSO = .false.
 kext = .false.
 ! full density matrix saving time step
-time_fdm = 1.0d0/auToFs
+time_fdm = One/auToFs
 ! general idea is that additional features are disabled by default
 ! except for pulse flag
 flag_so = .false.
@@ -80,14 +83,14 @@ call mma_allocate(pulse_vector,N_pulse,3)
 call mma_allocate(sigma,N_pulse)
 call mma_allocate(omega,N_pulse)
 call mma_allocate(phi,N_pulse)
-amp(1) = 2.5d0
-taushift(1) = 3.0d0/auToFs
-pulse_vector(1,1) = one
-pulse_vector(1,2) = zero
-pulse_vector(1,3) = zero
-sigma(1) = 1.0d0/auToFs
-omega(1) = 10d0/autoev
-phi(1) = 0.0d0
-linear_chirp = 0.0d0
+amp(1) = 2.5_wp
+taushift(1) = Three/auToFs
+pulse_vector(1,1) = cOne
+pulse_vector(1,2) = cZero
+pulse_vector(1,3) = cZero
+sigma(1) = One/auToFs
+omega(1) = Ten/autoev
+phi(1) = Zero
+linear_chirp = Zero
 
 end subroutine rhodyn_init

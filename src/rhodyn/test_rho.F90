@@ -17,21 +17,21 @@ subroutine test_rho(densityt_time,time)
 !***********************************************************************
 
 use rhodyn_data, only: Nstate, threshold
-use definitions, only: wp, iwp
-use constants, only: auToFs
+use Constants, only: Zero, auToFs
+use Definitions, only: wp, iwp, u6
 
 implicit none
-complex(kind=wp), dimension(:,:), intent(in) :: densityt_time
+complex(kind=wp), intent(in) :: densityt_time(:,:)
 real(kind=wp), intent(in) :: time
-real(kind=wp) :: abserror
 integer(kind=iwp) :: i, j
+real(kind=wp) :: abserror
 
-abserror = 0d0
+abserror = Zero
 do i=1,Nstate
   do j=(i+1),Nstate
-    if ((abs(dble(densityt_time(i,j))-dble(densityt_time(j,i))) >= threshold) .and. &
-        (abs(dble(densityt_time(i,j))-dble(densityt_time(j,i))) >= abserror)) then
-      abserror = abs(dble(densityt_time(i,j))-dble(densityt_time(j,i)))
+    if ((abs(real(densityt_time(i,j))-real(densityt_time(j,i))) >= threshold) .and. &
+        (abs(real(densityt_time(i,j))-real(densityt_time(j,i))) >= abserror)) then
+      abserror = abs(real(densityt_time(i,j))-real(densityt_time(j,i)))
     end if
     if ((abs(aimag(densityt_time(i,j))+aimag(densityt_time(j,i))) >= threshold) .and. &
         (abs(aimag(densityt_time(i,j))+aimag(densityt_time(j,i))) >= abserror)) then
@@ -40,7 +40,7 @@ do i=1,Nstate
   end do
 end do
 if (abserror >= threshold) then
-  write(6,'(2(a,1x,g28.16,1x))') 'time=',time*auToFs,'error=',abserror
+  write(u6,'(2(a,1x,g28.16,1x))') 'time=',time*auToFs,'error=',abserror
 end if
 
 end subroutine test_rho

@@ -18,13 +18,17 @@ subroutine cre_out()
 !
 !***********************************************************************
 
-use rhodyn_data
-use mh5, only: mh5_create_file, mh5_create_dset_real, mh5_init_attr
-use definitions, only: iwp
+use rhodyn_data, only: d, DM_basis, flag_decay, flag_dipole, flag_emiss, flag_fdm, flag_pulse, lu_csf, lu_dip, lu_pls, lu_sf, &
+                       lu_so, n_freq, nconftot, Npop, Nstate, Nstep, Ntime_tmp_dm, out2_fmt, out3_fmt, out_decay_i, out_decay_r, &
+                       out_dm_csf, out_dm_sf, out_dm_so, out_emiss, out_fdm, out_fmt, out_fmt_csf, out_freq, out_ham_i, out_ham_r, &
+                       out_id, out_pulse, out_t, out_tfdm, out_tout
+use mh5, only: mh5_create_dset_real, mh5_create_file, mh5_init_attr
+use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), external :: isfreeunit
 integer(kind=iwp) :: i
+integer(kind=iwp), external :: isfreeunit
+character(len=64) :: out1_fmt, out1_fmt_csf
 
 ! write formats for output files SFDENS, SODENS, CSFDENS
 ! header formats

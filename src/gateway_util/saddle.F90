@@ -429,7 +429,7 @@ if (Not_First_Iter) then
         if (tmp < 0.3_wp) then
           quadratic = .false.
           dHSR = SadStep*0.8_wp
-        elseif (tmp < Zero) then
+        else if (tmp < Zero) then
           quadratic = .false.
           dHSR = SadStep*0.6_wp
         else
@@ -447,7 +447,7 @@ if (Not_First_Iter) then
 
       if (HSR <= 2.5_wp*SadStep) then
         dHSR = SadStep*0.55_wp
-      elseif (quadratic .and. (HSR <= Four*SadStep)) then
+      else if (quadratic .and. (HSR <= Four*SadStep)) then
         dHSR = SadStep*0.75_wp
       end if
     else

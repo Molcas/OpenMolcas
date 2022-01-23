@@ -20,10 +20,12 @@ subroutine get_hcsf()
 !
 !***********************************************************************
 
-use rhodyn_data
+use rhodyn_data, only: flag_so, H_CSF, HTOT_CSF, HTOTRE_CSF, ipglob, int2real, ispin, N, nconf, nconftot, prep_fhi, prep_fhr, &
+                       sint, threshold, V_CSF
 use rhodyn_utils, only: dashes
-use definitions, only: iwp, u6
 use mh5, only: mh5_put_dset
+use Constants, only: Zero, cZero
+use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: i, j, k, l, ii, jj, kk
@@ -36,7 +38,7 @@ end if
 
 ! Construct the Hamiltonian matrix H(RASSCF) in CSF basis include all
 ! spin manifolds to HTOTRE_CSF
-HTOTRE_CSF = 0d0
+HTOTRE_CSF(:,:) = Zero
 ii = 0
 jj = 0
 kk = 0
@@ -73,7 +75,7 @@ if (ipglob > 2) then
   write(u6,sint) 'number of NCSF:',nconftot
   call dashes()
 end if
-HTOT_CSF = (0d0,0d0)
+HTOT_CSF(:,:) = cZero
 
 ! If consider the spin-orbit coupling
 ! Computing the total Hamiltonian H(RASSCF)+H(SO) in CSF basis
@@ -92,9 +94,9 @@ if (ipglob > 3) then
   call dashes()
   do i=1,nconftot
     do j=1,nconftot
-      if (abs(dble(HTOT_CSF(i,j)-HTOT_CSF(j,i))) >= threshold) then
-        write(u6,int2real) 'WARNING!!!: HTOT_CSF matrix is not hermitian in real part:',i,j,dble(HTOT_CSF(i,j)), &
-                           dble(HTOT_CSF(j,i))
+      if (abs(real(HTOT_CSF(i,j)-HTOT_CSF(j,i))) >= threshold) then
+        write(u6,int2real) 'WARNING!!!: HTOT_CSF matrix is not hermitian in real part:',i,j,real(HTOT_CSF(i,j)), &
+                           real(HTOT_CSF(j,i))
       end if
       if (abs(aimag(HTOT_CSF(i,j)+HTOT_CSF(j,i))) >= threshold) then
         write(u6,int2real) 'WARNING!!!: HTOT_CSF matrix is not hermitian in imag part:',i,j,aimag(HTOT_CSF(i,j)), &
@@ -106,7 +108,7 @@ if (ipglob > 3) then
   write(u6,*) 'If there is no warning info, total Hamiltonian matrix HTOT_CSF is hermitian!'
 end if
 
-call mh5_put_dset(prep_fhr,dble(HTOT_CSF))
+call mh5_put_dset(prep_fhr,real(HTOT_CSF))
 call mh5_put_dset(prep_fhi,aimag(HTOT_CSF))
 
 if (ipglob > 2) write(u6,*) 'end get_Hcsf'

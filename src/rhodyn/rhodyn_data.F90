@@ -66,106 +66,103 @@ module rhodyn_data
 !  dysamp          matrix of Dyson amplitudes read from rassi (SO)
 !  dysamp_bas      same as above in required basis
 !
-! out_fmt,out1_fmt:formats for output writing declared in propagate.f
+! out_fmt_csf:formats for output writing declared in propagate.f
 !***********************************************************************
 
-use definitions, only: wp, iwp
-use constants, only: kBoltzmann, auTokJ
+use Constants, only: kBoltzmann, auTokJ
+use Definitions, only: wp, iwp
 
 implicit none
+private
 
 ! some abstract interfaces, which fit to several subroutines
 abstract interface
   subroutine rk_fixed_step(t0,y)
     import :: wp
     real(kind=wp), intent(in) :: t0
-    complex(kind=wp), dimension(:,:), intent(inout) :: y
+    complex(kind=wp), intent(inout) :: y(:,:)
   end subroutine rk_fixed_step
   subroutine rk_adapt_step(t0,y,err)
     import :: wp
     real(kind=wp), intent(in) :: t0
+    complex(kind=wp), intent(inout) :: y(:,:)
     real(kind=wp), intent(out) :: err
-    complex(kind=wp), dimension(:,:), intent(inout) :: y
   end subroutine rk_adapt_step
-  subroutine pulse_func(h0,ht,time,count)
+  subroutine pulse_func(h0,ht,time,pcount)
     import :: wp, iwp
-    complex(kind=wp), dimension(:,:), intent(in) :: h0
-    complex(kind=wp), dimension(:,:), intent(out) :: ht
+    complex(kind=wp), intent(in) :: h0(:,:)
+    complex(kind=wp), intent(out) :: ht(:,:)
     real(kind=wp), intent(in) :: time
-    integer(kind=iwp), intent(in) :: count
+    integer(kind=iwp), intent(in) :: pcount
   end subroutine pulse_func
   subroutine equation_func(time,rho_t,res)
     import :: wp
     real(kind=wp), intent(in) :: time
-    complex(kind=wp), dimension(:,:), intent(in) :: rho_t
-    complex(kind=wp), dimension(:,:), intent(out) :: res
+    complex(kind=wp), intent(in) :: rho_t(:,:)
+    complex(kind=wp), intent(out) :: res(:,:)
   end subroutine equation_func
 end interface
 
-! list of dummy integers
-!integer(kind=iwp) :: i,j,k,l,ii,jj,kk,ll
 ! list of constants
-real(kind=wp), parameter :: k_B = kBoltzmann/(auTokJ*1.0e3_wp), &
-                            threshold = 1.0d-06, &
-                            tiny = 1.0d-20
-!                        k_B = 3.1668114d-6 Hartree/K
-!                        Debyetoau = 0.393456
-!                        autoev = 27.211396132
-!                        cmtoau = 4.5563d-6
-!                        fstoau = 41.3393964d0
-complex(kind=wp), parameter :: zero = (0.0d0,0.0d0), &
-                               one = (1.0d0,0.0d0), &
-                               onei = (0.0d0,1.0d0)
-integer(kind=iwp) :: ipglob, error, i_rasscf, runmode, N, Nstate, d, n_freq, ndet_tot, nconftot, lrootstot, maxnum, maxnconf, &
-                     maxlroots
-integer(kind=iwp), dimension(:), allocatable :: ndet, nconf, lroots, ispin, istates
-real(kind=wp), dimension(:,:,:), allocatable :: H_CSF, CI, DTOC
-real(kind=wp), dimension(:,:), allocatable :: E, U_CI, HTOTRE_CSF, dysamp, a_einstein
-complex(kind=wp), dimension(:,:,:), allocatable :: dipole, dipole_basis
-complex(kind=wp), dimension(:,:), allocatable :: V_SO, V_CSF, tmp, HTOT_CSF, CSF2SO, DM0, U_SO, SO_CI, HSOCX, U_CI_compl, dysamp_bas
-complex(kind=wp), dimension(:), allocatable :: E_SF, E_SO
+real(kind=wp), parameter :: k_B = kBoltzmann/(auTokJ*1.0e3_wp), threshold = 1.0e-6_wp
+integer(kind=iwp) :: ipglob, i_rasscf, runmode, N, Nstate, d, n_freq, ndet_tot, nconftot, lrootstot, maxnconf, maxlroots
+integer(kind=iwp), allocatable :: ispin(:), istates(:), lroots(:), nconf(:), ndet(:)
+real(kind=wp), allocatable :: a_einstein(:,:), CI(:,:,:), DTOC(:,:,:), dysamp(:,:), E(:,:), H_CSF(:,:,:), HTOTRE_CSF(:,:), U_CI(:,:)
+complex(kind=wp), allocatable :: CSF2SO(:,:), dipole(:,:,:), dipole_basis(:,:,:), DM0(:,:), dysamp_bas(:,:), E_SF(:), E_SO(:), &
+                                 HSOCX(:,:), HTOT_CSF(:,:), SO_CI(:,:), tmp(:,:), U_CI_compl(:,:), V_CSF(:,:), V_SO(:,:)
 ! ----------------------------------------------------------------------
-logical :: flag_so, flag_decay, flag_diss, flag_fdm, flag_dyson, flag_emiss, flag_test, flag_dipole
-character(len=256) :: pulse_type, dm_basis, p_style, method, basis
-character(len=6), dimension(:), allocatable :: rassd_list, hr_list
-character(len=*), parameter :: sint = '(1x,a,t45,i8)', &
+logical(kind=iwp) :: flag_decay, flag_dipole, flag_diss, flag_dyson, flag_emiss, flag_fdm, flag_so, flag_test
+character(len=256) :: basis, dm_basis, method, p_style, pulse_type
+character(len=64) :: out2_fmt, out3_fmt, out_fmt, out_fmt_csf
+character(len=6), allocatable :: rassd_list(:)
+character(len=*), parameter :: int2real = '(a,2i5,2f16.8)', &
                                scha = '(1x,a,t52,a)', &
-                               sdbl = '(1x,a,t45,f9.3)', &
                                scmp = '(1x,a,t45,f5.2,sp,f5.2,"i")', &
-                               slog = '(1x,a,t45,l8)', &
-                               int2real = '(a,2i5,2f16.8)'
-character(len=64) :: out_fmt, out1_fmt, out_fmt_csf, out1_fmt_csf, out2_fmt, out3_fmt
+                               sdbl = '(1x,a,t45,f9.3)', &
+                               sint = '(1x,a,t45,i8)', &
+                               slog = '(1x,a,t45,l8)'
 ! ----------------------------------------------------------------------
 ! prep, out hdf5 files (description in cre_prep.f, cre_out.f)
-integer(kind=iwp) :: prep_id, prep_ci, prep_dipoler, prep_dm_r, prep_uci, prep_dipolei, prep_dm_i, prep_utu, prep_fullh, &
-                     prep_vcsfr, prep_fhr, prep_csfsor, prep_vcsfi, prep_fhi, prep_csfsoi, prep_hcsf, prep_do, out_id, out_dm_so, &
-                     out_dm_sf, out_dm_csf, out_pulse, out_tout, out_t, out_fdm, out_decay_r, out_decay_i, out_ham_r, out_ham_i, &
-                     out_freq, out_emiss, out_tfdm
+integer(kind=iwp) :: out_decay_i, out_decay_r, out_dm_csf, out_dm_sf, out_dm_so, out_emiss, out_fdm, out_freq, out_ham_i, &
+                     out_ham_r, out_id, out_pulse, out_t, out_tfdm, out_tout, prep_ci, prep_csfsoi, prep_csfsor, prep_dipolei, &
+                     prep_dipoler, prep_dm_i, prep_dm_r, prep_do, prep_fhi, prep_fhr, prep_hcsf, prep_id, prep_uci, prep_vcsfi, &
+                     prep_vcsfr
 ! predefined units for writing output, think of more clever choice:
-integer(kind=iwp) :: lu_so = 30, &
-                     lu_sf = 31, &
-                     lu_csf = 32, &
+integer(kind=iwp) :: lu_csf = 32, &
+                     lu_dip = 34, &
                      lu_pls = 33, &
-                     lu_dip = 34
+                     lu_sf = 31, &
+                     lu_so = 30
 ! ----------------------------------------------------------------------
 ! variables used for density matrix propagation
-integer(kind=iwp) :: N_Populated, Ntime_tmp_dm, Nstep, Npop
-integer(kind=iwp) :: Nval, N_L3, N_L2, Nmode
-logical :: HRSO, kext
-logical, dimension(5) :: ion_blocks ! for processing Dyson matrix
-real(kind=wp) :: T, tau_L3, tau_L2, gamma, initialtime, finaltime, timestep, dt, deltaE, V, tout, time_fdm, errorthreshold, alpha, &
-                 safety, ion_diss
-real(kind=wp), dimension(:), allocatable :: dgl, emiss
-real(kind=wp), dimension(6) :: temp_vec
-complex(kind=wp), dimension(:,:), allocatable :: decay, pulse_vector, density0, densityt, hamiltonian, hamiltoniant, kab_basis, &
-                                                 k_bar_basis
+integer(kind=iwp) :: N_L2, N_L3, N_Populated, Nmode, Npop, Nstep, Ntime_tmp_dm, Nval
+logical(kind=iwp) :: HRSO, kext
+real(kind=wp) :: alpha, dt, errorthreshold, finaltime, cgamma, initialtime, ion_diss, safety, T, tau_L2, tau_L3, time_fdm, &
+                 timestep, tout
+real(kind=wp), allocatable :: dgl(:), emiss(:)
+complex(kind=wp), allocatable :: decay(:,:), density0(:,:), densityt(:,:), hamiltonian(:,:), hamiltoniant(:,:), k_bar_basis(:,:), &
+                                 kab_basis(:,:), pulse_vector(:,:)
 ! Runge-Kutta midpoints
-complex(kind=wp), dimension(:,:), allocatable :: ak1, ak2, ak3, ak4, ak5, ak6, y5
+complex(kind=wp), allocatable :: ak1(:,:), ak2(:,:), ak3(:,:), ak4(:,:), ak5(:,:), ak6(:,:)
 ! pulse characteristics
-logical :: flag_pulse, flag_acorrection
 integer(kind=iwp) :: N_pulse, power_shape
-real(kind=wp) :: linear_chirp, t_local, omega_local
-real(kind=wp), dimension(:), allocatable :: amp, omega, sigma, phi, taushift
-complex(kind=wp), dimension(3) :: pulse_vec, E_field
+logical(kind=iwp) :: flag_acorrection, flag_pulse
+real(kind=wp) :: linear_chirp
+complex(kind=wp) :: pulse_vec(3)
+real(kind=wp), allocatable :: amp(:), omega(:), phi(:), sigma(:), taushift(:)
+
+public :: a_einstein, ak1, ak2, ak3, ak4, ak5, ak6, alpha, amp, basis, cgamma, CI, CSF2SO, d, decay, density0, densityt, dgl, &
+          dipole, dipole_basis, DM0, DM_basis, dt, DTOC, dysamp, dysamp_bas, E, E_SF, E_SO, emiss, equation_func, errorthreshold, &
+          finaltime, flag_acorrection, flag_decay, flag_dipole, flag_diss, flag_dyson, flag_emiss, flag_fdm, flag_pulse, flag_so, &
+          flag_test, H_CSF, hamiltonian, hamiltoniant, HRSO, HSOCX, HTOT_CSF, HTOTRE_CSF, i_rasscf, initialtime, int2real, &
+          ion_diss, ipglob, ispin, istates, k_b, K_bar_basis, kab_basis, kext, linear_chirp, lroots, lrootstot, lu_csf, lu_dip, &
+          lu_pls, lu_sf, lu_so, maxlroots, maxnconf, method, N, n_freq, N_L2, N_L3, N_Populated, N_pulse, nconf, nconftot, ndet, &
+          ndet_tot, Nmode, Npop, Nstate, Nstep, Ntime_tmp_dm, Nval, omega, out2_fmt, out3_fmt, out_decay_i, out_decay_r, &
+          out_dm_csf, out_dm_sf, out_dm_so, out_emiss, out_fdm, out_fmt, out_fmt_csf, out_freq, out_ham_i, out_ham_r, out_id, &
+          out_pulse, out_t, out_tfdm, out_tout, p_style, phi, power_shape, prep_ci, prep_csfsoi, prep_csfsor, prep_dipolei, &
+          prep_dipoler, prep_dm_i, prep_dm_r, prep_do, prep_fhi, prep_fhr, prep_hcsf, prep_id, prep_uci, prep_vcsfi, prep_vcsfr, &
+          pulse_func, pulse_type, pulse_vec, pulse_vector, rassd_list, rk_adapt_step, rk_fixed_step, runmode, safety, scha, scmp, &
+          sdbl, sigma, sint, slog, SO_CI, T, tau_L2, tau_L3, taushift, threshold, time_fdm, timestep, tmp, tout, U_CI, U_CI_compl, &
+          V_CSF, V_SO
 
 end module rhodyn_data

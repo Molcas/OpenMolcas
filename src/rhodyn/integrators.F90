@@ -19,19 +19,20 @@ subroutine classic_rk4(t0,y)
 ! convenient Runge-Kutta method of 4th order
 !***********************************************************************
 
-use rhodyn_data, only: equation_func, timestep, ak1, ak2, ak3, ak4
-use definitions, only: wp
+use rhodyn_data, only: ak1, ak2, ak3, ak4, equation_func, timestep
+use Constants, only: Six, Half
+use Definitions, only: wp
 
 implicit none
 real(kind=wp), intent(in) :: t0
-complex(kind=wp), dimension(:,:), intent(inout) :: y
+complex(kind=wp), intent(inout) :: y(:,:)
 procedure(equation_func) :: equation
 
 call equation(t0,y,ak1)
-call equation(t0+0.5*timestep,y+0.5*timestep*ak1,ak2)
-call equation(t0+0.5*timestep,y+0.5*timestep*ak2,ak3)
+call equation(t0+Half*timestep,y+Half*timestep*ak1,ak2)
+call equation(t0+Half*timestep,y+Half*timestep*ak2,ak3)
 call equation(t0+timestep,y+timestep*ak3,ak4)
-y = y+timestep/6.0*(ak1+2*ak2+2*ak3+ak4)
+y(:,:) = y+timestep/Six*(ak1+2*ak2+2*ak3+ak4)
 
 end subroutine classic_rk4
 !====
@@ -40,31 +41,31 @@ subroutine rk4(t0,y)
 ! Runge-Kutta method of 4th order with proper adjusted midpoints
 !***********************************************************************
 
-use rhodyn_data, only: equation_func, timestep, ak1, ak2, ak3, ak4, ak5
-use definitions, only: wp
+use rhodyn_data, only: ak1, ak2, ak3, ak4, ak5, equation_func, timestep
+use Definitions, only: wp
 
 implicit none
 real(kind=wp), intent(in) :: t0
+complex(kind=wp), intent(inout) :: y(:,:)
 real(kind=wp) :: x
-complex(kind=wp), dimension(:,:), intent(inout) :: y
 procedure(equation_func) :: equation
-real(kind=wp), parameter :: a2 = 0.25, &
-                            a3 = 0.375, &
-                            a4 = 0.92307692307692313, &
-                            c21 = 0.25, &
-                            c31 = 0.09375, &
-                            c32 = 0.28125, &
-                            c41 = 0.87938097405553028, &
-                            c42 = -3.2771961766044608, &
-                            c43 = 3.3208921256258535, &
-                            c51 = 2.0324074074074074, &
-                            c52 = -8, &
-                            c53 = 7.1734892787524362, &
-                            c54 = -0.20589668615984405, &
-                            c1 = 0.11574074074074074, &
-                            c3 = 0.54892787524366471, &
-                            c4 = 0.53533138401559455, &
-                            c5 = -0.2
+real(kind=wp), parameter :: a2 = 0.25_wp, &
+                            a3 = 0.375_wp, &
+                            a4 = 0.92307692307692313_wp, &
+                            c21 = 0.25_wp, &
+                            c31 = 0.09375_wp, &
+                            c32 = 0.28125_wp, &
+                            c41 = 0.87938097405553028_wp, &
+                            c42 = -3.2771961766044608_wp, &
+                            c43 = 3.3208921256258535_wp, &
+                            c51 = 2.0324074074074074_wp, &
+                            c52 = -8.0_wp, &
+                            c53 = 7.1734892787524362_wp, &
+                            c54 = -0.20589668615984405_wp, &
+                            c1 = 0.11574074074074074_wp, &
+                            c3 = 0.54892787524366471_wp, &
+                            c4 = 0.53533138401559455_wp, &
+                            c5 = -0.2_wp
 
 x = t0
 call equation(x,y,ak1)
@@ -76,7 +77,7 @@ x = t0+a4*timestep
 call equation(x,y+timestep*(c41*ak1+c42*ak2+c43*ak3),ak4)
 x = t0+timestep
 call equation(x,y+timestep*(c51*ak1+c52*ak2+c53*ak3+c54*ak4),ak5)
-y = y+(c1*ak1+c3*ak3+c4*ak4+c5*ak5)*timestep
+y(:,:) = y+(c1*ak1+c3*ak3+c4*ak4+c5*ak5)*timestep
 
 end subroutine rk4
 !====
@@ -85,37 +86,38 @@ subroutine rk5(t0,y)
 ! Runge-Kutta method of 5th order
 !***********************************************************************
 
-use rhodyn_data, only: equation_func, timestep, ak1, ak2, ak3, ak4, ak5, ak6
-use definitions, only: wp
+use rhodyn_data, only: ak1, ak2, ak3, ak4, ak5, ak6, equation_func, timestep
+use Constants, only: Half
+use Definitions, only: wp
 
 implicit none
 real(kind=wp), intent(in) :: t0
-complex(kind=wp), dimension(:,:), intent(inout) :: y
+complex(kind=wp), intent(inout) :: y(:,:)
 real(kind=wp) :: x
 procedure(equation_func) :: equation
-real(kind=wp), parameter :: a2 = 0.25d0, &
-                            a3 = 0.375d0, &
-                            a4 = 0.92307692307692313d0, &
-                            c21 = 0.25d0, &
-                            c31 = 0.09375d0, &
-                            c32 = 0.28125d0, &
-                            c41 = 0.87938097405553028, &
-                            c42 = -3.2771961766044608, &
-                            c43 = 3.3208921256258535, &
-                            c51 = 2.0324074074074074, &
-                            c52 = -8.d0, &
-                            c53 = 7.1734892787524362, &
-                            c54 = -0.20589668615984405, &
-                            c61 = -0.29629629629629628, &
-                            c62 = 2d0, &
-                            c63 = -1.3816764132553607, &
-                            c64 = 0.45297270955165692, &
-                            c65 = -0.275d0, &
-                            c1 = 0.11851851851851852, &
-                            c3 = 0.51898635477582844, &
-                            c4 = 0.50613149034201665, &
-                            c5 = -0.18d0, &
-                            c6 = 0.036363636363636362
+real(kind=wp), parameter :: a2 = 0.25_wp, &
+                            a3 = 0.375_wp, &
+                            a4 = 0.92307692307692313_wp, &
+                            c21 = 0.25_wp, &
+                            c31 = 0.09375_wp, &
+                            c32 = 0.28125_wp, &
+                            c41 = 0.87938097405553028_wp, &
+                            c42 = -3.2771961766044608_wp, &
+                            c43 = 3.3208921256258535_wp, &
+                            c51 = 2.0324074074074074_wp, &
+                            c52 = -8.0_wp, &
+                            c53 = 7.1734892787524362_wp, &
+                            c54 = -0.20589668615984405_wp, &
+                            c61 = -0.29629629629629628_wp, &
+                            c62 = 2.0_wp, &
+                            c63 = -1.3816764132553607_wp, &
+                            c64 = 0.45297270955165692_wp, &
+                            c65 = -0.275_wp, &
+                            c1 = 0.11851851851851852_wp, &
+                            c3 = 0.51898635477582844_wp, &
+                            c4 = 0.50613149034201665_wp, &
+                            c5 = -0.18_wp, &
+                            c6 = 0.036363636363636362_wp
 
 x = t0
 call equation(x,y,ak1)
@@ -127,9 +129,9 @@ x = t0+a4*timestep
 call equation(x,y+timestep*(c41*ak1+c42*ak2+c43*ak3),ak4)
 x = t0+timestep
 call equation(x,y+timestep*(c51*ak1+c52*ak2+c53*ak3+c54*ak4),ak5)
-x = t0+0.5d0*timestep
+x = t0+Half*timestep
 call equation(x,y+timestep*(c61*ak1+c62*ak2+c63*ak3+c64*ak4+c65*ak5),ak6)
-y = y+(c1*ak1+c3*ak3+c4*ak4+c5*ak5+c6*ak6)*timestep
+y(:,:) = y+(c1*ak1+c3*ak3+c4*ak4+c5*ak5+c6*ak6)*timestep
 
 end subroutine rk5
 !====
@@ -138,43 +140,43 @@ subroutine rk45(t0,y,err)
 ! Runge-Kutta-Fehlberg 4(5) integration algorithm
 !***********************************************************************
 
-use rhodyn_data, only: equation_func, dt, ak1, ak2, ak3, ak4, ak5, ak6
-use definitions, only: wp
+use rhodyn_data, only: ak1, ak2, ak3, ak4, ak5, ak6, dt, equation_func
+use Definitions, only: wp
 
 implicit none
 real(kind=wp), intent(in) :: t0
+complex(kind=wp), intent(inout) :: y(:,:)
 real(kind=wp), intent(out) :: err
-complex(kind=wp), dimension(:,:), intent(inout) :: y
 real(kind=wp) :: x
 procedure(equation_func) :: equation
-real(kind=wp), parameter :: a2 = 0.25, &
-                            a3 = 3.0/8.0, &
-                            a4 = 12.0/13.0, &
-                            a6 = 0.5, &
-                            c21 = 0.25, &
-                            c31 = 3.0/32.0, &
-                            c32 = 9.0/32.0, &
-                            c41 = 1932.0/2197.0, &
-                            c42 = -7200.0/2197.0, &
-                            c43 = 7296.0/2197.0, &
-                            c51 = 439.0/216.0, &
-                            c52 = -8.0, &
-                            c53 = 3680.0/513.0, &
-                            c54 = -845.0/4104.0, &
-                            c61 = -8.0/27.0, &
-                            c62 = 2.0, &
-                            c63 = -3544.0/2565.0, &
-                            c64 = 1859.0/4104.0, &
-                            c65 = -0.275, &
-                            c1 = 16.0/135.0, &
-                            c3 = 6656.0/12825.0, &
-                            c4 = 28561.0/56430.0, &
-                            c5 = -0.18, &
-                            c6 = 2.0/55.0, &
-                            dc1 = c1-25.0/216.0, &
-                            dc3 = c3-1408.0/2565.0, &
-                            dc4 = c4-2197.0/4104.0, &
-                            dc5 = c5+0.2
+real(kind=wp), parameter :: a2 = 0.25_wp, &
+                            a3 = 3.0_wp/8.0_wp, &
+                            a4 = 12.0_wp/13.0_wp, &
+                            a6 = 0.5_wp, &
+                            c21 = 0.25_wp, &
+                            c31 = 3.0_wp/32.0_wp, &
+                            c32 = 9.0_wp/32.0_wp, &
+                            c41 = 1932.0_wp/2197.0_wp, &
+                            c42 = -7200.0_wp/2197.0_wp, &
+                            c43 = 7296.0_wp/2197.0_wp, &
+                            c51 = 439.0_wp/216.0_wp, &
+                            c52 = -8.0_wp, &
+                            c53 = 3680.0_wp/513.0_wp, &
+                            c54 = -845.0_wp/4104.0_wp, &
+                            c61 = -8.0_wp/27.0_wp, &
+                            c62 = 2.0_wp, &
+                            c63 = -3544.0/2565.0_wp, &
+                            c64 = 1859.0/4104.0_wp, &
+                            c65 = -0.275_wp, &
+                            c1 = 16.0_wp/135.0_wp, &
+                            c3 = 6656.0_wp/12825.0_wp, &
+                            c4 = 28561.0_wp/56430.0_wp, &
+                            c5 = -0.18_wp, &
+                            c6 = 2.0_wp/55.0_wp, &
+                            dc1 = c1-25.0_wp/216.0_wp, &
+                            dc3 = c3-1408.0_wp/2565.0_wp, &
+                            dc4 = c4-2197.0_wp/4104.0_wp, &
+                            dc5 = c5+0.2_wp
 
 ! 1st step
 x = t0
@@ -195,7 +197,7 @@ call equation(x,y+dt*(c51*ak1+c52*ak2+c53*ak3+c54*ak4),ak5)
 x = t0+a6*dt
 call equation(x,y+dt*(c61*ak1+c62*ak2+c63*ak3+c64*ak4+c65*ak5),ak6)
 ! Accumulate increments with proper weights
-y = y+dt*(c1*ak1+c3*ak3+c4*ak4+c5*ak5+c6*ak6)
+y(:,:) = y+dt*(c1*ak1+c3*ak3+c4*ak4+c5*ak5+c6*ak6)
 err = maxval(abs(dt*(dc1*ak1+dc3*ak3+dc4*ak4+dc5*ak5+c6*ak6)))
 
 end subroutine rk45
@@ -210,42 +212,42 @@ subroutine rkck(t0,y,err)
 !***********************************************************************
 
 use rhodyn_data, only: equation_func, dt, ak1, ak2, ak3, ak4, ak5, ak6
-use definitions, only: wp
+use Definitions, only: wp
 
 implicit none
 real(kind=wp), intent(in) :: t0
 real(kind=wp), intent(out) :: err
-complex(kind=wp), dimension(:,:), intent(inout) :: y
+complex(kind=wp), intent(inout) :: y(:,:)
 real(kind=wp) :: x
 procedure(equation_func) :: equation
-real(kind=wp), parameter :: a2 = 0.2, &
-                            a3 = 0.3, &
-                            a4 = 0.6, &
-                            a6 = 0.875, &
-                            b21 = 0.2, &
-                            b31 = 3.0/40.0, &
-                            b32 = 9.0/40.0, &
-                            b41 = 0.3, &
-                            b42 = -0.9, &
-                            b43 = 1.2, &
-                            b51 = -11.0/54.0, &
-                            b52 = 2.5, &
-                            b53 = -70.0/27.0, &
-                            b54 = 35.0/27.0, &
-                            b61 = 1631.0/55296.0, &
-                            b62 = 175.0/512.0, &
-                            b63 = 575.0/13824.0, &
-                            b64 = 44275.0/110592.0, &
-                            b65 = 253.0/4096.0, &
-                            c1 = 37.0/378.0, &
-                            c3 = 250.0/621.0, &
-                            c4 = 125.0/594.0, &
-                            c6 = 512.0/1771.0, &
-                            dc1 = c1-2825.0/27648.0, &
-                            dc3 = c3-18575.0/48384.0, &
-                            dc4 = c4-13525.0/55296.0, &
-                            dc5 = -277.0/14336.0, &
-                            dc6 = c6-0.25
+real(kind=wp), parameter :: a2 = 0.2_wp, &
+                            a3 = 0.3_wp, &
+                            a4 = 0.6_wp, &
+                            a6 = 0.875_wp, &
+                            b21 = 0.2_wp, &
+                            b31 = 3.0_wp/40.0_wp, &
+                            b32 = 9.0_wp/40.0_wp, &
+                            b41 = 0.3_wp, &
+                            b42 = -0.9_wp, &
+                            b43 = 1.2_wp, &
+                            b51 = -11.0_wp/54.0_wp, &
+                            b52 = 2.5_wp, &
+                            b53 = -70.0_wp/27.0_wp, &
+                            b54 = 35.0_wp/27.0_wp, &
+                            b61 = 1631.0_wp/55296.0_wp, &
+                            b62 = 175.0_wp/512.0_wp, &
+                            b63 = 575.0_wp/13824.0_wp, &
+                            b64 = 44275.0_wp/110592.0_wp, &
+                            b65 = 253.0_wp/4096.0_wp, &
+                            c1 = 37.0_wp/378.0_wp, &
+                            c3 = 250.0_wp/621.0_wp, &
+                            c4 = 125.0_wp/594.0_wp, &
+                            c6 = 512.0_wp/1771.0_wp, &
+                            dc1 = c1-2825.0_wp/27648.0_wp, &
+                            dc3 = c3-18575.0_wp/48384.0_wp, &
+                            dc4 = c4-13525.0_wp/55296.0_wp, &
+                            dc5 = -277.0_wp/14336.0_wp, &
+                            dc6 = c6-0.25_wp
 ! 1st step
 x = t0
 call equation(x,y,ak1)
@@ -265,7 +267,7 @@ call equation(x,y+dt*(b51*ak1+b52*ak2+b53*ak3+b54*ak4),ak5)
 x = t0+a6*dt
 call equation(x,y+dt*(b61*ak1+b62*ak2+b63*ak3+b64*ak4+b65*ak5),ak6)
 ! Accumulate increments with proper weights
-y = y+dt*(c1*ak1+c3*ak3+c4*ak4+c6*ak6)
+y(:,:) = y+dt*(c1*ak1+c3*ak3+c4*ak4+c6*ak6)
 err = maxval(abs(dt*(dc1*ak1+dc3*ak3+dc4*ak4+dc5*ak5+dc6*ak6)))
 
 end subroutine rkck

@@ -14,10 +14,12 @@
 subroutine get_dipole()
 ! Purpose :  Read in the dipole matrix from the MOLCAS output (SO)
 
-use rhodyn_data
-use rhodyn_utils, only: transform, dashes
-use definitions, only: iwp, u6
+use rhodyn_data, only: a_einstein, dipole, dysamp, dysamp_bas, E_SO, emiss, flag_dyson, flag_emiss, ipglob, ispin, lroots, &
+                       lrootstot, N, prep_dipolei, prep_dipoler, prep_do, runmode, SO_CI
+use rhodyn_utils, only: dashes, transform
 use mh5, only: mh5_put_dset
+use Constants, only: Zero, cZero
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: i, j, k, l, ii, jj
@@ -30,12 +32,12 @@ end if
 
 ! To put the imaginary part of diagonal elements to 0 just in case
 do j=1,lrootstot
-  dipole(j,j,:) = dble(dipole(j,j,:))
+  dipole(j,j,:) = real(dipole(j,j,:))
 end do
 ! process Dyson amplitudes
 if (flag_dyson .and. (N > 2)) then
   ! Transformation of Dyson amplitudes matrix to SF basis
-  call transform(dcmplx(dysamp,0d0),SO_CI,dysamp_bas,.false.)
+  call transform(cmplx(dysamp,kind=wp),SO_CI,dysamp_bas,.false.)
   ! nullify non-neighbouring SF blocks, ii,jj - block indices
   ii = 0
   jj = 0
@@ -44,8 +46,8 @@ if (flag_dyson .and. (N > 2)) then
       if ((k-l) > 1) then
         do i=ii,(ii+lroots(k)*ispin(k))
           do j=jj,(jj+lroots(l)*ispin(l))
-            dysamp_bas(i,j) = zero
-            dysamp_bas(j,i) = zero
+            dysamp_bas(i,j) = cZero
+            dysamp_bas(j,i) = cZero
           end do
         end do
       end if
@@ -69,8 +71,8 @@ end if
 !              'Set DMBasis keyword to SO, CSF_SO, or SF_SO'
 !end if
 if (flag_emiss) then
-  a_einstein = 0d0
-  emiss = 0d0
+  a_einstein = Zero
+  emiss = Zero
   ii = 1
   do j=1,(lrootstot-1)
     do i=(j+1),lrootstot
@@ -87,10 +89,10 @@ end if
 
 if (runmode /= 4) then
   ! not CM case
-  call mh5_put_dset(prep_dipoler,dble(dipole))
+  call mh5_put_dset(prep_dipoler,real(dipole))
   call mh5_put_dset(prep_dipolei,aimag(dipole))
   if (flag_dyson) then
-    call mh5_put_dset(prep_do,dble(dysamp_bas))
+    call mh5_put_dset(prep_do,real(dysamp_bas))
   end if
 end if
 

@@ -15,17 +15,19 @@ subroutine prepare_decay()
 ! energy and time should fullfill relation delta_E*delta_t=h
 ! construct the decay in SOC states basis sets
 
-use rhodyn_data
+use rhodyn_data, only: basis, CSF2SO, decay, flag_decay, flag_dyson, ion_diss, ipglob, ispin, N, N_L3, nconf, Nstate, Nval, SO_CI, &
+                       tau_L2, tau_L3, tmp, U_CI_compl
 use rhodyn_utils, only: mult, dashes
-use definitions, only: iwp, u6
-use constants, only: pi
+use Constants, only: Zero, cZero, pi
+use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: i, j, k, ii
+logical(kind=iwp), parameter :: ion_blocks(5) = [.true.,.false.,.true.,.false.,.true.]
 
 if (ipglob > 3) write(u6,*) 'Begin of prepare_decay'
 
-decay = zero
+decay(:,:) = cZero
 ! Auger decay
 if (flag_decay) then
   do i=Nval+1,Nval+N_L3
@@ -44,7 +46,7 @@ if (flag_decay) then
 end if
 
 ! ionization
-if (flag_dyson .and. (ion_diss /= 0d0)) then
+if (flag_dyson .and. (ion_diss /= Zero)) then
   ii = 1
   do k=1,N
     do i=ii,(ii+nconf(k)*ispin(k)-1)

@@ -105,12 +105,12 @@ if (allocated(XF)) then
     write(u6,*) ' =================================='
     if (nOrd_XF == 0) then
       write(u6,*) '     x           y           z           Z'//tempStr
-    elseif (nOrd_XF == 1) then
+    else if (nOrd_XF == 1) then
       write(u6,*) '     x           y           z           Z         my(x)       my(y)       my(z)'//tempStr
-    elseif (nOrd_XF == 2) then
+    else if (nOrd_XF == 2) then
       write(u6,*) '     x           y           z           Z         my(x)       my(y)       my(z)'// &
                   '       Q(xx)       Q(xy)       Q(xz)       Q(yy)       Q(yz)       Q(zz)'//tempStr
-    elseif (nOrd_XF == -1) then
+    else if (nOrd_XF == -1) then
       write(u6,*) '     x           y           z '//tempstr
     else
       call WarningMessage(2,'Option not implemented yet!')
@@ -159,9 +159,9 @@ if (nEFP_fragments /= 0) then
   write(u6,*)
   if (Coor_Type == XYZABC_type) then
     write(u6,*) 'In XYZABC format'
-  elseif (Coor_Type == POINTS_type) then
+  else if (Coor_Type == POINTS_type) then
     write(u6,*) 'In Points format'
-  elseif (Coor_Type == ROTMAT_type) then
+  else if (Coor_Type == ROTMAT_type) then
     write(u6,*) 'In RotMat format'
   else
     write(u6,*) 'Illegal Coor_type:',Coor_Type
@@ -171,11 +171,11 @@ if (nEFP_fragments /= 0) then
     write(u6,*)
     write(u6,*) 'Fragment:',FRAG_TYPE(i)
     if (Coor_Type == XYZABC_type) then
-    elseif (Coor_Type == POINTS_type) then
+    else if (Coor_Type == POINTS_type) then
       do j=1,3
         write(u6,'(A10,3F20.10)') ABC(j,i)(1:10),(EFP_Coors((j-1)*3+k,i),k=1,3)
       end do
-    elseif (Coor_Type == ROTMAT_type) then
+    else if (Coor_Type == ROTMAT_type) then
     end if
   end do
 end if

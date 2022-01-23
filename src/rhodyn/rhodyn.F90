@@ -18,19 +18,23 @@ subroutine rhodyn(ireturn)
 ! responsible for dynamics itself
 !***********************************************************************
 
-use rhodyn_data
-use rhodyn_utils, only: mult, dashes, sortci, transform
-use definitions, only: wp, iwp, u6
-use constants, only: auToeV
+use rhodyn_data, only: a_einstein, alpha, amp, basis, CI, CSF2SO, d, decay, density0, densityt, dipole, dipole_basis, DM0, &
+                       DM_basis, DTOC, dysamp, dysamp_bas, E, E_SF, E_SO, emiss, flag_decay, flag_diss, flag_dyson, flag_so, &
+                       H_CSF, hamiltonian, hamiltoniant, HSOCX, HTOT_CSF, HTOTRE_CSF, i_rasscf, ipglob, ispin, istates, &
+                       k_bar_basis, kab_basis, kext, lroots, lrootstot, maxlroots, maxnconf, N, n_freq, nconf, nconftot, ndet, &
+                       ndet_tot, Nstate, omega, out_id, p_style, phi, prep_ci, prep_hcsf, prep_id, pulse_vector, rassd_list, &
+                       runmode, sigma, sint, SO_CI, taushift, tmp, U_CI, U_CI_compl, V_CSF, V_SO
+use rhodyn_utils, only: dashes, mult, sortci, transform
+use mh5, only: mh5_close_file, mh5_put_dset
 use stdalloc, only: mma_allocate, mma_deallocate
-use mh5, only: mh5_put_dset, mh5_close_file
+use Constants, only: Zero, auToeV
+use definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ireturn
-integer(kind=iwp) :: lu !temporary io unit
-integer(kind=iwp) :: i, j, k
+integer(kind=iwp), intent(out) :: ireturn
+integer(kind=iwp) :: i, j, k, lu, maxnum
+real(kind=wp), allocatable :: Ham(:,:) ! auxiliary matrix
 integer(kind=iwp), external :: iPrintLevel, isFreeUnit
-real(kind=wp), dimension(:,:), allocatable :: Ham ! auxiliary matrix
 
 ireturn = 20
 ipglob = iPrintLevel(-1) ! MOLCAS_PRINT variable
@@ -93,8 +97,8 @@ if ((runmode /= 2) .and. (runmode /= 4)) then
   call cre_prep()
 
   ! reading wavefunction expansion from rasscf files
-  H_CSF = 0d0
-  CI = 0d0
+  H_CSF = Zero
+  CI = Zero
   ! Determine file names
   ! Expected N rassd files and 1 rassisd file
   call mma_allocate(rassd_list,N)
@@ -191,7 +195,7 @@ else if (runmode == 4) then
   end if
   call get_dipole()
   if ((DM_basis == 'CSF_SO') .or. (DM_basis == 'SF') .or. (DM_basis == 'ALL') .or. (DM_basis == 'CSF_SF')) then
-    CI = 0.0d0
+    CI = Zero
     ! Determine file names
     ! Expected N rassd files and 1 rassisd file
     call mma_allocate(rassd_list,N)
@@ -208,7 +212,7 @@ else if (runmode == 4) then
     ! V_SOC hamiltonian from RASSI is read (in SF basis)
     call read_rassisd()
     ! construct the transformation matrix CSF2SO from SO to CSF
-    if (flag_so) call mult(dcmplx(U_CI),SO_CI,CSF2SO)
+    if (flag_so) call mult(cmplx(U_CI,kind=wp),SO_CI,CSF2SO)
   else
     ! this is just caution condition to make sure that CM case
     ! was tested with given DM basis
@@ -251,7 +255,7 @@ if (runmode /= 3) then
     if (flag_so) call transform(HSOCX,SO_CI,hamiltonian)
     density0(:,:) = DM0
     dipole_basis(:,:,:) = dipole
-    U_CI_compl(:,:) = dcmplx(U_CI,0d0)
+    U_CI_compl(:,:) = cmplx(U_CI,kind=wp)
     if (flag_dyson) then
       do i=1,3
         dipole_basis(:,:,i) = dipole_basis(:,:,i)+alpha*dysamp_bas

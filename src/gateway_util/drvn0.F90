@@ -316,13 +316,13 @@ if (allocated(XF) .and. (nOrd_XF >= 0)) then
       if (nOrd_XF == 0) then
         ZA = XF(4,iFd)
         NoLoop = ZA == Zero
-      elseif (nOrd_XF == 1) then
+      else if (nOrd_XF == 1) then
         ZA = XF(4,iFd)
         DAx = XF(5,iFd)
         DAy = XF(6,iFd)
         DAz = XF(7,iFd)
         NoLoop = (ZA == Zero) .and. (DAx == Zero) .and. (DAy == Zero) .and. (DAz == Zero)
-      elseif (nOrd_XF == 2) then
+      else if (nOrd_XF == 2) then
         ZA = XF(4,iFd)
         DAx = XF(5,iFd)
         DAy = XF(6,iFd)
@@ -349,13 +349,13 @@ if (allocated(XF) .and. (nOrd_XF >= 0)) then
         if (nOrd_XF == 0) then
           ZB = XF(4,jFd)
           NoLoop = ZB == Zero
-        elseif (nOrd_XF == 1) then
+        else if (nOrd_XF == 1) then
           ZB = XF(4,jFd)
           DBx = XF(5,jFd)
           DBy = XF(6,jFd)
           DBz = XF(7,jFd)
           NoLoop = (ZB == Zero) .and. (DBx == Zero) .and. (DBy == Zero) .and. (DBz == Zero)
-        elseif (nOrd_XF == 2) then
+        else if (nOrd_XF == 2) then
           ZB = XF(4,jFd)
           DBx = XF(5,jFd)
           DBy = XF(6,jFd)
