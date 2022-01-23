@@ -25,19 +25,22 @@ use Constants, only: Zero, One, cZero, cOne, auToFs, auToCm, auToeV, pi
 use definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: i, j, luin
+integer(kind=iwp) :: i, istatus, j, luin
 character(len=256) :: line
 character(len=32) :: tryname
 character(len=*), parameter :: input_id = '&RHODYN'
 
 call SpoolInp(luin)
 ! Find beginning of input:
-50 read(luin,'(A72)') line
-call normal(line)
-if (line(1:8) /= input_id) goto 50
+do
+  read(luin,'(A72)') line
+  call normal(line)
+  if (line(1:8) == input_id) exit
+end do
 
 do
-  read(luin,'(A72)',end=300) line
+  read(luin,'(A72)',iostat=istatus) line
+  if (istatus < 0) exit
   call normal(line)
   if (line(1:1) == '*') cycle
   if (line == ' ') cycle
@@ -233,7 +236,6 @@ do
       call abend()
   end select
 end do
-300 continue
 
 if (ipglob > 1) then
   call dashes()

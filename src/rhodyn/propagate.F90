@@ -17,8 +17,9 @@ use rhodyn_data, only: ak1, ak2, ak3, ak4, ak5, ak6, d, decay, density0, density
                        finaltime, flag_decay, flag_dipole, flag_emiss, flag_fdm, flag_pulse, hamiltonian, hamiltoniant, &
                        initialtime, ipglob, lu_csf, lu_dip, lu_pls, lu_sf, lu_so, method, nconftot, Npop, Nstep, Ntime_tmp_dm, &
                        out2_fmt, out3_fmt, out_decay_i, out_decay_r, out_fdm, out_freq, out_ham_i, out_ham_r, out_tfdm, &
-                       pulse_func, rk_adapt_step, rk_fixed_step, safety, time_fdm, timestep, tout
+                       pulse_func, safety, time_fdm, timestep, tout
 use rhodyn_utils, only: dashes
+use integrators, only: classic_rk4, rk4, rk5, rk45, rkck
 use mh5, only: mh5_put_dset
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Five, Ten, Quart, auToFs
@@ -30,8 +31,6 @@ real(kind=wp) :: dum(3), error_rk, oldstep, t_temp, time, timer(3)
 real(kind=wp), allocatable :: dgl_csf(:)
 complex(kind=wp), allocatable :: density_csf(:,:)
 procedure(pulse_func) :: pulse
-procedure(rk_adapt_step) :: rk45, rkck
-procedure(rk_fixed_step) :: classic_rk4, rk4, rk5
 
 call dashes()
 write(u6,*) 'Propagation starts'
@@ -79,7 +78,7 @@ call mma_allocate(ak6,d,d)
 
 call mma_allocate(dgl_csf,nconftot,label='dgl_csf')
 call mma_allocate(density_csf,nconftot,nconftot,label='density_csf')
-call pop(time,ii) ! write 0th iteration (initial values)
+call pop(time,ii,dgl_csf,density_csf) ! write 0th iteration (initial values)
 
 if ((method == 'RKCK') .or. (method == 'RK45')) then
   !*********************************************************************
@@ -131,13 +130,12 @@ if ((method == 'RKCK') .or. (method == 'RK45')) then
     ! write info and elapsed time
     if (time >= (initialtime+tout*ii)) then
       ii = ii+1
-      call pop(time,ii)
+      call pop(time,ii,dgl_csf,density_csf)
     end if
     if (flag_fdm .and. (time >= time_fdm*jj)) then
       ! should be moved to procedure pop
       call mh5_put_dset(out_tfdm,[time*auToFs],[1],[jj])
-      ! density0 is stored as temporary storage for dm in required
-      ! basis in pop.f90
+      ! density0 is stored as temporary storage for dm in required basis in pop
       call mh5_put_dset(out_fdm,abs(density0),[1,d,d],[jj,0,0])
       jj = jj+1
     end if
@@ -180,7 +178,7 @@ else
       case ('RK5')
         call rk5(time,densityt)
       case default
-        ! check has already been done in read_input.f90
+        ! check has already been done in read_input
         write(u6,*) 'Integration method ',method,' is not known'
         call abend()
     end select
@@ -188,7 +186,7 @@ else
     time = initialtime+timestep*Ntime
     if (mod(Ntime,Noutstep) == 0) then
       ii = ii+1
-      call pop(time,ii)
+      call pop(time,ii,dgl_csf,density_csf)
     end if
   end do
 end if

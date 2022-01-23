@@ -93,7 +93,7 @@ do i=1,N_pulse
   else if (pulse_type == 'MONO') then
     E_field = amp(i)*pulse_vec*sin(omega_local*(time-taushift(i))+phi(i))
 
-  ! explicitely polarized pulses
+  ! explicitly polarized pulses
   ! think of more clever definition
   else if (pulse_type == 'MONO_R_CIRCLE') then
     E_field(1) = amp(i)*sin(omega(i)*time+phi(i))

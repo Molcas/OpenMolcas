@@ -66,7 +66,7 @@ module rhodyn_data
 !  dysamp          matrix of Dyson amplitudes read from rassi (SO)
 !  dysamp_bas      same as above in required basis
 !
-! out_fmt_csf:formats for output writing declared in propagate.f
+! out2_fmt, out3_fmt: formats for output writing declared in propagate
 !***********************************************************************
 
 use Constants, only: kBoltzmann, auTokJ
@@ -77,17 +77,6 @@ private
 
 ! some abstract interfaces, which fit to several subroutines
 abstract interface
-  subroutine rk_fixed_step(t0,y)
-    import :: wp
-    real(kind=wp), intent(in) :: t0
-    complex(kind=wp), intent(inout) :: y(:,:)
-  end subroutine rk_fixed_step
-  subroutine rk_adapt_step(t0,y,err)
-    import :: wp
-    real(kind=wp), intent(in) :: t0
-    complex(kind=wp), intent(inout) :: y(:,:)
-    real(kind=wp), intent(out) :: err
-  end subroutine rk_adapt_step
   subroutine pulse_func(h0,ht,time,pcount)
     import :: wp, iwp
     complex(kind=wp), intent(in) :: h0(:,:)
@@ -122,7 +111,7 @@ character(len=*), parameter :: int2real = '(a,2i5,2f16.8)', &
                                sint = '(1x,a,t45,i8)', &
                                slog = '(1x,a,t45,l8)'
 ! ----------------------------------------------------------------------
-! prep, out hdf5 files (description in cre_prep.f, cre_out.f)
+! prep, out hdf5 files (description in cre_prep, cre_out)
 integer(kind=iwp) :: out_decay_i, out_decay_r, out_dm_csf, out_dm_sf, out_dm_so, out_emiss, out_fdm, out_freq, out_ham_i, &
                      out_ham_r, out_id, out_pulse, out_t, out_tfdm, out_tout, prep_ci, prep_csfsoi, prep_csfsor, prep_dipolei, &
                      prep_dipoler, prep_dm_i, prep_dm_r, prep_do, prep_fhi, prep_fhr, prep_hcsf, prep_id, prep_uci, prep_vcsfi, &
@@ -161,8 +150,7 @@ public :: a_einstein, ak1, ak2, ak3, ak4, ak5, ak6, alpha, amp, basis, cgamma, C
           out_dm_csf, out_dm_sf, out_dm_so, out_emiss, out_fdm, out_fmt, out_fmt_csf, out_freq, out_ham_i, out_ham_r, out_id, &
           out_pulse, out_t, out_tfdm, out_tout, p_style, phi, power_shape, prep_ci, prep_csfsoi, prep_csfsor, prep_dipolei, &
           prep_dipoler, prep_dm_i, prep_dm_r, prep_do, prep_fhi, prep_fhr, prep_hcsf, prep_id, prep_uci, prep_vcsfi, prep_vcsfr, &
-          pulse_func, pulse_type, pulse_vec, pulse_vector, rassd_list, rk_adapt_step, rk_fixed_step, runmode, safety, scha, scmp, &
-          sdbl, sigma, sint, slog, SO_CI, T, tau_L2, tau_L3, taushift, threshold, time_fdm, timestep, tmp, tout, U_CI, U_CI_compl, &
-          V_CSF, V_SO
+          pulse_func, pulse_type, pulse_vec, pulse_vector, rassd_list, runmode, safety, scha, scmp, sdbl, sigma, sint, slog, &
+          SO_CI, T, tau_L2, tau_L3, taushift, threshold, time_fdm, timestep, tmp, tout, U_CI, U_CI_compl, V_CSF, V_SO
 
 end module rhodyn_data

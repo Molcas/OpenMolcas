@@ -24,7 +24,7 @@ use rhodyn_data, only: CSF2SO, DM0, DTOC, E, E_SF, E_SO, flag_so, ipglob, k_B, l
 use rhodyn_utils, only: transform, dashes
 use mh5, only: mh5_put_dset
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, cZero, cOne
+use Constants, only: cZero, cOne
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -79,7 +79,7 @@ if (flag_so) then
     case ('CSF')
       if ((N_Populated > nconftot) .or. (N_populated <= 0)) then
         call dashes()
-        write(u6,*) 'WARNING!!! Nr of the populated states', N_populated,' read from the input file is wrong'
+        write(u6,*) 'WARNING!!! Nr of the populated states',N_populated,' read from the input file is wrong'
         call dashes()
         call abend()
       end if
