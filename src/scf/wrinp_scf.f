@@ -211,8 +211,8 @@ c           Call Abend()
             End If
             Write(6,*)
             Write(6,'(6X,A)')
-     &            'DFT functional specifications'
-            Write(6,'(6X,A)')'------------------------------'
+     &                       'DFT functional specifications'
+            Write(6,'(6X,A)')'-----------------------------'
             Call libxc_version()
             Write(6,*)
          End If

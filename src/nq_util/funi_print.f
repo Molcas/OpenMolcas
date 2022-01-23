@@ -38,7 +38,7 @@
       If (iPrint.ge.2) Then
       Write (6,*)
       Write (6,'(6X,A)') 'Numerical integration parameters'
-      Write (6,'(6X,A)') '======================================'
+      Write (6,'(6X,A)') '--------------------------------'
       Write (6,'(6X,A,21X,A)') 'Radial quadrature type:    ',Quadrature
 *
       If (Quadrature(1:3).eq.'LMG') Then
