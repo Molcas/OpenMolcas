@@ -8,7 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2022, Roland Lindh                                     *
+! Copyright (C) 2022, Susi Lehtola                                     *
+!               2022, Roland Lindh                                     *
 !***********************************************************************
 Subroutine libxc_interface(xc_func,xc_info,mGrid,nD,F_xc,Coeff)
 use xc_f03_lib_m

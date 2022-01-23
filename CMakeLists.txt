@@ -1578,7 +1578,7 @@ else ()
   set (EP_INSTALL ${PROJECT_BINARY_DIR}/External/${EP_PROJECT}_install)
 
   set (Libxc_REPO https://gitlab.com/libxc/libxc.git)
-  set (Libxc_HASH df9ba8d9) # Release 5.1.7
+  set (Libxc_HASH fc5132c5) # Release 5.2.0
 
   # Note shared libraries won't work here because of installation issues.
   # TODO: Solving this will require creating a wrapper main project that includes
@@ -1624,10 +1624,6 @@ else ()
                        CMAKE_ARGS ${LibxcCMakeArgs}
                        UPDATE_DISCONNECTED ${LibxcSkipUpdate}
   )
-
-  if (NOT LibxcSkipUpdate)
-    ExternalProject_add_patches (${EP_PROJECT} "cmake/custom/libxc.patch")
-  endif ()
 
   ExternalProject_Add_Step (${EP_PROJECT} update_hash
                             COMMAND echo ${Libxc_HASH} > ${hash_file}
