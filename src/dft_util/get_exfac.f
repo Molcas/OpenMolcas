@@ -15,7 +15,6 @@
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "hflda.fh"
       Real*8 Get_ExFac
       Character*(*) KSDFT
       Character*16  cTmp
@@ -24,7 +23,6 @@
 ************************************************************************
 *                                                                      *
       Get_ExFac=One
-c      Get_ExFac=HFLDA
 *
 *     Write functional to run file.
 *
