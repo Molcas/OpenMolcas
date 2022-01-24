@@ -11,7 +11,7 @@
 * Copyright (C) 2014, Giovanni Li Manni                                *
 *               2019-2021, Oskar Weser                                 *
 *               2021, Werner Dobrautz                                  *
-*               2021, Arta Safari                                      *
+*               2021-2022, Arta Safari                                 *
 ************************************************************************
 #include "macros.fh"
       module fciqmc
@@ -314,11 +314,10 @@
         write(u6, *)
         write(u6,'(A)') "When finished do:"
         if (tGUGA) then
-          write(u6,'(4x, A)') 'cp PSMAT PAMAT DMAT '//trim(WorkDir)
+          write(u6,'(4x, A)') 'cp PSMAT.* PAMAT.* DMAT.* '//trim(WorkDir)
         else
           write(u6,'(4x, A)')
-     &      'cp TwoRDM_aaaa.1 TwoRDM_abab.1 TwoRDM_abba.1 '//
-     &      'TwoRDM_bbbb.1 TwoRDM_baba.1 TwoRDM_baab.1 '//trim(WorkDir)
+     &      'cp TwoRDM_* '//trim(WorkDir)
         end if
         write(u6,'(4x, A)')
      &    'echo $your_RDM_Energy > '//real_path(energy_file)

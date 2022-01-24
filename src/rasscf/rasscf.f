@@ -1533,23 +1533,6 @@ cGLM some additional printout for MC-PDFT
         END IF
       end if
 
-
-      block
-        use filesystem, only: real_path
-        integer :: ierr
-        character(len=:), allocatable :: path
-        path = real_path('RASORB')
-        call execute_command_line(
-     &      "cp "//path//" "//path//"_"//str(actual_iter),exitstat=ierr)
-        if (ierr /= 0) then
-            call WarningMessage(
-     &          1, "Copy of RASORB failed in iteration "
-     &              //str(actual_iter))
-        else
-            write(6, *) 'Successfully copied RASORB'
-        end if
-      end block
-
 *
 * Convergence check:
 * check is done on largest BLB matrix

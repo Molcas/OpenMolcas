@@ -11,7 +11,7 @@
 * Copyright (C) 2016,2017, Giovanni Li Manni                           *
 *               2019-2021, Oskar Weser                                 *
 *               2021, Werner Dobrautz                                  *
-*               2021, Arta Safari                                      *
+*               2021-2022, Arta Safari                                 *
 ************************************************************************
 
       module fciqmc_read_RDM
@@ -62,7 +62,7 @@
           real(wp), allocatable :: temp_DMAT(:), temp_DSPN(:),
      &                             temp_PSMAT(:), temp_PAMAT(:)
 
-          ! position in memory for writing density matrices to JOBIPH
+          ! position in memory to write density matrices to JOBIPH
           jDisk = iAdr15(3)
 
           ! prevent stackoverflow
@@ -93,11 +93,6 @@
                       DSPN  = DSPN  + weight(j) * temp_DSPN
                       PSMAT = PSMAT + weight(j) * temp_PSMAT
                       PAMAT = PAMAT + weight(j) * temp_PAMAT
-
-!                     print *, "jDisk is:"
-!                     print *, jDisk
-!                     print *, "ifinal is:"
-!                     print *, ifinal
 
                       if (ifinal > 0) then
                           call RDM_to_runfile(

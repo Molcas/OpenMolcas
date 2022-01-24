@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2019, Giovanni Li Manni                                *
 *               2020, Oskar Weser                                      *
-*               2021, Arta Safari                                      *
+*               2021-2022, Arta Safari                                 *
 ************************************************************************
 
 #include "macros.fh"
@@ -71,7 +71,7 @@
           call molcas_open(LuNewC, 'NEWCYCLE')
             read(LuNewC,*) (energy(i), i = 1, nroots)
           close(LuNewC, status='delete')
-          write(6, *) 'I read the following energy:', energy
+          write(6, *) 'I read the following energies:', energy
         end if
 #ifdef _MOLCAS_MPP_
         if (is_real_par()) then
