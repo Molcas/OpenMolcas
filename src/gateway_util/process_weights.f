@@ -82,7 +82,7 @@
         END DO
       ELSE IF (Align_Weights(1:5).EQ.'EQUAL') THEN
 *---- EQUAL is already the default: 1 for all
-        CONTINUE
+        !CONTINUE
       ELSE
 *---- Read the weights from the input line
         READ(Align_Weights,*,IOSTAT=iErr) (W(i),i=1,nAt)

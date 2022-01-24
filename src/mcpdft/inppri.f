@@ -26,6 +26,7 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      Use Fock_util_global, only: DoLocK
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "rasscf.fh"
@@ -43,7 +44,6 @@
       Character*3 lIrrep(8)
       Logical DoCholesky
       Logical lOPTO
-#include "cholk.fh"
 
 * Print level:
       IPRLEV=IPRLOC(1)

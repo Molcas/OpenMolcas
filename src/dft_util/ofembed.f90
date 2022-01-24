@@ -14,8 +14,10 @@ Module OFembed
 Private
 Public:: Do_OFemb, KEonly, OFE_first, OFE_KSDFT, ThrFThaw, Xsigma, dFMD, FMaux
 Public::Rep_EN,Func_AB,Func_A,Func_B,Energy_NAD,V_Nuc_AB,V_Nuc_BA,V_emb
+Public::Do_Core
 
 Logical::  Do_OFemb=.False., KEonly=.False., OFE_first=.True.
+Logical::  Do_Core=.False.
 Character(LEN=16)::  OFE_KSDFT=''
 #ifdef _NOT_USED_
 Integer:: ip_NDSD=-696696, l_NDSD=0

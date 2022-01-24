@@ -61,7 +61,7 @@ subroutine DaFile(Lu,iOpt,Buf,lBuf,iDisk)
 !***********************************************************************
 
 use Fast_IO, only: Addr, FSCB, Trace
-# if defined (_HAVE_EXTRA_) && ! defined (_GA_)
+#if defined (_HAVE_EXTRA_) && ! defined (_GA_)
 use Fast_IO, only: isFiM
 #endif
 use Definitions, only: iwp, u6
@@ -80,7 +80,6 @@ lDisk = iDisk
 ! Write to  disk
 if ((iOpt == 1) .or. (iOpt == 6)) then
   HeadErr = 'Premature abort while writing buffer to disk'
-! lock
 # if defined (_HAVE_EXTRA_) && ! defined (_GA_)
   if (isFiM(Lu) == 0) then
 # endif
@@ -94,7 +93,6 @@ if ((iOpt == 1) .or. (iOpt == 6)) then
     end if
   end if
 # endif
-! unlock
 ! Read from disk
 else if ((iOpt == 2) .or. (iOpt == 7) .or. (iOpt == 99)) then
   HeadErr = 'Premature abort while reading buffer from disk'

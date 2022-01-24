@@ -36,7 +36,6 @@ C WRONG RESULTS PRODUCED EVEN ON VECTORIZED LEVEL 1.
           END DO
           CXAL(I,K)=-(SUMMA/TRAL(K,K))
         END DO
-        CONTINUE
       END DO
       RETURN
       END

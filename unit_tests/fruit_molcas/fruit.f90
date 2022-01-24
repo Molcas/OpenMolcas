@@ -856,7 +856,7 @@ contains
     do i = message_index_from, message_index - 1
       write(xml_work, '(a)', advance = "no") trim(strip(message_array(i)))
       if (i == message_index - 1) then
-        continue
+        !continue
       else
         write(xml_work, '("&#xA;")', advance="no")
       endif

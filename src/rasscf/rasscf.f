@@ -55,6 +55,7 @@
       use qcmaquis_interface_mpssi, only: qcmaquis_mpssi_transform
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Fock_util_global, only: ALGO, DoActive, DoCholesky
       use write_orbital_files, only : OrbFiles, putOrbFile
       use generic_CI, only: CI_solver_t
       use fciqmc, only: DoNECI, fciqmc_solver_t, tGUGA_in
@@ -112,11 +113,9 @@
 #endif
 
 * --------- Cholesky stuff:
-#include "chotodo.fh"
-#include "chlcas.fh"
 #include "chopar.fh"
 #include "chotime.fh"
-#include "cholk.fh"
+#include "qmat.fh"
 * --------- End Cholesky stuff
       Character*8 EMILOOP
 * --------- FCIDUMP stuff:
@@ -277,8 +276,7 @@
 
 * If the ORBONLY option was chosen, then Proc_Inp just generated
 *  orbitals from the JOBIPH file. Nothing more to do:
-      IF(KeyORBO) GOTO 9989
-      IF(MAXIT.eq.0) GOTO 2009
+      IF((KeyORBO).or.(MAXIT.eq.0)) GOTO 9989
 #ifdef _DMRG_
       ! delete old checkpoints, unless requested otherwise
       ! this flag is set in proc_inp
@@ -425,6 +423,7 @@
 *
 * Create job interphase on unit JOBIPH (FT15)
 *
+
       if(ifvb.ne.2) then
         CALL CREIPH
         call cre_raswfn
@@ -1903,7 +1902,7 @@ c  i_root>0 gives natural spin orbitals for that root
       End Do
 
 * Create output orbital files:
-2009      Call OrbFiles(JOBIPH,IPRLEV)
+      Call OrbFiles(JOBIPH,IPRLEV)
 
 ************************************************************************
 ******************           Closing up RASSCF       *******************
@@ -1915,6 +1914,26 @@ c  i_root>0 gives natural spin orbitals for that root
          Call GetMem('Q-mat','Free','Real',ipQmat,NTav)
       EndIf
 
+*  Release  some memory allocations
+      Call GetMem('DIAF','Free','Real',LDIAF,NTOT)
+      Call GetMem('FOCC','FREE','REAL',ipFocc,idum)
+      Call GetMem('FI','Free','Real',LFI,NTOT1)
+      Call GetMem('FA','Free','Real',LFA,NTOT1)
+      Call GetMem('D1I','Free','Real',LD1I,NTOT2)
+      Call GetMem('D1A','Free','Real',LD1A,NTOT2)
+      Call GetMem('D1tot','Free','Real',lD1tot,NTOT1)
+      Call GetMem('OCCN','Free','Real',LOCCN,NTOT)
+      Call GetMem('LCMO','Free','Real',LCMO,NTOT2)
+#ifdef _DMRG_
+* Free RDMs for the reaction field reference root in QCMaquis calculations
+      if (doDMRG.and.PCM_On()) then
+        Call GetMem('D1RF','FREE','Real',LW_RF1,NACPAR)
+        if (twordm_qcm) then
+          Call GetMem('D2RF','FREE','Real',LW_RF2,NACPR2)
+        end if
+      end if
+#endif
+
 c deallocating TUVX memory...
       IF(NAC.GT.0) THEN
          Call GetMem('TUVX','Free','Real',LTUVX,NACPR2)
@@ -1925,6 +1944,8 @@ c deallocating TUVX memory...
             Call GetMem('DMAT','Free','Real',LDMAT,NACPAR)
          endif
       END IF
+!Leon: The velociraptor comes! xkcd.com/292/
+9989  Continue
 *
 * release SEWARD
       Call ClsSew
@@ -1946,26 +1967,6 @@ c deallocating TUVX memory...
 !      do i=1,NTOT2
 !        write(*,*) "A,I",work(LD1A+i-1),work(LD1I+i-1)
 !      end do
-
-*  Release  some memory allocations
-      Call GetMem('DIAF','Free','Real',LDIAF,NTOT)
-      Call GetMem('FOCC','FREE','REAL',ipFocc,idum)
-      Call GetMem('FI','Free','Real',LFI,NTOT1)
-      Call GetMem('FA','Free','Real',LFA,NTOT1)
-      Call GetMem('D1I','Free','Real',LD1I,NTOT2)
-      Call GetMem('D1A','Free','Real',LD1A,NTOT2)
-      Call GetMem('D1tot','Free','Real',lD1tot,NTOT1)
-      Call GetMem('OCCN','Free','Real',LOCCN,NTOT)
-      Call GetMem('LCMO','Free','Real',LCMO,NTOT2)
-#ifdef _DMRG_
-* Free RDMs for the reaction field reference root in QCMaquis calculations
-      if (doDMRG.and.PCM_On()) then
-        Call GetMem('D1RF','FREE','Real',LW_RF1,NACPAR)
-        if (twordm_qcm) then
-          Call GetMem('D2RF','FREE','Real',LW_RF2,NACPR2)
-        end if
-      end if
-#endif
       If (iClean.eq.1) Call Free_iWork(ipCleanMask)
 
 *
@@ -2031,8 +2032,6 @@ c      End If
           deallocate(CI_solver)
       end if
 
-!Leon: The velociraptor comes! xkcd.com/292/
- 9989 Continue
 * DMRG: Save results for other use
 ! ==========================================================
       if(doDMRG)then
@@ -2046,6 +2045,10 @@ c      End If
         !with the new interface or read from QCMaquis HDF5 result
         !file.
         if (DoNEVPT2Prep) then
+          if (MAXIT.eq.0) then
+            write(6,*) " --- DMRG-SCF iterations are skipped, only "//
+     &        "QCMaquis input for higher-order RDMs will be generated."
+          endif
           if (NACTEL.gt.3) then ! Ignore 4-RDM if we have <4 electrons
           do i=1,NROOTS
               Write (6,'(a)') 'Writing 4-RDM QCMaquis template'//

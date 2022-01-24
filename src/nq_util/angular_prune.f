@@ -9,11 +9,11 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Angular_Prune(Radius,nR,iAngular_Grid,Crowding,Fade,
-     &                         R_BS,L_Quad,R_Min,lAng,nAngularGrids,
-     &                         Info_Ang,LMax_NQ)
+     &                         R_BS,L_Quad,R_Min,lAng,nAngularGrids)
+      use nq_Structure, only: Info_Ang
       Implicit Real*8 (a-h,o-z)
       Real*8 Radius(2,nR), R_Min(0:lAng)
-      Integer iAngular_Grid(nR), Info_Ang(3,LMax_NQ)
+      Integer iAngular_Grid(nR)
 #include "real.fh"
 *                                                                      *
 ************************************************************************
@@ -28,11 +28,12 @@
       Write (6,*) 'Crowding=',Crowding
       Write (6,*) 'R_BS=',R_BS
       Write (6,*) 'L_Quad=',L_Quad
-      Write (6,*) 'LMax_NQ=',LMax_NQ
+      Write (6,*) 'LMax_NQ=',SIZE(Info_Ang)
       Write (6,*) 'nAngularGrids=',nAngularGrids
       Write (6,*) 'R_Test=',R_Test
       Write (6,'(A,10G10.3)') 'R_Min=',R_Min
-      Write (6,*) 'Info_Ang(1,*)=',(Info_Ang(1,i),i=1,nAngularGrids)
+      Write (6,*) 'Info_Ang(*)%L_Eff=',
+     &            (Info_Ang(i)%L_Eff,i=1,nAngularGrids)
 #endif
       Do iR = 1, nR
 *
@@ -73,14 +74,14 @@ c          Avoid overflow by converting to Int at the end
 *
          kSet = 0
          Do jSet = 1, nAngularGrids
-            If (Info_Ang(1,jSet).ge.2*iAng+1.and.kSet.eq.0) Then
+            If (Info_Ang(jSet)%L_Eff.ge.2*iAng+1.and.kSet.eq.0) Then
                kSet=jSet
-               iAng=Info_Ang(1,kSet)/2
+               iAng=Info_Ang(kSet)%L_Eff/2
             End If
          End Do
          If (kSet.eq.0) Then
             kSet = nAngularGrids
-            iAng=Info_Ang(1,kSet)/2
+            iAng=Info_Ang(kSet)%L_Eff/2
          End If
 *
          iAngular_Grid(iR)=kSet
@@ -92,10 +93,10 @@ c          Avoid overflow by converting to Int at the end
       Write (6,*) 'R_Min     R_Max    kSet  nR   nPoints'
       RStart=Radius(1,1)
       kSet=iAngular_Grid(1)
-      nTot=Info_Ang(2,1)
+      nTot=Info_Ang(1)%nPoints
       mR=1
       Do iR = 2, nR
-         nTot=nTot+Info_Ang(2,iAngular_Grid(iR))
+         nTot=nTot+Info_Ang(iAngular_Grid(iR))%nPoints
          If (iAngular_Grid(iR).ne.kSet.or.iR.eq.nR) Then
             jR=iR-1
             If (iR.eq.nR) Then
@@ -103,7 +104,7 @@ c          Avoid overflow by converting to Int at the end
                mR = mR + 1
             End If
             Write (6,'(2G10.3,I3,2I5)') RStart,Radius(1,jR),kSet,
-     &                                 mR,Info_Ang(2,kSet)
+     &                                 mR,Info_Ang(kSet)%nPoints
             RStart=Radius(1,iR)
             kSet=iAngular_Grid(iR)
             mR = 0

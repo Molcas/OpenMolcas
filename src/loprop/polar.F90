@@ -31,18 +31,15 @@ integer(kind=iwp), intent(out) :: ireturn
 #include "timtra.fh"
 integer(kind=iwp) :: i, i_f, iPert, iPlot, iPrint, lMax, LoProp_Mode, LuYou, mElem, MpProp_Level, nAtoms, nBas(8), nBas1, nBas2, &
                      nBasMax, nDim, nij, nOcOb, nOrb(8), nPert, nSize, nStateF, nStateI, nSym, nTemp, nThrs
-real(kind=wp) :: Alpha, Bond_Threshold, CoC(3), Delta, Dlt, dLimmo(2), dMolExpec, Energy_Without_FFPT, Ep, SubScale, Thrs1, Thrs2, &
-                 ThrsMul
-logical(kind=iwp) :: NoField, Standard, Utility, UserDen, PrintDen, SubtractDen, Restart, TDensity, XHole, Diffuse(3), Exists, &
-                     LIonize
+real(kind=wp) :: Alpha, Bond_Threshold, CoC(3), Delta, Dlt, dLimmo(2), Energy_Without_FFPT, Ep, SubScale, Thrs1, Thrs2, ThrsMul
+logical(kind=iwp) :: NoField, Standard, Utility, UserDen, PrintDen, SubtractDen, Restart, TDensity, Diffuse(3), Exists, LIonize
 character(len=12) :: Opt_Method
 type(LP_context_type) :: LP_context
 type(Alloc1DArray_Type) :: D(0:6)
 character(len=LenIn), allocatable :: LblCnt(:)
 character(len=LenIn4), allocatable :: LblCnt4(:)
 real(kind=wp), allocatable :: Cpl(:,:), CplT(:,:), EC(:,:), Ene_Occ(:), h0(:), MP(:,:,:), MPp(:,:), MPq(:), nxMP(:), Origin(:,:), &
-                              Pol(:,:), sq_mu(:,:), sq_temp(:), tmp(:), TP(:), Ttot(:,:), Ttot_Inv(:,:), XHLoc2(:), XHole2(:,:), &
-                              xMP(:), xxMP(:)
+                              Pol(:,:), sq_mu(:,:), sq_temp(:), tmp(:), TP(:), Ttot(:,:), Ttot_Inv(:,:), xMP(:), xxMP(:)
 type(Alloc1DArray_Type), allocatable :: imu(:)
 integer(kind=iwp), external :: IsFreeUnit
 
@@ -70,7 +67,7 @@ call Init_LoProp(nSym,nBas,nOrb,CoC,nAtoms,LP_context,nSize,nBas1,nBas2,nBasMax)
 
 NoField = nSym /= 1
 call Readin_polar(NoField,Delta,MpProp_Level,Bond_Threshold,iPlot,iPrint,Standard,Opt_Method,UserDen,PrintDen,SubtractDen, &
-                  SubScale,Restart,TDensity,nStateI,nStateF,XHole,Diffuse,dLimmo,Thrs1,Thrs2,nThrs,ThrsMul,Alpha,LIonize)
+                  SubScale,Restart,TDensity,nStateI,nStateF,Diffuse,dLimmo,Thrs1,Thrs2,nThrs,ThrsMul,Alpha,LIonize)
 call mma_allocate(Ene_Occ,nBas1,label='Ene_Occ')
 call InfoToMp(nSym,nBas,nBas1,Energy_Without_FFPT,Ene_Occ,nOcOb,UserDen,Restart)
 !                                                                      *
@@ -113,13 +110,6 @@ iPert = 0
 call Get_Density_Matrix(D(0),nBas1,nBas2,nBasMax,nBas,nSym,LP_context%P,UserDen,PrintDen,SubtractDen,SubScale,LP_context%Q_Nuc, &
                         nAtoms,iPert,Restart,Utility,TDensity,nStateI,nStateF)
 
-! If computing local xhole-dipole moments. Should come after
-! get_density_matrix so modified densities are used.
-if (XHole) then
-  call mma_allocate(XHole2,nBas1,nBas1,label='XHole2')
-  call Compute_XHole_Int(nBas,nSym,nBas1,XHole2,dMolExpec,nSize)
-end if
-
 if (.not. NoField) then
   ! This assumes mElem >= 4, so lMax >= 1
   if (lMax < 1) call Abend()
@@ -145,7 +135,7 @@ call Free_Alloc1DArray(imu)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!---- Compute localized multipole moments
+! Compute localized multipole moments
 
 nPert = 2*3+1
 if (NoField) nPert = 1
@@ -157,20 +147,8 @@ call mma_allocate(EC,3,nij,label='EC')
 call Local_Properties(LP_context%C,nAtoms,sq_mu,mElem,sq_temp,Origin,LP_context%center,Ttot_Inv,tmp,nij,nPert,D,MP,lMax,MPq,CoC, &
                       EC,LP_context%ANr,Standard,nBas1,nTemp,LP_context%Q_Nuc,Bond_Threshold,Opt_Method,iPlot,iPrint,nSym)
 
-!-- If XHole integrals are available, localize them. Most unfortunate,
-!   the local_properties routine is focused on multipole moments,
-!   hence we rather write a new routine for Xhole, than significantly
-!   edit the local_properties routine.
-if (XHole) then
-  call mma_allocate(XHLoc2,nij,label='XHLoc2')
-  call Local_Xhole(XHole2,nAtoms,nBas1,nTemp,LP_context%center,Ttot,Ttot_Inv,nij,EC,LP_context%ANr,Bond_Threshold,XHLoc2)
-  call mma_deallocate(XHole2)
-else
-  call mma_allocate(XHLoc2,0,label='XHLoc2')
-end if
-
-!-- If the dear user has requested to get diffuse distributions
-!   associated to the multipoles, go here.
+! If the dear user has requested to get diffuse distributions
+! associated to the multipoles, go here.
 if (Diffuse(1)) then
   call mma_allocate(TP,nAtoms,label='ToPoint')
   call mma_allocate(MPp,nij,mElem,label='NotToPoint')
@@ -239,7 +217,7 @@ call mma_allocate(xMP,nDim,label='xMP')
 call mma_allocate(xxMP,nDim,label='xxMP')
 call mma_allocate(nxMP,nDim,label='nxMP')
 call Print_Local(MP,nij,mElem,LP_context%C,nAtoms,CoC,LP_context%Q_Nuc,lMax,LblCnt,MPq,EC,Pol,NoField,tmp,xMP,xxMP,nxMP, &
-                 LP_context%ANr,nOcOb,Energy_Without_FFPT,Ene_Occ,MpProp_Level,Bond_Threshold,XHole,XHLoc2,dMolExpec,CplT,LIonize)
+                 LP_context%ANr,nOcOb,Energy_Without_FFPT,Ene_Occ,MpProp_Level,Bond_Threshold,CplT,LIonize)
 
 call mma_deallocate(LblCnt)
 call mma_deallocate(Ene_Occ)
@@ -257,7 +235,6 @@ call mma_deallocate(MPq)
 call mma_deallocate(EC)
 call mma_deallocate(MP)
 call mma_deallocate(tmp)
-call mma_deallocate(XHLoc2)
 call mma_deallocate(LP_context%Q_Nuc)
 call mma_deallocate(LP_context%ANr)
 call mma_deallocate(LP_context%C)

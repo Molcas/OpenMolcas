@@ -443,44 +443,6 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
       if(IfVB.eq.1)then
         call cvbmn_rvb(max(ifinal,1))
       else
-        If (KSDFT(1:3).ne.'SCF'
-     &      .and.DFTFOCK(1:4).eq.'DIFF'.and.nac.ne.0) Then
-          nTmpPUVX=nFint
-          Call GetMem('TmpPUVX','Allo','Real',ipTmpPUVX,nTmpPUVX)
-          Call GetMem('TmpTUVX','Allo','Real',ipTmpTUVX,NACPR2)
-          Call dCopy_(NACPR2,[0.0d0],0,Work(ipTmpTUVX),1)
-          Call Get_dArray('DFT_TwoEl',Work(ipTmpPUVX),nTmpPUVX)
-          Call Get_TUVX(Work(ipTmpPUVX),Work(ipTmpTUVX))
-          Call DaXpY_(NACPR2,1.0d0,TUVX,1,Work(ipTmpTUVX),1)
-         if (DoSplitCAS) then  ! (GLMJ)
-           Call SplitCtl(Work(LW1),Work(ipTmpTUVX),IFINAL,iErrSplit)
-           Call GetMem('TmpTUVX','Free','Real',ipTmpTUVX,NACPR2)
-           Call GetMem('TmpPUVX','Free','Real',ipTmpPUVX,nTmpPUVX)
-           if (iErrSplit.eq.1) then
-            write(LF,*) ('*',i=1,120)
-            write(LF,*)'WARNING!!!'
-            write(LF,*) 'SplitCAS iterations don''t converge.'
-            write(LF,*) 'The program will continue'
-            write(LF,*) 'Hopefully your calculation will converge',
-     &                 'next iteration!'
-            write(LF,*) ('*',i=1,120)
-           end if
-           if (iErrSplit.eq.2) then
-            write(LF,*) ('*',i=1,120)
-            write(LF,*)'WARNING!!!'
-            write(LF,*) 'SplitCAS iterations don''t converge.'
-          write(LF,*)'Try to increase MxIterSplit or SplitCAS threshold'
-            write(LF,*) 'The program will STOP!!!'
-            write(LF,*) ('*',i=1,120)
-            call xQuit(96)
-           end if
-         end if
-         If (.not.DoSplitCAS) then
-           Call DavCtl(Work(LW1),Work(ipTmpTUVX),IFINAL)
-           Call GetMem('TmpTUVX','Free','Real',ipTmpTUVX,NACPR2)
-           Call GetMem('TmpPUVX','Free','Real',ipTmpPUVX,nTmpPUVX)
-         end if
-        Else
          if (DoSplitCAS) then !(GLMJ)
            Call SplitCtl(Work(LW1),TUVX,IFINAL,iErrSplit)
            if (iErrSplit.eq.1) then
@@ -549,7 +511,6 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
              Call DavCtl(Work(LW1),TUVX,IFINAL)
            end if
          end if
-        End If
       endif
 
 *
@@ -978,7 +939,7 @@ C     the relative CISE root given in the input by the 'CIRF' keyword.
         !point for numerical gradient calculations)
 #ifdef _DMRG_
         if(doDMRG.and.exist)then
-          inquire(file="rf.results_state.h5", exist=rfh5DMRG)
+          call f_inquire('rf.results_state.h5', rfh5DMRG)
           if(.not.rfh5DMRG)then
             maquis_name_states  = ""
             maquis_name_results = ""

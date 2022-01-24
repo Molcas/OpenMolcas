@@ -178,12 +178,12 @@ include:
       if [ -z "${tests}" ] ; then export tests=".all" ; fi
     # run only a subset of the tests if specified
     - |
+      if ( ! which python && which python3 ) ; then
+        sed -i -e 's/env python/env python3/' ${CI_PROJECT_DIR}/Tools/verify/split_tests.py
+        sed -i -e 's/env python/env python3/' ${CI_PROJECT_DIR}/Tools/verify/get_keywords.py
+      fi
       if [ -n "${CI_NODE_INDEX}" ] ; then
         ./pymolcas verify --flatlist ${tests} > filelist
-        if ( ! which python && which python3 ) ; then
-          sed -i -e 's/env python/env python3/' ${CI_PROJECT_DIR}/Tools/verify/split_tests.py
-          sed -i -e 's/env python/env python3/' ${CI_PROJECT_DIR}/Tools/verify/get_keywords.py
-        fi
         ${CI_PROJECT_DIR}/Tools/verify/split_tests.py filelist ${CI_NODE_TOTAL} ${CI_NODE_INDEX} > fl
         ./pymolcas verify --status --postproc "${CI_PROJECT_DIR}/Tools/verify/get_keywords.py \$project.out keylist" --fromfile fl
       else
@@ -457,4 +457,4 @@ test:mpi:
   <<: *run-tests
   needs:
     - build:mpi
-  parallel: 6
+  parallel: 8

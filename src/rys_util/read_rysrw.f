@@ -41,7 +41,7 @@ c      implicit none
       call f_Inquire(RYSRW_NAME,found_rysrw)
       if (.not.found_rysrw) then
         call warningmessage(2,
-     &              ' the rysrw.ascii file does not exist.')
+     &              ' the rysrw file does not exist.')
         call abend()
       end if
       call molcas_open(lu_rysrw,RYSRW_NAME)

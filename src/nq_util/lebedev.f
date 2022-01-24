@@ -29,7 +29,6 @@
 #include "nq_info.fh"
 #include "real.fh"
 #include "debug.fh"
-#include "WrkSpc.fh"
 *
       Integer nscheme5(8),   nscheme7(8), nscheme11(8), nscheme17(8),
      &        nscheme23(8), nscheme29(8), nscheme35(8), nscheme41(8),

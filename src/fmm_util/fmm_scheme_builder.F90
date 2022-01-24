@@ -181,7 +181,7 @@ subroutine fmm_verify_scheme()
         call fmm_quit('RPQ cut off too large or boxes too small!')
       end if
     case default
-      continue
+      !continue
   end select
 
   if (scheme%trans_LMAX < scheme%raw_LMAX) call fmm_quit('increase TLMAX!')

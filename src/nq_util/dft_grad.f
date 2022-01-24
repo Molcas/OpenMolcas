@@ -10,10 +10,8 @@
 *                                                                      *
 * Copyright (C) 2002, Roland Lindh                                     *
 ************************************************************************
-      Subroutine DFT_Grad(Grad,nGrad,dF_dRho,ndF_dRho,iSpin,
-     &                    Grid,mGrid,dRho_dR,ndRho_dR,nGrad_Eff,
-     &                    Rho,nRho,IndGrd,Weights,iTab,Temp,F_xc,
-     &                    dW_dR,iNQ)
+      Subroutine DFT_Grad(Grad,nGrad,iSpin,Grid,mGrid,dRho_dR,ndRho_dR,
+     &                    nGrad_Eff,Weights,iNQ)
 ************************************************************************
 *                                                                      *
 *     Object: to trace the correct parts to get the contributions to   *
@@ -22,39 +20,27 @@
 *     Author: Roland Lindh, Dept. of Chemical Physics, University of   *
 *             Lund, Sweden.  May 2002 in Bologna, Italy.               *
 ************************************************************************
-      use KSDFT_Info, only: KSDFA
+      use nq_Grid, only: F_xc, GradRho, vRho, vSigma, vTau, vLapl
+      use nq_Grid, only: Pax
+      use nq_Grid, only: IndGrd, iTab, Temp, dW_dR
+      use nq_Grid, only: l_casdft
+      use nq_Structure, only: NQ_data
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "nq_info.fh"
-#include "WrkSpc.fh"
 #include "debug.fh"
 #include "Molcas.fh"
 #include "itmax.fh"
 #include "ksdft.fh"
       Parameter (Mxdc=MxAtom)
 #include "disp.fh"
-#include "nq_index.fh"
-      Real*8 Grad(nGrad), Temp(nGrad_Eff), Grid(3,mGrid),
-     &       dF_dRho(ndF_dRho,mGrid),
+      Real*8 Grad(nGrad), Grid(3,mGrid),
      &       dRho_dR(ndRho_dR,mGrid,nGrad_Eff), OV(3,3), V(3,3),
-     &       Rho(nRho,mGrid), R_Grid(3),
-     &       Weights(mGrid), F_xc(mGrid), dW_dR(nGrad_Eff,mGrid)
-      Integer IndGrd(nGrad_Eff), iTab(4,nGrad_Eff)
+     &       R_Grid(3), Weights(mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*                                                                      *
-************************************************************************
-*                                                                      *
-#include "nq_structure.fh"
-      declare_ip_coor
-      declare_ip_dodx
-*                                                                      *
-************************************************************************
-*                                                                      *
-      R_Grid(1)=Work(ip_Coor(iNQ)  )
-      R_Grid(2)=Work(ip_Coor(iNQ)+1)
-      R_Grid(3)=Work(ip_Coor(iNQ)+2)
+      R_Grid(:)=NQ_Data(iNQ)%Coor(:)
 *define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Debug=.True.
@@ -128,7 +114,7 @@
                tmp=Zero
                ixyz=iTab(1,i_Eff)
                Do j = 1, mGrid
-                  dF_dr = dF_dRho(ipR,j)    *dRho_dR(1,j,i_Eff)
+                  dF_dr = vRho(1,j)    *dRho_dR(1,j,i_Eff)
 *
                   tmp = tmp + Weights(j) * dF_dr
 *
@@ -151,8 +137,8 @@
                tmp=Zero
                ixyz=iTab(1,i_Eff)
                Do j = 1, mGrid
-                  dF_dr = dF_dRho(ipRa,j)    *dRho_dR(1,j,i_Eff)
-     &                  +dF_dRho(ipRb,j)    *dRho_dR(2,j,i_Eff)
+                  dF_dr = vRho(1,j)    *dRho_dR(1,j,i_Eff)
+     &                  +vRho(2,j)    *dRho_dR(2,j,i_Eff)
                   tmp = tmp + Weights(j) * dF_dr
 *
 *                 Accumulate stuff for rotational invariance
@@ -180,13 +166,13 @@
                tmp=Zero
                ixyz=iTab(1,i_Eff)
                Do j = 1, mGrid
-                  gx=rho(2,j)
-                  gy=rho(3,j)
-                  gz=rho(4,j)
-                  Temp0=dF_dRho(ipR,j)
-                  Temp1=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gx
-                  Temp2=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gy
-                  Temp3=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gz
+                  gx=Gradrho(1,j)
+                  gy=Gradrho(2,j)
+                  gz=Gradrho(3,j)
+                  Temp0=vRho(1,j)
+                  Temp1=2.0d0*vSigma(1,j)*gx
+                  Temp2=2.0d0*vSigma(1,j)*gy
+                  Temp3=2.0d0*vSigma(1,j)*gz
 *
                   dF_dr = Temp0*dRho_dR(1,j,i_Eff)
      &                  + Temp1*dRho_dR(2,j,i_Eff)
@@ -213,27 +199,27 @@
                tmp=Zero
                ixyz=iTab(1,i_Eff)
                Do j = 1, mGrid
-                  gxa=rho(3,j)
-                  gya=rho(4,j)
-                  gza=rho(5,j)
-                  gxb=rho(6,j)
-                  gyb=rho(7,j)
-                  gzb=rho(8,j)
+                  gxa=Gradrho(1,j)
+                  gya=Gradrho(2,j)
+                  gza=Gradrho(3,j)
+                  gxb=Gradrho(4,j)
+                  gyb=Gradrho(5,j)
+                  gzb=Gradrho(6,j)
 
-                  Temp0a=dF_dRho(ipRa,j)
-                  Temp0b=dF_dRho(ipRb,j)
-                  Temp1a=( 2.0d0*dF_dRho(ipGaa,j)*gxa
-     &                          +dF_dRho(ipGab,j)*gxb )
-                  Temp1b=( 2.0d0*dF_dRho(ipGbb,j)*gxb
-     &                          +dF_dRho(ipGab,j)*gxa )
-                  Temp2a=( 2.0d0*dF_dRho(ipGaa,j)*gya
-     &                          +dF_dRho(ipGab,j)*gyb )
-                  Temp2b=( 2.0d0*dF_dRho(ipGbb,j)*gyb
-     &                          +dF_dRho(ipGab,j)*gya )
-                  Temp3a=( 2.0d0*dF_dRho(ipGaa,j)*gza
-     &                          +dF_dRho(ipGab,j)*gzb )
-                  Temp3b=( 2.0d0*dF_dRho(ipGbb,j)*gzb
-     &                          +dF_dRho(ipGab,j)*gza )
+                  Temp0a=vRho(1,j)
+                  Temp0b=vRho(2,j)
+                  Temp1a=( 2.0d0*vSigma(1,j)*gxa
+     &                          +vSigma(2,j)*gxb )
+                  Temp1b=( 2.0d0*vSigma(3,j)*gxb
+     &                          +vSigma(2,j)*gxa )
+                  Temp2a=( 2.0d0*vSigma(1,j)*gya
+     &                          +vSigma(2,j)*gyb )
+                  Temp2b=( 2.0d0*vSigma(3,j)*gyb
+     &                          +vSigma(2,j)*gya )
+                  Temp3a=( 2.0d0*vSigma(1,j)*gza
+     &                          +vSigma(2,j)*gzb )
+                  Temp3b=( 2.0d0*vSigma(3,j)*gzb
+     &                          +vSigma(2,j)*gza )
 *
                   dF_dr = Temp0a*dRho_dR(1,j,i_Eff)
      &                  + Temp0b*dRho_dR(2,j,i_Eff)
@@ -267,14 +253,14 @@
                tmp=Zero
                ixyz=iTab(1,i_Eff)
                Do j = 1, mGrid
-                  gx=rho(2,j)
-                  gy=rho(3,j)
-                  gz=rho(4,j)
-                  Temp0=dF_dRho(ipR,j)
-                  Temp1=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gx
-                  Temp2=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gy
-                  Temp3=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gz
-                  Temp4=Half*dF_dRho(ipT,j)
+                  gx=Gradrho(1,j)
+                  gy=Gradrho(2,j)
+                  gz=Gradrho(3,j)
+                  Temp0=vRho(1,j)
+                  Temp1=2.0d0*vSigma(1,j)*gx
+                  Temp2=2.0d0*vSigma(1,j)*gy
+                  Temp3=2.0d0*vSigma(1,j)*gz
+                  Temp4=Half*vTau(1,j)
 *
                   dF_dr = Temp0*dRho_dR(1,j,i_Eff)
      &                  + Temp1*dRho_dR(2,j,i_Eff)
@@ -300,29 +286,29 @@
                tmp=Zero
                ixyz=iTab(1,i_Eff)
                Do j = 1, mGrid
-                  gxa=rho(3,j)
-                  gya=rho(4,j)
-                  gza=rho(5,j)
-                  gxb=rho(6,j)
-                  gyb=rho(7,j)
-                  gzb=rho(8,j)
+                  gxa=Gradrho(1,j)
+                  gya=Gradrho(2,j)
+                  gza=Gradrho(3,j)
+                  gxb=Gradrho(4,j)
+                  gyb=Gradrho(5,j)
+                  gzb=Gradrho(6,j)
 
-                  Temp0a=dF_dRho(ipRa,j)
-                  Temp0b=dF_dRho(ipRb,j)
-                  Temp1a=( 2.0d0*dF_dRho(ipGaa,j)*gxa
-     &                          +dF_dRho(ipGab,j)*gxb )
-                  Temp1b=( 2.0d0*dF_dRho(ipGbb,j)*gxb
-     &                          +dF_dRho(ipGab,j)*gxa )
-                  Temp2a=( 2.0d0*dF_dRho(ipGaa,j)*gya
-     &                          +dF_dRho(ipGab,j)*gyb )
-                  Temp2b=( 2.0d0*dF_dRho(ipGbb,j)*gyb
-     &                          +dF_dRho(ipGab,j)*gya )
-                  Temp3a=( 2.0d0*dF_dRho(ipGaa,j)*gza
-     &                          +dF_dRho(ipGab,j)*gzb )
-                  Temp3b=( 2.0d0*dF_dRho(ipGbb,j)*gzb
-     &                          +dF_dRho(ipGab,j)*gza )
-                  Temp4a=dF_dRho(ipTa,j)
-                  Temp4b=dF_dRho(ipTb,j)
+                  Temp0a=vRho(1,j)
+                  Temp0b=vRho(2,j)
+                  Temp1a=( 2.0d0*vSigma(1,j)*gxa
+     &                          +vSigma(2,j)*gxb )
+                  Temp1b=( 2.0d0*vSigma(3,j)*gxb
+     &                          +vSigma(2,j)*gxa )
+                  Temp2a=( 2.0d0*vSigma(1,j)*gya
+     &                          +vSigma(2,j)*gyb )
+                  Temp2b=( 2.0d0*vSigma(3,j)*gyb
+     &                          +vSigma(2,j)*gya )
+                  Temp3a=( 2.0d0*vSigma(1,j)*gza
+     &                          +vSigma(2,j)*gzb )
+                  Temp3b=( 2.0d0*vSigma(3,j)*gzb
+     &                          +vSigma(2,j)*gza )
+                  Temp4a=vTau(1,j)
+                  Temp4b=vTau(2,j)
 *
                   dF_dr = Temp0a*dRho_dR(1,j,i_Eff)
      &                  + Temp0b*dRho_dR(2,j,i_Eff)
@@ -358,15 +344,15 @@
                tmp=Zero
                ixyz=iTab(1,i_Eff)
                Do j = 1, mGrid
-                  gx=rho(2,j)
-                  gy=rho(3,j)
-                  gz=rho(4,j)
-                  Temp0=dF_dRho(ipR,j)
-                  Temp1=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gx
-                  Temp2=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gy
-                  Temp3=(2.0d0*dF_dRho(ipGxx,j)+dF_dRho(ipGxy,j))*gz
-                  Temp4=dF_dRho(ipT,j)
-                  Temp5=dF_dRho(ipL,j)
+                  gx=Gradrho(1,j)
+                  gy=Gradrho(2,j)
+                  gz=Gradrho(3,j)
+                  Temp0=vRho(1,j)
+                  Temp1=2.0d0*vSigma(1,j)*gx
+                  Temp2=2.0d0*vSigma(1,j)*gy
+                  Temp3=2.0d0*vSigma(1,j)*gz
+                  Temp4=vTau(1,j)
+                  Temp5=vLapl(1,j)
 *
                   dF_dr = Temp0*dRho_dR(1,j,i_Eff)
      &                  + Temp1*dRho_dR(2,j,i_Eff)
@@ -393,31 +379,31 @@
                tmp=Zero
                ixyz=iTab(1,i_Eff)
                Do j = 1, mGrid
-                  gxa=rho(3,j)
-                  gya=rho(4,j)
-                  gza=rho(5,j)
-                  gxb=rho(6,j)
-                  gyb=rho(7,j)
-                  gzb=rho(8,j)
+                  gxa=Gradrho(1,j)
+                  gya=Gradrho(2,j)
+                  gza=Gradrho(3,j)
+                  gxb=Gradrho(4,j)
+                  gyb=Gradrho(5,j)
+                  gzb=Gradrho(6,j)
 
-                  Temp0a=dF_dRho(ipRa,j)
-                  Temp0b=dF_dRho(ipRb,j)
-                  Temp1a=( 2.0d0*dF_dRho(ipGaa,j)*gxa
-     &                          +dF_dRho(ipGab,j)*gxb )
-                  Temp1b=( 2.0d0*dF_dRho(ipGbb,j)*gxb
-     &                          +dF_dRho(ipGab,j)*gxa )
-                  Temp2a=( 2.0d0*dF_dRho(ipGaa,j)*gya
-     &                          +dF_dRho(ipGab,j)*gyb )
-                  Temp2b=( 2.0d0*dF_dRho(ipGbb,j)*gyb
-     &                          +dF_dRho(ipGab,j)*gya )
-                  Temp3a=( 2.0d0*dF_dRho(ipGaa,j)*gza
-     &                          +dF_dRho(ipGab,j)*gzb )
-                  Temp3b=( 2.0d0*dF_dRho(ipGbb,j)*gzb
-     &                          +dF_dRho(ipGab,j)*gza )
-                  Temp4a=dF_dRho(ipTa,j)
-                  Temp4b=dF_dRho(ipTb,j)
-                  Temp5a=dF_dRho(ipLa,j)
-                  Temp5b=dF_dRho(ipLb,j)
+                  Temp0a=vRho(1,j)
+                  Temp0b=vRho(2,j)
+                  Temp1a=( 2.0d0*vSigma(1,j)*gxa
+     &                          +vSigma(2,j)*gxb )
+                  Temp1b=( 2.0d0*vSigma(3,j)*gxb
+     &                          +vSigma(2,j)*gxa )
+                  Temp2a=( 2.0d0*vSigma(1,j)*gya
+     &                          +vSigma(2,j)*gyb )
+                  Temp2b=( 2.0d0*vSigma(3,j)*gyb
+     &                          +vSigma(2,j)*gya )
+                  Temp3a=( 2.0d0*vSigma(1,j)*gza
+     &                          +vSigma(2,j)*gzb )
+                  Temp3b=( 2.0d0*vSigma(3,j)*gzb
+     &                          +vSigma(2,j)*gza )
+                  Temp4a=vTau(1,j)
+                  Temp4b=vTau(2,j)
+                  Temp5a=vLapl(1,j)
+                  Temp5b=vLapl(2,j)
 *
                   dF_dr = Temp0a*dRho_dR(1,j,i_Eff)
      &                  + Temp0b*dRho_dR(2,j,i_Eff)
@@ -530,7 +516,7 @@
          Call DGEMM_('N','N',
      &               3,3,3,
      &               1.0d0,OV,3,
-     &               Work(ip_O),3,
+     &               Pax,3,
      &               0.0d0,V,3)
 #ifdef _DEBUGPRINT_
       If (Debug) Call RecPrt('V',' ',V,3,3)
@@ -542,25 +528,17 @@
 *
 *           Compute < nabla_r f * r^x > as Tr (O^x V)
 *
-      If(KSDFA(1:5).eq.'TLSDA'.or. !GLM
-     &        KSDFA(1:6).eq.'FTLSDA'.or.
-     &        KSDFA(1:6).eq.'FTBLYP'.or.
-     &        KSDFA(1:5).eq.'FTPBE'.or.
-     &        KSDFA(1:7).eq.'TREVPBE'.or.
-     &        KSDFA(1:8).eq.'FTREVPBE'.or.
-     &        KSDFA(1:5).eq.'TBLYP'.or.
-     &        KSDFA(1:5).eq.'TOPBE'.or.
-     &        KSDFA(1:6).eq.'FTOPBE'.or.
-     &        KSDFA(1:4).eq.'TPBE') then
-            Tmp = DDot_(9,Work(ip_dOdx(jNQ,iCar)),1,V,1)*0.5
-      else
-            Tmp = DDot_(9,Work(ip_dOdx(jNQ,iCar)),1,V,1)
-      end if
+            If (l_casdft) Then
+               Factor=Half
+            else
+               Factor=One
+            end if
+            Tmp = DDot_(9,NQ_Data(jNQ)%dOdx(:,:,iCar),1,V,1)*Factor
 #ifdef _DEBUGPRINT_
             If (Debug) Then
                Write (6,*)
                Write (6,*) 'iCar,jNQ=',iCar,jNQ
-               Call RecPrt('dOdx',' ',Work(ip_dOdx(jNQ,iCar)),3,3)
+               Call RecPrt('dOdx',' ',NQ_Data(jNQ)%dOdx(:,:,iCar),3,3)
                Write (6,*) 'Tmp=',Tmp
             End If
 #endif

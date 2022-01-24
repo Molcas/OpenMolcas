@@ -25,6 +25,7 @@
       use Para_Info, Only: mpp_procid, mpp_nprocs
 #endif
 #endif
+      use Fock_util_global, only: DoCholesky
       use write_orbital_files, only: OrbFiles
       use fcidump, only: DumpOnly
       use fcidump_reorder, only: ReOrInp, ReOrFlag
@@ -88,11 +89,7 @@
 #endif
       Logical DBG, exist
 
-#include "chlcas.fh"
-#include "chodensity.fh"
 #include "chotime.fh"
-#include "cholk.fh"
-#include "choscreen.fh"
 #include "chopar.fh"
 
       Integer IScratch(10)
@@ -785,14 +782,6 @@ C   No changing about read in orbital information from INPORB yet.
        If (.NOT.l_casdft) GoTo 9920
        If (IPRLOC(1).GE.DEBUG.and.l_casdft)
      &     write(6,*) ' MCPDFT with functional:', KSDFT
-CGG Calibration of A, B, C, and D coefficients in SG's NewFunctional 1
-       If ( KSDFT(1:4).eq.'NEWF') Then
-         ReadStatus=' Failure reading data following KSDF=NEWF.'
-         Read(LUInput,*,End=9910,Err=9920)
-     &                                       Acoef,Bcoef,Ccoef,Dcoef
-         ReadStatus=' O.K. after reading data following KSDF=NEWF.'
-       End If
-CGG This part will be removed. (PAM 2009: What on earth does he mean??)
       ExFac=Get_ExFac(KSDFT)
 *---  Process DFCF command --------------------------------------------*
       If (KeyDFCF) Then
@@ -1194,7 +1183,6 @@ CIgorS End
 
 * CORE is probably becoming obsolete.
 *---  Process CORE command --------------------------------------------*
-      Continue
       If (KeyCORE) Then
        If (DBG) Write(6,*)' CORE command was used.'
         IF (IPRLEV.ge.VERBOSE) Write(LF,*)
@@ -2234,7 +2222,6 @@ C orbitals accordingly
       END IF
 *
 *---  Process CLEA command ---
-      Continue
       If (KeyCLEA) Then
        If (DBG) Write(6,*) ' CLEAN (Orbital Cleaning) keyword.'
        If (DBG) Write(6,*) ' (Awkward input -- replace??).'

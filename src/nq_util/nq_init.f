@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine NQ_Init()
-#include "grid_on_disk.fh"
+      use Grid_On_Disk
 *
 *---- Inititalize to no specified grid set.
 *

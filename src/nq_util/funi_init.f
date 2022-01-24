@@ -41,7 +41,6 @@
       Grid_Type=Moving_Grid
       Rotational_Invariance= On
       NQ_Direct=On
-      nGridMax=128
       Packing=On
 C     Packing=Off
 *
@@ -52,7 +51,6 @@ C     Packing=Off
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Flop=Zero
       Do i = 0, LMax_NQ
          R_Max(i)=Zero
       End Do

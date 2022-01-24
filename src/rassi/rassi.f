@@ -26,6 +26,7 @@
       use qcmaquis_info, only : qcmaquis_info_deinit
       use rasscf_data, only: doDMRG
 #endif
+      use Fock_util_global, only: Fake_CMO2
 
       use mspt2_eigenvectors, only : deinit_mspt2_eigenvectors
 
@@ -48,7 +49,6 @@ C RAS state interaction.
       CHARACTER*16 ROUTINE
       PARAMETER (ROUTINE='RASSI')
       Logical CLOSEONE
-#include "cho_jobs.fh"
       INTEGER IRC
       Real*8, Allocatable:: USOR(:,:),
      &                      USOI(:,:), OVLP(:,:), DYSAMPS(:,:),

@@ -90,12 +90,12 @@ do while ((.not. EndOfInput) .and. (iLine < mLine))
   if (Keyword(1:1) == ' ') then
     !****************************
     ! blank line: pass
-    continue
+    !continue
     !*********************************
   else if (Keyword(1:1) == '*') then
     !*********************************
     ! comment line: pass
-    continue
+    !continue
     !***********************************
   else if (Keyword(1:3) == 'END') then
     !***********************************

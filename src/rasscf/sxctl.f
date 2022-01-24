@@ -62,6 +62,7 @@
 #ifdef _HDF5_
       use mh5, only: mh5_put_dset
 #endif
+      use Fock_util_global, only: ALGO, DoCholesky
       Implicit Real*8 (A-H,O-Z)
 
       Dimension CMO(*),OCC(*),D(*),P(*),PA(*),FI(*),FA(*),D1A(*)
@@ -83,9 +84,6 @@
       Save nCall
       Logical TraOnly
       Dimension P2act(1),CIDUMMY(1)
-
-#include "chotodo.fh"
-#include "chlcas.fh"
 
 C PAM01 The SXCI part has been slightly modified by P-AA M Jan 15, 2001:
 C Changes affect several of the subroutines of this part.
@@ -610,26 +608,21 @@ C the super-CI coefficients, with a Quasi Newton update (NQUNE=1)
 
 C CMO:  before - old MO's           after - new MO's
 C LCMON: intermediate storage for new MO's (moved to CMO in ORTHO)
-C LVEC:  eigenvectors of exp(X)
 C LX2:  work area, also in ORTHO (AO overlap matrix)
 C LWSQ:  "     "     "    "   "
-C LY,LA, AND LB WORK AREAS
+C LY: WORK AREA
 
       WORD='ROTO'
       CALL GETMEM('CMO1','ALLO','REAL',LCMON,NTOT2)
-      CALL GETMEM('VEC1','ALLO','REAL',LVEC,NO2M)
       CALL GETMEM('XMAT','ALLO','REAL',LXMAT,NO2M)
       CALL GETMEM('SXX2','ALLO','REAL',LX2,NTOT1)
       CALL GETMEM('SXY2','ALLO','REAL',LY,NO2M)
-      CALL GETMEM('SXA1','ALLO','REAL',LA,MNO)
-      CALL GETMEM('SXB2','ALLO','REAL',LB,MNO)
       IF(IPRLEV.GE.DEBUG) THEN
-        Write(LF,3333)WORD,LCMON,LSXN,LCSXI,LXMAT,LX2,
-     &                          LY,LVEC,LA,LB
+        Write(LF,3333)WORD,LCMON,LSXN,LCSXI,LXMAT,LX2,LY
       END IF
 
       CALL ROTORB(CMO,WORK(LCMON),WORK(LCSXI),WORK(LXMAT),
-     &       WORK(LX2),WORK(LY),WORK(LVEC),WORK(LA),WORK(LB),THMAX,FA)
+     &       WORK(LX2),WORK(LY),THMAX,FA)
 
       IF(IPRLEV.GE.DEBUG) THEN
         Write(LF,*)
@@ -644,12 +637,9 @@ C LY,LA, AND LB WORK AREAS
         End Do
       END IF
       CALL GETMEM('CMO1','FREE','REAL',LCMON,NTOT2)
-      CALL GETMEM('VEC1','FREE','REAL',LVEC,NO2M)
       CALL GETMEM('XMAT','FREE','REAL',LXMAT,NO2M)
       CALL GETMEM('SXX2','FREE','REAL',LX2,NTOT1)
       CALL GETMEM('SXY2','FREE','REAL',LY,NO2M)
-      CALL GETMEM('SXA1','FREE','REAL',LA,MNO)
-      CALL GETMEM('SXB2','FREE','REAL',LB,MNO)
       CALL GETMEM('XSXN','FREE','REAL',LSXN,NSXS)
       CALL GETMEM('XDIA','FREE','REAL',LDIA,NIAIA)
       CALL GETMEM('XCSX','FREE','REAL',LCSX,NCR1)

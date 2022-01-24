@@ -44,7 +44,7 @@
       use OFembed, only: Func_AB,Func_A,Func_B,Energy_NAD,
      &                   V_Nuc_AB,V_Nuc_BA,V_emb
       Implicit Real*8 (a-h,o-z)
-      External LSDA_emb, Checker
+      External LSDA_emb
 #include "real.fh"
 #include "stdalloc.fh"
 #include "debug.fh"
@@ -453,14 +453,8 @@ c Avoid unused argument warnings
 #include "real.fh"
 #include "nq_info.fh"
 #include "debug.fh"
-      External LSDA_emb,
-     &         LSDA5_emb,
-     &         BLYP_emb, BLYP_emb2,
-     &         PBE_emb, PBE_emb2,
-     &         Ts_only_emb, vW_hunter, nucatt_emb,
-     &         Checker
       Logical  Do_MO,Do_TwoEl,F_nAsh
-
+*                                                                      *
 ************************************************************************
 *                                                                      *
 *     DFT functionals, compute integrals over the potential
@@ -485,145 +479,11 @@ c Avoid unused argument warnings
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*      LDTF/LSDA (Thomas-Fermi for KE)                                 *
-*                                                                      *
-       If (KSDFT.eq.'LDTF/LSDA ' .or.
-     &     KSDFT.eq.'LDTF/LDA  ') Then
-         !ExFac=Get_ExFac(KSDFT(6:10))
-         Functional_type=LDA_type
-         Call DrvNQ(LSDA_emb,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD_DS,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
+      Call Driver(KSDFT,Do_Grad,Func,Grad,nGrad,
+     &            Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nFckDim,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*      LDTF/LSDA5 (Thomas-Fermi for KE)                                *
-*                                                                      *
-       Else If (KSDFT.eq.'LDTF/LSDA5' .or.
-     &          KSDFT.eq.'LDTF/LDA5 ') Then
-         !ExFac=Get_ExFac(KSDFT(6:10))
-         Functional_type=LDA_type
-         Call DrvNQ(LSDA5_emb,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD_DS,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*      LDTF/PBE   (Thomas-Fermi for KE)                                *
-*                                                                      *
-       Else If (KSDFT.eq.'LDTF/PBE  ') Then
-         !ExFac=Get_ExFac(KSDFT(6:10))
-         Functional_type=GGA_type
-         Call DrvNQ(PBE_emb,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD_DS,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*      NDSD/PBE   (NDSD for KE)                                        *
-*                                                                      *
-       Else If (KSDFT.eq.'NDSD/PBE  ') Then
-         !ExFac=Get_ExFac(KSDFT(6:10))
-         Functional_type=meta_GGA_type2
-         Call DrvNQ(PBE_emb2,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD_DS,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*      LDTF/BLYP  (Thomas-Fermi for KE)                                *
-*                                                                      *
-       Else If (KSDFT.eq.'LDTF/BLYP ') Then
-         !ExFac=Get_ExFac(KSDFT(6:10))
-         Functional_type=GGA_type
-         Call DrvNQ(BLYP_emb,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD_DS,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*      NDSD/BLYP  (NDSD for KE)                                        *
-*                                                                      *
-       Else If (KSDFT.eq.'NDSD/BLYP ') Then
-         !ExFac=Get_ExFac(KSDFT(6:10))
-         Functional_type=meta_GGA_type2
-         Call DrvNQ(BLYP_emb2,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD_DS,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*      Kinetic only  (Thomas-Fermi)                                    *
-*                                                                      *
-       Else If (KSDFT.eq.'TF_only') Then
-         !ExFac=Zero
-         Functional_type=LDA_type
-         Call DrvNQ(Ts_only_emb,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD_DS,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*      HUNTER  (von Weizsacker KE, no calc of potential)               *
-*                                                                      *
-       Else If (KSDFT.eq.'HUNTER') Then
-         !ExFac=Zero
-         Functional_type=GGA_type
-         Call DrvNQ(vW_hunter,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD_DS,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*      NUCATT                                                          *
-*                                                                      *
-       Else If (KSDFT.eq.'NUCATT_EMB') Then
-         !ExFac=Zero
-         Functional_type=LDA_type
-         Call DrvNQ(nucatt_emb,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD_DS,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Checker
-      Else If (KSDFT.eq.'CHECKER') Then
-         !ExFac=Zero
-         Functional_type=meta_GGA_type2
-         Call DrvNQ(Checker,F_DFT,nFckDim,Func,
-     &              D_DS,nh1,nD_DS,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Else
-         lKSDFT=LEN(KSDFT)
-         Call WarningMessage(2,
-     &               ' Wrap_DrvNQ: Undefined functional type!')
-         Write (6,*) '         Functional=',KSDFT(1:lKSDFT)
-         Call Quit_OnUserError()
-      End If
-*
       Return
       End
 ************************************************************************
@@ -633,6 +493,7 @@ c Avoid unused argument warnings
      &                       D_DS,nh1,nD_DS,
      &                       Do_Grad,
      &                       Grad,nGrad,DFTFOCK,F_corr)
+      use OFembed, only: Do_Core
       Implicit Real*8 (a-h,o-z)
       Character*(*) KSDFT
       Integer nh1, nFckDim, nD_DS
@@ -644,13 +505,8 @@ c Avoid unused argument warnings
 #include "real.fh"
 #include "nq_info.fh"
 #include "debug.fh"
-      External VWN_III_emb,
-     &         VWN_V_emb,
-     &         cBLYP_emb,
-     &         cPBE_emb,
-     &         Checker
       Logical  Do_MO,Do_TwoEl,F_nAsh
-
+*                                                                      *
 ************************************************************************
 *                                                                      *
       Func            =Zero
@@ -673,82 +529,13 @@ c Avoid unused argument warnings
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*      LDTF/LSDA (Fractional) correlation potential only               *
-*                                                                      *
-       If (KSDFT.eq.'LDTF/LSDA ' .or.
-     &     KSDFT.eq.'LDTF/LDA  ') Then
-         !ExFac=Get_ExFac(KSDFT(6:10))
-         Functional_type=LDA_type
-         Call DrvNQ(VWN_III_emb,F_corr,nFckDim,Func,
-     &              D_DS,nh1,nD_DS,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
+      Do_Core=.True.
+      Call Driver(KSDFT,Do_Grad,Func,Grad,nGrad,
+     &            Do_MO,Do_TwoEl,D_DS,F_corr,nh1,nFckDim,DFTFOCK)
+      Do_Core=.False.
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*      LDTF/LSDA5 (Fractional) correlation potential only              *
-*                                                                      *
-       Else If (KSDFT.eq.'LDTF/LSDA5' .or.
-     &          KSDFT.eq.'LDTF/LDA5 ') Then
-         !ExFac=Get_ExFac(KSDFT(6:10))
-         Functional_type=LDA_type
-         Call DrvNQ(VWN_V_emb,F_corr,nFckDim,Func,
-     &              D_DS,nh1,nD_DS,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*      LDTF/PBE   (Fractional) correlation potential only              *
-*                                                                      *
-       Else If (KSDFT.eq.'LDTF/PBE  ' .or.
-     &          KSDFT.eq.'NDSD/PBE  ') Then
-         !ExFac=Get_ExFac(KSDFT(6:10))
-         Functional_type=GGA_type
-         Call DrvNQ(cPBE_emb,F_corr,nFckDim,Func,
-     &              D_DS,nh1,nD_DS,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*      LDTF/BLYP  (Fractional) correlation potential only              *
-*                                                                      *
-       Else If (KSDFT.eq.'LDTF/BLYP ' .or.
-     &          KSDFT.eq.'NDSD/BLYP ') Then
-         !ExFac=Get_ExFac(KSDFT(6:10))
-         Functional_type=GGA_type
-         Call DrvNQ(cBLYP_emb,F_corr,nFckDim,Func,
-     &              D_DS,nh1,nD_DS,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Checker                                                          *
-*                                                                      *
-      Else If (KSDFT.eq.'CHECKER') Then
-         !ExFac=Zero
-         Functional_type=meta_GGA_type2
-         Call DrvNQ(Checker,F_corr,nFckDim,Func,
-     &              D_DS,nh1,nD_DS,
-     &              Do_Grad,
-     &              Grad,nGrad,
-     &              Do_MO,Do_TwoEl,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Else
-         lKSDFT=LEN(KSDFT)
-         Call WarningMessage(2,
-     &               ' cWrap_DrvNQ: Undefined functional type!')
-         Write (6,*) '         Functional=',KSDFT(1:lKSDFT)
-         Call Quit_OnUserError()
-      End If
 *
       Return
 c Avoid unused argument warnings

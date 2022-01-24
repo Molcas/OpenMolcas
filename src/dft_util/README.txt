@@ -8,37 +8,21 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 2010, Grigory A. Shamov                                *
+* Copyright (C) 2022, Roland Lindh                                     *
 ************************************************************************
 
-                        Additions to dft_util.
+Notes on the dft_util.
 
-Working on a hydrocarbon's DFT benchmarking project, I felt that
-I miss some of the density functionals; so I added them in MOLCAS
-and would like to share it.
+OpenMolcas is since January 2022 completely interfaced with LibXC.
 
-The following routines for functional cores were added:
+Functionals are defined in driver.f90 through their unique func_id in LibXC and
+their associated coefficients are set there too.
+The same routine contains logic for the combinations of functionals that are
+used in the orbital-free embedding implementation by Aquilante et al.
 
-  KealTozer, CTCA, CWIG, XG96, XB86, XOPT, XRGE2, XSSBSW
+Note that driver.f90 should not be cloned ever. If new functionalities are to be
+added these should be incoporated in this routine.
 
-Derivation was done using Maxima, following spirit of Pawel Salek's Funclib.
-I did not use his scripts nor Funclib Maxima code, for I wanted Fortran77 conversion
-and different calling conwentions from his.
-
-
-Based on these added functionals and the ones that existed in MOLCAS already,
-the following combinations were created.
-
-  B2PLYP B86LYP B86PBE BPBE PBESOL GLYP GPBE KT2 KT3 OLYP
-  OPBE O2PLYP O3LYP PTCA RGE2 SSBSW
-
-I've added references and minimal info/notes in the source files.
-For double-hybrid functionals, MBPT2 code can be modified to check the RunFile
-if KS-DFT is in use and whether functionals are double-hybrids (B2PLYP or O2PLYP).
-I did a hack that works for me, but probably it is not general enough.
-
-
-Grigory A Shamov,
-University of Manitoba
-April 2010
-
+In the case of functionals not present in LibXC the corresponding subroutines
+are placed in src/raw_functionals. driver.f90 does support the use of external
+functions in combinations with or without functionals of the LibXC library.

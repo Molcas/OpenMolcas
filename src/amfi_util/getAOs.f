@@ -18,7 +18,7 @@ cbs   get expansions of atomic orbitals in contracted functions
       logical EX
       occtext='OCCUPATION: '
       textnorbmf='Number of orbitals'
-      Inquire(File='AO-expansion',exist=EX)
+      call f_inquire('AO-expansion', EX)
       if (.not.EX)  then
 CBS      write(6,*) 'get occupations from DATA-block'
          call getAOs2(lhigh)

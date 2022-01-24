@@ -187,7 +187,7 @@
       ! allocatable local arrays:
       Integer, allocatable :: mltplt(:), jbnum(:), nstat(:) !,lroot(:)
       Real(kind=8), allocatable :: tmpR(:,:), tmpI(:,:), W(:)
-      Complex(kind=8), allocatable :: tmp(:,:)
+      Complex(kind=8), allocatable :: tmp(:,:),u1(:,:)
       Complex(kind=8)  :: Spin
       External         :: Spin
       Logical          :: found_edmom, found_amfi, found_hsor,
@@ -287,10 +287,11 @@
 !-----------------------------------------------------------------------
 !       if HSO is found, proceed to diagonalize it
          Call mma_allocate(W,nss,'W')
+         Call mma_allocate(U1,nss,nss,'U1')
          Call dcopy_(nss,[0.0_wp],0,W,1)
-         Call zcopy_(nss*nss,[(0.0_wp,0.0_wp)],0,U,1)
+         Call zcopy_(nss*nss,[(0.0_wp,0.0_wp)],0,U1,1)
          info=0
-         Call diag_c2(hso,nss,info,W,U)
+         Call diag_c2(hso,nss,info,W,U1)
          ! correct for numerical degeneracies:
          thr_deg=0.2D-13 ! a.u. = 0.2D-13*au2cm = 4.38949263E-09 cm-1
          Do i=1,nss-1
@@ -308,6 +309,7 @@
          End Do
 
          Call mma_deallocate(W)
+         Call mma_deallocate(U1)
 !-----------------------------------------------------------------------
       End If
       Call mma_deallocate(tmpR)

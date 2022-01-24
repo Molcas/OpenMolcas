@@ -43,9 +43,6 @@
 #include "mspdft.fh"
 !      Logical TraOnly
 
-#include "chotodo.fh"
-#include "chlcas.fh"
-
 
 
       INTEGER IFockI,IFockA,iD1Act,LP,NQ,LQ,LPUVX,ip2d,istate,LFock

@@ -490,7 +490,7 @@ C910  CONTINUE
        WRITE(6,'(6X,A)')' Total energies including SO-coupling:'
        DO ISS=1,NSS
        E_tmp=ENSOR(ISS)+EMIN
-       Call PrintResult(6, '(6x,A,I5,5X,A,F16.8)',
+       Call PrintResult(6, '(6x,A,I5,5X,A,F23.14)',
      &  'SO-RASSI State',ISS,'Total energy:',[E_tmp],1)
        END DO
       END IF
