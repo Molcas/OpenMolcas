@@ -233,7 +233,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*        Not debugged yet!
 *        We need the AOs and their 1st and 2nd derivatives, for
 *        gradients we need the 3rd order derivatives too.
 *

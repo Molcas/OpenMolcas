@@ -351,7 +351,7 @@
                   Temp1=2.0d0*vSigma(1,j)*gx
                   Temp2=2.0d0*vSigma(1,j)*gy
                   Temp3=2.0d0*vSigma(1,j)*gz
-                  Temp4=vTau(1,j)
+                  Temp4=Half*vTau(1,j)
                   Temp5=vLapl(1,j)
 *
                   dF_dr = Temp0*dRho_dR(1,j,i_Eff)

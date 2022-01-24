@@ -39,7 +39,7 @@
       Integer, Parameter :: Index_d2(3,3)=
      &    Reshape([5,6,7, 6,8,9, 7,9,10],[3,3])
       Integer, Parameter :: Index_d3(3,3) =
-     &    Reshape([11,14,16, 12,17,19, 13,18,19],[3,3])
+     &    Reshape([11,14,16, 12,17,19, 13,18,20],[3,3])
       Logical Do_Grad
 *                                                                      *
 ************************************************************************
@@ -597,14 +597,23 @@
 
                         dRho_dR(iL,iGrid,Ind_xyz)
      &                             = dRho_dR(iL,iGrid,Ind_xyz)
+
      &                             + Two * Grid_AO(1,iGrid,iAO,iD)
-     &                             *(TabAO(idjx2,iGrid,iAO)
-     &                             + TabAO(idjy2,iGrid,iAO)
-     &                             + TabAO(idjz2,iGrid,iAO))
-     &                             + Two *(Grid_AO(idx2,iGrid,iAO,iD)
+     &                             *   ( TabAO(idjx2,iGrid,iAO)
+     &                                  +TabAO(idjy2,iGrid,iAO)
+     &                                  +TabAO(idjz2,iGrid,iAO))
+
+     &                             + Four*(Grid_AO(idx2,iGrid,iAO,iD)
      &                                    +Grid_AO(idy2,iGrid,iAO,iD)
      &                                    +Grid_AO(idz2,iGrid,iAO,iD))
-     &                             *       TabAO(j,iGrid,iAO)
+     &                                    *TabAO(j,iGrid,iAO)
+
+     &                             + Two* (Grid_AO(2,iGrid,iAO,iD)
+     &                                    *TabAO(idjx,iGrid,iAO)
+     &                                    +Grid_AO(3,iGrid,iAO,iD)
+     &                                    *TabAO(idjy,iGrid,iAO)
+     &                                    +Grid_AO(4,iGrid,iAO,iD)
+     &                                    *TabAO(idjz,iGrid,iAO))
 
                      End Do
                   End If
