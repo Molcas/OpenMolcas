@@ -1444,6 +1444,63 @@ Keywords
               </HELP>
               </KEYWORD>
 
+:kword:`MONA`
+        This keyword indicates that the properties of monomer A were calculated in the respective RASSI section of the Frenkel exciton protocol.
+        This is important for the creation of the TDMs in the common basis of the two monomers. The geometry of monomer A must always be in the first place in the BSSE section.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="MONA" APPEAR="Monomer A" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: MONA <basic>
+              <HELP>
+              Indicates that monomer A was calcuated in the respective RASSI section.
+              </HELP>
+              </KEYWORD>
+
+:kword:`MONB`
+        This keyword indicates that the properties of monomer B were calculated in the respective RASSI section of the Frenkel exciton protocol.
+        This is important for the creation of the TDMs in the common basis of the two monomers. The geometry of monomer B must always be in the second place in the BSSE section.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="MONB" APPEAR="Monomer B" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: MONB <basic>
+              <HELP>
+               Indicates that monomer B was calcuated in the respective RASSI section.
+              </HELP>
+              </KEYWORD>
+
+:kword:`EXCItonics`
+        This keyword initiates the calculation of the Frenkel exciton coupling elements between two monomers, the excitonic eigenvectors, eigenenergies and the absorption spectrum.
+        Has to be put in the second RASSI section of the Frenkel exciton protocoll.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EXCITONICS" APPEAR="Exciton calculation" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: EXCI <basic>
+              <HELP>
+               Starts the calculation of properties needed for the Frenkel exciton absorption spectrum.
+              </HELP>
+              </KEYWORD>
+
+:kword:`EXAList`
+  Number of initial states of monomer A in the Frenkel exciton calculation, followed by the list of these states in the next line.
+  This keyword requires a proper use of the Frenkel exciton protocol and should be called in the second of the two RASSI sections.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EXALIST" APPEAR="Initial states of monomer A in Frenkel exciton calculation" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC">
+              %%Keyword: EXAL <basic>
+              <HELP>
+                Number of initial states of Monomer A, followed by the list of these states in the next line.
+              </HELP>
+              </KEYWORD>
+
+
+:kword:`EXBList`
+  Number of initial states of monomer B in the Frenkel exciton calculation, followed by the list of these states in the next line.
+  This keyword requires a proper use of the Frenkel exciton protocol and should be called in the second of the two RASSI sections.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EXBLIST" APPEAR="Initial states of monomer B in Frenkel exciton calculation" KIND="INTS_COMPUTED" SIZE="1"  LEVEL="BASIC">
+              %%Keyword: EXBL <basic>
+              <HELP>
+                Number of initial states of Monomer B, followed by the list of these states in the next line.
+              </HELP>
+              </KEYWORD>
+
+
 Input example
 .............
 
@@ -1531,8 +1588,8 @@ An illustrative hyperfine calculation input for a diatomic molecule: ::
   'PSOP   2' 1
   'PSOP   2' 2
   'PSOP   2' 3
-  * Note that the strings following PROP have to be of sizes of 8, each 
-  * followed by an integer number for the property component. 
+  * Note that the strings following PROP have to be of sizes of 8, each
+  * followed by an integer number for the property component.
   * The last digit of the string is the atom number.
   * Note that there are 6 ASD and 3 PSOP components for each atom, respectively.
   * One has to include all 6 of ASD components to obtain principle

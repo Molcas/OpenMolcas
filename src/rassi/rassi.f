@@ -16,6 +16,10 @@
      &                               PROP, ESHFT, HDIAG, JBNUM, LROOT
       use rassi_aux
       use kVectors
+      use frenkel_global_vars, only: doCoul, eNucB, vNucB, nh1, aux2,
+     &                               doExcitonics
+      use Symmetry_Info, only: nIrrep
+      use Basis_Info, only: nBas
 #ifdef _HDF5_
       use Dens2HDF5
       use mh5, only: mh5_put_dset
@@ -27,8 +31,8 @@
       use rasscf_data, only: doDMRG
 #endif
       use Fock_util_global, only: Fake_CMO2
-
       use mspt2_eigenvectors, only : deinit_mspt2_eigenvectors
+      use Data_Structures
 
       IMPLICIT REAL*8 (A-H,O-Z)
 C Matrix elements over RAS wave functions.
@@ -97,7 +101,6 @@ C Needed matrix elements are computed by PROPER.
       Call mma_allocate(EigVec,nState,nState,Label='EigVec')
       Call mma_allocate(ENERGY,nState,Label='Energy')
       Call mma_allocate(TocM,NSTATE*(NSTATE+1)/2,Label='TocM')
-
       Call mma_allocate(PROP,NSTATE,NSTATE,NPROP,LABEL='Prop')
       Prop(:,:,:)=0.0D0
       DYSAMPS(:,:)=0.0D0
@@ -111,7 +114,25 @@ C Number of basis functions
       END DO
       IF (DYSO) Call mma_allocate(SFDYS,nZ,nState,nState,Label='SFDYS')
 
-*
+      if (doCoul) then
+        call mma_allocate(eNucB,mxroot*(mxroot+1)/2,Label='eNuc')
+        eNucB(:) = 0.0D0
+        NZcoul = 0  ! (NBAS is already used...)
+        nh1 = 0
+        inquire(file='AUXRFIL2', exist=aux2)
+        if (aux2) then
+          call NameRun('AUXRFIL2')
+        else
+          call NameRun('AUXRFIL1')
+        end if
+        call get_iArray('nBas', nBas, nIrrep)
+        NZcoul = nBas(0)
+        nh1 = NZcoul*(NZcoul+1)/2
+        call mma_allocate(vNucB, nh1, Label='Attr PotB')
+        call Get_dArray('Nuc Potential', vNucB, nh1)
+        call NameRun('#Pop')    ! switch back to old RUNFILE
+      end if
+
 C Loop over jobiphs JOB1:
       Call mma_allocate(IDDET1,nState,Label='IDDET1')
       IDISK=0  ! Initialize disk address for TDMs.
@@ -181,6 +202,12 @@ C See e.g. DYSNORM.f subroutine.
        CALL WRITEDYS(DYSAMPS,SFDYS,NZ,ENERGY)
       END IF
 ! +++
+
+C Loop over states to compute Excitonic Couplings
+
+      if (DoExcitonics) then
+        call EXCCOUPL()
+      end if
 
 *---------------------------------------------------------------------*
 C Natural orbitals, if requested:
@@ -257,6 +284,7 @@ C Make the SO Dyson orbitals and amplitudes from the SF ones
       CALL PRPROP(PROP,USOR,USOI,SOENE,NSS,OVLP,
      &            ENERGY,JBNUM,EigVec)
 
+
 C Plot SO-Natural Orbitals if requested
 C Will also handle mixing of states (sodiag.f)
       IF(SONATNSTATE.GT.0) THEN
@@ -308,6 +336,24 @@ C Plot SO-Natural Transition Orbitals if requested
 ************************************************************************
 *                                                                      *
  100  CONTINUE
+
+      if (DoCoul) then
+        if (.not. aux2) then
+          call NameRun('AUXRFIL1')
+          call Put_dArray('<rhoB|VnucA>', eNucB, mxroot*(mxroot+1)/2)
+          call Cho_X_Final(irc)
+          call NameRun('#Pop') ! switch back to old RUNFILE
+          call mma_deallocate(VNucB)
+          call mma_deallocate(eNucB)
+        else
+          call NameRun('AUXRFIL1')
+          call Cho_X_Final(irc)
+          call NameRun('#Pop')
+          call mma_deallocate(VNucB)
+          call mma_deallocate(eNucB)
+        end if
+      end if
+
       Call mma_deallocate(Ovlp)
       Call mma_deallocate(DYSAMPS)
       Call mma_deallocate(HAM)
