@@ -617,12 +617,12 @@
      &                                  +TabAO(idjy2,iGrid,iAO)
      &                                  +TabAO(idjz2,iGrid,iAO))
 
-     &                             + Four*(Grid_AO(idx2,iGrid,iAO,iD)
+     &                             + Two *(Grid_AO(idx2,iGrid,iAO,iD)
      &                                    +Grid_AO(idy2,iGrid,iAO,iD)
      &                                    +Grid_AO(idz2,iGrid,iAO,iD))
      &                                    *TabAO(j,iGrid,iAO)
 
-     &                             + Two* (Grid_AO(2,iGrid,iAO,iD)
+     &                             + Four*(Grid_AO(2,iGrid,iAO,iD)
      &                                    *TabAO(idjx,iGrid,iAO)
      &                                    +Grid_AO(3,iGrid,iAO,iD)
      &                                    *TabAO(idjy,iGrid,iAO)
