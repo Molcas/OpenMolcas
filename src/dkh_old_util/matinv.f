@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE MATINV (A,B,N,L,IDIM)
-C      IF L=0 RETURNS INVERSE OF A IN A, IF L=1 SOLUTION OF AX=B IN B
+!      IF L=0 RETURNS INVERSE OF A IN A, IF L=1 SOLUTION OF AX=B IN B
       IMPLICIT REAL*8 (A-H,O-Z)
       Real*8 A(IDIM,IDIM), B(IDIM)
-*
-*...  internal variables
+!
+!...  internal variables
       PARAMETER (maxdim=44)
       Integer IP(maxdim),IN(maxdim,2)
-*
+!
       IF (IDIM.GT.maxdim) THEN
         WRITE (6,*) 'MATINV: Idim',Idim
         WRITE (6,*) 'Abend: Increase maxdim !!'

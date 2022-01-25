@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE PRMAT(IUOUT,R,N,M,HEAD)
       REAL*8 R
       CHARACTER*(*) HEAD
       DIMENSION R(*)
-C     SUBROUTINE PRINTS MATRIX R,WHICH IS SUPPOSED
-C     TO HAVE DIMENSION N,M  WHEN M IS NONZERO AND
-C     ((N+1)*N)/2 WHEN M IS ZERO
+!     SUBROUTINE PRINTS MATRIX R,WHICH IS SUPPOSED
+!     TO HAVE DIMENSION N,M  WHEN M IS NONZERO AND
+!     ((N+1)*N)/2 WHEN M IS ZERO
       WRITE(IUOUT,1001) HEAD
       NKPB=4
       IF (M.LE.0) THEN
@@ -22,7 +22,7 @@ C     ((N+1)*N)/2 WHEN M IS ZERO
       ELSE
         GO TO 80
       END IF
-C
+!
    10 CONTINUE
       IBL=N/NKPB
       IR=N-IBL*NKPB

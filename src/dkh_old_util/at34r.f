@@ -1,36 +1,36 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      SUBROUTINE AT34R(N,ISIZE,CHARGE,
-     *                 SMAT,V,H,EV2,MULT,BU,P,G,EIG,SINV,REVT,
-     *                 AUX,OVE,EW,E,AA,RR,TT,iprint,
-     *                 VEXTT,PVPT,EVN1,RE1R,AUXI,W1W1)
-C
-C     INPUT: SMAT    OVERLAP MATRIX
-C            V     POTENTIAL
-C            H     RELATIVISTIC KINETIC ENERGY
-C            EV2   PVP INTEGRALS
-C
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      SUBROUTINE AT34R(N,ISIZE,CHARGE,                                  &
+     &                 SMAT,V,H,EV2,MULT,BU,P,G,EIG,SINV,REVT,          &
+     &                 AUX,OVE,EW,E,AA,RR,TT,iprint,                    &
+     &                 VEXTT,PVPT,EVN1,RE1R,AUXI,W1W1)
+!
+!     INPUT: SMAT    OVERLAP MATRIX
+!            V     POTENTIAL
+!            H     RELATIVISTIC KINETIC ENERGY
+!            EV2   PVP INTEGRALS
+!
       USE DKH_Info, ONLY: CLightAU, IRELMP
       IMPLICIT REAL*8(A-H,O-Z)
-      DIMENSION V(ISIZE),SMAT(ISIZE),MULT(ISIZE),P(ISIZE),G(ISIZE),
-     *          H(ISIZE),BU(ISIZE),EV2(ISIZE),
-     *          EIG(N,N),SINV(N,N),REVT(N,N),AUX(N,N),OVE(N,N),
-     *          EW(N),E(N),AA(N),RR(N),TT(N)
+      DIMENSION V(ISIZE),SMAT(ISIZE),MULT(ISIZE),P(ISIZE),G(ISIZE),     &
+     &          H(ISIZE),BU(ISIZE),EV2(ISIZE),                          &
+     &          EIG(N,N),SINV(N,N),REVT(N,N),AUX(N,N),OVE(N,N),         &
+     &          EW(N),E(N),AA(N),RR(N),TT(N)
       DIMENSION VEXTT(ISIZE),PVPT(ISIZE)
       DIMENSION EVN1(N,N)
       DIMENSION RE1R(N,N)
       DIMENSION AUXI(N,N)
       DIMENSION W1W1(N,N)
-*
-C      CALL PRMAT(6,SMAT,N,0,'SMAT    ')
+!
+!      CALL PRMAT(6,SMAT,N,0,'SMAT    ')
       VELIT=CLightAU
       ISIZE=N*(N+1)/2
       PREA=1/(VELIT*VELIT)
@@ -40,24 +40,24 @@ C      CALL PRMAT(6,SMAT,N,0,'SMAT    ')
       DO 20 I=1,N
       MULT(I+1)=MULT(I)+I
 20    CONTINUE
-C
-C     SCHMIDT-ORTHOGONALIZE OVERLAP MATRIX
-C
+!
+!     SCHMIDT-ORTHOGONALIZE OVERLAP MATRIX
+!
       CALL SOG(N,SMAT,SINV,P,OVE,EW)
       CALL FILLMA(N,SMAT,OVE)
-C
-C--------------------------------------------------------------------
-C     MATRIX REPRESENTATION CALCULATED FROM NONRELATIVISTIC T MATRIX
-C--------------------------------------------------------------------
+!
+!--------------------------------------------------------------------
+!     MATRIX REPRESENTATION CALCULATED FROM NONRELATIVISTIC T MATRIX
+!--------------------------------------------------------------------
       CALL DIAG_DKH(H,N,EIG,EW,SINV,AUX,0)
       if(iprint.ge.10) then
          write(6,*) ' eigenvalues in at34r'
          write(6,*) (ew(i),i=1,n)
       endif
       DO 4 I=1,N
-C
-C     IF T SUFFICIENTLY SMALL, USE SERIES EXPANSION TO AVOID CANCELLATIO
-C
+!
+!     IF T SUFFICIENTLY SMALL, USE SERIES EXPANSION TO AVOID CANCELLATIO
+!
       TT(I)=EW(I)
       RATIO=EW(I)/VELIT
       IF (RATIO.GT.0.02D0) GOTO 11
@@ -71,12 +71,12 @@ C
 12    CONTINUE
       E(I)=EW(I)+CON
 4     CONTINUE
-C---------------------------------------------------------------------
-C     CALCULATE REVERSE TRANSFORMATION
-C---------------------------------------------------------------------
-C
-C     CALCULATE TRANSFORMATION MATRICES
-C
+!---------------------------------------------------------------------
+!     CALCULATE REVERSE TRANSFORMATION
+!---------------------------------------------------------------------
+!
+!     CALCULATE TRANSFORMATION MATRICES
+!
       DO 3 I=1,N
       DO 30 J=1,N
       AUX(I,J)=0.D0
@@ -110,24 +110,24 @@ C
 362   CONTINUE
       ELSE IF(IRELMP.EQ.11) THEN                          ! RESC
       DO I=1,N
-        AA(I)=(sqrt(1.0D0+CON*TT(I)*2.0D0/((CON+E(I))*(CON+E(I)))))
+        AA(I)=(sqrt(1.0D0+CON*TT(I)*2.0D0/((CON+E(I))*(CON+E(I)))))     &
      &                              /(CON+E(I))           ! O OPERATOR
         RR(I)=sqrt(CON)/(CON+E(I))                       ! Q OPERATOR
       ENDDO
       ENDIF
-C
-C     BEYOND THIS POINT, OVE IS USED AS SCRATCH ARRAY
-C
-C
-C    TRANSFORM V TO T-BASIS
-C
+!
+!     BEYOND THIS POINT, OVE IS USED AS SCRATCH ARRAY
+!
+!
+!    TRANSFORM V TO T-BASIS
+!
       CALL TRSM_DKH(V,SINV,G,N,AUX,OVE)
       CALL TRSM_DKH(G,EIG,BU,N,AUX,OVE)
-C
-C    MULTIPLY
-C
+!
+!    MULTIPLY
+!
       IF(IRELMP.NE.11) THEN
-*
+!
       IJ=0
       DO 2005 I=1,N
       DO 2006 J=1,I
@@ -139,30 +139,30 @@ C
       EVN1(J,I)=EVN1(I,J)
 2006  CONTINUE
 2005  CONTINUE
-*
+!
       ELSE IF(IRELMP.EQ.11) THEN
-*
+!
       IJ=0
       DO I=1,N
         DO J=1,I
           IJ=IJ+1
           P(IJ)=-BU(IJ)*CHARGE
-          BU(IJ)=VELIT* P(IJ)*(sqrt(RR(I)*RR(J))*AA(I)/AA(J)
-     $                        +sqrt(RR(J)*RR(I))*AA(J)/AA(I))
+          BU(IJ)=VELIT* P(IJ)*(sqrt(RR(I)*RR(J))*AA(I)/AA(J)            &
+     &                        +sqrt(RR(J)*RR(I))*AA(J)/AA(I))
         ENDDO
       ENDDO
-*
+!
       ENDIF
-*
+!
       CALL TRSMT(BU,REVT,V,N,AUX,OVE)
-C
-C     PVP INTEGRALS
-C
+!
+!     PVP INTEGRALS
+!
       CALL TRSM_DKH(EV2,SINV,G,N,AUX,OVE)
       CALL TRSM_DKH(G,EIG,BU,N,AUX,OVE)
-C
-C    MULTIPLY
-C
+!
+!    MULTIPLY
+!
       IF(IRELMP.NE.11) THEN
       IJ=0
       DO 3005 I=1,N
@@ -181,50 +181,50 @@ C
         DO J=1,I
           IJ=IJ+1
           G(IJ)=-BU(IJ)*CHARGE
-          BU(IJ)= G(IJ)*(RR(I)*RR(J)*AA(I)/AA(J)
-     $                  +RR(J)*RR(I)*AA(J)/AA(I))*0.5D0
+          BU(IJ)= G(IJ)*(RR(I)*RR(J)*AA(I)/AA(J)                        &
+     &                  +RR(J)*RR(I)*AA(J)/AA(I))*0.5D0
         ENDDO
       ENDDO
       ENDIF
       CALL TRSMT(BU,REVT,EV2,N,AUX,OVE)
-C@    CALL PRMAT(6,EV2,N,0,'PVPFULL ')
+!@    CALL PRMAT(6,EV2,N,0,'PVPFULL ')
       CALL ADDMA(ISIZE,EV2,V)
-*
+!
       IF(IRELMP.EQ.1.OR.IRELMP.EQ.11) GOTO 1000
-C
-C     CALCULATE EVEN2 OPERATOR
-C
-C@    CALL PRMAT(6,TT,N,1,'TT      ')
-C@    CALL PRMAT(6,E,N,1,'E       ')
+!
+!     CALCULATE EVEN2 OPERATOR
+!
+!@    CALL PRMAT(6,TT,N,1,'TT      ')
+!@    CALL PRMAT(6,E,N,1,'E       ')
       CALL EVEN2(N,P,G,E,AA,RR,TT,EIG,AUX,OVE,W1W1)
-*
-*    TRANSFORM BACK
-*
+!
+!    TRANSFORM BACK
+!
       CALL TRSMT(G,REVT,EV2,N,AUX,OVE)
       CALL ADDMA(ISIZE,EV2,V)
-*
+!
       IF(IRELMP.EQ.0.OR.IRELMP.EQ.2) GOTO 1000   ! DK2
-*
-C
-C     ----- CALCULATE Even3r OPERATOR -----
-C
-      CALL EVEN3(N,P,G,E,AA,RR,TT,EIG,AUX,OVE,
+!
+!
+!     ----- CALCULATE Even3r OPERATOR -----
+!
+      CALL EVEN3(N,P,G,E,AA,RR,TT,EIG,AUX,OVE,                          &
      &           EVN1,VEXTT,PVPT,RE1R,W1W1,AUXI)
-C
-C     ------- TRANSFORM BACK FOR DK3
-C
+!
+!     ------- TRANSFORM BACK FOR DK3
+!
       CALL TRSMT(G,REVT,EV2,N,AUX,OVE)
       CALL ADDMA(ISIZE,EV2,V)
       IF(IRELMP.EQ.3) GOTO 1000   ! DK3
-*
-*     More to come here
-*
+!
+!     More to come here
+!
  1000 CONTINUE
-*
+!
       CR=1/CHARGE
       DO 940 I=1,ISIZE
       V(I)=-V(I)*CR
 940   CONTINUE
-C@    CALL PRMAT(6,BU,N,0,'TOTAL H ')
+!@    CALL PRMAT(6,BU,N,0,'TOTAL H ')
       RETURN
       END

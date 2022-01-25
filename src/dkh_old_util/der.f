@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       REAL*8 FUNCTION DER(IDER,IS1,IS2,AL,BE)
       IMPLICIT REAL*8 (A-H,O-Z)
-C
-C    CALCULATE INTEGRAL OVER DERIVATIVE OF THE FUNCTIONS
-C
+!
+!    CALCULATE INTEGRAL OVER DERIVATIVE OF THE FUNCTIONS
+!
       INTEGER IS1(3),IS2(3),I1(2,3),I2(2,3)
       REAL*8 F(2),G(2)
 #include "crelop.fh"
@@ -29,59 +29,59 @@ C
       L1=IS1(IDER)+1
       GOTO (10,11,12,13,14),L1
 101   WRITE (6,100) IDER,IS1,IS2,AL,BE
-100   FORMAT(' ILLEGAL ANGULAR MOMENTUM (DER)'/,
-     \       ' IDER,IS1,IS2,AL,BE PRINTED'/,1X,7I5,3X,2D20.8)
+100   FORMAT(' ILLEGAL ANGULAR MOMENTUM (DER)'/,                        &
+     &       ' IDER,IS1,IS2,AL,BE PRINTED'/,1X,7I5,3X,2D20.8)
       Call Abend
 10    F(1)=-2.D0*AL
       J1=1
       GOTO 19
-C
+!
 11    F(2)=1.D0
       F(1)=-2.D0*AL
       J1=2
       GOTO 19
-C
+!
 12    F(2)=2.D0
       F(1)=-2.D0*AL
       J1=2
       GOTO 19
-C
+!
 13    F(2)=3.D0
       F(1)=-2.D0*AL
       J1=2
       GOTO 19
-C
+!
 14    F(2)=4.0D0
       F(1)=-2.0D0*AL
       J1=2
-C
+!
 19    L2=IS2(IDER)+1
       GOTO (20,21,22,23,24),L2
       GOTO 101
-C
+!
 20    G(1)=-2.D0*BE
       J2=1
       GOTO 29
-C
+!
 21    G(2)=1.D0
       G(1)=-2.D0*BE
       J2=2
       GOTO 29
-C
+!
 22    G(2)=2.D0
       G(1)=-2.D0*BE
       J2=2
       GOTO 29
-C
+!
 23    G(2)=3.D0
       G(1)=-2.D0*BE
       J2=2
       GOTO 29
-C
+!
 24    G(2)=4.0D0
       G(1)=-2.0D0*BE
       J2=2
-C
+!
 29    SUM=0.D0
       DO 30 I=1,J1
       DO 31 J=1,J2
@@ -91,8 +91,8 @@ C
       ANG=THETA(II+JJ,KK)*PHI(JJ,II)
       IF (ANG.EQ.0.D0) GOTO 31
       EX=-DBLE(II+JJ+KK+2)*0.5D0
-      SUM=SUM+F(I)*G(J)*0.5D0*ANG*GA(II+JJ+KK+2)*
-     \        (AL+BE)**EX
+      SUM=SUM+F(I)*G(J)*0.5D0*ANG*GA(II+JJ+KK+2)*                       &
+     &        (AL+BE)**EX
 31    CONTINUE
 30    CONTINUE
       DER=SUM
