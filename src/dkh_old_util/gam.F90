@@ -8,26 +8,30 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      REAL*8 FUNCTION GAM(M)
-      IMPLICIT REAL*8 (A-H,O-Z)
+
+real*8 function GAM(M)
+
+implicit real*8(A-H,O-Z)
 #include "crelop.fh"
-!rl   COMMON /CRELOP/ PI,ZWP,SQPI
-      SAVE /CRELOP/
-      IF (MOD(M,2).EQ.0) GOTO 10
-      MA=(M+1)/2
-      G=1.D0
-      IF (MA.EQ.1) GOTO 11
-      DO 1 I=2,MA
-      G=G*DBLE(I-1)
-1     CONTINUE
-      GAM=G
-      RETURN
-10    MA=M
-      G=SQPI
-      IF (MA.EQ.0) GOTO 11
-      DO 2 I=1,MA,2
-      G=G*0.5D0*DBLE(I)
-2     CONTINUE
-11    GAM=G
-      RETURN
-      END
+save/CRELOP/
+
+if (mod(M,2) == 0) goto 10
+MA = (M+1)/2
+G = 1.d0
+if (MA == 1) goto 11
+do I=2,MA
+  G = G*dble(I-1)
+end do
+GAM = G
+return
+10 MA = M
+G = SQPI
+if (MA == 0) goto 11
+do I=1,MA,2
+  G = G*0.5d0*dble(I)
+end do
+11 GAM = G
+
+return
+
+end function GAM

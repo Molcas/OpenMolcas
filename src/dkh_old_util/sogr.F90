@@ -7,9 +7,12 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986,1995, Bernd Artur Hess                            *
+!               2005, Jesper Wisborg Krogh                             *
 !***********************************************************************
 
-subroutine SOG(N,SS,SINV,P,G,A1)
+subroutine Sogr(idbg,N,SS,SINV,P,G,A1)
 !     SUBROUTINE TO CALCULATE TRANSFORMATION TO SCHMIDT-
 !     ORTHOGONALIZED BASIS.
 !     N              DIMENSION OF MATRICES. ISIZE=N*(N+1)/2
@@ -20,8 +23,11 @@ subroutine SOG(N,SS,SINV,P,G,A1)
 !     A1(N)          SCRATCH
 
 implicit real*8(A-H,O-Z)
-dimension SS(N*(N+1)/2), P(N*(N+1)/2), G(N*(N+1)/2), A1(N), SINV(N,N)
+dimension SS(*), P(*), G(*), A1(*), SINV(N,N)
+integer ierr
 
+if (iDbg > 0) call PrMat(idbg,SS,n,0,'SS')
+ierr = 0
 JL = 0
 IQ = 0
 do J=1,N
@@ -43,20 +49,25 @@ do J=1,N
     S1KK = S1KK-ETOT*ETOT
     A1(K) = ETOT
   end do
-  if = 1
+  JF = 1
   JL = IL
   do K=1,J1
     SUM = 0.d0
     JL = JL+1
-    if = if+K-1
-    IH = if
+    JF = JF+K-1
+    IH = JF
     do L=K,J1
       IH = IH+L-1
       SUM = SUM+A1(L)*G(IH)
     end do
     G(JL) = -SUM
   end do
-341 S1KK = 1.d0/sqrt(S1KK)
+341 continue
+  if (s1kk <= 1.D-16) then
+    write(6,*) '    Sogr| j=',j,' s1kk=',s1kk
+    ierr = ierr+1
+  end if
+  S1KK = 1.d0/sqrt(S1KK)
   JL = IL
   do K=1,J
     JL = JL+1
@@ -65,7 +76,6 @@ do J=1,N
     P(IQ) = G(JL)
   end do
 end do
-
 IJ = 0
 do I=1,N
   do J=1,I
@@ -74,7 +84,9 @@ do I=1,N
     SINV(J,I) = P(IJ)
   end do
 end do
+if (ierr > 0) call errex_rel('function has negative norm')
+if (iDbg > 0) call PrMat(idbg,P,n,0,'P')
 
 return
 
-end subroutine SOG
+end subroutine Sogr

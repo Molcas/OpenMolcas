@@ -8,16 +8,19 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      REAL*8 FUNCTION THETA(M,N)
-      IMPLICIT REAL*8 (A-H,O-Z)
+
+real*8 function THETA(M,N)
+! INTEGRATION OVER THETA. INCLUDES A FACTOR SIN(TH)
+! FOR THE VOLUME ELEMENT
+
+implicit real*8(A-H,O-Z)
 #include "crelop.fh"
-!
-!     INTEGRATION OVER THETA. INCLUDES A FACTOR SIN(TH)
-!     FOR THE VOLUME ELEMENT
-!
-      IF (MOD(N,2).EQ.1) GOTO 10
-      THETA=GA(M+2)*GA(N+1)/GA(M+N+3)
-      RETURN
-10    THETA=0.D0
-      RETURN
-      END
+
+if (mod(N,2) == 1) goto 10
+THETA = GA(M+2)*GA(N+1)/GA(M+N+3)
+return
+10 THETA = 0.d0
+
+return
+
+end function THETA

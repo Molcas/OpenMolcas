@@ -8,37 +8,41 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Cp_Prop_Int(AInt,nAInt,BInt,nBInt,nBas,nIrrep,Label)
+
+subroutine Cp_Prop_Int(AInt,nAInt,BInt,nBInt,nBas,nIrrep,Label)
 !***********************************************************************
 !                                                                      *
 ! Object: replace the diagonal blocks of the property integrals.       *
 !                                                                      *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
-      Real*8 AInt(nAInt+4), BInt(nBInt+4)
-      Integer nBas(0:nIrrep-1)
-!
-      iCmp = 1
-      iExp = 1
-      Do iIrrep = 0, nIrrep-1
-         Do 20 jIrrep = 0, iIrrep
-            ij = iEor(iIrrep,jIrrep)
-            If (iAnd(Label,2**ij).eq.0) Go To 20
-            If (iIrrep.eq.jIrrep) Then
-!
-               Len = nBas(iIrrep)*(nBas(iIrrep)+1)/2
-               Do iLen = 0, Len-1
-!                 Write (*,*) AInt(iExp+iLen), BInt(iCmp+iLen)
-                  AInt(iExp+iLen) = BInt(iCmp+iLen)
-               End Do
-               iCmp = iCmp + Len
-               iExp = iExp + Len
-            Else
-               Len = nBas(iIrrep)*nBas(jIrrep)
-               iExp = iExp + Len
-            End If
- 20      Continue
-      End Do
-!
-      Return
-      End
+
+implicit real*8(A-H,O-Z)
+real*8 aint(nAInt+4), BInt(nBInt+4)
+integer nBas(0:nIrrep-1)
+
+iCmp = 1
+iExp = 1
+do iIrrep=0,nIrrep-1
+  do jIrrep=0,iIrrep
+    ij = ieor(iIrrep,jIrrep)
+    if (iand(Label,2**ij) == 0) Go To 20
+    if (iIrrep == jIrrep) then
+
+      Len = nBas(iIrrep)*(nBas(iIrrep)+1)/2
+      do iLen=0,Len-1
+        !write(6,*) AInt(iExp+iLen), BInt(iCmp+iLen)
+        aint(iExp+iLen) = BInt(iCmp+iLen)
+      end do
+      iCmp = iCmp+Len
+      iExp = iExp+Len
+    else
+      Len = nBas(iIrrep)*nBas(jIrrep)
+      iExp = iExp+Len
+    end if
+20  continue
+  end do
+end do
+
+return
+
+end subroutine Cp_Prop_Int

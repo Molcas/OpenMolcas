@@ -101,132 +101,137 @@
 ! SOURCE MODULE: SYS3.SYMLIB.FORTRAN(DCOPIV)
 !
 !**********************************************************************
-!
-      SUBROUTINE   DCOPIV(A,B,N,M,iD,EPS,DET,iEX,iCTR,S)
-      implicit real*8(a-h,o-z)
-      DIMENSION    A(iD,N),B(iD,M),S(N)
-!
-      CALL DCOPIV_INTERNAL(S)
-!
-!     This is to allow type punning without an explicit interface
-      CONTAINS
-      SUBROUTINE DCOPIV_INTERNAL(S)
-      USE ISO_C_BINDING
-      REAL*8, TARGET :: S(*)
-      INTEGER, POINTER :: iS(:)
-      CALL C_F_POINTER(C_LOC(S(1)),iS,[N])
-      IF (N .LT. 1 .OR. M .LT. 1) GO TO 7
-      iEX = 0
-      DET = 1.0D0
-      IF (N .EQ. 1) GO TO 4
-      DO 9 I=1,N-1
-         C = ABS(A(I,I))
-         iRI = I
-         iCI = I
-         DO 10 J=I,N
-            DO 11 K=I,N
-               IF (ABS(A(J,K)) .GT. C) THEN
-                  C = ABS(A(J,K))
-                  iRI = J
-                  iCI = K
-               END IF
-   11       CONTINUE
-   10    CONTINUE
-         IF (iRI .NE. I) THEN
-            DET = -DET
-            DO 13 J=1,N
-               C = A(I,J)
-               A(I,J) = A(iRI,J)
-               A(iRI,J) = C
-   13       CONTINUE
-            IF (iCTR .GE. 0) THEN
-               DO 14 J=1,M
-                  C = B(I,J)
-                  B(I,J) = B(iRI,J)
-                  B(iRI,J) = C
-   14          CONTINUE
-            END IF
-         END IF
-         IF (iCI .NE. I) THEN
-            DET = -DET
-            DO 16 J=1,N
-               C = A(J,I)
-               A(J,I) = A(J,iCI)
-               A(J,iCI) = C
-   16       CONTINUE
-         END IF
-         iS(I) = iCI
-         SUM = A(I,I)
-         IF (ABS(SUM) .LE. EPS) then
-            write(6,*) ' case 1. i,sum,eps', i,sum,eps
-            GO TO 1
-         endif
-         DO 17 J=I+1,N
-            C = A(J,I)/SUM
-            DO 18 K=I+1,N
-               A(J,K) = A(J,K)-C*A(I,K)
-   18       CONTINUE
-            IF (iCTR .GE. 0) THEN
-               DO 19 K=1,M
-                  B(J,K) = B(J,K)-C*B(I,K)
-   19          CONTINUE
-            END IF
-   17    CONTINUE
-    9 CONTINUE
-    4 SUM = A(N,N)
-      IF (ABS(SUM) .LE. EPS) then
-            write(6,*) ' case 2. n,sum,eps', n,sum,eps
-         GO TO 1
-      endif
-      IF (iCTR .GT. 0) GO TO 6
-      DO 20 K=1,N
-         DET = DET*A(K,K)
-    2    IF (ABS(DET) .GT. 1.0D10) THEN
-            DET = DET*1.0D-20
-            iEX = iEX+20
-            GO TO 2
-         END IF
-    3    IF (ABS(DET) .LE. 1.0D-10) THEN
-            DET = DET*1.0D20
-            iEX = iEX-20
-            GO TO 3
-         END IF
-   20 CONTINUE
-      IF (iCTR .LT. 0) GO TO 5
-    6 DO 21 K=1,M
-         B(N,K) = B(N,K)/SUM
-   21 CONTINUE
-      IF (N .EQ. 1) GO TO 5
-      DO 22 I=N-1,1,-1
-         C = A(I,I)
-         DO 23 J=1,M
-            SUM = B(I,J)
-            DO 24 K=I+1,N
-               SUM = SUM-A(I,K)*B(K,J)
-   24       CONTINUE
-            B(I,J) = SUM/C
-   23    CONTINUE
-   22 CONTINUE
-      DO 25 K=N-1,1,-1
-         I = iS(K)
-         IF (I .NE. K) THEN
-            DO 26 J=1,M
-               C = B(I,J)
-               B(I,J) = B(K,J)
-               B(K,J) = C
-   26       CONTINUE
-         END IF
-   25 CONTINUE
-    5 iCTR = 0
-      NULLIFY(iS)
-      RETURN
-    1 DET = 0.0D0
-      iCTR = 1
-      NULLIFY(iS)
-      RETURN
-    7 iCTR = -1
-      NULLIFY(iS)
-      RETURN
-      END SUBROUTINE DCOPIV_INTERNAL
-!
-      END
+
+subroutine DCOPIV(A,B,N,M,iD,EPS,DET,iEX,iCTR,S)
+
+implicit real*8(a-h,o-z)
+dimension A(iD,N), B(iD,M), S(N)
+
+call DCOPIV_INTERNAL(S)
+
+! This is to allow type punning without an explicit interface
+contains
+
+subroutine DCOPIV_INTERNAL(S)
+
+  use iso_c_binding
+
+  real*8, target :: S(*)
+  integer, pointer :: iS(:)
+
+  call c_f_pointer(c_loc(S(1)),iS,[N])
+  if ((N < 1) .or. (M < 1)) GO TO 7
+  iEX = 0
+  DET = 1.0d0
+  if (N == 1) GO TO 4
+  do I=1,N-1
+    C = abs(A(I,I))
+    iRI = I
+    iCI = I
+    do J=I,N
+      do K=I,N
+        if (abs(A(J,K)) > C) then
+          C = abs(A(J,K))
+          iRI = J
+          iCI = K
+        end if
+      end do
+    end do
+    if (iRI /= I) then
+      DET = -DET
+      do J=1,N
+        C = A(I,J)
+        A(I,J) = A(iRI,J)
+        A(iRI,J) = C
+      end do
+      if (iCTR >= 0) then
+        do J=1,M
+          C = B(I,J)
+          B(I,J) = B(iRI,J)
+          B(iRI,J) = C
+        end do
+      end if
+    end if
+    if (iCI /= I) then
+      DET = -DET
+      do J=1,N
+        C = A(J,I)
+        A(J,I) = A(J,iCI)
+        A(J,iCI) = C
+      end do
+    end if
+    iS(I) = iCI
+    SUM = A(I,I)
+    if (abs(SUM) <= EPS) then
+      write(6,*) ' case 1. i,sum,eps',i,sum,eps
+      GO TO 1
+    end if
+    do J=I+1,N
+      C = A(J,I)/SUM
+      do K=I+1,N
+        A(J,K) = A(J,K)-C*A(I,K)
+      end do
+      if (iCTR >= 0) then
+        do K=1,M
+          B(J,K) = B(J,K)-C*B(I,K)
+        end do
+      end if
+    end do
+  end do
+4 SUM = A(N,N)
+  if (abs(SUM) <= EPS) then
+    write(6,*) ' case 2. n,sum,eps',n,sum,eps
+    GO TO 1
+  end if
+  if (iCTR > 0) GO TO 6
+  do K=1,N
+    DET = DET*A(K,K)
+2   if (abs(DET) > 1.0d10) then
+      DET = DET*1.0D-20
+      iEX = iEX+20
+      GO TO 2
+    end if
+3   if (abs(DET) <= 1.0D-10) then
+      DET = DET*1.0d20
+      iEX = iEX-20
+      GO TO 3
+    end if
+  end do
+  if (iCTR < 0) GO TO 5
+6 do K=1,M
+    B(N,K) = B(N,K)/SUM
+  end do
+  if (N == 1) GO TO 5
+  do I=N-1,1,-1
+    C = A(I,I)
+    do J=1,M
+      SUM = B(I,J)
+      do K=I+1,N
+        SUM = SUM-A(I,K)*B(K,J)
+      end do
+      B(I,J) = SUM/C
+    end do
+  end do
+  do K=N-1,1,-1
+    I = iS(K)
+    if (I /= K) then
+      do J=1,M
+        C = B(I,J)
+        B(I,J) = B(K,J)
+        B(K,J) = C
+      end do
+    end if
+  end do
+5 iCTR = 0
+  nullify(iS)
+  return
+1 DET = 0.0d0
+  iCTR = 1
+  nullify(iS)
+  return
+7 iCTR = -1
+  nullify(iS)
+  return
+end subroutine DCOPIV_INTERNAL
+
+end subroutine DCOPIV

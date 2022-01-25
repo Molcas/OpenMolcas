@@ -10,12 +10,17 @@
 !                                                                      *
 ! Copyright (C) 1984,1986, Bernd Artur Hess                            *
 !***********************************************************************
-      REAL*8 FUNCTION PHI(M,N)
-      IMPLICIT REAL*8 (A-H,O-Z)
+
+real*8 function PHI(M,N)
+
+implicit real*8(A-H,O-Z)
 #include "crelop.fh"
-      IF (MOD(N,2).EQ.1.OR.MOD(M,2).EQ.1) GOTO 10
-      PHI=2.D0*GA(M+1)*GA(N+1)/GA(M+N+2)
-      RETURN
-10    PHI=0.D0
-      RETURN
-      END
+
+if ((mod(N,2) == 1) .or. (mod(M,2) == 1)) goto 10
+PHI = 2.d0*GA(M+1)*GA(N+1)/GA(M+N+2)
+return
+10 PHI = 0.d0
+
+return
+
+end function PHI

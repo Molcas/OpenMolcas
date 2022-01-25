@@ -8,53 +8,55 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      real*8 FUNCTION EXTC(LAMBDA,AL,BE,L1,M1,N1,L2,M2,N2)
-      IMPLICIT REAL*8 (A-H,O-Z)
+
+real*8 function EXTC(LAMBDA,AL,BE,L1,M1,N1,L2,M2,N2)
+
+implicit real*8(A-H,O-Z)
 #include "crelop.fh"
-      INTEGER IS1(3),IS2(3)
-!
-!    CALCULATE ANGULAR AND RADIAL PART
-!
-      II=L1+L2
-      JJ=M1+M2
-      KK=N1+N2
-      IMAX=II+JJ+KK+3
-      IF (IMAX.LE.20) GOTO 2
-!
-!    ERROR BRANCH: ANGULAR MOMENTUM  > MAXIMUM GIVEN BY ARRAY GA
-!
-      WRITE (6,1002) L1,M1,N1,L2,M2,N2,LAMBDA
-1002  FORMAT(' ILLEGAL ANGULAR MOMENTUM (PVP)'/,                        &
-     &       ' L1,M1,N1,L2,M2,N2,LAMBDA PRINTED'/,1X,7I5)
-      Call Abend
-!
-!    COMPUTE INTEGRAL OVER DERIVATIVE OF THE FUNCTIONS
-!
-2     IS1(1)=L1
-      IS1(2)=M1
-      IS1(3)=N1
-      IS2(1)=L2
-      IS2(2)=M2
-      IS2(3)=N2
-      SUM=DER(1,IS1,IS2,AL,BE)+DER(2,IS1,IS2,AL,BE)+                    &
-     &    DER(3,IS1,IS2,AL,BE)
-!
-!     NORMALIZATION
-!
-      II=L1+L1
-      JJ=M1+M1
-      KK=N1+N1
-      ANG=THETA(II+JJ,KK)*PHI(JJ,II)
-      EX=-0.5D0*DBLE(II+JJ+KK+3)
-      OV1=0.5D0*ANG*GA(II+JJ+KK+3)*((AL+AL)**EX)
-!@    WRITE (6,*) ' EXTC OV1',L1,M1,N1,AL,ANG,sqrt(1/OV1)
-      II=L2+L2
-      JJ=M2+M2
-      KK=N2+N2
-      ANG=THETA(II+JJ,KK)*PHI(JJ,II)
-      EX=-0.5D0*DBLE(II+JJ+KK+3)
-      OV2=0.5D0*ANG*GA(II+JJ+KK+3)*((BE+BE)**EX)
-!@    WRITE (6,*) ' EXTC OV1',L2,M2,N2,BE,ANG,sqrt(1/OV2)
-      EXTC=SUM/sqrt(OV1*OV2)
-      RETURN
-      END
+integer IS1(3), IS2(3)
+
+! CALCULATE ANGULAR AND RADIAL PART
+
+II = L1+L2
+JJ = M1+M2
+KK = N1+N2
+IMAX = II+JJ+KK+3
+if (IMAX <= 20) goto 2
+
+! ERROR BRANCH: ANGULAR MOMENTUM  > MAXIMUM GIVEN BY ARRAY GA
+
+write(6,1002) L1,M1,N1,L2,M2,N2,LAMBDA
+1002 format(' ILLEGAL ANGULAR MOMENTUM (PVP)'/,' L1,M1,N1,L2,M2,N2,LAMBDA PRINTED'/,1X,7I5)
+call Abend()
+
+! COMPUTE INTEGRAL OVER DERIVATIVE OF THE FUNCTIONS
+
+2 IS1(1) = L1
+IS1(2) = M1
+IS1(3) = N1
+IS2(1) = L2
+IS2(2) = M2
+IS2(3) = N2
+SUM = DER(1,IS1,IS2,AL,BE)+DER(2,IS1,IS2,AL,BE)+DER(3,IS1,IS2,AL,BE)
+
+!  NORMALIZATION
+
+II = L1+L1
+JJ = M1+M1
+KK = N1+N1
+ANG = THETA(II+JJ,KK)*PHI(JJ,II)
+EX = -0.5d0*dble(II+JJ+KK+3)
+OV1 = 0.5d0*ANG*GA(II+JJ+KK+3)*((AL+AL)**EX)
+!write(6,*) ' EXTC OV1',L1,M1,N1,AL,ANG,sqrt(1/OV1)
+II = L2+L2
+JJ = M2+M2
+KK = N2+N2
+ANG = THETA(II+JJ,KK)*PHI(JJ,II)
+EX = -0.5d0*dble(II+JJ+KK+3)
+OV2 = 0.5d0*ANG*GA(II+JJ+KK+3)*((BE+BE)**EX)
+!write(6,*) ' EXTC OV1',L2,M2,N2,BE,ANG,sqrt(1/OV2)
+EXTC = SUM/sqrt(OV1*OV2)
+
+return
+
+end function EXTC

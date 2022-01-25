@@ -8,38 +8,41 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE TRSMT(A,B,C,N,H,W)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION A(N*(N+1)/2),B(N,N),C(N*(N+1)/2),H(N,N),W(N,N)
-!
-!     B*A*BT
-!
-      IJ=0
-      DO 10 I=1,N
-      DO 11 J=1,I
-      IJ=IJ+1
-      C(IJ)=0.D0
-      W(I,J)=A(IJ)
-      W(J,I)=A(IJ)
-      H(I,J)=0.D0
-      H(J,I)=0.D0
-11    CONTINUE
-10    CONTINUE
-      DO 2 I=1,N
-      DO 3 L=1,N
-      DO 4 K=1,N
-      H(I,L)=B(I,K)*W(K,L)+H(I,L)
-4     CONTINUE
-3     CONTINUE
-2     CONTINUE
-      IJ=0
-      DO 21 I=1,N
-      DO 22 J=1,I
-      IJ=IJ+1
-      DO 23 L=1,N
-      C(IJ)=H(I,L)*B(J,L)+C(IJ)
-23    CONTINUE
-22    CONTINUE
-21    CONTINUE
-      RETURN
-      END
+
+subroutine TRSMT(A,B,C,N,H,W)
+! B*A*BT
+
+implicit real*8(A-H,O-Z)
+dimension A(N*(N+1)/2), B(N,N), C(N*(N+1)/2), H(N,N), W(N,N)
+
+IJ = 0
+do I=1,N
+  do J=1,I
+    IJ = IJ+1
+    C(IJ) = 0.d0
+    W(I,J) = A(IJ)
+    W(J,I) = A(IJ)
+    H(I,J) = 0.d0
+    H(J,I) = 0.d0
+  end do
+end do
+do I=1,N
+  do L=1,N
+    do K=1,N
+      H(I,L) = B(I,K)*W(K,L)+H(I,L)
+    end do
+  end do
+end do
+IJ = 0
+do I=1,N
+  do J=1,I
+    IJ = IJ+1
+    do L=1,N
+      C(IJ) = H(I,L)*B(J,L)+C(IJ)
+    end do
+  end do
+end do
+
+return
+
+end subroutine TRSMT

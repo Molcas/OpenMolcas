@@ -7,56 +7,53 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986,1995, Bernd Artur Hess                            *
+!               2005, Jesper Wisborg Krogh                             *
 !***********************************************************************
 
-subroutine DIAG_DKH(A,N,EIG,EW,SINV,AUX,IC)
+subroutine DKRE1R(A,R,E,TT,V,G,RE1R,VEXTT,PVPT,N)
+! CONSTRUCT RE1R FOR DK3
 
 implicit real*8(A-H,O-Z)
-dimension A(N*(N+1)/2), AUX(N,N), SINV(N,N), EIG(N,N), EW(N)
-#ifdef MOLPRO
-!MR ATTENTION, THE SCRATCH ARRAY TMP IS NOT PROPERLY ALLOCATED
-dimension TMP(6*N)
-#endif
+dimension E(N), A(N), R(N), TT(N)
+dimension V(N*(N+1)/2), G(N*(N+1)/2)
+dimension VEXTT(N*(N+1)/2), PVPT(N*(N+1)/2)
+dimension RE1R(N,N)
 
 IJ = 0
 do I=1,N
   do J=1,I
     IJ = IJ+1
-    AUX(I,J) = A(IJ)
-    AUX(J,I) = A(IJ)
+    V(IJ) = VEXTT(IJ)
+    G(IJ) = PVPT(IJ)
   end do
 end do
-do K=1,N
-  do J=1,N
-    EIG(K,J) = 0.d0
-    do L=1,J
-      EIG(K,J) = EIG(K,J)+AUX(K,L)*SINV(L,J)
-    end do
-  end do
-end do
+
+! MULTIPLY
+
+IJ = 0
 do I=1,N
   do J=1,I
-    AUX(I,J) = 0.d0
-    do K=1,I
-      AUX(I,J) = AUX(I,J)+SINV(K,I)*EIG(K,J)
-    end do
-    AUX(J,I) = AUX(I,J)
+    IJ = IJ+1
+    V(IJ) = V(IJ)*A(I)*A(J)*R(I)*R(I)*R(J)*R(J)*TT(I)*TT(J)*4.0d0
+    RE1R(I,J) = V(IJ)
+    RE1R(J,I) = RE1R(I,J)
   end do
 end do
 
-TOL = 1.D-80
-#ifdef MOLPRO
+IJ = 0
 do I=1,N
-  do J=1,N
-    EIG(J,I) = AUX(J,I)
+  do J=1,I
+    IJ = IJ+1
+    G(IJ) = G(IJ)*A(I)*A(J)*R(I)*R(J)
+    RE1R(I,J) = RE1R(I,J)+G(IJ)
+    RE1R(J,I) = RE1R(I,J)
   end do
 end do
-call diag2(n,n,ew,eig)
-!call dsyev_('V','L',N,EIG,N,EW,TMP,6*N,INFO)
-#else
-call JACOB_REL(AUX,EIG,EW,N,TOL,IC)
-#endif
 
 return
+! Avoid unused argument warnings
+if (.false.) call Unused_real_array(E)
 
-end subroutine DIAG_DKH
+end subroutine DKRE1R

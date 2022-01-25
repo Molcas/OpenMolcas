@@ -7,56 +7,34 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986,1995, Bernd Artur Hess                            *
+!               2005, Jesper Wisborg Krogh                             *
 !***********************************************************************
 
-subroutine DIAG_DKH(A,N,EIG,EW,SINV,AUX,IC)
+subroutine Diagr(A,N,EIG,EW,SINV,AUX,AUXI)
 
 implicit real*8(A-H,O-Z)
-dimension A(N*(N+1)/2), AUX(N,N), SINV(N,N), EIG(N,N), EW(N)
-#ifdef MOLPRO
-!MR ATTENTION, THE SCRATCH ARRAY TMP IS NOT PROPERLY ALLOCATED
-dimension TMP(6*N)
-#endif
+dimension A(*), AUX(N,N), SINV(N,N), EIG(N,N), EW(*), AUXI(*)
+#include "WrkSpc.fh"
 
-IJ = 0
-do I=1,N
-  do J=1,I
-    IJ = IJ+1
-    AUX(I,J) = A(IJ)
-    AUX(J,I) = A(IJ)
-  end do
-end do
-do K=1,N
-  do J=1,N
-    EIG(K,J) = 0.d0
-    do L=1,J
-      EIG(K,J) = EIG(K,J)+AUX(K,L)*SINV(L,J)
-    end do
-  end do
-end do
-do I=1,N
-  do J=1,I
-    AUX(I,J) = 0.d0
-    do K=1,I
-      AUX(I,J) = AUX(I,J)+SINV(K,I)*EIG(K,J)
-    end do
-    AUX(J,I) = AUX(I,J)
-  end do
-end do
-
-TOL = 1.D-80
+if (n == 0) return
 #ifdef MOLPRO
-do I=1,N
-  do J=1,N
-    EIG(J,I) = AUX(J,I)
-  end do
-end do
-call diag2(n,n,ew,eig)
-!call dsyev_('V','L',N,EIG,N,EW,TMP,6*N,INFO)
+call Square(Aux,A,n,n)
 #else
-call JACOB_REL(AUX,EIG,EW,N,TOL,IC)
+call Square(A,Aux,n,1,n)
 #endif
+call DGEMM_('N','N',n,n,n,1.0d0,Aux,n,Sinv,n,0.0d0,Eig,n)
+call dGemm_tri('T','N',n,n,n,1.0d0,SINV,n,EIG,n,0.0d0,AUXI,n)
+
+call dCopy_(n*n,[0.0d0],0,Eig,1)
+call dCopy_(n,[1.0d0],0,Eig,n+1)
+call dCopy_(N*(N+1)/2,AUXI,1,AUX,1)
+!call NIDiag(AUXI,EIG,N,N)
+call NIDiag_New(AUXI,EIG,N,N)
+call vEig(N,AUXI,EW)
+call JacOrd2(EW,Eig,n,n)
 
 return
 
-end subroutine DIAG_DKH
+end subroutine Diagr

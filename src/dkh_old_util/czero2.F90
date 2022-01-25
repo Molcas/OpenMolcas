@@ -7,23 +7,23 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986,1995, Bernd Artur Hess                            *
+!               2005, Jesper Wisborg Krogh                             *
 !***********************************************************************
 
-subroutine AUXC(N,NBC,TC,ANSC)
+subroutine CZERO2(XX,N,M,NDIM)
 
 implicit real*8(A-H,O-Z)
+dimension XX(NDIM,*)
+data ZERO/0.0D+00/
 
-X = 1d0/(1d0+TC)
-Y = TC*X
-X = sqrt(X**(NBC+1))
-DUM = 1d0
-if (N > 1) then
-  do I=N,2,-1
-    DUM = DUM*Y*dble(NBC+2*I-3)/dble(2*I-2)+1.d0
+do J=1,N
+  do I=1,M
+    XX(I,J) = ZERO
   end do
-end if
-ANSC = X*DUM
+end do
 
 return
 
-end subroutine AUXC
+end subroutine CZERO2

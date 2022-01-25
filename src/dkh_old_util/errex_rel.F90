@@ -7,23 +7,16 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986,1995, Bernd Artur Hess                            *
+!               2005, Jesper Wisborg Krogh                             *
 !***********************************************************************
 
-subroutine AUXC(N,NBC,TC,ANSC)
+subroutine errex_rel(char)
 
-implicit real*8(A-H,O-Z)
+character*(*) char
 
-X = 1d0/(1d0+TC)
-Y = TC*X
-X = sqrt(X**(NBC+1))
-DUM = 1d0
-if (N > 1) then
-  do I=N,2,-1
-    DUM = DUM*Y*dble(NBC+2*I-3)/dble(2*I-2)+1.d0
-  end do
-end if
-ANSC = X*DUM
+write(6,'(a50)') char
+call Abend()
 
-return
-
-end subroutine AUXC
+end subroutine errex_rel

@@ -7,56 +7,29 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986,1995, Bernd Artur Hess                            *
+!               2005, Jesper Wisborg Krogh                             *
 !***********************************************************************
 
-subroutine DIAG_DKH(A,N,EIG,EW,SINV,AUX,IC)
+subroutine TrSmr2(A,B,C,N,H,G,W)
+! Performs the equivalent operations as two calls to TrSmr
+! RESULT IS IN C = G^T * (B^T * A * B) * G
+! and where C and A are triangular packed.
 
 implicit real*8(A-H,O-Z)
-dimension A(N*(N+1)/2), AUX(N,N), SINV(N,N), EIG(N,N), EW(N)
-#ifdef MOLPRO
-!MR ATTENTION, THE SCRATCH ARRAY TMP IS NOT PROPERLY ALLOCATED
-dimension TMP(6*N)
-#endif
+dimension A(N*(N+2)/2), B(N,N), C(N*(N+1)/2), H(N,N), W(N,N), G(N,N)
 
-IJ = 0
-do I=1,N
-  do J=1,I
-    IJ = IJ+1
-    AUX(I,J) = A(IJ)
-    AUX(J,I) = A(IJ)
-  end do
-end do
-do K=1,N
-  do J=1,N
-    EIG(K,J) = 0.d0
-    do L=1,J
-      EIG(K,J) = EIG(K,J)+AUX(K,L)*SINV(L,J)
-    end do
-  end do
-end do
-do I=1,N
-  do J=1,I
-    AUX(I,J) = 0.d0
-    do K=1,I
-      AUX(I,J) = AUX(I,J)+SINV(K,I)*EIG(K,J)
-    end do
-    AUX(J,I) = AUX(I,J)
-  end do
-end do
-
-TOL = 1.D-80
 #ifdef MOLPRO
-do I=1,N
-  do J=1,N
-    EIG(J,I) = AUX(J,I)
-  end do
-end do
-call diag2(n,n,ew,eig)
-!call dsyev_('V','L',N,EIG,N,EW,TMP,6*N,INFO)
+call Square(W,A,n,n)
 #else
-call JACOB_REL(AUX,EIG,EW,N,TOL,IC)
+call Square(A,W,n,1,n)
 #endif
+call DGEMM_('T','N',n,n,n,1.0d0,B,n,W,n,0.0d0,H,n)
+call DGEMM_('N','N',n,n,n,1.0d0,H,n,B,n,0.0d0,W,n)
+call DGEMM_('T','N',n,n,n,1.0d0,G,n,W,n,0.0d0,H,n)
+call dGemm_tri('N','N',n,n,n,1.0d0,H,n,G,n,0.0d0,C,n)
 
 return
 
-end subroutine DIAG_DKH
+end subroutine TrSmr2

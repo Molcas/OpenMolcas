@@ -8,85 +8,86 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      CHARACTER*40 FUNCTION PIKNAM (LINED,KEYW)
+
+character*40 function PIKNAM(LINED,KEYW)
+! picks a character item up from a line like
+! ITEM_NAME  value  COMMENTS
 !
-!...  picks a character item up from a line like
-!     ITEM_NAME  value  COMMENTS
+! returns ' ' when it fails to pick the item up.
 !
-!     returns ' ' when it fails to pick the item up.
-!
-!       LINED        input line to be searched
-!       KEYW         keyword
-!
-      IMPLICIT REAL*8 (A-H,O-Z)
-      CHARACTER*40 KEYW
-      CHARACTER*80 LINE,LINED
-      LOGICAL FOUND
-!
-      IK=0
-      LL=0
-      IL=0
-!
-      LINE=LINED
-      LK=1
-      DO 10 I=40,1,-1
-        IF (KEYW(I:I).NE.' ') THEN
-          LK=I
-          GO TO 11
-        ENDIF
-10    CONTINUE
-11    CONTINUE
-      DO 12 I=1,40
-        IF (KEYW(I:I).NE.' ') THEN
-          IK=I
-          GO TO 13
-        ENDIF
-12    CONTINUE
-13    CONTINUE
-!
-      ISTRT=INDEX(LINE,KEYW(IK:LK))
-      IF (ISTRT.EQ.0) THEN
-!...    the keyword has not been found in the line.
-        PIKNAM=' '
-        RETURN
-      ENDIF
-      ISTRT=ISTRT+LK-IK+1
-      IF (LINE(ISTRT:ISTRT).NE.' ') THEN
-!...    the keyword is not followed by a blank character.
-        PIKNAM=' '
-        RETURN
-      ELSE IF (ISTRT.GE.80) THEN
-!...    the line finishes after the keyword.
-        PIKNAM=' '
-        RETURN
-      ELSE
-        ISTRT=ISTRT+1
-      ENDIF
-!
-      FOUND=.FALSE.
-      DO 20 I=ISTRT,80
-        IF (FOUND) THEN
-          IF (LINE(I:I).EQ.' ') THEN
-            LL=I-1
-            GO TO 21
-          ENDIF
-        ELSE
-          IF (LINE(I:I).NE.' ') THEN
-            FOUND=.TRUE.
-            IL=I
-          ENDIF
-        ENDIF
-20    CONTINUE
-21    CONTINUE
-!
-      IF (FOUND) THEN
-        PIKNAM=LINE(IL:LL)
-          WRITE (LINE,601) LK,LL-IL+1
-!         WRITE (6,LINE) KEYW(:LK),PIKNAM
-      ELSE
-        PIKNAM=' '
-      ENDIF
-!
-      RETURN
-601   FORMAT ('('' PIKNAM:         '',A',I2.2,',1X,A',I2.2,')')
-      END
+!   LINED        input line to be searched
+!   KEYW         keyword
+
+implicit real*8(A-H,O-Z)
+character*40 KEYW
+character*80 LINE, LINED
+logical FOUND
+
+IK = 0
+LL = 0
+IL = 0
+
+LINE = LINED
+LK = 1
+do I=40,1,-1
+  if (KEYW(I:I) /= ' ') then
+    LK = I
+    GO TO 11
+  end if
+end do
+11 continue
+do I=1,40
+  if (KEYW(I:I) /= ' ') then
+    IK = I
+    GO TO 13
+  end if
+end do
+13 continue
+
+ISTRT = index(LINE,KEYW(IK:LK))
+if (ISTRT == 0) then
+  ! the keyword has not been found in the line.
+  PIKNAM = ' '
+  return
+end if
+ISTRT = ISTRT+LK-IK+1
+if (LINE(ISTRT:ISTRT) /= ' ') then
+  ! the keyword is not followed by a blank character.
+  PIKNAM = ' '
+  return
+else if (ISTRT >= 80) then
+  ! the line finishes after the keyword.
+  PIKNAM = ' '
+  return
+else
+  ISTRT = ISTRT+1
+end if
+
+FOUND = .false.
+do I=ISTRT,80
+  if (FOUND) then
+    if (LINE(I:I) == ' ') then
+      LL = I-1
+      GO TO 21
+    end if
+  else
+    if (LINE(I:I) /= ' ') then
+      FOUND = .true.
+      IL = I
+    end if
+  end if
+end do
+21 continue
+
+if (FOUND) then
+  PIKNAM = LINE(IL:LL)
+  write(LINE,601) LK,LL-IL+1
+  !write(6,LINE) KEYW(:LK),PIKNAM
+else
+  PIKNAM = ' '
+end if
+
+return
+601 format('('' PIKNAM:         '',A',I2.2,',1X,A',I2.2,')')
+
+end function PIKNAM

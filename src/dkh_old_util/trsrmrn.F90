@@ -7,23 +7,37 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1995, Bernd Artur Hess                                 *
 !***********************************************************************
 
-subroutine AUXC(N,NBC,TC,ANSC)
+subroutine TrSmrN(A,BA,BB,C,NA,NB,H,W)
+! TRANSFORM SYMMETRIC MATRIX A BY UNITARY TRANSFORMATION IN B.
+! RESULT IS IN C
 
 implicit real*8(A-H,O-Z)
+dimension A(NA,NB), BA(NA,NA), BB(NB,NB), C(NA,NB), H(NA,NB), W(NA,NB)
 
-X = 1d0/(1d0+TC)
-Y = TC*X
-X = sqrt(X**(NBC+1))
-DUM = 1d0
-if (N > 1) then
-  do I=N,2,-1
-    DUM = DUM*Y*dble(NBC+2*I-3)/dble(2*I-2)+1.d0
+call DZero(C,NA*NB)
+call DZero(H,NA*NB)
+call dcopy_(NA*NB,A,1,W,1)
+
+do I=1,NA
+  do L=1,NB
+    do K=1,NA
+      H(I,L) = BA(K,I)*W(K,L)+H(I,L)
+    end do
   end do
-end if
-ANSC = X*DUM
+end do
+
+do I=1,NA
+  do J=1,NB
+    do L=1,NB
+      C(I,J) = H(I,L)*BB(L,J)+C(I,J)
+    end do
+  end do
+end do
 
 return
 
-end subroutine AUXC
+end subroutine TrSmrN

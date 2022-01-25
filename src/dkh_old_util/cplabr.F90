@@ -7,23 +7,28 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986,1995, Bernd Artur Hess                            *
+!               2005, Jesper Wisborg Krogh                             *
 !***********************************************************************
 
-subroutine AUXC(N,NBC,TC,ANSC)
+subroutine CpLabr(A,B,L,M,N,IA,IB,C,IC,IER)
 
-implicit real*8(A-H,O-Z)
+implicit real*8(a-h,o-z)
+real*8 A(IA,M), B(IB,N), C(IC,N)
 
-X = 1d0/(1d0+TC)
-Y = TC*X
-X = sqrt(X**(NBC+1))
-DUM = 1d0
-if (N > 1) then
-  do I=N,2,-1
-    DUM = DUM*Y*dble(NBC+2*I-3)/dble(2*I-2)+1.d0
-  end do
-end if
-ANSC = X*DUM
+#ifdef _DEBUGPRINT_
+if ((IA >= L) .and. (IB >= M) .and. (IC >= L)) GO TO 5
+IER = 129
+GO TO 9000
+5 continue
+#endif
+IER = 0
+call DGEMM_('N','N',L,M,N,1.0d0,A,IA,B,IB,1.0d0,C,IC)
+#ifdef _DEBUGPRINT_
+9000 continue
+#endif
 
 return
 
-end subroutine AUXC
+end subroutine CpLabr
