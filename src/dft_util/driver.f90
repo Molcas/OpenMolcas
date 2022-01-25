@@ -38,7 +38,7 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !     Define external functions not defined in LibXC. These are either
 !     accessed through the procedure pointer sub or External_sub.
 
-      External:: Overlap, NucAtt, ndsd_ts
+      procedure(DFT_FUNCTIONAL) :: Overlap, NucAtt, ndsd_ts
 !***********************************************************************
       procedure(DFT_FUNCTIONAL), pointer :: sub => null()
 !     Sometime we need an external routine which covers something which
