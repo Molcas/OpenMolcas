@@ -24,5 +24,5 @@ Note that driver.f90 should not be cloned ever. If new functionalities are to be
 added these should be incoporated in this routine.
 
 In the case of functionals not present in LibXC the corresponding subroutines
-are placed in src/raw_functionals. driver.f90 does support the use of external
+are placed in src/dft_util. driver.f90 does support the use of external
 functions in combinations with or without functionals of the LibXC library.
