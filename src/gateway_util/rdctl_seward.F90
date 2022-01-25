@@ -27,7 +27,7 @@ use Sizes_of_Seward, only: S
 use Gateway_Info, only: Align_Only, CoM, CutInt, Do_Align, Do_FckInt, Do_GuessOrb, DoFMM, E1, E2, EMFR, FNMC, GIAO, kVector, &
                         lAMFI, lDOWNONLY, lMXTC, lRel, lRP, lSchw, lUPONLY, NEMO, PkAcc, RPQMin, Rtrnc, SadStep, Shake, ThrInt, &
                         Thrs, UnNorm, Vlct
-use DKH_Info, only: iCtrLD, BSS, CLightAU, DKroll, IRELAE, IRFLAG1, LDKRoll, nCtrlD, radiLD
+use DKH_Info, only: iCtrLD, BSS, CLightAU, DKroll, IRELAE, LDKRoll, nCtrlD, radiLD
 use RICD_Info, only: Cholesky, DiagCheck, Do_acCD_Basis, Do_nacCD_Basis, Do_RI, iRI_Type, LDF, LocalDF, Skip_High_AC, Thrshld_CD
 use Gateway_global, only: DirInt, Expert, Fake_ERIs, Force_Out_of_Core, force_part_c, force_part_p, G_Mode, ifallorb, iPack, &
                           iWRopt, Onenly, Prprt, Run_Mode, S_Mode, Short, SW_FileOrb, Test
@@ -113,11 +113,12 @@ real(kind=wp), parameter :: Cho_CutInt = 1.0e-40_wp, Cho_ThrInt = 1.0e-40_wp, &
                             WellRad(3) = [-1.22_wp,-3.20_wp,-6.20_wp]
 logical(kind=iwp), parameter :: IfTest = _TEST_
 character(len=*), parameter :: DefNm = 'basis_library'
+! Note: blank keywords have been removed and can be reused
 character(len=*), parameter :: KeyW(188) = ['END ','EMBE','SYMM','FILE','VECT','ORBC','THRS','UNNO','RADI','TITL','ECPS','AUXS', &
                                             'BSSH','VERB','ORBA','ZMAT','XBAS','XYZ ','COOR','GROU','BSSE','MOVE','NOMO','SYMT', &
                                             'NODE','SDEL','TDEL','BASD','BASI','PRIN','OPTO','THRE','CUTO','RTRN','DIRE','CSPF', &
                                             'EXPE','MOLC','DCRN','MOLP','MOLE','RELI','JMAX','MULT','CENT','EMPC','XFIE','DOUG', &
-                                            'DK1H','DK2H','DK3H','DK3F','RESC','RA0H','RA0F','RAIH','RX2C','RBSS','OLDD','BSSM', &
+                                            'DK1H','DK2H','DK3H','DK3F','RESC','RA0H','RA0F','RAIH','RX2C','RBSS','    ','BSSM', &
                                             'AMFI','AMF1','AMF2','AMF3','FAKE','FINI','MGAU','PART','FPCO','FPPR','NOTA','WELL', &
                                             'NODK','ONEO','TEST','SDIP','EPOT','EFLD','FLDG','ANGM','UPON','DOWN','OMQI','AMPR', &
                                             'DSHD','NOPA','STDO','PKTH','SKIP','EXTR','RF-I','GRID','CLIG','NEMO','RMAT','RMEA', &
@@ -1177,15 +1178,6 @@ do
 
         IRELAE = 102
         DKroll = .true.
-        GWInput = .true.
-
-      case (KeyW(59))
-        !                                                              *
-        !***** OLDD ****************************************************
-        !                                                              *
-        ! Switch on the old DKH routine
-
-        IRFLAG1 = 1
         GWInput = .true.
 
       case (KeyW(60))

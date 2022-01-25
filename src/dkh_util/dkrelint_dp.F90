@@ -21,7 +21,7 @@ subroutine DKRelint_DP()
 !       exact decoupling BSS method.
 
 use Basis_Info, only: dbsc, nBas, ncnttp
-use DKH_Info, only: CLightAU, iRelae, iRFlag1, LDKroll, radiLD
+use DKH_Info, only: CLightAU, iRelae, LDKroll, radiLD
 use Symmetry_Info, only: nIrrep
 use Gateway_Info, only: lMXTC
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -47,10 +47,6 @@ integer(kind=iwp), external :: nProp_Int
 #include "rinfo.fh"
 #include "print.fh"
 
-if (iRFlag1 == 1) then
-  call DKRelint()
-  return
-end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
