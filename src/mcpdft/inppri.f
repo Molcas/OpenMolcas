@@ -503,7 +503,7 @@ C.. for GAS
        If (KSDFT.ne.'SCF') Then
          Call Put_dScalar('DFT exch coeff',CoefX)
          Call Put_dScalar('DFT corr coeff',CoefR)
-         Call Funi_Print
+         Call Funi_Print()
        End If
   900 CONTINUE
       Call XFlush(LF)

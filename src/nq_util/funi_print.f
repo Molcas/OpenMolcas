@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Funi_Print
+      Subroutine Funi_Print()
       use nq_Grid, only: nGridMax
       Implicit Real*8 (A-H,O-Z)
 #include "nq_info.fh"
@@ -35,17 +35,10 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (iPrint.ge.10) Then
-      Write (6,*)
-      Write (6,'(6X,A)') 'Fast Utility for Numerical Integration'
-      Write (6,'(6X,A)') 'Authors: R. Lindh, Y. Carissan, '
-     &                 //'M. Wierzbowska and L. Gagliardi.'
-      End If
-*
-      If (iPrint.ge.6) Then
+      If (iPrint.ge.2) Then
       Write (6,*)
       Write (6,'(6X,A)') 'Numerical integration parameters'
-      Write (6,'(6X,A)') '======================================'
+      Write (6,'(6X,A)') '--------------------------------'
       Write (6,'(6X,A,21X,A)') 'Radial quadrature type:    ',Quadrature
 *
       If (Quadrature(1:3).eq.'LMG') Then
@@ -95,7 +88,6 @@
       Else
          Write (6,'(6X,A)') 'AO values are stored on disk'
       End If
-      Write (6,*)
       End If
 *                                                                      *
 ************************************************************************

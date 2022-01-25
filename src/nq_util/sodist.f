@@ -93,27 +93,21 @@
 *
 *
 *     .. Local Scalars ..
-      INTEGER            I, J, L
-      REAL*8   TEMP
+      INTEGER            J, L
 *     .. Parameters ..
       REAL*8   ZERO
       PARAMETER        ( ZERO = 0.0D+0 )
 *     ..
 *
-*           Form  C := A*B + C.
+*     Form  C := A*B + C.
 *
-            DO 90, J = 1, N
-            if(DoIt(J).eq.1) then
-               DO 80, L = 1, K
-                  IF( B( L, J ).NE.ZERO )THEN
-                     TEMP = B( L, J )
-                     DO 70, I = 1, M
-                        C( I, J ) = C( I, J ) + TEMP*A( I, L )
-   70                CONTINUE
-                  END IF
-   80          CONTINUE
-            endif
-   90       CONTINUE
+      DO J = 1, N
+         If (DoIt(J).ne.1) Cycle
+         DO L = 1, K
+            IF( B( L, J ).EQ.ZERO ) Cycle
+            Call DAxPy_(M,B(L,J),A(:,L),1,C(:,J),1)
+         End Do
+      End Do
 *
       RETURN
       END

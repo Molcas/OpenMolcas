@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 2000,2022, Roland Lindh                                *
+!               2022, Susi Lehtola                                     *
 !***********************************************************************
 Module libxc_parameters
 use xc_f03_lib_m
@@ -33,10 +34,24 @@ Contains
 !***********************************************************************
 !
 Subroutine Initiate_Libxc_functionals(nD)
+use nq_Grid, only: l_casdft
 Implicit None
 Integer nD, iFunc
 Real*8 :: Coeff
 
+! if it is a mixed functional and we do MC-PDFT split it up in the components for
+! further analysis.
+If (nFuncs==1 .and. l_casdft) Then
+   call xc_f03_func_init(xc_func(1), func_id(1), int(nD, kind=LibxcInt))
+   nFuncs = INT(xc_f03_num_aux_funcs(xc_func(1)))
+
+   If (nFuncs/=1) Then
+      call xc_f03_aux_func_ids(xc_func(1), func_id)
+      call xc_f03_aux_func_weights(xc_func(1), Coeffs)
+      call xc_f03_func_end(xc_func(1))
+   End If
+
+End If
 Do iFunc = 1, nFuncs
    ! Initialize libxc functional: nD = 2 means spin-polarized
    call xc_f03_func_init(xc_func(iFunc), func_id(iFunc), int(nD, kind=LibxcInt))
@@ -83,8 +98,8 @@ Real*8 Coeff
 If (nD.eq.1) Then
                           Rho(:,1:mGrid)   =2.00D0*Rho(:,1:mGrid)
    If (Allocated(Sigma))  Sigma(:,1:mGrid) =4.00D0*Sigma(:,1:mGrid)
-   If (Allocated(Lapl))   Lapl(:,1:mGrid)  =2.00D0*Lapl(:,1:mGrid)
    If (Allocated(vSigma)) vSigma(:,1:mGrid)=0.50D0*vSigma(:,1:mGrid)
+   If (Allocated(Lapl))   Lapl(:,1:mGrid)  =2.00D0*Lapl(:,1:mGrid)
    If (Allocated(vTau))   vTau(:,1:mGrid)  =2.00D0*vTau(:,1:mGrid)
 Else
    If (Allocated(Tau))    Tau(:,1:mGrid)   =0.50D0*Tau(:,1:mGrid)
@@ -99,8 +114,8 @@ End Do
 If (nD.eq.1) Then
                           Rho(:,1:mGrid)   =0.50D0*Rho(:,1:mGrid)
    If (Allocated(Sigma))  Sigma(:,1:mGrid) =0.25D0*Sigma(:,1:mGrid)
-   If (Allocated(Lapl))   Lapl(:,1:mGrid)  =0.50D0*Lapl(:,1:mGrid)
    If (Allocated(vSigma)) vSigma(:,1:mGrid)=2.00D0*vSigma(:,1:mGrid)
+   If (Allocated(Lapl))   Lapl(:,1:mGrid)  =0.50D0*Lapl(:,1:mGrid)
    If (Allocated(vTau))   vTau(:,1:mGrid)  =0.50D0*vTau(:,1:mGrid)
 Else
    If (Allocated(Tau))    Tau(:,1:mGrid)   =2.00D0*Tau(:,1:mGrid)

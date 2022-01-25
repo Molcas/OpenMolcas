@@ -201,8 +201,9 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !----    Slater exchange
 
          nFuncs=1
-         func_id(1:nFuncs)=[XC_LDA_X]
-         Coeffs(1)=0.70D0
+         func_id(1:nFuncs)=[XC_LDA_C_XALPHA]
+!        func_id(1:nFuncs)=[XC_LDA_X]
+!        Coeffs(1)=0.70D0
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -279,12 +280,8 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !
 !----    Lee-Yang-Parr correlation
 
-         nFuncs=4
-         func_id(1:nFuncs)=[XC_LDA_X,XC_GGA_X_OPTX,XC_GGA_X_KT1,XC_GGA_C_LYP]
-         Coeffs(1)= (1.092d0-1.051510d0*(0.925452d0/1.431690d0)-(0.004d0/0.006d0))
-         Coeffs(2)= (0.925452d0/1.431690d0)
-         Coeffs(3)= (0.0040d0/0.006d0)
-         Coeffs(4)= 0.864409d0
+         nFuncs=1
+         func_id(1:nFuncs)=[XC_GGA_XC_KT3]
 
 !                                                                      *
 !***********************************************************************
@@ -298,11 +295,8 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !
 !----    Vosko-Wilk-Nusair correlation functional III
 
-         nFuncs=3
-         func_id(1:nFuncs)=[XC_LDA_X,XC_GGA_X_KT1,XC_LDA_C_VWN_RPA]
-         Coeffs(1)= 0.07173d0
-!        Coeffs(2)= 1.0D0
-         Coeffs(3)= 0.576727d0
+         nFuncs=1
+         func_id(1:nFuncs)=[XC_GGA_XC_KT2]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -415,12 +409,8 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !
 !----    Lee-Yang-Parr correlation
 
-         nFuncs=4
-         func_id(1:nFuncs)=[XC_LDA_X,XC_GGA_X_B88,XC_LDA_C_VWN_RPA,XC_GGA_C_LYP]
-         Coeffs(1)=0.08D0
-         Coeffs(2)=0.72D0
-         Coeffs(3)=1.0D0-0.81D0
-         Coeffs(4)=0.81D0
+         nFuncs=1
+         func_id(1:nFuncs)=[XC_HYB_GGA_XC_B3LYP]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -437,12 +427,8 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !
 !----    Lee-Yang-Parr correlation
 
-         nFuncs=4
-         func_id(1:nFuncs)=[XC_LDA_X,XC_GGA_X_OPTX,XC_LDA_C_VWN_RPA,XC_GGA_C_LYP]
-         Coeffs(1)=(0.9262D0-1.051510d0*(0.8133D0/1.431690d0))
-         Coeffs(2)=(0.8133D0/1.431690d0)
-         Coeffs(3)=1.0D0-0.81D0
-         Coeffs(4)=0.81D0
+         nFuncs=1
+         func_id(1:nFuncs)=[XC_HYB_GGA_XC_O3LYP]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -494,12 +480,8 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !
 !----    Lee-Yang-Parr correlation
 
-         nFuncs=4
-         func_id(1:nFuncs)=[XC_LDA_X,XC_GGA_X_B88,XC_LDA_C_VWN,XC_GGA_C_LYP]
-         Coeffs(1)=0.08D0
-         Coeffs(2)=0.72D0
-         Coeffs(3)=1.0D0-0.81D0
-         Coeffs(4)=0.81D0
+         nFuncs=1
+         func_id(1:nFuncs)=[XC_HYB_GGA_XC_B3LYP5]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -706,6 +688,16 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 
          nFuncs=2
          func_id(1:nFuncs)=[XC_HYB_MGGA_X_M06_HF,XC_MGGA_C_M06_HF]
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Becke-Roussel 89 Gamma=1
+!                                                                      *
+      Case('BR89G1')
+         Functional_type=meta_GGA_type2
+
+         nFuncs=1
+         func_id(1:nFuncs)=[XC_MGGA_X_BR89_1]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
