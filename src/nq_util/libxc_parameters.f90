@@ -48,8 +48,8 @@ If (nFuncs==1 .and. l_casdft) Then
    If (nFuncs/=1) Then
       call xc_f03_aux_func_ids(xc_func(1), func_id)
       call xc_f03_aux_func_weights(xc_func(1), Coeffs)
-      call xc_f03_func_end(xc_func(1))
    End If
+   call xc_f03_func_end(xc_func(1))
 
 End If
 Do iFunc = 1, nFuncs
