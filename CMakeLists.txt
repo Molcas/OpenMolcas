@@ -1642,7 +1642,7 @@ list (APPEND EXTERNAL_LIBRARIES ${Libxc_LIBRARIES})
 
 foreach (prog
   dft_util
-  libxc_util
+  nq_util
 )
   list (APPEND ${prog}_incs ${Libxc_INCLUDE_DIRS})
 endforeach ()
