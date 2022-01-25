@@ -314,7 +314,8 @@
         write(u6, *)
         write(u6,'(A)') "When finished do:"
         if (tGUGA) then
-          write(u6,'(4x, A)') 'cp PSMAT.* PAMAT.* DMAT.* '//trim(WorkDir)
+          write(u6,'(4x, A)') 'cp PSMAT.* PAMAT.* DMAT.* '//
+     &          trim(WorkDir)
         else
           write(u6,'(4x, A)')
      &      'cp TwoRDM_* '//trim(WorkDir)
