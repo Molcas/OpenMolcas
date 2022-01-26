@@ -327,6 +327,16 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+!     OreLYP
+!                                                                      *
+      Case('ORELYP')
+         Functional_type=GGA_type
+
+         nFuncs=2
+         func_id(1:nFuncs)=[XC_GGA_X_OPTX,XC_GGA_C_TM_LYP]
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 !     OPBE                                                             *
 !                                                                      *
       Case('OPBE')
