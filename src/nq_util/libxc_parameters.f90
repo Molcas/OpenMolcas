@@ -99,7 +99,6 @@ Real*8 Coeff
 ! and the standard of the Libxc code with respect to the definition of
 ! tau.
 
-If (Allocated(Tau))    Tau(:,1:mGrid)   =0.50D0*Tau(:,1:mGrid)
 If (Allocated(vTau))   vTau(:,1:mGrid)  =2.00D0*vTau(:,1:mGrid)
 
 Do iFunc = 1, nFuncs
@@ -107,7 +106,6 @@ Do iFunc = 1, nFuncs
    call libxc_interface(xc_func(iFunc),xc_info(iFunc),mGrid,nD,F_xc,Coeff)
 End Do
 
-If (Allocated(Tau))    Tau(:,1:mGrid)   =2.00D0*Tau(:,1:mGrid)
 If (Allocated(vTau))   vTau(:,1:mGrid)  =0.50D0*vTau(:,1:mGrid)
 
 Return
