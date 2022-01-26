@@ -107,18 +107,18 @@ do i=1,mAtoms
   end if
 
   AtNum = iNuclearChargeFromSymbol(Element(i))
+  Subs = 0
   if (lmass) then
 
     ! Do according to user list of isotopes.
 
-    Subs = 0
     do nAt=1,iMass
       if (Element(i) == cmass(nAt)) then
         Mass(i) = UtoAU*umass(nAt)
         Subs = 1
       end if
     end do
-  else
+  else if (AtNum > 0) then
 
     ! Get list of natural isotopes
 

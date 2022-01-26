@@ -34,6 +34,7 @@
       use fcidump, only : DumpOnly
       use fciqmc, only: DoNECI
       use CC_CI_mod, only: Do_CC_CI
+      use Fock_util_global, only: DoLocK
 
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -55,7 +56,6 @@
 #endif
       Logical DoCholesky
       Logical lOPTO
-#include "cholk.fh"
 #ifdef _DMRG_
       character(len=100) :: dmrg_start_guess
 #endif
@@ -582,7 +582,7 @@ C.. for GAS
        If (KSDFT.ne.'SCF') Then
          Call Put_dScalar('DFT exch coeff',CoefX)
          Call Put_dScalar('DFT corr coeff',CoefR)
-         Call Funi_Print
+         Call Funi_Print()
        End If
       END IF
       Write(LF,*)

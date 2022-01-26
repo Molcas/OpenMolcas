@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE rotorb (cmoo, cmon, c, x, x2, y, vec, a, b, thmax,FA)
+      SUBROUTINE rotorb (cmoo, cmon, c, x, x2, y, thmax,FA)
 c
 c     RASSCF program: version IBM-3090: SX section
 c
@@ -33,11 +33,12 @@ c
 #include "rasscf.fh"
 #include "WrkSpc.fh"
 
-      DIMENSION cmoo(*), cmon(*), c(*), x(*), vec(*),  x2(*)
-      DIMENSION y(*), a(*), b(*), FA(*)
+      DIMENSION cmoo(*), cmon(*), c(*), x(*), x2(*)
+      DIMENSION y(*), FA(*)
       DIMENSION DAMPGAS(10),COREGAS(10)
       INTEGER IDAMPGAS(0:4,0:4),ICOREGAS(0:4,0:4)
       LOGICAL iFrzAct
+      PARAMETER (Thrs=1.0D-14)
 c
       IPRLEV=IPRLOC(4)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -94,16 +95,16 @@ c
         DO nr=1,noc
          DO np=max(nr+1,nio+1),no
           jpr=no*(nr-1)+np
-          jrp=no*(np-1)+nr
+          !jrp=no*(np-1)+nr
           xx=c(istbm+nr+noc*(np-nio-1))
 *
 *         Any numerical information smaller than Acc is considered
 *         numerical noise and is ignored.
 *
-          If (Abs(xx).lt.Acc) xx=0.0D0
+          If (Abs(xx).lt.Acc) Cycle
 *
           x(jpr)=xx
-          x(jrp)=-xx
+          !x(jrp)=-xx
          END DO
         END DO
 c
@@ -127,7 +128,7 @@ c
           DO ni=1,no
            DO nj=1,no
             ij=ij+1
-c io=ib+nf ! offeset counting all nbas of previous sym and nfro of current sym.
+c io=ib+nf ! offset counting all nbas of previous sym and nfro of current sym.
             IF( (ni.gt.nio) .and. (ni.lt.nio+nao) .or.
      &          (nj.gt.nio) .and. (nj.lt.nio+nao) ) x(ij)=0.0D0
            END DO
@@ -267,7 +268,7 @@ c
 c
 c      Now form the unitary matrix exp(X)
 c
-        CALL expx (x, x2, y, vec, a, b, thm, no)
+        CALL exp_Schur(no,x,thm)
         thmax=max(thmax,thm)
 c
 c      Check for largest non diagonal element
@@ -276,6 +277,10 @@ c
         DO ni=1,no
           DO nj=1,no
             ij=ij+1
+            IF (abs(x(ij)).lt.Thrs) THEN
+              x(ij) = 0.0D0
+              GO TO 40
+            END IF
             IF (ni.eq.nj) GO TO 40
             IF (abs(x(ij)).gt.abs(rotmax)) rotmax=x(ij)
   40        CONTINUE

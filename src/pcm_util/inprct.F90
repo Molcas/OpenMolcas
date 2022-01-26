@@ -19,7 +19,7 @@ subroutine InpRct(LuSpool)
 !             Modified for Langevin polarizabilities, March 2000 (RL)  *
 !***********************************************************************
 
-use Constants, only: Zero, One, Two, Three, Four, Ten, Half, Pi, auTokJ, kBoltzmann
+use Constants, only: Zero, One, Two, Three, Four, Ten, Half, Pi, deg2rad, auTokJ, kBoltzmann
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
@@ -95,7 +95,7 @@ rotGamma = Zero
 rsca = One
 
 ! Controls wheather a sparse grid should be used outside
-! a distance distSparce from ALL atoms and XF points
+! a distance distSparse from ALL atoms and XF points
 ! nSparse = scala(sparse) / scala(normal)
 LSparse = .false.
 nSparse = 1
@@ -338,9 +338,9 @@ do
       call Get_F1(1,rotAlpha)
       call Get_F1(2,rotBeta)
       call Get_F1(3,rotGamma)
-      rotAlpha = rotAlpha/180.0_wp*Pi
-      rotBeta = rotBeta/180.0_wp*Pi
-      rotGamma = rotGamma/180.0_wp*Pi
+      rotAlpha = rotAlpha*deg2rad
+      rotBeta = rotBeta*deg2rad
+      rotGamma = rotGamma*deg2rad
     case ('SPAR')
       !                                                                *
       !***** SPAR ******************************************************

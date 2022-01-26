@@ -44,7 +44,6 @@
 #include "stdalloc.fh"
 #include "twoswi.fh"
 #include "file.fh"
-#include "hflda.fh"
 #include "warnings.h"
 *
       Character*8 EMILOOP
@@ -56,7 +55,6 @@
 *----------------------------------------------------------------------*
 *
       Call CWTime(TCPU1,TWall1)
-      HFLDA=0.0
       Call SCF_Init()
       iTerm=0
 *

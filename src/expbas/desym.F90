@@ -501,7 +501,7 @@ subroutine reorder_orbitals()
   ! There was a wrong and stupid warning from GFortran 4.8
   ! If we stop supporting this compiler remove this ugly workaround.
   if (.false.) then
-    if (compare(1,2)) continue
+    if (compare(1,2)) return
   end if
 # endif
 

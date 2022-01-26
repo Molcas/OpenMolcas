@@ -15,17 +15,16 @@
 module Definitions
 
 use, intrinsic :: iso_fortran_env, only: int32, int64, real64, error_unit, input_unit, output_unit
-use, intrinsic :: iso_c_binding, only: c_double
+use, intrinsic :: iso_c_binding, only: c_double, c_int, c_size_t
 #   ifdef _I8_
 use, intrinsic :: iso_c_binding, only: c_long
-#   else
-use, intrinsic :: iso_c_binding, only: c_int
 #   endif
 
 implicit none
 private
 
 public :: wp, iwp, DefInt, MPIInt, HDF5Int
+public :: LibxcInt, LibxcReal, LibxcSize
 public :: MOLCAS_C_INT, MOLCAS_C_REAL
 public :: i1, i4, i8, r4, r8
 public :: ItoB, RtoB, RtoI, CtoR
@@ -33,16 +32,21 @@ public :: u0, u5, u6
 
 ! This is the working precision and should be preferably used
 ! (we assume logical kinds are the same as integer kinds).
-#   ifdef _I8_
+#ifdef _I8_
 integer(kind=int64), parameter :: iwp = int64, MOLCAS_C_INT = c_long
-#   else
+#else
 integer(kind=int32), parameter :: iwp = int32, MOLCAS_C_INT = c_int
-#   endif
+#endif
 integer(kind=iwp), parameter :: wp = real64, MOLCAS_C_REAL = c_double
 
 ! "default" integer, without using `-i8` flag or equivalent,
 ! this is needed for some intrinsic calls in some compilers
 integer(kind=iwp), parameter :: DefInt = int32
+
+! This is the type of Libxc arguments
+integer(kind=iwp), parameter :: LibxcInt = c_int, &
+                                LibxcReal = c_double, &
+                                LibxcSize = c_size_t
 
 ! This is the type of MPI arguments
 ! NOTE: If legacy `integer*4` declarations are replaced with integer(MPIInt)
@@ -58,18 +62,18 @@ integer(kind=iwp), parameter :: HDF5Int = int32
 
 ! Size ratios between the different types
 ! (assume 'a' uses 1 byte)
-#   include "compiler_features.h"
+#include "compiler_features.h"
 integer(kind=iwp), parameter :: &
-#   ifdef SIZE_INITIALIZATION
+#ifdef SIZE_INITIALIZATION
                                 ItoB = storage_size(1_iwp)/storage_size('a'), &
                                 RtoB = storage_size(1.0_wp)/storage_size('a'), &
                                 RtoI = storage_size(1.0_wp)/storage_size(1_iwp), &
                                 CtoR = storage_size((1.0_wp,0.0_wp))/storage_size(1.0_wp)
-#   elif defined(_I8_)
+#elif defined(_I8_)
                                 ItoB = 8, RtoB = 8, RtoI = 1, CtoR = 2
-#   else
+#else
                                 ItoB = 4, RtoB = 8, RtoI = 2, CtoR = 2
-#   endif
+#endif
 
 ! Output, input and error units, typically 6, 5 & 0, but they could be something else
 integer(kind=iwp), parameter :: u0 = error_unit, &

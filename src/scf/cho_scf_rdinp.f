@@ -15,6 +15,7 @@
 *             Else, read and process input for Cholesky section in SCF
 *
 ************************************************************************
+      Use Fock_util_global, only: Deco, DensityCheck, Estimate, Update
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
@@ -25,9 +26,7 @@
       parameter (SECNAM = 'CHO_SCF_RDINP')
 *
 #include "choscf.fh"
-#include "chodensity.fh"
 #include "chotime.fh"
-#include "choscreen.fh"
 #include "chopar.fh"
 
 *

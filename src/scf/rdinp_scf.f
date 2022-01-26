@@ -39,6 +39,7 @@
 #ifdef _HDF5_
       use mh5, only: mh5_is_hdf5, mh5_open_file_r
 #endif
+      use Fock_util_global, only: Deco, DensityCheck, Estimate, Update
 *
       Implicit Real*8 (a-h,o-z)
       External Allocdisk
@@ -49,7 +50,6 @@
 #include "infscf.fh"
 #include "infso.fh"
 #include "stdalloc.fh"
-#include "hflda.fh"
 #include "ldfscf.fh"
 #include "file.fh"
 #include "iprlv.fh"
@@ -71,8 +71,6 @@
 
 #include "choscf.fh"
 #include "chotime.fh"
-#include "chodensity.fh"
-#include "choscreen.fh"
 #include "choauf.fh"
 
 #include "addcorr.fh"
@@ -203,7 +201,6 @@
       ivvloop=0
       iPrForm=-1
       iterprlv=0
-      HFLDA=0.0d0
       ScrFac=0.0d0
 *
 *---- Parameters that control how new orbitals
@@ -332,7 +329,6 @@
       If (Line(1:4).eq.'ROTP') Go To 5000
       If (Line(1:4).eq.'HLGA') Go To 5002
       If (Line(1:4).eq.'CLOC') Go To 5001
-      If (Line(1:4).eq.'HFLD') Go To 5010
       If (Line(1:4).eq.'FLIP') Go To 5020
       If (Line(1:4).eq.'PMTI') Go To 6000
       If (Line(1:4).eq.'STAT') Go To 6010
@@ -1206,12 +1202,6 @@ c      End If
       DoHLgap=.true.
       QNRTh    = 0.0d0
       GoTo 1000
-*>>>>>>>>>>>>> HFLDA <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
- 5010 Continue
-      Line=Get_Ln(LuSpool)
-      Call Get_F1(1,HFLDA)
-      Write(6,'(a,F15.3)') 'HFLDA=', HFLDA
-      Goto 1000
 *>>>>>>>>>>>>> FLIP <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  5020 Continue
       Line=Get_Ln(LuSpool)

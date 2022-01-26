@@ -14,10 +14,20 @@
 *     Computes datas useful for the angular quadrature.                *
 *                                                                      *
 ************************************************************************
+      use nq_Structure, only: Info_Ang
       Implicit Real*8 (a-h,o-z)
 #include "nq_info.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+         Subroutine Do_GGL(L_Eff,nPoints,R)
+         Implicit None
+         Integer L_Eff, nPoints
+         Real*8, Allocatable:: R(:,:)
+         End Subroutine Do_GGL
+      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -31,11 +41,10 @@
       Do L_Eff = 1, L_Max
          nAngularGrids=nAngularGrids+1
 *
-         Call Do_GGL(L_Eff,nPoints,ipR)
-*
-         Info_Ang(1,nAngularGrids)=L_Eff
-         Info_Ang(2,nAngularGrids)=nPoints
-         Info_Ang(3,nAngularGrids)=ipR
+         Info_Ang(nAngularGrids)%L_eff=L_eff
+         Call Do_GGL(L_Eff,
+     &               Info_Ang(nAngularGrids)%nPoints,
+     &               Info_Ang(nAngularGrids)%R)
 *
       End Do          ! L_Eff
 *                                                                      *

@@ -17,3 +17,4 @@
  (file) RUNBACK     "$WorkDir/$Project$SubProject."RunBack       rw
  (file) RUNBCK2     "$WorkDir/$Project$SubProject."RunBack2      rw
  (file) status      "$CurrDir/$Project."status         rw
+ (file) ISODATA     "$MOLCAS"/data/isotope_data.txt    ro

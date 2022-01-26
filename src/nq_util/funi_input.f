@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Funi_Input(LuRd)
+      use nq_Grid, only: nGridMax
       Implicit Real*8 (a-h,o-z)
 *
 #include "nq_info.fh"

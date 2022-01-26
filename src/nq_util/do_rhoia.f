@@ -16,7 +16,6 @@
       Dimension TabMO(mAO,mGrid,nMOs)
       Dimension Rho(nRho,mGrid)
       Dimension D1mo(nd1mo)
-      Integer iOff_Ash(0:7), iOff_Bas(0:7), iOff_BasAct(0:7)
 #include "nq_info.fh"
 #include "real.fh"
 *                                                                      *

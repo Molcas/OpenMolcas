@@ -14,10 +14,20 @@
 *     Computes datas useful for the angular quadrature.                *
 *                                                                      *
 ************************************************************************
+      use nq_Structure, only: Info_Ang
       Implicit Real*8 (a-h,o-z)
 #include "nq_info.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+         Subroutine Do_Lobatto(L_Eff,nPoints,R)
+         Implicit None
+         Integer L_Eff, nPoints
+         Real*8, Allocatable:: R(:,:)
+         End Subroutine Do_Lobatto
+      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -31,11 +41,10 @@
       Do L_Eff = 3, L_Max
          nAngularGrids=nAngularGrids+1
 *
-         Call Do_Lobatto(L_Eff,nPoints,ipR)
-*
-         Info_Ang(1,nAngularGrids)=L_Eff
-         Info_Ang(2,nAngularGrids)=nPoints
-         Info_Ang(3,nAngularGrids)=ipR
+         Info_Ang(nAngularGrids)%L_Eff=L_Eff
+         Call Do_Lobatto(L_Eff,
+     &                   Info_Ang(nAngularGrids)%nPoints,
+     &                   Info_Ang(nAngularGrids)%R)
 *
       End Do        ! L_Eff
 *                                                                      *

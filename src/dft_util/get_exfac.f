@@ -13,9 +13,9 @@
 *     Return the factor which determines how much "exact exchange" that*
 *     should be included.                                              *
 ************************************************************************
+      use libxc_parameters
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "hflda.fh"
       Real*8 Get_ExFac
       Character*(*) KSDFT
       Character*16  cTmp
@@ -24,7 +24,6 @@
 ************************************************************************
 *                                                                      *
       Get_ExFac=One
-c      Get_ExFac=HFLDA
 *
 *     Write functional to run file.
 *
@@ -51,363 +50,139 @@ c      Get_ExFac=HFLDA
      &            KSDFT.eq.'FTLSDA'  .or.
      &            KSDFT.eq.'FTBLYP'
 
-*                                                                      *
-************************************************************************
-*                                                                      *
-*      LSDA LDA SVWN                                                   *
-*                                                                      *
-       If (KSDFT.eq.'LSDA' .or.
-     &     KSDFT.eq.'LDA'  .or.
-     &     KSDFT.eq.'SVWN' ) Then
+      If (l_casdft) Then
          Get_ExFac=Zero
+         Return
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*      MC-PDFT                                                         *
-*                                                                      *
-       Else If ( l_casdft ) Then
-         Get_ExFac=Zero
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-*      TST                                                             *
-*                                                                      *
-       Else If (KSDFT.eq.'TST' ) Then
-         Get_ExFac=Zero
-*                                                                      *
-************************************************************************
-*                                                                      *
-*      LSDA5 LDA5 SVWN5                                                *
-*                                                                      *
-       Else If (KSDFT.eq.'LSDA5' .or.
-     &          KSDFT.eq.'LDA5'  .or.
-     &          KSDFT.eq.'SVWN5') Then
-         Get_ExFac=Zero
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     HFB                                                              *
-*                                                                      *
-       Else If (KSDFT.eq.'HFB') Then
-         Get_ExFac=Zero
-************************************************************************
-*                                                                      *
-*     HFO                                                              *
-*                                                                      *
-       Else If (KSDFT.eq.'HFO') Then
-         Get_ExFac=Zero
-************************************************************************
-*                                                                      *
-*     HFG                                                              *
-*                                                                      *
-       Else If (KSDFT.eq.'HFG') Then
-         Get_ExFac=Zero
-************************************************************************
-*                                                                      *
-*     HFB86                                                            *
-*                                                                      *
-       Else If (KSDFT.eq.'HFB86') Then
-         Get_ExFac=Zero
-*                                                                      *
-************************************************************************
-*                                                                      *
-*      HFS                                                             *
-*                                                                      *
-       Else If (KSDFT.eq.'HFS') Then
-         Get_ExFac=Zero
-*                                                                      *
-************************************************************************
-*                                                                      *
-*      XALPHA                                                          *
-*                                                                      *
-       Else If (KSDFT.eq.'XALPHA') Then
-         Get_ExFac=Zero
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Overlap                                                          *
-*                                                                      *
-      Else If (KSDFT.eq.'Overlap') Then
-         Get_ExFac=Zero
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     BWIG                                                             *
-*                                                                      *
-      Else If (KSDFT.eq.'BWIG') Then
-         Get_ExFac=Zero
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     BLYP                                                             *
-*                                                                      *
-      Else If (KSDFT.eq.'BLYP') Then
-         Get_ExFac=Zero
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     OLYP                                                             *
-*                                                                      *
-      Else If (KSDFT.eq.'OLYP') Then
-         Get_ExFac=Zero
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     KT3                                                              *
-*                                                                      *
-      Else If (KSDFT.eq.'KT3') Then
-         Get_ExFac=Zero
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     KT2                                                              *
-*                                                                      *
-      Else If (KSDFT.eq.'KT2') Then
-         Get_ExFac=Zero
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     BPBE                                                             *
-*                                                                      *
-      Else If (KSDFT.eq.'BPBE') Then
-         Get_ExFac=Zero
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     GLYP                                                             *
-*                                                                      *
-      Else If (KSDFT.eq.'GLYP') Then
-         Get_ExFac=Zero
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     GPBE                                                             *
-*                                                                      *
-      Else If (KSDFT.eq.'GPBE') Then
-         Get_ExFac=Zero
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     B86LYP                                                           *
-*                                                                      *
-      Else If (KSDFT.eq.'B86LYP') Then
-         Get_ExFac=Zero
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     B86PBE                                                           *
-*                                                                      *
-      Else If (KSDFT.eq.'B86PBE') Then
-         Get_ExFac=Zero
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     OPBE                                                             *
-*                                                                      *
-      Else If (KSDFT.eq.'OPBE') Then
-         Get_ExFac=Zero
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     TLYP                                                             *
-*                                                                      *
-      Else If (KSDFT.eq.'TLYP') Then
-         Get_ExFac=One
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     NLYP                                                             *
-*                                                                      *
-      Else If (KSDFT.eq.'NLYP') Then
-         Get_ExFac=One
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     NEWF0                                                            *
-*                                                                      *
-      Else If (KSDFT.eq.'NEWF0') Then
-         Get_ExFac=One
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     NEWF1                                                            *
-*                                                                      *
-      Else If (KSDFT.eq.'NEWF1') Then
-         Get_ExFac=One
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     B3LYP                                                            *
-*                                                                      *
-      Else If (KSDFT.eq.'B3LYP ') Then
-         Get_ExFac=One-0.80D0
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     O3LYP                                                            *
-*                                                                      *
-      Else If (KSDFT.eq.'O3LYP ') Then
-         Get_ExFac = 0.1161D0
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     B2PLYP                                                           *
-*                                                                      *
-      Else If (KSDFT.eq.'B2PLYP') Then
-         Get_ExFac=0.530D0
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     O2PLYP                                                           *
-*                                                                      *
-      Else If (KSDFT.eq.'O2PLYP') Then
-         Get_ExFac=0.50D0
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     B3LYP5                                                           *
-*                                                                      *
-      Else If (KSDFT.eq.'B3LYP5') Then
-         Get_ExFac=One-0.80D0
+*     We bring in only cases where it is different from zero.
+      Select Case(KSDFT)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     CASDFT                                                           *
 *                                                                      *
-      Else If (KSDFT.eq.'CASDFT') Then
+      Case ('CASDFT')
          Get_ExFac=One
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     SCF                                                              *
 *                                                                      *
-      Else If (KSDFT.eq.'SCF') Then
-         Get_ExFac=One
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     PAM                                                              *
-*                                                                      *
-      Else If (KSDFT.eq.'PAM') Then
+      Case ('SCF')
          Get_ExFac=One
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     CS                                                               *
 *                                                                      *
-      Else If (KSDFT.eq.'CS') Then
+      Case ('CS')
          Get_ExFac=One
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     PBE                                                              *
+*     M06-HF                                                           *
 *                                                                      *
-      Else If (KSDFT.eq.'PBE') Then
-         Get_ExFac=Zero
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     REVPBE                                                           *
-*                                                                      *
-      Else If (KSDFT.eq.'REVPBE') Then
-         Get_ExFac=Zero
+      Case ('M06HF')
+         Get_ExFac=One
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     SSBSW                                                            *
+*     TLYP                                                             *
 *                                                                      *
-      Else If (KSDFT.eq.'SSBSW') Then
-         Get_ExFac=Zero
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     SSBD                                                             *
-*                                                                      *
-      Else If (KSDFT.eq.'SSBD') Then
-         Get_ExFac=Zero
+      Case ('TLYP')
+         Get_ExFac=One
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     S12G                                                             *
+*     B3LYP                                                            *
 *                                                                      *
-      Else If (KSDFT.eq.'S12G') Then
-         Get_ExFac=Zero
+      Case ('B3LYP ')
+         Get_ExFac=LibXC_ExFac(XC_HYB_GGA_XC_B3LYP)
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     O3LYP                                                            *
+*                                                                      *
+      Case ('O3LYP ')
+         Get_ExFac=LibXC_ExFac(XC_HYB_GGA_XC_O3LYP)
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     B2PLYP                                                           *
+*                                                                      *
+      Case ('B2PLYP')
+         Get_ExFac=0.530D0
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     O2PLYP                                                           *
+*                                                                      *
+      Case ('O2PLYP')
+         Get_ExFac=0.50D0
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     B3LYP5                                                           *
+*                                                                      *
+      Case ('B3LYP5')
+         Get_ExFac=LibXC_ExFac(XC_HYB_GGA_XC_B3LYP5)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     S12H                                                             *
 *                                                                      *
-      Else If (KSDFT.eq.'S12H') Then
+      Case ('S12H')
          Get_ExFac=0.25d0
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     PBEsol                                                           *
-*                                                                      *
-      Else If (KSDFT.eq.'PBESOL') Then
-         Get_ExFac=Zero
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     RGE2                                                             *
-*                                                                      *
-      Else If (KSDFT.eq.'RGE2') Then
-         Get_ExFac=Zero
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     TCA                                                              *
-*                                                                      *
-      Else If (KSDFT.eq.'PTCA') Then
-         Get_ExFac=Zero
-
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     M06-L                                                            *
-*                                                                      *
-      Else If (KSDFT.eq.'M06L') Then
-         Get_ExFac=Zero
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     M06                                                              *
 *                                                                      *
-      Else If (KSDFT.eq.'M06 ') Then
+      Case ('M06 ')
          Get_ExFac=0.27D0
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     M06-2X                                                           *
 *                                                                      *
-      Else If (KSDFT.eq.'M062X') Then
+      Case ('M062X')
          Get_ExFac=0.54D0
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     M06-HF                                                           *
-*                                                                      *
-      Else If (KSDFT.eq.'M06HF') Then
-         Get_ExFac=1.0D0
 *
 ************************************************************************
 *                                                                      *
 *     PBE0                                                             *
 *                                                                      *
-      Else If (KSDFT.eq.'PBE0') Then
+      Case ('PBE0')
          Get_ExFac=0.25D0
+*
+************************************************************************
+*                                                                      *
+*    BR3P86                                                            *
+*                                                                      *
+      Case ('BR3P86')
+         Get_ExFac=0.22D0
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Else
-         Call WarningMessage(2,
-     &               'Unknown DFT functional;')
-         Write (6,*) 'KSDFT=',KSDFT
-         Call Quit_OnUserError()
-      End If
+      Case Default
+         Get_ExFac=0.0D0
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      End Select
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Contains
+      Function LibXC_ExFac(funcid)
+      Real*8 :: LibXC_ExFac
+      Integer(kind=LibxcInt) :: funcid
+      call xc_f03_func_init(xc_func(1),funcid,int(1, kind=LibxcInt))
+      LibXC_ExFac=xc_f03_hyb_exx_coef(xc_func(1))
+      call xc_f03_func_end(xc_func(1))
       Return
+      End Function LibXC_ExFac
       End

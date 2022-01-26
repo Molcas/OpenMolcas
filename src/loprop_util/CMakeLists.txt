@@ -11,7 +11,6 @@
 
 set (sources
      check_bond.F90
-     compute_xhole_int.F90
      coretopoint.F90
      cutoff_error.F90
      desymmetrize.F90
@@ -34,7 +33,6 @@ set (sources
      localize_loprop_drv.F90
      localize_loprop.F90
      local_properties.F90
-     local_xhole.F90
      loprop_arrays.F90
      loprop.F90
      loprop_print.F90
@@ -44,7 +42,6 @@ set (sources
      mnbrak.F90
      move_ec.F90
      move_prop.F90
-     move_xhole.F90
      multipole_e.F90
      multipole_expansion.F90
      pickpoints.F90
