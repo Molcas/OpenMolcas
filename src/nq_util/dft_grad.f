@@ -260,7 +260,7 @@
                   Temp1=2.0d0*vSigma(1,j)*gx
                   Temp2=2.0d0*vSigma(1,j)*gy
                   Temp3=2.0d0*vSigma(1,j)*gz
-                  Temp4=Half*vTau(1,j)
+                  Temp4=0.25D0*vTau(1,j)
 *
                   dF_dr = Temp0*dRho_dR(1,j,i_Eff)
      &                  + Temp1*dRho_dR(2,j,i_Eff)
@@ -307,8 +307,8 @@
      &                          +vSigma(2,j)*gzb )
                   Temp3b=( 2.0d0*vSigma(3,j)*gzb
      &                          +vSigma(2,j)*gza )
-                  Temp4a=vTau(1,j)
-                  Temp4b=vTau(2,j)
+                  Temp4a=0.5D0*vTau(1,j)
+                  Temp4b=0.5D0*vTau(2,j)
 *
                   dF_dr = Temp0a*dRho_dR(1,j,i_Eff)
      &                  + Temp0b*dRho_dR(2,j,i_Eff)
@@ -351,7 +351,7 @@
                   Temp1=2.0d0*vSigma(1,j)*gx
                   Temp2=2.0d0*vSigma(1,j)*gy
                   Temp3=2.0d0*vSigma(1,j)*gz
-                  Temp4=Half*vTau(1,j)
+                  Temp4=0.25D0*vTau(1,j)
                   Temp5=vLapl(1,j)
 *
                   dF_dr = Temp0*dRho_dR(1,j,i_Eff)
@@ -400,8 +400,8 @@
      &                          +vSigma(2,j)*gzb )
                   Temp3b=( 2.0d0*vSigma(3,j)*gzb
      &                          +vSigma(2,j)*gza )
-                  Temp4a=vTau(1,j)
-                  Temp4b=vTau(2,j)
+                  Temp4a=0.5D0*vTau(1,j)
+                  Temp4b=0.5D0*vTau(2,j)
                   Temp5a=vLapl(1,j)
                   Temp5b=vLapl(2,j)
 *
