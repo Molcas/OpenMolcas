@@ -66,7 +66,7 @@ integer(kind=iwp), intent(out) :: ireturn
 integer(kind=iwp) :: i, iOpt, iRC, iRout, iWrOpt_Save, Lu_One, LuSpool, MaxDax, nChoV(8), nDiff, nDNA
 real(kind=wp) :: ChFracMem, DiagErr(4), Dummy(2), TCpu1, TCpu2, TWall1, Twall2
 logical(kind=iwp) :: PrPrt_Save, Exists, DoRys, lOPTO, IsBorn, Do_OneEl
-logical(kind=iwp), External :: Reduce_Prt
+logical(kind=iwp), external :: Reduce_Prt
 !-SVC: identify runfile with a fingerprint
 character(len=256) :: cDNA
 integer(kind=iwp), external :: ip_of_Work, isFreeUnit
@@ -377,7 +377,7 @@ if (.not. Test) then
           call Sort2()
           call Sort3(MaxDax)
 
-          if (.Not. Reduce_Prt() .and. nPrint(iRout) >= 6) then
+          if (.not. Reduce_Prt() .and. nPrint(iRout) >= 6) then
             write(u6,*)
             write(u6,'(A)') ' Integrals are written in MOLCAS2 format'
             if (iPack /= 0) then

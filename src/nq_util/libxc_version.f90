@@ -17,8 +17,8 @@ Subroutine libxc_version()
   implicit none
   integer(kind=LibxcInt) :: vmajor, vminor, vmicro
   character(len=128) :: libxc_reference, libxc_reference_doi
-  logical(kind=iwp), External :: Reduce_Prt
-  If (Reduce_Prt()) Return
+  logical(kind=iwp), external :: Reduce_Prt
+  if (Reduce_Prt()) return
   ! Get the data from libxc
   call xc_f03_version(vmajor, vminor, vmicro)
   call xc_f03_reference(libxc_reference)
