@@ -33,22 +33,8 @@
       End If
 *                                                                      *
 ************************************************************************
-* Global variable for MCPDFT                                           *
-
-       l_casdft = KSDFT.eq.'TLSDA'   .or.
-     &            KSDFT.eq.'TLSDA5'  .or.
-     &            KSDFT.eq.'TBLYP'   .or.
-     &            KSDFT.eq.'TSSBSW'  .or.
-     &            KSDFT.eq.'TSSBD'   .or.
-     &            KSDFT.eq.'TS12G'   .or.
-     &            KSDFT.eq.'TPBE'    .or.
-     &            KSDFT.eq.'FTPBE'   .or.
-     &            KSDFT.eq.'TOPBE'   .or.
-     &            KSDFT.eq.'FTOPBE'  .or.
-     &            KSDFT.eq.'TREVPBE' .or.
-     &            KSDFT.eq.'FTREVPBE'.or.
-     &            KSDFT.eq.'FTLSDA'  .or.
-     &            KSDFT.eq.'FTBLYP'
+*                                                                      *
+      l_casdft = KSDFT(1:2).eq.'T:' .or. KSDFT(1:3).eq.'FT:'
 
       If (l_casdft) Then
          Get_ExFac=Zero

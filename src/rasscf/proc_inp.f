@@ -765,20 +765,7 @@ C   No changing about read in orbital information from INPORB yet.
        Read(LUInput,*,End=9910,Err=9920) Line
        KSDFT=Line(1:16)
        Call UpCase(KSDFT)
-       l_casdft = KSDFT(1:5).eq.'TLSDA'   .or.
-     &            KSDFT(1:6).eq.'TLSDA5'  .or.
-     &            KSDFT(1:5).eq.'TBLYP'   .or.
-     &            KSDFT(1:6).eq.'TSSBSW'  .or.
-     &            KSDFT(1:5).eq.'TSSBD'   .or.
-     &            KSDFT(1:5).eq.'TS12G'   .or.
-     &            KSDFT(1:4).eq.'TPBE'    .or.
-     &            KSDFT(1:5).eq.'FTPBE'   .or.
-     &            KSDFT(1:5).eq.'TOPBE'   .or.
-     &            KSDFT(1:6).eq.'FTOPBE'  .or.
-     &            KSDFT(1:7).eq.'TREVPBE' .or.
-     &            KSDFT(1:8).eq.'FTREVPBE'.or.
-     &            KSDFT(1:6).eq.'FTLSDA'  .or.
-     &            KSDFT(1:6).eq.'FTBLYP'
+       l_casdft = KSDFT(1:2).eq.'T:' .or. KSDFT(1:3).eq.'FT:'
        If (.NOT.l_casdft) GoTo 9920
        If (IPRLOC(1).GE.DEBUG.and.l_casdft)
      &     write(6,*) ' MCPDFT with functional:', KSDFT

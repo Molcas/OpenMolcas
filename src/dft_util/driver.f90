@@ -48,32 +48,15 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !***********************************************************************
 ! Global variable for MCPDFT functionals                               *
 
-      l_casdft = KSDFA.eq.'TLSDA'   .or.                                       &
-     &           KSDFA.eq.'TLSDA5'  .or.                                       &
-     &           KSDFA.eq.'TBLYP'   .or.                                       &
-     &           KSDFA.eq.'TSSBSW'  .or.                                       &
-     &           KSDFA.eq.'TSSBD'   .or.                                       &
-     &           KSDFA.eq.'TS12G'   .or.                                       &
-     &           KSDFA.eq.'TPBE'    .or.                                       &
-     &           KSDFA.eq.'FTPBE'   .or.                                       &
-     &           KSDFA.eq.'TOPBE'   .or.                                       &
-     &           KSDFA.eq.'FTOPBE'  .or.                                       &
-     &           KSDFA.eq.'TREVPBE' .or.                                       &
-     &           KSDFA.eq.'FTREVPBE'.or.                                       &
-     &           KSDFA.eq.'FTLSDA'  .or.                                       &
-     &           KSDFA.eq.'FTBLYP'
+      l_casdft = KSDFA(1:2).eq.'T:' .or. KSDFA(1:3).eq.'FT:'
 
-      lft      = KSDFA.eq.'FTPBE'   .or.                                       &
-     &           KSDFA.eq.'FTOPBE'  .or.                                       &
-     &           KSDFA.eq.'FTREVPBE'.or.                                       &
-     &           KSDFA.eq.'FTLSDA'  .or.                                       &
-     &           KSDFA.eq.'FTBLYP'
+      lft      = KSDFA(1:3).eq.'FT:'
 
       If (l_casdft) Then
          If (lft) Then
-            KSDFA(:)=KSDFA(3:)//'  '
+            KSDFA(:)=KSDFA(4:)//'   '
          Else
-            KSDFA(:)=KSDFA(2:)//' '
+            KSDFA(:)=KSDFA(3:)//'  '
          End If
          Do_MO=.true.
          Do_TwoEl=.true.
@@ -865,6 +848,13 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
          Write (6,*) '         Functional=',KSDFA(1:LEN(KSDFA))
          Call Quit_OnUserError()
        End Select
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+       If (Functional_type/=LDA_type.and.Functional_type/=GGA_type.and.l_CasDFT) Then
+          Write (6,*) ' MC-PDFT combined with invalid functional class'
+          Call Abend()
+       End If
 !                                                                      *
 !***********************************************************************
 !                                                                      *

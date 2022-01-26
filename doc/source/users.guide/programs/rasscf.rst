@@ -487,15 +487,14 @@ A minimal input example follows where the use of the Stochastic-CASSCF joinlty w
    SYMMETRY
      1
 
-  >>foreach DFT in (TPBE, TBLYP, TLSDA)
+  >>foreach DFT in (T:PBE, T:BLYP, T:LSDA)
 
      >>COPY $CurrDir/converged.RasOrb INPORB
      &RASSCF
         LumOrb
         CIONLY
         KSDFT
-          ROKS
-          $DFT
+          ROKS; $DFT
         NECI
           ExNe
         NACTEL
@@ -1255,7 +1254,7 @@ A list of these keywords is given below:
 :kword:`KSDFT`
   Needed to perform MC-PDFT calculations. It must be used together with
   :kword:`CIONLY` keyword (it is a post-SCF method not compatible with SCF) and :kword:`ROKS` keyword.
-  The functional choice follows. Currently available functionals are: tPBE, tBLYP, tLSDA.
+  The functional choice follows. Currently available functionals are: T:, or FT:... .
   An example of an input that uses this keyword follows: ::
 
     &RASSCF
@@ -1265,19 +1264,18 @@ A list of these keywords is given below:
     Ras2
     1 0 0 0 1 0 0 0
     KSDFT
-    ROKS
-    TPBE
+    ROKS; T:PBE
 
   In the above example, :kword:`JOBIPH` is used to use orbitals stored in :file:`JobIph`, :kword:`CIRESTART` is used to
   use a pre-optimized CI vector, :kword:`CIONLY` is used to avoid conflicts between the standard :program:`RASSCF` module
   and the MC-PDFT method (not compatible with SCF so far). The functional chosen is the translated-PBE.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="KSDFT" APPEAR="MC-PDFT" KIND="CHOICE" LIST="----,ROKS; tPBE:tPBE,ROKS; tBLYP:tBLYP,ROKS; tLSDA:tLSDA" LEVEL="ADVANCED" REQUIRE="CIONLY">
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="KSDFT" APPEAR="MC-PDFT" KIND="STRINGS" SIZE="2" LEVEL="ADVANCED" REQUIRE="CIONLY">
               %%Keyword: KSDFT <advanced>
               <HELP>
               Needed to perform MC-PDFT calculations. It must be used together with
               CIONLY keyword (it is a post-SCF method not compatible with SCF) and ROKS keyword.
-              The functional choice follows. Currently available functionals are: tPBE, tBLYP, tLSDA.
+              The functional choice follows. Currently available functionals are: T:..., or FT:... .
               </HELP>
               </KEYWORD>
 
@@ -2522,8 +2520,7 @@ The following input is an example of how to use the RASSCF program to run MC-PDF
   Ras2
   1 0 0 0 1 0 0 0
   KSDFT
-  ROKS
-  TPBE
+  ROKS; T:PBE
 
 The first RASSCF run is a standard CASSCF calculation that leads to variationally optimized orbitals and CI coefficients.
 The second call to the RASSCF input will use the CI vector and the orbitals previously optimized. The second RASSCF will

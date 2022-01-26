@@ -109,14 +109,13 @@ The :kword:`KSDFT` is the only required keyword.
 .. class:: keywordlist
 
 :kword:`KSDFT`
-  The functional choice follows. Currently available functionals are: tPBE, tBLYP, tLSDA, trevPBE, tOPBE,
-  ftPBE, ftBLYP, ftLSDA, ftrevPBE and ftOPBE.
+  The functional choice follows. Currently available functionals are: T:... or FT:... .
 
-  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="KSDFT" APPEAR="Pair-density functional" KIND="CHOICE" LIST="----,tLSDA,tPBE,tBLYP,trevPBE,tOPBE,ftLSDA,ftPBE,ftBLYP,ftrevPBE,ftOPBE"> LEVEL="BASIC"
+  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="KSDFT" APPEAR="Pair-density functional" KIND="STRING" > LEVEL="BASIC"
               %Keyword: KSDFT <basic>
               <HELP>
               Needed to perform MC-PDFT calculations.
-              The functional choice follows. Currently available functionals: tPBE, tBLYP, tLSDA, trevPBE, tOPBE, ftPBE, ftBLYP, ftLSDA, ftrevPBE, ftOPBE.
+              The functional choice follows. Currently available functionals: T:... or FT:... 
               </HELP>
               </KEYWORD>
 
@@ -211,7 +210,7 @@ geometry, etc. has to be given. Such information is supplied by the
   Ras2     = 2 2 0 0
 
   &MCPDFT
-  KSDFT=TPBE
+  KSDFT=T:PBE
 
 The first RASSCF run is a standard CASSCF calculation that leads to variationally optimized orbitals and CI coefficients.
 The MC-PDFT run will use the orbitals and density matrices optimized during the preceding RASSCF run.
@@ -243,7 +242,7 @@ The system is :math:`\ce{LiF}` and the point group used is |Ctv|.
    CMSI
 
    &MCPDFT
-   KSDFT=TPBE
+   KSDFT=T:PBE
    NoGrad
    MSPDft
 
