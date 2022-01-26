@@ -38,7 +38,7 @@
       Do iGrid = 1, mGrid
 *
          d_alpha=Rho(1,iGrid)
-         DTot=Two*d_alpha
+         DTot=d_alpha
          If (DTot.lt.T_X) Go To 199
          TauA=Tau(1,iGrid)
 *

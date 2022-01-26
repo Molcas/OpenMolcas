@@ -130,7 +130,7 @@
      &                        dF_dr * (Grid(3,j)-R_Grid(3))
                End Do
                If (iTab(2,i_Eff).ne.Off)
-     &            Temp(i_Eff)=Temp(i_Eff)-Two*tmp
+     &            Temp(i_Eff)=Temp(i_Eff)-tmp
             End Do
          Else
             Do i_Eff=1, nGrad_Eff
@@ -138,7 +138,7 @@
                ixyz=iTab(1,i_Eff)
                Do j = 1, mGrid
                   dF_dr = vRho(1,j)    *dRho_dR(1,j,i_Eff)
-     &                  +vRho(2,j)    *dRho_dR(2,j,i_Eff)
+     &                   +vRho(2,j)    *dRho_dR(2,j,i_Eff)
                   tmp = tmp + Weights(j) * dF_dr
 *
 *                 Accumulate stuff for rotational invariance
@@ -192,7 +192,7 @@
      &                        dF_dr * (Grid(3,j)-R_Grid(3))
                End Do
                If (iTab(2,i_Eff).ne.Off)
-     &            Temp(i_Eff)=Temp(i_Eff)-Two*tmp
+     &            Temp(i_Eff)=Temp(i_Eff)-tmp
             End Do
          Else
             Do i_Eff=1, nGrad_Eff
@@ -279,7 +279,7 @@
      &                        dF_dr * (Grid(3,j)-R_Grid(3))
                End Do
                If (iTab(2,i_Eff).ne.Off)
-     &            Temp(i_Eff)=Temp(i_Eff)-Two*tmp
+     &            Temp(i_Eff)=Temp(i_Eff)-tmp
             End Do
          Else
             Do i_Eff=1, nGrad_Eff
@@ -372,7 +372,7 @@
      &                        dF_dr * (Grid(3,j)-R_Grid(3))
                End Do
                If (iTab(2,i_Eff).ne.Off)
-     &            Temp(i_Eff)=Temp(i_Eff)-Two*tmp
+     &            Temp(i_Eff)=Temp(i_Eff)-tmp
             End Do
          Else
             Do i_Eff=1, nGrad_Eff
