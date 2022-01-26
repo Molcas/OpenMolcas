@@ -1564,12 +1564,20 @@ message ("Configuring Libxc:")
 
 if (EXTERNAL_LIBXC)
   message ("-- External Libxc root specified at: ${EXTERNAL_LIBXC}")
-  find_library (xcf03 xcf03 ${EXTERNAL_LIBXC} PATH_SUFFIXES lib lib32 lib64)
+  find_library (xc xc PATHS ${EXTERNAL_LIBXC} PATH_SUFFIXES lib lib32 lib64)
+  find_library (xcf03 xcf03 PATHS ${EXTERNAL_LIBXC} PATH_SUFFIXES lib lib32 lib64)
   if (NOT xc OR NOT xcf03)
     message (FATAL_ERROR "Libxc could not be found in ${EXTERNAL_LIBXC}.")
   endif ()
+  # find Libxc version
+  file (READ ${EXTERNAL_LIBXC}/include/xc_version.h header)
+  string (REGEX MATCH "#define XC_VERSION \"[0-9.]+\"" macrodef "${header}")
+  string (REGEX MATCH "[0-9.]+" LIBXC_VERSION "${macrodef}")
+  if (LIBXC_VERSION VERSION_LESS "5.2.0")
+    message (FATAL_ERROR "Libxc version >= 5.2.0 is required (found ${LIBXC_VERSION})")
+  endif ()
   set (Libxc_INCLUDE_DIRS ${EXTERNAL_LIBXC}/include)
-  set (Libxc_LIBRARIES ${xcf03})
+  set (Libxc_LIBRARIES ${xcf03} ${xc})
 else ()
   message ("-- Configuring built-in Libxc")
   include (ExternalProject)
@@ -1642,7 +1650,7 @@ list (APPEND EXTERNAL_LIBRARIES ${Libxc_LIBRARIES})
 
 foreach (prog
   dft_util
-  libxc_util
+  nq_util
 )
   list (APPEND ${prog}_incs ${Libxc_INCLUDE_DIRS})
 endforeach ()

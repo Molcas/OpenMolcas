@@ -17,6 +17,7 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
       use nq_Grid, only: l_casdft
       use nq_pdft, only: lft
       Implicit None
+#include "real.fh"
 #include "nq_info.fh"
       Character*(*) KSDFA
       Logical Do_Grad
@@ -24,6 +25,7 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
       Real*8 :: Func, Grad(nGrad)
       Logical Do_MO, Do_TwoEl
       Real*8 :: D_DS(nh1,nD), F_DFT(nh1,nD)
+      Real*8 :: A=Zero, B=Zero, C=Zero
       Character*4 DFTFOCK
 
       abstract interface
@@ -36,7 +38,7 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !     Define external functions not defined in LibXC. These are either
 !     accessed through the procedure pointer sub or External_sub.
 
-      External:: Overlap, NucAtt, ndsd_ts
+      procedure(DFT_FUNCTIONAL) :: Overlap, NucAtt, ndsd_ts
 !***********************************************************************
       procedure(DFT_FUNCTIONAL), pointer :: sub => null()
 !     Sometime we need an external routine which covers something which
@@ -691,13 +693,21 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Becke-Roussel 89 Gamma=1
+!     BR3P86, DOI:10.1016/0009-2614(95)01143-2                         *
 !                                                                      *
-      Case('BR89G1')
+      Case('BR3P86')
          Functional_type=meta_GGA_type2
 
-         nFuncs=1
-         func_id(1:nFuncs)=[XC_MGGA_X_BR89_1]
+         A = 0.22D0
+         B = 0.67D0
+         C = 0.85D0
+
+         nFuncs=4
+         func_id(1:nFuncs)=[XC_LDA_X,XC_MGGA_X_BR89_1,XC_LDA_C_VWN_RPA,XC_GGA_C_PBE]
+         Coeffs(1)=One-A-B
+         Coeffs(2)=B
+         Coeffs(3)=One
+         Coeffs(4)=C
 !                                                                      *
 !***********************************************************************
 !                                                                      *
