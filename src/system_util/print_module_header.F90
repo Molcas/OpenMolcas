@@ -34,7 +34,9 @@ real(kind=wp) :: bytes
 #include "unixinfo.fh"
 character(len=16) :: memory, threads
 character(len=*), parameter :: unit(0:8) = ['  B',' kB',' MB',' GB',' TB',' PB',' EB',' ZB',' YB']
+logical(kind=iwp), External :: Reduce_Prt
 
+If (Reduce_Prt()) Return
 write(u6,*)
 write(u6,'(50a)')('()',i=1,50)
 

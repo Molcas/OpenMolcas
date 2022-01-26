@@ -12,8 +12,8 @@
       use nq_Grid, only: nGridMax
       Implicit Real*8 (A-H,O-Z)
 #include "nq_info.fh"
-#include "print.fh"
       Logical Check
+      Logical, External:: Reduce_Prt
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -23,8 +23,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout=666
-      iPrint=nPrint(iRout)
+      iPrint=iPrintLevel(-1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -35,7 +34,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (iPrint.ge.2) Then
+      If (.NOT.Reduce_Prt() .and. iPrint.ge.2) Then
       Write (6,*)
       Write (6,'(6X,A)') 'Numerical integration parameters'
       Write (6,'(6X,A)') '--------------------------------'
