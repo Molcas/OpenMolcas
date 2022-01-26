@@ -1,10 +1,19 @@
-***********************************************************************
-*   This test verifies the functionality of the POLY_ANISO code when  *
-*   one "aniso" input file is given, i.e. when one center is computed *
-*   ab initio. Computation of all magnetic properties is verified.    *
-*   g tensor, XT, M, zJ                                               *
-*   aniso_1.input -- OLD file format, containing only E, MM, SM, Mult *
-***********************************************************************
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+*   This test verifies the functionality of the POLY_ANISO code when   *
+*   one "aniso" input file is given, i.e. when one center is computed  *
+*   ab initio. Computation of all magnetic properties is verified.     *
+*   g tensor, XT, M, zJ                                                *
+*   aniso_1.input -- OLD file format, containing only E, MM, SM, Mult  *
+************************************************************************
 
 >>COPY AnisoFile aniso_1.input
 
