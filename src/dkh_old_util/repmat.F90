@@ -14,25 +14,27 @@
 
 subroutine repmat(idbg,bInt,sInt,donorm)
 
-use Basis_Info
+use Basis_Info, only: dbsc, nCnttp, nBas
 use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "itmax.fh"
+implicit none
+integer(kind=iwp) :: idbg
+real(kind=wp) :: bInt(*), sInt(*)
+logical(kind=iwp) :: donorm
 #include "Molcas.fh"
+#include "itmax.fh"
 #include "rinfo.fh"
-#include "stdalloc.fh"
 #include "WrkSpc.fh"
-integer icaddr(MxAO), numc(MxAO), ihelp(MxAtom,iTabMx), numb(MxAO)
-integer mcaddr(MxAO)
-real*8 bint(*), sint(*)
-logical New_Center, New_l, New_m, Old_Center, Old_l
-integer istart
-integer np, nc, ip, jp, kp
-logical donorm
-real*8, allocatable :: mag(:,:), u2c(:,:), scr(:,:)
-real*8, allocatable :: u2ct(:,:), fin(:,:), pa(:)
-real*8 kpp, finish
+integer(kind=iwp) :: icaddr(MxAO), ihelp(MxAtom,iTabMx), ip, istart, jp, kp, mcaddr(MxAO), np, nc, numb(MxAO), numc(MxAO) !IFG
+real(kind=wp) :: finish, kpp
+logical(kind=iwp) :: New_Center, New_l, New_m, Old_Center, Old_l
+real(kind=wp), allocatable :: fin(:,:), mag(:,:), pa(:), scr(:,:), u2c(:,:), u2ct(:,:)
+integer(kind=iwp) :: i, ia, iBas, ibasL, ic, icnt, iCnttp, icon, iCont, ilarge, indb, indbL, ipbasL, iPrim, iPrint, ismall, iSym, &
+                     j, jbas, jbasL, jcon, jpbasL, jPrim, k, ka, kbias, kc, kcL, la, mp, nSym, numck, numcl
+real(kind=wp) :: sum_
 
 ! contracted basis, atomic basis functions
 !
@@ -144,7 +146,7 @@ if ((iPrint >= 10) .or. (idbg > 0)) then
   end do
 end if
 ! debugdebug
-!write(6,*) (rCof(i),i=1,4)
+!write(u6,*) (rCof(i),i=1,4)
 ! debugdebug
 
 ! transform
@@ -163,7 +165,7 @@ if (donorm) then
       do jbas=1,ibas
         jbasL = jbasL+1
         kc = kc+1
-        sum = 0.0
+        sum_ = Zero
         ipbasL = mcaddr(ibasL)-1
         ! loop over primitives in this contracted function
         do iPrim=1,numb(ibasL)
@@ -175,15 +177,15 @@ if (donorm) then
             ismall = min(ipbasL,jpbasL)
             kp = kp+1
             indb = indbL+(ilarge*(ilarge-1))/2+ismall
-            sum = sum+bint(indb)*rCof(icaddr(ibasL)+iPrim)*rCof(icaddr(jbasL)+jPrim)
+            sum_ = sum_+bint(indb)*rCof(icaddr(ibasL)+iPrim)*rCof(icaddr(jbasL)+jPrim)
             if (idbg > 0) then
               write(idbg,*) indb,icaddr(ibasL)+iPrim,icaddr(jbasL)+jPrim
               write(idbg,*) bint(indb),rCof(icaddr(ibasL)+iPrim),rCof(icaddr(jbasL)+jPrim)
             end if
           end do  ! jprim
         end do    ! iprim
-        sint(kc) = sum
-        !write(66,'(d25.14)') sum
+        sint(kc) = sum_
+        !write(66,'(d25.14)') sum_
       end do
     end do
     kcL = kcL+nrBas(iSym)
@@ -203,12 +205,12 @@ else
   call mma_allocate(fin,nc,nc)
   call mma_allocate(pa,np)
 
-  mag(:,:) = 0.0d0
-  u2c(:,:) = 0.0d0
-  u2ct(:,:) = 0.0d0
-  scr(:,:) = 0.0d0
-  fin(:,:) = 0.0d0
-  pa(:) = 0.0d0
+  mag(:,:) = Zero
+  u2c(:,:) = Zero
+  u2ct(:,:) = Zero
+  scr(:,:) = Zero
+  fin(:,:) = Zero
+  pa(:) = Zero
 
   ! Square the uncontracted ints
   mp = 0
@@ -225,7 +227,7 @@ else
   do icon=1,nc
     istart = mcaddr(icon)-1
     do iprim=1,numb(icon)
-      !write(6,'(A,4I5,F14.10)') 'u2c loop',icon,iprim,istart,icaddr(icon),rCof(icaddr(icon)+iprim)
+      !write(u6,'(A,4I5,F14.10)') 'u2c loop',icon,iprim,istart,icaddr(icon),rCof(icaddr(icon)+iprim)
       u2c(istart+iprim,icon) = rCof(icaddr(icon)+iprim)
     end do
   end do
@@ -236,7 +238,7 @@ else
   ! Since dgemm_ is causing trouble and this is trivial
   do iprim=1,np
     do icon=1,nc
-      kpp = 0.0d0
+      kpp = Zero
       pa(:) = u2ct(icon,:)*mag(:,iprim)
       do ip=1,np
         kpp = kpp+pa(ip)
@@ -249,7 +251,7 @@ else
   do icon=1,nc
     do jcon=1,nc
       pa(:) = u2c(:,icon)*scr(:,jcon)
-      kpp = 0.0d0
+      kpp = Zero
       do ip=1,np
         kpp = kpp+pa(ip)
       end do

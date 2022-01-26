@@ -9,14 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function nProp_Int(Do_Index,Index,nIndex)
+function nProp_Int(Do_Index,Idx,nIdx)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-character*8 Label
-logical Do_Index
-integer index(4,nIndex)
-dimension nint(1)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: nProp_Int
+logical(kind=iwp) :: Do_Index
+integer(kind=iwp) :: nIdx, Idx(4,nIdx)
+integer(kind=iwp) :: iCent, iComp, iEF, iMltpl, iopt, irc, iSmLbl, iSmLbl_, maxCen, nComp, n_Int(1)
+character(len=8) :: Label
 
 !                                                                      *
 !***********************************************************************
@@ -27,7 +29,7 @@ nProp_Int = 0
 !                                                                      *
 ! Scan the ONEINT file for multipole moment operators
 
-!write(6,*) ' Starting scan of ONEINT for multipole moments'
+!write(u6,*) ' Starting scan of ONEINT for multipole moments'
 do iMltpl=1,99
   nComp = (iMltpl+1)*(iMltpl+2)/2
 
@@ -35,15 +37,15 @@ do iMltpl=1,99
   irc = -1
   iopt = 1
   iComp = 1
-  call iRdOne(irc,iopt,Label,iComp,nInt,iSmLbl)
+  call iRdOne(irc,iopt,Label,iComp,n_Int,iSmLbl)
   if (irc /= 0) Go To 110
   if (Do_Index) then
     do iComp=1,nComp
       nProp_Int = nProp_Int+1
-      index(1,nProp_Int) = 1
-      index(2,nProp_Int) = iMltpl
-      index(3,nProp_Int) = iComp
-      index(4,nProp_Int) = 0
+      Idx(1,nProp_Int) = 1
+      Idx(2,nProp_Int) = iMltpl
+      Idx(3,nProp_Int) = iComp
+      Idx(4,nProp_Int) = 0
     end do
   else
     nProp_Int = nProp_Int+nComp
@@ -55,7 +57,7 @@ end do
 !                                                                      *
 ! Scan 'ONEINT' for electric field integrals
 
-!write(6,*) ' Starting scan of ONEINT for various elec. field integrals'
+!write(u6,*) ' Starting scan of ONEINT for various elec. field integrals'
 do iEF=0,2
   nComp = (iEF+1)*(iEF+2)/2
 
@@ -65,15 +67,15 @@ do iEF=0,2
     irc = -1
     iopt = 1
     iComp = 1
-    call iRdOne(irc,iopt,Label,iComp,nInt,iSmLbl)
+    call iRdOne(irc,iopt,Label,iComp,n_Int,iSmLbl)
     if (irc /= 0) Go To 201
     if (Do_Index) then
       do iComp=1,nComp
         nProp_Int = nProp_Int+1
-        index(1,nProp_Int) = 2
-        index(2,nProp_Int) = iEF
-        index(3,nProp_Int) = iComp
-        index(4,nProp_Int) = iCent
+        Idx(1,nProp_Int) = 2
+        Idx(2,nProp_Int) = iEF
+        Idx(3,nProp_Int) = iComp
+        Idx(4,nProp_Int) = iCent
       end do
     else
       nProp_Int = nProp_Int+nComp
@@ -86,7 +88,7 @@ end do
 !                                                                      *
 ! Scan 'ONEINT' for contact term integrals
 
-!write(6,*) ' Starting scan of ONEINT for various contact term integrals'
+!write(u6,*) ' Starting scan of ONEINT for various contact term integrals'
 nComp = 1
 
 maxCen = 9999
@@ -95,15 +97,15 @@ do iCent=1,maxCen
   irc = -1
   iopt = 1
   iComp = 1
-  call iRdOne(irc,iopt,Label,iComp,nInt,iSmLbl)
+  call iRdOne(irc,iopt,Label,iComp,n_Int,iSmLbl)
   if (irc /= 0) Go To 301
   if (Do_Index) then
     do iComp=1,nComp
       nProp_Int = nProp_Int+1
-      index(1,nProp_Int) = 3
-      index(2,nProp_Int) = 1
-      index(3,nProp_Int) = 1
-      index(4,nProp_Int) = iCent
+      Idx(1,nProp_Int) = 3
+      Idx(2,nProp_Int) = 1
+      Idx(3,nProp_Int) = 1
+      Idx(4,nProp_Int) = iCent
     end do
   else
     nProp_Int = nProp_Int+nComp
@@ -123,15 +125,15 @@ do iCent=1,maxCen
   irc = -1
   iopt = 1
   iComp = 1
-  call iRdOne(irc,iopt,Label,iComp,nInt,iSmLbl_)
+  call iRdOne(irc,iopt,Label,iComp,n_Int,iSmLbl_)
   if (irc /= 0) Go To 401
   if (Do_Index) then
     do iComp=1,nComp
       nProp_Int = nProp_Int+1
-      index(1,nProp_Int) = 4
-      index(2,nProp_Int) = 0
-      index(3,nProp_Int) = iComp
-      index(4,nProp_Int) = iCent
+      Idx(1,nProp_Int) = 4
+      Idx(2,nProp_Int) = 0
+      Idx(3,nProp_Int) = iComp
+      Idx(4,nProp_Int) = iCent
     end do
   else
     nProp_Int = nProp_Int+nComp
@@ -141,7 +143,7 @@ end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!if (Do_Index) call iVcPrt('Index',' ',Index,4*nProp_Int)
+!if (Do_Index) call iVcPrt('Idx',' ',Idx,4*nProp_Int)
 
 return
 

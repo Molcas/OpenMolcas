@@ -14,8 +14,14 @@
 
 subroutine CpLabr(A,B,L,M,N,IA,IB,C,IC,IER)
 
-implicit real*8(a-h,o-z)
-real*8 A(IA,M), B(IB,N), C(IC,N)
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: L, M, N, IA, IB, IC
+real(kind=wp), intent(in) :: A(IA,M), B(IB,N)
+real(kind=wp), intent(inout) :: C(IC,N)
+integer(kind=iwp), intent(out) :: IER
 
 #ifdef _DEBUGPRINT_
 if ((IA >= L) .and. (IB >= M) .and. (IC >= L)) GO TO 5
@@ -24,7 +30,7 @@ GO TO 9000
 5 continue
 #endif
 IER = 0
-call DGEMM_('N','N',L,M,N,1.0d0,A,IA,B,IB,1.0d0,C,IC)
+call DGEMM_('N','N',L,M,N,One,A,IA,B,IB,One,C,IC)
 #ifdef _DEBUGPRINT_
 9000 continue
 #endif

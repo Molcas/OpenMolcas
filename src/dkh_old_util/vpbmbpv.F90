@@ -10,18 +10,22 @@
 !                                                                      *
 ! Copyright (C) 1995, Bernd Artur Hess                                 *
 !***********************************************************************
-subroutine VPBMBPV(idbg,epsilon,EIGA,EIGB,REVTA,SINVA,SINVB,NA,NB,ISIZEA,ISIZEB,VELIT,AAA,AAB,RRA,RRB,PVA,VPA,ISYMA,ISYMB,BU2,G2, &
-                   AUX2,CMM1,BU4,CMM2,PVAA,VPAA,SCPV,SCVP)
+
+subroutine VPBMBPV(idbg,eps,EIGA,EIGB,REVTA,SINVA,SINVB,NA,NB,ISIZEA,ISIZEB,VELIT,AAA,AAB,RRA,RRB,PVA,VPA,ISYMA,ISYMB,BU2,G2,AUX2, &
+         CMM1,BU4,CMM2,PVAA,VPAA,SCPV,SCVP)
 ! $Id: vpbmbpv.r,v 1.4 1995/05/08 14:08:53 hess Exp $
 ! calculate relativistic operators
 !   Bernd Artur Hess, hess@uni-bonn.de
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-dimension PVAA(ISIZEA), VPAA(ISIZEA)
-dimension EIGA(NA,NA), EIGB(NB,NB), SINVA(NA,NA), SINVB(NB,NB), REVTA(NA,NA), AAA(NA), RRA(NA), AAB(NB), RRB(NB), PVA(NA,NB), &
-          VPA(NA,NB), BU2(NA,NB), G2(NA,NB), CMM1(NA,NB), BU4(NA,NB)
-dimension AUX2(NA,NB), CMM2(NA,NB), SCPV(NB,NA), SCVP(NB,NA)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: idbg, NA, NB, ISIZEA, ISIZEB, ISYMA, ISYMB
+real(kind=wp) :: eps, EIGA(NA,NA), EIGB(NB,NB), REVTA(NA,NA), SINVA(NA,NA), SINVB(NB,NB), VELIT, AAA(NA), AAB(NB), RRA(NA), &
+                 RRB(NB), PVA(NA,NB), VPA(NA,NB), BU2(NA,NB), G2(NA,NB), AUX2(NA,NB), CMM1(NA,NB), BU4(NA,NB), CMM2(NA,NB), &
+                 PVAA(ISIZEA), VPAA(ISIZEA), SCPV(NB,NA), SCVP(NB,NA)
+integer(kind=iwp) :: I, IJ, J, K
 
 if (iSyma == iSymb) then
   IJ = 0
@@ -49,8 +53,8 @@ if (iSyma < iSymb) then
       VPA(I,J) = CMM2(I,J)
     end do
   end do
-  call DCOPY_(NA*NB,[ZERO],0,CMM1,1)
-  call DCOPY_(NA*NB,[ZERO],0,CMM2,1)
+  call DCOPY_(NA*NB,[Zero],0,CMM1,1)
+  call DCOPY_(NA*NB,[Zero],0,CMM2,1)
 
 end if
 
@@ -80,15 +84,15 @@ do I=1,NA
   end do
 end do
 
-!write(6,*)
-!write(6,*) 'pV part of commutator MATRIX'
-!write(6,*)  G2
-!write(6,*)
+!write(u6,*)
+!write(u6,*) 'pV part of commutator MATRIX'
+!write(u6,*)  G2
+!write(u6,*)
 
-!write(6,*)
-!write(6,*) '-Vp part commutator MATRIX'
-!write(6,*)  CMM1
-!write(6,*)
+!write(u6,*)
+!write(u6,*) '-Vp part commutator MATRIX'
+!write(u6,*)  CMM1
+!write(u6,*)
 
 ! Calculate the commutator <iSymA|[V,pb]|iSymB> and put into CMM1
 
@@ -114,18 +118,18 @@ end do
 
 call dcopy_(na*nb,[Zero],0,Cmm1,1)
 
-!write(6,*)
-!write(6,*) 'CMM2  MATRX FINAL'
-!write(6,*)  CMM2
-!write(6,*)
+!write(u6,*)
+!write(u6,*) 'CMM2  MATRX FINAL'
+!write(u6,*)  CMM2
+!write(u6,*)
 
-!write(6,*) 'END OF VPBMBPV !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+!write(u6,*) 'END OF VPBMBPV !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
 
 return
 ! Avoid unused argument warnings
 if (.false.) then
   call Unused_integer(idbg)
-  call Unused_real(epsilon)
+  call Unused_real(eps)
   call Unused_integer(ISIZEB)
   call Unused_real(VELIT)
 end if

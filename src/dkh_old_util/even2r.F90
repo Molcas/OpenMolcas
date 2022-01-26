@@ -26,21 +26,27 @@ subroutine Even2r(idbg,N,V,G,E,A,R,TT,AUXF,AUXG,AUXH,W1W1)
 !     TT      NONREL. KINETIC ENERGY (DIAGONAL)
 !     AUXF,AUXG,AUXH  SCRATCH ARAYS
 
-implicit real*8(A-H,O-Z)
-dimension V(N*(N+1)/2), G(N*(N+1)/2), E(N), R(N), A(N), TT(N), AUXF(N,N), AUXG(N,N), AUXH(N,N)
-dimension W1W1(N,N)
+use Constants, only: Zero, Two, Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: idbg, N
+real(kind=wp) :: V(N*(N+1)/2), G(N*(N+1)/2), E(N), A(N), R(N), TT(N), AUXF(N,N), AUXG(N,N), AUXH(N,N), W1W1(N,N)
+integer(kind=iwp) :: I, IE, IJ, J, M
 
 !ulf
 #ifdef _DEBUGPRINT_
-if (idbg > 0) call PRMAT(IDBG,V,N,0,'V       ')
-if (idbg > 0) call PRMAT(IDBG,G,N,0,'G       ')
-if (idbg > 0) call PRMAT(IDBG,E,N,1,'E       ')
-if (idbg > 0) call PRMAT(IDBG,A,N,1,'A       ')
-if (idbg > 0) call PRMAT(IDBG,R,N,1,'R       ')
-if (idbg > 0) call PRMAT(IDBG,TT,N,1,'TT      ')
+if (idbg > 0) then
+  call PRMAT(IDBG,V,N,0,'V       ')
+  call PRMAT(IDBG,G,N,0,'G       ')
+  call PRMAT(IDBG,E,N,1,'E       ')
+  call PRMAT(IDBG,A,N,1,'A       ')
+  call PRMAT(IDBG,R,N,1,'R       ')
+  call PRMAT(IDBG,TT,N,1,'TT      ')
+end if
 #endif
 M = N
-call dCopy_(N*N,[0.0d0],0,AUXH,1)
+call dCopy_(N*N,[Zero],0,AUXH,1)
 IJ = 0
 do I=1,N
   do J=1,I
@@ -78,14 +84,14 @@ IJ = 0
 do I=1,N
   do J=1,I
     IJ = IJ+1
-    AUXG(J,I) = -0.5d0/TT(J)*G(IJ)*A(I)*R(I)
+    AUXG(J,I) = -Half/TT(J)*G(IJ)*A(I)*R(I)
   end do
 end do
 do J=1,N
-  IJ = int(dble(J*(J-1))*0.5d0+1d0)
+  IJ = J*(J-1)/2+1
   do I=J,N
     IJ = IJ+I-1
-    AUXG(I,J) = -0.5d0/TT(I)*G(IJ)*A(J)*R(J)
+    AUXG(I,J) = -Half/TT(I)*G(IJ)*A(J)*R(J)
   end do
 end do
 
@@ -104,7 +110,7 @@ do I=1,N
   end do
 end do
 do J=1,N
-  IJ = int(dble(J*(J-1))*0.5d0+1d0)
+  IJ = J*(J-1)/2+1
   do I=J,N
     IJ = IJ+I-1
     AUXF(I,J) = A(I)*V(IJ)*A(J)*A(J)*R(J)
@@ -114,14 +120,14 @@ IJ = 0
 do I=1,N
   do J=1,I
     IJ = IJ+1
-    AUXG(J,I) = -2.d0*TT(J)*R(J)*V(IJ)*A(I)
+    AUXG(J,I) = -Two*TT(J)*R(J)*V(IJ)*A(I)
   end do
 end do
 do J=1,N
-  IJ = int(dble(J*(J-1))*0.5d0+1d0)
+  IJ = J*(J-1)/2+1
   do I=J,N
     IJ = IJ+I-1
-    AUXG(I,J) = -2.d0*TT(I)*R(I)*V(IJ)*A(J)
+    AUXG(I,J) = -Two*TT(I)*R(I)*V(IJ)*A(J)
   end do
 end do
 
@@ -140,7 +146,7 @@ do I=1,N
   end do
 end do
 do J=1,N
-  IJ = int(dble(J*(J-1))*0.5d0+1d0)
+  IJ = J*(J-1)/2+1
   do I=J,N
     IJ = IJ+I-1
     AUXG(I,J) = G(IJ)*A(J)*R(J)
@@ -164,7 +170,7 @@ if (idbg > 0) call prsq(IDBG,'W*W     ',AUXH,N)
 
 do I=1,N
   do J=1,N
-    AUXH(I,J) = 0.5d0*(AUXH(I,J)*E(I)+AUXH(I,J)*E(J))
+    AUXH(I,J) = Half*(AUXH(I,J)*E(I)+AUXH(I,J)*E(J))
   end do
 end do
 !ulf
@@ -181,7 +187,7 @@ do I=1,N
   end do
 end do
 do J=1,N
-  IJ = int(dble(J*(J-1))*0.5d0+1d0)
+  IJ = J*(J-1)/2+1
   do I=J,N
     IJ = IJ+I-1
     AUXF(I,J) = A(I)*R(I)*G(IJ)*A(J)*E(J)*A(J)
@@ -197,14 +203,14 @@ IJ = 0
 do I=1,N
   do J=1,I
     IJ = IJ+1
-    AUXG(J,I) = -0.5d0/TT(J)*G(IJ)*A(I)*R(I)
+    AUXG(J,I) = -Half/TT(J)*G(IJ)*A(I)*R(I)
   end do
 end do
 do J=1,N
-  IJ = int(dble(J*(J-1))*0.5d0+1d0)
+  IJ = J*(J-1)/2+1
   do I=J,N
     IJ = IJ+I-1
-    AUXG(I,J) = -0.5d0/TT(I)*G(IJ)*A(J)*R(J)
+    AUXG(I,J) = -Half/TT(I)*G(IJ)*A(J)*R(J)
   end do
 end do
 call CpLabr(AUXF,AUXG,N,N,N,M,M,AUXH,M,IE)
@@ -220,7 +226,7 @@ do I=1,N
   end do
 end do
 do J=1,N
-  IJ = int(dble(J*(J-1))*0.5d0+1d0)
+  IJ = J*(J-1)/2+1
   do I=J,N
     IJ = IJ+I-1
     AUXF(I,J) = A(I)*V(IJ)*R(J)*A(J)*E(J)*A(J)
@@ -230,14 +236,14 @@ IJ = 0
 do I=1,N
   do J=1,I
     IJ = IJ+1
-    AUXG(J,I) = -2.d0*TT(J)*R(J)*V(IJ)*A(I)
+    AUXG(J,I) = -Two*TT(J)*R(J)*V(IJ)*A(I)
   end do
 end do
 do J=1,N
-  IJ = int(dble(J*(J-1))*0.5d0+1d0)
+  IJ = J*(J-1)/2+1
   do I=J,N
     IJ = IJ+I-1
-    AUXG(I,J) = -2.d0*TT(I)*R(I)*V(IJ)*A(J)
+    AUXG(I,J) = -Two*TT(I)*R(I)*V(IJ)*A(J)
   end do
 end do
 call CpLabr(AUXF,AUXG,N,N,N,M,M,AUXH,M,IE)
@@ -253,7 +259,7 @@ do I=1,N
   end do
 end do
 do J=1,N
-  IJ = int(dble(J*(J-1))*0.5d0+1d0)
+  IJ = J*(J-1)/2+1
   do I=J,N
     IJ = IJ+I-1
     AUXG(I,J) = G(IJ)*A(J)*R(J)
@@ -271,7 +277,7 @@ IJ = 0
 do I=1,N
   do J=1,I
     IJ = IJ+1
-    G(IJ) = -0.5d0*(AUXH(I,J)+AUXH(J,I))
+    G(IJ) = -Half*(AUXH(I,J)+AUXH(J,I))
   end do
 end do
 !call PRM('OUTPUT  ',G,N)

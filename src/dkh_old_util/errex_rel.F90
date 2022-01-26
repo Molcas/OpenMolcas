@@ -12,11 +12,14 @@
 !               2005, Jesper Wisborg Krogh                             *
 !***********************************************************************
 
-subroutine errex_rel(char)
+subroutine errex_rel(string)
 
-character*(*) char
+use Definitions, only: u6
 
-write(6,'(a50)') char
+implicit none
+character(len=*), intent(in) :: string
+
+write(u6,'(a50)') string
 call Abend()
 
 end subroutine errex_rel

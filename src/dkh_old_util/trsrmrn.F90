@@ -15,8 +15,12 @@ subroutine TrSmrN(A,BA,BB,C,NA,NB,H,W)
 ! TRANSFORM SYMMETRIC MATRIX A BY UNITARY TRANSFORMATION IN B.
 ! RESULT IS IN C
 
-implicit real*8(A-H,O-Z)
-dimension A(NA,NB), BA(NA,NA), BB(NB,NB), C(NA,NB), H(NA,NB), W(NA,NB)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: NA, NB
+real(kind=wp) :: A(NA,NB), BA(NA,NA), BB(NB,NB), C(NA,NB), H(NA,NB), W(NA,NB)
+integer(kind=iwp) :: I, J, K, L
 
 call DZero(C,NA*NB)
 call DZero(H,NA*NB)

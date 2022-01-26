@@ -22,9 +22,14 @@ subroutine Sogr(idbg,N,SS,SINV,P,G,A1)
 !     G (ISIZE)      SCRATCH
 !     A1(N)          SCRATCH
 
-implicit real*8(A-H,O-Z)
-dimension SS(*), P(*), G(*), A1(*), SINV(N,N)
-integer ierr
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: idbg, N
+real(kind=wp) :: SS(*), SINV(N,N), P(*), G(*), A1(*)
+integer(kind=iwp) :: I, ierr, IH, IJ, IL, IQ, J, J1, JF, JL, JQ, K, L, LG
+real(kind=wp) :: ETOT, S1KK, SUM_
 
 if (iDbg > 0) call PrMat(idbg,SS,n,0,'SS')
 ierr = 0
@@ -34,13 +39,13 @@ do J=1,N
   IL = JL
   JQ = IQ
   S1KK = SS(IQ+J)
-  G(IL+J) = 1.d0
+  G(IL+J) = One
   if (J == 1) GO TO 341
   J1 = J-1
   JL = 0
   do K=1,J1
     LG = JQ
-    ETOT = 0.d0
+    ETOT = Zero
     do L=1,K
       LG = LG+1
       JL = JL+1
@@ -52,22 +57,22 @@ do J=1,N
   JF = 1
   JL = IL
   do K=1,J1
-    SUM = 0.d0
+    SUM_ = Zero
     JL = JL+1
     JF = JF+K-1
     IH = JF
     do L=K,J1
       IH = IH+L-1
-      SUM = SUM+A1(L)*G(IH)
+      SUM_ = SUM_+A1(L)*G(IH)
     end do
-    G(JL) = -SUM
+    G(JL) = -SUM_
   end do
 341 continue
-  if (s1kk <= 1.D-16) then
-    write(6,*) '    Sogr| j=',j,' s1kk=',s1kk
+  if (s1kk <= 1.0e-16_wp) then
+    write(u6,*) '    Sogr| j=',j,' s1kk=',s1kk
     ierr = ierr+1
   end if
-  S1KK = 1.d0/sqrt(S1KK)
+  S1KK = One/sqrt(S1KK)
   JL = IL
   do K=1,J
     JL = JL+1
@@ -80,7 +85,7 @@ IJ = 0
 do I=1,N
   do J=1,I
     IJ = IJ+1
-    SINV(I,J) = 0.d0
+    SINV(I,J) = Zero
     SINV(J,I) = P(IJ)
   end do
 end do

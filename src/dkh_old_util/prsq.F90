@@ -11,9 +11,14 @@
 
 subroutine prsq(idbg,label,a,n)
 
-implicit real*8(A-H,O-Z)
-dimension a(n,n)
-character*8 label
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: idbg, n
+character(len=8) :: label
+real(kind=wp) :: a(n,n)
+integer(kind=iwp) :: i, j
+
 write(idbg,1001) label
 write(idbg,1002) (j,j=1,n)
 do i=1,n

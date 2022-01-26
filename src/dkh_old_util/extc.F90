@@ -9,11 +9,19 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-real*8 function EXTC(LAMBDA,AL,BE,L1,M1,N1,L2,M2,N2)
+function EXTC(LAMBDA,AL,BE,L1,M1,N1,L2,M2,N2)
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Half
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp) :: EXTC
+integer(kind=iwp) :: LAMBDA, L1, M1, N1, L2, M2, N2
+real(kind=wp) :: AL, BE
 #include "crelop.fh"
-integer IS1(3), IS2(3)
+integer(kind=iwp) :: II, IS1(3), IS2(3), JJ, KK
+real(kind=wp) :: ANG, EX, OV1, OV2, SUM_
+real(kind=wp), external :: DER, PHI, THETA
 
 ! CALCULATE ANGULAR AND RADIAL PART
 
@@ -25,7 +33,7 @@ if (IMAX <= 20) goto 2
 
 ! ERROR BRANCH: ANGULAR MOMENTUM  > MAXIMUM GIVEN BY ARRAY GA
 
-write(6,1002) L1,M1,N1,L2,M2,N2,LAMBDA
+write(u6,1002) L1,M1,N1,L2,M2,N2,LAMBDA
 1002 format(' ILLEGAL ANGULAR MOMENTUM (PVP)'/,' L1,M1,N1,L2,M2,N2,LAMBDA PRINTED'/,1X,7I5)
 call Abend()
 
@@ -37,7 +45,7 @@ IS1(3) = N1
 IS2(1) = L2
 IS2(2) = M2
 IS2(3) = N2
-SUM = DER(1,IS1,IS2,AL,BE)+DER(2,IS1,IS2,AL,BE)+DER(3,IS1,IS2,AL,BE)
+SUM_ = DER(1,IS1,IS2,AL,BE)+DER(2,IS1,IS2,AL,BE)+DER(3,IS1,IS2,AL,BE)
 
 !  NORMALIZATION
 
@@ -45,17 +53,17 @@ II = L1+L1
 JJ = M1+M1
 KK = N1+N1
 ANG = THETA(II+JJ,KK)*PHI(JJ,II)
-EX = -0.5d0*dble(II+JJ+KK+3)
-OV1 = 0.5d0*ANG*GA(II+JJ+KK+3)*((AL+AL)**EX)
-!write(6,*) ' EXTC OV1',L1,M1,N1,AL,ANG,sqrt(1/OV1)
+EX = -Half*real(II+JJ+KK+3,kind=wp)
+OV1 = Half*ANG*GA(II+JJ+KK+3)*((AL+AL)**EX)
+!write(u6,*) ' EXTC OV1',L1,M1,N1,AL,ANG,sqrt(1/OV1)
 II = L2+L2
 JJ = M2+M2
 KK = N2+N2
 ANG = THETA(II+JJ,KK)*PHI(JJ,II)
-EX = -0.5d0*dble(II+JJ+KK+3)
-OV2 = 0.5d0*ANG*GA(II+JJ+KK+3)*((BE+BE)**EX)
-!write(6,*) ' EXTC OV1',L2,M2,N2,BE,ANG,sqrt(1/OV2)
-EXTC = SUM/sqrt(OV1*OV2)
+EX = -Half*real(II+JJ+KK+3,kind=wp)
+OV2 = Half*ANG*GA(II+JJ+KK+3)*((BE+BE)**EX)
+!write(u6,*) ' EXTC OV1',L2,M2,N2,BE,ANG,sqrt(1/OV2)
+EXTC = SUM_/sqrt(OV1*OV2)
 
 return
 

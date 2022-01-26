@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-character*40 function PIKNAM(LINED,KEYW)
+function PIKNAM(LINED,KEYW)
 ! picks a character item up from a line like
 ! ITEM_NAME  value  COMMENTS
 !
@@ -18,10 +18,15 @@ character*40 function PIKNAM(LINED,KEYW)
 !   LINED        input line to be searched
 !   KEYW         keyword
 
-implicit real*8(A-H,O-Z)
-character*40 KEYW
-character*80 LINE, LINED
-logical FOUND
+use Definitions, only: iwp
+
+implicit none
+character(len=40) :: PIKNAM
+character(len=80), intent(in) :: LINED
+character(len=40), intent(in) :: KEYW
+character(len=80) LINE
+integer(kind=iwp) :: I, IK, IL, ISTRT, LK, LL
+logical(kind=iwp) :: FOUND
 
 IK = 0
 LL = 0
@@ -82,7 +87,7 @@ end do
 if (FOUND) then
   PIKNAM = LINE(IL:LL)
   write(LINE,601) LK,LL-IL+1
-  !write(6,LINE) KEYW(:LK),PIKNAM
+  !write(u6,LINE) KEYW(:LK),PIKNAM
 else
   PIKNAM = ' '
 end if

@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-character*40 function RDNAME(LUT,KEYW)
+function RDNAME(LUT,KEYW)
 ! reads a character item up wherever it is in a file in the form
 ! ITEM_NAME  value
 !
@@ -19,14 +19,17 @@ character*40 function RDNAME(LUT,KEYW)
 !             LUT>0 for formatted files, LUT<0 for unformatted files
 !   KEYW      keyword
 
-integer LU, LUT
-character*40 KEYW, value, PIKNAM
-character*80 LINE, BLANK
-logical UNFORM
-external PIKNAM
+use Definitions, only: iwp, u6
 
-BLANK = '                                        '
-BLANK = BLANK(:40)//'                                        '
+implicit none
+character(len=40) :: RDNAME
+integer(kind=iwp), intent(in) :: LUT
+character(len=40), intent(in) :: KEYW
+integer(kind=iwp) :: LU
+logical(kind=iwp) :: UNFORM
+character(len=80) :: LINE
+character(len=40) :: VAL
+character(len=40), external :: PIKNAM
 
 if (LUT > 0) then
   UNFORM = .false.
@@ -38,7 +41,7 @@ else if (LUT < 0) then
 else
   LU = 0
   UNFORM = .true.
-  write(6,*) 'RdName: LUT=0!'
+  write(u6,*) 'RdName: LUT=0!'
   call Abend()
 end if
 
@@ -46,22 +49,22 @@ rewind LU
 1 continue
 if (UNFORM) then
   ! unformatted files
-  LINE = BLANK
+  LINE = ''
   read(LU,end=999) LINE
 else
   ! formatted files
   read(LU,'(A80)',end=999) LINE
 end if
-value = PIKNAM(LINE,KEYW)
-if (value == ' ') GO TO 1
+VAL = PIKNAM(LINE,KEYW)
+if (VAL == ' ') GO TO 1
 
 ! the item has been found
-RDNAME = value
+RDNAME = VAL
 return
 
 ! the item has not been found in the file
 999 continue
-RDNAME = value
+RDNAME = VAL
 
 return
 

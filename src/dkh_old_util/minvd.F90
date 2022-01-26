@@ -15,11 +15,16 @@
 !#NUMPAC#MINVD               REVISED ON 1984-11-30
 subroutine MINVD(A,KA,N,EPS,ILL)
 
-implicit real*8(A-H,O-Z)
-dimension A(KA,N)
-integer MX(1000)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-if ((N < 1) .or. (N > 1000) .or. (N > KA) .or. (EPS <= 0.0)) GO TO 250
+implicit none
+integer(kind=iwp) :: KA, N, ILL
+real(kind=wp) :: A(KA,N), EPS
+integer(kind=iwp) :: I, IM1, IM2, J, JM1, JP1, K, M, MX(1000), NM1 !IFG
+real(kind=wp) :: AA, AM, P, S, W
+
+if ((N < 1) .or. (N > size(MX)) .or. (N > KA) .or. (EPS <= Zero)) GO TO 250
 ! LU DECOMPOSITION
 JM1 = 0 ! dummy initialize
 M = 0 ! dummy initialize

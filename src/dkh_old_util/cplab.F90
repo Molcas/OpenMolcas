@@ -11,11 +11,16 @@
 
 subroutine CPLAB(A,B,L,M,N,IA,IB,C,IC,IER)
 
-implicit real*8(a-h,o-z)
-!ulf integer L,M,N,IA,IB,IC,IER
-!ulf real*8 A(IA,M),B(IB,N),C(IC,N)
-!ulf real*8 TEMP
-dimension A(IA,M), B(IB,N), C(IC,N)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: L, M, N, IA, IB, IC
+real(kind=wp), intent(in) :: A(IA,M), B(IB,N)
+real(kind=wp), intent(inout) :: C(IC,N)
+integer(kind=iwp), intent(out) :: IER
+integer(kind=iwp) :: I, J, K
+real(kind=wp) :: TEMP
 
 if ((IA >= L) .and. (IB >= M) .and. (IC >= L)) GO TO 5
 IER = 129
@@ -23,7 +28,7 @@ GO TO 9000
 5 IER = 0
 do I=1,L
   do J=1,N
-    TEMP = 0.0d0
+    TEMP = Zero
     do K=1,M
       TEMP = A(I,K)*B(K,J)+TEMP
     end do

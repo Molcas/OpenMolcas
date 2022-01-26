@@ -11,8 +11,13 @@
 
 subroutine FILLMA(N,S,OVE)
 
-implicit real*8(A-H,O-Z)
-dimension S(*), OVE(N,N)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: N
+real(kind=wp), intent(in) :: S(*)
+real(kind=wp), intent(out) :: OVE(N,N)
+integer(kind=iwp) :: I, IJ, J
 
 IJ = 0
 do I=1,N

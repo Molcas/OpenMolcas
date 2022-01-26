@@ -15,16 +15,20 @@
 subroutine TrSmtr(A,B,C,FACTOR,N,H,W)
 ! B*A*BT
 
-implicit real*8(A-H,O-Z)
-dimension A(N*(N+1)/2), B(N,N), C(N*(N+1)/2), H(N,N), W(N,N)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: N
+real(kind=wp) :: A(N*(N+1)/2), B(N,N), C(N*(N+1)/2), FACTOR, H(N,N), W(N,N)
 
 #ifdef MOLPRO
 call Square(W,A,n,n)
 #else
 call Square(A,W,n,1,n)
 #endif
-call DGEMM_('N','N',n,n,n,1.0d0,B,n,W,n,0.0d0,H,n)
-call dGemm_tri('N','T',n,n,n,1.0d0,H,n,B,n,Factor,C,n)
+call DGEMM_('N','N',n,n,n,One,B,n,W,n,Zero,H,n)
+call dGemm_tri('N','T',n,n,n,One,H,n,B,n,Factor,C,n)
 
 return
 

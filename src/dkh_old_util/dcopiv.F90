@@ -53,7 +53,7 @@
 !
 ! DET:     REAL*8, will contain the determinant (DET = 0 is set,
 !          if A is singular). It is scaled such that
-!          1.0D-10 <= ABS(DET) <= 1.0D10 .
+!          1.0e-10 <= ABS(DET) <= 1.0e10 .
 !
 ! EX:      INTEGER, is the scale factor for DET. The determinant
 !          of A can be obtained from  DET*10**EX .
@@ -104,8 +104,15 @@
 
 subroutine DCOPIV(A,B,N,M,iD,EPS,DET,iEX,iCTR,S)
 
-implicit real*8(a-h,o-z)
-dimension A(iD,N), B(iD,M), S(N)
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: N, M, iD, iEX, iCTR
+real(kind=wp) :: A(iD,N), B(iD,M), EPS, DET, S(N)
+integer(kind=iwp) :: iCI, iRI
+real(kind=wp) :: C, SUM_
 
 call DCOPIV_INTERNAL(S)
 
@@ -114,15 +121,14 @@ contains
 
 subroutine DCOPIV_INTERNAL(S)
 
-  use iso_c_binding
-
-  real*8, target :: S(*)
-  integer, pointer :: iS(:)
+  real(kind=wp), target, intent(inout) :: S(*)
+  integer(kind=iwp), pointer :: iS(:)
+  integer(kind=iwp) :: I, J, K
 
   call c_f_pointer(c_loc(S(1)),iS,[N])
   if ((N < 1) .or. (M < 1)) GO TO 7
   iEX = 0
-  DET = 1.0d0
+  DET = One
   if (N == 1) GO TO 4
   do I=1,N-1
     C = abs(A(I,I))
@@ -161,13 +167,13 @@ subroutine DCOPIV_INTERNAL(S)
       end do
     end if
     iS(I) = iCI
-    SUM = A(I,I)
-    if (abs(SUM) <= EPS) then
-      write(6,*) ' case 1. i,sum,eps',i,sum,eps
+    SUM_ = A(I,I)
+    if (abs(SUM_) <= EPS) then
+      write(u6,*) ' case 1. i,sum_,eps',i,sum_,eps
       GO TO 1
     end if
     do J=I+1,N
-      C = A(J,I)/SUM
+      C = A(J,I)/SUM_
       do K=I+1,N
         A(J,K) = A(J,K)-C*A(I,K)
       end do
@@ -178,38 +184,38 @@ subroutine DCOPIV_INTERNAL(S)
       end if
     end do
   end do
-4 SUM = A(N,N)
-  if (abs(SUM) <= EPS) then
-    write(6,*) ' case 2. n,sum,eps',n,sum,eps
+4 SUM_ = A(N,N)
+  if (abs(SUM_) <= EPS) then
+    write(u6,*) ' case 2. n,sum_,eps',n,sum_,eps
     GO TO 1
   end if
   if (iCTR > 0) GO TO 6
   do K=1,N
     DET = DET*A(K,K)
-2   if (abs(DET) > 1.0d10) then
-      DET = DET*1.0D-20
+2   if (abs(DET) > 1.0e10_wp) then
+      DET = DET*1.0e-20_wp
       iEX = iEX+20
       GO TO 2
     end if
-3   if (abs(DET) <= 1.0D-10) then
-      DET = DET*1.0d20
+3   if (abs(DET) <= 1.0e-10_wp) then
+      DET = DET*1.0e20_wp
       iEX = iEX-20
       GO TO 3
     end if
   end do
   if (iCTR < 0) GO TO 5
 6 do K=1,M
-    B(N,K) = B(N,K)/SUM
+    B(N,K) = B(N,K)/SUM_
   end do
   if (N == 1) GO TO 5
   do I=N-1,1,-1
     C = A(I,I)
     do J=1,M
-      SUM = B(I,J)
+      SUM_ = B(I,J)
       do K=I+1,N
-        SUM = SUM-A(I,K)*B(K,J)
+        SUM_ = SUM_-A(I,K)*B(K,J)
       end do
-      B(I,J) = SUM/C
+      B(I,J) = SUM_/C
     end do
   end do
   do K=N-1,1,-1
@@ -225,7 +231,7 @@ subroutine DCOPIV_INTERNAL(S)
 5 iCTR = 0
   nullify(iS)
   return
-1 DET = 0.0d0
+1 DET = Zero
   iCTR = 1
   nullify(iS)
   return

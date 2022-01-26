@@ -9,22 +9,28 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine JACOB_REL(A,B,EIG,N,RANGE,IC)
+subroutine JACOB_REL(A,B,EIG,N,RNG,IC)
 ! IC=1 EIGENVALUES AND VECTORS REARRANGED
 !   =0 LEFT AS THEY ARE
 
-implicit real*8(A-H,O-Z)
-dimension A(N,N), B(N,N), EIG(N)
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp
 
-ENUI = 0.d0
-U1 = dble(N)
+implicit none
+integer(kind=iwp) :: N, IC
+real(kind=wp) :: A(N,N), B(N,N), EIG(N), RNG
+integer(kind=iwp) :: I, IL, IM, IND, J, K, L, LL, M, MM
+real(kind=wp) :: COST, COST2, ENUF, ENUI, SINCS, SINT, SINT2, THR, U1, X, XY, Y
+
+ENUI = Zero
+U1 = real(N,kind=wp)
 do I=1,N
-  B(I,I) = 1.d0
+  B(I,I) = One
   EIG(I) = A(I,I)
   do J=1,I
     if (I == J) GO TO 6
-    B(I,J) = 0.d0
-    B(J,I) = 0.d0
+    B(I,J) = Zero
+    B(J,I) = Zero
     ENUI = ENUI+A(I,J)*A(I,J)
 6   continue
   end do
@@ -34,8 +40,8 @@ if (ENUI <= 0) then
 else
   GO TO 10
 end if
-10 ENUI = sqrt(2.d0*ENUI)
-ENUF = ENUI*RANGE/U1
+10 ENUI = sqrt(Two*ENUI)
+ENUF = ENUI*RNG/U1
 IND = 0
 THR = ENUI
 15 THR = THR/U1
@@ -47,7 +53,7 @@ else
   GO TO 35
 end if
 35 IND = 1
-X = .5d0*(EIG(L)-EIG(M))
+X = Half*(EIG(L)-EIG(M))
 Y = -A(M,L)/sqrt(A(M,L)*A(M,L)+X*X)
 if (X < 0) then
   GO TO 40
@@ -55,12 +61,12 @@ else
   GO TO 45
 end if
 40 Y = -Y
-45 if (Y > 1.d0) Y = 1.d0
-if (Y < -1.d0) Y = -1.d0
-XY = 1.d0-Y*Y
-SINT = Y/sqrt(2.d0*(1.d0+sqrt(XY)))
+45 if (Y > One) Y = One
+if (Y < -One) Y = -One
+XY = One-Y*Y
+SINT = Y/sqrt(Two*(One+sqrt(XY)))
 SINT2 = SINT*SINT
-COST2 = 1.d0-SINT2
+COST2 = One-SINT2
 COST = sqrt(COST2)
 SINCS = SINT*COST
 do I=1,N
@@ -95,7 +101,7 @@ do I=1,N
   B(I,M) = B(I,L)*SINT+B(I,M)*COST
   B(I,L) = X
 end do
-X = 2.d0*A(M,L)*SINCS
+X = Two*A(M,L)*SINCS
 Y = EIG(L)*COST2+EIG(M)*SINT2-X
 X = EIG(L)*SINT2+EIG(M)*COST2+X
 A(M,L) = (EIG(L)-EIG(M))*SINCS+A(M,L)*(COST2-SINT2)

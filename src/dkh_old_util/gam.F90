@@ -9,18 +9,24 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-real*8 function GAM(M)
+function GAM(M)
 
-implicit real*8(A-H,O-Z)
+use Constants, only: One, Half
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: GAM
+integer(kind=iwp), intent(in) :: M
 #include "crelop.fh"
-save/CRELOP/
+integer(kind=iwp) :: I, MA
+real(kind=wp) :: G
 
 if (mod(M,2) == 0) goto 10
 MA = (M+1)/2
-G = 1.d0
+G = One
 if (MA == 1) goto 11
 do I=2,MA
-  G = G*dble(I-1)
+  G = G*real(I-1,kind=wp)
 end do
 GAM = G
 return
@@ -28,7 +34,7 @@ return
 G = SQPI
 if (MA == 0) goto 11
 do I=1,MA,2
-  G = G*0.5d0*dble(I)
+  G = G*Half*real(I,kind=wp)
 end do
 11 GAM = G
 

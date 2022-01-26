@@ -11,15 +11,23 @@
 
 subroutine AUXC(N,NBC,TC,ANSC)
 
-implicit real*8(A-H,O-Z)
+use Constants, only: One
+use Definitions, only: wp, iwp
 
-X = 1d0/(1d0+TC)
+implicit none
+integer(kind=iwp), intent(in) :: N, NBC
+real(kind=wp), intent(in) :: TC
+real(kind=wp), intent(out) :: ANSC
+integer(kind=iwp) :: I
+real(kind=wp) :: DUM, X, Y
+
+X = One/(One+TC)
 Y = TC*X
 X = sqrt(X**(NBC+1))
-DUM = 1d0
+DUM = One
 if (N > 1) then
   do I=N,2,-1
-    DUM = DUM*Y*dble(NBC+2*I-3)/dble(2*I-2)+1.d0
+    DUM = DUM*Y*real(NBC+2*I-3,kind=wp)/real(2*I-2,kind=wp)+One
   end do
 end if
 ANSC = X*DUM

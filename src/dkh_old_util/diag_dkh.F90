@@ -11,11 +11,17 @@
 
 subroutine DIAG_DKH(A,N,EIG,EW,SINV,AUX,IC)
 
-implicit real*8(A-H,O-Z)
-dimension A(N*(N+1)/2), AUX(N,N), SINV(N,N), EIG(N,N), EW(N)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: N, IC
+real(kind=wp) :: A(N*(N+1)/2), EIG(N,N), EW(N), SINV(N,N), AUX(N,N)
+integer(kind=iwp) :: I, IJ, J, K, L
+real(kind=wp) :: TOL
 #ifdef MOLPRO
 !MR ATTENTION, THE SCRATCH ARRAY TMP IS NOT PROPERLY ALLOCATED
-dimension TMP(6*N)
+real(kind=wp) :: TMP(6*N)
 #endif
 
 IJ = 0
@@ -28,7 +34,7 @@ do I=1,N
 end do
 do K=1,N
   do J=1,N
-    EIG(K,J) = 0.d0
+    EIG(K,J) = Zero
     do L=1,J
       EIG(K,J) = EIG(K,J)+AUX(K,L)*SINV(L,J)
     end do
@@ -36,7 +42,7 @@ do K=1,N
 end do
 do I=1,N
   do J=1,I
-    AUX(I,J) = 0.d0
+    AUX(I,J) = Zero
     do K=1,I
       AUX(I,J) = AUX(I,J)+SINV(K,I)*EIG(K,J)
     end do
@@ -44,7 +50,7 @@ do I=1,N
   end do
 end do
 
-TOL = 1.D-80
+TOL = 1.0e-80_wp
 #ifdef MOLPRO
 do I=1,N
   do J=1,N

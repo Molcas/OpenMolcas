@@ -15,11 +15,13 @@
 subroutine DKRE1R(A,R,E,TT,V,G,RE1R,VEXTT,PVPT,N)
 ! CONSTRUCT RE1R FOR DK3
 
-implicit real*8(A-H,O-Z)
-dimension E(N), A(N), R(N), TT(N)
-dimension V(N*(N+1)/2), G(N*(N+1)/2)
-dimension VEXTT(N*(N+1)/2), PVPT(N*(N+1)/2)
-dimension RE1R(N,N)
+use Constants, only: Four
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: N
+real(kind=wp) :: A(N), R(N), E(N), TT(N), V(N*(N+1)/2), G(N*(N+1)/2), RE1R(N,N), VEXTT(N*(N+1)/2), PVPT(N*(N+1)/2)
+integer(kind=iwp) :: I, IJ, J
 
 IJ = 0
 do I=1,N
@@ -36,7 +38,7 @@ IJ = 0
 do I=1,N
   do J=1,I
     IJ = IJ+1
-    V(IJ) = V(IJ)*A(I)*A(J)*R(I)*R(I)*R(J)*R(J)*TT(I)*TT(J)*4.0d0
+    V(IJ) = V(IJ)*A(I)*A(J)*R(I)*R(I)*R(J)*R(J)*TT(I)*TT(J)*Four
     RE1R(I,J) = V(IJ)
     RE1R(J,I) = RE1R(I,J)
   end do

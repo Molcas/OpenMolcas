@@ -9,17 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-real*8 function THETA(M,N)
+function THETA(M,N)
 ! INTEGRATION OVER THETA. INCLUDES A FACTOR SIN(TH)
 ! FOR THE VOLUME ELEMENT
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: THETA
+integer(kind=iwp), intent(in) :: M, N
 #include "crelop.fh"
 
 if (mod(N,2) == 1) goto 10
 THETA = GA(M+2)*GA(N+1)/GA(M+N+3)
 return
-10 THETA = 0.d0
+10 THETA = Zero
 
 return
 

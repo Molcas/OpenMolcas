@@ -9,16 +9,19 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Cp_Prop_Int(AInt,nAInt,BInt,nBInt,nBas,nIrrep,Label)
+subroutine Cp_Prop_Int(A_Int,nAInt,B_Int,nBInt,nBas,nIrrep,Label)
 !***********************************************************************
 !                                                                      *
 ! Object: replace the diagonal blocks of the property integrals.       *
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-real*8 aint(nAInt+4), BInt(nBInt+4)
-integer nBas(0:nIrrep-1)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nAInt, nBInt, nIrrep, nBas(0:nIrrep-1), Label
+real(kind=wp) :: A_Int(nAInt+4), B_Int(nBInt+4)
+integer(kind=iwp) :: iCmp, iExp, iIrrep, ij, iLen, jIrrep, Len_
 
 iCmp = 1
 iExp = 1
@@ -28,16 +31,16 @@ do iIrrep=0,nIrrep-1
     if (iand(Label,2**ij) == 0) Go To 20
     if (iIrrep == jIrrep) then
 
-      Len = nBas(iIrrep)*(nBas(iIrrep)+1)/2
-      do iLen=0,Len-1
-        !write(6,*) AInt(iExp+iLen), BInt(iCmp+iLen)
-        aint(iExp+iLen) = BInt(iCmp+iLen)
+      Len_ = nBas(iIrrep)*(nBas(iIrrep)+1)/2
+      do iLen=0,Len_-1
+        !write(u6,*) A_Int(iExp+iLen),B_Int(iCmp+iLen)
+        A_Int(iExp+iLen) = B_Int(iCmp+iLen)
       end do
-      iCmp = iCmp+Len
-      iExp = iExp+Len
+      iCmp = iCmp+Len_
+      iExp = iExp+Len_
     else
-      Len = nBas(iIrrep)*nBas(jIrrep)
-      iExp = iExp+Len
+      Len_ = nBas(iIrrep)*nBas(jIrrep)
+      iExp = iExp+Len_
     end if
 20  continue
   end do

@@ -11,16 +11,19 @@
 ! Copyright (C) 1995, Bernd Artur Hess                                 *
 !***********************************************************************
 
-subroutine SCFCLI4(idbg,epsilon,S,H,REVTA,SINVA,NA,NB,ISIZEA,ISIZEB,VELIT,AAA,AAB,ISYMA,ISYMB,CMM1,CMM2,EV4,BU2,BU6,EIG4,EW4,P)
+subroutine SCFCLI4(idbg,eps,S,H,REVTA,SINVA,NA,NB,ISIZEA,ISIZEB,VELIT,AAA,AAB,ISYMA,ISYMB,CMM1,CMM2,EV4,BU2,BU6,EIG4,EW4,P)
 ! $Id: relsewc.r,v 1.4 1995/05/08 14:08:53 hess Exp $
 ! calculate relativistic operators
 !   Bernd Artur Hess, hess@uni-bonn.de
 
-implicit real*8(A-H,O-Z)
-dimension H(ISIZEA), P(ISIZEA), EV4(ISIZEA), S(ISIZEA)
-dimension SINVA(NA,NA), REVTA(NA,NA), BU2(NA,NB), AAA(NA), AAB(NB)
-dimension CMM1(NB,NA), CMM2(NA,NB)
-dimension EW4(NA), EIG4(NA,NA), BU6(NA,NA)
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: idbg, NA, NB, ISIZEA, ISIZEB, ISYMA, ISYMB
+real(kind=wp) :: eps, S(ISIZEA), H(ISIZEA), REVTA(NA,NA), SINVA(NA,NA), VELIT, AAA(NA), AAB(NB), CMM1(NB,NA), CMM2(NA,NB), &
+                 EV4(ISIZEA), BU2(NA,NB), BU6(NA,NA), EIG4(NA,NA), EW4(NA), P(ISIZEA)
+integer(kind=iwp) :: I, IJ, J, L
 
 do I=1,NB
   do J=1,NA
@@ -34,19 +37,19 @@ IJ = 0
 do I=1,NA
   do J=1,I
     IJ = IJ+1
-    EV4(IJ) = 0.0d0
+    EV4(IJ) = Zero
     do L=1,NB
       EV4(IJ) = EV4(IJ)-CMM2(I,L)*CMM1(L,J)
     end do
   end do
 end do
 
-!write(6,*)
-!write(6,*) 'Final BSS matrix no Hess part alpha**2 yet'
-!write(6,*) EV4
+!write(u6,*)
+!write(u6,*) 'Final BSS matrix no Hess part alpha**2 yet'
+!write(u6,*) EV4
 
 do IJ=1,ISIZEA
-  EV4(IJ) = 0.5d0*(1.0d0/(VELIT*VELIT))*EV4(IJ)
+  EV4(IJ) = Half*(One/(VELIT*VELIT))*EV4(IJ)
 end do
 
 call AddMar(ISIZEA,EV4,H)
@@ -60,12 +63,12 @@ call Diagr(H,NA,EIG4,EW4,SINVA,BU6,EV4)
 !if (idbg > 0) write(idbg,*) '--- EIGENVALUES OF H MATRIX ---'
 !if (idbg > 0) write(idbg,'(4D20.12)') EW4
 
-!write(6,*) 'END OF SCFCLI4 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+!write(u6,*) 'END OF SCFCLI4 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
 
 return
 ! Avoid unused argument warnings
 if (.false.) then
-  call Unused_real(epsilon)
+  call Unused_real(eps)
   call Unused_real_array(REVTA)
   call Unused_integer(ISIZEB)
   call Unused_real_array(AAA)

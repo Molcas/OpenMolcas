@@ -14,8 +14,12 @@
 
 subroutine Diagr(A,N,EIG,EW,SINV,AUX,AUXI)
 
-implicit real*8(A-H,O-Z)
-dimension A(*), AUX(N,N), SINV(N,N), EIG(N,N), EW(*), AUXI(*)
+use Constants, only: One, Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: N
+real(kind=wp) :: A(*), EIG(N,N), EW(*), SINV(N,N), AUX(N,N), AUXI(*)
 #include "WrkSpc.fh"
 
 if (n == 0) return
@@ -24,11 +28,11 @@ call Square(Aux,A,n,n)
 #else
 call Square(A,Aux,n,1,n)
 #endif
-call DGEMM_('N','N',n,n,n,1.0d0,Aux,n,Sinv,n,0.0d0,Eig,n)
-call dGemm_tri('T','N',n,n,n,1.0d0,SINV,n,EIG,n,0.0d0,AUXI,n)
+call DGEMM_('N','N',n,n,n,One,Aux,n,Sinv,n,Zero,Eig,n)
+call dGemm_tri('T','N',n,n,n,One,SINV,n,EIG,n,Zero,AUXI,n)
 
-call dCopy_(n*n,[0.0d0],0,Eig,1)
-call dCopy_(n,[1.0d0],0,Eig,n+1)
+call dCopy_(n*n,[Zero],0,Eig,1)
+call dCopy_(n,[One],0,Eig,n+1)
 call dCopy_(N*(N+1)/2,AUXI,1,AUX,1)
 !call NIDiag(AUXI,EIG,N,N)
 call NIDiag_New(AUXI,EIG,N,N)

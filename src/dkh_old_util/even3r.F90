@@ -13,19 +13,23 @@
 !***********************************************************************
 
 subroutine Even3r(idbg,N,V,G,E,A,R,TT,AUXF,AUXH,VEXTT,PVPT,RE1R,W1W1)
+!AUXF, RE1R   Scratch
+!VEXTT, PVPT  Input
+!AUXH, W1W1   Input/Scratch
 
-implicit real*8(A-H,O-Z)
-dimension V(N*(N+1)/2), G(N*(N+1)/2), E(N), R(N), A(N), TT(N)
-dimension AUXF(N,N)                          ! Scratch
-dimension AUXH(N,N)                          ! Input/Scratch
-dimension RE1R(N,N)                          ! Scratch
-dimension VEXTT(N*(N+1)/2), PVPT(N*(N+1)/2)  ! Input
-dimension W1W1(N,N)                          ! Input/Scratch
+use Constants, only: Zero, Half
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: idbg, N
+real(kind=wp) :: V(N*(N+1)/2), G(N*(N+1)/2), E(N), A(N), R(N), TT(N), AUXF(N,N), AUXH(N,N), VEXTT(N*(N+1)/2), PVPT(N*(N+1)/2), &
+                 RE1R(N,N), W1W1(N,N)
+integer(kind=iwp) :: I, IE, IJ, J, M
 
 ! CONSTRUCT RE1R
 
-!write(6,*) 'Hello from Even3R'
-call xflush(6)
+!write(u6,*) 'Hello from Even3R'
+call xflush(u6)
 call DKRE1R(A,R,E,TT,V,G,RE1R,VEXTT,PVPT,N)
 
 M = N
@@ -44,10 +48,10 @@ end do
 
 do J=1,N
   do I=1,N
-    AUXF(I,J) = 0.5d0*AUXH(I,J)
+    AUXF(I,J) = Half*AUXH(I,J)
   end do
 end do
-call dCopy_(N*N,[0.0d0],0,AUXH,1)
+call dCopy_(N*N,[Zero],0,AUXH,1)
 call CpLabr(W1W1,AUXF,N,N,N,M,M,AUXH,M,IE)
 call CpLabr(AUXF,W1W1,N,N,N,M,M,AUXH,M,IE)
 
@@ -57,8 +61,8 @@ IJ = 0
 do I=1,N
   do J=1,I
     IJ = IJ+1
-    AUXF(I,J) = A(I)*R(I)*G(IJ)*A(J)/R(J)/TT(J)*0.5d0
-    AUXF(J,I) = A(J)*R(J)*G(IJ)*A(I)/R(I)/TT(I)*0.5d0
+    AUXF(I,J) = A(I)*R(I)*G(IJ)*A(J)/R(J)/TT(J)*Half
+    AUXF(J,I) = A(J)*R(J)*G(IJ)*A(I)/R(I)/TT(I)*Half
   end do
 end do
 call CZERO2(W1W1,N,N,N)
@@ -87,8 +91,8 @@ IJ = 0
 do I=1,N
   do J=1,I
     IJ = IJ+1
-    AUXF(I,J) = -A(I)/R(I)*G(IJ)*A(J)*R(J)/TT(I)*0.5d0
-    AUXF(J,I) = -A(J)/R(J)*G(IJ)*A(I)*R(I)/TT(J)*0.5d0
+    AUXF(I,J) = -A(I)/R(I)*G(IJ)*A(J)*R(J)/TT(I)*Half
+    AUXF(J,I) = -A(J)/R(J)*G(IJ)*A(I)*R(I)/TT(J)*Half
   end do
 end do
 call CpLabr(W1W1,AUXF,N,N,N,M,M,AUXH,M,IE)
@@ -117,8 +121,8 @@ IJ = 0
 do I=1,N
   do J=1,I
     IJ = IJ+1
-    AUXF(I,J) = A(I)*R(I)*G(IJ)*A(J)/R(J)/TT(J)*0.5d0
-    AUXF(J,I) = A(J)*R(J)*G(IJ)*A(I)/R(I)/TT(I)*0.5d0
+    AUXF(I,J) = A(I)*R(I)*G(IJ)*A(J)/R(J)/TT(J)*Half
+    AUXF(J,I) = A(J)*R(J)*G(IJ)*A(I)/R(I)/TT(I)*Half
   end do
 end do
 call CZERO2(W1W1,N,N,N)
@@ -127,8 +131,8 @@ IJ = 0
 do I=1,N
   do J=1,I
     IJ = IJ+1
-    AUXF(I,J) = A(I)/R(I)*G(IJ)*A(J)*R(J)/TT(I)*0.5d0
-    AUXF(J,I) = A(J)/R(J)*G(IJ)*A(I)*R(I)/TT(J)*0.5d0
+    AUXF(I,J) = A(I)/R(I)*G(IJ)*A(J)*R(J)/TT(I)*Half
+    AUXF(J,I) = A(J)/R(J)*G(IJ)*A(I)*R(I)/TT(J)*Half
   end do
 end do
 call CpLabr(W1W1,AUXF,N,N,N,M,M,AUXH,M,IE)
@@ -139,7 +143,7 @@ IJ = 0
 do I=1,N
   do J=1,I
     IJ = IJ+1
-    G(IJ) = 0.5d0*(AUXH(I,J)+AUXH(J,I))
+    G(IJ) = Half*(AUXH(I,J)+AUXH(J,I))
   end do
 end do
 

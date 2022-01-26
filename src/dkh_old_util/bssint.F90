@@ -11,32 +11,39 @@
 
 subroutine BSSint()
 
-use Basis_Info
+use Basis_Info, only: dbsc, nBas, ncnttp
 use Symmetry_Info, only: nIrrep
 use DKH_Info, only: CLightAU
+use Constants, only: Zero, One, Two, OneHalf
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "Molcas.fh"
 #include "rinfo.fh"
 #include "print.fh"
-#include "real.fh"
 #include "WrkSpc.fh"
-#include "wldata.fh"
-#include "oneswi.fh"
-integer ipaddr(3)
-character*8 Label
-logical IfTest
-data IfTest/.false./
+integer(kind=iwp) :: i, iAa, iAaf, iAngr, iAux, iAux2, iBas, iBu, iBu2, iBu4, iBu6, iCmm1, iCmm2, icnt, iCnttp, iComp, iCr, idbg, &
+                     iE, iEig, iEig4, iEigf, iEv2, iEv4, iEw, iEw4, iExp, i_f, if2, if2a, ifa, iG, iG2, iH, iH_nr, iH_temp, iip1, &
+                     iK, iOpt, iOve, iP, ip1, ip2, ip4, ip5, ip6, ip7, ipaddr(3), iPrint, ipV, ipVf, ipVp, iRC, iRevt, iRevtf, &
+                     iRout, iRr, iRrf, iScpV, iScVp, iSinv, iSinvf, iSize, iSizea, iSizeab, iSizeb, iSizec, iSizep, iSmlbl, iSS, &
+                     iSyma, iSymb, iTt, iV, iVp, iVpf, ixyz, jExp, k, k1, k1a, k1b, k2, k2a, k2b, kAng, kC, kCof, kCofi, kCofj, &
+                     kExp, kExpi, kExpj, kh, L, Len_, LenInt, LenIntf, LenIntf1, lOper, Lu_One, n, na, nb, ncomp, nSym
+real(kind=wp) :: eps, rCofi, rCofj, rExpi, rExpj, rI, rNorm, Sum_, VELIT
+character(len=8) :: Label
+#ifdef _DEBUGPRINT_
+#define _TEST_ .true.
+#else
+#define _TEST_ .false.
+#endif
+logical(kind=iwp), parameter :: IfTest = _TEST_
+integer(kind=iwp), external :: IrrFnc, n2Tri
 
 iRout = 77
 iPrint = nPrint(iRout)
-#ifdef _DEBUGPRINT_
-IfTest = .true.
-#endif
 
 ! Save basis set info from contracted run
 
-if (iprint >= 10) write(6,*) ' In dkint',ncnttp
+if (iprint >= 10) write(u6,*) ' In dkint',ncnttp
 kCof = 0
 kAng = 0
 kExp = 0
@@ -49,18 +56,18 @@ do iCnttp=1,nCnttp
     kC = kC+1
     !do iAngr=0,nAngr(icnt)
     do iAngr=0,nAngr(kC)
-      !rI = iAngr+1.0d0+half
-      rI = dble(iAngr)+One+Half
+      !rI = iAngr+OneHalf
+      rI = real(iAngr,kind=wp)+OneHalf
       kAng = kAng+1
       do iBas=1,nBasisr(kAng)
-        Sum = Zero
+        Sum_ = Zero
         kExpi = kExp
         kCofi = kCof
         do iExp=1,nPrimr(kAng)
           kExpi = kExpi+1
           kCofi = kCofi+1
           rExpi = rExp(kExpi)
-          !write(6,'(a11,f20.8)') ' Exponents',rExpi
+          !write(u6,'(a11,f20.8)') ' Exponents',rExpi
           rCofi = rCof(kCofi)
           kExpj = kExp
           kCofj = kCof
@@ -69,15 +76,15 @@ do iCnttp=1,nCnttp
             kCofj = kCofj+1
             rExpj = rExp(kExpj)
             rCofj = rCof(kCofj)
-            Sum = Sum+rCofi*rCofj*(Two*sqrt(rExpi*rExpj)/(rExpi+rExpj))**rI
+            Sum_ = Sum_+rCofi*rCofj*(Two*sqrt(rExpi*rExpj)/(rExpi+rExpj))**rI
           end do
         end do
-        rNorm = One/sqrt(Sum)
-        if (iprint >= 10) write(6,*) ' rNorm',kAng,rNorm
+        rNorm = One/sqrt(Sum_)
+        if (iprint >= 10) write(u6,*) ' rNorm',kAng,rNorm
         do iExp=1,nPrimr(kAng)
           rCof(kCof+iExp) = rCof(kCof+iExp)*rNorm
           if (iprint >= 10) then
-            write(6,'(a24,f20.6)') ' normalized coefficients',rCof(kCof+iExp)
+            write(u6,'(a24,f20.6)') ' normalized coefficients',rCof(kCof+iExp)
           end if
         end do
         kCof = kCof+nPrimr(kAng)
@@ -90,10 +97,10 @@ end do
 i = 0
 if (iPrint >= 10) then
   do L=1,nrSym
-    write(6,*) ' Irreducible representation',L
+    write(u6,*) ' Irreducible representation',L
     do ibas=1,nrBas(L)
       i = i+1
-      write(6,'(20i4)') i,icent(i),lnang(i),lmag(i)
+      write(u6,'(20i4)') i,icent(i),lnang(i),lmag(i)
     end do
   end do
 end if
@@ -113,8 +120,8 @@ call OneBas('PRIM')
 call Get_iArray('nBas_Prim',nbas,nSym)
 
 if (iPrint >= 10) then
-  write(6,'(a11,10i5)') ' Symmetries',nSym
-  write(6,'(a11,10i5)') ' Primitive basis fcns',(nBas(i),i=0,nSym-1)
+  write(u6,'(a11,10i5)') ' Symmetries',nSym
+  write(u6,'(a11,10i5)') ' Primitive basis fcns',(nBas(i),i=0,nSym-1)
 end if
 
 ! Allocate memory for relativistic part
@@ -143,25 +150,25 @@ iSizep = 0
 do L=0,nSym-1
   iSizep = iSizep+nBas(L)*(nBas(L)+1)/2
 end do
-if (iPrint >= 10) write(6,*) ' iSizep',iSizep
+if (iPrint >= 10) write(u6,*) ' iSizep',iSizep
 
 call GetMem('Kin     ','ALLO','REAL',iK,iSizep+4)
 call GetMem('SS      ','ALLO','REAL',iSS,iSizep+4)
 call GetMem('V       ','ALLO','REAL',iV,iSizep+4)
 call GetMem('pVp     ','ALLO','REAL',ipVp,iSizep+4)
 
-if (iprint >= 20) write(6,*) '  indices',iss,ik,iv,ipvp
+if (iprint >= 20) write(u6,*) '  indices',iss,ik,iv,ipvp
 Label = 'Mltpl  0'
 iComp = 1
 iOpt = 0
 iRC = -1
 call RdOne(iRC,iOpt,Label,1,Work(iSS),lOper)
 if (iRC /= 0) then
-  write(6,*) 'BSSInt: Error reading from ONEINT'
-  write(6,'(A,A)') 'Label=',Label
+  write(u6,*) 'BSSInt: Error reading from ONEINT'
+  write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
-!write(6,'(8f9.4)') (Work(iSS+k),k=0,iSizep-1)
+!write(u6,'(8f9.4)') (Work(iSS+k),k=0,iSizep-1)
 nComp = 1
 ipaddr(1) = iSS
 if (iPrint >= 20) call PrMtrx(Label,[lOper],nComp,ipaddr,Work)
@@ -169,24 +176,24 @@ Label = 'Attract '
 iRC = -1
 call RdOne(iRC,iOpt,Label,1,Work(iV),lOper)
 if (iRC /= 0) then
-  write(6,*) 'BSSInt: Error reading from ONEINT'
-  write(6,'(A,A)') 'Label=',Label
+  write(u6,*) 'BSSInt: Error reading from ONEINT'
+  write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 Label = 'Kinetic '
 iRC = -1
 call RdOne(iRC,iOpt,Label,1,Work(iK),lOper)
 if (iRC /= 0) then
-  write(6,*) 'BSSInt: Error reading from ONEINT'
-  write(6,'(A,A)') 'Label=',Label
+  write(u6,*) 'BSSInt: Error reading from ONEINT'
+  write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 Label = 'pVp     '
 iRC = -1
 call RdOne(iRC,iOpt,Label,1,Work(ipVp),lOper)
 if (iRC /= 0) then
-  write(6,*) 'BSSInt: Error reading from ONEINT'
-  write(6,'(A,A)') 'Label=',Label
+  write(u6,*) 'BSSInt: Error reading from ONEINT'
+  write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 
@@ -300,39 +307,39 @@ do iComp=1,nComp
 81  continue
   end do
 
-  !write(6,*) 'Created  whole matrix (NAxNB) PV '
+  !write(u6,*) 'Created  whole matrix (NAxNB) PV '
   !
-  !write(6,*) 'pV matrix <iSyma|pV|iSymb> '
-  !write(6,*)
-  !write(6,*) (Work(iWork(ipVf+iComp-1)+i),i=0,LenInt-1)
-  !write(6,*)
-  !write(6,*)
-  !write(6,*) 'pV matrix <iSymb|pV|iSyma> if iSyma /= iSymb otherwise zero matrix '
-  !write(6,*)
-  !write(6,*) (Work(iWork(ipVf+iComp-1)+LenInt+4+i),i=0,LenInt-1)
+  !write(u6,*) 'pV matrix <iSyma|pV|iSymb> '
+  !write(u6,*)
+  !write(u6,*) (Work(iWork(ipVf+iComp-1)+i),i=0,LenInt-1)
+  !write(u6,*)
+  !write(u6,*)
+  !write(u6,*) 'pV matrix <iSymb|pV|iSyma> if iSyma /= iSymb otherwise zero matrix '
+  !write(u6,*)
+  !write(u6,*) (Work(iWork(ipVf+iComp-1)+LenInt+4+i),i=0,LenInt-1)
   !
   ! Create the whole matrix (NAxNB) VP
   !
-  !write(6,*) 'Create the whole matrix (NAxNB) VP '
+  !write(u6,*) 'Create the whole matrix (NAxNB) VP '
   !
-  !write(6,*)
-  !write(6,*) 'Vp matrix <iSyma|Vp|iSymb> '
-  !write(6,*)
-  !write(6,*) (Work(iWork(iVpf+iComp-1)+i),i=0,LenInt-1)
-  !write(6,*)
-  !write(6,*)
-  !write(6,*)
-  !write(6,*) 'Vp matrix <iSymb|Vp|iSyma> if iSyma /= iSymb otherwise zero matrix '
-  !write(6,*)
-  !write(6,*)
-  !write(6,*) (Work(iWork(iVpf+iComp-1)+LenInt+4+i),i=0,LenInt-1)
+  !write(u6,*)
+  !write(u6,*) 'Vp matrix <iSyma|Vp|iSymb> '
+  !write(u6,*)
+  !write(u6,*) (Work(iWork(iVpf+iComp-1)+i),i=0,LenInt-1)
+  !write(u6,*)
+  !write(u6,*)
+  !write(u6,*)
+  !write(u6,*) 'Vp matrix <iSymb|Vp|iSyma> if iSyma /= iSymb otherwise zero matrix '
+  !write(u6,*)
+  !write(u6,*)
+  !write(u6,*) (Work(iWork(iVpf+iComp-1)+LenInt+4+i),i=0,LenInt-1)
 
   ! End of iComp loop
 
 end do
 
 ! Main loop  1
-epsilon = 1.d-10
+eps = 1.0e-10_wp
 k = 0
 L = 0
 k1 = 0
@@ -344,10 +351,10 @@ do L=0,nSym-1
   !AJS protection against zero dimension representation
   if (iSize == 0) goto 9
   !AJS put zeroes
-  Len = 4*(iSize+4)+5*(n*n+4)+5*(n+4)
-  call GetMem('Scratch ','ALLO','REAL',iCr,Len+4)
-  call dcopy_(Len,[Zero],0,Work(iCr),1)
-  call GetMem('Scratch ','FREE','REAL',iCr,Len+4)
+  Len_ = 4*(iSize+4)+5*(n*n+4)+5*(n+4)
+  call GetMem('Scratch ','ALLO','REAL',iCr,Len_+4)
+  call dcopy_(Len_,[Zero],0,Work(iCr),1)
+  call GetMem('Scratch ','FREE','REAL',iCr,Len_+4)
 
   ! Allocate
 
@@ -375,7 +382,7 @@ do L=0,nSym-1
 
 
   ! call to package relsewb
-  call SCFCLI2(idbg,epsilon,Work(iSS+k),Work(iK+k),Work(iV+k),Work(ipVp+k),n,iSize,VELIT,Work(iBu),Work(iP),Work(iG),Work(iEv2), &
+  call SCFCLI2(idbg,eps,Work(iSS+k),Work(iK+k),Work(iV+k),Work(ipVp+k),n,iSize,VELIT,Work(iBu),Work(iP),Work(iG),Work(iEv2), &
                Work(iEig),Work(iSinv),Work(iRevt),Work(iAux),Work(iOve),Work(iEw),Work(iE),Work(iAa),Work(iRr),Work(iTt))
 
   call dcopy_(n*n+4,Work(iEig),1,Work(iEigf+k1),1)
@@ -412,7 +419,7 @@ do iComp=1,nComp
   ip7 = iWork(iVpf+iComp-1)
   ip1 = 0
   iip1 = 0
-  epsilon = 1.d-10
+  eps = 1.0e-10_wp
   kh = 0
   k1a = 0
   k2a = 0
@@ -452,11 +459,11 @@ do iComp=1,nComp
         ip1 = ip1+iSizea
       end if
 
-      call GetMem('ifpV    ','ALLO','REAL',if,iSizeab)
+      call GetMem('ifpV    ','ALLO','REAL',i_f,iSizeab)
       call GetMem('ifVp    ','ALLO','REAL',if2,iSizeab)
       call GetMem('ScpV    ','ALLO','REAL',iScpV,iSizeab)
       call GetMem('ScVp    ','ALLO','REAL',iScVp,iSizeab)
-      call dcopy_(iSizeab,[Zero],0,Work(if),1)
+      call dcopy_(iSizeab,[Zero],0,Work(i_f),1)
       call dcopy_(iSizeab,[Zero],0,Work(if2),1)
       call dcopy_(iSizeab,[Zero],0,Work(iScpV),1)
       call dcopy_(iSizeab,[Zero],0,Work(iScVp),1)
@@ -464,7 +471,7 @@ do iComp=1,nComp
       if (iSyma > iSymb) then
 
         do k=0,iSizeab-1
-          Work(if+k) = Work(ip6+ip1+k)
+          Work(i_f+k) = Work(ip6+ip1+k)
           Work(if2+k) = Work(ip7+ip1+k)
         end do
         ip1 = ip1+na*nb
@@ -474,10 +481,10 @@ do iComp=1,nComp
       if (iSyma < iSymb) then
 
         do k=0,iSizeab-1
-          Work(if+k) = Work(ip6+iip1+LenInt+4+k)
+          Work(i_f+k) = Work(ip6+iip1+LenInt+4+k)
           Work(if2+k) = Work(ip7+iip1+LenInt+4+k)
         end do
-        call DCOPY_(iSizeab,Work(if),1,Work(iScpV),1)
+        call DCOPY_(iSizeab,Work(i_f),1,Work(iScpV),1)
         call DCOPY_(iSizeab,Work(if2),1,Work(iScVp),1)
 
         iip1 = iip1+na*nb
@@ -517,8 +524,8 @@ do iComp=1,nComp
       ! following commutator :
       ! Revta*AAA*<a|[bp,V]|b>store in CMM1(iSyma,iSymb) matrix,
 
-      call VPBMBPV(idbg,epsilon,Work(iEigf+k1a),Work(iEigf+k1b),Work(iRevtf+k1a),Work(iSinvf+k1a),Work(iSinvf+k1b),na,nb,iSizea, &
-                   iSizeb,VELIT,Work(iAaf+k2a),Work(iAaf+k2b),Work(iRrf+k2a),Work(iRrf+k2b),Work(if),Work(if2),iSyma,iSymb, &
+      call VPBMBPV(idbg,eps,Work(iEigf+k1a),Work(iEigf+k1b),Work(iRevtf+k1a),Work(iSinvf+k1a),Work(iSinvf+k1b),na,nb,iSizea, &
+                   iSizeb,VELIT,Work(iAaf+k2a),Work(iAaf+k2b),Work(iRrf+k2a),Work(iRrf+k2b),Work(i_f),Work(if2),iSyma,iSymb, &
                    Work(iBu2),Work(iG2),Work(iAux2),Work(iCmm1),Work(iBu4),Work(iCmm2),Work(ifa),Work(if2a),Work(iScpV),Work(iScVp))
 
       call dcopy_(na*nb+4,[Zero],0,Work(iBu2),1)
@@ -530,9 +537,9 @@ do iComp=1,nComp
 
       ! call to package relsewc, BSS up to the fourth order in alpha
 
-      call SCFCLI4(idbg,epsilon,Work(iSS+kh),Work(iK+kh),Work(iRevtf+k1a),Work(iSinvf+k1a),na,nb,iSizea,iSizeb,VELIT, &
-                   Work(iAaf+k2a),Work(iAaf+k2b),iSyma,iSymb,Work(iCmm1),Work(iCmm2),Work(iEv4),Work(iBu2),Work(iBu6),Work(iEig4), &
-                   Work(iEw4),Work(iP))
+      call SCFCLI4(idbg,eps,Work(iSS+kh),Work(iK+kh),Work(iRevtf+k1a),Work(iSinvf+k1a),na,nb,iSizea,iSizeb,VELIT,Work(iAaf+k2a), &
+                   Work(iAaf+k2b),iSyma,iSymb,Work(iCmm1),Work(iCmm2),Work(iEv4),Work(iBu2),Work(iBu6),Work(iEig4),Work(iEw4), &
+                   Work(iP))
 
       ! Free a space
 
@@ -553,7 +560,7 @@ do iComp=1,nComp
       !call GetMem('E       ','FREE','REAL',iE,n+4)
       !call GetMem('Tt      ','FREE','REAL',iTt,n+4)
 
-      call GetMem('ifpV    ','FREE','REAL',if,iSizeab)
+      call GetMem('ifpV    ','FREE','REAL',i_f,iSizeab)
       call GetMem('ifVp    ','FREE','REAL',if2,iSizeab)
       call GetMem('ScpV    ','FREE','REAL',iScpV,iSizeab)
       call GetMem('ScVp    ','FREE','REAL',iScVp,iSizeab)
@@ -617,16 +624,16 @@ call FZero(Work(iH_temp),iSizec+4)
 Label = 'Kinetic '
 call RdOne(iRC,iOpt,Label,1,Work(iSS),lOper)
 if (iRC /= 0) then
-  write(6,*) 'BSSInt: Error reading from ONEINT'
-  write(6,'(A,A)') 'Label=',Label
+  write(u6,*) 'BSSInt: Error reading from ONEINT'
+  write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 
 Label = 'Attract '
 call RdOne(iRC,iOpt,Label,1,Work(iV),lOper)
 if (iRC /= 0) then
-  write(6,*) 'BSSInt: Error reading from ONEINT'
-  write(6,'(A,A)') 'Label=',Label
+  write(u6,*) 'BSSInt: Error reading from ONEINT'
+  write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 
@@ -663,8 +670,8 @@ iRC = -1
 Label = 'OneHam 0'
 call RdOne(iRC,iOpt,Label,1,Work(iH_nr),lOper)
 if (iRC /= 0) then
-  write(6,*) 'BSSInt: Error reading from ONEINT'
-  write(6,'(A,A)') 'Label=',Label
+  write(u6,*) 'BSSInt: Error reading from ONEINT'
+  write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 iOpt = 0
@@ -678,8 +685,8 @@ call DaXpY_(iSizec+4,One,Work(iH_nr),1,Work(iH),1)
 
 call Get_iArray('nBas',nBas,nSym)
 if (iPrint >= 10) then
-  write(6,'(a11,10i5)') ' Symmetries',nSym
-  write(6,'(a11,10i5)') ' Contracted',(nBas(i),i=0,nSym-1)
+  write(u6,'(a11,10i5)') ' Symmetries',nSym
+  write(u6,'(a11,10i5)') ' Contracted',(nBas(i),i=0,nSym-1)
 end if
 Label = 'OneHam 0'
 lOper = 1
@@ -694,8 +701,8 @@ call WrOne(iRC,iOpt,Label,1,Work(iH),lOper)
 Label = 'OneHam  '
 call WrOne(iRC,iOpt,Label,1,Work(iH),lOper)
 if (iRC /= 0) then
-  write(6,*) 'BSSInt: Error writing to ONEINT'
-  write(6,'(A,A)') 'Label=',Label
+  write(u6,*) 'BSSInt: Error writing to ONEINT'
+  write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 
@@ -711,8 +718,8 @@ call GetMem('Rrf     ','FREE','REAL',iRrf,LenIntf1)
 return
 
 9999 continue
-write(6,*) ' *** Error in subroutine BSSint ***'
-write(6,*) '     Abend in subroutine OpnOne'
+write(u6,*) ' *** Error in subroutine BSSint ***'
+write(u6,*) '     Abend in subroutine OpnOne'
 call Abend()
 
 end subroutine BSSint

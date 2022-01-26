@@ -16,22 +16,23 @@ subroutine AT34R(N,ISIZE,CHARGE,SMAT,V,H,EV2,MULT,BU,P,G,EIG,SINV,REVT,AUX,OVE,E
 !        EV2   PVP INTEGRALS
 
 use DKH_Info, only: CLightAU, IRELMP
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-dimension V(ISIZE), SMAT(ISIZE), MULT(ISIZE), P(ISIZE), G(ISIZE), H(ISIZE), BU(ISIZE), EV2(ISIZE), EIG(N,N), SINV(N,N), REVT(N,N), &
-          AUX(N,N), OVE(N,N), EW(N), E(N), AA(N), RR(N), TT(N)
-dimension VEXTT(ISIZE), PVPT(ISIZE)
-dimension EVN1(N,N)
-dimension RE1R(N,N)
-dimension AUXI(N,N)
-dimension W1W1(N,N)
+implicit none
+integer(kind=iwp) :: N, ISIZE, MULT(ISIZE), iprint
+real(kind=wp) :: CHARGE, SMAT(ISIZE), V(ISIZE), H(ISIZE), EV2(ISIZE), BU(ISIZE), P(ISIZE), G(ISIZE), EIG(N,N), SINV(N,N), &
+                 REVT(N,N), AUX(N,N), OVE(N,N), EW(N), E(N), AA(N), RR(N), TT(N), VEXTT(ISIZE), PVPT(ISIZE), EVN1(N,N), RE1R(N,N), &
+                 AUXI(N,N), W1W1(N,N)
+integer(kind=iwp) :: I, IJ, J, K
+real(kind=wp) :: CON, CON2, CR, PREA, RATIO, TV1, TV2, TV3, TV4, VELIT
 
-!call PRMAT(6,SMAT,N,0,'SMAT    ')
+!call PRMAT(u6,SMAT,N,0,'SMAT    ')
 VELIT = CLightAU
 ISIZE = N*(N+1)/2
 PREA = 1/(VELIT*VELIT)
 CON2 = PREA+PREA
-CON = 1.d0/PREA
+CON = One/PREA
 MULT(1) = 0
 do I=1,N
   MULT(I+1) = MULT(I)+I
@@ -47,8 +48,8 @@ call FILLMA(N,SMAT,OVE)
 !-----------------------------------------------------------------------
 call DIAG_DKH(H,N,EIG,EW,SINV,AUX,0)
 if (iprint >= 10) then
-  write(6,*) ' eigenvalues in at34r'
-  write(6,*) (ew(i),i=1,n)
+  write(u6,*) ' eigenvalues in at34r'
+  write(u6,*) (ew(i),i=1,n)
 end if
 do I=1,N
 
@@ -56,14 +57,14 @@ do I=1,N
 
   TT(I) = EW(I)
   RATIO = EW(I)/VELIT
-  if (RATIO > 0.02d0) goto 11
+  if (RATIO > 0.02_wp) goto 11
   TV1 = EW(I)
-  TV2 = -TV1*EW(I)*PREA/2.d0
+  TV2 = -TV1*EW(I)*PREA*Half
   TV3 = -TV2*EW(I)*PREA
-  TV4 = -TV3*EW(I)*PREA*1.25d0
+  TV4 = -TV3*EW(I)*PREA*1.25_wp
   EW(I) = TV1+TV2+TV3+TV4
   goto 12
-11 EW(I) = CON*(sqrt(1.d0+CON2*EW(I))-1.d0)
+11 EW(I) = CON*(sqrt(One+CON2*EW(I))-One)
 12 continue
   E(I) = EW(I)+CON
 end do
@@ -75,7 +76,7 @@ end do
 
 do I=1,N
   do J=1,N
-    AUX(I,J) = 0.d0
+    AUX(I,J) = Zero
     do K=I,N
       AUX(I,J) = AUX(I,J)+SINV(I,K)*EIG(K,J)
     end do
@@ -83,7 +84,7 @@ do I=1,N
 end do
 do I=1,N
   do J=1,N
-    REVT(I,J) = 0.d0
+    REVT(I,J) = Zero
     do K=1,N
       REVT(I,J) = REVT(I,J)+OVE(I,K)*AUX(K,J)
     end do
@@ -93,7 +94,7 @@ IJ = 0
 do I=1,N
   do J=1,I
     IJ = IJ+1
-    H(IJ) = 0.d0
+    H(IJ) = Zero
     do K=1,N
       H(IJ) = H(IJ)+REVT(I,K)*REVT(J,K)*EW(K)
     end do
@@ -101,12 +102,12 @@ do I=1,N
 end do
 if (IRELMP /= 11) then
   do I=1,N
-    AA(I) = sqrt((CON+E(I))/(2.d0*E(I)))
+    AA(I) = sqrt((CON+E(I))/(Two*E(I)))
     RR(I) = sqrt(CON)/(CON+E(I))
   end do
 else if (IRELMP == 11) then  ! RESC
   do I=1,N
-    AA(I) = (sqrt(1.0d0+CON*TT(I)*2.0d0/((CON+E(I))*(CON+E(I)))))/(CON+E(I))  ! O OPERATOR
+    AA(I) = (sqrt(One+CON*TT(I)*Two/((CON+E(I))*(CON+E(I)))))/(CON+E(I))  ! O OPERATOR
     RR(I) = sqrt(CON)/(CON+E(I))  ! Q OPERATOR
   end do
 end if
@@ -174,7 +175,7 @@ else if (IRELMP == 11) then
     do J=1,I
       IJ = IJ+1
       G(IJ) = -BU(IJ)*CHARGE
-      BU(IJ) = G(IJ)*(RR(I)*RR(J)*AA(I)/AA(J)+RR(J)*RR(I)*AA(J)/AA(I))*0.5d0
+      BU(IJ) = G(IJ)*(RR(I)*RR(J)*AA(I)/AA(J)+RR(J)*RR(I)*AA(J)/AA(I))*Half
     end do
   end do
 end if
@@ -186,8 +187,8 @@ if ((IRELMP == 1) .or. (IRELMP == 11)) goto 1000
 
 ! CALCULATE EVEN2 OPERATOR
 
-!call PRMAT(6,TT,N,1,'TT      ')
-!call PRMAT(6,E,N,1,'E       ')
+!call PRMAT(u6,TT,N,1,'TT      ')
+!call PRMAT(u6,E,N,1,'E       ')
 call EVEN2(N,P,G,E,AA,RR,TT,EIG,AUX,OVE,W1W1)
 
 ! TRANSFORM BACK
@@ -215,7 +216,7 @@ CR = 1/CHARGE
 do I=1,ISIZE
   V(I) = -V(I)*CR
 end do
-!call PRMAT(6,BU,N,0,'TOTAL H ')
+!call PRMAT(u6,BU,N,0,'TOTAL H ')
 
 return
 

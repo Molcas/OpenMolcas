@@ -11,15 +11,20 @@
 ! Copyright (C) 1984,1986, Bernd Artur Hess                            *
 !***********************************************************************
 
-real*8 function PHI(M,N)
+function PHI(M,N)
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: PHI
+integer(kind=iwp), intent(in) :: M, N
 #include "crelop.fh"
 
 if ((mod(N,2) == 1) .or. (mod(M,2) == 1)) goto 10
-PHI = 2.d0*GA(M+1)*GA(N+1)/GA(M+N+2)
+PHI = Two*GA(M+1)*GA(N+1)/GA(M+N+2)
 return
-10 PHI = 0.d0
+10 PHI = Zero
 
 return
 

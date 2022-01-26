@@ -11,13 +11,14 @@
 
 subroutine EVEN3(N,V,G,E,A,R,TT,AUXF,AUXG,AUXH,EVEN1,VEXTT,PVPT,RE1R,W1W1,AUXI)
 
-implicit real*8(A-H,O-Z)
-dimension V(N*(N+1)/2), G(N*(N+1)/2), E(N), R(N), A(N), TT(N), AUXF(N,N), AUXG(N,N), AUXH(N,N)
-dimension EVEN1(N,N)
-dimension RE1R(N,N)
-dimension VEXTT(N*(N+1)/2), PVPT(N*(N+1)/2)
-dimension AUXI(N,N)
-dimension W1W1(N,N)
+use Constants, only: Zero, Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: N
+real(kind=wp) :: V(N*(N+1)/2), G(N*(N+1)/2), E(N), A(N), R(N), TT(N), AUXF(N,N), AUXG(N,N), AUXH(N,N), EVEN1(N,N), &
+                 VEXTT(N*(N+1)/2), PVPT(N*(N+1)/2), RE1R(N,N), W1W1(N,N), AUXI(N,N)
+integer(kind=iwp) :: I, IE, IJ, J, M
 
 ! CONSTRUCT RE1R
 
@@ -28,8 +29,8 @@ IJ = 0
 do I=1,N
   do J=1,I
     IJ = IJ+1
-    AUXH(I,J) = 0.d0
-    AUXH(J,I) = 0.d0
+    AUXH(I,J) = Zero
+    AUXH(J,I) = Zero
     V(IJ) = VEXTT(IJ)/(E(I)+E(J))
     G(IJ) = PVPT(IJ)/(E(I)+E(J))
   end do
@@ -41,7 +42,7 @@ end do
 
 do I=1,N
   do J=1,N
-    AUXF(I,J) = 0.5d0*EVEN1(I,J)
+    AUXF(I,J) = Half*EVEN1(I,J)
   end do
 end do
 call CpLabr(W1W1,AUXF,N,N,N,M,M,AUXH,M,IE)
@@ -53,8 +54,8 @@ IJ = 0
 do I=1,N
   do J=1,I
     IJ = IJ+1
-    AUXF(I,J) = A(I)*R(I)*G(IJ)*A(J)/R(J)/TT(J)*0.5d0
-    AUXF(J,I) = A(J)*R(J)*G(IJ)*A(I)/R(I)/TT(I)*0.5d0
+    AUXF(I,J) = A(I)*R(I)*G(IJ)*A(J)/R(J)/TT(J)*Half
+    AUXF(J,I) = A(J)*R(J)*G(IJ)*A(I)/R(I)/TT(I)*Half
     AUXG(I,J) = -A(I)*V(IJ)*A(J)
     AUXG(J,I) = -A(J)*V(IJ)*A(I)
   end do
@@ -69,8 +70,8 @@ do I=1,N
     IJ = IJ+1
     AUXF(I,J) = A(I)*V(IJ)*A(J)
     AUXF(J,I) = A(J)*V(IJ)*A(I)
-    AUXG(I,J) = -A(I)/R(I)*G(IJ)*A(J)*R(J)/TT(I)*0.5d0
-    AUXG(J,I) = -A(J)/R(J)*G(IJ)*A(I)*R(I)/TT(J)*0.5d0
+    AUXG(I,J) = -A(I)/R(I)*G(IJ)*A(J)*R(J)/TT(I)*Half
+    AUXG(J,I) = -A(J)/R(J)*G(IJ)*A(I)*R(I)/TT(J)*Half
   end do
 end do
 call CZERO2(AUXI,N,N,N)
@@ -95,10 +96,10 @@ IJ = 0
 do I=1,N
   do J=1,I
     IJ = IJ+1
-    AUXF(I,J) = A(I)*R(I)*G(IJ)*A(J)/R(J)/TT(J)*0.5d0
-    AUXF(J,I) = A(J)*R(J)*G(IJ)*A(I)/R(I)/TT(I)*0.5d0
-    AUXG(I,J) = A(I)/R(I)*G(IJ)*A(J)*R(J)/TT(I)*0.5d0
-    AUXG(J,I) = A(J)/R(J)*G(IJ)*A(I)*R(I)/TT(J)*0.5d0
+    AUXF(I,J) = A(I)*R(I)*G(IJ)*A(J)/R(J)/TT(J)*Half
+    AUXF(J,I) = A(J)*R(J)*G(IJ)*A(I)/R(I)/TT(I)*Half
+    AUXG(I,J) = A(I)/R(I)*G(IJ)*A(J)*R(J)/TT(I)*Half
+    AUXG(J,I) = A(J)/R(J)*G(IJ)*A(I)*R(I)/TT(J)*Half
   end do
 end do
 call CZERO2(AUXI,N,N,N)
@@ -111,7 +112,7 @@ IJ = 0
 do I=1,N
   do J=1,I
     IJ = IJ+1
-    G(IJ) = 0.5d0*(AUXH(I,J)+AUXH(J,I))
+    G(IJ) = Half*(AUXH(I,J)+AUXH(J,I))
   end do
 end do
 

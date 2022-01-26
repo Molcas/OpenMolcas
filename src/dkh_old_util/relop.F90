@@ -17,36 +17,40 @@ subroutine RELOP()
 ! V 1.0 - 12.3.86 - BERND HESS
 
 use DKH_Info, only: CLightAU
+use Constants, only: Zero, One, Two, OneHalf, Pi
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
+implicit none
 #include "crelop.fh"
+integer(kind=iwp) :: I, IBIAS, J, JBIAS, K, N
+real(kind=wp) :: ADD
+real(kind=wp), external :: GAM
 
-!write(6,100)
+!write(u6,100)
 !100 format(/,' ****** RELATIVISTIC OPERATORS V 1.0 - BERND HESS ******'//)
-PI = 4.d0*atan(1.d0)
-ZWP = 2.d0*PI
-ZWPH32 = ZWP**1.5d0
+ZWP = Two*PI
+ZWPH32 = ZWP**OneHalf
 ZWPH12 = sqrt(ZWP)
 SQPI = sqrt(PI)
 VELIT = CLightAU
-PREA = 1.d0/(VELIT*VELIT)
+PREA = One/(VELIT*VELIT)
 CSQ = VELIT*VELIT
-FAK(1) = 1.d0
+FAK(1) = One
 !GHALB(1) = SQPI
 do I=2,26
-  !GHALB(I) = GHALB(I-1)*(dble(I)-1.5D0)
-  FAK(I) = FAK(I-1)*dble(I-1)
+  !GHALB(I) = GHALB(I-1)*(real(I,kind=wp)-OneHalf)
+  FAK(I) = FAK(I-1)*real(I-1,kind=wp)
 end do
 
 ! BINOMIALKOEFFIZIENTEN
 
 IMAX = 20
-BCO(1) = 1.d0
+BCO(1) = One
 IBIAS = 1
 JBIAS = 1
 K = IMAX-1
 do I=1,K
-  ADD = 0.d0
+  ADD = Zero
   do J=1,I
     JBIAS = JBIAS+1
     BCO(JBIAS) = ADD+BCO(IBIAS)
@@ -54,7 +58,7 @@ do I=1,K
     IBIAS = IBIAS+1
   end do
   JBIAS = JBIAS+1
-  BCO(JBIAS) = 1.d0
+  BCO(JBIAS) = One
 end do
 
 do N=1,20

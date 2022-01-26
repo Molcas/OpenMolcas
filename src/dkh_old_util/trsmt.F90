@@ -12,18 +12,23 @@
 subroutine TRSMT(A,B,C,N,H,W)
 ! B*A*BT
 
-implicit real*8(A-H,O-Z)
-dimension A(N*(N+1)/2), B(N,N), C(N*(N+1)/2), H(N,N), W(N,N)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: N
+real(kind=wp) :: A(N*(N+1)/2), B(N,N), C(N*(N+1)/2), H(N,N), W(N,N)
+integer(kind=iwp) :: I, IJ, J, K, L
 
 IJ = 0
 do I=1,N
   do J=1,I
     IJ = IJ+1
-    C(IJ) = 0.d0
+    C(IJ) = Zero
     W(I,J) = A(IJ)
     W(J,I) = A(IJ)
-    H(I,J) = 0.d0
-    H(J,I) = 0.d0
+    H(I,J) = Zero
+    H(J,I) = Zero
   end do
 end do
 do I=1,N

@@ -17,18 +17,22 @@ subroutine TrSmr2(A,B,C,N,H,G,W)
 ! RESULT IS IN C = G^T * (B^T * A * B) * G
 ! and where C and A are triangular packed.
 
-implicit real*8(A-H,O-Z)
-dimension A(N*(N+2)/2), B(N,N), C(N*(N+1)/2), H(N,N), W(N,N), G(N,N)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: N
+real(kind=wp) :: A(N*(N+2)/2), B(N,N), C(N*(N+1)/2), H(N,N), G(N,N), W(N,N)
 
 #ifdef MOLPRO
 call Square(W,A,n,n)
 #else
 call Square(A,W,n,1,n)
 #endif
-call DGEMM_('T','N',n,n,n,1.0d0,B,n,W,n,0.0d0,H,n)
-call DGEMM_('N','N',n,n,n,1.0d0,H,n,B,n,0.0d0,W,n)
-call DGEMM_('T','N',n,n,n,1.0d0,G,n,W,n,0.0d0,H,n)
-call dGemm_tri('N','N',n,n,n,1.0d0,H,n,G,n,0.0d0,C,n)
+call DGEMM_('T','N',n,n,n,One,B,n,W,n,Zero,H,n)
+call DGEMM_('N','N',n,n,n,One,H,n,B,n,Zero,W,n)
+call DGEMM_('T','N',n,n,n,One,G,n,W,n,Zero,H,n)
+call dGemm_tri('N','N',n,n,n,One,H,n,G,n,Zero,C,n)
 
 return
 

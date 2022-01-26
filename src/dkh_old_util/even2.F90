@@ -25,17 +25,21 @@ subroutine EVEN2(N,V,G,E,A,R,TT,AUXF,AUXG,AUXH,W1W1)
 !     TT      NONREL. KINETIC ENERGY (DIAGONAL)
 !     AUXF,AUXG,AUXH  SCRATCH ARAYS
 
-implicit real*8(A-H,O-Z)
-dimension V(N*(N+1)/2), G(N*(N+1)/2), E(N), R(N), A(N), TT(N), AUXF(N,N), AUXG(N,N), AUXH(N,N)
-dimension W1W1(N,N)
+use Constants, only: Zero, Two, Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: N
+real(kind=wp) :: V(N*(N+1)/2), G(N*(N+1)/2), E(N), A(N), R(N), TT(N), AUXF(N,N), AUXG(N,N), AUXH(N,N), W1W1(N,N)
+integer(kind=iwp) :: I, IE, IJ, J, M
 
 M = N
 IJ = 0
 do I=1,N
   do J=1,I
     IJ = IJ+1
-    AUXH(I,J) = 0.d0
-    AUXH(J,I) = 0.d0
+    AUXH(I,J) = Zero
+    AUXH(J,I) = Zero
     V(IJ) = V(IJ)/(E(I)+E(J))
     G(IJ) = G(IJ)/(E(I)+E(J))
     AUXF(I,J) = A(I)*R(I)*G(IJ)*A(J)*A(J)
@@ -54,8 +58,8 @@ IJ = 0
 do I=1,N
   do J=1,I
     IJ = IJ+1
-    AUXG(I,J) = -0.5d0/TT(I)*G(IJ)*A(J)*R(J)
-    AUXG(J,I) = -0.5d0/TT(J)*G(IJ)*A(I)*R(I)
+    AUXG(I,J) = -Half/TT(I)*G(IJ)*A(J)*R(J)
+    AUXG(J,I) = -Half/TT(J)*G(IJ)*A(I)*R(I)
   end do
 end do
 
@@ -69,8 +73,8 @@ do I=1,N
     IJ = IJ+1
     AUXF(I,J) = A(I)*V(IJ)*A(J)*A(J)*R(J)
     AUXF(J,I) = A(J)*V(IJ)*A(I)*A(I)*R(I)
-    AUXG(I,J) = -2.d0*TT(I)*R(I)*V(IJ)*A(J)
-    AUXG(J,I) = -2.d0*TT(J)*R(J)*V(IJ)*A(I)
+    AUXG(I,J) = -Two*TT(I)*R(I)*V(IJ)*A(J)
+    AUXG(J,I) = -Two*TT(J)*R(J)*V(IJ)*A(I)
   end do
 end do
 
@@ -103,7 +107,7 @@ end do
 
 do I=1,N
   do J=1,N
-    AUXH(I,J) = 0.5d0*(AUXH(I,J)*E(I)+AUXH(I,J)*E(J))
+    AUXH(I,J) = Half*(AUXH(I,J)*E(I)+AUXH(I,J)*E(J))
   end do
 end do
 
@@ -122,8 +126,8 @@ IJ = 0
 do I=1,N
   do J=1,I
     IJ = IJ+1
-    AUXG(I,J) = -0.5d0/TT(I)*G(IJ)*A(J)*R(J)
-    AUXG(J,I) = -0.5d0/TT(J)*G(IJ)*A(I)*R(I)
+    AUXG(I,J) = -Half/TT(I)*G(IJ)*A(J)*R(J)
+    AUXG(J,I) = -Half/TT(J)*G(IJ)*A(I)*R(I)
   end do
 end do
 call CPLAB(AUXF,AUXG,N,N,N,M,M,AUXH,M,IE)
@@ -134,8 +138,8 @@ do I=1,N
     IJ = IJ+1
     AUXF(I,J) = A(I)*V(IJ)*R(J)*A(J)*E(J)*A(J)
     AUXF(J,I) = A(J)*V(IJ)*R(I)*A(I)*E(I)*A(I)
-    AUXG(I,J) = -2.d0*TT(I)*R(I)*V(IJ)*A(J)
-    AUXG(J,I) = -2.d0*TT(J)*R(J)*V(IJ)*A(I)
+    AUXG(I,J) = -Two*TT(I)*R(I)*V(IJ)*A(J)
+    AUXG(J,I) = -Two*TT(J)*R(J)*V(IJ)*A(I)
   end do
 end do
 call CPLAB(AUXF,AUXG,N,N,N,M,M,AUXH,M,IE)
@@ -156,7 +160,7 @@ IJ = 0
 do I=1,N
   do J=1,I
     IJ = IJ+1
-    G(IJ) = -0.5d0*(AUXH(I,J)+AUXH(J,I))
+    G(IJ) = -Half*(AUXH(I,J)+AUXH(J,I))
   end do
 end do
 !call PRM('OUTPUT  ',G,N)

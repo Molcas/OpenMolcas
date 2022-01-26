@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-real*8 function SIMPLM(NMP,F,X)
+function SIMPLM(NMP,F,X)
 ! Calculates  Intg/xmin,xmax/(F(x) dx)
 ! if the F function has been evaluated in a logarithmic mesh.
 !
@@ -20,15 +20,22 @@ real*8 function SIMPLM(NMP,F,X)
 ! F:      array with the function values
 ! X:      array with the variable values of the log. mesh
 
-implicit real*8(A-H,O-Z)
-real*8 F(NMP), X(NMP)
+use Constants, only: Zero, Three, Four, Six, Half
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp) :: SIMPLM
+integer(kind=iwp) :: NMP
+real(kind=wp) :: F(NMP), X(NMP)
+integer(kind=iwp) :: I, IP1, IP2, J, N, NM2
+real(kind=wp) :: DELTA, DLM, SUM_
 
 ! checks the precision of the incr. of the log.mesh
 DLM = log(X(2))-log(X(1))
 do J=2,5
   DELTA = log(X(J+1))-log(X(J))
-  if (abs(DELTA-DLM) < 1D-8) GO TO 11
-  write(6,602)
+  if (abs(DELTA-DLM) < 1.0e-8_wp) GO TO 11
+  write(u6,602)
   call Abend()
 11 continue
 end do
@@ -39,19 +46,19 @@ else
   N = NMP-1
 end if
 ! Odd number of points
-SUM = 0d0
+SUM_ = Zero
 NM2 = N-2
 do I=1,NM2,2
   IP1 = I+1
   IP2 = I+2
-  SUM = SUM+F(I)*X(I)+4d0*F(IP1)*X(IP1)+F(IP2)*X(IP2)
+  SUM_ = SUM_+F(I)*X(I)+Four*F(IP1)*X(IP1)+F(IP2)*X(IP2)
 end do
-SIMPLM = SUM*DLM/3d0
+SIMPLM = SUM_*DLM/Three
 if (N == NMP) return
 
 ! even number of points: add up the remaining
-SUM = 2.5d0*F(NMP)*X(NMP)+4d0*F(N)*X(N)-0.5d0*F(N-1)*X(N-2)
-SIMPLM = SIMPLM+SUM*DLM/6d0
+SUM_ = 2.5_wp*F(NMP)*X(NMP)+Four*F(N)*X(N)-Half*F(N-1)*X(N-2)
+SIMPLM = SIMPLM+SUM_*DLM/Six
 
 return
 

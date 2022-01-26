@@ -14,13 +14,17 @@
 
 subroutine CZERO2(XX,N,M,NDIM)
 
-implicit real*8(A-H,O-Z)
-dimension XX(NDIM,*)
-data ZERO/0.0D+00/
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: N, M, NDIM
+real(kind=wp), intent(inout) :: XX(NDIM,*)
+integer(kind=iwp) :: I, J
 
 do J=1,N
   do I=1,M
-    XX(I,J) = ZERO
+    XX(I,J) = Zero
   end do
 end do
 

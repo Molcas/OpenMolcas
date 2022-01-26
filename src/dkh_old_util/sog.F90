@@ -19,8 +19,14 @@ subroutine SOG(N,SS,SINV,P,G,A1)
 !     G (ISIZE)      SCRATCH
 !     A1(N)          SCRATCH
 
-implicit real*8(A-H,O-Z)
-dimension SS(N*(N+1)/2), P(N*(N+1)/2), G(N*(N+1)/2), A1(N), SINV(N,N)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: N
+real(kind=wp) :: SS(N*(N+1)/2), SINV(N,N), P(N*(N+1)/2), G(N*(N+1)/2), A1(N)
+integer(kind=iwp) :: I, I_F, IH, IJ, IL, IQ, J, J1, JL, JQ, K, L, LG
+real(kind=wp) :: ETOT, S1KK, SUM_
 
 JL = 0
 IQ = 0
@@ -28,13 +34,13 @@ do J=1,N
   IL = JL
   JQ = IQ
   S1KK = SS(IQ+J)
-  G(IL+J) = 1.d0
+  G(IL+J) = One
   if (J == 1) GO TO 341
   J1 = J-1
   JL = 0
   do K=1,J1
     LG = JQ
-    ETOT = 0.d0
+    ETOT = Zero
     do L=1,K
       LG = LG+1
       JL = JL+1
@@ -43,20 +49,20 @@ do J=1,N
     S1KK = S1KK-ETOT*ETOT
     A1(K) = ETOT
   end do
-  if = 1
+  I_F = 1
   JL = IL
   do K=1,J1
-    SUM = 0.d0
+    SUM_ = Zero
     JL = JL+1
-    if = if+K-1
-    IH = if
+    I_F = I_F+K-1
+    IH = I_F
     do L=K,J1
       IH = IH+L-1
-      SUM = SUM+A1(L)*G(IH)
+      SUM_ = SUM_+A1(L)*G(IH)
     end do
-    G(JL) = -SUM
+    G(JL) = -SUM_
   end do
-341 S1KK = 1.d0/sqrt(S1KK)
+341 S1KK = One/sqrt(S1KK)
   JL = IL
   do K=1,J
     JL = JL+1
@@ -70,7 +76,7 @@ IJ = 0
 do I=1,N
   do J=1,I
     IJ = IJ+1
-    SINV(I,J) = 0.d0
+    SINV(I,J) = Zero
     SINV(J,I) = P(IJ)
   end do
 end do
