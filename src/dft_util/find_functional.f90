@@ -51,7 +51,7 @@ do
   Line = adjustl(Line)
   if ((Line == '') .or. (Line(1:1) == '#')) cycle
   read(Line,*,iostat=istatus) Word1,Word2,Word3
-  if (to_upper(Word1) == Label) then
+  if (to_upper(Word1) == UpLabel) then
     ! Once found, read the second word
     read(Word2,*,iostat=istatus) nFuncs
     if (istatus == 0) then
@@ -96,15 +96,15 @@ close(Lu)
 
 contains
 
-function get_func(Label)
+function get_func(xcLabel)
 
   integer(kind=LibxcInt) :: get_func
-  character(len=*), intent(in) :: Label
+  character(len=*), intent(in) :: xcLabel
 
-  get_func = xc_f03_functional_get_number(Label)
+  get_func = xc_f03_functional_get_number(xcLabel)
   if (get_func < 0) then
     call WarningMessage(2,' Find_Functional: Undefined functional in Libxc!')
-    write(u6,*) '         Functional=',trim(Label)
+    write(u6,*) '         Functional=',trim(xcLabel)
     call Quit_OnUserError()
   end if
 
