@@ -151,7 +151,7 @@
           character(len=*), parameter ::
      &      ascii_fcidmp = 'FCIDUMP', h5_fcidmp = 'H5FCIDUMP'
 
-          ! SOME DIRTY SETUPS
+!         ! SOME DIRTY SETUPS
           S = 0.5_wp * dble(iSpin - 1)
           call check_options(lRf, KSDFT)
           ! Produce a working FCIDUMP file
@@ -161,13 +161,15 @@
             if (ReOrFlag == -1) permutation(:) = get_P_GAS(nGSSH)
           end if
 
-          ! This call is not side effect free, sets EMY and modifies F_IN
+!         ! This call is not side effect free, sets EMY and modifies
+!         ! F_IN
           call transform(actual_iter, CMO, DIAF, D1I_AO, D1A_AO, D1S_MO,
      &                   F_IN, orbital_E, folded_Fock)
 
-          ! Fortran Standard 2008 12.5.2.12:
-          ! Allocatable actual arguments that are passed to
-          ! non-allocatable, optional dummy arguments are **not** present.
+!         ! Fortran Standard 2008 12.5.2.12:
+!         ! Allocatable actual arguments that are passed to
+!         ! non-allocatable, optional dummy arguments are **not**
+!         ! present.
           call make_fcidumps(
      &        ascii_fcidmp, h5_fcidmp, orbital_E, folded_Fock, TUVX,
      &        EMY, permutation
