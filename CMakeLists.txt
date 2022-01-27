@@ -3088,6 +3088,7 @@ configure_file (${OPENMOLCAS_DIR}/data/banner.src       data/banner.txt       CO
 configure_file (${OPENMOLCAS_DIR}/data/modalias.src     data/modalias.txt     COPYONLY)
 configure_file (${OPENMOLCAS_DIR}/data/landing.src      data/landing.txt      COPYONLY)
 configure_file (${OPENMOLCAS_DIR}/data/isotope_data.src data/isotope_data.txt COPYONLY)
+configure_file (${OPENMOLCAS_DIR}/data/functionals.src  data/functionals.txt  COPYONLY)
 file (COPY ${OPENMOLCAS_DIR}/data/inputs.tpl DESTINATION ${PROJECT_BINARY_DIR}/data)
 if (DEFINED EXTRA_DIR)
   foreach (f alias.plx auto.prgm landing.txt)
