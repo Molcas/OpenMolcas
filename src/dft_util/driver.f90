@@ -11,72 +11,74 @@
 ! Copyright (C) 2022, Roland Lindh                                     *
 !***********************************************************************
 Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD,DFTFOCK)
-      use libxc_parameters
-      use OFembed, only: KEOnly, dFMD, Do_Core
-      use libxc,   only: Only_exc
-      use nq_Grid, only: l_casdft
-      use nq_pdft, only: lft
-      Implicit None
-#include "nq_info.fh"
-      Character*(*) KSDFA
-      Logical Do_Grad
-      Integer :: nGrad, nh1, nD
-      Real*8 :: Func, Grad(nGrad)
-      Logical Do_MO, Do_TwoEl
-      Real*8 :: D_DS(nh1,nD), F_DFT(nh1,nD)
-      Character*4 DFTFOCK
 
-      abstract interface
-          Subroutine DFT_FUNCTIONAL(mGrid,nD)
-          Integer mGrid, nD
-          end subroutine
-      end interface
+use libxc_parameters
+use OFembed, only: KEOnly, dFMD, Do_Core
+use libxc,   only: Only_exc
+use nq_Grid, only: l_casdft
+use nq_pdft, only: lft
+Implicit None
+#include "real.fh"
+#include "nq_info.fh"
+Character*(*) KSDFA
+Logical Do_Grad
+Integer :: nGrad, nh1, nD
+Real*8 :: Func, Grad(nGrad)
+Logical Do_MO, Do_TwoEl
+Real*8 :: D_DS(nh1,nD), F_DFT(nh1,nD)
+Real*8 :: A=Zero, B=Zero, C=Zero
+Character*4 DFTFOCK
+logical :: LDTF=.False., NDSD=.False.
+character(LEN=12) :: FLabel=''
+
+abstract interface
+   Subroutine DFT_FUNCTIONAL(mGrid,nD)
+      Integer mGrid, nD
+   end subroutine
+end interface
 
 !***********************************************************************
 !     Define external functions not defined in LibXC. These are either
 !     accessed through the procedure pointer sub or External_sub.
 
-      External:: Overlap, NucAtt, ndsd_ts
+procedure(DFT_FUNCTIONAL) :: Overlap, NucAtt, ndsd_ts
 !***********************************************************************
-      procedure(DFT_FUNCTIONAL), pointer :: sub => null()
+procedure(DFT_FUNCTIONAL), pointer :: sub => null()
 !     Sometime we need an external routine which covers something which
 !     Libxc doesn't support.
-      procedure(DFT_FUNCTIONAL), pointer :: External_sub => null()
+procedure(DFT_FUNCTIONAL), pointer :: External_sub => null()
 !                                                                      *
 !***********************************************************************
 ! Global variable for MCPDFT functionals                               *
+FLabel=KSDFA ! The user could be passing an explicit string! Hence, the local copy.
 
-      l_casdft = KSDFA.eq.'TLSDA'   .or.                                       &
-     &           KSDFA.eq.'TLSDA5'  .or.                                       &
-     &           KSDFA.eq.'TBLYP'   .or.                                       &
-     &           KSDFA.eq.'TSSBSW'  .or.                                       &
-     &           KSDFA.eq.'TSSBD'   .or.                                       &
-     &           KSDFA.eq.'TS12G'   .or.                                       &
-     &           KSDFA.eq.'TPBE'    .or.                                       &
-     &           KSDFA.eq.'FTPBE'   .or.                                       &
-     &           KSDFA.eq.'TOPBE'   .or.                                       &
-     &           KSDFA.eq.'FTOPBE'  .or.                                       &
-     &           KSDFA.eq.'TREVPBE' .or.                                       &
-     &           KSDFA.eq.'FTREVPBE'.or.                                       &
-     &           KSDFA.eq.'FTLSDA'  .or.                                       &
-     &           KSDFA.eq.'FTBLYP'
+!
+!     Set some flags and clean up the label to be just the label of the
+!     underlaying DFT functional.
+!
+l_casdft = FLabel(1:2).eq.'T:' .or. FLabel(1:3).eq.'FT:'
 
-      lft      = KSDFA.eq.'FTPBE'   .or.                                       &
-     &           KSDFA.eq.'FTOPBE'  .or.                                       &
-     &           KSDFA.eq.'FTREVPBE'.or.                                       &
-     &           KSDFA.eq.'FTLSDA'  .or.                                       &
-     &           KSDFA.eq.'FTBLYP'
+lft      = FLabel(1:3).eq.'FT:'
 
-      If (l_casdft) Then
-         If (lft) Then
-            KSDFA(:)=KSDFA(3:)//'  '
-         Else
-            KSDFA(:)=KSDFA(2:)//' '
-         End If
-         Do_MO=.true.
-         Do_TwoEl=.true.
-         If (.NOT.Do_PDFTPOT .and. .Not.DO_Grad) Only_exc=.True.
-      End If
+If (l_casdft) Then
+   If (lft) Then
+      FLabel(:)=FLabel(4:)//'   '
+   Else
+      FLabel(:)=FLabel(3:)//'  '
+   End If
+   Do_MO=.true.
+   Do_TwoEl=.true.
+   If (.NOT.Do_PDFTPOT .and. .Not.DO_Grad) Only_exc=.True.
+End If
+
+If (FLabel(1:5)=='LDTF/')Then
+   LDTF=.true.
+   FLabel(:)=FLabel(6:)//'      '
+End If
+If (FLabel(1:5)=='NDSD/')Then
+   NDSD=.true.
+   FLabel(:)=FLabel(6:)//'      '
+End If
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
@@ -84,12 +86,12 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !      Default is to use the libxc interface
 !      Coefficient for the individual contibutions are defaulted to 1.0D0
 
-       Sub => libxc_functionals     ! Default
-       Coeffs(:)=1.0D0              ! Default
+Sub => libxc_functionals     ! Default
+Coeffs(:)=1.0D0              ! Default
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-       Select Case(KSDFA)
+    Select Case(FLabel)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -107,8 +109,18 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
             func_id(1:nFuncs)=[XC_LDA_C_VWN_RPA]
             Coeffs(1)=dFMD
          Else
-            nFuncs=2
-            func_id(1:nFuncs)=[XC_LDA_X,XC_LDA_C_VWN_RPA]
+            If (LDTF) Then
+               If (KEOnly) Then
+                  nFuncs=1
+                  func_id(1:nFuncs)=[XC_LDA_K_TF]
+               Else
+                  nFuncs=3
+                  func_id(1:nFuncs)=[XC_LDA_K_TF,XC_LDA_X,XC_LDA_C_VWN_RPA]
+               End If
+            Else
+               nFuncs=2
+               func_id(1:nFuncs)=[XC_LDA_X,XC_LDA_C_VWN_RPA]
+            End If
          End If
 !                                                                      *
 !***********************************************************************
@@ -127,8 +139,18 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
             func_id(1:nFuncs)=[XC_LDA_C_VWN]
             Coeffs(1)=dFMD
          Else
-            nFuncs=2
-            func_id(1:nFuncs)=[XC_LDA_X,XC_LDA_C_VWN]
+            If (LDTF) Then
+               If (KEOnly) Then
+                  nFuncs=1
+                  func_id(1:nFuncs)=[XC_LDA_K_TF]
+               Else
+                  nFuncs=3
+                  func_id(1:nFuncs)=[XC_LDA_K_TF,XC_LDA_X,XC_LDA_C_VWN]
+              End If
+            Else
+               nFuncs=2
+               func_id(1:nFuncs)=[XC_LDA_X,XC_LDA_C_VWN]
+            End If
          End If
 !                                                                      *
 !***********************************************************************
@@ -201,8 +223,9 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !----    Slater exchange
 
          nFuncs=1
-         func_id(1:nFuncs)=[XC_LDA_X]
-         Coeffs(1)=0.70D0
+         func_id(1:nFuncs)=[XC_LDA_C_XALPHA]
+!        func_id(1:nFuncs)=[XC_LDA_X]
+!        Coeffs(1)=0.70D0
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -250,8 +273,27 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
             func_id(1:nFuncs)=[XC_GGA_C_LYP]
             Coeffs(1)=dFMD
          Else
-            nFuncs=2
-            func_id(1:nFuncs)=[XC_GGA_X_B88,XC_GGA_C_LYP]
+            If (LDTF) Then
+               If (KEOnly) Then
+                  nFuncs=1
+                  func_id(1:nFuncs)=[XC_LDA_K_TF]
+               Else
+                  nFuncs=3
+                  func_id(1:nFuncs)=[XC_LDA_K_TF,XC_GGA_X_B88,XC_GGA_C_LYP]
+               End If
+            Else If (NDSD) Then
+               If (KEOnly) Then
+                  Sub => ndsd_ts
+               Else
+                  Only_exc=.True.
+                  nFuncs=2
+                  func_id(1:nFuncs)=[XC_GGA_X_B88,XC_GGA_C_LYP]
+                  External_Sub => ndsd_ts
+               End If
+            Else
+               nFuncs=2
+               func_id(1:nFuncs)=[XC_GGA_X_B88,XC_GGA_C_LYP]
+            End If
          End If
 !                                                                      *
 !***********************************************************************
@@ -279,12 +321,8 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !
 !----    Lee-Yang-Parr correlation
 
-         nFuncs=4
-         func_id(1:nFuncs)=[XC_LDA_X,XC_GGA_X_OPTX,XC_GGA_X_KT1,XC_GGA_C_LYP]
-         Coeffs(1)= (1.092d0-1.051510d0*(0.925452d0/1.431690d0)-(0.004d0/0.006d0))
-         Coeffs(2)= (0.925452d0/1.431690d0)
-         Coeffs(3)= (0.0040d0/0.006d0)
-         Coeffs(4)= 0.864409d0
+         nFuncs=1
+         func_id(1:nFuncs)=[XC_GGA_XC_KT3]
 
 !                                                                      *
 !***********************************************************************
@@ -298,11 +336,8 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !
 !----    Vosko-Wilk-Nusair correlation functional III
 
-         nFuncs=3
-         func_id(1:nFuncs)=[XC_LDA_X,XC_GGA_X_KT1,XC_LDA_C_VWN_RPA]
-         Coeffs(1)= 0.07173d0
-!        Coeffs(2)= 1.0D0
-         Coeffs(3)= 0.576727d0
+         nFuncs=1
+         func_id(1:nFuncs)=[XC_GGA_XC_KT2]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -345,6 +380,16 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 
          nFuncs=2
          func_id(1:nFuncs)=[XC_GGA_X_B88,XC_GGA_C_PBE]
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     OreLYP
+!                                                                      *
+      Case('ORELYP')
+         Functional_type=GGA_type
+
+         nFuncs=2
+         func_id(1:nFuncs)=[XC_GGA_X_OPTX,XC_GGA_C_TM_LYP]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -415,12 +460,8 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !
 !----    Lee-Yang-Parr correlation
 
-         nFuncs=4
-         func_id(1:nFuncs)=[XC_LDA_X,XC_GGA_X_B88,XC_LDA_C_VWN_RPA,XC_GGA_C_LYP]
-         Coeffs(1)=0.08D0
-         Coeffs(2)=0.72D0
-         Coeffs(3)=1.0D0-0.81D0
-         Coeffs(4)=0.81D0
+         nFuncs=1
+         func_id(1:nFuncs)=[XC_HYB_GGA_XC_B3LYP]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -437,12 +478,8 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !
 !----    Lee-Yang-Parr correlation
 
-         nFuncs=4
-         func_id(1:nFuncs)=[XC_LDA_X,XC_GGA_X_OPTX,XC_LDA_C_VWN_RPA,XC_GGA_C_LYP]
-         Coeffs(1)=(0.9262D0-1.051510d0*(0.8133D0/1.431690d0))
-         Coeffs(2)=(0.8133D0/1.431690d0)
-         Coeffs(3)=1.0D0-0.81D0
-         Coeffs(4)=0.81D0
+         nFuncs=1
+         func_id(1:nFuncs)=[XC_HYB_GGA_XC_O3LYP]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -494,18 +531,14 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !
 !----    Lee-Yang-Parr correlation
 
-         nFuncs=4
-         func_id(1:nFuncs)=[XC_LDA_X,XC_GGA_X_B88,XC_LDA_C_VWN,XC_GGA_C_LYP]
-         Coeffs(1)=0.08D0
-         Coeffs(2)=0.72D0
-         Coeffs(3)=1.0D0-0.81D0
-         Coeffs(4)=0.81D0
+         nFuncs=1
+         func_id(1:nFuncs)=[XC_HYB_GGA_XC_B3LYP5]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 !     PBE                                                              *
 !                                                                      *
-      Case('PBE')
+      Case('PBE ')
          Functional_type=GGA_type
 
 !----    Perdew-Burk-Ernzerhof exchange
@@ -517,8 +550,27 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
             func_id(1:nFuncs)=[XC_GGA_C_PBE]
             Coeffs(1)=dFMD
          Else
-            nFuncs=2
-            func_id(1:nFuncs)=[XC_GGA_X_PBE,XC_GGA_C_PBE]
+            If (LDTF) Then
+               If (KEOnly) Then
+                  nFuncs=1
+                  func_id(1:nFuncs)=[XC_LDA_K_TF]
+               Else
+                  nFuncs=3
+                  func_id(1:nFuncs)=[XC_LDA_K_TF,XC_GGA_X_PBE,XC_GGA_C_PBE]
+               End If
+            Else If (NDSD) Then
+               If (KEOnly) Then
+                  Sub => ndsd_ts
+               Else
+                  Only_exc=.True.
+                  nFuncs=2
+                  func_id(1:nFuncs)=[XC_GGA_X_PBE,XC_GGA_C_PBE]
+                  External_Sub => ndsd_ts
+               End If
+            Else
+               nFuncs=2
+               func_id(1:nFuncs)=[XC_GGA_X_PBE,XC_GGA_C_PBE]
+            End If
          End If
 !                                                                      *
 !***********************************************************************
@@ -709,131 +761,21 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!      LDTF/LSDA (Thomas-Fermi for KE)                                 *
+!     BR3P86, DOI:10.1016/0009-2614(95)01143-2                         *
 !                                                                      *
-       Case('LDTF/LSDA ','LDTF/LDA  ')
-         Functional_type=LDA_type
-
-         If (Do_Core) Then
-            nFuncs=1
-            func_id(1:nFuncs)=[XC_LDA_C_VWN_RPA]
-            Coeffs(1)=dFMD
-         Else
-            If (KEOnly) Then
-               nFuncs=1
-               func_id(1:nFuncs)=[XC_LDA_K_TF]
-            Else
-               nFuncs=3
-               func_id(1:nFuncs)=[XC_LDA_K_TF,XC_LDA_X,XC_LDA_C_VWN_RPA]
-            End If
-         End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!      LDTF/LSDA5 (Thomas-Fermi for KE)                                *
-!                                                                      *
-       Case('LDTF/LSDA5','LDTF/LDA5 ')
-         Functional_type=LDA_type
-
-         If (Do_Core) Then
-            nFuncs=1
-            func_id(1:nFuncs)=[XC_LDA_C_VWN]
-            Coeffs(1)=dFMD
-         Else
-              If (KEOnly) Then
-                 nFuncs=1
-                 func_id(1:nFuncs)=[XC_LDA_K_TF]
-              Else
-                 nFuncs=3
-                 func_id(1:nFuncs)=[XC_LDA_K_TF,XC_LDA_X,XC_LDA_C_VWN]
-             End If
-         End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!      LDTF/PBE   (Thomas-Fermi for KE)                                *
-!                                                                      *
-       Case('LDTF/PBE  ')
-         Functional_type=GGA_type
-
-         If (Do_Core) Then
-            nFuncs=1
-            func_id(1:nFuncs)=[XC_GGA_C_PBE]
-            Coeffs(1)=dFMD
-         Else
-            If (KEOnly) Then
-               nFuncs=1
-               func_id(1:nFuncs)=[XC_LDA_K_TF]
-            Else
-               nFuncs=3
-               func_id(1:nFuncs)=[XC_LDA_K_TF,XC_GGA_X_PBE,XC_GGA_C_PBE]
-            End If
-         End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!      NDSD/PBE   (NDSD for KE)                                        *
-!                                                                      *
-       Case('NDSD/PBE  ')
+      Case('BR3P86')
          Functional_type=meta_GGA_type2
 
-         If (Do_Core) Then
-            nFuncs=1
-            func_id(1:nFuncs)=[XC_GGA_C_PBE]
-            Coeffs(1)=dFMD
-         Else
-            If (KEOnly) Then
-               Sub => ndsd_ts
-            Else
-               Only_exc=.True.
-               nFuncs=2
-               func_id(1:nFuncs)=[XC_GGA_X_PBE,XC_GGA_C_PBE]
-               External_Sub => ndsd_ts
-            End If
-         End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!      LDTF/BLYP  (Thomas-Fermi for KE)                                *
-!                                                                      *
-       Case('LDTF/BLYP ')
-         Functional_type=GGA_type
+         A = 0.22D0
+         B = 0.67D0
+         C = 0.85D0
 
-         If (Do_Core) Then
-            nFuncs=1
-            func_id(1:nFuncs)=[XC_GGA_C_LYP]
-            Coeffs(1)=dFMD
-         Else
-            If (KEOnly) Then
-               nFuncs=1
-               func_id(1:nFuncs)=[XC_LDA_K_TF]
-            Else
-               nFuncs=3
-               func_id(1:nFuncs)=[XC_LDA_K_TF,XC_GGA_X_B88,XC_GGA_C_LYP]
-            End If
-         End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!      NDSD/BLYP  (NDSD for KE)                                        *
-!                                                                      *
-       Case('NDSD/BLYP ')
-         Functional_type=meta_GGA_type2
-
-         If (Do_Core) Then
-            nFuncs=1
-            func_id(1:nFuncs)=[XC_GGA_C_LYP]
-            Coeffs(1)=dFMD
-         Else
-            If (KEOnly) Then
-               Sub => ndsd_ts
-            Else
-               Only_exc=.True.
-               nFuncs=2
-               func_id(1:nFuncs)=[XC_GGA_X_B88,XC_GGA_C_LYP]
-               External_Sub => ndsd_ts
-            End If
-         End If
+         nFuncs=4
+         func_id(1:nFuncs)=[XC_LDA_X,XC_MGGA_X_BR89_1,XC_LDA_C_VWN_RPA,XC_GGA_C_PBE]
+         Coeffs(1)=One-A-B
+         Coeffs(2)=B
+         Coeffs(3)=One
+         Coeffs(4)=C
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -860,9 +802,16 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 !                                                                      *
       Case default
          Call WarningMessage(2,' Driver: Undefined functional type!')
-         Write (6,*) '         Functional=',KSDFA(1:LEN(KSDFA))
+         Write (6,*) '         Functional=',FLabel(1:LEN(FLabel))
          Call Quit_OnUserError()
        End Select
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+       If (Functional_type/=LDA_type.and.Functional_type/=GGA_type.and.l_CasDFT) Then
+          Write (6,*) ' MC-PDFT combined with invalid functional class'
+          Call Abend()
+       End If
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -882,6 +831,8 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
       Sub          => Null()
       External_Sub => Null()
       Only_exc=.False.
+      LDTF=.False.
+      NDSD=.False.
 !                                                                      *
 !***********************************************************************
 !                                                                      *

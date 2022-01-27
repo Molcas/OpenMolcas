@@ -272,7 +272,7 @@
      & 4.0d0*dRhoI(1,iGrid,g_eff)*RhoI(1,iGrid)
 
         if (Functional_type.eq.GGA_type.and.ft) then
-!******************ADD STUFF FOR FTPBE HERE***************
+!******************ADD STUFF FOR FT: HERE***************
         P2_ontop_d(2,g_eff,iGrid) = P2_ontop_d(2,g_eff,iGrid) +
      &  4.0d0*dRhoI(2,iGrid,g_eff)*RhoI(1,iGrid) +
      & 8.0d0*dRhoI(1,iGrid,g_eff)*RhoI(2,iGrid)
@@ -327,7 +327,7 @@
      &                D1mo(kl)*dTabMO(1,k,g_eff,iGrid)*TabMO(1,iGrid,l)
 
 
-!******************ADD STUFF FOR FTPBE HERE***************
+!******************ADD STUFF FOR FT: HERE***************
 
                      if(Functional_type.eq.GGA_type.and.ft) Then
                        dRhoA(2,iGrid,g_eff) = dRhoA(2,iGrid,g_eff) +

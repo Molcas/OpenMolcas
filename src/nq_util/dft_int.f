@@ -47,7 +47,7 @@
 *     contributions to the SO integrals on the fly.
 *
       mGrid=SIZE(TabAO,2)
-      mAO = SIZE(Grid_AO,1)
+      mAO = SIZE(TabAO,1)
 *
       nBfn = Size(AOIntegrals,1)
       nFn  = Size(Grid_AO,1)

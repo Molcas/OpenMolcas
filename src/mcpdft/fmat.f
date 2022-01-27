@@ -140,16 +140,8 @@ C Local print level (if any)
       Call GetMem('Scr1','Allo','Real',iTmp1,nTot1)
       Call Fold(nSym,nBas,D1A,Work(iTmp1))
       If(KSDFT.ne.'SCF'
-     & .and. KSDFT.ne.'TLSDA'
-     & .and. KSDFT.ne.'FTLSDA'
-     & .and. KSDFT.ne.'TPBE'
-     & .and. KSDFT.ne.'FTPBE'
-     & .and. KSDFT.ne.'TOPBE'
-     & .and. KSDFT.ne.'FTOPBE'
-     & .and. KSDFT.ne.'TBLYP'
-     & .and. KSDFT.ne.'FTBLYP'
-     & .and. KSDFT.ne.'TREVPBE'
-     & .and. KSDFT.ne.'FTREVPBE') NewFock=0
+     & .and. KSDFT(1:2).ne.'T:'
+     & .and. KSDFT(1:3).ne.'FT:') NewFock=0
 
 c     If (NewFock.eq.0) Then
 c        nBMX=0
@@ -260,16 +252,7 @@ c**************************************************************************
 c              Add DFT part to Fock matrix:                               *
 c**************************************************************************
       If(KSDFT(1:3).ne.'SCF'.and.KSDFT(1:3).ne.'PAM'.and.
-     & (KSDFT(1:5).ne.'TLSDA'.and. !GLM
-     &  KSDFT(1:5).ne.'TBLYP'.and.
-     &  KSDFT(1:6).ne.'FTLSDA'.and.
-     &  KSDFT(1:5).ne.'FTPBE'.and.
-     &  KSDFT(1:6).ne.'FTOPBE'.and.
-     &  KSDFT(1:5).ne.'TOPBE'.and.
-     &  KSDFT(1:7).ne.'TREVPBE'.and.
-     &  KSDFT(1:8).ne.'FTREVPBE'.and.
-     &  KSDFT(1:6).ne.'FTBLYP'.and.
-     &  KSDFT(1:4).ne.'TPBE')) Then
+     & (KSDFT(1:2).ne.'T:' .and. KSDFT(1:3).ne.'FT:' ) ) Then
         ipTmpFckI=-99999
         ipTmpFckA=-99999
         Call Get_dExcdRa(ipTmpFck,nTmpFck)

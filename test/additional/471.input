@@ -39,7 +39,7 @@ CIROOT
 3 3 1
 
 &MCPDFT
-KSDFT=tpbe
+KSDFT=t:pbe
 MSPD
 WJOB
 

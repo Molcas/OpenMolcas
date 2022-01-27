@@ -39,7 +39,7 @@
       Integer, Parameter :: Index_d2(3,3)=
      &    Reshape([5,6,7, 6,8,9, 7,9,10],[3,3])
       Integer, Parameter :: Index_d3(3,3) =
-     &    Reshape([11,14,16, 12,17,19, 13,18,19],[3,3])
+     &    Reshape([11,14,16, 12,17,19, 13,18,20],[3,3])
       Logical Do_Grad
 *                                                                      *
 ************************************************************************
@@ -127,6 +127,12 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+*           Note that in the closer-shell case the density matrix is
+*           the total density, while in the open-shell case the density
+*           matrix is subdivided into the alpha and beta electron
+*           density
+*
+            Factor = DBLE(2/nD)
             Do iD = 1, nD
                Do j_R = 1, n_jBas
                   jCB = Index(index_j-1+j_R)    ! Real index
@@ -137,7 +143,7 @@
                      i_A = i_R + iOff
 *
                      ij_D = (jCB-1)*nFunc_i + iCB - 1
-                     DAij =DeDe(ipD(iD)+ij_D)*Fact(ij)
+                     DAij =DeDe(ipD(iD)+ij_D)*Fact(ij)*Factor
                      Dens_AO(i_A,j_A,iD) = DAij
                      Dens_AO(j_A,i_A,iD) = DAij
 *
@@ -196,20 +202,28 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
+*     Construct: Sum_i D_ij TabAO(i,iGrid,iAO)
+*          D_ij is the one-electron density
+*          TabAO(i,iGrid,iAO) are values with respect to the ith AO
+*          i=1 is the value of the AO
+*          i=2-4 are the values of the first order derivatives
+*          i=5-10 are the values of the second order derivatives
+*          i=11-20 are the values of the third order derivatives
+*
 *     During a gradient calculation the size of the fast index of
 *     TabAO is larger than that of Grid_AO. In those cases we copy
 *     the part of TabAO which we need to TabAO_Short before we make the
 *     contraction with the 1-particle density matrix.
 *
-      If (mAO.eq.kAO) Then
-         Call DGEMM_('N','N',mAO*mGrid,nAO*nD,nAO,
-     &               One,TabAO,mAO*mGrid,
-     &                   Dens_AO,nAO,
-     &               Zero,Grid_AO,mAO*mGrid)
-      Else
+      If (Do_Grad) Then
          TabAO_Short(1:kAO,:,:) = TabAO(1:kAO,:,:)
          Call DGEMM_('N','N',kAO*mGrid,nAO*nD,nAO,
      &               One,TabAO_Short,kAO*mGrid,
+     &                   Dens_AO,nAO,
+     &               Zero,Grid_AO,kAO*mGrid)
+      Else
+         Call DGEMM_('N','N',kAO*mGrid,nAO*nD,nAO,
+     &               One,TabAO,mAO*mGrid,
      &                   Dens_AO,nAO,
      &               Zero,Grid_AO,kAO*mGrid)
       End If
@@ -447,7 +461,9 @@
      &                                * Grid_AO(1,iGrid,iAO,iD)
      &                            + Two * TabAO(j,iGrid,iAO)
      &                                * Grid_AO(4,iGrid,iAO,iD)
-
+*
+*                       Cartesian derivatives of tau
+*
                         dRho_dR(iT,iGrid,Ind_xyz)
      &                             = dRho_dR(iT,iGrid,Ind_xyz)
      &                       + Four* TabAO(idjx,iGrid,iAO)
@@ -519,7 +535,8 @@
      &                          * TabAO(2,iGrid,iAO)
      &                          + Grid_AO(3,iGrid,iAO,iD)
      &                          * TabAO(3,iGrid,iAO)
-     &                          + Grid_AO(4,iGrid,iAO,iD) )
+     &                          + Grid_AO(4,iGrid,iAO,iD)
+     &                          * TabAO(4,iGrid,iAO) )
      &                          +(TabAO( 5,iGrid,iAO)
      &                          + TabAO( 8,iGrid,iAO)
      &                          + TabAO(10,iGrid,iAO) )
@@ -584,7 +601,9 @@
      &                                * Grid_AO(1,iGrid,iAO,iD)
      &                            + Two * TabAO(j,iGrid,iAO)
      &                                * Grid_AO(4,iGrid,iAO,iD)
-
+*
+*                       Cartesian derivatives of tau
+*
                         dRho_dR(iT,iGrid,Ind_xyz)
      &                             = dRho_dR(iT,iGrid,Ind_xyz)
      &                       + Four* TabAO(idjx,iGrid,iAO)
@@ -593,17 +612,28 @@
      &                              * Grid_AO(3,iGrid,iAO,iD)
      &                       + Four* TabAO(idjz,iGrid,iAO)
      &                              * Grid_AO(4,iGrid,iAO,iD)
-
+*
+*                       Cartesian derivatives of the laplacian
+*
                         dRho_dR(iL,iGrid,Ind_xyz)
      &                             = dRho_dR(iL,iGrid,Ind_xyz)
+
      &                             + Two * Grid_AO(1,iGrid,iAO,iD)
-     &                             *(TabAO(idjx2,iGrid,iAO)
-     &                             + TabAO(idjy2,iGrid,iAO)
-     &                             + TabAO(idjz2,iGrid,iAO))
+     &                             *   ( TabAO(idjx2,iGrid,iAO)
+     &                                  +TabAO(idjy2,iGrid,iAO)
+     &                                  +TabAO(idjz2,iGrid,iAO))
+
      &                             + Two *(Grid_AO(idx2,iGrid,iAO,iD)
      &                                    +Grid_AO(idy2,iGrid,iAO,iD)
      &                                    +Grid_AO(idz2,iGrid,iAO,iD))
-     &                             *       TabAO(j,iGrid,iAO)
+     &                                    *TabAO(j,iGrid,iAO)
+
+     &                             + Four*(Grid_AO(2,iGrid,iAO,iD)
+     &                                    *TabAO(idjx,iGrid,iAO)
+     &                                    +Grid_AO(3,iGrid,iAO,iD)
+     &                                    *TabAO(idjy,iGrid,iAO)
+     &                                    +Grid_AO(4,iGrid,iAO,iD)
+     &                                    *TabAO(idjz,iGrid,iAO))
 
                      End Do
                   End If
@@ -692,6 +722,11 @@
       End Do
       Write (6,*) 'Rho Sparsity in %: ',1.0D2*DBLE(n)/DBLE(mGrid)
 #endif
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
+       If (Allocated(Tau)) Tau(:,1:mGrid)=Half*Tau(:,1:mGrid)
 *                                                                      *
 ************************************************************************
 ************************************************************************

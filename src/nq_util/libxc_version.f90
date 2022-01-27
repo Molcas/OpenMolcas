@@ -13,10 +13,12 @@
 !***********************************************************************
 Subroutine libxc_version()
   use xc_f03_lib_m
-  use Definitions, only: LibxcInt
+  use Definitions, only: LibxcInt, iwp
   implicit none
   integer(kind=LibxcInt) :: vmajor, vminor, vmicro
   character(len=128) :: libxc_reference, libxc_reference_doi
+  logical(kind=iwp), external :: Reduce_Prt
+  if (Reduce_Prt()) return
   ! Get the data from libxc
   call xc_f03_version(vmajor, vminor, vmicro)
   call xc_f03_reference(libxc_reference)

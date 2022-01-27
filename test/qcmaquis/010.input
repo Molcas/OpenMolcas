@@ -34,7 +34,7 @@ Spin
 
 >> COPY $WorkDir/$Project.rasscf.h5 ref.h5
 
->>foreach DFT in (TPBE, TBLYP, TLSDA)
+>>foreach DFT in (T:PBE, T:BLYP, T:LSDA)
 
 &DMRGSCF &END
 ActiveSpaceOptimizer=QCMaquis

@@ -130,7 +130,7 @@
      &                        dF_dr * (Grid(3,j)-R_Grid(3))
                End Do
                If (iTab(2,i_Eff).ne.Off)
-     &            Temp(i_Eff)=Temp(i_Eff)-Two*tmp
+     &            Temp(i_Eff)=Temp(i_Eff)-tmp
             End Do
          Else
             Do i_Eff=1, nGrad_Eff
@@ -138,7 +138,7 @@
                ixyz=iTab(1,i_Eff)
                Do j = 1, mGrid
                   dF_dr = vRho(1,j)    *dRho_dR(1,j,i_Eff)
-     &                  +vRho(2,j)    *dRho_dR(2,j,i_Eff)
+     &                   +vRho(2,j)    *dRho_dR(2,j,i_Eff)
                   tmp = tmp + Weights(j) * dF_dr
 *
 *                 Accumulate stuff for rotational invariance
@@ -192,7 +192,7 @@
      &                        dF_dr * (Grid(3,j)-R_Grid(3))
                End Do
                If (iTab(2,i_Eff).ne.Off)
-     &            Temp(i_Eff)=Temp(i_Eff)-Two*tmp
+     &            Temp(i_Eff)=Temp(i_Eff)-tmp
             End Do
          Else
             Do i_Eff=1, nGrad_Eff
@@ -260,7 +260,7 @@
                   Temp1=2.0d0*vSigma(1,j)*gx
                   Temp2=2.0d0*vSigma(1,j)*gy
                   Temp3=2.0d0*vSigma(1,j)*gz
-                  Temp4=Half*vTau(1,j)
+                  Temp4=0.25D0*vTau(1,j)
 *
                   dF_dr = Temp0*dRho_dR(1,j,i_Eff)
      &                  + Temp1*dRho_dR(2,j,i_Eff)
@@ -279,7 +279,7 @@
      &                        dF_dr * (Grid(3,j)-R_Grid(3))
                End Do
                If (iTab(2,i_Eff).ne.Off)
-     &            Temp(i_Eff)=Temp(i_Eff)-Two*tmp
+     &            Temp(i_Eff)=Temp(i_Eff)-tmp
             End Do
          Else
             Do i_Eff=1, nGrad_Eff
@@ -307,8 +307,8 @@
      &                          +vSigma(2,j)*gzb )
                   Temp3b=( 2.0d0*vSigma(3,j)*gzb
      &                          +vSigma(2,j)*gza )
-                  Temp4a=vTau(1,j)
-                  Temp4b=vTau(2,j)
+                  Temp4a=0.5D0*vTau(1,j)
+                  Temp4b=0.5D0*vTau(2,j)
 *
                   dF_dr = Temp0a*dRho_dR(1,j,i_Eff)
      &                  + Temp0b*dRho_dR(2,j,i_Eff)
@@ -351,7 +351,7 @@
                   Temp1=2.0d0*vSigma(1,j)*gx
                   Temp2=2.0d0*vSigma(1,j)*gy
                   Temp3=2.0d0*vSigma(1,j)*gz
-                  Temp4=vTau(1,j)
+                  Temp4=0.25D0*vTau(1,j)
                   Temp5=vLapl(1,j)
 *
                   dF_dr = Temp0*dRho_dR(1,j,i_Eff)
@@ -372,7 +372,7 @@
      &                        dF_dr * (Grid(3,j)-R_Grid(3))
                End Do
                If (iTab(2,i_Eff).ne.Off)
-     &            Temp(i_Eff)=Temp(i_Eff)-Two*tmp
+     &            Temp(i_Eff)=Temp(i_Eff)-tmp
             End Do
          Else
             Do i_Eff=1, nGrad_Eff
@@ -400,8 +400,8 @@
      &                          +vSigma(2,j)*gzb )
                   Temp3b=( 2.0d0*vSigma(3,j)*gzb
      &                          +vSigma(2,j)*gza )
-                  Temp4a=vTau(1,j)
-                  Temp4b=vTau(2,j)
+                  Temp4a=0.5D0*vTau(1,j)
+                  Temp4b=0.5D0*vTau(2,j)
                   Temp5a=vLapl(1,j)
                   Temp5b=vLapl(2,j)
 *
