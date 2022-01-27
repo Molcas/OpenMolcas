@@ -13,22 +13,27 @@
 Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD,DFTFOCK)
 
 use libxc_parameters
+use xc_f03_lib_m
 use OFembed, only: KEOnly, dFMD, Do_Core
 use libxc,   only: Only_exc
 use nq_Grid, only: l_casdft
 use nq_pdft, only: lft
+use Definitions, only: LibxcInt
 Implicit None
 #include "real.fh"
 #include "nq_info.fh"
+#include "ksdft.fh"
 Character*(*) KSDFA
 Logical Do_Grad
-Integer :: nGrad, nh1, nD
+Integer :: i, j, nGrad, nh1, nD
 Real*8 :: ExFac, Func, Grad(nGrad)
 Logical Do_MO, Do_TwoEl
 Real*8 :: D_DS(nh1,nD), F_DFT(nh1,nD)
 Character*4 DFTFOCK
-logical :: LDTF=.False., NDSD=.False.
-character(LEN=12) :: FLabel=''
+logical :: LDTF, NDSD
+character(LEN=12) :: FLabel
+type(xc_f03_func_t) :: func_
+type(xc_f03_func_info_t) :: info_
 
 abstract interface
    Subroutine DFT_FUNCTIONAL(mGrid,nD)
@@ -73,10 +78,14 @@ End If
 If (FLabel(1:5)=='LDTF/')Then
    LDTF=.true.
    FLabel=FLabel(6:)
+Else
+   LDTF=.false.
 End If
 If (FLabel(1:5)=='NDSD/')Then
    NDSD=.true.
    FLabel=FLabel(6:)
+Else
+   NDSD=.false.
 End If
 !                                                                      *
 !***********************************************************************
@@ -94,66 +103,6 @@ Coeffs(:)=1.0D0              ! Default
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!      LSDA LDA SVWN                                                   *
-!                                                                      *
-      Case('LSDA ','LDA ','SVWN ')
-         Functional_type=LDA_type
-
-!----    Slater exchange
-!
-!----    Vosko-Wilk-Nusair correlation functional III
-
-         If (Do_Core) Then
-            nFuncs=1
-            func_id(1:nFuncs)=[XC_LDA_C_VWN_RPA]
-            Coeffs(1)=dFMD
-         Else
-            If (LDTF) Then
-               If (KEOnly) Then
-                  nFuncs=1
-                  func_id(1:nFuncs)=[XC_LDA_K_TF]
-               Else
-                  nFuncs=3
-                  func_id(1:nFuncs)=[XC_LDA_K_TF,XC_LDA_X,XC_LDA_C_VWN_RPA]
-               End If
-            Else
-               nFuncs=2
-               func_id(1:nFuncs)=[XC_LDA_X,XC_LDA_C_VWN_RPA]
-            End If
-         End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!      LSDA5 LDA5 SVWN5                                                *
-!                                                                      *
-      Case('LSDA5','LDA5','SVWN5')
-         Functional_type=LDA_type
-
-!----    Slater exchange
-!
-!----    Vosko-Wilk-Nusair correlation functional V
-
-         If (Do_Core) Then
-            nFuncs=1
-            func_id(1:nFuncs)=[XC_LDA_C_VWN]
-            Coeffs(1)=dFMD
-         Else
-            If (LDTF) Then
-               If (KEOnly) Then
-                  nFuncs=1
-                  func_id(1:nFuncs)=[XC_LDA_K_TF]
-               Else
-                  nFuncs=3
-                  func_id(1:nFuncs)=[XC_LDA_K_TF,XC_LDA_X,XC_LDA_C_VWN]
-              End If
-            Else
-               nFuncs=2
-               func_id(1:nFuncs)=[XC_LDA_X,XC_LDA_C_VWN]
-            End If
-         End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
 !     Overlap                                                          *
 !                                                                      *
       Case('Overlap')
@@ -167,84 +116,6 @@ Coeffs(:)=1.0D0              ! Default
       Case('NucAtt')
          Functional_type=LDA_type
          Sub => NucAtt
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     BLYP                                                             *
-!                                                                      *
-      Case('BLYP')
-         Functional_type=GGA_type
-
-!----    Slater exchange + B88 exchange
-!
-!----    Lee-Yang-Parr correlation
-
-         If (Do_Core) Then
-            nFuncs=1
-            func_id(1:nFuncs)=[XC_GGA_C_LYP]
-            Coeffs(1)=dFMD
-         Else
-            If (LDTF) Then
-               If (KEOnly) Then
-                  nFuncs=1
-                  func_id(1:nFuncs)=[XC_LDA_K_TF]
-               Else
-                  nFuncs=3
-                  func_id(1:nFuncs)=[XC_LDA_K_TF,XC_GGA_X_B88,XC_GGA_C_LYP]
-               End If
-            Else If (NDSD) Then
-               If (KEOnly) Then
-                  Sub => ndsd_ts
-               Else
-                  Only_exc=.True.
-                  nFuncs=2
-                  func_id(1:nFuncs)=[XC_GGA_X_B88,XC_GGA_C_LYP]
-                  External_Sub => ndsd_ts
-               End If
-            Else
-               nFuncs=2
-               func_id(1:nFuncs)=[XC_GGA_X_B88,XC_GGA_C_LYP]
-            End If
-         End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     PBE                                                              *
-!                                                                      *
-      Case('PBE ')
-         Functional_type=GGA_type
-
-!----    Perdew-Burk-Ernzerhof exchange
-!
-!----    Perdew-Burk-Ernzerhof correlation
-
-         If (Do_Core) Then
-            nFuncs=1
-            func_id(1:nFuncs)=[XC_GGA_C_PBE]
-            Coeffs(1)=dFMD
-         Else
-            If (LDTF) Then
-               If (KEOnly) Then
-                  nFuncs=1
-                  func_id(1:nFuncs)=[XC_LDA_K_TF]
-               Else
-                  nFuncs=3
-                  func_id(1:nFuncs)=[XC_LDA_K_TF,XC_GGA_X_PBE,XC_GGA_C_PBE]
-               End If
-            Else If (NDSD) Then
-               If (KEOnly) Then
-                  Sub => ndsd_ts
-               Else
-                  Only_exc=.True.
-                  nFuncs=2
-                  func_id(1:nFuncs)=[XC_GGA_X_PBE,XC_GGA_C_PBE]
-                  External_Sub => ndsd_ts
-               End If
-            Else
-               nFuncs=2
-               func_id(1:nFuncs)=[XC_GGA_X_PBE,XC_GGA_C_PBE]
-            End If
-         End If
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -270,6 +141,55 @@ Coeffs(:)=1.0D0              ! Default
           Write (6,*) ' MC-PDFT combined with invalid functional class'
           Call Abend()
        End If
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+      If (Do_Core) Then
+         ! Keep only correlation
+         Do i=1,nFuncs
+            Call xc_f03_func_init(func_,func_id(i),0_LibxcInt)
+            info_ = xc_f03_func_get_info(func_)
+            If (xc_f03_func_info_get_kind(info_) == XC_CORRELATION) Then
+               Coeffs(i) = Coeffs(i)*dFMD
+            Else
+               Coeffs(i) = Zero
+            End If
+            Call xc_f03_func_end(func_)
+         End Do
+      Else If (LDTF) Then
+         ! Add TF kinetic with same coeff as exchange
+         ! and optionally kill everything else
+         Do i=1,nFuncs
+            Call xc_f03_func_init(func_,func_id(i),0_LibxcInt)
+            info_ = xc_f03_func_get_info(func_)
+            If (xc_f03_func_info_get_kind(info_) == XC_EXCHANGE) Then
+               func_id(nFuncs+1) = XC_LDA_K_TF
+               Coeffs(nFuncs+1) = Coeffs(i)
+               nFuncs = nFuncs+1
+            End If
+            If (KEOnly) Coeffs(i) = Zero
+            Call xc_f03_func_end(func_)
+         End Do
+      Else If (NDSD) Then
+         ! Add ndsd_ts, and optionally kill everything else
+         If (KEOnly) Then
+            Coeffs(:) = Zero
+            Sub => ndsd_ts
+         Else
+            Only_exc=.True.
+            External_Sub => ndsd_ts
+         End If
+      End If
+      ! Reduce list
+      j = 0
+      Do i=1,nFuncs
+        If (Coeffs(i) == Zero) Cycle
+        j = j+1
+        If (j == i) Cycle
+        Coeffs(j) = Coeffs(i)
+        func_id(j) = func_id(i)
+      End Do
+      nFuncs = j
 !                                                                      *
 !***********************************************************************
 !                                                                      *

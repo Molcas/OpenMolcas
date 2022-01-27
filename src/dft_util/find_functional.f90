@@ -17,7 +17,10 @@
 subroutine Find_Functional(Label,ExFac)
 
 use libxc_parameters, only: Coeffs, func_id, nFuncs, nFuncs_max
-use xc_f03_lib_m
+use xc_f03_lib_m, only: xc_f03_func_end, xc_f03_family_from_id, xc_f03_func_get_info, xc_f03_func_info_get_flags, xc_f03_func_t, &
+                        xc_f03_functional_get_number, xc_f03_func_init, xc_f03_hyb_exx_coef, XC_FAMILY_GGA, XC_FAMILY_HYB_GGA, &
+                        XC_FAMILY_HYB_LDA, XC_FAMILY_HYB_MGGA, XC_FAMILY_LDA, XC_FAMILY_MGGA, XC_FLAGS_NEEDS_LAPLACIAN
+use fortran_strings, only: to_upper
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6, LibxcInt
 
@@ -26,6 +29,7 @@ character(len=*), intent(in) :: Label
 real(kind=wp), intent(out) :: ExFac
 #include "nq_info.fh"
 integer(kind=iwp) :: i, istatus, Lu
+character(len=len(Label)) :: UpLabel
 character(len=256) :: Line
 character(len=80) :: Word1, Word2, Word3
 integer(kind=iwp), external :: IsFreeUnit
@@ -35,19 +39,19 @@ ExFac = Zero
 Lu = IsFreeUnit(11)
 call molcas_open(Lu,'FUNCDATA')
 
+UpLabel = to_upper(Label)
 do
   ! First find the line that starts with the keyword name
   read(Lu,'(A)',iostat=istatus) Line
   if (istatus /= 0) then
     call WarningMessage(2,' Find_Functional: Undefined functional type!')
     write(u6,*) '         Functional=',trim(Label)
-    !call Quit_OnUserError()
-    exit
+    call Quit_OnUserError()
   end if
   Line = adjustl(Line)
   if ((Line == '') .or. (Line(1:1) == '#')) cycle
   read(Line,*,iostat=istatus) Word1,Word2,Word3
-  if (Word1 == Label) then
+  if (to_upper(Word1) == Label) then
     ! Once found, read the second word
     read(Word2,*,iostat=istatus) nFuncs
     if (istatus == 0) then

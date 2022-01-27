@@ -73,7 +73,7 @@ HFB86 GGA_X_B86
 HFS XC_LDA_X
 
 # Slater's Xalpha doi:10.1103/PhysRev.81.385
-XALPHA LDA_C_XALPHA
+Xalpha LDA_C_XALPHA
 
 # Becke 88 doi:10.1103/PhysRevA.38.3098
 # Wigner with corresponding LYP parameters doi:10.1039/FT9959104337
@@ -119,7 +119,7 @@ BPBE 2 0.0
 
 # Handy & Cohen OPTX 01 doi:10.1080/00268970010018431
 # Takkar and McCarthy reparametrization doi:10.1063/1.3243845
-ORELYP 2 0.0
+OreLYP 2 0.0
      1.0 GGA_X_OPTX
      1.0 GGA_C_TM_LYP
 
@@ -173,7 +173,7 @@ B3LYP5 HYB_GGA_XC_B3LYP5
 
 # Revised PBE from Zhang & Yang doi:10.1103/PhysRevLett.80.890
 # Perdew, Burke & Ernzerhof doi:10.1103/PhysRevLett.77.3865 doi:10.1103/PhysRevLett.78.1396
-REVPBE 2 0.0
+revPBE 2 0.0
        1.0 GGA_X_PBE_R
        1.0 GGA_C_PBE
 

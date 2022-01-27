@@ -18,7 +18,6 @@
       Real*8 Get_ExFac
       Character*(*) KSDFT
       Character*16  cTmp
-      logical l_casdft
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -31,9 +30,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      l_casdft = KSDFT(1:2).eq.'T:' .or. KSDFT(1:3).eq.'FT:'
-
-      If (l_casdft) Then
+      If (KSDFT(1:2).eq.'T:' .or. KSDFT(1:3).eq.'FT:') Then
          Get_ExFac=Zero
          Return
       End If
