@@ -328,3 +328,4 @@
       end subroutine write_ExNECI_message
 
       end module fciqmc
+
