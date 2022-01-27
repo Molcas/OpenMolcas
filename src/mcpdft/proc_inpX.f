@@ -296,24 +296,6 @@ C   No changing about read in orbital information from INPORB yet.
        Read(LUInput,*,End=9910,Err=9920) Line
        KSDFT=Line(1:16)
        Call UpCase(KSDFT)
-       If (IPRLOC(1).GE.DEBUG) Then
-         If(KSDFT(1:5).eq.'TLSDA')  !GLM
-     &     write(6,*) ' TLSDA functional aka LSDA for MCPDFT'
-         If(KSDFT(1:5).eq.'TBLYP')
-     &     write(6,*) ' TBLYP functional aka BLYP for MCPDFT'
-         If(KSDFT(1:4).eq.'TPBE')
-     &     write(6,*) ' TPBE functional aka PBE for MCPDFT'
-         If(KSDFT(1:5).eq.'FTPBE')
-     &     write(6,*) ' FTPBE functional aka PBE for MCPDFT'
-         If(KSDFT(1:6).eq.'FTBLYP')
-     &     write(6,*) ' FTBLYP functional aka BLYP for MCPDFT'
-         If(KSDFT(1:6).eq.'FTLSDA')
-     &     write(6,*) ' FTLSDA functional aka LSDA for MCPDFT'
-         If(KSDFT(1:6).eq.'FTOPBE')
-     &     write(6,*) ' FTOPBE functional aka OPBE for MCPDFT'
-         If(KSDFT(1:5).eq.'TOPBE')
-     &     write(6,*) ' TOPBE functional aka OPBE for MCPDFT'
-       End if
       ExFac=Get_ExFac(KSDFT)
 *******
 *

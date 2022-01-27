@@ -127,6 +127,12 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+*           Note that in the closer-shell case the density matrix is
+*           the total density, while in the open-shell case the density
+*           matrix is subdivided into the alpha and beta electron
+*           density
+*
+            Factor = DBLE(2/nD)
             Do iD = 1, nD
                Do j_R = 1, n_jBas
                   jCB = Index(index_j-1+j_R)    ! Real index
@@ -137,7 +143,7 @@
                      i_A = i_R + iOff
 *
                      ij_D = (jCB-1)*nFunc_i + iCB - 1
-                     DAij =DeDe(ipD(iD)+ij_D)*Fact(ij)
+                     DAij =DeDe(ipD(iD)+ij_D)*Fact(ij)*Factor
                      Dens_AO(i_A,j_A,iD) = DAij
                      Dens_AO(j_A,i_A,iD) = DAij
 *
@@ -716,6 +722,11 @@
       End Do
       Write (6,*) 'Rho Sparsity in %: ',1.0D2*DBLE(n)/DBLE(mGrid)
 #endif
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
+       If (Allocated(Tau)) Tau(:,1:mGrid)=Half*Tau(:,1:mGrid)
 *                                                                      *
 ************************************************************************
 ************************************************************************

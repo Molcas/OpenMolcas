@@ -258,7 +258,7 @@
          Temp2=gy*2.0d0*vSigma(1,iGrid)
          Temp3=gz*2.0d0*vSigma(1,iGrid)
 
-         Temp4=vTau(1,iGrid)*Weights(iGrid)
+         Temp4=0.5D0*vTau(1,iGrid)*Weights(iGrid)
 
          Do iCB = 1, nBfn
 
@@ -297,8 +297,8 @@
          Temp2b=2.0d0*vSigma(3,iGrid)*gyb + vSigma(2,iGrid)*gya
          Temp3a=2.0d0*vSigma(1,iGrid)*gza + vSigma(2,iGrid)*gzb
          Temp3b=2.0d0*vSigma(3,iGrid)*gzb + vSigma(2,iGrid)*gza
-         Temp4a= vTau(1,iGrid)*Weights(iGrid)
-         Temp4b= vTau(2,iGrid)*Weights(iGrid)
+         Temp4a= 0.5D0*vTau(1,iGrid)*Weights(iGrid)
+         Temp4b= 0.5D0*vTau(2,iGrid)*Weights(iGrid)
 
          Do iCB = 1, nBfn
 *
@@ -387,7 +387,7 @@
          Temp2=gy*2.0d0*vSigma(1,iGrid)
          Temp3=gz*2.0d0*vSigma(1,iGrid)
 
-         Temp4=vTau(1,iGrid)*Weights(iGrid)
+         Temp4=0.5D0*vTau(1,iGrid)*Weights(iGrid)
          Temp5=vLapl(1,iGrid)*Weights(iGrid)
          Temp45=Temp4 + Two * Temp5
 
@@ -431,8 +431,8 @@
          Temp2b=2.0d0*vSigma(3,iGrid)*gyb + vSigma(2,iGrid)*gya
          Temp3a=2.0d0*vSigma(1,iGrid)*gza + vSigma(2,iGrid)*gzb
          Temp3b=2.0d0*vSigma(3,iGrid)*gzb + vSigma(2,iGrid)*gza
-         Temp4a= vTau(1,iGrid)*Weights(iGrid)
-         Temp4b= vTau(2,iGrid)*Weights(iGrid)
+         Temp4a= 0.5D0*vTau(1,iGrid)*Weights(iGrid)
+         Temp4b= 0.5D0*vTau(2,iGrid)*Weights(iGrid)
          Temp5a= vLapl(1,iGrid)*Weights(iGrid)
          Temp5b= vLapl(2,iGrid)*Weights(iGrid)
          Temp45a = Temp4a + Two * Temp5a

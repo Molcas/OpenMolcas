@@ -38,13 +38,13 @@
       Do iGrid = 1, mGrid
 *
          d_alpha=Rho(1,iGrid)
-         DTot=Two*d_alpha
+         DTot=d_alpha
          If (DTot.lt.T_X) Go To 199
-         TauA=Tau(1,iGrid)
+         TauA=Two*Tau(1,iGrid)
 *
 *------- Accumulate contributions to the integrated Tau
 *
-         Compute_Tau = Compute_Tau + Two*TauA*Weights(iGrid)
+         Compute_Tau = Compute_Tau + TauA*Weights(iGrid)
 *
  199     Continue
 *
@@ -64,7 +64,7 @@
          d_beta =Max(Rho_min,Rho(2,iGrid))
          DTot=d_alpha+d_beta
          If (DTot.lt.T_X) Go To 299
-         TauA=Tau(1,iGrid)+Tau(2,iGrid)
+         TauA=(Tau(1,iGrid)+Tau(2,iGrid))
 *
 *------- Accumulate contributions to the integrated density
 *

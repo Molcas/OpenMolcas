@@ -15,14 +15,13 @@ grid input
 grid=ultrafine
 end of grid input
 
->>foreach DFT in (TLSDA, TPBE, TBLYP)
+>>foreach DFT in (T:LSDA, T:PBE, T:BLYP)
 
 &RASSCF
 FileOrb=MCPDFT.InpOrb
 CIONLY
 KSDFT
-ROKS
-$DFT
+ROKS; $DFT
 spin
 1
 symmetry
