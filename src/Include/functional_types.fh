@@ -13,9 +13,9 @@
      &        meta_GGA_type1,                                           &
      &        meta_GGA_type2,                                           &
      &        Other_type
-      Parameter(Other_Type    =-1,                                      &
-     &          LDA_Type      =0,                                       &
-     &          GGA_Type      =1,                                       &
-     &          meta_GGA_Type1=2,                                       &
+      Parameter(Other_Type    =0,                                       &
+     &          LDA_Type      =1,                                       &
+     &          GGA_Type      =2,                                       &
+     &          meta_GGA_Type1=3,                                       &
 ! With the laplacian
-     &          meta_GGA_Type2=3)
+     &          meta_GGA_Type2=4)

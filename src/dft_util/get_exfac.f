@@ -13,6 +13,7 @@
 *     Return the factor which determines how much "exact exchange" that*
 *     should be included.                                              *
 ************************************************************************
+      Use Functionals, Only: Get_Func_ExFac
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
       Real*8 Get_ExFac
@@ -64,7 +65,7 @@
 ************************************************************************
 *                                                                      *
       Case Default
-         Call Find_Functional(KSDFT,Get_ExFac)
+         Get_ExFac = Get_Func_ExFac(KSDFT)
 *                                                                      *
 ************************************************************************
 *                                                                      *

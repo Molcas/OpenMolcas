@@ -14,6 +14,7 @@ Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD
 
 use libxc_parameters
 use xc_f03_lib_m
+use Functionals, only: Get_Funcs
 use OFembed, only: KEOnly, dFMD, Do_Core
 use libxc,   only: Only_exc
 use nq_Grid, only: l_casdft
@@ -26,7 +27,7 @@ Implicit None
 Character*(*) KSDFA
 Logical Do_Grad
 Integer :: i, j, nGrad, nh1, nD
-Real*8 :: ExFac, Func, Grad(nGrad)
+Real*8 :: Func, Grad(nGrad)
 Logical Do_MO, Do_TwoEl
 Real*8 :: D_DS(nh1,nD), F_DFT(nh1,nD)
 Character*4 DFTFOCK
@@ -65,11 +66,7 @@ l_casdft = FLabel(1:2).eq.'T:' .or. FLabel(1:3).eq.'FT:'
 lft      = FLabel(1:3).eq.'FT:'
 
 If (l_casdft) Then
-   If (lft) Then
-      FLabel=FLabel(4:)
-   Else
-      FLabel=FLabel(3:)
-   End If
+   FLabel=FLabel(Index(FLabel,'T:')+2:)
    Do_MO=.true.
    Do_TwoEl=.true.
    If (.NOT.Do_PDFTPOT .and. .Not.DO_Grad) Only_exc=.True.
@@ -119,6 +116,21 @@ Coeffs(:)=1.0D0              ! Default
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+! The names TF_only and HUNTER are hardcoded in some parts of the code,*
+! so we define them explicitly instead of relying on the external file *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!      Kinetic only  (Thomas-Fermi)                                    *
+!                                                                      *
+       Case('TF_only')
+         Functional_type=LDA_type
+
+         nFuncs=1
+         func_id(1:nFuncs)=[XC_LDA_K_TF]
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 !      HUNTER  (von Weizsacker KE, no calc of potential)               *
 !                                                                      *
        Case('HUNTER')
@@ -131,7 +143,7 @@ Coeffs(:)=1.0D0              ! Default
 !***********************************************************************
 !                                                                      *
        Case default
-         Call Find_Functional(FLabel,ExFac)
+         Call Get_Funcs(FLabel)
 
        End Select
 !                                                                      *

@@ -256,6 +256,3 @@ BR3P86 5
        0.67 MGGA_X_BR89_1
        1.00 LDA_C_VWN_RPA
        0.85 GGA_C_PBE
-
-# Thomas-Fermi kinetic energy doi:10.1017/S0305004100011683
-TF_only LDA_K_TF
