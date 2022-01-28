@@ -566,7 +566,7 @@ c     Write(6,*) '********** Setup_NQ ***********'
          If (.Not.Do_Grad) Then
             mTmp=7
             mRad=nFOrd
-            nScr=nD*5*nAOMax
+            nScr=nD*10*nAOMax
          Else
             mTmp=28
             mRad=NFOrd+1

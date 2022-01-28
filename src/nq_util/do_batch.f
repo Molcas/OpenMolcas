@@ -127,6 +127,7 @@
 *
          Call iDaFile(Lu_Grid,2,ipTabAO,2*(nlist_s+1),iDisk_Grid)
          mTabAO=ipTabAO(nlist_s+1,2)-1
+         Call iDaFile(Lu_Grid,2,iBfn_Index,Size(iBfn_Index),iDisk_Grid)
          Call dDaFile(Lu_Grid,2,TabAO,mTabAO,iDisk_Grid)
          Unpack=Packing.eq.On
 *
@@ -306,6 +307,8 @@
 *
             Call iDaFile(Lu_Grid,1,ipTabAO,2*(nlist_s+1),iDisk_Grid)
             mTabAO=ipTabAO(nList_s+1,2)-1
+            Call iDaFile(Lu_Grid,1,iBfn_Index,Size(iBfn_Index),
+     &                   iDisk_Grid)
             Call dDaFile(Lu_Grid,1,TabAO,mTabAO,iDisk_Grid)
 *
          End If
@@ -605,8 +608,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-           Call DFT_Int(list_s,nlist_s,FckInt,nFckInt,nD,Fact,ndc,
-     &                  list_bas)
+           Call DFT_Int(list_s,nlist_s,FckInt,nFckInt,nD,Fact,ndc)
 *                                                                      *
 ************************************************************************
 *                                                                      *
