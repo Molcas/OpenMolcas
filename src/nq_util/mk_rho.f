@@ -20,7 +20,7 @@
       use k2_arrays, only: DeDe, ipDijS
       use nq_grid, only: Rho, TabAO, Dens_AO, Grid_AO, TabAO_Short
       use nq_grid, only: GradRho, Sigma, Tau, Lapl, kAO
-      use nq_Grid, only: Ind_Grd, dRho_dR
+      use nq_Grid, only: dRho_dR
       use nq_Grid, only: List_G
 #ifdef _DEBUGPRINT_
       use nq_grid, only: nRho
@@ -32,6 +32,7 @@
 #include "nq_info.fh"
 #include "nsd.fh"
 #include "setup.fh"
+#include "stdalloc.fh"
       Integer Index(nIndex)
       Real*8 Fact(mdc**2)
       Integer ipD(2)
@@ -41,6 +42,7 @@
       Integer, Parameter :: Index_d3(3,3) =
      &    Reshape([11,14,16, 12,17,19, 13,18,20],[3,3])
       Logical Do_Grad
+      Integer, Allocatable:: Ind_Grd(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -73,6 +75,11 @@
 ************************************************************************
 *                                                                      *
 *
+      If (Do_Grad) Then
+         Call mma_Allocate(Ind_Grd,3,nAO,Label='Ind_Grd')
+         Ind_Grd(:,:)=0
+      End If
+
       iOff = 0
       Do ilist_s=1,nlist_s
          iSkal = list_s(1,ilist_s)
@@ -774,5 +781,6 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
+      If (Allocated(Ind_grd))   Call mma_deAllocate(Ind_Grd)
       Return
       End

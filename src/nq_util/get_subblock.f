@@ -33,8 +33,8 @@
       use iSD_data
       use Basis_Info
       use Center_Info
-      use nq_Grid, only: Grid, Weights, TabAO, Grid_AO, Dens_AO,
-     &                   TabAO_Pack, Ind_Grd, dRho_dR, TabAO_Short,
+      use nq_Grid, only: Grid, Weights, TabAO, Grid_AO,
+     &                   TabAO_Pack, dRho_dR, TabAO_Short,
      &                   kAO, iBfn_Index, R2_trial
       use nq_Grid, only: List_G, IndGrd, iTab, dW_dR, nR_Eff
       use nq_MO, only: DoIt
@@ -314,10 +314,7 @@
       End Do
 *
       Call mma_Allocate(ipTabAO,(nlist_s+1),2,Label='ipTabAO')
-      Call mma_Allocate(Dens_AO,nBfn,nBfn,nD,Label='Dens_AO')
-      Call mma_Allocate(Ind_Grd,3,nBfn,Label='Ind_Grd')
       Call mma_Allocate(iBfn_Index,6,nBfn,Label='iBfn_Index')
-      Ind_Grd(:,:)=0
       iBfn_Index(:,:)=0
 *
       If ((Functional_Type.eq.CASDFT_Type).or.Do_MO) Then
@@ -685,10 +682,8 @@ c
 ************************************************************************
 *                                                                      *
       Call mma_deAllocate(iBfn_Index)
-      Call mma_deAllocate(Ind_Grd)
       Call mma_deAllocate(Index)
       Call mma_deallocate(ipTabAO)
-      Call mma_deallocate(Dens_AO)
       If (Allocated(ipTabMO)) Call mma_deallocate(ipTabMO)
       If (Allocated(ipTabSO)) Call mma_deallocate(ipTabSO)
       If (Do_Grad.and.Grid_Type.eq.Moving_Grid) Then

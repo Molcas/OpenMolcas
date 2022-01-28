@@ -36,6 +36,7 @@
       use nq_Grid, only: F_xc, F_xca, F_xcb
       use nq_Grid, only: Fact, Tmp, SOs, Angular, Mem
       use nq_Grid, only: D1UnZip, P2UnZip
+      use nq_Grid, only: Dens_AO
       use nq_pdft
       use nq_MO, only: DoIt, CMO, D1MO, P2_ontop
       use Grid_On_Disk
@@ -110,6 +111,7 @@
 *
          Call iDaFile(Lu_Grid,2,ipTabAO,2*(nlist_s+1),iDisk_Grid)
          mTabAO=ipTabAO(nlist_s+1,2)-1
+         Call iDaFile(Lu_Grid,2,List_bas,2*nlist_s,iDisk_Grid)
          Call dDaFile(Lu_Grid,2,TabAO,mTabAO,iDisk_Grid)
          Unpack=Packing.eq.On
 *
@@ -190,6 +192,12 @@
          Write (6,*) ' TMax:    ',TMax
       End If
 #endif
+!
+!           At this time eliminate basis functions which have an
+!           insignificant contribution to any of the grid points we are
+!           processing at this stage.
+!
+!...more to come...
             iOff = iOff + mAO*mGrid*iBas_Eff*iCmp
 *
          End Do
@@ -243,6 +251,7 @@
 *
             Call iDaFile(Lu_Grid,1,ipTabAO,2*(nlist_s+1),iDisk_Grid)
             mTabAO=ipTabAO(nList_s+1,2)-1
+            Call iDaFile(Lu_Grid,1,List_bas,2*nlist_s,iDisk_Grid)
             Call dDaFile(Lu_Grid,1,TabAO,mTabAO,iDisk_Grid)
 *
          End If
@@ -278,6 +287,18 @@
          End Do
 *
       End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+      nBfn=0
+      Do iList_s = 1, nList_s
+         iBas_Eff=List_Bas(1,ilist_s)
+         If (iBas_Eff==0) Cycle
+         iSkal    =list_s(1,ilist_s)
+         iCmp  = iSD( 2,iSkal)
+         nBfn=nBfn+iBas_Eff*iCmp
+      End Do
+      Call mma_Allocate(Dens_AO,nBfn,nBfn,nD,Label='Dens_AO')
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -558,5 +579,6 @@
          Call mma_deallocate(RhoA)
       End If
 
+      Call mma_deAllocate(Dens_AO)
       Return
       End
