@@ -35,12 +35,7 @@
       use nq_Grid, only: vRho, vSigma, vTau, vLapl
       use nq_Grid, only: l_CASDFT, TabAO, TabAO_Pack, dRho_dR
       use nq_Grid, only: F_xc, F_xca, F_xcb
-#define _COMPACT_
-#ifdef _COMPACT_
       use nq_Grid, only: Fact, SOs, Angular, Mem
-#else
-      use nq_Grid, only: Fact, Tmp, SOs, Angular, Mem
-#endif
       use nq_Grid, only: D1UnZip, P2UnZip
       use nq_Grid, only: Dens_AO, iBfn_Index
       use nq_pdft
@@ -75,9 +70,7 @@
       Real*8, Allocatable:: RhoI(:,:), RhoA(:,:)
       Real*8, Allocatable:: TmpCMO(:)
       Integer, Allocatable:: TDoIt(:)
-#ifdef _COMPACT_
       Real*8, Allocatable:: TabAO_Tmp(:)
-#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -134,12 +127,8 @@
 *------- Retrieve the AOs from disc
 *
          Call iDaFile(Lu_Grid,2,ipTabAO,2*(nlist_s+1),iDisk_Grid)
-#ifdef _COMPACT_
          nByte=ipTabAO(nlist_s+1,2)
          mTabAO = (nByte+RtoB-1)/RtoB
-#else
-         mTabAO=ipTabAO(nlist_s+1,2)-1
-#endif
          Call iDaFile(Lu_Grid,2,iBfn_Index,Size(iBfn_Index),iDisk_Grid)
          Call dDaFile(Lu_Grid,2,TabAO,mTabAO,iDisk_Grid)
          Unpack=Packing.eq.On
@@ -285,7 +274,6 @@
 *
 *------------- Pack before they are put on disc
 *
-#ifdef _COMPACT_
                nData=Size(TabAO)
                Call mma_Allocate(TabAO_Tmp,nData,Label='TabAO_Tmp')
                TabAO_Tmp(:)=TabAO_Pack(:)
@@ -299,50 +287,12 @@
                End If
                ipTabAO(nList_s+1,2)=nByte
                Call mma_deAllocate(TabAO_Tmp)
-#else
-               jOff = 1
-               Do ilist_s=1,nlist_s
-                  ish=list_s(1,ilist_s)
-                  iCmp  = iSD( 2,iSh)
-                  iBas_Eff = List_Bas(1,ilist_s)
-                  ipTabAO(iList_s,2)=0
-                  nData=mAO*mGrid*iBas_Eff*iCmp
-                  If (nData==0) Cycle
-*
-*                 Check if we should store any AOs at all!
-*
-                  iOff = ipTabAO(ilist_s,1)
-                  If (nData.gt.SIZE(Tmp)) Then
-                     Call WarningMessage(2,'nData.gt.SIZE(Tmp)')
-                     Write (6,*) 'Packing'
-                     Write (6,*) 'nData=',nData
-                     Write (6,*) 'SIZE(tmp)=',SIZE(Tmp)
-                     Call Abend()
-                  End If
-                  call dcopy_(nData,TabAO_Pack(iOff:),1,Tmp,1)
-                  Call PkR8(0,nData,nByte,Tmp,TabAO_Pack(jOff:))
-                  mData = (nByte+RtoB-1)/RtoB
-                  If (mData.gt.nData) Then
-                     Call WarningMessage(2,'mData.gt.nData')
-                     Write (6,*) 'nData=',nData
-                     Write (6,*) 'mData=',mData
-                     Call Abend()
-                  End If
-                  ipTabAO(iList_s,2)=nByte
-                  jOff = jOff + mData
-               End Do
-               ipTabAO(nList_s+1,2)=jOff
-#endif
             Else
                ipTabAO(nList_s+1,2)=ipTabAO(nList_s+1,1)
             End If
 *
             Call iDaFile(Lu_Grid,1,ipTabAO,2*(nlist_s+1),iDisk_Grid)
-#ifdef _COMPACT_
             mTabAO=mData
-#else
-            mTabAO=ipTabAO(nList_s+1,2)-1
-#endif
             Call iDaFile(Lu_Grid,1,iBfn_Index,Size(iBfn_Index),
      &                   iDisk_Grid)
             Call dDaFile(Lu_Grid,1,TabAO,mTabAO,iDisk_Grid)
@@ -355,41 +305,12 @@
 *
       If (Unpack) Then
 *
-#ifdef _COMPACT_
          nData=Size(TabAO)
          Call mma_Allocate(TabAO_Tmp,nData,Label='TabAO_Tmp')
          nByte=ipTabAO(nlist_s+1,2)
          Call UpkR8(0,nData,nByte,TabAO_Pack,TabAO_Tmp)
          TabAO_Pack(:)=TabAO_Tmp(:)
          Call mma_deAllocate(TabAO_Tmp)
-#else
-         jOff = ipTabAO(nlist_s+1,2)
-         Do ilist_s=nlist_s,1,-1
-            ish=list_s(1,ilist_s)
-            iCmp  = iSD( 2,iSh)
-            iBas_Eff = List_Bas(1,ilist_s)
-            nData=mAO*mGrid*iBas_Eff*iCmp
-            nByte=ipTabAO(ilist_s,2)
-*
-            iOff = ipTabAO(ilist_s,1)
-            If (nByte.gt.0) Then
-               mData = (nByte+RtoB-1)/RtoB
-               jOff = jOff - mData
-               If (mData.gt.SIZE(Tmp)) Then
-                  Call WarningMessage(2,'mData.gt.SIZE(Tmp)')
-                     Write (6,*) 'UnPacking'
-                     Write (6,*) 'mData=',mData
-                     Write (6,*) 'SIZE(tmp)=',SIZE(Tmp)
-                  Call Abend()
-               End If
-               Call UpkR8(0,nData,nByte,TabAO_Pack(jOff:),Tmp)
-               call dcopy_(nData,Tmp,1,TabAO_Pack(iOff:),1)
-            Else
-               mData=0
-               TabAO_Pack(1:nData)=Zero
-            End If
-         End Do
-#endif
 *
       End If
 *                                                                      *
