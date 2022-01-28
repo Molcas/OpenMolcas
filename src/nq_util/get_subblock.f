@@ -35,7 +35,7 @@
       use Center_Info
       use nq_Grid, only: Grid, Weights, TabAO, Grid_AO,
      &                   TabAO_Pack, dRho_dR, TabAO_Short,
-     &                   kAO, iBfn_Index, R2_trial
+     &                   kAO, R2_trial
       use nq_Grid, only: List_G, IndGrd, iTab, dW_dR, nR_Eff
       use nq_MO, only: DoIt
       use NQ_Structure, only: NQ_Data
@@ -314,8 +314,6 @@
       End Do
 *
       Call mma_Allocate(ipTabAO,(nlist_s+1),2,Label='ipTabAO')
-      Call mma_Allocate(iBfn_Index,6,nBfn,Label='iBfn_Index')
-      iBfn_Index(:,:)=0
 *
       If ((Functional_Type.eq.CASDFT_Type).or.Do_MO) Then
          nMOs=SIZE(DoIt)
@@ -681,7 +679,6 @@ c
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call mma_deAllocate(iBfn_Index)
       Call mma_deAllocate(Index)
       Call mma_deallocate(ipTabAO)
       If (Allocated(ipTabMO)) Call mma_deallocate(ipTabMO)

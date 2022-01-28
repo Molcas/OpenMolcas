@@ -38,6 +38,7 @@
 #include "debug.fh"
 #include "nsd.fh"
 #include "setup.fh"
+#include "stdalloc.fh"
       Real*8 Fact(ndc**2), FckInt(nFckInt,nD)
       Integer list_s(2,nlist_s), list_bas(2,nlist_s)
 *                                                                      *
@@ -59,6 +60,9 @@
 *     Set up an indexation translation between the running index of
 *     the AOIntegrals and the actual basis function index
 *
+      Call mma_Allocate(iBfn_Index,6,nBfn,Label='iBfn_Index')
+      iBfn_Index(:,:)=0
+
       iBfn = 0
       Do ilist_s=1,nlist_s
          iSkal = list_s(1,ilist_s)
@@ -85,6 +89,10 @@
             End Do
          End Do
       End Do
+      If (iBfn.ne.nBfn) Then
+         Write (6,*) 'Inconsistent numbers, iBfn/=nBfn:',iBfn,nBfn
+         Call abend()
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -97,6 +105,7 @@
      &                       nFckInt,list_s,nlist_s,Fact,ndc)
          End If
       End Do
+      Call mma_deAllocate(iBfn_Index)
 *                                                                      *
 ************************************************************************
 *                                                                      *
