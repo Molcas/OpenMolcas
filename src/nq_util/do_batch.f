@@ -36,7 +36,7 @@
       use nq_Grid, only: F_xc, F_xca, F_xcb
       use nq_Grid, only: Fact, Tmp, SOs, Angular, Mem
       use nq_Grid, only: D1UnZip, P2UnZip
-      use nq_Grid, only: Dens_AO
+      use nq_Grid, only: Dens_AO, iBfn_Index
       use nq_pdft
       use nq_MO, only: DoIt, CMO, D1MO, P2_ontop
       use Grid_On_Disk
@@ -97,6 +97,21 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+*     Set up an indexation translation between the running index of
+*     the AOIntegrals and the actual basis function index
+*
+      nBfn=0
+      Do iList_s = 1, nList_s
+         iBas_Eff=List_Bas(1,ilist_s)
+         iSkal    =list_s(1,ilist_s)
+         iCmp  = iSD( 2,iSkal)
+         nBfn=nBfn+iBas_Eff*iCmp
+      End Do
+      Call mma_Allocate(iBfn_Index,6,nBfn,Label='iBfn_Index')
+      iBfn_Index(:,:)=0
+*                                                                      *
+************************************************************************
+*                                                                      *
 *---- Evaluate the AOs on the grid points.                             *
 *                                                                      *
 ************************************************************************
@@ -111,7 +126,6 @@
 *
          Call iDaFile(Lu_Grid,2,ipTabAO,2*(nlist_s+1),iDisk_Grid)
          mTabAO=ipTabAO(nlist_s+1,2)-1
-         Call iDaFile(Lu_Grid,2,List_bas,2*nlist_s,iDisk_Grid)
          Call dDaFile(Lu_Grid,2,TabAO,mTabAO,iDisk_Grid)
          Unpack=Packing.eq.On
 *
@@ -130,6 +144,7 @@
       mlist_s=0
 #endif
          iOff = 1
+         iBfn = 0
          Do ilist_s=1,nlist_s
             ish=list_s(1,ilist_s)
 
@@ -193,12 +208,30 @@
       End If
 #endif
 !
-!           At this time eliminate basis functions which have an
-!           insignificant contribution to any of the grid points we are
-!           processing at this stage.
+!           At this time eliminate individual basis functions which have
+!           an insignificant contribution to any of the grid points we
+!           are processing at this stage.
 !
-!...more to come...
-            iOff = iOff + mAO*mGrid*iBas_Eff*iCmp
+*#define _NEW_
+#ifdef _NEW_
+            Thr=1.0D-15
+            jBas_Eff = iBas_Eff
+            Do jBfn = iBfn + iBas_Eff*iCmp, iBfn + 1, -1
+               jOff = iOff + (jBas_Eff-1)*mAO*mGrid
+               ix = iDAMax_(mAO*mGrid,TabAO_Pack(jOff:),1)
+               TMax = Abs(TabAO_Pack(jOff-1+ix))
+               If (TMax>Thr) Exit
+               jBas_Eff = jBas_Eff - 1
+            End Do
+            If (jBas_Eff/=iBas_Eff) Then
+               Write (6,*) 'iBas_Eff=',iBas_Eff
+               Write (6,*) 'jBas_Eff=',jBas_Eff
+            End If
+            iBfn = iBfn + jBas_Eff*iCmp
+            iOff = iOff + mAO*mGrid * jBas_Eff*iCmp
+#else
+            iOff = iOff + mAO*mGrid * iBas_Eff*iCmp
+#endif
 *
          End Do
 #ifdef _ANALYSIS_
@@ -223,7 +256,9 @@
                   ish=list_s(1,ilist_s)
                   iCmp  = iSD( 2,iSh)
                   iBas_Eff = List_Bas(1,ilist_s)
+                  ipTabAO(iList_s,2)=0
                   nData=mAO*mGrid*iBas_Eff*iCmp
+                  If (nData==0) Cycle
 *
 *                 Check if we should store any AOs at all!
 *
@@ -251,7 +286,6 @@
 *
             Call iDaFile(Lu_Grid,1,ipTabAO,2*(nlist_s+1),iDisk_Grid)
             mTabAO=ipTabAO(nList_s+1,2)-1
-            Call iDaFile(Lu_Grid,1,List_bas,2*nlist_s,iDisk_Grid)
             Call dDaFile(Lu_Grid,1,TabAO,mTabAO,iDisk_Grid)
 *
          End If
@@ -290,14 +324,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      nBfn=0
-      Do iList_s = 1, nList_s
-         iBas_Eff=List_Bas(1,ilist_s)
-         If (iBas_Eff==0) Cycle
-         iSkal    =list_s(1,ilist_s)
-         iCmp  = iSD( 2,iSkal)
-         nBfn=nBfn+iBas_Eff*iCmp
-      End Do
       Call mma_Allocate(Dens_AO,nBfn,nBfn,nD,Label='Dens_AO')
 *                                                                      *
 ************************************************************************
@@ -580,5 +606,6 @@
       End If
 
       Call mma_deAllocate(Dens_AO)
+      Call mma_deAllocate(iBfn_Index)
       Return
       End
