@@ -25,6 +25,7 @@
 *             of Lund, SWEDEN. November 2000                           *
 ************************************************************************
       use iSD_data
+      use SOAO_Info, only: iAOtSO
       use Real_Spherical
       use Basis_Info
       use Center_Info
@@ -161,7 +162,26 @@
             iCnttp= iSD(13,iSh)
             iCnt  = iSD(14,iSh)
             A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
-*
+!
+!           Set up the unsifted version of iBfn_Index
+!
+            iAdd = iBas-iBas_Eff
+            Do i1 = 1, iCmp
+               iSO1 = iAOtSO(iAO+i1,0) ! just used when nIrrep=1
+               Do i2 = 1, iBas_Eff
+                  IndAO1 = i2 + iAdd
+                  Indi = iSO1 + IndAO1 -1
+
+                  iBfn = iBfn + 1
+                  iBfn_Index(1,iBfn) = Indi
+                  iBfn_Index(2,iBfn) = ilist_s
+                  iBfn_Index(3,iBfn) = i1
+                  iBfn_Index(4,iBfn) = i2
+                  iBfn_Index(5,iBfn) = mdci
+                  iBfn_Index(6,iBfn) = IndAO1
+               End Do
+            End Do
+
             nDrv     = mRad - 1
             nForm    = 0
             Do iDrv  = 0, nDrv
