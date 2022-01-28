@@ -66,10 +66,9 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+*#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-      If (Debug) Then
-         Write(6,*) 'Enter Get_Subblock'
-      End If
+      Write(6,*) 'Enter Get_Subblock'
 #endif
 *
 *-----Resolve triplet index
@@ -95,15 +94,13 @@
       If (iz.eq.nz) z_max_= 1.0D99
 *                                                                      *
 #ifdef _DEBUGPRINT_
-      If (Debug) Then
-         Write(6,*)
-         Write(6,*) 'Block_Size=',Block_Size
-         Write(6,*) 'ix,iy,iz=',ix,iy,iz
-         Write(6,*) 'x_min_,x_max_',x_min_,x_max_
-         Write(6,*) 'y_min_,y_max_',y_min_,y_max_
-         Write(6,*) 'z_min_,z_max_',z_min_,z_max_
-         Write(6,*) 'nNQ=',nNQ
-      End If
+      Write(6,*)
+      Write(6,*) 'Block_Size=',Block_Size
+      Write(6,*) 'ix,iy,iz=',ix,iy,iz
+      Write(6,*) 'x_min_,x_max_',x_min_,x_max_
+      Write(6,*) 'y_min_,y_max_',y_min_,y_max_
+      Write(6,*) 'z_min_,z_max_',z_min_,z_max_
+      Write(6,*) 'nNQ=',nNQ
 #endif
 *                                                                      *
 ************************************************************************
@@ -156,7 +153,7 @@
       nlist_p=ilist_p
       If (nlist_p.eq.0) return
 #ifdef _DEBUGPRINT_
-      If (debug) Write (6,*) 'Get_Subblock: List_p:',List_p
+      Write (6,*) 'Get_Subblock: List_p:',List_p
 #endif
 *                                                                      *
 ************************************************************************
@@ -167,9 +164,10 @@
 ************************************************************************
 *                                                                      *
       ilist_s=0
+*#define _ANALYSIS_
       Do iShell=1,nShell
 #ifdef _DEBUGPRINT_
-         If (debug) Write (6,*) 'iShell,nShell=',iShell,nShell
+        Write (6,*) 'iShell,nShell=',iShell,nShell
 #endif
          NrExp =iSD( 5,iShell)
          iAng  =iSD( 1,iShell)
@@ -181,17 +179,15 @@
          Do jSym = 0, nDegi-1
             iSym=dc(mdci)%iCoSet(jSym,0)
 #ifdef _DEBUGPRINT_
-            If (debug) Write (6,*) 'iSym,nDegi-1=',iSym,nDegi-1
+            Write (6,*) 'iSym,nDegi-1=',iSym,nDegi-1
 #endif
 *
             iNQ=Maps2p(iShell,NrOpr(iSym))
             RMax_NQ = NQ_Data(iNQ)%R_Max
 #ifdef _DEBUGPRINT_
-            If (debug) Then
-               Write (6,*) 'iNQ=',iNQ
-               Write (6,*) 'RMax_NQ=',RMax_NQ
-               Write (6,*) 'InBox(iNQ)=',InBox(iNQ)
-            End If
+            Write (6,*) 'iNQ=',iNQ
+            Write (6,*) 'RMax_NQ=',RMax_NQ
+            Write (6,*) 'InBox(iNQ)=',InBox(iNQ)
 #endif
 *
 *           1) the center of this shell is inside the box
@@ -202,10 +198,14 @@
                list_s(2,ilist_s)=iSym
                list_exp(ilist_s)=NrExp
                list_bas(1,ilist_s)=NrBas
+#ifdef _ANALYSIS_
+               Write (6,*) ' Shell is in box, ilist_s: ',ilist_s
+#endif
                GoTo 20
             End If
 #ifdef _DEBUGPRINT_
-            If (debug) Write (6,*) 'Passed here!'
+            Write (6,*) 'Passed here!'
+            Write (6,*) 'Threshold:',Threshold
 #endif
 *
 *           2) the Gaussian has a grid point which extends inside the
@@ -218,19 +218,18 @@
                ValExp=Shells(iShll)%Exp(iExp)
 *------------- If the exponent has an influence then increase the
 *              number of actives exponents for this shell, else
-*              there is no other active exponent (they ar ordered)
+*              there is no other active exponent (they are ordered)
                RMax=Min(Eval_RMax(ValExp,iAng,Threshold),RMax_NQ)
+*#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-               If (Debug) Then
-                  Write (6,*) 'iShell,iNQ=',iShell,iNQ
-                  Write (6,*) 'ValExp=',ValExp
-                  Write (6,*) 'RMax_NQ=',RMax_NQ
-                  Write (6,*) 'RMax_Exp=',
-     &                         Eval_RMax(ValExp,iAng,Threshold)
-                  Write (6,*) 'RMax=',RMax
-                  Write (6,*) 'R2_Trial(iNQ),RMax**2=',
-     &                         R2_Trial(iNQ),RMax**2
-               End If
+               Write (6,*) 'iShell,iNQ=',iShell,iNQ
+               Write (6,*) 'ValExp,iExp=',ValExp,iExp
+               Write (6,*) 'RMax_NQ=',RMax_NQ
+               Write (6,*) 'RMax_Exp=',
+     &                      Eval_RMax(ValExp,iAng,Threshold)
+               Write (6,*) 'RMax=',RMax
+               Write (6,*) 'R2_Trial(iNQ),RMax**2=',
+     &                      R2_Trial(iNQ),RMax**2
 #endif
                If (R2_Trial(iNQ).gt.RMax**2) Go To 99
                nExpTmp=nExpTmp+1
@@ -249,13 +248,19 @@
      &                                      Shells(iShll)%Exp,
      &                                      Shells(iShll)%pCff,
      &                                      list_exp(ilist_s))
+#ifdef _ANALYSIS_
+               Write (6,*) ' Shell is included, ilist_s: ',ilist_s
+               Write (6,*) ' nExpTmp=',nExpTmp
+               Write (6,*) 'R2_Trial(iNQ),RMax**2=',
+     &                      R2_Trial(iNQ),RMax**2
+#endif
             End If
  20         Continue
          End Do ! iSym
       End Do    ! iShell
       nlist_s=ilist_s
 #ifdef _DEBUGPRINT_
-      If (Debug) Write (6,*) 'nList_s,nList_p=',nList_s,nList_p
+      Write (6,*) 'nList_s,nList_p=',nList_s,nList_p
 #endif
       If (nList_s*nList_p.eq.0) return
 *                                                                      *
@@ -293,13 +298,11 @@
 ************************************************************************
 *                                                                      *
 #ifdef _DEBUGPRINT_
-      If (Debug) Then
-         write(6,*) 'Contribution to the subblock :'
-         write(6,*) 'NQ :',(list_p(ilist_p)  ,ilist_p=1,nlist_p)
-         write(6,*) 'Sh :',(list_s(1,ilist_s),ilist_s=1,nlist_s)
-         write(6,*) '   :',(list_s(2,ilist_s),ilist_s=1,nlist_s)
-         write(6,*) 'Exp:',(list_exp(ilist_s),ilist_s=1,nlist_s)
-      End If
+      write(6,*) 'Contribution to the subblock :'
+      write(6,*) 'NQ :',(list_p(ilist_p)  ,ilist_p=1,nlist_p)
+      write(6,*) 'Sh :',(list_s(1,ilist_s),ilist_s=1,nlist_s)
+      write(6,*) '   :',(list_s(2,ilist_s),ilist_s=1,nlist_s)
+      write(6,*) 'Exp:',(list_exp(ilist_s),ilist_s=1,nlist_s)
 #endif
 *
       nBfn=0
@@ -434,8 +437,8 @@
       Do ilist_p=1,nlist_p
          iNQ=list_p(ilist_p)
 #ifdef _DEBUGPRINT_
-         If (Debug) Write (6,*) 'ilist_p=',ilist_p
-         If (Debug) Write (6,*) 'Get_SubBlock: iNQ=',iNQ
+         Write (6,*) 'ilist_p=',ilist_p
+         Write (6,*) 'Get_SubBlock: iNQ=',iNQ
 #endif
 *
 *------- Select which gradient contributions that should be computed.
@@ -451,16 +454,14 @@
                End Do
             End If
 #ifdef _DEBUGPRINT_
-            If (Debug) Then
-             Write (6,*)
-             Write (6,'(A,24I3)') '       i =',(       i ,i=1,nGrad_Eff)
-             Write (6,'(A,24I3)') 'iTab(1,i)=',(iTab(1,i),i=1,nGrad_Eff)
-             Write (6,'(A,24I3)') 'iTab(2,i)=',(iTab(2,i),i=1,nGrad_Eff)
-             Write (6,'(A,24I3)') 'iTab(3,i)=',(iTab(3,i),i=1,nGrad_Eff)
-             Write (6,'(A,24I3)') 'iTab(4,i)=',(iTab(4,i),i=1,nGrad_Eff)
-             Write (6,*) 'IndGrd=',IndGrd
-             Write (6,*)
-            End If
+            Write (6,*)
+            Write (6,'(A,24I3)') '       i =',(       i ,i=1,nGrad_Eff)
+            Write (6,'(A,24I3)') 'iTab(1,i)=',(iTab(1,i),i=1,nGrad_Eff)
+            Write (6,'(A,24I3)') 'iTab(2,i)=',(iTab(2,i),i=1,nGrad_Eff)
+            Write (6,'(A,24I3)') 'iTab(3,i)=',(iTab(3,i),i=1,nGrad_Eff)
+            Write (6,'(A,24I3)') 'iTab(4,i)=',(iTab(4,i),i=1,nGrad_Eff)
+            Write (6,*) 'IndGrd=',IndGrd
+            Write (6,*)
 #endif
 *
          End If
@@ -546,7 +547,7 @@
 ************************************************************************
 *                                                                      *
 #ifdef _DEBUGPRINT_
-         If (Debug) write(6,*) 'Get_Subblock ----> Subblock'
+        write(6,*) 'Get_Subblock ----> Subblock'
 #endif
 c
 c        Note that in gradient calculations we process the grid points
@@ -563,7 +564,7 @@ c
          nTotGP = nTotGP_Save
 *
 #ifdef _DEBUGPRINT_
-         If (Debug) write(6,*) 'Subblock ----> Get_Subblock'
+        write(6,*) 'Subblock ----> Get_Subblock'
 #endif
       End Do
       GridInfo(1,ixyz)=iDisk_Grid
@@ -591,11 +592,9 @@ c
 *
          iNQ=                  iBatchInfo(3,iBatch)
 #ifdef _DEBUGPRINT_
-         If (Debug) Then
-            Write (6,*)
-            Write (6,*)  'iNQ=',iNQ
-            Write (6,*)
-         End If
+         Write (6,*)
+         Write (6,*)  'iNQ=',iNQ
+         Write (6,*)
 #endif
          ilist_p=-1
          Do klist_p = 1, nlist_p

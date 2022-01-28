@@ -63,15 +63,15 @@
       Do ilist_s=1,nlist_s
          iSkal = list_s(1,ilist_s)
          iCmp  = iSD( 2,iSkal)
-         iBas  = iSD( 3,iSkal)
-         iBas_Eff=list_bas(1,ilist_s)
+         nBas  = iSD( 3,iSkal)
+         nBas_Eff=list_bas(1,ilist_s)
          iAO   = iSD( 7,iSkal)
          mdci  = iSD(10,iSkal)
 
-         iAdd = iBas-iBas_Eff
+         iAdd = nBas-nBas_Eff
          Do i1 = 1, iCmp
             iSO1 = iAOtSO(iAO+i1,0) ! just used when nIrrep=1
-            Do i2 = 1, iBas_Eff
+            Do i2 = 1, nBas_Eff
                IndAO1 = i2 + iAdd
                Indi = iSO1 + IndAO1 -1
 

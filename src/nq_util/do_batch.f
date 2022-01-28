@@ -120,6 +120,13 @@
          Mem(:)=Zero
          ipxyz=1
 *
+*#define _ANALYSIS_
+#ifdef _ANALYSIS_
+      Thr=1.0D-15
+      Write (6,*)
+      Write (6,*) ' Sparsity analysis of AO blocks'
+      mlist_s=0
+#endif
          iOff = 1
          Do ilist_s=1,nlist_s
             ish=list_s(1,ilist_s)
@@ -174,9 +181,23 @@
      &                  Shells(iShll)%pCff(1,iBas-iBas_Eff+1),
      &                  TabAO_Pack(iOff:),
      &                  mAO,px,py,pz,ipx,ipy,ipz)
+#ifdef _ANALYSIS_
+      ix = iDAMax_(mAO*mGrid*iBas_Eff*iCmp,TabAO_Pack(iOff),1)
+      TMax = Abs(TabAO_Pack(iOff-1+ix))
+      If (TMax<Thr) Then
+         mlist_s=mlist_s+1
+         Write (6,*) ' ilist_s: ',ilist_s
+         Write (6,*) ' TMax:    ',TMax
+      End If
+#endif
             iOff = iOff + mAO*mGrid*iBas_Eff*iCmp
 *
          End Do
+#ifdef _ANALYSIS_
+      Write (6,*) ' % AO blocks that can be eliminated: ',
+     &             1.0D2*DBLE(mlist_s)/DBLE(nlist_s)
+      Write (6,*)
+#endif
          ipTabAO(nList_s+1,1)=iOff
 *
 *        AOs are packed and written to disk.

@@ -30,7 +30,7 @@
 *
 ************************************************************************
 *
-*define _DEBUGPRINT_
+*#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Write (6,*) 'nR,L_Quad=',nR,L_Quad
 #endif
@@ -41,15 +41,14 @@
          Write (6,*) 'L_Quad=',L_Quad
          Call Abend()
       End If
-#define _NEW_
-#ifdef _NEW_
       l_Max=Int(rm(1))
       Radius_Max=Eval_RMax(Alpha(1),l_Max,rm(2))
-C     Write (6,*) 'Alpha(1)=',Alpha(1)
-C     Write (6,*) 'l_max=',l_max
-C     Write (6,*) 'rm(2)=',rm(2)
-C     Write (6,*) 'Radius_Max=',Radius_Max
-C     Write (6,*)
+#ifdef _DEBUGPRINT_
+      Write (6,*) 'Alpha(1)=',Alpha(1)
+      Write (6,*) 'l_max=',l_max
+      Write (6,*) 'rm(2)=',rm(2)
+      Write (6,*) 'Radius_Max=',Radius_Max
+      Write (6,*)
 #endif
 ************************************************************************
 *                                                                      *

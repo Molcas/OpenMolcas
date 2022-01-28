@@ -31,7 +31,7 @@
 *
       ntotgp=0
 *
-*     Various idefault thresholds for the integral evaluation.
+*     Various default thresholds for the integral evaluation.
 *
       T_X      =1.0D-18
       T_Y      =1.0D-11
