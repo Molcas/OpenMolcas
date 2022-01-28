@@ -23,8 +23,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: N
-real(kind=wp) :: SS(N*(N+1)/2), SINV(N,N), P(N*(N+1)/2), G(N*(N+1)/2), A1(N)
+integer(kind=iwp), intent(in) :: N
+real(kind=wp), intent(in) :: SS(N*(N+1)/2)
+real(kind=wp), intent(out) :: SINV(N,N), P(N*(N+1)/2), G(N*(N+1)/2), A1(N)
 integer(kind=iwp) :: I, I_F, IH, IJ, IL, IQ, J, J1, JL, JQ, K, L, LG
 real(kind=wp) :: ETOT, S1KK, SUM_
 

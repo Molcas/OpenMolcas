@@ -17,8 +17,10 @@ use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: N, IC
-real(kind=wp) :: A(N,N), B(N,N), EIG(N), RNG
+integer(kind=iwp), intent(in) :: N, IC
+real(kind=wp), intent(inout) :: A(N,N)
+real(kind=wp), intent(out) :: B(N,N), EIG(N)
+real(kind=wp), intent(in) :: RNG
 integer(kind=iwp) :: I, IL, IM, IND, J, K, L, LL, M, MM
 real(kind=wp) :: COST, COST2, ENUF, ENUI, SINCS, SINT, SINT2, THR, U1, X, XY, Y
 
@@ -27,12 +29,10 @@ U1 = real(N,kind=wp)
 do I=1,N
   B(I,I) = One
   EIG(I) = A(I,I)
-  do J=1,I
-    if (I == J) GO TO 6
+  do J=1,I-1
     B(I,J) = Zero
     B(J,I) = Zero
     ENUI = ENUI+A(I,J)*A(I,J)
-6   continue
   end do
 end do
 if (ENUI <= 0) then

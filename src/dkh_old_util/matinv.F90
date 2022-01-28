@@ -16,8 +16,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: N, L, I_DIM
-real(kind=wp) :: A(I_DIM,I_DIM), B(I_DIM)
+integer(kind=iwp), intent(in) :: N, L, I_DIM
+real(kind=wp), intent(inout) :: A(I_DIM,I_DIM), B(I_DIM)
 integer(kind=iwp) :: I, IC, I_N(I_DIM,2), IP(I_DIM), IR, J, K !IFG
 real(kind=wp) :: AMAX, D
 

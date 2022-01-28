@@ -109,8 +109,12 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: N, M, iD, iEX, iCTR
-real(kind=wp) :: A(iD,N), B(iD,M), EPS, DET, S(N)
+integer(kind=iwp), intent(in) :: N, M, iD
+real(kind=wp), intent(inout) :: A(iD,N), B(iD,M)
+real(kind=wp), intent(in) :: EPS
+real(kind=wp), intent(out) :: DET, S(N)
+integer(kind=iwp), intent(out) :: iEX
+integer(kind=iwp), intent(inout) :: iCTR
 integer(kind=iwp) :: iCI, iRI
 real(kind=wp) :: C, SUM_
 
@@ -121,7 +125,7 @@ contains
 
 subroutine DCOPIV_INTERNAL(S)
 
-  real(kind=wp), target, intent(inout) :: S(*)
+  real(kind=wp), target, intent(out) :: S(*)
   integer(kind=iwp), pointer :: iS(:)
   integer(kind=iwp) :: I, J, K
 

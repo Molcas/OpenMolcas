@@ -20,10 +20,13 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: idbg
-real(kind=wp) :: bInt(*), sInt(*)
-logical(kind=iwp) :: donorm
+integer(kind=iwp), intent(in) :: idbg
+real(kind=wp), intent(in) :: bInt(*)
+real(kind=wp), intent(_OUT_) :: sInt(*)
+logical(kind=iwp), intent(in) :: donorm
 #include "Molcas.fh"
 #include "itmax.fh"
 #include "rinfo.fh"

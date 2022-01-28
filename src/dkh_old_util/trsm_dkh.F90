@@ -10,15 +10,16 @@
 !***********************************************************************
 
 subroutine TRSM_DKH(A,B,C,N,H,W)
-! TRANSFORM SYMMETRIC MATRIX A BY UNITARY TRANSFORMATION
-! IN B. RESULT IS IN C
+! TRANSFORM SYMMETRIC MATRIX A BY UNITARY TRANSFORMATION IN B.
+! RESULT IS IN C
 
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: N
-real(kind=wp) :: A(N*(N+1)/2), B(N,N), C(N*(N+1)/2), H(N,N), W(N,N)
+integer(kind=iwp), intent(in) :: N
+real(kind=wp), intent(in) :: A(N*(N+1)/2), B(N,N)
+real(kind=wp), intent(out) :: C(N*(N+1)/2), H(N,N), W(N,N)
 integer(kind=iwp) :: I, IJ, J, K, L
 
 IJ = 0

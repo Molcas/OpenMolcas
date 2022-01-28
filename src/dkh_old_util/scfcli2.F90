@@ -20,9 +20,11 @@ use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: idbg, N, ISIZE
-real(kind=wp) :: eps, S(ISIZE), H(ISIZE), V(ISIZE), PVP(ISIZE), VELIT, BU(ISIZE), P(ISIZE), G(ISIZE), EV2(ISIZE), EIG(N,N), &
-                 SINV(N,N), REVT(N,N), AUX(N,N), OVE(N,N), EW(N), E(N), AA(N), RR(N), TT(N)
+integer(kind=iwp), intent(in) :: idbg, N, ISIZE
+real(kind=wp), intent(in) :: eps, S(ISIZE), V(ISIZE), PVP(ISIZE), VELIT
+real(kind=wp), intent(inout) :: H(ISIZE)
+real(kind=wp), intent(out) :: BU(ISIZE), P(ISIZE), G(ISIZE), EIG(N,N), EV2(ISIZE), SINV(N,N), REVT(N,N), AUX(N,N), OVE(N,N), &
+                              EW(N), E(N), AA(N), RR(N), TT(N)
 integer(kind=iwp) :: I, icontr, iex, ii, IJ, j, K
 real(kind=wp) :: CON, CON2, det, dtol, PREA, RATIO, TOL, TV1, TV2, TV3, TV4
 

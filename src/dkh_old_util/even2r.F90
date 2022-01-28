@@ -30,8 +30,10 @@ use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: idbg, N
-real(kind=wp) :: V(N*(N+1)/2), G(N*(N+1)/2), E(N), A(N), R(N), TT(N), AUXF(N,N), AUXG(N,N), AUXH(N,N), W1W1(N,N)
+integer(kind=iwp), intent(in) :: idbg, N
+real(kind=wp), intent(inout) :: V(N*(N+1)/2), G(N*(N+1)/2)
+real(kind=wp), intent(in) :: E(N), A(N), R(N), TT(N)
+real(kind=wp), intent(out) :: AUXF(N,N), AUXG(N,N), AUXH(N,N), W1W1(N,N)
 integer(kind=iwp) :: I, IE, IJ, J, M
 
 !ulf

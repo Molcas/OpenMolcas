@@ -15,8 +15,9 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: nProp_Int
-logical(kind=iwp) :: Do_Index
-integer(kind=iwp) :: nIdx, Idx(4,nIdx)
+logical(kind=iwp), intent(in) :: Do_Index
+integer(kind=iwp), intent(in) :: nIdx
+integer(kind=iwp), intent(inout) :: Idx(4,nIdx)
 integer(kind=iwp) :: iCent, iComp, iEF, iMltpl, iopt, irc, iSmLbl, iSmLbl_, maxCen, nComp, n_Int(1)
 character(len=8) :: Label
 

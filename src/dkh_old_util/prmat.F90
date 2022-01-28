@@ -17,9 +17,9 @@ subroutine PRMAT(IUOUT,R,N,M,HEAD)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: IUOUT, N, M
-real(kind=wp) :: R(*)
-character(len=*) :: HEAD
+integer(kind=iwp), intent(in) :: IUOUT, N, M
+real(kind=wp), intent(in) :: R(*)
+character(len=*), intent(in) :: HEAD
 integer(kind=iwp) :: I, I1, I2, IBL, IJ, IR, J, J1, J2, K, K1, K1S, K2, KD, KK, NKPB
 
 write(IUOUT,1001) HEAD

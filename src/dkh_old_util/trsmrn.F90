@@ -18,8 +18,9 @@ subroutine TrSmrN(A,BA,BB,C,NA,NB,H,W)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NA, NB
-real(kind=wp) :: A(NA,NB), BA(NA,NA), BB(NB,NB), C(NA,NB), H(NA,NB), W(NA,NB)
+integer(kind=iwp), intent(in) :: NA, NB
+real(kind=wp), intent(in) :: A(NA,NB), BA(NA,NA), BB(NB,NB)
+real(kind=wp), intent(out) :: C(NA,NB), H(NA,NB), W(NA,NB)
 integer(kind=iwp) :: I, J, K, L
 
 call DZero(C,NA*NB)

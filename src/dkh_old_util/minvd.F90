@@ -19,8 +19,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: KA, N, ILL
-real(kind=wp) :: A(KA,N), EPS
+integer(kind=iwp), intent(in) :: KA, N
+real(kind=wp), intent(inout) :: A(KA,N)
+real(kind=wp), intent(in) :: EPS
+integer(kind=iwp), intent(out) :: ILL
 integer(kind=iwp) :: I, IM1, IM2, J, JM1, JP1, K, M, MX(1000), NM1 !IFG
 real(kind=wp) :: AA, AM, P, S, W
 

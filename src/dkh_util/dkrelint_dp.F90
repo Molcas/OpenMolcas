@@ -40,7 +40,7 @@ character(len=8) :: Label, pXpLbl
 integer(kind=iwp), allocatable :: indx(:), Loc(:), Map(:), Ind(:,:)
 real(kind=wp), allocatable :: iK(:), SS(:), V(:), pVp(:), K_Save(:), K_Done(:), U_L(:), U_S(:), X(:), pXp(:), Prop(:), Pmag(:), &
                               Y(:), P(:), G(:), Ev2(:,:), Eig(:,:), Sinv(:,:), Ew(:), E(:), Aa(:), Rr(:), Tt(:), Re1r(:,:), &
-                              Auxi(:,:), Twrk4(:), Even1(:,:), Pvpt(:), Bu(:), H(:), H_nr(:), H_temp(:)
+                              Auxi(:,:), Tmp(:), Twrk4(:), Even1(:,:), Pvpt(:), Bu(:), H(:), H_nr(:), H_temp(:)
 logical(kind=iwp), parameter :: Debug = .false.
 integer(kind=iwp), external :: nProp_Int
 #include "Molcas.fh"
@@ -599,6 +599,7 @@ else
     call mma_allocate(Tt,n,label='Tt')
     call mma_allocate(Re1r,n,n,label='Re1r')
     call mma_allocate(Auxi,n,n,label='Auxi')
+    call mma_allocate(Tmp,iSize,label='Tmp')
     call mma_allocate(Twrk4,n*200,label='Twrk4')
     if (IRELAE == 0) then
       call mma_allocate(Even1,1,1,label='Even1')
@@ -614,8 +615,8 @@ else
 
     ! call to package relsew
 
-    call SCFCLI(idbg,rEpsilon,SS(k),iK(k),V(k),pVp(k),n,iSize,VELIT,Bu,P,G,Ev2,Eig,Sinv,Ew,E,Aa,Rr,Tt,Pvpt,Even1,Re1r,Auxi,Twrk4, &
-                i_Dim)
+    call SCFCLI(idbg,rEpsilon,SS(k),iK(k),V(k),pVp(k),n,iSize,VELIT,Bu,P,G,Ev2,Eig,Sinv,Ew,E,Aa,Rr,Tt,Pvpt,Even1,Re1r,Auxi,Tmp, &
+                Twrk4,i_Dim)
 
     call mma_deallocate(P)
     call mma_deallocate(G)
@@ -629,6 +630,7 @@ else
     call mma_deallocate(Tt)
     call mma_deallocate(Re1r)
     call mma_deallocate(Auxi)
+    call mma_deallocate(Tmp)
     call mma_deallocate(Twrk4)
     call mma_deallocate(Even1)
     call mma_deallocate(Pvpt)

@@ -19,8 +19,9 @@ subroutine Cp_Prop_Int(A_Int,nAInt,B_Int,nBInt,nBas,nIrrep,Label)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAInt, nBInt, nIrrep, nBas(0:nIrrep-1), Label
-real(kind=wp) :: A_Int(nAInt+4), B_Int(nBInt+4)
+integer(kind=iwp), intent(in) :: nAInt, nBInt, nIrrep, nBas(0:nIrrep-1), Label
+real(kind=wp), intent(out) :: A_Int(nAInt)
+real(kind=wp), intent(in) :: B_Int(nBInt)
 integer(kind=iwp) :: iCmp, iExp, iIrrep, ij, iLen, jIrrep, Len_
 
 iCmp = 1

@@ -20,14 +20,11 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: N
-real(kind=wp) :: A(N*(N+1)/2), B(N,N), C(N*(N+1)/2), H(N,N), W(N,N)
+integer(kind=iwp), intent(in) :: N
+real(kind=wp), intent(in) :: A(N*(N+1)/2), B(N,N)
+real(kind=wp), intent(out) :: C(N*(N+1)/2), H(N,N), W(N,N)
 
-#ifdef MOLPRO
-call Square(W,A,n,n)
-#else
 call Square(A,W,n,1,n)
-#endif
 call DGEMM_('T','N',n,n,n,One,B,n,W,n,Zero,H,n)
 call dGemm_tri('N','N',n,n,n,One,H,n,B,n,Zero,C,n)
 

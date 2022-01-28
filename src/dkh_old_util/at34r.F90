@@ -20,10 +20,14 @@ use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: N, ISIZE, MULT(ISIZE), iprint
-real(kind=wp) :: CHARGE, SMAT(ISIZE), V(ISIZE), H(ISIZE), EV2(ISIZE), BU(ISIZE), P(ISIZE), G(ISIZE), EIG(N,N), SINV(N,N), &
-                 REVT(N,N), AUX(N,N), OVE(N,N), EW(N), E(N), AA(N), RR(N), TT(N), VEXTT(ISIZE), PVPT(ISIZE), EVN1(N,N), RE1R(N,N), &
-                 AUXI(N,N), W1W1(N,N)
+integer(kind=iwp), intent(in) :: N, iprint
+integer(kind=iwp), intent(inout) :: ISIZE
+real(kind=wp), intent(in) :: CHARGE, SMAT(ISIZE)
+real(kind=wp), intent(inout) :: V(ISIZE), EV2(ISIZE)
+real(kind=wp), intent(inout) :: H(ISIZE), BU(ISIZE), P(ISIZE), G(ISIZE), EIG(N,N), SINV(N,N), REVT(N,N), AUX(N,N), OVE(N,N), &
+                                EW(N), E(N), AA(N), RR(N), TT(N), VEXTT(ISIZE), PVPT(ISIZE), EVN1(N,N), RE1R(N,N), AUXI(N,N), &
+                                W1W1(N,N)
+integer(kind=iwp), intent(out) :: MULT(N)
 integer(kind=iwp) :: I, IJ, J, K
 real(kind=wp) :: CON, CON2, CR, PREA, RATIO, TV1, TV2, TV3, TV4, VELIT
 

@@ -15,14 +15,11 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: N, IC
-real(kind=wp) :: A(N*(N+1)/2), EIG(N,N), EW(N), SINV(N,N), AUX(N,N)
+integer(kind=iwp), intent(in) :: N, IC
+real(kind=wp), intent(in) :: A(N*(N+1)/2), SINV(N,N)
+real(kind=wp), intent(out) :: EIG(N,N), EW(N), AUX(N,N)
 integer(kind=iwp) :: I, IJ, J, K, L
 real(kind=wp) :: TOL
-#ifdef MOLPRO
-!MR ATTENTION, THE SCRATCH ARRAY TMP IS NOT PROPERLY ALLOCATED
-real(kind=wp) :: TMP(6*N)
-#endif
 
 IJ = 0
 do I=1,N
@@ -51,17 +48,7 @@ do I=1,N
 end do
 
 TOL = 1.0e-80_wp
-#ifdef MOLPRO
-do I=1,N
-  do J=1,N
-    EIG(J,I) = AUX(J,I)
-  end do
-end do
-call diag2(n,n,ew,eig)
-!call dsyev_('V','L',N,EIG,N,EW,TMP,6*N,INFO)
-#else
 call JACOB_REL(AUX,EIG,EW,N,TOL,IC)
-#endif
 
 return
 

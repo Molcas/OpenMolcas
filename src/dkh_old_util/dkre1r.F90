@@ -19,8 +19,9 @@ use Constants, only: Four
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: N
-real(kind=wp) :: A(N), R(N), E(N), TT(N), V(N*(N+1)/2), G(N*(N+1)/2), RE1R(N,N), VEXTT(N*(N+1)/2), PVPT(N*(N+1)/2)
+integer(kind=iwp), intent(in) :: N
+real(kind=wp), intent(in) :: A(N), R(N), E(N), TT(N), VEXTT(N*(N+1)/2), PVPT(N*(N+1)/2)
+real(kind=wp), intent(out) :: V(N*(N+1)/2), G(N*(N+1)/2), RE1R(N,N)
 integer(kind=iwp) :: I, IJ, J
 
 IJ = 0

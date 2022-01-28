@@ -12,7 +12,7 @@
 !***********************************************************************
 
 subroutine VPBMBPV(idbg,eps,EIGA,EIGB,REVTA,SINVA,SINVB,NA,NB,ISIZEA,ISIZEB,VELIT,AAA,AAB,RRA,RRB,PVA,VPA,ISYMA,ISYMB,BU2,G2,AUX2, &
-         CMM1,BU4,CMM2,PVAA,VPAA,SCPV,SCVP)
+                   CMM1,BU4,CMM2,PVAA,VPAA,SCPV,SCVP)
 ! $Id: vpbmbpv.r,v 1.4 1995/05/08 14:08:53 hess Exp $
 ! calculate relativistic operators
 !   Bernd Artur Hess, hess@uni-bonn.de
@@ -21,10 +21,11 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: idbg, NA, NB, ISIZEA, ISIZEB, ISYMA, ISYMB
-real(kind=wp) :: eps, EIGA(NA,NA), EIGB(NB,NB), REVTA(NA,NA), SINVA(NA,NA), SINVB(NB,NB), VELIT, AAA(NA), AAB(NB), RRA(NA), &
-                 RRB(NB), PVA(NA,NB), VPA(NA,NB), BU2(NA,NB), G2(NA,NB), AUX2(NA,NB), CMM1(NA,NB), BU4(NA,NB), CMM2(NA,NB), &
-                 PVAA(ISIZEA), VPAA(ISIZEA), SCPV(NB,NA), SCVP(NB,NA)
+integer(kind=iwp), intent(in) :: idbg, NA, NB, ISIZEA, ISIZEB, ISYMA, ISYMB
+real(kind=wp), intent(in) :: eps, EIGA(NA,NA), EIGB(NB,NB), REVTA(NA,NA), SINVA(NA,NA), SINVB(NB,NB), VELIT, AAA(NA), AAB(NB), &
+                             RRA(NA), RRB(NB), PVAA(ISIZEA), VPAA(ISIZEA), SCPV(NB,NA), SCVP(NB,NA)
+real(kind=wp), intent(inout) :: PVA(NA,NB), VPA(NA,NB), CMM2(NA,NB)
+real(kind=wp), intent(out) :: BU2(NA,NB), G2(NA,NB), AUX2(NA,NB), CMM1(NA,NB), BU4(NA,NB)
 integer(kind=iwp) :: I, IJ, J, K
 
 if (iSyma == iSymb) then
@@ -38,24 +39,14 @@ if (iSyma == iSymb) then
       VPA(J,I) = -PVAA(IJ)
     end do
   end do
-end if
-
-if (iSyma < iSymb) then
+else if (iSyma < iSymb) then
   do I=1,NA
     do J=1,NB
-      CMM1(I,J) = SCPV(J,I)
-      CMM2(I,J) = SCVP(J,I)
+      PVA(I,J) = SCPV(J,I)
+      VPA(I,J) = SCVP(J,I)
     end do
   end do
-  do I=1,NA
-    do J=1,NB
-      PVA(I,J) = CMM1(I,J)
-      VPA(I,J) = CMM2(I,J)
-    end do
-  end do
-  call DCOPY_(NA*NB,[Zero],0,CMM1,1)
   call DCOPY_(NA*NB,[Zero],0,CMM2,1)
-
 end if
 
 ! TRANSFORM pV TO T-BASIS
@@ -98,7 +89,7 @@ end do
 
 call AddMar(NA*NB,G2,CMM1)
 
-! MultiplY BY A MATRIX
+! Multiply BY A MATRIX
 
 do I=1,NA
   do J=1,NB
@@ -106,7 +97,7 @@ do I=1,NA
   end do
 end do
 
-! MultiplY BY REVTA  MATRIX
+! Multiply BY REVTA  MATRIX
 
 do I=1,NA
   do J=1,NB

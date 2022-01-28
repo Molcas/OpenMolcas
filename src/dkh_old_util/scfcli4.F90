@@ -20,9 +20,10 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: idbg, NA, NB, ISIZEA, ISIZEB, ISYMA, ISYMB
-real(kind=wp) :: eps, S(ISIZEA), H(ISIZEA), REVTA(NA,NA), SINVA(NA,NA), VELIT, AAA(NA), AAB(NB), CMM1(NB,NA), CMM2(NA,NB), &
-                 EV4(ISIZEA), BU2(NA,NB), BU6(NA,NA), EIG4(NA,NA), EW4(NA), P(ISIZEA)
+integer(kind=iwp), intent(in) :: idbg, NA, NB, ISIZEA, ISIZEB, ISYMA, ISYMB
+real(kind=wp), intent(in) :: eps, S(ISIZEA), REVTA(NA,NA), VELIT, AAA(NA), AAB(NB), CMM2(NA,NB), BU2(NA,NB)
+real(kind=wp), intent(inout) :: H(ISIZEA)
+real(kind=wp), intent(out) :: SINVA(NA,NA), CMM1(NB,NA), EV4(ISIZEA), BU6(NA,NA), EIG4(NA,NA), EW4(NA), P(ISIZEA)
 integer(kind=iwp) :: I, IJ, J, L
 
 do I=1,NB

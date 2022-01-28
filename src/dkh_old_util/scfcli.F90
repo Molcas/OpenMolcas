@@ -12,7 +12,7 @@
 !               2005, Jesper Wisborg Krogh                             *
 !***********************************************************************
 
-subroutine SCFCLI(idbg,eps,S,H,V,PVP,N,ISIZE,VELIT,TMP1,TMP2,TMP3,TMPA,TMPB,TMPC,EW,E,AA,RR,TT,TMP4,TMPD,TMPE,TMPF,TWRK4,I_DIM)
+subroutine SCFCLI(idbg,eps,S,H,V,PVP,N,ISIZE,VELIT,TMP1,TMP2,TMP3,TMPA,TMPB,TMPC,EW,E,AA,RR,TT,TMP4,TMPD,TMPE,TMPF,TMP5,TWRK4,I_DIM)
 ! $Id: relsew.r,v 1.4 1995/05/08 14:08:53 hess Exp $
 ! calculate relativistic operators
 !   Bernd Artur Hess, hess@uni-bonn.de
@@ -23,10 +23,12 @@ use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: idbg, N, ISIZE, I_DIM
-real(kind=wp) :: eps, S(ISIZE), H(ISIZE), V(ISIZE), PVP(ISIZE), VELIT, TMP1(I_DIM*(I_DIM+1)/2), TMP2(ISIZE), TMP3(ISIZE), &
-                 TMPA(N,N), TMPB(N,N), TMPC(N,N), EW(N), E(N), AA(N), RR(N), TT(N), TMP4(I_DIM*(I_DIM+1)/2), TMPD(I_DIM,I_DIM), &
-                 TMPE(N,N), TMPF(N,N), TWRK4(N*200)
+integer(kind=iwp), intent(in) :: idbg, N, ISIZE, I_DIM
+real(kind=wp), intent(out) :: eps, TMP1(I_DIM*(I_DIM+1)/2), TMP2(ISIZE), TMP3(ISIZE), TMPA(N,N), TMPB(N,N), TMPC(N,N), EW(N), &
+                              E(N), AA(N), RR(N), TT(N), TMP4(I_DIM*(I_DIM+1)/2), TMPD(I_DIM,I_DIM), TMPE(N,N), TMPF(N,N), &
+                              TMP5(ISIZE)
+real(kind=wp), intent(in) :: S(ISIZE), V(ISIZE), VELIT, TWRK4(N*200)
+real(kind=wp), intent(inout) :: H(ISIZE), PVP(ISIZE)
 integer(kind=iwp) :: I, IJ, ILL, J, K, M
 real(kind=wp) :: CON, CON2, PREA, RATIO, SR, TV1, TV2, TV3, TV4
 
@@ -100,11 +102,7 @@ end do
 ! CALCULATE REVERSE TRANSFORMATION
 !-----------------------------------------------------------------------
 call DGEMM_('N','N',n,n,n,One,TMPE,n,TMPF,n,Zero,TMPB,n)
-#ifdef MOLPRO
-call Square(TMPC,S,N,N)
-#else
 call Square(S,TMPC,N,1,N)
-#endif
 call DGEMM_('N','N',n,n,n,One,TMPC,n,TMPB,n,Zero,TMPA,n)
 ! ** TMPC  CONTAINS OVERLAP MATRIX IN FULL
 
@@ -166,11 +164,7 @@ if ((IRELAE == 0) .or. (IRELAE == 1) .or. (IRELAE == 2) .or. (IRELAE == 3)) then
     end do
   end do
   if (IRELAE == 3) then
-#   ifdef MOLPRO
-    call Square(TMPD,TMP3,N,N)
-#   else
     call Square(TMP3,TMPD,N,1,N)
-#   endif
   end if
 
 else if (IRELAE == 11) then
@@ -202,7 +196,8 @@ call TrSmtr(TMP3,TMPA,H,One,N,TMPB,TMPC)
 ! PVP INTEGRALS AND TRANSFORM THEM TO T-BASIS
 
 if (idbg > 0) call PRMAT(IDBG,pvp,N,0,'raw pvp integrals  ')
-call TrSmr2(PVP,TMPE,PVP,N,TMPB,TMPF,TMPC)
+TMP5(:) = PVP(:)
+call TrSmr2(TMP5,TMPE,PVP,N,TMPB,TMPF,TMPC)
 
 ! MULTIPLY
 
@@ -242,11 +237,7 @@ else if ((IRELAE == 21) .or. (IRELAE == 22) .or. (IRELAE == 23)) then
       if (I == J) PVP(IJ) = PVP(IJ)+TT(I)*Two
     end do
   end do
-# ifdef MOLPRO
-  call Square(TMPD,PVP,N,N)
-# else
   call Square(PVP,TMPD,N,1,N)
-# endif
 
   ! inverse operator
 
@@ -269,11 +260,7 @@ call TrSmtr(PVP,TMPA,H,One,N,TMPB,TMPC)
 
 if (IRELAE == 23) then
   IJ = 0
-# ifdef MOLPRO
-  call Square(TMPE,PVP,N,N)
-# else
   call Square(PVP,TMPE,N,1,N)
-# endif
   do I=1,N
     do J=1,I
       IJ = IJ+1
@@ -331,14 +318,15 @@ if (IRELAE == 3) goto 1000   ! DK3
 if (idbg > 0) call PRMAT(IDBG,h,n,0,'h   oper')
 call Sogr(idbg,N,S,TMPE,TMP2,TMPC,EW)
 call Diagr(H,N,TMPF,EW,TMPE,TMPB,TMP2)
-if (idbg > 0) call PRMAT(IDBG,h,n,0,'h   oper(final)')
-if (idbg > 0) write(idbg,*) '--- EIGENVALUES OF H MATRIX ---'
-if (idbg > 0) write(idbg,'(4D20.12)') EW
+if (idbg > 0) then
+  call PRMAT(IDBG,h,n,0,'h   oper(final)')
+  write(idbg,*) '--- EIGENVALUES OF H MATRIX ---'
+  write(idbg,'(4D20.12)') EW
+end if
 
 return
 ! Avoid unused argument warnings
 if (.false.) then
-  call Unused_real(eps)
   call Unused_real_array(TWRK4)
 end if
 

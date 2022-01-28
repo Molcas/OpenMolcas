@@ -25,9 +25,13 @@ subroutine Sogr(idbg,N,SS,SINV,P,G,A1)
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: idbg, N
-real(kind=wp) :: SS(*), SINV(N,N), P(*), G(*), A1(*)
+integer(kind=iwp), intent(in) :: idbg, N
+real(kind=wp), intent(in) :: SS(*)
+real(kind=wp), intent(out) :: SINV(N,N)
+real(kind=wp), intent(_OUT_) :: P(*), G(*), A1(*)
 integer(kind=iwp) :: I, ierr, IH, IJ, IL, IQ, J, J1, JF, JL, JQ, K, L, LG
 real(kind=wp) :: ETOT, S1KK, SUM_
 

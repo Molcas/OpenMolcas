@@ -16,8 +16,8 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: EXTC
-integer(kind=iwp) :: LAMBDA, L1, M1, N1, L2, M2, N2
-real(kind=wp) :: AL, BE
+integer(kind=iwp), intent(in) :: LAMBDA, L1, M1, N1, L2, M2, N2
+real(kind=wp), intent(in) :: AL, BE
 #include "crelop.fh"
 integer(kind=iwp) :: II, IS1(3), IS2(3), JJ, KK
 real(kind=wp) :: ANG, EX, OV1, OV2, SUM_

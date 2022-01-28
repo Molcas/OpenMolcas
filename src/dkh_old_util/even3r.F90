@@ -21,9 +21,10 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: idbg, N
-real(kind=wp) :: V(N*(N+1)/2), G(N*(N+1)/2), E(N), A(N), R(N), TT(N), AUXF(N,N), AUXH(N,N), VEXTT(N*(N+1)/2), PVPT(N*(N+1)/2), &
-                 RE1R(N,N), W1W1(N,N)
+integer(kind=iwp), intent(in) :: idbg, N
+real(kind=wp), intent(out) :: V(N*(N+1)/2), G(N*(N+1)/2), AUXF(N,N), RE1R(N,N)
+real(kind=wp), intent(in) :: E(N), A(N), R(N), TT(N), VEXTT(N*(N+1)/2), PVPT(N*(N+1)/2)
+real(kind=wp), intent(inout) :: AUXH(N,N), W1W1(N,N)
 integer(kind=iwp) :: I, IE, IJ, J, M
 
 ! CONSTRUCT RE1R

@@ -25,8 +25,8 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: SIMPLM
-integer(kind=iwp) :: NMP
-real(kind=wp) :: F(NMP), X(NMP)
+integer(kind=iwp), intent(in) :: NMP
+real(kind=wp), intent(in) :: F(NMP), X(NMP)
 integer(kind=iwp) :: I, IP1, IP2, J, N, NM2
 real(kind=wp) :: DELTA, DLM, SUM_
 

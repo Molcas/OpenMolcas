@@ -14,9 +14,9 @@ subroutine prsq(idbg,label,a,n)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: idbg, n
-character(len=8) :: label
-real(kind=wp) :: a(n,n)
+integer(kind=iwp), intent(in) :: idbg, n
+character(len=8), intent(in) :: label
+real(kind=wp), intent(in) :: a(n,n)
 integer(kind=iwp) :: i, j
 
 write(idbg,1001) label

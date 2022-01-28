@@ -17,17 +17,17 @@ subroutine Diagr(A,N,EIG,EW,SINV,AUX,AUXI)
 use Constants, only: One, Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: N
-real(kind=wp) :: A(*), EIG(N,N), EW(*), SINV(N,N), AUX(N,N), AUXI(*)
+integer(kind=iwp), intent(in) :: N
+real(kind=wp), intent(in) :: A(*), SINV(N,N)
+real(kind=wp), intent(out) :: EIG(N,N), AUX(N,N)
+real(kind=wp), intent(_OUT_) :: EW(*), AUXI(*)
 #include "WrkSpc.fh"
 
 if (n == 0) return
-#ifdef MOLPRO
-call Square(Aux,A,n,n)
-#else
 call Square(A,Aux,n,1,n)
-#endif
 call DGEMM_('N','N',n,n,n,One,Aux,n,Sinv,n,Zero,Eig,n)
 call dGemm_tri('T','N',n,n,n,One,SINV,n,EIG,n,Zero,AUXI,n)
 
