@@ -163,6 +163,10 @@ Coeffs(:)=1.0D0              ! Default
             Call xc_f03_func_init(func_,func_id(i),0_LibxcInt)
             info_ = xc_f03_func_get_info(func_)
             If (xc_f03_func_info_get_kind(info_) == XC_EXCHANGE) Then
+               If (nFuncs == nFuncs_max) Then
+                  Write (6,*) ' Too many functionals for LDTF'
+                  Call Abend()
+               End If
                func_id(nFuncs+1) = XC_LDA_K_TF
                Coeffs(nFuncs+1) = Coeffs(i)
                nFuncs = nFuncs+1

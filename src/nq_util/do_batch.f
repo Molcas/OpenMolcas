@@ -83,8 +83,7 @@
       l_tanhr=.false.
 
       CALL PDFTMemAlloc(mGrid,nOrbt)
-      If ( Functional_Type.eq.CASDFT_Type .or.
-     &     l_casdft ) Then
+      If ( l_casdft ) Then
          mRho = nP2_ontop
          Call mma_allocate(RhoI,mRho,mGrid,Label='RhoI')
          Call mma_allocate(RhoA,mRho,mGrid,Label='RhoA')

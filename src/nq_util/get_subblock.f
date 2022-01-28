@@ -317,7 +317,7 @@
       Ind_Grd(:,:)=0
       iBfn_Index(:,:)=0
 *
-      If ((Functional_Type.eq.CASDFT_Type).or.Do_MO) Then
+      If (Do_MO) Then
          nMOs=SIZE(DoIt)
          nTabMO=mAO*nMOs*mGrid
          nTabSO=mAO*nMOs*mGrid
