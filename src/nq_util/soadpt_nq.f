@@ -14,14 +14,10 @@
       use SOAO_Info, only: iAOtSO
       use Basis_Info, only: MolWgh
       Implicit Real*8 (a-h,o-z)
-#include "print.fh"
 #include "real.fh"
       Real*8 AOValue(mAO,nCoor,mBas_Eff,nCmp),
-     &       SOValue(mAO,nCoor,mBas,nCmp*nDeg), Aux(8)
+     &       SOValue(mAO,nCoor,mBas,nCmp*nDeg)
       Character*80 Label
-*
-      iRout=133
-      iPrint=nPrint(iRout)
 *
       If (MolWgh.eq.0) Then
          Fact=One/DBLE(nDeg)
@@ -30,30 +26,27 @@
       Else
          Fact=One/Sqrt(DBLE(nDeg))
       End If
+
       iSO=1
       iAdd=mBas-mBas_Eff
       Do i1 = 1, nCmp
-         iaux=0
          Do j1 = 0, nIrrep-1
             If (iAOtSO(iAO+i1,j1)>0) Then
-               iaux=iaux+1
                xa= DBLE(iChTbl(j1,nOp))
-               Aux(iAux)=Fact*xa
+               Call DaXpY_(mAO*nCoor*mBas_Eff,Fact*xa,
+     &                   _AOValue(:,:,:,i1),1,
+     &                   _SOValue(1,1,1+iAdd,iSO),1)
+               iSO = iSO + 1
             End If
          End Do
-         If (iPrint.ge.49) Call RecPrt('Aux',' ',Aux,1,iAux)
-         Call DnaXpY(iAux,mAO*nCoor*mBas_Eff,Aux,1,
-     &               AOValue(1,1,1,i1),1,0,
-     &               SOValue(1,1,1+iAdd,iSO),1,mAO*nCoor*mBas)
-         iSO=iSO+iAux
       End Do
 *
-      If (iPrint.ge.49) Then
-         Do iCmp = 1, nCmp*nDeg
-            Write (Label,'(A,I2,A)') 'SOValue(mAO,nCoor,mBas,',iCmp,')'
-            Call RecPrt(Label,' ',SOValue(1,1,1,iCmp),mAO*nCoor,mBas)
-         End Do
-      End If
+#ifdef _DEBUGPRINT_
+      Do iCmp = 1, nCmp*nDeg
+         Write (Label,'(A,I2,A)') 'SOValue(mAO,nCoor,mBas,',iCmp,')'
+         Call RecPrt(Label,' ',SOValue(1,1,1,iCmp),mAO*nCoor,mBas)
+      End Do
+#endif
 *
       Return
       End
