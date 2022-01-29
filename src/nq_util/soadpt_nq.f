@@ -34,8 +34,8 @@
             If (iAOtSO(iAO+i1,j1)>0) Then
                xa= DBLE(iChTbl(j1,nOp))
                Call DaXpY_(mAO*nCoor*mBas_Eff,Fact*xa,
-     &                   _AOValue(:,:,:,i1),1,
-     &                   _SOValue(1,1,1+iAdd,iSO),1)
+     &                   AOValue(:,:,:,i1),1,
+     &                   SOValue(1,1,1+iAdd,iSO),1)
                iSO = iSO + 1
             End If
          End Do
