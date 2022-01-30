@@ -73,11 +73,10 @@
 
       Interface
         Subroutine SODist(SOValue,mAO,nCoor,mBas,nCmp,nDeg,MOValue,
-     &                    nMOs,iAO,CMOs,nCMO,Do_SOs)
+     &                    nMOs,iAO)
         Integer mAO,nCoor,mBas,nCmp,nDeg,iAO,nCMO
         Real*8 SOValue(mAO*nCoor,mBas,nCmp*nDeg),
-     &         MOValue(mAO*nCoor,nMOs),CMOs(nCMO)
-        Logical, Optional:: Do_SOs
+     &         MOValue(mAO*nCoor,nMOs)
       End Subroutine SODist
       End Interface
 
@@ -339,7 +338,6 @@
          TabMO(:,:,:)=Zero
          TabSO(:,:,:)=Zero
 *
-         Call mma_Allocate(TmpCMO,nCMO,Label='TmpCMO')
          Do ilist_s=1,nlist_s
             ish=list_s(1,ilist_s)
             iCmp  = iSD( 2,iSh)
@@ -367,10 +365,9 @@
      &                     iBas,iBas_Eff,iCmp,iSym,SOs,nDeg,iAO)
 *
             Call  SODist(SOs,mAO,mGrid,iBas,iCmp,nDeg,TabSO,
-     &                   nMOs,iAO,TmpCMO,nCMO,Do_SOs=.True.)
+     &                   nMOs,iAO)
 *
          End Do
-         Call mma_deAllocate(TmpCMO)
 
          Call mk_MOs(TabSO,mAO,mGrid,TabMO,nMOs,CMO,nCMO)
       End If

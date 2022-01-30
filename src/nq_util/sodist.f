@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine SODist(SOValue,mAO,nCoor,mBas,nCmp,nDeg,MOValue,
-     &                  nMOs,iAO,CMOs,nCMO,Do_SOs)
+     &                  nMOs,iAO)
 
       use SOAO_Info, only: iAOtSO
       use Basis_Info, only: nBas
@@ -17,13 +17,12 @@
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
       Real*8 SOValue(mAO*nCoor,mBas,nCmp*nDeg),
-     &       MOValue(mAO*nCoor,nMOs),CMOs(nCMO)
+     &       MOValue(mAO*nCoor,nMOs)
       Integer   iOff_MO(0:7), iOff_CMO(0:7)
 *#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Character*80 Label
 #endif
-      Logical, Optional:: Do_SOs
 *
 #ifdef _DEBUGPRINT_
       Write (6,*) 'SODist: MO-Coefficients'
@@ -60,16 +59,8 @@
 !
             iMO =iOff_MO(iIrrep)
             iCMO=iOff_CMO(iIrrep)+iSO
-            If (Present(Do_SOs)) Then
-               Call DaXpY_(mAO*nCoor*mBas,One,SOValue(:,:,iOff:),1,
-     &                     MOValue(:,iMO+iSO-1:),1)
-            Else
-               Call DGeMM_('N','N',
-     &                    mAO*nCoor,nBas(iIrrep),mBas,
-     &                    One,SOValue(1,1,iOff),mAO*nCoor,
-     &                        CMOs(iCMO),nBas(iIrrep),
-     &                    One,MOValue(1,iMO),mAO*nCoor)
-            End If
+            Call DaXpY_(mAO*nCoor*mBas,One,SOValue(:,:,iOff:),1,
+     &                  MOValue(:,iMO+iSO-1:),1)
           End Do
       End Do
 *
