@@ -369,8 +369,8 @@
             Call SOAdpt_NQ(TabAO_Pack(ipTabAO(iList_s,1):),mAO,mGrid,
      &                     iBas,iBas_Eff,iCmp,iSym,SOs,nDeg,iAO)
 *
-            Call  SODist2(SOs,mAO,mGrid,iBas,iCmp,nDeg,TabSO,
-     &                    nMOs,iAO,TmpCMO,nCMO,TDoIt)
+            Call  SODist(SOs,mAO,mGrid,iBas,iCmp,nDeg,TabSO,
+     &                   nMOs,iAO,TmpCMO,nCMO,TDoIt,Do_SOs=.True.)
 *
             Call  SODist(SOs,mAO,mGrid,iBas,iCmp,nDeg,TabMO,
      &                   nMOs,iAO,CMO,nCMO,DoIt)

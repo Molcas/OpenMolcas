@@ -70,6 +70,18 @@
       Real*8, Allocatable:: TmpCMO(:)
       Integer, Allocatable:: TDoIt(:)
 
+      Interface
+        Subroutine SODist(SOValue,mAO,nCoor,mBas,nCmp,nDeg,MOValue,
+     &                    nMOs,iAO,CMOs,nCMO,DoIt,Do_SOs)
+        Integer mAO,nCoor,mBas,nCmp,nDeg,iAO,nCMO
+        Real*8 SOValue(mAO*nCoor,mBas,nCmp*nDeg),
+     &         MOValue(mAO*nCoor,nMOs),CMOs(nCMO)
+        Integer DoIt(nMOs)
+        Logical, Optional:: Do_SOs
+      End Subroutine SODist
+      End Interface
+
+
 ************************************************************************
 *                                                                      *
       iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
@@ -137,8 +149,8 @@
 
             Call FZero(TabSO,mAO*mGrid*nMOs)
 
-            Call  SODist2(SOs,mAO,mGrid,iBas,iCmp,nDeg,TabSO,
-     &                    nMOs,iAO,TmpCMO,nCMO,TDoIt)
+            Call  SODist(SOs,mAO,mGrid,iBas,iCmp,nDeg,TabSO,
+     &                   nMOs,iAO,TmpCMO,nCMO,TDoIt,Do_SOs=.True.)
 
             CALL ConvertTabSO(TabSO2,TabSO,mAO,mGrid,nMOs)
 
