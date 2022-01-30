@@ -20,7 +20,7 @@
       use k2_arrays, only: DeDe, ipDijS
       use nq_grid, only: Rho, TabAO, Dens_AO, Grid_AO, TabAO_Short
       use nq_grid, only: GradRho, Sigma, Tau, Lapl, kAO
-      use nq_Grid, only: dRho_dR
+      use nq_Grid, only: dRho_dR, iBfn_Index
       use nq_Grid, only: List_G
 #ifdef _DEBUGPRINT_
       use nq_grid, only: nRho
@@ -80,90 +80,69 @@
          Ind_Grd(:,:)=0
       End If
 
-      iOff = 0
-      Do ilist_s=1,nlist_s
+      nBfn=SIZE(iBfn_Index,2)
+      Factor = DBLE(2/nD)
+      Do iBfn = 1, nBfn
+         ilist_s=iBfn_Index(2,iBfn)
+         i1     =iBfn_Index(3,iBfn)
+         i2     =iBfn_Index(4,iBfn)
          iSkal = list_s(1,ilist_s)
+         kDCRE = list_s(2,ilist_s)
          iCmp  = iSD( 2,iSkal)
          iBas  = iSD( 3,iSkal)
-         iBas_Eff=list_bas(1,ilist_s)
-         kDCRE=list_s(2,ilist_s)
-         iShell= iSD(11,iSkal)
          mdci  = iSD(10,iSkal)
-         index_i=list_bas(2,ilist_s)
+         iShell= iSD(11,iSkal)
+         iBas_Eff=list_bas(1,ilist_s)
+         index_i =list_bas(2,ilist_s)
          nFunc_i=iBas*iCmp
-         n_iBas=iBas_Eff*iCmp
 
-         If (Do_Grad) Then
-            Ind_Grd(1,iOff+1:iOff+n_iBas) = List_g(1,ilist_s)
-            Ind_Grd(2,iOff+1:iOff+n_iBas) = List_g(2,ilist_s)
-            Ind_Grd(3,iOff+1:iOff+n_iBas) = List_g(3,ilist_s)
-         End If
+         i_R=(i1-1)*iBas_Eff+i2
+         iCB = Index(index_i-1+i_R)
 
-*
-         jOff = 0
-         Do jlist_s=1,ilist_s
+         If (Do_Grad) Ind_Grd(:,iBfn)=List_g(:,ilist_s)
+
+         Do jBfn = 1, iBfn
+            jlist_s=iBfn_Index(2,jBfn)
+            j1     =iBfn_Index(3,jBfn)
+            j2     =iBfn_Index(4,jBfn)
             jSkal = list_s(1,jlist_s)
+            kDCRR = list_s(2,jlist_s)
             jCmp  = iSD( 2,jSkal)
             jBas  = iSD( 3,jSkal)
-            jBas_Eff=list_bas(1,jlist_s)
-            index_j =list_bas(2,jlist_s)
-            kDCRR=list_s(2,jlist_s)
             mdcj  = iSD(10,jSkal)
             jShell= iSD(11,jSkal)
+            jBas_Eff=list_bas(1,jlist_s)
+            index_j =list_bas(2,jlist_s)
             nFunc_j=jBas*jCmp
-            n_jBas=jBas_Eff*jCmp
-*
-            mDij=nFunc_i*nFunc_j
-*
-*---------- Get the Density
-*
+
+            j_R=(j1-1)*jBas_Eff+j2
+            jCB = Index(index_j-1+j_R)
+
             ijS=iTri(iShell,jShell)
             ip_Tmp=ipDijs
             Call Dens_Info(ijS,ipDij,ipDSij,mDCRij,ipDDij,ip_Tmp,nD)
-*
             ij = (mdcj-1)*mdc + mdci
-*
+
             iER=iEOr(kDCRE,kDCRR)
             lDCRER=NrOpr(iER)
-*
+
+            mDij=nFunc_i*nFunc_j
             ip_D_a=ipDij+lDCRER*mDij
             ip_D_b=ip_D_a
             If (nD.ne.1) ip_D_b=ipDSij+lDCRER*mDij
             ipD(1)=ip_D_a
             ipD(2)=ip_D_b
-*                                                                      *
-************************************************************************
-*                                                                      *
-*           Note that in the closer-shell case the density matrix is
-*           the total density, while in the open-shell case the density
-*           matrix is subdivided into the alpha and beta electron
-*           density
-*
-            Factor = DBLE(2/nD)
+
+            ij_D = (jCB-1)*nFunc_i + iCB - 1
             Do iD = 1, nD
-               Do j_R = 1, n_jBas
-                  jCB = Index(index_j-1+j_R)    ! Real index
-                  j_A = j_R + jOff            ! Absolute index
-*
-                  Do i_R = 1, n_iBas
-                     iCB = Index(index_i-1+i_R)
-                     i_A = i_R + iOff
-*
-                     ij_D = (jCB-1)*nFunc_i + iCB - 1
-                     DAij =DeDe(ipD(iD)+ij_D)*Fact(ij)*Factor
-                     Dens_AO(i_A,j_A,iD) = DAij
-                     Dens_AO(j_A,i_A,iD) = DAij
-*
-                  End Do          ! iCB
-               End Do             ! jCB
+               DAij =DeDe(ipD(iD)+ij_D)*Fact(ij)*Factor
+               Dens_AO(iBfn,jBfn,iD) = DAij
+               Dens_AO(jBfn,iBfn,iD) = DAij
             End Do
-*                                                                      *
-************************************************************************
-*                                                                      *
-            jOff = jOff + jBas_Eff*jCmp
-         End Do                      ! jlist_s
-         iOff = iOff + iBas_Eff*iCmp
-      End Do                         ! ilist_s
+
+         End Do
+
+      End Do
 *                                                                      *
 ************************************************************************
 *                                                                      *
