@@ -458,17 +458,19 @@ C       CALL RecPrt(' ','(10(F9.5,1X))',P2MOCube(IOff1),1,NASHT)
 
       INTEGER iCoord
 
-      nAOGrid=mAO*mGrid
+      nAOGrid=mAO*mGrid   ! TabSO : mAO*mGrid x nMOs
+                          ! TabSO2:
 
-      DO iGrid=1,mGrid
-       IGridOff=(iGrid-1)*mAO*nMOs
-       Do iCoord=1,3
-        ICoordOff=IGridOff+(iCoord-1)*nMOs+1
-        CALL DCopy_(nMOs,TabSO((iCoord+1),iGrid,1),nAOGrid,
-     &                   TabSO2(iCoordOff),1)
-       End Do
-      END DO
+!     Pull out the derivatives and transpose
 
+      Do iGrid=1,mGrid
+         IGridOff=(iGrid-1)*mAO*nMOs
+         Do iCoord=1,3
+            ICoordOff=IGridOff+(iCoord-1)*nMOs+1
+            CALL DCopy_(nMOs,TabSO(iCoord+1,iGrid,1),nAOGrid,
+     &                       TabSO2(iCoordOff),1)
+         End Do
+      End Do
 
       IF(lft.and.lGGA) THEN
        DO iGrid=1,mGrid
@@ -481,4 +483,4 @@ C       CALL RecPrt(' ','(10(F9.5,1X))',P2MOCube(IOff1),1,NASHT)
        END DO
       END IF
       RETURN
-      End Subroutine
+      End Subroutine ConvertTabSO

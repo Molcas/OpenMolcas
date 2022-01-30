@@ -371,9 +371,11 @@
 *
             Call  SODist(SOs,mAO,mGrid,iBas,iCmp,nDeg,TabMO,
      &                   nMOs,iAO,CMO,nCMO)
-*
+
          End Do
          Call mma_deAllocate(TmpCMO)
+
+         Call mk_MOs(TabSO,mAO,mGrid,TabMO,nMOs,CMO,nCMO)
       End If
 *                                                                      *
 ************************************************************************

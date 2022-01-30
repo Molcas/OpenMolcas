@@ -8,22 +8,19 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine SODist(SOValue,mAO,nCoor,mBas,nCmp,nDeg,MOValue,
-     &                  nMOs,iAO,CMOs,nCMO,Do_SOs)
+      Subroutine mk_MOs(SOValue,mAO,nCoor,MOValue,nMOs,CMOs,nCMO)
 
       use SOAO_Info, only: iAOtSO
       use Basis_Info, only: nBas
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-      Real*8 SOValue(mAO*nCoor,mBas,nCmp*nDeg),
-     &       MOValue(mAO*nCoor,nMOs),CMOs(nCMO)
-      Integer   iOff_MO(0:7), iOff_CMO(0:7)
+      Real*8 SOValue(mAO*nCoor,nMOs),
+     &       MOValue(mAO*nCoor,nMOs), CMOs(nCMO)
 *#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Character*80 Label
 #endif
-      Logical, Optional:: Do_SOs
 *
 #ifdef _DEBUGPRINT_
       Write (6,*) 'SODist: MO-Coefficients'
@@ -36,42 +33,24 @@
          iOff=iOff+nBas(iIrrep)**2
       End Do
 #endif
+#define _JUSTPRINT_
+#ifdef _JUSTPRINT_
+
 *
 *---- Compute some offsets
 *
-      itmp1=1
-      itmp2=0
+      iSO=1
+      iCMO=1
       Do iIrrep = 0, nIrrep-1
-         iOff_MO(iIrrep)=itmp1
-         iOff_CMO(iIrrep)=itmp2
-         itmp1=itmp1+nBas(iIrrep)
-         itmp2=itmp2+nBas(iIrrep)*nBas(iIrrep)
+         Call DGeMM_('N','N',
+     &               mAO*nCoor,nBas(iIrrep),nBas(iIrrep),
+     &               One,SOValue(:,iSO:),mAO*nCoor,
+     &                   CMOs(iCMO:),nBas(iIrrep),
+     &               Zero,MOValue(:,iSO:),mAO*nCoor)
+         iSO =iSO +nBas(iIrrep)
+         iCMO=iCMO+nBas(iIrrep)*nBas(iIrrep)
       End Do
-*
-      Do i1 = 1, nCmp
-         iDeg=0
-         Do iIrrep = 0, nIrrep-1
-            iSO=iAOtSO(iAO+i1,iIrrep)
-            If (iSO<0) Cycle
-            iDeg=iDeg+1
-            iOff=(i1-1)*nDeg+iDeg
-!
-!---------- Distribute contribution to all MO's in this irrep
-!
-            iMO =iOff_MO(iIrrep)
-            iCMO=iOff_CMO(iIrrep)+iSO
-            If (Present(Do_SOs)) Then
-               Call DaXpY_(mAO*nCoor*mBas,One,SOValue(:,:,iOff:),1,
-     &                     MOValue(:,iMO+iSO-1:),1)
-            Else
-               Call DGeMM_('N','N',
-     &                    mAO*nCoor,nBas(iIrrep),mBas,
-     &                    One,SOValue(1,1,iOff),mAO*nCoor,
-     &                        CMOs(iCMO),nBas(iIrrep),
-     &                    One,MOValue(1,iMO),mAO*nCoor)
-            End If
-          End Do
-      End Do
+#endif
 *
 #ifdef _DEBUGPRINT_
       Write (Label,'(A)')'SODist: MOValue(mAO*nCoor,nMOs)'
