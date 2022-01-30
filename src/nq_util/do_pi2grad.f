@@ -68,16 +68,6 @@
       Real*8 TabSO2(mAO*mGrid*nMOs)
       Real*8 dTabMO2(nMOs)
 
-      Interface
-        Subroutine SODist(SOValue,mAO,nCoor,mBas,mBas_Eff,
-     &                    nCmp,nDeg,MOValue,nMOs,iAO)
-        Integer mAO,nCoor,mBas,nCmp,nDeg,iAO,nCMO
-        Real*8 SOValue(mAO*nCoor,mBas,nCmp*nDeg),
-     &         MOValue(mAO*nCoor,nMOs)
-      End Subroutine SODist
-      End Interface
-
-
 ************************************************************************
 *                                                                      *
       iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)

@@ -69,16 +69,6 @@
       Real*8 EG_OT(nTmpPUVX)
       Real*8, Allocatable:: RhoI(:,:), RhoA(:,:)
       Real*8, Allocatable:: TabAO_Tmp(:)
-
-      Interface
-        Subroutine SODist(SOValue,mAO,nCoor,mBas,mBas_Eff,
-     &                    nCmp,nDeg,MOValue,nMOs,iAO)
-        Integer mAO,nCoor,mBas,nCmp,nDeg,iAO,nCMO
-        Real*8 SOValue(mAO*nCoor,mBas,nCmp*nDeg),
-     &         MOValue(mAO*nCoor,nMOs)
-      End Subroutine SODist
-      End Interface
-
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -335,7 +325,6 @@
 ************************************************************************
 *                                                                      *
       If (Do_MO) Then
-         TabMO(:,:,:)=Zero
          TabSO(:,:,:)=Zero
 *
          Do ilist_s=1,nlist_s
@@ -366,6 +355,7 @@
 *
          End Do
 
+         TabMO(:,:,:)=Zero
          Call mk_MOs(TabSO,mAO,mGrid,TabMO,nMOs,CMO,nCMO)
       End If
 *                                                                      *
