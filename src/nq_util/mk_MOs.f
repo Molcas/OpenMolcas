@@ -21,7 +21,7 @@
 #endif
 *
 #ifdef _DEBUGPRINT_
-      Write (6,*) 'SODist: MO-Coefficients'
+      Write (6,*) 'mk_MOs: MO-Coefficients'
       iOff=1
       Do iIrrep = 0, nIrrep-1
          If (nBas(iIrrep).gt.0) Then
@@ -52,7 +52,7 @@
 #endif
 *
 #ifdef _DEBUGPRINT_
-      Write (Label,'(A)')'SODist: MOValue(mAO*nCoor,nMOs)'
+      Write (Label,'(A)')'mk_MOs: MOValue(mAO*nCoor,nMOs)'
       Call RecPrt(Label,' ',MOValue(1,1),mAO*nCoor,nMOs)
 #endif
 *

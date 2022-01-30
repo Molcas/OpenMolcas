@@ -134,17 +134,13 @@
             nSO   = kAO*nDeg*mAO
 
             Call FZero(SOs,nSO)
+            Call FZero(TabSO,mAO*mGrid*nMOs)
 
             iR=list_s(2,ilist_s)
             iSym=NrOpr(iR)
 
             Call SOAdpt_NQ(TabAO(ipTabAO(iList_s,1)),mAO,mGrid,iBas,
-     &                  iBas_Eff,iCmp,iSym,SOs,nDeg,iAO)
-
-            Call FZero(TabSO,mAO*mGrid*nMOs)
-
-            Call  SODist(SOs,mAO,mGrid,iBas,iBas_Eff,iCmp,nDeg,TabSO,
-     &                   nMOs,iAO)
+     &                  iBas_Eff,iCmp,iSym,TabSO,nDeg,iAO)
 
             CALL ConvertTabSO(TabSO2,TabSO,mAO,mGrid,nMOs)
 

@@ -18,7 +18,7 @@
 #include "real.fh"
       Real*8 SO_tmp(mAO*nCoor,mBas,nCmp*nDeg),
      &       SOValue(mAO*nCoor,nMOs)
-      Integer   iOff_MO(0:7), iOff_CMO(0:7)
+      Integer   iOff_MO(0:7)
 *#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Character*80 Label
@@ -48,12 +48,21 @@
       iAdd = mBas-mBas_Eff
       Do i1 = 1, nCmp
          Do iIrrep = 0, nIrrep-1
+            ! the start of the SO index for the i1
             iSO=iAOtSO(iAO+i1,iIrrep)
             If (iSO<0) Cycle
 
+            ! Offset to the symmetry block
             iMO =iOff_MO(iIrrep)
-            Call DaXpY_(mAO*nCoor*mBas,One,SO_tmp(:,:,iOff:),1,
-     &                  SOValue(:,iMO+iSO-1:),1)
+!           Call DaXpY_(mAO*nCoor*mBas,One,SO_tmp(:,:,iOff:),1,
+!    &                  SOValue(:,iMO+iSO-1:),1)
+            iSO1=iMO+iSO-1+iAdd
+            Do i2 = 1, mBas_Eff
+               Call DaXpY_(mAO*nCoor,One,
+     &                     SO_tmp(:,i2+iAdd,iOff),1,
+     &                     SOValue(:,iSO1),1)
+               iSO1=iSO1+1
+            End Do
             iOff = iOff + 1
           End Do
       End Do

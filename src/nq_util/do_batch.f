@@ -362,10 +362,7 @@
 *           temporarily!
 *
             Call SOAdpt_NQ(TabAO_Pack(ipTabAO(iList_s,1):),mAO,mGrid,
-     &                     iBas,iBas_Eff,iCmp,iSym,SOs,nDeg,iAO)
-*
-            Call  SODist(SOs,mAO,mGrid,iBas,iBas_Eff,iCmp,nDeg,TabSO,
-     &                   nMOs,iAO)
+     &                     iBas,iBas_Eff,iCmp,iSym,TabSO,nDeg,iAO)
 *
          End Do
 
