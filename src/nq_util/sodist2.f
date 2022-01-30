@@ -21,6 +21,17 @@
 *     Local
       Integer k, iOff, i, j, iBas, ii
 *
+      Interface
+        Subroutine SODist(SOValue,mAO,nCoor,mBas,nCmp,nDeg,MOValue,
+     &                    nMOs,iAO,CMOs,nCMO,DoIt,Do_SOs)
+        Integer mAO,nCoor,mBas,nCmp,nDeg,iAO,nCMO
+        Real*8 SOValue(mAO*nCoor,mBas,nCmp*nDeg),
+     &         MOValue(mAO*nCoor,nMOs),CMOs(nCMO)
+        Integer DoIt(nMOs)
+        Logical, Optional:: Do_SOs
+      End Subroutine SODist
+      End Interface
+
       Do k=1,nSOs
          TmpDoIt(k) = 1
       End Do
@@ -38,7 +49,7 @@
       End Do
 *
       Call SODist(SOValue,mAO,nCoor,mBas,nCmp,nDeg,SO,
-     &            nSOs,iAO,TmpCMOs,nCMO,TmpDoIt)
+     &            nSOs,iAO,TmpCMOs,nCMO,TmpDoIt,Do_SOs=.True.)
 *
       Return
       End

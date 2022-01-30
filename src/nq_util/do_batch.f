@@ -71,6 +71,18 @@
       Real*8, Allocatable:: TmpCMO(:)
       Integer, Allocatable:: TDoIt(:)
       Real*8, Allocatable:: TabAO_Tmp(:)
+
+      Interface
+        Subroutine SODist(SOValue,mAO,nCoor,mBas,nCmp,nDeg,MOValue,
+     &                    nMOs,iAO,CMOs,nCMO,DoIt,Do_SOs)
+        Integer mAO,nCoor,mBas,nCmp,nDeg,iAO,nCMO
+        Real*8 SOValue(mAO*nCoor,mBas,nCmp*nDeg),
+     &         MOValue(mAO*nCoor,nMOs),CMOs(nCMO)
+        Integer DoIt(nMOs)
+        Logical, Optional:: Do_SOs
+      End Subroutine SODist
+      End Interface
+
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -326,8 +338,8 @@
 ************************************************************************
 *                                                                      *
       If (Do_MO) Then
-         Call FZero(TabMO,mAO*mGrid*nMOs)
-         Call FZero(TabSO,mAO*mGrid*nMOs)
+         TabMO(:,:,:)=Zero
+         TabSO(:,:,:)=Zero
 *
          Call mma_Allocate(TmpCMO,nCMO,Label='TmpCMO')
          Call mma_Allocate(TDoIt,nMOs,Label='TDoIt')

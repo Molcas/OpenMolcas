@@ -17,7 +17,9 @@
 #include "real.fh"
       Real*8 AOValue(mAO,nCoor,mBas_Eff,nCmp),
      &       SOValue(mAO,nCoor,mBas,nCmp*nDeg)
+#ifdef _DEBUGPRINT_
       Character*80 Label
+#endif
 *
       If (MolWgh.eq.0) Then
          Fact=One/DBLE(nDeg)
@@ -33,9 +35,11 @@
          Do j1 = 0, nIrrep-1
             If (iAOtSO(iAO+i1,j1)>0) Then
                xa= DBLE(iChTbl(j1,nOp))
-               Call DaXpY_(mAO*nCoor*mBas_Eff,Fact*xa,
-     &                   AOValue(:,:,:,i1),1,
-     &                   SOValue(1,1,1+iAdd,iSO),1)
+               Do i2 = 1, mBas_Eff
+                  Call DaXpY_(mAO*nCoor,Fact*xa,
+     &                        AOValue(:,:,i2,i1),1,
+     &                        SOValue(:,:,i2+iAdd,iSO),1)
+               End Do
                iSO = iSO + 1
             End If
          End Do
