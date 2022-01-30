@@ -9,14 +9,14 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine SOAdpt_NQ(AOValue,mAO,nCoor,mBas,mBas_Eff,
-     &                     nCmp,nOp,SOValue,nDeg,iAO)
+     &                     nCmp,nOp,SO_tmp,nDeg,iAO)
       use Symmetry_Info, only: nIrrep, iChTbl
       use SOAO_Info, only: iAOtSO
       use Basis_Info, only: MolWgh
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
       Real*8 AOValue(mAO*nCoor,mBas_Eff,nCmp),
-     &       SOValue(mAO*nCoor,mBas,nCmp*nDeg)
+     &       SO_tmp(mAO*nCoor,mBas,nCmp*nDeg)
 #ifdef _DEBUGPRINT_
       Character*80 Label
 #endif
@@ -33,12 +33,13 @@
       iAdd=mBas-mBas_Eff
       Do i1 = 1, nCmp
          Do j1 = 0, nIrrep-1
-            If (iAOtSO(iAO+i1,j1)<=0) Cycle
+            iSO=iAOtSO(iAO+i1,j1)
+            If (iSO<0) Cycle
             xa= DBLE(iChTbl(j1,nOp))
             Do i2 = 1, mBas_Eff
                Call DaXpY_(mAO*nCoor,Fact*xa,
      &                     AOValue(:,i2,i1),1,
-     &                     SOValue(:,i2+iAdd,iOff),1)
+     &                     SO_tmp(:,i2+iAdd,iOff),1)
             End Do
             iOff = iOff + 1
          End Do
@@ -46,8 +47,8 @@
 *
 #ifdef _DEBUGPRINT_
       Do iCmp = 1, nCmp*nDeg
-         Write (Label,'(A,I2,A)') 'SOValue(mAO,nCoor,mBas,',iCmp,')'
-         Call RecPrt(Label,' ',SOValue(1,1,1,iCmp),mAO*nCoor,mBas)
+         Write (Label,'(A,I2,A)') 'SO_tmp(mAO,nCoor,mBas,',iCmp,')'
+         Call RecPrt(Label,' ',SO_tmp(1,1,1,iCmp),mAO*nCoor,mBas)
       End Do
 #endif
 *

@@ -9,8 +9,6 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine mk_MOs(SOValue,mAO,nCoor,MOValue,nMOs,CMOs,nCMO)
-
-      use SOAO_Info, only: iAOtSO
       use Basis_Info, only: nBas
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)

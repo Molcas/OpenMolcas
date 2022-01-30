@@ -68,7 +68,6 @@
       Integer nPMO3p
       Real*8 EG_OT(nTmpPUVX)
       Real*8, Allocatable:: RhoI(:,:), RhoA(:,:)
-      Real*8, Allocatable:: TmpCMO(:)
       Real*8, Allocatable:: TabAO_Tmp(:)
 
       Interface

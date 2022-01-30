@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine SODist(SOValue,mAO,nCoor,mBas,nCmp,nDeg,MOValue,
+      Subroutine SODist(SO_tmp,mAO,nCoor,mBas,nCmp,nDeg,SOValue,
      &                  nMOs,iAO)
 
       use SOAO_Info, only: iAOtSO
@@ -16,8 +16,8 @@
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-      Real*8 SOValue(mAO*nCoor,mBas,nCmp*nDeg),
-     &       MOValue(mAO*nCoor,nMOs)
+      Real*8 SO_tmp(mAO*nCoor,mBas,nCmp*nDeg),
+     &       SOValue(mAO*nCoor,nMOs)
       Integer   iOff_MO(0:7), iOff_CMO(0:7)
 *#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
@@ -59,14 +59,14 @@
 !
             iMO =iOff_MO(iIrrep)
             iCMO=iOff_CMO(iIrrep)+iSO
-            Call DaXpY_(mAO*nCoor*mBas,One,SOValue(:,:,iOff:),1,
-     &                  MOValue(:,iMO+iSO-1:),1)
+            Call DaXpY_(mAO*nCoor*mBas,One,SO_tmp(:,:,iOff:),1,
+     &                  SOValue(:,iMO+iSO-1:),1)
           End Do
       End Do
 *
 #ifdef _DEBUGPRINT_
-      Write (Label,'(A)')'SODist: MOValue(mAO*nCoor,nMOs)'
-      Call RecPrt(Label,' ',MOValue(1,1),mAO*nCoor,nMOs)
+      Write (Label,'(A)')'SODist: SOValue(mAO*nCoor,nMOs)'
+      Call RecPrt(Label,' ',SOValue(1,1),mAO*nCoor,nMOs)
 #endif
 *
       Return
