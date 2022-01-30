@@ -35,7 +35,7 @@
       use nq_Grid, only: List_G, IndGrd, iTab, Temp, SOs, Angular, Mem
       use nq_Grid, only: Coor, R2_trial, Pax, Fact, Tmp, nR_Eff
       use nq_pdft, only: lGGA
-      use nq_MO, only: DoIt, CMO, D1MO, P2MO, P2_ontop
+      use nq_MO, only: nMOs, CMO, D1MO, P2MO, P2_ontop
       use nq_Structure, only: Close_NQ_Data
       use Grid_On_Disk
       use libxc
@@ -362,18 +362,6 @@
          Do iIrrep = 0, mIrrep-1
             nMOs=nMOs+mBas(iIrrep)
          End Do
-         Call mma_Allocate(DoIt,nMOs,Label='DoIt')
-         iMO=0
-         Do iIrrep = 0, mIrrep-1
-            Do jMO = 1, nISh(iIrrep)+nASh(iIrrep)
-               iMO=iMO+1
-               DoIt(iMO)=1
-            End Do
-            Do jMO = 1, mBas(iIrrep)-nISh(iIrrep)-nASh(iIrrep)
-               iMO=iMO+1
-               DoIt(iMO)=1
-            End Do
-         End Do
       End If
 ***
 *     Prepare memory for two-electron integrals:
@@ -459,7 +447,6 @@
       If (Allocated(D1MO)) Call mma_deallocate(D1MO)
       If (Allocated(P2MO)) Call mma_deallocate(P2MO)
       If (Allocated(CMO)) Call mma_deallocate(CMO)
-      If (Allocated(DoIt)) Call mma_deallocate(DoIt)
       If (l_casdft) Then
          Call mma_deallocate(F_xcb)
          Call mma_deallocate(F_xca)

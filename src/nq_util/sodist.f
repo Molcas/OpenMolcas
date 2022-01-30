@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine SODist(SOValue,mAO,nCoor,mBas,nCmp,nDeg,MOValue,
-     &                  nMOs,iAO,CMOs,nCMO,DoIt,Do_SOs)
+     &                  nMOs,iAO,CMOs,nCMO,Do_SOs)
 
       use SOAO_Info, only: iAOtSO
       use Basis_Info, only: nBas
@@ -18,7 +18,6 @@
 #include "real.fh"
       Real*8 SOValue(mAO*nCoor,mBas,nCmp*nDeg),
      &       MOValue(mAO*nCoor,nMOs),CMOs(nCMO)
-      Integer DoIt(nMOs)
       Integer   iOff_MO(0:7), iOff_CMO(0:7)
 #ifdef _DEBUGPRINT_
       Character*80 Label

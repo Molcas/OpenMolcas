@@ -39,7 +39,7 @@
       use nq_Grid, only: D1UnZip, P2UnZip
       use nq_Grid, only: Dens_AO, iBfn_Index
       use nq_pdft
-      use nq_MO, only: DoIt, CMO, D1MO, P2_ontop
+      use nq_MO, only: CMO, D1MO, P2_ontop
       use Grid_On_Disk
       Implicit Real*8 (A-H,O-Z)
       External Kernel
@@ -69,16 +69,14 @@
       Real*8 EG_OT(nTmpPUVX)
       Real*8, Allocatable:: RhoI(:,:), RhoA(:,:)
       Real*8, Allocatable:: TmpCMO(:)
-      Integer, Allocatable:: TDoIt(:)
       Real*8, Allocatable:: TabAO_Tmp(:)
 
       Interface
         Subroutine SODist(SOValue,mAO,nCoor,mBas,nCmp,nDeg,MOValue,
-     &                    nMOs,iAO,CMOs,nCMO,DoIt,Do_SOs)
+     &                    nMOs,iAO,CMOs,nCMO,Do_SOs)
         Integer mAO,nCoor,mBas,nCmp,nDeg,iAO,nCMO
         Real*8 SOValue(mAO*nCoor,mBas,nCmp*nDeg),
      &         MOValue(mAO*nCoor,nMOs),CMOs(nCMO)
-        Integer DoIt(nMOs)
         Logical, Optional:: Do_SOs
       End Subroutine SODist
       End Interface
@@ -342,7 +340,6 @@
          TabSO(:,:,:)=Zero
 *
          Call mma_Allocate(TmpCMO,nCMO,Label='TmpCMO')
-         Call mma_Allocate(TDoIt,nMOs,Label='TDoIt')
          Do ilist_s=1,nlist_s
             ish=list_s(1,ilist_s)
             iCmp  = iSD( 2,iSh)
@@ -370,13 +367,12 @@
      &                     iBas,iBas_Eff,iCmp,iSym,SOs,nDeg,iAO)
 *
             Call  SODist(SOs,mAO,mGrid,iBas,iCmp,nDeg,TabSO,
-     &                   nMOs,iAO,TmpCMO,nCMO,TDoIt,Do_SOs=.True.)
+     &                   nMOs,iAO,TmpCMO,nCMO,Do_SOs=.True.)
 *
             Call  SODist(SOs,mAO,mGrid,iBas,iCmp,nDeg,TabMO,
-     &                   nMOs,iAO,CMO,nCMO,DoIt)
+     &                   nMOs,iAO,CMO,nCMO)
 *
          End Do
-         Call mma_deAllocate(TDoIt)
          Call mma_deAllocate(TmpCMO)
       End If
 *                                                                      *

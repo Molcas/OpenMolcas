@@ -68,15 +68,13 @@
       Real*8 TabSO2(mAO*mGrid*nMOs)
       Real*8 dTabMO2(nMOs)
       Real*8, Allocatable:: TmpCMO(:)
-      Integer, Allocatable:: TDoIt(:)
 
       Interface
         Subroutine SODist(SOValue,mAO,nCoor,mBas,nCmp,nDeg,MOValue,
-     &                    nMOs,iAO,CMOs,nCMO,DoIt,Do_SOs)
+     &                    nMOs,iAO,CMOs,nCMO,Do_SOs)
         Integer mAO,nCoor,mBas,nCmp,nDeg,iAO,nCMO
         Real*8 SOValue(mAO*nCoor,mBas,nCmp*nDeg),
      &         MOValue(mAO*nCoor,nMOs),CMOs(nCMO)
-        Integer DoIt(nMOs)
         Logical, Optional:: Do_SOs
       End Subroutine SODist
       End Interface
@@ -125,7 +123,6 @@
 
 !::::::::::::::::::::::::::::::::::::::::::::::::::::::::
          Call mma_allocate(TmpCMO,nCMO,Label='TmpCMO')
-         Call mma_allocate(TDoIt,nMOs,Label='TDoIt')
          Do ilist_s=1,nlist_s
             ish=list_s(1,ilist_s)
             iCmp  = iSD( 2,iSh)
@@ -150,7 +147,7 @@
             Call FZero(TabSO,mAO*mGrid*nMOs)
 
             Call  SODist(SOs,mAO,mGrid,iBas,iCmp,nDeg,TabSO,
-     &                   nMOs,iAO,TmpCMO,nCMO,TDoIt,Do_SOs=.True.)
+     &                   nMOs,iAO,TmpCMO,nCMO,Do_SOs=.True.)
 
             CALL ConvertTabSO(TabSO2,TabSO,mAO,mGrid,nMOs)
 
@@ -219,7 +216,6 @@
             End Do   ! iGrid
       END DO         ! iList_s
       Call mma_deallocate(TmpCMO)
-      Call mma_deallocate(TDoIt)
 ************************************************************************
 *          Inactive part:                                              *
 ************************************************************************

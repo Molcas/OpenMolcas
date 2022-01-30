@@ -37,9 +37,9 @@
      &                   TabAO_Pack, dRho_dR, TabAO_Short,
      &                   kAO, R2_trial
       use nq_Grid, only: List_G, IndGrd, iTab, dW_dR, nR_Eff
-      use nq_MO, only: DoIt
       use NQ_Structure, only: NQ_Data
       use Grid_On_Disk
+      use nq_MO, only: nMOs
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "itmax.fh"
@@ -316,7 +316,6 @@
       Call mma_Allocate(ipTabAO,(nlist_s+1),2,Label='ipTabAO')
 *
       If ((Functional_Type.eq.CASDFT_Type).or.Do_MO) Then
-         nMOs=SIZE(DoIt)
          nTabMO=mAO*nMOs*mGrid
          nTabSO=mAO*nMOs*mGrid
       Else
