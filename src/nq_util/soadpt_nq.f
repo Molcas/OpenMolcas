@@ -15,8 +15,8 @@
       use Basis_Info, only: MolWgh
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-      Real*8 AOValue(mAO,nCoor,mBas_Eff,nCmp),
-     &       SOValue(mAO,nCoor,mBas,nCmp*nDeg)
+      Real*8 AOValue(mAO*nCoor,mBas_Eff,nCmp),
+     &       SOValue(mAO*nCoor,mBas,nCmp*nDeg)
 #ifdef _DEBUGPRINT_
       Character*80 Label
 #endif
@@ -29,7 +29,7 @@
          Fact=One/Sqrt(DBLE(nDeg))
       End If
 
-      iSO=1
+      iOff=1
       iAdd=mBas-mBas_Eff
       Do i1 = 1, nCmp
          Do j1 = 0, nIrrep-1
@@ -37,10 +37,10 @@
             xa= DBLE(iChTbl(j1,nOp))
             Do i2 = 1, mBas_Eff
                Call DaXpY_(mAO*nCoor,Fact*xa,
-     &                     AOValue(:,:,i2,i1),1,
-     &                     SOValue(:,:,i2+iAdd,iSO),1)
+     &                     AOValue(:,i2,i1),1,
+     &                     SOValue(:,i2+iAdd,iOff),1)
             End Do
-            iSO = iSO + 1
+            iOff = iOff + 1
          End Do
       End Do
 *
