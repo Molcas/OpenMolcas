@@ -44,21 +44,17 @@
          itmp1=itmp1+nBas(iIrrep)
       End Do
 *
+      iOff=1
       iAdd = mBas-mBas_Eff
       Do i1 = 1, nCmp
-         iDeg=0
          Do iIrrep = 0, nIrrep-1
             iSO=iAOtSO(iAO+i1,iIrrep)
             If (iSO<0) Cycle
 
-            iDeg=iDeg+1
-            iOff=(i1-1)*nDeg+iDeg
-!
-!---------- Distribute contribution to all SO's in this irrep
-!
             iMO =iOff_MO(iIrrep)
             Call DaXpY_(mAO*nCoor*mBas,One,SO_tmp(:,:,iOff:),1,
      &                  SOValue(:,iMO+iSO-1:),1)
+            iOff = iOff + 1
           End Do
       End Do
 *
