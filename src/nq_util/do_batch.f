@@ -297,6 +297,7 @@
                ipTabAO(nList_s+1,2)=nByte
                Call mma_deAllocate(TabAO_Tmp)
             Else
+               mData=Size(TabAO)
                ipTabAO(nList_s+1,2)=ipTabAO(nList_s+1,1)
             End If
 *
