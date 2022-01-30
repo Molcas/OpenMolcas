@@ -44,6 +44,7 @@
          itmp1=itmp1+nBas(iIrrep)
       End Do
 *
+      iAdd = mBas-mBas_Eff
       Do i1 = 1, nCmp
          iDeg=0
          Do iIrrep = 0, nIrrep-1
