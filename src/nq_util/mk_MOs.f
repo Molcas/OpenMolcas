@@ -42,6 +42,7 @@
       iSO=1
       iCMO=1
       Do iIrrep = 0, nIrrep-1
+         If (nBas(iIrrep)==0) Cycle
          Call DGeMM_('N','N',
      &               mAO*nCoor,nBas(iIrrep),nBas(iIrrep),
      &               One,SOValue(:,iSO:),mAO*nCoor,
