@@ -71,8 +71,8 @@
       Real*8, Allocatable:: TabAO_Tmp(:)
 
       Interface
-        Subroutine SODist(SOValue,mAO,nCoor,mBas,nCmp,nDeg,MOValue,
-     &                    nMOs,iAO)
+        Subroutine SODist(SOValue,mAO,nCoor,mBas,mBas_Eff,
+     &                    nCmp,nDeg,MOValue,nMOs,iAO)
         Integer mAO,nCoor,mBas,nCmp,nDeg,iAO,nCMO
         Real*8 SOValue(mAO*nCoor,mBas,nCmp*nDeg),
      &         MOValue(mAO*nCoor,nMOs)
@@ -364,7 +364,7 @@
             Call SOAdpt_NQ(TabAO_Pack(ipTabAO(iList_s,1):),mAO,mGrid,
      &                     iBas,iBas_Eff,iCmp,iSym,SOs,nDeg,iAO)
 *
-            Call  SODist(SOs,mAO,mGrid,iBas,iCmp,nDeg,TabSO,
+            Call  SODist(SOs,mAO,mGrid,iBas,iBas_Eff,iCmp,nDeg,TabSO,
      &                   nMOs,iAO)
 *
          End Do

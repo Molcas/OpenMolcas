@@ -34,6 +34,7 @@
       Do i1 = 1, nCmp
          Do j1 = 0, nIrrep-1
             iSO=iAOtSO(iAO+i1,j1)
+
             If (iSO<0) Cycle
             xa= DBLE(iChTbl(j1,nOp))
             Do i2 = 1, mBas_Eff

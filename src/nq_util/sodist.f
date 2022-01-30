@@ -8,8 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine SODist(SO_tmp,mAO,nCoor,mBas,nCmp,nDeg,SOValue,
-     &                  nMOs,iAO)
+      Subroutine SODist(SO_tmp,mAO,nCoor,mBas,mBas_Eff,
+     &                  nCmp,nDeg,SOValue,nMOs,iAO)
 
       use SOAO_Info, only: iAOtSO
       use Basis_Info, only: nBas
@@ -39,12 +39,9 @@
 *---- Compute some offsets
 *
       itmp1=1
-      itmp2=0
       Do iIrrep = 0, nIrrep-1
          iOff_MO(iIrrep)=itmp1
-         iOff_CMO(iIrrep)=itmp2
          itmp1=itmp1+nBas(iIrrep)
-         itmp2=itmp2+nBas(iIrrep)*nBas(iIrrep)
       End Do
 *
       Do i1 = 1, nCmp
@@ -52,13 +49,13 @@
          Do iIrrep = 0, nIrrep-1
             iSO=iAOtSO(iAO+i1,iIrrep)
             If (iSO<0) Cycle
+
             iDeg=iDeg+1
             iOff=(i1-1)*nDeg+iDeg
 !
-!---------- Distribute contribution to all MO's in this irrep
+!---------- Distribute contribution to all SO's in this irrep
 !
             iMO =iOff_MO(iIrrep)
-            iCMO=iOff_CMO(iIrrep)+iSO
             Call DaXpY_(mAO*nCoor*mBas,One,SO_tmp(:,:,iOff:),1,
      &                  SOValue(:,iMO+iSO-1:),1)
           End Do

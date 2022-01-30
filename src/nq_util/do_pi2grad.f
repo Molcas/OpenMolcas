@@ -69,8 +69,8 @@
       Real*8 dTabMO2(nMOs)
 
       Interface
-        Subroutine SODist(SOValue,mAO,nCoor,mBas,nCmp,nDeg,MOValue,
-     &                    nMOs,iAO)
+        Subroutine SODist(SOValue,mAO,nCoor,mBas,mBas_Eff,
+     &                    nCmp,nDeg,MOValue,nMOs,iAO)
         Integer mAO,nCoor,mBas,nCmp,nDeg,iAO,nCMO
         Real*8 SOValue(mAO*nCoor,mBas,nCmp*nDeg),
      &         MOValue(mAO*nCoor,nMOs)
@@ -143,7 +143,7 @@
 
             Call FZero(TabSO,mAO*mGrid*nMOs)
 
-            Call  SODist(SOs,mAO,mGrid,iBas,iCmp,nDeg,TabSO,
+            Call  SODist(SOs,mAO,mGrid,iBas,iBas_Eff,iCmp,nDeg,TabSO,
      &                   nMOs,iAO)
 
             CALL ConvertTabSO(TabSO2,TabSO,mAO,mGrid,nMOs)
