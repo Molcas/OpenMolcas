@@ -61,22 +61,14 @@
             iMO =iOff_MO(iIrrep)
             iCMO=iOff_CMO(iIrrep)+iSO
             If (Present(Do_SOs)) Then
-!
-!              DoIt(:)=1, CMO is a unit matrix.
-!
-!              Call DGeMM_('N','N',
-!    &                    mAO*nCoor,nBas(iIrrep),mBas,
-!    &                    One,SOValue(1,1,iOff),mAO*nCoor,
-!    &                        CMOs(iCMO),nBas(iIrrep),
-!    &                    One,MOValue(1,iMO),mAO*nCoor)
                Call DaXpY_(mAO*nCoor*mBas,One,SOValue(:,:,iOff:),1,
      &                     MOValue(:,iMO+iSO-1:),1)
             Else
-               Call MyDGeMM(DoIt(iMO),
+               Call DGeMM_('N','N',
      &                    mAO*nCoor,nBas(iIrrep),mBas,
-     &                    SOValue(1,1,iOff),mAO*nCoor,
-     &                    CMOs(iCMO),nBas(iIrrep),
-     &                    MOValue(1,iMO),mAO*nCoor)
+     &                    One,SOValue(1,1,iOff),mAO*nCoor,
+     &                        CMOs(iCMO),nBas(iIrrep),
+     &                    One,MOValue(1,iMO),mAO*nCoor)
             End If
           End Do
       End Do
@@ -88,38 +80,3 @@
 *
       Return
       End
-
-      SUBROUTINE MYDGEMM ( DoIt, M, N, K,
-     $                     A, LDA, B, LDB,
-     $                     C, LDC )
-*     .. Scalar Arguments ..
-      INTEGER            M, N, K, LDA, LDB, LDC
-      Integer DoIt(*)
-*     .. Array Arguments ..
-      REAL*8   A( LDA, * ), B( LDB, * ), C( LDC, * )
-*     ..
-*  Purpose
-*  =======
-*
-*  DGEMM for a spesial case.
-*
-*
-*     .. Local Scalars ..
-      INTEGER            J, L
-*     .. Parameters ..
-      REAL*8   ZERO
-      PARAMETER        ( ZERO = 0.0D+0 )
-*     ..
-*
-*     Form  C := A*B + C.
-*
-      DO J = 1, N
-         If (DoIt(J).ne.1) Cycle
-         DO L = 1, K
-            IF( B( L, J ).EQ.ZERO ) Cycle
-            Call DAxPy_(M,B(L,J),A(:,L),1,C(:,J),1)
-         End Do
-      End Do
-*
-      RETURN
-      END
