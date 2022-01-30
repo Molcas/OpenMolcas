@@ -33,15 +33,14 @@
       iAdd=mBas-mBas_Eff
       Do i1 = 1, nCmp
          Do j1 = 0, nIrrep-1
-            If (iAOtSO(iAO+i1,j1)>0) Then
-               xa= DBLE(iChTbl(j1,nOp))
-               Do i2 = 1, mBas_Eff
-                  Call DaXpY_(mAO*nCoor,Fact*xa,
-     &                        AOValue(:,:,i2,i1),1,
-     &                        SOValue(:,:,i2+iAdd,iSO),1)
-               End Do
-               iSO = iSO + 1
-            End If
+            If (iAOtSO(iAO+i1,j1)<=0) Cycle
+            xa= DBLE(iChTbl(j1,nOp))
+            Do i2 = 1, mBas_Eff
+               Call DaXpY_(mAO*nCoor,Fact*xa,
+     &                     AOValue(:,:,i2,i1),1,
+     &                     SOValue(:,:,i2+iAdd,iSO),1)
+            End Do
+            iSO = iSO + 1
          End Do
       End Do
 *
