@@ -123,30 +123,12 @@
       Call mma_Allocate(TabSO2,nMOs*mAO*mGrid,Label='TabSO2')
 !::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Do ilist_s=1,nlist_s
-         ish=list_s(1,ilist_s)
-         iCmp  = iSD( 2,iSh)
-         iBas  = iSD( 3,iSh)
-         iBas_Eff = List_Bas(1,ilist_s)
-         iAO   = iSD( 7,iSh)
-         mdci  = iSD(10,iSh)
-
-         nDeg  = nSym/dc(mdci)%nStab
 
          Call FZero(TabSO,mAO*mGrid*nMOs)
 
-         iR=list_s(2,ilist_s)
-         iSym=NrOpr(iR)
-
          Call mk_SOs(TabSO,mAO,mGrid,nMOs,List_s,List_Bas,nList_s,
      &                     jList_s=iList_s)
-!        Call SOAdpt_NQ(TabAO(ipTabAO(iList_s,1)),mAO,mGrid,iBas,
-!    &                  iBas_Eff,iCmp,iSym,TabSO,nMOs,nDeg,iAO)
 
-         ! At this point TabSO only contains non-zero values from
-         ! the contributions from the AOs of this shell.
-
-         ! Now we change the order from (mAO,mGrid,nMOs) to
-         ! ?
          CALL ConvertTabSO(TabSO2,TabSO,mAO,mGrid,nMOs)
 
          Do iGrid=1,mGrid
