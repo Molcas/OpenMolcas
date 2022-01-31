@@ -382,7 +382,7 @@ do L=0,nSym-1
 
 
   ! call to package relsewb
-  call SCFCLI2(idbg,eps,Work(iSS+k),Work(iK+k),Work(iV+k),Work(ipVp+k),n,iSize,VELIT,Work(iBu),Work(iP),Work(iG),Work(iEv2), &
+  call SCFCLI2(idbg,Work(iSS+k),Work(iK+k),Work(iV+k),Work(ipVp+k),n,iSize,VELIT,Work(iBu),Work(iP),Work(iG),Work(iEv2), &
                Work(iEig),Work(iSinv),Work(iRevt),Work(iAux),Work(iOve),Work(iEw),Work(iE),Work(iAa),Work(iRr),Work(iTt))
 
   call dcopy_(n*n+4,Work(iEig),1,Work(iEigf+k1),1)
@@ -524,9 +524,9 @@ do iComp=1,nComp
       ! following commutator :
       ! Revta*AAA*<a|[bp,V]|b>store in CMM1(iSyma,iSymb) matrix,
 
-      call VPBMBPV(idbg,eps,Work(iEigf+k1a),Work(iEigf+k1b),Work(iRevtf+k1a),Work(iSinvf+k1a),Work(iSinvf+k1b),na,nb,iSizea, &
-                   iSizeb,VELIT,Work(iAaf+k2a),Work(iAaf+k2b),Work(iRrf+k2a),Work(iRrf+k2b),Work(i_f),Work(if2),iSyma,iSymb, &
-                   Work(iBu2),Work(iG2),Work(iAux2),Work(iCmm1),Work(iBu4),Work(iCmm2),Work(ifa),Work(if2a),Work(iScpV),Work(iScVp))
+      call VPBMBPV(Work(iEigf+k1a),Work(iEigf+k1b),Work(iRevtf+k1a),Work(iSinvf+k1a),Work(iSinvf+k1b),na,nb,iSizea, &
+                   Work(iAaf+k2a),Work(iAaf+k2b),Work(iRrf+k2a),Work(iRrf+k2b),Work(i_f),Work(if2),iSyma,iSymb,Work(iBu2), &
+                   Work(iG2),Work(iAux2),Work(iCmm1),Work(iBu4),Work(iCmm2),Work(ifa),Work(if2a),Work(iScpV),Work(iScVp))
 
       call dcopy_(na*nb+4,[Zero],0,Work(iBu2),1)
       call dcopy_(na*nb+4,[Zero],0,Work(iBu4),1)
@@ -537,9 +537,8 @@ do iComp=1,nComp
 
       ! call to package relsewc, BSS up to the fourth order in alpha
 
-      call SCFCLI4(idbg,eps,Work(iSS+kh),Work(iK+kh),Work(iRevtf+k1a),Work(iSinvf+k1a),na,nb,iSizea,iSizeb,VELIT,Work(iAaf+k2a), &
-                   Work(iAaf+k2b),iSyma,iSymb,Work(iCmm1),Work(iCmm2),Work(iEv4),Work(iBu2),Work(iBu6),Work(iEig4),Work(iEw4), &
-                   Work(iP))
+      call SCFCLI4(idbg,Work(iSS+kh),Work(iK+kh),Work(iSinvf+k1a),na,nb,iSizea,VELIT,Work(iCmm1),Work(iCmm2),Work(iEv4), &
+                   Work(iBu6),Work(iEig4),Work(iEw4),Work(iP))
 
       ! Free a space
 

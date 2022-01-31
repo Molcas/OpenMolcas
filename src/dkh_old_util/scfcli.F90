@@ -12,7 +12,7 @@
 !               2005, Jesper Wisborg Krogh                             *
 !***********************************************************************
 
-subroutine SCFCLI(idbg,eps,S,H,V,PVP,N,ISIZE,VELIT,TMP1,TMP2,TMP3,TMPA,TMPB,TMPC,EW,E,AA,RR,TT,TMP4,TMPD,TMPE,TMPF,TMP5,TWRK4,I_DIM)
+subroutine SCFCLI(idbg,eps,S,H,V,PVP,N,ISIZE,VELIT,TMP1,TMP2,TMP3,TMPA,TMPB,TMPC,EW,E,AA,RR,TT,TMP4,TMPD,TMPE,TMPF,TMP5,I_DIM)
 ! $Id: relsew.r,v 1.4 1995/05/08 14:08:53 hess Exp $
 ! calculate relativistic operators
 !   Bernd Artur Hess, hess@uni-bonn.de
@@ -27,7 +27,7 @@ integer(kind=iwp), intent(in) :: idbg, N, ISIZE, I_DIM
 real(kind=wp), intent(out) :: eps, TMP1(I_DIM*(I_DIM+1)/2), TMP2(ISIZE), TMP3(ISIZE), TMPA(N,N), TMPB(N,N), TMPC(N,N), EW(N), &
                               E(N), AA(N), RR(N), TT(N), TMP4(I_DIM*(I_DIM+1)/2), TMPD(I_DIM,I_DIM), TMPE(N,N), TMPF(N,N), &
                               TMP5(ISIZE)
-real(kind=wp), intent(in) :: S(ISIZE), V(ISIZE), VELIT, TWRK4(N*200)
+real(kind=wp), intent(in) :: S(ISIZE), V(ISIZE), VELIT
 real(kind=wp), intent(inout) :: H(ISIZE), PVP(ISIZE)
 integer(kind=iwp) :: I, IJ, ILL, J, K, M
 real(kind=wp) :: CON, CON2, PREA, RATIO, SR, TV1, TV2, TV3, TV4
@@ -299,7 +299,7 @@ if ((IRELAE == 0) .or. (IRELAE == 2)) goto 1000   ! DK2
 
 ! CALCULATE Even3r OPERATOR
 
-call Even3r(idbg,N,TMP2,TMP3,E,AA,RR,TT,TMPB,TMPD,TMP1,TMP4,TMPE,TMPF)
+call Even3r(N,TMP2,TMP3,E,AA,RR,TT,TMPB,TMPD,TMP1,TMP4,TMPE,TMPF)
 
 ! TRANSFORM BACK
 
@@ -325,9 +325,5 @@ if (idbg > 0) then
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(TWRK4)
-end if
 
 end subroutine SCFCLI

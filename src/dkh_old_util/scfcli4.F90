@@ -11,7 +11,7 @@
 ! Copyright (C) 1995, Bernd Artur Hess                                 *
 !***********************************************************************
 
-subroutine SCFCLI4(idbg,eps,S,H,REVTA,SINVA,NA,NB,ISIZEA,ISIZEB,VELIT,AAA,AAB,ISYMA,ISYMB,CMM1,CMM2,EV4,BU2,BU6,EIG4,EW4,P)
+subroutine SCFCLI4(idbg,S,H,SINVA,NA,NB,ISIZEA,VELIT,CMM1,CMM2,EV4,BU6,EIG4,EW4,P)
 ! $Id: relsewc.r,v 1.4 1995/05/08 14:08:53 hess Exp $
 ! calculate relativistic operators
 !   Bernd Artur Hess, hess@uni-bonn.de
@@ -20,8 +20,8 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: idbg, NA, NB, ISIZEA, ISIZEB, ISYMA, ISYMB
-real(kind=wp), intent(in) :: eps, S(ISIZEA), REVTA(NA,NA), VELIT, AAA(NA), AAB(NB), CMM2(NA,NB), BU2(NA,NB)
+integer(kind=iwp), intent(in) :: idbg, NA, NB, ISIZEA
+real(kind=wp), intent(in) :: S(ISIZEA), VELIT, CMM2(NA,NB)
 real(kind=wp), intent(inout) :: H(ISIZEA)
 real(kind=wp), intent(out) :: SINVA(NA,NA), CMM1(NB,NA), EV4(ISIZEA), BU6(NA,NA), EIG4(NA,NA), EW4(NA), P(ISIZEA)
 integer(kind=iwp) :: I, IJ, J, L
@@ -67,16 +67,5 @@ call Diagr(H,NA,EIG4,EW4,SINVA,BU6,EV4)
 !write(u6,*) 'END OF SCFCLI4 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real(eps)
-  call Unused_real_array(REVTA)
-  call Unused_integer(ISIZEB)
-  call Unused_real_array(AAA)
-  call Unused_real_array(AAB)
-  call Unused_integer(ISYMA)
-  call Unused_integer(ISYMB)
-  call Unused_real_array(BU2)
-end if
 
 end subroutine SCFCLI4

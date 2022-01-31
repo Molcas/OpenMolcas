@@ -11,8 +11,8 @@
 ! Copyright (C) 1995, Bernd Artur Hess                                 *
 !***********************************************************************
 
-subroutine VPBMBPV(idbg,eps,EIGA,EIGB,REVTA,SINVA,SINVB,NA,NB,ISIZEA,ISIZEB,VELIT,AAA,AAB,RRA,RRB,PVA,VPA,ISYMA,ISYMB,BU2,G2,AUX2, &
-                   CMM1,BU4,CMM2,PVAA,VPAA,SCPV,SCVP)
+subroutine VPBMBPV(EIGA,EIGB,REVTA,SINVA,SINVB,NA,NB,ISIZEA,AAA,AAB,RRA,RRB,PVA,VPA,ISYMA,ISYMB,BU2,G2,AUX2,CMM1, &
+         BU4,CMM2,PVAA,VPAA,SCPV,SCVP)
 ! $Id: vpbmbpv.r,v 1.4 1995/05/08 14:08:53 hess Exp $
 ! calculate relativistic operators
 !   Bernd Artur Hess, hess@uni-bonn.de
@@ -21,9 +21,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: idbg, NA, NB, ISIZEA, ISIZEB, ISYMA, ISYMB
-real(kind=wp), intent(in) :: eps, EIGA(NA,NA), EIGB(NB,NB), REVTA(NA,NA), SINVA(NA,NA), SINVB(NB,NB), VELIT, AAA(NA), AAB(NB), &
-                             RRA(NA), RRB(NB), PVAA(ISIZEA), VPAA(ISIZEA), SCPV(NB,NA), SCVP(NB,NA)
+integer(kind=iwp), intent(in) :: NA, NB, ISIZEA, ISYMA, ISYMB
+real(kind=wp), intent(in) :: EIGA(NA,NA), EIGB(NB,NB), REVTA(NA,NA), SINVA(NA,NA), SINVB(NB,NB), AAA(NA), AAB(NB), RRA(NA), &
+                             RRB(NB), PVAA(ISIZEA), VPAA(ISIZEA), SCPV(NB,NA), SCVP(NB,NA)
 real(kind=wp), intent(inout) :: PVA(NA,NB), VPA(NA,NB), CMM2(NA,NB)
 real(kind=wp), intent(out) :: BU2(NA,NB), G2(NA,NB), AUX2(NA,NB), CMM1(NA,NB), BU4(NA,NB)
 integer(kind=iwp) :: I, IJ, J, K
@@ -117,12 +117,5 @@ call dcopy_(na*nb,[Zero],0,Cmm1,1)
 !write(u6,*) 'END OF VPBMBPV !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(idbg)
-  call Unused_real(eps)
-  call Unused_integer(ISIZEB)
-  call Unused_real(VELIT)
-end if
 
 end subroutine VPBMBPV

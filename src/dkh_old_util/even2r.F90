@@ -36,6 +36,11 @@ real(kind=wp), intent(in) :: E(N), A(N), R(N), TT(N)
 real(kind=wp), intent(out) :: AUXF(N,N), AUXG(N,N), AUXH(N,N), W1W1(N,N)
 integer(kind=iwp) :: I, IE, IJ, J, M
 
+#ifndef _DEBUGPRINT_
+#include "macros.fh"
+unused_var(idbg)
+#endif
+
 !ulf
 #ifdef _DEBUGPRINT_
 if (idbg > 0) then
@@ -285,9 +290,5 @@ end do
 !call PRM('OUTPUT  ',G,N)
 
 return
-#ifndef _DEBUGPRINT_
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(idbg)
-#endif
 
 end subroutine Even2r

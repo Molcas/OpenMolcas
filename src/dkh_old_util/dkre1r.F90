@@ -12,7 +12,7 @@
 !               2005, Jesper Wisborg Krogh                             *
 !***********************************************************************
 
-subroutine DKRE1R(A,R,E,TT,V,G,RE1R,VEXTT,PVPT,N)
+subroutine DKRE1R(A,R,TT,V,G,RE1R,VEXTT,PVPT,N)
 ! CONSTRUCT RE1R FOR DK3
 
 use Constants, only: Four
@@ -20,7 +20,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: N
-real(kind=wp), intent(in) :: A(N), R(N), E(N), TT(N), VEXTT(N*(N+1)/2), PVPT(N*(N+1)/2)
+real(kind=wp), intent(in) :: A(N), R(N), TT(N), VEXTT(N*(N+1)/2), PVPT(N*(N+1)/2)
 real(kind=wp), intent(out) :: V(N*(N+1)/2), G(N*(N+1)/2), RE1R(N,N)
 integer(kind=iwp) :: I, IJ, J
 
@@ -56,7 +56,5 @@ do I=1,N
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_real_array(E)
 
 end subroutine DKRE1R

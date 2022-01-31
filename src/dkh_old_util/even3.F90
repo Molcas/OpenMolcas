@@ -22,7 +22,7 @@ integer(kind=iwp) :: I, IE, IJ, J, M
 
 ! CONSTRUCT RE1R
 
-call DKRE1R(A,R,E,TT,V,G,RE1R,VEXTT,PVPT,N)
+call DKRE1R(A,R,TT,V,G,RE1R,VEXTT,PVPT,N)
 
 M = N
 IJ = 0

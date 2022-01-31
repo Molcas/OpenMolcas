@@ -12,7 +12,7 @@
 !               2005, Jesper Wisborg Krogh                             *
 !***********************************************************************
 
-subroutine Even3r(idbg,N,V,G,E,A,R,TT,AUXF,AUXH,VEXTT,PVPT,RE1R,W1W1)
+subroutine Even3r(N,V,G,E,A,R,TT,AUXF,AUXH,VEXTT,PVPT,RE1R,W1W1)
 !AUXF, RE1R   Scratch
 !VEXTT, PVPT  Input
 !AUXH, W1W1   Input/Scratch
@@ -21,7 +21,7 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: idbg, N
+integer(kind=iwp), intent(in) :: N
 real(kind=wp), intent(out) :: V(N*(N+1)/2), G(N*(N+1)/2), AUXF(N,N), RE1R(N,N)
 real(kind=wp), intent(in) :: E(N), A(N), R(N), TT(N), VEXTT(N*(N+1)/2), PVPT(N*(N+1)/2)
 real(kind=wp), intent(inout) :: AUXH(N,N), W1W1(N,N)
@@ -31,7 +31,7 @@ integer(kind=iwp) :: I, IE, IJ, J, M
 
 !write(u6,*) 'Hello from Even3R'
 call xflush(u6)
-call DKRE1R(A,R,E,TT,V,G,RE1R,VEXTT,PVPT,N)
+call DKRE1R(A,R,TT,V,G,RE1R,VEXTT,PVPT,N)
 
 M = N
 IJ = 0
@@ -149,7 +149,5 @@ do I=1,N
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(idbg)
 
 end subroutine Even3r

@@ -11,7 +11,7 @@
 ! Copyright (C) 1995, Bernd Artur Hess                                 *
 !***********************************************************************
 
-subroutine SCFCLI2(idbg,eps,S,H,V,PVP,N,ISIZE,VELIT,BU,P,G,EV2,EIG,SINV,REVT,AUX,OVE,EW,E,AA,RR,TT)
+subroutine SCFCLI2(idbg,S,H,V,PVP,N,ISIZE,VELIT,BU,P,G,EV2,EIG,SINV,REVT,AUX,OVE,EW,E,AA,RR,TT)
 ! $Id: relsewb.r,v 1.4 1995/05/08 14:08:53 hess Exp $
 ! calculate relativistic operators
 !   Bernd Artur Hess, hess@uni-bonn.de
@@ -21,7 +21,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: idbg, N, ISIZE
-real(kind=wp), intent(in) :: eps, S(ISIZE), V(ISIZE), PVP(ISIZE), VELIT
+real(kind=wp), intent(in) :: S(ISIZE), V(ISIZE), PVP(ISIZE), VELIT
 real(kind=wp), intent(inout) :: H(ISIZE)
 real(kind=wp), intent(out) :: BU(ISIZE), P(ISIZE), G(ISIZE), EIG(N,N), EV2(ISIZE), SINV(N,N), REVT(N,N), AUX(N,N), OVE(N,N), &
                               EW(N), E(N), AA(N), RR(N), TT(N)
@@ -223,7 +223,5 @@ if (idbg > 0) call PRMAT(IDBG,h,n,0,'h   oper')
 !if (idbg > 0) write(idbg,'(4D20.12)') EW
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_real(eps)
 
 end subroutine SCFCLI2
