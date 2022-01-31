@@ -498,8 +498,6 @@ c     Write(6,*) '********** Setup_NQ ***********'
 *           to be differentiated in order to produce the values of the
 *           parameters which the functional depends on (rho, grad rho,
 *           and nabla rho).
-*     nScr: Used to assemble integrals, (rho, grad rho, nabla rho)
-*           (1,4, or 5). This is not needed in gradient calculations!
 *     mAO: number of elements a basis function generates upon
 *          differentiation (1,4,10,20, etc.)
 *
@@ -509,10 +507,8 @@ c     Write(6,*) '********** Setup_NQ ***********'
          if(do_grad) mAO=4!AMS - GRADIENTS?
          If (.Not.Do_Grad) Then
             mRad=nFOrd
-            nScr=nD*nAOMax
          Else
             mRad=nFOrd+1
-            nScr=0
          End If
 *
       Else If (Functional_type.eq.GGA_type) Then
@@ -521,10 +517,8 @@ c     Write(6,*) '********** Setup_NQ ***********'
          if(do_grad) mAO=10
          If (.Not.Do_Grad) Then
             mRad=nFOrd
-            nScr=nD*4*nAOMax
          Else
             mRad=nFOrd+1
-            nScr=0
          End If
       Else If (Functional_type.eq.CASDFT_type) Then
 *        I need to discuss this with Sergey!
@@ -534,10 +528,8 @@ c     Write(6,*) '********** Setup_NQ ***********'
          mAO=10
          If (.Not.Do_Grad) Then
             mRad=nFOrd
-            nScr=nD*4*nAOMax
          Else
             mRad=nFOrd+1
-            nScr=0
          End If
 *
       Else If (Functional_type.eq.meta_GGA_type1) Then
@@ -545,10 +537,8 @@ c     Write(6,*) '********** Setup_NQ ***********'
          mAO=(nFOrd*(nFOrd+1)*(nFOrd+2))/6
          If (.Not.Do_Grad) Then
             mRad=nFOrd
-            nScr=nD*4*nAOMax
          Else
             mRad=NFOrd+1
-            nScr=0
          End If
 *
       Else If (Functional_type.eq.meta_GGA_type2) Then
@@ -556,17 +546,14 @@ c     Write(6,*) '********** Setup_NQ ***********'
          mAO=(nFOrd*(nFOrd+1)*(nFOrd+2))/6
          If (.Not.Do_Grad) Then
             mRad=nFOrd
-            nScr=nD*10*nAOMax
          Else
             mRad=NFOrd+1
-            nScr=0
          End If
 *
 *     Else If (Functional_type.eq.Other_type) Then
       Else
          mRad=0 ! Dummy initialize
          mAO=0  ! Dummy initialize
-         nScr=0 ! Dummy initialize
          Call WarningMessage(2,'Functional_type.eq.Other_type')
          Call Abend()
       End If
