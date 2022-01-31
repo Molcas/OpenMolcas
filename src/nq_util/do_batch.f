@@ -327,7 +327,7 @@
 
          ! First, symmatry adapt the AOs
          TabSO(:,:,:)=Zero
-#define _OLD_
+*#define _OLD_
 #ifdef _OLD_
          Do ilist_s=1,nlist_s
             ish=list_s(1,ilist_s)
@@ -359,11 +359,11 @@
 #else
          Call mk_SOs(TabSO,mAO,mGrid,nMOs,List_s,List_Bas,nList_s)
 #endif
+!        Stop 123
 
          ! Second, transform SOs to MOs
          TabMO(:,:,:)=Zero
          Call mk_MOs(TabSO,mAO,mGrid,TabMO,nMOs,CMO,nCMO)
-!        Stop 123
       End If
 *                                                                      *
 ************************************************************************

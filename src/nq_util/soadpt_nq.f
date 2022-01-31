@@ -40,11 +40,11 @@
 
       iAdd=mBas-mBas_Eff
       Do i1 = 1, nCmp
-#define  _RE_
-#ifdef  _RE_
          Do i2 = 1, mBas_Eff
             Do iIrrep = 0, nIrrep-1
                iSO0=iAOtSO(iAO+i1,iIrrep)
+*              Write (6,*) 'iAO,i1,i2,iIrrep:',iAO,i1,i2,iIrrep
+*              Write (6,*) 'iSO0:',iSO0
                If (iSO0<0) Cycle
                iMO =iOff_MO(iIrrep)
                xa= DBLE(iChTbl(iIrrep,nOp))
@@ -62,32 +62,6 @@
 *              Call RecPrt('TabSO',' ',SOValue(:,iSO1),mAO,nCoor)
             End Do
          End Do
-#else
-         Do iIrrep = 0, nIrrep-1
-            ! the start of the SO index for the i1
-            iSO=iAOtSO(iAO+i1,iIrrep)
-            If (iSO<0) Cycle
-
-            ! Offset to the symmetry block
-            iMO =iOff_MO(iIrrep)
-
-            xa= DBLE(iChTbl(iIrrep,nOp))
-            iSO1=iMO+iSO-1+iAdd
-            Do i2 = 1, mBas_Eff
-               Write (6,*) 'Fact*xa:',Fact*xa
-               Write (6,*) 'iMO,iSO,iAdd=',iMO,iSO,iAdd
-               Write (6,*) 'iSO1=',iSO1
-               Call RecPrt('TabAO',' ',AOValue(:,i2,i1),mAO,nCoor)
-               Call RecPrt('TabSO',' ',SOValue(:,iSO1),mAO,nCoor)
-
-               Call DaXpY_(mAO*nCoor,Fact*xa,
-     &                     AOValue(:,i2,i1),1,
-     &                     SOValue(:,iSO1),1)
-               Call RecPrt('TabSO',' ',SOValue(:,iSO1),mAO,nCoor)
-               iSO1=iSO1+1
-            End Do
-         End Do
-#endif
       End Do
 *
 #ifdef _DEBUGPRINT_

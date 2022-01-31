@@ -33,6 +33,7 @@
       Do iBfn = 1, nBfn
          ilist_s=iBfn_Index(2,iBfn)
          i1     =iBfn_Index(3,iBfn)
+         i2     =iBfn_Index(4,iBfn)
          iSh    =list_s(1,ilist_s)
          kDCRE = list_s(2,ilist_s)
          mBas_Eff=List_Bas(1,ilist_s)
@@ -52,22 +53,25 @@
 
          iAdd=mBas-mBas_Eff
          Do iIrrep = 0, nIrrep-1
-            iSO=iAOtSO(iAO+i1,iIrrep)
-            If (iSO<0) Cycle
+            iSO0=iAOtSO(iAO+i1,iIrrep)
+!           Write (6,*) 'iAO,i1,i2,iIrrep:',iAO,i1,i2,iIrrep
+!           Write (6,*) 'iSO0:',iSO0
+            If (iSO0<0) Cycle
 
             iMO=iOff_MO(iIrrep)
 
             xa= DBLE(iChTbl(iIrrep,nOp))
+            iSO = iSO0 + i2 - 1
             iSO1=iMO+iSO-1+iAdd
-            Write (6,*) 'Fact*xa:',Fact*xa
-            Write (6,*) 'iMO,iSO,iAdd=',iMO,iSO,iAdd
-            Write (6,*) 'iSO1=',iSO1
-            Call RecPrt('TabAO',' ',TabAO(:,:,iBfn),mAO,mGrid)
-            Call RecPrt('TabSO',' ',TabSO(:,iSO1),mAO,mGrid)
+!           Write (6,*) 'Fact*xa:',Fact*xa
+!           Write (6,*) 'iMO,iSO,iAdd=',iMO,iSO,iAdd
+!           Write (6,*) 'iSO1=',iSO1
+!           Call RecPrt('TabAO',' ',TabAO(:,:,iBfn),mAO,mGrid)
+!           Call RecPrt('TabSO',' ',TabSO(:,iSO1),mAO,mGrid)
             Call DaXpY_(mAO*mGrid,Fact*xa,
      &                  TabAO(:,:,iBfn),1,
      &                  TabSO(:,iSO1),1)
-            Call RecPrt('TabSO',' ',TabSO(:,iSO1),mAO,mGrid)
+!           Call RecPrt('TabSO',' ',TabSO(:,iSO1),mAO,mGrid)
          End Do
       End Do
 *
