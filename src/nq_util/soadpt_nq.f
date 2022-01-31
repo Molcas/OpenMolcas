@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine SOAdpt_NQ(AOValue,mAO,nCoor,mBas,mBas_Eff,
-     &                     nCmp,nOp,SOValue,nDeg,iAO)
+     &                     nCmp,nOp,SOValue,nMOs,nDeg,iAO)
       use Symmetry_Info, only: nIrrep, iChTbl
       use SOAO_Info, only: iAOtSO
       use Basis_Info, only: MolWgh, nBas

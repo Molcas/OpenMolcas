@@ -31,8 +31,6 @@
          iOff=iOff+nBas(iIrrep)**2
       End Do
 #endif
-#define _JUSTPRINT_
-#ifdef _JUSTPRINT_
 
 *
 *---- Compute some offsets
@@ -49,7 +47,6 @@
          iSO =iSO +nBas(iIrrep)
          iCMO=iCMO+nBas(iIrrep)*nBas(iIrrep)
       End Do
-#endif
 *
 #ifdef _DEBUGPRINT_
       Write (Label,'(A)')'mk_MOs: MOValue(mAO*nCoor,nMOs)'

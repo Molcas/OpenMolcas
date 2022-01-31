@@ -351,7 +351,7 @@
 *           temporarily!
 *
             Call SOAdpt_NQ(TabAO_Pack(ipTabAO(iList_s,1):),mAO,mGrid,
-     &                     iBas,iBas_Eff,iCmp,iSym,TabSO,nDeg,iAO)
+     &                     iBas,iBas_Eff,iCmp,iSym,TabSO,nMOs,nDeg,iAO)
 *
          End Do
 
