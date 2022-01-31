@@ -389,8 +389,7 @@
          Else !AO-based run for gradients
 !           nP2_ontop_d = nP2_ontop*mGrid*nGrad_Eff
             P2_ontop_d(:,:,:) = 0
-            Call  Do_Pi2grad(TabAO,nTabAO,mAO,mGrid,
-     &                       P2_ontop,nP2_ontop,nGrad_Eff,
+            Call  Do_Pi2grad(mAO,mGrid,P2_ontop,nP2_ontop,nGrad_Eff,
      &                       list_s,nlist_s,list_bas,
      &                       D1MO,SIZE(D1MO),TabMO,P2_ontop_d,
      &                       RhoI,RhoA,mRho,nMOs,CMO,
