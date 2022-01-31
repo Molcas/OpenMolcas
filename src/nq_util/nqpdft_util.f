@@ -454,14 +454,15 @@ C       CALL RecPrt(' ','(10(F9.5,1X))',P2MOCube(IOff1),1,NASHT)
 
       INTEGER mAO,mGrid,nMOs,iGrid,nAOGrid,iGridOff,iCoordOff
       Real*8 :: TabSO(mAO,mGrid,nMOs)
-      Real*8 :: TabSO2(mAO*mGrid*nMOs)
+      Real*8 :: TabSO2(nMOs,mAO*mGrid)
 
-      INTEGER iCoord, iSt, iEnd, iAO, jAO
+      INTEGER iCoord, iSt, iEnd, iAO, jAO, iOff
 
       nAOGrid=mAO*mGrid   ! TabSO : mAO*mGrid x nMOs
-                          ! TabSO2: nMOs*nAO  x nGrid
+                          ! TabSO2: nMOs x mAO*nGrid
 
       ! loop over first and optionally second derivatives of the SOs
+      ! this defines the length of nAO to 3 or 9.
       iSt = 1
       If (lft.and.lGGA) Then
          iEnd = 9
@@ -471,15 +472,14 @@ C       CALL RecPrt(' ','(10(F9.5,1X))',P2MOCube(IOff1),1,NASHT)
 
       Do iGrid=1,mGrid
 
-         IGridOff=(iGrid-1)*mAO*nMOs
 
          Do jAO=iSt, iEnd
 
-            ICoordOff=IGridOff+(jAO-1)*nMOs+1
+            iOff = (iGrid-1)*mAO + jAO
 
             iAO=jAO+1
             CALL DCopy_(nMOs,TabSO(iAO,iGrid,1),nAOGrid,
-     &                       TabSO2(iCoordOff),1)
+     &                       TabSO2(:,iOff),1)
          End Do
       End Do
 
