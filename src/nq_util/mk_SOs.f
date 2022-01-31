@@ -7,6 +7,8 @@
 * is provided "as is" and without any express or implied warranties.   *
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 2022, Roland Lindh                                     *
 ************************************************************************
       Subroutine mk_SOs(TabSO,mAO,mGrid,nMOs,List_s,List_Bas,nList_s)
       use iSD_data
@@ -54,8 +56,6 @@
          iAdd=mBas-mBas_Eff
          Do iIrrep = 0, nIrrep-1
             iSO0=iAOtSO(iAO+i1,iIrrep)
-!           Write (6,*) 'iAO,i1,i2,iIrrep:',iAO,i1,i2,iIrrep
-!           Write (6,*) 'iSO0:',iSO0
             If (iSO0<0) Cycle
 
             iMO=iOff_MO(iIrrep)
@@ -63,15 +63,9 @@
             xa= DBLE(iChTbl(iIrrep,nOp))
             iSO = iSO0 + i2 - 1
             iSO1=iMO+iSO-1+iAdd
-!           Write (6,*) 'Fact*xa:',Fact*xa
-!           Write (6,*) 'iMO,iSO,iAdd=',iMO,iSO,iAdd
-!           Write (6,*) 'iSO1=',iSO1
-!           Call RecPrt('TabAO',' ',TabAO(:,:,iBfn),mAO,mGrid)
-!           Call RecPrt('TabSO',' ',TabSO(:,iSO1),mAO,mGrid)
             Call DaXpY_(mAO*mGrid,Fact*xa,
      &                  TabAO(:,:,iBfn),1,
      &                  TabSO(:,iSO1),1)
-!           Call RecPrt('TabSO',' ',TabSO(:,iSO1),mAO,mGrid)
          End Do
       End Do
 *

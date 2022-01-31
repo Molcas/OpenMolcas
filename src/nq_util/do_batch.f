@@ -35,7 +35,7 @@
       use nq_Grid, only: vRho, vSigma, vTau, vLapl
       use nq_Grid, only: l_CASDFT, TabAO, TabAO_Pack, dRho_dR
       use nq_Grid, only: F_xc, F_xca, F_xcb
-      use nq_Grid, only: Fact, SOs, Angular, Mem
+      use nq_Grid, only: Fact, Angular, Mem
       use nq_Grid, only: D1UnZip, P2UnZip
       use nq_Grid, only: Dens_AO, iBfn_Index
       use nq_pdft
@@ -327,39 +327,7 @@
 
          ! First, symmatry adapt the AOs
          TabSO(:,:,:)=Zero
-*#define _OLD_
-#ifdef _OLD_
-         Do ilist_s=1,nlist_s
-            ish=list_s(1,ilist_s)
-            iCmp  = iSD( 2,iSh)
-            iBas  = iSD( 3,iSh)
-            iBas_Eff = List_Bas(1,ilist_s)
-            iPrim = iSD( 5,iSh)
-            iAO   = iSD( 7,iSh)
-            mdci  = iSD(10,iSh)
-*
-*---------- Allocate memory for SO and MO
-*
-            kAO   = iCmp*iBas*mGrid
-            nDeg  = nSym/dc(mdci)%nStab
-            nSO   = kAO*nDeg*mAO
-            Call FZero(SOs,nSO)
-*
-            iR=list_s(2,ilist_s)
-            iSym=NrOpr(iR)
-*
-*---------- Distribute contributions of AOs if this particular shell
-*           on to the SOs of this shell. The SOs are only stored
-*           temporarily!
-*
-            Call SOAdpt_NQ(TabAO_Pack(ipTabAO(iList_s,1):),mAO,mGrid,
-     &                     iBas,iBas_Eff,iCmp,iSym,TabSO,nMOs,nDeg,iAO)
-*
-         End Do
-#else
          Call mk_SOs(TabSO,mAO,mGrid,nMOs,List_s,List_Bas,nList_s)
-#endif
-!        Stop 123
 
          ! Second, transform SOs to MOs
          TabMO(:,:,:)=Zero

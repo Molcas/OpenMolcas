@@ -7,6 +7,8 @@
 * is provided "as is" and without any express or implied warranties.   *
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 2022, Roland Lindh                                     *
 ************************************************************************
       Subroutine mk_MOs(SOValue,mAO,nCoor,MOValue,nMOs,CMOs,nCMO)
       use Basis_Info, only: nBas
@@ -31,7 +33,6 @@
          iOff=iOff+nBas(iIrrep)**2
       End Do
 #endif
-
 *
 *---- Compute some offsets
 *
