@@ -102,7 +102,7 @@ subroutine Print_Info()
   end do
 
 100 format(6x,'* ',a)
-101 format(8x,'- 'a,' doi:',a)
+101 format(8x,'- ',a,' doi:',a)
 
 end subroutine Print_Info
 
@@ -249,7 +249,7 @@ end function get_func
 
 subroutine check_supported(Label,flags)
 
-  use xc_f03_lib_m, only: xc_f03_func_info_t, XC_FLAGS_HYB_CAM, XC_FLAGS_HYB_CAMY, XC_FLAGS_HYB_LC, XC_FLAGS_HYB_LCY, XC_FLAGS_VV10
+  use xc_f03_lib_m, only: XC_FLAGS_HYB_CAM, XC_FLAGS_HYB_CAMY, XC_FLAGS_HYB_LC, XC_FLAGS_HYB_LCY, XC_FLAGS_VV10
   use Definitions, only: u6
 
   character(len=*), intent(in) :: Label
