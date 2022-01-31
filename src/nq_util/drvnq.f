@@ -78,7 +78,7 @@
       Call mma_allocate(R_Min,LMax_NQ+1,Label='R_Min')
 *
       NQ_Status=Inactive
-      Call Setup_NQ(Maps2p,nShell,nIrrep,nNQ,Do_Grad,Do_MO,nD,
+      Call Setup_NQ(Maps2p,nShell,nIrrep,nNQ,Do_Grad,Do_MO,
      &              PThr,PMode,R_Min,LMax_NQ)
 *
       Call mma_deallocate(R_Min)

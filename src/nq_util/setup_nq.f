@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1999, Roland Lindh                                     *
 ************************************************************************
-      Subroutine Setup_NQ(Maps2p,nShell,nSym,nNQ,Do_Grad,On_Top,nD,
+      Subroutine Setup_NQ(Maps2p,nShell,nSym,nNQ,Do_Grad,On_Top,
      &                    Pck_Old,PMode_old,R_Min,nR_Min)
 ************************************************************************
 *                                                                      *
