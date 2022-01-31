@@ -79,12 +79,12 @@
          If (mAO.ne.10.or.mRho.ne.4) Then
            Call WarningMessage(2,' Somthings wrong in dim. in p2cs')
            Call Abend()
-       End If
+         End If
       Else If (nP2_ontop.eq.6) Then
          If (mAO.ne.10.or.mRho.ne.6) Then
            Call WarningMessage(2,' Somthings wrong in dim. in p2cs')
            Call Abend()
-        End If
+         End If
       End If
 *
       Call FZero(P2_ontop,mGrid*nP2_ontop)
@@ -110,92 +110,92 @@
       dTabMO(:,:,:,:)=Zero
 
 !::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-         Do ilist_s=1,nlist_s
-            ish=list_s(1,ilist_s)
-            iCmp  = iSD( 2,iSh)
-            iBas  = iSD( 3,iSh)
-            iBas_Eff = List_Bas(1,ilist_s)
-            iAO   = iSD( 7,iSh)
-            mdci  = iSD(10,iSh)
-!           iShell= iSD(11,iSh)
+      Do ilist_s=1,nlist_s
+         ish=list_s(1,ilist_s)
+         iCmp  = iSD( 2,iSh)
+         iBas  = iSD( 3,iSh)
+         iBas_Eff = List_Bas(1,ilist_s)
+         iAO   = iSD( 7,iSh)
+         mdci  = iSD(10,iSh)
+!        iShell= iSD(11,iSh)
 
-            kAO   = iCmp*iBas*mGrid
-            nDeg  = nSym/dc(mdci)%nStab
-            nSO   = kAO*nDeg*mAO
+         kAO   = iCmp*iBas*mGrid
+         nDeg  = nSym/dc(mdci)%nStab
+         nSO   = kAO*nDeg*mAO
 
-            Call FZero(TabSO,mAO*mGrid*nMOs)
+         Call FZero(TabSO,mAO*mGrid*nMOs)
 
-            iR=list_s(2,ilist_s)
-            iSym=NrOpr(iR)
+         iR=list_s(2,ilist_s)
+         iSym=NrOpr(iR)
 
-            Call SOAdpt_NQ(TabAO(ipTabAO(iList_s,1)),mAO,mGrid,iBas,
+         Call SOAdpt_NQ(TabAO(ipTabAO(iList_s,1)),mAO,mGrid,iBas,
      &                  iBas_Eff,iCmp,iSym,TabSO,nMOs,nDeg,iAO)
 
-            CALL ConvertTabSO(TabSO2,TabSO,mAO,mGrid,nMOs)
+         CALL ConvertTabSO(TabSO2,TabSO,mAO,mGrid,nMOs)
 
-            Do iGrid=1,mGrid
-             IGridOff=(iGrid-1)*mAO*nMOs
-             Do iCoord=1,3
-              ICoordOff=IGridOff+(iCoord-1)*nMOs
-              g_eff = list_g(iCoord,ilist_s)
+         Do iGrid=1,mGrid
+            IGridOff=(iGrid-1)*mAO*nMOs
+            Do iCoord=1,3
+               ICoordOff=IGridOff+(iCoord-1)*nMOs
+               g_eff = list_g(iCoord,ilist_s)
                ICoordOff1=0
                ICoordOff2=0
                ICoordOff3=0
-              IF(lft.and.lGGA) THEN
-               If(iCoord.eq.1) Then
-                iCoord1=4
-                iCoord2=5
-                iCoord3=6
-               Else If(iCoord.eq.2) Then
-                iCoord1=5
-                iCoord2=7
-                iCoord3=8
-               Else If(iCoord.eq.3) Then
-                iCoord1=6
-                iCoord2=8
-                iCoord3=9
-               End If
-               ICoordOff1=IGridOff+(iCoord1-1)*nMOs
-               ICoordOff2=IGridOff+(iCoord2-1)*nMOs
-               ICoordOff3=IGridOff+(iCoord3-1)*nMOs
-              END IF
-              do iIrrep=0,mIrrep-1
-               nOccO=nIsh(iIrrep)+nAsh(iIrrep)
-               IF(nOccO.eq.0) CYCLE
-               nBasF=nBas(iIrrep)
-
-      CALL DGEMM_('T','N',nOccO,1,nBasF,1.0d0,
-     &           CMO(OffBas2(iIrrep)),nBasF,
-     &           TabSO2(iCoordOff+OffBas(iIrrep)),nBasF,
-     &           0.0d0,dTabMO2,nOccO)
-      CALL DAXPY_(nOccO,1.0d0,dTabMO2,1,
-     &dTabMO(1,OffBas(iIrrep)+nFro(iIrrep),g_eff,iGrid),nP2_ontop)
-
-               IF(lft.and.lGGA) THEN
-      CALL DGEMM_('T','N',nOccO,1,nBasF,1.0d0,
-     &           CMO(OffBas2(iIrrep)),nBasF,
-     &           TabSO2(iCoordOff1+OffBas(iIrrep)),nBasF,
-     &           0.0d0,dTabMO2,nOccO)
-      CALL DAXPY_(nOccO,1.0d0,dTabMO2,1,
-     &dTabMO(2,OffBas(iIrrep)+nFro(iIrrep),g_eff,iGrid),nP2_ontop)
-
-      CALL DGEMM_('T','N',nOccO,1,nBasF,1.0d0,
-     &           CMO(OffBas2(iIrrep)),nBasF,
-     &           TabSO2(iCoordOff2+OffBas(iIrrep)),nBasF,
-     &           0.0d0,dTabMO2,nOccO)
-      CALL DAXPY_(nOccO,1.0d0,dTabMO2,1,
-     &dTabMO(3,OffBas(iIrrep)+nFro(iIrrep),g_eff,iGrid),nP2_ontop)
-
-      CALL DGEMM_('T','N',nOccO,1,nBasF,1.0d0,
-     &           CMO(OffBas2(iIrrep)),nBasF,
-     &           TabSO2(iCoordOff3+OffBas(iIrrep)),nBasF,
-     &           0.0d0,dTabMO2,nOccO)
-      CALL DAXPY_(nOccO,1.0d0,dTabMO2,1,
-     &dTabMO(4,OffBas(iIrrep)+nFro(iIrrep),g_eff,iGrid),nP2_ontop)
+               IF (lft.and.lGGA) THEN
+                  If (iCoord.eq.1) Then
+                     iCoord1=4
+                     iCoord2=5
+                     iCoord3=6
+                  Else If(iCoord.eq.2) Then
+                     iCoord1=5
+                     iCoord2=7
+                     iCoord3=8
+                  Else If(iCoord.eq.3) Then
+                     iCoord1=6
+                     iCoord2=8
+                     iCoord3=9
+                  End If
+                  ICoordOff1=IGridOff+(iCoord1-1)*nMOs
+                  ICoordOff2=IGridOff+(iCoord2-1)*nMOs
+                  ICoordOff3=IGridOff+(iCoord3-1)*nMOs
                END IF
-              end do ! iIrrep
-             End Do  ! iCoord
-            End Do   ! iGrid
+               do iIrrep=0,mIrrep-1
+                  nOccO=nIsh(iIrrep)+nAsh(iIrrep)
+                  IF (nOccO.eq.0) CYCLE
+                  nBasF=nBas(iIrrep)
+
+                  CALL DGEMM_('T','N',nOccO,1,nBasF,
+     &                     1.0d0,CMO(OffBas2(iIrrep)),nBasF,
+     &                           TabSO2(iCoordOff+OffBas(iIrrep)),nBasF,
+     &                     0.0d0,dTabMO2,nOccO)
+                  CALL DAXPY_(nOccO,1.0d0,dTabMO2,1,
+     &      dTabMO(1,OffBas(iIrrep)+nFro(iIrrep),g_eff,iGrid),nP2_ontop)
+
+                  IF (lft.and.lGGA) THEN
+                     CALL DGEMM_('T','N',nOccO,1,nBasF,
+     &                    1.0d0,CMO(OffBas2(iIrrep)),nBasF,
+     &                          TabSO2(iCoordOff1+OffBas(iIrrep)),nBasF,
+     &                    0.0d0,dTabMO2,nOccO)
+                     CALL DAXPY_(nOccO,1.0d0,dTabMO2,1,
+     &      dTabMO(2,OffBas(iIrrep)+nFro(iIrrep),g_eff,iGrid),nP2_ontop)
+
+                     CALL DGEMM_('T','N',nOccO,1,nBasF,
+     &                    1.0d0,CMO(OffBas2(iIrrep)),nBasF,
+     &                          TabSO2(iCoordOff2+OffBas(iIrrep)),nBasF,
+     &                    0.0d0,dTabMO2,nOccO)
+                     CALL DAXPY_(nOccO,1.0d0,dTabMO2,1,
+     &      dTabMO(3,OffBas(iIrrep)+nFro(iIrrep),g_eff,iGrid),nP2_ontop)
+
+                     CALL DGEMM_('T','N',nOccO,1,nBasF,
+     &                    1.0d0,CMO(OffBas2(iIrrep)),nBasF,
+     &                          TabSO2(iCoordOff3+OffBas(iIrrep)),nBasF,
+     &                    0.0d0,dTabMO2,nOccO)
+                     CALL DAXPY_(nOccO,1.0d0,dTabMO2,1,
+     &      dTabMO(4,OffBas(iIrrep)+nFro(iIrrep),g_eff,iGrid),nP2_ontop)
+                  END IF
+               end do ! iIrrep
+            End Do  ! iCoord
+         End Do   ! iGrid
       END DO         ! iList_s
 ************************************************************************
 *          Inactive part:                                              *
