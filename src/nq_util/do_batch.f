@@ -69,6 +69,7 @@
       Real*8 EG_OT(nTmpPUVX)
       Real*8, Allocatable:: RhoI(:,:), RhoA(:,:)
       Real*8, Allocatable:: TabAO_Tmp(:)
+      Integer :: TabAO_Size(2)
 
       Interface
          Subroutine mk_SOs(TabSO,mAO,mGrid,nMOs,List_s,List_Bas,nList_s,
@@ -131,8 +132,8 @@
 *
 *------- Retrieve the AOs from disc
 *
-         Call iDaFile(Lu_Grid,2,ipTabAO,2*(nlist_s+1),iDisk_Grid)
-         nByte=ipTabAO(nlist_s+1,2)
+         Call iDaFile(Lu_Grid,2,TabAO_Size,2,iDisk_Grid)
+         nByte=TabAO_Size(2)
          mTabAO = (nByte+RtoB-1)/RtoB
          Call iDaFile(Lu_Grid,2,iBfn_Index,Size(iBfn_Index),iDisk_Grid)
          Call dDaFile(Lu_Grid,2,TabAO,mTabAO,iDisk_Grid)
@@ -218,8 +219,6 @@
 *
 *---------- Evaluate AOs at RA
 *
-*           ipTabAO(iList_s,1)=iOff
-*                                                                      *
             Call AOEval(iAng,mGrid,Grid,Mem(ipxyz),RA,
      &                  Shells(iShll)%Transf,
      &                  RSph(ipSph(iAng)),nElem(iAng),iCmp,
@@ -267,7 +266,7 @@
      &             1.0D2*DBLE(mlist_s)/DBLE(nlist_s)
       Write (6,*)
 #endif
-         ipTabAO(nList_s+1,1)=iOff-1
+         TabAO_Size(1)=nBfn
 *
 *        AOs are packed and written to disk.
 *
@@ -290,14 +289,14 @@
                   Write (6,*) 'nData=',nData
                   Call Abend()
                End If
-               ipTabAO(nList_s+1,2)=nByte
+               TabAO_Size(2)=nByte
                Call mma_deAllocate(TabAO_Tmp)
             Else
                mData=nAO*mGrid*nBfn
-               ipTabAO(nList_s+1,2)=ipTabAO(nList_s+1,1)
+               TabAO_Size(2)=nAO*mGrid*TabAO_Size(1)
             End If
 *
-            Call iDaFile(Lu_Grid,1,ipTabAO,2*(nlist_s+1),iDisk_Grid)
+            Call iDaFile(Lu_Grid,1,TabAO_Size,2,iDisk_Grid)
             mTabAO=mData
             Call iDaFile(Lu_Grid,1,iBfn_Index,Size(iBfn_Index),
      &                   iDisk_Grid)
@@ -313,7 +312,7 @@
 *
          nData=Size(TabAO)
          Call mma_Allocate(TabAO_Tmp,nData,Label='TabAO_Tmp')
-         nByte=ipTabAO(nlist_s+1,2)
+         nByte=TabAO_Size(2)
          Call UpkR8(0,nData,nByte,TabAO_Pack,TabAO_Tmp)
          TabAO_Pack(:)=TabAO_Tmp(:)
          Call mma_deAllocate(TabAO_Tmp)
