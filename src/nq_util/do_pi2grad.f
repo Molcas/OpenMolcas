@@ -68,6 +68,17 @@
       Real*8, Allocatable :: TabSO2(:)
       Real*8 dTabMO2(nMOs)
 
+      Interface
+         Subroutine mk_SOs(TabSO,mAO,mGrid,nMOs,List_s,List_Bas,nList_s,
+     &                     jList_s)
+         Integer mAO,mGrid,nMOs,nList_s
+         Real*8 TabSO(mAO*mGrid,nMOs)
+         Integer :: list_s(2,nList_s), list_bas(2,nlist_s)
+         Integer, optional :: jList_s
+         End Subroutine mk_SOs
+      End Interface
+
+
 ************************************************************************
 *                                                                      *
       iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
@@ -121,15 +132,15 @@
 
          nDeg  = nSym/dc(mdci)%nStab
 
-         ! Make sure that we only deal with SO if this shell.
-         ! Note that they on have the same center.
          Call FZero(TabSO,mAO*mGrid*nMOs)
 
          iR=list_s(2,ilist_s)
          iSym=NrOpr(iR)
 
-         Call SOAdpt_NQ(TabAO(ipTabAO(iList_s,1)),mAO,mGrid,iBas,
-     &                  iBas_Eff,iCmp,iSym,TabSO,nMOs,nDeg,iAO)
+         Call mk_SOs(TabSO,mAO,mGrid,nMOs,List_s,List_Bas,nList_s,
+     &                     jList_s=iList_s)
+!        Call SOAdpt_NQ(TabAO(ipTabAO(iList_s,1)),mAO,mGrid,iBas,
+!    &                  iBas_Eff,iCmp,iSym,TabSO,nMOs,nDeg,iAO)
 
          ! At this point TabSO only contains non-zero values from
          ! the contributions from the AOs of this shell.
