@@ -394,7 +394,7 @@
      &                       list_s,nlist_s,list_bas,
      &                       D1MO,SIZE(D1MO),TabMO,P2_ontop_d,
      &                       RhoI,RhoA,mRho,nMOs,CMO,
-     &                       nCMO,TabSO,nsym,lft,
+     &                       nCMO,TabSO,lft,
      &                       P2MOCube,P2MOCubex,P2MOCubey,P2MOCubez,
      &                       nPMO3p,MOs,MOx,MOy,MOz)
          End If
