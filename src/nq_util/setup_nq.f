@@ -28,7 +28,7 @@
       use Basis_Info
       use Center_Info
       use Symmetry_Info, only: nIrrep, iOper
-      use nq_Grid, only: nGridMax, Coor, Pax, Fact, Tmp, nR_Eff
+      use nq_Grid, only: nGridMax, Coor, Pax, Fact, nR_Eff
       use nq_Grid, only: Angular, Mem
       use nq_structure, only: NQ_Data
       use Grid_On_Disk
@@ -492,7 +492,6 @@ c     Write(6,*) '********** Setup_NQ ***********'
 *     nFOrd: the order of the functional. nFOrd-1 is the number of times
 *            the basis functions has to be differentiated to compute the
 *            energy contribution.
-*     mTmp: seems to be redundant?
 *     mRad: number of different radial functions associated with a
 *           basis function. This number depends on the type of
 *           functional and the number of times the basis function has
@@ -509,11 +508,9 @@ c     Write(6,*) '********** Setup_NQ ***********'
          mAO=(nFOrd*(nFOrd+1)*(nFOrd+2))/6
          if(do_grad) mAO=4!AMS - GRADIENTS?
          If (.Not.Do_Grad) Then
-            mTmp=1
             mRad=nFOrd
             nScr=nD*nAOMax
          Else
-            mTmp=7
             mRad=nFOrd+1
             nScr=0
          End If
@@ -523,11 +520,9 @@ c     Write(6,*) '********** Setup_NQ ***********'
          mAO=(nFOrd*(nFOrd+1)*(nFOrd+2))/6
          if(do_grad) mAO=10
          If (.Not.Do_Grad) Then
-            mTmp=7
             mRad=nFOrd
             nScr=nD*4*nAOMax
          Else
-            mTmp=28
             mRad=nFOrd+1
             nScr=0
          End If
@@ -538,11 +533,9 @@ c     Write(6,*) '********** Setup_NQ ***********'
          nFOrd=2
          mAO=10
          If (.Not.Do_Grad) Then
-            mTmp=7
             mRad=nFOrd
             nScr=nD*4*nAOMax
          Else
-            mTmp=28
             mRad=nFOrd+1
             nScr=0
          End If
@@ -551,11 +544,9 @@ c     Write(6,*) '********** Setup_NQ ***********'
          nFOrd=2
          mAO=(nFOrd*(nFOrd+1)*(nFOrd+2))/6
          If (.Not.Do_Grad) Then
-            mTmp=7
             mRad=nFOrd
             nScr=nD*4*nAOMax
          Else
-            mTmp=28
             mRad=NFOrd+1
             nScr=0
          End If
@@ -564,18 +555,15 @@ c     Write(6,*) '********** Setup_NQ ***********'
          nFOrd=3
          mAO=(nFOrd*(nFOrd+1)*(nFOrd+2))/6
          If (.Not.Do_Grad) Then
-            mTmp=7
             mRad=nFOrd
             nScr=nD*10*nAOMax
          Else
-            mTmp=28
             mRad=NFOrd+1
             nScr=0
          End If
 *
 *     Else If (Functional_type.eq.Other_type) Then
       Else
-         mTmp=0 ! Dummy initialize
          mRad=0 ! Dummy initialize
          mAO=0  ! Dummy initialize
          nScr=0 ! Dummy initialize
@@ -587,8 +575,6 @@ c     Write(6,*) '********** Setup_NQ ***********'
 !                                                                      *
 !     Allocate scratch for processing AO's on the grid
 !
-      nTmp=nGridMax*Max(mTmp,nScr)
-      Call mma_allocate(Tmp,nTmp,Label='Tmp')
 *
       nMem=0
       nSO =0

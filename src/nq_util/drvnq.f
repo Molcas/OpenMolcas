@@ -33,7 +33,7 @@
       use nq_Grid, only: l_CASDFT, kAO
       use nq_Grid, only: F_xc, F_xca, F_xcb
       use nq_Grid, only: List_G, IndGrd, iTab, Temp, Angular, Mem
-      use nq_Grid, only: Coor, R2_trial, Pax, Fact, Tmp, nR_Eff
+      use nq_Grid, only: Coor, R2_trial, Pax, Fact, nR_Eff
       use nq_pdft, only: lGGA
       use nq_MO, only: nMOs, CMO, D1MO, P2MO, P2_ontop
       use nq_Structure, only: Close_NQ_Data
@@ -489,7 +489,6 @@
       Call Close_NQ_Data()
       Call mma_deallocate(Mem)
       Call mma_deallocate(Angular)
-      Call mma_deallocate(Tmp)
       Call mma_deallocate(Fact)
       Call mma_deallocate(Maps2p)
       NQ_Status=Inactive
