@@ -1648,12 +1648,18 @@ message ("-- Libxc_INCLUDE_DIRS: ${Libxc_INCLUDE_DIRS}")
 message ("-- Libxc_LIBRARIES: ${Libxc_LIBRARIES}")
 list (APPEND EXTERNAL_LIBRARIES ${Libxc_LIBRARIES})
 
-foreach (prog
-  dft_util
-  nq_util
-)
-  list (APPEND ${prog}_incs ${Libxc_INCLUDE_DIRS})
-endforeach ()
+# Some compilers seem to have issues with nested modules
+set (_comp_list PGI NAG)
+if (${FCID} IN_LIST _comp_list)
+  include_directories (${Libxc_INCLUDE_DIRS})
+else ()
+  foreach (prog
+    dft_util
+    nq_util
+  )
+    list (APPEND ${prog}_incs ${Libxc_INCLUDE_DIRS})
+  endforeach ()
+endif ()
 
 # Global Arrays settings
 #=======================

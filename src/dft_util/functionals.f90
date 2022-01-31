@@ -90,7 +90,7 @@ subroutine Print_Info()
     call xc_f03_func_init(func,Def_func_id(i),0_LibxcInt)
     info = xc_f03_func_get_info(func)
     write(u6,100) trim(xc_f03_func_info_get_name(info))
-    ! old_j is a workaround for a bug in Libxc
+    ! old_j is a workaround for a bug in Libxc 5.2.0
     old_j = -1
     j = 0
     do while ((j >= 0) .and. (j /= old_j))
