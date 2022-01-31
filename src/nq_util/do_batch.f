@@ -261,6 +261,7 @@
             iOff = iBfn*mAO*mGrid + 1
 *
          End Do
+         nBfn=iBfn
 #ifdef _ANALYSIS_
       Write (6,*) ' % AO blocks that can be eliminated: ',
      &             1.0D2*DBLE(mlist_s)/DBLE(nlist_s)
@@ -278,7 +279,7 @@
 *
 *------------- Pack before they are put on disc
 *
-               nData=Size(TabAO)
+               nData=mAO*mGrid*nBfn
                Call mma_Allocate(TabAO_Tmp,nData,Label='TabAO_Tmp')
                TabAO_Tmp(:)=TabAO_Pack(:)
                Call PkR8(0,nData,nByte,TabAO_Tmp,TabAO_Pack)
@@ -292,7 +293,7 @@
                ipTabAO(nList_s+1,2)=nByte
                Call mma_deAllocate(TabAO_Tmp)
             Else
-               mData=Size(TabAO)
+               mData=nAO*mGrid*nBfn
                ipTabAO(nList_s+1,2)=ipTabAO(nList_s+1,1)
             End If
 *
