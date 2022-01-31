@@ -3103,7 +3103,7 @@ if (DEFINED EXTRA_DIR)
 endif ()
 # copy the necessary files from sbin
 file (REMOVE_RECURSE ${PROJECT_BINARY_DIR}/sbin)
-foreach (f setup verify version find_sources have_feature help_basis help_doc)
+foreach (f setup verify version find_sources have_feature help_basis help_func help_doc)
   file (COPY ${OPENMOLCAS_DIR}/sbin/${f} DESTINATION ${PROJECT_BINARY_DIR}/sbin)
 endforeach ()
 if (DEFINED EXTRA_DIR)
@@ -3397,6 +3397,7 @@ install (TARGETS
 
 install (PROGRAMS
   ${PROJECT_BINARY_DIR}/sbin/help_basis
+  ${PROJECT_BINARY_DIR}/sbin/help_func
   ${PROJECT_BINARY_DIR}/sbin/help_doc
   ${PROJECT_BINARY_DIR}/sbin/setup
   ${PROJECT_BINARY_DIR}/sbin/version
