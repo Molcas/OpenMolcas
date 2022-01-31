@@ -453,34 +453,29 @@ C       CALL RecPrt(' ','(10(F9.5,1X))',P2MOCube(IOff1),1,NASHT)
       use nq_pdft, only: lft, lGGA
 
       INTEGER mAO,mGrid,nMOs,iGrid,nAOGrid,iGridOff,iCoordOff
-      Real*8,DIMENSION(mAO,mGrid,nMOs)::TabSO
-      Real*8,DIMENSION(mAO*mGrid*nMOs)::TabSO2
+      Real*8 :: TabSO(mAO,mGrid,nMOs)
+      Real*8 :: TabSO2(mAO*mGrid*nMOs)
 
-      INTEGER iCoord
+      INTEGER iCoord, iSt, iEnd
 
       nAOGrid=mAO*mGrid   ! TabSO : mAO*mGrid x nMOs
                           ! TabSO2:
 
-!     Pull out the derivatives and transpose
+      iSt = 1
+      If (lft.and.lGGA) Then
+         iEnd = 9
+      Else
+         iEnd = 3
+      End If
 
       Do iGrid=1,mGrid
          IGridOff=(iGrid-1)*mAO*nMOs
-         Do iCoord=1,3
+         Do iCoord=iSt, iEnd
             ICoordOff=IGridOff+(iCoord-1)*nMOs+1
             CALL DCopy_(nMOs,TabSO(iCoord+1,iGrid,1),nAOGrid,
      &                       TabSO2(iCoordOff),1)
          End Do
       End Do
 
-      IF(lft.and.lGGA) THEN
-       DO iGrid=1,mGrid
-        IGridOff=(iGrid-1)*mAO*nMOs
-        Do iCoord=4,9
-         ICoordOff=IGridOff+(iCoord-1)*nMOs+1
-         CALL DCopy_(nMOs,TabSO((iCoord+1),iGrid,1),nAOGrid,
-     &                    TabSO2(iCoordOff),1)
-        End Do
-       END DO
-      END IF
       RETURN
       End Subroutine ConvertTabSO

@@ -120,6 +120,8 @@
 
          nDeg  = nSym/dc(mdci)%nStab
 
+         ! Make sure that we only deal with SO if this shell.
+         ! Note that they on have the same center.
          Call FZero(TabSO,mAO*mGrid*nMOs)
 
          iR=list_s(2,ilist_s)
@@ -128,10 +130,16 @@
          Call SOAdpt_NQ(TabAO(ipTabAO(iList_s,1)),mAO,mGrid,iBas,
      &                  iBas_Eff,iCmp,iSym,TabSO,nMOs,nDeg,iAO)
 
+         ! At this point TabSO only contains non-zero values from
+         ! the contributions from the AOs of this shell.
+
+         ! Now we change the order from (mAO,mGrid,nMOs) to
+         ! ?
          CALL ConvertTabSO(TabSO2,TabSO,mAO,mGrid,nMOs)
 
          Do iGrid=1,mGrid
             IGridOff=(iGrid-1)*mAO*nMOs
+
             Do iCoord=1,3
                ICoordOff=IGridOff+(iCoord-1)*nMOs
                g_eff = list_g(iCoord,ilist_s)
