@@ -61,8 +61,7 @@
       Real*8 EG_OT(nTmpPUVX)
       Integer, Allocatable:: Index(:)
       Real*8, Allocatable:: dW_Temp(:,:), dPB(:,:,:)
-      Integer, Allocatable:: ipTabAO(:,:)
-      Real*8, Allocatable:: ipTabMO(:), ipTabSO(:)
+      Real*8, Allocatable:: TabMO(:), TabSO(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -313,7 +312,6 @@
          nBfn=nBfn+NrBas_Eff*iCmp
       End Do
 *
-      Call mma_Allocate(ipTabAO,(nlist_s+1),2,Label='ipTabAO')
 *
       If ((Functional_Type.eq.CASDFT_Type).or.Do_MO) Then
          nTabMO=mAO*nMOs*mGrid
@@ -322,8 +320,8 @@
          nTabMO=1
          nTabSO=1
       End If
-      Call mma_allocate(ipTabMO,nTabMO,Label='ipTabMO')
-      Call mma_allocate(ipTabSO,nTabSO,Label='ipTabSO')
+      Call mma_allocate(TabMO,nTabMO,Label='TabMO')
+      Call mma_allocate(TabSO,nTabSO,Label='TabSO')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -643,14 +641,10 @@ c
            Call mma_allocate(dRho_dR,1,1,1,Label='dRho_dR')
          End If
 
-         Call Do_Batch(Kernel,Func,nogp,
-     &                 list_s,nlist_s,List_Exp,List_Bas,
-     &                 Index,nIndex,
-     &                 FckInt,nFckDim,nFckInt,
-     &                 ipTabAO,mAO,nD,nP2_ontop,
-     &                 Do_Mo,ipTabMO,ipTabSO,nMOs,
-     &                 Do_Grad,Grad,nGrad,
-     &                 mdRho_dR,nGrad_Eff,iNQ,
+         Call Do_Batch(Kernel,Func,nogp,list_s,nlist_s,List_Exp,
+     &                 List_Bas,Index,nIndex,FckInt,nFckDim,nFckInt,
+     &                 mAO,nD,nP2_ontop,Do_Mo,TabMO,TabSO,nMOs,
+     &                 Do_Grad,Grad,nGrad,mdRho_dR,nGrad_Eff,iNQ,
      &                 EG_OT,nTmpPUVX,PDFTPot1,PDFTFocI,PDFTFocA)
 *
          If (Allocated(dRho_dR)) Call mma_deallocate(dRho_dR)
@@ -679,9 +673,8 @@ c
 ************************************************************************
 *                                                                      *
       Call mma_deAllocate(Index)
-      Call mma_deallocate(ipTabAO)
-      If (Allocated(ipTabMO)) Call mma_deallocate(ipTabMO)
-      If (Allocated(ipTabSO)) Call mma_deallocate(ipTabSO)
+      If (Allocated(TabMO)) Call mma_deallocate(TabMO)
+      If (Allocated(TabSO)) Call mma_deallocate(TabSO)
       If (Do_Grad.and.Grid_Type.eq.Moving_Grid) Then
          Call mma_deAllocate(dPB)
          Call mma_deAllocate(dW_Temp)

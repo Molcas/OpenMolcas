@@ -13,11 +13,8 @@
 ************************************************************************
       Subroutine Do_Batch(Kernel,Func,mGrid,
      &                    list_s,nlist_s,List_Exp,List_Bas,
-     &                    Index,nIndex,
-     &                    FckInt,nFckDim,nFckInt,
-     &                    ipTabAO,mAO,nD,
-     &                    nP2_ontop,Do_Mo,
-     &                    TabMO,TabSO,nMOs,
+     &                    Index,nIndex,FckInt,nFckDim,nFckInt,
+     &                    mAO,nD,nP2_ontop,Do_Mo,TabMO,TabSO,nMOs,
      &                    Do_Grad,Grad,nGrad,ndRho_dR,nGrad_Eff,iNQ,
      &                    EG_OT,nTmpPUVX,PDFTPot1,PDFTFocI,PDFTFocA)
 ************************************************************************
@@ -52,8 +49,7 @@
 #include "nsd.fh"
 #include "setup.fh"
 #include "pamint.fh"
-      Integer list_s(2,nlist_s),List_Exp(nlist_s),
-     &        ipTabAO(nlist_s+1,2),Index(nIndex),
+      Integer list_s(2,nlist_s),List_Exp(nlist_s),Index(nIndex),
      &        List_Bas(2,nlist_s)
       Real*8 A(3), RA(3), Grad(nGrad), FckInt(nFckInt,nFckDim),
      &       TabMO(mAO,mGrid,nMOs),TabSO(mAO,mGrid,nMOs),
