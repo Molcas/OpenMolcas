@@ -65,7 +65,7 @@
       Real*8,DIMENSION(nPMO3p)::P2MOCubex,P2MOCubey,P2MOCubez,
      &                          dMOx,dMOy,dMOz
 
-      Real*8 TabSO2(mAO*mGrid*nMOs)
+      Real*8, Allocatable :: TabSO2(:)
       Real*8 dTabMO2(nMOs)
 
 ************************************************************************
@@ -109,6 +109,7 @@
      &                  Label='dTabMO')
       dTabMO(:,:,:,:)=Zero
 
+      Call mma_Allocate(TabSO2,nMOs*mAO*mGrid,Label='TabSO2')
 !::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Do ilist_s=1,nlist_s
          ish=list_s(1,ilist_s)
@@ -218,6 +219,7 @@
             End Do  ! iCoord
          End Do   ! iGrid
       END DO         ! iList_s
+      Call mma_deAllocate(TabSO2)
 ************************************************************************
 *          Inactive part:                                              *
 ************************************************************************
