@@ -15,7 +15,7 @@
      &                    list_s,nlist_s,List_Exp,List_Bas,
      &                    Index,nIndex,
      &                    FckInt,nFckDim,nFckInt,
-     &                    ipTabAO,mAO,nSym,nD,
+     &                    ipTabAO,mAO,nD,
      &                    nP2_ontop,Do_Mo,
      &                    TabMO,TabSO,nMOs,
      &                    Do_Grad,Grad,nGrad,ndRho_dR,nGrad_Eff,iNQ,
