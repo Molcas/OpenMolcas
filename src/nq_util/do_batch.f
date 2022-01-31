@@ -218,7 +218,7 @@
 *
 *---------- Evaluate AOs at RA
 *
-            ipTabAO(iList_s,1)=iOff
+*           ipTabAO(iList_s,1)=iOff
 *                                                                      *
             Call AOEval(iAng,mGrid,Grid,Mem(ipxyz),RA,
      &                  Shells(iShll)%Transf,
@@ -267,7 +267,7 @@
      &             1.0D2*DBLE(mlist_s)/DBLE(nlist_s)
       Write (6,*)
 #endif
-         ipTabAO(nList_s+1,1)=iOff
+         ipTabAO(nList_s+1,1)=iOff-1
 *
 *        AOs are packed and written to disk.
 *
