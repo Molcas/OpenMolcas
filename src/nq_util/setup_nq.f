@@ -28,7 +28,7 @@
       use Basis_Info
       use Center_Info
       use Symmetry_Info, only: nIrrep, iOper
-      use nq_Grid, only: nGridMax, Coor, Pax, Fact, Tmp, nR_Eff, SOs
+      use nq_Grid, only: nGridMax, Coor, Pax, Fact, Tmp, nR_Eff
       use nq_Grid, only: Angular, Mem
       use nq_structure, only: NQ_Data
       use Grid_On_Disk
@@ -620,7 +620,6 @@ c     Write(6,*) '********** Setup_NQ ***********'
          lAngular=Max(lAngular,nAngular)
       End Do
 *
-      Call mma_allocate(SOs,2*lSO,Label='SOs')
       Call mma_allocate(Angular,lAngular,Label='Angular')
       Call mma_allocate(Mem,nMem,Label='Mem')
 *                                                                      *

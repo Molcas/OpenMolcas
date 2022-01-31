@@ -36,7 +36,7 @@
       use Center_Info
       use Basis_Info, only: nBas
       use nq_pdft,    only: lft,lGGA
-      use nq_Grid,    only: List_G, SOs
+      use nq_Grid,    only: List_G
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "nq_info.fh"
@@ -123,7 +123,6 @@
             nDeg  = nSym/dc(mdci)%nStab
             nSO   = kAO*nDeg*mAO
 
-            Call FZero(SOs,nSO)
             Call FZero(TabSO,mAO*mGrid*nMOs)
 
             iR=list_s(2,ilist_s)
