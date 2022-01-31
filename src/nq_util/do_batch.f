@@ -225,20 +225,20 @@
      &                  TabAO_Pack(iOff:),
      &                  mAO,px,py,pz,ipx,ipy,ipz)
 #ifdef _ANALYSIS_
-      ix = iDAMax_(mAO*mGrid*iBas_Eff*iCmp,TabAO_Pack(iOff),1)
-      TMax = Abs(TabAO_Pack(iOff-1+ix))
-      If (TMax<Thr) Then
-         mlist_s=mlist_s+1
-         Write (6,*) ' ilist_s: ',ilist_s
-         Write (6,*) ' TMax:    ',TMax
-      End If
+            ix = iDAMax_(mAO*mGrid*iBas_Eff*iCmp,TabAO_Pack(iOff),1)
+            TMax = Abs(TabAO_Pack(iOff-1+ix))
+            If (TMax<Thr) Then
+               mlist_s=mlist_s+1
+               Write (6,*) ' ilist_s: ',ilist_s
+               Write (6,*) ' TMax:    ',TMax
+            End If
 #endif
 !
 !           At this time eliminate individual basis functions which have
 !           an insignificant contribution to any of the grid points we
 !           are processing at this stage.
 !
-*#define _NEW_
+#define _NEW_
 #ifdef _NEW_
             Thr=1.0D-15
             iSkip=0
@@ -246,10 +246,10 @@
                jOff = (jBfn-1)*mAO*mGrid + 1
                ix = iDAMax_(mAO*mGrid,TabAO_Pack(jOff:),1)
                TMax = Abs(TabAO_Pack(jOff-1+ix))
-               If (TMax>Thr) Then
-                 ...more to come...
-                 iSkip=iSkip-1
-               End If
+*              If (TMax>Thr) Then
+*                ...more to come...
+*                iSkip=iSkip-1
+*              End If
             End Do
             iBfn = iBfn_e - iSkip
 #endif
@@ -258,9 +258,9 @@
          End Do
          nBfn=iBfn
 #ifdef _ANALYSIS_
-      Write (6,*) ' % AO blocks that can be eliminated: ',
+         Write (6,*) ' % AO blocks that can be eliminated: ',
      &             1.0D2*DBLE(mlist_s)/DBLE(nlist_s)
-      Write (6,*)
+         Write (6,*)
 #endif
          TabAO_Size(1)=nBfn
 *
