@@ -456,7 +456,7 @@ C       CALL RecPrt(' ','(10(F9.5,1X))',P2MOCube(IOff1),1,NASHT)
       Real*8 :: TabSO(mAO,mGrid,nMOs)
       Real*8 :: TabSO2(nMOs,mAO*mGrid)
 
-      INTEGER iCoord, iSt, iEnd, iAO, jAO, iOff
+      INTEGER :: iSt, iEnd, iAO, jAO, iOff
 
       nAOGrid=mAO*mGrid   ! TabSO : mAO*mGrid x nMOs
                           ! TabSO2: nMOs x mAO*nGrid
