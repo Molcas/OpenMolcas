@@ -8,11 +8,9 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Do_Pi2Grad(TabAO,nTabAO,mAO,mGrid,ipTabAO,
-     &          P2_ontop,nP2_ontop,nGrad_Eff,
-     &          list_s,nlist_s,list_bas,
-     &          D1mo,nd1mo,TabMO,P2_ontop_d,
-     &          RhoI,RhoA,mRho,nMOs,CMO,nCMO,TabSO,nsym,ft,
+      Subroutine Do_Pi2Grad(mAO,mGrid,P2_ontop,nP2_ontop,nGrad_Eff,
+     &          list_s,nlist_s,list_bas,D1mo,nd1mo,TabMO,P2_ontop_d,
+     &          RhoI,RhoA,mRho,nMOs,CMO,nCMO,TabSO,ft,
      &          P2MOCube,P2MOCubex,P2MOCubey,P2MOCubez,nPMO3p,MOs,
      &          MOx,MOy,MOz)
 ************************************************************************
@@ -43,13 +41,10 @@
 #include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"
-!Error could be TabAO...
       Integer list_s(2,nlist_s),list_bas(2,nlist_s),
-     &        ipTabAO(nlist_s,2),
-     &        mAO,nAOs,mGrid,nP2_ontop,nGrad_Eff,nd1mo,nTabAO,
-     &        mRho,nCMO,nsym
+     &        mAO,nAOs,mGrid,nP2_ontop,nGrad_Eff,nd1mo,mRho,nCMO
       Real*8 D1mo(nd1mo),TabMO(mAO,mGrid,nMOs),
-     &     P2_ontop(nP2_ontop,mGrid),TabAO(nTabAO),
+     &     P2_ontop(nP2_ontop,mGrid),
      &     P2_ontop_d(np2_ontop,nGrad_Eff,mGrid),CMO(nCMO)
       logical ft
       Real*8, allocatable, dimension(:,:,:,:) :: dTabMO
