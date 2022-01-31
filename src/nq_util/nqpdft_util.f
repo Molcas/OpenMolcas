@@ -452,11 +452,14 @@ C       CALL RecPrt(' ','(10(F9.5,1X))',P2MOCube(IOff1),1,NASHT)
       Subroutine ConvertTabSO(TabSO2,TabSO,mAO,mGrid,nMOs)
       use nq_pdft, only: lft, lGGA
 
-      INTEGER mAO,mGrid,nMOs,iGrid
+      INTEGER mAO,mGrid,nMOs,iGrid,nAOGrid,iGridOff,iCoordOff
       Real*8 :: TabSO(mAO,mGrid,nMOs)
       Real*8 :: TabSO2(nMOs,mAO*mGrid)
 
-      INTEGER iSt, iEnd, iAO, jAO, iOff
+      INTEGER iCoord, iSt, iEnd, iAO, jAO, iOff
+
+      nAOGrid=mAO*mGrid   ! TabSO : mAO*mGrid x nMOs
+                          ! TabSO2: nMOs x mAO*nGrid
 
       ! loop over first and optionally second derivatives of the SOs
       ! this defines the length of nAO to 3 or 9.

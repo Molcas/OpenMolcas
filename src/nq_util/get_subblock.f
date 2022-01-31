@@ -647,7 +647,7 @@ c
      &                 list_s,nlist_s,List_Exp,List_Bas,
      &                 Index,nIndex,
      &                 FckInt,nFckDim,nFckInt,
-     &                 ipTabAO,mAO,nD,nP2_ontop,
+     &                 ipTabAO,mAO,nSym,nD,nP2_ontop,
      &                 Do_Mo,ipTabMO,ipTabSO,nMOs,
      &                 Do_Grad,Grad,nGrad,
      &                 mdRho_dR,nGrad_Eff,iNQ,
