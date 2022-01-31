@@ -204,7 +204,6 @@
             RA(1) = px*A(1)
             RA(2) = py*A(2)
             RA(3) = pz*A(3)
-            iSym=NrOpr(iR)
 *
 *---------- Evaluate AOs at RA
 *
@@ -325,8 +324,11 @@
 ************************************************************************
 *                                                                      *
       If (Do_MO) Then
+
+         ! First, symmatry adapt the AOs
          TabSO(:,:,:)=Zero
-*
+#define _OLD_
+#ifdef _OLD_
          Do ilist_s=1,nlist_s
             ish=list_s(1,ilist_s)
             iCmp  = iSD( 2,iSh)
@@ -354,9 +356,14 @@
      &                     iBas,iBas_Eff,iCmp,iSym,TabSO,nMOs,nDeg,iAO)
 *
          End Do
+#else
+         Call mk_SOs(TabSO,mAO,mGrid,nMOs,List_s,List_Bas,nList_s)
+#endif
 
+         ! Second, transform SOs to MOs
          TabMO(:,:,:)=Zero
          Call mk_MOs(TabSO,mAO,mGrid,TabMO,nMOs,CMO,nCMO)
+!        Stop 123
       End If
 *                                                                      *
 ************************************************************************
