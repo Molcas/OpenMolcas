@@ -122,7 +122,7 @@ subroutine Find_Functional(Label)
   integer(kind=LibxcInt) :: flags(nFuncs_max)
   real(kind=wp) :: Coeff
   character(len=256) :: Line
-  character(len=80) :: Word1, Word2
+  character(len=80) :: Labels(nFuncs_max), Word1, Word2
   integer(kind=iwp), external :: IsFreeUnit
   type(xc_f03_func_t) :: func(nFuncs_max)
   type(xc_f03_func_info_t) :: info(nFuncs_max)
@@ -180,6 +180,7 @@ subroutine Find_Functional(Label)
         Def_nFuncs = Def_nFuncs+1
         Def_Coeffs(Def_nFuncs) = Coeff
         Def_func_id(Def_nFuncs) = get_func(Word2)
+        Labels(Def_nFuncs) = Word2
       end if
     end do
   else
@@ -187,6 +188,7 @@ subroutine Find_Functional(Label)
     Def_nFuncs = 1
     Def_Coeffs(1) = One
     Def_func_id(1) = get_func(Word2)
+    Labels(1) = Word2
   end if
 
   close(Lu)
@@ -202,7 +204,7 @@ subroutine Find_Functional(Label)
   Def_Functional_Type = -1
   do i=1,Def_nFuncs
     ! Check whether the functional uses some unsupported feature
-    call check_supported(info(i),flags(i))
+    call check_supported(Labels(i),flags(i))
     ! Add exact exchange from components
     Def_ExFac = Def_ExFac+Def_Coeffs(i)*xc_f03_hyb_exx_coef(func(i))
     ! Assign functional type ("maximum" of its components)
@@ -245,19 +247,36 @@ function get_func(xcLabel)
 
 end function get_func
 
-subroutine check_supported(info,flags)
+subroutine check_supported(Label,flags)
 
-  use xc_f03_lib_m, only: xc_f03_func_info_get_name, xc_f03_func_info_t, XC_FLAGS_HYB_CAM, XC_FLAGS_HYB_CAMY
+  use xc_f03_lib_m, only: xc_f03_func_info_t, XC_FLAGS_HYB_CAM, XC_FLAGS_HYB_CAMY, XC_FLAGS_HYB_LC, XC_FLAGS_HYB_LCY, XC_FLAGS_VV10
   use Definitions, only: u6
 
-  type(xc_f03_func_info_t), intent(in) :: info
+  character(len=*), intent(in) :: Label
   integer(kind=LibxcInt), intent(in) :: flags
+  integer(kind=iwp) :: lev, lt, maxlev
 
-  if ((iand(flags,XC_FLAGS_HYB_CAM) > 0) .or. (iand(flags,XC_FLAGS_HYB_CAMY) > 0)) then
-    call WarningMessage(2,' Find_Functional: Range separation is not supported!')
-    write(u6,*) '         Functional id=',xc_f03_func_info_get_name(info)
-    call Quit_OnUserError()
+  maxlev = 0
+  lt = len_trim(Label)
+
+  if ((iand(flags,XC_FLAGS_HYB_CAM) > 0) .or. (iand(flags,XC_FLAGS_HYB_CAMY) > 0) .or. (iand(flags,XC_FLAGS_HYB_LC) > 0) .or. &
+      (iand(flags,XC_FLAGS_HYB_LCY) > 0)) then
+    lev = 2
+    maxlev = max(lev,maxlev)
+    call WarningMessage(lev,' Find_Functional: Range separation is not supported!')
   end if
+  if ((iand(flags,XC_FLAGS_VV10) > 0)) then
+    lev = 2
+    maxlev = max(lev,maxlev)
+    call WarningMessage(lev,' Find_Functional: Non-local correlation is not supported!')
+  end if
+  if ((Label(lt-1:lt) == '_D') .or. (Label(lt-2:lt) == '_D3')) then
+    lev = 1 ! make it just a warning for now
+    maxlev = max(lev,maxlev)
+    call WarningMessage(lev,' Find_Functional: Dispersion corrections are not implemented!')
+  end if
+  if (maxlev > 0) write(u6,*) '         Functional=',trim(Label)
+  if (maxlev > 1) call Quit_OnUserError()
 
 end subroutine check_supported
 
