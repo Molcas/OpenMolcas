@@ -10,7 +10,8 @@
 *                                                                      *
 * Copyright (C) 2022, Roland Lindh                                     *
 ************************************************************************
-      Subroutine mk_SOs(TabSO,mAO,mGrid,nMOs,List_s,List_Bas,nList_s)
+      Subroutine mk_SOs(TabSO,mAO,mGrid,nMOs,List_s,List_Bas,nList_s,
+     &                  jList_s)
       use iSD_data
       use Center_Info
       use Symmetry_Info, only: nIrrep, iChTbl
@@ -22,6 +23,7 @@
       Real*8 TabSO(mAO*mGrid,nMOs)
       Integer :: list_s(2,nList_s), list_bas(2,nlist_s)
       Integer   iOff_MO(0:7)
+      Integer, optional :: jList_s
 *
 *---- Compute some offsets
 *
@@ -34,6 +36,7 @@
       nBfn=Size(iBfn_Index,2)
       Do iBfn = 1, nBfn
          ilist_s=iBfn_Index(2,iBfn)
+         If (Present(jlist_s).and.ilist_s/=jlist_s) Cycle
          i1     =iBfn_Index(3,iBfn)
          i2     =iBfn_Index(4,iBfn)
          iSh    =list_s(1,ilist_s)
