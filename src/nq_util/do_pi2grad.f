@@ -60,7 +60,7 @@
       Real*8 TabSO(mAO,mGrid,nMOs)
       Real*8,DIMENSION(mGrid*NASHT)::P2MOCube,MOs,dMOs,MOx,MOy,MOz
       INTEGER IOff1,iOff2,iOff3,nPi,iCoordOff,iGridOff,iCoord,nBasf,
-     &        nOccO,nPMO3p,
+     &        nOccO,nPMO3p,iOff0,
      &        iCoord1,iCoord2,iCoord3,iCoordOff1,iCoordOff2,iCoordOff3
       Real*8,DIMENSION(nPMO3p)::P2MOCubex,P2MOCubey,P2MOCubez,
      &                          dMOx,dMOy,dMOz
@@ -161,31 +161,36 @@
                   IF (nOccO.eq.0) CYCLE
                   nBasF=nBas(iIrrep)
 
+                  iOff0=iCoordOff + OffBas(iIrrep)
                   CALL DGEMM_('T','N',nOccO,1,nBasF,
      &                     1.0d0,CMO(OffBas2(iIrrep)),nBasF,
-     &                           TabSO2(iCoordOff+OffBas(iIrrep)),nBasF,
+     &                           TabSO2(iOff0),nBasF,
      &                     0.0d0,dTabMO2,nOccO)
                   CALL DAXPY_(nOccO,1.0d0,dTabMO2,1,
      &      dTabMO(1,OffBas(iIrrep)+nFro(iIrrep),g_eff,iGrid),nP2_ontop)
 
                   IF (lft.and.lGGA) THEN
+                     iOff1=iCoordOff1+ OffBas(iIrrep)
+                     iOff2=iCoordOff2+ OffBas(iIrrep)
+                     iOff3=iCoordOff3+ OffBas(iIrrep)
+
                      CALL DGEMM_('T','N',nOccO,1,nBasF,
      &                    1.0d0,CMO(OffBas2(iIrrep)),nBasF,
-     &                          TabSO2(iCoordOff1+OffBas(iIrrep)),nBasF,
+     &                          TabSO2(iOff1),nBasF,
      &                    0.0d0,dTabMO2,nOccO)
                      CALL DAXPY_(nOccO,1.0d0,dTabMO2,1,
      &      dTabMO(2,OffBas(iIrrep)+nFro(iIrrep),g_eff,iGrid),nP2_ontop)
 
                      CALL DGEMM_('T','N',nOccO,1,nBasF,
      &                    1.0d0,CMO(OffBas2(iIrrep)),nBasF,
-     &                          TabSO2(iCoordOff2+OffBas(iIrrep)),nBasF,
+     &                          TabSO2(iOff2),nBasF,
      &                    0.0d0,dTabMO2,nOccO)
                      CALL DAXPY_(nOccO,1.0d0,dTabMO2,1,
      &      dTabMO(3,OffBas(iIrrep)+nFro(iIrrep),g_eff,iGrid),nP2_ontop)
 
                      CALL DGEMM_('T','N',nOccO,1,nBasF,
      &                    1.0d0,CMO(OffBas2(iIrrep)),nBasF,
-     &                          TabSO2(iCoordOff3+OffBas(iIrrep)),nBasF,
+     &                          TabSO2(iOff3),nBasF,
      &                    0.0d0,dTabMO2,nOccO)
                      CALL DAXPY_(nOccO,1.0d0,dTabMO2,1,
      &      dTabMO(4,OffBas(iIrrep)+nFro(iIrrep),g_eff,iGrid),nP2_ontop)
