@@ -452,7 +452,7 @@ C       CALL RecPrt(' ','(10(F9.5,1X))',P2MOCube(IOff1),1,NASHT)
       Subroutine ConvertTabSO(TabSO2,TabSO,mAO,mGrid,nMOs)
       use nq_pdft, only: lft, lGGA
 
-      INTEGER mAO,mGrid,nMOs,iGrid,nAOGrid,iGridOff,iCoordOff
+      INTEGER mAO,mGrid,nMOs,iGrid,nAOGrid
       Real*8 :: TabSO(mAO,mGrid,nMOs)
       Real*8 :: TabSO2(nMOs,mAO*mGrid)
 
