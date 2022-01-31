@@ -46,6 +46,14 @@ integer(kind=iwp), allocatable :: Ang(:)
 real(kind=wp), allocatable :: AOs(:), Radial(:), SOs(:), xyz(:)
 integer(kind=iwp), external :: NrOpr
 
+Interface
+   Subroutine SODist(SOValue,mAO,nCoor,mBas,nCmp,nDeg,MOValue,nMOs,iAO,CMOs,nCMO,DoIt)
+   Integer mAO,nCoor,mBas,nCmp,nDeg,nMOs,iAO,nCMO
+   Real*8 SOValue(mAO*nCoor,mBas,nCmp*nDeg), MOValue(mAO*nCoor,nMOs),CMOs(nCMO)
+   Integer DoIt(nMOs)
+   End Subroutine SODist
+End Interface
+
 iRout = 112
 iPrint = nPrint(iRout)
 
@@ -155,6 +163,7 @@ do iAng=S%iAngMx,0,-1
       !------- Distribute contributions to the MOs
 
       call SODist(SOs,mAO,nCoor,iBas,iCmp,nDeg,MOValue,nMOs,iAO,CMOs,nCMO,DoIt)
+
 
       call mma_deallocate(AOs)
       call mma_deallocate(SOs)
