@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Do_Pi2Grad(TabAO,nTabAO,mAO,mGrid,ipTabAO,
+      Subroutine Do_Pi2Grad(TabAO,nTabAO,mAO,mGrid,
      &          P2_ontop,nP2_ontop,nGrad_Eff,
      &          list_s,nlist_s,list_bas,
      &          D1mo,nd1mo,TabMO,P2_ontop_d,
@@ -45,7 +45,6 @@
 #include "print.fh"
 !Error could be TabAO...
       Integer list_s(2,nlist_s),list_bas(2,nlist_s),
-     &        ipTabAO(nlist_s,2),
      &        mAO,nAOs,mGrid,nP2_ontop,nGrad_Eff,nd1mo,nTabAO,
      &        mRho,nCMO,nsym
       Real*8 D1mo(nd1mo),TabMO(mAO,mGrid,nMOs),
