@@ -95,15 +95,12 @@
       l_tanhr=.false.
 
       CALL PDFTMemAlloc(mGrid,nOrbt)
-      If ( Functional_Type.eq.CASDFT_Type .or.
-     &     l_casdft ) Then
+      If ( Functional_Type.eq.CASDFT_Type .or. l_casdft ) Then
          mRho = nP2_ontop
          Call mma_allocate(RhoI,mRho,mGrid,Label='RhoI')
          Call mma_allocate(RhoA,mRho,mGrid,Label='RhoA')
          RhoI(:,:)=Zero
          RhoA(:,:)=Zero
-      Else
-         mRho=-1
       End If
 *                                                                      *
 ************************************************************************
@@ -156,8 +153,10 @@
       Write (6,*) ' Sparsity analysis of AO blocks'
       mlist_s=0
 #endif
-         iOff = 1
-         iBfn = 0
+         iOff  = 1
+         iBfn  = 0
+         iBfn_s= 0
+         iBfn_e= 0
          Do ilist_s=1,nlist_s
             ish=list_s(1,ilist_s)
 
@@ -178,6 +177,7 @@
 !           Set up the unsifted version of iBfn_Index
 !
             iAdd = iBas-iBas_Eff
+            iBfn_s = iBfn + 1
             Do i1 = 1, iCmp
                iSO1 = iAOtSO(iAO+i1,0) ! just used when nIrrep=1
                Do i2 = 1, iBas_Eff
@@ -193,6 +193,7 @@
                   iBfn_Index(6,iBfn) = IndAO1
                End Do
             End Do
+            iBfn_e = iBfn
 
             nDrv     = mRad - 1
             nForm    = 0
@@ -246,23 +247,19 @@
 *#define _NEW_
 #ifdef _NEW_
             Thr=1.0D-15
-            jBas_Eff = iBas_Eff
-            Do jBfn = iBfn + iBas_Eff*iCmp, iBfn + 1, -1
-               jOff = iOff + (jBas_Eff-1)*mAO*mGrid
+            iSkip=0
+            Do jBfn = iBfn_s, iBfn_e
+               jOff = (jBfn-1)*mAO*mGrid + 1
                ix = iDAMax_(mAO*mGrid,TabAO_Pack(jOff:),1)
                TMax = Abs(TabAO_Pack(jOff-1+ix))
-               If (TMax>Thr) Exit
-               jBas_Eff = jBas_Eff - 1
+               If (TMax>Thr) Then
+                 ...more to come...
+                 iSkip=iSkip-1
+               End If
             End Do
-            If (jBas_Eff/=iBas_Eff) Then
-               Write (6,*) 'iBas_Eff=',iBas_Eff
-               Write (6,*) 'jBas_Eff=',jBas_Eff
-            End If
-            iBfn = iBfn + jBas_Eff*iCmp
-            iOff = iOff + mAO*mGrid * jBas_Eff*iCmp
-#else
-            iOff = iOff + mAO*mGrid * iBas_Eff*iCmp
+            iBfn = iBfn_e - iSkip
 #endif
+            iOff = iBfn*mAO*mGrid + 1
 *
          End Do
 #ifdef _ANALYSIS_
