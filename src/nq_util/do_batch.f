@@ -296,7 +296,7 @@
                Call mma_deAllocate(TabAO_Tmp)
             Else
                mData=nAO*mGrid*nBfn
-               TabAO_Size(2)=nAO*mGrid*TabAO_Size(1)
+               TabAO_Size(2)=mAO*mGrid*TabAO_Size(1)
             End If
 *
             Call iDaFile(Lu_Grid,1,TabAO_Size,2,iDisk_Grid)
