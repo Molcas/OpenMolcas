@@ -111,8 +111,6 @@
          iCmp  = iSD( 2,iSkal)
          nBfn=nBfn+iBas_Eff*iCmp
       End Do
-      Call mma_Allocate(iBfn_Index,6,nBfn,Label='iBfn_Index')
-      iBfn_Index(:,:)=0
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -129,14 +127,22 @@
 *------- Retrieve the AOs from disc
 *
          Call iDaFile(Lu_Grid,2,TabAO_Size,2,iDisk_Grid)
+         If (TabAO_Size(1)/=nBfn)  Then
+            Write (6,*) 'Noted problems'
+            Call Abend()
+         End If
+         nBfn=TabAO_Size(1)
+         Call mma_Allocate(iBfn_Index,6,nBfn,Label='iBfn_Index')
+         Call iDaFile(Lu_Grid,2,iBfn_Index,Size(iBfn_Index),iDisk_Grid)
+
          nByte=TabAO_Size(2)
          mTabAO = (nByte+RtoB-1)/RtoB
-         If (TabAO_Size(1)/=nBfn)  Stop 'Noted problems'
-         Call iDaFile(Lu_Grid,2,iBfn_Index,Size(iBfn_Index),iDisk_Grid)
          Call dDaFile(Lu_Grid,2,TabAO,mTabAO,iDisk_Grid)
          Unpack=Packing.eq.On
 *
       Else
+         Call mma_Allocate(iBfn_Index,6,nBfn,Label='iBfn_Index')
+         iBfn_Index(:,:)=0
 *
 *------- Generate the values of the AOs on the grid
 *
