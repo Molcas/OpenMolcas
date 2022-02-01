@@ -66,6 +66,7 @@
       Real*8, Allocatable:: RhoI(:,:), RhoA(:,:)
       Real*8, Allocatable:: TabAO_Tmp(:)
       Integer :: TabAO_Size(2)
+      Integer, Allocatable :: Tmp_Index(:,:)
 
       Interface
          Subroutine mk_SOs(TabSO,mAO,mGrid,nMOs,List_s,List_Bas,nList_s,
@@ -127,10 +128,6 @@
 *------- Retrieve the AOs from disc
 *
          Call iDaFile(Lu_Grid,2,TabAO_Size,2,iDisk_Grid)
-         If (TabAO_Size(1)/=nBfn)  Then
-            Write (6,*) 'Noted problems'
-            Call Abend()
-         End If
          nBfn=TabAO_Size(1)
          Call mma_Allocate(iBfn_Index,6,nBfn,Label='iBfn_Index')
          Call iDaFile(Lu_Grid,2,iBfn_Index,Size(iBfn_Index),iDisk_Grid)
@@ -264,10 +261,16 @@
 *
          End Do
 
+         ! reduced the size of the table to be exactly that of the
+         ! number of functions that have non-zero contributions.
          If (iBfn/=nBfn) Then
-            Write (6,*) 'Under development'
-            Call Abend()
+            Call mma_allocate(Tmp_Index,6,iBfn,Label='Tmp_Index')
+            Tmp_Index(:,1:iBfn) = iBfn_Index(:,1:iBfn)
+            Call mma_deallocate(iBfn_Index)
             nBfn=iBfn
+            Call mma_Allocate(iBfn_Index,6,nBfn,Label='iBfn_Index')
+            iBfn_Index(:,:) = Tmp_Index(:,:)
+            Call mma_deallocate(Tmp_Index)
          End If
 
 #ifdef _ANALYSIS_
