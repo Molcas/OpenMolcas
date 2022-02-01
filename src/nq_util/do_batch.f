@@ -120,6 +120,7 @@
 ************************************************************************
 *
       TabAO(:,:,:)=Zero
+      TabAO_Size(:)=0
       UnPack=.False.
       If (NQ_Direct.eq.Off .and. (Grid_Status.eq.Use_Old .and.
      &      .Not.Do_Grad         .and.
@@ -128,6 +129,10 @@
 *------- Retrieve the AOs from disc
 *
          Call iDaFile(Lu_Grid,2,TabAO_Size,2,iDisk_Grid)
+         If (TabAO_Size(1)==0) Then
+            Call Terminate()
+            Return
+         End If
          nBfn=TabAO_Size(1)
          Call mma_Allocate(iBfn_Index,6,nBfn,Label='iBfn_Index')
          Call iDaFile(Lu_Grid,2,iBfn_Index,Size(iBfn_Index),iDisk_Grid)
@@ -269,12 +274,9 @@
          ! number of functions that have non-zero contributions.
          If (iBfn/=nBfn) Then
             If (iBfn==0) Then
-               Call mma_deAllocate(iBfn_Index)
-               If (l_casdft) CALL PDFTMemDeAlloc()
-               If (Allocated(RhoI)) Then
-                  Call mma_deallocate(RhoI)
-                  Call mma_deallocate(RhoA)
-               End If
+               TabAO_Size(:)=0
+               Call iDaFile(Lu_Grid,1,TabAO_Size,2,iDisk_Grid)
+               Call Terminate()
                Return
              End If
             Call mma_allocate(Tmp_Index,6,iBfn,Label='Tmp_Index')
@@ -587,15 +589,20 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (l_casdft) CALL PDFTMemDeAlloc()
+      Call Terminate()
 
-      If (Allocated(RhoI)) Then
-         Call mma_deallocate(RhoI)
-         Call mma_deallocate(RhoA)
-      End If
-
-      Call mma_deAllocate(Grid_AO)
-      Call mma_deAllocate(Dens_AO)
-      Call mma_deAllocate(iBfn_Index)
       Return
-      End
+
+      Contains
+        Subroutine Terminate()
+           If (l_casdft) CALL PDFTMemDeAlloc()
+
+           If (Allocated(RhoI)) Then
+              Call mma_deallocate(RhoI)
+              Call mma_deallocate(RhoA)
+           End If
+           If (Allocated(iBfn_Index)) Call mma_deAllocate(iBfn_Index)
+           If (Allocated(Grid_AO)) Call mma_deAllocate(Grid_AO)
+           If (Allocated(Dens_AO)) Call mma_deAllocate(Dens_AO)
+        End Subroutine Terminate
+      End Subroutine Do_Batch
