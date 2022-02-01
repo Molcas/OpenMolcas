@@ -33,7 +33,7 @@
       use iSD_data
       use Basis_Info
       use Center_Info
-      use nq_Grid, only: Grid, Weights, TabAO, Grid_AO,
+      use nq_Grid, only: Grid, Weights, TabAO,
      &                   TabAO_Pack, dRho_dR, TabAO_Short,
      &                   kAO, R2_trial
       use nq_Grid, only: List_G, IndGrd, iTab, dW_dR, nR_Eff
@@ -629,7 +629,6 @@ c
             End If
          End If
 *
-         Call mma_Allocate(Grid_AO,kAO,nogp,nBfn,nD,Label='Grid_AO')
          Call mma_Allocate(TabAO,mAO,nogp,nBfn,Label='TabAO')
          If (Do_Grad) Call mma_Allocate(TabAO_Short,kAO,nogp,nBfn,
      &                                  Label='TabAO_Short')
@@ -651,7 +650,6 @@ c
          If (Allocated(TabAO_Short)) Call mma_deallocate(TabAO_Short)
          TabAO_Pack => Null()
          Call mma_deallocate(TabAO)
-         Call mma_deallocate(Grid_AO)
 
          nTotGP=nTotGP+nogp
 *        update the "LuGridFile":

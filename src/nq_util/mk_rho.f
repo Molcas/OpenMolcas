@@ -81,6 +81,10 @@
       End If
 
       nBfn=SIZE(iBfn_Index,2)
+      If (nBfn/=nAO) Then
+         Write (6,*) 'mk_Rho: internal error!'
+         Call Abend()
+      End If
       Factor = DBLE(2/nD)
       Do iBfn = 1, nBfn
          ilist_s=iBfn_Index(2,iBfn)
@@ -202,7 +206,7 @@
 *     contraction with the 1-particle density matrix.
 *
       If (Do_Grad) Then
-         TabAO_Short(1:kAO,:,:) = TabAO(1:kAO,:,:)
+         TabAO_Short(1:kAO,1:mGrid,:) = TabAO(1:kAO,1:mGrid,:)
          Call DGEMM_('N','N',kAO*mGrid,nAO*nD,nAO,
      &               One,TabAO_Short,kAO*mGrid,
      &                   Dens_AO,nAO,

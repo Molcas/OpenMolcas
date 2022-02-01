@@ -31,7 +31,7 @@
       use nq_Grid, only: Grid, Weights, Rho, GradRho, Sigma, nRho
       use nq_Grid, only: vRho, vSigma, vTau, vLapl
       use nq_Grid, only: l_CASDFT, TabAO, TabAO_Pack, dRho_dR
-      use nq_Grid, only: F_xc, F_xca, F_xcb
+      use nq_Grid, only: F_xc, F_xca, F_xcb, kAO, Grid_AO
       use nq_Grid, only: Fact, Angular, Mem
       use nq_Grid, only: D1UnZip, P2UnZip
       use nq_Grid, only: Dens_AO, iBfn_Index
@@ -91,8 +91,8 @@
       T_Rho=T_X*1.0D-4
       l_tanhr=.false.
 
-      CALL PDFTMemAlloc(mGrid,nOrbt)
       If ( Functional_Type.eq.CASDFT_Type .or. l_casdft ) Then
+         CALL PDFTMemAlloc(mGrid,nOrbt)
          mRho = nP2_ontop
          Call mma_allocate(RhoI,mRho,mGrid,Label='RhoI')
          Call mma_allocate(RhoA,mRho,mGrid,Label='RhoA')
@@ -242,21 +242,25 @@
 !           an insignificant contribution to any of the grid points we
 !           are processing at this stage.
 !
-#define _NEW_
-#ifdef _NEW_
             Thr=1.0D-15
             iSkip=0
+            kBfn = iBfn_s - 1
             Do jBfn = iBfn_s, iBfn_e
                jOff = (jBfn-1)*mAO*mGrid + 1
                ix = iDAMax_(mAO*mGrid,TabAO_Pack(jOff:),1)
                TMax = Abs(TabAO_Pack(jOff-1+ix))
-*              If (TMax>Thr) Then
-*                ...more to come...
-*                iSkip=iSkip-1
-*              End If
+               If (TMax<Thr) Then
+                 iSkip=iSkip+1
+               Else
+                 kBfn = kBfn + 1
+                 If (kBfn/=jBfn) Then
+                    TabAO(:,:,kBfn)=TabAO(:,:,jBfn)
+                    iBfn_Index(:,kBfn) = iBfn_Index(:,jBfn)
+                 End If
+               End If
             End Do
-            iBfn = iBfn_e - iSkip
-#endif
+            iBfn = kBfn
+
             iOff = iBfn*mAO*mGrid + 1
 *
          End Do
@@ -264,6 +268,15 @@
          ! reduced the size of the table to be exactly that of the
          ! number of functions that have non-zero contributions.
          If (iBfn/=nBfn) Then
+            If (iBfn==0) Then
+               Call mma_deAllocate(iBfn_Index)
+               If (l_casdft) CALL PDFTMemDeAlloc()
+               If (Allocated(RhoI)) Then
+                  Call mma_deallocate(RhoI)
+                  Call mma_deallocate(RhoA)
+               End If
+               Return
+             End If
             Call mma_allocate(Tmp_Index,6,iBfn,Label='Tmp_Index')
             Tmp_Index(:,1:iBfn) = iBfn_Index(:,1:iBfn)
             Call mma_deallocate(iBfn_Index)
@@ -292,7 +305,7 @@
 *
                nData=mAO*mGrid*nBfn
                Call mma_Allocate(TabAO_Tmp,nData,Label='TabAO_Tmp')
-               TabAO_Tmp(:)=TabAO_Pack(:)
+               TabAO_Tmp(1:nData)=TabAO_Pack(1:nData)
                Call PkR8(0,nData,nByte,TabAO_Tmp,TabAO_Pack)
                mData = (nByte+RtoB-1)/RtoB
                If (mData.gt.nData) Then
@@ -334,6 +347,7 @@
 ************************************************************************
 *                                                                      *
       Call mma_Allocate(Dens_AO,nBfn,nBfn,nD,Label='Dens_AO')
+      Call mma_Allocate(Grid_AO,kAO,mGrid,nBfn,nD,Label='Grid_AO')
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -573,13 +587,14 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      CALL PDFTMemDeAlloc()
+      If (l_casdft) CALL PDFTMemDeAlloc()
 
       If (Allocated(RhoI)) Then
          Call mma_deallocate(RhoI)
          Call mma_deallocate(RhoA)
       End If
 
+      Call mma_deAllocate(Grid_AO)
       Call mma_deAllocate(Dens_AO)
       Call mma_deAllocate(iBfn_Index)
       Return
