@@ -628,14 +628,14 @@ c     Write(6,*) '********** Setup_NQ ***********'
 *     1) disk address and 2) number of batches.
 *
       If (Grid_Status.eq.Regenerate) Then
-C        Write (6,*) 'Grid_Status.eq.Regenerate'
+!        Write (6,*) 'Grid_Status.eq.Regenerate'
          Grid_Status=Regenerate
          GridInfo(:,:)=0
          Call iDaFile(Lu_Grid,1,GridInfo,
      &                2*number_of_subblocks,iDisk_Grid)
          Old_Functional_Type=Functional_Type
       Else If (Grid_Status.eq.Use_Old) Then
-C        Write (6,*) 'Grid_Status.eq.Use_Old'
+!        Write (6,*) 'Grid_Status.eq.Use_Old'
          Call iDaFile(Lu_Grid,2,GridInfo,
      &                2*number_of_subblocks,iDisk_Grid)
       Else

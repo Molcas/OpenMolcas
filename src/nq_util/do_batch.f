@@ -231,7 +231,7 @@
      &                  iPrim,iPrim_Eff,Shells(iShll)%Exp,
      &                  Mem(ipRadial),iBas_Eff,
      &                  Shells(iShll)%pCff(1,iBas-iBas_Eff+1),
-     &                  TabAO_Pack(iOff:),
+     &                  TabAO(:,:,iBfn_s:),
      &                  mAO,px,py,pz,ipx,ipy,ipz)
 #ifdef _ANALYSIS_
             ix = iDAMax_(mAO*mGrid*iBas_Eff*iCmp,TabAO_Pack(iOff),1)
@@ -252,9 +252,11 @@
             kBfn = iBfn_s - 1
             Do jBfn = iBfn_s, iBfn_e
                jOff = (jBfn-1)*mAO*mGrid + 1
-               ix = iDAMax_(mAO*mGrid,TabAO_Pack(jOff:),1)
+               ix = iDAMax_(mAO*mGrid,TabAO(:,:,jBfn),1)
                TMax = Abs(TabAO_Pack(jOff-1+ix))
-               If (TMax<Thr) Then
+               Call Spectra(SMax)
+!              If (TMax<Thr) Then
+               If (SMax<Thr) Then
                  iSkip=iSkip+1
                Else
                  kBfn = kBfn + 1
@@ -605,4 +607,16 @@
            If (Allocated(Grid_AO)) Call mma_deAllocate(Grid_AO)
            If (Allocated(Dens_AO)) Call mma_deAllocate(Dens_AO)
         End Subroutine Terminate
+
+        Subroutine Spectra(SMax)
+           SMax=Zero
+           Do iGrid = 1, mGrid
+             Do iAO = 1, mAO
+                SMax = Max (SMax,
+     &                 Abs(Weights(iGrid)*TabAO(iAO,iGrid,jBfn)))
+             End Do
+           End Do
+!          If (SMax<Thr) Write (6,*) SMax, TMax
+        End Subroutine Spectra
+
       End Subroutine Do_Batch

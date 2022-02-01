@@ -499,7 +499,11 @@
 *
       If (iGrid_Set.eq.Intermediate .and.
      &     Grid_Status.eq.Regenerate) iDisk_Set(Final)=iDisk_Grid
-      G_S(iGrid_Set)=Use_Old
+      If (Do_Grad) Then
+         G_S(iGrid_Set)=Regenerate
+      Else
+         G_S(iGrid_Set)=Use_Old
+      End If
 *
       iDisk_Grid=0
       Call iDaFile(Lu_Grid,1,G_S,5,iDisk_Grid)
