@@ -301,7 +301,7 @@
                TabAO_Size(2)=nByte
                Call mma_deAllocate(TabAO_Tmp)
             Else
-               mData=nAO*mGrid*nBfn
+               mData=mAO*mGrid*nBfn
                TabAO_Size(2)=mAO*mGrid*TabAO_Size(1)
             End If
 *
