@@ -24,15 +24,14 @@ real(kind=wp), intent(inout) :: C(IC,N)
 integer(kind=iwp), intent(out) :: IER
 
 #ifdef _DEBUGPRINT_
-if ((IA >= L) .and. (IB >= M) .and. (IC >= L)) GO TO 5
-IER = 129
-GO TO 9000
-5 continue
+if ((IA >= L) .and. (IB >= M) .and. (IC >= L)) then
 #endif
-IER = 0
-call DGEMM_('N','N',L,M,N,One,A,IA,B,IB,One,C,IC)
+  IER = 0
+  call DGEMM_('N','N',L,M,N,One,A,IA,B,IB,One,C,IC)
 #ifdef _DEBUGPRINT_
-9000 continue
+else
+  IER = 129
+end if
 #endif
 
 return

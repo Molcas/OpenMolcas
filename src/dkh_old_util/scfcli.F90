@@ -48,12 +48,9 @@ icontr = -1
 dtol = 1.0e-14_wp
 call dcopiv(TMPB,TMPB,n,1,n,dtol,det,iex,icontr,TMP2)
 if (idbg > 0) write(idbg,2016) icontr,det,iex
-2016 format('  relsew| DCOPIV rc=',I2,', |S|=',D20.6,'x 10**(',I4,') ')
 if (icontr /= 0) then
   write(u6,2016) icontr,det,iex
   write(u6,2012) dtol
-2012 format('  relsew|****** '/,'        |****** WARNING - OVERLAP MATRIX SINGULAR '/, &
-            '        |****** PIVOTAL ELEMENT LESS THAN ',D20.4,' FOUND'/,'        |******'//)
   call errex_rel(' relsew| singular overlap matrix')
 end if
 #endif
@@ -68,7 +65,6 @@ call Sogr(idbg,N,S,TMPE,TMP2,TMPC,EW)
 !-----------------------------------------------------------------------
 call Diagr(H,N,TMPF,EW,TMPE,TMPB,TMP2)
 if (idbg > 0) write(idbg,556)
-556 format(//,7X,'- NREL. ENERG.  -  DIVIDED BY C - REL.  ENERG.  -  MOMENTUM    - TERMS OF POWER SERIES (LOW ENERGY ONLY)'//)
 do I=1,N
   if (ew(i) < Zero) then
     write(u6,*) ' scfcli| ew(',i,') = ',ew(i)
@@ -83,19 +79,18 @@ do I=1,N
 
   SR = sqrt(Two*EW(I))
   TT(I) = EW(I)
-  if (RATIO > 0.02_wp) goto 11
-  TV1 = EW(I)
-  TV2 = -TV1*EW(I)*PREA*Half
-  TV3 = -TV2*EW(I)*PREA
-  TV4 = -TV3*EW(I)*PREA*1.25_wp
-  EW(I) = TV1+TV2+TV3+TV4
-  if (idbg > 0) write(idbg,100) I,TV1,RATIO,EW(I),SR,TV2,TV3,TV4
-100 format(1X,I4,7(1X,D15.8))
-  goto 12
-11 TV1 = EW(I)
-  EW(I) = CON*(sqrt(One+CON2*EW(I))-One)
-  if (idbg > 0) write(idbg,100) I,TV1,RATIO,EW(I),SR
-12 continue
+  if (RATIO > 0.02_wp) then
+    TV1 = EW(I)
+    EW(I) = CON*(sqrt(One+CON2*EW(I))-One)
+    if (idbg > 0) write(idbg,100) I,TV1,RATIO,EW(I),SR
+  else
+    TV1 = EW(I)
+    TV2 = -TV1*EW(I)*PREA*Half
+    TV3 = -TV2*EW(I)*PREA
+    TV4 = -TV3*EW(I)*PREA*1.25_wp
+    EW(I) = TV1+TV2+TV3+TV4
+    if (idbg > 0) write(idbg,100) I,TV1,RATIO,EW(I),SR,TV2,TV3,TV4
+  end if
   E(I) = EW(I)+CON
 end do
 !-----------------------------------------------------------------------
@@ -276,43 +271,47 @@ if (IRELAE == 23) then
   call DGEMM_('N','N',N,N,N,One,TMPA,N,TMPC,N,Zero,TMPB,N)
   call dGemm_tri('N','T',N,N,N,One,TMPB,N,TMPA,N,Zero,PVP,N)
 end if
-if ((IRELAE == 1) .or. (IRELAE == 11) .or. (IRELAE == 21) .or. (IRELAE == 22) .or. (IRELAE == 23)) goto 1000
 
-if (IRELAE == 3) then
-  ! KEEP T-BASIS VEXT INTO TMP1 FOR HIGHER-ORDER DK
-  call dCopy_(N*(N+1)/2,TMP2,1,TMP1,1)
-  ! KEEP T-BASIS PVP INTO TMP4 FOR HIGHER-ORDER DK
-  call dCopy_(N*(N+1)/2,TMP3,1,TMP4,1)
+if ((IRELAE /= 1) .and. (IRELAE /= 11) .and. (IRELAE /= 21) .and. (IRELAE /= 22) .and. (IRELAE /= 23)) then
+
+  if (IRELAE == 3) then
+    ! KEEP T-BASIS VEXT INTO TMP1 FOR HIGHER-ORDER DK
+    call dCopy_(N*(N+1)/2,TMP2,1,TMP1,1)
+    ! KEEP T-BASIS PVP INTO TMP4 FOR HIGHER-ORDER DK
+    call dCopy_(N*(N+1)/2,TMP3,1,TMP4,1)
+  end if
+
+  ! CALCULATE Even2r OPERATOR
+
+  call Even2r(idbg,N,TMP2,TMP3,E,AA,RR,TT,TMPE,TMPB,TMPC,TMPF)
+
+  ! TRANSFORM BACK
+
+  !ulf
+  if (idbg > 0) call PRMAT(IDBG,TMP3,n,0,'ev2 orig')
+  call TrSmtr(TMP3,TMPA,H,One,N,TMPB,TMPC)
+  !ulf
+
+  if ((IRELAE /= 0) .and. (IRELAE /= 2)) then  ! DK2
+
+    ! CALCULATE Even3r OPERATOR
+
+    call Even3r(N,TMP2,TMP3,E,AA,RR,TT,TMPB,TMPD,TMP1,TMP4,TMPE,TMPF)
+
+    ! TRANSFORM BACK
+
+    !ulf
+    if (idbg > 0) call PRMAT(IDBG,TMP3,n,0,'ev2 orig')
+    call TrSmtr(TMP3,TMPA,H,One,N,TMPB,TMPC)
+    !ulf
+
+    if (IRELAE /= 3) then  ! DK3
+
+      ! More to come!
+
+    end if
+  end if
 end if
-
-! CALCULATE Even2r OPERATOR
-
-call Even2r(idbg,N,TMP2,TMP3,E,AA,RR,TT,TMPE,TMPB,TMPC,TMPF)
-
-! TRANSFORM BACK
-
-!ulf
-if (idbg > 0) call PRMAT(IDBG,TMP3,n,0,'ev2 orig')
-call TrSmtr(TMP3,TMPA,H,One,N,TMPB,TMPC)
-!ulf
-if ((IRELAE == 0) .or. (IRELAE == 2)) goto 1000   ! DK2
-
-! CALCULATE Even3r OPERATOR
-
-call Even3r(N,TMP2,TMP3,E,AA,RR,TT,TMPB,TMPD,TMP1,TMP4,TMPE,TMPF)
-
-! TRANSFORM BACK
-
-!ulf
-if (idbg > 0) call PRMAT(IDBG,TMP3,n,0,'ev2 orig')
-call TrSmtr(TMP3,TMPA,H,One,N,TMPB,TMPC)
-!ulf
-
-if (IRELAE == 3) goto 1000   ! DK3
-
-! More to come!
-
-1000 continue
 
 !ulf
 if (idbg > 0) call PRMAT(IDBG,h,n,0,'h   oper')
@@ -325,5 +324,13 @@ if (idbg > 0) then
 end if
 
 return
+
+100 format(1X,I4,7(1X,D15.8))
+556 format(//,7X,'- NREL. ENERG.  -  DIVIDED BY C - REL.  ENERG.  -  MOMENTUM    - TERMS OF POWER SERIES (LOW ENERGY ONLY)'//)
+#ifdef _DEBUGPRINT_
+2012 format('  relsew|****** '/,'        |****** WARNING - OVERLAP MATRIX SINGULAR '/, &
+            '        |****** PIVOTAL ELEMENT LESS THAN ',D20.4,' FOUND'/,'        |******'//)
+2016 format('  relsew| DCOPIV rc=',I2,', |S|=',D20.6,'x 10**(',I4,') ')
+#endif
 
 end subroutine SCFCLI

@@ -25,90 +25,89 @@ integer(kind=iwp) :: I, I1, I2, IBL, IJ, IR, J, J1, J2, K, K1, K1S, K2, KD, KK, 
 write(IUOUT,1001) HEAD
 NKPB = 4
 if (M <= 0) then
-  GO TO 10
+  IBL = N/NKPB
+  IR = N-IBL*NKPB
+  J1 = 1
+  K1S = 1
+  KD = 0
+  if (IBL /= 0) then
+    J2 = NKPB
+    do I=1,IBL
+      write(IUOUT,1002) (J,J=J1,J2)
+      K1 = K1S
+      K2 = K1
+      KK = 0
+      do J=J1,J2
+        write(IUOUT,1003) J,(R(K),K=K1,K2)
+        KK = KK+1
+        K1 = K1+KD+KK
+        K2 = K1+KK
+      end do
+      J1 = J1+NKPB
+      if (J1 > N) return
+      J2 = J2+NKPB
+      K2 = K1-1
+      K1 = K2+1
+      K2 = K1+(NKPB-1)
+      K1S = K2+1
+      KK = KD+NKPB
+      do J=J1,N
+        write(IUOUT,1003) J,(R(K),K=K1,K2)
+        KK = KK+1
+        K1 = K1+KK
+        K2 = K2+KK
+      end do
+      KD = KD+NKPB
+    end do
+  end if
+  if (IR /= 0) then
+    K1 = K1S
+    J2 = J1+IR-1
+    KK = 0
+    K2 = K1
+    write(IUOUT,1002) (J,J=J1,J2)
+    write(IUOUT,1003)
+    do J=J1,J2
+      write(IUOUT,1003) J,(R(K),K=K1,K2)
+      KK = KK+1
+      K1 = K1+KD+KK
+      K2 = K1+KK
+    end do
+  end if
 else
-  GO TO 80
+  IBL = M/NKPB
+  IR = M-IBL*NKPB
+  I2 = 0
+  K2 = 0
+  if (IBL /= 0) then
+    do I=1,IBL
+      I1 = (I-1)*N*NKPB+1
+      I2 = I1+(NKPB-1)*N
+      K1 = K2+1
+      K2 = K1+(NKPB-1)
+      write(IUOUT,1002) (K,K=K1,K2)
+      do J=1,N
+        write(IUOUT,1003) J,(R(IJ),IJ=I1,I2,N)
+        I1 = I1+1
+        I2 = I1+(NKPB-1)*N
+      end do
+    end do
+  end if
+  if (IR /= 0) then
+    I1 = IBL*N*NKPB+1
+    I2 = I1+(IR-1)*N
+    K1 = K2+1
+    K2 = M
+    write(IUOUT,1002) (K,K=K1,K2)
+    write(IUOUT,1003)
+    do J=1,N
+      write(IUOUT,1003) J,(R(IJ),IJ=I1,I2,N)
+      I1 = I1+1
+      I2 = I1+(IR-1)*N
+    end do
+  end if
+  write(IUOUT,1003)
 end if
-
-10 continue
-IBL = N/NKPB
-IR = N-IBL*NKPB
-J1 = 1
-K1S = 1
-KD = 0
-if (IBL == 0) GO TO 50
-J2 = NKPB
-do I=1,IBL
-  write(IUOUT,1002) (J,J=J1,J2)
-  K1 = K1S
-  K2 = K1
-  KK = 0
-  do J=J1,J2
-    write(IUOUT,1003) J,(R(K),K=K1,K2)
-    KK = KK+1
-    K1 = K1+KD+KK
-    K2 = K1+KK
-  end do
-  J1 = J1+NKPB
-  if (J1 > N) return
-  J2 = J2+NKPB
-  K2 = K1-1
-  K1 = K2+1
-  K2 = K1+(NKPB-1)
-  K1S = K2+1
-  KK = KD+NKPB
-  do J=J1,N
-    write(IUOUT,1003) J,(R(K),K=K1,K2)
-    KK = KK+1
-    K1 = K1+KK
-    K2 = K2+KK
-  end do
-  KD = KD+NKPB
-end do
-50 if (IR == 0) GO TO 70
-K1 = K1S
-J2 = J1+IR-1
-KK = 0
-K2 = K1
-write(IUOUT,1002) (J,J=J1,J2)
-write(IUOUT,1003)
-do J=J1,J2
-  write(IUOUT,1003) J,(R(K),K=K1,K2)
-  KK = KK+1
-  K1 = K1+KD+KK
-  K2 = K1+KK
-end do
-70 return
-80 IBL = M/NKPB
-IR = M-IBL*NKPB
-I2 = 0
-K2 = 0
-if (IBL == 0) GO TO 100
-do I=1,IBL
-  I1 = (I-1)*N*NKPB+1
-  I2 = I1+(NKPB-1)*N
-  K1 = K2+1
-  K2 = K1+(NKPB-1)
-  write(IUOUT,1002) (K,K=K1,K2)
-  do J=1,N
-    write(IUOUT,1003) J,(R(IJ),IJ=I1,I2,N)
-    I1 = I1+1
-    I2 = I1+(NKPB-1)*N
-  end do
-end do
-100 if (IR == 0) GO TO 120
-I1 = IBL*N*NKPB+1
-I2 = I1+(IR-1)*N
-K1 = K2+1
-K2 = M
-write(IUOUT,1002) (K,K=K1,K2)
-write(IUOUT,1003)
-do J=1,N
-  write(IUOUT,1003) J,(R(IJ),IJ=I1,I2,N)
-  I1 = I1+1
-  I2 = I1+(IR-1)*N
-end do
-120 write(IUOUT,1003)
 
 return
 

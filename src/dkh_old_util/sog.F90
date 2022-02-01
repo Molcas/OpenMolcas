@@ -36,34 +36,35 @@ do J=1,N
   JQ = IQ
   S1KK = SS(IQ+J)
   G(IL+J) = One
-  if (J == 1) GO TO 341
-  J1 = J-1
-  JL = 0
-  do K=1,J1
-    LG = JQ
-    ETOT = Zero
-    do L=1,K
-      LG = LG+1
+  if (J > 1) then
+    J1 = J-1
+    JL = 0
+    do K=1,J1
+      LG = JQ
+      ETOT = Zero
+      do L=1,K
+        LG = LG+1
+        JL = JL+1
+        ETOT = ETOT+SS(LG)*G(JL)
+      end do
+      S1KK = S1KK-ETOT*ETOT
+      A1(K) = ETOT
+    end do
+    I_F = 1
+    JL = IL
+    do K=1,J1
+      SUM_ = Zero
       JL = JL+1
-      ETOT = ETOT+SS(LG)*G(JL)
+      I_F = I_F+K-1
+      IH = I_F
+      do L=K,J1
+        IH = IH+L-1
+        SUM_ = SUM_+A1(L)*G(IH)
+      end do
+      G(JL) = -SUM_
     end do
-    S1KK = S1KK-ETOT*ETOT
-    A1(K) = ETOT
-  end do
-  I_F = 1
-  JL = IL
-  do K=1,J1
-    SUM_ = Zero
-    JL = JL+1
-    I_F = I_F+K-1
-    IH = I_F
-    do L=K,J1
-      IH = IH+L-1
-      SUM_ = SUM_+A1(L)*G(IH)
-    end do
-    G(JL) = -SUM_
-  end do
-341 S1KK = One/sqrt(S1KK)
+  end if
+  S1KK = One/sqrt(S1KK)
   JL = IL
   do K=1,J
     JL = JL+1

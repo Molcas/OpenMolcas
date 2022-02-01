@@ -24,10 +24,11 @@ write(idbg,1002) (j,j=1,n)
 do i=1,n
   write(idbg,1003) i,(a(i,j),j=1,n)
 end do
+
+return
+
 1001 format(' MATRIX PRINTED:',2X,A8)
 1002 format(' ',4X,4(6X,I4,6X),/)
 1003 format(' ',I4,4d16.8)
-
-return
 
 end subroutine prsq

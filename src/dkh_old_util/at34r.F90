@@ -61,15 +61,15 @@ do I=1,N
 
   TT(I) = EW(I)
   RATIO = EW(I)/VELIT
-  if (RATIO > 0.02_wp) goto 11
-  TV1 = EW(I)
-  TV2 = -TV1*EW(I)*PREA*Half
-  TV3 = -TV2*EW(I)*PREA
-  TV4 = -TV3*EW(I)*PREA*1.25_wp
-  EW(I) = TV1+TV2+TV3+TV4
-  goto 12
-11 EW(I) = CON*(sqrt(One+CON2*EW(I))-One)
-12 continue
+  if (RATIO > 0.02_wp) then
+    EW(I) = CON*(sqrt(One+CON2*EW(I))-One)
+  else
+    TV1 = EW(I)
+    TV2 = -TV1*EW(I)*PREA*Half
+    TV3 = -TV2*EW(I)*PREA
+    TV4 = -TV3*EW(I)*PREA*1.25_wp
+    EW(I) = TV1+TV2+TV3+TV4
+  end if
   E(I) = EW(I)+CON
 end do
 !-----------------------------------------------------------------------
@@ -187,34 +187,37 @@ call TRSMT(BU,REVT,EV2,N,AUX,OVE)
 !call PRMAT(6,EV2,N,0,'PVPFULL ')
 call ADDMAR(ISIZE,EV2,V)
 
-if ((IRELMP == 1) .or. (IRELMP == 11)) goto 1000
+if ((IRELMP /= 1) .and. (IRELMP /= 11)) then
 
-! CALCULATE EVEN2 OPERATOR
+  ! CALCULATE EVEN2 OPERATOR
 
-!call PRMAT(u6,TT,N,1,'TT      ')
-!call PRMAT(u6,E,N,1,'E       ')
-call EVEN2(N,P,G,E,AA,RR,TT,EIG,AUX,OVE,W1W1)
+  !call PRMAT(u6,TT,N,1,'TT      ')
+  !call PRMAT(u6,E,N,1,'E       ')
+  call EVEN2(N,P,G,E,AA,RR,TT,EIG,AUX,OVE,W1W1)
 
-! TRANSFORM BACK
+  ! TRANSFORM BACK
 
-call TRSMT(G,REVT,EV2,N,AUX,OVE)
-call ADDMAR(ISIZE,EV2,V)
+  call TRSMT(G,REVT,EV2,N,AUX,OVE)
+  call ADDMAR(ISIZE,EV2,V)
 
-if ((IRELMP == 0) .or. (IRELMP == 2)) goto 1000   ! DK2
+  if ((IRELMP /= 0) .and. (IRELMP /= 2)) then  ! DK2
 
-! CALCULATE EVEN3 OPERATOR
+    ! CALCULATE EVEN3 OPERATOR
 
-call EVEN3(N,P,G,E,AA,RR,TT,EIG,AUX,OVE,EVN1,VEXTT,PVPT,RE1R,W1W1,AUXI)
+    call EVEN3(N,P,G,E,AA,RR,TT,EIG,AUX,OVE,EVN1,VEXTT,PVPT,RE1R,W1W1,AUXI)
 
-! TRANSFORM BACK FOR DK3
+    ! TRANSFORM BACK FOR DK3
 
-call TRSMT(G,REVT,EV2,N,AUX,OVE)
-call ADDMAR(ISIZE,EV2,V)
-if (IRELMP == 3) goto 1000   ! DK3
+    call TRSMT(G,REVT,EV2,N,AUX,OVE)
+    call ADDMAR(ISIZE,EV2,V)
 
-! More to come here
+    if (IRELMP /= 3) then  ! DK3
 
-1000 continue
+      ! More to come here
+
+    end if
+  end if
+end if
 
 CR = 1/CHARGE
 do I=1,ISIZE

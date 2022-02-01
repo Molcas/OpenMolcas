@@ -130,118 +130,129 @@ subroutine DCOPIV_INTERNAL(S)
   integer(kind=iwp) :: I, J, K
 
   call c_f_pointer(c_loc(S(1)),iS,[N])
-  if ((N < 1) .or. (M < 1)) GO TO 7
+  if ((N < 1) .or. (M < 1)) then
+    iCTR = -1
+    nullify(iS)
+    return
+  end if
   iEX = 0
   DET = One
-  if (N == 1) GO TO 4
-  do I=1,N-1
-    C = abs(A(I,I))
-    iRI = I
-    iCI = I
-    do J=I,N
-      do K=I,N
-        if (abs(A(J,K)) > C) then
-          C = abs(A(J,K))
-          iRI = J
-          iCI = K
+  if (N > 1) then
+    do I=1,N-1
+      C = abs(A(I,I))
+      iRI = I
+      iCI = I
+      do J=I,N
+        do K=I,N
+          if (abs(A(J,K)) > C) then
+            C = abs(A(J,K))
+            iRI = J
+            iCI = K
+          end if
+        end do
+      end do
+      if (iRI /= I) then
+        DET = -DET
+        do J=1,N
+          C = A(I,J)
+          A(I,J) = A(iRI,J)
+          A(iRI,J) = C
+        end do
+        if (iCTR >= 0) then
+          do J=1,M
+            C = B(I,J)
+            B(I,J) = B(iRI,J)
+            B(iRI,J) = C
+          end do
+        end if
+      end if
+      if (iCI /= I) then
+        DET = -DET
+        do J=1,N
+          C = A(J,I)
+          A(J,I) = A(J,iCI)
+          A(J,iCI) = C
+        end do
+      end if
+      iS(I) = iCI
+      SUM_ = A(I,I)
+      if (abs(SUM_) <= EPS) then
+        write(u6,*) ' case 1. i,sum_,eps',i,sum_,eps
+        DET = Zero
+        iCTR = 1
+        nullify(iS)
+        return
+      end if
+      do J=I+1,N
+        C = A(J,I)/SUM_
+        do K=I+1,N
+          A(J,K) = A(J,K)-C*A(I,K)
+        end do
+        if (iCTR >= 0) then
+          do K=1,M
+            B(J,K) = B(J,K)-C*B(I,K)
+          end do
         end if
       end do
     end do
-    if (iRI /= I) then
-      DET = -DET
-      do J=1,N
-        C = A(I,J)
-        A(I,J) = A(iRI,J)
-        A(iRI,J) = C
-      end do
-      if (iCTR >= 0) then
-        do J=1,M
-          C = B(I,J)
-          B(I,J) = B(iRI,J)
-          B(iRI,J) = C
-        end do
-      end if
-    end if
-    if (iCI /= I) then
-      DET = -DET
-      do J=1,N
-        C = A(J,I)
-        A(J,I) = A(J,iCI)
-        A(J,iCI) = C
-      end do
-    end if
-    iS(I) = iCI
-    SUM_ = A(I,I)
-    if (abs(SUM_) <= EPS) then
-      write(u6,*) ' case 1. i,sum_,eps',i,sum_,eps
-      GO TO 1
-    end if
-    do J=I+1,N
-      C = A(J,I)/SUM_
-      do K=I+1,N
-        A(J,K) = A(J,K)-C*A(I,K)
-      end do
-      if (iCTR >= 0) then
-        do K=1,M
-          B(J,K) = B(J,K)-C*B(I,K)
-        end do
-      end if
-    end do
-  end do
-4 SUM_ = A(N,N)
+  end if
+  SUM_ = A(N,N)
   if (abs(SUM_) <= EPS) then
     write(u6,*) ' case 2. n,sum_,eps',n,sum_,eps
-    GO TO 1
+    DET = Zero
+    iCTR = 1
+    nullify(iS)
+    return
   end if
-  if (iCTR > 0) GO TO 6
-  do K=1,N
-    DET = DET*A(K,K)
-2   if (abs(DET) > 1.0e10_wp) then
-      DET = DET*1.0e-20_wp
-      iEX = iEX+20
-      GO TO 2
+  if (iCTR <= 0) then
+    do K=1,N
+      DET = DET*A(K,K)
+      do while (abs(DET) > 1.0e10_wp)
+        DET = DET*1.0e-20_wp
+        iEX = iEX+20
+      end do
+      do while (abs(DET) <= 1.0e-10_wp)
+        DET = DET*1.0e20_wp
+        iEX = iEX-20
+      end do
+    end do
+    if (iCTR < 0) then
+      iCTR = 0
+      nullify(iS)
+      return
     end if
-3   if (abs(DET) <= 1.0e-10_wp) then
-      DET = DET*1.0e20_wp
-      iEX = iEX-20
-      GO TO 3
-    end if
-  end do
-  if (iCTR < 0) GO TO 5
-6 do K=1,M
+  end if
+  do K=1,M
     B(N,K) = B(N,K)/SUM_
   end do
-  if (N == 1) GO TO 5
-  do I=N-1,1,-1
-    C = A(I,I)
-    do J=1,M
-      SUM_ = B(I,J)
-      do K=I+1,N
-        SUM_ = SUM_-A(I,K)*B(K,J)
-      end do
-      B(I,J) = SUM_/C
-    end do
-  end do
-  do K=N-1,1,-1
-    I = iS(K)
-    if (I /= K) then
+  if (N == 1) then
+    iCTR = 0
+  else
+    do I=N-1,1,-1
+      C = A(I,I)
       do J=1,M
-        C = B(I,J)
-        B(I,J) = B(K,J)
-        B(K,J) = C
+        SUM_ = B(I,J)
+        do K=I+1,N
+          SUM_ = SUM_-A(I,K)*B(K,J)
+        end do
+        B(I,J) = SUM_/C
       end do
-    end if
-  end do
-5 iCTR = 0
+    end do
+    do K=N-1,1,-1
+      I = iS(K)
+      if (I /= K) then
+        do J=1,M
+          C = B(I,J)
+          B(I,J) = B(K,J)
+          B(K,J) = C
+        end do
+      end if
+    end do
+  end if
+
   nullify(iS)
   return
-1 DET = Zero
-  iCTR = 1
-  nullify(iS)
-  return
-7 iCTR = -1
-  nullify(iS)
-  return
+
 end subroutine DCOPIV_INTERNAL
 
 end subroutine DCOPIV

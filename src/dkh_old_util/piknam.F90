@@ -37,17 +37,15 @@ LK = 1
 do I=40,1,-1
   if (KEYW(I:I) /= ' ') then
     LK = I
-    GO TO 11
+    exit
   end if
 end do
-11 continue
 do I=1,40
   if (KEYW(I:I) /= ' ') then
     IK = I
-    GO TO 13
+    exit
   end if
 end do
-13 continue
 
 ISTRT = index(LINE,KEYW(IK:LK))
 if (ISTRT == 0) then
@@ -73,7 +71,7 @@ do I=ISTRT,80
   if (FOUND) then
     if (LINE(I:I) == ' ') then
       LL = I-1
-      GO TO 21
+      exit
     end if
   else
     if (LINE(I:I) /= ' ') then
@@ -82,7 +80,6 @@ do I=ISTRT,80
     end if
   end if
 end do
-21 continue
 
 if (FOUND) then
   PIKNAM = LINE(IL:LL)
@@ -93,6 +90,7 @@ else
 end if
 
 return
-601 format('('' PIKNAM:         '',A',I2.2,',1X,A',I2.2,')')
+
+601 format("(' PIKNAM:         ',A",I2.2,',1X,A',I2.2,')')
 
 end function PIKNAM

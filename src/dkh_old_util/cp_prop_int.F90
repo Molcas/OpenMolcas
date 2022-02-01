@@ -29,7 +29,7 @@ iExp = 1
 do iIrrep=0,nIrrep-1
   do jIrrep=0,iIrrep
     ij = ieor(iIrrep,jIrrep)
-    if (iand(Label,2**ij) == 0) Go To 20
+    if (iand(Label,2**ij) == 0) cycle
     if (iIrrep == jIrrep) then
 
       Len_ = nBas(iIrrep)*(nBas(iIrrep)+1)/2
@@ -43,7 +43,6 @@ do iIrrep=0,nIrrep-1
       Len_ = nBas(iIrrep)*nBas(jIrrep)
       iExp = iExp+Len_
     end if
-20  continue
   end do
 end do
 

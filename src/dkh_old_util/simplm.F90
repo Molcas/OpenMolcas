@@ -34,10 +34,10 @@ real(kind=wp) :: DELTA, DLM, SUM_
 DLM = log(X(2))-log(X(1))
 do J=2,5
   DELTA = log(X(J+1))-log(X(J))
-  if (abs(DELTA-DLM) < 1.0e-8_wp) GO TO 11
-  write(u6,602)
-  call Abend()
-11 continue
+  if (abs(DELTA-DLM) >= 1.0e-8_wp) then
+    write(u6,602)
+    call Abend()
+  end if
 end do
 
 if (mod(NMP,2) /= 0) then

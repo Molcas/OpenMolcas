@@ -44,34 +44,34 @@ do J=1,N
   JQ = IQ
   S1KK = SS(IQ+J)
   G(IL+J) = One
-  if (J == 1) GO TO 341
-  J1 = J-1
-  JL = 0
-  do K=1,J1
-    LG = JQ
-    ETOT = Zero
-    do L=1,K
-      LG = LG+1
+  if (J > 1) then
+    J1 = J-1
+    JL = 0
+    do K=1,J1
+      LG = JQ
+      ETOT = Zero
+      do L=1,K
+        LG = LG+1
+        JL = JL+1
+        ETOT = ETOT+SS(LG)*G(JL)
+      end do
+      S1KK = S1KK-ETOT*ETOT
+      A1(K) = ETOT
+    end do
+    JF = 1
+    JL = IL
+    do K=1,J1
+      SUM_ = Zero
       JL = JL+1
-      ETOT = ETOT+SS(LG)*G(JL)
+      JF = JF+K-1
+      IH = JF
+      do L=K,J1
+        IH = IH+L-1
+        SUM_ = SUM_+A1(L)*G(IH)
+      end do
+      G(JL) = -SUM_
     end do
-    S1KK = S1KK-ETOT*ETOT
-    A1(K) = ETOT
-  end do
-  JF = 1
-  JL = IL
-  do K=1,J1
-    SUM_ = Zero
-    JL = JL+1
-    JF = JF+K-1
-    IH = JF
-    do L=K,J1
-      IH = IH+L-1
-      SUM_ = SUM_+A1(L)*G(IH)
-    end do
-    G(JL) = -SUM_
-  end do
-341 continue
+  end if
   if (s1kk <= 1.0e-16_wp) then
     write(u6,*) '    Sogr| j=',j,' s1kk=',s1kk
     ierr = ierr+1

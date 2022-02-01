@@ -27,7 +27,6 @@ real(kind=wp) :: ADD
 real(kind=wp), external :: GAM
 
 !write(u6,100)
-!100 format(/,' ****** RELATIVISTIC OPERATORS V 1.0 - BERND HESS ******'//)
 ZWP = Two*PI
 ZWPH32 = ZWP**OneHalf
 ZWPH12 = sqrt(ZWP)
@@ -66,5 +65,7 @@ do N=1,20
 end do
 
 return
+
+!100 format(/,' ****** RELATIVISTIC OPERATORS V 1.0 - BERND HESS ******'//)
 
 end subroutine RELOP

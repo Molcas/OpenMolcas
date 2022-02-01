@@ -30,36 +30,42 @@ end do
 do I=1,N
   AMAX = Zero
   do J=1,N
-    if (IP(J) > 0) GO TO 3
-    if (IP(J) < 0) GO TO 4
+    if (IP(J) > 0) cycle
+    if (IP(J) < 0) then
+      write(u6,105)
+      call Abend()
+    end if
     do K=1,N
-      if (IP(K) == 1) GO TO 2
-      if (IP(K) > 1) GO TO 4
-      if (abs(A(J,K)) <= AMAX) GO TO 2
+      if (IP(K) == 1) cycle
+      if (IP(K) > 1) then
+        write(u6,105)
+        call Abend()
+      end if
+      if (abs(A(J,K)) <= AMAX) cycle
       IR = J
       IC = K
       AMAX = abs(A(J,K))
-2     continue
     end do
-3   continue
   end do
   IP(IC) = IP(IC)+1
-  if (AMAX > 1.0e-30_wp) GO TO 6
-4 write(u6,105)
-105 format(' * '/' * ',16H SINGULAR MATRIX)
-  call Abend()
-6 if (IR == IC) GO TO 8
-  D = -D
-  do K=1,N
-    AMAX = A(IR,K)
-    A(IR,K) = A(IC,K)
-    A(IC,K) = AMAX
-  end do
-  if (L == 0) GO TO 8
-  AMAX = B(IR)
-  B(IR) = B(IC)
-  B(IC) = AMAX
-8 I_N(I,1) = IR
+  if (AMAX <= 1.0e-30_wp) then
+    write(u6,105)
+    call Abend()
+  end if
+  if (IR /= IC) then
+    D = -D
+    do K=1,N
+      AMAX = A(IR,K)
+      A(IR,K) = A(IC,K)
+      A(IC,K) = AMAX
+    end do
+    if (L /= 0) then
+      AMAX = B(IR)
+      B(IR) = B(IC)
+      B(IC) = AMAX
+    end if
+  end if
+  I_N(I,1) = IR
   I_N(I,2) = IC
   AMAX = A(IC,IC)
   D = D*AMAX
@@ -67,35 +73,33 @@ do I=1,N
   do K=1,N
     A(IC,K) = A(IC,K)/AMAX
   end do
-  if (L == 0) GO TO 10
-  B(IC) = B(IC)/AMAX
-10 do J=1,N
-    if (J == IC) GO TO 120
+  if (L /= 0) B(IC) = B(IC)/AMAX
+  do J=1,N
+    if (J == IC) cycle
     AMAX = A(J,IC)
     A(J,IC) = Zero
     do K=1,N
       A(J,K) = A(J,K)-A(IC,K)*AMAX
     end do
-    if (L == 0) GO TO 120
-    B(J) = B(J)-B(IC)*AMAX
-120 continue
+    if (L /= 0) B(J) = B(J)-B(IC)*AMAX
   end do
 end do
-if (L == 1) GO TO 15
-do I=1,N
-  J = N+1-I
-  if (I_N(J,1) == I_N(J,2)) GO TO 14
-  IR = I_N(J,1)
-  IC = I_N(J,2)
-  do K=1,N
-    AMAX = A(K,IR)
-    A(K,IR) = A(K,IC)
-    A(K,IC) = AMAX
+if (L /= 1) then
+  do I=1,N
+    J = N+1-I
+    if (I_N(J,1) == I_N(J,2)) cycle
+    IR = I_N(J,1)
+    IC = I_N(J,2)
+    do K=1,N
+      AMAX = A(K,IR)
+      A(K,IR) = A(K,IC)
+      A(K,IC) = AMAX
+    end do
   end do
-14 continue
-end do
-15 continue
+end if
 
 return
+
+105 format(' * '/' *  SINGULAR MATRIX')
 
 end subroutine MATINV

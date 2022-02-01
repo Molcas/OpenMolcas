@@ -22,21 +22,21 @@ integer(kind=iwp), intent(out) :: IER
 integer(kind=iwp) :: I, J, K
 real(kind=wp) :: TEMP
 
-if ((IA >= L) .and. (IB >= M) .and. (IC >= L)) GO TO 5
-IER = 129
-GO TO 9000
-5 IER = 0
-do I=1,L
-  do J=1,N
-    TEMP = Zero
-    do K=1,M
-      TEMP = A(I,K)*B(K,J)+TEMP
+if ((IA >= L) .and. (IB >= M) .and. (IC >= L)) then
+  IER = 0
+  do I=1,L
+    do J=1,N
+      TEMP = Zero
+      do K=1,M
+        TEMP = A(I,K)*B(K,J)+TEMP
+      end do
+      C(I,J) = C(I,J)+TEMP
     end do
-    C(I,J) = C(I,J)+TEMP
   end do
-end do
-GO TO 9005
-9000 continue
-9005 return
+else
+  IER = 129
+end if
+
+return
 
 end subroutine CPLAB

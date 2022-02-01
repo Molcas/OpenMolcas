@@ -39,7 +39,7 @@ do iMltpl=1,99
   iopt = 1
   iComp = 1
   call iRdOne(irc,iopt,Label,iComp,n_Int,iSmLbl)
-  if (irc /= 0) Go To 110
+  if (irc /= 0) exit
   if (Do_Index) then
     do iComp=1,nComp
       nProp_Int = nProp_Int+1
@@ -52,7 +52,6 @@ do iMltpl=1,99
     nProp_Int = nProp_Int+nComp
   end if
 end do
-110 continue
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -69,7 +68,7 @@ do iEF=0,2
     iopt = 1
     iComp = 1
     call iRdOne(irc,iopt,Label,iComp,n_Int,iSmLbl)
-    if (irc /= 0) Go To 201
+    if (irc /= 0) exit
     if (Do_Index) then
       do iComp=1,nComp
         nProp_Int = nProp_Int+1
@@ -82,7 +81,6 @@ do iEF=0,2
       nProp_Int = nProp_Int+nComp
     end if
   end do
-201 continue
 end do
 !                                                                      *
 !***********************************************************************
@@ -99,7 +97,7 @@ do iCent=1,maxCen
   iopt = 1
   iComp = 1
   call iRdOne(irc,iopt,Label,iComp,n_Int,iSmLbl)
-  if (irc /= 0) Go To 301
+  if (irc /= 0) exit
   if (Do_Index) then
     do iComp=1,nComp
       nProp_Int = nProp_Int+1
@@ -112,7 +110,6 @@ do iCent=1,maxCen
     nProp_Int = nProp_Int+nComp
   end if
 end do
-301 continue
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -127,7 +124,7 @@ do iCent=1,maxCen
   iopt = 1
   iComp = 1
   call iRdOne(irc,iopt,Label,iComp,n_Int,iSmLbl_)
-  if (irc /= 0) Go To 401
+  if (irc /= 0) exit
   if (Do_Index) then
     do iComp=1,nComp
       nProp_Int = nProp_Int+1
@@ -140,7 +137,6 @@ do iCent=1,maxCen
     nProp_Int = nProp_Int+nComp
   end if
 end do
-401 continue
 !                                                                      *
 !***********************************************************************
 !                                                                      *

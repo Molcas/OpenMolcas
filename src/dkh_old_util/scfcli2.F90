@@ -54,12 +54,9 @@ icontr = -1
 dtol = tol
 call dcopiv(aux,aux,n,1,n,dtol,det,iex,icontr,p)
 !if (idbg > 0) write(idbg,2016) icontr,det,iex
-!2016 format(' relsewb| DCOPIV rc=',I2,', |S|=',D20.6,'x 10**(',I4,') ')
 if (icontr /= 0) then
   !write(u6,2016) icontr,det,iex
   !write(u6,2012) dtol
-  !2012 format('  relsewb|****** '/,'        |****** WARNING - OVERLAP MATRIX SINGULAR '/, &
-  !            '        |****** PIVOTAL ELEMENT LESS THAN ',D20.4,' FOUND'/,'        |******'//)
   call errex_rel(' relsewb| singular overlap matrix')
 end if
 
@@ -79,7 +76,6 @@ call Square(BU,OVE,N,1,N)
 call Diagr(H,N,EIG,EW,SINV,AUX,BU)
 
 !if (idbg > 0) write(idbg,556)
-!556 format(//,7X,'- NREL. ENERG.  -  DIVIDED BY C - REL.  ENERG.  -  MOMENTUM    - TERMS OF POWER SERIES (LOW ENERGY ONLY)'//)
 do I=1,N
   if (ew(i) < Zero) then
     !write(u6,*) ' scfcli2| ew(',i,') = ',ew(i)
@@ -94,19 +90,18 @@ do I=1,N
 
   !SR = sqrt(Two*EW(I))
   TT(I) = EW(I)
-  if (RATIO > 0.02_wp) goto 11
-  TV1 = EW(I)
-  TV2 = -TV1*EW(I)*PREA*Half
-  TV3 = -TV2*EW(I)*PREA
-  TV4 = -TV3*EW(I)*PREA*1.25_wp
-  EW(I) = TV1+TV2+TV3+TV4
-  !if (idbg > 0) write(idbg,100) I,TV1,RATIO,EW(I),SR,TV2,TV3,TV4
-  !100 format(1X,I4,7(2X,D14.8))
-  goto 12
-11 TV1 = EW(I)
-  EW(I) = CON*(sqrt(One+CON2*EW(I))-One)
-  !if (idbg > 0) write(idbg,100) I,TV1,RATIO,EW(I),SR
-12 continue
+  if (RATIO > 0.02_wp) then
+    TV1 = EW(I)
+    EW(I) = CON*(sqrt(One+CON2*EW(I))-One)
+    !if (idbg > 0) write(idbg,100) I,TV1,RATIO,EW(I),SR
+  else
+    TV1 = EW(I)
+    TV2 = -TV1*EW(I)*PREA*Half
+    TV3 = -TV2*EW(I)*PREA
+    TV4 = -TV3*EW(I)*PREA*1.25_wp
+    EW(I) = TV1+TV2+TV3+TV4
+    !if (idbg > 0) write(idbg,100) I,TV1,RATIO,EW(I),SR,TV2,TV3,TV4
+  end if
   E(I) = EW(I)+CON
 end do
 !-----------------------------------------------------------------------
@@ -223,5 +218,11 @@ if (idbg > 0) call PRMAT(IDBG,h,n,0,'h   oper')
 !if (idbg > 0) write(idbg,'(4D20.12)') EW
 
 return
+
+!100 format(1X,I4,7(2X,D14.8))
+!556 format(//,7X,'- NREL. ENERG.  -  DIVIDED BY C - REL.  ENERG.  -  MOMENTUM    - TERMS OF POWER SERIES (LOW ENERGY ONLY)'//)
+!2012 format('  relsewb|****** '/,'        |****** WARNING - OVERLAP MATRIX SINGULAR '/, &
+!            '        |****** PIVOTAL ELEMENT LESS THAN ',D20.4,' FOUND'/,'        |******'//)
+!2016 format(' relsewb| DCOPIV rc=',I2,', |S|=',D20.6,'x 10**(',I4,') ')
 
 end subroutine SCFCLI2

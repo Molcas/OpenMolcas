@@ -25,7 +25,7 @@ implicit none
 character(len=40) :: RDNAME
 integer(kind=iwp), intent(in) :: LUT
 character(len=40), intent(in) :: KEYW
-integer(kind=iwp) :: LU
+integer(kind=iwp) :: istatus, LU
 logical(kind=iwp) :: UNFORM
 character(len=80) :: LINE
 character(len=40) :: VAL
@@ -46,24 +46,22 @@ else
 end if
 
 rewind LU
-1 continue
-if (UNFORM) then
-  ! unformatted files
-  LINE = ''
-  read(LU,end=999) LINE
-else
-  ! formatted files
-  read(LU,'(A80)',end=999) LINE
-end if
-VAL = PIKNAM(LINE,KEYW)
-if (VAL == ' ') GO TO 1
+do
+  if (UNFORM) then
+    ! unformatted files
+    LINE = ''
+    read(LU,iostat=istatus) LINE
+    if (istatus /= 0) exit
+  else
+    ! formatted files
+    read(LU,'(A80)',iostat=istatus) LINE
+    if (istatus /= 0) exit
+  end if
+  VAL = PIKNAM(LINE,KEYW)
+  if (VAL /= ' ') exit
+end do
 
-! the item has been found
-RDNAME = VAL
-return
-
-! the item has not been found in the file
-999 continue
+! the item has or has not been found
 RDNAME = VAL
 
 return

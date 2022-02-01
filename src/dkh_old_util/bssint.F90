@@ -120,7 +120,11 @@ iOpt = 0
 iRC = -1
 Lu_One = 2
 call OpnOne(iRC,iOpt,'ONEREL',Lu_One)
-if (iRC /= 0) Go To 9999
+if (iRC /= 0) then
+  write(u6,*) ' *** Error in subroutine BSSint ***'
+  write(u6,*) '     Abend in subroutine OpnOne'
+  call Abend()
+end if
 
 call OneBas('PRIM')
 call Get_iArray('nBas_Prim',nBas,nSym)
@@ -249,12 +253,12 @@ do iComp=1,nComp
 
   do iSyma=1,nSym
     na = nBas(iSyma-1)
-    if (na == 0) go to 81
+    if (na == 0) cycle
 
     do iSymb=1,iSyma
       nb = nBas(iSymb-1)
-      if (nb == 0) go to 82
-      if (iand(iSmLbl,2**ieor(iSyma-1,iSymb-1)) == 0) Go to 82
+      if (nb == 0) cycle
+      if (iand(iSmLbl,2**ieor(iSyma-1,iSymb-1)) == 0) cycle
       if (iSyma == iSymb) then
         iSize = na*(na+1)/2
 
@@ -278,9 +282,7 @@ do iComp=1,nComp
         iip1 = iip1+na*nb
       end if
 
-82    continue
     end do
-81  continue
   end do
 
   !write(u6,*) 'Created  whole matrix (NAxNB) PV '
@@ -333,7 +335,7 @@ do L=1,nSym
   n = nBas(L-1)
   iSize = n*(n+1)/2
   !AJS protection against zero dimension representation
-  if (iSize == 0) goto 9
+  if (iSize == 0) cycle
 
   ! Debug output on unit idbg
   if (IfTest) then
@@ -351,7 +353,6 @@ do L=1,nSym
   Aaf(L)%A(:) = Aa(1:n)
   Rrf(L)%A(:) = Rr(1:n)
 
-9 continue
 end do
 
 call mma_deallocate(Bu)
@@ -387,16 +388,16 @@ do iComp=1,nComp
     na = nBas(iSyma-1)
     iSizea = na*(na+1)/2
     !AJS protection against zero dimension representation
-    if (iSizea <= 0) goto 19
+    if (iSizea <= 0) cycle
     !AJS
 
     do iSymb=1,nSym
 
       nb = nBas(iSymb-1)
       iSizeb = nb*(nb+1)/2
-      if (iSizeb <= 0) goto 29
+      if (iSizeb <= 0) cycle
       iSizeab = na*nb
-      if (iand(iSmlbl,2**ieor(iSyma-1,iSymb-1)) == 0) Go to 29
+      if (iand(iSmlbl,2**ieor(iSyma-1,iSymb-1)) == 0) cycle
 
       if (iSyma == iSymb) then
 
@@ -454,9 +455,7 @@ do iComp=1,nComp
 
       call SCFCLI4(idbg,SS%SB(iSyma)%A1,Kin%SB(iSyma)%A1,Sinvf%SB(iSyma)%A2,na,nb,iSizea,VELIT,Cmm1,Cmm2,Ev,Bu2,Eig,Ew,P)
 
-29    continue
     end do
-19  continue
   end do
 end do
 
@@ -528,12 +527,20 @@ call Deallocate_DSBA(V)
 iOpt = 0
 iRC = -1
 call ClsOne(iRC,iOpt)
-if (iRC /= 0) Go To 9999
+if (iRC /= 0) then
+  write(u6,*) ' *** Error in subroutine BSSint ***'
+  write(u6,*) '     Abend in subroutine OpnOne'
+  call Abend()
+end if
 iOpt = 0
 iRC = -1
 Lu_One = 2
 call OpnOne(iRC,iOpt,'ONEINT',Lu_One)
-if (iRC /= 0) Go To 9999
+if (iRC /= 0) then
+  write(u6,*) ' *** Error in subroutine BSSint ***'
+  write(u6,*) '     Abend in subroutine OpnOne'
+  call Abend()
+end if
 
 ! Transform to contracted basis
 
@@ -589,11 +596,9 @@ call Deallocate_DSBA(Sinvf)
 call Deallocate_DSBA(Revtf)
 call Free_Alloc1DArray(Aaf)
 call Free_Alloc1DArray(Rrf)
+
 return
 
-9999 continue
-write(u6,*) ' *** Error in subroutine BSSint ***'
-write(u6,*) '     Abend in subroutine OpnOne'
-call Abend()
+contains
 
 end subroutine BSSint

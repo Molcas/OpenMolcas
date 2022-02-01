@@ -26,71 +26,87 @@ integer(kind=iwp), intent(out) :: ILL
 integer(kind=iwp) :: I, IM1, IM2, J, JM1, JP1, K, M, MX(1000), NM1 !IFG
 real(kind=wp) :: AA, AM, P, S, W
 
-if ((N < 1) .or. (N > size(MX)) .or. (N > KA) .or. (EPS <= Zero)) GO TO 250
+if ((N < 1) .or. (N > size(MX)) .or. (N > KA) .or. (EPS <= Zero)) then
+  ILL = 30000
+  return
+end if
+
 ! LU DECOMPOSITION
 JM1 = 0 ! dummy initialize
 M = 0 ! dummy initialize
 NM1 = N-1
 do J=1,N
-  if (J == 1) GO TO 30
-  JM1 = J-1
-  do I=1,JM1
-    M = MX(I)
-    S = A(M,J)
-    A(M,J) = A(I,J)
-    if (I == 1) GO TO 21
-    IM1 = I-1
-    do K=1,IM1
-      S = A(I,K)*A(K,J)+S
+  if (J /= 1) then
+    JM1 = J-1
+    do I=1,JM1
+      M = MX(I)
+      S = A(M,J)
+      A(M,J) = A(I,J)
+      if (I /= 1) then
+        IM1 = I-1
+        do K=1,IM1
+          S = A(I,K)*A(K,J)+S
+        end do
+      end if
+      A(I,J) = S
     end do
-21  A(I,J) = S
-  end do
-30 AM = 0.
+  end if
+  AM = 0.
   do I=J,N
     S = A(I,J)
-    if (J == 1) GO TO 50
-    do K=1,JM1
-      S = A(I,K)*A(K,J)+S
-    end do
-    A(I,J) = S
-50  AA = abs(S)
-    if (AA <= AM) GO TO 60
-    AM = AA
-    M = I
-60  continue
+    if (J /= 1) then
+      do K=1,JM1
+        S = A(I,K)*A(K,J)+S
+      end do
+      A(I,J) = S
+    end if
+    AA = abs(S)
+    if (AA > AM) then
+      AM = AA
+      M = I
+    end if
   end do
-  if (AM < EPS) GO TO 240
+  if (AM < EPS) then
+    ILL = J
+    return
+  end if
   MX(J) = M
-  if (M == J) GO TO 80
-  do K=1,J
-    W = A(M,K)
-    A(M,K) = A(J,K)
-    A(J,K) = W
-  end do
-80 if (J == N) GO TO 100
-  JP1 = J+1
-  W = -A(J,J)
-  do I=JP1,N
-    A(I,J) = A(I,J)/W
-  end do
-end do
-100 if (N <= 2) GO TO 130
-! INPLACE INVERSION OF L-COMPONENT
-do I=3,N
-  IM1 = I-1
-  IM2 = I-2
-  do J=1,IM2
-    S = A(I,J)
-    JP1 = J+1
-    do K=JP1,IM1
-      S = A(I,K)*A(K,J)+S
+  if (M /= J) then
+    do K=1,J
+      W = A(M,K)
+      A(M,K) = A(J,K)
+      A(J,K) = W
     end do
-    A(I,J) = S
-  end do
+  end if
+  if (J /= N) then
+    JP1 = J+1
+    W = -A(J,J)
+    do I=JP1,N
+      A(I,J) = A(I,J)/W
+    end do
+  end if
 end do
+if (N > 2) then
+  ! INPLACE INVERSION OF L-COMPONENT
+  do I=3,N
+    IM1 = I-1
+    IM2 = I-2
+    do J=1,IM2
+      S = A(I,J)
+      JP1 = J+1
+      do K=JP1,IM1
+        S = A(I,K)*A(K,J)+S
+      end do
+      A(I,J) = S
+    end do
+  end do
+end if
 ! INPLACE INVERSION OF U-COMPONENT
-130 A(1,1) = 1./A(1,1)
-if (N == 1) GO TO 230
+A(1,1) = 1./A(1,1)
+if (N == 1) then
+  ILL = 0
+  return
+end if
 do J=2,N
   A(J,J) = 1./A(J,J)
   P = -A(J,J)
@@ -123,20 +139,18 @@ do J=1,NM1
 end do
 ! INTERCHANGE OF COLUMNS
 J = NM1
-200 M = MX(J)
-if (M == J) GO TO 220
-do I=1,N
-  W = A(I,M)
-  A(I,M) = A(I,J)
-  A(I,J) = W
+do
+  M = MX(J)
+  if (M /= J) then
+    do I=1,N
+      W = A(I,M)
+      A(I,M) = A(I,J)
+      A(I,J) = W
+    end do
+  end if
+  J = J-1
+  if (J < 1) exit
 end do
-220 J = J-1
-if (J >= 1) GO TO 200
-230 ILL = 0
-return
-240 ILL = J
-return
-250 ILL = 30000
 
 return
 

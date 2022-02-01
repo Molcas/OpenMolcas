@@ -21,10 +21,11 @@ real(kind=wp) :: THETA
 integer(kind=iwp), intent(in) :: M, N
 #include "crelop.fh"
 
-if (mod(N,2) == 1) goto 10
-THETA = GA(M+2)*GA(N+1)/GA(M+N+3)
-return
-10 THETA = Zero
+if (mod(N,2) == 1) then
+  THETA = Zero
+else
+  THETA = GA(M+2)*GA(N+1)/GA(M+N+3)
+end if
 
 return
 
