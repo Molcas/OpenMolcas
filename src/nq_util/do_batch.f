@@ -131,6 +131,7 @@
          Call iDaFile(Lu_Grid,2,TabAO_Size,2,iDisk_Grid)
          nByte=TabAO_Size(2)
          mTabAO = (nByte+RtoB-1)/RtoB
+         If (TabAO_Size(1)/=nBfn)  Stop 'Noted problems'
          Call iDaFile(Lu_Grid,2,iBfn_Index,Size(iBfn_Index),iDisk_Grid)
          Call dDaFile(Lu_Grid,2,TabAO,mTabAO,iDisk_Grid)
          Unpack=Packing.eq.On
@@ -256,7 +257,13 @@
             iOff = iBfn*mAO*mGrid + 1
 *
          End Do
-         nBfn=iBfn
+
+         If (iBfn/=nBfn) Then
+            Write (6,*) 'Under development'
+            Call Abend()
+            nBfn=iBfn
+         End If
+
 #ifdef _ANALYSIS_
          Write (6,*) ' % AO blocks that can be eliminated: ',
      &             1.0D2*DBLE(mlist_s)/DBLE(nlist_s)
