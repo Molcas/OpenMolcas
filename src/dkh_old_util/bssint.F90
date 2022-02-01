@@ -11,9 +11,12 @@
 
 subroutine BSSint()
 
-use Basis_Info, only: dbsc, nBas, ncnttp
+use Basis_Info, only: dbsc, nBas, nCnttp
 use Symmetry_Info, only: nIrrep
 use DKH_Info, only: CLightAU
+use Data_Structures, only: Alloc_Alloc1DArray, Alloc_Alloc2DArray, Alloc1DArray_Type, Alloc2DArray_Type, DSBA_Type, Allocate_DSBA, &
+                           Deallocate_DSBA, Free_Alloc1DArray, Free_Alloc2DArray
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, OneHalf
 use Definitions, only: wp, iwp, u6
 
@@ -21,14 +24,17 @@ implicit none
 #include "Molcas.fh"
 #include "rinfo.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, iAa, iAaf, iAngr, iAux, iAux2, iBas, iBu, iBu2, iBu4, iBu6, iCmm1, iCmm2, icnt, iCnttp, iComp, iCr, idbg, &
-                     iE, iEig, iEig4, iEigf, iEv2, iEv4, iEw, iEw4, iExp, i_f, if2, if2a, ifa, iG, iG2, iH, iH_nr, iH_temp, iip1, &
-                     iK, iOpt, iOve, iP, ip1, ip2, ip4, ip5, ip6, ip7, ipaddr(3), iPrint, ipV, ipVf, ipVp, iRC, iRevt, iRevtf, &
-                     iRout, iRr, iRrf, iScpV, iScVp, iSinv, iSinvf, iSize, iSizea, iSizeab, iSizeb, iSizec, iSizep, iSmlbl, iSS, &
-                     iSyma, iSymb, iTt, iV, iVp, iVpf, ixyz, jExp, k, k1, k1a, k1b, k2, k2a, k2b, kAng, kC, kCof, kCofi, kCofj, &
-                     kExp, kExpi, kExpj, kh, L, Len_, LenInt, LenIntf, LenIntf1, lOper, Lu_One, n, na, nb, ncomp, nSym
-real(kind=wp) :: eps, rCofi, rCofj, rExpi, rExpj, rI, rNorm, Sum_, VELIT
+integer(kind=iwp) :: i, iAngr, iBas, icnt, iCnttp, iComp, idbg, iExp, iip1, iOpt, ip1, iPrint, iRC, iRout, iSize, iSizea, iSizeab, &
+                     iSizeb, iSizec, iSmlbl, iSyma, iSymb, ixyz, jExp, kAng, kC, kCof, kCofi, kCofj, kExp, kExpi, kExpj, L, &
+                     LenInt, lOper, Lu_One, n, na, nb, nBasMax, ncomp, nSym
+real(kind=wp) :: rCofi, rCofj, rExpi, rExpj, rI, rNorm, Sum_, VELIT
+type(DSBA_Type) :: Eigf, Kin, pVp, Revtf, Sinvf, SS, V
+integer(kind=iwp), allocatable :: lOper1(:)
+real(kind=wp), allocatable :: Aa(:), Aux(:), Bu(:), Bu2(:), Bu4(:), Cmm1(:), Cmm2(:), E(:), Eig(:), Ev(:), Ew(:), G(:), H(:), &
+                              H_nr(:), H_temp(:), ifpV(:), ifVp(:), ipVa(:), iVpa(:), Ove(:), P(:), Revt(:), Rr(:), ScpV(:), &
+                              ScVp(:), Sinv(:), Tt(:)
+type(Alloc1DArray_Type), allocatable :: Aaf(:), Rrf(:), pV(:), Vp(:)
+type(Alloc2DArray_Type), allocatable :: pVf(:), Vpf(:)
 character(len=8) :: Label
 #ifdef _DEBUGPRINT_
 #define _TEST_ .true.
@@ -117,7 +123,7 @@ call OpnOne(iRC,iOpt,'ONEREL',Lu_One)
 if (iRC /= 0) Go To 9999
 
 call OneBas('PRIM')
-call Get_iArray('nBas_Prim',nbas,nSym)
+call Get_iArray('nBas_Prim',nBas,nSym)
 
 if (iPrint >= 10) then
   write(u6,'(a11,10i5)') ' Symmetries',nSym
@@ -126,55 +132,42 @@ end if
 
 ! Allocate memory for relativistic part
 
-LenIntf = 0
-LenIntf1 = 0
-do L=0,nSym-1
-  n = nBas(L)
-  LenIntf = LenIntf+n*n+4
-  LenIntf1 = LenIntf1+n+4
+call Allocate_DSBA(Eigf,nBas,nBas,nSym,label='Eigf')
+call Allocate_DSBA(Sinvf,nBas,nBas,nSym,label='Sinvf')
+call Allocate_DSBA(Revtf,nBas,nBas,nSym,label='Revtf')
+call Alloc_Alloc1DArray(Aaf,[1,nSym],label='Aaf')
+call Alloc_Alloc1DArray(Rrf,[1,nSym],label='Rrf')
+nBasMax = 0
+do L=1,nSym
+  n = nBas(L-1)
+  nBasMax = max(nBasMax,n)
+  call mma_allocate(Aaf(L)%A,n,label='Aaf_i')
+  call mma_allocate(Rrf(L)%A,n,label='Rrf_i')
 end do
-
-call GetMem('Eigf    ','ALLO','REAL',iEigf,LenIntf)
-call GetMem('Sinvf   ','ALLO','REAL',iSinvf,LenIntf)
-call GetMem('Revtf   ','ALLO','REAL',iRevtf,LenIntf)
-call GetMem('Aaf     ','ALLO','REAL',iAaf,LenIntf1)
-call GetMem('Rrf     ','ALLO','REAL',iRrf,LenIntf1)
-call dcopy_(LenIntf,[Zero],0,Work(iEigf),1)
-call dcopy_(LenIntf,[Zero],0,Work(iSinvf),1)
-call dcopy_(LenIntf,[Zero],0,Work(iRevtf),1)
-call dcopy_(LenIntf1,[Zero],0,Work(iAaf),1)
-call dcopy_(LenIntf1,[Zero],0,Work(iRrf),1)
 
 VELIT = CLightAU
-iSizep = 0
-do L=0,nSym-1
-  iSizep = iSizep+nBas(L)*(nBas(L)+1)/2
-end do
-if (iPrint >= 10) write(u6,*) ' iSizep',iSizep
 
-call GetMem('Kin     ','ALLO','REAL',iK,iSizep+4)
-call GetMem('SS      ','ALLO','REAL',iSS,iSizep+4)
-call GetMem('V       ','ALLO','REAL',iV,iSizep+4)
-call GetMem('pVp     ','ALLO','REAL',ipVp,iSizep+4)
+call Allocate_DSBA(Kin,nBas,nBas,nSym,aCase='TRI',label='Kin')
+call Allocate_DSBA(SS,nBas,nBas,nSym,aCase='TRI',label='SS')
+call Allocate_DSBA(V,nBas,nBas,nSym,aCase='TRI',label='V')
+call Allocate_DSBA(pVp,nBas,nBas,nSym,aCase='TRI',label='pVp')
 
-if (iprint >= 20) write(u6,*) '  indices',iss,ik,iv,ipvp
 Label = 'Mltpl  0'
 iComp = 1
 iOpt = 0
+iOpt = 6 ! Do not read origin or nuclear contribution
 iRC = -1
-call RdOne(iRC,iOpt,Label,1,Work(iSS),lOper)
+call RdOne(iRC,iOpt,Label,1,SS%A0,lOper)
 if (iRC /= 0) then
   write(u6,*) 'BSSInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
-!write(u6,'(8f9.4)') (Work(iSS+k),k=0,iSizep-1)
-nComp = 1
-ipaddr(1) = iSS
-if (iPrint >= 20) call PrMtrx(Label,[lOper],nComp,ipaddr,Work)
+!write(u6,'(8f9.4)') SS%A0
+if (iPrint >= 20) call PrMtrx(Label,[lOper],1,[1],SS%A0)
 Label = 'Attract '
 iRC = -1
-call RdOne(iRC,iOpt,Label,1,Work(iV),lOper)
+call RdOne(iRC,iOpt,Label,1,V%A0,lOper)
 if (iRC /= 0) then
   write(u6,*) 'BSSInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
@@ -182,7 +175,7 @@ if (iRC /= 0) then
 end if
 Label = 'Kinetic '
 iRC = -1
-call RdOne(iRC,iOpt,Label,1,Work(iK),lOper)
+call RdOne(iRC,iOpt,Label,1,Kin%A0,lOper)
 if (iRC /= 0) then
   write(u6,*) 'BSSInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
@@ -190,7 +183,7 @@ if (iRC /= 0) then
 end if
 Label = 'pVp     '
 iRC = -1
-call RdOne(iRC,iOpt,Label,1,Work(ipVp),lOper)
+call RdOne(iRC,iOpt,Label,1,pVp%A0,lOper)
 if (iRC /= 0) then
   write(u6,*) 'BSSInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
@@ -198,92 +191,77 @@ if (iRC /= 0) then
 end if
 
 nComp = 3
-call GetMem('lOper1  ','ALLO','INTE',ip2,nComp)
-call GetMem('ipl     ','ALLO','INTE',ipV,nComp)
-ixyz = 1
-iWork(ip2) = 2**IrrFnc(ixyz)
-ixyz = 2
-iWork(ip2+1) = 2**IrrFnc(ixyz)
-ixyz = 4
-iWork(ip2+2) = 2**IrrFnc(ixyz)
-
-call GetMem('iiVpf   ','ALLO','INTE',iVpf,nComp)
-call GetMem('iipVf   ','ALLO','INTE',ipVf,nComp)
+call mma_allocate(lOper1,nComp,label='lOper1')
+do iComp=1,nComp
+  ixyz = 2**(iComp-1)
+  lOper1(iComp) = 2**IrrFnc(ixyz)
+end do
 
 ! Read pV matrix , elements <iSyma|pV|iSymb>, iSymb <= iSyma !
 
+call Alloc_Alloc1DArray(pV,[1,nComp],label='pV')
+
+Label = 'pV      '
 do iComp=1,nComp
 
-  Label = 'pV      '
   iRC = -1
-  iSmlbl = iWork(ip2+iComp-1)
+  iSmlbl = lOper1(iComp)
   LenInt = n2Tri(iSmlbl)
-  call GetMem('pV      ','ALLO','REAL',iWork(ipV+iComp-1),LenInt+4)
-  ip4 = iWork(ipV+iComp-1)
-  call RdOne(iRC,iOpt,Label,iComp,Work(ip4),iSmlbl)
+  call mma_allocate(pV(iComp)%A,LenInt,label='pV_i')
+  call RdOne(iRC,iOpt,Label,iComp,pV(iComp)%A,iSmlbl)
 
 end do
-
-!call PrMtrx('pV      ',iWork(ip2),nComp,iWork(ipV),Work)
 
 ! Read Vp matrix , elements <iSyma|Vp|iSymb>, iSymb <= iSyma !
 
 ! Read Vp matrix
 
+call Alloc_Alloc1DArray(Vp,[1,nComp],label='Vp')
+
 Label = 'Vp      '
-
-call GetMem('ipk     ','ALLO','INTE',iVp,nComp)
-
 do iComp=1,nComp
 
   iRC = -1
-  iSmlbl = iWork(ip2+iComp-1)
+  iSmlbl = lOper1(iComp)
   LenInt = n2Tri(iSmlbl)
-  call GetMem('Vp      ','ALLO','REAL',iWork(iVp+iComp-1),LenInt+4)
-  ip5 = iWork(iVp+iComp-1)
-  call RdOne(iRC,iOpt,Label,iComp,Work(ip5),iSmlbl)
+  call mma_allocate(Vp(iComp)%A,LenInt,label='Vp_i')
+  call RdOne(iRC,iOpt,Label,iComp,Vp(iComp)%A,iSmlbl)
 end do
 
-!call PrMtrx(Label,iWork(ip2),nComp,iWork(iVp),Work)
+! Build the whole matrix <iSyma|pV|iSymb> lower triangle
+! and put into pVf(iComp)%A(:,1) and the upper triangle
+! and put into pVf(iComp)%A(:,2).
+! For 'Vp' matrix the same, Vpf instead of pVf
 
-
-! Build the whole matrix <iSyma|pV|iSymb> lower triangel
-! and put into a Work(ip6+ip1+k) and the upper triange
-! and put into a Work(ip6+LenInt+iip1+k).
-! For 'Vp' matrix the same , p7 instead of p6
+call Alloc_Alloc2DArray(pVf,[1,nComp],label='pVf')
+call Alloc_Alloc2DArray(Vpf,[1,nComp],label='Vpf')
 
 do iComp=1,nComp
 
-  iSmlbl = iWork(ip2+iComp-1)
+  iSmlbl = lOper1(iComp)
   LenInt = n2Tri(iSmlbl)
 
-  call GetMem('pVf     ','ALLO','REAL',iWork(ipVf+iComp-1),2*LenInt+4)
-  call GetMem('Vpf     ','ALLO','REAL',iWork(iVpf+iComp-1),2*LenInt+4)
+  call mma_allocate(pVf(iComp)%A,LenInt,2,label='pVf_i')
+  call mma_allocate(Vpf(iComp)%A,LenInt,2,label='Vpf_i')
 
-  ip4 = iWork(ipV+iComp-1)
-  ip5 = iWork(iVp+iComp-1)
-  ip6 = iWork(ipVf+iComp-1)
-  ip7 = iWork(iVpf+iComp-1)
   ip1 = 0
   iip1 = 0
 
-  do iSyma=0,nSym-1
-    na = nBas(iSyma)
+  do iSyma=1,nSym
+    na = nBas(iSyma-1)
     if (na == 0) go to 81
 
-    do iSymb=0,iSyma
-      nb = nBas(iSymb)
+    do iSymb=1,iSyma
+      nb = nBas(iSymb-1)
       if (nb == 0) go to 82
-      if (iand(iSmLbl,2**ieor(iSyma,iSymb)) == 0) Go to 82
+      if (iand(iSmLbl,2**ieor(iSyma-1,iSymb-1)) == 0) Go to 82
       if (iSyma == iSymb) then
         iSize = na*(na+1)/2
 
         ! Elements <iSyma|pV|iSyma> and <iSyma|Vp|iSyma>
 
-        do k=0,iSize-1
-          Work(ip6+ip1+k) = Work(ip4+ip1+k)
-          Work(ip7+ip1+k) = Work(ip5+ip1+k)
-        end do
+        pVf(iComp)%A(ip1+1:ip1+iSize,1) = pV(iComp)%A(ip1+1:ip1+iSize)
+        Vpf(iComp)%A(ip1+1:ip1+iSize,1) = Vp(iComp)%A(ip1+1:ip1+iSize)
         ip1 = ip1+na*(na+1)/2
       else
         iSize = na*nb
@@ -292,12 +270,10 @@ do iComp=1,nComp
         ! AND
         ! Elements <iSyma|Vp|iSymb> and <iSymb|Vp|iSyma> = -<iSyma|pV|iSymb>
 
-        do k=0,iSize-1
-          Work(ip6+ip1+k) = Work(ip4+ip1+k)
-          Work(ip7+ip1+k) = Work(ip5+ip1+k)
-          Work(ip6+LenInt+4+iip1+k) = -Work(ip5+ip1+k)
-          Work(ip7+LenInt+4+iip1+k) = -Work(ip4+ip1+k)
-        end do
+        pVf(iComp)%A(ip1+1:ip1+iSize,1) = pV(iComp)%A(ip1+1:ip1+iSize)
+        Vpf(iComp)%A(ip1+1:ip1+iSize,1) = Vp(iComp)%A(ip1+1:ip1+iSize)
+        pVf(iComp)%A(iip1+1:iip1+iSize,2) = -Vp(iComp)%A(ip1+1:ip1+iSize)
+        Vpf(iComp)%A(iip1+1:iip1+iSize,2) = -pV(iComp)%A(ip1+1:ip1+iSize)
         ip1 = ip1+na*nb
         iip1 = iip1+na*nb
       end if
@@ -311,12 +287,12 @@ do iComp=1,nComp
   !
   !write(u6,*) 'pV matrix <iSyma|pV|iSymb> '
   !write(u6,*)
-  !write(u6,*) (Work(iWork(ipVf+iComp-1)+i),i=0,LenInt-1)
+  !write(u6,*) pVf(iComp)%A(:,1)
   !write(u6,*)
   !write(u6,*)
   !write(u6,*) 'pV matrix <iSymb|pV|iSyma> if iSyma /= iSymb otherwise zero matrix '
   !write(u6,*)
-  !write(u6,*) (Work(iWork(ipVf+iComp-1)+LenInt+4+i),i=0,LenInt-1)
+  !write(u6,*) pVf(iComp)%A(:,2)
   !
   ! Create the whole matrix (NAxNB) VP
   !
@@ -325,53 +301,39 @@ do iComp=1,nComp
   !write(u6,*)
   !write(u6,*) 'Vp matrix <iSyma|Vp|iSymb> '
   !write(u6,*)
-  !write(u6,*) (Work(iWork(iVpf+iComp-1)+i),i=0,LenInt-1)
-  !write(u6,*)
+  !write(u6,*) Vpf(iComp)%A(:,1)
   !write(u6,*)
   !write(u6,*)
   !write(u6,*) 'Vp matrix <iSymb|Vp|iSyma> if iSyma /= iSymb otherwise zero matrix '
   !write(u6,*)
-  !write(u6,*)
-  !write(u6,*) (Work(iWork(iVpf+iComp-1)+LenInt+4+i),i=0,LenInt-1)
+  !write(u6,*) Vpf(iComp)%A(:,2)
 
   ! End of iComp loop
 
 end do
 
-! Main loop  1
-eps = 1.0e-10_wp
-k = 0
-L = 0
-k1 = 0
-k2 = 0
-do L=0,nSym-1
+call mma_allocate(Bu,nBasMax*(nBasMax+1)/2,label='Bu')
+call mma_allocate(P,nBasMax*(nBasMax+1)/2,label='P')
+call mma_allocate(Ev,nBasMax*(nBasMax+1)/2,label='Ev')
+call mma_allocate(G,nBasMax**2,label='G')
+call mma_allocate(Eig,nBasMax**2,label='Eig')
+call mma_allocate(Sinv,nBasMax**2,label='Sinv')
+call mma_allocate(Revt,nBasMax**2,label='Revt')
+call mma_allocate(Aux,nBasMax**2,label='Aux')
+call mma_allocate(Ove,nBasMax**2,label='Ove')
+call mma_allocate(Ew,nBasMax,label='Ew')
+call mma_allocate(E,nBasMax,label='E')
+call mma_allocate(Aa,nBasMax,label='Aa')
+call mma_allocate(Rr,nBasMax,label='Rr')
+call mma_allocate(Tt,nBasMax,label='Tt')
 
-  n = nBas(L)
+! Main loop  1
+do L=1,nSym
+
+  n = nBas(L-1)
   iSize = n*(n+1)/2
   !AJS protection against zero dimension representation
   if (iSize == 0) goto 9
-  !AJS put zeroes
-  Len_ = 4*(iSize+4)+5*(n*n+4)+5*(n+4)
-  call GetMem('Scratch ','ALLO','REAL',iCr,Len_+4)
-  call dcopy_(Len_,[Zero],0,Work(iCr),1)
-  call GetMem('Scratch ','FREE','REAL',iCr,Len_+4)
-
-  ! Allocate
-
-  call GetMem('Bu      ','ALLO','REAL',iBu,isize+4)
-  call GetMem('P       ','ALLO','REAL',iP,isize+4)
-  call GetMem('G       ','ALLO','REAL',iG,isize+4)
-  call GetMem('Ev2     ','ALLO','REAL',iEv2,isize+4)
-  call GetMem('Eig     ','ALLO','REAL',iEig,n*n+4)
-  call GetMem('Sinv    ','ALLO','REAL',iSinv,n*n+4)
-  call GetMem('Revt    ','ALLO','REAL',iRevt,n*n+4)
-  call GetMem('Aux     ','ALLO','REAL',iAux,n*n+4)
-  call GetMem('Ove     ','ALLO','REAL',iOve,n*n+4)
-  call GetMem('Ew      ','ALLO','REAL',iEw,n+4)
-  call GetMem('E       ','ALLO','REAL',iE,n+4)
-  call GetMem('Aa      ','ALLO','REAL',iAa,n+4)
-  call GetMem('Rr      ','ALLO','REAL',iRr,n+4)
-  call GetMem('Tt      ','ALLO','REAL',iTt,n+4)
 
   ! Debug output on unit idbg
   if (IfTest) then
@@ -380,230 +342,148 @@ do L=0,nSym-1
     idbg = -1
   end if
 
-
   ! call to package relsewb
-  call SCFCLI2(idbg,Work(iSS+k),Work(iK+k),Work(iV+k),Work(ipVp+k),n,iSize,VELIT,Work(iBu),Work(iP),Work(iG),Work(iEv2), &
-               Work(iEig),Work(iSinv),Work(iRevt),Work(iAux),Work(iOve),Work(iEw),Work(iE),Work(iAa),Work(iRr),Work(iTt))
+  call SCFCLI2(idbg,SS%SB(L)%A1,Kin%SB(L)%A1,V%SB(L)%A1,pVp%SB(L)%A1,n,iSize,VELIT,Bu,P,G,Ev,Eig,Sinv,Revt,Aux,Ove,Ew,E,Aa,Rr,Tt)
 
-  call dcopy_(n*n+4,Work(iEig),1,Work(iEigf+k1),1)
-  call dcopy_(n*n+4,Work(iSinv),1,Work(iSinvf+k1),1)
-  call dcopy_(n*n+4,Work(iRevt),1,Work(iRevtf+k1),1)
-  call dcopy_(n+4,Work(iAa),1,Work(iAaf+k2),1)
-  call dcopy_(n+4,Work(iRr),1,Work(iRrf+k2),1)
+  Eigf%SB(L)%A1(:) = Eig(1:n*n)
+  Sinvf%SB(L)%A1(:) = Sinv(1:n*n)
+  Revtf%SB(L)%A1(:) = Revt(1:n*n)
+  Aaf(L)%A(:) = Aa(1:n)
+  Rrf(L)%A(:) = Rr(1:n)
 
-  call GetMem('Bu      ','FREE','REAL',iBu,isize+4)
-  call GetMem('P       ','FREE','REAL',iP,isize+4)
-  call GetMem('G       ','FREE','REAL',iG,isize+4)
-  call GetMem('Ev2     ','FREE','REAL',iEv2,isize+4)
-  call GetMem('Eig     ','FREE','REAL',iEig,n*n+4)
-  call GetMem('Sinv    ','FREE','REAL',iSinv,n*n+4)
-  call GetMem('Revt    ','FREE','REAL',iRevt,n*n+4)
-  call GetMem('Aux     ','FREE','REAL',iAux,n*n+4)
-  call GetMem('Ove     ','FREE','REAL',iOve,n*n+4)
-  call GetMem('Ew      ','FREE','REAL',iEw,n+4)
-  call GetMem('E       ','FREE','REAL',iE,n+4)
-  call GetMem('Aa      ','FREE','REAL',iAa,n+4)
-  call GetMem('Rr      ','FREE','REAL',iRr,n+4)
-  call GetMem('Tt      ','FREE','REAL',iTt,n+4)
-9 k = k+isize
-  k1 = k1+n*n+4
-  k2 = k2+n+4
+9 continue
 end do
 
-! Main loop  2
-nComp = 3
+call mma_deallocate(Bu)
+call mma_deallocate(Sinv)
+call mma_deallocate(Revt)
+call mma_deallocate(Ove)
+call mma_deallocate(E)
+call mma_deallocate(Aa)
+call mma_deallocate(Rr)
+call mma_deallocate(Tt)
 
+call mma_allocate(ipVa,nBasMax*(nBasMax+1)/2,label='ipVa')
+call mma_allocate(iVpa,nBasMax*(nBasMax+1)/2,label='iVpa')
+call mma_allocate(ifpV,nBasMax**2,label='ifpV')
+call mma_allocate(ifVp,nBasMax**2,label='ifVp')
+call mma_allocate(ScpV,nBasMax**2,label='ScpV')
+call mma_allocate(ScVp,nBasMax**2,label='ScVp')
+call mma_allocate(Bu2,nBasMax**2,label='Bu2')
+call mma_allocate(Bu4,nBasMax**2,label='Bu4')
+call mma_allocate(Cmm1,nBasMax**2,label='Cmm1')
+call mma_allocate(Cmm2,nBasMax**2,label='Cmm2')
+
+! Main loop  2
 do iComp=1,nComp
 
-  ip6 = iWork(ipVf+iComp-1)
-  ip7 = iWork(iVpf+iComp-1)
   ip1 = 0
   iip1 = 0
-  eps = 1.0e-10_wp
-  kh = 0
-  k1a = 0
-  k2a = 0
-  iSmlbl = iWork(ip2+iComp-1)
+  iSmlbl = lOper1(iComp)
   LenInt = n2Tri(iSmlbl)
 
-  do iSyma=0,nSym-1
+  do iSyma=1,nSym
 
-    na = nBas(iSyma)
+    na = nBas(iSyma-1)
     iSizea = na*(na+1)/2
     !AJS protection against zero dimension representation
     if (iSizea <= 0) goto 19
     !AJS
 
-    k1b = 0
-    k2b = 0
+    do iSymb=1,nSym
 
-    do iSymb=0,nSym-1
-
-      nb = nBas(iSymb)
+      nb = nBas(iSymb-1)
       iSizeb = nb*(nb+1)/2
       if (iSizeb <= 0) goto 29
       iSizeab = na*nb
-      if (iand(iSmlbl,2**ieor(iSyma,iSymb)) == 0) Go to 29
-
-      call GetMem('ipVa    ','ALLO','REAL',ifa,iSizea)
-      call GetMem('iVpa    ','ALLO','REAL',if2a,iSizea)
+      if (iand(iSmlbl,2**ieor(iSyma-1,iSymb-1)) == 0) Go to 29
 
       if (iSyma == iSymb) then
 
-        call dcopy_(iSizea,[Zero],0,Work(ifa),1)
-        call dcopy_(iSizea,[Zero],0,Work(if2a),1)
-        do k=0,iSizea-1
-          Work(ifa+k) = Work(ip6+ip1+k)
-          Work(if2a+k) = Work(ip7+ip1+k)
-        end do
+        ipVa(1:iSizea) = pVf(iComp)%A(ip1+1:ip1+iSizea,1)
+        iVpa(1:iSizea) = Vpf(iComp)%A(ip1+1:ip1+iSizea,1)
         ip1 = ip1+iSizea
       end if
 
-      call GetMem('ifpV    ','ALLO','REAL',i_f,iSizeab)
-      call GetMem('ifVp    ','ALLO','REAL',if2,iSizeab)
-      call GetMem('ScpV    ','ALLO','REAL',iScpV,iSizeab)
-      call GetMem('ScVp    ','ALLO','REAL',iScVp,iSizeab)
-      call dcopy_(iSizeab,[Zero],0,Work(i_f),1)
-      call dcopy_(iSizeab,[Zero],0,Work(if2),1)
-      call dcopy_(iSizeab,[Zero],0,Work(iScpV),1)
-      call dcopy_(iSizeab,[Zero],0,Work(iScVp),1)
-
       if (iSyma > iSymb) then
 
-        do k=0,iSizeab-1
-          Work(i_f+k) = Work(ip6+ip1+k)
-          Work(if2+k) = Work(ip7+ip1+k)
-        end do
+        ifpV(1:iSizeab) = pVf(iComp)%A(ip1+1:ip1+iSizeab,1)
+        ifVp(1:iSizeab) = Vpf(iComp)%A(ip1+1:ip1+iSizeab,1)
         ip1 = ip1+na*nb
 
-      end if
+      else if (iSyma < iSymb) then
 
-      if (iSyma < iSymb) then
-
-        do k=0,iSizeab-1
-          Work(i_f+k) = Work(ip6+iip1+LenInt+4+k)
-          Work(if2+k) = Work(ip7+iip1+LenInt+4+k)
-        end do
-        call DCOPY_(iSizeab,Work(i_f),1,Work(iScpV),1)
-        call DCOPY_(iSizeab,Work(if2),1,Work(iScVp),1)
+        ifpV(1:iSizeab) = pVf(iComp)%A(iip1+1:iip1+iSizeab,2)
+        ifVp(1:iSizeab) = Vpf(iComp)%A(iip1+1:iip1+iSizeab,2)
+        ScpV(1:iSizeab) = ifpV(1:iSizeab)
+        ScVp(1:iSizeab) = ifVp(1:iSizeab)
 
         iip1 = iip1+na*nb
+
+      else
+
+        ifpV(1:iSizeab) = Zero
+        ifVp(1:iSizeab) = Zero
+        ScpV(1:iSizeab) = Zero
+        ScVp(1:iSizeab) = Zero
+
       end if
 
-      ! Allocate
-
-      call GetMem('Bu2     ','ALLO','REAL',iBu2,na*nb+4)
-      call GetMem('Bu4     ','ALLO','REAL',iBu4,na*nb+4)
-      call GetMem('Bu6     ','ALLO','REAL',iBu6,na*na+4)
-      call GetMem('Bu      ','ALLO','REAL',iBu,iSizea+4)
-      call GetMem('P       ','ALLO','REAL',iP,iSizea+4)
-      call GetMem('G2      ','ALLO','REAL',iG2,na*nb+4)
-      call GetMem('Ev4     ','ALLO','REAL',iEv4,isizea+4)
-      call GetMem('Eig4    ','ALLO','REAL',iEig4,na*na+4)
-      !call GetMem('Sinv    ','ALLO','REAL',iSinv,n*n+4)
-      !call GetMem('Revt    ','ALLO','REAL',iRevt,n*n+4)
-      call GetMem('Aux2    ','ALLO','REAL',iAux2,na*nb+4)
-      call GetMem('Cmm1    ','ALLO','REAL',iCmm1,na*nb+4)
-      call GetMem('Cmm2    ','ALLO','REAL',iCmm2,na*nb+4)
-      call GetMem('Ew4     ','ALLO','REAL',iEw4,na+4)
-      !call GetMem('E       ','ALLO','REAL',iE,n+4)
-      !call GetMem('Tt      ','ALLO','REAL',iTt,n+4)
-
-      call dcopy_(na*nb+4,[Zero],0,Work(iBu2),1)
-      call dcopy_(na*nb+4,[Zero],0,Work(iBu4),1)
-      call dcopy_(na*na+4,[Zero],0,Work(iBu6),1)
-      call dcopy_(na*na+4,[Zero],0,Work(iEig4),1)
-      call dcopy_(na+4,[Zero],0,Work(iEw4),1)
-      call dcopy_(iSizea+4,[Zero],0,Work(iEv4),1)
-      call dcopy_(na*nb+4,[Zero],0,Work(iG2),1)
-      call dcopy_(na*nb+4,[Zero],0,Work(iAux2),1)
-      call dcopy_(na*nb+4,[Zero],0,Work(iCmm1),1)
-      call dcopy_(na*nb+4,[Zero],0,Work(iCmm2),1)
+      Bu2(1:na*nb) = Zero
+      Bu4(1:na*nb) = Zero
+      Ew(1:na) = Zero
+      Ev(1:iSizea) = Zero
+      G(1:na*nb) = Zero
+      Aux(1:na*nb) = Zero
+      Cmm1(1:na*nb) = Zero
+      Cmm2(1:na*nb) = Zero
 
       ! Calculate the matrix elements of the
       ! following commutator :
       ! Revta*AAA*<a|[bp,V]|b>store in CMM1(iSyma,iSymb) matrix,
 
-      call VPBMBPV(Work(iEigf+k1a),Work(iEigf+k1b),Work(iRevtf+k1a),Work(iSinvf+k1a),Work(iSinvf+k1b),na,nb,iSizea, &
-                   Work(iAaf+k2a),Work(iAaf+k2b),Work(iRrf+k2a),Work(iRrf+k2b),Work(i_f),Work(if2),iSyma,iSymb,Work(iBu2), &
-                   Work(iG2),Work(iAux2),Work(iCmm1),Work(iBu4),Work(iCmm2),Work(ifa),Work(if2a),Work(iScpV),Work(iScVp))
+      call VPBMBPV(Eigf%SB(iSyma)%A2,Eigf%SB(iSymb)%A2,Revtf%SB(iSyma)%A2,Sinvf%SB(iSyma)%A2,Sinvf%SB(iSymb)%A2,na,nb,iSizea, &
+                   Aaf(iSyma)%A,Aaf(iSymb)%A,Rrf(iSyma)%A,Rrf(iSymb)%A,ifpV,ifVp,iSyma,iSymb,Bu2,G,Aux,Cmm1,Bu4,Cmm2,ipVa,iVpa, &
+                   ScpV,ScVp)
 
-      call dcopy_(na*nb+4,[Zero],0,Work(iBu2),1)
-      call dcopy_(na*nb+4,[Zero],0,Work(iBu4),1)
-      call dcopy_(na*na+4,[Zero],0,Work(iBu6),1)
-      call dcopy_(na*nb+4,[Zero],0,Work(iG2),1)
-      call dcopy_(na*nb+4,[Zero],0,Work(iAux2),1)
-      call dcopy_(na*na+4,[Zero],0,Work(iEig4),1)
+      Bu2(1:na*na) = Zero
+      Aux(1:na*nb) = Zero
+      Eig(1:na*na) = Zero
 
       ! call to package relsewc, BSS up to the fourth order in alpha
 
-      call SCFCLI4(idbg,Work(iSS+kh),Work(iK+kh),Work(iSinvf+k1a),na,nb,iSizea,VELIT,Work(iCmm1),Work(iCmm2),Work(iEv4), &
-                   Work(iBu6),Work(iEig4),Work(iEw4),Work(iP))
-
-      ! Free a space
-
-      call GetMem('Bu2     ','FREE','REAL',iBu2,na*nb+4)
-      call GetMem('Bu4     ','FREE','REAL',iBu4,na*nb+4)
-      call GetMem('Bu6     ','FREE','REAL',iBu6,na*na+4)
-      call GetMem('Bu      ','FREE','REAL',iBu,iSizea+4)
-      call GetMem('P       ','FREE','REAL',iP,iSizea+4)
-      call GetMem('G2      ','FREE','REAL',iG2,na*nb+4)
-      call GetMem('Ev4     ','FREE','REAL',iEv4,isizea+4)
-      call GetMem('Eig4    ','FREE','REAL',iEig4,na*na+4)
-      !call GetMem('Sinv    ','FREE','REAL',iSinv,n*n+4)
-      !call GetMem('Revt    ','FREE','REAL',iRevt,n*n+4)
-      call GetMem('Aux2    ','FREE','REAL',iAux2,na*nb+4)
-      call GetMem('Cmm1    ','FREE','REAL',iCmm1,na*nb+4)
-      call GetMem('Cmm2    ','FREE','REAL',iCmm2,na*nb+4)
-      call GetMem('Ew4     ','FREE','REAL',iEw4,na+4)
-      !call GetMem('E       ','FREE','REAL',iE,n+4)
-      !call GetMem('Tt      ','FREE','REAL',iTt,n+4)
-
-      call GetMem('ifpV    ','FREE','REAL',i_f,iSizeab)
-      call GetMem('ifVp    ','FREE','REAL',if2,iSizeab)
-      call GetMem('ScpV    ','FREE','REAL',iScpV,iSizeab)
-      call GetMem('ScVp    ','FREE','REAL',iScVp,iSizeab)
-
-      call GetMem('ipVa    ','FREE','REAL',ifa,iSizea)
-      call GetMem('iVpa    ','FREE','REAL',if2a,iSizea)
+      call SCFCLI4(idbg,SS%SB(iSyma)%A1,Kin%SB(iSyma)%A1,Sinvf%SB(iSyma)%A2,na,nb,iSizea,VELIT,Cmm1,Cmm2,Ev,Bu2,Eig,Ew,P)
 
 29    continue
-      k1b = k1b+nb*nb+4
-      k2b = k2b+nb+4
     end do
-19  kh = kh+iSizea
-    k1a = k1a+na*na+4
-    k2a = k2a+na+4
+19  continue
   end do
 end do
 
-do iComp=1,nComp
-  iSmlbl = iWork(ip2+iComp-1)
-  LenInt = n2Tri(iSmlbl)
-  call GetMem('pVf     ','FREE','REAL',iWork(ipVf+iComp-1),2*LenInt+4)
-  call GetMem('Vpf     ','FREE','REAL',iWork(iVpf+iComp-1),2*LenInt+4)
-end do
+call mma_deallocate(P)
+call mma_deallocate(Ev)
+call mma_deallocate(G)
+call mma_deallocate(Eig)
+call mma_deallocate(Aux)
+call mma_deallocate(Ew)
+call mma_deallocate(ipVa)
+call mma_deallocate(iVpa)
+call mma_deallocate(ifpV)
+call mma_deallocate(ifVp)
+call mma_deallocate(ScpV)
+call mma_deallocate(ScVp)
+call mma_deallocate(Bu2)
+call mma_deallocate(Bu4)
+call mma_deallocate(Cmm1)
+call mma_deallocate(Cmm2)
 
-do iComp=1,nComp
-  iSmlbl = iWork(ip2+iComp-1)
-  LenInt = n2Tri(iSmlbl)
-  call GetMem('Vp      ','FREE','REAL',iWork(iVp+iComp-1),LenInt+4)
-end do
-call GetMem('ipk     ','FREE','INTE',iVp,nComp)
+call mma_deallocate(lOper1)
 
-do iComp=1,nComp
-  iSmlbl = iWork(ip2+iComp-1)
-  LenInt = n2Tri(iSmlbl)
-  call GetMem('pV      ','FREE','REAL',iWork(ipV+iComp-1),LenInt+4)
-end do
-
-call GetMem('iiVpf   ','FREE','INTE',iVpf,nComp)
-call GetMem('iipVf   ','FREE','INTE',ipVf,nComp)
-
-call GetMem('ipl     ','FREE','INTE',ipV,nComp)
-call GetMem('lOper1  ','FREE','INTE',ip2,nComp)
-
-call GetMem('pVp     ','FREE','REAL',ipVp,iSizep+4)
+call Free_Alloc2DArray(pVf)
+call Free_Alloc2DArray(Vpf)
+call Free_Alloc1DArray(pV)
+call Free_Alloc1DArray(Vp)
+call Deallocate_DSBA(pVp)
 
 ! open arrays in contracted basis
 
@@ -611,17 +491,17 @@ iSizec = 0
 do L=1,nSym
   iSizec = iSizec+nrBas(L)*(nrBas(L)+1)/2
 end do
-call GetMem('H       ','ALLO','REAL',iH,iSizec+4)
-call FZero(Work(iH),iSizec+4)
-call GetMem('H_nr    ','ALLO','REAL',iH_nr,iSizec+4)
-call FZero(Work(iH_nr),iSizec+4)
-call GetMem('H_temp  ','ALLO','REAL',iH_temp,iSizec+4)
-call FZero(Work(iH_temp),iSizec+4)
+call mma_allocate(H,iSizec+4)
+call mma_allocate(H_nr,iSizec+4)
+call mma_allocate(H_temp,iSizec+4)
+H(:) = Zero
+H_nr(:) = Zero
+H_temp(:) = Zero
 
 ! compute stripped non-relativistic H
 
 Label = 'Kinetic '
-call RdOne(iRC,iOpt,Label,1,Work(iSS),lOper)
+call RdOne(iRC,iOpt,Label,1,SS%A0,lOper)
 if (iRC /= 0) then
   write(u6,*) 'BSSInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
@@ -629,20 +509,19 @@ if (iRC /= 0) then
 end if
 
 Label = 'Attract '
-call RdOne(iRC,iOpt,Label,1,Work(iV),lOper)
+call RdOne(iRC,iOpt,Label,1,V%A0,lOper)
 if (iRC /= 0) then
   write(u6,*) 'BSSInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 
-call DaXpY_(iSizep+4,One,Work(iSS),1,Work(iV),1)
+V%A0(:) = V%A0+SS%A0
 
-call dcopy_(4,[Zero],0,Work(iH_temp+iSizec),1)
-call repmat(idbg,Work(iV),Work(iH_temp),.true.)
+call repmat(idbg,V%A0,H_temp,.true.)
 
-call GetMem('V       ','FREE','REAL',iV,iSizep+4)
-call GetMem('SS      ','FREE','REAL',iSS,iSizep+4)
+call Deallocate_DSBA(SS)
+call Deallocate_DSBA(V)
 
 ! Close ONEREL and re-open ONEINT
 
@@ -660,27 +539,25 @@ if (iRC /= 0) Go To 9999
 
 ! The Hamiltonian is now in Kin.
 
-call repmat(idbg,Work(iK),Work(iH),.true.)
+call repmat(idbg,Kin%A0,H,.true.)
 
-call GetMem('Kin     ','FREE','REAL',iK,iSizep+4)
+call Deallocate_DSBA(Kin)
 
 iOpt = 0
 iRC = -1
 Label = 'OneHam 0'
-call RdOne(iRC,iOpt,Label,1,Work(iH_nr),lOper)
+call RdOne(iRC,iOpt,Label,1,H_nr,lOper)
 if (iRC /= 0) then
   write(u6,*) 'BSSInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
-iOpt = 0
 iRC = -1
 
 ! final Hamiltonian computed as H(nrel) + ( Hrel(s) - Hnrel(s))
 ! where (s) is stripped and with full charge
 
-call DaXpY_(iSizec+4,-One,Work(iH_temp),1,Work(iH),1)
-call DaXpY_(iSizec+4,One,Work(iH_nr),1,Work(iH),1)
+H(:) = H(:)-H_temp+H_nr
 
 call Get_iArray('nBas',nBas,nSym)
 if (iPrint >= 10) then
@@ -689,31 +566,29 @@ if (iPrint >= 10) then
 end if
 Label = 'OneHam 0'
 lOper = 1
-nComp = 1
-ipaddr(1) = iH
-if (iPrint >= 20) call PrMtrx(Label,[lOper],nComp,ipaddr,Work)
+if (iPrint >= 20) call PrMtrx(Label,[lOper],1,[1],H)
 
 ! Replace 1-el Hamiltonian on ONEINT
 
 iRC = -1
-call WrOne(iRC,iOpt,Label,1,Work(iH),lOper)
+call WrOne(iRC,iOpt,Label,1,H,lOper)
 Label = 'OneHam  '
-call WrOne(iRC,iOpt,Label,1,Work(iH),lOper)
+call WrOne(iRC,iOpt,Label,1,H,lOper)
 if (iRC /= 0) then
   write(u6,*) 'BSSInt: Error writing to ONEINT'
   write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 
-call GetMem('OneHam  ','FREE','REAL',iH,iSizec+4)
-call GetMem('H_nr    ','FREE','REAL',iH_nr,iSizec+4)
-call GetMem('H_temp  ','FREE','REAL',iH_temp,iSizec+4)
+call mma_deallocate(H)
+call mma_deallocate(H_nr)
+call mma_deallocate(H_temp)
 
-call GetMem('Eigf    ','FREE','REAL',iEigf,LenIntf)
-call GetMem('Sinvf   ','FREE','REAL',iSinvf,LenIntf)
-call GetMem('Revtf   ','FREE','REAL',iRevtf,LenIntf)
-call GetMem('Aaf     ','FREE','REAL',iAaf,LenIntf1)
-call GetMem('Rrf     ','FREE','REAL',iRrf,LenIntf1)
+call Deallocate_DSBA(Eigf)
+call Deallocate_DSBA(Sinvf)
+call Deallocate_DSBA(Revtf)
+call Free_Alloc1DArray(Aaf)
+call Free_Alloc1DArray(Rrf)
 return
 
 9999 continue

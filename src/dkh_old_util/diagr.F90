@@ -24,7 +24,6 @@ integer(kind=iwp), intent(in) :: N
 real(kind=wp), intent(in) :: A(*), SINV(N,N)
 real(kind=wp), intent(out) :: EIG(N,N), AUX(N,N)
 real(kind=wp), intent(_OUT_) :: EW(*), AUXI(*)
-#include "WrkSpc.fh"
 
 if (n == 0) return
 call Square(A,Aux,n,1,n)

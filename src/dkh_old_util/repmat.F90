@@ -14,7 +14,7 @@
 
 subroutine repmat(idbg,bInt,sInt,donorm)
 
-use Basis_Info, only: dbsc, nCnttp, nBas
+use Basis_Info, only: dbsc, nBas, nCnttp
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
