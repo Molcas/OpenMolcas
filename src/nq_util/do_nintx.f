@@ -113,13 +113,7 @@
      &             One,A1,mGrid,
      &                 A2,mGrid,
      &             Zero,AOInt(1,1,iD),nBfn)
-      Do iBfn = 1, nBfn
-         Do jBfn = 1, iBfn
-            AOInt_Sym = AOInt(iBfn,jBfn,iD) +  AOInt(jBfn,iBfn,iD)
-            AOInt(iBfn,jBfn,iD) = AOInt_Sym
-            AOInt(jBfn,iBfn,iD) = AOInt_Sym
-         End Do
-      End Do
+      Call Symmetrize()
       End Do
 *                                                                      *
 ************************************************************************
@@ -134,13 +128,7 @@
      &             One,A1,mGrid,
      &                 A2,mGrid,
      &             Zero,AOInt(1,1,iD),nBfn)
-      Do iBfn = 1, nBfn
-         Do jBfn = 1, iBfn
-            AOInt_Sym = AOInt(iBfn,jBfn,iD) +  AOInt(jBfn,iBfn,iD)
-            AOInt(iBfn,jBfn,iD) = AOInt_Sym
-            AOInt(jBfn,iBfn,iD) = AOInt_Sym
-         End Do
-      End Do
+      Call Symmetrize()
       End Do
       Call mma_deallocate(A1)
       Call mma_deallocate(A2)
@@ -210,6 +198,7 @@
 *                                                                      *
       Contains
         Subroutine Sym_Dist()
+           Integer iBfn, jBfn, ijBfn
            ijBfn = 0
            Do iBfn = 1, nBfn
               Do jBfn = 1, iBfn-1
@@ -223,4 +212,14 @@
               AOInt(iBfn,iBfn,iD) = AOInt(iBfn,iBfn,iD) + AOInt_Sym
            End Do
         End Subroutine Sym_Dist
+        Subroutine Symmetrize()
+           Integer iBfn, jBfn
+           Do iBfn = 1, nBfn
+              Do jBfn = 1, iBfn
+                 AOInt_Sym = AOInt(iBfn,jBfn,iD) +  AOInt(jBfn,iBfn,iD)
+                 AOInt(iBfn,jBfn,iD) = AOInt_Sym
+                 AOInt(jBfn,iBfn,iD) = AOInt_Sym
+              End Do
+           End Do
+        End Subroutine Symmetrize
       End

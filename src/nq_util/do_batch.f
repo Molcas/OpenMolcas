@@ -158,7 +158,7 @@
       Write (6,*) ' Sparsity analysis of AO blocks'
       mlist_s=0
 #endif
-         iOff  = 1
+!        iOff  = 1
          iBfn  = 0
          iBfn_s= 0
          iBfn_e= 0
@@ -247,15 +247,11 @@
 !           an insignificant contribution to any of the grid points we
 !           are processing at this stage.
 !
-            Thr=1.0D-15
+            Thr=1.0D-11
             iSkip=0
             kBfn = iBfn_s - 1
             Do jBfn = iBfn_s, iBfn_e
-               jOff = (jBfn-1)*mAO*mGrid + 1
-               ix = iDAMax_(mAO*mGrid,TabAO(:,:,jBfn),1)
-               TMax = Abs(TabAO_Pack(jOff-1+ix))
-               Call Spectra(SMax)
-!              If (TMax<Thr) Then
+               Call Spectre(SMax)
                If (SMax<Thr) Then
                  iSkip=iSkip+1
                Else
@@ -268,7 +264,7 @@
             End Do
             iBfn = kBfn
 
-            iOff = iBfn*mAO*mGrid + 1
+!           iOff = iBfn*mAO*mGrid + 1
 *
          End Do
 
@@ -608,7 +604,9 @@
            If (Allocated(Dens_AO)) Call mma_deAllocate(Dens_AO)
         End Subroutine Terminate
 
-        Subroutine Spectra(SMax)
+        Subroutine Spectre(SMax)
+           Integer iGrid, iAO
+           Real*8 SMax
            SMax=Zero
            Do iGrid = 1, mGrid
              Do iAO = 1, mAO
@@ -617,6 +615,6 @@
              End Do
            End Do
 !          If (SMax<Thr) Write (6,*) SMax, TMax
-        End Subroutine Spectra
+        End Subroutine Spectre
 
       End Subroutine Do_Batch
