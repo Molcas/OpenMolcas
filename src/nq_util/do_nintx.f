@@ -77,22 +77,29 @@
 *                                                                      *
       Call mma_allocate(A1,mGrid,nBfn,Label='A1')
       Call mma_allocate(A2,mGrid,nBfn,Label='A2')
-
 *                                                                      *
 ************************************************************************
 ************************************************************************
 *                                                                      *
       Select Case (Functional_type)
 *                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
       Case (LDA_type)
+*                                                                      *
+      Call mma_Allocate(A_tri,nBfn*(nBfn+1)/2,Label='A_tri')
+      AOInt(:,:,:)=Zero
       Do iD = 1, nD
       Call DCopy_(mGrid*nBfn,TabAO1(1,1,1,iD),nFn,A1,1)
       Call DCopy_(mGrid*nBfn,TabAO2(1,1,1)   ,mAO,A2,1)
-      Call DGEMM_('T','N',nBfn,nBfn,mGrid,
-     &             One,A1,mGrid,
-     &                 A2,mGrid,
-     &             Zero,AOInt(1,1,iD),nBfn)
+      Call DGEMM_Tri('T','N',nBfn,nBfn,mGrid,
+     &              One,A1,mGrid,
+     &                  A2,mGrid,
+     &              Zero,A_Tri,nBfn)
+      Call Sym_Dist()
       End Do
+      Call mma_deAllocate(A_tri)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -153,18 +160,7 @@
      &               One,A1,3*mGrid,
      &                   A2,3*mGrid,
      &               Zero,A_Tri,nBfn)
-      ijBfn = 0
-      Do iBfn = 1, nBfn
-         Do jBfn = 1, iBfn-1
-            ijBfn = ijBfn + 1
-            AOInt_Sym = A_tri(ijBfn)
-            AOInt(iBfn,jBfn,iD) = AOInt(iBfn,jBfn,iD) + AOInt_Sym
-            AOInt(jBfn,iBfn,iD) = AOInt(jBfn,iBfn,iD) + AOInt_Sym
-         End Do
-         ijBfn = ijBfn + 1
-         AOInt_Sym = A_tri(ijBfn)
-         AOInt(iBfn,iBfn,iD) = AOInt(iBfn,iBfn,iD) + AOInt_Sym
-      End Do
+      Call Sym_Dist()
       End Do
       Call mma_deAllocate(A_tri)
 *                                                                      *
@@ -187,7 +183,10 @@
 *                                                                      *
       Call mma_deallocate(A1)
       Call mma_deallocate(A2)
-
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
 *#define _ANALYSIS_
 #ifdef _ANALYSIS_
       Write (6,*)
@@ -209,4 +208,19 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
+      Contains
+        Subroutine Sym_Dist()
+           ijBfn = 0
+           Do iBfn = 1, nBfn
+              Do jBfn = 1, iBfn-1
+                 ijBfn = ijBfn + 1
+                 AOInt_Sym = A_tri(ijBfn)
+                 AOInt(iBfn,jBfn,iD) = AOInt(iBfn,jBfn,iD) + AOInt_Sym
+                 AOInt(jBfn,iBfn,iD) = AOInt(jBfn,iBfn,iD) + AOInt_Sym
+              End Do
+              ijBfn = ijBfn + 1
+              AOInt_Sym = A_tri(ijBfn)
+              AOInt(iBfn,iBfn,iD) = AOInt(iBfn,iBfn,iD) + AOInt_Sym
+           End Do
+        End Subroutine Sym_Dist
       End
