@@ -23,7 +23,6 @@
       use nq_Grid, only: F_xc, GradRho, vRho, vSigma, vTau, vLapl
       use nq_Grid, only: Pax
       use nq_Grid, only: IndGrd, iTab, Temp, dW_dR
-      use nq_Grid, only: l_casdft
       use nq_Structure, only: NQ_data
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -528,12 +527,7 @@
 *
 *           Compute < nabla_r f * r^x > as Tr (O^x V)
 *
-            If (l_casdft) Then
-               Factor=Half
-            else
-               Factor=One
-            end if
-            Tmp = DDot_(9,NQ_Data(jNQ)%dOdx(:,:,iCar),1,V,1)*Factor
+            Tmp = DDot_(9,NQ_Data(jNQ)%dOdx(:,:,iCar),1,V,1) * Half
 #ifdef _DEBUGPRINT_
             If (Debug) Then
                Write (6,*)
