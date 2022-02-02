@@ -8,7 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      REAL*8 ZWP,SQPI,VELIT,PREA,CSQ,ZWPH32,FAK,ZWPH12,BCO,GA
-      INTEGER IMAX
-      COMMON /CRELOP/ ZWP,SQPI,VELIT,PREA,CSQ,ZWPH32,FAK(26),           &
-     &ZWPH12,BCO(210),GA(20),IMAX
+
+module crelop
+
+use Definitions, only: wp, iwp
+
+implicit none
+private
+
+integer(kind=iwp) :: IMAX
+real(kind=wp) :: GA(20)
+
+public :: GA, IMAX
+
+end module crelop

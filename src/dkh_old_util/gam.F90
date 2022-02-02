@@ -11,13 +11,12 @@
 
 function GAM(M)
 
-use Constants, only: One, Half
+use Constants, only: One, Half, Pi
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: GAM
 integer(kind=iwp), intent(in) :: M
-#include "crelop.fh"
 integer(kind=iwp) :: I, MA
 real(kind=wp) :: G
 
@@ -31,7 +30,7 @@ if (mod(M,2) == 1) then
   end if
 else
   MA = M
-  G = SQPI
+  G = sqrt(Pi)
   if (MA /= 0) then
     do I=1,MA,2
       G = G*Half*real(I,kind=wp)

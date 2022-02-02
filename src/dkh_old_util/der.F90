@@ -12,6 +12,7 @@
 function DER(IDER,IS1,IS2,AL,BE)
 ! CALCULATE INTEGRAL OVER DERIVATIVE OF THE FUNCTIONS
 
+use crelop, only: GA
 use Constants, only: Zero, One, Two, Three, Four, Half
 use Definitions, only: wp, iwp, u6
 
@@ -19,7 +20,6 @@ implicit none
 real(kind=wp) :: DER
 integer(kind=iwp), intent(in) :: IDER, IS1(3), IS2(3)
 real(kind=wp), intent(in) :: AL, BE
-#include "crelop.fh"
 integer(kind=iwp) :: I, I1(2,3), I2(2,3), II, J, J1, J2, JJ, KK, L1, L2
 real(kind=wp) :: ANG, EX, F(2), G(2), SUM_
 real(kind=wp), external :: PHI, THETA

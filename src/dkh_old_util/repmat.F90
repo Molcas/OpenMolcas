@@ -30,10 +30,10 @@ logical(kind=iwp), intent(in) :: donorm
 #include "Molcas.fh"
 #include "itmax.fh"
 #include "rinfo.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: icaddr(MxAO), ihelp(MxAtom,iTabMx), ip, istart, jp, kp, mcaddr(MxAO), np, nc, numb(MxAO), numc(MxAO) !IFG
+integer(kind=iwp) :: ip, istart, jp, kp, nAngrMax, nAtomTot, nc, np, nrBasTot
 real(kind=wp) :: finish, kpp
 logical(kind=iwp) :: New_Center, New_l, New_m, Old_Center, Old_l
+integer(kind=iwp), allocatable :: icaddr(:), ihelp(:,:), mcaddr(:), numb(:), numc(:)
 real(kind=wp), allocatable :: fin(:,:), mag(:,:), pa(:), scr(:,:), u2c(:,:), u2ct(:,:)
 integer(kind=iwp) :: i, ia, iBas, ibasL, ic, icnt, iCnttp, icon, iCont, ilarge, indb, indbL, ipbasL, iPrim, iPrint, ismall, iSym, &
                      j, jbas, jbasL, jcon, jpbasL, jPrim, k, ka, kbias, kc, kcL, la, mp, nSym, numck, numcl
@@ -58,6 +58,16 @@ if ((iprint >= 10) .or. (idbg > 0)) then
   write(idbg,*) nSym,(nBas(i),i=0,nsym-1)
   write(idbg,*) nSym,(nrBas(i),i=1,nsym)
 end if
+
+nAtomTot = 0
+do iCnttp=1,nCnttp
+  nAtomTot = nAtomTot+dbsc(iCnttp)%nCntr
+end do
+nAngrMax = 0
+do ia=1,nAtomTot
+  nAngrMax = max(nAngrMax,nAngr(ia)+1)
+end do
+call mma_allocate(ihelp,nAtomTot,nAngrMax,label='ihelp')
 
 ! set up pointer
 
@@ -84,6 +94,15 @@ if ((iPrint >= 10) .or. (idbg > 0)) then
     end do
   end do
 end if
+
+nrBasTot = 0
+do iSym=1,nSym
+  nrBasTot = nrBasTot+nrBas(iSym)
+end do
+call mma_allocate(icaddr,nrBasTot,label='icaddr')
+call mma_allocate(mcaddr,nrBasTot,label='mcaddr')
+call mma_allocate(numb,nrBasTot,label='numb')
+call mma_allocate(numc,nrBasTot,label='numc')
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -130,6 +149,7 @@ do iSym=1,nSym
     end do      ! iCnttp
   end do        ! iCont
 end do          ! iSym
+call mma_deallocate(ihelp)
 k = 0
 if ((iPrint >= 10) .or. (idbg > 0)) then
   ic = 0
@@ -280,6 +300,11 @@ else
   call cpu_time(finish)
 
 end if !donorm
+
+call mma_deallocate(icaddr)
+call mma_deallocate(mcaddr)
+call mma_deallocate(numb)
+call mma_deallocate(numc)
 
 return
 

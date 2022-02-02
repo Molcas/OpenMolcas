@@ -93,7 +93,10 @@ do I=1,N
     SINV(J,I) = P(IJ)
   end do
 end do
-if (ierr > 0) call errex_rel('function has negative norm')
+if (ierr > 0) then
+  write(u6,'(a)') 'function has negative norm'
+  call Abend()
+end if
 if (iDbg > 0) call PrMat(idbg,P,n,0,'P')
 
 return

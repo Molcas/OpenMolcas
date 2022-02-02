@@ -66,7 +66,7 @@ do I=1,N
     AUXF(J,I) = A(J)*R(J)*G(IJ)*A(I)/R(I)/TT(I)*Half
   end do
 end do
-call CZERO2(W1W1,N,N,N)
+W1W1(:,:) = Zero
 call CpLabr(AUXF,RE1R,N,N,N,M,M,W1W1,M,IE)
 IJ = 0
 do I=1,N
@@ -86,7 +86,7 @@ do I=1,N
     AUXF(J,I) = A(J)*V(IJ)*A(I)
   end do
 end do
-call CZERO2(W1W1,N,N,N)
+W1W1(:,:) = Zero
 call CpLabr(AUXF,RE1R,N,N,N,M,M,W1W1,M,IE)
 IJ = 0
 do I=1,N
@@ -106,7 +106,7 @@ do I=1,N
     AUXF(J,I) = A(J)*V(IJ)*A(I)
   end do
 end do
-call CZERO2(W1W1,N,N,N)
+W1W1(:,:) = Zero
 call CpLabr(AUXF,RE1R,N,N,N,M,M,W1W1,M,IE)
 IJ = 0
 do I=1,N
@@ -126,7 +126,7 @@ do I=1,N
     AUXF(J,I) = A(J)*R(J)*G(IJ)*A(I)/R(I)/TT(I)*Half
   end do
 end do
-call CZERO2(W1W1,N,N,N)
+W1W1(:,:) = Zero
 call CpLabr(AUXF,RE1R,N,N,N,M,M,W1W1,M,IE)
 IJ = 0
 do I=1,N

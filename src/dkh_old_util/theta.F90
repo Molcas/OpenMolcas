@@ -13,13 +13,13 @@ function THETA(M,N)
 ! INTEGRATION OVER THETA. INCLUDES A FACTOR SIN(TH)
 ! FOR THE VOLUME ELEMENT
 
+use crelop, only: GA
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: THETA
 integer(kind=iwp), intent(in) :: M, N
-#include "crelop.fh"
 
 if (mod(N,2) == 1) then
   THETA = Zero

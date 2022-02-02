@@ -87,7 +87,7 @@ end do
 
 ! Calculate the commutator <iSymA|[V,pb]|iSymB> and put into CMM1
 
-call AddMar(NA*NB,G2,CMM1)
+CMM1(:,:) = CMM1+G2
 
 ! Multiply BY A MATRIX
 

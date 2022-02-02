@@ -11,6 +11,7 @@
 
 function EXTC(LAMBDA,AL,BE,L1,M1,N1,L2,M2,N2)
 
+use crelop, only: GA, IMAX
 use Constants, only: Half
 use Definitions, only: wp, iwp, u6
 
@@ -18,7 +19,6 @@ implicit none
 real(kind=wp) :: EXTC
 integer(kind=iwp), intent(in) :: LAMBDA, L1, M1, N1, L2, M2, N2
 real(kind=wp), intent(in) :: AL, BE
-#include "crelop.fh"
 integer(kind=iwp) :: II, IS1(3), IS2(3), JJ, KK
 real(kind=wp) :: ANG, EX, OV1, OV2, SUM_
 real(kind=wp), external :: DER, PHI, THETA
@@ -48,7 +48,7 @@ IS2(2) = M2
 IS2(3) = N2
 SUM_ = DER(1,IS1,IS2,AL,BE)+DER(2,IS1,IS2,AL,BE)+DER(3,IS1,IS2,AL,BE)
 
-!  NORMALIZATION
+! NORMALIZATION
 
 II = L1+L1
 JJ = M1+M1

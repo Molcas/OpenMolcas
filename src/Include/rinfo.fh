@@ -12,7 +12,7 @@
       Parameter(MxPrim=20*MxAO,MxrCof=10*MxPrim)
       Integer nPrimr(MxAO), nBasisr(MxAO), nAngr(MxAO)
       Integer icent(MxAO), lnang(MxAO), lmag(MxAO), lant(MxAO),         &
-     &        nrBas(8), nrBas_prim(8), nrSym, n_Bas(8)
+     &        nrBas(8), nrBas_prim(8), nrSym
       Real*8 rCof(MxrCof),rExp(MxPrim)
       common/r_info/ rCof, rExp, nAngr, nPrimr, nBasisr, icent,         &
-     &              lnang, lmag, lant, nrSym, nrBas, nrBas_prim, n_Bas
+     &              lnang, lmag, lant, nrSym, nrBas, nrBas_prim

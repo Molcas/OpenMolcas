@@ -53,7 +53,7 @@ do IJ=1,ISIZEA
   EV4(IJ) = Half*(One/(VELIT*VELIT))*EV4(IJ)
 end do
 
-call AddMar(ISIZEA,EV4,H)
+H(:) = H+EV4
 
 !ulf
 if (idbg > 0) call PRMAT(IDBG,h,na,nb,'h   oper')

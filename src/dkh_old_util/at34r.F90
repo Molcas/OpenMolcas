@@ -45,7 +45,7 @@ end do
 ! SCHMIDT-ORTHOGONALIZE OVERLAP MATRIX
 
 call SOG(N,SMAT,SINV,P,OVE,EW)
-call FILLMA(N,SMAT,OVE)
+call SQUARE(SMAT,OVE,1,N,N)
 
 !-----------------------------------------------------------------------
 ! MATRIX REPRESENTATION CALCULATED FROM NONRELATIVISTIC T MATRIX
@@ -185,7 +185,7 @@ else if (IRELMP == 11) then
 end if
 call TRSMT(BU,REVT,EV2,N,AUX,OVE)
 !call PRMAT(6,EV2,N,0,'PVPFULL ')
-call ADDMAR(ISIZE,EV2,V)
+V(1:ISIZE) = V(1:ISIZE)+EV2(1:ISIZE)
 
 if ((IRELMP /= 1) .and. (IRELMP /= 11)) then
 
@@ -198,7 +198,7 @@ if ((IRELMP /= 1) .and. (IRELMP /= 11)) then
   ! TRANSFORM BACK
 
   call TRSMT(G,REVT,EV2,N,AUX,OVE)
-  call ADDMAR(ISIZE,EV2,V)
+  V(1:ISIZE) = V(1:ISIZE)+EV2(1:ISIZE)
 
   if ((IRELMP /= 0) .and. (IRELMP /= 2)) then  ! DK2
 
@@ -209,7 +209,7 @@ if ((IRELMP /= 1) .and. (IRELMP /= 11)) then
     ! TRANSFORM BACK FOR DK3
 
     call TRSMT(G,REVT,EV2,N,AUX,OVE)
-    call ADDMAR(ISIZE,EV2,V)
+    V(1:ISIZE) = V(1:ISIZE)+EV2(1:ISIZE)
 
     if (IRELMP /= 3) then  ! DK3
 

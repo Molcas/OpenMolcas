@@ -15,6 +15,7 @@
 !#NUMPAC#MINVD               REVISED ON 1984-11-30
 subroutine MINVD(A,KA,N,EPS,ILL)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -23,13 +24,16 @@ integer(kind=iwp), intent(in) :: KA, N
 real(kind=wp), intent(inout) :: A(KA,N)
 real(kind=wp), intent(in) :: EPS
 integer(kind=iwp), intent(out) :: ILL
-integer(kind=iwp) :: I, IM1, IM2, J, JM1, JP1, K, M, MX(1000), NM1 !IFG
+integer(kind=iwp) :: I, IM1, IM2, J, JM1, JP1, K, M, NM1
 real(kind=wp) :: AA, AM, P, S, W
+integer(kind=iwp), allocatable :: MX(:)
 
-if ((N < 1) .or. (N > size(MX)) .or. (N > KA) .or. (EPS <= Zero)) then
+if ((N < 1) .or. (N > KA) .or. (EPS <= Zero)) then
   ILL = 30000
   return
 end if
+
+call mma_allocate(MX,N,label='MX')
 
 ! LU DECOMPOSITION
 JM1 = 0 ! dummy initialize
@@ -68,6 +72,7 @@ do J=1,N
   end do
   if (AM < EPS) then
     ILL = J
+    call mma_deallocate(MX)
     return
   end if
   MX(J) = M
@@ -105,6 +110,7 @@ end if
 A(1,1) = 1./A(1,1)
 if (N == 1) then
   ILL = 0
+  call mma_deallocate(MX)
   return
 end if
 do J=2,N
@@ -151,6 +157,8 @@ do
   J = J-1
   if (J < 1) exit
 end do
+
+call mma_deallocate(MX)
 
 return
 

@@ -60,7 +60,7 @@ do I=1,N
     AUXG(J,I) = -A(J)*V(IJ)*A(I)
   end do
 end do
-call CZERO2(AUXI,N,N,N)
+AUXI(:,:) = Zero
 call CpLabr(AUXF,RE1R,N,N,N,M,M,AUXI,M,IE)
 call CpLabr(AUXI,AUXG,N,N,N,M,M,AUXH,M,IE)
 
@@ -74,7 +74,7 @@ do I=1,N
     AUXG(J,I) = -A(J)/R(J)*G(IJ)*A(I)*R(I)/TT(J)*Half
   end do
 end do
-call CZERO2(AUXI,N,N,N)
+AUXI(:,:) = Zero
 call CpLabr(AUXF,RE1R,N,N,N,M,M,AUXI,M,IE)
 call CpLabr(AUXI,AUXG,N,N,N,M,M,AUXH,M,IE)
 
@@ -88,7 +88,7 @@ do I=1,N
     AUXG(J,I) = A(J)*V(IJ)*A(I)
   end do
 end do
-call CZERO2(AUXI,N,N,N)
+AUXI(:,:) = Zero
 call CpLabr(AUXF,RE1R,N,N,N,M,M,AUXI,M,IE)
 call CpLabr(AUXI,AUXG,N,N,N,M,M,AUXH,M,IE)
 
@@ -102,7 +102,7 @@ do I=1,N
     AUXG(J,I) = A(J)/R(J)*G(IJ)*A(I)*R(I)/TT(J)*Half
   end do
 end do
-call CZERO2(AUXI,N,N,N)
+AUXI(:,:) = Zero
 call CpLabr(AUXF,RE1R,N,N,N,M,M,AUXI,M,IE)
 call CpLabr(AUXI,AUXG,N,N,N,M,M,AUXH,M,IE)
 

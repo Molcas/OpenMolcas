@@ -12,14 +12,19 @@
 subroutine MATINV(A,B,N,L,I_DIM)
 ! IF L=0 RETURNS INVERSE OF A IN A, IF L=1 SOLUTION OF AX=B IN B
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: N, L, I_DIM
 real(kind=wp), intent(inout) :: A(I_DIM,I_DIM), B(I_DIM)
-integer(kind=iwp) :: I, IC, I_N(I_DIM,2), IP(I_DIM), IR, J, K !IFG
+integer(kind=iwp) :: I, IC, IR, J, K
 real(kind=wp) :: AMAX, D
+integer(kind=iwp), allocatable :: I_N(:,:), IP(:)
+
+call mma_allocate(I_N,I_DIM,2,label='I_N')
+call mma_allocate(IP,I_DIM,label='IP')
 
 IR = 0
 IC = 0
@@ -97,6 +102,9 @@ if (L /= 1) then
     end do
   end do
 end if
+
+call mma_deallocate(I_N)
+call mma_deallocate(IP)
 
 return
 

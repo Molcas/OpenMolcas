@@ -17,7 +17,7 @@ subroutine SCFCLI2(idbg,S,H,V,PVP,N,ISIZE,VELIT,BU,P,G,EV2,EIG,SINV,REVT,AUX,OVE
 !   Bernd Artur Hess, hess@uni-bonn.de
 
 use Constants, only: Zero, One, Two, Half
-use Definitions, only: wp, iwp
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: idbg, N, ISIZE
@@ -57,7 +57,8 @@ call dcopiv(aux,aux,n,1,n,dtol,det,iex,icontr,p)
 if (icontr /= 0) then
   !write(u6,2016) icontr,det,iex
   !write(u6,2012) dtol
-  call errex_rel(' relsewb| singular overlap matrix')
+  write(u6,'(a)') ' relsewb| singular overlap matrix'
+  call Abend()
 end if
 
 ! SCHMIDT-ORTHOGONALIZE
@@ -79,7 +80,8 @@ call Diagr(H,N,EIG,EW,SINV,AUX,BU)
 do I=1,N
   if (ew(i) < Zero) then
     !write(u6,*) ' scfcli2| ew(',i,') = ',ew(i)
-    call errex_rel('kinetic energy eigenvalue less than zero')
+    write(u6,'(a)') 'kinetic energy eigenvalue less than zero'
+    call Abend()
   end if
 
   ! IF T SUFFICIENTLY SMALL, USE SERIES EXPANSION TO AVOID CANCELLATIO
@@ -170,7 +172,7 @@ call TrSmtr(BU,REVT,G,Zero,N,AUX,OVE)
 !ulf
 if (idbg > 0) call PRMAT(IDBG,g,N,0,'g oper  ')
 
-call AddMar(ISIZE,G,H)
+H(:) = H+G
 
 ! PVP INTEGRALS AND TRANSFORM THEM TO T-BASIS
 
@@ -194,7 +196,7 @@ call TrSmtr(BU,REVT,EV2,Zero,N,AUX,OVE)
 !ulf
 if (idbg > 0) call PRMAT(IDBG,ev2,n,0,'pvp oper')
 
-call AddMar(ISIZE,EV2,H)
+H(:) = H+EV2
 
 ! CALCULATE Even2r OPERATOR
 
@@ -207,7 +209,7 @@ if (idbg > 0) call PRMAT(IDBG,g,n,0,'ev2 orig')
 !call TrSmtr(G,REVT,EV2,Zero,N,AUX,OVE)
 !ulf
 !if (idbg > 0) call PRMAT(IDBG,ev2,n,0,'ev2 oper')
-!call AddMar(ISIZE,EV2,H)
+!H(:) = H+EV2
 !ulf
 if (idbg > 0) call PRMAT(IDBG,h,n,0,'h   oper')
 !call Sogr(iDbg,N,S,SINV,P,OVE,EW)

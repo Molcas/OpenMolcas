@@ -13,13 +13,13 @@
 
 function PHI(M,N)
 
+use crelop, only: GA
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: PHI
 integer(kind=iwp), intent(in) :: M, N
-#include "crelop.fh"
 
 if ((mod(N,2) == 1) .or. (mod(M,2) == 1)) then
   PHI = Zero

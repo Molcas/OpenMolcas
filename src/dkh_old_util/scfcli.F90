@@ -51,7 +51,8 @@ if (idbg > 0) write(idbg,2016) icontr,det,iex
 if (icontr /= 0) then
   write(u6,2016) icontr,det,iex
   write(u6,2012) dtol
-  call errex_rel(' relsew| singular overlap matrix')
+  write(u6,'(a)') ' relsew| singular overlap matrix'
+  call Abend()
 end if
 #endif
 
@@ -68,7 +69,8 @@ if (idbg > 0) write(idbg,556)
 do I=1,N
   if (ew(i) < Zero) then
     write(u6,*) ' scfcli| ew(',i,') = ',ew(i)
-    call errex_rel('kinetic energy eigenvalue less than zero')
+    write(u6,'(a)') 'kinetic energy eigenvalue less than zero'
+    call Abend()
   end if
 
   ! IF T SUFFICIENTLY SMALL, USE SERIES EXPANSION TO AVOID CANCELLATIO
