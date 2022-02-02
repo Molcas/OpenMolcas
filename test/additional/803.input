@@ -52,6 +52,7 @@ MDRLXROOT
  PSUB
  SUBSTEPS = 10
  FRAND = 0.01
+ NORASSI 
 
 &Alaska
 &Dynamix
