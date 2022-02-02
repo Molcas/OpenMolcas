@@ -38,6 +38,7 @@
 #include <string.h>
 #include <strings.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <unistd.h>
 #include <math.h>
 #include "molcastype.h"
@@ -194,7 +195,7 @@ INT testmem(INT *MOLCASMEM) {
 }
 
 
-INT allocmem(double ref[],char cref[],INT *intof,INT *dblof,INT *sglof, INT *chrof,INT *size) {
+INT allocmem(double ref[],int8_t cref[],INT *intof,INT *dblof,INT *sglof, INT *chrof,INT *size) {
     INT     rc,MOLCASMEM,MAXMEM;
     char c;
     char *ptr;

@@ -31,24 +31,17 @@
       Real*8     Work(1:IWORKLEN)
       Common /WrkSpc/  Work
 
-      Integer    ICWORKLEN
-      PARAMETER (ICWORKLEN=IWORKLEN)
 ! for boundary checks: ./configure -compiler g95 -bound
 !     PARAMETER (IWORKLEN=552 800 000)
-!     PARAMETER (ICWORKLEN=552 800)
       Real*4       sWork(1:IWORKLEN)
       Integer      iWork(1:IWORKLEN)
-      Character*1  cWork(1:2*ICWORKLEN)
       Integer      ip_Dummy,ip_iDummy
 
       Equivalence (Work,sWork)
       Equivalence (Work,iWork)
-      Equivalence (Work,cWork)
 
       Common /iWrkSpc/ ip_Dummy,ip_iDummy
       Integer*1 i1Work(1:IWORKLEN)
-      Integer*4 i4Work(1:IWORKLEN)
-      Equivalence (cWork,i1Work)
-      Equivalence (cWork,i4Work)
+      Equivalence (Work,i1Work)
 !$    Integer   MMLck
 !$    Common /MemLck/ MMLck

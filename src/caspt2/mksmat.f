@@ -47,7 +47,7 @@ C  part of the three-electron density matrix G3:
         iPad=ItoB-MOD(6*NG3,ItoB)
         CALL GETMEM('idxG3','ALLO','CHAR',LidxG3,6*NG3+iPad)
         iLUID=0
-        CALL CDAFILE(LUSOLV,2,cWORK(LidxG3),6*NG3+iPad,iLUID)
+        CALL I1DAFILE(LUSOLV,2,i1WORK(LidxG3),6*NG3+iPad,iLUID)
 
         CALL MKSA(WORK(LDREF),WORK(LPREF),
      &            NG3,WORK(LG3),i1WORK(LidxG3))

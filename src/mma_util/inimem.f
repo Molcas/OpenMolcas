@@ -28,11 +28,11 @@
       Interface
         Function allocmem(ref,cref,intof,dblof,sglof,chrof,size_)
      &           bind(C,name='allocmem_')
-          Use, Intrinsic :: iso_c_binding, only: c_char
+          Use, Intrinsic :: iso_c_binding, only: c_int8_t
           Use Definitions, only: MOLCAS_C_INT, MOLCAS_C_REAL
           Integer(kind=MOLCAS_C_INT) :: allocmem
           Real(kind=MOLCAS_C_REAL) :: ref(*)
-          Character(kind=c_char) :: cref(*)
+          Integer(kind=c_int8_t) :: cref(*)
           Integer(kind=MOLCAS_C_INT) :: intof, dblof, sglof, chrof,
      &                                  size_
         End Function allocmem
@@ -59,7 +59,7 @@
 *----------------------------------------------------------------------*
 *     Grab from the system a pointer to the dynamic work area          *
 *----------------------------------------------------------------------*
-      iRc=allocmem(Work,cWork,iofint,iofdbl,iofsgl,iofchr,MxMem)
+      iRc=allocmem(Work,i1Work,iofint,iofdbl,iofsgl,iofchr,MxMem)
       If ( iRc.ne.0 ) Then
          Write (6,'(A,I3,A)') 'The initialization of the memory '//
      &                        'manager failed ( iRc=',iRc,' ).'

@@ -61,7 +61,7 @@ C Set up B matrices for cases 1..13.
       iPad=ItoB-MOD(6*NG3,ItoB)
       CALL GETMEM('idxG3','ALLO','CHAR',LidxG3,6*NG3+iPad)
       iLUID=0
-      CALL CDAFILE(LUSOLV,2,cWORK(LidxG3),6*NG3+iPad,iLUID)
+      CALL I1DAFILE(LUSOLV,2,i1WORK(LidxG3),6*NG3+iPad,iLUID)
 
       CALL MKBA(WORK(LDREF),WORK(LPREF),
      &          WORK(LFD),WORK(LFP),NG3,WORK(LF3),i1WORK(LidxG3))

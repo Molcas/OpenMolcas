@@ -39,10 +39,9 @@
 *> on shared memory segment with the \p iPos offset.
 *>
 *> @note
-*> An include file, WrkSpc.fh, declares commons ``/WrkSpc/`` and
-*> ``/cWrkSpc/``. The first common contains three arrays,
-*> \c WORK, \c SWORK and \c IWORK, which  are equivalenced. The vector, \c CWORK,
-*> belongs to the second common.
+*> An include file, WrkSpc.fh, declares common ``/WrkSpc/``,
+*> containing three arrays,
+*> \c WORK, \c SWORK and \c IWORK, which  are equivalenced.
 *> ::GETMEM uses calls to the Molcas's MA memory allocator routines.
 *>
 *> @param[in]     NameIn Arbitrary label

@@ -40,10 +40,9 @@
 *> field, which is used in error prints or listings.
 *>
 *> @note
-*> An include file, WrkSpc.fh, declares commons ``/WrkSpc/`` and
-*> ``/cWrkSpc/``. The first common contains three arrays,
-*> \c WORK, \c SWORK and \c IWORK, which  are equivalenced. The vector, \c CWORK,
-*> belongs to the second common.
+*> An include file, WrkSpc.fh, declares common ``/WrkSpc/``,
+*> containinig three arrays,
+*> \c WORK, \c SWORK and \c IWORK, which  are equivalenced.
 *> ::GETMEM uses calls to the Molcas's MA memory allocator routines.
 *>
 *> @param[in]     NameIn Arbitrary label
@@ -206,7 +205,7 @@
       real*8, parameter ::    dgarbage(1) = [huge(1.0d0)]
       integer, parameter ::   igarbage(1) = [huge(1)]
       real*4, parameter ::    sgarbage(1) = [huge(1.0)]
-      character, parameter :: cgarbage = 'x'
+      integer*1, parameter :: i1garbage = huge(i1garbage)
 
       integer i
 
@@ -218,11 +217,8 @@
       case ('SNGL')
         call scopy_(length,sgarbage,0,swork(ipos),1)
       case ('CHAR')
-*       ndouble = length / rtob
-*       call dcopy_(ndouble,dgarbage,0,cwork(ipos),1)
-*       do i = ndouble * rtob + 1, length
         do i = 1, length
-          cwork(ipos+i-1) = cgarbage
+          i1work(ipos+i-1) = i1garbage
         end do
       end select
       end subroutine

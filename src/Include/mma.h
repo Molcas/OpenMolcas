@@ -45,6 +45,6 @@ INT   cptr2woff(char etyp[], void *cptr);
 INT   freemblck(char *mblck);
 INT   lengmblck(char *mblck);
 INT   trckmblck(char *mblck);
-INT   allocmem(double ref[],char cref[],INT *intof,INT *dblof,INT *sglof, INT *chrof,INT *size);
+INT   allocmem(double ref[],int8_t cref[],INT *intof,INT *dblof,INT *sglof, INT *chrof,INT *size);
 INT   c_getmem(char *name, char* Op, char *dtyp, INT *offset, INT *len);
 INT   mma_avmem(void);

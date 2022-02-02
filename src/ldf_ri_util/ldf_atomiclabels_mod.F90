@@ -8,27 +8,14 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!SVC: modified to convert to the use of byte lengths/offsets by the
-!     underlying I/O routines (2016)
 
-subroutine cDaFile(Lu,iOpt,Buf,lBuf_,iDisk_)
-
-use Fast_IO, only: MBL
-use Definitions, only: iwp
+module ldf_atomiclabels
 
 implicit none
-integer(kind=iwp), intent(in) :: Lu, iOpt, lBuf_
-character, intent(inout) :: Buf(lBuf_)
-integer(kind=iwp), intent(inout) :: iDisk_
-integer(kind=iwp) :: lBuf, iDisk
+private
 
-lBuf = lBuf_
-iDisk = iDisk_*MBL(Lu)
+character(len=4), allocatable :: AtomicLabels(:)
 
-call bDaFile(Lu,iOpt,Buf,lBuf,iDisk)
+public :: AtomicLabels
 
-iDisk_ = (iDisk+MBL(Lu)-1)/MBL(Lu)
-
-return
-
-end subroutine cDaFile
+end module ldf_atomiclabels
