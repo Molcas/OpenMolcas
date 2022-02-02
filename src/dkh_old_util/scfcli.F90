@@ -105,7 +105,7 @@ call DGEMM_('N','N',n,n,n,One,TMPC,n,TMPB,n,Zero,TMPA,n)
 
 if ((IRELAE /= 21) .and. (IRELAE /= 22) .and. (IRELAE /= 23)) then
 
-  call dCopy_(iSize,[Zero],0,H,1)
+  H(:) = Zero
   do K=1,N
     IJ = 0
     do I=1,N
@@ -117,7 +117,7 @@ if ((IRELAE /= 21) .and. (IRELAE /= 22) .and. (IRELAE /= 23)) then
   end do
 
 else
-  call dCopy_(iSize,[Zero],0,H,1)
+  H(:) = Zero
 end if
 
 ! CALCULATE KINEMATICAL FACTORS
@@ -266,7 +266,7 @@ if (IRELAE == 23) then
     end do
   end do
   M = N
-  call dCopy_(N*N,[Zero],0,TMPC,1)
+  TMPC(:,:) = Zero
   call dCopy_(N,[One],0,TMPC,N+1)
   call DGEMM_('N','N',N,N,N,One,TMPD,M,TMPE,M,One,TMPC,M)
   ! modified overlap is incorporated into PVP
@@ -278,9 +278,9 @@ if ((IRELAE /= 1) .and. (IRELAE /= 11) .and. (IRELAE /= 21) .and. (IRELAE /= 22)
 
   if (IRELAE == 3) then
     ! KEEP T-BASIS VEXT INTO TMP1 FOR HIGHER-ORDER DK
-    call dCopy_(N*(N+1)/2,TMP2,1,TMP1,1)
+    TMP1(1:N*(N+1)/2) = TMP2(1:N*(N+1)/2)
     ! KEEP T-BASIS PVP INTO TMP4 FOR HIGHER-ORDER DK
-    call dCopy_(N*(N+1)/2,TMP3,1,TMP4,1)
+    TMP4(1:N*(N+1)/2) = TMP3(1:N*(N+1)/2)
   end if
 
   ! CALCULATE Even2r OPERATOR

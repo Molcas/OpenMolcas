@@ -16,23 +16,22 @@ subroutine Cp_Prop_Int(A_Int,nAInt,B_Int,nBInt,nBas,nIrrep,Label)
 !                                                                      *
 !***********************************************************************
 
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nAInt, nBInt, nIrrep, nBas(0:nIrrep-1), Label
 real(kind=wp), intent(out) :: A_Int(nAInt)
 real(kind=wp), intent(in) :: B_Int(nBInt)
-integer(kind=iwp) :: iCmp, iExp, iIrrep, ij, iLen, jIrrep, Len_
+integer(kind=iwp) :: iCmp, iExp, iIrrep, iLen, jIrrep, Len_
 
 iCmp = 1
 iExp = 1
-do iIrrep=0,nIrrep-1
-  do jIrrep=0,iIrrep
-    ij = ieor(iIrrep,jIrrep)
-    if (iand(Label,2**ij) == 0) cycle
+do iIrrep=1,nIrrep
+  do jIrrep=1,iIrrep
+    if (.not. btest(Label,Mul(iIrrep,jIrrep)-1)) cycle
     if (iIrrep == jIrrep) then
-
-      Len_ = nBas(iIrrep)*(nBas(iIrrep)+1)/2
+      Len_ = nBas(iIrrep-1)*(nBas(iIrrep-1)+1)/2
       do iLen=0,Len_-1
         !write(u6,*) A_Int(iExp+iLen),B_Int(iCmp+iLen)
         A_Int(iExp+iLen) = B_Int(iCmp+iLen)
@@ -40,7 +39,7 @@ do iIrrep=0,nIrrep-1
       iCmp = iCmp+Len_
       iExp = iExp+Len_
     else
-      Len_ = nBas(iIrrep)*nBas(jIrrep)
+      Len_ = nBas(iIrrep-1)*nBas(jIrrep-1)
       iExp = iExp+Len_
     end if
   end do

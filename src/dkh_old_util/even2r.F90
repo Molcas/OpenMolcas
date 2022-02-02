@@ -53,7 +53,7 @@ if (idbg > 0) then
 end if
 #endif
 M = N
-call dCopy_(N*N,[Zero],0,AUXH,1)
+AUXH(:,:) = Zero
 IJ = 0
 do I=1,N
   do J=1,I
@@ -166,7 +166,7 @@ call CpLabr(AUXF,AUXG,N,N,N,M,M,AUXH,M,IE)
 
 ! KEEP W1*W1 FOR HIGHER-ORDER DK
 
-call dCopy_(N*N,AuxH,1,W1W1,1)
+W1W1(:,:) = AuxH
 
 !ulf
 #ifdef _DEBUGPRINT_

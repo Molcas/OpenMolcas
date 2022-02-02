@@ -11,8 +11,8 @@
 ! Copyright (C) 1995, Bernd Artur Hess                                 *
 !***********************************************************************
 
-subroutine VPBMBPV(EIGA,EIGB,REVTA,SINVA,SINVB,NA,NB,ISIZEA,AAA,AAB,RRA,RRB,PVA,VPA,ISYMA,ISYMB,BU2,G2,AUX2,CMM1, &
-         BU4,CMM2,PVAA,VPAA,SCPV,SCVP)
+subroutine VPBMBPV(EIGA,EIGB,REVTA,SINVA,SINVB,NA,NB,ISIZEA,AAA,AAB,RRA,RRB,PVA,VPA,ISYMA,ISYMB,BU2,G2,AUX2,CMM1,BU4,CMM2,PVAA, &
+                   VPAA,SCPV,SCVP)
 ! $Id: vpbmbpv.r,v 1.4 1995/05/08 14:08:53 hess Exp $
 ! calculate relativistic operators
 !   Bernd Artur Hess, hess@uni-bonn.de
@@ -46,7 +46,7 @@ else if (iSyma < iSymb) then
       VPA(I,J) = SCVP(J,I)
     end do
   end do
-  call DCOPY_(NA*NB,[Zero],0,CMM2,1)
+  CMM2(:,:) = Zero
 end if
 
 ! TRANSFORM pV TO T-BASIS
@@ -54,17 +54,17 @@ end if
 call TrSmrN(PVA,SINVA,SINVB,G2,NA,NB,AUX2,CMM1)
 call TrSmrN(G2,EIGA,EIGB,BU2,NA,NB,AUX2,CMM1)
 
-call dcopy_(na*nb,[Zero],0,G2,1)
-call dcopy_(na*nb,[Zero],0,Aux2,1)
+G2(:,:) = Zero
+Aux2(:,:) = Zero
 
 ! TRANSFORM Vp TO T-BASIS
 
 call TrSmrN(VPA,SINVA,SINVB,G2,NA,NB,AUX2,CMM1)
 call TrSmrN(G2,EIGA,EIGB,BU4,NA,NB,AUX2,CMM1)
 
-call dcopy_(na*nb,[Zero],0,G2,1)
-call dcopy_(na*nb,[Zero],0,Aux2,1)
-call dcopy_(na*nb,[Zero],0,Cmm1,1)
+G2(:,:) = Zero
+Aux2(:,:) = Zero
+Cmm1(:,:) = Zero
 
 ! Multiply
 
@@ -107,7 +107,7 @@ do I=1,NA
   end do
 end do
 
-call dcopy_(na*nb,[Zero],0,Cmm1,1)
+Cmm1(:,:) = Zero
 
 !write(u6,*)
 !write(u6,*) 'CMM2  MATRX FINAL'

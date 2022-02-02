@@ -30,7 +30,7 @@ call Square(A,Aux,n,1,n)
 call DGEMM_('N','N',n,n,n,One,Aux,n,Sinv,n,Zero,Eig,n)
 call dGemm_tri('T','N',n,n,n,One,SINV,n,EIG,n,Zero,AUXI,n)
 
-call dCopy_(n*n,[Zero],0,Eig,1)
+Eig(:,:) = Zero
 call dCopy_(n,[One],0,Eig,n+1)
 call dCopy_(N*(N+1)/2,AUXI,1,AUX,1)
 !call NIDiag(AUXI,EIG,N,N)

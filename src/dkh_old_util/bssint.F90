@@ -12,7 +12,7 @@
 subroutine BSSint()
 
 use Basis_Info, only: dbsc, nBas, nCnttp
-use Symmetry_Info, only: nIrrep
+use Symmetry_Info, only: Mul, nIrrep
 use DKH_Info, only: CLightAU
 use Data_Structures, only: Alloc_Alloc1DArray, Alloc_Alloc2DArray, Alloc1DArray_Type, Alloc2DArray_Type, DSBA_Type, Allocate_DSBA, &
                            Deallocate_DSBA, Free_Alloc1DArray, Free_Alloc2DArray
@@ -258,7 +258,7 @@ do iComp=1,nComp
     do iSymb=1,iSyma
       nb = nBas(iSymb-1)
       if (nb == 0) cycle
-      if (iand(iSmLbl,2**ieor(iSyma-1,iSymb-1)) == 0) cycle
+      if (.not. btest(iSmLbl,Mul(iSyma,iSymb)-1)) cycle
       if (iSyma == iSymb) then
         iSize = na*(na+1)/2
 
@@ -397,19 +397,22 @@ do iComp=1,nComp
       iSizeb = nb*(nb+1)/2
       if (iSizeb <= 0) cycle
       iSizeab = na*nb
-      if (iand(iSmlbl,2**ieor(iSyma-1,iSymb-1)) == 0) cycle
+      if (.not. btest(iSmLbl,Mul(iSyma,iSymb)-1)) cycle
 
       if (iSyma == iSymb) then
 
         ipVa(1:iSizea) = pVf(iComp)%A(ip1+1:ip1+iSizea,1)
         iVpa(1:iSizea) = Vpf(iComp)%A(ip1+1:ip1+iSizea,1)
+        ScpV(1:iSizeab) = Zero
+        ScVp(1:iSizeab) = Zero
         ip1 = ip1+iSizea
-      end if
 
-      if (iSyma > iSymb) then
+      else if (iSyma > iSymb) then
 
         ifpV(1:iSizeab) = pVf(iComp)%A(ip1+1:ip1+iSizeab,1)
         ifVp(1:iSizeab) = Vpf(iComp)%A(ip1+1:ip1+iSizeab,1)
+        ScpV(1:iSizeab) = Zero
+        ScVp(1:iSizeab) = Zero
         ip1 = ip1+na*nb
 
       else if (iSyma < iSymb) then
@@ -418,15 +421,7 @@ do iComp=1,nComp
         ifVp(1:iSizeab) = Vpf(iComp)%A(iip1+1:iip1+iSizeab,2)
         ScpV(1:iSizeab) = ifpV(1:iSizeab)
         ScVp(1:iSizeab) = ifVp(1:iSizeab)
-
         iip1 = iip1+na*nb
-
-      else
-
-        ifpV(1:iSizeab) = Zero
-        ifVp(1:iSizeab) = Zero
-        ScpV(1:iSizeab) = Zero
-        ScVp(1:iSizeab) = Zero
 
       end if
 
@@ -494,7 +489,6 @@ call mma_allocate(H,iSizec+4)
 call mma_allocate(H_nr,iSizec+4)
 call mma_allocate(H_temp,iSizec+4)
 H(:) = Zero
-H_nr(:) = Zero
 H_temp(:) = Zero
 
 ! compute stripped non-relativistic H

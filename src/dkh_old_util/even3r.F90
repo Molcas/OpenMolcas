@@ -52,7 +52,7 @@ do J=1,N
     AUXF(I,J) = Half*AUXH(I,J)
   end do
 end do
-call dCopy_(N*N,[Zero],0,AUXH,1)
+AUXH(:,:) = Zero
 call CpLabr(W1W1,AUXF,N,N,N,M,M,AUXH,M,IE)
 call CpLabr(AUXF,W1W1,N,N,N,M,M,AUXH,M,IE)
 

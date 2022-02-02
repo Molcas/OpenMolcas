@@ -15,6 +15,7 @@ subroutine TrSmrN(A,BA,BB,C,NA,NB,H,W)
 ! TRANSFORM SYMMETRIC MATRIX A BY UNITARY TRANSFORMATION IN B.
 ! RESULT IS IN C
 
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -23,9 +24,9 @@ real(kind=wp), intent(in) :: A(NA,NB), BA(NA,NA), BB(NB,NB)
 real(kind=wp), intent(out) :: C(NA,NB), H(NA,NB), W(NA,NB)
 integer(kind=iwp) :: I, J, K, L
 
-call DZero(C,NA*NB)
-call DZero(H,NA*NB)
-call dcopy_(NA*NB,A,1,W,1)
+C(:,:) = Zero
+H(:,:) = Zero
+W(:,:) = A
 
 do I=1,NA
   do L=1,NB
