@@ -1041,13 +1041,13 @@ will be enabled by default, it can be disabled with :kword:`NOCD`.
               </KEYWORD>
 
 :kword:`SHAC`
-  Skip high angular combinations when creating on-the-fly basis sets, following the angular structure of the universal JK fitting sets of Weigend (doi:10.1002/jcc.20702).
+  Skip high angular combinations when creating on-the-fly basis sets, following the angular structure of the universal JK fitting sets of Weigend:cite:`Weigend:08`.
   (default off).
 
   .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="SHAC" APPEAR="Skip high angular combinations" KIND="SINGLE" REQUIRE="RICD" EXCLUSIVE="KHAC" LEVEL="ADVANCED">
               %%Keyword: SHAC <advanced>
               <HELP>
-              Skip high angular combinations when creating on-the-fly basis sets, following the angular structure of the universal JK fitting sets of Weigend (doi:10.1002/jcc.20702).
+              Skip high angular combinations when creating on-the-fly basis sets, following the angular structure of the universal JK fitting sets of Weigend
               (default off).
               </HELP>
               </KEYWORD>
@@ -1831,7 +1831,7 @@ Keywords associated to one-electron integrals
 :kword:`MXTC`
   Requests the computation of X2C transformed hyperfine magnetic integrals (used in subsequent
   hyperfine calculations), has to be used together with the keyword :kword:`RX2C`.
-  If one wants to calculate the non-relativistic limit, one can simply set up a large 
+  If one wants to calculate the non-relativistic limit, one can simply set up a large
   speed of light value.
   See reference for details :cite:`Feng_JChemTheoryComput_Electron_2021`.
 
@@ -1840,7 +1840,7 @@ Keywords associated to one-electron integrals
               <HELP>
               Requests the computation of X2C transformed hyperfine magnetic integrals (used in subsequent
               hyperfine calculations), has to be used together with the keyword RX2C.
-              If one wants to calculate the non-relativistic limit, one can simply set up a large 
+              If one wants to calculate the non-relativistic limit, one can simply set up a large
               speed of light value.
               </HELP>
               </KEYWORD>
