@@ -27,8 +27,6 @@
 *> \c WORK(IPOS) ... ``WORK(IPOS-1+LENGTH)``.
 *> If \p TypeIn is '``Inte``', the items will be accessible in
 *> \c IWORK(IPOS) ... ``IWORK(IPOS-1+LENGTH)``.
-*> If \p TypeIn is '``Sngl``', the items will be accessible in
-*> \c SWORK(IPOS) ... ``SWORK(IPOS-1+LENGTH)``.
 *> If \p KeyIn is '``Free``', the piece will be returned to the free pool.
 *> \p NameIn has no function, except that the user provides a label to the
 *> field, which is used in error prints or listings.
@@ -40,13 +38,13 @@
 *>
 *> @note
 *> An include file, WrkSpc.fh, declares common ``/WrkSpc/``,
-*> containing three arrays,
-*> \c WORK, \c SWORK and \c IWORK, which  are equivalenced.
+*> containing two arrays,
+*> \c WORK and \c IWORK, which  are equivalenced.
 *> ::GETMEM uses calls to the Molcas's MA memory allocator routines.
 *>
 *> @param[in]     NameIn Arbitrary label
 *> @param[in]     KeyIn Allo $|$ Free
-*> @param[in]     TypeIn Real $|$ Inte $|$ Char $|$ Sngl
+*> @param[in]     TypeIn Real $|$ Inte $|$ Char
 *> @param[in,out] iPos   Position
 *> @param[in,out] Length Nr of items
 *> @param[in]     Path   An arbitrary path or empty

@@ -38,7 +38,6 @@
 #include <string.h>
 #include <strings.h>
 #include <stdlib.h>
-#include <stdint.h>
 #include <unistd.h>
 #include <math.h>
 #include "molcastype.h"
@@ -195,7 +194,7 @@ INT testmem(INT *MOLCASMEM) {
 }
 
 
-INT allocmem(double ref[],int8_t cref[],INT *intof,INT *dblof,INT *sglof, INT *chrof,INT *size) {
+INT allocmem(double ref[],INT *intof,INT *dblof,INT *chrof,INT *size) {
     INT     rc,MOLCASMEM,MAXMEM;
     char c;
     char *ptr;
@@ -253,12 +252,12 @@ INT allocmem(double ref[],int8_t cref[],INT *intof,INT *dblof,INT *sglof, INT *c
 
     *size=MOLCASMEM/sizeof(double);
 
-    *dblof=*sglof=*intof=*chrof=1;
+    *dblof=*intof=*chrof=1;
 
      dptr=          ref;
      sptr=(float *) ref;
      iptr=(INT *)   ref;
-     cptr=(char *) cref;
+     cptr=(char *)  ref;
 
      MlM.avmem=MOLCASMEM;
      MlM.totmem=MOLCASMEM;
@@ -306,7 +305,6 @@ INT allocmem(double ref[],int8_t cref[],INT *intof,INT *dblof,INT *sglof, INT *c
      }
 #ifdef _DEBUGPRINT_MEM_
      printf("ref=%p\n",(void*)ref);
-     printf("cref=%p\n",(void*)cref);
      setvbuf(stdout, NULL, _IOLBF,0);
 #endif
 #ifdef _OPENMP
