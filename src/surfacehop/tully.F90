@@ -59,7 +59,6 @@ TAU(:) = Zero
 write(u6,*) ''
 write(u6,*) '------------------------------------------'
 write(u6,*) '            TULLY ALGORITHM'
-write(u6,*) '               DEV BRANCH'
 write(u6,*) '------------------------------------------'
 write(u6,*) ''
 
@@ -503,7 +502,6 @@ else if_normaltully
       end do
     end do
 
-!    write(u6,*) 'NOT YET IMPLEMENTED'
   end if
 
   ! definition of Y intercept (ExtrInter) and slope (ExtrSlope) for EXTRapolation line
@@ -830,8 +828,9 @@ call Put_dArray('AllCIPP',CIBigArrayP,NCI*NSTATE)
 call Put_dArray('AllCIP',CIBigArray,NCI*NSTATE)
 call put_zarray('AmatrixV',Amatrix,NSTATE*NSTATE)
 
-call Put_dArray('SH_Ovlp_Save',saveOVLP,NSTATE*NSTATE)
-
+if (rassi_ovlp) then
+  call Put_dArray('SH_Ovlp_Save',saveOVLP,NSTATE*NSTATE)
+endif
 !                                                                      !
 !                           END SAVING                                 !
 !                                                                      !

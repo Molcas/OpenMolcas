@@ -11,6 +11,9 @@
 ! Copyright (C) 2015, Luis Manuel Frutos                               *
 !               2015, Ignacio Fdez. Galvan                             *
 !               2015, Alessio Valentini                                *
+!                                                                      *
+! Updated (RASSI Version) 2022, I Merritt                              *
+!                         2022, M. Vacher                              *
 !***********************************************************************
 
 subroutine surfacehop(rc)

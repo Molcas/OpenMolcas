@@ -102,8 +102,6 @@ read_input: do
     case ('NORA')
       rassi_ovlp = .false.
       Run_rassi = .false.
-    case ('RRUN')
-      Run_rassi = .false.
     case ('H5RE')
 #     ifdef _HDF5_
       lH5Restart = .true.
