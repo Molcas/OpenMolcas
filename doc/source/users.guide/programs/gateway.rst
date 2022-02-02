@@ -1041,13 +1041,13 @@ will be enabled by default, it can be disabled with :kword:`NOCD`.
               </KEYWORD>
 
 :kword:`SHAC`
-  Skip high angular combinations à la Turbomole when creating on-the-fly basis sets
+  Skip high angular combinations when creating on-the-fly basis sets, following the angular structure of the universal JK fitting sets of Weigend (doi:10.1002/jcc.20702).
   (default off).
 
   .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="SHAC" APPEAR="Skip high angular combinations" KIND="SINGLE" REQUIRE="RICD" EXCLUSIVE="KHAC" LEVEL="ADVANCED">
               %%Keyword: SHAC <advanced>
               <HELP>
-              Skip high angular combinations a la Turbomole when creating on-the-fly basis sets
+              Skip high angular combinations when creating on-the-fly basis sets, following the angular structure of the universal JK fitting sets of Weigend (doi:10.1002/jcc.20702).
               (default off).
               </HELP>
               </KEYWORD>
