@@ -28,8 +28,7 @@
 ************************************************************************
       use iSD_data
       use Symmetry_Info, only: nIrrep
-      use nq_Grid, only: TabAO, Grid_AO,
-     &                   AOIntegrals => Dens_AO
+      use nq_Grid, only: AOIntegrals => Dens_AO
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
@@ -45,15 +44,15 @@
 *---- Evaluate the desired AO integrand here from the AOs, accumulate
 *     contributions to the SO integrals on the fly.
 *
-      nBfn = Size(AOIntegrals,1)
 
       Call Do_NInt_d()
-      Call Do_NIntX(AOIntegrals,nBfn,nD)
+      Call Do_NIntX()
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Distribute result on to the full integral matrix.
 *
+      nBfn = Size(AOIntegrals,1)
       If (nIrrep.eq.1) Then
          Call AOAdd_Full(AOIntegrals,nBfn,FckInt,nFckInt,nD)
       Else
