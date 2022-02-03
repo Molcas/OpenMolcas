@@ -52,7 +52,7 @@
       nFn  = Size(Grid_AO,1)
 
       Call Do_NInt_d()
-      Call Do_NIntX(AOIntegrals,mGrid,Grid_AO,TabAO,nBfn,nD,mAO,nFn)
+      Call Do_NIntX(AOIntegrals,mGrid,TabAO,nBfn,nD,mAO)
 *                                                                      *
 ************************************************************************
 *                                                                      *
