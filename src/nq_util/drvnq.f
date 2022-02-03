@@ -60,10 +60,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (Functional_Type.eq.CASDFT_Type) Then
-         Do_TwoEl        =.True.
-      End If
-*
       If (Do_TwoEl) Then
          Do_MO           =.True.
       End If
@@ -138,7 +134,11 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-      If (Functional_type.eq.LDA_type) Then
+      Select Case (Functional_type)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Case (LDA_type)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -167,7 +167,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Else If ( Functional_type.eq.GGA_type) Then
+      Case (GGA_type)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -197,7 +197,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Else If ( Functional_type.eq.meta_GGA_type1) Then
+      Case (meta_GGA_type1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -229,7 +229,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Else If ( Functional_type.eq.meta_GGA_type2) Then
+      Case (meta_GGA_type2)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -261,32 +261,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Else If ( Functional_type.eq.CASDFT_type) Then
-*                                                                      *
-************************************************************************
-*                                                                      *
-*        nD  definition is not consistent with the use here!
-*        This needs to be restructured.
-*
-         mAO=10
-         kAO=mAO
-
-         nRho=nD
-         nSigma=nD*(nD+1)/2
-         nGradRho=nD*3
-         nTau=nD
-         nLapl=0
-         If (Do_Grad) mdRho_dR=4*nD
-         If (Do_Grad) Then
-             Call WarningMessage(2,'CASDFT: Gradient not available.')
-             Call Abend()
-         End If
-*
-         nP2_ontop=6
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Else
+      Case Default
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -297,7 +272,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      End If
+      End Select
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -397,10 +372,6 @@
 *
       End If
 *
-      If (Functional_Type.eq.CASDFT_Type) Then
-         Call mma_allocate(P2_ontop,nP2_ontop,nGridMax,Label='P2_ontop')
-      Endif
-*
       If (Do_Grad) Then
          Call mma_allocate(List_g,3,nShell*nIrrep,Label='List_G')
          mGrad=3*nAtoms
@@ -479,9 +450,7 @@
 
       if(Debug) write(6,*) 'l_casdft value at drvnq.f:',l_casdft
       if(Debug.and.l_casdft) write(6,*) 'MCPDFT with functional:', KSDFA
-      If (Functional_type.eq.CASDFT_Type.or.l_casdft) Then
-         Call mma_deallocate(P2_ontop)
-      End If
+      If (Allocated(P2_ontop)) Call mma_deallocate(P2_ontop)
 *
       Call mma_deallocate(nR_Eff)
       Call mma_deallocate(Coor)

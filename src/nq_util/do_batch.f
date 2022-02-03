@@ -81,7 +81,7 @@
       T_Rho=T_X*1.0D-4
       l_tanhr=.false.
 
-      If ( Functional_Type.eq.CASDFT_Type .or. l_casdft ) Then
+      If (l_casdft ) Then
          CALL PDFTMemAlloc(mGrid,nOrbt)
          mRho = nP2_ontop
          Call mma_allocate(RhoI,mRho,mGrid,Label='RhoI')

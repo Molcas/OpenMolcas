@@ -501,7 +501,9 @@ c     Write(6,*) '********** Setup_NQ ***********'
 *     mAO: number of elements a basis function generates upon
 *          differentiation (1,4,10,20, etc.)
 *
-      If (Functional_type.eq.LDA_type) Then
+      Select Case (Functional_type)
+
+      Case (LDA_type)
          nFOrd=1
          mAO=(nFOrd*(nFOrd+1)*(nFOrd+2))/6
          if(do_grad) mAO=4!AMS - GRADIENTS?
@@ -511,7 +513,7 @@ c     Write(6,*) '********** Setup_NQ ***********'
             mRad=nFOrd+1
          End If
 *
-      Else If (Functional_type.eq.GGA_type) Then
+      Case (GGA_type)
          nFOrd=2
          mAO=(nFOrd*(nFOrd+1)*(nFOrd+2))/6
          if(do_grad) mAO=10
@@ -520,19 +522,8 @@ c     Write(6,*) '********** Setup_NQ ***********'
          Else
             mRad=nFOrd+1
          End If
-      Else If (Functional_type.eq.CASDFT_type) Then
-*        I need to discuss this with Sergey!
-*        nFOrd=3 !?
-*        mAO=(nFOrd*(nFOrd+1)*(nFOrd+2))/6
-         nFOrd=2
-         mAO=10
-         If (.Not.Do_Grad) Then
-            mRad=nFOrd
-         Else
-            mRad=nFOrd+1
-         End If
 *
-      Else If (Functional_type.eq.meta_GGA_type1) Then
+      Case (meta_GGA_type1)
          nFOrd=2
          mAO=(nFOrd*(nFOrd+1)*(nFOrd+2))/6
          If (.Not.Do_Grad) Then
@@ -541,7 +532,7 @@ c     Write(6,*) '********** Setup_NQ ***********'
             mRad=NFOrd+1
          End If
 *
-      Else If (Functional_type.eq.meta_GGA_type2) Then
+      Case (meta_GGA_type2)
          nFOrd=3
          mAO=(nFOrd*(nFOrd+1)*(nFOrd+2))/6
          If (.Not.Do_Grad) Then
@@ -550,13 +541,12 @@ c     Write(6,*) '********** Setup_NQ ***********'
             mRad=NFOrd+1
          End If
 *
-*     Else If (Functional_type.eq.Other_type) Then
-      Else
+      Case Default
          mRad=0 ! Dummy initialize
          mAO=0  ! Dummy initialize
          Call WarningMessage(2,'Functional_type.eq.Other_type')
          Call Abend()
-      End If
+       End Select
 !                                                                      *
 !***********************************************************************
 !                                                                      *

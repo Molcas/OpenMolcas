@@ -313,7 +313,7 @@
       End Do
 *
 *
-      If ((Functional_Type.eq.CASDFT_Type).or.Do_MO) Then
+      If (Do_MO) Then
          nTabMO=mAO*nMOs*mGrid
          nTabSO=mAO*nMOs*mGrid
       Else
