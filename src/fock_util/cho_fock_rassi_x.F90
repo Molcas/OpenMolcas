@@ -35,7 +35,7 @@ use ChoArr, only: nDimRS
 use ChoSwp, only: InfVec
 use Symmetry_Info, only: MulD2h => Mul
 use Fock_util_global, only: Fake_CMO2
-use Data_Structures, only: Allocate_SBA, Allocate_twxy, Deallocate_SBA, Deallocate_twxy, DSBA_Type, SBA_Type, twxy_Type
+use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, SBA_Type, twxy_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -94,7 +94,7 @@ do jSym=1,nSym
   if (NumCho(jSym) < 1) cycle
 
   iCase = 0 ! twxy
-  call Allocate_twxy(Scr,nAsh,nAsh,JSYM,nSym,iCase)
+  call Allocate_DT(Scr,nAsh,nAsh,JSYM,nSym,iCase)
 
   iLoc = 3 ! use scratch location in reduced index arrays
 
@@ -186,7 +186,7 @@ do jSym=1,nSym
 
       iSwap = 2 ! LpJ,b are returned
       do jDen=1,nDen
-        call Allocate_SBA(Laq(jDen),nIsh,nBas,nVec,JSYM,nSym,iSwap)
+        call Allocate_DT(Laq(jDen),nIsh,nBas,nVec,JSYM,nSym,iSwap)
       end do
 
       JVEC = nVec*(iBatch-1)+iVrs
@@ -294,14 +294,14 @@ do jSym=1,nSym
       texch(2) = texch(2)+(TWX2-TWX1)
 
       do jDen=1,nDen
-        call Deallocate_SBA(Laq(jDen))
+        call Deallocate_DT(Laq(jDen))
       end do
 
       ! ************  END EXCHANGE CONTRIBUTION  ****************
 
       iSwap = 0  ! Lvb,J are returned
-      call Allocate_SBA(Laq(1),nAsh,nBas,nVec,JSYM,nSym,iSwap)
-      call Allocate_SBA(Laq(2),nAsh,nAsh,nVec,JSYM,nSym,iSwap)
+      call Allocate_DT(Laq(1),nAsh,nBas,nVec,JSYM,nSym,iSwap)
+      call Allocate_DT(Laq(2),nAsh,nAsh,nVec,JSYM,nSym,iSwap)
 
       ! ----------------------------------------------------------------
       ! First half Active transformation  Lvb,J = sum_a  C1(v,a) * Lab,J
@@ -369,8 +369,8 @@ do jSym=1,nSym
 
       ! ---------------- END (TW|XY) EVALUATION -----------------------
 
-      call Deallocate_SBA(Laq(2))
-      call Deallocate_SBA(Laq(1))
+      call Deallocate_DT(Laq(2))
+      call Deallocate_DT(Laq(1))
     end do ! end batch loop
 
     if (JSYM == 1) then
@@ -390,7 +390,7 @@ do jSym=1,nSym
 
   end do ! loop over red sets
 
-  call Deallocate_twxy(Scr)
+  call Deallocate_DT(Scr)
 
 end do ! loop over JSYM
 

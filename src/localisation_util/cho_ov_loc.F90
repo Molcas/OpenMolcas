@@ -11,7 +11,7 @@
 
 subroutine Cho_ov_Loc(irc,Thrs,nSym,nBas,nFro,nIsh,nAsh,nSsh,CMO,SMAT,iD_vir)
 
-use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type
+use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -36,8 +36,8 @@ do iSym=1,nSym
 end do
 call mma_allocate(Dens,l_Dens,label='Density')
 call mma_allocate(D2,l_Dens,label='D2')
-call Allocate_DSBA(C,nBas,nBas,nSym,label='C',Ref=CMO)
-call Allocate_DSBA(S,nBas,nBas,nSym,label='S',Ref=SMAT)
+call Allocate_DT(C,nBas,nBas,nSym,label='C',Ref=CMO)
+call Allocate_DT(S,nBas,nBas,nSym,label='S',Ref=SMAT)
 jD = 1
 do iSym=1,nSym
   if (nIsh(iSym) > 0) then
@@ -83,8 +83,8 @@ end do
 
 call mma_deallocate(Dens)
 call mma_deallocate(D2)
-call Deallocate_DSBA(C)
-call Deallocate_DSBA(S)
+call Deallocate_DT(C)
+call Deallocate_DT(S)
 
 return
 

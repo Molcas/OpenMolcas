@@ -20,7 +20,7 @@ subroutine Delete_Ghosts(irc,nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,BName,nUniqAt,Th
 !                                                                      *
 !***********************************************************************
 
-use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type
+use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
@@ -85,17 +85,17 @@ call mma_allocate(nBas_Start,nUniqAt,label='nB_Start')
 !----------------------------------------------------------------------*
 !     Read the overlap matrix                                          *
 !----------------------------------------------------------------------*
-call Allocate_DSBA(SQ,nBas,nBas,nSym,label='SMAT')
-call Allocate_DSBA(S,nBas,nBas,nSym,aCase='TRI',label='SLT')
+call Allocate_DT(SQ,nBas,nBas,nSym,label='SMAT')
+call Allocate_DT(S,nBas,nBas,nSym,aCase='TRI',label='SLT')
 isymlbl = 1
 call RdOne(irc,6,'Mltpl  0',1,S%A0,isymlbl)
 if (irc /= 0) return
 do iSym=1,nSym
   call Square(S%SB(iSym)%A1,SQ%SB(iSym)%A2,1,nBas(iSym),nBas(iSym))
 end do
-call Deallocate_DSBA(S)
+call Deallocate_DT(S)
 
-call Allocate_DSBA(LCMO,nBas,nBas,nSym,label='LCMO')
+call Allocate_DT(LCMO,nBas,nBas,nSym,label='LCMO')
 NCMO = size(LCMO%A0)
 LCMO%A0(:) = CMO(1:NCMO)
 
@@ -266,8 +266,8 @@ nSsh(:) = n_OK(:)
 
 CMO(1:NCMO) = LCMO%A0
 
-call Deallocate_DSBA(SQ)
-call Deallocate_DSBA(LCMO)
+call Deallocate_DT(SQ)
+call Deallocate_DT(LCMO)
 call mma_deallocate(NamAct)
 
 return

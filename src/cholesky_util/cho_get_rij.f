@@ -45,7 +45,7 @@
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
       use Data_Structures, only: DSBA_Type, SBA_Type
-      use Data_Structures, only: Allocate_SBA, Deallocate_SBA
+      use Data_Structures, only: Allocate_DT, Deallocate_DT
       Implicit Real*8 (a-h,o-z)
       Integer irc
       Type (DSBA_Type) MO
@@ -165,7 +165,7 @@ C ---
       LREAD = nRS*nVec
 
       iSwap = 2  ! LiK,b are returned
-      Call Allocate_SBA(Laq(1),nOcc,nBas,nVec,JSYM,nSym,iSwap)
+      Call Allocate_DT(Laq(1),nOcc,nBas,nVec,JSYM,nSym,iSwap)
       Call mma_allocate(Lab,Mneed*nVec,Label='Lab')
 
 C --- BATCH over the vectors in JSYM=1 ----------------------------
@@ -285,7 +285,7 @@ C --------------------------------------------------------------------
       END DO  !end batch loop
 
 C --- free memory
-      Call Deallocate_SBA(Laq(1))
+      Call Deallocate_DT(Laq(1))
       Call mma_deallocate(Lab)
 
 999   Continue

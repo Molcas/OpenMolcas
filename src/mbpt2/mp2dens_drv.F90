@@ -17,7 +17,7 @@ subroutine MP2Dens_drv(E2BJAI,REFC)
 !***********************************************************************
 
 use MBPT2_Global, only: CMO, Density, DiaA, EMP2, iPoVec, MP2Lagr, VECL2, WDensity
-use data_structures, only: Deallocate_DSBA
+use Data_Structures, only: Deallocate_DT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
@@ -127,7 +127,7 @@ TotLagr = Zero
 do i=1,size(Mp2Lagr%A0)
   TotLagr = TotLagr+Mp2Lagr%A0(i)
 end do
-call Deallocate_DSBA(Mp2Lagr)
+call Deallocate_DT(Mp2Lagr)
 if (abs(TotLagr) < 1.0e-12_wp) then
   Done = .true.
 else
@@ -284,9 +284,9 @@ do iSym=1,nSym
   call RecPrt('MP2WDensity','',WDensity%SB(iSym)%A1,nOrb(iSym)+nDel(iSym),nOrb(iSym)+nDel(iSym))
 end do
 #endif
-call Deallocate_DSBA(Density)
-call Deallocate_DSBA(WDensity)
-call Deallocate_DSBA(DiaA)
+call Deallocate_DT(Density)
+call Deallocate_DT(WDensity)
+call Deallocate_DT(DiaA)
 
 E2BJAI = EMP2
 REFC = VECL2

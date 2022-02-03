@@ -21,7 +21,7 @@ use hdf5_utils, only: file_id, hdf5_close_cholesky, hdf5_init_wr_cholesky, hdf5_
 use ChoArr, only: nDimRS
 use ChoSwp, only: InfVec
 use Symmetry_Info, only: Mul
-use Data_Structures, only: Allocate_SBA, Deallocate_SBA, DSBA_Type, SBA_Type
+use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, SBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
@@ -205,7 +205,7 @@ do jSym=1,nSym
     call mma_allocate(Lpq_J,nVec,Label='Lpq_j')
 
     iSwap = 0  ! Lpb,J are returned by cho_x_getVtra
-    call Allocate_SBA(ChoT(1),nPorb,nBas,nVec,JSYM,nSym,iSwap)
+    call Allocate_DT(ChoT(1),nPorb,nBas,nVec,JSYM,nSym,iSwap)
     ChoT(1)%A0(:) = Zero
 
     ! BATCH over the vectors
@@ -433,7 +433,7 @@ do jSym=1,nSym
 
     ! free memory
     call mma_deallocate(Lpq_J)
-    call Deallocate_SBA(ChoT(1))
+    call Deallocate_DT(ChoT(1))
     call mma_deallocate(Lrs)
 
   end do   ! loop over red sets

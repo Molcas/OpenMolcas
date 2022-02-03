@@ -41,9 +41,7 @@ use Symmetry_Info, only: MulD2h => Mul
 use Index_Functions, only: iTri
 use Fock_util_interface, only: cho_lr_MOs
 use Fock_util_global, only: Deco, Estimate, Fake_CMO2, PseudoChoMOs, Update
-use Data_Structures, only: Allocate_DSBA, Allocate_L_Full, Allocate_Lab, Allocate_NDSBA, Allocate_SBA, Allocate_twxy, &
-                           Deallocate_DSBA, Deallocate_Lab, Deallocate_L_Full, Deallocate_NDSBA, Deallocate_SBA, Deallocate_twxy, &
-                           DSBA_Type, L_Full_Type, Lab_Type, NDSBA_Type, SBA_Type, twxy_Type
+use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, L_Full_Type, Lab_Type, NDSBA_Type, SBA_Type, twxy_Type
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, nProcs
 #endif
@@ -109,7 +107,7 @@ Debug = .false. ! to avoid double printing in CASSCF-debug
 DoReord = .false.
 IREDC = -1 ! unknown reduced set in core
 ! Temporary use of FSQ
-call Allocate_DSBA(KLT,nBas,nBas,nSym,aCase='TRI',Ref=FSQ%A0)
+call Allocate_DT(KLT,nBas,nBas,nSym,aCase='TRI',Ref=FSQ%A0)
 
 nDen = 2 ! the two bi-orthonormal sets of orbitals
 if (Fake_CMO2) nDen = 1 ! MO1 = MO2
@@ -143,8 +141,8 @@ nAux(:) = nIsh(:)+nAsh(:)
 !*************************************************
 if (Deco) then
 
-  call Allocate_DSBA(CM(1),nBas,nAux,nSym)
-  call Allocate_DSBA(CM(2),nBas,nAux,nSym)
+  call Allocate_DT(CM(1),nBas,nAux,nSym)
+  call Allocate_DT(CM(2),nBas,nAux,nSym)
 
   if (PseudoChoMOs) then
     call cho_get_MO(iOK,nDen,nSym,nBas,nIsh,MSQ,CM)
@@ -154,7 +152,7 @@ if (Deco) then
 
   if (iOK == 0) then ! point to the "generalized" Cholesky MOs
     do jden=1,nDen
-      call Allocate_DSBA(MO(jDen),nBas,nAux,nSym,Ref=CM(jDen)%A0)
+      call Allocate_DT(MO(jDen),nBas,nAux,nSym,Ref=CM(jDen)%A0)
     end do
     !write(u6,*) 'Cholesky MOs used for state A'
     !if (nDen == 2) write(u6,*) 'Pseudo Cholesky MOs used for state B'
@@ -164,7 +162,7 @@ if (Deco) then
     write(u6,*) '*******************************'
 
     do jden=1,nDen
-      call Allocate_DSBA(MO(jDen),nBas,nAux,nSym,Ref=MSQ(jDen)%A0)
+      call Allocate_DT(MO(jDen),nBas,nAux,nSym,Ref=MSQ(jDen)%A0)
     end do
 
   end if
@@ -172,7 +170,7 @@ if (Deco) then
 else
 
   do jden=1,nDen
-    call Allocate_DSBA(MO(jDen),nBas,nAux,nSym,Ref=MSQ(jDen)%A0)
+    call Allocate_DT(MO(jDen),nBas,nAux,nSym,Ref=MSQ(jDen)%A0)
   end do
 
 end if
@@ -218,7 +216,7 @@ end if
 if (Update) call CHO_IODIAG(DIAG,2) ! 2 means "read"
 
 ! allocate memory for sqrt(D(a,b)) stored in full (squared) dim
-call Allocate_NDSBA(DiaH,nBas,nBas,nSym)
+call Allocate_DT(DiaH,nBas,nBas,nSym)
 DiaH%A0(:) = Zero
 
 ! allocate memory for the abs(C(l)[k])
@@ -331,10 +329,10 @@ do jSym=1,nSym
   if (NumCV < 1) cycle
 
   JNUM = 1
-  call Allocate_L_Full(L_Full,nShell,iShp_rs,JNUM,JSYM,nSym,Memory=LFULL)
+  call Allocate_DT(L_Full,nShell,iShp_rs,JNUM,JSYM,nSym,Memory=LFULL)
 
   iCase = 0 ! twxy
-  call Allocate_twxy(Scr,nAsh,nAsh,JSYM,nSym,iCase)
+  call Allocate_DT(Scr,nAsh,nAsh,JSYM,nSym,iCase)
 
   iLoc = 3 ! use scratch location in reduced index arrays
 
@@ -519,8 +517,8 @@ do jSym=1,nSym
         !***************************************************************
         !***************************************************************
         !                                                              *
-        call Allocate_L_Full(L_Full,nShell,iShp_rs,JNUM,JSYM,nSym)
-        call Allocate_Lab(Lab,JNUM,nBasSh,nBas,nShell,nSym,nDen)
+        call Allocate_DT(L_Full,nShell,iShp_rs,JNUM,JSYM,nSym)
+        call Allocate_DT(Lab,JNUM,nBasSh,nBas,nShell,nSym,nDen)
 
         call CWTIME(TCX1,TWX1)
 
@@ -960,8 +958,8 @@ do jSym=1,nSym
 
         end do ! loop over MOs symmetry
 
-        call Deallocate_Lab(Lab)
-        call Deallocate_L_Full(L_Full)
+        call Deallocate_DT(Lab)
+        call Deallocate_DT(L_Full)
         !                                                              *
         !***************************************************************
         !***************************************************************
@@ -1021,8 +1019,8 @@ do jSym=1,nSym
         ! ************  END EXCHANGE CONTRIBUTION  ****************
 
         iSwap = 0  ! Lvb,J are returned
-        call Allocate_SBA(Laq(1),nAsh,nBas,nVec,JSYM,nSym,iSwap)
-        call Allocate_SBA(Laq(2),nAsh,nAsh,nVec,JSYM,nSym,iSwap)
+        call Allocate_DT(Laq(1),nAsh,nBas,nVec,JSYM,nSym,iSwap)
+        call Allocate_DT(Laq(2),nAsh,nAsh,nVec,JSYM,nSym,iSwap)
         ! ----------------------------------------------------------------
         ! First half Active transformation  Lvb,J = sum_a  C1(v,a) * Lab,J
         ! ----------------------------------------------------------------
@@ -1077,8 +1075,8 @@ do jSym=1,nSym
 
         ! ---------------- END (TW|XY) EVALUATION -----------------------
 
-        call Deallocate_SBA(Laq(2))
-        call Deallocate_SBA(Laq(1))
+        call Deallocate_DT(Laq(2))
+        call Deallocate_DT(Laq(1))
 
       end do ! end batch loop
 
@@ -1126,7 +1124,7 @@ do jSym=1,nSym
 
   end do   ! loop over red sets
 
-  call Deallocate_twxy(Scr)
+  call Deallocate_DT(Scr)
 
 end do ! loop over JSYM
 
@@ -1204,18 +1202,18 @@ call mma_deallocate(SumAClk)
 call mma_deallocate(MLk)
 call mma_deallocate(Ylk)
 call mma_deallocate(AbsC)
-call Deallocate_NDSBA(DiaH)
+call Deallocate_DT(DiaH)
 #ifdef _MOLCAS_MPP_
 if ((nProcs > 1) .and. Update .and. Is_Real_Par()) call mma_deallocate(DiagJ)
 #endif
 call mma_deallocate(DIAG)
 
 if (Deco) then
-  call Deallocate_DSBA(CM(2))
-  call Deallocate_DSBA(CM(1))
+  call Deallocate_DT(CM(2))
+  call Deallocate_DT(CM(1))
 end if
 do jden=1,nDen
-  call Deallocate_DSBA(MO(jDen))
+  call Deallocate_DT(MO(jDen))
 end do
 
 call CWTIME(TOTCPU2,TOTWALL2)
@@ -1263,7 +1261,7 @@ if (Debug) then ! to avoid double printing in RASSI-debug
 end if
 #endif
 
-call Deallocate_DSBA(KLT)
+call Deallocate_DT(KLT)
 
 return
 

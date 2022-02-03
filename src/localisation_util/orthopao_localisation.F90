@@ -26,7 +26,7 @@ subroutine OrthoPAO_Localisation(X,nBas,nFro,nOrb2Loc,nSym,nPass,Test)
 !
 ! NOTE: X is assumed to contain all orbitals!!
 
-use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type
+use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -55,8 +55,8 @@ if (nPass < 1) return
 ! Read S from disk, stored as full square.
 ! ----------------------------------------
 
-call Allocate_DSBA(X2,nBas,nBas,nSym,label='X',Ref=X)
-call Allocate_DSBA(S,nBas,nBas,nSym,label='S')
+call Allocate_DT(X2,nBas,nBas,nSym,label='X',Ref=X)
+call Allocate_DT(S,nBas,nBas,nSym,label='S')
 call GetOvlp_Localisation(S%A0,'Sqr',nBas,nSym)
 
 ! Allocations.
@@ -144,7 +144,7 @@ end if
 
 call mma_deallocate(Vt)
 call mma_deallocate(Scr)
-call Deallocate_DSBA(S)
-call Deallocate_DSBA(X2)
+call Deallocate_DT(S)
+call Deallocate_DT(X2)
 
 end subroutine OrthoPAO_Localisation

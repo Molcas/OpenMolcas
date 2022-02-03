@@ -17,7 +17,7 @@ subroutine Wavelet_Transform(irc,CMO,nSym,nBas,nFro,nOrb2Loc,inv,Silent,xNrm)
 ! Purpose: wavelet transform of the MO basis (inv=0)
 !          "       backtransform (inv=1)
 
-use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type
+use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6, r8
@@ -44,7 +44,7 @@ if (.not. Silent) then
   write(u6,'(1X,A,8(1X,I6))') 'Orbitals to transform:',nOrb2Loc(:)
 end if
 
-call Allocate_DSBA(C,nBas,nBas,nSym,label='C',Ref=CMO)
+call Allocate_DT(C,nBas,nBas,nSym,label='C',Ref=CMO)
 
 if (inv == 1) then
   ! Inverse wavelet transform
@@ -117,7 +117,7 @@ contains
 
 subroutine FreeMem()
 
-  call Deallocate_DSBA(C)
+  call Deallocate_DT(C)
   if (allocated(Scr)) call mma_deallocate(Scr)
 
 end subroutine FreeMem

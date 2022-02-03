@@ -22,7 +22,7 @@
 subroutine FOCKTWO(NSYM,NBAS,NFRO,KEEP,W_DLT,W_DSQ,W_FLT,nFlt,W_FSQ,LBUF,X1,X2,ExFac)
 
 use Symmetry_Info, only: Mul
-use Data_Structures, only: DSBA_Type, Allocate_DSBA, Deallocate_DSBA
+use Data_Structures, only: Allocate_DT, DSBA_Type, Deallocate_DT
 use Constants, only: One, Half
 use Definitions, only: wp, iwp, u6, r8
 
@@ -55,10 +55,10 @@ real(kind=r8), external :: DDOT_
 !
 !***********************************************************************
 
-call Allocate_DSBA(DLT,nBas,nBas,nSym,aCase='TRI',Ref=W_DLT)
-call Allocate_DSBA(FLT,nBas,nBas,nSym,aCase='TRI',Ref=W_FLT)
-call Allocate_DSBA(DSQ,nBas,nBas,nSym,Ref=W_DSQ)
-call Allocate_DSBA(FSQ,nBas,nBas,nSym,Ref=W_FSQ)
+call Allocate_DT(DLT,nBas,nBas,nSym,aCase='TRI',Ref=W_DLT)
+call Allocate_DT(FLT,nBas,nBas,nSym,aCase='TRI',Ref=W_FLT)
+call Allocate_DT(DSQ,nBas,nBas,nSym,Ref=W_DSQ)
+call Allocate_DT(FSQ,nBas,nBas,nSym,Ref=W_FSQ)
 
 do IS=1,NSYM
   IB = NBAS(IS)
@@ -203,10 +203,10 @@ do ISYM=1,NSYM
   end if
 end do
 #endif
-call deallocate_DSBA(FSQ)
-call deallocate_DSBA(DSQ)
-call deallocate_DSBA(FLT)
-call deallocate_DSBA(DLT)
+call Deallocate_DT(FSQ)
+call Deallocate_DT(DSQ)
+call Deallocate_DT(FLT)
+call Deallocate_DT(DLT)
 
 return
 

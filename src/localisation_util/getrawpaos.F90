@@ -37,7 +37,7 @@ subroutine GetRawPAOs(R,C,nBas,nOrb,nFro,nOrb2Loc,nSym,Normalize)
 !-TODO/FIXME: it is in most cases faster to use Do*S=C*(C^T*S)
 !-------------------------------------------------------------
 
-use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type
+use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, r8
@@ -61,11 +61,11 @@ real(kind=r8), external :: ddot_
 ! Read the overlap matrix from disk.
 ! ----------------------------------
 
-call Allocate_DSBA(Ovlp,nBas,nBas,nSym,label='Ovlp')
+call Allocate_DT(Ovlp,nBas,nBas,nSym,label='Ovlp')
 call GetOvlp_Localisation(Ovlp%A0,'Sqr',nBas,nSym)
 
-call Allocate_DSBA(RB,nBas,nBas,nSym,label='RB',Ref=R)
-call Allocate_DSBA(CB,nBas,nBas,nSym,label='RB',Ref=C)
+call Allocate_DT(RB,nBas,nBas,nSym,label='RB',Ref=R)
+call Allocate_DT(CB,nBas,nBas,nSym,label='RB',Ref=C)
 
 ! Compute R.
 ! ----------
@@ -145,8 +145,8 @@ end if
 
 nullify(DoR)
 call mma_deallocate(DoRt)
-call Deallocate_DSBA(Ovlp)
-call Deallocate_DSBA(RB)
-call Deallocate_DSBA(CB)
+call Deallocate_DT(Ovlp)
+call Deallocate_DT(RB)
+call Deallocate_DT(CB)
 
 end subroutine GetRawPAOs

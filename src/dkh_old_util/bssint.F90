@@ -14,8 +14,7 @@ subroutine BSSint()
 use Basis_Info, only: dbsc, nBas, nCnttp
 use Symmetry_Info, only: Mul, nIrrep
 use DKH_Info, only: CLightAU
-use Data_Structures, only: Alloc_Alloc1DArray, Alloc_Alloc2DArray, Alloc1DArray_Type, Alloc2DArray_Type, DSBA_Type, Allocate_DSBA, &
-                           Deallocate_DSBA, Free_Alloc1DArray, Free_Alloc2DArray
+use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, OneHalf
 use Definitions, only: wp, iwp, u6
@@ -25,22 +24,21 @@ implicit none
 #include "rinfo.fh"
 #include "print.fh"
 integer(kind=iwp) :: i, iAngr, iBas, icnt, iCnttp, iComp, idbg, iExp, iip1, iOpt, ip1, iPrint, iRC, iRout, iSize, iSizea, iSizeab, &
-                     iSizeb, iSizec, iSmlbl, iSyma, iSymb, ixyz, jExp, kAng, kC, kCof, kCofi, kCofj, kExp, kExpi, kExpj, L, &
-                     LenInt, lOper, Lu_One, n, na, nb, nBasMax, ncomp, nSym
+                     iSizeb, iSizec, iSyma, iSymb, ixyz, jExp, kAng, kC, kCof, kCofi, kCofj, kExp, kExpi, kExpj, L, lOper, Lu_One, &
+                     n, na, nb, nBasMax, ncomp, nSym
 real(kind=wp) :: rCofi, rCofj, rExpi, rExpj, rI, rNorm, Sum_, VELIT
-type(DSBA_Type) :: Eigf, Kin, pVp, Revtf, Sinvf, SS, V
-integer(kind=iwp), allocatable :: lOper1(:)
+type(DSBA_Type) :: Aaf, Eigf, Kin, pV, pVf, pVp, Revtf, Rrf, Sinvf, SS, V, Vp, Vpf
+integer(kind=iwp), allocatable :: iLen(:), lOper1(:)
 real(kind=wp), allocatable :: Aa(:), Aux(:), Bu(:), Bu2(:), Bu4(:), Cmm1(:), Cmm2(:), E(:), Eig(:), Ev(:), Ew(:), G(:), H(:), &
                               H_nr(:), H_temp(:), ifpV(:), ifVp(:), ipVa(:), iVpa(:), Ove(:), P(:), Revt(:), Rr(:), ScpV(:), &
                               ScVp(:), Sinv(:), Tt(:)
-type(Alloc1DArray_Type), allocatable :: Aaf(:), Rrf(:), pV(:), Vp(:)
-type(Alloc2DArray_Type), allocatable :: pVf(:), Vpf(:)
 character(len=8) :: Label
 #ifdef _DEBUGPRINT_
 #define _TEST_ .true.
 #else
 #define _TEST_ .false.
 #endif
+integer(kind=iwp), parameter :: Arr2(8) = 2
 logical(kind=iwp), parameter :: IfTest = _TEST_
 integer(kind=iwp), external :: IrrFnc, n2Tri
 
@@ -136,25 +134,23 @@ end if
 
 ! Allocate memory for relativistic part
 
-call Allocate_DSBA(Eigf,nBas,nBas,nSym,label='Eigf')
-call Allocate_DSBA(Sinvf,nBas,nBas,nSym,label='Sinvf')
-call Allocate_DSBA(Revtf,nBas,nBas,nSym,label='Revtf')
-call Alloc_Alloc1DArray(Aaf,[1,nSym],label='Aaf')
-call Alloc_Alloc1DArray(Rrf,[1,nSym],label='Rrf')
+call Allocate_DT(Eigf,nBas,nBas,nSym,label='Eigf')
+call Allocate_DT(Sinvf,nBas,nBas,nSym,label='Sinvf')
+call Allocate_DT(Revtf,nBas,nBas,nSym,label='Revtf')
+call Allocate_DT(Aaf,nBas,nBas,nSym,aCase='ONE',label='Aaf')
+call Allocate_DT(Rrf,nBas,nBas,nSym,aCase='ONE',label='Rrf')
 nBasMax = 0
 do L=1,nSym
   n = nBas(L-1)
   nBasMax = max(nBasMax,n)
-  call mma_allocate(Aaf(L)%A,n,label='Aaf_i')
-  call mma_allocate(Rrf(L)%A,n,label='Rrf_i')
 end do
 
 VELIT = CLightAU
 
-call Allocate_DSBA(Kin,nBas,nBas,nSym,aCase='TRI',label='Kin')
-call Allocate_DSBA(SS,nBas,nBas,nSym,aCase='TRI',label='SS')
-call Allocate_DSBA(V,nBas,nBas,nSym,aCase='TRI',label='V')
-call Allocate_DSBA(pVp,nBas,nBas,nSym,aCase='TRI',label='pVp')
+call Allocate_DT(Kin,nBas,nBas,nSym,aCase='TRI',label='Kin')
+call Allocate_DT(SS,nBas,nBas,nSym,aCase='TRI',label='SS')
+call Allocate_DT(V,nBas,nBas,nSym,aCase='TRI',label='V')
+call Allocate_DT(pVp,nBas,nBas,nSym,aCase='TRI',label='pVp')
 
 Label = 'Mltpl  0'
 iComp = 1
@@ -203,50 +199,42 @@ end do
 
 ! Read pV matrix , elements <iSyma|pV|iSymb>, iSymb <= iSyma !
 
-call Alloc_Alloc1DArray(pV,[1,nComp],label='pV')
+call mma_allocate(iLen,nComp,label='iLen')
+do iComp=1,nComp
+  iLen(iComp) = n2Tri(lOper1(iComp))
+end do
+
+call Allocate_DT(pV,iLen,iLen,nComp,aCase='ONE',label='pV')
 
 Label = 'pV      '
 do iComp=1,nComp
 
   iRC = -1
-  iSmlbl = lOper1(iComp)
-  LenInt = n2Tri(iSmlbl)
-  call mma_allocate(pV(iComp)%A,LenInt,label='pV_i')
-  call RdOne(iRC,iOpt,Label,iComp,pV(iComp)%A,iSmlbl)
-
+  call RdOne(iRC,iOpt,Label,iComp,pV%SB(iComp)%A1,lOper1(iComp))
 end do
 
 ! Read Vp matrix , elements <iSyma|Vp|iSymb>, iSymb <= iSyma !
 
 ! Read Vp matrix
 
-call Alloc_Alloc1DArray(Vp,[1,nComp],label='Vp')
+call Allocate_DT(Vp,iLen,iLen,nComp,aCase='ONE',label='Vp')
 
 Label = 'Vp      '
 do iComp=1,nComp
 
   iRC = -1
-  iSmlbl = lOper1(iComp)
-  LenInt = n2Tri(iSmlbl)
-  call mma_allocate(Vp(iComp)%A,LenInt,label='Vp_i')
-  call RdOne(iRC,iOpt,Label,iComp,Vp(iComp)%A,iSmlbl)
+  call RdOne(iRC,iOpt,Label,iComp,Vp%SB(iComp)%A1,lOper1(iComp))
 end do
 
 ! Build the whole matrix <iSyma|pV|iSymb> lower triangle
-! and put into pVf(iComp)%A(:,1) and the upper triangle
-! and put into pVf(iComp)%A(:,2).
+! and put into pVf%SB(iComp)%A2(:,1) and the upper triangle
+! and put into pVf%SB(iComp)%A2(:,2).
 ! For 'Vp' matrix the same, Vpf instead of pVf
 
-call Alloc_Alloc2DArray(pVf,[1,nComp],label='pVf')
-call Alloc_Alloc2DArray(Vpf,[1,nComp],label='Vpf')
+call Allocate_DT(pVf,iLen,Arr2,nComp,label='pVf')
+call Allocate_DT(Vpf,iLen,Arr2,nComp,label='Vpf')
 
 do iComp=1,nComp
-
-  iSmlbl = lOper1(iComp)
-  LenInt = n2Tri(iSmlbl)
-
-  call mma_allocate(pVf(iComp)%A,LenInt,2,label='pVf_i')
-  call mma_allocate(Vpf(iComp)%A,LenInt,2,label='Vpf_i')
 
   ip1 = 0
   iip1 = 0
@@ -258,14 +246,14 @@ do iComp=1,nComp
     do iSymb=1,iSyma
       nb = nBas(iSymb-1)
       if (nb == 0) cycle
-      if (.not. btest(iSmLbl,Mul(iSyma,iSymb)-1)) cycle
+      if (.not. btest(lOper1(iComp),Mul(iSyma,iSymb)-1)) cycle
       if (iSyma == iSymb) then
         iSize = na*(na+1)/2
 
         ! Elements <iSyma|pV|iSyma> and <iSyma|Vp|iSyma>
 
-        pVf(iComp)%A(ip1+1:ip1+iSize,1) = pV(iComp)%A(ip1+1:ip1+iSize)
-        Vpf(iComp)%A(ip1+1:ip1+iSize,1) = Vp(iComp)%A(ip1+1:ip1+iSize)
+        pVf%SB(iComp)%A2(ip1+1:ip1+iSize,1) = pV%SB(iComp)%A1(ip1+1:ip1+iSize)
+        Vpf%SB(iComp)%A2(ip1+1:ip1+iSize,1) = Vp%SB(iComp)%A1(ip1+1:ip1+iSize)
         ip1 = ip1+na*(na+1)/2
       else
         iSize = na*nb
@@ -274,10 +262,10 @@ do iComp=1,nComp
         ! AND
         ! Elements <iSyma|Vp|iSymb> and <iSymb|Vp|iSyma> = -<iSyma|pV|iSymb>
 
-        pVf(iComp)%A(ip1+1:ip1+iSize,1) = pV(iComp)%A(ip1+1:ip1+iSize)
-        Vpf(iComp)%A(ip1+1:ip1+iSize,1) = Vp(iComp)%A(ip1+1:ip1+iSize)
-        pVf(iComp)%A(iip1+1:iip1+iSize,2) = -Vp(iComp)%A(ip1+1:ip1+iSize)
-        Vpf(iComp)%A(iip1+1:iip1+iSize,2) = -pV(iComp)%A(ip1+1:ip1+iSize)
+        pVf%SB(iComp)%A2(ip1+1:ip1+iSize,1) = pV%SB(iComp)%A1(ip1+1:ip1+iSize)
+        Vpf%SB(iComp)%A2(ip1+1:ip1+iSize,1) = Vp%SB(iComp)%A1(ip1+1:ip1+iSize)
+        pVf%SB(iComp)%A2(iip1+1:iip1+iSize,2) = -Vp%SB(iComp)%A1(ip1+1:ip1+iSize)
+        Vpf%SB(iComp)%A2(iip1+1:iip1+iSize,2) = -pV%SB(iComp)%A1(ip1+1:ip1+iSize)
         ip1 = ip1+na*nb
         iip1 = iip1+na*nb
       end if
@@ -289,12 +277,12 @@ do iComp=1,nComp
   !
   !write(u6,*) 'pV matrix <iSyma|pV|iSymb> '
   !write(u6,*)
-  !write(u6,*) pVf(iComp)%A(:,1)
+  !write(u6,*) pVf%SB(iComp)%A2(:,1)
   !write(u6,*)
   !write(u6,*)
   !write(u6,*) 'pV matrix <iSymb|pV|iSyma> if iSyma /= iSymb otherwise zero matrix '
   !write(u6,*)
-  !write(u6,*) pVf(iComp)%A(:,2)
+  !write(u6,*) pVf%SB(iComp)%A2(:,2)
   !
   ! Create the whole matrix (NAxNB) VP
   !
@@ -303,16 +291,18 @@ do iComp=1,nComp
   !write(u6,*)
   !write(u6,*) 'Vp matrix <iSyma|Vp|iSymb> '
   !write(u6,*)
-  !write(u6,*) Vpf(iComp)%A(:,1)
+  !write(u6,*) Vpf%SB(iComp)%A2(:,1)
   !write(u6,*)
   !write(u6,*)
   !write(u6,*) 'Vp matrix <iSymb|Vp|iSyma> if iSyma /= iSymb otherwise zero matrix '
   !write(u6,*)
-  !write(u6,*) Vpf(iComp)%A(:,2)
+  !write(u6,*) Vpf%SB(iComp)%A2(:,2)
 
   ! End of iComp loop
 
 end do
+
+call mma_deallocate(iLen)
 
 call mma_allocate(Bu,nBasMax*(nBasMax+1)/2,label='Bu')
 call mma_allocate(P,nBasMax*(nBasMax+1)/2,label='P')
@@ -350,8 +340,8 @@ do L=1,nSym
   Eigf%SB(L)%A1(:) = Eig(1:n*n)
   Sinvf%SB(L)%A1(:) = Sinv(1:n*n)
   Revtf%SB(L)%A1(:) = Revt(1:n*n)
-  Aaf(L)%A(:) = Aa(1:n)
-  Rrf(L)%A(:) = Rr(1:n)
+  Aaf%SB(L)%A1(:) = Aa(1:n)
+  Rrf%SB(L)%A1(:) = Rr(1:n)
 
 end do
 
@@ -380,8 +370,6 @@ do iComp=1,nComp
 
   ip1 = 0
   iip1 = 0
-  iSmlbl = lOper1(iComp)
-  LenInt = n2Tri(iSmlbl)
 
   do iSyma=1,nSym
 
@@ -397,28 +385,28 @@ do iComp=1,nComp
       iSizeb = nb*(nb+1)/2
       if (iSizeb <= 0) cycle
       iSizeab = na*nb
-      if (.not. btest(iSmLbl,Mul(iSyma,iSymb)-1)) cycle
+      if (.not. btest(lOper1(iComp),Mul(iSyma,iSymb)-1)) cycle
 
       if (iSyma == iSymb) then
 
-        ipVa(1:iSizea) = pVf(iComp)%A(ip1+1:ip1+iSizea,1)
-        iVpa(1:iSizea) = Vpf(iComp)%A(ip1+1:ip1+iSizea,1)
+        ipVa(1:iSizea) = pVf%SB(iComp)%A2(ip1+1:ip1+iSizea,1)
+        iVpa(1:iSizea) = Vpf%SB(iComp)%A2(ip1+1:ip1+iSizea,1)
         ScpV(1:iSizeab) = Zero
         ScVp(1:iSizeab) = Zero
         ip1 = ip1+iSizea
 
       else if (iSyma > iSymb) then
 
-        ifpV(1:iSizeab) = pVf(iComp)%A(ip1+1:ip1+iSizeab,1)
-        ifVp(1:iSizeab) = Vpf(iComp)%A(ip1+1:ip1+iSizeab,1)
+        ifpV(1:iSizeab) = pVf%SB(iComp)%A2(ip1+1:ip1+iSizeab,1)
+        ifVp(1:iSizeab) = Vpf%SB(iComp)%A2(ip1+1:ip1+iSizeab,1)
         ScpV(1:iSizeab) = Zero
         ScVp(1:iSizeab) = Zero
         ip1 = ip1+na*nb
 
       else if (iSyma < iSymb) then
 
-        ifpV(1:iSizeab) = pVf(iComp)%A(iip1+1:iip1+iSizeab,2)
-        ifVp(1:iSizeab) = Vpf(iComp)%A(iip1+1:iip1+iSizeab,2)
+        ifpV(1:iSizeab) = pVf%SB(iComp)%A2(iip1+1:iip1+iSizeab,2)
+        ifVp(1:iSizeab) = Vpf%SB(iComp)%A2(iip1+1:iip1+iSizeab,2)
         ScpV(1:iSizeab) = ifpV(1:iSizeab)
         ScVp(1:iSizeab) = ifVp(1:iSizeab)
         iip1 = iip1+na*nb
@@ -439,8 +427,8 @@ do iComp=1,nComp
       ! Revta*AAA*<a|[bp,V]|b>store in CMM1(iSyma,iSymb) matrix,
 
       call VPBMBPV(Eigf%SB(iSyma)%A2,Eigf%SB(iSymb)%A2,Revtf%SB(iSyma)%A2,Sinvf%SB(iSyma)%A2,Sinvf%SB(iSymb)%A2,na,nb,iSizea, &
-                   Aaf(iSyma)%A,Aaf(iSymb)%A,Rrf(iSyma)%A,Rrf(iSymb)%A,ifpV,ifVp,iSyma,iSymb,Bu2,G,Aux,Cmm1,Bu4,Cmm2,ipVa,iVpa, &
-                   ScpV,ScVp)
+                   Aaf%SB(iSyma)%A1,Aaf%SB(iSymb)%A1,Rrf%SB(iSyma)%A1,Rrf%SB(iSymb)%A1,ifpV,ifVp,iSyma,iSymb,Bu2,G,Aux,Cmm1,Bu4, &
+                   Cmm2,ipVa,iVpa,ScpV,ScVp)
 
       Bu2(1:na*na) = Zero
       Aux(1:na*nb) = Zero
@@ -473,11 +461,11 @@ call mma_deallocate(Cmm2)
 
 call mma_deallocate(lOper1)
 
-call Free_Alloc2DArray(pVf)
-call Free_Alloc2DArray(Vpf)
-call Free_Alloc1DArray(pV)
-call Free_Alloc1DArray(Vp)
-call Deallocate_DSBA(pVp)
+call Deallocate_DT(pVf)
+call Deallocate_DT(Vpf)
+call Deallocate_DT(pV)
+call Deallocate_DT(Vp)
+call Deallocate_DT(pVp)
 
 ! open arrays in contracted basis
 
@@ -513,8 +501,8 @@ V%A0(:) = V%A0+SS%A0
 
 call repmat(idbg,V%A0,H_temp,.true.)
 
-call Deallocate_DSBA(SS)
-call Deallocate_DSBA(V)
+call Deallocate_DT(SS)
+call Deallocate_DT(V)
 
 ! Close ONEREL and re-open ONEINT
 
@@ -542,7 +530,7 @@ end if
 
 call repmat(idbg,Kin%A0,H,.true.)
 
-call Deallocate_DSBA(Kin)
+call Deallocate_DT(Kin)
 
 iOpt = 0
 iRC = -1
@@ -585,11 +573,11 @@ call mma_deallocate(H)
 call mma_deallocate(H_nr)
 call mma_deallocate(H_temp)
 
-call Deallocate_DSBA(Eigf)
-call Deallocate_DSBA(Sinvf)
-call Deallocate_DSBA(Revtf)
-call Free_Alloc1DArray(Aaf)
-call Free_Alloc1DArray(Rrf)
+call Deallocate_DT(Eigf)
+call Deallocate_DT(Sinvf)
+call Deallocate_DT(Revtf)
+call Deallocate_DT(Aaf)
+call Deallocate_DT(Rrf)
 
 return
 

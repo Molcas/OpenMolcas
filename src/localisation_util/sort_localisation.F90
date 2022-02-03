@@ -16,7 +16,7 @@ subroutine Sort_Localisation(CMO,nBas,nOcc,nFro,nSym)
 !
 ! Purpose: sort CMOs according to Cholesky orbital ordering.
 
-use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type
+use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -35,8 +35,8 @@ character(len=*), parameter :: SecNam = 'Sort_Localisation'
 ! Get a copy of the occupied orbitals: X=CMO.
 ! -------------------------------------------
 
-call Allocate_DSBA(X,nBas,nOcc,nSym,label='XCho')
-call Allocate_DSBA(C,nBas,nBas,nSym,label='C',Ref=CMO)
+call Allocate_DT(X,nBas,nOcc,nSym,label='XCho')
+call Allocate_DT(C,nBas,nBas,nSym,label='C',Ref=CMO)
 do iSym=1,nSym
   kC = nFro(iSym)+1
   X%SB(iSym)%A2(:,:) = C%SB(iSym)%A2(:,kC:kC+nOcc(iSym)-1)
@@ -45,8 +45,8 @@ end do
 ! Get the overlap matrix.
 ! -----------------------
 
-call Allocate_DSBA(Ovlp,nBas,nBas,nSym,label='Ovlp')
-call Allocate_DSBA(Oaux,nBas,nBas,nSym,aCase='TRI',label='Ovlp')
+call Allocate_DT(Ovlp,nBas,nBas,nSym,label='Ovlp')
+call Allocate_DT(Oaux,nBas,nBas,nSym,aCase='TRI',label='Ovlp')
 
 irc = -1
 iOpt = 6
@@ -63,7 +63,7 @@ end if
 do iSym=1,nSym
   call Tri2Rec(Oaux%SB(iSym)%A1,Ovlp%SB(iSym)%A2,nBas(iSym),.false.)
 end do
-call Deallocate_DSBA(Oaux)
+call Deallocate_DT(Oaux)
 
 ! Sort each symmetry block.
 ! -------------------------
@@ -125,8 +125,8 @@ end do
 ! De-allocations.
 ! ---------------
 
-call Deallocate_DSBA(X)
-call Deallocate_DSBA(C)
-call Deallocate_DSBA(Ovlp)
+call Deallocate_DT(X)
+call Deallocate_DT(C)
+call Deallocate_DT(Ovlp)
 
 end subroutine Sort_Localisation
