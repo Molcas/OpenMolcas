@@ -10,23 +10,23 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-      Subroutine Do_NInt_d(mGrid,Grid_AO,TabAO1,nBfn,nD,mAO,nFn)
+      Subroutine Do_NInt_d(mGrid,TabAO1,nBfn,mAO)
 *                                                                      *
 ************************************************************************
 ************************************************************************
 !     use nq_Grid, only: Rho
       use nq_Grid, only: GradRho, Weights
       use nq_Grid, only: vRho, vSigma, vTau, vLapl
+      use nq_Grid, only: Grid_AO
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_info.fh"
-      Real*8 TabAO1(mAO,mGrid,nBfn), Grid_AO(nFn,mGrid,nBfn,nD)
+      Real*8 TabAO1(mAO,mGrid,nBfn)
 *                                                                      *
 ************************************************************************
 ************************************************************************
 *                                                                      *
-!     Thr=1.0D-14
-!     If (nD.eq.1) Thr=Thr/Two
+      nD=SIZE(Grid_AO,4)
 *                                                                      *
 ************************************************************************
 ************************************************************************
