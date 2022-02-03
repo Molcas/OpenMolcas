@@ -28,7 +28,7 @@
       use Center_Info
       use Phase_Info
       use KSDFT_Info
-      use nq_Grid, only: Grid, Weights, Rho, GradRho, Sigma, nRho
+      use nq_Grid, only: Grid, Weights, Rho, GradRho, nRho
       use nq_Grid, only: vRho, vSigma, vTau, vLapl
       use nq_Grid, only: l_CASDFT, TabAO, TabAO_Pack, dRho_dR
       use nq_Grid, only: F_xc, F_xca, F_xcb, kAO, Grid_AO
@@ -428,28 +428,6 @@
          CALL mma_deallocate(MOy)
          CALL mma_deallocate(MOz)
 
-         If (lGGA) Then
-            If (nD.eq.1) Then
-               Do iGrid=1, mGrid
-                  Sigma(1,iGrid)=GradRho(1,iGrid)**2
-     &                          +GradRho(2,iGrid)**2
-     &                          +GradRho(3,iGrid)**2
-               End Do
-            Else
-               Do iGrid=1, mGrid
-                  Sigma(1,iGrid)=GradRho(1,iGrid)**2
-     &                          +GradRho(2,iGrid)**2
-     &                          +GradRho(3,iGrid)**2
-                  Sigma(2,iGrid)=GradRho(1,iGrid)*GradRho(4,iGrid)
-     &                          +GradRho(2,iGrid)*GradRho(5,iGrid)
-     &                          +GradRho(3,iGrid)*GradRho(6,iGrid)
-                  Sigma(3,iGrid)=GradRho(4,iGrid)**2
-     &                          +GradRho(5,iGrid)**2
-     &                          +GradRho(6,iGrid)**2
-               End Do
-            End If
-         End If
-
 *        Integrate out the number of electrons
          Dens_t2=Dens_t2+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,0)
          Dens_a2=Dens_a2+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,1)
@@ -462,7 +440,7 @@
 *                                                                      *
 *     Integrate out the number of electrons, |grad|, and tau
 *
-         Dens_I=Dens_I+Compute_Rho (Weights,mGrid,nD,T_Rho)
+      Dens_I=Dens_I+Compute_Rho (Weights,mGrid,nD,T_Rho)
       Select Case (Functional_type)
       Case (LDA_Type)
       Case (GGA_type)
