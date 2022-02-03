@@ -8,21 +8,19 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1991,2021, Roland Lindh                                *
+* Copyright (C) 1991,2021,2022, Roland Lindh                           *
 ************************************************************************
-      SubRoutine AOAdd_Full(AOInt,nBfn,PrpInt,nPrp,nD)
+      SubRoutine AOAdd_Full(PrpInt,nPrp,nD)
 ************************************************************************
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             January 1991                                             *
-*     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
-*             University of Lund, SWEDEN                               *
-*             December 2021                                            *
 ************************************************************************
       use nq_Grid, only: iBfn_Index
+      use nq_Grid, only: AOInt => Dens_AO
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-      Real*8 AOInt(nBfn,nBfn,nD), PrpInt(nPrp,nD)
+      Real*8 PrpInt(nPrp,nD)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -33,6 +31,7 @@
 ************************************************************************
 
 *
+      nBfn=Size(iBfn_index,2)
       Do iBfn = 1, nBfn
          Indi = iBfn_Index(1,iBfn)
 

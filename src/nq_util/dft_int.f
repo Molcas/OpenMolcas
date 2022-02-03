@@ -54,7 +54,7 @@
 *
       nBfn = Size(AOIntegrals,1)
       If (nIrrep.eq.1) Then
-         Call AOAdd_Full(AOIntegrals,nBfn,FckInt,nFckInt,nD)
+         Call AOAdd_Full(FckInt,nFckInt,nD)
       Else
          Call SymAdp_Full(AOIntegrals,nBfn,FckInt,
      &                    nFckInt,list_s,nlist_s,Fact,ndc,nD)
