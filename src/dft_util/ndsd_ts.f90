@@ -35,6 +35,7 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+      vRho(:,:)=Zero
       Two3=Two/Three
       Five3=Five/Three
       Cf=(Three/Ten)*(three*Pi**Two)**Two3

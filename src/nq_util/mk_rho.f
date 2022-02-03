@@ -19,7 +19,7 @@
       use iSD_data
       use k2_arrays, only: DeDe, ipDijS
       use nq_grid, only: Rho, TabAO, Dens_AO, Grid_AO, TabAO_Short
-      use nq_grid, only: GradRho, Sigma, Tau, Lapl, kAO
+      use nq_grid, only: GradRho, Tau, Lapl, kAO
       use nq_Grid, only: dRho_dR, iBfn_Index
       use nq_Grid, only: List_G
 #ifdef _DEBUGPRINT_

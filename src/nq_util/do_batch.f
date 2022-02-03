@@ -28,8 +28,7 @@
       use Center_Info
       use Phase_Info
       use KSDFT_Info
-      use nq_Grid, only: Grid, Weights, Rho, GradRho, nRho
-      use nq_Grid, only: vRho, vSigma, vTau, vLapl
+      use nq_Grid, only: Grid, Weights, Rho, nRho
       use nq_Grid, only: l_CASDFT, TabAO, TabAO_Pack, dRho_dR
       use nq_Grid, only: F_xc, F_xca, F_xcb, kAO, Grid_AO
       use nq_Grid, only: Fact, Angular, Mem
@@ -458,17 +457,7 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-      vRho(:,1:mGrid)=Zero
-      If (Allocated(vSigma)) vSigma(:,1:mGrid)=Zero
-      If (Allocated(vTau)) vTau(:,1:mGrid)=Zero
-      If (Allocated(vLapl)) vLapl(:,1:mGrid)=Zero
-      F_xc(1:mGrid)=Zero
-      If (l_casdft) Then
-         F_xca(1:mGrid)=Zero
-         F_xcb(1:mGrid)=Zero
-      End If
-*
-*1)   evaluate the energy density, the derivative of the functional with
+*     evaluate the energy density, the derivative of the functional with
 *     respect to rho and grad rho.
 *
       Call Kernel(mGrid,nD)
