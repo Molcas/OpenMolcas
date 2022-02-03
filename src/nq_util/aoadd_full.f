@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1991,2021, Roland Lindh                                *
 ************************************************************************
-      SubRoutine AOAdd_Full(AOInt,nBfn,PrpInt,nPrp)
+      SubRoutine AOAdd_Full(AOInt,nBfn,PrpInt,nPrp,nD)
 ************************************************************************
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
@@ -22,7 +22,7 @@
       use nq_Grid, only: iBfn_Index
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-      Real*8 AOInt(nBfn,nBfn), PrpInt(nPrp)
+      Real*8 AOInt(nBfn,nBfn,nD), PrpInt(nPrp,nD)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -41,8 +41,8 @@
 *
 *           Add one matrix element
 *
-            PrpInt(iTri(Indi,Indj))=PrpInt(iTri(Indi,Indj))
-     &                             + AOInt(iBfn,jBfn)
+            PrpInt(iTri(Indi,Indj),:)=PrpInt(iTri(Indi,Indj),:)
+     &                             + AOInt(iBfn,jBfn,:)
          End Do
       End Do
 *

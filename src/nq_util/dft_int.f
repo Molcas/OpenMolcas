@@ -54,15 +54,12 @@
 *                                                                      *
 *     Distribute result on to the full integral matrix.
 *
-      Do iD = 1, nD
-         If (nIrrep.eq.1) Then
-            Call AOAdd_Full(AOIntegrals(:,:,iD),nBfn,FckInt(:,iD),
-     &                      nFckInt)
-         Else
-            Call SymAdp_Full(AOIntegrals(:,:,iD),nBfn,FckInt(:,iD),
-     &                       nFckInt,list_s,nlist_s,Fact,ndc)
-         End If
-      End Do
+      If (nIrrep.eq.1) Then
+         Call AOAdd_Full(AOIntegrals,nBfn,FckInt,nFckInt,nD)
+      Else
+         Call SymAdp_Full(AOIntegrals,nBfn,FckInt,
+     &                    nFckInt,list_s,nlist_s,Fact,ndc,nD)
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
