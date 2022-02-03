@@ -22,7 +22,7 @@
 #include "stdalloc.fh"
 #include "nq_info.fh"
       Real*8, Allocatable:: A1(:,:), A2(:,:), A_tri(:)
-      Real*8, Allocatable:: A3(:,:,:), A4(:,:.:)
+      Real*8, Allocatable:: A3(:,:,:), A4(:,:,:)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -98,9 +98,9 @@
 *                                                                      *
       Call mma_Allocate(A_tri,nBfn*(nBfn+1)/2,Label='A_tri')
       AOInt(:,:,:)=Zero
-      Call DCopy_(mGrid*nBfn,TabAO(1,1,1)   ,mAO,A2,1)
+      A2(1:mGrid,1:nBfn)=TabAO(1,1:mGrid,1:nBfn)
       Do iD = 1, nD
-      Call DCopy_(mGrid*nBfn,Grid_AO(1,1,1,iD),nFn,A1,1)
+      A1(1:mGrid,1:nBfn)=Grid_AO(1,1:mGrid,1:nBfn,iD)
       Call DGEMM_Tri('T','N',nBfn,nBfn,mGrid,
      &              One,A1,mGrid,
      &                  A2,mGrid,
@@ -114,9 +114,9 @@
 *                                                                      *
       Case (GGA_type)
 *                                                                      *
-      Call DCopy_(mGrid*nBfn,TabAO(1,1,1)   ,mAO,A2,1)
+      A2(1:mGrid,1:nBfn)=TabAO(1,1:mGrid,1:nBfn)
       Do iD = 1, nD
-      Call DCopy_(mGrid*nBfn,Grid_AO(1,1,1,iD),nFn,A1,1)
+      A1(1:mGrid,1:nBfn)=Grid_AO(1,1:mGrid,1:nBfn,iD)
       Call DGEMM_('T','N',nBfn,nBfn,mGrid,
      &             One,A1,mGrid,
      &                 A2,mGrid,
@@ -129,9 +129,9 @@
 *                                                                      *
       Case (meta_GGA_type1,meta_GGA_type2)
 *                                                                      *
-      Call DCopy_(mGrid*nBfn,TabAO(1,1,1)   ,mAO,A2,1)
+      A2(1:mGrid,1:nBfn)=TabAO(1,1:mGrid,1:nBfn)
       Do iD = 1, nD
-      Call DCopy_(mGrid*nBfn,Grid_AO(1,1,1,iD),nFn,A1,1)
+      A1(1:mGrid,1:nBfn)=Grid_AO(1,1:mGrid,1:nBfn,iD)
       Call DGEMM_('T','N',nBfn,nBfn,mGrid,
      &             One,A1,mGrid,
      &                 A2,mGrid,
@@ -143,16 +143,12 @@
       Call mma_allocate(A4,3,mGrid,nBfn,Label='A2')
 
       Call mma_Allocate(A_tri,nBfn*(nBfn+1)/2,Label='A_tri')
-      Call DCopy_(mGrid*nBfn,TabAO(2,1,1)   ,mAO,A4(1,1,1),3)
-      Call DCopy_(mGrid*nBfn,TabAO(3,1,1)   ,mAO,A4(2,1,1),3)
-      Call DCopy_(mGrid*nBfn,TabAO(4,1,1)   ,mAO,A4(3,1,1),3)
+      A4(1:3,1:mGrid,1:nBfn)=TabAO(2:4,1:mGrid,1:nBfn)
       Do iD = 1, nD
-      Call DCopy_(mGrid*nBfn,Grid_AO(2,1,1,iD),nFn,A3(1,1,1),3)
-      Call DCopy_(mGrid*nBfn,Grid_AO(3,1,1,iD),nFn,A3(2,1,1),3)
-      Call DCopy_(mGrid*nBfn,Grid_AO(4,1,1,iD),nFn,A3(3,1,1),3)
+      A3(1:3,1:mGrid,1:nBfn)=Grid_AO(2:4,1:mGrid,1:nBfn,iD)
       Call DGEMM_Tri('T','N',nBfn,nBfn,3*mGrid,
-     &               One,A1,3*mGrid,
-     &                   A2,3*mGrid,
+     &               One,A3,3*mGrid,
+     &                   A4,3*mGrid,
      &               Zero,A_Tri,nBfn)
       Call Sym_Dist()
       End Do
