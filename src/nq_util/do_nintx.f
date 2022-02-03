@@ -10,22 +10,25 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-      Subroutine Do_NIntX(AOInt,mGrid,TabAO,nBfn,nD,mAO)
+      Subroutine Do_NIntX(AOInt,nBfn,nD)
 *                                                                      *
 ************************************************************************
 ************************************************************************
-      use nq_Grid, only: Grid_AO
+      use nq_Grid, only: Grid_AO, TabAO
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "stdalloc.fh"
 #include "nq_info.fh"
-      Real*8 AOInt(nBfn,nBfn,nD), TabAO(mAO,mGrid,nBfn)
+      Real*8 AOInt(nBfn,nBfn,nD)
       Real*8, Allocatable:: A1(:,:), A2(:,:), A_tri(:)
 *                                                                      *
 ************************************************************************
 ************************************************************************
 *                                                                      *
-      nFn=SIZE(Grid_AO,1)
+      nFn  =SIZE(Grid_AO,1)
+      mAO  =SIZE(TabAO,1)
+      mGrid=SIZE(TabAO,2)
+
 *#define _ANALYSIS_
 #ifdef _ANALYSIS_
       Write (6,*)

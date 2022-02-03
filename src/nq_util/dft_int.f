@@ -45,14 +45,10 @@
 *---- Evaluate the desired AO integrand here from the AOs, accumulate
 *     contributions to the SO integrals on the fly.
 *
-      mGrid=SIZE(TabAO,2)
-      mAO = SIZE(TabAO,1)
-*
       nBfn = Size(AOIntegrals,1)
-      nFn  = Size(Grid_AO,1)
 
       Call Do_NInt_d()
-      Call Do_NIntX(AOIntegrals,mGrid,TabAO,nBfn,nD,mAO)
+      Call Do_NIntX(AOIntegrals,nBfn,nD)
 *                                                                      *
 ************************************************************************
 *                                                                      *
