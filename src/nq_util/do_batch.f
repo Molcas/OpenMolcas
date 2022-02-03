@@ -29,6 +29,7 @@
       use Phase_Info
       use KSDFT_Info
       use nq_Grid, only: Grid, Weights, Rho, nRho
+      use nq_Grid, only: GradRho, Sigma
       use nq_Grid, only: l_CASDFT, TabAO, TabAO_Pack, dRho_dR
       use nq_Grid, only: F_xc, F_xca, F_xcb, kAO, Grid_AO
       use nq_Grid, only: Fact, Angular, Mem
@@ -432,6 +433,31 @@
          Dens_a2=Dens_a2+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,1)
          Dens_b2=Dens_b2+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,2)
 
+      End If
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
+      If (Allocated(Sigma)) Then
+         If (Size(Sigma,1)==1) Then
+            Do iGrid=1, mGrid
+               Sigma(1,iGrid)=GradRho(1,iGrid)**2
+     &                       +GradRho(2,iGrid)**2
+     &                       +GradRho(3,iGrid)**2
+            End Do
+         Else
+            Do iGrid=1, mGrid
+               Sigma(1,iGrid)=GradRho(1,iGrid)**2
+     &                       +GradRho(2,iGrid)**2
+     &                       +GradRho(3,iGrid)**2
+               Sigma(2,iGrid)=GradRho(1,iGrid)*GradRho(4,iGrid)
+     &                       +GradRho(2,iGrid)*GradRho(5,iGrid)
+     &                       +GradRho(3,iGrid)*GradRho(6,iGrid)
+               Sigma(3,iGrid)=GradRho(4,iGrid)**2
+     &                       +GradRho(5,iGrid)**2
+     &                       +GradRho(6,iGrid)**2
+            End Do
+         End If
       End If
 *                                                                      *
 ************************************************************************

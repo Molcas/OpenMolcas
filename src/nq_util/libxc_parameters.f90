@@ -93,24 +93,11 @@ End Subroutine Remove_Libxc_functionals
 !
 Subroutine libxc_functionals(mGrid,nD)
 use nq_Grid, only: F_xc, F_xca, F_xcb, l_casdft
-use nq_Grid, only: Sigma, GradRho
 use nq_Grid, only: vRho, vSigma, vTau, vLapl
 Implicit None
 Integer mGrid,nD, iFunc
 Real*8 Coeff
 Real*8, Parameter :: Zero=0.0D0
-!
-!***********************************************************************
-!
-If (Allocated(Sigma)) Then
-   If (Size(Sigma,1)==1) Then
-      Sigma(1,:)=GradRho(1,:)**2+GradRho(2,:)**2+GradRho(3,:)**2
-   Else
-      Sigma(1,:)=GradRho(1,:)**2+GradRho(2,:)**2+GradRho(3,:)**2
-      Sigma(2,:)=GradRho(1,:)*GradRho(4,:)+GradRho(2,:)*GradRho(5,:)+GradRho(3,:)*GradRho(6,:)
-      Sigma(3,:)=GradRho(4,:)**2+GradRho(5,:)**2+GradRho(6,:)**2
-   End If
-End If
 !
 !***********************************************************************
 !
