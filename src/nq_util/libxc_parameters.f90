@@ -15,7 +15,11 @@ Module libxc_parameters
 use xc_f03_lib_m
 use Definitions, only: LibxcInt
 Implicit None
+Private
 #include "ksdft.fh"
+
+Public :: nFuncs_max, nFuncs, Coeffs, func_id, xc_func, xc_info, Initiate_Libxc_functionals, Remove_Libxc_functionals, &
+          libxc_functionals
 
 Integer, parameter :: nFuncs_max=4
 Integer :: i
@@ -58,7 +62,7 @@ Do iFunc = 1, nFuncs
    ! Get the functional's information
    xc_info(iFunc) = xc_f03_func_get_info(xc_func(iFunc))
 
-! Reset coefficiants according to input
+! Reset coefficients according to input
 
    Coeff = Coeffs(iFunc)
    Select case(xc_f03_func_info_get_kind(xc_info(iFunc)))

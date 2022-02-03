@@ -35,6 +35,8 @@
 *                                                                      *
 ************************************************************************
 *
+      Use Functionals, only: Print_Info
+*
       Implicit Real*8 (a-h,o-z)
 *
       Real*8 SIntTh
@@ -210,10 +212,10 @@ c           Call Abend()
      &                          //'e used the first few iterations.'
             End If
             Write(6,*)
-            Write(6,'(6X,A)')
-     &                       'DFT functional specifications'
-            Write(6,'(6X,A)')'-----------------------------'
+            Write(6,'(6X,A)') 'DFT functional specifications'
+            Write(6,'(6X,A)') '-----------------------------'
             Call libxc_version()
+            Call Print_Info()
             Write(6,*)
          End If
       End If

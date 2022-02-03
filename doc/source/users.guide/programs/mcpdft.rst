@@ -109,14 +109,14 @@ The :kword:`KSDFT` is the only required keyword.
 .. class:: keywordlist
 
 :kword:`KSDFT`
-  The functional choice follows. Currently available functionals are prefix 
-  T: or FT: to the standard DFT functionals (see keyword :kword:`KSDFT` of :program:`SCF`)
+  The functional choice follows. Specify the functional by prefixing
+  ``T:`` or ``FT:`` to the standard DFT functionals (see keyword :kword:`KSDFT` of :program:`SCF`)
 
   .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="KSDFT" APPEAR="Pair-density functional" KIND="STRING" > LEVEL="BASIC"
               %Keyword: KSDFT <basic>
               <HELP>
               Needed to perform MC-PDFT calculations.
-              The functional choice follows. Currently available functionals are
+              The functional choice follows. Specify the functional by prefixing
               T: or FT: to the standard DFT functionals (see keyword KSDFT of SCF program)
               </HELP>
               </KEYWORD>
