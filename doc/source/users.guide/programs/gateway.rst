@@ -1041,7 +1041,7 @@ will be enabled by default, it can be disabled with :kword:`NOCD`.
               </KEYWORD>
 
 :kword:`SHAC`
-  Skip high angular combinations when creating on-the-fly basis sets, following the angular structure of the universal JK fitting sets of Weigend:cite:`Weigend:08`.
+  Skip high angular combinations when creating on-the-fly basis sets, following the angular structure of the universal JK fitting sets of Weigend :cite:`Weigend:08`.
   (default off).
 
   .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="SHAC" APPEAR="Skip high angular combinations" KIND="SINGLE" REQUIRE="RICD" EXCLUSIVE="KHAC" LEVEL="ADVANCED">
