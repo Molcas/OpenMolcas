@@ -10,7 +10,7 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-      Subroutine Do_NIntX(AOInt,mGrid,TabAO1,TabAO2,nBfn,nD,mAO,nFn)
+      Subroutine Do_NIntX(AOInt,mGrid,Grid_AO,tabao,nBfn,nD,mAO,nFn)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -18,8 +18,8 @@
 #include "real.fh"
 #include "stdalloc.fh"
 #include "nq_info.fh"
-      Real*8 AOInt(nBfn,nBfn,nD), TabAO1(nFn,mGrid,nBfn,nD),
-     &       TabAO2(mAO,mGrid,nBfn)
+      Real*8 AOInt(nBfn,nBfn,nD), Grid_AO(nFn,mGrid,nBfn,nD),
+     &       tabao(mAO,mGrid,nBfn)
       Real*8, Allocatable:: A1(:,:), A2(:,:), A_tri(:)
 *                                                                      *
 ************************************************************************
@@ -28,7 +28,7 @@
 *#define _ANALYSIS_
 #ifdef _ANALYSIS_
       Write (6,*)
-      Write (6,*)  ' Analysing TabAO1'
+      Write (6,*)  ' Analysing Grid_AO'
       Thr=1.0D-14
       Do iD = 1, nD
       Do iFn = 1, nFn
@@ -37,7 +37,7 @@
          Do iBfn = 1, nBfn
             lGrid = 0
             Do iGrid = 1, mGrid
-               If (Abs(TabAO1(iFn,iGrid,iBfn,iD))<Thr) lGrid = lGrid + 1
+               If (Abs(Grid_AO(iFn,iGrid,iBfn,iD))<Thr) lGrid = lGrid + 1
             End Do
             If (lGrid==mGrid) lBfn=lBfn+1
             Total = Total + DBLE(lGrid)/DBLE(mGrid)
@@ -51,14 +51,14 @@
       End Do
       End Do
       Write (6,*)
-      Write (6,*)  ' Analysing TabAO2'
+      Write (6,*)  ' Analysing tabao'
       Do iAO = 1, mAO
          lBfn = 0
          Total=0.0D0
          Do iBfn = 1, nBfn
             lGrid = 0
             Do iGrid = 1, mGrid
-               If (Abs(TabAO2(iAO,iGrid,iBfn))<Thr) lGrid = lGrid + 1
+               If (Abs(tabao(iAO,iGrid,iBfn))<Thr) lGrid = lGrid + 1
             End Do
             If (lGrid==mGrid) lBfn=lBfn+1
             Total = Total + DBLE(lGrid)/DBLE(mGrid)
@@ -91,8 +91,8 @@
       Call mma_Allocate(A_tri,nBfn*(nBfn+1)/2,Label='A_tri')
       AOInt(:,:,:)=Zero
       Do iD = 1, nD
-      Call DCopy_(mGrid*nBfn,TabAO1(1,1,1,iD),nFn,A1,1)
-      Call DCopy_(mGrid*nBfn,TabAO2(1,1,1)   ,mAO,A2,1)
+      Call DCopy_(mGrid*nBfn,Grid_AO(1,1,1,iD),nFn,A1,1)
+      Call DCopy_(mGrid*nBfn,tabao(1,1,1)   ,mAO,A2,1)
       Call DGEMM_Tri('T','N',nBfn,nBfn,mGrid,
      &              One,A1,mGrid,
      &                  A2,mGrid,
@@ -107,8 +107,8 @@
       Case (GGA_type)
 *                                                                      *
       Do iD = 1, nD
-      Call DCopy_(mGrid*nBfn,TabAO1(1,1,1,iD),nFn,A1,1)
-      Call DCopy_(mGrid*nBfn,TabAO2(1,1,1)   ,mAO,A2,1)
+      Call DCopy_(mGrid*nBfn,Grid_AO(1,1,1,iD),nFn,A1,1)
+      Call DCopy_(mGrid*nBfn,tabao(1,1,1)   ,mAO,A2,1)
       Call DGEMM_('T','N',nBfn,nBfn,mGrid,
      &             One,A1,mGrid,
      &                 A2,mGrid,
@@ -122,8 +122,8 @@
       Case (meta_GGA_type1,meta_GGA_type2)
 *                                                                      *
       Do iD = 1, nD
-      Call DCopy_(mGrid*nBfn,TabAO1(1,1,1,iD),nFn,A1,1)
-      Call DCopy_(mGrid*nBfn,TabAO2(1,1,1)   ,mAO,A2,1)
+      Call DCopy_(mGrid*nBfn,Grid_AO(1,1,1,iD),nFn,A1,1)
+      Call DCopy_(mGrid*nBfn,tabao(1,1,1)   ,mAO,A2,1)
       Call DGEMM_('T','N',nBfn,nBfn,mGrid,
      &             One,A1,mGrid,
      &                 A2,mGrid,
@@ -138,12 +138,12 @@
 
       Call mma_Allocate(A_tri,nBfn*(nBfn+1)/2,Label='A_tri')
       Do iD = 1, nD
-      Call DCopy_(mGrid*nBfn,TabAO1(2,1,1,iD),nFn,A1(1,1),3)
-      Call DCopy_(mGrid*nBfn,TabAO2(2,1,1)   ,mAO,A2(1,1),3)
-      Call DCopy_(mGrid*nBfn,TabAO1(3,1,1,iD),nFn,A1(2,1),3)
-      Call DCopy_(mGrid*nBfn,TabAO2(3,1,1)   ,mAO,A2(2,1),3)
-      Call DCopy_(mGrid*nBfn,TabAO1(4,1,1,iD),nFn,A1(3,1),3)
-      Call DCopy_(mGrid*nBfn,TabAO2(4,1,1)   ,mAO,A2(3,1),3)
+      Call DCopy_(mGrid*nBfn,Grid_AO(2,1,1,iD),nFn,A1(1,1),3)
+      Call DCopy_(mGrid*nBfn,tabao(2,1,1)   ,mAO,A2(1,1),3)
+      Call DCopy_(mGrid*nBfn,Grid_AO(3,1,1,iD),nFn,A1(2,1),3)
+      Call DCopy_(mGrid*nBfn,tabao(3,1,1)   ,mAO,A2(2,1),3)
+      Call DCopy_(mGrid*nBfn,Grid_AO(4,1,1,iD),nFn,A1(3,1),3)
+      Call DCopy_(mGrid*nBfn,tabao(4,1,1)   ,mAO,A2(3,1),3)
       Call DGEMM_Tri('T','N',nBfn,nBfn,3*mGrid,
      &               One,A1,3*mGrid,
      &                   A2,3*mGrid,
