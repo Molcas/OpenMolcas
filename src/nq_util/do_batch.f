@@ -462,20 +462,15 @@
 *                                                                      *
 *     Integrate out the number of electrons, |grad|, and tau
 *
-      If (Functional_type.eq.LDA_Type) Then
          Dens_I=Dens_I+Compute_Rho (Weights,mGrid,nD,T_Rho)
-      Else If (Functional_type.eq.GGA_type) Then
-         Dens_I=Dens_I+Compute_Rho (Weights,mGrid,nD,T_Rho)
+      Select Case (Functional_type)
+      Case (LDA_Type)
+      Case (GGA_type)
          Grad_I=Grad_I+Compute_Grad(Weights,mGrid,nD,T_Rho)
-      Else If (Functional_type.eq.meta_GGA_type1) Then
-         Dens_I=Dens_I+Compute_Rho (Weights,mGrid,nD,T_Rho)
-         Grad_I=Grad_I+Compute_Grad(Weights,mGrid,nD,T_Rho)
-         Tau_I =Tau_I +Compute_Tau (Weights,mGrid,nD,T_Rho)
-      Else If (Functional_type.eq.meta_GGA_type2) Then
-         Dens_I=Dens_I+Compute_Rho (Weights,mGrid,nD,T_Rho)
+      Case (meta_GGA_type1,meta_GGA_type2)
          Grad_I=Grad_I+Compute_Grad(Weights,mGrid,nD,T_Rho)
          Tau_I =Tau_I +Compute_Tau (Weights,mGrid,nD,T_Rho)
-      End If
+      End Select
 *                                                                      *
 ************************************************************************
 ************************************************************************
