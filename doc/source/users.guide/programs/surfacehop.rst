@@ -88,6 +88,17 @@ General keywords
               </HELP>
               </KEYWORD>
 
+:kword:`NORASSI`
+  This keyword must be used after the :kword:`TULLY` keyword. It disables the use of :program: `RASSI` to calculate wave--function overlaps, instead using the dot product of CI vectors (previous default option). 
+
+  .. xmldoc:: <KEYWORD MODULE="SURFACEHOP" NAME="NORASSI" APPEAR="Wave-function Overlap by CI vectors" KIND="SINGLE" LEVEL="BASIC" REQUIRE="TULLY">
+              %%Keyword: NORAssi <basic>
+              This keyword must be used after the TULLY keyword.
+              <HELP>
+              It disables the use of RASSI to calculate wave--function overlaps.
+              </HELP>
+              </KEYWORD>
+
 :kword:`DECOHERENCE`
   This keyword must be used after the :kword:`TULLY` keyword. It enables the decoherence correction in the population density matrix as reported by Persico--Granucci. The value is called decay factor and it is usually 0.1 hartree. It can be seen as how strongly this correction is applied. It is recommendable to leave it to 0.1, unless you really know what your're doing.
 
@@ -178,6 +189,7 @@ General keywords
               Restarts a surface hopping trajectory calculation from an HDF5 file, whose name is given on the next line.
               </HELP>
               </KEYWORD>
+
 
 Input examples
 ..............
