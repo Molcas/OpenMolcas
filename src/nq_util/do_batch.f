@@ -68,16 +68,6 @@
       Integer :: TabAO_Size(2)
       Integer, Allocatable :: Tmp_Index(:,:)
 
-      Interface
-         Subroutine mk_SOs(TabSO,mAO,mGrid,nMOs,List_s,List_Bas,nList_s,
-     &                     jList_s)
-         Integer mAO,mGrid,nMOs,nList_s
-         Real*8 TabSO(mAO*mGrid,nMOs)
-         Integer :: list_s(2,nList_s), list_bas(2,nlist_s)
-         Integer, optional :: jList_s
-         End Subroutine mk_SOs
-       End Interface
-
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -360,7 +350,9 @@
 
          ! First, symmatry adapt the AOs
          TabSO(:,:,:)=Zero
-         Call mk_SOs(TabSO,mAO,mGrid,nMOs,List_s,List_Bas,nList_s)
+         jlist_s=0
+         Call mk_SOs(TabSO,mAO,mGrid,nMOs,List_s,List_Bas,nList_s,
+     &               jlist_s)
 
          ! Second, transform SOs to MOs
          TabMO(:,:,:)=Zero

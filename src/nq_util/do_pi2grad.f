@@ -65,17 +65,6 @@
       Real*8, Allocatable :: TabSO2(:)
       Real*8 dTabMO2(nMOs)
 
-      Interface
-         Subroutine mk_SOs(TabSO,mAO,mGrid,nMOs,List_s,List_Bas,nList_s,
-     &                     jList_s)
-         Integer mAO,mGrid,nMOs,nList_s
-         Real*8 TabSO(mAO*mGrid,nMOs)
-         Integer :: list_s(2,nList_s), list_bas(2,nlist_s)
-         Integer, optional :: jList_s
-         End Subroutine mk_SOs
-      End Interface
-
-
 ************************************************************************
 *                                                                      *
       iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
@@ -124,7 +113,7 @@
          Call FZero(TabSO,mAO*mGrid*nMOs)
 
          Call mk_SOs(TabSO,mAO,mGrid,nMOs,List_s,List_Bas,nList_s,
-     &                     jList_s=iList_s)
+     &                     iList_s)
 
          CALL ConvertTabSO(TabSO2,TabSO,mAO,mGrid,nMOs)
 
