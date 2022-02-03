@@ -531,21 +531,6 @@ c     Write(6,*) '********** Setup_NQ ***********'
             mRad=nFOrd+1
             nScr=0
          End If
-      Else If (Functional_type.eq.CASDFT_type) Then
-*        I need to discuss this with Sergey!
-*        nFOrd=3 !?
-*        mAO=(nFOrd*(nFOrd+1)*(nFOrd+2))/6
-         nFOrd=2
-         mAO=10
-         If (.Not.Do_Grad) Then
-            mTmp=7
-            mRad=nFOrd
-            nScr=nD*4*nAOMax
-         Else
-            mTmp=28
-            mRad=nFOrd+1
-            nScr=0
-         End If
 *
       Else If (Functional_type.eq.meta_GGA_type1) Then
          nFOrd=2
