@@ -28,7 +28,6 @@
 ************************************************************************
       use iSD_data
       use Symmetry_Info, only: nIrrep
-      use nq_Grid, only: AOIntegrals => Dens_AO
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
@@ -52,12 +51,10 @@
 *                                                                      *
 *     Distribute result on to the full integral matrix.
 *
-      nBfn = Size(AOIntegrals,1)
       If (nIrrep.eq.1) Then
          Call AOAdd_Full(FckInt,nFckInt,nD)
       Else
-         Call SymAdp_Full(AOIntegrals,nBfn,FckInt,
-     &                    nFckInt,list_s,nlist_s,Fact,ndc,nD)
+         Call SymAdp_Full(FckInt,nFckInt,list_s,nlist_s,Fact,ndc,nD)
       End If
 *                                                                      *
 ************************************************************************
