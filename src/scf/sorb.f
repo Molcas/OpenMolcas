@@ -153,21 +153,21 @@
          Call Start6(FName,LuOrb,CMO,mBB,nD,EOrb,OccNo,mmB)
       Else If (InVec.eq.8) Then
          StVec='Detected old SCF orbitals'
-         One_Grid=.True.
+!        One_Grid=.True.
          Call start0y(CMO,mBB,nD,EOrb,mmB)
       Else If (InVec.eq.9) Then
          StVec='Detected guessorb starting orbitals'
-         One_Grid=.True.
+!        One_Grid=.True.
          Call start0x(CMO,mBB,nD,EOrb,mmB)
       Else If (InVec.eq.2) Then
 *-------- Read INPORB
-         One_Grid=.True.
+!        One_Grid=.True.
          FName=SCF_FileOrb
          Call Start2(FName,LuOrb,CMO,mBB,nD,Ovrlp,mBT,
      &               EOrb,OccNo,mmB)
       Else If (InVec.eq.3) Then
 *-------- Read COMOLD
-         One_Grid=.True.
+!        One_Grid=.True.
          Call Start3(CMO,TrM,mBB,nD,OneHam,Ovrlp,mBT)
 *-------- Only if not Cholesky do NDDO
       Else If (InVec.eq.1) Then
