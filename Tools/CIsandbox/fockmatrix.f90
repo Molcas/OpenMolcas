@@ -177,7 +177,10 @@ CONTAINS
     IMPLICIT NONE
     TYPE(FMAT), INTENT(INOUT) :: F
 
-    INTEGER :: NI, NA, NS, NTOT
+    INTEGER :: NI, NA, NS
+#ifdef _DEBUG_
+    INTEGER :: NTOT
+#endif
     INTEGER :: IA, IS
 
     REAL(REAL64), ALLOCATABLE :: WORK(:)
@@ -189,8 +192,9 @@ CONTAINS
     NI=SIZE(F%DI)
     NA=SIZE(F%DA)
     NS=SIZE(F%DS)
+#ifdef _DEBUG_
     NTOT=NI+NA+NS
-
+#endif
     ! allocate temporary scratch
     NWORK=1+MAX(MAX(NI,NA),NS)**2
     ALLOCATE(WORK(NWORK))

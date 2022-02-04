@@ -78,6 +78,8 @@
             If (mh5_exists_dset(fileorb_id,'MO_ALPHA_VECTORS')) isUHF=1
 #endif
          Else
+            Lu_=18
+            isUHF=-1
             Call Chk_Vec_UHF(FNAME,Lu_,isUHF)
          End If
          If(isUHF.eq.1) Then
