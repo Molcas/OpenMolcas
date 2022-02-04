@@ -187,8 +187,9 @@
             GAS_particles(:, :) = iGSOCCX(: nGAS, : nGAS)
           end if
 
-          call run_neci(DoEmbdNECI, actual_iter == 1,
-     &      ascii_fcidmp, h5_fcidmp,
+          call run_neci(DoEmbdNECI,
+     &      fake_run=actual_iter == 1 .or. ifinal == 2,
+     &      ascii_fcidmp=ascii_fcidmp, h5_fcidmp=h5_fcidmp,
      &      GAS_spaces=GAS_spaces, GAS_particles=GAS_particles,
      &      reuse_pops=actual_iter >= 5 .and. abs(rotmax) < 1d-2,
      &      NECIen=NECIen, iroot=iroot, weight=weight,

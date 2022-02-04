@@ -94,6 +94,7 @@
                       PSMAT = PSMAT + weight(j) * temp_PSMAT
                       PAMAT = PAMAT + weight(j) * temp_PAMAT
 
+                      ! state-specific Natural Occupation numbers
                       if (ifinal > 0) then
                           call RDM_to_runfile(
      &                       temp_DMAT, temp_DSPN, temp_PSMAT,
@@ -109,6 +110,7 @@
           call mma_deallocate(temp_PSMAT)
           call mma_deallocate(temp_PAMAT)
 
+          ! Averaged RDM during orb rotation iterations
           if (ifinal == 0) then
               call RDM_to_runfile(
      &            DMAT, DSPN, PSMAT, PAMAT, jDisk
