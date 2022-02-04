@@ -1342,6 +1342,18 @@ Optional keywords
               </HELP>
               </KEYWORD>
 
+:kword:`NQDIrect`
+  Recompute the values of the AOs on every SCF iteration. Default is to write them on disk on the
+  first iteration and then retrieve them.
+
+  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="NQDI" APPEAR="Direct evaluation of AOs" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: NQDirect (NQ) <advanced>
+              <HELP>
+              Recompute the values of the AOs on every SCF iteration. Default is to write them on disk on the
+              first iteration and then retrieve them.
+              </HELP>
+              </KEYWORD>
+
   .. :kword:`WHOLe`
        It activates the use of routines which scan the whole atomic grid for
        each sub block. Default is to only scan the relevant part.
