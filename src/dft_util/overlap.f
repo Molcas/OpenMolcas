@@ -28,6 +28,7 @@
 *                                                                      *
 *     iSpin=1
 *
+      vRho(:,:)=Zero
       Rho_Min=T_X*1.0D-2
       If (iSpin.eq.1) Then
 *                                                                      *

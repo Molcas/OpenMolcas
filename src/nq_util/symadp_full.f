@@ -10,8 +10,8 @@
 *                                                                      *
 * Copyright (C) 1991,2021, Roland Lindh                                *
 ************************************************************************
-      Subroutine SymAdp_Full(AOIntegrals, nBfn, SOIntegrals, nSOInt,
-     &                       list_s,nlist_s,Fact,ndc)
+      Subroutine SymAdp_Full(SOIntegrals,nSOInt,list_s,nlist_s,Fact,ndc,
+     &                       nD)
 ************************************************************************
 *                                                                      *
 * Object: to transform the one-electon matrix elements from AO basis   *
@@ -25,11 +25,12 @@
       use Symmetry_Info, only: nIrrep, iChTbl
       use SOAO_Info,     only: iAOtSO
       use nq_Grid,       only: iBfn_Index
+      use nq_Grid, only: AOIntegrals => Dens_AO
       use Basis_Info,    only: nBas
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "stdalloc.fh"
-      Real*8 AOIntegrals(nBfn,nBfn), SOIntegrals(nSOInt), Fact(ndc,ndc)
+      Real*8 SOIntegrals(nSOInt,nD), Fact(ndc,ndc)
       Integer list_s(2,nlist_s)
       Integer nOp(2)
       Integer, Parameter:: iTwoj(0:7)=[1,2,4,8,16,32,64,128]
@@ -38,10 +39,11 @@
 ************************************************************************
 *                                                                      *
 *     Statement functions
-      iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
+      iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      nBfn=SIZE(iBfn_Index,2)
       Call mma_Allocate(BasList,2,nBfn,Label='BasList')
       loper=1
       Do j1 = 0, nIrrep-1
@@ -92,9 +94,9 @@
 
                Indij = iPnt + iTri(iSO,jSO)
 
-               SOIntegrals(Indij) = SOIntegrals(Indij)
+               SOIntegrals(Indij,:) = SOIntegrals(Indij,:)
      &                       + Fact(mdci,mdcj)*xaxb
-     &                       * AOIntegrals(iBfn,jBfn)
+     &                       * AOIntegrals(iBfn,jBfn,:)
 
             End Do ! jBfn
          End Do    ! iBfn

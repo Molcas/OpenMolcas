@@ -92,10 +92,27 @@ End Subroutine Remove_Libxc_functionals
 !***********************************************************************
 !
 Subroutine libxc_functionals(mGrid,nD)
-use nq_Grid, only: F_xc
+use nq_Grid, only: F_xc, F_xca, F_xcb, l_casdft
+use nq_Grid, only: vRho, vSigma, vTau, vLapl
 Implicit None
 Integer mGrid,nD, iFunc
 Real*8 Coeff
+Real*8, Parameter :: Zero=0.0D0
+!
+!***********************************************************************
+!
+vRho(:,1:mGrid)=Zero
+If (Allocated(vSigma)) vSigma(:,1:mGrid)=Zero
+If (Allocated(vTau)) vTau(:,1:mGrid)=Zero
+If (Allocated(vLapl)) vLapl(:,1:mGrid)=Zero
+F_xc(1:mGrid)=Zero
+If (l_casdft) Then
+   F_xca(1:mGrid)=Zero
+   F_xcb(1:mGrid)=Zero
+End If
+!
+!***********************************************************************
+!
 
 Do iFunc = 1, nFuncs
    Coeff = Coeffs(iFunc)

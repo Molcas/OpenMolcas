@@ -8,11 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Do_Pi2Grad(TabAO,nTabAO,mAO,mGrid,ipTabAO,
+      Subroutine Do_Pi2Grad(mAO,mGrid,
      &          P2_ontop,nP2_ontop,nGrad_Eff,
      &          list_s,nlist_s,list_bas,
      &          D1mo,nd1mo,TabMO,P2_ontop_d,
-     &          RhoI,RhoA,mRho,nMOs,CMO,nCMO,TabSO,nsym,ft,
+     &          RhoI,RhoA,mRho,nMOs,CMO,nCMO,TabSO,ft,
      &          P2MOCube,P2MOCubex,P2MOCubey,P2MOCubez,nPMO3p,MOs,
      &          MOx,MOy,MOz)
 ************************************************************************
@@ -36,20 +36,17 @@
       use Center_Info
       use Basis_Info, only: nBas
       use nq_pdft,    only: lft,lGGA
-      use nq_Grid,    only: List_G, SOs
+      use nq_Grid,    only: List_G
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "nq_info.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"
-!Error could be TabAO...
       Integer list_s(2,nlist_s),list_bas(2,nlist_s),
-     &        ipTabAO(nlist_s,2),
-     &        mAO,nAOs,mGrid,nP2_ontop,nGrad_Eff,nd1mo,nTabAO,
-     &        mRho,nCMO,nsym
+     &        mAO,nAOs,mGrid,nP2_ontop,nGrad_Eff,nd1mo,mRho,nCMO
       Real*8 D1mo(nd1mo),TabMO(mAO,mGrid,nMOs),
-     &     P2_ontop(nP2_ontop,mGrid),TabAO(nTabAO),
+     &     P2_ontop(nP2_ontop,mGrid),
      &     P2_ontop_d(np2_ontop,nGrad_Eff,mGrid),CMO(nCMO)
       logical ft
       Real*8, allocatable, dimension(:,:,:,:) :: dTabMO
@@ -60,15 +57,13 @@
       Real*8 TabSO(mAO,mGrid,nMOs)
       Real*8,DIMENSION(mGrid*NASHT)::P2MOCube,MOs,dMOs,MOx,MOy,MOz
       INTEGER IOff1,iOff2,iOff3,nPi,iCoordOff,iGridOff,iCoord,nBasf,
-     &        nOccO,nPMO3p,
+     &        nOccO,nPMO3p,iOff0, iOffF,
      &        iCoord1,iCoord2,iCoord3,iCoordOff1,iCoordOff2,iCoordOff3
       Real*8,DIMENSION(nPMO3p)::P2MOCubex,P2MOCubey,P2MOCubez,
      &                          dMOx,dMOy,dMOz
 
-      Real*8 TabSO2(mAO*mGrid*nMOs)
+      Real*8, Allocatable :: TabSO2(:)
       Real*8 dTabMO2(nMOs)
-      Real*8, Allocatable:: TmpCMO(:)
-      Integer, Allocatable:: TDoIt(:)
 
 ************************************************************************
 *                                                                      *
@@ -81,12 +76,12 @@
          If (mAO.ne.10.or.mRho.ne.4) Then
            Call WarningMessage(2,' Somthings wrong in dim. in p2cs')
            Call Abend()
-       End If
+         End If
       Else If (nP2_ontop.eq.6) Then
          If (mAO.ne.10.or.mRho.ne.6) Then
            Call WarningMessage(2,' Somthings wrong in dim. in p2cs')
            Call Abend()
-        End If
+         End If
       End If
 *
       Call FZero(P2_ontop,mGrid*nP2_ontop)
@@ -111,103 +106,99 @@
      &                  Label='dTabMO')
       dTabMO(:,:,:,:)=Zero
 
+      Call mma_Allocate(TabSO2,nMOs*mAO*mGrid,Label='TabSO2')
 !::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-         Call mma_allocate(TmpCMO,nCMO,Label='TmpCMO')
-         Call mma_allocate(TDoIt,nMOs,Label='TDoIt')
-         Do ilist_s=1,nlist_s
-            ish=list_s(1,ilist_s)
-            iCmp  = iSD( 2,iSh)
-            iBas  = iSD( 3,iSh)
-            iBas_Eff = List_Bas(1,ilist_s)
-            iAO   = iSD( 7,iSh)
-            mdci  = iSD(10,iSh)
-!           iShell= iSD(11,iSh)
+      Do ilist_s=1,nlist_s
 
-            kAO   = iCmp*iBas*mGrid
-            nDeg  = nSym/dc(mdci)%nStab
-            nSO   = kAO*nDeg*mAO
+         Call FZero(TabSO,mAO*mGrid*nMOs)
 
-            Call FZero(SOs,nSO)
+         Call mk_SOs(TabSO,mAO,mGrid,nMOs,List_s,List_Bas,nList_s,
+     &                     iList_s)
 
-            iR=list_s(2,ilist_s)
-            iSym=NrOpr(iR)
+         CALL ConvertTabSO(TabSO2,TabSO,mAO,mGrid,nMOs)
 
-            Call SOAdpt_NQ(TabAO(ipTabAO(iList_s,1)),mAO,mGrid,iBas,
-     &                  iBas_Eff,iCmp,iSym,SOs,nDeg,iAO)
+         Do iGrid=1,mGrid
+            IGridOff=(iGrid-1)*mAO*nMOs
 
-            Call FZero(TabSO,mAO*mGrid*nMOs)
+            Do iCoord=1,3
+               ICoordOff=IGridOff+(iCoord-1)*nMOs
+               g_eff = list_g(iCoord,ilist_s)
 
-            Call  SODist2(SOs,mAO,mGrid,iBas,iCmp,nDeg,TabSO,
-     &                    nMOs,iAO,TmpCMO,nCMO,TDoIt)
-
-            CALL ConvertTabSO(TabSO2,TabSO,mAO,mGrid,nMOs)
-
-            Do iGrid=1,mGrid
-             IGridOff=(iGrid-1)*mAO*nMOs
-             Do iCoord=1,3
-              ICoordOff=IGridOff+(iCoord-1)*nMOs
-              g_eff = list_g(iCoord,ilist_s)
-               ICoordOff1=0
-               ICoordOff2=0
-               ICoordOff3=0
-              IF(lft.and.lGGA) THEN
-               If(iCoord.eq.1) Then
-                iCoord1=4
-                iCoord2=5
-                iCoord3=6
-               Else If(iCoord.eq.2) Then
-                iCoord1=5
-                iCoord2=7
-                iCoord3=8
-               Else If(iCoord.eq.3) Then
-                iCoord1=6
-                iCoord2=8
-                iCoord3=9
-               End If
-               ICoordOff1=IGridOff+(iCoord1-1)*nMOs
-               ICoordOff2=IGridOff+(iCoord2-1)*nMOs
-               ICoordOff3=IGridOff+(iCoord3-1)*nMOs
-              END IF
-              do iIrrep=0,mIrrep-1
-               nOccO=nIsh(iIrrep)+nAsh(iIrrep)
-               IF(nOccO.eq.0) CYCLE
-               nBasF=nBas(iIrrep)
-
-      CALL DGEMM_('T','N',nOccO,1,nBasF,1.0d0,
-     &           CMO(OffBas2(iIrrep)),nBasF,
-     &           TabSO2(iCoordOff+OffBas(iIrrep)),nBasF,
-     &           0.0d0,dTabMO2,nOccO)
-      CALL DAXPY_(nOccO,1.0d0,dTabMO2,1,
-     &dTabMO(1,OffBas(iIrrep)+nFro(iIrrep),g_eff,iGrid),nP2_ontop)
-
-               IF(lft.and.lGGA) THEN
-      CALL DGEMM_('T','N',nOccO,1,nBasF,1.0d0,
-     &           CMO(OffBas2(iIrrep)),nBasF,
-     &           TabSO2(iCoordOff1+OffBas(iIrrep)),nBasF,
-     &           0.0d0,dTabMO2,nOccO)
-      CALL DAXPY_(nOccO,1.0d0,dTabMO2,1,
-     &dTabMO(2,OffBas(iIrrep)+nFro(iIrrep),g_eff,iGrid),nP2_ontop)
-
-      CALL DGEMM_('T','N',nOccO,1,nBasF,1.0d0,
-     &           CMO(OffBas2(iIrrep)),nBasF,
-     &           TabSO2(iCoordOff2+OffBas(iIrrep)),nBasF,
-     &           0.0d0,dTabMO2,nOccO)
-      CALL DAXPY_(nOccO,1.0d0,dTabMO2,1,
-     &dTabMO(3,OffBas(iIrrep)+nFro(iIrrep),g_eff,iGrid),nP2_ontop)
-
-      CALL DGEMM_('T','N',nOccO,1,nBasF,1.0d0,
-     &           CMO(OffBas2(iIrrep)),nBasF,
-     &           TabSO2(iCoordOff3+OffBas(iIrrep)),nBasF,
-     &           0.0d0,dTabMO2,nOccO)
-      CALL DAXPY_(nOccO,1.0d0,dTabMO2,1,
-     &dTabMO(4,OffBas(iIrrep)+nFro(iIrrep),g_eff,iGrid),nP2_ontop)
+               IF (lft.and.lGGA) THEN
+                  Select Case(iCoord)
+                  Case(1)
+                     iCoord1=4
+                     iCoord2=5
+                     iCoord3=6
+                  Case(2)
+                     iCoord1=5
+                     iCoord2=7
+                     iCoord3=8
+                  Case(3)
+                     iCoord1=6
+                     iCoord2=8
+                     iCoord3=9
+                   End Select
+                  ICoordOff1=IGridOff+(iCoord1-1)*nMOs
+                  ICoordOff2=IGridOff+(iCoord2-1)*nMOs
+                  ICoordOff3=IGridOff+(iCoord3-1)*nMOs
+               Else
+                  ICoordOff1=0
+                  ICoordOff2=0
+                  ICoordOff3=0
                END IF
-              end do ! iIrrep
-             End Do  ! iCoord
-            End Do   ! iGrid
+
+               do iIrrep=0,mIrrep-1
+                  nOccO=nIsh(iIrrep)+nAsh(iIrrep)
+                  IF (nOccO.eq.0) CYCLE
+                  nBasF=nBas(iIrrep)
+
+
+                  iOffF=OffBas(iIrrep)+nFro(iIrrep)
+
+                  iOff0=iCoordOff + OffBas(iIrrep)
+                  CALL DGEMM_('T','N',nOccO,1,nBasF,
+     &                        1.0d0,CMO(OffBas2(iIrrep)),nBasF,
+     &                              TabSO2(iOff0),nBasF,
+     &                        0.0d0,dTabMO2,nOccO)
+                  CALL DAXPY_(nOccO,1.0d0,
+     &                        dTabMO2,1,
+     &                        dTabMO(1,iOffF,g_eff,iGrid),nP2_ontop)
+
+                  IF (lft.and.lGGA) THEN
+                     iOff1=iCoordOff1+ OffBas(iIrrep)
+                     iOff2=iCoordOff2+ OffBas(iIrrep)
+                     iOff3=iCoordOff3+ OffBas(iIrrep)
+
+                     CALL DGEMM_('T','N',nOccO,1,nBasF,
+     &                           1.0d0,CMO(OffBas2(iIrrep)),nBasF,
+     &                                 TabSO2(iOff1),nBasF,
+     &                           0.0d0,dTabMO2,nOccO)
+                     CALL DAXPY_(nOccO,1.0d0,
+     &                           dTabMO2,1,
+     &                           dTabMO(2,iOffF,g_eff,iGrid),nP2_ontop)
+
+                     CALL DGEMM_('T','N',nOccO,1,nBasF,
+     &                           1.0d0,CMO(OffBas2(iIrrep)),nBasF,
+     &                                 TabSO2(iOff2),nBasF,
+     &                           0.0d0,dTabMO2,nOccO)
+                     CALL DAXPY_(nOccO,1.0d0,
+     &                           dTabMO2,1,
+     &                           dTabMO(3,iOffF,g_eff,iGrid),nP2_ontop)
+
+                     CALL DGEMM_('T','N',nOccO,1,nBasF,
+     &                           1.0d0,CMO(OffBas2(iIrrep)),nBasF,
+     &                                 TabSO2(iOff3),nBasF,
+     &                           0.0d0,dTabMO2,nOccO)
+                     CALL DAXPY_(nOccO,1.0d0,
+     &                          dTabMO2,1,
+     &                          dTabMO(4,iOffF,g_eff,iGrid),nP2_ontop)
+                  END IF
+               end do ! iIrrep
+            End Do  ! iCoord
+         End Do   ! iGrid
       END DO         ! iList_s
-      Call mma_deallocate(TmpCMO)
-      Call mma_deallocate(TDoIt)
+      Call mma_deAllocate(TabSO2)
 ************************************************************************
 *          Inactive part:                                              *
 ************************************************************************

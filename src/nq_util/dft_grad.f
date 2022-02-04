@@ -23,7 +23,6 @@
       use nq_Grid, only: F_xc, GradRho, vRho, vSigma, vTau, vLapl
       use nq_Grid, only: Pax
       use nq_Grid, only: IndGrd, iTab, Temp, dW_dR
-      use nq_Grid, only: l_casdft
       use nq_Structure, only: NQ_data
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -107,8 +106,15 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (Functional_type.eq.LDA_type) Then
-*
+      Select Case (Functional_type)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Case (LDA_type)
+*                                                                      *
+************************************************************************
+*                                                                      *
+
          If (iSpin.eq.1) Then
             Do i_Eff=1, nGrad_Eff
                tmp=Zero
@@ -154,13 +160,14 @@
      &            Temp(i_Eff)=Temp(i_Eff)-tmp
             End Do
 
-*****************************************************************************************************************
          End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Else If (Functional_type.eq.GGA_type) Then
-*
+      Case (GGA_type)
+*                                                                      *
+************************************************************************
+*                                                                      *
          If (iSpin.eq.1) Then
             Do i_Eff=1, nGrad_Eff
                tmp=Zero
@@ -182,7 +189,6 @@
 *
 *                 Accumulate stuff for rotational invariance
 
-*****************************************************************************************************************
 *
                   OV(ixyz,1) = OV(ixyz,1) + Two* Weights(j) *
      &                        dF_dr * (Grid(1,j)-R_Grid(1))
@@ -247,7 +253,10 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Else If (Functional_type.eq.meta_GGA_type1) Then
+      Case (meta_GGA_type1)
+*                                                                      *
+************************************************************************
+*                                                                      *
          If (iSpin.eq.1) Then
             Do i_Eff=1, nGrad_Eff
                tmp=Zero
@@ -338,7 +347,10 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Else If (Functional_type.eq.meta_GGA_type2) Then
+      Case (meta_GGA_type2)
+*                                                                      *
+************************************************************************
+*                                                                      *
          If (iSpin.eq.1) Then
             Do i_Eff=1, nGrad_Eff
                tmp=Zero
@@ -435,11 +447,19 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Else
-*
+      Case Default
+*                                                                      *
+************************************************************************
+*                                                                      *
          Call WarningMessage(2,'Do_Grad: wrong functional type!')
          Call Abend()
-      End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+      End Select
+*                                                                      *
+************************************************************************
+*                                                                      *
 #ifdef _DEBUGPRINT_
       If (Debug) Then
          Call RecPrt('w * f^x before translational contributions',
@@ -528,12 +548,7 @@
 *
 *           Compute < nabla_r f * r^x > as Tr (O^x V)
 *
-            If (l_casdft) Then
-               Factor=Half
-            else
-               Factor=One
-            end if
-            Tmp = DDot_(9,NQ_Data(jNQ)%dOdx(:,:,iCar),1,V,1)*Factor
+            Tmp = DDot_(9,NQ_Data(jNQ)%dOdx(:,:,iCar),1,V,1) * Half
 #ifdef _DEBUGPRINT_
             If (Debug) Then
                Write (6,*)
@@ -571,5 +586,4 @@
 ************************************************************************
 *                                                                      *
       Return
-c Avoid unused argument warnings
       End
