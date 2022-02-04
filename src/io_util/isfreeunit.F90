@@ -43,7 +43,7 @@ if ((init < 1) .or. (init > 300)) then
   write(u6,*) '*** isFreeUnit resets the unit number'
   write(u6,*) 'init=',init
   init = 12
-  Call abend()
+  call Abend()
 end if
 isFreeUnit = -init
 kan = min(init,MxFile-1)

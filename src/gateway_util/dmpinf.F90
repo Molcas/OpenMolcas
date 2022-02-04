@@ -43,7 +43,7 @@ use Sizes_of_Seward, only: Size_Dmp
 use DKH_Info, only: DKH_Info_Dmp
 use RICD_Info, only: RICD_Info_Dmp
 use Logical_Info, only: Logical_Info_Dmp
-use nq_Info
+use nq_Info, only: cQEnd, cQStrt, iQEnd, iQStrt, rQEnd, rQStrt
 use Gateway_Info, only: Gateway_Info_Dmp
 use Definitions, only: wp, iwp
 
