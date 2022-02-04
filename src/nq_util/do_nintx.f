@@ -29,14 +29,14 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-      nFn  =SIZE(Grid_AO,1)
-      mAO  =SIZE(TabAO,1)
       mGrid=SIZE(TabAO,2)
       nBfn =SIZE(iBfn_Index,2)
       nD   =SIZE(Grid_AO,4)
 
 *#define _ANALYSIS_
 #ifdef _ANALYSIS_
+      mAO  =SIZE(TabAO,1)
+      nFn  =SIZE(Grid_AO,1)
       Write (6,*)
       Write (6,*)  ' Analysing Grid_AO'
       Thr=1.0D-14
