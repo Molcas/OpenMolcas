@@ -30,7 +30,7 @@ Integer:: iChTbl(0:7,0:7)=Reshape([0,0,0,0,0,0,0,0,      &
                                    0,0,0,0,0,0,0,0,      &
                                    0,0,0,0,0,0,0,0],[8,8])
 Integer:: iChCar(3)=[0,0,0]
-Integer:: MxFnc
+Integer, Protected:: MxFnc
 Integer, Parameter:: Mul(8,8)=Reshape([1,2,3,4,5,6,7,8,      &
                                        2,1,4,3,6,5,8,7,      &
                                        3,4,1,2,7,8,5,6,      &
@@ -95,6 +95,10 @@ Integer i, j, k, liDmp, lcDmp
 Integer, Allocatable:: iDmp(:)
 Character(LEN=1), Allocatable:: cDmp(:)
 
+If (.NOT.Allocated(iChBas)) Then
+   Write (6,*) 'Symmetry_Info_Dmp call out of order'
+   Call Abend()
+End If
 liDmp = 1+8+8*8+3 + MxFnc + 8 + 2
 Call mma_allocate(iDmp,liDmp,Label='iDmp')
 
@@ -187,6 +191,10 @@ Character(LEN=1), Allocatable:: cDmp(:)
 
 If (Allocated(iChBas)) Return
 Call Qpg_iArray('Symmetry Info',Found,liDmp)
+If (.NOT.Found) Then
+   Write (6,*) 'Symmetry Info not found'
+   Call Abend()
+End If
 Call mma_allocate(iDmp,liDmp,Label='iDmp')
 Call Get_iArray('Symmetry Info',iDmp,liDmp)
 

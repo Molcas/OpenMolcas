@@ -41,7 +41,9 @@ init = iseed
 if ((init < 1) .or. (init > 300)) then
   write(u6,*) '*** Possible bug in opening file'
   write(u6,*) '*** isFreeUnit resets the unit number'
+  write(u6,*) 'init=',init
   init = 12
+  Call abend()
 end if
 isFreeUnit = -init
 kan = min(init,MxFile-1)
