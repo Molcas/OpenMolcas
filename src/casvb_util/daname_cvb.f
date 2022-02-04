@@ -34,6 +34,7 @@
         i_open=1
       else
         i_open=0
+        lu=10  ! initialize
       end if
       call istkpush_cvb(idan,i_open)
       if(i_open.eq.0)call daname(lu,fname)

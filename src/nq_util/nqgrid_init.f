@@ -11,8 +11,7 @@
       Subroutine NQGrid_Init()
       use Grid_On_Disk
       Implicit Real*8 (A-H,O-Z)
-      Integer Other_Type
-      Parameter (Other_Type=2)
+#include "functional_types.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *

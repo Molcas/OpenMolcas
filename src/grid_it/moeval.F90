@@ -156,6 +156,7 @@ do iAng=S%iAngMx,0,-1
 
       call SODist(SOs,mAO,nCoor,iBas,iCmp,nDeg,MOValue,nMOs,iAO,CMOs,nCMO,DoIt)
 
+
       call mma_deallocate(AOs)
       call mma_deallocate(SOs)
       call mma_deallocate(xyz)

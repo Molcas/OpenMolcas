@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1999, Roland Lindh                                     *
 ************************************************************************
-      Subroutine Setup_NQ(Maps2p,nShell,nSym,nNQ,Do_Grad,On_Top,nD,
+      Subroutine Setup_NQ(Maps2p,nShell,nSym,nNQ,Do_Grad,On_Top,
      &                    Pck_Old,PMode_old,R_Min,nR_Min)
 ************************************************************************
 *                                                                      *
@@ -28,7 +28,7 @@
       use Basis_Info
       use Center_Info
       use Symmetry_Info, only: nIrrep, iOper
-      use nq_Grid, only: nGridMax, Coor, Pax, Fact, Tmp, nR_Eff, SOs
+      use nq_Grid, only: nGridMax, Coor, Pax, Fact, nR_Eff
       use nq_Grid, only: Angular, Mem
       use nq_structure, only: NQ_Data
       use Grid_On_Disk
@@ -492,103 +492,66 @@ c     Write(6,*) '********** Setup_NQ ***********'
 *     nFOrd: the order of the functional. nFOrd-1 is the number of times
 *            the basis functions has to be differentiated to compute the
 *            energy contribution.
-*     mTmp: seems to be redundant?
 *     mRad: number of different radial functions associated with a
 *           basis function. This number depends on the type of
 *           functional and the number of times the basis function has
 *           to be differentiated in order to produce the values of the
 *           parameters which the functional depends on (rho, grad rho,
 *           and nabla rho).
-*     nScr: Used to assemble integrals, (rho, grad rho, nabla rho)
-*           (1,4, or 5). This is not needed in gradient calculations!
 *     mAO: number of elements a basis function generates upon
 *          differentiation (1,4,10,20, etc.)
 *
-      If (Functional_type.eq.LDA_type) Then
+      Select Case (Functional_type)
+
+      Case (LDA_type)
          nFOrd=1
          mAO=(nFOrd*(nFOrd+1)*(nFOrd+2))/6
          if(do_grad) mAO=4!AMS - GRADIENTS?
          If (.Not.Do_Grad) Then
-            mTmp=1
             mRad=nFOrd
-            nScr=nD*nAOMax
          Else
-            mTmp=7
             mRad=nFOrd+1
-            nScr=0
          End If
 *
-      Else If (Functional_type.eq.GGA_type) Then
+      Case (GGA_type)
          nFOrd=2
          mAO=(nFOrd*(nFOrd+1)*(nFOrd+2))/6
          if(do_grad) mAO=10
          If (.Not.Do_Grad) Then
-            mTmp=7
             mRad=nFOrd
-            nScr=nD*4*nAOMax
          Else
-            mTmp=28
             mRad=nFOrd+1
-            nScr=0
-         End If
-      Else If (Functional_type.eq.CASDFT_type) Then
-*        I need to discuss this with Sergey!
-*        nFOrd=3 !?
-*        mAO=(nFOrd*(nFOrd+1)*(nFOrd+2))/6
-         nFOrd=2
-         mAO=10
-         If (.Not.Do_Grad) Then
-            mTmp=7
-            mRad=nFOrd
-            nScr=nD*4*nAOMax
-         Else
-            mTmp=28
-            mRad=nFOrd+1
-            nScr=0
          End If
 *
-      Else If (Functional_type.eq.meta_GGA_type1) Then
+      Case (meta_GGA_type1)
          nFOrd=2
          mAO=(nFOrd*(nFOrd+1)*(nFOrd+2))/6
          If (.Not.Do_Grad) Then
-            mTmp=7
             mRad=nFOrd
-            nScr=nD*4*nAOMax
          Else
-            mTmp=28
             mRad=NFOrd+1
-            nScr=0
          End If
 *
-      Else If (Functional_type.eq.meta_GGA_type2) Then
+      Case (meta_GGA_type2)
          nFOrd=3
          mAO=(nFOrd*(nFOrd+1)*(nFOrd+2))/6
          If (.Not.Do_Grad) Then
-            mTmp=7
             mRad=nFOrd
-            nScr=nD*5*nAOMax
          Else
-            mTmp=28
             mRad=NFOrd+1
-            nScr=0
          End If
 *
-*     Else If (Functional_type.eq.Other_type) Then
-      Else
-         mTmp=0 ! Dummy initialize
+      Case Default
          mRad=0 ! Dummy initialize
          mAO=0  ! Dummy initialize
-         nScr=0 ! Dummy initialize
          Call WarningMessage(2,'Functional_type.eq.Other_type')
          Call Abend()
-      End If
+       End Select
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 !     Allocate scratch for processing AO's on the grid
 !
-      nTmp=nGridMax*Max(mTmp,nScr)
-      Call mma_allocate(Tmp,nTmp,Label='Tmp')
 *
       nMem=0
       nSO =0
@@ -620,7 +583,6 @@ c     Write(6,*) '********** Setup_NQ ***********'
          lAngular=Max(lAngular,nAngular)
       End Do
 *
-      Call mma_allocate(SOs,2*lSO,Label='SOs')
       Call mma_allocate(Angular,lAngular,Label='Angular')
       Call mma_allocate(Mem,nMem,Label='Mem')
 *                                                                      *
@@ -656,14 +618,14 @@ c     Write(6,*) '********** Setup_NQ ***********'
 *     1) disk address and 2) number of batches.
 *
       If (Grid_Status.eq.Regenerate) Then
-C        Write (6,*) 'Grid_Status.eq.Regenerate'
+!        Write (6,*) 'Grid_Status.eq.Regenerate'
          Grid_Status=Regenerate
          GridInfo(:,:)=0
          Call iDaFile(Lu_Grid,1,GridInfo,
      &                2*number_of_subblocks,iDisk_Grid)
          Old_Functional_Type=Functional_Type
       Else If (Grid_Status.eq.Use_Old) Then
-C        Write (6,*) 'Grid_Status.eq.Use_Old'
+!        Write (6,*) 'Grid_Status.eq.Use_Old'
          Call iDaFile(Lu_Grid,2,GridInfo,
      &                2*number_of_subblocks,iDisk_Grid)
       Else

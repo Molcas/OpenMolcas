@@ -15,7 +15,11 @@ Module libxc_parameters
 use xc_f03_lib_m
 use Definitions, only: LibxcInt
 Implicit None
+Private
 #include "ksdft.fh"
+
+Public :: nFuncs_max, nFuncs, Coeffs, func_id, xc_func, xc_info, Initiate_Libxc_functionals, Remove_Libxc_functionals, &
+          libxc_functionals
 
 Integer, parameter :: nFuncs_max=4
 Integer :: i
@@ -58,7 +62,7 @@ Do iFunc = 1, nFuncs
    ! Get the functional's information
    xc_info(iFunc) = xc_f03_func_get_info(xc_func(iFunc))
 
-! Reset coefficiants according to input
+! Reset coefficients according to input
 
    Coeff = Coeffs(iFunc)
    Select case(xc_f03_func_info_get_kind(xc_info(iFunc)))
@@ -88,10 +92,27 @@ End Subroutine Remove_Libxc_functionals
 !***********************************************************************
 !
 Subroutine libxc_functionals(mGrid,nD)
-use nq_Grid, only: F_xc
+use nq_Grid, only: F_xc, F_xca, F_xcb, l_casdft
+use nq_Grid, only: vRho, vSigma, vTau, vLapl
 Implicit None
 Integer mGrid,nD, iFunc
 Real*8 Coeff
+Real*8, Parameter :: Zero=0.0D0
+!
+!***********************************************************************
+!
+vRho(:,1:mGrid)=Zero
+If (Allocated(vSigma)) vSigma(:,1:mGrid)=Zero
+If (Allocated(vTau)) vTau(:,1:mGrid)=Zero
+If (Allocated(vLapl)) vLapl(:,1:mGrid)=Zero
+F_xc(1:mGrid)=Zero
+If (l_casdft) Then
+   F_xca(1:mGrid)=Zero
+   F_xcb(1:mGrid)=Zero
+End If
+!
+!***********************************************************************
+!
 
 Do iFunc = 1, nFuncs
    Coeff = Coeffs(iFunc)

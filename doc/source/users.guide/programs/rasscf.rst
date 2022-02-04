@@ -1254,8 +1254,8 @@ A list of these keywords is given below:
 :kword:`KSDFT`
   Needed to perform MC-PDFT calculations. It must be used together with
   :kword:`CIONLY` keyword (it is a post-SCF method not compatible with SCF) and :kword:`ROKS` keyword.
-  The functional choice follows. Currently available functionals are prefix
-  T: or FT: to the standard DFT functionals (see keyword :kword:`KSDFT` of :program:`SCF`)
+  The functional choice follows. Specify the functional by prefixing
+  ``T:`` or ``FT:`` to the standard DFT functionals (see keyword :kword:`KSDFT` of :program:`SCF`)
   An example of an input that uses this keyword follows: ::
 
     &RASSCF
