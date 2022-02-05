@@ -47,10 +47,10 @@ PROGRAM CASPT2_MINI
   REAL(REAL64), ALLOCATABLE :: D2(:,:,:,:)
 
   ! extra info
-  INTEGER :: NTOTEL
+  ! INTEGER :: NTOTEL
 
   ! core energy
-  REAL(REAL64) :: ECORE
+  ! REAL(REAL64) :: ECORE
 
   ! initialize linalg library
   CALL INIT_LINALG
@@ -73,7 +73,7 @@ PROGRAM CASPT2_MINI
   NMO=NI+NA+NS
   NAO=38
 
-  ECORE=-16.704241392292605D0
+  ! ECORE=-16.704241392292605D0
 
   ! initialize the wavefunction
   CALL WFN_INIT(PSI,NEL,NORB,MULT)
@@ -171,7 +171,7 @@ PROGRAM CASPT2_MINI
   !#### Full CI
   !################################################################
 
-  NTOTEL=2*NI+NEL
+  !NTOTEL=2*NI+NEL
   !CALL FULLCI(NTOTEL,NMO,MULT,ONEINT,TWOINT,ECORE)
 
 END PROGRAM CASPT2_MINI

@@ -501,7 +501,8 @@ C REPORT ON SECULAR EQUATION RESULT:
       END IF
 c LU: save esfs array
        CALL Put_dArray('ESFS_SINGLE'  , ESFS  , NSTATE)
-       CALL Put_dArray('ESFS_SINGLEAU', ENERGY, NSTATE)
+       CALL Put_dArray('ESFS_SINGLEAU',
+     &           (ENERGY+EMIN), NSTATE)
        CALL MMA_DEALLOCATE(ESFS)
 c
 
