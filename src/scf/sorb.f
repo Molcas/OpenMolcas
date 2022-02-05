@@ -135,42 +135,21 @@
 *---- Has the user selected a method?
 *
 100   Continue
-      If (InVec.eq.0) Then
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Select Case (InVec)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Case (0)
+
 *-------- Diagonalize core
           Call Start0(CMO,TrM,mBB,nD,OneHam,Ovrlp,mBT,EOrb,mmB)
-      Else If (InVec.eq.6) Then
-         write(6,*)
-         write(6,*) '     Constrained SCF calculation '
-         write(6,*)
-         StVec='Constrained orbitals'
-         One_Grid=.True.
-         FName=SCF_FileOrb
-         Call Chk_Vec_UHF(FName,LuOrb,isUHF)
-         If (IsUHF.eq.1) Then
-            InVec=2
-            Go To 100
-         EndIf
-         Call Start6(FName,LuOrb,CMO,mBB,nD,EOrb,OccNo,mmB)
-      Else If (InVec.eq.8) Then
-         StVec='Detected old SCF orbitals'
-!        One_Grid=.True.
-         Call start0y(CMO,mBB,nD,EOrb,mmB)
-      Else If (InVec.eq.9) Then
-         StVec='Detected guessorb starting orbitals'
-!        One_Grid=.True.
-         Call start0x(CMO,mBB,nD,EOrb,mmB)
-      Else If (InVec.eq.2) Then
-*-------- Read INPORB
-!        One_Grid=.True.
-         FName=SCF_FileOrb
-         Call Start2(FName,LuOrb,CMO,mBB,nD,Ovrlp,mBT,
-     &               EOrb,OccNo,mmB)
-      Else If (InVec.eq.3) Then
-*-------- Read COMOLD
-!        One_Grid=.True.
-         Call Start3(CMO,TrM,mBB,nD,OneHam,Ovrlp,mBT)
-*-------- Only if not Cholesky do NDDO
-      Else If (InVec.eq.1) Then
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Case (1)
 *
 *-------- HF AO orbitals as intermediate step...
 *
@@ -208,12 +187,77 @@
             Call Start2(FName,LuOut,CMO,mBB,nD,Ovrlp,mBT,
      &               EOrb,OccNo,mmB)
          End If
-      End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Case (2)
+*                                                                      *
+*-------- Read INPORB
+         One_Grid=.True.
+         FName=SCF_FileOrb
+         Call Start2(FName,LuOrb,CMO,mBB,nD,Ovrlp,mBT,
+     &               EOrb,OccNo,mmB)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Case (3)
+
+*-------- Read COMOLD
+         One_Grid=.True.
+         Call Start3(CMO,TrM,mBB,nD,OneHam,Ovrlp,mBT)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Case (6)
+
+         write(6,*)
+         write(6,*) '     Constrained SCF calculation '
+         write(6,*)
+         StVec='Constrained orbitals'
+         One_Grid=.True.
+         FName=SCF_FileOrb
+         Call Chk_Vec_UHF(FName,LuOrb,isUHF)
+         If (IsUHF.eq.1) Then
+            InVec=2
+            Go To 100
+         EndIf
+         Call Start6(FName,LuOrb,CMO,mBB,nD,EOrb,OccNo,mmB)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Case (8)
+
+         StVec='Detected old SCF orbitals'
+         One_Grid=.True.
+         Call start0y(CMO,mBB,nD,EOrb,mmB)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Case (9)
+
+         StVec='Detected guessorb starting orbitals'
+!        One_Grid=.True.
+         Call start0x(CMO,mBB,nD,EOrb,mmB)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Case Default
+
+         Write (6,*) 'Illegal inVec value:',InVec
+         Call Abend()
+*                                                                      *
+************************************************************************
+*                                                                      *
+      End Select
+*                                                                      *
+************************************************************************
+*                                                                      *
       If (Scrmbl) Then
          Do iD = 1, nD
             Call Scram(CMO(1,iD),nSym,nBas,nOrb,ScrFac)
          End Do
       End If
+
       Call SOrbCHk(OneHam,Ovrlp,Fock,mBT,nD,CMO,mBB)
 #ifdef _HDF5_
       If (isHDF5) Call mh5_close_file(fileorb_id)
