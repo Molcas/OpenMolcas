@@ -38,7 +38,7 @@ use Para_Info, only: King
 use OFembed, only: OFE_KSDFT
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
-use nq_Info
+use nq_Info, only: Grid_Type, Moving_Grid
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad

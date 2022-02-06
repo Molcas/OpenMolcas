@@ -32,7 +32,7 @@ use Para_Info, only: King
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 use stdalloc, only: mma_allocate, mma_deallocate
-use nq_Info
+use nq_Info, only: nAshT, Grid_Type, Moving_Grid
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
