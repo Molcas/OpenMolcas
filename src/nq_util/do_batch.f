@@ -140,7 +140,7 @@
 *
 *#define _ANALYSIS_
 #ifdef _ANALYSIS_
-      Thr=1.0D-15
+      Thr=T_Y
       Write (6,*)
       Write (6,*) ' Sparsity analysis of AO blocks'
       mlist_s=0
@@ -214,7 +214,7 @@
             Call AOEval(iAng,mGrid,Grid,Mem(ipxyz),RA,
      &                  Shells(iShll)%Transf,
      &                  RSph(ipSph(iAng)),nElem(iAng),iCmp,
-     &                  Angular,nTerm,nForm,T_X,mRad,
+     &                  Angular,nTerm,nForm,T_Y,mRad,
      &                  iPrim,iPrim_Eff,Shells(iShll)%Exp,
      &                  Mem(ipRadial),iBas_Eff,
      &                  Shells(iShll)%pCff(1,iBas-iBas_Eff+1),
@@ -234,7 +234,7 @@
 !           an insignificant contribution to any of the grid points we
 !           are processing at this stage.
 !
-            Thr=1.0D-11
+            Thr=T_Y
             iSkip=0
             kBfn = iBfn_s - 1
             Do jBfn = iBfn_s, iBfn_e

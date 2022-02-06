@@ -634,7 +634,7 @@ c     Write(6,*) '********** Setup_NQ ***********'
       End If
 *
       Call ParmPkR8(Pck_Old,PMode_old)
-      Call IniPkR8(T_X,.True.)
+      Call IniPkR8(T_Y,.True.)
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -78,14 +78,14 @@ Module nq_Info
       Real*8 rQStrt,Threshold_save,Crowding,Threshold,Energy_integrated, &
      &       Dens_I,Grad_I,Tau_I,Dens_a1,Dens_b1,Dens_a2,Dens_b2,        &
      &       Dens_t1,Dens_t2,Block_Size,x_min,x_max,y_min,y_max,z_min,   &
-     &       z_max,Fade,ThrC,T_X,T_Y,rQEnd
+     &       z_max,Fade,ThrC,T_Y,rQEnd
       Common /Quad_r /rQStrt,                                           &
      &                Threshold_save, Crowding,                         &
      &                Threshold,R_Max,Energy_integrated,                &
      &                Dens_I,Grad_I,Tau_I,                              &
      &                Dens_a1,Dens_b1,Dens_a2,Dens_b2,Dens_t1,Dens_t2,  &
      &                Block_Size,x_min,x_max,y_min,y_max,z_min,z_max,   &
-     &                Fade,                ThrC, T_X, T_Y,              &
+     &                Fade,                ThrC, T_Y,                   &
      &                rQEnd
 !
       Integer cQStrt, cQEnd

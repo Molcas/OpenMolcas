@@ -28,7 +28,6 @@
 ************************************************************************
 *                                                                      *
       Call Get_dScalar('EThr',EThr)
-      T_X=Min(T_X,EThr*1.0D-2)
       T_Y=Min(T_Y,EThr*1.0D-2)
       Threshold=Min(Threshold,EThr*1.0D-4)
 *                                                                      *
@@ -73,9 +72,6 @@
       Write (6,'(6X,A,2X,ES9.2)')
      &      'Screening threshold for integral computation:',
      &      T_Y
-      Write (6,'(6X,A,2X,ES9.2)')
-     &      'Screening threshold for density computation: ',
-     &      T_X
       If (Quadrature(1:3).ne.'LMG') Then
          Write (6,'(6X,A,20X,ES9.2)') 'Radial quadrature accuracy:',
      &                             Threshold
