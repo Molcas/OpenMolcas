@@ -1410,7 +1410,7 @@ Optional keywords
 :kword:`T_Y`
   Threshold for screening in the assembling of the integrals.
   Note that in the SCF module the value is optionally adjusted to be the lower of the input or
-  a value one magnitude tigher than the energy threshold.
+  a value one magnitude tighter than the energy threshold.
   Default value is 1.0D-11.
 
   .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="T_Y" KIND="REAL" DEFAULT_VALUE="1.0D-11" LEVEL="ADVANCED">
@@ -1418,7 +1418,7 @@ Optional keywords
               <HELP>
               Threshold for screening in the assembling of the integrals.
               Note that in the SCF module the value is optionally adjusted to be the lower of the input or
-              a value one magnitude tigher than the energy threshold.
+              a value one magnitude tighter than the energy threshold.
               Default value is 1.0D-11.
               </HELP>
               </KEYWORD>
