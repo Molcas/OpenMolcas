@@ -27,4 +27,4 @@ Contents
 .. toctree::
    :hidden:
 
-   references
+   xrefs

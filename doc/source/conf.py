@@ -23,6 +23,7 @@
 
 import sys
 import os
+import sphinx
 
 sys.dont_write_bytecode = True
 
@@ -52,6 +53,8 @@ extensions = [
     'float',
     'molcasbib',
 ]
+
+# Bibliography files
 bibtex_bibfiles = ['molcas.bib']
 
 # Add any paths that contain templates here, relative to this directory.
@@ -406,6 +409,11 @@ latex_elements['utf8extra'] = r'\DeclareUnicodeCharacter{00A0}{\nobreakspace}'\
                               r'\DeclareUnicodeCharacter{200B}{\relax}'
 latex_elements['fontpkg'] = r'\usepackage[notextcomp]{kpfonts}'
 latex_elements['fontenc'] = r'\usepackage[LGR,T1]{fontenc}'
+latex_elements['sphinxsetup'] = ''
+if sphinx.version_info >= (3, 5, 0, '', 0):
+  latex_elements['sphinxsetup'] += 'verbatimforcewraps=true,'
+  # Workaround for bug #9529 (or similar)
+  latex_elements['sphinxsetup'] += 'AtStartFootnote=\sphinxstepscope,'
 latex_elements['preamble'] = r'''\usepackage{molcas}
 \pagestyle{plain}
 \setsecnumdepth{subparagraph}
@@ -430,14 +438,16 @@ latex_elements['preamble'] += r'''
 \fi%
 \makeatother%
 % Add part to numbers
-\let\oldthefigure\thefigure%
-\renewcommand{\thefigure}{\thepart.\oldthefigure}%
-\let\oldthetable\thetable%
-\renewcommand{\thetable}{\thepart.\oldthetable}%
-\let\oldtheliteralblock\theliteralblock%
-\renewcommand{\theliteralblock}{\thepart.\oldtheliteralblock}%
-\let\oldtheequation\theequation%
-\renewcommand{\theequation}{\thepart.\oldtheequation}%
+\AtBeginDocument{
+  \let\oldthefigure\thefigure%
+  \renewcommand{\thefigure}{\thepart.\oldthefigure}%
+  \let\oldthetable\thetable%
+  \renewcommand{\thetable}{\thepart.\oldthetable}%
+  \let\oldtheliteralblock\theliteralblock%
+  \renewcommand{\theliteralblock}{\thepart.\oldtheliteralblock}%
+  \let\oldtheequation\theequation%
+  \renewcommand{\theequation}{\thepart.\oldtheequation}%
+}
 % Missing unicode character(s)?
 \DeclareUnicodeCharacter{03A6}{$\Phi$}
 '''
