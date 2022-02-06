@@ -37,7 +37,6 @@
       Do iGrid = 1, mGrid
 *
          d_alpha=Rho(1,iGrid)
-         DTot=d_alpha
          TauA=Two*Tau(1,iGrid)
 *
 *------- Accumulate contributions to the integrated Tau
@@ -58,7 +57,6 @@
 *
          d_alpha=Rho(1,iGrid)
          d_beta =Rho(2,iGrid)
-         DTot=d_alpha+d_beta
          TauA=(Tau(1,iGrid)+Tau(2,iGrid))
 *
 *------- Accumulate contributions to the integrated density
