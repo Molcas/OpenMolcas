@@ -23,6 +23,7 @@ NoCD
 
 Grid input
 NQDIRECT
+T_Y=1.0D-9
 End of Grid
 
 End of input

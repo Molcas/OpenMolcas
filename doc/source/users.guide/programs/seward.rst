@@ -1407,26 +1407,18 @@ Optional keywords
               </HELP>
               </KEYWORD>
 
-:kword:`T_X`
-  Threshold for screening in the assembling of the density on the grid.
-  Default value is 1.0D-18.
-
-  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="T_X" KIND="REAL" DEFAULT_VALUE="1.0D-18" LEVEL="ADVANCED">
-              %%Keyword: T_X (NQ) <advanced>
-              <HELP>
-              Threshold for screening in the assembling of the density on the grid.
-              Default value is 1.0D-18.
-              </HELP>
-              </KEYWORD>
-
 :kword:`T_Y`
   Threshold for screening in the assembling of the integrals.
+  Note that in the SCF module the value is optionally adjusted to be the lower of the input or
+  a value one magnitude tigher than the energy threshold.
   Default value is 1.0D-11.
 
   .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="T_Y" KIND="REAL" DEFAULT_VALUE="1.0D-11" LEVEL="ADVANCED">
               %%Keyword: T_Y (NQ) <advanced>
               <HELP>
               Threshold for screening in the assembling of the integrals.
+              Note that in the SCF module the value is optionally adjusted to be the lower of the input or
+              a value one magnitude tigher than the energy threshold.
               Default value is 1.0D-11.
               </HELP>
               </KEYWORD>
