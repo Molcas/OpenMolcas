@@ -15,7 +15,7 @@
 * Jie J. Bao, on Dec. 08, 2021, created this file.               *
 * ****************************************************************
       Subroutine CalcOrbOff()
-#include "nq_info.fh"
+      use nq_Info
 
       INTEGER jOffA_,jOffB_,nTri,iIrrep
 
@@ -55,7 +55,7 @@
       End Subroutine
 
       Subroutine CalcPUVXOff()
-#include "nq_info.fh"
+      use nq_Info
 
       INTEGER IOff1,iIrrep,jIrrep,kIrrep,lIrrep,iOrb,jAct,kAct,lAct,
      &        ijIrrep,klIrrep,nklAct
@@ -118,7 +118,7 @@ C      write(6,'(8(I5,2X))')(OffPUVX(iIrrep),iIrrep=0,mIrrep-1)
       End Subroutine
 
       Subroutine TransActMO(MOs,TabMO,mAO,mGrid,nMOs)
-#include "nq_info.fh"
+      use nq_Info
 ******Purpose:
 ******Trasnferring active orbitals to the MOs array.
 ******It records the MO values on each grid point.
@@ -148,7 +148,7 @@ C      write(6,'(8(I5,2X))')(OffPUVX(iIrrep),iIrrep=0,mIrrep-1)
 
 
       Subroutine TransActMO2(MOs,MOas,mGrid)
-#include "nq_info.fh"
+      use nq_Info
 ******Purpose:
 ******obtaining an active MO array with a structure of MOs in
 ******TransActMO from an MO array with a structure of that in
@@ -176,7 +176,7 @@ C      write(6,'(8(I5,2X))')(OffPUVX(iIrrep),iIrrep=0,mIrrep-1)
 
 
       Subroutine TransferMO(MOas,TabMO,mAO,mGrid,nMOs,iAO)
-#include "nq_info.fh"
+      use nq_Info
 
 ******Purpose:
 ******Transferring MO information to MOas to be used in dgemm.
@@ -206,7 +206,7 @@ C      write(6,'(8(I5,2X))')(OffPUVX(iIrrep),iIrrep=0,mIrrep-1)
 
 
       Subroutine PackPot1(Packed,Full,nPack,Factor)
-#include "nq_info.fh"
+      use nq_Info
 
 ******Input
       Real*8 Factor
@@ -231,7 +231,7 @@ C      write(6,'(8(I5,2X))')(OffPUVX(iIrrep),iIrrep=0,mIrrep-1)
       End Subroutine
 
       Subroutine UnzipD1(D1Unzip,D1MO,nD1MO)
-#include "nq_info.fh"
+      use nq_Info
 
 ******Input
       INTEGER nD1MO
@@ -262,7 +262,7 @@ C      write(6,'(8(I5,2X))')(OffPUVX(iIrrep),iIrrep=0,mIrrep-1)
 
 
       Subroutine UnzipP2(P2Unzip,P2MO,nP2Act)
-#include "nq_info.fh"
+      use nq_Info
 
 ******Input
       INTEGER nP2Act
@@ -328,8 +328,8 @@ C      write(6,'(8(I5,2X))')(OffPUVX(iIrrep),iIrrep=0,mIrrep-1)
      &                        nPMO3p,MOs,MOx,MOy,MOz,TabMO,P2Unzip,
      &                        mAO,mGrid,nMOs,do_grad)
       use nq_pdft, only: lft, lGGA
+      use nq_Info
       Implicit Real*8 (A-H,O-Z)
-#include "nq_info.fh"
 #include "stdalloc.fh"
 
 ******Input

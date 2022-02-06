@@ -443,6 +443,7 @@ c Avoid unused argument warnings
      &                      D_DS,nh1,nD_DS,
      &                      Do_Grad,
      &                      Grad,nGrad,DFTFOCK)
+      use nq_Info
       Implicit Real*8 (a-h,o-z)
       Character*(*) KSDFT
       Integer nh1, nFckDim, nD_DS
@@ -451,7 +452,6 @@ c Avoid unused argument warnings
       Real*8 Grad(nGrad)
       Character*4 DFTFOCK
 #include "real.fh"
-#include "nq_info.fh"
 #include "debug.fh"
       Logical  Do_MO,Do_TwoEl,F_nAsh
 *                                                                      *
@@ -494,6 +494,7 @@ c Avoid unused argument warnings
      &                       Do_Grad,
      &                       Grad,nGrad,DFTFOCK,F_corr)
       use OFembed, only: Do_Core
+      use nq_Info
       Implicit Real*8 (a-h,o-z)
       Character*(*) KSDFT
       Integer nh1, nFckDim, nD_DS
@@ -503,7 +504,6 @@ c Avoid unused argument warnings
       Real*8 Grad(nGrad)
       Character*4 DFTFOCK
 #include "real.fh"
-#include "nq_info.fh"
 #include "debug.fh"
       Logical  Do_MO,Do_TwoEl,F_nAsh
 *                                                                      *
@@ -561,10 +561,10 @@ c Avoid unused argument warnings
 *                                                                      *
 ************************************************************************
       Subroutine Get_electrons(xnElect)
+      use nq_Info
       Implicit Real*8 (a-h,o-z)
       Real*8 xnElect
 #include "real.fh"
-#include "nq_info.fh"
 
       xnElect = Dens_I
 

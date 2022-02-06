@@ -9,8 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Mod_P2(P2mo,nP2Act,D1mo,nD1mo,DS1mo,ExFac,nDet)
+      use nq_Info
       Implicit Real*8 (A-H,O-Z)
-#include "nq_info.fh"
 #include "real.fh"
 #include "output_ras.fh"
       Real*8 P2mo(nP2Act),D1mo(nD1mo), DS1mo(nD1mo)

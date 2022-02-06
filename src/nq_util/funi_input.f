@@ -10,9 +10,8 @@
 ************************************************************************
       Subroutine Funi_Input(LuRd)
       use nq_Grid, only: nGridMax
+      use nq_Info
       Implicit Real*8 (a-h,o-z)
-*
-#include "nq_info.fh"
 #include "real.fh"
       Character*180 Get_Ln,Key,KWord
       External Get_Ln

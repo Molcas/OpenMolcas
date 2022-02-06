@@ -8,11 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Funi_Init
+      Subroutine Funi_Init()
+      use nq_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
-#include "nq_info.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *

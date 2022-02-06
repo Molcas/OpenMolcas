@@ -26,12 +26,12 @@
       use Temporary_Parameters, only: Test
       use DKH_Info, only: DKroll
       use Sizes_of_Seward, only: S
+      use nq_Info
       Implicit Real*8 (A-H,O-Z)
 #include "stdalloc.fh"
 #include "print.fh"
 #include "real.fh"
 #include "rctfld.fh"
-#include "nq_info.fh"
 #include "status.fh"
       Logical DoRys
 #include "SysDef.fh"

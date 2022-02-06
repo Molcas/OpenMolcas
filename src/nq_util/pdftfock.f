@@ -17,7 +17,7 @@
 
       Subroutine PDFTFock(FI,FA,D1,mGrid,ActMO)
       use nq_pdft
-#include "nq_info.fh"
+      use nq_Info
 
 ******Input
       INTEGER mGrid
@@ -103,7 +103,7 @@
 
 
       Subroutine PDFTFock_Inner(Fock,Kern,MO1,MO2,mGrid)
-#include "nq_info.fh"
+      use nq_Info
 ******Input
       INTEGER mGrid
       Real*8,DIMENSION(mGrid*nOrbt)::MO1,MO2

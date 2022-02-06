@@ -10,8 +10,8 @@
 ************************************************************************
       Subroutine Funi_Print()
       use nq_Grid, only: nGridMax
+      use nq_Info
       Implicit Real*8 (A-H,O-Z)
-#include "nq_info.fh"
       logical Check
       logical, external:: Reduce_Prt
 *                                                                      *

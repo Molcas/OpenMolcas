@@ -31,11 +31,11 @@
 ************************************************************************
       use NQ_structure, only: NQ_Data, Info_Ang
       use Grid_On_Disk
+      use nq_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "real.fh"
 #include "setup.fh"
-#include "nq_info.fh"
 #include "nsd.fh"
 #include "debug.fh"
       Integer list_p(nlist_p)

@@ -28,6 +28,7 @@
 !     ip_ioffsh   : Pointer to the offset of the shells in the
 !                    overlap matrix.
 !
+Module nq_Info
       Integer LMax_NQ
       Parameter(LMax_NQ=62)
       Integer mBas(0:7),nISh(0:7), nAsh(0:7), nFro(0:7),mOrb(0:7)
@@ -94,3 +95,4 @@
      &                Quadrature, Pad, MBC,                             &
      &                cQEnd
 !
+End Module nq_Info

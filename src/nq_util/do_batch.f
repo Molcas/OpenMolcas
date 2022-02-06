@@ -38,6 +38,7 @@
       use nq_pdft
       use nq_MO, only: CMO, D1MO, P2_ontop
       use Grid_On_Disk
+      use nq_Info
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "SysDef.fh"
@@ -45,7 +46,6 @@
 #include "stdalloc.fh"
 #include "debug.fh"
 #include "ksdft.fh"
-#include "nq_info.fh"
 #include "nsd.fh"
 #include "setup.fh"
 #include "pamint.fh"

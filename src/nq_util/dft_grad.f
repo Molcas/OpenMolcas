@@ -24,9 +24,9 @@
       use nq_Grid, only: Pax
       use nq_Grid, only: IndGrd, iTab, Temp, dW_dR
       use nq_Structure, only: NQ_data
+      use nq_Info
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "nq_info.fh"
 #include "debug.fh"
 #include "Molcas.fh"
 #include "itmax.fh"

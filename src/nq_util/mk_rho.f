@@ -22,6 +22,7 @@
       use nq_grid, only: GradRho, Tau, Lapl, kAO
       use nq_Grid, only: dRho_dR, iBfn_Index
       use nq_Grid, only: List_G
+      use nq_Info
 #ifdef _DEBUGPRINT_
       use nq_grid, only: nRho
 #endif
@@ -29,7 +30,6 @@
 #include "real.fh"
 #include "print.fh"
 #include "debug.fh"
-#include "nq_info.fh"
 #include "nsd.fh"
 #include "setup.fh"
 #include "stdalloc.fh"

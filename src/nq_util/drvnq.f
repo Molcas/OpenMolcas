@@ -39,12 +39,12 @@
       use nq_Structure, only: Close_NQ_Data
       use Grid_On_Disk
       use libxc
+      use nq_Info
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "real.fh"
 #include "stdalloc.fh"
 #include "itmax.fh"
-#include "nq_info.fh"
 #include "setup.fh"
 #include "nsd.fh"
 #include "debug.fh"

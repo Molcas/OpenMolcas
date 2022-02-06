@@ -16,13 +16,12 @@
 *                                                                      *
 ************************************************************************
 ************************************************************************
-!     use nq_Grid, only: Rho
       use nq_Grid, only: GradRho, Weights
       use nq_Grid, only: vRho, vSigma, vTau, vLapl
       use nq_Grid, only: Grid_AO, TabAO, iBfn_Index
+      use nq_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "nq_info.fh"
 *                                                                      *
 ************************************************************************
 ************************************************************************
