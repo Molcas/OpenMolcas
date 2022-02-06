@@ -248,4 +248,40 @@ The system is :math:`\ce{LiF}` and the point group used is |Ctv|.
    NoGrad
    MSPDft
 
+The following example shows a part of the input to run CMS-PDFT geometry optimization. The additional keywords are :kword:`RLXR` in :program: `RASSCF` and :kword: `GRAD` in :program: `MCPDFT`. The additional modules include :program: `MCLR`, :program: `ALASKA` and :program: `SLAPAF`.
+
+::
+   &GATEWAY
+    Coord
+    2
+    Angstrom
+    Li 0.0 0.0  1.3
+    F  0.0 0.0 -1.3
+    Group=XY Y
+    Basis=STO-3G
+
+   >>> DO WHILE
+    &Seward
+
+    &RASSCF
+    Spin=1
+    Symmetry=1
+    CIRoot= 2 2 1
+    Inactive=2 0 0 0
+    Ras2=4 1 0 1
+    Nactel=8 0 0
+    CMSI
+    RLXRoot=2
+
+    &MCPDFT
+    KSDFT=T:PBE
+    Grad
+    MSPDft
+
+    &MCLR
+
+    &ALASKA
+
+    &SLAPAF
+    >>> EndDo
 .. xmldoc:: </MODULE>
