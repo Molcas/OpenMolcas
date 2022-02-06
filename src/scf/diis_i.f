@@ -277,7 +277,6 @@
 *        case the E_Pred(i+1)=E(i). We add a small number to avoid
 *        dividing with zero.
 *
-         Write (6,*) E_n1, E_n ,E_Pred
          r_SO = (E_n1 - E_n)/(E_Pred - E_n + 1.0D-12 )
       Else
          r_SO = One
