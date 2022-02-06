@@ -40,7 +40,6 @@
              DTot=Two*d_alpha
            end if
            Comp_d = Comp_d + DTot*Weights(iGrid)
- 199       Continue
          End Do
 ************************************************************************
 *     iSpin=/=1
@@ -57,7 +56,6 @@
             DTot=d_alpha+d_beta
           end if
           Comp_d = Comp_d + DTot*Weights(iGrid)
- 299      Continue
         End Do
       End If
 ************************************************************************
