@@ -15,7 +15,7 @@
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. November 2000                           *
 ************************************************************************
-      use nq_Grid, only: Rho, Sigma
+      use nq_Grid, only: Sigma
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
       Real*8 Weights(mGrid)
@@ -33,7 +33,6 @@
 *                                                                      *
       Do iGrid = 1, mGrid
 *
-         d_alpha=Rho(1,iGrid)
          Gamma=Sqrt(Sigma(1,iGrid))
 *
 *------- Accumulate contributions to the integrated Tau
@@ -52,8 +51,6 @@
 *                                                                      *
       Do iGrid = 1, mGrid
 *
-         d_alpha=Rho(1,iGrid)
-         d_beta =Rho(2,iGrid)
          Gamma=Sqrt(Sigma(1,iGrid)+Two*Sigma(2,iGrid)+Sigma(3,iGrid))
 *
 *------- Accumulate contributions to the integrated density
