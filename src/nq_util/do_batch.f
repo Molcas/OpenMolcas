@@ -1,5 +1,3 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
 * it under the terms of the GNU Lesser General Public License, v. 2.1. *
@@ -78,7 +76,6 @@
 ************************************************************************
 *                                                                      *
       nCMO  =Size(CMO)
-      T_Rho=T_X*1.0D-4
       l_tanhr=.false.
 
       If (l_casdft ) Then
@@ -376,9 +373,9 @@
 ************************************************************************
 *                                                                      *
       If (l_casdft) then
-         Dens_t1=Dens_t1+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,0)
-         Dens_a1=Dens_a1+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,1)
-         Dens_b1=Dens_b1+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,2)
+         Dens_t1=Dens_t1+Comp_d(Weights,mGrid,Rho,nRho,nD,0)
+         Dens_a1=Dens_a1+Comp_d(Weights,mGrid,Rho,nRho,nD,1)
+         Dens_b1=Dens_b1+Comp_d(Weights,mGrid,Rho,nRho,nD,2)
 
          nPMO3p=1
          IF (lft.and.lGGA) nPMO3p=mGrid*NASHT
@@ -429,9 +426,9 @@
          CALL mma_deallocate(MOz)
 
 *        Integrate out the number of electrons
-         Dens_t2=Dens_t2+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,0)
-         Dens_a2=Dens_a2+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,1)
-         Dens_b2=Dens_b2+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,2)
+         Dens_t2=Dens_t2+Comp_d(Weights,mGrid,Rho,nRho,nD,0)
+         Dens_a2=Dens_a2+Comp_d(Weights,mGrid,Rho,nRho,nD,1)
+         Dens_b2=Dens_b2+Comp_d(Weights,mGrid,Rho,nRho,nD,2)
 
       End If
 *                                                                      *
@@ -465,14 +462,14 @@
 *                                                                      *
 *     Integrate out the number of electrons, |grad|, and tau
 *
-      Dens_I=Dens_I+Compute_Rho (Weights,mGrid,nD,T_Rho)
+      Dens_I=Dens_I+Compute_Rho (Weights,mGrid,nD)
       Select Case (Functional_type)
       Case (LDA_Type)
       Case (GGA_type)
-         Grad_I=Grad_I+Compute_Grad(Weights,mGrid,nD,T_Rho)
+         Grad_I=Grad_I+Compute_Grad(Weights,mGrid,nD)
       Case (meta_GGA_type1,meta_GGA_type2)
-         Grad_I=Grad_I+Compute_Grad(Weights,mGrid,nD,T_Rho)
-         Tau_I =Tau_I +Compute_Tau (Weights,mGrid,nD,T_Rho)
+         Grad_I=Grad_I+Compute_Grad(Weights,mGrid,nD)
+         Tau_I =Tau_I +Compute_Tau (Weights,mGrid,nD)
       End Select
 *                                                                      *
 ************************************************************************

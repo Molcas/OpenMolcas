@@ -33,8 +33,8 @@
 *
 *     Various default thresholds for the integral evaluation.
 *
-      T_X      =1.0D-18
-      T_Y      =1.0D-11
+      T_X      =1.0D-15
+      T_Y      =1.0D-15
       Threshold=1.0D-25
 *
       Angular_Prunning = On
