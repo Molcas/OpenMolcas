@@ -71,8 +71,8 @@
 ************************************************************************
       use Basis_Info, only: nBas
       use External_Centers, only: XF
-      use Temporary_Parameters, only: PrPrt
-      use Real_Info, only: PotNuc
+      use Gateway_global, only: PrPrt
+      use Gateway_Info, only: PotNuc
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       Real*8 h1(nh1), TwoHam(nh1), D(nh1), Origin(3)

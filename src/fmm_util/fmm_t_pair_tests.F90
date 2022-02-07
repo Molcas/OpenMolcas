@@ -176,7 +176,7 @@ function fmm_test_raw_FF(LHS,RHS,id)
   LHStmp%level = 0
   RHStmp%level = 0
 
-  fmm_test_raw_FF = .not.(fmm_NF_boxes(LHStmp,RHStmp))
+  fmm_test_raw_FF = .not. (fmm_NF_boxes(LHStmp,RHStmp))
 
 end function fmm_test_raw_FF
 
@@ -191,7 +191,7 @@ function fmm_test_FF(LHS,RHS,id)
   type(LHS_RHS_type), intent(in) :: id
   logical :: fmm_test_FF
 
-  fmm_test_FF = .not.(fmm_NF_boxes(LHS%box_paras(id%LHS),RHS%box_paras(id%RHS)))
+  fmm_test_FF = .not. (fmm_NF_boxes(LHS%box_paras(id%LHS),RHS%box_paras(id%RHS)))
 
 end function fmm_test_FF
 

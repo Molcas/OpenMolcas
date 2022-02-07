@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!SVC: modified to convert to the use of byte lengths/offests by the
+!SVC: modified to convert to the use of byte lengths/offsets by the
 !     underlying I/O routines (2016)
 
 subroutine cDaFile(Lu,iOpt,Buf,lBuf_,iDisk_)

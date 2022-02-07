@@ -10,10 +10,10 @@
 ************************************************************************
       Subroutine GenRadQuad_PAM(iNQ,nR_Eff,mr,Alpha,Process,QuadR,
      &                          nQuadR)
+      use nq_Info
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "real.fh"
-#include "nq_info.fh"
 #include "debug.fh"
       Real*8 Alpha(2), QuadR(2,nQuadR)
       Real*8 mr(2), ln_rn

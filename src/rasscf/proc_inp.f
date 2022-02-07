@@ -2458,7 +2458,7 @@ C orbitals accordingly
        Read(LUInput,'(A)',End=9910,Err=9920) OFE_KSDFT
        ReadStatus=' O.K. after reading data after OFEM keyword.'
        Call UpCase(OFE_KSDFT)
-       Call LeftAd(OFE_KSDFT)
+       OFE_KSDFT = adjustl(OFE_KSDFT)
        write(6,*)
        write(6,*)  '  --------------------------------------'
        write(6,*)  '   Orbital-Free Embedding Calculation'

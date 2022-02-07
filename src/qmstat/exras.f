@@ -48,8 +48,8 @@
       Call GetMem('HalfTrans','Allo','Real',iHalfpar,nHalf)
       Call GetMem('HalfPure','Allo','Real',iHalf,nHalf)
       Call GetMem('HalfOrbE','Allo','Real',iHalfE,nHalf)
-      Call GetMem('Auxilary','Allo','Real',ipAux,nBaseQ**2)
-      Call GetMem('AuxilaryP','Allo','Real',ipAuxp,nBaseQ**2)
+      Call GetMem('Auxiliary','Allo','Real',ipAux,nBaseQ**2)
+      Call GetMem('AuxiliaryP','Allo','Real',ipAuxp,nBaseQ**2)
       Call GetMem('GammaAO','Allo','Real',ipAOG,nGross)
       Call GetMem('Accumulate','Allo','Real',ipACC,nBaseQ**2)
       Call GetMem('Accumulate','Allo','Real',ipACCp,nBaseQ**2)
@@ -185,7 +185,7 @@
 5751    Continue
 
 *
-*-- Construct auxilary matrix for the non-electrostatic operator
+*-- Construct auxiliary matrix for the non-electrostatic operator
 *   in AO-basis for QM region. Also construct matrix of pure
 *   overlaps for the higher order terms.
 *
@@ -249,8 +249,8 @@
       Call GetMem('HalfTrans','Free','Real',iHalfpar,nHalf)
       Call GetMem('HalfPure','Free','Real',iHalf,nHalf)
       Call GetMem('HalfOrbE','Free','Real',iHalfE,nHalf)
-      Call GetMem('Auxilary','Free','Real',ipAux,nBaseQ**2)
-      Call GetMem('AuxilaryP','Free','Real',ipAuxp,nBaseQ**2)
+      Call GetMem('Auxiliary','Free','Real',ipAux,nBaseQ**2)
+      Call GetMem('AuxiliaryP','Free','Real',ipAuxp,nBaseQ**2)
       Call GetMem('GammaAO','Free','Real',ipAOG,nGross)
       Call GetMem('Accumulate','Free','Real',ipACC,nBaseQ**2)
       Call GetMem('Accumulate','Free','Real',ipACCp,nBaseQ**2)

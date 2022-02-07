@@ -19,10 +19,10 @@
       use nq_Grid, only: Grid_AO, TabAO
       use nq_Grid, only: AOInt => Dens_AO
       use nq_Grid, only: iBfn_Index
+      use nq_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "stdalloc.fh"
-#include "nq_info.fh"
       Real*8, Allocatable:: A1(:,:), A2(:,:), A_tri(:)
       Real*8, Allocatable:: A3(:,:,:), A4(:,:,:)
 *                                                                      *

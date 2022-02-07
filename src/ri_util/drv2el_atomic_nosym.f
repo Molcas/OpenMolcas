@@ -34,8 +34,7 @@
       use Wrj12
       use k2_arrays, only: Sew_Scr
       use Basis_Info, only: dbsc
-      use Temporary_Parameters, only: force_out_of_core
-      use Integral_Parameters, only: iWROpt
+      use Gateway_global, only: force_out_of_core, iWROpt
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut

@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Giovanni Li Manni                                      *
 ************************************************************************
-      Real*8 Function Comp_d(Weights,mGrid,Rho,nRho,iSpin,T_X,iSwitch)
+      Real*8 Function Comp_d(Weights,mGrid,Rho,nRho,iSpin,iSwitch)
 ************************************************************************
 *                                                                      *
 * Object: integrate densities (alpha, beta, total, gradients....)      *
@@ -26,7 +26,6 @@
       Real*8 Weights(mGrid), Rho(nRho,mGrid)
 *
       Comp_d=Zero
-      Rho_min=T_X*1.0D-2
 ************************************************************************
 *     iSpin=1
 ************************************************************************
@@ -40,17 +39,15 @@
            else !if(iSwitch.eq.0) then
              DTot=Two*d_alpha
            end if
-           If (DTot.lt.T_X) Go To 199
            Comp_d = Comp_d + DTot*Weights(iGrid)
- 199       Continue
          End Do
 ************************************************************************
 *     iSpin=/=1
 ************************************************************************
       Else
         Do iGrid = 1, mGrid
-          d_alpha=Max(Rho_min,Rho(1,iGrid))
-          d_beta =Max(Rho_min,Rho(2,iGrid))
+          d_alpha=Rho(1,iGrid)
+          d_beta =Rho(2,iGrid)
           if(iSwitch.eq.1) then
             DTot=d_alpha
           else if(iSwitch.eq.2) then
@@ -58,9 +55,7 @@
           else !if(iSwitch.eq.0) then
             DTot=d_alpha+d_beta
           end if
-          If (DTot.lt.T_X) Go To 299
           Comp_d = Comp_d + DTot*Weights(iGrid)
- 299      Continue
         End Do
       End If
 ************************************************************************

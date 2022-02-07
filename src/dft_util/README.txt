@@ -15,14 +15,15 @@ Notes on the dft_util.
 
 OpenMolcas is since January 2022 completely interfaced with LibXC.
 
-Functionals are defined in driver.f90 through their unique func_id in LibXC and
-their associated coefficients are set there too.
-The same routine contains logic for the combinations of functionals that are
+Functionals are defined in data/functionals.txt (or .src) through their
+unique name in LibXC and their associated coefficients.
+
+The routine "driver" contains logic for the combinations of functionals that are
 used in the orbital-free embedding implementation by Aquilante et al.
 
-Note that driver.f90 should not be cloned ever. If new functionalities are to be
+Note that "driver" should not be cloned ever. If new functionalities are to be
 added these should be incoporated in this routine.
 
 In the case of functionals not present in LibXC the corresponding subroutines
-are placed in src/dft_util. driver.f90 does support the use of external
+are placed in this directory. "driver" does support the use of external
 functions in combinations with or without functionals of the LibXC library.

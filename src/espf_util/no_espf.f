@@ -12,8 +12,8 @@
       use Basis_Info
       use Center_Info
       use external_centers
-      use Temporary_Parameters, only: Primitive_pass
-      use Real_Info, only: PotNuc
+      use Gateway_global, only: Primitive_pass
+      use Gateway_Info, only: PotNuc
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
 *

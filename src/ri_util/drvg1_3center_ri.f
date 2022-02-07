@@ -41,7 +41,7 @@
       use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr
       use Basis_Info
       use Sizes_of_Seward, only:S
-      use Real_Info, only: CutInt
+      use Gateway_Info, only: CutInt
       use RICD_Info, only: Do_RI
       use Symmetry_Info, only: nIrrep
       use ExTerm, only: CijK, CilK, BklK, VJ

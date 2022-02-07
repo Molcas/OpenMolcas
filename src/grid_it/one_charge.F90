@@ -79,7 +79,7 @@ end do
 
 ProgName = Get_ProgName()
 call Upcase(ProgName)
-call LeftAd(ProgName)
+ProgName = adjustl(ProgName)
 iEnd = max(1,index(ProgName,' '))
 
 DoBond = .false.

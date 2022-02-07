@@ -28,8 +28,8 @@
 *   mGrid    = number of grid points                                   *
 *                                                                      *
 ************************************************************************
+      use nq_Info
       Implicit Real*8 (A-H,O-Z)
-#include "nq_info.fh"
 #include "real.fh"
 C#include "stdalloc.fh"
       Real*8 D1mo(nd1mo),TabMO(mAO,mGrid,nMOs),

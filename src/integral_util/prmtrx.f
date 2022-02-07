@@ -16,7 +16,7 @@
 *             University of Lund, Sweden, January '91                  *
 ************************************************************************
       Use Basis_Info, only: nBas
-      use Temporary_Parameters, only: PrPrt
+      use Gateway_global, only: PrPrt
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 *     Local arrays

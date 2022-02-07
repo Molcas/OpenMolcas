@@ -32,12 +32,12 @@
       use nq_Grid, only: Angular, Mem
       use nq_structure, only: NQ_Data
       use Grid_On_Disk
+      use nq_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "status.fh"
-#include "nq_info.fh"
 #include "nsd.fh"
 #include "setup.fh"
 #include "print.fh"
@@ -634,7 +634,7 @@ c     Write(6,*) '********** Setup_NQ ***********'
       End If
 *
       Call ParmPkR8(Pck_Old,PMode_old)
-      Call IniPkR8(T_X,.True.)
+      Call IniPkR8(T_Y,.True.)
 *                                                                      *
 ************************************************************************
 *                                                                      *

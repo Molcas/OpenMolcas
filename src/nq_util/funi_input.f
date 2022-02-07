@@ -10,9 +10,8 @@
 ************************************************************************
       Subroutine Funi_Input(LuRd)
       use nq_Grid, only: nGridMax
+      use nq_Info
       Implicit Real*8 (a-h,o-z)
-*
-#include "nq_info.fh"
 #include "real.fh"
       Character*180 Get_Ln,Key,KWord
       External Get_Ln
@@ -57,7 +56,6 @@
       If (KWord(1:4).eq.'MOVI') Go To 115
       If (KWord(1:4).eq.'NORO') Go To 116
       If (KWord(1:4).eq.'RHOT') Go To 117
-      If (KWord(1:4).eq.'T_X ') Go To 118
       If (KWord(1:4).eq.'NOSC') Go To 119
       If (KWord(1:4).eq.'T_Y ') Go To 120
       If (KWord(1:4).eq.'NQDI') Go To 121
@@ -245,20 +243,11 @@
       Call Get_F1(1,Dummy)
       Go To 999
 *                                                                      *
-****** T_X  ************************************************************
-*                                                                      *
-*     Screening threshold for density computation.
-*
- 118  KWord = Get_Ln(LuRd)
-      Call Get_F1(1,T_X)
-      Go To 999
-*                                                                      *
 ****** NOSC ************************************************************
 *                                                                      *
 *     Turn of the screening and the prunning.
 *
- 119  T_X=0.0D0
-      T_y=0.0D0
+ 119  T_y=0.0D0
       Crowding=1.0D10
       Angular_Prunning = Off
       Go To 999

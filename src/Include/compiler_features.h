@@ -75,9 +75,16 @@ With PGI 20 ( __PGIC__ >= 20 ) it compiles, but it appears to be buggy at runtim
 #define EMPTY_FILES
 #endif
 
-/* storage_size in initialization */
+/* Storage_size in initialization */
 #if (( __GNUC__) && (GCC_VERSION < 70000))
 #undef SIZE_INITIALIZATION
 #else
 #define SIZE_INITIALIZATION
+#endif
+
+/* Safe character member initialization */
+#if (( __GNUC__) && (GCC_VERSION < 80000))
+#undef CHAR_MEMBER_INIT
+#else
+#define CHAR_MEMBER_INIT
 #endif

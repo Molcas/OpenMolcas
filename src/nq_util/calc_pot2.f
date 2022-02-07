@@ -17,7 +17,7 @@
       Subroutine Calc_Pot2(Pot2,mGrid,Pi,nPi)
       use nq_Grid, only: Weights
       use nq_pdft
-#include "nq_info.fh"
+      use nq_Info
 #include "stdalloc.fh"
 ******Input
       INTEGER mGrid,nPi

@@ -74,7 +74,7 @@ mainLoop: do
     read(u5,'(A)',iostat=ctrl) Line
     if (ctrl /= 0) call error(991)
     newline = newline+1
-    call LeftAd(Line)
+    Line = adjustl(Line)
     if (Line(1:1) == ' ' .or. Line(1:1) == '*') cycle mainLoop
     call StdFmt(Line,Token)
   end if
@@ -93,7 +93,7 @@ mainLoop: do
         newline = newline+1
         read(u5,'(A)',iostat=ctrl) Line
         if (ctrl /= 0) call error(991)
-        call LeftAd(Line)
+        Line = adjustl(Line)
         if (Line(1:1) == ' ' .or. Line(1:1) == '*') cycle
         call StdFmt(Line,Token)
         do iCom=1,mCom
@@ -116,7 +116,7 @@ mainLoop: do
         newline = newline+1
         read(u5,'(A)',iostat=ctrl) Line
         if (ctrl /= 0) call error(991)
-        call LeftAd(Line)
+        Line = adjustl(Line)
         if (Line(1:1) == ' ' .or. Line(1:1) == '*') cycle
         call UpCase(Line)
         do i=1,len(Line)
@@ -170,7 +170,7 @@ mainLoop: do
         newline = newline+1
         read(u5,'(A)',iostat=ctrl) Line
         if (ctrl /= 0) call error(991)
-        call LeftAd(Line)
+        Line = adjustl(Line)
         if (Line(1:1) == ' ' .or. Line(1:1) == '*') cycle
         call UpCase(Line)
         do i=1,len(Line)
@@ -237,7 +237,7 @@ mainLoop: do
         newline = newline+1
         read(u5,'(A)',iostat=ctrl) Line
         if (is_iostat_end(ctrl)) call error(991)
-        call LeftAd(Line)
+        Line = adjustl(Line)
         if (Line(1:1) == ' ' .or. Line(1:1) == '*') cycle
         call UpCase(Line)
         do i=1,len(Line)
@@ -336,7 +336,7 @@ mainLoop: do
         newline = newline+1
         read(u5,'(A)',iostat=ctrl) Line
         if (ctrl /= 0) call error(991)
-        call LeftAd(Line)
+        Line = adjustl(Line)
         if (Line(1:1) == ' ' .or. Line(1:1) == '*') cycle
         call UpCase(Line)
         do i=1,len(Line)
@@ -459,7 +459,7 @@ mainLoop: do
         newline = newline+1
         read(u5,'(A)',iostat=ctrl) Line
         if (ctrl /= 0) call error(991)
-        call LeftAd(Line)
+        Line = adjustl(Line)
         if (Line(1:1) == ' ' .or. Line(1:1) == '*') cycle
         call UpCase(Line)
         do i=1,len(Line)
@@ -550,7 +550,7 @@ mainLoop: do
         newline = newline+1
         read(u5,'(A)',iostat=ctrl) Line
         if (ctrl /= 0) call error(991)
-        call LeftAd(Line)
+        Line = adjustl(Line)
         if (.not. (Line(1:1) == ' ' .or. Line(1:1) == '*')) exit
       end do
       i1 = 1
@@ -575,7 +575,7 @@ mainLoop: do
         newline = newline+1
         read(u5,'(A)',iostat=ctrl) Line
         if (ctrl /= 0) call error(991)
-        call LeftAd(Line)
+        Line = adjustl(Line)
         if (Line(1:1) == ' ' .or. Line(1:1) == '*') cycle
         call UpCase(Line)
         call StdFmt(Line,Token)
@@ -611,7 +611,7 @@ mainLoop: do
         newline = newline+1
         read(u5,'(A)',iostat=ctrl) Line
         if (ctrl /= 0) call error(991)
-        call LeftAd(Line)
+        Line = adjustl(Line)
         if (.not. (Line(1:1) == ' ' .or. Line(1:1) == '*')) exit
       end do
       read(Line,*) nSets

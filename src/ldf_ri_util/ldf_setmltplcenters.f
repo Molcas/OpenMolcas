@@ -17,7 +17,7 @@ C
 C     Set multipole centers.
 C
       use Sizes_of_Seward, only: S
-      use Real_Info, only: CoM
+      use Gateway_Info, only: CoM
       Implicit Real*8 (a-h,o-z)
 
       If (MltplOrder.ge.0) Then

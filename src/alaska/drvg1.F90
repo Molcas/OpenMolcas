@@ -36,7 +36,7 @@ use iSD_data, only: iSD
 use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr
 use Basis_Info, only: Shells
 use Sizes_of_Seward, only: S
-use Real_Info, only: CutInt
+use Gateway_Info, only: CutInt
 use Symmetry_Info, only: nIrrep
 use Para_Info, only: nProcs, King
 use stdalloc, only: mma_allocate, mma_deallocate

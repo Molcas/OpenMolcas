@@ -12,10 +12,10 @@
      &                dW_dR,nGrad_Eff,iTab,dW_Temp,dPB,nGrid)
       use nq_Grid, only: Pax
       use NQ_Structure, only: NQ_data
+      use nq_Info
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "itmax.fh"
-#include "nq_info.fh"
 #include "debug.fh"
       Real*8 R(3,nGrid), Weights(nGrid), dW_dR(nGrad_Eff,nGrid),
      &       dW_Temp(3,nlist_p), dPB(3,nlist_p,nlist_p), sxyz(3),

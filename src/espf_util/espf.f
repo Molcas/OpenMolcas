@@ -28,12 +28,14 @@
       Logical Forces,Show_espf,StandAlone,DoTinker,DoGromacs,DynExtPot
       Logical lMorok,DoDirect,isNAC_tmp
       Dimension idum(1)
+      Logical :: Close_Seward
 *
       iReturn=99
 *
 *-----Print
 *
       iPL = iPL_espf()
+      Close_Seward=.False.
 *
 * Some warnings
 *
@@ -176,7 +178,7 @@
          Call espf_mltp(natom,MltOrd,nMult,nGrdPt,ipTTT,ipMltp,ipGrid,
      &                  ipIsMM,ipExt,iPL)
       End If
-      Call ClsSew()
+      Close_Seward=.True.
 *
 98    Continue
 *
@@ -215,6 +217,7 @@
          VarT = .true.
          Call Symmetry_Info_Dmp()
       End If
+      If (Close_Seward) Call ClsSew()
 *
       iReturn=0
       Return

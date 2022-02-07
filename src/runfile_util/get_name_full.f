@@ -12,9 +12,11 @@
       Implicit None
 #include "Molcas.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
       Character*2 Element(*)
-      Integer nAtom, nAtMM, ipLabMM, i
+      Integer nAtom, nAtMM, i
       Logical Found
+      Character(len=LENIN), Allocatable :: LabMM(:)
 *
       Call Get_nAtoms_All(nAtom)
       Call Get_Name_All(Element)
@@ -22,15 +24,13 @@
       Call Qpg_cArray('MMO Labels',Found,nAtMM)
       If (Found) Then
         nAtMM=nAtMM/LENIN
-        Call GetMem('MMO Labels','ALLO','CHAR',ipLabMM,LENIN*nAtMM)
-        Call Get_cArray('MMO Labels',cWork(ipLabMM),LENIN*nAtMM)
+        Call mma_allocate(LabMM,nAtMM,label='MMO Labels')
+        Call Get_cArray('MMO Labels',LabMM,LENIN*nAtMM)
         Do i=1,nAtMM
-          Element(nAtom+i)=cWork(ipLabMM+(i-1)*LENIN)//
-     &                     cWork(ipLabMM+(i-1)*LENIN+1)
-          If (cWork(ipLabMM+(i-1)*LENIN+1).eq.'_')
-     &      Element(nAtom+i)(2:2)=' '
+          Element(nAtom+i)=LabMM(i)(1:2)
+          If (Element(nAtom+i)(2:2).eq.'_') Element(nAtom+i)(2:2)=' '
         End Do
-        Call GetMem('MMO Labels','FREE','CHAR',ipLabMM,LENIN*nAtMM)
+        Call mma_deallocate(LabMM)
       End If
 *
       Return

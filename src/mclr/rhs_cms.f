@@ -332,7 +332,7 @@
 *      Input
 *      Output
        Real*8,DIMENSION(nRoots*(nRoots+1)/2,nnA,nnA)::GDMat
-*      Auxillary qunatities
+*      Auxiliary quantities
        Real*8,DIMENSION(:),Allocatable::GDArray
        Real*8,DIMENSION(n2dens)::rdum
        INTEGER I,J,IOrb,JOrb,NIJ

@@ -31,8 +31,8 @@
 *             Modified for special routines Jan-Mar '94                *
 ************************************************************************
       use vRys_RW
-      use Real_Info, only: ChiI2
-      use Temporary_parameters, only: IsChi
+      use Gateway_Info, only: ChiI2
+      use Gateway_global, only: IsChi
       Implicit Real*8 (A-H,O-Z)
       External Tvalue, ModU2, Cff2D, Rys2D
 #include "notab.fh"

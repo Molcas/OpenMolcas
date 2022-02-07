@@ -35,11 +35,11 @@
 *> @note
 *> Requires initialization of the Cholesky information.
 *>
-*> @param[out]    irc     Return code
-*> @param[in]     MO      type DSBA_Type of block of the MO matrix, stored as \p C(k,a)
-*> @param[in]     nOcc    Number of orbitals to be localized in each symmetry
-*> @param[in,out] Rij     \p nOcc &times; \p nOcc symmetry blocked matrix \f$  R_{ij} = (ij|jj) \f$
-*> @param[in]     timings Switch on/off timings printout
+*> @param[out] irc     Return code
+*> @param[in]  MO      type DSBA_Type of block of the MO matrix, stored as \p C(k,a)
+*> @param[in]  nOcc    Number of orbitals to be localized in each symmetry
+*> @param[out] Rij     \p nOcc &times; \p nOcc symmetry blocked matrix \f$  R_{ij} = (ij|jj) \f$
+*> @param[in]  timings Switch on/off timings printout
 ************************************************************************
       SUBROUTINE CHO_get_Rij(irc,MO,nOcc,Rij,timings)
       use ChoArr, only: nDimRS

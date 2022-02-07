@@ -1342,6 +1342,18 @@ Optional keywords
               </HELP>
               </KEYWORD>
 
+:kword:`NQDIrect`
+  Recompute the values of the AOs on every SCF iteration. Default is to write them on disk on the
+  first iteration and then retrieve them.
+
+  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="NQDI" APPEAR="Direct evaluation of AOs" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: NQDirect (NQ) <advanced>
+              <HELP>
+              Recompute the values of the AOs on every SCF iteration. Default is to write them on disk on the
+              first iteration and then retrieve them.
+              </HELP>
+              </KEYWORD>
+
   .. :kword:`WHOLe`
        It activates the use of routines which scan the whole atomic grid for
        each sub block. Default is to only scan the relevant part.
@@ -1395,26 +1407,18 @@ Optional keywords
               </HELP>
               </KEYWORD>
 
-:kword:`T_X`
-  Threshold for screening in the assembling of the density on the grid.
-  Default value is 1.0D-18.
-
-  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="T_X" KIND="REAL" DEFAULT_VALUE="1.0D-18" LEVEL="ADVANCED">
-              %%Keyword: T_X (NQ) <advanced>
-              <HELP>
-              Threshold for screening in the assembling of the density on the grid.
-              Default value is 1.0D-18.
-              </HELP>
-              </KEYWORD>
-
 :kword:`T_Y`
   Threshold for screening in the assembling of the integrals.
+  Note that in the SCF module the value is optionally adjusted to be the lower of the input or
+  a value one magnitude tighter than the energy threshold.
   Default value is 1.0D-11.
 
   .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="T_Y" KIND="REAL" DEFAULT_VALUE="1.0D-11" LEVEL="ADVANCED">
               %%Keyword: T_Y (NQ) <advanced>
               <HELP>
               Threshold for screening in the assembling of the integrals.
+              Note that in the SCF module the value is optionally adjusted to be the lower of the input or
+              a value one magnitude tighter than the energy threshold.
               Default value is 1.0D-11.
               </HELP>
               </KEYWORD>

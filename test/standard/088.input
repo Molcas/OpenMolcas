@@ -2,9 +2,9 @@
 * Molecule: H2O
 * Basis: ano-s 3s2p1d/2s1p
 * Symmetry: C2v
-* Features tested: SEW(inline),SCF,RASSCF,CASPT2,CASPT2_GRAD,SLAPAF
+* Features tested: SEW(inline),SCF,RASSCF,SLAPAF
 * Responsible person: P.-O. Widmark 041227
-* Comments: Geometry optimization with CASPT2_GRAD
+* Comments:
 *-------------------------------------------------------------------------------
 &Gateway
 Symmetry

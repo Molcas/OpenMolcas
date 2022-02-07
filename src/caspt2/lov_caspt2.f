@@ -156,8 +156,9 @@ C     -----------------------------------------------------------
      &                      Zero,Work(ipZ),nBx)
          jBas=lBas+1
          kBas=lBas+nBas(iSym)
-         Call BasFun_Atom_(iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),
-     &                     Name,jBas,kBas,nUniqAt,.false.)
+         Call BasFun_Atom_Sym(iWork(ip_nBas_per_Atom),
+     &                        iWork(ip_nBas_Start),
+     &                        Name,jBas,kBas,nUniqAt,.false.)
          Do ik=0,nAsh(iSym)-1
             nAk=nUniqAt*ik
             nBk=nBas(iSym)*ik

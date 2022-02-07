@@ -20,7 +20,7 @@
       use nq_Grid, only: GradRho,Weights
       use nq_Grid, only: vRho, vSigma
       use nq_pdft
-#include "nq_info.fh"
+      use nq_Info
 #include "ksdft.fh"
 #include "stdalloc.fh"
 ******Input

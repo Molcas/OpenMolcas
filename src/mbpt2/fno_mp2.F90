@@ -215,7 +215,7 @@ if (MP2_small) then
   iOff = 1
   do iSym=1,nSym  ! canonical orb. in the reduced virtual space
     jD = iOff
-    call Get_Can_Lorb(OrbE(lOff,4),OrbE(jOff,1),nSsh(iSym),lnVir(iSym),iD,X(jD),iSym)
+    call Get_Can_Lorb(OrbE(lOff,4),OrbE(jOff,1),nSsh(iSym),lnVir(iSym),iD,X(jD))
 
     kfr = kOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym))
     kto = kOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym))

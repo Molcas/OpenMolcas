@@ -30,11 +30,10 @@ use MpmC, only: Coor_MPM
 use Basis_Info, only: dbsc, nBas, nCnttp, basis_info_dmp, basis_info_init, basis_info_get, basis_info_free
 use Center_Info, only: dc, center_info_dmp, center_info_init, center_info_get, center_info_free
 use external_centers, only: iXPolType, XF
-use Temporary_parameters, only: Primitive_Pass, Expert, DirInt
+use Gateway_global, only: DirInt, Expert, G_Mode, Primitive_Pass, Run_Mode
 use Sizes_of_Seward, only: S
 use RICD_Info, only: Do_RI, Cholesky, Cho_OneCenter
 use Symmetry_Info, only: nIrrep, VarR, VarT
-use Gateway_global, only: Run_Mode, G_Mode
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
