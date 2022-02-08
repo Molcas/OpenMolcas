@@ -47,6 +47,7 @@ extensions = [
     #'sphinx.ext.pngmath',
     'sphinxcontrib.bibtex',
     #'rst2pdf.pdfbuilder',
+    'patch',
     'transforms',
     'xmldoc',
     'extractfile',
@@ -411,9 +412,7 @@ latex_elements['fontpkg'] = r'\usepackage[notextcomp]{kpfonts}'
 latex_elements['fontenc'] = r'\usepackage[LGR,T1]{fontenc}'
 latex_elements['sphinxsetup'] = ''
 if sphinx.version_info >= (3, 5, 0, '', 0):
-  latex_elements['sphinxsetup'] += 'verbatimforcewraps=true,'
-  # Workaround for bug #9529 (or similar)
-  latex_elements['sphinxsetup'] += 'AtStartFootnote=\sphinxstepscope,'
+  latex_elements['sphinxsetup'] += r'verbatimforcewraps=true,'
 latex_elements['preamble'] = r'''\usepackage{molcas}
 \pagestyle{plain}
 \setsecnumdepth{subparagraph}
@@ -447,6 +446,7 @@ latex_elements['preamble'] += r'''
   \renewcommand{\theliteralblock}{\thepart.\oldtheliteralblock}%
   \let\oldtheequation\theequation%
   \renewcommand{\theequation}{\thepart.\oldtheequation}%
+  \renewcommand{\pagename}{p.\@}%
 }
 % Missing unicode character(s)?
 \DeclareUnicodeCharacter{03A6}{$\Phi$}
