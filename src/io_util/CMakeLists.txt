@@ -48,6 +48,7 @@ set (sources
      fscb2unit.F90
      get_mbl_wa.F90
      handle2name.F90
+     i1dafile.F90
      idafile.F90
      isfreeunit.F90
      is_opened.F90

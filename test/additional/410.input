@@ -34,7 +34,7 @@ group = nosym
     1
 
   &MCPDFT
-    KSDFT=TPBE
+    KSDFT=T:PBE
     gradient
   End of input
 

@@ -13,7 +13,7 @@ subroutine FTwo_Drv(nSym,nBas,nAsh,nSkipX,DI,D1A,FA,nTot1,ExFac,nBMX,CMO)
 
 use Fock_util_interface, only: CHORAS_DRV
 use Fock_util_global, only: ALGO
-use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type
+use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -35,7 +35,7 @@ if (DoCholesky .and. (ALGO == 2)) then
 
   ! Building of the Fock matrix directly from Cholesky vectors
 
-  call Allocate_DSBA(WFSQ(1),nBas,nBas,nSym)
+  call Allocate_DT(WFSQ(1),nBas,nBas,nSym)
   WFSQ(1)%A0(:) = Zero
 
   call mma_allocate(Temp,nTot1,Label='nTot1')
@@ -46,7 +46,7 @@ if (DoCholesky .and. (ALGO == 2)) then
   FA(1:nTot1) = FA(1:nTot1)+Temp(1:nTot1)
 
   call mma_deallocate(Temp)
-  call Deallocate_DSBA(WFSQ(1))
+  call Deallocate_DT(WFSQ(1))
 
 else
 

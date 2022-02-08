@@ -41,16 +41,16 @@ call rdnlst(luspool,'DMRGSCF')
 !> find line as_solver; next unblank line should be the active space solver
 do
   line = get_ln(luspool)
-  call leftad(line)
   call upcase(line)
+  line = adjustl(line)
 
   if (line == '') cycle
 
   if (line(1:4) == 'ACTI') then
     do
       line2 = get_ln(luspool)
-      call leftad(line2)
       call upcase(line2)
+      line2 = adjustl(line2)
       if (line2 /= '') then
         is_solver(1:8) = line2(1:8)
         exit
@@ -61,8 +61,8 @@ do
   if (line(1:4) == 'CIDE') then
     do
       line2 = get_ln(luspool)
-      call leftad(line2)
       call upcase(line2)
+      line2 = adjustl(line2)
       if (line2 /= '') then
         onoff(1:2) = line2(1:2)
 #       ifdef _DMRG_
@@ -76,8 +76,8 @@ do
   if (line(1:4) == 'FIED') then
     do
       line2 = get_ln(luspool)
-      call leftad(line2)
       call upcase(line2)
+      line2 = adjustl(line2)
       if (line2 /= '') then
         onoff(1:2) = line2(1:2)
 #       ifdef _DMRG_

@@ -13,19 +13,15 @@
 *     Return the factor which determines how much "exact exchange" that*
 *     should be included.                                              *
 ************************************************************************
+      Use Functionals, Only: Get_Func_ExFac
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "hflda.fh"
       Real*8 Get_ExFac
       Character*(*) KSDFT
       Character*16  cTmp
-      logical l_casdft
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Get_ExFac=One
-c      Get_ExFac=HFLDA
-*
 *     Write functional to run file.
 *
       If (KSDFT.ne.'Overlap') Then
@@ -34,108 +30,42 @@ c      Get_ExFac=HFLDA
       End If
 *                                                                      *
 ************************************************************************
-* Global variable for MCPDFT                                           *
-
-       l_casdft = KSDFT.eq.'TLSDA'   .or.
-     &            KSDFT.eq.'TLSDA5'  .or.
-     &            KSDFT.eq.'TBLYP'   .or.
-     &            KSDFT.eq.'TSSBSW'  .or.
-     &            KSDFT.eq.'TSSBD'   .or.
-     &            KSDFT.eq.'TS12G'   .or.
-     &            KSDFT.eq.'TPBE'    .or.
-     &            KSDFT.eq.'FTPBE'   .or.
-     &            KSDFT.eq.'TOPBE'   .or.
-     &            KSDFT.eq.'FTOPBE'  .or.
-     &            KSDFT.eq.'TREVPBE' .or.
-     &            KSDFT.eq.'FTREVPBE'.or.
-     &            KSDFT.eq.'FTLSDA'  .or.
-     &            KSDFT.eq.'FTBLYP'
-      If (l_casdft) Then
+*                                                                      *
+      If (KSDFT(1:2).eq.'T:' .or. KSDFT(1:3).eq.'FT:') Then
          Get_ExFac=Zero
          Return
       End If
-
-
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     We bring in olny cases where it is different from zero.
+*     We bring in only cases where it is different from zero.
       Select Case(KSDFT)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     B3LYP                                                            *
+*     CASDFT                                                           *
 *                                                                      *
-      Case ('B3LYP ')
-         Get_ExFac=One-0.80D0
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     O3LYP                                                            *
-*                                                                      *
-      Case ('O3LYP ')
-         Get_ExFac = 0.1161D0
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     B2PLYP                                                           *
-*                                                                      *
-      Case ('B2PLYP')
-         Get_ExFac=0.530D0
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     O2PLYP                                                           *
-*                                                                      *
-      Case ('O2PLYP')
-         Get_ExFac=0.50D0
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     B3LYP5                                                           *
-*                                                                      *
-      Case ('B3LYP5')
-         Get_ExFac=One-0.80D0
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     CASDFT, SCF, CS, M06-HF, TLYP                                    *
-*                                                                      *
-      Case ('CASDFT','SCF','CS','M06HF','TLYP')
+      Case ('CASDFT')
          Get_ExFac=One
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     S12H                                                             *
+*     SCF                                                              *
 *                                                                      *
-      Case ('S12H')
-         Get_ExFac=0.25d0
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     M06                                                              *
-*                                                                      *
-      Case ('M06 ')
-         Get_ExFac=0.27D0
+      Case ('SCF')
+         Get_ExFac=One
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     M06-2X                                                           *
+*     CS                                                               *
 *                                                                      *
-      Case ('M062X')
-         Get_ExFac=0.54D0
-*
-************************************************************************
-*                                                                      *
-*     PBE0                                                             *
-*                                                                      *
-      Case ('PBE0')
-         Get_ExFac=0.25D0
+      Case ('CS')
+         Get_ExFac=One
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Case Default
-         Get_ExFac=0.0D0
+         Get_ExFac = Get_Func_ExFac(KSDFT)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -143,5 +73,4 @@ c      Get_ExFac=HFLDA
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Return
       End

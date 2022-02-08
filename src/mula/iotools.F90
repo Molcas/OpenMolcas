@@ -56,8 +56,8 @@ do while (.true.)
     write(u6,*) 'Looking for: &'//StdNam
     call Quit_OnUserError()
   end if
-  call LeftAd(Line)
   call UpCase(Line)
+  Line = adjustl(Line)
   if ((Line(1:1) == '&') .and. (Line(2:lStdNam+1) == StdNam(1:lStdNam))) exit
 end do
 

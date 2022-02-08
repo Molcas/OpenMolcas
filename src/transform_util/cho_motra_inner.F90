@@ -13,7 +13,7 @@ subroutine Cho_MOTra_Inner(CMO,nCMOs,nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,BName,Do
 ! Note: frozen and deleted orbitals are not included in the transformation.
 
 use Symmetry_Info, only: Mul
-use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type
+use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -55,7 +55,7 @@ if (n /= nCMOs) then
 end if
 
 nAux(1:nSym) = nBas(1:nSym)-nFro(1:nSym)-nDel(1:nSym)
-call Allocate_DSBA(CMOT(1),nAux,nBas,nSym)
+call Allocate_DT(CMOT(1),nAux,nBas,nSym)
 
 call Transp_MOs(CMO,CMOT(1)%A0,nSym,nFro,nIsh,nAsh,nSsh,nBas)
 
@@ -111,7 +111,7 @@ if (Do_int) then
   call daclos(Lu_Xint)
 end if
 call mma_deallocate(XInt)
-call Deallocate_DSBA(CMOT(1))
+call Deallocate_DT(CMOT(1))
 
 return
 

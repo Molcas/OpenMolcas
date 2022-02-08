@@ -41,7 +41,7 @@ subroutine CHO_FMCSCF(rc,FLT,nForb,nIorb,nAorb,FactXI,DLT,DoActive,POrb,nChM,W_P
 use ChoArr, only: nDimRS
 use ChoSwp, only: InfVec
 use Symmetry_Info, only: MulD2h => Mul
-use Data_structures, only: Allocate_SBA, Allocate_twxy, Deallocate_SBA, Deallocate_twxy, DSBA_Type, SBA_Type, twxy_Type
+use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, SBA_Type, twxy_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
@@ -123,7 +123,7 @@ do jSym=1,nSym
   if (NumCho(jSym) < 1) cycle
 
   iCase = 1 ! (wa|xy)
-  call Allocate_twxy(Scr,nAorb,nBas,JSYM,nSym,iCase)
+  call Allocate_DT(Scr,nAorb,nBas,JSYM,nSym,iCase)
 
   ! --- Set up the skipping flags --------
   ! -------------------------------------------------------------
@@ -225,7 +225,7 @@ do jSym=1,nSym
 
     do iBatch=1,nBatch
       iSwap = 2 ! LpJ,b are returned
-      call Allocate_SBA(Laq(1),nAux,nBas,nVec,JSYM,nSym,iSwap)
+      call Allocate_DT(Laq(1),nAux,nBas,nVec,JSYM,nSym,iSwap)
       if (iBatch == nBatch) then
         JNUM = nVrs-nVec*(nBatch-1)
       else
@@ -347,11 +347,11 @@ do jSym=1,nSym
       texch(1) = texch(1)+(TCX2-TCX1)
       texch(2) = texch(2)+(TWX2-TWX1)
 
-      call Deallocate_SBA(Laq(1))
+      call Deallocate_DT(Laq(1))
 
       if (DoActive) then
         iSwap = 2  ! LxJ,b are returned
-        call Allocate_SBA(Laq(2),nChM,nBas,nVec,JSYM,nSym,iSwap)
+        call Allocate_DT(Laq(2),nChM,nBas,nVec,JSYM,nSym,iSwap)
         ! *********************** "CHOLESKY" HALF-TRANSFORMATION  ****************
         ! ----------------------------------------------------------------
         ! Using "Cholesky MOs" obtained by cholesky decomposing DA
@@ -403,7 +403,7 @@ do jSym=1,nSym
         texch(1) = texch(1)+(TCX4-TCX3)
         texch(2) = texch(2)+(TWX4-TWX3)
 
-        call Deallocate_SBA(Laq(2))
+        call Deallocate_DT(Laq(2))
       end if ! Do Active Exchange
       ! ************  END EXCHANGE CONTRIBUTIONS  ****************
 
@@ -412,10 +412,10 @@ do jSym=1,nSym
       ! ----------------------------------------------------------------
       ! Lvw,J, LT-storage for the diagonal symmetry blocks
       iSwap = 4
-      call Allocate_SBA(Lxy,nAorb,nAorb,nVec,JSYM,nSym,iSwap)
+      call Allocate_DT(Lxy,nAorb,nAorb,nVec,JSYM,nSym,iSwap)
 
       iSwap = 0 ! Lvb,J are returned
-      call Allocate_SBA(Laq(3),nAorb,nBas,nVec,JSYM,nSym,iSwap)
+      call Allocate_DT(Laq(3),nAorb,nBas,nVec,JSYM,nSym,iSwap)
 
       call CWTIME(TCR7,TWR7)
 
@@ -500,8 +500,8 @@ do jSym=1,nSym
 
       ! --------------------------------------------------------------------
       ! --------------------------------------------------------------------
-      call Deallocate_SBA(Lxy)
-      call Deallocate_SBA(Laq(3))
+      call Deallocate_DT(Lxy)
+      call Deallocate_DT(Laq(3))
 
     end do  ! end batch loop
 
@@ -521,7 +521,7 @@ do jSym=1,nSym
 
   end do ! loop over red sets
 
-  call Deallocate_twxy(Scr)
+  call Deallocate_DT(Scr)
 
 end do ! loop over JSYM
 

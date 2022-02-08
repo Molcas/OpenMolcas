@@ -91,7 +91,7 @@ do iAtom=1,nAt
       if ((dMag > ThrsMul_Clever) .and. (l <= 1)) then
         AboveThr = .true.
         AboveMul(l+1) = .true.
-      elseif ((dMag <= ThrsMul_Clever) .and. (l <= 1)) then
+      else if ((dMag <= ThrsMul_Clever) .and. (l <= 1)) then
         AboveMul(l+1) = .false.
       end if
     end do

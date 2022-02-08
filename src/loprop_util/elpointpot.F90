@@ -60,11 +60,11 @@ y5 = y**5
 z5 = z**5
 if (L == 0) then
   Pot = Pot+D(1)*rinv
-elseif (L == 1) then
+else if (L == 1) then
   Pot = Pot+D(1)*x*r3
   Pot = Pot+D(2)*y*r3
   Pot = Pot+D(3)*z*r3
-elseif (L == 2) then
+else if (L == 2) then
   Pot = Pot+D(1)*(Three*x2*r5-r3)
   Pot = Pot+Two*D(2)*(Three*x*y*r5)
   Pot = Pot+Two*D(3)*(Three*x*z*r5)
@@ -72,7 +72,7 @@ elseif (L == 2) then
   Pot = Pot+Two*D(5)*(Three*y*z*r5)
   Pot = Pot+D(6)*(Three*z2*r5-r3)
   Pot = Pot/Two
-elseif (L == 3) then
+else if (L == 3) then
   Pot = Pot+D(1)*(r15*x3*r7-Nine*x*r5)
   Pot = Pot+Three*D(2)*(r15*x2*y*r7-Three*y*r5)
   Pot = Pot+Three*D(3)*(r15*x2*z*r7-Three*z*r5)
@@ -84,7 +84,7 @@ elseif (L == 3) then
   Pot = Pot+Three*D(9)*(r15*y*z2*r7-Three*y*r5)
   Pot = Pot+D(10)*(r15*z3*r7-Nine*z*r5)
   Pot = Pot/Six
-elseif (L == 4) then
+else if (L == 4) then
   Pot = Pot+D(1)*(r105*x4*r9-r90*x2*r7+Nine*r5)
   Pot = Pot+D(2)*Four*(r105*x3*y*r9-r45*x*y*r7)
   Pot = Pot+D(3)*Four*(r105*x3*z*r9-r45*x*z*r7)
@@ -101,7 +101,7 @@ elseif (L == 4) then
   Pot = Pot+D(14)*Four*(r105*y*z3*r9-r45*y*z*r7)
   Pot = Pot+D(15)*(r105*z4*r9-r90*z2*r7+Nine*r5)
   Pot = Pot/r24
-elseif (L == 5) then
+else if (L == 5) then
   Pot = Pot+D(1)*(r945*x5*r11-r1050*x3*r9+r225*x*r7)
   Pot = Pot+D(2)*(r945*x4*y*r11-r630*x2*y*r9+r45*y*r7)
   Pot = Pot+D(3)*(r945*x4*z*r11-r630*x2*z*r9+r45*z*r7)

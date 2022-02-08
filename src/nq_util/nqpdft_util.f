@@ -15,7 +15,7 @@
 * Jie J. Bao, on Dec. 08, 2021, created this file.               *
 * ****************************************************************
       Subroutine CalcOrbOff()
-#include "nq_info.fh"
+      use nq_Info
 
       INTEGER jOffA_,jOffB_,nTri,iIrrep
 
@@ -55,7 +55,7 @@
       End Subroutine
 
       Subroutine CalcPUVXOff()
-#include "nq_info.fh"
+      use nq_Info
 
       INTEGER IOff1,iIrrep,jIrrep,kIrrep,lIrrep,iOrb,jAct,kAct,lAct,
      &        ijIrrep,klIrrep,nklAct
@@ -118,7 +118,7 @@ C      write(6,'(8(I5,2X))')(OffPUVX(iIrrep),iIrrep=0,mIrrep-1)
       End Subroutine
 
       Subroutine TransActMO(MOs,TabMO,mAO,mGrid,nMOs)
-#include "nq_info.fh"
+      use nq_Info
 ******Purpose:
 ******Trasnferring active orbitals to the MOs array.
 ******It records the MO values on each grid point.
@@ -148,7 +148,7 @@ C      write(6,'(8(I5,2X))')(OffPUVX(iIrrep),iIrrep=0,mIrrep-1)
 
 
       Subroutine TransActMO2(MOs,MOas,mGrid)
-#include "nq_info.fh"
+      use nq_Info
 ******Purpose:
 ******obtaining an active MO array with a structure of MOs in
 ******TransActMO from an MO array with a structure of that in
@@ -176,7 +176,7 @@ C      write(6,'(8(I5,2X))')(OffPUVX(iIrrep),iIrrep=0,mIrrep-1)
 
 
       Subroutine TransferMO(MOas,TabMO,mAO,mGrid,nMOs,iAO)
-#include "nq_info.fh"
+      use nq_Info
 
 ******Purpose:
 ******Transferring MO information to MOas to be used in dgemm.
@@ -206,7 +206,7 @@ C      write(6,'(8(I5,2X))')(OffPUVX(iIrrep),iIrrep=0,mIrrep-1)
 
 
       Subroutine PackPot1(Packed,Full,nPack,Factor)
-#include "nq_info.fh"
+      use nq_Info
 
 ******Input
       Real*8 Factor
@@ -231,7 +231,7 @@ C      write(6,'(8(I5,2X))')(OffPUVX(iIrrep),iIrrep=0,mIrrep-1)
       End Subroutine
 
       Subroutine UnzipD1(D1Unzip,D1MO,nD1MO)
-#include "nq_info.fh"
+      use nq_Info
 
 ******Input
       INTEGER nD1MO
@@ -262,7 +262,7 @@ C      write(6,'(8(I5,2X))')(OffPUVX(iIrrep),iIrrep=0,mIrrep-1)
 
 
       Subroutine UnzipP2(P2Unzip,P2MO,nP2Act)
-#include "nq_info.fh"
+      use nq_Info
 
 ******Input
       INTEGER nP2Act
@@ -328,8 +328,8 @@ C      write(6,'(8(I5,2X))')(OffPUVX(iIrrep),iIrrep=0,mIrrep-1)
      &                        nPMO3p,MOs,MOx,MOy,MOz,TabMO,P2Unzip,
      &                        mAO,mGrid,nMOs,do_grad)
       use nq_pdft, only: lft, lGGA
+      use nq_Info
       Implicit Real*8 (A-H,O-Z)
-#include "nq_info.fh"
 #include "stdalloc.fh"
 
 ******Input
@@ -452,33 +452,36 @@ C       CALL RecPrt(' ','(10(F9.5,1X))',P2MOCube(IOff1),1,NASHT)
       Subroutine ConvertTabSO(TabSO2,TabSO,mAO,mGrid,nMOs)
       use nq_pdft, only: lft, lGGA
 
-      INTEGER mAO,mGrid,nMOs,iGrid,nAOGrid,iGridOff,iCoordOff
-      Real*8,DIMENSION(mAO,mGrid,nMOs)::TabSO
-      Real*8,DIMENSION(mAO*mGrid*nMOs)::TabSO2
+      INTEGER mAO,mGrid,nMOs,iGrid,nAOGrid
+      Real*8 :: TabSO(mAO,mGrid,nMOs)
+      Real*8 :: TabSO2(nMOs,mAO*mGrid)
 
-      INTEGER iCoord
+      INTEGER :: iSt, iEnd, iAO, jAO, iOff
 
-      nAOGrid=mAO*mGrid
+      nAOGrid=mAO*mGrid   ! TabSO : mAO*mGrid x nMOs
+                          ! TabSO2: nMOs x mAO*nGrid
 
-      DO iGrid=1,mGrid
-       IGridOff=(iGrid-1)*mAO*nMOs
-       Do iCoord=1,3
-        ICoordOff=IGridOff+(iCoord-1)*nMOs+1
-        CALL DCopy_(nMOs,TabSO((iCoord+1),iGrid,1),nAOGrid,
-     &                   TabSO2(iCoordOff),1)
-       End Do
-      END DO
+      ! loop over first and optionally second derivatives of the SOs
+      ! this defines the length of nAO to 3 or 9.
+      iSt = 1
+      If (lft.and.lGGA) Then
+         iEnd = 9
+      Else
+         iEnd = 3
+      End If
+
+      Do iGrid=1,mGrid
 
 
-      IF(lft.and.lGGA) THEN
-       DO iGrid=1,mGrid
-        IGridOff=(iGrid-1)*mAO*nMOs
-        Do iCoord=4,9
-         ICoordOff=IGridOff+(iCoord-1)*nMOs+1
-         CALL DCopy_(nMOs,TabSO((iCoord+1),iGrid,1),nAOGrid,
-     &                    TabSO2(iCoordOff),1)
-        End Do
-       END DO
-      END IF
+         Do jAO=iSt, iEnd
+
+            iOff = (iGrid-1)*mAO + jAO
+
+            iAO=jAO+1
+            CALL DCopy_(nMOs,TabSO(iAO,iGrid,1),nAOGrid,
+     &                       TabSO2(:,iOff),1)
+         End Do
+      End Do
+
       RETURN
-      End Subroutine
+      End Subroutine ConvertTabSO

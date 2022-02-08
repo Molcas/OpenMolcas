@@ -27,7 +27,7 @@
 * Note :  the corresponding finalization subroutine is ClsSew          *
 ************************************************************************
       use Sizes_of_Seward, only: S
-      use Real_Info, only: ThrInt, CutInt
+      use Gateway_Info, only: ThrInt, CutInt
       use OFembed, only: Do_OFemb
       Implicit Real*8 (A-H,O-Z)
       External EFP_On
@@ -72,14 +72,14 @@ c Avoid unused argument warnings
       End If
       End
       Function Get_ThrInt()
-      use Real_Info, only: ThrInt
+      use Gateway_Info, only: ThrInt
       Implicit Real*8 (A-H,O-Z)
       Real*8 Get_ThrInt
       Get_ThrInt=ThrInt
       Return
       End
       Subroutine xSet_ThrInt(tmp)
-      use Real_Info, only: ThrInt
+      use Gateway_Info, only: ThrInt
       Implicit Real*8 (A-H,O-Z)
       ThrInt=tmp
       Return

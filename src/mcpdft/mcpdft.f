@@ -353,17 +353,8 @@ CGG03 Aug 03
 *                                                                      *
 
 !      goto 413 !Jump 1
-      if(KSDFT(1:5).eq.'TLSDA'.or. !GLM
-     &   KSDFT(1:5).eq.'TBLYP'.or.
-     &   KSDFT(1:5).eq.'FTPBE'.or.
-     &   KSDFT(1:7).eq.'TREVPBE'.or.
-     &   KSDFT(1:8).eq.'FTREVPBE'.or.
-     &   KSDFT(1:6).eq.'FTLSDA'.or.
-     &   KSDFT(1:6).eq.'FTBLYP'.or.
-     &   KSDFT(1:4).eq.'TPBE'.or.
-     &   KSDFT(1:5).eq.'TOPBE'.or.
-     &   KSDFT(1:6).eq.'FTOPBE' ) then
-      KSDFT_TEMP=KSDFT
+      if (KSDFT(1:5).eq.'T:'.or. KSDFT(1:3).eq.'FT:') Then
+         KSDFT_TEMP=KSDFT
         KSDFT='SCF'
         ExFac=1.0D0
       else
@@ -385,10 +376,7 @@ CGG03 Aug 03
            DoActive = .true.
         Else
            lRf = .false.
-           IF(KSDFT_TEMP(1:5).ne.'TLSDA'.and. !GLM
-     &        KSDFT_TEMP(1:5).ne.'TBLYP'.and.
-     &        KSDFT_TEMP(1:4).ne.'TPBE'.and.
-     &        KSDFT_TEMP(1:5).ne.'TOPBE')  then
+           IF(KSDFT_TEMP(1:2).ne.'T:') Then
             KSDFT='SCF'
             ExFac=1.0D0
            end IF
@@ -526,21 +514,10 @@ CGG03 Aug 03
          Write(IterFile,'(15X,A,I3)') 'RASSCF iteration: ',Iter
       End If
 *
-        IF(KSDFT_TEMP(1:5).eq.'TLSDA'.or. !GLM
-     &     KSDFT_TEMP(1:5).eq.'TBLYP'.or.
-     &     KSDFT_TEMP(1:5).eq.'FTPBE'.or.
-     &     KSDFT_TEMP(1:7).eq.'TREVPBE'.or.
-     &     KSDFT_TEMP(1:8).eq.'FTREVPBE'.or.
-     &     KSDFT_TEMP(1:6).eq.'FTLSDA'.or.
-     &     KSDFT_TEMP(1:6).eq.'FTBLYP'.or.
-     &     KSDFT_TEMP(1:4).eq.'TPBE'.or.
-     &     KSDFT_TEMP(1:5).eq.'TOPBE'.or.
-     &     KSDFT_TEMP(1:6).eq.'FTOPBE') then
-            KSDFT=KSDFT_TEMP
-            ExFac=0.0d0
-*        ExFac=Get_ExFac(KSDFT)
+        IF (KSDFT_TEMP(1:2).eq.'T:'.or.KSDFT_TEMP(1:3).eq.'FT:') Then
+           KSDFT=KSDFT_TEMP
+           ExFac=0.0d0
         end IF
-
 *
 * Transform two-electron integrals and compute at the same time
 * the Fock matrices FI and FA
@@ -672,16 +649,7 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
 !      end do
 
 
-      IF(KSDFT_TEMP(1:5).eq.'TLSDA'.or. !GLM
-     &    KSDFT_TEMP(1:5).eq.'TBLYP'.or.
-     &     KSDFT_TEMP(1:5).eq.'FTPBE'.or.
-     &     KSDFT_TEMP(1:7).eq.'TREVPBE'.or.
-     &     KSDFT_TEMP(1:8).eq.'FTREVPBE'.or.
-     &     KSDFT_TEMP(1:6).eq.'FTLSDA'.or.
-     &     KSDFT_TEMP(1:6).eq.'FTBLYP'.or.
-     &    KSDFT_TEMP(1:4).eq.'TPBE'.or.
-     &     KSDFT_TEMP(1:5).eq.'TOPBE'.or.
-     &     KSDFT_TEMP(1:6).eq.'FTOPBE') THEN
+      IF(KSDFT_TEMP(1:2).eq.'T:'.or. KSDFT_TEMP(1:3).eq.'FT:') Then
        IF(DoGradMSPD) THEN
         Call GetMem('F1MS' ,'Allo','Real',iF1MS ,nTot1*nRoots)
         Call GetMem('FocMS','Allo','Real',iFocMS,nTot1*nRoots)

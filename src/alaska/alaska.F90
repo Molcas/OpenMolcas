@@ -30,7 +30,7 @@ subroutine Alaska(LuSpool,ireturn)
 
 use Alaska_Info, only: Am
 use Basis_Info, only: dbsc, nCnttp
-use Temporary_Parameters, only: Onenly, Test
+use Gateway_global, only: Onenly, Test
 use RICD_Info, only: Do_RI, Cholesky
 use Para_Info, only: nProcs, King
 use OFembed, only: Do_OFemb

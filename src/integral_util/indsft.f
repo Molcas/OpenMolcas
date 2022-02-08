@@ -25,7 +25,7 @@
 ************************************************************************
       use SOAO_Info, only: iAOtSO, iOffSO
       use LundIO
-      use Real_Info, only: ThrInt
+      use Gateway_Info, only: ThrInt
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"

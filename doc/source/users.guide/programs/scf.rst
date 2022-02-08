@@ -328,20 +328,22 @@ Below is a list of keywords that should cover the needs of most users.
 :kword:`KSDFT`
   Use this keyword to do density functional theory calculations.
   This keyword should be followed by functional keyword:
-  BLYP, BPBE, B2PLYP, B3LYP, B3LYP5, B86LYP, B86PBE, GLYP, GPBE, HFB,
+  BLYP, BPBE, B2PLYP_SCF, B3LYP, B3LYP5, B86LYP, B86PBE, GLYP, GPBE, HFB,
   HFS, KT2, KT3, LDA, LDA5, LSDA, LSDA5, M06, M06HF, M062X, M06L, OLYP, OPBE,
-  O2PLYP, O3LYP, PBE, PBESOL, PBE0, PTCA, RGE2, SSBSW, SVWN, SVWN5, TLYP, SSBD.
+  O2PLYP_SCF, O3LYP, PBE, PBESOL, PBE0, PTCA, RGE2, SSBSW, SVWN, SVWN5, TLYP, SSBD,
+  BR89B94h.
   Example: `KSDFT=B3LYP`
 
   .. xmldoc:: <KEYWORD MODULE="SCF" NAME="KSDFT" APPEAR="DFT" KIND="CHOICE" LEVEL="BASIC"
-              LIST="----,BLYP,BPBE,B2PLYP,B3LYP,B3LYP5,B86LYP,B86PBE,GLYP,GPBE,HFB,HFS,KT2,KT3,LDA,LDA5,LSDA,LSDA5,M06,M06HF,M062X,M06L,OLYP,OPBE,O2PLYP,O3LYP,PBE,PBESOL,PBE0,PTCA,RGE2,SSBSW,SVWN,SVWN5,TLYP,SSBD">
+              LIST="----,BLYP,BPBE,B2PLYP_SCF,B3LYP,B3LYP5,B86LYP,B86PBE,GLYP,GPBE,HFB,HFS,KT2,KT3,LDA,LDA5,LSDA,LSDA5,M06,M06HF,M062X,M06L,OLYP,OPBE,O2PLYP_SCF,O3LYP,PBE,PBESOL,PBE0,PTCA,RGE2,SSBSW,SVWN,SVWN5,TLYP,SSBD,BR89B94h">
               %%Keyword: KSDFT <basic>
               <HELP>
               Use this keyword to do density functional theory calculations
               This keyword should be followed by the functional keyword:
-              BLYP, BPBE, B2PLYP, B3LYP, B3LYP5, B86LYP, B86PBE, GLYP, GPBE, HFB,
+              BLYP, BPBE, B2PLYP_SCF, B3LYP, B3LYP5, B86LYP, B86PBE, GLYP, GPBE, HFB,
               HFS, KT2, KT3, LDA, LDA5, LSDA, LSDA5, M06, M06HF, M062X, M06L, OLYP, OPBE,
-              O2PLYP, O3LYP, PBE, PBESOL, PBE0, PTCA, RGE2, SSBSW, SVWN, SVWN5, TLYP, SSBD.
+              O2PLYP_SCF, O3LYP, PBE, PBESOL, PBE0, PTCA, RGE2, SSBSW, SVWN, SVWN5, TLYP, SSBD,
+              BR89B94h.
               Example: KSDFT=B3LYP
               </HELP>
               </KEYWORD>

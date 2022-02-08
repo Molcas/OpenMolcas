@@ -23,11 +23,10 @@
       use nq_Grid, only: F_xc, GradRho, vRho, vSigma, vTau, vLapl
       use nq_Grid, only: Pax
       use nq_Grid, only: IndGrd, iTab, Temp, dW_dR
-      use nq_Grid, only: l_casdft
       use nq_Structure, only: NQ_data
+      use nq_Info
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "nq_info.fh"
 #include "debug.fh"
 #include "Molcas.fh"
 #include "itmax.fh"
@@ -107,8 +106,15 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (Functional_type.eq.LDA_type) Then
-*
+      Select Case (Functional_type)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Case (LDA_type)
+*                                                                      *
+************************************************************************
+*                                                                      *
+
          If (iSpin.eq.1) Then
             Do i_Eff=1, nGrad_Eff
                tmp=Zero
@@ -130,7 +136,7 @@
      &                        dF_dr * (Grid(3,j)-R_Grid(3))
                End Do
                If (iTab(2,i_Eff).ne.Off)
-     &            Temp(i_Eff)=Temp(i_Eff)-Two*tmp
+     &            Temp(i_Eff)=Temp(i_Eff)-tmp
             End Do
          Else
             Do i_Eff=1, nGrad_Eff
@@ -138,7 +144,7 @@
                ixyz=iTab(1,i_Eff)
                Do j = 1, mGrid
                   dF_dr = vRho(1,j)    *dRho_dR(1,j,i_Eff)
-     &                  +vRho(2,j)    *dRho_dR(2,j,i_Eff)
+     &                   +vRho(2,j)    *dRho_dR(2,j,i_Eff)
                   tmp = tmp + Weights(j) * dF_dr
 *
 *                 Accumulate stuff for rotational invariance
@@ -154,13 +160,14 @@
      &            Temp(i_Eff)=Temp(i_Eff)-tmp
             End Do
 
-*****************************************************************************************************************
          End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Else If (Functional_type.eq.GGA_type) Then
-*
+      Case (GGA_type)
+*                                                                      *
+************************************************************************
+*                                                                      *
          If (iSpin.eq.1) Then
             Do i_Eff=1, nGrad_Eff
                tmp=Zero
@@ -182,7 +189,6 @@
 *
 *                 Accumulate stuff for rotational invariance
 
-*****************************************************************************************************************
 *
                   OV(ixyz,1) = OV(ixyz,1) + Two* Weights(j) *
      &                        dF_dr * (Grid(1,j)-R_Grid(1))
@@ -192,7 +198,7 @@
      &                        dF_dr * (Grid(3,j)-R_Grid(3))
                End Do
                If (iTab(2,i_Eff).ne.Off)
-     &            Temp(i_Eff)=Temp(i_Eff)-Two*tmp
+     &            Temp(i_Eff)=Temp(i_Eff)-tmp
             End Do
          Else
             Do i_Eff=1, nGrad_Eff
@@ -247,7 +253,10 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Else If (Functional_type.eq.meta_GGA_type1) Then
+      Case (meta_GGA_type1)
+*                                                                      *
+************************************************************************
+*                                                                      *
          If (iSpin.eq.1) Then
             Do i_Eff=1, nGrad_Eff
                tmp=Zero
@@ -260,7 +269,7 @@
                   Temp1=2.0d0*vSigma(1,j)*gx
                   Temp2=2.0d0*vSigma(1,j)*gy
                   Temp3=2.0d0*vSigma(1,j)*gz
-                  Temp4=Half*vTau(1,j)
+                  Temp4=0.25D0*vTau(1,j)
 *
                   dF_dr = Temp0*dRho_dR(1,j,i_Eff)
      &                  + Temp1*dRho_dR(2,j,i_Eff)
@@ -279,7 +288,7 @@
      &                        dF_dr * (Grid(3,j)-R_Grid(3))
                End Do
                If (iTab(2,i_Eff).ne.Off)
-     &            Temp(i_Eff)=Temp(i_Eff)-Two*tmp
+     &            Temp(i_Eff)=Temp(i_Eff)-tmp
             End Do
          Else
             Do i_Eff=1, nGrad_Eff
@@ -307,8 +316,8 @@
      &                          +vSigma(2,j)*gzb )
                   Temp3b=( 2.0d0*vSigma(3,j)*gzb
      &                          +vSigma(2,j)*gza )
-                  Temp4a=vTau(1,j)
-                  Temp4b=vTau(2,j)
+                  Temp4a=0.5D0*vTau(1,j)
+                  Temp4b=0.5D0*vTau(2,j)
 *
                   dF_dr = Temp0a*dRho_dR(1,j,i_Eff)
      &                  + Temp0b*dRho_dR(2,j,i_Eff)
@@ -338,7 +347,10 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Else If (Functional_type.eq.meta_GGA_type2) Then
+      Case (meta_GGA_type2)
+*                                                                      *
+************************************************************************
+*                                                                      *
          If (iSpin.eq.1) Then
             Do i_Eff=1, nGrad_Eff
                tmp=Zero
@@ -351,7 +363,7 @@
                   Temp1=2.0d0*vSigma(1,j)*gx
                   Temp2=2.0d0*vSigma(1,j)*gy
                   Temp3=2.0d0*vSigma(1,j)*gz
-                  Temp4=vTau(1,j)
+                  Temp4=0.25D0*vTau(1,j)
                   Temp5=vLapl(1,j)
 *
                   dF_dr = Temp0*dRho_dR(1,j,i_Eff)
@@ -372,7 +384,7 @@
      &                        dF_dr * (Grid(3,j)-R_Grid(3))
                End Do
                If (iTab(2,i_Eff).ne.Off)
-     &            Temp(i_Eff)=Temp(i_Eff)-Two*tmp
+     &            Temp(i_Eff)=Temp(i_Eff)-tmp
             End Do
          Else
             Do i_Eff=1, nGrad_Eff
@@ -400,8 +412,8 @@
      &                          +vSigma(2,j)*gzb )
                   Temp3b=( 2.0d0*vSigma(3,j)*gzb
      &                          +vSigma(2,j)*gza )
-                  Temp4a=vTau(1,j)
-                  Temp4b=vTau(2,j)
+                  Temp4a=0.5D0*vTau(1,j)
+                  Temp4b=0.5D0*vTau(2,j)
                   Temp5a=vLapl(1,j)
                   Temp5b=vLapl(2,j)
 *
@@ -435,11 +447,19 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Else
-*
+      Case Default
+*                                                                      *
+************************************************************************
+*                                                                      *
          Call WarningMessage(2,'Do_Grad: wrong functional type!')
          Call Abend()
-      End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+      End Select
+*                                                                      *
+************************************************************************
+*                                                                      *
 #ifdef _DEBUGPRINT_
       If (Debug) Then
          Call RecPrt('w * f^x before translational contributions',
@@ -528,12 +548,7 @@
 *
 *           Compute < nabla_r f * r^x > as Tr (O^x V)
 *
-            If (l_casdft) Then
-               Factor=Half
-            else
-               Factor=One
-            end if
-            Tmp = DDot_(9,NQ_Data(jNQ)%dOdx(:,:,iCar),1,V,1)*Factor
+            Tmp = DDot_(9,NQ_Data(jNQ)%dOdx(:,:,iCar),1,V,1) * Half
 #ifdef _DEBUGPRINT_
             If (Debug) Then
                Write (6,*)
@@ -571,5 +586,4 @@
 ************************************************************************
 *                                                                      *
       Return
-c Avoid unused argument warnings
       End

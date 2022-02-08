@@ -38,8 +38,7 @@ call RdNLst(LuSpool,'EXPBAS')
 
 do
   key = Get_Ln(LuSpool)
-  call LeftAd(key)
-  Line = key
+  Line = adjustl(key)
   if (Line(1:1) == '*') cycle
   if (Line == ' ') cycle
   call UpCase(Line)

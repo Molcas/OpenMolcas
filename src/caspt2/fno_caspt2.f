@@ -238,7 +238,7 @@
             jD=ip_X+iOff
             Call Get_Can_Lorb(Work(kEVir+lOff),Work(ipOrbE+jOff),
      &                        nSsh(iSym),lnVir(iSym),
-     &                        iWork(ip_iD),Work(jD),iSym)
+     &                        iWork(ip_iD),Work(jD))
 
             kfr=LCMO+kOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym)+nAsh(iSym))
             kto=iCMO+kOff+nBas(iSym)*(nFro(iSym)+lnOcc(iSym))

@@ -15,9 +15,9 @@
 *                                                                      *
 ************************************************************************
       use nq_Structure, only: Info_Ang
+      use nq_Info
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
-#include "nq_info.fh"
 #include "real.fh"
 #include "debug.fh"
       Logical Check

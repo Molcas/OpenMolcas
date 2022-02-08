@@ -17,9 +17,9 @@
 *                                                                      *
 ************************************************************************
       use NQ_Structure, only: NQ_Data
+      use nq_Info
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
-#include "nq_info.fh"
 #include "real.fh"
 #include "stdalloc.fh"
       Real*8 Coor(3)
@@ -30,26 +30,25 @@
 *
 ************************************************************************
 *
-*define _DEBUGPRINT_
+*#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Write (6,*) 'nR,L_Quad=',nR,L_Quad
 #endif
       If (L_Quad.gt.lMax_NQ) Then
          Call WarningMessage(2,'GenVoronoi: L_Quad.gt.lMax_NQ')
-         Write (6,*) 'Redimension lMax_NQ in nq_info.fh'
+         Write (6,*) 'Redimension lMax_NQ in nq_info.f90'
          Write (6,*) 'lMax_NQ=',lMax_NQ
          Write (6,*) 'L_Quad=',L_Quad
          Call Abend()
       End If
-#define _NEW_
-#ifdef _NEW_
       l_Max=Int(rm(1))
       Radius_Max=Eval_RMax(Alpha(1),l_Max,rm(2))
-C     Write (6,*) 'Alpha(1)=',Alpha(1)
-C     Write (6,*) 'l_max=',l_max
-C     Write (6,*) 'rm(2)=',rm(2)
-C     Write (6,*) 'Radius_Max=',Radius_Max
-C     Write (6,*)
+#ifdef _DEBUGPRINT_
+      Write (6,*) 'Alpha(1)=',Alpha(1)
+      Write (6,*) 'l_max=',l_max
+      Write (6,*) 'rm(2)=',rm(2)
+      Write (6,*) 'Radius_Max=',Radius_Max
+      Write (6,*)
 #endif
 ************************************************************************
 *                                                                      *

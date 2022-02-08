@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Module nq_MO
-  Integer, Allocatable:: DoIt(:)
+  Integer:: nMOs=0
   Real*8, Allocatable:: CMO(:)
   Real*8, Allocatable:: D1MO(:), P2MO(:)
   Real*8, Allocatable:: P2_ontop(:,:)

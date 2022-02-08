@@ -9,9 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Print_NQ_Info(iSpin)
+      use nq_Info
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "nq_info.fh"
       Logical Reduce_Prt
       External Reduce_Prt
 *                                                                      *

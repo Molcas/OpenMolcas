@@ -13,11 +13,8 @@
 ************************************************************************
       Subroutine Do_Batch(Kernel,Func,mGrid,
      &                    list_s,nlist_s,List_Exp,List_Bas,
-     &                    Index,nIndex,
-     &                    FckInt,nFckDim,nFckInt,
-     &                    ipTabAO,mAO,nSym,nD,
-     &                    nP2_ontop,Do_Mo,
-     &                    TabMO,TabSO,nMOs,
+     &                    Index,nIndex,FckInt,nFckDim,nFckInt,
+     &                    mAO,nD,nP2_ontop,Do_Mo,TabMO,TabSO,nMOs,
      &                    Do_Grad,Grad,nGrad,ndRho_dR,nGrad_Eff,iNQ,
      &                    EG_OT,nTmpPUVX,PDFTPot1,PDFTFocI,PDFTFocA)
 ************************************************************************
@@ -25,20 +22,23 @@
 *             of Lund, SWEDEN. November 2000                           *
 ************************************************************************
       use iSD_data
+      use SOAO_Info, only: iAOtSO
       use Real_Spherical
       use Basis_Info
       use Center_Info
       use Phase_Info
       use KSDFT_Info
-      use nq_Grid, only: Grid, Weights, Rho, GradRho, Sigma, nRho
-      use nq_Grid, only: vRho, vSigma, vTau, vLapl
+      use nq_Grid, only: Grid, Weights, Rho, nRho
+      use nq_Grid, only: GradRho, Sigma
       use nq_Grid, only: l_CASDFT, TabAO, TabAO_Pack, dRho_dR
-      use nq_Grid, only: F_xc, F_xca, F_xcb
-      use nq_Grid, only: Fact, Tmp, SOs, Angular, Mem
+      use nq_Grid, only: F_xc, F_xca, F_xcb, kAO, Grid_AO
+      use nq_Grid, only: Fact, Angular, Mem
       use nq_Grid, only: D1UnZip, P2UnZip
+      use nq_Grid, only: Dens_AO, iBfn_Index
       use nq_pdft
-      use nq_MO, only: DoIt, CMO, D1MO, P2_ontop
+      use nq_MO, only: CMO, D1MO, P2_ontop
       use Grid_On_Disk
+      use nq_Info
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "SysDef.fh"
@@ -46,12 +46,10 @@
 #include "stdalloc.fh"
 #include "debug.fh"
 #include "ksdft.fh"
-#include "nq_info.fh"
 #include "nsd.fh"
 #include "setup.fh"
 #include "pamint.fh"
-      Integer list_s(2,nlist_s),List_Exp(nlist_s),
-     &        ipTabAO(nlist_s+1,2),Index(nIndex),
+      Integer list_s(2,nlist_s),List_Exp(nlist_s),Index(nIndex),
      &        List_Bas(2,nlist_s)
       Real*8 A(3), RA(3), Grad(nGrad), FckInt(nFckInt,nFckDim),
      &       TabMO(mAO,mGrid,nMOs),TabSO(mAO,mGrid,nMOs),
@@ -66,8 +64,10 @@
       Integer nPMO3p
       Real*8 EG_OT(nTmpPUVX)
       Real*8, Allocatable:: RhoI(:,:), RhoA(:,:)
-      Real*8, Allocatable:: TmpCMO(:)
-      Integer, Allocatable:: TDoIt(:)
+      Real*8, Allocatable:: TabAO_Tmp(:)
+      Integer :: TabAO_Size(2)
+      Integer, Allocatable :: Tmp_Index(:,:)
+
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -77,22 +77,30 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      nTabAO=Size(TabAO)
       nCMO  =Size(CMO)
-      T_Rho=T_X*1.0D-4
       l_tanhr=.false.
 
-      CALL PDFTMemAlloc(mGrid,nOrbt)
-      If ( Functional_Type.eq.CASDFT_Type .or.
-     &     l_casdft ) Then
+      If (l_casdft ) Then
+         CALL PDFTMemAlloc(mGrid,nOrbt)
          mRho = nP2_ontop
          Call mma_allocate(RhoI,mRho,mGrid,Label='RhoI')
          Call mma_allocate(RhoA,mRho,mGrid,Label='RhoA')
          RhoI(:,:)=Zero
          RhoA(:,:)=Zero
-      Else
-         mRho=-1
       End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Set up an indexation translation between the running index of
+*     the AOIntegrals and the actual basis function index
+*
+      nBfn=0
+      Do iList_s = 1, nList_s
+         iBas_Eff=List_Bas(1,ilist_s)
+         iSkal    =list_s(1,ilist_s)
+         iCmp  = iSD( 2,iSkal)
+         nBfn=nBfn+iBas_Eff*iCmp
+      End Do
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -101,6 +109,7 @@
 ************************************************************************
 *
       TabAO(:,:,:)=Zero
+      TabAO_Size(:)=0
       UnPack=.False.
       If (NQ_Direct.eq.Off .and. (Grid_Status.eq.Use_Old .and.
      &      .Not.Do_Grad         .and.
@@ -108,19 +117,40 @@
 *
 *------- Retrieve the AOs from disc
 *
-         Call iDaFile(Lu_Grid,2,ipTabAO,2*(nlist_s+1),iDisk_Grid)
-         mTabAO=ipTabAO(nlist_s+1,2)-1
+         Call iDaFile(Lu_Grid,2,TabAO_Size,2,iDisk_Grid)
+         If (TabAO_Size(1)==0) Then
+            Call Terminate()
+            Return
+         End If
+         nBfn=TabAO_Size(1)
+         Call mma_Allocate(iBfn_Index,6,nBfn,Label='iBfn_Index')
+         Call iDaFile(Lu_Grid,2,iBfn_Index,Size(iBfn_Index),iDisk_Grid)
+
+         nByte=TabAO_Size(2)
+         mTabAO = (nByte+RtoB-1)/RtoB
          Call dDaFile(Lu_Grid,2,TabAO,mTabAO,iDisk_Grid)
          Unpack=Packing.eq.On
 *
       Else
+         Call mma_Allocate(iBfn_Index,6,nBfn,Label='iBfn_Index')
+         iBfn_Index(:,:)=0
 *
 *------- Generate the values of the AOs on the grid
 *
          Mem(:)=Zero
          ipxyz=1
 *
-         iOff = 1
+*#define _ANALYSIS_
+#ifdef _ANALYSIS_
+      Thr=T_Y
+      Write (6,*)
+      Write (6,*) ' Sparsity analysis of AO blocks'
+      mlist_s=0
+#endif
+!        iOff  = 1
+         iBfn  = 0
+         iBfn_s= 0
+         iBfn_e= 0
          Do ilist_s=1,nlist_s
             ish=list_s(1,ilist_s)
 
@@ -137,7 +167,28 @@
             iCnttp= iSD(13,iSh)
             iCnt  = iSD(14,iSh)
             A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
-*
+!
+!           Set up the unsifted version of iBfn_Index
+!
+            iAdd = iBas-iBas_Eff
+            iBfn_s = iBfn + 1
+            Do i1 = 1, iCmp
+               iSO1 = iAOtSO(iAO+i1,0) ! just used when nIrrep=1
+               Do i2 = 1, iBas_Eff
+                  IndAO1 = i2 + iAdd
+                  Indi = iSO1 + IndAO1 -1
+
+                  iBfn = iBfn + 1
+                  iBfn_Index(1,iBfn) = Indi
+                  iBfn_Index(2,iBfn) = ilist_s
+                  iBfn_Index(3,iBfn) = i1
+                  iBfn_Index(4,iBfn) = i2
+                  iBfn_Index(5,iBfn) = mdci
+                  iBfn_Index(6,iBfn) = IndAO1
+               End Do
+            End Do
+            iBfn_e = iBfn
+
             nDrv     = mRad - 1
             nForm    = 0
             Do iDrv  = 0, nDrv
@@ -159,25 +210,77 @@
             RA(1) = px*A(1)
             RA(2) = py*A(2)
             RA(3) = pz*A(3)
-            iSym=NrOpr(iR)
 *
 *---------- Evaluate AOs at RA
 *
-            ipTabAO(iList_s,1)=iOff
-*                                                                      *
             Call AOEval(iAng,mGrid,Grid,Mem(ipxyz),RA,
      &                  Shells(iShll)%Transf,
      &                  RSph(ipSph(iAng)),nElem(iAng),iCmp,
-     &                  Angular,nTerm,nForm,T_X,mRad,
+     &                  Angular,nTerm,nForm,T_Y,mRad,
      &                  iPrim,iPrim_Eff,Shells(iShll)%Exp,
      &                  Mem(ipRadial),iBas_Eff,
      &                  Shells(iShll)%pCff(1,iBas-iBas_Eff+1),
-     &                  TabAO_Pack(iOff:),
+     &                  TabAO(:,:,iBfn_s:),
      &                  mAO,px,py,pz,ipx,ipy,ipz)
-            iOff = iOff + mAO*mGrid*iBas_Eff*iCmp
+#ifdef _ANALYSIS_
+            ix = iDAMax_(mAO*mGrid*iBas_Eff*iCmp,TabAO_Pack(iOff),1)
+            TMax = Abs(TabAO_Pack(iOff-1+ix))
+            If (TMax<Thr) Then
+               mlist_s=mlist_s+1
+               Write (6,*) ' ilist_s: ',ilist_s
+               Write (6,*) ' TMax:    ',TMax
+            End If
+#endif
+!
+!           At this time eliminate individual basis functions which have
+!           an insignificant contribution to any of the grid points we
+!           are processing at this stage.
+!
+            Thr=T_Y
+            iSkip=0
+            kBfn = iBfn_s - 1
+            Do jBfn = iBfn_s, iBfn_e
+               Call Spectre(SMax)
+               If (SMax<Thr) Then
+                 iSkip=iSkip+1
+               Else
+                 kBfn = kBfn + 1
+                 If (kBfn/=jBfn) Then
+                    TabAO(:,:,kBfn)=TabAO(:,:,jBfn)
+                    iBfn_Index(:,kBfn) = iBfn_Index(:,jBfn)
+                 End If
+               End If
+            End Do
+            iBfn = kBfn
+
+!           iOff = iBfn*mAO*mGrid + 1
 *
          End Do
-         ipTabAO(nList_s+1,1)=iOff
+
+         ! reduced the size of the table to be exactly that of the
+         ! number of functions that have non-zero contributions.
+         If (iBfn/=nBfn) Then
+            If (iBfn==0) Then
+               TabAO_Size(:)=0
+               Call iDaFile(Lu_Grid,1,TabAO_Size,2,iDisk_Grid)
+               Call Terminate()
+               Return
+             End If
+            Call mma_allocate(Tmp_Index,6,iBfn,Label='Tmp_Index')
+            Tmp_Index(:,1:iBfn) = iBfn_Index(:,1:iBfn)
+            Call mma_deallocate(iBfn_Index)
+            nBfn=iBfn
+            Call mma_Allocate(iBfn_Index,6,nBfn,Label='iBfn_Index')
+            iBfn_Index(:,:) = Tmp_Index(:,:)
+            Call mma_deallocate(Tmp_Index)
+         End If
+
+#ifdef _ANALYSIS_
+         Write (6,*) ' % AO blocks that can be eliminated: ',
+     &             1.0D2*DBLE(mlist_s)/DBLE(nlist_s)
+         Write (6,*)
+#endif
+         TabAO_Size(1)=nBfn
 *
 *        AOs are packed and written to disk.
 *
@@ -189,39 +292,28 @@
 *
 *------------- Pack before they are put on disc
 *
-               jOff = 1
-               Do ilist_s=1,nlist_s
-                  ish=list_s(1,ilist_s)
-                  iCmp  = iSD( 2,iSh)
-                  iBas_Eff = List_Bas(1,ilist_s)
-                  nData=mAO*mGrid*iBas_Eff*iCmp
-*
-*                 Check if we should store any AOs at all!
-*
-                  iOff = ipTabAO(ilist_s,1)
-                  If (nData.gt.SIZE(Tmp)) Then
-                     Call WarningMessage(2,'nData.gt.SIZE(Tmp)')
-                     Call Abend()
-                  End If
-                  call dcopy_(nData,TabAO_Pack(iOff:),1,Tmp,1)
-                  Call PkR8(0,nData,nByte,Tmp,TabAO_Pack(jOff:))
-                  mData = (nByte+RtoB-1)/RtoB
-                  If (mData.gt.nData) Then
-                     Call WarningMessage(2,'mData.gt.nData')
-                     Write (6,*) 'nData=',nData
-                     Write (6,*) 'nData=',nData
-                     Call Abend()
-                  End If
-                  ipTabAO(iList_s,2)=nByte
-                  jOff = jOff + mData
-               End Do
-               ipTabAO(nList_s+1,2)=jOff
+               nData=mAO*mGrid*nBfn
+               Call mma_Allocate(TabAO_Tmp,nData,Label='TabAO_Tmp')
+               TabAO_Tmp(1:nData)=TabAO_Pack(1:nData)
+               Call PkR8(0,nData,nByte,TabAO_Tmp,TabAO_Pack)
+               mData = (nByte+RtoB-1)/RtoB
+               If (mData.gt.nData) Then
+                  Call WarningMessage(2,'mData.gt.nData')
+                  Write (6,*) 'nData=',nData
+                  Write (6,*) 'nData=',nData
+                  Call Abend()
+               End If
+               TabAO_Size(2)=nByte
+               Call mma_deAllocate(TabAO_Tmp)
             Else
-               ipTabAO(nList_s+1,2)=ipTabAO(nList_s+1,1)
+               mData=mAO*mGrid*nBfn
+               TabAO_Size(2)=mAO*mGrid*TabAO_Size(1)
             End If
 *
-            Call iDaFile(Lu_Grid,1,ipTabAO,2*(nlist_s+1),iDisk_Grid)
-            mTabAO=ipTabAO(nList_s+1,2)-1
+            Call iDaFile(Lu_Grid,1,TabAO_Size,2,iDisk_Grid)
+            mTabAO=mData
+            Call iDaFile(Lu_Grid,1,iBfn_Index,Size(iBfn_Index),
+     &                   iDisk_Grid)
             Call dDaFile(Lu_Grid,1,TabAO,mTabAO,iDisk_Grid)
 *
          End If
@@ -232,31 +324,19 @@
 *
       If (Unpack) Then
 *
-         jOff = ipTabAO(nlist_s+1,2)
-         Do ilist_s=nlist_s,1,-1
-            ish=list_s(1,ilist_s)
-            iCmp  = iSD( 2,iSh)
-            iBas_Eff = List_Bas(1,ilist_s)
-            nData=mAO*mGrid*iBas_Eff*iCmp
-            nByte=ipTabAO(ilist_s,2)
-*
-            iOff = ipTabAO(ilist_s,1)
-            If (nByte.gt.0) Then
-               mData = (nByte+RtoB-1)/RtoB
-               jOff = jOff - mData
-               If (mData.gt.SIZE(Tmp)) Then
-                  Call WarningMessage(2,'mData.gt.SIZE(Tmp)')
-                  Call Abend()
-               End If
-               Call UpkR8(0,nData,nByte,TabAO_Pack(jOff:),Tmp)
-               call dcopy_(nData,Tmp,1,TabAO_Pack(iOff:),1)
-            Else
-               mData=0
-               TabAO_Pack(1:nData)=Zero
-            End If
-         End Do
+         nData=Size(TabAO)
+         Call mma_Allocate(TabAO_Tmp,nData,Label='TabAO_Tmp')
+         nByte=TabAO_Size(2)
+         Call UpkR8(0,nData,nByte,TabAO_Pack,TabAO_Tmp)
+         TabAO_Pack(:)=TabAO_Tmp(:)
+         Call mma_deAllocate(TabAO_Tmp)
 *
       End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Call mma_Allocate(Dens_AO,nBfn,nBfn,nD,Label='Dens_AO')
+      Call mma_Allocate(Grid_AO,kAO,mGrid,nBfn,nD,Label='Grid_AO')
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -266,46 +346,16 @@
 ************************************************************************
 *                                                                      *
       If (Do_MO) Then
-         Call FZero(TabMO,mAO*mGrid*nMOs)
-         Call FZero(TabSO,mAO*mGrid*nMOs)
-*
-         Call mma_Allocate(TmpCMO,nCMO,Label='TmpCMO')
-         Call mma_Allocate(TDoIt,nMOs,Label='TDoIt')
-         Do ilist_s=1,nlist_s
-            ish=list_s(1,ilist_s)
-            iCmp  = iSD( 2,iSh)
-            iBas  = iSD( 3,iSh)
-            iBas_Eff = List_Bas(1,ilist_s)
-            iPrim = iSD( 5,iSh)
-            iAO   = iSD( 7,iSh)
-            mdci  = iSD(10,iSh)
-*
-*---------- Allocate memory for SO and MO
-*
-            kAO   = iCmp*iBas*mGrid
-            nDeg  = nSym/dc(mdci)%nStab
-            nSO   = kAO*nDeg*mAO
-            Call FZero(SOs,nSO)
-*
-            iR=list_s(2,ilist_s)
-            iSym=NrOpr(iR)
-*
-*---------- Distribute contributions of AOs if this particular shell
-*           on to the SOs of this shell. The SOs are only stored
-*           temporarily!
-*
-            Call SOAdpt_NQ(TabAO_Pack(ipTabAO(iList_s,1):),mAO,mGrid,
-     &                     iBas,iBas_Eff,iCmp,iSym,SOs,nDeg,iAO)
-*
-            Call  SODist2(SOs,mAO,mGrid,iBas,iCmp,nDeg,TabSO,
-     &                    nMOs,iAO,TmpCMO,nCMO,TDoIt)
-*
-            Call  SODist(SOs,mAO,mGrid,iBas,iCmp,nDeg,TabMO,
-     &                   nMOs,iAO,CMO,nCMO,DoIt)
-*
-         End Do
-         Call mma_deAllocate(TDoIt)
-         Call mma_deAllocate(TmpCMO)
+
+         ! First, symmatry adapt the AOs
+         TabSO(:,:,:)=Zero
+         jlist_s=0
+         Call mk_SOs(TabSO,mAO,mGrid,nMOs,List_s,List_Bas,nList_s,
+     &               jlist_s)
+
+         ! Second, transform SOs to MOs
+         TabMO(:,:,:)=Zero
+         Call mk_MOs(TabSO,mAO,mGrid,TabMO,nMOs,CMO,nCMO)
       End If
 *                                                                      *
 ************************************************************************
@@ -325,9 +375,9 @@
 ************************************************************************
 *                                                                      *
       If (l_casdft) then
-         Dens_t1=Dens_t1+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,0)
-         Dens_a1=Dens_a1+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,1)
-         Dens_b1=Dens_b1+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,2)
+         Dens_t1=Dens_t1+Comp_d(Weights,mGrid,Rho,nRho,nD,0)
+         Dens_a1=Dens_a1+Comp_d(Weights,mGrid,Rho,nRho,nD,1)
+         Dens_b1=Dens_b1+Comp_d(Weights,mGrid,Rho,nRho,nD,2)
 
          nPMO3p=1
          IF (lft.and.lGGA) nPMO3p=mGrid*NASHT
@@ -355,12 +405,11 @@
          Else !AO-based run for gradients
 !           nP2_ontop_d = nP2_ontop*mGrid*nGrad_Eff
             P2_ontop_d(:,:,:) = 0
-            Call  Do_Pi2grad(TabAO,nTabAO,mAO,mGrid,ipTabAO,
-     &                       P2_ontop,nP2_ontop,nGrad_Eff,
+            Call  Do_Pi2grad(mAO,mGrid,P2_ontop,nP2_ontop,nGrad_Eff,
      &                       list_s,nlist_s,list_bas,
      &                       D1MO,SIZE(D1MO),TabMO,P2_ontop_d,
      &                       RhoI,RhoA,mRho,nMOs,CMO,
-     &                       nCMO,TabSO,nsym,lft,
+     &                       nCMO,TabSO,lft,
      &                       P2MOCube,P2MOCubex,P2MOCubey,P2MOCubez,
      &                       nPMO3p,MOs,MOx,MOy,MOz)
          End If
@@ -378,33 +427,36 @@
          CALL mma_deallocate(MOy)
          CALL mma_deallocate(MOz)
 
-         If (lGGA) Then
-            If (nD.eq.1) Then
-               Do iGrid=1, mGrid
-                  Sigma(1,iGrid)=GradRho(1,iGrid)**2
-     &                          +GradRho(2,iGrid)**2
-     &                          +GradRho(3,iGrid)**2
-               End Do
-            Else
-               Do iGrid=1, mGrid
-                  Sigma(1,iGrid)=GradRho(1,iGrid)**2
-     &                          +GradRho(2,iGrid)**2
-     &                          +GradRho(3,iGrid)**2
-                  Sigma(2,iGrid)=GradRho(1,iGrid)*GradRho(4,iGrid)
-     &                          +GradRho(2,iGrid)*GradRho(5,iGrid)
-     &                          +GradRho(3,iGrid)*GradRho(6,iGrid)
-                  Sigma(3,iGrid)=GradRho(4,iGrid)**2
-     &                          +GradRho(5,iGrid)**2
-     &                          +GradRho(6,iGrid)**2
-               End Do
-            End If
-         End If
-
 *        Integrate out the number of electrons
-         Dens_t2=Dens_t2+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,0)
-         Dens_a2=Dens_a2+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,1)
-         Dens_b2=Dens_b2+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,2)
+         Dens_t2=Dens_t2+Comp_d(Weights,mGrid,Rho,nRho,nD,0)
+         Dens_a2=Dens_a2+Comp_d(Weights,mGrid,Rho,nRho,nD,1)
+         Dens_b2=Dens_b2+Comp_d(Weights,mGrid,Rho,nRho,nD,2)
 
+      End If
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
+      If (Allocated(Sigma)) Then
+         If (Size(Sigma,1)==1) Then
+            Do iGrid=1, mGrid
+               Sigma(1,iGrid)=GradRho(1,iGrid)**2
+     &                       +GradRho(2,iGrid)**2
+     &                       +GradRho(3,iGrid)**2
+            End Do
+         Else
+            Do iGrid=1, mGrid
+               Sigma(1,iGrid)=GradRho(1,iGrid)**2
+     &                       +GradRho(2,iGrid)**2
+     &                       +GradRho(3,iGrid)**2
+               Sigma(2,iGrid)=GradRho(1,iGrid)*GradRho(4,iGrid)
+     &                       +GradRho(2,iGrid)*GradRho(5,iGrid)
+     &                       +GradRho(3,iGrid)*GradRho(6,iGrid)
+               Sigma(3,iGrid)=GradRho(4,iGrid)**2
+     &                       +GradRho(5,iGrid)**2
+     &                       +GradRho(6,iGrid)**2
+            End Do
+         End If
       End If
 *                                                                      *
 ************************************************************************
@@ -412,20 +464,15 @@
 *                                                                      *
 *     Integrate out the number of electrons, |grad|, and tau
 *
-      If (Functional_type.eq.LDA_Type) Then
-         Dens_I=Dens_I+Compute_Rho (Weights,mGrid,nD,T_Rho)
-      Else If (Functional_type.eq.GGA_type) Then
-         Dens_I=Dens_I+Compute_Rho (Weights,mGrid,nD,T_Rho)
-         Grad_I=Grad_I+Compute_Grad(Weights,mGrid,nD,T_Rho)
-      Else If (Functional_type.eq.meta_GGA_type1) Then
-         Dens_I=Dens_I+Compute_Rho (Weights,mGrid,nD,T_Rho)
-         Grad_I=Grad_I+Compute_Grad(Weights,mGrid,nD,T_Rho)
-         Tau_I =Tau_I +Compute_Tau (Weights,mGrid,nD,T_Rho)
-      Else If (Functional_type.eq.meta_GGA_type2) Then
-         Dens_I=Dens_I+Compute_Rho (Weights,mGrid,nD,T_Rho)
-         Grad_I=Grad_I+Compute_Grad(Weights,mGrid,nD,T_Rho)
-         Tau_I =Tau_I +Compute_Tau (Weights,mGrid,nD,T_Rho)
-      End If
+      Dens_I=Dens_I+Compute_Rho (Weights,mGrid,nD)
+      Select Case (Functional_type)
+      Case (LDA_Type)
+      Case (GGA_type)
+         Grad_I=Grad_I+Compute_Grad(Weights,mGrid,nD)
+      Case (meta_GGA_type1,meta_GGA_type2)
+         Grad_I=Grad_I+Compute_Grad(Weights,mGrid,nD)
+         Tau_I =Tau_I +Compute_Tau (Weights,mGrid,nD)
+      End Select
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -435,17 +482,7 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-      vRho(:,1:mGrid)=Zero
-      If (Allocated(vSigma)) vSigma(:,1:mGrid)=Zero
-      If (Allocated(vTau)) vTau(:,1:mGrid)=Zero
-      If (Allocated(vLapl)) vLapl(:,1:mGrid)=Zero
-      F_xc(1:mGrid)=Zero
-      If (l_casdft) Then
-         F_xca(1:mGrid)=Zero
-         F_xcb(1:mGrid)=Zero
-      End If
-*
-*1)   evaluate the energy density, the derivative of the functional with
+*     evaluate the energy density, the derivative of the functional with
 *     respect to rho and grad rho.
 *
       Call Kernel(mGrid,nD)
@@ -517,8 +554,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-           Call DFT_Int(list_s,nlist_s,FckInt,nFckInt,nD,Fact,ndc,
-     &                  list_bas)
+           Call DFT_Int(list_s,nlist_s,FckInt,nFckInt,nD,Fact,ndc)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -530,12 +566,34 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      CALL PDFTMemDeAlloc()
-
-      If (Allocated(RhoI)) Then
-         Call mma_deallocate(RhoI)
-         Call mma_deallocate(RhoA)
-      End If
+      Call Terminate()
 
       Return
-      End
+
+      Contains
+        Subroutine Terminate()
+           If (l_casdft) CALL PDFTMemDeAlloc()
+
+           If (Allocated(RhoI)) Then
+              Call mma_deallocate(RhoI)
+              Call mma_deallocate(RhoA)
+           End If
+           If (Allocated(iBfn_Index)) Call mma_deAllocate(iBfn_Index)
+           If (Allocated(Grid_AO)) Call mma_deAllocate(Grid_AO)
+           If (Allocated(Dens_AO)) Call mma_deAllocate(Dens_AO)
+        End Subroutine Terminate
+
+        Subroutine Spectre(SMax)
+           Integer iGrid, iAO
+           Real*8 SMax
+           SMax=Zero
+           Do iGrid = 1, mGrid
+             Do iAO = 1, mAO
+                SMax = Max (SMax,
+     &                 Abs(Weights(iGrid)*TabAO(iAO,iGrid,jBfn)))
+             End Do
+           End Do
+!          If (SMax<Thr) Write (6,*) SMax, TMax
+        End Subroutine Spectre
+
+      End Subroutine Do_Batch

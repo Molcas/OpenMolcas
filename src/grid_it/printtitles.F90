@@ -9,21 +9,20 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine PrintTitles(LuVal,nShowMOs,isDensity,nMOs,GRef,isEner,Occ,iType,Crypt,NZ,E,VBocc,ifpartial,isLine,isSphere,isColor, &
-                       isLuscus,nCoor,nBlocks,nInc)
+subroutine PrintTitles(LuVal,nShowMOs,isDensity,nMOs,GRef,isEner,Occ,iType,Crypt,NZ,E,ifpartial,isLine,isSphere,isColor,isLuscus, &
+                       nCoor,nBlocks,nInc)
 !***********************************************************************
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
 !***********************************************************************
 
-use Constants, only: Zero, Two
 use Definitions, only: iwp, wp
 
 implicit none
 integer(kind=iwp), intent(in) :: LuVal, nShowMOs, nMOs, GRef(*), iType(*), NZ(*), nCoor, nBlocks, nInc
 logical(kind=iwp), intent(in) :: isDensity, isEner, ifpartial, isLine, isSphere, isColor, isLuscus
-real(kind=wp), intent(in) :: Occ(*), E(*), VBocc
+real(kind=wp), intent(in) :: Occ(*), E(*)
 character(len=7), intent(in) :: Crypt
-integer(kind=iwp) :: i, iActOrb, ib, j, Sizeof8
+integer(kind=iwp) :: i, ib, j, Sizeof8 !, iActOrb
 character(len=128) :: Line
 character(len=10) :: LineT
 character :: bb
@@ -32,7 +31,7 @@ unused_var(nBlocks)
 unused_var(nInc)
 
 Sizeof8 = 8
-iActOrb = 0
+!iActOrb = 0
 LineT = 'GridName= '
 if (isLine) LineT = '#GridName='
 !write(u6,*) 'here',nInc, nBlocks, nCoor
@@ -55,49 +54,49 @@ end if
 do i=1,nShowMOs-merge(1,0,isDensity)-merge(1,0,isSphere)-merge(1,0,isColor)
   j = GRef(i)
   if (isEner) then
-    if (.not.(.false. .and. (Occ(j) > Zero) .and. (Occ(j) < Two))) then
-      ib = iType(j)
-      bb = ' '
-      if ((ib > 0) .and. (ib < 8)) bb = Crypt(ib:ib)
-      if (isLuscus) then
-        write(LINE,1000) NZ(j),NZ(j+nMOs),E(j),Occ(j),bb
-        call PRINTLINE(LUVAL,LINE,72,.false.)
-      else
-        write(line,'(a,i2,i5,f12.4," (",f4.2,")",1x,a)') LineT,NZ(j),NZ(j+nMOs),E(j),Occ(j),bb
-        call PrintLine(LuVal,line,38,.false.)
-      end if
+    !if ((Occ(j) > Zero) .and. (Occ(j) < Two)) then
+    !  iActOrb = iActOrb+1
+    !  if (isLuscus) then
+    !    write(LINE,1010) 'VB orbital',iActOrb,' (',VBocc,')'
+    !    call PRINTLINE(LUVAL,LINE,45,.false.)
+    !  else
+    !    write(line,'(2a,i4,5x,a,f4.2,a)') LineT,'VB orbital',iActOrb,' (',VBocc,')'
+    !    call PrintLine(LuVal,line,38,.false.)
+    !  end if
+    !else
+    ib = iType(j)
+    bb = ' '
+    if ((ib > 0) .and. (ib < 8)) bb = Crypt(ib:ib)
+    if (isLuscus) then
+      write(LINE,1000) NZ(j),NZ(j+nMOs),E(j),Occ(j),bb
+      call PRINTLINE(LUVAL,LINE,72,.false.)
     else
-      iActOrb = iActOrb+1
-      if (isLuscus) then
-        write(LINE,1010) 'VB orbital',iActOrb,' (',VBocc,')'
-        call PRINTLINE(LUVAL,LINE,45,.false.)
-      else
-        write(line,'(2a,i4,5x,a,f4.2,a)') LineT,'VB orbital',iActOrb,' (',VBocc,')'
-        call PrintLine(LuVal,line,38,.false.)
-      end if
+      write(line,'(a,i2,i5,f12.4," (",f4.2,")",1x,a)') LineT,NZ(j),NZ(j+nMOs),E(j),Occ(j),bb
+      call PrintLine(LuVal,line,38,.false.)
     end if
+    !end if
   else
-    if (.not.(.false. .and. (Occ(j) > Zero) .and. (Occ(j) < Two))) then
-      ib = iType(j)
-      bb = ' '
-      if ((ib > 0) .and. (ib < 8)) bb = Crypt(ib:ib)
-      if (isLuscus) then
-        write(LINE,1020) NZ(j),NZ(j+nMOs),Occ(j),bb
-        call PRINTLINE(LUVAL,LINE,53,.false.)
-      else
-        write(line,'(a,i2,i5," (",f8.6,")",1x,a)') LineT,NZ(j),NZ(j+nMOs),Occ(j),bb
-        call PrintLine(LuVal,line,30,.false.)
-      end if
+    !if ((Occ(j) > Zero) .and. (Occ(j) < Two)) then
+    !  iActOrb = iActOrb+1
+    !  if (isLuscus) then
+    !    write(LINE,1010) iActOrb,VBocc
+    !    call PRINTLINE(LUVAL,LINE,45,.false.)
+    !  else
+    !    write(line,'(2a,i4,5x,a,f4.2,a)') LineT,'VB orbital',iActOrb,' (',VBocc,')'
+    !    call PrintLine(LuVal,line,30,.false.)
+    !  end if
+    !else
+    ib = iType(j)
+    bb = ' '
+    if ((ib > 0) .and. (ib < 8)) bb = Crypt(ib:ib)
+    if (isLuscus) then
+      write(LINE,1020) NZ(j),NZ(j+nMOs),Occ(j),bb
+      call PRINTLINE(LUVAL,LINE,53,.false.)
     else
-      iActOrb = iActOrb+1
-      if (isLuscus) then
-        write(LINE,1010) iActOrb,VBocc
-        call PRINTLINE(LUVAL,LINE,45,.false.)
-      else
-        write(line,'(2a,i4,5x,a,f4.2,a)') LineT,'VB orbital',iActOrb,' (',VBocc,')'
-        call PrintLine(LuVal,line,30,.false.)
-      end if
+      write(line,'(a,i2,i5," (",f8.6,")",1x,a)') LineT,NZ(j),NZ(j+nMOs),Occ(j),bb
+      call PrintLine(LuVal,line,30,.false.)
     end if
+    !end if
   end if
 end do
 if (isSphere) then
@@ -135,7 +134,7 @@ end if
 return
 
 1000 format(1X,'GridName= Orbital sym=',i2,' index=',i5,' Energ=',F12.4,' occ=',F4.2,' type=',a1)
-1010 format(1X,'GridName= VB_orbital iActOrb= ',I4,' occ= ',F4.2)
+!1010 format(1X,'GridName= VB_orbital iActOrb= ',I4,' occ= ',F4.2)
 1020 format(1X,'GridName= Orbital sym=',I2,' index=',I5,' occ=',F4.2,' type=',A1)
 
 end subroutine PrintTitles

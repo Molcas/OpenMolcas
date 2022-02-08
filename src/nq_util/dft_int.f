@@ -11,8 +11,7 @@
 * Copyright (C) 2000,2022, Roland Lindh                                *
 *               Ajitha Devarajan                                       *
 ************************************************************************
-      Subroutine DFT_Int(list_s,nlist_s,FckInt,nFckInt,nD,Fact,ndc,
-     &                   list_bas)
+      Subroutine DFT_Int(list_s,nlist_s,FckInt,nFckInt,nD,Fact,ndc)
 ************************************************************************
 *                                                                      *
 * Object: to compute contributions to                                  *
@@ -29,74 +28,34 @@
 ************************************************************************
       use iSD_data
       use Symmetry_Info, only: nIrrep
-      use nq_Grid, only: TabAO, Grid_AO, iBfn_Index,
-     &                   AOIntegrals => Dens_AO
-      use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
 #include "debug.fh"
 #include "nsd.fh"
 #include "setup.fh"
+#include "stdalloc.fh"
       Real*8 Fact(ndc**2), FckInt(nFckInt,nD)
-      Integer list_s(2,nlist_s), list_bas(2,nlist_s)
+      Integer list_s(2,nlist_s)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *---- Evaluate the desired AO integrand here from the AOs, accumulate
 *     contributions to the SO integrals on the fly.
 *
-      mGrid=SIZE(TabAO,2)
-      mAO = SIZE(Grid_AO,1)
-*
-      nBfn = Size(AOIntegrals,1)
-      nFn  = Size(Grid_AO,1)
-      Call Do_NInt_d(mGrid,Grid_AO, TabAO,nBfn,nD,mAO,nFn)
-      Call Do_NIntX(AOIntegrals,mGrid,Grid_AO,TabAO,nBfn,nD,mAO,nFn)
+
+      Call Do_NInt_d()
+      Call Do_NIntX()
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Set up an indexation translation between the running index of
-*     the AOIntegrals and the actual basis function index
+*     Distribute result on to the full integral matrix.
 *
-      iBfn = 0
-      Do ilist_s=1,nlist_s
-         iSkal = list_s(1,ilist_s)
-         iCmp  = iSD( 2,iSkal)
-         iBas  = iSD( 3,iSkal)
-         iBas_Eff=list_bas(1,ilist_s)
-         iAO   = iSD( 7,iSkal)
-         mdci  = iSD(10,iSkal)
-
-         iAdd = iBas-iBas_Eff
-         Do i1 = 1, iCmp
-            iSO1 = iAOtSO(iAO+i1,0) ! just used when nIrrep=1
-            Do i2 = 1, iBas_Eff
-               IndAO1 = i2 + iAdd
-               Indi = iSO1 + IndAO1 -1
-
-               iBfn = iBfn + 1
-               iBfn_Index(1,iBfn) = Indi
-               iBfn_Index(2,iBfn) = ilist_s
-               iBfn_Index(3,iBfn) = i1
-               iBfn_Index(4,iBfn) = i2
-               iBfn_Index(5,iBfn) = mdci
-               iBfn_Index(6,iBfn) = IndAO1
-            End Do
-         End Do
-      End Do
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Do iD = 1, nD
-         If (nIrrep.eq.1) Then
-            Call AOAdd_Full(AOIntegrals(:,:,iD),nBfn,FckInt(:,iD),
-     &                      nFckInt)
-         Else
-            Call SymAdp_Full(AOIntegrals(:,:,iD),nBfn,FckInt(:,iD),
-     &                       nFckInt,list_s,nlist_s,Fact,ndc)
-         End If
-      End Do
+      If (nIrrep.eq.1) Then
+         Call AOAdd_Full(FckInt,nFckInt,nD)
+      Else
+         Call SymAdp_Full(FckInt,nFckInt,list_s,nlist_s,Fact,ndc,nD)
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *

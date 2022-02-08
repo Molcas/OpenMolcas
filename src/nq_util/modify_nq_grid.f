@@ -10,10 +10,10 @@
 ************************************************************************
       Subroutine Modify_NQ_grid
       use Grid_On_Disk
+      use nq_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
-#include "nq_info.fh"
       Parameter (L_Quad_Low=23, Threshold_High=1.0D-7, nR_Low=50)
 *                                                                      *
 ************************************************************************

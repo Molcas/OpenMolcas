@@ -46,16 +46,16 @@
 *
 **    Calculate one- and two-particle transition matrices
 **    from the CI vectors of the two NAC states
-**    (code copied from CIdens_SA, no symmetry)
+**    (code copied from CIdens_SA, same symmetry)
 *
-      nConfL=Max(nconf1,nint(xispsm(1,1)))
-      nConfR=Max(nconf1,nint(xispsm(1,1)))
+      nConfL=Max(nconf1,nint(xispsm(State_sym,1)))
+      nConfR=Max(nconf1,nint(xispsm(State_sym,1)))
       Call mma_allocate(CIL,nConfL,Label='CIL')
       Call mma_allocate(CIR,nConfR,Label='CIR')
       irc=ipIn(ipCI)
-      Call CSF2SD(W(ipCI)%Vec(1+(NSSA(2)-1)*nconf1),CIL,1)
+      Call CSF2SD(W(ipCI)%Vec(1+(NSSA(2)-1)*nconf1),CIL,State_sym)
       iRC=opout(ipCI)
-      Call CSF2SD(W(ipCI)%Vec(1+(NSSA(1)-1)*nconf1),CIR,1)
+      Call CSF2SD(W(ipCI)%Vec(1+(NSSA(1)-1)*nconf1),CIR,State_sym)
       iRC=opout(ipCI)
       iRC=ipnout(-1)
       icsm=1
