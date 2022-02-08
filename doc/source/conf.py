@@ -55,8 +55,9 @@ extensions = [
     'molcasbib',
 ]
 
-# Bibliography files
+# Bibtex extension configuration
 bibtex_bibfiles = ['molcas.bib']
+bibtex_tooltips_style = 'short'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

@@ -176,6 +176,7 @@ def setup(app):
 
 ### Bibliography Styles ###
 
+from pybtex.style.names import BaseNameStyle, name_part
 from pybtex.style.formatting.unsrt import dashify, date, Style as UnsrtStyle
 from pybtex.style.formatting import toplevel
 from pybtex.style.template import join, words, field, optional, first_of, names, sentence, tag, optional_field, href
@@ -380,4 +381,127 @@ class MolcasStyle(UnsrtStyle):
       ]
     ]
 
+# Shorter style for tooltips
+class ShortName(BaseNameStyle):
+
+  # Sorry, but I don't know how to use this "abbr" argument
+  def format(self, person, abbr=True):
+    return join[
+      name_part(tie=True, abbr=True)[person.rich_first_names + person.rich_middle_names],
+      name_part(tie=True)[person.rich_prelast_names],
+      name_part[person.rich_last_names],
+      name_part(before=', ', abbr=True)[person.rich_lineage_names]
+    ]
+
+class ShortStyle(MolcasStyle):
+
+  default_name_style = 'shortname'
+
+  def format_web_refs(self, e):
+    return []
+
+  def format_names(self, role, as_sentence=True):
+    formatted_names = names(role, sep=', ', sep2 = ', ', last_sep=', ')
+    if as_sentence:
+      return sentence [ formatted_names ]
+    else:
+      return formatted_names
+
+  def get_article_template(self, e):
+    pages = first_of [
+      # article id with total pages
+      optional [
+        join [
+          field('articleid'),
+          optional [
+            '(',join[u'1–', optional_field('pagetotal')],')'
+          ]
+        ]
+      ],
+      # pages only
+      field('pages', apply_func=dashify),
+    ]
+    volume_and_pages = first_of [
+      # volume and pages, with optional issue number
+      optional [
+        join [
+          tag('strong') [field('volume')],
+          optional [ '[', field('number'),']' ],
+          ' (', field('year'), ')',
+          ' ', pages
+        ],
+      ],
+      # pages only
+      words ['pages', pages],
+    ]
+    template = toplevel [
+      self.format_names('author'),
+      sentence [
+        tag('em') [field('journal')],
+        optional [ volume_and_pages ],
+      ],
+      sentence [ optional_field('note') ],
+      self.format_web_refs(e),
+    ]
+    return template
+
+  def get_inbook_template(self, e):
+    template = toplevel [
+      self.format_author_or_editor(e),
+      sentence [
+        self.format_btitle(e, 'title', as_sentence=False),
+        self.format_chapter_and_pages(e),
+      ],
+      self.format_volume_and_series(e),
+      sentence [
+        field('publisher'),
+        optional_field('address'),
+        optional [
+          words [field('edition'), 'edition']
+        ],
+        date,
+        optional_field('note'),
+      ],
+      self.format_web_refs(e),
+    ]
+    return template
+
+  def get_incollection_template(self, e):
+    template = toplevel [
+      sentence [ self.format_names('author') ],
+      words [
+        'In',
+        sentence [
+          optional [ self.format_editor(e, as_sentence=False) ],
+          self.format_btitle(e, 'booktitle', as_sentence=False),
+          self.format_volume_and_series(e, as_sentence=False),
+          self.format_chapter_and_pages(e),
+        ],
+      ],
+      sentence [
+        optional_field('publisher'),
+        optional_field('address'),
+        self.format_edition(e),
+        date,
+      ],
+      self.format_web_refs(e),
+    ]
+    return template
+
+  def get_phdthesis_template(self, e):
+    template = toplevel [
+      sentence [ self.format_names('author') ],
+      sentence [
+        'PhD thesis',
+        field('school'),
+        optional_field('address'),
+        date,
+      ],
+      sentence [ optional_field('note') ],
+      self.format_web_refs(e),
+    ]
+    return template
+
+register_plugin('pybtex.style.names', 'shortname', ShortName)
 register_plugin('pybtex.style.formatting', 'molcas', MolcasStyle)
+register_plugin('pybtex.style.formatting', 'short', ShortStyle)
