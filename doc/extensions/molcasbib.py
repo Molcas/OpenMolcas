@@ -382,20 +382,10 @@ class MolcasStyle(UnsrtStyle):
     ]
 
 # Shorter style for tooltips
-class ShortName(BaseNameStyle):
-
-  # Sorry, but I don't know how to use this "abbr" argument
-  def format(self, person, abbr=True):
-    return join[
-      name_part(tie=True, abbr=True)[person.rich_first_names + person.rich_middle_names],
-      name_part(tie=True)[person.rich_prelast_names],
-      name_part[person.rich_last_names],
-      name_part(before=', ', abbr=True)[person.rich_lineage_names]
-    ]
-
 class ShortStyle(MolcasStyle):
 
-  default_name_style = 'shortname'
+  def __init__(self, **kwargs):
+    super(MolcasStyle, self).__init__(abbreviate_names=True, **kwargs)
 
   def format_web_refs(self, e):
     return []
@@ -502,6 +492,5 @@ class ShortStyle(MolcasStyle):
     ]
     return template
 
-register_plugin('pybtex.style.names', 'shortname', ShortName)
 register_plugin('pybtex.style.formatting', 'molcas', MolcasStyle)
 register_plugin('pybtex.style.formatting', 'short', ShortStyle)
