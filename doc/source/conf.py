@@ -451,6 +451,16 @@ latex_elements['preamble'] += r'''
 }
 % Missing unicode character(s)?
 \DeclareUnicodeCharacter{03A6}{$\Phi$}
+% Fix current page checking in footnotes
+\newcounter{cPage}%
+\makeatletter%
+\let\old@spx@thefnmark\spx@thefnmark
+\protected\def\spx@thefnmark#1#2{%
+  \refstepcounter{cPage}\label{current\thecPage}%
+  \edef\spx@tempa{\getpagerefnumber{current\thecPage}}%
+  \old@spx@thefnmark{#1}{#2}%
+}%
+\makeatother%
 '''
 
 latex_additional_files = [ '_latex/molcas.sty' ]
