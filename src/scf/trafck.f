@@ -119,9 +119,13 @@
      &                1.0d0,FckS,nBas(iSym),
      &                CMO(iCMO,iD),nBas(iSym),
      &                0.0d0,HlfF,nBas(iSym))
-          Call MxMt(CMO(iCMO,iD),nBas(iSym),1,
-     &              HlfF,1,nBas(iSym),
-     &              FckS,nOrbmF,nBas(iSym))
+!         Call MxMt(CMO(iCMO,iD),nBas(iSym),1,
+!    &              HlfF,1,nBas(iSym),
+!    &              FckS,nOrbmF,nBas(iSym))
+          Call DGEMM_Tri('T','N',nOrbmF,nOrbmF,nBas(iSym),
+     &                  One,CMO(iCMO,iD),nBas(iSym),
+     &                      HlfF,nBas(iSym),
+     &                  Zero,FckS,nOrbmF)
 *debug
 c         Write(6,*) 'transformed Fck in trafck:'
 c         Call TriPrt(' ',' ',FckS,nOrbmF)
