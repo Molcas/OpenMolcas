@@ -118,7 +118,7 @@ subroutine Find_Functional(Label)
   use Definitions, only: u6
 
   character(len=*), intent(in) :: Label
-  integer(kind=iwp) :: i, istatus, Lu, nComp
+  integer(kind=iwp) :: i, istatus, Lu, nComp, isep, wlen
   integer(kind=LibxcInt) :: flags(nFuncs_max)
   real(kind=wp) :: Coeff
   character(len=256) :: Line
@@ -130,71 +130,101 @@ subroutine Find_Functional(Label)
   Def_ExFac = Zero
   Def_nFuncs = 0
 
-  Lu = IsFreeUnit(11)
-  call molcas_open(Lu,'FUNCDATA')
+  ! See whether we have a separator in the input
+  write (u6,*) 'Label=',Label,' len(label)=',len(label),' len(trim(label))=',len(trim(label))
+  isep = index(Label,",",kind=iwp)
+  write (u6,*) 'isep=',isep
+  if(isep .ne. 0) then
+     wlen = len(trim(Label))
 
-  ! First find the line that starts with the keyword name
-  do
-    read(Lu,'(A)',iostat=istatus) Line
-    if (istatus /= 0) then
-      call WarningMessage(2,' Find_Functional: Undefined functional type!')
-      write(u6,*) '         Functional=',trim(Label)
-      call Quit_OnUserError()
-    end if
-    Line = adjustl(Line)
-    if ((Line == '') .or. (Line(1:1) == '#')) cycle
-    read(Line,*) Word1,Word2
-    if (to_upper(Word1) == Label) exit
-  end do
+     ! Handle special case: example "gga_x_pbe,"
+     if(isep.eq.wlen) then
+        Def_nFuncs = 1
+        Def_Coeffs(1) = One
+        Labels(1) = Label(1:wlen-1)
+        Def_func_id(1) = get_func(Labels(1))
+     ! Handle special case: example ",gga_c_pbe"
+     else if(isep.eq.1) then
+        Def_nFuncs = 1
+        Def_Coeffs(1) = One
+        Labels(1) = Label(2:wlen)
+        Def_func_id(1) = get_func(Labels(1))
+     else
+        Def_nFuncs = 2
+        Def_Coeffs(1) = One
+        Def_Coeffs(2) = One
+        Labels(1) = Label(1:isep-1)
+        Labels(2) = Label(isep+1:wlen)
+        Def_func_id(1) = get_func(Labels(1))
+        Def_func_id(2) = get_func(Labels(2))
+     end if
 
-  ! Once found, read the second word
-  read(Word2,*,iostat=istatus) nComp
-  if (istatus == 0) then
-    ! If it's a number, read the component functionals and factors
-    if (Def_nFuncs > nFuncs_max) then
-      call WarningMessage(2,' Find_Functional: Too many components!')
-      write(u6,*) '         nFuncs=',Def_nFuncs
-      call Quit_OnUserError()
-    end if
-    i = 0
-    do while (i < nComp)
-      read(Lu,'(A)',iostat=istatus) Line
-      if (istatus /= 0) then
-        call WarningMessage(2,' Find_Functional: Error in functional definition!')
-        write(u6,*) '         Functional=',trim(Label)
-        call Quit_OnUserError()
-      end if
-      Line = adjustl(Line)
-      if ((Line == '') .or. (Line(1:1) == '#')) cycle
-      i = i+1
-      read(Line,*,iostat=istatus) Coeff,Word2
-      if (istatus /= 0) then
-        call WarningMessage(2,' Find_Functional: Error in functional definition!')
-        write(u6,*) '         Functional=',trim(Label)
-        call Quit_OnUserError()
-      end if
-      ! HF_X means exact exchange
-      if (to_upper(Word2) == 'HF_X') then
-        Def_ExFac = Def_ExFac+Coeff
-      else
-        Def_nFuncs = Def_nFuncs+1
-        Def_Coeffs(Def_nFuncs) = Coeff
-        Def_func_id(Def_nFuncs) = get_func(Word2)
-        Labels(Def_nFuncs) = Word2
-      end if
-    end do
+     write (u6,*) 'labels1=',trim(labels(1)),' labels(2)=',trim(labels(2))
   else
-    ! Otherwise, this is just an alias for a Libxc functional
-    Def_nFuncs = 1
-    Def_Coeffs(1) = One
-    Def_func_id(1) = get_func(Word2)
-    Labels(1) = Word2
+     Lu = IsFreeUnit(11)
+     call molcas_open(Lu,'FUNCDATA')
+
+     ! First find the line that starts with the keyword name
+     do
+        read(Lu,'(A)',iostat=istatus) Line
+        if (istatus /= 0) then
+           call WarningMessage(2,' Find_Functional: Undefined functional type!')
+           write(u6,*) '         Functional=',trim(Label)
+           call Quit_OnUserError()
+        end if
+        Line = adjustl(Line)
+        if ((Line == '') .or. (Line(1:1) == '#')) cycle
+        read(Line,*) Word1,Word2
+        if (to_upper(Word1) == Label) exit
+     end do
+
+     ! Once found, read the second word
+     read(Word2,*,iostat=istatus) nComp
+     if (istatus == 0) then
+        ! If it's a number, read the component functionals and factors
+        if (Def_nFuncs > nFuncs_max) then
+           call WarningMessage(2,' Find_Functional: Too many components!')
+           write(u6,*) '         nFuncs=',Def_nFuncs
+           call Quit_OnUserError()
+        end if
+        i = 0
+        do while (i < nComp)
+           read(Lu,'(A)',iostat=istatus) Line
+           if (istatus /= 0) then
+              call WarningMessage(2,' Find_Functional: Error in functional definition!')
+              write(u6,*) '         Functional=',trim(Label)
+              call Quit_OnUserError()
+           end if
+           Line = adjustl(Line)
+           if ((Line == '') .or. (Line(1:1) == '#')) cycle
+           i = i+1
+           read(Line,*,iostat=istatus) Coeff,Word2
+           if (istatus /= 0) then
+              call WarningMessage(2,' Find_Functional: Error in functional definition!')
+              write(u6,*) '         Functional=',trim(Label)
+              call Quit_OnUserError()
+           end if
+           ! HF_X means exact exchange
+           if (to_upper(Word2) == 'HF_X') then
+              Def_ExFac = Def_ExFac+Coeff
+           else
+              Def_nFuncs = Def_nFuncs+1
+              Def_Coeffs(Def_nFuncs) = Coeff
+              Def_func_id(Def_nFuncs) = get_func(Word2)
+              Labels(Def_nFuncs) = Word2
+           end if
+        end do
+     else
+        ! Otherwise, this is just straightforward aliases for Libxc functionals
+        Def_nFuncs = 1
+        Def_Coeffs(1) = One
+        Def_func_id(1) = get_func(Word2)
+        Labels(1) = Word2
+     end if
+     close(Lu)
   end if
 
-  close(Lu)
-
-  ! Now the file is read, process the functional(s)
-
+  ! Now the functionals have been defined, process the functional(s)
   do i=1,Def_nFuncs
     call xc_f03_func_init(func(i),Def_func_id(i),0_LibxcInt)
     info(i) = xc_f03_func_get_info(func(i))
