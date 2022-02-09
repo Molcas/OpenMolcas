@@ -12,7 +12,7 @@
 !               2015,2017, Alexander Zech                              *
 !***********************************************************************
 
-subroutine DrvEMB(h1,D,RepNuc,nh1,KSDFT,ExFac,Do_Grad,Grad,nGrad,D1I,D1A,nD1,DFTFOCK)
+subroutine DrvEMB(nh1,KSDFT,Do_Grad,Grad,nGrad,DFTFOCK)
 !***********************************************************************
 !***********************************************************************
 !** Orbital-Free Embedding calculation                               ***
@@ -46,8 +46,7 @@ use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-integer(kind=iwp), intent(in) :: nh1, nGrad, nD1
-real(kind=wp), intent(in) :: h1(nh1), D(nh1,2), RepNuc, ExFac, D1I(nD1), D1A(nD1)
+integer(kind=iwp), intent(in) :: nh1, nGrad
 character(len=*), intent(inout) :: KSDFT
 logical(kind=iwp), intent(in) :: Do_Grad
 real(kind=wp), intent(inout) :: Grad(nGrad)
@@ -237,8 +236,7 @@ if (dFMD > Zero) then
 
   call mma_allocate(Fcorr,nh1,nFckDim,Label='Fcorr')
 
-  call cwrap_DrvNQ(KSDFT,F_DFT(:,3:nFckDim+2),nFckDim,Ec_A,D_DS(:,3:nFckDim+2),nh1,nFckDim,Do_Grad,Grad,nGrad,DFTFOCK, &
-                   Fcorr(:,1:nFckDim))
+  call cwrap_DrvNQ(KSDFT,nFckDim,Ec_A,D_DS(:,3:nFckDim+2),nh1,nFckDim,Do_Grad,Grad,nGrad,DFTFOCK,Fcorr(:,1:nFckDim))
 end if
 
 !***********************************************************************
@@ -386,16 +384,7 @@ write(u6,'(a,f22.16)') ' NAD DFT Energy :',Energy_NAD
 call mma_deallocate(F_DFT)
 call mma_deallocate(D_DS)
 call Free_iSD()
-return
 
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(H1)
-  call Unused_real_array(D)
-  call Unused_real(RepNuc)
-  call Unused_real(ExFac)
-  call Unused_real_array(D1I)
-  call Unused_real_array(D1A)
-end if
+return
 
 end subroutine DrvEMB

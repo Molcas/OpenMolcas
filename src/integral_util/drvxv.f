@@ -96,8 +96,8 @@ cnf
       Grad=Zero
       nGrad=1
       If (KSDFT.ne.'SCF'.and.Do_DFT)
-     &   Call DrvDFT(h1,TwoHam,D,RepNuc,nh1,First,Dff,lRF,KSDFT,ExFac,
-     &               Do_Grad,Grad,nGrad,iSpin,D1I,D1A,nD1,DFTFOCK)
+     &   Call DrvDFT(h1,nh1,KSDFT,ExFac,
+     &               Do_Grad,Grad,nGrad,iSpin,DFTFOCK)
 *
 ************************************************************************
 *                                                                      *
@@ -106,8 +106,7 @@ cnf
 ************************************************************************
 *                                                                      *
       If (Do_OFemb)
-     &   Call DrvEMB(h1,D,RepNuc,nh1,OFE_KSDFT,ExFac,
-     &               Do_Grad,Grad,nGrad,D1I,D1A,nD1,DFTFOCK)
+     &   Call DrvEMB(nh1,OFE_KSDFT,Do_Grad,Grad,nGrad,DFTFOCK)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -119,4 +118,9 @@ cnf
 ************************************************************************
 *                                                                      *
       Return
+* Avoid unused argument warnings
+      If (.False.) then
+         Call Unused_real_array(D1I)
+         Call Unused_real_array(D1A)
+      End If
       End

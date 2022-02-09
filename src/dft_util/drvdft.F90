@@ -11,7 +11,7 @@
 ! Copyright (C) 2022, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine DrvDFT(h1,TwoHam,D,RepNuc,nh1,First,Dff,lRF,KSDFT,ExFac,Do_Grad,Grad,nGrad,iSpin,D1I,D1A,nD1,DFTFOCK)
+subroutine DrvDFT(h1,nh1,KSDFT,ExFac,Do_Grad,Grad,nGrad,iSpin,DFTFOCK)
 
 use KSDFT_Info, only: KSDFA, funcaa, funcbb, funccc
 use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I, Dens_t1, Dens_t2, Energy_integrated, Grad_I, mBas, mIrrep, nFro, &
@@ -21,12 +21,11 @@ use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, r8
 
 implicit none
-integer(kind=iwp), intent(in) :: nh1, nGrad, iSpin, nD1
+integer(kind=iwp), intent(in) :: nh1, nGrad, iSpin
 real(kind=wp), intent(inout) :: h1(nh1), Grad(nGrad)
-real(kind=wp), intent(in) :: TwoHam(nh1), D(nh1,2), RepNuc, D1I(nD1), D1A(nD1)
-logical(kind=iwp), intent(in) :: First, Dff, lRF, Do_Grad
 character(len=*), intent(in) :: KSDFT
 real(kind=wp), intent(out) :: ExFac
+logical(kind=iwp), intent(in) :: Do_Grad
 character(len=4), intent(in) :: DFTFOCK
 #include "debug.fh"
 #include "ksdft.fh"
@@ -198,16 +197,5 @@ call mma_deallocate(D_DS)
 call Free_iSD()
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(TwoHam)
-  call Unused_real_array(D)
-  call Unused_real(RepNuc)
-  call Unused_logical(First)
-  call Unused_logical(Dff)
-  call Unused_logical(lRF)
-  call Unused_real_array(D1I)
-  call Unused_real_array(D1A)
-end if
 
 end subroutine DrvDFT
