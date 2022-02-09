@@ -70,7 +70,7 @@
 #include "file.fh"
       Real*8 CMO(mBB,nD), TrM(mBB,nD), OneHam(mBT), Fock(mBT,nD),
      &       Ovrlp(mBT), EOrb(mmB,nD), OccNo(mmB,nD)
-      Character FName*512, KSDFT_save*16
+      Character FName*512, KSDFT_save*80
       Logical FstItr
       Logical found
 *

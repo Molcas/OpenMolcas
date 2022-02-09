@@ -1026,7 +1026,7 @@ c      End If
       Line=Get_Ln(LuSpool)
       Call UpCase(Line)
       Line = adjustl(Line)
-      KSDFT=Line(1:16)
+      KSDFT=Line(1:80)
       GoTo 1000
 *
 *>>>>>>>>>>>>> DFCF <<<< Factors to scale exch. and corr. <<

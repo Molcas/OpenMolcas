@@ -110,7 +110,7 @@
       Real*8  Grad(nGrad)
       Logical Do_MO,Do_TwoEl,Do_Grad
       Character*4 DFTFOCK
-      Character*16  KSDFT
+      Character*80  KSDFT
 
       Debug=.False.
 *                                                                      *

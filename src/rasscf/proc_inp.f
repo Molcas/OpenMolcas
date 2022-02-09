@@ -763,7 +763,7 @@ C   No changing about read in orbital information from INPORB yet.
        If (Line(1:4).eq.'ROKS') DFTFOCK='ROKS'
        If (Line(1:6).eq.'CASDFT') DFTFOCK='DIFF'
        Read(LUInput,*,End=9910,Err=9920) Line
-       KSDFT=Line(1:16)
+       KSDFT=Line(1:80)
        Call UpCase(KSDFT)
        l_casdft = KSDFT(1:2).eq.'T:' .or. KSDFT(1:3).eq.'FT:'
        If (.NOT.l_casdft) GoTo 9920

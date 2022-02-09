@@ -52,7 +52,7 @@
       Character*8   Fmt1,Fmt2,Label
       Character*120  Line,BlLine,StLine
       Character*3 lIrrep(8)
-      Character*16 KSDFT2
+      Character*80 KSDFT2
 #ifdef _ENABLE_CHEMPS2_DMRG_
       Character*3 SNAC
 #endif

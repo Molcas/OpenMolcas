@@ -47,7 +47,7 @@ integer(kind=iwp) :: iDFT, iDumm, iEnd, iI, iIrrep, IK, iOpt, iPrint, iRout, iSp
 real(kind=wp) :: Dummy1(1), Dummy2(1), Dummy3(1), Dummy4, Dumm0(1), Dumm1(1), ExFac, TCpu1, TCpu2, TWall1, TWall2
 logical(kind=iwp) :: First, Dff, Do_Grad, l_casdft
 character(len=80) :: Label
-character(len=16) :: KSDFT
+character(len=80) :: KSDFT
 character(len=8) Method
 character(len=4) :: DFTFOCK
 real(kind=wp), allocatable :: Temp2(:), R(:), G1qs(:), G2qs(:), G1qt(:), G2qt(:), D1AOMS(:), D1SAOMS(:), D1AOt(:), D1SAOt(:)
@@ -77,7 +77,7 @@ end do
 
 !call Get_iOption(iDFT)
 
-call Get_cArray('DFT functional',KSDFT,16)
+call Get_cArray('DFT functional',KSDFT,80)
 l_casdft = (KSDFT(1:2) == 'T:') .or. (KSDFT(1:3) == 'FT:')
 
 if (l_casdft) then
@@ -94,7 +94,7 @@ if (btest(iDFT,6)) then
 
   First = .true.
   Dff = .false.
-  call Get_cArray('DFT functional',KSDFT,16)
+  call Get_cArray('DFT functional',KSDFT,80)
   ExFac = Zero ! Set to proper value at retrun!
   Do_Grad = .true.
   call Get_iScalar('Multiplicity',iSpin)

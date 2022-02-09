@@ -195,7 +195,7 @@
       Character*(LENIN)  Atom(MxBS)
       Character*8   Type(MxBS)
       Character*4   Neg2_Action
-      Character*16  KSDFT
+      Character*80  KSDFT
       Character*512 SCF_FileOrb
       Logical isHDF5
       Integer fileorb_id
