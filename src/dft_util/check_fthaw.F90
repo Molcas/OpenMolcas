@@ -12,6 +12,7 @@
 subroutine check_Fthaw(iRC)
 
 use OFembed, only: ThrFThaw
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -19,9 +20,10 @@ implicit none
 integer(kind=iwp), intent(inout) :: iRC
 #include "warnings.h"
 integer(kind=iwp) :: i, iSeed, iter, iter0, Lu
-real(kind=wp) :: DEneA, DEneB, Ene(1000,4), EneA, EneB !IFG
+real(kind=wp) :: DEneA, DEneB, E1, E3, EneA, EneB
 logical(kind=iwp) :: ok
 character(len=16) :: NamRfil
+real(kind=wp), allocatable :: Ene(:,:)
 integer(kind=iwp), external :: IsFreeUnit
 
 if (ThrFThaw <= Zero) return
@@ -47,11 +49,14 @@ else
   call molcas_open(Lu,'FRETHAW')
   !open(Lu,file='FRETHAW',status='old')
 
-  read(Lu,'(I4,2F18.10)') iter0,Ene(1,1),Ene(1,3)
+  read(Lu,'(I4,2F18.10)') iter0,E1,E3
   if (iter0 == 1000) then
     write(u6,*) ' Error! check_Fthaw: maxIter reached! '
     call Abend()
   end if
+  call mma_allocate(Ene,iter0,4,label='Ene')
+  Ene(1,1) = E1
+  Ene(1,3) = E3
   do i=2,iter0
     read(Lu,'(I4,4F18.10)') iter,Ene(i,1),Ene(i,2),Ene(i,3),Ene(i,4)
   end do
@@ -89,6 +94,7 @@ else
     write(u6,*)
     close(Lu,status='keep')
   end if
+  call mma_deallocate(Ene)
 end if
 
 return

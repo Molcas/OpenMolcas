@@ -171,8 +171,8 @@ if (OFE_first) then
   call wrap_DrvNQ(KSDFT,F_DFT(:,1:nFckDim),nFckDim,Func_B,D_DS(:,1:nFckDim),nh1,nFckDim,Do_Grad,Grad,nGrad,DFTFOCK)
 
   if (KSDFT(1:4) == 'NDSD') then
-    call mma_allocate(NDSD,nh1,nFckDim,Label='NDSD')
-    NDSD(1:nh1,1:nFckDim) = F_DFT(1:nh1,1:nFckDim)
+    call mma_allocate(NDSD,nh1,nFckDim,label='NDSD')
+    NDSD(:,:) = F_DFT(:,1:nFckDim)
     KSDFT(1:4) = 'LDTF' !set to Thomas-Fermi for subsequent calls
   end if
 

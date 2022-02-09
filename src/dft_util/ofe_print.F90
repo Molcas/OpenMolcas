@@ -12,24 +12,27 @@
 subroutine OFE_print(Energy_A)
 
 use OFembed, only: dFMD, Energy_NAD, Func_A, Func_AB, Func_B, Rep_EN, V_emb, V_Nuc_AB, V_Nuc_BA
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(in) :: Energy_A
-#include "Molcas.fh"
 integer(kind=iwp) :: iTol, nAtoms, nSym
-real(kind=wp) :: Ec_A, Energy_B, ReCharge(MxAtom), ZRE_nad !IFG
+real(kind=wp) :: Ec_A, Energy_B, ZRE_nad
 character(len=16) :: NamRfil
+real(kind=wp), allocatable :: ReCharge(:)
 integer(kind=iwp), external :: Cho_X_GetTol
 
 call Get_iScalar('nSym',nSym)
 call Get_iScalar('Unique atoms',nAtoms)
+call mma_allocate(ReCharge,nAtoms,label='ReCharge')
 call Get_dArray('Effective nuclear Charge',ReCharge,nAtoms)
 
 call Get_NameRun(NamRfil)
 call NameRun('AUXRFIL')
 call PotNuc_nad(nSym,nAtoms,ReCharge,ZRE_nad)
+call mma_deallocate(ReCharge)
 
 call Get_dEnergy(Energy_B)
 if (dFMD > Zero) call Get_dScalar('KSDFT energy',Ec_A)
