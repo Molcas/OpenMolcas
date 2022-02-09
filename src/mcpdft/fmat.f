@@ -205,10 +205,14 @@ c     End If
      &               1.0d0,Work(iTmp1),iBas,
      &               CMO(iOff2+(iFro*iBas)),iBas,
      &               0.0d0,Work(iTmp2),iBas)
-        Call MXMT(Work(iTmp2),iBas,1,
-     &            CMO(iOff2+(iFro*iBas)),1,iBas,
-     &            FI(iOff3),
-     &            iOrb,iBas)
+!       Call MXMT(Work(iTmp2),iBas,1,
+!    &            CMO(iOff2+(iFro*iBas)),1,iBas,
+!    &            FI(iOff3),
+!    &            iOrb,iBas)
+        Call DGEMM_Tri('T','N',iOrb,iOrb,iBas,
+     &                 1.0D0,Work(iTmp2),iBas,
+     &                       CMO(iOff2+(iFro*iBas)),iBas,
+     &                 0.0D0,FI(iOff3),iOrb)
         Call GetMem('Scr2','Free','Real',iTmp2,iOrb*iBas)
         Call GetMem('Scr1','Free','Real',iTmp1,iBas*iBas)
         iOff1 = iOff1 + (iBas*iBas+iBas)/2
@@ -233,10 +237,14 @@ c     End If
      &               1.0d0,Work(iTmp1),iBas,
      &               CMO(iOff2+(iFro*iBas)),iBas,
      &               0.0d0,Work(iTmp2),iBas)
-        Call MXMT(Work(iTmp2),iBas,1,
-     &            CMO(iOff2+(iFro*iBas)),1,iBas,
-     &            FA(iOff3),
-     &            iOrb,iBas)
+!       Call MXMT(Work(iTmp2),iBas,1,
+!    &            CMO(iOff2+(iFro*iBas)),1,iBas,
+!    &            FA(iOff3),
+!    &            iOrb,iBas)
+        Call DGEMM_Tri('T','N',iOrb,iOrb,iBas,
+     &                 1.0D0,Work(iTmp2),iBas,
+     &                       CMO(iOff2+(iFro*iBas)),iBas,
+     &                 0.0D0,FA(iOff3),iOrb)
         Call GetMem('Scr2','Free','Real',iTmp2,iOrb*iBas)
         Call GetMem('Scr1','Free','Real',iTmp1,iBas*iBas)
         iOff1 = iOff1 + (iBas*iBas+iBas)/2
@@ -285,10 +293,14 @@ c**************************************************************************
      &               1.0d0,Work(iTmp1),iBas,
      &               CMO(iOff2+(iFro*iBas)),iBas,
      &               0.0d0,Work(iTmp2),iBas)
-          Call MXMT(Work(iTmp2),iBas,1,
-     &              CMO(iOff2+(iFro*iBas)),1,iBas,
-     &              Work(ipTmpFckI+iOff3-1),
-     &              iOrb,iBas)
+!         Call MXMT(Work(iTmp2),iBas,1,
+!    &              CMO(iOff2+(iFro*iBas)),1,iBas,
+!    &              Work(ipTmpFckI+iOff3-1),
+!    &              iOrb,iBas)
+          Call DGEMM_Tri('T','N',iOrb,iOrb,iBas,
+     &                   1.0D0,Work(iTmp2),iBas,
+     &                         CMO(iOff2+(iFro*iBas)),iBas,
+     &                   0.0D0,Work(ipTmpFckI+iOff3-1),iOrb)
           Call GetMem('Scr2','Free','Real',iTmp2,iOrb*iBas)
           Call GetMem('Scr1','Free','Real',iTmp1,iBas*iBas)
           iOff1 = iOff1 + (iBas*iBas+iBas)/2
@@ -316,10 +328,14 @@ c**************************************************************************
      &               1.0d0,Work(iTmp1),iBas,
      &               CMO(iOff2+(iFro*iBas)),iBas,
      &               0.0d0,Work(iTmp2),iBas)
-          Call MXMT(Work(iTmp2),iBas,1,
-     &              CMO(iOff2+(iFro*iBas)),1,iBas,
-     &              Work(ipTmpFckA+iOff3-1),
-     &              iOrb,iBas)
+!         Call MXMT(Work(iTmp2),iBas,1,
+!    &              CMO(iOff2+(iFro*iBas)),1,iBas,
+!    &              Work(ipTmpFckA+iOff3-1),
+!    &              iOrb,iBas)
+          Call DGEMM_Tri('T','N',iOrb,iOrb,iBas,
+     &                   1.0D0,Work(iTmp2),iBas,
+     &                         CMO(iOff2+(iFro*iBas)),iBas,
+     &                   0.0D0,Work(ipTmpFckA+iOff3-1),iOrb)
           Call GetMem('Scr2','Free','Real',iTmp2,iOrb*iBas)
           Call GetMem('Scr1','Free','Real',iTmp1,iBas*iBas)
           iOff1 = iOff1 + (iBas*iBas+iBas)/2
