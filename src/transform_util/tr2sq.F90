@@ -173,7 +173,8 @@ do NP=1,NBP
 
     if (NOCR*NOCS /= 0) then
       if (ISR == ISS) then
-        call MXMT(X3,NBR,1,CMO(LMOR2),1,NBR,X2,NOCR,NBR)
+!       call MXMT(X3,NBR,1,CMO(LMOR2),1,NBR,X2,NOCR,NBR)
+        Call DGEMM_Tri('T','N',NOCR,NOCR,NBR,One,X3,NBR,CMO(LMOR2),NBR,Zero,X2,NOCR)
       else
         call DGEMM_('T','N',NOCS,NOCR,NBR,One,X3,NBR,CMO(LMOR2),NBR,Zero,X2,NOCS)
       end if
@@ -253,7 +254,8 @@ if (NOCR*NOCS /= 0) then
       if (ISP == ISQ) then
         call SQUARE(TUPQ(IPQST),X2,1,NBQ,NBQ)
         call DGEMM_('N','N',NBQ,NOP,NBP,One,X2,NBQ,CMO(LMOP),NBP,Zero,X1,NBP)
-        call MXMT(X1,NBQ,1,CMO(LMOQ),1,NBQ,X2,NOP,NBQ)
+!       call MXMT(X1,NBQ,1,CMO(LMOQ),1,NBQ,X2,NOP,NBQ)
+        Call DGEMM_Tri('T','N',NOP,NOP,NBQ,One,X1,NBQ,CMO(LMOQ),NBQ,ZERO,X2,NOP)
         IX2 = (NOP+NOP**2)/2
       else
         call DGEMM_('N','N',NBQ,NOP,NBP,One,TUPQ(IPQST),NBQ,CMO(LMOP),NBP,Zero,X1,NBQ)

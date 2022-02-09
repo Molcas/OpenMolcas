@@ -160,7 +160,8 @@ do IP=1,NBP
       ! (pq,rU) -> (pq,TU)
       if (icc /= 0) then
         if (ISR == ISS) then
-          call MXMT(X3,NBR,1,CMO(LMOR2),1,NBR,X2,NOCR,NBR)
+!         call MXMT(X3,NBR,1,CMO(LMOR2),1,NBR,X2,NOCR,NBR)
+          call DGEMM_Tri('T','N',NOCR,NOCR,NBR,One,X3,NBR,CMO(LMOR2),NBR,Zero,X2,NOCR)
         else
           call DGEMM_('T','N',NOCS,NOCR,NBR,One,X3,NBR,CMO(LMOR2),NBR,Zero,X2,NOCS)
         end if
