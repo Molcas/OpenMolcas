@@ -196,10 +196,6 @@ end function embPotEneMODensities
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !call Square(inMatrix,unpackedMatrix,1,nBasFunc,nBasFunc)
-!!call MXMA(unpackedMatrix,1,nBasFunc, &
-!           coefficientMatrix(nFrozenOrbs*nBasFunc),1, &
-!           nBasFunc,halfTrafoMat,1, &
-!           nBasFunc,nBasFunc,nBasFunc,nBasFunc)
 !! stefan: check T (transpose) whether it is correct...
 !call DGEMM_('T','N',nBasFunc,nBasFunc,nBasFunc, &
 !            One,unpackedMatrix,nBasFunc, &

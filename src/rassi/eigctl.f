@@ -207,17 +207,9 @@ C 3. SPECTRAL DECOMPOSITION OF OVERLAP MATRIX:
 
       If (.not.diagonal) Then
 C 4. TRANSFORM HAMILTON MATRIX.
-*        CALL MXMA(WORK(LHSQ),1,MSTATE,
-*     &            WORK(LUU),1,MSTATE,
-*     &            WORK(LSCR),1,MSTATE,
-*     &            MSTATE,MSTATE,MSTATE)
         CALL DGEMM_('N','N',MSTATE,MSTATE,MSTATE,1.0D0,
      &             WORK(LHSQ),MSTATE,WORK(LUU),MSTATE,
      &             0.0D0,WORK(LSCR),MSTATE)
-*        CALL MXMA(WORK(LUU),MSTATE,1,
-*     &            WORK(LSCR),1,MSTATE,
-*     &            WORK(LHSQ),1,MSTATE,
-*     &            MSTATE,MSTATE,MSTATE)
         CALL DGEMM_('T','N',MSTATE,MSTATE,MSTATE,1.0D0,
      &             WORK(LUU),MSTATE,WORK(LSCR),MSTATE,
      &             0.0D0,WORK(LHSQ),MSTATE)
