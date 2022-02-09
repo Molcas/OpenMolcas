@@ -194,15 +194,13 @@ c     End If
       iOff3 = 1
       Do iSym = 1,nSym
         iBas = nBas(iSym)
+        If (iBas==0) Cycle
         iOrb = nOrb(iSym)
+        If (iOrb==0) Cycle
         iFro = nFro(iSym)
         Call GetMem('Scr1','Allo','Real',iTmp1,iBas*iBas)
         Call GetMem('Scr2','Allo','Real',iTmp2,iOrb*iBas)
         Call Square(FI(iOff1),Work(iTmp1),1,iBas,iBas)
-C        Call MXMA(Work(iTmp1),1,iBas,
-C     &            CMO(iOff2+(iFro*iBas)),1,iBas,
-C     &            Work(iTmp2),1,iBas,
-C     &            iBas,iBas,iOrb)
         Call DGEMM_('N','N',iBas,iOrb,iBas,
      &               1.0d0,Work(iTmp1),iBas,
      &               CMO(iOff2+(iFro*iBas)),iBas,
@@ -224,15 +222,13 @@ C     &            iBas,iBas,iOrb)
       iOff3 = 1
       Do iSym = 1,nSym
         iBas = nBas(iSym)
+        If (iBas==0) Cycle
         iOrb = nOrb(iSym)
+        If (iOrb==0) Cycle
         iFro = nFro(iSym)
         Call GetMem('Scr1','Allo','Real',iTmp1,iBas*iBas)
         Call GetMem('Scr2','Allo','Real',iTmp2,iOrb*iBas)
         Call Square(FA(iOff1),Work(iTmp1),1,iBas,iBas)
-C        Call MXMA(Work(iTmp1),1,iBas,
-C     &            CMO(iOff2+(iFro*iBas)),1,iBas,
-C     &            Work(iTmp2),1,iBas,
-C     &            iBas,iBas,iOrb)
         Call DGEMM_('N','N',iBas,iOrb,iBas,
      &               1.0d0,Work(iTmp1),iBas,
      &               CMO(iOff2+(iFro*iBas)),iBas,
@@ -277,16 +273,14 @@ c**************************************************************************
         iOff3 = 1
         Do iSym = 1,nSym
           iBas = nBas(iSym)
+          If (iBas==0) Cycle
           iOrb = nOrb(iSym)
+          If (iOrb==0) Cycle
           iFro = nFro(iSym)
           Call GetMem('Scr1','Allo','Real',iTmp1,iBas*iBas)
           Call GetMem('Scr2','Allo','Real',iTmp2,iOrb*iBas)
           Call Square(Work(ipTmpFckI+iOff1-1),
      &                Work(iTmp1),1,iBas,iBas)
-C          Call MXMA(Work(iTmp1),1,iBas,
-C     &              CMO(iOff2+(iFro*iBas)),1,iBas,
-C     &              Work(iTmp2),1,iBas,
-C     &              iBas,iBas,iOrb)
           Call DGEMM_('N','N',iBas,iOrb,iBas,
      &               1.0d0,Work(iTmp1),iBas,
      &               CMO(iOff2+(iFro*iBas)),iBas,
@@ -310,16 +304,14 @@ C     &              iBas,iBas,iOrb)
         iOff3 = 1
         Do iSym = 1,nSym
           iBas = nBas(iSym)
+          If (iBas==0) Cycle
           iOrb = nOrb(iSym)
+          If (iOrb==0) Cycle
           iFro = nFro(iSym)
           Call GetMem('Scr1','Allo','Real',iTmp1,iBas*iBas)
           Call GetMem('Scr2','Allo','Real',iTmp2,iOrb*iBas)
           Call Square(Work(ipTmpFckA+iOff1-1),
      &                Work(iTmp1),1,iBas,iBas)
-C          Call MXMA(Work(iTmp1),1,iBas,
-C     &              CMO(iOff2+(iFro*iBas)),1,iBas,
-C     &              Work(iTmp2),1,iBas,
-C     &              iBas,iBas,iOrb)
           Call DGEMM_('N','N',iBas,iOrb,iBas,
      &               1.0d0,Work(iTmp1),iBas,
      &               CMO(iOff2+(iFro*iBas)),iBas,
