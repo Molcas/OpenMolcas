@@ -156,10 +156,14 @@
      &                        CMO(iCMO),nBas(iSym),
      &                  0.0d0,FckH,nBas(iSym))
             ! multiply FckT =  CMO x FckH
-            Call MxMt(CMO(iCMO),   nBas(iSym),1,
-     &                FckH,1,nBas(iSym),
-     &                FckT,
-     &                nOrbi,nBas(iSym))
+!           Call MxMt(CMO(iCMO),   nBas(iSym),1,
+!    &                FckH,1,nBas(iSym),
+!    &                FckT,
+!    &                nOrbi,nBas(iSym))
+            Call DGEMM_Tri('T','N',nOrbi,nOrbi,nBas(iSym),
+     &                     One,CMO(iCMO), nBas(iSym),
+     &                         FckH,nBas(iSym),
+     &                     Zero,FckT,nOrbi)
 *
 *---------- Diagonalize OneHam within virtual space and form orbital energies
             Call mma_allocate(Scratch,nOrbi**2,Label='Scratch')
