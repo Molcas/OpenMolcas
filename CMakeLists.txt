@@ -1591,7 +1591,7 @@ else ()
   # Note shared libraries won't work here because of installation issues.
   # TODO: Solving this will require creating a wrapper main project that includes
   #       both Libxc and OpenMolcas as ExternalProject. This could also simplify
-  #       the handling of other codes like GlobalArrays or QCMaquis
+  #       the handling of other codes like GlobalArrays or QCMaquis.
   list (APPEND LibxcCMakeArgs
         -D CMAKE_INSTALL_PREFIX=${EP_INSTALL}
         -D BUILD_SHARED_LIBS=NO
@@ -1601,6 +1601,7 @@ else ()
         -D CMAKE_INSTALL_LIBDIR=lib
         -D ENABLE_FORTRAN=ON
         -D ENABLE_PYTHON=OFF
+        -D DISABLE_FXC=ON
         -D DISABLE_KXC=ON
         -D DISABLE_LXC=ON
         -D BUILD_TESTING=NO
