@@ -111,7 +111,6 @@ do NP=1,NBP
         call SQPRT(X2,NBR)
       end if
       if (NBR*NBS*NOS > 0) call DGEMM_('T','N',NBR,NOS,NBS,One,X2,NBS,CMO(LMOS),NBS,Zero,X3,NBR)
-!     if (NBR*NOR > 0) call MXMT(X3,NBR,1,CMO(LMOR),1,NBR,X2,NOR,NBR)
       if (NBR*NOR > 0) call DGEMM_Tri('T','N',NOR,NOR,NBR,One,X3,NBR,CMO(LMOR),NBR,ZERO,X2,NOR)
     else
       if (NBR*NBS*NOS > 0) call DGEMM_('T','N',NBR,NOS,NBS,One,X1(IRSST),NBS,CMO(LMOS),NBS,Zero,X3,NBR)
@@ -212,7 +211,6 @@ do NV=1,NOR
       if (ISP == ISQ) then
         call SQUARE(VXPQ(IPQST),X2,1,NBQ,NBQ)
         if (NBP*NBQ*NOQ > 0) call DGEMM_('T','N',NBP,NOQ,NBQ,One,X2,NBQ,CMO(LMOQ),NBQ,Zero,X1,NBP)
-!       If (NOP*NBP > 0) call MXMT(X1,NBP,1,CMO(LMOP),1,NBP,X2,NOP,NBP)
         If (NOP*NBP > 0) call DGEMM_Tri('T','N',NOP,NOP,NBP,One,X1,NBP,CMO(LMOP),NBP,Zero,X2,NOP)
         IX2 = (NOP+NOP**2)/2
       else

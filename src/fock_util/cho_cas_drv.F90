@@ -72,7 +72,6 @@ if (TraOnly) then
       call mma_allocate(Tmp2,iOrb*iBas,Label='Tmp1')
       call Square(FLT(i)%SB(iSym)%A1,Tmp1,1,iBas,iBas)
       call DGEMM_('N','N',iBas,iOrb,iBas,One,Tmp1,iBas,CMO%SB(iSym)%A1(1+iFro*iBas:),iBas,Zero,Tmp2,iBas)
-!     call MXMT(Tmp2,iBas,1,CMO%SB(iSym)%A1(1+iFro*iBas:),1,iBas,FLT_MO(i)%SB(iSym)%A1,iOrb,iBas)
       call DGEMM_Tri('T','N',iOrb,iOrb,iBas,One,Tmp2,iBas,CMO%SB(iSym)%A1(1+iFro*iBas:),iBas,Zero,FLT_MO(i)%SB(iSym)%A1,iOrb)
       call mma_deallocate(Tmp2)
       call mma_deallocate(Tmp1)

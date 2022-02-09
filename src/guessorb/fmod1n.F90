@@ -194,7 +194,6 @@ do iSym=1,nSym
   if (nBas(iSym) > 0) then
     call Square(Fock(ipFock(iSym)),SFk,1,nBas(iSym),nBas(iSym))
     call DGEMM_('N','N',nBas(iSym),nBas(iSym),nBas(iSym),One,SFk,nBas(iSym),CMO(ipCMO(iSym)),nBas(iSym),Zero,Hlf,nBas(iSym))
-!   call MxMt(CMO(ipCMO(iSym)),nBas(iSym),1,Hlf,1,nBas(iSym),TFk,nBas(iSym),nBas(iSym))
     call DGEMM_Tri('T','N',nBas(iSym),nBas(iSym),nBas(iSym),        &
                    One,CMO(ipCMO(iSym)),nBas(iSym),                 &
                        Hlf,nBas(iSym),                              &

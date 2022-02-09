@@ -211,10 +211,6 @@ c Transform one-electron effective Hamiltonian:
      &                  1.0d0,CMO(ICMO),NBAS(ISYM),WORK(LWTMP),
      &                  NBAS(ISYM),0.0d0,WORK(IOFF),NORB(ISYM))
 
-*          CALL MXMT(WORK(IOFF),    1,NORB(ISYM),
-*    &             CMO(ICMO),     1,NBAS(ISYM),
-*    &             WORK(IMO),
-*    &             NORB(ISYM),NBAS(ISYM))
            Call DGEMM_Tri('N','N',NORB(ISYM),NORB(ISYM),NBAS(ISYM),
      &                    1.0D0,WORK(IOFF),NORB(ISYM),
      &                          CMO(ICMO),NBAS(ISYM),

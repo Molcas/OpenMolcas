@@ -205,10 +205,6 @@ c     End If
      &               1.0d0,Work(iTmp1),iBas,
      &               CMO(iOff2+(iFro*iBas)),iBas,
      &               0.0d0,Work(iTmp2),iBas)
-!       Call MXMT(Work(iTmp2),iBas,1,
-!    &            CMO(iOff2+(iFro*iBas)),1,iBas,
-!    &            FI(iOff3),
-!    &            iOrb,iBas)
         Call DGEMM_Tri('T','N',iOrb,iOrb,iBas,
      &                 1.0D0,Work(iTmp2),iBas,
      &                       CMO(iOff2+(iFro*iBas)),iBas,
@@ -237,10 +233,6 @@ c     End If
      &               1.0d0,Work(iTmp1),iBas,
      &               CMO(iOff2+(iFro*iBas)),iBas,
      &               0.0d0,Work(iTmp2),iBas)
-!       Call MXMT(Work(iTmp2),iBas,1,
-!    &            CMO(iOff2+(iFro*iBas)),1,iBas,
-!    &            FA(iOff3),
-!    &            iOrb,iBas)
         Call DGEMM_Tri('T','N',iOrb,iOrb,iBas,
      &                 1.0D0,Work(iTmp2),iBas,
      &                       CMO(iOff2+(iFro*iBas)),iBas,
@@ -293,10 +285,6 @@ c**************************************************************************
      &               1.0d0,Work(iTmp1),iBas,
      &               CMO(iOff2+(iFro*iBas)),iBas,
      &               0.0d0,Work(iTmp2),iBas)
-!         Call MXMT(Work(iTmp2),iBas,1,
-!    &              CMO(iOff2+(iFro*iBas)),1,iBas,
-!    &              Work(ipTmpFckI+iOff3-1),
-!    &              iOrb,iBas)
           Call DGEMM_Tri('T','N',iOrb,iOrb,iBas,
      &                   1.0D0,Work(iTmp2),iBas,
      &                         CMO(iOff2+(iFro*iBas)),iBas,
@@ -328,10 +316,6 @@ c**************************************************************************
      &               1.0d0,Work(iTmp1),iBas,
      &               CMO(iOff2+(iFro*iBas)),iBas,
      &               0.0d0,Work(iTmp2),iBas)
-!         Call MXMT(Work(iTmp2),iBas,1,
-!    &              CMO(iOff2+(iFro*iBas)),1,iBas,
-!    &              Work(ipTmpFckA+iOff3-1),
-!    &              iOrb,iBas)
           Call DGEMM_Tri('T','N',iOrb,iOrb,iBas,
      &                   1.0D0,Work(iTmp2),iBas,
      &                         CMO(iOff2+(iFro*iBas)),iBas,

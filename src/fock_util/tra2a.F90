@@ -46,7 +46,6 @@ call DGEMM_('T','N',kBas,lAsh,lBas,One,IJKL,lBas,CMO_l,lBas,Zero,IJKX,kBas)
 ! (ij|kx) -> (ij|vx)
 if (kSym == lSym) then
   ! Triangular storage of target
-! call MxMt(IJKX,kBas,1,CMO_k,1,kBas,IJVX,kAsh,kBas)
   call DGEMM_Tri('T','N',kAsh,kAsh,kBas,One,IJKX,kBas,CMO_k,kBas,Zero,IJVX,kAsh)
 else
   ! Rectangular storage of target

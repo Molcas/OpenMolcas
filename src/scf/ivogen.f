@@ -88,10 +88,6 @@
      &                  1.0d0,FckS,nBas(iSym),
      &                        CMO(iCMO),nBas(iSym),
      &                  0.0d0,FckH,nBas(iSym))
-!           Call MxMt(CMO(iCMO),   nBas(iSym),1,
-!    &                FckH,1,nBas(iSym),
-!    &                FckT,
-!    &                nOrbi,nBas(iSym))
             Call DGEMM_Tri('T','N',nOrbi,nOrbi,nBas(iSym),
      &                     One,CMO(iCMO),nBas(iSym),
      &                        FckH,nBas(iSym),

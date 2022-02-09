@@ -43,7 +43,6 @@ do ISYM=1,NSYM
   if (NA /= 0) then
     call SQUARE(F(ISTFP),X1,1,NB,NB)
     call DGEMM_('N','N',NB,NA,NB,One,X1,NB,CMO(LMOP1),NB,Zero,X2,NB)
-!   call MXMT(X2,NB,1,CMO(LMOP1),1,NB,F(ISTFA),NA,NB)
     call DGEMM_Tri('T','N',NA,NA,NB,One,X2,NB,CMO(LMOP1),NB,Zero,F(ISTFA),NA)
 
     ISTFA = ISTFA+ITRI(NA+1)

@@ -163,7 +163,6 @@ do iSym=1,nSym
     call Square(Fck(ijT),T1,1,nB,nB)
     call Square(Ovl(ijT),T2,1,nB,nB)
     call DGEMM_('N','N',nB,nB,nB,One,T1,nB,T2,nB,Zero,T3,nB)
-!   call MxMt(T2,nB,1,T3,1,nB,Fck(ijT),nB,nB)
     call DGEMM_Tri('T','N',nB,nB,nB,One,T2,nB,T3,nB,Zero,Fck(ijT),nB)
     if (Debug) then
       !call TriPrt('Fock matrix with metric','(12f12.6)',Fck(ijT),nB)
@@ -197,7 +196,6 @@ do iSym=1,nSym
   if (nB > 0) then
     call Square(Fck(ijT),T1,1,nB,nB)
     call DGEMM_('N','N',nB,nS,nB,One,T1,nB,CMO(ijS),nB,Zero,T2,nB)
-!   call MxMt(CMO(ijS),nB,1,T2,1,nB,T3,nS,nB)
     call DGEMM_Tri('T','N',nS,nS,nB,One,CMO(ijS),nB,T2,nB,Zero,T3,nS)
     if (Debug) then
       !call TriPrt('Transformed Fock matrix','(12f12.6)',T3,nB)
@@ -267,7 +265,6 @@ dummy: if (.true.) then
         call Square(Fck(ijT),T1,1,nB,nB)
         call DGEMM_('N','N',nB,nS,nB,One,T1,nB,CMO(ijS+nB*nC),nB,Zero,T2,nB)
 
-!       call MxMt(CMO(ijS+nB*nC),nB,1,T2,1,nB,T3,nS,nB)
         call DGEMM_Tri('T','N',nS,nS,nB,One,CMO(ijS+nB*nC),nB,T2,nB,Zero,T3,nS)
         if (Debug) then
           call TriPrt('Virtual space','(12f12.6)',T3,nS)

@@ -111,8 +111,6 @@
      &                  1.0d0,OHSq,nBas(iSym),
      &                        TrMat(iCMO),nBas(iSym),
      &                  0.0d0,OHHl,nBas(iSym))
-!           Call MxMt(TrMat(iCMO), nBas(iSym),1,OHHl,1,nBas(iSym),
-!    &                OHTr,nOF,nBas(iSym))
             Call DGEMM_Tri('T','N',nOF,nOF,nBas(iSym),
      &                     1.0D0,TrMat(iCMO),nBas(iSym),
      &                           OHHl,nBas(iSym),
