@@ -11,9 +11,9 @@
 
 subroutine Cho_Fock_MoTra(nSym,nBas,nFro,W_DLT,W_DSQ,W_FLT,nFLT,W_FSQ,ExFac)
 
+use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
-use Data_Structures, only: DSBA_type, Allocate_DSBA, Deallocate_DSBA
 
 implicit none
 integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nFro(nSym), nFLT
@@ -42,9 +42,9 @@ if (irc /= 0) then
   call AbEnd()
 end if
 
-Call Allocate_DSBA(DLT,nBas,nBas,nSym,aCase='TRI',Ref=W_DLT)
-Call Allocate_DSBA(DSQ,nBas,nBas,nSym,aCase='REC',Ref=W_DSQ)
-Call Allocate_DSBA(MOs,nBas,nBas,nSym)
+Call Allocate_DT(DLT,nBas,nBas,nSym,aCase='TRI',Ref=W_DLT)
+Call Allocate_DT(DSQ,nBas,nBas,nSym,aCase='REC',Ref=W_DSQ)
+Call Allocate_DT(MOs,nBas,nBas,nSym)
 
 do i=1,nSym
   if (nBas(i) > 0) then
@@ -70,8 +70,8 @@ do i=1,nSym
 end do
 
 nDen = 1
-Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_FLT)
-Call Allocate_DSBA(KLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_FSQ) ! not needed on exit
+Call Allocate_DT(FLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_FLT)
+Call Allocate_DT(KLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_FSQ) ! not needed on exit
 
 call CHO_LK_SCF(irc,nDen,FLT,KLT,nXorb,nFro,[MOs],[DLT],Half*ExFac,NScreen,dmpk,dFKmat)
 
@@ -80,14 +80,14 @@ if (irc /= 0) then
   call AbEnd()
 end if
 
-call Deallocate_DSBA(KLT(1))
-call Deallocate_DSBA(FLT(1))
+call Deallocate_DT(KLT(1))
+call Deallocate_DT(FLT(1))
 
 call GADSUM(W_FLT,nFLT)
 
-call deallocate_DSBA(MOs)
-call deallocate_DSBA(DSQ)
-call deallocate_DSBA(DLT)
+call deallocate_DT(MOs)
+call deallocate_DT(DSQ)
+call deallocate_DT(DLT)
 
 ! Finalize Cholesky information
 

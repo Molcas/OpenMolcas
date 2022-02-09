@@ -106,13 +106,9 @@
       use ChoArr, only: nBasSh, nDimRS
       use ChoSwp, only: nnBstRSh, InfVec, IndRed
       use Data_Structures, only: DSBA_Type, SBA_Type
-      use Data_Structures, only: Allocate_SBA, Deallocate_SBA
-      use Data_Structures, only: Allocate_DSBA
-      use Data_Structures, only: NDSBA_Type, Allocate_NDSBA,
-     &                           Deallocate_NDSBA
-      use Data_Structures, only: Allocate_L_Full, Deallocate_L_Full,
-     &                           L_Full_Type
-      use Data_Structures, only: Allocate_Lab, Deallocate_Lab,
+      use Data_Structures, only: NDSBA_Type
+      use Data_Structures, only: L_Full_Type
+      use Data_Structures, only: Allocate_DT, Deallocate_DT,
      &                           Lab_Type
       use ExTerm, only: VJ, iMP2prpt, CMOi
 #if defined (_MOLCAS_MPP_)
@@ -303,7 +299,7 @@
 ** Allocate memory
 *
 !        sqrt(D(a,b)) stored in full (squared) dim
-         Call Allocate_NDSBA(DiaH,nBas,nBas,nSym)
+         Call Allocate_DT(DiaH,nBas,nBas,nSym)
          DiaH%A0(:)=Zero
 
          Call mma_allocate(AbsC,MaxB,Label='AbsC')
@@ -353,7 +349,7 @@
 ** allocate memory for rearranged CMO-matrix
 *
          Do i=1,nDen
-           Call Allocate_DSBA(CMOi(i),nChOrb_(:,i),nBas,nSym)
+           Call Allocate_DT(CMOi(i),nChOrb_(:,i),nBas,nSym)
          End Do
 
          nQoT = 0
@@ -490,22 +486,22 @@
          JNUM=1
 
          ! L_Full
-         Call Allocate_L_Full(L_Full,nShell,iShp_rs,JNUM,JSYM,nSym,
+         Call Allocate_DT(L_Full,nShell,iShp_rs,JNUM,JSYM,nSym,
      &                        Memory=nL_Full)
          ! Lab
          mDen=1
-         Call Allocate_Lab(Lab,JNUM,nBasSh,nBas,nShell,nSym,mDen,
+         Call Allocate_DT(Lab,JNUM,nBasSh,nBas,nShell,nSym,mDen,
      &                        Memory=nLab)
          If (DoCas) Then
             iSwap = 0  ! Lvb,J are returned
-            Call Allocate_SBA(Laq(1),nAorb,nBas,JNUM,JSYM,nSym,
-     &                        iSwap,Memory=nLaq)
+            Call Allocate_DT(Laq(1),nAorb,nBas,JNUM,JSYM,nSym,
+     &                       iSwap,Memory=nLaq)
             nLxy=0
             Do iMO1=1,nAdens
                iSwap_lxy=5
                If (iMO1==2) iSwap_lxy=6
-               Call Allocate_SBA(Lxy,nAorb,nAorb,JNUM,JSYM,nSym,
-     &                           iSwap_lxy,Memory=nLxy0)
+               Call Allocate_DT(Lxy,nAorb,nAorb,JNUM,JSYM,nSym,
+     &                          iSwap_lxy,Memory=nLxy0)
                nLxy = Max( nLxy, nLxy0)
            End Do
          Else
@@ -786,10 +782,9 @@ C --- Transform the densities to reduced set storage
 ************************************************************************
 ************************************************************************
 *                                                                      *
-                  Call Allocate_L_Full(L_Full,nShell,iShp_rs,JNUM,JSYM,
-     &                                 nSym)
+                  Call Allocate_DT(L_Full,nShell,iShp_rs,JNUM,JSYM,nSym)
                   Call mma_allocate(Aux,(nRik+nLik)*nVec,Label='Aux')
-                  Call Allocate_Lab(Lab,JNUM,nBasSh,nBas,nShell,nSym,
+                  Call Allocate_DT(Lab,JNUM,nBasSh,nBas,nShell,nSym,
      &                              mDen)
 
                   CALL CWTIME(TCX1,TWX1)
@@ -1232,9 +1227,9 @@ C------------------------------------------------------------------
 
                   End Do   ! loop over densities
 
-               Call Deallocate_Lab(Lab)
+               Call Deallocate_DT(Lab)
                Call mma_deallocate(Aux)
-               Call Deallocate_L_Full(L_Full)
+               Call Deallocate_DT(L_Full)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -1312,8 +1307,8 @@ C --- subtraction is done in the 1st reduced set
 **     vectors in the active space
 *
                   iSwap = 0  ! Lvb,J are returned
-                  Call Allocate_SBA(Laq(1),nAorb,nBas,nVec,JSYM,nSym,
-     &                              iSwap)
+                  Call Allocate_DT(Laq(1),nAorb,nBas,nVec,JSYM,nSym,
+     &                             iSwap)
 
                   iMO2=1
                   Do iMO1=1,nAdens
@@ -1322,8 +1317,8 @@ C --- subtraction is done in the 1st reduced set
 *                    iSwap_lxy=6 diagonal blocks are square
                      iSwap_lxy=5
                      If (iMO1==2) iSwap_lxy=6
-                     Call Allocate_SBA(Lxy,nAorb,nAorb,nVec,JSYM,nSym,
-     &                                 iSwap_lxy)
+                     Call Allocate_DT(Lxy,nAorb,nAorb,nVec,JSYM,nSym,
+     &                                iSwap_lxy)
 
 
 ************************************************************************
@@ -1460,14 +1455,14 @@ C --- subtraction is done in the 1st reduced set
                        End Do
                      End Do
 
-                     Call Deallocate_SBA(Lxy)
+                     Call Deallocate_DT(Lxy)
                   End Do
 
                   CALL CWTIME(TCC2,TWC2)
                   tcasg(1) = tcasg(1) + (TCC2 - TCC1)
                   tcasg(2) = tcasg(2) + (TWC2 - TWC1)
 
-                  Call Deallocate_SBA(Laq(1))
+                  Call Deallocate_DT(Laq(1))
 
 
                EndIf  ! DoCAS
@@ -1576,7 +1571,7 @@ C--- have performed screening in the meanwhile
          Call mma_deallocate(Yik)
          Call mma_deallocate(Ylk)
          Call mma_deallocate(AbsC)
-         Call Deallocate_NDSBA(DiaH)
+         Call Deallocate_DT(DiaH)
 #if defined (_MOLCAS_MPP_)
          If (Is_Real_Par().and.Update)CALL mma_deallocate(DiagJ)
 #endif

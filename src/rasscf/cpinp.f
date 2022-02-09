@@ -57,7 +57,7 @@
       write(LUnit,'(A180)') line
   10  continue
       read(luspool,'(A180)',err=9910,end=9910) line
-      call leftad(line)
+      line = adjustl(line)
 #ifdef _DMRG_
       if(ProgName(1:5) .eq.'dmrgs')then
         line2 = line

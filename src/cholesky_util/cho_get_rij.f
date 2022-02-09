@@ -35,17 +35,17 @@
 *> @note
 *> Requires initialization of the Cholesky information.
 *>
-*> @param[out]    irc     Return code
-*> @param[in]     MO      type DSBA_Type of block of the MO matrix, stored as \p C(k,a)
-*> @param[in]     nOcc    Number of orbitals to be localized in each symmetry
-*> @param[in,out] Rij     \p nOcc &times; \p nOcc symmetry blocked matrix \f$  R_{ij} = (ij|jj) \f$
-*> @param[in]     timings Switch on/off timings printout
+*> @param[out] irc     Return code
+*> @param[in]  MO      type DSBA_Type of block of the MO matrix, stored as \p C(k,a)
+*> @param[in]  nOcc    Number of orbitals to be localized in each symmetry
+*> @param[out] Rij     \p nOcc &times; \p nOcc symmetry blocked matrix \f$  R_{ij} = (ij|jj) \f$
+*> @param[in]  timings Switch on/off timings printout
 ************************************************************************
       SUBROUTINE CHO_get_Rij(irc,MO,nOcc,Rij,timings)
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
       use Data_Structures, only: DSBA_Type, SBA_Type
-      use Data_Structures, only: Allocate_SBA, Deallocate_SBA
+      use Data_Structures, only: Allocate_DT, Deallocate_DT
       Implicit Real*8 (a-h,o-z)
       Integer irc
       Type (DSBA_Type) MO
@@ -165,7 +165,7 @@ C ---
       LREAD = nRS*nVec
 
       iSwap = 2  ! LiK,b are returned
-      Call Allocate_SBA(Laq(1),nOcc,nBas,nVec,JSYM,nSym,iSwap)
+      Call Allocate_DT(Laq(1),nOcc,nBas,nVec,JSYM,nSym,iSwap)
       Call mma_allocate(Lab,Mneed*nVec,Label='Lab')
 
 C --- BATCH over the vectors in JSYM=1 ----------------------------
@@ -285,7 +285,7 @@ C --------------------------------------------------------------------
       END DO  !end batch loop
 
 C --- free memory
-      Call Deallocate_SBA(Laq(1))
+      Call Deallocate_DT(Laq(1))
       Call mma_deallocate(Lab)
 
 999   Continue

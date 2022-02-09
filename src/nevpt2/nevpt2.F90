@@ -64,7 +64,7 @@ if (KING()) then
   else
     write(u6,*) 'Skipping the calculation of Koopmans'' matrices.'
     call f_inquire('nevpt.h5', nevpth5_exists)
-    if (.not.(nevpth5_exists)) then
+    if (.not. nevpth5_exists) then
       call WarningMessage(1,'Requested to skip the Koopmans'' matrix calculation step but nevpt.h5 file not found!')
       call Abend()
     end if

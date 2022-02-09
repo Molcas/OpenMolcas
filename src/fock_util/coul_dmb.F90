@@ -11,7 +11,7 @@
 
 subroutine Coul_DMB(GetFM,nDM,Rep_EN,FM,DMA,DMB,lFDM)
 
-use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type
+use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6, r8
 
@@ -35,12 +35,12 @@ end if
 
 if (GetFM) then
 
-  call Allocate_DSBA(FLT(1),nBas,nBas,nSym,aCase='TRI',Ref=FM)
+  call Allocate_DT(FLT(1),nBas,nBas,nSym,aCase='TRI',Ref=FM)
 
   call Get_NameRun(NamRfil) ! save the old RUNFILE name
   call NameRun('AUXRFIL')   ! switch RUNFILE name
 
-  call Allocate_DSBA(DLT,nBas,nBas,nSym,aCase='TRI')
+  call Allocate_DT(DLT,nBas,nBas,nSym,aCase='TRI')
   call get_dArray('D1ao',DLT%A0,lFDM)
 
   FLT(1)%A0(:) = Zero
@@ -50,8 +50,8 @@ if (GetFM) then
   end if
   call GADSum(FM,lFDM)
 
-  call deallocate_DSBA(DLT)
-  call deallocate_DSBA(FLT(1))
+  call Deallocate_DT(DLT)
+  call Deallocate_DT(FLT(1))
 
   call NameRun(NamRfil) ! switch back RUNFILE name
 

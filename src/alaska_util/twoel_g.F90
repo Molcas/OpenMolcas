@@ -32,8 +32,8 @@ use Real_Spherical, only: ipSph, RSph
 use Basis_Info, only: MolWgh, Shells
 use Center_Info, only: dc
 use Phase_Info, only: iPhase
-use Real_Info, only: ChiI2
-use Temporary_Parameters, only: IsChi
+use Gateway_Info, only: ChiI2
+use Gateway_global, only: IsChi
 use Symmetry_Info, only: nIrrep
 use Index_Functions, only: nTri_Elem1
 use Constants, only: One

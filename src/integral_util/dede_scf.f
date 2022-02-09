@@ -32,7 +32,7 @@
 *     The array with desymmetrized densities contain two additional
 *     fields.
 *     ipD00 is a null matrix, which should simplify the logic.
-*     ipDijS is an auxilliary memory if not the whole set of a
+*     ipDijS is an auxiliary memory if not the whole set of a
 *      desymmetrized density could be used.
 *
       nDeDe_tot = nDeDe + MaxDe*nIrrep + MxDij

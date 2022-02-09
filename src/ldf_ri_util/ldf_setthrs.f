@@ -14,7 +14,7 @@
 #include "localdf.fh"
       Real*8 CutInt
       Thr_Accuracy=Target_Accuracy
-      If (Thr_Prescreen.lt.0.0d0) Then
+      If (Thr_LDFPrescreen.lt.0.0d0) Then
          Call LDF_GetCutInt(CutInt)
          Call LDF_SetPrescreen(min(Thr_Accuracy,CutInt))
       End If

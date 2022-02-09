@@ -288,8 +288,8 @@ c
        isave=igetline
        rewind (lunit)
  2     read(lunit,'(a)', end=300) Line
-       Call LeftAd(Line)
        Call UpCase(Line)
+       Line = adjustl(Line)
        if(Line(1:1).eq.'&') then
          line=line(2:)
           goto 3

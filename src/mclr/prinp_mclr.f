@@ -344,5 +344,12 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      If (isNAC .and. (nSym > 1)) Then
+        Call WarningMessage(2,'NAC is not supported with symmetry')
+        Call Abend()
+      End If
+*                                                                      *
+************************************************************************
+*                                                                      *
       Return
       End

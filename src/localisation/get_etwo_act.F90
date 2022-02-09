@@ -12,7 +12,7 @@
 subroutine Get_Etwo_act(Dma,Dmb,nBDT,nBas,nSym,Etwo)
 
 use Fock_util_global, only: Estimate, Update
-use Data_structures, only: DSBA_type, Allocate_DSBA, Deallocate_DSBA
+use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6, r8
@@ -27,7 +27,7 @@ real(kind=wp) :: ChFracMem, dFmat, dmpk, FactXI
 !character(len=16) :: KSDFT
 real(kind=wp), allocatable :: Dm1(:), Dm2(:)
 real(kind=r8), external :: ddot_ !, Get_ExFac
-type (DSBA_type) :: FLT(2), KLT(2), POrb(2), PLT(2)
+type (DSBA_Type) :: FLT(2), KLT(2), POrb(2), PLT(2)
 
 timings = .false.
 Estimate = .false.
@@ -45,11 +45,11 @@ end do
 !ExFac = Get_ExFac(KSDFT)
 !FactXI = ExFac
 FactXI = One  ! always HF energy
-Call Allocate_DSBA(PLT(1),nBas,nBas,nSym,aCase='TRI')
+Call Allocate_DT(PLT(1),nBas,nBas,nSym,aCase='TRI')
 PLT(1)%A0(:) = Dma(:)+Dmb(:)
 
-Call Allocate_DSBA(POrb(1),nBas,nBas,nSym)
-Call Allocate_DSBA(POrb(2),nBas,nBas,nSym)
+Call Allocate_DT(POrb(1),nBas,nBas,nSym)
+Call Allocate_DT(POrb(2),nBas,nBas,nSym)
 call mma_allocate(Dm1,nBB,label='Dm1')
 call mma_allocate(Dm2,nBB,label='Dm2')
 call UnFold(Dma,nBDT,Dm1,nBB,nSym,nBas)
@@ -69,13 +69,13 @@ do i=1,nSym
   iOff = iOff+nBas(i)**2
 end do
 
-Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,aCase='TRI')
-Call Allocate_DSBA(FLT(2),nBas,nBas,nSym,aCase='TRI')
+Call Allocate_DT(FLT(1),nBas,nBas,nSym,aCase='TRI')
+Call Allocate_DT(FLT(2),nBas,nBas,nSym,aCase='TRI')
 FLT(1)%A0(:)=Zero
 FLT(2)%A0(:)=Zero
 
-Call Allocate_DSBA(KLT(1),nBas,nBas,nSym,aCase='TRI')
-Call Allocate_DSBA(KLT(2),nBas,nBas,nSym,aCase='TRI')
+Call Allocate_DT(KLT(1),nBas,nBas,nSym,aCase='TRI')
+Call Allocate_DT(KLT(2),nBas,nBas,nSym,aCase='TRI')
 KLT(1)%A0(:)=Zero
 KLT(2)%A0(:)=Zero
 
@@ -101,15 +101,15 @@ end if
 
 Etwo = Half*(ddot_(nBDT,Dma,1,FLT(1)%A0,1)+ddot_(nBDT,Dmb,1,FLT(2)%A0,1))
 
-call deallocate_DSBA(PLT(1))
-call deallocate_DSBA(Porb(2))
-call deallocate_DSBA(Porb(1))
+call Deallocate_DT(PLT(1))
+call Deallocate_DT(Porb(2))
+call Deallocate_DT(Porb(1))
 call mma_deallocate(Dm1)
 call mma_deallocate(Dm2)
-call deallocate_DSBA(FLT(2))
-call deallocate_DSBA(FLT(1))
-call deallocate_DSBA(KLT(2))
-call deallocate_DSBA(KLT(1))
+call Deallocate_DT(FLT(2))
+call Deallocate_DT(FLT(1))
+call Deallocate_DT(KLT(2))
+call Deallocate_DT(KLT(1))
 
 return
 

@@ -16,6 +16,7 @@ workflow:
     - .gitlab-ci.yml
     - .gitlab-ci_configs.yml
     - .gitmodules
+    - External/*
     - basis_library/**/*
     - CMakeLists.txt
     - cmake/**/*

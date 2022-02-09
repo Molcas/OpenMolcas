@@ -28,7 +28,7 @@ subroutine Drv2El(Integral_WrOut,ThrAO)
 
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc
-use Real_Info, only: CutInt
+use Gateway_Info, only: CutInt
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Eight
 use Definitions, only: wp, iwp

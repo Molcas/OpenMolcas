@@ -17,9 +17,9 @@
      &                 PtChrg,nGrid,iAddPot)
       use Basis_Info, only: nBas
       use PrpPnt
-      use Temporary_Parameters, only: PrPrt, Short, IfAllOrb
+      use Gateway_global, only: PrPrt, Short, IfAllOrb
       use Sizes_of_Seward, only: S
-      use Real_Info, only: Thrs
+      use Gateway_Info, only: Thrs
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External Kernel, KrnlMm

@@ -9,8 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Integer, Parameter ::                                             &
-     &          LDA_Type     =0,                                        &
-     &          GGA_Type     =1,                                        &
-     &          meta_GGA_Type1=2,                                       &
-     &          meta_GGA_Type2=7,                                       &
-     &          Other_Type   =3
+     &          Other_Type    =0,                                       &
+     &          LDA_Type      =1,                                       &
+     &          GGA_Type      =2,                                       &
+     &          meta_GGA_Type1=3,                                       &
+     &          meta_GGA_Type2=4

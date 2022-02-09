@@ -14,8 +14,7 @@
 #if defined (_MOLCAS_MPP_)
       USE Para_Info, ONLY: nProcs
 #endif
-      use Data_structures, only: DSBA_Type, Allocate_DSBA,
-     &                           Deallocate_DSBA
+      use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
       IMPLICIT REAL*8 (A-H,O-Z)
       REAL*8 CMO1(NCMO),CMO2(NCMO),FOCKMO(NGAM1),TUVX(NGAM2)
       Integer KEEP(8),NBSX(8), nAux(8)
@@ -110,11 +109,11 @@ c      Call DecideOnDirect(.False.,FoundTwoEls,DoDirect,DoCholesky)
 
 C CALCULATE AN INACTIVE TRANSITION DENSITY MATRIX IN AO BASIS:
       NDINAO=NBSQ
-      Call Allocate_DSBA(DInAO,nBasF,nBasF,nSym)
+      Call Allocate_DT(DInAO,nBasF,nBasF,nSym)
       CALL DIMAT(CMO1,CMO2,DINAO%A0)
 
       NFAO=NBSQ
-      Call Allocate_DSBA(FAO,nBasF,nBasF,nSym)
+      Call Allocate_DT(FAO,nBasF,nBasF,nSym)
 *                                                                     *
 ***********************************************************************
 *                                                                     *
@@ -139,13 +138,13 @@ C ONE-EL HAMILTONIAN:
 
 C ADD IN THE TWO-ELECTRON CONTRIBUTIONS TO THE FOCKAO MATRIX:
 *
-         Call Allocate_DSBA(Temp_SQ,nBasF,nBasF,nSym)
+         Call Allocate_DT(Temp_SQ,nBasF,nBasF,nSym)
          Temp_SQ%A0(:)=Zero
          CALL FOCK_RASSI(DINAO%A0,Temp_SQ%A0)
 
 c --- FAO already contains the one-electron part
          FAO%A0(:) = FAO%A0(:) + Temp_SQ%A0(:)
-         Call Deallocate_DSBA(Temp_SQ)
+         Call Deallocate_DT(Temp_SQ)
 
 #ifdef _DEBUGPRINT_
          Do i=1,nSym
@@ -170,7 +169,7 @@ c --- FAO already contains the one-electron part
             Call AbEnd()
          endif
 
-         Call Allocate_DSBA(DLT,nBasF,nBasF,nSym,aCase='TRI')
+         Call Allocate_DT(DLT,nBasF,nBasF,nSym,aCase='TRI')
          CALL Fold_Mat(nSym,nBasF,DINAO%A0,DLT%A0)
 
 #ifdef _DEBUGPRINT_
@@ -183,7 +182,7 @@ c --- FAO already contains the one-electron part
 
 #endif
 
-         Call Allocate_DSBA(FLT(1),nBasF,nBasF,nSym,aCase='TRI')
+         Call Allocate_DT(FLT(1),nBasF,nBasF,nSym,aCase='TRI')
 
 C GET THE ONE-ELECTRON HAMILTONIAN MATRIX FROM ONE-EL FILE AND
 C PUT IT INTO A FOCK MATRIX IN AO BASIS:
@@ -215,10 +214,10 @@ C --- to avoid double counting when using gadsum
 !                                                                      !
 c -------- reorder the MOs to fit Cholesky needs
 
-           Call Allocate_DSBA(MO1(1),nIsh,nBasF,nSym)
-           Call Allocate_DSBA(MO1(2),nIsh,nBasF,nSym)
-           Call Allocate_DSBA(MO2(1),nAsh,nBasF,nSym)
-           Call Allocate_DSBA(MO2(2),nAsh,nBasF,nSym)
+           Call Allocate_DT(MO1(1),nIsh,nBasF,nSym)
+           Call Allocate_DT(MO1(2),nIsh,nBasF,nSym)
+           Call Allocate_DT(MO2(1),nAsh,nBasF,nSym)
+           Call Allocate_DT(MO2(2),nAsh,nBasF,nSym)
 
            ioff=0
            Do iSym=1,nSym
@@ -261,10 +260,10 @@ c ---     and compute the (tu|vx) integrals
               CALL CHO_FOCK_RASSI_X(DLT,MO1,MO2,FLT,FAO,TUVX)
            EndIf
 
-           Call Deallocate_DSBA(MO2(2))
-           Call Deallocate_DSBA(MO2(1))
-           Call Deallocate_DSBA(MO1(2))
-           Call Deallocate_DSBA(MO1(1))
+           Call Deallocate_DT(MO2(2))
+           Call Deallocate_DT(MO2(1))
+           Call Deallocate_DT(MO1(2))
+           Call Deallocate_DT(MO1(1))
 !                                                                      !
 !)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()(!
 !                                                                      !
@@ -274,12 +273,12 @@ c ---     and compute the (tu|vx) integrals
 !                                                                      !
 
            nAux(:) = nIsh(:) + nAsh(:)
-           Call Allocate_DSBA(MO1(1),nBasF,nAux,nSym,Ref=CMO1)
-           Call Allocate_DSBA(MO1(2),nBasF,nAux,nSym,Ref=CMO2)
+           Call Allocate_DT(MO1(1),nBasF,nAux,nSym,Ref=CMO1)
+           Call Allocate_DT(MO1(2),nBasF,nAux,nSym,Ref=CMO2)
 
 C *** Only the active orbitals MO coeff need reordering
-           Call Allocate_DSBA(Ash(1),nAsh,nBasF,nSym)
-           Call Allocate_DSBA(Ash(2),nAsh,nBasF,nSym)
+           Call Allocate_DT(Ash(1),nAsh,nBasF,nSym)
+           Call Allocate_DT(Ash(2),nAsh,nBasF,nSym)
 
            Do iSym=1,nSym
 
@@ -304,19 +303,19 @@ c ---     and compute the (tu|vx) integrals
              CALL CHO_LK_RASSI(DLT,MO1,FLT,FAO,TUVX,Ash,nScreen,dmpk)
            Else
 
-             Call Allocate_DSBA(KSQ,nBasF,nBasF,nSym)
+             Call Allocate_DT(KSQ,nBasF,nBasF,nSym)
              KSQ%A0(:)=Zero
 
              CALL CHO_LK_RASSI_X(DLT,MO1,FLT,KSQ,FAO,TUVX,Ash,nScreen,
      6                           dmpk)
 
-             Call Deallocate_DSBA(KSQ)
+             Call Deallocate_DT(KSQ)
            EndIf
 
-           Call Deallocate_DSBA(Ash(2))
-           Call Deallocate_DSBA(Ash(1))
-           Call Deallocate_DSBA(MO1(2))
-           Call Deallocate_DSBA(MO1(1))
+           Call Deallocate_DT(Ash(2))
+           Call Deallocate_DT(Ash(1))
+           Call Deallocate_DT(MO1(2))
+           Call Deallocate_DT(MO1(1))
 
 !                                                                      !
 !)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()(!
@@ -333,8 +332,8 @@ c ---     and compute the (tu|vx) integrals
             End Do
          EndIf
 
-         Call Deallocate_DSBA(FLT(1))
-         Call Deallocate_DSBA(DLT)
+         Call Deallocate_DT(FLT(1))
+         Call Deallocate_DT(DLT)
 
          Call GADSUM(FAO%A0,NBSQ)
          Call GADSUM(TUVX,NGAM2)
@@ -359,7 +358,7 @@ c ---     and compute the (tu|vx) integrals
       ECORE=0.5D0*(ECORE1+ECORE2)
       If ( IfTest ) Write (6,*) '      Ecore =',ECORE
 C (NOTE COMPENSATION FOR DOUBLE-COUNTING OF TWO-ELECTRON CONTRIBUTION.)
-      Call Deallocate_DSBA(DInAO)
+      Call Deallocate_DT(DInAO)
 
 
 C TRANSFORM THE FOCK MATRIX TO MO BASIS:
@@ -398,7 +397,7 @@ C -- MATRIX MULT. F(ACT MO,ACT MO)=CMO1(AO,ACT MO)(TRP)*PROD(AO,ACT MO)
          ISTC=ISTC+NO*NB
 30    CONTINUE
       Call mma_deallocate(Prod)
-      Call Deallocate_DSBA(FAO)
+      Call Deallocate_DT(FAO)
 
       IOPT=0
       IRC=0

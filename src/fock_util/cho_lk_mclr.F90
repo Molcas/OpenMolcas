@@ -37,9 +37,7 @@ use ChoSwp, only: IndRed, InfVec, nnBstRSh
 use Symmetry_Info, only: MulD2h => Mul
 use Index_Functions, only: iTri
 use Fock_util_global, only: Deco, dmpk, Estimate, Nscreen, Update
-use Data_Structures, only: Allocate_DSBA, Allocate_G2, Allocate_L_Full, Allocate_Lab, Allocate_NDSBA, Allocate_SBA, &
-                           Deallocate_DSBA, Deallocate_G2, Deallocate_L_Full, Deallocate_Lab, Deallocate_NDSBA, Deallocate_SBA, &
-                           DSBA_Type, G2_Type, L_Full_Type, Lab_Type, NDSBA_Type, SBA_Type
+use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, G2_Type, L_Full_Type, Lab_Type, NDSBA_Type, SBA_Type
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, nProcs
 #endif
@@ -106,7 +104,7 @@ Debug = .false. ! to avoid double printing in CASSCF-debug
 #endif
 
 ! Allow LT-format access to JA although it is in SQ-format
-call Allocate_DSBA(JALT(1),nBas,nBas,nSym,aCase='TRI',Ref=JA%A0)
+call Allocate_DT(JALT(1),nBas,nBas,nSym,aCase='TRI',Ref=JA%A0)
 timings = .false.
 
 IREDC = -1 ! unknown reduced set in core
@@ -170,22 +168,22 @@ if (DoAct) then
   end do
 
   ! *** memory for the Q matrices --- temporary array
-  call Allocate_DSBA(QTmp(1),nBas,nAsh,nSym)
-  call Allocate_DSBA(QTmp(2),nBas,nAsh,nSym)
+  call Allocate_DT(QTmp(1),nBas,nAsh,nSym)
+  call Allocate_DT(QTmp(2),nBas,nAsh,nSym)
   QTmp(1)%A0(:) = Zero
   QTmp(2)%A0(:) = Zero
 
   iCase = 1
-  call Allocate_G2(MOScr,nAsh,nSym,iCase)
+  call Allocate_DT(MOScr,nAsh,nSym,iCase)
   MOScr%A0(:) = Zero
 end if
 !*************************************************
 if (Deco) then
-  call Allocate_DSBA(CM(1),nBas,nBas,nSym)
-  call Allocate_DSBA(CM(2),nBas,nBas,nSym)
+  call Allocate_DT(CM(1),nBas,nBas,nSym)
+  call Allocate_DT(CM(2),nBas,nBas,nSym)
 
-  call Allocate_DSBA(Tmp(1),nBas,nBas,nSym)
-  call Allocate_DSBA(Tmp(2),nBas,nBas,nSym)
+  call Allocate_DT(Tmp(1),nBas,nBas,nSym)
+  call Allocate_DT(Tmp(2),nBas,nBas,nSym)
 
   do iS=1,nSym
 
@@ -210,8 +208,8 @@ if (Deco) then
                   nBas(iS))
     end if
   end do
-  call Deallocate_DSBA(Tmp(2))
-  call Deallocate_DSBA(Tmp(1))
+  call Deallocate_DT(Tmp(2))
+  call Deallocate_DT(Tmp(1))
 else
 
   write(u6,*) 'Cho_LK_MCLR: this will not work'
@@ -271,7 +269,7 @@ end if
 if (Update) call CHO_IODIAG(DIAG,2) ! 2 means "read"
 
 ! allocate memory for sqrt(D(a,b)) stored in full (squared) dim
-call Allocate_NDSBA(DiaH,nBas,nBas,nSym)
+call Allocate_DT(DiaH,nBas,nBas,nSym)
 DiaH%A0(:) = Zero
 
 ! allocate memory for the abs(C(l)[k])
@@ -392,7 +390,7 @@ do jSym=1,nSym
   if (NumCV < 1) cycle
 
   JNUM = 1
-  call Allocate_L_Full(L_Full,nShell,iShp_rs,JNUM,JSYM,nSym,Memory=LFULL)
+  call Allocate_DT(L_Full,nShell,iShp_rs,JNUM,JSYM,nSym,Memory=LFULL)
 
   iLoc = 3 ! use scratch location in reduced index arrays
 
@@ -560,8 +558,8 @@ do jSym=1,nSym
         !***************************************************************
         !***************************************************************
         !                                                              *
-        call Allocate_L_Full(L_Full,nShell,iShp_rs,JNUM,JSYM,nSym)
-        call Allocate_Lab(Lab,JNUM,nBasSh,nBas,nShell,nSym,nDen)
+        call Allocate_DT(L_Full,nShell,iShp_rs,JNUM,JSYM,nSym)
+        call Allocate_DT(Lab,JNUM,nBasSh,nBas,nShell,nSym,nDen)
 
         call CWTIME(TCS1,TWS1)
         ! -----------------------------------------------------------------
@@ -1039,8 +1037,8 @@ do jSym=1,nSym
 
         end do ! loop over MOs symmetry
 
-        call Deallocate_Lab(Lab)
-        call Deallocate_L_Full(L_Full)
+        call Deallocate_DT(Lab)
+        call Deallocate_DT(L_Full)
         !                                                              *
         !***************************************************************
         !***************************************************************
@@ -1116,9 +1114,9 @@ do jSym=1,nSym
           ! Lvb,J
           ! Lvi,J i general MO index
           ! L~vi,J ~ transformed index
-          call Allocate_SBA(Lpq(1),nAsh,nBas,nVec,JSYM,nSym,iSwap)
-          call Allocate_SBA(Lpq(2),nAsh,nAsh,nVec,JSYM,nSym,iSwap)
-          call Allocate_SBA(Lpq(3),nAsh,nAsh,nVec,JSYM,nSym,iSwap)
+          call Allocate_DT(Lpq(1),nAsh,nBas,nVec,JSYM,nSym,iSwap)
+          call Allocate_DT(Lpq(2),nAsh,nAsh,nVec,JSYM,nSym,iSwap)
+          call Allocate_DT(Lpq(3),nAsh,nAsh,nVec,JSYM,nSym,iSwap)
 
           !MGD should we compute only if there are active orbitals in this sym?
 
@@ -1296,9 +1294,9 @@ do jSym=1,nSym
           tQmat(1) = tQmat(1)+(TCINT3-TCINT2)
           tQmat(2) = tQmat(2)+(TWINT3-TWINT2)
 
-          call Deallocate_SBA(Lpq(2))
+          call Deallocate_DT(Lpq(2))
 
-          call Allocate_SBA(Lpq(2),nAsh,nBas,nVec,JSYM,nSym,iSwap)
+          call Allocate_DT(Lpq(2),nAsh,nBas,nVec,JSYM,nSym,iSwap)
 
           ! ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
           ! Exchange term
@@ -1368,9 +1366,9 @@ do jSym=1,nSym
 
           end do ! iSymb
 
-          call Deallocate_SBA(Lpq(3))
-          call Deallocate_SBA(Lpq(2))
-          call Deallocate_SBA(Lpq(1))
+          call Deallocate_DT(Lpq(3))
+          call Deallocate_DT(Lpq(2))
+          call Deallocate_DT(Lpq(1))
 
         end if ! If (DoAct)
 
@@ -1478,7 +1476,7 @@ do iSym=1,nSym
 end do
 call CWTIME(TCINT1,TWINT1)
 
-call Deallocate_DSBA(JALT(1))
+call Deallocate_DT(JALT(1))
 
 if (DoAct) then
 
@@ -1548,9 +1546,9 @@ tint3(1) = tint3(1)+(TCINT2-TCINT1)
 tint3(2) = tint3(2)+(TWINT2-TWINT1)
 
 if (DoAct) then
-  call Deallocate_DSBA(QTmp(2))
-  call Deallocate_DSBA(QTmp(1))
-  call Deallocate_G2(MOScr)
+  call Deallocate_DT(QTmp(2))
+  call Deallocate_DT(QTmp(1))
+  call Deallocate_DT(MOScr)
 end if
 
 call mma_deallocate(Faa)
@@ -1564,15 +1562,15 @@ call mma_deallocate(SumAClk)
 call mma_deallocate(MLk)
 call mma_deallocate(Ylk)
 call mma_deallocate(AbsC)
-call Deallocate_NDSBA(DiaH)
+call Deallocate_DT(DiaH)
 #ifdef _MOLCAS_MPP_
 if ((nProcs > 1) .and. Update .and. Is_Real_Par()) call mma_deallocate(DiagJ)
 #endif
 call mma_deallocate(Diag)
 
 if (Deco) then
-  call Deallocate_DSBA(CM(2))
-  call Deallocate_DSBA(CM(1))
+  call Deallocate_DT(CM(2))
+  call Deallocate_DT(CM(1))
 end if
 
 call CWTIME(TOTCPU2,TOTWALL2)

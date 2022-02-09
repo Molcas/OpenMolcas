@@ -34,7 +34,7 @@
 ************************************************************************
       use Symmetry_Info, only: nIrrep, iChBas
       use Basis_Info, only: nBas
-      use Temporary_Parameters, only: PrPrt
+      use Gateway_global, only: PrPrt
       use Integral_Interfaces, only: OneEl_Integrals
       Implicit Real*8 (a-h,o-z)
       External EFInt,EFMem

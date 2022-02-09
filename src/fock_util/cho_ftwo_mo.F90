@@ -59,7 +59,7 @@ subroutine CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,FactC,FactX,
 use Symmetry_Info, only: MulD2h => Mul
 use Index_Functions, only: iTri
 use Fock_util_global, only: Deco, DensityCheck, Lunit
-use Data_Structures, only: Deallocate_SBA, DSBA_Type, Integer_Pointer, SBA_Type
+use Data_Structures, only: Deallocate_DT, DSBA_Type, Integer_Pointer, SBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
@@ -614,7 +614,7 @@ do jSym=1,MaxSym
     end if ! jSym /= 1
 
     ! Free the memory
-    call Deallocate_SBA(Wab)
+    call Deallocate_DT(Wab)
 
   end do ! end of the batch procedure
 
