@@ -42,15 +42,13 @@ if (iSpin == 1) then
 
     d_alpha = Rho(1,iGrid)
     DTot = Two*d_alpha
-    if (DTot < T_X) Go To 199
+    if (DTot < T_X) cycle
 
     ! Accumulate contributions to the integrated density
 
     F_xc(iGrid) = F_xc(iGrid)+Dtot
 
     vRho(1,iGrid) = One
-
-199 continue
 
   end do
   !                                                                    *
@@ -66,7 +64,7 @@ else
     d_alpha = max(Rho_min,Rho(1,iGrid))
     d_beta = max(Rho_min,Rho(2,iGrid))
     DTot = d_alpha+d_beta
-    if (DTot < T_X) Go To 299
+    if (DTot < T_X) cycle
 
     ! Accumulate contributions to the integrated density
 
@@ -74,8 +72,6 @@ else
 
     vRho(1,iGrid) = One
     vRho(2,iGrid) = One
-
-299 continue
 
   end do
   !                                                                    *

@@ -42,57 +42,54 @@ if (.not. ok) then
   call molcas_open(Lu,'FRETHAW')
   !open(Lu,file='FRETHAW')
   write(Lu,'(I4,2F18.10)') 1,EneA,EneB
-  Go To 99
+  close(Lu,status='keep')
 else
   call molcas_open(Lu,'FRETHAW')
   !open(Lu,file='FRETHAW',status='old')
-end if
 
-read(Lu,'(I4,2F18.10)') iter0,Ene(1,1),Ene(1,3)
-if (iter0 == 1000) then
-  write(u6,*) ' Error! check_Fthaw: maxIter reached! '
-  call Abend()
-end if
-do i=2,iter0
-  read(Lu,'(I4,4F18.10)') iter,Ene(i,1),Ene(i,2),Ene(i,3),Ene(i,4)
-end do
+  read(Lu,'(I4,2F18.10)') iter0,Ene(1,1),Ene(1,3)
+  if (iter0 == 1000) then
+    write(u6,*) ' Error! check_Fthaw: maxIter reached! '
+    call Abend()
+  end if
+  do i=2,iter0
+    read(Lu,'(I4,4F18.10)') iter,Ene(i,1),Ene(i,2),Ene(i,3),Ene(i,4)
+  end do
 
-iter = iter0+1
-DEneA = EneA-Ene(iter0,1)
-DEneB = EneB-Ene(iter0,3)
+  iter = iter0+1
+  DEneA = EneA-Ene(iter0,1)
+  DEneB = EneB-Ene(iter0,3)
 
-rewind Lu
-write(Lu,'(I4,2F18.10)') iter,Ene(1,1),Ene(1,3)
-do i=2,iter0
-  write(Lu,'(I4,4F18.10)') iter,Ene(i,1),Ene(i,2),Ene(i,3),Ene(i,4)
-end do
-write(Lu,'(I4,4F18.10)') iter,EneA,DEneA,EneB,DEneB
+  rewind Lu
+  write(Lu,'(I4,2F18.10)') iter,Ene(1,1),Ene(1,3)
+  do i=2,iter0
+    write(Lu,'(I4,4F18.10)') iter,Ene(i,1),Ene(i,2),Ene(i,3),Ene(i,4)
+  end do
+  write(Lu,'(I4,4F18.10)') iter,EneA,DEneA,EneB,DEneB
 
-write(u6,*)
-write(u6,*) '*******************************************************************************'
-write(u6,*) '*************** Energy Statistics for Freeze-n-Thaw ***************************'
-write(u6,*) '*******************************************************************************'
-write(u6,*) '         Energy_A       Delta(Energy_A)      Energy_B       Delta(Energy_B)'
-write(u6,'(I3,1X,F18.10,18X,F18.10)') 1,Ene(1,1),Ene(1,3)
-do i=2,iter0
-  write(u6,'(I3,1X,4F18.10)') i,Ene(i,1),Ene(i,2),Ene(i,3),Ene(i,4)
-end do
-write(u6,'(I3,1X,4F18.10)') iter,EneA,DEneA,EneB,DEneB
-write(u6,*) '*******************************************************************************'
-
-if ((abs(DEneA) < ThrFThaw) .and. (abs(DEneB) < ThrFThaw)) then
-  write(u6,'(A,E9.2,A)') ' Convergence reached ! (Thr = ',ThrFThaw,')'
   write(u6,*)
-  iRC = _RC_ALL_IS_WELL_
-  close(Lu,status='delete')
-  return
-else
-  write(u6,'(A,E9.2,A)') ' Convergence NOT reached yet ! (Thr = ',ThrFThaw,')'
-  write(u6,*)
-end if
+  write(u6,*) '*******************************************************************************'
+  write(u6,*) '*************** Energy Statistics for Freeze-n-Thaw ***************************'
+  write(u6,*) '*******************************************************************************'
+  write(u6,*) '         Energy_A       Delta(Energy_A)      Energy_B       Delta(Energy_B)'
+  write(u6,'(I3,1X,F18.10,18X,F18.10)') 1,Ene(1,1),Ene(1,3)
+  do i=2,iter0
+    write(u6,'(I3,1X,4F18.10)') i,Ene(i,1),Ene(i,2),Ene(i,3),Ene(i,4)
+  end do
+  write(u6,'(I3,1X,4F18.10)') iter,EneA,DEneA,EneB,DEneB
+  write(u6,*) '*******************************************************************************'
 
-99 continue
-close(Lu,status='keep')
+  if ((abs(DEneA) < ThrFThaw) .and. (abs(DEneB) < ThrFThaw)) then
+    write(u6,'(A,E9.2,A)') ' Convergence reached ! (Thr = ',ThrFThaw,')'
+    write(u6,*)
+    iRC = _RC_ALL_IS_WELL_
+    close(Lu,status='delete')
+  else
+    write(u6,'(A,E9.2,A)') ' Convergence NOT reached yet ! (Thr = ',ThrFThaw,')'
+    write(u6,*)
+    close(Lu,status='keep')
+  end if
+end if
 
 return
 

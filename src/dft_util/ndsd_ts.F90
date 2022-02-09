@@ -52,7 +52,7 @@ Rho_min = T_X*1.0e-2_wp
 if (nDmat == 1) then
   do iGrid=1,mGrid
     d_sys = Two*Rho(1,iGrid)
-    if (d_sys < T_X) Go To 100
+    if (d_sys < T_X) cycle
 
     ! Kinetic energy contributions
 
@@ -69,8 +69,6 @@ if (nDmat == 1) then
     dfunc_NDSD = Fexp(d_sys,wGradRho(1))*Vt_lim(d_sys,wGradRho(1),wLaplRho)
     vRho(1,iGrid) = vRho(1,iGrid)+Coeff*dfunc_NDSD
 
-100 continue
-
   end do
 
 else if (nDmat == 2) then
@@ -81,7 +79,7 @@ else if (nDmat == 2) then
     da_sys = max(Rho_Min,Rho(1,iGrid))
     db_sys = max(Rho_Min,Rho(2,iGrid))
     DTot = da_sys+db_sys
-    if (DTot < T_X) Go To 200
+    if (DTot < T_X) cycle
 
     ! Kinetic energy contributions
 
@@ -100,8 +98,6 @@ else if (nDmat == 2) then
 
     vRho(1,iGrid) = vRho(1,iGrid)+Coeff*dfunc_NDSD_alpha
     vRho(2,iGrid) = vRho(2,iGrid)+Coeff*dfunc_NDSD_beta
-
-200 continue
 
   end do
 
