@@ -8,12 +8,16 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      INTEGER FUNCTION JSUNP(INTSYM,L)
-      DIMENSION INTSYM(*)
 
-!      INTW=INTSYM((L+9)/10)
-!      IPOW=2**(27-3*MOD(L-1,10))
-!      JSUNP=1+MOD(INTW/IPOW,8)
-      JSUNP=1+MOD(INTSYM((L+9)/10)/(2**(27-3*MOD(L-1,10))),8)
-      RETURN
-      END
+integer function JSUNP(INTSYM,L)
+
+dimension INTSYM(*)
+
+!INTW = INTSYM((L+9)/10)
+!IPOW = 2**(27-3*mod(L-1,10))
+!JSUNP = 1+mod(INTW/IPOW,8)
+JSUNP = 1+mod(INTSYM((L+9)/10)/(2**(27-3*mod(L-1,10))),8)
+
+return
+
+end function JSUNP

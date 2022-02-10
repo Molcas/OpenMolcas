@@ -8,45 +8,46 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-         subroutine faibj3(NSIJ,IFT,                                    &
-     &  AIBJ,FSEC,FAC,IN,INS,IPOA,IPOF)
-      IMPLICIT REAL*8 (A-H,O-Z)
+
+subroutine faibj3(NSIJ,IFT,AIBJ,FSEC,FAC,IN,INS,IPOA,IPOF)
+
+implicit real*8(A-H,O-Z)
 #include "SysDef.fh"
 #include "mrci.fh"
-      DIMENSION IPOF(9),IPOA(9),                                        &
-     & AIBJ(*),FSEC(*)
-         CALL IPO(IPOA,NVIR,MUL,NSYM,NSIJ,IFT)
-! INTEGRAL COMBINATION APPROPRIATE FOR SINGLET-COUPLING:
-         DO 170 IASYM=1,NSYM
-            IBSYM=MUL(NSIJ,IASYM)
-            IF(IBSYM.GT.IASYM)GO TO 170
-            IAB=IPOA(IASYM+1)-IPOA(IASYM)
-            IF(IAB.EQ.0)GO TO 170
-            IF(NSIJ.EQ.1) THEN
-              CALL SECEQ(AIBJ(IPOF(IASYM)+1),AIBJ(IPOF(IBSYM)+1),       &
-     &             FSEC(IN+1),NVIR(IASYM),0,FAC)
-            ELSE
-              CALL SECNE(AIBJ(IPOF(IASYM)+1),AIBJ(IPOF(IBSYM)+1),       &
-     &             FSEC(IN+1),NVIR(IASYM),NVIR(IBSYM),NSIJ,0)
-            END IF
-            IN=IN+IAB
-170      CONTINUE
-         INS=IN
-! INTEGRAL COMBINATION APPROPRIATE FOR TRIPLET-COUPLING:
-         DO 180 IASYM=1,NSYM
-            IBSYM=MUL(NSIJ,IASYM)
-            IF(IBSYM.GT.IASYM)GO TO 180
-            IAB=IPOA(IASYM+1)-IPOA(IASYM)
-            IF(IAB.EQ.0)GO TO 180
-            IF(NSIJ.EQ.1) THEN
+dimension IPOF(9), IPOA(9), AIBJ(*), FSEC(*)
 
-              CALL SECEQ(AIBJ(IPOF(IASYM)+1),AIBJ(IPOF(IBSYM)+1),       &
-     &             FSEC(IN+1),NVIR(IASYM),1,DUMMY)
-            ELSE
-              CALL SECNE(AIBJ(IPOF(IASYM)+1),AIBJ(IPOF(IBSYM)+1),       &
-     &             FSEC(IN+1),NVIR(IASYM),NVIR(IBSYM),NSIJ,1)
-            END IF
-            IN=IN+IAB
-180      CONTINUE
-         return
-         end
+call IPO(IPOA,NVIR,MUL,NSYM,NSIJ,IFT)
+! INTEGRAL COMBINATION APPROPRIATE FOR SINGLET-COUPLING:
+do IASYM=1,NSYM
+  IBSYM = MUL(NSIJ,IASYM)
+  if (IBSYM > IASYM) GO TO 170
+  IAB = IPOA(IASYM+1)-IPOA(IASYM)
+  if (IAB == 0) GO TO 170
+  if (NSIJ == 1) then
+    call SECEQ(AIBJ(IPOF(IASYM)+1),AIBJ(IPOF(IBSYM)+1),FSEC(IN+1),NVIR(IASYM),0,FAC)
+  else
+    call SECNE(AIBJ(IPOF(IASYM)+1),AIBJ(IPOF(IBSYM)+1),FSEC(IN+1),NVIR(IASYM),NVIR(IBSYM),NSIJ,0)
+  end if
+  IN = IN+IAB
+170 continue
+end do
+INS = IN
+! INTEGRAL COMBINATION APPROPRIATE FOR TRIPLET-COUPLING:
+do IASYM=1,NSYM
+  IBSYM = MUL(NSIJ,IASYM)
+  if (IBSYM > IASYM) GO TO 180
+  IAB = IPOA(IASYM+1)-IPOA(IASYM)
+  if (IAB == 0) GO TO 180
+  if (NSIJ == 1) then
+
+    call SECEQ(AIBJ(IPOF(IASYM)+1),AIBJ(IPOF(IBSYM)+1),FSEC(IN+1),NVIR(IASYM),1,DUMMY)
+  else
+    call SECNE(AIBJ(IPOF(IASYM)+1),AIBJ(IPOF(IBSYM)+1),FSEC(IN+1),NVIR(IASYM),NVIR(IBSYM),NSIJ,1)
+  end if
+  IN = IN+IAB
+180 continue
+end do
+
+return
+
+end subroutine faibj3

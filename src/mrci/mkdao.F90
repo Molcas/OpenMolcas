@@ -8,25 +8,28 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE MKDAO(CNO,OCC,DAO)
-      IMPLICIT REAL*8 (A-H,O-Z)
 
+subroutine MKDAO(CNO,OCC,DAO)
+
+implicit real*8(A-H,O-Z)
 #include "SysDef.fh"
-
 #include "mrci.fh"
-      DIMENSION CNO(NCMO),OCC(NBAST),DAO(NBAST,NBAST)
-      CALL FZERO(DAO,NBAST**2)
-      IB=1
-      ICNO=1
-      DO 100 ISYM=1,NSYM
-        IB1=IB
-        NB=NBAS(ISYM)
-        DO 10 I=1,NB
-          X=OCC(IB)
-          CALL DGER(NB,NB,X,CNO(ICNO),1,CNO(ICNO),1,DAO(IB1,IB1),NBAST)
-          IB=IB+1
-          ICNO=ICNO+NB
-10      CONTINUE
-100   CONTINUE
-      RETURN
-      END
+dimension CNO(NCMO), OCC(NBAST), DAO(NBAST,NBAST)
+
+call FZERO(DAO,NBAST**2)
+IB = 1
+ICNO = 1
+do ISYM=1,NSYM
+  IB1 = IB
+  NB = NBAS(ISYM)
+  do I=1,NB
+    X = OCC(IB)
+    call DGER(NB,NB,X,CNO(ICNO),1,CNO(ICNO),1,DAO(IB1,IB1),NBAST)
+    IB = IB+1
+    ICNO = ICNO+NB
+  end do
+end do
+
+return
+
+end subroutine MKDAO

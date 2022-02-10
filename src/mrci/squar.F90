@@ -8,14 +8,19 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE SQUAR(A,B,N)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION A(*),B(N,N)
-      IN=1
-      DO 10 I=1,N
-      CALL DCOPY_(I,A(IN),1,B(I,1),N)
-      CALL DCOPY_(I,A(IN),1,B(1,I),1)
-      IN=IN+I
-10    CONTINUE
-      RETURN
-      END
+
+subroutine SQUAR(A,B,N)
+
+implicit real*8(A-H,O-Z)
+dimension A(*), B(N,N)
+
+IN = 1
+do I=1,N
+  call DCOPY_(I,A(IN),1,B(I,1),N)
+  call DCOPY_(I,A(IN),1,B(1,I),1)
+  IN = IN+I
+end do
+
+return
+
+end subroutine SQUAR

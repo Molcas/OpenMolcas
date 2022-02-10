@@ -8,59 +8,67 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE DIAGC(INTSYM,C,S)
-      IMPLICIT REAL*8 (A-H,O-Z)
+
+subroutine DIAGC(INTSYM,C,S)
+
+implicit real*8(A-H,O-Z)
 #include "SysDef.fh"
 #include "mrci.fh"
-      DIMENSION INTSYM(*),C(*),S(*)
-!
-      JSYM(L)=JSUNP(INTSYM,L)
-!
-      IADD25=IAD25S
-      CALL dDAFILE(Lu_25,2,COP,nCOP,IADD25)
-      IIC=0
-      IND=0
-      ILIM=4
-      IF(IFIRST.NE.0)ILIM=2
-      IRL=IRC(ILIM)
-      DO 100 INDA=1,IRL
-      NSS=MUL(JSYM(INDA),LSYM)
-      IF(INDA.GT.IRC(1))GO TO 120
-      IIC=IIC+1
-      IND=IND+1
-      S(IND)=S(IND)+COP(IIC)*C(IND)
-      IF(IIC.LT.nCOP)GO TO 100
-      CALL dDAFILE(Lu_25,2,COP,nCOP,IADD25)
-      IIC=0
-      GO TO 100
-120   IF(INDA.GT.IRC(2))GO TO 130
-      NA1=NVIRP(NSS)+1
-      NA2=NVIRP(NSS)+NVIR(NSS)
-      IF(NA2.LT.NA1)GO TO 100
-      DO 121 NA=NA1,NA2
-      IIC=IIC+1
-      IND=IND+1
-      S(IND)=S(IND)+COP(IIC)*C(IND)
-      IF(IIC.LT.nCOP)GO TO 121
-      CALL dDAFILE(Lu_25,2,COP,nCOP,IADD25)
-      IIC=0
-121   CONTINUE
-      GO TO 100
-130   DO 141 NA=1,NVIRT
-      NSA=MUL(NSS,NSM(LN+NA))
-      NB1=NVIRP(NSA)+1
-      NB2=NVIRP(NSA)+NVIR(NSA)
-      IF(NB2.GT.NA)NB2=NA
-      IF(NB2.LT.NB1)GO TO 141
-      DO 142 NB=NB1,NB2
-      IIC=IIC+1
-      IND=IND+1
-      S(IND)=S(IND)+COP(IIC)*C(IND)
-      IF(IIC.LT.nCOP)GO TO 142
-      CALL dDAFILE(Lu_25,2,COP,nCOP,IADD25)
-      IIC=0
-142   CONTINUE
-141   CONTINUE
-100   CONTINUE
-      RETURN
-      END
+dimension INTSYM(*), C(*), S(*)
+!Statement function
+JSYM(L) = JSUNP(INTSYM,L)
+
+IADD25 = IAD25S
+call dDAFILE(Lu_25,2,COP,nCOP,IADD25)
+IIC = 0
+IND = 0
+ILIM = 4
+if (IFIRST /= 0) ILIM = 2
+IRL = IRC(ILIM)
+do INDA=1,IRL
+  NSS = MUL(JSYM(INDA),LSYM)
+  if (INDA > IRC(1)) GO TO 120
+  IIC = IIC+1
+  IND = IND+1
+  S(IND) = S(IND)+COP(IIC)*C(IND)
+  if (IIC < nCOP) GO TO 100
+  call dDAFILE(Lu_25,2,COP,nCOP,IADD25)
+  IIC = 0
+  GO TO 100
+120 if (INDA > IRC(2)) GO TO 130
+  NA1 = NVIRP(NSS)+1
+  NA2 = NVIRP(NSS)+NVIR(NSS)
+  if (NA2 < NA1) GO TO 100
+  do NA=NA1,NA2
+    IIC = IIC+1
+    IND = IND+1
+    S(IND) = S(IND)+COP(IIC)*C(IND)
+    if (IIC < nCOP) GO TO 121
+    call dDAFILE(Lu_25,2,COP,nCOP,IADD25)
+    IIC = 0
+121 continue
+  end do
+  GO TO 100
+130 do NA=1,NVIRT
+    NSA = MUL(NSS,NSM(LN+NA))
+    NB1 = NVIRP(NSA)+1
+    NB2 = NVIRP(NSA)+NVIR(NSA)
+    if (NB2 > NA) NB2 = NA
+    if (NB2 < NB1) GO TO 141
+    do NB=NB1,NB2
+      IIC = IIC+1
+      IND = IND+1
+      S(IND) = S(IND)+COP(IIC)*C(IND)
+      if (IIC < nCOP) GO TO 142
+      call dDAFILE(Lu_25,2,COP,nCOP,IADD25)
+      IIC = 0
+142   continue
+    end do
+141 continue
+  end do
+100 continue
+end do
+
+return
+
+end subroutine DIAGC

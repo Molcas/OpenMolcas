@@ -8,32 +8,37 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE IPO(IPOA,NVIR,MUL,NSYM,KLS,IFT)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION IPOA(*),NVIR(*),MUL(8,8)
-      NSUM=0
-      IF(IFT.LT.0) THEN
-        DO 10 N=1,NSYM
-          IPOA(N)=NSUM
-          M=MUL(N,KLS)
-          NSUM=NSUM+NVIR(N)*NVIR(M)
-10      CONTINUE
-      ELSE
-        IF (KLS.EQ.1) THEN
-          DO 20 N=1,NSYM
-            IPOA(N)=NSUM
-            NSUM=NSUM+(NVIR(N)*(NVIR(N)+1))/2
-20        CONTINUE
-        ELSE
-          DO 30 N=1,NSYM
-            IPOA(N)=NSUM
-            M=MUL(N,KLS)
-            IF(N.GT.M) THEN
-              NSUM=NSUM+NVIR(N)*NVIR(M)
-            END IF
-30        CONTINUE
-        END IF
-      END IF
-      IPOA(NSYM+1)=NSUM
-      RETURN
-      END
+
+subroutine IPO(IPOA,NVIR,MUL,NSYM,KLS,IFT)
+
+implicit real*8(A-H,O-Z)
+dimension IPOA(*), NVIR(*), MUL(8,8)
+
+NSUM = 0
+if (IFT < 0) then
+  do N=1,NSYM
+    IPOA(N) = NSUM
+    M = MUL(N,KLS)
+    NSUM = NSUM+NVIR(N)*NVIR(M)
+  end do
+else
+  if (KLS == 1) then
+    do N=1,NSYM
+      IPOA(N) = NSUM
+      NSUM = NSUM+(NVIR(N)*(NVIR(N)+1))/2
+    end do
+  else
+    do N=1,NSYM
+      IPOA(N) = NSUM
+      M = MUL(N,KLS)
+      if (N > M) then
+        NSUM = NSUM+NVIR(N)*NVIR(M)
+      end if
+    end do
+  end if
+end if
+IPOA(NSYM+1) = NSUM
+
+return
+
+end subroutine IPO

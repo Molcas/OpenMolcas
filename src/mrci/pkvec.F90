@@ -10,38 +10,40 @@
 !                                                                      *
 ! Copyright (C) 1990, Markus P. Fuelscher                              *
 !***********************************************************************
-      SUBROUTINE PKVEC(NITEM,CVEC,ICVEC)
+
+subroutine PKVEC(NITEM,CVEC,ICVEC)
 !***********************************************************************
 !
-!     PURPOSE:
-!     ENCODE THE CI-VECTOR BY CHANGING THE NUMBER REPRESENTATION FROM
-!     REAL*8 ==> INTEGER*4
+! PURPOSE:
+! ENCODE THE CI-VECTOR BY CHANGING THE NUMBER REPRESENTATION FROM
+! REAL*8 ==> INTEGER*4
 !
-!     NOTE:
-!     THE INCOMING DATA CVEC SHOULD NOT BE GREATER THAN 1.0.
-!     THE ACCURACY OF THE UNPACKED VALUES IS APPROX. 1.0E-9.
+! NOTE:
+! THE INCOMING DATA CVEC SHOULD NOT BE GREATER THAN 1.0.
+! THE ACCURACY OF THE UNPACKED VALUES IS APPROX. 1.0E-9.
 !
 !**** M.P. FUELSCHER, UNIVERSITY OF LUND, SWEDEN, NOV. 1990 ************
-!
-      IMPLICIT REAL*8 (A-H,O-Z)
+
+implicit real*8(A-H,O-Z)
 ! NOTE VERY CAREFULLY!! NINT() (and maybe similar) intrinsics
 ! are BROKEN in CYGWIN GFORTAN!!
 ! So the intermediate variable tmp is necessary for it to work!
 #ifdef _CYGWIN_
-      REAL*4 tmp
+real*4 tmp
 #endif
-      DIMENSION CVEC(NITEM),ICVEC(NITEM)
-      PARAMETER (SCALE=2147483647.0D0)
-      INTRINSIC NINT
-!
-      DO 10 ITEM=1,NITEM
-#ifdef _CYGWIN_
-         tmp=SCALE*CVEC(ITEM)
-         ICVEC(ITEM)=NINT(tmp)
-#else
-        ICVEC(ITEM)=NINT(SCALE*CVEC(ITEM))
-#endif
-10    CONTINUE
-!
-      RETURN
-      END
+dimension CVEC(NITEM), ICVEC(NITEM)
+parameter(SCALE=2147483647.0d0)
+intrinsic NINT
+
+do ITEM=1,NITEM
+# ifdef _CYGWIN_
+  tmp = SCALE*CVEC(ITEM)
+  ICVEC(ITEM) = nint(tmp)
+# else
+  ICVEC(ITEM) = nint(SCALE*CVEC(ITEM))
+# endif
+end do
+
+return
+
+end subroutine PKVEC

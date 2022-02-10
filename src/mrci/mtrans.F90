@@ -8,18 +8,23 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE MTRANS(A,IA,B,IB,N,M)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION A(M,N),B(N,M)
-      DO 10 I=1,N
-      DO 20 J=1,M
-      B(I,J)=A(J,I)
-20    CONTINUE
-10    CONTINUE
-      RETURN
+
+subroutine MTRANS(A,IA,B,IB,N,M)
+
+implicit real*8(A-H,O-Z)
+dimension A(M,N), B(N,M)
+
+do I=1,N
+  do J=1,M
+    B(I,J) = A(J,I)
+  end do
+end do
+
+return
 ! Avoid unused argument warnings
-      IF (.FALSE.) THEN
-        CALL Unused_integer(IA)
-        CALL Unused_integer(IB)
-      END IF
-      END
+if (.false.) then
+  call Unused_integer(IA)
+  call Unused_integer(IB)
+end if
+
+end subroutine MTRANS

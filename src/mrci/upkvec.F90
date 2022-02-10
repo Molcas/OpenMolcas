@@ -10,22 +10,24 @@
 !                                                                      *
 ! Copyright (C) 1990, Markus P. Fuelscher                              *
 !***********************************************************************
-      SUBROUTINE UPKVEC(NITEM,ICVEC,CVEC)
+
+subroutine UPKVEC(NITEM,ICVEC,CVEC)
 !***********************************************************************
 !
-!     PURPOSE:
-!     DECODE THE CI-VECTOR BY CHANGING THE NUMBER REPRESENTATION FROM
-!     INTEGER*4 ==> REAL*8
+! PURPOSE:
+! DECODE THE CI-VECTOR BY CHANGING THE NUMBER REPRESENTATION FROM
+! INTEGER*4 ==> REAL*8
 !
 !**** M.P. FUELSCHER, UNIVERSITY OF LUND, SWEDEN, NOV. 1990 ************
-!
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION CVEC(NITEM),ICVEC(NITEM)
-      PARAMETER (SCALE=1.0D0/2147483647.0D0)
-!
-      DO 10 ITEM=1,NITEM
-        CVEC(ITEM)=SCALE*DBLE(ICVEC(ITEM))
-10    CONTINUE
-!
-      RETURN
-      END
+
+implicit real*8(A-H,O-Z)
+dimension CVEC(NITEM), ICVEC(NITEM)
+parameter(SCALE=1.0d0/2147483647.0d0)
+
+do ITEM=1,NITEM
+  CVEC(ITEM) = SCALE*dble(ICVEC(ITEM))
+end do
+
+return
+
+end subroutine UPKVEC

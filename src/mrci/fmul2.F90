@@ -8,40 +8,45 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE FMUL2(A,B,C,NROW,NCOL,N)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION A(NROW,N),B(NCOL,N),CJ(1000)
-      DIMENSION C(NROW,NCOL)
+
+subroutine FMUL2(A,B,C,NROW,NCOL,N)
+
+implicit real*8(A-H,O-Z)
+dimension A(NROW,N), B(NCOL,N), CJ(1000)
+dimension C(NROW,NCOL)
 #include "warnings.h"
 
-      If ( nRow.gt.1000 ) then
-         WRITE(6,*)
-      CALL XFLUSH(6)
-         WRITE(6,*) ' *** Error in Subroutine FMUL2 ***'
-      CALL XFLUSH(6)
-         WRITE(6,*) ' row dimension exceeds local buffer size'
-      CALL XFLUSH(6)
-         WRITE(6,*)
-      CALL XFLUSH(6)
-         Call Quit(_RC_INTERNAL_ERROR_)
-      End If
+if (nRow > 1000) then
+  write(6,*)
+  call XFLUSH(6)
+  write(6,*) ' *** Error in Subroutine FMUL2 ***'
+  call XFLUSH(6)
+  write(6,*) ' row dimension exceeds local buffer size'
+  call XFLUSH(6)
+  write(6,*)
+  call XFLUSH(6)
+  call Quit(_RC_INTERNAL_ERROR_)
+end if
 
-      DO 10 J=1,NCOL
-      DO 15 I=1,NROW
-      CJ(I)=0.0
-15    CONTINUE
-      IF(J.EQ.NCOL)GO TO 16
-      J1=J+1
-      DO 20 K=1,N
-      FAC=B(J,K)
-      IF(FAC.EQ.0.0)GO TO 20
-      DO 25 I=J1,NROW
-      CJ(I)=CJ(I)+FAC*A(I,K)
-25    CONTINUE
-20    CONTINUE
-16    DO 30 I=1,NROW
-      C(I,J)=CJ(I)
-30    CONTINUE
-10    CONTINUE
-      RETURN
-      END
+do J=1,NCOL
+  do I=1,NROW
+    CJ(I) = 0.0
+  end do
+  if (J == NCOL) GO TO 16
+  J1 = J+1
+  do K=1,N
+    FAC = B(J,K)
+    if (FAC == 0.0) GO TO 20
+    do I=J1,NROW
+      CJ(I) = CJ(I)+FAC*A(I,K)
+    end do
+20  continue
+  end do
+16 do I=1,NROW
+    C(I,J) = CJ(I)
+  end do
+end do
+
+return
+
+end subroutine FMUL2
