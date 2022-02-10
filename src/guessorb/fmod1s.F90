@@ -230,10 +230,7 @@ do iSym=1,nSym
   if (nBas(iSym) > 0) then
     call Square(Fock(ipTmp1),Aux1,1,nBas(iSym),nBas(iSym))
     call DGEMM_('N','N',nBas(iSym),nBas(iSym),nbas(iSym),One,Aux1,nBas(iSym),CMOs(ipTmp2),nBas(iSym),Zero,Aux2,nBas(iSym))
-    call DGEMM_Tri('T','N',nBas(iSym),nBas(iSym),nBas(iSym),            &
-                   One,CMOs(ipTmp2),nBas(iSym),                         &
-                       Aux2,nBas(iSym),                                 &
-                   Zero,Fmo(ipTmp3),nBas(iSym))
+    call DGEMM_Tri('T','N',nBas(iSym),nBas(iSym),nBas(iSym),One,CMOs(ipTmp2),nBas(iSym),Aux2,nBas(iSym),Zero,Fmo(ipTmp3),nBas(iSym))
     if (Debug) then
       write(Line,'(a,i2)') 'MO Fock matrix, symmetry ',iSym
       call TriPrt(Line,'(10f12.6)',Fmo(ipTmp3),nBas(iSym))
