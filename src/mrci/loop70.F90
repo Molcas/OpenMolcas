@@ -207,23 +207,3 @@
         CALL Unused_real_array(BUF)
       END IF
       END
-      subroutine faibj5(LENBUF,JTURN,IBUF,BUF, AIBJ,ABIJ)
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "SysDef.fh"
-#include "mrci.fh"
-#include "WrkSpc.fh"
-      DIMENSION ABIJ(NVSQ),AIBJ(NVSQ),                                  &
-     &          BUF(NBITM3),IBUF(NBITM3+2)
-       IF(LENBUF.GT.0) THEN
-           IF(JTURN.EQ.1) THEN
-             do i=1,LENBUF
-               aibj(IBUF(i))=buf(i)
-             enddo
-           ELSE
-             do i=1,LENBUF
-               abij(IBUF(i))=buf(i)
-             enddo
-           END IF
-         END IF
-       return
-       end
