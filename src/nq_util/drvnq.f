@@ -49,7 +49,6 @@
 #include "nsd.fh"
 #include "debug.fh"
 #include "status.fh"
-#include "ksdft.fh"
       Real*8 FckInt(nFckInt,nFckDim),Density(nFckInt,nD), Grad(nGrad)
       Logical Do_Grad, Do_MO,Do_TwoEl,PMode
       Character*4 DFTFOCK

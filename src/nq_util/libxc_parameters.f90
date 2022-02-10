@@ -16,7 +16,6 @@ use xc_f03_lib_m
 use Definitions, only: LibxcInt
 Implicit None
 Private
-#include "ksdft.fh"
 
 Public :: nFuncs_max, nFuncs, Coeffs, func_id, xc_func, xc_info, Initiate_Libxc_functionals, Remove_Libxc_functionals, &
           libxc_functionals
@@ -39,6 +38,7 @@ Contains
 !
 Subroutine Initiate_Libxc_functionals(nD)
 use nq_Grid, only: l_casdft
+use KSDFT_Info, only: CoefR, CoefX
 Implicit None
 Integer nD, iFunc
 Real*8 :: Coeff

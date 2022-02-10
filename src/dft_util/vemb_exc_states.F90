@@ -62,14 +62,14 @@ do KROOT=1,LROOTS
   ! E_xc,T[rhoA]
   Func_A = Zero
   F_DFT(:) = Zero
-  call dscal_(nVemb,Half,DState,1)
+  DState(1:nVemb) = Half*DState(1:nVemb)
   call wrap_DrvNQ(xKSDFT,F_DFT,1,Func_A,DState,nVemb,1,.false.,Dummy,nDummy,'SCF ')
   !write(u6,*) 'Kroot, Func_A ',KROOT,Func_A
   ! E_xc,T[rhoA+rhoB]
   call Get_NameRun(MyNamRfil) ! save current Runfile name
   call NameRun('AUXRFIL') ! switch RUNFILE name
   call Get_D1ao(D1ao_b,nVemb)
-  call daxpy_(nVemb,Half,D1ao_b,1,DState,1)
+  DState(1:nVemb) = DState(1:nVemb)+Half*D1ao_b(:)
 
   Func_AB = Zero
   F_DFT(:) = Zero

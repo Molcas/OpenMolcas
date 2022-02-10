@@ -50,7 +50,6 @@
 #include "real.fh"
 #include "stdalloc.fh"
 #include "debug.fh"
-#include "ksdft.fh"
       Integer Maps2p(nShell,0:nSym-1), list_s(2,*),
      &        list_exp(nSym*nShell), list_bas(2,nSym*nShell),
      &        list_p(nNQ)

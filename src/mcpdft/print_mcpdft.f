@@ -22,7 +22,7 @@
 * G. Li Manni (GLM)
 * S Dong, 2018 (added print outs related to scaling)
 ******************************************************************
-      use KSDFT_Info, only: Funcaa, Funcbb, Funccc
+      use KSDFT_Info, only: CoefR, CoefX, Funcaa, Funcbb, Funccc
       use nq_Info
       Implicit Real*8 (A-H,O-Z)
       Real*8 CASDFT_E,E_nuc,E_cor,E_cas,E_ot
@@ -30,7 +30,6 @@
       Dimension Ref_Ener(*)
       integer jroot
 #include "WrkSpc.fh"
-#include "ksdft.fh"
 #include "mspdft.fh"
 
       write(6,'(6X,80A)')

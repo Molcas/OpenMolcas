@@ -41,9 +41,10 @@ subroutine DrvEMB(nh1,KSDFT,Do_Grad,Grad,nGrad,DFTFOCK)
 !***********************************************************************
 
 use OFembed, only: dFMD, Energy_NAD, Func_A, Func_AB, Func_B, NDSD, OFE_first, V_emb, V_Nuc_AB, V_Nuc_BA, Xsigma
+use nq_Info, only: Dens_I
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, r8
 
 implicit none
 integer(kind=iwp), intent(in) :: nh1, nGrad
@@ -71,7 +72,7 @@ is_rhoA_on_file = .false.
 !***********************************************************************
 !                                                                      *
 call Setup_iSD()
-if (Do_Grad) call FZero(Grad,nGrad)
+if (Do_Grad) Grad(:) = Zero
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -87,7 +88,7 @@ if (.not. OFE_first) then
   call mma_allocate(TmpA,nh1,Label='TmpA')
   call Get_dArray('Nuc Potential',TmpA,nh1)
   ! Subtract V_nuc_B
-  call daxpy_(nh1,-One,TmpA,1,Vemb,1)
+  Vemb(:) = Vemb-TmpA
   ! Calculate nonelectr. V_emb with current Density
   Ynorm = dDot_(nh1,D1ao_y,1,D1ao_y,1)
   V_emb_x = dDot_(nh1,Vemb,1,D1ao_y,1)
@@ -144,8 +145,8 @@ end if
 
 nFckDim = 2
 if (kSpin == 1) then
-  call dscal_(nh1,Half,D_DS(:,1),1)
-  call dcopy_(nh1,D_DS(:,1),1,D_DS(:,2),1)
+  D_DS(:,1) = Half*D_DS(:,1)
+  D_DS(:,2) = D_DS(:,1)
   nFckDim = 1
 else
   do i=1,nh1
@@ -193,8 +194,8 @@ call Get_D1ao(D_DS(:,3),nh1)
 
 call Get_iScalar('Multiplicity',iSpin)
 if ((iSpin == 1) .and. (kSpin /= 1) .and. OFE_first) then
-  call WarningMessage(0,' Non-singlet environment perturbation on singlet state!'// &
-                      ' Spin-components of the OFE potential will be averaged.')
+  call WarningMessage(0,'Non-singlet environment perturbation on singlet state!;'// &
+                      'Spin-components of the OFE potential will be averaged.')
 end if
 
 ! Get the spin density matrix of A
@@ -208,8 +209,8 @@ end if
 
 nFckDim = 2
 if (iSpin == 1) then
-  call dscal_(nh1,Half,D_DS(:,3),1)
-  call dcopy_(nh1,D_DS(:,3),1,D_DS(:,4),1)
+  D_DS(:,3) = Half*D_DS(:,3)
+  D_DS(:,4) = D_DS(:,3)
   if (kSpin == 1) nFckDim = 1
 else
   do i=1,nh1
@@ -247,10 +248,10 @@ end if
 nFckDim = 2
 if ((iSpin == 1) .and. (kSpin == 1)) then
   nFckDim = 1
-  call daxpy_(nh1,One,D_DS(:,3),1,D_DS(:,1),1)
+  D_DS(:,1) = D_DS(:,1)+D_DS(:,3)
 else
-  call daxpy_(nh1,One,D_DS(:,3),1,D_DS(:,1),1)
-  call daxpy_(nh1,One,D_DS(:,4),1,D_DS(:,2),1)
+  D_DS(:,1) = D_DS(:,1)+D_DS(:,3)
+  D_DS(:,2) = D_DS(:,2)+D_DS(:,4)
 end if
 #ifdef _NOT_USED_
 !---AZECH 10/2015
@@ -291,9 +292,9 @@ Energy_NAD = Func_AB-Func_A-Func_B
 !write(u6,'(A,F19.10)') 'E_xc_NAD: ',Func_xc_NAD
 
 if (dFMD > Zero) then
-  call Get_electrons(xElAB)
+  xElAB = Dens_I
   Fakt_ = -Xlambda(abs(Energy_NAD)/xElAB,Xsigma)
-  call daxpy_(nh1*nFckDim,Fakt_,Fcorr(:,1:nFckDim),1,F_DFT(:,3:nFckDim+2),1)
+  F_DFT(:,3:nFckDim+2) = F_DFT(:,3:nFckDim+2)+Fakt_*Fcorr(:,:)
   call mma_deallocate(Fcorr)
 # ifdef _DEBUGPRINT_
   write(u6,*) ' lambda(E_nad) = ',dFMD*Fakt_
@@ -305,14 +306,14 @@ end if
 !                                                                      *
 ! Non Additive (NAD) potential: F(AB)-F(A)
 do i=1,nFckDim
-  call daxpy_(nh1,-One,F_DFT(:,2+i),1,F_DFT(:,i),1)
+  F_DFT(:,i) = F_DFT(:,i)-F_DFT(:,2+i)
 end do
 
 ! NDSD potential for T_nad: add the (B)-dependent term
 if (allocated(NDSD)) then
   j = 1
   do i=1,nFckDim
-    call daxpy_(nh1,One,NDSD(:,j),1,F_DFT(:,i),1)
+    F_DFT(:,i) = F_DFT(:,i)+NDSD(:,j)
     if (kSpin /= 1) j = j+1
   end do
 end if
@@ -350,7 +351,7 @@ if ((iSpin == 1) .and. (kSpin /= 1)) then
 end if
 
 do i=1,nFckDim
-  call daxpy_(nh1,One,TmpA,1,F_DFT(:,i),1)
+  F_DFT(:,i) = F_DFT(:,i)+TmpA
   Vxc_ref(i) = Fact*dDot_(nh1,F_DFT(:,i),1,D_DS(:,i+2),1)
 end do
 

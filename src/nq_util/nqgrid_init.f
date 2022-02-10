@@ -10,8 +10,8 @@
 ************************************************************************
       Subroutine NQGrid_Init()
       use Grid_On_Disk
+      use nq_Info, only: Other_Type
       Implicit Real*8 (A-H,O-Z)
-#include "functional_types.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -18,6 +18,7 @@ use libxc_parameters, only: Coeffs, func_id, initiate_libxc_functionals, libxc_f
 use xc_f03_lib_m, only: XC_CORRELATION, XC_EXCHANGE, xc_f03_func_end, xc_f03_func_get_info, xc_f03_func_info_get_kind, &
                         xc_f03_func_init, xc_f03_func_t, xc_f03_func_info_t, XC_GGA_K_TFVW, XC_LDA_K_TF
 use Functionals, only: Get_Funcs
+use KSDFT_Info, only: Do_PDFTPOT
 use OFembed, only: dFMD, Do_Core, KEOnly
 use libxc, only: Only_exc
 use nq_Grid, only: l_casdft
@@ -34,7 +35,6 @@ real(kind=wp), intent(inout) :: Func, Grad(nGrad), F_DFT(nh1,nD)
 logical(kind=iwp), intent(inout) :: Do_MO, Do_TwoEl
 real(kind=wp), intent(in) :: D_DS(nh1,nD)
 character(len=4), intent(in) :: DFTFOCK
-#include "ksdft.fh"
 integer(kind=iwp) :: i, j
 logical(kind=iwp) :: LDTF, NDSD
 character(len=80) :: FLabel

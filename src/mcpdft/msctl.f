@@ -29,6 +29,7 @@
 *     AMS, Minneapolis,   Feb 2016
 *
       Use Fock_util_global, only: ALGO, DoCholesky
+      Use KSDFT_Info, only: do_pdftpot, ifav, ifiv
       Implicit Real*8 (A-H,O-Z)
       Dimension CMO(*) ,F(*) , FI(*), FA(*), Ref_Ener(*)
 *
@@ -47,7 +48,6 @@
 #include "casvb.fh"
 #include "wadr.fh"
 #include "rasscf_lucia.fh"
-#include "ksdft.fh"
 !      Logical TraOnly
 
 *

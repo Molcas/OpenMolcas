@@ -35,6 +35,7 @@
 #ifdef _HDF5_
       Use mh5, Only: mh5_put_dset
 #endif
+      Use KSDFT_Info, Only: CoefR, CoefX
       use OFembed, only: Do_OFemb
 #ifdef _FDE_
       use Embedding_Global, only: embPot
@@ -53,7 +54,6 @@
 #include "rctfld.fh"
 #include "oneswi.fh"
 #include "scfwfn.fh"
-#include "ksdft.fh"
 
 #include "addcorr.fh"
 #include "dcscf.fh"

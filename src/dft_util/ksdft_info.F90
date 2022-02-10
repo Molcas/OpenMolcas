@@ -11,16 +11,18 @@
 
 module KSDFT_Info
 
-use Constants, only: Zero
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 private
 
-integer(kind=iwp) :: LuMC, LuMT
-real(kind=wp) :: funcaa = Zero, funcbb = Zero, funccc = Zero
+integer(kind=iwp) :: ifav, ifav_n, ifiv, ifiv_n, LuMC, LuMT
+real(kind=wp) :: CoefR = One, CoefX = One, FA_time, FI_time, Funcaa = Zero, Funcbb = Zero, Funccc = Zero, PUVX_time, sp_time
+logical(kind=iwp) :: do_pdftpot
 character(len=80) :: KSDFA
 
-public :: funcaa, funcbb, funccc, KSDFA, LuMC, LuMT
+public :: ifav, ifav_n, ifiv, ifiv_n, CoefR, CoefX, FA_time, FI_time, Funcaa, Funcbb, Funccc, KSDFA, LuMC, LuMT, PUVX_time, &
+          sp_time, do_pdftpot
 
 end module KSDFT_Info

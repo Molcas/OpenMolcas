@@ -13,7 +13,7 @@
 
 subroutine DrvDFT(h1,nh1,KSDFT,ExFac,Do_Grad,Grad,nGrad,iSpin,DFTFOCK)
 
-use KSDFT_Info, only: KSDFA, funcaa, funcbb, funccc
+use KSDFT_Info, only: CoefR, CoefX, Funcaa, Funcbb, Funccc, KSDFA
 use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I, Dens_t1, Dens_t2, Energy_integrated, Grad_I, mBas, mIrrep, nFro, &
                    nIsh, Tau_I
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -28,7 +28,6 @@ real(kind=wp), intent(out) :: ExFac
 logical(kind=iwp), intent(in) :: Do_Grad
 character(len=4), intent(in) :: DFTFOCK
 #include "debug.fh"
-#include "ksdft.fh"
 integer(kind=iwp) :: i, nD, nFckDim
 real(kind=wp) :: d_Alpha, d_Beta, DSpn, DTot, Fact, Func, Vxc_ref(2)
 logical(kind=iwp) :: Do_MO, Do_TwoEl
@@ -56,7 +55,7 @@ call Get_dScalar('DFT corr coeff',CoefR)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if (Do_Grad) call FZero(Grad,nGrad)
+if (Do_Grad) Grad(:) = Zero
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -151,7 +150,7 @@ Energy_integrated = Func
 !***********************************************************************
 !                                                                      *
 if ((KSDFT == 'Overlap') .or. (KSDFT == 'NucAtt')) then
-  call dcopy_(nh1,F_DFT,1,h1,1)
+  h1(:) = F_DFT(:,1)
   if (KSDFT == 'NucAtt') Energy_integrated = Func
 else
 

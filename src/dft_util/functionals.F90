@@ -14,6 +14,7 @@
 module Functionals
 
 use libxc_parameters, only: nFuncs_max
+use nq_Info, only: GGA_Type, LDA_Type, meta_GGA_Type1, meta_GGA_Type2, Other_Type
 use Constants, only: Zero
 use Definitions, only: wp, iwp, LibxcInt
 
@@ -23,7 +24,6 @@ private
 ! Def_* variables are a cache of last read values, so the database file
 ! does not need to be re-read over and over
 
-#include "functional_types.fh"
 integer(kind=iwp) :: Def_Functional_Type = Other_Type, Def_nFuncs = 0
 integer(kind=LibxcInt) :: Def_func_id(nFuncs_max) = -1_LibxcInt
 real(kind=wp) :: Def_Coeffs(nFuncs_max) = Zero, Def_ExFac = Zero
@@ -219,7 +219,7 @@ subroutine Find_Functional(Label)
     flags(i) = xc_f03_func_info_get_flags(info(i))
   end do
 
-  Def_Functional_Type = -1
+  Def_Functional_Type = Other_Type
   do i=1,Def_nFuncs
     ! Check whether the functional uses some unsupported feature
     call check_supported(Labels(i),flags(i))

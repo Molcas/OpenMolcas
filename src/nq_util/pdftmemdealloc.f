@@ -17,8 +17,8 @@
       Subroutine PDFTMemDeAlloc()
 
       use nq_pdft
+      use KSDFT_Info, only: do_pdftpot
 #include "stdalloc.fh"
-#include "ksdft.fh"
 
 
 
