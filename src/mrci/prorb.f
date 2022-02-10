@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE PRORB(CNO,OCC)
       IMPLICIT REAL*8 (A-H,O-Z)
 
@@ -44,17 +44,17 @@
            IEND=MIN(NPRT,IST-1+NDIV)
            WRITE(6,'(/5X,''ORBITAL'',6X,10I8)') (I,I=IST,IEND)
       CALL XFLUSH(6)
-           WRITE(6,'( 5X,''OCC.NO.'',8X,10F8.5)')
-     *              (OCC(IEB+I),I=IST,IEND)
+           WRITE(6,'( 5X,''OCC.NO.'',8X,10F8.5)')                       &
+     &              (OCC(IEB+I),I=IST,IEND)
       CALL XFLUSH(6)
            WRITE(6,*)
       CALL XFLUSH(6)
            DO 20 I=1,NB
               JSMO=IEM+I+NB*(IST-1)
               JEMO=IEM+I+NB*(IEND-1)
-              WRITE(6,'(1X,I3,2X,A,10F8.4)')
-     *                   I,CLEAN_BNAME(NAME(IEB+I),LENIN),
-     *                   (CNO(J),J=JSMO,JEMO,NB)
+              WRITE(6,'(1X,I3,2X,A,10F8.4)')                            &
+     &                   I,CLEAN_BNAME(NAME(IEB+I),LENIN),              &
+     &                   (CNO(J),J=JSMO,JEMO,NB)
       CALL XFLUSH(6)
 20         CONTINUE
 30       CONTINUE

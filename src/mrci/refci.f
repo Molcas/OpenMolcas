@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE REFCI(HREF,AREF,EREF,ICSPCK,CISEL,PLEN)
       IMPLICIT REAL*8 (A-H,O-Z)
 
@@ -18,9 +18,9 @@
       DIMENSION PLEN(NREF),CISEL(NREF,NSEL),ICSPCK(NCSPCK)
       CHARACTER*2 STR
       CHARACTER*48 FORM1,FORM2,FORM3,FORM4
-CPAM97      EXTERNAL UNPACK
-CPAM97      INTEGER UNPACK
-CPAM97      JCASE(L)=UNPACK(CSPCK((L+29)/30), 2*L-(2*L-1)/60*60, 2)
+!PAM97      EXTERNAL UNPACK
+!PAM97      INTEGER UNPACK
+!PAM97      JCASE(L)=UNPACK(CSPCK((L+29)/30), 2*L-(2*L-1)/60*60, 2)
       JCASE(L)=ICUNP(ICSPCK,L)
       WRITE(6,*)
       CALL XFLUSH(6)
@@ -39,9 +39,9 @@ CPAM97      JCASE(L)=UNPACK(CSPCK((L+29)/30), 2*L-(2*L-1)/60*60, 2)
         ELSE
           WRITE(6,*)' THE FOLLOWING ROOTS WILL BE SELECTED:'
       CALL XFLUSH(6)
-          WRITE(6,'(12(A,I2))') ' ROOTS NR ',IROOT(1),
-     *                           (',',IROOT(I),I=2,NRROOT-1),
-     *                          ', AND ',IROOT(NRROOT)
+          WRITE(6,'(12(A,I2))') ' ROOTS NR ',IROOT(1),                  &
+     &                           (',',IROOT(I),I=2,NRROOT-1),           &
+     &                          ', AND ',IROOT(NRROOT)
       CALL XFLUSH(6)
         END IF
       ELSE
@@ -55,20 +55,20 @@ CPAM97      JCASE(L)=UNPACK(CSPCK((L+29)/30), 2*L-(2*L-1)/60*60, 2)
           WRITE(6,*)' SELECT THE EIGENVECTOR WITH LARGEST PROJECTION.'
       CALL XFLUSH(6)
         ELSE
-          WRITE(6,'(A,I2,A)')' SELECT THE ',NRROOT,
-     *              ' EIGENVECTORS WITH LARGEST PROJECTION.'
+          WRITE(6,'(A,I2,A)')' SELECT THE ',NRROOT,                     &
+     &              ' EIGENVECTORS WITH LARGEST PROJECTION.'
       CALL XFLUSH(6)
         END IF
-        WRITE(6,*)' THE SELECTION SPACE IS SPANNED BY THE FOLLOWING',
-     *            ' VECTORS (NONZERO COMPONENTS ONLY):'
+        WRITE(6,*)' THE SELECTION SPACE IS SPANNED BY THE FOLLOWING',   &
+     &            ' VECTORS (NONZERO COMPONENTS ONLY):'
       CALL XFLUSH(6)
         JJ=0
         DO 1234 I=1,NSEL
           WRITE(6,'(A,I2)') ' VECTOR NR. ',I
       CALL XFLUSH(6)
           NC=NCOMP(I)
-          WRITE(6,'(5X,I2,5X,A20,F12.8)')
-     *          (J,SSEL(JJ+J),CSEL(JJ+J),J=1,NC)
+          WRITE(6,'(5X,I2,5X,A20,F12.8)')                               &
+     &          (J,SSEL(JJ+J),CSEL(JJ+J),J=1,NC)
       CALL XFLUSH(6)
           JJ=JJ+NC
 1234  CONTINUE
@@ -81,9 +81,9 @@ CPAM97      JCASE(L)=UNPACK(CSPCK((L+29)/30), 2*L-(2*L-1)/60*60, 2)
       IF(NSEL.GT.0) THEN
           WRITE(6,*)' THE FOLLOWING ROOTS WERE SELECTED:'
       CALL XFLUSH(6)
-          WRITE(6,'(12(A,I2))') ' ROOTS NR ',IROOT(1),
-     *                           (',',IROOT(I),I=2,NRROOT-1),
-     *                          ', AND ',IROOT(NRROOT)
+          WRITE(6,'(12(A,I2))') ' ROOTS NR ',IROOT(1),                  &
+     &                           (',',IROOT(I),I=2,NRROOT-1),           &
+     &                          ', AND ',IROOT(NRROOT)
       CALL XFLUSH(6)
       END IF
       WRITE(STR,'(I2)') LN

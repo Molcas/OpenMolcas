@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CI_SELECT_MRCI(NREF,AREF,PLEN,NSEL,CISEL,NRROOT,IROOT)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION AREF(NREF,NREF),CISEL(NREF,*),IROOT(NRROOT)
       DIMENSION PLEN(NREF)
       IF(NSEL.EQ.0) RETURN
-C SELECTION BY PROJECTION ONTO SPACE SPANNED BY CISEL VECTORS. IROOT()
-C IS SET TO SELECT THE NRROOT VECTORS WITH MAX PROJECTED LENGTH.
+! SELECTION BY PROJECTION ONTO SPACE SPANNED BY CISEL VECTORS. IROOT()
+! IS SET TO SELECT THE NRROOT VECTORS WITH MAX PROJECTED LENGTH.
       DO 140 J=1,NREF
         SUM=0.0D00
         DO 130 ISEL=1,NSEL
@@ -26,7 +26,7 @@ C IS SET TO SELECT THE NRROOT VECTORS WITH MAX PROJECTED LENGTH.
 130     CONTINUE
         PLEN(J)=SUM+J*1.0D-12
 140   CONTINUE
-C SELECT BY MAGNITUDE OF PLEN:
+! SELECT BY MAGNITUDE OF PLEN:
       DO 160 J=1,NRROOT
         PMAX=PLEN(1)
         JMAX=1

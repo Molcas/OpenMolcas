@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE INDMAT(ICSPCK,INTSYM,INDX,ISAB,JREFX,CISEL)
       IMPLICIT REAL*8 (A-H,O-Z)
 
@@ -18,13 +18,13 @@
       DIMENSION ISAB(NVIRT,NVIRT),JREFX(*)
       DIMENSION CISEL(NREF,NSEL)
       CHARACTER*20 STR20
-CPAM97      EXTERNAL UNPACK
-CPAM97      INTEGER UNPACK
-CPAM97      JCASE(L)=UNPACK(CSPCK((L+29)/30), 2*L-(2*L-1)/60*60, 2)
+!PAM97      EXTERNAL UNPACK
+!PAM97      INTEGER UNPACK
+!PAM97      JCASE(L)=UNPACK(CSPCK((L+29)/30), 2*L-(2*L-1)/60*60, 2)
       JCASE(L)=ICUNP(ICSPCK,L)
-CPAM96      JSYM(L)=UNPACK(INTSYM((L+9)/10),3*MOD(L-1,10)+1,3)+1
+!PAM96      JSYM(L)=UNPACK(INTSYM((L+9)/10),3*MOD(L-1,10)+1,3)+1
       JSYM(L)=JSUNP(INTSYM,L)
-C
+!
       ILIM=4
       IF(IFIRST.NE.0)ILIM=2
       DO 5 I=1,NSYM
@@ -41,15 +41,15 @@ C
 25      CONTINUE
         NDIAG(NA)=ISAB(NA,NA)
 15    CONTINUE
-C INDX - STARTING POINT IN CI VECTOR OF EACH BLOCK WITH A
-C COMMON INTERNAL WALK.
-C VALENCE CONFIGURATIONS:
+! INDX - STARTING POINT IN CI VECTOR OF EACH BLOCK WITH A
+! COMMON INTERNAL WALK.
+! VALENCE CONFIGURATIONS:
       IR=IRC(1)
       DO 10 II=1,IR
         INDX(II)=II
 10    CONTINUE
       JSC(1)=IR
-C SINGLY EXCITED CONFIGURATIONS:
+! SINGLY EXCITED CONFIGURATIONS:
       IR1=IR+1
       IR2=IRC(2)
       IND=IR
@@ -61,7 +61,7 @@ C SINGLY EXCITED CONFIGURATIONS:
       JSC(2)=IND
       NCDOUB=IND-JSC(1)
       IF(IFIRST.EQ.0) THEN
-C DOUBLY EXCITED CONFIGURATIONS:
+! DOUBLY EXCITED CONFIGURATIONS:
         IR1=IR2+1
         IR2=IRC(4)
         JSC(3)=JSC(2)
@@ -81,8 +81,8 @@ C DOUBLY EXCITED CONFIGURATIONS:
         NCSING=0
       END IF
       NCONF=JSC(ILIM)
-C LIST THE REFERENCE CONFIGURATIONS, AND AT THE SAME TIME,
-C IDENTIFY CSFS GIVEN IN SELECTION VECTOR INPUT:
+! LIST THE REFERENCE CONFIGURATIONS, AND AT THE SAME TIME,
+! IDENTIFY CSFS GIVEN IN SELECTION VECTOR INPUT:
       WRITE(6,*)
       CALL XFLUSH(6)
       WRITE(6,*)'      LIST OF REFERENCE CONFIGURATIONS.'
@@ -114,7 +114,7 @@ C IDENTIFY CSFS GIVEN IN SELECTION VECTOR INPUT:
           JJ=JJ+NC
 134     CONTINUE
 135   CONTINUE
-C ORTHONORMALIZE THE SELECTION VECTORS:
+! ORTHONORMALIZE THE SELECTION VECTORS:
       DO 137 ISEL=1,NSEL
         DO 136 JSEL=1,ISEL-1
           X=DDOT_(NREF,CISEL(1,JSEL),1,CISEL(1,ISEL),1)
@@ -130,17 +130,17 @@ C ORTHONORMALIZE THE SELECTION VECTORS:
       IF(IFIRST.EQ.0) THEN
         WRITE(6,215)NREF,NCVAL-NREF,NCDOUB,NCTRIP,NCSING
       CALL XFLUSH(6)
-215     FORMAT(/,6X,'               REFERENCE ',I8,
-     *         /,6X,'           OTHER VALENCE ',I8,
-     *         /,6X,' DOUBLET COUPLED SINGLES ',I8,
-     *         /,6X,' TRIPLET COUPLED DOUBLES ',I8,
-     *         /,6X,' SINGLET COUPLED DOUBLES ',I8)
+215     FORMAT(/,6X,'               REFERENCE ',I8,                     &
+     &         /,6X,'           OTHER VALENCE ',I8,                     &
+     &         /,6X,' DOUBLET COUPLED SINGLES ',I8,                     &
+     &         /,6X,' TRIPLET COUPLED DOUBLES ',I8,                     &
+     &         /,6X,' SINGLET COUPLED DOUBLES ',I8)
       ELSE
         WRITE(6,216)NREF,NCVAL-NREF,NCDOUB
       CALL XFLUSH(6)
-216     FORMAT(/,6X,'               REFERENCE ',I8,
-     *         /,6X,'           OTHER VALENCE ',I8,
-     *         /,6X,' DOUBLET COUPLED SINGLES ',I8)
+216     FORMAT(/,6X,'               REFERENCE ',I8,                     &
+     &         /,6X,'           OTHER VALENCE ',I8,                     &
+     &         /,6X,' DOUBLET COUPLED SINGLES ',I8)
       END IF
       JSCI=JSC(ILIM)-JJM
       WRITE(6,'(6X,A,I8)')'                  TOTAL ',JSCI

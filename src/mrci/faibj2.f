@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      subroutine faibj2(IFTA,IFTB,ICOUP1,ICOUP,
-     & INDA,INDB,MYSYM,INTSYM,
-     & NYSYM,NSIJ,MYL,NYL,FACS,IPOA,IPOB,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      subroutine faibj2(IFTA,IFTB,ICOUP1,ICOUP,                         &
+     & INDA,INDB,MYSYM,INTSYM,                                          &
+     & NYSYM,NSIJ,MYL,NYL,FACS,IPOA,IPOB,                               &
      & INMY,INNY,INDX,iTYP)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
@@ -20,7 +20,7 @@
 
       IFTA=0
       IFTB=0
-c      GO TO (109,110,111,112,113),ITYP
+!      GO TO (109,110,111,112,113),ITYP
       IF(ITYP.eq.1) then
       INDA=IRC(2)+ICOUP1
       INDB=IRC(2)+ICOUP
@@ -45,7 +45,7 @@ c      GO TO (109,110,111,112,113),ITYP
       INDA=IRC(1)+ICOUP1
       INDB=IRC(1)+ICOUP
       endif
-cvv : unroll inline function to make GCC compiler works proper..
+!vv : unroll inline function to make GCC compiler works proper..
       MYSYM=JSUNP(INTSYM,INDA)
       NYSYM=MUL(MYSYM,NSIJ)
       MYL=MUL(MYSYM,LSYM)

@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE ABCI_MRCI(INTSYM,indx,C,S,BMN,IBMN,BIAC,BICA,BUFIN)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "mrci.fh"
-      DIMENSION INTSYM(*),indx(*),C(*),S(*),BMN(*),IBMN(*),
-     *BIAC(*),BICA(*),BUFIN(*)
-*
+      DIMENSION INTSYM(*),indx(*),C(*),S(*),BMN(*),IBMN(*),             &
+     &BIAC(*),BICA(*),BUFIN(*)
+!
       JSYM(L)=JSUNP(INTSYM,L)
-*
+!
       CALL CSCALE(indx,INTSYM,C,SQ2)
       CALL CSCALE(indx,INTSYM,S,SQ2INV)
       ICHK=0
@@ -71,13 +71,13 @@
       IF(ILOOP.EQ.1)GO TO 72
       DO 25 IT=1,IOUT
       IND=IBMN(IT)
-*      ICP1=MOD(IND/2**19,2**13)
+!      ICP1=MOD(IND/2**19,2**13)
       ICP1=IBITS(IND,19,13)
       INDA=IRC(1)+ICP1
       IF(JSYM(INDA).NE.NSLB)GO TO 25
       MA=indx(INDA)+LB
-*      ICP2=MOD(IND/2**6,2**13)
-*      ITYP=MOD(IND,2**6)
+!      ICP2=MOD(IND/2**6,2**13)
+!      ITYP=MOD(IND,2**6)
       ICP2=IBITS(IND,6,13)
       ITYP=IBITS(IND,0,6)
       IF(INS.EQ.0)GO TO 25

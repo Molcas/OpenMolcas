@@ -1,34 +1,34 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE IJIJ(INTSYM,HDIAG,FC,FIJIJ)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "mrci.fh"
-      DIMENSION INTSYM(*),HDIAG(*),FC(*),
-     *          FIJIJ(*)
+      DIMENSION INTSYM(*),HDIAG(*),FC(*),                               &
+     &          FIJIJ(*)
       DIMENSION HCOUT(nCOP)
-*
+!
       JSYM(L)=JSUNP(INTSYM,L)
-*------
-* POW: Unnecessary but warning stopping initializations
+!------
+! POW: Unnecessary but warning stopping initializations
       inb=-1234567
-*------
+!------
       IADD25=IAD25S
       IAD27=0
       IREF0=1
       CALL dDAFILE(Lu_27,2,HDIAG,IRC(1),IAD27)
-*
-*     WRITE(6,*) ' Hdiag'
-*     WRITE(6,*) ( Hdiag(i),i=1,IRC(1) )
-*
+!
+!     WRITE(6,*) ' Hdiag'
+!     WRITE(6,*) ( Hdiag(i),i=1,IRC(1) )
+!
       IFS=0
       IVL=0
       IVSAVE=0
@@ -40,13 +40,13 @@
       IADD10=IAD10(3)
       TERM=0.0D00
 300   CONTINUE
-C READ A COP BUFFER:
+! READ A COP BUFFER:
       CALL dDAFILE(LUSYMB,2,COP,nCOP,IADD10)
       CALL iDAFILE(LUSYMB,2,iCOP1,nCOP+1,IADD10)
       LENGTH=ICOP1(nCOP+1)
       IF(LENGTH.EQ.0)GO TO 300
       IF(LENGTH.LT.0)GO TO 350
-C LOOP OVER THE COP BUFFER:
+! LOOP OVER THE COP BUFFER:
       DO 360 II=1,LENGTH
       IND=ICOP1(II)
       IF(ICHK.NE.0)GO TO 460
@@ -55,8 +55,8 @@ C LOOP OVER THE COP BUFFER:
       GO TO 360
 460   ICHK=0
       INDI=IND
-*      ICOUP=MOD(INDI,2**16)
-*      IVL=MOD(INDI/2**16,2**8)
+!      ICOUP=MOD(INDI,2**16)
+!      IVL=MOD(INDI/2**16,2**8)
       ICOUP=IBITS(INDI, 0,16)
       IVL=IBITS(INDI,16,8)
       ICHK=0
@@ -95,8 +95,8 @@ C LOOP OVER THE COP BUFFER:
       ICOUPS=ICOUP
       GO TO 360
 361   CONTINUE
-*      ITYP=MOD(IND,2)
-*      IJJ=MOD(IND/2,2**11)
+!      ITYP=MOD(IND,2)
+!      IJJ=MOD(IND/2,2**11)
       ITYP=IBITS(IND,0,1)
       IJJ=IBITS(IND,1,11)
       IF(ITYP.EQ.0)TERM=COP(II)*FIJIJ(IJJ)
@@ -137,7 +137,7 @@ C LOOP OVER THE COP BUFFER:
       END IF
 360   CONTINUE
       GO TO 300
-C EMPTY LAST BUFFER
+! EMPTY LAST BUFFER
 350   CONTINUE
       DO 20 J=1,INB
         IOUT=IOUT+1
@@ -162,6 +162,6 @@ C EMPTY LAST BUFFER
 8829  CONTINUE
       CALL dDAFILE(Lu_25,1,HCOUT,nCOP,IADD25)
       RETURN
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_real_array(FC)
       END

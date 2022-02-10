@@ -1,26 +1,26 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      SUBROUTINE SIGMA(SGM,AREF,CI,INTSY,INDX,BMN,IBMN,BIAC2,
-     &              BICA2,BFIN3,ISAB,AC1,AC2,BFIN4,ABIJ,
-     &              AIBJ,AJBI,ASCR1,BSCR1,FSCR1,FSEC,FOCK,
-*PAM04     &              BFIN5,ASCR2,BSCR2,FSCR2,DBK,CSPCK)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      SUBROUTINE SIGMA(SGM,AREF,CI,INTSY,INDX,BMN,IBMN,BIAC2,           &
+     &              BICA2,BFIN3,ISAB,AC1,AC2,BFIN4,ABIJ,                &
+     &              AIBJ,AJBI,ASCR1,BSCR1,FSCR1,FSEC,FOCK,              &
+!PAM04     &              BFIN5,ASCR2,BSCR2,FSCR2,DBK,CSPCK)
      &              BFIN5,ASCR2,BSCR2,FSCR2,DBK,ICSPCK)
       IMPLICIT REAL*8 (A-H,O-Z)
-*PAM04      Integer INTSY(*),INDX(*),IBMN(*),ISAB(*)
+!PAM04      Integer INTSY(*),INDX(*),IBMN(*),ISAB(*)
       Integer INTSY(*),INDX(*),IBMN(*),ISAB(*),ICSPCK(*)
       Real*8 SGM(*),AREF(*),CI(*),BMN(*),BIAC2(*),BICA2(*)
       Real*8 BFIN3(*),AC1(*),AC2(*),BFIN4(*),ABIJ(*)
       Real*8 AIBJ(*),AJBI(*),ASCR1(*),BSCR1(*),FSCR1(*)
       Real*8 FSEC(*),FOCK(*),BFIN5(*),ASCR2(*),BSCR2(*),FSCR2(*)
-*PAM04      Real*8 DBK(*),CSPCK(*)
+!PAM04      Real*8 DBK(*),CSPCK(*)
       Real*8 DBK(*)
 #include "WrkSpc.fh"
 #include "SysDef.fh"
@@ -44,22 +44,22 @@
         CALL ABCI_MRCI(INTSY,INDX,CI,SGM,BMN,IBMN,BIAC2,BICA2,BFIN3)
         CALL ABCD_MRCI(INTSY,INDX,ISAB,CI,SGM,AC1,AC2,BFIN4)
       END IF
-*PAM04      CALL IJKL(INTSY,INDX,CI,SGM,FIJKL)
+!PAM04      CALL IJKL(INTSY,INDX,CI,SGM,FIJKL)
       CALL IJKL(INTSY,INDX,CI,SGM,WORK(LFIJKL))
-c
-*PAM04      CALL FAIBJ(INTSY,INDX,CI,SGM,ABIJ,AIBJ,AJBI,BFIN1,BFIN1,
-*PAM04     &           ASCR1,BSCR1,FSCR1,FSEC)
-      CALL FAIBJ(INTSY,INDX,CI,SGM,ABIJ,AIBJ,AJBI,
+!
+!PAM04      CALL FAIBJ(INTSY,INDX,CI,SGM,ABIJ,AIBJ,AJBI,BFIN1,BFIN1,
+!PAM04     &           ASCR1,BSCR1,FSCR1,FSEC)
+      CALL FAIBJ(INTSY,INDX,CI,SGM,ABIJ,AIBJ,AJBI,                      &
      &           ASCR1,BSCR1,FSCR1,FSEC)
 
       IF(ITER.GT.0) THEN
         KTYP=1
-* Switch KTYP=1 means AI is actually handling AIJK integrals.
-*PAM04        CALL AI(INTSY,INDX,CI,SGM,FOCK,BFIN5,BFIN5,ASCR2,BSCR2,
-*PAM04     &          FSCR2,DBK,KTYP)
+! Switch KTYP=1 means AI is actually handling AIJK integrals.
+!PAM04        CALL AI(INTSY,INDX,CI,SGM,FOCK,BFIN5,BFIN5,ASCR2,BSCR2,
+!PAM04     &          FSCR2,DBK,KTYP)
         CALL AI_MRCI(INTSY,INDX,CI,SGM,FOCK,ASCR2,BSCR2,FSCR2,DBK,KTYP)
       END IF
-*PAM04      CALL FIJ(CSPCK,INTSY,INDX,CI,SGM,FOCK,ASCR2,BSCR2,FSCR2,DBK)
+!PAM04      CALL FIJ(CSPCK,INTSY,INDX,CI,SGM,FOCK,ASCR2,BSCR2,FSCR2,DBK)
       CALL FIJ_MRCI(ICSPCK,INTSY,INDX,CI,SGM,FOCK,ASCR2,BSCR2,FSCR2,DBK)
 
       CALL DAXPY_(NCONF,POTNUC-ESHIFT,CI,1,SGM,1)
@@ -76,6 +76,6 @@ c
       CALL CSFTRA('MCSF',SGM,AREF)
 
       RETURN
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_real_array(BFIN5)
       END

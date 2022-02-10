@@ -1,40 +1,40 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-*      SUBROUTINE SORTB(BUFOUT,INDOUT,ACBDS,ACBDT,ISAB,BFACBD,NINTGR)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!      SUBROUTINE SORTB(BUFOUT,INDOUT,ACBDS,ACBDT,ISAB,BFACBD,NINTGR)
       SUBROUTINE SORTB(BUFS,INDS,ACBDS,ACBDT,ISAB,BFACBD,NINTGR)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "warnings.h"
 #include "mrci.fh"
-c      DIMENSION BUFOUT(NBSIZ2,NCHN2)
-*PAM04      DIMENSION BUFOUT(*)
+!      DIMENSION BUFOUT(NBSIZ2,NCHN2)
+!PAM04      DIMENSION BUFOUT(*)
       DIMENSION BUFS(NBITM2,NCHN2)
-c      DIMENSION INDOUT(RTOI*NBSIZ2,NCHN2)
-*PAM04      DIMENSION INDOUT(*)
+!      DIMENSION INDOUT(RTOI*NBSIZ2,NCHN2)
+!PAM04      DIMENSION INDOUT(*)
       DIMENSION INDS(NBITM2+2,NCHN2)
       DIMENSION ACBDS(*),ACBDT(*), BFACBD(*)
-c      DIMENSION ISAB(NVIRT,NVIRT)
+!      DIMENSION ISAB(NVIRT,NVIRT)
       DIMENSION ISAB(*)
-C SORTS INTEGRALS (AB/CD)
-C FOR FIXED A,C ALL B,D
+! SORTS INTEGRALS (AB/CD)
+! FOR FIXED A,C ALL B,D
       DIMENSION NORB0(9)
 
       NVT=IROW(NVIRT+1)
       NOVST=LN*NVIRT+1
       IAD16=0
 
-*PAM04C Buffer layout:
-*PAM04      IBOFF2=RTOI*NBITM2
-*PAM04      IBBC2=IBOFF2+NBITM2+1
-*PAM04      IBDA2=IBBC2+1
+!PAM04C Buffer layout:
+!PAM04      IBOFF2=RTOI*NBITM2
+!PAM04      IBBC2=IBOFF2+NBITM2+1
+!PAM04      IBDA2=IBBC2+1
 
       NORB0(1)=0
       DO I=1,NSYM
@@ -52,15 +52,15 @@ C FOR FIXED A,C ALL B,D
       IF(IACMAX.GT.NVT)IACMAX=NVT
       IF(IACMIN.GT.IACMAX)GO TO 50
 
-C Initialize Buffer Counts and BackChain Links.
+! Initialize Buffer Counts and BackChain Links.
       DO IREC=1,NCHN2
-*PAM04        INDOUT(IBBC2+(IREC-1)*RTOI*NBSIZ2)=0
-*PAM04        INDOUT(IBDA2+(IREC-1)*RTOI*NBSIZ2)=-1
+!PAM04        INDOUT(IBBC2+(IREC-1)*RTOI*NBSIZ2)=0
+!PAM04        INDOUT(IBDA2+(IREC-1)*RTOI*NBSIZ2)=-1
        INDS(NBITM2+1,IREC)=0
        INDS(NBITM2+2,IREC)=-1
       END DO
 
-C Loop over symmetry blocks of all-virtual integrals.
+! Loop over symmetry blocks of all-virtual integrals.
       DO 313 NSP=1,NSYM
       NOP=NORB(NSP)
       DO 312 NSQ=1,NSP
@@ -79,7 +79,7 @@ C Loop over symmetry blocks of all-virtual integrals.
 
       CALL dDAFILE(LUTRA,2,TIBUF,NTIBUF,IAD50)
 
-C Loop over index quadruples in this symm block
+! Loop over index quadruples in this symm block
       IOUT=0
       DO 309 NV=1,NOR
       NXM=NOS
@@ -94,14 +94,14 @@ C Loop over index quadruples in this symm block
       IF(NSP.EQ.NSQ)NUMAX=NT
       DO 306 NU=NUMIN,NUMAX
 
-C MO integral value is made accessable at TIBUF(IOUT)
+! MO integral value is made accessable at TIBUF(IOUT)
       IOUT=IOUT+1
       IF(IOUT.GT.NTIBUF) THEN
          CALL dDAFILE(LUTRA,2,TIBUF,NTIBUF,IAD50)
          IOUT=1
       END IF
 
-C M1..M4 seqential number of orbitals.
+! M1..M4 seqential number of orbitals.
       M1=ICH(NORB0(NSP)+NT)
       M2=ICH(NORB0(NSQ)+NU)
       M3=ICH(NORB0(NSR)+NV)
@@ -109,8 +109,8 @@ C M1..M4 seqential number of orbitals.
       IF(M1.LE.LN.OR.M2.LE.LN)GO TO 306
       IF(M3.LE.LN.OR.M4.LE.LN)GO TO 306
 
-C Permute orbital indices to canonical order
-C and put integral value in FINI
+! Permute orbital indices to canonical order
+! and put integral value in FINI
       N1=M1
       N2=M2
       IF(M1.GT.M2)GO TO 11
@@ -137,7 +137,7 @@ C and put integral value in FINI
       NJ=N4
 502   FINI=TIBUF(IOUT)
 
-C Compute virtual indices.
+! Compute virtual indices.
       NA=NI-LN
       NB=NJ-LN
       NC=NK-LN
@@ -149,22 +149,22 @@ C Compute virtual indices.
       IF(IAC.GT.IACMAX)GO TO 106
       IF(NA.EQ.NC.AND.NB.EQ.ND)FINI=FINI/2
       NAC=IAC-IACMIN+1
-*PAM04      IPOS=INDOUT(IBBC2+(NAC-1)*RTOI*NBSIZ2)+1
-*PAM04      INDOUT(IBBC2+(NAC-1)*RTOI*NBSIZ2)=IPOS
+!PAM04      IPOS=INDOUT(IBBC2+(NAC-1)*RTOI*NBSIZ2)+1
+!PAM04      INDOUT(IBBC2+(NAC-1)*RTOI*NBSIZ2)=IPOS
       IPOS=INDS(NBITM2+1,NAC)+1
       INDS(NBITM2+1,NAC)=IPOS
-*PAM04      BUFOUT(IPOS+(NAC-1)*NBSIZ2)=FINI
-*PAM04      INDOUT(IBOFF2+IPOS+(NAC-1)*RTOI*NBSIZ2)=NB+2**8*ND
+!PAM04      BUFOUT(IPOS+(NAC-1)*NBSIZ2)=FINI
+!PAM04      INDOUT(IBOFF2+IPOS+(NAC-1)*RTOI*NBSIZ2)=NB+2**8*ND
       INDS(IPOS,NAC)=NB+2**8*ND
       BUFS(IPOS,NAC)=FINI
       IF(IPOS.LT.NBITM2)GO TO 106
-C Save this buffer if filled up.
+! Save this buffer if filled up.
       JDISK=IDISK
-*PAM04      CALL dDAFILE(Lu_60,1,INDOUT(1+(NAC-1)*RTOI*NBSIZ2),NBSIZ2,IDISK)
+!PAM04      CALL dDAFILE(Lu_60,1,INDOUT(1+(NAC-1)*RTOI*NBSIZ2),NBSIZ2,IDISK)
       CALL iDAFILE(Lu_60,1,INDS(1,NAC),NBITM2+2,IDISK)
       CALL dDAFILE(Lu_60,1,BUFS(1,NAC),NBITM2,IDISK)
-*PAM04      INDOUT(IBBC2+(NAC-1)*RTOI*NBSIZ2)=0
-*PAM04      INDOUT(IBDA2+(NAC-1)*RTOI*NBSIZ2)=JDISK
+!PAM04      INDOUT(IBBC2+(NAC-1)*RTOI*NBSIZ2)=0
+!PAM04      INDOUT(IBDA2+(NAC-1)*RTOI*NBSIZ2)=JDISK
       INDS(NBITM2+1,NAC)=0
       INDS(NBITM2+2,NAC)=JDISK
 
@@ -183,7 +183,7 @@ C Save this buffer if filled up.
 311   CONTINUE
 312   CONTINUE
 313   CONTINUE
-C EMPTY LAST BUFFERS
+! EMPTY LAST BUFFERS
       NOVM=IACMAX-IACMIN+1
       If ( (NOVST+IACMIN-1+NOVM).gt.mChain ) then
         WRITE(6,*)'SORTB Error: NOVST+IACMIN-1+NOVM > MCHAIN'
@@ -196,7 +196,7 @@ C EMPTY LAST BUFFERS
       End If
       DO 150 I=1,NOVM
       JDISK=IDISK
-*PAM04      CALL dDAFILE(Lu_60,1,INDOUT(1+(I-1)*RTOI*NBSIZ2),NBSIZ2,IDISK)
+!PAM04      CALL dDAFILE(Lu_60,1,INDOUT(1+(I-1)*RTOI*NBSIZ2),NBSIZ2,IDISK)
       CALL iDAFILE(Lu_60,1,INDS(1,I),NBITM2+2,IDISK)
       CALL dDAFILE(Lu_60,1,BUFS(1,I),NBITM2,IDISK)
       LASTAD(NOVST+IACMIN-1+I)=JDISK
@@ -229,28 +229,28 @@ C EMPTY LAST BUFFERS
             CALL FZERO(ACBDT,INS)
             IADR=LASTAD(NOVST+IAC)
 201         CONTINUE
-*PAM04            CALL dDAFILE(Lu_60,2,INDOUT,NBSIZ2,IADR)
+!PAM04            CALL dDAFILE(Lu_60,2,INDOUT,NBSIZ2,IADR)
             CALL iDAFILE(Lu_60,2,INDS,NBITM2+2,IADR)
             CALL dDAFILE(Lu_60,2,BUFS,NBITM2,IADR)
-*PAM04            LENGTH=INDOUT(IBBC2)
-*PAM04            IADR=INDOUT(IBDA2)
+!PAM04            LENGTH=INDOUT(IBBC2)
+!PAM04            IADR=INDOUT(IBDA2)
             LENGTH=INDS(NBITM2+1,1)
             IADR=INDS(NBITM2+2,1)
             IF(LENGTH.EQ.0)GO TO 209
             DO 202 KK=1,LENGTH
-*PAM04              INND=INDOUT(IBOFF2+KK)
+!PAM04              INND=INDOUT(IBOFF2+KK)
               INND=INDS(KK,1)
-CPAM96              NB=IAND(INND,255)
-CPAM96              ND=IAND(ISHFT(INND,-8),255)
-*              NB=MOD(INND,2**8)
-*              ND=MOD(INND/2**8,2**8)
+!PAM96              NB=IAND(INND,255)
+!PAM96              ND=IAND(ISHFT(INND,-8),255)
+!              NB=MOD(INND,2**8)
+!              ND=MOD(INND/2**8,2**8)
               NB=IBITS(INND, 0,8)
               ND=IBITS(INND, 8,8)
 
               IBDS=ISAB(NB+(ND-1)*NVIRT)
-*PAM04              ACBDS(IBDS)=ACBDS(IBDS)+BUFOUT(KK)
-*PAM04              IF(NB.GT.ND)ACBDT(IBDS)=ACBDT(IBDS)+BUFOUT(KK)
-*PAM04              IF(NB.LT.ND)ACBDT(IBDS)=ACBDT(IBDS)-BUFOUT(KK)
+!PAM04              ACBDS(IBDS)=ACBDS(IBDS)+BUFOUT(KK)
+!PAM04              IF(NB.GT.ND)ACBDT(IBDS)=ACBDT(IBDS)+BUFOUT(KK)
+!PAM04              IF(NB.LT.ND)ACBDT(IBDS)=ACBDT(IBDS)-BUFOUT(KK)
               ACBDS(IBDS)=ACBDS(IBDS)+BUFS(KK,1)
               IF(NB.GT.ND)ACBDT(IBDS)=ACBDT(IBDS)+BUFS(KK,1)
               IF(NB.LT.ND)ACBDT(IBDS)=ACBDT(IBDS)-BUFS(KK,1)
@@ -262,10 +262,10 @@ CPAM96              ND=IAND(ISHFT(INND,-8),255)
             INUMB=INSB
             IF(INSB.GT.INB)INUMB=INB
             IST=INS-INSB+1
-            IF(ILOOP.EQ.0)
-     *      CALL DCOPY_(INUMB,ACBDS(IST),1,BFACBD(INSOUT+1),1)
-            IF(ILOOP.EQ.1)
-     *      CALL DCOPY_(INUMB,ACBDT(IST),1,BFACBD(INSOUT+1),1)
+            IF(ILOOP.EQ.0)                                              &
+     &      CALL DCOPY_(INUMB,ACBDS(IST),1,BFACBD(INSOUT+1),1)
+            IF(ILOOP.EQ.1)                                              &
+     &      CALL DCOPY_(INUMB,ACBDT(IST),1,BFACBD(INSOUT+1),1)
             INSOUT=INSOUT+INUMB
             IF(INSOUT.LT.KBUFF1)GO TO 75
             CALL dDAFILE(Lu_80,1,BFACBD,KBUFF1,IAD16)
@@ -278,9 +278,9 @@ CPAM96              ND=IAND(ISHFT(INND,-8),255)
 55      CONTINUE
 40    CONTINUE
 50    CONTINUE
-C EMPTY LAST BUFFER
+! EMPTY LAST BUFFER
       IF(INSOUT.NE.0) CALL dDAFILE(Lu_80,1,BFACBD,KBUFF1,IAD16)
       RETURN
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_integer(NINTGR)
       END

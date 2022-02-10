@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE IIJJ(ICSPCK,INTSYM,HDIAG,FC,FIIJJ,FIJIJ)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "mrci.fh"
-      DIMENSION ICSPCK(*),INTSYM(*),HDIAG(*),
-     *          FC(*),FIIJJ(*),FIJIJ(*)
+      DIMENSION ICSPCK(*),INTSYM(*),HDIAG(*),                           &
+     &          FC(*),FIIJJ(*),FIJIJ(*)
       DIMENSION IOC(55)
-*
+!
       JO(L)=ICUNP(ICSPCK,L)
       JSYM(L)=JSUNP(INTSYM,L)
-*
+!
       IAD27=0
       II1=0
       ILIM=4

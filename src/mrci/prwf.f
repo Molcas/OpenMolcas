@@ -1,17 +1,17 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE PRWF_MRCI(ICSPCK,INTSYM,INDX,C,JREFX)
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION C(*),INDX(*),ICSPCK(*),
-     *          INTSYM(*),JREFX(*)
+      DIMENSION C(*),INDX(*),ICSPCK(*),                                 &
+     &          INTSYM(*),JREFX(*)
       CHARACTER*12 CSFTYP
       CHARACTER*14 FORM0,FORM1,FORM2,FORM
       CHARACTER*14 FORM00,FORM01,FORM02
@@ -20,19 +20,19 @@
 
 #include "mrci.fh"
       DIMENSION IOC(32),IORBI(32),ISP(32),ILSYM(32)
-CPAM97      EXTERNAL UNPACK
-CPAM97      INTEGER UNPACK
+!PAM97      EXTERNAL UNPACK
+!PAM97      INTEGER UNPACK
       DATA FORM00 /'(1X,A,6X,53I2)'/
       DATA FORM01 /'(1X,A,3X,54I2)'/
       DATA FORM02 /'(1X,A,55I2)   '/
       DATA FORM0 /'(1X,A,6X,34I3)'/
       DATA FORM1 /'(1X,A,3X,35I3)'/
       DATA FORM2 /'(1X,A,36I3)   '/
-C STATEMENT FUNCTIONS FOR RETRIEVING GUGA CASE NUMBERS AND INTERNAL
-C SYMMETRY LABEL:
-CPAM97      JO(L)=UNPACK(CSPCK((L+29)/30), 2*L-(2*L-1)/60*60, 2)
+! STATEMENT FUNCTIONS FOR RETRIEVING GUGA CASE NUMBERS AND INTERNAL
+! SYMMETRY LABEL:
+!PAM97      JO(L)=UNPACK(CSPCK((L+29)/30), 2*L-(2*L-1)/60*60, 2)
       JO(L)=ICUNP(ICSPCK,L)
-CPAM96      JSYM(L)=UNPACK(INTSYM((L+9)/10),3*MOD(L-1,10)+1,3)+1
+!PAM96      JSYM(L)=UNPACK(INTSYM((L+9)/10),3*MOD(L-1,10)+1,3)+1
       JSYM(L)=JSUNP(INTSYM,L)
       NA=0
       NB=0

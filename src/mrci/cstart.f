@@ -1,42 +1,42 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CSTART(AREF,EREF,CI,ICI)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION AREF(NREF,NREF),EREF(NREF),CI(NCONF),ICI(MBUF)
 #include "SysDef.fh"
 #include "mrci.fh"
       DIMENSION BUF(nCOP),ISTART(MXROOT)
-*
+!
       DO  5 I=1,MXVEC
         IDISKC(I)=-1
         IDISKS(I)=-1
 5     CONTINUE
-C FIRST, USE THE CI ARRAY TO STORE THE DIAGONAL ELEMENTS:
+! FIRST, USE THE CI ARRAY TO STORE THE DIAGONAL ELEMENTS:
       IAD25=IAD25S
       DO 10 I=1,NCONF,nCOP
         CALL dDAFILE(Lu_25,2,BUF,nCOP,IAD25)
         NN=MIN(nCOP,NCONF+1-I)
         CALL DCOPY_(NN,BUF,1,CI(I),1)
 10    CONTINUE
-C THESE ARE DIAGONAL ELEMENTS OF THE ELECTRONIC HAMILTONIAN.
-C POTNUC SHOULD BE ADDED. IN ADDITION, WE USE AN ENERGY SHIFT.
-C NOTE: DISPLACEMENT 1.0d-4 PROTECTS AGAINST DIVIDE ERRORS.
-CPAM: Protect all diag elems. Needed in some weird cases.
-C ENERGY SHIFT:
+! THESE ARE DIAGONAL ELEMENTS OF THE ELECTRONIC HAMILTONIAN.
+! POTNUC SHOULD BE ADDED. IN ADDITION, WE USE AN ENERGY SHIFT.
+! NOTE: DISPLACEMENT 1.0d-4 PROTECTS AGAINST DIVIDE ERRORS.
+!PAM: Protect all diag elems. Needed in some weird cases.
+! ENERGY SHIFT:
       ESHIFT=EREF(1)
       DO 25 I=1,NCONF
         CI(I)=CI(I)+POTNUC-ESHIFT+1.0D-04
 25    CONTINUE
       Call Add_Info('CI_DIAG2',CI(2),1,8)
-C REPLACE REFERENCE ENERGIES:
+! REPLACE REFERENCE ENERGIES:
       DO 20 I=1,NREF
         IR=IREFX(I)
         CI(IR)=EREF(I)-ESHIFT-1.0D-04
@@ -55,7 +55,7 @@ C REPLACE REFERENCE ENERGIES:
         NN=MIN(MBUF,(NCONF+1-ISTA))
         CALL dDAFILE(LUEIG,1,CI(ISTA),NN,IDFREE)
 31    CONTINUE
-C THEN, SET UP START CI VECTORS IN MCSF BASIS:
+! THEN, SET UP START CI VECTORS IN MCSF BASIS:
       CALL DCOPY_(NCONF,[0.0D00],0,CI,1)
       IF(IREST.EQ.0) THEN
         NNEW=IROOT(NRROOT)
@@ -71,21 +71,21 @@ C THEN, SET UP START CI VECTORS IN MCSF BASIS:
           END IF
 35      CONTINUE
         IF(NNEW.GT.1) THEN
-          WRITE(6,*)
-     *    ' THE FOLLOWING REFERENCE ROOTS ARE USED AS START VECTORS:'
+          WRITE(6,*)                                                    &
+     &    ' THE FOLLOWING REFERENCE ROOTS ARE USED AS START VECTORS:'
       CALL XFLUSH(6)
-          WRITE(6,'(12(A,I2))') ' ROOTS NR ',ISTART(1),
-     *                           (',',ISTART(I),I=2,NNEW-1),
-     *                          ', AND ',ISTART(NNEW)
+          WRITE(6,'(12(A,I2))') ' ROOTS NR ',ISTART(1),                 &
+     &                           (',',ISTART(I),I=2,NNEW-1),            &
+     &                          ', AND ',ISTART(NNEW)
       CALL XFLUSH(6)
           IF(NNEW.GT.NRROOT) THEN
-            WRITE(6,*)' (THE FIRST EXTRA ROOT(S) WERE INCLUDED IN'//
-     *         'ORDER TO IMPROVE CONVERGENCE)'
+            WRITE(6,*)' (THE FIRST EXTRA ROOT(S) WERE INCLUDED IN'//    &
+     &         'ORDER TO IMPROVE CONVERGENCE)'
       CALL XFLUSH(6)
           END IF
         ELSE
-          WRITE(6,'(A,I2,A)') ' ROOT NR ',ISTART(1),
-     *                        ' IS USED AS START VECTOR.'
+          WRITE(6,'(A,I2,A)') ' ROOT NR ',ISTART(1),                    &
+     &                        ' IS USED AS START VECTOR.'
       CALL XFLUSH(6)
         END IF
         DO 40 I=1,NNEW

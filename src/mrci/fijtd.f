@@ -1,26 +1,26 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE FIJTD(INTSYM,INDX,C1,C2,TDMO)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "mrci.fh"
-      DIMENSION INTSYM(*),INDX(*),
-     *          C1(*),C2(*),TDMO(NBAST,NBAST)
-*
+      DIMENSION INTSYM(*),INDX(*),                                      &
+     &          C1(*),C2(*),TDMO(NBAST,NBAST)
+!
       JSYM(L)=JSUNP(INTSYM,L)
-*------
-* POW: Unnecessary but warning stopping initializations
+!------
+! POW: Unnecessary but warning stopping initializations
       ni=-1234567
       nk=-1234567
-*------
+!------
       ICHK=0
       IADD10=IAD10(8)
 100   CALL dDAFILE(LUSYMB,2,COP,nCOP,IADD10)
@@ -33,8 +33,8 @@
       IF(ICHK.NE.0) THEN
         ICHK=0
         INDI=IND
-*        NI=MOD(INDI,2**10)
-*        NK=MOD(INDI/2**10,2**10)
+!        NI=MOD(INDI,2**10)
+!        NK=MOD(INDI/2**10,2**10)
         NI=IBITS(INDI, 0,10)
         NK=IBITS(INDI,10,10)
         GO TO 10
@@ -43,9 +43,9 @@
         ICHK=1
         GO TO 10
       END IF
-*      IVL=MOD(IND,2**6)
-*      IC2=MOD(IND/2**6,2**13)
-*      IC1=MOD(IND/2**19,2**13)
+!      IVL=MOD(IND,2**6)
+!      IC2=MOD(IND/2**6,2**13)
+!      IC1=MOD(IND/2**19,2**13)
       IVL=IBITS(IND, 0, 6)
       IC2=IBITS(IND, 6,13)
       IC1=IBITS(IND,19,13)

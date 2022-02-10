@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-cpgi$g opt=1
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!pgi$g opt=1
       SUBROUTINE MKHREF(HREF,FC,FIJKL,JREFX)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "mrci.fh"
       DIMENSION HREF(*),FC(*),FIJKL(*),JREFX(NCVAL)
-*
+!
       NHREF=(NREF*(NREF+1))/2
       CALL FZERO(HREF,NHREF)
       ICHK=0
@@ -33,8 +33,8 @@ cpgi$g opt=1
       IF(ICHK.NE.0) THEN
         ICHK=0
         INDI=IND
-*        NI=MOD(INDI,2**10)
-*        NK=MOD(INDI/2**10,2**10)
+!        NI=MOD(INDI,2**10)
+!        NK=MOD(INDI/2**10,2**10)
         NI=IBITS(INDI, 0,10)
         NK=IBITS(INDI,10,10)
         IK=IROW(NK)+NI
@@ -45,14 +45,14 @@ cpgi$g opt=1
         ICHK=1
         GO TO 10
       END IF
-*      IVL=MOD(IND,2**6)
+!      IVL=MOD(IND,2**6)
       IVL=IBITS(IND, 0, 6)
       IF(IVL.NE.IVVER)GO TO 10
-*      IC2=MOD(IND/2**6,2**13)
+!      IC2=MOD(IND/2**6,2**13)
       IC2=IBITS(IND, 6,13)
       NA=JREFX(IC2)
       IF(NA.EQ.0)GO TO 10
-*      IC1=MOD(IND/2**19,2**13)
+!      IC1=MOD(IND/2**19,2**13)
       IC1=IBITS(IND,19,13)
       NB=JREFX(IC1)
       IF(NB.EQ.0)GO TO 10
@@ -77,7 +77,7 @@ cpgi$g opt=1
       CALL iDAFILE(Lu_70,2,INDSRT,NSRTMX+2,IADR)
       LENGTH=INDSRT(NSRTMX+1)
       IADR=INDSRT(NSRTMX+2)
-*      IF(LENGTH.GT.0) CALL SCATTER(LENGTH,FIJKL,INDSRT,VALSRT)
+!      IF(LENGTH.GT.0) CALL SCATTER(LENGTH,FIJKL,INDSRT,VALSRT)
       do i=1,length
         FIJKL(INDSRT(i))=VALSRT(i)
       end do
@@ -94,14 +94,14 @@ cpgi$g opt=1
       IF(ICHK.NE.0) THEN
         ICHK=0
         INDI=IND
-CPAM96        IP=IAND(INDI,255)
-CPAM96        JP=IAND(ISHFT(INDI,-8),255)
-CPAM96        KP=IAND(ISHFT(INDI,-16),255)
-CPAM96        LP=IAND(ISHFT(INDI,-24),255)
-*        IP=MOD(INDI,2**8)
-*        JP=MOD(INDI/2**8,2**8)
-*        KP=MOD(INDI/2**16,2**8)
-*        LP=MOD(INDI/2**24,2**8)
+!PAM96        IP=IAND(INDI,255)
+!PAM96        JP=IAND(ISHFT(INDI,-8),255)
+!PAM96        KP=IAND(ISHFT(INDI,-16),255)
+!PAM96        LP=IAND(ISHFT(INDI,-24),255)
+!        IP=MOD(INDI,2**8)
+!        JP=MOD(INDI/2**8,2**8)
+!        KP=MOD(INDI/2**16,2**8)
+!        LP=MOD(INDI/2**24,2**8)
         IP=IBITS(INDI, 0,8)
         JP=IBITS(INDI, 8,8)
         KP=IBITS(INDI,16,8)
@@ -116,14 +116,14 @@ CPAM96        LP=IAND(ISHFT(INDI,-24),255)
         ICHK=1
         GOTO 310
       END IF
-*      IVL=MOD(IND,2**6)
+!      IVL=MOD(IND,2**6)
       IVL=IBITS(IND, 0, 6)
       IF(IVL.NE.0)GO TO 310
-*      IC2=MOD(IND/2**6,2**13)
+!      IC2=MOD(IND/2**6,2**13)
       IC2=IBITS(IND, 6,13)
       NA=JREFX(IC2)
       IF(NA.EQ.0)GO TO 310
-*      IC1=MOD(IND/2**19,2**13)
+!      IC1=MOD(IND/2**19,2**13)
       IC1=IBITS(IND,19,13)
       NB=JREFX(IC1)
       IF(NB.EQ.0)GO TO 310

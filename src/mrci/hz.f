@@ -1,75 +1,75 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE HZ(ARR)
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "SysDef.fh"
 
 #include "mrci.fh"
-      PARAMETER (IX1F=1,IX2F=2,IRR=3,IX1R=4,IX2R=5,IX1X1=6,IX2X1=7,
-     *           IX2X2=8,IFDF=9,IFDR=10,IRDR=11)
+      PARAMETER (IX1F=1,IX2F=2,IRR=3,IX1R=4,IX2R=5,IX1X1=6,IX2X1=7,     &
+     &           IX2X2=8,IFDF=9,IFDR=10,IRDR=11)
       DIMENSION TMP(MXVEC,MXVEC)
       DIMENSION ARR(NRROOT,NRROOT,11)
-*
-* THIS SUBROUTINE FORMS THE OVERLAP AND H-ZERO MATRIX ELEMENTS
-* IN THE BASIS OF PSI, RHO, XI1, AND XI2 FUNCTIONS.
-*
-C     WRITE(6,*)
-C     WRITE(6,*)' CHECK PRINTS IN HZ.'
-C     WRITE(6,*)' X1F ARRAY:'
-C     DO 1001 I=1,NRROOT
-C       WRITE(6,'(1X,5F15.6)')(ARR(I,J,IX1F),J=1,NRROOT)
-C1001 CONTINUE
-C     WRITE(6,*)' X2F ARRAY:'
-C     DO 1002 I=1,NRROOT
-C       WRITE(6,'(1X,5F15.6)')(ARR(I,J,IX2F),J=1,NRROOT)
-C1002 CONTINUE
-C     WRITE(6,*)' RR ARRAY:'
-C     DO 1003 I=1,NRROOT
-C       WRITE(6,'(1X,5F15.6)')(ARR(I,J,IRR ),J=1,NRROOT)
-C1003 CONTINUE
-C     WRITE(6,*)' X1R ARRAY:'
-C     DO 1004 I=1,NRROOT
-C       WRITE(6,'(1X,5F15.6)')(ARR(I,J,IX1R),J=1,NRROOT)
-C1004 CONTINUE
-C     WRITE(6,*)' X2R ARRAY:'
-C     DO 1005 I=1,NRROOT
-C       WRITE(6,'(1X,5F15.6)')(ARR(I,J,IX2R),J=1,NRROOT)
-C1005 CONTINUE
-C     WRITE(6,*)' X1X1 ARRAY:'
-C     DO 1006 I=1,NRROOT
-C       WRITE(6,'(1X,5F15.6)')(ARR(I,J,IX1X1),J=1,NRROOT)
-C1006 CONTINUE
-C     WRITE(6,*)' X2X1 ARRAY:'
-C     DO 1007 I=1,NRROOT
-C       WRITE(6,'(1X,5F15.6)')(ARR(I,J,IX2X1),J=1,NRROOT)
-C1007 CONTINUE
-C     WRITE(6,*)' X2X2 ARRAY:'
-C     DO 1008 I=1,NRROOT
-C       WRITE(6,'(1X,5F15.6)')(ARR(I,J,IX2X2),J=1,NRROOT)
-C1008 CONTINUE
-C     WRITE(6,*)' FDF ARRAY:'
-C     DO 1009 I=1,NRROOT
-C       WRITE(6,'(1X,5F15.6)')(ARR(I,J,IFDF),J=1,NRROOT)
-C1009 CONTINUE
-C     WRITE(6,*)' FDR ARRAY:'
-C     DO 1010 I=1,NRROOT
-C       WRITE(6,'(1X,5F15.6)')(ARR(I,J,IFDR),J=1,NRROOT)
-C1010 CONTINUE
-C     WRITE(6,*)' RDR ARRAY:'
-C     DO 1011 I=1,NRROOT
-C       WRITE(6,'(1X,5F15.6)')(ARR(I,J,IRDR),J=1,NRROOT)
-C1011 CONTINUE
-C FIRST, CREATE OVERLAP MATRIX, AND INITIALIZE HZERO MATRIX WITH ALL
-C TERMS THAT DO NOT REQUIRE MATRIX MULTIPLIES:
+!
+! THIS SUBROUTINE FORMS THE OVERLAP AND H-ZERO MATRIX ELEMENTS
+! IN THE BASIS OF PSI, RHO, XI1, AND XI2 FUNCTIONS.
+!
+!     WRITE(6,*)
+!     WRITE(6,*)' CHECK PRINTS IN HZ.'
+!     WRITE(6,*)' X1F ARRAY:'
+!     DO 1001 I=1,NRROOT
+!       WRITE(6,'(1X,5F15.6)')(ARR(I,J,IX1F),J=1,NRROOT)
+!1001 CONTINUE
+!     WRITE(6,*)' X2F ARRAY:'
+!     DO 1002 I=1,NRROOT
+!       WRITE(6,'(1X,5F15.6)')(ARR(I,J,IX2F),J=1,NRROOT)
+!1002 CONTINUE
+!     WRITE(6,*)' RR ARRAY:'
+!     DO 1003 I=1,NRROOT
+!       WRITE(6,'(1X,5F15.6)')(ARR(I,J,IRR ),J=1,NRROOT)
+!1003 CONTINUE
+!     WRITE(6,*)' X1R ARRAY:'
+!     DO 1004 I=1,NRROOT
+!       WRITE(6,'(1X,5F15.6)')(ARR(I,J,IX1R),J=1,NRROOT)
+!1004 CONTINUE
+!     WRITE(6,*)' X2R ARRAY:'
+!     DO 1005 I=1,NRROOT
+!       WRITE(6,'(1X,5F15.6)')(ARR(I,J,IX2R),J=1,NRROOT)
+!1005 CONTINUE
+!     WRITE(6,*)' X1X1 ARRAY:'
+!     DO 1006 I=1,NRROOT
+!       WRITE(6,'(1X,5F15.6)')(ARR(I,J,IX1X1),J=1,NRROOT)
+!1006 CONTINUE
+!     WRITE(6,*)' X2X1 ARRAY:'
+!     DO 1007 I=1,NRROOT
+!       WRITE(6,'(1X,5F15.6)')(ARR(I,J,IX2X1),J=1,NRROOT)
+!1007 CONTINUE
+!     WRITE(6,*)' X2X2 ARRAY:'
+!     DO 1008 I=1,NRROOT
+!       WRITE(6,'(1X,5F15.6)')(ARR(I,J,IX2X2),J=1,NRROOT)
+!1008 CONTINUE
+!     WRITE(6,*)' FDF ARRAY:'
+!     DO 1009 I=1,NRROOT
+!       WRITE(6,'(1X,5F15.6)')(ARR(I,J,IFDF),J=1,NRROOT)
+!1009 CONTINUE
+!     WRITE(6,*)' FDR ARRAY:'
+!     DO 1010 I=1,NRROOT
+!       WRITE(6,'(1X,5F15.6)')(ARR(I,J,IFDR),J=1,NRROOT)
+!1010 CONTINUE
+!     WRITE(6,*)' RDR ARRAY:'
+!     DO 1011 I=1,NRROOT
+!       WRITE(6,'(1X,5F15.6)')(ARR(I,J,IRDR),J=1,NRROOT)
+!1011 CONTINUE
+! FIRST, CREATE OVERLAP MATRIX, AND INITIALIZE HZERO MATRIX WITH ALL
+! TERMS THAT DO NOT REQUIRE MATRIX MULTIPLIES:
       DO 10 I1=1,NRROOT
         I2=I1+NRROOT
         I3=I1+2*NRROOT
@@ -210,8 +210,8 @@ C TERMS THAT DO NOT REQUIRE MATRIX MULTIPLIES:
         DO 122 J=1,NRROOT
           SUM2=HZERO(IO4+I,IO4+J)
           DO 121 K=1,NRROOT
-            SUM2=SUM2+ARR(I,K,IX2F)*TMP(K,J)+
-     *                ARR(I,K,IX2R)*ARR(J,K,IX2F)
+            SUM2=SUM2+ARR(I,K,IX2F)*TMP(K,J)+                           &
+     &                ARR(I,K,IX2R)*ARR(J,K,IX2F)
 121       CONTINUE
           HZERO(IO4+I,IO4+J)=SUM2
 122     CONTINUE

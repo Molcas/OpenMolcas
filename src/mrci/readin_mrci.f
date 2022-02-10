@@ -1,14 +1,14 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-*PAM04      SUBROUTINE READIN(HWork,iHWork)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!PAM04      SUBROUTINE READIN(HWork,iHWork)
       SUBROUTINE READIN_MRCI()
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
@@ -17,24 +17,24 @@
 #include "WrkSpc.fh"
 #include "niocr.fh"
       DIMENSION IOCR(nIOCR),NOTOT(8)
-*PAM04      DIMENSION HWork(*), iHWork(*)
-*
+!PAM04      DIMENSION HWork(*), iHWork(*)
+!
       Parameter ( nCmd=20 )
       Parameter ( mxTit=10 )
       Character*4 Command,Cmd(nCmd)
       Character*72  Line,Title(mxTit)
       Character*88  ModLine
-      Data Cmd /'TITL','THRP','PRIN','FROZ','DELE',
-     *          'MAXI','ECON','REST','ROOT','ACPF',
-     *          'SDCI','GVAL','PROR','REFC','SELE',
-     *          'NRRO','MXVE','TRAN','EXTR','END '/
-*
-*---- convert a pointer in H to a pointer for iH
-*     ipointer(i)=(i-1)*RtoI+1
-*
-*
-*     Initialize data and set defaults
-*
+      Data Cmd /'TITL','THRP','PRIN','FROZ','DELE',                     &
+     &          'MAXI','ECON','REST','ROOT','ACPF',                     &
+     &          'SDCI','GVAL','PROR','REFC','SELE',                     &
+     &          'NRRO','MXVE','TRAN','EXTR','END '/
+!
+!---- convert a pointer in H to a pointer for iH
+!     ipointer(i)=(i-1)*RtoI+1
+!
+!
+!     Initialize data and set defaults
+!
       IOM=MXORB
       KBUFF1=2*9600
       ETHRE=1.0D-08
@@ -65,16 +65,16 @@
         IROOT(I)=I
 4     CONTINUE
       nTit=0
-*
-*     Read the header of the ONEINT file
-*
+!
+!     Read the header of the ONEINT file
+!
       NAMSIZ=LENIN8*MXORB
       IDISK=0
-      CALL WR_MOTRA_Info(LUONE,2,iDisk,
-     &                   ITOC17,64, POTNUC,
+      CALL WR_MOTRA_Info(LUONE,2,iDisk,                                 &
+     &                   ITOC17,64, POTNUC,                             &
      &                   NSYM, NBAS, NORB,NFMO,NDMO,8,NAME,NAMSIZ)
-*
-*---  Read input from standard input ----------------------------------*
+!
+!---  Read input from standard input ----------------------------------*
       Call RdNLst(5,'MRCI')
 10    Read(5,'(A)',End=991) Line
       Command=Line(1:4)
@@ -85,13 +85,13 @@
       Do iCmd=1,nCmd
          If ( Command.eq.Cmd(iCmd) ) jCmd=iCmd
       End Do
-20    Goto ( 100, 200, 300, 400, 500, 600, 700 ,800, 900,1000,
+20    Goto ( 100, 200, 300, 400, 500, 600, 700 ,800, 900,1000,          &
      &      1100,1200,1300,1400,1500,1600,1700,1800,1900,2000 ) jCmd
       WRITE(6,*)'READIN Error: Command not recognized.'
       WRITE(6,*)'The command is:'//''''//Command//''''
       CALL QUIT(_RC_INPUT_ERROR_)
-*
-*---  process TITL command --------------------------------------------*
+!
+!---  process TITL command --------------------------------------------*
  100  Continue
       Read(5,'(A)',End=991) Line
       Command=Line(1:4)
@@ -105,94 +105,94 @@
       nTit=nTit+1
       If ( nTit.le.mxTit ) Title(nTit)=Line
       Goto 100
-*
-*---  process THRP command --------------------------------------------*
+!
+!---  process THRP command --------------------------------------------*
  200  Continue
       Read(5,'(A)',End=991) Line
       If ( Line(1:1).eq.'*' ) Goto 200
       Read(Line,*,Err=992) CTRSH
       Goto 10
-*
-*---  process PRIN command --------------------------------------------*
+!
+!---  process PRIN command --------------------------------------------*
  300  Continue
       Read(5,'(A)',End=991) Line
       If ( Line(1:1).eq.'*' ) Goto 300
       Read(Line,*,Err=992) IPRINT
       Goto 10
-*
-*---  process FROZ command --------------------------------------------*
+!
+!---  process FROZ command --------------------------------------------*
  400  Continue
       Read(5,'(A)',End=991) Line
       If ( Line(1:1).eq.'*' ) Goto 400
       ModLine=Line//' 0 0 0 0 0 0 0 0'
       Read(ModLine,*,Err=992) (NFRO(I),I=1,8)
       Goto 10
-*
-*---  process DELE command --------------------------------------------*
+!
+!---  process DELE command --------------------------------------------*
  500  Continue
       Read(5,'(A)',End=991) Line
       If ( Line(1:1).eq.'*' ) Goto 500
       ModLine=Line//' 0 0 0 0 0 0 0 0'
       Read(ModLine,*,Err=992) (NDEL(I),I=1,8)
       Goto 10
-*
-*---  process MAXI command --------------------------------------------*
+!
+!---  process MAXI command --------------------------------------------*
  600  Continue
       Read(5,'(A)',End=991) Line
       If ( Line(1:1).eq.'*' ) Goto 600
       Read(Line,*,Err=992) MAXIT
       Goto 10
-*
-*---  process ECON command --------------------------------------------*
+!
+!---  process ECON command --------------------------------------------*
  700  Continue
       Read(5,'(A)',End=991) Line
       If ( Line(1:1).eq.'*' ) Goto 700
       Read(Line,*,Err=992) ETHRE
       Goto 10
-*
-*---  process REST command --------------------------------------------*
+!
+!---  process REST command --------------------------------------------*
  800  Continue
       IREST=1
       Goto 10
-*
-*---  process ROOT command --------------------------------------------*
+!
+!---  process ROOT command --------------------------------------------*
  900  Continue
       Read(5,'(A)',End=991) Line
       If ( Line(1:1).eq.'*' ) Goto 900
       Read(Line,*,Err=992) (IROOT(I),I=1,NRROOT)
       Goto 10
-*
-*---  process ACPF command --------------------------------------------*
+!
+!---  process ACPF command --------------------------------------------*
 1000  Continue
       ICPF=1
       Goto 10
-*
-*---  process SDCI command --------------------------------------------*
+!
+!---  process SDCI command --------------------------------------------*
 1100  Continue
       ICPF=0
       Goto 10
-*
-*---  process GVAL command --------------------------------------------*
+!
+!---  process GVAL command --------------------------------------------*
 1200  Continue
       Read(5,'(A)',End=991) Line
       If ( Line(1:1).eq.'*' ) Goto 1200
       Read(Line,*,Err=992) GFAC
       IGFAC=1
       Goto 10
-*
-*---  process PROR command --------------------------------------------*
+!
+!---  process PROR command --------------------------------------------*
 1300  Continue
       Read(5,'(A)',End=991) Line
       If ( Line(1:1).eq.'*' ) Goto 1300
       Read(Line,*,Err=992) THRORB
       Goto 10
-*
-*---  process REFC command --------------------------------------------*
+!
+!---  process REFC command --------------------------------------------*
 1400  Continue
       IREFCI=1
       Goto 10
-*
-*---  process SELE command --------------------------------------------*
+!
+!---  process SELE command --------------------------------------------*
 1500  Continue
       Read(5,'(A)',End=991) Line
       If ( Line(1:1).eq.'*' ) Goto 1500
@@ -204,8 +204,8 @@
         NCOMP(I)=NC
 1510  CONTINUE
       Goto 10
-*
-*---  process NRRO command --------------------------------------------*
+!
+!---  process NRRO command --------------------------------------------*
 1600  Continue
       Read(5,'(A)',End=991) Line
       If ( Line(1:1).eq.'*' ) Goto 1600
@@ -219,8 +219,8 @@
         IROOT(I)=I
       Enddo
       Goto 10
-*
-*---  process MXVE command --------------------------------------------*
+!
+!---  process MXVE command --------------------------------------------*
 1700  Continue
       Read(5,'(A)',End=991) Line
       If ( Line(1:1).eq.'*' ) Goto 1700
@@ -231,17 +231,17 @@
        call quit(_RC_INPUT_ERROR_)
       endif
       Goto 10
-*
-*---  process TRAN command --------------------------------------------*
+!
+!---  process TRAN command --------------------------------------------*
 1800  Continue
       ITRANS=1
       Goto 10
-*
-*---  process EXTR command --------------------------------------------*
+!
+!---  process EXTR command --------------------------------------------*
 1900  WRITE(6,*) 'The EXTRACT option is redundant and is ignored!'
       Goto 10
-*
-*---  The end of the input is reached, print the title ----------------*
+!
+!---  The end of the input is reached, print the title ----------------*
 2000  Continue
       if(ntit.eq.0) then
         ntit=1
@@ -253,12 +253,12 @@
       CALL XFLUSH(6)
       WRITE(6,'(6X,120A1)') '*',(' ',i=1,118),'*'
       CALL XFLUSH(6)
-      WRITE(6,'(6X,57A1,A6,57A1)')
+      WRITE(6,'(6X,57A1,A6,57A1)')                                      &
      &        '*',(' ',i=1,56),'Title:',(' ',i=1,56),'*'
       CALL XFLUSH(6)
       Do i=1,nTit
          Call Center_Text(Title(i))
-         WRITE(6,'(6X,24A1,A72,24A1)')
+         WRITE(6,'(6X,24A1,A72,24A1)')                                  &
      &        '*',(' ',j=1,23),Title(i),(' ',j=1,23),'*'
       CALL XFLUSH(6)
       End Do
@@ -267,24 +267,24 @@
       WRITE(6,'(6X,120A1)') ('*',i=1,120)
       CALL XFLUSH(6)
       WRITE(6,*)
-*
-*---  print the coordinates of the system -----------------------------*
+!
+!---  print the coordinates of the system -----------------------------*
       CALL XFLUSH(6)
       Call PrCoor
-*
-*---  read the header of CIGUGA ---------------------------------------*
-*
-*     Read the header of the CIGUGA file
-*
+!
+!---  read the header of CIGUGA ---------------------------------------*
+!
+!     Read the header of the CIGUGA file
+!
       IADD10=0
       CALL iDAFILE(LUSYMB,2,IAD10,9,IADD10)
       iOpt=2
       nMUL=64
       nJJS=18
       nIRC=4
-      Call WR_GUGA(LUSYMB,iOpt,IADD10,
-     &             NREF,SPIN,NELEC,LN,NSYM,NCSPCK,NINTSY,IFIRST,INTNUM,
-     &             LSYM,NRF,LN1,NRLN1,MUL,nMUL,NASH,NISH,8,
+      Call WR_GUGA(LUSYMB,iOpt,IADD10,                                  &
+     &             NREF,SPIN,NELEC,LN,NSYM,NCSPCK,NINTSY,IFIRST,INTNUM, &
+     &             LSYM,NRF,LN1,NRLN1,MUL,nMUL,NASH,NISH,8,             &
      &             IRC,nIRC,JJS,nJJS,NVAL,IOCR,nIOCR)
       IF(ICPF.EQ.1) THEN
         WRITE(6,*)'      THIS IS AN   A C P F   CALCULATION'
@@ -300,9 +300,9 @@
       END IF
       WRITE(6,*)
       IF(IREST.NE.0) WRITE(6,*)'      RESTARTED CALCULATION.'
-      WRITE(6,*)'      A SMALL CI IS PERFORMED INVOLVING ONLY'
+      WRITE(6,*)'      A SMALL CI IS PERFORMED INVOLVING ONLY'          &
      &        //' THE REFERENCE STATES.'
-      WRITE(6,*)'      THIS REFERENCE CI WILL USE THE FOLLOWING ROOT'
+      WRITE(6,*)'      THIS REFERENCE CI WILL USE THE FOLLOWING ROOT'   &
      &        //' SELECTION CRITERIA:'
       WRITE(6,*)
       CALL XFLUSH(6)
@@ -317,28 +317,28 @@
           WRITE(6,'(1X,/(1x,12I3))')  (IROOT(I),I=1,NRROOT)
         END IF
       ELSE
-        WRITE(6,*)
+        WRITE(6,*)                                                      &
      &       '      ROOT SELECTION BY PROJECTION: THE EIGENVECTORS OF'
-        WRITE(6,*)
+        WRITE(6,*)                                                      &
      &       '      THE REFERENCE CI ARE ORDERED BY DECREASING SIZE OF'
-        WRITE(6,*)
+        WRITE(6,*)                                                      &
      &       '      THEIR PROJECTIONS ONTO A SELECTION SPACE.'
         IF(NRROOT.EQ.1) THEN
-          WRITE(6,*)
+          WRITE(6,*)                                                    &
      &         '     SELECT THE EIGENVECTOR WITH LARGEST PROJECTION.'
         ELSE
-          WRITE(6,'(A,I2,A)')'      SELECT THE ',NRROOT,
-     *                       ' EIGENVECTORS WITH LARGEST PROJECTION.'
+          WRITE(6,'(A,I2,A)')'      SELECT THE ',NRROOT,                &
+     &                       ' EIGENVECTORS WITH LARGEST PROJECTION.'
         END IF
-        WRITE(6,*)
-     &       '      THE SELECTION SPACE IS SPANNED BY THE FOLLOWING',
-     *             'VECTORS (NONZERO COMPONENTS ONLY):'
+        WRITE(6,*)                                                      &
+     &       '      THE SELECTION SPACE IS SPANNED BY THE FOLLOWING',   &
+     &             'VECTORS (NONZERO COMPONENTS ONLY):'
         JJ=0
         DO 1234 I=1,NSEL
           WRITE(6,'(6X,A,I2)') ' VECTOR NR. ',I
           NC=NCOMP(I)
-          WRITE(6,'(11X,I2,5X,A20,F12.8)')
-     *          (J,SSEL(JJ+J),CSEL(JJ+J),J=1,NC)
+          WRITE(6,'(11X,I2,5X,A20,F12.8)')                              &
+     &          (J,SSEL(JJ+J),CSEL(JJ+J),J=1,NC)
           JJ=JJ+NC
 1234  CONTINUE
       END IF
@@ -491,7 +491,7 @@
 730     CONTINUE
         NOTOT(ISYM)=IO
 731   CONTINUE
-C NR OF VIRTUALS IN PREVIOUS SYMMETRIES:
+! NR OF VIRTUALS IN PREVIOUS SYMMETRIES:
       ISUM=0
       DO 732 I=1,NSYM
         NVIRP(I)=ISUM
@@ -550,7 +550,7 @@ C NR OF VIRTUALS IN PREVIOUS SYMMETRIES:
         LN2=MIN(32,LN1)
         WRITE(6,'(6X,A,T47)') 'Occupation of the reference states'
         IF(NREFWR.LT.NREF) THEN
-          WRITE(6,'(6X,A,I3,A)')'( Only the ',NREFWR,
+          WRITE(6,'(6X,A,I3,A)')'( Only the ',NREFWR,                   &
      &                                         ' first are listed)'
         END IF
         Write(6,'(6X,A,T25,32I2)')'Active orbital nr.',(I,I=1,LN2)
@@ -558,7 +558,7 @@ C NR OF VIRTUALS IN PREVIOUS SYMMETRIES:
         Do iRef=1,NREFWR
           jStart=jEnd+1
           jEnd=jEnd+LN1
-          Write(6,'(6X,A,I3,T25,32I2)')'Ref nr',IREF,
+          Write(6,'(6X,A,I3,T25,32I2)')'Ref nr',IREF,                   &
      &                              (IOCR(j),j=jStart,jStart-1+LN2)
         End Do
         CALL XFLUSH(6)
@@ -588,10 +588,10 @@ C NR OF VIRTUALS IN PREVIOUS SYMMETRIES:
       CALL XFLUSH(6)
           WRITE(6,215)IX1,IX2,IX3,IX4
       CALL XFLUSH(6)
-215       FORMAT(/,6X,'                 VALENCE',I7,
-     *           /,6X,' DOUBLET COUPLED SINGLES',I7,
-     *           /,6X,' TRIPLET COUPLED DOUBLES',I7,
-     *           /,6X,' SINGLET COUPLED DOUBLES',I7)
+215       FORMAT(/,6X,'                 VALENCE',I7,                    &
+     &           /,6X,' DOUBLET COUPLED SINGLES',I7,                    &
+     &           /,6X,' TRIPLET COUPLED DOUBLES',I7,                    &
+     &           /,6X,' SINGLET COUPLED DOUBLES',I7)
           WRITE(6,*)
       CALL XFLUSH(6)
           WRITE(6,*)'      FORMAL CONFIGURATIONS:'
@@ -610,8 +610,8 @@ C NR OF VIRTUALS IN PREVIOUS SYMMETRIES:
       CALL XFLUSH(6)
           WRITE(6,216)IX1,IX2
       CALL XFLUSH(6)
-216       FORMAT(/,6X,'                 VALENCE',I7,
-     *           /,6X,' DOUBLET COUPLED SINGLES',I7)
+216       FORMAT(/,6X,'                 VALENCE',I7,                    &
+     &           /,6X,' DOUBLET COUPLED SINGLES',I7)
           WRITE(6,*)
       CALL XFLUSH(6)
           WRITE(6,*)'      FORMAL CONFIGURATIONS:'
@@ -624,7 +624,7 @@ C NR OF VIRTUALS IN PREVIOUS SYMMETRIES:
       END IF
       NIWLK=IRC(ILIM)
       NCVAL=IRC(1)
-C ----------------------------------------------------------------
+! ----------------------------------------------------------------
       IF (NVIRT.GT.255) THEN
         Write(6,*)
         Write(6,*)' Sorry -- The MRCI code uses internal integer codes'
@@ -635,69 +635,69 @@ C ----------------------------------------------------------------
         Write(6,*)' The program cannot run.'
         Call Quit(_RC_INPUT_ERROR_)
       END IF
-C ----------------------------------------------------------------
-C ALLOCATION OF DATA PERMANENTLY IN CORE
-*
-*PAM04      LCSPCK=1
-*
-C ICSPCK - ARRAY OF BIT-PACKED GUGA CASE NUMBERS OF INTERNAL WALKS.
-C CONSISTS OF NCSPCK INTEGERS.
-*
-*PAM04      CALL iDAFILE(LUSYMB,2,iHWork(iPointer(LCSPCK)),NCSPCK,IADD10)
+! ----------------------------------------------------------------
+! ALLOCATION OF DATA PERMANENTLY IN CORE
+!
+!PAM04      LCSPCK=1
+!
+! ICSPCK - ARRAY OF BIT-PACKED GUGA CASE NUMBERS OF INTERNAL WALKS.
+! CONSISTS OF NCSPCK INTEGERS.
+!
+!PAM04      CALL iDAFILE(LUSYMB,2,iHWork(iPointer(LCSPCK)),NCSPCK,IADD10)
       CALL GETMEM('CSPCK','ALLO','INTE',LCSPCK,NCSPCK)
       CALL iDAFILE(LUSYMB,2,IWORK(LCSPCK),NCSPCK,IADD10)
-*
-C INTSYM - ARRAY OF BIT-PACKED SYMMETRY LABELS OF INTERNAL WALKS.
-C CONSISTS OF NINTSY INTEGERS.
-*
-*PAM04      LINTSY=LCSPCK+(NCSPCK+(RTOI-1))/RTOI
-*PAM04      Changed to following line:
+!
+! INTSYM - ARRAY OF BIT-PACKED SYMMETRY LABELS OF INTERNAL WALKS.
+! CONSISTS OF NINTSY INTEGERS.
+!
+!PAM04      LINTSY=LCSPCK+(NCSPCK+(RTOI-1))/RTOI
+!PAM04      Changed to following line:
       CALL GETMEM('INTSY','ALLO','INTE',LINTSY,NINTSY)
-*PAM04      CALL iDAFILE(LUSYMB,2,iHWork(iPointer(LINTSY)),NINTSY,IADD10)
+!PAM04      CALL iDAFILE(LUSYMB,2,iHWork(iPointer(LINTSY)),NINTSY,IADD10)
       CALL iDAFILE(LUSYMB,2,IWork(LINTSY),NINTSY,IADD10)
-*
-C INDX - START POSITION IN CI ARRAY OF EACH INTERNAL-WALK-BLOCK
-*
-*PAM04      LINDX=LINTSY+(NINTSY+(RTOI-1))/RTOI
-*PAM04      Changed to following line:
+!
+! INDX - START POSITION IN CI ARRAY OF EACH INTERNAL-WALK-BLOCK
+!
+!PAM04      LINDX=LINTSY+(NINTSY+(RTOI-1))/RTOI
+!PAM04      Changed to following line:
       CALL GETMEM('INDX','ALLO','INTE',LINDX,NIWLK)
-*
-C ISAB - ORDERING NR OF EACH VIRTUAL PAIR WITHIN ITS COMB-SYMM
-*
-*PAM04      LISAB=LINDX+NIWLK
-*PAM04      Changed to following line:
+!
+! ISAB - ORDERING NR OF EACH VIRTUAL PAIR WITHIN ITS COMB-SYMM
+!
+!PAM04      LISAB=LINDX+NIWLK
+!PAM04      Changed to following line:
       CALL GETMEM('ISAB','ALLO','INTE',LISAB,NVIRT**2)
-*
-C JREFX - FOR EACH VALENCE CSF, EITHER 0 OR ITS REFERENCE NR.
-*
-*PAM04      LJREFX=LISAB+(1+NVIRT**2)/RTOI
-*PAM04      Changed to following line:
+!
+! JREFX - FOR EACH VALENCE CSF, EITHER 0 OR ITS REFERENCE NR.
+!
+!PAM04      LJREFX=LISAB+(1+NVIRT**2)/RTOI
+!PAM04      Changed to following line:
       CALL GETMEM('JREFX','ALLO','INTE',LJREFX,NCVAL)
       IADD10=IAD10(2)
       CALL iDAFILE(LUSYMB,2,iWork(LJREFX),NCVAL,IADD10)
-*
-C PROJECTION SELECTION VECTORS
-*
-*PAM04      LCISEL=LJREFX+(1+NCVAL)/RTOI
-*PAM04      Changed to following line:
+!
+! PROJECTION SELECTION VECTORS
+!
+!PAM04      LCISEL=LJREFX+(1+NCVAL)/RTOI
+!PAM04      Changed to following line:
       CALL GETMEM('CISEL','ALLO','REAL',LCISEL,NSEL*NREF)
-*
-C START OF NON-PERMANENT AREA:
-*
-*PAM04      LPERMA=LCISEL+NSEL*NREF
-*PAM04      CALL INDMAT(HWork(LCSPCK),HWork(LINTSY),HWork(LINDX),
-*PAM04     *            HWork(LISAB),HWork(LJREFX),HWork(LCISEL))
-      CALL INDMAT(IWork(LCSPCK),IWork(LINTSY),IWork(LINDX),
-     *            IWork(LISAB),IWork(LJREFX),Work(LCISEL))
+!
+! START OF NON-PERMANENT AREA:
+!
+!PAM04      LPERMA=LCISEL+NSEL*NREF
+!PAM04      CALL INDMAT(HWork(LCSPCK),HWork(LINTSY),HWork(LINDX),
+!PAM04     *            HWork(LISAB),HWork(LJREFX),HWork(LCISEL))
+      CALL INDMAT(IWork(LCSPCK),IWork(LINTSY),IWork(LINDX),             &
+     &            IWork(LISAB),IWork(LJREFX),Work(LCISEL))
       IF(NREF.GT.MXREF) THEN
         WRITE(6,*)'READIN Error: Too many references.'
         WRITE(6,'(1X,A,2I6)')' actual, allowed:',NREF,MXREF
         CALL QUIT(_RC_INPUT_ERROR_)
       END IF
 
-* Total available memory (at start of program) is MEMTOT
-* Available now is MEMWRK
-* Already (permanently) allocated is MEMPRM
+! Total available memory (at start of program) is MEMTOT
+! Available now is MEMWRK
+! Already (permanently) allocated is MEMPRM
 
       CALL GETMEM('HowMuch','MAX','REAL',LDUM,MemWrk)
       MEMPRM=MEMTOT-MEMWRK

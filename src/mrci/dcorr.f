@@ -1,23 +1,23 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE DCORR(JREFX,AREF,ICSPCK,INTSYM,INDX,DMO)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "mrci.fh"
-      DIMENSION AREF(*),JREFX(*),ICSPCK(*),
-     *          INTSYM(*),INDX(*),DMO(*)
-*
+      DIMENSION AREF(*),JREFX(*),ICSPCK(*),                             &
+     &          INTSYM(*),INDX(*),DMO(*)
+!
       JO(L)=ICUNP(ICSPCK,L)
-*
-C CORRECTION TO DENSITY MATRIX IN ACPF CASE.
+!
+! CORRECTION TO DENSITY MATRIX IN ACPF CASE.
       IF(IPRINT.GE.7) WRITE(6,*)' ENP IN DENS =',ENP
       FAC=1.0D00-(1.0D00/ENP)
       IAD27=0
@@ -37,7 +37,7 @@ C CORRECTION TO DENSITY MATRIX IN ACPF CASE.
         END IF
 40    CONTINUE
       RETURN
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       IF (.FALSE.) THEN
          CALL Unused_integer_array(INTSYM)
          CALL Unused_integer_array(INDX)

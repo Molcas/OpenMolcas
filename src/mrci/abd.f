@@ -1,36 +1,36 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE ABD(ICSPCK,INTSYM,INDX,C,DMO,A,B,F,JREFX)
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "SysDef.fh"
 
 #include "mrci.fh"
-      DIMENSION ICSPCK(*),INTSYM(*),INDX(*),
-     *          C(*),DMO(*),A(*),B(*),
-     *          F(*),JREFX(*)
+      DIMENSION ICSPCK(*),INTSYM(*),INDX(*),                            &
+     &          C(*),DMO(*),A(*),B(*),                                  &
+     &          F(*),JREFX(*)
       DIMENSION IPOA(9),IPOF(9)
       DIMENSION IOC(55)
-CPAM97      EXTERNAL UNPACK
-CPAM97      INTEGER UNPACK
-CPAM97      JO(L)=UNPACK(CSPCK((L+29)/30), 2*L-(2*L-1)/60*60, 2)
+!PAM97      EXTERNAL UNPACK
+!PAM97      INTEGER UNPACK
+!PAM97      JO(L)=UNPACK(CSPCK((L+29)/30), 2*L-(2*L-1)/60*60, 2)
       JO(L)=ICUNP(ICSPCK,L)
-CPAM96      JSYM(L)=UNPACK(INTSYM((L+9)/10),3*MOD(L-1,10)+1,3)+1
+!PAM96      JSYM(L)=UNPACK(INTSYM((L+9)/10),3*MOD(L-1,10)+1,3)+1
       JSYM(L)=JSUNP(INTSYM,L)
-C SCRATCH SPACE: A(),B(),F().
+! SCRATCH SPACE: A(),B(),F().
       CALL CSCALE(INDX,INTSYM,C,SQ2)
       NCLIM=4
       IF(IFIRST.NE.0)NCLIM=2
       ENPINV=1.0D00/ENP
-C MOVE DENSITY MATRIX TO F IN SYMMETRY BLOCKS
+! MOVE DENSITY MATRIX TO F IN SYMMETRY BLOCKS
       CALL IPO(IPOF,NVIR,MUL,NSYM,1,-1)
       DO 10 IASYM=1,NSYM
         IAB=IPOF(IASYM)
@@ -60,7 +60,7 @@ C MOVE DENSITY MATRIX TO F IN SYMMETRY BLOCKS
       MYL=MUL(MYSYM,LSYM)
       INMY=INDX(INDA)+1
       IF(INDA.GT.IRC(2))GO TO 25
-C DOUBLET-DOUBLET INTERACTIONS
+! DOUBLET-DOUBLET INTERACTIONS
       IF(NVIR(MYL).EQ.0)GO TO 40
       CALL FMUL2(C(INMY),C(INMY),A,NVIR(MYL),NVIR(MYL),1)
       IPF=IPOF(MYL)+1
@@ -78,7 +78,7 @@ C DOUBLET-DOUBLET INTERACTIONS
         DMO(IIA)=DMO(IIA)+SUM
 130   CONTINUE
       GO TO 106
-C TRIPLET-TRIPLET AND SINGLET-SINGLET INTERACTIONS
+! TRIPLET-TRIPLET AND SINGLET-SINGLET INTERACTIONS
 25    IFT=1
       IF(INDA.GT.IRC(3))IFT=0
       CALL IPO(IPOA,NVIR,MUL,NSYM,MYL,IFT)
@@ -148,6 +148,6 @@ C TRIPLET-TRIPLET AND SINGLET-SINGLET INTERACTIONS
 310   FORMAT(/,6X,'TRACE OF DENSITY MATRIX',F16.8)
       CALL CSCALE(INDX,INTSYM,C,SQ2INV)
       RETURN
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_integer_array(JREFX)
       END

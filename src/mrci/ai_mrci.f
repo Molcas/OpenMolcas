@@ -1,32 +1,32 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-*      SUBROUTINE AI(INTSYM,INDX,C,S,FC,BUFIN,IBUFIN,A,B,FK,DBK,KTYP)
-*      SUBROUTINE AI_MRCI(INTSYM,INDX,C,S,FC,BUF,IBUF,A,B,FK,DBK,KTYP)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!      SUBROUTINE AI(INTSYM,INDX,C,S,FC,BUFIN,IBUFIN,A,B,FK,DBK,KTYP)
+!      SUBROUTINE AI_MRCI(INTSYM,INDX,C,S,FC,BUF,IBUF,A,B,FK,DBK,KTYP)
       SUBROUTINE AI_MRCI(INTSYM,INDX,C,S,FC,A,B,FK,DBK,KTYP)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "mrci.fh"
-      DIMENSION INTSYM(*),INDX(*),C(*),S(*),
-*     *          FC(*),BUFIN(*),IBUFIN(*),
-*     *          FC(*),BUF(NBITM3),IBUF(NBITM3+2),
-     *          FC(*),
-     *          A(*),B(*),FK(*),DBK(*)
+      DIMENSION INTSYM(*),INDX(*),C(*),S(*),                            &
+!     *          FC(*),BUFIN(*),IBUFIN(*),
+!     *          FC(*),BUF(NBITM3),IBUF(NBITM3+2),
+     &          FC(*),                                                  &
+     &          A(*),B(*),FK(*),DBK(*)
       DIMENSION IPOB(9)
       PARAMETER (ONE=1.0D00)
-*
+!
       JSYM(L)=JSUNP(INTSYM,L)
-*
-C KTYP=0,  (A/I)   INTEGRALS
-C KTYP=1,  (AI/JK) INTEGRALS
+!
+! KTYP=0,  (A/I)   INTEGRALS
+! KTYP=1,  (AI/JK) INTEGRALS
 
       CALL GETMEM('BUF','ALLO','REAL',LBUF,NBITM3)
       CALL GETMEM('IBUF','ALLO','INTE',LIBUF,NBITM3+2)
@@ -40,43 +40,43 @@ C KTYP=1,  (AI/JK) INTEGRALS
       NSA=1
       NOTT=LN*(LN+1)
       NOVST=LN*NVIRT+1+NVT
-CPAM97 New portable code:
-*PAM04      NBCMX3=(RTOI*NBSIZ3-2)/(RTOI+1)
-*PAM04      IBOFF3=RTOI*NBCMX3
-*PAM04      IBBC3=IBOFF3+NBCMX3+1
-*PAM04      IBDA3=IBBC3+1
+!PAM97 New portable code:
+!PAM04      NBCMX3=(RTOI*NBSIZ3-2)/(RTOI+1)
+!PAM04      IBOFF3=RTOI*NBCMX3
+!PAM04      IBBC3=IBOFF3+NBCMX3+1
+!PAM04      IBDA3=IBBC3+1
 
       IF(KTYP.EQ.0)IADD10=IAD10(9)
       IF(KTYP.EQ.1)IADD10=IAD10(7)
-C READ A COP BUFFER
+! READ A COP BUFFER
 100   CONTINUE
       CALL dDAFILE(LUSYMB,2,COP,nCOP,IADD10)
       CALL iDAFILE(LUSYMB,2,iCOP1,nCOP+1,IADD10)
       LEN=ICOP1(nCOP+1)
       IF(LEN.EQ.0)GO TO 100
       IF(LEN.LT.0)GO TO 200
-C LOOP THROUGH THE COP BUFFER:
+! LOOP THROUGH THE COP BUFFER:
       DO 10 II=1,LEN
       IND=ICOP1(II)
       IF(ICHK.NE.0) THEN
-C BEGIN A RATHER LONG IF-BLOCK.
-C ICHK FLAG IS SET. THIS SIGNALS THAT PREVIOUS IND WAS 0, WHICH IS
-C USED TO INDICATE CHANGE TO A NEW BLOCK OF COUPLING COEFFICIENTS.
-C RESET ICHK FLAG.
+! BEGIN A RATHER LONG IF-BLOCK.
+! ICHK FLAG IS SET. THIS SIGNALS THAT PREVIOUS IND WAS 0, WHICH IS
+! USED TO INDICATE CHANGE TO A NEW BLOCK OF COUPLING COEFFICIENTS.
+! RESET ICHK FLAG.
         ICHK=0
         IF(KTYP.EQ.0) THEN
-C AI CASE. SAVE INTERNAL ORBITAL INDEX IN NK:
+! AI CASE. SAVE INTERNAL ORBITAL INDEX IN NK:
           NK=IND
           IJOLD=NK
           NSK=NSM(NK)
           NSA=NSK
           GO TO 20
         END IF
-C AIJK CASE. UNPACK INTERNAL ORBITAL INDICES INTO NI,NJ,NK:
+! AIJK CASE. UNPACK INTERNAL ORBITAL INDICES INTO NI,NJ,NK:
         INDI=IND
-*        NI=MOD(INDI,2**10)
-*        NJ=MOD(INDI/2**10,2**10)
-*        NK=MOD(INDI/2**20,2**10)
+!        NI=MOD(INDI,2**10)
+!        NJ=MOD(INDI/2**10,2**10)
+!        NK=MOD(INDI/2**20,2**10)
         NI=IBITS(INDI, 0,10)
         NJ=IBITS(INDI,10,10)
         NK=IBITS(INDI,20,10)
@@ -87,29 +87,29 @@ C AIJK CASE. UNPACK INTERNAL ORBITAL INDICES INTO NI,NJ,NK:
         NSA=MUL(NSIJ,NSK)
         IJ=IROW(NI)+NJ
         IF(IJ.NE.IJOLD) THEN
-C NEW INTERNAL PAIR IJ. LOAD A NEW SET OF INTEGRALS INTO FC:
+! NEW INTERNAL PAIR IJ. LOAD A NEW SET OF INTEGRALS INTO FC:
           IJOLD=IJ
           IADR=LASTAD(NOVST+NOTT+IJ)
           CALL FZERO(FC,NBTRI)
 
 90        CONTINUE
-*PAM04          CALL dDAFILE(Lu_60,2,IBUFIN,NBSIZ3,IADR)
+!PAM04          CALL dDAFILE(Lu_60,2,IBUFIN,NBSIZ3,IADR)
           CALL iDAFILE(Lu_60,2,iWORK(LIBUF),NBITM3+2,IADR)
           CALL dDAFILE(Lu_60,2,WORK(LBUF),NBITM3,IADR)
           LENGTH=iWORK(LIBUF+NBITM3)
           IADR  =iWORK(LIBUF+NBITM3+1)
-*PAM04          LENGTH=IBUFIN(IBBC3)
-*PAM04          IADR=IBUFIN(IBDA3)
+!PAM04          LENGTH=IBUFIN(IBBC3)
+!PAM04          IADR=IBUFIN(IBDA3)
           IF(LENGTH.EQ.0)GO TO 91
-*          CALL SCATTER(LENGTH,FC,IBUFIN(IBOFF3+1),BUFIN)
+!          CALL SCATTER(LENGTH,FC,IBUFIN(IBOFF3+1),BUFIN)
           do i=0,length-1
-*PAM04            fc(IBUFIN(IBOFF3+i))=bufin(i)
+!PAM04            fc(IBUFIN(IBOFF3+i))=bufin(i)
             fc(iWORK(LIBUF+i))=WORK(LBUF+i)
           end do
 91        IF(IADR.NE.-1) GO TO 90
         END IF
 20      CONTINUE
-C FOR THIS PARTICULAR K, TRANSFER FC(NK,NA) TO ARRAY FK:
+! FOR THIS PARTICULAR K, TRANSFER FC(NK,NA) TO ARRAY FK:
         NVIRA=NVIR(NSA)
         IF(NVIRA.EQ.0) GOTO 10
         DO 13 I=1,NVIRA
@@ -119,22 +119,22 @@ C FOR THIS PARTICULAR K, TRANSFER FC(NK,NA) TO ARRAY FK:
 13      CONTINUE
         GOTO 10
       END IF
-C END OF THE LONG IF-BLOCK.
+! END OF THE LONG IF-BLOCK.
       IF(IND.EQ.0) THEN
-C IND=0 SIGNALS SWITCH TO A NEW SET OF INTEGRALS.
+! IND=0 SIGNALS SWITCH TO A NEW SET OF INTEGRALS.
         ICHK=1
         GO TO 10
       END IF
-C WE ARE PROCESSING A COUPLING COEFFICIENT AS USUAL.
+! WE ARE PROCESSING A COUPLING COEFFICIENT AS USUAL.
       IF(NVIRA.EQ.0)GO TO 10
-*      ITYP=MOD(IND,2**6)
-*      ICP2=MOD(IND/2**6,2**13)
-*      ICP1=MOD(IND/2**19,2**13)
+!      ITYP=MOD(IND,2**6)
+!      ICP2=MOD(IND/2**6,2**13)
+!      ICP1=MOD(IND/2**19,2**13)
       ITYP=IBITS(IND, 0, 6)
       ICP2=IBITS(IND, 6,13)
       ICP1=IBITS(IND,19,13)
       IF(ITYP.GT.1)GO TO 12
-C ITYP=1. VALENCE-SINGLES CASE.
+! ITYP=1. VALENCE-SINGLES CASE.
       INDA=ICP1
       INDB=IRC(1)+ICP2
       INNY=INDX(INDB)+1

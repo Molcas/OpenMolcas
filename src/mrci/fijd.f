@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE FIJD(INTSYM,INDX,C,DMO,JREFX,AREF)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "mrci.fh"
-      DIMENSION INTSYM(*),INDX(*),
-     *          C(*),DMO(*),JREFX(*),AREF(*)
-*
+      DIMENSION INTSYM(*),INDX(*),                                      &
+     &          C(*),DMO(*),JREFX(*),AREF(*)
+!
       JSYM(L)=JSUNP(INTSYM,L)
-*
+!
       ICHK=0
       IK=0
       ENPINV=1.0D00/ENP
@@ -31,8 +31,8 @@
       IF(ICHK.NE.0) THEN
         ICHK=0
         INDI=IND
-*        NI=MOD(INDI,2**10)
-*        NK=MOD(INDI/2**10,2**10)
+!        NI=MOD(INDI,2**10)
+!        NK=MOD(INDI/2**10,2**10)
         NI=IBITS(INDI, 0,10)
         NK=IBITS(INDI,10,10)
         IK=IROW(NK)+NI
@@ -42,9 +42,9 @@
         ICHK=1
         GO TO 10
       END IF
-*      IVL=MOD(IND,2**6)
-*      IC2=MOD(IND/2**6,2**13)
-*      IC1=MOD(IND/2**19,2**13)
+!      IVL=MOD(IND,2**6)
+!      IC2=MOD(IND/2**6,2**13)
+!      IC1=MOD(IND/2**19,2**13)
       IVL=IBITS(IND, 0, 6)
       IC2=IBITS(IND, 6,13)
       IC1=IBITS(IND,19,13)

@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      SUBROUTINE PMATEL(ISTATE,JSTATE,PROP,PINT,SMAT,CNO,OCC,
-     *                  SFOLD,AFOLD,TDAO)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      SUBROUTINE PMATEL(ISTATE,JSTATE,PROP,PINT,SMAT,CNO,OCC,           &
+     &                  SFOLD,AFOLD,TDAO)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION PINT(NBTRI),SFOLD(NBTRI),AFOLD(NBTRI),CNO(NCMO)
       DIMENSION TDAO(NBAST,NBAST),SMAT(*),OCC(NBAST)
@@ -22,9 +22,9 @@
       SAVE ICALL
       DATA ICALL /0/
       IF(ISTATE.EQ.JSTATE) THEN
-C READ OVERLAP INTEGRALS FROM TRAONE.
+! READ OVERLAP INTEGRALS FROM TRAONE.
         CALL RDONE(IRTC,6,'MLTPL  0',1,SMAT,IDUMMY)
-C CALCULATE AND WRITE MULLIKEN CHARGES.
+! CALCULATE AND WRITE MULLIKEN CHARGES.
         WRITE(6,*)
       CALL XFLUSH(6)
         WRITE(6,'(A,I2)')' MULLIKEN CHARGES FOR STATE NR ',ISTATE
@@ -33,8 +33,8 @@ C CALCULATE AND WRITE MULLIKEN CHARGES.
         WRITE(6,*)' ',('*',I=1,70)
       CALL XFLUSH(6)
       END IF
-C FOLD TDAO SYMMETRICALLY (ANTI-SYMM) INTO SFOLD (AFOLD):
-C MOLCAS2 UPDATE: SYMMETRY-BLOCKED STORAGE.
+! FOLD TDAO SYMMETRICALLY (ANTI-SYMM) INTO SFOLD (AFOLD):
+! MOLCAS2 UPDATE: SYMMETRY-BLOCKED STORAGE.
       CALL DCOPY_(NBTRI,[0.0D00],0,SFOLD,1)
       CALL DCOPY_(NBTRI,[0.0D00],0,AFOLD,1)
       IJ=0
@@ -55,11 +55,11 @@ C MOLCAS2 UPDATE: SYMMETRY-BLOCKED STORAGE.
       END DO
       NSIZ=0
       DO 100 IPROP=1,NPROP
-C PICK UP MATRIX ELEMENTS FROM ONE-ELECTRON FILE:
+! PICK UP MATRIX ELEMENTS FROM ONE-ELECTRON FILE:
         CALL iRDONE(IRTC,1,PNAME(IPROP),IPCOMP(IPROP),IDUM,ISYMLB)
         IF(IRTC.EQ.0) NSIZ=IDUM(1)
         CALL RDONE(IRTC,0,PNAME(IPROP),IPCOMP(IPROP),PINT,ISYMLB)
-C SEPARATE OUT THE OPERATOR GAUGE ORIGIN, AND NUCLEAR CONTRIBUTION:
+! SEPARATE OUT THE OPERATOR GAUGE ORIGIN, AND NUCLEAR CONTRIBUTION:
         IF(ICALL.EQ.0) THEN
           PORIG(1,IPROP)=PINT(NSIZ+1)
           PORIG(2,IPROP)=PINT(NSIZ+2)
@@ -67,7 +67,7 @@ C SEPARATE OUT THE OPERATOR GAUGE ORIGIN, AND NUCLEAR CONTRIBUTION:
           PNUC(IPROP)=PINT(NSIZ+4)
         END IF
         IF(ISYMLB.NE.1) THEN
-C NON-DIAGONAL SYMMETRY BLOCKS MUST BE COMPRESSED AWAY:
+! NON-DIAGONAL SYMMETRY BLOCKS MUST BE COMPRESSED AWAY:
           IFROM=1
           ITO=1
           DO 40 ISY1=1,NSYM
@@ -77,14 +77,14 @@ C NON-DIAGONAL SYMMETRY BLOCKS MUST BE COMPRESSED AWAY:
               NB2=NBAS(ISY2)
               IF(NB2.EQ.0) GOTO 30
               ISY12=MUL(ISY1,ISY2)
-CPAM96              MASK=2**(ISY12-1)
-CPAM96              IF(IAND(ISYMLB,MASK).EQ.0) GOTO 30
+!PAM96              MASK=2**(ISY12-1)
+!PAM96              IF(IAND(ISYMLB,MASK).EQ.0) GOTO 30
               IF(MOD(ISYMLB,2**(ISY12)).EQ.0) GOTO 30
               NB12=NB1*NB2
               IF(ISY12.EQ.1) THEN
                 NB12=(NB12+NB1)/2
-                IF(IFROM.GT.ITO)
-     *            CALL DCOPY_(NB12,PINT(IFROM),1,PINT(ITO),1)
+                IF(IFROM.GT.ITO)                                        &
+     &            CALL DCOPY_(NB12,PINT(IFROM),1,PINT(ITO),1)
                 ITO=ITO+NB12
               END IF
               IFROM=IFROM+NB12
@@ -92,8 +92,8 @@ CPAM96              IF(IAND(ISYMLB,MASK).EQ.0) GOTO 30
 40        CONTINUE
           NSIZ=ITO
         END IF
-C PUT DDOT OF TR DENS MATRIX AND INTEGRALS INTO PROPER MATRIX ELEMENT
-C FOR MULTIPOLES, USE NEGATIVE SIGN OF ELECTRONIC PART.
+! PUT DDOT OF TR DENS MATRIX AND INTEGRALS INTO PROPER MATRIX ELEMENT
+! FOR MULTIPOLES, USE NEGATIVE SIGN OF ELECTRONIC PART.
         SGN=1.0D00
         IF(PNAME(IPROP)(1:5).EQ.'MLTPL') SGN=-SGN
         IF(PTYPE(IPROP).EQ.'HERM') THEN
