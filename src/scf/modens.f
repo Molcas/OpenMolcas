@@ -103,10 +103,10 @@ C        Write (6,'(F16.8)') DXot(MaxBxO,CMO(1,jD),1,CMO(1,jD),1)
      &                     1.0d0,OvlS,nBas(iSym),
      &                           Aux2,nBas(iSym),
      &                     0.0d0,Aux1,nBas(iSym))
-               Call   MxMt(CMO(it,jD),     nBas(iSym),1,
-     &                     Aux1,1,nBas(iSym),
-     &                     DMoO,
-     &                     nOrb(iSym),nBas(iSym))
+               Call DGEMM_Tri('T','N',nOrb(iSym),nOrb(iSym),nBas(iSym),
+     &                        One,CMO(it,jD),nBas(iSym),
+     &                            Aux1,nBas(iSym),
+     &                        Zero,DMoO,nOrb(iSym))
 *
 *              Call TriPrt('D(mo)','(8F12.6)',DMoO,nOrb(iSym))
                Do i = nOcc(iSym,jD)+1 , nOrb(iSym)
