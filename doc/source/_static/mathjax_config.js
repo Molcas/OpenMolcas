@@ -9,16 +9,31 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
 
-//MathJax.Hub.Config({
 window.MathJax = {
+  // For MathJax 2
   "HTML-CSS": {
     scale: 90,
     preferredFont: "STIX",
     webFont: "STIX-Web",
   },
-  TeX: {
+  SVG: {
+    scale: 90,
+    font: "STIX-Web",
+  },
+  // For MathJax 3
+  chtml: {
+    scale: 1,
+    mtextInheritFont: true,
+    matchFontHeight: true,
+  },
+  svg: {
+    scale: 1,
+    mtextInheritFont: true,
+    matchFontHeight: true,
+  },
+  tex: {
     extensions: ["AMSmath.js","AMSsymbols.js","mhchem.js"],
-    Macros: {
+    macros: {
       mat: ["\\boldsymbol{\#1}", 1],
       sign: ["\\operatorname{sign}", 0],
       Tr: ["\\operatorname{Tr}", 0],
@@ -29,9 +44,8 @@ window.MathJax = {
       braopket: ["\\left<\#1\\middle|\#2\\middle|\#3\\right>", 3],
     },
   },
-  SVG: {
-    scale: 90,
-    font: "STIX-Web",
-  },
-//});
 };
+
+// For MathJax 2
+window.MathJax.TeX = window.MathJax.tex;
+window.MathJax.TeX.Macros = window.MathJax.tex.macros;
