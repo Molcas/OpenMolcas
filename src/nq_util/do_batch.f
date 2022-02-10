@@ -121,7 +121,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*------- Retrieve the AOs from disc
+*------- Retrieve (and unpack) the AOs from disc
 *
          Call iDaFile(Lu_Grid,2,TabAO_Size,2,iDisk_Grid)
          If (TabAO_Size(1)==0) Then
@@ -133,22 +133,20 @@
          Call iDaFile(Lu_Grid,2,iBfn_Index,Size(iBfn_Index),iDisk_Grid)
 
          nByte=TabAO_Size(2)
-         mTabAO = (nByte+RtoB-1)/RtoB
+         If (Packing.eq.On) Then
+            mTabAO = (nByte+RtoB-1)/RtoB
+         Else
+            mTabAO = nByte
+         End If
          Call dDaFile(Lu_Grid,2,TabAO,mTabAO,iDisk_Grid)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*------- Unpack AOs
 *
          If (Packing.eq.On) Then
-*
             nData=Size(TabAO)
             Call mma_Allocate(TabAO_Tmp,nData,Label='TabAO_Tmp')
             nByte=TabAO_Size(2)
             Call UpkR8(0,nData,nByte,TabAO_Pack,TabAO_Tmp)
             TabAO_Pack(:)=TabAO_Tmp(:)
             Call mma_deAllocate(TabAO_Tmp)
-*
          End If
 *                                                                      *
 ************************************************************************
@@ -306,6 +304,7 @@
             iBfn_Index(:,:) = Tmp_Index(:,:)
             Call mma_deallocate(Tmp_Index)
          End If
+         TabAO_Size(1)=nBfn
 
 #ifdef _ANALYSIS_
          Write (6,*) ' % AO blocks that can be eliminated: ',
@@ -550,41 +549,40 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*        AOs are packed and written to disk.
+*     AOs on the grid are (packed and) written to disk.
 *
-         If (NQ_Direct.eq.Off .and. (Grid_Status.eq.Regenerate .and.
-     &       .Not.Do_Grad)) Then
+      If (NQ_Direct.eq.Off .and. (Grid_Status.eq.Regenerate .and.
+     &    .Not.Do_Grad)) Then
 *
-            TabAO_Size(1)=nBfn
-            If (Packing.eq.On) Then
+         TabAO_Size(1)=nBfn
+         If (Packing.eq.On) Then
 *
-*------------- Pack before they are put on disc
+*---------- Pack before they are put on disc
 *
-               nData=mAO*mGrid*nBfn
-               Call mma_Allocate(TabAO_Tmp,nData,Label='TabAO_Tmp')
-               TabAO_Tmp(1:nData)=TabAO_Pack(1:nData)
-               Call PkR8(0,nData,nByte,TabAO_Tmp,TabAO_Pack)
-               mData = (nByte+RtoB-1)/RtoB
-               If (mData.gt.nData) Then
-                  Call WarningMessage(2,'mData.gt.nData')
-                  Write (6,*) 'nData=',nData
-                  Write (6,*) 'nData=',nData
-                  Call Abend()
-               End If
-               TabAO_Size(2)=nByte
-               Call mma_deAllocate(TabAO_Tmp)
-            Else
-               mData=mAO*mGrid*nBfn
-               TabAO_Size(2)=mAO*mGrid*TabAO_Size(1)
+            nData=mAO*mGrid*nBfn
+            Call mma_Allocate(TabAO_Tmp,nData,Label='TabAO_Tmp')
+            TabAO_Tmp(1:nData)=TabAO_Pack(1:nData)
+            Call PkR8(0,nData,nByte,TabAO_Tmp,TabAO_Pack)
+            mData = (nByte+RtoB-1)/RtoB
+            If (mData.gt.nData) Then
+               Call WarningMessage(2,'mData.gt.nData')
+               Write (6,*) 'nData=',nData
+               Write (6,*) 'nData=',nData
+               Call Abend()
             End If
-*
-            Call iDaFile(Lu_Grid,1,TabAO_Size,2,iDisk_Grid)
-            mTabAO=mData
-            Call iDaFile(Lu_Grid,1,iBfn_Index,Size(iBfn_Index),
-     &                   iDisk_Grid)
-            Call dDaFile(Lu_Grid,1,TabAO,mTabAO,iDisk_Grid)
-*
+            TabAO_Size(2)=nByte
+            Call mma_deAllocate(TabAO_Tmp)
+         Else
+            mData=mAO*mGrid*nBfn
+            TabAO_Size(2)=mData
          End If
+*
+         Call iDaFile(Lu_Grid,1,TabAO_Size,2,iDisk_Grid)
+         Call iDaFile(Lu_Grid,1,iBfn_Index,Size(iBfn_Index),iDisk_Grid)
+         mTabAO=mData
+         Call dDaFile(Lu_Grid,1,TabAO,mTabAO,iDisk_Grid)
+*
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
