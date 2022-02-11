@@ -11,8 +11,13 @@
 
 subroutine ORDER(C,D,N)
 
-implicit real*8(A-H,O-Z)
-dimension C(N,N), D(N)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: N
+real(kind=wp) :: C(N,N), D(N)
+integer(kind=iwp) :: I, IMIN, J, K
+real(kind=wp) :: DMIN, TMP
 
 do I=1,N-1
   IMIN = I

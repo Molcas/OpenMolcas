@@ -20,12 +20,17 @@ subroutine UPKVEC(NITEM,ICVEC,CVEC)
 !
 !**** M.P. FUELSCHER, UNIVERSITY OF LUND, SWEDEN, NOV. 1990 ************
 
-implicit real*8(A-H,O-Z)
-dimension CVEC(NITEM), ICVEC(NITEM)
-parameter(SCALE=1.0d0/2147483647.0d0)
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: NITEM, ICVEC(NITEM)
+real(kind=wp) :: CVEC(NITEM)
+real(kind=wp), parameter :: SCL = One/2147483647.0_wp
+integer(kind=iwp) :: ITEM
 
 do ITEM=1,NITEM
-  CVEC(ITEM) = SCALE*dble(ICVEC(ITEM))
+  CVEC(ITEM) = SCL*real(ICVEC(ITEM),kind=wp)
 end do
 
 return

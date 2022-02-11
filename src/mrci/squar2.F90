@@ -11,8 +11,12 @@
 
 subroutine SQUAR2(A,N)
 
-implicit real*8(A-H,O-Z)
-dimension A(N,N)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: N
+real(kind=wp) :: A(N,N)
+integer(kind=iwp) :: I, NI
 
 do I=1,N
   NI = N-I+1

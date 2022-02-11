@@ -11,24 +11,32 @@
 
 subroutine FIJD(INTSYM,INDX,C,DMO,JREFX,AREF)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Constants, only: One
+use Definitions, only: wp, iwp, r8
+
+implicit none
+integer(kind=iwp) :: INTSYM(*), INDX(*), JREFX(*)
+real(kind=wp) :: C(*), DMO(*), AREF(*)
 #include "mrci.fh"
-dimension INTSYM(*), INDX(*), C(*), DMO(*), JREFX(*), AREF(*)
+integer(kind=iwp) :: IC1, IC2, ICHK, IIN, IK, ILEN, IND, INDA, INDB, INDI, INUM, IRC1, IRC2, IVL, NA, NB, NI, NK, NS1, NS1L
+real(kind=wp) :: ENPINV, TERM
+integer(kind=iwp), external :: JSUNP
+real(kind=r8), external :: DDOT_
 !Statement function
+integer(kind=iwp) :: JSYM, L
 JSYM(L) = JSUNP(INTSYM,L)
 
 ICHK = 0
 IK = 0
-ENPINV = 1.0d00/ENP
+ENPINV = One/ENP
 IADD10 = IAD10(8)
 100 call dDAFILE(LUSYMB,2,COP,nCOP,IADD10)
 call iDAFILE(LUSYMB,2,iCOP1,nCOP+1,IADD10)
-LEN = ICOP1(nCOP+1)
-if (LEN == 0) GO TO 100
-if (LEN < 0) return
-do IN=1,LEN
-  IND = ICOP1(IN)
+ILEN = ICOP1(nCOP+1)
+if (ILEN == 0) GO TO 100
+if (ILEN < 0) return
+do IIN=1,ILEN
+  IND = ICOP1(IIN)
   if (ICHK /= 0) then
     ICHK = 0
     INDI = IND
@@ -50,13 +58,13 @@ do IN=1,LEN
   IC2 = ibits(IND,6,13)
   IC1 = ibits(IND,19,13)
   if (IVL /= IVVER) GO TO 13
-  DMO(IK) = DMO(IK)+COP(IN)*C(IC1)*C(IC2)*ENPINV
+  DMO(IK) = DMO(IK)+COP(IIN)*C(IC1)*C(IC2)*ENPINV
   if (ICPF == 0) GO TO 10
   IRC1 = JREFX(IC1)
   if (IRC1 == 0) GO TO 10
   IRC2 = JREFX(IC2)
   if (IRC2 == 0) GO TO 10
-  DMO(IK) = DMO(IK)+COP(IN)*AREF(IRC1)*AREF(IRC2)*(1.0d00-ENPINV)
+  DMO(IK) = DMO(IK)+COP(IIN)*AREF(IRC1)*AREF(IRC2)*(One-ENPINV)
   GO TO 10
 13 INDA = IRC(IVL)+IC1
   INDB = IRC(IVL)+IC2
@@ -67,7 +75,7 @@ do IN=1,LEN
   INUM = NVIR(NS1L)
   if (IVL >= 2) INUM = NVPAIR(NS1L)
   TERM = DDOT_(INUM,C(NA+1),1,C(NB+1),1)
-  DMO(IK) = DMO(IK)+COP(IN)*TERM*ENPINV
+  DMO(IK) = DMO(IK)+COP(IIN)*TERM*ENPINV
 10 continue
 end do
 GO TO 100

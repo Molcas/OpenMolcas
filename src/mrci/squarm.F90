@@ -11,18 +11,23 @@
 
 subroutine SQUARM(A,B,N)
 
-implicit real*8(A-H,O-Z)
-dimension A(*), B(N,N)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-IN = 2
+implicit none
+integer(kind=iwp) :: N
+real(kind=wp) :: A(*), B(N,N)
+integer(kind=iwp) :: I, IIN
+
+IIN = 2
 do I=2,N
-  call VNEG(A(IN),1,B(1,I),1,I-1)
-  IN = IN+I
+  call VNEG(A(IIN),1,B(1,I),1,I-1)
+  IIN = IIN+I
 end do
 do I=1,N-1
   call VNEG(B(I,I+1),N,B(I+1,I),1,N-I)
 end do
-call DCOPY_(N,[0.0d00],0,B,N+1)
+call DCOPY_(N,[Zero],0,B,N+1)
 
 return
 

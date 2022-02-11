@@ -11,11 +11,13 @@
 
 subroutine MKTDAO(CMO,TDMO,TDAO,SCR)
 
-implicit real*8(A-H,O-Z)
-dimension CMO(NCMO), TDMO(NBAST,NBAST), TDAO(NBAST,NBAST)
-dimension SCR(NBMAX,NBMAX)
-#include "SysDef.fh"
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
 #include "mrci.fh"
+real(kind=wp) :: CMO(NCMO), TDMO(NBAST,NBAST), TDAO(NBAST,NBAST), SCR(NBMAX,NBMAX)
+integer(kind=iwp) :: I, IEB, IECMO, IEO, II, ISB, ISCMO, ISCO, ISO, ISYM, J, JJ, NB, NBCO, NBD, NBF, NCO, ND, NF, NO
 
 ! REORDER TDMO (USE TDAO AS TEMPORARY STORAGE):
 call FZERO(TDAO,NBAST**2)
@@ -54,8 +56,8 @@ do ISYM=1,NSYM
   ISCMO = IECMO+1
   IECMO = IECMO+NBCO
   if (NCO > 0) then
-    call DGEMM_('N','N',NB,NCO,NCO,1.0d0,CMO(ISCMO),NB,TDMO(ISCO,ISCO),NBAST,0.0d0,SCR,NB)
-    call DGEMM_('N','T',NB,NB,NCO,1.0d00,SCR,NB,CMO(ISCMO),NB,1.0d00,TDAO(ISB,ISB),NBAST)
+    call DGEMM_('N','N',NB,NCO,NCO,One,CMO(ISCMO),NB,TDMO(ISCO,ISCO),NBAST,Zero,SCR,NB)
+    call DGEMM_('N','T',NB,NB,NCO,One,SCR,NB,CMO(ISCMO),NB,One,TDAO(ISB,ISB),NBAST)
   end if
   ! ORBITALS PRE-DELETED IN MOTRA OR DELETED IN MRCI:
   ND = NDMO(ISYM)+NDEL(ISYM)

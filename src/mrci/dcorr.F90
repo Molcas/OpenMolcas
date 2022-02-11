@@ -11,16 +11,23 @@
 
 subroutine DCORR(JREFX,AREF,ICSPCK,INTSYM,INDX,DMO)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: JREFX(*), ICSPCK(*), INTSYM(*), INDX(*)
+real(kind=wp) :: AREF(*), DMO(*)
 #include "mrci.fh"
-dimension AREF(*), JREFX(*), ICSPCK(*), INTSYM(*), INDX(*), DMO(*)
+integer(kind=iwp) :: I, IAD27, II1, IJ, IK, INDA, IOC
+real(kind=wp) :: FAC, TSUM
+integer(kind=iwp), external :: ICUNP
 !Statement function
+integer(kind=iwp) :: JO, L
 JO(L) = ICUNP(ICSPCK,L)
 
 ! CORRECTION TO DENSITY MATRIX IN ACPF CASE.
-if (IPRINT >= 7) write(6,*) ' ENP IN DENS =',ENP
-FAC = 1.0d00-(1.0d00/ENP)
+if (IPRINT >= 7) write(u6,*) ' ENP IN DENS =',ENP
+FAC = One-(One/ENP)
 IAD27 = 0
 call dDAFILE(Lu_27,2,AREF,NREF,IAD27)
 IK = 0

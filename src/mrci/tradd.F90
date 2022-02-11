@@ -11,14 +11,18 @@
 
 subroutine TRADD(A,B,N)
 
-implicit real*8(A-H,O-Z)
-dimension A(N,N), B(*)
+use Definitions, only: wp, iwp
 
-IN = 0
+implicit none
+integer(kind=iwp) :: N
+real(kind=wp) :: A(N,N), B(*)
+integer(kind=iwp) :: I, IIN, J
+
+IIN = 0
 do I=1,N
   do J=1,I
-    IN = IN+1
-    B(IN) = B(IN)+A(I,J)-A(J,I)
+    IIN = IIN+1
+    B(IIN) = B(IIN)+A(I,J)-A(J,I)
   end do
 end do
 

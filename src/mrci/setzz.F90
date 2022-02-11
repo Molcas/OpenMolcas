@@ -11,11 +11,16 @@
 
 subroutine SETZZ(A,N)
 
-implicit real*8(A-H,O-Z)
-dimension A(N,N)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: N
+real(kind=wp) :: A(N,N)
+integer(kind=iwp) :: I
 
 do I=1,N
-  A(I,I) = 0.0
+  A(I,I) = Zero
 end do
 
 return

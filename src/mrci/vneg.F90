@@ -11,8 +11,12 @@
 
 subroutine VNEG(A,K,B,L,IAB)
 
-implicit real*8(A-H,O-Z)
-dimension A(*), B(*)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: K, L, IAB
+real(kind=wp) :: A(*), B(*)
+integer(kind=iwp) :: I
 
 do I=0,IAB-1
   B(1+I*L) = -A(1+I*K)

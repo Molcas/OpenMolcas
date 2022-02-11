@@ -12,20 +12,18 @@
 !PAM04 subroutine SORT(BUFOUT,INDOUT,FC,FIIJJ,FIJIJ,NINTGR)
 subroutine SORT_MRCI(BUFS,INDS,FC,FIIJJ,FIJIJ,NINTGR)
 
-implicit real*8(A-H,O-Z)
-intrinsic ABS, LOG10
-#include "SysDef.fh"
-#include "warnings.h"
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "mrci.fh"
-!dimension BUFOUT(NBSIZ3,NCHN3)
-!dimension INDOUT(RTOI*NBSIZ3,NCHN3)
-!PAM04 dimension BUFOUT(*)
-!PAM04 dimension INDOUT(*)
-dimension BUFS(NBITM3,NCHN3)
-dimension INDS(NBITM3+2,NCHN3)
-dimension FC(NBTRI), FIIJJ(*), FIJIJ(*)
-dimension IVEC(20), IPOF(65)
-dimension NORB0(9)
+real(kind=wp) :: BUFS(NBITM3,NCHN3), FC(NBTRI), FIIJJ(*), FIJIJ(*)
+integer(kind=iwp) :: INDS(NBITM3+2,NCHN3), NINTGR
+#include "warnings.h"
+integer(kind=iwp) :: I, IAD50, IADD17, IADD25, IBUF, IDISK, IEXP, IIJ, IIN, IJ, IJT, IKT, INAV, IND, IORBI, IOUT, IPOF(65), IPOS, &
+                     IREC, ISYM, IVEC(20), J, JDISK, JK, JORBI, KORBI, M1, M2, M3, M4, N1, N2, N3, N4, NAV, NBV, NI, NJ, NK, NL, &
+                     NOP, NOQ, NOR, NORB0(9), NORBP, NORBTT, NOS, NOT2, NOTT, NOVST, NSA, NSB, NSIJT, NSP, NSPQ, NSPQR, NSQ, NSR, &
+                     NSS, NSSM, NT, NTM, NTMP, NU, NUMAX, NUMIN, NV, NVT, NX, NXM
+real(kind=wp) :: DFINI, EFROZ, FINI, ONEHAM
 
 IAD50 = 0
 call iDAFILE(LUTRA,2,iTraToc,nTraToc,IAD50)
@@ -33,10 +31,10 @@ NVT = IROW(NVIRT+1)
 do I=1,20
   IVEC(I) = 0
 end do
-IN = 1
+IIN = 1
 do I=1,NSYM
-  call IPO(IPOF(IN),NVIR,MUL,NSYM,I,-1)
-  IN = IN+NSYM
+  call IPO(IPOF(IIN),NVIR,MUL,NSYM,I,-1)
+  IIN = IIN+NSYM
 end do
 ! ORDER OF RECORD-CHAINS IS
 ! 1.  NOT2 CHAINS (AB/IJ)
@@ -104,8 +102,8 @@ do ISYM=1,NSYM
 end do
 if (IPRINT >= 20) then
   call TRIPRT('FC IN SORT_MRCI BEFORE TWOEL',' ',FC,NORBT)
-  write(6,'(A,F20.8)') ' EFROZ:',EFROZ
-  call XFLUSH(6)
+  write(u6,'(A,F20.8)') ' EFROZ:',EFROZ
+  call XFLUSH(u6)
 end if
 call FZERO(FIIJJ,NBTRI)
 call FZERO(FIJIJ,NBTRI)
@@ -178,7 +176,7 @@ do NSP=1,NSYM
 502             FINI = TIBUF(IOUT)
                 if ((NI <= 0) .or. (NJ <= 0)) GO TO 41
                 if ((NK <= 0) .or. (NL <= 0)) GO TO 41
-                DFINI = abs(FINI)+1.D-20
+                DFINI = abs(FINI)+1.0e-20_wp
                 IEXP = int(-log10(DFINI))+5
                 if (IEXP <= 20) IVEC(IEXP) = IVEC(IEXP)+1
                 if ((NI /= NJ) .or. (NK /= NL)) GO TO 42
@@ -307,7 +305,7 @@ do NSP=1,NSYM
 end do
 ! EMPTY LAST BUFFERS
 if ((NOVST+NCHN3) > mChain) then
-  write(6,*) 'SORT_MRCI Error: NOVST+NCHN3>MCHAIN (See code).'
+  write(u6,*) 'SORT_MRCI Error: NOVST+NCHN3>MCHAIN (See code).'
   call QUIT(_RC_GENERAL_ERROR_)
 end if
 do I=1,NCHN3
@@ -325,11 +323,11 @@ IADD25 = 0
 call dDAFILE(Lu_25,1,FC,NBTRI,IADD25)
 IAD25S = IADD25
 !if (IPRINT >= 2) then
-write(6,154)
-call XFLUSH(6)
-write(6,155) (IVEC(I),I=1,20)
+write(u6,154)
+call XFLUSH(u6)
+write(u6,155) (IVEC(I),I=1,20)
 154 format(//6X,'STATISTICS FOR INTEGRALS, FIRST ENTRY 10**3-10**4',/)
-call XFLUSH(6)
+call XFLUSH(u6)
 155 format(6X,5I10)
 !end if
 

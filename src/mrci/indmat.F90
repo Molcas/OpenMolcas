@@ -11,16 +11,22 @@
 
 subroutine INDMAT(ICSPCK,INTSYM,INDX,ISAB,JREFX,CISEL)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6, r8
+
+implicit none
 #include "mrci.fh"
-dimension INDX(*), ICSPCK(*), INTSYM(*)
-dimension ISAB(NVIRT,NVIRT), JREFX(*)
-dimension CISEL(NREF,NSEL)
-character*20 STR20
-!PAM97 external UNPACK
-!PAM97 integer UNPACK
+integer(kind=iwp) :: ICSPCK(*), INTSYM(*), INDX(*), ISAB(NVIRT,NVIRT), JREFX(*)
+real(kind=wp) :: CISEL(NREF,NSEL)
+integer(kind=iwp) :: I, IC, II, ILEV, ILIM, IND, IOFF, IR, IR1, IR2, IREF, ISEL, J, JCAS1, JCAS2, JJ, JJM, JSCI, JSEL, NA, NB, NC, &
+                     NSAB, NSS
+real(kind=wp) :: X
+character(len=20) :: STR20
+integer(kind=iwp), external :: ICUNP, JSUNP
+real(kind=r8), external :: DDOT_
 !Statement functions
+integer(kind=iwp) :: JCASE, JSYM, L
+!PAM97 integer(kind=iwp), external :: UNPACK
 !PAM97 JCASE(L)=UNPACK(CSPCK((L+29)/30), 2*L-(2*L-1)/60*60, 2)
 JCASE(L) = ICUNP(ICSPCK,L)
 !PAM96 JSYM(L)=UNPACK(INTSYM((L+9)/10),3*mod(L-1,10)+1,3)+1
@@ -84,22 +90,22 @@ end if
 NCONF = JSC(ILIM)
 ! LIST THE REFERENCE CONFIGURATIONS, AND AT THE SAME TIME,
 ! IDENTIFY CSFS GIVEN IN SELECTION VECTOR INPUT:
-write(6,*)
-call XFLUSH(6)
-write(6,*) '      LIST OF REFERENCE CONFIGURATIONS.'
-call XFLUSH(6)
-write(6,*) '     CONF NR:    GUGA CASE NUMBERS OF ACTIVE ORBITALS:'
-call XFLUSH(6)
+write(u6,*)
+call XFLUSH(u6)
+write(u6,*) '      LIST OF REFERENCE CONFIGURATIONS.'
+call XFLUSH(u6)
+write(u6,*) '     CONF NR:    GUGA CASE NUMBERS OF ACTIVE ORBITALS:'
+call XFLUSH(u6)
 do I=1,IRC(1)
   IREF = JREFX(I)
   if (IREF == 0) goto 135
   IREFX(IREF) = I
   IOFF = LN*(I-1)
-  write(6,'(5X,I6,7X,30I1)') I,(JCASE(IOFF+J),J=1,LN)
-  call XFLUSH(6)
+  write(u6,'(5X,I6,7X,30I1)') I,(JCASE(IOFF+J),J=1,LN)
+  call XFLUSH(u6)
   JJ = 0
   do ISEL=1,NSEL
-    CISEL(IREF,ISEL) = 0.0d00
+    CISEL(IREF,ISEL) = Zero
     NC = NCOMP(ISEL)
     do IC=1,NC
       STR20 = SSEL(JJ+IC)
@@ -124,26 +130,26 @@ do ISEL=1,NSEL
     X = DDOT_(NREF,CISEL(1,JSEL),1,CISEL(1,ISEL),1)
     call DAXPY_(NREF,-X,CISEL(1,JSEL),1,CISEL(1,ISEL),1)
   end do
-  X = 1.0d00/DDOT_(NREF,CISEL(1,ISEL),1,CISEL(1,ISEL),1)
+  X = One/DDOT_(NREF,CISEL(1,ISEL),1,CISEL(1,ISEL),1)
   call DSCAL_(NREF,X,CISEL(1,ISEL),1)
 end do
-write(6,*)
-call XFLUSH(6)
-write(6,*) '      REAL CONFIGURATIONS:'
-call XFLUSH(6)
+write(u6,*)
+call XFLUSH(u6)
+write(u6,*) '      REAL CONFIGURATIONS:'
+call XFLUSH(u6)
 if (IFIRST == 0) then
-  write(6,215) NREF,NCVAL-NREF,NCDOUB,NCTRIP,NCSING
-  call XFLUSH(6)
+  write(u6,215) NREF,NCVAL-NREF,NCDOUB,NCTRIP,NCSING
+  call XFLUSH(u6)
 215 format(/,6X,'               REFERENCE ',I8,/,6X,'           OTHER VALENCE ',I8,/,6X,' DOUBLET COUPLED SINGLES ',I8, &
            /,6X,' TRIPLET COUPLED DOUBLES ',I8,/,6X,' SINGLET COUPLED DOUBLES ',I8)
 else
-  write(6,216) NREF,NCVAL-NREF,NCDOUB
-  call XFLUSH(6)
+  write(u6,216) NREF,NCVAL-NREF,NCDOUB
+  call XFLUSH(u6)
 216 format(/,6X,'               REFERENCE ',I8,/,6X,'           OTHER VALENCE ',I8,/,6X,' DOUBLET COUPLED SINGLES ',I8)
 end if
 JSCI = JSC(ILIM)-JJM
-write(6,'(6X,A,I8)') '                  TOTAL ',JSCI
-call XFLUSH(6)
+write(u6,'(6X,A,I8)') '                  TOTAL ',JSCI
+call XFLUSH(u6)
 
 return
 

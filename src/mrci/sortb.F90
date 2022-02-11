@@ -11,23 +11,22 @@
 
 !subroutine SORTB(BUFOUT,INDOUT,ACBDS,ACBDT,ISAB,BFACBD,NINTGR)
 subroutine SORTB(BUFS,INDS,ACBDS,ACBDT,ISAB,BFACBD,NINTGR)
-
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
-#include "warnings.h"
-#include "mrci.fh"
-!dimension BUFOUT(NBSIZ2,NCHN2)
-!PAM04 dimension BUFOUT(*)
-dimension BUFS(NBITM2,NCHN2)
-!dimension INDOUT(RTOI*NBSIZ2,NCHN2)
-!PAM04 dimension INDOUT(*)
-dimension INDS(NBITM2+2,NCHN2)
-dimension ACBDS(*), ACBDT(*), BFACBD(*)
-!dimension ISAB(NVIRT,NVIRT)
-dimension ISAB(*)
 ! SORTS INTEGRALS (AB/CD)
 ! FOR FIXED A,C ALL B,D
-dimension NORB0(9)
+
+use Definitions, only: wp, iwp, u6
+
+implicit none
+#include "mrci.fh"
+real(kind=wp) :: BUFS(NBITM2,NCHN2), ACBDS(*), ACBDT(*), BFACBD(*)
+integer(kind=iwp) :: INDS(NBITM2+2,NCHN2), ISAB(*), NINTGR
+#include "warnings.h"
+integer(kind=iwp) :: I, IAC, IACMAX, IACMIN, IAD16, IAD50, IADR, IBDS, IDISK, IFIN1, IFIN2, ILOOP, IN1, INB, INND, INPS, INPT, &
+                     INS, INSB, INSOUT, INUMB, IOUT, IPOS, IREC, IST, IST1, IST2, ISTEP, ISYM, ITAIL, ITURN, JDISK, KK, LENGTH, &
+                     M1, M2, M3, M4, N1, N2, N3, N4, NA, NAC, NB, NC, ND, NDMAX, NI, NJ, NK, NL, NOP, NOQ, NOR, NORB0(9), NORBP, &
+                     NOS, NOVM, NOVST, NSAC, NSACL, NSC, NSP, NSPQ, NSPQR, NSQ, NSR, NSS, NSSM, NT, NTM, NU, NUMAX, NUMIN, NV, &
+                     NVT, NX, NXM
+real(kind=wp) :: FINI
 
 NVT = IROW(NVIRT+1)
 NOVST = LN*NVIRT+1
@@ -190,12 +189,12 @@ do ISTEP=1,IPASS
   ! EMPTY LAST BUFFERS
   NOVM = IACMAX-IACMIN+1
   if ((NOVST+IACMIN-1+NOVM) > mChain) then
-    write(6,*) 'SORTB Error: NOVST+IACMIN-1+NOVM > MCHAIN'
-    write(6,*) 'NOVST =',NOVST
-    write(6,*) 'IACMIN=',IACMIN
-    write(6,*) 'NOVM  =',NOVM
-    write(6,*) 'MCHAIN=',MCHAIN
-    write(6,*) '  (See code).'
+    write(u6,*) 'SORTB Error: NOVST+IACMIN-1+NOVM > MCHAIN'
+    write(u6,*) 'NOVST =',NOVST
+    write(u6,*) 'IACMIN=',IACMIN
+    write(u6,*) 'NOVM  =',NOVM
+    write(u6,*) 'MCHAIN=',MCHAIN
+    write(u6,*) '  (See code).'
     call QUIT(_RC_GENERAL_ERROR_)
   end if
   do I=1,NOVM

@@ -11,12 +11,20 @@
 
 subroutine IJIJ(INTSYM,HDIAG,FC,FIJIJ)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: INTSYM(*)
+real(kind=wp) :: HDIAG(*), FC(*), FIJIJ(*)
 #include "mrci.fh"
-dimension INTSYM(*), HDIAG(*), FC(*), FIJIJ(*)
-dimension HCOUT(nCOP)
+real(kind=wp) :: HCOUT(nCOP)
+integer(kind=iwp) :: IAD27, IADD25, ICHK, ICOUP, ICOUPS, IFS, II, IIJ, IIJ1, IIJ2, IJJ, inb, IND, INDI, INS, IOUT, IREF0, ITYP, &
+                     IVL, IVSAVE, J, JJ, KK, LENGTH, NA, NA1, NA2, NB, NB1, NB2, NSA, NSS
+real(kind=wp) :: TERM
+integer(kind=iwp), external :: JSUNP
 !Statement function
+integer(kind=iwp) :: JSYM, L
 JSYM(L) = JSUNP(INTSYM,L)
 
 !------
@@ -28,8 +36,8 @@ IAD27 = 0
 IREF0 = 1
 call dDAFILE(Lu_27,2,HDIAG,IRC(1),IAD27)
 
-!write(6,*) ' Hdiag'
-!write(6,*) ( Hdiag(i),i=1,IRC(1) )
+!write(u6,*) ' Hdiag'
+!write(u6,*) ( Hdiag(i),i=1,IRC(1) )
 
 IFS = 0
 IVL = 0
@@ -40,7 +48,7 @@ NSS = 1
 IOUT = 0
 ICHK = 0
 IADD10 = IAD10(3)
-TERM = 0.0d00
+TERM = Zero
 300 continue
 ! READ A COP BUFFER:
 call dDAFILE(LUSYMB,2,COP,nCOP,IADD10)

@@ -11,11 +11,15 @@
 
 subroutine CSTART(AREF,EREF,CI,ICI)
 
-implicit real*8(A-H,O-Z)
-dimension AREF(NREF,NREF), EREF(NREF), CI(NCONF), ICI(MBUF)
-#include "SysDef.fh"
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "mrci.fh"
-dimension BUF(nCOP), ISTART(MXROOT)
+real(kind=wp) :: AREF(NREF,NREF), EREF(NREF), CI(NCONF)
+integer(kind=iwp) :: ICI(MBUF)
+integer(kind=iwp) :: I, I1, I2, IAD25, ID, IR, IREF, ISTA, ISTART(MXROOT), NN !IFG
+real(kind=wp) :: BUF(nCOP), GINV !IFG
 
 do I=1,MXVEC
   IDISKC(I) = -1
@@ -30,25 +34,25 @@ do I=1,NCONF,nCOP
 end do
 ! THESE ARE DIAGONAL ELEMENTS OF THE ELECTRONIC HAMILTONIAN.
 ! POTNUC SHOULD BE ADDED. IN ADDITION, WE USE AN ENERGY SHIFT.
-! NOTE: DISPLACEMENT 1.0d-4 PROTECTS AGAINST DIVIDE ERRORS.
+! NOTE: DISPLACEMENT 1.0e-4 PROTECTS AGAINST DIVIDE ERRORS.
 !PAM: Protect all diag elems. Needed in some weird cases.
 ! ENERGY SHIFT:
 ESHIFT = EREF(1)
 do I=1,NCONF
-  CI(I) = CI(I)+POTNUC-ESHIFT+1.0D-04
+  CI(I) = CI(I)+POTNUC-ESHIFT+1.0e-4_wp
 end do
 call Add_Info('CI_DIAG2',CI(2),1,8)
 ! REPLACE REFERENCE ENERGIES:
 do I=1,NREF
   IR = IREFX(I)
-  CI(IR) = EREF(I)-ESHIFT-1.0D-04
+  CI(IR) = EREF(I)-ESHIFT-1.0e-4_wp
 end do
 if (ICPF == 1) then
   do IREF=1,NREF
     IR = IREFX(IREF)
     CI(IR) = GFAC*CI(IR)
   end do
-  GINV = 1.0d00/GFAC
+  GINV = One/GFAC
   call DSCAL_(NCONF,GINV,CI,1)
 end if
 IDFREE = 0
@@ -58,7 +62,7 @@ do ISTA=1,NCONF,MBUF
   call dDAFILE(LUEIG,1,CI(ISTA),NN,IDFREE)
 end do
 ! THEN, SET UP START CI VECTORS IN MCSF BASIS:
-call DCOPY_(NCONF,[0.0d00],0,CI,1)
+call DCOPY_(NCONF,[Zero],0,CI,1)
 if (IREST == 0) then
   NNEW = IROOT(NRROOT)
   I1 = 1
@@ -73,29 +77,29 @@ if (IREST == 0) then
     end if
   end do
   if (NNEW > 1) then
-    write(6,*) ' THE FOLLOWING REFERENCE ROOTS ARE USED AS START VECTORS:'
-    call XFLUSH(6)
-    write(6,'(12(A,I2))') ' ROOTS NR ',ISTART(1),(',',ISTART(I),I=2,NNEW-1),', AND ',ISTART(NNEW)
-    call XFLUSH(6)
+    write(u6,*) ' THE FOLLOWING REFERENCE ROOTS ARE USED AS START VECTORS:'
+    call XFLUSH(u6)
+    write(u6,'(12(A,I2))') ' ROOTS NR ',ISTART(1),(',',ISTART(I),I=2,NNEW-1),', AND ',ISTART(NNEW)
+    call XFLUSH(u6)
     if (NNEW > NRROOT) then
-      write(6,*) ' (THE FIRST EXTRA ROOT(S) WERE INCLUDED IN ORDER TO IMPROVE CONVERGENCE)'
-      call XFLUSH(6)
+      write(u6,*) ' (THE FIRST EXTRA ROOT(S) WERE INCLUDED IN ORDER TO IMPROVE CONVERGENCE)'
+      call XFLUSH(u6)
     end if
   else
-    write(6,'(A,I2,A)') ' ROOT NR ',ISTART(1),' IS USED AS START VECTOR.'
-    call XFLUSH(6)
+    write(u6,'(A,I2,A)') ' ROOT NR ',ISTART(1),' IS USED AS START VECTOR.'
+    call XFLUSH(u6)
   end if
   do I=1,NNEW
     ISTA = ISTART(I)
     IR = IREFX(ISTA)
-    CI(IR) = 1.0d00
+    CI(IR) = One
     IDISKC(I) = IDFREE
     do ISTA=1,NCONF,MBUF
       NN = min(MBUF,(NCONF+1-ISTA))
       call PKVEC(NN,CI(ISTA),ICI)
       call iDAFILE(LUEIG,1,ICI,NN,IDFREE)
     end do
-    CI(IR) = 0.0d00
+    CI(IR) = Zero
   end do
 else
   ID = 0

@@ -11,8 +11,12 @@
 
 subroutine MTRANS(A,IA,B,IB,N,M)
 
-implicit real*8(A-H,O-Z)
-dimension A(M,N), B(N,M)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: IA, IB, N, M
+real(kind=wp) :: A(M,N), B(N,M)
+integer(kind=iwp) :: I, J
 
 do I=1,N
   do J=1,M

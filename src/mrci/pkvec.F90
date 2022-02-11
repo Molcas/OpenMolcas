@@ -20,27 +20,33 @@ subroutine PKVEC(NITEM,CVEC,ICVEC)
 !
 ! NOTE:
 ! THE INCOMING DATA CVEC SHOULD NOT BE GREATER THAN 1.0.
-! THE ACCURACY OF THE UNPACKED VALUES IS APPROX. 1.0E-9.
+! THE ACCURACY OF THE UNPACKED VALUES IS APPROX. 1.0e-9.
 !
 !**** M.P. FUELSCHER, UNIVERSITY OF LUND, SWEDEN, NOV. 1990 ************
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: wp, iwp
+#ifdef _CYGWIN_
+use Definitions, only: r4
+#endif
+
+implicit none
+integer(kind=iwp) :: NITEM, ICVEC(NITEM)
+real(kind=wp) :: CVEC(NITEM)
+integer(kind=iwp) :: ITEM
+real(kind=wp), parameter :: SCL = 2147483647.0_wp
+#ifdef _CYGWIN_
 ! NOTE VERY CAREFULLY!! NINT() (and maybe similar) intrinsics
 ! are BROKEN in CYGWIN GFORTAN!!
 ! So the intermediate variable tmp is necessary for it to work!
-#ifdef _CYGWIN_
-real*4 tmp
+real(kind=r4) :: tmp
 #endif
-dimension CVEC(NITEM), ICVEC(NITEM)
-parameter(SCALE=2147483647.0d0)
-intrinsic NINT
 
 do ITEM=1,NITEM
 # ifdef _CYGWIN_
-  tmp = SCALE*CVEC(ITEM)
+  tmp = SCL*CVEC(ITEM)
   ICVEC(ITEM) = nint(tmp)
 # else
-  ICVEC(ITEM) = nint(SCALE*CVEC(ITEM))
+  ICVEC(ITEM) = nint(SCL*CVEC(ITEM))
 # endif
 end do
 

@@ -11,10 +11,13 @@
 
 subroutine MKDAO(CNO,OCC,DAO)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Definitions, only: wp, iwp
+
+implicit none
 #include "mrci.fh"
-dimension CNO(NCMO), OCC(NBAST), DAO(NBAST,NBAST)
+real(kind=wp) :: CNO(NCMO), OCC(NBAST), DAO(NBAST,NBAST)
+integer(kind=iwp) :: I, IB, IB1, ICNO, ISYM, NB
+real(kind=wp) :: X
 
 call FZERO(DAO,NBAST**2)
 IB = 1

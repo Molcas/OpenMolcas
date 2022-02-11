@@ -11,10 +11,13 @@
 
 subroutine DIAGCT()
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Constants, only: Zero
+use Definitions, only: iwp
+
+implicit none
 #include "mrci.fh"
 #include "WrkSpc.fh"
+integer(kind=iwp) :: LBUFS, LINDS, NBUFBI, NBUFS, NHDIAG, NINDS, NINTGR, NVT
 
 ! ----------------------------------------------------------------------
 NINDS = (NBITM1+2)*NCHN1
@@ -25,7 +28,7 @@ NBUFBI = KBUFF1
 call GETMEM('BUFBI','Allo','Real',LBUFBI,NBUFBI)
 call GETMEM('BIAC1','Allo','Real',LBIAC1,ISMAX)
 call GETMEM('BICA1','Allo','Real',LBICA1,ISMAX)
-call DCOPY_(NBUFS,[0.0d0],0,Work(LBUFS),1)
+call DCOPY_(NBUFS,[Zero],0,Work(LBUFS),1)
 call ICOPY(NINDS,[0],0,IWork(LINDS),1)
 call SORTA(Work(LBUFS),IWork(LINDS),IWork(LISAB),Work(LBUFBI),Work(LBIAC1),Work(LBICA1),NINTGR)
 call GETMEM('BIAC1','Free','Real',LBIAC1,ISMAX)
@@ -43,7 +46,7 @@ if (IFIRST == 0) then
   call GETMEM('BACBD','Allo','Real',LBACBD,KBUFF1)
   call GETMEM('ACBDT','Allo','Real',LACBDT,ISMAX)
   call GETMEM('ACBDS','Allo','Real',LACBDS,ISMAX)
-  call DCOPY_(NBUFS,[0.0d0],0,Work(LBUFS),1)
+  call DCOPY_(NBUFS,[Zero],0,Work(LBUFS),1)
   call ICOPY(NINDS,[0],0,IWork(LINDS),1)
   call SORTB(Work(LBUFS),IWork(LINDS),Work(LACBDS),Work(LACBDT),IWork(LISAB),Work(LBACBD),NINTGR)
   call GETMEM('BACBD','Free','Real',LBACBD,KBUFF1)
@@ -59,7 +62,7 @@ call GETMEM('Bufs','Allo','Real',LBUFS,NBUFS)
 call GETMEM('Inds','Allo','Inte',LINDS,NINDS)
 call GETMEM('FIIJJ','Allo','Real',LIIJJ,NBTRI)
 call GETMEM('FIJIJ','Allo','Real',LIJIJ,NBTRI)
-call DCOPY_(NBUFS,[0.0d0],0,Work(LBUFS),1)
+call DCOPY_(NBUFS,[Zero],0,Work(LBUFS),1)
 call ICOPY(NINDS,[0],0,IWork(LINDS),1)
 call SORT_MRCI(Work(LBUFS),IWork(LINDS),Work(LFOCK),Work(LIIJJ),Work(LIJIJ),NINTGR)
 call GETMEM('Bufs','Free','Real',LBUFS,NBUFS)

@@ -9,9 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function JSUNP(INTSYM,L)
+function JSUNP(INTSYM,L)
 
-dimension INTSYM(*)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: JSUNP
+integer(kind=iwp) :: INTSYM(*), L
 
 !INTW = INTSYM((L+9)/10)
 !IPOW = 2**(27-3*mod(L-1,10))

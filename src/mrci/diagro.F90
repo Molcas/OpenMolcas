@@ -11,35 +11,34 @@
 
 subroutine DIAGRO(CI,SGM,CBUF,SBUF,DBUF,AREF,EREF,CSECT,RSECT,XI1,XI2,CNEW,SCR,ICI)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
-#include "warnings.h"
-#include "mrci.fh"
-#include "WrkSpc.fh"
-dimension CI(NCONF), SGM(NCONF)
-dimension CBUF(MBUF,MXVEC), SBUF(MBUF,MXVEC), DBUF(MBUF)
-dimension AREF(NREF,NREF), EREF(NREF)
-dimension CSECT(NSECT,MXVEC), RSECT(NSECT,MXVEC)
-dimension XI1(NSECT,NRROOT), XI2(NSECT,NRROOT)
-dimension CNEW(NSECT,NRROOT), SCR(*)
-dimension ICI(MBUF)
-dimension IDC(MXVEC), IDS(MXVEC)
-dimension HCOPY(MXVEC,MXVEC), SCOPY(MXVEC,MXVEC)
-dimension PCOPY(MXVEC,MXVEC)
-dimension ELAST(MXROOT), PSEL(MXVEC), RNRM(MXROOT)
-!dimension EPERT(MXROOT)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6, r8
 
-write(6,*)
-write(6,*) ('-',I=1,60)
+implicit none
+#include "mrci.fh"
+real(kind=wp) :: CI(NCONF), SGM(NCONF), CBUF(MBUF,MXVEC), SBUF(MBUF,MXVEC), DBUF(MBUF), AREF(NREF,NREF), EREF(NREF), &
+                 CSECT(NSECT,MXVEC), RSECT(NSECT,MXVEC), XI1(NSECT,NRROOT), XI2(NSECT,NRROOT), CNEW(NSECT,NRROOT), SCR(*)
+integer(kind=iwp) :: ICI(MBUF)
+#include "warnings.h"
+#include "WrkSpc.fh"
+integer(kind=iwp) :: I, IBUF, ICSF, IDC(MXVEC), IDISK, IDREST, IDS(MXVEC), IEND, II, III, IMAX, IMIN, IPOS, IR, IRR, ISTA, IVEC, &
+                     J, K, KK, KL, L, LL, NCONV, NN, NRON, NZ
+real(kind=wp) :: C, C2NREF, C2REF, CPTIT, CPTNOW, CPTOLD, CPTOT, CPTSTA, DUM, EACPF, ECI, EDAV, EDISP, ELAST(MXROOT), ELOW, EMIN, &
+                 ENREF, H, HCOPY(MXVEC,MXVEC), P, PCOPY(MXVEC,MXVEC), PMAX, PSEL(MXVEC), QACPF, QDAV, RNRM(MXROOT), RSUM, S, &
+                 SCOPY(MXVEC,MXVEC), SQNRM, THR, TMP !IFG , EPERT(MXROOT)
+real(kind=r8), external :: DDOT_
+
+write(u6,*)
+write(u6,*) ('-',I=1,60)
 if (ICPF == 0) then
-  write(6,*) '   MR SDCI CALCULATION.'
+  write(u6,*) '   MR SDCI CALCULATION.'
 else
-  write(6,*) '   MR ACPF CALCULATION.'
+  write(u6,*) '   MR ACPF CALCULATION.'
 end if
-write(6,*) ('-',I=1,60)
-write(6,*)
-write(6,*) '         CONVERGENCE STATISTICS:'
-write(6,'(1X,A)') 'ITER NVEC     ENERGIES    LOWERING RESIDUAL SEL.WGT CPU(S) CPU TOT'
+write(u6,*) ('-',I=1,60)
+write(u6,*)
+write(u6,*) '         CONVERGENCE STATISTICS:'
+write(u6,'(1X,A)') 'ITER NVEC     ENERGIES    LOWERING RESIDUAL SEL.WGT CPU(S) CPU TOT'
 ITER = 0
 call SETTIM()
 call TIMING(CPTNOW,DUM,DUM,DUM)
@@ -140,9 +139,9 @@ end do
 ! CLEAR NEW AREAS TO BE USED:
 do K=1,NVEC
   do L=1,NNEW
-    HCOPY(K,L) = 0.0d00
-    SCOPY(K,L) = 0.0d00
-    PCOPY(K,L) = 0.0d00
+    HCOPY(K,L) = Zero
+    SCOPY(K,L) = Zero
+    PCOPY(K,L) = Zero
   end do
 end do
 ! THEN LOOP OVER BUFFERS. FIRST GET COPIES OF DISK ADDRESSES:
@@ -168,7 +167,7 @@ do ISTA=1,NCONF,MBUF
   ! THE COLUMNS 1..NNEW OF SBUF WILL CONTAIN THE NEWEST NNEW
   ! SIGMA ARRAYS. LEADING DIMENSION OF CBUF AND SBUF IS MBUF. ACTUAL
   ! BUFFER SIZE IS IBUF, WHICH CAN BE SMALLER. ACCUMULATE:
-  call DGEMM_('T','N',NVEC,NNEW,IBUF,1.0d0,CBUF,MBUF,CBUF,MBUF,0.0d0,SCR,NVEC)
+  call DGEMM_('T','N',NVEC,NNEW,IBUF,One,CBUF,MBUF,CBUF,MBUF,Zero,SCR,NVEC)
   KL = 0
   do L=1,NNEW
     do K=1,NVEC
@@ -176,7 +175,7 @@ do ISTA=1,NCONF,MBUF
       SCOPY(K,L) = SCOPY(K,L)+SCR(KL)
     end do
   end do
-  call DGEMM_('T','N',NVEC,NNEW,IBUF,1.0d0,CBUF,MBUF,SBUF,MBUF,0.0d0,SCR,NVEC)
+  call DGEMM_('T','N',NVEC,NNEW,IBUF,One,CBUF,MBUF,SBUF,MBUF,Zero,SCR,NVEC)
   KL = 0
   do L=1,NNEW
     do K=1,NVEC
@@ -221,33 +220,33 @@ do L=1,NNEW
   end do
 end do
 if (IPRINT >= 10) then
-  write(6,*)
-  write(6,*) ' HSMALL MATRIX:'
+  write(u6,*)
+  write(u6,*) ' HSMALL MATRIX:'
   do I=1,NVEC
-    write(6,'(1X,5F15.6)') (HSMALL(I,J),J=1,NVEC)
+    write(u6,'(1X,5F15.6)') (HSMALL(I,J),J=1,NVEC)
   end do
-  write(6,*)
-  write(6,*) ' SSMALL MATRIX:'
+  write(u6,*)
+  write(u6,*) ' SSMALL MATRIX:'
   do I=1,NVEC
-    write(6,'(1X,5F15.6)') (SSMALL(I,J),J=1,NVEC)
+    write(u6,'(1X,5F15.6)') (SSMALL(I,J),J=1,NVEC)
   end do
-  write(6,*)
-  write(6,*) ' PSMALL MATRIX:'
+  write(u6,*)
+  write(u6,*) ' PSMALL MATRIX:'
   do I=1,NVEC
-    write(6,'(1X,5F15.6)') (PSMALL(I,J),J=1,NVEC)
+    write(u6,'(1X,5F15.6)') (PSMALL(I,J),J=1,NVEC)
   end do
-  !write(6,*)
-  !write(6,*)
-  !write(6,*) ' HCOPY MATRIX:'
+  !write(u6,*)
+  !write(u6,*)
+  !write(u6,*) ' HCOPY MATRIX:'
   !do I=1,NVEC
-  !  write(6,'(1X,5F15.6)') (HCOPY(I,J),J=1,NVEC)
+  !  write(u6,'(1X,5F15.6)') (HCOPY(I,J),J=1,NVEC)
   !end do
-  !write(6,*)
-  !write(6,*) ' SCOPY MATRIX:'
+  !write(u6,*)
+  !write(u6,*) ' SCOPY MATRIX:'
   !do I=1,NVEC
-  !  write(6,'(1X,5F15.6)') (SCOPY(I,J),J=1,NVEC)
+  !  write(u6,'(1X,5F15.6)') (SCOPY(I,J),J=1,NVEC)
   !end do
-  !write(6,*)
+  !write(u6,*)
 end if
 ! -------------------------------------------------------------------
 ! THE UPPER-LEFT NVEC*NVEC SUBMATRICES OF HSMALL AND SSMALL NOW
@@ -255,7 +254,7 @@ end if
 ! BASIS OF PRESENTLY RETAINED PSI VECTORS. DIAGONALIZE, BUT USE
 ! THE REORDERED MATRICES IN SCOPY, HCOPY,DCOPY. THERE THE BASIS
 ! FUNCTIONS ARE ORDERED BY AGE.
-THR = 1.0D-06
+THR = 1.0e-6_wp
 call SECULAR(MXVEC,NVEC,NRON,HCOPY,SCOPY,VSMALL,ESMALL,SCR,THR)
 ! REORDER THE ELEMENTS OF VSMALL TO GET EIGENVECTORS OF HSMALL. NOTE:
 ! THIS IS NOT THE SAME AS IF WE DIAGONALIZED HSMALL DIRECTLY.
@@ -273,24 +272,24 @@ do I=1,NRON
   end do
 end do
 if (NRON < NRROOT) then
-  write(6,*) 'DIAGRO Error: Linear dependence has reduced'
-  write(6,*) ' the number of solutions to NRON, but you'
-  write(6,*) ' wanted NRROOT soultions.'
-  write(6,'(1X,A,I3)') '  NRON=',NRON
-  write(6,'(1X,A,I3)') 'NRROOT=',NRROOT
+  write(u6,*) 'DIAGRO Error: Linear dependence has reduced'
+  write(u6,*) ' the number of solutions to NRON, but you'
+  write(u6,*) ' wanted NRROOT soultions.'
+  write(u6,'(1X,A,I3)') '  NRON=',NRON
+  write(u6,'(1X,A,I3)') 'NRROOT=',NRROOT
   call QUIT(_RC_INTERNAL_ERROR_)
 end if
 ! ORDER THE EIGENFUNCTIONS BY DECREASING OVERLAP WITH THE SPACE
 ! SPANNED BY THE ORIGINALLY SELECTED REFCI ROOTS.
-call DGEMM_('N','N',NVEC,NRON,NVEC,1.0d0,PSMALL,MXVEC,VSMALL,MXVEC,0.0d0,SCR,NVEC)
+call DGEMM_('N','N',NVEC,NRON,NVEC,One,PSMALL,MXVEC,VSMALL,MXVEC,Zero,SCR,NVEC)
 II = 1
 do I=1,NRON
   PSEL(I) = DDOT_(NVEC,VSMALL(1,I),1,SCR(II),1)
   II = II+NVEC
 end do
 ! PSEL(I) NOW CONTAINS EXPECTATION VALUE OF PMAT FOR I-TH EIGENVECTOR.
-!write(6,*) ' ARRAY OF SELECTION AMPLITUDES IN SCR:'
-!write(6,'(1X,5F15.6)') (PSEL(I),I=1,NRON)
+!write(u6,*) ' ARRAY OF SELECTION AMPLITUDES IN SCR:'
+!write(u6,'(1X,5F15.6)') (PSEL(I),I=1,NRON)
 do I=1,NRON-1
   IMAX = I
   PMAX = PSEL(I)
@@ -336,15 +335,15 @@ do I=1,NRROOT-1
   end do
 1380 continue
 end do
-!write(6,*) ' EIGENVALUES OF HSMALL. NRON=',NRON
-!write(6,'(1X,5F15.6)') (ESMALL(I),I=1,NRON)
-!write(6,*) ' SELECTION WEIGHTS:'
-!write(6,'(1X,5F15.6)') (   PSEL(I),I=1,NRON)
-!write(6,*) ' SELECTED EIGENVECTORS:'
+!write(u6,*) ' EIGENVALUES OF HSMALL. NRON=',NRON
+!write(u6,'(1X,5F15.6)') (ESMALL(I),I=1,NRON)
+!write(u6,*) ' SELECTION WEIGHTS:'
+!write(u6,'(1X,5F15.6)') (   PSEL(I),I=1,NRON)
+!write(u6,*) ' SELECTED EIGENVECTORS:'
 !do I=1,NRROOT
-!  write(6,'(1X,5F15.6)') (VSMALL(K,I),K=1,NVEC)
+!  write(u6,'(1X,5F15.6)') (VSMALL(K,I),K=1,NVEC)
 !end do
-!write(6,*)
+!write(u6,*)
 ! ----------------------------------------------------------------------
 ! CALCULATE RESIDUAL ARRAYS FOR THE NRROOTS EIGENFUNCTIONS OF HSMALL.
 ! ALSO, USE THE OPPORTUNITY TO FORM MANY OTHER SMALL ARRAYS.
@@ -356,22 +355,22 @@ call HZLP1(CBUF,SBUF,DBUF,WORK(LARR),CSECT,RSECT,XI1,XI2,ICI)
 call HZ(WORK(LARR))
 call GETMEM('ARR','FREE','REAL',LARR,11*NRROOT**2)
 NZ = 4*NRROOT
-!write(6,*)
-!write(6,*) ' AFTER HZ CALL. HZERO HAMILTONIAN:'
+!write(u6,*)
+!write(u6,*) ' AFTER HZ CALL. HZERO HAMILTONIAN:'
 !do I=1,NZ
-!  write(6,'(1X,5F15.6)') (HZERO(I,J),J=1,NZ)
+!  write(u6,'(1X,5F15.6)') (HZERO(I,J),J=1,NZ)
 !end do
-!write(6,*) ' SZERO:'
+!write(u6,*) ' SZERO:'
 !do I=1,NZ
-!  write(6,'(1X,5F15.6)') (SZERO(I,J),J=1,NZ)
+!  write(u6,'(1X,5F15.6)') (SZERO(I,J),J=1,NZ)
 !end do
 do I=1,NRROOT
   RNRM(I) = sqrt(SZERO(NRROOT+I,NRROOT+I))
   !EPERT(I) = ESMALL(I)-SZERO(3*NRROOT+I,NRROOT+I)
 end do
-!write(6,*)
-!write(6,*) ' PERTURBATION ESTIMATES TO ENERGY:'
-!write(6,'(1X,5F15.6)') (ESHIFT+EPERT(I),I=1,NRROOT)
+!write(u6,*)
+!write(u6,*) ' PERTURBATION ESTIMATES TO ENERGY:'
+!write(u6,'(1X,5F15.6)') (ESHIFT+EPERT(I),I=1,NRROOT)
 ! ----------------------------------------------------------------------
 NCONV = 0
 call TIMING(CPTNOW,DUM,DUM,DUM)
@@ -380,25 +379,25 @@ CPTOLD = CPTNOW
 CPTOT = CPTNOW-CPTSTA
 if (ITER == 1) then
   EDISP = ESMALL(1)+ESHIFT
-  write(6,1234) ITER,NVEC,EDISP,RNRM(1),PSEL(1),CPTIT,CPTOT
+  write(u6,1234) ITER,NVEC,EDISP,RNRM(1),PSEL(1),CPTIT,CPTOT
 else
   ELOW = ESMALL(1)-ELAST(1)
-  if ((ELOW < 0.0d00) .and. (abs(ELOW) <= ETHRE)) NCONV = 1
+  if ((ELOW < Zero) .and. (abs(ELOW) <= ETHRE)) NCONV = 1
   EDISP = ESMALL(1)+ESHIFT
-  write(6,1235) ITER,NVEC,EDISP,ELOW,RNRM(1),PSEL(1),CPTIT,CPTOT
+  write(u6,1235) ITER,NVEC,EDISP,ELOW,RNRM(1),PSEL(1),CPTIT,CPTOT
 end if
 if (NRROOT > 1) then
   do I=2,NRROOT
     EDISP = ESMALL(I)+ESHIFT
     if (ITER == 1) then
-      write(6,1236) EDISP,RNRM(I),PSEL(I)
+      write(u6,1236) EDISP,RNRM(I),PSEL(I)
     else
       ELOW = ESMALL(I)-ELAST(I)
-      if ((ELOW < 0.0d00) .and. (abs(ELOW) <= ETHRE)) NCONV = NCONV+1
-      write(6,1237) EDISP,ELOW,RNRM(I),PSEL(I)
+      if ((ELOW < Zero) .and. (abs(ELOW) <= ETHRE)) NCONV = NCONV+1
+      write(u6,1237) EDISP,ELOW,RNRM(I),PSEL(I)
     end if
   end do
-  write(6,*)
+  write(u6,*)
 end if
 do I=1,NRROOT
   ELAST(I) = ESMALL(I)
@@ -408,32 +407,32 @@ end do
 1236 format(11X,F15.8,9X,D9.2,1X,F6.3)
 1237 format(11X,F15.8,D9.2,D9.2,1X,F6.3)
 if (NCONV == NRROOT) then
-  write(6,*) ' CONVERGENCE IN ENERGY.'
+  write(u6,*) ' CONVERGENCE IN ENERGY.'
   goto 2000
 end if
 ! ------------------------------------------------------------------
-THR = 1.0D-06
+THR = 1.0e-6_wp
 call SECULAR(MXZ,NZ,NRON,HZERO,SZERO,VZERO,EZERO,SCR,THR)
-!write(6,*) ' AFTER SECULAR CALL. NRON=',NRON
-!write(6,*) ' EIGENVALUES & -VECTORS:'
+!write(u6,*) ' AFTER SECULAR CALL. NRON=',NRON
+!write(u6,*) ' EIGENVALUES & -VECTORS:'
 !do I=1,NRON
-!  write(6,'(1X,5F15.6)') EZERO(I)
-!  write(6,'(1X,5F15.6)') (VZERO(K,I),K=1,NZ)
+!  write(u6,'(1X,5F15.6)') EZERO(I)
+!  write(u6,'(1X,5F15.6)') (VZERO(K,I),K=1,NZ)
 !end do
 ! ORDER THE EIGENFUNCTIONS BY DECREASING SIZE OF PSI PART.
-call DGEMM_('T','N',NRON,NRROOT,NZ,1.0d0,VZERO,MXZ,SZERO,MXZ,0.0d0,SCR(1+NRON),NRON)
+call DGEMM_('T','N',NRON,NRROOT,NZ,One,VZERO,MXZ,SZERO,MXZ,Zero,SCR(1+NRON),NRON)
 do I=1,NRON
   II = I
-  SUM = 0.0d00
+  RSUM = Zero
   do K=1,NRROOT
     II = II+NRON
-    SUM = SUM+SCR(II)**2
+    RSUM = RSUM+SCR(II)**2
   end do
-  SCR(I) = SUM
+  SCR(I) = RSUM
 end do
-!write(6,*)
-!write(6,*) ' SELECTION CRITERION VECTOR, BEFORE ORDERING:'
-!write(6,'(1X,5F15.6)') (SCR(I),I=1,NRON)
+!write(u6,*)
+!write(u6,*) ' SELECTION CRITERION VECTOR, BEFORE ORDERING:'
+!write(u6,'(1X,5F15.6)') (SCR(I),I=1,NRON)
 do I=1,NRON-1
   IMAX = I
   PMAX = SCR(I)
@@ -484,26 +483,26 @@ end do
 ! NOTE: IF THE UPDATE PART IS SMALL ENOUGH FOR ALL THE FIRST NRROOT
 ! ARRAY, THE CALCULATION HAS CONVERGED.
 NNEW = 0
-!write(6,*) ' CONVERGENCE CRITERION: SIZE OF UPDATE PART.'
+!write(u6,*) ' CONVERGENCE CRITERION: SIZE OF UPDATE PART.'
 do I=1,NRROOT
-  SQNRM = 1.0d00-SCR(I)
-  !write(6,*) ' ROOT NR, SQNRM:',I,SQNRM
+  SQNRM = One-SCR(I)
+  !write(u6,*) ' ROOT NR, SQNRM:',I,SQNRM
   if (SQNRM < SQNLIM) goto 490
   NNEW = NNEW+1
 490 continue
 end do
-!write(6,*)
-!write(6,*) ' EIGENVALUES OF THE HZERO HAMILTONIAN:'
-!write(6,'(1X,5F15.6)') (EZERO(I),I=1,NRON)
-!write(6,*) ' SELECTION WEIGHTS:'
-!write(6,'(1X,5F15.6)') (SCR(I),I=1,NRON)
-!write(6,*) ' EIGENVECTORS:'
+!write(u6,*)
+!write(u6,*) ' EIGENVALUES OF THE HZERO HAMILTONIAN:'
+!write(u6,'(1X,5F15.6)') (EZERO(I),I=1,NRON)
+!write(u6,*) ' SELECTION WEIGHTS:'
+!write(u6,'(1X,5F15.6)') (SCR(I),I=1,NRON)
+!write(u6,*) ' EIGENVECTORS:'
 !do I=1,NRON
-!  write(6,'(1X,5F15.6)') (VZERO(K,I),K=1,NZ)
+!  write(u6,'(1X,5F15.6)') (VZERO(K,I),K=1,NZ)
 !end do
-!write(6,*) ' NR OF NEW VECTORS SELECTED, NNEW:',NNEW
+!write(u6,*) ' NR OF NEW VECTORS SELECTED, NNEW:',NNEW
 if (NNEW == 0) then
-  write(6,*) ' CONVERGENCE IN NORM.'
+  write(u6,*) ' CONVERGENCE IN NORM.'
   goto 2000
 end if
 ! NOTE: A CHANGE HERE. ALWAYS USE ALL THE NRROOT UPDATED VECTORS TO
@@ -513,14 +512,14 @@ NNEW = NRROOT
 ! ----------------------------------------------------------------------
 ! FORM NEW UPDATED VECTORS: SKIP THE FIRST NRROOT-NNEW VECTORS,
 ! WHICH MAKE NO ESSENTIAL IMPROVEMENT.
-!write(6,*) ' RESET VZERO TO (0,0,0,1) FOR CONVENTIONAL DAVIDSON.'
-!call DCOPY_(NRROOT*MXZ,[0.0D00],0,VZERO,1)
-!call DCOPY_(NRROOT,[1.0D00],0,VZERO(3*NRROOT+1,1),MXZ+1)
+!write(u6,*) ' RESET VZERO TO (0,0,0,1) FOR CONVENTIONAL DAVIDSON.'
+!call DCOPY_(NRROOT*MXZ,[Zero],0,VZERO,1)
+!call DCOPY_(NRROOT,[One],0,VZERO(3*NRROOT+1,1),MXZ+1)
 call HZLP2(CBUF,SBUF,DBUF,CSECT,RSECT,XI1,XI2,CNEW,ICI)
 if (ITER < MAXIT) goto 1000
-write(6,*) ' UNCONVERGED.'
+write(u6,*) ' UNCONVERGED.'
 2000 continue
-write(6,*) ' ',('*',III=1,70)
+write(u6,*) ' ',('*',III=1,70)
 ! WRITE CI VECTORS TO LUREST -- CI RESTART FILE.
 IDREST = 0
 do I=1,NRROOT
@@ -532,7 +531,7 @@ do I=1,NRROOT
     call UPKVEC(NN,ICI,CI(ISTA))
   end do
   call CSFTRA(' CSF',CI,AREF)
-  C2REF = 0.0d00
+  C2REF = Zero
   do IR=1,NREF
     ICSF = IREFX(IR)
     C = CI(ICSF)
@@ -541,44 +540,44 @@ do I=1,NRROOT
   IR = IROOT(I)
   ECI = ESMALL(I)+ESHIFT
   ENREF = ECI-EREF(IR)
-  C2NREF = 1.0d00-C2REF
+  C2NREF = One-C2REF
   ! WRITE ENERGIES TO PRINTED OUTPUT, AND SAVE TOTAL ENERGIES TO ENGY
   ! FOR LATER PRINTOUT WITH PROPERTIES:
-  write(6,'(A,I3)') '               FINAL RESULTS FOR STATE NR ',I
-  write(6,'(A,I3)') ' CORRESPONDING ROOT OF REFERENCE CI IS NR:',IR
-  write(6,'(A,F15.8)') '            REFERENCE CI ENERGY:',EREF(IR)
-  write(6,'(A,F15.8)') '         EXTRA-REFERENCE WEIGHT:',C2NREF
+  write(u6,'(A,I3)') '               FINAL RESULTS FOR STATE NR ',I
+  write(u6,'(A,I3)') ' CORRESPONDING ROOT OF REFERENCE CI IS NR:',IR
+  write(u6,'(A,F15.8)') '            REFERENCE CI ENERGY:',EREF(IR)
+  write(u6,'(A,F15.8)') '         EXTRA-REFERENCE WEIGHT:',C2NREF
   if (ICPF == 1) then
-    write(6,'(A,F15.8)') '        ACPF CORRELATION ENERGY:',ENREF
-    write(6,'(A,F15.8)') '                    ACPF ENERGY:',ECI
+    write(u6,'(A,F15.8)') '        ACPF CORRELATION ENERGY:',ENREF
+    write(u6,'(A,F15.8)') '                    ACPF ENERGY:',ECI
     ENGY(I,1) = ECI
-    ENGY(I,2) = 0.0d00
-    ENGY(I,3) = 0.0d00
+    ENGY(I,2) = Zero
+    ENGY(I,3) = Zero
     call Add_Info('E_MRACPF',[ECI],1,8)
   else
-    write(6,'(A,F15.8)') '          CI CORRELATION ENERGY:',ENREF
-    write(6,'(A,F15.8)') '                      CI ENERGY:',ECI
+    write(u6,'(A,F15.8)') '          CI CORRELATION ENERGY:',ENREF
+    write(u6,'(A,F15.8)') '                      CI ENERGY:',ECI
     ! APPROXIMATE CORRECTIONS FOR UNLINKED QUADRUPLES:
     QDAV = ENREF*C2NREF/C2REF
     EDAV = ECI+QDAV
-    QACPF = ENREF*(C2NREF*(1.0d00-GFAC))/(C2REF+GFAC*C2NREF)
+    QACPF = ENREF*(C2NREF*(One-GFAC))/(C2REF+GFAC*C2NREF)
     EACPF = ECI+QACPF
-    write(6,'(A,F15.8)') '            DAVIDSON CORRECTION:',QDAV
-    write(6,'(A,F15.8)') '               CORRECTED ENERGY:',EDAV
-    write(6,'(A,F15.8)') '                ACPF CORRECTION:',QACPF
-    write(6,'(A,F15.8)') '               CORRECTED ENERGY:',EACPF
+    write(u6,'(A,F15.8)') '            DAVIDSON CORRECTION:',QDAV
+    write(u6,'(A,F15.8)') '               CORRECTED ENERGY:',EDAV
+    write(u6,'(A,F15.8)') '                ACPF CORRECTION:',QACPF
+    write(u6,'(A,F15.8)') '               CORRECTED ENERGY:',EACPF
     ENGY(I,1) = ECI
     ENGY(I,2) = QDAV
     ENGY(I,3) = QACPF
     call Add_Info('E_MRSDCI',[ECI],1,8)
   end if
-  write(6,*)
+  write(u6,*)
   !PAM04 call PRWF_MRCI (HWORK(LCSPCK),HWORK(LINTSY),HWORK(LINDX),CI,HWORK(LJREFX) )
   call PRWF_MRCI(IWORK(LCSPCK),IWORK(LINTSY),IWORK(LINDX),CI,IWORK(LJREFX))
-  write(6,*) ' ',('*',III=1,70)
+  write(u6,*) ' ',('*',III=1,70)
   call dDAFILE(LUREST,1,CI,NCONF,IDREST)
 end do
-call XFlush(6)
+call XFlush(u6)
 
 return
 

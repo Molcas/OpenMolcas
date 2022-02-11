@@ -11,23 +11,28 @@
 
 subroutine CI_SELECT_MRCI(NREF,AREF,PLEN,NSEL,CISEL,NRROOT,IROOT)
 
-implicit real*8(A-H,O-Z)
-dimension AREF(NREF,NREF), CISEL(NREF,*), IROOT(NRROOT)
-dimension PLEN(NREF)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: NREF, NSEL, NRROOT, IROOT(NRROOT)
+real(kind=wp) :: AREF(NREF,NREF), PLEN(NREF), CISEL(NREF,*)
+integer(kind=iwp) :: I, IR, ISEL, J, JJ, JMAX
+real(kind=wp) :: PL, PMAX, SUM1, SUM2
 
 if (NSEL == 0) return
 ! SELECTION BY PROJECTION ONTO SPACE SPANNED BY CISEL VECTORS. IROOT()
 ! IS SET TO SELECT THE NRROOT VECTORS WITH MAX PROJECTED LENGTH.
 do J=1,NREF
-  SUM = 0.0d00
+  SUM1 = Zero
   do ISEL=1,NSEL
-    SUM1 = 0.0d00
+    SUM2 = Zero
     do I=1,NREF
-      SUM1 = SUM1+AREF(I,J)*CISEL(I,ISEL)
+      SUM2 = SUM2+AREF(I,J)*CISEL(I,ISEL)
     end do
-    SUM = SUM+SUM1**2
+    SUM1 = SUM1+SUM2**2
   end do
-  PLEN(J) = SUM+J*1.0D-12
+  PLEN(J) = SUM1+J*1.0e-12_wp
 end do
 ! SELECT BY MAGNITUDE OF PLEN:
 do J=1,NRROOT
@@ -44,12 +49,12 @@ end do
 I = 0
 do IR=1,NREF
   PL = PLEN(IR)
-  if (PL < 0.0d00) then
+  if (PL < Zero) then
     I = I+1
     IROOT(I) = IR
     PL = -PL
   end if
-  PLEN(IR) = PL-IR*1.0D-12
+  PLEN(IR) = PL-IR*1.0e-12_wp
 end do
 
 return

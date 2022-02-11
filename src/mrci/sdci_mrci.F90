@@ -11,11 +11,15 @@
 
 subroutine SDCI_MRCI()
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Constants, only: Zero
+use Definitions, only: iwp
+
+implicit none
 #include "mrci.fh"
 #include "WrkSpc.fh"
-!dimension H(MAXMEM), iH(RtoI*MAXMEM)
+integer(kind=iwp) :: NHREF, NIJ, NIJKL
+!real(kind=wp) :: H(MAXMEM)
+!integer(kind=iwp) :: iH(RtoI*MAXMEM)
 
 ! PUT THE SUBROUTINE NAME ONTO THE ENTRY NAME STACK
 ! INPUT AND MEMORY ALLOCATION:
@@ -53,7 +57,7 @@ end if
 ! FIRST, SET UP START CI ARRAYS, AND ALSO TRANSFORM DIAGONAL ELEMENTS:
 !------
 ! POW: Initialize HSMALL(1,1)
-HSMALL(1,1) = 0.0d0
+HSMALL(1,1) = Zero
 !------
 call GETMEM('ICI','ALLO','INTE',LICI,MBUF)
 call GETMEM('CI','ALLO','REAL',LCI,NCONF)

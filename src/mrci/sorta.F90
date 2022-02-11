@@ -14,21 +14,22 @@ subroutine SORTA(BUFS,INDS,ISAB,BUFBI,BIAC,BICA,NINTGR)
 ! FOR FIXED B,I ALL A,C
 ! FIRST CHAIN FOR IJKL
 
-implicit real*8(A-H,O-Z)
-external COUNT
-#include "SysDef.fh"
-#include "warnings.h"
-#include "mrci.fh"
-dimension BUFS(NBITM1,NCHN1)
-dimension INDS(NBITM1+2,NCHN1)
-dimension BUFBI(KBUFF1)
-dimension BIAC(ISMAX), BICA(ISMAX)
-dimension ISAB(*)
-dimension NORB0(9)
+use Definitions, only: wp, iwp, u6
 
-call count(NINTGR,NSYM,NORB,MUL)
-if (IPRINT >= 6) write(6,1234) NINTGR
-call XFLUSH(6)
+implicit none
+#include "mrci.fh"
+real(kind=wp) :: BUFS(NBITM1,NCHN1), BUFBI(KBUFF1), BIAC(ISMAX), BICA(ISMAX)
+integer(kind=iwp) :: INDS(NBITM1+2,NCHN1), ISAB(*), NINTGR
+#include "warnings.h"
+integer(kind=iwp) :: I, IACS, IAD15, IAD50, IADR, IBUFIJ, ICHK, IDISK, IIJ, IIN, IJ, IJKL, ILEN, ILOOP, INB, INND, INS, INSB, &
+                     INSOUT, INUMB, IOUT, IPOS, IREC, ISRTAD, IST, JDISK, KK, KL, LENGTH, M, NA, NAT, NB, NC, NI, NIB, NJ, NK, NL, &
+                     NOP, NOQ, NOR, NORB0(9), NORBP, NOS, NSAVE, NSIB, NSP, NSPQ, NSPQR, NSQ, NSR, NSRTCN, NSS, NSSM, NT, NTM, NU, &
+                     NUMAX, NUMIN, NV, NX, NXM
+real(kind=wp) :: FINI
+
+call COUNT_MRCI(NINTGR,NSYM,NORB,MUL)
+if (IPRINT >= 6) write(u6,1234) NINTGR
+call XFLUSH(u6)
 1234 format(//6X,'NUMBER OF TWO-ELECTRON INTEGRALS',I10)
 
 IAD50 = 0
@@ -214,7 +215,7 @@ do NSP=1,NSYM
 end do
 ! EMPTY LAST BUFFERS
 if (NChn1 > mChain) then
-  write(6,*) 'SORTA Error: NCHN1 > MCHAIN (See code).'
+  write(u6,*) 'SORTA Error: NCHN1 > MCHAIN (See code).'
   call QUIT(_RC_GENERAL_ERROR_)
 end if
 do I=1,NCHN1
@@ -274,28 +275,28 @@ INSOUT = 0
 IADD10 = IAD10(4)
 call dDAFILE(LUSYMB,2,COP,nCOP,IADD10)
 call iDAFILE(LUSYMB,2,iCOP1,nCOP+1,IADD10)
-LEN = ICOP1(nCOP+1)
-IN = 2
-NSAVE = ICOP1(IN)
+ILEN = ICOP1(nCOP+1)
+IIN = 2
+NSAVE = ICOP1(IIN)
 100 NI = NSAVE
 IOUT = 0
-110 IN = IN+1
-if (IN > LEN) then
+110 IIN = IIN+1
+if (IIN > ILEN) then
   call dDAFILE(LUSYMB,2,COP,nCOP,IADD10)
   call iDAFILE(LUSYMB,2,iCOP1,nCOP+1,IADD10)
-  LEN = ICOP1(nCOP+1)
-  if (LEN <= 0) GO TO 6
-  IN = 1
+  ILEN = ICOP1(nCOP+1)
+  if (ILEN <= 0) GO TO 6
+  IIN = 1
 end if
 if (ICHK /= 0) GO TO 460
-if (ICOP1(IN) == 0) then
+if (ICOP1(IIN) == 0) then
   ICHK = 1
 else
   IOUT = IOUT+1
 end if
 GO TO 110
 460 ICHK = 0
-NSAVE = ICOP1(IN)
+NSAVE = ICOP1(IIN)
 6 continue
 NIB = 1+(NI-1)*NVIRT
 ! LOOP OVER VIRTUAL ORBITAL INDEX B:
@@ -341,9 +342,9 @@ do NB=1,NVIRT
     if (ILOOP == 1) call DCOPY_(INUMB,BICA(IST),1,BUFBI(INSOUT+1),1)
     INSOUT = INSOUT+INUMB
     if (INSOUT > KBUFF1) then
-      write(6,*) 'SortA: INSOUT > KBUFF1'
-      write(6,*) 'INSOUT=',INSOUT
-      write(6,*) 'KBUFF1=',KBUFF1
+      write(u6,*) 'SortA: INSOUT > KBUFF1'
+      write(u6,*) 'INSOUT=',INSOUT
+      write(u6,*) 'KBUFF1=',KBUFF1
       call ABEND()
     end if
     if (INSOUT == KBUFF1) then
@@ -354,7 +355,7 @@ do NB=1,NVIRT
     if (INSB > 0) GO TO 73
   end do
 end do
-if (LEN >= 0) GO TO 100
+if (ILEN >= 0) GO TO 100
 ! EMPTY LAST BUFFER IF NOT EMPTY
 if (INSOUT > 0) call dDAFILE(Lu_70,1,BUFBI,KBUFF1,IAD15)
 

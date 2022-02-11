@@ -11,29 +11,32 @@
 
 subroutine CSFTRA(KEY,CI,AREF)
 
-implicit real*8(A-H,O-Z)
-character*4 KEY
-dimension CI(NCONF), AREF(NREF,NREF)
-#include "SysDef.fh"
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
 #include "mrci.fh"
-dimension TMP(MXREF)
+character(len=4) :: KEY
+real(kind=wp) :: CI(NCONF), AREF(NREF,NREF)
+integer(kind=iwp) :: I, J
+real(kind=wp) :: RSUM, TMP(MXREF) !IFG
 
 if (NREF == 1) return
 if (KEY == ' CSF') then
   do I=1,NREF
-    SUM = 0.0d00
+    RSUM = Zero
     do J=1,NREF
-      SUM = SUM+AREF(I,J)*CI(IREFX(J))
+      RSUM = RSUM+AREF(I,J)*CI(IREFX(J))
     end do
-    TMP(I) = SUM
+    TMP(I) = RSUM
   end do
 else
   do I=1,NREF
-    SUM = 0.0d00
+    RSUM = Zero
     do J=1,NREF
-      SUM = SUM+AREF(J,I)*CI(IREFX(J))
+      RSUM = RSUM+AREF(J,I)*CI(IREFX(J))
     end do
-    TMP(I) = SUM
+    TMP(I) = RSUM
   end do
 end if
 do I=1,NREF

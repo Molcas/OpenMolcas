@@ -11,13 +11,19 @@
 
 subroutine FAIBJ(INTSYM,INDX,C,S,ABIJ,AIBJ,AJBI,A,B,F,FSEC)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, r8
+
+implicit none
+integer(kind=iwp) :: INTSYM(*), INDX(*)
+real(kind=wp) :: C(*), S(*), ABIJ(*), AIBJ(*), AJBI(*), A(*), B(*), F(*), FSEC(*)
 #include "mrci.fh"
 #include "WrkSpc.fh"
-dimension INTSYM(*), INDX(*), C(*), S(*), ABIJ(*), AIBJ(*), AJBI(*), A(*), B(*), F(*), FSEC(*)
-dimension IPOF(9), IPOA(9), IPOB(9)
-external JSUNP
+integer(kind=iwp) :: IAB, IADR, IASYM, IBSYM, ICHK, iCoup, iCoup1, IFAB, IFT, IFTA, IFTB, II, IIN, IJ1, ILIM, INDA, INDB, INDCOP, &
+                     INDI, INMY, INNY, INS, IPF, IPF1, IPOA(9), IPOB(9), IPOF(9), ISTAR, ITURN, iTyp, JTURN, LBUF, LENBUF, LENCOP, &
+                     LIBUF, MYL, MYSYM, NI, NJ, NOT2, NOVST, NSIJ, NVIRA, NVIRB, NVIRC, NYL, NYSYM
+real(kind=wp) :: COPI, CPL, CPLA, FAC, FACS, TERM
+real(kind=r8), external :: DDOT_
 
 call GETMEM('BUF','ALLO','REAL',LBUF,NBITM3)
 call GETMEM('IBUF','ALLO','INTE',LIBUF,NBITM3+2)
@@ -98,15 +104,15 @@ do II=1,LENCOP
 
   ! CONSTRUCT FIRST ORDER MATRICES
 
-360 FAC = 1.0d00
-  if (NI == NJ) FAC = 0.5d00
-  IN = 0
+360 FAC = One
+  if (NI == NJ) FAC = Half
+  IIN = 0
   ! VV: these calls to getmem are needed to cheat some compilers.
 
   if (FAC < 0) call getmem('CHECK','CHEC','real',0,0)
 
   IFT = 0
-  call faibj3(NSIJ,IFT,AIBJ,FSEC,FAC,IN,INS,IPOA,IPOF)
+  call faibj3(NSIJ,IFT,AIBJ,FSEC,FAC,IIN,INS,IPOA,IPOF)
 
   if ((ITER == 1) .and. (IREST == 0)) GO TO 260
   do IASYM=1,NSYM
@@ -149,7 +155,7 @@ do II=1,LENCOP
   ICOUP = ibits(INDCOP,5,13)
   ICOUP1 = ibits(INDCOP,18,13)
   CPL = COP(II)
-  CPLA = 0.0d00
+  CPLA = Zero
   if (IFAB /= 0) GO TO 260
   if (ITURN /= 0) goto 100
   ! FIRST ORDER INTERACTION
@@ -173,17 +179,17 @@ do II=1,LENCOP
 
   if (ITYP /= 5) GO TO 71
   ! DOUBLET-DOUBLET INTERACTIONS
-  IN = IPOF(MYL+1)-IPOF(MYL)
-  if (IN == 0) GO TO 260
+  IIN = IPOF(MYL+1)-IPOF(MYL)
+  if (IIN == 0) GO TO 260
   IPF = IPOF(MYL)+1
-  call DYAX(IN,CPL,AIBJ(IPF),1,F,1)
-  call DAXPY_(IN,CPLA,ABIJ(IPF),1,F,1)
+  call DYAX(IIN,CPL,AIBJ(IPF),1,F,1)
+  call DAXPY_(IIN,CPLA,ABIJ(IPF),1,F,1)
   if (INDA == INDB) call SETZZ(F,NVIR(MYL))
   !call DGEMTX (NVIR(MYL),NVIR(NYL),FACS,F,NVIR(MYL),C(INMY),1,S(INNY),1)
-  call DGEMV_('T',NVIR(MYL),NVIR(NYL),FACS,F,NVIR(MYL),C(INMY),1,1.0d0,S(INNY),1)
+  call DGEMV_('T',NVIR(MYL),NVIR(NYL),FACS,F,NVIR(MYL),C(INMY),1,One,S(INNY),1)
   if (INDA /= INDB) then
     !call DGEMX (NVIR(MYL),NVIR(NYL),FACS,F,NVIR(MYL),C(INNY),1,S(INMY),1)
-    call DGEMV_('N',NVIR(MYL),NVIR(NYL),FACS,F,NVIR(MYL),C(INNY),1,1.0d0,S(INMY),1)
+    call DGEMV_('N',NVIR(MYL),NVIR(NYL),FACS,F,NVIR(MYL),C(INNY),1,One,S(INMY),1)
   end if
   GO TO 260
   ! TRIPLET-SINGLET, SINGLET-TRIPLET,

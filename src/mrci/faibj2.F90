@@ -11,11 +11,15 @@
 
 subroutine faibj2(IFTA,IFTB,ICOUP1,ICOUP,INDA,INDB,MYSYM,INTSYM,NYSYM,NSIJ,MYL,NYL,FACS,IPOA,IPOB,INMY,INNY,INDX,iTYP)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: IFTA, IFTB, ICOUP1, ICOUP, INDA, INDB, MYSYM, INTSYM(*), NYSYM, NSIJ, MYL, NYL, IPOA(9), IPOB(9), INMY, INNY, &
+                     INDX(*), iTYP
+real(kind=wp) :: FACS
 #include "mrci.fh"
-dimension INTSYM(*), INDX(*)
-dimension IPOA(9), IPOB(9)
+integer(kind=iwp), external :: JSUNP
 
 IFTA = 0
 IFTB = 0
@@ -49,7 +53,7 @@ MYSYM = JSUNP(INTSYM,INDA)
 NYSYM = MUL(MYSYM,NSIJ)
 MYL = MUL(MYSYM,LSYM)
 NYL = MUL(NYSYM,LSYM)
-FACS = 1.0d00
+FACS = One
 call IPO(IPOA,NVIR,MUL,NSYM,MYL,IFTA)
 call IPO(IPOB,NVIR,MUL,NSYM,NYL,IFTB)
 INMY = INDX(INDA)+1

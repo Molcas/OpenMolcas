@@ -11,29 +11,28 @@
 
 subroutine SIGMA(SGM,AREF,CI,INTSY,INDX,BMN,IBMN,BIAC2,BICA2,BFIN3,ISAB,AC1,AC2,BFIN4,ABIJ,AIBJ,AJBI,ASCR1,BSCR1,FSCR1,FSEC,FOCK, &
                  BFIN5,ASCR2,BSCR2,FSCR2,DBK,ICSPCK)
-!PAM04  BFIN5,ASCR2,BSCR2,FSCR2,DBK,CSPCK)
+!PAM04 BFIN5,ASCR2,BSCR2,FSCR2,DBK,CSPCK)
 
-implicit real*8(A-H,O-Z)
-!PAM04 integer INTSY(*),INDX(*),IBMN(*),ISAB(*)
-integer INTSY(*), INDX(*), IBMN(*), ISAB(*), ICSPCK(*)
-real*8 SGM(*), AREF(*), CI(*), BMN(*), BIAC2(*), BICA2(*)
-real*8 BFIN3(*), AC1(*), AC2(*), BFIN4(*), ABIJ(*)
-real*8 AIBJ(*), AJBI(*), ASCR1(*), BSCR1(*), FSCR1(*)
-real*8 FSEC(*), FOCK(*), BFIN5(*), ASCR2(*), BSCR2(*), FSCR2(*)
-!PAM04 real*8 DBK(*),CSPCK(*)
-real*8 DBK(*)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: SGM(*), AREF(*), CI(*), BMN(*), BIAC2(*), BICA2(*), BFIN3(*), AC1(*), AC2(*), BFIN4(*), ABIJ(*), AIBJ(*), &
+                 AJBI(*), ASCR1(*), BSCR1(*), FSCR1(*), FSEC(*), FOCK(*), BFIN5(*), ASCR2(*), BSCR2(*), FSCR2(*), DBK(*)
+integer(kind=iwp) :: INTSY(*), INDX(*), IBMN(*), ISAB(*), ICSPCK(*)
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 #include "mrci.fh"
+integer(kind=iwp) :: ICSF, IREF, KTYP
+real(kind=wp) :: GINV, SQG, SQGP
 
-call DCOPY_(NCONF,[0.0d0],0,SGM,1)
+call DCOPY_(NCONF,[Zero],0,SGM,1)
 
 call CSFTRA(' CSF',CI,AREF)
-SQGP = 1.0d00
-SQG = 1.0d00
+SQGP = One
+SQG = One
 if (ICPF == 1) then
   SQGP = sqrt(GFAC)
-  SQG = 1.0d00/SQGP
+  SQG = One/SQGP
   do IREF=1,NREF
     ICSF = IREFX(IREF)
     CI(ICSF) = SQGP*CI(ICSF)
@@ -62,7 +61,7 @@ call FIJ_MRCI(ICSPCK,INTSY,INDX,CI,SGM,FOCK,ASCR2,BSCR2,FSCR2,DBK)
 
 call DAXPY_(NCONF,POTNUC-ESHIFT,CI,1,SGM,1)
 if (ICPF == 1) then
-  GINV = 1.0d00/GFAC
+  GINV = One/GFAC
   call DSCAL_(NCONF,GINV,SGM,1)
   do IREF=1,NREF
     ICSF = IREFX(IREF)

@@ -10,19 +10,24 @@
 !***********************************************************************
 
 !subroutine AI(INTSYM,INDX,C,S,FC,BUFIN,IBUFIN,A,B,FK,DBK,KTYP)
-!subroutine AI_MRCI(INTSYM,INDX,C,S,FC,BUF,IBUF,A,B,FK,DBK,KTYP)
 subroutine AI_MRCI(INTSYM,INDX,C,S,FC,A,B,FK,DBK,KTYP)
 
-implicit real*8(A-H,O-Z)
+use Constants, only: One
+use Definitions, only: wp, iwp, r8
+
+implicit none
+integer(kind=iwp) :: INTSYM(*), INDX(*), KTYP
+real(kind=wp) :: C(*), S(*), FC(*), A(*), B(*), FK(*), DBK(*) !, BUFIN(*), IBUFIN(*)
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 #include "mrci.fh"
-dimension INTSYM(*), INDX(*), C(*), S(*), FC(*), A(*), B(*), FK(*), DBK(*)
-! FC(*), BUFIN(*), IBUFIN(*)
-! FC(*), BUF(NBITM3), IBUF(NBITM3+2)
-dimension IPOB(9)
-parameter(ONE=1.0d00)
+integer(kind=iwp) :: i, IADR, ICHK, ICP1, ICP2, IFT, II, IJ, IJOLD, ILEN, IND, INDA, INDB, INDI, INMY, INNY, IOUT, IPOB(9), ITYP, &
+                     J, LBUF, LENGTH, LIBUF, MYEXTS, MYINTS, NA, NAK, NI, NJ, NK, NKM, NOTT, NOVST, NSA, NSI, NSIJ, NSJ, NSK, &
+                     NVIRA, NVM, NVT, NYEXTS, NYINTS
+real(kind=wp) :: COPI, SGN, TERM
+integer(kind=iwp), external :: JSUNP
+real(kind=r8), external :: DDOT_
 !Statement function
+integer(kind=iwp) :: JSYM, L
 JSYM(L) = JSUNP(INTSYM,L)
 
 ! KTYP=0,  (A/I)   INTEGRALS
@@ -52,11 +57,11 @@ if (KTYP == 1) IADD10 = IAD10(7)
 100 continue
 call dDAFILE(LUSYMB,2,COP,nCOP,IADD10)
 call iDAFILE(LUSYMB,2,iCOP1,nCOP+1,IADD10)
-LEN = ICOP1(nCOP+1)
-if (LEN == 0) GO TO 100
-if (LEN < 0) GO TO 200
+ILEN = ICOP1(nCOP+1)
+if (ILEN == 0) GO TO 100
+if (ILEN < 0) GO TO 200
 ! LOOP THROUGH THE COP BUFFER:
-do II=1,LEN
+do II=1,ILEN
   IND = ICOP1(II)
   if (ICHK /= 0) then
     ! BEGIN A RATHER LONG IF-BLOCK.
@@ -163,14 +168,14 @@ do II=1,LEN
   if (IFT == 1) call SQUARM(C(INNY+IPOB(MYEXTS)),A,NVM)
   call FZERO(B,NVM)
   call FMMM(DBK,A,B,1,NVM,NVIRA)
-  call DAXPY_(NVM,ONE,B,1,S(INMY),1)
-  SIGN = 1.0d00
-  if (IFT == 1) SIGN = -1.0d00
+  call DAXPY_(NVM,One,B,1,S(INMY),1)
+  SGN = One
+  if (IFT == 1) SGN = -One
   IOUT = INNY+IPOB(MYEXTS)-1
   do I=1,NVM
     do J=1,I
       IOUT = IOUT+1
-      TERM = DBK(I)*C(INMY+J-1)+SIGN*DBK(J)*C(INMY+I-1)
+      TERM = DBK(I)*C(INMY+J-1)+SGN*DBK(J)*C(INMY+I-1)
       S(IOUT) = S(IOUT)+TERM
     end do
     if (IFT == 1) GO TO 125
@@ -184,16 +189,16 @@ do II=1,LEN
   if (NSA > MYEXTS) GO TO 26
   if (IFT == 1) call VNEG(DBK,1,DBK,1,NVIRA)
   call FMMM(DBK,C(INNY+IPOB(MYEXTS)),B,1,NVM,NVIRA)
-  call DAXPY_(NVM,ONE,B,1,S(INMY),1)
+  call DAXPY_(NVM,One,B,1,S(INMY),1)
   call FZERO(B,NKM)
   call FMMM(DBK,C(INMY),B,NVIRA,NVM,1)
-  call DAXPY_(NKM,ONE,B,1,S(INNY+IPOB(MYEXTS)),1)
+  call DAXPY_(NKM,One,B,1,S(INNY+IPOB(MYEXTS)),1)
   GO TO 10
 26 call FMMM(C(INNY+IPOB(NSA)),DBK,B,NVM,1,NVIRA)
-  call DAXPY_(NVM,ONE,B,1,S(INMY),1)
+  call DAXPY_(NVM,One,B,1,S(INMY),1)
   call FZERO(B,NKM)
   call FMMM(C(INMY),DBK,B,NVM,NVIRA,1)
-  call DAXPY_(NKM,ONE,B,1,S(INNY+IPOB(NSA)),1)
+  call DAXPY_(NKM,One,B,1,S(INNY+IPOB(NSA)),1)
   GO TO 10
 10 continue
 end do

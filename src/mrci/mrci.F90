@@ -14,8 +14,8 @@ subroutine MRCI(IRETURN)
 !  MULTI REFERENCE SDCI AND AVERAGE CPF PROGRAM.                       *
 !***********************************************************************
 ! UNITS USED IN THE PROGRAM
-! UNIT  5, INPUT
-! UNIT  6, OUTPUT
+! UNIT u5, INPUT
+! UNIT u6, OUTPUT
 ! UNIT  2=LUPROP, (DA,ONEINT) FOR PROPERTY CALCULATIONS
 ! UNIT 10=LUSYMB, (DA,CIGUGA) SYMBOLIC FORMULAS
 ! UNIT 50=LUTRA, (DA,TRAINT) TRANSFORMED MO 2-EL INTEGRALS
@@ -30,10 +30,12 @@ subroutine MRCI(IRETURN)
 ! UNIT 28=LUREST, (DA,MRCIVECT) CI VECTOR
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "WrkSpc.fh"
-#include "SysDef.fh"
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: IRETURN
 #include "mrci.fh"
+integer(kind=iwp) :: LDummy
 
 ! Prologue, print program header
 !
@@ -52,7 +54,7 @@ implicit real*8(A-H,O-Z)
 !PAM04 !MaxMem = MaxMem-3*1000
 !PAM04 MaxMem = (MaxMem-3*1000)/2
 !PAM04 call GetMem('WrkSpc','Allo','Real',MemOff,MaxMem)
-!PAM04 write(6,*) " Allocated 'WrkSpc'. memoff, maxmem=",memoff,maxmem
+!PAM04 write(u6,*) " Allocated 'WrkSpc'. memoff, maxmem=",memoff,maxmem
 
 !PAM04 Now try completely without "WrkSpc" array:
 call GetMem('HowMuch','Max ','Real',LDummy,MemTot)

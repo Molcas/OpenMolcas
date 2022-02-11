@@ -11,12 +11,19 @@
 
 subroutine AITD(INTSYM,INDX,C1,C2,TDMO,A,FAK,FKA)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
 #include "mrci.fh"
-dimension INTSYM(*), INDX(*), C1(*), C2(*), TDMO(NBAST,NBAST), A(*), FAK(*), FKA(*)
-dimension IPOB(9)
+integer(kind=iwp) :: INTSYM(*), INDX(*)
+real(kind=wp) :: C1(*), C2(*), TDMO(NBAST,NBAST), A(*), FAK(*), FKA(*)
+integer(kind=iwp) :: ICHK, ICP1, ICP2, IFT, II, IJOLD, ILEN, IND, INDA, INDB, INK, INMY, INNY, IPOB(9), ITYP, MYL, MYSYM, NA, NA1, &
+                     NA2, NK, NSK, NVM, NYL, NYSYM
+real(kind=wp) :: COPI
+integer(kind=iwp), external :: JSUNP
 !Statement function
+integer(kind=iwp) :: JSYM, L
 JSYM(L) = JSUNP(INTSYM,L)
 
 ! CALCULATE TRANSITION DENSITY ELEMENTS TDMO(K,A) AND TDMO(A,K),
@@ -34,11 +41,11 @@ IADD10 = IAD10(9)
 100 continue
 call dDAFILE(LUSYMB,2,COP,nCOP,IADD10)
 call iDAFILE(LUSYMB,2,iCOP1,nCOP+1,IADD10)
-LEN = ICOP1(nCOP+1)
-if (LEN == 0) GO TO 100
-if (LEN < 0) GO TO 200
+ILEN = ICOP1(nCOP+1)
+if (ILEN == 0) GO TO 100
+if (ILEN < 0) GO TO 200
 ! LOOP THROUGH THE COP BUFFER:
-do II=1,LEN
+do II=1,ILEN
   IND = ICOP1(II)
   if (ICHK /= 0) GO TO 460
   if (IND /= 0) GO TO 11
@@ -104,25 +111,25 @@ do II=1,LEN
   if (NYL /= 1) then
     if (NSK > MYL) then
       !call DGEMTX (NVM,INK,COPI,C1(INNY+IPOB(NSK)),NVM,C2(INMY),1,FAK,1)
-      call DGEMV_('T',NVM,INK,COPI,C1(INNY+IPOB(NSK)),NVM,C2(INMY),1,1.0d0,FAK,1)
+      call DGEMV_('T',NVM,INK,COPI,C1(INNY+IPOB(NSK)),NVM,C2(INMY),1,One,FAK,1)
       !call DGEMTX (NVM,INK,COPI,C2(INNY+IPOB(NSK)),NVM,C1(INMY),1,FKA,1)
-      call DGEMV_('T',NVM,INK,COPI,C2(INNY+IPOB(NSK)),NVM,C1(INMY),1,1.0d0,FKA,1)
+      call DGEMV_('T',NVM,INK,COPI,C2(INNY+IPOB(NSK)),NVM,C1(INMY),1,One,FKA,1)
     else
       if (IFT == 1) COPI = -COPI
       !call DGEMX (INK,NVM,COPI,C1(INNY+IPOB(MYL)),INK,C2(INMY),1,FAK,1)
-      call DGEMV_('N',INK,NVM,COPI,C1(INNY+IPOB(MYL)),INK,C2(INMY),1,1.0d0,FAK,1)
+      call DGEMV_('N',INK,NVM,COPI,C1(INNY+IPOB(MYL)),INK,C2(INMY),1,One,FAK,1)
       !call DGEMX (INK,NVM,COPI,C2(INNY+IPOB(MYL)),INK,C1(INMY),1,FKA,1)
-      call DGEMV_('N',INK,NVM,COPI,C2(INNY+IPOB(MYL)),INK,C1(INMY),1,1.0d0,FKA,1)
+      call DGEMV_('N',INK,NVM,COPI,C2(INNY+IPOB(MYL)),INK,C1(INMY),1,One,FKA,1)
     end if
   else
     if (IFT == 0) call SQUAR(C1(INNY+IPOB(MYL)),A,NVM)
     if (IFT == 1) call SQUARN(C1(INNY+IPOB(MYL)),A,NVM)
     !call DGEMTX (NVM,INK,COPI,A,NVM,C2(INMY),1,FAK,1)
-    call DGEMV_('T',NVM,INK,COPI,A,NVM,C2(INMY),1,1.0d0,FAK,1)
+    call DGEMV_('T',NVM,INK,COPI,A,NVM,C2(INMY),1,One,FAK,1)
     if (IFT == 0) call SQUAR(C2(INNY+IPOB(MYL)),A,NVM)
     if (IFT == 1) call SQUARN(C2(INNY+IPOB(MYL)),A,NVM)
     !call DGEMTX (NVM,INK,COPI,A,NVM,C1(INMY),1,FKA,1)
-    call DGEMV_('T',NVM,INK,COPI,A,NVM,C1(INMY),1,1.0d0,FKA,1)
+    call DGEMV_('T',NVM,INK,COPI,A,NVM,C1(INMY),1,One,FKA,1)
   end if
 10 continue
 end do

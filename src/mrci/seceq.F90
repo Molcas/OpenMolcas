@@ -11,8 +11,13 @@
 
 subroutine SECEQ(A,B,C,NAL,IFT,FAC)
 
-implicit real*8(A-H,O-Z)
-dimension A(NAL,NAL), B(NAL,NAL), C((NAL*(NAL+1))/2)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: NAL, IFT
+real(kind=wp) :: A(NAL,NAL), B(NAL,NAL), C((NAL*(NAL+1))/2), FAC
+integer(kind=iwp) :: IAB, NA, NB
 
 if (IFT == 0) then
   IAB = 0
@@ -32,7 +37,7 @@ else
       C(IAB) = B(NB,NA)-A(NA,NB)
     end do
     IAB = IAB+1
-    C(IAB) = 0.0d00
+    C(IAB) = Zero
   end do
 end if
 

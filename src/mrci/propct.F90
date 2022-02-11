@@ -11,18 +11,20 @@
 
 subroutine PROPCT()
 
-implicit real*8(A-H,O-Z)
-!PAM04 dimension HWork(*)
-character*8 FNAME, LABEL
-!character*8 REMARK
-character*30 REMARK
-character*100 REALNAME
-#include "SysDef.fh"
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: I, IDDMO, IDISK, IDUMMY(7,8), IEND, IOPT, IPC, IPROP, IRTC, ISTA, ISTATE, ISYMLB, J, JSTATE, LAFOLD, LCMO, &
+                     LCNO, LDAO, LOCC, LPINT, LSCR, LSFOLD, LTDAO
+real(kind=wp) :: DUMMY(1)
+character(len=100) :: REALNAME
+character(len=30) :: REMARK
+character(len=8) :: FNAME, LABEL
+real(kind=wp), allocatable :: PROP(:,:,:)
 #include "mrci.fh"
 #include "WrkSpc.fh"
-#include "stdalloc.fh"
-dimension DUMMY(1), IDUMMY(7,8)
-real*8, allocatable :: PROP(:,:,:)
 
 !LCMO = LPRP
 !LCNO = LCMO+NCMO
@@ -66,7 +68,7 @@ do I=1,100
 end do
 99 continue
 call MMA_ALLOCATE(PROP,NRROOT,NRROOT,NPROP,'PROP')
-call DCOPY_(NRROOT*NRROOT*NPROP,[0.0d00],0,PROP,1)
+call DCOPY_(NRROOT*NRROOT*NPROP,[Zero],0,PROP,1)
 IDDMO = 0
 do ISTATE=1,NRROOT
   ! PICK UP DMO
@@ -85,14 +87,14 @@ do ISTATE=1,NRROOT
   REMARK = '* MRCI  '
   !** Gusarov , include 1st root acpf energy to CiOrb file:
   !if (ICPF == 1) REMARK = '* ACPF  '
-  if (ICPF == 1) write(REMARK,'(8H* ACPF  ,f22.16)') ESMALL(1)+ESHIFT
+  if (ICPF == 1) write(REMARK,'("* ACPF  ",f22.16)') ESMALL(1)+ESHIFT
 
   call WRVEC(REALNAME,LUVEC,'CO',NSYM,NBAS,NBAS,Work(LCNO),Work(LOCC),Dummy,iDummy,REMARK)
-  write(6,*)
-  write(6,'(A,I2)') ' NATURAL ORBITALS OF STATE NR. ',ISTATE
-  write(6,*) ' FULL SET OF ORBITALS ARE SAVED ON FILE ',REALNAME
+  write(u6,*)
+  write(u6,'(A,I2)') ' NATURAL ORBITALS OF STATE NR. ',ISTATE
+  write(u6,*) ' FULL SET OF ORBITALS ARE SAVED ON FILE ',REALNAME
   call PRORB(Work(LCNO),Work(LOCC))
-  write(6,*) ' ',('*',I=1,70)
+  write(u6,*) ' ',('*',I=1,70)
   ! CREATE DAO
   call MKDAO(Work(LCNO),Work(LOCC),Work(LDAO))
   ! CALL PMATEL TO CALCULATE CHARGES AND PROPERTIES.
@@ -100,53 +102,53 @@ do ISTATE=1,NRROOT
   call PMATEL(ISTATE,ISTATE,PROP,Work(LPINT),Work(LSCR),Work(LCNO),Work(LOCC),Work(LSFOLD),Work(LAFOLD),Work(LDAO))
 end do
 ! ENERGIES SAVED FROM PREVIOUS OUTPUT REPEATED HERE FOR CONVENIENCE:
-write(6,*)
-write(6,*) ' SUMMARY OF ENERGIES:'
+write(u6,*)
+write(u6,*) ' SUMMARY OF ENERGIES:'
 do ISTA=1,NRROOT,4
   IEND = min(ISTA+3,NRROOT)
-  write(6,'(1X,A,I8,3I16)') '               ROOT:',(I,I=ISTA,IEND)
-  write(6,'(1X,A,4F16.8)') '       TOTAL ENERGY:',(ENGY(I,1),I=ISTA,IEND)
+  write(u6,'(1X,A,I8,3I16)') '               ROOT:',(I,I=ISTA,IEND)
+  write(u6,'(1X,A,4F16.8)') '       TOTAL ENERGY:',(ENGY(I,1),I=ISTA,IEND)
   if (ICPF == 0) then
-    write(6,'(1X,A,4F16.8)') 'DAVIDSON CORRECTION:',(ENGY(I,2),I=ISTA,IEND)
-    write(6,'(1X,A,4F16.8)') '    ACPF CORRECTION:',(ENGY(I,3),I=ISTA,IEND)
+    write(u6,'(1X,A,4F16.8)') 'DAVIDSON CORRECTION:',(ENGY(I,2),I=ISTA,IEND)
+    write(u6,'(1X,A,4F16.8)') '    ACPF CORRECTION:',(ENGY(I,3),I=ISTA,IEND)
   end if
-  write(6,*)
+  write(u6,*)
 end do
 ! ---------------------------------------------------
 !PAM Grep-able energy output for convenience:
-write(6,*)
-write(6,*) ' Energies, machine-readable format:'
+write(u6,*)
+write(u6,*) ' Energies, machine-readable format:'
 if (ICPF == 0) then
   do I=1,NRROOT
-    write(6,'(1X,A,I3,3(5X,A,F16.8))') ' CI State ',I,'Total energy:',ENGY(I,1),'QDav:',ENGY(I,2),'QACPF:',ENGY(I,3)
+    write(u6,'(1X,A,I3,3(5X,A,F16.8))') ' CI State ',I,'Total energy:',ENGY(I,1),'QDav:',ENGY(I,2),'QACPF:',ENGY(I,3)
   end do
 else
   do I=1,NRROOT
-    write(6,'(1X,A,I3,5X,A,F16.8)') ' ACPF State ',I,'Total energy:',ENGY(I,1)
+    write(u6,'(1X,A,I3,5X,A,F16.8)') ' ACPF State ',I,'Total energy:',ENGY(I,1)
   end do
 end if
-write(6,*)
+write(u6,*)
 ! ---------------------------------------------------
 if (NPROP > 0) then
   ! WRITE EXPECTATION VALUES:
-  write(6,*)
-  write(6,*) ' EXPECTATION VALUES OF VARIOUS OPERATORS:'
-  write(6,*) '(Note: Electronic multipoles include a negative sign.)'
+  write(u6,*)
+  write(u6,*) ' EXPECTATION VALUES OF VARIOUS OPERATORS:'
+  write(u6,*) '(Note: Electronic multipoles include a negative sign.)'
   do IPROP=1,NPROP
     if (PTYPE(IPROP) == 'ANTI') goto 110
     do ISTA=1,NRROOT,4
       IEND = min(ISTA+3,NRROOT)
-      write(6,*)
-      write(6,'(1X,A,A8,A,I4)') '   PROPERTY :',PNAME(IPROP),'   COMPONENT:',IPCOMP(IPROP)
-      write(6,'(1X,A,3F16.8)') '    GAUGE ORIGIN:',(PORIG(I,IPROP),I=1,3)
-      write(6,'(1X,A,I8,3I16)') '            ROOT:',(I,I=ISTA,IEND)
-      write(6,'(1X,A,4F16.8)') '      ELECTRONIC:',(PROP(I,I,IPROP),I=ISTA,IEND)
-      write(6,'(1X,A,4F16.8)') '         NUCLEAR:',(PNUC(IPROP),I=ISTA,IEND)
-      write(6,'(1X,A,4F16.8)') '           TOTAL:',(PNUC(IPROP)+PROP(I,I,IPROP),I=ISTA,IEND)
+      write(u6,*)
+      write(u6,'(1X,A,A8,A,I4)') '   PROPERTY :',PNAME(IPROP),'   COMPONENT:',IPCOMP(IPROP)
+      write(u6,'(1X,A,3F16.8)') '    GAUGE ORIGIN:',(PORIG(I,IPROP),I=1,3)
+      write(u6,'(1X,A,I8,3I16)') '            ROOT:',(I,I=ISTA,IEND)
+      write(u6,'(1X,A,4F16.8)') '      ELECTRONIC:',(PROP(I,I,IPROP),I=ISTA,IEND)
+      write(u6,'(1X,A,4F16.8)') '         NUCLEAR:',(PNUC(IPROP),I=ISTA,IEND)
+      write(u6,'(1X,A,4F16.8)') '           TOTAL:',(PNUC(IPROP)+PROP(I,I,IPROP),I=ISTA,IEND)
     end do
 110 continue
   end do
-  write(6,*)
+  write(u6,*)
 end if
 if (ITRANS == 0) goto 1000
 do ISTATE=2,NRROOT
@@ -166,9 +168,9 @@ do ISTATE=2,NRROOT
 end do
 if (NPROP == 0) goto 1000
 ! WRITE PROPERTY MATRICES.
-write(6,*)
-write(6,*) ' MATRIX ELEMENTS OF VARIOUS OPERATORS:'
-write(6,*) ' (INCLUDING ANY NUCLEAR CONTRIBUTIONS)'
+write(u6,*)
+write(u6,*) ' MATRIX ELEMENTS OF VARIOUS OPERATORS:'
+write(u6,*) ' (INCLUDING ANY NUCLEAR CONTRIBUTIONS)'
 do IPROP=1,NPROP
   do I=1,NRROOT
     PROP(I,I,IPROP) = PROP(I,I,IPROP)+PNUC(IPROP)
@@ -177,16 +179,16 @@ end do
 do IPROP=1,NPROP
   do ISTA=1,NRROOT,4
     IEND = min(ISTA+3,NRROOT)
-    write(6,*)
-    write(6,'(1X,A,A8,A,I4)') '   PROPERTY :',PNAME(IPROP),'   COMPONENT:',IPCOMP(IPROP)
-    write(6,'(1X,A,3F16.8)') '    GAUGE ORIGIN:',(PORIG(I,IPROP),I=1,3)
-    write(6,'(1X,A,I8,3I16)') '            ROOT:',(I,I=ISTA,IEND)
+    write(u6,*)
+    write(u6,'(1X,A,A8,A,I4)') '   PROPERTY :',PNAME(IPROP),'   COMPONENT:',IPCOMP(IPROP)
+    write(u6,'(1X,A,3F16.8)') '    GAUGE ORIGIN:',(PORIG(I,IPROP),I=1,3)
+    write(u6,'(1X,A,I8,3I16)') '            ROOT:',(I,I=ISTA,IEND)
     do J=1,NRROOT
-      write(6,'(15X,I2,4F16.8)') J,(PROP(J,I,IPROP),I=ISTA,IEND)
+      write(u6,'(15X,I2,4F16.8)') J,(PROP(J,I,IPROP),I=ISTA,IEND)
     end do
   end do
 end do
-write(6,*)
+write(u6,*)
 1000 continue
 call GETMEM('CMO','FREE','REAL',LCMO,NCMO)
 call GETMEM('CNO','FREE','REAL',LCNO,NCMO)

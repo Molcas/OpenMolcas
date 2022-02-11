@@ -11,23 +11,25 @@
 
 subroutine PRWF_MRCI(ICSPCK,INTSYM,INDX,C,JREFX)
 
-implicit real*8(A-H,O-Z)
-dimension C(*), INDX(*), ICSPCK(*), INTSYM(*), JREFX(*)
-character*12 CSFTYP
-character*14 FORM0, FORM1, FORM2, FORM
-character*14 FORM00, FORM01, FORM02
-#include "SysDef.fh"
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6, r8
+
+implicit none
+integer(kind=iwp) :: ICSPCK(*), INTSYM(*), INDX(*), JREFX(*)
+real(kind=wp) :: C(*)
 #include "mrci.fh"
-dimension IOC(32), IORBI(32), ISP(32), ILSYM(32)
-!PAM97 external UNPACK
-!PAM97 integer UNPACK
-data FORM00/'(1X,A,6X,53I2)'/
-data FORM01/'(1X,A,3X,54I2)'/
-data FORM02/'(1X,A,55I2)   '/
-data FORM0/'(1X,A,6X,34I3)'/
-data FORM1/'(1X,A,3X,35I3)'/
-data FORM2/'(1X,A,36I3)   '/
+integer(kind=iwp) :: I, II, II1, IIN, IJ, ILIM, ILSYM(32), IO, IOC(32), IORBI(32), IS, ISP(32), J, J1, J2, JCONF, JJ, JMAX, JMIN, &
+                     JVIR, LN1, LN2, NA, NB, NREXT, NSI, NSJ
+real(kind=wp) :: ACI, CI, CLIM, SCL
+character(len=14) :: FRMT
+character(len=12) :: CSFTYP
+character(len=*), parameter :: FORM00 = '(1X,A,6X,53I2)', FORM01 = '(1X,A,3X,54I2)', FORM02 = '(1X,A,55I2)', &
+                               FORM0 = '(1X,A,6X,34I3)', FORM1 = '(1X,A,3X,35I3)', FORM2 = '(1X,A,36I3)'
+integer(kind=iwp), external :: ICUNP, JSUNP
+real(kind=r8), external :: DDOT_
 ! STATEMENT FUNCTIONS FOR RETRIEVING GUGA CASE NUMBERS AND INTERNAL
+integer(kind=iwp) :: JO, JSYM, L
+!PAM97 integer(kind=iwp), external :: UNPACK
 ! SYMMETRY LABEL:
 !PAM97 JO(L) = UNPACK(CSPCK((L+29)/30),2*L-(2*L-1)/60*60,2)
 JO(L) = ICUNP(ICSPCK,L)
@@ -39,47 +41,47 @@ NB = 0
 ILIM = 4
 LN2 = LN+2
 if (IFIRST /= 0) ILIM = 2
-SCALE = 1.0/sqrt(DDOT_(NCONF,C,1,C,1))
-call DSCAL_(NCONF,SCALE,C,1)
+SCL = One/sqrt(DDOT_(NCONF,C,1,C,1))
+call DSCAL_(NCONF,SCL,C,1)
 do J=1,LN
   IORBI(J+2) = IORB(J)
   ILSYM(J+2) = NSM(J)
 end do
 JCONF = JSC(1)
-write(6,'(A,F5.3)') '      CI-COEFFICIENTS LARGER THAN ',CTRSH
-call XFLUSH(6)
+write(u6,'(A,F5.3)') '      CI-COEFFICIENTS LARGER THAN ',CTRSH
+call XFLUSH(u6)
 do IS=1,NSYM
   if (NFMO(IS) > 0) then
-    write(6,*) ' NOTE: THE FOLLOWING ORBITALS WERE FROZEN'
-    call XFLUSH(6)
-    write(6,*) ' ALREADY AT THE INTEGRAL TRANSFORMATION STEP'
-    call XFLUSH(6)
-    write(6,*) ' AND DO NOT EXPLICITLY APPEAR:'
-    call XFLUSH(6)
-    write(6,'(6X,A,8I4)') '  SYMMETRY:',(I,I=1,NSYM)
-    call XFLUSH(6)
-    write(6,'(6X,A,8I4)') 'PRE-FROZEN:',(NFMO(I),I=1,NSYM)
-    call XFLUSH(6)
+    write(u6,*) ' NOTE: THE FOLLOWING ORBITALS WERE FROZEN'
+    call XFLUSH(u6)
+    write(u6,*) ' ALREADY AT THE INTEGRAL TRANSFORMATION STEP'
+    call XFLUSH(u6)
+    write(u6,*) ' AND DO NOT EXPLICITLY APPEAR:'
+    call XFLUSH(u6)
+    write(u6,'(6X,A,8I4)') '  SYMMETRY:',(I,I=1,NSYM)
+    call XFLUSH(u6)
+    write(u6,'(6X,A,8I4)') 'PRE-FROZEN:',(NFMO(I),I=1,NSYM)
+    call XFLUSH(u6)
     goto 6
   end if
 end do
 6 continue
-write(6,*) ' ORDER OF SPIN-COUPLING: (PRE-FROZEN, NOT SHOWN)'
-call XFLUSH(6)
-write(6,*) '                         (FROZEN, NOT SHOWN)'
-call XFLUSH(6)
-write(6,*) '                          VIRTUAL'
-call XFLUSH(6)
-write(6,*) '                          ADDED VALENCE'
-call XFLUSH(6)
-write(6,*) '                          INACTIVE'
-call XFLUSH(6)
-write(6,*) '                          ACTIVE'
-call XFLUSH(6)
-write(6,*)
-call XFLUSH(6)
-write(6,*) ' ORBITALS ARE NUMBERED WITHIN EACH SEPARATE SYMMETRY.'
-call XFLUSH(6)
+write(u6,*) ' ORDER OF SPIN-COUPLING: (PRE-FROZEN, NOT SHOWN)'
+call XFLUSH(u6)
+write(u6,*) '                         (FROZEN, NOT SHOWN)'
+call XFLUSH(u6)
+write(u6,*) '                          VIRTUAL'
+call XFLUSH(u6)
+write(u6,*) '                          ADDED VALENCE'
+call XFLUSH(u6)
+write(u6,*) '                          INACTIVE'
+call XFLUSH(u6)
+write(u6,*) '                          ACTIVE'
+call XFLUSH(u6)
+write(u6,*)
+call XFLUSH(u6)
+write(u6,*) ' ORBITALS ARE NUMBERED WITHIN EACH SEPARATE SYMMETRY.'
+call XFLUSH(u6)
 do I=1,NCONF
   CI = C(I)
   ACI = abs(C(I))
@@ -88,7 +90,7 @@ do I=1,NCONF
     NREXT = 0
     if (JREFX(I) /= 0) then
       CSFTYP = '   REFERENCE'
-      CLIM = 0.0d00
+      CLIM = Zero
     else
       CSFTYP = '     VALENCE'
       CLIM = CTRSH
@@ -132,8 +134,8 @@ do I=1,NCONF
     IOC(II+2) = (1+ISP(II+2))/2
   end do
   if (NREXT == 0) then
-    FORM = FORM0
-    if (LN2 > 36) FORM = FORM00
+    FRMT = FORM0
+    if (LN2 > 36) FRMT = FORM00
     LN1 = 3
   else if (NREXT == 1) then
     IO = JVIR+NVIRP(NSJ)+LN
@@ -141,11 +143,11 @@ do I=1,NCONF
     IOC(2) = 1
     ISP(2) = 1
     ILSYM(2) = NSJ
-    FORM = FORM1
-    if (LN2 > 36) FORM = FORM01
+    FRMT = FORM1
+    if (LN2 > 36) FRMT = FORM01
     LN1 = 2
   else
-    IN = 0
+    IIN = 0
     do II=1,NVIRT
       NA = II
       NSI = MUL(NSJ,NSM(LN+II))
@@ -155,8 +157,8 @@ do I=1,NCONF
       if (J2 < J1) GO TO 46
       do J=J1,J2
         NB = J
-        IN = IN+1
-        if (IN == JVIR) GO TO 48
+        IIN = IIN+1
+        if (IIN == JVIR) GO TO 48
       end do
 46    continue
     end do
@@ -171,10 +173,10 @@ do I=1,NCONF
       IOC(2) = 2
       ISP(2) = 3
       ILSYM(2) = NSM(IO)
-      CI = CI*sqrt(0.5d00)
+      CI = CI*sqrt(Half)
       if (abs(CI) < CTRSH) GO TO 10
-      FORM = FORM1
-      if (LN2 > 36) FORM = FORM01
+      FRMT = FORM1
+      if (LN2 > 36) FRMT = FORM01
       LN1 = 2
     else
       IOC(2) = 1
@@ -183,24 +185,24 @@ do I=1,NCONF
       IO = LN+NA
       IORBI(2) = IORB(IO)
       ILSYM(2) = NSM(IO)
-      FORM = FORM2
-      if (LN2 > 36) FORM = FORM02
+      FRMT = FORM2
+      if (LN2 > 36) FRMT = FORM02
       LN1 = 1
     end if
   end if
-  write(6,*)
-  call XFLUSH(6)
-  write(6,105) I,C(I),CSFTYP
-  call XFLUSH(6)
+  write(u6,*)
+  call XFLUSH(u6)
+  write(u6,105) I,C(I),CSFTYP
+  call XFLUSH(u6)
 105 format(/6X,'CONFIGURATION',I7,3X,'COEFFICIENT',F10.6,A)
-  write(6,FORM) 'SYMMETRY     ',(ILSYM(J),J=LN1,LN2)
-  call XFLUSH(6)
-  write(6,FORM) 'ORBITALS     ',(IORBI(J),J=LN1,LN2)
-  call XFLUSH(6)
-  write(6,FORM) 'OCCUPATION   ',(IOC(J),J=LN1,LN2)
-  call XFLUSH(6)
-  write(6,FORM) 'SPIN-COUPLING',(ISP(J),J=LN1,LN2)
-  call XFLUSH(6)
+  write(u6,FRMT) 'SYMMETRY     ',(ILSYM(J),J=LN1,LN2)
+  call XFLUSH(u6)
+  write(u6,FRMT) 'ORBITALS     ',(IORBI(J),J=LN1,LN2)
+  call XFLUSH(u6)
+  write(u6,FRMT) 'OCCUPATION   ',(IOC(J),J=LN1,LN2)
+  call XFLUSH(u6)
+  write(u6,FRMT) 'SPIN-COUPLING',(ISP(J),J=LN1,LN2)
+  call XFLUSH(u6)
 10 continue
 end do
 

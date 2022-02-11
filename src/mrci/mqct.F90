@@ -11,12 +11,14 @@
 
 subroutine MQCT(AREF,EREF,CI,SGM,ICI)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Definitions, only: wp, iwp
+
+implicit none
 #include "mrci.fh"
+real(kind=wp) :: AREF(NREF,NREF), EREF(NREF), CI(NCONF), SGM(NCONF)
+integer(kind=iwp) :: ICI(MBUF)
 #include "WrkSpc.fh"
-dimension AREF(NREF,NREF), EREF(NREF)
-dimension ICI(MBUF), SGM(NCONF), CI(NCONF)
+integer(kind=iwp) :: LCBUF, LCNEW, LCSECT, LDBUF, LRSECT, LSBUF, LSCR, LXI1, LXI2
 
 !LCBUF = LMQ
 !LSBUF = LCBUF+MXVEC*MBUF

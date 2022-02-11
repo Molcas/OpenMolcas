@@ -11,12 +11,18 @@
 
 subroutine AID(INTSYM,INDX,C,DMO,A,B,FK)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: INTSYM(*), INDX(*)
+real(kind=wp) :: C(*), DMO(*), A(*), B(*), FK(*)
 #include "mrci.fh"
-dimension INTSYM(*), INDX(*), C(*), DMO(*), A(*), B(*), FK(*)
-dimension IPOB(9)
+integer(kind=iwp) :: ICHK, ICP1, ICP2, IFT, II, IJOLD, ILEN, IND, INDA, INDB, INK, INMY, INNY, IPOB(9), ITYP, MYL, MYSYM, NA, NA1, &
+                     NA2, NAK, NK, NSK, NVM, NYL, NYSYM
+real(kind=wp) :: COPI
+integer(kind=iwp), external :: JSUNP
 !Statement function
+integer(kind=iwp) :: JSYM, L
 JSYM(L) = JSUNP(INTSYM,L)
 
 ! SCRATCH AREAS: A(),B() AND FK().
@@ -30,11 +36,11 @@ IADD10 = IAD10(9)
 100 continue
 call dDAFILE(LUSYMB,2,COP,nCOP,IADD10)
 call iDAFILE(LUSYMB,2,iCOP1,nCOP+1,IADD10)
-LEN = ICOP1(nCOP+1)
-if (LEN == 0) GO TO 100
-if (LEN < 0) GO TO 200
+ILEN = ICOP1(nCOP+1)
+if (ILEN == 0) GO TO 100
+if (ILEN < 0) GO TO 200
 ! LOOP THROUGH THE COP BUFFER:
-do II=1,LEN
+do II=1,ILEN
   IND = ICOP1(II)
   if (ICHK /= 0) GO TO 460
   if (IND /= 0) GO TO 11

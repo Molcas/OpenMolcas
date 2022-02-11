@@ -11,11 +11,16 @@
 
 subroutine DIAGC(INTSYM,C,S)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: INTSYM(*)
+real(kind=wp) :: C(*), S(*)
 #include "mrci.fh"
-dimension INTSYM(*), C(*), S(*)
+integer(kind=iwp) :: IADD25, IIC, ILIM, IND, INDA, IRL, NA, NA1, NA2, NB, NB1, NB2, NSA, NSS
+integer(kind=iwp), external :: JSUNP
 !Statement function
+integer(kind=iwp) :: JSYM, L
 JSYM(L) = JSUNP(INTSYM,L)
 
 IADD25 = IAD25S

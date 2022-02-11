@@ -11,33 +11,35 @@
 
 subroutine PMATEL(ISTATE,JSTATE,PROP,PINT,SMAT,CNO,OCC,SFOLD,AFOLD,TDAO)
 
-implicit real*8(A-H,O-Z)
-dimension PINT(NBTRI), SFOLD(NBTRI), AFOLD(NBTRI), CNO(NCMO)
-dimension TDAO(NBAST,NBAST), SMAT(*), OCC(NBAST)
-dimension IDUM(1)
-integer ISYMLB
-real*8 PROP(NRROOT,NRROOT,NPROP)
-#include "SysDef.fh"
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6, r8
+
+implicit none
 #include "mrci.fh"
-save ICALL
-data ICALL/0/
+integer(kind=iwp) :: ISTATE, JSTATE
+real(kind=wp) :: PROP(NRROOT,NRROOT,NPROP), PINT(NBTRI), SMAT(*), CNO(NCMO), OCC(NBAST), SFOLD(NBTRI), AFOLD(NBTRI), &
+                 TDAO(NBAST,NBAST)
+integer(kind=iwp) :: I, ICALL = 0, IDUM(1), IDUMMY, IEND, IFROM, IJ, IPROP, IRTC, ISTA, ISY, ISY1, ISY12, ISY2, ISYMLB, ITO, J, &
+                     NB1, NB12, NB2, NSIZ
+real(kind=wp) :: SGN, X
+real(kind=r8), external :: DDOT_
 
 if (ISTATE == JSTATE) then
   ! READ OVERLAP INTEGRALS FROM TRAONE.
   call RDONE(IRTC,6,'MLTPL  0',1,SMAT,IDUMMY)
   ! CALCULATE AND WRITE MULLIKEN CHARGES.
-  write(6,*)
-  call XFLUSH(6)
-  write(6,'(A,I2)') ' MULLIKEN CHARGES FOR STATE NR ',ISTATE
-  call XFLUSH(6)
+  write(u6,*)
+  call XFLUSH(u6)
+  write(u6,'(A,I2)') ' MULLIKEN CHARGES FOR STATE NR ',ISTATE
+  call XFLUSH(u6)
   call CHARGE(NSYM,NBAS,NAME,CNO,OCC,SMAT,2,.true.,.true.)
-  write(6,*) ' ',('*',I=1,70)
-  call XFLUSH(6)
+  write(u6,*) ' ',('*',I=1,70)
+  call XFLUSH(u6)
 end if
 ! FOLD TDAO SYMMETRICALLY (ANTI-SYMM) INTO SFOLD (AFOLD):
 ! MOLCAS2 UPDATE: SYMMETRY-BLOCKED STORAGE.
-call DCOPY_(NBTRI,[0.0d00],0,SFOLD,1)
-call DCOPY_(NBTRI,[0.0d00],0,AFOLD,1)
+call DCOPY_(NBTRI,[Zero],0,SFOLD,1)
+call DCOPY_(NBTRI,[Zero],0,AFOLD,1)
 IJ = 0
 IEND = 0
 do ISY=1,NSYM
@@ -51,7 +53,7 @@ do ISY=1,NSYM
     end do
     IJ = IJ+1
     SFOLD(IJ) = TDAO(I,I)
-    AFOLD(IJ) = 0.0d00
+    AFOLD(IJ) = Zero
   end do
 end do
 NSIZ = 0
@@ -96,7 +98,7 @@ do IPROP=1,NPROP
   end if
   ! PUT DDOT OF TR DENS MATRIX AND INTEGRALS INTO PROPER MATRIX ELEMENT
   ! FOR MULTIPOLES, USE NEGATIVE SIGN OF ELECTRONIC PART.
-  SGN = 1.0d00
+  SGN = One
   if (PNAME(IPROP)(1:5) == 'MLTPL') SGN = -SGN
   if (PTYPE(IPROP) == 'HERM') then
     X = SGN*DDOT_(NBTRI,SFOLD,1,PINT,1)

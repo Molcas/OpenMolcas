@@ -11,15 +11,16 @@
 
 subroutine HZLP2(CBUF,SBUF,DBUF,CSECT,RSECT,XI1,XI2,CNEW,ICI)
 
-implicit real*8(A-H,O-Z)
-parameter(ONE=1.0d00)
-#include "SysDef.fh"
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
 #include "mrci.fh"
-dimension CBUF(MBUF,MXVEC), SBUF(MBUF,MXVEC), DBUF(MBUF), ICI(MBUF)
-dimension CSECT(NSECT,MXVEC), RSECT(NSECT,MXVEC)
-dimension CNEW(NSECT,MXVEC)
-dimension XI1(NSECT,MXVEC), XI2(NSECT,MXVEC)
-dimension IDCR(MXVEC), IDCW(MXVEC), IDS(MXVEC)
+real(kind=wp) :: CBUF(MBUF,MXVEC), SBUF(MBUF,MXVEC), DBUF(MBUF), CSECT(NSECT,MXVEC), RSECT(NSECT,MXVEC), XI1(NSECT,MXVEC), &
+                 XI2(NSECT,MXVEC), CNEW(NSECT,MXVEC)
+integer(kind=iwp) :: ICI(MBUF)
+integer(kind=iwp) :: I, IBUF, IDCR(MXVEC), IDCW(MXVEC), IDD, IDS(MXVEC), IEND, ISECT, ISTA, IVZ1, IVZ2, IVZ3, IVZ4, IVZSTA, JEND, & !IFG
+                     JSTA, K, KK, NN, NNVEC
 
 ! THIS SUBROUTINE LOOPS OVER SECTIONS OF PSI AND SIGMA ARRAYS
 ! ON DISK, AND FORMS A NEW SET OF PSI ARRAYS AS A LINEAR COMBINATION
@@ -31,14 +32,14 @@ IVZ1 = 1
 IVZ2 = 1+NRROOT
 IVZ3 = 1+2*NRROOT
 IVZ4 = 1+3*NRROOT
-!write(6,*)
-!write(6,*) ' IN HZLP2. NNEW=',NNEW
-!if (NVEC < MXVEC) write(6,*) ' DUMMY WRITES OF NEW FUNCTIONS.'
+!write(u6,*)
+!write(u6,*) ' IN HZLP2. NNEW=',NNEW
+!if (NVEC < MXVEC) write(u6,*) ' DUMMY WRITES OF NEW FUNCTIONS.'
 ! WE MAY NEED DUMMY WRITES TO PROVIDE DISK ADDRESSES:
 NNVEC = min(NVEC+NNEW,MXVEC)
 do K=NVEC+1,NNVEC
   IDISKC(K) = IDFREE
-  !write(6,'(A,I2,A,I8)') ' IDISKC(',K,')=',IDFREE
+  !write(u6,'(A,I2,A,I8)') ' IDISKC(',K,')=',IDFREE
   do ISTA=1,NCONF,MBUF
     IEND = min(NCONF,ISTA+MBUF-1)
     IBUF = 1+IEND-ISTA
@@ -67,9 +68,9 @@ do ISTA=1,NCONF,MBUF
     JEND = min(IBUF,JSTA+NSECT-1)
     ISECT = 1+JEND-JSTA
     ! TRANSFORM TO EIGENFUNCTIONS OF HSMALL: FIRST, CI SECTION.
-    call DGEMM_('N','N',ISECT,NRROOT,NVEC,1.0d0,CBUF(JSTA,1),MBUF,VSMALL,MXVEC,0.0d0,CSECT,NSECT)
+    call DGEMM_('N','N',ISECT,NRROOT,NVEC,One,CBUF(JSTA,1),MBUF,VSMALL,MXVEC,Zero,CSECT,NSECT)
     ! THEN, SIGMA SECTION INTO RSECT.
-    call DGEMM_('N','N',ISECT,NRROOT,NVEC,1.0d0,SBUF(JSTA,1),MBUF,VSMALL,MXVEC,0.0d0,RSECT,NSECT)
+    call DGEMM_('N','N',ISECT,NRROOT,NVEC,One,SBUF(JSTA,1),MBUF,VSMALL,MXVEC,Zero,RSECT,NSECT)
     ! AND THEN FORM RSECT=SECTION OF RESIDUAL ARRAY, AND XI1 AND XI2:
     do I=1,ISECT
       do K=1,NRROOT
@@ -79,25 +80,25 @@ do ISTA=1,NCONF,MBUF
       end do
     end do
     ! FORM NEW PSI ARRAYS IN CNEW SECTION:
-    call DGEMM_('N','N',ISECT,NNEW,NRROOT,1.0d0,CSECT,NSECT,VZERO(IVZ1,IVZSTA),MXZ,0.0d0,CNEW,NSECT)
-    call DGEMM_('N','N',ISECT,NNEW,NRROOT,ONE,RSECT,NSECT,VZERO(IVZ2,IVZSTA),MXZ,ONE,CNEW,NSECT)
-    call DGEMM_('N','N',ISECT,NNEW,NRROOT,ONE,XI1,NSECT,VZERO(IVZ3,IVZSTA),MXZ,ONE,CNEW,NSECT)
-    call DGEMM_('N','N',ISECT,NNEW,NRROOT,ONE,XI2,NSECT,VZERO(IVZ4,IVZSTA),MXZ,ONE,CNEW,NSECT)
+    call DGEMM_('N','N',ISECT,NNEW,NRROOT,One,CSECT,NSECT,VZERO(IVZ1,IVZSTA),MXZ,Zero,CNEW,NSECT)
+    call DGEMM_('N','N',ISECT,NNEW,NRROOT,One,RSECT,NSECT,VZERO(IVZ2,IVZSTA),MXZ,One,CNEW,NSECT)
+    call DGEMM_('N','N',ISECT,NNEW,NRROOT,One,XI1,NSECT,VZERO(IVZ3,IVZSTA),MXZ,One,CNEW,NSECT)
+    call DGEMM_('N','N',ISECT,NNEW,NRROOT,One,XI2,NSECT,VZERO(IVZ4,IVZSTA),MXZ,One,CNEW,NSECT)
     !if (ISTA+JSTA == 2) then
-    !  write(6,*) ' CONSTRUCTION OF NEW VECTOR IN HZLP2.'
-    !  write(6,*) ' CSECT:'
-    !  write(6,'(1X,5F15.6)') ((CSECT(I,J),I=1,5),J=1,NNEW)
-    !  write(6,*) ' RSECT:'
-    !  write(6,'(1X,5F15.6)') ((RSECT(I,J),I=1,5),J=1,NNEW)
-    !  write(6,*) '   XI1:'
-    !  write(6,'(1X,5F15.6)') ((XI1(I,J),I=1,5),J=1,NNEW)
-    !  write(6,*) '   XI2:'
-    !  write(6,'(1X,5F15.6)') ((XI2(I,J),I=1,5),J=1,NNEW)
-    !  write(6,*) ' VZERO:'
+    !  write(u6,*) ' CONSTRUCTION OF NEW VECTOR IN HZLP2.'
+    !  write(u6,*) ' CSECT:'
+    !  write(u6,'(1X,5F15.6)') ((CSECT(I,J),I=1,5),J=1,NNEW)
+    !  write(u6,*) ' RSECT:'
+    !  write(u6,'(1X,5F15.6)') ((RSECT(I,J),I=1,5),J=1,NNEW)
+    !  write(u6,*) '   XI1:'
+    !  write(u6,'(1X,5F15.6)') ((XI1(I,J),I=1,5),J=1,NNEW)
+    !  write(u6,*) '   XI2:'
+    !  write(u6,'(1X,5F15.6)') ((XI2(I,J),I=1,5),J=1,NNEW)
+    !  write(u6,*) ' VZERO:'
     !  IIII = IVZSTA-1
-    !  write(6,'(1X,4F15.6)') ((VZERO(I,IIII+J),I=1,4*NNEW),J=1,NNEW)
-    !  write(6,*) '  CNEW:'
-    !  write(6,'(1X,5F15.6)') ((CNEW(I,J),I=1,5),J=1,NNEW)
+    !  write(u6,'(1X,4F15.6)') ((VZERO(I,IIII+J),I=1,4*NNEW),J=1,NNEW)
+    !  write(u6,*) '  CNEW:'
+    !  write(u6,'(1X,5F15.6)') ((CNEW(I,J),I=1,5),J=1,NNEW)
     !end if
     ! INSERT THE NEW PSI SECTIONS IN BUFFER. THIS MAY IMPLY OVERWRITING
     ! OLD ENTRIES, BUT CAN ALSO LEAD TO AN INCREASED NUMBER OF VECTORS:
@@ -105,9 +106,9 @@ do ISTA=1,NCONF,MBUF
       NN = NVTOT+KK
       K = 1+mod(NN-1,MXVEC)
       !if (ISTA+JSTA == 2) then
-      !  write(6,'(A,I2,A,I6)') ' CNEW NR.',KK,' COPIED TO BUFFER ',K
-      !  write(6,*) ' IT CONTAINS:'
-      !  write(6,'(1X,5F15.6)') (CNEW(I,KK),I=1,15)
+      !  write(u6,'(A,I2,A,I6)') ' CNEW NR.',KK,' COPIED TO BUFFER ',K
+      !  write(u6,*) ' IT CONTAINS:'
+      !  write(u6,'(1X,5F15.6)') (CNEW(I,KK),I=1,15)
       !end if
       call DCOPY_(ISECT,CNEW(1,KK),1,CBUF(JSTA,K),1)
     end do
@@ -117,9 +118,9 @@ do ISTA=1,NCONF,MBUF
     NN = NVTOT+KK
     K = 1+mod(NN-1,MXVEC)
     !if (ISTA == 1) then
-    !  write(6,'(A,I2,A,I6)') ' BUFFER NR.',K,' WRITTEN AT ',IDCW(K)
-    !  write(6,*) ' IT CONTAINS:'
-    !  write(6,'(1X,5F15.6)') (CBUF(I,K),I=1,15)
+    !  write(u6,'(A,I2,A,I6)') ' BUFFER NR.',K,' WRITTEN AT ',IDCW(K)
+    !  write(u6,*) ' IT CONTAINS:'
+    !  write(u6,'(1X,5F15.6)') (CBUF(I,K),I=1,15)
     !end if
     call PKVEC(IBUF,CBUF(1,K),ICI)
     call iDAFILE(LUEIG,1,ICI,IBUF,IDCW(K))

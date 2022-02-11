@@ -11,10 +11,16 @@
 
 subroutine ABCD_MRCI(INTSYM,indx,ISAB,C,S,ACBDS,ACBDT,BUFIN)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Definitions, only: wp, iwp, r8
+
+implicit none
 #include "mrci.fh"
-dimension INTSYM(*), indx(*), ISAB(NVIRT,NVIRT), C(*), S(*), ACBDS(*), ACBDT(*), BUFIN(*)
+integer(kind=iwp) :: INTSYM(*), indx(*), ISAB(NVIRT,NVIRT)
+real(kind=wp) :: C(*), S(*), ACBDS(*), ACBDT(*), BUFIN(*)
+integer(kind=iwp) :: IAC, IACMAX, IACMIN, IAD16, IFIN1, IFIN2, ILOOP, IN1, INB, INDA, INPS, INPT, INS, INSB, INSIN, INUMB, ISAC, &
+                     IST, IST1, IST2, ISTEP, ISYM, ITAIL, NA, NC, NDMAX, NOV, NSAC, NSACL, NSC, NVT
+real(kind=wp) :: TERM
+real(kind=r8), external :: DDOT_
 
 !vv hand-made loop unrolling to fix a bug in GCC 3.x
 IAD16 = 0

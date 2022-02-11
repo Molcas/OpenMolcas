@@ -11,15 +11,21 @@
 
 subroutine ABTD(ICSPCK,INTSYM,INDX,C1,C2,TDMO,A1,A2,F)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, r8
+
+implicit none
 #include "mrci.fh"
-dimension ICSPCK(*), INTSYM(*), INDX(*), C1(*), C2(*), TDMO(NBAST,NBAST), A1(*), A2(*), F(*)
-dimension IPOA(9), IPOF(9)
-dimension IOC(55)
-!PAM97 external UNPACK
-!PAM97 integer UNPACK
+integer(kind=iwp) :: ICSPCK(*), INTSYM(*), INDX(*)
+real(kind=wp) :: C1(*), C2(*), TDMO(NBAST,NBAST), A1(*), A2(*), F(*)
+integer(kind=iwp) :: I, IA, IAB, IASYM, IC, ICSYM, IFT, II1, INDA, INMY, INN, IOC(55), IPF, IPOA(9), IPOF(9), ITAIL, LNA, LNC, &
+                     MYL, MYSYM, NA, NA1, NA2, NAC, NB, NCLIM, NVIRA, NVIRC
+real(kind=wp) :: TERM, TSUM
+integer(kind=iwp), external :: ICUNP, JSUNP
+real(kind=r8), external :: DDOT_
 !Statement functions
+integer(kind=iwp) :: JO, JSYM, L
+!PAM97 integer(kind=iwp), external :: UNPACK
 !PAM97 JO(L) = UNPACK(CSPCK((L+29)/30),2*L-(2*L-1)/60*60,2)
 JO(L) = ICUNP(ICSPCK,L)
 !PAM96 JSYM(L) = UNPACK(INTSYM((L+9)/10),3*mod(L-1,10)+1,3)+1
@@ -65,9 +71,9 @@ do INDA=1,ITAIL
   if (NVIR(MYL) == 0) GO TO 40
   IPF = IPOF(MYL)+1
   NVIRA = NVIR(MYL)
-  call DGER(NVIRA,NVIRA,1.0d00,C1(INMY),1,C2(INMY),1,F(IPF),NVIRA)
+  call DGER(NVIRA,NVIRA,One,C1(INMY),1,C2(INMY),1,F(IPF),NVIRA)
   LNA = LN+NVIRP(MYL)
-  TSUM = 0.0d00
+  TSUM = Zero
   do I=1,NVIRA
     TERM = C1(INMY-1+I)*C2(INMY-1+I)
     IA = LNA+I
@@ -79,7 +85,7 @@ do INDA=1,ITAIL
 25 IFT = 1
   if (INDA > IRC(3)) IFT = 0
   call IPO(IPOA,NVIR,MUL,NSYM,MYL,IFT)
-  TSUM = 0.0d00
+  TSUM = Zero
   do IASYM=1,NSYM
     IAB = IPOF(IASYM+1)-IPOF(IASYM)
     if (IAB == 0) GO TO 70
@@ -111,7 +117,7 @@ do INDA=1,ITAIL
       end if
     end if
     IPF = IPOF(IASYM)+1
-    call DGEMM_('N','T',NVIRA,NVIRA,NVIRC,1.0d00,A1,NVIRA,A2,NVIRA,1.0d00,F(IPF),NVIRA)
+    call DGEMM_('N','T',NVIRA,NVIRA,NVIRC,One,A1,NVIRA,A2,NVIRA,One,F(IPF),NVIRA)
     INN = 1
     LNC = LN+NVIRP(ICSYM)
     do I=1,NVIRC

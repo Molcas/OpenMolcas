@@ -12,21 +12,23 @@
 !PAM04 subroutine READIN(HWork,iHWork)
 subroutine READIN_MRCI()
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Constants, only: One, Two
+use Definitions, only: wp, iwp, u5, u6
+
+implicit none
 #include "warnings.h"
 #include "mrci.fh"
 #include "WrkSpc.fh"
 #include "niocr.fh"
-dimension IOCR(nIOCR), NOTOT(8)
-!PAM04 dimension HWork(*), iHWork(*)
-parameter(nCmd=20)
-parameter(mxTit=10)
-character*4 Command, Cmd(nCmd)
-character*72 Line, Title(mxTit)
-character*88 ModLine
-data Cmd/'TITL','THRP','PRIN','FROZ','DELE','MAXI','ECON','REST','ROOT','ACPF','SDCI','GVAL','PROR','REFC','SELE','NRRO','MXVE', &
-         'TRAN','EXTR','END '/
+integer(kind=iwp) :: I, iCmd, IDISK, IGFAC, IIN, ILIM, INTNUM, IO, IOCR(nIOCR), IOM, iOpt, IORBS, IR, iRef, ISUM, ISYM, IT, IU, &
+                     IV, IVA, IX1, IX2, IX3, IX4, IY1, IY2, IY3, IY4, J, jCmd, jEnd, JJ, jStart, LDUM, LN1, LN2, LV, MXVC, NAMSIZ, &
+                     NASHI, NBASI, NC, NCSHI, NDELI, NDMOI, NFMOI, NFROI, nIRC, NISHI, nJJS, NMUL, NORBI, NOTOT(8), NREFWR, NRF, & !IFG
+                     NRLN1, nTit, NVALI, NVIRI, NVT, NVT2
+character(len=88) :: ModLine
+character(len=72) :: Line, Title(10)
+character(len=4) :: Command
+character(len=4), parameter :: Cmd(20) = ['TITL','THRP','PRIN','FROZ','DELE','MAXI','ECON','REST','ROOT','ACPF','SDCI','GVAL', &
+                                            'PROR','REFC','SELE','NRRO','MXVE','TRAN','EXTR','END ']
 
 ! convert a pointer in H to a pointer for iH
 ! ipointer(i)=(i-1)*RtoI+1
@@ -35,11 +37,11 @@ data Cmd/'TITL','THRP','PRIN','FROZ','DELE','MAXI','ECON','REST','ROOT','ACPF','
 
 IOM = MXORB
 KBUFF1 = 2*9600
-ETHRE = 1.0D-08
-SQNLIM = 1.0D-10
-CTRSH = 0.05d00
-THRORB = 1.0D-05
-ENP = 1.0d00
+ETHRE = 1.0e-8_wp
+SQNLIM = 1.0e-10_wp
+CTRSH = 0.05_wp
+THRORB = 1.0e-5_wp
+ENP = One
 NRROOT = 1
 NSEL = 0
 IPRINT = 1
@@ -71,53 +73,53 @@ IDISK = 0
 call WR_MOTRA_Info(LUONE,2,iDisk,ITOC17,64,POTNUC,NSYM,NBAS,NORB,NFMO,NDMO,8,NAME,NAMSIZ)
 
 !---  Read input from standard input ----------------------------------*
-call RdNLst(5,'MRCI')
-10 read(5,'(A)',end=991) Line
+call RdNLst(u5,'MRCI')
+10 read(u5,'(A)',end=991) Line
 Command = Line(1:4)
 call UpCase(Command)
 if (Command(1:1) == '*') goto 10
 if (Command == ' ') goto 10
 jCmd = 0
-do iCmd=1,nCmd
+do iCmd=1,size(Cmd)
   if (Command == Cmd(iCmd)) jCmd = iCmd
 end do
 20 goto(100,200,300,400,500,600,700,800,900,1000,1100,1200,1300,1400,1500,1600,1700,1800,1900,2000) jCmd
-write(6,*) 'READIN Error: Command not recognized.'
-write(6,*) 'The command is:'//''''//Command//''''
+write(u6,*) 'READIN Error: Command not recognized.'
+write(u6,*) 'The command is:'//''''//Command//''''
 call QUIT(_RC_INPUT_ERROR_)
 
 !---  process TITL command --------------------------------------------*
 100 continue
-read(5,'(A)',end=991) Line
+read(u5,'(A)',end=991) Line
 Command = Line(1:4)
 call UpCase(Command)
 if (Command(1:1) == '*') goto 100
 jCmd = 0
-do iCmd=1,nCmd
+do iCmd=1,size(Cmd)
   if (Command == Cmd(iCmd)) jCmd = iCmd
 end do
 if (jCmd /= 0) goto 20
 nTit = nTit+1
-if (nTit <= mxTit) Title(nTit) = Line
+if (nTit <= size(Title)) Title(nTit) = Line
 goto 100
 
 !---  process THRP command --------------------------------------------*
 200 continue
-read(5,'(A)',end=991) Line
+read(u5,'(A)',end=991) Line
 if (Line(1:1) == '*') goto 200
 read(Line,*,Err=992) CTRSH
 goto 10
 
 !---  process PRIN command --------------------------------------------*
 300 continue
-read(5,'(A)',end=991) Line
+read(u5,'(A)',end=991) Line
 if (Line(1:1) == '*') goto 300
 read(Line,*,Err=992) IPRINT
 goto 10
 
 !---  process FROZ command --------------------------------------------*
 400 continue
-read(5,'(A)',end=991) Line
+read(u5,'(A)',end=991) Line
 if (Line(1:1) == '*') goto 400
 ModLine = Line//' 0 0 0 0 0 0 0 0'
 read(ModLine,*,Err=992) (NFRO(I),I=1,8)
@@ -125,7 +127,7 @@ goto 10
 
 !---  process DELE command --------------------------------------------*
 500 continue
-read(5,'(A)',end=991) Line
+read(u5,'(A)',end=991) Line
 if (Line(1:1) == '*') goto 500
 ModLine = Line//' 0 0 0 0 0 0 0 0'
 read(ModLine,*,Err=992) (NDEL(I),I=1,8)
@@ -133,14 +135,14 @@ goto 10
 
 !---  process MAXI command --------------------------------------------*
 600 continue
-read(5,'(A)',end=991) Line
+read(u5,'(A)',end=991) Line
 if (Line(1:1) == '*') goto 600
 read(Line,*,Err=992) MAXIT
 goto 10
 
 !---  process ECON command --------------------------------------------*
 700 continue
-read(5,'(A)',end=991) Line
+read(u5,'(A)',end=991) Line
 if (Line(1:1) == '*') goto 700
 read(Line,*,Err=992) ETHRE
 goto 10
@@ -152,7 +154,7 @@ goto 10
 
 !---  process ROOT command --------------------------------------------*
 900 continue
-read(5,'(A)',end=991) Line
+read(u5,'(A)',end=991) Line
 if (Line(1:1) == '*') goto 900
 read(Line,*,Err=992) (IROOT(I),I=1,NRROOT)
 goto 10
@@ -169,7 +171,7 @@ goto 10
 
 !---  process GVAL command --------------------------------------------*
 1200 continue
-read(5,'(A)',end=991) Line
+read(u5,'(A)',end=991) Line
 if (Line(1:1) == '*') goto 1200
 read(Line,*,Err=992) GFAC
 IGFAC = 1
@@ -177,7 +179,7 @@ goto 10
 
 !---  process PROR command --------------------------------------------*
 1300 continue
-read(5,'(A)',end=991) Line
+read(u5,'(A)',end=991) Line
 if (Line(1:1) == '*') goto 1300
 read(Line,*,Err=992) THRORB
 goto 10
@@ -189,12 +191,12 @@ goto 10
 
 !---  process SELE command --------------------------------------------*
 1500 continue
-read(5,'(A)',end=991) Line
+read(u5,'(A)',end=991) Line
 if (Line(1:1) == '*') goto 1500
 read(Line,*,Err=992) NSEL
 JJ = 0
 do I=1,NSEL
-  read(5,*,end=991,Err=992) NC,(CSEL(JJ+J),SSEL(JJ+J),J=1,NC)
+  read(u5,*,end=991,Err=992) NC,(CSEL(JJ+J),SSEL(JJ+J),J=1,NC)
   JJ = JJ+NC
   NCOMP(I) = NC
 end do
@@ -202,11 +204,11 @@ goto 10
 
 !---  process NRRO command --------------------------------------------*
 1600 continue
-read(5,'(A)',end=991) Line
+read(u5,'(A)',end=991) Line
 if (Line(1:1) == '*') goto 1600
 read(Line,*,Err=992) NRROOT
 if (nrroot > mxvec) then
-  write(6,1610) nrroot,mxvec
+  write(u6,1610) nrroot,mxvec
 1610 format('Too many roots,',i3,', max allowed is',i3)
   call quit(_RC_INPUT_ERROR_)
 end if
@@ -217,11 +219,11 @@ goto 10
 
 !---  process MXVE command --------------------------------------------*
 1700 continue
-read(5,'(A)',end=991) Line
+read(u5,'(A)',end=991) Line
 if (Line(1:1) == '*') goto 1700
 read(Line,*,Err=992) MXVC
 if (mxvc > mxvec) then
-  write(6,1710) mxvc,mxvec
+  write(u6,1710) mxvc,mxvec
 1710 format('Too many vectors,',i3,', max allowed is',i3)
   call quit(_RC_INPUT_ERROR_)
 end if
@@ -233,7 +235,7 @@ ITRANS = 1
 goto 10
 
 !---  process EXTR command --------------------------------------------*
-1900 write(6,*) 'The EXTRACT option is redundant and is ignored!'
+1900 write(u6,*) 'The EXTRACT option is redundant and is ignored!'
 goto 10
 
 !---  The end of the input is reached, print the title ----------------*
@@ -242,27 +244,27 @@ if (ntit == 0) then
   ntit = 1
   title(1) = ' ( No title was given )'
 end if
-write(6,*)
-call XFLUSH(6)
-write(6,'(6X,120A1)') ('*',i=1,120)
-call XFLUSH(6)
-write(6,'(6X,120A1)') '*',(' ',i=1,118),'*'
-call XFLUSH(6)
-write(6,'(6X,57A1,A6,57A1)') '*',(' ',i=1,56),'Title:',(' ',i=1,56),'*'
-call XFLUSH(6)
+write(u6,*)
+call XFLUSH(u6)
+write(u6,'(6X,120A1)') ('*',i=1,120)
+call XFLUSH(u6)
+write(u6,'(6X,120A1)') '*',(' ',i=1,118),'*'
+call XFLUSH(u6)
+write(u6,'(6X,57A1,A6,57A1)') '*',(' ',i=1,56),'Title:',(' ',i=1,56),'*'
+call XFLUSH(u6)
 do i=1,nTit
   call Center_Text(Title(i))
-  write(6,'(6X,24A1,A72,24A1)') '*',(' ',j=1,23),Title(i),(' ',j=1,23),'*'
-  call XFLUSH(6)
+  write(u6,'(6X,24A1,A72,24A1)') '*',(' ',j=1,23),Title(i),(' ',j=1,23),'*'
+  call XFLUSH(u6)
 end do
-write(6,'(6X,120A1)') '*',(' ',i=1,118),'*'
-call XFLUSH(6)
-write(6,'(6X,120A1)') ('*',i=1,120)
-call XFLUSH(6)
-write(6,*)
+write(u6,'(6X,120A1)') '*',(' ',i=1,118),'*'
+call XFLUSH(u6)
+write(u6,'(6X,120A1)') ('*',i=1,120)
+call XFLUSH(u6)
+write(u6,*)
 
 !---  print the coordinates of the system -----------------------------*
-call XFLUSH(6)
+call XFLUSH(u6)
 call PrCoor()
 
 !---  read the header of CIGUGA ---------------------------------------*
@@ -278,71 +280,71 @@ nIRC = 4
 call WR_GUGA(LUSYMB,iOpt,IADD10,NREF,SPIN,NELEC,LN,NSYM,NCSPCK,NINTSY,IFIRST,INTNUM,LSYM,NRF,LN1,NRLN1,MUL,nMUL,NASH,NISH,8,IRC, &
              nIRC,JJS,nJJS,NVAL,IOCR,nIOCR)
 if (ICPF == 1) then
-  write(6,*) '      THIS IS AN   A C P F   CALCULATION'
+  write(u6,*) '      THIS IS AN   A C P F   CALCULATION'
 else
-  write(6,*) '      THIS IS AN   S D C I   CALCULATION'
-  write(6,*) '      (But an ACPF correction will be computed)'
+  write(u6,*) '      THIS IS AN   S D C I   CALCULATION'
+  write(u6,*) '      (But an ACPF correction will be computed)'
 end if
 if (IGFAC == 0) then
-  GFAC = 2.0d00/NELEC
-  write(6,*) '      USE THE DEFAULT ACPF G-VALUE GFAC=',GFAC
+  GFAC = Two/NELEC
+  write(u6,*) '      USE THE DEFAULT ACPF G-VALUE GFAC=',GFAC
 else
-  write(6,*) '      THE ACPF G-VALUE HAS BEEN SET TO GFAC=',GFAC
+  write(u6,*) '      THE ACPF G-VALUE HAS BEEN SET TO GFAC=',GFAC
 end if
-write(6,*)
-if (IREST /= 0) write(6,*) '      RESTARTED CALCULATION.'
-write(6,*) '      A SMALL CI IS PERFORMED INVOLVING ONLY THE REFERENCE STATES.'
-write(6,*) '      THIS REFERENCE CI WILL USE THE FOLLOWING ROOT SELECTION CRITERIA:'
-write(6,*)
-call XFLUSH(6)
-write(6,*)
+write(u6,*)
+if (IREST /= 0) write(u6,*) '      RESTARTED CALCULATION.'
+write(u6,*) '      A SMALL CI IS PERFORMED INVOLVING ONLY THE REFERENCE STATES.'
+write(u6,*) '      THIS REFERENCE CI WILL USE THE FOLLOWING ROOT SELECTION CRITERIA:'
+write(u6,*)
+call XFLUSH(u6)
+write(u6,*)
 if (MXVC == 0) MXVC = max(NRROOT,10)
 if (NSEL == 0) then
-  write(6,*) '      ROOT SELECTION BY ENERGY ORDERING.'
+  write(u6,*) '      ROOT SELECTION BY ENERGY ORDERING.'
   if (NRROOT == 1) then
-    write(6,'(A,I8)') '      ONE SINGLE ROOT, NUMBER ',IROOT(1)
+    write(u6,'(A,I8)') '      ONE SINGLE ROOT, NUMBER ',IROOT(1)
   else
-    write(6,*) '      THE FOLLOWING ROOTS WILL BE SELECTED:'
-    write(6,'(1X,/(1x,12I3))') (IROOT(I),I=1,NRROOT)
+    write(u6,*) '      THE FOLLOWING ROOTS WILL BE SELECTED:'
+    write(u6,'(1X,/(1x,12I3))') (IROOT(I),I=1,NRROOT)
   end if
 else
-  write(6,*) '      ROOT SELECTION BY PROJECTION: THE EIGENVECTORS OF'
-  write(6,*) '      THE REFERENCE CI ARE ORDERED BY DECREASING SIZE OF'
-  write(6,*) '      THEIR PROJECTIONS ONTO A SELECTION SPACE.'
+  write(u6,*) '      ROOT SELECTION BY PROJECTION: THE EIGENVECTORS OF'
+  write(u6,*) '      THE REFERENCE CI ARE ORDERED BY DECREASING SIZE OF'
+  write(u6,*) '      THEIR PROJECTIONS ONTO A SELECTION SPACE.'
   if (NRROOT == 1) then
-    write(6,*) '     SELECT THE EIGENVECTOR WITH LARGEST PROJECTION.'
+    write(u6,*) '     SELECT THE EIGENVECTOR WITH LARGEST PROJECTION.'
   else
-    write(6,'(A,I2,A)') '      SELECT THE ',NRROOT,' EIGENVECTORS WITH LARGEST PROJECTION.'
+    write(u6,'(A,I2,A)') '      SELECT THE ',NRROOT,' EIGENVECTORS WITH LARGEST PROJECTION.'
   end if
-  write(6,*) '      THE SELECTION SPACE IS SPANNED BY THE FOLLOWING VECTORS (NONZERO COMPONENTS ONLY):'
+  write(u6,*) '      THE SELECTION SPACE IS SPANNED BY THE FOLLOWING VECTORS (NONZERO COMPONENTS ONLY):'
   JJ = 0
   do I=1,NSEL
-    write(6,'(6X,A,I2)') ' VECTOR NR. ',I
+    write(u6,'(6X,A,I2)') ' VECTOR NR. ',I
     NC = NCOMP(I)
-    write(6,'(11X,I2,5X,A20,F12.8)') (J,SSEL(JJ+J),CSEL(JJ+J),J=1,NC)
+    write(u6,'(11X,I2,5X,A20,F12.8)') (J,SSEL(JJ+J),CSEL(JJ+J),J=1,NC)
     JJ = JJ+NC
   end do
 end if
-write(6,*)
+write(u6,*)
 if (IREFCI == 0) then
   if (IREST == 0) then
-    write(6,*) '      THE REFERENCE CI IS FOLLOWED BY THE FULL SPACE'
-    write(6,*) '      CALCULATION, WHERE THE SELECTION CRITERION'
-    write(6,*) '      IS MAXIMUM OVERLAP WITH THE ROOT(S) SELECTED IN'
-    write(6,*) '      THE REFERENCE CI.'
+    write(u6,*) '      THE REFERENCE CI IS FOLLOWED BY THE FULL SPACE'
+    write(u6,*) '      CALCULATION, WHERE THE SELECTION CRITERION'
+    write(u6,*) '      IS MAXIMUM OVERLAP WITH THE ROOT(S) SELECTED IN'
+    write(u6,*) '      THE REFERENCE CI.'
   else
-    write(6,*) '      THE REFERENCE CI IS FOLLOWED BY THE FULL SPACE'
-    write(6,*) '      CALCULATION, WITH ITERATIONS RESTARTED FROM'
-    write(6,*) '      CI VECTOR(S) READ FROM FILE. THE ROOT SELECTION'
-    write(6,*) '      CRITERION IS MAXIMUM OVERLAP WITH THE START'
-    write(6,*) '      VECTORS.'
+    write(u6,*) '      THE REFERENCE CI IS FOLLOWED BY THE FULL SPACE'
+    write(u6,*) '      CALCULATION, WITH ITERATIONS RESTARTED FROM'
+    write(u6,*) '      CI VECTOR(S) READ FROM FILE. THE ROOT SELECTION'
+    write(u6,*) '      CRITERION IS MAXIMUM OVERLAP WITH THE START'
+    write(u6,*) '      VECTORS.'
   end if
 else
-  write(6,*) '      ONLY THE REFERENCE CI WAS REQUESTED.'
+  write(u6,*) '      ONLY THE REFERENCE CI WAS REQUESTED.'
 end if
 if (LN > IOM) then
-  write(6,*) 'READIN Error: Too many orbitals.'
-  write(6,'(1X,A,2I5)') 'actual,allowed:',LN,IOM
+  write(u6,*) 'READIN Error: Too many orbitals.'
+  write(u6,'(1X,A,2I5)') 'actual,allowed:',LN,IOM
   call QUIT(_RC_INPUT_ERROR_)
 end if
 NISHT = 0
@@ -351,7 +353,7 @@ do I=1,NSYM
   NISHT = NISHT+NISH(I)
   LV = LV+NVAL(I)
 end do
-IN = 0
+IIN = 0
 IR = 0
 IVA = 0
 IU = NISHT+LV
@@ -392,37 +394,37 @@ do I=1,NSYM
   NDELT = NDELT+NDELI
   NDMOT = NDMOT+NDMOI
   do J=1,NFROI
-    IN = IN+1
+    IIN = IIN+1
     IR = IR-1
-    ICH(IN) = IR
+    ICH(IIN) = IR
   end do
   do J=1,NISHI
-    IN = IN+1
+    IIN = IIN+1
     IT = IT+1
-    ICH(IN) = IT
+    ICH(IIN) = IT
     NSM(IT) = I
   end do
   do J=1,NASHI
-    IN = IN+1
+    IIN = IIN+1
     IU = IU+1
-    ICH(IN) = IU
+    ICH(IIN) = IU
     NSM(IU) = I
   end do
   do J=1,NVALI
-    IN = IN+1
+    IIN = IIN+1
     IVA = IVA+1
-    ICH(IN) = IVA
+    ICH(IIN) = IVA
     NSM(IVA) = I
   end do
   do J=1,NVIRI
-    IN = IN+1
+    IIN = IIN+1
     IV = IV+1
-    ICH(IN) = IV
+    ICH(IIN) = IV
     NSM(IV) = I
   end do
   do J=1,NDELI
-    IN = IN+1
-    ICH(IN) = 0
+    IIN = IIN+1
+    ICH(IIN) = 0
   end do
 end do
 IORBS = 0
@@ -487,65 +489,65 @@ end do
 NBTRI = (NBAST*(NBAST+1))/2
 NVT = IROW(NVIRT+1)
 NVT2 = IROW(NVIRT)
-write(6,*)
-write(6,'(A)') '      MALMQVIST DIAGONALIZATION'
-write(6,*)
-write(6,'(A,I8)') '      PRINT LEVEL                   ',IPRINT
-write(6,'(A,I12)') '      WORKSPACE WORDS, (Re*8)   ',MEMTOT
-write(6,'(A,I8)') '      MAXIMUM NR OF ORBITALS        ',IOM
-write(6,'(A,I8)') '      MAX NR OF STORED CI/SGM ARR.  ',MXVC
-write(6,'(A,I8)') '      MAX NR OF ITERATIONS          ',MAXIT
-write(6,'(A,D9.2)') '      ENERGY CONVERGENCE THRESHOLD ',ETHRE
-write(6,'(A,F8.1)') '      SPIN QUANTUM NUMBER           ',SPIN
-write(6,'(A,I8)') '      CORRELATED ELECTRONS          ',NELEC
-write(6,'(A,I8)') '      WAVE FUNCTION SYMMETRY LABEL  ',LSYM
-write(6,'(A,I8)') '      POINT GROUP ORDER             ',NSYM
-call XFLUSH(6)
-write(6,*)
-write(6,101) 'SYMMETRY LABEL:',(I,I=1,NSYM)
-write(6,101) 'INACTIVE ORBITALS',(NISH(I),I=1,NSYM),NISHT
-write(6,101) 'ACTIVE ORBITALS',(NASH(I),I=1,NSYM),NASHT
-write(6,101) 'ADDED VALENCE ORB',(NVAL(I),I=1,NSYM),NVALT
-write(6,101) 'VIRTUAL ORBITALS',(NVIR(I),I=1,NSYM),NVIRT
-write(6,*)
-write(6,101) 'SUM:CORREL ORBITALS',(NCSH(I),I=1,NSYM),NCSHT
-write(6,*)
-write(6,101) 'FROZEN ORBITALS',(NFRO(I),I=1,NSYM),NFROT
-write(6,101) 'DELETED ORBITALS',(NDEL(I),I=1,NSYM),NDELT
-write(6,*)
-write(6,101) 'SUM:ORBITALS IN CI',(NORB(I),I=1,NSYM),NORBT
-call XFLUSH(6)
-write(6,*)
-write(6,101) 'PRE-FROZEN ORBITALS',(NFMO(I),I=1,NSYM),NFMOT
-write(6,101) 'PRE-DELETED ORBITALS',(NDMO(I),I=1,NSYM),NDMOT
-write(6,101) 'SUM:   TOTAL BASIS',(NBAS(I),I=1,NSYM),NBAST
+write(u6,*)
+write(u6,'(A)') '      MALMQVIST DIAGONALIZATION'
+write(u6,*)
+write(u6,'(A,I8)') '      PRINT LEVEL                   ',IPRINT
+write(u6,'(A,I12)') '      WORKSPACE WORDS, (Re*8)   ',MEMTOT
+write(u6,'(A,I8)') '      MAXIMUM NR OF ORBITALS        ',IOM
+write(u6,'(A,I8)') '      MAX NR OF STORED CI/SGM ARR.  ',MXVC
+write(u6,'(A,I8)') '      MAX NR OF ITERATIONS          ',MAXIT
+write(u6,'(A,D9.2)') '      ENERGY CONVERGENCE THRESHOLD ',ETHRE
+write(u6,'(A,F8.1)') '      SPIN QUANTUM NUMBER           ',SPIN
+write(u6,'(A,I8)') '      CORRELATED ELECTRONS          ',NELEC
+write(u6,'(A,I8)') '      WAVE FUNCTION SYMMETRY LABEL  ',LSYM
+write(u6,'(A,I8)') '      POINT GROUP ORDER             ',NSYM
+call XFLUSH(u6)
+write(u6,*)
+write(u6,101) 'SYMMETRY LABEL:',(I,I=1,NSYM)
+write(u6,101) 'INACTIVE ORBITALS',(NISH(I),I=1,NSYM),NISHT
+write(u6,101) 'ACTIVE ORBITALS',(NASH(I),I=1,NSYM),NASHT
+write(u6,101) 'ADDED VALENCE ORB',(NVAL(I),I=1,NSYM),NVALT
+write(u6,101) 'VIRTUAL ORBITALS',(NVIR(I),I=1,NSYM),NVIRT
+write(u6,*)
+write(u6,101) 'SUM:CORREL ORBITALS',(NCSH(I),I=1,NSYM),NCSHT
+write(u6,*)
+write(u6,101) 'FROZEN ORBITALS',(NFRO(I),I=1,NSYM),NFROT
+write(u6,101) 'DELETED ORBITALS',(NDEL(I),I=1,NSYM),NDELT
+write(u6,*)
+write(u6,101) 'SUM:ORBITALS IN CI',(NORB(I),I=1,NSYM),NORBT
+call XFLUSH(u6)
+write(u6,*)
+write(u6,101) 'PRE-FROZEN ORBITALS',(NFMO(I),I=1,NSYM),NFMOT
+write(u6,101) 'PRE-DELETED ORBITALS',(NDMO(I),I=1,NSYM),NDMOT
+write(u6,101) 'SUM:   TOTAL BASIS',(NBAS(I),I=1,NSYM),NBAST
 101 format(6X,A,T47,9I5)
-write(6,*)
-call XFLUSH(6)
+write(u6,*)
+call XFLUSH(u6)
 if (LN1 == 0) then
-  write(6,*) '      ONE CLOSED SHELL REFERENCE STATE'
-  call XFLUSH(6)
+  write(u6,*) '      ONE CLOSED SHELL REFERENCE STATE'
+  call XFLUSH(u6)
 else
-  write(6,'(6X,I4,A)') NREF,' REFERENCE STATES'
+  write(u6,'(6X,I4,A)') NREF,' REFERENCE STATES'
   NREFWR = min(NREF,1000/LN1)
   LN2 = min(32,LN1)
-  write(6,'(6X,A,T47)') 'Occupation of the reference states'
+  write(u6,'(6X,A,T47)') 'Occupation of the reference states'
   if (NREFWR < NREF) then
-    write(6,'(6X,A,I3,A)') '( Only the ',NREFWR,' first are listed)'
+    write(u6,'(6X,A,I3,A)') '( Only the ',NREFWR,' first are listed)'
   end if
-  write(6,'(6X,A,T25,32I2)') 'Active orbital nr.',(I,I=1,LN2)
+  write(u6,'(6X,A,T25,32I2)') 'Active orbital nr.',(I,I=1,LN2)
   jEnd = 0
   do iRef=1,NREFWR
     jStart = jEnd+1
     jEnd = jEnd+LN1
-    write(6,'(6X,A,I3,T25,32I2)') 'Ref nr',IREF,(IOCR(j),j=jStart,jStart-1+LN2)
+    write(u6,'(6X,A,I3,T25,32I2)') 'Ref nr',IREF,(IOCR(j),j=jStart,jStart-1+LN2)
   end do
-  call XFLUSH(6)
+  call XFLUSH(u6)
 end if
-write(6,*)
-call XFLUSH(6)
-if (INTNUM /= 0) write(6,*) '      FIRST ORDER INTERACTING SPACE.'
-call XFLUSH(6)
+write(u6,*)
+call XFLUSH(u6)
+if (INTNUM /= 0) write(u6,*) '      FIRST ORDER INTERACTING SPACE.'
+call XFLUSH(u6)
 IX1 = IRC(1)
 IX2 = IRC(2)-IRC(1)
 ISC(1) = IX1
@@ -561,54 +563,54 @@ if (IFIRST == 0) then
   IY3 = ISC(3)-ISC(2)
   IY4 = ISC(4)-ISC(3)
   if (IPRINT >= 10) then
-    write(6,*)
-    call XFLUSH(6)
-    write(6,*) '      INTERNAL WALKS:'
-    call XFLUSH(6)
-    write(6,215) IX1,IX2,IX3,IX4
-    call XFLUSH(6)
+    write(u6,*)
+    call XFLUSH(u6)
+    write(u6,*) '      INTERNAL WALKS:'
+    call XFLUSH(u6)
+    write(u6,215) IX1,IX2,IX3,IX4
+    call XFLUSH(u6)
 215 format(/,6X,'                 VALENCE',I7,/,6X,' DOUBLET COUPLED SINGLES',I7,/,6X,' TRIPLET COUPLED DOUBLES',I7, &
            /,6X,' SINGLET COUPLED DOUBLES',I7)
-    write(6,*)
-    call XFLUSH(6)
-    write(6,*) '      FORMAL CONFIGURATIONS:'
-    call XFLUSH(6)
-    write(6,215) IY1,IY2,IY3,IY4
-    call XFLUSH(6)
-    write(6,'(6X,A,I7)') '                  TOTAL:',ISC(ILIM)
-    call XFLUSH(6)
+    write(u6,*)
+    call XFLUSH(u6)
+    write(u6,*) '      FORMAL CONFIGURATIONS:'
+    call XFLUSH(u6)
+    write(u6,215) IY1,IY2,IY3,IY4
+    call XFLUSH(u6)
+    write(u6,'(6X,A,I7)') '                  TOTAL:',ISC(ILIM)
+    call XFLUSH(u6)
   end if
 else
   ILIM = 2
   if (IPRINT >= 10) then
-    write(6,*)
-    call XFLUSH(6)
-    write(6,*) '      INTERNAL WALKS:'
-    call XFLUSH(6)
-    write(6,216) IX1,IX2
-    call XFLUSH(6)
+    write(u6,*)
+    call XFLUSH(u6)
+    write(u6,*) '      INTERNAL WALKS:'
+    call XFLUSH(u6)
+    write(u6,216) IX1,IX2
+    call XFLUSH(u6)
 216 format(/,6X,'                 VALENCE',I7,/,6X,' DOUBLET COUPLED SINGLES',I7)
-    write(6,*)
-    call XFLUSH(6)
-    write(6,*) '      FORMAL CONFIGURATIONS:'
-    call XFLUSH(6)
-    write(6,216) IY1,IY2
-    call XFLUSH(6)
-    write(6,'(6X,A,I7)') '                  TOTAL:',ISC(ILIM)
-    call XFLUSH(6)
+    write(u6,*)
+    call XFLUSH(u6)
+    write(u6,*) '      FORMAL CONFIGURATIONS:'
+    call XFLUSH(u6)
+    write(u6,216) IY1,IY2
+    call XFLUSH(u6)
+    write(u6,'(6X,A,I7)') '                  TOTAL:',ISC(ILIM)
+    call XFLUSH(u6)
   end if
 end if
 NIWLK = IRC(ILIM)
 NCVAL = IRC(1)
 ! ----------------------------------------------------------------------
 if (NVIRT > 255) then
-  write(6,*)
-  write(6,*) ' Sorry -- The MRCI code uses internal integer codes'
-  write(6,*) ' where the index of virtual orbitals is kept in'
-  write(6,*) ' 8-bit fields. This cannot easily be increased'
-  write(6,*) ' and limits the number of virtual orbitals to '
-  write(6,*) ' 255. Your input asks for more virtuals than this.'
-  write(6,*) ' The program cannot run.'
+  write(u6,*)
+  write(u6,*) ' Sorry -- The MRCI code uses internal integer codes'
+  write(u6,*) ' where the index of virtual orbitals is kept in'
+  write(u6,*) ' 8-bit fields. This cannot easily be increased'
+  write(u6,*) ' and limits the number of virtual orbitals to '
+  write(u6,*) ' 255. Your input asks for more virtuals than this.'
+  write(u6,*) ' The program cannot run.'
   call Quit(_RC_INPUT_ERROR_)
 end if
 ! ----------------------------------------------------------------------
@@ -664,8 +666,8 @@ call GETMEM('CISEL','ALLO','REAL',LCISEL,NSEL*NREF)
 !PAM04 call INDMAT(HWork(LCSPCK),HWork(LINTSY),HWork(LINDX),HWork(LISAB),HWork(LJREFX),HWork(LCISEL))
 call INDMAT(IWork(LCSPCK),IWork(LINTSY),IWork(LINDX),IWork(LISAB),IWork(LJREFX),Work(LCISEL))
 if (NREF > MXREF) then
-  write(6,*) 'READIN Error: Too many references.'
-  write(6,'(1X,A,2I6)') ' actual, allowed:',NREF,MXREF
+  write(u6,*) 'READIN Error: Too many references.'
+  write(u6,'(1X,A,2I6)') ' actual, allowed:',NREF,MXREF
   call QUIT(_RC_INPUT_ERROR_)
 end if
 
@@ -681,12 +683,12 @@ call ALLOC_MRCI()
 return
 
 991 continue
-write(6,*) 'READIN Error: Premature end of file while reading.'
+write(u6,*) 'READIN Error: Premature end of file while reading.'
 call Quit(_RC_IO_ERROR_READ_)
 992 continue
-write(6,*) 'READIN Error: I/O error during internal read.'
-write(6,*) 'The line that could not be read is:'
-write(6,*) Line
+write(u6,*) 'READIN Error: I/O error during internal read.'
+write(u6,*) 'The line that could not be read is:'
+write(u6,*) Line
 call Quit(_RC_IO_ERROR_READ_)
 
 end subroutine READIN_MRCI

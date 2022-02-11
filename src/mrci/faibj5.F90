@@ -11,11 +11,13 @@
 
 subroutine faibj5(LENBUF,JTURN,IBUF,BUF,AIBJ,ABIJ)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Definitions, only: wp, iwp
+
+implicit none
 #include "mrci.fh"
-#include "WrkSpc.fh"
-dimension ABIJ(NVSQ), AIBJ(NVSQ), BUF(NBITM3), IBUF(NBITM3+2)
+integer(kind=iwp) :: LENBUF, JTURN, IBUF(NBITM3+2)
+real(kind=wp) :: BUF(NBITM3), ABIJ(NVSQ), AIBJ(NVSQ)
+integer(kind=iwp) :: i
 
 if (LENBUF > 0) then
   if (JTURN == 1) then

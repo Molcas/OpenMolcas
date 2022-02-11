@@ -11,13 +11,17 @@
 
 subroutine NATORB_MRCI(CMO,DMO,CNO,OCC,SCR)
 
-implicit real*8(A-H,O-Z)
-dimension CMO(NCMO), DMO(NBTRI), CNO(NCMO), OCC(NBAST)
-dimension SCR((NBMAX*(NBMAX+1))/2)
-#include "SysDef.fh"
-#include "mrci.fh"
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp
 
-call DCOPY_(NBAST,[0.0d00],0,OCC,1)
+implicit none
+#include "mrci.fh"
+real(kind=wp) :: CMO(NCMO), DMO(NBTRI), CNO(NCMO), OCC(NBAST), SCR((NBMAX*(NBMAX+1))/2)
+integer(kind=iwp) :: I, I12, IEB, IECMO, IEO, II, IMAX, IO1, IO12, IO2, ISB, ISCMO, ISO, ISTA1, ISTA2, ISYM, J, NB, NBD, NBF, NBO, &
+                     ND, NF, NIAV, NN, NO
+real(kind=wp) :: OC, OMAX
+
+call DCOPY_(NBAST,[Zero],0,OCC,1)
 call DCOPY_(NCMO,CMO,1,CNO,1)
 ! LOOP OVER SYMMETRY LABELS
 ! Present index of end of processed CMO block:
@@ -39,7 +43,7 @@ do ISYM=1,NSYM
   ISCMO = IECMO+1
   IECMO = IECMO+NBF
   ! (DO NOTHING WITH THE FROZEN ORBITALS)
-  if (NF > 0) call DCOPY_(NF,[2.0d00],0,OCC(ISB),1)
+  if (NF > 0) call DCOPY_(NF,[Two],0,OCC(ISB),1)
   IEO = IEO+NFRO(ISYM)
   ! ORBITALS EXPLICITLY USED IN CI:
   NBO = NB*NIAV

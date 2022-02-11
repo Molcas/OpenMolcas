@@ -11,61 +11,65 @@
 
 subroutine HZ(ARR)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
 #include "mrci.fh"
-parameter(IX1F=1,IX2F=2,IRR=3,IX1R=4,IX2R=5,IX1X1=6,IX2X1=7,IX2X2=8,IFDF=9,IFDR=10,IRDR=11)
-dimension TMP(MXVEC,MXVEC)
-dimension ARR(NRROOT,NRROOT,11)
+real(kind=wp) :: ARR(NRROOT,NRROOT,11)
+integer(kind=iwp) :: I, I1, I2, I3, I4, IO2, IO3, IO4, J, J1, J2, J3, J4, K
+real(kind=wp) :: SUM1, SUM2, SUM3, TMP(MXVEC,MXVEC) !IFG
+integer(kind=iwp), parameter :: IX1F = 1, IX2F = 2, IRR = 3, IX1R = 4, IX2R = 5, IX1X1 = 6, IX2X1 = 7, IX2X2 = 8, IFDF = 9, &
+                                IFDR = 10, IRDR = 11
 
 ! THIS SUBROUTINE FORMS THE OVERLAP AND H-ZERO MATRIX ELEMENTS
 ! IN THE BASIS OF PSI, RHO, XI1, AND XI2 FUNCTIONS.
 !
-!write(6,*)
-!write(6,*)' CHECK PRINTS IN HZ.'
-!write(6,*)' X1F ARRAY:'
+!write(u6,*)
+!write(u6,*)' CHECK PRINTS IN HZ.'
+!write(u6,*)' X1F ARRAY:'
 !do I=1,NRROOT
-!  write(6,'(1X,5F15.6)') (ARR(I,J,IX1F),J=1,NRROOT)
+!  write(u6,'(1X,5F15.6)') (ARR(I,J,IX1F),J=1,NRROOT)
 !end do
-!write(6,*)' X2F ARRAY:'
+!write(u6,*)' X2F ARRAY:'
 !do I=1,NRROOT
-!  write(6,'(1X,5F15.6)') (ARR(I,J,IX2F),J=1,NRROOT)
+!  write(u6,'(1X,5F15.6)') (ARR(I,J,IX2F),J=1,NRROOT)
 !end do
-!write(6,*)' RR ARRAY:'
+!write(u6,*)' RR ARRAY:'
 !do I=1,NRROOT
-!  write(6,'(1X,5F15.6)') (ARR(I,J,IRR ),J=1,NRROOT)
+!  write(u6,'(1X,5F15.6)') (ARR(I,J,IRR ),J=1,NRROOT)
 !end do
-!write(6,*)' X1R ARRAY:'
+!write(u6,*)' X1R ARRAY:'
 !do I=1,NRROOT
-!  write(6,'(1X,5F15.6)') (ARR(I,J,IX1R),J=1,NRROOT)
+!  write(u6,'(1X,5F15.6)') (ARR(I,J,IX1R),J=1,NRROOT)
 !end do
-!write(6,*)' X2R ARRAY:'
+!write(u6,*)' X2R ARRAY:'
 !do I=1,NRROOT
-!  write(6,'(1X,5F15.6)') (ARR(I,J,IX2R),J=1,NRROOT)
+!  write(u6,'(1X,5F15.6)') (ARR(I,J,IX2R),J=1,NRROOT)
 !end do
-!write(6,*)' X1X1 ARRAY:'
+!write(u6,*)' X1X1 ARRAY:'
 !do I=1,NRROOT
-!  write(6,'(1X,5F15.6)') (ARR(I,J,IX1X1),J=1,NRROOT)
+!  write(u6,'(1X,5F15.6)') (ARR(I,J,IX1X1),J=1,NRROOT)
 !end do
-!write(6,*)' X2X1 ARRAY:'
+!write(u6,*)' X2X1 ARRAY:'
 !do I=1,NRROOT
-!  write(6,'(1X,5F15.6)') (ARR(I,J,IX2X1),J=1,NRROOT)
+!  write(u6,'(1X,5F15.6)') (ARR(I,J,IX2X1),J=1,NRROOT)
 !end do
-!write(6,*)' X2X2 ARRAY:'
+!write(u6,*)' X2X2 ARRAY:'
 !do I=1,NRROOT
-!  write(6,'(1X,5F15.6)') (ARR(I,J,IX2X2),J=1,NRROOT)
+!  write(u6,'(1X,5F15.6)') (ARR(I,J,IX2X2),J=1,NRROOT)
 !end do
-!write(6,*)' FDF ARRAY:'
+!write(u6,*)' FDF ARRAY:'
 !do I=1,NRROOT
-!  write(6,'(1X,5F15.6)') (ARR(I,J,IFDF),J=1,NRROOT)
+!  write(u6,'(1X,5F15.6)') (ARR(I,J,IFDF),J=1,NRROOT)
 !end do
-!write(6,*)' FDR ARRAY:'
+!write(u6,*)' FDR ARRAY:'
 !do I=1,NRROOT
-!  write(6,'(1X,5F15.6)') (ARR(I,J,IFDR),J=1,NRROOT)
+!  write(u6,'(1X,5F15.6)') (ARR(I,J,IFDR),J=1,NRROOT)
 !end do
-!write(6,*)' RDR ARRAY:'
+!write(u6,*)' RDR ARRAY:'
 !do I=1,NRROOT
-!  write(6,'(1X,5F15.6)') (ARR(I,J,IRDR),J=1,NRROOT)
+!  write(u6,'(1X,5F15.6)') (ARR(I,J,IRDR),J=1,NRROOT)
 !end do
 ! FIRST, CREATE OVERLAP MATRIX, AND INITIALIZE HZERO MATRIX WITH ALL
 ! TERMS THAT DO NOT REQUIRE MATRIX MULTIPLIES:
@@ -77,8 +81,8 @@ do I1=1,NRROOT
     J2 = J1+NRROOT
     J3 = J1+2*NRROOT
     J4 = J1+3*NRROOT
-    SZERO(I1,J1) = 0.0d00
-    SZERO(I2,J1) = 0.0d00
+    SZERO(I1,J1) = Zero
+    SZERO(I2,J1) = Zero
     SZERO(I3,J1) = ARR(I1,J1,IX1F)
     SZERO(I4,J1) = ARR(I1,J1,IX2F)
     SZERO(I2,J2) = ARR(I1,J1,IRR)
@@ -87,9 +91,9 @@ do I1=1,NRROOT
     SZERO(I3,J3) = ARR(I1,J1,IX1X1)
     SZERO(I4,J3) = ARR(I1,J1,IX2X1)
     SZERO(I4,J4) = ARR(I1,J1,IX2X2)
-    HZERO(I1,J1) = 0.0d00
+    HZERO(I1,J1) = Zero
     if (I1 == J1) then
-      SZERO(I1,J1) = 1.0d00
+      SZERO(I1,J1) = One
       HZERO(I1,J1) = ESMALL(I1)
     end if
     HZERO(I2,J1) = ARR(I1,J1,IRR)
@@ -108,79 +112,79 @@ IO3 = 2*NRROOT
 IO4 = 3*NRROOT
 do I=1,NRROOT
   do J=1,NRROOT
-    SUM1 = HZERO(IO3+I,IO2+J)
-    SUM2 = HZERO(IO4+I,IO2+J)
+    SUM2 = HZERO(IO3+I,IO2+J)
+    SUM3 = HZERO(IO4+I,IO2+J)
     do K=1,NRROOT
-      SUM1 = SUM1+ARR(I,K,IX1F)*(ARR(K,J,IRR)-ARR(K,J,IFDR))
-      SUM2 = SUM2+ARR(I,K,IX2F)*(ARR(K,J,IRR)-ARR(K,J,IFDR))
+      SUM2 = SUM2+ARR(I,K,IX1F)*(ARR(K,J,IRR)-ARR(K,J,IFDR))
+      SUM3 = SUM3+ARR(I,K,IX2F)*(ARR(K,J,IRR)-ARR(K,J,IFDR))
     end do
-    HZERO(IO3+I,IO2+J) = SUM1
-    HZERO(IO4+I,IO2+J) = SUM2
+    HZERO(IO3+I,IO2+J) = SUM2
+    HZERO(IO4+I,IO2+J) = SUM3
   end do
 end do
 do I=1,NRROOT
   do J=1,NRROOT
-    SUM1 = 0.0d00
-    SUM2 = 0.0d00
+    SUM2 = Zero
+    SUM3 = Zero
     do K=1,NRROOT
-      SUM1 = SUM1+ARR(I,K,IX1F)*ARR(J,K,IX1F)
+      SUM2 = SUM2+ARR(I,K,IX1F)*ARR(J,K,IX1F)
+      SUM3 = SUM3+ARR(I,K,IX2F)*ARR(J,K,IX1F)
+    end do
+    HZERO(IO3+I,IO3+J) = HZERO(IO3+I,IO3+J)-SUM2*ESMALL(J)
+    HZERO(IO3+J,IO3+I) = HZERO(IO3+J,IO3+I)-SUM2*ESMALL(J)
+    HZERO(IO4+I,IO3+J) = HZERO(IO4+I,IO3+J)-SUM3*ESMALL(J)
+  end do
+end do
+do I=1,NRROOT
+  do J=1,NRROOT
+    SUM2 = Zero
+    SUM3 = Zero
+    do K=1,NRROOT
       SUM2 = SUM2+ARR(I,K,IX2F)*ARR(J,K,IX1F)
+      SUM3 = SUM3+ARR(I,K,IX2F)*ARR(J,K,IX2F)
     end do
-    HZERO(IO3+I,IO3+J) = HZERO(IO3+I,IO3+J)-SUM1*ESMALL(J)
-    HZERO(IO3+J,IO3+I) = HZERO(IO3+J,IO3+I)-SUM1*ESMALL(J)
-    HZERO(IO4+I,IO3+J) = HZERO(IO4+I,IO3+J)-SUM2*ESMALL(J)
+    HZERO(IO4+I,IO3+J) = HZERO(IO4+I,IO3+J)-SUM2*ESMALL(I)
+    HZERO(IO4+I,IO4+J) = HZERO(IO4+I,IO4+J)-SUM3*ESMALL(I)
+    HZERO(IO4+J,IO4+I) = HZERO(IO4+J,IO4+I)-SUM3*ESMALL(I)
   end do
 end do
 do I=1,NRROOT
   do J=1,NRROOT
-    SUM1 = 0.0d00
-    SUM2 = 0.0d00
+    SUM1 = Zero
     do K=1,NRROOT
-      SUM1 = SUM1+ARR(I,K,IX2F)*ARR(J,K,IX1F)
-      SUM2 = SUM2+ARR(I,K,IX2F)*ARR(J,K,IX2F)
+      SUM1 = SUM1+ARR(I,K,IFDF)*ARR(J,K,IX1F)
     end do
-    HZERO(IO4+I,IO3+J) = HZERO(IO4+I,IO3+J)-SUM1*ESMALL(I)
-    HZERO(IO4+I,IO4+J) = HZERO(IO4+I,IO4+J)-SUM2*ESMALL(I)
-    HZERO(IO4+J,IO4+I) = HZERO(IO4+J,IO4+I)-SUM2*ESMALL(I)
+    TMP(I,J) = SUM1
   end do
 end do
 do I=1,NRROOT
   do J=1,NRROOT
-    SUM = 0.0d00
+    SUM2 = HZERO(IO3+I,IO3+J)
+    SUM3 = HZERO(IO4+I,IO3+J)
     do K=1,NRROOT
-      SUM = SUM+ARR(I,K,IFDF)*ARR(J,K,IX1F)
+      SUM2 = SUM2+ARR(I,K,IX1F)*TMP(K,J)
+      SUM3 = SUM3+ARR(I,K,IX2F)*TMP(K,J)
     end do
-    TMP(I,J) = SUM
+    HZERO(IO3+I,IO3+J) = SUM2
+    HZERO(IO4+I,IO3+J) = SUM3
   end do
 end do
 do I=1,NRROOT
   do J=1,NRROOT
-    SUM1 = HZERO(IO3+I,IO3+J)
-    SUM2 = HZERO(IO4+I,IO3+J)
+    SUM1 = Zero
     do K=1,NRROOT
-      SUM1 = SUM1+ARR(I,K,IX1F)*TMP(K,J)
-      SUM2 = SUM2+ARR(I,K,IX2F)*TMP(K,J)
+      SUM1 = SUM1+ARR(I,K,IFDF)*ARR(J,K,IX2F)
     end do
-    HZERO(IO3+I,IO3+J) = SUM1
-    HZERO(IO4+I,IO3+J) = SUM2
+    TMP(I,J) = SUM1
   end do
 end do
 do I=1,NRROOT
   do J=1,NRROOT
-    SUM = 0.0d00
+    SUM3 = HZERO(IO4+I,IO4+J)
     do K=1,NRROOT
-      SUM = SUM+ARR(I,K,IFDF)*ARR(J,K,IX2F)
+      SUM3 = SUM3+ARR(I,K,IX2F)*TMP(K,J)
     end do
-    TMP(I,J) = SUM
-  end do
-end do
-do I=1,NRROOT
-  do J=1,NRROOT
-    SUM2 = HZERO(IO4+I,IO4+J)
-    do K=1,NRROOT
-      SUM2 = SUM2+ARR(I,K,IX2F)*TMP(K,J)
-    end do
-    HZERO(IO4+I,IO4+J) = SUM2
+    HZERO(IO4+I,IO4+J) = SUM3
   end do
 end do
 do I=1,NRROOT
@@ -190,14 +194,14 @@ do I=1,NRROOT
 end do
 do I=1,NRROOT
   do J=1,NRROOT
-    SUM1 = HZERO(IO3+I,IO3+J)
-    SUM2 = HZERO(IO4+I,IO3+J)
+    SUM2 = HZERO(IO3+I,IO3+J)
+    SUM3 = HZERO(IO4+I,IO3+J)
     do K=1,NRROOT
-      SUM1 = SUM1+ARR(I,K,IX1F)*TMP(K,J)+ARR(I,K,IX1R)*ARR(J,K,IX1F)
-      SUM2 = SUM2+ARR(I,K,IX2F)*TMP(K,J)+ARR(I,K,IX2R)*ARR(J,K,IX1F)
+      SUM2 = SUM2+ARR(I,K,IX1F)*TMP(K,J)+ARR(I,K,IX1R)*ARR(J,K,IX1F)
+      SUM3 = SUM3+ARR(I,K,IX2F)*TMP(K,J)+ARR(I,K,IX2R)*ARR(J,K,IX1F)
     end do
-    HZERO(IO3+I,IO3+J) = SUM1
-    HZERO(IO4+I,IO3+J) = SUM2
+    HZERO(IO3+I,IO3+J) = SUM2
+    HZERO(IO4+I,IO3+J) = SUM3
   end do
 end do
 do I=1,NRROOT
@@ -207,11 +211,11 @@ do I=1,NRROOT
 end do
 do I=1,NRROOT
   do J=1,NRROOT
-    SUM2 = HZERO(IO4+I,IO4+J)
+    SUM3 = HZERO(IO4+I,IO4+J)
     do K=1,NRROOT
-      SUM2 = SUM2+ARR(I,K,IX2F)*TMP(K,J)+ARR(I,K,IX2R)*ARR(J,K,IX2F)
+      SUM3 = SUM3+ARR(I,K,IX2F)*TMP(K,J)+ARR(I,K,IX2R)*ARR(J,K,IX2F)
     end do
-    HZERO(IO4+I,IO4+J) = SUM2
+    HZERO(IO4+I,IO4+J) = SUM3
   end do
 end do
 do I1=1,NRROOT

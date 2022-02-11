@@ -11,12 +11,13 @@
 
 subroutine DENSCT(AREF)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: AREF(*)
 #include "mrci.fh"
 #include "WrkSpc.fh"
-dimension AREF(*)
-dimension IDC(MXROOT)
+integer(kind=iwp) :: I, IDC(MXROOT), IDDMO, IDREST, J !IFG
 
 IDREST = 0
 IDDMO = 0

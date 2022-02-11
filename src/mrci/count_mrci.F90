@@ -9,11 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine COUNT(NINTGR,NSYM,NORB,MUL)
+subroutine COUNT_MRCI(NINTGR,NSYM,NORB,MUL)
 
-implicit real*8(A-H,O-Z)
-dimension NORB(*), MUL(8,8)
-dimension NDPROD(8)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: NINTGR, NSYM, NORB(*), MUL(8,8)
+integer(kind=iwp) :: IJS, IS, ISUM, JS, NDPROD(8), NORBT
 
 ! COUNT TWO-ELECTRON INTEGRALS
 ! FIRST, COUNT NUMBER OF DENSITY PRODUCTS IN EACH SYMMETRY:
@@ -43,4 +45,4 @@ NINTGR = NINTGR/2
 
 return
 
-end subroutine COUNT
+end subroutine COUNT_MRCI

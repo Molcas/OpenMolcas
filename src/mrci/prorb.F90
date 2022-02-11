@@ -11,23 +11,24 @@
 
 subroutine PRORB(CNO,OCC)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
-#include "mrci.fh"
-dimension CNO(NCMO), OCC(NBAST)
-character*(LENIN8) CLEAN_BNAME
-external CLEAN_BNAME
+use Definitions, only: wp, iwp, u6
 
-write(6,*)
-call XFLUSH(6)
-write(6,*) 'NATURAL ORBITALS IN AO BASIS. IN EACH SYMMETRY,'
-call XFLUSH(6)
-write(6,*) 'THE ORBITALS PRINTED ARE THOSE UP TO AND INCLUDING'
-call XFLUSH(6)
-write(6,*) 'THE LAST ORBITAL WITH OCCUPATION NUMBER LARGER'
-call XFLUSH(6)
-write(6,'(A,F10.7)') ' THAN THRORB = ',THRORB
-call XFLUSH(6)
+implicit none
+#include "mrci.fh"
+real(kind=wp) :: CNO(NCMO), OCC(NBAST)
+integer(kind=iwp) :: I, IEB, IEM, IEND, IST, ISYM, J, JEMO, JSMO, NB, NDIV, NPRT
+character(len=LenIn8), external :: CLEAN_BNAME
+
+write(u6,*)
+call XFLUSH(u6)
+write(u6,*) 'NATURAL ORBITALS IN AO BASIS. IN EACH SYMMETRY,'
+call XFLUSH(u6)
+write(u6,*) 'THE ORBITALS PRINTED ARE THOSE UP TO AND INCLUDING'
+call XFLUSH(u6)
+write(u6,*) 'THE LAST ORBITAL WITH OCCUPATION NUMBER LARGER'
+call XFLUSH(u6)
+write(u6,'(A,F10.7)') ' THAN THRORB = ',THRORB
+call XFLUSH(u6)
 IEB = 0
 IEM = 0
 NDIV = 10
@@ -39,21 +40,21 @@ do ISYM=1,NSYM
     if (OCC(IEB+I) >= THRORB) NPRT = I
   end do
   if (NPRT == 0) GO TO 40
-  write(6,'(/28X,''SYMMETRY LABEL'',I3)') ISYM
-  call XFLUSH(6)
+  write(u6,'(/28X,''SYMMETRY LABEL'',I3)') ISYM
+  call XFLUSH(u6)
   do IST=1,NPRT,NDIV
     IEND = min(NPRT,IST-1+NDIV)
-    write(6,'(/5X,''ORBITAL'',6X,10I8)') (I,I=IST,IEND)
-    call XFLUSH(6)
-    write(6,'( 5X,''OCC.NO.'',8X,10F8.5)') (OCC(IEB+I),I=IST,IEND)
-    call XFLUSH(6)
-    write(6,*)
-    call XFLUSH(6)
+    write(u6,'(/5X,''ORBITAL'',6X,10I8)') (I,I=IST,IEND)
+    call XFLUSH(u6)
+    write(u6,'( 5X,''OCC.NO.'',8X,10F8.5)') (OCC(IEB+I),I=IST,IEND)
+    call XFLUSH(u6)
+    write(u6,*)
+    call XFLUSH(u6)
     do I=1,NB
       JSMO = IEM+I+NB*(IST-1)
       JEMO = IEM+I+NB*(IEND-1)
-      write(6,'(1X,I3,2X,A,10F8.4)') I,CLEAN_BNAME(NAME(IEB+I),LENIN),(CNO(J),J=JSMO,JEMO,NB)
-      call XFLUSH(6)
+      write(u6,'(1X,I3,2X,A,10F8.4)') I,CLEAN_BNAME(NAME(IEB+I),LenIn),(CNO(J),J=JSMO,JEMO,NB)
+      call XFLUSH(u6)
     end do
   end do
 40 continue

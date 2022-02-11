@@ -11,10 +11,13 @@
 
 subroutine ALLOC_MRCI()
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Definitions, only: wp, iwp, u6, RtoI
+
+implicit none
 #include "warnings.h"
 #include "mrci.fh"
+integer(kind=iwp) :: I, ILIM, LPERMB, LPERMX, LTOP, MBUF1, MBUF2, MEMB, MEMX, NARR, NBUFBI, NHREF, NIJ, NIJKL, NOT2, NOVLY1, NPER, &
+                     NPLEN, NVT
 
 ILIM = 4
 if (IFIRST /= 0) ILIM = 2
@@ -46,7 +49,7 @@ LPERMX = 1
 !PAM04 MEMX = MAXMEM-LPERMX+1
 !PAM04 MEMX = MAXMEM
 ! PAM06: Evidently some miscounting margin needed:
-MEMX = int(0.90d0*dble(MEMWRK))
+MEMX = int(0.9_wp*real(MEMWRK,kind=wp))
 ! ALLOCATION FOR SORTA.
 NCHN1 = LN*NVIRT+1
 if (IFIRST /= 0) NCHN1 = 1
@@ -252,188 +255,188 @@ MBUF = max(MBUF,1259)
 !PAM04 LPRP = LPERMB
 !PAM04 LTOP10 = LPRP+NPRP-1
 !PAM04 LTOP = max(LTOP,LTOP10)
-!PAM04 write(6,*)
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '      REQUIRED WORKSPACE SIZE:',LTOP
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '                    AVAILABLE:',MAXMEM
-!PAM04 call XFLUSH(6)
+!PAM04 write(u6,*)
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '      REQUIRED WORKSPACE SIZE:',LTOP
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '                    AVAILABLE:',MAXMEM
+!PAM04 call XFLUSH(u6)
 !PAM04 if ((LTOP <= MAXMEM) .and. (IPRINT < 5)) return
-!PAM04 write(6,*)
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,*)' DYNAMIC ALLOCATION INFORMATION:'
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,*)
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '  CSPCK:',LCSPCK
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') ' INTSYM:',LINTSY
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '  INDX:',LINDX
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '   ISAB:',LISAB
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '  JREFX:',LJREFX
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '  CISEL:',LCISEL
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,*)
-!PAM04 call XFLUSH(6)
-!PAM97 write(6,'(A,I9)') '  TIBUF:',LTIBUF
-!PAM97 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '   FOCK:',LFOCK
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '   BIN1:',LBIN1
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') ' NBSIZ1:',NBSIZ1
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '  NCHN1:',NCHN1
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '  BIAC1:',LBIAC1
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '  BICA1:',LBICA1
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '  BUFBI:',LBUFBI
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '  LTOP1:',LTOP1
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,*)
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '   BIN2:',LBIN2
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') ' NBSIZ2:',NBSIZ2
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '  NCHN2:',NCHN2
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') ' BFACBD:',LBACBD
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '  ACBDS:',LACBDS
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '  ACBDT:',LACBDT
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '  LTOP2:',LTOP2
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,*)
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '  HDIAG:',LHDIAG
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '  FIIJJ:',LIIJJ
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '  FIJIJ:',LIJIJ
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '   BIN3:',LBIN3
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') ' NBSIZ3:',NBSIZ3
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '  NCHN3:',NCHN3
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '  LTOP3:',LTOP3
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,*)
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '   AREF:',LAREF
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '   EREF:',LEREF
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '   HREF:',LHREF
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '   PLEN:',LPLEN
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '    ICI:',LICI
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '     CI:',LCI
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '    SGM:',LSGM
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '    LMQ:',LMQ
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '    ARR:',LARR
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '  LTOP4:',LTOP4
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,*)
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '   ABIJ:',LABIJ
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '   AIBJ:',LAIBJ
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '   AJBI:',LAJBI
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') ' BUFIN1:',LBFIN1
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '  ASCR1:',LASCR1
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '  BSCR1:',LBSCR1
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '  FSCR1:',LFSCR1
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '   FSEC:',LFSEC
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '  LTOP5:',LTOP5
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,*)
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '  FIJKL:',LFIJKL
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,*)
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '    BMN:',LBMN
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '   IBMN:',LIBMN
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '  BIAC2:',LBIAC2
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '  BICA2:',LBICA2
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') ' BUFIN3:',LBFIN3
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '  LTOP7:',LTOP7
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,*)
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') ' ACBDS2:',LAC1
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') ' ACBDT2:',LAC2
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') ' BUFIN4:',LBFIN4
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '  LTOP8:',LTOP8
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,*)
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') ' BUFIN5:',LBFIN5
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '  ASCR2:',LASCR2
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '  BSCR2:',LBSCR2
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '  FSCR2:',LFSCR2
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '    DBK:',LDBK
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '  LTOP9:',LTOP9
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,*)
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '    DMO:',LDMO
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '   TDMO:',LTDMO
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '    PRP:',LPRP
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') ' ltop10:',LTOP10
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,*)
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,'(A,I9)') '    LTOP',LTOP
-!PAM04 call XFLUSH(6)
-!PAM04 write(6,*)
-!PAM04 call XFLUSH(6)
+!PAM04 write(u6,*)
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,*)' DYNAMIC ALLOCATION INFORMATION:'
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,*)
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '  CSPCK:',LCSPCK
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') ' INTSYM:',LINTSY
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '  INDX:',LINDX
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '   ISAB:',LISAB
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '  JREFX:',LJREFX
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '  CISEL:',LCISEL
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,*)
+!PAM04 call XFLUSH(u6)
+!PAM97 write(u6,'(A,I9)') '  TIBUF:',LTIBUF
+!PAM97 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '   FOCK:',LFOCK
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '   BIN1:',LBIN1
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') ' NBSIZ1:',NBSIZ1
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '  NCHN1:',NCHN1
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '  BIAC1:',LBIAC1
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '  BICA1:',LBICA1
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '  BUFBI:',LBUFBI
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '  LTOP1:',LTOP1
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,*)
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '   BIN2:',LBIN2
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') ' NBSIZ2:',NBSIZ2
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '  NCHN2:',NCHN2
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') ' BFACBD:',LBACBD
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '  ACBDS:',LACBDS
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '  ACBDT:',LACBDT
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '  LTOP2:',LTOP2
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,*)
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '  HDIAG:',LHDIAG
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '  FIIJJ:',LIIJJ
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '  FIJIJ:',LIJIJ
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '   BIN3:',LBIN3
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') ' NBSIZ3:',NBSIZ3
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '  NCHN3:',NCHN3
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '  LTOP3:',LTOP3
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,*)
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '   AREF:',LAREF
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '   EREF:',LEREF
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '   HREF:',LHREF
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '   PLEN:',LPLEN
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '    ICI:',LICI
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '     CI:',LCI
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '    SGM:',LSGM
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '    LMQ:',LMQ
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '    ARR:',LARR
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '  LTOP4:',LTOP4
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,*)
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '   ABIJ:',LABIJ
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '   AIBJ:',LAIBJ
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '   AJBI:',LAJBI
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') ' BUFIN1:',LBFIN1
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '  ASCR1:',LASCR1
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '  BSCR1:',LBSCR1
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '  FSCR1:',LFSCR1
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '   FSEC:',LFSEC
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '  LTOP5:',LTOP5
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,*)
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '  FIJKL:',LFIJKL
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,*)
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '    BMN:',LBMN
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '   IBMN:',LIBMN
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '  BIAC2:',LBIAC2
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '  BICA2:',LBICA2
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') ' BUFIN3:',LBFIN3
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '  LTOP7:',LTOP7
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,*)
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') ' ACBDS2:',LAC1
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') ' ACBDT2:',LAC2
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') ' BUFIN4:',LBFIN4
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '  LTOP8:',LTOP8
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,*)
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') ' BUFIN5:',LBFIN5
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '  ASCR2:',LASCR2
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '  BSCR2:',LBSCR2
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '  FSCR2:',LFSCR2
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '    DBK:',LDBK
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '  LTOP9:',LTOP9
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,*)
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '    DMO:',LDMO
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '   TDMO:',LTDMO
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '    PRP:',LPRP
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') ' ltop10:',LTOP10
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,*)
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,'(A,I9)') '    LTOP',LTOP
+!PAM04 call XFLUSH(u6)
+!PAM04 write(u6,*)
+!PAM04 call XFLUSH(u6)
 !PAM04 if (LTOP <= MAXMEM) return
 if (LTOP <= MEMWRK) return
-write(6,*) 'ALLOC Error: Too much workspace is needed.'
-write(6,'(1X,A,2I10)') '      Needed LTOP=',LTOP
-write(6,'(1X,A,2I10)') ' Available MEMWRK=',MEMWRK
+write(u6,*) 'ALLOC Error: Too much workspace is needed.'
+write(u6,'(1X,A,2I10)') '      Needed LTOP=',LTOP
+write(u6,'(1X,A,2I10)') ' Available MEMWRK=',MEMWRK
 call QUIT(_RC_GENERAL_ERROR_)
 
 end subroutine ALLOC_MRCI

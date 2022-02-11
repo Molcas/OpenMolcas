@@ -12,26 +12,32 @@
 !pgi$g opt=1
 subroutine MKHREF(HREF,FC,FIJKL,JREFX)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
 #include "mrci.fh"
-dimension HREF(*), FC(*), FIJKL(*), JREFX(NCVAL)
+real(kind=wp) :: HREF(*), FC(*), FIJKL(*)
+integer(kind=iwp) :: JREFX(NCVAL)
+integer(kind=iwp) :: i, IADD25, IADR, IBUF, IC1, IC2, ICHK, IIN, IIR, IK, ILEN, IND, INDI, IP, IR, IVEC, IVL, JP, KP, LENGTH, LP, &
+                     NA, NAT, NB, NHREF, NI, NIJ, NIJKL, NK, NKL
+real(kind=wp) :: FINI
 
 NHREF = (NREF*(NREF+1))/2
 call FZERO(HREF,NHREF)
 ICHK = 0
 IK = 0
-FINI = 0.0d00
+FINI = Zero
 IADD25 = 0
 call dDAFILE(Lu_25,2,FC,NBTRI,IADD25)
 IADD10 = IAD10(8)
 100 call dDAFILE(LUSYMB,2,COP,nCOP,IADD10)
 call iDAFILE(LUSYMB,2,iCOP1,nCOP+1,IADD10)
-LEN = ICOP1(nCOP+1)
-if (LEN == 0) GO TO 100
-if (LEN < 0) goto 200
-do IN=1,LEN
-  IND = ICOP1(IN)
+ILEN = ICOP1(nCOP+1)
+if (ILEN == 0) GO TO 100
+if (ILEN < 0) goto 200
+do IIN=1,ILEN
+  IND = ICOP1(IIN)
   if (ICHK /= 0) then
     ICHK = 0
     INDI = IND
@@ -64,7 +70,7 @@ do IN=1,LEN
     NB = NAT
   end if
   IVEC = (NA*(NA-1))/2+NB
-  HREF(IVEC) = HREF(IVEC)+COP(IN)*FINI
+  HREF(IVEC) = HREF(IVEC)+COP(IIN)*FINI
 10 continue
 end do
 GO TO 100
@@ -73,7 +79,7 @@ ICHK = 0
 NIJ = IROW(LN+1)
 NIJKL = NIJ*(NIJ+1)/2
 call FZERO(FIJKL,NIJKL)
-FINI = 0.0d00
+FINI = Zero
 IADR = LASTAD(1)
 201 continue
 call dDAFILE(Lu_70,2,VALSRT,NSRTMX,IADR)
@@ -89,11 +95,11 @@ IADD10 = IAD10(5)
 300 continue
 call dDAFILE(LUSYMB,2,COP,nCOP,IADD10)
 call iDAFILE(LUSYMB,2,iCOP1,nCOP+1,IADD10)
-LEN = ICOP1(nCOP+1)
-if (LEN == 0) GO TO 300
-if (LEN < 0) goto 400
-do IN=1,LEN
-  IND = ICOP1(IN)
+ILEN = ICOP1(nCOP+1)
+if (ILEN == 0) GO TO 300
+if (ILEN < 0) goto 400
+do IIN=1,ILEN
+  IND = ICOP1(IIN)
   if (ICHK /= 0) then
     ICHK = 0
     INDI = IND
@@ -136,7 +142,7 @@ do IN=1,LEN
     NB = NAT
   end if
   IVEC = (NA*(NA-1))/2+NB
-  HREF(IVEC) = HREF(IVEC)+COP(IN)*FINI
+  HREF(IVEC) = HREF(IVEC)+COP(IIN)*FINI
 310 continue
 end do
 GO TO 300

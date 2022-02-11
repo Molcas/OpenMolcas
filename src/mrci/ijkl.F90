@@ -11,16 +11,23 @@
 
 subroutine IJKL(INTSYM,INDX,C,S,FIJKL)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: INTSYM(*), INDX(*)
+real(kind=wp) :: C(*), S(*), FIJKL(*)
 #include "mrci.fh"
-dimension INTSYM(*), INDX(*), C(*), S(*), FIJKL(*)
+integer(kind=iwp) :: i, IADR, IC1, IC2, ICHK, IIN, ILEN, IND, INDA, INDB, INDI, INUM, IP, IVL, JP, KP, LENGTH, LP, NA, NB, NIJ, &
+                     NIJKL, NKL, NS1, NS1L
+real(kind=wp) :: COPI, fini
+integer(kind=iwp), external :: JSUNP
 !Statement function
+integer(kind=iwp) :: JSYM, L
 JSYM(L) = JSUNP(INTSYM,L)
 
 !------
 ! POW: Unnecessary but warning stopping initialization
-fini = 1.0d30
+fini = huge(fini)
 !------
 ICHK = 0
 NIJ = IROW(LN+1)
@@ -39,11 +46,11 @@ if (IADR /= -1) GO TO 201
 IADD10 = IAD10(5)
 100 call dDAFILE(LUSYMB,2,COP,nCOP,IADD10)
 call iDAFILE(LUSYMB,2,iCOP1,nCOP+1,IADD10)
-LEN = ICOP1(nCOP+1)
-if (LEN == 0) GO TO 100
-if (LEN < 0) GO TO 200
-do IN=1,LEN
-  IND = ICOP1(IN)
+ILEN = ICOP1(nCOP+1)
+if (ILEN == 0) GO TO 100
+if (ILEN < 0) GO TO 200
+do IIN=1,ILEN
+  IND = ICOP1(IIN)
   if (ICHK /= 0) then
     ICHK = 0
     INDI = IND
@@ -71,7 +78,7 @@ do IN=1,LEN
   IVL = ibits(IND,0,6)
   IC2 = ibits(IND,6,13)
   IC1 = ibits(IND,19,13)
-  COPI = COP(IN)*FINI
+  COPI = COP(IIN)*FINI
   if (IVL == 0) then
     S(IC1) = S(IC1)+COPI*C(IC2)
     S(IC2) = S(IC2)+COPI*C(IC1)

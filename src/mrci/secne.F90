@@ -11,8 +11,12 @@
 
 subroutine SECNE(A,B,C,NAL,NBL,NSIJ,IFT)
 
-implicit real*8(A-H,O-Z)
-dimension A(NAL,NBL), B(NBL,NAL), C(NBL,NAL)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: NAL, NBL, NSIJ, IFT
+real(kind=wp) :: A(NAL,NBL), B(NBL,NAL), C(NBL,NAL)
+integer(kind=iwp) :: NA, NB
 
 if (IFT == 0) then
   do NA=1,NAL

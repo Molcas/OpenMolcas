@@ -9,12 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine faibj3(NSIJ,IFT,AIBJ,FSEC,FAC,IN,INS,IPOA,IPOF)
+subroutine faibj3(NSIJ,IFT,AIBJ,FSEC,FAC,IIN,INS,IPOA,IPOF)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: NSIJ, IFT, IIN, INS, IPOA(9), IPOF(9)
+real(kind=wp) :: AIBJ(*), FSEC(*), FAC
 #include "mrci.fh"
-dimension IPOF(9), IPOA(9), AIBJ(*), FSEC(*)
+integer(kind=iwp) :: IAB, IASYM, IBSYM
+real(kind=wp) :: DUMMY
 
 call IPO(IPOA,NVIR,MUL,NSYM,NSIJ,IFT)
 ! INTEGRAL COMBINATION APPROPRIATE FOR SINGLET-COUPLING:
@@ -24,14 +28,14 @@ do IASYM=1,NSYM
   IAB = IPOA(IASYM+1)-IPOA(IASYM)
   if (IAB == 0) GO TO 170
   if (NSIJ == 1) then
-    call SECEQ(AIBJ(IPOF(IASYM)+1),AIBJ(IPOF(IBSYM)+1),FSEC(IN+1),NVIR(IASYM),0,FAC)
+    call SECEQ(AIBJ(IPOF(IASYM)+1),AIBJ(IPOF(IBSYM)+1),FSEC(IIN+1),NVIR(IASYM),0,FAC)
   else
-    call SECNE(AIBJ(IPOF(IASYM)+1),AIBJ(IPOF(IBSYM)+1),FSEC(IN+1),NVIR(IASYM),NVIR(IBSYM),NSIJ,0)
+    call SECNE(AIBJ(IPOF(IASYM)+1),AIBJ(IPOF(IBSYM)+1),FSEC(IIN+1),NVIR(IASYM),NVIR(IBSYM),NSIJ,0)
   end if
-  IN = IN+IAB
+  IIN = IIN+IAB
 170 continue
 end do
-INS = IN
+INS = IIN
 ! INTEGRAL COMBINATION APPROPRIATE FOR TRIPLET-COUPLING:
 do IASYM=1,NSYM
   IBSYM = MUL(NSIJ,IASYM)
@@ -40,11 +44,11 @@ do IASYM=1,NSYM
   if (IAB == 0) GO TO 180
   if (NSIJ == 1) then
 
-    call SECEQ(AIBJ(IPOF(IASYM)+1),AIBJ(IPOF(IBSYM)+1),FSEC(IN+1),NVIR(IASYM),1,DUMMY)
+    call SECEQ(AIBJ(IPOF(IASYM)+1),AIBJ(IPOF(IBSYM)+1),FSEC(IIN+1),NVIR(IASYM),1,DUMMY)
   else
-    call SECNE(AIBJ(IPOF(IASYM)+1),AIBJ(IPOF(IBSYM)+1),FSEC(IN+1),NVIR(IASYM),NVIR(IBSYM),NSIJ,1)
+    call SECNE(AIBJ(IPOF(IASYM)+1),AIBJ(IPOF(IBSYM)+1),FSEC(IIN+1),NVIR(IASYM),NVIR(IBSYM),NSIJ,1)
   end if
-  IN = IN+IAB
+  IIN = IIN+IAB
 180 continue
 end do
 

@@ -11,16 +11,20 @@
 
 subroutine SECULAR(NDIM,N,NRON,HMAT,SMAT,VEC,EVAL,SCR,THR)
 
-implicit real*8(A-H,O-Z)
-intrinsic SQRT
-dimension HMAT(NDIM,NDIM), SMAT(NDIM,NDIM)
-dimension VEC(NDIM,NDIM), EVAL(NDIM), SCR(*)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: NDIM, N, NRON
+real(kind=wp) :: HMAT(NDIM,NDIM), SMAT(NDIM,NDIM), VEC(NDIM,NDIM), EVAL(NDIM), SCR(*), THR
+integer(kind=iwp) :: I, IFROM, II, IOFF1, ITO, J, K, MAXLEN
+real(kind=wp) :: RSUM, SCL, THR2
 
 THR2 = THR**2
 ! PUT NORMALIZED VECTORS INTO VEC:
-call DCOPY_(N*NDIM,[0.0d00],0,VEC,1)
+call DCOPY_(N*NDIM,[Zero],0,VEC,1)
 do I=1,N
-  VEC(I,I) = 1.0d00/sqrt(SMAT(I,I))
+  VEC(I,I) = One/sqrt(SMAT(I,I))
 end do
 ! GRAM-SCHMIDT ORTHONORMALIZING PROCEDURE:
 NRON = 0
@@ -31,34 +35,34 @@ do I=1,N
   ! PROJECT AWAY THE ALREADY ORTHONORMALIZED BASIS SET:
   do J=1,NRON
     MAXLEN = I-1-NRON+J
-    SUM = 0.0d00
+    RSUM = Zero
     do K=1,MAXLEN
-      SUM = SUM+VEC(K,J)*SCR(K)
+      RSUM = RSUM+VEC(K,J)*SCR(K)
     end do
     do K=1,MAXLEN
-      VEC(K,I) = VEC(K,I)-SUM*VEC(K,J)
+      VEC(K,I) = VEC(K,I)-RSUM*VEC(K,J)
     end do
   end do
   ! NORMALIZE AND MOVE INTO POSITION:
-  SUM = 0.0d00
+  RSUM = Zero
   do K=1,I
-    SUM = SUM+VEC(K,I)*SCR(K)
+    RSUM = RSUM+VEC(K,I)*SCR(K)
   end do
-  if (SUM < THR2) goto 60
+  if (RSUM < THR2) goto 60
   NRON = NRON+1
-  SCALE = 1.0d00/sqrt(SUM)
+  SCL = One/sqrt(RSUM)
   do K=1,I
-    VEC(K,NRON) = SCALE*VEC(K,I)
+    VEC(K,NRON) = SCL*VEC(K,I)
   end do
 60 continue
 end do
 do I=NRON+1,N
-  call DCOPY_(N,[0.0d00],0,VEC(1,I),1)
+  call DCOPY_(N,[Zero],0,VEC(1,I),1)
 end do
 ! TRANSFORM HAMILTONIAN INTO SCR:
 IOFF1 = N*NRON
-call DGEMM_('N','N',N,NRON,N,1.0d0,HMAT,NDIM,VEC,NDIM,0.0d0,SCR,N)
-call DGEMM_('T','N',NRON,NRON,N,1.0d0,VEC,NDIM,SCR,N,0.0d0,SCR(IOFF1+1),NRON)
+call DGEMM_('N','N',N,NRON,N,One,HMAT,NDIM,VEC,NDIM,Zero,SCR,N)
+call DGEMM_('T','N',NRON,NRON,N,One,VEC,NDIM,SCR,N,Zero,SCR(IOFF1+1),NRON)
 ! COPY TRANSFORMED HMAT INTO TRIANGULAR STORAGE IN SCR:
 IFROM = IOFF1+1
 ITO = 1

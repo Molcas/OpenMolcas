@@ -11,15 +11,21 @@
 
 subroutine ABD(ICSPCK,INTSYM,INDX,C,DMO,A,B,F,JREFX)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6, r8
+
+implicit none
+integer(kind=iwp) :: ICSPCK(*), INTSYM(*), INDX(*), JREFX(*)
+real(kind=wp) :: C(*), DMO(*), A(*), B(*), F(*)
 #include "mrci.fh"
-dimension ICSPCK(*), INTSYM(*), INDX(*), C(*), DMO(*), A(*), B(*), F(*), JREFX(*)
-dimension IPOA(9), IPOF(9)
-dimension IOC(55)
-!PAM97 External UNPACK
-!PAM97 integer UNPACK
+integer(kind=iwp) :: I, IAB, IASYM, ICSYM, IFT, II1, IIA, IIC, IIN, IJ, INDA, INMY, INN, IOC(55), IPF, IPOA(9), IPOF(9), ITAIL, &
+                     LNA, LNC, MYL, MYSYM, NA, NA1, NA2, NAB, NAC, NB, NCLIM, NVIRA, NVIRC
+real(kind=wp) :: ENPINV, RSUM, TR, TSUM
+integer(kind=iwp), external :: ICUNP, JSUNP
+real(kind=r8), external :: DDOT_
 !Statement functions
+integer(kind=iwp) :: JO, JSYM, L
+!PAM97 integer(kind=iwp), external :: UNPACK
 !PAM97 JO(L) = UNPACK(CSPCK((L+29)/30),2*L-(2*L-1)/60*60,2)
 JO(L) = ICUNP(ICSPCK,L)
 !PAM96 JSYM(L) = UNPACK(INTSYM((L+9)/10),3*mod(L-1,10)+1,3)+1
@@ -29,7 +35,7 @@ JSYM(L) = JSUNP(INTSYM,L)
 call CSCALE(INDX,INTSYM,C,SQ2)
 NCLIM = 4
 if (IFIRST /= 0) NCLIM = 2
-ENPINV = 1.0d00/ENP
+ENPINV = One/ENP
 ! MOVE DENSITY MATRIX TO F IN SYMMETRY BLOCKS
 call IPO(IPOF,NVIR,MUL,NSYM,1,-1)
 do IASYM=1,NSYM
@@ -64,26 +70,26 @@ do INDA=1,ITAIL
   if (NVIR(MYL) == 0) GO TO 40
   call FMUL2(C(INMY),C(INMY),A,NVIR(MYL),NVIR(MYL),1)
   IPF = IPOF(MYL)+1
-  IN = IPOF(MYL+1)-IPOF(MYL)
-  call DAXPY_(IN,ENPINV,A,1,F(IPF),1)
+  IIN = IPOF(MYL+1)-IPOF(MYL)
+  call DAXPY_(IIN,ENPINV,A,1,F(IPF),1)
   NVIRA = NVIR(MYL)
   LNA = LN+NVIRP(MYL)
   IIA = IROW(LNA+1)
-  TSUM = 0.0d00
+  TSUM = Zero
   do I=1,NVIRA
-    SUM = ENPINV*C(INMY)**2
+    RSUM = ENPINV*C(INMY)**2
     INMY = INMY+1
-    TSUM = TSUM+SUM
+    TSUM = TSUM+RSUM
     IIA = IIA+LNA+I
-    DMO(IIA) = DMO(IIA)+SUM
+    DMO(IIA) = DMO(IIA)+RSUM
   end do
   GO TO 106
   ! TRIPLET-TRIPLET AND SINGLET-SINGLET INTERACTIONS
 25 IFT = 1
   if (INDA > IRC(3)) IFT = 0
   call IPO(IPOA,NVIR,MUL,NSYM,MYL,IFT)
-  IN = 0
-  TSUM = 0.0d00
+  IIN = 0
+  TSUM = Zero
   do IASYM=1,NSYM
     IAB = IPOF(IASYM+1)-IPOF(IASYM)
     if (IAB == 0) GO TO 70
@@ -110,10 +116,10 @@ do INDA=1,ITAIL
     LNC = LN+NVIRP(ICSYM)
     IIC = IROW(LNC+1)
     do I=1,NVIRC
-      SUM = ENPINV*DDOT_(NVIRA,A(INN),1,A(INN),1)
-      TSUM = TSUM+SUM
+      RSUM = ENPINV*DDOT_(NVIRA,A(INN),1,A(INN),1)
+      TSUM = TSUM+RSUM
       IIC = IIC+LNC+I
-      DMO(IIC) = DMO(IIC)+SUM
+      DMO(IIC) = DMO(IIC)+RSUM
       INN = INN+NVIRA
     end do
 70  continue
@@ -141,13 +147,13 @@ do IASYM=1,NSYM
     end do
   end do
 end do
-TR = 0.0d00
+TR = Zero
 IJ = 0
 do I=1,NCSHT
   IJ = IJ+I
   TR = TR+DMO(IJ)
 end do
-if (abs(TR-dble(NELEC)) > 1.0D-8) write(6,310) TR
+if (abs(TR-real(NELEC,kind=wp)) > 1.0e-8_wp) write(u6,310) TR
 310 format(/,6X,'TRACE OF DENSITY MATRIX',F16.8)
 call CSCALE(INDX,INTSYM,C,SQ2INV)
 

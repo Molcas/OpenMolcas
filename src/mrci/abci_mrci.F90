@@ -11,11 +11,19 @@
 
 subroutine ABCI_MRCI(INTSYM,indx,C,S,BMN,IBMN,BIAC,BICA,BUFIN)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Definitions, only: wp, iwp, r8
+
+implicit none
+integer(kind=iwp) :: INTSYM(*), indx(*), IBMN(*)
+real(kind=wp) :: C(*), S(*), BMN(*), BIAC(*), BICA(*), BUFIN(*)
 #include "mrci.fh"
-dimension INTSYM(*), indx(*), C(*), S(*), BMN(*), IBMN(*), BIAC(*), BICA(*), BUFIN(*)
+integer(kind=iwp) :: IAD15, ICCB, ICHK, ICP1, ICP2, IIN, ILEN, ILOOP, INB, IND, INDA, INDB, INS, INSB, INSIN, INUMB, IOUT, IST, &
+                     IT, ITYP, LB, MA, NB, NI, NSAVE, NSIB, NSLB
+real(kind=wp) :: COPL, TERM
+integer(kind=iwp), external :: JSUNP
+real(kind=r8), external :: DDOT_
 !Statement function
+integer(kind=iwp) :: JSYM, L
 JSYM(L) = JSUNP(INTSYM,L)
 
 call CSCALE(indx,INTSYM,C,SQ2)
@@ -26,28 +34,28 @@ IAD15 = IADABCI
 IADD10 = IAD10(4)
 call dDAFILE(LUSYMB,2,COP,nCOP,IADD10)
 call iDAFILE(LUSYMB,2,iCOP1,nCOP+1,IADD10)
-LEN = ICOP1(nCOP+1)
-IN = 2
-NSAVE = ICOP1(IN)
+ILEN = ICOP1(nCOP+1)
+IIN = 2
+NSAVE = ICOP1(IIN)
 100 NI = NSAVE
 IOUT = 0
-110 IN = IN+1
-if (IN <= LEN) GO TO 15
+110 IIN = IIN+1
+if (IIN <= ILEN) GO TO 15
 call dDAFILE(LUSYMB,2,COP,nCOP,IADD10)
 call iDAFILE(LUSYMB,2,iCOP1,nCOP+1,IADD10)
-LEN = ICOP1(nCOP+1)
-if (LEN <= 0) GO TO 5
-IN = 1
+ILEN = ICOP1(nCOP+1)
+if (ILEN <= 0) GO TO 5
+IIN = 1
 15 if (ICHK /= 0) GO TO 460
-if (ICOP1(IN) == 0) GO TO 10
+if (ICOP1(IIN) == 0) GO TO 10
 IOUT = IOUT+1
-BMN(IOUT) = COP(IN)
-IBMN(IOUT) = ICOP1(IN)
+BMN(IOUT) = COP(IIN)
+IBMN(IOUT) = ICOP1(IIN)
 GO TO 110
 10 ICHK = 1
 GO TO 110
 460 ICHK = 0
-NSAVE = ICOP1(IN)
+NSAVE = ICOP1(IIN)
 5 continue
 do NB=1,NVIRT
   NSIB = MUL(NSM(LN+NB),NSM(NI))
@@ -95,7 +103,7 @@ do NB=1,NVIRT
 25  continue
   end do
 end do
-if (LEN >= 0) GO TO 100
+if (ILEN >= 0) GO TO 100
 call CSCALE(indx,INTSYM,C,SQ2INV)
 call CSCALE(indx,INTSYM,S,SQ2)
 

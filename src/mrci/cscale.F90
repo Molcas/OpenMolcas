@@ -11,13 +11,16 @@
 
 subroutine CSCALE(INDX,INTSYM,C,X)
 
-implicit real*8(A-H,O-Z)
-dimension C(*), INDX(*), INTSYM(*)
-#include "SysDef.fh"
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: INDX(*), INTSYM(*)
+real(kind=wp) :: C(*), X
 #include "mrci.fh"
-!PAM97 external UNPACK
-!PAM97 integer UNPACK
+integer(kind=iwp) :: II1, MA, NA
+integer(kind=iwp), external :: JSUNP
 !Statement function
+!PAM97 integer(kind=iwp), external :: UNPACK
 !PAM96 JSYM(L) = UNPACK(INTSYM((L+9)/10),3*mod(L-1,10)+1,3)+1
 !JSYM(L) = JSUNP(INTSYM,L)
 
