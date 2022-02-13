@@ -62,10 +62,9 @@ do IS=1,NSYM
     call XFLUSH(u6)
     write(u6,'(6X,A,8I4)') 'PRE-FROZEN:',(NFMO(I),I=1,NSYM)
     call XFLUSH(u6)
-    goto 6
+    exit
   end if
 end do
-6 continue
 write(u6,*) ' ORDER OF SPIN-COUPLING: (PRE-FROZEN, NOT SHOWN)'
 call XFLUSH(u6)
 write(u6,*) '                         (FROZEN, NOT SHOWN)'
@@ -111,19 +110,18 @@ do I=1,NCONF
     CSFTYP = '     SINGLET'
     CLIM = CTRSH
   end if
-  if (ACI < CLIM) goto 10
+  if (ACI < CLIM) exit
   JJ = I
   IJ = I
   if (NREXT > 0) then
     JMAX = IRC(ILIM)
     do J=JMIN,JMAX
       JJ = J
-      if (INDX(J) < IJ) GO TO 20
-      JJ = JJ-1
-      goto 25
-20    continue
+      if (INDX(J) >= IJ) then
+        JJ = JJ-1
+        exit
+      end if
     end do
-25  continue
   end if
   NSJ = MUL(JSYM(JJ),LSYM)
   JVIR = IJ-INDX(JJ)
@@ -148,21 +146,20 @@ do I=1,NCONF
     LN1 = 2
   else
     IIN = 0
-    do II=1,NVIRT
+    outer: do II=1,NVIRT
       NA = II
       NSI = MUL(NSJ,NSM(LN+II))
       J1 = NVIRP(NSI)+1
       J2 = NVIRP(NSI)+NVIR(NSI)
       if (J2 > II) J2 = II
-      if (J2 < J1) GO TO 46
-      do J=J1,J2
-        NB = J
-        IIN = IIN+1
-        if (IIN == JVIR) GO TO 48
-      end do
-46    continue
-    end do
-48  continue
+      if (J2 >= J1) then
+        do J=J1,J2
+          NB = J
+          IIN = IIN+1
+          if (IIN == JVIR) exit outer
+        end do
+      end if
+    end do outer
     IOC(1) = 1
     ISP(1) = 1
     ILSYM(1) = NSM(LN+NB)
@@ -174,7 +171,7 @@ do I=1,NCONF
       ISP(2) = 3
       ILSYM(2) = NSM(IO)
       CI = CI*sqrt(Half)
-      if (abs(CI) < CTRSH) GO TO 10
+      if (abs(CI) < CTRSH) cycle
       FRMT = FORM1
       if (LN2 > 36) FRMT = FORM01
       LN1 = 2
@@ -194,7 +191,6 @@ do I=1,NCONF
   call XFLUSH(u6)
   write(u6,105) I,C(I),CSFTYP
   call XFLUSH(u6)
-105 format(/6X,'CONFIGURATION',I7,3X,'COEFFICIENT',F10.6,A)
   write(u6,FRMT) 'SYMMETRY     ',(ILSYM(J),J=LN1,LN2)
   call XFLUSH(u6)
   write(u6,FRMT) 'ORBITALS     ',(IORBI(J),J=LN1,LN2)
@@ -203,9 +199,10 @@ do I=1,NCONF
   call XFLUSH(u6)
   write(u6,FRMT) 'SPIN-COUPLING',(ISP(J),J=LN1,LN2)
   call XFLUSH(u6)
-10 continue
 end do
 
 return
+
+105 format(/6X,'CONFIGURATION',I7,3X,'COEFFICIENT',F10.6,A)
 
 end subroutine PRWF_MRCI

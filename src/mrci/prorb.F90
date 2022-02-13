@@ -34,33 +34,32 @@ IEM = 0
 NDIV = 10
 do ISYM=1,NSYM
   NB = NBAS(ISYM)
-  if (NB == 0) GO TO 100
+  if (NB == 0) cycle
   NPRT = 0
   do I=1,NB
     if (OCC(IEB+I) >= THRORB) NPRT = I
   end do
-  if (NPRT == 0) GO TO 40
-  write(u6,'(/28X,''SYMMETRY LABEL'',I3)') ISYM
-  call XFLUSH(u6)
-  do IST=1,NPRT,NDIV
-    IEND = min(NPRT,IST-1+NDIV)
-    write(u6,'(/5X,''ORBITAL'',6X,10I8)') (I,I=IST,IEND)
+  if (NPRT /= 0) then
+    write(u6,'(/28X,''SYMMETRY LABEL'',I3)') ISYM
     call XFLUSH(u6)
-    write(u6,'( 5X,''OCC.NO.'',8X,10F8.5)') (OCC(IEB+I),I=IST,IEND)
-    call XFLUSH(u6)
-    write(u6,*)
-    call XFLUSH(u6)
-    do I=1,NB
-      JSMO = IEM+I+NB*(IST-1)
-      JEMO = IEM+I+NB*(IEND-1)
-      write(u6,'(1X,I3,2X,A,10F8.4)') I,CLEAN_BNAME(NAME(IEB+I),LenIn),(CNO(J),J=JSMO,JEMO,NB)
+    do IST=1,NPRT,NDIV
+      IEND = min(NPRT,IST-1+NDIV)
+      write(u6,'(/5X,''ORBITAL'',6X,10I8)') (I,I=IST,IEND)
       call XFLUSH(u6)
+      write(u6,'( 5X,''OCC.NO.'',8X,10F8.5)') (OCC(IEB+I),I=IST,IEND)
+      call XFLUSH(u6)
+      write(u6,*)
+      call XFLUSH(u6)
+      do I=1,NB
+        JSMO = IEM+I+NB*(IST-1)
+        JEMO = IEM+I+NB*(IEND-1)
+        write(u6,'(1X,I3,2X,A,10F8.4)') I,CLEAN_BNAME(NAME(IEB+I),LenIn),(CNO(J),J=JSMO,JEMO,NB)
+        call XFLUSH(u6)
+      end do
     end do
-  end do
-40 continue
+  end if
   IEB = IEB+NB
   IEM = IEM+NB*NB
-100 continue
 end do
 
 return

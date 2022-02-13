@@ -34,7 +34,7 @@ do ISYM=1,NSYM
   NO = NORB(ISYM)
   NIAV = NISH(ISYM)+NASH(ISYM)+NVIR(ISYM)
   NB = NBAS(ISYM)
-  if (NB == 0) Go To 100
+  if (NB == 0) cycle
   ISB = IEB+1
   IEB = IEB+NB
   ! ORBITALS PRE-FROZEN IN MOTRA, OR FROZEN IN MRCI:
@@ -78,20 +78,20 @@ do ISYM=1,NSYM
     IMAX = I
     do J=I+1,NN
       OC = OCC(ISB+NF-1+J)
-      if (OMAX >= OC) goto 30
-      IMAX = J
-      OMAX = OC
-30    continue
+      if (OMAX < OC) then
+        IMAX = J
+        OMAX = OC
+      end if
     end do
-    if (IMAX == I) goto 40
-    OCC(ISB+NF-1+IMAX) = OCC(ISB+NF-1+I)
-    OCC(ISB+NF-1+I) = OMAX
-    ISTA1 = ISCMO+NB*(I-1)
-    ISTA2 = ISCMO+NB*(IMAX-1)
-    call DCOPY_(NB,CNO(ISTA1),1,SCR,1)
-    call DCOPY_(NB,CNO(ISTA2),1,CNO(ISTA1),1)
-    call DCOPY_(NB,SCR,1,CNO(ISTA2),1)
-40  continue
+    if (IMAX /= I) then
+      OCC(ISB+NF-1+IMAX) = OCC(ISB+NF-1+I)
+      OCC(ISB+NF-1+I) = OMAX
+      ISTA1 = ISCMO+NB*(I-1)
+      ISTA2 = ISCMO+NB*(IMAX-1)
+      call DCOPY_(NB,CNO(ISTA1),1,SCR,1)
+      call DCOPY_(NB,CNO(ISTA2),1,CNO(ISTA1),1)
+      call DCOPY_(NB,SCR,1,CNO(ISTA2),1)
+    end if
   end do
   ! ORBITALS PRE-DELETED IN MOTRA OR DELETED IN MRCI:
   ND = NDMO(ISYM)+NDEL(ISYM)
@@ -100,7 +100,6 @@ do ISYM=1,NSYM
   IECMO = IECMO+NBD
   IEO = IEO+NDEL(ISYM)
   ! (DO NOTHING WITH THE DELETED ORBITALS)
-100 continue
 end do
 
 return

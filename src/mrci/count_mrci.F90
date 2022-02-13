@@ -29,9 +29,7 @@ do IJS=1,NSYM
   ISUM = 0
   do IS=1,NSYM
     JS = MUL(IS,IJS)
-    if (JS > IS) goto 20
-    ISUM = ISUM+NORB(IS)*NORB(JS)
-20  continue
+    if (JS <= IS) ISUM = ISUM+NORB(IS)*NORB(JS)
   end do
   NDPROD(IJS) = ISUM
 end do

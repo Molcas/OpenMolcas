@@ -23,31 +23,27 @@ integer(kind=iwp), external :: JSUNP
 
 IFTA = 0
 IFTB = 0
-!goto (109,110,111,112,113),ITYP
-if (ITYP == 1) then
-  INDA = IRC(2)+ICOUP1
-  INDB = IRC(2)+ICOUP
-  IFTA = 1
-  IFTB = 1
-end if
-if (ITYP == 2) then
-  INDA = IRC(3)+ICOUP1
-  INDB = IRC(3)+ICOUP
-end if
-if (ITYP == 3) then
-  INDA = IRC(2)+ICOUP1
-  INDB = IRC(3)+ICOUP
-  IFTA = 1
-end if
-if (ITYP == 4) then
-  INDA = IRC(3)+ICOUP1
-  INDB = IRC(2)+ICOUP
-  IFTB = 1
-end if
-if (ITYP == 5) then
-  INDA = IRC(1)+ICOUP1
-  INDB = IRC(1)+ICOUP
-end if
+select case (ITYP)
+  case (1)
+    INDA = IRC(2)+ICOUP1
+    INDB = IRC(2)+ICOUP
+    IFTA = 1
+    IFTB = 1
+  case (2)
+    INDA = IRC(3)+ICOUP1
+    INDB = IRC(3)+ICOUP
+  case (3)
+    INDA = IRC(2)+ICOUP1
+    INDB = IRC(3)+ICOUP
+    IFTA = 1
+  case (4)
+    INDA = IRC(3)+ICOUP1
+    INDB = IRC(2)+ICOUP
+    IFTB = 1
+  case (5)
+    INDA = IRC(1)+ICOUP1
+    INDB = IRC(1)+ICOUP
+end select
 !vv : unroll inline function to make GCC compiler works proper..
 MYSYM = JSUNP(INTSYM,INDA)
 NYSYM = MUL(MYSYM,NSIJ)

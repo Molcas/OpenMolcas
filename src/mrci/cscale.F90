@@ -19,29 +19,15 @@ real(kind=wp) :: C(*), X
 #include "mrci.fh"
 integer(kind=iwp) :: II1, MA, NA
 integer(kind=iwp), external :: JSUNP
-!Statement function
-!PAM97 integer(kind=iwp), external :: UNPACK
-!PAM96 JSYM(L) = UNPACK(INTSYM((L+9)/10),3*mod(L-1,10)+1,3)+1
-!JSYM(L) = JSUNP(INTSYM,L)
 
-!do II1 = IRC(3)+1,IRC(4)
-II1 = IRC(3)+1
-30 if (II1 > IRC(4)) goto 10
-!if (JSYM(II1) /= LSYM) goto 40
-if (JSUNP(INTSYM,II1) /= LSYM) goto 40
-NA = INDX(II1)
-MA = 1
-if (NVIRT < 1) goto 620
-!do MA=1,NVIRT
-720 C(NA+NDIAG(MA)) = X*C(NA+NDIAG(MA))
-!end do
-MA = MA+1
-if (MA <= NVIRT) goto 720
-620 continue
-40 II1 = II1+1
-goto 30
-10 continue
-!end do
+do II1 = IRC(3)+1,IRC(4)
+  if (JSUNP(INTSYM,II1) == LSYM) then
+    NA = INDX(II1)
+    do MA=1,NVIRT
+      C(NA+NDIAG(MA)) = X*C(NA+NDIAG(MA))
+    end do
+  end if
+end do
 
 return
 

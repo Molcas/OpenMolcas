@@ -48,13 +48,13 @@ do I=1,N
   do K=1,I
     RSUM = RSUM+VEC(K,I)*SCR(K)
   end do
-  if (RSUM < THR2) goto 60
-  NRON = NRON+1
-  SCL = One/sqrt(RSUM)
-  do K=1,I
-    VEC(K,NRON) = SCL*VEC(K,I)
-  end do
-60 continue
+  if (RSUM >= THR2) then
+    NRON = NRON+1
+    SCL = One/sqrt(RSUM)
+    do K=1,I
+      VEC(K,NRON) = SCL*VEC(K,I)
+    end do
+  end if
 end do
 do I=NRON+1,N
   call DCOPY_(N,[Zero],0,VEC(1,I),1)

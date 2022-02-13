@@ -75,14 +75,14 @@ do IPROP=1,NPROP
     ITO = 1
     do ISY1=1,NSYM
       NB1 = NBAS(ISY1)
-      if (NB1 == 0) goto 40
+      if (NB1 == 0) cycle
       do ISY2=1,ISY1
         NB2 = NBAS(ISY2)
-        if (NB2 == 0) goto 30
+        if (NB2 == 0) cycle
         ISY12 = MUL(ISY1,ISY2)
         !PAM96 MASK = 2**(ISY12-1)
-        !PAM96 if (iand(ISYMLB,MASK) == 0) goto 30
-        if (mod(ISYMLB,2**(ISY12)) == 0) goto 30
+        !PAM96 if (iand(ISYMLB,MASK) == 0) cycle
+        if (mod(ISYMLB,2**(ISY12)) == 0) cycle
         NB12 = NB1*NB2
         if (ISY12 == 1) then
           NB12 = (NB12+NB1)/2
@@ -90,9 +90,7 @@ do IPROP=1,NPROP
           ITO = ITO+NB12
         end if
         IFROM = IFROM+NB12
-30      continue
       end do
-40    continue
     end do
     NSIZ = ITO
   end if

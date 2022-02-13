@@ -54,19 +54,17 @@ do I=1,100
   ! PICK UP OPERATOR LABELS FROM ONE-ELECTRON FILE:
   LABEL = 'UNDEF'
   call iRDONE(IRTC,1+IOPT,LABEL,IPC,IDUMMY,ISYMLB)
-  if (IRTC /= 0) goto 99
+  if (IRTC /= 0) exit
   IOPT = 16
-  !PAM96 if (iand(1,ISYMLB) == 0) goto 98
-  if (mod(ISYMLB,2) == 0) goto 98
+  !PAM96 if (iand(1,ISYMLB) == 0) cycle
+  if (mod(ISYMLB,2) == 0) cycle
   NPROP = NPROP+1
   PNAME(NPROP) = LABEL
   IPCOMP(NPROP) = IPC
   PTYPE(NPROP) = 'HERM'
   if (LABEL == 'VELOCITY') PTYPE(NPROP) = 'ANTI'
   if (LABEL == 'ANGMOM  ') PTYPE(NPROP) = 'ANTI'
-98 continue
 end do
-99 continue
 call MMA_ALLOCATE(PROP,NRROOT,NRROOT,NPROP,'PROP')
 call DCOPY_(NRROOT*NRROOT*NPROP,[Zero],0,PROP,1)
 IDDMO = 0
@@ -135,7 +133,7 @@ if (NPROP > 0) then
   write(u6,*) ' EXPECTATION VALUES OF VARIOUS OPERATORS:'
   write(u6,*) '(Note: Electronic multipoles include a negative sign.)'
   do IPROP=1,NPROP
-    if (PTYPE(IPROP) == 'ANTI') goto 110
+    if (PTYPE(IPROP) == 'ANTI') cycle
     do ISTA=1,NRROOT,4
       IEND = min(ISTA+3,NRROOT)
       write(u6,*)
@@ -146,50 +144,49 @@ if (NPROP > 0) then
       write(u6,'(1X,A,4F16.8)') '         NUCLEAR:',(PNUC(IPROP),I=ISTA,IEND)
       write(u6,'(1X,A,4F16.8)') '           TOTAL:',(PNUC(IPROP)+PROP(I,I,IPROP),I=ISTA,IEND)
     end do
-110 continue
   end do
   write(u6,*)
 end if
-if (ITRANS == 0) goto 1000
-do ISTATE=2,NRROOT
-  do JSTATE=1,ISTATE-1
-    ! PICK UP TDMA
-    !PAM04 call dDAFILE(LUEIG,2,HWork(LTDMO),NBAST**2,IDDMO)
-    call dDAFILE(LUEIG,2,Work(LTDMO),NBAST**2,IDDMO)
-    ! CREATE TDAO
-    !PAM04 call MKTDAO(HWork(LCMO),HWork(LTDMO),HWork(LTDAO),HWork(LSCR))
-    call MKTDAO(Work(LCMO),Work(LTDMO),Work(LTDAO),Work(LSCR))
-    ! CALL PMATEL TO CALCULATE TRANSITION PROPERTIES
-    ! PUT PROPERTIES INTO APPROPRIATE MATRICES.
-    if (NPROP == 0) goto 201
-    call PMATEL(ISTATE,JSTATE,PROP,Work(LPINT),Work(LSCR),Work(LCNO),Work(LOCC),Work(LSFOLD),Work(LAFOLD),Work(LTDAO))
-201 continue
-  end do
-end do
-if (NPROP == 0) goto 1000
-! WRITE PROPERTY MATRICES.
-write(u6,*)
-write(u6,*) ' MATRIX ELEMENTS OF VARIOUS OPERATORS:'
-write(u6,*) ' (INCLUDING ANY NUCLEAR CONTRIBUTIONS)'
-do IPROP=1,NPROP
-  do I=1,NRROOT
-    PROP(I,I,IPROP) = PROP(I,I,IPROP)+PNUC(IPROP)
-  end do
-end do
-do IPROP=1,NPROP
-  do ISTA=1,NRROOT,4
-    IEND = min(ISTA+3,NRROOT)
-    write(u6,*)
-    write(u6,'(1X,A,A8,A,I4)') '   PROPERTY :',PNAME(IPROP),'   COMPONENT:',IPCOMP(IPROP)
-    write(u6,'(1X,A,3F16.8)') '    GAUGE ORIGIN:',(PORIG(I,IPROP),I=1,3)
-    write(u6,'(1X,A,I8,3I16)') '            ROOT:',(I,I=ISTA,IEND)
-    do J=1,NRROOT
-      write(u6,'(15X,I2,4F16.8)') J,(PROP(J,I,IPROP),I=ISTA,IEND)
+if (ITRANS /= 0) then
+  do ISTATE=2,NRROOT
+    do JSTATE=1,ISTATE-1
+      ! PICK UP TDMA
+      !PAM04 call dDAFILE(LUEIG,2,HWork(LTDMO),NBAST**2,IDDMO)
+      call dDAFILE(LUEIG,2,Work(LTDMO),NBAST**2,IDDMO)
+      ! CREATE TDAO
+      !PAM04 call MKTDAO(HWork(LCMO),HWork(LTDMO),HWork(LTDAO),HWork(LSCR))
+      call MKTDAO(Work(LCMO),Work(LTDMO),Work(LTDAO),Work(LSCR))
+      ! CALL PMATEL TO CALCULATE TRANSITION PROPERTIES
+      ! PUT PROPERTIES INTO APPROPRIATE MATRICES.
+      if (NPROP /= 0) call PMATEL(ISTATE,JSTATE,PROP,Work(LPINT),Work(LSCR),Work(LCNO),Work(LOCC),Work(LSFOLD),Work(LAFOLD), &
+                                  Work(LTDAO))
     end do
   end do
-end do
-write(u6,*)
-1000 continue
+  if (NPROP /= 0) then
+    ! WRITE PROPERTY MATRICES.
+    write(u6,*)
+    write(u6,*) ' MATRIX ELEMENTS OF VARIOUS OPERATORS:'
+    write(u6,*) ' (INCLUDING ANY NUCLEAR CONTRIBUTIONS)'
+    do IPROP=1,NPROP
+      do I=1,NRROOT
+        PROP(I,I,IPROP) = PROP(I,I,IPROP)+PNUC(IPROP)
+      end do
+    end do
+    do IPROP=1,NPROP
+      do ISTA=1,NRROOT,4
+        IEND = min(ISTA+3,NRROOT)
+        write(u6,*)
+        write(u6,'(1X,A,A8,A,I4)') '   PROPERTY :',PNAME(IPROP),'   COMPONENT:',IPCOMP(IPROP)
+        write(u6,'(1X,A,3F16.8)') '    GAUGE ORIGIN:',(PORIG(I,IPROP),I=1,3)
+        write(u6,'(1X,A,I8,3I16)') '            ROOT:',(I,I=ISTA,IEND)
+        do J=1,NRROOT
+          write(u6,'(15X,I2,4F16.8)') J,(PROP(J,I,IPROP),I=ISTA,IEND)
+        end do
+      end do
+    end do
+    write(u6,*)
+  end if
+end if
 call GETMEM('CMO','FREE','REAL',LCMO,NCMO)
 call GETMEM('CNO','FREE','REAL',LCNO,NCMO)
 call GETMEM('OCC','FREE','REAL',LOCC,NBAST)

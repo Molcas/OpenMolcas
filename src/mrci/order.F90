@@ -23,12 +23,12 @@ do I=1,N-1
   IMIN = I
   DMIN = D(I)
   do J=I+1,N
-    if (D(J) >= DMIN) goto 10
-    DMIN = D(J)
-    IMIN = J
-10  continue
+    if (D(J) < DMIN) then
+      DMIN = D(J)
+      IMIN = J
+    end if
   end do
-  if (I == IMIN) goto 30
+  if (I == IMIN) cycle
   D(IMIN) = D(I)
   D(I) = DMIN
   do K=1,N
@@ -36,7 +36,6 @@ do I=1,N-1
     C(K,I) = C(K,IMIN)
     C(K,IMIN) = TMP
   end do
-30 continue
 end do
 
 return

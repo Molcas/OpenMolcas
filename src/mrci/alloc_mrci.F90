@@ -85,14 +85,15 @@ NBITM2 = 1
 !PAM04 LTOP2 = 0
 if (IFIRST == 0) then
   IPASS = 0
-110 IPASS = IPASS+1
-  NCHN2 = (NVT-1)/IPASS+1
-  NBSIZ2 = (MEMX-2*ISMAX-KBUFF1)/NCHN2
-  !PAM96 if (2*NBSIZ2 > (3*NVSQ+2)) goto 120
-  if (RTOI*NBSIZ2 > ((RTOI+1)*NVSQ+2)) goto 120
-  if (IPASS == 5) goto 120
-  if (NBSIZ2 < 1024) goto 110
-120 continue
+  do
+    IPASS = IPASS+1
+    NCHN2 = (NVT-1)/IPASS+1
+    NBSIZ2 = (MEMX-2*ISMAX-KBUFF1)/NCHN2
+    !PAM96 if (2*NBSIZ2 > (3*NVSQ+2)) exit
+    if (RTOI*NBSIZ2 > ((RTOI+1)*NVSQ+2)) exit
+    if (IPASS == 5) exit
+    if (NBSIZ2 >= 1024) exit
+  end do
   !PAM96 NBITM2 = 2*((NBSIZ2-1)/3)
   NBITM2 = (RTOI*NBSIZ2-2)/(RTOI+1)
   NBITM2 = min(NBITM2,NVSQ)

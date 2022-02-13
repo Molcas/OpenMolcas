@@ -25,142 +25,148 @@ real(kind=wp) :: FACSX
 
 do IASYM=1,NSYM
   IAB = IPOF(IASYM+1)-IPOF(IASYM)
-  if (IAB == 0) GO TO 70
+  if (IAB == 0) cycle
   ICSYM = MUL(MYL,IASYM)
   IBSYM = MUL(NYL,ICSYM)
-  if ((INDA == INDB) .and. (IBSYM > IASYM)) GO TO 70
+  if ((INDA == INDB) .and. (IBSYM > IASYM)) cycle
   NVIRC = NVIR(ICSYM)
-  if (NVIRC == 0) GO TO 70
+  if (NVIRC == 0) cycle
   NVIRA = NVIR(IASYM)
   NVIRB = NVIR(IBSYM)
-  if (ICSYM >= IASYM) GO TO 31
-  if (ICSYM >= IBSYM) GO TO 32
-  ! CASE 1, IASYM > ICSYM AND IBSYM > ICSYM
-  IPF = IPOF(IASYM)+1
-  call DYAX(IAB,CPL,AIBJ(IPF),1,F,1)
-  call DAXPY_(IAB,CPLA,ABIJ(IPF),1,F,1)
-  if (INDA == INDB) call SETZZ(F,NVIRA)
-  !call FZERO(A,NBC)
-  !call FMMM(C(INMY+IPOA(IASYM)),F,A,NVIRC,NVIRB,NVIRA)
-  !call DAXPY_(NBC,FACS,A,1,S(INNY+IPOB(IBSYM)),1)
-  call DGEMM_('N','N',NVIRC,NVIRB,NVIRA,FACS,C(INMY+IPOA(IASYM)),NVIRC,F,NVIRA,One,S(INNY+IPOB(IBSYM)),NVIRC)
-  if (INDA == INDB) GO TO 70
-  IPF = IPOF(IBSYM)+1
-  call FZERO(F,IAB)
-  call DYAX(IAB,CPL,AJBI(IPF),1,F,1)
-  call DAXPY_(IAB,CPLA,ABIJ(IPF),1,F,1)
-  call DGEMM_('N','N',NVIRC,NVIRA,NVIRB,FACS,C(INNY+IPOB(IBSYM)),NVIRC,F,NVIRB,One,S(INMY+IPOA(IASYM)),NVIRC)
-  GO TO 70
-  ! CASE 2, IASYM > ICSYM AND ICSYM > OR = IBSYM
-32 IPF = IPOF(IBSYM)+1
-  call DYAX(IAB,CPL,AJBI(IPF),1,F,1)
-  call DAXPY_(IAB,CPLA,ABIJ(IPF),1,F,1)
-
-  if (NYL == 1) then
-    call DGEMM_('N','T',NVIRB,NVIRC,NVIRA,FACS,F,NVIRB,C(INMY+IPOA(IASYM)),NVIRC,Zero,A,NVIRB)
-    if (IFTB == 1) then
-      call TRADD(A,S(INNY+IPOB(ICSYM)),NVIRB)
-      call SQUARN(C(INNY+IPOB(IBSYM)),A,NVIRB)
+  if (ICSYM < IASYM) then
+    if (ICSYM < IBSYM) then
+      ! CASE 1, IASYM > ICSYM AND IBSYM > ICSYM
+      IPF = IPOF(IASYM)+1
+      call DYAX(IAB,CPL,AIBJ(IPF),1,F,1)
+      call DAXPY_(IAB,CPLA,ABIJ(IPF),1,F,1)
+      if (INDA == INDB) call SETZZ(F,NVIRA)
+      !call FZERO(A,NBC)
+      !call FMMM(C(INMY+IPOA(IASYM)),F,A,NVIRC,NVIRB,NVIRA)
+      !call DAXPY_(NBC,FACS,A,1,S(INNY+IPOB(IBSYM)),1)
+      call DGEMM_('N','N',NVIRC,NVIRB,NVIRA,FACS,C(INMY+IPOA(IASYM)),NVIRC,F,NVIRA,One,S(INNY+IPOB(IBSYM)),NVIRC)
+      if (INDA /= INDB) then
+        IPF = IPOF(IBSYM)+1
+        call FZERO(F,IAB)
+        call DYAX(IAB,CPL,AJBI(IPF),1,F,1)
+        call DAXPY_(IAB,CPLA,ABIJ(IPF),1,F,1)
+        call DGEMM_('N','N',NVIRC,NVIRA,NVIRB,FACS,C(INNY+IPOB(IBSYM)),NVIRC,F,NVIRB,One,S(INMY+IPOA(IASYM)),NVIRC)
+      end if
     else
-      call SIADD(A,S(INNY+IPOB(ICSYM)),NVIRB)
-      call SQUAR(C(INNY+IPOB(IBSYM)),A,NVIRB)
+      ! CASE 2, IASYM > ICSYM AND ICSYM > OR = IBSYM
+      IPF = IPOF(IBSYM)+1
+      call DYAX(IAB,CPL,AJBI(IPF),1,F,1)
+      call DAXPY_(IAB,CPLA,ABIJ(IPF),1,F,1)
+
+      if (NYL == 1) then
+        call DGEMM_('N','T',NVIRB,NVIRC,NVIRA,FACS,F,NVIRB,C(INMY+IPOA(IASYM)),NVIRC,Zero,A,NVIRB)
+        if (IFTB == 1) then
+          call TRADD(A,S(INNY+IPOB(ICSYM)),NVIRB)
+          call SQUARN(C(INNY+IPOB(IBSYM)),A,NVIRB)
+        else
+          call SIADD(A,S(INNY+IPOB(ICSYM)),NVIRB)
+          call SQUAR(C(INNY+IPOB(IBSYM)),A,NVIRB)
+        end if
+        call DGEMM_('N','N',NVIRC,NVIRA,NVIRB,FACS,A,NVIRC,F,NVIRB,One,S(INMY+IPOA(IASYM)),NVIRC)
+      else
+        FACSX = FACS
+        if (IFTB == 1) FACSX = -FACS
+        call DGEMM_('N','T',NVIRB,NVIRC,NVIRA,FACSX,F,NVIRB,C(INMY+IPOA(IASYM)),NVIRC,One,S(INNY+IPOB(ICSYM)),NVIRB)
+        call DGEMM_('T','N',NVIRC,NVIRA,NVIRB,FACSX,C(INNY+IPOB(ICSYM)),NVIRB,F,NVIRB,One,S(INMY+IPOA(IASYM)),NVIRC)
+      end if
     end if
-    call DGEMM_('N','N',NVIRC,NVIRA,NVIRB,FACS,A,NVIRC,F,NVIRB,One,S(INMY+IPOA(IASYM)),NVIRC)
   else
-    FACSX = FACS
-    if (IFTB == 1) FACSX = -FACS
-    call DGEMM_('N','T',NVIRB,NVIRC,NVIRA,FACSX,F,NVIRB,C(INMY+IPOA(IASYM)),NVIRC,One,S(INNY+IPOB(ICSYM)),NVIRB)
-    call DGEMM_('T','N',NVIRC,NVIRA,NVIRB,FACSX,C(INNY+IPOB(ICSYM)),NVIRB,F,NVIRB,One,S(INMY+IPOA(IASYM)),NVIRC)
+    ! UPDATED UNTIL HERE
+    if (ICSYM < IBSYM) then
+      ! CASE 3, ICSYM > OR = IASYM AND IBSYM > ICSYM
+      IPF = IPOF(IASYM)+1
+      call DYAX(IAB,CPL,AIBJ(IPF),1,F,1)
+      call DAXPY_(IAB,CPLA,ABIJ(IPF),1,F,1)
+      if (MYL == 1) then
+        if (IFTA == 0) call SQUAR(C(INMY+IPOA(IASYM)),A,NVIRA)
+        if (IFTA == 1) call SQUARN(C(INMY+IPOA(IASYM)),A,NVIRA)
+        call DGEMM_('N','N',NVIRC,NVIRB,NVIRA,FACS,A,NVIRC,F,NVIRA,One,S(INNY+IPOB(IBSYM)),NVIRC)
+        call DGEMM_('N','T',NVIRA,NVIRC,NVIRB,FACS,F,NVIRA,C(INNY+IPOB(IBSYM)),NVIRC,Zero,A,NVIRA)
+        if (IFTA == 0) call SIADD(A,S(INMY+IPOA(IASYM)),NVIRA)
+        if (IFTA == 1) call TRADD(A,S(INMY+IPOA(IASYM)),NVIRA)
+      else
+        FACSX = FACS
+        if (IFTA == 1) FACSX = -FACS
+        call DGEMM_('T','N',NVIRC,NVIRB,NVIRA,FACSX,C(INMY+IPOA(ICSYM)),NVIRA,F,NVIRA,One,S(INNY+IPOB(IBSYM)),NVIRC)
+        call DGEMM_('N','T',NVIRA,NVIRC,NVIRB,FACSX,F,NVIRA,C(INNY+IPOB(IBSYM)),NVIRC,One,S(INMY+IPOA(ICSYM)),NVIRA)
+      end if
+    else
+      ! CASE 4, ICSYM > OR = IASYM AND ICSYM > OR = IBSYM
+      IPF = IPOF(IBSYM)+1
+      call DYAX(IAB,CPL,AJBI(IPF),1,F,1)
+      call DAXPY_(IAB,CPLA,ABIJ(IPF),1,F,1)
+      if (INDA == INDB) call SETZZ(F,NVIRA)
+      if ((MYL == 1) .and. (NYL == 1)) then
+
+        if (IFTA == 0) call SQUAR(C(INMY+IPOA(IASYM)),A,NVIRA)
+        if (IFTA == 1) call SQUARM(C(INMY+IPOA(IASYM)),A,NVIRA)
+        call DGEMM_('N','N',NVIRB,NVIRC,NVIRA,FACS,F,NVIRB,A,NVIRA,Zero,B,NVIRB)
+        if (IFTB == 0) call SIADD(B,S(INNY+IPOB(ICSYM)),NVIRB)
+        if (IFTB == 1) call TRADD(B,S(INNY+IPOB(ICSYM)),NVIRB)
+
+      else if ((MYL == 1) .and. (NYL /= 1)) then
+        if (IFTA == 0) call SQUAR(C(INMY+IPOA(IASYM)),A,NVIRA)
+        if (IFTA == 1) call SQUARM(C(INMY+IPOA(IASYM)),A,NVIRA)
+        FACSX = FACS
+        if (IFTB == 1) FACSX = -FACS
+        call DGEMM_('N','N',NVIRB,NVIRC,NVIRA,FACSX,F,NVIRB,A,NVIRA,One,S(INNY+IPOB(ICSYM)),NVIRB)
+
+      else if ((MYL /= 1) .and. (NYL == 1)) then
+
+        FACSX = FACS
+        if (IFTA == 1) FACSX = -FACS
+        call DGEMM_('N','N',NVIRB,NVIRC,NVIRA,FACSX,F,NVIRB,C(INMY+IPOA(ICSYM)),NVIRA,Zero,B,NVIRB)
+        if (IFTB == 0) call SIADD(B,S(INNY+IPOB(ICSYM)),NVIRB)
+        if (IFTB == 1) call TRADD(B,S(INNY+IPOB(ICSYM)),NVIRB)
+      else if ((MYL /= 1) .and. (NYL /= 1)) then
+        FACSX = FACS
+        if (IFTA+IFTB == 1) FACSX = -FACS
+        call DGEMM_('N','N',NVIRB,NVIRC,NVIRA,FACSX,F,NVIRB,C(INMY+IPOA(ICSYM)),NVIRA,One,S(INNY+IPOB(ICSYM)),NVIRB)
+      end if
+      if (INDA /= INDB) then
+        IPF = IPOF(IASYM)+1
+        call DYAX(IAB,CPL,AIBJ(IPF),1,F,1)
+        call DAXPY_(IAB,CPLA,ABIJ(IPF),1,F,1)
+
+        if ((NYL == 1) .and. (MYL == 1)) then
+
+          if (IFTB == 0) call SQUAR(C(INNY+IPOB(IBSYM)),A,NVIRB)
+          if (IFTB == 1) call SQUARM(C(INNY+IPOB(IBSYM)),A,NVIRB)
+          call DGEMM_('N','N',NVIRA,NVIRC,NVIRB,FACS,F,NVIRA,A,NVIRB,Zero,B,NVIRA)
+          if (IFTA == 0) call SIADD(B,S(INMY+IPOA(ICSYM)),NVIRA)
+          if (IFTA == 1) call TRADD(B,S(INMY+IPOA(ICSYM)),NVIRA)
+
+        else if ((NYL == 1) .and. (MYL /= 1)) then
+
+          if (IFTB == 0) call SQUAR(C(INNY+IPOB(ICSYM)),A,NVIRB)
+          if (IFTB == 1) call SQUARM(C(INNY+IPOB(ICSYM)),A,NVIRB)
+          FACSX = FACS
+          if (IFTA == 1) FACSX = -FACS
+          call DGEMM_('N','N',NVIRA,NVIRC,NVIRB,FACSX,F,NVIRA,A,NVIRB,One,S(INMY+IPOA(ICSYM)),NVIRA)
+
+        else if ((NYL /= 1) .and. (MYL == 1)) then
+
+          FACSX = FACS
+          if (IFTB == 1) FACSX = -FACS
+          call DGEMM_('N','N',NVIRA,NVIRC,NVIRB,FACSX,F,NVIRA,C(INNY+IPOB(ICSYM)),NVIRB,Zero,B,NVIRA)
+          if (IFTA == 0) call SIADD(B,S(INMY+IPOA(ICSYM)),NVIRA)
+          if (IFTA == 1) call TRADD(B,S(INMY+IPOA(ICSYM)),NVIRA)
+
+        else if ((NYL /= 1) .and. (MYL /= 1)) then
+
+          FACSX = FACS
+          if (IFTA+IFTB == 1) FACSX = -FACS
+          call DGEMM_('N','N',NVIRA,NVIRC,NVIRB,FACSX,F,NVIRA,C(INNY+IPOB(ICSYM)),NVIRB,One,S(INMY+IPOA(ICSYM)),NVIRA)
+
+        end if
+      end if
+    end if
   end if
-  GO TO 70
-  ! UPDATED UNTIL HERE
-31 if (ICSYM >= IBSYM) GO TO 33
-  ! CASE 3, ICSYM > OR = IASYM AND IBSYM > ICSYM
-  IPF = IPOF(IASYM)+1
-  call DYAX(IAB,CPL,AIBJ(IPF),1,F,1)
-  call DAXPY_(IAB,CPLA,ABIJ(IPF),1,F,1)
-  if (MYL == 1) then
-    if (IFTA == 0) call SQUAR(C(INMY+IPOA(IASYM)),A,NVIRA)
-    if (IFTA == 1) call SQUARN(C(INMY+IPOA(IASYM)),A,NVIRA)
-    call DGEMM_('N','N',NVIRC,NVIRB,NVIRA,FACS,A,NVIRC,F,NVIRA,One,S(INNY+IPOB(IBSYM)),NVIRC)
-    call DGEMM_('N','T',NVIRA,NVIRC,NVIRB,FACS,F,NVIRA,C(INNY+IPOB(IBSYM)),NVIRC,Zero,A,NVIRA)
-    if (IFTA == 0) call SIADD(A,S(INMY+IPOA(IASYM)),NVIRA)
-    if (IFTA == 1) call TRADD(A,S(INMY+IPOA(IASYM)),NVIRA)
-  else
-    FACSX = FACS
-    if (IFTA == 1) FACSX = -FACS
-    call DGEMM_('T','N',NVIRC,NVIRB,NVIRA,FACSX,C(INMY+IPOA(ICSYM)),NVIRA,F,NVIRA,One,S(INNY+IPOB(IBSYM)),NVIRC)
-    call DGEMM_('N','T',NVIRA,NVIRC,NVIRB,FACSX,F,NVIRA,C(INNY+IPOB(IBSYM)),NVIRC,One,S(INMY+IPOA(ICSYM)),NVIRA)
-  end if
-  GO TO 70
-  ! CASE 4, ICSYM > OR = IASYM AND ICSYM > OR = IBSYM
-33 IPF = IPOF(IBSYM)+1
-  call DYAX(IAB,CPL,AJBI(IPF),1,F,1)
-  call DAXPY_(IAB,CPLA,ABIJ(IPF),1,F,1)
-  if (INDA == INDB) call SETZZ(F,NVIRA)
-  if ((MYL == 1) .and. (NYL == 1)) then
 
-    if (IFTA == 0) call SQUAR(C(INMY+IPOA(IASYM)),A,NVIRA)
-    if (IFTA == 1) call SQUARM(C(INMY+IPOA(IASYM)),A,NVIRA)
-    call DGEMM_('N','N',NVIRB,NVIRC,NVIRA,FACS,F,NVIRB,A,NVIRA,Zero,B,NVIRB)
-    if (IFTB == 0) call SIADD(B,S(INNY+IPOB(ICSYM)),NVIRB)
-    if (IFTB == 1) call TRADD(B,S(INNY+IPOB(ICSYM)),NVIRB)
-
-  else if ((MYL == 1) .and. (NYL /= 1)) then
-    if (IFTA == 0) call SQUAR(C(INMY+IPOA(IASYM)),A,NVIRA)
-    if (IFTA == 1) call SQUARM(C(INMY+IPOA(IASYM)),A,NVIRA)
-    FACSX = FACS
-    if (IFTB == 1) FACSX = -FACS
-    call DGEMM_('N','N',NVIRB,NVIRC,NVIRA,FACSX,F,NVIRB,A,NVIRA,One,S(INNY+IPOB(ICSYM)),NVIRB)
-
-  else if ((MYL /= 1) .and. (NYL == 1)) then
-
-    FACSX = FACS
-    if (IFTA == 1) FACSX = -FACS
-    call DGEMM_('N','N',NVIRB,NVIRC,NVIRA,FACSX,F,NVIRB,C(INMY+IPOA(ICSYM)),NVIRA,Zero,B,NVIRB)
-    if (IFTB == 0) call SIADD(B,S(INNY+IPOB(ICSYM)),NVIRB)
-    if (IFTB == 1) call TRADD(B,S(INNY+IPOB(ICSYM)),NVIRB)
-  else if ((MYL /= 1) .and. (NYL /= 1)) then
-    FACSX = FACS
-    if (IFTA+IFTB == 1) FACSX = -FACS
-    call DGEMM_('N','N',NVIRB,NVIRC,NVIRA,FACSX,F,NVIRB,C(INMY+IPOA(ICSYM)),NVIRA,One,S(INNY+IPOB(ICSYM)),NVIRB)
-  end if
-  if (INDA == INDB) GO TO 70
-  IPF = IPOF(IASYM)+1
-  call DYAX(IAB,CPL,AIBJ(IPF),1,F,1)
-  call DAXPY_(IAB,CPLA,ABIJ(IPF),1,F,1)
-
-  if ((NYL == 1) .and. (MYL == 1)) then
-
-    if (IFTB == 0) call SQUAR(C(INNY+IPOB(IBSYM)),A,NVIRB)
-    if (IFTB == 1) call SQUARM(C(INNY+IPOB(IBSYM)),A,NVIRB)
-    call DGEMM_('N','N',NVIRA,NVIRC,NVIRB,FACS,F,NVIRA,A,NVIRB,Zero,B,NVIRA)
-    if (IFTA == 0) call SIADD(B,S(INMY+IPOA(ICSYM)),NVIRA)
-    if (IFTA == 1) call TRADD(B,S(INMY+IPOA(ICSYM)),NVIRA)
-
-  else if ((NYL == 1) .and. (MYL /= 1)) then
-    if (IFTB == 0) call SQUAR(C(INNY+IPOB(ICSYM)),A,NVIRB)
-    if (IFTB == 1) call SQUARM(C(INNY+IPOB(ICSYM)),A,NVIRB)
-    FACSX = FACS
-    if (IFTA == 1) FACSX = -FACS
-    call DGEMM_('N','N',NVIRA,NVIRC,NVIRB,FACSX,F,NVIRA,A,NVIRB,One,S(INMY+IPOA(ICSYM)),NVIRA)
-
-  else if ((NYL /= 1) .and. (MYL == 1)) then
-
-    FACSX = FACS
-    if (IFTB == 1) FACSX = -FACS
-    call DGEMM_('N','N',NVIRA,NVIRC,NVIRB,FACSX,F,NVIRA,C(INNY+IPOB(ICSYM)),NVIRB,Zero,B,NVIRA)
-    if (IFTA == 0) call SIADD(B,S(INMY+IPOA(ICSYM)),NVIRA)
-    if (IFTA == 1) call TRADD(B,S(INMY+IPOA(ICSYM)),NVIRA)
-
-  else if ((NYL /= 1) .and. (MYL /= 1)) then
-
-    FACSX = FACS
-    if (IFTA+IFTB == 1) FACSX = -FACS
-    call DGEMM_('N','N',NVIRA,NVIRC,NVIRB,FACSX,F,NVIRA,C(INNY+IPOB(ICSYM)),NVIRB,One,S(INMY+IPOA(ICSYM)),NVIRA)
-  end if
-
-70 continue
 end do
 
 return

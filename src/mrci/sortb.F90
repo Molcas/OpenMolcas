@@ -51,7 +51,7 @@ do ISTEP=1,IPASS
   IACMIN = IACMAX+1
   IACMAX = IACMAX+NCHN2
   if (IACMAX > NVT) IACMAX = NVT
-  if (IACMIN > IACMAX) GO TO 50
+  if (IACMIN > IACMAX) cycle
 
   ! Initialize Buffer Counts and BackChain Links.
   do IREC=1,NCHN2
@@ -73,10 +73,10 @@ do ISTEP=1,IPASS
         NSSM = NSR
         if (NSR == NSP) NSSM = NSQ
         do NSS=1,NSSM
-          if (NSS /= NSPQR) GO TO 310
+          if (NSS /= NSPQR) cycle
           NOS = NORB(NSS)
           NORBP = NOP*NOQ*NOR*NOS
-          if (NORBP == 0) GO TO 310
+          if (NORBP == 0) cycle
 
           call dDAFILE(LUTRA,2,TIBUF,NTIBUF,IAD50)
 
@@ -107,36 +107,31 @@ do ISTEP=1,IPASS
                   M2 = ICH(NORB0(NSQ)+NU)
                   M3 = ICH(NORB0(NSR)+NV)
                   M4 = ICH(NORB0(NSS)+NX)
-                  if ((M1 <= LN) .or. (M2 <= LN)) GO TO 306
-                  if ((M3 <= LN) .or. (M4 <= LN)) GO TO 306
+                  if ((M1 <= LN) .or. (M2 <= LN)) cycle
+                  if ((M3 <= LN) .or. (M4 <= LN)) cycle
 
                   ! Permute orbital indices to canonical order
                   ! and put integral value in FINI
-                  N1 = M1
-                  N2 = M2
-                  if (M1 > M2) GO TO 11
-                  N1 = M2
-                  N2 = M1
-11                N3 = M3
-                  N4 = M4
-                  if (M3 > M4) GO TO 12
-                  N3 = M4
-                  N4 = M3
-12                NI = N1
+                  N1 = max(M1,M2)
+                  N2 = min(M1,M2)
+                  N3 = max(M3,M4)
+                  N4 = min(M3,M4)
+                  NI = N1
                   NJ = N2
                   NK = N3
                   NL = N4
-                  if (NI > NK) GO TO 502
-                  if (NI == NK) GO TO 14
-                  NI = N3
-                  NJ = N4
-                  NK = N1
-                  NL = N2
-                  GO TO 502
-14                if (NJ > NL) GO TO 502
-                  NL = N2
-                  NJ = N4
-502               FINI = TIBUF(IOUT)
+                  if (NI <= NK) then
+                    if (NI /= NK) then
+                      NI = N3
+                      NJ = N4
+                      NK = N1
+                      NL = N2
+                    else if (NJ > NL) then
+                      NL = N2
+                      NJ = N4
+                    end if
+                  end if
+                  FINI = TIBUF(IOUT)
 
                   ! Compute virtual indices.
                   NA = NI-LN
@@ -144,44 +139,44 @@ do ISTEP=1,IPASS
                   NC = NK-LN
                   ND = NL-LN
                   ITURN = 0
-                  if ((NA == NB) .and. (NC == ND)) GO TO 306
-107               IAC = IROW(NA)+NC
-                  if (IAC < IACMIN) GO TO 106
-                  if (IAC > IACMAX) GO TO 106
-                  if ((NA == NC) .and. (NB == ND)) FINI = FINI/2
-                  NAC = IAC-IACMIN+1
-                  !PAM04 IPOS = INDOUT(IBBC2+(NAC-1)*RTOI*NBSIZ2)+1
-                  !PAM04 INDOUT(IBBC2+(NAC-1)*RTOI*NBSIZ2) = IPOS
-                  IPOS = INDS(NBITM2+1,NAC)+1
-                  INDS(NBITM2+1,NAC) = IPOS
-                  !PAM04 BUFOUT(IPOS+(NAC-1)*NBSIZ2) = FINI
-                  !PAM04 INDOUT(IBOFF2+IPOS+(NAC-1)*RTOI*NBSIZ2) = NB+2**8*ND
-                  INDS(IPOS,NAC) = NB+2**8*ND
-                  BUFS(IPOS,NAC) = FINI
-                  if (IPOS < NBITM2) GO TO 106
-                  ! Save this buffer if filled up.
-                  JDISK = IDISK
-                  !PAM04 call dDAFILE(Lu_60,1,INDOUT(1+(NAC-1)*RTOI*NBSIZ2),NBSIZ2,IDISK)
-                  call iDAFILE(Lu_60,1,INDS(1,NAC),NBITM2+2,IDISK)
-                  call dDAFILE(Lu_60,1,BUFS(1,NAC),NBITM2,IDISK)
-                  !PAM04 INDOUT(IBBC2+(NAC-1)*RTOI*NBSIZ2) = 0
-                  !PAM04 INDOUT(IBDA2+(NAC-1)*RTOI*NBSIZ2) = JDISK
-                  INDS(NBITM2+1,NAC) = 0
-                  INDS(NBITM2+2,NAC) = JDISK
+                  if ((NA == NB) .and. (NC == ND)) cycle
+                  do
+                    IAC = IROW(NA)+NC
+                    if ((IAC >= IACMIN) .and. (IAC <= IACMAX)) then
+                      if ((NA == NC) .and. (NB == ND)) FINI = FINI/2
+                      NAC = IAC-IACMIN+1
+                      !PAM04 IPOS = INDOUT(IBBC2+(NAC-1)*RTOI*NBSIZ2)+1
+                      !PAM04 INDOUT(IBBC2+(NAC-1)*RTOI*NBSIZ2) = IPOS
+                      IPOS = INDS(NBITM2+1,NAC)+1
+                      INDS(NBITM2+1,NAC) = IPOS
+                      !PAM04 BUFOUT(IPOS+(NAC-1)*NBSIZ2) = FINI
+                      !PAM04 INDOUT(IBOFF2+IPOS+(NAC-1)*RTOI*NBSIZ2) = NB+2**8*ND
+                      INDS(IPOS,NAC) = NB+2**8*ND
+                      BUFS(IPOS,NAC) = FINI
+                      if (IPOS >= NBITM2) then
+                        ! Save this buffer if filled up.
+                        JDISK = IDISK
+                        !PAM04 call dDAFILE(Lu_60,1,INDOUT(1+(NAC-1)*RTOI*NBSIZ2),NBSIZ2,IDISK)
+                        call iDAFILE(Lu_60,1,INDS(1,NAC),NBITM2+2,IDISK)
+                        call dDAFILE(Lu_60,1,BUFS(1,NAC),NBITM2,IDISK)
+                        !PAM04 INDOUT(IBBC2+(NAC-1)*RTOI*NBSIZ2) = 0
+                        !PAM04 INDOUT(IBDA2+(NAC-1)*RTOI*NBSIZ2) = JDISK
+                        INDS(NBITM2+1,NAC) = 0
+                        INDS(NBITM2+2,NAC) = JDISK
+                      end if
+                    end if
 
-106               if (ITURN == 1) GO TO 306
-                  if ((NA == NC) .and. (NB == ND)) GO TO 306
-                  if ((NA == NB) .or. (NC == ND)) GO TO 306
-                  ITURN = 1
-                  NC = NL-LN
-                  ND = NK-LN
-                  GO TO 107
-306               continue
+                    if (ITURN == 1) exit
+                    if ((NA == NC) .and. (NB == ND)) exit
+                    if ((NA == NB) .or. (NC == ND)) exit
+                    ITURN = 1
+                    NC = NL-LN
+                    ND = NK-LN
+                  end do
                 end do
               end do
             end do
           end do
-310       continue
         end do
       end do
     end do
@@ -212,18 +207,18 @@ do ISTEP=1,IPASS
     IFIN2 = IRC(2)+JJS(ISYM+1)
     INPT = IFIN2-IST2+1
     ITAIL = INPS+INPT
-    if (ITAIL == 0) GO TO 40
+    if (ITAIL == 0) cycle
     IN1 = -NVIRT
     do NA=1,NVIRT
       IN1 = IN1+NVIRT
       do NC=1,NA
         IAC = IROW(NA)+NC
-        if (IAC < IACMIN) GO TO 60
-        if (IAC > IACMAX) GO TO 60
-        if (NA == 1) GO TO 60
+        if (IAC < IACMIN) cycle
+        if (IAC > IACMAX) cycle
+        if (NA == 1) cycle
         NSAC = MUL(NSM(LN+NA),NSM(LN+NC))
         NSACL = MUL(NSAC,LSYM)
-        if (NSACL /= ISYM) GO TO 60
+        if (NSACL /= ISYM) cycle
         NSC = NSM(LN+NC)
         NDMAX = NVIRP(NSC)+NVIR(NSC)
         if (NDMAX > NA) NDMAX = NA
@@ -231,56 +226,58 @@ do ISTEP=1,IPASS
         call FZERO(ACBDS,INS)
         call FZERO(ACBDT,INS)
         IADR = LASTAD(NOVST+IAC)
-201     continue
-        !PAM04 CALL dDAFILE(Lu_60,2,INDOUT,NBSIZ2,IADR)
-        call iDAFILE(Lu_60,2,INDS,NBITM2+2,IADR)
-        call dDAFILE(Lu_60,2,BUFS,NBITM2,IADR)
-        !PAM04 LENGTH = INDOUT(IBBC2)
-        !PAM04 IADR = INDOUT(IBDA2)
-        LENGTH = INDS(NBITM2+1,1)
-        IADR = INDS(NBITM2+2,1)
-        if (LENGTH == 0) GO TO 209
-        do KK=1,LENGTH
-          !PAM04 INND = INDOUT(IBOFF2+KK)
-          INND = INDS(KK,1)
-          !PAM96 NB = iand(INND,255)
-          !PAM96 ND = iand(ishft(INND,-8),255)
-          !NB = mod(INND,2**8)
-          !ND = mod(INND/2**8,2**8)
-          NB = ibits(INND,0,8)
-          ND = ibits(INND,8,8)
+        do
+          !PAM04 CALL dDAFILE(Lu_60,2,INDOUT,NBSIZ2,IADR)
+          call iDAFILE(Lu_60,2,INDS,NBITM2+2,IADR)
+          call dDAFILE(Lu_60,2,BUFS,NBITM2,IADR)
+          !PAM04 LENGTH = INDOUT(IBBC2)
+          !PAM04 IADR = INDOUT(IBDA2)
+          LENGTH = INDS(NBITM2+1,1)
+          IADR = INDS(NBITM2+2,1)
+          do KK=1,LENGTH
+            !PAM04 INND = INDOUT(IBOFF2+KK)
+            INND = INDS(KK,1)
+            !PAM96 NB = iand(INND,255)
+            !PAM96 ND = iand(ishft(INND,-8),255)
+            !NB = mod(INND,2**8)
+            !ND = mod(INND/2**8,2**8)
+            NB = ibits(INND,0,8)
+            ND = ibits(INND,8,8)
 
-          IBDS = ISAB(NB+(ND-1)*NVIRT)
-          !PAM04 ACBDS(IBDS) = ACBDS(IBDS)+BUFOUT(KK)
-          !PAM04 if (NB > ND) ACBDT(IBDS) = ACBDT(IBDS)+BUFOUT(KK)
-          !PAM04 if (NB < ND) ACBDT(IBDS) = ACBDT(IBDS)-BUFOUT(KK)
-          ACBDS(IBDS) = ACBDS(IBDS)+BUFS(KK,1)
-          if (NB > ND) ACBDT(IBDS) = ACBDT(IBDS)+BUFS(KK,1)
-          if (NB < ND) ACBDT(IBDS) = ACBDT(IBDS)-BUFS(KK,1)
+            IBDS = ISAB(NB+(ND-1)*NVIRT)
+            !PAM04 ACBDS(IBDS) = ACBDS(IBDS)+BUFOUT(KK)
+            !PAM04 if (NB > ND) ACBDT(IBDS) = ACBDT(IBDS)+BUFOUT(KK)
+            !PAM04 if (NB < ND) ACBDT(IBDS) = ACBDT(IBDS)-BUFOUT(KK)
+            ACBDS(IBDS) = ACBDS(IBDS)+BUFS(KK,1)
+            if (NB > ND) ACBDT(IBDS) = ACBDT(IBDS)+BUFS(KK,1)
+            if (NB < ND) ACBDT(IBDS) = ACBDT(IBDS)-BUFS(KK,1)
+          end do
+          if (IADR == -1) exit
         end do
-209     if (IADR /= -1) GO TO 201
         ILOOP = 0
-72      INSB = INS
-73      INB = KBUFF1-INSOUT
-        INUMB = INSB
-        if (INSB > INB) INUMB = INB
-        IST = INS-INSB+1
-        if (ILOOP == 0) call DCOPY_(INUMB,ACBDS(IST),1,BFACBD(INSOUT+1),1)
-        if (ILOOP == 1) call DCOPY_(INUMB,ACBDT(IST),1,BFACBD(INSOUT+1),1)
-        INSOUT = INSOUT+INUMB
-        if (INSOUT < KBUFF1) GO TO 75
-        call dDAFILE(Lu_80,1,BFACBD,KBUFF1,IAD16)
-        INSOUT = 0
-75      INSB = INSB-INUMB
-        if (INSB > 0) GO TO 73
-        ILOOP = ILOOP+1
-        if (ILOOP == 1) GO TO 72
-60      continue
+        do
+          INSB = INS
+          do
+            INB = KBUFF1-INSOUT
+            INUMB = INSB
+            if (INSB > INB) INUMB = INB
+            IST = INS-INSB+1
+            if (ILOOP == 0) call DCOPY_(INUMB,ACBDS(IST),1,BFACBD(INSOUT+1),1)
+            if (ILOOP == 1) call DCOPY_(INUMB,ACBDT(IST),1,BFACBD(INSOUT+1),1)
+            INSOUT = INSOUT+INUMB
+            if (INSOUT >= KBUFF1) then
+              call dDAFILE(Lu_80,1,BFACBD,KBUFF1,IAD16)
+              INSOUT = 0
+            end if
+            INSB = INSB-INUMB
+            if (INSB <= 0) exit
+          end do
+          ILOOP = ILOOP+1
+          if (ILOOP /= 1) exit
+        end do
       end do
     end do
-40  continue
   end do
-50 continue
 end do
 ! EMPTY LAST BUFFER
 if (INSOUT /= 0) call dDAFILE(Lu_80,1,BFACBD,KBUFF1,IAD16)

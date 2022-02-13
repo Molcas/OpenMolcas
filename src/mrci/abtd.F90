@@ -61,80 +61,78 @@ do INDA=1,ITAIL
   end do
   if (INDA <= IRC(1)) then
     TSUM = C1(INDA)*C2(INDA)
-    GO TO 106
-  end if
-  MYSYM = JSYM(INDA)
-  MYL = MUL(MYSYM,LSYM)
-  INMY = INDX(INDA)+1
-  if (INDA > IRC(2)) GO TO 25
-  ! DOUBLET-DOUBLET INTERACTIONS
-  if (NVIR(MYL) == 0) GO TO 40
-  IPF = IPOF(MYL)+1
-  NVIRA = NVIR(MYL)
-  call DGER(NVIRA,NVIRA,One,C1(INMY),1,C2(INMY),1,F(IPF),NVIRA)
-  LNA = LN+NVIRP(MYL)
-  TSUM = Zero
-  do I=1,NVIRA
-    TERM = C1(INMY-1+I)*C2(INMY-1+I)
-    IA = LNA+I
-    TDMO(IA,IA) = TDMO(IA,IA)+TERM
-    TSUM = TSUM+TERM
-  end do
-  GO TO 106
-  ! TRIPLET-TRIPLET AND SINGLET-SINGLET INTERACTIONS
-25 IFT = 1
-  if (INDA > IRC(3)) IFT = 0
-  call IPO(IPOA,NVIR,MUL,NSYM,MYL,IFT)
-  TSUM = Zero
-  do IASYM=1,NSYM
-    IAB = IPOF(IASYM+1)-IPOF(IASYM)
-    if (IAB == 0) GO TO 70
-    ICSYM = MUL(MYL,IASYM)
-    NVIRA = NVIR(IASYM)
-    NVIRC = NVIR(ICSYM)
-    if (NVIRC == 0) GO TO 70
-    if (MYL /= 1) then
-      if (IASYM > ICSYM) then
-        call MTRANS(C1(INMY+IPOA(IASYM)),1,A1,1,NVIRA,NVIRC)
-        call MTRANS(C2(INMY+IPOA(IASYM)),1,A2,1,NVIRA,NVIRC)
-      else
-        NAC = NVIRA*NVIRC
-        if (IFT == 0) then
-          call DCOPY_(NAC,C1(INMY+IPOA(ICSYM)),1,A1,1)
-          call DCOPY_(NAC,C2(INMY+IPOA(ICSYM)),1,A2,1)
-        else
-          call VNEG(C1(INMY+IPOA(ICSYM)),1,A1,1,NAC)
-          call VNEG(C2(INMY+IPOA(ICSYM)),1,A2,1,NAC)
-        end if
-      end if
+  else
+    MYSYM = JSYM(INDA)
+    MYL = MUL(MYSYM,LSYM)
+    INMY = INDX(INDA)+1
+    if (INDA <=IRC(2)) then
+      ! DOUBLET-DOUBLET INTERACTIONS
+      if (NVIR(MYL) == 0) cycle
+      IPF = IPOF(MYL)+1
+      NVIRA = NVIR(MYL)
+      call DGER(NVIRA,NVIRA,One,C1(INMY),1,C2(INMY),1,F(IPF),NVIRA)
+      LNA = LN+NVIRP(MYL)
+      TSUM = Zero
+      do I=1,NVIRA
+        TERM = C1(INMY-1+I)*C2(INMY-1+I)
+        IA = LNA+I
+      TDMO(IA,IA) = TDMO(IA,IA)+TERM
+        TSUM = TSUM+TERM
+      end do
     else
-      if (IFT == 0) then
-        call SQUAR(C1(INMY+IPOA(IASYM)),A1,NVIRA)
-        call SQUAR(C2(INMY+IPOA(IASYM)),A2,NVIRA)
-      else
-        call SQUARM(C1(INMY+IPOA(IASYM)),A1,NVIRA)
-        call SQUARM(C2(INMY+IPOA(IASYM)),A2,NVIRA)
-      end if
+      ! TRIPLET-TRIPLET AND SINGLET-SINGLET INTERACTIONS
+      IFT = 1
+      if (INDA > IRC(3)) IFT = 0
+      call IPO(IPOA,NVIR,MUL,NSYM,MYL,IFT)
+      TSUM = Zero
+      do IASYM=1,NSYM
+        IAB = IPOF(IASYM+1)-IPOF(IASYM)
+        if (IAB == 0) cycle
+        ICSYM = MUL(MYL,IASYM)
+        NVIRA = NVIR(IASYM)
+        NVIRC = NVIR(ICSYM)
+        if (NVIRC == 0) cycle
+        if (MYL /= 1) then
+          if (IASYM > ICSYM) then
+            call MTRANS(C1(INMY+IPOA(IASYM)),1,A1,1,NVIRA,NVIRC)
+            call MTRANS(C2(INMY+IPOA(IASYM)),1,A2,1,NVIRA,NVIRC)
+          else
+            NAC = NVIRA*NVIRC
+            if (IFT == 0) then
+              call DCOPY_(NAC,C1(INMY+IPOA(ICSYM)),1,A1,1)
+              call DCOPY_(NAC,C2(INMY+IPOA(ICSYM)),1,A2,1)
+            else
+              call VNEG(C1(INMY+IPOA(ICSYM)),1,A1,1,NAC)
+              call VNEG(C2(INMY+IPOA(ICSYM)),1,A2,1,NAC)
+            end if
+          end if
+        else
+          if (IFT == 0) then
+            call SQUAR(C1(INMY+IPOA(IASYM)),A1,NVIRA)
+            call SQUAR(C2(INMY+IPOA(IASYM)),A2,NVIRA)
+          else
+            call SQUARM(C1(INMY+IPOA(IASYM)),A1,NVIRA)
+            call SQUARM(C2(INMY+IPOA(IASYM)),A2,NVIRA)
+          end if
+        end if
+        IPF = IPOF(IASYM)+1
+        call DGEMM_('N','T',NVIRA,NVIRA,NVIRC,One,A1,NVIRA,A2,NVIRA,One,F(IPF),NVIRA)
+        INN = 1
+        LNC = LN+NVIRP(ICSYM)
+        do I=1,NVIRC
+          TERM = DDOT_(NVIRA,A1(INN),1,A2(INN),1)
+          TSUM = TSUM+TERM
+          IC = LNC+I
+          TDMO(IC,IC) = TDMO(IC,IC)+TERM
+          INN = INN+NVIRA
+        end do
+      end do
+      TSUM = TSUM/2
     end if
-    IPF = IPOF(IASYM)+1
-    call DGEMM_('N','T',NVIRA,NVIRA,NVIRC,One,A1,NVIRA,A2,NVIRA,One,F(IPF),NVIRA)
-    INN = 1
-    LNC = LN+NVIRP(ICSYM)
-    do I=1,NVIRC
-      TERM = DDOT_(NVIRA,A1(INN),1,A2(INN),1)
-      TSUM = TSUM+TERM
-      IC = LNC+I
-      TDMO(IC,IC) = TDMO(IC,IC)+TERM
-      INN = INN+NVIRA
-    end do
-70  continue
-  end do
-  TSUM = TSUM/2
-106 continue
+  end if
   do I=1,LN
     TDMO(I,I) = TDMO(I,I)+IOC(I)*TSUM
   end do
-40 continue
 end do
 do IASYM=1,NSYM
   IAB = IPOF(IASYM)
@@ -143,9 +141,7 @@ do IASYM=1,NSYM
   do NA=NA1,NA2
     do NB=NA1,NA2
       IAB = IAB+1
-      if (NA == NB) goto 420
-      TDMO(LN+NA,LN+NB) = F(IAB)
-420   continue
+      if (NA /= NB) TDMO(LN+NA,LN+NB) = F(IAB)
     end do
   end do
 end do

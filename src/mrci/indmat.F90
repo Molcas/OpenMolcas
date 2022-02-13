@@ -21,6 +21,7 @@ real(kind=wp) :: CISEL(NREF,NSEL)
 integer(kind=iwp) :: I, IC, II, ILEV, ILIM, IND, IOFF, IR, IR1, IR2, IREF, ISEL, J, JCAS1, JCAS2, JJ, JJM, JSCI, JSEL, NA, NB, NC, &
                      NSAB, NSS
 real(kind=wp) :: X
+logical(kind=iwp) :: Skip
 character(len=20) :: STR20
 integer(kind=iwp), external :: ICUNP, JSUNP
 real(kind=r8), external :: DDOT_
@@ -98,31 +99,34 @@ write(u6,*) '     CONF NR:    GUGA CASE NUMBERS OF ACTIVE ORBITALS:'
 call XFLUSH(u6)
 do I=1,IRC(1)
   IREF = JREFX(I)
-  if (IREF == 0) goto 135
+  if (IREF == 0) cycle
   IREFX(IREF) = I
   IOFF = LN*(I-1)
   write(u6,'(5X,I6,7X,30I1)') I,(JCASE(IOFF+J),J=1,LN)
   call XFLUSH(u6)
   JJ = 0
-  do ISEL=1,NSEL
+  loop1: do ISEL=1,NSEL
     CISEL(IREF,ISEL) = Zero
     NC = NCOMP(ISEL)
     do IC=1,NC
       STR20 = SSEL(JJ+IC)
+      Skip = .false.
       do ILEV=1,LN
         JCAS1 = JCASE(IOFF+ILEV)
         read(STR20(ILEV:ILEV),'(I1)') JCAS2
-        if (JCAS1 /= JCAS2) goto 133
+        if (JCAS1 /= JCAS2) then
+          Skip = .true.
+          exit
+        end if
       end do
-      CISEL(IREF,ISEL) = CSEL(JJ+IC)
-      JJ = JJ+NC
-      goto 134
-133   continue
+      if (.not. Skip) then
+        CISEL(IREF,ISEL) = CSEL(JJ+IC)
+        JJ = JJ+NC
+        cycle loop1
+      end if
     end do
     JJ = JJ+NC
-134 continue
-  end do
-135 continue
+  end do loop1
 end do
 ! ORTHONORMALIZE THE SELECTION VECTORS:
 do ISEL=1,NSEL
@@ -140,17 +144,18 @@ call XFLUSH(u6)
 if (IFIRST == 0) then
   write(u6,215) NREF,NCVAL-NREF,NCDOUB,NCTRIP,NCSING
   call XFLUSH(u6)
-215 format(/,6X,'               REFERENCE ',I8,/,6X,'           OTHER VALENCE ',I8,/,6X,' DOUBLET COUPLED SINGLES ',I8, &
-           /,6X,' TRIPLET COUPLED DOUBLES ',I8,/,6X,' SINGLET COUPLED DOUBLES ',I8)
 else
   write(u6,216) NREF,NCVAL-NREF,NCDOUB
   call XFLUSH(u6)
-216 format(/,6X,'               REFERENCE ',I8,/,6X,'           OTHER VALENCE ',I8,/,6X,' DOUBLET COUPLED SINGLES ',I8)
 end if
 JSCI = JSC(ILIM)-JJM
 write(u6,'(6X,A,I8)') '                  TOTAL ',JSCI
 call XFLUSH(u6)
 
 return
+
+215 format(/,6X,'               REFERENCE ',I8,/,6X,'           OTHER VALENCE ',I8,/,6X,' DOUBLET COUPLED SINGLES ',I8, &
+           /,6X,' TRIPLET COUPLED DOUBLES ',I8,/,6X,' SINGLET COUPLED DOUBLES ',I8)
+216 format(/,6X,'               REFERENCE ',I8,/,6X,'           OTHER VALENCE ',I8,/,6X,' DOUBLET COUPLED SINGLES ',I8)
 
 end subroutine INDMAT

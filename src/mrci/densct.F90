@@ -41,26 +41,26 @@ do I=1,NRROOT
   !PAM04 call dDAFILE(LUEIG,1,HWork(LDMO),NBTRI,IDDMO)
   call dDAFILE(LUEIG,1,Work(LDMO),NBTRI,IDDMO)
 end do
-if (ITRANS == 0) goto 100
-do I=2,NRROOT
-  IDREST = IDC(I)
-  call dDAFILE(LUREST,2,Work(LCI),NCONF,IDREST)
-  do J=1,I-1
-    IDREST = IDC(J)
-    call dDAFILE(LUREST,2,Work(LSGM),NCONF,IDREST)
-    !PAM04 call FZERO(HWork(LTDMO),NBAST**2)
-    call FZERO(Work(LTDMO),NBAST**2)
-    !PAM04 call FIJTD (HWork(LINTSY),HWork(LINDX),HWork(LCI),HWork(LSGM),HWork(LTDMO))
-    call FIJTD(IWork(LINTSY),IWork(LINDX),Work(LCI),Work(LSGM),Work(LTDMO))
-    !PAM04 call AITD (HWork(LINTSY),HWork(LINDX),HWork(LCI),HWork(LTDMO),HWork(LASCR2),HWork(LBSCR2),
-    call AITD(IWork(LINTSY),IWork(LINDX),Work(LCI),Work(LSGM),Work(LTDMO),Work(LASCR2),Work(LBSCR2),Work(LFSCR2))
-    !PAM04 call ABTD (HWork(LCSPCK),HWork(LINTSY),HWork(LINDX),HWork(LTDMO),HWork(LASCR2),HWork(LBSCR2),
-    call ABTD(IWork(LCSPCK),IWork(LINTSY),IWork(LINDX),Work(LCI),Work(LSGM),Work(LTDMO),Work(LASCR2),Work(LBSCR2),Work(LFSCR2))
-    !PAM04 call dDAFILE(LUEIG,1,HWork(LTDMO),NBAST**2,IDDMO)
-    call dDAFILE(LUEIG,1,Work(LTDMO),NBAST**2,IDDMO)
+if (ITRANS /= 0) then
+  do I=2,NRROOT
+    IDREST = IDC(I)
+    call dDAFILE(LUREST,2,Work(LCI),NCONF,IDREST)
+    do J=1,I-1
+      IDREST = IDC(J)
+      call dDAFILE(LUREST,2,Work(LSGM),NCONF,IDREST)
+      !PAM04 call FZERO(HWork(LTDMO),NBAST**2)
+      call FZERO(Work(LTDMO),NBAST**2)
+      !PAM04 call FIJTD (HWork(LINTSY),HWork(LINDX),HWork(LCI),HWork(LSGM),HWork(LTDMO))
+      call FIJTD(IWork(LINTSY),IWork(LINDX),Work(LCI),Work(LSGM),Work(LTDMO))
+      !PAM04 call AITD (HWork(LINTSY),HWork(LINDX),HWork(LCI),HWork(LTDMO),HWork(LASCR2),HWork(LBSCR2),
+      call AITD(IWork(LINTSY),IWork(LINDX),Work(LCI),Work(LSGM),Work(LTDMO),Work(LASCR2),Work(LBSCR2),Work(LFSCR2))
+      !PAM04 call ABTD (HWork(LCSPCK),HWork(LINTSY),HWork(LINDX),HWork(LTDMO),HWork(LASCR2),HWork(LBSCR2),
+      call ABTD(IWork(LCSPCK),IWork(LINTSY),IWork(LINDX),Work(LCI),Work(LSGM),Work(LTDMO),Work(LASCR2),Work(LBSCR2),Work(LFSCR2))
+      !PAM04 call dDAFILE(LUEIG,1,HWork(LTDMO),NBAST**2,IDDMO)
+      call dDAFILE(LUEIG,1,Work(LTDMO),NBAST**2,IDDMO)
+    end do
   end do
-end do
-100 continue
+end if
 call GETMEM('CI','FREE','REAL',LCI,NCONF)
 call GETMEM('SGM','FREE','REAL',LSGM,NCONF)
 call GETMEM('ASCR2','FREE','REAL',LASCR2,NVMAX**2)

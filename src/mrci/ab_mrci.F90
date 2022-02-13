@@ -49,56 +49,57 @@ do IASYM=1,NSYM
 end do
 ITAIL = IRC(NCLIM)
 do INDA=1,ITAIL
-  if (INDA <= IRC(1)) GO TO 40
+  if (INDA <= IRC(1)) cycle
   MYSYM = JSYM(INDA)
   MYL = MUL(MYSYM,LSYM)
   INMY = INDX(INDA)+1
-  if (INDA > IRC(2)) GO TO 25
-  ! DOUBLET-DOUBLET INTERACTIONS
-  if (NVIR(MYL) /= 0) then
-    call FZERO(A,NVIR(MYL))
-    call FMMM(FK(IPOF(MYL)+1),C(INMY),A,NVIR(MYL),1,NVIR(MYL))
-    call DAXPY_(NVIR(MYL),One,A,1,S(INMY),1)
+  if (INDA <= IRC(2)) then
+    ! DOUBLET-DOUBLET INTERACTIONS
+    if (NVIR(MYL) /= 0) then
+      call FZERO(A,NVIR(MYL))
+      call FMMM(FK(IPOF(MYL)+1),C(INMY),A,NVIR(MYL),1,NVIR(MYL))
+      call DAXPY_(NVIR(MYL),One,A,1,S(INMY),1)
+    end if
+  else
+    ! TRIPLET-TRIPLET AND SINGLET-SINGLET INTERACTIONS
+    IFT = 1
+    if (INDA > IRC(3)) IFT = 0
+    call IPO(IPOA,NVIR,MUL,NSYM,MYL,IFT)
+    !PAM97 IN = 0
+    !PAM97 TSUM = Zero
+    do IASYM=1,NSYM
+      IAB = IPOF(IASYM+1)-IPOF(IASYM)
+      if (IAB == 0) cycle
+      ICSYM = MUL(MYL,IASYM)
+      if (NVIR(ICSYM) == 0) cycle
+      if (MYL == 1) then
+        if (IFT == 0) call SQUAR(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
+        if (IFT == 1) call SQUARM(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
+        NAA = NVIR(IASYM)*NVIR(IASYM)
+        call FZERO(B,NAA)
+        call FMMM(FK(IPOF(IASYM)+1),A,B,NVIR(IASYM),NVIR(IASYM),NVIR(IASYM))
+        call FZERO(A,NAA)
+        call DAXPY_(NAA,One,B,1,A,1)
+        if (IFT /= 1) then
+          call SIADD(A,S(INMY+IPOA(IASYM)),NVIR(IASYM))
+          call FZERO(A,NAA)
+        else
+          call TRADD(A,S(INMY+IPOA(IASYM)),NVIR(IASYM))
+          call FZERO(A,NAA)
+        end if
+      else
+        NAC = NVIR(IASYM)*NVIR(ICSYM)
+        call FZERO(A,NAC)
+        if (IASYM <= ICSYM) then
+          call FMMM(FK(IPOF(IASYM)+1),C(INMY+IPOA(ICSYM)),A,NVIR(IASYM),NVIR(ICSYM),NVIR(IASYM))
+          call DAXPY_(NAC,One,A,1,S(INMY+IPOA(ICSYM)),1)
+        else
+          call FMMM(C(INMY+IPOA(IASYM)),FK(IPOF(IASYM)+1),A,NVIR(ICSYM),NVIR(IASYM),NVIR(IASYM))
+          call DAXPY_(NAC,One,A,1,S(INMY+IPOA(IASYM)),1)
+        end if
+      end if
+    end do
   end if
-  GO TO 40
-  ! TRIPLET-TRIPLET AND SINGLET-SINGLET INTERACTIONS
-25 IFT = 1
-  if (INDA > IRC(3)) IFT = 0
-  call IPO(IPOA,NVIR,MUL,NSYM,MYL,IFT)
-  !PAM97 IN = 0
-  !PAM97 TSUM = Zero
-  do IASYM=1,NSYM
-    IAB = IPOF(IASYM+1)-IPOF(IASYM)
-    if (IAB == 0) GO TO 70
-    ICSYM = MUL(MYL,IASYM)
-    if (NVIR(ICSYM) == 0) GO TO 70
-    if (MYL /= 1) GO TO 30
-    if (IFT == 0) call SQUAR(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
-    if (IFT == 1) call SQUARM(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
-    NAA = NVIR(IASYM)*NVIR(IASYM)
-    call FZERO(B,NAA)
-    call FMMM(FK(IPOF(IASYM)+1),A,B,NVIR(IASYM),NVIR(IASYM),NVIR(IASYM))
-    call FZERO(A,NAA)
-    call DAXPY_(NAA,One,B,1,A,1)
-    if (IFT == 1) GO TO 230
-    call SIADD(A,S(INMY+IPOA(IASYM)),NVIR(IASYM))
-    call FZERO(A,NAA)
-    GO TO 70
-230 call TRADD(A,S(INMY+IPOA(IASYM)),NVIR(IASYM))
-    call FZERO(A,NAA)
-    GO TO 70
-30  NAC = NVIR(IASYM)*NVIR(ICSYM)
-    call FZERO(A,NAC)
-    if (IASYM > ICSYM) GO TO 31
-    call FMMM(FK(IPOF(IASYM)+1),C(INMY+IPOA(ICSYM)),A,NVIR(IASYM),NVIR(ICSYM),NVIR(IASYM))
-    call DAXPY_(NAC,One,A,1,S(INMY+IPOA(ICSYM)),1)
-    GO TO 70
-31  call FMMM(C(INMY+IPOA(IASYM)),FK(IPOF(IASYM)+1),A,NVIR(ICSYM),NVIR(IASYM),NVIR(IASYM))
-    call DAXPY_(NAC,One,A,1,S(INMY+IPOA(IASYM)),1)
-    GO TO 70
-70  continue
-  end do
-40 continue
 end do
 call CSCALE(INDX,INTSYM,C,SQ2INV)
 call CSCALE(INDX,INTSYM,S,SQ2)

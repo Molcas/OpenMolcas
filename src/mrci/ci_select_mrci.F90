@@ -39,10 +39,10 @@ do J=1,NRROOT
   PMAX = PLEN(1)
   JMAX = 1
   do JJ=2,NREF
-    if (PMAX >= PLEN(JJ)) goto 150
-    PMAX = PLEN(JJ)
-    JMAX = JJ
-150 continue
+    if (PMAX < PLEN(JJ)) then
+      PMAX = PLEN(JJ)
+      JMAX = JJ
+    end if
   end do
   PLEN(JMAX) = -PMAX
 end do

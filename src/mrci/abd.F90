@@ -60,78 +60,76 @@ do INDA=1,ITAIL
   end do
   if (INDA <= IRC(1)) then
     TSUM = ENPINV*C(INDA)**2
-    GO TO 106
-  end if
-  MYSYM = JSYM(INDA)
-  MYL = MUL(MYSYM,LSYM)
-  INMY = INDX(INDA)+1
-  if (INDA > IRC(2)) GO TO 25
-  ! DOUBLET-DOUBLET INTERACTIONS
-  if (NVIR(MYL) == 0) GO TO 40
-  call FMUL2(C(INMY),C(INMY),A,NVIR(MYL),NVIR(MYL),1)
-  IPF = IPOF(MYL)+1
-  IIN = IPOF(MYL+1)-IPOF(MYL)
-  call DAXPY_(IIN,ENPINV,A,1,F(IPF),1)
-  NVIRA = NVIR(MYL)
-  LNA = LN+NVIRP(MYL)
-  IIA = IROW(LNA+1)
-  TSUM = Zero
-  do I=1,NVIRA
-    RSUM = ENPINV*C(INMY)**2
-    INMY = INMY+1
-    TSUM = TSUM+RSUM
-    IIA = IIA+LNA+I
-    DMO(IIA) = DMO(IIA)+RSUM
-  end do
-  GO TO 106
-  ! TRIPLET-TRIPLET AND SINGLET-SINGLET INTERACTIONS
-25 IFT = 1
-  if (INDA > IRC(3)) IFT = 0
-  call IPO(IPOA,NVIR,MUL,NSYM,MYL,IFT)
-  IIN = 0
-  TSUM = Zero
-  do IASYM=1,NSYM
-    IAB = IPOF(IASYM+1)-IPOF(IASYM)
-    if (IAB == 0) GO TO 70
-    ICSYM = MUL(MYL,IASYM)
-    if (NVIR(ICSYM) == 0) GO TO 70
-    if (MYL /= 1) then
-      if (IASYM > ICSYM) then
-        call MTRANS(C(INMY+IPOA(IASYM)),1,A,1,NVIR(IASYM),NVIR(ICSYM))
-      else
-        NAC = NVIR(IASYM)*NVIR(ICSYM)
-        if (IFT == 0) call DCOPY_(NAC,C(INMY+IPOA(ICSYM)),1,A,1)
-        if (IFT == 1) call VNEG(C(INMY+IPOA(ICSYM)),1,A,1,NAC)
-      end if
+  else
+    MYSYM = JSYM(INDA)
+    MYL = MUL(MYSYM,LSYM)
+    INMY = INDX(INDA)+1
+    if (INDA <= IRC(2)) then
+      ! DOUBLET-DOUBLET INTERACTIONS
+      if (NVIR(MYL) == 0) cycle
+      call FMUL2(C(INMY),C(INMY),A,NVIR(MYL),NVIR(MYL),1)
+      IPF = IPOF(MYL)+1
+      IIN = IPOF(MYL+1)-IPOF(MYL)
+      call DAXPY_(IIN,ENPINV,A,1,F(IPF),1)
+      NVIRA = NVIR(MYL)
+      LNA = LN+NVIRP(MYL)
+      IIA = IROW(LNA+1)
+      TSUM = Zero
+      do I=1,NVIRA
+        RSUM = ENPINV*C(INMY)**2
+        INMY = INMY+1
+        TSUM = TSUM+RSUM
+        IIA = IIA+LNA+I
+        DMO(IIA) = DMO(IIA)+RSUM
+      end do
     else
-      if (IFT == 0) call SQUAR(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
-      if (IFT == 1) call SQUARM(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
+      ! TRIPLET-TRIPLET AND SINGLET-SINGLET INTERACTIONS
+      IFT = 1
+      if (INDA > IRC(3)) IFT = 0
+      call IPO(IPOA,NVIR,MUL,NSYM,MYL,IFT)
+      IIN = 0
+      TSUM = Zero
+      do IASYM=1,NSYM
+        IAB = IPOF(IASYM+1)-IPOF(IASYM)
+        if (IAB == 0) cycle
+        ICSYM = MUL(MYL,IASYM)
+        if (NVIR(ICSYM) == 0) cycle
+        if (MYL /= 1) then
+          if (IASYM > ICSYM) then
+            call MTRANS(C(INMY+IPOA(IASYM)),1,A,1,NVIR(IASYM),NVIR(ICSYM))
+          else
+            NAC = NVIR(IASYM)*NVIR(ICSYM)
+            if (IFT == 0) call DCOPY_(NAC,C(INMY+IPOA(ICSYM)),1,A,1)
+            if (IFT == 1) call VNEG(C(INMY+IPOA(ICSYM)),1,A,1,NAC)
+          end if
+        else
+          if (IFT == 0) call SQUAR(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
+          if (IFT == 1) call SQUARM(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
+        end if
+        NVIRA = NVIR(IASYM)
+        NVIRC = NVIR(ICSYM)
+        call FMUL2(A,A,B,NVIR(IASYM),NVIR(IASYM),NVIR(ICSYM))
+        IPF = IPOF(IASYM)+1
+        call DAXPY_(IAB,ENPINV,B,1,F(IPF),1)
+        INN = 1
+        LNC = LN+NVIRP(ICSYM)
+        IIC = IROW(LNC+1)
+        do I=1,NVIRC
+          RSUM = ENPINV*DDOT_(NVIRA,A(INN),1,A(INN),1)
+          TSUM = TSUM+RSUM
+          IIC = IIC+LNC+I
+          DMO(IIC) = DMO(IIC)+RSUM
+          INN = INN+NVIRA
+        end do
+      end do
+      TSUM = TSUM/2
     end if
-    NVIRA = NVIR(IASYM)
-    NVIRC = NVIR(ICSYM)
-    call FMUL2(A,A,B,NVIR(IASYM),NVIR(IASYM),NVIR(ICSYM))
-    IPF = IPOF(IASYM)+1
-    call DAXPY_(IAB,ENPINV,B,1,F(IPF),1)
-    INN = 1
-    LNC = LN+NVIRP(ICSYM)
-    IIC = IROW(LNC+1)
-    do I=1,NVIRC
-      RSUM = ENPINV*DDOT_(NVIRA,A(INN),1,A(INN),1)
-      TSUM = TSUM+RSUM
-      IIC = IIC+LNC+I
-      DMO(IIC) = DMO(IIC)+RSUM
-      INN = INN+NVIRA
-    end do
-70  continue
-  end do
-  TSUM = TSUM/2
-106 continue
+  end if
   IJ = 0
   do I=1,LN
     IJ = IJ+I
     DMO(IJ) = DMO(IJ)+IOC(I)*TSUM
   end do
-40 continue
 end do
 do IASYM=1,NSYM
   IAB = IPOF(IASYM)
@@ -140,10 +138,9 @@ do IASYM=1,NSYM
   do NA=NA1,NA2
     do NB=NA1,NA2
       IAB = IAB+1
-      if (NA >= NB) goto 420
+      if (NA >= NB) cycle
       NAB = IROW(LN+NB)+LN+NA
       DMO(NAB) = F(IAB)
-420   continue
     end do
   end do
 end do
@@ -154,11 +151,12 @@ do I=1,NCSHT
   TR = TR+DMO(IJ)
 end do
 if (abs(TR-real(NELEC,kind=wp)) > 1.0e-8_wp) write(u6,310) TR
-310 format(/,6X,'TRACE OF DENSITY MATRIX',F16.8)
 call CSCALE(INDX,INTSYM,C,SQ2INV)
 
 return
 ! Avoid unused argument warnings
 if (.false.) call Unused_integer_array(JREFX)
+
+310 format(/,6X,'TRACE OF DENSITY MATRIX',F16.8)
 
 end subroutine ABD

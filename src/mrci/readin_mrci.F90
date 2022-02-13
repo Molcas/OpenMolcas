@@ -20,15 +20,16 @@ implicit none
 #include "mrci.fh"
 #include "WrkSpc.fh"
 #include "niocr.fh"
-integer(kind=iwp) :: I, iCmd, IDISK, IGFAC, IIN, ILIM, INTNUM, IO, IOCR(nIOCR), IOM, iOpt, IORBS, IR, iRef, ISUM, ISYM, IT, IU, &
-                     IV, IVA, IX1, IX2, IX3, IX4, IY1, IY2, IY3, IY4, J, jCmd, jEnd, JJ, jStart, LDUM, LN1, LN2, LV, MXVC, NAMSIZ, &
-                     NASHI, NBASI, NC, NCSHI, NDELI, NDMOI, NFMOI, NFROI, nIRC, NISHI, nJJS, NMUL, NORBI, NOTOT(8), NREFWR, NRF, & !IFG
-                     NRLN1, nTit, NVALI, NVIRI, NVT, NVT2
+integer(kind=iwp) :: I, iCmd, IDISK, IGFAC, IIN, ILIM, INTNUM, IO, IOCR(nIOCR), IOM, iOpt, IORBS, IR, iRef, istatus, ISUM, ISYM, &
+                     IT, IU, IV, IVA, IX1, IX2, IX3, IX4, IY1, IY2, IY3, IY4, J, jCmd, jEnd, JJ, jStart, LDUM, LN1, LN2, LV, MXVC, &
+                     NAMSIZ, NASHI, NBASI, NC, NCSHI, NDELI, NDMOI, NFMOI, NFROI, nIRC, NISHI, nJJS, NMUL, NORBI, NOTOT(8), & !IFG
+                     NREFWR, NRF, NRLN1, nTit, NVALI, NVIRI, NVT, NVT2
+logical(kind=iwp) :: Skip
 character(len=88) :: ModLine
 character(len=72) :: Line, Title(10)
 character(len=4) :: Command
-character(len=4), parameter :: Cmd(20) = ['TITL','THRP','PRIN','FROZ','DELE','MAXI','ECON','REST','ROOT','ACPF','SDCI','GVAL', &
-                                            'PROR','REFC','SELE','NRRO','MXVE','TRAN','EXTR','END ']
+character(len=4), parameter :: Cmd(19) = ['TITL','THRP','PRIN','FROZ','DELE','MAXI','ECON','REST','ROOT','ACPF','SDCI','GVAL', &
+                                          'PROR','REFC','SELE','NRRO','MXVE','TRAN','END ']
 
 ! convert a pointer in H to a pointer for iH
 ! ipointer(i)=(i-1)*RtoI+1
@@ -74,172 +75,216 @@ call WR_MOTRA_Info(LUONE,2,iDisk,ITOC17,64,POTNUC,NSYM,NBAS,NORB,NFMO,NDMO,8,NAM
 
 !---  Read input from standard input ----------------------------------*
 call RdNLst(u5,'MRCI')
-10 read(u5,'(A)',end=991) Line
-Command = Line(1:4)
-call UpCase(Command)
-if (Command(1:1) == '*') goto 10
-if (Command == ' ') goto 10
+Skip = .false.
 jCmd = 0
-do iCmd=1,size(Cmd)
-  if (Command == Cmd(iCmd)) jCmd = iCmd
+do
+  if (Skip) then
+    Skip = .false.
+  else
+    read(u5,'(A)',iostat=istatus) Line
+    if (istatus < 0) call Error(1)
+    Command = Line(1:4)
+    call UpCase(Command)
+    if (Command(1:1) == '*') cycle
+    if (Command == ' ') cycle
+    jCmd = 0
+    do iCmd=1,size(Cmd)
+      if (Command == Cmd(iCmd)) jCmd = iCmd
+    end do
+  end if
+  select case (jCmd)
+
+    case default
+      write(u6,*) 'READIN Error: Command not recognized.'
+      write(u6,*) 'The command is:'//''''//Command//''''
+      call QUIT(_RC_INPUT_ERROR_)
+
+    case (1) !TITL
+      !---  process TITL command --------------------------------------*
+      do
+        read(u5,'(A)',iostat=istatus) Line
+        if (istatus < 0) call Error(1)
+        Command = Line(1:4)
+        call UpCase(Command)
+        if (Command(1:1) == '*') cycle
+        jCmd = 0
+        do iCmd=1,size(Cmd)
+          if (Command == Cmd(iCmd)) jCmd = iCmd
+        end do
+        if (jCmd /= 0) exit
+        nTit = nTit+1
+        if (nTit <= size(Title)) Title(nTit) = Line
+      end do
+      Skip = .true.
+
+    case (2) !THRP
+      !---  process THRP command --------------------------------------*
+      do
+        read(u5,'(A)',iostat=istatus) Line
+        if (istatus < 0) call Error(1)
+        if (Line(1:1) /= '*') exit
+      end do
+      read(Line,*,iostat=istatus) CTRSH
+      if (istatus > 0) call Error(2)
+
+    case (3) !PRIN
+      !---  process PRIN command --------------------------------------*
+      do
+        read(u5,'(A)',iostat=istatus) Line
+        if (istatus < 0) call Error(1)
+        if (Line(1:1) /= '*') exit
+      end do
+      read(Line,*,iostat=istatus) IPRINT
+      if (istatus > 0) call Error(2)
+
+    case (4) !FROZ
+      !---  process FROZ command --------------------------------------*
+      do
+        read(u5,'(A)',iostat=istatus) Line
+        if (istatus < 0) call Error(1)
+        if (Line(1:1) /= '*') exit
+      end do
+      ModLine = Line//' 0 0 0 0 0 0 0 0'
+      read(ModLine,*,iostat=istatus) (NFRO(I),I=1,8)
+      if (istatus > 0) call Error(2)
+
+    case (5) !DELE
+      !---  process DELE command --------------------------------------*
+      do
+        read(u5,'(A)',iostat=istatus) Line
+        if (istatus < 0) call Error(1)
+        if (Line(1:1) /= '*') exit
+      end do
+      ModLine = Line//' 0 0 0 0 0 0 0 0'
+      read(ModLine,*,iostat=istatus) (NDEL(I),I=1,8)
+      if (istatus > 0) call Error(2)
+
+    case (6) !MAXI
+      !---  process MAXI command --------------------------------------*
+      do
+        read(u5,'(A)',iostat=istatus) Line
+        if (istatus < 0) call Error(1)
+        if (Line(1:1) /= '*') exit
+      end do
+      read(Line,*,iostat=istatus) MAXIT
+      if (istatus > 0) call Error(2)
+
+    case (7) !ECON
+      !---  process ECON command --------------------------------------*
+      do
+        read(u5,'(A)',iostat=istatus) Line
+        if (istatus < 0) call Error(1)
+        if (Line(1:1) /= '*') exit
+      end do
+      read(Line,*,iostat=istatus) ETHRE
+      if (istatus > 0) call Error(2)
+
+    case (8) !REST
+      !---  process REST command --------------------------------------*
+      IREST = 1
+
+    case (9) !ROOT
+      !---  process ROOT command --------------------------------------*
+      do
+        read(u5,'(A)',iostat=istatus) Line
+        if (istatus < 0) call Error(1)
+        if (Line(1:1) /= '*') exit
+      end do
+      read(Line,*,iostat=istatus) (IROOT(I),I=1,NRROOT)
+      if (istatus > 0) call Error(2)
+
+    case (10) !ACPF
+      !---  process ACPF command --------------------------------------*
+      ICPF = 1
+
+    case (11) !SDCI
+      !---  process SDCI command --------------------------------------*
+      ICPF = 0
+
+    case (12) !GVAL
+      !---  process GVAL command --------------------------------------*
+      do
+        read(u5,'(A)',iostat=istatus) Line
+        if (istatus < 0) call Error(1)
+        if (Line(1:1) /= '*') exit
+      end do
+      read(Line,*,iostat=istatus) GFAC
+      if (istatus > 0) call Error(2)
+      IGFAC = 1
+
+    case (13) !PROR
+      !---  process PROR command --------------------------------------*
+      do
+        read(u5,'(A)',iostat=istatus) Line
+        if (istatus < 0) call Error(1)
+        if (Line(1:1) /= '*') exit
+      end do
+      read(Line,*,iostat=istatus) THRORB
+      if (istatus > 0) call Error(2)
+
+    case (14) !REFC
+      !---  process REFC command --------------------------------------*
+      IREFCI = 1
+
+    case (15) !SELE
+      !---  process SELE command --------------------------------------*
+      do
+        read(u5,'(A)',iostat=istatus) Line
+        if (istatus < 0) call Error(1)
+        if (Line(1:1) /= '*') exit
+      end do
+      read(Line,*,iostat=istatus) NSEL
+      if (istatus > 0) call Error(2)
+      JJ = 0
+      do I=1,NSEL
+        read(u5,*,iostat=istatus) NC,(CSEL(JJ+J),SSEL(JJ+J),J=1,NC)
+        if (istatus < 0) call Error(1)
+        if (istatus > 0) call Error(2)
+        JJ = JJ+NC
+        NCOMP(I) = NC
+      end do
+
+    case (16) !NRRO
+      !---  process NRRO command --------------------------------------*
+      do
+        read(u5,'(A)',iostat=istatus) Line
+        if (istatus < 0) call Error(1)
+        if (Line(1:1) /= '*') exit
+      end do
+      read(Line,*,iostat=istatus) NRROOT
+      if (istatus > 0) call Error(2)
+      if (nrroot > mxvec) then
+        write(u6,1610) nrroot,mxvec
+        call quit(_RC_INPUT_ERROR_)
+      end if
+      do I=1,NRROOT
+        IROOT(I) = I
+      end do
+
+    case (17) !MXVE
+      !---  process MXVE command --------------------------------------*
+      do
+        read(u5,'(A)',iostat=istatus) Line
+        if (istatus < 0) call Error(1)
+        if (Line(1:1) /= '*') exit
+      end do
+      read(Line,*,iostat=istatus) MXVC
+      if (istatus > 0) call Error(2)
+      if (mxvc > mxvec) then
+        write(u6,1710) mxvc,mxvec
+        call quit(_RC_INPUT_ERROR_)
+      end if
+
+    case (18) !TRAN
+      !---  process TRAN command --------------------------------------*
+      ITRANS = 1
+
+    case (19) !END
+      exit
+
+  end select
 end do
-20 goto(100,200,300,400,500,600,700,800,900,1000,1100,1200,1300,1400,1500,1600,1700,1800,1900,2000) jCmd
-write(u6,*) 'READIN Error: Command not recognized.'
-write(u6,*) 'The command is:'//''''//Command//''''
-call QUIT(_RC_INPUT_ERROR_)
-
-!---  process TITL command --------------------------------------------*
-100 continue
-read(u5,'(A)',end=991) Line
-Command = Line(1:4)
-call UpCase(Command)
-if (Command(1:1) == '*') goto 100
-jCmd = 0
-do iCmd=1,size(Cmd)
-  if (Command == Cmd(iCmd)) jCmd = iCmd
-end do
-if (jCmd /= 0) goto 20
-nTit = nTit+1
-if (nTit <= size(Title)) Title(nTit) = Line
-goto 100
-
-!---  process THRP command --------------------------------------------*
-200 continue
-read(u5,'(A)',end=991) Line
-if (Line(1:1) == '*') goto 200
-read(Line,*,Err=992) CTRSH
-goto 10
-
-!---  process PRIN command --------------------------------------------*
-300 continue
-read(u5,'(A)',end=991) Line
-if (Line(1:1) == '*') goto 300
-read(Line,*,Err=992) IPRINT
-goto 10
-
-!---  process FROZ command --------------------------------------------*
-400 continue
-read(u5,'(A)',end=991) Line
-if (Line(1:1) == '*') goto 400
-ModLine = Line//' 0 0 0 0 0 0 0 0'
-read(ModLine,*,Err=992) (NFRO(I),I=1,8)
-goto 10
-
-!---  process DELE command --------------------------------------------*
-500 continue
-read(u5,'(A)',end=991) Line
-if (Line(1:1) == '*') goto 500
-ModLine = Line//' 0 0 0 0 0 0 0 0'
-read(ModLine,*,Err=992) (NDEL(I),I=1,8)
-goto 10
-
-!---  process MAXI command --------------------------------------------*
-600 continue
-read(u5,'(A)',end=991) Line
-if (Line(1:1) == '*') goto 600
-read(Line,*,Err=992) MAXIT
-goto 10
-
-!---  process ECON command --------------------------------------------*
-700 continue
-read(u5,'(A)',end=991) Line
-if (Line(1:1) == '*') goto 700
-read(Line,*,Err=992) ETHRE
-goto 10
-
-!---  process REST command --------------------------------------------*
-800 continue
-IREST = 1
-goto 10
-
-!---  process ROOT command --------------------------------------------*
-900 continue
-read(u5,'(A)',end=991) Line
-if (Line(1:1) == '*') goto 900
-read(Line,*,Err=992) (IROOT(I),I=1,NRROOT)
-goto 10
-
-!---  process ACPF command --------------------------------------------*
-1000 continue
-ICPF = 1
-goto 10
-
-!---  process SDCI command --------------------------------------------*
-1100 continue
-ICPF = 0
-goto 10
-
-!---  process GVAL command --------------------------------------------*
-1200 continue
-read(u5,'(A)',end=991) Line
-if (Line(1:1) == '*') goto 1200
-read(Line,*,Err=992) GFAC
-IGFAC = 1
-goto 10
-
-!---  process PROR command --------------------------------------------*
-1300 continue
-read(u5,'(A)',end=991) Line
-if (Line(1:1) == '*') goto 1300
-read(Line,*,Err=992) THRORB
-goto 10
-
-!---  process REFC command --------------------------------------------*
-1400 continue
-IREFCI = 1
-goto 10
-
-!---  process SELE command --------------------------------------------*
-1500 continue
-read(u5,'(A)',end=991) Line
-if (Line(1:1) == '*') goto 1500
-read(Line,*,Err=992) NSEL
-JJ = 0
-do I=1,NSEL
-  read(u5,*,end=991,Err=992) NC,(CSEL(JJ+J),SSEL(JJ+J),J=1,NC)
-  JJ = JJ+NC
-  NCOMP(I) = NC
-end do
-goto 10
-
-!---  process NRRO command --------------------------------------------*
-1600 continue
-read(u5,'(A)',end=991) Line
-if (Line(1:1) == '*') goto 1600
-read(Line,*,Err=992) NRROOT
-if (nrroot > mxvec) then
-  write(u6,1610) nrroot,mxvec
-1610 format('Too many roots,',i3,', max allowed is',i3)
-  call quit(_RC_INPUT_ERROR_)
-end if
-do I=1,NRROOT
-  IROOT(I) = I
-end do
-goto 10
-
-!---  process MXVE command --------------------------------------------*
-1700 continue
-read(u5,'(A)',end=991) Line
-if (Line(1:1) == '*') goto 1700
-read(Line,*,Err=992) MXVC
-if (mxvc > mxvec) then
-  write(u6,1710) mxvc,mxvec
-1710 format('Too many vectors,',i3,', max allowed is',i3)
-  call quit(_RC_INPUT_ERROR_)
-end if
-goto 10
-
-!---  process TRAN command --------------------------------------------*
-1800 continue
-ITRANS = 1
-goto 10
-
-!---  process EXTR command --------------------------------------------*
-1900 write(u6,*) 'The EXTRACT option is redundant and is ignored!'
-goto 10
-
 !---  The end of the input is reached, print the title ----------------*
-2000 continue
 if (ntit == 0) then
   ntit = 1
   title(1) = ' ( No title was given )'
@@ -521,7 +566,6 @@ write(u6,*)
 write(u6,101) 'PRE-FROZEN ORBITALS',(NFMO(I),I=1,NSYM),NFMOT
 write(u6,101) 'PRE-DELETED ORBITALS',(NDMO(I),I=1,NSYM),NDMOT
 write(u6,101) 'SUM:   TOTAL BASIS',(NBAS(I),I=1,NSYM),NBAST
-101 format(6X,A,T47,9I5)
 write(u6,*)
 call XFLUSH(u6)
 if (LN1 == 0) then
@@ -569,8 +613,6 @@ if (IFIRST == 0) then
     call XFLUSH(u6)
     write(u6,215) IX1,IX2,IX3,IX4
     call XFLUSH(u6)
-215 format(/,6X,'                 VALENCE',I7,/,6X,' DOUBLET COUPLED SINGLES',I7,/,6X,' TRIPLET COUPLED DOUBLES',I7, &
-           /,6X,' SINGLET COUPLED DOUBLES',I7)
     write(u6,*)
     call XFLUSH(u6)
     write(u6,*) '      FORMAL CONFIGURATIONS:'
@@ -589,7 +631,6 @@ else
     call XFLUSH(u6)
     write(u6,216) IX1,IX2
     call XFLUSH(u6)
-216 format(/,6X,'                 VALENCE',I7,/,6X,' DOUBLET COUPLED SINGLES',I7)
     write(u6,*)
     call XFLUSH(u6)
     write(u6,*) '      FORMAL CONFIGURATIONS:'
@@ -682,13 +723,29 @@ call ALLOC_MRCI()
 
 return
 
-991 continue
-write(u6,*) 'READIN Error: Premature end of file while reading.'
-call Quit(_RC_IO_ERROR_READ_)
-992 continue
-write(u6,*) 'READIN Error: I/O error during internal read.'
-write(u6,*) 'The line that could not be read is:'
-write(u6,*) Line
-call Quit(_RC_IO_ERROR_READ_)
+101 format(6X,A,T47,9I5)
+215 format(/,6X,'                 VALENCE',I7,/,6X,' DOUBLET COUPLED SINGLES',I7,/,6X,' TRIPLET COUPLED DOUBLES',I7, &
+           /,6X,' SINGLET COUPLED DOUBLES',I7)
+216 format(/,6X,'                 VALENCE',I7,/,6X,' DOUBLET COUPLED SINGLES',I7)
+1610 format('Too many roots,',i3,', max allowed is',i3)
+1710 format('Too many vectors,',i3,', max allowed is',i3)
+
+contains
+
+subroutine Error(code)
+
+  integer(kind=iwp), intent(in) :: code
+
+  select case (code)
+    case (1)
+      write(u6,*) 'READIN Error: Premature end of file while reading.'
+    case (2)
+      write(u6,*) 'READIN Error: I/O error during internal read.'
+      write(u6,*) 'The line that could not be read is:'
+      write(u6,*) Line
+  end select
+  call Quit(_RC_IO_ERROR_READ_)
+
+end subroutine Error
 
 end subroutine READIN_MRCI

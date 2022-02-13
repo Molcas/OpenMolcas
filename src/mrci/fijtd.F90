@@ -32,51 +32,52 @@ nk = -1234567
 !------
 ICHK = 0
 IADD10 = IAD10(8)
-100 call dDAFILE(LUSYMB,2,COP,nCOP,IADD10)
-call iDAFILE(LUSYMB,2,iCOP1,nCOP+1,IADD10)
-ILEN = ICOP1(nCOP+1)
-if (ILEN == 0) GO TO 100
-if (ILEN < 0) return
-do IIN=1,ILEN
-  IND = ICOP1(IIN)
-  if (ICHK /= 0) then
-    ICHK = 0
-    INDI = IND
-    !NI = mod(INDI,2**10)
-    !NK = mod(INDI/2**10,2**10)
-    NI = ibits(INDI,0,10)
-    NK = ibits(INDI,10,10)
-    GO TO 10
-  end if
-  if (IND == 0) then
-    ICHK = 1
-    GO TO 10
-  end if
-  !IVL = mod(IND,2**6)
-  !IC2 = mod(IND/2**6,2**13)
-  !IC1 = mod(IND/2**19,2**13)
-  IVL = ibits(IND,0,6)
-  IC2 = ibits(IND,6,13)
-  IC1 = ibits(IND,19,13)
-  if (IVL /= IVVER) GO TO 13
-  TDMO(NI,NK) = TDMO(NI,NK)+COP(IIN)*C1(IC1)*C2(IC2)
-  if (NI /= NK) TDMO(NK,NI) = TDMO(NK,NI)+COP(IIN)*C2(IC1)*C1(IC2)
-  GO TO 10
-13 INDA = IRC(IVL)+IC1
-  INDB = IRC(IVL)+IC2
-  NA = INDX(INDA)
-  NB = INDX(INDB)
-  NS1 = JSYM(INDA)
-  NS1L = MUL(NS1,LSYM)
-  INUM = NVIR(NS1L)
-  if (IVL >= 2) INUM = NVPAIR(NS1L)
-  TERM = DDOT_(INUM,C1(NA+1),1,C2(NB+1),1)
-  TDMO(NI,NK) = TDMO(NI,NK)+COP(IIN)*TERM
-  if (NI == NK) goto 10
-  TERM = DDOT_(INUM,C2(NA+1),1,C1(NB+1),1)
-  TDMO(NK,NI) = TDMO(NK,NI)+COP(IIN)*TERM
-10 continue
+do
+  call dDAFILE(LUSYMB,2,COP,nCOP,IADD10)
+  call iDAFILE(LUSYMB,2,iCOP1,nCOP+1,IADD10)
+  ILEN = ICOP1(nCOP+1)
+  if (ILEN < 0) exit
+  do IIN=1,ILEN
+    IND = ICOP1(IIN)
+    if (ICHK /= 0) then
+      ICHK = 0
+      INDI = IND
+      !NI = mod(INDI,2**10)
+      !NK = mod(INDI/2**10,2**10)
+      NI = ibits(INDI,0,10)
+      NK = ibits(INDI,10,10)
+    else if (IND == 0) then
+      ICHK = 1
+    else
+      !IVL = mod(IND,2**6)
+      !IC2 = mod(IND/2**6,2**13)
+      !IC1 = mod(IND/2**19,2**13)
+      IVL = ibits(IND,0,6)
+      IC2 = ibits(IND,6,13)
+      IC1 = ibits(IND,19,13)
+      if (IVL == IVVER) then
+        TDMO(NI,NK) = TDMO(NI,NK)+COP(IIN)*C1(IC1)*C2(IC2)
+        if (NI /= NK) TDMO(NK,NI) = TDMO(NK,NI)+COP(IIN)*C2(IC1)*C1(IC2)
+      else
+        INDA = IRC(IVL)+IC1
+        INDB = IRC(IVL)+IC2
+        NA = INDX(INDA)
+        NB = INDX(INDB)
+        NS1 = JSYM(INDA)
+        NS1L = MUL(NS1,LSYM)
+        INUM = NVIR(NS1L)
+        if (IVL >= 2) INUM = NVPAIR(NS1L)
+        TERM = DDOT_(INUM,C1(NA+1),1,C2(NB+1),1)
+        TDMO(NI,NK) = TDMO(NI,NK)+COP(IIN)*TERM
+        if (NI /= NK) then
+          TERM = DDOT_(INUM,C2(NA+1),1,C1(NB+1),1)
+          TDMO(NK,NI) = TDMO(NK,NI)+COP(IIN)*TERM
+        end if
+      end if
+    end if
+  end do
 end do
-GO TO 100
+
+return
 
 end subroutine FIJTD

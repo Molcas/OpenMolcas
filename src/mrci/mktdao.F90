@@ -23,14 +23,12 @@ integer(kind=iwp) :: I, IEB, IECMO, IEO, II, ISB, ISCMO, ISCO, ISO, ISYM, J, JJ,
 call FZERO(TDAO,NBAST**2)
 do I=1,NORBT
   II = ICH(I)
-  if (II <= 0) goto 10
-  do J=1,NORBT
-    JJ = ICH(J)
-    if (JJ <= 0) goto 5
-    TDAO(I,J) = TDMO(II,JJ)
-5   continue
-  end do
-10 continue
+  if (II > 0) then
+    do J=1,NORBT
+      JJ = ICH(J)
+      if (JJ > 0) TDAO(I,J) = TDMO(II,JJ)
+    end do
+  end if
 end do
 call DCOPY_(NBAST**2,TDAO,1,TDMO,1)
 call FZERO(TDAO,NBAST**2)

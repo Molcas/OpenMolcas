@@ -32,111 +32,120 @@ NOV = (NVT-1)/IPASS+1
 IACMAX = 0
 !do ISTEP=1,IPASS
 ISTEP = 1
-if (IPASS < 1) goto 670
+if (IPASS >= 1) then
 
-770 IACMIN = IACMAX+1
-IACMAX = IACMAX+NOV
-if (IACMAX > NVT) IACMAX = NVT
-if (IACMIN > IACMAX) GO TO 70
-!do ISYM=1,NSYM
-ISYM = 1
-if (NSYM < 1) goto 640
-740 IST1 = IRC(3)+JJS(ISYM+9)+1
-IFIN1 = IRC(3)+JJS(ISYM+10)
-INPS = IFIN1-IST1+1
-IST2 = IRC(2)+JJS(ISYM)+1
-IFIN2 = IRC(2)+JJS(ISYM+1)
-INPT = IFIN2-IST2+1
-ITAIL = INPS+INPT
-if (ITAIL == 0) GO TO 40
-IN1 = -NVIRT
-!do NA=1,NVIRT
-NA = 1
-if (NVIRT < 1) goto 650
-750 IN1 = IN1+NVIRT
-!do NC=1,NA
-NC = 1
-if (NA < 1) goto 660
+  do
+    IACMIN = IACMAX+1
+    IACMAX = IACMAX+NOV
+    if (IACMAX > NVT) IACMAX = NVT
+    if (IACMIN <= IACMAX) then
+      !do ISYM=1,NSYM
+      ISYM = 1
+      if (NSYM >= 1) then
+        do
+          IST1 = IRC(3)+JJS(ISYM+9)+1
+          IFIN1 = IRC(3)+JJS(ISYM+10)
+          INPS = IFIN1-IST1+1
+          IST2 = IRC(2)+JJS(ISYM)+1
+          IFIN2 = IRC(2)+JJS(ISYM+1)
+          INPT = IFIN2-IST2+1
+          ITAIL = INPS+INPT
+          if (ITAIL /= 0) then
+            IN1 = -NVIRT
+            !do NA=1,NVIRT
+            NA = 1
+            if (NVIRT >= 1) then
+              do
+                IN1 = IN1+NVIRT
+                do NC=1,NA
+                  IAC = IROW(NA)+NC
+                  if (IAC < IACMIN) cycle
+                  if (IAC > IACMAX) cycle
+                  if (NA == 1) cycle
+                  NSAC = MUL(NSM(LN+NA),NSM(LN+NC))
+                  NSACL = MUL(NSAC,LSYM)
+                  if (NSACL /= ISYM) cycle
+                  ISAC = ISAB(NA,NC)
+                  NSC = NSM(LN+NC)
+                  NDMAX = NVIRP(NSC)+NVIR(NSC)
+                  if (NDMAX > NA) NDMAX = NA
+                  INS = ISAB(NA,NDMAX)
+                  ! MOVE INS ITEMS FROM FILE, UNIT 16, VIA BUFFER, INTO ACBDS,
+                  ! AND THEN INTO ACBDT:
+                  ILOOP = 0
+                  do
+                    INSB = INS
+                    do
+                      if (INSIN >= KBUFF1) then
+                        ! INSB ITEMS REMAIN TO MOVE.
+                        ! INSIN ITEMS HAVE ALREADY BEEN MOVED FROM THE BUFFER.
+                        call dDAFILE(Lu_80,2,BUFIN,KBUFF1,IAD16)
+                        INSIN = 0
+                      end if
+                      INB = KBUFF1-INSIN
+                      ! INB FRESH ITEMS ARE STILL REMAINING IN BUFFER.
+                      INUMB = min(INSB,INB)
+                      ! MOVE INUMB ITEMS.
+                      IST = INS-INSB+1
+                      if (ILOOP == 0) call DCOPY_(INUMB,BUFIN(INSIN+1),1,ACBDS(IST),1)
+                      if (ILOOP == 1) call DCOPY_(INUMB,BUFIN(INSIN+1),1,ACBDT(IST),1)
+                      INSIN = INSIN+INUMB
+                      INSB = INSB-INUMB
+                      if (INSB <= 0) exit
+                    end do
+                    ILOOP = ILOOP+1
+                    if (ILOOP /= 1) exit
+                  end do
+                  ! INS ITEMS HAVE BEEN TRANSFERRED TO ACBDS AND TO ACBDT.
+                  if (INPS /= 0) then
+                    INDA = IST1
+                    if (IFIN1 >= IST1) then
+                      !do INDA=IST1,IFIN1
+                      do
+                        TERM = DDOT_(INS,C(indx(INDA)+1),1,ACBDS,1)
+                        S(indx(INDA)+ISAC) = S(indx(INDA)+ISAC)+TERM
+                        call DAXPY_(INS,C(indx(INDA)+ISAC),ACBDS,1,S(indx(INDA)+1),1)
+                        !end do
+                        INDA = INDA+1
+                        if (INDA > IFIN1) exit
+                      end do
+                    end if
+                  end if
+                  if ((INPT == 0) .or. (NA == NC)) cycle
+                  INDA = IST2
+                  if (IFIN2 >= IST2) then
+                    !do INDA=IST2,IFIN2
+                    do
+                      TERM = DDOT_(INS,C(indx(INDA)+1),1,ACBDT,1)
+                      S(indx(INDA)+ISAC) = S(indx(INDA)+ISAC)+TERM
+                      call DAXPY_(INS,C(indx(INDA)+ISAC),ACBDT,1,S(indx(INDA)+1),1)
+                      !end do
+                      INDA = INDA+1
+                      if (INDA > IFIN2) exit
+                    end do
+                  end if
+                end do
+                !vv end of unrolling loop
+                !NC = NC+1
+                !if (NC == NA) exit
+                !end do
+                NA = NA+1
+                if (NA > NVIRT) exit
+              end do
+            end if
+          end if
+          !end do
+          ISYM = ISYM+1
+          if (ISYM > NSYM) exit
+        end do
+      end if
+    end if
 
-760 IAC = IROW(NA)+NC
-if (IAC < IACMIN) GO TO 60
-if (IAC > IACMAX) GO TO 60
-if (NA == 1) GO TO 60
-NSAC = MUL(NSM(LN+NA),NSM(LN+NC))
-NSACL = MUL(NSAC,LSYM)
-if (NSACL /= ISYM) GO TO 60
-ISAC = ISAB(NA,NC)
-NSC = NSM(LN+NC)
-NDMAX = NVIRP(NSC)+NVIR(NSC)
-if (NDMAX > NA) NDMAX = NA
-INS = ISAB(NA,NDMAX)
-! MOVE INS ITEMS FROM FILE, UNIT 16, VIA BUFFER, INTO ACBDS,
-! AND THEN INTO ACBDT:
-ILOOP = 0
-72 INSB = INS
-73 if (INSIN < KBUFF1) GO TO 75
-! INSB ITEMS REMAIN TO MOVE.
-! INSIN ITEMS HAVE ALREADY BEEN MOVED FROM THE BUFFER.
-call dDAFILE(Lu_80,2,BUFIN,KBUFF1,IAD16)
-INSIN = 0
-75 INB = KBUFF1-INSIN
-! INB FRESH ITEMS ARE STILL REMAINING IN BUFFER.
-INUMB = min(INSB,INB)
-! MOVE INUMB ITEMS.
-IST = INS-INSB+1
-if (ILOOP == 0) call DCOPY_(INUMB,BUFIN(INSIN+1),1,ACBDS(IST),1)
-if (ILOOP == 1) call DCOPY_(INUMB,BUFIN(INSIN+1),1,ACBDT(IST),1)
-INSIN = INSIN+INUMB
-INSB = INSB-INUMB
-if (INSB > 0) GO TO 73
-ILOOP = ILOOP+1
-if (ILOOP == 1) GO TO 72
-! INS ITEMS HAVE BEEN TRANSFERRED TO ACBDS AND TO ACBDT.
-if (INPS == 0) GO TO 11
-INDA = IST1
-if (IFIN1 < IST1) goto 610
-!do INDA=IST1,IFIN1
-710 TERM = DDOT_(INS,C(indx(INDA)+1),1,ACBDS,1)
-S(indx(INDA)+ISAC) = S(indx(INDA)+ISAC)+TERM
-call DAXPY_(INS,C(indx(INDA)+ISAC),ACBDS,1,S(indx(INDA)+1),1)
-!end do
-INDA = INDA+1
-if (INDA <= IFIN1) goto 710
-610 continue
-11 if ((INPT == 0) .or. (NA == NC)) GO TO 60
-INDA = IST2
-if (IFIN2 < IST2) goto 630
-!do INDA=IST2,IFIN2
-730 TERM = DDOT_(INS,C(indx(INDA)+1),1,ACBDT,1)
-S(indx(INDA)+ISAC) = S(indx(INDA)+ISAC)+TERM
-call DAXPY_(INS,C(indx(INDA)+ISAC),ACBDT,1,S(indx(INDA)+1),1)
-!end do
-INDA = INDA+1
-if (INDA <= IFIN2) goto 730
-630 continue
-60 continue
-!end do
-NC = NC+1
-if (NC <= NA) goto 760
-660 continue
-!vv end of unrolling loop
-!NC = NC+1
-!if (NC /= NA) goto 61
-!end do
-NA = NA+1
-if (NA <= NVIRT) goto 750
-650 continue
-40 continue
-!end do
-ISYM = ISYM+1
-if (ISYM <= NSYM) goto 740
-640 continue
-
-70 continue
-!end do
-ISTEP = ISTEP+1
-if (ISTEP <= IPASS) goto 770
-670 continue
+    !end do
+    ISTEP = ISTEP+1
+    if (ISTEP > IPASS) exit
+  end do
+end if
 call CSCALE(indx,INTSYM,C,SQ2INV)
 call CSCALE(indx,INTSYM,S,SQ2)
 
