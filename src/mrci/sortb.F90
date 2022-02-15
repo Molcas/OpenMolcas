@@ -14,12 +14,15 @@ subroutine SORTB(BUFS,INDS,ACBDS,ACBDT,ISAB,BFACBD,NINTGR)
 ! SORTS INTEGRALS (AB/CD)
 ! FOR FIXED A,C ALL B,D
 
+use mrci_global, only: ICH, IPASS, IRC, IROW, JJS, KBUFF1, LASTAD, LN, LSYM, Lu_60, Lu_80, LUTRA, MCHAIN, NBITM2, NCHN2, NORB, &
+                       NSM, NSYM, NTIBUF, NVIR, NVIRP, NVIRT, TIBUF
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "mrci.fh"
 real(kind=wp) :: BUFS(NBITM2,NCHN2), ACBDS(*), ACBDT(*), BFACBD(*)
 integer(kind=iwp) :: INDS(NBITM2+2,NCHN2), ISAB(*), NINTGR
+#include "tratoc.fh"
 #include "warnings.h"
 integer(kind=iwp) :: I, IAC, IACMAX, IACMIN, IAD16, IAD50, IADR, IBDS, IDISK, IFIN1, IFIN2, ILOOP, IN1, INB, INND, INPS, INPT, &
                      INS, INSB, INSOUT, INUMB, IOUT, IPOS, IREC, IST, IST1, IST2, ISTEP, ISYM, ITAIL, ITURN, JDISK, KK, LENGTH, &
@@ -183,7 +186,7 @@ do ISTEP=1,IPASS
   end do
   ! EMPTY LAST BUFFERS
   NOVM = IACMAX-IACMIN+1
-  if ((NOVST+IACMIN-1+NOVM) > mChain) then
+  if ((NOVST+IACMIN-1+NOVM) > MCHAIN) then
     write(u6,*) 'SORTB Error: NOVST+IACMIN-1+NOVM > MCHAIN'
     write(u6,*) 'NOVST =',NOVST
     write(u6,*) 'IACMIN=',IACMIN

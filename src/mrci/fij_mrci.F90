@@ -11,12 +11,14 @@
 
 subroutine FIJ_MRCI(ICSPCK,INTSYM,INDX,C,S,FC,A,B,FK,DBK)
 
+use mrci_global, only: IRC, IREST, IROW, ITER, IVVER, LSYM, Lu_25, LUSYMB, NBTRI, NVIR, NVPAIR
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: ICSPCK(*), INTSYM(*), INDX(*)
 real(kind=wp) :: C(*), S(*), FC(*), A(*), B(*), FK(*), DBK(*)
-#include "mrci.fh"
+#include "cop.fh"
 integer(kind=iwp) :: IADD25, IC1, IC2, ICHK, IIN, IK, ILEN, IND, INDA, INDB, INDI, INUM, IVL, NA, NB, NI, NK, NS1, NS1L
 real(kind=wp) :: COPI
 integer(kind=iwp), external :: JSUNP

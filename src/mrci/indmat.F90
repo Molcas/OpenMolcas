@@ -11,15 +11,17 @@
 
 subroutine INDMAT(ICSPCK,INTSYM,INDX,ISAB,JREFX,CISEL)
 
+use mrci_global, only: CSEL, IFIRST, IRC, IREFX, ISMAX, JJS, JSC, LN, LSYM, NCOMP, NCONF, NCVAL, NDIAG, NREF, NSEL, NSM, NSYM, &
+                       NVIR, NVIRT, NVPAIR, SSEL
+use Symmetry_Info, only: Mul
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-#include "mrci.fh"
 integer(kind=iwp) :: ICSPCK(*), INTSYM(*), INDX(*), ISAB(NVIRT,NVIRT), JREFX(*)
 real(kind=wp) :: CISEL(NREF,NSEL)
 integer(kind=iwp) :: I, IC, II, ILEV, ILIM, IND, IOFF, IR, IR1, IR2, IREF, ISEL, J, JCAS1, JCAS2, JJ, JJM, JSCI, JSEL, NA, NB, NC, &
-                     NSAB, NSS
+                     NCDOUB, NCSING, NCTRIP, NSAB, NSS
 real(kind=wp) :: X
 logical(kind=iwp) :: Skip
 character(len=20) :: STR20

@@ -11,12 +11,15 @@
 
 subroutine AID(INTSYM,INDX,C,DMO,A,B,FK)
 
+use mrci_global, only: IRC, IREST, IROW, ITER, LN, LSYM, LUSYMB, NSM, NSYM, NVIR, NVIRP, SQ2, SQ2INV
+use Symmetry_Info, only: Mul
+use mrci_global, only: ENP
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: INTSYM(*), INDX(*)
 real(kind=wp) :: C(*), DMO(*), A(*), B(*), FK(*)
-#include "mrci.fh"
+#include "cop.fh"
 integer(kind=iwp) :: ICHK, ICP1, ICP2, IFT, II, IJOLD, ILEN, IND, INDA, INDB, INK, INMY, INNY, IPOB(9), ITYP, MYL, MYSYM, NA, NA1, &
                      NA2, NAK, NK, NSK, NVM, NYL, NYSYM
 real(kind=wp) :: COPI

@@ -11,12 +11,14 @@
 
 subroutine ABCI_MRCI(INTSYM,indx,C,S,BMN,IBMN,BIAC,BICA,BUFIN)
 
+use mrci_global, only: IADABCI, IRC, KBUFF1, LN, LSYM, Lu_70, LUSYMB, NSM, NVIRP, NVIRT, NVPAIR, SQ2, SQ2INV
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp, r8
 
 implicit none
 integer(kind=iwp) :: INTSYM(*), indx(*), IBMN(*)
 real(kind=wp) :: C(*), S(*), BMN(*), BIAC(*), BICA(*), BUFIN(*)
-#include "mrci.fh"
+#include "cop.fh"
 integer(kind=iwp) :: IAD15, ICCB, ICHK, ICP1, ICP2, IIN, ILEN, ILOOP, INB, IND, INDA, INDB, INS, INSB, INSIN, INUMB, IOUT, IST, &
                      IT, ITYP, LB, MA, NB, NI, NSAVE, NSIB, NSLB
 real(kind=wp) :: COPL, TERM

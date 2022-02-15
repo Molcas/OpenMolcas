@@ -30,11 +30,11 @@ subroutine MRCI(IRETURN)
 ! UNIT 28=LUREST, (DA,MRCIVECT) CI VECTOR
 !***********************************************************************
 
+use mrci_global, only: Lu_25, Lu_27, Lu_60, Lu_70, Lu_80, LUEIG, LUONE, LUREST, LUSYMB, LUTRA, LUVEC, MEMTOT
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: IRETURN
-#include "mrci.fh"
 
 ! Prologue, print program header
 !

@@ -14,7 +14,6 @@
 subroutine INPUT_GUGA(L0,L1,L2,L3,ISPAC)
 
 use guga_global, only: ICASE, ICH, IFIRST, ILIM, IPRINT, ISPIN, JRC, LN, LNP, Lu_10, MXVERT, N, NIORB, NSM, NSYM, S
-use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Half
 use Definitions, only: iwp, u5, u6
@@ -415,8 +414,8 @@ IR2 = (IR+9)/10
 iOpt = 1
 nJJS = size(JJS)
 nJRC = size(JRC)
-call WR_GUGA(Lu_10,iOpt,IADD10,NFREF,S,N,LN,NSYM,IR1,IR2,IFIRST,INTNUM,LSYM,NREF,LN1,NRLN1,Mul,size(Mul),NSH,NISH,8,JRC,nJRC,JJS, &
-             nJJS,NVAL,IOCR,nIOCR)
+call WR_GUGA(Lu_10,iOpt,IADD10,NFREF,S,N,LN,NSYM,IR1,IR2,IFIRST,INTNUM,LSYM,NREF,LN1,NRLN1,NSH,NISH,8,JRC,nJRC,JJS,nJJS,NVAL,IOCR, &
+             nIOCR)
 call iDAFILE(Lu_10,1,ICASE,IR1,IADD10)
 call iDAFILE(Lu_10,1,JSY,IR2,IADD10)
 IAD10(2) = IADD10

@@ -11,13 +11,13 @@
 
 subroutine DCORR(JREFX,AREF,ICSPCK,INTSYM,INDX,DMO)
 
+use mrci_global, only: ENP, IPRINT, IRC, LN, Lu_27, NREF
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: JREFX(*), ICSPCK(*), INTSYM(*), INDX(*)
 real(kind=wp) :: AREF(*), DMO(*)
-#include "mrci.fh"
 integer(kind=iwp) :: I, IAD27, II1, IJ, IK, INDA, IOC
 real(kind=wp) :: FAC, TSUM
 integer(kind=iwp), external :: ICUNP

@@ -11,11 +11,12 @@
 
 subroutine PRORB(CNO,OCC)
 
+use mrci_global, only: BNAME, NBAS, NBAST, NCMO, NSYM, THRORB
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "mrci.fh"
 real(kind=wp) :: CNO(NCMO), OCC(NBAST)
+#include "Molcas.fh"
 integer(kind=iwp) :: I, IEB, IEM, IEND, IST, ISYM, J, JEMO, JSMO, NB, NDIV, NPRT
 character(len=LenIn8), external :: CLEAN_BNAME
 
@@ -53,7 +54,7 @@ do ISYM=1,NSYM
       do I=1,NB
         JSMO = IEM+I+NB*(IST-1)
         JEMO = IEM+I+NB*(IEND-1)
-        write(u6,'(1X,I3,2X,A,10F8.4)') I,CLEAN_BNAME(NAME(IEB+I),LenIn),(CNO(J),J=JSMO,JEMO,NB)
+        write(u6,'(1X,I3,2X,A,10F8.4)') I,CLEAN_BNAME(BNAME(IEB+I),LenIn),(CNO(J),J=JSMO,JEMO,NB)
         call XFLUSH(u6)
       end do
     end do

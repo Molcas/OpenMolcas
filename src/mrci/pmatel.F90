@@ -11,11 +11,12 @@
 
 subroutine PMATEL(ISTATE,JSTATE,PROP,PINT,SMAT,CNO,OCC,SFOLD,AFOLD,TDAO)
 
+use mrci_global, only: BNAME, IPCOMP, NBAS, NBAST, NBTRI, NCMO, NPROP, NRROOT, NSYM, PNAME, PNUC, PORIG, PTYPE
+use Symmetry_Info, only: Mul
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-#include "mrci.fh"
 integer(kind=iwp) :: ISTATE, JSTATE
 real(kind=wp) :: PROP(NRROOT,NRROOT,NPROP), PINT(NBTRI), SMAT(*), CNO(NCMO), OCC(NBAST), SFOLD(NBTRI), AFOLD(NBTRI), &
                  TDAO(NBAST,NBAST)
@@ -32,7 +33,7 @@ if (ISTATE == JSTATE) then
   call XFLUSH(u6)
   write(u6,'(A,I2)') ' MULLIKEN CHARGES FOR STATE NR ',ISTATE
   call XFLUSH(u6)
-  call CHARGE(NSYM,NBAS,NAME,CNO,OCC,SMAT,2,.true.,.true.)
+  call CHARGE(NSYM,NBAS,BNAME,CNO,OCC,SMAT,2,.true.,.true.)
   write(u6,*) ' ',('*',I=1,70)
   call XFLUSH(u6)
 end if

@@ -11,12 +11,13 @@
 
 subroutine faibj3(NSIJ,IFT,AIBJ,FSEC,FAC,IIN,INS,IPOA,IPOF)
 
+use mrci_global, only: NSYM, NVIR
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: NSIJ, IFT, IIN, INS, IPOA(9), IPOF(9)
 real(kind=wp) :: AIBJ(*), FSEC(*), FAC
-#include "mrci.fh"
 integer(kind=iwp) :: IAB, IASYM, IBSYM
 real(kind=wp) :: DUMMY
 

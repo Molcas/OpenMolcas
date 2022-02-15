@@ -11,19 +11,20 @@
 
 subroutine PROPCT()
 
+use mrci_global, only: ENGY, ESHIFT, ESMALL, ICPF, IPCOMP, ITOC17, ITRANS, LDMO, LTDMO, LUEIG, LUONE, LUVEC, NBAS, NBAST, NBMAX, &
+                       NBTRI, NCMO, NRROOT, NPROP, NSYM, PNAME, PNUC, PORIG, PTYPE
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: I, IDDMO, IDISK, IDUMMY(7,8), IEND, IOPT, IPC, IPROP, IRTC, ISTA, ISTATE, ISYMLB, J, JSTATE
+#include "WrkSpc.fh"
+integer(kind=iwp) :: I, IDDMO, IDISK, IDUMMY(7,8), IEND, IOPT, IPC, IPROP, IRTC, ISTA, ISTATE, ISYMLB, J, JSTATE, NSCR
 real(kind=wp) :: DUMMY(1)
 character(len=100) :: REALNAME
 character(len=30) :: REMARK
 character(len=8) :: FNAME, LABEL
 real(kind=wp), allocatable :: AFOLD(:), CMO(:), CNO(:), DAO(:,:), OCC(:), PINT(:), PROP(:,:,:), SCR(:), SFOLD(:)
-#include "mrci.fh"
-#include "WrkSpc.fh"
 
 call mma_allocate(CMO,NCMO,label='CMO')
 call mma_allocate(CNO,NCMO,label='CNO')

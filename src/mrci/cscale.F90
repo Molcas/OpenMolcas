@@ -11,12 +11,12 @@
 
 subroutine CSCALE(INDX,INTSYM,C,X)
 
+use mrci_global, only: IRC, LSYM, NDIAG, NVIRT
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: INDX(*), INTSYM(*)
 real(kind=wp) :: C(*), X
-#include "mrci.fh"
 integer(kind=iwp) :: II1, MA, NA
 integer(kind=iwp), external :: JSUNP
 

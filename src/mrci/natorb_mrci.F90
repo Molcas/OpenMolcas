@@ -11,11 +11,11 @@
 
 subroutine NATORB_MRCI(CMO,DMO,CNO,OCC,SCR)
 
+use mrci_global, only: ICH, NASH, NBAS, NBAST, NBMAX, NBTRI, NCMO, NDEL, NDMO, NFMO, NFRO, NISH, NORB, NSYM, NVIR
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
 implicit none
-#include "mrci.fh"
 real(kind=wp) :: CMO(NCMO), DMO(NBTRI), CNO(NCMO), OCC(NBAST), SCR((NBMAX*(NBMAX+1))/2)
 integer(kind=iwp) :: I, I12, IEB, IECMO, IEO, II, IMAX, IO1, IO12, IO2, ISB, ISCMO, ISO, ISTA1, ISTA2, ISYM, J, NB, NBD, NBF, NBO, &
                      ND, NF, NIAV, NN, NO

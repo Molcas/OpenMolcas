@@ -11,6 +11,8 @@
 
 subroutine FAIBJ(INTSYM,INDX,C,S,ABIJ,AIBJ,AJBI,A,B,F,FSEC)
 
+use mrci_global, only: IRC, IREST, IROW, ITER, LASTAD, LN, Lu_60, LUSYMB, NBITM3, NSM, NSYM, NVIR, NVIRT, SQ2, SQ2INV
+use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, r8
@@ -18,7 +20,7 @@ use Definitions, only: wp, iwp, r8
 implicit none
 integer(kind=iwp) :: INTSYM(*), INDX(*)
 real(kind=wp) :: C(*), S(*), ABIJ(*), AIBJ(*), AJBI(*), A(*), B(*), F(*), FSEC(*)
-#include "mrci.fh"
+#include "cop.fh"
 integer(kind=iwp) :: IAB, IADR, IASYM, IBSYM, ICHK, iCoup, iCoup1, IFAB, IFT, IFTA, IFTB, II, IIN, IJ1, ILIM, INDA, INDB, INDCOP, &
                      INDI, INMY, INNY, INS, IPF, IPF1, IPOA(9), IPOB(9), IPOF(9), ISTAR, ITURN, iTyp, JTURN, LENBUF, LENCOP, MYL, &
                      MYSYM, NI, NJ, NOT2, NOVST, NSIJ, NVIRA, NVIRB, NVIRC, NYL, NYSYM

@@ -12,19 +12,26 @@
 !PAM04 subroutine READIN(HWork,iHWork)
 subroutine READIN_MRCI()
 
+use mrci_global, only: BNAME, CSEL, CTRSH, ENP, ETHRE, GFAC, ICH, ICPF, IFIRST, IORB, IPRINT, IRC, IREFCI, IREST, IROW, IROOT, &
+                       ITOC17, ITRANS, JJS, KBUFF1, LCISEL, LCSPCK, LINDX, LINTSY, LISAB, LJREFX, LN, LSYM, LUONE, LUSYMB, MAXIT, &
+                       MEMPRM, MEMTOT, MEMWRK, MXREF, MXVEC, NASH, NBAS, NBAST, NBMAX, NBTRI, NCMO, NCSHT, NCSPCK, NCOMP, NCVAL, &
+                       NDEL, NDMO, NELEC, NFMO, NFRO, NINTSY, NISH, NIWLK, NORB, NORBT, NREF, NRROOT, NSEL, NSM, NSYM, NVIR, &
+                       NVIRP, NVIRT, POTNUC, SSEL, SQNLIM, THRORB
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Two
 use Definitions, only: wp, iwp, u5, u6
 
 implicit none
-#include "warnings.h"
-#include "mrci.fh"
-#include "WrkSpc.fh"
+#include "Molcas.fh"
+#include "cop.fh"
 #include "niocr.fh"
-integer(kind=iwp) :: I, iCmd, IDISK, IGFAC, IIN, ILIM, INTNUM, IO, IOM, iOpt, IORBS, IR, iRef, istatus, ISUM, ISYM, IT, IU, IV, &
-                     IVA, IX1, IX2, IX3, IX4, IY1, IY2, IY3, IY4, J, jCmd, jEnd, JJ, jStart, LN1, LN2, LV, MXVC, NAMSIZ, NASHI, &
-                     NBASI, NC, NCSHI, NDELI, NDMOI, NFMOI, NFROI, nIRC, NISHI, nJJS, NMUL, NORBI, NOTOT(8), NREFWR, NRF, NRLN1, &
-                     nTit, NVALI, NVIRI, NVT, NVT2
+#include "WrkSpc.fh"
+#include "warnings.h"
+integer(kind=iwp) :: I, iCmd, IDISK, IGFAC, IIN, ILIM, INTNUM, IO, IOM, iOpt, IORBS, IR, iRef, ISC(4), istatus, ISUM, ISYM, IT, &
+                     IU, IV, IVA, IX1, IX2, IX3, IX4, IY1, IY2, IY3, IY4, J, jCmd, jEnd, JJ, jStart, LN1, LN2, LV, MXVC, NAMSIZ, &
+                     NASHI, NASHT, NBASI, NC, NCSH(8), NCSHI, NDELI, NDELT, NDMOI, NDMOT, NFMOI, NFMOT, NFROI, NFROT, nIRC, NISHI, &
+                     NISHT, nJJS, NORBI, NOTOT(8), NREFWR, NRF, NRLN1, nTit, NVAL(8), NVALI, NVALT, NVIRI, NVT, NVT2
+real(kind=wp) :: SPIN
 logical(kind=iwp) :: Skip
 character(len=88) :: ModLine
 character(len=72) :: Line, Title(10)
@@ -72,7 +79,7 @@ nTit = 0
 
 NAMSIZ = LENIN8*MXORB
 IDISK = 0
-call WR_MOTRA_Info(LUONE,2,iDisk,ITOC17,64,POTNUC,NSYM,NBAS,NORB,NFMO,NDMO,8,NAME,NAMSIZ)
+call WR_MOTRA_Info(LUONE,2,iDisk,ITOC17,64,POTNUC,NSYM,NBAS,NORB,NFMO,NDMO,8,BNAME,NAMSIZ)
 
 !---  Read input from standard input ----------------------------------*
 call RdNLst(u5,'MRCI')
@@ -254,8 +261,8 @@ do
       end do
       read(Line,*,iostat=istatus) NRROOT
       if (istatus > 0) call Error(2)
-      if (nrroot > mxvec) then
-        write(u6,1610) nrroot,mxvec
+      if (NRROOT > MXVEC) then
+        write(u6,1610) NRROOT,MXVEC
         call quit(_RC_INPUT_ERROR_)
       end if
       do I=1,NRROOT
@@ -320,12 +327,11 @@ call PrCoor()
 IADD10 = 0
 call iDAFILE(LUSYMB,2,IAD10,9,IADD10)
 iOpt = 2
-nMUL = 64
 nJJS = 18
 nIRC = 4
 call mma_allocate(IOCR,nIOCR,label='IOCR')
-call WR_GUGA(LUSYMB,iOpt,IADD10,NREF,SPIN,NELEC,LN,NSYM,NCSPCK,NINTSY,IFIRST,INTNUM,LSYM,NRF,LN1,NRLN1,MUL,nMUL,NASH,NISH,8,IRC, &
-             nIRC,JJS,nJJS,NVAL,IOCR,nIOCR)
+call WR_GUGA(LUSYMB,iOpt,IADD10,NREF,SPIN,NELEC,LN,NSYM,NCSPCK,NINTSY,IFIRST,INTNUM,LSYM,NRF,LN1,NRLN1,NASH,NISH,8,IRC,nIRC,JJS, &
+             nJJS,NVAL,IOCR,nIOCR)
 if (ICPF == 1) then
   write(u6,*) '      THIS IS AN   A C P F   CALCULATION'
 else

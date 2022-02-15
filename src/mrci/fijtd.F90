@@ -11,12 +11,14 @@
 
 subroutine FIJTD(INTSYM,INDX,C1,C2,TDMO)
 
+use mrci_global, only: IRC, IVVER, LSYM, LUSYMB, NBAST, NVIR, NVPAIR
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp, r8
 
 implicit none
-#include "mrci.fh"
 integer(kind=iwp) :: INTSYM(*), INDX(*)
 real(kind=wp) :: C1(*), C2(*), TDMO(NBAST,NBAST)
+#include "cop.fh"
 integer(kind=iwp) :: IC1, IC2, ICHK, IIN, ILEN, IND, INDA, INDB, INDI, INUM, IVL, NA, NB, ni, nk, NS1, NS1L
 real(kind=wp) :: TERM
 integer(kind=iwp), external :: JSUNP

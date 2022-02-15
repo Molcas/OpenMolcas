@@ -11,6 +11,8 @@
 
 subroutine faibj2(IFTA,IFTB,ICOUP1,ICOUP,INDA,INDB,MYSYM,INTSYM,NYSYM,NSIJ,MYL,NYL,FACS,IPOA,IPOB,INMY,INNY,INDX,iTYP)
 
+use mrci_global, only: IRC, LSYM, NSYM, NVIR
+use Symmetry_Info, only: Mul
 use Constants, only: One
 use Definitions, only: wp, iwp
 
@@ -18,7 +20,6 @@ implicit none
 integer(kind=iwp) :: IFTA, IFTB, ICOUP1, ICOUP, INDA, INDB, MYSYM, INTSYM(*), NYSYM, NSIJ, MYL, NYL, IPOA(9), IPOB(9), INMY, INNY, &
                      INDX(*), iTYP
 real(kind=wp) :: FACS
-#include "mrci.fh"
 integer(kind=iwp), external :: JSUNP
 
 IFTA = 0

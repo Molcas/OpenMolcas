@@ -11,12 +11,12 @@
 
 subroutine CSFTRA(KEY,CI,AREF)
 
+use mrci_global, only: IREFX, NCONF, NREF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-#include "mrci.fh"
 character(len=4) :: KEY
 real(kind=wp) :: CI(NCONF), AREF(NREF,NREF)
 integer(kind=iwp) :: I, J

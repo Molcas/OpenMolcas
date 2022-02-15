@@ -11,11 +11,12 @@
 
 subroutine ABTD(ICSPCK,INTSYM,INDX,C1,C2,TDMO,A1,A2,F)
 
+use mrci_global, only: IFIRST, IRC, LN, LSYM, NBAST, NSYM, NVIR, NVIRP, SQ2, SQ2INV
+use Symmetry_Info, only: Mul
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, r8
 
 implicit none
-#include "mrci.fh"
 integer(kind=iwp) :: ICSPCK(*), INTSYM(*), INDX(*)
 real(kind=wp) :: C1(*), C2(*), TDMO(NBAST,NBAST), A1(*), A2(*), F(*)
 integer(kind=iwp) :: I, IA, IAB, IASYM, IC, ICSYM, IFT, II1, INDA, INMY, INN, IOC(55), IPF, IPOA(9), IPOF(9), ITAIL, LNA, LNC, &

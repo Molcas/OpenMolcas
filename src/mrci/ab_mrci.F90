@@ -11,13 +11,14 @@
 
 subroutine AB_MRCI(ICSPCK,INTSYM,INDX,C,S,FC,A,B,FK)
 
+use mrci_global, only: IFIRST, IRC, IROW, LN, LSYM, NSYM, NVIR, NVIRP, SQ2, SQ2INV
+use Symmetry_Info, only: Mul
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: ICSPCK(*), INTSYM(*), INDX(*)
 real(kind=wp) :: C(*), S(*), FC(*), A(*), B(*), FK(*)
-#include "mrci.fh"
 integer(kind=iwp) :: IAB, IASYM, ICSYM, IFT, INDA, INMY, IPOA(9), IPOF(9), ITAIL, MYL, MYSYM, NA, NA1, NA2, NAA, NAB, NAC, NB, &
                      NCLIM
 integer(kind=iwp), external :: JSUNP

@@ -11,14 +11,15 @@
 
 subroutine DENSCT(AREF)
 
+use mrci_global, only: ICPF, ITRANS, LCSPCK, LDMO, LINDX, LINTSY, LJREFX, LTDMO, LUEIG, LUREST, NBAST, NBTRI, NCONF, NRROOT, &
+                       NVMAX, NVSQ
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: AREF(*)
-#include "mrci.fh"
 #include "WrkSpc.fh"
-integer(kind=iwp) :: I, IDDMO, IDREST, J
+integer(kind=iwp) :: I, IDDMO, IDREST, J, LASCR2, LBSCR2, LFSCR2, LCI, LSGM
 integer(kind=iwp), allocatable :: IDC(:)
 
 IDREST = 0

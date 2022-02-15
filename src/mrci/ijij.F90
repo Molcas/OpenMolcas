@@ -11,13 +11,15 @@
 
 subroutine IJIJ(INTSYM,HDIAG,FC,FIJIJ)
 
+use mrci_global, only: IAD25S, IDVER, IRC, IROW, IVVER, LN, LSYM, Lu_25, Lu_27, LUSYMB, NSM, NVIR, NVIRT, NVPAIR, NVIRP, POTNUC
+use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: INTSYM(*)
 real(kind=wp) :: HDIAG(*), FC(*), FIJIJ(*)
-#include "mrci.fh"
+#include "cop.fh"
 real(kind=wp) :: HCOUT(nCOP)
 integer(kind=iwp) :: IAD27, IADD25, ICHK, ICOUP, ICOUPS, IFS, II, IIJ, IIJ1, IIJ2, IJJ, inb, IND, INDI, INS, IOUT, IREF0, ITYP, &
                      IVL, IVSAVE, J, JJ, KK, LENGTH, NA, NA1, NA2, NB, NB1, NB2, NSA, NSS

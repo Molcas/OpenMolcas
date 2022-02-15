@@ -11,10 +11,10 @@
 
 subroutine faibj5(LENBUF,JTURN,IBUF,BUF,AIBJ,ABIJ)
 
+use mrci_global, only: NBITM3, NVSQ
 use Definitions, only: wp, iwp
 
 implicit none
-#include "mrci.fh"
 integer(kind=iwp) :: LENBUF, JTURN, IBUF(NBITM3+2)
 real(kind=wp) :: BUF(NBITM3), ABIJ(NVSQ), AIBJ(NVSQ)
 integer(kind=iwp) :: i

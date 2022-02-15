@@ -11,14 +11,15 @@
 
 subroutine DIAGCT()
 
+use mrci_global, only: IFIRST, IRC, ISMAX, KBUFF1, LCSPCK, LFOCK, LINTSY, LISAB, NBITM1, NBITM2, NBITM3, NBTRI, NCHN1, NCHN2, &
+                       NCHN3, NVIRT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-#include "mrci.fh"
 #include "WrkSpc.fh"
-integer(kind=iwp) :: NBUFBI, NHDIAG, NINTGR, NVT
+integer(kind=iwp) :: LACBDS, LACBDT, LBACBD, LBIAC1, LBICA1, LBUFBI, LHDIAG, LIIJJ, LIJIJ, NBUFBI, NHDIAG, NINTGR, NVT
 integer(kind=iwp), allocatable :: Inds(:,:)
 real(kind=wp), allocatable :: Bufs(:,:)
 

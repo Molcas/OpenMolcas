@@ -11,14 +11,17 @@
 
 subroutine CSTART(AREF,EREF,CI,ICI)
 
+use mrci_global, only: ESHIFT, GFAC, IAD25S, ICPF, IDFREE, IDISKC, IDISKD, IDISKS, IREFX, IREST, IROOT, Lu_25, LUEIG, LUREST, &
+                       MBUF, MXVEC, NCONF, NNEW, NREF, NRROOT, NSTOT, NVTOT, POTNUC
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "mrci.fh"
 real(kind=wp) :: AREF(NREF,NREF), EREF(NREF), CI(NCONF)
 integer(kind=iwp) :: ICI(MBUF)
+#include "Molcas.fh"
+#include "cop.fh"
 integer(kind=iwp) :: I, I1, I2, IAD25, ID, IR, IREF, ISTA, NN
 real(kind=wp) :: GINV
 integer(kind=iwp), allocatable :: ISTART(:)

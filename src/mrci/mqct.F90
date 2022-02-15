@@ -11,23 +11,27 @@
 
 subroutine MQCT(AREF,EREF,CI,SGM,ICI)
 
+use mrci_global, only: ENGY, ESHIFT, ESMALL, ETHRE, GFAC, HZERO, ICPF, IDFREE, IDISKC, IDISKS, IPRINT, IREFX, IROOT, ISMAX, ITER, &
+                       KBUFF1, LCSPCK, LFOCK, LINDX, LINTSY, LISAB, LJREFX, LUEIG, LUREST, MAXIT, MBUF, MXVEC, MXZ, NBMN, NCONF, &
+                       NNEW, NREF, NRROOT, NSECT, NSTOT, NVEC, NVMAX, NVSQ, NVTOT, SQNLIM, SZERO, VSMALL, VZERO
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-#include "mrci.fh"
 real(kind=wp) :: AREF(NREF,NREF), EREF(NREF), CI(NCONF), SGM(NCONF)
 integer(kind=iwp) :: ICI(MBUF)
-#include "warnings.h"
 #include "WrkSpc.fh"
-integer(kind=iwp) :: I, IBUF, ICSF, IDISK, IDREST, IEND, II, III, IMAX, IMIN, IPOS, IR, IRR, ISTA, IVEC, J, K, KK, KL, L, LL, &
-                     NCONV, NN, NRON, NZ
+#include "warnings.h"
+integer(kind=iwp) :: I, IBUF, ICSF, IDISK, IDREST, IEND, II, III, IMAX, IMIN, IPOS, IR, IRR, ISTA, IVEC, J, K, KK, KL, L, LABIJ, &
+                     LAC1, LAC2, LAIBJ, LAJBI, LARR, LASCR1, LASCR2, LBFIN3, LBFIN4, LBFIN5, LBIAC2, LBICA2, LBMN, LBSCR1, LBSCR2, &
+                     LDBK, LFSCR1, LFSCR2, LFSEC, LIBMN, LL, NCONV, NN, NOLD, NRON, NZ
 real(kind=wp) :: C, C2NREF, C2REF, CPTIT, CPTNOW, CPTOLD, CPTOT, CPTSTA, DUM, EACPF, ECI, EDAV, EDISP, ELOW, EMIN, ENREF, H, P, &
                  PMAX, QACPF, QDAV, RSUM, S, SQNRM, THR, TMP
 integer(kind=iwp), allocatable :: IDC(:), IDS(:)
-real(kind=wp), allocatable :: CBUF(:,:), CNEW(:,:), CSECT(:,:), DBUF(:), ELAST(:), HCOPY(:,:), PCOPY(:,:), PSEL(:), RNRM(:), &
-                              RSECT(:,:), SBUF(:,:), SCOPY(:,:), SCR(:), XI1(:,:), XI2(:,:) !, EPERT(:)
+real(kind=wp), allocatable :: CBUF(:,:), CNEW(:,:), CSECT(:,:), DBUF(:), ELAST(:), EZERO(:), HCOPY(:,:), HSMALL(:,:), PCOPY(:,:), &
+                              PSEL(:), PSMALL(:,:), RNRM(:), RSECT(:,:), SBUF(:,:), SCOPY(:,:), SCR(:), SSMALL(:,:), XI1(:,:), &
+                              XI2(:,:) !, EPERT(:)
 real(kind=r8), external :: DDOT_
 
 call mma_allocate(CBUF,MBUF,MXVEC,label='CBUF')
@@ -47,6 +51,10 @@ call mma_allocate(PCOPY,MXVEC,MXVEC,label='PCOPY')
 call mma_allocate(SCOPY,MXVEC,MXVEC,label='SCOPY')
 call mma_allocate(PSEL,MXVEC,label='PSEL')
 call mma_allocate(RNRM,NRROOT,label='RNRM')
+call mma_allocate(HSMALL,MXVEC,MXVEC,label='HSMALL')
+call mma_allocate(SSMALL,MXVEC,MXVEC,label='SSMALL')
+call mma_allocate(PSMALL,MXVEC,MXVEC,label='PSMALL')
+call mma_allocate(EZERO,MXZ,label='EZERO')
 
 write(u6,*)
 write(u6,*) ('-',I=1,60)
@@ -64,6 +72,7 @@ call SETTIM()
 call TIMING(CPTNOW,DUM,DUM,DUM)
 CPTOLD = CPTNOW
 CPTSTA = CPTNOW
+HSMALL(1,1) = Zero
 ! LOOP HEAD FOR CI ITERATIONS:
 do
   ITER = ITER+1
@@ -526,6 +535,10 @@ call mma_deallocate(PCOPY)
 call mma_deallocate(SCOPY)
 call mma_deallocate(PSEL)
 call mma_deallocate(RNRM)
+call mma_deallocate(HSMALL)
+call mma_deallocate(SSMALL)
+call mma_deallocate(PSMALL)
+call mma_deallocate(EZERO)
 write(u6,*) ' ',('*',III=1,70)
 ! WRITE CI VECTORS TO LUREST -- CI RESTART FILE.
 IDREST = 0

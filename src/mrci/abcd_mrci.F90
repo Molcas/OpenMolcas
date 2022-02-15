@@ -11,10 +11,11 @@
 
 subroutine ABCD_MRCI(INTSYM,indx,ISAB,C,S,ACBDS,ACBDT,BUFIN)
 
+use mrci_global, only: IPASS, IRC, IROW, JJS, KBUFF1, LN, LSYM, Lu_80, NSM, NSYM, NVIR, NVIRP, NVIRT, SQ2, SQ2INV
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp, r8
 
 implicit none
-#include "mrci.fh"
 integer(kind=iwp) :: INTSYM(*), indx(*), ISAB(NVIRT,NVIRT)
 real(kind=wp) :: C(*), S(*), ACBDS(*), ACBDT(*), BUFIN(*)
 integer(kind=iwp) :: IAC, IACMAX, IACMIN, IAD16, IFIN1, IFIN2, ILOOP, IN1, INB, INDA, INPS, INPT, INS, INSB, INSIN, INUMB, ISAC, &

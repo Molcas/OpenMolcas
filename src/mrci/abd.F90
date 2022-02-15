@@ -11,13 +11,14 @@
 
 subroutine ABD(ICSPCK,INTSYM,INDX,C,DMO,A,B,F,JREFX)
 
+use mrci_global, only: ENP, IFIRST, IRC, IROW, LN, LSYM, NCSHT, NELEC, NSYM, NVIR, NVIRP, SQ2, SQ2INV
+use Symmetry_Info, only: Mul
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
 integer(kind=iwp) :: ICSPCK(*), INTSYM(*), INDX(*), JREFX(*)
 real(kind=wp) :: C(*), DMO(*), A(*), B(*), F(*)
-#include "mrci.fh"
 integer(kind=iwp) :: I, IAB, IASYM, ICSYM, IFT, II1, IIA, IIC, IIN, IJ, INDA, INMY, INN, IOC(55), IPF, IPOA(9), IPOF(9), ITAIL, &
                      LNA, LNC, MYL, MYSYM, NA, NA1, NA2, NAB, NAC, NB, NCLIM, NVIRA, NVIRC
 real(kind=wp) :: ENPINV, RSUM, TR, TSUM

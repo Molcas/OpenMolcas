@@ -14,12 +14,16 @@ subroutine SORTA(BUFS,INDS,ISAB,BUFBI,BIAC,BICA,NINTGR)
 ! FOR FIXED B,I ALL A,C
 ! FIRST CHAIN FOR IJKL
 
+use mrci_global, only: IADABCI, ICH, IFIRST, INDSRT, IPRINT, IROW, ISMAX, KBUFF1, LASTAD, Lu_60, Lu_70, LUSYMB, LUTRA, LN, MCHAIN, &
+                       NBITM1, NCHN1, NORB, NSM, NSRTMX, NSYM, NTIBUF, NVIRT, NVPAIR, TIBUF, VALSRT
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "mrci.fh"
 real(kind=wp) :: BUFS(NBITM1,NCHN1), BUFBI(KBUFF1), BIAC(ISMAX), BICA(ISMAX)
 integer(kind=iwp) :: INDS(NBITM1+2,NCHN1), ISAB(*), NINTGR
+#include "tratoc.fh"
+#include "cop.fh"
 #include "warnings.h"
 integer(kind=iwp) :: I, IACS, IAD15, IAD50, IADR, IBUFIJ, ICHK, IDISK, IIJ, IIN, IJ, IJKL, ILEN, ILOOP, INB, INND, INS, INSB, &
                      INSOUT, INUMB, IOUT, IPOS, IREC, ISRTAD, IST, JDISK, KK, KL, LENGTH, M, NA, NAT, NB, NC, NI, NIB, NJ, NK, NL, &
@@ -214,7 +218,7 @@ do NSP=1,NSYM
   end do
 end do
 ! EMPTY LAST BUFFERS
-if (NChn1 > mChain) then
+if (NCHN1 > MCHAIN) then
   write(u6,*) 'SORTA Error: NCHN1 > MCHAIN (See code).'
   call QUIT(_RC_GENERAL_ERROR_)
 end if

@@ -11,13 +11,15 @@
 
 subroutine ALLOC_MRCI()
 
+use mrci_global, only: IFIRST, IPASS, IROW, ISMAX, JSC, KBUFF1, LN, MBUF, MEMWRK, MXVEC, NBITM1, NBITM2, NBITM3, NBMN, NCHN1, &
+                       NCHN2, NCHN3, NREF, NRROOT, NSECT, NSYM, NVIR, NVIRT, NVMAX, NVSQ
 use Definitions, only: wp, iwp, u6, RtoI
 
 implicit none
+#include "cop.fh"
 #include "warnings.h"
-#include "mrci.fh"
-integer(kind=iwp) :: I, ILIM, LPERMB, LPERMX, LTOP, MBUF1, MBUF2, MEMB, MEMX, NARR, NBUFBI, NHREF, NIJ, NIJKL, NOT2, NOVLY1, NPER, &
-                     NPLEN, NVT
+integer(kind=iwp) :: I, ILIM, LPERMB, LPERMX, LTOP, MBUF1, MBUF2, MEMB, MEMX, NARR, NBSIZ1, NBSIZ2, NBSIZ3, NBUFBI, NHREF, NIJ, &
+                     NIJKL, NOT2, NOVLY1, NPER, NPLEN, NVT
 
 ILIM = 4
 if (IFIRST /= 0) ILIM = 2
@@ -39,7 +41,6 @@ end if
 !PAM04 Change systematically:
 !PAM04  (1) LPERMA, LPERMB, LPERMX set to 1
 !PAM04  (2) MAXMEM changed to MEMWRK
-LPERMA = 1
 LPERMB = 1
 LPERMX = 1
 !-----------------------------------------------

@@ -10,10 +10,10 @@
 ************************************************************************
       Subroutine WR_GUGA(Lu,iOpt,iDisk,
      &                   NFREF,S,N,LN,NSYM,IR1,IR2,IFIRST,INTNUM,
-     &                   LSYM,NREF,LN1,NRLN1,MUL,nMUL,NSH,NISH,MxSym,
+     &                   LSYM,NREF,LN1,NRLN1,NSH,NISH,MxSym,
      &                   JRC,nJRC,JJS,nJJS,NVAL,IOCR,nIOCR)
       Implicit Real*8 (a-h,o-z)
-      Integer MUL(nMUL), NSH(MxSym), NISH(MxSym), JRC(nJRC),
+      Integer NSH(MxSym), NISH(MxSym), JRC(nJRC),
      &        JJS(nJJS), NVAL(MxSym), IOCR(nIOCR)
 *
       Call s_iDaFile_guga(Lu,iOpt,NFREF,    1,iDisk)
@@ -29,7 +29,6 @@
       Call s_iDaFile_guga(Lu,iOpt,NREF,     1,iDisk)
       Call s_iDaFile_guga(Lu,iOpt,LN1,      1,iDisk)
       Call s_iDaFile_guga(Lu,iOpt,NRLN1,    1,iDisk)
-      Call iDaFile(Lu,iOpt,MUL,   nMUL,iDisk)
       Call iDaFile(Lu,iOpt,NSH,  MxSym,iDisk)
       Call iDaFile(Lu,iOpt,NISH, MxSym,iDisk)
       Call iDaFile(Lu,iOpt,JRC,   nJRC,iDisk)

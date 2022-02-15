@@ -11,12 +11,14 @@
 
 subroutine IJKL(INTSYM,INDX,C,S,FIJKL)
 
+use mrci_global, only: INDSRT, IRC, IROW, LASTAD, Lu_70, LUSYMB, LN, LSYM, NSRTMX, NVIR, NVPAIR, VALSRT
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: INTSYM(*), INDX(*)
 real(kind=wp) :: C(*), S(*), FIJKL(*)
-#include "mrci.fh"
+#include "cop.fh"
 integer(kind=iwp) :: i, IADR, IC1, IC2, ICHK, IIN, ILEN, IND, INDA, INDB, INDI, INUM, IP, IVL, JP, KP, LENGTH, LP, NA, NB, NIJ, &
                      NIJKL, NKL, NS1, NS1L
 real(kind=wp) :: COPI, fini

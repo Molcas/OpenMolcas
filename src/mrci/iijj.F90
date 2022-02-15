@@ -11,13 +11,14 @@
 
 subroutine IIJJ(ICSPCK,INTSYM,HDIAG,FC,FIIJJ,FIJIJ)
 
+use mrci_global, only: IFIRST, IRC, IROW, LN, LSYM, Lu_27, NSM, NVIR, NVIRP, NVIRT
+use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: ICSPCK(*), INTSYM(*)
 real(kind=wp) :: HDIAG(*), FC(*), FIIJJ(*), FIJIJ(*)
-#include "mrci.fh"
 integer(kind=iwp) :: I, IA, IAD27, IAV, IB, IBV, II1, IJ, ILIM, IND, IOC(55), IR, IRL, J, JOJ, NA, NA1, NA2, NB, NB1, NB2, NSA, NSS
 real(kind=wp) :: SUM1, SUM2, TERM
 integer(kind=iwp), external :: ICUNP, JSUNP

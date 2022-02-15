@@ -12,6 +12,9 @@
 !subroutine AI(INTSYM,INDX,C,S,FC,BUFIN,IBUFIN,A,B,FK,DBK,KTYP)
 subroutine AI_MRCI(INTSYM,INDX,C,S,FC,A,B,FK,DBK,KTYP)
 
+use mrci_global, only: IRC, IREST, IROW, ITER, LASTAD, LN, LSYM, Lu_60, LUSYMB, NBITM3, NBTRI, NSM, NSYM, NVIR, NVIRP, NVIRT, SQ2, &
+                       SQ2INV
+use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, r8
@@ -19,7 +22,7 @@ use Definitions, only: wp, iwp, r8
 implicit none
 integer(kind=iwp) :: INTSYM(*), INDX(*), KTYP
 real(kind=wp) :: C(*), S(*), FC(*), A(*), B(*), FK(*), DBK(*) !, BUFIN(*), IBUFIN(*)
-#include "mrci.fh"
+#include "cop.fh"
 integer(kind=iwp) :: i, IADR, ICHK, ICP1, ICP2, IFT, II, IJ, IJOLD, ILEN, IND, INDA, INDB, INDI, INMY, INNY, IOUT, IPOB(9), ITYP, &
                      J, LENGTH, MYEXTS, MYINTS, NA, NAK, NI, NJ, NK, NKM, NOTT, NOVST, NSA, NSI, NSIJ, NSJ, NSK, NVIRA, NVM, NVT, &
                      NYEXTS, NYINTS

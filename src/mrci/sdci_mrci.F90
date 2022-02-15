@@ -11,13 +11,13 @@
 
 subroutine SDCI_MRCI()
 
-use Constants, only: Zero
+use mrci_global, only: IREFCI, ITRANS, LCISEL, LCSPCK, LDMO, LFIJKL, LFOCK, LINDX, LINTSY, LISAB, LJREFX, LN, LTDMO, MBUF, NBAST, &
+                       NBTRI, NCONF, NCSPCK, NCVAL, NINTSY, NIWLK, NREF, NSEL, NVIRT
 use Definitions, only: iwp
 
 implicit none
-#include "mrci.fh"
 #include "WrkSpc.fh"
-integer(kind=iwp) :: NHREF, NIJ, NIJKL
+integer(kind=iwp) :: LAREF, LCI, LEREF, LHREF, LICI, LPLEN, LSGM, NHREF, NIJ, NIJKL
 !real(kind=wp) :: H(MAXMEM)
 !integer(kind=iwp) :: iH(RtoI*MAXMEM)
 
@@ -54,9 +54,6 @@ if (IREFCI == 1) then
 else
   ! SOLVE MRCI OR ACPF EQUATIONS:
   ! FIRST, SET UP START CI ARRAYS, AND ALSO TRANSFORM DIAGONAL ELEMENTS:
-  !------
-  ! POW: Initialize HSMALL(1,1)
-  HSMALL(1,1) = Zero
   !------
   call GETMEM('ICI','ALLO','INTE',LICI,MBUF)
   call GETMEM('CI','ALLO','REAL',LCI,NCONF)

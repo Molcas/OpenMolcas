@@ -11,10 +11,10 @@
 
 subroutine REFCI(HREF,AREF,EREF,ICSPCK,CISEL,PLEN)
 
+use mrci_global, only: CSEL, IREFX, IROOT, LN, NCOMP, NCSPCK, NREF, NRROOT, NSEL, SSEL
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "mrci.fh"
 real(kind=wp) :: HREF((NREF*(NREF+1))/2), AREF(NREF,NREF), EREF(NREF), CISEL(NREF,NSEL), PLEN(NREF)
 integer(kind=iwp) :: ICSPCK(NCSPCK)
 integer(kind=iwp) :: I, IC, IOFF, IREF, J, JJ, K, K1, K2, NC, NPRT

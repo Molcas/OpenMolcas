@@ -13,6 +13,7 @@ subroutine SIGMA(SGM,AREF,CI,INTSY,INDX,BMN,IBMN,BIAC2,BICA2,BFIN3,ISAB,AC1,AC2,
                  BFIN5,ASCR2,BSCR2,FSCR2,DBK,ICSPCK)
 !PAM04 BFIN5,ASCR2,BSCR2,FSCR2,DBK,CSPCK)
 
+use mrci_global, only: ESHIFT, GFAC, ICPF, IFIRST, IREFX, IREST, ITER, LFIJKL, NCONF, NREF, POTNUC
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -21,7 +22,6 @@ real(kind=wp) :: SGM(*), AREF(*), CI(*), BMN(*), BIAC2(*), BICA2(*), BFIN3(*), A
                  AJBI(*), ASCR1(*), BSCR1(*), FSCR1(*), FSEC(*), FOCK(*), BFIN5(*), ASCR2(*), BSCR2(*), FSCR2(*), DBK(*)
 integer(kind=iwp) :: INTSY(*), INDX(*), IBMN(*), ISAB(*), ICSPCK(*)
 #include "WrkSpc.fh"
-#include "mrci.fh"
 integer(kind=iwp) :: ICSF, IREF, KTYP
 real(kind=wp) :: GINV, SQG, SQGP
 

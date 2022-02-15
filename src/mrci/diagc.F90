@@ -11,12 +11,14 @@
 
 subroutine DIAGC(INTSYM,C,S)
 
+use mrci_global, only: IAD25S, IFIRST, IRC, LN, LSYM, Lu_25, NSM, NVIR, NVIRP, NVIRT
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: INTSYM(*)
 real(kind=wp) :: C(*), S(*)
-#include "mrci.fh"
+#include "cop.fh"
 integer(kind=iwp) :: IADD25, IIC, ILIM, IND, INDA, IRL, NA, NA1, NA2, NB, NB1, NB2, NSA, NSS
 integer(kind=iwp), external :: JSUNP
 !Statement function

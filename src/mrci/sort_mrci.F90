@@ -12,12 +12,15 @@
 !PAM04 subroutine SORT(BUFOUT,INDOUT,FC,FIIJJ,FIJIJ,NINTGR)
 subroutine SORT_MRCI(BUFS,INDS,FC,FIIJJ,FIJIJ,NINTGR)
 
+use mrci_global, only: IAD25S, ICH, IPRINT, IROW, ITOC17, LASTAD, LN, Lu_25, Lu_60, LUONE, LUTRA, MCHAIN, NBITM3, NBTRI, NCHN3, &
+                       NELEC, NORB, NORBT, NSM, NSYM, NTIBUF, NVIR, NVIRP, NVIRT, POTNUC, TIBUF
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "mrci.fh"
 real(kind=wp) :: BUFS(NBITM3,NCHN3), FC(NBTRI), FIIJJ(*), FIJIJ(*)
 integer(kind=iwp) :: INDS(NBITM3+2,NCHN3), NINTGR
+#include "tratoc.fh"
 #include "warnings.h"
 integer(kind=iwp) :: I, IAD50, IADD17, IADD25, IBUF, IDISK, IEXP, IIJ, IIN, IJ, IJT, IKT, INAV, IND, IORBI, IOUT, IPOF(65), IPOS, &
                      IREC, ISYM, IVEC(20), J, JDISK, JK, JORBI, KORBI, M1, M2, M3, M4, N1, N2, N3, N4, NAV, NBV, NI, NJ, NK, NL, &
@@ -67,7 +70,7 @@ do I=1,NSYM
 end do
 ! READ ONE-ELECTRON ORBITALS. USE FIIJJ TEMPORARILY AS READ BUFFER.
 NORBTT = 0
-do ISYM=1,nsym
+do ISYM=1,NSYM
   NORBTT = NORBTT+(NORB(ISYM)*(NORB(ISYM)+1))/2
 end do
 EFROZ = POTNUC
@@ -300,7 +303,7 @@ do NSP=1,NSYM
   end do
 end do
 ! EMPTY LAST BUFFERS
-if ((NOVST+NCHN3) > mChain) then
+if ((NOVST+NCHN3) > MCHAIN) then
   write(u6,*) 'SORT_MRCI Error: NOVST+NCHN3>MCHAIN (See code).'
   call QUIT(_RC_GENERAL_ERROR_)
 end if

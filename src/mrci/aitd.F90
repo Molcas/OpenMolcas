@@ -11,13 +11,15 @@
 
 subroutine AITD(INTSYM,INDX,C1,C2,TDMO,A,FAK,FKA)
 
+use mrci_global, only: IRC, LN, LSYM, LUSYMB, NBAST, NSM, NSYM, NVIR, NVIRP, SQ2, SQ2INV
+use Symmetry_Info, only: Mul
 use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-#include "mrci.fh"
 integer(kind=iwp) :: INTSYM(*), INDX(*)
 real(kind=wp) :: C1(*), C2(*), TDMO(NBAST,NBAST), A(*), FAK(*), FKA(*)
+#include "cop.fh"
 integer(kind=iwp) :: ICHK, ICP1, ICP2, IFT, II, IJOLD, ILEN, IND, INDA, INDB, INK, INMY, INNY, IPOB(9), ITYP, MYL, MYSYM, NA, NA1, &
                      NA2, NK, NSK, NVM, NYL, NYSYM
 real(kind=wp) :: COPI

@@ -11,12 +11,12 @@
 
 subroutine HZ(ARR)
 
+use mrci_global, only: ESMALL, HZERO, NRROOT, SZERO
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-#include "mrci.fh"
 real(kind=wp) :: ARR(NRROOT,NRROOT,11)
 integer(kind=iwp) :: I, I1, I2, I3, I4, IO2, IO3, IO4, J, J1, J2, J3, J4, K
 real(kind=wp) :: SUM1, SUM2, SUM3

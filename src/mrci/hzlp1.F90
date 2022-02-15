@@ -11,12 +11,12 @@
 
 subroutine HZLP1(CBUF,SBUF,DBUF,ARR,CSECT,RSECT,XI1,XI2,ICI)
 
+use mrci_global, only: ESMALL, IDISKC, IDISKD, IDISKS, LUEIG, MBUF, MXVEC, NCONF, NRROOT, NSECT, NVEC, VSMALL
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-#include "mrci.fh"
 real(kind=wp) :: CBUF(MBUF,MXVEC), SBUF(MBUF,MXVEC), DBUF(MBUF), ARR(NRROOT,NRROOT,11), CSECT(NSECT,MXVEC), RSECT(NSECT,MXVEC), &
                  XI1(NSECT,NRROOT), XI2(NSECT,NRROOT)
 integer(kind=iwp) :: ICI(MBUF)

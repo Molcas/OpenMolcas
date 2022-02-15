@@ -11,11 +11,11 @@
 
 subroutine MKTDAO(CMO,TDMO,TDAO,SCR)
 
+use mrci_global, only: ICH, NBAS, NBAST, NBMAX, NCMO, NDEL, NDMO, NFMO, NFRO, NORB, NORBT, NSYM
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-#include "mrci.fh"
 real(kind=wp) :: CMO(NCMO), TDMO(NBAST,NBAST), TDAO(NBAST,NBAST), SCR(NBMAX,NBMAX)
 integer(kind=iwp) :: I, IEB, IECMO, IEO, II, ISB, ISCMO, ISCO, ISO, ISYM, J, JJ, NB, NBCO, NBD, NBF, NCO, ND, NF, NO
 

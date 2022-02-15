@@ -12,6 +12,8 @@
 *               1986, Margareta R. A. Blomberg                         *
 ************************************************************************
       Subroutine ReadIn_CPF(H,iH)
+      Use iso_c_binding, only: c_f_pointer, c_loc
+      Use Symmetry_Info, only: SMul => Mul
       Implicit Real*8 (A-H,O-Z)
 C Read input and allocate memory
 #include "SysDef.fh"
@@ -35,6 +37,7 @@ C Read input and allocate memory
       ipointer(i)=(i-1)*RtoI+1
 *
 *---  Initialize arrays and variables ---------------------------------*
+      Mul(:,:) = SMul(:,:)
       KBUFF1=2*9600
       D0=0.0D0
       D1=1.0D0
@@ -274,12 +277,11 @@ CPAM97      Read(Line,*,Err=992) ETrsh
       IADD10=0
       CALL iDAFILE(Lu_CIGuga,2,IAD10,9,IADD10)
       iOpt=2
-      nMUL=64
       nJJS=18
       nIRC=4
       Call WR_GUGA(Lu_CIGuga,iOpt,IADD10,
      &             NFREF,S,N,LN,NSYM,IR1,IRJ,IFIRST,INTNUM,
-     &             LSYM,NREF,LN1,NRLN1,MUL,nMUL,NASH,NISH,8,
+     &             LSYM,NREF,LN1,NRLN1,NASH,NISH,8,
      &             IRC,nIRC,JJS,nJJS,NVAL,IOCR,nIOCR)
       If ( LN.ge.MXORB ) THEN
         WRITE(6,*)'READIN Error: Too many orbitals.'
@@ -524,7 +526,6 @@ C -- LIMIT FOR PERMANENT VECTORS
 *     This is to allow type punning without an explicit interface
       CONTAINS
       SUBROUTINE dINDMAT(H)
-      USE ISO_C_BINDING
       REAL*8, TARGET :: H(*)
       INTEGER, POINTER :: iH2(:),iH3(:),iH4(:),iH5(:)
       CALL C_F_POINTER(C_LOC(H(LW(2))),iH2,[1])

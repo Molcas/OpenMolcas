@@ -12,11 +12,12 @@
 subroutine LOOP70(INTSYM,INDX,C,S,ABIJ,AIBJ,AJBI,BUF,IBUF,A,B,F,FSEC,IPOF,IPOA,IPOB,MYL,NYL,INDA,INDB,INMY,INNY,IFTB,IFTA,FACS, &
                   IAB,CPL,CPLA,NVIRA,NVIRC,NVIRB)
 
+use mrci_global, only: NBITM3, NSYM, NVIR
+use Symmetry_Info, only: Mul
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-#include "mrci.fh"
 integer(kind=iwp) :: INTSYM(*), INDX(*), IBUF(NBITM3+2), IPOF(9), IPOA(9), IPOB(9), MYL, NYL, INDA, INDB, INMY, INNY, IFTB, IFTA, &
                      IAB, NVIRA, NVIRC, NVIRB
 real(kind=wp) :: C(*), S(*), ABIJ(*), AIBJ(*), AJBI(*), BUF(NBITM3), A(*), B(*), F(*), FSEC(*), FACS, CPL, CPLA
