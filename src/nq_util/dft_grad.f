@@ -174,10 +174,11 @@
                ixyz=iTab(1,i_Eff)
                Do j = 1, mGrid
 *
-                  dF_dr = Aux(1,j)*dRho_dR(1,j,i_Eff)
-     &                  + Aux(2,j)*dRho_dR(2,j,i_Eff)
-     &                  + Aux(3,j)*dRho_dR(3,j,i_Eff)
-     &                  + Aux(4,j)*dRho_dR(4,j,i_Eff)
+                  dF_dr = DOT_Product(Aux(:,j),dRho_dR(:,j,i_Eff))
+*                 dF_dr = Aux(1,j)*dRho_dR(1,j,i_Eff)
+*    &                  + Aux(2,j)*dRho_dR(2,j,i_Eff)
+*    &                  + Aux(3,j)*dRho_dR(3,j,i_Eff)
+*    &                  + Aux(4,j)*dRho_dR(4,j,i_Eff)
                   tmp = tmp  + Weights(j) * dF_dr
 *
 *                 Accumulate stuff for rotational invariance
@@ -217,14 +218,15 @@
                ixyz=iTab(1,i_Eff)
                Do j = 1, mGrid
 *
-                  dF_dr = Aux(1,j)*dRho_dR(1,j,i_Eff)
-     &                  + Aux(2,j)*dRho_dR(2,j,i_Eff)
-     &                  + Aux(3,j)*dRho_dR(3,j,i_Eff)
-     &                  + Aux(4,j)*dRho_dR(4,j,i_Eff)
-     &                  + Aux(5,j)*dRho_dR(5,j,i_Eff)
-     &                  + Aux(6,j)*dRho_dR(6,j,i_Eff)
-     &                  + Aux(7,j)*dRho_dR(7,j,i_Eff)
-     &                  + Aux(8,j)*dRho_dR(8,j,i_Eff)
+                  dF_dr = DOT_Product(Aux(:,j),dRho_dR(:,j,i_Eff))
+*                 dF_dr = Aux(1,j)*dRho_dR(1,j,i_Eff)
+*    &                  + Aux(2,j)*dRho_dR(2,j,i_Eff)
+*    &                  + Aux(3,j)*dRho_dR(3,j,i_Eff)
+*    &                  + Aux(4,j)*dRho_dR(4,j,i_Eff)
+*    &                  + Aux(5,j)*dRho_dR(5,j,i_Eff)
+*    &                  + Aux(6,j)*dRho_dR(6,j,i_Eff)
+*    &                  + Aux(7,j)*dRho_dR(7,j,i_Eff)
+*    &                  + Aux(8,j)*dRho_dR(8,j,i_Eff)
                   tmp = tmp + Weights(j) * dF_dR
 *
 *                 Accumulate stuff for rotational invariance
@@ -243,25 +245,26 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+         Call mma_Allocate(Aux,5*nD,mGrid,Label='Aux')
          If (nD.eq.1) Then
+            Do j = 1, mGrid
+               Aux(1,j)=vRho(1,j)
+               Aux(2,j)=2.0d0*vSigma(1,j)*Gradrho(1,j)
+               Aux(3,j)=2.0d0*vSigma(1,j)*Gradrho(2,j)
+               Aux(4,j)=2.0d0*vSigma(1,j)*Gradrho(3,j)
+               Aux(5,j)=0.25D0*vTau(1,j)
+            End Do
             Do i_Eff=1, nGrad_Eff
                tmp=Zero
                ixyz=iTab(1,i_Eff)
                Do j = 1, mGrid
-                  gx=Gradrho(1,j)
-                  gy=Gradrho(2,j)
-                  gz=Gradrho(3,j)
-                  Temp0=vRho(1,j)
-                  Temp1=2.0d0*vSigma(1,j)*gx
-                  Temp2=2.0d0*vSigma(1,j)*gy
-                  Temp3=2.0d0*vSigma(1,j)*gz
-                  Temp4=0.25D0*vTau(1,j)
 *
-                  dF_dr = Temp0*dRho_dR(1,j,i_Eff)
-     &                  + Temp1*dRho_dR(2,j,i_Eff)
-     &                  + Temp2*dRho_dR(3,j,i_Eff)
-     &                  + Temp3*dRho_dR(4,j,i_Eff)
-     &                  + Temp4*dRho_dR(5,j,i_Eff)
+                  dF_dr = DOT_Product(Aux(:,j),dRho_dR(:,j,i_Eff))
+*                 dF_dr = Aux(1,j)*dRho_dR(1,j,i_Eff)
+*    &                  + Aux(2,j)*dRho_dR(2,j,i_Eff)
+*    &                  + Aux(3,j)*dRho_dR(3,j,i_Eff)
+*    &                  + Aux(4,j)*dRho_dR(4,j,i_Eff)
+*    &                  + Aux(5,j)*dRho_dR(5,j,i_Eff)
                   tmp = tmp  + Weights(j) * dF_dr
 *
 *                 Accumulate stuff for rotational invariance
@@ -272,44 +275,47 @@
                Temp(i_Eff)=Temp(i_Eff)-tmp
             End Do
          Else
+            Do j = 1, mGrid
+               gxa=Gradrho(1,j)
+               gya=Gradrho(2,j)
+               gza=Gradrho(3,j)
+               gxb=Gradrho(4,j)
+               gyb=Gradrho(5,j)
+               gzb=Gradrho(6,j)
+
+               Aux(1,j)=vRho(1,j)
+               Aux(2,j)=vRho(2,j)
+               Aux(3,j)=( 2.0d0*vSigma(1,j)*gxa
+     &                         +vSigma(2,j)*gxb )
+               Aux(4,j)=( 2.0d0*vSigma(1,j)*gya
+     &                         +vSigma(2,j)*gyb )
+               Aux(5,j)=( 2.0d0*vSigma(1,j)*gza
+     &                         +vSigma(2,j)*gzb )
+               Aux(6,j)=( 2.0d0*vSigma(3,j)*gxb
+     &                         +vSigma(2,j)*gxa )
+               Aux(7,j)=( 2.0d0*vSigma(3,j)*gyb
+     &                         +vSigma(2,j)*gya )
+               Aux(8,j)=( 2.0d0*vSigma(3,j)*gzb
+     &                         +vSigma(2,j)*gza )
+               Aux(9,j)=0.5D0*vTau(1,j)
+               Aux(10,j)=0.5D0*vTau(2,j)
+            End Do
             Do i_Eff=1, nGrad_Eff
                tmp=Zero
                ixyz=iTab(1,i_Eff)
                Do j = 1, mGrid
-                  gxa=Gradrho(1,j)
-                  gya=Gradrho(2,j)
-                  gza=Gradrho(3,j)
-                  gxb=Gradrho(4,j)
-                  gyb=Gradrho(5,j)
-                  gzb=Gradrho(6,j)
-
-                  Temp0a=vRho(1,j)
-                  Temp0b=vRho(2,j)
-                  Temp1a=( 2.0d0*vSigma(1,j)*gxa
-     &                          +vSigma(2,j)*gxb )
-                  Temp2a=( 2.0d0*vSigma(1,j)*gya
-     &                          +vSigma(2,j)*gyb )
-                  Temp3a=( 2.0d0*vSigma(1,j)*gza
-     &                          +vSigma(2,j)*gzb )
-                  Temp1b=( 2.0d0*vSigma(3,j)*gxb
-     &                          +vSigma(2,j)*gxa )
-                  Temp2b=( 2.0d0*vSigma(3,j)*gyb
-     &                          +vSigma(2,j)*gya )
-                  Temp3b=( 2.0d0*vSigma(3,j)*gzb
-     &                          +vSigma(2,j)*gza )
-                  Temp4a=0.5D0*vTau(1,j)
-                  Temp4b=0.5D0*vTau(2,j)
 *
-                  dF_dr = Temp0a*dRho_dR(1,j,i_Eff)
-     &                  + Temp0b*dRho_dR(2,j,i_Eff)
-     &                  + Temp1a*dRho_dR(3,j,i_Eff)
-     &                  + Temp2a*dRho_dR(4,j,i_Eff)
-     &                  + Temp3a*dRho_dR(5,j,i_Eff)
-     &                  + Temp1b*dRho_dR(6,j,i_Eff)
-     &                  + Temp2b*dRho_dR(7,j,i_Eff)
-     &                  + Temp3b*dRho_dR(8,j,i_Eff)
-     &                  + Temp4a*dRho_dR(9,j,i_Eff)
-     &                  + Temp4b*dRho_dR(10,j,i_Eff)
+                  dF_dr = DOT_Product(Aux(:,j),dRho_dR(:,j,i_Eff))
+*                 dF_dr = Aux(1,j)*dRho_dR(1,j,i_Eff)
+*    &                  + Aux(2,j)*dRho_dR(2,j,i_Eff)
+*    &                  + Aux(3,j)*dRho_dR(3,j,i_Eff)
+*    &                  + Aux(4,j)*dRho_dR(4,j,i_Eff)
+*    &                  + Aux(5,j)*dRho_dR(5,j,i_Eff)
+*    &                  + Aux(6,j)*dRho_dR(6,j,i_Eff)
+*    &                  + Aux(7,j)*dRho_dR(7,j,i_Eff)
+*    &                  + Aux(8,j)*dRho_dR(8,j,i_Eff)
+*    &                  + Aux(9,j)*dRho_dR(9,j,i_Eff)
+*    &                  + Aux(10,j)*dRho_dR(10,j,i_Eff)
                   tmp = tmp + Weights(j) * dF_dR
 *
 *                 Accumulate stuff for rotational invariance
@@ -320,6 +326,7 @@
                Temp(i_Eff)=Temp(i_Eff)-tmp
             End Do
          End If
+         Call mma_deAllocate(Aux)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -327,27 +334,28 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+         Call mma_Allocate(Aux,6*nD,mGrid,Label='Aux')
          If (nD.eq.1) Then
+            Do j = 1, mGrid
+               Aux(1,j)=vRho(1,j)
+               Aux(2,j)=2.0d0*vSigma(1,j)*Gradrho(1,j)
+               Aux(3,j)=2.0d0*vSigma(1,j)*Gradrho(2,j)
+               Aux(4,j)=2.0d0*vSigma(1,j)*Gradrho(3,j)
+               Aux(5,j)=0.25D0*vTau(1,j)
+               Aux(6,j)=vLapl(1,j)
+            End Do
             Do i_Eff=1, nGrad_Eff
                tmp=Zero
                ixyz=iTab(1,i_Eff)
                Do j = 1, mGrid
-                  gx=Gradrho(1,j)
-                  gy=Gradrho(2,j)
-                  gz=Gradrho(3,j)
-                  Temp0=vRho(1,j)
-                  Temp1=2.0d0*vSigma(1,j)*gx
-                  Temp2=2.0d0*vSigma(1,j)*gy
-                  Temp3=2.0d0*vSigma(1,j)*gz
-                  Temp4=0.25D0*vTau(1,j)
-                  Temp5=vLapl(1,j)
 *
-                  dF_dr = Temp0*dRho_dR(1,j,i_Eff)
-     &                  + Temp1*dRho_dR(2,j,i_Eff)
-     &                  + Temp2*dRho_dR(3,j,i_Eff)
-     &                  + Temp3*dRho_dR(4,j,i_Eff)
-     &                  + Temp4*dRho_dR(5,j,i_Eff)
-     &                  + Temp5*dRho_dR(6,j,i_Eff)
+                  dF_dr = DOT_Product(Aux(:,j),dRho_dR(:,j,i_Eff))
+*                 dF_dr = Aux(1,j)*dRho_dR(1,j,i_Eff)
+*    &                  + Aux(2,j)*dRho_dR(2,j,i_Eff)
+*    &                  + Aux(3,j)*dRho_dR(3,j,i_Eff)
+*    &                  + Aux(4,j)*dRho_dR(4,j,i_Eff)
+*    &                  + Aux(5,j)*dRho_dR(5,j,i_Eff)
+*    &                  + Aux(6,j)*dRho_dR(6,j,i_Eff)
                   tmp = tmp  + Weights(j) * dF_dr
 *
 *                 Accumulate stuff for rotational invariance
@@ -358,48 +366,51 @@
                Temp(i_Eff)=Temp(i_Eff)-tmp
             End Do
          Else
+            Do j = 1, mGrid
+               gxa=Gradrho(1,j)
+               gya=Gradrho(2,j)
+               gza=Gradrho(3,j)
+               gxb=Gradrho(4,j)
+               gyb=Gradrho(5,j)
+               gzb=Gradrho(6,j)
+
+               Aux(1,j)=vRho(1,j)
+               Aux(2,j)=vRho(2,j)
+               Aux(3,j)=( 2.0d0*vSigma(1,j)*gxa
+     &                         +vSigma(2,j)*gxb )
+               Aux(4,j)=( 2.0d0*vSigma(1,j)*gya
+     &                         +vSigma(2,j)*gyb )
+               Aux(5,j)=( 2.0d0*vSigma(1,j)*gza
+     &                         +vSigma(2,j)*gzb )
+               Aux(6,j)=( 2.0d0*vSigma(3,j)*gxb
+     &                         +vSigma(2,j)*gxa )
+               Aux(7,j)=( 2.0d0*vSigma(3,j)*gyb
+     &                         +vSigma(2,j)*gya )
+               Aux(8,j)=( 2.0d0*vSigma(3,j)*gzb
+     &                         +vSigma(2,j)*gza )
+               Aux(9,j)=0.5D0*vTau(1,j)
+               Aux(10,j)=0.5D0*vTau(2,j)
+               Aux(11,j)=vLapl(1,j)
+               Aux(11,j)=vLapl(2,j)
+            End Do
             Do i_Eff=1, nGrad_Eff
                tmp=Zero
                ixyz=iTab(1,i_Eff)
                Do j = 1, mGrid
-                  gxa=Gradrho(1,j)
-                  gya=Gradrho(2,j)
-                  gza=Gradrho(3,j)
-                  gxb=Gradrho(4,j)
-                  gyb=Gradrho(5,j)
-                  gzb=Gradrho(6,j)
-
-                  Temp0a=vRho(1,j)
-                  Temp0b=vRho(2,j)
-                  Temp1a=( 2.0d0*vSigma(1,j)*gxa
-     &                          +vSigma(2,j)*gxb )
-                  Temp1b=( 2.0d0*vSigma(3,j)*gxb
-     &                          +vSigma(2,j)*gxa )
-                  Temp2a=( 2.0d0*vSigma(1,j)*gya
-     &                          +vSigma(2,j)*gyb )
-                  Temp2b=( 2.0d0*vSigma(3,j)*gyb
-     &                          +vSigma(2,j)*gya )
-                  Temp3a=( 2.0d0*vSigma(1,j)*gza
-     &                          +vSigma(2,j)*gzb )
-                  Temp3b=( 2.0d0*vSigma(3,j)*gzb
-     &                          +vSigma(2,j)*gza )
-                  Temp4a=0.5D0*vTau(1,j)
-                  Temp4b=0.5D0*vTau(2,j)
-                  Temp5a=vLapl(1,j)
-                  Temp5b=vLapl(2,j)
 *
-                  dF_dr = Temp0a*dRho_dR(1,j,i_Eff)
-     &                  + Temp0b*dRho_dR(2,j,i_Eff)
-     &                  + Temp1a*dRho_dR(3,j,i_Eff)
-     &                  + Temp2a*dRho_dR(4,j,i_Eff)
-     &                  + Temp3a*dRho_dR(5,j,i_Eff)
-     &                  + Temp1b*dRho_dR(6,j,i_Eff)
-     &                  + Temp2b*dRho_dR(7,j,i_Eff)
-     &                  + Temp3b*dRho_dR(8,j,i_Eff)
-     &                  + Temp4a*dRho_dR(9,j,i_Eff)
-     &                  + Temp4b*dRho_dR(10,j,i_Eff)
-     &                  + Temp5a*dRho_dR(11,j,i_Eff)
-     &                  + Temp5b*dRho_dR(12,j,i_Eff)
+                  dF_dr = DOT_Product(Aux(:,j),dRho_dR(:,j,i_Eff))
+*                 dF_dr = Aux(1,j)*dRho_dR(1,j,i_Eff)
+*    &                  + Aux(2,j)*dRho_dR(2,j,i_Eff)
+*    &                  + Aux(3,j)*dRho_dR(3,j,i_Eff)
+*    &                  + Aux(4,j)*dRho_dR(4,j,i_Eff)
+*    &                  + Aux(5,j)*dRho_dR(5,j,i_Eff)
+*    &                  + Aux(6,j)*dRho_dR(6,j,i_Eff)
+*    &                  + Aux(7,j)*dRho_dR(7,j,i_Eff)
+*    &                  + Aux(8,j)*dRho_dR(8,j,i_Eff)
+*    &                  + Aux(9,j)*dRho_dR(9,j,i_Eff)
+*    &                  + Aux(10,j)*dRho_dR(10,j,i_Eff)
+*    &                  + Aux(11,j)*dRho_dR(11,j,i_Eff)
+*    &                  + Aux(12,j)*dRho_dR(12,j,i_Eff)
                   tmp = tmp + Weights(j) * dF_dR
 *
 *                 Accumulate stuff for rotational invariance
@@ -410,6 +421,7 @@
                Temp(i_Eff)=Temp(i_Eff)-tmp
             End Do
          End If
+         Call mma_deAllocate(Aux)
 *                                                                      *
 ************************************************************************
 *                                                                      *
