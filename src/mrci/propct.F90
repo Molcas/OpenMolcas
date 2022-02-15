@@ -16,37 +16,24 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: I, IDDMO, IDISK, IDUMMY(7,8), IEND, IOPT, IPC, IPROP, IRTC, ISTA, ISTATE, ISYMLB, J, JSTATE, LAFOLD, LCMO, &
-                     LCNO, LDAO, LOCC, LPINT, LSCR, LSFOLD, LTDAO
+integer(kind=iwp) :: I, IDDMO, IDISK, IDUMMY(7,8), IEND, IOPT, IPC, IPROP, IRTC, ISTA, ISTATE, ISYMLB, J, JSTATE
 real(kind=wp) :: DUMMY(1)
 character(len=100) :: REALNAME
 character(len=30) :: REMARK
 character(len=8) :: FNAME, LABEL
-real(kind=wp), allocatable :: PROP(:,:,:)
+real(kind=wp), allocatable :: AFOLD(:), CMO(:), CNO(:), DAO(:,:), OCC(:), PINT(:), PROP(:,:,:), SCR(:), SFOLD(:)
 #include "mrci.fh"
 #include "WrkSpc.fh"
 
-!LCMO = LPRP
-!LCNO = LCMO+NCMO
-!LOCC = LCNO+NCMO
-!LTDAO = LOCC+NBAST
-!LDAO = LTDAO
-!LAFOLD = LDAO+NBAST**2
-!LSFOLD = LAFOLD+NBTRI
-!LPINT = LSFOLD+NBTRI
-!LSCR = LPINT+NBTRI+4
-!NSCR = max(NBTRI,NBMAX**2)
-!LTOP = LSCR+NSCR-1
-call GETMEM('CMO','ALLO','REAL',LCMO,NCMO)
-call GETMEM('CNO','ALLO','REAL',LCNO,NCMO)
-call GETMEM('OCC','ALLO','REAL',LOCC,NBAST)
-call GETMEM('DAO','ALLO','REAL',LDAO,NBAST**2)
-LTDAO = LDAO
-call GETMEM('AFOLD','ALLO','REAL',LAFOLD,NBTRI)
-call GETMEM('SFOLD','ALLO','REAL',LSFOLD,NBTRI)
-call GETMEM('PINT','ALLO','REAL',LPINT,NBTRI+4)
+call mma_allocate(CMO,NCMO,label='CMO')
+call mma_allocate(CNO,NCMO,label='CNO')
+call mma_allocate(OCC,NBAST,label='OCC')
+call mma_allocate(DAO,NBAST,NBAST,label='DAO')
+call mma_allocate(AFOLD,NBTRI,label='AFOLD')
+call mma_allocate(SFOLD,NBTRI,label='SFOLD')
+call mma_allocate(PINT,NBTRI+4,label='PINT')
 NSCR = max(NBTRI,NBMAX**2)
-call GETMEM('SCR','ALLO','REAL',LSCR,NSCR)
+call mma_allocate(SCR,NSCR,label='SCR')
 ! LOOP OVER OPERATORS:
 IOPT = 8
 NPROP = 0
@@ -74,10 +61,10 @@ do ISTATE=1,NRROOT
   call dDAFILE(LUEIG,2,Work(LDMO),NBTRI,IDDMO)
   ! PICK UP CMO
   IDISK = ITOC17(1)
-  call dDAFILE(LUONE,2,Work(LCMO),NCMO,IDISK)
+  call dDAFILE(LUONE,2,CMO,NCMO,IDISK)
   ! COMPUTE & WRITE NATURAL ORBITALS
-  !PAM04 call NATORB_MRCI(HWork(LCMO),HWork(LDMO),HWork(LCNO),
-  call NATORB_MRCI(Work(LCMO),Work(LDMO),Work(LCNO),Work(LOCC),Work(LSCR))
+  !PAM04 call NATORB_MRCI(CMO,HWork(LDMO),CNO),
+  call NATORB_MRCI(CMO,Work(LDMO),CNO,OCC,SCR)
   write(FNAME,'(A5,I2.2)') 'CIORB',ISTATE
   REALNAME = FNAME
   !PAM04 if (ISTATE == 1) call Add_Info('CI_DENS1',HWork(LDMO),1,5)
@@ -87,17 +74,17 @@ do ISTATE=1,NRROOT
   !if (ICPF == 1) REMARK = '* ACPF  '
   if (ICPF == 1) write(REMARK,'("* ACPF  ",f22.16)') ESMALL(1)+ESHIFT
 
-  call WRVEC(REALNAME,LUVEC,'CO',NSYM,NBAS,NBAS,Work(LCNO),Work(LOCC),Dummy,iDummy,REMARK)
+  call WRVEC(REALNAME,LUVEC,'CO',NSYM,NBAS,NBAS,CNO,OCC,Dummy,iDummy,REMARK)
   write(u6,*)
   write(u6,'(A,I2)') ' NATURAL ORBITALS OF STATE NR. ',ISTATE
   write(u6,*) ' FULL SET OF ORBITALS ARE SAVED ON FILE ',REALNAME
-  call PRORB(Work(LCNO),Work(LOCC))
+  call PRORB(CNO,OCC)
   write(u6,*) ' ',('*',I=1,70)
   ! CREATE DAO
-  call MKDAO(Work(LCNO),Work(LOCC),Work(LDAO))
+  call MKDAO(CNO,OCC,DAO)
   ! CALL PMATEL TO CALCULATE CHARGES AND PROPERTIES.
   ! PUT PROPERTIES INTO APPROPRIATE MATRICES.
-  call PMATEL(ISTATE,ISTATE,PROP,Work(LPINT),Work(LSCR),Work(LCNO),Work(LOCC),Work(LSFOLD),Work(LAFOLD),Work(LDAO))
+  call PMATEL(ISTATE,ISTATE,PROP,PINT,SCR,CNO,OCC,SFOLD,AFOLD,DAO)
 end do
 ! ENERGIES SAVED FROM PREVIOUS OUTPUT REPEATED HERE FOR CONVENIENCE:
 write(u6,*)
@@ -154,12 +141,11 @@ if (ITRANS /= 0) then
       !PAM04 call dDAFILE(LUEIG,2,HWork(LTDMO),NBAST**2,IDDMO)
       call dDAFILE(LUEIG,2,Work(LTDMO),NBAST**2,IDDMO)
       ! CREATE TDAO
-      !PAM04 call MKTDAO(HWork(LCMO),HWork(LTDMO),HWork(LTDAO),HWork(LSCR))
-      call MKTDAO(Work(LCMO),Work(LTDMO),Work(LTDAO),Work(LSCR))
+      !PAM04 call MKTDAO(CMO,HWork(LTDMO),DAO,SCR)
+      call MKTDAO(CMO,Work(LTDMO),DAO,SCR)
       ! CALL PMATEL TO CALCULATE TRANSITION PROPERTIES
       ! PUT PROPERTIES INTO APPROPRIATE MATRICES.
-      if (NPROP /= 0) call PMATEL(ISTATE,JSTATE,PROP,Work(LPINT),Work(LSCR),Work(LCNO),Work(LOCC),Work(LSFOLD),Work(LAFOLD), &
-                                  Work(LTDAO))
+      if (NPROP /= 0) call PMATEL(ISTATE,JSTATE,PROP,PINT,SCR,CNO,OCC,SFOLD,AFOLD,DAO)
     end do
   end do
   if (NPROP /= 0) then
@@ -187,14 +173,14 @@ if (ITRANS /= 0) then
     write(u6,*)
   end if
 end if
-call GETMEM('CMO','FREE','REAL',LCMO,NCMO)
-call GETMEM('CNO','FREE','REAL',LCNO,NCMO)
-call GETMEM('OCC','FREE','REAL',LOCC,NBAST)
-call GETMEM('DAO','FREE','REAL',LDAO,NBAST**2)
-call GETMEM('AFOLD','FREE','REAL',LAFOLD,NBTRI)
-call GETMEM('SFOLD','FREE','REAL',LSFOLD,NBTRI)
-call GETMEM('PINT','FREE','REAL',LPINT,NBTRI+4)
-call GETMEM('SCR','FREE','REAL',LSCR,NSCR)
+call mma_deallocate(CMO)
+call mma_deallocate(CNO)
+call mma_deallocate(OCC)
+call mma_deallocate(DAO)
+call mma_deallocate(AFOLD)
+call mma_deallocate(SFOLD)
+call mma_deallocate(PINT)
+call mma_deallocate(SCR)
 call MMA_DEALLOCATE(PROP)
 
 return

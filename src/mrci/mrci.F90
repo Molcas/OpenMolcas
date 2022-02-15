@@ -35,7 +35,6 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp) :: IRETURN
 #include "mrci.fh"
-integer(kind=iwp) :: LDummy
 
 ! Prologue, print program header
 !
@@ -57,7 +56,7 @@ integer(kind=iwp) :: LDummy
 !PAM04 write(u6,*) " Allocated 'WrkSpc'. memoff, maxmem=",memoff,maxmem
 
 !PAM04 Now try completely without "WrkSpc" array:
-call GetMem('HowMuch','Max ','Real',LDummy,MemTot)
+call mma_maxdble(MemTot)
 
 ! Open files
 

@@ -11,6 +11,7 @@
 
 subroutine FAIBJ(INTSYM,INDX,C,S,ABIJ,AIBJ,AJBI,A,B,F,FSEC)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, r8
 
@@ -18,16 +19,17 @@ implicit none
 integer(kind=iwp) :: INTSYM(*), INDX(*)
 real(kind=wp) :: C(*), S(*), ABIJ(*), AIBJ(*), AJBI(*), A(*), B(*), F(*), FSEC(*)
 #include "mrci.fh"
-#include "WrkSpc.fh"
 integer(kind=iwp) :: IAB, IADR, IASYM, IBSYM, ICHK, iCoup, iCoup1, IFAB, IFT, IFTA, IFTB, II, IIN, IJ1, ILIM, INDA, INDB, INDCOP, &
-                     INDI, INMY, INNY, INS, IPF, IPF1, IPOA(9), IPOB(9), IPOF(9), ISTAR, ITURN, iTyp, JTURN, LBUF, LENBUF, LENCOP, &
-                     LIBUF, MYL, MYSYM, NI, NJ, NOT2, NOVST, NSIJ, NVIRA, NVIRB, NVIRC, NYL, NYSYM
+                     INDI, INMY, INNY, INS, IPF, IPF1, IPOA(9), IPOB(9), IPOF(9), ISTAR, ITURN, iTyp, JTURN, LENBUF, LENCOP, MYL, &
+                     MYSYM, NI, NJ, NOT2, NOVST, NSIJ, NVIRA, NVIRB, NVIRC, NYL, NYSYM
 real(kind=wp) :: COPI, CPL, CPLA, FAC, FACS, TERM
+integer(kind=iwp), allocatable :: iBuf(:)
+real(kind=wp), allocatable :: Buf(:)
 logical(kind=iwp) :: Skip
 real(kind=r8), external :: DDOT_
 
-call GETMEM('BUF','ALLO','REAL',LBUF,NBITM3)
-call GETMEM('IBUF','ALLO','INTE',LIBUF,NBITM3+2)
+call mma_allocate(Buf,NBITM3,label='Buf')
+call mma_allocate(iBuf,NBITM3+2,label='iBuf')
 
 !vv this code is a real compiler killer!
 
@@ -35,7 +37,6 @@ call GETMEM('IBUF','ALLO','INTE',LIBUF,NBITM3+2)
 iTyp = -1234567
 iCoup = -1234567
 iCoup1 = -1234567
-!call getmem('test','chec','real',ldum,ndum)
 
 call CSCALE(INDX,INTSYM,C,SQ2)
 call CSCALE(INDX,INTSYM,S,SQ2INV)
@@ -119,8 +120,8 @@ do
             ! TRIPLET-SINGLET, SINGLET-TRIPLET,
             ! TRIPLET-TRIPLET AND SINGLET-SINGLET INTERACTIONS
 
-            call loop70(INTSYM,INDX,C,S,ABIJ,AIBJ,AJBI,WORK(LBUF),iWORK(LIBUF),A,B,F,FSEC,IPOF,IPOA,IPOB,MYL,NYL,INDA,INDB,INMY, &
-                        INNY,IFTB,IFTA,FACS,IAB,CPL,CPLA,NVIRA,NVIRC,NVIRB)
+            call loop70(INTSYM,INDX,C,S,ABIJ,AIBJ,AJBI,Buf,iBuf,A,B,F,FSEC,IPOF,IPOA,IPOB,MYL,NYL,INDA,INDB,INMY,INNY,IFTB,IFTA, &
+                        FACS,IAB,CPL,CPLA,NVIRA,NVIRC,NVIRB)
 
           end if
         end if
@@ -156,11 +157,11 @@ do
         if (Skip) then
           Skip = .false.
         else
-          call iDAFILE(Lu_60,2,iWORK(LIBUF),NBITM3+2,IADR)
-          call dDAFILE(Lu_60,2,WORK(LBUF),NBITM3,IADR)
-          LENBUF = iWORK(LIBUF+NBITM3)
-          IADR = iWORK(LIBUF+NBITM3+1)
-          call faibj5(LENBUF,JTURN,iWORK(LIBUF),WORK(LBUF),AIBJ,ABIJ)
+          call iDAFILE(Lu_60,2,iBuf,NBITM3+2,IADR)
+          call dDAFILE(Lu_60,2,Buf,NBITM3,IADR)
+          LENBUF = iBuf(NBITM3+1)
+          IADR = iBuf(NBITM3+2)
+          call faibj5(LENBUF,JTURN,iBuf,Buf,AIBJ,ABIJ)
 
           if (IADR /= -1) cycle
           if (JTURN == 1) exit
@@ -177,9 +178,6 @@ do
       FAC = One
       if (NI == NJ) FAC = Half
       IIN = 0
-      ! VV: these calls to getmem are needed to cheat some compilers.
-
-      if (FAC < 0) call getmem('CHECK','CHEC','real',0,0)
 
       IFT = 0
       call faibj3(NSIJ,IFT,AIBJ,FSEC,FAC,IIN,INS,IPOA,IPOF)
@@ -211,8 +209,8 @@ end do
 
 call CSCALE(INDX,INTSYM,C,SQ2INV)
 call CSCALE(INDX,INTSYM,S,SQ2)
-call GETMEM('BUF','FREE','REAL',LBUF,NBITM3)
-call GETMEM('IBUF','FREE','INTE',LIBUF,NBITM3+2)
+call mma_deallocate(Buf)
+call mma_deallocate(iBuf)
 
 return
 

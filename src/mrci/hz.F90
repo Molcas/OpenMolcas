@@ -11,6 +11,7 @@
 
 subroutine HZ(ARR)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -18,9 +19,10 @@ implicit none
 #include "mrci.fh"
 real(kind=wp) :: ARR(NRROOT,NRROOT,11)
 integer(kind=iwp) :: I, I1, I2, I3, I4, IO2, IO3, IO4, J, J1, J2, J3, J4, K
-real(kind=wp) :: SUM1, SUM2, SUM3, TMP(MXVEC,MXVEC) !IFG
+real(kind=wp) :: SUM1, SUM2, SUM3
 integer(kind=iwp), parameter :: IX1F = 1, IX2F = 2, IRR = 3, IX1R = 4, IX2R = 5, IX1X1 = 6, IX2X1 = 7, IX2X2 = 8, IFDF = 9, &
                                 IFDR = 10, IRDR = 11
+real(kind=wp), allocatable :: TMP(:,:)
 
 ! THIS SUBROUTINE FORMS THE OVERLAP AND H-ZERO MATRIX ELEMENTS
 ! IN THE BASIS OF PSI, RHO, XI1, AND XI2 FUNCTIONS.
@@ -148,6 +150,7 @@ do I=1,NRROOT
     HZERO(IO4+J,IO4+I) = HZERO(IO4+J,IO4+I)-SUM3*ESMALL(I)
   end do
 end do
+call mma_allocate(TMP,NRROOT,NRROOT,label='TMP')
 do I=1,NRROOT
   do J=1,NRROOT
     SUM1 = Zero
@@ -218,6 +221,7 @@ do I=1,NRROOT
     HZERO(IO4+I,IO4+J) = SUM3
   end do
 end do
+call mma_deallocate(TMP)
 do I1=1,NRROOT
   I2 = I1+NRROOT
   I3 = I1+2*NRROOT

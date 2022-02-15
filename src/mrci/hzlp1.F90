@@ -11,6 +11,7 @@
 
 subroutine HZLP1(CBUF,SBUF,DBUF,ARR,CSECT,RSECT,XI1,XI2,ICI)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -19,9 +20,10 @@ implicit none
 real(kind=wp) :: CBUF(MBUF,MXVEC), SBUF(MBUF,MXVEC), DBUF(MBUF), ARR(NRROOT,NRROOT,11), CSECT(NSECT,MXVEC), RSECT(NSECT,MXVEC), &
                  XI1(NSECT,NRROOT), XI2(NSECT,NRROOT)
 integer(kind=iwp) :: ICI(MBUF)
-integer(kind=iwp) :: I, IBUF, IDC(MXVEC), IDD, IDS(MXVEC), IEND, ISECT, ISTA, JEND, JSTA, K, NRR2 !IFG
+integer(kind=iwp) :: I, IBUF, IDD, IEND, ISECT, ISTA, JEND, JSTA, K, NRR2
 integer(kind=iwp), parameter :: IX1F = 1, IX2F = 2, IRR = 3, IX1R = 4, IX2R = 5, IX1X1 = 6, IX2X1 = 7, IX2X2 = 8, IFDF = 9, &
                                 IFDR = 10, IRDR = 11
+integer(kind=iwp), allocatable :: IDC(:), IDS(:)
 
 ! THIS SUBROUTINE LOOPS OVER SECTIONS OF PSI AND SIGMA ARRAYS
 ! ON DISK, AND ACCUMULATES OVERLAP MATRICES AND A COUPLE OF
@@ -30,6 +32,8 @@ integer(kind=iwp), parameter :: IX1F = 1, IX2F = 2, IRR = 3, IX1R = 4, IX2R = 5,
 ! SINGLE ARRAY ARR.
 NRR2 = NRROOT**2
 call DCOPY_(11*NRR2,[Zero],0,ARR,1)
+call mma_allocate(IDC,NVEC,label='IDC')
+call mma_allocate(IDS,NVEC,label='IDS')
 do K=1,NVEC
   IDC(K) = IDISKC(K)
   IDS(K) = IDISKS(K)
@@ -85,6 +89,8 @@ do ISTA=1,NCONF,MBUF
   end do
   ! CONTINUE, NEXT BUFFER.
 end do
+call mma_deallocate(IDC)
+call mma_deallocate(IDS)
 
 return
 

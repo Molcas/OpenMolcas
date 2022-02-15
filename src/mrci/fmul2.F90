@@ -19,9 +19,9 @@ integer(kind=iwp) :: NROW, NCOL, N
 real(kind=wp) :: A(NROW,N), B(NCOL,N), C(NROW,NCOL)
 #include "warnings.h"
 integer(kind=iwp) :: I, J, J1, K
-real(kind=wp) :: CJ(1000), FAC !IFG
+real(kind=wp) :: CJ(1000), FAC
 
-if (nRow > 1000) then
+if (nRow > size(CJ)) then
   write(u6,*)
   call XFLUSH(u6)
   write(u6,*) ' *** Error in Subroutine FMUL2 ***'
@@ -34,9 +34,7 @@ if (nRow > 1000) then
 end if
 
 do J=1,NCOL
-  do I=1,NROW
-    CJ(I) = Zero
-  end do
+  CJ(1:NROW) = Zero
   if (J /= NCOL) then
     J1 = J+1
     do K=1,N
@@ -47,9 +45,7 @@ do J=1,NCOL
       end do
     end do
   end if
-  do I=1,NROW
-    C(I,J) = CJ(I)
-  end do
+  C(:,J) = CJ(1:NROW)
 end do
 
 return

@@ -11,62 +11,59 @@
 
 subroutine DIAGCT()
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: iwp
+use Definitions, only: wp, iwp
 
 implicit none
 #include "mrci.fh"
 #include "WrkSpc.fh"
-integer(kind=iwp) :: LBUFS, LINDS, NBUFBI, NBUFS, NHDIAG, NINDS, NINTGR, NVT
+integer(kind=iwp) :: NBUFBI, NHDIAG, NINTGR, NVT
+integer(kind=iwp), allocatable :: Inds(:,:)
+real(kind=wp), allocatable :: Bufs(:,:)
 
 ! ----------------------------------------------------------------------
-NINDS = (NBITM1+2)*NCHN1
-NBUFS = NBITM1*NCHN1
-call GETMEM('Bufs','Allo','Real',LBUFS,NBUFS)
-call GETMEM('Inds','Allo','Inte',LINDS,NINDS)
+call mma_allocate(Bufs,NBITM1,NCHN1,label='Bufs')
+call mma_allocate(Inds,NBITM1+2,NCHN1,label='Inds')
 NBUFBI = KBUFF1
 call GETMEM('BUFBI','Allo','Real',LBUFBI,NBUFBI)
 call GETMEM('BIAC1','Allo','Real',LBIAC1,ISMAX)
 call GETMEM('BICA1','Allo','Real',LBICA1,ISMAX)
-call DCOPY_(NBUFS,[Zero],0,Work(LBUFS),1)
-call ICOPY(NINDS,[0],0,IWork(LINDS),1)
-call SORTA(Work(LBUFS),IWork(LINDS),IWork(LISAB),Work(LBUFBI),Work(LBIAC1),Work(LBICA1),NINTGR)
+Bufs(:,:) = Zero
+Inds(:,:) = 0
+call SORTA(Bufs,Inds,IWork(LISAB),Work(LBUFBI),Work(LBIAC1),Work(LBICA1),NINTGR)
 call GETMEM('BIAC1','Free','Real',LBIAC1,ISMAX)
 call GETMEM('BICA1','Free','Real',LBICA1,ISMAX)
 call GETMEM('BUFBI','Free','Real',LBUFBI,NBUFBI)
-call GETMEM('Bufs','Free','Real',LBUFS,NBUFS)
-call GETMEM('Inds','Free','Inte',LINDS,NINDS)
+call mma_deallocate(Bufs)
+call mma_deallocate(Inds)
 ! ----------------------------------------------------------------------
 
 if (IFIRST == 0) then
-  NINDS = (NBITM2+2)*NCHN2
-  NBUFS = NBITM2*NCHN2
-  call GETMEM('Bufs','Allo','Real',LBUFS,NBUFS)
-  call GETMEM('Inds','Allo','Inte',LINDS,NINDS)
+  call mma_allocate(Bufs,NBITM2,NCHN2,label='Bufs')
+  call mma_allocate(Inds,NBITM2+2,NCHN2,label='Bufs')
   call GETMEM('BACBD','Allo','Real',LBACBD,KBUFF1)
   call GETMEM('ACBDT','Allo','Real',LACBDT,ISMAX)
   call GETMEM('ACBDS','Allo','Real',LACBDS,ISMAX)
-  call DCOPY_(NBUFS,[Zero],0,Work(LBUFS),1)
-  call ICOPY(NINDS,[0],0,IWork(LINDS),1)
-  call SORTB(Work(LBUFS),IWork(LINDS),Work(LACBDS),Work(LACBDT),IWork(LISAB),Work(LBACBD),NINTGR)
+  Bufs(:,:) = Zero
+  Inds(:,:) = 0
+  call SORTB(Bufs,Inds,Work(LACBDS),Work(LACBDT),IWork(LISAB),Work(LBACBD),NINTGR)
   call GETMEM('BACBD','Free','Real',LBACBD,KBUFF1)
   call GETMEM('ACBDT','Free','Real',LACBDT,ISMAX)
   call GETMEM('ACBDS','Free','Real',LACBDS,ISMAX)
-  call GETMEM('Bufs','Free','Real',LBUFS,NBUFS)
-  call GETMEM('Inds','Free','Inte',LINDS,NINDS)
+  call mma_deallocate(Bufs)
+  call mma_deallocate(Inds)
 end if
 ! ------------------- SORT --------------------------------------------
-NINDS = (NBITM3+2)*NCHN3
-NBUFS = NBITM3*NCHN3
-call GETMEM('Bufs','Allo','Real',LBUFS,NBUFS)
-call GETMEM('Inds','Allo','Inte',LINDS,NINDS)
+call mma_allocate(Bufs,NBITM3,NCHN3,label='Bufs')
+call mma_allocate(Inds,NBITM3+2,NCHN3,label='Inds')
 call GETMEM('FIIJJ','Allo','Real',LIIJJ,NBTRI)
 call GETMEM('FIJIJ','Allo','Real',LIJIJ,NBTRI)
-call DCOPY_(NBUFS,[Zero],0,Work(LBUFS),1)
-call ICOPY(NINDS,[0],0,IWork(LINDS),1)
-call SORT_MRCI(Work(LBUFS),IWork(LINDS),Work(LFOCK),Work(LIIJJ),Work(LIJIJ),NINTGR)
-call GETMEM('Bufs','Free','Real',LBUFS,NBUFS)
-call GETMEM('Inds','Free','Inte',LINDS,NINDS)
+Bufs(:,:) = Zero
+Inds(:,:) = 0
+call SORT_MRCI(Bufs,Inds,Work(LFOCK),Work(LIIJJ),Work(LIJIJ),NINTGR)
+call mma_deallocate(Bufs)
+call mma_deallocate(Inds)
 ! ----------------------------------------------------------------------
 NVT = (NVIRT*(NVIRT+1))/2
 NHDIAG = max(NVT,IRC(1))

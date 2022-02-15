@@ -11,6 +11,7 @@
 
 subroutine CSTART(AREF,EREF,CI,ICI)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -18,20 +19,24 @@ implicit none
 #include "mrci.fh"
 real(kind=wp) :: AREF(NREF,NREF), EREF(NREF), CI(NCONF)
 integer(kind=iwp) :: ICI(MBUF)
-integer(kind=iwp) :: I, I1, I2, IAD25, ID, IR, IREF, ISTA, ISTART(MXROOT), NN !IFG
-real(kind=wp) :: BUF(nCOP), GINV !IFG
+integer(kind=iwp) :: I, I1, I2, IAD25, ID, IR, IREF, ISTA, NN
+real(kind=wp) :: GINV
+integer(kind=iwp), allocatable :: ISTART(:)
+real(kind=wp), allocatable :: Buf(:)
 
 do I=1,MXVEC
   IDISKC(I) = -1
   IDISKS(I) = -1
 end do
 ! FIRST, USE THE CI ARRAY TO STORE THE DIAGONAL ELEMENTS:
+call mma_allocate(Buf,nCOP,label='Buf')
 IAD25 = IAD25S
 do I=1,NCONF,nCOP
-  call dDAFILE(Lu_25,2,BUF,nCOP,IAD25)
+  call dDAFILE(Lu_25,2,Buf,nCOP,IAD25)
   NN = min(nCOP,NCONF+1-I)
-  call DCOPY_(NN,BUF,1,CI(I),1)
+  call DCOPY_(NN,Buf,1,CI(I),1)
 end do
+call mma_deallocate(Buf)
 ! THESE ARE DIAGONAL ELEMENTS OF THE ELECTRONIC HAMILTONIAN.
 ! POTNUC SHOULD BE ADDED. IN ADDITION, WE USE AN ENERGY SHIFT.
 ! NOTE: DISPLACEMENT 1.0e-4 PROTECTS AGAINST DIVIDE ERRORS.
@@ -64,6 +69,7 @@ end do
 ! THEN, SET UP START CI VECTORS IN MCSF BASIS:
 call DCOPY_(NCONF,[Zero],0,CI,1)
 if (IREST == 0) then
+  call mma_allocate(ISTART,MXROOT,label='ISTART')
   NNEW = IROOT(NRROOT)
   I1 = 1
   I2 = 1
@@ -101,6 +107,7 @@ if (IREST == 0) then
     end do
     CI(IR) = Zero
   end do
+  call mma_deallocate(ISTART)
 else
   ID = 0
   NNEW = NRROOT

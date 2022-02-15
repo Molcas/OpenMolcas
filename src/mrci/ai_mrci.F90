@@ -12,18 +12,20 @@
 !subroutine AI(INTSYM,INDX,C,S,FC,BUFIN,IBUFIN,A,B,FK,DBK,KTYP)
 subroutine AI_MRCI(INTSYM,INDX,C,S,FC,A,B,FK,DBK,KTYP)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, r8
 
 implicit none
 integer(kind=iwp) :: INTSYM(*), INDX(*), KTYP
 real(kind=wp) :: C(*), S(*), FC(*), A(*), B(*), FK(*), DBK(*) !, BUFIN(*), IBUFIN(*)
-#include "WrkSpc.fh"
 #include "mrci.fh"
 integer(kind=iwp) :: i, IADR, ICHK, ICP1, ICP2, IFT, II, IJ, IJOLD, ILEN, IND, INDA, INDB, INDI, INMY, INNY, IOUT, IPOB(9), ITYP, &
-                     J, LBUF, LENGTH, LIBUF, MYEXTS, MYINTS, NA, NAK, NI, NJ, NK, NKM, NOTT, NOVST, NSA, NSI, NSIJ, NSJ, NSK, &
-                     NVIRA, NVM, NVT, NYEXTS, NYINTS
+                     J, LENGTH, MYEXTS, MYINTS, NA, NAK, NI, NJ, NK, NKM, NOTT, NOVST, NSA, NSI, NSIJ, NSJ, NSK, NVIRA, NVM, NVT, &
+                     NYEXTS, NYINTS
 real(kind=wp) :: COPI, SGN, TERM
+integer(kind=iwp), allocatable :: iBuf(:)
+real(kind=wp), allocatable :: Buf(:)
 integer(kind=iwp), external :: JSUNP
 real(kind=r8), external :: DDOT_
 !Statement function
@@ -33,8 +35,8 @@ JSYM(L) = JSUNP(INTSYM,L)
 ! KTYP=0,  (A/I)   INTEGRALS
 ! KTYP=1,  (AI/JK) INTEGRALS
 
-call GETMEM('BUF','ALLO','REAL',LBUF,NBITM3)
-call GETMEM('IBUF','ALLO','INTE',LIBUF,NBITM3+2)
+call mma_allocate(Buf,NBITM3,label='BUF')
+call mma_allocate(iBuf,NBITM3+2,label='IBUF')
 
 call CSCALE(INDX,INTSYM,C,SQ2)
 call CSCALE(INDX,INTSYM,S,SQ2INV)
@@ -97,16 +99,16 @@ do
 
           do
             !PAM04 call dDAFILE(Lu_60,2,IBUFIN,NBSIZ3,IADR)
-            call iDAFILE(Lu_60,2,iWORK(LIBUF),NBITM3+2,IADR)
-            call dDAFILE(Lu_60,2,WORK(LBUF),NBITM3,IADR)
-            LENGTH = iWORK(LIBUF+NBITM3)
-            IADR = iWORK(LIBUF+NBITM3+1)
+            call iDAFILE(Lu_60,2,iBuf,NBITM3+2,IADR)
+            call dDAFILE(Lu_60,2,Buf,NBITM3,IADR)
+            LENGTH = iBuf(NBITM3+1)
+            IADR = iBuf(NBITM3+2)
             !PAM04 LENGTH = IBUFIN(IBBC3)
             !PAM04 IADR = IBUFIN(IBDA3)
             !call SCATTER(LENGTH,FC,IBUFIN(IBOFF3+1),BUFIN)
-            do i=0,length-1
+            do i=1,length
               !PAM04 fc(IBUFIN(IBOFF3+i)) = bufin(i)
-              fc(iWORK(LIBUF+i)) = WORK(LBUF+i)
+              fc(iBuf(i)) = Buf(i)
             end do
             if (IADR == -1) exit
           end do
@@ -198,8 +200,8 @@ do
 end do
 call CSCALE(INDX,INTSYM,C,SQ2INV)
 call CSCALE(INDX,INTSYM,S,SQ2)
-call GETMEM('BUF','FREE','REAL',LBUF,NBITM3)
-call GETMEM('IBUF','FREE','INTE',LIBUF,NBITM3+2)
+call mma_deallocate(Buf)
+call mma_deallocate(iBuf)
 
 return
 

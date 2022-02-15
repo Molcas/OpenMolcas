@@ -11,13 +11,15 @@
 
 subroutine DENSCT(AREF)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: AREF(*)
 #include "mrci.fh"
 #include "WrkSpc.fh"
-integer(kind=iwp) :: I, IDC(MXROOT), IDDMO, IDREST, J !IFG
+integer(kind=iwp) :: I, IDDMO, IDREST, J
+integer(kind=iwp), allocatable :: IDC(:)
 
 IDREST = 0
 IDDMO = 0
@@ -26,6 +28,7 @@ call GETMEM('SGM','ALLO','REAL',LSGM,NCONF)
 call GETMEM('ASCR2','ALLO','REAL',LASCR2,NVMAX**2)
 call GETMEM('BSCR2','ALLO','REAL',LBSCR2,NVMAX**2)
 call GETMEM('FSCR2','ALLO','REAL',LFSCR2,NVSQ)
+call mma_allocate(IDC,NRROOT,label='IDC')
 do I=1,NRROOT
   IDC(I) = IDREST
   call dDAFILE(LUREST,2,Work(LCI),NCONF,IDREST)
@@ -66,6 +69,7 @@ call GETMEM('SGM','FREE','REAL',LSGM,NCONF)
 call GETMEM('ASCR2','FREE','REAL',LASCR2,NVMAX**2)
 call GETMEM('BSCR2','FREE','REAL',LBSCR2,NVMAX**2)
 call GETMEM('FSCR2','FREE','REAL',LFSCR2,NVSQ)
+call mma_deallocate(IDC)
 
 return
 

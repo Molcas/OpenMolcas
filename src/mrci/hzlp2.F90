@@ -11,6 +11,7 @@
 
 subroutine HZLP2(CBUF,SBUF,DBUF,CSECT,RSECT,XI1,XI2,CNEW,ICI)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -19,8 +20,8 @@ implicit none
 real(kind=wp) :: CBUF(MBUF,MXVEC), SBUF(MBUF,MXVEC), DBUF(MBUF), CSECT(NSECT,MXVEC), RSECT(NSECT,MXVEC), XI1(NSECT,MXVEC), &
                  XI2(NSECT,MXVEC), CNEW(NSECT,MXVEC)
 integer(kind=iwp) :: ICI(MBUF)
-integer(kind=iwp) :: I, IBUF, IDCR(MXVEC), IDCW(MXVEC), IDD, IDS(MXVEC), IEND, ISECT, ISTA, IVZ1, IVZ2, IVZ3, IVZ4, IVZSTA, JEND, & !IFG
-                     JSTA, K, KK, NN, NNVEC
+integer(kind=iwp) :: I, IBUF, IDD, IEND, ISECT, ISTA, IVZ1, IVZ2, IVZ3, IVZ4, IVZSTA, JEND, JSTA, K, KK, NN, NNVEC
+integer(kind=iwp), allocatable :: IDCR(:), IDCW(:), IDS(:)
 
 ! THIS SUBROUTINE LOOPS OVER SECTIONS OF PSI AND SIGMA ARRAYS
 ! ON DISK, AND FORMS A NEW SET OF PSI ARRAYS AS A LINEAR COMBINATION
@@ -47,6 +48,9 @@ do K=NVEC+1,NNVEC
   end do
 end do
 ! WE NEED COPIES OF THE DISK ADDRESSES. TWO COPIES FOR PSI BUFFERS.
+call mma_allocate(IDCR,NNVEC,label='IDCR')
+call mma_allocate(IDCW,NNVEC,label='IDCW')
+call mma_allocate(IDS,NNVEC,label='IDS')
 do K=1,NNVEC
   IDCR(K) = IDISKC(K)
   IDCW(K) = IDISKC(K)
@@ -128,6 +132,9 @@ do ISTA=1,NCONF,MBUF
   ! CONTINUE, NEXT BUFFER.
 end do
 NVTOT = NVTOT+NNEW
+call mma_deallocate(IDCR)
+call mma_deallocate(IDCW)
+call mma_deallocate(IDS)
 
 return
 

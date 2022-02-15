@@ -12,6 +12,7 @@
 !PAM04 subroutine READIN(HWork,iHWork)
 subroutine READIN_MRCI()
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Two
 use Definitions, only: wp, iwp, u5, u6
 
@@ -20,19 +21,19 @@ implicit none
 #include "mrci.fh"
 #include "WrkSpc.fh"
 #include "niocr.fh"
-integer(kind=iwp) :: I, iCmd, IDISK, IGFAC, IIN, ILIM, INTNUM, IO, IOCR(nIOCR), IOM, iOpt, IORBS, IR, iRef, istatus, ISUM, ISYM, &
-                     IT, IU, IV, IVA, IX1, IX2, IX3, IX4, IY1, IY2, IY3, IY4, J, jCmd, jEnd, JJ, jStart, LDUM, LN1, LN2, LV, MXVC, &
-                     NAMSIZ, NASHI, NBASI, NC, NCSHI, NDELI, NDMOI, NFMOI, NFROI, nIRC, NISHI, nJJS, NMUL, NORBI, NOTOT(8), & !IFG
-                     NREFWR, NRF, NRLN1, nTit, NVALI, NVIRI, NVT, NVT2
+integer(kind=iwp) :: I, iCmd, IDISK, IGFAC, IIN, ILIM, INTNUM, IO, IOM, iOpt, IORBS, IR, iRef, istatus, ISUM, ISYM, IT, IU, IV, &
+                     IVA, IX1, IX2, IX3, IX4, IY1, IY2, IY3, IY4, J, jCmd, jEnd, JJ, jStart, LN1, LN2, LV, MXVC, NAMSIZ, NASHI, &
+                     NBASI, NC, NCSHI, NDELI, NDMOI, NFMOI, NFROI, nIRC, NISHI, nJJS, NMUL, NORBI, NOTOT(8), NREFWR, NRF, NRLN1, &
+                     nTit, NVALI, NVIRI, NVT, NVT2
 logical(kind=iwp) :: Skip
 character(len=88) :: ModLine
 character(len=72) :: Line, Title(10)
 character(len=4) :: Command
+integer(kind=iwp), allocatable :: IOCR(:)
 character(len=4), parameter :: Cmd(19) = ['TITL','THRP','PRIN','FROZ','DELE','MAXI','ECON','REST','ROOT','ACPF','SDCI','GVAL', &
                                           'PROR','REFC','SELE','NRRO','MXVE','TRAN','END ']
-
 ! convert a pointer in H to a pointer for iH
-! ipointer(i)=(i-1)*RtoI+1
+!ipointer(i) = (i-1)*RtoI+1
 
 ! Initialize data and set defaults
 
@@ -322,6 +323,7 @@ iOpt = 2
 nMUL = 64
 nJJS = 18
 nIRC = 4
+call mma_allocate(IOCR,nIOCR,label='IOCR')
 call WR_GUGA(LUSYMB,iOpt,IADD10,NREF,SPIN,NELEC,LN,NSYM,NCSPCK,NINTSY,IFIRST,INTNUM,LSYM,NRF,LN1,NRLN1,MUL,nMUL,NASH,NISH,8,IRC, &
              nIRC,JJS,nJJS,NVAL,IOCR,nIOCR)
 if (ICPF == 1) then
@@ -538,7 +540,7 @@ write(u6,*)
 write(u6,'(A)') '      MALMQVIST DIAGONALIZATION'
 write(u6,*)
 write(u6,'(A,I8)') '      PRINT LEVEL                   ',IPRINT
-write(u6,'(A,I12)') '      WORKSPACE WORDS, (Re*8)   ',MEMTOT
+write(u6,'(A,I12)') '      WORKSPACE WORDS, (Re(wp)) ',MEMTOT
 write(u6,'(A,I8)') '      MAXIMUM NR OF ORBITALS        ',IOM
 write(u6,'(A,I8)') '      MAX NR OF STORED CI/SGM ARR.  ',MXVC
 write(u6,'(A,I8)') '      MAX NR OF ITERATIONS          ',MAXIT
@@ -588,6 +590,7 @@ else
   end do
   call XFLUSH(u6)
 end if
+call mma_deallocate(IOCR)
 write(u6,*)
 call XFLUSH(u6)
 if (INTNUM /= 0) write(u6,*) '      FIRST ORDER INTERACTING SPACE.'
@@ -716,7 +719,7 @@ end if
 ! Available now is MEMWRK
 ! Already (permanently) allocated is MEMPRM
 
-call GETMEM('HowMuch','MAX','REAL',LDUM,MemWrk)
+call mma_maxdble(MemWrk)
 MEMPRM = MEMTOT-MEMWRK
 
 call ALLOC_MRCI()

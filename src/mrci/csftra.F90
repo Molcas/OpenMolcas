@@ -11,6 +11,7 @@
 
 subroutine CSFTRA(KEY,CI,AREF)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -19,9 +20,11 @@ implicit none
 character(len=4) :: KEY
 real(kind=wp) :: CI(NCONF), AREF(NREF,NREF)
 integer(kind=iwp) :: I, J
-real(kind=wp) :: RSUM, TMP(MXREF) !IFG
+real(kind=wp) :: RSUM
+real(kind=wp), allocatable :: TMP(:)
 
 if (NREF == 1) return
+call mma_allocate(TMP,NREF,label='NREF')
 if (KEY == ' CSF') then
   do I=1,NREF
     RSUM = Zero
@@ -42,6 +45,7 @@ end if
 do I=1,NREF
   CI(IREFX(I)) = TMP(I)
 end do
+call mma_deallocate(TMP)
 
 return
 
