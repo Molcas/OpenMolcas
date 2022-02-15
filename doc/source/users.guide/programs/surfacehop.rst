@@ -20,7 +20,12 @@
             Its purpose is the calculation of the relax root for the next step of the SHMD.
             </HELP>
 
-This module deals with surface hop semiclassical molecular dynamics (SHMD) and has to be used together with module DYNAMIX. Its purpose is the calculation of the relax root for the next step of the SHMD. In this moment the implemented algorithm under this module is the Tully's fewest switches :cite:`Tully1990`, along with the Hammes-Schiffer/Tully scheme :cite:`Hammes-Schiffer1994` and the decoherence correction proposed by Granucci and Persico :cite:`Granucci2007`.
+This module deals with surface hop semiclassical molecular dynamics (SHMD) and has to be used together with module DYNAMIX. Its purpose is the calculation of the relax root for the next step of the SHMD. The implemented algorithm under this module is the Tully's fewest switches :cite:`Tully1990`, using the Hammes-Schiffer/Tully scheme :cite:`Hammes-Schiffer1994` and the decoherence correction proposed by Granucci and Persico :cite:`Granucci2007`. 
+
+Under the Hammes-Schiffer/Tully scheme, the non-adiabatic population transfer between states of the same multiplicity is determined using the wavefunction overlap between the current timestep and the two previous time-steps, in an interpolation-extrapolation scheme. This is done in lieu of calculating explicitly the non-adiabatic coupling, and thus allows for surface-hopping when explicit non-adiabatic coupling is not available or is too expensive. 
+
+There are two methods to calculate the wavefunction overlap available through the SURFACEHOP module. The default implementation calls the RASSI module to obtain the overlap matrix between all states at the current and previous timestep. The alternative method (previously default) can be requested using the keyword NORASSI and uses instead a dot product of the CI Vectors to approximate the overlap matrix.  
+
 
 .. _UG\:sec\:surfacehop_output_files:
 
@@ -31,6 +36,12 @@ Output files
 
 :file:`RUNFILE`
   Surface hop information such as Amatrix and CI coefficients for previous steps are stored in this file.
+
+:file:`$Project.md.xyz`
+  Contains the geometry of every timestep in the dynamics, in standard xyz coordinates.
+
+:file:`$Project.md.energies`
+  Contains the Potential energy of the current active state, Kinetic energy, and Total energy of the system throughout the simulation, followed by the potential energies of all states in the dynamics.
 
 .. _UG\:sec\:surfacehop_inp:
 
@@ -100,7 +111,7 @@ General keywords
               </KEYWORD>
 
 :kword:`DECOHERENCE`
-  This keyword must be used after the :kword:`TULLY` keyword. It enables the decoherence correction in the population density matrix as reported by Persico--Granucci. The value is called decay factor and it is usually 0.1 hartree. It can be seen as how strongly this correction is applied. It is recommendable to leave it to 0.1, unless you really know what your're doing.
+  This keyword must be used after the :kword:`TULLY` keyword. It enables the decoherence correction in the population density matrix as reported by Persico--Granucci. The value is called decay factor and it is usually 0.1 hartree. It can be seen as how strongly this correction is applied. It is recommendable to leave it to 0.1, unless you really know what you're doing.
 
   .. xmldoc:: <KEYWORD MODULE="SURFACEHOP" NAME="DECOHERENCE" APPEAR="Decoherence correction" KIND="REAL" LEVEL="ADVANCED" DEFAULT_VALUE="0.1" REQUIRE="TULLY">
               %%Keyword: DECOherence <advanced>
