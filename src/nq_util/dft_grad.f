@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2002, Roland Lindh                                     *
 ************************************************************************
-      Subroutine DFT_Grad(Grad,nGrad,iSpin,Grid,mGrid,dRho_dR,ndRho_dR,
+      Subroutine DFT_Grad(Grad,nGrad,nD,Grid,mGrid,dRho_dR,ndRho_dR,
      &                    nGrad_Eff,Weights,iNQ)
 ************************************************************************
 *                                                                      *
@@ -31,11 +31,13 @@
 #include "Molcas.fh"
 #include "itmax.fh"
 #include "ksdft.fh"
+#include "stdalloc.fh"
       Parameter (Mxdc=MxAtom)
 #include "disp.fh"
       Real*8 Grad(nGrad), Grid(3,mGrid),
      &       dRho_dR(ndRho_dR,mGrid,nGrad_Eff), OV(3,3), V(3,3),
      &       R_Grid(3), Weights(mGrid)
+      Real*8, Allocatable:: Aux(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -60,8 +62,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call FZero(Temp,nGrad_Eff)
-      Call FZero(OV,9)
+      Temp(1:nGrad_Eff)=Zero
+      OV(:,:)=Zero
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -115,7 +117,7 @@
 ************************************************************************
 *                                                                      *
 
-         If (iSpin.eq.1) Then
+         If (nD.eq.1) Then
             Do i_Eff=1, nGrad_Eff
                tmp=Zero
                ixyz=iTab(1,i_Eff)
@@ -128,15 +130,10 @@
 *
 *                 (nabla_r f_g)^T O s_g
 *
-                  OV(ixyz,1) = OV(ixyz,1) + Two* Weights(j) *
-     &                        dF_dr * (Grid(1,j)-R_Grid(1))
-                  OV(ixyz,2) = OV(ixyz,2) + Two* Weights(j) *
-     &                        dF_dr * (Grid(2,j)-R_Grid(2))
-                  OV(ixyz,3) = OV(ixyz,3) + Two* Weights(j) *
-     &                        dF_dr * (Grid(3,j)-R_Grid(3))
+                  OV(ixyz,:) = OV(ixyz,:) + Weights(j) *
+     &                        dF_dr * (Grid(:,j)-R_Grid(:))
                End Do
-               If (iTab(2,i_Eff).ne.Off)
-     &            Temp(i_Eff)=Temp(i_Eff)-tmp
+               Temp(i_Eff)=Temp(i_Eff)-tmp
             End Do
          Else
             Do i_Eff=1, nGrad_Eff
@@ -149,15 +146,10 @@
 *
 *                 Accumulate stuff for rotational invariance
 *
-                  OV(ixyz,1) = OV(ixyz,1) +      Weights(j) *
-     &                        dF_dr * (Grid(1,j)-R_Grid(1))
-                  OV(ixyz,2) = OV(ixyz,2) +      Weights(j) *
-     &                        dF_dr * (Grid(2,j)-R_Grid(2))
-                  OV(ixyz,3) = OV(ixyz,3) +      Weights(j) *
-     &                        dF_dr * (Grid(3,j)-R_Grid(3))
+                  OV(ixyz,:) = OV(ixyz,:) + Weights(j) *
+     &                        dF_dr * (Grid(:,j)-R_Grid(:))
                End Do
-               If (iTab(2,i_Eff).ne.Off)
-     &            Temp(i_Eff)=Temp(i_Eff)-tmp
+               Temp(i_Eff)=Temp(i_Eff)-tmp
             End Do
 
          End If
@@ -167,89 +159,83 @@
       Case (GGA_type)
 *                                                                      *
 ************************************************************************
-*                                                                      *
-         If (iSpin.eq.1) Then
+*
+         Call mma_Allocate(Aux,4*nD,mGrid,Label='Aux')
+         If (nD.eq.1) Then
+            Do j = 1, mGrid
+               Aux(1,j)=vRho(1,j)
+               Aux(2,j)=2.0d0*vSigma(1,j)*Gradrho(1,j)
+               Aux(3,j)=2.0d0*vSigma(1,j)*Gradrho(2,j)
+               Aux(4,j)=2.0d0*vSigma(1,j)*Gradrho(3,j)
+            End Do
+
             Do i_Eff=1, nGrad_Eff
                tmp=Zero
                ixyz=iTab(1,i_Eff)
                Do j = 1, mGrid
-                  gx=Gradrho(1,j)
-                  gy=Gradrho(2,j)
-                  gz=Gradrho(3,j)
-                  Temp0=vRho(1,j)
-                  Temp1=2.0d0*vSigma(1,j)*gx
-                  Temp2=2.0d0*vSigma(1,j)*gy
-                  Temp3=2.0d0*vSigma(1,j)*gz
 *
-                  dF_dr = Temp0*dRho_dR(1,j,i_Eff)
-     &                  + Temp1*dRho_dR(2,j,i_Eff)
-     &                  + Temp2*dRho_dR(3,j,i_Eff)
-     &                  + Temp3*dRho_dR(4,j,i_Eff)
+                  dF_dr = Aux(1,j)*dRho_dR(1,j,i_Eff)
+     &                  + Aux(2,j)*dRho_dR(2,j,i_Eff)
+     &                  + Aux(3,j)*dRho_dR(3,j,i_Eff)
+     &                  + Aux(4,j)*dRho_dR(4,j,i_Eff)
                   tmp = tmp  + Weights(j) * dF_dr
 *
 *                 Accumulate stuff for rotational invariance
 
 *
-                  OV(ixyz,1) = OV(ixyz,1) + Two* Weights(j) *
-     &                        dF_dr * (Grid(1,j)-R_Grid(1))
-                  OV(ixyz,2) = OV(ixyz,2) + Two* Weights(j) *
-     &                        dF_dr * (Grid(2,j)-R_Grid(2))
-                  OV(ixyz,3) = OV(ixyz,3) + Two* Weights(j) *
-     &                        dF_dr * (Grid(3,j)-R_Grid(3))
+                  OV(ixyz,:) = OV(ixyz,:) + Weights(j) *
+     &                        dF_dr * (Grid(:,j)-R_Grid(:))
                End Do
-               If (iTab(2,i_Eff).ne.Off)
-     &            Temp(i_Eff)=Temp(i_Eff)-tmp
+               Temp(i_Eff)=Temp(i_Eff)-tmp
             End Do
          Else
+            Do j = 1, mGrid
+               gxa=Gradrho(1,j)
+               gya=Gradrho(2,j)
+               gza=Gradrho(3,j)
+               gxb=Gradrho(4,j)
+               gyb=Gradrho(5,j)
+               gzb=Gradrho(6,j)
+
+               Aux(1,j)=vRho(1,j)
+               Aux(2,j)=vRho(2,j)
+               Aux(3,j)=( 2.0d0*vSigma(1,j)*gxa
+     &                         +vSigma(2,j)*gxb )
+               Aux(4,j)=( 2.0d0*vSigma(1,j)*gya
+     &                         +vSigma(2,j)*gyb )
+               Aux(5,j)=( 2.0d0*vSigma(1,j)*gza
+     &                         +vSigma(2,j)*gzb )
+               Aux(6,j)=( 2.0d0*vSigma(3,j)*gxb
+     &                         +vSigma(2,j)*gxa )
+               Aux(7,j)=( 2.0d0*vSigma(3,j)*gyb
+     &                         +vSigma(2,j)*gya )
+               Aux(8,j)=( 2.0d0*vSigma(3,j)*gzb
+     &                         +vSigma(2,j)*gza )
+            End Do
             Do i_Eff=1, nGrad_Eff
                tmp=Zero
                ixyz=iTab(1,i_Eff)
                Do j = 1, mGrid
-                  gxa=Gradrho(1,j)
-                  gya=Gradrho(2,j)
-                  gza=Gradrho(3,j)
-                  gxb=Gradrho(4,j)
-                  gyb=Gradrho(5,j)
-                  gzb=Gradrho(6,j)
-
-                  Temp0a=vRho(1,j)
-                  Temp0b=vRho(2,j)
-                  Temp1a=( 2.0d0*vSigma(1,j)*gxa
-     &                          +vSigma(2,j)*gxb )
-                  Temp1b=( 2.0d0*vSigma(3,j)*gxb
-     &                          +vSigma(2,j)*gxa )
-                  Temp2a=( 2.0d0*vSigma(1,j)*gya
-     &                          +vSigma(2,j)*gyb )
-                  Temp2b=( 2.0d0*vSigma(3,j)*gyb
-     &                          +vSigma(2,j)*gya )
-                  Temp3a=( 2.0d0*vSigma(1,j)*gza
-     &                          +vSigma(2,j)*gzb )
-                  Temp3b=( 2.0d0*vSigma(3,j)*gzb
-     &                          +vSigma(2,j)*gza )
 *
-                  dF_dr = Temp0a*dRho_dR(1,j,i_Eff)
-     &                  + Temp0b*dRho_dR(2,j,i_Eff)
-     &                  + Temp1a*dRho_dR(3,j,i_Eff)
-     &                  + Temp2a*dRho_dR(4,j,i_Eff)
-     &                  + Temp3a*dRho_dR(5,j,i_Eff)
-     &                  + Temp1b*dRho_dR(6,j,i_Eff)
-     &                  + Temp2b*dRho_dR(7,j,i_Eff)
-     &                  + Temp3b*dRho_dR(8,j,i_Eff)
+                  dF_dr = Aux(1,j)*dRho_dR(1,j,i_Eff)
+     &                  + Aux(2,j)*dRho_dR(2,j,i_Eff)
+     &                  + Aux(3,j)*dRho_dR(3,j,i_Eff)
+     &                  + Aux(4,j)*dRho_dR(4,j,i_Eff)
+     &                  + Aux(5,j)*dRho_dR(5,j,i_Eff)
+     &                  + Aux(6,j)*dRho_dR(6,j,i_Eff)
+     &                  + Aux(7,j)*dRho_dR(7,j,i_Eff)
+     &                  + Aux(8,j)*dRho_dR(8,j,i_Eff)
                   tmp = tmp + Weights(j) * dF_dR
 *
 *                 Accumulate stuff for rotational invariance
 *
-                  OV(ixyz,1) = OV(ixyz,1) +      Weights(j) *
-     &                        dF_dr * (Grid(1,j)-R_Grid(1))
-                  OV(ixyz,2) = OV(ixyz,2) +      Weights(j) *
-     &                        dF_dr * (Grid(2,j)-R_Grid(2))
-                  OV(ixyz,3) = OV(ixyz,3) +      Weights(j) *
-     &                        dF_dr * (Grid(3,j)-R_Grid(3))
+                  OV(ixyz,:) = OV(ixyz,:) + Weights(j) *
+     &                        dF_dr * (Grid(:,j)-R_Grid(:))
                End Do
-               If (iTab(2,i_Eff).ne.Off)
-     &            Temp(i_Eff)=Temp(i_Eff)-tmp
+               Temp(i_Eff)=Temp(i_Eff)-tmp
             End Do
          End If
+         Call mma_deAllocate(Aux)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -257,7 +243,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         If (iSpin.eq.1) Then
+         If (nD.eq.1) Then
             Do i_Eff=1, nGrad_Eff
                tmp=Zero
                ixyz=iTab(1,i_Eff)
@@ -280,15 +266,10 @@
 *
 *                 Accumulate stuff for rotational invariance
 *
-                  OV(ixyz,1) = OV(ixyz,1) + Two* Weights(j) *
-     &                        dF_dr * (Grid(1,j)-R_Grid(1))
-                  OV(ixyz,2) = OV(ixyz,2) + Two* Weights(j) *
-     &                        dF_dr * (Grid(2,j)-R_Grid(2))
-                  OV(ixyz,3) = OV(ixyz,3) + Two* Weights(j) *
-     &                        dF_dr * (Grid(3,j)-R_Grid(3))
+                  OV(ixyz,:) = OV(ixyz,:) + Weights(j) *
+     &                        dF_dr * (Grid(:,j)-R_Grid(:))
                End Do
-               If (iTab(2,i_Eff).ne.Off)
-     &            Temp(i_Eff)=Temp(i_Eff)-tmp
+               Temp(i_Eff)=Temp(i_Eff)-tmp
             End Do
          Else
             Do i_Eff=1, nGrad_Eff
@@ -306,14 +287,14 @@
                   Temp0b=vRho(2,j)
                   Temp1a=( 2.0d0*vSigma(1,j)*gxa
      &                          +vSigma(2,j)*gxb )
-                  Temp1b=( 2.0d0*vSigma(3,j)*gxb
-     &                          +vSigma(2,j)*gxa )
                   Temp2a=( 2.0d0*vSigma(1,j)*gya
      &                          +vSigma(2,j)*gyb )
-                  Temp2b=( 2.0d0*vSigma(3,j)*gyb
-     &                          +vSigma(2,j)*gya )
                   Temp3a=( 2.0d0*vSigma(1,j)*gza
      &                          +vSigma(2,j)*gzb )
+                  Temp1b=( 2.0d0*vSigma(3,j)*gxb
+     &                          +vSigma(2,j)*gxa )
+                  Temp2b=( 2.0d0*vSigma(3,j)*gyb
+     &                          +vSigma(2,j)*gya )
                   Temp3b=( 2.0d0*vSigma(3,j)*gzb
      &                          +vSigma(2,j)*gza )
                   Temp4a=0.5D0*vTau(1,j)
@@ -333,15 +314,10 @@
 *
 *                 Accumulate stuff for rotational invariance
 *
-                  OV(ixyz,1) = OV(ixyz,1) +      Weights(j) *
-     &                        dF_dr * (Grid(1,j)-R_Grid(1))
-                  OV(ixyz,2) = OV(ixyz,2) +      Weights(j) *
-     &                        dF_dr * (Grid(2,j)-R_Grid(2))
-                  OV(ixyz,3) = OV(ixyz,3) +      Weights(j) *
-     &                        dF_dr * (Grid(3,j)-R_Grid(3))
+                  OV(ixyz,:) = OV(ixyz,:) + Weights(j) *
+     &                        dF_dr * (Grid(:,j)-R_Grid(:))
                End Do
-               If (iTab(2,i_Eff).ne.Off)
-     &            Temp(i_Eff)=Temp(i_Eff)-tmp
+               Temp(i_Eff)=Temp(i_Eff)-tmp
             End Do
          End If
 *                                                                      *
@@ -351,7 +327,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         If (iSpin.eq.1) Then
+         If (nD.eq.1) Then
             Do i_Eff=1, nGrad_Eff
                tmp=Zero
                ixyz=iTab(1,i_Eff)
@@ -376,15 +352,10 @@
 *
 *                 Accumulate stuff for rotational invariance
 *
-                  OV(ixyz,1) = OV(ixyz,1) + Two* Weights(j) *
-     &                        dF_dr * (Grid(1,j)-R_Grid(1))
-                  OV(ixyz,2) = OV(ixyz,2) + Two* Weights(j) *
-     &                        dF_dr * (Grid(2,j)-R_Grid(2))
-                  OV(ixyz,3) = OV(ixyz,3) + Two* Weights(j) *
-     &                        dF_dr * (Grid(3,j)-R_Grid(3))
+                  OV(ixyz,:) = OV(ixyz,:) + Weights(j) *
+     &                        dF_dr * (Grid(:,j)-R_Grid(:))
                End Do
-               If (iTab(2,i_Eff).ne.Off)
-     &            Temp(i_Eff)=Temp(i_Eff)-tmp
+               Temp(i_Eff)=Temp(i_Eff)-tmp
             End Do
          Else
             Do i_Eff=1, nGrad_Eff
@@ -433,15 +404,10 @@
 *
 *                 Accumulate stuff for rotational invariance
 *
-                  OV(ixyz,1) = OV(ixyz,1) +      Weights(j) *
-     &                        dF_dr * (Grid(1,j)-R_Grid(1))
-                  OV(ixyz,2) = OV(ixyz,2) +      Weights(j) *
-     &                        dF_dr * (Grid(2,j)-R_Grid(2))
-                  OV(ixyz,3) = OV(ixyz,3) +      Weights(j) *
-     &                        dF_dr * (Grid(3,j)-R_Grid(3))
+                  OV(ixyz,:) = OV(ixyz,:) + Weights(j) *
+     &                        dF_dr * (Grid(:,j)-R_Grid(:))
                End Do
-               If (iTab(2,i_Eff).ne.Off)
-     &            Temp(i_Eff)=Temp(i_Eff)-tmp
+               Temp(i_Eff)=Temp(i_Eff)-tmp
             End Do
          End If
 *                                                                      *
@@ -457,6 +423,10 @@
 ************************************************************************
 *                                                                      *
       End Select
+
+      Do i_Eff=1, nGrad_Eff
+         If (iTab(2,i_Eff)==Off) Temp(i_Eff)=Zero
+      End Do
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -533,9 +503,10 @@
 *
 *        First transform back to the cartesian coordinates system.
 *
+         Fact=DBLE(2-(nD/2))
          Call DGEMM_('N','N',
      &               3,3,3,
-     &               1.0d0,OV,3,
+     &               Fact,OV,3,
      &               Pax,3,
      &               0.0d0,V,3)
 #ifdef _DEBUGPRINT_

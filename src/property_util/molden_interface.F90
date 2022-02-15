@@ -826,7 +826,7 @@ end do
 !                                                                      *
 if (jPL >= 2) then
   write(u6,*)
-  write(u6,*) ' Input file to MOLDEN was generated!'
+  write(u6,'(6X,A)') 'Input file to MOLDEN was generated!'
   write(u6,*)
 end if
 !                                                                      *
