@@ -36,7 +36,7 @@
 #include "disp.fh"
       Real*8 Grad(nGrad), Grid(3,mGrid),
      &       dRho_dR(ndRho_dR,mGrid,nGrad_Eff), OV(3,3), V(3,3),
-     &       R_Grid(3), Weights(mGrid)
+     &       R_Grid(3), Weights(mGrid), OVT(3)
       Real*8, Allocatable:: Aux(:,:)
 *                                                                      *
 ************************************************************************
@@ -59,11 +59,6 @@
          End Do
       End If
 #endif
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Temp(1:nGrad_Eff)=Zero
-      OV(:,:)=Zero
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -117,41 +112,16 @@
 ************************************************************************
 *                                                                      *
 
+         Call mma_Allocate(Aux,1*nD,mGrid,Label='Aux')
          If (nD.eq.1) Then
-            Do i_Eff=1, nGrad_Eff
-               tmp=Zero
-               ixyz=iTab(1,i_Eff)
-               Do j = 1, mGrid
-                  dF_dr = vRho(1,j)    *dRho_dR(1,j,i_Eff)
-*
-                  tmp = tmp + Weights(j) * dF_dr
-*
-*                 For rotational invariance accumulate
-*
-*                 (nabla_r f_g)^T O s_g
-*
-                  OV(ixyz,:) = OV(ixyz,:) + Weights(j) *
-     &                        dF_dr * (Grid(:,j)-R_Grid(:))
-               End Do
-               Temp(i_Eff)=Temp(i_Eff)-tmp
+            Do j = 1, mGrid
+               Aux(1,j)=vRho(1,j)
             End Do
          Else
-            Do i_Eff=1, nGrad_Eff
-               tmp=Zero
-               ixyz=iTab(1,i_Eff)
-               Do j = 1, mGrid
-                  dF_dr = vRho(1,j)    *dRho_dR(1,j,i_Eff)
-     &                   +vRho(2,j)    *dRho_dR(2,j,i_Eff)
-                  tmp = tmp + Weights(j) * dF_dr
-*
-*                 Accumulate stuff for rotational invariance
-*
-                  OV(ixyz,:) = OV(ixyz,:) + Weights(j) *
-     &                        dF_dr * (Grid(:,j)-R_Grid(:))
-               End Do
-               Temp(i_Eff)=Temp(i_Eff)-tmp
+            Do j = 1, mGrid
+               Aux(1,j)=vRho(1,j)
+               Aux(2,j)=vRho(2,j)
             End Do
-
          End If
 *                                                                      *
 ************************************************************************
@@ -167,27 +137,6 @@
                Aux(2,j)=2.0d0*vSigma(1,j)*Gradrho(1,j)
                Aux(3,j)=2.0d0*vSigma(1,j)*Gradrho(2,j)
                Aux(4,j)=2.0d0*vSigma(1,j)*Gradrho(3,j)
-            End Do
-
-            Do i_Eff=1, nGrad_Eff
-               tmp=Zero
-               ixyz=iTab(1,i_Eff)
-               Do j = 1, mGrid
-*
-                  dF_dr = DOT_Product(Aux(:,j),dRho_dR(:,j,i_Eff))
-*                 dF_dr = Aux(1,j)*dRho_dR(1,j,i_Eff)
-*    &                  + Aux(2,j)*dRho_dR(2,j,i_Eff)
-*    &                  + Aux(3,j)*dRho_dR(3,j,i_Eff)
-*    &                  + Aux(4,j)*dRho_dR(4,j,i_Eff)
-                  tmp = tmp  + Weights(j) * dF_dr
-*
-*                 Accumulate stuff for rotational invariance
-
-*
-                  OV(ixyz,:) = OV(ixyz,:) + Weights(j) *
-     &                        dF_dr * (Grid(:,j)-R_Grid(:))
-               End Do
-               Temp(i_Eff)=Temp(i_Eff)-tmp
             End Do
          Else
             Do j = 1, mGrid
@@ -213,31 +162,7 @@
                Aux(8,j)=( 2.0d0*vSigma(3,j)*gzb
      &                         +vSigma(2,j)*gza )
             End Do
-            Do i_Eff=1, nGrad_Eff
-               tmp=Zero
-               ixyz=iTab(1,i_Eff)
-               Do j = 1, mGrid
-*
-                  dF_dr = DOT_Product(Aux(:,j),dRho_dR(:,j,i_Eff))
-*                 dF_dr = Aux(1,j)*dRho_dR(1,j,i_Eff)
-*    &                  + Aux(2,j)*dRho_dR(2,j,i_Eff)
-*    &                  + Aux(3,j)*dRho_dR(3,j,i_Eff)
-*    &                  + Aux(4,j)*dRho_dR(4,j,i_Eff)
-*    &                  + Aux(5,j)*dRho_dR(5,j,i_Eff)
-*    &                  + Aux(6,j)*dRho_dR(6,j,i_Eff)
-*    &                  + Aux(7,j)*dRho_dR(7,j,i_Eff)
-*    &                  + Aux(8,j)*dRho_dR(8,j,i_Eff)
-                  tmp = tmp + Weights(j) * dF_dR
-*
-*                 Accumulate stuff for rotational invariance
-*
-                  OV(ixyz,:) = OV(ixyz,:) + Weights(j) *
-     &                        dF_dr * (Grid(:,j)-R_Grid(:))
-               End Do
-               Temp(i_Eff)=Temp(i_Eff)-tmp
-            End Do
          End If
-         Call mma_deAllocate(Aux)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -253,26 +178,6 @@
                Aux(3,j)=2.0d0*vSigma(1,j)*Gradrho(2,j)
                Aux(4,j)=2.0d0*vSigma(1,j)*Gradrho(3,j)
                Aux(5,j)=0.25D0*vTau(1,j)
-            End Do
-            Do i_Eff=1, nGrad_Eff
-               tmp=Zero
-               ixyz=iTab(1,i_Eff)
-               Do j = 1, mGrid
-*
-                  dF_dr = DOT_Product(Aux(:,j),dRho_dR(:,j,i_Eff))
-*                 dF_dr = Aux(1,j)*dRho_dR(1,j,i_Eff)
-*    &                  + Aux(2,j)*dRho_dR(2,j,i_Eff)
-*    &                  + Aux(3,j)*dRho_dR(3,j,i_Eff)
-*    &                  + Aux(4,j)*dRho_dR(4,j,i_Eff)
-*    &                  + Aux(5,j)*dRho_dR(5,j,i_Eff)
-                  tmp = tmp  + Weights(j) * dF_dr
-*
-*                 Accumulate stuff for rotational invariance
-*
-                  OV(ixyz,:) = OV(ixyz,:) + Weights(j) *
-     &                        dF_dr * (Grid(:,j)-R_Grid(:))
-               End Do
-               Temp(i_Eff)=Temp(i_Eff)-tmp
             End Do
          Else
             Do j = 1, mGrid
@@ -300,33 +205,7 @@
                Aux(9,j)=0.5D0*vTau(1,j)
                Aux(10,j)=0.5D0*vTau(2,j)
             End Do
-            Do i_Eff=1, nGrad_Eff
-               tmp=Zero
-               ixyz=iTab(1,i_Eff)
-               Do j = 1, mGrid
-*
-                  dF_dr = DOT_Product(Aux(:,j),dRho_dR(:,j,i_Eff))
-*                 dF_dr = Aux(1,j)*dRho_dR(1,j,i_Eff)
-*    &                  + Aux(2,j)*dRho_dR(2,j,i_Eff)
-*    &                  + Aux(3,j)*dRho_dR(3,j,i_Eff)
-*    &                  + Aux(4,j)*dRho_dR(4,j,i_Eff)
-*    &                  + Aux(5,j)*dRho_dR(5,j,i_Eff)
-*    &                  + Aux(6,j)*dRho_dR(6,j,i_Eff)
-*    &                  + Aux(7,j)*dRho_dR(7,j,i_Eff)
-*    &                  + Aux(8,j)*dRho_dR(8,j,i_Eff)
-*    &                  + Aux(9,j)*dRho_dR(9,j,i_Eff)
-*    &                  + Aux(10,j)*dRho_dR(10,j,i_Eff)
-                  tmp = tmp + Weights(j) * dF_dR
-*
-*                 Accumulate stuff for rotational invariance
-*
-                  OV(ixyz,:) = OV(ixyz,:) + Weights(j) *
-     &                        dF_dr * (Grid(:,j)-R_Grid(:))
-               End Do
-               Temp(i_Eff)=Temp(i_Eff)-tmp
-            End Do
          End If
-         Call mma_deAllocate(Aux)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -343,27 +222,6 @@
                Aux(4,j)=2.0d0*vSigma(1,j)*Gradrho(3,j)
                Aux(5,j)=0.25D0*vTau(1,j)
                Aux(6,j)=vLapl(1,j)
-            End Do
-            Do i_Eff=1, nGrad_Eff
-               tmp=Zero
-               ixyz=iTab(1,i_Eff)
-               Do j = 1, mGrid
-*
-                  dF_dr = DOT_Product(Aux(:,j),dRho_dR(:,j,i_Eff))
-*                 dF_dr = Aux(1,j)*dRho_dR(1,j,i_Eff)
-*    &                  + Aux(2,j)*dRho_dR(2,j,i_Eff)
-*    &                  + Aux(3,j)*dRho_dR(3,j,i_Eff)
-*    &                  + Aux(4,j)*dRho_dR(4,j,i_Eff)
-*    &                  + Aux(5,j)*dRho_dR(5,j,i_Eff)
-*    &                  + Aux(6,j)*dRho_dR(6,j,i_Eff)
-                  tmp = tmp  + Weights(j) * dF_dr
-*
-*                 Accumulate stuff for rotational invariance
-*
-                  OV(ixyz,:) = OV(ixyz,:) + Weights(j) *
-     &                        dF_dr * (Grid(:,j)-R_Grid(:))
-               End Do
-               Temp(i_Eff)=Temp(i_Eff)-tmp
             End Do
          Else
             Do j = 1, mGrid
@@ -391,37 +249,9 @@
                Aux(9,j)=0.5D0*vTau(1,j)
                Aux(10,j)=0.5D0*vTau(2,j)
                Aux(11,j)=vLapl(1,j)
-               Aux(11,j)=vLapl(2,j)
-            End Do
-            Do i_Eff=1, nGrad_Eff
-               tmp=Zero
-               ixyz=iTab(1,i_Eff)
-               Do j = 1, mGrid
-*
-                  dF_dr = DOT_Product(Aux(:,j),dRho_dR(:,j,i_Eff))
-*                 dF_dr = Aux(1,j)*dRho_dR(1,j,i_Eff)
-*    &                  + Aux(2,j)*dRho_dR(2,j,i_Eff)
-*    &                  + Aux(3,j)*dRho_dR(3,j,i_Eff)
-*    &                  + Aux(4,j)*dRho_dR(4,j,i_Eff)
-*    &                  + Aux(5,j)*dRho_dR(5,j,i_Eff)
-*    &                  + Aux(6,j)*dRho_dR(6,j,i_Eff)
-*    &                  + Aux(7,j)*dRho_dR(7,j,i_Eff)
-*    &                  + Aux(8,j)*dRho_dR(8,j,i_Eff)
-*    &                  + Aux(9,j)*dRho_dR(9,j,i_Eff)
-*    &                  + Aux(10,j)*dRho_dR(10,j,i_Eff)
-*    &                  + Aux(11,j)*dRho_dR(11,j,i_Eff)
-*    &                  + Aux(12,j)*dRho_dR(12,j,i_Eff)
-                  tmp = tmp + Weights(j) * dF_dR
-*
-*                 Accumulate stuff for rotational invariance
-*
-                  OV(ixyz,:) = OV(ixyz,:) + Weights(j) *
-     &                        dF_dr * (Grid(:,j)-R_Grid(:))
-               End Do
-               Temp(i_Eff)=Temp(i_Eff)-tmp
+               Aux(12,j)=vLapl(2,j)
             End Do
          End If
-         Call mma_deAllocate(Aux)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -435,6 +265,27 @@
 ************************************************************************
 *                                                                      *
       End Select
+*                                                                      *
+************************************************************************
+*                                                                      *
+      OV(:,:)=Zero
+      Do i_Eff=1, nGrad_Eff
+         tmp=Zero
+         OVT(:)=Zero
+         Do j = 1, mGrid
+            dF_dr = Weights(j)*DOT_Product(Aux(:,j),dRho_dR(:,j,i_Eff))
+            tmp = tmp + dF_dr
+*
+*           Accumulate stuff for rotational invariance
+*
+            OVT(:) = OVT(:) + dF_dr * Grid(:,j)
+         End Do
+         ixyz=iTab(1,i_Eff)
+         OV(ixyz,:) = OV(ixyz,:) + OVT(:) - tmp * R_Grid(:)
+         Temp(i_Eff)=-tmp
+      End Do
+
+      Call mma_deAllocate(Aux)
 
       Do i_Eff=1, nGrad_Eff
          If (iTab(2,i_Eff)==Off) Temp(i_Eff)=Zero
