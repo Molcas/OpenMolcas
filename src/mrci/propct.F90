@@ -11,14 +11,13 @@
 
 subroutine PROPCT()
 
-use mrci_global, only: ENGY, ESHIFT, ESMALL, ICPF, IPCOMP, ITOC17, ITRANS, LDMO, LTDMO, LUEIG, LUONE, LUVEC, NBAS, NBAST, NBMAX, &
-                       NBTRI, NCMO, NRROOT, NPROP, NSYM, PNAME, PNUC, PORIG, PTYPE
+use mrci_global, only: DMO, ENGY, ESHIFT, ESMALL, ICPF, IPCOMP, ITOC17, ITRANS, LUEIG, LUONE, LUVEC, NBAS, NBAST, NBMAX, NBTRI, &
+                       NCMO, NRROOT, NPROP, NSYM, PNAME, PNUC, PORIG, PTYPE, TDMO
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "WrkSpc.fh"
 integer(kind=iwp) :: I, IDDMO, IDISK, IDUMMY(7,8), IEND, IOPT, IPC, IPROP, IRTC, ISTA, ISTATE, ISYMLB, J, JSTATE, NSCR
 real(kind=wp) :: DUMMY(1)
 character(len=100) :: REALNAME
@@ -58,18 +57,18 @@ call DCOPY_(NRROOT*NRROOT*NPROP,[Zero],0,PROP,1)
 IDDMO = 0
 do ISTATE=1,NRROOT
   ! PICK UP DMO
-  !PAM04 call dDAFILE(LUEIG,2,HWork(LDMO),NBTRI,IDDMO)
-  call dDAFILE(LUEIG,2,Work(LDMO),NBTRI,IDDMO)
+  !PAM04 call dDAFILE(LUEIG,2,DMO,NBTRI,IDDMO)
+  call dDAFILE(LUEIG,2,DMO,NBTRI,IDDMO)
   ! PICK UP CMO
   IDISK = ITOC17(1)
   call dDAFILE(LUONE,2,CMO,NCMO,IDISK)
   ! COMPUTE & WRITE NATURAL ORBITALS
-  !PAM04 call NATORB_MRCI(CMO,HWork(LDMO),CNO),
-  call NATORB_MRCI(CMO,Work(LDMO),CNO,OCC,SCR)
+  !PAM04 call NATORB_MRCI(CMO,DMO,CNO),
+  call NATORB_MRCI(CMO,DMO,CNO,OCC,SCR)
   write(FNAME,'(A5,I2.2)') 'CIORB',ISTATE
   REALNAME = FNAME
-  !PAM04 if (ISTATE == 1) call Add_Info('CI_DENS1',HWork(LDMO),1,5)
-  if (ISTATE == 1) call Add_Info('CI_DENS1',Work(LDMO),1,5)
+  !PAM04 if (ISTATE == 1) call Add_Info('CI_DENS1',DMO,1,5)
+  if (ISTATE == 1) call Add_Info('CI_DENS1',DMO,1,5)
   REMARK = '* MRCI  '
   !** Gusarov , include 1st root acpf energy to CiOrb file:
   !if (ICPF == 1) REMARK = '* ACPF  '
@@ -139,11 +138,11 @@ if (ITRANS /= 0) then
   do ISTATE=2,NRROOT
     do JSTATE=1,ISTATE-1
       ! PICK UP TDMA
-      !PAM04 call dDAFILE(LUEIG,2,HWork(LTDMO),NBAST**2,IDDMO)
-      call dDAFILE(LUEIG,2,Work(LTDMO),NBAST**2,IDDMO)
+      !PAM04 call dDAFILE(LUEIG,2,TDMO,NBAST**2,IDDMO)
+      call dDAFILE(LUEIG,2,TDMO,NBAST**2,IDDMO)
       ! CREATE TDAO
-      !PAM04 call MKTDAO(CMO,HWork(LTDMO),DAO,SCR)
-      call MKTDAO(CMO,Work(LTDMO),DAO,SCR)
+      !PAM04 call MKTDAO(CMO,TDMO,DAO,SCR)
+      call MKTDAO(CMO,TDMO,DAO,SCR)
       ! CALL PMATEL TO CALCULATE TRANSITION PROPERTIES
       ! PUT PROPERTIES INTO APPROPRIATE MATRICES.
       if (NPROP /= 0) call PMATEL(ISTATE,JSTATE,PROP,PINT,SCR,CNO,OCC,SFOLD,AFOLD,DAO)

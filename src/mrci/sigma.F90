@@ -13,7 +13,7 @@ subroutine SIGMA(SGM,AREF,CI,INTSY,INDX,BMN,IBMN,BIAC2,BICA2,BFIN3,ISAB,AC1,AC2,
                  BFIN5,ASCR2,BSCR2,FSCR2,DBK,ICSPCK)
 !PAM04 BFIN5,ASCR2,BSCR2,FSCR2,DBK,CSPCK)
 
-use mrci_global, only: ESHIFT, GFAC, ICPF, IFIRST, IREFX, IREST, ITER, LFIJKL, NCONF, NREF, POTNUC
+use mrci_global, only: ESHIFT, FIJKL, GFAC, ICPF, IFIRST, IREFX, IREST, ITER, NCONF, NREF, POTNUC
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -21,7 +21,6 @@ implicit none
 real(kind=wp) :: SGM(*), AREF(*), CI(*), BMN(*), BIAC2(*), BICA2(*), BFIN3(*), AC1(*), AC2(*), BFIN4(*), ABIJ(*), AIBJ(*), &
                  AJBI(*), ASCR1(*), BSCR1(*), FSCR1(*), FSEC(*), FOCK(*), BFIN5(*), ASCR2(*), BSCR2(*), FSCR2(*), DBK(*)
 integer(kind=iwp) :: INTSY(*), INDX(*), IBMN(*), ISAB(*), ICSPCK(*)
-#include "WrkSpc.fh"
 integer(kind=iwp) :: ICSF, IREF, KTYP
 real(kind=wp) :: GINV, SQG, SQGP
 
@@ -45,7 +44,7 @@ if ((IFIRST == 0) .and. ((IREST == 1) .or. (ITER > 1))) then
   call ABCD_MRCI(INTSY,INDX,ISAB,CI,SGM,AC1,AC2,BFIN4)
 end if
 !PAM04 call IJKL(INTSY,INDX,CI,SGM,FIJKL)
-call IJKL(INTSY,INDX,CI,SGM,WORK(LFIJKL))
+call IJKL(INTSY,INDX,CI,SGM,FIJKL)
 
 !PAM04 call FAIBJ(INTSY,INDX,CI,SGM,ABIJ,AIBJ,AJBI,BFIN1,BFIN1,ASCR1,BSCR1,FSCR1,FSEC)
 call FAIBJ(INTSY,INDX,CI,SGM,ABIJ,AIBJ,AJBI,ASCR1,BSCR1,FSCR1,FSEC)

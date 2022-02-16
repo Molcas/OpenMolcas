@@ -11,13 +11,15 @@
 
 subroutine SDCI_MRCI()
 
-use mrci_global, only: IREFCI, ITRANS, LCISEL, LCSPCK, LDMO, LFIJKL, LFOCK, LINDX, LINTSY, LISAB, LJREFX, LN, LTDMO, MBUF, NBAST, &
-                       NBTRI, NCONF, NCSPCK, NCVAL, NINTSY, NIWLK, NREF, NSEL, NVIRT
-use Definitions, only: iwp
+use mrci_global, only: CISEL, CSPCK, DMO, FIJKL, FOCK, INDX, INTSY, IREFCI, ISAB, ITRANS, JREFX, LN, MBUF, NBAST, NBTRI, NCONF, &
+                       NREF, TDMO
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
-#include "WrkSpc.fh"
-integer(kind=iwp) :: LAREF, LCI, LEREF, LHREF, LICI, LPLEN, LSGM, NHREF, NIJ, NIJKL
+integer(kind=iwp) :: NHREF, NIJ, NIJKL
+integer(kind=iwp), allocatable :: ICI(:)
+real(kind=wp), allocatable :: AREF(:,:), CI(:), EREF(:), HREF(:), PLEN(:), SGM(:)
 !real(kind=wp) :: H(MAXMEM)
 !integer(kind=iwp) :: iH(RtoI*MAXMEM)
 
@@ -30,63 +32,59 @@ call READIN_MRCI()
 ! PRODUCE FILES UNIT 14, 15 AND 16 WITH SORTED INTEGRALS.
 ! ALSO FOCK MATRIX TO UNIT 25 AND DIAGONAL ELEMENTS TO UNIT 27.
 !PAM04 ALLOCATION OF FOCK MATRIX MOVED HERE FROM ALLOC.
-call GETMEM('FOCK','ALLO','REAL',LFOCK,NBTRI)
+call mma_allocate(FOCK,NBTRI,label='FOCK')
 call DIAGCT()
 ! CREATE REFERENCE CI HAMILTONIAN:
-!PAM04 call MKHREF(HWork(LHREF),Hwork(LFOCK),HWork(LFIJKL),HWork(LJREFX))
 NHREF = (NREF*(NREF+1))/2
-call GETMEM('HREF','ALLO','REAL',LHREF,NHREF)
+call mma_allocate(HREF,NHREF,label='HREF')
+!PAM04 call MKHREF(HREF,FOCK,FIJKL,JREFX)
 NIJ = (LN*(LN+1))/2
 NIJKL = (NIJ*(NIJ+1))/2
-call GETMEM('FIJKL','ALLO','REAL',LFIJKL,NIJKL)
-call MKHREF(Work(LHREF),Work(LFOCK),Work(LFIJKL),IWork(LJREFX))
+call mma_allocate(FIJKL,NIJKL,label='FIJKL')
+call MKHREF(HREF,FOCK,FIJKL,JREFX)
 ! SOLVE REFERENCE CI EQUATIONS:
-!PAM04 call REFCI(HWork(LHREF),HWork(LAREF),HWork(LEREF),HWork(LCSPCK),HWork(LCISEL),HWork(LPLEN))
-call GETMEM('AREF','ALLO','REAL',LAREF,NREF**2)
-call GETMEM('EREF','ALLO','REAL',LEREF,NREF)
-call GETMEM('PLEN','ALLO','REAL',LPLEN,NREF)
-call REFCI(Work(LHREF),Work(LAREF),Work(LEREF),IWork(LCSPCK),Work(LCISEL),Work(LPLEN))
-call GETMEM('PLEN','FREE','REAL',LPLEN,NREF)
-call GETMEM('HREF','FREE','REAL',LHREF,NHREF)
-if (IREFCI == 1) then
-  call GETMEM('FOCK','FREE','REAL',LFOCK,NBTRI)
-  call GETMEM('FIJKL','FREE','REAL',LFIJKL,NIJKL)
-else
+call mma_allocate(AREF,NREF,NREF,label='AREF')
+call mma_allocate(EREF,NREF,label='EREF')
+call mma_allocate(PLEN,NREF,label='PLEN')
+!PAM04 call REFCI(HREF,AREF,EREF,CSPCK,CISEL,PLEN)
+call REFCI(HREF,AREF,EREF,CSPCK,CISEL,PLEN)
+call mma_deallocate(HREF)
+call mma_deallocate(PLEN)
+if (IREFCI /= 1) then
   ! SOLVE MRCI OR ACPF EQUATIONS:
   ! FIRST, SET UP START CI ARRAYS, AND ALSO TRANSFORM DIAGONAL ELEMENTS:
   !------
-  call GETMEM('ICI','ALLO','INTE',LICI,MBUF)
-  call GETMEM('CI','ALLO','REAL',LCI,NCONF)
-  call GETMEM('SGM','ALLO','REAL',LSGM,NCONF)
-  call CSTART(Work(LAREF),Work(LEREF),Work(LCI),IWork(LICI))
-  call MQCT(WORK(LAREF),WORK(LEREF),Work(LCI),Work(LSGM),IWork(LICI))
-  call GETMEM('SGM','FREE','REAL',LSGM,NCONF)
-  call GETMEM('CI','FREE','REAL',LCI,NCONF)
-  call GETMEM('ICI','FREE','INTE',LICI,MBUF)
-  !PAM04 EXPLICIT DEALLOCATION OF FOCK MATRIX
-  call GETMEM('FOCK','FREE','REAL',LFOCK,NBTRI)
+  call mma_allocate(ICI,MBUF,label='ICI')
+  call mma_allocate(CI,NCONF,label='CI')
+  call mma_allocate(SGM,NCONF,label='SGM')
+  call CSTART(AREF,EREF,CI,ICI)
+  call MQCT(AREF,EREF,CI,SGM,ICI)
+  call mma_deallocate(CI)
+  call mma_deallocate(SGM)
+  call mma_deallocate(ICI)
   ! DENSITY (AND MAYBE TRANSITION DENSITY) MATRICES IN AO BASIS:
   !PAM04 ALLOCATION OF DMO AND TDMO MOVED HERE FROM ALLOC:
-  call GETMEM('DMO','ALLO','REAL',LDMO,NBTRI)
-  if (ITRANS == 1) call GETMEM('TDMO','ALLO','REAL',LTDMO,NBAST**2)
+  call mma_allocate(DMO,NBTRI,label='DMO')
+  if (ITRANS == 1) call mma_allocate(TDMO,NBAST,NBAST,label='TDMO')
   !PAM04 End of addition
-  call DENSCT(WORK(LAREF))
-  call GETMEM('AREF','FREE','REAL',LAREF,NREF**2)
-  call GETMEM('EREF','FREE','REAL',LEREF,NREF)
+  call DENSCT(AREF)
+  call mma_deallocate(AREF)
+  call mma_deallocate(EREF)
   ! NATURAL ORBITALS AND PROPERTIES (AND MAYBE TRANSITION PROPS):
   call PROPCT()
   !PAM04 EXPLICIT DEALLOCATION ADDED:
-  call GETMEM('DMO','FREE','REAL',LDMO,NBTRI)
-  if (ITRANS == 1) call GETMEM('TDMO','FREE','REAL',LTDMO,NBAST**2)
+  call mma_deallocate(DMO)
+  if (ITRANS == 1) call mma_deallocate(TDMO)
   !PAM04 End of addition
 end if
-call GETMEM('FIJKL','FREE','REAL',LFIJKL,NIJKL)
-call GETMEM('CISEL','FREE','REAL',LCISEL,NSEL*NREF)
-call GETMEM('JREFX','FREE','INTE',LJREFX,NCVAL)
-call GETMEM('ISAB','FREE','INTE',LISAB,NVIRT**2)
-call GETMEM('INDX','FREE','INTE',LINDX,NIWLK)
-call GETMEM('INTSY','FREE','INTE',LINTSY,NINTSY)
-call GETMEM('CSPCK','FREE','INTE',LCSPCK,NCSPCK)
+call mma_deallocate(FOCK)
+call mma_deallocate(FIJKL)
+call mma_deallocate(CISEL)
+call mma_deallocate(JREFX)
+call mma_deallocate(ISAB)
+call mma_deallocate(INDX)
+call mma_deallocate(INTSY)
+call mma_deallocate(CSPCK)
 
 return
 

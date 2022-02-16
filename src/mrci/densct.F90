@@ -11,65 +11,64 @@
 
 subroutine DENSCT(AREF)
 
-use mrci_global, only: ICPF, ITRANS, LCSPCK, LDMO, LINDX, LINTSY, LJREFX, LTDMO, LUEIG, LUREST, NBAST, NBTRI, NCONF, NRROOT, &
-                       NVMAX, NVSQ
+use mrci_global, only: CSPCK, DMO, ICPF, INDX, INTSY, JREFX, ITRANS, LUEIG, LUREST, NBAST, NBTRI, NCONF, NRROOT, NVMAX, NVSQ, TDMO
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: AREF(*)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: I, IDDMO, IDREST, J, LASCR2, LBSCR2, LFSCR2, LCI, LSGM
+integer(kind=iwp) :: I, IDDMO, IDREST, J
 integer(kind=iwp), allocatable :: IDC(:)
+real(kind=wp), allocatable :: ASCR2(:), BSCR2(:), CI(:), FSCR2(:), SGM(:)
 
 IDREST = 0
 IDDMO = 0
-call GETMEM('CI','ALLO','REAL',LCI,NCONF)
-call GETMEM('SGM','ALLO','REAL',LSGM,NCONF)
-call GETMEM('ASCR2','ALLO','REAL',LASCR2,NVMAX**2)
-call GETMEM('BSCR2','ALLO','REAL',LBSCR2,NVMAX**2)
-call GETMEM('FSCR2','ALLO','REAL',LFSCR2,NVSQ)
+call mma_allocate(CI,NCONF,label='CI')
+call mma_allocate(SGM,NCONF,label='SGM')
+call mma_allocate(ASCR2,NVMAX**2,label='ASCR2')
+call mma_allocate(BSCR2,NVMAX**2,label='BSCR2')
+call mma_allocate(FSCR2,NVSQ,label='FSCR2')
 call mma_allocate(IDC,NRROOT,label='IDC')
 do I=1,NRROOT
   IDC(I) = IDREST
-  call dDAFILE(LUREST,2,Work(LCI),NCONF,IDREST)
-  call FZERO(Work(LDMO),NBTRI)
-  !PAM04 if (ICPF /= 0) call DCORR(HWork(LJREFX),HWork(LAREF),HWork(LCSPCK),HWork(LINTSY),HWork(LINDX),HWork(LDMO))
-  if (ICPF /= 0) call DCORR(IWork(LJREFX),AREF,IWork(LCSPCK),IWork(LINTSY),IWork(LINDX),Work(LDMO))
-  !PAM04 call FIJD (HWork(LINTSY),HWork(LINDX),HWork(LCI),HWork(LDMO),HWork(LJREFX),HWork(LAREF))
-  call FIJD(IWork(LINTSY),IWork(LINDX),Work(LCI),Work(LDMO),IWork(LJREFX),AREF)
-  !PAM04 call AID (HWork(LINTSY),HWork(LINDX),HWork(LCI),HWork(LDMO),
-  call AID(IWork(LINTSY),IWork(LINDX),Work(LCI),Work(LDMO),Work(LASCR2),Work(LBSCR2),Work(LFSCR2))
-  !PAM04 call ABD (HWork(LCSPCK),HWork(LINTSY),HWork(LINDX),HWork(LCI),HWork(LDMO),HWork(LJREFX))
-  call ABD(IWork(LCSPCK),IWork(LINTSY),IWork(LINDX),Work(LCI),Work(LDMO),Work(LASCR2),Work(LBSCR2),Work(LFSCR2),IWork(LJREFX))
-  !PAM04 call dDAFILE(LUEIG,1,HWork(LDMO),NBTRI,IDDMO)
-  call dDAFILE(LUEIG,1,Work(LDMO),NBTRI,IDDMO)
+  call dDAFILE(LUREST,2,CI,NCONF,IDREST)
+  call FZERO(DMO,NBTRI)
+  !PAM04 if (ICPF /= 0) call DCORR(JREFX,HWork(LAREF),CSPCK,INTSY,INDX,DMO)
+  if (ICPF /= 0) call DCORR(JREFX,AREF,CSPCK,INTSY,INDX,DMO)
+  !PAM04 call FIJD(INTSY,INDX,CI,DMO,JREFX,HWork(LAREF))
+  call FIJD(INTSY,INDX,CI,DMO,JREFX,AREF)
+  !PAM04 call AID(INTSY,INDX,CI,DMO,
+  call AID(INTSY,INDX,CI,DMO,ASCR2,BSCR2,FSCR2)
+  !PAM04 call ABD(CSPCK,INTSY,INDX,CI,DMO,JREFX)
+  call ABD(CSPCK,INTSY,INDX,CI,DMO,ASCR2,BSCR2,FSCR2,JREFX)
+  !PAM04 call dDAFILE(LUEIG,1,DMO,NBTRI,IDDMO)
+  call dDAFILE(LUEIG,1,DMO,NBTRI,IDDMO)
 end do
 if (ITRANS /= 0) then
   do I=2,NRROOT
     IDREST = IDC(I)
-    call dDAFILE(LUREST,2,Work(LCI),NCONF,IDREST)
+    call dDAFILE(LUREST,2,CI,NCONF,IDREST)
     do J=1,I-1
       IDREST = IDC(J)
-      call dDAFILE(LUREST,2,Work(LSGM),NCONF,IDREST)
-      !PAM04 call FZERO(HWork(LTDMO),NBAST**2)
-      call FZERO(Work(LTDMO),NBAST**2)
-      !PAM04 call FIJTD (HWork(LINTSY),HWork(LINDX),HWork(LCI),HWork(LSGM),HWork(LTDMO))
-      call FIJTD(IWork(LINTSY),IWork(LINDX),Work(LCI),Work(LSGM),Work(LTDMO))
-      !PAM04 call AITD (HWork(LINTSY),HWork(LINDX),HWork(LCI),HWork(LTDMO),HWork(LASCR2),HWork(LBSCR2),
-      call AITD(IWork(LINTSY),IWork(LINDX),Work(LCI),Work(LSGM),Work(LTDMO),Work(LASCR2),Work(LBSCR2),Work(LFSCR2))
-      !PAM04 call ABTD (HWork(LCSPCK),HWork(LINTSY),HWork(LINDX),HWork(LTDMO),HWork(LASCR2),HWork(LBSCR2),
-      call ABTD(IWork(LCSPCK),IWork(LINTSY),IWork(LINDX),Work(LCI),Work(LSGM),Work(LTDMO),Work(LASCR2),Work(LBSCR2),Work(LFSCR2))
-      !PAM04 call dDAFILE(LUEIG,1,HWork(LTDMO),NBAST**2,IDDMO)
-      call dDAFILE(LUEIG,1,Work(LTDMO),NBAST**2,IDDMO)
+      call dDAFILE(LUREST,2,SGM,NCONF,IDREST)
+      !PAM04 call FZERO(TDMO,NBAST**2)
+      call FZERO(TDMO,NBAST**2)
+      !PAM04 call FIJTD(INTSY,INDX,CI,SGM,TDMO)
+      call FIJTD(INTSY,INDX,CI,SGM,TDMO)
+      !PAM04 call AITD(INTSY,INDX,CI,TDMO,ASCR2,BSCR2,
+      call AITD(INTSY,INDX,CI,SGM,TDMO,ASCR2,BSCR2,FSCR2)
+      !PAM04 call ABTD(CSPCK,INTSY,INDX,TDMO,ASCR2,BSCR2,
+      call ABTD(CSPCK,INTSY,INDX,CI,SGM,TDMO,ASCR2,BSCR2,FSCR2)
+      !PAM04 call dDAFILE(LUEIG,1,TDMO,NBAST**2,IDDMO)
+      call dDAFILE(LUEIG,1,TDMO,NBAST**2,IDDMO)
     end do
   end do
 end if
-call GETMEM('CI','FREE','REAL',LCI,NCONF)
-call GETMEM('SGM','FREE','REAL',LSGM,NCONF)
-call GETMEM('ASCR2','FREE','REAL',LASCR2,NVMAX**2)
-call GETMEM('BSCR2','FREE','REAL',LBSCR2,NVMAX**2)
-call GETMEM('FSCR2','FREE','REAL',LFSCR2,NVSQ)
+call mma_deallocate(CI)
+call mma_deallocate(SGM)
+call mma_deallocate(ASCR2)
+call mma_deallocate(BSCR2)
+call mma_deallocate(FSCR2)
 call mma_deallocate(IDC)
 
 return

@@ -11,9 +11,9 @@
 
 subroutine MQCT(AREF,EREF,CI,SGM,ICI)
 
-use mrci_global, only: ENGY, ESHIFT, ESMALL, ETHRE, GFAC, HZERO, ICPF, IDFREE, IDISKC, IDISKS, IPRINT, IREFX, IROOT, ISMAX, ITER, &
-                       KBUFF1, LCSPCK, LFOCK, LINDX, LINTSY, LISAB, LJREFX, LUEIG, LUREST, MAXIT, MBUF, MXVEC, MXZ, NBMN, NCONF, &
-                       NNEW, NREF, NRROOT, NSECT, NSTOT, NVEC, NVMAX, NVSQ, NVTOT, SQNLIM, SZERO, VSMALL, VZERO
+use mrci_global, only: CSPCK, ENGY, ESHIFT, ESMALL, ETHRE, FOCK, GFAC, HZERO, ICPF, IDFREE, IDISKC, IDISKS, INDX, INTSY, IPRINT, &
+                       IREFX, IROOT, ISAB, ISMAX, ITER, JREFX, KBUFF1, LUEIG, LUREST, MAXIT, MBUF, MXVEC, MXZ, NBMN, NCONF, NNEW, &
+                       NREF, NRROOT, NSECT, NSTOT, NVEC, NVMAX, NVSQ, NVTOT, SQNLIM, SZERO, VSMALL, VZERO
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
@@ -21,15 +21,15 @@ use Definitions, only: wp, iwp, u6, r8
 implicit none
 real(kind=wp) :: AREF(NREF,NREF), EREF(NREF), CI(NCONF), SGM(NCONF)
 integer(kind=iwp) :: ICI(MBUF)
-#include "WrkSpc.fh"
 #include "warnings.h"
-integer(kind=iwp) :: I, IBUF, ICSF, IDISK, IDREST, IEND, II, III, IMAX, IMIN, IPOS, IR, IRR, ISTA, IVEC, J, K, KK, KL, L, LABIJ, &
-                     LAC1, LAC2, LAIBJ, LAJBI, LARR, LASCR1, LASCR2, LBFIN3, LBFIN4, LBFIN5, LBIAC2, LBICA2, LBMN, LBSCR1, LBSCR2, &
-                     LDBK, LFSCR1, LFSCR2, LFSEC, LIBMN, LL, NCONV, NN, NOLD, NRON, NZ
+integer(kind=iwp) :: I, IBUF, ICSF, IDISK, IDREST, IEND, II, III, IMAX, IMIN, IPOS, IR, IRR, ISTA, IVEC, J, K, KK, KL, L, LL, &
+                     NCONV, NN, NOLD, NRON, NZ
 real(kind=wp) :: C, C2NREF, C2REF, CPTIT, CPTNOW, CPTOLD, CPTOT, CPTSTA, DUM, EACPF, ECI, EDAV, EDISP, ELOW, EMIN, ENREF, H, P, &
                  PMAX, QACPF, QDAV, RSUM, S, SQNRM, THR, TMP
-integer(kind=iwp), allocatable :: IDC(:), IDS(:)
-real(kind=wp), allocatable :: CBUF(:,:), CNEW(:,:), CSECT(:,:), DBUF(:), ELAST(:), EZERO(:), HCOPY(:,:), HSMALL(:,:), PCOPY(:,:), &
+integer(kind=iwp), allocatable :: IBMN(:), IDC(:), IDS(:)
+real(kind=wp), allocatable :: ABIJ(:), AC1(:), AC2(:), AIBJ(:), AJBI(:), ARR(:,:,:), ASCR1(:), ASCR2(:), BFIN3(:), BFIN4(:), &
+                              BFIN5(:), BIAC2(:), BICA2(:), BMN(:), BSCR1(:), BSCR2(:), CBUF(:,:), CNEW(:,:), CSECT(:,:), DBK(:), &
+                              DBUF(:), ELAST(:), EZERO(:), FSCR1(:), FSCR2(:), FSEC(:), HCOPY(:,:), HSMALL(:,:), PCOPY(:,:), &
                               PSEL(:), PSMALL(:,:), RNRM(:), RSECT(:,:), SBUF(:,:), SCOPY(:,:), SCR(:), SSMALL(:,:), XI1(:,:), &
                               XI2(:,:) !, EPERT(:)
 real(kind=r8), external :: DDOT_
@@ -55,6 +55,9 @@ call mma_allocate(HSMALL,MXVEC,MXVEC,label='HSMALL')
 call mma_allocate(SSMALL,MXVEC,MXVEC,label='SSMALL')
 call mma_allocate(PSMALL,MXVEC,MXVEC,label='PSMALL')
 call mma_allocate(EZERO,MXZ,label='EZERO')
+call mma_allocate(HZERO,MXZ,MXZ,label='HZERO')
+call mma_allocate(SZERO,MXZ,MXZ,label='SZERO')
+call mma_allocate(VZERO,MXZ,MXZ,label='VZERO')
 
 write(u6,*)
 write(u6,*) ('-',I=1,60)
@@ -86,55 +89,52 @@ do
       call iDAFILE(LUEIG,2,ICI,NN,IDISK)
       call UPKVEC(NN,ICI,CI(ISTA))
     end do
-    call GETMEM('BMN','ALLO','REAL',LBMN,NBMN)
-    call GETMEM('IBMN','ALLO','INTE',LIBMN,NBMN)
-    call GETMEM('BIAC2','ALLO','REAL',LBIAC2,ISMAX)
-    call GETMEM('BICA2','ALLO','REAL',LBICA2,ISMAX)
-    call GETMEM('BFIN3','ALLO','REAL',LBFIN3,KBUFF1)
-    call GETMEM('AC1','ALLO','REAL',LAC1,ISMAX)
-    call GETMEM('AC2','ALLO','REAL',LAC2,ISMAX)
-    call GETMEM('BFIN4','ALLO','REAL',LBFIN4,KBUFF1)
-    call GETMEM('ABIJ','ALLO','REAL',LABIJ,NVSQ)
-    call GETMEM('AIBJ','ALLO','REAL',LAIBJ,NVSQ)
-    call GETMEM('AJBI','ALLO','REAL',LAJBI,NVSQ)
-    call GETMEM('ASCR1','ALLO','REAL',LASCR1,NVMAX**2)
-    call GETMEM('BSCR1','ALLO','REAL',LBSCR1,NVMAX**2)
-    call GETMEM('FSCR1','ALLO','REAL',LFSCR1,NVSQ)
-    call GETMEM('FSEC','ALLO','REAL',LFSEC,2*NVSQ)
-    call GETMEM('BFIN5','ALLO','REAL',LBFIN5,KBUFF1)
-    call GETMEM('ASCR2','ALLO','REAL',LASCR2,NVMAX**2)
-    call GETMEM('BSCR2','ALLO','REAL',LBSCR2,NVMAX**2)
-    call GETMEM('FSCR2','ALLO','REAL',LFSCR2,NVSQ)
-    call GETMEM('DBK','ALLO','REAL',LDBK,2*NVSQ)
+    call mma_allocate(BMN,NBMN,label='BMN')
+    call mma_allocate(IBMN,NBMN,label='IBMN')
+    call mma_allocate(BIAC2,ISMAX,label='BIAC2')
+    call mma_allocate(BICA2,ISMAX,label='BICA2')
+    call mma_allocate(BFIN3,KBUFF1,label='BFIN3')
+    call mma_allocate(AC1,ISMAX,label='AC1')
+    call mma_allocate(AC2,ISMAX,label='AC2')
+    call mma_allocate(BFIN4,KBUFF1,label='BFIN4')
+    call mma_allocate(ABIJ,NVSQ,label='ABIJ')
+    call mma_allocate(AIBJ,NVSQ,label='AIBJ')
+    call mma_allocate(AJBI,NVSQ,label='AJBI')
+    call mma_allocate(ASCR1,NVMAX**2,label='ASCR1')
+    call mma_allocate(BSCR1,NVMAX**2,label='BSCR1')
+    call mma_allocate(FSCR1,NVSQ,label='FSCR1')
+    call mma_allocate(FSEC,2*NVSQ,label='FSEC')
+    call mma_allocate(BFIN5,KBUFF1,label='BFIN5')
+    call mma_allocate(ASCR2,NVMAX**2,label='ASCR2')
+    call mma_allocate(BSCR2,NVMAX**2,label='BSCR2')
+    call mma_allocate(FSCR2,NVSQ,label='FSCR2')
+    call mma_allocate(DBK,2*NVSQ,label='DBK')
     !vv call SIGMA(HWORK,CI,SGM)
     !pam call SIGMA(HWORK)
-    !PAM04 call SIGMA(HWork(LSGM),HWork(LAREF),HWork(LCI),HWork(LINTSY),HWork(LINDX),HWork(LBMN),HWork(LIBMN),HWork(LBIAC2), &
-    !PAM04            HWork(LBICA2),HWork(LBFIN3),HWork(LFIJKL),HWork(LISAB),HWork(LAC1),HWork(LAC2),HWork(LBFIN4),HWork(LABIJ), &
-    !PAM04            HWork(LAIBJ),HWork(LAJBI),HWork(LBFIN1),HWork(LASCR1),HWork(LBSCR1),HWork(LFSCR1),HWork(LFSEC),HWork(LFOCK), &
-    !PAM04            HWork(LFSCR2),HWork(LDBK),HWork(LCSPCK))
-    call SIGMA(SGM,AREF,CI,IWork(LINTSY),IWork(LINDX),Work(LBMN),IWork(LIBMN),Work(LBIAC2),Work(LBICA2),Work(LBFIN3),IWork(LISAB), &
-               Work(LAC1),Work(LAC2),Work(LBFIN4),Work(LABIJ),Work(LAIBJ),Work(LAJBI),Work(LASCR1),Work(LBSCR1),Work(LFSCR1), &
-               Work(LFSEC),Work(LFOCK),Work(LBFIN5),Work(LASCR2),Work(LBSCR2),Work(LFSCR2),Work(LDBK),IWork(LCSPCK))
-    call GETMEM('BFIN5','FREE','REAL',LBFIN5,KBUFF1)
-    call GETMEM('ASCR2','FREE','REAL',LASCR2,NVMAX**2)
-    call GETMEM('BSCR2','FREE','REAL',LBSCR2,NVMAX**2)
-    call GETMEM('FSCR2','FREE','REAL',LFSCR2,NVSQ)
-    call GETMEM('DBK','FREE','REAL',LDBK,2*NVSQ)
-    call GETMEM('ABIJ','FREE','REAL',LABIJ,NVSQ)
-    call GETMEM('AIBJ','FREE','REAL',LAIBJ,NVSQ)
-    call GETMEM('AJBI','FREE','REAL',LAJBI,NVSQ)
-    call GETMEM('ASCR1','FREE','REAL',LASCR1,NVMAX**2)
-    call GETMEM('BSCR1','FREE','REAL',LBSCR1,NVMAX**2)
-    call GETMEM('FSCR1','FREE','REAL',LFSCR1,NVSQ)
-    call GETMEM('FSEC','FREE','REAL',LFSEC,2*NVSQ)
-    call GETMEM('BMN','FREE','REAL',LBMN,NBMN)
-    call GETMEM('IBMN','FREE','INTE',LIBMN,NBMN)
-    call GETMEM('BIAC2','FREE','REAL',LBIAC2,ISMAX)
-    call GETMEM('BICA2','FREE','REAL',LBICA2,ISMAX)
-    call GETMEM('BFIN3','FREE','REAL',LBFIN3,KBUFF1)
-    call GETMEM('AC1','FREE','REAL',LAC1,ISMAX)
-    call GETMEM('AC2','FREE','REAL',LAC2,ISMAX)
-    call GETMEM('BFIN4','FREE','REAL',LBFIN4,KBUFF1)
+    !PAM04 call SIGMA(HWork(LSGM),HWork(LAREF),HWork(LCI),INTSY,INDX,BMN,IBMN,BIAC2,BICA2,BFIN3,FIJKL,LISAB,AC1,AC2,BFIN4,ABIJ, &
+    !PAM04            AIBJ,AJBI,HWork(LBFIN1),ASCR1,BSCR1,FSCR1,FSEC,FOCK,FSCR2,DBK,CSPCK)
+    call SIGMA(SGM,AREF,CI,INTSY,INDX,BMN,IBMN,BIAC2,BICA2,BFIN3,ISAB,AC1,AC2,BFIN4,ABIJ,AIBJ,AJBI,ASCR1,BSCR1,FSCR1,FSEC,FOCK, &
+               BFIN5,ASCR2,BSCR2,FSCR2,DBK,CSPCK)
+    call mma_deallocate(BMN)
+    call mma_deallocate(IBMN)
+    call mma_deallocate(BIAC2)
+    call mma_deallocate(BICA2)
+    call mma_deallocate(BFIN3)
+    call mma_deallocate(AC1)
+    call mma_deallocate(AC2)
+    call mma_deallocate(BFIN4)
+    call mma_deallocate(ABIJ)
+    call mma_deallocate(AIBJ)
+    call mma_deallocate(AJBI)
+    call mma_deallocate(ASCR1)
+    call mma_deallocate(BSCR1)
+    call mma_deallocate(FSCR1)
+    call mma_deallocate(FSEC)
+    call mma_deallocate(BFIN5)
+    call mma_deallocate(ASCR2)
+    call mma_deallocate(BSCR2)
+    call mma_deallocate(FSCR2)
+    call mma_deallocate(DBK)
     NSTOT = NSTOT+1
     ! WRITE IT OUT:
     IVEC = 1+mod(NSTOT-1,MXVEC)
@@ -361,13 +361,13 @@ do
   ! --------------------------------------------------------------------
   ! CALCULATE RESIDUAL ARRAYS FOR THE NRROOTS EIGENFUNCTIONS OF HSMALL.
   ! ALSO, USE THE OPPORTUNITY TO FORM MANY OTHER SMALL ARRAYS.
-  call GETMEM('ARR','ALLO','REAL',LARR,11*NRROOT**2)
-  call HZLP1(CBUF,SBUF,DBUF,WORK(LARR),CSECT,RSECT,XI1,XI2,ICI)
+  call mma_allocate(ARR,NRROOT,NRROOT,11,label='ARR')
+  call HZLP1(CBUF,SBUF,DBUF,ARR,CSECT,RSECT,XI1,XI2,ICI)
   ! USE THESE SMALLER ARRAYS TO FORM HZERO AND SZERO. THIS IS
   ! OVERLAP AND HAMILTONIAN IN THE BASIS (PSI,RHO,XI1,XI2), WHERE
   ! PSI ARE THE EIGENFUNCTIONS OF HSMALL, RHO ARE RESIDUALS, ETC.
-  call HZ(WORK(LARR))
-  call GETMEM('ARR','FREE','REAL',LARR,11*NRROOT**2)
+  call HZ(ARR)
+  call mma_deallocate(ARR)
   NZ = 4*NRROOT
   !write(u6,*)
   !write(u6,*) ' AFTER HZ CALL. HZERO HAMILTONIAN:'
@@ -539,6 +539,9 @@ call mma_deallocate(HSMALL)
 call mma_deallocate(SSMALL)
 call mma_deallocate(PSMALL)
 call mma_deallocate(EZERO)
+call mma_deallocate(HZERO)
+call mma_deallocate(SZERO)
+call mma_deallocate(VZERO)
 write(u6,*) ' ',('*',III=1,70)
 ! WRITE CI VECTORS TO LUREST -- CI RESTART FILE.
 IDREST = 0
@@ -592,8 +595,8 @@ do I=1,NRROOT
     call Add_Info('E_MRSDCI',[ECI],1,8)
   end if
   write(u6,*)
-  !PAM04 call PRWF_MRCI (HWORK(LCSPCK),HWORK(LINTSY),HWORK(LINDX),CI,HWORK(LJREFX) )
-  call PRWF_MRCI(IWORK(LCSPCK),IWORK(LINTSY),IWORK(LINDX),CI,IWORK(LJREFX))
+  !PAM04 call PRWF_MRCI(CSPCK,INTSY,INDX,CI,JREFX)
+  call PRWF_MRCI(CSPCK,INTSY,INDX,CI,JREFX)
   write(u6,*) ' ',('*',III=1,70)
   call dDAFILE(LUREST,1,CI,NCONF,IDREST)
 end do

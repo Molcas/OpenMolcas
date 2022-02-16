@@ -11,69 +11,67 @@
 
 subroutine DIAGCT()
 
-use mrci_global, only: IFIRST, IRC, ISMAX, KBUFF1, LCSPCK, LFOCK, LINTSY, LISAB, NBITM1, NBITM2, NBITM3, NBTRI, NCHN1, NCHN2, &
-                       NCHN3, NVIRT
+use mrci_global, only: CSPCK, FOCK, IFIRST, INTSY, IRC, ISAB, ISMAX, KBUFF1, NBITM1, NBITM2, NBITM3, NBTRI, NCHN1, NCHN2, NCHN3, &
+                       NVIRT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-#include "WrkSpc.fh"
-integer(kind=iwp) :: LACBDS, LACBDT, LBACBD, LBIAC1, LBICA1, LBUFBI, LHDIAG, LIIJJ, LIJIJ, NBUFBI, NHDIAG, NINTGR, NVT
+integer(kind=iwp) :: NHDIAG, NINTGR, NVT
 integer(kind=iwp), allocatable :: Inds(:,:)
-real(kind=wp), allocatable :: Bufs(:,:)
+real(kind=wp), allocatable :: ACBDS(:), ACBDT(:), BACBD(:), BIAC1(:), BICA1(:), BUFBI(:), Bufs(:,:), FIIJJ(:), FIJIJ(:), HDIAG(:)
 
 ! ----------------------------------------------------------------------
 call mma_allocate(Bufs,NBITM1,NCHN1,label='Bufs')
 call mma_allocate(Inds,NBITM1+2,NCHN1,label='Inds')
-NBUFBI = KBUFF1
-call GETMEM('BUFBI','Allo','Real',LBUFBI,NBUFBI)
-call GETMEM('BIAC1','Allo','Real',LBIAC1,ISMAX)
-call GETMEM('BICA1','Allo','Real',LBICA1,ISMAX)
+call mma_allocate(BUFBI,KBUFF1,label='BUFBI')
+call mma_allocate(BIAC1,ISMAX,label='BIAC1')
+call mma_allocate(BICA1,ISMAX,label='BICA1')
 Bufs(:,:) = Zero
 Inds(:,:) = 0
-call SORTA(Bufs,Inds,IWork(LISAB),Work(LBUFBI),Work(LBIAC1),Work(LBICA1),NINTGR)
-call GETMEM('BIAC1','Free','Real',LBIAC1,ISMAX)
-call GETMEM('BICA1','Free','Real',LBICA1,ISMAX)
-call GETMEM('BUFBI','Free','Real',LBUFBI,NBUFBI)
+call SORTA(Bufs,Inds,ISAB,BUFBI,BIAC1,BICA1,NINTGR)
 call mma_deallocate(Bufs)
 call mma_deallocate(Inds)
+call mma_deallocate(BUFBI)
+call mma_deallocate(BIAC1)
+call mma_deallocate(BICA1)
 ! ----------------------------------------------------------------------
 
 if (IFIRST == 0) then
   call mma_allocate(Bufs,NBITM2,NCHN2,label='Bufs')
   call mma_allocate(Inds,NBITM2+2,NCHN2,label='Bufs')
-  call GETMEM('BACBD','Allo','Real',LBACBD,KBUFF1)
-  call GETMEM('ACBDT','Allo','Real',LACBDT,ISMAX)
-  call GETMEM('ACBDS','Allo','Real',LACBDS,ISMAX)
+  call mma_allocate(BACBD,KBUFF1,label='BACBD')
+  call mma_allocate(ACBDT,ISMAX,label='ACBDT')
+  call mma_allocate(ACBDS,ISMAX,label='ACBDS')
   Bufs(:,:) = Zero
   Inds(:,:) = 0
-  call SORTB(Bufs,Inds,Work(LACBDS),Work(LACBDT),IWork(LISAB),Work(LBACBD),NINTGR)
-  call GETMEM('BACBD','Free','Real',LBACBD,KBUFF1)
-  call GETMEM('ACBDT','Free','Real',LACBDT,ISMAX)
-  call GETMEM('ACBDS','Free','Real',LACBDS,ISMAX)
+  call SORTB(Bufs,Inds,ACBDS,ACBDT,ISAB,BACBD,NINTGR)
   call mma_deallocate(Bufs)
   call mma_deallocate(Inds)
+  call mma_deallocate(BACBD)
+  call mma_deallocate(ACBDT)
+  call mma_deallocate(ACBDS)
 end if
 ! ------------------- SORT --------------------------------------------
 call mma_allocate(Bufs,NBITM3,NCHN3,label='Bufs')
 call mma_allocate(Inds,NBITM3+2,NCHN3,label='Inds')
-call GETMEM('FIIJJ','Allo','Real',LIIJJ,NBTRI)
-call GETMEM('FIJIJ','Allo','Real',LIJIJ,NBTRI)
+call mma_allocate(FIIJJ,NBTRI,label='FIIJJ')
+call mma_allocate(FIJIJ,NBTRI,label='FIJIJ')
 Bufs(:,:) = Zero
 Inds(:,:) = 0
-call SORT_MRCI(Bufs,Inds,Work(LFOCK),Work(LIIJJ),Work(LIJIJ),NINTGR)
+call SORT_MRCI(Bufs,Inds,FOCK,FIIJJ,FIJIJ,NINTGR)
 call mma_deallocate(Bufs)
 call mma_deallocate(Inds)
 ! ----------------------------------------------------------------------
 NVT = (NVIRT*(NVIRT+1))/2
 NHDIAG = max(NVT,IRC(1))
-call GETMEM('HDIAG','Allo','Real',LHDIAG,NHDIAG)
-call IIJJ(IWork(LCSPCK),IWork(LINTSY),Work(LHDIAG),Work(LFOCK),Work(LIIJJ),Work(LIJIJ))
-call GETMEM('FIIJJ','Free','Real',LIIJJ,NBTRI)
-call IJIJ(IWork(LINTSY),Work(LHDIAG),Work(LFOCK),Work(LIJIJ))
-call GETMEM('HDIAG','Free','Real',LHDIAG,NHDIAG)
-call GETMEM('FIJIJ','Free','Real',LIJIJ,NBTRI)
+call mma_allocate(HDIAG,NHDIAG,label='HDIAG')
+call IIJJ(CSPCK,INTSY,HDIAG,FOCK,FIIJJ,FIJIJ)
+call IJIJ(INTSY,HDIAG,FOCK,FIJIJ)
+call mma_deallocate(FIIJJ)
+call mma_deallocate(FIJIJ)
+call mma_deallocate(HDIAG)
 
 return
 
