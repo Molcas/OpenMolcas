@@ -19,7 +19,7 @@ implicit none
 integer(kind=iwp) :: INTSYM(*), INDX(*)
 real(kind=wp) :: C1(*), C2(*), TDMO(NBAST,NBAST)
 #include "cop.fh"
-integer(kind=iwp) :: IC1, IC2, ICHK, IIN, ILEN, IND, INDA, INDB, INDI, INUM, IVL, NA, NB, ni, nk, NS1, NS1L
+integer(kind=iwp) :: IC1, IC2, ICHK, IIN, ILEN, IND, INDA, INDB, INDI, INUM, IVL, NA, NB, NI, NK, NS1, NS1L
 real(kind=wp) :: TERM
 integer(kind=iwp), external :: JSUNP
 real(kind=r8), external :: DDOT_
@@ -29,8 +29,8 @@ JSYM(L) = JSUNP(INTSYM,L)
 
 !------
 ! POW: Unnecessary but warning stopping initializations
-ni = -1234567
-nk = -1234567
+NI = -1234567
+NK = -1234567
 !------
 ICHK = 0
 IADD10 = IAD10(8)
@@ -44,16 +44,11 @@ do
     if (ICHK /= 0) then
       ICHK = 0
       INDI = IND
-      !NI = mod(INDI,2**10)
-      !NK = mod(INDI/2**10,2**10)
       NI = ibits(INDI,0,10)
       NK = ibits(INDI,10,10)
     else if (IND == 0) then
       ICHK = 1
     else
-      !IVL = mod(IND,2**6)
-      !IC2 = mod(IND/2**6,2**13)
-      !IC1 = mod(IND/2**19,2**13)
       IVL = ibits(IND,0,6)
       IC2 = ibits(IND,6,13)
       IC1 = ibits(IND,19,13)

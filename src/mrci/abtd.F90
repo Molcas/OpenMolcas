@@ -26,10 +26,7 @@ integer(kind=iwp), external :: ICUNP, JSUNP
 real(kind=r8), external :: DDOT_
 !Statement functions
 integer(kind=iwp) :: JO, JSYM, L
-!PAM97 integer(kind=iwp), external :: UNPACK
-!PAM97 JO(L) = UNPACK(CSPCK((L+29)/30),2*L-(2*L-1)/60*60,2)
 JO(L) = ICUNP(ICSPCK,L)
-!PAM96 JSYM(L) = UNPACK(INTSYM((L+9)/10),3*mod(L-1,10)+1,3)+1
 JSYM(L) = JSUNP(INTSYM,L)
 
 ! CALCULATE A) TRANSITION DENSITY ELEMENTS OF TYPE TDMO(A,B)

@@ -20,12 +20,9 @@ implicit none
 integer(kind=iwp) :: NHREF, NIJ, NIJKL
 integer(kind=iwp), allocatable :: ICI(:)
 real(kind=wp), allocatable :: AREF(:,:), CI(:), EREF(:), HREF(:), PLEN(:), SGM(:)
-!real(kind=wp) :: H(MAXMEM)
-!integer(kind=iwp) :: iH(RtoI*MAXMEM)
 
 ! PUT THE SUBROUTINE NAME ONTO THE ENTRY NAME STACK
 ! INPUT AND MEMORY ALLOCATION:
-!call READIN(HWork,iHWork)
 call READIN_MRCI()
 ! INTEGRAL SORTING AND DIAGONAL ELEMENTS:
 ! USE COUPLING COEFFS FROM UNIT 10, TRANSFORMED INTEGRALS FROM 13 AND 17
@@ -37,7 +34,6 @@ call DIAGCT()
 ! CREATE REFERENCE CI HAMILTONIAN:
 NHREF = (NREF*(NREF+1))/2
 call mma_allocate(HREF,NHREF,label='HREF')
-!PAM04 call MKHREF(HREF,FOCK,FIJKL,JREFX)
 NIJ = (LN*(LN+1))/2
 NIJKL = (NIJ*(NIJ+1))/2
 call mma_allocate(FIJKL,NIJKL,label='FIJKL')
@@ -46,7 +42,6 @@ call MKHREF(HREF,FOCK,FIJKL,JREFX)
 call mma_allocate(AREF,NREF,NREF,label='AREF')
 call mma_allocate(EREF,NREF,label='EREF')
 call mma_allocate(PLEN,NREF,label='PLEN')
-!PAM04 call REFCI(HREF,AREF,EREF,CSPCK,CISEL,PLEN)
 call REFCI(HREF,AREF,EREF,CSPCK,CISEL,PLEN)
 call mma_deallocate(HREF)
 call mma_deallocate(PLEN)

@@ -21,7 +21,7 @@ real(kind=wp) :: C(*), S(*), FIJKL(*)
 #include "cop.fh"
 integer(kind=iwp) :: i, IADR, IC1, IC2, ICHK, IIN, ILEN, IND, INDA, INDB, INDI, INUM, IP, IVL, JP, KP, LENGTH, LP, NA, NB, NIJ, &
                      NIJKL, NKL, NS1, NS1L
-real(kind=wp) :: COPI, fini
+real(kind=wp) :: COPI, FINI
 integer(kind=iwp), external :: JSUNP
 !Statement function
 integer(kind=iwp) :: JSYM, L
@@ -29,7 +29,7 @@ JSYM(L) = JSUNP(INTSYM,L)
 
 !------
 ! POW: Unnecessary but warning stopping initialization
-fini = huge(fini)
+FINI = huge(FINI)
 !------
 ICHK = 0
 NIJ = IROW(LN+1)
@@ -41,7 +41,6 @@ do
   call iDAFILE(Lu_70,2,INDSRT,NSRTMX+2,IADR)
   LENGTH = INDSRT(NSRTMX+1)
   IADR = INDSRT(NSRTMX+2)
-  !if (LENGTH > 0) call SCATTER(LENGTH,FIJKL,INDSRT,VALSRT)
   do i=1,length
     FIJKL(INDSRT(i)) = VALSRT(i)
   end do
@@ -58,10 +57,6 @@ do
     if (ICHK /= 0) then
       ICHK = 0
       INDI = IND
-      !IP = mod(INDI,2**8)
-      !JP = mod(INDI/2**8,2**8)
-      !KP = mod(INDI/2**16,2**8)
-      !LP = mod(INDI/2**24,2**8)
       IP = ibits(INDI,0,8)
       JP = ibits(INDI,8,8)
       KP = ibits(INDI,16,8)
@@ -73,9 +68,6 @@ do
     else if (IND == 0) then
       ICHK = 1
     else
-      !IVL = mod(IND,2**6)
-      !IC2 = mod(IND/2**6,2**13)
-      !IC1 = mod(IND/2**19,2**13)
       IVL = ibits(IND,0,6)
       IC2 = ibits(IND,6,13)
       IC1 = ibits(IND,19,13)

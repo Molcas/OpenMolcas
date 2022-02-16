@@ -21,7 +21,7 @@ integer(kind=iwp) :: INTSYM(*)
 real(kind=wp) :: HDIAG(*), FC(*), FIJIJ(*)
 #include "cop.fh"
 real(kind=wp) :: HCOUT(nCOP)
-integer(kind=iwp) :: IAD27, IADD25, ICHK, ICOUP, ICOUPS, IFS, II, IIJ, IIJ1, IIJ2, IJJ, inb, IND, INDI, INS, IOUT, IREF0, ITYP, &
+integer(kind=iwp) :: IAD27, IADD25, ICHK, ICOUP, ICOUPS, IFS, II, IIJ, IIJ1, IIJ2, IJJ, INB, IND, INDI, INS, IOUT, IREF0, ITYP, &
                      IVL, IVSAVE, J, JJ, KK, LENGTH, NA, NA1, NA2, NB, NB1, NB2, NSA, NSS
 real(kind=wp) :: TERM
 integer(kind=iwp), external :: JSUNP
@@ -31,7 +31,7 @@ JSYM(L) = JSUNP(INTSYM,L)
 
 !------
 ! POW: Unnecessary but warning stopping initializations
-inb = -1234567
+INB = -1234567
 !------
 IADD25 = IAD25S
 IAD27 = 0

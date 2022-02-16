@@ -30,11 +30,7 @@ integer(kind=iwp), external :: ICUNP, JSUNP
 real(kind=r8), external :: DDOT_
 ! STATEMENT FUNCTIONS FOR RETRIEVING GUGA CASE NUMBERS AND INTERNAL
 integer(kind=iwp) :: JO, JSYM, L
-!PAM97 integer(kind=iwp), external :: UNPACK
-! SYMMETRY LABEL:
-!PAM97 JO(L) = UNPACK(CSPCK((L+29)/30),2*L-(2*L-1)/60*60,2)
 JO(L) = ICUNP(ICSPCK,L)
-!PAM96 JSYM(L) = UNPACK(INTSYM((L+9)/10),3*mod(L-1,10)+1,3)+1
 JSYM(L) = JSUNP(INTSYM,L)
 
 NA = 0
@@ -50,38 +46,24 @@ do J=1,LN
 end do
 JCONF = JSC(1)
 write(u6,'(A,F5.3)') '      CI-COEFFICIENTS LARGER THAN ',CTRSH
-call XFLUSH(u6)
 do IS=1,NSYM
   if (NFMO(IS) > 0) then
     write(u6,*) ' NOTE: THE FOLLOWING ORBITALS WERE FROZEN'
-    call XFLUSH(u6)
     write(u6,*) ' ALREADY AT THE INTEGRAL TRANSFORMATION STEP'
-    call XFLUSH(u6)
     write(u6,*) ' AND DO NOT EXPLICITLY APPEAR:'
-    call XFLUSH(u6)
     write(u6,'(6X,A,8I4)') '  SYMMETRY:',(I,I=1,NSYM)
-    call XFLUSH(u6)
     write(u6,'(6X,A,8I4)') 'PRE-FROZEN:',(NFMO(I),I=1,NSYM)
-    call XFLUSH(u6)
     exit
   end if
 end do
 write(u6,*) ' ORDER OF SPIN-COUPLING: (PRE-FROZEN, NOT SHOWN)'
-call XFLUSH(u6)
 write(u6,*) '                         (FROZEN, NOT SHOWN)'
-call XFLUSH(u6)
 write(u6,*) '                          VIRTUAL'
-call XFLUSH(u6)
 write(u6,*) '                          ADDED VALENCE'
-call XFLUSH(u6)
 write(u6,*) '                          INACTIVE'
-call XFLUSH(u6)
 write(u6,*) '                          ACTIVE'
-call XFLUSH(u6)
 write(u6,*)
-call XFLUSH(u6)
 write(u6,*) ' ORBITALS ARE NUMBERED WITHIN EACH SEPARATE SYMMETRY.'
-call XFLUSH(u6)
 do I=1,NCONF
   CI = C(I)
   ACI = abs(C(I))
@@ -189,17 +171,11 @@ do I=1,NCONF
     end if
   end if
   write(u6,*)
-  call XFLUSH(u6)
   write(u6,105) I,C(I),CSFTYP
-  call XFLUSH(u6)
   write(u6,FRMT) 'SYMMETRY     ',(ILSYM(J),J=LN1,LN2)
-  call XFLUSH(u6)
   write(u6,FRMT) 'ORBITALS     ',(IORBI(J),J=LN1,LN2)
-  call XFLUSH(u6)
   write(u6,FRMT) 'OCCUPATION   ',(IOC(J),J=LN1,LN2)
-  call XFLUSH(u6)
   write(u6,FRMT) 'SPIN-COUPLING',(ISP(J),J=LN1,LN2)
-  call XFLUSH(u6)
 end do
 
 return

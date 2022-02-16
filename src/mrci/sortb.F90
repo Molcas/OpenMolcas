@@ -9,7 +9,6 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-!subroutine SORTB(BUFOUT,INDOUT,ACBDS,ACBDT,ISAB,BFACBD,NINTGR)
 subroutine SORTB(BUFS,INDS,ACBDS,ACBDT,ISAB,BFACBD,NINTGR)
 ! SORTS INTEGRALS (AB/CD)
 ! FOR FIXED A,C ALL B,D
@@ -35,11 +34,6 @@ NVT = IROW(NVIRT+1)
 NOVST = LN*NVIRT+1
 IAD16 = 0
 
-!PAM04C Buffer layout:
-!PAM04 IBOFF2 = RTOI*NBITM2
-!PAM04 IBBC2 = IBOFF2+NBITM2+1
-!PAM04 IBDA2 = IBBC2+1
-
 NORB0(1) = 0
 do I=1,NSYM
   NORB0(I+1) = NORB0(I)+NORB(I)
@@ -58,8 +52,6 @@ do ISTEP=1,IPASS
 
   ! Initialize Buffer Counts and BackChain Links.
   do IREC=1,NCHN2
-    !PAM04 INDOUT(IBBC2+(IREC-1)*RTOI*NBSIZ2) = 0
-    !PAM04 INDOUT(IBDA2+(IREC-1)*RTOI*NBSIZ2) = -1
     INDS(NBITM2+1,IREC) = 0
     INDS(NBITM2+2,IREC) = -1
   end do
@@ -148,22 +140,15 @@ do ISTEP=1,IPASS
                     if ((IAC >= IACMIN) .and. (IAC <= IACMAX)) then
                       if ((NA == NC) .and. (NB == ND)) FINI = FINI/2
                       NAC = IAC-IACMIN+1
-                      !PAM04 IPOS = INDOUT(IBBC2+(NAC-1)*RTOI*NBSIZ2)+1
-                      !PAM04 INDOUT(IBBC2+(NAC-1)*RTOI*NBSIZ2) = IPOS
                       IPOS = INDS(NBITM2+1,NAC)+1
                       INDS(NBITM2+1,NAC) = IPOS
-                      !PAM04 BUFOUT(IPOS+(NAC-1)*NBSIZ2) = FINI
-                      !PAM04 INDOUT(IBOFF2+IPOS+(NAC-1)*RTOI*NBSIZ2) = NB+2**8*ND
                       INDS(IPOS,NAC) = NB+2**8*ND
                       BUFS(IPOS,NAC) = FINI
                       if (IPOS >= NBITM2) then
                         ! Save this buffer if filled up.
                         JDISK = IDISK
-                        !PAM04 call dDAFILE(Lu_60,1,INDOUT(1+(NAC-1)*RTOI*NBSIZ2),NBSIZ2,IDISK)
                         call iDAFILE(Lu_60,1,INDS(1,NAC),NBITM2+2,IDISK)
                         call dDAFILE(Lu_60,1,BUFS(1,NAC),NBITM2,IDISK)
-                        !PAM04 INDOUT(IBBC2+(NAC-1)*RTOI*NBSIZ2) = 0
-                        !PAM04 INDOUT(IBDA2+(NAC-1)*RTOI*NBSIZ2) = JDISK
                         INDS(NBITM2+1,NAC) = 0
                         INDS(NBITM2+2,NAC) = JDISK
                       end if
@@ -197,7 +182,6 @@ do ISTEP=1,IPASS
   end if
   do I=1,NOVM
     JDISK = IDISK
-    !PAM04 call dDAFILE(Lu_60,1,INDOUT(1+(I-1)*RTOI*NBSIZ2),NBSIZ2,IDISK)
     call iDAFILE(Lu_60,1,INDS(1,I),NBITM2+2,IDISK)
     call dDAFILE(Lu_60,1,BUFS(1,I),NBITM2,IDISK)
     LASTAD(NOVST+IACMIN-1+I) = JDISK
@@ -230,27 +214,16 @@ do ISTEP=1,IPASS
         call FZERO(ACBDT,INS)
         IADR = LASTAD(NOVST+IAC)
         do
-          !PAM04 CALL dDAFILE(Lu_60,2,INDOUT,NBSIZ2,IADR)
           call iDAFILE(Lu_60,2,INDS,NBITM2+2,IADR)
           call dDAFILE(Lu_60,2,BUFS,NBITM2,IADR)
-          !PAM04 LENGTH = INDOUT(IBBC2)
-          !PAM04 IADR = INDOUT(IBDA2)
           LENGTH = INDS(NBITM2+1,1)
           IADR = INDS(NBITM2+2,1)
           do KK=1,LENGTH
-            !PAM04 INND = INDOUT(IBOFF2+KK)
             INND = INDS(KK,1)
-            !PAM96 NB = iand(INND,255)
-            !PAM96 ND = iand(ishft(INND,-8),255)
-            !NB = mod(INND,2**8)
-            !ND = mod(INND/2**8,2**8)
             NB = ibits(INND,0,8)
             ND = ibits(INND,8,8)
 
             IBDS = ISAB(NB+(ND-1)*NVIRT)
-            !PAM04 ACBDS(IBDS) = ACBDS(IBDS)+BUFOUT(KK)
-            !PAM04 if (NB > ND) ACBDT(IBDS) = ACBDT(IBDS)+BUFOUT(KK)
-            !PAM04 if (NB < ND) ACBDT(IBDS) = ACBDT(IBDS)-BUFOUT(KK)
             ACBDS(IBDS) = ACBDS(IBDS)+BUFS(KK,1)
             if (NB > ND) ACBDT(IBDS) = ACBDT(IBDS)+BUFS(KK,1)
             if (NB < ND) ACBDT(IBDS) = ACBDT(IBDS)-BUFS(KK,1)

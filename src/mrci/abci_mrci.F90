@@ -97,13 +97,10 @@ do
     end do
     do IT=1,IOUT
       IND = IBMN(IT)
-      !ICP1 = mod(IND/2**19,2**13)
       ICP1 = ibits(IND,19,13)
       INDA = IRC(1)+ICP1
       if (JSYM(INDA) /= NSLB) cycle
       MA = indx(INDA)+LB
-      !ICP2 = mod(IND/2**6,2**13)
-      !ITYP = mod(IND,2**6)
       ICP2 = ibits(IND,6,13)
       ITYP = ibits(IND,0,6)
       if (INS == 0) cycle

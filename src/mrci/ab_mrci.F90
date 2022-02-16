@@ -24,8 +24,6 @@ integer(kind=iwp) :: IAB, IASYM, ICSYM, IFT, INDA, INMY, IPOA(9), IPOF(9), ITAIL
 integer(kind=iwp), external :: JSUNP
 !Statement function
 integer(kind=iwp) :: JSYM, L
-!PAM97 integer(kind=iwp), external :: UNPACK
-!PAM96 JSYM(L) = UNPACK(INTSYM((L+9)/10),3*mod(L-1,10)+1,3)+1
 JSYM(L) = JSUNP(INTSYM,L)
 
 call CSCALE(INDX,INTSYM,C,SQ2)
@@ -66,8 +64,6 @@ do INDA=1,ITAIL
     IFT = 1
     if (INDA > IRC(3)) IFT = 0
     call IPO(IPOA,NVIR,MUL,NSYM,MYL,IFT)
-    !PAM97 IN = 0
-    !PAM97 TSUM = Zero
     do IASYM=1,NSYM
       IAB = IPOF(IASYM+1)-IPOF(IASYM)
       if (IAB == 0) cycle

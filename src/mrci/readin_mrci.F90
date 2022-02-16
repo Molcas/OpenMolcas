@@ -39,8 +39,6 @@ character(len=4) :: Command
 integer(kind=iwp), allocatable :: IOCR(:)
 character(len=4), parameter :: Cmd(19) = ['TITL','THRP','PRIN','FROZ','DELE','MAXI','ECON','REST','ROOT','ACPF','SDCI','GVAL', &
                                           'PROR','REFC','SELE','NRRO','MXVE','TRAN','END ']
-! convert a pointer in H to a pointer for iH
-!ipointer(i) = (i-1)*RtoI+1
 
 ! Initialize data and set defaults
 
@@ -298,26 +296,18 @@ if (ntit == 0) then
   title(1) = ' ( No title was given )'
 end if
 write(u6,*)
-call XFLUSH(u6)
 write(u6,'(6X,120A1)') ('*',i=1,120)
-call XFLUSH(u6)
 write(u6,'(6X,120A1)') '*',(' ',i=1,118),'*'
-call XFLUSH(u6)
 write(u6,'(6X,57A1,A6,57A1)') '*',(' ',i=1,56),'Title:',(' ',i=1,56),'*'
-call XFLUSH(u6)
 do i=1,nTit
   call Center_Text(Title(i))
   write(u6,'(6X,24A1,A72,24A1)') '*',(' ',j=1,23),Title(i),(' ',j=1,23),'*'
-  call XFLUSH(u6)
 end do
 write(u6,'(6X,120A1)') '*',(' ',i=1,118),'*'
-call XFLUSH(u6)
 write(u6,'(6X,120A1)') ('*',i=1,120)
-call XFLUSH(u6)
 write(u6,*)
 
 !---  print the coordinates of the system -----------------------------*
-call XFLUSH(u6)
 call PrCoor()
 
 !---  read the header of CIGUGA ---------------------------------------*
@@ -349,7 +339,6 @@ if (IREST /= 0) write(u6,*) '      RESTARTED CALCULATION.'
 write(u6,*) '      A SMALL CI IS PERFORMED INVOLVING ONLY THE REFERENCE STATES.'
 write(u6,*) '      THIS REFERENCE CI WILL USE THE FOLLOWING ROOT SELECTION CRITERIA:'
 write(u6,*)
-call XFLUSH(u6)
 write(u6,*)
 if (MXVC == 0) MXVC = max(NRROOT,10)
 if (NSEL == 0) then
@@ -555,7 +544,6 @@ write(u6,'(A,F8.1)') '      SPIN QUANTUM NUMBER           ',SPIN
 write(u6,'(A,I8)') '      CORRELATED ELECTRONS          ',NELEC
 write(u6,'(A,I8)') '      WAVE FUNCTION SYMMETRY LABEL  ',LSYM
 write(u6,'(A,I8)') '      POINT GROUP ORDER             ',NSYM
-call XFLUSH(u6)
 write(u6,*)
 write(u6,101) 'SYMMETRY LABEL:',(I,I=1,NSYM)
 write(u6,101) 'INACTIVE ORBITALS',(NISH(I),I=1,NSYM),NISHT
@@ -569,16 +557,13 @@ write(u6,101) 'FROZEN ORBITALS',(NFRO(I),I=1,NSYM),NFROT
 write(u6,101) 'DELETED ORBITALS',(NDEL(I),I=1,NSYM),NDELT
 write(u6,*)
 write(u6,101) 'SUM:ORBITALS IN CI',(NORB(I),I=1,NSYM),NORBT
-call XFLUSH(u6)
 write(u6,*)
 write(u6,101) 'PRE-FROZEN ORBITALS',(NFMO(I),I=1,NSYM),NFMOT
 write(u6,101) 'PRE-DELETED ORBITALS',(NDMO(I),I=1,NSYM),NDMOT
 write(u6,101) 'SUM:   TOTAL BASIS',(NBAS(I),I=1,NSYM),NBAST
 write(u6,*)
-call XFLUSH(u6)
 if (LN1 == 0) then
   write(u6,*) '      ONE CLOSED SHELL REFERENCE STATE'
-  call XFLUSH(u6)
 else
   write(u6,'(6X,I4,A)') NREF,' REFERENCE STATES'
   NREFWR = min(NREF,1000/LN1)
@@ -594,13 +579,10 @@ else
     jEnd = jEnd+LN1
     write(u6,'(6X,A,I3,T25,32I2)') 'Ref nr',IREF,(IOCR(j),j=jStart,jStart-1+LN2)
   end do
-  call XFLUSH(u6)
 end if
 call mma_deallocate(IOCR)
 write(u6,*)
-call XFLUSH(u6)
 if (INTNUM /= 0) write(u6,*) '      FIRST ORDER INTERACTING SPACE.'
-call XFLUSH(u6)
 IX1 = IRC(1)
 IX2 = IRC(2)-IRC(1)
 ISC(1) = IX1
@@ -617,37 +599,23 @@ if (IFIRST == 0) then
   IY4 = ISC(4)-ISC(3)
   if (IPRINT >= 10) then
     write(u6,*)
-    call XFLUSH(u6)
     write(u6,*) '      INTERNAL WALKS:'
-    call XFLUSH(u6)
     write(u6,215) IX1,IX2,IX3,IX4
-    call XFLUSH(u6)
     write(u6,*)
-    call XFLUSH(u6)
     write(u6,*) '      FORMAL CONFIGURATIONS:'
-    call XFLUSH(u6)
     write(u6,215) IY1,IY2,IY3,IY4
-    call XFLUSH(u6)
     write(u6,'(6X,A,I7)') '                  TOTAL:',ISC(ILIM)
-    call XFLUSH(u6)
   end if
 else
   ILIM = 2
   if (IPRINT >= 10) then
     write(u6,*)
-    call XFLUSH(u6)
     write(u6,*) '      INTERNAL WALKS:'
-    call XFLUSH(u6)
     write(u6,216) IX1,IX2
-    call XFLUSH(u6)
     write(u6,*)
-    call XFLUSH(u6)
     write(u6,*) '      FORMAL CONFIGURATIONS:'
-    call XFLUSH(u6)
     write(u6,216) IY1,IY2
-    call XFLUSH(u6)
     write(u6,'(6X,A,I7)') '                  TOTAL:',ISC(ILIM)
-    call XFLUSH(u6)
   end if
 end if
 NIWLK = IRC(ILIM)
@@ -666,54 +634,39 @@ end if
 ! ----------------------------------------------------------------------
 ! ALLOCATION OF DATA PERMANENTLY IN CORE
 !
-!PAM04 LCSPCK = 1
 
-! ICSPCK - ARRAY OF BIT-PACKED GUGA CASE NUMBERS OF INTERNAL WALKS.
+! CSPCK - ARRAY OF BIT-PACKED GUGA CASE NUMBERS OF INTERNAL WALKS.
 ! CONSISTS OF NCSPCK INTEGERS.
 
-!PAM04 call iDAFILE(LUSYMB,2,CSPCK,NCSPCK,IADD10)
 call mma_allocate(CSPCK,NCSPCK,label='CSPCK')
 call iDAFILE(LUSYMB,2,CSPCK,NCSPCK,IADD10)
 
-! INTSYM - ARRAY OF BIT-PACKED SYMMETRY LABELS OF INTERNAL WALKS.
+! INTSY - ARRAY OF BIT-PACKED SYMMETRY LABELS OF INTERNAL WALKS.
 ! CONSISTS OF NINTSY INTEGERS.
 
-!PAM04 LINTSY = LCSPCK+(NCSPCK+(RTOI-1))/RTOI
-!PAM04 Changed to following line:
 call mma_allocate(INTSY,NINTSY,label='INTSY')
-!PAM04 call iDAFILE(LUSYMB,2,INTSY,NINTSY,IADD10)
 call iDAFILE(LUSYMB,2,INTSY,NINTSY,IADD10)
 
 ! INDX - START POSITION IN CI ARRAY OF EACH INTERNAL-WALK-BLOCK
 
-!PAM04 LINDX = LINTSY+(NINTSY+(RTOI-1))/RTOI
-!PAM04 Changed to following line:
 call mma_allocate(INDX,NIWLK,label='INDX')
 
 ! ISAB - ORDERING NR OF EACH VIRTUAL PAIR WITHIN ITS COMB-SYMM
 
-!PAM04 LISAB = LINDX+NIWLK
-!PAM04 Changed to following line:
 call mma_allocate(ISAB,NVIRT,NVIRT,label='ISAB')
 
 ! JREFX - FOR EACH VALENCE CSF, EITHER 0 OR ITS REFERENCE NR.
 
-!PAM04 LJREFX = LISAB+(1+NVIRT**2)/RTOI
-!PAM04 Changed to following line:
 call mma_allocate(JREFX,NCVAL,label='JREFX')
 IADD10 = IAD10(2)
 call iDAFILE(LUSYMB,2,JREFX,NCVAL,IADD10)
 
 ! PROJECTION SELECTION VECTORS
 
-!PAM04 LCISEL = LJREFX+(1+NCVAL)/RTOI
-!PAM04 Changed to following line:
 call mma_allocate(CISEL,NREF,NSEL,label='CISEL')
 
 ! START OF NON-PERMANENT AREA:
 
-!PAM04 LPERMA = LCISEL+NSEL*NREF
-!PAM04 call INDMAT(CSPCK,INTSY,INDX,ISAB,JREFX,CISEL)
 call INDMAT(CSPCK,INTSY,INDX,ISAB,JREFX,CISEL)
 if (NREF > MXREF) then
   write(u6,*) 'READIN Error: Too many references.'

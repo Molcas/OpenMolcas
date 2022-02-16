@@ -43,8 +43,6 @@ do
     if (ICHK /= 0) then
       ICHK = 0
       INDI = IND
-      !NI = mod(INDI,2**10)
-      !NK = mod(INDI/2**10,2**10)
       NI = ibits(INDI,0,10)
       NK = ibits(INDI,10,10)
       IK = IROW(NK)+NI
@@ -52,14 +50,11 @@ do
     else if (IND == 0) then
       ICHK = 1
     else
-      !IVL = mod(IND,2**6)
       IVL = ibits(IND,0,6)
       if (IVL /= IVVER) cycle
-      !IC2 = mod(IND/2**6,2**13)
       IC2 = ibits(IND,6,13)
       NA = JREFX(IC2)
       if (NA == 0) cycle
-      !IC1 = mod(IND/2**19,2**13)
       IC1 = ibits(IND,19,13)
       NB = JREFX(IC1)
       if (NB == 0) cycle
@@ -84,7 +79,6 @@ do
   call iDAFILE(Lu_70,2,INDSRT,NSRTMX+2,IADR)
   LENGTH = INDSRT(NSRTMX+1)
   IADR = INDSRT(NSRTMX+2)
-  !if (LENGTH > 0) call SCATTER(LENGTH,FIJKL,INDSRT,VALSRT)
   do i=1,length
     FIJKL(INDSRT(i)) = VALSRT(i)
   end do
@@ -101,14 +95,6 @@ do
     if (ICHK /= 0) then
       ICHK = 0
       INDI = IND
-      !PAM96 IP = iand(INDI,255)
-      !PAM96 JP = iand(ishft(INDI,-8),255)
-      !PAM96 KP = iand(ishft(INDI,-16),255)
-      !PAM96 LP = iand(ishft(INDI,-24),255)
-      !IP = mod(INDI,2**8)
-      !JP = mod(INDI/2**8,2**8)
-      !KP = mod(INDI/2**16,2**8)
-      !LP = mod(INDI/2**24,2**8)
       IP = ibits(INDI,0,8)
       JP = ibits(INDI,8,8)
       KP = ibits(INDI,16,8)
@@ -120,14 +106,11 @@ do
     else if (IND == 0) then
       ICHK = 1
     else
-      !IVL = mod(IND,2**6)
       IVL = ibits(IND,0,6)
       if (IVL /= 0) cycle
-      !IC2 = mod(IND/2**6,2**13)
       IC2 = ibits(IND,6,13)
       NA = JREFX(IC2)
       if (NA == 0) cycle
-      !IC1 = mod(IND/2**19,2**13)
       IC1 = ibits(IND,19,13)
       NB = JREFX(IC1)
       if (NB == 0) cycle

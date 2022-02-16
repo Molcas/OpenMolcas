@@ -9,7 +9,6 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-!PAM04 subroutine SORT(BUFOUT,INDOUT,FC,FIIJJ,FIJIJ,NINTGR)
 subroutine SORT_MRCI(BUFS,INDS,FC,FIIJJ,FIJIJ,NINTGR)
 
 use mrci_global, only: IAD25S, ICH, IPRINT, IROW, ITOC17, LASTAD, LN, Lu_25, Lu_60, LUONE, LUTRA, MCHAIN, NBITM3, NBTRI, NCHN3, &
@@ -52,15 +51,8 @@ NOT2 = IROW(LN+1)
 NOTT = 2*NOT2
 NOVST = LN*NVIRT+1+NVT
 IDISK = 0
-!PAM97 The portable code should then be:
-!PAM04 NBITM3 = (RTOI*NBSIZ3-2)/(RTOI+1)
-!PAM04 IBOFF3 = RTOI*NBITM3
-!PAM04 IBBC3 = IBOFF3+NBITM3+1
-!PAM04 IBDA3 = IBBC3+1
 
 do IREC=1,NCHN3
-  !PAM04 INDOUT(IBBC3+(IREC-1)*RTOI*NBSIZ3) =  0
-  !PAM04 INDOUT(IBDA3+(IREC-1)*RTOI*NBSIZ3) = -1
   INDS(NBITM3+1,IREC) = 0
   INDS(NBITM3+2,IREC) = -1
 end do
@@ -105,7 +97,6 @@ end do
 if (IPRINT >= 20) then
   call TRIPRT('FC IN SORT_MRCI BEFORE TWOEL',' ',FC,NORBT)
   write(u6,'(A,F20.8)') ' EFROZ:',EFROZ
-  call XFLUSH(u6)
 end if
 call FZERO(FIIJJ,NBTRI)
 call FZERO(FIJIJ,NBTRI)
@@ -204,11 +195,8 @@ do NSP=1,NSYM
                     if (NK > LN) cycle
                     ! ABIJ
                     IIJ = IROW(NK)+NL
-                    !PAM04 IPOS = INDOUT(IBBC3+(IIJ-1)*RTOI*NBSIZ3)+1
-                    !PAM04 INDOUT(IBBC3+(IIJ-1)*RTOI*NBSIZ3) = IPOS
                     IPOS = INDS(NBITM3+1,IIJ)+1
                     INDS(NBITM3+1,IIJ) = IPOS
-                    !PAM04 BUFOUT(IPOS+(IIJ-1)*NBSIZ3) = FINI
                     BUFS(IPOS,IIJ) = FINI
                     NSA = NSM(NI)
                     NAV = NI-LN-NVIRP(NSA)
@@ -216,15 +204,11 @@ do NSP=1,NSYM
                     NBV = NJ-LN-NVIRP(NSB)
                     NSIJT = (MUL(NSM(NK),NSM(NL))-1)*NSYM
                     INAV = IPOF(NSIJT+NSA)+(NBV-1)*NVIR(NSA)+NAV
-                    !PAM04 INDOUT(IBOFF3+IPOS+(IIJ-1)*RTOI*NBSIZ3) = INAV
                     INDS(IPOS,IIJ) = INAV
                     if (IPOS >= NBITM3) then
                       JDISK = IDISK
-                      !PAM04 call dDAFILE(Lu_60,1,INDOUT(1+(IIJ-1)*RTOI*NBSIZ3),NBSIZ3,IDISK)
                       call iDAFILE(Lu_60,1,INDS(1,IIJ),NBITM3+2,IDISK)
                       call dDAFILE(Lu_60,1,BUFS(1,IIJ),NBITM3,IDISK)
-                      !PAM04 INDOUT(IBBC3+(IIJ-1)*RTOI*NBSIZ3) = 0
-                      !PAM04 INDOUT(IBDA3+(IIJ-1)*RTOI*NBSIZ3) = JDISK
                       INDS(NBITM3+1,IIJ) = 0
                       INDS(NBITM3+2,IIJ) = JDISK
                     end if
@@ -237,12 +221,8 @@ do NSP=1,NSYM
                     ! AIBJ
                     IIJ = NOT2+IROW(NJ)+NL
                     if (NL > NJ) IIJ = NOT2+IROW(NL)+NJ
-                    !PAM04 IPOS = INDOUT(IBBC3+(IIJ-1)*RTOI*NBSIZ3)+1
-                    !PAM04 INDOUT(IBBC3+(IIJ-1)*RTOI*NBSIZ3) = IPOS
                     IPOS = INDS(NBITM3+1,IIJ)+1
                     INDS(NBITM3+1,IIJ) = IPOS
-                    !BUFOUT(IPOS,IIJ) = FINI
-                    !PAM04 BUFOUT(IPOS+(IIJ-1)*NBSIZ3) = FINI
                     BUFS(IPOS,IIJ) = FINI
                     NSA = NSM(NI)
                     NAV = NI-LN-NVIRP(NSA)
@@ -254,15 +234,11 @@ do NSP=1,NSYM
                     else
                       INAV = IPOF(NSIJT+NSB)+(NAV-1)*NVIR(NSB)+NBV
                     end if
-                    !PAM04 INDOUT(IPOS+IBOFF3+(IIJ-1)*RTOI*NBSIZ3) = INAV
                     INDS(IPOS,IIJ) = INAV
                     if (IPOS >= NBITM3) then
                       JDISK = IDISK
-                      !PAM04 call dDAFILE(Lu_60,1,INDOUT(1+(IIJ-1)*RTOI*NBSIZ3),NBSIZ3,IDISK)
                       call iDAFILE(Lu_60,1,INDS(1,IIJ),NBITM3+2,IDISK)
                       call dDAFILE(Lu_60,1,BUFS(1,IIJ),NBITM3,IDISK)
-                      !PAM04 INDOUT(IBBC3+(IIJ-1)*RTOI*NBSIZ3) = 0
-                      !PAM04 INDOUT(IBDA3+(IIJ-1)*RTOI*NBSIZ3) = JDISK
                       INDS(NBITM3+1,IIJ) = 0
                       INDS(NBITM3+2,IIJ) = JDISK
                     end if
@@ -273,22 +249,14 @@ do NSP=1,NSYM
                   else
                     ! AIJK
                     JK = NOTT+IROW(NK)+NL
-                    !PAM04 IPOS = INDOUT(IBBC3+(JK-1)*RTOI*NBSIZ3)+1
-                    !PAM04 INDOUT(IBBC3+(JK-1)*RTOI*NBSIZ3) = IPOS
                     IPOS = INDS(NBITM3+1,JK)+1
                     INDS(NBITM3+1,JK) = IPOS
-                    !BUFOUT(IPOS,JK) = FINI
-                    !PAM04 BUFOUT(IPOS+(JK-1)*NBSIZ3) = FINI
                     BUFS(IPOS,JK) = FINI
-                    !PAM04 INDOUT(IBOFF3+IPOS+(JK-1)*RTOI*NBSIZ3) = IROW(NI)+NJ
                     INDS(IPOS,JK) = IROW(NI)+NJ
                     if (IPOS >= NBITM3) then
                       JDISK = IDISK
-                      !PAM04 call dDAFILE(Lu_60,1,INDOUT(1+(JK-1)*RTOI*NBSIZ3),NBSIZ3,IDISK)
                       call iDAFILE(Lu_60,1,INDS(1,JK),NBITM3+2,IDISK)
                       call dDAFILE(Lu_60,1,BUFS(1,JK),NBITM3,IDISK)
-                      !PAM04 INDOUT(IBBC3+(JK-1)*RTOI*NBSIZ3) = 0
-                      !PAM04 INDOUT(IBDA3+(JK-1)*RTOI*NBSIZ3) = JDISK
                       INDS(NBITM3+1,JK) = 0
                       INDS(NBITM3+2,JK) = JDISK
                     end if
@@ -309,7 +277,6 @@ if ((NOVST+NCHN3) > MCHAIN) then
 end if
 do I=1,NCHN3
   JDISK = IDISK
-  !PAM04 call dDAFILE(Lu_60,1,INDOUT(1+(I-1)*RTOI*NBSIZ3),NBSIZ3,IDISK)
   call iDAFILE(Lu_60,1,INDS(1,I),NBITM3+2,IDISK)
   call dDAFILE(Lu_60,1,BUFS(1,I),NBITM3,IDISK)
   LASTAD(NOVST+I) = JDISK
@@ -323,9 +290,7 @@ call dDAFILE(Lu_25,1,FC,NBTRI,IADD25)
 IAD25S = IADD25
 !if (IPRINT >= 2) then
 write(u6,154)
-call XFLUSH(u6)
 write(u6,155) (IVEC(I),I=1,20)
-call XFLUSH(u6)
 !end if
 
 return

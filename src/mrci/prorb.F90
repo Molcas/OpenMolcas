@@ -21,15 +21,10 @@ integer(kind=iwp) :: I, IEB, IEM, IEND, IST, ISYM, J, JEMO, JSMO, NB, NDIV, NPRT
 character(len=LenIn8), external :: CLEAN_BNAME
 
 write(u6,*)
-call XFLUSH(u6)
 write(u6,*) 'NATURAL ORBITALS IN AO BASIS. IN EACH SYMMETRY,'
-call XFLUSH(u6)
 write(u6,*) 'THE ORBITALS PRINTED ARE THOSE UP TO AND INCLUDING'
-call XFLUSH(u6)
 write(u6,*) 'THE LAST ORBITAL WITH OCCUPATION NUMBER LARGER'
-call XFLUSH(u6)
 write(u6,'(A,F10.7)') ' THAN THRORB = ',THRORB
-call XFLUSH(u6)
 IEB = 0
 IEM = 0
 NDIV = 10
@@ -42,20 +37,15 @@ do ISYM=1,NSYM
   end do
   if (NPRT /= 0) then
     write(u6,'(/28X,''SYMMETRY LABEL'',I3)') ISYM
-    call XFLUSH(u6)
     do IST=1,NPRT,NDIV
       IEND = min(NPRT,IST-1+NDIV)
       write(u6,'(/5X,''ORBITAL'',6X,10I8)') (I,I=IST,IEND)
-      call XFLUSH(u6)
       write(u6,'( 5X,''OCC.NO.'',8X,10F8.5)') (OCC(IEB+I),I=IST,IEND)
-      call XFLUSH(u6)
       write(u6,*)
-      call XFLUSH(u6)
       do I=1,NB
         JSMO = IEM+I+NB*(IST-1)
         JEMO = IEM+I+NB*(IEND-1)
         write(u6,'(1X,I3,2X,A,10F8.4)') I,CLEAN_BNAME(BNAME(IEB+I),LenIn),(CNO(J),J=JSMO,JEMO,NB)
-        call XFLUSH(u6)
       end do
     end do
   end if

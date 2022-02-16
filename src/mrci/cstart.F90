@@ -87,16 +87,12 @@ if (IREST == 0) then
   end do
   if (NNEW > 1) then
     write(u6,*) ' THE FOLLOWING REFERENCE ROOTS ARE USED AS START VECTORS:'
-    call XFLUSH(u6)
     write(u6,'(12(A,I2))') ' ROOTS NR ',ISTART(1),(',',ISTART(I),I=2,NNEW-1),', AND ',ISTART(NNEW)
-    call XFLUSH(u6)
     if (NNEW > NRROOT) then
       write(u6,*) ' (THE FIRST EXTRA ROOT(S) WERE INCLUDED IN ORDER TO IMPROVE CONVERGENCE)'
-      call XFLUSH(u6)
     end if
   else
     write(u6,'(A,I2,A)') ' ROOT NR ',ISTART(1),' IS USED AS START VECTOR.'
-    call XFLUSH(u6)
   end if
   do I=1,NNEW
     ISTA = ISTART(I)

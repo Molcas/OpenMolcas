@@ -36,26 +36,6 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp) :: IRETURN
 
-! Prologue, print program header
-!
-!call SETTIM()
-!call XUFLOW()
-!
-! ( Workspace allocated in Start() )
-!
-!call IniMem()
-!PAM04 call GetMem('WrkSpc','Max ','Real',MemOff,MaxMem)
-!PAM04 ! PAM July 2004:
-!PAM04 ! Actually allocate only half the memory, minus some spare overhead.
-!PAM04 ! This is a temporary measure. I will systematically change the
-!PAM04 ! present static allocation in order to use GETMEM instead.
-!PAM04 ! Changed statement:
-!PAM04 !MaxMem = MaxMem-3*1000
-!PAM04 MaxMem = (MaxMem-3*1000)/2
-!PAM04 call GetMem('WrkSpc','Allo','Real',MemOff,MaxMem)
-!PAM04 write(u6,*) " Allocated 'WrkSpc'. memoff, maxmem=",memoff,maxmem
-
-!PAM04 Now try completely without "WrkSpc" array:
 call mma_maxdble(MemTot)
 
 ! Open files
@@ -86,8 +66,6 @@ call DANAME(Lu_27,'FT27F001')
 
 ! main body
 
-!PAM04 iMemOff = ip_of_iWork(Work(MemOff))
-!PAM04 call SDCI(Work(MemOff),iWork(iMemOff))
 call SDCI_MRCI()
 
 ! Epilogue, end

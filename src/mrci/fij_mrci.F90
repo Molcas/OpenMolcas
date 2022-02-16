@@ -41,17 +41,12 @@ do
     if (ICHK /= 0) then
       ICHK = 0
       INDI = IND
-      !NI = mod(INDI,2**10)
-      !NK = mod(INDI/2**10,2**10)
       NI = ibits(INDI,0,10)
       NK = ibits(INDI,10,10)
       IK = IROW(NK)+NI
     else if (IND == 0) then
       ICHK = 1
     else
-      !IVL = mod(IND,2**6)
-      !IC2 = mod(IND/2**6,2**13)
-      !IC1 = mod(IND/2**19,2**13)
       IVL = ibits(IND,0,6)
       IC2 = ibits(IND,6,13)
       IC1 = ibits(IND,19,13)

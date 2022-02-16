@@ -30,12 +30,9 @@ if (ISTATE == JSTATE) then
   call RDONE(IRTC,6,'MLTPL  0',1,SMAT,IDUMMY)
   ! CALCULATE AND WRITE MULLIKEN CHARGES.
   write(u6,*)
-  call XFLUSH(u6)
   write(u6,'(A,I2)') ' MULLIKEN CHARGES FOR STATE NR ',ISTATE
-  call XFLUSH(u6)
   call CHARGE(NSYM,NBAS,BNAME,CNO,OCC,SMAT,2,.true.,.true.)
   write(u6,*) ' ',('*',I=1,70)
-  call XFLUSH(u6)
 end if
 ! FOLD TDAO SYMMETRICALLY (ANTI-SYMM) INTO SFOLD (AFOLD):
 ! MOLCAS2 UPDATE: SYMMETRY-BLOCKED STORAGE.
@@ -81,8 +78,6 @@ do IPROP=1,NPROP
         NB2 = NBAS(ISY2)
         if (NB2 == 0) cycle
         ISY12 = MUL(ISY1,ISY2)
-        !PAM96 MASK = 2**(ISY12-1)
-        !PAM96 if (iand(ISYMLB,MASK) == 0) cycle
         if (mod(ISYMLB,2**(ISY12)) == 0) cycle
         NB12 = NB1*NB2
         if (ISY12 == 1) then

@@ -17,9 +17,6 @@ implicit none
 integer(kind=iwp) :: JSUNP
 integer(kind=iwp) :: INTSYM(*), L
 
-!INTW = INTSYM((L+9)/10)
-!IPOW = 2**(27-3*mod(L-1,10))
-!JSUNP = 1+mod(INTW/IPOW,8)
 JSUNP = 1+mod(INTSYM((L+9)/10)/(2**(27-3*mod(L-1,10))),8)
 
 return

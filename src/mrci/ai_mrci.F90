@@ -9,7 +9,6 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-!subroutine AI(INTSYM,INDX,C,S,FC,BUFIN,IBUFIN,A,B,FK,DBK,KTYP)
 subroutine AI_MRCI(INTSYM,INDX,C,S,FC,A,B,FK,DBK,KTYP)
 
 use mrci_global, only: IRC, IREST, IROW, ITER, LASTAD, LN, LSYM, Lu_60, LUSYMB, NBITM3, NBTRI, NSM, NSYM, NVIR, NVIRP, NVIRT, SQ2, &
@@ -21,7 +20,7 @@ use Definitions, only: wp, iwp, r8
 
 implicit none
 integer(kind=iwp) :: INTSYM(*), INDX(*), KTYP
-real(kind=wp) :: C(*), S(*), FC(*), A(*), B(*), FK(*), DBK(*) !, BUFIN(*), IBUFIN(*)
+real(kind=wp) :: C(*), S(*), FC(*), A(*), B(*), FK(*), DBK(*)
 #include "cop.fh"
 integer(kind=iwp) :: i, IADR, ICHK, ICP1, ICP2, IFT, II, IJ, IJOLD, ILEN, IND, INDA, INDB, INDI, INMY, INNY, IOUT, IPOB(9), ITYP, &
                      J, LENGTH, MYEXTS, MYINTS, NA, NAK, NI, NJ, NK, NKM, NOTT, NOVST, NSA, NSI, NSIJ, NSJ, NSK, NVIRA, NVM, NVT, &
@@ -51,10 +50,6 @@ NSA = 1
 NOTT = LN*(LN+1)
 NOVST = LN*NVIRT+1+NVT
 !PAM97 New portable code:
-!PAM04 NBCMX3 = (RTOI*NBSIZ3-2)/(RTOI+1)
-!PAM04 IBOFF3 = RTOI*NBCMX3
-!PAM04 IBBC3 = IBOFF3+NBCMX3+1
-!PAM04 IBDA3 = IBBC3+1
 
 if (KTYP == 0) IADD10 = IAD10(9)
 if (KTYP == 1) IADD10 = IAD10(7)
@@ -82,9 +77,6 @@ do
       else
         ! AIJK CASE. UNPACK INTERNAL ORBITAL INDICES INTO NI,NJ,NK:
         INDI = IND
-        !NI = mod(INDI,2**10)
-        !NJ = mod(INDI/2**10,2**10)
-        !NK = mod(INDI/2**20,2**10)
         NI = ibits(INDI,0,10)
         NJ = ibits(INDI,10,10)
         NK = ibits(INDI,20,10)
@@ -101,16 +93,11 @@ do
           call FZERO(FC,NBTRI)
 
           do
-            !PAM04 call dDAFILE(Lu_60,2,IBUFIN,NBSIZ3,IADR)
             call iDAFILE(Lu_60,2,iBuf,NBITM3+2,IADR)
             call dDAFILE(Lu_60,2,Buf,NBITM3,IADR)
             LENGTH = iBuf(NBITM3+1)
             IADR = iBuf(NBITM3+2)
-            !PAM04 LENGTH = IBUFIN(IBBC3)
-            !PAM04 IADR = IBUFIN(IBDA3)
-            !call SCATTER(LENGTH,FC,IBUFIN(IBOFF3+1),BUFIN)
             do i=1,length
-              !PAM04 fc(IBUFIN(IBOFF3+i)) = bufin(i)
               fc(iBuf(i)) = Buf(i)
             end do
             if (IADR == -1) exit
@@ -130,9 +117,6 @@ do
       ICHK = 1
     else if (NVIRA /= 0) then
       ! WE ARE PROCESSING A COUPLING COEFFICIENT AS USUAL.
-      !ITYP = mod(IND,2**6)
-      !ICP2 = mod(IND/2**6,2**13)
-      !ICP1 = mod(IND/2**19,2**13)
       ITYP = ibits(IND,0,6)
       ICP2 = ibits(IND,6,13)
       ICP1 = ibits(IND,19,13)

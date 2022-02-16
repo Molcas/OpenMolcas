@@ -31,7 +31,7 @@ real(kind=wp), allocatable :: ABIJ(:), AC1(:), AC2(:), AIBJ(:), AJBI(:), ARR(:,:
                               BFIN5(:), BIAC2(:), BICA2(:), BMN(:), BSCR1(:), BSCR2(:), CBUF(:,:), CNEW(:,:), CSECT(:,:), DBK(:), &
                               DBUF(:), ELAST(:), EZERO(:), FSCR1(:), FSCR2(:), FSEC(:), HCOPY(:,:), HSMALL(:,:), PCOPY(:,:), &
                               PSEL(:), PSMALL(:,:), RNRM(:), RSECT(:,:), SBUF(:,:), SCOPY(:,:), SCR(:), SSMALL(:,:), XI1(:,:), &
-                              XI2(:,:) !, EPERT(:)
+                              XI2(:,:)
 real(kind=r8), external :: DDOT_
 
 call mma_allocate(CBUF,MBUF,MXVEC,label='CBUF')
@@ -109,10 +109,6 @@ do
     call mma_allocate(BSCR2,NVMAX**2,label='BSCR2')
     call mma_allocate(FSCR2,NVSQ,label='FSCR2')
     call mma_allocate(DBK,2*NVSQ,label='DBK')
-    !vv call SIGMA(HWORK,CI,SGM)
-    !pam call SIGMA(HWORK)
-    !PAM04 call SIGMA(HWork(LSGM),HWork(LAREF),HWork(LCI),INTSY,INDX,BMN,IBMN,BIAC2,BICA2,BFIN3,FIJKL,LISAB,AC1,AC2,BFIN4,ABIJ, &
-    !PAM04            AIBJ,AJBI,HWork(LBFIN1),ASCR1,BSCR1,FSCR1,FSEC,FOCK,FSCR2,DBK,CSPCK)
     call SIGMA(SGM,AREF,CI,INTSY,INDX,BMN,IBMN,BIAC2,BICA2,BFIN3,ISAB,AC1,AC2,BFIN4,ABIJ,AIBJ,AJBI,ASCR1,BSCR1,FSCR1,FSEC,FOCK, &
                BFIN5,ASCR2,BSCR2,FSCR2,DBK,CSPCK)
     call mma_deallocate(BMN)
@@ -595,12 +591,10 @@ do I=1,NRROOT
     call Add_Info('E_MRSDCI',[ECI],1,8)
   end if
   write(u6,*)
-  !PAM04 call PRWF_MRCI(CSPCK,INTSY,INDX,CI,JREFX)
   call PRWF_MRCI(CSPCK,INTSY,INDX,CI,JREFX)
   write(u6,*) ' ',('*',III=1,70)
   call dDAFILE(LUREST,1,CI,NCONF,IDREST)
 end do
-call XFlush(u6)
 
 call mma_deallocate(CBUF)
 call mma_deallocate(SBUF)

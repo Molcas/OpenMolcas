@@ -39,7 +39,7 @@ real(kind=wp), allocatable :: TMP(:,:)
 !end do
 !write(u6,*)' RR ARRAY:'
 !do I=1,NRROOT
-!  write(u6,'(1X,5F15.6)') (ARR(I,J,IRR ),J=1,NRROOT)
+!  write(u6,'(1X,5F15.6)') (ARR(I,J,IRR),J=1,NRROOT)
 !end do
 !write(u6,*)' X1R ARRAY:'
 !do I=1,NRROOT

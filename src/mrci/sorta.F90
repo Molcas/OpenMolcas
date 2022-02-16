@@ -34,19 +34,13 @@ logical(kind=iwp) :: Skip
 
 call COUNT_MRCI(NINTGR,NSYM,NORB,MUL)
 if (IPRINT >= 6) write(u6,1234) NINTGR
-call XFLUSH(u6)
 
 IAD50 = 0
 call iDAFILE(LUTRA,2,iTraToc,nTraToc,IAD50)
-!IBOFF1 = RTOI*NBITM1
-!IBBC1 = IBOFF1+NBITM1+1
-!IBDA1 = IBBC1+1
 
 IDISK = 0
 ICHK = 0
 do IREC=1,NCHN1
-  !INDOUT(IBBC1+(IREC-1)*RTOI*NBSIZ1) = 0
-  !INDOUT(IBDA1+(IREC-1)*RTOI*NBSIZ1) = -1
   INDS(NBITM1+1,IREC) = 0
   INDS(NBITM1+2,IREC) = -1
 end do
@@ -142,21 +136,14 @@ do NSP=1,NSYM
                     NI = NJ
                   end if
                   NIB = (NI-1)*NVIRT+NB+1
-                  !IPOS = INDOUT(IBBC1+(NIB-1)*RTOI*NBSIZ1)+1
-                  !INDOUT(IBBC1+(NIB-1)*RTOI*NBSIZ1) = IPOS
                   IPOS = INDS(NBITM1+1,NIB)+1
                   INDS(NBITM1+1,NIB) = IPOS
-                  !BUFOUT(IPOS+(NIB-1)*NBSIZ1) = FINI
-                  !INDOUT(IBOFF1+IPOS+(NIB-1)*RTOI*NBSIZ1) = (NA-1)*NVIRT+NC
                   BUFS(IPOS,NIB) = FINI
                   INDS(IPOS,NIB) = (NA-1)*NVIRT+NC
                   if (IPOS >= NBITM1) then
                     JDISK = IDISK
-                    !call dDAFILE(Lu_60,1,INDOUT(1+(NIB-1)*RTOI*NBSIZ1),NBSIZ1,IDISK)
                     call iDAFILE(Lu_60,1,INDS(1,NIB),NBITM1+2,IDISK)
                     call dDAFILE(Lu_60,1,BUFS(1,NIB),NBITM1,IDISK)
-                    !INDOUT(IBDA1+(NIB-1)*RTOI*NBSIZ1) = JDISK
-                    !INDOUT(IBBC1+(NIB-1)*RTOI*NBSIZ1) = 0
                     INDS(NBITM1+1,NIB) = 0
                     INDS(NBITM1+2,NIB) = JDISK
                   end if
@@ -165,21 +152,14 @@ do NSP=1,NSYM
                     NA = NB
                     NB = NAT
                     NIB = (NI-1)*NVIRT+NB+1
-                    !IPOS = INDOUT(IBBC1+(NIB-1)*RTOI*NBSIZ1)+1
-                    !INDOUT(IBBC1+(NIB-1)*RTOI*NBSIZ1) = IPOS
                     IPOS = INDS(NBITM1+1,NIB)+1
                     INDS(NBITM1+1,NIB) = IPOS
-                    !BUFOUT(IPOS+(NIB-1)*NBSIZ1) = FINI
-                    !INDOUT(IBOFF1+IPOS+(NIB-1)*RTOI*NBSIZ1) = (NA-1)*NVIRT+NC
                     BUFS(IPOS,NIB) = FINI
                     INDS(IPOS,NIB) = (NA-1)*NVIRT+NC
                     if (IPOS >= NBITM1) then
                       JDISK = IDISK
-                      !call dDAFILE(Lu_60,1,INDOUT(1+(NIB-1)*RTOI*NBSIZ1),NBSIZ1,IDISK)
                       call iDAFILE(Lu_60,1,INDS(1,NIB),NBITM1+2,IDISK)
                       call dDAFILE(Lu_60,1,BUFS(1,NIB),NBITM1,IDISK)
-                      !INDOUT(IBDA1+(NIB-1)*RTOI*NBSIZ1) = JDISK
-                      !INDOUT(IBBC1+(NIB-1)*RTOI*NBSIZ1) = 0
                       INDS(NBITM1+1,NIB) = 0
                       INDS(NBITM1+2,NIB) = JDISK
                     end if
@@ -190,21 +170,14 @@ do NSP=1,NSYM
                   KL = IROW(NK)+NL
                   IJKL = IIJ*(IIJ-1)/2+KL
                   IJ = 1
-                  !IPOS = INDOUT(IBBC1+(IJ-1)*RTOI*NBSIZ1)+1
-                  !INDOUT(IBBC1+(IJ-1)*RTOI*NBSIZ1) = IPOS
                   IPOS = INDS(NBITM1+1,IJ)+1
                   INDS(NBITM1+1,IJ) = IPOS
-                  !BUFOUT(IPOS+(IJ-1)*NBSIZ1) = FINI
-                  !INDOUT(IBOFF1+IPOS+(IJ-1)*RTOI*NBSIZ1) = IJKL
                   BUFS(IPOS,IJ) = FINI
                   INDS(IPOS,IJ) = IJKL
                   if (IPOS == NBITM1) then
                     JDISK = IDISK
-                    !call dDAFILE(Lu_60,1,INDOUT(1+(IJ-1)*RTOI*NBSIZ1),NBSIZ1,IDISK)
                     call iDAFILE(Lu_60,1,INDS(1,IJ),NBITM1+2,IDISK)
                     call dDAFILE(Lu_60,1,BUFS(1,IJ),NBITM1,IDISK)
-                    !INDOUT(IBDA1+(IJ-1)*RTOI*NBSIZ1) = JDISK
-                    !INDOUT(IBBC1+(IJ-1)*RTOI*NBSIZ1) = 0
                     INDS(NBITM1+1,IJ) = 0
                     INDS(NBITM1+2,IJ) = JDISK
                   end if
@@ -224,7 +197,6 @@ if (NCHN1 > MCHAIN) then
 end if
 do I=1,NCHN1
   JDISK = IDISK
-  !call dDAFILE(Lu_60,1,INDOUT(1+(I-1)*RTOI*NBSIZ1),NBSIZ1,IDISK)
   call iDAFILE(Lu_60,1,INDS(1,I),NBITM1+2,IDISK)
   call dDAFILE(Lu_60,1,BUFS(1,I),NBITM1,IDISK)
   LASTAD(I) = JDISK
@@ -235,17 +207,12 @@ IBUFIJ = 0
 ISRTAD = -1
 IADR = LASTAD(1)
 do
-  !call dDAFILE(Lu_60,2,INDOUT,NBSIZ1,IADR)
   call iDAFILE(Lu_60,2,INDS,NBITM1+2,IADR)
   call dDAFILE(Lu_60,2,BUFS,NBITM1,IADR)
-  !LENGTH = INDOUT(IBBC1)
-  !IADR = INDOUT(IBDA1)
   LENGTH = INDS(NBITM1+1,1)
   IADR = INDS(NBITM1+2,1)
   do I=1,LENGTH
     IBUFIJ = IBUFIJ+1
-    !VALSRT(IBUFIJ) = BUFOUT(I)
-    !INDSRT(IBUFIJ) = INDOUT(IBOFF1+I)
     VALSRT(IBUFIJ) = BUFS(I,1)
     INDSRT(IBUFIJ) = INDS(I,1)
     if (IBUFIJ < NSRTMX) cycle
@@ -322,23 +289,16 @@ do
     ! READ & PROCESS INTEGRAL BUFFERS ON UNIT 14:
     IADR = LASTAD(NIB)
     do
-      !call dDAFILE(Lu_60,2,INDOUT,NBSIZ1,IADR)
       call iDAFILE(Lu_60,2,INDS,NBITM1+2,IADR)
       call dDAFILE(Lu_60,2,BUFS,NBITM1,IADR)
-      !LENGTH = INDOUT(IBBC1)
-      !IADR = INDOUT(IBDA1)
       LENGTH = INDS(NBITM1+1,1)
       IADR = INDS(NBITM1+2,1)
       do KK=1,LENGTH
-        !INND = INDOUT(IBOFF1+KK)
         INND = INDS(KK,1)
         NA = (INND-1)/NVIRT+1
         NC = INND-(NA-1)*NVIRT
         IACS = ISAB(NA+(NC-1)*NVIRT)
-        !BIAC(IACS) = BIAC(IACS)+BUFOUT(KK)
         BIAC(IACS) = BIAC(IACS)+BUFS(KK,1)
-        !if (NA > NC) BICA(IACS) = BICA(IACS)-BUFOUT(KK)
-        !if (NA < NC) BICA(IACS) = BICA(IACS)+BUFOUT(KK)
         if (NA > NC) BICA(IACS) = BICA(IACS)-BUFS(KK,1)
         if (NA < NC) BICA(IACS) = BICA(IACS)+BUFS(KK,1)
       end do

@@ -29,10 +29,7 @@ integer(kind=iwp), external :: ICUNP, JSUNP
 real(kind=r8), external :: DDOT_
 !Statement functions
 integer(kind=iwp) :: JCASE, JSYM, L
-!PAM97 integer(kind=iwp), external :: UNPACK
-!PAM97 JCASE(L)=UNPACK(CSPCK((L+29)/30), 2*L-(2*L-1)/60*60, 2)
 JCASE(L) = ICUNP(ICSPCK,L)
-!PAM96 JSYM(L)=UNPACK(INTSYM((L+9)/10),3*mod(L-1,10)+1,3)+1
 JSYM(L) = JSUNP(INTSYM,L)
 
 ILIM = 4
@@ -94,18 +91,14 @@ NCONF = JSC(ILIM)
 ! LIST THE REFERENCE CONFIGURATIONS, AND AT THE SAME TIME,
 ! IDENTIFY CSFS GIVEN IN SELECTION VECTOR INPUT:
 write(u6,*)
-call XFLUSH(u6)
 write(u6,*) '      LIST OF REFERENCE CONFIGURATIONS.'
-call XFLUSH(u6)
 write(u6,*) '     CONF NR:    GUGA CASE NUMBERS OF ACTIVE ORBITALS:'
-call XFLUSH(u6)
 do I=1,IRC(1)
   IREF = JREFX(I)
   if (IREF == 0) cycle
   IREFX(IREF) = I
   IOFF = LN*(I-1)
   write(u6,'(5X,I6,7X,30I1)') I,(JCASE(IOFF+J),J=1,LN)
-  call XFLUSH(u6)
   JJ = 0
   loop1: do ISEL=1,NSEL
     CISEL(IREF,ISEL) = Zero
@@ -140,19 +133,14 @@ do ISEL=1,NSEL
   call DSCAL_(NREF,X,CISEL(1,ISEL),1)
 end do
 write(u6,*)
-call XFLUSH(u6)
 write(u6,*) '      REAL CONFIGURATIONS:'
-call XFLUSH(u6)
 if (IFIRST == 0) then
   write(u6,215) NREF,NCVAL-NREF,NCDOUB,NCTRIP,NCSING
-  call XFLUSH(u6)
 else
   write(u6,216) NREF,NCVAL-NREF,NCDOUB
-  call XFLUSH(u6)
 end if
 JSCI = JSC(ILIM)-JJM
 write(u6,'(6X,A,I8)') '                  TOTAL ',JSCI
-call XFLUSH(u6)
 
 return
 

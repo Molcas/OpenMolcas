@@ -68,11 +68,6 @@ do
           CPLA = COP(II)
           IFAB = 0
         else
-          !IFAB = mod(INDCOP,2)
-          !ITURN = mod(INDCOP/2,2)
-          !ITYP = mod(INDCOP/2**2,2**3)
-          !ICOUP = mod(INDCOP/2**5,2**13)
-          !ICOUP1 = mod(INDCOP/2**18,2**13)
           IFAB = ibits(INDCOP,0,1)
           ITURN = ibits(INDCOP,1,1)
           ITYP = ibits(INDCOP,2,3)
@@ -111,10 +106,8 @@ do
               call DYAX(IIN,CPL,AIBJ(IPF),1,F,1)
               call DAXPY_(IIN,CPLA,ABIJ(IPF),1,F,1)
               if (INDA == INDB) call SETZZ(F,NVIR(MYL))
-              !call DGEMTX (NVIR(MYL),NVIR(NYL),FACS,F,NVIR(MYL),C(INMY),1,S(INNY),1)
               call DGEMV_('T',NVIR(MYL),NVIR(NYL),FACS,F,NVIR(MYL),C(INMY),1,One,S(INNY),1)
               if (INDA /= INDB) then
-                !call DGEMX (NVIR(MYL),NVIR(NYL),FACS,F,NVIR(MYL),C(INNY),1,S(INMY),1)
                 call DGEMV_('N',NVIR(MYL),NVIR(NYL),FACS,F,NVIR(MYL),C(INNY),1,One,S(INMY),1)
               end if
             end if
@@ -133,8 +126,6 @@ do
 
       ! Unpack indices NI and NJ from INDCOP
       INDI = INDCOP
-      !NI = mod(INDI,2**10)
-      !NJ = mod(INDI/2**10,2**10)
       NI = ibits(INDI,0,10)
       NJ = ibits(INDI,10,10)
 

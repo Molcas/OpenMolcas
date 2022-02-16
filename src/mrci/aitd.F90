@@ -52,9 +52,6 @@ do
       if (IND == 0) then
         ICHK = 1
       else if (INK /= 0) then
-        !ITYP = mod(IND,2**6)
-        !ICP2 = mod(IND/2**6,2**13)
-        !ICP1 = mod(IND/2**19,2**13)
         ITYP = ibits(IND,0,6)
         ICP2 = ibits(IND,6,13)
         ICP1 = ibits(IND,19,13)
@@ -82,25 +79,19 @@ do
           COPI = COP(II)
           if (NYL /= 1) then
             if (NSK > MYL) then
-              !call DGEMTX (NVM,INK,COPI,C1(INNY+IPOB(NSK)),NVM,C2(INMY),1,FAK,1)
               call DGEMV_('T',NVM,INK,COPI,C1(INNY+IPOB(NSK)),NVM,C2(INMY),1,One,FAK,1)
-              !call DGEMTX (NVM,INK,COPI,C2(INNY+IPOB(NSK)),NVM,C1(INMY),1,FKA,1)
               call DGEMV_('T',NVM,INK,COPI,C2(INNY+IPOB(NSK)),NVM,C1(INMY),1,One,FKA,1)
             else
               if (IFT == 1) COPI = -COPI
-              !call DGEMX (INK,NVM,COPI,C1(INNY+IPOB(MYL)),INK,C2(INMY),1,FAK,1)
               call DGEMV_('N',INK,NVM,COPI,C1(INNY+IPOB(MYL)),INK,C2(INMY),1,One,FAK,1)
-              !call DGEMX (INK,NVM,COPI,C2(INNY+IPOB(MYL)),INK,C1(INMY),1,FKA,1)
               call DGEMV_('N',INK,NVM,COPI,C2(INNY+IPOB(MYL)),INK,C1(INMY),1,One,FKA,1)
             end if
           else
             if (IFT == 0) call SQUAR(C1(INNY+IPOB(MYL)),A,NVM)
             if (IFT == 1) call SQUARN(C1(INNY+IPOB(MYL)),A,NVM)
-            !call DGEMTX (NVM,INK,COPI,A,NVM,C2(INMY),1,FAK,1)
             call DGEMV_('T',NVM,INK,COPI,A,NVM,C2(INMY),1,One,FAK,1)
             if (IFT == 0) call SQUAR(C2(INNY+IPOB(MYL)),A,NVM)
             if (IFT == 1) call SQUARN(C2(INNY+IPOB(MYL)),A,NVM)
-            !call DGEMTX (NVM,INK,COPI,A,NVM,C1(INMY),1,FKA,1)
             call DGEMV_('T',NVM,INK,COPI,A,NVM,C1(INMY),1,One,FKA,1)
           end if
         end if

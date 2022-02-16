@@ -51,9 +51,6 @@ do
         ICHK = 1
       else
         if (INK == 0) cycle
-        !ITYP = mod(IND,2**6)
-        !ICP2 = mod(IND/2**6,2**13)
-        !ICP1 = mod(IND/2**19,2**13)
         ITYP = ibits(IND,0,6)
         ICP2 = ibits(IND,6,13)
         ICP1 = ibits(IND,19,13)

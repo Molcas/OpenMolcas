@@ -23,13 +23,9 @@ real(kind=wp) :: CJ(1000), FAC
 
 if (nRow > size(CJ)) then
   write(u6,*)
-  call XFLUSH(u6)
   write(u6,*) ' *** Error in Subroutine FMUL2 ***'
-  call XFLUSH(u6)
   write(u6,*) ' row dimension exceeds local buffer size'
-  call XFLUSH(u6)
   write(u6,*)
-  call XFLUSH(u6)
   call Quit(_RC_INTERNAL_ERROR_)
 end if
 
