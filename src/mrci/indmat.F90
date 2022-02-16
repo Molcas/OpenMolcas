@@ -123,10 +123,10 @@ end do
 do ISEL=1,NSEL
   do JSEL=1,ISEL-1
     X = DDOT_(NREF,CISEL(1,JSEL),1,CISEL(1,ISEL),1)
-    call DAXPY_(NREF,-X,CISEL(1,JSEL),1,CISEL(1,ISEL),1)
+    CISEL(:,ISEL) = CISEL(:,ISEL)-X*CISEL(:,JSEL)
   end do
   X = One/DDOT_(NREF,CISEL(1,ISEL),1,CISEL(1,ISEL),1)
-  call DSCAL_(NREF,X,CISEL(1,ISEL),1)
+  CISEL(:,ISEL) = X*CISEL(:,ISEL)
 end do
 write(u6,*)
 write(u6,*) '      REAL CONFIGURATIONS:'

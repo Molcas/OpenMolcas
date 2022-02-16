@@ -26,7 +26,7 @@ integer(kind=iwp) :: i, IADD25, IADR, IBUF, IC1, IC2, ICHK, IIN, IIR, IK, ILEN, 
 real(kind=wp) :: FINI
 
 NHREF = (NREF*(NREF+1))/2
-call FZERO(HREF,NHREF)
+HREF(1:NHREF) = Zero
 ICHK = 0
 IK = 0
 FINI = Zero
@@ -71,7 +71,7 @@ end do
 ICHK = 0
 NIJ = IROW(LN+1)
 NIJKL = NIJ*(NIJ+1)/2
-call FZERO(FIJKL,NIJKL)
+FIJKL(1:NIJKL) = Zero
 FINI = Zero
 IADR = LASTAD(1)
 do

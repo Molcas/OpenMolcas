@@ -16,6 +16,7 @@ subroutine SORTB(BUFS,INDS,ACBDS,ACBDT,ISAB,BFACBD)
 use mrci_global, only: ICH, IPASS, IRC, IROW, JJS, KBUFF1, LASTAD, LN, LSYM, Lu_60, Lu_80, LUTRA, MCHAIN, NBITM2, NCHN2, NORB, &
                        NSM, NSYM, NTIBUF, NVIR, NVIRP, NVIRT, TIBUF
 use Symmetry_Info, only: Mul
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -210,8 +211,8 @@ do ISTEP=1,IPASS
         NDMAX = NVIRP(NSC)+NVIR(NSC)
         if (NDMAX > NA) NDMAX = NA
         INS = ISAB(NA+(NDMAX-1)*NVIRT)
-        call FZERO(ACBDS,INS)
-        call FZERO(ACBDT,INS)
+        ACBDS(1:INS) = Zero
+        ACBDT(1:INS) = Zero
         IADR = LASTAD(NOVST+IAC)
         do
           call iDAFILE(Lu_60,2,INDS,NBITM2+2,IADR)

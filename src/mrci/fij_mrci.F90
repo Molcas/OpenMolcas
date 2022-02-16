@@ -60,8 +60,8 @@ do
         NS1L = MUL(NS1,LSYM)
         INUM = NVIR(NS1L)
         if (IVL >= 2) INUM = NVPAIR(NS1L)
-        call DAXPY_(INUM,COPI,C(NB+1),1,S(NA+1),1)
-        call DAXPY_(INUM,COPI,C(NA+1),1,S(NB+1),1)
+        S(NA+1:NA+INUM) = S(NA+1:NA+INUM)+COPI*C(NB+1:NB+INUM)
+        S(NB+1:NB+INUM) = S(NB+1:NB+INUM)+COPI*C(NA+1:NA+INUM)
       end if
     end if
   end do

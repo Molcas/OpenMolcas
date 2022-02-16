@@ -14,6 +14,7 @@ subroutine SORT_MRCI(BUFS,INDS,FC,FIIJJ,FIJIJ)
 use mrci_global, only: IAD25S, ICH, IPRINT, IROW, ITOC17, LASTAD, LN, Lu_25, Lu_60, LUONE, LUTRA, MCHAIN, NBITM3, NBTRI, NCHN3, &
                        NELEC, NORB, NORBT, NSM, NSYM, NTIBUF, NVIR, NVIRP, NVIRT, POTNUC, TIBUF
 use Symmetry_Info, only: Mul
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -66,7 +67,7 @@ do ISYM=1,NSYM
   NORBTT = NORBTT+(NORB(ISYM)*(NORB(ISYM)+1))/2
 end do
 EFROZ = POTNUC
-call FZERO(FC,NBTRI)
+FC(:) = Zero
 IADD17 = ITOC17(2)
 call dDAFILE(LUONE,2,FIIJJ,NORBTT,IADD17)
 IBUF = 0
@@ -98,8 +99,8 @@ if (IPRINT >= 20) then
   call TRIPRT('FC IN SORT_MRCI BEFORE TWOEL',' ',FC,NORBT)
   write(u6,'(A,F20.8)') ' EFROZ:',EFROZ
 end if
-call FZERO(FIIJJ,NBTRI)
-call FZERO(FIJIJ,NBTRI)
+FIIJJ(1:NBTRI) = Zero
+FIJIJ(1:NBTRI) = Zero
 ! TWO-ELECTRON INTEGRALS
 do NSP=1,NSYM
   NOP = NORB(NSP)

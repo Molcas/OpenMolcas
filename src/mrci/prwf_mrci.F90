@@ -35,7 +35,7 @@ ILIM = 4
 LN2 = LN+2
 if (IFIRST /= 0) ILIM = 2
 SCL = One/sqrt(DDOT_(NCONF,C,1,C,1))
-call DSCAL_(NCONF,SCL,C,1)
+C(1:NCONF) = SCL*C(1:NCONF)
 do J=1,LN
   IORBI(J+2) = IORB(J)
   ILSYM(J+2) = NSM(J)

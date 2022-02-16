@@ -21,8 +21,8 @@ integer(kind=iwp) :: I, I12, IEB, IECMO, IEO, II, IMAX, IO1, IO12, IO2, ISB, ISC
                      ND, NF, NIAV, NN, NO
 real(kind=wp) :: OC, OMAX
 
-call DCOPY_(NBAST,[Zero],0,OCC,1)
-call DCOPY_(NCMO,CMO,1,CNO,1)
+OCC(:) = Zero
+CNO(:) = CMO
 ! LOOP OVER SYMMETRY LABELS
 ! Present index of end of processed CMO block:
 IECMO = 0
@@ -43,7 +43,7 @@ do ISYM=1,NSYM
   ISCMO = IECMO+1
   IECMO = IECMO+NBF
   ! (DO NOTHING WITH THE FROZEN ORBITALS)
-  if (NF > 0) call DCOPY_(NF,[Two],0,OCC(ISB),1)
+  if (NF > 0) OCC(ISB:ISB+NF-1) = Two
   IEO = IEO+NFRO(ISYM)
   ! ORBITALS EXPLICITLY USED IN CI:
   NBO = NB*NIAV
@@ -88,9 +88,9 @@ do ISYM=1,NSYM
       OCC(ISB+NF-1+I) = OMAX
       ISTA1 = ISCMO+NB*(I-1)
       ISTA2 = ISCMO+NB*(IMAX-1)
-      call DCOPY_(NB,CNO(ISTA1),1,SCR,1)
-      call DCOPY_(NB,CNO(ISTA2),1,CNO(ISTA1),1)
-      call DCOPY_(NB,SCR,1,CNO(ISTA2),1)
+      SCR(1:NB) = CNO(ISTA1:ISTA1+NB-1)
+      CNO(ISTA1:ISTA1+NB-1) = CNO(ISTA2:ISTA2+NB-1)
+      CNO(ISTA2:ISTA2+NB-1) = SCR(1:NB)
     end if
   end do
   ! ORBITALS PRE-DELETED IN MOTRA OR DELETED IN MRCI:

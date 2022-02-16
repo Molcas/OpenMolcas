@@ -11,9 +11,9 @@
 
 subroutine AID(INTSYM,INDX,C,DMO,A,B,FK)
 
-use mrci_global, only: IRC, IREST, IROW, ITER, LN, LSYM, LUSYMB, NSM, NSYM, NVIR, NVIRP, SQ2, SQ2INV
+use mrci_global, only: ENP, IRC, IREST, IROW, ITER, LN, LSYM, LUSYMB, NSM, NSYM, NVIR, NVIRP, SQ2, SQ2INV
 use Symmetry_Info, only: Mul
-use mrci_global, only: ENP
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -65,7 +65,7 @@ do
           if (ITYP == 2) IFT = 1
           call IPO(IPOB,NVIR,MUL,NSYM,NYL,IFT)
           NVM = NVIR(MYL)
-          call FZERO(B,INK)
+          B(1:INK) = Zero
           COPI = COP(II)/ENP
           if (NYL /= 1) then
             if (NSK > MYL) then
@@ -87,7 +87,7 @@ do
           INDB = IRC(1)+ICP2
           INNY = INDX(INDB)+1
           COPI = C(INDA)*COP(II)/ENP
-          call DAXPY_(INK,COPI,C(INNY),1,FK,1)
+          FK(1:INK) = FK(1:INK)+COPI*C(INNY:INNY+INK-1)
         end if
       end if
     else

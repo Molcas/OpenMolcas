@@ -37,7 +37,7 @@ IAD25 = IAD25S
 do I=1,NCONF,nCOP
   call dDAFILE(Lu_25,2,Buf,nCOP,IAD25)
   NN = min(nCOP,NCONF+1-I)
-  call DCOPY_(NN,Buf,1,CI(I),1)
+  CI(I:I+NN-1) = Buf(1:NN)
 end do
 call mma_deallocate(Buf)
 ! THESE ARE DIAGONAL ELEMENTS OF THE ELECTRONIC HAMILTONIAN.
@@ -61,7 +61,7 @@ if (ICPF == 1) then
     CI(IR) = GFAC*CI(IR)
   end do
   GINV = One/GFAC
-  call DSCAL_(NCONF,GINV,CI,1)
+  CI(:) = GINV*CI
 end if
 IDFREE = 0
 IDISKD = 0
@@ -70,7 +70,7 @@ do ISTA=1,NCONF,MBUF
   call dDAFILE(LUEIG,1,CI(ISTA),NN,IDFREE)
 end do
 ! THEN, SET UP START CI VECTORS IN MCSF BASIS:
-call DCOPY_(NCONF,[Zero],0,CI,1)
+CI(:) = Zero
 if (IREST == 0) then
   call mma_allocate(ISTART,MXROOT,label='ISTART')
   NNEW = IROOT(NRROOT)

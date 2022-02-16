@@ -64,7 +64,7 @@ do INDA=1,ITAIL
       call FMUL2(C(INMY),C(INMY),A,NVIR(MYL),NVIR(MYL),1)
       IPF = IPOF(MYL)+1
       IIN = IPOF(MYL+1)-IPOF(MYL)
-      call DAXPY_(IIN,ENPINV,A,1,F(IPF),1)
+      F(IPF:IPF+IIN-1) = F(IPF:IPF+IIN-1)+ENPINV*A(1:IIN)
       NVIRA = NVIR(MYL)
       LNA = LN+NVIRP(MYL)
       IIA = IROW(LNA+1)
@@ -104,7 +104,7 @@ do INDA=1,ITAIL
         NVIRC = NVIR(ICSYM)
         call FMUL2(A,A,B,NVIR(IASYM),NVIR(IASYM),NVIR(ICSYM))
         IPF = IPOF(IASYM)+1
-        call DAXPY_(IAB,ENPINV,B,1,F(IPF),1)
+        F(IPF:IPF+IAB-1) = F(IPF:IPF+IAB-1)+ENPINV*B(1:IAB)
         INN = 1
         LNC = LN+NVIRP(ICSYM)
         IIC = IROW(LNC+1)

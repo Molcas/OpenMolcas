@@ -115,9 +115,9 @@ do ISTA=1,NCONF,MBUF
       !  write(u6,*) ' IT CONTAINS:'
       !  write(u6,'(1X,5F15.6)') (CNEW(I,KK),I=1,15)
       !end if
-      call DCOPY_(ISECT,CNEW(1,KK),1,CBUF(JSTA,K),1)
+      CBUF(JSTA:JSTA+ISECT-1,K) = CNEW(1:ISECT,KK)
     end do
-  ! CONTINUE, NEXT SECTION.
+    ! CONTINUE, NEXT SECTION.
   end do
   do KK=1,NNEW
     NN = NVTOT+KK

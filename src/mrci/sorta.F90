@@ -17,6 +17,7 @@ subroutine SORTA(BUFS,INDS,ISAB,BUFBI,BIAC,BICA,NINTGR)
 use mrci_global, only: IADABCI, ICH, IFIRST, INDSRT, IPRINT, IROW, ISMAX, KBUFF1, LASTAD, Lu_60, Lu_70, LUSYMB, LUTRA, LN, MCHAIN, &
                        NBITM1, NCHN1, NORB, NSM, NSRTMX, NSYM, NTIBUF, NVIRT, NVPAIR, TIBUF, VALSRT
 use Symmetry_Info, only: Mul
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -282,8 +283,8 @@ do
     NSIB = MUL(NSM(LN+NB),NSM(NI))
     INS = NVPAIR(NSIB)
     if (INS /= 0) then
-      call FZERO(BIAC,INS)
-      call FZERO(BICA,INS)
+      BIAC(1:INS) = Zero
+      BICA(1:INS) = Zero
     end if
     NIB = NIB+1
     ! READ & PROCESS INTEGRAL BUFFERS ON UNIT 14:

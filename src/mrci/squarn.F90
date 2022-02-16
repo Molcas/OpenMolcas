@@ -21,7 +21,7 @@ integer(kind=iwp) :: I, IIN
 
 IIN = 2
 do I=2,N
-  call DCOPY_(I-1,A(IIN),1,B(1,I),1)
+  B(1:I-1,I) = A(IIN:IIN+I-2)
   IIN = IIN+I
 end do
 do I=1,N-1

@@ -37,21 +37,21 @@ do IASYM=1,NSYM
       ! CASE 1, IASYM > ICSYM AND IBSYM > ICSYM
       IPF = IPOF(IASYM)+1
       call DYAX(IAB,CPL,AIBJ(IPF),1,F,1)
-      call DAXPY_(IAB,CPLA,ABIJ(IPF),1,F,1)
+      F(1:IAB) = F(1:IAB)+CPLA*ABIJ(IPF:IPF+IAB-1)
       if (INDA == INDB) call SETZZ(F,NVIRA)
       call DGEMM_('N','N',NVIRC,NVIRB,NVIRA,FACS,C(INMY+IPOA(IASYM)),NVIRC,F,NVIRA,One,S(INNY+IPOB(IBSYM)),NVIRC)
       if (INDA /= INDB) then
         IPF = IPOF(IBSYM)+1
-        call FZERO(F,IAB)
+        F(1:IAB) = Zero
         call DYAX(IAB,CPL,AJBI(IPF),1,F,1)
-        call DAXPY_(IAB,CPLA,ABIJ(IPF),1,F,1)
+        F(1:IAB) = F(1:IAB)+CPLA*ABIJ(IPF:IPF+IAB-1)
         call DGEMM_('N','N',NVIRC,NVIRA,NVIRB,FACS,C(INNY+IPOB(IBSYM)),NVIRC,F,NVIRB,One,S(INMY+IPOA(IASYM)),NVIRC)
       end if
     else
       ! CASE 2, IASYM > ICSYM AND ICSYM > OR = IBSYM
       IPF = IPOF(IBSYM)+1
       call DYAX(IAB,CPL,AJBI(IPF),1,F,1)
-      call DAXPY_(IAB,CPLA,ABIJ(IPF),1,F,1)
+      F(1:IAB) = F(1:IAB)+CPLA*ABIJ(IPF:IPF+IAB-1)
 
       if (NYL == 1) then
         call DGEMM_('N','T',NVIRB,NVIRC,NVIRA,FACS,F,NVIRB,C(INMY+IPOA(IASYM)),NVIRC,Zero,A,NVIRB)
@@ -76,7 +76,7 @@ do IASYM=1,NSYM
       ! CASE 3, ICSYM > OR = IASYM AND IBSYM > ICSYM
       IPF = IPOF(IASYM)+1
       call DYAX(IAB,CPL,AIBJ(IPF),1,F,1)
-      call DAXPY_(IAB,CPLA,ABIJ(IPF),1,F,1)
+      F(1:IAB) = F(1:IAB)+CPLA*ABIJ(IPF:IPF+IAB-1)
       if (MYL == 1) then
         if (IFTA == 0) call SQUAR(C(INMY+IPOA(IASYM)),A,NVIRA)
         if (IFTA == 1) call SQUARN(C(INMY+IPOA(IASYM)),A,NVIRA)
@@ -94,7 +94,7 @@ do IASYM=1,NSYM
       ! CASE 4, ICSYM > OR = IASYM AND ICSYM > OR = IBSYM
       IPF = IPOF(IBSYM)+1
       call DYAX(IAB,CPL,AJBI(IPF),1,F,1)
-      call DAXPY_(IAB,CPLA,ABIJ(IPF),1,F,1)
+      F(1:IAB) = F(1:IAB)+CPLA*ABIJ(IPF:IPF+IAB-1)
       if (INDA == INDB) call SETZZ(F,NVIRA)
       if ((MYL == 1) .and. (NYL == 1)) then
 
@@ -126,7 +126,7 @@ do IASYM=1,NSYM
       if (INDA /= INDB) then
         IPF = IPOF(IASYM)+1
         call DYAX(IAB,CPL,AIBJ(IPF),1,F,1)
-        call DAXPY_(IAB,CPLA,ABIJ(IPF),1,F,1)
+        F(1:IAB) = F(1:IAB)+CPLA*ABIJ(IPF:IPF+IAB-1)
 
         if ((NYL == 1) .and. (MYL == 1)) then
 

@@ -23,7 +23,7 @@ integer(kind=iwp) :: INTSY(*), INDX(*), IBMN(*), ISAB(*)
 integer(kind=iwp) :: ICSF, IREF, KTYP
 real(kind=wp) :: GINV, SQG, SQGP
 
-call DCOPY_(NCONF,[Zero],0,SGM,1)
+SGM(1:NCONF) = Zero
 
 call CSFTRA(' CSF',CI,AREF)
 SQGP = One
@@ -53,10 +53,10 @@ if (ITER > 0) then
 end if
 call FIJ_MRCI(INTSY,INDX,CI,SGM,FOCK,ASCR2,BSCR2,FSCR2,DBK)
 
-call DAXPY_(NCONF,POTNUC-ESHIFT,CI,1,SGM,1)
+SGM(1:NCONF) = SGM(1:NCONF)+(POTNUC-ESHIFT)*CI(1:NCONF)
 if (ICPF == 1) then
   GINV = One/GFAC
-  call DSCAL_(NCONF,GINV,SGM,1)
+  SGM(1:NCONF) = GINV*SGM(1:NCONF)
   do IREF=1,NREF
     ICSF = IREFX(IREF)
     CI(ICSF) = SQG*CI(ICSF)

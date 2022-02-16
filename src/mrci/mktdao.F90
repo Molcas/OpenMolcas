@@ -20,7 +20,7 @@ real(kind=wp) :: CMO(NCMO), TDMO(NBAST,NBAST), TDAO(NBAST,NBAST), SCR(NBMAX,NBMA
 integer(kind=iwp) :: I, IEB, IECMO, IEO, II, ISB, ISCMO, ISCO, ISO, ISYM, J, JJ, NB, NBCO, NBD, NBF, NCO, ND, NF, NO
 
 ! REORDER TDMO (USE TDAO AS TEMPORARY STORAGE):
-call FZERO(TDAO,NBAST**2)
+TDAO(:,:) = Zero
 do I=1,NORBT
   II = ICH(I)
   if (II > 0) then
@@ -30,8 +30,7 @@ do I=1,NORBT
     end do
   end if
 end do
-call DCOPY_(NBAST**2,TDAO,1,TDMO,1)
-call FZERO(TDAO,NBAST**2)
+TDMO(:,:) = TDAO(:,:)
 IECMO = 0
 IEO = 0
 IEB = 0

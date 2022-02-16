@@ -20,7 +20,7 @@ implicit none
 real(kind=wp) :: CBUF(MBUF,MXVEC), SBUF(MBUF,MXVEC), DBUF(MBUF), ARR(NRROOT,NRROOT,11), CSECT(NSECT,MXVEC), RSECT(NSECT,MXVEC), &
                  XI1(NSECT,NRROOT), XI2(NSECT,NRROOT)
 integer(kind=iwp) :: ICI(MBUF)
-integer(kind=iwp) :: I, IBUF, IDD, IEND, ISECT, ISTA, JEND, JSTA, K, NRR2
+integer(kind=iwp) :: I, IBUF, IDD, IEND, ISECT, ISTA, JEND, JSTA, K
 integer(kind=iwp), parameter :: IX1F = 1, IX2F = 2, IRR = 3, IX1R = 4, IX2R = 5, IX1X1 = 6, IX2X1 = 7, IX2X2 = 8, IFDF = 9, &
                                 IFDR = 10, IRDR = 11
 integer(kind=iwp), allocatable :: IDC(:), IDS(:)
@@ -30,8 +30,7 @@ integer(kind=iwp), allocatable :: IDC(:), IDS(:)
 ! HAMILTONIAN MATRICES IN THE BASIS SET PSI, RHO, XI1 AND XI2.
 ! THE 11 MATRICES X1F,..,RDR ARE STORED CONSECUTIVELY IN THE
 ! SINGLE ARRAY ARR.
-NRR2 = NRROOT**2
-call DCOPY_(11*NRR2,[Zero],0,ARR,1)
+ARR(:,:,:) = Zero
 call mma_allocate(IDC,NVEC,label='IDC')
 call mma_allocate(IDS,NVEC,label='IDS')
 do K=1,NVEC

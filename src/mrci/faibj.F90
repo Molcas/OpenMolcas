@@ -84,7 +84,7 @@ do
             if (ITYP == 1) ISTAR = INS+1
             if (INS /= 0) then
               COPI = CPL*C(INDA)
-              call DAXPY_(INS,COPI,FSEC(ISTAR),1,S(INDX(INDB)+1),1)
+              S(INDX(INDB)+1:INDX(INDB)+INS) = S(INDX(INDB)+1:INDX(INDB)+INS)+COPI*FSEC(ISTAR:ISTAR+INS-1)
               TERM = DDOT_(INS,FSEC(ISTAR),1,C(INDX(INDB)+1),1)
               S(INDA) = S(INDA)+CPL*TERM
             end if
@@ -104,7 +104,7 @@ do
             if (IIN /= 0) then
               IPF = IPOF(MYL)+1
               call DYAX(IIN,CPL,AIBJ(IPF),1,F,1)
-              call DAXPY_(IIN,CPLA,ABIJ(IPF),1,F,1)
+              F(1:IIN) = F(1:IIN)+CPLA*ABIJ(IPF:IPF+IIN-1)
               if (INDA == INDB) call SETZZ(F,NVIR(MYL))
               call DGEMV_('T',NVIR(MYL),NVIR(NYL),FACS,F,NVIR(MYL),C(INMY),1,One,S(INNY),1)
               if (INDA /= INDB) then
@@ -134,9 +134,9 @@ do
       IJ1 = IROW(NI)+NJ
       ILIM = IPOF(NSYM+1)
       ! Clear matrices ABIJ, AIBJ, and AJBI.
-      call FZERO(ABIJ,ILIM)
-      call FZERO(AIBJ,ILIM)
-      call FZERO(AJBI,ILIM)
+      ABIJ(1:ILIM) = Zero
+      AIBJ(1:ILIM) = Zero
+      AJBI(1:ILIM) = Zero
       if ((ITER == 1) .and. (IREST == 0)) then
         Skip = .true.
       else

@@ -13,6 +13,7 @@ subroutine DENSCT(AREF)
 
 use mrci_global, only: CSPCK, DMO, ICPF, INDX, INTSY, JREFX, ITRANS, LUEIG, LUREST, NBAST, NBTRI, NCONF, NRROOT, NVMAX, NVSQ, TDMO
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -32,7 +33,7 @@ call mma_allocate(IDC,NRROOT,label='IDC')
 do I=1,NRROOT
   IDC(I) = IDREST
   call dDAFILE(LUREST,2,CI,NCONF,IDREST)
-  call FZERO(DMO,NBTRI)
+  DMO(:) = Zero
   if (ICPF /= 0) call DCORR(JREFX,AREF,CSPCK,DMO)
   call FIJD(INTSY,INDX,CI,DMO,JREFX,AREF)
   call AID(INTSY,INDX,CI,DMO,ASCR2,BSCR2,FSCR2)
@@ -46,7 +47,7 @@ if (ITRANS /= 0) then
     do J=1,I-1
       IDREST = IDC(J)
       call dDAFILE(LUREST,2,SGM,NCONF,IDREST)
-      call FZERO(TDMO,NBAST**2)
+      TDMO(:,:) = Zero
       call FIJTD(INTSY,INDX,CI,SGM,TDMO)
       call AITD(INTSY,INDX,CI,SGM,TDMO,ASCR2,BSCR2,FSCR2)
       call ABTD(CSPCK,INTSY,INDX,CI,SGM,TDMO,ASCR2,BSCR2,FSCR2)

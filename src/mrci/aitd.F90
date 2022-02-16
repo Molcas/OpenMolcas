@@ -57,9 +57,9 @@ do
           INDB = IRC(1)+ICP2
           INNY = INDX(INDB)+1
           COPI = C1(INDA)*COP(II)
-          call DAXPY_(INK,COPI,C2(INNY),1,FAK,1)
+          FAK(1:INK) = FAK(1:INK)+COPI*C2(INNY:INNY+INK-1)
           COPI = C2(INDA)*COP(II)
-          call DAXPY_(INK,COPI,C1(INNY),1,FKA,1)
+          FKA(1:INK) = FKA(1:INK)+COPI*C1(INNY:INNY+INK-1)
         else
           INDA = IRC(1)+ICP1
           INDB = IRC(ITYP)+ICP2

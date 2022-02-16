@@ -13,6 +13,7 @@ subroutine IJKL(INTSYM,INDX,C,S,FIJKL)
 
 use mrci_global, only: INDSRT, IRC, IROW, LASTAD, Lu_70, LUSYMB, LN, LSYM, NSRTMX, NVIR, NVPAIR, VALSRT
 use Symmetry_Info, only: Mul
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -31,7 +32,7 @@ FINI = huge(FINI)
 ICHK = 0
 NIJ = IROW(LN+1)
 NIJKL = NIJ*(NIJ+1)/2
-call FZERO(FIJKL,NIJKL)
+FIJKL(1:NIJKL) = Zero
 IADR = LASTAD(1)
 do
   call dDAFILE(Lu_70,2,VALSRT,NSRTMX,IADR)
@@ -81,8 +82,8 @@ do
         NS1L = MUL(NS1,LSYM)
         INUM = NVIR(NS1L)
         if (IVL >= 2) INUM = NVPAIR(NS1L)
-        call DAXPY_(INUM,COPI,C(NB+1),1,S(NA+1),1)
-        call DAXPY_(INUM,COPI,C(NA+1),1,S(NB+1),1)
+        S(NA+1:NA+INUM) = S(NA+1:NA+INUM)+COPI*C(NB+1:NB+INUM)
+        S(NB+1:NB+INUM) = S(NB+1:NB+INUM)+COPI*C(NA+1:NA+INUM)
       end if
     end if
   end do

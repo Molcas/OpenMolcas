@@ -15,7 +15,7 @@ use mrci_global, only: IRC, IREST, IROW, ITER, LASTAD, LN, LSYM, Lu_60, LUSYMB, 
                        SQ2INV
 use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp, r8
 
 implicit none
@@ -87,7 +87,7 @@ do
           ! NEW INTERNAL PAIR IJ. LOAD A NEW SET OF INTEGRALS INTO FC:
           IJOLD = IJ
           IADR = LASTAD(NOVST+NOTT+IJ)
-          call FZERO(FC,NBTRI)
+          FC(1:NBTRI) = Zero
 
           do
             call iDAFILE(Lu_60,2,iBuf,NBITM3+2,IADR)
@@ -123,7 +123,7 @@ do
         INDB = IRC(1)+ICP2
         INNY = INDX(INDB)+1
         COPI = COP(II)*C(INDA)
-        call DAXPY_(NVIRA,COPI,FK,1,S(INNY),1)
+        S(INNY:INNY+NVIRA-1) = S(INNY:INNY+NVIRA-1)+COPI*FK(1:NVIRA)
         TERM = DDOT_(NVIRA,FK,1,C(INNY),1)
         S(INDA) = S(INDA)+COP(II)*TERM
       else if ((ITER /= 1) .or. (IREST /= 0)) then
@@ -139,14 +139,13 @@ do
         if (ITYP == 2) IFT = 1
         call IPO(IPOB,NVIR,MUL,NSYM,NYEXTS,IFT)
         NVM = NVIR(MYEXTS)
-        call FZERO(DBK,NVIRA)
-        call DAXPY_(NVIRA,COP(II),FK,1,DBK,1)
+        DBK(1:NVIRA) = COP(II)*FK(1:NVIRA)
         if (NYEXTS == 1) then
           if (IFT == 0) call SQUAR(C(INNY+IPOB(MYEXTS)),A,NVM)
           if (IFT == 1) call SQUARM(C(INNY+IPOB(MYEXTS)),A,NVM)
-          call FZERO(B,NVM)
+          B(1:NVM) = Zero
           call FMMM(DBK,A,B,1,NVM,NVIRA)
-          call DAXPY_(NVM,One,B,1,S(INMY),1)
+          S(INMY:INMY+NVM-1) = S(INMY:INMY+NVM-1)+B(1:NVM)
           SGN = One
           if (IFT == 1) SGN = -One
           IOUT = INNY+IPOB(MYEXTS)-1
@@ -162,20 +161,22 @@ do
           end do
         else
           NKM = NVIRA*NVM
-          call FZERO(B,NVM)
+          B(1:NVM) = Zero
           if (NSA <= MYEXTS) then
             if (IFT == 1) call VNEG(DBK,1,DBK,1,NVIRA)
             call FMMM(DBK,C(INNY+IPOB(MYEXTS)),B,1,NVM,NVIRA)
-            call DAXPY_(NVM,One,B,1,S(INMY),1)
-            call FZERO(B,NKM)
+            S(INMY:INMY+NVM-1) = S(INMY:INMY+NVM-1)+B(1:NVM)
+            B(1:NKM) = Zero
             call FMMM(DBK,C(INMY),B,NVIRA,NVM,1)
-            call DAXPY_(NKM,One,B,1,S(INNY+IPOB(MYEXTS)),1)
+            J = INNY+IPOB(MYEXTS)
+            S(J:J+NKM-1) = S(J:J+NKM-1)+B(1:NKM)
           else
             call FMMM(C(INNY+IPOB(NSA)),DBK,B,NVM,1,NVIRA)
-            call DAXPY_(NVM,One,B,1,S(INMY),1)
-            call FZERO(B,NKM)
+            S(INMY:INMY+NVM-1) = S(INMY:INMY+NVM-1)+B(1:NVM)
+            B(1:NKM) = Zero
             call FMMM(C(INMY),DBK,B,NVM,NVIRA,1)
-            call DAXPY_(NKM,One,B,1,S(INNY+IPOB(NSA)),1)
+            J = INNY+IPOB(NSA)
+            S(J:J+NKM-1) = S(J:J+NKM-1)+B(1:NKM)
           end if
         end if
       end if

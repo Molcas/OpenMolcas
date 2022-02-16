@@ -22,7 +22,7 @@ real(kind=wp) :: RSUM, SCL, THR2
 
 THR2 = THR**2
 ! PUT NORMALIZED VECTORS INTO VEC:
-call DCOPY_(N*NDIM,[Zero],0,VEC,1)
+VEC(:,1:N) = Zero
 do I=1,N
   VEC(I,I) = One/sqrt(SMAT(I,I))
 end do
@@ -30,8 +30,7 @@ end do
 NRON = 0
 do I=1,N
   ! SMAT*(NORMALIZED VECTOR) INTO SCR:
-  call DCOPY_(N,SMAT(1,I),1,SCR,1)
-  call DSCAL_(N,VEC(I,I),SCR,1)
+  SCR(1:N) = VEC(I,I)*SMAT(1:N,I)
   ! PROJECT AWAY THE ALREADY ORTHONORMALIZED BASIS SET:
   do J=1,NRON
     MAXLEN = I-1-NRON+J
@@ -57,7 +56,7 @@ do I=1,N
   end if
 end do
 do I=NRON+1,N
-  call DCOPY_(N,[Zero],0,VEC(1,I),1)
+  VEC(1:N,I) = Zero
 end do
 ! TRANSFORM HAMILTONIAN INTO SCR:
 IOFF1 = N*NRON

@@ -12,6 +12,7 @@
 subroutine MKDAO(CNO,OCC,DAO)
 
 use mrci_global, only: NBAS, NBAST, NCMO, NSYM
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -19,7 +20,7 @@ real(kind=wp) :: CNO(NCMO), OCC(NBAST), DAO(NBAST,NBAST)
 integer(kind=iwp) :: I, IB, IB1, ICNO, ISYM, NB
 real(kind=wp) :: X
 
-call FZERO(DAO,NBAST**2)
+DAO(:,:) = Zero
 IB = 1
 ICNO = 1
 do ISYM=1,NSYM

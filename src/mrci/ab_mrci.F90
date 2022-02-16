@@ -13,13 +13,13 @@ subroutine AB_MRCI(INTSYM,INDX,C,S,FC,A,B,FK)
 
 use mrci_global, only: IFIRST, IRC, IROW, LN, LSYM, NSYM, NVIR, NVIRP, SQ2, SQ2INV
 use Symmetry_Info, only: Mul
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: INTSYM(*), INDX(*)
 real(kind=wp) :: C(*), S(*), FC(*), A(*), B(*), FK(*)
-integer(kind=iwp) :: IAB, IASYM, ICSYM, IFT, INDA, INMY, IPOA(9), IPOF(9), ITAIL, MYL, MYSYM, NA, NA1, NA2, NAA, NAB, NAC, NB, &
+integer(kind=iwp) :: IAB, IASYM, ICSYM, IFT, INDA, INMY, IPOA(9), IPOF(9), ITAIL, J, MYL, MYSYM, NA, NA1, NA2, NAA, NAB, NAC, NB, &
                      NCLIM
 integer(kind=iwp), external :: JSUNP
 
@@ -52,9 +52,9 @@ do INDA=1,ITAIL
   if (INDA <= IRC(2)) then
     ! DOUBLET-DOUBLET INTERACTIONS
     if (NVIR(MYL) /= 0) then
-      call FZERO(A,NVIR(MYL))
+      A(1:NVIR(MYL)) = Zero
       call FMMM(FK(IPOF(MYL)+1),C(INMY),A,NVIR(MYL),1,NVIR(MYL))
-      call DAXPY_(NVIR(MYL),One,A,1,S(INMY),1)
+      S(INMY:INMY+NVIR(MYL)-1) = S(INMY:INMY+NVIR(MYL)-1)+A(1:NVIR(MYL))
     end if
   else
     ! TRIPLET-TRIPLET AND SINGLET-SINGLET INTERACTIONS
@@ -70,26 +70,26 @@ do INDA=1,ITAIL
         if (IFT == 0) call SQUAR(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
         if (IFT == 1) call SQUARM(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
         NAA = NVIR(IASYM)*NVIR(IASYM)
-        call FZERO(B,NAA)
+        B(1:NAA) = Zero
         call FMMM(FK(IPOF(IASYM)+1),A,B,NVIR(IASYM),NVIR(IASYM),NVIR(IASYM))
-        call FZERO(A,NAA)
-        call DAXPY_(NAA,One,B,1,A,1)
+        A(1:NAA) = B(1:NAA)
         if (IFT /= 1) then
           call SIADD(A,S(INMY+IPOA(IASYM)),NVIR(IASYM))
-          call FZERO(A,NAA)
         else
           call TRADD(A,S(INMY+IPOA(IASYM)),NVIR(IASYM))
-          call FZERO(A,NAA)
         end if
+        A(1:NAA) = Zero
       else
         NAC = NVIR(IASYM)*NVIR(ICSYM)
-        call FZERO(A,NAC)
+        A(1:NAC) = Zero
         if (IASYM <= ICSYM) then
           call FMMM(FK(IPOF(IASYM)+1),C(INMY+IPOA(ICSYM)),A,NVIR(IASYM),NVIR(ICSYM),NVIR(IASYM))
-          call DAXPY_(NAC,One,A,1,S(INMY+IPOA(ICSYM)),1)
+          J = INMY+IPOA(ICSYM)
+          S(J:J+NAC-1) = S(J:J+NAC-1)+A(1:NAC)
         else
           call FMMM(C(INMY+IPOA(IASYM)),FK(IPOF(IASYM)+1),A,NVIR(ICSYM),NVIR(IASYM),NVIR(IASYM))
-          call DAXPY_(NAC,One,A,1,S(INMY+IPOA(IASYM)),1)
+          J = INMY+IPOA(IASYM)
+          S(J:J+NAC-1) = S(J:J+NAC-1)+A(1:NAC)
         end if
       end if
     end do
