@@ -9,12 +9,12 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine MTRANS(A,IA,B,IB,N,M)
+subroutine MTRANS(A,B,N,M)
 
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: IA, IB, N, M
+integer(kind=iwp) :: N, M
 real(kind=wp) :: A(M,N), B(N,M)
 integer(kind=iwp) :: I, J
 
@@ -25,10 +25,5 @@ do I=1,N
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(IA)
-  call Unused_integer(IB)
-end if
 
 end subroutine MTRANS

@@ -24,9 +24,6 @@ integer(kind=iwp) :: ICHK, ICP1, ICP2, IFT, II, IJOLD, ILEN, IND, INDA, INDB, IN
                      NA2, NK, NSK, NVM, NYL, NYSYM
 real(kind=wp) :: COPI
 integer(kind=iwp), external :: JSUNP
-!Statement function
-integer(kind=iwp) :: JSYM, L
-JSYM(L) = JSUNP(INTSYM,L)
 
 ! CALCULATE TRANSITION DENSITY ELEMENTS TDMO(K,A) AND TDMO(A,K),
 ! WHERE K IS INTERNAL, A IS EXTERNAL ORBITAL.
@@ -68,7 +65,7 @@ do
           INDB = IRC(ITYP)+ICP2
           INMY = INDX(INDA)+1
           INNY = INDX(INDB)+1
-          MYSYM = JSYM(INDA)
+          MYSYM = JSUNP(INTSYM,INDA)
           NYSYM = MUL(MYSYM,NSK)
           MYL = MUL(MYSYM,LSYM)
           NYL = MUL(NYSYM,LSYM)

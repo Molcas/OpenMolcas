@@ -30,9 +30,6 @@ integer(kind=iwp), allocatable :: iBuf(:)
 real(kind=wp), allocatable :: Buf(:)
 integer(kind=iwp), external :: JSUNP
 real(kind=r8), external :: DDOT_
-!Statement function
-integer(kind=iwp) :: JSYM, L
-JSYM(L) = JSUNP(INTSYM,L)
 
 ! KTYP=0,  (A/I)   INTEGRALS
 ! KTYP=1,  (AI/JK) INTEGRALS
@@ -134,7 +131,7 @@ do
         INDB = IRC(ITYP)+ICP2
         INMY = INDX(INDA)+1
         INNY = INDX(INDB)+1
-        MYINTS = JSYM(INDA)
+        MYINTS = JSUNP(INTSYM,INDA)
         NYINTS = MUL(MYINTS,NSA)
         MYEXTS = MUL(MYINTS,LSYM)
         NYEXTS = MUL(NYINTS,LSYM)

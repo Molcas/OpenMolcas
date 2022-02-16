@@ -9,21 +9,18 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine DCORR(JREFX,AREF,ICSPCK,INTSYM,INDX,DMO)
+subroutine DCORR(JREFX,AREF,ICSPCK,DMO)
 
 use mrci_global, only: ENP, IPRINT, IRC, LN, Lu_27, NREF
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: JREFX(*), ICSPCK(*), INTSYM(*), INDX(*)
+integer(kind=iwp) :: JREFX(*), ICSPCK(*)
 real(kind=wp) :: AREF(*), DMO(*)
 integer(kind=iwp) :: I, IAD27, II1, IJ, IK, INDA, IOC
 real(kind=wp) :: FAC, TSUM
 integer(kind=iwp), external :: ICUNP
-!Statement function
-integer(kind=iwp) :: JO, L
-JO(L) = ICUNP(ICSPCK,L)
 
 ! CORRECTION TO DENSITY MATRIX IN ACPF CASE.
 if (IPRINT >= 7) write(u6,*) ' ENP IN DENS =',ENP
@@ -38,7 +35,7 @@ do INDA=1,IRC(1)
     TSUM = AREF(IK)*AREF(IK)*FAC
     IJ = 0
     do I=1,LN
-      IOC = (1+JO(II1+I))/2
+      IOC = (1+ICUNP(ICSPCK,II1+I))/2
       IJ = IJ+I
       DMO(IJ) = DMO(IJ)+IOC*TSUM
     end do
@@ -46,10 +43,5 @@ do INDA=1,IRC(1)
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer_array(INTSYM)
-  call Unused_integer_array(INDX)
-end if
 
 end subroutine DCORR

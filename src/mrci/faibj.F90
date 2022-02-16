@@ -115,8 +115,8 @@ do
             ! TRIPLET-SINGLET, SINGLET-TRIPLET,
             ! TRIPLET-TRIPLET AND SINGLET-SINGLET INTERACTIONS
 
-            call loop70(INTSYM,INDX,C,S,ABIJ,AIBJ,AJBI,Buf,iBuf,A,B,F,FSEC,IPOF,IPOA,IPOB,MYL,NYL,INDA,INDB,INMY,INNY,IFTB,IFTA, &
-                        FACS,IAB,CPL,CPLA,NVIRA,NVIRC,NVIRB)
+            call loop70(C,S,ABIJ,AIBJ,AJBI,A,B,F,IPOF,IPOA,IPOB,MYL,NYL,INDA,INDB,INMY,INNY,IFTB,IFTA,FACS,IAB,CPL,CPLA,NVIRA, &
+                        NVIRC,NVIRB)
 
           end if
         end if
@@ -185,14 +185,14 @@ do
           IPF = IPOF(IASYM)+1
           IPF1 = IPOF(IBSYM)+1
           if (IASYM > IBSYM) then
-            call MTRANS(AIBJ(IPF1),1,AJBI(IPF),1,NVIRA,NVIRB)
+            call MTRANS(AIBJ(IPF1),AJBI(IPF),NVIRA,NVIRB)
           else if (NSIJ /= 1) then
-            call MTRANS(ABIJ(IPF1),1,ABIJ(IPF),1,NVIRA,NVIRB)
-            call MTRANS(AIBJ(IPF1),1,AJBI(IPF),1,NVIRA,NVIRB)
+            call MTRANS(ABIJ(IPF1),ABIJ(IPF),NVIRA,NVIRB)
+            call MTRANS(AIBJ(IPF1),AJBI(IPF),NVIRA,NVIRB)
           else
             call SQUAR2(ABIJ(IPF),NVIRA)
             if (NI == NJ) call SQUAR2(AIBJ(IPF),NVIRA)
-            call MTRANS(AIBJ(IPF),1,AJBI(IPF),1,NVIRA,NVIRB)
+            call MTRANS(AIBJ(IPF),AJBI(IPF),NVIRA,NVIRB)
           end if
         end do
       end if

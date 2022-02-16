@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SORT_MRCI(BUFS,INDS,FC,FIIJJ,FIJIJ,NINTGR)
+subroutine SORT_MRCI(BUFS,INDS,FC,FIIJJ,FIJIJ)
 
 use mrci_global, only: IAD25S, ICH, IPRINT, IROW, ITOC17, LASTAD, LN, Lu_25, Lu_60, LUONE, LUTRA, MCHAIN, NBITM3, NBTRI, NCHN3, &
                        NELEC, NORB, NORBT, NSM, NSYM, NTIBUF, NVIR, NVIRP, NVIRT, POTNUC, TIBUF
@@ -18,7 +18,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: BUFS(NBITM3,NCHN3), FC(NBTRI), FIIJJ(*), FIJIJ(*)
-integer(kind=iwp) :: INDS(NBITM3+2,NCHN3), NINTGR
+integer(kind=iwp) :: INDS(NBITM3+2,NCHN3)
 #include "tratoc.fh"
 #include "warnings.h"
 integer(kind=iwp) :: I, IAD50, IADD17, IADD25, IBUF, IDISK, IEXP, IIJ, IIN, IJ, IJT, IKT, INAV, IND, IORBI, IOUT, IPOF(65), IPOS, &
@@ -294,8 +294,6 @@ write(u6,155) (IVEC(I),I=1,20)
 !end if
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(NINTGR)
 
 154 format(//6X,'STATISTICS FOR INTEGRALS, FIRST ENTRY 10**3-10**4',/)
 155 format(6X,5I10)

@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SORTB(BUFS,INDS,ACBDS,ACBDT,ISAB,BFACBD,NINTGR)
+subroutine SORTB(BUFS,INDS,ACBDS,ACBDT,ISAB,BFACBD)
 ! SORTS INTEGRALS (AB/CD)
 ! FOR FIXED A,C ALL B,D
 
@@ -20,7 +20,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: BUFS(NBITM2,NCHN2), ACBDS(*), ACBDT(*), BFACBD(*)
-integer(kind=iwp) :: INDS(NBITM2+2,NCHN2), ISAB(*), NINTGR
+integer(kind=iwp) :: INDS(NBITM2+2,NCHN2), ISAB(*)
 #include "tratoc.fh"
 #include "warnings.h"
 integer(kind=iwp) :: I, IAC, IACMAX, IACMIN, IAD16, IAD50, IADR, IBDS, IDISK, IFIN1, IFIN2, ILOOP, IN1, INB, INND, INPS, INPT, &
@@ -259,7 +259,5 @@ end do
 if (INSOUT /= 0) call dDAFILE(Lu_80,1,BFACBD,KBUFF1,IAD16)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(NINTGR)
 
 end subroutine SORTB

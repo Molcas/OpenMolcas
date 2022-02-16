@@ -21,9 +21,6 @@ integer(kind=iwp) :: I, IC, IOFF, IREF, J, JJ, K, K1, K2, NC, NPRT
 character(len=48) :: FORM1, FORM2, FORM3, FORM4
 character(len=2) :: STR
 integer(kind=iwp), external :: ICUNP
-!Statement function
-integer(kind=iwp) :: JCASE, L
-JCASE(L) = ICUNP(ICSPCK,L)
 
 write(u6,*)
 write(u6,*) ('-',I=1,60)
@@ -80,9 +77,9 @@ do K1=1,NPRT,3
     IC = IREFX(IREF)
     IOFF = LN*(IC-1)
     if (IREF == 1) then
-      write(u6,FORM3) IC,(JCASE(IOFF+J),J=1,LN),(AREF(IREF,K),K=K1,K2)
+      write(u6,FORM3) IC,(ICUNP(ICSPCK,IOFF+J),J=1,LN),(AREF(IREF,K),K=K1,K2)
     else
-      write(u6,FORM4) IC,(JCASE(IOFF+J),J=1,LN),(AREF(IREF,K),K=K1,K2)
+      write(u6,FORM4) IC,(ICUNP(ICSPCK,IOFF+J),J=1,LN),(AREF(IREF,K),K=K1,K2)
     end if
   end do
   write(u6,*)

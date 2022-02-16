@@ -24,9 +24,6 @@ integer(kind=iwp) :: IC1, IC2, ICHK, IIN, IK, ILEN, IND, INDA, INDB, INDI, INUM,
 real(kind=wp) :: ENPINV, TERM
 integer(kind=iwp), external :: JSUNP
 real(kind=r8), external :: DDOT_
-!Statement function
-integer(kind=iwp) :: JSYM, L
-JSYM(L) = JSUNP(INTSYM,L)
 
 ICHK = 0
 IK = 0
@@ -65,7 +62,7 @@ do
         INDB = IRC(IVL)+IC2
         NA = INDX(INDA)
         NB = INDX(INDB)
-        NS1 = JSYM(INDA)
+        NS1 = JSUNP(INTSYM,INDA)
         NS1L = MUL(NS1,LSYM)
         INUM = NVIR(NS1L)
         if (IVL >= 2) INUM = NVPAIR(NS1L)

@@ -46,7 +46,7 @@ if (IFIRST == 0) then
   call mma_allocate(ACBDS,ISMAX,label='ACBDS')
   Bufs(:,:) = Zero
   Inds(:,:) = 0
-  call SORTB(Bufs,Inds,ACBDS,ACBDT,ISAB,BACBD,NINTGR)
+  call SORTB(Bufs,Inds,ACBDS,ACBDT,ISAB,BACBD)
   call mma_deallocate(Bufs)
   call mma_deallocate(Inds)
   call mma_deallocate(BACBD)
@@ -60,7 +60,7 @@ call mma_allocate(FIIJJ,NBTRI,label='FIIJJ')
 call mma_allocate(FIJIJ,NBTRI,label='FIJIJ')
 Bufs(:,:) = Zero
 Inds(:,:) = 0
-call SORT_MRCI(Bufs,Inds,FOCK,FIIJJ,FIJIJ,NINTGR)
+call SORT_MRCI(Bufs,Inds,FOCK,FIIJJ,FIJIJ)
 call mma_deallocate(Bufs)
 call mma_deallocate(Inds)
 ! ----------------------------------------------------------------------
@@ -68,7 +68,7 @@ NVT = (NVIRT*(NVIRT+1))/2
 NHDIAG = max(NVT,IRC(1))
 call mma_allocate(HDIAG,NHDIAG,label='HDIAG')
 call IIJJ(CSPCK,INTSY,HDIAG,FOCK,FIIJJ,FIJIJ)
-call IJIJ(INTSY,HDIAG,FOCK,FIJIJ)
+call IJIJ(INTSY,HDIAG,FIJIJ)
 call mma_deallocate(FIIJJ)
 call mma_deallocate(FIJIJ)
 call mma_deallocate(HDIAG)

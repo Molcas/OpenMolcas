@@ -28,10 +28,9 @@ real(kind=wp) :: C, C2NREF, C2REF, CPTIT, CPTNOW, CPTOLD, CPTOT, CPTSTA, DUM, EA
                  PMAX, QACPF, QDAV, RSUM, S, SQNRM, THR, TMP
 integer(kind=iwp), allocatable :: IBMN(:), IDC(:), IDS(:)
 real(kind=wp), allocatable :: ABIJ(:), AC1(:), AC2(:), AIBJ(:), AJBI(:), ARR(:,:,:), ASCR1(:), ASCR2(:), BFIN3(:), BFIN4(:), &
-                              BFIN5(:), BIAC2(:), BICA2(:), BMN(:), BSCR1(:), BSCR2(:), CBUF(:,:), CNEW(:,:), CSECT(:,:), DBK(:), &
-                              DBUF(:), ELAST(:), EZERO(:), FSCR1(:), FSCR2(:), FSEC(:), HCOPY(:,:), HSMALL(:,:), PCOPY(:,:), &
-                              PSEL(:), PSMALL(:,:), RNRM(:), RSECT(:,:), SBUF(:,:), SCOPY(:,:), SCR(:), SSMALL(:,:), XI1(:,:), &
-                              XI2(:,:)
+                              BIAC2(:), BICA2(:), BMN(:), BSCR1(:), BSCR2(:), CBUF(:,:), CNEW(:,:), CSECT(:,:), DBK(:), DBUF(:), &
+                              ELAST(:), EZERO(:), FSCR1(:), FSCR2(:), FSEC(:), HCOPY(:,:), HSMALL(:,:), PCOPY(:,:), PSEL(:), &
+                              PSMALL(:,:), RNRM(:), RSECT(:,:), SBUF(:,:), SCOPY(:,:), SCR(:), SSMALL(:,:), XI1(:,:), XI2(:,:)
 real(kind=r8), external :: DDOT_
 
 call mma_allocate(CBUF,MBUF,MXVEC,label='CBUF')
@@ -104,13 +103,12 @@ do
     call mma_allocate(BSCR1,NVMAX**2,label='BSCR1')
     call mma_allocate(FSCR1,NVSQ,label='FSCR1')
     call mma_allocate(FSEC,2*NVSQ,label='FSEC')
-    call mma_allocate(BFIN5,KBUFF1,label='BFIN5')
     call mma_allocate(ASCR2,NVMAX**2,label='ASCR2')
     call mma_allocate(BSCR2,NVMAX**2,label='BSCR2')
     call mma_allocate(FSCR2,NVSQ,label='FSCR2')
     call mma_allocate(DBK,2*NVSQ,label='DBK')
     call SIGMA(SGM,AREF,CI,INTSY,INDX,BMN,IBMN,BIAC2,BICA2,BFIN3,ISAB,AC1,AC2,BFIN4,ABIJ,AIBJ,AJBI,ASCR1,BSCR1,FSCR1,FSEC,FOCK, &
-               BFIN5,ASCR2,BSCR2,FSCR2,DBK,CSPCK)
+               ASCR2,BSCR2,FSCR2,DBK)
     call mma_deallocate(BMN)
     call mma_deallocate(IBMN)
     call mma_deallocate(BIAC2)
@@ -126,7 +124,6 @@ do
     call mma_deallocate(BSCR1)
     call mma_deallocate(FSCR1)
     call mma_deallocate(FSEC)
-    call mma_deallocate(BFIN5)
     call mma_deallocate(ASCR2)
     call mma_deallocate(BSCR2)
     call mma_deallocate(FSCR2)

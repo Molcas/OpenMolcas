@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ABD(ICSPCK,INTSYM,INDX,C,DMO,A,B,F,JREFX)
+subroutine ABD(ICSPCK,INTSYM,INDX,C,DMO,A,B,F)
 
 use mrci_global, only: ENP, IFIRST, IRC, IROW, LN, LSYM, NCSHT, NELEC, NSYM, NVIR, NVIRP, SQ2, SQ2INV
 use Symmetry_Info, only: Mul
@@ -17,17 +17,13 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-integer(kind=iwp) :: ICSPCK(*), INTSYM(*), INDX(*), JREFX(*)
+integer(kind=iwp) :: ICSPCK(*), INTSYM(*), INDX(*)
 real(kind=wp) :: C(*), DMO(*), A(*), B(*), F(*)
 integer(kind=iwp) :: I, IAB, IASYM, ICSYM, IFT, II1, IIA, IIC, IIN, IJ, INDA, INMY, INN, IOC(55), IPF, IPOA(9), IPOF(9), ITAIL, &
                      LNA, LNC, MYL, MYSYM, NA, NA1, NA2, NAB, NAC, NB, NCLIM, NVIRA, NVIRC
 real(kind=wp) :: ENPINV, RSUM, TR, TSUM
 integer(kind=iwp), external :: ICUNP, JSUNP
 real(kind=r8), external :: DDOT_
-!Statement functions
-integer(kind=iwp) :: JO, JSYM, L
-JO(L) = ICUNP(ICSPCK,L)
-JSYM(L) = JSUNP(INTSYM,L)
 
 ! SCRATCH SPACE: A(),B(),F().
 call CSCALE(INDX,INTSYM,C,SQ2)
@@ -54,12 +50,12 @@ ITAIL = IRC(NCLIM)
 do INDA=1,ITAIL
   do I=1,LN
     II1 = II1+1
-    IOC(I) = (1+JO(II1))/2
+    IOC(I) = (1+ICUNP(ICSPCK,II1))/2
   end do
   if (INDA <= IRC(1)) then
     TSUM = ENPINV*C(INDA)**2
   else
-    MYSYM = JSYM(INDA)
+    MYSYM = JSUNP(INTSYM,INDA)
     MYL = MUL(MYSYM,LSYM)
     INMY = INDX(INDA)+1
     if (INDA <= IRC(2)) then
@@ -94,7 +90,7 @@ do INDA=1,ITAIL
         if (NVIR(ICSYM) == 0) cycle
         if (MYL /= 1) then
           if (IASYM > ICSYM) then
-            call MTRANS(C(INMY+IPOA(IASYM)),1,A,1,NVIR(IASYM),NVIR(ICSYM))
+            call MTRANS(C(INMY+IPOA(IASYM)),A,NVIR(IASYM),NVIR(ICSYM))
           else
             NAC = NVIR(IASYM)*NVIR(ICSYM)
             if (IFT == 0) call DCOPY_(NAC,C(INMY+IPOA(ICSYM)),1,A,1)
@@ -152,8 +148,6 @@ if (abs(TR-real(NELEC,kind=wp)) > 1.0e-8_wp) write(u6,310) TR
 call CSCALE(INDX,INTSYM,C,SQ2INV)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer_array(JREFX)
 
 310 format(/,6X,'TRACE OF DENSITY MATRIX',F16.8)
 

@@ -9,7 +9,6 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-!PAM04 subroutine READIN(HWork,iHWork)
 subroutine READIN_MRCI()
 
 use mrci_global, only: BNAME, CISEL, CSEL, CSPCK, CTRSH, ENP, ETHRE, GFAC, ICH, ICPF, IFIRST, INDX, INTSY, IORB, IPRINT, IRC, &

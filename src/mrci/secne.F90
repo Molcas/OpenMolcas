@@ -9,12 +9,12 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SECNE(A,B,C,NAL,NBL,NSIJ,IFT)
+subroutine SECNE(A,B,C,NAL,NBL,IFT)
 
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NAL, NBL, NSIJ, IFT
+integer(kind=iwp) :: NAL, NBL, IFT
 real(kind=wp) :: A(NAL,NBL), B(NBL,NAL), C(NBL,NAL)
 integer(kind=iwp) :: NA, NB
 
@@ -33,7 +33,5 @@ else
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(NSIJ)
 
 end subroutine SECNE

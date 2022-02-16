@@ -27,10 +27,6 @@ logical(kind=iwp) :: Skip
 character(len=20) :: STR20
 integer(kind=iwp), external :: ICUNP, JSUNP
 real(kind=r8), external :: DDOT_
-!Statement functions
-integer(kind=iwp) :: JCASE, JSYM, L
-JCASE(L) = ICUNP(ICSPCK,L)
-JSYM(L) = JSUNP(INTSYM,L)
 
 ILIM = 4
 if (IFIRST /= 0) ILIM = 2
@@ -62,7 +58,7 @@ IR2 = IRC(2)
 IND = IR
 do II=IR1,IR2
   INDX(II) = IND
-  NSS = MUL(JSYM(II),LSYM)
+  NSS = MUL(JSUNP(INTSYM,II),LSYM)
   IND = IND+NVIR(NSS)
 end do
 JSC(2) = IND
@@ -74,7 +70,7 @@ if (IFIRST == 0) then
   JSC(3) = JSC(2)
   do II=IR1,IR2
     INDX(II) = IND
-    NSS = MUL(JSYM(II),LSYM)
+    NSS = MUL(JSUNP(INTSYM,II),LSYM)
     IND = IND+NVPAIR(NSS)
     if (II == IRC(3)) JSC(3) = IND
   end do
@@ -98,7 +94,7 @@ do I=1,IRC(1)
   if (IREF == 0) cycle
   IREFX(IREF) = I
   IOFF = LN*(I-1)
-  write(u6,'(5X,I6,7X,30I1)') I,(JCASE(IOFF+J),J=1,LN)
+  write(u6,'(5X,I6,7X,30I1)') I,(ICUNP(ICSPCK,IOFF+J),J=1,LN)
   JJ = 0
   loop1: do ISEL=1,NSEL
     CISEL(IREF,ISEL) = Zero
@@ -107,7 +103,7 @@ do I=1,IRC(1)
       STR20 = SSEL(JJ+IC)
       Skip = .false.
       do ILEV=1,LN
-        JCAS1 = JCASE(IOFF+ILEV)
+        JCAS1 = ICUNP(ICSPCK,IOFF+ILEV)
         read(STR20(ILEV:ILEV),'(I1)') JCAS2
         if (JCAS1 /= JCAS2) then
           Skip = .true.

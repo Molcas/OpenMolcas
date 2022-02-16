@@ -9,18 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine LOOP70(INTSYM,INDX,C,S,ABIJ,AIBJ,AJBI,BUF,IBUF,A,B,F,FSEC,IPOF,IPOA,IPOB,MYL,NYL,INDA,INDB,INMY,INNY,IFTB,IFTA,FACS, &
-                  IAB,CPL,CPLA,NVIRA,NVIRC,NVIRB)
+subroutine LOOP70(C,S,ABIJ,AIBJ,AJBI,A,B,F,IPOF,IPOA,IPOB,MYL,NYL,INDA,INDB,INMY,INNY,IFTB,IFTA,FACS,IAB,CPL,CPLA,NVIRA,NVIRC,NVIRB)
 
-use mrci_global, only: NBITM3, NSYM, NVIR
+use mrci_global, only: NSYM, NVIR
 use Symmetry_Info, only: Mul
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: INTSYM(*), INDX(*), IBUF(NBITM3+2), IPOF(9), IPOA(9), IPOB(9), MYL, NYL, INDA, INDB, INMY, INNY, IFTB, IFTA, &
-                     IAB, NVIRA, NVIRC, NVIRB
-real(kind=wp) :: C(*), S(*), ABIJ(*), AIBJ(*), AJBI(*), BUF(NBITM3), A(*), B(*), F(*), FSEC(*), FACS, CPL, CPLA
+integer(kind=iwp) :: IPOF(9), IPOA(9), IPOB(9), MYL, NYL, INDA, INDB, INMY, INNY, IFTB, IFTA, IAB, NVIRA, NVIRC, NVIRB
+real(kind=wp) :: C(*), S(*), ABIJ(*), AIBJ(*), AJBI(*), A(*), B(*), F(*), FACS, CPL, CPLA
 integer(kind=iwp) :: IASYM, IBSYM, ICSYM, IPF
 real(kind=wp) :: FACSX
 
@@ -168,13 +166,5 @@ do IASYM=1,NSYM
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer_array(INTSYM)
-  call Unused_integer_array(INDX)
-  call Unused_integer_array(IBUF)
-  call Unused_real_array(FSEC)
-  call Unused_real_array(BUF)
-end if
 
 end subroutine LOOP70

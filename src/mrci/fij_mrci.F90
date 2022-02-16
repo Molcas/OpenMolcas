@@ -9,22 +9,19 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine FIJ_MRCI(ICSPCK,INTSYM,INDX,C,S,FC,A,B,FK,DBK)
+subroutine FIJ_MRCI(INTSYM,INDX,C,S,FC,A,B,FK,DBK)
 
 use mrci_global, only: IRC, IREST, IROW, ITER, IVVER, LSYM, Lu_25, LUSYMB, NBTRI, NVIR, NVPAIR
 use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ICSPCK(*), INTSYM(*), INDX(*)
+integer(kind=iwp) :: INTSYM(*), INDX(*)
 real(kind=wp) :: C(*), S(*), FC(*), A(*), B(*), FK(*), DBK(*)
 #include "cop.fh"
 integer(kind=iwp) :: IADD25, IC1, IC2, ICHK, IIN, IK, ILEN, IND, INDA, INDB, INDI, INUM, IVL, NA, NB, NI, NK, NS1, NS1L
 real(kind=wp) :: COPI
 integer(kind=iwp), external :: JSUNP
-!Statement function
-integer(kind=iwp) :: JSYM, L
-JSYM(L) = JSUNP(INTSYM,L)
 
 ICHK = 0
 IK = 0
@@ -59,7 +56,7 @@ do
         INDB = IRC(IVL)+IC2
         NA = INDX(INDA)
         NB = INDX(INDB)
-        NS1 = JSYM(INDA)
+        NS1 = JSUNP(INTSYM,INDA)
         NS1L = MUL(NS1,LSYM)
         INUM = NVIR(NS1L)
         if (IVL >= 2) INUM = NVPAIR(NS1L)
@@ -71,7 +68,7 @@ do
 end do
 if (ITER /= 0) then
   call AI_MRCI(INTSYM,INDX,C,S,FC,A,B,FK,DBK,0)
-  if ((ITER /= 1) .or. (IREST /= 0)) call AB_MRCI(ICSPCK,INTSYM,INDX,C,S,FC,A,B,FK)
+  if ((ITER /= 1) .or. (IREST /= 0)) call AB_MRCI(INTSYM,INDX,C,S,FC,A,B,FK)
 end if
 
 return

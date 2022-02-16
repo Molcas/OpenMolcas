@@ -24,10 +24,6 @@ integer(kind=iwp) :: I, IA, IAB, IASYM, IC, ICSYM, IFT, II1, INDA, INMY, INN, IO
 real(kind=wp) :: TERM, TSUM
 integer(kind=iwp), external :: ICUNP, JSUNP
 real(kind=r8), external :: DDOT_
-!Statement functions
-integer(kind=iwp) :: JO, JSYM, L
-JO(L) = ICUNP(ICSPCK,L)
-JSYM(L) = JSUNP(INTSYM,L)
 
 ! CALCULATE A) TRANSITION DENSITY ELEMENTS OF TYPE TDMO(A,B)
 !           B) DIAGONAL ELEMENTS TDMO(I,I) AND TDMO(A,A)
@@ -55,12 +51,12 @@ ITAIL = IRC(NCLIM)
 do INDA=1,ITAIL
   do I=1,LN
     II1 = II1+1
-    IOC(I) = (1+JO(II1))/2
+    IOC(I) = (1+ICUNP(ICSPCK,II1))/2
   end do
   if (INDA <= IRC(1)) then
     TSUM = C1(INDA)*C2(INDA)
   else
-    MYSYM = JSYM(INDA)
+    MYSYM = JSUNP(INTSYM,INDA)
     MYL = MUL(MYSYM,LSYM)
     INMY = INDX(INDA)+1
     if (INDA <=IRC(2)) then
@@ -92,8 +88,8 @@ do INDA=1,ITAIL
         if (NVIRC == 0) cycle
         if (MYL /= 1) then
           if (IASYM > ICSYM) then
-            call MTRANS(C1(INMY+IPOA(IASYM)),1,A1,1,NVIRA,NVIRC)
-            call MTRANS(C2(INMY+IPOA(IASYM)),1,A2,1,NVIRA,NVIRC)
+            call MTRANS(C1(INMY+IPOA(IASYM)),A1,NVIRA,NVIRC)
+            call MTRANS(C2(INMY+IPOA(IASYM)),A2,NVIRA,NVIRC)
           else
             NAC = NVIRA*NVIRC
             if (IFT == 0) then

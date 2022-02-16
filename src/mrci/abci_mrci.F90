@@ -25,9 +25,6 @@ real(kind=wp) :: COPL, TERM
 logical(kind=iwp) :: Skip
 integer(kind=iwp), external :: JSUNP
 real(kind=r8), external :: DDOT_
-!Statement function
-integer(kind=iwp) :: JSYM, L
-JSYM(L) = JSUNP(INTSYM,L)
 
 call CSCALE(indx,INTSYM,C,SQ2)
 call CSCALE(indx,INTSYM,S,SQ2INV)
@@ -99,7 +96,7 @@ do
       IND = IBMN(IT)
       ICP1 = ibits(IND,19,13)
       INDA = IRC(1)+ICP1
-      if (JSYM(INDA) /= NSLB) cycle
+      if (JSUNP(INTSYM,INDA) /= NSLB) cycle
       MA = indx(INDA)+LB
       ICP2 = ibits(IND,6,13)
       ITYP = ibits(IND,0,6)

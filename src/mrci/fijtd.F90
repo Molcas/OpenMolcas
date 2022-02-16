@@ -23,9 +23,6 @@ integer(kind=iwp) :: IC1, IC2, ICHK, IIN, ILEN, IND, INDA, INDB, INDI, INUM, IVL
 real(kind=wp) :: TERM
 integer(kind=iwp), external :: JSUNP
 real(kind=r8), external :: DDOT_
-! Statement function
-integer(kind=iwp) :: JSYM, L
-JSYM(L) = JSUNP(INTSYM,L)
 
 !------
 ! POW: Unnecessary but warning stopping initializations
@@ -60,7 +57,7 @@ do
         INDB = IRC(IVL)+IC2
         NA = INDX(INDA)
         NB = INDX(INDB)
-        NS1 = JSYM(INDA)
+        NS1 = JSUNP(INTSYM,INDA)
         NS1L = MUL(NS1,LSYM)
         INUM = NVIR(NS1L)
         if (IVL >= 2) INUM = NVPAIR(NS1L)

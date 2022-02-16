@@ -10,8 +10,7 @@
 !***********************************************************************
 
 subroutine SIGMA(SGM,AREF,CI,INTSY,INDX,BMN,IBMN,BIAC2,BICA2,BFIN3,ISAB,AC1,AC2,BFIN4,ABIJ,AIBJ,AJBI,ASCR1,BSCR1,FSCR1,FSEC,FOCK, &
-                 BFIN5,ASCR2,BSCR2,FSCR2,DBK,ICSPCK)
-!PAM04 BFIN5,ASCR2,BSCR2,FSCR2,DBK,CSPCK)
+                 ASCR2,BSCR2,FSCR2,DBK)
 
 use mrci_global, only: ESHIFT, FIJKL, GFAC, ICPF, IFIRST, IREFX, IREST, ITER, NCONF, NREF, POTNUC
 use Constants, only: Zero, One
@@ -19,8 +18,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: SGM(*), AREF(*), CI(*), BMN(*), BIAC2(*), BICA2(*), BFIN3(*), AC1(*), AC2(*), BFIN4(*), ABIJ(*), AIBJ(*), &
-                 AJBI(*), ASCR1(*), BSCR1(*), FSCR1(*), FSEC(*), FOCK(*), BFIN5(*), ASCR2(*), BSCR2(*), FSCR2(*), DBK(*)
-integer(kind=iwp) :: INTSY(*), INDX(*), IBMN(*), ISAB(*), ICSPCK(*)
+                 AJBI(*), ASCR1(*), BSCR1(*), FSCR1(*), FSEC(*), FOCK(*), ASCR2(*), BSCR2(*), FSCR2(*), DBK(*)
+integer(kind=iwp) :: INTSY(*), INDX(*), IBMN(*), ISAB(*)
 integer(kind=iwp) :: ICSF, IREF, KTYP
 real(kind=wp) :: GINV, SQG, SQGP
 
@@ -52,7 +51,7 @@ if (ITER > 0) then
   ! Switch KTYP=1 means AI is actually handling AIJK integrals.
   call AI_MRCI(INTSY,INDX,CI,SGM,FOCK,ASCR2,BSCR2,FSCR2,DBK,KTYP)
 end if
-call FIJ_MRCI(ICSPCK,INTSY,INDX,CI,SGM,FOCK,ASCR2,BSCR2,FSCR2,DBK)
+call FIJ_MRCI(INTSY,INDX,CI,SGM,FOCK,ASCR2,BSCR2,FSCR2,DBK)
 
 call DAXPY_(NCONF,POTNUC-ESHIFT,CI,1,SGM,1)
 if (ICPF == 1) then
@@ -68,7 +67,5 @@ end if
 call CSFTRA('MCSF',SGM,AREF)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_real_array(BFIN5)
 
 end subroutine SIGMA

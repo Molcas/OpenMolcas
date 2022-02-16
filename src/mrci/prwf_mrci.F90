@@ -28,10 +28,6 @@ character(len=*), parameter :: FORM00 = '(1X,A,6X,53I2)', FORM01 = '(1X,A,3X,54I
                                FORM0 = '(1X,A,6X,34I3)', FORM1 = '(1X,A,3X,35I3)', FORM2 = '(1X,A,36I3)'
 integer(kind=iwp), external :: ICUNP, JSUNP
 real(kind=r8), external :: DDOT_
-! STATEMENT FUNCTIONS FOR RETRIEVING GUGA CASE NUMBERS AND INTERNAL
-integer(kind=iwp) :: JO, JSYM, L
-JO(L) = ICUNP(ICSPCK,L)
-JSYM(L) = JSUNP(INTSYM,L)
 
 NA = 0
 NB = 0
@@ -106,12 +102,12 @@ do I=1,NCONF
       end if
     end do
   end if
-  NSJ = MUL(JSYM(JJ),LSYM)
+  NSJ = MUL(JSUNP(INTSYM,JJ),LSYM)
   JVIR = IJ-INDX(JJ)
   II1 = (JJ-1)*LN
   do II=1,LN
     II1 = II1+1
-    ISP(II+2) = JO(II1)
+    ISP(II+2) = ICUNP(ICSPCK,II1)
     IOC(II+2) = (1+ISP(II+2))/2
   end do
   if (NREXT == 0) then

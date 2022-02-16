@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine AB_MRCI(ICSPCK,INTSYM,INDX,C,S,FC,A,B,FK)
+subroutine AB_MRCI(INTSYM,INDX,C,S,FC,A,B,FK)
 
 use mrci_global, only: IFIRST, IRC, IROW, LN, LSYM, NSYM, NVIR, NVIRP, SQ2, SQ2INV
 use Symmetry_Info, only: Mul
@@ -17,14 +17,11 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ICSPCK(*), INTSYM(*), INDX(*)
+integer(kind=iwp) :: INTSYM(*), INDX(*)
 real(kind=wp) :: C(*), S(*), FC(*), A(*), B(*), FK(*)
 integer(kind=iwp) :: IAB, IASYM, ICSYM, IFT, INDA, INMY, IPOA(9), IPOF(9), ITAIL, MYL, MYSYM, NA, NA1, NA2, NAA, NAB, NAC, NB, &
                      NCLIM
 integer(kind=iwp), external :: JSUNP
-!Statement function
-integer(kind=iwp) :: JSYM, L
-JSYM(L) = JSUNP(INTSYM,L)
 
 call CSCALE(INDX,INTSYM,C,SQ2)
 call CSCALE(INDX,INTSYM,S,SQ2INV)
@@ -49,7 +46,7 @@ end do
 ITAIL = IRC(NCLIM)
 do INDA=1,ITAIL
   if (INDA <= IRC(1)) cycle
-  MYSYM = JSYM(INDA)
+  MYSYM = JSUNP(INTSYM,INDA)
   MYL = MUL(MYSYM,LSYM)
   INMY = INDX(INDA)+1
   if (INDA <= IRC(2)) then
@@ -102,7 +99,5 @@ call CSCALE(INDX,INTSYM,C,SQ2INV)
 call CSCALE(INDX,INTSYM,S,SQ2)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer_array(ICSPCK)
 
 end subroutine AB_MRCI
