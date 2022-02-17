@@ -11,10 +11,12 @@
 ! Copyright (C) 2015, Luis Manuel Frutos                               *
 !               2015, Ignacio Fdez. Galvan                             *
 !               2015, Alessio Valentini                                *
-!                                                                      *
-! Updated (RASSI Version) 2022, I Merritt                              *
-!                         2022, M. Vacher                              *
+!               2022, Isabella C. D. Merritt                            *
+!               2022, Morgane Vacher                                   *
 !***********************************************************************
+
+! Modifications to calculate Wave-function Overlap using &RASSI carried out by IM
+! and MV 2022
 
 subroutine surfacehop(rc)
 
