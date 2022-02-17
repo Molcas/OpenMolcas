@@ -17,8 +17,8 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-integer(kind=iwp) :: ICSPCK(*), INTSYM(*), INDX(*), JREFX(*)
-real(kind=wp) :: C(*)
+integer(kind=iwp), intent(in) :: ICSPCK(*), INTSYM(*), INDX(*), JREFX(*)
+real(kind=wp), intent(inout) :: C(*)
 integer(kind=iwp) :: I, II, II1, IIN, IJ, ILIM, ILSYM(32), IO, IOC(32), IORBI(32), IS, ISP(32), J, J1, J2, JCONF, JJ, JMAX, JMIN, &
                      JVIR, LN1, LN2, NA, NB, NREXT, NSI, NSJ
 real(kind=wp) :: ACI, CI, CLIM, SCL

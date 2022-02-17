@@ -15,8 +15,9 @@ use mrci_global, only: NBITM3, NVSQ
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: LENBUF, JTURN, IBUF(NBITM3+2)
-real(kind=wp) :: BUF(NBITM3), ABIJ(NVSQ), AIBJ(NVSQ)
+integer(kind=iwp), intent(in) :: LENBUF, JTURN, IBUF(NBITM3+2)
+real(kind=wp), intent(in) :: BUF(NBITM3)
+real(kind=wp), intent(inout) :: ABIJ(NVSQ), AIBJ(NVSQ)
 integer(kind=iwp) :: i
 
 if (LENBUF > 0) then

@@ -16,9 +16,12 @@ use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: INTSYM(*), INDX(*)
-real(kind=wp) :: C(*), DMO(*), A(*), B(*), FK(*)
+integer(kind=iwp), intent(in) :: INTSYM(*), INDX(*)
+real(kind=wp), intent(inout) :: C(*), DMO(*), FK(*)
+real(kind=wp), intent(_OUT_) :: A(*), B(*)
 #include "cop.fh"
 integer(kind=iwp) :: ICHK, ICP1, ICP2, IFT, II, IJOLD, ILEN, IND, INDA, INDB, INK, INMY, INNY, IPOB(9), ITYP, MYL, MYSYM, NA, NA1, &
                      NA2, NAK, NK, NSK, NVM, NYL, NYSYM
@@ -70,18 +73,16 @@ do
           if (NYL /= 1) then
             if (NSK > MYL) then
               call FMMM(C(INMY),C(INNY+IPOB(NSK)),B,1,INK,NVM)
-              call VSMA(B,1,COPI,FK,1,FK,1,INK)
             else
               call FMMM(C(INNY+IPOB(MYL)),C(INMY),B,INK,1,NVM)
               if (IFT == 1) COPI = -COPI
-              call VSMA(B,1,COPI,FK,1,FK,1,INK)
             end if
           else
             if (IFT == 0) call SQUAR(C(INNY+IPOB(MYL)),A,NVM)
             if (IFT == 1) call SQUARN(C(INNY+IPOB(MYL)),A,NVM)
             call FMMM(C(INMY),A,B,1,INK,NVM)
-            call VSMA(B,1,COPI,FK,1,FK,1,INK)
           end if
+          FK(1:INK) = FK(1:INK)+COPI*B(1:INK)
         else
           INDA = ICP1
           INDB = IRC(1)+ICP2

@@ -30,8 +30,9 @@ use Definitions, only: r4
 #endif
 
 implicit none
-integer(kind=iwp) :: NITEM, ICVEC(NITEM)
-real(kind=wp) :: CVEC(NITEM)
+integer(kind=iwp), intent(in) :: NITEM
+real(kind=wp), intent(in) :: CVEC(NITEM)
+integer(kind=iwp), intent(out) :: ICVEC(NITEM)
 integer(kind=iwp) :: ITEM
 real(kind=wp), parameter :: SCL = 2147483647.0_wp
 #ifdef _CYGWIN_

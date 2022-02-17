@@ -14,8 +14,9 @@ subroutine SECNE(A,B,C,NAL,NBL,IFT)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NAL, NBL, IFT
-real(kind=wp) :: A(NAL,NBL), B(NBL,NAL), C(NBL,NAL)
+integer(kind=iwp), intent(in) :: NAL, NBL, IFT
+real(kind=wp), intent(in) :: A(NAL,NBL), B(NBL,NAL)
+real(kind=wp), intent(out) :: C(NBL,NAL)
 integer(kind=iwp) :: NA, NB
 
 if (IFT == 0) then

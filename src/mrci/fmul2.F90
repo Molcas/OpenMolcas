@@ -15,13 +15,14 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NROW, NCOL, N
-real(kind=wp) :: A(NROW,N), B(NCOL,N), C(NROW,NCOL)
+integer(kind=iwp), intent(in) :: NROW, NCOL, N
+real(kind=wp), intent(in) :: A(NROW,N), B(NCOL,N)
+real(kind=wp), intent(out) :: C(NROW,NCOL)
 #include "warnings.h"
 integer(kind=iwp) :: I, J, J1, K
 real(kind=wp) :: CJ(1000), FAC
 
-if (nRow > size(CJ)) then
+if (NROW > size(CJ)) then
   write(u6,*)
   write(u6,*) ' *** Error in Subroutine FMUL2 ***'
   write(u6,*) ' row dimension exceeds local buffer size'

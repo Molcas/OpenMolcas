@@ -16,9 +16,12 @@ use Symmetry_Info, only: Mul
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ICSPCK(*), INTSYM(*), INDX(*)
-real(kind=wp) :: C(*), DMO(*), A(*), B(*), F(*)
+integer(kind=iwp), intent(in) :: ICSPCK(*), INTSYM(*), INDX(*)
+real(kind=wp), intent(inout) :: C(*)
+real(kind=wp), intent(_OUT_) :: DMO(*), A(*), B(*), F(*)
 integer(kind=iwp) :: I, IAB, IASYM, ICSYM, IFT, II1, IIA, IIC, IIN, IJ, INDA, INMY, INN, IOC(55), IPF, IPOA(9), IPOF(9), ITAIL, &
                      LNA, LNC, MYL, MYSYM, NA, NA1, NA2, NAB, NAC, NB, NCLIM, NVIRA, NVIRC
 real(kind=wp) :: ENPINV, RSUM, TR, TSUM
@@ -94,7 +97,7 @@ do INDA=1,ITAIL
           else
             NAC = NVIR(IASYM)*NVIR(ICSYM)
             if (IFT == 0) call DCOPY_(NAC,C(INMY+IPOA(ICSYM)),1,A,1)
-            if (IFT == 1) call VNEG(C(INMY+IPOA(ICSYM)),1,A,1,NAC)
+            if (IFT == 1) call VNEG(NAC,C(INMY+IPOA(ICSYM)),1,A,1)
           end if
         else
           if (IFT == 0) call SQUAR(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))

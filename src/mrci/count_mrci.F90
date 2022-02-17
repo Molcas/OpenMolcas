@@ -14,7 +14,8 @@ subroutine COUNT_MRCI(NINTGR,NSYM,NORB,MUL)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: NINTGR, NSYM, NORB(*), MUL(8,8)
+integer(kind=iwp), intent(out) :: NINTGR
+integer(kind=iwp), intent(in) :: NSYM, NORB(*), MUL(8,8)
 integer(kind=iwp) :: IJS, IS, ISUM, JS, NDPROD(8), NORBT
 
 ! COUNT TWO-ELECTRON INTEGRALS

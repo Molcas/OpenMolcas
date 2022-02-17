@@ -15,7 +15,7 @@ use mrci_global, only: BNAME, NBAS, NBAST, NCMO, NSYM, THRORB
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: CNO(NCMO), OCC(NBAST)
+real(kind=wp), intent(in) :: CNO(NCMO), OCC(NBAST)
 #include "Molcas.fh"
 integer(kind=iwp) :: I, IEB, IEM, IEND, IST, ISYM, J, JEMO, JSMO, NB, NDIV, NPRT
 character(len=LenIn8), external :: CLEAN_BNAME

@@ -17,9 +17,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: CBUF(MBUF,MXVEC), SBUF(MBUF,MXVEC), DBUF(MBUF), ARR(NRROOT,NRROOT,11), CSECT(NSECT,MXVEC), RSECT(NSECT,MXVEC), &
-                 XI1(NSECT,NRROOT), XI2(NSECT,NRROOT)
-integer(kind=iwp) :: ICI(MBUF)
+real(kind=wp), intent(out) :: CBUF(MBUF,MXVEC), SBUF(MBUF,MXVEC), DBUF(MBUF), ARR(NRROOT,NRROOT,11), CSECT(NSECT,MXVEC), &
+                              RSECT(NSECT,MXVEC), XI1(NSECT,NRROOT), XI2(NSECT,NRROOT)
+integer(kind=iwp), intent(out) :: ICI(MBUF)
 integer(kind=iwp) :: I, IBUF, IDD, IEND, ISECT, ISTA, JEND, JSTA, K
 integer(kind=iwp), parameter :: IX1F = 1, IX2F = 2, IRR = 3, IX1R = 4, IX2R = 5, IX1X1 = 6, IX2X1 = 7, IX2X2 = 8, IFDF = 9, &
                                 IFDR = 10, IRDR = 11

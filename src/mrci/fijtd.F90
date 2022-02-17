@@ -16,8 +16,9 @@ use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp, r8
 
 implicit none
-integer(kind=iwp) :: INTSYM(*), INDX(*)
-real(kind=wp) :: C1(*), C2(*), TDMO(NBAST,NBAST)
+integer(kind=iwp), intent(in) :: INTSYM(*), INDX(*)
+real(kind=wp), intent(in) :: C1(*), C2(*)
+real(kind=wp), intent(inout) :: TDMO(NBAST,NBAST)
 #include "cop.fh"
 integer(kind=iwp) :: IC1, IC2, ICHK, IIN, ILEN, IND, INDA, INDB, INDI, INUM, IVL, NA, NB, NI, NK, NS1, NS1L
 real(kind=wp) :: TERM

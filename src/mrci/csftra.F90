@@ -17,8 +17,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-character(len=4) :: KEY
-real(kind=wp) :: CI(NCONF), AREF(NREF,NREF)
+character(len=4), intent(in) :: KEY
+real(kind=wp), intent(inout) :: CI(NCONF)
+real(kind=wp), intent(in) :: AREF(NREF,NREF)
 integer(kind=iwp) :: I, J
 real(kind=wp) :: RSUM
 real(kind=wp), allocatable :: TMP(:)

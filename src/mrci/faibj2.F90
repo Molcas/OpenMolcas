@@ -17,8 +17,8 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: IFTA, IFTB, ICOUP1, ICOUP, INDA, INDB, MYSYM, INTSYM(*), NYSYM, NSIJ, MYL, NYL, IPOA(9), IPOB(9), INMY, INNY, &
-                     INDX(*), iTYP
+integer(kind=iwp), intent(out) :: IFTA, IFTB, INDA, INDB, MYSYM, NYSYM, MYL, NYL, IPOA(9), IPOB(9), INMY, INNY
+integer(kind=iwp), intent(in) :: ICOUP1, ICOUP, INTSYM(*), NSIJ, INDX(*), iTYP
 real(kind=wp) :: FACS
 integer(kind=iwp), external :: JSUNP
 

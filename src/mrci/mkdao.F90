@@ -16,7 +16,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: CNO(NCMO), OCC(NBAST), DAO(NBAST,NBAST)
+real(kind=wp), intent(in) :: CNO(NCMO), OCC(NBAST)
+real(kind=wp), intent(out) :: DAO(NBAST,NBAST)
 integer(kind=iwp) :: I, IB, IB1, ICNO, ISYM, NB
 real(kind=wp) :: X
 

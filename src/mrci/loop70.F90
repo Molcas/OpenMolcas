@@ -16,9 +16,14 @@ use Symmetry_Info, only: Mul
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: IPOF(9), IPOA(9), IPOB(9), MYL, NYL, INDA, INDB, INMY, INNY, IFTB, IFTA, IAB, NVIRA, NVIRC, NVIRB
-real(kind=wp) :: C(*), S(*), ABIJ(*), AIBJ(*), AJBI(*), A(*), B(*), F(*), FACS, CPL, CPLA
+real(kind=wp), intent(in) :: C(*), ABIJ(*), AIBJ(*), AJBI(*), FACS, CPL, CPLA
+real(kind=wp), intent(inout) :: S(*)
+real(kind=wp), intent(_OUT_) :: A(*), B(*), F(*)
+integer(kind=iwp), intent(in) :: IPOF(9), IPOA(9), IPOB(9), MYL, NYL, INDA, INDB, INMY, INNY, IFTB, IFTA
+integer(kind=iwp), intent(out) :: IAB, NVIRA, NVIRC, NVIRB
 integer(kind=iwp) :: IASYM, IBSYM, ICSYM, IPF
 real(kind=wp) :: FACSX
 
@@ -38,7 +43,7 @@ do IASYM=1,NSYM
       IPF = IPOF(IASYM)+1
       call DYAX(IAB,CPL,AIBJ(IPF),1,F,1)
       F(1:IAB) = F(1:IAB)+CPLA*ABIJ(IPF:IPF+IAB-1)
-      if (INDA == INDB) call SETZZ(F,NVIRA)
+      if (INDA == INDB) call DCOPY_(NVIRA,[Zero],0,F,NVIRA+1)
       call DGEMM_('N','N',NVIRC,NVIRB,NVIRA,FACS,C(INMY+IPOA(IASYM)),NVIRC,F,NVIRA,One,S(INNY+IPOB(IBSYM)),NVIRC)
       if (INDA /= INDB) then
         IPF = IPOF(IBSYM)+1
@@ -95,7 +100,7 @@ do IASYM=1,NSYM
       IPF = IPOF(IBSYM)+1
       call DYAX(IAB,CPL,AJBI(IPF),1,F,1)
       F(1:IAB) = F(1:IAB)+CPLA*ABIJ(IPF:IPF+IAB-1)
-      if (INDA == INDB) call SETZZ(F,NVIRA)
+      if (INDA == INDB) call DCOPY_(NVIRA,[Zero],0,F,NVIRA+1)
       if ((MYL == 1) .and. (NYL == 1)) then
 
         if (IFTA == 0) call SQUAR(C(INMY+IPOA(IASYM)),A,NVIRA)

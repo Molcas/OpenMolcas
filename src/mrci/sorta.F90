@@ -21,14 +21,15 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: BUFS(NBITM1,NCHN1), BUFBI(KBUFF1), BIAC(ISMAX), BICA(ISMAX)
-integer(kind=iwp) :: INDS(NBITM1+2,NCHN1), ISAB(*), NINTGR
+real(kind=wp), intent(out) :: BUFS(NBITM1,NCHN1), BUFBI(KBUFF1), BIAC(ISMAX), BICA(ISMAX)
+integer(kind=iwp), intent(out) :: INDS(NBITM1+2,NCHN1), NINTGR
+integer(kind=iwp), intent(in) :: ISAB(*)
 #include "tratoc.fh"
 #include "cop.fh"
 #include "warnings.h"
 integer(kind=iwp) :: I, IACS, IAD15, IAD50, IADR, IBUFIJ, ICHK, IDISK, IIJ, IIN, IJ, IJKL, ILEN, ILOOP, INB, INND, INS, INSB, &
-                     INSOUT, INUMB, IOUT, IPOS, IREC, ISRTAD, IST, JDISK, KK, KL, LENGTH, M, NA, NAT, NB, NC, NI, NIB, NJ, NK, NL, &
-                     NOP, NOQ, NOR, NORB0(9), NORBP, NOS, NSAVE, NSIB, NSP, NSPQ, NSPQR, NSQ, NSR, NSRTCN, NSS, NSSM, NT, NTM, NU, &
+                     INSOUT, INUMB, IOUT, IPOS, ISRTAD, IST, JDISK, KK, KL, LENGTH, M, NA, NAT, NB, NC, NI, NIB, NJ, NK, NL, NOP, &
+                     NOQ, NOR, NORB0(9), NORBP, NOS, NSAVE, NSIB, NSP, NSPQ, NSPQR, NSQ, NSR, NSRTCN, NSS, NSSM, NT, NTM, NU, &
                      NUMAX, NUMIN, NV, NX, NXM
 real(kind=wp) :: FINI
 logical(kind=iwp) :: Skip
@@ -41,10 +42,8 @@ call iDAFILE(LUTRA,2,iTraToc,nTraToc,IAD50)
 
 IDISK = 0
 ICHK = 0
-do IREC=1,NCHN1
-  INDS(NBITM1+1,IREC) = 0
-  INDS(NBITM1+2,IREC) = -1
-end do
+INDS(NBITM1+1,:) = 0
+INDS(NBITM1+2,:) = -1
 NORB0(1) = 0
 do I=1,NSYM
   NORB0(I+1) = NORB0(I)+NORB(I)
@@ -143,8 +142,8 @@ do NSP=1,NSYM
                   INDS(IPOS,NIB) = (NA-1)*NVIRT+NC
                   if (IPOS >= NBITM1) then
                     JDISK = IDISK
-                    call iDAFILE(Lu_60,1,INDS(1,NIB),NBITM1+2,IDISK)
-                    call dDAFILE(Lu_60,1,BUFS(1,NIB),NBITM1,IDISK)
+                    call iDAFILE(Lu_60,1,INDS(:,NIB),NBITM1+2,IDISK)
+                    call dDAFILE(Lu_60,1,BUFS(:,NIB),NBITM1,IDISK)
                     INDS(NBITM1+1,NIB) = 0
                     INDS(NBITM1+2,NIB) = JDISK
                   end if
@@ -159,8 +158,8 @@ do NSP=1,NSYM
                     INDS(IPOS,NIB) = (NA-1)*NVIRT+NC
                     if (IPOS >= NBITM1) then
                       JDISK = IDISK
-                      call iDAFILE(Lu_60,1,INDS(1,NIB),NBITM1+2,IDISK)
-                      call dDAFILE(Lu_60,1,BUFS(1,NIB),NBITM1,IDISK)
+                      call iDAFILE(Lu_60,1,INDS(:,NIB),NBITM1+2,IDISK)
+                      call dDAFILE(Lu_60,1,BUFS(:,NIB),NBITM1,IDISK)
                       INDS(NBITM1+1,NIB) = 0
                       INDS(NBITM1+2,NIB) = JDISK
                     end if
@@ -177,8 +176,8 @@ do NSP=1,NSYM
                   INDS(IPOS,IJ) = IJKL
                   if (IPOS == NBITM1) then
                     JDISK = IDISK
-                    call iDAFILE(Lu_60,1,INDS(1,IJ),NBITM1+2,IDISK)
-                    call dDAFILE(Lu_60,1,BUFS(1,IJ),NBITM1,IDISK)
+                    call iDAFILE(Lu_60,1,INDS(:,IJ),NBITM1+2,IDISK)
+                    call dDAFILE(Lu_60,1,BUFS(:,IJ),NBITM1,IDISK)
                     INDS(NBITM1+1,IJ) = 0
                     INDS(NBITM1+2,IJ) = JDISK
                   end if
@@ -198,8 +197,8 @@ if (NCHN1 > MCHAIN) then
 end if
 do I=1,NCHN1
   JDISK = IDISK
-  call iDAFILE(Lu_60,1,INDS(1,I),NBITM1+2,IDISK)
-  call dDAFILE(Lu_60,1,BUFS(1,I),NBITM1,IDISK)
+  call iDAFILE(Lu_60,1,INDS(:,I),NBITM1+2,IDISK)
+  call dDAFILE(Lu_60,1,BUFS(:,I),NBITM1,IDISK)
   LASTAD(I) = JDISK
 end do
 ! IJKL

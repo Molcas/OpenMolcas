@@ -15,11 +15,15 @@ use mrci_global, only: NSYM, NVIR
 use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NSIJ, IFT, IIN, INS, IPOA(9), IPOF(9)
-real(kind=wp) :: AIBJ(*), FSEC(*), FAC
+integer(kind=iwp), intent(in) :: NSIJ, IFT, IPOF(9)
+real(kind=wp), intent(in) :: AIBJ(*), FAC
+real(kind=wp), intent(_OUT_) :: FSEC(*)
+integer(kind=iwp), intent(inout) :: IIN
+integer(kind=iwp), intent(out) :: INS, IPOA(9)
 integer(kind=iwp) :: IAB, IASYM, IBSYM
-real(kind=wp) :: DUMMY
 
 call IPO(IPOA,NVIR,MUL,NSYM,NSIJ,IFT)
 ! INTEGRAL COMBINATION APPROPRIATE FOR SINGLET-COUPLING:
@@ -43,7 +47,7 @@ do IASYM=1,NSYM
   IAB = IPOA(IASYM+1)-IPOA(IASYM)
   if (IAB == 0) cycle
   if (NSIJ == 1) then
-    call SECEQ(AIBJ(IPOF(IASYM)+1),AIBJ(IPOF(IBSYM)+1),FSEC(IIN+1),NVIR(IASYM),1,DUMMY)
+    call SECEQ(AIBJ(IPOF(IASYM)+1),AIBJ(IPOF(IBSYM)+1),FSEC(IIN+1),NVIR(IASYM),1,FAC)
   else
     call SECNE(AIBJ(IPOF(IASYM)+1),AIBJ(IPOF(IBSYM)+1),FSEC(IIN+1),NVIR(IASYM),NVIR(IBSYM),1)
   end if

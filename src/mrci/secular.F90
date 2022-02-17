@@ -14,9 +14,14 @@ subroutine SECULAR(NDIM,N,NRON,HMAT,SMAT,VEC,EVAL,SCR,THR)
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NDIM, N, NRON
-real(kind=wp) :: HMAT(NDIM,NDIM), SMAT(NDIM,NDIM), VEC(NDIM,NDIM), EVAL(NDIM), SCR(*), THR
+integer(kind=iwp), intent(in) :: NDIM, N
+integer(kind=iwp), intent(out) :: NRON
+real(kind=wp), intent(in) :: HMAT(NDIM,NDIM), SMAT(NDIM,NDIM), THR
+real(kind=wp), intent(out) :: VEC(NDIM,NDIM), EVAL(NDIM)
+real(kind=wp), intent(_OUT_) :: SCR(*)
 integer(kind=iwp) :: I, IFROM, II, IOFF1, ITO, J, K, MAXLEN
 real(kind=wp) :: RSUM, SCL, THR2
 

@@ -15,8 +15,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NAL, IFT
-real(kind=wp) :: A(NAL,NAL), B(NAL,NAL), C((NAL*(NAL+1))/2), FAC
+integer(kind=iwp), intent(in) :: NAL, IFT
+real(kind=wp), intent(in) :: A(NAL,NAL), B(NAL,NAL), FAC
+real(kind=wp), intent(out) :: C((NAL*(NAL+1))/2)
 integer(kind=iwp) :: IAB, NA, NB
 
 if (IFT == 0) then

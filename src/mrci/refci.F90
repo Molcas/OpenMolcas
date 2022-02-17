@@ -15,8 +15,10 @@ use mrci_global, only: CSEL, IREFX, IROOT, LN, NCOMP, NCSPCK, NREF, NRROOT, NSEL
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: HREF((NREF*(NREF+1))/2), AREF(NREF,NREF), EREF(NREF), CISEL(NREF,NSEL), PLEN(NREF)
-integer(kind=iwp) :: ICSPCK(NCSPCK)
+real(kind=wp), intent(inout) :: HREF((NREF*(NREF+1))/2)
+real(kind=wp), intent(out) :: AREF(NREF,NREF), EREF(NREF), PLEN(NREF)
+integer(kind=iwp), intent(in) :: ICSPCK(NCSPCK)
+real(kind=wp), intent(in) :: CISEL(NREF,NSEL)
 integer(kind=iwp) :: I, IC, IOFF, IREF, J, JJ, K, K1, K2, NC, NPRT
 character(len=48) :: FORM1, FORM2, FORM3, FORM4
 character(len=2) :: STR

@@ -16,9 +16,12 @@ use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: INTSYM(*)
-real(kind=wp) :: HDIAG(*), FIJIJ(*)
+integer(kind=iwp), intent(in) :: INTSYM(*)
+real(kind=wp), intent(_OUT_) :: HDIAG(*)
+real(kind=wp), intent(in) :: FIJIJ(*)
 #include "cop.fh"
 real(kind=wp) :: HCOUT(nCOP)
 integer(kind=iwp) :: IAD27, IADD25, ICHK, ICOUP, ICOUPS, IFS, II, IIJ, IIJ1, IIJ2, IJJ, INB, IND, INDI, INS, IOUT, IREF0, ITYP, &
@@ -36,7 +39,7 @@ IREF0 = 1
 call dDAFILE(Lu_27,2,HDIAG,IRC(1),IAD27)
 
 !write(u6,*) ' Hdiag'
-!write(u6,*) ( Hdiag(i),i=1,IRC(1) )
+!write(u6,*) (Hdiag(i),i=1,IRC(1))
 
 IFS = 0
 IVL = 0

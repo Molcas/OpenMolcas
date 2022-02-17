@@ -15,12 +15,13 @@ use mrci_global, only: IRC, LSYM, NDIAG, NVIRT
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: INDX(*), INTSYM(*)
-real(kind=wp) :: C(*), X
+integer(kind=iwp), intent(in) :: INDX(*), INTSYM(*)
+real(kind=wp), intent(inout) :: C(*)
+real(kind=wp), intent(in) :: X
 integer(kind=iwp) :: II1, MA, NA
 integer(kind=iwp), external :: JSUNP
 
-do II1 = IRC(3)+1,IRC(4)
+do II1=IRC(3)+1,IRC(4)
   if (JSUNP(INTSYM,II1) == LSYM) then
     NA = INDX(II1)
     do MA=1,NVIRT

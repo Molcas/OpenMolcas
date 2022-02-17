@@ -16,10 +16,13 @@ use Symmetry_Info, only: Mul
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ISTATE, JSTATE
-real(kind=wp) :: PROP(NRROOT,NRROOT,NPROP), PINT(NBTRI), SMAT(*), CNO(NCMO), OCC(NBAST), SFOLD(NBTRI), AFOLD(NBTRI), &
-                 TDAO(NBAST,NBAST)
+integer(kind=iwp), intent(in) :: ISTATE, JSTATE
+real(kind=wp), intent(_OUT_) :: PROP(NRROOT,NRROOT,NPROP), SMAT(*)
+real(kind=wp), intent(out) :: PINT(NBTRI+4), SFOLD(NBTRI), AFOLD(NBTRI)
+real(kind=wp), intent(in) :: CNO(NCMO), OCC(NBAST), TDAO(NBAST,NBAST)
 integer(kind=iwp) :: I, ICALL = 0, IDUM(1), IDUMMY, IEND, IFROM, IJ, IPROP, IRTC, ISTA, ISY, ISY1, ISY12, ISY2, ISYMLB, ITO, J, &
                      NB1, NB12, NB2, NSIZ
 real(kind=wp) :: SGN, X
@@ -36,8 +39,6 @@ if (ISTATE == JSTATE) then
 end if
 ! FOLD TDAO SYMMETRICALLY (ANTI-SYMM) INTO SFOLD (AFOLD):
 ! MOLCAS2 UPDATE: SYMMETRY-BLOCKED STORAGE.
-SFOLD(:) = Zero
-AFOLD(:) = Zero
 IJ = 0
 IEND = 0
 do ISY=1,NSYM
@@ -95,11 +96,11 @@ do IPROP=1,NPROP
   SGN = One
   if (PNAME(IPROP)(1:5) == 'MLTPL') SGN = -SGN
   if (PTYPE(IPROP) == 'HERM') then
-    X = SGN*DDOT_(NBTRI,SFOLD,1,PINT,1)
+    X = SGN*DDOT_(NSIZ,SFOLD,1,PINT,1)
     PROP(ISTATE,JSTATE,IPROP) = X
     PROP(JSTATE,ISTATE,IPROP) = X
   else
-    X = SGN*DDOT_(NBTRI,AFOLD,1,PINT,1)
+    X = SGN*DDOT_(NSIZ,AFOLD,1,PINT,1)
     PROP(ISTATE,JSTATE,IPROP) = X
     PROP(JSTATE,ISTATE,IPROP) = -X
   end if

@@ -24,10 +24,10 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NITEM, ICVEC(NITEM)
-real(kind=wp) :: CVEC(NITEM)
-real(kind=wp), parameter :: SCL = One/2147483647.0_wp
+integer(kind=iwp), intent(in) :: NITEM, ICVEC(NITEM)
+real(kind=wp), intent(out) :: CVEC(NITEM)
 integer(kind=iwp) :: ITEM
+real(kind=wp), parameter :: SCL = One/2147483647.0_wp
 
 do ITEM=1,NITEM
   CVEC(ITEM) = SCL*real(ICVEC(ITEM),kind=wp)

@@ -16,9 +16,12 @@ use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ICSPCK(*), INTSYM(*)
-real(kind=wp) :: HDIAG(*), FC(*), FIIJJ(*), FIJIJ(*)
+integer(kind=iwp), intent(in) :: ICSPCK(*), INTSYM(*)
+real(kind=wp), intent(_OUT_) :: HDIAG(*)
+real(kind=wp), intent(in) :: FC(*), FIIJJ(*), FIJIJ(*)
 integer(kind=iwp) :: I, IA, IAD27, IAV, IB, IBV, II1, IJ, ILIM, IND, IOC(55), IR, IRL, J, JOJ, NA, NA1, NA2, NB, NB1, NB2, NSA, NSS
 real(kind=wp) :: SUM1, SUM2, TERM
 integer(kind=iwp), external :: ICUNP, JSUNP

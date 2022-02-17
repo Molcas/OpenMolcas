@@ -17,9 +17,13 @@ use Symmetry_Info, only: Mul
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ICSPCK(*), INTSYM(*), INDX(*), ISAB(NVIRT,NVIRT), JREFX(*)
-real(kind=wp) :: CISEL(NREF,NSEL)
+integer(kind=iwp), intent(in) :: ICSPCK(*), INTSYM(*), JREFX(*)
+integer(kind=iwp), intent(_OUT_) :: INDX(*)
+integer(kind=iwp), intent(out) :: ISAB(NVIRT,NVIRT)
+real(kind=wp), intent(out) :: CISEL(NREF,NSEL)
 integer(kind=iwp) :: I, IC, II, ILEV, ILIM, IND, IOFF, IR, IR1, IR2, IREF, ISEL, J, JCAS1, JCAS2, JJ, JJM, JSCI, JSEL, NA, NB, NC, &
                      NCDOUB, NCSING, NCTRIP, NSAB, NSS
 real(kind=wp) :: X
@@ -122,10 +126,10 @@ end do
 ! ORTHONORMALIZE THE SELECTION VECTORS:
 do ISEL=1,NSEL
   do JSEL=1,ISEL-1
-    X = DDOT_(NREF,CISEL(1,JSEL),1,CISEL(1,ISEL),1)
+    X = DDOT_(NREF,CISEL(:,JSEL),1,CISEL(:,ISEL),1)
     CISEL(:,ISEL) = CISEL(:,ISEL)-X*CISEL(:,JSEL)
   end do
-  X = One/DDOT_(NREF,CISEL(1,ISEL),1,CISEL(1,ISEL),1)
+  X = One/DDOT_(NREF,CISEL(:,ISEL),1,CISEL(:,ISEL),1)
   CISEL(:,ISEL) = X*CISEL(:,ISEL)
 end do
 write(u6,*)

@@ -15,17 +15,18 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: N
-real(kind=wp) :: A(*), B(N,N)
+real(kind=wp), intent(in) :: A(*)
+integer(kind=iwp), intent(in) :: N
+real(kind=wp), intent(out) :: B(N,N)
 integer(kind=iwp) :: I, IIN
 
 IIN = 2
 do I=2,N
-  call VNEG(A(IIN),1,B(1,I),1,I-1)
+  B(1:I-1,I) = -A(IIN:IIN+I-2)
   IIN = IIN+I
 end do
 do I=1,N-1
-  call VNEG(B(I,I+1),N,B(I+1,I),1,N-I)
+  B(I+1:N,I) = -B(I,I+1:N)
 end do
 call DCOPY_(N,[Zero],0,B,N+1)
 

@@ -19,16 +19,20 @@ use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: BUFS(NBITM2,NCHN2), ACBDS(*), ACBDT(*), BFACBD(*)
-integer(kind=iwp) :: INDS(NBITM2+2,NCHN2), ISAB(*)
+real(kind=wp), intent(out) :: BUFS(NBITM2,NCHN2)
+integer(kind=iwp), intent(out) :: INDS(NBITM2+2,NCHN2)
+real(kind=wp), intent(_OUT_) :: ACBDS(*), ACBDT(*), BFACBD(*)
+integer(kind=iwp), intent(in) :: ISAB(*)
 #include "tratoc.fh"
 #include "warnings.h"
 integer(kind=iwp) :: I, IAC, IACMAX, IACMIN, IAD16, IAD50, IADR, IBDS, IDISK, IFIN1, IFIN2, ILOOP, IN1, INB, INND, INPS, INPT, &
-                     INS, INSB, INSOUT, INUMB, IOUT, IPOS, IREC, IST, IST1, IST2, ISTEP, ISYM, ITAIL, ITURN, JDISK, KK, LENGTH, &
-                     M1, M2, M3, M4, N1, N2, N3, N4, NA, NAC, NB, NC, ND, NDMAX, NI, NJ, NK, NL, NOP, NOQ, NOR, NORB0(9), NORBP, &
-                     NOS, NOVM, NOVST, NSAC, NSACL, NSC, NSP, NSPQ, NSPQR, NSQ, NSR, NSS, NSSM, NT, NTM, NU, NUMAX, NUMIN, NV, &
-                     NVT, NX, NXM
+                     INS, INSB, INSOUT, INUMB, IOUT, IPOS, IST, IST1, IST2, ISTEP, ISYM, ITAIL, ITURN, JDISK, KK, LENGTH, M1, M2, &
+                     M3, M4, N1, N2, N3, N4, NA, NAC, NB, NC, ND, NDMAX, NI, NJ, NK, NL, NOP, NOQ, NOR, NORB0(9), NORBP, NOS, &
+                     NOVM, NOVST, NSAC, NSACL, NSC, NSP, NSPQ, NSPQR, NSQ, NSR, NSS, NSSM, NT, NTM, NU, NUMAX, NUMIN, NV, NVT, NX, &
+                     NXM
 real(kind=wp) :: FINI
 
 NVT = IROW(NVIRT+1)
@@ -52,10 +56,8 @@ do ISTEP=1,IPASS
   if (IACMIN > IACMAX) cycle
 
   ! Initialize Buffer Counts and BackChain Links.
-  do IREC=1,NCHN2
-    INDS(NBITM2+1,IREC) = 0
-    INDS(NBITM2+2,IREC) = -1
-  end do
+  INDS(NBITM2+1,:) = 0
+  INDS(NBITM2+2,:) = -1
 
   ! Loop over symmetry blocks of all-virtual integrals.
   do NSP=1,NSYM

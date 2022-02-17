@@ -16,9 +16,12 @@ use Symmetry_Info, only: Mul
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, r8
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ICSPCK(*), INTSYM(*), INDX(*)
-real(kind=wp) :: C1(*), C2(*), TDMO(NBAST,NBAST), A1(*), A2(*), F(*)
+integer(kind=iwp), intent(in) :: ICSPCK(*), INTSYM(*), INDX(*)
+real(kind=wp), intent(inout) :: C1(*), C2(*), TDMO(NBAST,NBAST)
+real(kind=wp), intent(_OUT_) :: A1(*), A2(*), F(*)
 integer(kind=iwp) :: I, IA, IAB, IASYM, IC, ICSYM, IFT, II1, INDA, INMY, INN, IOC(55), IPF, IPOA(9), IPOF(9), ITAIL, LNA, LNC, &
                      MYL, MYSYM, NA, NA1, NA2, NAC, NB, NCLIM, NVIRA, NVIRC
 real(kind=wp) :: TERM, TSUM
@@ -59,7 +62,7 @@ do INDA=1,ITAIL
     MYSYM = JSUNP(INTSYM,INDA)
     MYL = MUL(MYSYM,LSYM)
     INMY = INDX(INDA)+1
-    if (INDA <=IRC(2)) then
+    if (INDA <= IRC(2)) then
       ! DOUBLET-DOUBLET INTERACTIONS
       if (NVIR(MYL) == 0) cycle
       IPF = IPOF(MYL)+1
@@ -70,7 +73,7 @@ do INDA=1,ITAIL
       do I=1,NVIRA
         TERM = C1(INMY-1+I)*C2(INMY-1+I)
         IA = LNA+I
-      TDMO(IA,IA) = TDMO(IA,IA)+TERM
+        TDMO(IA,IA) = TDMO(IA,IA)+TERM
         TSUM = TSUM+TERM
       end do
     else
@@ -96,8 +99,8 @@ do INDA=1,ITAIL
               call DCOPY_(NAC,C1(INMY+IPOA(ICSYM)),1,A1,1)
               call DCOPY_(NAC,C2(INMY+IPOA(ICSYM)),1,A2,1)
             else
-              call VNEG(C1(INMY+IPOA(ICSYM)),1,A1,1,NAC)
-              call VNEG(C2(INMY+IPOA(ICSYM)),1,A2,1,NAC)
+              call VNEG(NAC,C1(INMY+IPOA(ICSYM)),1,A1,1)
+              call VNEG(NAC,C2(INMY+IPOA(ICSYM)),1,A2,1)
             end if
           end if
         else

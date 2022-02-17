@@ -17,15 +17,18 @@ use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: BUFS(NBITM3,NCHN3), FC(NBTRI), FIIJJ(*), FIJIJ(*)
-integer(kind=iwp) :: INDS(NBITM3+2,NCHN3)
+real(kind=wp), intent(out) :: BUFS(NBITM3,NCHN3), FC(NBTRI)
+integer(kind=iwp), intent(out) :: INDS(NBITM3+2,NCHN3)
+real(kind=wp), intent(_OUT_) :: FIIJJ(*), FIJIJ(*)
 #include "tratoc.fh"
 #include "warnings.h"
 integer(kind=iwp) :: I, IAD50, IADD17, IADD25, IBUF, IDISK, IEXP, IIJ, IIN, IJ, IJT, IKT, INAV, IND, IORBI, IOUT, IPOF(65), IPOS, &
-                     IREC, ISYM, IVEC(20), J, JDISK, JK, JORBI, KORBI, M1, M2, M3, M4, N1, N2, N3, N4, NAV, NBV, NI, NJ, NK, NL, &
-                     NOP, NOQ, NOR, NORB0(9), NORBP, NORBTT, NOS, NOT2, NOTT, NOVST, NSA, NSB, NSIJT, NSP, NSPQ, NSPQR, NSQ, NSR, &
-                     NSS, NSSM, NT, NTM, NTMP, NU, NUMAX, NUMIN, NV, NVT, NX, NXM
+                     ISYM, IVEC(20), J, JDISK, JK, JORBI, KORBI, M1, M2, M3, M4, N1, N2, N3, N4, NAV, NBV, NI, NJ, NK, NL, NOP, &
+                     NOQ, NOR, NORB0(9), NORBP, NORBTT, NOS, NOT2, NOTT, NOVST, NSA, NSB, NSIJT, NSP, NSPQ, NSPQR, NSQ, NSR, NSS, &
+                     NSSM, NT, NTM, NTMP, NU, NUMAX, NUMIN, NV, NVT, NX, NXM
 real(kind=wp) :: DFINI, EFROZ, FINI, ONEHAM
 
 IAD50 = 0
@@ -53,10 +56,8 @@ NOTT = 2*NOT2
 NOVST = LN*NVIRT+1+NVT
 IDISK = 0
 
-do IREC=1,NCHN3
-  INDS(NBITM3+1,IREC) = 0
-  INDS(NBITM3+2,IREC) = -1
-end do
+INDS(NBITM3+1,:) = 0
+INDS(NBITM3+2,:) = -1
 NORB0(1) = 0
 do I=1,NSYM
   NORB0(I+1) = NORB0(I)+NORB(I)

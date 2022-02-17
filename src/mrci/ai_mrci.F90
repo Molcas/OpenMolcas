@@ -18,9 +18,12 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, r8
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: INTSYM(*), INDX(*), KTYP
-real(kind=wp) :: C(*), S(*), FC(*), A(*), B(*), FK(*), DBK(*)
+integer(kind=iwp), intent(in) :: INTSYM(*), INDX(*), KTYP
+real(kind=wp), intent(inout) :: C(*), S(*), FC(*)
+real(kind=wp), intent(_OUT_) :: A(*), B(*), FK(*), DBK(*)
 #include "cop.fh"
 integer(kind=iwp) :: i, IADR, ICHK, ICP1, ICP2, IFT, II, IJ, IJOLD, ILEN, IND, INDA, INDB, INDI, INMY, INNY, IOUT, IPOB(9), ITYP, &
                      J, LENGTH, MYEXTS, MYINTS, NA, NAK, NI, NJ, NK, NKM, NOTT, NOVST, NSA, NSI, NSIJ, NSJ, NSK, NVIRA, NVM, NVT, &
@@ -163,7 +166,7 @@ do
           NKM = NVIRA*NVM
           B(1:NVM) = Zero
           if (NSA <= MYEXTS) then
-            if (IFT == 1) call VNEG(DBK,1,DBK,1,NVIRA)
+            if (IFT == 1) DBK(1:NVIRA) = -DBK(1:NVIRA)
             call FMMM(DBK,C(INNY+IPOB(MYEXTS)),B,1,NVM,NVIRA)
             S(INMY:INMY+NVM-1) = S(INMY:INMY+NVM-1)+B(1:NVM)
             B(1:NKM) = Zero

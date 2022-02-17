@@ -15,9 +15,11 @@ use mrci_global, only: ENP, IPRINT, IRC, LN, Lu_27, NREF
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: JREFX(*), ICSPCK(*)
-real(kind=wp) :: AREF(*), DMO(*)
+integer(kind=iwp), intent(in) :: JREFX(*), ICSPCK(*)
+real(kind=wp), intent(_OUT_) :: AREF(*), DMO(*)
 integer(kind=iwp) :: I, IAD27, II1, IJ, IK, INDA, IOC
 real(kind=wp) :: FAC, TSUM
 integer(kind=iwp), external :: ICUNP

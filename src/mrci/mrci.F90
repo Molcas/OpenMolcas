@@ -34,7 +34,7 @@ use mrci_global, only: Lu_25, Lu_27, Lu_60, Lu_70, Lu_80, LUEIG, LUONE, LUREST, 
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: IRETURN
+integer(kind=iwp), intent(out) :: IRETURN
 
 call mma_maxdble(MemTot)
 

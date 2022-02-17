@@ -14,17 +14,19 @@ subroutine SIADD(A,B,N)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: N
-real(kind=wp) :: A(N,N), B(*)
+integer(kind=iwp), intent(in) :: N
+real(kind=wp), intent(in) :: A(N,N)
+real(kind=wp), intent(inout) :: B(*)
 integer(kind=iwp) :: I, IIN, J
 
 IIN = 0
 do I=1,N
-  do J=1,I
+  do J=1,I-1
     IIN = IIN+1
     B(IIN) = B(IIN)+A(I,J)+A(J,I)
   end do
-  B(IIN) = B(IIN)-A(I,I)
+  IIN = IIN+1
+  B(IIN) = B(IIN)+A(I,I)
 end do
 
 return

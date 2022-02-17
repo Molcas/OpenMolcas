@@ -17,9 +17,12 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, r8
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: INTSYM(*), INDX(*)
-real(kind=wp) :: C(*), S(*), ABIJ(*), AIBJ(*), AJBI(*), A(*), B(*), F(*), FSEC(*)
+integer(kind=iwp), intent(in) :: INTSYM(*), INDX(*)
+real(kind=wp), intent(inout) :: C(*), S(*), ABIJ(*), AIBJ(*), AJBI(*), FSEC(*)
+real(kind=wp), intent(_OUT_) :: A(*), B(*), F(*)
 #include "cop.fh"
 integer(kind=iwp) :: IAB, IADR, IASYM, IBSYM, ICHK, iCoup, iCoup1, IFAB, IFT, IFTA, IFTB, II, IIN, IJ1, ILIM, INDA, INDB, INDCOP, &
                      INDI, INMY, INNY, INS, IPF, IPF1, IPOA(9), IPOB(9), IPOF(9), ISTAR, ITURN, iTyp, JTURN, LENBUF, LENCOP, MYL, &
@@ -105,7 +108,7 @@ do
               IPF = IPOF(MYL)+1
               call DYAX(IIN,CPL,AIBJ(IPF),1,F,1)
               F(1:IIN) = F(1:IIN)+CPLA*ABIJ(IPF:IPF+IIN-1)
-              if (INDA == INDB) call SETZZ(F,NVIR(MYL))
+              if (INDA == INDB) call DCOPY_(NVIR(MYL),[Zero],0,F,NVIR(MYL)+1)
               call DGEMV_('T',NVIR(MYL),NVIR(NYL),FACS,F,NVIR(MYL),C(INMY),1,One,S(INNY),1)
               if (INDA /= INDB) then
                 call DGEMV_('N',NVIR(MYL),NVIR(NYL),FACS,F,NVIR(MYL),C(INNY),1,One,S(INMY),1)

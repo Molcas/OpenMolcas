@@ -16,10 +16,15 @@ use mrci_global, only: ESHIFT, FIJKL, GFAC, ICPF, IFIRST, IREFX, IREST, ITER, NC
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: SGM(*), AREF(*), CI(*), BMN(*), BIAC2(*), BICA2(*), BFIN3(*), AC1(*), AC2(*), BFIN4(*), ABIJ(*), AIBJ(*), &
-                 AJBI(*), ASCR1(*), BSCR1(*), FSCR1(*), FSEC(*), FOCK(*), ASCR2(*), BSCR2(*), FSCR2(*), DBK(*)
-integer(kind=iwp) :: INTSY(*), INDX(*), IBMN(*), ISAB(*)
+real(kind=wp), intent(_OUT_) :: SGM(*), BMN(*), BIAC2(*), BICA2(*), BFIN3(*), AC1(*), AC2(*), BFIN4(*), ASCR1(*), BSCR1(*), &
+                                FSCR1(*), ASCR2(*), BSCR2(*), FSCR2(*), DBK(*)
+real(kind=wp), intent(in) :: AREF(*)
+real(kind=wp), intent(inout) :: CI(*), ABIJ(*), AIBJ(*), AJBI(*), FSEC(*), FOCK(*)
+integer(kind=iwp), intent(in) :: INTSY(*), INDX(*), ISAB(*)
+integer(kind=iwp), intent(_OUT_) :: IBMN(*)
 integer(kind=iwp) :: ICSF, IREF, KTYP
 real(kind=wp) :: GINV, SQG, SQGP
 

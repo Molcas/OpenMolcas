@@ -18,8 +18,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: AREF(NREF,NREF), EREF(NREF), CI(NCONF)
-integer(kind=iwp) :: ICI(MBUF)
+real(kind=wp), intent(in) :: AREF(NREF,NREF), EREF(NREF)
+real(kind=wp), intent(out) :: CI(NCONF)
+integer(kind=iwp), intent(out) :: ICI(MBUF)
 #include "Molcas.fh"
 #include "cop.fh"
 integer(kind=iwp) :: I, I1, I2, IAD25, ID, IR, IREF, ISTA, NN

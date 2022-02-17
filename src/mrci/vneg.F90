@@ -9,13 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine VNEG(A,K,B,L,IAB)
+subroutine VNEG(IAB,A,K,B,L)
 
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: K, L, IAB
-real(kind=wp) :: A(*), B(*)
+integer(kind=iwp), intent(in) :: K, L, IAB
+real(kind=wp), intent(in) :: A(*)
+real(kind=wp), intent(_OUT_) :: B(*)
 integer(kind=iwp) :: I
 
 do I=0,IAB-1

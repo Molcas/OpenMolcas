@@ -16,9 +16,12 @@ use Symmetry_Info, only: Mul
 use Constants, only: One
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: INTSYM(*), INDX(*)
-real(kind=wp) :: C1(*), C2(*), TDMO(NBAST,NBAST), A(*), FAK(*), FKA(*)
+integer(kind=iwp), intent(in) :: INTSYM(*), INDX(*)
+real(kind=wp), intent(inout) :: C1(*), C2(*), TDMO(NBAST,NBAST), FAK(*), FKA(*)
+real(kind=wp), intent(_OUT_) :: A(*)
 #include "cop.fh"
 integer(kind=iwp) :: ICHK, ICP1, ICP2, IFT, II, IJOLD, ILEN, IND, INDA, INDB, INK, INMY, INNY, IPOB(9), ITYP, MYL, MYSYM, NA, NA1, &
                      NA2, NK, NSK, NVM, NYL, NYSYM

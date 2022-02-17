@@ -15,8 +15,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NREF, NSEL, NRROOT, IROOT(NRROOT)
-real(kind=wp) :: AREF(NREF,NREF), PLEN(NREF), CISEL(NREF,*)
+integer(kind=iwp), intent(in) :: NREF, NSEL, NRROOT
+real(kind=wp), intent(in) :: AREF(NREF,NREF), CISEL(NREF,*)
+real(kind=wp), intent(out) :: PLEN(NREF)
+integer(kind=iwp), intent(out) :: IROOT(NRROOT)
 integer(kind=iwp) :: I, IR, ISEL, J, JJ, JMAX
 real(kind=wp) :: PL, PMAX, SUM1, SUM2
 

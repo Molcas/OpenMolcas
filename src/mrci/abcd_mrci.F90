@@ -15,9 +15,12 @@ use mrci_global, only: IPASS, IRC, IROW, JJS, KBUFF1, LN, LSYM, Lu_80, NSM, NSYM
 use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp, r8
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: INTSYM(*), indx(*), ISAB(NVIRT,NVIRT)
-real(kind=wp) :: C(*), S(*), ACBDS(*), ACBDT(*), BUFIN(*)
+integer(kind=iwp), intent(in) :: INTSYM(*), indx(*), ISAB(NVIRT,NVIRT)
+real(kind=wp), intent(inout) :: C(*), S(*)
+real(kind=wp), intent(_OUT_) :: ACBDS(*), ACBDT(*), BUFIN(*)
 integer(kind=iwp) :: IAC, IACMAX, IACMIN, IAD16, IFIN1, IFIN2, ILOOP, IN1, INB, INDA, INPS, INPT, INS, INSB, INSIN, INUMB, ISAC, &
                      IST, IST1, IST2, ISTEP, ISYM, ITAIL, NA, NC, NDMAX, NOV, NSAC, NSACL, NSC, NVT
 real(kind=wp) :: TERM

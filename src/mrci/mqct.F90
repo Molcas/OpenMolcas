@@ -19,11 +19,12 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-real(kind=wp) :: AREF(NREF,NREF), EREF(NREF), CI(NCONF), SGM(NCONF)
-integer(kind=iwp) :: ICI(MBUF)
+real(kind=wp), intent(in) :: AREF(NREF,NREF), EREF(NREF)
+real(kind=wp), intent(out) :: CI(NCONF), SGM(NCONF)
+integer(kind=iwp), intent(out) :: ICI(MBUF)
 #include "warnings.h"
 integer(kind=iwp) :: I, IBUF, ICSF, IDISK, IDREST, IEND, II, III, IMAX, IMIN, IPOS, IR, IRR, ISTA, IVEC, J, K, KK, KL, L, LL, &
-                     NCONV, NN, NOLD, NRON, NZ
+                     NCONV, NN, NRON, NZ
 real(kind=wp) :: C, C2NREF, C2REF, CPTIT, CPTNOW, CPTOLD, CPTOT, CPTSTA, DUM, EACPF, ECI, EDAV, EDISP, ELOW, EMIN, ENREF, H, P, &
                  PMAX, QACPF, QDAV, RSUM, S, SQNRM, THR, TMP
 integer(kind=iwp), allocatable :: IBMN(:), IDC(:), IDS(:)
@@ -145,8 +146,6 @@ do
   ! --------------------------------------------------------------------
   ! NR OF VECTORS PRESENTLY RETAINED:
   NVEC = min(MXVEC,NVTOT)
-  ! NR OF OLD VECTORS RETAINED:
-  NOLD = NVEC-NNEW
   ! --------------------------------------------------------------------
   ! COPY HSMALL, SSMALL AND PSMALL IN REORDERED FORM, BY AGE:
   do L=NNEW+1,NVEC

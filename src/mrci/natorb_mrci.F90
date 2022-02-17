@@ -16,7 +16,8 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: CMO(NCMO), DMO(NBTRI), CNO(NCMO), OCC(NBAST), SCR((NBMAX*(NBMAX+1))/2)
+real(kind=wp), intent(in) :: CMO(NCMO), DMO(NBTRI)
+real(kind=wp), intent(out) :: CNO(NCMO), OCC(NBAST), SCR((NBMAX*(NBMAX+1))/2)
 integer(kind=iwp) :: I, I12, IEB, IECMO, IEO, II, IMAX, IO1, IO12, IO2, ISB, ISCMO, ISO, ISTA1, ISTA2, ISYM, J, NB, NBD, NBF, NBO, &
                      ND, NF, NIAV, NN, NO
 real(kind=wp) :: OC, OMAX

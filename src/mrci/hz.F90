@@ -17,7 +17,7 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: ARR(NRROOT,NRROOT,11)
+real(kind=wp), intent(in) :: ARR(NRROOT,NRROOT,11)
 integer(kind=iwp) :: I, I1, I2, I3, I4, IO2, IO3, IO4, J, J1, J2, J3, J4, K
 real(kind=wp) :: SUM1, SUM2, SUM3
 integer(kind=iwp), parameter :: IX1F = 1, IX2F = 2, IRR = 3, IX1R = 4, IX2R = 5, IX1X1 = 6, IX2X1 = 7, IX2X2 = 8, IFDF = 9, &

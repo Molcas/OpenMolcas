@@ -14,8 +14,9 @@ subroutine SQUAR(A,B,N)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: N
-real(kind=wp) :: A(*), B(N,N)
+real(kind=wp), intent(in) :: A(*)
+integer(kind=iwp), intent(in) :: N
+real(kind=wp), intent(out) :: B(N,N)
 integer(kind=iwp) :: I, IIN
 
 IIN = 1

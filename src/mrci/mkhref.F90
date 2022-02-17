@@ -17,9 +17,11 @@ use mrci_global, only: IAD25S, INDSRT, IRC, IROW, IVVER, LASTAD, LN, Lu_25, Lu_7
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: HREF(*), FC(*), FIJKL(*)
-integer(kind=iwp) :: JREFX(NCVAL)
+real(kind=wp), intent(_OUT_) :: HREF(*), FC(*), FIJKL(*)
+integer(kind=iwp), intent(in) :: JREFX(NCVAL)
 #include "cop.fh"
 integer(kind=iwp) :: i, IADD25, IADR, IBUF, IC1, IC2, ICHK, IIN, IIR, IK, ILEN, IND, INDI, IP, IR, IVEC, IVL, JP, KP, LENGTH, LP, &
                      NA, NAT, NB, NHREF, NI, NIJ, NIJKL, NK, NKL

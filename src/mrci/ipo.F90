@@ -14,7 +14,8 @@ subroutine IPO(IPOA,NVIR,MUL,NSYM,KLS,IFT)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: IPOA(*), NVIR(*), MUL(8,8), NSYM, KLS, IFT
+integer(kind=iwp), intent(in) :: NVIR(*), MUL(8,8), NSYM, KLS, IFT
+integer(kind=iwp), intent(out) :: IPOA(NSYM+1)
 integer(kind=iwp) :: M, N, NSUM
 
 NSUM = 0

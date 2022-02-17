@@ -15,9 +15,13 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: JSUNP
-integer(kind=iwp) :: INTSYM(*), L
+integer(kind=iwp), intent(in) :: INTSYM(*), L
+integer(kind=iwp) :: I, J
 
-JSUNP = 1+mod(INTSYM((L+9)/10)/(2**(27-3*mod(L-1,10))),8)
+! L = (I-1)*10 + J+1  [ J = 0-9 ]
+I = (L+9)/10
+J = mod(L-1,10)
+JSUNP = 1+ibits(INTSYM(I),27-3*J,3)
 
 return
 

@@ -16,8 +16,10 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: AREF(*)
+real(kind=wp), intent(_OUT_) :: AREF(*)
 integer(kind=iwp) :: I, IDDMO, IDREST, J
 integer(kind=iwp), allocatable :: IDC(:)
 real(kind=wp), allocatable :: ASCR2(:), BSCR2(:), CI(:), FSCR2(:), SGM(:)
