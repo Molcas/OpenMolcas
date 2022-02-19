@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1986, Per E. M. Siegbahn                               *
-*               1986, Margareta R. A. Blomberg                         *
-************************************************************************
-      SUBROUTINE SORTA_CPF(BUFOUT,INDOUT,ICAD,IBUFL,TIBUF,ISAB,BUFBI,
-     *INDBI,BIAC,BICA,NINTGR)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!               1986, Margareta R. A. Blomberg                         *
+!***********************************************************************
+      SUBROUTINE SORTA_CPF(BUFOUT,INDOUT,ICAD,IBUFL,TIBUF,ISAB,BUFBI,   &
+     &INDBI,BIAC,BICA,NINTGR)
       IMPLICIT REAL*8 (A-H,O-Z)
       EXTERNAL COUNT_CPF
 #include "SysDef.fh"
@@ -21,11 +21,11 @@
       DIMENSION BUFOUT(*),INDOUT(*)
       DIMENSION ICAD(*),IBUFL(*),TIBUF(NTIBUF),ISAB(*)
       DIMENSION BUFBI(*),INDBI(*),BIAC(*),BICA(*)
-C     SORTS INTEGRALS (AB/CI)
-C     FOR FIXED B,I ALL A,C
-C     FIRST CHAIN FOR IJKL
+!     SORTS INTEGRALS (AB/CI)
+!     FOR FIXED B,I ALL A,C
+!     FIRST CHAIN FOR IJKL
       DIMENSION NORB0(9)
-*
+!
       CALL COUNT_CPF(NINTGR,NSYM,NORB,MUL)
       IF (IPRINT.GE.2) THEN
         WRITE(6,*)' NUMBER OF TWO-ELECTRON INTEGRALS:',NINTGR
@@ -53,9 +53,9 @@ C     FIRST CHAIN FOR IJKL
       DO 4 I=1,NSYM
         NORB0(I+1)=NORB0(I)+NORB(I)
 4     CONTINUE
-C
-C     TWO-ELECTRON INTEGRALS
-C
+!
+!     TWO-ELECTRON INTEGRALS
+!
       DO 313 NSP=1,NSYM
         NOP=NORB(NSP)
         DO 312 NSQ=1,NSP
@@ -96,7 +96,7 @@ C
                       M4=ICH(NORB0(NSS)+NX)
                       IF(M1.LE.0.OR.M2.LE.0)GO TO 306
                       IF(M3.LE.0.OR.M4.LE.0)GO TO 306
-C                     ORDER THESE INDICES CANONICALLY
+!                     ORDER THESE INDICES CANONICALLY
                       N1=M1
                       N2=M2
                       IF(M1.GT.M2)GO TO 11
@@ -128,9 +128,9 @@ C                     ORDER THESE INDICES CANONICALLY
                       IF(NJ.LE.LN)GO TO 42
                       IF(NL.GT.LN)GO TO 306
                       IF(IFIRST.NE.0)GO TO 306
-C
-C                     ABCI
-C
+!
+!                     ABCI
+!
                       NA=NI-LN
                       NB=NJ-LN
                       NC=NK-LN
@@ -146,7 +146,7 @@ C
                       IF(IBUFL(NIB).LT.KBUF)GO TO 106
                       INDOUT(ICQ+KBUF1)=KBUF
                       JDISK=IDISK
-                      CALL iDAFILE(Lu_TiABIJ,1,INDOUT(ICQ+1),KBUF2,
+                      CALL iDAFILE(Lu_TiABIJ,1,INDOUT(ICQ+1),KBUF2,     &
      &                             IDISK)
                       INDOUT(ICQ+KBUF2)=JDISK
                       IBUFL(NIB)=0
@@ -157,18 +157,18 @@ C
                       NB=NAT
                       GO TO 107
 42                    IF(NJ.LE.0.OR.NL.LE.LN)GO TO 306
-C
-C                     CIAB
-C
+!
+!                     CIAB
+!
                       IF(IFIRST.NE.0)GO TO 306
                       NA=NK-LN
                       NB=NL-LN
                       NC=NI-LN
                       NI=NJ
                       GO TO 108
-C
-C                     IJKL
-C
+!
+!                     IJKL
+!
 109                   IIJ=IROW(NI)+NJ
                       KL=IROW(NK)+NL
                       IJKL=IIJ*(IIJ-1)/2+KL
@@ -182,7 +182,7 @@ C
                       IF(IBUFL(IJ).LT.KBUF)GO TO 306
                       INDOUT(ICQ+KBUF1)=KBUF
                       JDISK=IDISK
-                      CALL iDAFILE(Lu_TiABIJ,1,INDOUT(ICQ+1),KBUF2,
+                      CALL iDAFILE(Lu_TiABIJ,1,INDOUT(ICQ+1),KBUF2,     &
      &                             IDISK)
                       INDOUT(ICQ+KBUF2)=JDISK
                       IBUFL(IJ)=0
@@ -194,13 +194,13 @@ C
 311       CONTINUE
 312     CONTINUE
 313   CONTINUE
-C     EMPTY LAST BUFFERS
-CFUE Start of insertion
+!     EMPTY LAST BUFFERS
+!FUE Start of insertion
       If ( NOV.gt.mAdr ) then
         WRITE(6,*)'SORTA_CPF Error: NOV > MADR (See code).'
         CALL Abend
       End If
-CFUE End of insertion
+!FUE End of insertion
       DO 150 I=1,NOV
         ICQ=ICAD(I)
         INDOUT(ICQ+KBUF1)=IBUFL(I)
@@ -208,9 +208,9 @@ CFUE End of insertion
         CALL iDAFILE(Lu_TiABIJ,1,INDOUT(ICQ+1),KBUF2,IDISK)
         LASTAD(I)=JDISK
 150   CONTINUE
-C
-C     IJKL
-C
+!
+!     IJKL
+!
       IDISK=0
       IBUFIJ=0
       INDBI(KKBUF2)=-1
@@ -231,14 +231,14 @@ C
         IBUFIJ=0
 202   CONTINUE
 209   IF(IADR.NE.-1) GO TO 201
-C     EMPTY LAST BUFFER
+!     EMPTY LAST BUFFER
       INDBI(KKBUF1)=IBUFIJ
       JDISK=IDISK
       CALL iDAFILE(Lu_TiABCI,1,INDBI,KKBUF2,IDISK)
       LASTAD(1)=JDISK
-C
-C     ABCI
-C
+!
+!     ABCI
+!
       ICHK=0
       IAD15=IDISK
       IADABCI=IAD15
@@ -307,7 +307,7 @@ C
         IF(ILOOP.EQ.1)GO TO 72
 20    CONTINUE
       IF(LEN.GE.0)GO TO 100
-C     EMPTY LAST BUFFER
+!     EMPTY LAST BUFFER
       IF ( INSOUT.EQ.0 ) THEN
         RETURN
       END IF

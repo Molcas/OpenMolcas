@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1986, Per E. M. Siegbahn                               *
-*               1986, Margareta R. A. Blomberg                         *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!               1986, Margareta R. A. Blomberg                         *
+!***********************************************************************
       SUBROUTINE TPQSET(ICASE,TPQ,IP)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION TPQ(*),IOCR(100)
@@ -20,16 +20,16 @@
 
 #include "cpfmcpf.fh"
 #include "spin_cpf.fh"
-CPAM97      EXTERNAL UNPACK
-CPAM97      INTEGER UNPACK
-CRL   JO(L)=IAND(ISHFT(QOCC((L+29)/30),-2*((L+29)/30*30-L)),3)
-CPAM97      JO(L)=UNPACK(QOCC((L+29)/30), 2*L-(2*L-1)/60*60, 2)
+!PAM97      EXTERNAL UNPACK
+!PAM97      INTEGER UNPACK
+!RL   JO(L)=IAND(ISHFT(QOCC((L+29)/30),-2*((L+29)/30*30-L)),3)
+!PAM97      JO(L)=UNPACK(QOCC((L+29)/30), 2*L-(2*L-1)/60*60, 2)
       JO(L)=ICUNP(ICASE,L)
-C
+!
       D0=0.0D0
       D1=1.0D0
       D2=2.0D0
-C
+!
       IOR=0
       II1=(IREF0-1)*LN
       DO 35 I=1,LN
@@ -37,7 +37,7 @@ C
       IOR=IOR+1
       IOCR(IOR)=JOJ
 35    CONTINUE
-C
+!
       IINT=IRC(4)
       DO 7 IQ=1,IINT
       TPQ(IQ)=D1
@@ -45,7 +45,7 @@ C
       IF(IQ.EQ.IREF0.OR.IP.EQ.IREF0)TPQ(IQ)=D0
 7     CONTINUE
       IF(ISDCI.EQ.1.OR.INCPF.EQ.1.OR.IP.EQ.IREF0)RETURN
-C
+!
       II=0
       IJ=0
       DO 15 I=1,LN

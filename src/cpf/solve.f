@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1986, Per E. M. Siegbahn                               *
-*               1986, Margareta R. A. Blomberg                         *
-************************************************************************
-C
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!               1986, Margareta R. A. Blomberg                         *
+!***********************************************************************
+!
       SUBROUTINE SOLVE(NN,UL,B,X)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION UL(NN,NN),B(*),X(*)
 #include "ips.fh"
       N=NN
       NP1=N+1
-C
+!
       IP=IPS(1)
       X(1)=B(IP)
       DO 2 I=2,N
@@ -34,7 +34,7 @@ C
       X(N)=X(N)/UL(IP,N)
       DO 4 IBACK=2,N
        I=NP1-IBACK
-C****  I GOES (N-1),...,1
+!****  I GOES (N-1),...,1
        IP=IPS(I)
        IP1=I+1
        SUM=0.0D00

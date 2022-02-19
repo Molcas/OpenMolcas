@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1986, Per E. M. Siegbahn                               *
-*               1986, Margareta R. A. Blomberg                         *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!               1986, Margareta R. A. Blomberg                         *
+!***********************************************************************
       SUBROUTINE NATORB_CPF(D,CM,CMO,DSYM,CAO,OCC,M)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION D(*),CM(*),CMO(*),DSYM(*),CAO(*),OCC(*)
@@ -18,7 +18,7 @@
 #include "SysDef.fh"
 
 #include "cpfmcpf.fh"
-C     FORM DENSITY MATRIX BY SYMMETRY
+!     FORM DENSITY MATRIX BY SYMMETRY
       NBM=NBAS(M)
       IF(NBM.EQ.0)RETURN
       IF(NORB(M).EQ.0)RETURN
@@ -42,7 +42,7 @@ C     FORM DENSITY MATRIX BY SYMMETRY
          II=II+I
          DSYM(II)=2.0D0
 11    CONTINUE
-C     REST OF DENSITY MATRIX
+!     REST OF DENSITY MATRIX
 10    IJ=0
       DO 15 I=1,NORBM
          DO 20 J=1,I
@@ -56,15 +56,15 @@ C     REST OF DENSITY MATRIX
             DSYM(IJ)=D(NIJ)
 20       CONTINUE
 15    CONTINUE
-C     DIAGONALIZE
+!     DIAGONALIZE
       CALL JACSCF(DSYM,CMO,OCC,NORBM,-1,1.D-11)
       DO 80 I=1,NORBM
       OCC(I)=-OCC(I)
 80    CONTINUE
       CALL ORDER_CPF(CMO,OCC,NORBM)
       IF(IPRINT.GE.15)WRITE(6,30)
-30    FORMAT(//,5X,'NATURAL ORBITALS IN MO-BASIS',//,
-     *7X,'OCCUPATION NUMBER',5X,'COEFFICIENTS')
+30    FORMAT(//,5X,'NATURAL ORBITALS IN MO-BASIS',//,                   &
+     &7X,'OCCUPATION NUMBER',5X,'COEFFICIENTS')
       ILAS=0
       DO 35 I=1,NORBM
       ISTA=ILAS+1
@@ -73,15 +73,15 @@ C     DIAGONALIZE
       IF(IPRINT.GE.15)WRITE(6,40)I,OCC(I),(CMO(J),J=ISTA,ILAS)
 40    FORMAT(/,5X,I4,F10.6,5F10.6,/(19X,5F10.6))
 35    CONTINUE
-C     TRANSFORM TO AO-BASIS
+!     TRANSFORM TO AO-BASIS
       IF(IPRINT.GE.15)WRITE(6,45)
-45    FORMAT(//,5X,'NATURAL ORBITALS IN AO-BASIS',//,
-     *11X,'OCCUPATION NUMBER',5X,'COEFFICIENTS')
+45    FORMAT(//,5X,'NATURAL ORBITALS IN AO-BASIS',//,                   &
+     &11X,'OCCUPATION NUMBER',5X,'COEFFICIENTS')
       IJ0=-NORBM
       kp = 1
       DO 50 I=1,NORBM
          IJ0=IJ0+NORBM
-*
+!
          DO 60 IP=1,NBM
             TERM=D0
             IJ=IJ0
@@ -93,7 +93,7 @@ C     TRANSFORM TO AO-BASIS
 70          CONTINUE
             CAO(kp+IP-1)=TERM
 60       CONTINUE
-*
+!
          IF(IPRINT.GE.15)WRITE(6,40)I,OCC(I),(CAO(IP),IP=kp,kp+nbm-1)
          kp = kp + NBM
 50    CONTINUE

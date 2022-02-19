@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1986, Per E. M. Siegbahn                               *
-*               1986, Margareta R. A. Blomberg                         *
-************************************************************************
-      SUBROUTINE SORTB_CPF(BUFOUT,INDOUT,ICAD,IBUFL,TIBUF,ACBDS,ACBDT,
-     *ISAB,BUFACBD)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!               1986, Margareta R. A. Blomberg                         *
+!***********************************************************************
+      SUBROUTINE SORTB_CPF(BUFOUT,INDOUT,ICAD,IBUFL,TIBUF,ACBDS,ACBDT,  &
+     &ISAB,BUFACBD)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "cpfmcpf.fh"
@@ -22,8 +22,8 @@
       DIMENSION ISAB(*),BUFACBD(*)
       DIMENSION NORB0(9)
       PARAMETER (IPOW8=2**8)
-C SORTS INTEGRALS (AB/CD) FOR FIXED A,C ALL B,D
-*
+! SORTS INTEGRALS (AB/CD) FOR FIXED A,C ALL B,D
+!
       KBUFF1=2*9600
       NVT=IROW(NVIRT+1)
       NOV=(NVT-1)/IPASS+1
@@ -54,9 +54,9 @@ C SORTS INTEGRALS (AB/CD) FOR FIXED A,C ALL B,D
       INDOUT(ID+JBUF2)=-1
       ID=ID+JBUF2
 5     CONTINUE
-C
-C     TWO-ELECTRON INTEGRALS
-C
+!
+!     TWO-ELECTRON INTEGRALS
+!
       DO 313 NSP=1,NSYM
       NOP=NORB(NSP)
       DO 312 NSQ=1,NSP
@@ -97,7 +97,7 @@ C
       M4=ICH(NORB0(NSS)+NX)
       IF(M1.LE.LN.OR.M2.LE.LN)GO TO 306
       IF(M3.LE.LN.OR.M4.LE.LN)GO TO 306
-C     ORDER THESE INDICES CANONICALLY
+!     ORDER THESE INDICES CANONICALLY
       N1=M1
       N2=M2
       IF(M1.GT.M2)GO TO 11
@@ -140,7 +140,7 @@ C     ORDER THESE INDICES CANONICALLY
       ICP=ICQ/IDIV+IBUFL(NAC)
       BUFOUT(ICP)=FINI
       ICPP=ICQ+JBUF0+IBUFL(NAC)
-CPAM97      INDOUT(ICPP)=IOR(NB,ISHFT(ND,8))
+!PAM97      INDOUT(ICPP)=IOR(NB,ISHFT(ND,8))
       INDOUT(ICPP)=NB+ND*IPOW8
       IF(IBUFL(NAC).LT.JBUF)GO TO 106
       INDOUT(ICQ+JBUF1)=JBUF
@@ -163,7 +163,7 @@ CPAM97      INDOUT(ICPP)=IOR(NB,ISHFT(ND,8))
 311   CONTINUE
 312   CONTINUE
 313   CONTINUE
-C     EMPTY LAST BUFFERS
+!     EMPTY LAST BUFFERS
       NOVM=IACMAX-IACMIN+1
       If ( (NOVST+IACMIN-1+NOVM).gt.mAdr ) then
         WRITE(6,*)'SORTB_CPF Error: NOVST+IACMIN-1+NOVM > MADR'
@@ -211,8 +211,8 @@ C     EMPTY LAST BUFFERS
       IF(LENGTH.EQ.0)GO TO 209
       DO 202 KK=1,LENGTH
       INND=INDOUT(JBUF0+KK)
-*      NB=MOD(INND,IPOW8)
-*      ND=MOD(INND/IPOW8,IPOW8)
+!      NB=MOD(INND,IPOW8)
+!      ND=MOD(INND/IPOW8,IPOW8)
       NB=IBITS(INND,0,8)
       ND=IBITS(INND,8,8)
       NBD=(NB-1)*NVIRT+ND
@@ -237,7 +237,7 @@ C     EMPTY LAST BUFFERS
 55    CONTINUE
 40    CONTINUE
 50    CONTINUE
-C     EMPTY LAST BUFFER
+!     EMPTY LAST BUFFER
       IF(INSOUT.EQ.0) THEN
          RETURN
       END IF

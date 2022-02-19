@@ -1,42 +1,42 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1986, Per E. M. Siegbahn                               *
-*               1986, Margareta R. A. Blomberg                         *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!               1986, Margareta R. A. Blomberg                         *
+!***********************************************************************
       SUBROUTINE AB(ICASE,JSY,INDEX,C,S,FC,A,B,F,ENP)
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "SysDef.fh"
 
 #include "cpfmcpf.fh"
-      DIMENSION JSY(*),INDEX(*),C(*),S(*),FC(*),A(*),B(*),
+      DIMENSION JSY(*),INDEX(*),C(*),S(*),FC(*),A(*),B(*),              &
      &          F(*),ENP(*)
       DIMENSION ICASE(*)
       DIMENSION IPOA(9),IPOF(9)
       DIMENSION IOC(55)
-CPAM97      INTEGER UNPACK
-CPAM97      EXTERNAL UNPACK
-CRL   JO(L)=IAND(ISHFT(QOCC((L+29)/30),-2*((L+29)/30*30-L)),3)
-CPAM97      JO(L)=UNPACK(QOCC((L+29)/30),2*L-(2*L-1)/60*60,2)
+!PAM97      INTEGER UNPACK
+!PAM97      EXTERNAL UNPACK
+!RL   JO(L)=IAND(ISHFT(QOCC((L+29)/30),-2*((L+29)/30*30-L)),3)
+!PAM97      JO(L)=UNPACK(QOCC((L+29)/30),2*L-(2*L-1)/60*60,2)
       JO(L)=ICUNP(ICASE,L)
-CRL   JSYM(L)=IAND(ISHFT(JSY((L+19)/20),-3*((L+19)/20*20-L)),7)+1
-CPAM96      JSYM(L)=UNPACK(JSY((L+9)/10),3*MOD(L-1,10)+1,3)+1
+!RL   JSYM(L)=IAND(ISHFT(JSY((L+19)/20),-3*((L+19)/20*20-L)),7)+1
+!PAM96      JSYM(L)=UNPACK(JSY((L+9)/10),3*MOD(L-1,10)+1,3)+1
       JSYM(L)=JSUNP_CPF(JSY,L)
       INUM=IRC(4)-IRC(3)
-      CALL PSQ2(C,S,MUL,INDEX,JSY,NDIAG,INUM,IRC(3),
+      CALL PSQ2(C,S,MUL,INDEX,JSY,NDIAG,INUM,IRC(3),                    &
      &        LSYM,NVIRT,SQ2)
       NCLIM=4
       NAB = 0 ! dummy initialize
       IF(IFIRST.NE.0)NCLIM=2
-C     MOVE FOCK (DENSITY) MATRIX TO F IN SYMMETRY BLOCKS
+!     MOVE FOCK (DENSITY) MATRIX TO F IN SYMMETRY BLOCKS
       CALL IPO_CPF(IPOF,NVIR,MUL,NSYM,1,-1)
       ITURN=0
 90    DO 10 IASYM=1,NSYM
@@ -87,7 +87,7 @@ C     MOVE FOCK (DENSITY) MATRIX TO F IN SYMMETRY BLOCKS
       INMY=INDEX(INDA)+1
       FACS=D1
       IF(INDA.GT.IRC(2))GO TO 25
-C     DOUBLET-DOUBLET INTERACTIONS
+!     DOUBLET-DOUBLET INTERACTIONS
       IF(NVIR(MYL).EQ.0)GO TO 40
       IF(IDENS.EQ.1)GO TO 65
       CALL SETZ(A,NVIR(MYL))
@@ -111,7 +111,7 @@ C     DOUBLET-DOUBLET INTERACTIONS
       FC(IIA)=FC(IIA)+SUM
 130   CONTINUE
       GO TO 106
-C     TRIPLET-TRIPLET AND SINGLET-SINGLET INTERACTIONS
+!     TRIPLET-TRIPLET AND SINGLET-SINGLET INTERACTIONS
 25    IFT=1
       IF(INDA.GT.IRC(3))IFT=0
       CALL IPO_CPF(IPOA,NVIR,MUL,NSYM,MYL,IFT)
@@ -125,12 +125,12 @@ C     TRIPLET-TRIPLET AND SINGLET-SINGLET INTERACTIONS
       IF(IDENS.EQ.1)GO TO 75
       IF(MYL.NE.1)GO TO 30
       IF(IFT.EQ.0)CALL SQUAR_CPF(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
-C      IF(IFT.EQ.1)CALL SQUARN_CPF(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
+!      IF(IFT.EQ.1)CALL SQUARN_CPF(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
       IF(IFT.EQ.1)CALL SQUARM_CPF(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
       NAA=NVIR(IASYM)*NVIR(IASYM)
       CALL SETZ(B,NAA)
-      CALL FMMM(F(IPOF(IASYM)+1),A,B,NVIR(IASYM),NVIR(IASYM),
-     *NVIR(IASYM))
+      CALL FMMM(F(IPOF(IASYM)+1),A,B,NVIR(IASYM),NVIR(IASYM),           &
+     &NVIR(IASYM))
       CALL SETZ(A,NAA)
       CALL DAXPY_(NAA,FACS,B,1,A,1)
       IF(IFT.EQ.1)GO TO 230
@@ -143,12 +143,12 @@ C      IF(IFT.EQ.1)CALL SQUARN_CPF(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
 30    NAC=NVIR(IASYM)*NVIR(ICSYM)
       CALL SETZ(A,NAC)
       IF(IASYM.GT.ICSYM)GO TO 31
-      CALL FMMM(F(IPOF(IASYM)+1),C(INMY+IPOA(ICSYM)),A,
-     *NVIR(IASYM),NVIR(ICSYM),NVIR(IASYM))
+      CALL FMMM(F(IPOF(IASYM)+1),C(INMY+IPOA(ICSYM)),A,                 &
+     &NVIR(IASYM),NVIR(ICSYM),NVIR(IASYM))
       CALL DAXPY_(NAC,FACS,A,1,S(INMY+IPOA(ICSYM)),1)
       GO TO 70
-31    CALL FMMM(C(INMY+IPOA(IASYM)),F(IPOF(IASYM)+1),A,
-     *NVIR(ICSYM),NVIR(IASYM),NVIR(IASYM))
+31    CALL FMMM(C(INMY+IPOA(IASYM)),F(IPOF(IASYM)+1),A,                 &
+     &NVIR(ICSYM),NVIR(IASYM),NVIR(IASYM))
       CALL DAXPY_(NAC,FACS,A,1,S(INMY+IPOA(IASYM)),1)
       GO TO 70
 75    IF(MYL.NE.1)GO TO 330
@@ -189,12 +189,12 @@ C      IF(IFT.EQ.1)CALL SQUARN_CPF(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
 40    CONTINUE
       ITURN=1
       IF(IDENS.EQ.1)GO TO 90
-300   CALL DSQ2(C,S,MUL,INDEX,JSY,NDIAG,INUM,IRC(3),
-     *LSYM,NVIRT,SQ2)
-C      NCONF=JSC(4)
-C      WRITE(6,987)(S(I),I=1,NCONF)
-C  987 FORMAT(1X,'S,AB',5F10.6)
-C      WRITE(6,986)(W(I),I=1,NCONF)
-C  986 FORMAT(1X,'W,AB',5F10.6)
+300   CALL DSQ2(C,S,MUL,INDEX,JSY,NDIAG,INUM,IRC(3),                    &
+     &LSYM,NVIRT,SQ2)
+!      NCONF=JSC(4)
+!      WRITE(6,987)(S(I),I=1,NCONF)
+!  987 FORMAT(1X,'S,AB',5F10.6)
+!      WRITE(6,986)(W(I),I=1,NCONF)
+!  986 FORMAT(1X,'W,AB',5F10.6)
       RETURN
       END

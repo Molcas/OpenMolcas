@@ -1,30 +1,30 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1986, Per E. M. Siegbahn                               *
-*               1986, Margareta R. A. Blomberg                         *
-************************************************************************
-cpgi$g opt=1
-      SUBROUTINE IJKL_CPF(JSY,INDEX,C,S,FIJKL,BUFIN,IBUFIN,
-     *ENP,EPP)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!               1986, Margareta R. A. Blomberg                         *
+!***********************************************************************
+!pgi$g opt=1
+      SUBROUTINE IJKL_CPF(JSY,INDEX,C,S,FIJKL,BUFIN,IBUFIN,             &
+     &ENP,EPP)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "cpfmcpf.fh"
 #include "files_cpf.fh"
-      DIMENSION JSY(*),INDEX(*),C(*),S(*),FIJKL(*),BUFIN(*),
+      DIMENSION JSY(*),INDEX(*),C(*),S(*),FIJKL(*),BUFIN(*),            &
      &           IBUFIN(*),ENP(*),EPP(*)
       PARAMETER(IPOW8=2**8,IPOW16=2**16,IPOW24=2**24)
       PARAMETER(IPOW6=2**6,IPOW13=2**13,IPOW19=2**19)
-*
+!
       JSYM(L)=JSUNP_CPF(JSY,L)
-*
+!
       FINI=0.0D0 ! dummy initialize
       NCONF=JSC(4)
       ICHK=0
@@ -57,10 +57,10 @@ cpgi$g opt=1
       GO TO 10
 460   ICHK=0
       INDI=IND
-*      IP=MOD(INDI,IPOW8)
-*      JP=MOD(INDI/IPOW8,IPOW8)
-*      KP=MOD(INDI/IPOW16,IPOW8)
-*      LP=MOD(INDI/IPOW24,IPOW8)
+!      IP=MOD(INDI,IPOW8)
+!      JP=MOD(INDI/IPOW8,IPOW8)
+!      KP=MOD(INDI/IPOW16,IPOW8)
+!      LP=MOD(INDI/IPOW24,IPOW8)
       IP=IBITS(INDI,0,8)
       JP=IBITS(INDI,8,8)
       KP=IBITS(INDI,16,8)
@@ -71,12 +71,12 @@ cpgi$g opt=1
       FINI=FIJKL(IND)
       GO TO 10
 22    IF(ABS(FINI).LT.1.d-06)GO TO 10
-CPAM97      IVL=IAND(IND,63)
-CPAM97      IC2=IAND(ISHFT(IND,-6),8191)
-CPAM97      IC1=IAND(ISHFT(IND,-19),8191)
-*      IVL=MOD(IND,IPOW6)
-*      IC2=MOD(IND/IPOW6,IPOW13)
-*      IC1=MOD(IND/IPOW19,IPOW13)
+!PAM97      IVL=IAND(IND,63)
+!PAM97      IC2=IAND(ISHFT(IND,-6),8191)
+!PAM97      IC1=IAND(ISHFT(IND,-19),8191)
+!      IVL=MOD(IND,IPOW6)
+!      IC2=MOD(IND/IPOW6,IPOW13)
+!      IC1=MOD(IND/IPOW19,IPOW13)
       IVL=IBITS(IND, 0,6)
       IC2=IBITS(IND,6,13)
       IC1=IBITS(IND,19,13)

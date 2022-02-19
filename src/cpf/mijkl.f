@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1986, Per E. M. Siegbahn                               *
-*               1986, Margareta R. A. Blomberg                         *
-************************************************************************
-cpgi$g opt=1
-      SUBROUTINE MIJKL(JSY,INDEX,C,S,FIJKL,BUFIN,IBUFIN,W,THET,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!               1986, Margareta R. A. Blomberg                         *
+!***********************************************************************
+!pgi$g opt=1
+      SUBROUTINE MIJKL(JSY,INDEX,C,S,FIJKL,BUFIN,IBUFIN,W,THET,         &
      &                 ENP,EPP,NII)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
@@ -22,9 +22,9 @@ cpgi$g opt=1
       DIMENSION IBUFIN(*),W(*),THET(NII,NII),ENP(*),EPP(*)
       PARAMETER (IPOW8=2**8, IPOW16=2**16, IPOW24=2**24)
       PARAMETER (IPOW6=2**6, IPOW13=2**13, IPOW19=2**19)
-*
+!
       JSYM(L)=JSUNP_CPF(JSY,L)
-*
+!
       FINI = D0 ! dummy initialize
       NCONF=JSC(4)
       ICHK=0
@@ -57,10 +57,10 @@ cpgi$g opt=1
       GO TO 10
 460   ICHK=0
       INDI=IND
-*      IP=MOD(INDI,IPOW8)
-*      JP=MOD(INDI/IPOW8,IPOW8)
-*      KP=MOD(INDI/IPOW16,IPOW8)
-*      LP=MOD(INDI/IPOW24,IPOW8)
+!      IP=MOD(INDI,IPOW8)
+!      JP=MOD(INDI/IPOW8,IPOW8)
+!      KP=MOD(INDI/IPOW16,IPOW8)
+!      LP=MOD(INDI/IPOW24,IPOW8)
       IP=IBITS(INDI,0,8)
       JP=IBITS(INDI,8,8)
       KP=IBITS(INDI,16,8)
@@ -71,12 +71,12 @@ cpgi$g opt=1
       FINI=FIJKL(IND)
       GO TO 10
 22    IF(ABS(FINI).LT.1.d-06)GO TO 10
-CPAM97      IVL=IAND(IND,63)
-CPAM97      IC2=IAND(ISHFT(IND,-6),8191)
-CPAM97      IC1=IAND(ISHFT(IND,-19),8191)
-*      IVL=MOD(IND,IPOW6)
-*      IC2=MOD(IND/IPOW6,IPOW13)
-*      IC1=MOD(IND/IPOW19,IPOW13)
+!PAM97      IVL=IAND(IND,63)
+!PAM97      IC2=IAND(ISHFT(IND,-6),8191)
+!PAM97      IC1=IAND(ISHFT(IND,-19),8191)
+!      IVL=MOD(IND,IPOW6)
+!      IC2=MOD(IND/IPOW6,IPOW13)
+!      IC1=MOD(IND/IPOW19,IPOW13)
       IVL=IBITS(IND, 0,6)
       IC2=IBITS(IND,6,13)
       IC1=IBITS(IND,19,13)
@@ -94,8 +94,8 @@ CPAM97      IC1=IAND(ISHFT(IND,-19),8191)
       IF(ITER.EQ.1)GO TO 10
       EPP(IC1)=EPP(IC1)+COPI*C(IC1)
       GO TO 10
-17    ENPQ=(D1-THET(IC1,IC2)/D2)*(ENP(IC1)+ENP(IC2)-D1)+
-     *THET(IC1,IC2)/D2
+17    ENPQ=(D1-THET(IC1,IC2)/D2)*(ENP(IC1)+ENP(IC2)-D1)+                &
+     &THET(IC1,IC2)/D2
       FACS=SQRT(ENP(IC1))*SQRT(ENP(IC2))/ENPQ
       FACW=FACS*(D2-THET(IC1,IC2))/ENPQ
       FACWA=FACW*ENP(IC1)-FACS
@@ -107,8 +107,8 @@ CPAM97      IC1=IAND(ISHFT(IND,-19),8191)
       GO TO 10
 13    INDA=IRC(IVL)+IC1
       INDB=IRC(IVL)+IC2
-      ENPQ=(D1-THET(INDA,INDB)/D2)*(ENP(INDA)+ENP(INDB)-D1)+
-     *THET(INDA,INDB)/D2
+      ENPQ=(D1-THET(INDA,INDB)/D2)*(ENP(INDA)+ENP(INDB)-D1)+            &
+     &THET(INDA,INDB)/D2
       FACS=SQRT(ENP(INDA))*SQRT(ENP(INDB))/ENPQ
       FACW=FACS*(D2-THET(INDA,INDB))/ENPQ
       FACWA=FACW*ENP(INDA)-FACS

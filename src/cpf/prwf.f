@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1986, Per E. M. Siegbahn                               *
-*               1986, Margareta R. A. Blomberg                         *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!               1986, Margareta R. A. Blomberg                         *
+!***********************************************************************
       SUBROUTINE PRWF_CPF(ICASE,JSY,INDEX,C)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION C(*),INDEX(*),JSY(*)
@@ -21,11 +21,11 @@
 #include "cpfmcpf.fh"
       DIMENSION IOC(57),IORB(57),ISP(57),ILSYM(57)
       EXTERNAL DNRM2_
-CPAM97      EXTERNAL UNPACK
-CPAM97      INTEGER UNPACK
-CPAM97      JO(L)=UNPACK(QOCC((L+29)/30), 2*L-(2*L-1)/60*60, 2)
+!PAM97      EXTERNAL UNPACK
+!PAM97      INTEGER UNPACK
+!PAM97      JO(L)=UNPACK(QOCC((L+29)/30), 2*L-(2*L-1)/60*60, 2)
       JO(L)=ICUNP(ICASE,L)
-CPAM96      JSYM(L)=UNPACK(JSY((L+9)/10),3*MOD(L-1,10)+1,3)+1
+!PAM96      JSYM(L)=UNPACK(JSY((L+9)/10),3*MOD(L-1,10)+1,3)+1
       JSYM(L)=JSUNP_CPF(JSY,L)
       NA = 0 ! dummy initialized
       NB = 0 ! dummy initialized
@@ -38,12 +38,12 @@ CPAM96      JSYM(L)=UNPACK(JSY((L+9)/10),3*MOD(L-1,10)+1,3)+1
       WRITE(6,5)THRC
       CALL XFLUSH(6)
       IF(ISDCI.EQ.0)WRITE(6,6)
-*
+!
       DO 4 J=1,LN
          IORB(J+2)=J
          ILSYM(J+2)=NSM(J)
 4     CONTINUE
-*
+!
       DO 10 I=1,NCONF
          JJ=I
          IJ=I

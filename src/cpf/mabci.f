@@ -1,29 +1,29 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1986, Per E. M. Siegbahn                               *
-*               1986, Margareta R. A. Blomberg                         *
-************************************************************************
-cpgi$g opt=1
-      SUBROUTINE MABCI(JSY,INDEX,C,S,BMN,IBMN,BIAC,BICA,BUFIN,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!               1986, Margareta R. A. Blomberg                         *
+!***********************************************************************
+!pgi$g opt=1
+      SUBROUTINE MABCI(JSY,INDEX,C,S,BMN,IBMN,BIAC,BICA,BUFIN,          &
      &                 W,THET,ENP,NII)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "cpfmcpf.fh"
 #include "files_cpf.fh"
-      DIMENSION JSY(*),INDEX(*),C(*),S(*),BMN(*),IBMN(*),
+      DIMENSION JSY(*),INDEX(*),C(*),S(*),BMN(*),IBMN(*),               &
      &          BIAC(*),BICA(*),BUFIN(*),W(*),THET(NII,NII),ENP(*)
       PARAMETER (IPOW6=2**6,IPOW13=2**13,IPOW19=2**19)
-*
+!
       JSYM(L)=JSUNP_CPF(JSY,L)
-*
+!
       INUM=IRC(4)-IRC(3)
       CALL MPSQ2(C,S,W,MUL,INDEX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
       ICHK=0
@@ -75,16 +75,16 @@ cpgi$g opt=1
         IF(ILOOP.EQ.1)GO TO 72
         DO 25 IT=1,IOUT
           IND=IBMN(IT)
-CPAM97          ICP1=IAND(ISHFT(IND,-19),8191)
-*          ICP1=MOD(IND/IPOW19,IPOW13)
+!PAM97          ICP1=IAND(ISHFT(IND,-19),8191)
+!          ICP1=MOD(IND/IPOW19,IPOW13)
           ICP1=IBITS(IND,19,13)
           INDA=IRC(1)+ICP1
           IF(JSYM(INDA).NE.NSLB)GO TO 25
           MA=INDEX(INDA)+LB
-CPAM97          ICP2=IAND(ISHFT(IND,-6),8191)
-*          ICP2=MOD(IND/IPOW6,IPOW13)
-CPAM97          ITYP=IAND(IND,63)
-*          ITYP=MOD(IND,IPOW6)
+!PAM97          ICP2=IAND(ISHFT(IND,-6),8191)
+!          ICP2=MOD(IND/IPOW6,IPOW13)
+!PAM97          ITYP=IAND(IND,63)
+!          ITYP=MOD(IND,IPOW6)
           ICP2=IBITS(IND,6,13)
           ITYP=IBITS(IND, 0,6)
           IF(INS.EQ.0)GO TO 25
@@ -113,7 +113,7 @@ CPAM97          ITYP=IAND(IND,63)
 25      CONTINUE
 20    CONTINUE
       IF(LEN.GE.0)GO TO 100
-      CALL MDSQ2(C,S,W,MUL,INDEX,JSY,NDIAG,INUM,IRC(3),
-     *LSYM,NVIRT,SQ2)
+      CALL MDSQ2(C,S,W,MUL,INDEX,JSY,NDIAG,INUM,IRC(3),                 &
+     &LSYM,NVIRT,SQ2)
       RETURN
       END

@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1986, Per E. M. Siegbahn                               *
-*               1986, Margareta R. A. Blomberg                         *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!               1986, Margareta R. A. Blomberg                         *
+!***********************************************************************
       SUBROUTINE SORT_CPF(BUFOUT,INDOUT,ICAD,IBUFL,FC,FIJ,FJI,TIBUF)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
@@ -20,7 +20,7 @@
       DIMENSION ICAD(*),FC(*),IBUFL(*),FIJ(*),FJI(*),TIBUF(*)
       DIMENSION IVEC(20),IPOF(65)
       DIMENSION NORB0(9)
-*
+!
       IAD50=0
       CALL iDAFILE(Lu_TraInt,2,iTraToc,nTraToc,IAD50)
       NVT=IROW(NVIRT+1)
@@ -32,15 +32,15 @@
       CALL IPO_CPF(IPOF(IN),NVIR,MUL,NSYM,I,-1)
       IN=IN+NSYM
 3     CONTINUE
-C ORDER OF RECORD-CHAINS IS
-C 1. NOT2 CHAINS (AB/IJ)
-C 2. NOT2 CHAINS (AI/BJ)
-C 3. NOT2 CHAINS (AI/JK)
-C RECORD STRUCTURE IS
-C 1. LBUF INTEGRALS
-C 2. LBUF INDICES
-C 3. NUMBER OF INTEGRALS IN THIS RECORD
-C 4. ADDRESS OF LAST RECORD
+! ORDER OF RECORD-CHAINS IS
+! 1. NOT2 CHAINS (AB/IJ)
+! 2. NOT2 CHAINS (AI/BJ)
+! 3. NOT2 CHAINS (AI/JK)
+! RECORD STRUCTURE IS
+! 1. LBUF INTEGRALS
+! 2. LBUF INDICES
+! 3. NUMBER OF INTEGRALS IN THIS RECORD
+! 4. ADDRESS OF LAST RECORD
       NOT2=IROW(LN+1)
       NOV=3*NOT2
       NOTT=2*NOT2
@@ -61,9 +61,9 @@ C 4. ADDRESS OF LAST RECORD
       DO 2 I=1,NSYM
       NORB0(I+1)=NORB0(I)+NORB(I)
 2     CONTINUE
-C
-C     ONE ELECTRON INTEGRALS
-C
+!
+!     ONE ELECTRON INTEGRALS
+!
       NORBTT=0
       DO 7654 ISYM=1,nsym
         NORBTT=NORBTT+(NORB(ISYM)*(NORB(ISYM)+1))/2
@@ -105,9 +105,9 @@ C
          WRITE(6,'(A,F20.8)') ' EMY:',EMY
       CALL XFLUSH(6)
       END IF
-C
-C     TWO-ELECTRON INTEGRALS
-C
+!
+!     TWO-ELECTRON INTEGRALS
+!
       DO 313 NSP=1,NSYM
       NOP=NORB(NSP)
       DO 312 NSQ=1,NSP
@@ -148,7 +148,7 @@ C
       M4=ICH(NORB0(NSS)+NX)
       IF(M1.EQ.0.OR.M2.EQ.0)GO TO 306
       IF(M3.EQ.0.OR.M4.EQ.0)GO TO 306
-C     ORDER THESE INDICES CANONICALLY
+!     ORDER THESE INDICES CANONICALLY
       N1=M1
       N2=M2
       IF(M1.GT.M2)GO TO 11
@@ -185,7 +185,7 @@ C     ORDER THESE INDICES CANONICALLY
       IF(NI.NE.NJ.OR.NK.NE.NL)GO TO 42
       IJ=IROW(NI)+NK
       FIJ(IJ)=FINI
-C     SKIP (AA/II) INTEGRALS
+!     SKIP (AA/II) INTEGRALS
       GO TO 306
 42    IF(NI.NE.NK.OR.NJ.NE.NL)GO TO 43
       IJ=IROW(NI)+NJ
@@ -193,7 +193,7 @@ C     SKIP (AA/II) INTEGRALS
 43    IF(NI.LE.LN)GO TO 306
       IF(NJ.GT.LN)GO TO 102
       IF(NK.GT.LN)GO TO 103
-C     AIJK
+!     AIJK
       JK=NOTT+IROW(NK)+NL
       IBUFL(JK)=IBUFL(JK)+1
       ICQ=ICAD(JK)
@@ -209,7 +209,7 @@ C     AIJK
       IBUFL(JK)=0
       GO TO 306
 103   IF(NL.GT.LN)GO TO 306
-C     AIBJ
+!     AIBJ
       IIJ=NOT2+IROW(NJ)+NL
       IF(NL.GT.NJ)IIJ=NOT2+IROW(NL)+NJ
       IBUFL(IIJ)=IBUFL(IIJ)+1
@@ -239,7 +239,7 @@ C     AIBJ
       FC(JNAV)=FC(JNAV)-FINI
       GO TO 306
 102   IF(NK.GT.LN)GO TO 306
-C     ABIJ
+!     ABIJ
       IIJ=IROW(NK)+NL
       IBUFL(IIJ)=IBUFL(IIJ)+1
       ICQ=ICAD(IIJ)
@@ -264,7 +264,7 @@ C     ABIJ
       JNAV=IROW(NI)+NJ
       FC(JNAV)=FC(JNAV)+D2*FINI
       GO TO 306
-C     CHECK FOR FOCK-MATRIX CONTRIBUTION
+!     CHECK FOR FOCK-MATRIX CONTRIBUTION
 41    IF(NI.NE.NJ)GO TO 51
       II=1
       CALL IFOCK(FC,NI,NK,NL,FINI,II)
@@ -304,7 +304,7 @@ C     CHECK FOR FOCK-MATRIX CONTRIBUTION
 311   CONTINUE
 312   CONTINUE
 313   CONTINUE
-C     EMPTY LAST BUFFERS
+!     EMPTY LAST BUFFERS
       If ( (NOVST+NOV).gt.mAdr ) then
          WRITE(6,*)'SORT Error: NOVST+NOV>MADR (See code).'
          CALL Abend
@@ -325,8 +325,8 @@ C     EMPTY LAST BUFFERS
       IAD25S=IADD25
       WRITE(6,154)
       CALL XFLUSH(6)
-154   FORMAT(//6X,'STATISTICS FOR INTEGRALS, FIRST ENTRY 10**3-10**4',
-     */)
+154   FORMAT(//6X,'STATISTICS FOR INTEGRALS, FIRST ENTRY 10**3-10**4',  &
+     &/)
       WRITE(6,155)(IVEC(I),I=1,20)
       CALL XFLUSH(6)
 155   FORMAT(6X,5I10)

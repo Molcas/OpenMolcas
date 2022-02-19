@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1986, Per E. M. Siegbahn                               *
-*               1986, Margareta R. A. Blomberg                         *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!               1986, Margareta R. A. Blomberg                         *
+!***********************************************************************
       SUBROUTINE ABCD(JSY,INDEX,ISAB,C,S,ACBDS,ACBDT,BUFIN)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "cpfmcpf.fh"
 #include "files_cpf.fh"
-      DIMENSION JSY(*),INDEX(*),ISAB(*),C(*),S(*),ACBDS(*),ACBDT(*),
+      DIMENSION JSY(*),INDEX(*),ISAB(*),C(*),S(*),ACBDS(*),ACBDT(*),    &
      &           BUFIN(*)
       IAD16=0
       KBUFF1=2*9600
@@ -64,10 +64,10 @@
       INUMB=INSB
       IF(INSB.GT.INB)INUMB=INB
       IST=INS-INSB+1
-      IF(ILOOP.EQ.0)CALL DCOPY_(INUMB,BUFIN(INSIN+1),1,
-     *ACBDS(IST),1)
-      IF(ILOOP.EQ.1)CALL DCOPY_(INUMB,BUFIN(INSIN+1),1,
-     *ACBDT(IST),1)
+      IF(ILOOP.EQ.0)CALL DCOPY_(INUMB,BUFIN(INSIN+1),1,                 &
+     &ACBDS(IST),1)
+      IF(ILOOP.EQ.1)CALL DCOPY_(INUMB,BUFIN(INSIN+1),1,                 &
+     &ACBDT(IST),1)
       INSIN=INSIN+INUMB
       INSB=INSB-INUMB
       IF(INSB.GT.0)GO TO 73
@@ -78,7 +78,7 @@
       FACS=D1
       TERM=DDOT_(INS,C(INDEX(INDA)+1),1,ACBDS,1)
       S(INDEX(INDA)+ISAC)=S(INDEX(INDA)+ISAC)+FACS*TERM
-      CALL DAXPY_(INS,FACS*C(INDEX(INDA)+ISAC),ACBDS,1,
+      CALL DAXPY_(INS,FACS*C(INDEX(INDA)+ISAC),ACBDS,1,                 &
      &                                        S(INDEX(INDA)+1),1)
 10    CONTINUE
 11    IF(INPT.EQ.0.OR.NA.EQ.NC)GO TO 60
@@ -86,7 +86,7 @@
       FACS=D1
       TERM=DDOT_(INS,C(INDEX(INDA)+1),1,ACBDT,1)
       S(INDEX(INDA)+ISAC)=S(INDEX(INDA)+ISAC)+FACS*TERM
-      CALL DAXPY_(INS,FACS*C(INDEX(INDA)+ISAC),ACBDT,1,
+      CALL DAXPY_(INS,FACS*C(INDEX(INDA)+ISAC),ACBDT,1,                 &
      &                                        S(INDEX(INDA)+1),1)
 30    CONTINUE
 60    CONTINUE

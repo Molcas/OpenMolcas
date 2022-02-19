@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1986, Per E. M. Siegbahn                               *
-*               1986, Margareta R. A. Blomberg                         *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!               1986, Margareta R. A. Blomberg                         *
+!***********************************************************************
       SUBROUTINE IIJJ_CPF(ICASE,JSY,HDIAG,FC,FIJ,FJI)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
@@ -19,10 +19,10 @@
       DIMENSION JSY(*),HDIAG(*),FC(*),FIJ(*),FJI(*)
       DIMENSION ICASE(*)
       DIMENSION IOC(55)
-*
+!
       JO(L)=ICUNP(ICASE,L)
       JSYM(L)=JSUNP_CPF(JSY,L)
-*
+!
       IAD27=0
       ILIM=4
       IF(IFIRST.NE.0)ILIM=2
@@ -52,14 +52,14 @@
         END DO
 
         IF(IR.GT.IRC(1))GO TO 120
-C IR=1..IRC(1), HDIAG(IR)=SUM
+! IR=1..IRC(1), HDIAG(IR)=SUM
         HDIAG(IR)=SUM
         IF(IR.EQ.IRC(1))CALL dDAFILE(Lu_27,1,HDIAG,IRC(1),IAD27)
         GO TO 100
 
 120     CONTINUE
         IF(IR.GT.IRC(2))GO TO 130
-C IR=IRC(1)+1 ... IRC(2)
+! IR=IRC(1)+1 ... IRC(2)
         IND=0
         NA1=NSYS(NSS)+1
         NA2=NSYS(NSS+1)
@@ -69,7 +69,7 @@ C IR=IRC(1)+1 ... IRC(2)
           IA=IROW(LN+NA)
           SUM1=SUM+FC(IA+LN+NA)
           DO I=1,LN
-          IF(IOC(I).NE.0) SUM1=SUM1+
+          IF(IOC(I).NE.0) SUM1=SUM1+                                    &
      &                  IOC(I)*FIJ(IA+I)-FJI(IA+I)
           END DO
           HDIAG(IND)=SUM1
@@ -78,7 +78,7 @@ C IR=IRC(1)+1 ... IRC(2)
         GO TO 100
 
 130     CONTINUE
-C IR=IRC(2)+1 ... IRC(ILIM)
+! IR=IRC(2)+1 ... IRC(ILIM)
         IND=0
         DO NA=1,NVIRT
           NSA=MUL(NSS,NSM(LN+NA))

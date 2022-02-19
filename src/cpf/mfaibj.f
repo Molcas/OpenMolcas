@@ -1,17 +1,17 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1986, Per E. M. Siegbahn                               *
-*               1986, Margareta R. A. Blomberg                         *
-************************************************************************
-      SUBROUTINE MFAIBJ(JSY,INDEX,C,S,ABIJ,AIBJ,AJBI,BUFIN,IBUFIN,A,B,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!               1986, Margareta R. A. Blomberg                         *
+!***********************************************************************
+      SUBROUTINE MFAIBJ(JSY,INDEX,C,S,ABIJ,AIBJ,AJBI,BUFIN,IBUFIN,A,B,  &
      &                  F,FSEC,W,THET,ENP,EPP,NII)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
@@ -23,9 +23,9 @@
       DIMENSION IPOF(9),IPOA(9),IPOB(9)
       PARAMETER (IPOW5=2**5,IPOW13=2**13,IPOW18=2**18)
       PARAMETER (IPOW10=2**10)
-*
+!
       JSYM(L)=JSUNP_CPF(JSY,L)
-*
+!
       ITYP   = 0 ! dummy initialize
       ICOUP  = 0 ! dummy initialize
       ICOUP1 = 0 ! dummy initialize
@@ -53,8 +53,8 @@
       GO TO 260
 460   ICHK=0
       INDI=IND
-*      NI=MOD(INDI,IPOW10)
-*      NJ=MOD(INDI/IPOW10,IPOW10)
+!      NI=MOD(INDI,IPOW10)
+!      NJ=MOD(INDI/IPOW10,IPOW10)
       NI=IBITS(INDI,0,10)
       NJ=IBITS(INDI,10,10)
       NSIJ=MUL(NSM(NI),NSM(NJ))
@@ -65,7 +65,7 @@
       CALL FZERO(AIBJ,ILIM)
       CALL FZERO(AJBI,ILIM)
       IF(ITER.EQ.1)GO TO 207
-C     READ (AB/IJ) INTEGRALS
+!     READ (AB/IJ) INTEGRALS
       IADR=LASTAD(NOVST+IJ1)
       JTURN=0
 201   CALL iDAFILE(Lu_TiABIJ,2,IBUFIN,LBUF2,IADR)
@@ -79,11 +79,11 @@ C     READ (AB/IJ) INTEGRALS
 209   IF(IADR.EQ.-1) GO TO 206
       GO TO 201
 206   IF(JTURN.EQ.1)GO TO 360
-C     READ (AI/BJ) INTEGRALS
+!     READ (AI/BJ) INTEGRALS
 207   IADR=LASTAD(NOVST+NOT2+IJ1)
       JTURN=1
       GO TO 201
-C     CONSTRUCT FIRST ORDER MATRICES
+!     CONSTRUCT FIRST ORDER MATRICES
 360   FAC=D1/D2
       IF(NI.NE.NJ)FAC=D2*FAC
       IN=0
@@ -94,8 +94,8 @@ C     CONSTRUCT FIRST ORDER MATRICES
       IF(IBSYM.GT.IASYM)GO TO 170
       IAB=IPOA(IASYM+1)-IPOA(IASYM)
       IF(IAB.EQ.0)GO TO 170
-      CALL SECORD(AIBJ(IPOF(IASYM)+1),AIBJ(IPOF(IBSYM)+1),
-     *FSEC(IN+1),FAC,NVIR(IASYM),NVIR(IBSYM),NSIJ,IFT)
+      CALL SECORD(AIBJ(IPOF(IASYM)+1),AIBJ(IPOF(IBSYM)+1),              &
+     &FSEC(IN+1),FAC,NVIR(IASYM),NVIR(IBSYM),NSIJ,IFT)
       IN=IN+IAB
 170   CONTINUE
       IF(IFT.EQ.1)GO TO 853
@@ -103,7 +103,7 @@ C     CONSTRUCT FIRST ORDER MATRICES
       IFT=1
       FAC=D0
       GO TO 852
-C     SQARE ABIJ
+!     SQARE ABIJ
 853   IF(ITER.EQ.1)GO TO 260
       DO 370 IASYM=1,NSYM
       IF(NVIR(IASYM).EQ.0)GO TO 370
@@ -123,16 +123,16 @@ C     SQARE ABIJ
 370   CONTINUE
       GO TO 260
 371   IF(IFAB.EQ.1)GO TO 262
-CPAM97      IFAB=IAND(IND,1)
-CPAM97      ITURN=IAND(ISHFT(IND,-1),1)
-CPAM97      ITYP=IAND(ISHFT(IND,-2),7)
-CPAM97      ICOUP=IAND(ISHFT(IND,-5),8191)
-CPAM97      ICOUP1=IAND(ISHFT(IND,-18),8191)
-*      IFAB=MOD(IND,2)
-*      ITURN=MOD(IND/2,2)
-*      ITYP=MOD(IND/4,8)
-*      ICOUP=MOD(IND/IPOW5,IPOW13)
-*      ICOUP1=MOD(IND/IPOW18,IPOW13)
+!PAM97      IFAB=IAND(IND,1)
+!PAM97      ITURN=IAND(ISHFT(IND,-1),1)
+!PAM97      ITYP=IAND(ISHFT(IND,-2),7)
+!PAM97      ICOUP=IAND(ISHFT(IND,-5),8191)
+!PAM97      ICOUP1=IAND(ISHFT(IND,-18),8191)
+!      IFAB=MOD(IND,2)
+!      ITURN=MOD(IND/2,2)
+!      ITYP=MOD(IND/4,8)
+!      ICOUP=MOD(IND/IPOW5,IPOW13)
+!      ICOUP1=MOD(IND/IPOW18,IPOW13)
       IFAB=IBITS(IND, 0,1)
       ITURN=IBITS(IND,1,1)
       ITYP=IBITS(IND,2,3)
@@ -146,7 +146,7 @@ CPAM97      ICOUP1=IAND(ISHFT(IND,-18),8191)
 262   CPLA=COP(II)
       IFAB=0
       GO TO 100
-C     FIRST ORDER INTERACTION
+!     FIRST ORDER INTERACTION
 263   INDA=ICOUP
       INDB=IRC(ITYP+1)+ICOUP1
       ISTAR=1
@@ -159,8 +159,8 @@ C     FIRST ORDER INTERACTION
       TERM=DDOT_(INS,C(INDEX(INDB)+1),1,FSEC(ISTAR),1)
       EPP(INDB)=EPP(INDB)+CPLL*TERM
       GO TO 260
-342   ENPQ=(D1-THET(INDA,INDB)/D2)*(ENP(INDA)+ENP(INDB)-D1)+
-     *THET(INDA,INDB)/D2
+342   ENPQ=(D1-THET(INDA,INDB)/D2)*(ENP(INDA)+ENP(INDB)-D1)+            &
+     &THET(INDA,INDB)/D2
       FACS=SQRT(ENP(INDA))*SQRT(ENP(INDB))/ENPQ
       FACW=FACS*(D2-THET(INDA,INDB))/ENPQ
       FACWA=FACW*ENP(INDA)-FACS
@@ -172,10 +172,10 @@ C     FIRST ORDER INTERACTION
       S(INDA)=S(INDA)+CPL*FACS*TERM
       W(INDA)=W(INDA)+CPL*FACWA*TERM
       GO TO 260
-C     INTERACTIONS BETWEEN DOUBLES AND
-C     INTERACTIONS BETWEEN SINGLES
+!     INTERACTIONS BETWEEN DOUBLES AND
+!     INTERACTIONS BETWEEN SINGLES
 100   IF(ITER.EQ.1)GO TO 260
-C     CALL JTIME(IST)
+!     CALL JTIME(IST)
       IFTA=0
       IFTB=0
       GO TO (109,110,111,112,113),ITYP
@@ -201,8 +201,8 @@ C     CALL JTIME(IST)
       NYSYM=MUL(MYSYM,NSIJ)
       MYL=MUL(MYSYM,LSYM)
       NYL=MUL(NYSYM,LSYM)
-      ENPQ=(D1-THET(INDA,INDB)/D2)*(ENP(INDA)+ENP(INDB)-D1)+
-     *THET(INDA,INDB)/D2
+      ENPQ=(D1-THET(INDA,INDB)/D2)*(ENP(INDA)+ENP(INDB)-D1)+            &
+     &THET(INDA,INDB)/D2
       FACS=SQRT(ENP(INDA))*SQRT(ENP(INDB))/ENPQ
       FACW=FACS*(D2-THET(INDA,INDB))/ENPQ
       FACWA=FACW*ENP(INDA)-FACS
@@ -212,7 +212,7 @@ C     CALL JTIME(IST)
       INMY=INDEX(INDA)+1
       INNY=INDEX(INDB)+1
       IF(ITYP.NE.5)GO TO 71
-C     DOUBLET-DOUBLET INTERACTIONS
+!     DOUBLET-DOUBLET INTERACTIONS
       IN=IPOF(MYL+1)-IPOF(MYL)
       IF(IN.EQ.0)GO TO 260
       IPF=IPOF(MYL)+1
@@ -230,8 +230,8 @@ C     DOUBLET-DOUBLET INTERACTIONS
       CALL DAXPY_(NVIR(MYL),FACS,A,1,S(INMY),1)
       CALL DAXPY_(NVIR(MYL),FACWA,A,1,W(INMY),1)
       GO TO 260
-C     TRIPLET-SINGLET , SINGLET-TRIPLET ,
-C     TRIPLET-TRIPLET AND SINGLET-SINGLET INTERACTIONS
+!     TRIPLET-SINGLET , SINGLET-TRIPLET ,
+!     TRIPLET-TRIPLET AND SINGLET-SINGLET INTERACTIONS
 71    DO 70 IASYM=1,NSYM
       IAB=IPOF(IASYM+1)-IPOF(IASYM)
       IF(IAB.EQ.0)GO TO 70
@@ -243,15 +243,15 @@ C     TRIPLET-TRIPLET AND SINGLET-SINGLET INTERACTIONS
       NBC=NVIR(IBSYM)*NVIR(ICSYM)
       IF(ICSYM.GE.IASYM)GO TO 31
       IF(ICSYM.GE.IBSYM)GO TO 32
-C     CASE 1 , IASYM > ICSYM AND IBSYM > ICSYM
+!     CASE 1 , IASYM > ICSYM AND IBSYM > ICSYM
       IPF=IPOF(IASYM)+1
       CALL SETZ(F,IAB)
       CALL DAXPY_(IAB,CPL,AIBJ(IPF),1,F,1)
       CALL DAXPY_(IAB,CPLA,ABIJ(IPF),1,F,1)
       IF(INDA.EQ.INDB)CALL SETZZ_CPF(F,NVIR(IASYM))
       CALL SETZ(A,NBC)
-      CALL FMMM(C(INMY+IPOA(IASYM)),F,A,NVIR(ICSYM),
-     *NVIR(IBSYM),NVIR(IASYM))
+      CALL FMMM(C(INMY+IPOA(IASYM)),F,A,NVIR(ICSYM),                    &
+     &NVIR(IBSYM),NVIR(IASYM))
       CALL DAXPY_(NBC,FACS,A,1,S(INNY+IPOB(IBSYM)),1)
       CALL DAXPY_(NBC,FACWB,A,1,W(INNY+IPOB(IBSYM)),1)
       IF(INDA.EQ.INDB)GO TO 70
@@ -260,12 +260,12 @@ C     CASE 1 , IASYM > ICSYM AND IBSYM > ICSYM
       CALL DAXPY_(IAB,CPL,AJBI(IPF),1,F,1)
       CALL DAXPY_(IAB,CPLA,ABIJ(IPF),1,F,1)
       CALL SETZ(A,NAC)
-      CALL FMMM(C(INNY+IPOB(IBSYM)),F,A,NVIR(ICSYM),
-     *NVIR(IASYM),NVIR(IBSYM))
+      CALL FMMM(C(INNY+IPOB(IBSYM)),F,A,NVIR(ICSYM),                    &
+     &NVIR(IASYM),NVIR(IBSYM))
       CALL DAXPY_(NAC,FACS,A,1,S(INMY+IPOA(IASYM)),1)
       CALL DAXPY_(NAC,FACWA,A,1,W(INMY+IPOA(IASYM)),1)
       GO TO 70
-C     CASE 2 , IASYM > ICSYM AND ICSYM > OR = IBSYM
+!     CASE 2 , IASYM > ICSYM AND ICSYM > OR = IBSYM
 32    IPF=IPOF(IBSYM)+1
       CALL SETZ(F,IAB)
       CALL DAXPY_(IAB,CPL,AJBI(IPF),1,F,1)
@@ -303,7 +303,7 @@ C     CASE 2 , IASYM > ICSYM AND ICSYM > OR = IBSYM
       CALL DAXPY_(NAC,FACWA,B,1,W(INMY+IPOA(IASYM)),1)
       GO TO 70
 31    IF(ICSYM.GE.IBSYM)GO TO 33
-C     CASE 3 , ICSYM > OR = IASYM AND IBSYM > ICSYM
+!     CASE 3 , ICSYM > OR = IASYM AND IBSYM > ICSYM
       IPF=IPOF(IASYM)+1
       CALL SETZ(F,IAB)
       CALL DAXPY_(IAB,CPL,AIBJ(IPF),1,F,1)
@@ -342,7 +342,7 @@ C     CASE 3 , ICSYM > OR = IASYM AND IBSYM > ICSYM
 1146  CALL DAXPY_(NAC,-FACS,B,1,S(INMY+IPOA(ICSYM)),1)
       CALL DAXPY_(NAC,-FACWA,B,1,W(INMY+IPOA(ICSYM)),1)
       GO TO 70
-C     CASE 4 , ICSYM > OR = IASYM AND ICSYM > OR = IBSYM
+!     CASE 4 , ICSYM > OR = IASYM AND ICSYM > OR = IBSYM
 33    IPF=IPOF(IBSYM)+1
       CALL SETZ(F,IAB)
       CALL DAXPY_(IAB,CPL,AJBI(IPF),1,F,1)
@@ -412,12 +412,12 @@ C     CASE 4 , ICSYM > OR = IASYM AND ICSYM > OR = IBSYM
 70    CONTINUE
 260   CONTINUE
       GO TO 300
-350   CALL MDSQ2(C,S,W,MUL,INDEX,JSY,NDIAG,INUM,IRC(3),
-     *LSYM,NVIRT,SQ2)
-C      NCONF=JSC(4)
-C      WRITE(6,787)(S(I),I=1,NCONF)
-C  787 FORMAT(1X,'S,FAIBJ',5F10.6)
-C      WRITE(6,786)(W(I),I=1,NCONF)
-C  786 FORMAT(1X,'W,FAIBJ',5F10.6)
+350   CALL MDSQ2(C,S,W,MUL,INDEX,JSY,NDIAG,INUM,IRC(3),                 &
+     &LSYM,NVIRT,SQ2)
+!      NCONF=JSC(4)
+!      WRITE(6,787)(S(I),I=1,NCONF)
+!  787 FORMAT(1X,'S,FAIBJ',5F10.6)
+!      WRITE(6,786)(W(I),I=1,NCONF)
+!  786 FORMAT(1X,'W,FAIBJ',5F10.6)
       RETURN
       END

@@ -1,27 +1,27 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1986, Per E. M. Siegbahn                               *
-*               1986, Margareta R. A. Blomberg                         *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!               1986, Margareta R. A. Blomberg                         *
+!***********************************************************************
       SUBROUTINE ABCI(JSY,INDEX,C,S,BMN,IBMN,BIAC,BICA,BUFIN)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "cpfmcpf.fh"
 #include "files_cpf.fh"
-      DIMENSION JSY(*),INDEX(*),C(*),S(*),BMN(*),IBMN(*),
+      DIMENSION JSY(*),INDEX(*),C(*),S(*),BMN(*),IBMN(*),               &
      &           BIAC(*),BICA(*),BUFIN(*)
       PARAMETER (IPOW6=2**6, IPOW19=2**19)
-*
+!
       JSYM(L)=JSUNP_CPF(JSY,L)
-*
+!
       INUM=IRC(4)-IRC(3)
       CALL PSQ2(C,S,MUL,INDEX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
       ICHK=0
@@ -71,13 +71,13 @@
       IF(ILOOP.EQ.1)GO TO 72
       DO 25 IT=1,IOUT
       IND=IBMN(IT)
-*      ICP1=MOD(IND/IPOW19,8192)
+!      ICP1=MOD(IND/IPOW19,8192)
       ICP1=IBITS(IND,19,13)
       INDA=IRC(1)+ICP1
       IF(JSYM(INDA).NE.NSLB)GO TO 25
       MA=INDEX(INDA)+LB
-*      ICP2=MOD(IND/IPOW6,8192)
-*      ITYP=MOD(IND,64)
+!      ICP2=MOD(IND/IPOW6,8192)
+!      ITYP=MOD(IND,64)
       ICP2=IBITS(IND,6,13)
       ITYP=IBITS(IND, 0, 6)
       IF(INS.EQ.0)GO TO 25

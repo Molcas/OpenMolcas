@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1986, Per E. M. Siegbahn                               *
-*               1986, Margareta R. A. Blomberg                         *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1986, Per E. M. Siegbahn                               *
+!               1986, Margareta R. A. Blomberg                         *
+!***********************************************************************
       SUBROUTINE NATCT(H,LIC0)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
@@ -19,7 +19,7 @@
       DIMENSION H(LIC0)
       Character*72 Header
       Dimension Dummy(1),iDummy(7,8)
-*
+!
       NSUM =0
       N2SUM=0
       n2Tri = 0
@@ -31,7 +31,7 @@
          n2Tri = n2Tri + nBas(iSym)*(nBas(iSym)+1)/2
 9     CONTINUE
 
-*     Read MO coefficients
+!     Read MO coefficients
       IDISK=ITOC17(1)
       CALL dDAFILE(Lu_TraOne,2,H(LW(87)),N2SUM,IDISK)
       IF (LW(87)+N2SUM-1.ge.LW(88)) THEN
@@ -42,19 +42,19 @@
       CALL XFLUSH(6)
          Call Abend
       ENDIF
-*
-*     Loop over irreps and compute natural orbitals
-*
+!
+!     Loop over irreps and compute natural orbitals
+!
       IOCC=LW(90)
       ICMO=LW(87)
       DO 10 M=1,NSYM
-*        set occupation number of orbitals prefrozen in MOTRA
+!        set occupation number of orbitals prefrozen in MOTRA
          CALL DCOPY_(NBAS(M),[0.0D0],0,H(IOCC),1)
-*        skip orbitals prefrozen in MOTRA
+!        skip orbitals prefrozen in MOTRA
          CALL DCOPY_(NPFRO(M),[2.0D0],0,H(IOCC),1)
-         CALL NATORB_CPF(H(LW(62)),H(ICMO+NBAS(M)*NPFRO(M)),H(LW(88)),
+         CALL NATORB_CPF(H(LW(62)),H(ICMO+NBAS(M)*NPFRO(M)),H(LW(88)),  &
      &               H(LW(89)),H(LW(89)),H(IOCC+NPFRO(M)),M)
-         CALL DCOPY_(NORB(M)*NBAS(M),H(LW(89)),1,
+         CALL DCOPY_(NORB(M)*NBAS(M),H(LW(89)),1,                       &
      &              H(ICMO+NBAS(M)*NPFRO(M)),1)
          ICMO=ICMO+NBAS(M)**2
          IOCC=IOCC+NBAS(M)
@@ -68,25 +68,25 @@
          Call ErrTra
          Call Abend
       End If
-      Call RelEne(ErelMV,ErelDC,nSym,nBas,H(LW(87)),
-     *            H(LW(90)),H(LW91A),H(LW91B))
+      Call RelEne(ErelMV,ErelDC,nSym,nBas,H(LW(87)),                    &
+     &            H(LW(90)),H(LW91A),H(LW91B))
 
       EREL=ERELMV+ERELDC
       WRITE(6,'(/,5X,A)') 'FIRST ORDER RELATIVISTIC CORRECTIONS'
-      WRITE(6,'(5X,A,F17.8)')
-     *            'MASS-VELOCITY        ', ErelMV
-      WRITE(6,'(5X,A,F17.8)')
-     *            '1-EL DARWIN CONTACT  ', ErelDC
-      WRITE(6,'(5X,A,F17.8)')
-     *            'TOTAL REL. CORRECTION', Erel
+      WRITE(6,'(5X,A,F17.8)')                                           &
+     &            'MASS-VELOCITY        ', ErelMV
+      WRITE(6,'(5X,A,F17.8)')                                           &
+     &            '1-EL DARWIN CONTACT  ', ErelDC
+      WRITE(6,'(5X,A,F17.8)')                                           &
+     &            'TOTAL REL. CORRECTION', Erel
       IF (ISDCI.EQ.1) THEN
-        WRITE(6,'(5X,A,F17.8)')
-     *            'REL. CI ENERGY       ', ETOT+Erel
-        WRITE(6,'(5X,A,F17.8)')
-     *            'REL. CI+Q ENERGY     ',DETOT+Erel
+        WRITE(6,'(5X,A,F17.8)')                                         &
+     &            'REL. CI ENERGY       ', ETOT+Erel
+        WRITE(6,'(5X,A,F17.8)')                                         &
+     &            'REL. CI+Q ENERGY     ',DETOT+Erel
       ELSE
-        WRITE(6,'(5X,A,F17.8)')
-     *            'TOTAL REL. ENERGY    ', ETOT+Erel
+        WRITE(6,'(5X,A,F17.8)')                                         &
+     &            'TOTAL REL. ENERGY    ', ETOT+Erel
       END IF
       CALL XFLUSH(6)
       CALL dPRWF(H)
@@ -99,10 +99,10 @@
       Else
          Header=' MCPF natural orbitals'
       End If
-      Call Primo(Header,.True.,.False.,1.0D-4,dum,nSym,nBas,nBas,
-     *           Name,Dummy,H(LW(90)),H(LW(87)),-1)
-*
-*     Read the overlap matrix in ao basis
+      Call Primo(Header,.True.,.False.,1.0D-4,dum,nSym,nBas,nBas,       &
+     &           Name,Dummy,H(LW(90)),H(LW(87)),-1)
+!
+!     Read the overlap matrix in ao basis
       iiRC=-1
       iOpt = 6
       Call RdOne(iiRC,iOpt,'MLTPL  0',1,H(LW(91)),iDum)
@@ -110,10 +110,10 @@
          Write (6,*) 'Natct: Error reading overlap matrix!'
          Call Abend
       End If
-      Call Charge(nSym,nBas,Name,H(LW(87)),H(LW(90)),H(LW(91)),2,.True.,
+      Call Charge(nSym,nBas,Name,H(LW(87)),H(LW(90)),H(LW(91)),2,.True.,&
      &            .True.)
       Call Prpt_old(nSym,nBas,nSum,n2Sum,H(LW(87)),H(LW(90)))
-*
+!
       If (iCPF.eq.1) Then
          Header='* CPF NO COEFS'
       Else If (iSDCI.eq.1) Then
@@ -123,12 +123,12 @@
       Else
          Header='* MCPF NO COEFS'
       End If
-      Call WrVec('CPFORB',Lu_CPFORB,'CO',nSym,nBas,nBas,
+      Call WrVec('CPFORB',Lu_CPFORB,'CO',nSym,nBas,nBas,                &
      & H(LW(87)), H(LW(90)), Dummy, iDummy, Header)
-*
+!
       RETURN
-*
-*     This is to allow type punning without an explicit interface
+!
+!     This is to allow type punning without an explicit interface
       CONTAINS
       SUBROUTINE dPRWF(H)
       USE ISO_C_BINDING
@@ -140,5 +140,5 @@
       CALL PRWF_CPF(iH1,iH2,iH3,H(LW(26)))
       NULLIFY(iH1,iH2,iH3)
       END SUBROUTINE dPRWF
-*
+!
       END
