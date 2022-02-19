@@ -14,19 +14,20 @@
 
 subroutine SING(IWHY)
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: iwp, u6
 
-NOUT = 6
-! NOUT=STANDARD OUTPUT UNIT
+implicit none
+integer(kind=iwp) :: IWHY
+
 goto(1,2,3),IWHY
-1 write(NOUT,11)
-call XFLUSH(6)
+1 write(u6,11)
+call XFLUSH(u6)
 goto 10
-2 write(NOUT,12)
-call XFLUSH(6)
+2 write(u6,12)
+call XFLUSH(u6)
 goto 10
-3 write(NOUT,13)
-call XFLUSH(6)
+3 write(u6,13)
+call XFLUSH(u6)
 
 10 return
 

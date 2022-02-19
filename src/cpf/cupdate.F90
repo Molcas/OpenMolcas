@@ -12,14 +12,22 @@
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-subroutine CUPDATE(JSY,INDEX,C,S,AP,BST,T2,ENP)
+subroutine CUPDATE(JSY,INDX,C,S,AP,BST,T2,ENP)
 
-implicit real*8(A-H,O-Z)
-dimension JSY(*), index(*), C(*), S(*), AP(*), BST(*), T2(*), ENP(*)
-#include "SysDef.fh"
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp, u6, r8
+
+implicit none
+integer(kind=iwp) :: JSY(*), INDX(*)
+real(kind=wp) :: C(*), S(*), AP(*), BST(*), T2(*), ENP(*)
 #include "cpfmcpf.fh"
 #include "files_cpf.fh"
+integer(kind=iwp) :: I, IAD, III, IIN, INUM, IP, IST, JJJ, NS1, NSIL
+real(kind=wp) :: A, APW, EMP, W
+integer(kind=iwp), external :: JSUNP_CPF
+real(kind=r8), external :: DDOT_
 ! Statement function
+integer(kind=iwp) :: JSYM, L
 JSYM(L) = JSUNP_CPF(JSY,L)
 
 W = WLEV
@@ -32,24 +40,24 @@ end do
 
 ! SINGLES
 IP = IRC(2)-IRC(1)
-IN = IRC(1)
+IIN = IRC(1)
 do I=1,IP
-  NS1 = JSYM(IN+I)
+  NS1 = JSYM(IIN+I)
   NSIL = MUL(NS1,LSYM)
   INUM = NVIR(NSIL)
-  IST = index(IN+I)+1
-  call VSMSB(C(IST),1,AP(IN+I),S(IST),1,C(IST),1,INUM)
+  IST = INDX(IIN+I)+1
+  call VSMSB(C(IST),1,AP(IIN+I),S(IST),1,C(IST),1,INUM)
 end do
 
 ! DOUBLES
 IP = IRC(4)-IRC(2)
-IN = IRC(2)
+IIN = IRC(2)
 do I=1,IP
-  NS1 = JSYM(IN+I)
+  NS1 = JSYM(IIN+I)
   NSIL = MUL(NS1,LSYM)
   INUM = NNS(NSIL)
-  IST = index(IN+I)+1
-  call VSMSB(C(IST),1,AP(IN+I),S(IST),1,C(IST),1,INUM)
+  IST = INDX(IIN+I)+1
+  call VSMSB(C(IST),1,AP(IIN+I),S(IST),1,C(IST),1,INUM)
 end do
 
 ! WRITE GRADIENT ONTO DISK, UNIT=30
@@ -71,47 +79,47 @@ do I=1,IP
   C(I) = C(I)/T2(I)
   EMP = sqrt(ENP(I))
   C(I) = C(I)*EMP
-  if (I == IREF0) C(I) = 0.0d0
+  if (I == IREF0) C(I) = Zero
 end do
 
 ! SINGLES
 IP = IRC(2)-IRC(1)
-IN = IRC(1)
+IIN = IRC(1)
 do I=1,IP
-  NS1 = JSYM(IN+I)
+  NS1 = JSYM(IIN+I)
   NSIL = MUL(NS1,LSYM)
   INUM = NVIR(NSIL)
-  IST = index(IN+I)+1
-  APW = W-AP(IN+I)
+  IST = INDX(IIN+I)+1
+  APW = W-AP(IIN+I)
   call VSADD(S(IST),1,APW,T2,1,INUM)
   call VDIV(T2,1,C(IST),1,C(IST),1,INUM)
-  EMP = sqrt(ENP(IN+I))
+  EMP = sqrt(ENP(IIN+I))
   call VSMUL(C(IST),1,EMP,C(IST),1,INUM)
 end do
 
 ! DOUBLES
 IP = IRC(4)-IRC(2)
-IN = IRC(2)
+IIN = IRC(2)
 do I=1,IP
-  NS1 = JSYM(IN+I)
+  NS1 = JSYM(IIN+I)
   NSIL = MUL(NS1,LSYM)
   INUM = NNS(NSIL)
-  IST = index(IN+I)+1
-  APW = W-AP(IN+I)
+  IST = INDX(IIN+I)+1
+  APW = W-AP(IIN+I)
   call VSADD(S(IST),1,APW,T2,1,INUM)
   call VDIV(T2,1,C(IST),1,C(IST),1,INUM)
-  EMP = sqrt(ENP(IN+I))
+  EMP = sqrt(ENP(IIN+I))
   call VSMUL(C(IST),1,EMP,C(IST),1,INUM)
 end do
 
 IAD = IADDP(ITPUL+1)
 call dDAFILE(Lu_CI,1,C,NCONF,IAD)
 IADDP(ITPUL+2) = IAD
-if (IPRINT >= 15) write(6,999) (C(I),I=1,NCONF)
+if (IPRINT >= 15) write(u6,999) (C(I),I=1,NCONF)
 999 format(6X,'C(UPD)',5F10.6)
 A = DDOT_(NCONF,C,1,C,1)
-if (A > D2) then
-  write(6,*) 'CUPDATE Error: A>2.0D0 (See code.)'
+if (A > Two) then
+  write(u6,*) 'CUPDATE Error: A>2.0 (See code.)'
   call Abend()
 end if
 if (ITPUL == 1) BST(1) = A

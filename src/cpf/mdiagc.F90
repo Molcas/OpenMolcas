@@ -14,12 +14,19 @@
 
 subroutine MDIAGC(JSY,C,S,W,THET,ENP,NII)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Constants, only: One, Half, Two
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: JSY(*), NII
+real(kind=wp) :: C(*), S(*), W(*), THET(NII,NII), ENP(*)
 #include "cpfmcpf.fh"
 #include "files_cpf.fh"
-dimension JSY(*), C(*), S(*), W(*), THET(NII,NII), ENP(*)
+integer(kind=iwp) :: IADD25, IIC, ILIM, IND, INDA, IRL, NA, NA1, NA2, NB, NB1, NB2, NSA, NSS
+real(kind=wp) :: ENPQ, FACS, FACW
+integer(kind=iwp), external :: JSUNP_CPF
 ! Statement function
+integer(kind=iwp) :: JSYM, L
 JSYM(L) = JSUNP_CPF(JSY,L)
 
 IADD25 = IAD25S
@@ -31,9 +38,9 @@ if (IFIRST /= 0) ILIM = 2
 IRL = IRC(ILIM)
 do INDA=1,IRL
   NSS = MUL(JSYM(INDA),LSYM)
-  ENPQ = (D1-THET(INDA,INDA)/D2)*(ENP(INDA)+ENP(INDA)-D1)+THET(INDA,INDA)/D2
+  ENPQ = (One-THET(INDA,INDA)*Half)*(ENP(INDA)+ENP(INDA)-One)+THET(INDA,INDA)*Half
   FACS = sqrt(ENP(INDA))*sqrt(ENP(INDA))/ENPQ
-  FACW = (FACS*(D2-THET(INDA,INDA))/ENPQ)*ENP(INDA)-FACS
+  FACW = (FACS*(Two-THET(INDA,INDA))/ENPQ)*ENP(INDA)-FACS
   if (INDA > IRC(1)) GO TO 120
   IIC = IIC+1
   IND = IND+1

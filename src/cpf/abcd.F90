@@ -12,19 +12,25 @@
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-subroutine ABCD(JSY,INDEX,ISAB,C,S,ACBDS,ACBDT,BUFIN)
+subroutine ABCD(JSY,INDX,ISAB,C,S,ACBDS,ACBDT,BUFIN)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Definitions, only: wp, iwp, r8
+
+implicit none
+integer(kind=iwp) :: JSY(*), INDX(*), ISAB(*)
+real(kind=wp) :: C(*), S(*), ACBDS(*), ACBDT(*), BUFIN(*)
 #include "cpfmcpf.fh"
 #include "files_cpf.fh"
-dimension JSY(*), index(*), ISAB(*), C(*), S(*), ACBDS(*), ACBDT(*), BUFIN(*)
+integer(kind=iwp) :: IAC, IACMAX, IACMIN, IAD16, IFIN1, IFIN2, ILOOP, IN1, INB, INDA, INPS, INPT, INS, INSB, INSIN, INUM, INUMB, &
+                     ISAC, IST, IST1, IST2, ISTEP, ISYM, ITAIL, NA, NC, NDMAX, NOV, NSAC, NSACL, NVT
+real(kind=wp) :: TERM
+real(kind=r8), external :: DDOT_
 
 IAD16 = 0
 KBUFF1 = 2*9600
 INSIN = KBUFF1
 INUM = IRC(4)-IRC(3)
-call PSQ2(C,S,MUL,INDEX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
+call PSQ2(C,S,MUL,INDX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
 NVT = IROW(NVIRT+1)
 NOV = (NVT-1)/IPASS+1
 IACMAX = 0
@@ -75,17 +81,15 @@ do ISTEP=1,IPASS
         if (ILOOP == 1) GO TO 72
         if (INPS == 0) GO TO 11
         do INDA=IST1,IFIN1
-          FACS = D1
-          TERM = DDOT_(INS,C(index(INDA)+1),1,ACBDS,1)
-          S(index(INDA)+ISAC) = S(index(INDA)+ISAC)+FACS*TERM
-          call DAXPY_(INS,FACS*C(index(INDA)+ISAC),ACBDS,1,S(index(INDA)+1),1)
+          TERM = DDOT_(INS,C(INDX(INDA)+1),1,ACBDS,1)
+          S(INDX(INDA)+ISAC) = S(INDX(INDA)+ISAC)+TERM
+          call DAXPY_(INS,C(INDX(INDA)+ISAC),ACBDS,1,S(INDX(INDA)+1),1)
         end do
 11      if ((INPT == 0) .or. (NA == NC)) GO TO 60
         do INDA=IST2,IFIN2
-          FACS = D1
-          TERM = DDOT_(INS,C(index(INDA)+1),1,ACBDT,1)
-          S(index(INDA)+ISAC) = S(index(INDA)+ISAC)+FACS*TERM
-          call DAXPY_(INS,FACS*C(index(INDA)+ISAC),ACBDT,1,S(index(INDA)+1),1)
+          TERM = DDOT_(INS,C(INDX(INDA)+1),1,ACBDT,1)
+          S(INDX(INDA)+ISAC) = S(INDX(INDA)+ISAC)+TERM
+          call DAXPY_(INS,C(INDX(INDA)+ISAC),ACBDT,1,S(INDX(INDA)+1),1)
         end do
 60      continue
       end do
@@ -94,7 +98,7 @@ do ISTEP=1,IPASS
   end do
 70 continue
 end do
-call DSQ2(C,S,MUL,INDEX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
+call DSQ2(C,S,MUL,INDX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
 
 return
 

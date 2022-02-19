@@ -14,8 +14,13 @@
 
 subroutine ORDER_CPF(C,D,N)
 
-implicit real*8(A-H,O-Z)
-dimension C(*), D(*)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: N
+real(kind=wp) :: C(*), D(*)
+integer(kind=iwp) :: I, I1, IIN, IOUT, J, K, N1
+real(kind=wp) :: CT, DT
 
 if (N == 1) return
 N1 = N-1
@@ -26,11 +31,11 @@ do I=1,N1
     DT = D(I)
     D(I) = D(J)
     D(J) = DT
-    IN = (I-1)*N
+    IIN = (I-1)*N
     IOUT = (J-1)*N
     do K=1,N
-      CT = C(IN+K)
-      C(IN+K) = C(IOUT+K)
+      CT = C(IIN+K)
+      C(IIN+K) = C(IOUT+K)
       C(IOUT+K) = CT
     end do
 20  continue

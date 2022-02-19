@@ -12,15 +12,22 @@
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-subroutine NPSET(JSY,INDEX,C,TPQ,ENP,T,S,W,EPP,ICASE)
+subroutine NPSET(JSY,INDX,C,TPQ,ENP,T,S,W,EPP,ICASE)
 
-implicit real*8(A-H,O-Z)
-dimension JSY(*), index(*), C(*), TPQ(*), ENP(*), T(*), S(*)
-dimension W(*), EPP(*), ICASE(*)
-#include "SysDef.fh"
+use Constants, only: One
+use Definitions, only: wp, iwp, u6, r8
+
+implicit none
+integer(kind=iwp) :: JSY(*), INDX(*), ICASE(*)
+real(kind=wp) :: C(*), TPQ(*), ENP(*), T(*), S(*), W(*), EPP(*)
 #include "cpfmcpf.fh"
 #include "files_cpf.fh"
+integer(kind=iwp) :: I, IAD, IIN, IND, INUM, IP, IQ, IST, NS1, NSIL
+real(kind=wp) :: EMPI
+integer(kind=iwp), external :: JSUNP_CPF
+real(kind=r8), external :: DDOT_
 ! Statement function
+integer(kind=iwp) :: JSYM, L
 JSYM(L) = JSUNP_CPF(JSY,L)
 
 if (IDENS == 1) GO TO 65
@@ -41,43 +48,43 @@ end do
 
 IQ = IRC(2)-IRC(1)
 IND = IRC(1)
-IN = IRC(1)
+IIN = IRC(1)
 do I=1,IQ
   IND = IND+1
-  NS1 = JSYM(IN+I)
+  NS1 = JSYM(IIN+I)
   NSIL = MUL(NS1,LSYM)
   INUM = NVIR(NSIL)
-  IST = index(IN+I)+1
+  IST = INDX(IIN+I)+1
   T(IND) = DDOT_(INUM,C(IST),1,C(IST),1)
 end do
 
 ! DOUBLES
 
 IQ = IRC(4)-IRC(2)
-IN = IRC(2)
+IIN = IRC(2)
 do I=1,IQ
   IND = IND+1
-  NS1 = JSYM(IN+I)
+  NS1 = JSYM(IIN+I)
   NSIL = MUL(NS1,LSYM)
   INUM = NNS(NSIL)
-  IST = index(IN+I)+1
+  IST = INDX(IIN+I)+1
   T(IND) = DDOT_(INUM,C(IST),1,C(IST),1)
 end do
 IP = IRC(4)
 do I=1,IP
   call TPQSET(ICASE,TPQ,I)
   ENP(I) = DDOT_(IP,TPQ,1,T,1)
-  ENP(I) = ENP(I)+D1
+  ENP(I) = ENP(I)+One
 end do
 IP = IRC(4)
-if (IPRINT > 5) write(6,12) (ENP(I),I=1,IP)
+if (IPRINT > 5) write(u6,12) (ENP(I),I=1,IP)
 12 format(6X,'ENP ',5F14.8)
 
 ! VALENCE
 
 65 IQ = IRC(1)
 do I=1,IQ
-  if (IDENS == 0) EMPI = D1/sqrt(ENP(I))
+  if (IDENS == 0) EMPI = One/sqrt(ENP(I))
   if (IDENS == 1) EMPI = sqrt(ENP(I))
   C(I) = C(I)*EMPI
 end do
@@ -85,31 +92,31 @@ end do
 ! SINGLES
 
 IQ = IRC(2)-IRC(1)
-IN = IRC(1)
+IIN = IRC(1)
 do I=1,IQ
-  NS1 = JSYM(IN+I)
+  NS1 = JSYM(IIN+I)
   NSIL = MUL(NS1,LSYM)
   INUM = NVIR(NSIL)
-  IST = index(IN+I)+1
-  if (IDENS == 0) EMPI = D1/sqrt(ENP(IN+I))
-  if (IDENS == 1) EMPI = sqrt(ENP(IN+I))
+  IST = INDX(IIN+I)+1
+  if (IDENS == 0) EMPI = One/sqrt(ENP(IIN+I))
+  if (IDENS == 1) EMPI = sqrt(ENP(IIN+I))
   call VSMUL(C(IST),1,EMPI,C(IST),1,INUM)
 end do
 
 ! DOUBLES
 
 IQ = IRC(4)-IRC(2)
-IN = IRC(2)
+IIN = IRC(2)
 do I=1,IQ
-  NS1 = JSYM(IN+I)
+  NS1 = JSYM(IIN+I)
   NSIL = MUL(NS1,LSYM)
   INUM = NNS(NSIL)
-  IST = index(IN+I)+1
-  if (IDENS == 0) EMPI = D1/sqrt(ENP(IN+I))
-  if (IDENS == 1) EMPI = sqrt(ENP(IN+I))
+  IST = INDX(IIN+I)+1
+  if (IDENS == 0) EMPI = One/sqrt(ENP(IIN+I))
+  if (IDENS == 1) EMPI = sqrt(ENP(IIN+I))
   call VSMUL(C(IST),1,EMPI,C(IST),1,INUM)
 end do
-if (IPRINT >= 15) write(6,13) (C(I),I=1,NCONF)
+if (IPRINT >= 15) write(u6,13) (C(I),I=1,NCONF)
 13 format(6X,'C(NP)',5F10.6)
 if (IDENS == 1) return
 

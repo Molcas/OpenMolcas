@@ -14,8 +14,12 @@
 
 subroutine SECORD(A,B,C,FAC,NAL,NBL,NSIJ,IFT)
 
-implicit real*8(A-H,O-Z)
-dimension A(*), B(*), C(*)
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: A(*), B(*), C(*), FAC
+integer(kind=iwp) :: NAL, NBL, NSIJ, IFT
+integer(kind=iwp) :: IAB, NA, NA1, NAA, NB, NBB
 
 IAB = 0
 NAA = 0

@@ -12,27 +12,36 @@
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-subroutine MAI(JSY,INDEX,C,S,FC,BUFIN,IBUFIN,A,B,FK,DBK,W,THET,ENP,EPP,NII,KTYP)
+subroutine MAI(JSY,INDX,C,S,FC,BUFIN,IBUFIN,A,B,FK,DBK,W,THET,ENP,EPP,NII,KTYP)
 ! KTYP=0  ,  (A/I)   INTEGRALS
 ! KTYP=1  ,  (AI/JK) INTEGRALS
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, r8, RtoI
+
+implicit none
+integer(kind=iwp) :: JSY(*), INDX(*), IBUFIN(*), NII, KTYP
+real(kind=wp) :: C(*), S(*), FC(*), BUFIN(*), A(*), B(*), FK(*), DBK(*), W(*), THET(NII,NII), ENP(*), EPP(*)
 #include "cpfmcpf.fh"
 #include "files_cpf.fh"
-dimension JSY(*), index(*), C(*), S(*), FC(*), BUFIN(*), IBUFIN(*), A(*), B(*), FK(*), DBK(*), W(*), THET(NII,NII), ENP(*), EPP(*)
-dimension IPOB(9)
-parameter(IPOW6=2**6,IPOW13=2**13,IPOW19=2**19)
-parameter(IPOW10=2**10,IPOW20=2**20)
+integer(kind=iwp) :: I, IADR, ICHK, ICP1, ICP2, IFT, II, IJ, IJOLD, ILEN, IND, INDA, INDB, INDI, INK, INMY, INN, INNY, INUM, IOUT, &
+                     IPOB(9), ITURN, ITYP, J, LBUF0, LBUF1, LBUF2, LENGTH, MYL, MYSYM, NA, NA1, NA2, NAK, NI, NJ, NK, NKM, NOB2, &
+                     NOT2, NOTT, NOVST, NSIJ, NSK, NVM, NVT, NYL, NYSYM
+real(kind=wp) :: COPI, ENPQ, FACS, FACW, FACWA, FACWB, SGN, TERM
+integer(kind=iwp), external :: JSUNP_CPF
+real(kind=r8), external :: DDOT_
+!parameter(IPOW6=2**6,IPOW13=2**13,IPOW19=2**19)
+!parameter(IPOW10=2**10,IPOW20=2**20)
 ! Statement function
+integer(kind=iwp) :: JSYM, L
 JSYM(L) = JSUNP_CPF(JSY,L)
 
-!if (IDENS == 1) write(6,876) (FC(I),I=1,NOB2)
+!if (IDENS == 1) write(u6,876) (FC(I),I=1,NOB2)
 !876 format(1X,'AI',5F12.6)
 NK = 0 ! dummy initialize
 NSK = 0 ! dummy initialize
 INUM = IRC(4)-IRC(3)
-call MPSQ2(C,S,W,MUL,INDEX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
+call MPSQ2(C,S,W,MUL,INDX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
 NVT = IROW(NVIRT+1)
 ICHK = 0
 IJOLD = 0
@@ -47,10 +56,10 @@ if (KTYP == 0) IADD10 = IAD10(9)
 if (KTYP == 1) IADD10 = IAD10(7)
 100 call dDAFILE(Lu_CIGuga,2,COP,nCOP,IADD10)
 call iDAFILE(Lu_CIGuga,2,iCOP1,nCOP+1,IADD10)
-LEN = ICOP1(nCOP+1)
-if (LEN == 0) GO TO 100
-if (LEN < 0) GO TO 200
-do II=1,LEN
+ILEN = ICOP1(nCOP+1)
+if (ILEN == 0) GO TO 100
+if (ILEN < 0) GO TO 200
+do II=1,ILEN
   IND = ICOP1(II)
   if (ICHK /= 0) GO TO 460
   if (IND /= 0) GO TO 11
@@ -79,7 +88,7 @@ do II=1,LEN
   IJOLD = IJ
   IADR = LASTAD(NOVST+NOTT+IJ)
   do INN=1,NOB2
-    FC(INN) = D0
+    FC(INN) = Zero
   end do
 90 call iDAFILE(Lu_TiABIJ,2,IBUFIN,LBUF2,IADR)
   LENGTH = IBUFIN(LBUF1)
@@ -113,7 +122,7 @@ do II=1,LEN
   if (ITYP > 1) GO TO 12
   INDA = ICP1
   INDB = IRC(1)+ICP2
-  INNY = index(INDB)+1
+  INNY = INDX(INDB)+1
   if (IDENS == 1) GO TO 41
   if (INDA /= IREF0) GO TO 42
   COPI = COP(II)/sqrt(ENP(INDB))
@@ -122,9 +131,9 @@ do II=1,LEN
   TERM = DDOT_(INK,FK,1,C(INNY),1)
   EPP(INDB) = EPP(INDB)+COPI*TERM
   GO TO 10
-42 ENPQ = (D1-THET(INDA,INDB)/D2)*(ENP(INDA)+ENP(INDB)-D1)+THET(INDA,INDB)/D2
+42 ENPQ = (One-THET(INDA,INDB)*Half)*(ENP(INDA)+ENP(INDB)-One)+THET(INDA,INDB)*Half
   FACS = sqrt(ENP(INDA))*sqrt(ENP(INDB))/ENPQ
-  FACW = FACS*(D2-THET(INDA,INDB))/ENPQ
+  FACW = FACS*(Two-THET(INDA,INDB))/ENPQ
   FACWA = FACW*ENP(INDA)-FACS
   FACWB = FACW*ENP(INDB)-FACS
   COPI = COP(II)*C(INDA)
@@ -135,19 +144,19 @@ do II=1,LEN
   W(INDA) = W(INDA)+COP(II)*FACWA*TERM
   GO TO 10
 41 if (INDA == IREF0) COPI = C(INDA)*COP(II)/ENP(INDB)
-  ENPQ = (D1-THET(INDA,INDB)/D2)*(ENP(INDA)+ENP(INDB)-D1)+THET(INDA,INDB)/D2
+  ENPQ = (One-THET(INDA,INDB)*Half)*(ENP(INDA)+ENP(INDB)-One)+THET(INDA,INDB)*Half
   if (INDA /= IREF0) COPI = C(INDA)*COP(II)/ENPQ
   call DAXPY_(INK,COPI,C(INNY),1,FK,1)
-  !write(6,654) NK,NSK,INDB
+  !write(u6,654) NK,NSK,INDB
   !654 format(1X,'TYP1,NK,NSK,INDB',3I7)
-  !write(6,653) (FK(I),I=1,INK)
+  !write(u6,653) (FK(I),I=1,INK)
   !653 format(1X,'FK',5F12.6)
   GO TO 10
 12 if (ITER == 1) GO TO 10
   INDA = IRC(1)+ICP1
   INDB = IRC(ITYP)+ICP2
-  INMY = index(INDA)+1
-  INNY = index(INDB)+1
+  INMY = INDX(INDA)+1
+  INNY = INDX(INDB)+1
   MYSYM = JSYM(INDA)
   NYSYM = MUL(MYSYM,NSK)
   MYL = MUL(MYSYM,LSYM)
@@ -157,9 +166,9 @@ do II=1,LEN
   call IPO_CPF(IPOB,NVIR,MUL,NSYM,NYL,IFT)
   NVM = NVIR(MYL)
   if (IDENS == 1) GO TO 210
-  ENPQ = (D1-THET(INDA,INDB)/D2)*(ENP(INDA)+ENP(INDB)-D1)+THET(INDA,INDB)/D2
+  ENPQ = (One-THET(INDA,INDB)*Half)*(ENP(INDA)+ENP(INDB)-One)+THET(INDA,INDB)*Half
   FACS = sqrt(ENP(INDA))*sqrt(ENP(INDB))/ENPQ
-  FACW = FACS*(D2-THET(INDA,INDB))/ENPQ
+  FACW = FACS*(Two-THET(INDA,INDB))/ENPQ
   FACWA = FACW*ENP(INDA)-FACS
   FACWB = FACW*ENP(INDB)-FACS
   call SETZ(DBK,INK)
@@ -171,13 +180,13 @@ do II=1,LEN
   call FMMM(DBK,A,B,1,NVM,INK)
   call DAXPY_(NVM,FACS,B,1,S(INMY),1)
   call DAXPY_(NVM,FACWA,B,1,W(INMY),1)
-  SIGN = D1
-  if (IFT == 1) SIGN = -D1
+  SGN = One
+  if (IFT == 1) SGN = -One
   IOUT = INNY+IPOB(MYL)-1
   do I=1,NVM
     do J=1,I
       IOUT = IOUT+1
-      TERM = DBK(I)*C(INMY+J-1)+SIGN*DBK(J)*C(INMY+I-1)
+      TERM = DBK(I)*C(INMY+J-1)+SGN*DBK(J)*C(INMY+I-1)
       S(IOUT) = S(IOUT)+FACS*TERM
       W(IOUT) = W(IOUT)+FACWB*TERM
     end do
@@ -209,16 +218,16 @@ do II=1,LEN
   call DAXPY_(NKM,FACWB,B,1,W(INNY+IPOB(NSK)),1)
   GO TO 10
 210 call SETZ(B,INK)
-  ENPQ = (D1-THET(INDA,INDB)/D2)*(ENP(INDA)+ENP(INDB)-D1)+THET(INDA,INDB)/D2
+  ENPQ = (One-THET(INDA,INDB)*Half)*(ENP(INDA)+ENP(INDB)-One)+THET(INDA,INDB)*Half
   COPI = COP(II)/ENPQ
-  !write(6,652) IFT,NYL,NSK,MYL,INDA,INDB
+  !write(u6,652) IFT,NYL,NSK,MYL,INDA,INDB
   !652 format(1X,'TYP2',6I7)
   if (NYL /= 1) GO TO 225
   if (IFT == 0) call SQUAR_CPF(C(INNY+IPOB(MYL)),A,NVM)
   if (IFT == 1) call SQUARN_CPF(C(INNY+IPOB(MYL)),A,NVM)
   call FMMM(C(INMY),A,B,1,INK,NVM)
 227 call VSMA(B,1,COPI,FK,1,FK,1,INK)
-  !write(6,651) (FK(I),I=1,INK)
+  !write(u6,651) (FK(I),I=1,INK)
   !651 format(1X,'FK',5F12.6)
   GO TO 10
 225 if (NSK > MYL) GO TO 226
@@ -240,8 +249,8 @@ do NA=NA1,NA2
   NAK = IROW(LN+NA)+NK
   FC(NAK) = FK(INK)
 end do
-201 call MDSQ2(C,S,W,MUL,INDEX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
-!if(IDENS == 1) write(6,876) (FC(I),I=1,NOB2)
+201 call MDSQ2(C,S,W,MUL,INDX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
+!if(IDENS == 1) write(u6,876) (FC(I),I=1,NOB2)
 
 return
 

@@ -14,13 +14,20 @@
 
 subroutine IJIJ_CPF(JSY,HDIAG,FJI)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: JSY(*)
+real(kind=wp) :: HDIAG(*), FJI(*)
 #include "cpfmcpf.fh"
 #include "files_cpf.fh"
-dimension JSY(*), HDIAG(*), FJI(*)
-dimension HCOUT(nCOP)
+integer(kind=iwp) :: IAD27, IADD25, ICHK, ICOUP, ICOUPS, IFS, II, IIJ, IIJ1, IIJ2, IJJ, INB, IND, INDI, INS, IOUT, ITYP, IVL, &
+                     IVSAVE, J, JJ, KK, LENGTH, NA, NA1, NA2, NB, NB1, NB2, NSA, NSS
+real(kind=wp) :: HCOUT(nCOP), TERM
+integer(kind=iwp), external :: JSUNP_CPF
 ! Statement function
+integer(kind=iwp) :: JSYM, L
 JSYM(L) = JSUNP_CPF(JSY,L)
 
 ICOUP = 0 ! dummy initialize
@@ -30,12 +37,12 @@ NSS = 0 ! dummy initialize
 IADD25 = IAD25S
 IAD27 = 0
 if (IREF0 > nCOP) then
-  write(6,*) 'IJIJ_CPF Error: IREF0>nCOP (See code.)'
+  write(u6,*) 'IJIJ_CPF Error: IREF0>nCOP (See code.)'
 end if
 call dDAFILE(Lu_27,2,HDIAG,IRC(1),IAD27)
 
 IFS = 0
-TERM = 0.0d0
+TERM = Zero
 IVSAVE = 0
 ICOUPS = 0
 IOUT = 0
@@ -192,8 +199,8 @@ do KK=1,IOUT
   HCOUT(KK) = HCOUT(KK)-POTNUC
 end do
 call dDAFILE(Lu_25,1,HCOUT,nCOP,IADD25)
-write(6,50) POTNUC
-call XFLUSH(6)
+write(u6,50) POTNUC
+call XFLUSH(u6)
 50 format(/,6X,'REFERENCE ENERGY',F18.8)
 
 return

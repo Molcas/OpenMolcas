@@ -14,19 +14,24 @@
 
 subroutine ONECT(H)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) H(*)
 #include "cpfmcpf.fh"
-dimension H(*)
+integer(kind=iwp) :: ILIM
 
 call ONECT_INTERNAL(H)
 
 ! This is to allow type punning without an explicit interface
 contains
+
 subroutine ONECT_INTERNAL(H)
-  use iso_c_binding
-  real*8, target :: H(*)
-  integer, pointer :: iH1(:), iH2(:), iH3(:), iH63(:)
+
+  real(kind=wp), target :: H(*)
+  integer(kind=iwp), pointer :: iH1(:), iH2(:), iH3(:), iH63(:)
+
   ILIM = 4
   if (IFIRST /= 0) ILIM = 2
   if ((ICPF == 0) .and. (ISDCI == 0) .and. (INCPF == 0)) GO TO 15
@@ -60,7 +65,9 @@ subroutine ONECT_INTERNAL(H)
             H(LW(32)),IRC(ILIM))
   nullify(iH1,iH2,iH3)
 20 continue
+
   return
+
 end subroutine ONECT_INTERNAL
 
 end subroutine ONECT

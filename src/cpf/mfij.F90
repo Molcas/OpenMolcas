@@ -13,18 +13,25 @@
 !***********************************************************************
 
 !pgi$g opt=1
-subroutine MFIJ(ICASE,JSY,INDEX,C,S,FC,A,B,FK,DBK,W,THET,ENP,EPP,NII)
+subroutine MFIJ(ICASE,JSY,INDX,C,S,FC,A,B,FK,DBK,W,THET,ENP,EPP,NII)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use Constants, only: One, Two, Half
+use Definitions, only: wp, iwp, r8
+
+implicit none
+integer(kind=iwp) :: ICASE(*), JSY(*), INDX(*), NII
+real(kind=wp) :: C(*), S(*), FC(*), A(*), B(*), FK(*), DBK(*), W(*), THET(NII,NII), ENP(*), EPP(*)
 #include "cpfmcpf.fh"
 #include "files_cpf.fh"
-dimension JSY(*), index(*), C(*), S(*), FC(*), A(*), B(*)
-dimension FK(*), DBK(*), W(*), THET(NII,NII), ENP(*), EPP(*)
-dimension ICASE(*)
-parameter(IPOW6=2**6,IPOW13=2**13,IPOW19=2**19)
-parameter(IPOW10=2**10)
+integer(kind=iwp) :: IADD25, IC1, IC2, ICHK, IIN, IK, ILEN, IND, INDA, INDB, INDI, INUM, IVL, NA, NB, NI, NK, NOB2, NS1, NS1L
+real(kind=wp) :: COPI, ENPQ, FACS, FACW, FACWA, FACWB, TERM
+integer(kind=iwp), external :: JSUNP_CPF
+real(kind=r8), external :: DDOT_
+!parameter(IPOW6=2**6,IPOW13=2**13,IPOW19=2**19)
+!parameter(IPOW10=2**10)
 ! Statement function
+integer(kind=iwp) :: JSYM, L
 JSYM(L) = JSUNP_CPF(JSY,L)
 
 IK = 0 ! dummy initialize
@@ -41,11 +48,11 @@ if (ITER == 1) GO TO 200
 105 IADD10 = IAD10(8)
 100 call dDAFILE(Lu_CIGuga,2,COP,nCOP,IADD10)
 call iDAFILE(Lu_CIGuga,2,iCOP1,nCOP+1,IADD10)
-LEN = ICOP1(nCOP+1)
-if (LEN == 0) GO TO 100
-if (LEN < 0) GO TO 200
-do IN=1,LEN
-  IND = ICOP1(IN)
+ILEN = ICOP1(nCOP+1)
+if (ILEN == 0) GO TO 100
+if (ILEN < 0) GO TO 200
+do IIN=1,ILEN
+  IND = ICOP1(IIN)
   if (ICHK /= 0) GO TO 460
   if (IND /= 0) GO TO 11
   ICHK = 1
@@ -65,7 +72,7 @@ do IN=1,LEN
   IVL = ibits(IND,0,6)
   IC2 = ibits(IND,6,13)
   IC1 = ibits(IND,19,13)
-  COPI = COP(IN)*FC(IK)
+  COPI = COP(IIN)*FC(IK)
   if (IVL /= IV0) GO TO 13
   if (IC1 /= IREF0) GO TO 16
   if (IDENS == 1) GO TO 18
@@ -74,7 +81,7 @@ do IN=1,LEN
   if (ITER == 1) GO TO 10
   EPP(IC2) = EPP(IC2)+COPI*C(IC2)
   GO TO 10
-18 FC(IK) = FC(IK)+COP(IN)*C(IC1)*C(IC2)/ENP(IC2)
+18 FC(IK) = FC(IK)+COP(IIN)*C(IC1)*C(IC2)/ENP(IC2)
   GO TO 10
 16 if (IC2 /= IREF0) GO TO 17
   if (IDENS == 1) GO TO 19
@@ -83,12 +90,12 @@ do IN=1,LEN
   if (ITER == 1) GO TO 10
   EPP(IC1) = EPP(IC1)+COPI*C(IC1)
   GO TO 10
-19 FC(IK) = FC(IK)+COP(IN)*C(IC1)*C(IC2)/ENP(IC1)
+19 FC(IK) = FC(IK)+COP(IIN)*C(IC1)*C(IC2)/ENP(IC1)
   GO TO 10
 17 if (IDENS == 1) GO TO 21
-  ENPQ = (D1-THET(IC1,IC2)/D2)*(ENP(IC1)+ENP(IC2)-D1)+THET(IC1,IC2)/D2
+  ENPQ = (One-THET(IC1,IC2)*Half)*(ENP(IC1)+ENP(IC2)-One)+THET(IC1,IC2)*Half
   FACS = sqrt(ENP(IC1))*sqrt(ENP(IC2))/ENPQ
-  FACW = FACS*(D2-THET(IC1,IC2))/ENPQ
+  FACW = FACS*(Two-THET(IC1,IC2))/ENPQ
   FACWA = FACW*ENP(IC1)-FACS
   FACWB = FACW*ENP(IC2)-FACS
   S(IC1) = S(IC1)+FACS*COPI*C(IC2)
@@ -96,21 +103,21 @@ do IN=1,LEN
   W(IC1) = W(IC1)+FACWA*COPI*C(IC2)
   W(IC2) = W(IC2)+FACWB*COPI*C(IC1)
   GO TO 10
-21 ENPQ = (D1-THET(IC1,IC2)/D2)*(ENP(IC1)+ENP(IC2)-D1)+THET(IC1,IC2)/D2
-  FC(IK) = FC(IK)+COP(IN)*C(IC1)*C(IC2)/ENPQ
+21 ENPQ = (One-THET(IC1,IC2)*Half)*(ENP(IC1)+ENP(IC2)-One)+THET(IC1,IC2)*Half
+  FC(IK) = FC(IK)+COP(IIN)*C(IC1)*C(IC2)/ENPQ
   GO TO 10
 13 INDA = IRC(IVL)+IC1
   INDB = IRC(IVL)+IC2
-  NA = index(INDA)
-  NB = index(INDB)
+  NA = INDX(INDA)
+  NB = INDX(INDB)
   NS1 = JSYM(INDA)
   NS1L = MUL(NS1,LSYM)
   INUM = NVIR(NS1L)
   if (IVL >= 2) INUM = NNS(NS1L)
   if (IDENS == 1) GO TO 15
-  ENPQ = (D1-THET(INDA,INDB)/D2)*(ENP(INDA)+ENP(INDB)-D1)+THET(INDA,INDB)/D2
+  ENPQ = (One-THET(INDA,INDB)*Half)*(ENP(INDA)+ENP(INDB)-One)+THET(INDA,INDB)*Half
   FACS = sqrt(ENP(INDA))*sqrt(ENP(INDB))/ENPQ
-  FACW = FACS*(D2-THET(INDA,INDB))/ENPQ
+  FACW = FACS*(Two-THET(INDA,INDB))/ENPQ
   FACWA = FACW*ENP(INDA)-FACS
   FACWB = FACW*ENP(INDB)-FACS
   call DAXPY_(INUM,COPI*FACS,C(NB+1),1,S(NA+1),1)
@@ -119,27 +126,30 @@ do IN=1,LEN
   call DAXPY_(INUM,COPI*FACWB,C(NA+1),1,W(NB+1),1)
   GO TO 10
 15 TERM = DDOT_(INUM,C(NA+1),1,C(NB+1),1)
-  ENPQ = (D1-THET(INDA,INDB)/D2)*(ENP(INDA)+ENP(INDB)-D1)+THET(INDA,INDB)/D2
-  FC(IK) = FC(IK)+COP(IN)*TERM/ENPQ
+  ENPQ = (One-THET(INDA,INDB)*Half)*(ENP(INDA)+ENP(INDB)-One)+THET(INDA,INDB)*Half
+  FC(IK) = FC(IK)+COP(IIN)*TERM/ENPQ
 10 continue
 end do
 GO TO 100
-!200 if (DENS == 1) write(6,876) (FC(I),I=1,NOB2)
+!200 if (DENS == 1) write(u6,876) (FC(I),I=1,NOB2)
 200 call dMAI(C)
 if (ITER == 1) return
-call MAB(ICASE,JSY,INDEX,C,S,FC,A,B,FK,W,THET,ENP,NII)
+call MAB(ICASE,JSY,INDX,C,S,FC,A,B,FK,W,THET,ENP,NII)
 
 return
 
 ! This is to allow type punning without an explicit interface
 contains
+
 subroutine dMAI(C)
-  use iso_c_binding
+
   real*8, target :: C(*)
   integer, pointer :: iC(:)
+
   call c_f_pointer(c_loc(C(1)),iC,[1])
-  call MAI(JSY,INDEX,C,S,FC,C,iC,A,B,FK,DBK,W,THET,ENP,EPP,NII,0)
+  call MAI(JSY,INDX,C,S,FC,C,iC,A,B,FK,DBK,W,THET,ENP,EPP,NII,0)
   nullify(iC)
+
 end subroutine dMAI
 
 end subroutine MFIJ

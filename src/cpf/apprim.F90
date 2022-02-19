@@ -14,11 +14,13 @@
 
 subroutine APPRIM(EPP,EPB,TPQ,AP,ENP,T1,T2,ICASE)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp) :: EPP(*), EPB(*), TPQ(*), AP(*), ENP(*), T1(*), T2(*)
+integer(kind=iwp) :: ICASE(*)
 #include "cpfmcpf.fh"
-dimension EPP(*), EPB(*), TPQ(*), AP(*), ENP(*), T1(*), T2(*)
-dimension ICASE(*)
+integer(kind=iwp) :: I, IP
 
 IP = IRC(4)
 do I=1,IP
@@ -29,7 +31,7 @@ do I=1,IP
   AP(I) = AP(I)*ENP(I)
 end do
 
-if (IPRINT > 5) write(6,999) (AP(I),I=1,IP)
+if (IPRINT > 5) write(u6,999) (AP(I),I=1,IP)
 999 format(6X,'AP ',5F10.6)
 
 return

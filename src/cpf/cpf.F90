@@ -11,6 +11,8 @@
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
+
+subroutine CPF(IRETURN)
 !***********************************************************************
 !                                                                      *
 ! PER SIEGBAHN                                                         *
@@ -20,36 +22,39 @@
 ! SWEDEN                                                               *
 !                                                                      *
 !***********************************************************************
-
-subroutine CPF(IRETURN)
 !***********************************************************************
 !                                                                      *
 !                                C P F                                 *
 ! MODIFIED TO IBM BY ROLAND LINDH 02/17/88                             *
 ! MODIFIED TO MOLCAS-2 BY ROLAND LINDH 03/26/91                        *
 ! MODIFIED TO MOLCAS-3 BY M.P. FUELSCHER 08/31/93                      *
-! MODIFIED TO MOLCAS-4 BY P.A. MALMQVIST AND N.W.MORTIARTY 10/25/96    *
+! MODIFIED TO MOLCAS-4 BY P.A. MALMQVIST AND N.W. MORTIARTY 10/25/96   *
 ! MODIFIED TO MOLCAS 4.1 BY R. LINDH 02/24/98 (Multi fileing)          *
 !***********************************************************************
 !
-!     UNITS USED IN THE PROGRAM
-!     UNIT  5 , INPUT
-!     UNIT  6 , OUTPUT
-!     UNIT 10 , SYMBOLIC FORMULAS
-!     UNIT 50 , TRANSFORMED MO 2-EL INTEGRALS
-!     UNIT 60 , SORTED AIBJ, ABIJ AND AIJK INTEGRALS
-!     UNIT 70 , SORTED IJKL AND ABCI INTEGRALS
-!     UNIT 80 , SORTED ABCD INTEGRALS
-!     UNIT 17 , ONE ELECTRON INTEGRALS
-!     UNIT 19 , (Formatted sequential!) CPF-ORBITALS OUT
-!     UNIT 25 , FOCK MATRIX AND DIAGONAL CSF MATRIX ELEMENTS
-!     UNIT 26 , CI VECTOR
-!     UNIT 27 , SCRATCH IN IIJJ
-!     UNIT 30 ,
+! UNITS USED IN THE PROGRAM
+! UNIT  5 , INPUT
+! UNIT  6 , OUTPUT
+! UNIT 10 , SYMBOLIC FORMULAS
+! UNIT 50 , TRANSFORMED MO 2-EL INTEGRALS
+! UNIT 60 , SORTED AIBJ, ABIJ AND AIJK INTEGRALS
+! UNIT 70 , SORTED IJKL AND ABCI INTEGRALS
+! UNIT 80 , SORTED ABCD INTEGRALS
+! UNIT 17 , ONE ELECTRON INTEGRALS
+! UNIT 19 , (Formatted sequential!) CPF-ORBITALS OUT
+! UNIT 25 , FOCK MATRIX AND DIAGONAL CSF MATRIX ELEMENTS
+! UNIT 26 , CI VECTOR
+! UNIT 27 , SCRATCH IN IIJJ
+! UNIT 30 ,
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: IRETURN
 #include "files_cpf.fh"
 #include "WrkSpc.fh"
+integer(kind=iwp) :: iMemOff, MemOff, MEMORY
+integer(kind=iwp), external :: ip_of_iWork_d
 
 ! Prologue
 !
@@ -59,7 +64,7 @@ implicit real*8(A-H,O-Z)
 ! (Workspace allocated in Start() )
 
 call GetMem('WrkSpc','Max ','Real',MemOff,MEMORY)
-MEMORY = int(MEMORY*0.80d0)
+MEMORY = int(MEMORY*0.8_wp)
 call GetMem('WrkSpc','Allo','Real',MemOff,MEMORY)
 
 ! Open files

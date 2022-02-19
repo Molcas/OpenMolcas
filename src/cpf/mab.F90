@@ -12,15 +12,20 @@
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-subroutine MAB(ICASE,JSY,INDEX,C,S,FC,A,B,F,W,THET,ENP,NII)
+subroutine MAB(ICASE,JSY,INDX,C,S,FC,A,B,F,W,THET,ENP,NII)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, u6, r8
+
+implicit none
+integer(kind=iwp) :: ICASE(*), JSY(*), INDX(*), NII
+real(kind=wp) :: C(*), S(*), FC(*), A(*), B(*), F(*), W(*), THET(NII,NII), ENP(*)
 #include "cpfmcpf.fh"
-dimension JSY(*), index(*), C(*), S(*), FC(*), A(*), B(*), F(*), W(*), THET(NII,NII), ENP(*)
-dimension ICASE(*)
-dimension IPOA(9), IPOF(9)
-dimension IOC(55)
+integer(kind=iwp) :: I, IAB, IASYM, ICSYM, IFT, II1, IIA, IIC, IIN, IJ, INDA, INMY, INN, INUM, IOC(55), IPOA(9), IPF, IPOF(9), &
+                     ITAIL, ITURN, JOJ, LNA, LNC, MYL, MYSYM, NA, NA1, NA2, NAA, NAB, NAC, NB, NCLIM, NOB2, NVIRA, NVIRC
+real(kind=wp) :: COPI, ENPQ, FACS, FACW, RSUM, TR, TSUM
+integer(kind=iwp), external :: ICUNP, JSUNP_CPF
+real(kind=r8), external :: DDOT_
 ! Statement functions
 !PAM97      EXTERNAL UNPACK
 !PAM97      INTEGER UNPACK
@@ -28,20 +33,21 @@ dimension IOC(55)
 !PAM97      JO(L)=UNPACK(QOCC((L+29)/30), 2*L-(2*L-1)/60*60, 2)
 !RL   JSYM(L)=IAND(ISHFT(JSY((L+19)/20),-3*((L+19)/20*20-L)),7)+1
 !PAM96      JSYM(L)=UNPACK(JSY((L+9)/10),3*MOD(L-1,10)+1,3)+1
+integer(kind=iwp) :: JO, JSYM, L
 JO(L) = ICUNP(ICASE,L)
 JSYM(L) = JSUNP_CPF(JSY,L)
 
 NAB = 0 ! dummy initialize
 NOB2 = IROW(NORBT+1)
 if (IPRINT >= 15) then
-  write(6,'(A,/,(10F12.6))') ' S,AB',(S(I),I=1,JSC(4))
-  call XFLUSH(6)
-  write(6,'(A,/,(10F12.6))') ' W,AB',(W(I),I=1,JSC(4))
-  call XFLUSH(6)
-  if (IDENS == 1) write(6,'(A,/,(10F12.6))') ' FC,AB',(FC(I),I=1,NOB2)
+  write(u6,'(A,/,(10F12.6))') ' S,AB',(S(I),I=1,JSC(4))
+  call XFLUSH(u6)
+  write(u6,'(A,/,(10F12.6))') ' W,AB',(W(I),I=1,JSC(4))
+  call XFLUSH(u6)
+  if (IDENS == 1) write(u6,'(A,/,(10F12.6))') ' FC,AB',(FC(I),I=1,NOB2)
 end if
 INUM = IRC(4)-IRC(3)
-call MPSQ2(C,S,W,MUL,INDEX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
+call MPSQ2(C,S,W,MUL,INDX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
 NCLIM = 4
 if (IFIRST /= 0) NCLIM = 2
 ! MOVE FOCK (DENSITY) MATRIX TO F IN SYMMETRY BLOCKS
@@ -58,7 +64,7 @@ ITURN = 0
       if (NA >= NB) NAB = IROW(LN+NA)+LN+NB
       if (NB > NA) NAB = IROW(LN+NB)+LN+NA
       if (ITURN == 1) GO TO 320
-      if (IDENS == 0) F(IAB) = D0
+      if (IDENS == 0) F(IAB) = Zero
       if (IDENS == 1) F(IAB) = FC(NAB)
       if (NA /= NB) F(IAB) = FC(NAB)
       GO TO 20
@@ -69,13 +75,13 @@ ITURN = 0
 10 continue
 end do
 if (ITURN == 0) GO TO 11
-TR = D0
+TR = Zero
 IJ = 0
 do I=1,NORBT
   IJ = IJ+I
   TR = TR+FC(IJ)
 end do
-if (iPrint >= 15) write(6,310) TR
+if (iPrint >= 15) write(u6,310) TR
 310 format(/,6X,'TRACE OF DENSITY MATRIX',F16.8)
 GO TO 300
 11 II1 = 0
@@ -90,15 +96,15 @@ do INDA=1,ITAIL
   end do
 111 if (INDA > IRC(1)) GO TO 120
   if ((IDENS == 0) .or. (INDA == IREF0)) GO TO 40
-  ENPQ = (D1-THET(INDA,INDA)/D2)*(ENP(INDA)+ENP(INDA)-D1)+THET(INDA,INDA)/D2
+  ENPQ = (One-THET(INDA,INDA)*Half)*(ENP(INDA)+ENP(INDA)-One)+THET(INDA,INDA)*Half
   TSUM = C(INDA)*C(INDA)/ENPQ
   GO TO 106
 120 MYSYM = JSYM(INDA)
   MYL = MUL(MYSYM,LSYM)
-  INMY = index(INDA)+1
-  ENPQ = (D1-THET(INDA,INDA)/D2)*(ENP(INDA)+ENP(INDA)-D1)+THET(INDA,INDA)/D2
+  INMY = INDX(INDA)+1
+  ENPQ = (One-THET(INDA,INDA)*Half)*(ENP(INDA)+ENP(INDA)-One)+THET(INDA,INDA)*Half
   FACS = sqrt(ENP(INDA))*sqrt(ENP(INDA))/ENPQ
-  FACW = (FACS*(D2-THET(INDA,INDA))/ENPQ)*ENP(INDA)-FACS
+  FACW = (FACS*(Two-THET(INDA,INDA))/ENPQ)*ENP(INDA)-FACS
   if (INDA > IRC(2)) GO TO 25
   ! DOUBLET-DOUBLET INTERACTIONS
   if (NVIR(MYL) == 0) GO TO 40
@@ -110,28 +116,28 @@ do INDA=1,ITAIL
   GO TO 40
 65 call FMUL2_CPF(C(INMY),C(INMY),A,NVIR(MYL),NVIR(MYL),1)
   IPF = IPOF(MYL)+1
-  IN = IPOF(MYL+1)-IPOF(MYL)
-  ENPQ = (D1-THET(INDA,INDA)/D2)*(ENP(INDA)+ENP(INDA)-D1)+THET(INDA,INDA)/D2
-  COPI = D1/ENPQ
-  call VSMA(A,1,COPI,F(IPF),1,F(IPF),1,IN)
+  IIN = IPOF(MYL+1)-IPOF(MYL)
+  ENPQ = (One-THET(INDA,INDA)*Half)*(ENP(INDA)+ENP(INDA)-One)+THET(INDA,INDA)*Half
+  COPI = One/ENPQ
+  call VSMA(A,1,COPI,F(IPF),1,F(IPF),1,IIN)
   NVIRA = NVIR(MYL)
   LNA = LN+NSYS(MYL)
   IIA = IROW(LNA+1)
-  TSUM = D0
+  TSUM = Zero
   do I=1,NVIRA
-    SUM = COPI*C(INMY)*C(INMY)
+    RSUM = COPI*C(INMY)*C(INMY)
     INMY = INMY+1
-    TSUM = TSUM+SUM
+    TSUM = TSUM+RSUM
     IIA = IIA+LNA+I
-    FC(IIA) = FC(IIA)+SUM
+    FC(IIA) = FC(IIA)+RSUM
   end do
   GO TO 106
   ! TRIPLET-TRIPLET AND SINGLET-SINGLET INTERACTIONS
 25 IFT = 1
   if (INDA > IRC(3)) IFT = 0
   call IPO_CPF(IPOA,NVIR,MUL,NSYM,MYL,IFT)
-  IN = 0
-  TSUM = D0
+  IIN = 0
+  TSUM = Zero
   do IASYM=1,NSYM
     IAB = IPOF(IASYM+1)-IPOF(IASYM)
     if (IAB == 0) GO TO 70
@@ -181,8 +187,8 @@ do INDA=1,ITAIL
 231 call MTRANS_CPF(C(INMY+IPOA(IASYM)),A,NVIR(IASYM),NVIR(ICSYM))
 255 call FMUL2_CPF(A,A,B,NVIR(IASYM),NVIR(IASYM),NVIR(ICSYM))
     IPF = IPOF(IASYM)+1
-    ENPQ = (D1-THET(INDA,INDA)/D2)*(ENP(INDA)+ENP(INDA)-D1)+THET(INDA,INDA)/D2
-    COPI = D1/ENPQ
+    ENPQ = (One-THET(INDA,INDA)*Half)*(ENP(INDA)+ENP(INDA)-One)+THET(INDA,INDA)*Half
+    COPI = One/ENPQ
     call VSMA(B,1,COPI,F(IPF),1,F(IPF),1,IAB)
     NVIRA = NVIR(IASYM)
     NVIRC = NVIR(ICSYM)
@@ -190,17 +196,17 @@ do INDA=1,ITAIL
     LNC = LN+NSYS(ICSYM)
     IIC = IROW(LNC+1)
     do I=1,NVIRC
-      SUM = DDOT_(NVIRA,A(INN),1,A(INN),1)
-      SUM = COPI*SUM
-      TSUM = TSUM+SUM
+      RSUM = DDOT_(NVIRA,A(INN),1,A(INN),1)
+      RSUM = COPI*RSUM
+      TSUM = TSUM+RSUM
       IIC = IIC+LNC+I
-      FC(IIC) = FC(IIC)+SUM
+      FC(IIC) = FC(IIC)+RSUM
       INN = INN+NVIRA
     end do
 70  continue
   end do
   if (IDENS == 0) GO TO 40
-  TSUM = TSUM/D2
+  TSUM = TSUM*Half
 106 IJ = 0
   do I=1,LN
     IJ = IJ+I
@@ -210,13 +216,13 @@ do INDA=1,ITAIL
 end do
 ITURN = 1
 if (IDENS == 1) GO TO 90
-300 call MDSQ2(C,S,W,MUL,INDEX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
+300 call MDSQ2(C,S,W,MUL,INDX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
 if (IPRINT >= 15) then
-  write(6,'(A,/,(10F12.6))') ' S,AB',(S(I),I=1,JSC(4))
-  call XFLUSH(6)
-  write(6,'(A,/,(10F12.6))') ' W,AB',(W(I),I=1,JSC(4))
-  call XFLUSH(6)
-  if (IDENS == 1) write(6,'(A,/,(10F12.6))') ' FC,AB',(FC(I),I=1,NOB2)
+  write(u6,'(A,/,(10F12.6))') ' S,AB',(S(I),I=1,JSC(4))
+  call XFLUSH(u6)
+  write(u6,'(A,/,(10F12.6))') ' W,AB',(W(I),I=1,JSC(4))
+  call XFLUSH(u6)
+  if (IDENS == 1) write(u6,'(A,/,(10F12.6))') ' FC,AB',(FC(I),I=1,NOB2)
 end if
 
 return

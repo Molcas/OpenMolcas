@@ -14,19 +14,25 @@
 
 subroutine DENSCT_CPF(H,LIC0)
 
-implicit real*8(A-H,O-Z)
-dimension H(LIC0)
-#include "SysDef.fh"
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp) :: H(LIC0)
+integer(kind=iwp) :: LIC0
 #include "cpfmcpf.fh"
+real(kind=wp) :: A
 
 call DENSCT_INTERNAL(H)
 
 ! This is to allow type punning without an explicit interface
 contains
+
 subroutine DENSCT_INTERNAL(H)
-  use iso_c_binding
-  real*8, target :: H(*)
-  integer, pointer :: iH1(:), iH2(:), iH3(:), iH34(:)
+
+  real(kind=wp), target :: H(*)
+  integer(kind=iwp), pointer :: iH1(:), iH2(:), iH3(:), iH34(:)
 
   call c_f_pointer(c_loc(H(LW(1))),iH1,[1])
   call DENS_CPF(H(LW(26)),H(LW(62)),iH1,A)
@@ -41,12 +47,13 @@ subroutine DENSCT_INTERNAL(H)
   nullify(iH2,iH3,iH34)
 
   call ONECT(H)
-  if (A > D1) then
-    write(6,*) 'DENSCT_CPF Error: A>1.0D0 (See code.)'
+  if (A > One) then
+    write(u6,*) 'DENSCT_CPF Error: A>1.0 (See code.)'
   end if
   call NATCT(H,LIC0)
 
   return
+
 end subroutine DENSCT_INTERNAL
 
 end subroutine DENSCT_CPF

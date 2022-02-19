@@ -12,47 +12,55 @@
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-subroutine ABCI(JSY,INDEX,C,S,BMN,IBMN,BIAC,BICA,BUFIN)
+subroutine ABCI(JSY,INDX,C,S,BMN,IBMN,BIAC,BICA,BUFIN)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Definitions, only: wp, iwp, r8
+
+implicit none
+integer(kind=iwp) :: JSY(*), INDX(*), IBMN(*)
+real(kind=wp) :: C(*), S(*), BMN(*), BIAC(*), BICA(*), BUFIN(*)
 #include "cpfmcpf.fh"
 #include "files_cpf.fh"
-dimension JSY(*), index(*), C(*), S(*), BMN(*), IBMN(*), BIAC(*), BICA(*), BUFIN(*)
-parameter(IPOW6=2**6,IPOW19=2**19)
+integer(kind=iwp) :: I, IAD15, ICCB, ICHK, ICP1, ICP2, IIN, ILEN, ILOOP, IND, INDA, INDB, INS, INSIN, INUM, IOUT, IT, ITYP, LB, &
+                     MA, NB, NI, NSAVE, NSIB, NSLB
+real(kind=wp) :: COPL, TERM
+integer(kind=iwp), external :: JSUNP_CPF
+real(kind=r8), external :: DDOT_
+!parameter(IPOW6=2**6,IPOW19=2**19)
 ! Statement function
+integer(kind=iwp) :: JSYM, L
 JSYM(L) = JSUNP_CPF(JSY,L)
 
 INUM = IRC(4)-IRC(3)
-call PSQ2(C,S,MUL,INDEX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
+call PSQ2(C,S,MUL,INDX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
 ICHK = 0
 INSIN = KBUFF1
 IAD15 = IADABCI
 IADD10 = IAD10(4)
 call dDAFILE(Lu_CIGuga,2,COP,nCOP,IADD10)
 call iDAFILE(Lu_CIGuga,2,iCOP1,nCOP+1,IADD10)
-LEN = ICOP1(nCOP+1)
-IN = 2
-NSAVE = ICOP1(IN)
+ILEN = ICOP1(nCOP+1)
+IIN = 2
+NSAVE = ICOP1(IIN)
 100 NI = NSAVE
 IOUT = 0
-110 IN = IN+1
-if (IN <= LEN) GO TO 15
+110 IIN = IIN+1
+if (IIN <= ILEN) GO TO 15
 call dDAFILE(Lu_CIGuga,2,COP,nCOP,IADD10)
 call iDAFILE(Lu_CIGuga,2,iCOP1,nCOP+1,IADD10)
-LEN = ICOP1(nCOP+1)
-if (LEN <= 0) GO TO 5
-IN = 1
+ILEN = ICOP1(nCOP+1)
+if (ILEN <= 0) GO TO 5
+IIN = 1
 15 if (ICHK /= 0) GO TO 460
-if (ICOP1(IN) == 0) GO TO 10
+if (ICOP1(IIN) == 0) GO TO 10
 IOUT = IOUT+1
-BMN(IOUT) = COP(IN)
-IBMN(IOUT) = ICOP1(IN)
+BMN(IOUT) = COP(IIN)
+IBMN(IOUT) = ICOP1(IIN)
 GO TO 110
 10 ICHK = 1
 GO TO 110
 460 ICHK = 0
-NSAVE = ICOP1(IN)
+NSAVE = ICOP1(IIN)
 5 continue
 do NB=1,NVIRT
   NSIB = MUL(NSM(LN+NB),NSM(NI))
@@ -76,7 +84,7 @@ do NB=1,NVIRT
     ICP1 = ibits(IND,19,13)
     INDA = IRC(1)+ICP1
     if (JSYM(INDA) /= NSLB) GO TO 25
-    MA = index(INDA)+LB
+    MA = INDX(INDA)+LB
     !ICP2 = mod(IND/IPOW6,8192)
     !ITYP = mod(IND,64)
     ICP2 = ibits(IND,6,13)
@@ -84,20 +92,19 @@ do NB=1,NVIRT
     if (INS == 0) GO TO 25
     COPL = BMN(IT)*C(MA)
     INDB = IRC(ITYP)+ICP2
-    FACS = D1
-    ICCB = index(INDB)+1
+    ICCB = INDX(INDB)+1
     if (ITYP == 3) GO TO 26
     TERM = DDOT_(INS,C(ICCB),1,BICA,1)
-    call DAXPY_(INS,COPL*FACS,BICA,1,S(ICCB),1)
+    call DAXPY_(INS,COPL,BICA,1,S(ICCB),1)
     GO TO 27
 26  TERM = DDOT_(INS,C(ICCB),1,BIAC,1)
-    call DAXPY_(INS,COPL*FACS,BIAC,1,S(ICCB),1)
-27  S(MA) = S(MA)+BMN(IT)*FACS*TERM
+    call DAXPY_(INS,COPL,BIAC,1,S(ICCB),1)
+27  S(MA) = S(MA)+BMN(IT)*TERM
 25  continue
   end do
 end do
-if (LEN >= 0) GO TO 100
-call DSQ2(C,S,MUL,INDEX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
+if (ILEN >= 0) GO TO 100
+call DSQ2(C,S,MUL,INDX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
 
 return
 

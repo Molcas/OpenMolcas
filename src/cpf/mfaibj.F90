@@ -12,26 +12,33 @@
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-subroutine MFAIBJ(JSY,INDEX,C,S,ABIJ,AIBJ,AJBI,BUFIN,IBUFIN,A,B,F,FSEC,W,THET,ENP,EPP,NII)
+subroutine MFAIBJ(JSY,INDX,C,S,ABIJ,AIBJ,AJBI,BUFIN,IBUFIN,A,B,F,FSEC,W,THET,ENP,EPP,NII)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, r8, RtoI
+
+implicit none
+integer(kind=iwp) :: JSY(*), INDX(*), IBUFIN(*), NII
+real(kind=wp) :: C(*), S(*), ABIJ(*), AIBJ(*), AJBI(*), BUFIN(*), A(*), B(*), F(*), FSEC(*), W(*), THET(NII,NII), ENP(*), EPP(*)
 #include "cpfmcpf.fh"
 #include "files_cpf.fh"
-dimension JSY(*), index(*), C(*), S(*), ABIJ(*), AIBJ(*), AJBI(*)
-dimension BUFIN(*), IBUFIN(*), A(*), B(*), F(*), FSEC(*), W(*)
-dimension THET(NII,NII), ENP(*), EPP(*)
-dimension IPOF(9), IPOA(9), IPOB(9)
-parameter(IPOW5=2**5,IPOW13=2**13,IPOW18=2**18)
-parameter(IPOW10=2**10)
+integer(kind=iwp) :: IAB, IADR, IASYM, IBSYM, ICHK, ICOUP, ICOUP1, ICSYM, IFAB, IFT, IFTA, IFTB, II, IIN, IJ1, ILEN, ILIM, IND, &
+                     INDA, INDB, INDI, INMY, INNY, INS, INUM, IPF, IPF1, IPOA(9), IPOB(9), IPOF(9), ISTAR, ITURN, ITYP, JTURN, &
+                     LBUF0, LBUF1, LBUF2, LENGTH, MYL, MYSYM, NAC, NBC, NI, NJ, NOT2, NOVST, NSIJ, NVT, NYL, NYSYM
+real(kind=wp) :: COPI, CPL, CPLA, CPLL, ENPQ, FAC, FACS, FACW, FACWA, FACWB, TERM
+integer(kind=iwp), external :: JSUNP_CPF
+real(kind=r8), external :: DDOT_
+!parameter(IPOW5=2**5,IPOW13=2**13,IPOW18=2**18)
+!parameter(IPOW10=2**10)
 ! Statement function
+integer(kind=iwp) :: JSYM, L
 JSYM(L) = JSUNP_CPF(JSY,L)
 
 ITYP = 0 ! dummy initialize
 ICOUP = 0 ! dummy initialize
 ICOUP1 = 0 ! dummy initialize
 INUM = IRC(4)-IRC(3)
-call MPSQ2(C,S,W,MUL,INDEX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
+call MPSQ2(C,S,W,MUL,INDX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
 NVT = IROW(NVIRT+1)
 ICHK = 0
 IFAB = 0
@@ -43,10 +50,10 @@ NOT2 = IROW(LN+1)
 IADD10 = IAD10(6)
 300 call dDAFILE(Lu_CIGuga,2,COP,nCOP,IADD10)
 call iDAFILE(Lu_CIGuga,2,iCOP1,nCOP+1,IADD10)
-LEN = ICOP1(nCOP+1)
-if (LEN == 0) GO TO 300
-if (LEN < 0) GO TO 350
-do II=1,LEN
+ILEN = ICOP1(nCOP+1)
+if (ILEN == 0) GO TO 300
+if (ILEN < 0) GO TO 350
+do II=1,ILEN
   IND = ICOP1(II)
   if (ICHK /= 0) GO TO 460
   if (IND /= 0) GO TO 371
@@ -85,9 +92,9 @@ do II=1,LEN
   JTURN = 1
   GO TO 201
   ! CONSTRUCT FIRST ORDER MATRICES
-360 FAC = D1/D2
-  if (NI /= NJ) FAC = D2*FAC
-  IN = 0
+360 FAC = Half
+  if (NI /= NJ) FAC = One
+  IIN = 0
   IFT = 0
   call IPO_CPF(IPOA,NVIR,MUL,NSYM,NSIJ,IFT)
 852 do IASYM=1,NSYM
@@ -95,14 +102,14 @@ do II=1,LEN
     if (IBSYM > IASYM) GO TO 170
     IAB = IPOA(IASYM+1)-IPOA(IASYM)
     if (IAB == 0) GO TO 170
-    call SECORD(AIBJ(IPOF(IASYM)+1),AIBJ(IPOF(IBSYM)+1),FSEC(IN+1),FAC,NVIR(IASYM),NVIR(IBSYM),NSIJ,IFT)
-    IN = IN+IAB
+    call SECORD(AIBJ(IPOF(IASYM)+1),AIBJ(IPOF(IBSYM)+1),FSEC(IIN+1),FAC,NVIR(IASYM),NVIR(IBSYM),NSIJ,IFT)
+    IIN = IIN+IAB
 170 continue
   end do
   if (IFT == 1) GO TO 853
-  INS = IN
+  INS = IIN
   IFT = 1
-  FAC = D0
+  FAC = Zero
   GO TO 852
   ! SQUARE ABIJ
 853 if (ITER == 1) GO TO 260
@@ -141,7 +148,7 @@ do II=1,LEN
   ICOUP = ibits(IND,5,13)
   ICOUP1 = ibits(IND,18,13)
   CPL = COP(II)
-  CPLA = D0
+  CPLA = Zero
   if (IFAB /= 0) GO TO 260
   if (ITURN == 0) GO TO 263
   GO TO 100
@@ -156,20 +163,20 @@ do II=1,LEN
   if (INS == 0) GO TO 260
   if (INDA /= IREF0) GO TO 342
   CPLL = CPL/sqrt(ENP(INDB))
-  call DAXPY_(INS,CPLL,FSEC(ISTAR),1,S(index(INDB)+1),1)
+  call DAXPY_(INS,CPLL,FSEC(ISTAR),1,S(INDX(INDB)+1),1)
   if (ITER == 1) GO TO 260
-  TERM = DDOT_(INS,C(index(INDB)+1),1,FSEC(ISTAR),1)
+  TERM = DDOT_(INS,C(INDX(INDB)+1),1,FSEC(ISTAR),1)
   EPP(INDB) = EPP(INDB)+CPLL*TERM
   GO TO 260
-342 ENPQ = (D1-THET(INDA,INDB)/D2)*(ENP(INDA)+ENP(INDB)-D1)+THET(INDA,INDB)/D2
+342 ENPQ = (One-THET(INDA,INDB)*Half)*(ENP(INDA)+ENP(INDB)-One)+THET(INDA,INDB)*Half
   FACS = sqrt(ENP(INDA))*sqrt(ENP(INDB))/ENPQ
-  FACW = FACS*(D2-THET(INDA,INDB))/ENPQ
+  FACW = FACS*(Two-THET(INDA,INDB))/ENPQ
   FACWA = FACW*ENP(INDA)-FACS
   FACWB = FACW*ENP(INDB)-FACS
   COPI = CPL*C(INDA)
-  call DAXPY_(INS,COPI*FACS,FSEC(ISTAR),1,S(index(INDB)+1),1)
-  call DAXPY_(INS,COPI*FACWB,FSEC(ISTAR),1,W(index(INDB)+1),1)
-  TERM = DDOT_(INS,FSEC(ISTAR),1,C(index(INDB)+1),1)
+  call DAXPY_(INS,COPI*FACS,FSEC(ISTAR),1,S(INDX(INDB)+1),1)
+  call DAXPY_(INS,COPI*FACWB,FSEC(ISTAR),1,W(INDX(INDB)+1),1)
+  TERM = DDOT_(INS,FSEC(ISTAR),1,C(INDX(INDB)+1),1)
   S(INDA) = S(INDA)+CPL*FACS*TERM
   W(INDA) = W(INDA)+CPL*FACWA*TERM
   GO TO 260
@@ -202,23 +209,23 @@ do II=1,LEN
   NYSYM = MUL(MYSYM,NSIJ)
   MYL = MUL(MYSYM,LSYM)
   NYL = MUL(NYSYM,LSYM)
-  ENPQ = (D1-THET(INDA,INDB)/D2)*(ENP(INDA)+ENP(INDB)-D1)+THET(INDA,INDB)/D2
+  ENPQ = (One-THET(INDA,INDB)*Half)*(ENP(INDA)+ENP(INDB)-One)+THET(INDA,INDB)*Half
   FACS = sqrt(ENP(INDA))*sqrt(ENP(INDB))/ENPQ
-  FACW = FACS*(D2-THET(INDA,INDB))/ENPQ
+  FACW = FACS*(Two-THET(INDA,INDB))/ENPQ
   FACWA = FACW*ENP(INDA)-FACS
   FACWB = FACW*ENP(INDB)-FACS
   call IPO_CPF(IPOA,NVIR,MUL,NSYM,MYL,IFTA)
   call IPO_CPF(IPOB,NVIR,MUL,NSYM,NYL,IFTB)
-  INMY = index(INDA)+1
-  INNY = index(INDB)+1
+  INMY = INDX(INDA)+1
+  INNY = INDX(INDB)+1
   if (ITYP /= 5) GO TO 71
   ! DOUBLET-DOUBLET INTERACTIONS
-  IN = IPOF(MYL+1)-IPOF(MYL)
-  if (IN == 0) GO TO 260
+  IIN = IPOF(MYL+1)-IPOF(MYL)
+  if (IIN == 0) GO TO 260
   IPF = IPOF(MYL)+1
-  call SETZ(F,IN)
-  call DAXPY_(IN,CPL,AIBJ(IPF),1,F,1)
-  call DAXPY_(IN,CPLA,ABIJ(IPF),1,F,1)
+  call SETZ(F,IIN)
+  call DAXPY_(IIN,CPL,AIBJ(IPF),1,F,1)
+  call DAXPY_(IIN,CPLA,ABIJ(IPF),1,F,1)
   if (INDA == INDB) call SETZZ_CPF(F,NVIR(MYL))
   call SETZ(A,NVIR(NYL))
   call FMMM(C(INMY),F,A,1,NVIR(NYL),NVIR(MYL))
@@ -412,11 +419,11 @@ do II=1,LEN
 260 continue
 end do
 GO TO 300
-350 call MDSQ2(C,S,W,MUL,INDEX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
+350 call MDSQ2(C,S,W,MUL,INDX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
 !NCONF = JSC(4)
-!write(6,787) (S(I),I=1,NCONF)
+!write(u6,787) (S(I),I=1,NCONF)
 !787 format(1X,'S,FAIBJ',5F10.6)
-!write(6,786) (W(I),I=1,NCONF)
+!write(u6,786) (W(I),I=1,NCONF)
 !786 format(1X,'W,FAIBJ',5F10.6)
 
 return

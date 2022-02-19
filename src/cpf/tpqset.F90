@@ -14,36 +14,38 @@
 
 subroutine TPQSET(ICASE,TPQ,IP)
 
-implicit real*8(A-H,O-Z)
-dimension TPQ(*), IOCR(100)
-dimension ICASE(*)
-#include "SysDef.fh"
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: ICASE(*), IP
+real(kind=wp) :: TPQ(*)
 #include "cpfmcpf.fh"
 #include "spin_cpf.fh"
+integer(kind=iwp) :: I, II, II1, IINT, IIOR, IJ, IK, IL, IOCR(100), IQ, JJ, JOJ, NI, NJ
+real(kind=wp) :: DIK, DIL, DJK, DJL
+integer(kind=iwp), external :: ICUNP
 ! Statement function
 !PAM97      EXTERNAL UNPACK
 !PAM97      INTEGER UNPACK
 !RL   JO(L)=IAND(ISHFT(QOCC((L+29)/30),-2*((L+29)/30*30-L)),3)
 !PAM97      JO(L)=UNPACK(QOCC((L+29)/30), 2*L-(2*L-1)/60*60, 2)
+integer(kind=iwp) :: JO, L
 JO(L) = ICUNP(ICASE,L)
 
-D0 = 0.0d0
-D1 = 1.0d0
-D2 = 2.0d0
-
-IOR = 0
+IIOR = 0
 II1 = (IREF0-1)*LN
 do I=1,LN
   JOJ = JO(II1+I)
-  IOR = IOR+1
-  IOCR(IOR) = JOJ
+  IIOR = IIOR+1
+  IOCR(IIOR) = JOJ
 end do
 
 IINT = IRC(4)
 do IQ=1,IINT
-  TPQ(IQ) = D1
-  if (INCPF == 1) TPQ(IQ) = D2/N
-  if ((IQ == IREF0) .or. (IP == IREF0)) TPQ(IQ) = D0
+  TPQ(IQ) = One
+  if (INCPF == 1) TPQ(IQ) = Two/N
+  if ((IQ == IREF0) .or. (IP == IREF0)) TPQ(IQ) = Zero
 end do
 if ((ISDCI == 1) .or. (INCPF == 1) .or. (IP == IREF0)) return
 
@@ -74,19 +76,19 @@ do IQ=1,IINT
 26  IL = I
 25  continue
   end do
-  DIK = D0
-  DIL = D0
-  DJK = D0
-  DJL = D0
-  if (II == IK) DIK = D1
-  if (II == IL) DIL = D1
-  if (IJ == IK) DJK = D1
-  if (IJ == IL) DJL = D1
-  TPQ(IQ) = (DIK+DIL)/(D2*NI)+(DJK+DJL)/(D2*NJ)
-  if (IQ == IREF0) TPQ(IQ) = D0
+  DIK = Zero
+  DIL = Zero
+  DJK = Zero
+  DJL = Zero
+  if (II == IK) DIK = One
+  if (II == IL) DIL = One
+  if (IJ == IK) DJK = One
+  if (IJ == IL) DJL = One
+  TPQ(IQ) = (DIK+DIL)/(Two*NI)+(DJK+DJL)/(Two*NJ)
+  if (IQ == IREF0) TPQ(IQ) = Zero
 end do
 if (IPRINT < 15) return
-if (IPRINT > 5) write(6,11) (TPQ(IQ),IQ=1,IINT)
+if (IPRINT > 5) write(u6,11) (TPQ(IQ),IQ=1,IINT)
 11 format(5X,'TPQ',10F5.2)
 
 return

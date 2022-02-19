@@ -14,8 +14,12 @@
 
 subroutine IFOCK(FC,NI,NJ,NK,FINI,II)
 
-implicit real*8(A-H,O-Z)
-dimension FC(*)
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: FC(*), FINI
+integer(kind=iwp) :: NI, NJ, NK, II
+integer(kind=iwp) :: JKPOS
 
 if (NI > 0) return
 if ((NJ <= 0) .or. (NK <= 0)) return

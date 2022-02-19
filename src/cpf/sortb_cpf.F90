@@ -15,15 +15,21 @@
 subroutine SORTB_CPF(BUFOUT,INDOUT,ICAD,IBUFL,TIBUF,ACBDS,ACBDT,ISAB,BUFACBD)
 ! SORTS INTEGRALS (AB/CD) FOR FIXED A,C ALL B,D
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Constants, only: Zero, Half
+use Definitions, only: wp, iwp, u6, RtoI
+
+implicit none
 #include "cpfmcpf.fh"
+real(kind=wp) :: BUFOUT(*), TIBUF(NTIBUF), ACBDS(*), ACBDT(*), BUFACBD(*)
+integer(kind=iwp) :: INDOUT(*), ICAD(*), IBUFL(*), ISAB(*)
 #include "files_cpf.fh"
-dimension BUFOUT(*), INDOUT(*)
-dimension ICAD(*), IBUFL(*), TIBUF(NTIBUF), ACBDS(*), ACBDT(*)
-dimension ISAB(*), BUFACBD(*)
-dimension NORB0(9)
-parameter(IPOW8=2**8)
+integer(kind=iwp) :: I, IAC, IACMAX, IACMIN, IAD16, IAD50, IADR, IBDS, ICP, ICPP, ICQ, ID, IDISK, IDIV, IFIN1, IFIN2, ILOOP, IN1, &
+                     INND, INPS, INPT, INS, INSOUT, IOUT, IREC, IST1, IST2, ISTEP, ISYM, ITAIL, ITURN, JBUF0, JBUF1, JBUF2, JDISK, &
+                     KK, LENGTH, M1, M2, M3, M4, N1, N2, N3, N4, NA, NAC, NB, NBD, NC, ND, NDMAX, NI, NJ, NK, NL, NOP, NOQ, NOR, &
+                     NORB0(9), NORBP, NOS, NOV, NOVM, NOVST, NSAC, NSACL, NSP, NSPQ, NSPQR, NSQ, NSR, NSS, NSSM, NT, NTM, NU, &
+                     NUMAX, NUMIN, NV, NVT, NX, NXM
+real(kind=wp) :: FINI
+!parameter(IPOW8=2**8)
 
 KBUFF1 = 2*9600
 NVT = IROW(NVIRT+1)
@@ -124,7 +130,7 @@ do ISTEP=1,IPASS
                   NL = N2
                   NJ = N4
 502               FINI = TIBUF(IOUT)
-                  if (abs(FINI) < 1.D-09) GO TO 306
+                  if (abs(FINI) < 1.0e-9_wp) GO TO 306
                   NA = NI-LN
                   NB = NJ-LN
                   NC = NK-LN
@@ -134,7 +140,7 @@ do ISTEP=1,IPASS
 107               IAC = IROW(NA)+NC
                   if (IAC < IACMIN) GO TO 106
                   if (IAC > IACMAX) GO TO 106
-                  if ((NA == NC) .and. (NB == ND)) FINI = FINI/D2
+                  if ((NA == NC) .and. (NB == ND)) FINI = FINI*Half
                   NAC = IAC-IACMIN+1
                   IBUFL(NAC) = IBUFL(NAC)+1
                   ICQ = ICAD(NAC)
@@ -142,7 +148,7 @@ do ISTEP=1,IPASS
                   BUFOUT(ICP) = FINI
                   ICPP = ICQ+JBUF0+IBUFL(NAC)
                   !PAM97 INDOUT(ICPP) = ior(NB,ishft(ND,8))
-                  INDOUT(ICPP) = NB+ND*IPOW8
+                  INDOUT(ICPP) = NB+ND*2**8
                   if (IBUFL(NAC) < JBUF) GO TO 106
                   INDOUT(ICQ+JBUF1) = JBUF
                   JDISK = IDISK
@@ -169,8 +175,8 @@ do ISTEP=1,IPASS
   ! EMPTY LAST BUFFERS
   NOVM = IACMAX-IACMIN+1
   if ((NOVST+IACMIN-1+NOVM) > mAdr) then
-    write(6,*) 'SORTB_CPF Error: NOVST+IACMIN-1+NOVM > MADR'
-    write(6,*) '  (See code).'
+    write(u6,*) 'SORTB_CPF Error: NOVST+IACMIN-1+NOVM > MADR'
+    write(u6,*) '  (See code).'
     call Abend()
   end if
   do I=1,NOVM
@@ -204,8 +210,8 @@ do ISTEP=1,IPASS
         if (NDMAX > NA) NDMAX = NA
         INS = ISAB(IN1+NDMAX)
         do I=1,INS
-          ACBDS(I) = D0
-          ACBDT(I) = D0
+          ACBDS(I) = Zero
+          ACBDT(I) = Zero
         end do
         IADR = LASTAD(NOVST+IAC)
 201     call iDAFILE(Lu_TiABIJ,2,INDOUT,JBUF2,IADR)

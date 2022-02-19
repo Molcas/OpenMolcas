@@ -14,8 +14,11 @@
 
 subroutine IPO_CPF(IPOA,NVIR,MUL,NSYM,KLS,IFT)
 
-implicit real*8(A-H,O-Z)
-dimension IPOA(*), NVIR(*), MUL(8,8)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: IPOA(*), NVIR(*), MUL(8,8), NSYM, KLS, IFT
+integer(kind=iwp) :: M, N, NSUM
 
 NSUM = 0
 do N=1,NSYM

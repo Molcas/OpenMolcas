@@ -14,31 +14,36 @@
 
 subroutine FMUL2_CPF(A,B,C,NROW,NCOL,N)
 
-implicit real*8(A-H,O-Z)
-dimension A(NROW,N), B(NCOL,N), CJ(200)
-dimension C(NROW,NCOL)
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: NROW, NCOL, N
+real(kind=wp) :: A(NROW,N), B(NCOL,N), C(NROW,NCOL)
+integer(kind=iwp) :: I, J, J1, K
+real(kind=wp) :: CJ(200), FAC
 
 if (nRow > 200) then
-  write(6,*)
-  call XFLUSH(6)
-  write(6,*) ' *** Error in Subroutine FMUL2_CPF ***'
-  call XFLUSH(6)
-  write(6,*) ' row dimension exceeds local buffer size'
-  call XFLUSH(6)
-  write(6,*)
-  call XFLUSH(6)
+  write(u6,*)
+  call XFLUSH(u6)
+  write(u6,*) ' *** Error in Subroutine FMUL2_CPF ***'
+  call XFLUSH(u6)
+  write(u6,*) ' row dimension exceeds local buffer size'
+  call XFLUSH(u6)
+  write(u6,*)
+  call XFLUSH(u6)
   call Abend()
 end if
 
 do J=1,NCOL
   do I=1,NROW
-    CJ(I) = 0.0d0
+    CJ(I) = Zero
   end do
   if (J == NCOL) GO TO 16
   J1 = J+1
   do K=1,N
     FAC = B(J,K)
-    if (FAC == 0.0) GO TO 20
+    if (FAC == Zero) GO TO 20
     do I=J1,NROW
       CJ(I) = CJ(I)+FAC*A(I,K)
     end do

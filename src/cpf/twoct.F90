@@ -14,19 +14,24 @@
 
 subroutine TWOCT(H)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: H(*)
 #include "cpfmcpf.fh"
-dimension H(*)
+integer(kind=iwp) :: ILIM
 
 call TWOCT_INTERNAL(H)
 
 ! This is to allow type punning without an explicit interface
 contains
+
 subroutine TWOCT_INTERNAL(H)
-  use iso_c_binding
-  real*8, target :: H(*)
-  integer, pointer :: iH2(:), iH3(:), iH4(:), iH39(:), iH47(:), iH51(:)
+
+  real(kind=wp), target :: H(*)
+  integer(kind=iwp), pointer :: iH2(:), iH3(:), iH4(:), iH39(:), iH47(:), iH51(:)
+
   ILIM = 4
   if (IFIRST /= 0) ILIM = 2
   if ((ISDCI == 0) .and. (ICPF == 0) .and. (INCPF == 0)) GO TO 30
@@ -88,7 +93,9 @@ subroutine TWOCT_INTERNAL(H)
               H(LW(28)),H(LW(29)),H(LW(31)),H(LW(32)),IRC(ILIM))
   nullify(iH2,iH3,iH39)
 50 continue
+
   return
+
 end subroutine TWOCT_INTERNAL
 
 end subroutine TWOCT

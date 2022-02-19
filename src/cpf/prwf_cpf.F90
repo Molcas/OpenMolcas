@@ -12,20 +12,26 @@
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-subroutine PRWF_CPF(ICASE,JSY,INDEX,C)
+subroutine PRWF_CPF(ICASE,JSY,INDX,C)
 
-implicit real*8(A-H,O-Z)
-dimension C(*), index(*), JSY(*)
-dimension ICASE(*)
-#include "SysDef.fh"
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: ICASE(*), INDX(*), JSY(*)
+real(kind=wp) :: C(*)
 #include "cpfmcpf.fh"
-dimension IOC(57), IORB(57), ISP(57), ILSYM(57)
-external DNRM2_
+integer(kind=iwp) :: I, II, II1, IIN, IJ, ILIM, ILSYM(57), IOC(57), IORB(57), ISP(57), IX1, J, J1, J2, JCONF, JJ, JMIN, JOJ, JVIR, &
+                     NA, NB, NSI, NSJ
+real(kind=wp) :: CI, THRC
+integer(kind=iwp), external :: ICUNP, JSUNP_CPF
+real(kind=wp), external :: DNRM2_
 ! Statement functions
 !PAM97      EXTERNAL UNPACK
 !PAM97      INTEGER UNPACK
 !PAM97      JO(L)=UNPACK(QOCC((L+29)/30), 2*L-(2*L-1)/60*60, 2)
 !PAM96      JSYM(L)=UNPACK(JSY((L+9)/10),3*MOD(L-1,10)+1,3)+1
+integer(kind=iwp) :: JO, JSYM, L
 JO(L) = ICUNP(ICASE,L)
 JSYM(L) = JSUNP_CPF(JSY,L)
 
@@ -34,12 +40,12 @@ NB = 0 ! dummy initialized
 ILIM = 4
 if (IFIRST /= 0) ILIM = 2
 NCONF = JSC(ILIM)
-if (ISDCI == 1) call DSCAL_(NCONF,1.0d0/DNRM2_(NCONF,C,1),C,1)
+if (ISDCI == 1) call DSCAL_(NCONF,One/DNRM2_(NCONF,C,1),C,1)
 JCONF = JSC(1)
 THRC = CTRSH
-write(6,5) THRC
-call XFLUSH(6)
-if (ISDCI == 0) write(6,6)
+write(u6,5) THRC
+call XFLUSH(u6)
+if (ISDCI == 0) write(u6,6)
 
 do J=1,LN
   IORB(J+2) = J
@@ -50,21 +56,21 @@ do I=1,NCONF
   JJ = I
   IJ = I
   if (I == IREF0) then
-    write(6,105) I,C(I),'REFERENCE'
-    call XFLUSH(6)
+    write(u6,105) I,C(I),'REFERENCE'
+    call XFLUSH(u6)
     GO TO 26
   end if
   CI = C(I)
   if (abs(CI) < THRC) GO TO 10
   if (I <= JCONF) then
-    write(6,105) I,CI,'VALANCE'
-    call XFLUSH(6)
+    write(u6,105) I,CI,'VALANCE'
+    call XFLUSH(u6)
     GO TO 26
   end if
   if (I <= JSC(2)) then
     JMIN = IRC(1)+1
-    write(6,105) I,CI,'DOUBLET'
-    call XFLUSH(6)
+    write(u6,105) I,CI,'DOUBLET'
+    call XFLUSH(u6)
   else if (I <= JSC(3)) then
     JMIN = IRC(2)+1
   else
@@ -73,13 +79,13 @@ do I=1,NCONF
   IX1 = IRC(ILIM)
   do J=JMIN,IX1
     JJ = J-1
-    if (index(J) >= IJ) GO TO 25
+    if (INDX(J) >= IJ) GO TO 25
   end do
 25 continue
 26 continue
   NSJ = MUL(JSYM(JJ),LSYM)
-  JVIR = I-index(JJ)
-  if (I > JCONF) JVIR = IJ-index(JJ)
+  JVIR = I-INDX(JJ)
+  if (I > JCONF) JVIR = IJ-INDX(JJ)
   II1 = (JJ-1)*LN
   do II=1,LN
     II1 = II1+1
@@ -110,7 +116,7 @@ do I=1,NCONF
     ILSYM(1) = 0
     GO TO 100
   end if
-  IN = 0
+  IIN = 0
   do II=1,NVIRT
     NA = II
     NSI = MUL(NSJ,NSM(LN+II))
@@ -120,8 +126,8 @@ do I=1,NCONF
     if (J2 < J1) GO TO 46
     do J=J1,J2
       NB = J
-      IN = IN+1
-      if (IN == JVIR) GO TO 48
+      IIN = IIN+1
+      if (IIN == JVIR) GO TO 48
     end do
 46  continue
   end do
@@ -147,29 +153,29 @@ do I=1,NCONF
     ISP(2) = 2
     ILSYM(2) = NSM(IORB(2))
   end if
-  if (JJ <= IRC(3)) write(6,105) I,CI,'TRIPLET'
-  if (JJ > IRC(3)) write(6,105) I,CI,'SINGLET'
+  if (JJ <= IRC(3)) write(u6,105) I,CI,'TRIPLET'
+  if (JJ > IRC(3)) write(u6,105) I,CI,'SINGLET'
 100 continue
-  write(6,*)
-  call XFLUSH(6)
+  write(u6,*)
+  call XFLUSH(u6)
   if (LN+2 <= 36) then
-    write(6,120) 'ORBITALS     ',(IORB(J),J=1,LN+2)
-    call XFLUSH(6)
-    write(6,120) 'OCCUPATION   ',(IOC(J),J=1,LN+2)
-    call XFLUSH(6)
-    write(6,120) 'SPIN-COUPLING',(ISP(J),J=1,LN+2)
-    call XFLUSH(6)
-    write(6,120) 'SYMMETRY     ',(ILSYM(J),J=1,LN+2)
-    call XFLUSH(6)
+    write(u6,120) 'ORBITALS     ',(IORB(J),J=1,LN+2)
+    call XFLUSH(u6)
+    write(u6,120) 'OCCUPATION   ',(IOC(J),J=1,LN+2)
+    call XFLUSH(u6)
+    write(u6,120) 'SPIN-COUPLING',(ISP(J),J=1,LN+2)
+    call XFLUSH(u6)
+    write(u6,120) 'SYMMETRY     ',(ILSYM(J),J=1,LN+2)
+    call XFLUSH(u6)
   else
-    write(6,121) 'ORBITALS     ',(IORB(J),J=1,LN+2)
-    call XFLUSH(6)
-    write(6,121) 'OCCUPATION   ',(IOC(J),J=1,LN+2)
-    call XFLUSH(6)
-    write(6,121) 'SPIN-COUPLING',(ISP(J),J=1,LN+2)
-    call XFLUSH(6)
-    write(6,121) 'SYMMETRY     ',(ILSYM(J),J=1,LN+2)
-    call XFLUSH(6)
+    write(u6,121) 'ORBITALS     ',(IORB(J),J=1,LN+2)
+    call XFLUSH(u6)
+    write(u6,121) 'OCCUPATION   ',(IOC(J),J=1,LN+2)
+    call XFLUSH(u6)
+    write(u6,121) 'SPIN-COUPLING',(ISP(J),J=1,LN+2)
+    call XFLUSH(u6)
+    write(u6,121) 'SYMMETRY     ',(ILSYM(J),J=1,LN+2)
+    call XFLUSH(u6)
   end if
 10 continue
 end do

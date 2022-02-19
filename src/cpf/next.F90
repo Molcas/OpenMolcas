@@ -14,26 +14,30 @@
 
 subroutine NEXT(P,DPS,CN)
 
-implicit real*8(A-H,O-Z)
-dimension P(*), DPS(*), CN(*)
-#include "SysDef.fh"
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp) :: P(*), DPS(*), CN(*)
 #include "cpfmcpf.fh"
 #include "files_cpf.fh"
+integer(kind=iwp) :: I, IAD, IIN, ITM, J
+real(kind=wp) :: CTOT
 
 IAD = IADDP(1)
 call dDAFILE(Lu_CI,2,P,NCONF,IAD)
 ITM = ITPUL-1
 do I=1,ITM
-  IN = I+1
-  CTOT = 0.0d00
-  do J=IN,ITPUL
+  IIN = I+1
+  CTOT = Zero
+  do J=IIN,ITPUL
     CTOT = CTOT+CN(J)
   end do
   IAD = IADDP(I+1)
   call dDAFILE(Lu_CI,2,DPS,NCONF,IAD)
   call VSMA(DPS,1,CTOT,P,1,P,1,NCONF)
 end do
-if (IPRINT >= 15) write(6,19) (P(I),I=1,NCONF)
+if (IPRINT >= 15) write(u6,19) (P(I),I=1,NCONF)
 19 format(6X,'C(NEXT)',5F10.6)
 
 IADC(ITPUL+2) = IAD

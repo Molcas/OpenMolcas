@@ -12,14 +12,19 @@
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-subroutine VECSUM_CPFMCPF(A,SUM,N)
+subroutine VECSUM_CPFMCPF(A,RSUM,N)
 
-implicit real*8(A-H,O-Z)
-dimension A(*)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-SUM = 0.0d0
+implicit none
+integer(kind=iwp) :: N
+real(kind=wp) :: A(*), RSUM
+integer(kind=iwp) :: I
+
+RSUM = Zero
 do I=1,N
-  SUM = SUM+A(I)
+  RSUM = RSUM+A(I)
 end do
 
 return

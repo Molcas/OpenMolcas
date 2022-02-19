@@ -14,13 +14,18 @@
 
 subroutine START_CPF(C,NCONF,IREF0)
 
-implicit real*8(A-H,O-Z)
-dimension C(*)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: C(*)
+integer(kind=iwp) :: NCONF, IREF0
+integer(kind=iwp) :: I
 
 do I=1,NCONF
-  C(I) = 0.0d0
+  C(I) = Zero
 end do
-C(IREF0) = 1.0d0
+C(IREF0) = One
 
 return
 

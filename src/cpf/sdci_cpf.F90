@@ -14,20 +14,24 @@
 
 subroutine SDCI_CPF(H,iH,LIC0)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp) :: H(*)
+integer(kind=iwp) :: iH(*), LIC0
 #include "cpfmcpf.fh"
-!dimension H(LIC0), iH(RtoI*LIC0)
-dimension H(*), iH(*)
 
 call SDCI_CPF_INTERNAL(H)
 
 ! This is to allow type punning without an explicit interface
 contains
+
 subroutine SDCI_CPF_INTERNAL(H)
-  use iso_c_binding
-  real*8, target :: H(*)
-  integer, pointer :: iH1(:), iH2(:), iH3(:)
+
+  real(kind=wp), target :: H(*)
+  integer(kind=iwp), pointer :: iH1(:), iH2(:), iH3(:)
+
   LIC = LIC0
   IPRINT = 5
   IDENS = 0
@@ -62,13 +66,15 @@ subroutine SDCI_CPF_INTERNAL(H)
   call DENSCT_CPF(H,LIC0)
 
   if (NREF > 1) then
-    write(6,*) ' This is a single reference program, but more than'
-    write(6,*) ' one reference state has been specified in the'
-    write(6,*) ' GUGA program. Change input to GUGA and run again.'
-    call XFLUSH(6)
+    write(u6,*) ' This is a single reference program, but more than'
+    write(u6,*) ' one reference state has been specified in the'
+    write(u6,*) ' GUGA program. Change input to GUGA and run again.'
+    call XFLUSH(u6)
     return
   end if
+
   return
+
 end subroutine SDCI_CPF_INTERNAL
 
 end subroutine SDCI_CPF

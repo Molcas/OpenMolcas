@@ -14,14 +14,18 @@
 
 subroutine SQUARM_CPF(A,B,N)
 
-implicit real*8(A-H,O-Z)
-dimension A(*), B(N,N)
+use Definitions, only: wp, iwp
 
-IN = 1
+implicit none
+integer(kind=iwp) :: N
+real(kind=wp) :: A(*), B(N,N)
+integer(kind=iwp) :: I, IIN
+
+IIN = 1
 do I=1,N
-  call DCOPY_(I,A(IN),1,B(I,1),N)
-  call VNEG_CPF(A(IN),1,B(1,I),1,I)
-  IN = IN+I
+  call DCOPY_(I,A(IIN),1,B(I,1),N)
+  call VNEG_CPF(A(IIN),1,B(1,I),1,I)
+  IIN = IIN+I
 end do
 
 return

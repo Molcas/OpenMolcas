@@ -12,8 +12,14 @@
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-integer function JSUNP_CPF(INTSYM,L)
-dimension INTSYM(*)
+function JSUNP_CPF(INTSYM,L)
+
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: JSUNP_CPF
+integer(kind=iwp) :: INTSYM(*), L
+integer(kind=iwp) :: INTW, IPOW
 
 INTW = INTSYM((L+9)/10)
 IPOW = 2**(27-3*mod(L-1,10))

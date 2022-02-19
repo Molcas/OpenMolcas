@@ -14,16 +14,21 @@
 
 subroutine NATORB_CPF(D,CM,CMO,DSYM,CAO,OCC,M)
 
-implicit real*8(A-H,O-Z)
-dimension D(*), CM(*), CMO(*), DSYM(*), CAO(*), OCC(*)
-#include "SysDef.fh"
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp) :: D(*), CM(*), CMO(*), DSYM(*), CAO(*), OCC(*)
+integer(kind=iwp) :: M
 #include "cpfmcpf.fh"
+integer(kind=iwp) :: I, II, IJ, IJ0, ILAS, IP, ISTA, J, JP, kp, M1, NBM, NBP, NFR, NI, NIJ, NJ, NORBM, NORBM2
+real(kind=wp) :: TERM
 
 ! FORM DENSITY MATRIX BY SYMMETRY
 NBM = NBAS(M)
 if (NBM == 0) return
 if (NORB(M) == 0) return
-if (IPRINT >= 15) write(6,1) M
+if (IPRINT >= 15) write(u6,1) M
 1 format(///,5X,'SYMMETRY NUMBER',I3)
 NBP = 0
 M1 = M-1
@@ -35,13 +40,13 @@ NORBM = NFR+NISH(M)+NASH(M)+NVIR(M)
 if (NORBM == 0) return
 NORBM2 = IROW(NORBM+1)
 do I=1,NORBM2
-  DSYM(I) = 0.0d0
+  DSYM(I) = Zero
 end do
 if (NFR == 0) GO TO 10
 II = 0
 do I=1,NFR
   II = II+I
-  DSYM(II) = 2.0d0
+  DSYM(II) = Two
 end do
 ! REST OF DENSITY MATRIX
 10 IJ = 0
@@ -59,23 +64,23 @@ do I=1,NORBM
   end do
 end do
 ! DIAGONALIZE
-call JACSCF(DSYM,CMO,OCC,NORBM,-1,1.D-11)
+call JACSCF(DSYM,CMO,OCC,NORBM,-1,1.0e-11_wp)
 do I=1,NORBM
   OCC(I) = -OCC(I)
 end do
 call ORDER_CPF(CMO,OCC,NORBM)
-if (IPRINT >= 15) write(6,30)
+if (IPRINT >= 15) write(u6,30)
 30 format(//,5X,'NATURAL ORBITALS IN MO-BASIS',//,7X,'OCCUPATION NUMBER',5X,'COEFFICIENTS')
 ILAS = 0
 do I=1,NORBM
   ISTA = ILAS+1
   ILAS = ILAS+NORBM
   OCC(I) = -OCC(I)
-  if (IPRINT >= 15) write(6,40) I,OCC(I),(CMO(J),J=ISTA,ILAS)
+  if (IPRINT >= 15) write(u6,40) I,OCC(I),(CMO(J),J=ISTA,ILAS)
 40 format(/,5X,I4,F10.6,5F10.6,/(19X,5F10.6))
 end do
 ! TRANSFORM TO AO-BASIS
-if (IPRINT >= 15) write(6,45)
+if (IPRINT >= 15) write(u6,45)
 45 format(//,5X,'NATURAL ORBITALS IN AO-BASIS',//,11X,'OCCUPATION NUMBER',5X,'COEFFICIENTS')
 IJ0 = -NORBM
 kp = 1
@@ -83,7 +88,7 @@ do I=1,NORBM
   IJ0 = IJ0+NORBM
 
   do IP=1,NBM
-    TERM = D0
+    TERM = Zero
     IJ = IJ0
     JP = IP-NBM
     do J=1,NORBM
@@ -94,7 +99,7 @@ do I=1,NORBM
     CAO(kp+IP-1) = TERM
   end do
 
-  if (IPRINT >= 15) write(6,40) I,OCC(I),(CAO(IP),IP=kp,kp+nbm-1)
+  if (IPRINT >= 15) write(u6,40) I,OCC(I),(CAO(IP),IP=kp,kp+nbm-1)
   kp = kp+NBM
 end do
 

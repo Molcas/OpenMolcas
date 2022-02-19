@@ -13,40 +13,45 @@
 !***********************************************************************
 
 subroutine THETSET(ICASE,THE,NII)
+!PAM06 This routine is called from SDCI if this is an MCPF calculation
 
-implicit real*8(A-H,O-Z)
-dimension THE(NII,NII), IOCR(100)
-dimension ICASE(*)
-#include "SysDef.fh"
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: ICASE(*), NII
+real(kind=wp) :: THE(NII,NII)
 #include "cpfmcpf.fh"
 #include "spin_cpf.fh"
+integer(kind=iwp) :: I, II, II1, IINT, IIOR, IJ, IK, IL, IOCR(100), IP, IQ, JJ, JOJ, NI, NJ
+integer(kind=iwp), external :: ICUNP
 ! Statement function
 !PAM97      EXTERNAL UNPACK
 !PAM97      INTEGER UNPACK
 !PAM97      JO(L)=UNPACK(QOCC((L+29)/30), 2*L-(2*L-1)/60*60, 2)
+integer(kind=iwp) :: JO, L
 JO(L) = ICUNP(ICASE,L)
-!PAM06 This routine is called from SDCI if this is an MCPF calculation
 
-IOR = 0
+IIOR = 0
 II1 = (IREF0-1)*LN
 do I=1,LN
   JOJ = JO(II1+I)
-  IOR = IOR+1
-  IOCR(IOR) = JOJ
+  IIOR = IIOR+1
+  IOCR(IIOR) = JOJ
 end do
-if (IPRINT > 5) write(6,888) IREF0,(IOCR(I),I=1,LN)
+if (IPRINT > 5) write(u6,888) IREF0,(IOCR(I),I=1,LN)
 888 format(5X,'IREF0=',I3/5X,'IOCR=',10I5)
 
 IINT = IRC(4)
 do IP=1,IINT
   do IQ=1,IINT
-    THE(IQ,IP) = D1
+    THE(IQ,IP) = One
   end do
 end do
 
 do IP=1,IINT
   do IQ=1,IINT
-    THE(IQ,IP) = 0.0d0
+    THE(IQ,IP) = Zero
   end do
 end do
 do IP=1,IINT
@@ -80,7 +85,7 @@ do IP=1,IINT
 26    IL = I
 25    continue
     end do
-    if ((II == IK) .and. (IJ == IL)) THE(IQ,IP) = 1.0d0
+    if ((II == IK) .and. (IJ == IL)) THE(IQ,IP) = One
   end do
 10 continue
 end do

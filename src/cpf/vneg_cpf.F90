@@ -14,8 +14,12 @@
 
 subroutine VNEG_CPF(A,IA,B,IB,IAB)
 
-implicit real*8(A-H,O-Z)
-dimension A(*), B(*)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: IA, IB, IAB
+real(kind=wp) :: A(*), B(*)
+integer(kind=iwp) :: I
 
 do I=0,IAB-1
   B(1+I*IB) = -A(1+I*IA)

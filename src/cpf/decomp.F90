@@ -14,16 +14,22 @@
 
 subroutine DECOMP(NN,A,UL)
 
-implicit real*8(A-H,O-Z)
-dimension A(NN,NN), UL(NN,NN), SCALES(200)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: NN
+real(kind=wp) :: A(NN,NN), UL(NN,NN)
 #include "ips.fh"
+integer(kind=iwp) :: I, IDXPIV, IP, J, K, KP, KP1, N, NM1
+real(kind=wp) :: BIG, EM, PIVOT, ROWNRM, SCALES(200), RSIZE
 
 N = NN
 IDXPIV = 0 ! dummy initialize
 ! INITIALIZE IPS, UL AND SCALES
 do I=1,N
   IPS(I) = I
-  ROWNRM = 0.0d00
+  ROWNRM = Zero
   do J=1,N
     UL(I,J) = A(I,J)
     if (ROWNRM-abs(UL(I,J)) >= 0) goto 2
@@ -31,21 +37,21 @@ do I=1,N
 2   continue
   end do
   if (ROWNRM == 0) goto 4
-  SCALES(I) = 1.0d00/ROWNRM
+  SCALES(I) = One/ROWNRM
   GO TO 5
 4 call SING(1)
-  SCALES(I) = 0.0d00
+  SCALES(I) = Zero
 5 continue
 end do
 ! GAUSSIAN ELIMINATION WITH PARTIAL PIVOTING
 NM1 = N-1
 do K=1,NM1
-  BIG = 0.0d00
+  BIG = Zero
   do I=K,N
     IP = IPS(I)
-    SIZE = abs(UL(IP,K))*SCALES(IP)
-    if (SIZE-BIG <= 0) goto 11
-    BIG = SIZE
+    RSIZE = abs(UL(IP,K))*SCALES(IP)
+    if (RSIZE-BIG <= 0) goto 11
+    BIG = RSIZE
     IDXPIV = I
 11  continue
   end do

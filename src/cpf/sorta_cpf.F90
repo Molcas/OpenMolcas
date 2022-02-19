@@ -17,15 +17,19 @@ subroutine SORTA_CPF(BUFOUT,INDOUT,ICAD,IBUFL,TIBUF,ISAB,BUFBI,INDBI,BIAC,BICA,N
 ! FOR FIXED B,I ALL A,C
 ! FIRST CHAIN FOR IJKL
 
-implicit real*8(A-H,O-Z)
-external COUNT_CPF
-#include "SysDef.fh"
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6, RtoI
+
+implicit none
 #include "cpfmcpf.fh"
+real(kind=wp) :: BUFOUT(*), TIBUF(NTIBUF), BUFBI(*), BIAC(*), BICA(*)
+integer(kind=iwp) :: INDOUT(*), ICAD(*), IBUFL(*), ISAB(*), INDBI(*), NINTGR
 #include "files_cpf.fh"
-dimension BUFOUT(*), INDOUT(*)
-dimension ICAD(*), IBUFL(*), TIBUF(NTIBUF), ISAB(*)
-dimension BUFBI(*), INDBI(*), BIAC(*), BICA(*)
-dimension NORB0(9)
+integer(kind=iwp) :: I, IACS, IAD15, IAD50, IADR, IBUFIJ, ICHK, ICP, ICPP, ICQ, ID, IDISK, IDIV, IIJ, IIN, IJ, IJKL, ILEN, ILOOP, &
+                     INND, INS, INSOUT, IOUT, IREC, ITURN, JDISK, KBUF0, KBUF1, KBUF2, KK, KKBUF0, KKBUF1, KKBUF2, KL, LENGTH, M1, &
+                     M2, M3, M4, N1, N2, N3, N4, NA, NAC, NAT, NB, NC, NI, NIB, NJ, NK, NL, NOP, NOQ, NOR, NORB0(9), NORBP, NOS, &
+                     NOV, NOVST, NSAVE, NSIB, NSP, NSPQ, NSPQR, NSQ, NSR, NSS, NSSM, NT, NTM, NU, NUMAX, NUMIN, NV, NX, NXM
+real(kind=wp) :: FINI
 
 call COUNT_CPF(NINTGR,NSYM,NORB,MUL)
 if (IPRINT >= 2) then
@@ -123,7 +127,7 @@ do NSP=1,NSYM
                 NL = N2
                 NJ = N4
 502             FINI = TIBUF(IOUT)
-                if (abs(FINI) < 1.D-09) GO TO 306
+                if (abs(FINI) < 1.0e-9_wp) GO TO 306
                 if (NI <= LN) GO TO 109
                 if (NK <= LN) GO TO 306
                 if (NJ <= LN) GO TO 42
@@ -198,7 +202,7 @@ end do
 ! EMPTY LAST BUFFERS
 !FUE Start of insertion
 if (NOV > mAdr) then
-  write(6,*) 'SORTA_CPF Error: NOV > MADR (See code).'
+  write(u6,*) 'SORTA_CPF Error: NOV > MADR (See code).'
   call Abend()
 end if
 !FUE End of insertion
@@ -249,26 +253,26 @@ NOVST = 1
 IADD10 = IAD10(4)
 call dDAFILE(Lu_CIGuga,2,COP,nCOP,IADD10)
 call iDAFILE(Lu_CIGuga,2,iCOP1,nCOP+1,IADD10)
-LEN = ICOP1(nCOP+1)
-IN = 2
-NSAVE = ICOP1(IN)
+ILEN = ICOP1(nCOP+1)
+IIN = 2
+NSAVE = ICOP1(IIN)
 100 NI = NSAVE
 IOUT = 0
-110 IN = IN+1
-if (IN <= LEN) GO TO 15
+110 IIN = IIN+1
+if (IIN <= ILEN) GO TO 15
 call dDAFILE(Lu_CIGuga,2,COP,nCOP,IADD10)
 call iDAFILE(Lu_CIGuga,2,iCOP1,nCOP+1,IADD10)
-LEN = ICOP1(nCOP+1)
-if (LEN <= 0) GO TO 6
-IN = 1
+ILEN = ICOP1(nCOP+1)
+if (ILEN <= 0) GO TO 6
+IIN = 1
 15 if (ICHK /= 0) GO TO 460
-if (ICOP1(IN) == 0) GO TO 10
+if (ICOP1(IIN) == 0) GO TO 10
 IOUT = IOUT+1
 GO TO 110
 10 ICHK = 1
 GO TO 110
 460 ICHK = 0
-NSAVE = ICOP1(IN)
+NSAVE = ICOP1(IIN)
 6 continue
 NIB = (NI-1)*NVIRT+NOVST
 do NB=1,NVIRT
@@ -276,8 +280,8 @@ do NB=1,NVIRT
   INS = NNS(NSIB)
   if (INS == 0) GO TO 18
   do I=1,INS
-    BIAC(I) = 0.0d0
-    BICA(I) = 0.0d0
+    BIAC(I) = Zero
+    BICA(I) = Zero
   end do
 18 NIB = NIB+1
   IADR = LASTAD(NIB)
@@ -309,7 +313,7 @@ do NB=1,NVIRT
   ILOOP = ILOOP+1
   if (ILOOP == 1) GO TO 72
 end do
-if (LEN >= 0) GO TO 100
+if (ILEN >= 0) GO TO 100
 ! EMPTY LAST BUFFER
 if (INSOUT == 0) return
 call dDAFILE(Lu_TiABCI,1,BUFBI,KBUFF1,IAD15)

@@ -14,12 +14,17 @@
 
 subroutine DIAGC_CPF(JSY,C,S)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: JSY(*)
+real(kind=wp) :: C(*), S(*)
 #include "cpfmcpf.fh"
 #include "files_cpf.fh"
-dimension JSY(*), C(*), S(*)
+integer(kind=iwp) :: IADD25, IIC, ILIM, IND, INDA, IRL, NA, NA1, NA2, NB, NB1, NB2, NSA, NSS
+integer(kind=iwp), external :: JSUNP_CPF
 ! Statement function
+integer(kind=iwp) :: JSYM, L
 JSYM(L) = JSUNP_CPF(JSY,L)
 
 IADD25 = IAD25S
@@ -31,11 +36,10 @@ if (IFIRST /= 0) ILIM = 2
 IRL = IRC(ILIM)
 do INDA=1,IRL
   NSS = MUL(JSYM(INDA),LSYM)
-  FACS = D1
   if (INDA > IRC(1)) GO TO 120
   IIC = IIC+1
   IND = IND+1
-  S(IND) = S(IND)+FACS*COP(IIC)*C(IND)
+  S(IND) = S(IND)+COP(IIC)*C(IND)
   if (IIC < nCOP) GO TO 100
   call dDAFILE(Lu_25,2,COP,nCOP,IADD25)
   IIC = 0
@@ -47,7 +51,7 @@ do INDA=1,IRL
   do NA=NA1,NA2
     IIC = IIC+1
     IND = IND+1
-    S(IND) = S(IND)+FACS*COP(IIC)*C(IND)
+    S(IND) = S(IND)+COP(IIC)*C(IND)
     if (IIC < nCOP) GO TO 121
     call dDAFILE(Lu_25,2,COP,nCOP,IADD25)
     IIC = 0
@@ -63,7 +67,7 @@ do INDA=1,IRL
     do NB=NB1,NB2
       IIC = IIC+1
       IND = IND+1
-      S(IND) = S(IND)+FACS*COP(IIC)*C(IND)
+      S(IND) = S(IND)+COP(IIC)*C(IND)
       if (IIC < nCOP) GO TO 142
       call dDAFILE(Lu_25,2,COP,nCOP,IADD25)
       IIC = 0

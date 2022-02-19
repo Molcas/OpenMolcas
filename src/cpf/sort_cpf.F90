@@ -14,14 +14,20 @@
 
 subroutine SORT_CPF(BUFOUT,INDOUT,ICAD,IBUFL,FC,FIJ,FJI,TIBUF)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp, u6, RtoI
+
+implicit none
+real(kind=wp) :: BUFOUT(*), FC(*), FIJ(*), FJI(*), TIBUF(*)
+integer(kind=iwp) :: INDOUT(*), ICAD(*), IBUFL(*)
 #include "cpfmcpf.fh"
 #include "files_cpf.fh"
-dimension BUFOUT(*), INDOUT(*)
-dimension ICAD(*), FC(*), IBUFL(*), FIJ(*), FJI(*), TIBUF(*)
-dimension IVEC(20), IPOF(65)
-dimension NORB0(9)
+integer(kind=iwp) :: I, IAD50, IADD17, IADD25, IBUF, ICP, ICPP, ICQ, ID, IDISK, IDIV, IEXP, II, IIJ, IIN, IJ, IJT, INAV, IND, &
+                     IORBI, IOUT, IPOF(65), IREC, ISYM, IVEC(20), J, JDISK, JK, JNAV, JORBI, KORBI, LBUF0, LBUF1, LBUF2, M1, M2, &
+                     M3, M4, N1, N2, N3, N4, NAV, NBV, NI, NJ, NK, NL, NOB2, NOP, NOQ, NOR, NORB0(9), NORBP, NORBTT, NOS, NOT2, &
+                     NOTT, NOV, NOVST, NSA, NSB, NSIJT, NSP, NSPQ, NSPQR, NSQ, NSR, NSS, NSSM, NT, NTM, NTMP, NU, NUMAX, NUMIN, &
+                     NV, NVT, NX, NXM
+real(kind=wp) :: DFINI, FINI, ONEHAM
 
 IAD50 = 0
 call iDAFILE(Lu_TraInt,2,iTraToc,nTraToc,IAD50)
@@ -29,10 +35,10 @@ NVT = IROW(NVIRT+1)
 do I=1,20
   IVEC(I) = 0
 end do
-IN = 1
+IIN = 1
 do I=1,NSYM
-  call IPO_CPF(IPOF(IN),NVIR,MUL,NSYM,I,-1)
-  IN = IN+NSYM
+  call IPO_CPF(IPOF(IIN),NVIR,MUL,NSYM,I,-1)
+  IIN = IIN+NSYM
 end do
 ! ORDER OF RECORD-CHAINS IS
 ! 1. NOT2 CHAINS (AB/IJ)
@@ -74,7 +80,7 @@ EMY = POTNUC
 NOB2 = IROW(NORBT+1)
 IADD17 = ITOC17(2)
 call dDAFILE(Lu_TraOne,2,FIJ,NORBTT,IADD17)
-call DCOPY_(NOB2,[0.0d0],0,FC,1)
+call DCOPY_(NOB2,[Zero],0,FC,1)
 IBUF = 0
 KORBI = 0
 do ISYM=1,NSYM
@@ -94,19 +100,19 @@ do ISYM=1,NSYM
         IJT = IROW(NI)+NJ
         FC(IJT) = FC(IJT)+ONEHAM
       else if (NI == NJ) then
-        EMY = EMY+2.0d0*ONEHAM
+        EMY = EMY+Two*ONEHAM
       end if
 199   continue
     end do
   end do
   KORBI = KORBI+NORB(ISYM)
 end do
-call DCOPY_(NOB2,[0.0d0],0,FIJ,1)
-call DCOPY_(NOB2,[0.0d0],0,FJI,1)
+call DCOPY_(NOB2,[Zero],0,FIJ,1)
+call DCOPY_(NOB2,[Zero],0,FJI,1)
 if (IPRINT >= 20) then
   call TRIPRT('FC IN SORT BEFORE TWOEL',' ',FC,NORBT)
-  write(6,'(A,F20.8)') ' EMY:',EMY
-  call XFLUSH(6)
+  write(u6,'(A,F20.8)') ' EMY:',EMY
+  call XFLUSH(u6)
 end if
 
 ! TWO-ELECTRON INTEGRALS
@@ -177,11 +183,11 @@ do NSP=1,NSYM
                 NL = N2
                 NJ = N4
 502             FINI = TIBUF(IOUT)
-                if (abs(FINI) < 1.D-09) GO TO 306
+                if (abs(FINI) < 1.0e-9_wp) GO TO 306
                 if ((NI <= 0) .or. (NJ <= 0)) GO TO 41
                 if ((NK <= 0) .or. (NL <= 0)) GO TO 41
                 DFINI = abs(FINI)
-                IEXP = int(-log10(DFINI+1.0D-20)+5)
+                IEXP = int(-log10(DFINI+1.0e-20_wp)+5)
                 if (IEXP > 20) IEXP = 20
                 if (IEXP < 1) IEXP = 1
                 IVEC(IEXP) = IVEC(IEXP)+1
@@ -265,7 +271,7 @@ do NSP=1,NSYM
 106             if (NK /= NL) GO TO 306
                 if (NI == NJ) GO TO 306
                 JNAV = IROW(NI)+NJ
-                FC(JNAV) = FC(JNAV)+D2*FINI
+                FC(JNAV) = FC(JNAV)+Two*FINI
                 GO TO 306
                 ! CHECK FOR FOCK-MATRIX CONTRIBUTION
 41              if (NI /= NJ) GO TO 51
@@ -273,8 +279,8 @@ do NSP=1,NSYM
                 call IFOCK(FC,NI,NK,NL,FINI,II)
                 if (NK /= NL) GO TO 52
                 if ((NI > 0) .or. (NK > 0)) GO TO 57
-                EMY = EMY+D2*FINI
-                if (NI /= NK) EMY = EMY+D2*FINI
+                EMY = EMY+Two*FINI
+                if (NI /= NK) EMY = EMY+Two*FINI
 57              if (NI == NK) GO TO 52
                 call IFOCK(FC,NK,NI,NJ,FINI,II)
                 GO TO 52
@@ -311,7 +317,7 @@ do NSP=1,NSYM
 end do
 ! EMPTY LAST BUFFERS
 if ((NOVST+NOV) > mAdr) then
-  write(6,*) 'SORT Error: NOVST+NOV>MADR (See code).'
+  write(u6,*) 'SORT Error: NOVST+NOV>MADR (See code).'
   call Abend()
 end if
 do I=1,NOV
@@ -328,11 +334,11 @@ end do
 IADD25 = 0
 call dDAFILE(Lu_25,1,FC,NOB2,IADD25)
 IAD25S = IADD25
-write(6,154)
-call XFLUSH(6)
+write(u6,154)
+call XFLUSH(u6)
 154 format(//6X,'STATISTICS FOR INTEGRALS, FIRST ENTRY 10**3-10**4',/)
-write(6,155) (IVEC(I),I=1,20)
-call XFLUSH(6)
+write(u6,155) (IVEC(I),I=1,20)
+call XFLUSH(u6)
 155 format(6X,5I10)
 
 return

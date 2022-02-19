@@ -12,27 +12,33 @@
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-subroutine AB(ICASE,JSY,INDEX,C,S,FC,A,B,F,ENP)
+subroutine AB(ICASE,JSY,INDX,C,S,FC,A,B,F,ENP)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6, r8
+
+implicit none
+integer(kind=iwp) :: ICASE(*), JSY(*), INDX(*)
+real(kind=wp) :: C(*), S(*), FC(*), A(*), B(*), F(*), ENP(*)
 #include "cpfmcpf.fh"
-dimension JSY(*), index(*), C(*), S(*), FC(*), A(*), B(*), F(*), ENP(*)
-dimension ICASE(*)
-dimension IPOA(9), IPOF(9)
-dimension IOC(55)
+integer(kind=iwp) :: I, IAB, IASYM, ICSYM, IFT, II1, IIA, IIC, IIN, IJ, INDA, INMY, INN, INUM, IOC(55), IPF, IPOA(9), IPOF(9), &
+                     ITAIL, ITURN, JOJ, LNA, LNC, MYL, MYSYM, NA, NA1, NA2, NAA, NAB, NAC, NB, NCLIM, NVIRA, NVIRC
+real(kind=wp) :: COPI, RSUM, TR, TSUM
+integer(kind=iwp), external :: ICUNP, JSUNP_CPF
+real(kind=r8), external :: DDOT_
 ! Statement functions
+integer(kind=iwp) :: JO, JSYM, L
 !PAM97      INTEGER UNPACK
 !PAM97      EXTERNAL UNPACK
 !RL   JO(L)=IAND(ISHFT(QOCC((L+29)/30),-2*((L+29)/30*30-L)),3)
 !PAM97      JO(L)=UNPACK(QOCC((L+29)/30),2*L-(2*L-1)/60*60,2)
-JO(L) = ICUNP(ICASE,L)
 !RL   JSYM(L)=IAND(ISHFT(JSY((L+19)/20),-3*((L+19)/20*20-L)),7)+1
 !PAM96      JSYM(L)=UNPACK(JSY((L+9)/10),3*MOD(L-1,10)+1,3)+1
+JO(L) = ICUNP(ICASE,L)
 JSYM(L) = JSUNP_CPF(JSY,L)
 
 INUM = IRC(4)-IRC(3)
-call PSQ2(C,S,MUL,INDEX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
+call PSQ2(C,S,MUL,INDX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
 NCLIM = 4
 NAB = 0 ! dummy initialize
 if (IFIRST /= 0) NCLIM = 2
@@ -50,7 +56,7 @@ ITURN = 0
       if (NA >= NB) NAB = IROW(LN+NA)+LN+NB
       if (NB > NA) NAB = IROW(LN+NB)+LN+NA
       if (ITURN == 1) GO TO 320
-      if (IDENS == 0) F(IAB) = D0
+      if (IDENS == 0) F(IAB) = Zero
       if (IDENS == 1) F(IAB) = FC(NAB)
       if (NA /= NB) F(IAB) = FC(NAB)
       GO TO 20
@@ -61,13 +67,13 @@ ITURN = 0
 10 continue
 end do
 if (ITURN == 0) GO TO 11
-TR = D0
+TR = Zero
 IJ = 0
 do I=1,NORBT
   IJ = IJ+I
   TR = TR+FC(IJ)
 end do
-if (iPrint >= 15) write(6,310) TR
+if (iPrint >= 15) write(u6,310) TR
 310 format(/,6X,'TRACE OF DENSITY MATRIX',F16.8)
 GO TO 300
 11 II1 = 0
@@ -86,39 +92,38 @@ do INDA=1,ITAIL
   GO TO 106
 120 MYSYM = JSYM(INDA)
   MYL = MUL(MYSYM,LSYM)
-  INMY = index(INDA)+1
-  FACS = D1
+  INMY = INDX(INDA)+1
   if (INDA > IRC(2)) GO TO 25
   ! DOUBLET-DOUBLET INTERACTIONS
   if (NVIR(MYL) == 0) GO TO 40
   if (IDENS == 1) GO TO 65
   call SETZ(A,NVIR(MYL))
   call FMMM(F(IPOF(MYL)+1),C(INMY),A,NVIR(MYL),1,NVIR(MYL))
-  call DAXPY_(NVIR(MYL),FACS,A,1,S(INMY),1)
+  call DAXPY_(NVIR(MYL),One,A,1,S(INMY),1)
   GO TO 40
 65 call FMUL2_CPF(C(INMY),C(INMY),A,NVIR(MYL),NVIR(MYL),1)
   IPF = IPOF(MYL)+1
-  IN = IPOF(MYL+1)-IPOF(MYL)
-  COPI = D1/(sqrt(ENP(INDA))*sqrt(ENP(INDA)))
-  call VSMA(A,1,COPI,F(IPF),1,F(IPF),1,IN)
+  IIN = IPOF(MYL+1)-IPOF(MYL)
+  COPI = One/(sqrt(ENP(INDA))*sqrt(ENP(INDA)))
+  call VSMA(A,1,COPI,F(IPF),1,F(IPF),1,IIN)
   NVIRA = NVIR(MYL)
   LNA = LN+NSYS(MYL)
   IIA = IROW(LNA+1)
-  TSUM = D0
+  TSUM = Zero
   do I=1,NVIRA
-    SUM = COPI*C(INMY)*C(INMY)
+    RSUM = COPI*C(INMY)*C(INMY)
     INMY = INMY+1
-    TSUM = TSUM+SUM
+    TSUM = TSUM+RSUM
     IIA = IIA+LNA+I
-    FC(IIA) = FC(IIA)+SUM
+    FC(IIA) = FC(IIA)+RSUM
   end do
   GO TO 106
   ! TRIPLET-TRIPLET AND SINGLET-SINGLET INTERACTIONS
 25 IFT = 1
   if (INDA > IRC(3)) IFT = 0
   call IPO_CPF(IPOA,NVIR,MUL,NSYM,MYL,IFT)
-  IN = 0
-  TSUM = D0
+  IIN = 0
+  TSUM = Zero
   do IASYM=1,NSYM
     IAB = IPOF(IASYM+1)-IPOF(IASYM)
     if (IAB == 0) GO TO 70
@@ -133,7 +138,7 @@ do INDA=1,ITAIL
     call SETZ(B,NAA)
     call FMMM(F(IPOF(IASYM)+1),A,B,NVIR(IASYM),NVIR(IASYM),NVIR(IASYM))
     call SETZ(A,NAA)
-    call DAXPY_(NAA,FACS,B,1,A,1)
+    call DAXPY_(NAA,One,B,1,A,1)
     if (IFT == 1) GO TO 230
     call SIADD_CPF(A,S(INMY+IPOA(IASYM)),NVIR(IASYM))
     call SETZ(A,NAA)
@@ -145,10 +150,10 @@ do INDA=1,ITAIL
     call SETZ(A,NAC)
     if (IASYM > ICSYM) GO TO 31
     call FMMM(F(IPOF(IASYM)+1),C(INMY+IPOA(ICSYM)),A,NVIR(IASYM),NVIR(ICSYM),NVIR(IASYM))
-    call DAXPY_(NAC,FACS,A,1,S(INMY+IPOA(ICSYM)),1)
+    call DAXPY_(NAC,One,A,1,S(INMY+IPOA(ICSYM)),1)
     GO TO 70
 31  call FMMM(C(INMY+IPOA(IASYM)),F(IPOF(IASYM)+1),A,NVIR(ICSYM),NVIR(IASYM),NVIR(IASYM))
-    call DAXPY_(NAC,FACS,A,1,S(INMY+IPOA(IASYM)),1)
+    call DAXPY_(NAC,One,A,1,S(INMY+IPOA(IASYM)),1)
     GO TO 70
 75  if (MYL /= 1) GO TO 330
     if (IFT == 0) call SQUAR_CPF(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
@@ -162,7 +167,7 @@ do INDA=1,ITAIL
 231 call MTRANS_CPF(C(INMY+IPOA(IASYM)),A,NVIR(IASYM),NVIR(ICSYM))
 255 call FMUL2_CPF(A,A,B,NVIR(IASYM),NVIR(IASYM),NVIR(ICSYM))
     IPF = IPOF(IASYM)+1
-    COPI = D1/(sqrt(ENP(INDA))*sqrt(ENP(INDA)))
+    COPI = One/(sqrt(ENP(INDA))*sqrt(ENP(INDA)))
     call VSMA(B,1,COPI,F(IPF),1,F(IPF),1,IAB)
     NVIRA = NVIR(IASYM)
     NVIRC = NVIR(ICSYM)
@@ -170,17 +175,17 @@ do INDA=1,ITAIL
     LNC = LN+NSYS(ICSYM)
     IIC = IROW(LNC+1)
     do I=1,NVIRC
-      SUM = DDOT_(NVIRA,A(INN),1,A(INN),1)
-      SUM = COPI*SUM
-      TSUM = TSUM+SUM
+      RSUM = DDOT_(NVIRA,A(INN),1,A(INN),1)
+      RSUM = COPI*RSUM
+      TSUM = TSUM+RSUM
       IIC = IIC+LNC+I
-      FC(IIC) = FC(IIC)+SUM
+      FC(IIC) = FC(IIC)+RSUM
       INN = INN+NVIRA
     end do
 70  continue
   end do
   if (IDENS == 0) GO TO 40
-  TSUM = TSUM/D2
+  TSUM = TSUM*Half
 106 IJ = 0
   do I=1,LN
     IJ = IJ+I
@@ -190,11 +195,11 @@ do INDA=1,ITAIL
 end do
 ITURN = 1
 if (IDENS == 1) GO TO 90
-300 call DSQ2(C,S,MUL,INDEX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
+300 call DSQ2(C,S,MUL,INDX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
 !NCONF = JSC(4)
-!write(6,987) (S(I),I=1,NCONF)
+!write(u6,987) (S(I),I=1,NCONF)
 !987 format(1X,'S,AB',5F10.6)
-!write(6,986) (W(I),I=1,NCONF)
+!write(u6,986) (W(I),I=1,NCONF)
 !986 format(1X,'W,AB',5F10.6)
 
 return

@@ -14,8 +14,12 @@
 
 subroutine VSADD(A,LA,S,C,LC,N)
 
-implicit real*8(A-H,O-Z)
-dimension A(*), C(*)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: LA, LC, N
+real(kind=wp) :: A(*), S, C(*)
+integer(kind=iwp) :: I
 
 do I=0,N-1
   C(1+LC*I) = A(1+LA*I)+S

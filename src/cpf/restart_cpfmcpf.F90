@@ -14,10 +14,13 @@
 
 subroutine RESTART_CPFMCPF(C,NCONF)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: NCONF
+real(kind=wp) :: C(*)
 #include "files_cpf.fh"
-dimension C(*)
+integer(kind=iwp) :: IAD
 
 IAD = 0
 call dDAFILE(Lu_CI,2,C,NCONF,IAD)

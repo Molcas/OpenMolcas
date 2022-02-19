@@ -14,14 +14,19 @@
 
 subroutine IIJJ_CPF(ICASE,JSY,HDIAG,FC,FIJ,FJI)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: ICASE(*), JSY(*)
+real(kind=wp) :: HDIAG(*), FC(*), FIJ(*), FJI(*)
 #include "cpfmcpf.fh"
 #include "files_cpf.fh"
-dimension JSY(*), HDIAG(*), FC(*), FIJ(*), FJI(*)
-dimension ICASE(*)
-dimension IOC(55)
+integer(kind=iwp) :: I, IA, IAD27, IAV, IB, IBV, II, IJ, ILIM, IND, IOC(55), IR, IRL, J, JOJ, NA, NA1, NA2, NB, NB1, NB2, NSA, NSS
+real(kind=wp) :: SUM1, SUM2, TERM
+integer(kind=iwp), external :: ICUNP, JSUNP_CPF
 ! Statement functions
+integer(kind=iwp) :: JO, JSYM, L
 JO(L) = ICUNP(ICASE,L)
 JSYM(L) = JSUNP_CPF(JSY,L)
 
@@ -37,25 +42,25 @@ do IR=1,IRL
   end do
   NSS = MUL(JSYM(IR),LSYM)
 
-  SUM = 0.0d0
+  SUM1 = Zero
   do I=1,LN
     if (IOC(I) /= 0) then
       do J=1,I-1
         IJ = (I*(I-1))/2+J
         if (IOC(J) /= 0) then
           TERM = IOC(I)*(IOC(J)*FIJ(IJ)-FJI(IJ))
-          SUM = SUM+TERM
+          SUM1 = SUM1+TERM
         end if
       end do
       II = (I*(I+1))/2
       TERM = (IOC(I)-1)*FIJ(II)+IOC(I)*FC(II)
-      SUM = SUM+TERM
+      SUM1 = SUM1+TERM
     end if
   end do
 
   if (IR > IRC(1)) GO TO 120
-  ! IR=1..IRC(1), HDIAG(IR)=SUM
-  HDIAG(IR) = SUM
+  ! IR=1..IRC(1), HDIAG(IR)=SUM1
+  HDIAG(IR) = SUM1
   if (IR == IRC(1)) call dDAFILE(Lu_27,1,HDIAG,IRC(1),IAD27)
   GO TO 100
 
@@ -69,11 +74,11 @@ do IR=1,IRL
   do NA=NA1,NA2
     IND = IND+1
     IA = IROW(LN+NA)
-    SUM1 = SUM+FC(IA+LN+NA)
+    SUM2 = SUM1+FC(IA+LN+NA)
     do I=1,LN
-      if (IOC(I) /= 0) SUM1 = SUM1+IOC(I)*FIJ(IA+I)-FJI(IA+I)
+      if (IOC(I) /= 0) SUM2 = SUM2+IOC(I)*FIJ(IA+I)-FJI(IA+I)
     end do
-    HDIAG(IND) = SUM1
+    HDIAG(IND) = SUM2
   end do
   call dDAFILE(Lu_27,1,HDIAG,IND,IAD27)
   GO TO 100
@@ -93,16 +98,16 @@ do IR=1,IRL
       IND = IND+1
       IB = IROW(LN+NB)
       IBV = IB+LN
-      TERM = SUM+FIJ(IAV+NB)+FC(IAV+NA)+FC(IBV+NB)
-      if (IR <= IRC(3)) SUM1 = TERM-FJI(IAV+NB)
-      if (IR > IRC(3)) SUM1 = TERM+FJI(IAV+NB)
+      TERM = SUM1+FIJ(IAV+NB)+FC(IAV+NA)+FC(IBV+NB)
+      if (IR <= IRC(3)) SUM2 = TERM-FJI(IAV+NB)
+      if (IR > IRC(3)) SUM2 = TERM+FJI(IAV+NB)
       do I=1,LN
         if (IOC(I) /= 0) then
           TERM = IOC(I)*(FIJ(IA+I)+FIJ(IB+I))-FJI(IA+I)-FJI(IB+I)
-          SUM1 = SUM1+TERM
+          SUM2 = SUM2+TERM
         end if
       end do
-      HDIAG(IND) = SUM1
+      HDIAG(IND) = SUM2
     end do
 141 continue
   end do

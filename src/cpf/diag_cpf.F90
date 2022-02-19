@@ -14,9 +14,11 @@
 
 subroutine DIAG_CPF(ICASE,JSY,HDIAG,FC,FIJ,FJI)
 
-implicit real*8(A-H,O-Z)
-dimension JSY(*), HDIAG(*), FC(*), FIJ(*), FJI(*)
-dimension ICASE(*)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: ICASE(*), JSY(*)
+real(kind=wp) :: HDIAG(*), FC(*), FIJ(*), FJI(*)
 
 call IIJJ_CPF(ICASE,JSY,HDIAG,FC,FIJ,FJI)
 call IJIJ_CPF(JSY,HDIAG,FJI)

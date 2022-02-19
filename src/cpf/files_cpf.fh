@@ -38,6 +38,8 @@
 !     UNIT 30 ,
 !      Lu_30
 !
+      INTEGER Lu_CIGuga,Lu_TraInt,Lu_TraOne,Lu_CI,Lu_TiABIJ,Lu_TiABCI,  &
+     &        Lu_TiABCD,Lu_25,Lu_27,Lu_30,Lu_CPFORB
       Common /files_cpf/ Lu_CIGuga,  Lu_TraInt, Lu_TraOne,              &
      &                   Lu_CI,      Lu_TiABIJ, Lu_TiABCI,              &
      &                   Lu_TiABCD,  Lu_25,     Lu_27,                  &

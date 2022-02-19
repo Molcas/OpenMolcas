@@ -14,8 +14,12 @@
 
 subroutine VAM(A,LA,B,LB,C,LC,D,LD,N)
 
-implicit real*8(A-H,O-Z)
-dimension A(*), B(*), C(*), D(*)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: LA, LB, LC, LD, N
+real(kind=wp) :: A(*), B(*), C(*), D(*)
+integer(kind=iwp) :: I
 
 do I=0,N-1
   D(1+I*LD) = (A(1+I*LA)+B(1+I*LB))*C(1+I*LC)

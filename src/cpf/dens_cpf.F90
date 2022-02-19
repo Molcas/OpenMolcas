@@ -14,28 +14,35 @@
 
 subroutine DENS_CPF(C,D,ICASE,A)
 
-implicit real*8(A-H,O-Z)
-dimension C(*), D(*)
-dimension ICASE(*)
-#include "SysDef.fh"
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6, r8
+
+implicit none
+real(kind=wp) :: C(*), D(*), A
+integer(kind=iwp) :: ICASE(*)
 #include "cpfmcpf.fh"
+integer(kind=iwp) :: I, II, II1, ILIM, JOJ
+real(kind=wp) :: EMA
+integer(kind=iwp), external :: ICUNP
+real(kind=r8), external :: DDOT_
 ! Statement function
 !PAM97      EXTERNAL UNPACK
 !PAM97      INTEGER UNPACK
 !RL   JO(L)=IAND(ISHFT(QOCC((L+29)/30),-2*((L+29)/30*30-L)),3)
 !PAM97      JO(L)=UNPACK(QOCC((L+29)/30), 2*L-(2*L-1)/60*60, 2)
+integer(kind=iwp) :: JO, L
 JO(L) = ICUNP(ICASE,L)
 
 ILIM = NORBT*(NORBT+1)/2
 call SETZ(D,ILIM)
-C(IREF0) = D0
+C(IREF0) = Zero
 !RL call DOTPR(C,1,C,1,A,NCONF)
 A = DDOT_(NCONF,C,1,C,1)
-write(6,20) A
-call XFLUSH(6)
+write(u6,20) A
+call XFLUSH(u6)
 20 format(5X,'SUM OF SQUARED CPX(BAR)',F10.4)
-C(IREF0) = D1
-EMA = D1-A
+C(IREF0) = One
+EMA = One-A
 II1 = (IREF0-1)*LN
 do I=1,LN
   JOJ = JO(II1+I)

@@ -13,25 +13,33 @@
 !***********************************************************************
 
 !pgi$g opt=1
-subroutine IJKL_CPF(JSY,INDEX,C,S,FIJKL,BUFIN,IBUFIN,ENP,EPP)
+subroutine IJKL_CPF(JSY,INDX,C,S,FIJKL,BUFIN,IBUFIN,ENP,EPP)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Constants, only: Zero
+use Definitions, only: wp, iwp, RtoI
+
+implicit none
+integer(kind=iwp) :: JSY(*), INDX(*), IBUFIN(*)
+real(kind=wp) :: C(*), S(*), FIJKL(*), BUFIN(*), ENP(*), EPP(*)
 #include "cpfmcpf.fh"
 #include "files_cpf.fh"
-dimension JSY(*), index(*), C(*), S(*), FIJKL(*), BUFIN(*), IBUFIN(*), ENP(*), EPP(*)
-parameter(IPOW8=2**8,IPOW16=2**16,IPOW24=2**24)
-parameter(IPOW6=2**6,IPOW13=2**13,IPOW19=2**19)
+integer(kind=iwp) :: I, IADR, IC1, IC2, ICHK, IIN, ILEN, IND, INDA, INDB, INDI, INUM, IP, IVL, JP, KKBUF0, KKBUF1, KKBUF2, KP, &
+                     LENGTH, LP, NA, NB, NIJ, NIJKL, NKL, NS1, NS1L
+real(kind=wp) :: COPI, FINI
+integer(kind=iwp), external :: JSUNP_CPF
+!parameter(IPOW8=2**8,IPOW16=2**16,IPOW24=2**24)
+!parameter(IPOW6=2**6,IPOW13=2**13,IPOW19=2**19)
 ! Statement function
+integer(kind=iwp) :: JSYM, L
 JSYM(L) = JSUNP_CPF(JSY,L)
 
-FINI = 0.0d0 ! dummy initialize
+FINI = Zero ! dummy initialize
 NCONF = JSC(4)
 ICHK = 0
 NIJ = IROW(LN+1)
 NIJKL = NIJ*(NIJ+1)/2
 do I=1,NIJKL
-  FIJKL(I) = D0
+  FIJKL(I) = Zero
 end do
 KKBUF0 = (RTOI*(KBUFF1+2)-2)/(RTOI+1)
 KKBUF1 = RTOI*KKBUF0+KKBUF0+1
@@ -46,11 +54,11 @@ call SCATTER(LENGTH,FIJKL,IBUFIN(RTOI*KKBUF0+1),BUFIN)
 IADD10 = IAD10(5)
 100 call dDAFILE(Lu_CIGuga,2,COP,nCOP,IADD10)
 call iDAFILE(Lu_CIGuga,2,iCOP1,nCOP+1,IADD10)
-LEN = ICOP1(nCOP+1)
-if (LEN == 0) GO TO 100
-if (LEN < 0) GO TO 200
-do IN=1,LEN
-  IND = ICOP1(IN)
+ILEN = ICOP1(nCOP+1)
+if (ILEN == 0) GO TO 100
+if (ILEN < 0) GO TO 200
+do IIN=1,ILEN
+  IND = ICOP1(IIN)
   if (ICHK /= 0) GO TO 460
   if (IND /= 0) GO TO 22
   ICHK = 1
@@ -70,7 +78,7 @@ do IN=1,LEN
   IND = NIJ*(NIJ-1)/2+NKL
   FINI = FIJKL(IND)
   GO TO 10
-22 if (abs(FINI) < 1.d-06) GO TO 10
+22 if (abs(FINI) < 1.0e-6_wp) GO TO 10
   !PAM97 IVL = iand(IND,63)
   !PAM97 IC2 = iand(ishft(IND,-6),8191)
   !PAM97 IC1 = iand(ishft(IND,-19),8191)
@@ -80,7 +88,7 @@ do IN=1,LEN
   IVL = ibits(IND,0,6)
   IC2 = ibits(IND,6,13)
   IC1 = ibits(IND,19,13)
-  COPI = COP(IN)*FINI
+  COPI = COP(IIN)*FINI
   if (IVL /= 0) GO TO 13
   if (IC1 /= IREF0) GO TO 16
   COPI = COPI/sqrt(ENP(IC2))
@@ -94,21 +102,20 @@ do IN=1,LEN
   if (ITER == 1) GO TO 10
   EPP(IC1) = EPP(IC1)+COPI*C(IC1)
   GO TO 10
-17 FACS = D1
-  S(IC1) = S(IC1)+FACS*COPI*C(IC2)
-  S(IC2) = S(IC2)+FACS*COPI*C(IC1)
+17 continue
+  S(IC1) = S(IC1)+COPI*C(IC2)
+  S(IC2) = S(IC2)+COPI*C(IC1)
   GO TO 10
 13 INDA = IRC(IVL)+IC1
   INDB = IRC(IVL)+IC2
-  FACS = D1
-  NA = index(INDA)
-  NB = index(INDB)
+  NA = INDX(INDA)
+  NB = INDX(INDB)
   NS1 = JSYM(INDA)
   NS1L = MUL(NS1,LSYM)
   INUM = NVIR(NS1L)
   if (IVL >= 2) INUM = NNS(NS1L)
-  call DAXPY_(INUM,COPI*FACS,C(NB+1),1,S(NA+1),1)
-  call DAXPY_(INUM,COPI*FACS,C(NA+1),1,S(NB+1),1)
+  call DAXPY_(INUM,COPI,C(NB+1),1,S(NA+1),1)
+  call DAXPY_(INUM,COPI,C(NA+1),1,S(NB+1),1)
 10 continue
 end do
 GO TO 100

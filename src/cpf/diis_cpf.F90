@@ -14,11 +14,17 @@
 
 subroutine DIIS_CPF(DPI,DPJ,BST,MIT,BIJ,ITP,CN)
 
-implicit real*8(A-H,O-Z)
-dimension DPI(*), DPJ(*), BST(MIT,MIT), BIJ(ITP,ITP), CN(*), WHS(50)
-#include "SysDef.fh"
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6, r8
+
+implicit none
+integer(kind=iwp) :: MIT, ITP
+real(kind=wp) :: DPI(*), DPJ(*), BST(MIT,MIT), BIJ(ITP,ITP), CN(*)
 #include "cpfmcpf.fh"
 #include "files_cpf.fh"
+integer(kind=iwp) :: I, IAD, ITM, J
+real(kind=wp) :: T, WHS(50)
+real(kind=r8), external :: DDOT_
 
 if (ITPUL == 1) GO TO 26
 
@@ -29,10 +35,10 @@ do I=1,ITM
   end do
 end do
 do I=1,ITPUL
-  BIJ(ITP,I) = -1.0d0
-  BIJ(I,ITP) = -1.0d0
+  BIJ(ITP,I) = -One
+  BIJ(I,ITP) = -One
 end do
-BIJ(ITP,ITP) = 0.0d0
+BIJ(ITP,ITP) = Zero
 
 do I=1,ITM
   IAD = IADDP(I+1)
@@ -53,8 +59,8 @@ BST(ITPUL,ITPUL) = BIJ(ITPUL,ITPUL)
 
 if (IPRINT < 10) GO TO 26
 do I=1,ITP
-  write(6,16) (BIJ(J,I),J=1,ITP)
-  call XFLUSH(6)
+  write(u6,16) (BIJ(J,I),J=1,ITP)
+  call XFLUSH(u6)
 16 format(6X,'BIJ ',6F12.6)
 end do
 
@@ -66,15 +72,15 @@ do I=1,ITPUL
     DPI(J) = DPI(J)+DPJ(J)
   end do
 end do
-if (IPRINT >= 15) write(6,14) (DPI(I),I=1,NCONF)
+if (IPRINT >= 15) write(u6,14) (DPI(I),I=1,NCONF)
 14 format(6X,'C(DIIS)',5F10.6)
 return
 
 25 call DECOMP(ITP,BIJ,BIJ)
 do I=1,ITPUL
-  WHS(I) = 0.0d00
+  WHS(I) = Zero
 end do
-WHS(ITP) = -1.0d00
+WHS(ITP) = -One
 call SOLVE(ITP,BIJ,WHS,CN)
 
 ! UPDATE P AND DELTA P

@@ -14,8 +14,12 @@
 
 subroutine VSMSB(A,LA,S,B,LB,C,LC,N)
 
-implicit real*8(A-H,O-Z)
-dimension A(*), B(*), C(*)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: LA, LB, LC, N
+real(kind=wp) :: A(*), S, B(*), C(*)
+integer(kind=iwp) :: I
 
 do I=0,N-1
   C(1+I*LC) = A(1+I*LA)*S-B(1+I*LB)

@@ -13,47 +13,56 @@
 !***********************************************************************
 
 !pgi$g opt=1
-subroutine MABCI(JSY,INDEX,C,S,BMN,IBMN,BIAC,BICA,BUFIN,W,THET,ENP,NII)
+subroutine MABCI(JSY,INDX,C,S,BMN,IBMN,BIAC,BICA,BUFIN,W,THET,ENP,NII)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Constants, only: One, Two, Half
+use Definitions, only: wp, iwp, r8
+
+implicit none
+integer(kind=iwp) :: JSY(*), INDX(*), IBMN(*), NII
+real(kind=wp) :: C(*), S(*), BMN(*), BIAC(*), BICA(*), BUFIN(*), W(*), THET(NII,NII), ENP(*)
 #include "cpfmcpf.fh"
 #include "files_cpf.fh"
-dimension JSY(*), index(*), C(*), S(*), BMN(*), IBMN(*), BIAC(*), BICA(*), BUFIN(*), W(*), THET(NII,NII), ENP(*)
-parameter(IPOW6=2**6,IPOW13=2**13,IPOW19=2**19)
+integer(kind=iwp) :: I, IAD15, ICCB, ICHK, ICP1, ICP2, IIN, ILEN, ILOOP, IND, INDA, INDB, INS, INSIN, INUM, IOUT, IT, ITYP, LB, &
+                     MA, NB, NI, NSAVE, NSIB, NSLB
+real(kind=wp) :: COPL, ENPQ, FACS, FACW, FACWA, FACWB, TERM, XXX
+integer(kind=iwp), external :: JSUNP_CPF
+real(kind=r8), external :: DDOT_
+!parameter(IPOW6=2**6,IPOW13=2**13,IPOW19=2**19)
 ! Statement function
+integer(kind=iwp) :: JSYM, L
 JSYM(L) = JSUNP_CPF(JSY,L)
 
 INUM = IRC(4)-IRC(3)
-call MPSQ2(C,S,W,MUL,INDEX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
+call MPSQ2(C,S,W,MUL,INDX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
 ICHK = 0
 INSIN = KBUFF1
 IAD15 = IADABCI
 IADD10 = IAD10(4)
 call dDAFILE(Lu_CIGuga,2,COP,nCOP,IADD10)
 call iDAFILE(Lu_CIGuga,2,iCOP1,nCOP+1,IADD10)
-LEN = ICOP1(nCOP+1)
-IN = 2
-NSAVE = ICOP1(IN)
+ILEN = ICOP1(nCOP+1)
+IIN = 2
+NSAVE = ICOP1(IIN)
 100 NI = NSAVE
 IOUT = 0
-110 IN = IN+1
-if (IN <= LEN) GO TO 15
+110 IIN = IIN+1
+if (IIN <= ILEN) GO TO 15
 call dDAFILE(Lu_CIGuga,2,COP,nCOP,IADD10)
 call iDAFILE(Lu_CIGuga,2,iCOP1,nCOP+1,IADD10)
-LEN = ICOP1(nCOP+1)
-if (LEN <= 0) GO TO 5
-IN = 1
+ILEN = ICOP1(nCOP+1)
+if (ILEN <= 0) GO TO 5
+IIN = 1
 15 if (ICHK /= 0) GO TO 460
-if (ICOP1(IN) == 0) GO TO 10
+if (ICOP1(IIN) == 0) GO TO 10
 IOUT = IOUT+1
-BMN(IOUT) = COP(IN)
-IBMN(IOUT) = ICOP1(IN)
+BMN(IOUT) = COP(IIN)
+IBMN(IOUT) = ICOP1(IIN)
 GO TO 110
 10 ICHK = 1
 GO TO 110
 460 ICHK = 0
-NSAVE = ICOP1(IN)
+NSAVE = ICOP1(IIN)
 5 continue
 do NB=1,NVIRT
   NSIB = MUL(NSM(LN+NB),NSM(NI))
@@ -80,7 +89,7 @@ do NB=1,NVIRT
     ICP1 = ibits(IND,19,13)
     INDA = IRC(1)+ICP1
     if (JSYM(INDA) /= NSLB) GO TO 25
-    MA = index(INDA)+LB
+    MA = INDX(INDA)+LB
     !PAM97 ICP2 = iand(ishft(IND,-6),8191)
     !PAM97 ITYP = iand(IND,63)
     !ICP2 = mod(IND/IPOW6,IPOW13)
@@ -90,15 +99,13 @@ do NB=1,NVIRT
     if (INS == 0) GO TO 25
     COPL = BMN(IT)*C(MA)
     INDB = IRC(ITYP)+ICP2
-    D1 = 1.0d0
-    D2 = 2.0d0
-    XXX = THET(INDA,INDB)/2.0d0
-    ENPQ = (D1-XXX)*(ENP(INDA)+ENP(INDB)-D1)+XXX
+    XXX = THET(INDA,INDB)*Half
+    ENPQ = (One-XXX)*(ENP(INDA)+ENP(INDB)-One)+XXX
     FACS = sqrt(ENP(INDA))*sqrt(ENP(INDB))/ENPQ
-    FACW = FACS*(D2-THET(INDA,INDB))/ENPQ
+    FACW = FACS*(Two-THET(INDA,INDB))/ENPQ
     FACWA = FACW*ENP(INDA)-FACS
     FACWB = FACW*ENP(INDB)-FACS
-    ICCB = index(INDB)+1
+    ICCB = INDX(INDB)+1
     if (ITYP == 3) then
       TERM = DDOT_(INS,C(ICCB),1,BIAC,1)
       call DAXPY_(INS,COPL*FACS,BIAC,1,S(ICCB),1)
@@ -113,8 +120,8 @@ do NB=1,NVIRT
 25  continue
   end do
 end do
-if (LEN >= 0) GO TO 100
-call MDSQ2(C,S,W,MUL,INDEX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
+if (ILEN >= 0) GO TO 100
+call MDSQ2(C,S,W,MUL,INDX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
 
 return
 

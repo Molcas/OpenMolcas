@@ -14,26 +14,29 @@
 
 subroutine ALLOC_CPF(ISMAX,LPERMA)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Definitions, only: iwp, u6, RtoI
+
+implicit none
+integer(kind=iwp) :: ISMAX, LPERMA
 #include "cpfmcpf.fh"
-dimension IPOF(9)
+integer(kind=iwp) :: I, IJKL, ILIM, IPF, IPOF(9), ISTOP, J, JMAX, LCIN, LIM, LIM1, LPERMB, MX1, MX2, NBMAX, NIJ, NOB2, NTMAX, &
+                     NTOT, NVMAX
 
 ILIM = 4
 if (IFIRST /= 0) ILIM = 2
-!PAM96 write(6,50)
+!PAM96 write(u6,50)
 !PAM96 50 format(/,6X,'DYNAMICAL CORE STORAGE INFORMATION',/)
 ISTOP = 0
-MAX1 = 0
-MAX2 = 0
+MX1 = 0
+MX2 = 0
 NVMAX = 0
 do I=1,NSYM
   call IPO_CPF(IPOF,NVIR,MUL,NSYM,I,-1)
-  if (IPOF(NSYM+1) > MAX1) MAX1 = IPOF(NSYM+1)
+  if (IPOF(NSYM+1) > MX1) MX1 = IPOF(NSYM+1)
   if (NVIR(I) > NVMAX) NVMAX = NVIR(I)
   do J=1,NSYM
     IPF = IPOF(J+1)-IPOF(J)
-    if (IPF > MAX2) MAX2 = IPF
+    if (IPF > MX2) MX2 = IPF
   end do
 end do
 !PAM97 call ALSO(LW,IROW,LIC,NORBT,NVIRT,LN,ISTOP,IFIRST,MADR,LPERMA,LBUF,KBUF,JBUF,IPASS,IRC(1),ISMAX,KBUFF1)
@@ -66,29 +69,29 @@ LPERMB = LW(35)
 ! MATRIX ABIJ
 LW(36) = LPERMB
 ! MATRIX AIBJ
-LW(37) = LW(36)+MAX1
+LW(37) = LW(36)+MX1
 ! MATRIX AJBI
-LW(38) = LW(37)+MAX1
+LW(38) = LW(37)+MX1
 ! BUFIN , IBUFIN
-LW(39) = LW(38)+MAX1
+LW(39) = LW(38)+MX1
 ! A
 !RL LW(40) = LW(39)+2*LBUF+2
 !PAM96 LW(40) = LW(39)+LBUF+LBUF/2+2
 LW(40) = LW(39)+((RTOI+1)*LBUF+2+(RTOI-1))/RTOI
 ! B
-LW(41) = LW(40)+MAX2
+LW(41) = LW(40)+MX2
 ! F
-LW(42) = LW(41)+MAX2
+LW(42) = LW(41)+MX2
 ! FSEC
-LW(43) = LW(42)+MAX1
+LW(43) = LW(42)+MX1
 ! ADDRESSES NOT USED
-LW(44) = LW(43)+MAX1
+LW(44) = LW(43)+MX1
 LW(45) = LW(44)
 LIM = LW(45)
 if (LIM > LIC) then
   ISTOP = 1
-  write(6,*) 'ALLOC: Too much storage needed for AIBJ.'
-  write(6,'(1X,A,2I10)') 'LIM,LIC:',LIM,LIC
+  write(u6,*) 'ALLOC: Too much storage needed for AIBJ.'
+  write(u6,'(1X,A,2I10)') 'LIM,LIC:',LIM,LIC
 end if
 ! DYNAMICAL ALLOCATION FOR IJKL
 ! FIJKL
@@ -103,8 +106,8 @@ LW(49) = LW(48)
 LIM = LW(49)
 if (LIM > LIC) then
   ISTOP = 1
-  write(6,*) 'ALLOC: Too much storage needed for IJKL.'
-  write(6,'(1X,A,2I10)') 'LIM,LIC:',LIM,LIC
+  write(u6,*) 'ALLOC: Too much storage needed for IJKL.'
+  write(u6,'(1X,A,2I10)') 'LIM,LIC:',LIM,LIC
 end if
 ! DYNAMICAL ALLOCATION FOR ABCI
 ! BMN
@@ -125,8 +128,8 @@ LW(56) = LW(55)
 LIM = LW(56)
 if (LIM > LIC) then
   ISTOP = 1
-  write(6,*) 'ALLOC: Too much storage needed for ABCI.'
-  write(6,'(1X,A,2I10)') 'LIM,LIC:',LIM,LIC
+  write(u6,*) 'ALLOC: Too much storage needed for ABCI.'
+  write(u6,'(1X,A,2I10)') 'LIM,LIC:',LIM,LIC
 end if
 ! DYNAMICAL ALLOCATION FOR ABCD
 ! ACBDS
@@ -141,8 +144,8 @@ LW(61) = LW(60)
 LIM = LW(61)
 if (LIM > LIC) then
   ISTOP = 1
-  write(6,*) 'ALLOC: Too much storage needed for ABCD.'
-  write(6,'(1X,A,2I10)') 'LIM,LIC:',LIM,LIC
+  write(u6,*) 'ALLOC: Too much storage needed for ABCD.'
+  write(u6,'(1X,A,2I10)') 'LIM,LIC:',LIM,LIC
 end if
 ! DYNAMICAL ALLOCATION FOR FIJ, AI AND AB
 ! FC
@@ -155,13 +158,13 @@ LW(63) = LW(62)+NOB2
 !PAM96 LW(64) = LW(63)+LBUF+LBUF/2+2
 LW(64) = LW(63)+((RTOI+1)*LBUF+2+(RTOI-1))/RTOI
 ! B
-LW(65) = LW(64)+MAX2
+LW(65) = LW(64)+MX2
 ! FK IN AI AND F IN AB
-LW(66) = LW(65)+MAX2
+LW(66) = LW(65)+MX2
 ! DBK
 LW(67) = LW(66)+NVMAX
 LIM = LW(67)+NVMAX
-LIM1 = LW(66)+MAX1
+LIM1 = LW(66)+MX1
 if (LIM < LIM1) LIM = LIM1
 ! ADDRESSES NOT USED
 LW(68) = LIM
@@ -171,8 +174,8 @@ LW(71) = LW(70)
 LIM = LW(71)
 if (LIM > LIC) then
   ISTOP = 1
-  write(6,*) 'ALLOC: Too much storage needed for FIJ,AI,AB'
-  write(6,'(1X,A,2I10)') 'LIM,LIC:',LIM,LIC
+  write(u6,*) 'ALLOC: Too much storage needed for FIJ,AI,AB'
+  write(u6,'(1X,A,2I10)') 'LIM,LIC:',LIM,LIC
 end if
 ! DYNAMICAL ALLOCATION FOR NPSET
 ! TEMP
@@ -181,7 +184,7 @@ LW(72) = LPERMB
 LW(73) = LW(72)+IRC(ILIM)
 LW(74) = LW(73)
 LIM = LW(74)
-!PAM96 write(6,358) LIM
+!PAM96 write(u6,358) LIM
 !PAM96 358 format(6X,'STORAGE FOR NPSET',I14)
 ! DYNAMICAL ALLOCATION FOR CPFCTL
 ! EPB (EPBIS)
@@ -205,8 +208,8 @@ LW(80) = LW(79)+NTMAX
 LIM = LW(80)+NTMAX
 if (LIM > LIC) then
   ISTOP = 1
-  write(6,*) 'ALLOC: Too much storage needed for CPFCTL'
-  write(6,'(1X,A,2I10)') 'LIM,LIC:',LIM,LIC
+  write(u6,*) 'ALLOC: Too much storage needed for CPFCTL'
+  write(u6,'(1X,A,2I10)') 'LIM,LIC:',LIM,LIC
 end if
 ! NATURAL ORBITALS
 ! DENSITY MATRIX AT LPERMB , D
@@ -235,18 +238,18 @@ LW(91) = LW(90)+NTOT
 LW(92) = LW(91)
 LW(93) = LW(92)
 LIM = LW(93)
-!PAM96 write(6,349) LIM
+!PAM96 write(u6,349) LIM
 !PAM96 349 format(6X,'STORAGE FOR DENS',I15)
 if (IPRINT >= 2) then
   ! LW(94), LW(95) AND LW(96) USED IN SORTING ABCD
-  write(6,450)
-  write(6,451) (LW(I),I=1,96)
+  write(u6,450)
+  write(u6,451) (LW(I),I=1,96)
 450 format(//,6X,'DYNAMICAL STORAGE ADDRESSES LW:',/)
 451 format(6X,5I10)
 end if
 if (ISTOP == 0) return
-write(6,*) 'ALLOC: Too little memory available.'
-write(6,*) 'Program stops here.'
+write(u6,*) 'ALLOC: Too little memory available.'
+write(u6,*) 'Program stops here.'
 
 call Abend()
 

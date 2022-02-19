@@ -13,26 +13,33 @@
 !***********************************************************************
 
 !pgi$g opt=1
-subroutine MIJKL(JSY,INDEX,C,S,FIJKL,BUFIN,IBUFIN,W,THET,ENP,EPP,NII)
+subroutine MIJKL(JSY,INDX,C,S,FIJKL,BUFIN,IBUFIN,W,THET,ENP,EPP,NII)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, RtoI
+
+implicit none
+integer(kind=iwp) :: JSY(*), INDX(*), IBUFIN(*), NII
+real(kind=wp) :: C(*), S(*), FIJKL(*), BUFIN(*), W(*), THET(NII,NII), ENP(*), EPP(*)
 #include "cpfmcpf.fh"
 #include "files_cpf.fh"
-dimension JSY(*), index(*), C(*), S(*), FIJKL(*), BUFIN(*)
-dimension IBUFIN(*), W(*), THET(NII,NII), ENP(*), EPP(*)
+integer(kind=iwp) :: I, IADR, IC1, IC2, ICHK, IIN, ILEN, IND, INDA, INDB, INDI, INUM, IP, IVL, JP, KKBUF0, KKBUF1, KKBUF2, KP, &
+                     LENGTH, LP, NA, NB, NIJ, NIJKL, NKL, NS1, NS1L
+real(kind=wp) :: COPI, ENPQ, FACS, FACW, FACWA, FACWB, FINI
+integer(kind=iwp), external :: JSUNP_CPF
 !parameter(IPOW8=2**8,IPOW16=2**16,IPOW24=2**24)
 !parameter(IPOW6=2**6,IPOW13=2**13,IPOW19=2**19)
 ! Statement function
+integer(kind=iwp) :: JSYM, L
 JSYM(L) = JSUNP_CPF(JSY,L)
 
-FINI = D0 ! dummy initialize
+FINI = Zero ! dummy initialize
 NCONF = JSC(4)
 ICHK = 0
 NIJ = IROW(LN+1)
 NIJKL = NIJ*(NIJ+1)/2
 do I=1,NIJKL
-  FIJKL(I) = D0
+  FIJKL(I) = Zero
 end do
 KKBUF0 = (RTOI*(KBUFF1+2)-2)/(RTOI+1)
 KKBUF1 = RTOI*KKBUF0+KKBUF0+1
@@ -47,11 +54,11 @@ call SCATTER(LENGTH,FIJKL,IBUFIN(RTOI*KKBUF0+1),BUFIN)
 IADD10 = IAD10(5)
 100 call dDAFILE(Lu_CIGuga,2,COP,nCOP,IADD10)
 call iDAFILE(Lu_CIGuga,2,iCOP1,nCOP+1,IADD10)
-LEN = ICOP1(nCOP+1)
-if (LEN == 0) GO TO 100
-if (LEN < 0) GO TO 200
-do IN=1,LEN
-  IND = ICOP1(IN)
+ILEN = ICOP1(nCOP+1)
+if (ILEN == 0) GO TO 100
+if (ILEN < 0) GO TO 200
+do IIN=1,ILEN
+  IND = ICOP1(IIN)
   if (ICHK /= 0) GO TO 460
   if (IND /= 0) GO TO 22
   ICHK = 1
@@ -71,7 +78,7 @@ do IN=1,LEN
   IND = NIJ*(NIJ-1)/2+NKL
   FINI = FIJKL(IND)
   GO TO 10
-22 if (abs(FINI) < 1.d-06) GO TO 10
+22 if (abs(FINI) < 1.0e-6_wp) GO TO 10
   !PAM97 IVL = iand(IND,63)
   !PAM97 IC2 = iand(ishft(IND,-6),8191)
   !PAM97 IC1 = iand(ishft(IND,-19),8191)
@@ -81,7 +88,7 @@ do IN=1,LEN
   IVL = ibits(IND,0,6)
   IC2 = ibits(IND,6,13)
   IC1 = ibits(IND,19,13)
-  COPI = COP(IN)*FINI
+  COPI = COP(IIN)*FINI
   if (IVL /= 0) GO TO 13
   if (IC1 /= IREF0) GO TO 16
   COPI = COPI/sqrt(ENP(IC2))
@@ -95,9 +102,9 @@ do IN=1,LEN
   if (ITER == 1) GO TO 10
   EPP(IC1) = EPP(IC1)+COPI*C(IC1)
   GO TO 10
-17 ENPQ = (D1-THET(IC1,IC2)/D2)*(ENP(IC1)+ENP(IC2)-D1)+THET(IC1,IC2)/D2
+17 ENPQ = (One-THET(IC1,IC2)*Half)*(ENP(IC1)+ENP(IC2)-One)+THET(IC1,IC2)*Half
   FACS = sqrt(ENP(IC1))*sqrt(ENP(IC2))/ENPQ
-  FACW = FACS*(D2-THET(IC1,IC2))/ENPQ
+  FACW = FACS*(Two-THET(IC1,IC2))/ENPQ
   FACWA = FACW*ENP(IC1)-FACS
   FACWB = FACW*ENP(IC2)-FACS
   S(IC1) = S(IC1)+FACS*COPI*C(IC2)
@@ -107,13 +114,13 @@ do IN=1,LEN
   GO TO 10
 13 INDA = IRC(IVL)+IC1
   INDB = IRC(IVL)+IC2
-  ENPQ = (D1-THET(INDA,INDB)/D2)*(ENP(INDA)+ENP(INDB)-D1)+THET(INDA,INDB)/D2
+  ENPQ = (One-THET(INDA,INDB)*Half)*(ENP(INDA)+ENP(INDB)-One)+THET(INDA,INDB)*Half
   FACS = sqrt(ENP(INDA))*sqrt(ENP(INDB))/ENPQ
-  FACW = FACS*(D2-THET(INDA,INDB))/ENPQ
+  FACW = FACS*(Two-THET(INDA,INDB))/ENPQ
   FACWA = FACW*ENP(INDA)-FACS
   FACWB = FACW*ENP(INDB)-FACS
-  NA = index(INDA)
-  NB = index(INDB)
+  NA = INDX(INDA)
+  NB = INDX(INDB)
   NS1 = JSYM(INDA)
   NS1L = MUL(NS1,LSYM)
   INUM = NVIR(NS1L)

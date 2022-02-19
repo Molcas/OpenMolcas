@@ -14,9 +14,13 @@
 
 subroutine ALSO(ISTOP,LPERMA,IRC1,ISMAX)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Definitions, only: iwp, u6, RtoI
+
+implicit none
+integer(kind=iwp) :: ISTOP, LPERMA, IRC1, ISMAX
 #include "cpfmcpf.fh"
+integer(kind=iwp) :: INOV, INVT5, JBUF1, KBUF1, LBUF1, LICX, LICXX, LIM, LIMT, LPERMX, LSTO3, LSTO4, MAX11, NOB2, NOT2, NOV, NOVT, &
+                     NVT, NVT5
 
 ! DYNAMICAL ALLOCATION FOR SORTING
 ! ADDRESSES LW(11)-LW(25)
@@ -40,13 +44,13 @@ LBUF = (RTOI*LBUF1-2)/(RTOI+1)
 if (LBUF > 998) LBUF = 998
 LBUF = ((LBUF+2)/RTOI)*RTOI-2
 LBUF1 = (LBUF*(RTOI+1)+2+(RTOI-1))/RTOI
-!PAM96 write(6,150) NOV,MADR,LBUF
+!PAM96 write(u6,150) NOV,MADR,LBUF
 !PAM96 150 format(6X,'NUMBER OF CHAINS ON DRUM',I7,/,6X,'PRESENT LIMIT',I18,/,6X,'BUFFERT FOR SORTING',I13,/,6X,'PRESENT LIMIT', &
 !PAM96            16X,'20')
 if (LBUF < 20) then
   ISTOP = 3
-  write(6,*) 'ALSO: Impossibly small buffers, too many bins,'
-  write(6,*) 'for sorting AIBJ. Program will have to stop.'
+  write(u6,*) 'ALSO: Impossibly small buffers, too many bins,'
+  write(u6,*) 'for sorting AIBJ. Program will have to stop.'
 end if
 ! SORTING AREA , BUFOUT AND INDOUT
 ! ALSO HDIAG IN DIAG
@@ -68,12 +72,12 @@ LW(15) = LW(14)+NOB2
 ! IJIJ-INTEGRALS
 LW(16) = LW(15)+NOB2
 LIM = LW(16)+NOB2-1
-!PAM96 write(6,404) LIM
+!PAM96 write(u6,404) LIM
 !PAM96 404 format(6X,'STORAGE FOR SORTING AIBJ',I7)
 if (LIM > LIC) then
   ISTOP = 1
-  write(6,*) 'ALSO: Too much storage needed for AIBJ.'
-  write(6,'(1X,A,2I10)') 'LIM,LIC:',LIM,LIC
+  write(u6,*) 'ALSO: Too much storage needed for AIBJ.'
+  write(u6,'(1X,A,2I10)') 'LIM,LIC:',LIM,LIC
 end if
 ! DYNAMICAL ALLOCATION FOR SORTING ABCD
 JBUF = 1
@@ -101,13 +105,13 @@ GO TO 110
 NOVT = NOV+NVT
 JBUF = ((JBUF+2)/RTOI)*RTOI-2
 JBUF1 = (JBUF*(RTOI+1)+2+(RTOI-1))/RTOI
-!PAM96 write(6,150) NOVT,MADR,JBUF
-!PAM96 write(6,160) IPASS
+!PAM96 write(u6,150) NOVT,MADR,JBUF
+!PAM96 write(u6,160) IPASS
 !PAM96 160 format(6X,'NUMBER OF PASSES',I15)
 if (JBUF < 20) then
   ISTOP = 3
-  write(6,*) 'ALSO: Impossibly small buffers, too many bins,'
-  write(6,*) 'for sorting ABCD. Program will have to stop.'
+  write(u6,*) 'ALSO: Impossibly small buffers, too many bins,'
+  write(u6,*) 'for sorting ABCD. Program will have to stop.'
 end if
 ! BUFACBD
 LW(96) = LPERMX
@@ -131,17 +135,17 @@ LW(95) = LW(94)+ISMAX
 LIMT = LW(95)+ISMAX
 if (LIMT > LW(18)) then
   ISTOP = 1
-  write(6,*) 'ALSO: Too much storage needed for ABCD.'
-  write(6,'(1X,A,2I10)') 'LIMT,LW(18):',LIMT,LW(18)
+  write(u6,*) 'ALSO: Too much storage needed for ABCD.'
+  write(u6,'(1X,A,2I10)') 'LIMT,LW(18):',LIMT,LW(18)
 end if
-!PAM96 write(6,402)
+!PAM96 write(u6,402)
 !PAM96 402 format(6X,'NOT ENOUGH STORAGE IN SORTB')
-!PAM96 401 write(6,405) LIM
+!PAM96 401 write(u6,405) LIM
 !PAM96 405 format(6X,'STORAGE FOR SORTING ABCD',I7)
 if (LIM > LIC) then
   ISTOP = 1
-  write(6,*) 'ALSO: Too much storage needed for ABCD.'
-  write(6,'(1X,A,2I10)') 'LIM,LIC:',LIM,LIC
+  write(u6,*) 'ALSO: Too much storage needed for ABCD.'
+  write(u6,'(1X,A,2I10)') 'LIM,LIC:',LIM,LIC
 end if
 ! DYNAMICAL ALLOCATION FOR SORTING ABCI
 NOV = LN*NVIRT+1
@@ -160,11 +164,11 @@ if (KBUF > 998) KBUF = 998
 NOVT = NOVT+NOV
 KBUF = ((KBUF+2)/RTOI)*RTOI-2
 KBUF1 = (KBUF*(RTOI+1)+2+(RTOI-1))/RTOI
-!PAM96 write(6,150) NOVT,MADR,KBUF
+!PAM96 write(u6,150) NOVT,MADR,KBUF
 if (KBUF < 20) then
   ISTOP = 3
-  write(6,*) 'ALSO: Impossibly small buffers, too many bins,'
-  write(6,*) 'for sorting ABCI. Program will have to stop.'
+  write(u6,*) 'ALSO: Impossibly small buffers, too many bins,'
+  write(u6,*) 'for sorting ABCI. Program will have to stop.'
 end if
 ! SORTING AREA , BUFOUT AND INDOUT
 LW(20) = LPERMX
@@ -187,20 +191,20 @@ LW(25) = LW(24)+ISMAX
 LIMT = LW(25)+KBUFF1+2
 if (LIMT >= LIM) then
   ISTOP = 1
-  write(6,*) 'ALSO: Too much storage needed.'
-  write(6,'(1X,A,2I10)') 'LIMT,LIM:',LIMT,LIM
+  write(u6,*) 'ALSO: Too much storage needed.'
+  write(u6,'(1X,A,2I10)') 'LIMT,LIM:',LIMT,LIM
 end if
 if (LIM > LIC) then
   ISTOP = 1
-  write(6,*) 'ALSO: Too much storage needed for ABCI.'
-  write(6,'(1X,A,2I10)') 'LIM,LIC:',LIM,LIC
+  write(u6,*) 'ALSO: Too much storage needed for ABCI.'
+  write(u6,'(1X,A,2I10)') 'LIM,LIC:',LIM,LIC
 end if
-!PAM96 411 write(6,410) LIM
+!PAM96 411 write(u6,410) LIM
 !PAM96 410 format(6X,'STORAGE FOR SORTING ABCI',I7)
 if (NOVT >= MADR) then
   ISTOP = 2
-  write(6,*) 'ALSO: Too much storage needed.'
-  write(6,'(1X,A,2I10)') 'NOVT,MADR:',NOVT,MADR
+  write(u6,*) 'ALSO: Too much storage needed.'
+  write(u6,'(1X,A,2I10)') 'NOVT,MADR:',NOVT,MADR
 end if
 
 return

@@ -12,16 +12,23 @@
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-subroutine MABCD(JSY,INDEX,ISAB,C,S,ACBDS,ACBDT,BUFIN,W,THET,ENP,NII)
+subroutine MABCD(JSY,INDX,ISAB,C,S,ACBDS,ACBDT,BUFIN,W,THET,ENP,NII)
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
+use Constants, only: One, Two, Half
+use Definitions, only: wp, iwp, r8
+
+implicit none
+integer(kind=iwp) :: JSY(*), INDX(*), ISAB(*), NII
+real(kind=wp) :: C(*), S(*), ACBDS(*), ACBDT(*), BUFIN(*), W(*), THET(NII,NII), ENP(*)
 #include "cpfmcpf.fh"
 #include "files_cpf.fh"
-dimension JSY(*), index(*), ISAB(*), C(*), S(*), ACBDS(*), ACBDT(*), BUFIN(*), W(*), THET(NII,NII), ENP(*)
+integer(kind=iwp) :: I, IAC, IACMAX, IACMIN, IAD16, IFIN1, IFIN2, ILOOP, IN1, INDA, INPS, INPT, INS, INSIN, INUM, ISAC, IST1, &
+                     IST2, ISTEP, ISYM, ITAIL, NA, NC, NDMAX, NOV, NSAC, NSACL, NVT
+real(kind=wp) :: ENPQ, FACS, FACW, TERM
+real(kind=r8), external :: DDOT_
 
 INUM = IRC(4)-IRC(3)
-call MPSQ2(C,S,W,MUL,INDEX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
+call MPSQ2(C,S,W,MUL,INDX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
 IAD16 = 0
 KBUFF1 = 2*9600
 INSIN = KBUFF1
@@ -70,25 +77,25 @@ do ISTEP=1,IPASS
         if (ILOOP == 1) GO TO 72
         if (INPS == 0) GO TO 11
         do INDA=IST1,IFIN1
-          ENPQ = (D1-THET(INDA,INDA)/D2)*(ENP(INDA)+ENP(INDA)-D1)+THET(INDA,INDA)/D2
+          ENPQ = (One-THET(INDA,INDA)*Half)*(ENP(INDA)+ENP(INDA)-One)+THET(INDA,INDA)*Half
           FACS = sqrt(ENP(INDA))*sqrt(ENP(INDA))/ENPQ
-          FACW = (FACS*(D2-THET(INDA,INDA))/ENPQ)*ENP(INDA)-FACS
-          TERM = DDOT_(INS,C(index(INDA)+1),1,ACBDS,1)
-          S(index(INDA)+ISAC) = S(index(INDA)+ISAC)+FACS*TERM
-          W(index(INDA)+ISAC) = W(index(INDA)+ISAC)+FACW*TERM
-          call DAXPY_(INS,FACS*C(index(INDA)+ISAC),ACBDS,1,S(index(INDA)+1),1)
-          call DAXPY_(INS,FACW*C(index(INDA)+ISAC),ACBDS,1,W(index(INDA)+1),1)
+          FACW = (FACS*(Two-THET(INDA,INDA))/ENPQ)*ENP(INDA)-FACS
+          TERM = DDOT_(INS,C(INDX(INDA)+1),1,ACBDS,1)
+          S(INDX(INDA)+ISAC) = S(INDX(INDA)+ISAC)+FACS*TERM
+          W(INDX(INDA)+ISAC) = W(INDX(INDA)+ISAC)+FACW*TERM
+          call DAXPY_(INS,FACS*C(INDX(INDA)+ISAC),ACBDS,1,S(INDX(INDA)+1),1)
+          call DAXPY_(INS,FACW*C(INDX(INDA)+ISAC),ACBDS,1,W(INDX(INDA)+1),1)
         end do
 11      if ((INPT == 0) .or. (NA == NC)) GO TO 60
         do INDA=IST2,IFIN2
-          ENPQ = (D1-THET(INDA,INDA)/D2)*(ENP(INDA)+ENP(INDA)-D1)+THET(INDA,INDA)/D2
+          ENPQ = (One-THET(INDA,INDA)*Half)*(ENP(INDA)+ENP(INDA)-One)+THET(INDA,INDA)*Half
           FACS = sqrt(ENP(INDA))*sqrt(ENP(INDA))/ENPQ
-          FACW = (FACS*(D2-THET(INDA,INDA))/ENPQ)*ENP(INDA)-FACS
-          TERM = DDOT_(INS,C(index(INDA)+1),1,ACBDT,1)
-          S(index(INDA)+ISAC) = S(index(INDA)+ISAC)+FACS*TERM
-          W(index(INDA)+ISAC) = W(index(INDA)+ISAC)+FACW*TERM
-          call DAXPY_(INS,FACS*C(index(INDA)+ISAC),ACBDT,1,S(index(INDA)+1),1)
-          call DAXPY_(INS,FACW*C(index(INDA)+ISAC),ACBDT,1,W(index(INDA)+1),1)
+          FACW = (FACS*(Two-THET(INDA,INDA))/ENPQ)*ENP(INDA)-FACS
+          TERM = DDOT_(INS,C(INDX(INDA)+1),1,ACBDT,1)
+          S(INDX(INDA)+ISAC) = S(INDX(INDA)+ISAC)+FACS*TERM
+          W(INDX(INDA)+ISAC) = W(INDX(INDA)+ISAC)+FACW*TERM
+          call DAXPY_(INS,FACS*C(INDX(INDA)+ISAC),ACBDT,1,S(INDX(INDA)+1),1)
+          call DAXPY_(INS,FACW*C(INDX(INDA)+ISAC),ACBDT,1,W(INDX(INDA)+1),1)
         end do
 60      continue
       end do
@@ -97,7 +104,7 @@ do ISTEP=1,IPASS
   end do
 70 continue
 end do
-call MDSQ2(C,S,W,MUL,INDEX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
+call MDSQ2(C,S,W,MUL,INDX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
 
 return
 
