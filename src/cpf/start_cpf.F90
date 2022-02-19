@@ -11,12 +11,17 @@
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
-      SUBROUTINE START_CPF(C,NCONF,IREF0)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION C(*)
-      DO 10 I=1,NCONF
-      C(I)=0.0D0
-10    CONTINUE
-      C(IREF0)=1.0D0
-      RETURN
-      END
+
+subroutine START_CPF(C,NCONF,IREF0)
+
+implicit real*8(A-H,O-Z)
+dimension C(*)
+
+do I=1,NCONF
+  C(I) = 0.0d0
+end do
+C(IREF0) = 1.0d0
+
+return
+
+end subroutine START_CPF

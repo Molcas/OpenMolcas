@@ -11,37 +11,42 @@
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
-!
-      SUBROUTINE SOLVE(NN,UL,B,X)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION UL(NN,NN),B(*),X(*)
+
+subroutine SOLVE(NN,UL,B,X)
+
+implicit real*8(A-H,O-Z)
+dimension UL(NN,NN), B(*), X(*)
+
 #include "ips.fh"
-      N=NN
-      NP1=N+1
-!
-      IP=IPS(1)
-      X(1)=B(IP)
-      DO 2 I=2,N
-       IP=IPS(I)
-       IM1=I-1
-       SUM=0.0D00
-       DO 1 J=1,IM1
-        SUM=SUM+UL(IP,J)*X(J)
-1      CONTINUE
-       X(I)=B(IP)-SUM
-2     CONTINUE
-      IP=IPS(N)
-      X(N)=X(N)/UL(IP,N)
-      DO 4 IBACK=2,N
-       I=NP1-IBACK
-!****  I GOES (N-1),...,1
-       IP=IPS(I)
-       IP1=I+1
-       SUM=0.0D00
-       DO 3 J=IP1,N
-        SUM=SUM+UL(IP,J)*X(J)
-3      CONTINUE
-       X(I)=(X(I)-SUM)/UL(IP,I)
-4     CONTINUE
-      RETURN
-      END
+
+N = NN
+NP1 = N+1
+
+IP = IPS(1)
+X(1) = B(IP)
+do I=2,N
+  IP = IPS(I)
+  IM1 = I-1
+  SUM = 0.0d00
+  do J=1,IM1
+    SUM = SUM+UL(IP,J)*X(J)
+  end do
+  X(I) = B(IP)-SUM
+end do
+IP = IPS(N)
+X(N) = X(N)/UL(IP,N)
+do IBACK=2,N
+  I = NP1-IBACK
+  ! I GOES (N-1),...,1
+  IP = IPS(I)
+  IP1 = I+1
+  SUM = 0.0d00
+  do J=IP1,N
+    SUM = SUM+UL(IP,J)*X(J)
+  end do
+  X(I) = (X(I)-SUM)/UL(IP,I)
+end do
+
+return
+
+end subroutine SOLVE

@@ -11,16 +11,21 @@
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
-      SUBROUTINE IFOCK(FC,NI,NJ,NK,FINI,II)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION FC(*)
-      IF(NI.GT.0)RETURN
-      IF(NJ.LE.0.OR.NK.LE.0)RETURN
-      JKPOS=NJ*(NJ-1)/2+NK
-      IF(NK.GT.NJ)JKPOS=NK*(NK-1)/2+NJ
-      IF(II.EQ.0)GO TO 10
-      FC(JKPOS)=FC(JKPOS)+FINI+FINI
-      RETURN
-10    FC(JKPOS)=FC(JKPOS)-FINI
-      RETURN
-      END
+
+subroutine IFOCK(FC,NI,NJ,NK,FINI,II)
+
+implicit real*8(A-H,O-Z)
+dimension FC(*)
+
+if (NI > 0) return
+if ((NJ <= 0) .or. (NK <= 0)) return
+JKPOS = NJ*(NJ-1)/2+NK
+if (NK > NJ) JKPOS = NK*(NK-1)/2+NJ
+if (II == 0) GO TO 10
+FC(JKPOS) = FC(JKPOS)+FINI+FINI
+return
+10 FC(JKPOS) = FC(JKPOS)-FINI
+
+return
+
+end subroutine IFOCK

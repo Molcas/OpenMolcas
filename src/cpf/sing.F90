@@ -11,22 +11,27 @@
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
-!
-      SUBROUTINE SING(IWHY)
-      IMPLICIT REAL*8 (A-H,O-Z)
-11    FORMAT(54H MATRIX WITH ZERO ROW IN DECOMPOSE.                   )
-12    FORMAT(54H SINGULAR MATRIX IN DECOMPOSE. ZERO DIVIDE IN SOLVE.  )
-13    FORMAT(54H NO CONVERGENCE IN IMPROVE. MATRIX IS NEARLY SINGULAR.)
-      NOUT=6
-!**** NOUTE=STANDARD OUTPUT UNIT
-      GOTO (1,2,3),IWHY
-1     WRITE(NOUT,11)
-      CALL XFLUSH(6)
-      GOTO 10
-2     WRITE(NOUT,12)
-      CALL XFLUSH(6)
-      GOTO 10
-3     WRITE(NOUT,13)
-      CALL XFLUSH(6)
-10    RETURN
-      END
+
+subroutine SING(IWHY)
+
+implicit real*8(A-H,O-Z)
+
+NOUT = 6
+! NOUT=STANDARD OUTPUT UNIT
+goto(1,2,3),IWHY
+1 write(NOUT,11)
+call XFLUSH(6)
+goto 10
+2 write(NOUT,12)
+call XFLUSH(6)
+goto 10
+3 write(NOUT,13)
+call XFLUSH(6)
+
+10 return
+
+11 format(' MATRIX WITH ZERO ROW IN DECOMPOSE.')
+12 format(' SINGULAR MATRIX IN DECOMPOSE.ZERO DIVIDE IN SOLVE.')
+13 format(' NO CONVERGENCE IN IMPROVE.MATRIX IS NEARLY SINGULAR.')
+
+end subroutine SING

@@ -11,106 +11,100 @@
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
-      SUBROUTINE CPFCTL(H)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION H(*)
 
+subroutine CPFCTL(H)
+
+implicit real*8(A-H,O-Z)
+dimension H(*)
 #include "SysDef.fh"
-
 #include "cpfmcpf.fh"
-!
-      CALL CPFCTL_INTERNAL(H)
-!
-!     This is to allow type punning without an explicit interface
-      CONTAINS
-      SUBROUTINE CPFCTL_INTERNAL(H)
-      USE ISO_C_BINDING
-      REAL*8, TARGET :: H(*)
-      INTEGER, POINTER :: iH1(:),iH2(:),iH3(:)
-      CALL C_F_POINTER(C_LOC(H(LW(2))),iH2,[1])
-      CALL C_F_POINTER(C_LOC(H(LW(3))),iH3,[1])
-      CALL EPSBIS(iH2,iH3,H(LW(26)),H(LW(28)),H(LW(75)))
-      NULLIFY(iH2,iH3)
-      CALL C_F_POINTER(C_LOC(H(LW(2))),iH2,[1])
-      CALL C_F_POINTER(C_LOC(H(LW(3))),iH3,[1])
-      CALL EPSPRIM(iH2,iH3,H(LW(26)),H(LW(27)),H(LW(32)))
-      NULLIFY(iH2,iH3)
-      IP=IRC(4)
-      CALL VECSUM_CPFMCPF(H(LW(32)),ENER,IP)
-      ETOTT=ENER+POTNUC
-      DELE=ETOTT-ETOT
-      ETOT=ETOTT
-      IF(ITER.EQ.1) THEN
-        WRITE(6,'(1X,A)')' ITER      TOTAL ENERGY'                      &
-     &       //'          CORR ENERGY           DECREASE'
-        CALL XFLUSH(6)
-      END IF
-      WRITE(6,'(1X,I3,3(5X,F16.8))')ITER,ETOT,ENER,DELE
-      CALL XFLUSH(6)
-      IF(ABS(DELE).LT.ETHRE.AND.ITPUL.NE.1)ICONV=1
-      IF(ICONV.EQ.0.AND.ITER.NE.MAXIT)GO TO 20
-! If more iterations should be done, goto 20.
 
-      IF(ICONV.EQ.1)WRITE(6,37)
-37    FORMAT(/,5X,'CALCULATION CONVERGED')
-      IF(ICONV.EQ.0)WRITE(6,38)
-38    FORMAT(/,5X,'CALCULATION NOT COMPLETELY CONVERGED')
-      IF(ISDCI.EQ.1) WRITE(6,30)ETOT
-30    FORMAT(/,5X,'FINAL CI ENERGY',6X,F17.8)
-      IF(ICPF.EQ.1)WRITE(6,35)ETOT
-35    FORMAT(/,5X,'FINAL CPF ENERGY',5X,F17.8)
-      IF(INCPF.EQ.1)WRITE(6,39)ETOT
-39    FORMAT(/,5X,'FINAL ACPF ENERGY',4X,F17.8)
-      IF(ISDCI.EQ.0.AND.ICPF.EQ.0.AND.INCPF.EQ.0)WRITE(6,36)ETOT
-36    FORMAT(/,5X,'FINAL MCPF ENERGY',5X,F17.8)
-      WRITE(6,31)ENER,POTNUC
-      CALL XFLUSH(6)
-31    FORMAT(5X,'FINAL CORRELATION ENERGY',F14.8,'  REFERENCE ENERGY',  &
-     &F17.8)
-      If (ISDCI.EQ.1) Call Add_Info('E_SDCI',[ETOT],1,8)
-      If (ICPF.EQ.1)  Call Add_Info('E_CPF',[ETOT],1,8)
-      If (INCPF.EQ.1) Call Add_Info('E_ACPF',[ETOT],1,8)
-      If (ISDCI.EQ.0.AND.ICPF.EQ.0.AND.INCPF.EQ.0)                      &
-     &                Call Add_Info('E_MCPF',[ETOT],1,8)
-      CALL XFLUSH(6)
-      IF(ISDCI.EQ.0)GO TO 21
-      EENP=H(LW(31)+IRC(4)-1)
-      C0=D1/SQRT(EENP)
-      DECORR=ENER*(EENP-D1)
-      DETOT=ETOT+DECORR
-      WRITE(6,32)DETOT
-32    FORMAT(5X,'DAVIDSON CORR. ENERGY',F17.8)
-      WRITE(6,33)DECORR,C0
-33    FORMAT(5X,'DAVIDSON CORRECTION',F19.8,'  C0 = ',F12.6)
-      CALL XFLUSH(6)
+call CPFCTL_INTERNAL(H)
 
-21    CONTINUE
-      IF(IPRINT.GT.5) THEN
-        ISTA=LW(31)
-        IEND=ISTA+IRC(4)-1
-        IF(IPRINT.GT.5)WRITE(6,34)(H(I),I=ISTA,IEND)
-34      FORMAT(/,(5X,'ENP',5F10.6))
-      END IF
+! This is to allow type punning without an explicit interface
+contains
+subroutine CPFCTL_INTERNAL(H)
+  use iso_c_binding
+  real*8, target :: H(*)
+  integer, pointer :: iH1(:), iH2(:), iH3(:)
+  call c_f_pointer(c_loc(H(LW(2))),iH2,[1])
+  call c_f_pointer(c_loc(H(LW(3))),iH3,[1])
+  call EPSBIS(iH2,iH3,H(LW(26)),H(LW(28)),H(LW(75)))
+  nullify(iH2,iH3)
+  call c_f_pointer(c_loc(H(LW(2))),iH2,[1])
+  call c_f_pointer(c_loc(H(LW(3))),iH3,[1])
+  call EPSPRIM(iH2,iH3,H(LW(26)),H(LW(27)),H(LW(32)))
+  nullify(iH2,iH3)
+  IP = IRC(4)
+  call VECSUM_CPFMCPF(H(LW(32)),ENER,IP)
+  ETOTT = ENER+POTNUC
+  DELE = ETOTT-ETOT
+  ETOT = ETOTT
+  if (ITER == 1) then
+    write(6,'(1X,A)') ' ITER      TOTAL ENERGY          CORR ENERGY           DECREASE'
+    call XFLUSH(6)
+  end if
+  write(6,'(1X,I3,3(5X,F16.8))') ITER,ETOT,ENER,DELE
+  call XFLUSH(6)
+  if ((abs(DELE) < ETHRE) .and. (ITPUL /= 1)) ICONV = 1
+  if ((ICONV == 0) .and. (ITER /= MAXIT)) GO TO 20
+  ! If more iterations should be done, goto 20.
 
-      RETURN
+  if (ICONV == 1) write(6,37)
+37 format(/,5X,'CALCULATION CONVERGED')
+  if (ICONV == 0) write(6,38)
+38 format(/,5X,'CALCULATION NOT COMPLETELY CONVERGED')
+  if (ISDCI == 1) write(6,30) ETOT
+30 format(/,5X,'FINAL CI ENERGY',6X,F17.8)
+  if (ICPF == 1) write(6,35) ETOT
+35 format(/,5X,'FINAL CPF ENERGY',5X,F17.8)
+  if (INCPF == 1) write(6,39) ETOT
+39 format(/,5X,'FINAL ACPF ENERGY',4X,F17.8)
+  if ((ISDCI == 0) .and. (ICPF == 0) .and. (INCPF == 0)) write(6,36) ETOT
+36 format(/,5X,'FINAL MCPF ENERGY',5X,F17.8)
+  write(6,31) ENER,POTNUC
+  call XFLUSH(6)
+31 format(5X,'FINAL CORRELATION ENERGY',F14.8,'  REFERENCE ENERGY',F17.8)
+  if (ISDCI == 1) call Add_Info('E_SDCI',[ETOT],1,8)
+  if (ICPF == 1) call Add_Info('E_CPF',[ETOT],1,8)
+  if (INCPF == 1) call Add_Info('E_ACPF',[ETOT],1,8)
+  if ((ISDCI == 0) .and. (ICPF == 0) .and. (INCPF == 0)) call Add_Info('E_MCPF',[ETOT],1,8)
+  call XFLUSH(6)
+  if (ISDCI == 0) GO TO 21
+  EENP = H(LW(31)+IRC(4)-1)
+  C0 = D1/sqrt(EENP)
+  DECORR = ENER*(EENP-D1)
+  DETOT = ETOT+DECORR
+  write(6,32) DETOT
+32 format(5X,'DAVIDSON CORR. ENERGY',F17.8)
+  write(6,33) DECORR,C0
+33 format(5X,'DAVIDSON CORRECTION',F19.8,'  C0 = ',F12.6)
+  call XFLUSH(6)
 
-20    CONTINUE
-! Here if ICONV.EQ.0 and  ITER.NE.MAXIT (More iterations to do).
-      IDIIS=0
-      IF(ITPUL.EQ.MAXITP)IDIIS=1
-      CALL C_F_POINTER(C_LOC(H(LW(1))),iH1,[1])
-      CALL  APPRIM(H(LW(32)),H(LW(75)),H(LW(30)),H(LW(76)),H(LW(31)),   &
-     &             H(LW(79)),H(LW(80)),iH1)
-      NULLIFY(iH1)
-      CALL C_F_POINTER(C_LOC(H(LW(2))),iH2,[1])
-      CALL C_F_POINTER(C_LOC(H(LW(3))),iH3,[1])
-      CALL CUPDATE(iH2,iH3,H(LW(26)),H(LW(27)),                         &
-     &             H(LW(76)),H(LW(33)),H(LW(80)),H(LW(31)))
-      NULLIFY(iH2,iH3)
-      ITP=ITPUL+1
-      CALL    DIIS_CPF(H(LW(26)),H(LW(27)),H(LW(33)),                   &
-     &             MAXIT,H(LW(77)),ITP,H(LW(78)))
-      RETURN
-      END SUBROUTINE CPFCTL_INTERNAL
-!
-      END
+21 continue
+  if (IPRINT > 5) then
+    ISTA = LW(31)
+    IEND = ISTA+IRC(4)-1
+    if (IPRINT > 5) write(6,34) (H(I),I=ISTA,IEND)
+34  format(/,(5X,'ENP',5F10.6))
+  end if
+
+  return
+
+20 continue
+  ! Here if ICONV == 0 and ITER /= MAXIT (More iterations to do).
+  IDIIS = 0
+  if (ITPUL == MAXITP) IDIIS = 1
+  call c_f_pointer(c_loc(H(LW(1))),iH1,[1])
+  call APPRIM(H(LW(32)),H(LW(75)),H(LW(30)),H(LW(76)),H(LW(31)),H(LW(79)),H(LW(80)),iH1)
+  nullify(iH1)
+  call c_f_pointer(c_loc(H(LW(2))),iH2,[1])
+  call c_f_pointer(c_loc(H(LW(3))),iH3,[1])
+  call CUPDATE(iH2,iH3,H(LW(26)),H(LW(27)),H(LW(76)),H(LW(33)),H(LW(80)),H(LW(31)))
+  nullify(iH2,iH3)
+  ITP = ITPUL+1
+  call DIIS_CPF(H(LW(26)),H(LW(27)),H(LW(33)),MAXIT,H(LW(77)),ITP,H(LW(78)))
+  return
+end subroutine CPFCTL_INTERNAL
+
+end subroutine CPFCTL

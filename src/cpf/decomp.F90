@@ -11,73 +11,68 @@
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
-!
-!
-      SUBROUTINE DECOMP(NN,A,UL)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION A(NN,NN),UL(NN,NN),SCALES(200)
+
+subroutine DECOMP(NN,A,UL)
+
+implicit real*8(A-H,O-Z)
+dimension A(NN,NN), UL(NN,NN), SCALES(200)
 #include "ips.fh"
-      N=NN
-      IDXPIV=0 ! dummy initialize
-!**** INITIALIZE IPS, UL AND SCALES
-      DO 5 I=1,N
-      IPS(I)=I
-      ROWNRM=0.0D00
-      DO 2 J=1,N
-      UL(I,J)=A(I,J)
-!      IF (ROWNRM-ABS(UL(I,J))) 1,2,2
-      IF (ROWNRM-ABS(UL(I,J)).ge.0) goto 2
-!1     CONTINUE
-      ROWNRM=abs(UL(I,J))
-2     CONTINUE
-!      IF (ROWNRM) 3,4,3
-      IF (ROWNRM.eq.0) goto 4
-!3     CONTINUE
-      SCALES(I)=1.0D00/ROWNRM
-      GO TO 5
-4     CALL SING(1)
-      SCALES(I)=0.0D00
-5     CONTINUE
-!**** GAUSSIAN ELIMINATION WITH PARTIAL PIVOTING
-      NM1=N-1
-      DO 17 K=1,NM1
-      BIG=0.0D00
-      DO 11 I=K,N
-      IP=IPS(I)
-      SIZE=ABS(UL(IP,K))*SCALES(IP)
-!      IF (SIZE-BIG) 11,11,10
-      IF (SIZE-BIG.le.0) goto 11
-!10    CONTINUE
-      BIG=SIZE
-      IDXPIV=I
-11    CONTINUE
-!      IF (BIG) 13,12,13
-      IF (BIG.ne.0) goto 13
-!12    CONTINUE
-      CALL SING(2)
-      GOTO 17
-!13    IF (IDXPIV-K) 14,15,14
-13    IF (IDXPIV.eq.K) goto 15
-!14    CONTINUE
-      J=IPS(K)
-      IPS(K)=IPS(IDXPIV)
-      IPS(IDXPIV)=J
-15    KP=IPS(K)
-      PIVOT=UL(KP,K)
-      KP1=K+1
-      DO 16 I=KP1,N
-      IP=IPS(I)
-      EM=-UL(IP,K)/PIVOT
-      UL(IP,K)=-EM
-      DO 160 J=KP1,N
-      UL(IP,J)=UL(IP,J)+EM*UL(KP,J)
-160   CONTINUE
-16    CONTINUE
-17    CONTINUE
-      KP=IPS(N)
-!      IF (UL(KP,N)) 19,18,19
-      IF (UL(KP,N).ne.0) goto 19
-!18    CONTINUE
-      CALL SING(2)
-19    RETURN
-      END
+
+N = NN
+IDXPIV = 0 ! dummy initialize
+! INITIALIZE IPS, UL AND SCALES
+do I=1,N
+  IPS(I) = I
+  ROWNRM = 0.0d00
+  do J=1,N
+    UL(I,J) = A(I,J)
+    if (ROWNRM-abs(UL(I,J)) >= 0) goto 2
+    ROWNRM = abs(UL(I,J))
+2   continue
+  end do
+  if (ROWNRM == 0) goto 4
+  SCALES(I) = 1.0d00/ROWNRM
+  GO TO 5
+4 call SING(1)
+  SCALES(I) = 0.0d00
+5 continue
+end do
+! GAUSSIAN ELIMINATION WITH PARTIAL PIVOTING
+NM1 = N-1
+do K=1,NM1
+  BIG = 0.0d00
+  do I=K,N
+    IP = IPS(I)
+    SIZE = abs(UL(IP,K))*SCALES(IP)
+    if (SIZE-BIG <= 0) goto 11
+    BIG = SIZE
+    IDXPIV = I
+11  continue
+  end do
+  if (BIG /= 0) goto 13
+  call SING(2)
+  goto 17
+13 if (IDXPIV == K) goto 15
+  J = IPS(K)
+  IPS(K) = IPS(IDXPIV)
+  IPS(IDXPIV) = J
+15 KP = IPS(K)
+  PIVOT = UL(KP,K)
+  KP1 = K+1
+  do I=KP1,N
+    IP = IPS(I)
+    EM = -UL(IP,K)/PIVOT
+    UL(IP,K) = -EM
+    do J=KP1,N
+      UL(IP,J) = UL(IP,J)+EM*UL(KP,J)
+    end do
+  end do
+17 continue
+end do
+KP = IPS(N)
+if (UL(KP,N) /= 0) goto 19
+call SING(2)
+
+19 return
+
+end subroutine DECOMP

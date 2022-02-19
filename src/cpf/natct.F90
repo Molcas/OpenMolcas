@@ -11,134 +11,124 @@
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
-      SUBROUTINE NATCT(H,LIC0)
-      IMPLICIT REAL*8 (A-H,O-Z)
+
+subroutine NATCT(H,LIC0)
+
+implicit real*8(A-H,O-Z)
 #include "SysDef.fh"
 #include "cpfmcpf.fh"
 #include "files_cpf.fh"
-      DIMENSION H(LIC0)
-      Character*72 Header
-      Dimension Dummy(1),iDummy(7,8)
-!
-      NSUM =0
-      N2SUM=0
-      n2Tri = 0
-      nbMax = 0
-      DO 9 ISYM=1,NSYM
-         nbMax = Max(nbMax,nBas(iSym))
-         NSUM =NSUM +NBAS(ISYM)
-         N2SUM=N2SUM+NBAS(ISYM)**2
-         n2Tri = n2Tri + nBas(iSym)*(nBas(iSym)+1)/2
-9     CONTINUE
+dimension H(LIC0)
+character*72 Header
+dimension Dummy(1), iDummy(7,8)
 
-!     Read MO coefficients
-      IDISK=ITOC17(1)
-      CALL dDAFILE(Lu_TraOne,2,H(LW(87)),N2SUM,IDISK)
-      IF (LW(87)+N2SUM-1.ge.LW(88)) THEN
-         WRITE(6,*)
-         WRITE(6,'(6X,A)')'*** ERROR IN SUBROUTINE NATCT ***'
-         WRITE(6,'(6X,A)')'NO SPACE LEFT TO GENERATE FINAL ORBITALS'
-         WRITE(6,*)
-      CALL XFLUSH(6)
-         Call Abend
-      ENDIF
-!
-!     Loop over irreps and compute natural orbitals
-!
-      IOCC=LW(90)
-      ICMO=LW(87)
-      DO 10 M=1,NSYM
-!        set occupation number of orbitals prefrozen in MOTRA
-         CALL DCOPY_(NBAS(M),[0.0D0],0,H(IOCC),1)
-!        skip orbitals prefrozen in MOTRA
-         CALL DCOPY_(NPFRO(M),[2.0D0],0,H(IOCC),1)
-         CALL NATORB_CPF(H(LW(62)),H(ICMO+NBAS(M)*NPFRO(M)),H(LW(88)),  &
-     &               H(LW(89)),H(LW(89)),H(IOCC+NPFRO(M)),M)
-         CALL DCOPY_(NORB(M)*NBAS(M),H(LW(89)),1,                       &
-     &              H(ICMO+NBAS(M)*NPFRO(M)),1)
-         ICMO=ICMO+NBAS(M)**2
-         IOCC=IOCC+NBAS(M)
-10    CONTINUE
+NSUM = 0
+N2SUM = 0
+n2Tri = 0
+nbMax = 0
+do ISYM=1,NSYM
+  nbMax = max(nbMax,nBas(iSym))
+  NSUM = NSUM+NBAS(ISYM)
+  N2SUM = N2SUM+NBAS(ISYM)**2
+  n2Tri = n2Tri+nBas(iSym)*(nBas(iSym)+1)/2
+end do
 
-      LW91A = LW(91)
-      LW91B = LW91A + n2Sum
-      If (LW91B+n2Tri-1.gt.Lic) Then
-         WRITE(6,*) ' Not enough core in NATCT'
-      CALL XFLUSH(6)
-         Call ErrTra
-         Call Abend
-      End If
-      Call RelEne(ErelMV,ErelDC,nSym,nBas,H(LW(87)),                    &
-     &            H(LW(90)),H(LW91A),H(LW91B))
+! Read MO coefficients
+IDISK = ITOC17(1)
+call dDAFILE(Lu_TraOne,2,H(LW(87)),N2SUM,IDISK)
+if (LW(87)+N2SUM-1 >= LW(88)) then
+  write(6,*)
+  write(6,'(6X,A)') '*** ERROR IN SUBROUTINE NATCT ***'
+  write(6,'(6X,A)') 'NO SPACE LEFT TO GENERATE FINAL ORBITALS'
+  write(6,*)
+  call XFLUSH(6)
+  call Abend()
+end if
 
-      EREL=ERELMV+ERELDC
-      WRITE(6,'(/,5X,A)') 'FIRST ORDER RELATIVISTIC CORRECTIONS'
-      WRITE(6,'(5X,A,F17.8)')                                           &
-     &            'MASS-VELOCITY        ', ErelMV
-      WRITE(6,'(5X,A,F17.8)')                                           &
-     &            '1-EL DARWIN CONTACT  ', ErelDC
-      WRITE(6,'(5X,A,F17.8)')                                           &
-     &            'TOTAL REL. CORRECTION', Erel
-      IF (ISDCI.EQ.1) THEN
-        WRITE(6,'(5X,A,F17.8)')                                         &
-     &            'REL. CI ENERGY       ', ETOT+Erel
-        WRITE(6,'(5X,A,F17.8)')                                         &
-     &            'REL. CI+Q ENERGY     ',DETOT+Erel
-      ELSE
-        WRITE(6,'(5X,A,F17.8)')                                         &
-     &            'TOTAL REL. ENERGY    ', ETOT+Erel
-      END IF
-      CALL XFLUSH(6)
-      CALL dPRWF(H)
-      If (iCPF.eq.1) Then
-         Header=' CPF natural orbitals'
-      Else If (iSDCI.eq.1) Then
-         Header=' SDCI natural orbitals'
-      Else If (iNCPF.eq.1) Then
-         Header=' ACPF natural orbitals'
-      Else
-         Header=' MCPF natural orbitals'
-      End If
-      Call Primo(Header,.True.,.False.,1.0D-4,dum,nSym,nBas,nBas,       &
-     &           Name,Dummy,H(LW(90)),H(LW(87)),-1)
-!
-!     Read the overlap matrix in ao basis
-      iiRC=-1
-      iOpt = 6
-      Call RdOne(iiRC,iOpt,'MLTPL  0',1,H(LW(91)),iDum)
-      If (iiRC.ne.0) Then
-         Write (6,*) 'Natct: Error reading overlap matrix!'
-         Call Abend
-      End If
-      Call Charge(nSym,nBas,Name,H(LW(87)),H(LW(90)),H(LW(91)),2,.True.,&
-     &            .True.)
-      Call Prpt_old(nSym,nBas,nSum,n2Sum,H(LW(87)),H(LW(90)))
-!
-      If (iCPF.eq.1) Then
-         Header='* CPF NO COEFS'
-      Else If (iSDCI.eq.1) Then
-         Header='* SDCI NO COEFS'
-      Else If (iNCPF.eq.1) Then
-         Header='* ACPF NO COEFS'
-      Else
-         Header='* MCPF NO COEFS'
-      End If
-      Call WrVec('CPFORB',Lu_CPFORB,'CO',nSym,nBas,nBas,                &
-     & H(LW(87)), H(LW(90)), Dummy, iDummy, Header)
-!
-      RETURN
-!
-!     This is to allow type punning without an explicit interface
-      CONTAINS
-      SUBROUTINE dPRWF(H)
-      USE ISO_C_BINDING
-      REAL*8, TARGET :: H(*)
-      INTEGER, POINTER :: iH1(:),iH2(:),iH3(:)
-      CALL C_F_POINTER(C_LOC(H(LW(1))),iH1,[1])
-      CALL C_F_POINTER(C_LOC(H(LW(2))),iH2,[1])
-      CALL C_F_POINTER(C_LOC(H(LW(3))),iH3,[1])
-      CALL PRWF_CPF(iH1,iH2,iH3,H(LW(26)))
-      NULLIFY(iH1,iH2,iH3)
-      END SUBROUTINE dPRWF
-!
-      END
+! Loop over irreps and compute natural orbitals
+
+IOCC = LW(90)
+ICMO = LW(87)
+do M=1,NSYM
+  ! set occupation number of orbitals prefrozen in MOTRA
+  call DCOPY_(NBAS(M),[0.0d0],0,H(IOCC),1)
+  ! skip orbitals prefrozen in MOTRA
+  call DCOPY_(NPFRO(M),[2.0d0],0,H(IOCC),1)
+  call NATORB_CPF(H(LW(62)),H(ICMO+NBAS(M)*NPFRO(M)),H(LW(88)),H(LW(89)),H(LW(89)),H(IOCC+NPFRO(M)),M)
+  call DCOPY_(NORB(M)*NBAS(M),H(LW(89)),1,H(ICMO+NBAS(M)*NPFRO(M)),1)
+  ICMO = ICMO+NBAS(M)**2
+  IOCC = IOCC+NBAS(M)
+end do
+
+LW91A = LW(91)
+LW91B = LW91A+n2Sum
+if (LW91B+n2Tri-1 > Lic) then
+  write(6,*) ' Not enough core in NATCT'
+  call XFLUSH(6)
+  call ErrTra()
+  call Abend()
+end if
+call RelEne(ErelMV,ErelDC,nSym,nBas,H(LW(87)),H(LW(90)),H(LW91A),H(LW91B))
+
+EREL = ERELMV+ERELDC
+write(6,'(/,5X,A)') 'FIRST ORDER RELATIVISTIC CORRECTIONS'
+write(6,'(5X,A,F17.8)') 'MASS-VELOCITY        ',ErelMV
+write(6,'(5X,A,F17.8)') '1-EL DARWIN CONTACT  ',ErelDC
+write(6,'(5X,A,F17.8)') 'TOTAL REL. CORRECTION',Erel
+if (ISDCI == 1) then
+  write(6,'(5X,A,F17.8)') 'REL. CI ENERGY       ',ETOT+Erel
+  write(6,'(5X,A,F17.8)') 'REL. CI+Q ENERGY     ',DETOT+Erel
+else
+  write(6,'(5X,A,F17.8)') 'TOTAL REL. ENERGY    ',ETOT+Erel
+end if
+call XFLUSH(6)
+call dPRWF(H)
+if (iCPF == 1) then
+  Header = ' CPF natural orbitals'
+else if (iSDCI == 1) then
+  Header = ' SDCI natural orbitals'
+else if (iNCPF == 1) then
+  Header = ' ACPF natural orbitals'
+else
+  Header = ' MCPF natural orbitals'
+end if
+call Primo(Header,.true.,.false.,1.0D-4,dum,nSym,nBas,nBas,Name,Dummy,H(LW(90)),H(LW(87)),-1)
+
+! Read the overlap matrix in ao basis
+iiRC = -1
+iOpt = 6
+call RdOne(iiRC,iOpt,'MLTPL  0',1,H(LW(91)),iDum)
+if (iiRC /= 0) then
+  write(6,*) 'Natct: Error reading overlap matrix!'
+  call Abend()
+end if
+call Charge(nSym,nBas,Name,H(LW(87)),H(LW(90)),H(LW(91)),2,.true.,.true.)
+call Prpt_old(nSym,nBas,nSum,n2Sum,H(LW(87)),H(LW(90)))
+
+if (iCPF == 1) then
+  Header = '* CPF NO COEFS'
+else if (iSDCI == 1) then
+  Header = '* SDCI NO COEFS'
+else if (iNCPF == 1) then
+  Header = '* ACPF NO COEFS'
+else
+  Header = '* MCPF NO COEFS'
+end if
+call WrVec('CPFORB',Lu_CPFORB,'CO',nSym,nBas,nBas,H(LW(87)),H(LW(90)),Dummy,iDummy,Header)
+
+return
+
+! This is to allow type punning without an explicit interface
+contains
+subroutine dPRWF(H)
+  use iso_c_binding
+  real*8, target :: H(*)
+  integer, pointer :: iH1(:), iH2(:), iH3(:)
+  call c_f_pointer(c_loc(H(LW(1))),iH1,[1])
+  call c_f_pointer(c_loc(H(LW(2))),iH2,[1])
+  call c_f_pointer(c_loc(H(LW(3))),iH3,[1])
+  call PRWF_CPF(iH1,iH2,iH3,H(LW(26)))
+  nullify(iH1,iH2,iH3)
+end subroutine dPRWF
+
+end subroutine NATCT

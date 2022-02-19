@@ -11,11 +11,16 @@
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
-      SUBROUTINE VAM(A,LA,B,LB,C,LC,D,LD,N)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION A(*),B(*),C(*),D(*)
-      DO 100 I=0,N-1
-         D(1+I*LD)=(A(1+I*LA)+B(1+I*LB))*C(1+I*LC)
-100   CONTINUE
-      RETURN
-      END
+
+subroutine VAM(A,LA,B,LB,C,LC,D,LD,N)
+
+implicit real*8(A-H,O-Z)
+dimension A(*), B(*), C(*), D(*)
+
+do I=0,N-1
+  D(1+I*LD) = (A(1+I*LA)+B(1+I*LB))*C(1+I*LC)
+end do
+
+return
+
+end subroutine VAM

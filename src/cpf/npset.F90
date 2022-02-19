@@ -11,108 +11,112 @@
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
-      SUBROUTINE NPSET(JSY,INDEX,C,TPQ,ENP,T,S,W,EPP,ICASE)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION JSY(*),INDEX(*),C(*),TPQ(*),ENP(*),T(*),S(*)
-      DIMENSION W(*),EPP(*),ICASE(*)
+
+subroutine NPSET(JSY,INDEX,C,TPQ,ENP,T,S,W,EPP,ICASE)
+
+implicit real*8(A-H,O-Z)
+dimension JSY(*), index(*), C(*), TPQ(*), ENP(*), T(*), S(*)
+dimension W(*), EPP(*), ICASE(*)
 #include "SysDef.fh"
 #include "cpfmcpf.fh"
 #include "files_cpf.fh"
-!
-      JSYM(L)=JSUNP_CPF(JSY,L)
-!
-      IF(IDENS.EQ.1)GO TO 65
-      IF(ITPUL.NE.1)GO TO 60
-      IAD=0
-      IADDP(1)=0
-      CALL dDAFILE(Lu_CI,1,C,NCONF,IAD)
-      IADDP(2)=IAD
-!
-!     VALENCE
-!
-60    IQ=IRC(1)
-      DO 30 I=1,IQ
-        T(I)=C(I)*C(I)
-30    CONTINUE
-!
-!     SINGLES
-!
-      IQ=IRC(2)-IRC(1)
-      IND=IRC(1)
-      IN=IRC(1)
-      DO 5 I=1,IQ
-        IND=IND+1
-        NS1=JSYM(IN+I)
-        NSIL=MUL(NS1,LSYM)
-        INUM=NVIR(NSIL)
-        IST=INDEX(IN+I)+1
-        T(IND)=DDOT_(INUM,C(IST),1,C(IST),1)
-5     CONTINUE
-!
-!     DOUBLES
-!
-      IQ=IRC(4)-IRC(2)
-      IN=IRC(2)
-      DO 10 I=1,IQ
-        IND=IND+1
-        NS1=JSYM(IN+I)
-        NSIL=MUL(NS1,LSYM)
-        INUM=NNS(NSIL)
-        IST=INDEX(IN+I)+1
-        T(IND)=DDOT_(INUM,C(IST),1,C(IST),1)
-10    CONTINUE
-      IP=IRC(4)
-      DO 15 I=1,IP
-        CALL TPQSET(ICASE,TPQ,I)
-        ENP(I)=DDOT_(IP,TPQ,1,T,1)
-        ENP(I)=ENP(I)+D1
-15    CONTINUE
-      IP=IRC(4)
-      IF(IPRINT.GT.5)WRITE(6,12)(ENP(I),I=1,IP)
-12    FORMAT(6X,'ENP ',5F14.8)
-!
-!     VALENCE
-!
-65    IQ=IRC(1)
-      DO 6 I=1,IQ
-        IF(IDENS.EQ.0)EMPI=D1/SQRT(ENP(I))
-        IF(IDENS.EQ.1)EMPI=SQRT(ENP(I))
-        C(I)=C(I)*EMPI
-6     CONTINUE
-!
-!     SINGLES
-!
-      IQ=IRC(2)-IRC(1)
-      IN=IRC(1)
-      DO 16 I=1,IQ
-        NS1=JSYM(IN+I)
-        NSIL=MUL(NS1,LSYM)
-        INUM=NVIR(NSIL)
-        IST=INDEX(IN+I)+1
-        IF(IDENS.EQ.0)EMPI=D1/SQRT(ENP(IN+I))
-        IF(IDENS.EQ.1)EMPI=SQRT(ENP(IN+I))
-        CALL VSMUL(C(IST),1,EMPI,C(IST),1,INUM)
-16    CONTINUE
-!
-!     DOUBLES
-!
-      IQ=IRC(4)-IRC(2)
-      IN=IRC(2)
-      DO 11 I=1,IQ
-        NS1=JSYM(IN+I)
-        NSIL=MUL(NS1,LSYM)
-        INUM=NNS(NSIL)
-        IST=INDEX(IN+I)+1
-        IF(IDENS.EQ.0)EMPI=D1/SQRT(ENP(IN+I))
-        IF(IDENS.EQ.1)EMPI=SQRT(ENP(IN+I))
-        CALL VSMUL(C(IST),1,EMPI,C(IST),1,INUM)
-11    CONTINUE
-      IF(IPRINT.GE.15)WRITE(6,13)(C(I),I=1,NCONF)
-13    FORMAT(6X,'C(NP)',5F10.6)
-      IF(IDENS.EQ.1)RETURN
-!
-      CALL SETZ(EPP,IRC(4))
-      CALL SETZ(S,JSC(4))
-      IF(ICPF.NE.1.AND.ISDCI.NE.1.AND.INCPF.NE.1)CALL SETZ(W,JSC(4))
-      RETURN
-      END
+! Statement function
+JSYM(L) = JSUNP_CPF(JSY,L)
+
+if (IDENS == 1) GO TO 65
+if (ITPUL /= 1) GO TO 60
+IAD = 0
+IADDP(1) = 0
+call dDAFILE(Lu_CI,1,C,NCONF,IAD)
+IADDP(2) = IAD
+
+! VALENCE
+
+60 IQ = IRC(1)
+do I=1,IQ
+  T(I) = C(I)*C(I)
+end do
+
+! SINGLES
+
+IQ = IRC(2)-IRC(1)
+IND = IRC(1)
+IN = IRC(1)
+do I=1,IQ
+  IND = IND+1
+  NS1 = JSYM(IN+I)
+  NSIL = MUL(NS1,LSYM)
+  INUM = NVIR(NSIL)
+  IST = index(IN+I)+1
+  T(IND) = DDOT_(INUM,C(IST),1,C(IST),1)
+end do
+
+! DOUBLES
+
+IQ = IRC(4)-IRC(2)
+IN = IRC(2)
+do I=1,IQ
+  IND = IND+1
+  NS1 = JSYM(IN+I)
+  NSIL = MUL(NS1,LSYM)
+  INUM = NNS(NSIL)
+  IST = index(IN+I)+1
+  T(IND) = DDOT_(INUM,C(IST),1,C(IST),1)
+end do
+IP = IRC(4)
+do I=1,IP
+  call TPQSET(ICASE,TPQ,I)
+  ENP(I) = DDOT_(IP,TPQ,1,T,1)
+  ENP(I) = ENP(I)+D1
+end do
+IP = IRC(4)
+if (IPRINT > 5) write(6,12) (ENP(I),I=1,IP)
+12 format(6X,'ENP ',5F14.8)
+
+! VALENCE
+
+65 IQ = IRC(1)
+do I=1,IQ
+  if (IDENS == 0) EMPI = D1/sqrt(ENP(I))
+  if (IDENS == 1) EMPI = sqrt(ENP(I))
+  C(I) = C(I)*EMPI
+end do
+
+! SINGLES
+
+IQ = IRC(2)-IRC(1)
+IN = IRC(1)
+do I=1,IQ
+  NS1 = JSYM(IN+I)
+  NSIL = MUL(NS1,LSYM)
+  INUM = NVIR(NSIL)
+  IST = index(IN+I)+1
+  if (IDENS == 0) EMPI = D1/sqrt(ENP(IN+I))
+  if (IDENS == 1) EMPI = sqrt(ENP(IN+I))
+  call VSMUL(C(IST),1,EMPI,C(IST),1,INUM)
+end do
+
+! DOUBLES
+
+IQ = IRC(4)-IRC(2)
+IN = IRC(2)
+do I=1,IQ
+  NS1 = JSYM(IN+I)
+  NSIL = MUL(NS1,LSYM)
+  INUM = NNS(NSIL)
+  IST = index(IN+I)+1
+  if (IDENS == 0) EMPI = D1/sqrt(ENP(IN+I))
+  if (IDENS == 1) EMPI = sqrt(ENP(IN+I))
+  call VSMUL(C(IST),1,EMPI,C(IST),1,INUM)
+end do
+if (IPRINT >= 15) write(6,13) (C(I),I=1,NCONF)
+13 format(6X,'C(NP)',5F10.6)
+if (IDENS == 1) return
+
+call SETZ(EPP,IRC(4))
+call SETZ(S,JSC(4))
+if ((ICPF /= 1) .and. (ISDCI /= 1) .and. (INCPF /= 1)) call SETZ(W,JSC(4))
+
+return
+
+end subroutine NPSET

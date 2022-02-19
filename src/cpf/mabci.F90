@@ -11,109 +11,111 @@
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
+
 !pgi$g opt=1
-      SUBROUTINE MABCI(JSY,INDEX,C,S,BMN,IBMN,BIAC,BICA,BUFIN,          &
-     &                 W,THET,ENP,NII)
-      IMPLICIT REAL*8 (A-H,O-Z)
+subroutine MABCI(JSY,INDEX,C,S,BMN,IBMN,BIAC,BICA,BUFIN,W,THET,ENP,NII)
+
+implicit real*8(A-H,O-Z)
 #include "SysDef.fh"
 #include "cpfmcpf.fh"
 #include "files_cpf.fh"
-      DIMENSION JSY(*),INDEX(*),C(*),S(*),BMN(*),IBMN(*),               &
-     &          BIAC(*),BICA(*),BUFIN(*),W(*),THET(NII,NII),ENP(*)
-      PARAMETER (IPOW6=2**6,IPOW13=2**13,IPOW19=2**19)
-!
-      JSYM(L)=JSUNP_CPF(JSY,L)
-!
-      INUM=IRC(4)-IRC(3)
-      CALL MPSQ2(C,S,W,MUL,INDEX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
-      ICHK=0
-      INSIN=KBUFF1
-      IAD15=IADABCI
-      IADD10=IAD10(4)
-      CALL dDAFILE(Lu_CIGuga,2,COP,nCOP,IADD10)
-      CALL iDAFILE(Lu_CIGuga,2,iCOP1,nCOP+1,IADD10)
-      LEN=ICOP1(nCOP+1)
-      IN=2
-      NSAVE=ICOP1(IN)
-100   NI=NSAVE
-      IOUT=0
-110   IN=IN+1
-      IF(IN.LE.LEN)GO TO 15
-      CALL dDAFILE(Lu_CIGuga,2,COP,nCOP,IADD10)
-      CALL iDAFILE(Lu_CIGuga,2,iCOP1,nCOP+1,IADD10)
-      LEN=ICOP1(nCOP+1)
-      IF(LEN.LE.0)GO TO 5
-      IN=1
-15    IF(ICHK.NE.0)GO TO 460
-      IF(ICOP1(IN).EQ.0)GO TO 10
-      IOUT=IOUT+1
-      BMN(IOUT)=COP(IN)
-      IBMN(IOUT)=ICOP1(IN)
-      GO TO 110
-10    ICHK=1
-      GO TO 110
-460   ICHK=0
-      NSAVE=ICOP1(IN)
-5     CONTINUE
-      DO 20 NB=1,NVIRT
-        NSIB=MUL(NSM(LN+NB),NSM(NI))
-        NSLB=MUL(NSM(LN+NB),LSYM)
-        LB=NB-NSYS(NSM(LN+NB))
-        INS=NNS(NSIB)
-        ILOOP=0
-72      CONTINUE
-        DO 75 I=1,INS
-          IF ( INSIN.GE.KBUFF1 ) THEN
-             CALL dDAFILE(Lu_TiABCI,2,BUFIN,KBUFF1,IAD15)
-             INSIN=0
-          END IF
-          INSIN=INSIN+1
-          IF(ILOOP.EQ.0)BIAC(I)=BUFIN(INSIN)
-          IF(ILOOP.EQ.1)BICA(I)=BUFIN(INSIN)
-75      CONTINUE
-        ILOOP=ILOOP+1
-        IF(ILOOP.EQ.1)GO TO 72
-        DO 25 IT=1,IOUT
-          IND=IBMN(IT)
-!PAM97          ICP1=IAND(ISHFT(IND,-19),8191)
-!          ICP1=MOD(IND/IPOW19,IPOW13)
-          ICP1=IBITS(IND,19,13)
-          INDA=IRC(1)+ICP1
-          IF(JSYM(INDA).NE.NSLB)GO TO 25
-          MA=INDEX(INDA)+LB
-!PAM97          ICP2=IAND(ISHFT(IND,-6),8191)
-!          ICP2=MOD(IND/IPOW6,IPOW13)
-!PAM97          ITYP=IAND(IND,63)
-!          ITYP=MOD(IND,IPOW6)
-          ICP2=IBITS(IND,6,13)
-          ITYP=IBITS(IND, 0,6)
-          IF(INS.EQ.0)GO TO 25
-          COPL=BMN(IT)*C(MA)
-          INDB=IRC(ITYP)+ICP2
-          D1=1.0D0
-          D2=2.0D0
-          XXX=THET(INDA,INDB)/2.0D0
-          ENPQ=(D1-XXX)*(ENP(INDA)+ENP(INDB)-D1)+XXX
-          FACS=SQRT(ENP(INDA))*SQRT(ENP(INDB))/ENPQ
-          FACW=FACS*(D2-THET(INDA,INDB))/ENPQ
-          FACWA=FACW*ENP(INDA)-FACS
-          FACWB=FACW*ENP(INDB)-FACS
-          ICCB=INDEX(INDB)+1
-          IF ( ITYP.EQ.3 ) THEN
-            TERM=DDOT_(INS,C(ICCB),1,BIAC,1)
-            CALL DAXPY_(INS,COPL*FACS,BIAC,1,S(ICCB),1)
-            CALL DAXPY_(INS,COPL*FACWB,BIAC,1,W(ICCB),1)
-          ELSE
-            TERM=DDOT_(INS,C(ICCB),1,BICA,1)
-            CALL DAXPY_(INS,COPL*FACS,BICA,1,S(ICCB),1)
-            CALL DAXPY_(INS,COPL*FACWB,BICA,1,W(ICCB),1)
-          END IF
-          S(MA)=S(MA)+BMN(IT)*FACS*TERM
-          W(MA)=W(MA)+BMN(IT)*FACWA*TERM
-25      CONTINUE
-20    CONTINUE
-      IF(LEN.GE.0)GO TO 100
-      CALL MDSQ2(C,S,W,MUL,INDEX,JSY,NDIAG,INUM,IRC(3),                 &
-     &LSYM,NVIRT,SQ2)
-      RETURN
-      END
+dimension JSY(*), index(*), C(*), S(*), BMN(*), IBMN(*), BIAC(*), BICA(*), BUFIN(*), W(*), THET(NII,NII), ENP(*)
+parameter(IPOW6=2**6,IPOW13=2**13,IPOW19=2**19)
+! Statement function
+JSYM(L) = JSUNP_CPF(JSY,L)
+
+INUM = IRC(4)-IRC(3)
+call MPSQ2(C,S,W,MUL,INDEX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
+ICHK = 0
+INSIN = KBUFF1
+IAD15 = IADABCI
+IADD10 = IAD10(4)
+call dDAFILE(Lu_CIGuga,2,COP,nCOP,IADD10)
+call iDAFILE(Lu_CIGuga,2,iCOP1,nCOP+1,IADD10)
+LEN = ICOP1(nCOP+1)
+IN = 2
+NSAVE = ICOP1(IN)
+100 NI = NSAVE
+IOUT = 0
+110 IN = IN+1
+if (IN <= LEN) GO TO 15
+call dDAFILE(Lu_CIGuga,2,COP,nCOP,IADD10)
+call iDAFILE(Lu_CIGuga,2,iCOP1,nCOP+1,IADD10)
+LEN = ICOP1(nCOP+1)
+if (LEN <= 0) GO TO 5
+IN = 1
+15 if (ICHK /= 0) GO TO 460
+if (ICOP1(IN) == 0) GO TO 10
+IOUT = IOUT+1
+BMN(IOUT) = COP(IN)
+IBMN(IOUT) = ICOP1(IN)
+GO TO 110
+10 ICHK = 1
+GO TO 110
+460 ICHK = 0
+NSAVE = ICOP1(IN)
+5 continue
+do NB=1,NVIRT
+  NSIB = MUL(NSM(LN+NB),NSM(NI))
+  NSLB = MUL(NSM(LN+NB),LSYM)
+  LB = NB-NSYS(NSM(LN+NB))
+  INS = NNS(NSIB)
+  ILOOP = 0
+72 continue
+  do I=1,INS
+    if (INSIN >= KBUFF1) then
+      call dDAFILE(Lu_TiABCI,2,BUFIN,KBUFF1,IAD15)
+      INSIN = 0
+    end if
+    INSIN = INSIN+1
+    if (ILOOP == 0) BIAC(I) = BUFIN(INSIN)
+    if (ILOOP == 1) BICA(I) = BUFIN(INSIN)
+  end do
+  ILOOP = ILOOP+1
+  if (ILOOP == 1) GO TO 72
+  do IT=1,IOUT
+    IND = IBMN(IT)
+    !PAM97 ICP1 = iand(ishft(IND,-19),8191)
+    !ICP1 = mod(IND/IPOW19,IPOW13)
+    ICP1 = ibits(IND,19,13)
+    INDA = IRC(1)+ICP1
+    if (JSYM(INDA) /= NSLB) GO TO 25
+    MA = index(INDA)+LB
+    !PAM97 ICP2 = iand(ishft(IND,-6),8191)
+    !PAM97 ITYP = iand(IND,63)
+    !ICP2 = mod(IND/IPOW6,IPOW13)
+    !ITYP = mod(IND,IPOW6)
+    ICP2 = ibits(IND,6,13)
+    ITYP = ibits(IND,0,6)
+    if (INS == 0) GO TO 25
+    COPL = BMN(IT)*C(MA)
+    INDB = IRC(ITYP)+ICP2
+    D1 = 1.0d0
+    D2 = 2.0d0
+    XXX = THET(INDA,INDB)/2.0d0
+    ENPQ = (D1-XXX)*(ENP(INDA)+ENP(INDB)-D1)+XXX
+    FACS = sqrt(ENP(INDA))*sqrt(ENP(INDB))/ENPQ
+    FACW = FACS*(D2-THET(INDA,INDB))/ENPQ
+    FACWA = FACW*ENP(INDA)-FACS
+    FACWB = FACW*ENP(INDB)-FACS
+    ICCB = index(INDB)+1
+    if (ITYP == 3) then
+      TERM = DDOT_(INS,C(ICCB),1,BIAC,1)
+      call DAXPY_(INS,COPL*FACS,BIAC,1,S(ICCB),1)
+      call DAXPY_(INS,COPL*FACWB,BIAC,1,W(ICCB),1)
+    else
+      TERM = DDOT_(INS,C(ICCB),1,BICA,1)
+      call DAXPY_(INS,COPL*FACS,BICA,1,S(ICCB),1)
+      call DAXPY_(INS,COPL*FACWB,BICA,1,W(ICCB),1)
+    end if
+    S(MA) = S(MA)+BMN(IT)*FACS*TERM
+    W(MA) = W(MA)+BMN(IT)*FACWA*TERM
+25  continue
+  end do
+end do
+if (LEN >= 0) GO TO 100
+call MDSQ2(C,S,W,MUL,INDEX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
+
+return
+
+end subroutine MABCI

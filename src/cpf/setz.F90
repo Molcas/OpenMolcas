@@ -11,11 +11,16 @@
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
-      SUBROUTINE SETZ(A,N)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION A(N)
-      DO 10 I=1,N
-      A(I)=0.0D0
-10    CONTINUE
-      RETURN
-      END
+
+subroutine SETZ(A,N)
+
+implicit real*8(A-H,O-Z)
+dimension A(N)
+
+do I=1,N
+  A(I) = 0.0d0
+end do
+
+return
+
+end subroutine SETZ

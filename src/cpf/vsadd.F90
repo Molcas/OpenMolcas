@@ -11,11 +11,16 @@
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
-      SUBROUTINE VSADD(A,LA,S,C,LC,N)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION A(*),C(*)
-      DO 10 I=0,N-1
-         C(1+LC*I)=A(1+LA*I)+S
-10    CONTINUE
-      RETURN
-      END
+
+subroutine VSADD(A,LA,S,C,LC,N)
+
+implicit real*8(A-H,O-Z)
+dimension A(*), C(*)
+
+do I=0,N-1
+  C(1+LC*I) = A(1+LA*I)+S
+end do
+
+return
+
+end subroutine VSADD

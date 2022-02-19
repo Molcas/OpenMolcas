@@ -11,26 +11,32 @@
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
-      SUBROUTINE MDSQ2(C,S,W,MUL,INDEX,JSY,NDIAG,INUM,IRC3,LSYM,        &
-     &NVIRT,SQ2)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION C(*),S(*),W(*),MUL(8,8),INDEX(*),JSY(*),NDIAG(*)
+
+subroutine MDSQ2(C,S,W,MUL,INDEX,JSY,NDIAG,INUM,IRC3,LSYM,NVIRT,SQ2)
+
+implicit real*8(A-H,O-Z)
+dimension C(*), S(*), W(*), MUL(8,8), index(*), JSY(*), NDIAG(*)
+! Statement function
 !PAM97      INTEGER UNPACK
 !PAM97      EXTERNAL UNPACK
 !RL   JSYM(L)=IAND(ISHFT(JSY((L+19)/20),-3*((L+19)/20*20-L)),7)+1
 !PAM96      JSYM(L)=UNPACK(JSY((L+9)/10),3*MOD(L-1,10)+1,3)+1
-      JSYM(L)=JSUNP_CPF(JSY,L)
-      DO 10 I=1,INUM
-        II1=IRC3+I
-        NS1=JSYM(II1)
-        NS1L=MUL(NS1,LSYM)
-        IF(NS1L.NE.1)GO TO 10
-        NA=INDEX(II1)
-        DO 20 MA=1,NVIRT
-          C(NA+NDIAG(MA))=C(NA+NDIAG(MA))/SQ2
-          S(NA+NDIAG(MA))=SQ2*S(NA+NDIAG(MA))
-          W(NA+NDIAG(MA))=SQ2*W(NA+NDIAG(MA))
-20      CONTINUE
-10    CONTINUE
-      RETURN
-      END
+JSYM(L) = JSUNP_CPF(JSY,L)
+
+do I=1,INUM
+  II1 = IRC3+I
+  NS1 = JSYM(II1)
+  NS1L = MUL(NS1,LSYM)
+  if (NS1L /= 1) GO TO 10
+  NA = index(II1)
+  do MA=1,NVIRT
+    C(NA+NDIAG(MA)) = C(NA+NDIAG(MA))/SQ2
+    S(NA+NDIAG(MA)) = SQ2*S(NA+NDIAG(MA))
+    W(NA+NDIAG(MA)) = SQ2*W(NA+NDIAG(MA))
+  end do
+10 continue
+end do
+
+return
+
+end subroutine MDSQ2

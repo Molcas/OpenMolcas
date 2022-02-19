@@ -20,7 +20,8 @@
 ! SWEDEN                                                               *
 !                                                                      *
 !***********************************************************************
-      SUBROUTINE CPF(IRETURN)
+
+subroutine CPF(IRETURN)
 !***********************************************************************
 !                                                                      *
 !                                C P F                                 *
@@ -45,78 +46,79 @@
 !     UNIT 26 , CI VECTOR
 !     UNIT 27 , SCRATCH IN IIJJ
 !     UNIT 30 ,
-!
-      IMPLICIT REAL*8 (A-H,O-Z)
-!
+
+implicit real*8(A-H,O-Z)
 #include "files_cpf.fh"
 #include "WrkSpc.fh"
+
+! Prologue
 !
-!     Prologue
+! call SETTIM()
+! call HELLO()
 !
-!     CALL SETTIM
-!     CALL HELLO
-!
-!     (Workspace allocated in Start() )
-!
-      Call GetMem('WrkSpc','Max ','Real',MemOff,MEMORY)
-      MEMORY=INT(MEMORY*0.80D0)
-      Call GetMem('WrkSpc','Allo','Real',MemOff,MEMORY)
-!
-!     Open files
-!
-      Lu_CIGuga=10
-      CALL DANAME(Lu_CIGuga,'CIGUGA')
-      Lu_TraInt=50
-      CALL DANAME_MF(Lu_TraInt,'TRAINT')
-      Lu_TraOne=17
-      CALL DANAME(Lu_TraOne,'TRAONE')
-      Lu_CI=26
-      CALL DANAME(Lu_CI,'CPFVECT')
-      Lu_CPFORB=19
+! (Workspace allocated in Start() )
+
+call GetMem('WrkSpc','Max ','Real',MemOff,MEMORY)
+MEMORY = int(MEMORY*0.80d0)
+call GetMem('WrkSpc','Allo','Real',MemOff,MEMORY)
+
+! Open files
+
+Lu_CIGuga = 10
+call DANAME(Lu_CIGuga,'CIGUGA')
+Lu_TraInt = 50
+call DANAME_MF(Lu_TraInt,'TRAINT')
+Lu_TraOne = 17
+call DANAME(Lu_TraOne,'TRAONE')
+Lu_CI = 26
+call DANAME(Lu_CI,'CPFVECT')
+Lu_CPFORB = 19
 ! Temporaries:
-      Lu_TiABIJ=60
-      CALL DANAME_MF(Lu_TiABIJ,'TIABIJ')
-      Lu_TiABCI=70
-      CALL DANAME_MF(Lu_TiABCI,'TIABCI')
-      Lu_TiABCD=80
-      CALL DANAME_MF(Lu_TiABCD,'TIABCD')
-      Lu_25=25
-      CALL DANAME(Lu_25,'FT25F001')
-      Lu_27=27
-      CALL DANAME(Lu_27,'FT27F001')
-      Lu_30=30
-      CALL DANAME(Lu_30    ,'FT30F001')
-!
-!     Body
-!
-      iMemOff=ip_of_iWork_d(Work(MemOff))
-      CALL SDCI_CPF(Work(MemOff),iWork(iMemOff),MEMORY)
-!
-!     Deallocate the workspace
-!
-      Call GetMem('WrkSpc','Free','Real',MemOff,MEMORY)
-!
-!     Epilogue, end
-!
+Lu_TiABIJ = 60
+call DANAME_MF(Lu_TiABIJ,'TIABIJ')
+Lu_TiABCI = 70
+call DANAME_MF(Lu_TiABCI,'TIABCI')
+Lu_TiABCD = 80
+call DANAME_MF(Lu_TiABCD,'TIABCD')
+Lu_25 = 25
+call DANAME(Lu_25,'FT25F001')
+Lu_27 = 27
+call DANAME(Lu_27,'FT27F001')
+Lu_30 = 30
+call DANAME(Lu_30,'FT30F001')
+
+! Body
+
+iMemOff = ip_of_iWork_d(Work(MemOff))
+call SDCI_CPF(Work(MemOff),iWork(iMemOff),MEMORY)
+
+! Deallocate the workspace
+
+call GetMem('WrkSpc','Free','Real',MemOff,MEMORY)
+
+! Epilogue, end
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Close open dafiles
-!
-      CALL DACLOS(Lu_CIGuga)
-      CALL DACLOS(Lu_TraInt)
-      CALL DACLOS(Lu_TraOne)
-      CALL DACLOS(Lu_CI)
-      CALL DACLOS(Lu_TiABIJ)
-      CALL DACLOS(Lu_TiABCI)
-      CALL DACLOS(Lu_TiABCD)
-      CALL DACLOS(Lu_25)
-      CALL DACLOS(Lu_27)
-      CALL DACLOS(Lu_30)
+! Close open dafiles
+
+call DACLOS(Lu_CIGuga)
+call DACLOS(Lu_TraInt)
+call DACLOS(Lu_TraOne)
+call DACLOS(Lu_CI)
+call DACLOS(Lu_TiABIJ)
+call DACLOS(Lu_TiABCI)
+call DACLOS(Lu_TiABCD)
+call DACLOS(Lu_25)
+call DACLOS(Lu_27)
+call DACLOS(Lu_30)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      CALL FASTIO('STATUS')
-      IRETURN=0
-      RETURN
-      END
+call FASTIO('STATUS')
+IRETURN = 0
+
+return
+
+end subroutine CPF

@@ -11,109 +11,111 @@
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
-      SUBROUTINE CUPDATE(JSY,INDEX,C,S,AP,BST,T2,ENP)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION JSY(*),INDEX(*),C(*),S(*),AP(*),BST(*),                 &
-     &          T2(*),ENP(*)
+
+subroutine CUPDATE(JSY,INDEX,C,S,AP,BST,T2,ENP)
+
+implicit real*8(A-H,O-Z)
+dimension JSY(*), index(*), C(*), S(*), AP(*), BST(*), T2(*), ENP(*)
 #include "SysDef.fh"
 #include "cpfmcpf.fh"
 #include "files_cpf.fh"
-!
-      JSYM(L)=JSUNP_CPF(JSY,L)
-!
+! Statement function
+JSYM(L) = JSUNP_CPF(JSY,L)
 
-      W=WLEV
+W = WLEV
 
 ! VALENCE
-      IP=IRC(1)
-      DO 6 I=1,IP
-        C(I)=AP(I)*C(I)-S(I)
-6     CONTINUE
+IP = IRC(1)
+do I=1,IP
+  C(I) = AP(I)*C(I)-S(I)
+end do
 
 ! SINGLES
-      IP=IRC(2)-IRC(1)
-      IN=IRC(1)
-      DO 5 I=1,IP
-        NS1=JSYM(IN+I)
-        NSIL=MUL(NS1,LSYM)
-        INUM=NVIR(NSIL)
-        IST=INDEX(IN+I)+1
-        CALL VSMSB(C(IST),1,AP(IN+I),S(IST),1,C(IST),1,INUM)
-5     CONTINUE
+IP = IRC(2)-IRC(1)
+IN = IRC(1)
+do I=1,IP
+  NS1 = JSYM(IN+I)
+  NSIL = MUL(NS1,LSYM)
+  INUM = NVIR(NSIL)
+  IST = index(IN+I)+1
+  call VSMSB(C(IST),1,AP(IN+I),S(IST),1,C(IST),1,INUM)
+end do
 
 ! DOUBLES
-      IP=IRC(4)-IRC(2)
-      IN=IRC(2)
-      DO 10 I=1,IP
-        NS1=JSYM(IN+I)
-        NSIL=MUL(NS1,LSYM)
-        INUM=NNS(NSIL)
-        IST=INDEX(IN+I)+1
-        CALL VSMSB(C(IST),1,AP(IN+I),S(IST),1,C(IST),1,INUM)
-10    CONTINUE
+IP = IRC(4)-IRC(2)
+IN = IRC(2)
+do I=1,IP
+  NS1 = JSYM(IN+I)
+  NSIL = MUL(NS1,LSYM)
+  INUM = NNS(NSIL)
+  IST = index(IN+I)+1
+  call VSMSB(C(IST),1,AP(IN+I),S(IST),1,C(IST),1,INUM)
+end do
 
 ! WRITE GRADIENT ONTO DISK, UNIT=30
-      IAD=IADDP(ITPUL)
-      CALL dDAFILE(Lu_30,1,C,NCONF,IAD)
+IAD = IADDP(ITPUL)
+call dDAFILE(Lu_30,1,C,NCONF,IAD)
 
 ! Reuse array S for HCOUT that was written in IJIJ.
-      IAD=IAD25S
-      DO 77 III=1,NCONF,nCOP
-        JJJ=MIN(nCOP,NCONF+1-III)
-        CALL dDAFILE(Lu_25,2,S(III),JJJ,IAD)
-77    CONTINUE
+IAD = IAD25S
+do III=1,NCONF,nCOP
+  JJJ = min(nCOP,NCONF+1-III)
+  call dDAFILE(Lu_25,2,S(III),JJJ,IAD)
+end do
 
 ! VALENCE
-      IP=IRC(1)
-      DO 7 I=1,IP
-        APW=W-AP(I)
-        T2(I)=S(I)+APW
-        C(I)=C(I)/T2(I)
-        EMP=SQRT(ENP(I))
-        C(I)=C(I)*EMP
-        IF(I.EQ.IREF0)C(I)=0.0D0
-7     CONTINUE
+IP = IRC(1)
+do I=1,IP
+  APW = W-AP(I)
+  T2(I) = S(I)+APW
+  C(I) = C(I)/T2(I)
+  EMP = sqrt(ENP(I))
+  C(I) = C(I)*EMP
+  if (I == IREF0) C(I) = 0.0d0
+end do
 
 ! SINGLES
-      IP=IRC(2)-IRC(1)
-      IN=IRC(1)
-      DO 8 I=1,IP
-        NS1=JSYM(IN+I)
-        NSIL=MUL(NS1,LSYM)
-        INUM=NVIR(NSIL)
-        IST=INDEX(IN+I)+1
-        APW=W-AP(IN+I)
-        CALL VSADD(S(IST),1,APW,T2,1,INUM)
-        CALL VDIV(T2,1,C(IST),1,C(IST),1,INUM)
-        EMP=SQRT(ENP(IN+I))
-        CALL VSMUL(C(IST),1,EMP,C(IST),1,INUM)
-8     CONTINUE
+IP = IRC(2)-IRC(1)
+IN = IRC(1)
+do I=1,IP
+  NS1 = JSYM(IN+I)
+  NSIL = MUL(NS1,LSYM)
+  INUM = NVIR(NSIL)
+  IST = index(IN+I)+1
+  APW = W-AP(IN+I)
+  call VSADD(S(IST),1,APW,T2,1,INUM)
+  call VDIV(T2,1,C(IST),1,C(IST),1,INUM)
+  EMP = sqrt(ENP(IN+I))
+  call VSMUL(C(IST),1,EMP,C(IST),1,INUM)
+end do
 
 ! DOUBLES
-      IP=IRC(4)-IRC(2)
-      IN=IRC(2)
-      DO 11 I=1,IP
-        NS1=JSYM(IN+I)
-        NSIL=MUL(NS1,LSYM)
-        INUM=NNS(NSIL)
-        IST=INDEX(IN+I)+1
-        APW=W-AP(IN+I)
-        CALL VSADD(S(IST),1,APW,T2,1,INUM)
-        CALL VDIV(T2,1,C(IST),1,C(IST),1,INUM)
-        EMP=SQRT(ENP(IN+I))
-        CALL VSMUL(C(IST),1,EMP,C(IST),1,INUM)
-11    CONTINUE
-!
-      IAD=IADDP(ITPUL+1)
-      CALL dDAFILE(Lu_CI,1,C,NCONF,IAD)
-      IADDP(ITPUL+2)=IAD
-      IF(IPRINT.GE.15)WRITE(6,999)(C(I),I=1,NCONF)
-999   FORMAT(6X,'C(UPD)',5F10.6)
-      A=DDOT_(NCONF,C,1,C,1)
-      IF(A.GT.D2) THEN
-        WRITE(6,*)'CUPDATE Error: A>2.0D0 (See code.)'
-        CALL Abend
-      END IF
-      IF(ITPUL.EQ.1)BST(1)=A
-      RETURN
-      END
+IP = IRC(4)-IRC(2)
+IN = IRC(2)
+do I=1,IP
+  NS1 = JSYM(IN+I)
+  NSIL = MUL(NS1,LSYM)
+  INUM = NNS(NSIL)
+  IST = index(IN+I)+1
+  APW = W-AP(IN+I)
+  call VSADD(S(IST),1,APW,T2,1,INUM)
+  call VDIV(T2,1,C(IST),1,C(IST),1,INUM)
+  EMP = sqrt(ENP(IN+I))
+  call VSMUL(C(IST),1,EMP,C(IST),1,INUM)
+end do
+
+IAD = IADDP(ITPUL+1)
+call dDAFILE(Lu_CI,1,C,NCONF,IAD)
+IADDP(ITPUL+2) = IAD
+if (IPRINT >= 15) write(6,999) (C(I),I=1,NCONF)
+999 format(6X,'C(UPD)',5F10.6)
+A = DDOT_(NCONF,C,1,C,1)
+if (A > D2) then
+  write(6,*) 'CUPDATE Error: A>2.0D0 (See code.)'
+  call Abend()
+end if
+if (ITPUL == 1) BST(1) = A
+
+return
+
+end subroutine CUPDATE

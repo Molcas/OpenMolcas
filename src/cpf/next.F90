@@ -11,29 +11,33 @@
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
-      SUBROUTINE NEXT(P,DPS,CN)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION P(*),DPS(*),CN(*)
+
+subroutine NEXT(P,DPS,CN)
+
+implicit real*8(A-H,O-Z)
+dimension P(*), DPS(*), CN(*)
 #include "SysDef.fh"
 #include "cpfmcpf.fh"
 #include "files_cpf.fh"
-!
-      IAD=IADDP(1)
-      CALL dDAFILE(Lu_CI,2,P,NCONF,IAD)
-      ITM=ITPUL-1
-      DO 5 I=1,ITM
-        IN=I+1
-        CTOT=0.0D00
-        DO 6 J=IN,ITPUL
-          CTOT=CTOT+CN(J)
-6       CONTINUE
-        IAD=IADDP(I+1)
-        CALL dDAFILE(Lu_CI,2,DPS,NCONF,IAD)
-        CALL VSMA(DPS,1,CTOT,P,1,P,1,NCONF)
-5     CONTINUE
-      IF(IPRINT.GE.15)WRITE(6,19)(P(I),I=1,NCONF)
-19    FORMAT(6X,'C(NEXT)',5F10.6)
-!
-      IADC(ITPUL+2)=IAD
-      RETURN
-      END
+
+IAD = IADDP(1)
+call dDAFILE(Lu_CI,2,P,NCONF,IAD)
+ITM = ITPUL-1
+do I=1,ITM
+  IN = I+1
+  CTOT = 0.0d00
+  do J=IN,ITPUL
+    CTOT = CTOT+CN(J)
+  end do
+  IAD = IADDP(I+1)
+  call dDAFILE(Lu_CI,2,DPS,NCONF,IAD)
+  call VSMA(DPS,1,CTOT,P,1,P,1,NCONF)
+end do
+if (IPRINT >= 15) write(6,19) (P(I),I=1,NCONF)
+19 format(6X,'C(NEXT)',5F10.6)
+
+IADC(ITPUL+2) = IAD
+
+return
+
+end subroutine NEXT

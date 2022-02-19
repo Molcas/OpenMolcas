@@ -11,11 +11,16 @@
 ! Copyright (C) 1986, Per E. M. Siegbahn                               *
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
-      SUBROUTINE VSMSB(A,LA,S,B,LB,C,LC,N)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION A(*),B(*),C(*)
-      DO 100 I=0,N-1
-         C(1+I*LC)=A(1+I*LA)*S-B(1+I*LB)
-100   CONTINUE
-      RETURN
-      END
+
+subroutine VSMSB(A,LA,S,B,LB,C,LC,N)
+
+implicit real*8(A-H,O-Z)
+dimension A(*), B(*), C(*)
+
+do I=0,N-1
+  C(1+I*LC) = A(1+I*LA)*S-B(1+I*LB)
+end do
+
+return
+
+end subroutine VSMSB
