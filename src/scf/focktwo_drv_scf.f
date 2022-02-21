@@ -28,7 +28,7 @@
 #include "choscf.fh"
 #include "chotime.fh"
 *
-
+      nD=(3+iUHF)/2
       GenInt=.false.
       DoCholesky=.false.
       if(ALGO.eq.0) GenInt=.true. !use GenInt to regenerate integrals
@@ -43,10 +43,8 @@ c      exFac=0.d0
 c      write(6,*)'ExFac= ',ExFac
 *
       If (Do_OFemb) Then ! Coul. potential from subsys B
-         nFM=1
-         If (iUHF.eq.1) nFM=2
          If (OFE_first) Call mma_allocate(FMaux,nFlt,Label='FMaux')
-         Call Coul_DMB(OFE_first,nFM,Rep_EN,FMaux,DLT,DLT_ab,nFlt)
+         Call Coul_DMB(OFE_first,nD,Rep_EN,FMaux,DLT,DLT_ab,nFlt)
          OFE_first=.false.
       End If
 *
@@ -62,7 +60,7 @@ C zeroing the elements
       Call Getmem('tempFLT','Allo','Real',ipTemp,nFlt)
       Call FZero(Work(ipTemp),nFlt)
 *
-      IF(iUHF.eq.1) THEN
+      IF(nD==2) THEN
         Call GetMem('LWFSQ_ab','Allo','Real',LWFSQ_ab,NBSQT)
         call dcopy_(NBSQT,[Zero],0,Work(LWFSQ_ab),1)
         Call Getmem('FLT_ab','Allo','Real',ipTemp_ab,nFlt)
@@ -94,18 +92,18 @@ C zeroing the elements
          Call  ABEND()
        End If
 *
-       If (iUHF.eq.1) Then
+       If (nD==2) Then
 
          Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
      &             DLT,DSQ,Work(ipTemp),nFlt,
-     &             Work(LWFSQ),LBUF,Work(LW1),Work(LW2),ExFac,iUHF,
+     &             Work(LWFSQ),LBUF,Work(LW1),Work(LW2),ExFac,nD,
      &             DLT_ab,DSQ_ab,Work(ipTemp_ab),Work(LWFSQ_ab))
 
        Else  ! RHF calculation
 
          Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
      &             DLT,DSQ,Work(ipTemp),nFlt,
-     &             Work(LWFSQ),LBUF,Work(LW1),Work(LW2),ExFac,iUHF,
+     &             Work(LWFSQ),LBUF,Work(LW1),Work(LW2),ExFac,nD,
      &             Work(ip_Dummy),Work(ip_Dummy),Work(ip_Dummy),
      &             Work(ip_Dummy))
 
@@ -129,18 +127,18 @@ C zeroing the elements
          Call  ABEND()
        End If
 *
-       If (iUHF.eq.1) Then
+       If (nD==2) Then
 
          Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
      &             DLT,DSQ,Work(ipTemp),nFlt,
-     &             Work(LWFSQ),LBUF,Work(LW1),Work(LW2),ExFac,iUHF,
+     &             Work(LWFSQ),LBUF,Work(LW1),Work(LW2),ExFac,nD,
      &             DLT_ab,DSQ_ab,Work(ipTemp_ab),Work(LWFSQ_ab))
 
        Else  ! RHF calculation
 
          Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
      &             DLT,DSQ,Work(ipTemp),nFlt,
-     &             Work(LWFSQ),LBUF,Work(LW1),Work(LW2),ExFac,iUHF,
+     &             Work(LWFSQ),LBUF,Work(LW1),Work(LW2),ExFac,nD,
      &             Work(ip_Dummy),Work(ip_Dummy),Work(ip_Dummy),
      &             Work(ip_Dummy))
 
@@ -183,14 +181,14 @@ C zeroing the elements
 
       IF (DoCholesky .and. .not.GenInt.and.iDummy_run.eq.0) THEN
 *
-        If (iUHF.eq.1) Then
+        If (nD==2) Then
 
-           CALL CHOscf_drv(iUHF,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
+           CALL CHOscf_drv(nD,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
      &                 Work(ipTemp),Work(ipTemp_ab),nFLT,ExFac,
      &                 Work(LWFSQ),Work(LWFSQ_ab),nOcc,nOcc_ab)
         Else
 *
-           CALL CHOscf_drv(iUHF,nSym,nBas,DSQ,DLT,
+           CALL CHOscf_drv(nD,nSym,nBas,DSQ,DLT,
      &                 Work(ip_Dummy),Work(ip_Dummy),
      &                 Work(ipTemp),Work(ip_Dummy),nFLT,ExFac,
      &                 Work(LWFSQ),Work(ip_Dummy),nOcc,iWork(ip_iDummy))
@@ -199,18 +197,18 @@ C zeroing the elements
       ENDIF
 *
       Call DaXpY_(nFlt,One,Work(ipTemp),1,FLT,1)
-      if(iUHF.eq.1) then
+      if(nD==2) then
         Call DaXpY_(nFlt,One,Work(ipTemp_ab),1,FLT_ab,1)
       endif
 *
       Call GetMem('tempFLT','Free','Real',ipTemp,nFlt)
-      if(iUHF.eq.1) then
+      if(nD==2) then
        Call GetMem('FLT_ab','Free','Real',ipTemp_ab,nFlt)
       endif
 *
       If (Do_OFemb) Then ! add FM from subsystem B
         Call DaXpY_(nFlt,One,FMaux,1,FLT,1)
-        If (iUHF.eq.1) Call DaXpY_(nFlt,One,FMaux,1,FLT_ab,1)
+        If (nD==2) Call DaXpY_(nFlt,One,FMaux,1,FLT_ab,1)
       EndIf
 *
       IF ((.not.DoCholesky).or.(GenInt)) THEN
@@ -219,7 +217,7 @@ C zeroing the elements
       END IF
 
       Call GetMem('LWFSQ','Free','Real',LWFSQ,NBSQT)
-      if(iUHF.eq.1) then
+      if(nD==2) then
          IF ((.not.DoCholesky).or.(GenInt)) THEN
             Call GetMem('LW2_ab','Free','Real',LW2_ab,NBMX*NBMX)
          END IF

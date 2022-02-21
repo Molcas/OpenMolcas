@@ -13,7 +13,7 @@
 *               2002, Roland Lindh                                     *
 ************************************************************************
       SUBROUTINE FOCKTWO_scf(NSYM,NBAS,NFRO,KEEP,
-     &                   DLT,DSQ,FLT,nFlt,FSQ,LBUF,X1,X2,ExFac,iUHF,
+     &                   DLT,DSQ,FLT,nFlt,FSQ,LBUF,X1,X2,ExFac,nD,
      &                   DLT_ab,DSQ_ab,FLT_ab,FSQ_ab)
       IMPLICIT REAL*8 (A-H,O-Z)
       Real*8 FSQ(*),FLT(nFlt),DSQ(*),DLT(*),X1(*),X2(*)
@@ -43,7 +43,7 @@ c
 ************************************************************************
        myDebug=.false.
        Factor=0.5D0
-        if(iUHF.eq.1) Factor=1.0D0
+        if(nD==2) Factor=1.0D0
 #ifdef _BUGPRINT_
 c      myDebug=.true. ! very extensive print out
 #endif
@@ -113,14 +113,14 @@ c Option code 2: Continue reading at next integral.
                     ISD=ISTLT(IS)+1
                     TEMP=DDOT_(KLB,X1(ISX),1,DLT(ISD),1)
                     FLT(ISF)=FLT(ISF)+TEMP
-                    if(iUHF.eq.1) then
+                    if(nD==2) then
                      TEMP_ab=DDOT_(KLB,X1(ISX),1,DLT_ab(ISD),1)
                      FLT(ISF)=FLT(ISF)+TEMP_ab
                      FLT_ab(ISF)=FLT(ISF)
                     endif
         if(myDebug) then
           write (6,'(a,i5,a,f12.6)') '00 Flt(',isf,')=',FLT(ISF)
-          if(iUHF.eq.1) then
+          if(nD==2) then
           write (6,'(a,i5,a,f12.6)') '00 Flt_ab(',isf,')=',FLT_ab(ISF)
           endif
         endif
@@ -128,17 +128,10 @@ c Option code 2: Continue reading at next integral.
                     ISF=ISTSQ(IS)+(JQ-1)*JB+1
                     ISD=ISTSQ(IS)+(IP-1)*IB+1
 c
-                 if(iUHF.eq.0) then
-*                    CALL DGEMX  (KB,LB,-Factor*ExFac,X2(1),KB,
-*     &                           DSQ(ISD),1,FSQ(ISF),1)
+                 if(nD==1) then
                     CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
      &                           DSQ(ISD),1,1.0D0,FSQ(ISF),1)
                  else
-*                    CALL DGEMX  (KB,LB,-Factor*ExFac,X2(1),KB,
-*     &                           DSQ(ISD),1,FSQ(ISF),1)
-*
-*                    CALL DGEMX  (KB,LB,-Factor*ExFac,X2(1),KB,
-*     &                           DSQ_ab(ISD),1,FSQ_ab(ISF),1)
                     CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
      &                           DSQ(ISD),1,1.0D0,FSQ(ISF),1)
 
@@ -149,16 +142,10 @@ c
                       ISF=ISTSQ(IS)+(IP-1)*IB+1
                       ISD=ISTSQ(IS)+(JQ-1)*JB+1
 c
-                 if(iUHF.eq.0) then
-*                      CALL DGEMX  (KB,LB,-Factor*ExFac,X2(1),KB,
-*     &                             DSQ(ISD),1,FSQ(ISF),1)
+                 if(nD==1) then
                       CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
      &                             DSQ(ISD),1,1.0D0,FSQ(ISF),1)
                  else
-*                      CALL DGEMX  (KB,LB,-Factor*ExFac,X2(1),KB,
-*     &                             DSQ(ISD),1,FSQ(ISF),1)
-*                      CALL DGEMX  (KB,LB,-Factor*ExFac,X2(1),KB,
-*     &                             DSQ_ab(ISD),1,FSQ_ab(ISF),1)
                       CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
      &                             DSQ(ISD),1,1.0D0,FSQ(ISF),1)
                       CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
@@ -168,7 +155,7 @@ c
         if(myDebug) then
           write (6,'(a,i5,a,f12.6)')
      &          ('01 Fsq(',isf+ivv-1,')=',FSQ(ISF+ivv-1),ivv=1,kb)
-          if(iUHF.eq.1) then
+          if(nD==2) then
           write (6,'(a,i5,a,f12.6)')
      &          ('01 Fsq_ab(',isf+ivv-1,')=',FSQ_ab(ISF+ivv-1),ivv=1,kb)
           endif
@@ -199,11 +186,11 @@ c Coulomb terms need to be accumulated only
                       ISF=ISTLT(KS)+1
                       ISD=ISTLT(IS)+LPQ
                       TEMP=DLT(ISD)
-                    if(iUHF.eq.1) then
+                    if(nD==2) then
                       TEMP=DLT(ISD)+DLT_ab(ISD)
                     endif
                       CALL DAXPY_(KLB,TEMP,X1(ISX),1,FLT(ISF),1)
-                    if(iUHF.eq.1) then
+                    if(nD==2) then
                       CALL DAXPY_(KLB,TEMP,X1(ISX),1,FLT_ab(ISF),1)
                     endif
                     ENDIF
@@ -212,7 +199,7 @@ c Coulomb terms need to be accumulated only
                       ISD=ISTLT(KS)+1
                       TEMP=DDOT_(KLB,X1(ISX),1,DLT(ISD),1)
                       FLT(ISF)=FLT(ISF)+TEMP
-                if(iUHF.eq.1) then
+                if(nD==2) then
                       TEMP_ab=DDOT_(KLB,X1(ISX),1,DLT_ab(ISD),1)
                       FLT(ISF)=FLT(ISF)+TEMP_ab
                       FLT_ab(ISF)=FLT(ISF)
@@ -245,16 +232,10 @@ c Exchange terms need to be accumulated only
                     IF ( NFI.NE.0 ) THEN
                       ISD=ISTSQ(IS)+(IP-1)*IB+1
                       ISF=ISTSQ(JS)+(JQ-1)*JB+1
-                      if(iUHF.eq.0) then
-*                      CALL DGEMX  (LB,KB,-Factor*ExFac,X1(ISX),LB,
-*     &                             DSQ(ISD),1,FSQ(ISF),1)
+                      if(nD==1) then
                       CALL DGEMV_('N',LB,KB,-Factor*ExFac,X1(ISX),LB,
      &                             DSQ(ISD),1,1.0D0,FSQ(ISF),1)
                       else
-*                      CALL DGEMX  (LB,KB,-Factor*ExFac,X1(ISX),LB,
-*     &                             DSQ(ISD),1,FSQ(ISF),1)
-*                      CALL DGEMX  (LB,KB,-Factor*ExFac,X1(ISX),LB,
-*     &                             DSQ_ab(ISD),1,FSQ_ab(ISF),1)
                       CALL DGEMV_('N',LB,KB,-Factor*ExFac,X1(ISX),LB,
      &                             DSQ(ISD),1,1.0D0,FSQ(ISF),1)
                       CALL DGEMV_('N',LB,KB,-Factor*ExFac,X1(ISX),LB,
@@ -264,16 +245,10 @@ c Exchange terms need to be accumulated only
                     IF ( NFJ.NE.0 ) THEN
                       ISD=ISTSQ(JS)+(JQ-1)*JB+1
                       ISF=ISTSQ(IS)+(IP-1)*IB+1
-                      if(iUHF.eq.0) then
-*                      CALL DGEMTX (LB,KB,-Factor*ExFac,X1(ISX),LB,
-*     &                             DSQ(ISD),1,FSQ(ISF),1)
+                      if(nD==1) then
                       CALL DGEMV_('T',LB,KB,-Factor*ExFac,X1(ISX),LB,
      &                             DSQ(ISD),1,1.0D0,FSQ(ISF),1)
                       else
-*                      CALL DGEMTX (LB,KB,-Factor*ExFac,X1(ISX),LB,
-*     &                             DSQ(ISD),1,FSQ(ISF),1)
-*                      CALL DGEMTX (LB,KB,-factor*ExFac,X1(ISX),LB,
-*     &                             DSQ_ab(ISD),1,FSQ_ab(ISF),1)
                       CALL DGEMV_('T',LB,KB,-Factor*ExFac,X1(ISX),LB,
      &                             DSQ(ISD),1,1.0D0,FSQ(ISF),1)
                       CALL DGEMV_('T',LB,KB,-factor*ExFac,X1(ISX),LB,
@@ -284,7 +259,7 @@ c Exchange terms need to be accumulated only
         if(myDebug) then
           write (6,'(a,i5,a,f20.6)')
      &          ('03 Fsq(',isf+ivv-1,')=',FSQ(ISF+ivv-1),ivv=1,kb)
-          if(iUHF.eq.1) then
+          if(nD==2) then
           write (6,'(a,i5,a,f20.6)')
      &          ('03 Fsq_ab(',isf+ivv-1,')=',FSQ_ab(ISF+ivv-1),ivv=1,kb)
           endif
@@ -308,11 +283,11 @@ c         write (6,'(a,i5,a,f12.6)') ' >> Flt(',K1+JB,')=',FLT(K1+JB)
 c         write (6,'(a,i5,a,f12.6)') ' >> Fsq(',K2+JB,')=',FSQ(K2+JB)
 
             FLT(K1+JB)=FLT(K1+JB)+FSQ(K2+JB)
-            if(iUHF.eq.1) then
+            if(nD==2) then
              FLT_ab(K1+JB)=FLT_ab(K1+JB)+FSQ_ab(K2+JB)
             endif
         if(myDebug) then
-         if(iUHF.eq.0)then
+         if(nD==1)then
           write (6,'(a,i5,a,f12.6)') 'Flt(',K1+JB,')=',FLT(K1+JB)
           else
           write (6,'(a,i5,a,2f12.6)') 'Flt_ab(',K1+JB,')=',
@@ -327,7 +302,7 @@ c         write (6,'(a,i5,a,f12.6)') ' >> Fsq(',K2+JB,')=',FSQ(K2+JB)
 300   CONTINUE
 *
       Call GADSum(Flt,nFlt)
-      If (iUHF.eq.1) Call GADSum(Flt_ab,nFlt)
+      If (nD==2) Call GADSum(Flt_ab,nFlt)
 *
 c Print the Fock-matrix
 #ifdef _DEBUGPRINT_
@@ -339,7 +314,7 @@ c Print the Fock-matrix
         IF ( NB.GT.0 ) THEN
           WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
           CALL TRIPRT(' ',' ',FLT(ISTLTT),NB)
-          if(iUHF.eq.1) then
+          if(nD==2) then
           CALL TRIPRT(' ',' ',FLT_ab(ISTLTT),NB)
           endif
           ISTLTT=ISTLTT+NB*(NB+1)/2

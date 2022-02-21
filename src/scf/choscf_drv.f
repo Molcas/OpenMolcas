@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2010, Thomas Bondo Pedersen                            *
 ************************************************************************
-      Subroutine ChoSCF_Drv(iUHF,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
+      Subroutine ChoSCF_Drv(nD,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
      &                FLT,FLT_ab,nFLT,ExFac,FSQ,FSQ_ab,nOcc,nOcc_ab)
 C
 C     Thomas Bondo Pedersen, September 2010.
@@ -20,7 +20,7 @@ C     ChoSCF_Drv_) in case of Cholesky or full DF. A new driver routine
 C     is called in case of local DF (LDF).
 C
       Implicit None
-      Integer iUHF, nSym, nFLT
+      Integer iUHF, nD, nSym, nFLT
       Integer nBas(nSym), nOcc(nSym), nOcc_ab(nSym)
       Real*8  DSQ(*), DLT(*)
       Real*8  DSQ_ab(*), DLT_ab(*)
@@ -33,12 +33,12 @@ C
 ************************************************************************
 *                                                                      *
       Interface
-      SUBROUTINE CHOSCF_DRV_Internal(iUHF,nSym,nBas,W_DSQ,W_DLT,
+      SUBROUTINE CHOSCF_DRV_Internal(nD,nSym,nBas,W_DSQ,W_DLT,
      &                               W_DSQ_ab,W_DLT_ab,W_FLT,
      &                               W_FLT_ab,nFLT,ExFac,
      &                               W_FSQ,W_FSQ_ab,
      &                               nOcc,nOcc_ab)
-      Integer iUHF, nSym
+      Integer nD, nSym
       Integer nBas(nSym)
       Real*8 W_FLT(*),W_FLT_ab(*)
       Real*8 W_FSQ(*),W_FSQ_ab(*)
@@ -55,10 +55,11 @@ C
 
       Call DecideOnLocalDF(DoLDF)
       If (DoLDF) Then
+         iUHF=nD-1
          Call LDFSCF_Drv(iUHF,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
      &                FLT,FLT_ab,nFLT,ExFac,FSQ,FSQ_ab,nOcc,nOcc_ab)
       Else
-         Call ChoSCF_Drv_Internal(iUHF,nSym,nBas,DSQ,DLT,
+         Call ChoSCF_Drv_Internal(nD,nSym,nBas,DSQ,DLT,
      &                            DSQ_ab,DLT_ab,FLT,
      &                            FLT_ab,nFLT,ExFac,
      &                            FSQ,FSQ_ab,
@@ -66,7 +67,7 @@ C
       End If
 
       End
-      SUBROUTINE CHOSCF_DRV_Internal(iUHF,nSym,nBas,W_DSQ,W_DLT,
+      SUBROUTINE CHOSCF_DRV_Internal(nD,nSym,nBas,W_DSQ,W_DLT,
      &                               W_DSQ_ab,W_DLT_ab,W_FLT,
      &                               W_FLT_ab,nFLT,ExFac,
      &                               W_FSQ,W_FSQ_ab,
@@ -80,7 +81,7 @@ C
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
-      Integer iUHF, nSym
+      Integer nD, nSym
       Integer nBas(nSym), MinMem(nSym),rc
       Parameter (MaxDs = 3)
       Logical DoCoulomb(MaxDs),DoExchange(MaxDs)
@@ -109,13 +110,13 @@ C  **************************************************
 C  **************************************************
 
       rc=0
-
+      iUHF=nD-1
       Lunit(:) = -1
 *                                                                      *
 ************************************************************************
 ************************************************************************
 *                                                                      *
-      IF(iUHF.eq.0) THEN
+      IF(nD==1) THEN
 *                                                                      *
 ************************************************************************
 ************************************************************************
