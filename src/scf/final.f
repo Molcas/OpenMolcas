@@ -62,6 +62,7 @@
 #ifdef _FDE_
       use Embedding_Global, only: embPot, embWriteEsp
 #endif
+      use SpinAV, only: DSc
       Implicit Real*8 (a-h,o-z)
 *
 #include "real.fh"
@@ -76,7 +77,6 @@
      &       Fock(mBT,nD), OccNo(mmB,nD), KntE(mBT), MssVlc(mBT),
      &       Darwin(mBT)
 *
-#include "spave.fh"
 #include "addcorr.fh"
 #ifdef _EFP_
       Logical EFP_On
@@ -534,9 +534,7 @@ c make a fix for energies for deleted orbitals
      &        Call GetMem('NDSD','Free','Real',ip_NDSD,l_NDSD)
 #endif
       EndIf
-      If (MxConstr.gt.0) Then
-         If (Do_SpinAV) Call GetMem('DSc','Free','Real',ip_DSc,nBB)
-      EndIf
+      If (Allocated(DSc)) Call mma_deallocate(DSc)
 #ifdef _EFP_
       If (EFP_On()) Then
          Call EFP_ShutDown(EFP_Instance)

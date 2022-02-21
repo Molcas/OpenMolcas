@@ -47,6 +47,7 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use SpinAV, only: Do_SpinAV
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "mxdm.fh"
@@ -61,7 +62,6 @@
       Logical AllowFlip
       Logical Scram, em_On
 *
-#include "spave.fh"
       Real*8 Ovlp(nFO)
       Save iSeed
       Data iSeed/13/

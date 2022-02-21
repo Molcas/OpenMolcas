@@ -47,6 +47,7 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use SpinAV, only: Do_SpinAV
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "mxdm.fh"
@@ -57,8 +58,6 @@
       Real*8 Fock(nFock,nD),CMO(nCMO,nD),FOVMax,EOrb(nEOrb,nD),
      &       Ovrlp(nFock)
       Logical canorb
-*
-#include "spave.fh"
 *
       Real*8, Dimension(:), Allocatable:: FckM, FckS, HlfF, EigV,
      &                                    Ctmp, Scratch, CMOOld,

@@ -47,6 +47,7 @@
 *     history: UHF - V.Veryazov, 2003                                  *
 *                                                                      *
 ************************************************************************
+      use SpinAV, only: Do_SpinAV
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "mxdm.fh"
@@ -55,7 +56,6 @@
 *
       Real*8 CInter(nCI,nD),TrDh(nTr,nTr,nD),TrDP(nTr,nTr,nD),
      &                      TrDD(nTr,nTr,nD)
-#include "spave.fh"
 *
 *---- Define local variables
       Real*8 Eline(MxOptm,2),Equad(MxOptm**2,2),DD(MxOptm**2,2)

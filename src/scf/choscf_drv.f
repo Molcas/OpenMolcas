@@ -76,6 +76,7 @@ C
       Use Fock_util_global, only: Deco, Lunit
       use Data_Structures, only: Allocate_DT, Deallocate_DT
       use Data_Structures, only: DSBA_Type, Integer_Pointer
+      use SpinAV, only: Do_SpinAV
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -95,7 +96,6 @@ C
 
 #include "choscf.fh"
 #include "choauf.fh"
-#include "spave.fh"
 
       Type (Integer_Pointer) :: pNocc(3)
 

@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Integer ip_DSc
-      Logical Do_SpinAV
-      COMMON  / SPAVE_L  / Do_SpinAV
-      COMMON  / SPAVE_I  / ip_DSc
+Module SpinAV
+Real*8, Allocatable :: DSc(:)
+Logical :: Do_SpinAV=.FALSE.
+End Module SpinAV

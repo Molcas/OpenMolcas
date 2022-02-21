@@ -18,19 +18,18 @@
 *     called from: SOrb                                                *
 *                                                                      *
 ************************************************************************
+      use SpinAV
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "file.fh"
 #include "mxdm.fh"
 #include "infscf.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 *
       Character FName*(*), Line*62
       Integer nTmp(8), nIF(8), nRASO(8), nBD(8), nZero(8), nHoles(8)
       Integer nSsh(8), nSsh_ab(8)
 #include "dcscf.fh"
-#include "spave.fh"
 * Pam 2012 Changed VECSORT arg list, need dummy array:
       Integer iDummy(1)
       Real*8 CMO(mBB,nD), EOrb(mmB,nD), OccNo(mmB,nD)
@@ -293,7 +292,8 @@
 *
       If (Do_SpinAV) Then
          Call mma_deallocate(SAV)
-         Call GetMem('DSc','Allo','Real',ip_DSc,nBB)
+         Call mma_Allocate(DSc,nBB,Label='DSc')
+         DSC(:)=Zero
       EndIf
 *
       iOff=1
@@ -313,16 +313,16 @@
      &                    0.0d0,Da(ipDbb,2),nBas(iSym))
 *
          If (Do_SpinAV) Then
-            ipDScc=ip_DSc+lOff
+            ipDScc=lOff
             Do j=1,nBas(iSym)
                Do i=1,j
                   ji=j*(j-1)/2+i
                   iDaa=ipDaa-1+ji
                   iDbb=ipDbb-1+ji
-                  iDSc=ipDScc-1+nBas(iSym)*(j-1)+i
-                  Work(iDSc)=0.5d0*(Da(iDaa,1)-Da(iDbb,2))
-                  kDSc=ipDScc-1+nBas(iSym)*(i-1)+j
-                  Work(kDSc)=Work(iDSc)
+                  iDSc=ipDScc+nBas(iSym)*(j-1)+i
+                  DSc(iDSc)=0.5d0*(Da(iDaa,1)-Da(iDbb,2))
+                  kDSc=ipDScc+nBas(iSym)*(i-1)+j
+                  DSc(kDSc)=DSc(iDSc)
                End Do
             End Do
             lOff=lOff+nBas(iSym)**2
@@ -473,11 +473,11 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
       Subroutine Get_Fmat_nondyn(Dma,Dmb,nBDT,DFTX)
       Use Fock_util_global, only: Deco
       use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
+      use SpinAV
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "mxdm.fh"
 #include "infscf.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 *
       Integer nBDT
@@ -493,7 +493,6 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
       Type (DSBA_Type) FLT(2), KLT(2), POrb(2), PLT(2)
 *
 #include "dcscf.fh"
-#include "spave.fh"
 *
 
       nDMat=2
@@ -528,8 +527,8 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
            write(6,*) ' NODE will be reset to default. '
            DECO=.true.
          EndIf
-         Call daxpy_(NBB,-1.0d0,Work(ip_DSc),1,Dm(1,1),1)
-         Call daxpy_(NBB, 1.0d0,Work(ip_DSc),1,Dm(1,2),1)
+         Call daxpy_(NBB,-1.0d0,DSc,1,Dm(1,1),1)
+         Call daxpy_(NBB, 1.0d0,DSc,1,Dm(1,2),1)
       EndIf
 *
       iOff=0
@@ -572,8 +571,8 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
       If (Do_SpinAV) Then
          Call UnFold(Dma,nBDT,Dm(1,1),nBB,nSym,nBas)
          Call UnFold(Dmb,nBDT,Dm(1,2),nBB,nSym,nBas)
-         Call daxpy_(NBB,-1.0d0,Work(ip_DSc),1,Dm(1,1),1)
-         Call daxpy_(NBB, 1.0d0,Work(ip_DSc),1,Dm(1,2),1)
+         Call daxpy_(NBB,-1.0d0,DSc,1,Dm(1,1),1)
+         Call daxpy_(NBB, 1.0d0,DSc,1,Dm(1,2),1)
          Call Fold(nSym,nBas,Dm(1,1),Dma)
          Call Fold(nSym,nBas,Dm(1,2),Dmb)
       EndIf

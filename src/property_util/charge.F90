@@ -17,6 +17,7 @@ subroutine CHARGE(NSYM,NBAS,BNAME,CMO,OCCN,SMAT,iCase,FullMlk,lSave)
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6, r8
+use SpinAV
 
 implicit none
 #include "Molcas.fh"
@@ -55,7 +56,6 @@ character(len=100), external :: Get_ProgName
 !character(len=4), allocatable :: TLbl(:)
 !character(len=LenIn), allocatable :: LblCnt(:)
 #include "angtp.fh"
-#include "spave.fh"
 #include "WrkSpc.fh"
 
 !                                                                      *
@@ -467,7 +467,7 @@ do ISYM=1,NSYM
         end do
 
         if (DMN_SpinAV) then
-          DMN = DMN+xsg*Work(ip_DSc+(NY+IB-1)*NBAST+MY+IB-1)
+          DMN = DMN+xsg*DSc((NY+IB)*NBAST+MY+IB)
         end if
 
         if (DoBond) then

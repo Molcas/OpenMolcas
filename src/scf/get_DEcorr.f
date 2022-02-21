@@ -10,16 +10,15 @@
 ************************************************************************
       Subroutine Get_DEcorr(nh1,Grad,nGrad,DFTFOCK)
       use SCF_Arrays, only: CMO
+      use SpinAV
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "mxdm.fh"
 #include "stdalloc.fh"
-#include "WrkSpc.fh"
 #include "infscf.fh"
       Real*8  Grad(nGrad), Ec_AB(2)
       Character*4 DFTFOCK
 #include "addcorr.fh"
-#include "spave.fh"
       Real*8, Allocatable :: F_DFT(:,:), D_DS(:,:)
       nD=2
 *
@@ -63,11 +62,11 @@
           If (Do_SpinAV) Then
              Do j=1,nBas(iSym)
                 Do i=1,j
-                   iDSc=ip_DSc-1+nBas(iSym)*(j-1)+i
+                   iDSc=nBas(iSym)*(j-1)+i
                    ji=j*(j-1)/2+i
                    iDij=jOff-1+ji
-                   D_DS(iDij,1)=D_DS(iDij,1)-Work(iDSc)
-                   D_DS(iDij,2)=D_DS(iDij,2)+Work(iDSc)
+                   D_DS(iDij,1)=D_DS(iDij,1)-DSc(iDSc)
+                   D_DS(iDij,2)=D_DS(iDij,2)+DSc(iDSc)
                 End Do
              End Do
              lOff=lOff+nBas(iSym)**2
