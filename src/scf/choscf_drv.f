@@ -110,7 +110,6 @@ C  **************************************************
 C  **************************************************
 
       rc=0
-      iUHF=nD-1
       Lunit(:) = -1
 *                                                                      *
 ************************************************************************
@@ -194,7 +193,7 @@ C  **************************************************
 
       ENDIF
 
-      Call CHOSCF_MEM(nSym,nBas,iUHF,DoExchange,pNocc,ALGO,REORD,
+      Call CHOSCF_MEM(nSym,nBas,nD,DoExchange,pNocc,ALGO,REORD,
      &                MinMem,loff1)
 *                                                                      *
 ************************************************************************
@@ -316,7 +315,7 @@ C  **************************************************
 
       If (ALGO.lt.3.and.ExFac.ne.0.0d0) Then
 
-         CALL CHO_SUM(rc,nSym,nBas,iUHF,DoExchange,FLT,FSQ)
+         CALL CHO_SUM(rc,nSym,nBas,nD,DoExchange,FLT,FSQ)
 
       EndIf
 C----------------------------------------------------
@@ -474,7 +473,7 @@ C Compute the total density Dalpha + Dbeta
 
       ENDIF
 
-      Call CHOSCF_MEM(nSym,nBas,iUHF,DoExchange,pNocc,
+      Call CHOSCF_MEM(nSym,nBas,nD,DoExchange,pNocc,
      &                ALGO,REORD,MinMem,loff1)
 
 
@@ -600,7 +599,7 @@ C --- To get the Fbeta in LT storage ----
 
 C --- Accumulates Coulomb and Exchange contributions
       If (ALGO.lt.3.and.ExFac.ne.0.0d0) then
-         CALL CHO_SUM(rc,nSym,nBas,iUHF,DoExchange,FLT,FSQ)
+         CALL CHO_SUM(rc,nSym,nBas,nD,DoExchange,FLT,FSQ)
       Endif
 
 C----------------------------------------------------

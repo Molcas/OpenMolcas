@@ -24,7 +24,7 @@ real(kind=wp), intent(in) :: W_DSQ(*), W_DLT(*), ExFac, W_CMO(*)
 real(kind=wp), intent(inout) :: W_FLT(*)
 type(DSBA_Type), intent(inout) :: FSQ(1)
 integer(kind=iwp), parameter :: MaxDs = 1
-integer(kind=iwp) :: i, iUHF, ja, loff1, MinMem(8), nDen, NumV, rc
+integer(kind=iwp) :: i, nD, ja, loff1, MinMem(8), nDen, NumV, rc
 real(kind=wp) :: FactC(MaxDs), FactX(MaxDs), Thr, Ymax
 logical(kind=iwp) :: DoCoulomb(MaxDs), DoExchange(MaxDs)
 type(DSBA_Type) :: DDec, DLT(1), DSQ(1), FLT(1), MSQ(MaxDs), Vec
@@ -49,7 +49,7 @@ call Allocate_DT(FLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_FLT)
 
 call Allocate_DT(DSQ(1),nBas,nBas,nSym,Ref=W_DSQ)
 
-iUHF = 0
+nD=1
 
 if (DECO) then ! use decomposed density
   ! ==============  Alternative A: Use decomposed density matrix =====
@@ -101,7 +101,7 @@ else
 
 end if
 
-call CHOSCF_MEM(nSym,nBas,iUHF,DoExchange,pNocc,ALGO,REORD,MinMem,loff1)
+call CHOSCF_MEM(nSym,nBas,nD,DoExchange,pNocc,ALGO,REORD,MinMem,loff1)
 
 ! Here follows a long if nest with six combinations:
 ! ALGO is 1,  REORD is .true. or .false., or
@@ -153,7 +153,7 @@ else
   call QUIT(rc)
 end if
 
-call CHO_SUM(rc,nSym,nBas,iUHF,DoExchange,FLT,FSQ)
+call CHO_SUM(rc,nSym,nBas,nD,DoExchange,FLT,FSQ)
 
 if (rc /= 0) call Error(rc)
 
