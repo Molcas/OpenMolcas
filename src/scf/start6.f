@@ -538,6 +538,7 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
      &                  nIorb(i,1),1.0d-12,irc)
          If (irc.ne.0) Then
             write(6,*) ' Alpha density. Sym= ',i,'   rc= ',irc
+            Call RecPrt('Dm',' ',Dm(ipDai,1),nBas(i),nBas(i))
             Call Abend()
          EndIf
          ipDbi=1+iOff
@@ -545,6 +546,7 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
      &                  nIorb(i,2),1.0d-12,irc)
          If (irc.ne.0) Then
             write(6,*) ' Beta density. Sym= ',i,'   rc= ',irc
+            Call RecPrt('Dm',' ',Dm(ipDbi,1),nBas(i),nBas(i))
             Call Abend()
          EndIf
          iOff=iOff+nBas(i)**2
