@@ -279,15 +279,15 @@
          End Do
          If (nD==1) Then
             Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
-     &                     Dens(:,:,iPsLst),DnsS(1,1),Temp(1,1),
+     &                     Dens(:,:,iPsLst),DnsS(:,:),Temp(1,1),
      &                     nBT,ExFac,nBB,MaxBas,nD,
-     &                     Dummy,Dummy,nOcc(1,1),idummy,
-     &                     iDummy_run)
+     &                     Dummy,nOcc(1,1),
+     &                     idummy,iDummy_run)
          Else
             Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
-     &                     Dens(:,:,iPsLst),DnsS(1,1),Temp(1,1),
+     &                     Dens(:,:,iPsLst),DnsS(:,:),Temp(1,1),
      &                     nBT,ExFac,nBB,MaxBas,nD,
-     &                     DnsS(1,2),Temp(1,2),nOcc(1,1),
+     &                     Temp(1,2),nOcc(1,1),
      &                     nOcc(1,2),iDummy_run)
          End If
 *

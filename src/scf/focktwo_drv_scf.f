@@ -11,7 +11,7 @@
       Subroutine FockTwo_Drv_scf(nSym,nBas,nAux,Keep,
      &                       DLT,DSQ,FLT,nFLT,
      &                       ExFac,nBSQT,nBMX,nD,
-     &                       DSQ_ab,FLT_ab,nOcc,nOcc_ab,iDummy_run)
+     &                       FLT_ab,nOcc,nOcc_ab,iDummy_run)
       use OFembed, only: Do_OFemb,OFE_first,FMaux
       use OFembed, only: Rep_EN
       Implicit Real*8 (a-h,o-z)
@@ -22,9 +22,10 @@
       Integer nSym,nBas(8), nAux(8), Keep(8)
       Integer nOcc(nSym),nOcc_ab(nSym)
       Logical DoCholesky,GenInt,DoLDF
-      Real*8 DSQ(*),FLT(nFLT)
-      Real*8 DSQ_ab(*),FLT_ab(*)
+      Real*8 FLT(nFLT)
+      Real*8 FLT_ab(*)
       Real*8 DLT(nFLT,nD)
+      Real*8 DSQ(nBSQT,nD)
       Character*50 CFmt
 
 #include "choscf.fh"
@@ -87,16 +88,16 @@ c      write(6,*)'ExFac= ',ExFac
        If (nD==2) Then
 
          Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
-     &             DLT(:,1),DSQ,tFLT,nFlt,
+     &             DLT(:,1),DSQ(:,1),tFLT,nFlt,
      &             FSQ,LBUF,W1,W2,ExFac,nD,nBSQT,
-     &             DLT(:,nD),DSQ_ab)
+     &             DLT(:,nD),DSQ(:,nD))
 
        Else  ! RHF calculation
 
          Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
-     &             DLT(:,1),DSQ,tFLT,nFlt,
+     &             DLT(:,1),DSQ(:,1),tFLT,nFlt,
      &             FSQ,LBUF,W1,W2,ExFac,nD,nBSQT,
-     &             DLT(:,nD),Work(ip_Dummy))
+     &             DLT(:,nD),DSQ(:,nD))
 
        EndIf
 
@@ -121,16 +122,16 @@ c      write(6,*)'ExFac= ',ExFac
        If (nD==2) Then
 
          Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
-     &             DLT(:,1),DSQ,tFLT,nFlt,
+     &             DLT(:,1),DSQ(:,1),tFLT,nFlt,
      &             FSQ,LBUF,W1,W2,ExFac,nD,nBSQT,
-     &             DLT(:,nD),DSQ_ab)
+     &             DLT(:,nD),DSQ(:,nD))
 
        Else  ! RHF calculation
 
          Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
-     &             DLT(:,1),DSQ,tFLT,nFlt,
+     &             DLT(:,1),DSQ(:,1),tFLT,nFlt,
      &             FSQ,LBUF,W1,W2,ExFac,nD,nBSQT,
-     &             DLT(:,nD),Work(ip_Dummy))
+     &             DLT(:,nD),DSQ(:,nD))
 
        EndIf
 
@@ -173,14 +174,14 @@ c      write(6,*)'ExFac= ',ExFac
 *
         If (nD==2) Then
 
-           CALL CHOscf_drv(nBSQT,nD,nSym,nBas,DSQ,DLT(:,1),
-     &                     DSQ_ab,DLT(:,nD),
+           CALL CHOscf_drv(nBSQT,nD,nSym,nBas,DSQ(:,1),DLT(:,1),
+     &                     DSQ(:,nD),DLT(:,nD),
      &                     tFLT(:,1),tFLT(:,nD),nFLT,ExFac,
      &                     FSQ,nOcc,nOcc_ab)
         Else
 *
-           CALL CHOscf_drv(nBSQT,nD,nSym,nBas,DSQ,DLT(:,1),
-     &                 Work(ip_Dummy),DLT(:,nD),
+           CALL CHOscf_drv(nBSQT,nD,nSym,nBas,DSQ(:,1),DLT(:,1),
+     &                 DSQ(:,nD),DLT(:,nD),
      &                 tFLT(:,1),tFLT(:,nD),nFLT,ExFac,
      &                 FSQ,nOcc,iWork(ip_iDummy))
         EndIf
