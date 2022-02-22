@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine FockTwo_Drv_scf(nSym,nBas,nAux,Keep,
      &                       DLT,DSQ,FLT,nFLT,
-     &                       ExFac,nBSQT,nBMX,iUHF,DLT_ab,
+     &                       ExFac,nBSQT,nBMX,nD,
      &                       DSQ_ab,FLT_ab,nOcc,nOcc_ab,iDummy_run)
       use OFembed, only: Do_OFemb,OFE_first,FMaux
       use OFembed, only: Rep_EN
@@ -18,11 +18,13 @@
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
+      Integer nD
       Integer nSym,nBas(8), nAux(8), Keep(8)
       Integer nOcc(nSym),nOcc_ab(nSym)
       Logical DoCholesky,GenInt,DoLDF
-      Real*8 DLT(*),DSQ(*),FLT(nFLT)
-      Real*8 DLT_ab(*),DSQ_ab(*),FLT_ab(*)
+      Real*8 DSQ(*),FLT(nFLT)
+      Real*8 DSQ_ab(*),FLT_ab(*)
+      Real*8 DLT(nFLT,nD)
       Character*50 CFmt
 
 #include "choscf.fh"
@@ -31,7 +33,6 @@
       Real*8, Allocatable :: W1(:), W2(:)
       Real*8, Allocatable :: tFLT(:,:)
 *
-      nD=(3+iUHF)/2
       GenInt=.false.
       DoCholesky=.false.
       if(ALGO.eq.0) GenInt=.true. !use GenInt to regenerate integrals
@@ -47,7 +48,8 @@ c      write(6,*)'ExFac= ',ExFac
 *
       If (Do_OFemb) Then ! Coul. potential from subsys B
          If (OFE_first) Call mma_allocate(FMaux,nFlt,Label='FMaux')
-         Call Coul_DMB(OFE_first,nD,Rep_EN,FMaux,DLT,DLT_ab,nFlt)
+         Call Coul_DMB(OFE_first,nD,Rep_EN,FMaux,DLT(:,1),DLT(:,nD),
+     &                 nFlt)
          OFE_first=.false.
       End If
 *
@@ -85,16 +87,16 @@ c      write(6,*)'ExFac= ',ExFac
        If (nD==2) Then
 
          Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
-     &             DLT,DSQ,tFLT,nFlt,
+     &             DLT(:,1),DSQ,tFLT,nFlt,
      &             FSQ,LBUF,W1,W2,ExFac,nD,nBSQT,
-     &             DLT_ab,DSQ_ab)
+     &             DLT(:,nD),DSQ_ab)
 
        Else  ! RHF calculation
 
          Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
-     &             DLT,DSQ,tFLT,nFlt,
+     &             DLT(:,1),DSQ,tFLT,nFlt,
      &             FSQ,LBUF,W1,W2,ExFac,nD,nBSQT,
-     &             Work(ip_Dummy),Work(ip_Dummy))
+     &             DLT(:,nD),Work(ip_Dummy))
 
        EndIf
 
@@ -119,16 +121,16 @@ c      write(6,*)'ExFac= ',ExFac
        If (nD==2) Then
 
          Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
-     &             DLT,DSQ,tFLT,nFlt,
+     &             DLT(:,1),DSQ,tFLT,nFlt,
      &             FSQ,LBUF,W1,W2,ExFac,nD,nBSQT,
-     &             DLT_ab,DSQ_ab)
+     &             DLT(:,nD),DSQ_ab)
 
        Else  ! RHF calculation
 
          Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
-     &             DLT,DSQ,tFLT,nFlt,
+     &             DLT(:,1),DSQ,tFLT,nFlt,
      &             FSQ,LBUF,W1,W2,ExFac,nD,nBSQT,
-     &             Work(ip_Dummy),Work(ip_Dummy))
+     &             DLT(:,nD),Work(ip_Dummy))
 
        EndIf
 
@@ -171,14 +173,15 @@ c      write(6,*)'ExFac= ',ExFac
 *
         If (nD==2) Then
 
-           CALL CHOscf_drv(nBSQT,nD,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
-     &                 tFLT(:,1),tFLT(:,2),nFLT,ExFac,
-     &                 FSQ,nOcc,nOcc_ab)
+           CALL CHOscf_drv(nBSQT,nD,nSym,nBas,DSQ,DLT(:,1),
+     &                     DSQ_ab,DLT(:,nD),
+     &                     tFLT(:,1),tFLT(:,nD),nFLT,ExFac,
+     &                     FSQ,nOcc,nOcc_ab)
         Else
 *
-           CALL CHOscf_drv(nBSQT,nD,nSym,nBas,DSQ,DLT,
-     &                 Work(ip_Dummy),Work(ip_Dummy),
-     &                 tFLT(:,1),Work(ip_Dummy),nFLT,ExFac,
+           CALL CHOscf_drv(nBSQT,nD,nSym,nBas,DSQ,DLT(:,1),
+     &                 Work(ip_Dummy),DLT(:,nD),
+     &                 tFLT(:,1),tFLT(:,nD),nFLT,ExFac,
      &                 FSQ,nOcc,iWork(ip_iDummy))
         EndIf
 

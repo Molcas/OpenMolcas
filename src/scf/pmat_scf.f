@@ -277,18 +277,16 @@
          Do iD = 1, nD
             Call Unfold(Dens(1,iD,iPsLst),nBT,DnsS(1,iD),nBB,nSym,nBas)
          End Do
-         If (iUHF.eq.0) Then
+         If (nD==1) Then
             Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
-     &                     Dens(1,1,iPsLst),DnsS(1,1),Temp(1,1),
-     &                     nBT,ExFac,nBB,MaxBas,iUHF,
-     &                     Dummy,
+     &                     Dens(:,:,iPsLst),DnsS(1,1),Temp(1,1),
+     &                     nBT,ExFac,nBB,MaxBas,nD,
      &                     Dummy,Dummy,nOcc(1,1),idummy,
      &                     iDummy_run)
          Else
             Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
-     &                     Dens(1,1,iPsLst),DnsS(1,1),Temp(1,1),
-     &                     nBT,ExFac,nBB,MaxBas,iUHF,
-     &                     Dens(1,2,iPsLst),
+     &                     Dens(:,:,iPsLst),DnsS(1,1),Temp(1,1),
+     &                     nBT,ExFac,nBB,MaxBas,nD,
      &                     DnsS(1,2),Temp(1,2),nOcc(1,1),
      &                     nOcc(1,2),iDummy_run)
          End If
