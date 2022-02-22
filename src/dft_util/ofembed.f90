@@ -14,14 +14,12 @@ Module OFembed
 Private
 Public:: Do_OFemb, KEonly, OFE_first, OFE_KSDFT, ThrFThaw, Xsigma, dFMD, FMaux
 Public::Rep_EN,Func_AB,Func_A,Func_B,Energy_NAD,V_Nuc_AB,V_Nuc_BA,V_emb
-Public::Do_Core
+Public::Do_Core, NDSD
 
 Logical::  Do_OFemb=.False., KEonly=.False., OFE_first=.True.
 Logical::  Do_Core=.False.
 Character(LEN=16)::  OFE_KSDFT=''
-#ifdef _NOT_USED_
-Integer:: ip_NDSD=-696696, l_NDSD=0
-#endif
+Real*8, Allocatable:: NDSD(:,:)
 Real*8:: ThrFThaw=0.0D0, Xsigma=1.0d4, dFMD=0.0D0
 Real*8, Allocatable:: FMaux(:)
 Real*8::Rep_EN,Func_AB,Func_A,Func_B,Energy_NAD,V_Nuc_AB,V_Nuc_BA,V_emb

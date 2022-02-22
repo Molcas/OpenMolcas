@@ -58,7 +58,7 @@
       Use mh5, Only: mh5_put_dset
 #endif
       Use Interfaces_SCF, Only: dOne_SCF
-      use OFembed, only: Do_OFemb, FMaux
+      use OFembed, only: Do_OFemb, FMaux, NDSD
 #ifdef _FDE_
       use Embedding_Global, only: embPot, embWriteEsp
 #endif
@@ -527,13 +527,8 @@ c make a fix for energies for deleted orbitals
 #endif
      &     KSDFT.ne.'SCF'        ) Call ClsSew
 *
-      If (Do_OFemb) Then
-        Call mma_deallocate(FMaux)
-#ifdef _NOT_USED_CODE_
-          If (l_NDSD.gt.0)
-     &        Call GetMem('NDSD','Free','Real',ip_NDSD,l_NDSD)
-#endif
-      EndIf
+      If (Allocated(FMaux)) Call mma_deallocate(FMaux)
+      If (Allocated(NDSD)) Call mma_deallocate(NDSD)
       If (Allocated(DSc)) Call mma_deallocate(DSc)
 #ifdef _EFP_
       If (EFP_On()) Then
