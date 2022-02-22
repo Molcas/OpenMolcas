@@ -75,7 +75,7 @@
       Real*8, Allocatable, Target:: Temp(:,:)
       Real*8, Dimension(:,:), Allocatable, Target:: Aux
       Real*8, Dimension(:,:), Pointer:: pTwoHam
-      Dimension Dummy(1),iDummy(1),Dumm0(1),Dumm1(1)
+      Dimension Dummy(1),Dumm0(1),Dumm1(1)
 #include "SysDef.fh"
 *
       Interface
