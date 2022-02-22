@@ -28,6 +28,7 @@
 #include "choscf.fh"
 #include "chotime.fh"
       Real*8, Allocatable :: FSQ(:,:)
+      Real*8, Allocatable :: W1(:), W2(:)
 *
       nD=(3+iUHF)/2
       GenInt=.false.
@@ -52,8 +53,8 @@ c      write(6,*)'ExFac= ',ExFac
       Call mma_allocate(FSQ,nBSQT,nD,Label='FSQ')
       FSQ(:,:)=Zero
 
-      if((.not.DoCholesky).or.(GenInt)) then
-      Call GetMem('LW2','Allo','Real',LW2,NBMX*NBMX)
+      if ((.not.DoCholesky).or.(GenInt)) then
+         Call mma_Allocate(W2,NBMX*NBMX,Label='W2')
       end if
 *
 * nFlt is the total dimension of the LT fock matrix
@@ -64,21 +65,17 @@ c      write(6,*)'ExFac= ',ExFac
         Call Getmem('FLT_ab','Allo','Real',ipTemp_ab,nFlt)
         Call FZero(Work(ipTemp_ab),nFlt)
 *
-        if((.not.DoCholesky).or.(GenInt)) then
-          Call GetMem('LW2_ab','Allo','Real',LW2_ab,NBMX*NBMX)
-        endif
-*
       ENDIF
 *
 *
-      Call GetMem('LW1','MAX','Real',LW1,LBUF)
+      Call mma_maxDBLE(LBUF)
 *
 * Standard building of the Fock matrix from Two-el integrals
 *
       Call CWTIME(TotCPU1,TotWALL1)
 
       IF (.not.DoCholesky) THEN
-         Call GetMem('LW1','Allo','Real',LW1,LBUF)
+         Call mma_allocate(W1,LBUF,Label='W1')
 *
        If (LBUF.LT.NBMX**2) Then
          WRITE(6,*)'FockTwo_Drv_SCF Error: Too little memory remains'
@@ -94,14 +91,14 @@ c      write(6,*)'ExFac= ',ExFac
 
          Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
      &             DLT,DSQ,Work(ipTemp),nFlt,
-     &             FSQ,LBUF,Work(LW1),Work(LW2),ExFac,nD,nBSQT,
+     &             FSQ,LBUF,W1,W2,ExFac,nD,nBSQT,
      &             DLT_ab,DSQ_ab,Work(ipTemp_ab))
 
        Else  ! RHF calculation
 
          Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
      &             DLT,DSQ,Work(ipTemp),nFlt,
-     &             FSQ,LBUF,Work(LW1),Work(LW2),ExFac,nD,nBSQT,
+     &             FSQ,LBUF,W1,W2,ExFac,nD,nBSQT,
      &             Work(ip_Dummy),Work(ip_Dummy),Work(ip_Dummy))
 
        EndIf
@@ -112,7 +109,7 @@ c      write(6,*)'ExFac= ',ExFac
 *
       IF ((DoCholesky).and.(GenInt)) THEN ! save some space for GenInt
          LBUF = MAX(LBUF-LBUF/10,0)
-         Call GetMem('LW1','Allo','Real',LW1,LBUF)
+         Call mma_allocate(W1,LBUF,Label='W1')
 *
        If (LBUF.LT.NBMX**2) Then
          WRITE(6,*)' FockTwo_Drv Error: Too little memory remains for'
@@ -128,14 +125,14 @@ c      write(6,*)'ExFac= ',ExFac
 
          Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
      &             DLT,DSQ,Work(ipTemp),nFlt,
-     &             FSQ,LBUF,Work(LW1),Work(LW2),ExFac,nD,nBSQT,
+     &             FSQ,LBUF,W1,W2,ExFac,nD,nBSQT,
      &             DLT_ab,DSQ_ab,Work(ipTemp_ab))
 
        Else  ! RHF calculation
 
          Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
      &             DLT,DSQ,Work(ipTemp),nFlt,
-     &             FSQ,LBUF,Work(LW1),Work(LW2),ExFac,nD,nBSQT,
+     &             FSQ,LBUF,W1,W2,ExFac,nD,nBSQT,
      &             Work(ip_Dummy),Work(ip_Dummy),Work(ip_Dummy))
 
        EndIf
@@ -208,16 +205,11 @@ c      write(6,*)'ExFac= ',ExFac
       EndIf
 *
       IF ((.not.DoCholesky).or.(GenInt)) THEN
-      Call GetMem('LW1','Free','Real',LW1,LBUF)
-      Call GetMem('LW2','Free','Real',LW2,NBMX*NBMX)
+          Call mma_deallocate(W1)
+          Call mma_deallocate(W2)
       END IF
 
       Call mma_deallocate(FSQ)
-      if(nD==2) then
-         IF ((.not.DoCholesky).or.(GenInt)) THEN
-            Call GetMem('LW2_ab','Free','Real',LW2_ab,NBMX*NBMX)
-         END IF
-      endif
 *
       Return
       End
