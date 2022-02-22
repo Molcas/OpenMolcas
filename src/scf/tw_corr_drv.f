@@ -70,7 +70,6 @@ C
       ChoAlg = 2
 *
       CALL mma_allocate(DMAT,nBT,2,Label='DMAT')
-      ip_DM=ip_DM0+nBT
 
       nElk=0
       Do i=1,nSym

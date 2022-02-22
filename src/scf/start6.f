@@ -518,8 +518,9 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
       Call Allocate_DT(POrb(2),nBas,nBas,nSym)
 
       Call mma_allocate(Dm,nBB,2,Label='Dm')
-      Call UnFold(Dma,nBDT,Dm(1,1),nBB,nSym,nBas)
-      Call UnFold(Dmb,nBDT,Dm(1,2),nBB,nSym,nBas)
+      Call UnFold(Dma,nBDT,Dm(:,1),nBB,nSym,nBas)
+      Call UnFold(Dmb,nBDT,Dm(:,2),nBB,nSym,nBas)
+      If (nBB==784) Call Recprt('Dm',' ',Dm(:,1),28,28)
 *
       If (Do_SpinAV) Then
          If (.not.DECO) Then
@@ -527,8 +528,10 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
            write(6,*) ' NODE will be reset to default. '
            DECO=.true.
          EndIf
-         Call daxpy_(NBB,-1.0d0,DSc,1,Dm(1,1),1)
-         Call daxpy_(NBB, 1.0d0,DSc,1,Dm(1,2),1)
+         Call daxpy_(NBB,-1.0d0,DSc,1,Dm(:,1),1)
+         Call daxpy_(NBB, 1.0d0,DSc,1,Dm(:,2),1)
+         If (nBB==784) Call Recprt('Dsc',' ',DSc,28,28)
+         If (nBB==784) Call Recprt('Dm',' ',Dm(:,1),28,28)
       EndIf
 *
       iOff=0
@@ -536,6 +539,7 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
          ipDai=1+iOff
          Call CD_InCore(Dm(ipDai,1),nBas(i),Porb(1)%SB(i)%A2,nBas(i),
      &                  nIorb(i,1),1.0d-12,irc)
+            Call RecPrt('Dm',' ',Dm(ipDai,1),nBas(i),nBas(i))
          If (irc.ne.0) Then
             write(6,*) ' Alpha density. Sym= ',i,'   rc= ',irc
             Call RecPrt('Dm',' ',Dm(ipDai,1),nBas(i),nBas(i))
