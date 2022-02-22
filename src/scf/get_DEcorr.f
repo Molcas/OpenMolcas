@@ -24,15 +24,12 @@
 *
       Call mma_allocate(F_DFT,nBT,nD,Label='F_DFT')
       Call mma_allocate(D_DS ,nBT,nD,Label='D_DS')
-      ip_Da=ip_D_DS
-      ip_Db=ip_D_DS+nBT
 *
       Do iAB=1,2
        iOff=1
        jOff=1
        lOff=0
        Do iSym=1,nSym
-          ipDaa=ip_Da+jOff
           If (iAB.eq.1) Then
              nXoX=nOcc(iSym,1)
              iXoX=0
@@ -45,7 +42,6 @@
      &                     1.0d0,CMO(mAdCMOO,1),nBas(iSym),
      &                           CMO(mAdCMOO,1),nBas(iSym),
      &                     0.0d0,D_DS(jOff,1),nBas(iSym))
-          ipDbb=ip_Db+jOff
           If (iAB.eq.1) Then
              nXoX=nOcc(iSym,2)
              iXoX=0
