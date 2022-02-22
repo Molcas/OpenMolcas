@@ -150,13 +150,13 @@
 ************************************************************************
       SubRoutine IniLLs
 *     initialize the diverse linked lists
+      use LnkLst
       Implicit Real*8 (a-h,o-z)
 
 #include "mxdm.fh"
 #include "infscf.fh"
 #include "infso.fh"
 #include "llists.fh"
-#include "lnklst.fh"
 *
 *
 *     MemRsv set tentatively to the size of six density matrices

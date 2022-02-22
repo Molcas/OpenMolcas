@@ -83,13 +83,11 @@
 
 
       SubRoutine IniLst(iLList,incore)
+      use LnkLst
       Implicit Real*8 (a-h,o-z)
       Integer iLList,incore
 #include "real.fh"
 
-#include "mxdm.fh"
-#include "lnklst.fh"
-*
       Debug_LnkLst=.False.
 *
 *     allocate list header CNOD
@@ -123,6 +121,7 @@
 *             vector is not overwritten and iWork(LList) is set to
 *             ErrCode 1
 *
+      use LnkLst
       Implicit Real*8 (a-h,o-z)
 *
 *     declaration subroutine parameters
@@ -136,9 +135,6 @@ C     Integer iDskPt,len
 *
 #include "real.fh"
 #include "WrkSpc.fh"
-#include "mxdm.fh"
-#include "lnklst.fh"
-
 #include "SysDef.fh"
 *
       If (Debug_LnkLst) Then
@@ -218,6 +214,7 @@ cvv Enough memory
 *     address, if an inconsistent entry was found.
 *     if LList<0, then -LList is interpreted as a direct node address,
 *     and not the address of the listhead (faster access).
+      use LnkLst
       Implicit Real*8 (a-h,o-z)
 *
 *     declaration subroutine parameters
@@ -229,9 +226,6 @@ c      Integer iDskPt
 *
 #include "real.fh"
 #include "WrkSpc.fh"
-#include "mxdm.fh"
-#include "lnklst.fh"
-
 #include "SysDef.fh"
 *
 *
@@ -269,15 +263,13 @@ c      Integer iDskPt
 *     from iroot. inode points to the node found after searching.
 *     inode is set to zero and iWork(LList)=0 is set to ErrCode 1,
 *     if no correspondance was found.
+      use LnkLst
       Implicit Real*8 (a-h,o-z)
 *
 *     declaration subroutine parameters
       Integer iterat,iLList,inode
 *
 #include "real.fh"
-#include "mxdm.fh"
-#include "lnklst.fh"
-
 *
 *
       If (Debug_LnkLst) Then
@@ -309,15 +301,13 @@ c      Integer iDskPt
       SubRoutine InfNod(inode,iterat,ipnext,ipvec,lvec)
 *     returns info of node indicated by inode. iterat,ipnext,ipvec,lvec
 *     are overwritten with the corresponding info on the node
+      use LnkLst
       Implicit Real*8 (a-h,o-z)
 *
 *     declaration of procedure parameters
       Integer inode,iterat,ipnext,ipvec,lvec
 *
 
-#include "mxdm.fh"
-#include "lnklst.fh"
-*
       iterat=nLList(inode,4)
       ipnext=nLList(inode,0)
       ipvec= nLList(inode,1)
@@ -330,13 +320,11 @@ c      Integer iDskPt
 
       Logical Function InCore(inode)
 *     returns true, if corresponding vector is incore, false otherwise
+      use LnkLst
       Implicit Real*8 (a-h,o-z)
       Integer inode
 *
 
-#include "mxdm.fh"
-#include "lnklst.fh"
-*
       If (nLList(inode,5).eq.1) Then
         InCore=.TRUE.
       Else
@@ -349,12 +337,9 @@ c      Integer iDskPt
 
       Logical Function LLErr(iLList)
 *     checks, if ErrCode was set in previous LL Operation
+      use LnkLst
       Implicit Real*8 (a-h,o-z)
       Integer iLList
-*
-
-#include "mxdm.fh"
-#include "lnklst.fh"
 *
 
       If (nLList(iLList,0).eq.0) Then
@@ -369,13 +354,11 @@ c      Integer iDskPt
 
       Integer Function LLLen(iLList)
 *     returns the actual length of the LL
+      use LnkLst
       Implicit Real*8 (a-h,o-z)
       Integer iLList
 *
 
-#include "mxdm.fh"
-#include "lnklst.fh"
-*
       LLLen=nLList(iLList,2)
       Return
       End
@@ -391,6 +374,7 @@ c      Integer iDskPt
 *     the inode value of GetVec is returned.
 *
 *     2017-03-15:Converted to return the array in vptr1.
+      use LnkLst
       Implicit Real*8 (a-h,o-z)
       Integer LUnit,nvptr1,ivptr2,inode,idum
       Logical InCore
@@ -398,8 +382,6 @@ c      Integer iDskPt
 *
 #include "real.fh"
 #include "WrkSpc.fh"
-#include "mxdm.fh"
-#include "lnklst.fh"
 *
       If (InCore(inode)) Then
         Call InfNod(inode,idum,idum,ivptr2,idum)
@@ -456,12 +438,11 @@ c      Integer iDskPt
 
 
       SubRoutine KilLst(iLList)
+      use LnkLst
       Implicit Real*8 (a-h,o-z)
 *     Free all memory of linked list LList
 #include "real.fh"
 #include "WrkSpc.fh"
-#include "mxdm.fh"
-#include "lnklst.fh"
 *     local vars
       Integer iLList,iroot,iPtr1
 *
@@ -490,13 +471,11 @@ c      Integer iDskPt
 
 
       SubRoutine DmpLst(iLList,LUnit,lDskPt)
+      use LnkLst
       Implicit Real*8 (a-h,o-z)
       Integer iLList,LUnit,lDskPt
 *
 #include "WrkSpc.fh"
-#include "mxdm.fh"
-#include "lnklst.fh"
-
 #include "SysDef.fh"
 *
 *     clear ErrCode
@@ -560,13 +539,11 @@ c      Integer iDskPt
 
 
       SubRoutine RclLst(iLList,LUnit,lDskPt,NoAllo)
+      use LnkLst
       Implicit Real*8 (a-h,o-z)
       Integer iLList,LUnit,lDskPt,NoAllo
 *
 #include "WrkSpc.fh"
-#include "mxdm.fh"
-#include "lnklst.fh"
-
 #include "SysDef.fh"
 *
 * load listhead...
