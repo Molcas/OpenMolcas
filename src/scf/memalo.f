@@ -92,7 +92,7 @@ cmgs   this has to be fixed once in a more reasonable way...
 c     MemRsv = lthTot
       MemRsv = 0
 cmgs
-      Call GetMem('SCF','Max','Real',iDum,MxMem)
+      Call mma_maxDBLE(MxMem)
       lthTot = lthTot + 5*nOV
       lthRst = MxMem - lthTot
       nDens  = Min(lthRst/(nBT*nD)/2,6)

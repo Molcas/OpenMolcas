@@ -15,12 +15,14 @@
       Implicit Real*8 (a-h,o-z)
 #include "mxdm.fh"
 #include "infscf.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
       Integer nEO, nCMO
       Real*8 EOrb(nEO), CMO(nCMO), Ecorr
+      Real*8, Allocatable :: Eov(:)
 
-      Call GetMem('Eov','Allo','Real',ipEOkk,nEO)
+      Call mma_Allocate(Eov,nEO,Label='Eov')
 
+      ipEOkk=1
       ipEVir=ipEOkk+nnOc
       iOff=0
       jOff=0
@@ -31,21 +33,21 @@
          jOrb=1+jOff
          jOkk=ipEOkk+iOff
          Do i=0,nOkk-1
-            Work(jOkk+i)=EOrb(jOrb+i)
+            Eov(jOkk+i)=EOrb(jOrb+i)
          End Do
          jOrb=jOrb+nOkk
          jVir=ipEVir+kOff
          Do i=0,nExt-1
-            Work(jVir+i)=EOrb(jOrb+i)
+            Eov(jVir+i)=EOrb(jOrb+i)
          End Do
          iOff=iOff+nOkk
          jOff=jOff+nOrb(iSym)
          kOff=kOff+nExt
       End Do
 
-      Call Tw_corr(irc,Ecorr,CMO,Work(ipEOkk),Work(ipEVir))
+      Call Tw_corr(irc,Ecorr,CMO,Eov(:ipEVir-1),Eov(ipEVir:))
 
-      Call GetMem('Eov','Free','Real',ipEOkk,nEO)
+      Call mma_deallocate(Eov)
       Return
       End
 *****************************************************************************
@@ -54,7 +56,7 @@
       SUBROUTINE Tw_corr(irc,DeTW,CMOI,EOcc,EVir)
 
 #include "implicit.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
       Real*8 DeTW, CMOI(*), EOcc(*), EVir(*)
 C
       Integer nExt(8)
@@ -62,11 +64,12 @@ C
 #include "infscf.fh"
 #include "chomp2_cfg.fh"
       Dimension Grad(1)
+      Real*8, Allocatable :: DMAT(:,:), F_DFT(:)
 
       DoDens = .false.
       ChoAlg = 2
 *
-      CALL GETMEM('DMAT','ALLO','REAL',ip_DM0,2*nBT)
+      CALL mma_allocate(DMAT,nBT,2,Label='DMAT')
       ip_DM=ip_DM0+nBT
 
       nElk=0
@@ -76,7 +79,7 @@ C
       End Do
 
       CALL DM_FNO_RHF(irc,nSym,nBas,nFro,nOcc(1,1),nExt,nDel,
-     &                    CMOI,EOcc,EVir,Work(ip_DM0),Work(ip_DM))
+     &                    CMOI,EOcc,EVir,DMAT(:,2),DMAT(:,1))
       If (irc .ne. 0) Then
          Write(6,*) 'DM_FNO_RHF returned ',irc
          Call SysAbendMsg('DM_FNO_RHF',
@@ -84,27 +87,27 @@ C
      &                    ' ')
       EndIf
 
-      CALL GETMEM('FMAT','ALLO','REAL',ipF_DFT,nBT)
+      CALL mma_allocate(F_DFT,nBT,Label='F_DFT')
 *
-      Call Fold_tMat(nSym,nBas,Work(ip_DM),Work(ip_DM))
-      call dscal_(nBT,0.5d0,Work(ip_DM),1)
-      Call Fold_tMat(nSym,nBas,Work(ip_DM0),Work(ip_DM0))
-      call dscal_(nBT,0.5d0,Work(ip_DM0),1)
+      Call Fold_tMat(nSym,nBas,DMAT(:,1),DMAT(:,1))
+      call dscal_(nBT,0.5d0,DMAT(:,1),1)
+      Call Fold_tMat(nSym,nBas,DMAT(:,2),DMAT(:,2))
+      call dscal_(nBT,0.5d0,DMAT(:,2),1)
       Grad=0.0d0
 
-      Call wrap_DrvNQ('HUNTER',Work(ipF_DFT),1,TW,
-     &                      Work(ip_DM),nBT,1,
+      Call wrap_DrvNQ('HUNTER',F_DFT,1,TW,
+     &                      DMAT(:,1),nBT,1,
      &                      .false.,
      &                      Grad,1,'SCF ')
 
-      Call wrap_DrvNQ('HUNTER',Work(ipF_DFT),1,TW0,
-     &                      Work(ip_DM0),nBT,1,
+      Call wrap_DrvNQ('HUNTER',F_DFT,1,TW0,
+     &                      DMAT(:,2),nBT,1,
      &                      .false.,
      &                      Grad,1,'SCF ')
       DeTW=(TW-TW0)/dble(nElk)
 *
-      CALL GETMEM('FMAT','FREE','REAL',ipF_DFT,nBT)
-      CALL GETMEM('DMAT','FREE','REAL',ip_DM0,2*nBT)
+      Call mma_deallocate(F_DFT)
+      Call mma_deallocate(DMAT)
 *
       Return
       End
