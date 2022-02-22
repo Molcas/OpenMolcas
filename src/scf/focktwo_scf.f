@@ -14,11 +14,12 @@
 ************************************************************************
       SUBROUTINE FOCKTWO_scf(NSYM,NBAS,NFRO,KEEP,
      &                   DLT,DSQ,FLT,nFlt,FSQ,LBUF,X1,X2,ExFac,nD,nBSQT,
-     &                   DLT_ab,DSQ_ab,FLT_ab)
+     &                   DLT_ab,DSQ_ab)
       IMPLICIT REAL*8 (A-H,O-Z)
-      Real*8 FLT(nFlt),DSQ(*),DLT(*),X1(*),X2(*)
-      Real*8 DLT_ab(*),DSQ_ab(*),FLT_ab(*)
+      Real*8 DSQ(*),DLT(*),X1(*),X2(*)
+      Real*8 DLT_ab(*),DSQ_ab(*)
       Real*8 FSQ(nBSQT,nD)
+      Real*8 FLT(nFlt,nD)
       Integer ISTLT(8),ISTSQ(8),KEEP(8),NBAS(8),NFRO(8)
       Logical myDebug
 c
@@ -113,16 +114,16 @@ c Option code 2: Continue reading at next integral.
                     ISF=ISTLT(IS)+LPQ
                     ISD=ISTLT(IS)+1
                     TEMP=DDOT_(KLB,X1(ISX),1,DLT(ISD),1)
-                    FLT(ISF)=FLT(ISF)+TEMP
+                    FLT(ISF,1)=FLT(ISF,1)+TEMP
                     if(nD==2) then
                      TEMP_ab=DDOT_(KLB,X1(ISX),1,DLT_ab(ISD),1)
-                     FLT(ISF)=FLT(ISF)+TEMP_ab
-                     FLT_ab(ISF)=FLT(ISF)
+                     FLT(ISF,1)=FLT(ISF,1)+TEMP_ab
+                     FLT(ISF,2)=FLT(ISF,1)
                     endif
         if(myDebug) then
-          write (6,'(a,i5,a,f12.6)') '00 Flt(',isf,')=',FLT(ISF)
+          write (6,'(a,i5,a,f12.6)') '00 Flt(',isf,',1)=',FLT(ISF,1)
           if(nD==2) then
-          write (6,'(a,i5,a,f12.6)') '00 Flt_ab(',isf,')=',FLT_ab(ISF)
+          write (6,'(a,i5,a,f12.6)') '00 Flt(',isf,',2)=',FLT(ISF,2)
           endif
         endif
                     CALL SQUARE (X1(ISX),X2(1),1,KB,LB)
@@ -190,23 +191,23 @@ c Coulomb terms need to be accumulated only
                     if(nD==2) then
                       TEMP=DLT(ISD)+DLT_ab(ISD)
                     endif
-                      CALL DAXPY_(KLB,TEMP,X1(ISX),1,FLT(ISF),1)
+                      CALL DAXPY_(KLB,TEMP,X1(ISX),1,FLT(ISF,1),1)
                     if(nD==2) then
-                      CALL DAXPY_(KLB,TEMP,X1(ISX),1,FLT_ab(ISF),1)
+                      CALL DAXPY_(KLB,TEMP,X1(ISX),1,FLT(ISF,2),1)
                     endif
                     ENDIF
                     IF ( NFK.NE.0 ) THEN
                       ISF=ISTLT(IS)+LPQ
                       ISD=ISTLT(KS)+1
                       TEMP=DDOT_(KLB,X1(ISX),1,DLT(ISD),1)
-                      FLT(ISF)=FLT(ISF)+TEMP
-                if(nD==2) then
-                      TEMP_ab=DDOT_(KLB,X1(ISX),1,DLT_ab(ISD),1)
-                      FLT(ISF)=FLT(ISF)+TEMP_ab
-                      FLT_ab(ISF)=FLT(ISF)
-                endif
+                      FLT(ISF,1)=FLT(ISF,1)+TEMP
+                      if (nD==2) then
+                         TEMP_ab=DDOT_(KLB,X1(ISX),1,DLT_ab(ISD),1)
+                         FLT(ISF,1)=FLT(ISF,1)+TEMP_ab
+                         FLT(ISF,2)=FLT(ISF,1)
+                      endif
         if(myDebug) then
-          write (6,'(a,i5,a,f12.6)') '02 Flt(',isf,')=',FLT(ISF)
+          write (6,'(a,i5,a,f12.6)') '02 Flt(',isf,',1)=',FLT(ISF,1)
         endif
 
                     ENDIF
@@ -281,16 +282,16 @@ c Accumulate the contributions
         DO 310 IB=1,NB
           DO 315 JB=1,IB
 
-            FLT(K1+JB)=FLT(K1+JB)+FSQ(K2+JB,1)
+            FLT(K1+JB,1)=FLT(K1+JB,1)+FSQ(K2+JB,1)
             if(nD==2) then
-             FLT_ab(K1+JB)=FLT_ab(K1+JB)+FSQ(K2+JB,2)
+             FLT(K1+JB,2)=FLT(K1+JB,2)+FSQ(K2+JB,2)
             endif
         if(myDebug) then
          if(nD==1)then
-          write (6,'(a,i5,a,f12.6)') 'Flt(',K1+JB,')=',FLT(K1+JB)
+          write (6,'(a,i5,a,f12.6)') 'Flt(',K1+JB,',1)=',FLT(K1+JB,1)
           else
-          write (6,'(a,i5,a,2f12.6)') 'Flt_ab(',K1+JB,')=',
-     &               FLT(K1+JB),FLT_ab(K1+JB)
+          write (6,'(a,i5,a,2f12.6)') 'Flt(',K1+JB,',:)=',
+     &               FLT(K1+JB,1),FLT(K1+JB,2)
           endif
         endif
 
@@ -300,8 +301,7 @@ c Accumulate the contributions
 310     CONTINUE
 300   CONTINUE
 *
-      Call GADSum(Flt,nFlt)
-      If (nD==2) Call GADSum(Flt_ab,nFlt)
+      Call GADSum(Flt,nFlt*nD)
 *
 c Print the Fock-matrix
 #ifdef _DEBUGPRINT_
@@ -312,9 +312,9 @@ c Print the Fock-matrix
         NB=NBAS(ISYM)
         IF ( NB.GT.0 ) THEN
           WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
-          CALL TRIPRT(' ',' ',FLT(ISTLTT),NB)
+          CALL TRIPRT(' ',' ',FLT(ISTLTT,1),NB)
           if(nD==2) then
-          CALL TRIPRT(' ',' ',FLT_ab(ISTLTT),NB)
+          CALL TRIPRT(' ',' ',FLT(ISTLTT,2),NB)
           endif
           ISTLTT=ISTLTT+NB*(NB+1)/2
         END IF
