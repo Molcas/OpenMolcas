@@ -136,7 +136,7 @@ C
 #include "chfnopt.fh"
 *
       Integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
-      Real*8, Allocatable:: CMO(:,:)
+      Real*8, Allocatable:: CMO(:,:), EOrb(:,:)
 *
 *
       irc=0
@@ -180,36 +180,31 @@ C
          lnDel(iSym)=nDel(iSym)
       End Do
 *
-      Call GetMem('Eorb','Allo','Real',ipOrbE,4*nOrb)
+      Call mma_Allocate(EOrb,nOrb,4,Label='EOrb')
       jOff=0
       kOff=0
       lOff=0
       Do iSym=1,nSym
-         jp=ipOrbE+lOff+nFro(iSym)
+         jp=1+lOff+nFro(iSym)
          jOcc=jOff+1
-         call dcopy_(nIsh(iSym),EOcc(jOcc),1,Work(jp),1)
+         call dcopy_(nIsh(iSym),EOcc(jOcc),1,EOrb(jp,1),1)
          jVir=kOff+1
          jp=jp+nIsh(iSym)
-         call dcopy_(nSsh(iSym),EVir(jVir),1,Work(jp),1)
+         call dcopy_(nSsh(iSym),EVir(jVir),1,EOrb(jp,1),1)
          jOff=jOff+nIsh(iSym)
          kOff=kOff+nSsh(iSym)
          lOff=lOff+nBas(iSym)
       End Do
-      ip_ZZ=ipOrbE
-      ipEorb=ipOrbE+nOrb
-      ip_Z=ipEorb
-      kEOcc=ipEorb+nOrb
-      kEVir=kEOcc+nOrb
       ioff=0
       joff=0
       koff=0
       Do iSym=1,nSym
-         ifr=ipOrbE+ioff+nFro(iSym)
-         ito=kEOcc+joff
-         call dcopy_(nIsh(iSym),Work(ifr),1,Work(ito),1)
-         ifr=ipOrbE+ioff+nFro(iSym)+nIsh(iSym)
-         ito=kEVir+koff
-         call dcopy_(nSsh(iSym),Work(ifr),1,Work(ito),1)
+         ifr=1+ioff+nFro(iSym)
+         ito=1+joff
+         call dcopy_(nIsh(iSym),EOrb(ifr,1),1,EOrb(ito,3),1)
+         ifr=1+ioff+nFro(iSym)+nIsh(iSym)
+         ito=1+koff
+         call dcopy_(nSsh(iSym),EOrb(ifr,1),1,EOrb(ito,4),1)
          ioff=ioff+nBas(iSym)
          joff=joff+nIsh(iSym)
          koff=koff+nSsh(iSym)
@@ -232,7 +227,7 @@ C
       End Do
       Call Check_Amp_SCF(nSym,lnOcc,lnVir,iSkip)
       If (iSkip.gt.0) Then
-         Call ChoMP2_Drv(irc,Dummy,CMO(:,2),Work(kEOcc),Work(kEVir))
+         Call ChoMP2_Drv(irc,Dummy,CMO(:,2),EOrb(:,3),EOrb(:,4))
          If(irc.ne.0) then
            write(6,*) 'MP2 pseudodensity calculation failed !'
            Call Abend
@@ -263,25 +258,25 @@ c           write(6,*) ' Sum    : ',ddot_(nOA,1.0d0,0,Work(jOcc),1)
          nOkk=nFro(iSym)+nIsh(iSym)
          Call DGEMM_Tri('N','T',nBas(iSym),nBas(iSym),nOkk,
      &                      2.0d0,CMO(kto,1),nBas(iSym),
-     &                            Work(kto),nBas(iSym),
+     &                            CMO(kto,1),nBas(iSym),
      &                      0.0d0,DM0(kDM),nBas(iSym))
 *
          sqocc=sqrt(2.0d0)
-         call dscal_(nBas(iSym)*nFro(iSym),sqocc,Work(kto),1)
+         call dscal_(nBas(iSym)*nFro(iSym),sqocc,CMO(kto,1),1)
          Do j=0,nIsh(iSym)-1
              sqocc=sqrt(Work(jOcc+j))
              ito=kto+nBas(iSym)*j
-             call dscal_(nBas(iSym),sqocc,Work(ito),1)
+             call dscal_(nBas(iSym),sqocc,CMO(ito,1),1)
          End Do
          Call DGEMM_Tri('N','T',nBas(iSym),nBas(iSym),nOkk,
-     &                      1.0d0,Work(kto),nBas(iSym),
-     &                            Work(kto),nBas(iSym),
+     &                      1.0d0,CMO(kto,1),nBas(iSym),
+     &                            CMO(kto,1),nBas(iSym),
      &                      0.0d0,DM(kDM),nBas(iSym))
 *
          if (nSsh(iSym).gt.0) then
            jD=ip_X+iOff
 *     Eigenvectors will be in increasing order of eigenvalues
-           Call Eigen_Molcas(nSsh(iSym),Work(jD),Work(ip_Z),Work(ip_ZZ))
+           Call Eigen_Molcas(nSsh(iSym),Work(jD),EOrb(:,2),Eorb(:,1))
 *     Reorder to get relevant eigenpairs first
            Do j=1,nSsh(iSym)/2
               Do i=1,nSsh(iSym)
@@ -291,9 +286,9 @@ c           write(6,*) ' Sum    : ',ddot_(nOA,1.0d0,0,Work(jOcc),1)
                  Work(lij)=Work(kij)
                  Work(kij)=tmp
               End Do
-              tmp=Work(ip_Z-1+j)
-              Work(ip_Z-1+j)=Work(ip_Z+nSsh(iSym)-j)
-              Work(ip_Z+nSsh(iSym)-j)=tmp
+              tmp=EOrb(j,2)
+              EOrb(j,2)=EOrb(nSsh(iSym)-j,2)
+              EOrb(nSsh(iSym)-j,2)=tmp
            End Do
 *
 *     Compute new MO coeff. : X=C*U
@@ -304,10 +299,10 @@ c           write(6,*) ' Sum    : ',ddot_(nOA,1.0d0,0,Work(jOcc),1)
      &                              Work(jD),nSsh(iSym),
      &                        0.0d0,CMO(kto,1),nBas(iSym))
 
-c           write(6,*) ' Occ_vir: ',(Work(ip_Z+j),j=0,nSsh(iSym)-1)
-c           write(6,*) ' Sum_vir: ',ddot_(nSsh(iSym),1.0d0,0,Work(ip_Z),1)
+c          write(6,*) ' Occ_vir: ',(EOrb(j,2),j=1,nSsh(iSym))
+c          write(6,*) ' Sum_vir: ',ddot_(nSsh(iSym),1.0d0,0,EOrb(:,2),1)
            Do j=0,nSsh(iSym)-1
-              sqocc=sqrt(2.0d0*Work(ip_Z+j))
+              sqocc=sqrt(2.0d0*EOrb(1+j,2))
               jto=kto+nBas(iSym)*j
               call dscal_(nBas(iSym),sqocc,CMO(jto,1),1)
            End Do
@@ -323,7 +318,7 @@ c           write(6,*) ' Sum_vir: ',ddot_(nSsh(iSym),1.0d0,0,Work(ip_Z),1)
          jOcc=jOcc+nIsh(iSym)
       End Do
 *
-      Call GetMem('Eorb','Free','Real',ipOrbE,4*nOrb)
+      Call mma_deAllocate(EOrb)
       Call GetMem('Dmat','Free','Real',ip_X,nVV+nOA)
       Call mma_deallocate(CMO)
 *
