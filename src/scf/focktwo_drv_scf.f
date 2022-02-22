@@ -11,16 +11,15 @@
       Subroutine FockTwo_Drv_scf(nSym,nBas,nAux,Keep,
      &                       DLT,DSQ,FLT,nFLT,
      &                       ExFac,nBSQT,nBMX,nD,
-     &                       FLT_ab,nOcc,nOcc_ab,iDummy_run)
+     &                       FLT_ab,nOcc,lOcc,iDummy_run)
       use OFembed, only: Do_OFemb,OFE_first,FMaux
       use OFembed, only: Rep_EN
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       Integer nD
       Integer nSym,nBas(8), nAux(8), Keep(8)
-      Integer nOcc(nSym),nOcc_ab(nSym)
+      Integer nOcc(lOcc,nD)
       Logical DoCholesky,GenInt,DoLDF
       Real*8 FLT(nFLT)
       Real*8 FLT_ab(*)
@@ -85,21 +84,10 @@ c      write(6,*)'ExFac= ',ExFac
          Call  ABEND()
        End If
 *
-       If (nD==2) Then
-
-         Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
-     &             DLT(:,1),DSQ(:,1),tFLT,nFlt,
-     &             FSQ,LBUF,W1,W2,ExFac,nD,nBSQT,
-     &             DLT(:,nD),DSQ(:,nD))
-
-       Else  ! RHF calculation
-
-         Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
-     &             DLT(:,1),DSQ(:,1),tFLT,nFlt,
-     &             FSQ,LBUF,W1,W2,ExFac,nD,nBSQT,
-     &             DLT(:,nD),DSQ(:,nD))
-
-       EndIf
+       Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
+     &                  DLT(:,1),DSQ(:,1),tFLT,nFlt,
+     &                  FSQ,LBUF,W1,W2,ExFac,nD,nBSQT,
+     &                  DLT(:,nD),DSQ(:,nD))
 
       ENDIF
 *
@@ -119,21 +107,10 @@ c      write(6,*)'ExFac= ',ExFac
          Call  ABEND()
        End If
 *
-       If (nD==2) Then
-
-         Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
-     &             DLT(:,1),DSQ(:,1),tFLT,nFlt,
-     &             FSQ,LBUF,W1,W2,ExFac,nD,nBSQT,
-     &             DLT(:,nD),DSQ(:,nD))
-
-       Else  ! RHF calculation
-
-         Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
-     &             DLT(:,1),DSQ(:,1),tFLT,nFlt,
-     &             FSQ,LBUF,W1,W2,ExFac,nD,nBSQT,
-     &             DLT(:,nD),DSQ(:,nD))
-
-       EndIf
+       Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
+     &                  DLT(:,1),DSQ(:,1),tFLT,nFlt,
+     &                  FSQ,LBUF,W1,W2,ExFac,nD,nBSQT,
+     &                  DLT(:,nD),DSQ(:,nD))
 
       ENDIF
 *
@@ -172,19 +149,10 @@ c      write(6,*)'ExFac= ',ExFac
 
       IF (DoCholesky .and. .not.GenInt.and.iDummy_run.eq.0) THEN
 *
-        If (nD==2) Then
-
-           CALL CHOscf_drv(nBSQT,nD,nSym,nBas,DSQ(:,1),DLT(:,1),
-     &                     DSQ(:,nD),DLT(:,nD),
-     &                     tFLT(:,1),tFLT(:,nD),nFLT,ExFac,
-     &                     FSQ,nOcc,nOcc_ab)
-        Else
-*
-           CALL CHOscf_drv(nBSQT,nD,nSym,nBas,DSQ(:,1),DLT(:,1),
-     &                 DSQ(:,nD),DLT(:,nD),
-     &                 tFLT(:,1),tFLT(:,nD),nFLT,ExFac,
-     &                 FSQ,nOcc,iWork(ip_iDummy))
-        EndIf
+         CALL CHOscf_drv(nBSQT,nD,nSym,nBas,DSQ(:,1),DLT(:,1),
+     &                   DSQ(:,nD),DLT(:,nD),
+     &                   tFLT(:,1),tFLT(:,nD),nFLT,ExFac,
+     &                   FSQ,nOcc(:,1),nOcc(:,nD))
 
       ENDIF
 *

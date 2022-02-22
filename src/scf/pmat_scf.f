@@ -281,14 +281,14 @@
             Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
      &                     Dens(:,:,iPsLst),DnsS(:,:),Temp(1,1),
      &                     nBT,ExFac,nBB,MaxBas,nD,
-     &                     Dummy,nOcc(1,1),
-     &                     idummy,iDummy_run)
+     &                     Dummy,nOcc(:,:),Size(nOcc,1),
+     &                     iDummy_run)
          Else
             Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
      &                     Dens(:,:,iPsLst),DnsS(:,:),Temp(1,1),
      &                     nBT,ExFac,nBB,MaxBas,nD,
-     &                     Temp(1,2),nOcc(1,1),
-     &                     nOcc(1,2),iDummy_run)
+     &                     Temp(1,2),nOcc(:,:),Size(nOcc,1),
+     &                     iDummy_run)
          End If
 *
 *------- Deallocate memory for squared density matrix
