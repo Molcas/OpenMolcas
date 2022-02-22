@@ -60,7 +60,6 @@ if (ITPUL /= 1) then
   if (IPRINT >= 10) then
     do I=1,ITP
       write(u6,16) (BIJ(J,I),J=1,ITP)
-      call XFLUSH(u6)
     end do
   end if
 

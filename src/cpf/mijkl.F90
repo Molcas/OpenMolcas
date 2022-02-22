@@ -27,8 +27,6 @@ integer(kind=iwp) :: I, IADR, IC1, IC2, ICHK, IIN, ILEN, IND, INDA, INDB, INDI, 
                      LENGTH, LP, NA, NB, NIJ, NIJKL, NKL, NS1, NS1L
 real(kind=wp) :: COPI, ENPQ, FACS, FACW, FACWA, FACWB, FINI
 integer(kind=iwp), external :: JSUNP_CPF
-!parameter(IPOW8=2**8,IPOW16=2**16,IPOW24=2**24)
-!parameter(IPOW6=2**6,IPOW13=2**13,IPOW19=2**19)
 ! Statement function
 integer(kind=iwp) :: JSYM, L
 JSYM(L) = JSUNP_CPF(JSY,L)
@@ -64,12 +62,6 @@ do
     if (ICHK == 0) then
       if (IND /= 0) then
         if (abs(FINI) < 1.0e-6_wp) cycle
-        !PAM97 IVL = iand(IND,63)
-        !PAM97 IC2 = iand(ishft(IND,-6),8191)
-        !PAM97 IC1 = iand(ishft(IND,-19),8191)
-        !IVL = mod(IND,IPOW6)
-        !IC2 = mod(IND/IPOW6,IPOW13)
-        !IC1 = mod(IND/IPOW19,IPOW13)
         IVL = ibits(IND,0,6)
         IC2 = ibits(IND,6,13)
         IC1 = ibits(IND,19,13)
@@ -119,10 +111,6 @@ do
     else
       ICHK = 0
       INDI = IND
-      !IP = mod(INDI,IPOW8)
-      !JP = mod(INDI/IPOW8,IPOW8)
-      !KP = mod(INDI/IPOW16,IPOW8)
-      !LP = mod(INDI/IPOW24,IPOW8)
       IP = ibits(INDI,0,8)
       JP = ibits(INDI,8,8)
       KP = ibits(INDI,16,8)

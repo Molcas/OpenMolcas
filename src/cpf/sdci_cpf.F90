@@ -70,7 +70,6 @@ subroutine SDCI_CPF_INTERNAL(H)
     write(u6,*) ' This is a single reference program, but more than'
     write(u6,*) ' one reference state has been specified in the'
     write(u6,*) ' GUGA program. Change input to GUGA and run again.'
-    call XFLUSH(u6)
   end if
 
   return

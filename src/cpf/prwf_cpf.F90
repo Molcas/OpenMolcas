@@ -27,10 +27,6 @@ real(kind=wp) :: CI, THRC
 integer(kind=iwp), external :: ICUNP, JSUNP_CPF
 real(kind=wp), external :: DNRM2_
 ! Statement functions
-!PAM97      EXTERNAL UNPACK
-!PAM97      INTEGER UNPACK
-!PAM97      JO(L)=UNPACK(QOCC((L+29)/30), 2*L-(2*L-1)/60*60, 2)
-!PAM96      JSYM(L)=UNPACK(JSY((L+9)/10),3*MOD(L-1,10)+1,3)+1
 integer(kind=iwp) :: JO, JSYM, L
 JO(L) = ICUNP(ICASE,L)
 JSYM(L) = JSUNP_CPF(JSY,L)
@@ -44,7 +40,6 @@ if (ISDCI == 1) call DSCAL_(NCONF,One/DNRM2_(NCONF,C,1),C,1)
 JCONF = JSC(1)
 THRC = CTRSH
 write(u6,5) THRC
-call XFLUSH(u6)
 if (ISDCI == 0) write(u6,6)
 
 do J=1,LN
@@ -57,18 +52,15 @@ do I=1,NCONF
   IJ = I
   if (I == IREF0) then
     write(u6,105) I,C(I),'REFERENCE'
-    call XFLUSH(u6)
   else
     CI = C(I)
     if (abs(CI) < THRC) cycle
     if (I <= JCONF) then
       write(u6,105) I,CI,'VALANCE'
-      call XFLUSH(u6)
     else
       if (I <= JSC(2)) then
         JMIN = IRC(1)+1
         write(u6,105) I,CI,'DOUBLET'
-        call XFLUSH(u6)
       else if (I <= JSC(3)) then
         JMIN = IRC(2)+1
       else
@@ -149,25 +141,16 @@ do I=1,NCONF
     if (JJ > IRC(3)) write(u6,105) I,CI,'SINGLET'
   end if
   write(u6,*)
-  call XFLUSH(u6)
   if (LN+2 <= 36) then
     write(u6,120) 'ORBITALS     ',(IORB(J),J=1,LN+2)
-    call XFLUSH(u6)
     write(u6,120) 'OCCUPATION   ',(IOC(J),J=1,LN+2)
-    call XFLUSH(u6)
     write(u6,120) 'SPIN-COUPLING',(ISP(J),J=1,LN+2)
-    call XFLUSH(u6)
     write(u6,120) 'SYMMETRY     ',(ILSYM(J),J=1,LN+2)
-    call XFLUSH(u6)
   else
     write(u6,121) 'ORBITALS     ',(IORB(J),J=1,LN+2)
-    call XFLUSH(u6)
     write(u6,121) 'OCCUPATION   ',(IOC(J),J=1,LN+2)
-    call XFLUSH(u6)
     write(u6,121) 'SPIN-COUPLING',(ISP(J),J=1,LN+2)
-    call XFLUSH(u6)
     write(u6,121) 'SYMMETRY     ',(ILSYM(J),J=1,LN+2)
-    call XFLUSH(u6)
   end if
 end do
 

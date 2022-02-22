@@ -57,13 +57,6 @@ integer(kind=iwp) :: IRETURN
 integer(kind=iwp) :: iMemOff, MemOff, MEMORY
 integer(kind=iwp), external :: ip_of_iWork_d
 
-! Prologue
-!
-! call SETTIM()
-! call HELLO()
-!
-! (Workspace allocated in Start() )
-
 call GetMem('WrkSpc','Max ','Real',MemOff,MEMORY)
 MEMORY = int(MEMORY*0.8_wp)
 call GetMem('WrkSpc','Allo','Real',MemOff,MEMORY)
@@ -101,8 +94,6 @@ call SDCI_CPF(Work(MemOff),iWork(iMemOff),MEMORY)
 ! Deallocate the workspace
 
 call GetMem('WrkSpc','Free','Real',MemOff,MEMORY)
-
-! Epilogue, end
 
 !                                                                      *
 !***********************************************************************

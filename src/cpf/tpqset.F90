@@ -26,10 +26,6 @@ integer(kind=iwp) :: I, II, II1, IINT, IIOR, IJ, IK, IL, IOCR(100), IQ, JJ, JOJ,
 real(kind=wp) :: DIK, DIL, DJK, DJL
 integer(kind=iwp), external :: ICUNP
 ! Statement function
-!PAM97      EXTERNAL UNPACK
-!PAM97      INTEGER UNPACK
-!RL   JO(L)=IAND(ISHFT(QOCC((L+29)/30),-2*((L+29)/30*30-L)),3)
-!PAM97      JO(L)=UNPACK(QOCC((L+29)/30), 2*L-(2*L-1)/60*60, 2)
 integer(kind=iwp) :: JO, L
 JO(L) = ICUNP(ICASE,L)
 

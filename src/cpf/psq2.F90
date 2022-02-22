@@ -22,10 +22,6 @@ integer(kind=iwp) :: MUL(8,8), INDX(*), JSY(*), NDIAG(*), INUM, IRC3, LSYM, NVIR
 integer(kind=iwp) :: I, II1, MA, NA, NS1, NS1L
 integer(kind=iwp), external :: JSUNP_CPF
 ! Statement function
-!PAM97      EXTERNAL UNPACK
-!PAM97      INTEGER UNPACK
-!RL   JSYM(L)=IAND(ISHFT(JSY((L+19)/20),-3*((L+19)/20*20-L)),7)+1
-!PAM96      JSYM(L)=UNPACK(JSY((L+9)/10),3*MOD(L-1,10)+1,3)+1
 integer(kind=iwp) :: JSYM, L
 JSYM(L) = JSUNP_CPF(JSY,L)
 

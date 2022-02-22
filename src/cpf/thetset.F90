@@ -26,9 +26,6 @@ real(kind=wp) :: THE(NII,NII)
 integer(kind=iwp) :: I, II, II1, IINT, IIOR, IJ, IK, IL, IOCR(100), IP, IQ, JJ, JOJ, NI, NJ
 integer(kind=iwp), external :: ICUNP
 ! Statement function
-!PAM97      EXTERNAL UNPACK
-!PAM97      INTEGER UNPACK
-!PAM97      JO(L)=UNPACK(QOCC((L+29)/30), 2*L-(2*L-1)/60*60, 2)
 integer(kind=iwp) :: JO, L
 JO(L) = ICUNP(ICASE,L)
 

@@ -24,10 +24,6 @@ integer(kind=iwp) :: I, IIN, INUM, IP, IST, NS1, NSIL
 integer(kind=iwp), external :: JSUNP_CPF
 real(kind=r8), external :: DDOT_
 ! Statement function
-!PAM97      EXTERNAL UNPACK
-!PAM97      INTEGER UNPACK
-!RL   JSYM(L)=IAND(ISHFT(JSY((L+19)/20),-3*((L+19)/20*20-L)),7)+1
-!PAM96      JSYM(L)=UNPACK(JSY((L+9)/10),3*MOD(L-1,10)+1,3)+1
 integer(kind=iwp) :: JSYM, L
 JSYM(L) = JSUNP_CPF(JSY,L)
 
@@ -51,7 +47,6 @@ do I=1,IP
   NSIL = MUL(NS1,LSYM)
   INUM = NVIR(NSIL)
   IST = INDX(IIN+I)+1
-  !RL call DOTPR(C(IST),1,W(IST),1,EPB(IIN+I),INUM)
   EPB(IIN+I) = DDOT_(INUM,C(IST),1,W(IST),1)
 end do
 
@@ -64,7 +59,6 @@ do I=1,IP
   NSIL = MUL(NS1,LSYM)
   INUM = NNS(NSIL)
   IST = INDX(IIN+I)+1
-  !RL call DOTPR(C(IST),1,W(IST),1,EPB(IIN+I),INUM)
   EPB(IIN+I) = DDOT_(INUM,C(IST),1,W(IST),1)
 end do
 

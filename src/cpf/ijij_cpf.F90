@@ -61,10 +61,6 @@ do
     IND = ICOP1(II)
     if (ICHK == 0) then
       if (IND /= 0) then
-        !PAM97 ITYP = iand(IND,1)
-        !PAM97 IJJ = iand(ishft(IND,-1),2047)
-        !ITYP = mod(IND,2)
-        !IJJ = mod(IND/2,2048)
         ITYP = ibits(IND,0,1)
         IJJ = ibits(IND,1,11)
         if (ITYP == 0) TERM = COP(II)*FJI(IJJ)
@@ -120,10 +116,6 @@ do
 
       ICHK = 0
       INDI = IND
-      !PAM97 ICOUP = iand(INDI,65535)
-      !PAM97 IVL = iand(ishft(INDI,-16),255)
-      !ICOUP = mod(INDI,65536)
-      !IVL = mod(INDI/65536,256)
       ICOUP = ibits(INDI,0,16)
       IVL = ibits(INDI,16,8)
       ICHK = 0
@@ -199,7 +191,6 @@ do KK=1,IOUT
 end do
 call dDAFILE(Lu_25,1,HCOUT,nCOP,IADD25)
 write(u6,50) POTNUC
-call XFLUSH(u6)
 
 return
 

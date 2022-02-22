@@ -26,20 +26,14 @@ real(kind=wp) :: EMA
 integer(kind=iwp), external :: ICUNP
 real(kind=r8), external :: DDOT_
 ! Statement function
-!PAM97      EXTERNAL UNPACK
-!PAM97      INTEGER UNPACK
-!RL   JO(L)=IAND(ISHFT(QOCC((L+29)/30),-2*((L+29)/30*30-L)),3)
-!PAM97      JO(L)=UNPACK(QOCC((L+29)/30), 2*L-(2*L-1)/60*60, 2)
 integer(kind=iwp) :: JO, L
 JO(L) = ICUNP(ICASE,L)
 
 ILIM = NORBT*(NORBT+1)/2
 call SETZ(D,ILIM)
 C(IREF0) = Zero
-!RL call DOTPR(C,1,C,1,A,NCONF)
 A = DDOT_(NCONF,C,1,C,1)
 write(u6,20) A
-call XFLUSH(u6)
 C(IREF0) = One
 EMA = One-A
 II1 = (IREF0-1)*LN

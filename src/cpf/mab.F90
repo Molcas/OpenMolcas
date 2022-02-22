@@ -27,12 +27,6 @@ real(kind=wp) :: COPI, ENPQ, FACS, FACW, RSUM, TR, TSUM
 integer(kind=iwp), external :: ICUNP, JSUNP_CPF
 real(kind=r8), external :: DDOT_
 ! Statement functions
-!PAM97      EXTERNAL UNPACK
-!PAM97      INTEGER UNPACK
-!RL   JO(L)=IAND(ISHFT(QOCC((L+29)/30),-2*((L+29)/30*30-L)),3)
-!PAM97      JO(L)=UNPACK(QOCC((L+29)/30), 2*L-(2*L-1)/60*60, 2)
-!RL   JSYM(L)=IAND(ISHFT(JSY((L+19)/20),-3*((L+19)/20*20-L)),7)+1
-!PAM96      JSYM(L)=UNPACK(JSY((L+9)/10),3*MOD(L-1,10)+1,3)+1
 integer(kind=iwp) :: JO, JSYM, L
 JO(L) = ICUNP(ICASE,L)
 JSYM(L) = JSUNP_CPF(JSY,L)
@@ -41,9 +35,7 @@ NAB = 0 ! dummy initialize
 NOB2 = IROW(NORBT+1)
 if (IPRINT >= 15) then
   write(u6,'(A,/,(10F12.6))') ' S,AB',(S(I),I=1,JSC(4))
-  call XFLUSH(u6)
   write(u6,'(A,/,(10F12.6))') ' W,AB',(W(I),I=1,JSC(4))
-  call XFLUSH(u6)
   if (IDENS == 1) write(u6,'(A,/,(10F12.6))') ' FC,AB',(FC(I),I=1,NOB2)
 end if
 INUM = IRC(4)-IRC(3)
@@ -226,9 +218,7 @@ end do
 call MDSQ2(C,S,W,MUL,INDX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
 if (IPRINT >= 15) then
   write(u6,'(A,/,(10F12.6))') ' S,AB',(S(I),I=1,JSC(4))
-  call XFLUSH(u6)
   write(u6,'(A,/,(10F12.6))') ' W,AB',(W(I),I=1,JSC(4))
-  call XFLUSH(u6)
   if (IDENS == 1) write(u6,'(A,/,(10F12.6))') ' FC,AB',(FC(I),I=1,NOB2)
 end if
 

@@ -292,7 +292,6 @@ else
   write(u6,'(6X,A)') 'This is an  M C P F  calculation'
 end if
 if (LWSP) write(u6,'(6X,A)') 'This is a LOW SPIN calculation'
-call XFLUSH(u6)
 
 !---  read the header of CIGUGA ---------------------------------------*
 IADD10 = 0
@@ -395,7 +394,6 @@ write(u6,'(6X,A,T47,I4,4x,8I4)') 'Orbitals pre-frozen in MOTRA',nPFroT,(nPFro(iS
 write(u6,'(6X,A,T47,I4,4x,8I4)') 'Orbitals used by this program',norbT,(nOrb(iSym),iSym=1,nSym)
 write(u6,'(6X,A,T47,I4,4x,8I4)') 'Pre-deleted in MOTRA',nPDelT,(nPDel(iSym),iSym=1,nSym)
 write(u6,'(6X,A,T47,I4,4x,8I4)') 'Sum: No. of basis functions',nBasT,(nBas(iSym),iSym=1,nSym)
-call XFLUSH(u6)
 write(u6,*)
 write(u6,'(6X,A)') 'ORBITAL SPECIFICATION:'
 write(u6,'(6X,A)') '-------------------------------'
@@ -408,7 +406,6 @@ write(u6,'(6X,A,T47,I4,4x,8I4)') 'Virtual orbitals',nVirT,(nVir(iSym),iSym=1,nSy
 write(u6,'(6X,A,T47,I4,4x,8I4)') 'Orbitals deleted here',nDelT,(nDel(iSym),iSym=1,nSym)
 write(u6,'(6X,A,T47,I4,4x,8I4)') 'Sum: Total no. of orbitals',norbT,(nOrb(iSym),iSym=1,nSym)
 write(u6,*)
-call XFLUSH(u6)
 write(u6,*)
 write(u6,'(6X,A)') 'WAVE FUNCTION SPECIFICATION:'
 write(u6,'(6X,A)') '----------------------------'
@@ -419,7 +416,6 @@ write(u6,'(6X,A,T47,I4)') 'External orbitals in CI',NVIRT
 write(u6,'(6X,A,T47,I4)') 'Number of irreps',NSYM
 write(u6,'(6X,A,T47,F4.1)') 'Spin quantum number',S
 write(u6,'(6X,A,T47,I4)') 'State symmetry',LSYM
-call XFLUSH(u6)
 write(u6,*)
 write(u6,'(6X,A)') 'REFERENCE STATE:'
 write(u6,'(6X,A)') '------------------------------'
@@ -439,7 +435,6 @@ else
   end do
 end if
 write(u6,*)
-call XFLUSH(u6)
 write(u6,'(6X,A)') 'OPTIONS:'
 write(u6,'(6X,A)') '--------'
 write(u6,*)
@@ -454,7 +449,6 @@ ISC(2) = ISC(1)+IX2*NVIRT
 IY1 = ISC(1)
 IY2 = ISC(2)-ISC(1)
 write(u6,214)
-call XFLUSH(u6)
 if (IFIRST == 0) then
   IX3 = IRC(3)-IRC(2)
   IX4 = IRC(4)-IRC(3)
@@ -463,18 +457,12 @@ if (IFIRST == 0) then
   IY3 = ISC(3)-ISC(2)
   IY4 = ISC(4)-ISC(3)
   write(u6,215) IX1,IX2,IX3,IX4
-  call XFLUSH(u6)
   write(u6,213)
-  call XFLUSH(u6)
   write(u6,215) IY1,IY2,IY3,IY4
-  call XFLUSH(u6)
 else
   write(u6,216) IX1,IX2
-  call XFLUSH(u6)
   write(u6,213)
-  call XFLUSH(u6)
   write(u6,216) IY1,IY2
-  call XFLUSH(u6)
 end if
 ILIM = 4
 if (IFIRST /= 0) ILIM = 2

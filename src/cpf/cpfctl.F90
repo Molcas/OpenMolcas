@@ -49,10 +49,8 @@ subroutine CPFCTL_INTERNAL(H)
   ETOT = ETOTT
   if (ITER == 1) then
     write(u6,'(1X,A)') ' ITER      TOTAL ENERGY          CORR ENERGY           DECREASE'
-    call XFLUSH(u6)
   end if
   write(u6,'(1X,I3,3(5X,F16.8))') ITER,ETOT,ENER,DELE
-  call XFLUSH(u6)
   if ((abs(DELE) < ETHRE) .and. (ITPUL /= 1)) ICONV = 1
   if ((ICONV == 0) .and. (ITER /= MAXIT)) then
     ! If more iterations should be done.
@@ -75,12 +73,10 @@ subroutine CPFCTL_INTERNAL(H)
     if (INCPF == 1) write(u6,39) ETOT
     if ((ISDCI == 0) .and. (ICPF == 0) .and. (INCPF == 0)) write(u6,36) ETOT
     write(u6,31) ENER,POTNUC
-    call XFLUSH(u6)
     if (ISDCI == 1) call Add_Info('E_SDCI',[ETOT],1,8)
     if (ICPF == 1) call Add_Info('E_CPF',[ETOT],1,8)
     if (INCPF == 1) call Add_Info('E_ACPF',[ETOT],1,8)
     if ((ISDCI == 0) .and. (ICPF == 0) .and. (INCPF == 0)) call Add_Info('E_MCPF',[ETOT],1,8)
-    call XFLUSH(u6)
     if (ISDCI /= 0) then
       EENP = H(LW(31)+IRC(4)-1)
       C0 = One/sqrt(EENP)
@@ -88,7 +84,6 @@ subroutine CPFCTL_INTERNAL(H)
       DETOT = ETOT+DECORR
       write(u6,32) DETOT
       write(u6,33) DECORR,C0
-      call XFLUSH(u6)
     end if
 
     if (IPRINT > 5) then
@@ -100,16 +95,16 @@ subroutine CPFCTL_INTERNAL(H)
 
   return
 
-30 format(/,5X,'FINAL CI ENERGY',6X,F17.8)
-31 format(5X,'FINAL CORRELATION ENERGY',F14.8,'  REFERENCE ENERGY',F17.8)
-32 format(5X,'DAVIDSON CORR. ENERGY',F17.8)
-33 format(5X,'DAVIDSON CORRECTION',F19.8,'  C0 = ',F12.6)
-34 format(/,(5X,'ENP',5F10.6))
-35 format(/,5X,'FINAL CPF ENERGY',5X,F17.8)
-36 format(/,5X,'FINAL MCPF ENERGY',5X,F17.8)
-37 format(/,5X,'CALCULATION CONVERGED')
-38 format(/,5X,'CALCULATION NOT COMPLETELY CONVERGED')
-39 format(/,5X,'FINAL ACPF ENERGY',4X,F17.8)
+  30 format(/,5X,'FINAL CI ENERGY',6X,F17.8)
+  31 format(5X,'FINAL CORRELATION ENERGY',F14.8,'  REFERENCE ENERGY',F17.8)
+  32 format(5X,'DAVIDSON CORR. ENERGY',F17.8)
+  33 format(5X,'DAVIDSON CORRECTION',F19.8,'  C0 = ',F12.6)
+  34 format(/,(5X,'ENP',5F10.6))
+  35 format(/,5X,'FINAL CPF ENERGY',5X,F17.8)
+  36 format(/,5X,'FINAL MCPF ENERGY',5X,F17.8)
+  37 format(/,5X,'CALCULATION CONVERGED')
+  38 format(/,5X,'CALCULATION NOT COMPLETELY CONVERGED')
+  39 format(/,5X,'FINAL ACPF ENERGY',4X,F17.8)
 
 end subroutine CPFCTL_INTERNAL
 

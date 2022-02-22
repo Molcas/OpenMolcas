@@ -23,10 +23,6 @@ integer(kind=iwp) :: I, ICOUS(8), II, IIN, ILIM, IN0, IN2, IND, IR, IR1, IR2, IX
                      NSS
 integer(kind=iwp), external :: JSUNP_CPF
 ! Statement function
-!PAM97      EXTERNAL UNPACK
-!PAM97      INTEGER UNPACK
-!RL   JSYM(L)=IAND(ISHFT(JSY((L+19)/20),-3*((L+19)/20*20-L)),7)+1
-!PAM96      JSYM(L)=UNPACK(JSY((L+9)/10),3*MOD(L-1,10)+1,3)+1
 integer(kind=iwp) :: JSYM, L
 JSYM(L) = JSUNP_CPF(JSY,L)
 
@@ -96,21 +92,17 @@ end if
 IX1 = JSC(1)
 IX2 = JSC(2)-JSC(1)
 write(u6,213)
-call XFLUSH(u6)
 if (IFIRST == 0) then
   JJM = (JJS(LSYM+1)-JJS(LSYM))*NVIRT
   IX3 = JSC(3)-JSC(2)-JJM
   IX4 = JSC(4)-JSC(3)
   write(u6,215) IX1,IX2,IX3,IX4
-  call XFLUSH(u6)
 else
   write(u6,216) IX1,IX2
-  call XFLUSH(u6)
   JJM = 0
 end if
 JSCI = JSC(ILIM)-JJM
 write(u6,50) ISC(ILIM),JSCI
-call XFLUSH(u6)
 
 return
 

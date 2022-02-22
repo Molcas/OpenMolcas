@@ -111,7 +111,6 @@ call DCOPY_(NOB2,[Zero],0,FJI,1)
 if (IPRINT >= 20) then
   call TRIPRT('FC IN SORT BEFORE TWOEL',' ',FC,NORBT)
   write(u6,'(A,F20.8)') ' EMY:',EMY
-  call XFLUSH(u6)
 end if
 
 ! TWO-ELECTRON INTEGRALS
@@ -333,9 +332,7 @@ IADD25 = 0
 call dDAFILE(Lu_25,1,FC,NOB2,IADD25)
 IAD25S = IADD25
 write(u6,154)
-call XFLUSH(u6)
 write(u6,155) (IVEC(I),I=1,20)
-call XFLUSH(u6)
 
 return
 

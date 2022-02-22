@@ -31,8 +31,6 @@ real(kind=wp) :: COPI, ENPQ, FACS, FACW, FACWA, FACWB, SGN, TERM
 logical(kind=iwp) :: Skip
 integer(kind=iwp), external :: JSUNP_CPF
 real(kind=r8), external :: DDOT_
-!parameter(IPOW6=2**6,IPOW13=2**13,IPOW19=2**19)
-!parameter(IPOW10=2**10,IPOW20=2**20)
 ! Statement function
 integer(kind=iwp) :: JSYM, L
 JSYM(L) = JSUNP_CPF(JSY,L)
@@ -65,12 +63,6 @@ do
     if (ICHK == 0) then
       if (IND /= 0) then
         if (INK == 0) cycle
-        !PAM97 ITYP = iand(IND,63)
-        !PAM97 ICP2 = iand(ishft(IND,-6),8191)
-        !PAM97 ICP1 = iand(ishft(IND,-19),8191)
-        !ITYP = mod(IND,IPOW6)
-        !ICP2 = mod(IND/IPOW6,IPOW13)
-        !ICP1 = mod(IND/IPOW19,IPOW13)
         ITYP = ibits(IND,0,6)
         ICP2 = ibits(IND,6,13)
         ICP1 = ibits(IND,19,13)
@@ -211,9 +203,6 @@ do
             NSK = NSM(NK)
           else
             INDI = IND
-            !NI = mod(INDI,IPOW10)
-            !NJ = mod(INDI/IPOW10,IPOW10)
-            !NK = mod(INDI/IPOW20,IPOW10)
             NI = ibits(INDI,0,10)
             NJ = ibits(INDI,10,10)
             NK = ibits(INDI,20,10)

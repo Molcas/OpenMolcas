@@ -28,12 +28,6 @@ integer(kind=iwp), external :: ICUNP, JSUNP_CPF
 real(kind=r8), external :: DDOT_
 ! Statement functions
 integer(kind=iwp) :: JO, JSYM, L
-!PAM97      INTEGER UNPACK
-!PAM97      EXTERNAL UNPACK
-!RL   JO(L)=IAND(ISHFT(QOCC((L+29)/30),-2*((L+29)/30*30-L)),3)
-!PAM97      JO(L)=UNPACK(QOCC((L+29)/30),2*L-(2*L-1)/60*60,2)
-!RL   JSYM(L)=IAND(ISHFT(JSY((L+19)/20),-3*((L+19)/20*20-L)),7)+1
-!PAM96      JSYM(L)=UNPACK(JSY((L+9)/10),3*MOD(L-1,10)+1,3)+1
 JO(L) = ICUNP(ICASE,L)
 JSYM(L) = JSUNP_CPF(JSY,L)
 

@@ -28,8 +28,6 @@ integer(kind=iwp) :: IADD25, IC1, IC2, ICHK, IIN, IK, ILEN, IND, INDA, INDB, IND
 real(kind=wp) :: COPI, ENPQ, FACS, FACW, FACWA, FACWB, TERM
 integer(kind=iwp), external :: JSUNP_CPF
 real(kind=r8), external :: DDOT_
-!parameter(IPOW6=2**6,IPOW13=2**13,IPOW19=2**19)
-!parameter(IPOW10=2**10)
 ! Statement function
 integer(kind=iwp) :: JSYM, L
 JSYM(L) = JSUNP_CPF(JSY,L)
@@ -56,9 +54,6 @@ if ((IDENS == 1) .or. (ITER /= 1)) then
       IND = ICOP1(IIN)
       if (ICHK == 0) then
         if (IND /= 0) then
-          !IVL = mod(IND,IPOW6)
-          !IC2 = mod(IND/IPOW6,IPOW13)
-          !IC1 = mod(IND/IPOW19,IPOW13)
           IVL = ibits(IND,0,6)
           IC2 = ibits(IND,6,13)
           IC1 = ibits(IND,19,13)
@@ -125,8 +120,6 @@ if ((IDENS == 1) .or. (ITER /= 1)) then
       else
         ICHK = 0
         INDI = IND
-        !NI = mod(INDI,IPOW10)
-        !NK = mod(INDI/IPOW10,IPOW10)
         NI = ibits(INDI,0,10)
         NK = ibits(INDI,10,10)
         IK = IROW(NK)+NI

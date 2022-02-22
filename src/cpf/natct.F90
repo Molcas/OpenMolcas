@@ -46,7 +46,6 @@ if (LW(87)+N2SUM-1 >= LW(88)) then
   write(u6,'(6X,A)') '*** ERROR IN SUBROUTINE NATCT ***'
   write(u6,'(6X,A)') 'NO SPACE LEFT TO GENERATE FINAL ORBITALS'
   write(u6,*)
-  call XFLUSH(u6)
   call Abend()
 end if
 
@@ -69,7 +68,6 @@ LW91A = LW(91)
 LW91B = LW91A+n2Sum
 if (LW91B+n2Tri-1 > Lic) then
   write(u6,*) ' Not enough core in NATCT'
-  call XFLUSH(u6)
   call ErrTra()
   call Abend()
 end if
@@ -86,7 +84,6 @@ if (ISDCI == 1) then
 else
   write(u6,'(5X,A,F17.8)') 'TOTAL REL. ENERGY    ',ETOT+Erel
 end if
-call XFLUSH(u6)
 call dPRWF(H)
 if (iCPF == 1) then
   Header = ' CPF natural orbitals'

@@ -30,7 +30,6 @@ real(kind=wp) :: COPI, CPL, CPLA, CPLL, FAC, TERM
 logical(kind=iwp) :: Skip
 integer(kind=iwp), external :: JSUNP_CPF
 real(kind=r8), external :: DDOT_
-!parameter(IPOW5=2**5,IPOW10=2**10,IPOW18=2**18)
 
 ITYP = 0 ! dummy initialize
 ICOUP = 0 ! dummy initialize
@@ -57,16 +56,6 @@ do
     if (ICHK == 0) then
       if (IND /= 0) then
         if (IFAB /= 1) then
-          !PAM97 IFAB = iand(IND,1)
-          !PAM97 ITURN = iand(ishft(IND,-1),1)
-          !PAM97 ITYP = iand(ishft(IND,-2),7)
-          !PAM97 ICOUP = iand(ishft(IND,-5),8191)
-          !PAM97 ICOUP1 = iand(ishft(IND,-18),8191)
-          !IFAB = mod(IND,2)
-          !ITURN = mod(IND/2,2)
-          !ITYP = mod(IND/4,8)
-          !ICOUP = mod(IND/IPOW5,8192)
-          !ICOUP1 = mod(IND/IPOW18,8192)
           IFAB = ibits(IND,0,1)
           ITURN = ibits(IND,1,1)
           ITYP = ibits(IND,2,3)
@@ -130,7 +119,6 @@ do
             INDB = IRC(1)+ICOUP
         end select
         MYSYM = JSUNP_CPF(JSY,INDA)
-        !JSYM(L) = JSUNP_CPF(JSY,L)
 
         NYSYM = MUL(MYSYM,NSIJ)
         MYL = MUL(MYSYM,LSYM)
@@ -328,8 +316,6 @@ do
     else
       ICHK = 0
       INDI = IND
-      !NI = mod(INDI,1024)
-      !NJ = mod(INDI/IPOW10,1024)
       NI = ibits(INDI,0,10)
       NJ = ibits(INDI,10,10)
       NSIJ = MUL(NSM(NI),NSM(NJ))

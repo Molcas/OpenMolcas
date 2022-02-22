@@ -25,13 +25,9 @@ real(kind=wp) :: CJ(200), FAC
 
 if (nRow > 200) then
   write(u6,*)
-  call XFLUSH(u6)
   write(u6,*) ' *** Error in Subroutine FMUL2_CPF ***'
-  call XFLUSH(u6)
   write(u6,*) ' row dimension exceeds local buffer size'
-  call XFLUSH(u6)
   write(u6,*)
-  call XFLUSH(u6)
   call Abend()
 end if
 

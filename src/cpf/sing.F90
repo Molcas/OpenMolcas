@@ -27,7 +27,6 @@ select case (IWHY)
   case (3)
     write(u6,13)
 end select
-call XFLUSH(u6)
 
 return
 

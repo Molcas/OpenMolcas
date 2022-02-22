@@ -29,8 +29,6 @@ real(kind=wp) :: COPI, CPL, CPLA, CPLL, ENPQ, FAC, FACS, FACW, FACWA, FACWB, TER
 logical(kind=iwp) :: Skip
 integer(kind=iwp), external :: JSUNP_CPF
 real(kind=r8), external :: DDOT_
-!parameter(IPOW5=2**5,IPOW13=2**13,IPOW18=2**18)
-!parameter(IPOW10=2**10)
 ! Statement function
 integer(kind=iwp) :: JSYM, L
 JSYM(L) = JSUNP_CPF(JSY,L)
@@ -60,16 +58,6 @@ do
     if (ICHK == 0) then
       if (IND /= 0) then
         if (IFAB /= 1) then
-          !PAM97 IFAB = iand(IND,1)
-          !PAM97 ITURN = iand(ishft(IND,-1),1)
-          !PAM97 ITYP = iand(ishft(IND,-2),7)
-          !PAM97 ICOUP = iand(ishft(IND,-5),8191)
-          !PAM97 ICOUP1 = iand(ishft(IND,-18),8191)
-          !IFAB = mod(IND,2)
-          !ITURN = mod(IND/2,2)
-          !ITYP = mod(IND/4,8)
-          !ICOUP = mod(IND/IPOW5,IPOW13)
-          !ICOUP1 = mod(IND/IPOW18,IPOW13)
           IFAB = ibits(IND,0,1)
           ITURN = ibits(IND,1,1)
           ITYP = ibits(IND,2,3)
@@ -372,8 +360,6 @@ do
     else
       ICHK = 0
       INDI = IND
-      !NI = mod(INDI,IPOW10)
-      !NJ = mod(INDI/IPOW10,IPOW10)
       NI = ibits(INDI,0,10)
       NJ = ibits(INDI,10,10)
       NSIJ = MUL(NSM(NI),NSM(NJ))
