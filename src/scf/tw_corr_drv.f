@@ -128,7 +128,6 @@ C
 #include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-#include "WrkSpc.fh"
 *
       Integer nBas(nSym),nFro(nSym),nIsh(nSym),nSsh(nSym),
      &        nDel(nSym)
@@ -136,7 +135,7 @@ C
 #include "chfnopt.fh"
 *
       Integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
-      Real*8, Allocatable:: CMO(:,:), EOrb(:,:)
+      Real*8, Allocatable:: CMO(:,:), EOrb(:,:), DMAT(:)
 *
 *
       irc=0
@@ -209,11 +208,14 @@ C
          joff=joff+nIsh(iSym)
          koff=koff+nSsh(iSym)
       End Do
-      Call GetMem('Dmat','Allo','Real',ip_X,nVV+nOA)
-      ip_Y=ip_X+nVV
-      Call FZero(Work(ip_X),nVV+nOA)
-*
+      Call mma_Allocate(DMAT,nVV+nOA,Label='DMAT')
+      DMAT(:)=Zero
+
+      ip_X = ip_of_Work(DMAT(1))
+      ip_Y = ip_X+nVV
       Call FnoSCF_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,ip_X,ip_Y)
+      ip_X = 1
+
       CMO(:,2)=Zero
       iOff=0
       Do iSym=1,nSym
@@ -244,10 +246,10 @@ C
 *     Compute the correlated density in AO basis
 *     -------------------------------------------------------------
       jOcc=ip_X+nVV
-c           write(6,*) ' Occ    : ',(Work(jOcc+j),j=0,nOA-1)
-c           write(6,*) ' Sum    : ',ddot_(nOA,1.0d0,0,Work(jOcc),1)
-      call dscal_(nOA,2.0d0,Work(jOcc),1)
-      Call daxpy_(nOA,2.0d0,[1.0d0],0,Work(jOcc),1)
+c           write(6,*) ' Occ    : ',(DMAT(jOcc+j),j=0,nOA-1)
+c           write(6,*) ' Sum    : ',ddot_(nOA,1.0d0,0,DMAT(jOcc),1)
+      call dscal_(nOA,2.0d0,DMAT(jOcc),1)
+      Call daxpy_(nOA,2.0d0,[1.0d0],0,DMAT(jOcc),1)
 *
       iOff=0
       jOff=0
@@ -264,7 +266,7 @@ c           write(6,*) ' Sum    : ',ddot_(nOA,1.0d0,0,Work(jOcc),1)
          sqocc=sqrt(2.0d0)
          call dscal_(nBas(iSym)*nFro(iSym),sqocc,CMO(kto,1),1)
          Do j=0,nIsh(iSym)-1
-             sqocc=sqrt(Work(jOcc+j))
+             sqocc=sqrt(DMAT(jOcc+j))
              ito=kto+nBas(iSym)*j
              call dscal_(nBas(iSym),sqocc,CMO(ito,1),1)
          End Do
@@ -276,15 +278,15 @@ c           write(6,*) ' Sum    : ',ddot_(nOA,1.0d0,0,Work(jOcc),1)
          if (nSsh(iSym).gt.0) then
            jD=ip_X+iOff
 *     Eigenvectors will be in increasing order of eigenvalues
-           Call Eigen_Molcas(nSsh(iSym),Work(jD),EOrb(:,2),Eorb(:,1))
+           Call Eigen_Molcas(nSsh(iSym),DMAT(jD),EOrb(:,2),Eorb(:,1))
 *     Reorder to get relevant eigenpairs first
            Do j=1,nSsh(iSym)/2
               Do i=1,nSsh(iSym)
                  lij=jD-1+nSsh(iSym)*(j-1)+i
                  kij=jD-1+nSsh(iSym)**2-(nSsh(iSym)*j-i)
-                 tmp=Work(lij)
-                 Work(lij)=Work(kij)
-                 Work(kij)=tmp
+                 tmp=DMAT(lij)
+                 DMAT(lij)=DMAT(kij)
+                 DMAT(kij)=tmp
               End Do
               tmp=EOrb(j,2)
               EOrb(j,2)=EOrb(nSsh(iSym)-j,2)
@@ -296,7 +298,7 @@ c           write(6,*) ' Sum    : ',ddot_(nOA,1.0d0,0,Work(jOcc),1)
            kto=1+jOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym))
            Call DGEMM_('N','N',nBas(iSym),nSsh(iSym),nSsh(iSym),
      &                        1.0d0,CMO(kfr,2),nBas(iSym),
-     &                              Work(jD),nSsh(iSym),
+     &                              DMAT(jD),nSsh(iSym),
      &                        0.0d0,CMO(kto,1),nBas(iSym))
 
 c          write(6,*) ' Occ_vir: ',(EOrb(j,2),j=1,nSsh(iSym))
@@ -319,7 +321,7 @@ c          write(6,*) ' Sum_vir: ',ddot_(nSsh(iSym),1.0d0,0,EOrb(:,2),1)
       End Do
 *
       Call mma_deAllocate(EOrb)
-      Call GetMem('Dmat','Free','Real',ip_X,nVV+nOA)
+      Call mma_deAllocate(DMAT)
       Call mma_deallocate(CMO)
 *
       Return
