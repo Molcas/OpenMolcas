@@ -35,13 +35,13 @@
       use nq_MO, only: D1MO, P2MO
       use nq_Structure, only: Close_Info_Ang
       use Grid_On_Disk
+      use nq_Info
       Implicit Real*8 (A-H,O-Z)
       External Kernel, Rsv_Tsk
 #include "real.fh"
 #include "nsd.fh"
 #include "setup.fh"
 #include "status.fh"
-#include "nq_info.fh"
 #include "debug.fh"
 #include "ksdft.fh"
 #include "stdalloc.fh"

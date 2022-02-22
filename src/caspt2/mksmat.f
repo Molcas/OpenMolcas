@@ -26,7 +26,9 @@ C     Set up S matrices for cases 1..13.
 #include "eqsolv.fh"
 #include "pt2_guga.fh"
 #include "SysDef.fh"
+#include "stdalloc.fh"
       REAL*8 DUM(1)
+      INTEGER*1, ALLOCATABLE :: idxG3(:,:)
 
 
       IF(IPRGLB.GE.VERBOSE) THEN
@@ -44,18 +46,17 @@ C For the cases A and C, begin by reading in the local storage
 C  part of the three-electron density matrix G3:
         CALL GETMEM('GAMMA3','ALLO','REAL',LG3,NG3)
         CALL PT2_GET(NG3,'GAMMA3',WORK(LG3))
-        iPad=ItoB-MOD(6*NG3,ItoB)
-        CALL GETMEM('idxG3','ALLO','CHAR',LidxG3,6*NG3+iPad)
+        CALL mma_allocate(idxG3,6,NG3,label='idxG3')
         iLUID=0
-        CALL CDAFILE(LUSOLV,2,cWORK(LidxG3),6*NG3+iPad,iLUID)
+        CALL I1DAFILE(LUSOLV,2,idxG3,6*NG3,iLUID)
 
         CALL MKSA(WORK(LDREF),WORK(LPREF),
-     &            NG3,WORK(LG3),i1WORK(LidxG3))
+     &            NG3,WORK(LG3),idxG3)
         CALL MKSC(WORK(LDREF),WORK(LPREF),
-     &            NG3,WORK(LG3),i1WORK(LidxG3))
+     &            NG3,WORK(LG3),idxG3)
 
         CALL GETMEM('GAMMA3','FREE','REAL',LG3,NG3)
-        CALL GETMEM('idxG3','FREE','CHAR',LidxG3,6*NG3+iPad)
+        CALL mma_deallocate(idxG3)
 
 C-SVC20100902: For the remaining cases that do not need G3, use replicate arrays
         CALL MKSB(WORK(LDREF),WORK(LPREF))

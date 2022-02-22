@@ -27,8 +27,6 @@
 *> \c WORK(IPOS) ... ``WORK(IPOS-1+LENGTH)``.
 *> If \p TypeIn is '``Inte``', the items will be accessible in
 *> \c IWORK(IPOS) ... ``IWORK(IPOS-1+LENGTH)``.
-*> If \p TypeIn is '``Sngl``', the items will be accessible in
-*> \c SWORK(IPOS) ... ``SWORK(IPOS-1+LENGTH)``.
 *> If \p KeyIn is '``Free``', the piece will be returned to the free pool.
 *> If \p KeyIn is '``Chec``', the boundaries of all allocated pieces will be
 *> checked to see if the contents of guardian words, surrounding each
@@ -40,15 +38,14 @@
 *> field, which is used in error prints or listings.
 *>
 *> @note
-*> An include file, WrkSpc.fh, declares commons ``/WrkSpc/`` and
-*> ``/cWrkSpc/``. The first common contains three arrays,
-*> \c WORK, \c SWORK and \c IWORK, which  are equivalenced. The vector, \c CWORK,
-*> belongs to the second common.
+*> An include file, WrkSpc.fh, declares common ``/WrkSpc/``,
+*> containinig two arrays,
+*> \c WORK and \c IWORK, which  are equivalenced.
 *> ::GETMEM uses calls to the Molcas's MA memory allocator routines.
 *>
 *> @param[in]     NameIn Arbitrary label
 *> @param[in]     KeyIn  ``Allo`` / ``Free`` / ``Check`` / ``List`` / ``Max``
-*> @param[in]     TypeIn ``Real`` / ``Inte`` / ``Char`` / ``Sngl``
+*> @param[in]     TypeIn ``Real`` / ``Inte`` / ``Char``
 *> @param[in,out] iPos   Position
 *> @param[in,out] Length Nr of items
 ************************************************************************
@@ -192,12 +189,12 @@
       if(var.eq.'INTE') kind2goff=iofint
       if(var.eq.'REAL') kind2goff=iofdbl
       if(var.eq.'CHAR') kind2goff=iofchr
-      if(var.eq.'SNGL') kind2goff=iofsgl
       return
       end
 
 #ifdef _GARBLE_
       subroutine garble(ipos,length,vartyp)
+      use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
       implicit none
 *include "SysDef.fh"
 #include "WrkSpc.fh"
@@ -205,25 +202,32 @@
       character(len=*) :: vartyp
       real*8, parameter ::    dgarbage(1) = [huge(1.0d0)]
       integer, parameter ::   igarbage(1) = [huge(1)]
-      real*4, parameter ::    sgarbage(1) = [huge(1.0)]
-      character, parameter :: cgarbage = 'x'
-
-      integer i
+      integer*1, parameter :: i1garbage = huge(i1garbage)
 
       select case(vartyp)
       case ('REAL')
         call dcopy_(length,dgarbage,0,work(ipos),1)
       case ('INTE')
         call icopy(length,igarbage,0,iwork(ipos),1)
-      case ('SNGL')
-        call scopy_(length,sgarbage,0,swork(ipos),1)
       case ('CHAR')
-*       ndouble = length / rtob
-*       call dcopy_(ndouble,dgarbage,0,cwork(ipos),1)
-*       do i = ndouble * rtob + 1, length
-        do i = 1, length
-          cwork(ipos+i-1) = cgarbage
-        end do
+        call garble_char(Work)
       end select
+
+      ! This is to allow type punning without an explicit interface
+      contains
+
+      subroutine garble_char(buf)
+      use Definitions, only: RtoB
+      real*8, target :: buf(*)
+      integer*1, pointer :: ibuf(:)
+      integer :: ioff1, ioff2, foff1
+      ioff1 = (ipos-1)/RtoB+1
+      ioff2 = mod(ipos-1,RtoB)+1
+      foff1 = (ipos+length-2)/RtoB+1
+      call c_f_pointer(c_loc(buf(ioff1)),ibuf,[(foff1-ioff1+1)*RtoB])
+      ibuf(ioff2:ioff2+length-1) = i1garbage
+      nullify(ibuf)
+      end subroutine garble_char
+
       end subroutine
 #endif

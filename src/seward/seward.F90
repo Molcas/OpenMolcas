@@ -45,16 +45,13 @@ use Basis_Info, only: Basis_Info_Dmp, Basis_Info_Free, Basis_Info_Get, Basis_Inf
 use Center_Info, only: Center_Info_Dmp, Center_Info_Free, Center_Info_Get, Center_Info_Init
 use Symmetry_Info, only: nIrrep, lIrrep
 use LundIO, only: Buf, iDisk, lBuf, Lu_28
-use Temporary_Parameters, only: Fake_ERIs, Onenly, Primitive_Pass, PrPrt, Test
-use Integral_parameters, only: iPack, iWROpt
 use DKH_Info, only: DKroll
-use Real_Info, only: PkAcc
+use Gateway_Info, only: NEMO, Do_GuessOrb, Do_FckInt, lRP_Post, PkAcc
 use RICD_Info, only: Do_RI, Cholesky, DiagCheck, LocalDF
-use Logical_Info, only: NEMO, Do_GuessOrb, Do_FckInt, lRP_Post
 #ifdef _FDE_
 use Embedding_Global, only: embPot, embPotInBasis
 #endif
-use Gateway_global, only: Run_Mode, G_Mode, S_Mode, GS_Mode
+use Gateway_global, only: Fake_ERIs, G_Mode, GS_Mode, iPack, iWROpt, Onenly, Primitive_Pass, PrPrt, Run_Mode, S_Mode, Test
 use stdalloc, only: mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -69,6 +66,7 @@ logical(kind=iwp) :: PrPrt_Save, Exists, DoRys, lOPTO, IsBorn, Do_OneEl
 !-SVC: identify runfile with a fingerprint
 character(len=256) :: cDNA
 integer(kind=iwp), external :: ip_of_Work, isFreeUnit
+logical(kind=iwp), external :: Reduce_Prt
 external :: Integral_WrOut, Integral_WrOut2, Integral_RI_3
 interface
   subroutine get_genome(cDNA,nDNA) bind(C,name='get_genome_')
@@ -376,7 +374,7 @@ if (.not. Test) then
           call Sort2()
           call Sort3(MaxDax)
 
-          if (nPrint(iRout) >= 6) then
+          if ((.not. Reduce_Prt()) .and. (nPrint(iRout) >= 6)) then
             write(u6,*)
             write(u6,'(A)') ' Integrals are written in MOLCAS2 format'
             if (iPack /= 0) then

@@ -782,7 +782,7 @@ set (FFLAGS_NAG_FAST "-O4 -ieee=full")
 #set (FFLAGS_NAG_GARBLE "${FFLAGS_GNU_GARBLE} -C=alias -C=bits -C=dangling -C=do -C=intovf -C=present -C=pointer -C=recursion")
 
 # Fix for NAG compiler (similar to GNU Fortran)
-if (CMAKE_Fortran_COMPILER_ID STREQUAL "NAG" AND CMAKE_C_COMPILER_ID STREQUAL "GNU")
+if (CMAKE_Fortran_COMPILER_ID STREQUAL "NAG" AND CMAKE_C_COMPILER_ID STREQUAL "GNU" AND (NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin"))
   set (FFLAGS_NAG_BASIC "${FFLAGS_NAG_BASIC} -Wc,-fno-aggressive-loop-optimizations")
 endif ()
 
@@ -1586,12 +1586,12 @@ else ()
   set (EP_INSTALL ${PROJECT_BINARY_DIR}/External/${EP_PROJECT}_install)
 
   set (Libxc_REPO https://gitlab.com/libxc/libxc.git)
-  set (Libxc_HASH fc5132c5) # Release 5.2.0
+  set (Libxc_HASH 9bf3b642) # Release 5.2.2
 
   # Note shared libraries won't work here because of installation issues.
   # TODO: Solving this will require creating a wrapper main project that includes
   #       both Libxc and OpenMolcas as ExternalProject. This could also simplify
-  #       the handling of other codes like GlobalArrays or QCMaquis
+  #       the handling of other codes like GlobalArrays or QCMaquis.
   list (APPEND LibxcCMakeArgs
         -D CMAKE_INSTALL_PREFIX=${EP_INSTALL}
         -D BUILD_SHARED_LIBS=NO
@@ -1601,6 +1601,7 @@ else ()
         -D CMAKE_INSTALL_LIBDIR=lib
         -D ENABLE_FORTRAN=ON
         -D ENABLE_PYTHON=OFF
+        -D DISABLE_FXC=ON
         -D DISABLE_KXC=ON
         -D DISABLE_LXC=ON
         -D BUILD_TESTING=NO
@@ -1648,12 +1649,18 @@ message ("-- Libxc_INCLUDE_DIRS: ${Libxc_INCLUDE_DIRS}")
 message ("-- Libxc_LIBRARIES: ${Libxc_LIBRARIES}")
 list (APPEND EXTERNAL_LIBRARIES ${Libxc_LIBRARIES})
 
-foreach (prog
-  dft_util
-  nq_util
-)
-  list (APPEND ${prog}_incs ${Libxc_INCLUDE_DIRS})
-endforeach ()
+# Some compilers seem to have issues with nested modules
+set (_comp_list PGI NAG)
+if (${FCID} IN_LIST _comp_list)
+  include_directories (${Libxc_INCLUDE_DIRS})
+else ()
+  foreach (prog
+    dft_util
+    nq_util
+  )
+    list (APPEND ${prog}_incs ${Libxc_INCLUDE_DIRS})
+  endforeach ()
+endif ()
 
 # Global Arrays settings
 #=======================
@@ -3088,6 +3095,7 @@ configure_file (${OPENMOLCAS_DIR}/data/banner.src       data/banner.txt       CO
 configure_file (${OPENMOLCAS_DIR}/data/modalias.src     data/modalias.txt     COPYONLY)
 configure_file (${OPENMOLCAS_DIR}/data/landing.src      data/landing.txt      COPYONLY)
 configure_file (${OPENMOLCAS_DIR}/data/isotope_data.src data/isotope_data.txt COPYONLY)
+configure_file (${OPENMOLCAS_DIR}/data/functionals.src  data/functionals.txt  COPYONLY)
 file (COPY ${OPENMOLCAS_DIR}/data/inputs.tpl DESTINATION ${PROJECT_BINARY_DIR}/data)
 if (DEFINED EXTRA_DIR)
   foreach (f alias.plx auto.prgm landing.txt)
@@ -3096,7 +3104,7 @@ if (DEFINED EXTRA_DIR)
 endif ()
 # copy the necessary files from sbin
 file (REMOVE_RECURSE ${PROJECT_BINARY_DIR}/sbin)
-foreach (f setup verify version find_sources have_feature help_basis help_doc)
+foreach (f setup verify version find_sources have_feature help_basis help_func help_doc)
   file (COPY ${OPENMOLCAS_DIR}/sbin/${f} DESTINATION ${PROJECT_BINARY_DIR}/sbin)
 endforeach ()
 if (DEFINED EXTRA_DIR)
@@ -3390,6 +3398,7 @@ install (TARGETS
 
 install (PROGRAMS
   ${PROJECT_BINARY_DIR}/sbin/help_basis
+  ${PROJECT_BINARY_DIR}/sbin/help_func
   ${PROJECT_BINARY_DIR}/sbin/help_doc
   ${PROJECT_BINARY_DIR}/sbin/setup
   ${PROJECT_BINARY_DIR}/sbin/version

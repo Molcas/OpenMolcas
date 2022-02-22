@@ -27,6 +27,7 @@
 *                                                                      *
 ************************************************************************
       Use Fock_util_global, only: DoLocK
+      Use Functionals, only: Init_Funcs, Print_Info
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "rasscf.fh"
@@ -42,6 +43,7 @@
       Character*8   Fmt1,Fmt2, Label
       Character*120  Line,BlLine,StLine
       Character*3 lIrrep(8)
+      Character*16 KSDFT2
       Logical DoCholesky
       Logical lOPTO
 
@@ -95,11 +97,9 @@
        Write(LF,Fmt1) 'Header of the ONEINT file:'
        Write(LF,Fmt1) '--------------------------'
        Write(Line,'(36A2)') (Header(i),i=1,36)
-       Call LeftAd(Line)
-       Write(LF,Fmt1)  trim(Line)
+       Write(LF,Fmt1)  trim(adjustl(Line))
        Write(Line,'(36A2)') (Header(i),i=37,72)
-       Call LeftAd(Line)
-       Write(LF,Fmt1)  trim(Line)
+       Write(LF,Fmt1)  trim(adjustl(Line))
        Write(LF,*)
 *----------------------------------------------------------------------*
 *     Print the status of ORDINT                                       *
@@ -165,7 +165,7 @@ C.. for GAS
 *
       Call Get_cArray('Irreps',lIrrep,24)
       Do iSym = 1, nSym
-         Call RightAd(lIrrep(iSym))
+         lIrrep(iSym) = adjustr(lIrrep(iSym))
       End Do
 *
       Write(LF,*)
@@ -402,11 +402,9 @@ C.. for GAS
        Else
         Write(LF,Fmt2//'A,T45,I6)')'RASSCF algorithm: Conventional'
        EndIf
-       IF(KSDFT.eq.'TBLYP'.or.KSDFT.eq.'TPBE'.or.KSDFT.eq.'TLSDA'
-     &  .or.KSDFT.eq.'FTPBE'.or.KSDFT.eq.'FTLSDA'
-     &  .or.KSDFT.eq.'TOPBE'.or.KSDFT.eq.'FTOPBE'
-     &  .or.KSDFT.eq.'FTBLYP'.or.KSDFT.eq.'TREVPBE'
-     &  .or.KSDFT.eq.'FTREVPBE') then
+       KSDFT2 = KSDFT
+       IF(KSDFT(1:2).eq.'T:'.or.KSDFT(1:3).eq.'FT:') Then
+        KSDFT2 = KSDFT(index(KSDFT,'T:')+2:)
         Write(LF,Fmt2//'A)') 'This is a MC-PDFT calculation '//
      &   'with functional: '//KSDFT
         Write(LF,Fmt2//'A,T45,E10.3)')'Exchange scaling factor',CoefX
@@ -504,6 +502,15 @@ C.. for GAS
          Call Put_dScalar('DFT exch coeff',CoefX)
          Call Put_dScalar('DFT corr coeff',CoefR)
          Call Funi_Print()
+         IF(IPRLEV.GE.USUAL) THEN
+            Write(6,*)
+            Write(6,'(6X,A)') 'DFT functional specifications'
+            Write(6,'(6X,A)') '-----------------------------'
+            Call libxc_version()
+            Call Init_Funcs(KSDFT2)
+            Call Print_Info()
+            Write(6,*)
+         END IF
        End If
   900 CONTINUE
       Call XFlush(LF)

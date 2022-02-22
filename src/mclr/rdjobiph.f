@@ -199,6 +199,7 @@ C
             If (.not.Found) Then
                Call WarningMessage(2,
      &              'Cannot relax a root not included in the SA')
+               Call Abend()
             End If
          End If
       Else If (irlxroot.eq.1.and..Not.(McKinley.or.PT2.or.iMCPD)) Then

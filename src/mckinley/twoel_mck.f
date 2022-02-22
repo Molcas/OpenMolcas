@@ -86,11 +86,12 @@
 *     total Fock matrix                                                *
 *                                                                      *
 ************************************************************************
+      use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
       use Real_Spherical
       use Basis_Info
       use Center_Info
       use Phase_Info
-      use Real_Info, only: CutInt
+      use Gateway_Info, only: CutInt
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External TERI1, ModU2, Cff2D
@@ -146,7 +147,6 @@
 
       Contains
       Subroutine TwoEl_mck_Internal(Data1,Data2)
-      Use Iso_C_Binding
       Real*8, Target :: Data1(nZeta*nDArray+nDScalar,nData1),
      &                  Data2( nEta*nDArray+nDScalar,nData2)
       Integer, Pointer :: iData1(:), iData2(:)

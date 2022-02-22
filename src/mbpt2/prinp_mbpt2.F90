@@ -85,7 +85,7 @@ if (iPL >= 2) call PrCoor()
 
 call Get_cArray('Irreps',lIrrep,24)
 do iSym=1,nSym
-  call RightAd(lIrrep(iSym))
+  lIrrep(iSym) = adjustr(lIrrep(iSym))
 end do
 
 if (iPL >= 2) then

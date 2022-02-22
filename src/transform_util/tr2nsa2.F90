@@ -107,7 +107,7 @@ if (icc /= 0) then
         ! (pq,TU) -> (Aq,TU)
         call DGEMM_('N','N',NBQ,NOP,NBP,One,X2,NBQ,CMO(LMOP),NBP,Zero,X1,NBQ)
         ! (Aq,TU) -> (AB,TU)
-        call MXMT(X1,NBQ,1,CMO(LMOQ),1,NBQ,X2,NOP,NBQ)
+        Call DGEMM_Tri('T','N',NOP,NOP,NBQ,One,X1,NBQ,CMO(LMOQ),NBQ,Zero,X2,NOP)
         IX2 = (NOP+NOP**2)/2
       else
         ! (pq,TU) -> (Aq,TU)
@@ -169,9 +169,6 @@ if (icxc1 /= 0) then
       ! Store buffer
       if (IR > LR) then
         IR = 1
-        !vv do I=1,NOTU
-        !vv   call dDAFILE(LUHLF3,1,PQTU(1+LAR*(I-1)),LAR,IAD3)
-        !vv end do
         call dDAFILE(LUHLF3,1,PQTU,LAR*NOTU,IAD3)
       end if
       ! Sort
@@ -193,9 +190,6 @@ if (icxc1 /= 0) then
   end do
   ! Store last buffer
   if (LR < NBR) then
-    !vv do I=1,NOTU
-    !vv   call dDAFILE(LUHLF3,1,PQTU(1+LAR*(I-1)),LAR,IAD3)
-    !vv end do
     call dDAFILE(LUHLF3,1,PQTU,LAR*NOTU,IAD3)
   end if
   ! Transform fourth index
@@ -272,9 +266,6 @@ if (((ISQ >= ISR) .or. (ISP /= ISR)) .and. (ISP /= ISQ) .and. (icxc5 /= 0)) then
       ! Store buffer
       if (IR > LR) then
         IR = 1
-        !vv do I=1,NOTU
-        !vv   call dDAFILE(LUHLF3,1,PQTU(1+LAR*(I-1)),LAR,IAD3)
-        !vv end do
         call dDAFILE(LUHLF3,1,PQTU,LAR*NOTU,IAD3)
       end if
       ! Sorting
@@ -291,9 +282,6 @@ if (((ISQ >= ISR) .or. (ISP /= ISR)) .and. (ISP /= ISQ) .and. (icxc5 /= 0)) then
   end do
   ! Store last buffer
   if (LR < NBR) then
-    !vv do I=1,NOTU
-    !vv   call dDAFILE(LUHLF3,1,PQTU(1+LAR*(I-1)),LAR,IAD3)
-    !vv end do
     call dDAFILE(LUHLF3,1,PQTU,LAR*NOTU,IAD3)
   end if
   if (ISQ >= ISR) then

@@ -31,7 +31,7 @@ subroutine CHO_FSCF(rc,nDen,FLT,nForb,nIorb,Porb,DLT,ExFac)
 use ChoArr, only: nDimRS
 use ChoSwp, only: InfVec
 use Symmetry_Info, only: MulD2h => Mul
-use Data_structures, only: Allocate_SBA, Deallocate_SBA, DSBA_Type, SBA_Type
+use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, SBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -231,7 +231,7 @@ do jSym=1,nSym
       do jDen=1,nDen
 
         nAux(:) = nForb(:,jDen)+nIorb(:,jDen)
-        call Allocate_SBA(Laq(jDen),nAux,nBas,nVec,JSYM,nSym,iSwap)
+        call Allocate_DT(Laq(jDen),nAux,nBas,nVec,JSYM,nSym,iSwap)
 
         call CWTIME(TCR3,TWR3)
 
@@ -288,7 +288,7 @@ do jSym=1,nSym
         texch(1) = texch(1)+(TCX2-TCX1)
         texch(2) = texch(2)+(TWX2-TWX1)
 
-        call Deallocate_SBA(Laq(jDen))
+        call Deallocate_DT(Laq(jDen))
       end do   ! loop over densities
 
       ! --------------------------------------------------------------------

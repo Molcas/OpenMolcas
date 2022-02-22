@@ -26,7 +26,7 @@
 *             University of Lund, Sweden. Januar '96                   *
 ************************************************************************
       use Symmetry_Info, only: nIrrep, iChTbl, iOper
-      use Real_Info, only: CutInt
+      use Gateway_Info, only: CutInt
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "etwas.fh"

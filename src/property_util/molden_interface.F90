@@ -368,7 +368,7 @@ do iCnttp=1,nCnttp             ! loop over unique basis sets
 
           do iprim=1,Shells(ishell)%nExp
             coeff = Shells(ishell)%pCff(iprim,icontr)
-            prim = Shells(ishell)%exp(iprim)
+            prim = Shells(ishell)%Exp(iprim)
             if (coeff /= Zero) then
               write(MF,'(E17.9,E17.9)') prim,coeff
             end if
@@ -826,7 +826,7 @@ end do
 !                                                                      *
 if (jPL >= 2) then
   write(u6,*)
-  write(u6,*) ' Input file to MOLDEN was generated!'
+  write(u6,'(6X,A)') 'Input file to MOLDEN was generated!'
   write(u6,*)
 end if
 !                                                                      *

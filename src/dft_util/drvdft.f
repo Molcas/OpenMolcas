@@ -14,10 +14,10 @@
      &                  lRF,KSDFT,ExFac,Do_Grad,Grad,nGrad,iSpin,
      &                  D1I,D1A,nD1,DFTFOCK)
       use KSDFT_Info, only: KSDFA, funcaa, funcbb, funccc
+      use nq_Info
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
-#include "nq_info.fh"
 #include "debug.fh"
 #include "pamint.fh"
 #include "ksdft.fh"

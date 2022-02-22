@@ -11,11 +11,10 @@
       Subroutine Compute_AuxVec(ipVk,ipZpk,myProc,nProc,ipUk)
       use pso_stuff
       use Basis_Info, only: nBas, nBas_Aux
-      use Temporary_Parameters, only: force_out_of_core
+      use Gateway_global, only: force_out_of_core
       use RICD_Info, only: Do_RI, Cholesky
       use Symmetry_Info, only: nIrrep
-      use Data_Structures, only: Allocate_DSBA
-      use Data_Structures, only: Deallocate_DSBA
+      use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
       use ExTerm, only: iMP2prpt, DMLT
       Implicit Real*8 (a-h,o-z)
       Integer ipVk(nProc), ipZpk(nProc)
@@ -109,7 +108,7 @@
             If (DoCAS.and.lSA) Then
                nSA=5
                Do i=1,nSA
-                 Call Allocate_DSBA(DMLT(i),nBas,nBas,nSym,aCase='TRI')
+                 Call Allocate_DT(DMLT(i),nBas,nBas,nSym,aCase='TRI')
                  DMLT(i)%A0(:) = D0(:,i)
                End Do
 *Refold some density matrices
@@ -129,16 +128,16 @@
                  EndDo
                EndDo
             Else
-               Call Allocate_DSBA(DMLT(1),nBas,nBas,nSym,aCase='TRI')
+               Call Allocate_DT(DMLT(1),nBas,nBas,nSym,aCase='TRI')
                Call Get_D1AO_Var(DMLT(1)%A0,nDens)
             EndIf
          Else
-            Call Allocate_DSBA(DMLT(1),nBas,nBas,nSym,aCase='TRI')
+            Call Allocate_DT(DMLT(1),nBas,nBas,nSym,aCase='TRI')
             Call Get_D1AO(DMLT(1)%A0,nDens)
          End If
 *
          If (nKdens.eq.2) Then
-            Call Allocate_DSBA(DMLT(2),nBas,nBas,nSym,aCase='TRI')
+            Call Allocate_DT(DMLT(2),nBas,nBas,nSym,aCase='TRI')
 !           spin-density matrix
             Call Get_D1SAO_Var(DMLT(2)%A0,nDens)
             Call daxpy_(nDens,-One,DMLT(1)%A0,1,
@@ -152,7 +151,7 @@
             Call Abend()
          EndIf
          If(iMp2prpt.eq.2) Then
-            Call Allocate_DSBA(DLT2,nBas,nBas,nSym,aCase='TRI')
+            Call Allocate_DT(DLT2,nBas,nBas,nSym,aCase='TRI')
             Call Get_D1AO_Var(DLT2%A0,nDens)
             Call daxpy_(nDens,-One,DMLT(1)%A0,1,DLT2%A0,1)
          Else
@@ -172,7 +171,7 @@
 
          If (DoExchange .or. DoCAS) Then
             Do i=1,nKdens
-              Call Allocate_DSBA(ChM(i),nBas,nBas,nSym)
+              Call Allocate_DT(ChM(i),nBas,nBas,nSym)
             End Do
             If (lSA) Then
               Call mma_allocate(TmpD,nDens,Label='TmpD')
@@ -182,7 +181,7 @@
 *                                                                      *
 *          PD matrices
 *
-            Call Allocate_DSBA(DSQ,nBas,nBas,nSym)
+            Call Allocate_DT(DSQ,nBas,nBas,nSym)
             Do j=1,nKvec
                If (lSA) Then
                  If (j.eq.1) Then
@@ -305,7 +304,7 @@
                  EndDo
                EndDo
             EndIf
-            Call Deallocate_DSBA(DSQ)
+            Call Deallocate_DT(DSQ)
             If (lSA) Call mma_deallocate(TmpD)
          EndIf
 ************************************************************************
@@ -342,7 +341,7 @@
 
          Allocate(AOrb(nADens))
          Do iADens = 1, nADens
-            Call Allocate_DSBA(AOrb(iADens),nAsh,nBas,nIrrep)
+            Call Allocate_DT(AOrb(iADens),nAsh,nBas,nIrrep)
          End Do
 
 *
@@ -397,11 +396,11 @@
 
          If (DoCAS .or. DoExchange) Then
             Do i=1,nKdens
-              Call deallocate_DSBA(ChM(i))
+              Call deallocate_DT(ChM(i))
             End Do
          EndIf
          If(iMp2prpt.eq.2) Then
-            Call deallocate_DSBA(DLT2)
+            Call deallocate_DT(DLT2)
          End If
 *
       End If ! no vectors on this node

@@ -90,7 +90,7 @@ end if
 
 ProgName = Get_ProgName()
 call Upcase(ProgName)
-call LeftAd(ProgName)
+ProgName = adjustl(ProgName)
 iEnd = 1
 do
   if (ProgName(iEnd:iEnd) == ' ') exit

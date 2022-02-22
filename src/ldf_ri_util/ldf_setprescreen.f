@@ -20,5 +20,5 @@ C
       Implicit None
       Real*8 Value
 #include "localdf.fh"
-      Thr_Prescreen=Value
+      Thr_LDFPrescreen=Value
       End

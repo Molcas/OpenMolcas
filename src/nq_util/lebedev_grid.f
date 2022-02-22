@@ -15,8 +15,8 @@
 *                                                                      *
 ************************************************************************
       use nq_Structure, only: Info_Ang
+      use nq_Info
       Implicit Real*8 (a-h,o-z)
-#include "nq_info.fh"
 #include "real.fh"
       Parameter (nSet=11)
       Integer Lebedev_order(nSet)

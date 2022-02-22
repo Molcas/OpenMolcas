@@ -260,7 +260,7 @@ do iBlock=1,nBlocks
 
   if (nABCD == 0) cycle
   if (((.not. NonZeroSym(1)) .and. Triangular) .or. &
-      (.not.(NonZeroSym(1) .or. NonZeroSym(2) .or. NonZeroSym(3) .or. NonZeroSym(4)))) then
+      (.not. (NonZeroSym(1) .or. NonZeroSym(2) .or. NonZeroSym(3) .or. NonZeroSym(4)))) then
     LoadZeros = .true.
   else
 

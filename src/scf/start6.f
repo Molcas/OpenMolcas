@@ -472,8 +472,7 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
 ************************************************************************
       Subroutine Get_Fmat_nondyn(Dma,Dmb,nBDT,DFTX)
       Use Fock_util_global, only: Deco
-      use Data_Structures, only: DSBA_type, Allocate_DSBA,
-     &                           Deallocate_DSBA
+      use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "mxdm.fh"
@@ -508,17 +507,16 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
          FactXI=One
       EndIf
 *
-      Call Allocate_DSBA(PLT(1),nBas,nBas,nSym,aCase='TRI')
-      Call Allocate_DSBA(PLT(2),nBas,nBas,nSym,aCase='TRI',
-     &                   Ref=PLT(1)%A0)
+      Call Allocate_DT(PLT(1),nBas,nBas,nSym,aCase='TRI')
+      Call Allocate_DT(PLT(2),nBas,nBas,nSym,aCase='TRI',Ref=PLT(1)%A0)
       If (DFTX) Then
          PLT(1)%A0(:)=Zero
       Else
          PLT(1)%A0(:)= Dma(:) + Dmb(:)
       EndIf
 *
-      Call Allocate_DSBA(POrb(1),nBas,nBas,nSym)
-      Call Allocate_DSBA(POrb(2),nBas,nBas,nSym)
+      Call Allocate_DT(POrb(1),nBas,nBas,nSym)
+      Call Allocate_DT(POrb(2),nBas,nBas,nSym)
 
       Call mma_allocate(Dm,nBB,2,Label='Dm')
       Call UnFold(Dma,nBDT,Dm(1,1),nBB,nSym,nBas)
@@ -553,13 +551,13 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
          iOff=iOff+nBas(i)**2
       End Do
 *
-      Call Allocate_DSBA(FLT(1),nBas,nBas,nSym,aCase='TRI')
-      Call Allocate_DSBA(FLT(2),nBas,nBas,nSym,aCase='TRI')
+      Call Allocate_DT(FLT(1),nBas,nBas,nSym,aCase='TRI')
+      Call Allocate_DT(FLT(2),nBas,nBas,nSym,aCase='TRI')
       FLT(1)%A0(:)=Zero
       FLT(2)%A0(:)=Zero
 
-      Call Allocate_DSBA(KLT(1),nBas,nBas,nSym,aCase='TRI')
-      Call Allocate_DSBA(KLT(2),nBas,nBas,nSym,aCase='TRI')
+      Call Allocate_DT(KLT(1),nBas,nBas,nSym,aCase='TRI')
+      Call Allocate_DT(KLT(2),nBas,nBas,nSym,aCase='TRI')
       KLT(1)%A0(:)=Zero
       KLT(2)%A0(:)=Zero
 *
@@ -590,15 +588,15 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
          E_nondyn=E_nondyn-E2act(1)
       EndIf
 *
-      Call deallocate_DSBA(KLT(2))
-      Call deallocate_DSBA(KLT(1))
-      Call deallocate_DSBA(FLT(2))
-      Call deallocate_DSBA(FLT(1))
+      Call Deallocate_DT(KLT(2))
+      Call Deallocate_DT(KLT(1))
+      Call Deallocate_DT(FLT(2))
+      Call Deallocate_DT(FLT(1))
       Call mma_deallocate(Dm)
-      Call deallocate_DSBA(POrb(2))
-      Call deallocate_DSBA(POrb(1))
-      Call deallocate_DSBA(PLT(2))
-      Call deallocate_DSBA(PLT(1))
+      Call Deallocate_DT(POrb(2))
+      Call Deallocate_DT(POrb(1))
+      Call Deallocate_DT(PLT(2))
+      Call Deallocate_DT(PLT(1))
 *
       Return
       End

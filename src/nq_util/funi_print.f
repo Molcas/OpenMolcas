@@ -10,10 +10,10 @@
 ************************************************************************
       Subroutine Funi_Print()
       use nq_Grid, only: nGridMax
+      use nq_Info
       Implicit Real*8 (A-H,O-Z)
-#include "nq_info.fh"
-#include "print.fh"
-      Logical Check
+      logical Check
+      logical, external:: Reduce_Prt
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -23,19 +23,17 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout=666
-      iPrint=nPrint(iRout)
+      iPrint=iPrintLevel(-1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Call Get_dScalar('EThr',EThr)
-      T_X=Min(T_X,EThr*1.0D-2)
-      T_Y=Min(T_Y,EThr*1.0D-2)
+      T_Y=Min(T_Y,EThr*1.0D-1)
       Threshold=Min(Threshold,EThr*1.0D-4)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (iPrint.ge.2) Then
+      If (.not.Reduce_Prt() .and. iPrint.ge.2) Then
       Write (6,*)
       Write (6,'(6X,A)') 'Numerical integration parameters'
       Write (6,'(6X,A)') '--------------------------------'
@@ -74,9 +72,6 @@
       Write (6,'(6X,A,2X,ES9.2)')
      &      'Screening threshold for integral computation:',
      &      T_Y
-      Write (6,'(6X,A,2X,ES9.2)')
-     &      'Screening threshold for density computation: ',
-     &      T_X
       If (Quadrature(1:3).ne.'LMG') Then
          Write (6,'(6X,A,20X,ES9.2)') 'Radial quadrature accuracy:',
      &                             Threshold

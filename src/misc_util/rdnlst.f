@@ -65,8 +65,8 @@
 *     the string, Name, not before the second column                   *
 *----------------------------------------------------------------------*
 100   Read(iUnit,'(A)',End=900) Line
-      Call LeftAd(Line)
       Call UpCase(Line)
+      Line = adjustl(Line)
       If ( Line(1:1).eq.'&' .and.
      &     Line(2:lStdNam+1).eq.StdNam(1:lStdNam) ) then
          Return

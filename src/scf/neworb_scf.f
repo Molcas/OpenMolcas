@@ -146,10 +146,10 @@
      &                    1.0d0,FckS,nBas(iSym),
      &                    CMO(iCMO,iD),nBas(iSym),
      &                    0.0d0,HlfF,nBas(iSym))
-              Call MxMt(CMO(iCMO,iD),   nBas(iSym),1,
-     &                  HlfF,1,nBas(iSym),
-     &                  TraF,
-     &                  nOccmF,nBas(iSym))
+              Call DGEMM_Tri('T','N',nOccmF,nOccmF,nBas(iSym),
+     &                       One,CMO(iCMO,iD),nBas(iSym),
+     &                           HlfF,nBas(iSym),
+     &                       Zero,TraF,nOccmF)
 #ifdef _DEBUGPRINT_
 *             Call Triprt('Occupied Fock matrix in MO basis',
 *    &                    '(20F10.4)',TraF,nOccmF)
@@ -180,10 +180,10 @@
      &                    1.0d0,FckS,nBas(iSym),
      &                    CMO(iCMO,iD),nBas(iSym),
      &                    0.0d0,HlfF,nBas(iSym))
-              Call MxMt(CMO(iCMO,iD),   nBas(iSym),1,
-     &                  HlfF,1,nBas(iSym),
-     &                  TraF,
-     &                  nVrt,nBas(iSym))
+              Call DGEMM_Tri('T','N',nVrt,nVrt,nBas(iSym),
+     &                      One,CMO(iCMO,iD),nBas(iSym),
+     &                          HlfF,nBas(iSym),
+     &                      Zero,TraF,nVrt)
 #ifdef _DEBUGPRINT_
 *             Call Triprt('Virtual Fock matrix in MO basis',
 *    &                    '(20F10.4)',TraF,nVrt)
@@ -238,10 +238,10 @@ C           Write(6,'(a,F12.6)') 'E(add)    ',GapAdd
      &                 1.0d0,FckS,nBas(iSym),
      &                 CMO(iCMO,iD),nBas(iSym),
      &                 0.0d0,HlfF,nBas(iSym))
-           Call MxMt(CMO(iCMO,iD),   nBas(iSym),1,
-     &               HlfF,1,nBas(iSym),
-     &               TraF,
-     &               nOrbmF,nBas(iSym))
+           Call DGEMM_Tri('T','N',nOrbmF,nOrbmF,nBas(iSym),
+     &                    One,CMO(iCMO,iD),nBas(iSym),
+     &                        HlfF,nBas(iSym),
+     &                    Zero,TraF,nOrbmF)
 c             Call Triprt('Case3 Fock matrix in MO basis',
 c    &                    '(20F10.4)',TraF,nOrbmF)
 *

@@ -151,40 +151,40 @@
             Write(6,Fmt2//'A,(T47,10F6.3))') 'Weights ',
      &           (weight(i),i=1,nroots)
             Write(6,*)
-            Write(6,Fmt2//'A,T47,8I6)')
+            Write(6,Fmt2//'A,T47,8I8)')
      &           'Symmetry species',
      &                            (i,i=1,nSym)
-            Write(6,Fmt2//'A,T47,8I6)')
+            Write(6,Fmt2//'A,T47,8I8)')
      &           'Skiped sym. species',
      &            (nSkip(iSym),iSym=1,nSym)
-            Write(6,Fmt2//'A,T47,8I6)')
+            Write(6,Fmt2//'A,T47,8I8)')
      &            'Frozen orbitals',
      &            (nFro(iSym),iSym=1,nSym)
-            Write(6,Fmt2//'A,T47,8I6)')
+            Write(6,Fmt2//'A,T47,8I8)')
      &            'Inactive orbitals',
      &                               (nIsh(iSym),iSym=1,nSym)
-            Write(6,Fmt2//'A,T47,8I6)')
+            Write(6,Fmt2//'A,T47,8I8)')
      &             'Active orbitals',
      &                               (nAsh(iSym),iSym=1,nSym)
-            Write(6,Fmt2//'A,T47,8I6)') 'RAS1 orbitals',
+            Write(6,Fmt2//'A,T47,8I8)') 'RAS1 orbitals',
      &                              (nRs1(iSym),iSym=1,nSym)
-            Write(6,Fmt2//'A,T47,8I6)') 'RAS2 orbitals',
+            Write(6,Fmt2//'A,T47,8I8)') 'RAS2 orbitals',
      &                              (nRs2(iSym),iSym=1,nSym)
-            Write(6,Fmt2//'A,T47,8I6)') 'RAS3 orbitals',
+            Write(6,Fmt2//'A,T47,8I8)') 'RAS3 orbitals',
      &                              (nRs3(iSym),iSym=1,nSym)
-            Write(6,Fmt2//'A,T47,8I6)') 'Deleted orbitals',
+            Write(6,Fmt2//'A,T47,8I8)') 'Deleted orbitals',
      &                              (nDel(iSym),iSym=1,nSym)
-            Write(6,Fmt2//'A,T47,8I6)')
+            Write(6,Fmt2//'A,T47,8I8)')
      &               'Number of basis functions',
      &                              (nBas(iSym),iSym=1,nSym)
-            Write(6,Fmt2//'A,T47,8I6)')
+            Write(6,Fmt2//'A,T47,8I8)')
      &               'Number of Orbitals',
      &                              (nOrb(iSym),iSym=1,nSym)
-            Write(6,Fmt2//'A,T47,8I6)')
+            Write(6,Fmt2//'A,T47,8I8)')
      &            'Number of configurations',
      &                             (ncsf(isym),isym=1,nsym)
 
-            Write(6,Fmt2//'A,T47,8I6)')
+            Write(6,Fmt2//'A,T47,8I8)')
      &            'Number of combinations',
      &                             (nint(xispsm(isym,1)),isym=1,nsym)
 *
@@ -341,6 +341,13 @@
 ************************************************************************
 *                                                                      *
       Write(6,*)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      If (isNAC .and. (nSym > 1)) Then
+        Call WarningMessage(2,'NAC is not supported with symmetry')
+        Call Abend()
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -11,7 +11,7 @@
 
 subroutine CHO_get_MO(iOK,nDen,nSym,nBas,nIsh,CM,MSQ)
 
-use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA, DSBA_Type
+use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use Constants, only: Zero, One
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
@@ -74,7 +74,7 @@ end do
 
 if ((nDen == 2) .and. (irc == 0) .and. (ikc == 0)) then
 
-  call Allocate_DSBA(SMat,nBas,nBas,nSym,aCase='TRI')
+  call Allocate_DT(SMat,nBas,nBas,nSym,aCase='TRI')
   call mma_allocate(SXMat,nBm**2,Label='SXMat')
 
   ! Read overlap integrals (LT-storage) and get Square-storage
@@ -112,7 +112,7 @@ if ((nDen == 2) .and. (irc == 0) .and. (ikc == 0)) then
   end do
 
   call mma_deallocate(SXMat)
-  call Deallocate_DSBA(SMat)
+  call Deallocate_DT(SMat)
 
 end if
 

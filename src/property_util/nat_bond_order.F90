@@ -1229,7 +1229,7 @@ end if
 if (ElecNonAssgn > 6.0e-4_wp) then
   write(u6,'(6X,A,F8.3,A)') 'The remaining ',ElecNonAssgn,' electrons are to be considered as diffuse'
   !write(u6,'(29X,A)') 'diffuse on more than one bond.'
-elseif (ElecNonAssgn < (Zero-0.01_wp)) then
+else if (ElecNonAssgn < (Zero-0.01_wp)) then
   write(u6,'(6X,A)') 'NBO analysis, and just that ONLY, did not converge to a'
   write(u6,'(6X,A)') 'proper answer, sorry. Calculation will continue as normal.'
 end if

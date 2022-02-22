@@ -15,7 +15,11 @@ Module libxc_parameters
 use xc_f03_lib_m
 use Definitions, only: LibxcInt
 Implicit None
+Private
 #include "ksdft.fh"
+
+Public :: nFuncs_max, nFuncs, Coeffs, func_id, xc_func, xc_info, Initiate_Libxc_functionals, Remove_Libxc_functionals, &
+          libxc_functionals
 
 Integer, parameter :: nFuncs_max=4
 Integer :: i
@@ -58,7 +62,7 @@ Do iFunc = 1, nFuncs
    ! Get the functional's information
    xc_info(iFunc) = xc_f03_func_get_info(xc_func(iFunc))
 
-! Reset coefficiants according to input
+! Reset coefficients according to input
 
    Coeff = Coeffs(iFunc)
    Select case(xc_f03_func_info_get_kind(xc_info(iFunc)))
@@ -88,39 +92,32 @@ End Subroutine Remove_Libxc_functionals
 !***********************************************************************
 !
 Subroutine libxc_functionals(mGrid,nD)
-use nq_Grid, only: F_xc
-use nq_Grid, only: Rho, Sigma, Tau, Lapl
-use nq_Grid, only:     vSigma,vTau
+use nq_Grid, only: F_xc, F_xca, F_xcb, l_casdft
+use nq_Grid, only: vRho, vSigma, vTau, vLapl
 Implicit None
 Integer mGrid,nD, iFunc
 Real*8 Coeff
-
-If (nD.eq.1) Then
-                          Rho(:,1:mGrid)   =2.00D0*Rho(:,1:mGrid)
-   If (Allocated(Sigma))  Sigma(:,1:mGrid) =4.00D0*Sigma(:,1:mGrid)
-   If (Allocated(vSigma)) vSigma(:,1:mGrid)=0.50D0*vSigma(:,1:mGrid)
-   If (Allocated(Lapl))   Lapl(:,1:mGrid)  =2.00D0*Lapl(:,1:mGrid)
-   If (Allocated(vTau))   vTau(:,1:mGrid)  =2.00D0*vTau(:,1:mGrid)
-Else
-   If (Allocated(Tau))    Tau(:,1:mGrid)   =0.50D0*Tau(:,1:mGrid)
-   If (Allocated(vTau))   vTau(:,1:mGrid)  =2.00D0*vTau(:,1:mGrid)
+Real*8, Parameter :: Zero=0.0D0
+!
+!***********************************************************************
+!
+vRho(:,1:mGrid)=Zero
+If (Allocated(vSigma)) vSigma(:,1:mGrid)=Zero
+If (Allocated(vTau)) vTau(:,1:mGrid)=Zero
+If (Allocated(vLapl)) vLapl(:,1:mGrid)=Zero
+F_xc(1:mGrid)=Zero
+If (l_casdft) Then
+   F_xca(1:mGrid)=Zero
+   F_xcb(1:mGrid)=Zero
 End If
+!
+!***********************************************************************
+!
 
 Do iFunc = 1, nFuncs
    Coeff = Coeffs(iFunc)
    call libxc_interface(xc_func(iFunc),xc_info(iFunc),mGrid,nD,F_xc,Coeff)
 End Do
-
-If (nD.eq.1) Then
-                          Rho(:,1:mGrid)   =0.50D0*Rho(:,1:mGrid)
-   If (Allocated(Sigma))  Sigma(:,1:mGrid) =0.25D0*Sigma(:,1:mGrid)
-   If (Allocated(vSigma)) vSigma(:,1:mGrid)=2.00D0*vSigma(:,1:mGrid)
-   If (Allocated(Lapl))   Lapl(:,1:mGrid)  =0.50D0*Lapl(:,1:mGrid)
-   If (Allocated(vTau))   vTau(:,1:mGrid)  =0.50D0*vTau(:,1:mGrid)
-Else
-   If (Allocated(Tau))    Tau(:,1:mGrid)   =2.00D0*Tau(:,1:mGrid)
-   If (Allocated(vTau))   vTau(:,1:mGrid)  =0.50D0*vTau(:,1:mGrid)
-End If
 
 Return
 End Subroutine libxc_functionals

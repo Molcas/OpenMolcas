@@ -167,7 +167,7 @@
       # Filter only NAG message lines
       sed -n -E '/^(Info|Warning|Questionable|Note|Extension|Obsolescent|Deleted feature used|Error):.*/p' nag.log > nag2.log ; mv nag2.log nag.log
       # Remove ignored warnings
-      sed -E '/WrkSpc\.fh.*EQUIVALENCE/d ; /(was not compiled with the -i8 option)/d' nag.log > nag2.log ; mv nag2.log nag.log
+      sed -E '/(was not compiled with the -i8 option)/d' nag.log > nag2.log ; mv nag2.log nag.log
       # More reasonable paths
       sed -E 's%/[^ ]*OpenMolcas/src%src%' nag.log > nag2.log ; mv nag2.log nag.log
       # Remove annoying notes from cmake
@@ -199,7 +199,7 @@
       #set (BOUNDS "ON" CACHE STRING "enable bounds checking" )
       set (BUILD_SHARED_LIBS "OFF" CACHE STRING "static molcas lib" )
       set (HDF5 "OFF" CACHE STRING "turn off HDF5")
-      set (DEFMOLCASMEM "256" CACHE STRING "reduce memory to get more speed")
+      set (DEFMOLCASMEM "300" CACHE STRING "reduce memory to get more speed")
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"
@@ -212,7 +212,7 @@
     cache_file: |
       set (CMAKE_BUILD_TYPE "Release" CACHE STRING "opt, no debug info" )
       set (BOUNDS "ON" CACHE STRING "enable bounds checking" )
-      set (DEFMOLCASMEM "256" CACHE STRING "reduce memory to get more speed")
+      set (DEFMOLCASMEM "300" CACHE STRING "reduce memory to get more speed")
       set (IPO "ON" CACHE STRING "enable interprocedural optimization")
     CC: "gcc"
     CXX: "g++"

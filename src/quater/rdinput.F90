@@ -128,15 +128,15 @@ else
   end if
 end if
 
-if (XYZ1Set .and. .not. GEO1Set) then
+if (XYZ1Set .and. (.not. GEO1Set)) then
   call SysAbendMsg('RdInput_Quater','XYZ1 keyword requires GEO1 definition','')
 end if
 
-if (XYZ2Set .and. .not. GEO2Set) then
+if (XYZ2Set .and. (.not. GEO2Set)) then
   call SysAbendMsg('RdInput_Quater','XYZ2 keyword requires GEO2 definition','')
 end if
 
-if (translate .and. .not.(XYZ1Set .and. XYZ2Set)) then
+if (translate .and. (.not. (XYZ1Set .and. XYZ2Set))) then
   call SysAbendMsg('RdInput_Quater','Translation cannot be done if both','XYZ1 and XYZ2 are not set')
 end if
 

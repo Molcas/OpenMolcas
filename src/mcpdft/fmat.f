@@ -140,16 +140,8 @@ C Local print level (if any)
       Call GetMem('Scr1','Allo','Real',iTmp1,nTot1)
       Call Fold(nSym,nBas,D1A,Work(iTmp1))
       If(KSDFT.ne.'SCF'
-     & .and. KSDFT.ne.'TLSDA'
-     & .and. KSDFT.ne.'FTLSDA'
-     & .and. KSDFT.ne.'TPBE'
-     & .and. KSDFT.ne.'FTPBE'
-     & .and. KSDFT.ne.'TOPBE'
-     & .and. KSDFT.ne.'FTOPBE'
-     & .and. KSDFT.ne.'TBLYP'
-     & .and. KSDFT.ne.'FTBLYP'
-     & .and. KSDFT.ne.'TREVPBE'
-     & .and. KSDFT.ne.'FTREVPBE') NewFock=0
+     & .and. KSDFT(1:2).ne.'T:'
+     & .and. KSDFT(1:3).ne.'FT:') NewFock=0
 
 c     If (NewFock.eq.0) Then
 c        nBMX=0
@@ -202,23 +194,21 @@ c     End If
       iOff3 = 1
       Do iSym = 1,nSym
         iBas = nBas(iSym)
+        If (iBas==0) Cycle
         iOrb = nOrb(iSym)
+        If (iOrb==0) Cycle
         iFro = nFro(iSym)
         Call GetMem('Scr1','Allo','Real',iTmp1,iBas*iBas)
         Call GetMem('Scr2','Allo','Real',iTmp2,iOrb*iBas)
         Call Square(FI(iOff1),Work(iTmp1),1,iBas,iBas)
-C        Call MXMA(Work(iTmp1),1,iBas,
-C     &            CMO(iOff2+(iFro*iBas)),1,iBas,
-C     &            Work(iTmp2),1,iBas,
-C     &            iBas,iBas,iOrb)
         Call DGEMM_('N','N',iBas,iOrb,iBas,
      &               1.0d0,Work(iTmp1),iBas,
      &               CMO(iOff2+(iFro*iBas)),iBas,
      &               0.0d0,Work(iTmp2),iBas)
-        Call MXMT(Work(iTmp2),iBas,1,
-     &            CMO(iOff2+(iFro*iBas)),1,iBas,
-     &            FI(iOff3),
-     &            iOrb,iBas)
+        Call DGEMM_Tri('T','N',iOrb,iOrb,iBas,
+     &                 1.0D0,Work(iTmp2),iBas,
+     &                       CMO(iOff2+(iFro*iBas)),iBas,
+     &                 0.0D0,FI(iOff3),iOrb)
         Call GetMem('Scr2','Free','Real',iTmp2,iOrb*iBas)
         Call GetMem('Scr1','Free','Real',iTmp1,iBas*iBas)
         iOff1 = iOff1 + (iBas*iBas+iBas)/2
@@ -232,23 +222,21 @@ C     &            iBas,iBas,iOrb)
       iOff3 = 1
       Do iSym = 1,nSym
         iBas = nBas(iSym)
+        If (iBas==0) Cycle
         iOrb = nOrb(iSym)
+        If (iOrb==0) Cycle
         iFro = nFro(iSym)
         Call GetMem('Scr1','Allo','Real',iTmp1,iBas*iBas)
         Call GetMem('Scr2','Allo','Real',iTmp2,iOrb*iBas)
         Call Square(FA(iOff1),Work(iTmp1),1,iBas,iBas)
-C        Call MXMA(Work(iTmp1),1,iBas,
-C     &            CMO(iOff2+(iFro*iBas)),1,iBas,
-C     &            Work(iTmp2),1,iBas,
-C     &            iBas,iBas,iOrb)
         Call DGEMM_('N','N',iBas,iOrb,iBas,
      &               1.0d0,Work(iTmp1),iBas,
      &               CMO(iOff2+(iFro*iBas)),iBas,
      &               0.0d0,Work(iTmp2),iBas)
-        Call MXMT(Work(iTmp2),iBas,1,
-     &            CMO(iOff2+(iFro*iBas)),1,iBas,
-     &            FA(iOff3),
-     &            iOrb,iBas)
+        Call DGEMM_Tri('T','N',iOrb,iOrb,iBas,
+     &                 1.0D0,Work(iTmp2),iBas,
+     &                       CMO(iOff2+(iFro*iBas)),iBas,
+     &                 0.0D0,FA(iOff3),iOrb)
         Call GetMem('Scr2','Free','Real',iTmp2,iOrb*iBas)
         Call GetMem('Scr1','Free','Real',iTmp1,iBas*iBas)
         iOff1 = iOff1 + (iBas*iBas+iBas)/2
@@ -260,16 +248,7 @@ c**************************************************************************
 c              Add DFT part to Fock matrix:                               *
 c**************************************************************************
       If(KSDFT(1:3).ne.'SCF'.and.KSDFT(1:3).ne.'PAM'.and.
-     & (KSDFT(1:5).ne.'TLSDA'.and. !GLM
-     &  KSDFT(1:5).ne.'TBLYP'.and.
-     &  KSDFT(1:6).ne.'FTLSDA'.and.
-     &  KSDFT(1:5).ne.'FTPBE'.and.
-     &  KSDFT(1:6).ne.'FTOPBE'.and.
-     &  KSDFT(1:5).ne.'TOPBE'.and.
-     &  KSDFT(1:7).ne.'TREVPBE'.and.
-     &  KSDFT(1:8).ne.'FTREVPBE'.and.
-     &  KSDFT(1:6).ne.'FTBLYP'.and.
-     &  KSDFT(1:4).ne.'TPBE')) Then
+     & (KSDFT(1:2).ne.'T:' .and. KSDFT(1:3).ne.'FT:' ) ) Then
         ipTmpFckI=-99999
         ipTmpFckA=-99999
         Call Get_dExcdRa(ipTmpFck,nTmpFck)
@@ -294,24 +273,22 @@ c**************************************************************************
         iOff3 = 1
         Do iSym = 1,nSym
           iBas = nBas(iSym)
+          If (iBas==0) Cycle
           iOrb = nOrb(iSym)
+          If (iOrb==0) Cycle
           iFro = nFro(iSym)
           Call GetMem('Scr1','Allo','Real',iTmp1,iBas*iBas)
           Call GetMem('Scr2','Allo','Real',iTmp2,iOrb*iBas)
           Call Square(Work(ipTmpFckI+iOff1-1),
      &                Work(iTmp1),1,iBas,iBas)
-C          Call MXMA(Work(iTmp1),1,iBas,
-C     &              CMO(iOff2+(iFro*iBas)),1,iBas,
-C     &              Work(iTmp2),1,iBas,
-C     &              iBas,iBas,iOrb)
           Call DGEMM_('N','N',iBas,iOrb,iBas,
      &               1.0d0,Work(iTmp1),iBas,
      &               CMO(iOff2+(iFro*iBas)),iBas,
      &               0.0d0,Work(iTmp2),iBas)
-          Call MXMT(Work(iTmp2),iBas,1,
-     &              CMO(iOff2+(iFro*iBas)),1,iBas,
-     &              Work(ipTmpFckI+iOff3-1),
-     &              iOrb,iBas)
+          Call DGEMM_Tri('T','N',iOrb,iOrb,iBas,
+     &                   1.0D0,Work(iTmp2),iBas,
+     &                         CMO(iOff2+(iFro*iBas)),iBas,
+     &                   0.0D0,Work(ipTmpFckI+iOff3-1),iOrb)
           Call GetMem('Scr2','Free','Real',iTmp2,iOrb*iBas)
           Call GetMem('Scr1','Free','Real',iTmp1,iBas*iBas)
           iOff1 = iOff1 + (iBas*iBas+iBas)/2
@@ -327,24 +304,22 @@ C     &              iBas,iBas,iOrb)
         iOff3 = 1
         Do iSym = 1,nSym
           iBas = nBas(iSym)
+          If (iBas==0) Cycle
           iOrb = nOrb(iSym)
+          If (iOrb==0) Cycle
           iFro = nFro(iSym)
           Call GetMem('Scr1','Allo','Real',iTmp1,iBas*iBas)
           Call GetMem('Scr2','Allo','Real',iTmp2,iOrb*iBas)
           Call Square(Work(ipTmpFckA+iOff1-1),
      &                Work(iTmp1),1,iBas,iBas)
-C          Call MXMA(Work(iTmp1),1,iBas,
-C     &              CMO(iOff2+(iFro*iBas)),1,iBas,
-C     &              Work(iTmp2),1,iBas,
-C     &              iBas,iBas,iOrb)
           Call DGEMM_('N','N',iBas,iOrb,iBas,
      &               1.0d0,Work(iTmp1),iBas,
      &               CMO(iOff2+(iFro*iBas)),iBas,
      &               0.0d0,Work(iTmp2),iBas)
-          Call MXMT(Work(iTmp2),iBas,1,
-     &              CMO(iOff2+(iFro*iBas)),1,iBas,
-     &              Work(ipTmpFckA+iOff3-1),
-     &              iOrb,iBas)
+          Call DGEMM_Tri('T','N',iOrb,iOrb,iBas,
+     &                   1.0D0,Work(iTmp2),iBas,
+     &                         CMO(iOff2+(iFro*iBas)),iBas,
+     &                   0.0D0,Work(ipTmpFckA+iOff3-1),iOrb)
           Call GetMem('Scr2','Free','Real',iTmp2,iOrb*iBas)
           Call GetMem('Scr1','Free','Real',iTmp1,iBas*iBas)
           iOff1 = iOff1 + (iBas*iBas+iBas)/2

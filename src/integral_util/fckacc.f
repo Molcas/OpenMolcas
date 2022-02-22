@@ -51,7 +51,7 @@
       use SOAO_Info, only: iAOtSO
       use Real_Spherical, only: iSphCr
       use Symmetry_Info, only: nIrrep, iOper, iChBas
-      use Real_Info, only: ThrInt, CutInt
+      use Gateway_Info, only: ThrInt, CutInt
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"

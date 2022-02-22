@@ -14,15 +14,16 @@
 C
 C     Thomas Bondo Pedersen, March 2011.
 C
-C     Purpose: set atomic labels in ldf_atomiclabels.fh
+C     Purpose: set atomic labels in ldf_atomiclabels
 C              To unset (deallocation), call LDF_UnsetAtomicLabels().
 C
 C     After this routine, call LDF_GetAtomicLabel(A,Label) to retrieve
 C     the four-character label Label representing atom A.
 C
+      Use ldf_atomiclabels, only: AtomicLabels
+      Use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
 #include "WrkSpc.fh"
-#include "ldf_atomiclabels.fh"
 #include "localdf_bas.fh"
 
       Integer  LDF_nAtom, LDF_nShell_Atom, LDF_lShell_Atom
@@ -30,15 +31,13 @@ C
       Integer  LDF_GetLenIn8
 
       Integer LenIn8
-      Integer ip_Temp, l_Temp
+      Integer l_Temp
       Integer ip_SB, l_SB
       Integer n
       Integer iShell
       Integer A
       Integer nS
       Integer j
-      Integer ipAL
-      Integer ipT
 #if defined (_DEBUGPRINT_)
       Integer ip
       Integer iS
@@ -48,21 +47,20 @@ C
       Integer i
       Integer nBasSh
       Integer iSB
+      Character, Allocatable :: Temp(:)
       nBasSh(i)=iWork(ip_nBasSh-1+i)
       iSB(i)=iWork(ip_SB-1+i)
 
-      If (AtomicLabelsSet) Return
-      l_AtomicLabels=4*LDF_nAtom()
-      Call GetMem('LDFALbl','Allo','Char',ip_AtomicLabels,
-     &                                     l_AtomicLabels)
+      If (allocated(AtomicLabels)) Return
+      call mma_allocate(AtomicLabels,LDF_nAtom())
       LenIn8=LDF_GetLenIn8()
       If (LenIn8.lt.8) Then
          Call WarningMessage(2,'LDF_SetAtomicLabels: LenIn8 < 8')
          Call LDF_Quit(1)
       End If
       l_Temp=LenIn8*nBas_Valence
-      Call GetMem('LDFALTmp','Allo','Char',ip_Temp,l_Temp)
-      Call Get_cArray('Unique Basis Names',cWork(ip_Temp),l_Temp)
+      Call mma_allocate(Temp,l_Temp,label='LDFALTmp')
+      Call Get_cArray('Unique Basis Names',Temp,l_Temp)
       l_SB=nShell_Valence
       Call GetMem('LDFALSB','Allo','Inte',ip_SB,l_SB)
       n=0
@@ -75,22 +73,20 @@ C
          Call LDF_Quit(1)
       End If
       Do A=1,LDF_nAtom()
-         ipAL=ip_AtomicLabels+4*(A-1)
          nS=LDF_nShell_Atom(A)
          If (nS.gt.0) Then
             iShell=iWork(LDF_lShell_Atom(A))
-            ipT=ip_Temp+LenIn8*iSB(iShell)
-            Do j=0,3
-               cWork(ipAL+j)=cWork(ipT+j)
+            Do j=1,4
+               AtomicLabels(A)(j:j) = Temp(LenIn8*iSB(iShell)+j)
             End Do
 #if defined (_DEBUGPRINT_)
             ip=LDF_lShell_Atom(A)-1
             Do iS=1,nS
                iShell=iWork(ip+iS)
                Do ii=0,nBasSh(iShell)-1
-                  ipT=ip_Temp+LenIn8*(iSB(iShell)+ii)
-                  Do j=0,3
-                     If (cWork(ipT+j).ne.cWork(ipAL+j)) Then
+                  Do j=1,4
+                     If (Temp(LenIn8*(iSB(iShell)+ii)+j).ne.
+     &                   AtomicLabels(A)(j:j)) Then
                         Call WarningMessage(2,
      &                        'LDF_SetAtomicLabels: Bfn label mismatch')
                         Write(6,'(A,I10)') 'Atom=',A
@@ -107,8 +103,7 @@ C
          End If
       End Do
       Call GetMem('LDFALSB','Free','Inte',ip_SB,l_SB)
-      Call GetMem('LDFALTmp','Free','Char',ip_Temp,l_Temp)
-      AtomicLabelsSet=.True.
+      call mma_deallocate(Temp)
 
       End
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -121,18 +116,16 @@ C
 C     Purpose: return label representing atom A.
 C              'NONE' is returned if labels are not set.
 C
+      Use ldf_atomiclabels, only: AtomicLabels
       Implicit None
       Integer A
       Character*4 Label
 #include "WrkSpc.fh"
-#include "ldf_atomiclabels.fh"
 
-      Integer i
-
-      If (.not.AtomicLabelsSet) Then
+      If (.not.allocated(AtomicLabels)) Then
          Label='NONE'
       Else
-         Write(Label,'(4A1)') (cWork(ip_AtomicLabels+4*(A-1)+i),i=0,3)
+         Label = AtomicLabels(A)
       End If
 
       End
@@ -143,17 +136,13 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C
 C     Thomas Bondo Pedersen, March 2011.
 C
-C     Purpose: unset atomic labels in ldf_atomiclabels.fh
+C     Purpose: unset atomic labels in ldf_atomiclabels
 C
+      Use ldf_atomiclabels, only: AtomicLabels
+      Use stdalloc, only: mma_deallocate
       Implicit None
-#include "ldf_atomiclabels.fh"
 
-      If (.not.AtomicLabelsSet) Return
-      Call GetMem('LDFALbl','Free','Char',ip_AtomicLabels,
-     &                                     l_AtomicLabels)
-      l_AtomicLabels=0
-      ip_AtomicLabels=0
-      AtomicLabelsSet=.False.
+      If (allocated(AtomicLabels)) Call mma_deallocate(AtomicLabels)
 
       End
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC

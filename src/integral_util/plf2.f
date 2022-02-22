@@ -28,7 +28,7 @@
       use SOAO_Info, only: iAOtSO
       use k2_arrays, only: Sew_Scr
       use lw_Info
-      use REal_Info, only: ThrInt
+      use Gateway_Info, only: ThrInt
       use sort_data, only: DimSyB, lSll
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
