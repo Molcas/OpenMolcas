@@ -29,9 +29,6 @@ real(kind=wp) :: COPI, CPL, CPLA, CPLL, ENPQ, FAC, FACS, FACW, FACWA, FACWB, TER
 logical(kind=iwp) :: Skip
 integer(kind=iwp), external :: JSUNP_CPF
 real(kind=r8), external :: DDOT_
-! Statement function
-integer(kind=iwp) :: JSYM, L
-JSYM(L) = JSUNP_CPF(JSY,L)
 
 ITYP = 0 ! dummy initialize
 ICOUP = 0 ! dummy initialize
@@ -127,7 +124,7 @@ do
             INDA = IRC(1)+ICOUP1
             INDB = IRC(1)+ICOUP
         end select
-        MYSYM = JSYM(INDA)
+        MYSYM = JSUNP_CPF(JSY,INDA)
         NYSYM = MUL(MYSYM,NSIJ)
         MYL = MUL(MYSYM,LSYM)
         NYL = MUL(NYSYM,LSYM)

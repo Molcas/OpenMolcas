@@ -25,9 +25,6 @@ integer(kind=iwp) :: I, II, II1, ILIM, JOJ
 real(kind=wp) :: EMA
 integer(kind=iwp), external :: ICUNP
 real(kind=r8), external :: DDOT_
-! Statement function
-integer(kind=iwp) :: JO, L
-JO(L) = ICUNP(ICASE,L)
 
 ILIM = NORBT*(NORBT+1)/2
 call SETZ(D,ILIM)
@@ -38,7 +35,7 @@ C(IREF0) = One
 EMA = One-A
 II1 = (IREF0-1)*LN
 do I=1,LN
-  JOJ = JO(II1+I)
+  JOJ = ICUNP(ICASE,II1+I)
   if (JOJ >= 2) JOJ = JOJ-1
   II = I*(I+1)/2
   D(II) = JOJ*EMA

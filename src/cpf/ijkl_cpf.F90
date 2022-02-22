@@ -27,9 +27,6 @@ integer(kind=iwp) :: I, IADR, IC1, IC2, ICHK, IIN, ILEN, IND, INDA, INDB, INDI, 
                      LENGTH, LP, NA, NB, NIJ, NIJKL, NKL, NS1, NS1L
 real(kind=wp) :: COPI, FINI
 integer(kind=iwp), external :: JSUNP_CPF
-! Statement function
-integer(kind=iwp) :: JSYM, L
-JSYM(L) = JSUNP_CPF(JSY,L)
 
 FINI = Zero ! dummy initialize
 NCONF = JSC(4)
@@ -84,7 +81,7 @@ do
           INDB = IRC(IVL)+IC2
           NA = INDX(INDA)
           NB = INDX(INDB)
-          NS1 = JSYM(INDA)
+          NS1 = JSUNP_CPF(JSY,INDA)
           NS1L = MUL(NS1,LSYM)
           INUM = NVIR(NS1L)
           if (IVL >= 2) INUM = NNS(NS1L)

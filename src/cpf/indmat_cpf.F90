@@ -22,9 +22,6 @@ integer(kind=iwp) :: JSY(*), INDX(*), ISAB(*), ISMAX, JREFX(*)
 integer(kind=iwp) :: I, ICOUS(8), II, IIN, ILIM, IN0, IN2, IND, IR, IR1, IR2, IX1, IX2, IX3, IX4, JCONF, JJM, JSCI, NA, NB, NSAB, &
                      NSS
 integer(kind=iwp), external :: JSUNP_CPF
-! Statement function
-integer(kind=iwp) :: JSYM, L
-JSYM(L) = JSUNP_CPF(JSY,L)
 
 ! DETERMINE REFERENCE STATE
 JCONF = ISC(1)
@@ -73,7 +70,7 @@ IR1 = IR+1
 IR2 = IRC(2)
 do II=IR1,IR2
   INDX(II) = IND
-  NSS = MUL(JSYM(II),LSYM)
+  NSS = MUL(JSUNP_CPF(JSY,II),LSYM)
   IND = IND+NVIR(NSS)
 end do
 JSC(2) = IND
@@ -83,7 +80,7 @@ if (IFIRST == 0) then
   JSC(3) = IND
   do II=IR1,IR2
     INDX(II) = IND
-    NSS = MUL(JSYM(II),LSYM)
+    NSS = MUL(JSUNP_CPF(JSY,II),LSYM)
     IND = IND+ICOUS(NSS)
     if (II == IRC(3)) JSC(3) = IND
   end do

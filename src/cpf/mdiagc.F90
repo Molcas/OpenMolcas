@@ -25,9 +25,6 @@ real(kind=wp) :: C(*), S(*), W(*), THET(NII,NII), ENP(*)
 integer(kind=iwp) :: IADD25, IIC, ILIM, IND, INDA, IRL, NA, NA1, NA2, NB, NB1, NB2, NSA, NSS
 real(kind=wp) :: ENPQ, FACS, FACW
 integer(kind=iwp), external :: JSUNP_CPF
-! Statement function
-integer(kind=iwp) :: JSYM, L
-JSYM(L) = JSUNP_CPF(JSY,L)
 
 IADD25 = IAD25S
 call dDAFILE(Lu_25,2,COP,nCOP,IADD25)
@@ -37,7 +34,7 @@ ILIM = 4
 if (IFIRST /= 0) ILIM = 2
 IRL = IRC(ILIM)
 do INDA=1,IRL
-  NSS = MUL(JSYM(INDA),LSYM)
+  NSS = MUL(JSUNP_CPF(JSY,INDA),LSYM)
   ENPQ = (One-THET(INDA,INDA)*Half)*(ENP(INDA)+ENP(INDA)-One)+THET(INDA,INDA)*Half
   FACS = sqrt(ENP(INDA))*sqrt(ENP(INDA))/ENPQ
   FACW = (FACS*(Two-THET(INDA,INDA))/ENPQ)*ENP(INDA)-FACS

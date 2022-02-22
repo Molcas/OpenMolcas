@@ -28,9 +28,9 @@ integer(kind=iwp) :: iH(*)
 #include "niocr.fh"
 #include "spin_cpf.fh"
 integer(kind=iwp), parameter :: mxTit = 10
-integer(kind=iwp) :: iCmd, IDISK, IIN, ILIM, INTNUM, IOCR(nIOCR), iOpt, IR, IR1, iRef, IRJ, ISMAX, istatus, iSym, IT, IU, IV, IVA, &
-                     IX1, IX2, IX3, IX4, IY1, IY2, IY3, IY4, j, jCmd, jEnd, jStart, LN1, LN2, LPERMA, NAMSIZ, NASHI, NDELI, NFROI, &
-                     nIRC, NISHI, nJJS, NRLN1, nTit, NVALI, NVIR2, NVIRI, NVT, NVT2
+integer(kind=iwp) :: I, iCmd, IDISK, IIN, ILIM, INTNUM, IOCR(nIOCR), iOpt, IR, IR1, iRef, IRJ, ISMAX, istatus, iSym, IT, IU, IV, &
+                     IVA, IX1, IX2, IX3, IX4, IY1, IY2, IY3, IY4, j, jCmd, jEnd, jStart, LN1, LN2, LPERMA, NAMSIZ, NASHI, NDELI, &
+                     NFROI, nIRC, NISHI, nJJS, NRLN1, nTit, NVALI, NVIR2, NVIRI, NVT, NVT2
 real(kind=wp) :: S
 logical(kind=iwp) :: Skip
 character(len=88) :: ModLine
@@ -38,10 +38,6 @@ character(len=72) :: Line, Title(mxTit)
 character(len=4) :: Command
 character(len=4), parameter :: Cmd(16) = ['TITL','MAXP','LEVS','THRP','PRIN','FROZ','DELE','MAXI','ECON','REST','MCPF','CPF ', &
                                           'SDCI','ACPF','LOW ','END ']
-! Statement function
-integer(kind=iwp) :: ipointer, i
-!---- convert a pointer in H to a pointer for iH
-ipointer(i) = (i-1)*RtoI+1
 
 !---  Initialize arrays and variables ---------------------------------*
 Mul(:,:) = SMul(:,:)
@@ -307,9 +303,9 @@ if (LN >= MXORB) then
   call QUIT_OnUserError()
 end if
 LW(1) = 1
-call iDAFILE(Lu_CIGuga,2,iH(iPointer(LW(1))),IR1,IADD10)
+call iDAFILE(Lu_CIGuga,2,iH((LW(1)-1)*RtoI+1),IR1,IADD10)
 LW(2) = LW(1)+(IR1+(RTOI-1))/RTOI
-call iDAFILE(Lu_CIGuga,2,iH(iPointer(LW(2))),IRJ,IADD10)
+call iDAFILE(Lu_CIGuga,2,iH((LW(2)-1)*RtoI+1),IRJ,IADD10)
 
 !---  update orbital specifications -----------------------------------*
 IV0 = 0
@@ -485,7 +481,7 @@ NVIR2 = NVIRT*NVIRT
 ! JREFX
 LW(5) = LW(4)+NVIR2
 IADD10 = IAD10(2)
-call iDAFILE(Lu_CIGuga,2,iH(iPointer(LW(5))),ISC(1),IADD10)
+call iDAFILE(Lu_CIGuga,2,iH((LW(5)-1)*RtoI+1),ISC(1),IADD10)
 ! ADDRESSES NOT USED
 LW(6) = LW(5)+ISC(1)
 LW(7) = LW(6)

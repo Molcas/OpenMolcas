@@ -26,10 +26,6 @@ integer(kind=iwp) :: I, IAB, IASYM, ICSYM, IFT, II1, IIA, IIC, IIN, IJ, INDA, IN
 real(kind=wp) :: COPI, RSUM, TR, TSUM
 integer(kind=iwp), external :: ICUNP, JSUNP_CPF
 real(kind=r8), external :: DDOT_
-! Statement functions
-integer(kind=iwp) :: JO, JSYM, L
-JO(L) = ICUNP(ICASE,L)
-JSYM(L) = JSUNP_CPF(JSY,L)
 
 INUM = IRC(4)-IRC(3)
 call PSQ2(C,S,MUL,INDX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
@@ -75,7 +71,7 @@ do
     if (IDENS /= 0) then
       do I=1,LN
         II1 = II1+1
-        JOJ = JO(II1)
+        JOJ = ICUNP(ICASE,II1)
         if (JOJ > 1) JOJ = JOJ-1
         IOC(I) = JOJ
       end do
@@ -84,7 +80,7 @@ do
       if ((IDENS == 0) .or. (INDA == IREF0)) cycle
       TSUM = C(INDA)*C(INDA)/(sqrt(ENP(INDA))*sqrt(ENP(INDA)))
     else
-      MYSYM = JSYM(INDA)
+      MYSYM = JSUNP_CPF(JSY,INDA)
       MYL = MUL(MYSYM,LSYM)
       INMY = INDX(INDA)+1
       if (INDA <= IRC(2)) then

@@ -31,9 +31,6 @@ real(kind=wp) :: COPI, SGN, TERM
 logical(kind=iwp) :: Skip
 integer(kind=iwp), external :: JSUNP_CPF
 real(kind=r8), external :: DDOT_
-! Statement function
-integer(kind=iwp) :: JSYM, L
-JSYM(L) = JSUNP_CPF(JSY,L)
 
 NK = 0 ! dummy initialize
 NSK = 0 ! dummy initialize
@@ -96,7 +93,7 @@ do
           INDB = IRC(ITYP)+ICP2
           INMY = INDX(INDA)+1
           INNY = INDX(INDB)+1
-          MYSYM = JSYM(INDA)
+          MYSYM = JSUNP_CPF(JSY,INDA)
           NYSYM = MUL(MYSYM,NSK)
           MYL = MUL(MYSYM,LSYM)
           NYL = MUL(NYSYM,LSYM)

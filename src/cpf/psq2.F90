@@ -21,13 +21,10 @@ real(kind=wp) :: C(*), S(*), SQ2
 integer(kind=iwp) :: MUL(8,8), INDX(*), JSY(*), NDIAG(*), INUM, IRC3, LSYM, NVIRT
 integer(kind=iwp) :: I, II1, MA, NA, NS1, NS1L
 integer(kind=iwp), external :: JSUNP_CPF
-! Statement function
-integer(kind=iwp) :: JSYM, L
-JSYM(L) = JSUNP_CPF(JSY,L)
 
 do I=1,INUM
   II1 = IRC3+I
-  NS1 = JSYM(II1)
+  NS1 = JSUNP_CPF(JSY,II1)
   NS1L = MUL(NS1,LSYM)
   if (NS1L == 1) then
     NA = INDX(II1)

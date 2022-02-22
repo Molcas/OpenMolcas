@@ -26,10 +26,6 @@ integer(kind=iwp) :: I, II, II1, IIN, IJ, ILIM, ILSYM(57), IOC(57), IORB(57), IS
 real(kind=wp) :: CI, THRC
 integer(kind=iwp), external :: ICUNP, JSUNP_CPF
 real(kind=wp), external :: DNRM2_
-! Statement functions
-integer(kind=iwp) :: JO, JSYM, L
-JO(L) = ICUNP(ICASE,L)
-JSYM(L) = JSUNP_CPF(JSY,L)
 
 NA = 0 ! dummy initialized
 NB = 0 ! dummy initialized
@@ -73,13 +69,13 @@ do I=1,NCONF
       end do
     end if
   end if
-  NSJ = MUL(JSYM(JJ),LSYM)
+  NSJ = MUL(JSUNP_CPF(JSY,JJ),LSYM)
   JVIR = I-INDX(JJ)
   if (I > JCONF) JVIR = IJ-INDX(JJ)
   II1 = (JJ-1)*LN
   do II=1,LN
     II1 = II1+1
-    ISP(II+2) = JO(II1)
+    ISP(II+2) = ICUNP(ICASE,II1)
     JOJ = ISP(II+2)
     if (JOJ > 1) JOJ = JOJ-1
     IOC(II+2) = JOJ

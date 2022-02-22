@@ -24,9 +24,6 @@ integer(kind=iwp) :: I, IIN, INUM, IP, IST, NS1, NSIL
 real(kind=wp) :: T
 integer(kind=iwp), external :: JSUNP_CPF
 real(kind=r8), external :: DDOT_
-! Statement function
-integer(kind=iwp) :: JSYM, L
-JSYM(L) = JSUNP_CPF(JSY,L)
 
 ! VALENCE
 
@@ -40,7 +37,7 @@ end do
 IP = IRC(2)-IRC(1)
 IIN = IRC(1)
 do I=1,IP
-  NS1 = JSYM(IIN+I)
+  NS1 = JSUNP_CPF(JSY,IIN+I)
   NSIL = MUL(NS1,LSYM)
   INUM = NVIR(NSIL)
   IST = INDX(IIN+I)+1
@@ -53,7 +50,7 @@ end do
 IP = IRC(4)-IRC(2)
 IIN = IRC(2)
 do I=1,IP
-  NS1 = JSYM(IIN+I)
+  NS1 = JSUNP_CPF(JSY,IIN+I)
   NSIL = MUL(NS1,LSYM)
   INUM = NNS(NSIL)
   IST = INDX(IIN+I)+1

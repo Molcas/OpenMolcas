@@ -29,9 +29,6 @@ real(kind=wp) :: COPL, ENPQ, FACS, FACW, FACWA, FACWB, TERM, XXX
 logical(kind=iwp) :: Skip
 integer(kind=iwp), external :: JSUNP_CPF
 real(kind=r8), external :: DDOT_
-! Statement function
-integer(kind=iwp) :: JSYM, L
-JSYM(L) = JSUNP_CPF(JSY,L)
 
 INUM = IRC(4)-IRC(3)
 call MPSQ2(C,S,W,MUL,INDX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
@@ -96,7 +93,7 @@ do
       IND = IBMN(IT)
       ICP1 = ibits(IND,19,13)
       INDA = IRC(1)+ICP1
-      if (JSYM(INDA) /= NSLB) cycle
+      if (JSUNP_CPF(JSY,INDA) /= NSLB) cycle
       MA = INDX(INDA)+LB
       ICP2 = ibits(IND,6,13)
       ITYP = ibits(IND,0,6)

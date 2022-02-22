@@ -27,9 +27,6 @@ integer(kind=iwp) :: IADD25, IC1, IC2, ICHK, IIN, IK, ILEN, IND, INDA, INDB, IND
 real(kind=wp) :: COPI, TERM
 integer(kind=iwp), external :: JSUNP_CPF
 real(kind=r8), external :: DDOT_
-! Statement function
-integer(kind=iwp) :: JSYM, L
-JSYM(L) = JSUNP_CPF(JSY,L)
 
 IK = 0 ! dummy initialize
 NOB2 = IROW(NORBT+1)
@@ -85,7 +82,7 @@ if ((IDENS == 1) .or. (ITER /= 1)) then
             INDB = IRC(IVL)+IC2
             NA = INDX(INDA)
             NB = INDX(INDB)
-            NS1 = JSYM(INDA)
+            NS1 = JSUNP_CPF(JSY,INDA)
             NS1L = MUL(NS1,LSYM)
             INUM = NVIR(NS1L)
             if (IVL >= 2) INUM = NNS(NS1L)

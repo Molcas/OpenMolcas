@@ -25,14 +25,11 @@ real(kind=wp) :: THE(NII,NII)
 #include "spin_cpf.fh"
 integer(kind=iwp) :: I, II, II1, IINT, IIOR, IJ, IK, IL, IOCR(100), IP, IQ, JJ, JOJ, NI, NJ
 integer(kind=iwp), external :: ICUNP
-! Statement function
-integer(kind=iwp) :: JO, L
-JO(L) = ICUNP(ICASE,L)
 
 IIOR = 0
 II1 = (IREF0-1)*LN
 do I=1,LN
-  JOJ = JO(II1+I)
+  JOJ = ICUNP(ICASE,II1+I)
   IIOR = IIOR+1
   IOCR(IIOR) = JOJ
 end do
@@ -55,8 +52,8 @@ do IP=1,IINT
   IJ = 0
   do I=1,LN
     JJ = (IP-1)*LN+I
-    if ((JO(JJ) == IOCR(I)) .or. (JO(JJ) == 3)) cycle
-    if (LWSP .and. (JO(JJ)*IOCR(I) == 2)) cycle
+    if ((ICUNP(ICASE,JJ) == IOCR(I)) .or. (ICUNP(ICASE,JJ) == 3)) cycle
+    if (LWSP .and. (ICUNP(ICASE,JJ)*IOCR(I) == 2)) cycle
     if (II == 0) II = I
     IJ = I
   end do
@@ -72,8 +69,8 @@ do IP=1,IINT
       IL = 0
       do I=1,LN
         JJ = (IQ-1)*LN+I
-        if ((JO(JJ) == IOCR(I)) .or. (JO(JJ) == 3)) cycle
-        if (LWSP .and. (JO(JJ)*IOCR(I) == 2)) cycle
+        if ((ICUNP(ICASE,JJ) == IOCR(I)) .or. (ICUNP(ICASE,JJ) == 3)) cycle
+        if (LWSP .and. (ICUNP(ICASE,JJ)*IOCR(I) == 2)) cycle
         if (IK == 0) IK = I
         IL = I
       end do

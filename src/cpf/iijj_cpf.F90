@@ -25,10 +25,6 @@ real(kind=wp) :: HDIAG(*), FC(*), FIJ(*), FJI(*)
 integer(kind=iwp) :: I, IA, IAD27, IAV, IB, IBV, II, IJ, ILIM, IND, IOC(55), IR, IRL, J, JOJ, NA, NA1, NA2, NB, NB1, NB2, NSA, NSS
 real(kind=wp) :: SUM1, SUM2, TERM
 integer(kind=iwp), external :: ICUNP, JSUNP_CPF
-! Statement functions
-integer(kind=iwp) :: JO, JSYM, L
-JO(L) = ICUNP(ICASE,L)
-JSYM(L) = JSUNP_CPF(JSY,L)
 
 IAD27 = 0
 ILIM = 4
@@ -37,10 +33,10 @@ IRL = IRC(ILIM)
 
 do IR=1,IRL
   do I=1,LN
-    JOJ = JO(I+LN*(IR-1))
+    JOJ = ICUNP(ICASE,I+LN*(IR-1))
     IOC(I) = (JOJ+1)/2
   end do
-  NSS = MUL(JSYM(IR),LSYM)
+  NSS = MUL(JSUNP_CPF(JSY,IR),LSYM)
 
   SUM1 = Zero
   do I=1,LN

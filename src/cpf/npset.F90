@@ -26,9 +26,6 @@ integer(kind=iwp) :: I, IAD, IIN, IND, INUM, IP, IQ, IST, NS1, NSIL
 real(kind=wp) :: EMPI
 integer(kind=iwp), external :: JSUNP_CPF
 real(kind=r8), external :: DDOT_
-! Statement function
-integer(kind=iwp) :: JSYM, L
-JSYM(L) = JSUNP_CPF(JSY,L)
 
 if (IDENS /= 1) then
 
@@ -53,7 +50,7 @@ if (IDENS /= 1) then
   IIN = IRC(1)
   do I=1,IQ
     IND = IND+1
-    NS1 = JSYM(IIN+I)
+    NS1 = JSUNP_CPF(JSY,IIN+I)
     NSIL = MUL(NS1,LSYM)
     INUM = NVIR(NSIL)
     IST = INDX(IIN+I)+1
@@ -66,7 +63,7 @@ if (IDENS /= 1) then
   IIN = IRC(2)
   do I=1,IQ
     IND = IND+1
-    NS1 = JSYM(IIN+I)
+    NS1 = JSUNP_CPF(JSY,IIN+I)
     NSIL = MUL(NS1,LSYM)
     INUM = NNS(NSIL)
     IST = INDX(IIN+I)+1
@@ -97,7 +94,7 @@ end do
 IQ = IRC(2)-IRC(1)
 IIN = IRC(1)
 do I=1,IQ
-  NS1 = JSYM(IIN+I)
+  NS1 = JSUNP_CPF(JSY,IIN+I)
   NSIL = MUL(NS1,LSYM)
   INUM = NVIR(NSIL)
   IST = INDX(IIN+I)+1
@@ -111,7 +108,7 @@ end do
 IQ = IRC(4)-IRC(2)
 IIN = IRC(2)
 do I=1,IQ
-  NS1 = JSYM(IIN+I)
+  NS1 = JSUNP_CPF(JSY,IIN+I)
   NSIL = MUL(NS1,LSYM)
   INUM = NNS(NSIL)
   IST = INDX(IIN+I)+1
