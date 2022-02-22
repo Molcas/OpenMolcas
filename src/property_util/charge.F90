@@ -467,7 +467,7 @@ do ISYM=1,NSYM
         end do
 
         if (DMN_SpinAV) then
-          DMN = DMN+xsg*DSc((NY+IB)*NBAST+MY+IB)
+          DMN = DMN+xsg*DSc((NY-1)*NB+MY+IMO)
         end if
 
         if (DoBond) then
