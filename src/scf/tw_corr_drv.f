@@ -127,6 +127,7 @@ C
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "real.fh"
+#include "stdalloc.fh"
 #include "WrkSpc.fh"
 *
       Integer nBas(nSym),nFro(nSym),nIsh(nSym),nSsh(nSym),
@@ -135,6 +136,7 @@ C
 #include "chfnopt.fh"
 *
       Integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
+      Real*8, Allocatable:: CMO(:,:)
 *
 *
       irc=0
@@ -165,9 +167,8 @@ C
       Endif
 *
       NCMO=nSQ
-      CALL GETMEM('LCMO','ALLO','REAL',LCMO,2*NCMO)
-      iCMO=LCMO+NCMO
-      CALL DCOPY_(NCMO,CMOI,1,WORK(LCMO),1)
+      Call mma_allocate(CMO,nCMO,2,Label='CMO')
+      CALL DCOPY_(NCMO,CMOI,1,CMO(:,1),1)
 *
       nOA=0
       Do iSym=1,nSym  ! setup info
@@ -218,20 +219,20 @@ C
       Call FZero(Work(ip_X),nVV+nOA)
 *
       Call FnoSCF_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,ip_X,ip_Y)
-      Call FZero(Work(iCMO),NCMO)
+      CMO(:,2)=Zero
       iOff=0
       Do iSym=1,nSym
-         kfr=LCMO+iOff+nBas(iSym)*nFro(iSym)
-         kto=iCMO+iOff+nBas(iSym)*lnFro(iSym)
-         call dcopy_(nBas(iSym)*lnOcc(iSym),Work(kfr),1,Work(kto),1)
-         kfr=LCMO+iOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym))
+         kfr=1+iOff+nBas(iSym)*nFro(iSym)
+         kto=1+iOff+nBas(iSym)*lnFro(iSym)
+         call dcopy_(nBas(iSym)*lnOcc(iSym),CMO(kfr,1),1,CMO(kto,2),1)
+         kfr=1+iOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym))
          kto=kto+nBas(iSym)*lnOcc(iSym)
-         call dcopy_(nBas(iSym)*lnVir(iSym),Work(kfr),1,Work(kto),1)
+         call dcopy_(nBas(iSym)*lnVir(iSym),CMO(kfr,1),1,CMO(kto,2),1)
          iOff=iOff+nBas(iSym)**2
       End Do
       Call Check_Amp_SCF(nSym,lnOcc,lnVir,iSkip)
       If (iSkip.gt.0) Then
-         Call ChoMP2_Drv(irc,Dummy,Work(iCMO),Work(kEOcc),Work(kEVir))
+         Call ChoMP2_Drv(irc,Dummy,CMO(:,2),Work(kEOcc),Work(kEVir))
          If(irc.ne.0) then
            write(6,*) 'MP2 pseudodensity calculation failed !'
            Call Abend
@@ -258,10 +259,10 @@ c           write(6,*) ' Sum    : ',ddot_(nOA,1.0d0,0,Work(jOcc),1)
       kDM=1
       Do iSym=1,nSym
 *
-         kto=LCMO+jOff
+         kto=1+jOff
          nOkk=nFro(iSym)+nIsh(iSym)
          Call DGEMM_Tri('N','T',nBas(iSym),nBas(iSym),nOkk,
-     &                      2.0d0,Work(kto),nBas(iSym),
+     &                      2.0d0,CMO(kto,1),nBas(iSym),
      &                            Work(kto),nBas(iSym),
      &                      0.0d0,DM0(kDM),nBas(iSym))
 *
@@ -296,23 +297,23 @@ c           write(6,*) ' Sum    : ',ddot_(nOA,1.0d0,0,Work(jOcc),1)
            End Do
 *
 *     Compute new MO coeff. : X=C*U
-           kfr=iCMO+jOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym))
-           kto=LCMO+jOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym))
+           kfr=1+jOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym))
+           kto=1+jOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym))
            Call DGEMM_('N','N',nBas(iSym),nSsh(iSym),nSsh(iSym),
-     &                        1.0d0,Work(kfr),nBas(iSym),
+     &                        1.0d0,CMO(kfr,2),nBas(iSym),
      &                              Work(jD),nSsh(iSym),
-     &                        0.0d0,Work(kto),nBas(iSym))
+     &                        0.0d0,CMO(kto,1),nBas(iSym))
 
 c           write(6,*) ' Occ_vir: ',(Work(ip_Z+j),j=0,nSsh(iSym)-1)
 c           write(6,*) ' Sum_vir: ',ddot_(nSsh(iSym),1.0d0,0,Work(ip_Z),1)
            Do j=0,nSsh(iSym)-1
               sqocc=sqrt(2.0d0*Work(ip_Z+j))
               jto=kto+nBas(iSym)*j
-              call dscal_(nBas(iSym),sqocc,Work(jto),1)
+              call dscal_(nBas(iSym),sqocc,CMO(jto,1),1)
            End Do
            Call DGEMM_Tri('N','T',nBas(iSym),nBas(iSym),nSsh(iSym),
-     &                        1.0d0,Work(kto),nBas(iSym),
-     &                              Work(kto),nBas(iSym),
+     &                        1.0d0,CMO(kto,1),nBas(iSym),
+     &                              CMO(kto,1),nBas(iSym),
      &                        1.0d0,DM(kDM),nBas(iSym))
 
            iOff=iOff+nSsh(iSym)**2
@@ -324,7 +325,7 @@ c           write(6,*) ' Sum_vir: ',ddot_(nSsh(iSym),1.0d0,0,Work(ip_Z),1)
 *
       Call GetMem('Eorb','Free','Real',ipOrbE,4*nOrb)
       Call GetMem('Dmat','Free','Real',ip_X,nVV+nOA)
-      CALL GETMEM('LCMO','FREE','REAL',LCMO,2*NCMO)
+      Call mma_deallocate(CMO)
 *
       Return
       End
