@@ -10,8 +10,8 @@
 *                                                                      *
 * Copyright (C) 2010, Thomas Bondo Pedersen                            *
 ************************************************************************
-      Subroutine ChoSCF_Drv(nD,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
-     &                FLT,FLT_ab,nFLT,ExFac,FSQ,FSQ_ab,nOcc,nOcc_ab)
+      Subroutine ChoSCF_Drv(nBSQT,nD,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
+     &                FLT,FLT_ab,nFLT,ExFac,FSQ,nOcc,nOcc_ab)
 C
 C     Thomas Bondo Pedersen, September 2010.
 C
@@ -20,12 +20,12 @@ C     ChoSCF_Drv_) in case of Cholesky or full DF. A new driver routine
 C     is called in case of local DF (LDF).
 C
       Implicit None
-      Integer nD, nSym, nFLT
+      Integer nBSQT, nD, nSym, nFLT
       Integer nBas(nSym), nOcc(nSym), nOcc_ab(nSym)
       Real*8  DSQ(*), DLT(*)
       Real*8  DSQ_ab(*), DLT_ab(*)
       Real*8  FLT(*), FLT_ab(*)
-      Real*8  FSQ(*), FSQ_ab(*)
+      Real*8  FSQ(nBSQT,nD)
       Real*8  ExFac
 
       Logical DoLDF
@@ -61,7 +61,7 @@ C
          Call ChoSCF_Drv_Internal(nD,nSym,nBas,DSQ,DLT,
      &                            DSQ_ab,DLT_ab,FLT,
      &                            FLT_ab,nFLT,ExFac,
-     &                            FSQ,FSQ_ab,
+     &                            FSQ(:,1),FSQ(:,2),
      &                            nOcc,nOcc_ab)
       End If
 

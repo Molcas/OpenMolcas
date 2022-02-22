@@ -179,15 +179,15 @@ c      write(6,*)'ExFac= ',ExFac
 *
         If (nD==2) Then
 
-           CALL CHOscf_drv(nD,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
+           CALL CHOscf_drv(nBSQT,nD,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
      &                 Work(ipTemp),Work(ipTemp_ab),nFLT,ExFac,
-     &                 FSQ(:,1),FSQ(:,2),nOcc,nOcc_ab)
+     &                 FSQ,nOcc,nOcc_ab)
         Else
 *
-           CALL CHOscf_drv(nD,nSym,nBas,DSQ,DLT,
+           CALL CHOscf_drv(nBSQT,nD,nSym,nBas,DSQ,DLT,
      &                 Work(ip_Dummy),Work(ip_Dummy),
      &                 Work(ipTemp),Work(ip_Dummy),nFLT,ExFac,
-     &                 FSQ(:,1),Work(ip_Dummy),nOcc,iWork(ip_iDummy))
+     &                 FSQ,nOcc,iWork(ip_iDummy))
         EndIf
 
       ENDIF
