@@ -34,8 +34,8 @@
       Integer iDummy(1)
       Real*8 CMO(mBB,nD), EOrb(mmB,nD), OccNo(mmB,nD)
       Integer, Dimension(:), Allocatable:: IndT, ID_vir
-      Real*8, Dimension(:,:), Allocatable:: Da
-      Integer, Dimension(:,:), Allocatable:: Match
+      Real*8, Allocatable:: Da(:,:)
+      Integer, Allocatable:: Match(:,:)
       Real*8, Dimension(:), Allocatable:: Corb, SAV, SLT, SQ
       Real*8 Dummy(1)
 ************************************************************************
@@ -179,7 +179,7 @@
       Call TrimEor(EOrb,EOrb,nSym,nBas,nOrb)
       Call mma_deallocate(IndT)
 *
-      Call Setup
+      Call Setup()
 *
       Call Izero(nBD,nSym)
       Do iSym=2,nSym
@@ -187,7 +187,7 @@
      &             + nBas(iSym-1)*(nBas(iSym-1)+1)/2
       End Do
       Call mma_allocate(Da,nBT,2,Label='Da')
-      Call Fzero(Da,2*nBT)
+      Da(:,:)=Zero
       Call mma_allocate(Match,2,MxConstr,Label='Match')
       Call mma_allocate(Corb,MaxBas,Label='Corb')
 *
@@ -298,6 +298,8 @@
 *
       iOff=1
       lOff=0
+      Write (6,*) 'CMO(:,1)=',CMO(:,1)
+      Write (6,*) 'CMO(:,2)=',CMO(:,2)
       Do iSym=1,nSym
          ipDaa=1+nBD(iSym)
          mAdCMOO=iOff+nBas(iSym)*nIF(iSym)
@@ -345,9 +347,13 @@
          Call WarningMessage(2,'Start6. Non-zero rc in Cho_X_init.')
          Call Abend
       endif
+      Write (6,*) 'DSc(:)=',DSc(:)
+      Write (6,*) 'Da(:,1)=',Da(:,1)
+      Write (6,*) 'Da(:,2)=',Da(:,2)
+
 
 *----------------------------------------------------------------------*
-      Call Get_Fmat_nondyn(Da(1,1),Da(1,2),nBT,.false.)
+      Call Get_Fmat_nondyn(Da(:,1),Da(:,2),nBT,.false.)
 *----------------------------------------------------------------------*
 
       Call Cho_X_Final(irc)
@@ -495,6 +501,7 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
 #include "dcscf.fh"
 *
 
+      If (nBB==784) Call Recprt('Dm',' ',Dma(:,1),1,nBDT)
       nDMat=2
       Do i=1,nSym
          nForb(i,1)=0
