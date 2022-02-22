@@ -10,8 +10,8 @@
 *                                                                      *
 * Copyright (C) 2010, Thomas Bondo Pedersen                            *
 ************************************************************************
-      Subroutine LDFSCF_Drv(iUHF,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
-     &                      FLT,FLT_ab,nFLT,ExFac,FSQ,FSQ_ab,
+      Subroutine LDFSCF_Drv(nD,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
+     &                      FLT,FLT_ab,nFLT,ExFac,
      &                      nOcc,nOcc_ab)
 C
 C     Thomas Bondo Pedersen, September 2010.
@@ -20,12 +20,11 @@ C     Purpose: compute two-electron contributions to the SCF Fock matrix
 C              using Local Density Fitting (LDF) coefficients.
 C
       Implicit None
-      Integer iUHF, nSym, nFLT
+      Integer nD, nSym, nFLT
       Integer nBas(nSym), nOcc(nSym), nOcc_ab(nSym)
       Real*8  DSQ(*), DLT(*)
       Real*8  DSQ_ab(*), DLT_ab(*)
       Real*8  FLT(*), FLT_ab(*)
-      Real*8  FSQ(*), FSQ_ab(*)
       Real*8  ExFac
 #include "WrkSpc.fh"
 #include "ldfscf.fh"
@@ -343,7 +342,7 @@ C--------------------------------------------------------------
          End If
          ! Set scaling factors
          FactC(1)=1.0d0
-         If (iUHF.eq.0) Then ! spin-restricted Coulomb-only
+         If (nD==1) Then ! spin-restricted Coulomb-only
             ! Get pointers to D and F
             ! Off-diagonal elements of DLT are scaled by 2 by the SCF
             ! program. This is incompatible with the LDF implementation.
@@ -730,8 +729,6 @@ C--------------------------------------------------------------
 c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(DLT_ab)
-         Call Unused_real_array(FSQ)
-         Call Unused_real_array(FSQ_ab)
          Call Unused_integer_array(nOcc)
          Call Unused_integer_array(nOcc_ab)
       End If

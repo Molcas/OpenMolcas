@@ -20,7 +20,7 @@ C     ChoSCF_Drv_) in case of Cholesky or full DF. A new driver routine
 C     is called in case of local DF (LDF).
 C
       Implicit None
-      Integer iUHF, nD, nSym, nFLT
+      Integer nD, nSym, nFLT
       Integer nBas(nSym), nOcc(nSym), nOcc_ab(nSym)
       Real*8  DSQ(*), DLT(*)
       Real*8  DSQ_ab(*), DLT_ab(*)
@@ -55,9 +55,8 @@ C
 
       Call DecideOnLocalDF(DoLDF)
       If (DoLDF) Then
-         iUHF=nD-1
-         Call LDFSCF_Drv(iUHF,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
-     &                FLT,FLT_ab,nFLT,ExFac,FSQ,FSQ_ab,nOcc,nOcc_ab)
+         Call LDFSCF_Drv(nD,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
+     &                FLT,FLT_ab,nFLT,ExFac,nOcc,nOcc_ab)
       Else
          Call ChoSCF_Drv_Internal(nD,nSym,nBas,DSQ,DLT,
      &                            DSQ_ab,DLT_ab,FLT,

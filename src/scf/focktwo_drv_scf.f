@@ -27,6 +27,7 @@
 
 #include "choscf.fh"
 #include "chotime.fh"
+      Real*8, Allocatable :: FSQ(:,:)
 *
       nD=(3+iUHF)/2
       GenInt=.false.
@@ -48,9 +49,8 @@ c      write(6,*)'ExFac= ',ExFac
          OFE_first=.false.
       End If
 *
-      Call GetMem('LWFSQ','Allo','Real',LWFSQ,NBSQT)
-C zeroing the elements
-      call dcopy_(NBSQT,[Zero],0,Work(LWFSQ),1)
+      Call mma_allocate(FSQ,nBSQT,nD,Label='FSQ')
+      FSQ(:,:)=Zero
 
       if((.not.DoCholesky).or.(GenInt)) then
       Call GetMem('LW2','Allo','Real',LW2,NBMX*NBMX)
@@ -61,8 +61,6 @@ C zeroing the elements
       Call FZero(Work(ipTemp),nFlt)
 *
       IF(nD==2) THEN
-        Call GetMem('LWFSQ_ab','Allo','Real',LWFSQ_ab,NBSQT)
-        call dcopy_(NBSQT,[Zero],0,Work(LWFSQ_ab),1)
         Call Getmem('FLT_ab','Allo','Real',ipTemp_ab,nFlt)
         Call FZero(Work(ipTemp_ab),nFlt)
 *
@@ -96,14 +94,14 @@ C zeroing the elements
 
          Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
      &             DLT,DSQ,Work(ipTemp),nFlt,
-     &             Work(LWFSQ),LBUF,Work(LW1),Work(LW2),ExFac,nD,
-     &             DLT_ab,DSQ_ab,Work(ipTemp_ab),Work(LWFSQ_ab))
+     &             FSQ(:,1),LBUF,Work(LW1),Work(LW2),ExFac,nD,
+     &             DLT_ab,DSQ_ab,Work(ipTemp_ab),FSQ(:,2))
 
        Else  ! RHF calculation
 
          Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
      &             DLT,DSQ,Work(ipTemp),nFlt,
-     &             Work(LWFSQ),LBUF,Work(LW1),Work(LW2),ExFac,nD,
+     &             FSQ(:,1),LBUF,Work(LW1),Work(LW2),ExFac,nD,
      &             Work(ip_Dummy),Work(ip_Dummy),Work(ip_Dummy),
      &             Work(ip_Dummy))
 
@@ -131,14 +129,14 @@ C zeroing the elements
 
          Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
      &             DLT,DSQ,Work(ipTemp),nFlt,
-     &             Work(LWFSQ),LBUF,Work(LW1),Work(LW2),ExFac,nD,
-     &             DLT_ab,DSQ_ab,Work(ipTemp_ab),Work(LWFSQ_ab))
+     &             FSQ(:,1),LBUF,Work(LW1),Work(LW2),ExFac,nD,
+     &             DLT_ab,DSQ_ab,Work(ipTemp_ab),FSQ(:,2))
 
        Else  ! RHF calculation
 
          Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
      &             DLT,DSQ,Work(ipTemp),nFlt,
-     &             Work(LWFSQ),LBUF,Work(LW1),Work(LW2),ExFac,nD,
+     &             FSQ(:,1),LBUF,Work(LW1),Work(LW2),ExFac,nD,
      &             Work(ip_Dummy),Work(ip_Dummy),Work(ip_Dummy),
      &             Work(ip_Dummy))
 
@@ -185,13 +183,13 @@ C zeroing the elements
 
            CALL CHOscf_drv(nD,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
      &                 Work(ipTemp),Work(ipTemp_ab),nFLT,ExFac,
-     &                 Work(LWFSQ),Work(LWFSQ_ab),nOcc,nOcc_ab)
+     &                 FSQ(:,1),FSQ(:,2),nOcc,nOcc_ab)
         Else
 *
            CALL CHOscf_drv(nD,nSym,nBas,DSQ,DLT,
      &                 Work(ip_Dummy),Work(ip_Dummy),
      &                 Work(ipTemp),Work(ip_Dummy),nFLT,ExFac,
-     &                 Work(LWFSQ),Work(ip_Dummy),nOcc,iWork(ip_iDummy))
+     &                 FSQ(:,1),Work(ip_Dummy),nOcc,iWork(ip_iDummy))
         EndIf
 
       ENDIF
@@ -216,12 +214,11 @@ C zeroing the elements
       Call GetMem('LW2','Free','Real',LW2,NBMX*NBMX)
       END IF
 
-      Call GetMem('LWFSQ','Free','Real',LWFSQ,NBSQT)
+      Call mma_deallocate(FSQ)
       if(nD==2) then
          IF ((.not.DoCholesky).or.(GenInt)) THEN
             Call GetMem('LW2_ab','Free','Real',LW2_ab,NBMX*NBMX)
          END IF
-       Call GetMem('LWFSQ_ab','Free','Real',LWFSQ_ab,NBSQT)
       endif
 *
       Return
