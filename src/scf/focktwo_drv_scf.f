@@ -29,6 +29,7 @@
 #include "chotime.fh"
       Real*8, Allocatable :: FSQ(:,:)
       Real*8, Allocatable :: W1(:), W2(:)
+      Real*8, Allocatable :: tFLT(:,:)
 *
       nD=(3+iUHF)/2
       GenInt=.false.
@@ -58,14 +59,8 @@ c      write(6,*)'ExFac= ',ExFac
       end if
 *
 * nFlt is the total dimension of the LT fock matrix
-      Call Getmem('tempFLT','Allo','Real',ipTemp,nFlt)
-      Call FZero(Work(ipTemp),nFlt)
-*
-      IF(nD==2) THEN
-        Call Getmem('FLT_ab','Allo','Real',ipTemp_ab,nFlt)
-        Call FZero(Work(ipTemp_ab),nFlt)
-*
-      ENDIF
+      Call mma_allocate(tFLT,nFLT,nD,Label='tFLT')
+      tFLT(:,:)=Zero
 *
 *
       Call mma_maxDBLE(LBUF)
@@ -90,14 +85,14 @@ c      write(6,*)'ExFac= ',ExFac
        If (nD==2) Then
 
          Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
-     &             DLT,DSQ,Work(ipTemp),nFlt,
+     &             DLT,DSQ,tFLT(:,1),nFlt,
      &             FSQ,LBUF,W1,W2,ExFac,nD,nBSQT,
-     &             DLT_ab,DSQ_ab,Work(ipTemp_ab))
+     &             DLT_ab,DSQ_ab,tFLT(:,2))
 
        Else  ! RHF calculation
 
          Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
-     &             DLT,DSQ,Work(ipTemp),nFlt,
+     &             DLT,DSQ,tFLT(:,1),nFlt,
      &             FSQ,LBUF,W1,W2,ExFac,nD,nBSQT,
      &             Work(ip_Dummy),Work(ip_Dummy),Work(ip_Dummy))
 
@@ -124,14 +119,14 @@ c      write(6,*)'ExFac= ',ExFac
        If (nD==2) Then
 
          Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
-     &             DLT,DSQ,Work(ipTemp),nFlt,
+     &             DLT,DSQ,tFLT(:,1),nFlt,
      &             FSQ,LBUF,W1,W2,ExFac,nD,nBSQT,
-     &             DLT_ab,DSQ_ab,Work(ipTemp_ab))
+     &             DLT_ab,DSQ_ab,tFLT(:,2))
 
        Else  ! RHF calculation
 
          Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
-     &             DLT,DSQ,Work(ipTemp),nFlt,
+     &             DLT,DSQ,tFLT(:,1),nFlt,
      &             FSQ,LBUF,W1,W2,ExFac,nD,nBSQT,
      &             Work(ip_Dummy),Work(ip_Dummy),Work(ip_Dummy))
 
@@ -177,27 +172,24 @@ c      write(6,*)'ExFac= ',ExFac
         If (nD==2) Then
 
            CALL CHOscf_drv(nBSQT,nD,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
-     &                 Work(ipTemp),Work(ipTemp_ab),nFLT,ExFac,
+     &                 tFLT(:,1),tFLT(:,2),nFLT,ExFac,
      &                 FSQ,nOcc,nOcc_ab)
         Else
 *
            CALL CHOscf_drv(nBSQT,nD,nSym,nBas,DSQ,DLT,
      &                 Work(ip_Dummy),Work(ip_Dummy),
-     &                 Work(ipTemp),Work(ip_Dummy),nFLT,ExFac,
+     &                 tFLT(:,1),Work(ip_Dummy),nFLT,ExFac,
      &                 FSQ,nOcc,iWork(ip_iDummy))
         EndIf
 
       ENDIF
 *
-      Call DaXpY_(nFlt,One,Work(ipTemp),1,FLT,1)
+      Call DaXpY_(nFlt,One,tFLT(:,1),1,FLT,1)
       if(nD==2) then
-        Call DaXpY_(nFlt,One,Work(ipTemp_ab),1,FLT_ab,1)
+        Call DaXpY_(nFlt,One,tFLT(:,2),1,FLT_ab,1)
       endif
 *
-      Call GetMem('tempFLT','Free','Real',ipTemp,nFlt)
-      if(nD==2) then
-       Call GetMem('FLT_ab','Free','Real',ipTemp_ab,nFlt)
-      endif
+      Call mma_deallocate(tFLT)
 *
       If (Do_OFemb) Then ! add FM from subsystem B
         Call DaXpY_(nFlt,One,FMaux,1,FLT,1)
