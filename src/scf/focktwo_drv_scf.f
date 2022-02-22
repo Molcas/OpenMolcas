@@ -94,16 +94,15 @@ c      write(6,*)'ExFac= ',ExFac
 
          Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
      &             DLT,DSQ,Work(ipTemp),nFlt,
-     &             FSQ(:,1),LBUF,Work(LW1),Work(LW2),ExFac,nD,
-     &             DLT_ab,DSQ_ab,Work(ipTemp_ab),FSQ(:,2))
+     &             FSQ,LBUF,Work(LW1),Work(LW2),ExFac,nD,nBSQT,
+     &             DLT_ab,DSQ_ab,Work(ipTemp_ab))
 
        Else  ! RHF calculation
 
          Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
      &             DLT,DSQ,Work(ipTemp),nFlt,
-     &             FSQ(:,1),LBUF,Work(LW1),Work(LW2),ExFac,nD,
-     &             Work(ip_Dummy),Work(ip_Dummy),Work(ip_Dummy),
-     &             Work(ip_Dummy))
+     &             FSQ,LBUF,Work(LW1),Work(LW2),ExFac,nD,nBSQT,
+     &             Work(ip_Dummy),Work(ip_Dummy),Work(ip_Dummy))
 
        EndIf
 
@@ -129,16 +128,15 @@ c      write(6,*)'ExFac= ',ExFac
 
          Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
      &             DLT,DSQ,Work(ipTemp),nFlt,
-     &             FSQ(:,1),LBUF,Work(LW1),Work(LW2),ExFac,nD,
-     &             DLT_ab,DSQ_ab,Work(ipTemp_ab),FSQ(:,2))
+     &             FSQ,LBUF,Work(LW1),Work(LW2),ExFac,nD,nBSQT,
+     &             DLT_ab,DSQ_ab,Work(ipTemp_ab))
 
        Else  ! RHF calculation
 
          Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
      &             DLT,DSQ,Work(ipTemp),nFlt,
-     &             FSQ(:,1),LBUF,Work(LW1),Work(LW2),ExFac,nD,
-     &             Work(ip_Dummy),Work(ip_Dummy),Work(ip_Dummy),
-     &             Work(ip_Dummy))
+     &             FSQ,LBUF,Work(LW1),Work(LW2),ExFac,nD,nBSQT,
+     &             Work(ip_Dummy),Work(ip_Dummy),Work(ip_Dummy))
 
        EndIf
 

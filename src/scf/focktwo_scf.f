@@ -13,11 +13,12 @@
 *               2002, Roland Lindh                                     *
 ************************************************************************
       SUBROUTINE FOCKTWO_scf(NSYM,NBAS,NFRO,KEEP,
-     &                   DLT,DSQ,FLT,nFlt,FSQ,LBUF,X1,X2,ExFac,nD,
-     &                   DLT_ab,DSQ_ab,FLT_ab,FSQ_ab)
+     &                   DLT,DSQ,FLT,nFlt,FSQ,LBUF,X1,X2,ExFac,nD,nBSQT,
+     &                   DLT_ab,DSQ_ab,FLT_ab)
       IMPLICIT REAL*8 (A-H,O-Z)
-      Real*8 FSQ(*),FLT(nFlt),DSQ(*),DLT(*),X1(*),X2(*)
-      Real*8 DLT_ab(*),DSQ_ab(*),FLT_ab(*),FSQ_ab(*)
+      Real*8 FLT(nFlt),DSQ(*),DLT(*),X1(*),X2(*)
+      Real*8 DLT_ab(*),DSQ_ab(*),FLT_ab(*)
+      Real*8 FSQ(nBSQT,nD)
       Integer ISTLT(8),ISTSQ(8),KEEP(8),NBAS(8),NFRO(8)
       Logical myDebug
 c
@@ -130,13 +131,13 @@ c Option code 2: Continue reading at next integral.
 c
                  if(nD==1) then
                     CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
-     &                           DSQ(ISD),1,1.0D0,FSQ(ISF),1)
+     &                           DSQ(ISD),1,1.0D0,FSQ(ISF,1),1)
                  else
                     CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
-     &                           DSQ(ISD),1,1.0D0,FSQ(ISF),1)
+     &                           DSQ(ISD),1,1.0D0,FSQ(ISF,1),1)
 
                     CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
-     &                           DSQ_ab(ISD),1,1.0D0,FSQ_ab(ISF),1)
+     &                           DSQ_ab(ISD),1,1.0D0,FSQ(ISF,2),1)
                  endif
                     IF ( IP.NE.JQ ) THEN
                       ISF=ISTSQ(IS)+(IP-1)*IB+1
@@ -144,20 +145,20 @@ c
 c
                  if(nD==1) then
                       CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
-     &                             DSQ(ISD),1,1.0D0,FSQ(ISF),1)
+     &                             DSQ(ISD),1,1.0D0,FSQ(ISF,1),1)
                  else
                       CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
-     &                             DSQ(ISD),1,1.0D0,FSQ(ISF),1)
+     &                             DSQ(ISD),1,1.0D0,FSQ(ISF,1),1)
                       CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
-     &                             DSQ_ab(ISD),1,1.0D0,FSQ_ab(ISF),1)
+     &                             DSQ_ab(ISD),1,1.0D0,FSQ(ISF,2),1)
                  endif
                     ENDIF
         if(myDebug) then
           write (6,'(a,i5,a,f12.6)')
-     &          ('01 Fsq(',isf+ivv-1,')=',FSQ(ISF+ivv-1),ivv=1,kb)
+     &          ('01 Fsq(',isf+ivv-1,',1)=',FSQ(ISF+ivv-1,1),ivv=1,kb)
           if(nD==2) then
           write (6,'(a,i5,a,f12.6)')
-     &          ('01 Fsq_ab(',isf+ivv-1,')=',FSQ_ab(ISF+ivv-1),ivv=1,kb)
+     &          ('01 Fsq(',isf+ivv-1,',2)=',FSQ(ISF+ivv-1,2),ivv=1,kb)
           endif
         endif
 
@@ -234,12 +235,12 @@ c Exchange terms need to be accumulated only
                       ISF=ISTSQ(JS)+(JQ-1)*JB+1
                       if(nD==1) then
                       CALL DGEMV_('N',LB,KB,-Factor*ExFac,X1(ISX),LB,
-     &                             DSQ(ISD),1,1.0D0,FSQ(ISF),1)
+     &                             DSQ(ISD),1,1.0D0,FSQ(ISF,1),1)
                       else
                       CALL DGEMV_('N',LB,KB,-Factor*ExFac,X1(ISX),LB,
-     &                             DSQ(ISD),1,1.0D0,FSQ(ISF),1)
+     &                             DSQ(ISD),1,1.0D0,FSQ(ISF,1),1)
                       CALL DGEMV_('N',LB,KB,-Factor*ExFac,X1(ISX),LB,
-     &                             DSQ_ab(ISD),1,1.0D0,FSQ_ab(ISF),1)
+     &                             DSQ_ab(ISD),1,1.0D0,FSQ(ISF,2),1)
                       endif
                     ENDIF
                     IF ( NFJ.NE.0 ) THEN
@@ -247,21 +248,21 @@ c Exchange terms need to be accumulated only
                       ISF=ISTSQ(IS)+(IP-1)*IB+1
                       if(nD==1) then
                       CALL DGEMV_('T',LB,KB,-Factor*ExFac,X1(ISX),LB,
-     &                             DSQ(ISD),1,1.0D0,FSQ(ISF),1)
+     &                             DSQ(ISD),1,1.0D0,FSQ(ISF,1),1)
                       else
                       CALL DGEMV_('T',LB,KB,-Factor*ExFac,X1(ISX),LB,
-     &                             DSQ(ISD),1,1.0D0,FSQ(ISF),1)
+     &                             DSQ(ISD),1,1.0D0,FSQ(ISF,1),1)
                       CALL DGEMV_('T',LB,KB,-factor*ExFac,X1(ISX),LB,
-     &                             DSQ_ab(ISD),1,1.0D0,FSQ_ab(ISF),1)
+     &                             DSQ_ab(ISD),1,1.0D0,FSQ(ISF,2),1)
 
                       endif
                     ENDIF
         if(myDebug) then
           write (6,'(a,i5,a,f20.6)')
-     &          ('03 Fsq(',isf+ivv-1,')=',FSQ(ISF+ivv-1),ivv=1,kb)
+     &          ('03 Fsq(',isf+ivv-1,',1)=',FSQ(ISF+ivv-1,1),ivv=1,kb)
           if(nD==2) then
           write (6,'(a,i5,a,f20.6)')
-     &          ('03 Fsq_ab(',isf+ivv-1,')=',FSQ_ab(ISF+ivv-1),ivv=1,kb)
+     &          ('03 Fsq(',isf+ivv-1,',2)=',FSQ(ISF+ivv-1,2),ivv=1,kb)
           endif
         endif
 
@@ -279,12 +280,10 @@ c Accumulate the contributions
         K2=ISTSQ(ISYM)
         DO 310 IB=1,NB
           DO 315 JB=1,IB
-c         write (6,'(a,i5,a,f12.6)') ' >> Flt(',K1+JB,')=',FLT(K1+JB)
-c         write (6,'(a,i5,a,f12.6)') ' >> Fsq(',K2+JB,')=',FSQ(K2+JB)
 
-            FLT(K1+JB)=FLT(K1+JB)+FSQ(K2+JB)
+            FLT(K1+JB)=FLT(K1+JB)+FSQ(K2+JB,1)
             if(nD==2) then
-             FLT_ab(K1+JB)=FLT_ab(K1+JB)+FSQ_ab(K2+JB)
+             FLT_ab(K1+JB)=FLT_ab(K1+JB)+FSQ(K2+JB,2)
             endif
         if(myDebug) then
          if(nD==1)then
