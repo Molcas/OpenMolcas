@@ -25,7 +25,6 @@ integer(kind=iwp) :: I, IJKL, ILIM, IPF, IPOF(9), ISTOP, J, JMAX, LCIN, LIM, LIM
 ILIM = 4
 if (IFIRST /= 0) ILIM = 2
 !PAM96 write(u6,50)
-!PAM96 50 format(/,6X,'DYNAMICAL CORE STORAGE INFORMATION',/)
 ISTOP = 0
 MX1 = 0
 MX2 = 0
@@ -185,7 +184,6 @@ LW(73) = LW(72)+IRC(ILIM)
 LW(74) = LW(73)
 LIM = LW(74)
 !PAM96 write(u6,358) LIM
-!PAM96 358 format(6X,'STORAGE FOR NPSET',I14)
 ! DYNAMICAL ALLOCATION FOR CPFCTL
 ! EPB (EPBIS)
 LW(75) = LPERMB
@@ -239,18 +237,24 @@ LW(92) = LW(91)
 LW(93) = LW(92)
 LIM = LW(93)
 !PAM96 write(u6,349) LIM
-!PAM96 349 format(6X,'STORAGE FOR DENS',I15)
 if (IPRINT >= 2) then
   ! LW(94), LW(95) AND LW(96) USED IN SORTING ABCD
   write(u6,450)
   write(u6,451) (LW(I),I=1,96)
+end if
+if (ISTOP /= 0) then
+  write(u6,*) 'ALLOC: Too little memory available.'
+  write(u6,*) 'Program stops here.'
+
+  call Abend()
+end if
+
+return
+
+!PAM96 50 format(/,6X,'DYNAMICAL CORE STORAGE INFORMATION',/)
+!PAM96 349 format(6X,'STORAGE FOR DENS',I15)
+!PAM96 358 format(6X,'STORAGE FOR NPSET',I14)
 450 format(//,6X,'DYNAMICAL STORAGE ADDRESSES LW:',/)
 451 format(6X,5I10)
-end if
-if (ISTOP == 0) return
-write(u6,*) 'ALLOC: Too little memory available.'
-write(u6,*) 'Program stops here.'
-
-call Abend()
 
 end subroutine ALLOC_CPF

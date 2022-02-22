@@ -33,13 +33,12 @@ do I=1,INUM
   II1 = IRC3+I
   NS1 = JSYM(II1)
   NS1L = MUL(NS1,LSYM)
-  if (NS1L /= 1) GO TO 10
+  if (NS1L /= 1) cycle
   NA = INDX(II1)
   do MA=1,NVIRT
     C(NA+NDIAG(MA)) = C(NA+NDIAG(MA))/SQ2
     S(NA+NDIAG(MA)) = SQ2*S(NA+NDIAG(MA))
   end do
-10 continue
 end do
 
 return

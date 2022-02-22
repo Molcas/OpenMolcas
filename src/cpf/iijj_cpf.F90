@@ -58,61 +58,63 @@ do IR=1,IRL
     end if
   end do
 
-  if (IR > IRC(1)) GO TO 120
-  ! IR=1..IRC(1), HDIAG(IR)=SUM1
-  HDIAG(IR) = SUM1
-  if (IR == IRC(1)) call dDAFILE(Lu_27,1,HDIAG,IRC(1),IAD27)
-  GO TO 100
+  if (IR <= IRC(1)) then
 
-120 continue
-  if (IR > IRC(2)) GO TO 130
-  ! IR=IRC(1)+1 ... IRC(2)
-  IND = 0
-  NA1 = NSYS(NSS)+1
-  NA2 = NSYS(NSS+1)
-  if (NA2 < NA1) GO TO 100
-  do NA=NA1,NA2
-    IND = IND+1
-    IA = IROW(LN+NA)
-    SUM2 = SUM1+FC(IA+LN+NA)
-    do I=1,LN
-      if (IOC(I) /= 0) SUM2 = SUM2+IOC(I)*FIJ(IA+I)-FJI(IA+I)
-    end do
-    HDIAG(IND) = SUM2
-  end do
-  call dDAFILE(Lu_27,1,HDIAG,IND,IAD27)
-  GO TO 100
+    ! IR=1..IRC(1), HDIAG(IR)=SUM1
+    HDIAG(IR) = SUM1
+    if (IR == IRC(1)) call dDAFILE(Lu_27,1,HDIAG,IRC(1),IAD27)
 
-130 continue
-  ! IR=IRC(2)+1 ... IRC(ILIM)
-  IND = 0
-  do NA=1,NVIRT
-    NSA = MUL(NSS,NSM(LN+NA))
-    NB1 = NSYS(NSA)+1
-    NB2 = NSYS(NSA+1)
-    if (NB2 > NA) NB2 = NA
-    if (NB2 < NB1) GO TO 141
-    IA = IROW(LN+NA)
-    IAV = IA+LN
-    do NB=NB1,NB2
-      IND = IND+1
-      IB = IROW(LN+NB)
-      IBV = IB+LN
-      TERM = SUM1+FIJ(IAV+NB)+FC(IAV+NA)+FC(IBV+NB)
-      if (IR <= IRC(3)) SUM2 = TERM-FJI(IAV+NB)
-      if (IR > IRC(3)) SUM2 = TERM+FJI(IAV+NB)
-      do I=1,LN
-        if (IOC(I) /= 0) then
-          TERM = IOC(I)*(FIJ(IA+I)+FIJ(IB+I))-FJI(IA+I)-FJI(IB+I)
-          SUM2 = SUM2+TERM
-        end if
+  else if (IR <= IRC(2)) then
+
+    ! IR=IRC(1)+1 ... IRC(2)
+    IND = 0
+    NA1 = NSYS(NSS)+1
+    NA2 = NSYS(NSS+1)
+    if (NA2 >= NA1) then
+      do NA=NA1,NA2
+        IND = IND+1
+        IA = IROW(LN+NA)
+        SUM2 = SUM1+FC(IA+LN+NA)
+        do I=1,LN
+          if (IOC(I) /= 0) SUM2 = SUM2+IOC(I)*FIJ(IA+I)-FJI(IA+I)
+        end do
+        HDIAG(IND) = SUM2
       end do
-      HDIAG(IND) = SUM2
+      call dDAFILE(Lu_27,1,HDIAG,IND,IAD27)
+    end if
+
+  else
+
+    ! IR=IRC(2)+1 ... IRC(ILIM)
+    IND = 0
+    do NA=1,NVIRT
+      NSA = MUL(NSS,NSM(LN+NA))
+      NB1 = NSYS(NSA)+1
+      NB2 = NSYS(NSA+1)
+      if (NB2 > NA) NB2 = NA
+      if (NB2 >= NB1) then
+        IA = IROW(LN+NA)
+        IAV = IA+LN
+        do NB=NB1,NB2
+          IND = IND+1
+          IB = IROW(LN+NB)
+          IBV = IB+LN
+          TERM = SUM1+FIJ(IAV+NB)+FC(IAV+NA)+FC(IBV+NB)
+          if (IR <= IRC(3)) SUM2 = TERM-FJI(IAV+NB)
+          if (IR > IRC(3)) SUM2 = TERM+FJI(IAV+NB)
+          do I=1,LN
+            if (IOC(I) /= 0) then
+              TERM = IOC(I)*(FIJ(IA+I)+FIJ(IB+I))-FJI(IA+I)-FJI(IB+I)
+              SUM2 = SUM2+TERM
+            end if
+          end do
+          HDIAG(IND) = SUM2
+        end do
+      end if
     end do
-141 continue
-  end do
-  if (IND > 0) call dDAFILE(Lu_27,1,HDIAG,IND,IAD27)
-100 continue
+    if (IND > 0) call dDAFILE(Lu_27,1,HDIAG,IND,IAD27)
+
+  end if
 end do
 
 return

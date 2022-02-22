@@ -35,99 +35,108 @@ JSYM(L) = JSUNP_CPF(JSY,L)
 IK = 0 ! dummy initialize
 NOB2 = IROW(NORBT+1)
 !if (IDENS == 1) write(u6,876) (FC(I),I=1,NOB2)
-!876 format(1X,'FIJ',5F12.6)
 ICHK = 0
-if (IDENS == 1) GO TO 105
-NOB2 = IROW(NORBT+1)
-call SETZ(FC,NOB2)
-IADD25 = 0
-call dDAFILE(Lu_25,2,FC,NOB2,IADD25)
-if (ITER == 1) GO TO 200
-105 IADD10 = IAD10(8)
-100 call dDAFILE(Lu_CIGuga,2,COP,nCOP,IADD10)
-call iDAFILE(Lu_CIGuga,2,iCOP1,nCOP+1,IADD10)
-ILEN = ICOP1(nCOP+1)
-if (ILEN == 0) GO TO 100
-if (ILEN < 0) GO TO 200
-do IIN=1,ILEN
-  IND = ICOP1(IIN)
-  if (ICHK /= 0) GO TO 460
-  if (IND /= 0) GO TO 11
-  ICHK = 1
-  GO TO 10
-460 ICHK = 0
-  INDI = IND
-  !NI = mod(INDI,1024)
-  !NK = mod(INDI/IPOW10,1024)
-  NI = ibits(INDI,0,10)
-  NK = ibits(INDI,10,10)
-  IK = IROW(NK)+NI
-  GO TO 10
-11 continue
-  !IVL = mod(IND,64)
-  !IC2 = mod(IND/IPOW6,8192)
-  !IC1 = mod(IND/IPOW19,8192)
-  IVL = ibits(IND,0,6)
-  IC2 = ibits(IND,6,13)
-  IC1 = ibits(IND,19,13)
-  COPI = COP(IIN)*FC(IK)
-  if (IVL /= IV0) GO TO 13
-  if (IC1 /= IREF0) GO TO 16
-  if (IDENS == 1) GO TO 18
-  COPI = COPI/sqrt(ENP(IC2))
-  S(IC2) = S(IC2)+COPI
-  if (ITER == 1) GO TO 10
-  EPP(IC2) = EPP(IC2)+COPI*C(IC2)
-  GO TO 10
-18 FC(IK) = FC(IK)+COP(IIN)*C(IC1)*C(IC2)/ENP(IC2)
-  GO TO 10
-16 if (IC2 /= IREF0) GO TO 17
-  if (IDENS == 1) GO TO 19
-  COPI = COPI/sqrt(ENP(IC1))
-  S(IC1) = S(IC1)+COPI
-  if (ITER == 1) GO TO 10
-  EPP(IC1) = EPP(IC1)+COPI*C(IC1)
-  GO TO 10
-19 FC(IK) = FC(IK)+COP(IIN)*C(IC1)*C(IC2)/ENP(IC1)
-  GO TO 10
-17 if (IDENS == 1) GO TO 21
-  S(IC1) = S(IC1)+COPI*C(IC2)
-  S(IC2) = S(IC2)+COPI*C(IC1)
-  GO TO 10
-21 FC(IK) = FC(IK)+COP(IIN)*C(IC1)*C(IC2)/(sqrt(ENP(IC1))*sqrt(ENP(IC2)))
-  GO TO 10
-13 INDA = IRC(IVL)+IC1
-  INDB = IRC(IVL)+IC2
-  NA = INDX(INDA)
-  NB = INDX(INDB)
-  NS1 = JSYM(INDA)
-  NS1L = MUL(NS1,LSYM)
-  INUM = NVIR(NS1L)
-  if (IVL >= 2) INUM = NNS(NS1L)
-  if (IDENS == 1) GO TO 15
-  call DAXPY_(INUM,COPI,C(NB+1),1,S(NA+1),1)
-  call DAXPY_(INUM,COPI,C(NA+1),1,S(NB+1),1)
-  GO TO 10
-15 TERM = DDOT_(INUM,C(NA+1),1,C(NB+1),1)
-  FC(IK) = FC(IK)+COP(IIN)*TERM/(sqrt(ENP(INDA))*sqrt(ENP(INDB)))
-10 continue
-end do
-GO TO 100
-!200 IF (IDENS == 1) write(u6,876) (FC(I),I=1,NOB2)
-200 call dAI_CPF(C)
+if (IDENS /= 1) then
+  NOB2 = IROW(NORBT+1)
+  call SETZ(FC,NOB2)
+  IADD25 = 0
+  call dDAFILE(Lu_25,2,FC,NOB2,IADD25)
+end if
+if ((IDENS == 1) .or. (ITER /= 1)) then
+  IADD10 = IAD10(8)
+  do
+    call dDAFILE(Lu_CIGuga,2,COP,nCOP,IADD10)
+    call iDAFILE(Lu_CIGuga,2,iCOP1,nCOP+1,IADD10)
+    ILEN = ICOP1(nCOP+1)
+    if (ILEN == 0) cycle
+    if (ILEN < 0) exit
+    do IIN=1,ILEN
+      IND = ICOP1(IIN)
+      if (ICHK == 0) then
+        if (IND /= 0) then
+          !IVL = mod(IND,64)
+          !IC2 = mod(IND/IPOW6,8192)
+          !IC1 = mod(IND/IPOW19,8192)
+          IVL = ibits(IND,0,6)
+          IC2 = ibits(IND,6,13)
+          IC1 = ibits(IND,19,13)
+          COPI = COP(IIN)*FC(IK)
+          if (IVL == IV0) then
+            if (IC1 == IREF0) then
+              if (IDENS /= 1) then
+                COPI = COPI/sqrt(ENP(IC2))
+                S(IC2) = S(IC2)+COPI
+                if (ITER /= 1) EPP(IC2) = EPP(IC2)+COPI*C(IC2)
+              else
+                FC(IK) = FC(IK)+COP(IIN)*C(IC1)*C(IC2)/ENP(IC2)
+              end if
+            else if (IC2 == IREF0) then
+              if (IDENS /= 1) then
+                COPI = COPI/sqrt(ENP(IC1))
+                S(IC1) = S(IC1)+COPI
+                if (ITER /= 1) EPP(IC1) = EPP(IC1)+COPI*C(IC1)
+              else
+                FC(IK) = FC(IK)+COP(IIN)*C(IC1)*C(IC2)/ENP(IC1)
+              end if
+            else if (IDENS /= 1) then
+              S(IC1) = S(IC1)+COPI*C(IC2)
+              S(IC2) = S(IC2)+COPI*C(IC1)
+            else
+              FC(IK) = FC(IK)+COP(IIN)*C(IC1)*C(IC2)/(sqrt(ENP(IC1))*sqrt(ENP(IC2)))
+            end if
+          else
+            INDA = IRC(IVL)+IC1
+            INDB = IRC(IVL)+IC2
+            NA = INDX(INDA)
+            NB = INDX(INDB)
+            NS1 = JSYM(INDA)
+            NS1L = MUL(NS1,LSYM)
+            INUM = NVIR(NS1L)
+            if (IVL >= 2) INUM = NNS(NS1L)
+            if (IDENS /= 1) then
+              call DAXPY_(INUM,COPI,C(NB+1),1,S(NA+1),1)
+              call DAXPY_(INUM,COPI,C(NA+1),1,S(NB+1),1)
+            else
+              TERM = DDOT_(INUM,C(NA+1),1,C(NB+1),1)
+              FC(IK) = FC(IK)+COP(IIN)*TERM/(sqrt(ENP(INDA))*sqrt(ENP(INDB)))
+            end if
+          end if
+        else
+          ICHK = 1
+        end if
+      else
+        ICHK = 0
+        INDI = IND
+        !NI = mod(INDI,1024)
+        !NK = mod(INDI/IPOW10,1024)
+        NI = ibits(INDI,0,10)
+        NK = ibits(INDI,10,10)
+        IK = IROW(NK)+NI
+      end if
+    end do
+  end do
+end if
+!if (IDENS == 1) write(u6,876) (FC(I),I=1,NOB2)
+call dAI_CPF(C)
 if (ITER == 1) return
 call AB(ICASE,JSY,INDX,C,S,FC,A,B,FK,ENP)
 
 return
 
+!876 format(1X,'FIJ',5F12.6)
+
 ! This is to allow type punning without an explicit interface
 contains
+
 subroutine dAI_CPF(C)
-  real*8, target :: C(*)
-  integer, pointer :: iC(:)
+
+  real(kind=wp), target :: C(*)
+  integer(kind=iwp), pointer :: iC(:)
+
   call c_f_pointer(c_loc(C(1)),iC,[1])
   call AI_CPF(JSY,INDX,C,S,FC,C,iC,A,B,FK,DBK,ENP,EPP,0)
   nullify(iC)
+
 end subroutine dAI_CPF
 
 end subroutine FIJ

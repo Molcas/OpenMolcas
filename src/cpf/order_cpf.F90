@@ -27,7 +27,7 @@ N1 = N-1
 do I=1,N1
   I1 = I+1
   do J=I1,N
-    if (D(I) <= D(J)) GO TO 20
+    if (D(I) <= D(J)) cycle
     DT = D(I)
     D(I) = D(J)
     D(J) = DT
@@ -38,7 +38,6 @@ do I=1,N1
       C(IIN+K) = C(IOUT+K)
       C(IOUT+K) = CT
     end do
-20  continue
   end do
 end do
 

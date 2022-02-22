@@ -40,7 +40,6 @@ C(IREF0) = Zero
 A = DDOT_(NCONF,C,1,C,1)
 write(u6,20) A
 call XFLUSH(u6)
-20 format(5X,'SUM OF SQUARED CPX(BAR)',F10.4)
 C(IREF0) = One
 EMA = One-A
 II1 = (IREF0-1)*LN
@@ -52,5 +51,7 @@ do I=1,LN
 end do
 
 return
+
+20 format(5X,'SUM OF SQUARED CPX(BAR)',F10.4)
 
 end subroutine DENS_CPF

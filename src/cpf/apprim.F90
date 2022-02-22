@@ -32,8 +32,9 @@ do I=1,IP
 end do
 
 if (IPRINT > 5) write(u6,999) (AP(I),I=1,IP)
-999 format(6X,'AP ',5F10.6)
 
 return
+
+999 format(6X,'AP ',5F10.6)
 
 end subroutine APPRIM

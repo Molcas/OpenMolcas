@@ -41,49 +41,46 @@ do INDA=1,IRL
   ENPQ = (One-THET(INDA,INDA)*Half)*(ENP(INDA)+ENP(INDA)-One)+THET(INDA,INDA)*Half
   FACS = sqrt(ENP(INDA))*sqrt(ENP(INDA))/ENPQ
   FACW = (FACS*(Two-THET(INDA,INDA))/ENPQ)*ENP(INDA)-FACS
-  if (INDA > IRC(1)) GO TO 120
-  IIC = IIC+1
-  IND = IND+1
-  S(IND) = S(IND)+FACS*COP(IIC)*C(IND)
-  W(IND) = W(IND)+FACW*COP(IIC)*C(IND)
-  if (IIC < nCOP) GO TO 100
-  call dDAFILE(Lu_25,2,COP,nCOP,IADD25)
-  IIC = 0
-  GO TO 100
-120 if (INDA > IRC(2)) GO TO 130
-  NA1 = NSYS(NSS)+1
-  NA2 = NSYS(NSS+1)
-  if (NA2 < NA1) GO TO 100
-  do NA=NA1,NA2
+  if (INDA <= IRC(1)) then
     IIC = IIC+1
     IND = IND+1
     S(IND) = S(IND)+FACS*COP(IIC)*C(IND)
     W(IND) = W(IND)+FACW*COP(IIC)*C(IND)
-    if (IIC < nCOP) GO TO 121
-    call dDAFILE(Lu_25,2,COP,nCOP,IADD25)
-    IIC = 0
-121 continue
-  end do
-  GO TO 100
-130 do NA=1,NVIRT
-    NSA = MUL(NSS,NSM(LN+NA))
-    NB1 = NSYS(NSA)+1
-    NB2 = NSYS(NSA+1)
-    if (NB2 > NA) NB2 = NA
-    if (NB2 < NB1) GO TO 141
-    do NB=NB1,NB2
+    if (IIC >= nCOP) then
+      call dDAFILE(Lu_25,2,COP,nCOP,IADD25)
+      IIC = 0
+    end if
+  else if (INDA <= IRC(2)) then
+    NA1 = NSYS(NSS)+1
+    NA2 = NSYS(NSS+1)
+    do NA=NA1,NA2
       IIC = IIC+1
       IND = IND+1
       S(IND) = S(IND)+FACS*COP(IIC)*C(IND)
       W(IND) = W(IND)+FACW*COP(IIC)*C(IND)
-      if (IIC < nCOP) GO TO 142
-      call dDAFILE(Lu_25,2,COP,nCOP,IADD25)
-      IIC = 0
-142   continue
+      if (IIC >= nCOP) then
+        call dDAFILE(Lu_25,2,COP,nCOP,IADD25)
+        IIC = 0
+      end if
     end do
-141 continue
-  end do
-100 continue
+  else
+    do NA=1,NVIRT
+      NSA = MUL(NSS,NSM(LN+NA))
+      NB1 = NSYS(NSA)+1
+      NB2 = NSYS(NSA+1)
+      if (NB2 > NA) NB2 = NA
+      do NB=NB1,NB2
+        IIC = IIC+1
+        IND = IND+1
+        S(IND) = S(IND)+FACS*COP(IIC)*C(IND)
+        W(IND) = W(IND)+FACW*COP(IIC)*C(IND)
+        if (IIC >= nCOP) then
+          call dDAFILE(Lu_25,2,COP,nCOP,IADD25)
+          IIC = 0
+        end if
+      end do
+    end do
+  end if
 end do
 
 return

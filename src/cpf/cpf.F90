@@ -30,6 +30,7 @@ subroutine CPF(IRETURN)
 ! MODIFIED TO MOLCAS-3 BY M.P. FUELSCHER 08/31/93                      *
 ! MODIFIED TO MOLCAS-4 BY P.A. MALMQVIST AND N.W. MORTIARTY 10/25/96   *
 ! MODIFIED TO MOLCAS 4.1 BY R. LINDH 02/24/98 (Multi fileing)          *
+! MODIFIED TO MODERN FORTRAN BY I. FDEZ. GALVAN 2022                   *
 !***********************************************************************
 !
 ! UNITS USED IN THE PROGRAM

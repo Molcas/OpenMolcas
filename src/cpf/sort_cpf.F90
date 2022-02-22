@@ -90,7 +90,7 @@ do ISYM=1,NSYM
       ONEHAM = FIJ(IBUF)
       NI = ICH(IORBI)
       NJ = ICH(JORBI)
-      if ((NI == 0) .or. (NJ == 0)) GO TO 199
+      if ((NI == 0) .or. (NJ == 0)) cycle
       if (NI < NJ) then
         NTMP = NI
         NI = NJ
@@ -102,7 +102,6 @@ do ISYM=1,NSYM
       else if (NI == NJ) then
         EMY = EMY+Two*ONEHAM
       end if
-199   continue
     end do
   end do
   KORBI = KORBI+NORB(ISYM)
@@ -128,10 +127,10 @@ do NSP=1,NSYM
       NSSM = NSR
       if (NSR == NSP) NSSM = NSQ
       do NSS=1,NSSM
-        if (NSS /= NSPQR) GO TO 310
+        if (NSS /= NSPQR) cycle
         NOS = NORB(NSS)
         NORBP = NOP*NOQ*NOR*NOS
-        if (NORBP == 0) GO TO 310
+        if (NORBP == 0) cycle
         call dDAFILE(Lu_TraInt,2,TIBUF,NTIBUF,IAD50)
         IOUT = 0
         do NV=1,NOR
@@ -155,162 +154,161 @@ do NSP=1,NSYM
                 M2 = ICH(NORB0(NSQ)+NU)
                 M3 = ICH(NORB0(NSR)+NV)
                 M4 = ICH(NORB0(NSS)+NX)
-                if ((M1 == 0) .or. (M2 == 0)) GO TO 306
-                if ((M3 == 0) .or. (M4 == 0)) GO TO 306
+                if ((M1 == 0) .or. (M2 == 0) .or. (M3 == 0) .or. (M4 == 0)) cycle
                 ! ORDER THESE INDICES CANONICALLY
-                N1 = M1
-                N2 = M2
-                if (M1 > M2) GO TO 11
-                N1 = M2
-                N2 = M1
-11              N3 = M3
-                N4 = M4
-                if (M3 > M4) GO TO 12
-                N3 = M4
-                N4 = M3
-12              NI = N1
+                N1 = max(M1,M2)
+                N2 = min(M1,M2)
+                N3 = max(M3,M4)
+                N4 = min(M3,M4)
+                NI = N1
                 NJ = N2
                 NK = N3
                 NL = N4
-                if (NI > NK) GO TO 502
-                if (NI == NK) GO TO 14
-                NI = N3
-                NJ = N4
-                NK = N1
-                NL = N2
-                GO TO 502
-14              if (NJ > NL) GO TO 502
-                NL = N2
-                NJ = N4
-502             FINI = TIBUF(IOUT)
-                if (abs(FINI) < 1.0e-9_wp) GO TO 306
-                if ((NI <= 0) .or. (NJ <= 0)) GO TO 41
-                if ((NK <= 0) .or. (NL <= 0)) GO TO 41
-                DFINI = abs(FINI)
-                IEXP = int(-log10(DFINI+1.0e-20_wp)+5)
-                if (IEXP > 20) IEXP = 20
-                if (IEXP < 1) IEXP = 1
-                IVEC(IEXP) = IVEC(IEXP)+1
-                if ((NI /= NJ) .or. (NK /= NL)) GO TO 42
-                IJ = IROW(NI)+NK
-                FIJ(IJ) = FINI
-                ! SKIP (AA/II) INTEGRALS
-                GO TO 306
-42              if ((NI /= NK) .or. (NJ /= NL)) GO TO 43
-                IJ = IROW(NI)+NJ
-                FJI(IJ) = FINI
-43              if (NI <= LN) GO TO 306
-                if (NJ > LN) GO TO 102
-                if (NK > LN) GO TO 103
-                ! AIJK
-                JK = NOTT+IROW(NK)+NL
-                IBUFL(JK) = IBUFL(JK)+1
-                ICQ = ICAD(JK)
-                ICP = ICQ/IDIV+IBUFL(JK)
-                BUFOUT(ICP) = FINI
-                ICPP = ICQ+LBUF0+IBUFL(JK)
-                INDOUT(ICPP) = IROW(NI)+NJ
-                if (IBUFL(JK) < LBUF) GO TO 306
-                INDOUT(ICQ+LBUF1) = LBUF
-                JDISK = IDISK
-                call iDAFILE(Lu_TiABIJ,1,INDOUT(ICQ+1),LBUF2,IDISK)
-                INDOUT(ICQ+LBUF2) = JDISK
-                IBUFL(JK) = 0
-                GO TO 306
-103             if (NL > LN) GO TO 306
-                ! AIBJ
-                IIJ = NOT2+IROW(NJ)+NL
-                if (NL > NJ) IIJ = NOT2+IROW(NL)+NJ
-                IBUFL(IIJ) = IBUFL(IIJ)+1
-                ICQ = ICAD(IIJ)
-                ICP = ICQ/IDIV+IBUFL(IIJ)
-                BUFOUT(ICP) = FINI
-                NSA = NSM(NI)
-                NAV = NI-LN-NSYS(NSA)
-                NSB = NSM(NK)
-                NBV = NK-LN-NSYS(NSB)
-                NSIJT = (MUL(NSM(NJ),NSM(NL))-1)*NSYM
-                if (NL > NJ) GO TO 105
-                INAV = IPOF(NSIJT+NSA)+(NBV-1)*NVIR(NSA)+NAV
-                GO TO 104
-105             INAV = IPOF(NSIJT+NSB)+(NAV-1)*NVIR(NSB)+NBV
-104             ICPP = ICQ+LBUF0+IBUFL(IIJ)
-                INDOUT(ICPP) = INAV
-                if (IBUFL(IIJ) < LBUF) GO TO 108
-                INDOUT(ICQ+LBUF1) = LBUF
-                JDISK = IDISK
-                call iDAFILE(Lu_TiABIJ,1,INDOUT(ICQ+1),LBUF2,IDISK)
-                INDOUT(ICQ+LBUF2) = JDISK
-                IBUFL(IIJ) = 0
-108             if (NJ /= NL) GO TO 306
-                if (NI == NK) GO TO 306
-                JNAV = IROW(NI)+NK
-                FC(JNAV) = FC(JNAV)-FINI
-                GO TO 306
-102             if (NK > LN) GO TO 306
-                ! ABIJ
-                IIJ = IROW(NK)+NL
-                IBUFL(IIJ) = IBUFL(IIJ)+1
-                ICQ = ICAD(IIJ)
-                ICP = ICQ/IDIV+IBUFL(IIJ)
-                BUFOUT(ICP) = FINI
-                NSA = NSM(NI)
-                NAV = NI-LN-NSYS(NSA)
-                NSB = NSM(NJ)
-                NBV = NJ-LN-NSYS(NSB)
-                NSIJT = (MUL(NSM(NK),NSM(NL))-1)*NSYM
-                INAV = IPOF(NSIJT+NSA)+(NBV-1)*NVIR(NSA)+NAV
-                ICPP = ICQ+LBUF0+IBUFL(IIJ)
-                INDOUT(ICPP) = INAV
-                if (IBUFL(IIJ) < LBUF) GO TO 106
-                INDOUT(ICQ+LBUF1) = LBUF
-                JDISK = IDISK
-                call iDAFILE(Lu_TiABIJ,1,INDOUT(ICQ+1),LBUF2,IDISK)
-                INDOUT(ICQ+LBUF2) = JDISK
-                IBUFL(IIJ) = 0
-106             if (NK /= NL) GO TO 306
-                if (NI == NJ) GO TO 306
-                JNAV = IROW(NI)+NJ
-                FC(JNAV) = FC(JNAV)+Two*FINI
-                GO TO 306
-                ! CHECK FOR FOCK-MATRIX CONTRIBUTION
-41              if (NI /= NJ) GO TO 51
-                II = 1
-                call IFOCK(FC,NI,NK,NL,FINI,II)
-                if (NK /= NL) GO TO 52
-                if ((NI > 0) .or. (NK > 0)) GO TO 57
-                EMY = EMY+Two*FINI
-                if (NI /= NK) EMY = EMY+Two*FINI
-57              if (NI == NK) GO TO 52
-                call IFOCK(FC,NK,NI,NJ,FINI,II)
-                GO TO 52
-51              if (NK /= NL) GO TO 52
-                II = 1
-                call IFOCK(FC,NK,NI,NJ,FINI,II)
-52              II = 0
-                if (NI /= NK) GO TO 53
-                call IFOCK(FC,NI,NJ,NL,FINI,II)
-                if (NJ /= NL) GO TO 306
-                if ((NI > 0) .or. (NJ > 0)) GO TO 58
-                EMY = EMY-FINI
-                if (NI /= NJ) EMY = EMY-FINI
-58              if (NI == NJ) GO TO 306
-                call IFOCK(FC,NJ,NI,NK,FINI,II)
-                GO TO 306
-53              if (NI /= NL) GO TO 54
-                call IFOCK(FC,NI,NJ,NK,FINI,II)
-                GO TO 306
-54              if (NJ /= NK) GO TO 55
-                call IFOCK(FC,NJ,NI,NL,FINI,II)
-                GO TO 306
-55              if (NJ /= NL) GO TO 306
-                call IFOCK(FC,NJ,NI,NK,FINI,II)
-306             continue
+                if (NI <= NK) then
+                  if (NI /= NK) then
+                    NI = N3
+                    NJ = N4
+                    NK = N1
+                    NL = N2
+                  else if (NJ <= NL) then
+                    NL = N2
+                    NJ = N4
+                  end if
+                end if
+                FINI = TIBUF(IOUT)
+                if (abs(FINI) < 1.0e-9_wp) cycle
+                if ((NI > 0) .and. (NJ > 0) .and. (NK > 0) .and. (NL > 0)) then
+                  DFINI = abs(FINI)
+                  IEXP = int(-log10(DFINI+1.0e-20_wp)+5)
+                  if (IEXP > 20) IEXP = 20
+                  if (IEXP < 1) IEXP = 1
+                  IVEC(IEXP) = IVEC(IEXP)+1
+                  if ((NI == NJ) .and. (NK == NL)) then
+                    IJ = IROW(NI)+NK
+                    FIJ(IJ) = FINI
+                    ! SKIP (AA/II) INTEGRALS
+                  else
+                    if ((NI == NK) .and. (NJ == NL)) then
+                      IJ = IROW(NI)+NJ
+                      FJI(IJ) = FINI
+                    end if
+                    if (NI >= LN) then
+                      if (NJ <= LN) then
+                        if (NK <= LN) then
+                          ! AIJK
+                          JK = NOTT+IROW(NK)+NL
+                          IBUFL(JK) = IBUFL(JK)+1
+                          ICQ = ICAD(JK)
+                          ICP = ICQ/IDIV+IBUFL(JK)
+                          BUFOUT(ICP) = FINI
+                          ICPP = ICQ+LBUF0+IBUFL(JK)
+                          INDOUT(ICPP) = IROW(NI)+NJ
+                          if (IBUFL(JK) >= LBUF) then
+                            INDOUT(ICQ+LBUF1) = LBUF
+                            JDISK = IDISK
+                            call iDAFILE(Lu_TiABIJ,1,INDOUT(ICQ+1),LBUF2,IDISK)
+                            INDOUT(ICQ+LBUF2) = JDISK
+                            IBUFL(JK) = 0
+                          end if
+                        else if (NL <= LN) then
+                          ! AIBJ
+                          IIJ = NOT2+IROW(NJ)+NL
+                          if (NL > NJ) IIJ = NOT2+IROW(NL)+NJ
+                          IBUFL(IIJ) = IBUFL(IIJ)+1
+                          ICQ = ICAD(IIJ)
+                          ICP = ICQ/IDIV+IBUFL(IIJ)
+                          BUFOUT(ICP) = FINI
+                          NSA = NSM(NI)
+                          NAV = NI-LN-NSYS(NSA)
+                          NSB = NSM(NK)
+                          NBV = NK-LN-NSYS(NSB)
+                          NSIJT = (MUL(NSM(NJ),NSM(NL))-1)*NSYM
+                          if (NL <= NJ) then
+                            INAV = IPOF(NSIJT+NSA)+(NBV-1)*NVIR(NSA)+NAV
+                          else
+                            INAV = IPOF(NSIJT+NSB)+(NAV-1)*NVIR(NSB)+NBV
+                          end if
+                          ICPP = ICQ+LBUF0+IBUFL(IIJ)
+                          INDOUT(ICPP) = INAV
+                          if (IBUFL(IIJ) >= LBUF) then
+                            INDOUT(ICQ+LBUF1) = LBUF
+                            JDISK = IDISK
+                            call iDAFILE(Lu_TiABIJ,1,INDOUT(ICQ+1),LBUF2,IDISK)
+                            INDOUT(ICQ+LBUF2) = JDISK
+                            IBUFL(IIJ) = 0
+                          end if
+                          if ((NJ == NL) .and. (NI /= NK)) then
+                            JNAV = IROW(NI)+NK
+                            FC(JNAV) = FC(JNAV)-FINI
+                          end if
+                        end if
+                      else if (NK <= LN) then
+                        ! ABIJ
+                        IIJ = IROW(NK)+NL
+                        IBUFL(IIJ) = IBUFL(IIJ)+1
+                        ICQ = ICAD(IIJ)
+                        ICP = ICQ/IDIV+IBUFL(IIJ)
+                        BUFOUT(ICP) = FINI
+                        NSA = NSM(NI)
+                        NAV = NI-LN-NSYS(NSA)
+                        NSB = NSM(NJ)
+                        NBV = NJ-LN-NSYS(NSB)
+                        NSIJT = (MUL(NSM(NK),NSM(NL))-1)*NSYM
+                        INAV = IPOF(NSIJT+NSA)+(NBV-1)*NVIR(NSA)+NAV
+                        ICPP = ICQ+LBUF0+IBUFL(IIJ)
+                        INDOUT(ICPP) = INAV
+                        if (IBUFL(IIJ) >= LBUF) then
+                          INDOUT(ICQ+LBUF1) = LBUF
+                          JDISK = IDISK
+                          call iDAFILE(Lu_TiABIJ,1,INDOUT(ICQ+1),LBUF2,IDISK)
+                          INDOUT(ICQ+LBUF2) = JDISK
+                          IBUFL(IIJ) = 0
+                        end if
+                        if ((NK == NL) .and. (NI /= NJ)) then
+                          JNAV = IROW(NI)+NJ
+                          FC(JNAV) = FC(JNAV)+Two*FINI
+                        end if
+                      end if
+                    end if
+                  end if
+                else
+                  ! CHECK FOR FOCK-MATRIX CONTRIBUTION
+                  if (NI == NJ) then
+                    II = 1
+                    call IFOCK(FC,NI,NK,NL,FINI,II)
+                    if (NK == NL) then
+                      if ((NI <= 0) .and. (NK <= 0)) then
+                        EMY = EMY+Two*FINI
+                        if (NI /= NK) EMY = EMY+Two*FINI
+                      end if
+                      if (NI /= NK) call IFOCK(FC,NK,NI,NJ,FINI,II)
+                    end if
+                  else if (NK == NL) then
+                    II = 1
+                    call IFOCK(FC,NK,NI,NJ,FINI,II)
+                  end if
+                  II = 0
+                  if (NI == NK) then
+                    call IFOCK(FC,NI,NJ,NL,FINI,II)
+                    if (NJ == NL) then
+                      if ((NI <= 0) .and. (NJ <= 0)) then
+                        EMY = EMY-FINI
+                        if (NI /= NJ) EMY = EMY-FINI
+                      end if
+                      if (NI /= NJ) call IFOCK(FC,NJ,NI,NK,FINI,II)
+                    end if
+                  else if (NI == NL) then
+                    call IFOCK(FC,NI,NJ,NK,FINI,II)
+                  else if (NJ == NK) then
+                    call IFOCK(FC,NJ,NI,NL,FINI,II)
+                  else if (NJ == NL) then
+                    call IFOCK(FC,NJ,NI,NK,FINI,II)
+                  end if
+                end if
               end do
             end do
           end do
         end do
-310     continue
       end do
     end do
   end do
@@ -336,11 +334,12 @@ call dDAFILE(Lu_25,1,FC,NOB2,IADD25)
 IAD25S = IADD25
 write(u6,154)
 call XFLUSH(u6)
-154 format(//6X,'STATISTICS FOR INTEGRALS, FIRST ENTRY 10**3-10**4',/)
 write(u6,155) (IVEC(I),I=1,20)
 call XFLUSH(u6)
-155 format(6X,5I10)
 
 return
+
+154 format(//6X,'STATISTICS FOR INTEGRALS, FIRST ENTRY 10**3-10**4',/)
+155 format(6X,5I10)
 
 end subroutine SORT_CPF

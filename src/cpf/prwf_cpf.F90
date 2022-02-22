@@ -58,31 +58,29 @@ do I=1,NCONF
   if (I == IREF0) then
     write(u6,105) I,C(I),'REFERENCE'
     call XFLUSH(u6)
-    GO TO 26
-  end if
-  CI = C(I)
-  if (abs(CI) < THRC) GO TO 10
-  if (I <= JCONF) then
-    write(u6,105) I,CI,'VALANCE'
-    call XFLUSH(u6)
-    GO TO 26
-  end if
-  if (I <= JSC(2)) then
-    JMIN = IRC(1)+1
-    write(u6,105) I,CI,'DOUBLET'
-    call XFLUSH(u6)
-  else if (I <= JSC(3)) then
-    JMIN = IRC(2)+1
   else
-    JMIN = IRC(3)+1
+    CI = C(I)
+    if (abs(CI) < THRC) cycle
+    if (I <= JCONF) then
+      write(u6,105) I,CI,'VALANCE'
+      call XFLUSH(u6)
+    else
+      if (I <= JSC(2)) then
+        JMIN = IRC(1)+1
+        write(u6,105) I,CI,'DOUBLET'
+        call XFLUSH(u6)
+      else if (I <= JSC(3)) then
+        JMIN = IRC(2)+1
+      else
+        JMIN = IRC(3)+1
+      end if
+      IX1 = IRC(ILIM)
+      do J=JMIN,IX1
+        JJ = J-1
+        if (INDX(J) >= IJ) exit
+      end do
+    end if
   end if
-  IX1 = IRC(ILIM)
-  do J=JMIN,IX1
-    JJ = J-1
-    if (INDX(J) >= IJ) GO TO 25
-  end do
-25 continue
-26 continue
   NSJ = MUL(JSYM(JJ),LSYM)
   JVIR = I-INDX(JJ)
   if (I > JCONF) JVIR = IJ-INDX(JJ)
@@ -103,9 +101,7 @@ do I=1,NCONF
     IOC(2) = 0
     ISP(2) = 0
     ILSYM(2) = 0
-    GO TO 100
-  end if
-  if (JJ <= IRC(2)) then
+  else if (JJ <= IRC(2)) then
     IORB(2) = JVIR+NSYS(NSJ)+LN
     IOC(2) = 1
     ISP(2) = 1
@@ -114,48 +110,44 @@ do I=1,NCONF
     IOC(1) = 0
     ISP(1) = 0
     ILSYM(1) = 0
-    GO TO 100
-  end if
-  IIN = 0
-  do II=1,NVIRT
-    NA = II
-    NSI = MUL(NSJ,NSM(LN+II))
-    J1 = NSYS(NSI)+1
-    J2 = NSYS(NSI+1)
-    if (J2 > II) J2 = II
-    if (J2 < J1) GO TO 46
-    do J=J1,J2
-      NB = J
-      IIN = IIN+1
-      if (IIN == JVIR) GO TO 48
-    end do
-46  continue
-  end do
-48 continue
-  IORB(1) = LN+NB
-  IOC(1) = 1
-  ISP(1) = 1
-  ILSYM(1) = NSM(IORB(1))
-  if (NA == NB) then
-    IORB(2) = IORB(1)
-    IOC(2) = 2
-    ISP(2) = 3
-    ILSYM(2) = NSM(IORB(2))
-    IORB(1) = 0
-    IOC(1) = 0
-    ISP(1) = 0
-    ILSYM(1) = 0
-    CI = CI/SQ2
-    if (abs(CI) < THRC) GO TO 10
   else
-    IORB(2) = LN+NA
-    IOC(2) = 1
-    ISP(2) = 2
-    ILSYM(2) = NSM(IORB(2))
+    IIN = 0
+    outer: do II=1,NVIRT
+      NA = II
+      NSI = MUL(NSJ,NSM(LN+II))
+      J1 = NSYS(NSI)+1
+      J2 = NSYS(NSI+1)
+      if (J2 > II) J2 = II
+      do J=J1,J2
+        NB = J
+        IIN = IIN+1
+        if (IIN == JVIR) exit outer
+      end do
+    end do outer
+    IORB(1) = LN+NB
+    IOC(1) = 1
+    ISP(1) = 1
+    ILSYM(1) = NSM(IORB(1))
+    if (NA == NB) then
+      IORB(2) = IORB(1)
+      IOC(2) = 2
+      ISP(2) = 3
+      ILSYM(2) = NSM(IORB(2))
+      IORB(1) = 0
+      IOC(1) = 0
+      ISP(1) = 0
+      ILSYM(1) = 0
+      CI = CI/SQ2
+      if (abs(CI) < THRC) cycle
+    else
+      IORB(2) = LN+NA
+      IOC(2) = 1
+      ISP(2) = 2
+      ILSYM(2) = NSM(IORB(2))
+    end if
+    if (JJ <= IRC(3)) write(u6,105) I,CI,'TRIPLET'
+    if (JJ > IRC(3)) write(u6,105) I,CI,'SINGLET'
   end if
-  if (JJ <= IRC(3)) write(u6,105) I,CI,'TRIPLET'
-  if (JJ > IRC(3)) write(u6,105) I,CI,'SINGLET'
-100 continue
   write(u6,*)
   call XFLUSH(u6)
   if (LN+2 <= 36) then
@@ -177,7 +169,6 @@ do I=1,NCONF
     write(u6,121) 'SYMMETRY     ',(ILSYM(J),J=1,LN+2)
     call XFLUSH(u6)
   end if
-10 continue
 end do
 
 return

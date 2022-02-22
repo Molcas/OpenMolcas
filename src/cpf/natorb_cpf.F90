@@ -29,7 +29,6 @@ NBM = NBAS(M)
 if (NBM == 0) return
 if (NORB(M) == 0) return
 if (IPRINT >= 15) write(u6,1) M
-1 format(///,5X,'SYMMETRY NUMBER',I3)
 NBP = 0
 M1 = M-1
 do I=1,M1
@@ -42,25 +41,23 @@ NORBM2 = IROW(NORBM+1)
 do I=1,NORBM2
   DSYM(I) = Zero
 end do
-if (NFR == 0) GO TO 10
 II = 0
 do I=1,NFR
   II = II+I
   DSYM(II) = Two
 end do
 ! REST OF DENSITY MATRIX
-10 IJ = 0
+IJ = 0
 do I=1,NORBM
   do J=1,I
     IJ = IJ+1
     NI = ICH(NBP+I)
-    if (NI < 0) GO TO 20
+    if (NI < 0) cycle
     NJ = ICH(NBP+J)
-    if (NJ < 0) GO TO 20
+    if (NJ < 0) cycle
     NIJ = IROW(NI)+NJ
     if (NJ > NI) NIJ = IROW(NJ)+NI
     DSYM(IJ) = D(NIJ)
-20  continue
   end do
 end do
 ! DIAGONALIZE
@@ -70,18 +67,15 @@ do I=1,NORBM
 end do
 call ORDER_CPF(CMO,OCC,NORBM)
 if (IPRINT >= 15) write(u6,30)
-30 format(//,5X,'NATURAL ORBITALS IN MO-BASIS',//,7X,'OCCUPATION NUMBER',5X,'COEFFICIENTS')
 ILAS = 0
 do I=1,NORBM
   ISTA = ILAS+1
   ILAS = ILAS+NORBM
   OCC(I) = -OCC(I)
   if (IPRINT >= 15) write(u6,40) I,OCC(I),(CMO(J),J=ISTA,ILAS)
-40 format(/,5X,I4,F10.6,5F10.6,/(19X,5F10.6))
 end do
 ! TRANSFORM TO AO-BASIS
 if (IPRINT >= 15) write(u6,45)
-45 format(//,5X,'NATURAL ORBITALS IN AO-BASIS',//,11X,'OCCUPATION NUMBER',5X,'COEFFICIENTS')
 IJ0 = -NORBM
 kp = 1
 do I=1,NORBM
@@ -104,5 +98,10 @@ do I=1,NORBM
 end do
 
 return
+
+1 format(///,5X,'SYMMETRY NUMBER',I3)
+30 format(//,5X,'NATURAL ORBITALS IN MO-BASIS',//,7X,'OCCUPATION NUMBER',5X,'COEFFICIENTS')
+40 format(/,5X,I4,F10.6,5F10.6,/(19X,5F10.6))
+45 format(//,5X,'NATURAL ORBITALS IN AO-BASIS',//,11X,'OCCUPATION NUMBER',5X,'COEFFICIENTS')
 
 end subroutine NATORB_CPF

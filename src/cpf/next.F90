@@ -38,10 +38,11 @@ do I=1,ITM
   call VSMA(DPS,1,CTOT,P,1,P,1,NCONF)
 end do
 if (IPRINT >= 15) write(u6,19) (P(I),I=1,NCONF)
-19 format(6X,'C(NEXT)',5F10.6)
 
 IADC(ITPUL+2) = IAD
 
 return
+
+19 format(6X,'C(NEXT)',5F10.6)
 
 end subroutine NEXT

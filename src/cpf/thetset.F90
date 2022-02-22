@@ -40,7 +40,6 @@ do I=1,LN
   IOCR(IIOR) = JOJ
 end do
 if (IPRINT > 5) write(u6,888) IREF0,(IOCR(I),I=1,LN)
-888 format(5X,'IREF0=',I3/5X,'IOCR=',10I5)
 
 IINT = IRC(4)
 do IP=1,IINT
@@ -59,37 +58,35 @@ do IP=1,IINT
   IJ = 0
   do I=1,LN
     JJ = (IP-1)*LN+I
-    if ((JO(JJ) == IOCR(I)) .or. (JO(JJ) == 3)) GO TO 15
-    if (LWSP .and. (JO(JJ)*IOCR(I) == 2)) GO TO 15
-    if (II /= 0) GO TO 16
-    II = I
-16  IJ = I
-15  continue
+    if ((JO(JJ) == IOCR(I)) .or. (JO(JJ) == 3)) cycle
+    if (LWSP .and. (JO(JJ)*IOCR(I) == 2)) cycle
+    if (II == 0) II = I
+    IJ = I
   end do
   !PAM06 BUG: What if we come down here with II == 0 still??
   ! the IOCR will be accessed below first element. Provisional fix:
-  if (II == 0) goto 10
-  NI = IOCR(II)
-  if (NI > 1) NI = NI-1
-  NJ = IOCR(IJ)
-  if (NJ > 1) NJ = NJ-1
-  do IQ=1,IINT
-    IK = 0
-    IL = 0
-    do I=1,LN
-      JJ = (IQ-1)*LN+I
-      if ((JO(JJ) == IOCR(I)) .or. (JO(JJ) == 3)) GO TO 25
-      if (LWSP .and. (JO(JJ)*IOCR(I) == 2)) GO TO 25
-      if (IK /= 0) GO TO 26
-      IK = I
-26    IL = I
-25    continue
+  if (II /= 0) then
+    NI = IOCR(II)
+    if (NI > 1) NI = NI-1
+    NJ = IOCR(IJ)
+    if (NJ > 1) NJ = NJ-1
+    do IQ=1,IINT
+      IK = 0
+      IL = 0
+      do I=1,LN
+        JJ = (IQ-1)*LN+I
+        if ((JO(JJ) == IOCR(I)) .or. (JO(JJ) == 3)) cycle
+        if (LWSP .and. (JO(JJ)*IOCR(I) == 2)) cycle
+        if (IK == 0) IK = I
+        IL = I
+      end do
+      if ((II == IK) .and. (IJ == IL)) THE(IQ,IP) = One
     end do
-    if ((II == IK) .and. (IJ == IL)) THE(IQ,IP) = One
-  end do
-10 continue
+  end if
 end do
 
 return
+
+888 format(5X,'IREF0=',I3/5X,'IOCR=',10I5)
 
 end subroutine THETSET

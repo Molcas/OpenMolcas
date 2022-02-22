@@ -39,7 +39,7 @@ do ISTEP=1,IPASS
   IACMIN = IACMAX+1
   IACMAX = IACMAX+NOV
   if (IACMAX > NVT) IACMAX = NVT
-  if (IACMIN > IACMAX) GO TO 70
+  if (IACMIN > IACMAX) cycle
   do ISYM=1,NSYM
     IST1 = IRC(3)+JJS(ISYM+9)+1
     IFIN1 = IRC(3)+JJS(ISYM+10)
@@ -48,45 +48,49 @@ do ISTEP=1,IPASS
     IFIN2 = IRC(2)+JJS(ISYM+1)
     INPT = IFIN2-IST2+1
     ITAIL = INPS+INPT
-    if (ITAIL == 0) GO TO 40
+    if (ITAIL == 0) cycle
     IN1 = -NVIRT
     do NA=1,NVIRT
       IN1 = IN1+NVIRT
       do NC=1,NA
         IAC = IROW(NA)+NC
-        if (IAC < IACMIN) GO TO 60
-        if (IAC > IACMAX) GO TO 60
-        if (NA == 1) GO TO 60
+        if (IAC < IACMIN) cycle
+        if (IAC > IACMAX) cycle
+        if (NA == 1) cycle
         NSAC = MUL(NSM(LN+NA),NSM(LN+NC))
         NSACL = MUL(NSAC,LSYM)
-        if (NSACL /= ISYM) GO TO 60
+        if (NSACL /= ISYM) cycle
         ISAC = ISAB(IN1+NC)
         NDMAX = NSYS(NSM(LN+NC)+1)
         if (NDMAX > NA) NDMAX = NA
         INS = ISAB(IN1+NDMAX)
         ILOOP = 0
-72      do I=1,INS
-          if (INSIN < KBUFF1) GO TO 73
-          call dDAFILE(Lu_TiABCD,2,BUFIN,KBUFF1,IAD16)
-          INSIN = 0
-73        INSIN = INSIN+1
-          if (ILOOP == 0) ACBDS(I) = BUFIN(INSIN)
-          if (ILOOP == 1) ACBDT(I) = BUFIN(INSIN)
+        do
+          do I=1,INS
+            if (INSIN >= KBUFF1) then
+              call dDAFILE(Lu_TiABCD,2,BUFIN,KBUFF1,IAD16)
+              INSIN = 0
+            end if
+            INSIN = INSIN+1
+            if (ILOOP == 0) ACBDS(I) = BUFIN(INSIN)
+            if (ILOOP == 1) ACBDT(I) = BUFIN(INSIN)
+          end do
+          ILOOP = ILOOP+1
+          if (ILOOP /= 1) exit
         end do
-        ILOOP = ILOOP+1
-        if (ILOOP == 1) GO TO 72
-        if (INPS == 0) GO TO 11
-        do INDA=IST1,IFIN1
-          ENPQ = (One-THET(INDA,INDA)*Half)*(ENP(INDA)+ENP(INDA)-One)+THET(INDA,INDA)*Half
-          FACS = sqrt(ENP(INDA))*sqrt(ENP(INDA))/ENPQ
-          FACW = (FACS*(Two-THET(INDA,INDA))/ENPQ)*ENP(INDA)-FACS
-          TERM = DDOT_(INS,C(INDX(INDA)+1),1,ACBDS,1)
-          S(INDX(INDA)+ISAC) = S(INDX(INDA)+ISAC)+FACS*TERM
-          W(INDX(INDA)+ISAC) = W(INDX(INDA)+ISAC)+FACW*TERM
-          call DAXPY_(INS,FACS*C(INDX(INDA)+ISAC),ACBDS,1,S(INDX(INDA)+1),1)
-          call DAXPY_(INS,FACW*C(INDX(INDA)+ISAC),ACBDS,1,W(INDX(INDA)+1),1)
-        end do
-11      if ((INPT == 0) .or. (NA == NC)) GO TO 60
+        if (INPS /= 0) then
+          do INDA=IST1,IFIN1
+            ENPQ = (One-THET(INDA,INDA)*Half)*(ENP(INDA)+ENP(INDA)-One)+THET(INDA,INDA)*Half
+            FACS = sqrt(ENP(INDA))*sqrt(ENP(INDA))/ENPQ
+            FACW = (FACS*(Two-THET(INDA,INDA))/ENPQ)*ENP(INDA)-FACS
+            TERM = DDOT_(INS,C(INDX(INDA)+1),1,ACBDS,1)
+            S(INDX(INDA)+ISAC) = S(INDX(INDA)+ISAC)+FACS*TERM
+            W(INDX(INDA)+ISAC) = W(INDX(INDA)+ISAC)+FACW*TERM
+            call DAXPY_(INS,FACS*C(INDX(INDA)+ISAC),ACBDS,1,S(INDX(INDA)+1),1)
+            call DAXPY_(INS,FACW*C(INDX(INDA)+ISAC),ACBDS,1,W(INDX(INDA)+1),1)
+          end do
+        end if
+        if ((INPT == 0) .or. (NA == NC)) cycle
         do INDA=IST2,IFIN2
           ENPQ = (One-THET(INDA,INDA)*Half)*(ENP(INDA)+ENP(INDA)-One)+THET(INDA,INDA)*Half
           FACS = sqrt(ENP(INDA))*sqrt(ENP(INDA))/ENPQ
@@ -97,12 +101,9 @@ do ISTEP=1,IPASS
           call DAXPY_(INS,FACS*C(INDX(INDA)+ISAC),ACBDT,1,S(INDX(INDA)+1),1)
           call DAXPY_(INS,FACW*C(INDX(INDA)+ISAC),ACBDT,1,W(INDX(INDA)+1),1)
         end do
-60      continue
       end do
     end do
-40  continue
   end do
-70 continue
 end do
 call MDSQ2(C,S,W,MUL,INDX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
 

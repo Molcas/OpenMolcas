@@ -33,10 +33,10 @@ do NSP=1,NSYM
       NSSM = NSR
       if (NSR == NSP) NSSM = NSQ
       do NSS=1,NSSM
-        if (NSS /= NSPQR) GO TO 310
+        if (NSS /= NSPQR) cycle
         NOS = NORB(NSS)
         NORBP = NOP*NOQ*NOR*NOS
-        if (NORBP == 0) GO TO 310
+        if (NORBP == 0) cycle
         do NV=1,NOR
           NXM = NOS
           if (NSR == NSS) NXM = NV
@@ -54,7 +54,6 @@ do NSP=1,NSYM
             end do
           end do
         end do
-310     continue
       end do
     end do
   end do

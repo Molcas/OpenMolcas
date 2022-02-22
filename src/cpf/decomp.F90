@@ -32,16 +32,14 @@ do I=1,N
   ROWNRM = Zero
   do J=1,N
     UL(I,J) = A(I,J)
-    if (ROWNRM-abs(UL(I,J)) >= 0) goto 2
-    ROWNRM = abs(UL(I,J))
-2   continue
+    if (ROWNRM < abs(UL(I,J))) ROWNRM = abs(UL(I,J))
   end do
-  if (ROWNRM == 0) goto 4
-  SCALES(I) = One/ROWNRM
-  GO TO 5
-4 call SING(1)
-  SCALES(I) = Zero
-5 continue
+  if (ROWNRM == Zero) then
+    call SING(1)
+    SCALES(I) = Zero
+  else
+    SCALES(I) = One/ROWNRM
+  end if
 end do
 ! GAUSSIAN ELIMINATION WITH PARTIAL PIVOTING
 NM1 = N-1
@@ -50,35 +48,35 @@ do K=1,NM1
   do I=K,N
     IP = IPS(I)
     RSIZE = abs(UL(IP,K))*SCALES(IP)
-    if (RSIZE-BIG <= 0) goto 11
-    BIG = RSIZE
-    IDXPIV = I
-11  continue
+    if (RSIZE > BIG) then
+      BIG = RSIZE
+      IDXPIV = I
+    end if
   end do
-  if (BIG /= 0) goto 13
-  call SING(2)
-  goto 17
-13 if (IDXPIV == K) goto 15
-  J = IPS(K)
-  IPS(K) = IPS(IDXPIV)
-  IPS(IDXPIV) = J
-15 KP = IPS(K)
-  PIVOT = UL(KP,K)
-  KP1 = K+1
-  do I=KP1,N
-    IP = IPS(I)
-    EM = -UL(IP,K)/PIVOT
-    UL(IP,K) = -EM
-    do J=KP1,N
-      UL(IP,J) = UL(IP,J)+EM*UL(KP,J)
+  if (BIG == 0) then
+    call SING(2)
+  else
+    if (IDXPIV /= K) then
+      J = IPS(K)
+      IPS(K) = IPS(IDXPIV)
+      IPS(IDXPIV) = J
+    end if
+    KP = IPS(K)
+    PIVOT = UL(KP,K)
+    KP1 = K+1
+    do I=KP1,N
+      IP = IPS(I)
+      EM = -UL(IP,K)/PIVOT
+      UL(IP,K) = -EM
+      do J=KP1,N
+        UL(IP,J) = UL(IP,J)+EM*UL(KP,J)
+      end do
     end do
-  end do
-17 continue
+  end if
 end do
 KP = IPS(N)
-if (UL(KP,N) /= 0) goto 19
-call SING(2)
+if (UL(KP,N) == 0) call SING(2)
 
-19 return
+return
 
 end subroutine DECOMP

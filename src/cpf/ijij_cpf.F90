@@ -49,147 +49,146 @@ IOUT = 0
 ICHK = 0
 IADD10 = IAD10(3)
 
-300 continue
-! Read a new COP buffer:
-301 continue
-call dDAFILE(Lu_CIGuga,2,COP,nCOP,IADD10)
-call iDAFILE(Lu_CIGuga,2,iCOP1,nCOP+1,IADD10)
-LENGTH = ICOP1(nCOP+1)
-if (LENGTH == 0) GO TO 301
-if (LENGTH < 0) GO TO 350
-! A long loop over the COP buffer:
-do II=1,LENGTH
-  IND = ICOP1(II)
-  if (ICHK == 0) then
-    if (IND /= 0) GO TO 361
-    ICHK = 1
-    GO TO 360
-  end if
+do
+  ! Read a new COP buffer:
+  call dDAFILE(Lu_CIGuga,2,COP,nCOP,IADD10)
+  call iDAFILE(Lu_CIGuga,2,iCOP1,nCOP+1,IADD10)
+  LENGTH = ICOP1(nCOP+1)
+  if (LENGTH == 0) cycle
+  if (LENGTH < 0) exit
+  ! A long loop over the COP buffer:
+  do II=1,LENGTH
+    IND = ICOP1(II)
+    if (ICHK == 0) then
+      if (IND /= 0) then
+        !PAM97 ITYP = iand(IND,1)
+        !PAM97 IJJ = iand(ishft(IND,-1),2047)
+        !ITYP = mod(IND,2)
+        !IJJ = mod(IND/2,2048)
+        ITYP = ibits(IND,0,1)
+        IJJ = ibits(IND,1,11)
+        if (ITYP == 0) TERM = COP(II)*FJI(IJJ)
+        if (IVL == IV0) then
 
-  ! Here, if ICHK is 1.
-  ICHK = 0
-  INDI = IND
-  !PAM97 ICOUP = iand(INDI,65535)
-  !PAM97 IVL = iand(ishft(INDI,-16),255)
-  !ICOUP = mod(INDI,65536)
-  !IVL = mod(INDI/65536,256)
-  ICOUP = ibits(INDI,0,16)
-  IVL = ibits(INDI,16,8)
-  ICHK = 0
-  INS = 1
-  if (IVSAVE == IV0) then
-    INS = ICOUPS
-    INB = ICOUPS
-  end if
+          ! IVL == IV0, Valence:
+          INB = ICOUP
+          HDIAG(INB) = HDIAG(INB)+TERM
 
-  if (INB > 0) then
-    ! Transfer HDIAG via buffer HCOUT, write it to unit 25:
-    do J=INS,INB
-      IOUT = IOUT+1
-      HCOUT(IOUT) = HDIAG(J)
-      if (IOUT >= nCOP) then
-        ! Write out the filled HCOUT buffer:
-        if (IFS /= 1) then
-          POTNUC = HCOUT(IREF0)
-          IFS = 1
+        else if (IVL == IV1) then
+
+          ! IVL == IV1, Singles:
+          INB = 0
+          NA1 = NSYS(NSS)+1
+          NA2 = NSYS(NSS+1)
+          do NA=NA1,NA2
+            INB = INB+1
+            if (ITYP /= 0) then
+              IIJ = IROW(LN+NA)+IJJ
+              TERM = COP(II)*FJI(IIJ)
+            end if
+            HDIAG(INB) = HDIAG(INB)+TERM
+          end do
+
+        else
+
+          INB = 0
+          ! Doubles:
+          do NA=1,NVIRT
+            NSA = MUL(NSS,NSM(LN+NA))
+            NB1 = NSYS(NSA)+1
+            NB2 = NSYS(NSA+1)
+            if (NB2 > NA) NB2 = NA
+            if (NB2 >= NB1) then
+              IIJ1 = IROW(LN+NA)+IJJ
+              do NB=NB1,NB2
+                INB = INB+1
+                if (ITYP /= 0) then
+                  IIJ2 = IROW(LN+NB)+IJJ
+                  TERM = COP(II)*(FJI(IIJ1)+FJI(IIJ2))
+                end if
+                HDIAG(INB) = HDIAG(INB)+TERM
+              end do
+            end if
+          end do
+
         end if
-        do KK=1,nCOP
-          HCOUT(KK) = HCOUT(KK)-POTNUC
-        end do
-        call dDAFILE(Lu_25,1,HCOUT,nCOP,IADD25)
-        IOUT = 0
+      else
+        ICHK = 1
       end if
-    end do
-  end if
 
-  if (IVL /= IV0) then
-    JJ = IRC(IVL)+ICOUP
-    NSS = MUL(JSYM(JJ),LSYM)
-    if (IVL == 1) INB = NVIR(NSS)
-    if (IVL > 1) INB = NNS(NSS)
-    if (INB > 0) call dDAFILE(Lu_27,2,HDIAG,INB,IAD27)
-  end if
-  IVSAVE = IVL
-  ICOUPS = ICOUP
-  GO TO 360
+    else
 
-361 continue
-  ! Here, if ICHK == 0 and IND /= 0
-  !PAM97 ITYP = iand(IND,1)
-  !PAM97 IJJ = iand(ishft(IND,-1),2047)
-  !ITYP = mod(IND,2)
-  !IJJ = mod(IND/2,2048)
-  ITYP = ibits(IND,0,1)
-  IJJ = ibits(IND,1,11)
-  if (ITYP == 0) TERM = COP(II)*FJI(IJJ)
-  if (IVL /= IV0) GO TO 362
+      ICHK = 0
+      INDI = IND
+      !PAM97 ICOUP = iand(INDI,65535)
+      !PAM97 IVL = iand(ishft(INDI,-16),255)
+      !ICOUP = mod(INDI,65536)
+      !IVL = mod(INDI/65536,256)
+      ICOUP = ibits(INDI,0,16)
+      IVL = ibits(INDI,16,8)
+      ICHK = 0
+      INS = 1
+      if (IVSAVE == IV0) then
+        INS = ICOUPS
+        INB = ICOUPS
+      end if
 
-  ! IVL == IV0, Valence:
-  INB = ICOUP
-  HDIAG(INB) = HDIAG(INB)+TERM
-  GO TO 360
+      if (INB > 0) then
+        ! Transfer HDIAG via buffer HCOUT, write it to unit 25:
+        do J=INS,INB
+          IOUT = IOUT+1
+          HCOUT(IOUT) = HDIAG(J)
+          if (IOUT >= nCOP) then
+            ! Write out the filled HCOUT buffer:
+            if (IFS /= 1) then
+              POTNUC = HCOUT(IREF0)
+              IFS = 1
+            end if
+            do KK=1,nCOP
+              HCOUT(KK) = HCOUT(KK)-POTNUC
+            end do
+            call dDAFILE(Lu_25,1,HCOUT,nCOP,IADD25)
+            IOUT = 0
+          end if
+        end do
+      end if
 
-362 if (IVL /= IV1) GO TO 363
-  ! IVL == IV1, Singles:
-  INB = 0
-  NA1 = NSYS(NSS)+1
-  NA2 = NSYS(NSS+1)
-  if (NA2 < NA1) GO TO 360
-  do NA=NA1,NA2
-    INB = INB+1
-    if (ITYP /= 0) then
-      IIJ = IROW(LN+NA)+IJJ
-      TERM = COP(II)*FJI(IIJ)
-    end if
-    HDIAG(INB) = HDIAG(INB)+TERM
-  end do
-  GO TO 360
+      if (IVL /= IV0) then
+        JJ = IRC(IVL)+ICOUP
+        NSS = MUL(JSYM(JJ),LSYM)
+        if (IVL == 1) INB = NVIR(NSS)
+        if (IVL > 1) INB = NNS(NSS)
+        if (INB > 0) call dDAFILE(Lu_27,2,HDIAG,INB,IAD27)
+      end if
+      IVSAVE = IVL
+      ICOUPS = ICOUP
 
-363 INB = 0
-  ! Doubles:
-  do NA=1,NVIRT
-    NSA = MUL(NSS,NSM(LN+NA))
-    NB1 = NSYS(NSA)+1
-    NB2 = NSYS(NSA+1)
-    if (NB2 > NA) NB2 = NA
-    if (NB2 >= NB1) then
-      IIJ1 = IROW(LN+NA)+IJJ
-      do NB=NB1,NB2
-        INB = INB+1
-        if (ITYP /= 0) then
-          IIJ2 = IROW(LN+NB)+IJJ
-          TERM = COP(II)*(FJI(IIJ1)+FJI(IIJ2))
-        end if
-        HDIAG(INB) = HDIAG(INB)+TERM
-      end do
     end if
   end do
-
-360 continue
 end do
-GO TO 300
 
 ! Transfer remaining HDIAG elements to 25 via buffer HCOUT:
-350 if (INB == 0) GO TO 21
+if (INB /= 0) then
 
-do J=1,INB
-  IOUT = IOUT+1
-  HCOUT(IOUT) = HDIAG(J)
-  if (IOUT >= nCOP) then
-    ! Write out the filled HCOUT buffer:
-    if (IFS /= 1) then
-      POTNUC = HCOUT(IREF0)
-      IFS = 1
+  do J=1,INB
+    IOUT = IOUT+1
+    HCOUT(IOUT) = HDIAG(J)
+    if (IOUT >= nCOP) then
+      ! Write out the filled HCOUT buffer:
+      if (IFS /= 1) then
+        POTNUC = HCOUT(IREF0)
+        IFS = 1
+      end if
+      do KK=1,nCOP
+        HCOUT(KK) = HCOUT(KK)-POTNUC
+      end do
+      call dDAFILE(Lu_25,1,HCOUT,nCOP,IADD25)
+      IOUT = 0
     end if
-    do KK=1,nCOP
-      HCOUT(KK) = HCOUT(KK)-POTNUC
-    end do
-    call dDAFILE(Lu_25,1,HCOUT,nCOP,IADD25)
-    IOUT = 0
-  end if
-end do
+  end do
 
-21 continue
+end if
+
 ! One last write of the HCOUT buffer:
 if (IFS /= 1) then
   POTNUC = HCOUT(IREF0)
@@ -201,8 +200,9 @@ end do
 call dDAFILE(Lu_25,1,HCOUT,nCOP,IADD25)
 write(u6,50) POTNUC
 call XFLUSH(u6)
-50 format(/,6X,'REFERENCE ENERGY',F18.8)
 
 return
+
+50 format(/,6X,'REFERENCE ENERGY',F18.8)
 
 end subroutine IJIJ_CPF

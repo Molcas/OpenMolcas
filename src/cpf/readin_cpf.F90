@@ -27,16 +27,17 @@ integer(kind=iwp) :: iH(*)
 #include "files_cpf.fh"
 #include "niocr.fh"
 #include "spin_cpf.fh"
-integer(kind=iwp), parameter :: mxTit = 10, nCmd = 18
-integer(kind=iwp) :: iCmd, IDISK, IIN, ILIM, INTNUM, IOCR(nIOCR), iOpt, IR, IR1, iRef, IRJ, ISMAX, iSym, IT, IU, IV, IVA, IX1, &
-                     IX2, IX3, IX4, IY1, IY2, IY3, IY4, j, jCmd, jEnd, jStart, LN1, LN2, LPERMA, NAMSIZ, NASHI, NDELI, NFROI, &
+integer(kind=iwp), parameter :: mxTit = 10
+integer(kind=iwp) :: iCmd, IDISK, IIN, ILIM, INTNUM, IOCR(nIOCR), iOpt, IR, IR1, iRef, IRJ, ISMAX, istatus, iSym, IT, IU, IV, IVA, &
+                     IX1, IX2, IX3, IX4, IY1, IY2, IY3, IY4, j, jCmd, jEnd, jStart, LN1, LN2, LPERMA, NAMSIZ, NASHI, NDELI, NFROI, &
                      nIRC, NISHI, nJJS, NRLN1, nTit, NVALI, NVIR2, NVIRI, NVT, NVT2
 real(kind=wp) :: S
+logical(kind=iwp) :: Skip
 character(len=88) :: ModLine
 character(len=72) :: Line, Title(mxTit)
 character(len=4) :: Command
-character(len=4), parameter :: Cmd(nCmd) = ['TITL','MAXP','LEVS','THRP','PRIN','FROZ','DELE','MAXI','ECON','ETRS','REST','MCPF', &
-                                           'CPF ','SDCI','ACPF','LOW ','EXTR','END ']
+character(len=4), parameter :: Cmd(16) = ['TITL','MAXP','LEVS','THRP','PRIN','FROZ','DELE','MAXI','ECON','REST','MCPF','CPF ', &
+                                          'SDCI','ACPF','LOW ','END ']
 ! Statement function
 integer(kind=iwp) :: ipointer, i
 !---- convert a pointer in H to a pointer for iH
@@ -98,146 +99,168 @@ call WR_MOTRA_Info(Lu_TraOne,2,iDisk,ITOC17,64,POTNUC,NSYM,NBAS,NORB,NPFRO,NPDEL
 
 !---  Read input from standard input ----------------------------------*
 call RdNLst(u5,'CPF')
-10 read(u5,'(A)',end=991) Line
-Command = Line(1:4)
-call UpCase(Command)
-if (Command(1:1) == '*') goto 10
+Skip = .false.
 jCmd = 0
-do iCmd=1,nCmd
-  if (Command == Cmd(iCmd)) jCmd = iCmd
+do
+  if (Skip) then
+    Skip = .false.
+  else
+    read(u5,'(A)',iostat=istatus) Line
+    if (istatus < 0) call Error(1)
+    Command = Line(1:4)
+    call UpCase(Command)
+    if (Command(1:1) == '*') cycle
+    jCmd = 0
+    do iCmd=1,size(Cmd)
+      if (Command == Cmd(iCmd)) jCmd = iCmd
+    end do
+  end if
+  select case (jCmd)
+
+    case default
+      write(u6,*) 'READIN Error: Command not recognized.'
+      write(u6,*) 'The command is:'//''''//Command//''''
+      call QUIT_OnUserError()
+
+    case (1) !TITL
+      !---  process TITL command --------------------------------------*
+      do
+        read(u5,'(A)',iostat=istatus) Line
+        if (istatus < 0) call Error(1)
+        Command = Line(1:4)
+        call UpCase(Command)
+        if (Command(1:1) == '*') cycle
+        jCmd = 0
+        do iCmd=1,size(Cmd)
+          if (Command == Cmd(iCmd)) jCmd = iCmd
+        end do
+        if (jCmd /= 0) exit
+        nTit = nTit+1
+        if (nTit <= mxTit) Title(nTit) = Line
+      end do
+      Skip = .true.
+
+    case (2) !MAXP
+      !---  process MAXP command --------------------------------------*
+      do
+        read(u5,'(A)',iostat=istatus) Line
+        if (istatus < 0) call Error(1)
+        if (Line(1:1) /= '*') exit
+      end do
+      read(Line,*,iostat=istatus) MaxItP
+      if (istatus > 0) call Error(2)
+
+    case (3) !LEVS
+      !---  process LEVS command --------------------------------------*
+      do
+        read(u5,'(A)',iostat=istatus) Line
+        if (istatus < 0) call Error(1)
+        if (Line(1:1) /= '*') exit
+      end do
+      read(Line,*,iostat=istatus) WLev
+      if (istatus > 0) call Error(2)
+
+    case (4) !THRP
+      !---  process THRP command --------------------------------------*
+      do
+        read(u5,'(A)',iostat=istatus) Line
+        if (istatus < 0) call Error(1)
+        if (Line(1:1) /= '*') exit
+      end do
+      read(Line,*,iostat=istatus) CTrsh
+      if (istatus > 0) call Error(2)
+
+    case (5) !PRIN
+      !---  process PRIN command --------------------------------------*
+      do
+        read(u5,'(A)',iostat=istatus) Line
+        if (istatus < 0) call Error(1)
+        if (Line(1:1) /= '*') exit
+      end do
+      read(Line,*,iostat=istatus) iPrint
+      if (istatus > 0) call Error(2)
+
+    case (6) !FROZ
+      !---  process FROZ command --------------------------------------*
+      do
+        read(u5,'(A)',iostat=istatus) Line
+        if (istatus < 0) call Error(1)
+        if (Line(1:1) /= '*') exit
+      end do
+      ModLine = Line//' 0 0 0 0 0 0 0 0'
+      read(ModLine,*,iostat=istatus) (nFro(i),i=1,8)
+      if (istatus > 0) call Error(2)
+
+    case (7) !DELE
+      !---  process DELE command --------------------------------------*
+      do
+        read(u5,'(A)',iostat=istatus) Line
+        if (istatus < 0) call Error(1)
+        if (Line(1:1) /= '*') exit
+      end do
+      ModLine = Line//' 0 0 0 0 0 0 0 0'
+      read(ModLine,*,iostat=istatus) (NDEL(i),i=1,8)
+      if (istatus > 0) call Error(2)
+
+    case (8) !MAXI
+      !---  process MAXI command --------------------------------------*
+      do
+        read(u5,'(A)',iostat=istatus) Line
+        if (istatus < 0) call Error(1)
+        if (Line(1:1) /= '*') exit
+      end do
+      read(Line,*,iostat=istatus) MaxIt
+      if (istatus > 0) call Error(2)
+      MaxIt = min(MaxIt,75)
+
+    case (9) !ECON
+      !---  process ECON command --------------------------------------*
+      do
+        read(u5,'(A)',iostat=istatus) Line
+        if (istatus < 0) call Error(1)
+        if (Line(1:1) /= '*') exit
+      end do
+      read(Line,*,iostat=istatus) EThre
+      if (istatus > 0) call Error(2)
+
+    case (10) !REST
+      !---  process REST command --------------------------------------*
+      iRest = 1
+
+    case (11) !MCPF
+      !---  process MCPF command --------------------------------------*
+      iCPF = 0
+      iSDCI = 0
+      iNCPF = 0
+
+    case (12) !CPF
+      !---  process CPF  command --------------------------------------*
+      iCPF = 1
+      iSDCI = 0
+      iNCPF = 0
+
+    case (13) !SDCI
+      !---  process SDCI command --------------------------------------*
+      iSDCI = 1
+      iCPF = 0
+      iNCPF = 0
+
+    case (14) !ACPF
+      !---  process ACPF command --------------------------------------*
+      iNCPF = 1
+      iCPF = 0
+      iSDCI = 0
+
+    case (15) !LOW
+      !---  process LOW  command --------------------------------------*
+      LWSP = .true.
+
+    case (16) !END
+      exit
+
+  end select
 end do
-20 goto(100,200,300,400,500,600,700,800,900,1000,1100,1200,1300,1400,1500,1600,1700,1800) jCmd
-write(u6,*) 'READIN Error: Command not recognized.'
-write(u6,*) 'The command is:'//''''//Command//''''
-call QUIT_OnUserError()
-
-!---  process TITL command --------------------------------------------*
-100 continue
-read(u5,'(A)',end=991) Line
-Command = Line(1:4)
-call UpCase(Command)
-if (Command(1:1) == '*') goto 100
-jCmd = 0
-do iCmd=1,nCmd
-  if (Command == Cmd(iCmd)) jCmd = iCmd
-end do
-if (jCmd /= 0) goto 20
-nTit = nTit+1
-if (nTit <= mxTit) Title(nTit) = Line
-goto 100
-
-!---  process MAXP command --------------------------------------------*
-200 continue
-read(u5,'(A)',end=991) Line
-if (Line(1:1) == '*') goto 200
-read(Line,*,Err=992) MaxItP
-goto 10
-
-!---  process LEVS command --------------------------------------------*
-300 continue
-read(u5,'(A)',end=991) Line
-if (Line(1:1) == '*') goto 300
-read(Line,*,Err=992) WLev
-goto 10
-
-!---  process THRP command --------------------------------------------*
-400 continue
-read(u5,'(A)',end=991) Line
-if (Line(1:1) == '*') goto 400
-read(Line,*,Err=992) CTrsh
-goto 10
-
-!---  process PRIN command --------------------------------------------*
-500 continue
-read(u5,'(A)',end=991) Line
-if (Line(1:1) == '*') goto 500
-read(Line,*,Err=992) iPrint
-goto 10
-
-!---  process FROZ command --------------------------------------------*
-600 continue
-read(u5,'(A)',end=991) Line
-if (Line(1:1) == '*') goto 600
-ModLine = Line//' 0 0 0 0 0 0 0 0'
-read(ModLine,*,Err=992) (nFro(i),i=1,8)
-goto 10
-
-!---  process DELE command --------------------------------------------*
-700 continue
-read(u5,'(A)',end=991) Line
-if (Line(1:1) == '*') goto 700
-ModLine = Line//' 0 0 0 0 0 0 0 0'
-read(ModLine,*,Err=992) (NDEL(i),i=1,8)
-goto 10
-
-!---  process MAXI command --------------------------------------------*
-800 continue
-read(u5,'(A)',end=991) Line
-if (Line(1:1) == '*') goto 800
-read(Line,*,Err=992) MaxIt
-MaxIt = min(MaxIt,75)
-goto 10
-
-!---  process ECON command --------------------------------------------*
-900 continue
-read(u5,'(A)',end=991) Line
-if (Line(1:1) == '*') goto 900
-read(Line,*,Err=992) EThre
-goto 10
-
-!---  process ETRS command --------------------------------------------*
-1000 continue
-read(u5,'(A)',end=991) Line
-if (Line(1:1) == '*') goto 1000
-!PAM97 read(Line,*,Err=992) ETrsh
-read(Line,*)
-write(u6,*) ' WARNING: The obsolete ETRS command is ignored.'
-goto 10
-
-!---  process REST command --------------------------------------------*
-1100 continue
-iRest = 1
-goto 10
-
-!---  process MCPF command --------------------------------------------*
-1200 continue
-iCPF = 0
-iSDCI = 0
-iNCPF = 0
-goto 10
-
-!---  process CPF  command --------------------------------------------*
-1300 continue
-iCPF = 1
-iSDCI = 0
-iNCPF = 0
-goto 10
-
-!---  process SDCI command --------------------------------------------*
-1400 continue
-iSDCI = 1
-iCPF = 0
-iNCPF = 0
-goto 10
-
-!---  process ACPF command --------------------------------------------*
-1500 continue
-iNCPF = 1
-iCPF = 0
-iSDCI = 0
-goto 10
-
-!---  process LOW  command --------------------------------------------*
-1600 continue
-LWSP = .true.
-goto 10
-
-!---  process EXTR command --------------------------------------------*
-1700 write(u6,*) 'The EXTRACT option is redundant and is ignored!'
-goto 10
-
 !---  The end of the input is reached, print the title ----------------*
-1800 continue
 if (ntit == 0) then
   ntit = 1
   title(1) = ' ( No title was given )'
@@ -432,32 +455,28 @@ IY1 = ISC(1)
 IY2 = ISC(2)-ISC(1)
 write(u6,214)
 call XFLUSH(u6)
-214 format(//,6X,'INTERNAL CONFIGURATIONS')
-if (IFIRST /= 0) GO TO 205
-IX3 = IRC(3)-IRC(2)
-IX4 = IRC(4)-IRC(3)
-ISC(3) = ISC(2)+IX3*NVT2
-ISC(4) = ISC(3)+IX4*NVT
-IY3 = ISC(3)-ISC(2)
-IY4 = ISC(4)-ISC(3)
-write(u6,215) IX1,IX2,IX3,IX4
-call XFLUSH(u6)
-215 format(/,6X,'NUMBER OF VALENCE STATES',I16,/,6X,'NUMBER OF DOUBLET COUPLED SINGLES',I7, &
-           /,6X,'NUMBER OF TRIPLET COUPLED DOUBLES',I7,/,6X,'NUMBER OF SINGLET COUPLED DOUBLES',I7)
-write(u6,213)
-call XFLUSH(u6)
-213 format(//,6X,'FULL-SPACE CONFIGURATIONS (FORMAL)')
-write(u6,215) IY1,IY2,IY3,IY4
-call XFLUSH(u6)
-GO TO 206
-205 write(u6,216) IX1,IX2
-call XFLUSH(u6)
-216 format(/,6X,'NUMBER OF VALENCE STATES',I16,/,6X,'NUMBER OF DOUBLET COUPLED SINGLES',I7)
-write(u6,213)
-call XFLUSH(u6)
-write(u6,216) IY1,IY2
-call XFLUSH(u6)
-206 ILIM = 4
+if (IFIRST == 0) then
+  IX3 = IRC(3)-IRC(2)
+  IX4 = IRC(4)-IRC(3)
+  ISC(3) = ISC(2)+IX3*NVT2
+  ISC(4) = ISC(3)+IX4*NVT
+  IY3 = ISC(3)-ISC(2)
+  IY4 = ISC(4)-ISC(3)
+  write(u6,215) IX1,IX2,IX3,IX4
+  call XFLUSH(u6)
+  write(u6,213)
+  call XFLUSH(u6)
+  write(u6,215) IY1,IY2,IY3,IY4
+  call XFLUSH(u6)
+else
+  write(u6,216) IX1,IX2
+  call XFLUSH(u6)
+  write(u6,213)
+  call XFLUSH(u6)
+  write(u6,216) IY1,IY2
+  call XFLUSH(u6)
+end if
+ILIM = 4
 if (IFIRST /= 0) ILIM = 2
 ! ERROR CONDITIONS:
 !if (LN /= NISHT+NASHT+NVALT) then
@@ -492,26 +511,43 @@ call ALLOC_CPF(ISMAX,LPERMA)
 
 return
 
-991 continue
-write(u6,*) 'READIN Error: Premature end of file while reading.'
-call Quit_OnUserError()
-992 continue
-write(u6,*) 'READIN Error: I/O error during internal read.'
-write(u6,*) 'The line that could not be read is:'
-write(u6,*) Line
-call Quit_OnUserError()
+214 format(//,6X,'INTERNAL CONFIGURATIONS')
+215 format(/,6X,'NUMBER OF VALENCE STATES',I16,/,6X,'NUMBER OF DOUBLET COUPLED SINGLES',I7, &
+           /,6X,'NUMBER OF TRIPLET COUPLED DOUBLES',I7,/,6X,'NUMBER OF SINGLET COUPLED DOUBLES',I7)
+213 format(//,6X,'FULL-SPACE CONFIGURATIONS (FORMAL)')
+216 format(/,6X,'NUMBER OF VALENCE STATES',I16,/,6X,'NUMBER OF DOUBLET COUPLED SINGLES',I7)
+
+contains
+
+subroutine Error(code)
+
+  integer(kind=iwp), intent(in) :: code
+
+  select case (code)
+    case (1)
+      write(u6,*) 'READIN Error: Premature end of file while reading.'
+    case (2)
+      write(u6,*) 'READIN Error: I/O error during internal read.'
+      write(u6,*) 'The line that could not be read is:'
+      write(u6,*) Line
+  end select
+  call Quit_OnUserError()
+
+end subroutine Error
 
 ! This is to allow type punning without an explicit interface
-contains
 subroutine dINDMAT(H)
-  real*8, target :: H(*)
-  integer, pointer :: iH2(:), iH3(:), iH4(:), iH5(:)
+
+  real(kind=wp), target :: H(*)
+  integer(kind=iwp), pointer :: iH2(:), iH3(:), iH4(:), iH5(:)
+
   call c_f_pointer(c_loc(H(LW(2))),iH2,[1])
   call c_f_pointer(c_loc(H(LW(3))),iH3,[1])
   call c_f_pointer(c_loc(H(LW(4))),iH4,[1])
   call c_f_pointer(c_loc(H(LW(5))),iH5,[1])
   call INDMAT_CPF(iH2,iH3,iH4,ISMAX,iH5)
   nullify(iH2,iH3,iH4,iH5)
+
 end subroutine dINDMAT
 
 end subroutine ReadIn_CPF

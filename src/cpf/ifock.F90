@@ -14,6 +14,7 @@
 
 subroutine IFOCK(FC,NI,NJ,NK,FINI,II)
 
+use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
@@ -25,10 +26,11 @@ if (NI > 0) return
 if ((NJ <= 0) .or. (NK <= 0)) return
 JKPOS = NJ*(NJ-1)/2+NK
 if (NK > NJ) JKPOS = NK*(NK-1)/2+NJ
-if (II == 0) GO TO 10
-FC(JKPOS) = FC(JKPOS)+FINI+FINI
-return
-10 FC(JKPOS) = FC(JKPOS)-FINI
+if (II /= 0) then
+  FC(JKPOS) = FC(JKPOS)+Two*FINI
+else
+  FC(JKPOS) = FC(JKPOS)-FINI
+end if
 
 return
 

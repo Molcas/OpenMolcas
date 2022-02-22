@@ -19,17 +19,17 @@ use Definitions, only: iwp, u6
 implicit none
 integer(kind=iwp) :: IWHY
 
-goto(1,2,3),IWHY
-1 write(u6,11)
-call XFLUSH(u6)
-goto 10
-2 write(u6,12)
-call XFLUSH(u6)
-goto 10
-3 write(u6,13)
+select case (IWHY)
+  case default !(1)
+    write(u6,11)
+  case (2)
+    write(u6,12)
+  case (3)
+    write(u6,13)
+end select
 call XFLUSH(u6)
 
-10 return
+return
 
 11 format(' MATRIX WITH ZERO ROW IN DECOMPOSE.')
 12 format(' SINGULAR MATRIX IN DECOMPOSE.ZERO DIVIDE IN SOLVE.')

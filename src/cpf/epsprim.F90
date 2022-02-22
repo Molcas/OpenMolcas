@@ -69,8 +69,9 @@ end do
 
 IP = IRC(4)
 if (IPRINT > 5) write(u6,998) (EPP(I),I=1,IP)
-998 format(6X,'EPP ',5F10.6)
 
 return
+
+998 format(6X,'EPP ',5F10.6)
 
 end subroutine EPSPRIM

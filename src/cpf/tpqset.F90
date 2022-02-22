@@ -53,12 +53,10 @@ II = 0
 IJ = 0
 do I=1,LN
   JJ = (IP-1)*LN+I
-  if ((JO(JJ) == IOCR(I)) .or. (JO(JJ) == 3)) GO TO 15
-  if (LWSP .and. (JO(JJ)*IOCR(I) == 2)) GO TO 15
-  if (II /= 0) GO TO 16
-  II = I
-16 IJ = I
-15 continue
+  if ((JO(JJ) == IOCR(I)) .or. (JO(JJ) == 3)) cycle
+  if (LWSP .and. (JO(JJ)*IOCR(I) == 2)) cycle
+  if (II == 0) II = I
+  IJ = I
 end do
 NI = IOCR(II)
 if (NI > 1) NI = NI-1
@@ -69,12 +67,10 @@ do IQ=1,IINT
   IL = 0
   do I=1,LN
     JJ = (IQ-1)*LN+I
-    if ((JO(JJ) == IOCR(I)) .or. (JO(JJ) == 3)) GO TO 25
-    if (LWSP .and. (JO(JJ)*IOCR(I) == 2)) GO TO 25
-    if (IK /= 0) GO TO 26
-    IK = I
-26  IL = I
-25  continue
+    if ((JO(JJ) == IOCR(I)) .or. (JO(JJ) == 3)) cycle
+    if (LWSP .and. (JO(JJ)*IOCR(I) == 2)) cycle
+    if (IK == 0) IK = I
+    IL = I
   end do
   DIK = Zero
   DIL = Zero
@@ -89,8 +85,9 @@ do IQ=1,IINT
 end do
 if (IPRINT < 15) return
 if (IPRINT > 5) write(u6,11) (TPQ(IQ),IQ=1,IINT)
-11 format(5X,'TPQ',10F5.2)
 
 return
+
+11 format(5X,'TPQ',10F5.2)
 
 end subroutine TPQSET

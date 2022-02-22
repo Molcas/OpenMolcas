@@ -27,17 +27,17 @@ do NA=1,NAL
   NBB = 0
   NA1 = NBL
   if (NSIJ == 1) NA1 = NA-1
-  if (NA1 == 0) GO TO 15
   do NB=1,NA1
     IAB = IAB+1
     if (IFT == 0) C(IAB) = B(NAA+NB)+A(NBB+NA)
     if (IFT == 1) C(IAB) = B(NAA+NB)-A(NBB+NA)
     NBB = NBB+NAL
   end do
-15 if (NSIJ /= 1) GO TO 35
-  IAB = IAB+1
-  C(IAB) = FAC*A(NAA+NA)
-35 NAA = NAA+NBL
+  if (NSIJ == 1) then
+    IAB = IAB+1
+    C(IAB) = FAC*A(NAA+NA)
+  end if
+  NAA = NAA+NBL
 end do
 
 return

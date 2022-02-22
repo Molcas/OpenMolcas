@@ -45,8 +45,6 @@ if (LBUF > 998) LBUF = 998
 LBUF = ((LBUF+2)/RTOI)*RTOI-2
 LBUF1 = (LBUF*(RTOI+1)+2+(RTOI-1))/RTOI
 !PAM96 write(u6,150) NOV,MADR,LBUF
-!PAM96 150 format(6X,'NUMBER OF CHAINS ON DRUM',I7,/,6X,'PRESENT LIMIT',I18,/,6X,'BUFFERT FOR SORTING',I13,/,6X,'PRESENT LIMIT', &
-!PAM96            16X,'20')
 if (LBUF < 20) then
   ISTOP = 3
   write(u6,*) 'ALSO: Impossibly small buffers, too many bins,'
@@ -73,7 +71,6 @@ LW(15) = LW(14)+NOB2
 LW(16) = LW(15)+NOB2
 LIM = LW(16)+NOB2-1
 !PAM96 write(u6,404) LIM
-!PAM96 404 format(6X,'STORAGE FOR SORTING AIBJ',I7)
 if (LIM > LIC) then
   ISTOP = 1
   write(u6,*) 'ALSO: Too much storage needed for AIBJ.'
@@ -82,74 +79,74 @@ end if
 ! DYNAMICAL ALLOCATION FOR SORTING ABCD
 JBUF = 1
 NOVT = 0
-if (IFIRST /= 0) GO TO 35
-IPASS = 1
-110 NVT5 = (NVT-1)/IPASS+1
-INVT5 = NVT5
-LICXX = LICX-KBUFF1
-LSTO4 = LICXX-2*INVT5
-!RL JBUF1 = LSTO4/NVT5
-! JBUF1: Nr of available reals per bin
-JBUF1 = LSTO4/NVT5-1
-!PAM96 JBUF = 2*(JBUF1-1)/3
-!PAM96 JBUF = (JBUF/2)*2
-!PAM96 ! *** FPS ***
-!PAM96 !RL JBUF = (JBUF1-2)/2
-! JBUF: Nr of items per bin
-JBUF = (RTOI*JBUF1-2)/(RTOI+1)
-if (JBUF > 800) GO TO 120
-IPASS = IPASS+1
-if (IPASS > 5) GO TO 120
-GO TO 110
-120 if (JBUF > 998) JBUF = 998
-NOVT = NOV+NVT
-JBUF = ((JBUF+2)/RTOI)*RTOI-2
-JBUF1 = (JBUF*(RTOI+1)+2+(RTOI-1))/RTOI
-!PAM96 write(u6,150) NOVT,MADR,JBUF
-!PAM96 write(u6,160) IPASS
-!PAM96 160 format(6X,'NUMBER OF PASSES',I15)
-if (JBUF < 20) then
-  ISTOP = 3
-  write(u6,*) 'ALSO: Impossibly small buffers, too many bins,'
-  write(u6,*) 'for sorting ABCD. Program will have to stop.'
+if (IFIRST == 0) then
+  IPASS = 1
+  do
+    NVT5 = (NVT-1)/IPASS+1
+    INVT5 = NVT5
+    LICXX = LICX-KBUFF1
+    LSTO4 = LICXX-2*INVT5
+    !RL JBUF1 = LSTO4/NVT5
+    ! JBUF1: Nr of available reals per bin
+    JBUF1 = LSTO4/NVT5-1
+    !PAM96 JBUF = 2*(JBUF1-1)/3
+    !PAM96 JBUF = (JBUF/2)*2
+    !PAM96 ! *** FPS ***
+    !PAM96 !RL JBUF = (JBUF1-2)/2
+    ! JBUF: Nr of items per bin
+    JBUF = (RTOI*JBUF1-2)/(RTOI+1)
+    if (JBUF > 800) exit
+    IPASS = IPASS+1
+    if (IPASS > 5) exit
+  end do
+  if (JBUF > 998) JBUF = 998
+  NOVT = NOV+NVT
+  JBUF = ((JBUF+2)/RTOI)*RTOI-2
+  JBUF1 = (JBUF*(RTOI+1)+2+(RTOI-1))/RTOI
+  !PAM96 write(u6,150) NOVT,MADR,JBUF
+  !PAM96 write(u6,160) IPASS
+  if (JBUF < 20) then
+    ISTOP = 3
+    write(u6,*) 'ALSO: Impossibly small buffers, too many bins,'
+    write(u6,*) 'for sorting ABCD. Program will have to stop.'
+  end if
+  ! BUFACBD
+  LW(96) = LPERMX
+  ! SORTING AREA , BUFOUT AND INDOUT
+  LW(17) = LW(96)+KBUFF1
+  ! CORE ADDRESSES , ICAD
+  !RL LW(18) = LW(17)+NVT5*(2*JBUF+2)
+  !PAM96 LW(18) = LW(17)+NVT5*(JBUF+JBUF/2+2)
+  LW(18) = LW(17)+NVT5*((JBUF*(RTOI+1)+2+(RTOI-1))/RTOI)
+  ! BUFFER-COUNTER , IBUFL
+  LW(19) = LW(18)+INVT5
+  LIM = LW(19)+INVT5-1
+  ! ACBDS
+  ! (NOTE: FIRST PART OF BUFOUT (=2*JBUF+2) USED DURING CONSTRUCTION O
+  ! ACBDS AND ACBDT VECTORS)
+  !RL LW(94) = LW(17)+2*JBUF+2
+  !PAM96 LW(94) = LW(17)+JBUF+JBUF/2+2
+  LW(94) = LW(17)+(JBUF*(RTOI+1)+2+(RTOI-1))/RTOI
+  ! ACBDT
+  LW(95) = LW(94)+ISMAX
+  LIMT = LW(95)+ISMAX
+  if (LIMT > LW(18)) then
+    ISTOP = 1
+    write(u6,*) 'ALSO: Too much storage needed for ABCD.'
+    write(u6,'(1X,A,2I10)') 'LIMT,LW(18):',LIMT,LW(18)
+  end if
+  !PAM96 write(u6,402)
+  !PAM96 write(u6,405) LIM
+  if (LIM > LIC) then
+    ISTOP = 1
+    write(u6,*) 'ALSO: Too much storage needed for ABCD.'
+    write(u6,'(1X,A,2I10)') 'LIM,LIC:',LIM,LIC
+  end if
+  ! DYNAMICAL ALLOCATION FOR SORTING ABCI
+  NOV = LN*NVIRT+1
+else
+  NOV = 1
 end if
-! BUFACBD
-LW(96) = LPERMX
-! SORTING AREA , BUFOUT AND INDOUT
-LW(17) = LW(96)+KBUFF1
-! CORE ADDRESSES , ICAD
-!RL LW(18) = LW(17)+NVT5*(2*JBUF+2)
-!PAM96 LW(18) = LW(17)+NVT5*(JBUF+JBUF/2+2)
-LW(18) = LW(17)+NVT5*((JBUF*(RTOI+1)+2+(RTOI-1))/RTOI)
-! BUFFER-COUNTER , IBUFL
-LW(19) = LW(18)+INVT5
-LIM = LW(19)+INVT5-1
-! ACBDS
-! (NOTE: FIRST PART OF BUFOUT (=2*JBUF+2) USED DURING CONSTRUCTION O
-! ACBDS AND ACBDT VECTORS)
-!RL LW(94) = LW(17)+2*JBUF+2
-!PAM96 LW(94) = LW(17)+JBUF+JBUF/2+2
-LW(94) = LW(17)+(JBUF*(RTOI+1)+2+(RTOI-1))/RTOI
-! ACBDT
-LW(95) = LW(94)+ISMAX
-LIMT = LW(95)+ISMAX
-if (LIMT > LW(18)) then
-  ISTOP = 1
-  write(u6,*) 'ALSO: Too much storage needed for ABCD.'
-  write(u6,'(1X,A,2I10)') 'LIMT,LW(18):',LIMT,LW(18)
-end if
-!PAM96 write(u6,402)
-!PAM96 402 format(6X,'NOT ENOUGH STORAGE IN SORTB')
-!PAM96 401 write(u6,405) LIM
-!PAM96 405 format(6X,'STORAGE FOR SORTING ABCD',I7)
-if (LIM > LIC) then
-  ISTOP = 1
-  write(u6,*) 'ALSO: Too much storage needed for ABCD.'
-  write(u6,'(1X,A,2I10)') 'LIM,LIC:',LIM,LIC
-end if
-! DYNAMICAL ALLOCATION FOR SORTING ABCI
-NOV = LN*NVIRT+1
-35 if (IFIRST /= 0) NOV = 1
 INOV = NOV
 LSTO4 = LICX-2*INOV
 ! KBUF1: Nr of available reals per bin
@@ -200,7 +197,6 @@ if (LIM > LIC) then
   write(u6,'(1X,A,2I10)') 'LIM,LIC:',LIM,LIC
 end if
 !PAM96 411 write(u6,410) LIM
-!PAM96 410 format(6X,'STORAGE FOR SORTING ABCI',I7)
 if (NOVT >= MADR) then
   ISTOP = 2
   write(u6,*) 'ALSO: Too much storage needed.'
@@ -208,5 +204,13 @@ if (NOVT >= MADR) then
 end if
 
 return
+
+!PAM96 150 format(6X,'NUMBER OF CHAINS ON DRUM',I7,/,6X,'PRESENT LIMIT',I18,/,6X,'BUFFERT FOR SORTING',I13,/,6X,'PRESENT LIMIT', &
+!PAM96            16X,'20')
+!PAM96 160 format(6X,'NUMBER OF PASSES',I15)
+!PAM96 402 format(6X,'NOT ENOUGH STORAGE IN SORTB')
+!PAM96 404 format(6X,'STORAGE FOR SORTING AIBJ',I7)
+!PAM96 405 format(6X,'STORAGE FOR SORTING ABCD',I7)
+!PAM96 410 format(6X,'STORAGE FOR SORTING ABCI',I7)
 
 end subroutine ALSO

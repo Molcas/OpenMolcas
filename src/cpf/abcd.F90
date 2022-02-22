@@ -38,7 +38,7 @@ do ISTEP=1,IPASS
   IACMIN = IACMAX+1
   IACMAX = IACMAX+NOV
   if (IACMAX > NVT) IACMAX = NVT
-  if (IACMIN > IACMAX) GO TO 70
+  if (IACMIN > IACMAX) cycle
   do ISYM=1,NSYM
     IST1 = IRC(3)+JJS(ISYM+9)+1
     IFIN1 = IRC(3)+JJS(ISYM+10)
@@ -47,56 +47,59 @@ do ISTEP=1,IPASS
     IFIN2 = IRC(2)+JJS(ISYM+1)
     INPT = IFIN2-IST2+1
     ITAIL = INPS+INPT
-    if (ITAIL == 0) GO TO 40
+    if (ITAIL == 0) cycle
     IN1 = -NVIRT
     do NA=1,NVIRT
       IN1 = IN1+NVIRT
       do NC=1,NA
         IAC = IROW(NA)+NC
-        if (IAC < IACMIN) GO TO 60
-        if (IAC > IACMAX) GO TO 60
-        if (NA == 1) GO TO 60
+        if (IAC < IACMIN) cycle
+        if (IAC > IACMAX) cycle
+        if (NA == 1) cycle
         NSAC = MUL(NSM(LN+NA),NSM(LN+NC))
         NSACL = MUL(NSAC,LSYM)
-        if (NSACL /= ISYM) GO TO 60
+        if (NSACL /= ISYM) cycle
         ISAC = ISAB(IN1+NC)
         NDMAX = NSYS(NSM(LN+NC)+1)
         if (NDMAX > NA) NDMAX = NA
         INS = ISAB(IN1+NDMAX)
         ILOOP = 0
-72      INSB = INS
-73      if (INSIN < KBUFF1) GO TO 75
-        call dDAFILE(Lu_TiABCD,2,BUFIN,KBUFF1,IAD16)
-        INSIN = 0
-75      INB = KBUFF1-INSIN
-        INUMB = INSB
-        if (INSB > INB) INUMB = INB
-        IST = INS-INSB+1
-        if (ILOOP == 0) call DCOPY_(INUMB,BUFIN(INSIN+1),1,ACBDS(IST),1)
-        if (ILOOP == 1) call DCOPY_(INUMB,BUFIN(INSIN+1),1,ACBDT(IST),1)
-        INSIN = INSIN+INUMB
-        INSB = INSB-INUMB
-        if (INSB > 0) GO TO 73
-        ILOOP = ILOOP+1
-        if (ILOOP == 1) GO TO 72
-        if (INPS == 0) GO TO 11
-        do INDA=IST1,IFIN1
-          TERM = DDOT_(INS,C(INDX(INDA)+1),1,ACBDS,1)
-          S(INDX(INDA)+ISAC) = S(INDX(INDA)+ISAC)+TERM
-          call DAXPY_(INS,C(INDX(INDA)+ISAC),ACBDS,1,S(INDX(INDA)+1),1)
+        do
+          INSB = INS
+          do
+            if (INSIN >= KBUFF1) then
+              call dDAFILE(Lu_TiABCD,2,BUFIN,KBUFF1,IAD16)
+              INSIN = 0
+            end if
+            INB = KBUFF1-INSIN
+            INUMB = INSB
+            if (INSB > INB) INUMB = INB
+            IST = INS-INSB+1
+            if (ILOOP == 0) call DCOPY_(INUMB,BUFIN(INSIN+1),1,ACBDS(IST),1)
+            if (ILOOP == 1) call DCOPY_(INUMB,BUFIN(INSIN+1),1,ACBDT(IST),1)
+            INSIN = INSIN+INUMB
+            INSB = INSB-INUMB
+            if (INSB <= 0) exit
+          end do
+          ILOOP = ILOOP+1
+          if (ILOOP /= 1) exit
         end do
-11      if ((INPT == 0) .or. (NA == NC)) GO TO 60
+        if (INPS /= 0) then
+          do INDA=IST1,IFIN1
+            TERM = DDOT_(INS,C(INDX(INDA)+1),1,ACBDS,1)
+            S(INDX(INDA)+ISAC) = S(INDX(INDA)+ISAC)+TERM
+            call DAXPY_(INS,C(INDX(INDA)+ISAC),ACBDS,1,S(INDX(INDA)+1),1)
+          end do
+        end if
+        if ((INPT == 0) .or. (NA == NC)) cycle
         do INDA=IST2,IFIN2
           TERM = DDOT_(INS,C(INDX(INDA)+1),1,ACBDT,1)
           S(INDX(INDA)+ISAC) = S(INDX(INDA)+ISAC)+TERM
           call DAXPY_(INS,C(INDX(INDA)+ISAC),ACBDT,1,S(INDX(INDA)+1),1)
         end do
-60      continue
       end do
     end do
-40  continue
   end do
-70 continue
 end do
 call DSQ2(C,S,MUL,INDX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
 

@@ -70,8 +70,9 @@ end do
 
 IP = IRC(4)
 if (IPRINT > 5) write(u6,998) (EPB(I),I=1,IP)
-998 format(6X,'EPB ',5F10.6)
 
 return
+
+998 format(6X,'EPB ',5F10.6)
 
 end subroutine EPSBIS

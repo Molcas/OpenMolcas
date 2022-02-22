@@ -53,7 +53,7 @@ do ISTEP=1,IPASS
   IACMIN = IACMAX+1
   IACMAX = IACMAX+NOV
   if (IACMAX > NVT) IACMAX = NVT
-  if (IACMIN > IACMAX) GO TO 50
+  if (IACMIN > IACMAX) cycle
   ID = 0
   do IREC=1,NOV
     IBUFL(IREC) = 0
@@ -75,10 +75,10 @@ do ISTEP=1,IPASS
         NSSM = NSR
         if (NSR == NSP) NSSM = NSQ
         do NSS=1,NSSM
-          if (NSS /= NSPQR) GO TO 310
+          if (NSS /= NSPQR) cycle
           NOS = NORB(NSS)
           NORBP = NOP*NOQ*NOR*NOS
-          if (NORBP == 0) GO TO 310
+          if (NORBP == 0) cycle
           call dDAFILE(Lu_TraInt,2,TIBUF,NTIBUF,IAD50)
           IOUT = 0
           do NV=1,NOR
@@ -102,72 +102,66 @@ do ISTEP=1,IPASS
                   M2 = ICH(NORB0(NSQ)+NU)
                   M3 = ICH(NORB0(NSR)+NV)
                   M4 = ICH(NORB0(NSS)+NX)
-                  if ((M1 <= LN) .or. (M2 <= LN)) GO TO 306
-                  if ((M3 <= LN) .or. (M4 <= LN)) GO TO 306
+                  if ((M1 <= LN) .or. (M2 <= LN) .or. (M3 <= LN) .or. (M4 <= LN)) cycle
                   ! ORDER THESE INDICES CANONICALLY
-                  N1 = M1
-                  N2 = M2
-                  if (M1 > M2) GO TO 11
-                  N1 = M2
-                  N2 = M1
-11                N3 = M3
-                  N4 = M4
-                  if (M3 > M4) GO TO 12
-                  N3 = M4
-                  N4 = M3
-12                NI = N1
+                  N1 = max(M1,M2)
+                  N2 = min(M1,M2)
+                  N3 = max(M3,M4)
+                  N4 = min(M3,M4)
+                  NI = N1
                   NJ = N2
                   NK = N3
                   NL = N4
-                  if (NI > NK) GO TO 502
-                  if (NI == NK) GO TO 14
-                  NI = N3
-                  NJ = N4
-                  NK = N1
-                  NL = N2
-                  GO TO 502
-14                if (NJ > NL) GO TO 502
-                  NL = N2
-                  NJ = N4
-502               FINI = TIBUF(IOUT)
-                  if (abs(FINI) < 1.0e-9_wp) GO TO 306
+                  if (NI <= NK) then
+                    if (NI /= NK) then
+                      NI = N3
+                      NJ = N4
+                      NK = N1
+                      NL = N2
+                    else if (NJ <= NL) then
+                      NL = N2
+                      NJ = N4
+                    end if
+                  end if
+                  FINI = TIBUF(IOUT)
+                  if (abs(FINI) < 1.0e-9_wp) cycle
                   NA = NI-LN
                   NB = NJ-LN
                   NC = NK-LN
                   ND = NL-LN
                   ITURN = 0
-                  if ((NA == NB) .and. (NC == ND)) GO TO 306
-107               IAC = IROW(NA)+NC
-                  if (IAC < IACMIN) GO TO 106
-                  if (IAC > IACMAX) GO TO 106
-                  if ((NA == NC) .and. (NB == ND)) FINI = FINI*Half
-                  NAC = IAC-IACMIN+1
-                  IBUFL(NAC) = IBUFL(NAC)+1
-                  ICQ = ICAD(NAC)
-                  ICP = ICQ/IDIV+IBUFL(NAC)
-                  BUFOUT(ICP) = FINI
-                  ICPP = ICQ+JBUF0+IBUFL(NAC)
-                  !PAM97 INDOUT(ICPP) = ior(NB,ishft(ND,8))
-                  INDOUT(ICPP) = NB+ND*2**8
-                  if (IBUFL(NAC) < JBUF) GO TO 106
-                  INDOUT(ICQ+JBUF1) = JBUF
-                  JDISK = IDISK
-                  call iDAFILE(Lu_TiABIJ,1,INDOUT(ICQ+1),JBUF2,IDISK)
-                  INDOUT(ICQ+JBUF2) = JDISK
-                  IBUFL(NAC) = 0
-106               if (ITURN == 1) GO TO 306
-                  if ((NA == NC) .and. (NB == ND)) GO TO 306
-                  if ((NA == NB) .or. (NC == ND)) GO TO 306
-                  ITURN = 1
-                  NC = NL-LN
-                  ND = NK-LN
-                  GO TO 107
-306               continue
+                  if ((NA == NB) .and. (NC == ND)) cycle
+                  do
+                    IAC = IROW(NA)+NC
+                    if ((IAC >= IACMIN) .and. (IAC <= IACMAX)) then
+                      if ((NA == NC) .and. (NB == ND)) FINI = FINI*Half
+                      NAC = IAC-IACMIN+1
+                      IBUFL(NAC) = IBUFL(NAC)+1
+                      ICQ = ICAD(NAC)
+                      ICP = ICQ/IDIV+IBUFL(NAC)
+                      BUFOUT(ICP) = FINI
+                      ICPP = ICQ+JBUF0+IBUFL(NAC)
+                      !PAM97 INDOUT(ICPP) = ior(NB,ishft(ND,8))
+                      INDOUT(ICPP) = NB+ND*2**8
+                      if (IBUFL(NAC) >= JBUF) then
+                        INDOUT(ICQ+JBUF1) = JBUF
+                        JDISK = IDISK
+                        call iDAFILE(Lu_TiABIJ,1,INDOUT(ICQ+1),JBUF2,IDISK)
+                        INDOUT(ICQ+JBUF2) = JDISK
+                        IBUFL(NAC) = 0
+                      end if
+                    end if
+                    if (ITURN == 1) exit
+                    if ((NA == NC) .and. (NB == ND)) exit
+                    if ((NA == NB) .or. (NC == ND)) exit
+                    ITURN = 1
+                    NC = NL-LN
+                    ND = NK-LN
+                  end do
                 end do
               end do
             end do
           end do
-310       continue
         end do
       end do
     end do
@@ -194,18 +188,18 @@ do ISTEP=1,IPASS
     IFIN2 = IRC(2)+JJS(ISYM+1)
     INPT = IFIN2-IST2+1
     ITAIL = INPS+INPT
-    if (ITAIL == 0) GO TO 40
+    if (ITAIL == 0) cycle
     IN1 = -NVIRT
     do NA=1,NVIRT
       IN1 = IN1+NVIRT
       do NC=1,NA
         IAC = IROW(NA)+NC
-        if (IAC < IACMIN) GO TO 60
-        if (IAC > IACMAX) GO TO 60
-        if (NA == 1) GO TO 60
+        if (IAC < IACMIN) cycle
+        if (IAC > IACMAX) cycle
+        if (NA == 1) cycle
         NSAC = MUL(NSM(LN+NA),NSM(LN+NC))
         NSACL = MUL(NSAC,LSYM)
-        if (NSACL /= ISYM) GO TO 60
+        if (NSACL /= ISYM) cycle
         NDMAX = NSYS(NSM(LN+NC)+1)
         if (NDMAX > NA) NDMAX = NA
         INS = ISAB(IN1+NDMAX)
@@ -214,47 +208,44 @@ do ISTEP=1,IPASS
           ACBDT(I) = Zero
         end do
         IADR = LASTAD(NOVST+IAC)
-201     call iDAFILE(Lu_TiABIJ,2,INDOUT,JBUF2,IADR)
-        LENGTH = INDOUT(JBUF1)
-        IADR = INDOUT(JBUF2)
-        if (LENGTH == 0) GO TO 209
-        do KK=1,LENGTH
-          INND = INDOUT(JBUF0+KK)
-          !NB = mod(INND,IPOW8)
-          !ND = mod(INND/IPOW8,IPOW8)
-          NB = ibits(INND,0,8)
-          ND = ibits(INND,8,8)
-          NBD = (NB-1)*NVIRT+ND
-          IBDS = ISAB(NBD)
-          ACBDS(IBDS) = ACBDS(IBDS)+BUFOUT(KK)
-          if (NB > ND) ACBDT(IBDS) = ACBDT(IBDS)+BUFOUT(KK)
-          if (NB < ND) ACBDT(IBDS) = ACBDT(IBDS)-BUFOUT(KK)
+        do
+          call iDAFILE(Lu_TiABIJ,2,INDOUT,JBUF2,IADR)
+          LENGTH = INDOUT(JBUF1)
+          IADR = INDOUT(JBUF2)
+          do KK=1,LENGTH
+            INND = INDOUT(JBUF0+KK)
+            !NB = mod(INND,IPOW8)
+            !ND = mod(INND/IPOW8,IPOW8)
+            NB = ibits(INND,0,8)
+            ND = ibits(INND,8,8)
+            NBD = (NB-1)*NVIRT+ND
+            IBDS = ISAB(NBD)
+            ACBDS(IBDS) = ACBDS(IBDS)+BUFOUT(KK)
+            if (NB > ND) ACBDT(IBDS) = ACBDT(IBDS)+BUFOUT(KK)
+            if (NB < ND) ACBDT(IBDS) = ACBDT(IBDS)-BUFOUT(KK)
+          end do
+          if (IADR == -1) exit
         end do
-209     if (IADR /= -1) GO TO 201
         ILOOP = 0
-72      do I=1,INS
-          INSOUT = INSOUT+1
-          if (ILOOP == 0) BUFACBD(INSOUT) = ACBDS(I)
-          if (ILOOP == 1) BUFACBD(INSOUT) = ACBDT(I)
-          if (INSOUT < KBUFF1) GO TO 75
-          call dDAFILE(Lu_TiABCD,1,BUFACBD,KBUFF1,IAD16)
-          INSOUT = 0
-75        continue
+        do
+          do I=1,INS
+            INSOUT = INSOUT+1
+            if (ILOOP == 0) BUFACBD(INSOUT) = ACBDS(I)
+            if (ILOOP == 1) BUFACBD(INSOUT) = ACBDT(I)
+            if (INSOUT >= KBUFF1) then
+              call dDAFILE(Lu_TiABCD,1,BUFACBD,KBUFF1,IAD16)
+              INSOUT = 0
+            end if
+          end do
+          ILOOP = ILOOP+1
+          if (ILOOP /= 1) exit
         end do
-        ILOOP = ILOOP+1
-        if (ILOOP == 1) GO TO 72
-60      continue
       end do
     end do
-40  continue
   end do
-50 continue
 end do
 ! EMPTY LAST BUFFER
-if (INSOUT == 0) then
-  return
-end if
-call dDAFILE(Lu_TiABCD,1,BUFACBD,KBUFF1,IAD16)
+if (INSOUT /= 0) call dDAFILE(Lu_TiABCD,1,BUFACBD,KBUFF1,IAD16)
 
 return
 

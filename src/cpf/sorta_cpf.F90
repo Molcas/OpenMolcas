@@ -30,6 +30,7 @@ integer(kind=iwp) :: I, IACS, IAD15, IAD50, IADR, IBUFIJ, ICHK, ICP, ICPP, ICQ, 
                      M2, M3, M4, N1, N2, N3, N4, NA, NAC, NAT, NB, NC, NI, NIB, NJ, NK, NL, NOP, NOQ, NOR, NORB0(9), NORBP, NOS, &
                      NOV, NOVST, NSAVE, NSIB, NSP, NSPQ, NSPQR, NSQ, NSR, NSS, NSSM, NT, NTM, NU, NUMAX, NUMIN, NV, NX, NXM
 real(kind=wp) :: FINI
+logical(kind=iwp) :: Skip
 
 call COUNT_CPF(NINTGR,NSYM,NORB,MUL)
 if (IPRINT >= 2) then
@@ -72,10 +73,10 @@ do NSP=1,NSYM
       NSSM = NSR
       if (NSR == NSP) NSSM = NSQ
       do NSS=1,NSSM
-        if (NSS /= NSPQR) GO TO 310
+        if (NSS /= NSPQR) cycle
         NOS = NORB(NSS)
         NORBP = NOP*NOQ*NOR*NOS
-        if (NORBP == 0) GO TO 310
+        if (NORBP == 0) cycle
         call dDAFILE(Lu_TraInt,2,TIBUF,NTIBUF,IAD50)
         IOUT = 0
         do NV=1,NOR
@@ -89,7 +90,7 @@ do NSP=1,NSYM
               if ((NSP == NSR) .and. (NT == NV)) NUMIN = NX
               NUMAX = NOQ
               if (NSP == NSQ) NUMAX = NT
-              do NU=NUMIN,NUMAX
+              loop1: do NU=NUMIN,NUMAX
                 IOUT = IOUT+1
                 if (IOUT > NTIBUF) then
                   call dDAFILE(Lu_TraInt,2,TIBUF,NTIBUF,IAD50)
@@ -99,81 +100,87 @@ do NSP=1,NSYM
                 M2 = ICH(NORB0(NSQ)+NU)
                 M3 = ICH(NORB0(NSR)+NV)
                 M4 = ICH(NORB0(NSS)+NX)
-                if ((M1 <= 0) .or. (M2 <= 0)) GO TO 306
-                if ((M3 <= 0) .or. (M4 <= 0)) GO TO 306
+                if ((M1 <= 0) .or. (M2 <= 0) .or. (M3 <= 0) .or. (M4 <= 0)) cycle loop1
                 ! ORDER THESE INDICES CANONICALLY
-                N1 = M1
-                N2 = M2
-                if (M1 > M2) GO TO 11
-                N1 = M2
-                N2 = M1
-11              N3 = M3
-                N4 = M4
-                if (M3 > M4) GO TO 12
-                N3 = M4
-                N4 = M3
-12              NI = N1
+                N1 = max(M1,M2)
+                N2 = min(M1,M2)
+                N3 = max(M3,M4)
+                N4 = min(M3,M4)
+                NI = N1
                 NJ = N2
                 NK = N3
                 NL = N4
-                if (NI > NK) GO TO 502
-                if (NI == NK) GO TO 14
-                NI = N3
-                NJ = N4
-                NK = N1
-                NL = N2
-                GO TO 502
-14              if (NJ > NL) GO TO 502
-                NL = N2
-                NJ = N4
-502             FINI = TIBUF(IOUT)
-                if (abs(FINI) < 1.0e-9_wp) GO TO 306
-                if (NI <= LN) GO TO 109
-                if (NK <= LN) GO TO 306
-                if (NJ <= LN) GO TO 42
-                if (NL > LN) GO TO 306
-                if (IFIRST /= 0) GO TO 306
+                if (NI <= NK) then
+                  if (NI /= NK) then
+                    NI = N3
+                    NJ = N4
+                    NK = N1
+                    NL = N2
+                  else if (NJ <= NL) then
+                    NL = N2
+                    NJ = N4
+                  end if
+                end if
+                FINI = TIBUF(IOUT)
+                if (abs(FINI) < 1.0e-9_wp) cycle loop1
+                if (NI > LN) then
+                  if (NK <= LN) cycle loop1
+                  if (NJ > LN) then
+                    if (NL > LN) cycle loop1
+                    if (IFIRST /= 0) cycle loop1
 
-                ! ABCI
+                    ! ABCI
 
-                NA = NI-LN
-                NB = NJ-LN
-                NC = NK-LN
-                NI = NL
-108             ITURN = 0
-107             NIB = (NI-1)*NVIRT+NB+1
-                IBUFL(NIB) = IBUFL(NIB)+1
-                ICQ = ICAD(NIB)
-                ICP = ICQ/IDIV+IBUFL(NIB)
-                BUFOUT(ICP) = FINI
-                ICPP = ICQ+KBUF0+IBUFL(NIB)
-                INDOUT(ICPP) = (NA-1)*NVIRT+NC
-                if (IBUFL(NIB) < KBUF) GO TO 106
-                INDOUT(ICQ+KBUF1) = KBUF
-                JDISK = IDISK
-                call iDAFILE(Lu_TiABIJ,1,INDOUT(ICQ+1),KBUF2,IDISK)
-                INDOUT(ICQ+KBUF2) = JDISK
-                IBUFL(NIB) = 0
-106             if ((ITURN == 1) .or. (NA == NB)) GO TO 306
-                ITURN = 1
-                NAT = NA
-                NA = NB
-                NB = NAT
-                GO TO 107
-42              if ((NJ <= 0) .or. (NL <= LN)) GO TO 306
+                    NA = NI-LN
+                    NB = NJ-LN
+                    NC = NK-LN
+                    NI = NL
+                    Skip = .false.
+                  else
+                    Skip = .true.
+                  end if
+                  do
+                    if (Skip) then
+                      Skip = .false.
+                    else
+                      ITURN = 0
+                      do
+                        NIB = (NI-1)*NVIRT+NB+1
+                        IBUFL(NIB) = IBUFL(NIB)+1
+                        ICQ = ICAD(NIB)
+                        ICP = ICQ/IDIV+IBUFL(NIB)
+                        BUFOUT(ICP) = FINI
+                        ICPP = ICQ+KBUF0+IBUFL(NIB)
+                        INDOUT(ICPP) = (NA-1)*NVIRT+NC
+                        if (IBUFL(NIB) >= KBUF) then
+                          INDOUT(ICQ+KBUF1) = KBUF
+                          JDISK = IDISK
+                          call iDAFILE(Lu_TiABIJ,1,INDOUT(ICQ+1),KBUF2,IDISK)
+                          INDOUT(ICQ+KBUF2) = JDISK
+                          IBUFL(NIB) = 0
+                        end if
+                        if ((ITURN == 1) .or. (NA == NB)) cycle loop1
+                        ITURN = 1
+                        NAT = NA
+                        NA = NB
+                        NB = NAT
+                      end do
+                    end if
+                    if ((NJ <= 0) .or. (NL <= LN)) cycle loop1
 
-                ! CIAB
+                    ! CIAB
 
-                if (IFIRST /= 0) GO TO 306
-                NA = NK-LN
-                NB = NL-LN
-                NC = NI-LN
-                NI = NJ
-                GO TO 108
+                    if (IFIRST /= 0) cycle loop1
+                    NA = NK-LN
+                    NB = NL-LN
+                    NC = NI-LN
+                    NI = NJ
+                  end do
+                end if
 
                 ! IJKL
 
-109             IIJ = IROW(NI)+NJ
+                IIJ = IROW(NI)+NJ
                 KL = IROW(NK)+NL
                 IJKL = IIJ*(IIJ-1)/2+KL
                 IJ = 1
@@ -183,18 +190,17 @@ do NSP=1,NSYM
                 BUFOUT(ICP) = FINI
                 ICPP = ICQ+KBUF0+IBUFL(IJ)
                 INDOUT(ICPP) = IJKL
-                if (IBUFL(IJ) < KBUF) GO TO 306
-                INDOUT(ICQ+KBUF1) = KBUF
-                JDISK = IDISK
-                call iDAFILE(Lu_TiABIJ,1,INDOUT(ICQ+1),KBUF2,IDISK)
-                INDOUT(ICQ+KBUF2) = JDISK
-                IBUFL(IJ) = 0
-306             continue
-              end do
+                if (IBUFL(IJ) >= KBUF) then
+                  INDOUT(ICQ+KBUF1) = KBUF
+                  JDISK = IDISK
+                  call iDAFILE(Lu_TiABIJ,1,INDOUT(ICQ+1),KBUF2,IDISK)
+                  INDOUT(ICQ+KBUF2) = JDISK
+                  IBUFL(IJ) = 0
+                end if
+              end do loop1
             end do
           end do
         end do
-310     continue
       end do
     end do
   end do
@@ -220,23 +226,24 @@ IDISK = 0
 IBUFIJ = 0
 INDBI(KKBUF2) = -1
 IADR = LASTAD(1)
-201 call iDAFILE(Lu_TiABIJ,2,INDOUT,KBUF2,IADR)
-LENGTH = INDOUT(KBUF1)
-IADR = INDOUT(KBUF2)
-if (LENGTH == 0) GO TO 209
-do I=1,LENGTH
-  IBUFIJ = IBUFIJ+1
-  BUFBI(IBUFIJ) = BUFOUT(I)
-  INDBI(RTOI*KKBUF0+IBUFIJ) = INDOUT(KBUF0+I)
-  if (IBUFIJ < KKBUF0) GO TO 202
-  INDBI(KKBUF1) = KKBUF0
-  JDISK = IDISK
-  call iDAFILE(Lu_TiABCI,1,INDBI,KKBUF2,IDISK)
-  INDBI(KKBUF2) = JDISK
-  IBUFIJ = 0
-202 continue
+do
+  call iDAFILE(Lu_TiABIJ,2,INDOUT,KBUF2,IADR)
+  LENGTH = INDOUT(KBUF1)
+  IADR = INDOUT(KBUF2)
+  do I=1,LENGTH
+    IBUFIJ = IBUFIJ+1
+    BUFBI(IBUFIJ) = BUFOUT(I)
+    INDBI(RTOI*KKBUF0+IBUFIJ) = INDOUT(KBUF0+I)
+    if (IBUFIJ >= KKBUF0) then
+      INDBI(KKBUF1) = KKBUF0
+      JDISK = IDISK
+      call iDAFILE(Lu_TiABCI,1,INDBI,KKBUF2,IDISK)
+      INDBI(KKBUF2) = JDISK
+      IBUFIJ = 0
+    end if
+  end do
+  if (IADR == -1) exit
 end do
-209 if (IADR /= -1) GO TO 201
 ! EMPTY LAST BUFFER
 INDBI(KKBUF1) = IBUFIJ
 JDISK = IDISK
@@ -256,64 +263,76 @@ call iDAFILE(Lu_CIGuga,2,iCOP1,nCOP+1,IADD10)
 ILEN = ICOP1(nCOP+1)
 IIN = 2
 NSAVE = ICOP1(IIN)
-100 NI = NSAVE
-IOUT = 0
-110 IIN = IIN+1
-if (IIN <= ILEN) GO TO 15
-call dDAFILE(Lu_CIGuga,2,COP,nCOP,IADD10)
-call iDAFILE(Lu_CIGuga,2,iCOP1,nCOP+1,IADD10)
-ILEN = ICOP1(nCOP+1)
-if (ILEN <= 0) GO TO 6
-IIN = 1
-15 if (ICHK /= 0) GO TO 460
-if (ICOP1(IIN) == 0) GO TO 10
-IOUT = IOUT+1
-GO TO 110
-10 ICHK = 1
-GO TO 110
-460 ICHK = 0
-NSAVE = ICOP1(IIN)
-6 continue
-NIB = (NI-1)*NVIRT+NOVST
-do NB=1,NVIRT
-  NSIB = MUL(NSM(LN+NB),NSM(NI))
-  INS = NNS(NSIB)
-  if (INS == 0) GO TO 18
-  do I=1,INS
-    BIAC(I) = Zero
-    BICA(I) = Zero
+do
+  NI = NSAVE
+  IOUT = 0
+  Skip = .false.
+  do
+    IIN = IIN+1
+    if (IIN > ILEN) then
+      call dDAFILE(Lu_CIGuga,2,COP,nCOP,IADD10)
+      call iDAFILE(Lu_CIGuga,2,iCOP1,nCOP+1,IADD10)
+      ILEN = ICOP1(nCOP+1)
+      if (ILEN <= 0) then
+        Skip = .true.
+        exit
+      end if
+      IIN = 1
+    end if
+    if (ICHK /= 0) exit
+    if (ICOP1(IIN) /= 0) then
+      IOUT = IOUT+1
+    else
+      ICHK = 1
+    end if
   end do
-18 NIB = NIB+1
-  IADR = LASTAD(NIB)
-203 call iDAFILE(Lu_TiABIJ,2,INDOUT,KBUF2,IADR)
-  LENGTH = INDOUT(KBUF1)
-  IADR = INDOUT(KBUF2)
-  if (LENGTH == 0) GO TO 210
-  do KK=1,LENGTH
-    INND = INDOUT(KBUF0+KK)
-    NA = (INND-1)/NVIRT+1
-    NC = INND-(NA-1)*NVIRT
-    NAC = (NA-1)*NVIRT+NC
-    IACS = ISAB(NAC)
-    BIAC(IACS) = BIAC(IACS)+BUFOUT(KK)
-    if (NA > NC) BICA(IACS) = BICA(IACS)-BUFOUT(KK)
-    if (NA < NC) BICA(IACS) = BICA(IACS)+BUFOUT(KK)
+  if (.not. Skip) then
+    ICHK = 0
+    NSAVE = ICOP1(IIN)
+  end if
+  NIB = (NI-1)*NVIRT+NOVST
+  do NB=1,NVIRT
+    NSIB = MUL(NSM(LN+NB),NSM(NI))
+    INS = NNS(NSIB)
+    do I=1,INS
+      BIAC(I) = Zero
+      BICA(I) = Zero
+    end do
+    NIB = NIB+1
+    IADR = LASTAD(NIB)
+    do
+      call iDAFILE(Lu_TiABIJ,2,INDOUT,KBUF2,IADR)
+      LENGTH = INDOUT(KBUF1)
+      IADR = INDOUT(KBUF2)
+      do KK=1,LENGTH
+        INND = INDOUT(KBUF0+KK)
+        NA = (INND-1)/NVIRT+1
+        NC = INND-(NA-1)*NVIRT
+        NAC = (NA-1)*NVIRT+NC
+        IACS = ISAB(NAC)
+        BIAC(IACS) = BIAC(IACS)+BUFOUT(KK)
+        if (NA > NC) BICA(IACS) = BICA(IACS)-BUFOUT(KK)
+        if (NA < NC) BICA(IACS) = BICA(IACS)+BUFOUT(KK)
+      end do
+      if (IADR == -1) exit
+    end do
+    ILOOP = 0
+    do
+      do I=1,INS
+        INSOUT = INSOUT+1
+        if (ILOOP == 0) BUFBI(INSOUT) = BIAC(I)
+        if (ILOOP == 1) BUFBI(INSOUT) = BICA(I)
+        if (INSOUT >= KBUFF1) then
+          call dDAFILE(Lu_TiABCI,1,BUFBI,KBUFF1,IAD15)
+          INSOUT = 0
+        end if
+      end do
+      ILOOP = ILOOP+1
+      if (ILOOP /= 1) exit
+    end do
   end do
-210 if (IADR /= -1) GO TO 203
-  ILOOP = 0
-72 do I=1,INS
-    INSOUT = INSOUT+1
-    if (ILOOP == 0) BUFBI(INSOUT) = BIAC(I)
-    if (ILOOP == 1) BUFBI(INSOUT) = BICA(I)
-    if (INSOUT < KBUFF1) GO TO 75
-    call dDAFILE(Lu_TiABCI,1,BUFBI,KBUFF1,IAD15)
-    INSOUT = 0
-75  continue
-  end do
-  ILOOP = ILOOP+1
-  if (ILOOP == 1) GO TO 72
+  if (ILEN < 0) exit
 end do
-if (ILEN >= 0) GO TO 100
 ! EMPTY LAST BUFFER
 if (INSOUT == 0) return
 call dDAFILE(Lu_TiABCI,1,BUFBI,KBUFF1,IAD15)

@@ -24,20 +24,13 @@ NSUM = 0
 do N=1,NSYM
   IPOA(N) = NSUM
   M = MUL(N,KLS)
-  if (IFT >= 0) GO TO 20
-  NSUM = NSUM+NVIR(N)*NVIR(M)
-  GO TO 10
-20 if (N-M < 0) then
-    GO TO 10
-  else if (N-M == 0) then
-    GO TO 11
-  else
-    GO TO 12
+  if (IFT < 0) then
+    NSUM = NSUM+NVIR(N)*NVIR(M)
+  else if (N == M) then
+    NSUM = NSUM+NVIR(N)*(NVIR(N)+1)/2
+  else if (N > M) then
+    NSUM = NSUM+NVIR(N)*NVIR(M)
   end if
-11 NSUM = NSUM+NVIR(N)*(NVIR(N)+1)/2
-  GO TO 10
-12 NSUM = NSUM+NVIR(N)*NVIR(M)
-10 continue
 end do
 IPOA(NSYM+1) = NSUM
 

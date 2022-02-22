@@ -116,7 +116,6 @@ IAD = IADDP(ITPUL+1)
 call dDAFILE(Lu_CI,1,C,NCONF,IAD)
 IADDP(ITPUL+2) = IAD
 if (IPRINT >= 15) write(u6,999) (C(I),I=1,NCONF)
-999 format(6X,'C(UPD)',5F10.6)
 A = DDOT_(NCONF,C,1,C,1)
 if (A > Two) then
   write(u6,*) 'CUPDATE Error: A>2.0 (See code.)'
@@ -125,5 +124,7 @@ end if
 if (ITPUL == 1) BST(1) = A
 
 return
+
+999 format(6X,'C(UPD)',5F10.6)
 
 end subroutine CUPDATE

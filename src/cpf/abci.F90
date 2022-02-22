@@ -24,6 +24,7 @@ real(kind=wp) :: C(*), S(*), BMN(*), BIAC(*), BICA(*), BUFIN(*)
 integer(kind=iwp) :: I, IAD15, ICCB, ICHK, ICP1, ICP2, IIN, ILEN, ILOOP, IND, INDA, INDB, INS, INSIN, INUM, IOUT, IT, ITYP, LB, &
                      MA, NB, NI, NSAVE, NSIB, NSLB
 real(kind=wp) :: COPL, TERM
+logical(kind=iwp) :: Skip
 integer(kind=iwp), external :: JSUNP_CPF
 real(kind=r8), external :: DDOT_
 !parameter(IPOW6=2**6,IPOW19=2**19)
@@ -42,68 +43,81 @@ call iDAFILE(Lu_CIGuga,2,iCOP1,nCOP+1,IADD10)
 ILEN = ICOP1(nCOP+1)
 IIN = 2
 NSAVE = ICOP1(IIN)
-100 NI = NSAVE
-IOUT = 0
-110 IIN = IIN+1
-if (IIN <= ILEN) GO TO 15
-call dDAFILE(Lu_CIGuga,2,COP,nCOP,IADD10)
-call iDAFILE(Lu_CIGuga,2,iCOP1,nCOP+1,IADD10)
-ILEN = ICOP1(nCOP+1)
-if (ILEN <= 0) GO TO 5
-IIN = 1
-15 if (ICHK /= 0) GO TO 460
-if (ICOP1(IIN) == 0) GO TO 10
-IOUT = IOUT+1
-BMN(IOUT) = COP(IIN)
-IBMN(IOUT) = ICOP1(IIN)
-GO TO 110
-10 ICHK = 1
-GO TO 110
-460 ICHK = 0
-NSAVE = ICOP1(IIN)
-5 continue
-do NB=1,NVIRT
-  NSIB = MUL(NSM(LN+NB),NSM(NI))
-  NSLB = MUL(NSM(LN+NB),LSYM)
-  LB = NB-NSYS(NSM(LN+NB))
-  INS = NNS(NSIB)
-  ILOOP = 0
-72 do I=1,INS
-    if (INSIN < KBUFF1) GO TO 73
-    call dDAFILE(Lu_TiABCI,2,BUFIN,KBUFF1,IAD15)
-    INSIN = 0
-73  INSIN = INSIN+1
-    if (ILOOP == 0) BIAC(I) = BUFIN(INSIN)
-    if (ILOOP == 1) BICA(I) = BUFIN(INSIN)
+do
+  NI = NSAVE
+  IOUT = 0
+  Skip = .false.
+  do
+    IIN = IIN+1
+    if (IIN > ILEN) then
+      call dDAFILE(Lu_CIGuga,2,COP,nCOP,IADD10)
+      call iDAFILE(Lu_CIGuga,2,iCOP1,nCOP+1,IADD10)
+      ILEN = ICOP1(nCOP+1)
+      if (ILEN <= 0) then
+        Skip = .true.
+        exit
+      end if
+      IIN = 1
+    end if
+    if (ICHK /= 0) exit
+    if (ICOP1(IIN) == 0) then
+      ICHK = 1
+    else
+      IOUT = IOUT+1
+      BMN(IOUT) = COP(IIN)
+      IBMN(IOUT) = ICOP1(IIN)
+    end if
   end do
-  ILOOP = ILOOP+1
-  if (ILOOP == 1) GO TO 72
-  do IT=1,IOUT
-    IND = IBMN(IT)
-    !ICP1 = mod(IND/IPOW19,8192)
-    ICP1 = ibits(IND,19,13)
-    INDA = IRC(1)+ICP1
-    if (JSYM(INDA) /= NSLB) GO TO 25
-    MA = INDX(INDA)+LB
-    !ICP2 = mod(IND/IPOW6,8192)
-    !ITYP = mod(IND,64)
-    ICP2 = ibits(IND,6,13)
-    ITYP = ibits(IND,0,6)
-    if (INS == 0) GO TO 25
-    COPL = BMN(IT)*C(MA)
-    INDB = IRC(ITYP)+ICP2
-    ICCB = INDX(INDB)+1
-    if (ITYP == 3) GO TO 26
-    TERM = DDOT_(INS,C(ICCB),1,BICA,1)
-    call DAXPY_(INS,COPL,BICA,1,S(ICCB),1)
-    GO TO 27
-26  TERM = DDOT_(INS,C(ICCB),1,BIAC,1)
-    call DAXPY_(INS,COPL,BIAC,1,S(ICCB),1)
-27  S(MA) = S(MA)+BMN(IT)*TERM
-25  continue
+  if (.not. Skip) then
+    ICHK = 0
+    NSAVE = ICOP1(IIN)
+  end if
+  do NB=1,NVIRT
+    NSIB = MUL(NSM(LN+NB),NSM(NI))
+    NSLB = MUL(NSM(LN+NB),LSYM)
+    LB = NB-NSYS(NSM(LN+NB))
+    INS = NNS(NSIB)
+    ILOOP = 0
+    do
+      do I=1,INS
+        if (INSIN >= KBUFF1) then
+          call dDAFILE(Lu_TiABCI,2,BUFIN,KBUFF1,IAD15)
+          INSIN = 0
+        end if
+        INSIN = INSIN+1
+        if (ILOOP == 0) BIAC(I) = BUFIN(INSIN)
+        if (ILOOP == 1) BICA(I) = BUFIN(INSIN)
+      end do
+      ILOOP = ILOOP+1
+      if (ILOOP /= 1) exit
+    end do
+    do IT=1,IOUT
+      IND = IBMN(IT)
+      !ICP1 = mod(IND/IPOW19,8192)
+      ICP1 = ibits(IND,19,13)
+      INDA = IRC(1)+ICP1
+      if (JSYM(INDA) /= NSLB) cycle
+      MA = INDX(INDA)+LB
+      !ICP2 = mod(IND/IPOW6,8192)
+      !ITYP = mod(IND,64)
+      ICP2 = ibits(IND,6,13)
+      ITYP = ibits(IND,0,6)
+      if (INS == 0) cycle
+      COPL = BMN(IT)*C(MA)
+      INDB = IRC(ITYP)+ICP2
+      ICCB = INDX(INDB)+1
+      if (ITYP == 3) then
+        TERM = DDOT_(INS,C(ICCB),1,BIAC,1)
+        call DAXPY_(INS,COPL,BIAC,1,S(ICCB),1)
+      else
+        TERM = DDOT_(INS,C(ICCB),1,BICA,1)
+        call DAXPY_(INS,COPL,BICA,1,S(ICCB),1)
+      end if
+      S(MA) = S(MA)+BMN(IT)*TERM
+    end do
   end do
+  if (ILEN < 0) exit
 end do
-if (ILEN >= 0) GO TO 100
 call DSQ2(C,S,MUL,INDX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
 
 return

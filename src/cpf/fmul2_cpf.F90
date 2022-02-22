@@ -39,17 +39,18 @@ do J=1,NCOL
   do I=1,NROW
     CJ(I) = Zero
   end do
-  if (J == NCOL) GO TO 16
-  J1 = J+1
-  do K=1,N
-    FAC = B(J,K)
-    if (FAC == Zero) GO TO 20
-    do I=J1,NROW
-      CJ(I) = CJ(I)+FAC*A(I,K)
+  if (J /= NCOL) then
+    J1 = J+1
+    do K=1,N
+      FAC = B(J,K)
+      if (FAC /= Zero) then
+        do I=J1,NROW
+          CJ(I) = CJ(I)+FAC*A(I,K)
+        end do
+      end if
     end do
-20  continue
-  end do
-16 do I=1,NROW
+  end if
+  do I=1,NROW
     C(I,J) = CJ(I)
   end do
 end do

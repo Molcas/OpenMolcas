@@ -26,6 +26,7 @@ integer(kind=iwp) :: IAB, IADR, IASYM, IBSYM, ICHK, ICOUP, ICOUP1, ICSYM, IFAB, 
                      INDA, INDB, INDI, INMY, INNY, INS, INUM, IPF, IPF1, IPOA(9), IPOB(9), IPOF(9), ISTAR, ITURN, ITYP, JTURN, &
                      LBUF0, LBUF1, LBUF2, LENGTH, MYL, MYSYM, NAC, NBC, NI, NJ, NOT2, NOVST, NSIJ, NVT, NYL, NYSYM
 real(kind=wp) :: COPI, CPL, CPLA, CPLL, ENPQ, FAC, FACS, FACW, FACWA, FACWB, TERM
+logical(kind=iwp) :: Skip
 integer(kind=iwp), external :: JSUNP_CPF
 real(kind=r8), external :: DDOT_
 !parameter(IPOW5=2**5,IPOW13=2**13,IPOW18=2**18)
@@ -48,384 +49,424 @@ LBUF1 = LBUF0+LBUF+1
 LBUF2 = LBUF1+1
 NOT2 = IROW(LN+1)
 IADD10 = IAD10(6)
-300 call dDAFILE(Lu_CIGuga,2,COP,nCOP,IADD10)
-call iDAFILE(Lu_CIGuga,2,iCOP1,nCOP+1,IADD10)
-ILEN = ICOP1(nCOP+1)
-if (ILEN == 0) GO TO 300
-if (ILEN < 0) GO TO 350
-do II=1,ILEN
-  IND = ICOP1(II)
-  if (ICHK /= 0) GO TO 460
-  if (IND /= 0) GO TO 371
-  ICHK = 1
-  GO TO 260
-460 ICHK = 0
-  INDI = IND
-  !NI = mod(INDI,IPOW10)
-  !NJ = mod(INDI/IPOW10,IPOW10)
-  NI = ibits(INDI,0,10)
-  NJ = ibits(INDI,10,10)
-  NSIJ = MUL(NSM(NI),NSM(NJ))
-  call IPO_CPF(IPOF,NVIR,MUL,NSYM,NSIJ,-1)
-  IJ1 = IROW(NI)+NJ
-  ILIM = IPOF(NSYM+1)
-  call FZERO(ABIJ,ILIM)
-  call FZERO(AIBJ,ILIM)
-  call FZERO(AJBI,ILIM)
-  if (ITER == 1) GO TO 207
-  ! READ (AB/IJ) INTEGRALS
-  IADR = LASTAD(NOVST+IJ1)
-  JTURN = 0
-201 call iDAFILE(Lu_TiABIJ,2,IBUFIN,LBUF2,IADR)
-  LENGTH = IBUFIN(LBUF1)
-  IADR = IBUFIN(LBUF2)
-  if (LENGTH == 0) GO TO 209
-  if (JTURN == 1) GO TO 203
-  call SCATTER(LENGTH,ABIJ,IBUFIN(LBUF0+1),BUFIN)
-  GO TO 209
-203 call SCATTER(LENGTH,AIBJ,IBUFIN(LBUF0+1),BUFIN)
-209 if (IADR == -1) GO TO 206
-  GO TO 201
-206 if (JTURN == 1) GO TO 360
-  ! READ (AI/BJ) INTEGRALS
-207 IADR = LASTAD(NOVST+NOT2+IJ1)
-  JTURN = 1
-  GO TO 201
-  ! CONSTRUCT FIRST ORDER MATRICES
-360 FAC = Half
-  if (NI /= NJ) FAC = One
-  IIN = 0
-  IFT = 0
-  call IPO_CPF(IPOA,NVIR,MUL,NSYM,NSIJ,IFT)
-852 do IASYM=1,NSYM
-    IBSYM = MUL(NSIJ,IASYM)
-    if (IBSYM > IASYM) GO TO 170
-    IAB = IPOA(IASYM+1)-IPOA(IASYM)
-    if (IAB == 0) GO TO 170
-    call SECORD(AIBJ(IPOF(IASYM)+1),AIBJ(IPOF(IBSYM)+1),FSEC(IIN+1),FAC,NVIR(IASYM),NVIR(IBSYM),NSIJ,IFT)
-    IIN = IIN+IAB
-170 continue
+do
+  call dDAFILE(Lu_CIGuga,2,COP,nCOP,IADD10)
+  call iDAFILE(Lu_CIGuga,2,iCOP1,nCOP+1,IADD10)
+  ILEN = ICOP1(nCOP+1)
+  if (ILEN == 0) cycle
+  if (ILEN < 0) exit
+  do II=1,ILEN
+    IND = ICOP1(II)
+    if (ICHK == 0) then
+      if (IND /= 0) then
+        if (IFAB /= 1) then
+          !PAM97 IFAB = iand(IND,1)
+          !PAM97 ITURN = iand(ishft(IND,-1),1)
+          !PAM97 ITYP = iand(ishft(IND,-2),7)
+          !PAM97 ICOUP = iand(ishft(IND,-5),8191)
+          !PAM97 ICOUP1 = iand(ishft(IND,-18),8191)
+          !IFAB = mod(IND,2)
+          !ITURN = mod(IND/2,2)
+          !ITYP = mod(IND/4,8)
+          !ICOUP = mod(IND/IPOW5,IPOW13)
+          !ICOUP1 = mod(IND/IPOW18,IPOW13)
+          IFAB = ibits(IND,0,1)
+          ITURN = ibits(IND,1,1)
+          ITYP = ibits(IND,2,3)
+          ICOUP = ibits(IND,5,13)
+          ICOUP1 = ibits(IND,18,13)
+          CPL = COP(II)
+          CPLA = Zero
+          if (IFAB /= 0) cycle
+          if (ITURN == 0) then
+            ! FIRST ORDER INTERACTION
+            INDA = ICOUP
+            INDB = IRC(ITYP+1)+ICOUP1
+            ISTAR = 1
+            if (ITYP == 1) ISTAR = INS+1
+            if (INS /= 0) then
+              if (INDA == IREF0) then
+                CPLL = CPL/sqrt(ENP(INDB))
+                call DAXPY_(INS,CPLL,FSEC(ISTAR),1,S(INDX(INDB)+1),1)
+                if (ITER /= 1) then
+                  TERM = DDOT_(INS,C(INDX(INDB)+1),1,FSEC(ISTAR),1)
+                  EPP(INDB) = EPP(INDB)+CPLL*TERM
+                end if
+              else
+                ENPQ = (One-THET(INDA,INDB)*Half)*(ENP(INDA)+ENP(INDB)-One)+THET(INDA,INDB)*Half
+                FACS = sqrt(ENP(INDA))*sqrt(ENP(INDB))/ENPQ
+                FACW = FACS*(Two-THET(INDA,INDB))/ENPQ
+                FACWA = FACW*ENP(INDA)-FACS
+                FACWB = FACW*ENP(INDB)-FACS
+                COPI = CPL*C(INDA)
+                call DAXPY_(INS,COPI*FACS,FSEC(ISTAR),1,S(INDX(INDB)+1),1)
+                call DAXPY_(INS,COPI*FACWB,FSEC(ISTAR),1,W(INDX(INDB)+1),1)
+                TERM = DDOT_(INS,FSEC(ISTAR),1,C(INDX(INDB)+1),1)
+                S(INDA) = S(INDA)+CPL*FACS*TERM
+                W(INDA) = W(INDA)+CPL*FACWA*TERM
+              end if
+            end if
+            cycle
+          end if
+        else
+          CPLA = COP(II)
+          IFAB = 0
+        end if
+        ! INTERACTIONS BETWEEN DOUBLES AND
+        ! INTERACTIONS BETWEEN SINGLES
+        if (ITER == 1) cycle
+        !call JTIME(IST)
+        IFTA = 0
+        IFTB = 0
+        select case (ITYP)
+          case default !(1)
+            INDA = IRC(2)+ICOUP1
+            INDB = IRC(2)+ICOUP
+            IFTA = 1
+            IFTB = 1
+          case (2)
+            INDA = IRC(3)+ICOUP1
+            INDB = IRC(3)+ICOUP
+          case (3)
+            INDA = IRC(2)+ICOUP1
+            INDB = IRC(3)+ICOUP
+            IFTA = 1
+          case (4)
+            INDA = IRC(3)+ICOUP1
+            INDB = IRC(2)+ICOUP
+            IFTB = 1
+          case (5)
+            INDA = IRC(1)+ICOUP1
+            INDB = IRC(1)+ICOUP
+        end select
+        MYSYM = JSYM(INDA)
+        NYSYM = MUL(MYSYM,NSIJ)
+        MYL = MUL(MYSYM,LSYM)
+        NYL = MUL(NYSYM,LSYM)
+        ENPQ = (One-THET(INDA,INDB)*Half)*(ENP(INDA)+ENP(INDB)-One)+THET(INDA,INDB)*Half
+        FACS = sqrt(ENP(INDA))*sqrt(ENP(INDB))/ENPQ
+        FACW = FACS*(Two-THET(INDA,INDB))/ENPQ
+        FACWA = FACW*ENP(INDA)-FACS
+        FACWB = FACW*ENP(INDB)-FACS
+        call IPO_CPF(IPOA,NVIR,MUL,NSYM,MYL,IFTA)
+        call IPO_CPF(IPOB,NVIR,MUL,NSYM,NYL,IFTB)
+        INMY = INDX(INDA)+1
+        INNY = INDX(INDB)+1
+        if (ITYP == 5) then
+          ! DOUBLET-DOUBLET INTERACTIONS
+          IIN = IPOF(MYL+1)-IPOF(MYL)
+          if (IIN /= 0) then
+            IPF = IPOF(MYL)+1
+            call SETZ(F,IIN)
+            call DAXPY_(IIN,CPL,AIBJ(IPF),1,F,1)
+            call DAXPY_(IIN,CPLA,ABIJ(IPF),1,F,1)
+            if (INDA == INDB) call SETZZ_CPF(F,NVIR(MYL))
+            call SETZ(A,NVIR(NYL))
+            call FMMM(C(INMY),F,A,1,NVIR(NYL),NVIR(MYL))
+            call DAXPY_(NVIR(NYL),FACS,A,1,S(INNY),1)
+            call DAXPY_(NVIR(NYL),FACWB,A,1,W(INNY),1)
+            if (INDA /= INDB) then
+              call SETZ(A,NVIR(MYL))
+              call FMMM(F,C(INNY),A,NVIR(MYL),1,NVIR(NYL))
+              call DAXPY_(NVIR(MYL),FACS,A,1,S(INMY),1)
+              call DAXPY_(NVIR(MYL),FACWA,A,1,W(INMY),1)
+            end if
+          end if
+        else
+          ! TRIPLET-SINGLET , SINGLET-TRIPLET ,
+          ! TRIPLET-TRIPLET AND SINGLET-SINGLET INTERACTIONS
+          do IASYM=1,NSYM
+            IAB = IPOF(IASYM+1)-IPOF(IASYM)
+            if (IAB == 0) cycle
+            ICSYM = MUL(MYL,IASYM)
+            IBSYM = MUL(NYL,ICSYM)
+            if ((INDA == INDB) .and. (IBSYM > IASYM)) cycle
+            if (NVIR(ICSYM) == 0) cycle
+            NAC = NVIR(IASYM)*NVIR(ICSYM)
+            NBC = NVIR(IBSYM)*NVIR(ICSYM)
+            if (ICSYM < IASYM) then
+              if (ICSYM < IBSYM) then
+                ! CASE 1 , IASYM > ICSYM AND IBSYM > ICSYM
+                IPF = IPOF(IASYM)+1
+                call SETZ(F,IAB)
+                call DAXPY_(IAB,CPL,AIBJ(IPF),1,F,1)
+                call DAXPY_(IAB,CPLA,ABIJ(IPF),1,F,1)
+                if (INDA == INDB) call SETZZ_CPF(F,NVIR(IASYM))
+                call SETZ(A,NBC)
+                call FMMM(C(INMY+IPOA(IASYM)),F,A,NVIR(ICSYM),NVIR(IBSYM),NVIR(IASYM))
+                call DAXPY_(NBC,FACS,A,1,S(INNY+IPOB(IBSYM)),1)
+                call DAXPY_(NBC,FACWB,A,1,W(INNY+IPOB(IBSYM)),1)
+                if (INDA /= INDB) then
+                  IPF = IPOF(IBSYM)+1
+                  call SETZ(F,IAB)
+                  call DAXPY_(IAB,CPL,AJBI(IPF),1,F,1)
+                  call DAXPY_(IAB,CPLA,ABIJ(IPF),1,F,1)
+                  call SETZ(A,NAC)
+                  call FMMM(C(INNY+IPOB(IBSYM)),F,A,NVIR(ICSYM),NVIR(IASYM),NVIR(IBSYM))
+                  call DAXPY_(NAC,FACS,A,1,S(INMY+IPOA(IASYM)),1)
+                  call DAXPY_(NAC,FACWA,A,1,W(INMY+IPOA(IASYM)),1)
+                end if
+              else
+                ! CASE 2 , IASYM > ICSYM AND ICSYM > OR = IBSYM
+                IPF = IPOF(IBSYM)+1
+                call SETZ(F,IAB)
+                call DAXPY_(IAB,CPL,AJBI(IPF),1,F,1)
+                call DAXPY_(IAB,CPLA,ABIJ(IPF),1,F,1)
+                call MTRANS_CPF(C(INMY+IPOA(IASYM)),A,NVIR(IASYM),NVIR(ICSYM))
+                call SETZ(B,NBC)
+                call FMMM(F,A,B,NVIR(IBSYM),NVIR(ICSYM),NVIR(IASYM))
+                if (NYL == 1) then
+                  call SETZ(A,NBC)
+                  call DAXPY_(NBC,FACS,B,1,A,1)
+                  if (IFTB /= 1) then
+                    call SIADD_CPF(A,S(INNY+IPOB(ICSYM)),NVIR(IBSYM))
+                    call SETZ(A,NBC)
+                    call DAXPY_(NBC,FACWB,B,1,A,1)
+                    call SIADD_CPF(A,W(INNY+IPOB(ICSYM)),NVIR(IBSYM))
+                    call SQUAR_CPF(C(INNY+IPOB(IBSYM)),A,NVIR(IBSYM))
+                  else
+                    call TRADD_CPF(A,S(INNY+IPOB(ICSYM)),NVIR(IBSYM))
+                    call SETZ(A,NBC)
+                    call DAXPY_(NBC,FACWB,B,1,A,1)
+                    call TRADD_CPF(A,W(INNY+IPOB(ICSYM)),NVIR(IBSYM))
+                    call SQUARN_CPF(C(INNY+IPOB(IBSYM)),A,NVIR(IBSYM))
+                  end if
+                else
+                  if (IFTB /= 1) then
+                    call DAXPY_(NBC,FACS,B,1,S(INNY+IPOB(ICSYM)),1)
+                    call DAXPY_(NBC,FACWB,B,1,W(INNY+IPOB(ICSYM)),1)
+                  else
+                    call DAXPY_(NBC,-FACS,B,1,S(INNY+IPOB(ICSYM)),1)
+                    call DAXPY_(NBC,-FACWB,B,1,W(INNY+IPOB(ICSYM)),1)
+                  end if
+                  call MTRANS_CPF(C(INNY+IPOB(ICSYM)),A,NVIR(ICSYM),NVIR(IBSYM))
+                  if (IFTB == 1) call VNEG_CPF(A,1,A,1,NBC)
+                end if
+                call SETZ(B,NAC)
+                call FMMM(A,F,B,NVIR(ICSYM),NVIR(IASYM),NVIR(IBSYM))
+                call DAXPY_(NAC,FACS,B,1,S(INMY+IPOA(IASYM)),1)
+                call DAXPY_(NAC,FACWA,B,1,W(INMY+IPOA(IASYM)),1)
+              end if
+            else
+              if (ICSYM < IBSYM) then
+                ! CASE 3 , ICSYM > OR = IASYM AND IBSYM > ICSYM
+                IPF = IPOF(IASYM)+1
+                call SETZ(F,IAB)
+                call DAXPY_(IAB,CPL,AIBJ(IPF),1,F,1)
+                call DAXPY_(IAB,CPLA,ABIJ(IPF),1,F,1)
+                if (MYL == 1) then
+                  if (IFTA == 0) call SQUAR_CPF(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
+                  if (IFTA == 1) call SQUARN_CPF(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
+                else
+                  call MTRANS_CPF(C(INMY+IPOA(ICSYM)),A,NVIR(ICSYM),NVIR(IASYM))
+                  if (IFTA == 1) call VNEG_CPF(A,1,A,1,NAC)
+                end if
+                call SETZ(B,NBC)
+                call FMMM(A,F,B,NVIR(ICSYM),NVIR(IBSYM),NVIR(IASYM))
+                call DAXPY_(NBC,FACS,B,1,S(INNY+IPOB(IBSYM)),1)
+                call DAXPY_(NBC,FACWB,B,1,W(INNY+IPOB(IBSYM)),1)
+                call MTRANS_CPF(C(INNY+IPOB(IBSYM)),A,NVIR(IBSYM),NVIR(ICSYM))
+                call SETZ(B,NAC)
+                call FMMM(F,A,B,NVIR(IASYM),NVIR(ICSYM),NVIR(IBSYM))
+                if (MYL == 1) then
+                  call SETZ(A,NAC)
+                  call DAXPY_(NAC,FACS,B,1,A,1)
+                  if (IFTA /= 1) then
+                    call SIADD_CPF(A,S(INMY+IPOA(IASYM)),NVIR(IASYM))
+                    call SETZ(A,NAC)
+                    call DAXPY_(NAC,FACWA,B,1,A,1)
+                    call SIADD_CPF(A,W(INMY+IPOA(IASYM)),NVIR(IASYM))
+                  else
+                    call TRADD_CPF(A,S(INMY+IPOA(IASYM)),NVIR(IASYM))
+                    call SETZ(A,NAC)
+                    call DAXPY_(NAC,FACWA,B,1,A,1)
+                    call TRADD_CPF(A,W(INMY+IPOA(IASYM)),NVIR(IASYM))
+                  end if
+                else if (IFTA /= 1) then
+                  call DAXPY_(NAC,FACS,B,1,S(INMY+IPOA(ICSYM)),1)
+                  call DAXPY_(NAC,FACWA,B,1,W(INMY+IPOA(ICSYM)),1)
+                else
+                  call DAXPY_(NAC,-FACS,B,1,S(INMY+IPOA(ICSYM)),1)
+                  call DAXPY_(NAC,-FACWA,B,1,W(INMY+IPOA(ICSYM)),1)
+                end if
+              else
+                ! CASE 4 , ICSYM > OR = IASYM AND ICSYM > OR = IBSYM
+                IPF = IPOF(IBSYM)+1
+                call SETZ(F,IAB)
+                call DAXPY_(IAB,CPL,AJBI(IPF),1,F,1)
+                call DAXPY_(IAB,CPLA,ABIJ(IPF),1,F,1)
+                if (INDA == INDB) call SETZZ_CPF(F,NVIR(IASYM))
+                if (MYL == 1) then
+                  if (IFTA == 0) call SQUAR_CPF(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
+                  if (IFTA == 1) call SQUARM_CPF(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
+                else
+                  if (IFTA == 0) call DCOPY_(NAC,C(INMY+IPOA(ICSYM)),1,A,1)
+                  if (IFTA == 1) call VNEG_CPF(C(INMY+IPOA(ICSYM)),1,A,1,NAC)
+                end if
+                call SETZ(B,NBC)
+                call FMMM(F,A,B,NVIR(IBSYM),NVIR(ICSYM),NVIR(IASYM))
+                if (NYL == 1) then
+                  call SETZ(A,NBC)
+                  call DAXPY_(NBC,FACS,B,1,A,1)
+                  if (IFTB /= 1) then
+                    call SIADD_CPF(A,S(INNY+IPOB(ICSYM)),NVIR(IBSYM))
+                    call SETZ(A,NBC)
+                    call DAXPY_(NBC,FACWB,B,1,A,1)
+                    call SIADD_CPF(A,W(INNY+IPOB(ICSYM)),NVIR(IBSYM))
+                  else
+                    call TRADD_CPF(A,S(INNY+IPOB(ICSYM)),NVIR(IBSYM))
+                    call SETZ(A,NBC)
+                    call DAXPY_(NBC,FACWB,B,1,A,1)
+                    call TRADD_CPF(A,W(INNY+IPOB(ICSYM)),NVIR(IBSYM))
+                  end if
+                else if (IFTB /= 1) then
+                  call DAXPY_(NBC,FACS,B,1,S(INNY+IPOB(ICSYM)),1)
+                  call DAXPY_(NBC,FACWB,B,1,W(INNY+IPOB(ICSYM)),1)
+                else
+                  call DAXPY_(NBC,-FACS,B,1,S(INNY+IPOB(ICSYM)),1)
+                  call DAXPY_(NBC,-FACWB,B,1,W(INNY+IPOB(ICSYM)),1)
+                end if
+                if (INDA /= INDB) then
+                  IPF = IPOF(IASYM)+1
+                  call SETZ(F,IAB)
+                  call DAXPY_(IAB,CPL,AIBJ(IPF),1,F,1)
+                  call DAXPY_(IAB,CPLA,ABIJ(IPF),1,F,1)
+                  if (NYL == 1) then
+                    if (IFTB == 0) call SQUAR_CPF(C(INNY+IPOB(IBSYM)),A,NVIR(IBSYM))
+                    if (IFTB == 1) call SQUARM_CPF(C(INNY+IPOB(IBSYM)),A,NVIR(IBSYM))
+                  else
+                    if (IFTB == 0) call DCOPY_(NBC,C(INNY+IPOB(ICSYM)),1,A,1)
+                    if (IFTB == 1) call VNEG_CPF(C(INNY+IPOB(ICSYM)),1,A,1,NBC)
+                  end if
+                  call SETZ(B,NAC)
+                  call FMMM(F,A,B,NVIR(IASYM),NVIR(ICSYM),NVIR(IBSYM))
+                  if (MYL == 1) then
+                    call SETZ(A,NAC)
+                    call DAXPY_(NAC,FACS,B,1,A,1)
+                    if (IFTA /= 1) then
+                      call SIADD_CPF(A,S(INMY+IPOA(ICSYM)),NVIR(IASYM))
+                      call SETZ(A,NAC)
+                      call DAXPY_(NAC,FACWA,B,1,A,1)
+                      call SIADD_CPF(A,W(INMY+IPOA(ICSYM)),NVIR(IASYM))
+                    else
+                      call TRADD_CPF(A,S(INMY+IPOA(ICSYM)),NVIR(IASYM))
+                      call SETZ(A,NAC)
+                      call DAXPY_(NAC,FACWA,B,1,A,1)
+                      call TRADD_CPF(A,W(INMY+IPOA(ICSYM)),NVIR(IASYM))
+                    end if
+                  else if (IFTA /= 1) then
+                    call DAXPY_(NAC,FACS,B,1,S(INMY+IPOA(ICSYM)),1)
+                    call DAXPY_(NAC,FACWA,B,1,W(INMY+IPOA(ICSYM)),1)
+                  else
+                    call DAXPY_(NAC,-FACS,B,1,S(INMY+IPOA(ICSYM)),1)
+                    call DAXPY_(NAC,-FACWA,B,1,W(INMY+IPOA(ICSYM)),1)
+                  end if
+                end if
+              end if
+            end if
+          end do
+        end if
+      else
+        ICHK = 1
+      end if
+    else
+      ICHK = 0
+      INDI = IND
+      !NI = mod(INDI,IPOW10)
+      !NJ = mod(INDI/IPOW10,IPOW10)
+      NI = ibits(INDI,0,10)
+      NJ = ibits(INDI,10,10)
+      NSIJ = MUL(NSM(NI),NSM(NJ))
+      call IPO_CPF(IPOF,NVIR,MUL,NSYM,NSIJ,-1)
+      IJ1 = IROW(NI)+NJ
+      ILIM = IPOF(NSYM+1)
+      call FZERO(ABIJ,ILIM)
+      call FZERO(AIBJ,ILIM)
+      call FZERO(AJBI,ILIM)
+      if (ITER /= 1) then
+        ! READ (AB/IJ) INTEGRALS
+        IADR = LASTAD(NOVST+IJ1)
+        JTURN = 0
+        Skip = .false.
+      else
+        Skip = .true.
+      end if
+      do
+        if (Skip) then
+          Skip = .false.
+        else
+          call iDAFILE(Lu_TiABIJ,2,IBUFIN,LBUF2,IADR)
+          LENGTH = IBUFIN(LBUF1)
+          IADR = IBUFIN(LBUF2)
+          if (LENGTH /= 0) then
+            if (JTURN /= 1) then
+              call SCATTER(LENGTH,ABIJ,IBUFIN(LBUF0+1),BUFIN)
+            else
+              call SCATTER(LENGTH,AIBJ,IBUFIN(LBUF0+1),BUFIN)
+            end if
+          end if
+          if (IADR /= -1) cycle
+          if (JTURN == 1) exit
+        end if
+        ! READ (AI/BJ) INTEGRALS
+        IADR = LASTAD(NOVST+NOT2+IJ1)
+        JTURN = 1
+      end do
+      ! CONSTRUCT FIRST ORDER MATRICES
+      FAC = Half
+      if (NI /= NJ) FAC = One
+      IIN = 0
+      IFT = 0
+      call IPO_CPF(IPOA,NVIR,MUL,NSYM,NSIJ,IFT)
+      do
+        do IASYM=1,NSYM
+          IBSYM = MUL(NSIJ,IASYM)
+          if (IBSYM <= IASYM) then
+            IAB = IPOA(IASYM+1)-IPOA(IASYM)
+            if (IAB /= 0) then
+              call SECORD(AIBJ(IPOF(IASYM)+1),AIBJ(IPOF(IBSYM)+1),FSEC(IIN+1),FAC,NVIR(IASYM),NVIR(IBSYM),NSIJ,IFT)
+              IIN = IIN+IAB
+            end if
+          end if
+        end do
+        if (IFT == 1) exit
+        INS = IIN
+        IFT = 1
+        FAC = Zero
+      end do
+      ! SQUARE ABIJ
+      if (ITER /= 1) then
+        do IASYM=1,NSYM
+          if (NVIR(IASYM) == 0) cycle
+          IBSYM = MUL(NSIJ,IASYM)
+          if (NVIR(IBSYM) == 0) cycle
+          IPF = IPOF(IASYM)+1
+          IPF1 = IPOF(IBSYM)+1
+          if (IASYM <= IBSYM) then
+            if (NSIJ == 1) then
+              call SQUAR2_CPF(ABIJ(IPF),NVIR(IASYM))
+              if (NI == NJ) call SQUAR2_CPF(AIBJ(IPF),NVIR(IASYM))
+              call MTRANS_CPF(AIBJ(IPF),AJBI(IPF),NVIR(IASYM),NVIR(IBSYM))
+            else
+              call MTRANS_CPF(ABIJ(IPF1),ABIJ(IPF),NVIR(IASYM),NVIR(IBSYM))
+              call MTRANS_CPF(AIBJ(IPF1),AJBI(IPF),NVIR(IASYM),NVIR(IBSYM))
+            end if
+          else
+            call MTRANS_CPF(AIBJ(IPF1),AJBI(IPF),NVIR(IASYM),NVIR(IBSYM))
+          end if
+        end do
+      end if
+    end if
   end do
-  if (IFT == 1) GO TO 853
-  INS = IIN
-  IFT = 1
-  FAC = Zero
-  GO TO 852
-  ! SQUARE ABIJ
-853 if (ITER == 1) GO TO 260
-  do IASYM=1,NSYM
-    if (NVIR(IASYM) == 0) GO TO 370
-    IBSYM = MUL(NSIJ,IASYM)
-    if (NVIR(IBSYM) == 0) GO TO 370
-    IPF = IPOF(IASYM)+1
-    IPF1 = IPOF(IBSYM)+1
-    if (IASYM > IBSYM) GO TO 369
-    if (NSIJ /= 1) GO TO 361
-    call SQUAR2_CPF(ABIJ(IPF),NVIR(IASYM))
-    if (NI /= NJ) GO TO 368
-    call SQUAR2_CPF(AIBJ(IPF),NVIR(IASYM))
-368 call MTRANS_CPF(AIBJ(IPF),AJBI(IPF),NVIR(IASYM),NVIR(IBSYM))
-    GO TO 370
-361 call MTRANS_CPF(ABIJ(IPF1),ABIJ(IPF),NVIR(IASYM),NVIR(IBSYM))
-369 call MTRANS_CPF(AIBJ(IPF1),AJBI(IPF),NVIR(IASYM),NVIR(IBSYM))
-370 continue
-  end do
-  GO TO 260
-371 if (IFAB == 1) GO TO 262
-  !PAM97 IFAB = iand(IND,1)
-  !PAM97 ITURN = iand(ishft(IND,-1),1)
-  !PAM97 ITYP = iand(ishft(IND,-2),7)
-  !PAM97 ICOUP = iand(ishft(IND,-5),8191)
-  !PAM97 ICOUP1 = iand(ishft(IND,-18),8191)
-  !IFAB = mod(IND,2)
-  !ITURN = mod(IND/2,2)
-  !ITYP = mod(IND/4,8)
-  !ICOUP = mod(IND/IPOW5,IPOW13)
-  !ICOUP1 = mod(IND/IPOW18,IPOW13)
-  IFAB = ibits(IND,0,1)
-  ITURN = ibits(IND,1,1)
-  ITYP = ibits(IND,2,3)
-  ICOUP = ibits(IND,5,13)
-  ICOUP1 = ibits(IND,18,13)
-  CPL = COP(II)
-  CPLA = Zero
-  if (IFAB /= 0) GO TO 260
-  if (ITURN == 0) GO TO 263
-  GO TO 100
-262 CPLA = COP(II)
-  IFAB = 0
-  GO TO 100
-  ! FIRST ORDER INTERACTION
-263 INDA = ICOUP
-  INDB = IRC(ITYP+1)+ICOUP1
-  ISTAR = 1
-  if (ITYP == 1) ISTAR = INS+1
-  if (INS == 0) GO TO 260
-  if (INDA /= IREF0) GO TO 342
-  CPLL = CPL/sqrt(ENP(INDB))
-  call DAXPY_(INS,CPLL,FSEC(ISTAR),1,S(INDX(INDB)+1),1)
-  if (ITER == 1) GO TO 260
-  TERM = DDOT_(INS,C(INDX(INDB)+1),1,FSEC(ISTAR),1)
-  EPP(INDB) = EPP(INDB)+CPLL*TERM
-  GO TO 260
-342 ENPQ = (One-THET(INDA,INDB)*Half)*(ENP(INDA)+ENP(INDB)-One)+THET(INDA,INDB)*Half
-  FACS = sqrt(ENP(INDA))*sqrt(ENP(INDB))/ENPQ
-  FACW = FACS*(Two-THET(INDA,INDB))/ENPQ
-  FACWA = FACW*ENP(INDA)-FACS
-  FACWB = FACW*ENP(INDB)-FACS
-  COPI = CPL*C(INDA)
-  call DAXPY_(INS,COPI*FACS,FSEC(ISTAR),1,S(INDX(INDB)+1),1)
-  call DAXPY_(INS,COPI*FACWB,FSEC(ISTAR),1,W(INDX(INDB)+1),1)
-  TERM = DDOT_(INS,FSEC(ISTAR),1,C(INDX(INDB)+1),1)
-  S(INDA) = S(INDA)+CPL*FACS*TERM
-  W(INDA) = W(INDA)+CPL*FACWA*TERM
-  GO TO 260
-  ! INTERACTIONS BETWEEN DOUBLES AND
-  ! INTERACTIONS BETWEEN SINGLES
-100 if (ITER == 1) GO TO 260
-  !call JTIME(IST)
-  IFTA = 0
-  IFTB = 0
-  GO TO(109,110,111,112,113),ITYP
-109 INDA = IRC(2)+ICOUP1
-  INDB = IRC(2)+ICOUP
-  IFTA = 1
-  IFTB = 1
-  GO TO 115
-110 INDA = IRC(3)+ICOUP1
-  INDB = IRC(3)+ICOUP
-  GO TO 115
-111 INDA = IRC(2)+ICOUP1
-  INDB = IRC(3)+ICOUP
-  IFTA = 1
-  GO TO 115
-112 INDA = IRC(3)+ICOUP1
-  INDB = IRC(2)+ICOUP
-  IFTB = 1
-  GO TO 115
-113 INDA = IRC(1)+ICOUP1
-  INDB = IRC(1)+ICOUP
-115 MYSYM = JSYM(INDA)
-  NYSYM = MUL(MYSYM,NSIJ)
-  MYL = MUL(MYSYM,LSYM)
-  NYL = MUL(NYSYM,LSYM)
-  ENPQ = (One-THET(INDA,INDB)*Half)*(ENP(INDA)+ENP(INDB)-One)+THET(INDA,INDB)*Half
-  FACS = sqrt(ENP(INDA))*sqrt(ENP(INDB))/ENPQ
-  FACW = FACS*(Two-THET(INDA,INDB))/ENPQ
-  FACWA = FACW*ENP(INDA)-FACS
-  FACWB = FACW*ENP(INDB)-FACS
-  call IPO_CPF(IPOA,NVIR,MUL,NSYM,MYL,IFTA)
-  call IPO_CPF(IPOB,NVIR,MUL,NSYM,NYL,IFTB)
-  INMY = INDX(INDA)+1
-  INNY = INDX(INDB)+1
-  if (ITYP /= 5) GO TO 71
-  ! DOUBLET-DOUBLET INTERACTIONS
-  IIN = IPOF(MYL+1)-IPOF(MYL)
-  if (IIN == 0) GO TO 260
-  IPF = IPOF(MYL)+1
-  call SETZ(F,IIN)
-  call DAXPY_(IIN,CPL,AIBJ(IPF),1,F,1)
-  call DAXPY_(IIN,CPLA,ABIJ(IPF),1,F,1)
-  if (INDA == INDB) call SETZZ_CPF(F,NVIR(MYL))
-  call SETZ(A,NVIR(NYL))
-  call FMMM(C(INMY),F,A,1,NVIR(NYL),NVIR(MYL))
-  call DAXPY_(NVIR(NYL),FACS,A,1,S(INNY),1)
-  call DAXPY_(NVIR(NYL),FACWB,A,1,W(INNY),1)
-  if (INDA == INDB) GO TO 260
-  call SETZ(A,NVIR(MYL))
-  call FMMM(F,C(INNY),A,NVIR(MYL),1,NVIR(NYL))
-  call DAXPY_(NVIR(MYL),FACS,A,1,S(INMY),1)
-  call DAXPY_(NVIR(MYL),FACWA,A,1,W(INMY),1)
-  GO TO 260
-  ! TRIPLET-SINGLET , SINGLET-TRIPLET ,
-  ! TRIPLET-TRIPLET AND SINGLET-SINGLET INTERACTIONS
-71 do IASYM=1,NSYM
-    IAB = IPOF(IASYM+1)-IPOF(IASYM)
-    if (IAB == 0) GO TO 70
-    ICSYM = MUL(MYL,IASYM)
-    IBSYM = MUL(NYL,ICSYM)
-    if ((INDA == INDB) .and. (IBSYM > IASYM)) GO TO 70
-    if (NVIR(ICSYM) == 0) GO TO 70
-    NAC = NVIR(IASYM)*NVIR(ICSYM)
-    NBC = NVIR(IBSYM)*NVIR(ICSYM)
-    if (ICSYM >= IASYM) GO TO 31
-    if (ICSYM >= IBSYM) GO TO 32
-    ! CASE 1 , IASYM > ICSYM AND IBSYM > ICSYM
-    IPF = IPOF(IASYM)+1
-    call SETZ(F,IAB)
-    call DAXPY_(IAB,CPL,AIBJ(IPF),1,F,1)
-    call DAXPY_(IAB,CPLA,ABIJ(IPF),1,F,1)
-    if (INDA == INDB) call SETZZ_CPF(F,NVIR(IASYM))
-    call SETZ(A,NBC)
-    call FMMM(C(INMY+IPOA(IASYM)),F,A,NVIR(ICSYM),NVIR(IBSYM),NVIR(IASYM))
-    call DAXPY_(NBC,FACS,A,1,S(INNY+IPOB(IBSYM)),1)
-    call DAXPY_(NBC,FACWB,A,1,W(INNY+IPOB(IBSYM)),1)
-    if (INDA == INDB) GO TO 70
-    IPF = IPOF(IBSYM)+1
-    call SETZ(F,IAB)
-    call DAXPY_(IAB,CPL,AJBI(IPF),1,F,1)
-    call DAXPY_(IAB,CPLA,ABIJ(IPF),1,F,1)
-    call SETZ(A,NAC)
-    call FMMM(C(INNY+IPOB(IBSYM)),F,A,NVIR(ICSYM),NVIR(IASYM),NVIR(IBSYM))
-    call DAXPY_(NAC,FACS,A,1,S(INMY+IPOA(IASYM)),1)
-    call DAXPY_(NAC,FACWA,A,1,W(INMY+IPOA(IASYM)),1)
-    GO TO 70
-    ! CASE 2 , IASYM > ICSYM AND ICSYM > OR = IBSYM
-32  IPF = IPOF(IBSYM)+1
-    call SETZ(F,IAB)
-    call DAXPY_(IAB,CPL,AJBI(IPF),1,F,1)
-    call DAXPY_(IAB,CPLA,ABIJ(IPF),1,F,1)
-    call MTRANS_CPF(C(INMY+IPOA(IASYM)),A,NVIR(IASYM),NVIR(ICSYM))
-    call SETZ(B,NBC)
-    call FMMM(F,A,B,NVIR(IBSYM),NVIR(ICSYM),NVIR(IASYM))
-    if (NYL /= 1) GO TO 35
-    call SETZ(A,NBC)
-    call DAXPY_(NBC,FACS,B,1,A,1)
-    if (IFTB == 1) GO TO 134
-    call SIADD_CPF(A,S(INNY+IPOB(ICSYM)),NVIR(IBSYM))
-    call SETZ(A,NBC)
-    call DAXPY_(NBC,FACWB,B,1,A,1)
-    call SIADD_CPF(A,W(INNY+IPOB(ICSYM)),NVIR(IBSYM))
-    call SQUAR_CPF(C(INNY+IPOB(IBSYM)),A,NVIR(IBSYM))
-    GO TO 36
-134 call TRADD_CPF(A,S(INNY+IPOB(ICSYM)),NVIR(IBSYM))
-    call SETZ(A,NBC)
-    call DAXPY_(NBC,FACWB,B,1,A,1)
-    call TRADD_CPF(A,W(INNY+IPOB(ICSYM)),NVIR(IBSYM))
-    call SQUARN_CPF(C(INNY+IPOB(IBSYM)),A,NVIR(IBSYM))
-    GO TO 36
-35  if (IFTB == 1) GO TO 135
-    call DAXPY_(NBC,FACS,B,1,S(INNY+IPOB(ICSYM)),1)
-    call DAXPY_(NBC,FACWB,B,1,W(INNY+IPOB(ICSYM)),1)
-    GO TO 136
-135 call DAXPY_(NBC,-FACS,B,1,S(INNY+IPOB(ICSYM)),1)
-    call DAXPY_(NBC,-FACWB,B,1,W(INNY+IPOB(ICSYM)),1)
-136 call MTRANS_CPF(C(INNY+IPOB(ICSYM)),A,NVIR(ICSYM),NVIR(IBSYM))
-    if (IFTB == 1) call VNEG_CPF(A,1,A,1,NBC)
-36  call SETZ(B,NAC)
-    call FMMM(A,F,B,NVIR(ICSYM),NVIR(IASYM),NVIR(IBSYM))
-    call DAXPY_(NAC,FACS,B,1,S(INMY+IPOA(IASYM)),1)
-    call DAXPY_(NAC,FACWA,B,1,W(INMY+IPOA(IASYM)),1)
-    GO TO 70
-31  if (ICSYM >= IBSYM) GO TO 33
-    ! CASE 3 , ICSYM > OR = IASYM AND IBSYM > ICSYM
-    IPF = IPOF(IASYM)+1
-    call SETZ(F,IAB)
-    call DAXPY_(IAB,CPL,AIBJ(IPF),1,F,1)
-    call DAXPY_(IAB,CPLA,ABIJ(IPF),1,F,1)
-    if (MYL /= 1) GO TO 39
-    if (IFTA == 0) call SQUAR_CPF(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
-    if (IFTA == 1) call SQUARN_CPF(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
-    GO TO 40
-39  call MTRANS_CPF(C(INMY+IPOA(ICSYM)),A,NVIR(ICSYM),NVIR(IASYM))
-    if (IFTA == 1) call VNEG_CPF(A,1,A,1,NAC)
-40  call SETZ(B,NBC)
-    call FMMM(A,F,B,NVIR(ICSYM),NVIR(IBSYM),NVIR(IASYM))
-    call DAXPY_(NBC,FACS,B,1,S(INNY+IPOB(IBSYM)),1)
-    call DAXPY_(NBC,FACWB,B,1,W(INNY+IPOB(IBSYM)),1)
-    call MTRANS_CPF(C(INNY+IPOB(IBSYM)),A,NVIR(IBSYM),NVIR(ICSYM))
-    call SETZ(B,NAC)
-    call FMMM(F,A,B,NVIR(IASYM),NVIR(ICSYM),NVIR(IBSYM))
-    if (MYL /= 1) GO TO 46
-    call SETZ(A,NAC)
-    call DAXPY_(NAC,FACS,B,1,A,1)
-    if (IFTA == 1) GO TO 146
-    call SIADD_CPF(A,S(INMY+IPOA(IASYM)),NVIR(IASYM))
-    call SETZ(A,NAC)
-    call DAXPY_(NAC,FACWA,B,1,A,1)
-    call SIADD_CPF(A,W(INMY+IPOA(IASYM)),NVIR(IASYM))
-    GO TO 70
-146 call TRADD_CPF(A,S(INMY+IPOA(IASYM)),NVIR(IASYM))
-    call SETZ(A,NAC)
-    call DAXPY_(NAC,FACWA,B,1,A,1)
-    call TRADD_CPF(A,W(INMY+IPOA(IASYM)),NVIR(IASYM))
-    GO TO 70
-46  if (IFTA == 1) GO TO 1146
-    call DAXPY_(NAC,FACS,B,1,S(INMY+IPOA(ICSYM)),1)
-    call DAXPY_(NAC,FACWA,B,1,W(INMY+IPOA(ICSYM)),1)
-    GO TO 70
-1146 call DAXPY_(NAC,-FACS,B,1,S(INMY+IPOA(ICSYM)),1)
-    call DAXPY_(NAC,-FACWA,B,1,W(INMY+IPOA(ICSYM)),1)
-    GO TO 70
-    ! CASE 4 , ICSYM > OR = IASYM AND ICSYM > OR = IBSYM
-33  IPF = IPOF(IBSYM)+1
-    call SETZ(F,IAB)
-    call DAXPY_(IAB,CPL,AJBI(IPF),1,F,1)
-    call DAXPY_(IAB,CPLA,ABIJ(IPF),1,F,1)
-    if (INDA == INDB) call SETZZ_CPF(F,NVIR(IASYM))
-    if (MYL /= 1) GO TO 41
-    if (IFTA == 0) call SQUAR_CPF(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
-    if (IFTA == 1) call SQUARM_CPF(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
-    GO TO 42
-41  if (IFTA == 0) call DCOPY_(NAC,C(INMY+IPOA(ICSYM)),1,A,1)
-    if (IFTA == 1) call VNEG_CPF(C(INMY+IPOA(ICSYM)),1,A,1,NAC)
-42  call SETZ(B,NBC)
-    call FMMM(F,A,B,NVIR(IBSYM),NVIR(ICSYM),NVIR(IASYM))
-    if (NYL /= 1) GO TO 43
-    call SETZ(A,NBC)
-    call DAXPY_(NBC,FACS,B,1,A,1)
-    if (IFTB == 1) GO TO 143
-    call SIADD_CPF(A,S(INNY+IPOB(ICSYM)),NVIR(IBSYM))
-    call SETZ(A,NBC)
-    call DAXPY_(NBC,FACWB,B,1,A,1)
-    call SIADD_CPF(A,W(INNY+IPOB(ICSYM)),NVIR(IBSYM))
-    GO TO 44
-143 call TRADD_CPF(A,S(INNY+IPOB(ICSYM)),NVIR(IBSYM))
-    call SETZ(A,NBC)
-    call DAXPY_(NBC,FACWB,B,1,A,1)
-    call TRADD_CPF(A,W(INNY+IPOB(ICSYM)),NVIR(IBSYM))
-    GO TO 44
-43  if (IFTB == 1) GO TO 144
-    call DAXPY_(NBC,FACS,B,1,S(INNY+IPOB(ICSYM)),1)
-    call DAXPY_(NBC,FACWB,B,1,W(INNY+IPOB(ICSYM)),1)
-    GO TO 44
-144 call DAXPY_(NBC,-FACS,B,1,S(INNY+IPOB(ICSYM)),1)
-    call DAXPY_(NBC,-FACWB,B,1,W(INNY+IPOB(ICSYM)),1)
-44  if (INDA == INDB) GO TO 70
-    IPF = IPOF(IASYM)+1
-    call SETZ(F,IAB)
-    call DAXPY_(IAB,CPL,AIBJ(IPF),1,F,1)
-    call DAXPY_(IAB,CPLA,ABIJ(IPF),1,F,1)
-    if (NYL /= 1) GO TO 37
-    if (IFTB == 0) call SQUAR_CPF(C(INNY+IPOB(IBSYM)),A,NVIR(IBSYM))
-    if (IFTB == 1) call SQUARM_CPF(C(INNY+IPOB(IBSYM)),A,NVIR(IBSYM))
-    GO TO 38
-37  if (IFTB == 0) call DCOPY_(NBC,C(INNY+IPOB(ICSYM)),1,A,1)
-    if (IFTB == 1) call VNEG_CPF(C(INNY+IPOB(ICSYM)),1,A,1,NBC)
-38  call SETZ(B,NAC)
-    call FMMM(F,A,B,NVIR(IASYM),NVIR(ICSYM),NVIR(IBSYM))
-    if (MYL /= 1) GO TO 45
-    call SETZ(A,NAC)
-    call DAXPY_(NAC,FACS,B,1,A,1)
-    if (IFTA == 1) GO TO 145
-    call SIADD_CPF(A,S(INMY+IPOA(ICSYM)),NVIR(IASYM))
-    call SETZ(A,NAC)
-    call DAXPY_(NAC,FACWA,B,1,A,1)
-    call SIADD_CPF(A,W(INMY+IPOA(ICSYM)),NVIR(IASYM))
-    GO TO 70
-145 call TRADD_CPF(A,S(INMY+IPOA(ICSYM)),NVIR(IASYM))
-    call SETZ(A,NAC)
-    call DAXPY_(NAC,FACWA,B,1,A,1)
-    call TRADD_CPF(A,W(INMY+IPOA(ICSYM)),NVIR(IASYM))
-    GO TO 70
-45  if (IFTA == 1) GO TO 147
-    call DAXPY_(NAC,FACS,B,1,S(INMY+IPOA(ICSYM)),1)
-    call DAXPY_(NAC,FACWA,B,1,W(INMY+IPOA(ICSYM)),1)
-    GO TO 70
-147 call DAXPY_(NAC,-FACS,B,1,S(INMY+IPOA(ICSYM)),1)
-    call DAXPY_(NAC,-FACWA,B,1,W(INMY+IPOA(ICSYM)),1)
-70  continue
-  end do
-260 continue
 end do
-GO TO 300
-350 call MDSQ2(C,S,W,MUL,INDX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
+call MDSQ2(C,S,W,MUL,INDX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
 !NCONF = JSC(4)
 !write(u6,787) (S(I),I=1,NCONF)
-!787 format(1X,'S,FAIBJ',5F10.6)
 !write(u6,786) (W(I),I=1,NCONF)
-!786 format(1X,'W,FAIBJ',5F10.6)
 
 return
+
+!786 format(1X,'W,FAIBJ',5F10.6)
+!787 format(1X,'S,FAIBJ',5F10.6)
 
 end subroutine MFAIBJ

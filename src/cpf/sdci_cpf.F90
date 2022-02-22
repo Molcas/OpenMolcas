@@ -48,20 +48,21 @@ subroutine SDCI_CPF_INTERNAL(H)
     call THETSET(iH1,H(LW(29)),IRC(4))
     nullify(iH1)
   end if
-100 call c_f_pointer(c_loc(H(LW(1))),iH1,[1])
-  call c_f_pointer(c_loc(H(LW(2))),iH2,[1])
-  call c_f_pointer(c_loc(H(LW(3))),iH3,[1])
-  call NPSET(iH2,iH3,H(LW(26)),H(LW(30)),H(LW(31)),H(LW(72)),H(LW(27)),H(LW(28)),H(LW(32)),iH1)
-  nullify(iH1,iH2,iH3)
-  call TWOCT(H)
-  call ONECT(H)
-  call CPFCTL(H)
-  ITER = ITER+1
-  ITPUL = ITPUL+1
-  if ((ITER > MAXIT) .or. (ICONV == 1)) GO TO 395
-  GO TO 100
+  do
+    call c_f_pointer(c_loc(H(LW(1))),iH1,[1])
+    call c_f_pointer(c_loc(H(LW(2))),iH2,[1])
+    call c_f_pointer(c_loc(H(LW(3))),iH3,[1])
+    call NPSET(iH2,iH3,H(LW(26)),H(LW(30)),H(LW(31)),H(LW(72)),H(LW(27)),H(LW(28)),H(LW(32)),iH1)
+    nullify(iH1,iH2,iH3)
+    call TWOCT(H)
+    call ONECT(H)
+    call CPFCTL(H)
+    ITER = ITER+1
+    ITPUL = ITPUL+1
+    if ((ITER > MAXIT) .or. (ICONV == 1)) exit
+  end do
   ! FIRST ORDER DENSITY MATRIX
-395 IDENS = 1
+  IDENS = 1
 
   call DENSCT_CPF(H,LIC0)
 
@@ -70,7 +71,6 @@ subroutine SDCI_CPF_INTERNAL(H)
     write(u6,*) ' one reference state has been specified in the'
     write(u6,*) ' GUGA program. Change input to GUGA and run again.'
     call XFLUSH(u6)
-    return
   end if
 
   return
