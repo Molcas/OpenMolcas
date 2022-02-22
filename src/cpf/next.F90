@@ -14,13 +14,12 @@
 
 subroutine NEXT(P,DPS,CN)
 
+use cpf_global, only: IADC, IADDP, IPRINT, ITPUL, Lu_CI, NCONF
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: P(*), DPS(*), CN(*)
-#include "cpfmcpf.fh"
-#include "files_cpf.fh"
 integer(kind=iwp) :: I, IAD, IIN, ITM, J
 real(kind=wp) :: CTOT
 

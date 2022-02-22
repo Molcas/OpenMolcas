@@ -14,13 +14,13 @@
 
 subroutine DECOMP(NN,A,UL)
 
+use cpf_global, only: IPS
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: NN
 real(kind=wp) :: A(NN,NN), UL(NN,NN)
-#include "ips.fh"
 integer(kind=iwp) :: I, IDXPIV, IP, J, K, KP, KP1, N, NM1
 real(kind=wp) :: BIG, EM, PIVOT, ROWNRM, SCALES(200), RSIZE
 

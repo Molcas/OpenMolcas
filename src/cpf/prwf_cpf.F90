@@ -14,13 +14,13 @@
 
 subroutine PRWF_CPF(ICASE,JSY,INDX,C)
 
+use cpf_global, only: CTRSH, IFIRST, IRC, IREF0, ISDCI, JSC, LN, LSYM, MUL, NCONF, NSM, NSYS, NVIRT, SQ2
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: ICASE(*), INDX(*), JSY(*)
 real(kind=wp) :: C(*)
-#include "cpfmcpf.fh"
 integer(kind=iwp) :: I, II, II1, IIN, IJ, ILIM, ILSYM(57), IOC(57), IORB(57), ISP(57), IX1, J, J1, J2, JCONF, JJ, JMIN, JOJ, JVIR, &
                      NA, NB, NSI, NSJ
 real(kind=wp) :: CI, THRC

@@ -15,11 +15,11 @@
 subroutine TWOCT(H)
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use cpf_global, only: ICPF, IFIRST, INCPF, IRC, ITER, ISDCI, LW
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: H(*)
-#include "cpfmcpf.fh"
 integer(kind=iwp) :: ILIM
 
 call TWOCT_INTERNAL(H)

@@ -14,13 +14,13 @@
 
 subroutine MAB(ICASE,JSY,INDX,C,S,FC,A,B,F,W,THET,ENP,NII)
 
+use cpf_global, only: IDENS, IFIRST, IPRINT, IRC, IREF0, IROW, JSC, LN, LSYM, MUL, NDIAG, NORBT, NSYM, NSYS, NVIR, NVIRT, SQ2
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
 integer(kind=iwp) :: ICASE(*), JSY(*), INDX(*), NII
 real(kind=wp) :: C(*), S(*), FC(*), A(*), B(*), F(*), W(*), THET(NII,NII), ENP(*)
-#include "cpfmcpf.fh"
 integer(kind=iwp) :: I, IAB, IASYM, ICSYM, IFT, II1, IIA, IIC, IIN, IJ, INDA, INMY, INN, INUM, IOC(55), IPOA(9), IPF, IPOF(9), &
                      ITAIL, ITURN, JOJ, LNA, LNC, MYL, MYSYM, NA, NA1, NA2, NAA, NAB, NAC, NB, NCLIM, NOB2, NVIRA, NVIRC
 real(kind=wp) :: COPI, ENPQ, FACS, FACW, RSUM, TR, TSUM

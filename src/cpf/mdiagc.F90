@@ -14,14 +14,14 @@
 
 subroutine MDIAGC(JSY,C,S,W,THET,ENP,NII)
 
+use cpf_global, only: IAD25S, IFIRST, IRC, LN, LSYM, Lu_25, MUL, NSM, NSYS, NVIRT
 use Constants, only: One, Half, Two
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: JSY(*), NII
 real(kind=wp) :: C(*), S(*), W(*), THET(NII,NII), ENP(*)
-#include "cpfmcpf.fh"
-#include "files_cpf.fh"
+#include "cop.fh"
 integer(kind=iwp) :: IADD25, IIC, ILIM, IND, INDA, IRL, NA, NA1, NA2, NB, NB1, NB2, NSA, NSS
 real(kind=wp) :: ENPQ, FACS, FACW
 integer(kind=iwp), external :: JSUNP_CPF

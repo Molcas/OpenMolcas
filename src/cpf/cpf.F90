@@ -32,27 +32,12 @@ subroutine CPF(IRETURN)
 ! MODIFIED TO MOLCAS 4.1 BY R. LINDH 02/24/98 (Multi fileing)          *
 ! MODIFIED TO MODERN FORTRAN BY I. FDEZ. GALVAN 2022                   *
 !***********************************************************************
-!
-! UNITS USED IN THE PROGRAM
-! UNIT  5 , INPUT
-! UNIT  6 , OUTPUT
-! UNIT 10 , SYMBOLIC FORMULAS
-! UNIT 50 , TRANSFORMED MO 2-EL INTEGRALS
-! UNIT 60 , SORTED AIBJ, ABIJ AND AIJK INTEGRALS
-! UNIT 70 , SORTED IJKL AND ABCI INTEGRALS
-! UNIT 80 , SORTED ABCD INTEGRALS
-! UNIT 17 , ONE ELECTRON INTEGRALS
-! UNIT 19 , (Formatted sequential!) CPF-ORBITALS OUT
-! UNIT 25 , FOCK MATRIX AND DIAGONAL CSF MATRIX ELEMENTS
-! UNIT 26 , CI VECTOR
-! UNIT 27 , SCRATCH IN IIJJ
-! UNIT 30 ,
 
+use cpf_global, only: Lu_25, Lu_27, Lu_30, Lu_CI, Lu_CIGuga, Lu_CPFORB, Lu_TiABCD, Lu_TiABCI, Lu_TiABIJ, Lu_TraInt, Lu_TraOne
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: IRETURN
-#include "files_cpf.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: iMemOff, MemOff, MEMORY
 integer(kind=iwp), external :: ip_of_iWork_d

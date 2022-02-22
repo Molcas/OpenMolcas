@@ -14,13 +14,13 @@
 
 subroutine SOLVE(NN,UL,B,X)
 
+use cpf_global, only: IPS
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: NN
 real(kind=wp) :: UL(NN,NN), B(*), X(*)
-#include "ips.fh"
 integer(kind=iwp) :: I, IBACK, IM1, IP, IP1, J, N, NP1
 real(kind=wp) :: RSUM
 

@@ -15,14 +15,14 @@
 !pgi$g opt=1
 subroutine FAIBJ_CPF(JSY,INDX,C,S,ABIJ,AIBJ,AJBI,BUFIN,IBUFIN,A,B,F,FSEC,ENP,EPP)
 
+use cpf_global, only: IRC, IREF0, IROW, ITER, LASTAD, LBUF, LN, LSYM, Lu_CIGuga, Lu_TiABIJ, MUL, NDIAG, NSM, NSYM, NVIR, NVIRT, SQ2
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, r8, RtoI
 
 implicit none
 integer(kind=iwp) :: JSY(*), INDX(*), IBUFIN(*)
 real(kind=wp) :: C(*), S(*), ABIJ(*), AIBJ(*), AJBI(*), BUFIN(*), A(*), B(*), F(*), FSEC(*), ENP(*), EPP(*)
-#include "cpfmcpf.fh"
-#include "files_cpf.fh"
+#include "cop.fh"
 integer(kind=iwp) :: IAB, IADR, IASYM, IBSYM, ICHK, ICOUP, ICOUP1, ICSYM, IFAB, IFT, IFTA, IFTB, II, IIN, IJ1, ILEN, ILIM, IND, &
                      INDA, INDB, INDI, INMY, INNY, INS, INUM, IPF, IPF1, IPOA(9), IPOB(9), IPOF(9), ISTAR, ITURN, ITYP, JTURN, &
                      LBUF0, LBUF1, LBUF2, LENGTH, MYL, MYSYM, NAC, NBC, NI, NJ, NOT2, NOVST, NSIJ, NVT, NYL, NYSYM

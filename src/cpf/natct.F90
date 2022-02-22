@@ -15,14 +15,13 @@
 subroutine NATCT(H,LIC0)
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use cpf_global, only: BNAME, DETOT, ETOT, ICPF, INCPF, ISDCI, ITOC17, LIC, Lu_CPFORB, Lu_TraOne, LW, NBAS, NORB, NPFRO, NSYM
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: LIC0
 real(kind=wp) :: H(LIC0)
-#include "cpfmcpf.fh"
-#include "files_cpf.fh"
 integer(kind=iwp) :: ICMO, IDISK, iDum, iDummy(7,8), iiRC, IOCC, iOpt, iSYM, LW91A, LW91B, M, N2SUM, n2Tri, nbMax, NSUM
 real(kind=wp) :: dum, Dummy(1), EREL, ErelDC, ErelMV
 character(len=72) :: Header
@@ -94,7 +93,7 @@ else if (iNCPF == 1) then
 else
   Header = ' MCPF natural orbitals'
 end if
-call Primo(Header,.true.,.false.,1.0e-4_wp,dum,nSym,nBas,nBas,Name,Dummy,H(LW(90)),H(LW(87)),-1)
+call Primo(Header,.true.,.false.,1.0e-4_wp,dum,nSym,nBas,nBas,BName,Dummy,H(LW(90)),H(LW(87)),-1)
 
 ! Read the overlap matrix in ao basis
 iiRC = -1
@@ -104,7 +103,7 @@ if (iiRC /= 0) then
   write(u6,*) 'Natct: Error reading overlap matrix!'
   call Abend()
 end if
-call Charge(nSym,nBas,Name,H(LW(87)),H(LW(90)),H(LW(91)),2,.true.,.true.)
+call Charge(nSym,nBas,BName,H(LW(87)),H(LW(90)),H(LW(91)),2,.true.,.true.)
 call Prpt_old(nSym,nBas,nSum,n2Sum,H(LW(87)),H(LW(90)))
 
 if (iCPF == 1) then

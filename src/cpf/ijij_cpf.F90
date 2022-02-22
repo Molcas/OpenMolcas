@@ -14,14 +14,15 @@
 
 subroutine IJIJ_CPF(JSY,HDIAG,FJI)
 
+use cpf_global, only: IAD25S, IRC, IREF0, IROW, IV0, IV1, LN, LSYM, Lu_25, Lu_27, Lu_CIGuga, MUL, NNS, NSM, NSYS, NVIR, NVIRT, &
+                      POTNUC
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: JSY(*)
 real(kind=wp) :: HDIAG(*), FJI(*)
-#include "cpfmcpf.fh"
-#include "files_cpf.fh"
+#include "cop.fh"
 integer(kind=iwp) :: IAD27, IADD25, ICHK, ICOUP, ICOUPS, IFS, II, IIJ, IIJ1, IIJ2, IJJ, INB, IND, INDI, INS, IOUT, ITYP, IVL, &
                      IVSAVE, J, JJ, KK, LENGTH, NA, NA1, NA2, NB, NB1, NB2, NSA, NSS
 real(kind=wp) :: HCOUT(nCOP), TERM

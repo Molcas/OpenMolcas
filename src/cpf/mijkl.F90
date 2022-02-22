@@ -15,14 +15,14 @@
 !pgi$g opt=1
 subroutine MIJKL(JSY,INDX,C,S,FIJKL,BUFIN,IBUFIN,W,THET,ENP,EPP,NII)
 
+use cpf_global, only: IRC, IREF0, IROW, ITER, JSC, KBUFF1, LASTAD, LN, LSYM, Lu_CIGuga, Lu_TiABCI, MUL, NCONF, NNS, NVIR
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, RtoI
 
 implicit none
 integer(kind=iwp) :: JSY(*), INDX(*), IBUFIN(*), NII
 real(kind=wp) :: C(*), S(*), FIJKL(*), BUFIN(*), W(*), THET(NII,NII), ENP(*), EPP(*)
-#include "cpfmcpf.fh"
-#include "files_cpf.fh"
+#include "cop.fh"
 integer(kind=iwp) :: I, IADR, IC1, IC2, ICHK, IIN, ILEN, IND, INDA, INDB, INDI, INUM, IP, IVL, JP, KKBUF0, KKBUF1, KKBUF2, KP, &
                      LENGTH, LP, NA, NB, NIJ, NIJKL, NKL, NS1, NS1L
 real(kind=wp) :: COPI, ENPQ, FACS, FACW, FACWA, FACWB, FINI

@@ -15,12 +15,12 @@
 subroutine DIAGCT_CPF(H)
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use cpf_global, only: IFIRST, JSC, LW, NCONF
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: H(*)
-#include "cpfmcpf.fh"
 integer(kind=iwp) :: ILIM, NINTGR
 
 call DIAGCT_INTERNAL(H)

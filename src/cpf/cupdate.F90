@@ -14,14 +14,14 @@
 
 subroutine CUPDATE(JSY,INDX,C,S,AP,BST,T2,ENP)
 
+use cpf_global, only: IAD25S, IADDP, IPRINT, IRC, IREF0, ITPUL, LSYM, Lu_25, Lu_30, Lu_CI, MUL, NCONF, NNS, NVIR, WLEV
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
 integer(kind=iwp) :: JSY(*), INDX(*)
 real(kind=wp) :: C(*), S(*), AP(*), BST(*), T2(*), ENP(*)
-#include "cpfmcpf.fh"
-#include "files_cpf.fh"
+#include "cop.fh"
 integer(kind=iwp) :: I, IAD, III, IIN, INUM, IP, IST, JJJ, NS1, NSIL
 real(kind=wp) :: A, APW, EMP, W
 integer(kind=iwp), external :: JSUNP_CPF

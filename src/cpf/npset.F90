@@ -14,14 +14,13 @@
 
 subroutine NPSET(JSY,INDX,C,TPQ,ENP,T,S,W,EPP,ICASE)
 
+use cpf_global, only: IADDP, ICPF, IDENS, INCPF, IPRINT, IRC, ISDCI, ITPUL, JSC, LSYM, Lu_CI, MUL, NCONF, NNS, NVIR
 use Constants, only: One
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
 integer(kind=iwp) :: JSY(*), INDX(*), ICASE(*)
 real(kind=wp) :: C(*), TPQ(*), ENP(*), T(*), S(*), W(*), EPP(*)
-#include "cpfmcpf.fh"
-#include "files_cpf.fh"
 integer(kind=iwp) :: I, IAD, IIN, IND, INUM, IP, IQ, IST, NS1, NSIL
 real(kind=wp) :: EMPI
 integer(kind=iwp), external :: JSUNP_CPF

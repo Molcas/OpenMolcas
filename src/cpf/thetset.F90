@@ -15,14 +15,13 @@
 subroutine THETSET(ICASE,THE,NII)
 !PAM06 This routine is called from SDCI if this is an MCPF calculation
 
+use cpf_global, only: IPRINT, IRC, IREF0, LN, LWSP
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: ICASE(*), NII
 real(kind=wp) :: THE(NII,NII)
-#include "cpfmcpf.fh"
-#include "spin_cpf.fh"
 integer(kind=iwp) :: I, II, II1, IINT, IIOR, IJ, IK, IL, IOCR(100), IP, IQ, JJ, JOJ, NI, NJ
 integer(kind=iwp), external :: ICUNP
 

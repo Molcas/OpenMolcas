@@ -15,21 +15,21 @@
 subroutine SORTB_CPF(BUFOUT,INDOUT,ICAD,IBUFL,TIBUF,ACBDS,ACBDT,ISAB,BUFACBD)
 ! SORTS INTEGRALS (AB/CD) FOR FIXED A,C ALL B,D
 
+use cpf_global, only: ICH, IPASS, IRC, IROW, JBUF, JJS, KBUFF1, LASTAD, LN, LSYM, Lu_TiABCD, Lu_TiABIJ, Lu_TraInt, MADR, MUL, &
+                      NORB, NSM, NSYM, NSYS, NTIBUF, NVIRT
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6, RtoI
 
 implicit none
-#include "cpfmcpf.fh"
 real(kind=wp) :: BUFOUT(*), TIBUF(NTIBUF), ACBDS(*), ACBDT(*), BUFACBD(*)
 integer(kind=iwp) :: INDOUT(*), ICAD(*), IBUFL(*), ISAB(*)
-#include "files_cpf.fh"
+#include "tratoc.fh"
 integer(kind=iwp) :: I, IAC, IACMAX, IACMIN, IAD16, IAD50, IADR, IBDS, ICP, ICPP, ICQ, ID, IDISK, IDIV, IFIN1, IFIN2, ILOOP, IN1, &
                      INND, INPS, INPT, INS, INSOUT, IOUT, IREC, IST1, IST2, ISTEP, ISYM, ITAIL, ITURN, JBUF0, JBUF1, JBUF2, JDISK, &
                      KK, LENGTH, M1, M2, M3, M4, N1, N2, N3, N4, NA, NAC, NB, NBD, NC, ND, NDMAX, NI, NJ, NK, NL, NOP, NOQ, NOR, &
                      NORB0(9), NORBP, NOS, NOV, NOVM, NOVST, NSAC, NSACL, NSP, NSPQ, NSPQR, NSQ, NSR, NSS, NSSM, NT, NTM, NU, &
                      NUMAX, NUMIN, NV, NVT, NX, NXM
 real(kind=wp) :: FINI
-!parameter(IPOW8=2**8)
 
 KBUFF1 = 2*9600
 NVT = IROW(NVIRT+1)
@@ -168,7 +168,7 @@ do ISTEP=1,IPASS
   end do
   ! EMPTY LAST BUFFERS
   NOVM = IACMAX-IACMIN+1
-  if ((NOVST+IACMIN-1+NOVM) > mAdr) then
+  if ((NOVST+IACMIN-1+NOVM) > MADR) then
     write(u6,*) 'SORTB_CPF Error: NOVST+IACMIN-1+NOVM > MADR'
     write(u6,*) '  (See code).'
     call Abend()

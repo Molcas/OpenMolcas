@@ -14,13 +14,13 @@
 
 subroutine DENS_CPF(C,D,ICASE,A)
 
+use cpf_global, only: IREF0, LN, NCONF, NORBT
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
 real(kind=wp) :: C(*), D(*), A
 integer(kind=iwp) :: ICASE(*)
-#include "cpfmcpf.fh"
 integer(kind=iwp) :: I, II, II1, ILIM, JOJ
 real(kind=wp) :: EMA
 integer(kind=iwp), external :: ICUNP

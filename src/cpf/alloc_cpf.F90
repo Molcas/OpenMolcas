@@ -14,11 +14,13 @@
 
 subroutine ALLOC_CPF(ISMAX,LPERMA)
 
+use cpf_global, only: ICPF, IFIRST, INCPF, IPRINT, IRC, IROW, ISDCI, JSC, KBUFF1, LBUF, LIC, LN, LW, MAXIT, MUL, NBAS, NNS, NORBT, &
+                      NSYM, NVIR
 use Definitions, only: iwp, u6, RtoI
 
 implicit none
 integer(kind=iwp) :: ISMAX, LPERMA
-#include "cpfmcpf.fh"
+#include "cop.fh"
 integer(kind=iwp) :: I, IJKL, ILIM, IPF, IPOF(9), ISTOP, J, JMAX, LCIN, LIM, LIM1, LPERMB, MX1, MX2, NBMAX, NIJ, NOB2, NTMAX, &
                      NTOT, NVMAX
 

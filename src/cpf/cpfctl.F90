@@ -15,12 +15,12 @@
 subroutine CPFCTL(H)
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use cpf_global, only: DETOT, ETHRE, ETOT, ICONV, ICPF, IDIIS, INCPF, IPRINT, IRC, ISDCI, ITER, ITPUL, LW, MAXIT, MAXITP, POTNUC
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: H(*)
-#include "cpfmcpf.fh"
 integer(kind=iwp) :: I, IEND, IP, ISTA, ITP
 real(kind=wp) :: C0, DECORR, DELE, EENP, ENER, ETOTT
 

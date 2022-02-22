@@ -14,13 +14,13 @@
 
 subroutine NATORB_CPF(D,CM,CMO,DSYM,CAO,OCC,M)
 
+use cpf_global, only: ICH, IPRINT, IROW, NASH, NBAS, NFRO, NISH, NORB, NVIR
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: D(*), CM(*), CMO(*), DSYM(*), CAO(*), OCC(*)
 integer(kind=iwp) :: M
-#include "cpfmcpf.fh"
 integer(kind=iwp) :: I, II, IJ, IJ0, ILAS, IP, ISTA, J, JP, kp, M1, NBM, NBP, NFR, NI, NIJ, NJ, NORBM, NORBM2
 real(kind=wp) :: TERM
 

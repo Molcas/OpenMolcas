@@ -14,12 +14,12 @@
 
 subroutine EPSPRIM(JSY,INDX,C,S,EPP)
 
+use cpf_global, only: IPRINT, IRC, LSYM, MUL, NNS, NVIR
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
 integer(kind=iwp) :: JSY(*), INDX(*)
 real(kind=wp) :: C(*), S(*), EPP(*)
-#include "cpfmcpf.fh"
 integer(kind=iwp) :: I, IIN, INUM, IP, IST, NS1, NSIL
 real(kind=wp) :: T
 integer(kind=iwp), external :: JSUNP_CPF

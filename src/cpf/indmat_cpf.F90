@@ -14,11 +14,11 @@
 
 subroutine INDMAT_CPF(JSY,INDX,ISAB,ISMAX,JREFX)
 
+use cpf_global, only: IFIRST, IPRINT, IRC, IREF0, ISC, JJS, JSC, LN, LSYM, MUL, NDIAG, NNS, NSM, NSYM, NSYS, NVIR, NVIRT
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: JSY(*), INDX(*), ISAB(*), ISMAX, JREFX(*)
-#include "cpfmcpf.fh"
 integer(kind=iwp) :: I, ICOUS(8), II, IIN, ILIM, IN0, IN2, IND, IR, IR1, IR2, IX1, IX2, IX3, IX4, JCONF, JJM, JSCI, NA, NB, NSAB, &
                      NSS
 integer(kind=iwp), external :: JSUNP_CPF

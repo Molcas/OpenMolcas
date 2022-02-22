@@ -15,12 +15,12 @@
 subroutine SDCI_CPF(H,iH,LIC0)
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use cpf_global, only: ICONV, ICPF, IDENS, INCPF, IPRINT, IRC, IREF0, IREST, ISDCI, ITER, ITPUL, JSC, LIC, LW, MAXIT, NREF
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: H(*)
 integer(kind=iwp) :: iH(*), LIC0
-#include "cpfmcpf.fh"
 
 call SDCI_CPF_INTERNAL(H)
 

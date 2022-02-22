@@ -15,22 +15,25 @@
 subroutine ReadIn_CPF(H,iH)
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use cpf_global, only: BNAME, CTRSH, ETHRE, ETOT, ICH, ICONV, ICPF, IFIRST, INCPF, IPRINT, IRC, IREST, IROW, ISC, ISDCI, ITOC17, &
+                      IV0, IV1, JJS, KBUFF1, LN, LSYM, Lu_CIGuga, Lu_TraOne, LW, LWSP, MAXIT, MAXITP, MUL, N, NASH, NBAS, NFRO, &
+                      NISH, NORB, NORBT, NPFRO, NREF, NSM, NSYM, NVIR, NVIRT, POTNUC, WLEV
 use Symmetry_Info, only: SMul => Mul
-use Constants, only: Zero, Two
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u5, u6, RtoI
 
 implicit none
 real(kind=wp) :: H(*)
 integer(kind=iwp) :: iH(*)
 ! Read input and allocate memory
-#include "cpfmcpf.fh"
-#include "files_cpf.fh"
+#include "Molcas.fh"
+#include "cop.fh"
 #include "niocr.fh"
-#include "spin_cpf.fh"
 integer(kind=iwp), parameter :: mxTit = 10
 integer(kind=iwp) :: I, iCmd, IDISK, IIN, ILIM, INTNUM, IOCR(nIOCR), iOpt, IR, IR1, iRef, IRJ, ISMAX, istatus, iSym, IT, IU, IV, &
-                     IVA, IX1, IX2, IX3, IX4, IY1, IY2, IY3, IY4, j, jCmd, jEnd, jStart, LN1, LN2, LPERMA, NAMSIZ, NASHI, NDELI, &
-                     NFROI, nIRC, NISHI, nJJS, NRLN1, nTit, NVALI, NVIR2, NVIRI, NVT, NVT2
+                     IVA, IX1, IX2, IX3, IX4, IY1, IY2, IY3, IY4, j, jCmd, jEnd, jStart, LN1, LN2, LPERMA, NAMSIZ, NASHI, NASHT, &
+                     NBAST, NDEL(8), NDELI, NDELT, NFREF, NFROI, NFROT, nIRC, NISHI, NISHT, nJJS, NPDEL(8), NPDELT, NPFROT, NRLN1, &
+                     nTit, NVAL(8), NVALI, NVALT, NVIR2, NVIRI, NVT, NVT2
 real(kind=wp) :: S
 logical(kind=iwp) :: Skip
 character(len=88) :: ModLine
@@ -43,7 +46,6 @@ character(len=4), parameter :: Cmd(16) = ['TITL','MAXP','LEVS','THRP','PRIN','FR
 Mul(:,:) = SMul(:,:)
 KBUFF1 = 2*9600
 LWSP = .false.
-SQ2 = sqrt(Two)
 ETHRE = 1.0e-6_wp
 CTRSH = 5.0e-2_wp
 IPRINT = 5
@@ -89,9 +91,9 @@ nTit = 0
 
 !---  read the header of TRAONE ---------------------------------------*
 ! Note: NORB(i)=NBAS(i)-NPFRO(i)-NPDEL(i)
-NAMSIZ = LENIN8*MXORB
+NAMSIZ = LenIn8*MXORB
 IDISK = 0
-call WR_MOTRA_Info(Lu_TraOne,2,iDisk,ITOC17,64,POTNUC,NSYM,NBAS,NORB,NPFRO,NPDEL,8,NAME,NAMSIZ)
+call WR_MOTRA_Info(Lu_TraOne,2,iDisk,ITOC17,64,POTNUC,NSYM,NBAS,NORB,NPFRO,NPDEL,8,BNAME,NAMSIZ)
 
 !---  Read input from standard input ----------------------------------*
 call RdNLst(u5,'CPF')
@@ -310,8 +312,6 @@ call iDAFILE(Lu_CIGuga,2,iH((LW(2)-1)*RtoI+1),IRJ,IADD10)
 !---  update orbital specifications -----------------------------------*
 IV0 = 0
 IV1 = 1
-IV2 = 2
-IV3 = 3
 do I=1,NSYM
   NVIR(I) = NORB(I)-NFRO(I)-NISH(I)-NASH(I)-NVAL(I)-NDEL(I)
   NPFROT = NPFROT+NPFRO(I)

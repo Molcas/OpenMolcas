@@ -14,12 +14,12 @@
 
 subroutine RESTART_CPFMCPF(C,NCONF)
 
+use cpf_global, only: Lu_CI
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: NCONF
 real(kind=wp) :: C(*)
-#include "files_cpf.fh"
 integer(kind=iwp) :: IAD
 
 IAD = 0

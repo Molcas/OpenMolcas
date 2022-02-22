@@ -14,20 +14,21 @@
 
 subroutine SORT_CPF(BUFOUT,INDOUT,ICAD,IBUFL,FC,FIJ,FJI,TIBUF)
 
+use cpf_global, only: IAD25S, ICH, IPRINT, IROW, ITOC17, LASTAD, LBUF, LN, Lu_25, Lu_TiABIJ, Lu_TraInt, Lu_TraOne, MADR, MUL, N, &
+                      NORB, NORBT, NSM, NSYM, NSYS, NTIBUF, NVIR, NVIRT, POTNUC
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6, RtoI
 
 implicit none
 real(kind=wp) :: BUFOUT(*), FC(*), FIJ(*), FJI(*), TIBUF(*)
 integer(kind=iwp) :: INDOUT(*), ICAD(*), IBUFL(*)
-#include "cpfmcpf.fh"
-#include "files_cpf.fh"
+#include "tratoc.fh"
 integer(kind=iwp) :: I, IAD50, IADD17, IADD25, IBUF, ICP, ICPP, ICQ, ID, IDISK, IDIV, IEXP, II, IIJ, IIN, IJ, IJT, INAV, IND, &
                      IORBI, IOUT, IPOF(65), IREC, ISYM, IVEC(20), J, JDISK, JK, JNAV, JORBI, KORBI, LBUF0, LBUF1, LBUF2, M1, M2, &
                      M3, M4, N1, N2, N3, N4, NAV, NBV, NI, NJ, NK, NL, NOB2, NOP, NOQ, NOR, NORB0(9), NORBP, NORBTT, NOS, NOT2, &
                      NOTT, NOV, NOVST, NSA, NSB, NSIJT, NSP, NSPQ, NSPQR, NSQ, NSR, NSS, NSSM, NT, NTM, NTMP, NU, NUMAX, NUMIN, &
                      NV, NVT, NX, NXM
-real(kind=wp) :: DFINI, FINI, ONEHAM
+real(kind=wp) :: DFINI, EMY, FINI, ONEHAM
 
 IAD50 = 0
 call iDAFILE(Lu_TraInt,2,iTraToc,nTraToc,IAD50)
@@ -313,7 +314,7 @@ do NSP=1,NSYM
   end do
 end do
 ! EMPTY LAST BUFFERS
-if ((NOVST+NOV) > mAdr) then
+if ((NOVST+NOV) > MADR) then
   write(u6,*) 'SORT Error: NOVST+NOV>MADR (See code).'
   call Abend()
 end if

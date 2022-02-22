@@ -16,14 +16,15 @@ subroutine AI_CPF(JSY,INDX,C,S,FC,BUFIN,IBUFIN,A,B,FK,DBK,ENP,EPP,KTYP)
 ! KTYP=0  ,  (A/I)   INTEGRALS
 ! KTYP=1  ,  (AI/JK) INTEGRALS
 
+use cpf_global, only: IDENS, IRC, IREF0, IROW, ITER, LASTAD, LBUF, LN, LSYM, Lu_CIGuga, Lu_TiABIJ, MUL, NDIAG, NORBT, NSM, NSYM, &
+                      NSYS, NVIR, NVIRT, SQ2
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, r8, RtoI
 
 implicit none
 integer(kind=iwp) :: JSY(*), INDX(*), IBUFIN(*), KTYP
 real(kind=wp) :: C(*), S(*), FC(*), BUFIN(*), A(*), B(*), FK(*), DBK(*), ENP(*), EPP(*)
-#include "cpfmcpf.fh"
-#include "files_cpf.fh"
+#include "cop.fh"
 integer(kind=iwp) :: I, IADR, ICHK, ICP1, ICP2, IFT, II, IJ, IJOLD, ILEN, IND, INDA, INDB, INDI, INK, INMY, INN, INNY, INUM, IOUT, &
                      IPOB(9), ITURN, ITYP, J, LBUF0, LBUF1, LBUF2, LENGTH, MYL, MYSYM, NA, NA1, NA2, NAK, NI, NJ, NK, NKM, NOB2, &
                      NOT2, NOTT, NOVST, NSIJ, NSK, NVM, NVT, NYL, NYSYM

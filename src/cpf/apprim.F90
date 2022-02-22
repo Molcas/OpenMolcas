@@ -14,12 +14,12 @@
 
 subroutine APPRIM(EPP,EPB,TPQ,AP,ENP,T1,T2,ICASE)
 
+use cpf_global, only: IPRINT, IRC
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: EPP(*), EPB(*), TPQ(*), AP(*), ENP(*), T1(*), T2(*)
 integer(kind=iwp) :: ICASE(*)
-#include "cpfmcpf.fh"
 integer(kind=iwp) :: I, IP
 
 IP = IRC(4)

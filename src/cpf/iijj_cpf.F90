@@ -14,14 +14,13 @@
 
 subroutine IIJJ_CPF(ICASE,JSY,HDIAG,FC,FIJ,FJI)
 
+use cpf_global, only: IFIRST, IRC, IROW, LN, LSYM, Lu_27, MUL, NSM, NSYS, NVIRT
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: ICASE(*), JSY(*)
 real(kind=wp) :: HDIAG(*), FC(*), FIJ(*), FJI(*)
-#include "cpfmcpf.fh"
-#include "files_cpf.fh"
 integer(kind=iwp) :: I, IA, IAD27, IAV, IB, IBV, II, IJ, ILIM, IND, IOC(55), IR, IRL, J, JOJ, NA, NA1, NA2, NB, NB1, NB2, NSA, NSS
 real(kind=wp) :: SUM1, SUM2, TERM
 integer(kind=iwp), external :: ICUNP, JSUNP_CPF

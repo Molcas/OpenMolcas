@@ -14,14 +14,13 @@
 
 subroutine DIIS_CPF(DPI,DPJ,BST,MIT,BIJ,ITP,CN)
 
+use cpf_global, only: IADDP, IDIIS, IPRINT, ITPUL, Lu_CI, NCONF
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
 integer(kind=iwp) :: MIT, ITP
 real(kind=wp) :: DPI(*), DPJ(*), BST(MIT,MIT), BIJ(ITP,ITP), CN(*)
-#include "cpfmcpf.fh"
-#include "files_cpf.fh"
 integer(kind=iwp) :: I, IAD, ITM, J
 real(kind=wp) :: T, WHS(50)
 real(kind=r8), external :: DDOT_

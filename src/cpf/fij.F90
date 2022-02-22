@@ -16,13 +16,13 @@
 subroutine FIJ(ICASE,JSY,INDX,C,S,FC,A,B,FK,DBK,ENP,EPP)
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use cpf_global, only: IDENS, IRC, IREF0, IROW, ITER, IV0, LSYM, Lu_25, Lu_CIGuga, MUL, NNS, NORBT, NVIR
 use Definitions, only: wp, iwp, r8
 
 implicit none
 integer(kind=iwp) :: ICASE(*), JSY(*), INDX(*)
 real(kind=wp) :: C(*), S(*), FC(*), A(*), B(*), FK(*), DBK(*), ENP(*), EPP(*)
-#include "cpfmcpf.fh"
-#include "files_cpf.fh"
+#include "cop.fh"
 integer(kind=iwp) :: IADD25, IC1, IC2, ICHK, IIN, IK, ILEN, IND, INDA, INDB, INDI, INUM, IVL, NA, NB, NI, NK, NOB2, NS1, NS1L
 real(kind=wp) :: COPI, TERM
 integer(kind=iwp), external :: JSUNP_CPF

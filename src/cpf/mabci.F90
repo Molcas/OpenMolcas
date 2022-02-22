@@ -15,14 +15,14 @@
 !pgi$g opt=1
 subroutine MABCI(JSY,INDX,C,S,BMN,IBMN,BIAC,BICA,BUFIN,W,THET,ENP,NII)
 
+use cpf_global, only: IADABCI, IRC, KBUFF1, LN, LSYM, Lu_CIGuga, Lu_TiABCI, MUL, NDIAG, NNS, NSM, NSYS, NVIRT, SQ2
 use Constants, only: One, Two, Half
 use Definitions, only: wp, iwp, r8
 
 implicit none
 integer(kind=iwp) :: JSY(*), INDX(*), IBMN(*), NII
 real(kind=wp) :: C(*), S(*), BMN(*), BIAC(*), BICA(*), BUFIN(*), W(*), THET(NII,NII), ENP(*)
-#include "cpfmcpf.fh"
-#include "files_cpf.fh"
+#include "cop.fh"
 integer(kind=iwp) :: I, IAD15, ICCB, ICHK, ICP1, ICP2, IIN, ILEN, ILOOP, IND, INDA, INDB, INS, INSIN, INUM, IOUT, IT, ITYP, LB, &
                      MA, NB, NI, NSAVE, NSIB, NSLB
 real(kind=wp) :: COPL, ENPQ, FACS, FACW, FACWA, FACWB, TERM, XXX

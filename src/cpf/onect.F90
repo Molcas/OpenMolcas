@@ -15,11 +15,11 @@
 subroutine ONECT(H)
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use cpf_global, only: ICPF, IDENS, IFIRST, INCPF, IRC, ISDCI, LW
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) H(*)
-#include "cpfmcpf.fh"
 integer(kind=iwp) :: ILIM
 
 call ONECT_INTERNAL(H)

@@ -14,14 +14,13 @@
 
 subroutine TPQSET(ICASE,TPQ,IP)
 
+use cpf_global, only: INCPF, IPRINT, IRC, IREF0, ISDCI, LN, LWSP, N
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: ICASE(*), IP
 real(kind=wp) :: TPQ(*)
-#include "cpfmcpf.fh"
-#include "spin_cpf.fh"
 integer(kind=iwp) :: I, II, II1, IINT, IIOR, IJ, IK, IL, IOCR(100), IQ, JJ, JOJ, NI, NJ
 real(kind=wp) :: DIK, DIL, DJK, DJL
 integer(kind=iwp), external :: ICUNP

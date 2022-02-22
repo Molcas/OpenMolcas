@@ -15,13 +15,13 @@
 subroutine DENSCT_CPF(H,LIC0)
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use cpf_global, only: LW
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: H(LIC0)
 integer(kind=iwp) :: LIC0
-#include "cpfmcpf.fh"
 real(kind=wp) :: A
 
 call DENSCT_INTERNAL(H)

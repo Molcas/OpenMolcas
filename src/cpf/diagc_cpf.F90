@@ -14,13 +14,13 @@
 
 subroutine DIAGC_CPF(JSY,C,S)
 
+use cpf_global, only: IAD25S, IFIRST, IRC, LN, LSYM, Lu_25, MUL, NSM, NSYS, NVIRT
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: JSY(*)
 real(kind=wp) :: C(*), S(*)
-#include "cpfmcpf.fh"
-#include "files_cpf.fh"
+#include "cop.fh"
 integer(kind=iwp) :: IADD25, IIC, ILIM, IND, INDA, IRL, NA, NA1, NA2, NB, NB1, NB2, NSA, NSS
 integer(kind=iwp), external :: JSUNP_CPF
 

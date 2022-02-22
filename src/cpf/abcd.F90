@@ -14,13 +14,12 @@
 
 subroutine ABCD(JSY,INDX,ISAB,C,S,ACBDS,ACBDT,BUFIN)
 
+use cpf_global, only: IPASS, IRC, IROW, JJS, KBUFF1, LN, LSYM, Lu_TiABCD, MUL, NDIAG, NSM, NSYM, NSYS, NVIRT, SQ2
 use Definitions, only: wp, iwp, r8
 
 implicit none
 integer(kind=iwp) :: JSY(*), INDX(*), ISAB(*)
 real(kind=wp) :: C(*), S(*), ACBDS(*), ACBDT(*), BUFIN(*)
-#include "cpfmcpf.fh"
-#include "files_cpf.fh"
 integer(kind=iwp) :: IAC, IACMAX, IACMIN, IAD16, IFIN1, IFIN2, ILOOP, IN1, INB, INDA, INPS, INPT, INS, INSB, INSIN, INUM, INUMB, &
                      ISAC, IST, IST1, IST2, ISTEP, ISYM, ITAIL, NA, NC, NDMAX, NOV, NSAC, NSACL, NVT
 real(kind=wp) :: TERM

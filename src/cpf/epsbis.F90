@@ -14,12 +14,12 @@
 
 subroutine EPSBIS(JSY,INDX,C,W,EPB)
 
+use cpf_global, only: ICPF, INCPF, IPRINT, IRC, ISDCI, LSYM, MUL, NNS, NVIR
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
 integer(kind=iwp) :: JSY(*), INDX(*)
 real(kind=wp) :: C(*), W(*), EPB(*)
-#include "cpfmcpf.fh"
 integer(kind=iwp) :: I, IIN, INUM, IP, IST, NS1, NSIL
 integer(kind=iwp), external :: JSUNP_CPF
 real(kind=r8), external :: DDOT_

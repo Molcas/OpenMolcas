@@ -14,11 +14,11 @@
 
 subroutine ALSO(ISTOP,LPERMA,IRC1,ISMAX)
 
+use cpf_global, only: IFIRST, IPASS, IROW, JBUF, KBUF, KBUFF1, LBUF, LIC, LN, LW, MADR, NORBT, NTIBUF, NVIRT
 use Definitions, only: iwp, u6, RtoI
 
 implicit none
 integer(kind=iwp) :: ISTOP, LPERMA, IRC1, ISMAX
-#include "cpfmcpf.fh"
 integer(kind=iwp) :: INOV, INVT5, JBUF1, KBUF1, LBUF1, LICX, LICXX, LIM, LIMT, LPERMX, LSTO3, LSTO4, MAX11, NOB2, NOT2, NOV, NOVT, &
                      NVT, NVT5
 
