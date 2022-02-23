@@ -274,7 +274,7 @@
 #endif
           call dcopy_(maxk*maxk,Proj,1,EVec,1)
           call dsyev_('V','L',mk,EVec,maxk,EVal,
-     &                          Dum,-1,info)
+     &                          [Dum],-1,info)
           nTmp=INT(Dum)
           Call mma_allocate(TmpVec,nTmp,Label='TmpVec')
           call dsyev_('V','L',mk,EVec,maxk,EVal,
