@@ -34,12 +34,11 @@
 *> @param[in]     Fact   Scaling factor
 *> @param[out]    Eig    Lowest eigenvalues
 *> @param[in,out] Vec    Lowest eigenvectors
-*> @param[in]     MemRsv Amount of reserved memory
 *> @param[out]    iRC    Return code (0 if converged)
 ************************************************************************
-      SUBROUTINE Davidson_SCF(HDiag,g,m,k,Fact,Eig,Vec,MemRsv,iRC)
+      SUBROUTINE Davidson_SCF(HDiag,g,m,k,Fact,Eig,Vec,iRC)
       IMPLICIT NONE
-      INTEGER m,n,k,iRC, MemRsv
+      INTEGER m,n,k,iRC
       REAL*8  HDiag(m),g(m),Eig(k),Vec(m+1,k), Fact
       REAL*8, DIMENSION(:,:), ALLOCATABLE :: Sub, Ab
       REAL*8, DIMENSION(:), ALLOCATABLE :: Eig_old, EVec, Proj, EVal
@@ -230,7 +229,7 @@
 *
 *          Pick up the contribution for the updated Hessian (BFGS update)
 *
-           Call SOrUpV(MemRsv,Sub(1,j+1),HDiag,m,Ab(1,j+1),'GRAD',
+           Call SOrUpV(Sub(1,j+1),HDiag,m,Ab(1,j+1),'GRAD',
      &                                                     'BFGS')
            Call DScal_(m,One/Fact,Ab(1,j+1),1)
 *

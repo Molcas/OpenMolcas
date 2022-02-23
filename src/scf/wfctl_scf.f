@@ -477,7 +477,7 @@
             Call SCF_Energy(FstItr,E1V,E2V,EneV)
 *
             Call TraClc_x(kOptim,iOpt.eq.2,FrstDs,.FALSE.,CInter,nCI,nD,
-     &                    nOV,Lux,iter,memRsv,LLx)
+     &                    nOV,iter,LLx)
 *
             Call DIIS_x(nD,CInter,nCI,iOpt.eq.2,HDiag,mOV,Ind)
 *
@@ -530,7 +530,7 @@
             Call SCF_Energy(FstItr,E1V,E2V,EneV)
 *
             Call TraClc_x(kOptim,iOpt.eq.2,FrstDs,QNR1st,CInter,nCI,
-     &                    nD,nOV,Lux,iter,memRsv,LLx)
+     &                    nD,nOV,iter,LLx)
 *
             Call dGrd()
 *
@@ -564,7 +564,7 @@
 *-------    compute new displacement vector delta
 *           dX(n) = -H(-1)*grd'(n), grd'(n): extrapolated gradient
 *
-            Call SOrUpV(MemRsv,Grd1,HDiag,nOV*nD,Disp,'DISP','BFGS')
+            Call SOrUpV(Grd1,HDiag,nOV*nD,Disp,'DISP','BFGS')
 *
 *           from this, compute new orb rot parameter X(n+1)
 *
@@ -630,7 +630,7 @@
             Call SCF_Energy(FstItr,E1V,E2V,EneV)
 *
             Call TraClc_x(kOptim,iOpt.ge.2,FrstDs,QNR1st,CInter,nCI,
-     &                    nD,nOV,Lux,iter,memRsv,LLx)
+     &                    nD,nOV,iter,LLx)
 *
             Call dGrd()
 *
@@ -667,7 +667,7 @@
 *
             StepMax=0.3D0
             Call rs_rfo_scf(HDiag,Grd1,nOV*nD,Disp,AccCon(1:6),dqdq,
-     &                      dqHdq,StepMax,AccCon(9:9),MemRsv)
+     &                      dqHdq,StepMax,AccCon(9:9))
 *
 *           store dX(n) vector from Disp to LList
 *

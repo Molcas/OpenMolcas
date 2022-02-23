@@ -12,19 +12,14 @@
 *               2017, Roland Lindh                                     *
 *               2018, Ignacio Fdez. Galvan                             *
 ************************************************************************
-      SubRoutine SOrUpV(NoAllo,V,HDiag,lvec,W,Mode,UpTp)
+      SubRoutine SOrUpV(V,HDiag,lvec,W,Mode,UpTp)
 ************************************************************************
 *     for Ref., see T.H. Fischer and J. Almloef, JPC 96, 9768 (1992)   *
 *               doi:10.1021/j100203a036                                *
 *                                                                      *
 *     purpose: Second Order Updated vector V using BFGS and            *
 *              diagonal Hessian of Orbital Rotations                   *
-*     input  : NoAllo     -> this routine tries to allocate memory     *
-*                to construct linked lists, so you have to tell, how   *
-*                much you want to keep for your own purpose...         *
-*              for all procedure parameters, iad prefix means the      *
-*              address of the var on Work Array                        *
-*              V          -> input vector                              *
+*     input  : V          -> input vector                              *
 *              HDiag      -> initial diagonal Hessian                  *
 *              lvec       -> lengths of vectors delta, grad, HDiag & V *
 *              Mode       -> update mode, see below                    *
@@ -76,7 +71,7 @@
 #include "stdalloc.fh"
 *
 *     declaration subroutine parameters
-      Integer NoAllo,lvec
+      Integer lvec
       Real*8 W(lVec), HDiag(lVec), V(lvec)
       Character*4 Mode, UpTp
 *

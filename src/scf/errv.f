@@ -48,7 +48,7 @@
 *
         Call mma_allocate(Grad,lvec,Label='Grad')
         Call iVPtr(Grad,lvec,inode)
-        Call SOrUpV(MemRsv,Grad,HDiag,lvec,ErrVec,'DISP','BFGS')
+        Call SOrUpV(Grad,HDiag,lvec,ErrVec,'DISP','BFGS')
         Call mma_deallocate(Grad)
 *
       Else
