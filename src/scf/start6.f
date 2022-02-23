@@ -298,8 +298,8 @@
 *
       iOff=1
       lOff=0
-      Write (6,*) 'CMO(:,1)=',CMO(:,1)
-      Write (6,*) 'CMO(:,2)=',CMO(:,2)
+      Call RecPrt('CMO(:,1)',' ',CMO(:,1),1,SIZE(CMO,1))
+      Call RecPrt('CMO(:,2)',' ',CMO(:,2),1,SIZE(CMO,1))
       Do iSym=1,nSym
          ipDaa=1+nBD(iSym)
          mAdCMOO=iOff+nBas(iSym)*nIF(iSym)
@@ -347,9 +347,9 @@
          Call WarningMessage(2,'Start6. Non-zero rc in Cho_X_init.')
          Call Abend
       endif
-      Write (6,*) 'Start6: DSc(:)=',DSc(:)
-      Write (6,*) 'Start6: Da(:,1)=',Da(:,1)
-      Write (6,*) 'Start6: Da(:,2)=',Da(:,2)
+      Call RecPrt('Start6: DSc(:)=',' ',DSc(:),1,SIZE(DSc))
+      Call RecPrt('Start6: Da(:,1)=',' ',Da(:,1),1,SIZE(Da,1))
+      Call RecPrt('Start6: Da(:,2)=',' ',Da(:,2),1,SIZE(Da,1))
 
 
 *----------------------------------------------------------------------*

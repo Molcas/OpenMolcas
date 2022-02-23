@@ -13,11 +13,19 @@
 Module LnkLst
 Private
 Public :: Debug_LnkLst, lLList, nLList, MAXnodes, NodSiz
+Public :: SCF_V
 #include "mxdm.fh"
 Integer, Parameter :: NodSiz=6
 Integer, Parameter :: MAXnodes=MxIter*5
 Logical Debug_LnkLst
 Integer lLList
 Integer nLList(MAXnodes,0:NodSiz-1)
+
+Type Vector
+     Real*8, Allocatable :: A(:)
+End Type Vector
+
+Type (Vector) :: SCF_V(Maxnodes)
+
 End Module LnkLst
 

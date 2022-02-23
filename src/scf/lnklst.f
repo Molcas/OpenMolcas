@@ -134,7 +134,6 @@
 C     Integer iDskPt,len
 *
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
 *
@@ -158,7 +157,7 @@ C     Integer iDskPt,len
 * Set error code: inconsistency in vector lengths
             nLList(iLList,0)=1
           Else
-            call dcopy_(lvec,vec,1,Work(nLList(iroot,1)),1)
+            SCF_V(iroot)%A(1:lVec)=vec(1:lVec)
           End If
           Return
         Else If (opcode.ne.'APND') Then
@@ -171,10 +170,11 @@ C     Integer iDskPt,len
 *     check if there is still enough memory to store vec
       Call mma_maxDBLE(MaxMem)
 *     let's allocate some memory
-      Call GetMem('LVec ','Allo','Real',iPtr1,lvec)
 *     allocate new node
       lLList=lLList+1
       iPtr2=lLList
+      Call mma_allocate(SCF_V(iPtr2)%A,lVec,Label='LVec')
+      iPtr1=ip_of_Work(SCF_V(iPtr2)%A(1))
       nLList(iPtr2,0)=iroot
       nLList(iPtr2,1)=iPtr1
       nLList(iPtr2,2)=0
@@ -183,7 +183,7 @@ C     Integer iDskPt,len
       nLList(iPtr2,5)=1
 
 
-      call dcopy_(lvec,vec,1,Work(iPtr1),1)
+      SCF_V(iPtr2)%A(:)=Vec(:)
       iroot=iPtr2
       lislen=lislen+1
       nLList(iLList,1)=iroot
@@ -224,7 +224,6 @@ C     Integer iDskPt,len
 c      Integer iDskPt
 *
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
 *
 *
@@ -238,8 +237,8 @@ c      Integer iDskPt
       If (nLList(inode,4).eq.iterat) Then
 *       we've found matching entry, so check if consistent
         If (nLList(inode,3).eq.lvec) Then
-*         everything's allright, we made it, let's copy to vec
-            call dcopy_(lvec,Work(nLList(inode,1)),1,vec,1)
+*          everything's alright, we made it, let's copy to vec
+           vec(1:lVec)=SCF_V(iNode)%A(1:lVec)
         Else
 * inconsistency
           write(6,*)' Found inconsistency.'
@@ -380,11 +379,10 @@ c      Integer iDskPt
       Real*8  vptr1(nvptr1)
 *
 #include "real.fh"
-#include "WrkSpc.fh"
 *
       If (InCore(inode)) Then
         Call InfNod(inode,idum,idum,ivptr2,idum)
-        Call DCopy_(nvptr1,Work(ivptr2),1,vptr1,1)
+        vPtr1(1:nvptr1)=SCF_V(inode)%A(1:nvptr1)
       Else
         Call GetVec(LUnit,nLList(inode,4),inode,inode,
      &              vptr1,nLList(inode,3))
@@ -441,7 +439,7 @@ c      Integer iDskPt
       Implicit Real*8 (a-h,o-z)
 *     Free all memory of linked list LList
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 *     local vars
       Integer iLList,iroot,iPtr1
 *
@@ -458,7 +456,7 @@ c      Integer iDskPt
         iFlag=nLList(iroot,5)
 
         If (iFlag.eq.1) Then
-          Call GetMem('LVec ','Free','Real',iPtr1,nLList(iroot,3))
+          Call mma_deallocate(SCF_V(iroot)%A)
         End If
         iPtr1=iroot
         iroot=nLList(iroot,0)
@@ -474,7 +472,7 @@ c      Integer iDskPt
       Implicit Real*8 (a-h,o-z)
       Integer iLList,LUnit,lDskPt
 *
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "SysDef.fh"
 *
 *     clear ErrCode
@@ -515,8 +513,8 @@ c      Integer iDskPt
         nLList(iPtr2,5)=0
         len=nLList(iPtr2,3)
 
-        Call dDaFile(LUnit,1,Work(iPtr1),len,iDskPt)
-        Call GetMem('LVec ','Free','Real',iPtr1,len)
+        Call dDaFile(LUnit,1,SCF_V(iPtr2)%A,len,iDskPt)
+        Call mma_deallocate(SCF_V(iPtr2)%A)
         Go To 10
       End If
       lDskPt=iDskPt
@@ -539,7 +537,6 @@ c      Integer iDskPt
       Implicit Real*8 (a-h,o-z)
       Integer iLList,LUnit,lDskPt,NoAllo
 *
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
 *
@@ -592,8 +589,9 @@ c      Integer iDskPt
  200  If ((incore.gt.0).AND.(MaxMem-NoAllo.ge.lvec).AND.(iPtr2.gt.0))
      &  Then
         lDskPt=nLList(iPtr2,1)
-        Call GetMem('LVec ','Allo','Real',iPtr1,lvec)
-        Call dDaFile(LUnit,2,Work(iPtr1),lvec,lDskPt)
+        Call mma_Allocate(SCF_V(iPtr2)%A,lvec,Label='LVec')
+        iPtr1=ip_of_Work(SCF_V(iPtr2)%A(1))
+        Call dDaFile(LUnit,2,SCF_V(iPtr2)%A,lvec,lDskPt)
         nLList(iPtr2,1)=iPtr1
         nLList(iPtr2,2)=0
         nLList(iPtr2,5)=1
