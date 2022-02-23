@@ -441,7 +441,7 @@ c      Integer iDskPt
 #include "real.fh"
 #include "stdalloc.fh"
 *     local vars
-      Integer iLList,iroot,iPtr1
+      Integer iLList,iroot
 *
 *
       If (Debug_LnkLst) Then
@@ -452,13 +452,11 @@ c      Integer iDskPt
       iroot=nLList(iLList,1)
  100  Continue
       If (iroot.ne.0) Then
-        iPtr1=nLList(iroot,1)
         iFlag=nLList(iroot,5)
 
         If (iFlag.eq.1) Then
           Call mma_deallocate(SCF_V(iroot)%A)
         End If
-        iPtr1=iroot
         iroot=nLList(iroot,0)
         GoTo 100
       End If
