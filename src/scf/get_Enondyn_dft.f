@@ -21,11 +21,13 @@
       Real*8, Allocatable :: F_DFT(:,:), D_DS(:,:)
 *
       Erest_xc=0.0d0
-      Call mma_allocate(F_DFT,nBT,2,Label='F_DFT')
       Call mma_allocate(D_DS ,nBT,2,Label='D_DS ')
+      D_DS(:,:)=Zero
 *
       iOff=1
       jOff=1
+      Call RecPrt('CMO(:,1)',' ',CMO(:,1),1,SIZE(CMO,1))
+      Call RecPrt('CMO(:,2)',' ',CMO(:,2),1,SIZE(CMO,2))
       Do iSym=1,nSym
          Call DGEMM_tri('N','T',nBas(iSym),nBas(iSym),nOcc(iSym,1),
      &                    1.0d0,CMO(iOff,1),nBas(iSym),
@@ -52,6 +54,7 @@
 *----------------------------------------------------------------------*
 *
 *----------------------------------------------------------------------*
+      Call mma_allocate(F_DFT,nBT,2,Label='F_DFT')
       Call Get_Exc_dft(nh1,Grad,nGrad,DFTFOCK,F_DFT,D_DS,nBT,2,
      &                     KSDFT)
 *----------------------------------------------------------------------*

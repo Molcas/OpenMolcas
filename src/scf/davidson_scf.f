@@ -48,12 +48,12 @@
       real*8 ddot_
       INTEGER mk,old_mk,mink,maxk,ig,info,nTmp,iter,maxiter
       INTEGER i,j,ii,jj
-      INTEGER ipDum
       INTEGER ipDiag,ipTVec,ipTAV,ipTRes
       LOGICAL Last,Augmented,Reduced
       external ddot_
       PARAMETER (Thr=1.0D-6, maxiter=300, Thr2=1.0D-16, Thr3=1.0D-16)
-      Real*8, Allocatable :: TmpVec(:)
+      Real*8, Allocatable :: TmpVec(:), Diag(:)
+      Real*8 Dum
 
 *
 #include "stdalloc.fh"
@@ -196,8 +196,7 @@
       Last=.FALSE.
       old_mk=0
       iter=0
-      CALL Allocate_Work(ipDum,1)
-      CALL Allocate_Work(ipDiag,n)
+      Call mma_allocate(Diag,n,Label='Diag')
       CALL Allocate_Work(ipTVec,n)
       CALL Allocate_Work(ipTAV,n)
       CALL Allocate_Work(ipTRes,n)
@@ -277,8 +276,8 @@
 #endif
           call dcopy_(maxk*maxk,Proj,1,EVec,1)
           call dsyev_('V','L',mk,EVec,maxk,EVal,
-     &                          Work(ipDum),-1,info)
-          nTmp=INT(Work(ipDum))
+     &                          Dum,-1,info)
+          nTmp=INT(Dum)
           Call mma_allocate(TmpVec,nTmp,Label='TmpVec')
           call dsyev_('V','L',mk,EVec,maxk,EVal,
      &                          TmpVec,nTmp,info)
@@ -482,20 +481,20 @@
                    Aux=HDiag(j+1)-Eval(1+i)
                 End If
                 If (j.eq.n-1) Then
-                   Work(ipDiag+j)=One/SIGN(MAX(ABS(Aux),Thr2),Aux)
+                   Diag(1+j)=One/SIGN(MAX(ABS(Aux),Thr2),Aux)
                 Else
                    If (HDiag(j+1).lt.1.0D20) Then
-                      Work(ipDiag+j)=One/SIGN(MAX(ABS(Aux),Thr2),Aux)
+                      Diag(1+j)=One/SIGN(MAX(ABS(Aux),Thr2),Aux)
                    Else
-                      Work(ipDiag+j)=1.0D20
+                      Diag(1+j)=1.0D20
                    End If
                 End If
              END DO
 *
 *            scale
              DO j=0,n-1
-                If (Work(ipDiag+j).lt.1.0D02) Then
-                   TmpVec(1+j)=Work(ipTRes+j)*Work(ipDiag+j)
+                If (Diag(1+j).lt.1.0D02) Then
+                   TmpVec(1+j)=Work(ipTRes+j)*Diag(1+j)
                 Else
                    TmpVec(1+j)=Zero
                 End If
@@ -503,15 +502,15 @@
 *
              Alpha=Zero
              DO j=0,n-1
-                If (Work(ipDiag+j).lt.1.0D02) Then
-                   Alpha=Alpha+Work(ipDiag+j)*Work(ipTVec+j)**2
+                If (Diag(1+j).lt.1.0D02) Then
+                   Alpha=Alpha+Diag(1+j)*Work(ipTVec+j)**2
                 End If
              END DO
              Alpha=DDot_(n,Work(ipTVec),1,TmpVec,1)/Alpha
 *            subtract
              DO j=0,n-1
-                If (Work(ipDiag+j).lt.1.0D02) Then
-                   Work(ipTVec+j)=Work(ipTVec+j)*Work(ipDiag+j)
+                If (Diag(1+j).lt.1.0D02) Then
+                   Work(ipTVec+j)=Work(ipTVec+j)*Diag(1+j)
                 Else
                    Work(ipTVec+j)=Zero
                 End If
@@ -612,16 +611,15 @@
 *                                                                      *
       END DO
 *
-      CALL Free_Work(ipDum)
-      CALL Free_Work(ipDiag)
+      Call mma_deallocate(Diag)
       CALL Free_Work(ipTVec)
       CALL Free_Work(ipTAV)
       CALL Free_Work(ipTRes)
       Call mma_deallocate(Index_D)
 
-*---- Store the current lowest k eigenvectors (in the full space)
-*      Vec' = Sub * Vec(1:k)
-*
+!---- Store the current lowest k eigenvectors (in the full space)
+!      Vec' = Sub * Vec(1:k)
+
       CALL DGeMM_('N','N',
      &            n,k,mk,
      &            One,Sub,n,
