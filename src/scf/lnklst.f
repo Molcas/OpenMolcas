@@ -130,7 +130,7 @@
       Character opcode*4
 *
 *     declaration local variables
-      Integer iPtr1,iPtr2,MaxMem
+      Integer iPtr2,MaxMem
 C     Integer iDskPt,len
 *
 #include "real.fh"
