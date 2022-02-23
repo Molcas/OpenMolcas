@@ -50,7 +50,7 @@
 *  -> returns info of node indicated by inode                          *
 * Logical InCore(inode)                                                *
 *  -> returns true, if corresponding vector is incore, false otherwise *
-* Integer iVPtr(LUnit,ivptr1,inode)                                    *
+* Integer iVPtr(vptr1,nvtr1,inode)                                     *
 *  -> uses InfNod or GetVec to read out vector of inode, depending     *
 *     if InCore or not. If the result is ivptr1, the vector was read   *
 *     from disk. ivptr1 has to be allocated before (same vector length *
@@ -348,7 +348,7 @@ C     Integer iDskPt,len
 *----------------------------------------------------------------------*
 
 
-      Subroutine iVPtr(LUnit,vptr1,nvptr1,inode)
+      Subroutine iVPtr(vptr1,nvptr1,inode)
 *     uses InfNod or GetVec to read out vector of inode, depending
 *     if InCore or not. If the result is ivptr1, the vector was read
 *     from disk. ivptr1 has to be allocated before (same vector length
@@ -359,7 +359,7 @@ C     Integer iDskPt,len
 *     2017-03-15:Converted to return the array in vptr1.
       use LnkLst
       Implicit Real*8 (a-h,o-z)
-      Integer LUnit,nvptr1,ivptr2,inode,idum
+      Integer nvptr1,ivptr2,inode,idum
       Logical InCore
       Real*8  vptr1(nvptr1)
 *

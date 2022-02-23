@@ -43,7 +43,7 @@
 *        get proper gradient from LList.
          Call GetNod(ivec,LLGrad,inode)
          If (inode.eq.0) GoTo 555
-         Call iVPtr(LuGrd,Aux,nOV*nD,inode)
+         Call iVPtr(Aux,nOV*nD,inode)
          Do iD = 1, nD
             Call Daxpy_(nOV,CInter(i,iD),Aux(1,iD),1,Grd1(1,iD),1)
          End Do
@@ -51,7 +51,7 @@
 *        get proper X-vector from LList.
          Call GetNod(ivec,LLx,inode)
          If (inode.eq.0) GoTo 555
-         Call iVPtr(Lux,Aux,nOV*nD,inode)
+         Call iVPtr(Aux,nOV*nD,inode)
          Do iD = 1, nD
             Call Daxpy_(nOV,CInter(i,iD),Aux(1,iD),1,Xnp1(1,iD),1)
          End Do

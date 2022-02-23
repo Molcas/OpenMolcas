@@ -32,7 +32,7 @@
          Write (6,*) 'inode.eq.0'
          Call Abend()
       End If
-      Call iVPtr(LuGrd,Scr,nOV*nD,inode)
+      Call iVPtr(Scr,nOV*nD,inode)
       Call DaXpY_(nOV*nD,-One,SCF_V(jpgrd)%A,1,Scr,1)
       Call DScal_(nOV*nD,-One,Scr,1)
       Call PutVec(Scr,nOV*nD,iter-1,'NOOP',LLdGrd)

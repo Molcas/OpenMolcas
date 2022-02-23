@@ -192,7 +192,7 @@
 *
       Call GetNod(iter-1,LL2,inode)
       If (inode.eq.0) GoTo 555
-      Call iVPtr(Lu2,SOGrd,lvec,inode)
+      Call iVPtr(SOGrd,lvec,inode)
 *
 *     (3b): initialize y(n-1)=HDiag*dGrd(n-1) ...
 *
@@ -231,15 +231,15 @@
 *
          Call GetNod(it,LL1,inode)
          If (inode.eq.0) GoTo 555
-         Call iVPtr(Lu1,SODel,lvec,inode)
+         Call iVPtr(SODel,lvec,inode)
 *
          Call GetNod(it,LL2,inode)
          If (inode.eq.0) GoTo 555
-         Call iVPtr(Lu2,SOGrd,lvec,inode)
+         Call iVPtr(SOGrd,lvec,inode)
 *
          Call GetNod(it,LLy,inode)
          If (inode.eq.0) GoTo 555
-         Call iVPtr(Luy,SOScr,lvec,inode)
+         Call iVPtr(SOScr,lvec,inode)
 *
 *        calculate S_k and T_k dot products.
 *        (note that S(2) is the inverse of the one in the paper
