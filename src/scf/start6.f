@@ -347,9 +347,9 @@
          Call WarningMessage(2,'Start6. Non-zero rc in Cho_X_init.')
          Call Abend
       endif
-      Write (6,*) 'DSc(:)=',DSc(:)
-      Write (6,*) 'Da(:,1)=',Da(:,1)
-      Write (6,*) 'Da(:,2)=',Da(:,2)
+      Write (6,*) 'Start6: DSc(:)=',DSc(:)
+      Write (6,*) 'Start6: Da(:,1)=',Da(:,1)
+      Write (6,*) 'Start6: Da(:,2)=',Da(:,2)
 
 
 *----------------------------------------------------------------------*
@@ -501,7 +501,8 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
 #include "dcscf.fh"
 *
 
-      If (nBB==784) Call Recprt('Dm',' ',Dma(:,1),1,nBDT)
+      If (nBB==784) Call Recprt('GFn: Dma',' ',Dma(:),1,nBDT)
+      If (nBB==784) Call Recprt('GFn: Dmb',' ',Dmb(:),1,nBDT)
       nDMat=2
       Do i=1,nSym
          nForb(i,1)=0
@@ -527,7 +528,8 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
       Call mma_allocate(Dm,nBB,2,Label='Dm')
       Call UnFold(Dma,nBDT,Dm(:,1),nBB,nSym,nBas)
       Call UnFold(Dmb,nBDT,Dm(:,2),nBB,nSym,nBas)
-      If (nBB==784) Call Recprt('Dm',' ',Dm(:,1),28,28)
+      If (nBB==784) Call Recprt('GFn: Dm(:,1)',' ',Dm(:,1),28,28)
+      If (nBB==784) Call Recprt('GFn: Dm(:,2)',' ',Dm(:,2),28,28)
 *
       If (Do_SpinAV) Then
          If (.not.DECO) Then
@@ -538,7 +540,8 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
          Call daxpy_(NBB,-1.0d0,DSc,1,Dm(:,1),1)
          Call daxpy_(NBB, 1.0d0,DSc,1,Dm(:,2),1)
          If (nBB==784) Call Recprt('Dsc',' ',DSc,28,28)
-         If (nBB==784) Call Recprt('Dm',' ',Dm(:,1),28,28)
+         If (nBB==784) Call Recprt('Dm(:,1)',' ',Dm(:,1),28,28)
+         If (nBB==784) Call Recprt('Dm(:,2)',' ',Dm(:,2),28,28)
       EndIf
 *
       iOff=0
