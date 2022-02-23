@@ -15,8 +15,9 @@
 subroutine SORTB_CPF(BUFOUT,INDOUT,ICAD,IBUFL,TIBUF,ACBDS,ACBDT,ISAB,BUFACBD)
 ! SORTS INTEGRALS (AB/CD) FOR FIXED A,C ALL B,D
 
-use cpf_global, only: ICH, IPASS, IRC, IROW, JBUF, JJS, KBUFF1, LASTAD, LN, LSYM, Lu_TiABCD, Lu_TiABIJ, Lu_TraInt, MADR, MUL, &
-                      NORB, NSM, NSYM, NSYS, NTIBUF, NVIRT
+use cpf_global, only: ICH, IPASS, IRC, IROW, JBUF, JJS, KBUFF1, LASTAD, LN, LSYM, Lu_TiABCD, Lu_TiABIJ, Lu_TraInt, MADR, NORB, &
+                      NSM, NSYM, NSYS, NTIBUF, NVIRT
+use Symmetry_Info, only: Mul
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6, RtoI
 
@@ -31,7 +32,6 @@ integer(kind=iwp) :: I, IAC, IACMAX, IACMIN, IAD16, IAD50, IADR, IBDS, ICP, ICPP
                      NUMAX, NUMIN, NV, NVT, NX, NXM
 real(kind=wp) :: FINI
 
-KBUFF1 = 2*9600
 NVT = IROW(NVIRT+1)
 NOV = (NVT-1)/IPASS+1
 NOVST = LN*NVIRT+1

@@ -15,8 +15,8 @@
 !pgi$g opt=1
 subroutine MFIJ(ICASE,JSY,INDX,C,S,FC,A,B,FK,DBK,W,THET,ENP,EPP,NII)
 
-use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
-use cpf_global, only: IDENS, IRC, IREF0, IROW, ITER, IV0, LSYM, Lu_25, Lu_CIGuga, MUL, NNS, NORBT, NVIR
+use cpf_global, only: IDENS, IRC, IREF0, IROW, ITER, IV0, LSYM, Lu_25, Lu_CIGuga, NNS, NORBT, NVIR
+use Symmetry_Info, only: Mul
 use Constants, only: One, Two, Half
 use Definitions, only: wp, iwp, r8
 
@@ -125,25 +125,11 @@ if ((IDENS == 1) .or. (ITER /= 1)) then
   end do
 end if
 !if (DENS == 1) write(u6,876) (FC(I),I=1,NOB2)
-call dMAI(C)
+call MAI(JSY,INDX,C,S,FC,C,A,B,FK,DBK,W,THET,ENP,EPP,NII,0)
 if (ITER /= 1) call MAB(ICASE,JSY,INDX,C,S,FC,A,B,FK,W,THET,ENP,NII)
 
 return
 
 !876 format(1X,'FIJ',5F12.6)
-
-! This is to allow type punning without an explicit interface
-contains
-
-subroutine dMAI(C)
-
-  real(kind=wp), target :: C(*)
-  integer(kind=iwp), pointer :: iC(:)
-
-  call c_f_pointer(c_loc(C(1)),iC,[1])
-  call MAI(JSY,INDX,C,S,FC,C,iC,A,B,FK,DBK,W,THET,ENP,EPP,NII,0)
-  nullify(iC)
-
-end subroutine dMAI
 
 end subroutine MFIJ

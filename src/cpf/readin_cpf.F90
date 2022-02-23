@@ -12,46 +12,41 @@
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-subroutine ReadIn_CPF(H,iH)
+subroutine ReadIn_CPF()
+! Read input and allocate memory
 
-use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
-use cpf_global, only: BNAME, CTRSH, ETHRE, ETOT, ICH, ICONV, ICPF, IFIRST, INCPF, IPRINT, IRC, IREST, IROW, ISC, ISDCI, ITOC17, &
-                      IV0, IV1, JJS, KBUFF1, LN, LSYM, Lu_CIGuga, Lu_TraOne, LW, LWSP, MAXIT, MAXITP, MUL, N, NASH, NBAS, NFRO, &
-                      NISH, NORB, NORBT, NPFRO, NREF, NSM, NSYM, NVIR, NVIRT, POTNUC, WLEV
-use Symmetry_Info, only: SMul => Mul
+use cpf_global, only: BNAME, CTRSH, ETHRE, ETOT, ICASE, ICH, ICONV, ICPF, IFIRST, ILIM, INCPF, INDX, IPRINT, IR1, IRC, IREST, &
+                      IROW, ISAB, ISC, ISDCI, ISMAX, ITOC17, IV0, IV1, JJS, JSY, LN, LSYM, Lu_CIGuga, Lu_TraOne, LWSP, MAXIT, &
+                      MAXITP, N, NASH, NBAS, NFRO, NISH, NORB, NORBT, NPFRO, NREF, NSM, NSYM, NVIR, NVIRT, POTNUC, WLEV
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: wp, iwp, u5, u6, RtoI
+use Definitions, only: wp, iwp, u5, u6
 
 implicit none
-real(kind=wp) :: H(*)
-integer(kind=iwp) :: iH(*)
-! Read input and allocate memory
 #include "Molcas.fh"
 #include "cop.fh"
 #include "niocr.fh"
 integer(kind=iwp), parameter :: mxTit = 10
-integer(kind=iwp) :: I, iCmd, IDISK, IIN, ILIM, INTNUM, IOCR(nIOCR), iOpt, IR, IR1, iRef, IRJ, ISMAX, istatus, iSym, IT, IU, IV, &
-                     IVA, IX1, IX2, IX3, IX4, IY1, IY2, IY3, IY4, j, jCmd, jEnd, jStart, LN1, LN2, LPERMA, NAMSIZ, NASHI, NASHT, &
-                     NBAST, NDEL(8), NDELI, NDELT, NFREF, NFROI, NFROT, nIRC, NISHI, NISHT, nJJS, NPDEL(8), NPDELT, NPFROT, NRLN1, &
-                     nTit, NVAL(8), NVALI, NVALT, NVIR2, NVIRI, NVT, NVT2
+integer(kind=iwp) :: I, iCmd, IDISK, IIN, INTNUM, IOCR(nIOCR), iOpt, IR, iRef, IRJ, istatus, iSym, IT, IU, IV, IVA, IX1, IX2, IX3, &
+                     IX4, IY1, IY2, IY3, IY4, j, jCmd, jEnd, jStart, LN1, LN2, NAMSIZ, NASHI, NASHT, NBAST, NDEL(8), NDELI, NDELT, &
+                     NFREF, NFROI, NFROT, nIRC, NISHI, NISHT, nJJS, NPDEL(8), NPDELT, NPFROT, NRLN1, nTit, NVAL(8), NVALI, NVALT, &
+                     NVIR2, NVIRI, NVT, NVT2
 real(kind=wp) :: S
 logical(kind=iwp) :: Skip
 character(len=88) :: ModLine
 character(len=72) :: Line, Title(mxTit)
 character(len=4) :: Command
+integer(kind=iwp), allocatable :: JREFX(:)
 character(len=4), parameter :: Cmd(16) = ['TITL','MAXP','LEVS','THRP','PRIN','FROZ','DELE','MAXI','ECON','REST','MCPF','CPF ', &
                                           'SDCI','ACPF','LOW ','END ']
 
 !---  Initialize arrays and variables ---------------------------------*
-Mul(:,:) = SMul(:,:)
-KBUFF1 = 2*9600
 LWSP = .false.
 ETHRE = 1.0e-6_wp
 CTRSH = 5.0e-2_wp
 IPRINT = 5
 MAXIT = 20
 IREST = 0
-!PAM97 IRHP = 0
 ICPF = 0
 ISDCI = 0
 INCPF = 0
@@ -59,18 +54,16 @@ ICONV = 0
 MAXITP = 6
 WLEV = 0.3_wp
 ETOT = Zero
-do I=1,8
-  NPFRO(I) = 0
-  NFRO(I) = 0
-  NDEL(I) = 0
-  NPDEL(I) = 0
-  NISH(I) = 0
-  NASH(I) = 0
-  NVAL(I) = 0
-  NVIR(I) = 0
-  NORB(I) = 0
-  NBAS(I) = 0
-end do
+NPFRO(:) = 0
+NFRO(:) = 0
+NDEL(:) = 0
+NPDEL(:) = 0
+NISH(:) = 0
+NASH(:) = 0
+NVAL(:) = 0
+NVIR(:) = 0
+NORB(:) = 0
+NBAS(:) = 0
 NPFROT = 0
 NFROT = 0
 NDELT = 0
@@ -81,11 +74,8 @@ NVALT = 0
 NVIRT = 0
 NORBT = 0
 NBAST = 0
-do I=1,MXORB+1
+do I=1,size(IROW)
   IROW(I) = I*(I-1)/2
-end do
-do I=1,99
-  LW(I) = 0
 end do
 nTit = 0
 
@@ -304,10 +294,10 @@ if (LN >= MXORB) then
   write(u6,'(1X,A,2I5)') 'LN,MXORB:',LN,MXORB
   call QUIT_OnUserError()
 end if
-LW(1) = 1
-call iDAFILE(Lu_CIGuga,2,iH((LW(1)-1)*RtoI+1),IR1,IADD10)
-LW(2) = LW(1)+(IR1+(RTOI-1))/RTOI
-call iDAFILE(Lu_CIGuga,2,iH((LW(2)-1)*RtoI+1),IRJ,IADD10)
+call mma_allocate(ICASE,IR1,label='ICASE')
+call iDAFILE(Lu_CIGuga,2,ICASE,IR1,IADD10)
+call mma_allocate(JSY,IRJ,label='JSY')
+call iDAFILE(Lu_CIGuga,2,JSY,IRJ,IADD10)
 
 !---  update orbital specifications -----------------------------------*
 IV0 = 0
@@ -437,7 +427,6 @@ write(u6,*)
 write(u6,'(6X,A,T47,I4)') 'Print parameter',iPrint
 write(u6,'(6X,A,T47)') 'Pulay diagonalization'
 if (INTNUM /= 0) write(u6,'(6X,A,T47)') 'First order interacting space'
-!PAM97 if (IRHP /= 0) write(u6,'(6X,A,T47)') 'Root homing'
 IX1 = IRC(1)
 IX2 = IRC(2)-IRC(1)
 ISC(1) = IX1
@@ -473,25 +462,15 @@ if (IFIRST /= 0) ILIM = 2
 ! ALLOCATION FOR INDEX VECTORS
 ! THESE VECTORS ARE PERMANENTLY IN CORE
 ! -- INDEX
-!PAM97 LW(3) = LW(2)+IRJ
-LW(3) = LW(2)+(IRJ+(RTOI-1))/RTOI
-! ISAB
-LW(4) = LW(3)+IRC(ILIM)
+call mma_allocate(INDX,IRC(ILIM),label='INDX')
 NVIR2 = NVIRT*NVIRT
-! JREFX
-LW(5) = LW(4)+NVIR2
+call mma_allocate(ISAB,NVIR2,label='ISAB')
+call mma_allocate(JREFX,ISC(1),label='JREFX')
 IADD10 = IAD10(2)
-call iDAFILE(Lu_CIGuga,2,iH((LW(5)-1)*RtoI+1),ISC(1),IADD10)
-! ADDRESSES NOT USED
-LW(6) = LW(5)+ISC(1)
-LW(7) = LW(6)
-LW(8) = LW(7)
-LW(9) = LW(8)
-LW(10) = LW(9)
-! LIMIT FOR PERMANENT VECTORS
-LPERMA = LW(10)
-call dINDMAT(H)
-call ALLOC_CPF(ISMAX,LPERMA)
+call iDAFILE(Lu_CIGuga,2,JREFX,ISC(1),IADD10)
+call INDMAT_CPF(JSY,INDX,ISAB,ISMAX,JREFX)
+call mma_deallocate(JREFX)
+call ALLOC_CPF()
 
 return
 
@@ -518,20 +497,5 @@ subroutine Error(code)
   call Quit_OnUserError()
 
 end subroutine Error
-
-! This is to allow type punning without an explicit interface
-subroutine dINDMAT(H)
-
-  real(kind=wp), target :: H(*)
-  integer(kind=iwp), pointer :: iH2(:), iH3(:), iH4(:), iH5(:)
-
-  call c_f_pointer(c_loc(H(LW(2))),iH2,[1])
-  call c_f_pointer(c_loc(H(LW(3))),iH3,[1])
-  call c_f_pointer(c_loc(H(LW(4))),iH4,[1])
-  call c_f_pointer(c_loc(H(LW(5))),iH5,[1])
-  call INDMAT_CPF(iH2,iH3,iH4,ISMAX,iH5)
-  nullify(iH2,iH3,iH4,iH5)
-
-end subroutine dINDMAT
 
 end subroutine ReadIn_CPF

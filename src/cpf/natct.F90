@@ -12,19 +12,20 @@
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-subroutine NATCT(H,LIC0)
+subroutine NATCT(C,FC)
 
-use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
-use cpf_global, only: BNAME, DETOT, ETOT, ICPF, INCPF, ISDCI, ITOC17, LIC, Lu_CPFORB, Lu_TraOne, LW, NBAS, NORB, NPFRO, NSYM
+use cpf_global, only: BNAME, DETOT, ETOT, ICASE, ICPF, INCPF, INDX, ISDCI, ITOC17, JSY, Lu_CPFORB, Lu_TraOne, NBAS, NORB, NPFRO, &
+                      NSYM
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: LIC0
-real(kind=wp) :: H(LIC0)
-integer(kind=iwp) :: ICMO, IDISK, iDum, iDummy(7,8), iiRC, IOCC, iOpt, iSYM, LW91A, LW91B, M, N2SUM, n2Tri, nbMax, NSUM
+real(kind=wp) :: C(*), FC(*)
+integer(kind=iwp) :: ICMO, IDISK, iDum, iDummy(7,8), iiRC, IOCC, iOpt, iSYM, M, N2SUM, n2Tri, nbMax, NSUM
 real(kind=wp) :: dum, Dummy(1), EREL, ErelDC, ErelMV
 character(len=72) :: Header
+real(kind=wp), allocatable :: CAO(:), CMO(:), CMO2(:), D(:), DSYM(:), OCC(:), OP(:), S(:)
 
 NSUM = 0
 N2SUM = 0
@@ -39,38 +40,36 @@ end do
 
 ! Read MO coefficients
 IDISK = ITOC17(1)
-call dDAFILE(Lu_TraOne,2,H(LW(87)),N2SUM,IDISK)
-if (LW(87)+N2SUM-1 >= LW(88)) then
-  write(u6,*)
-  write(u6,'(6X,A)') '*** ERROR IN SUBROUTINE NATCT ***'
-  write(u6,'(6X,A)') 'NO SPACE LEFT TO GENERATE FINAL ORBITALS'
-  write(u6,*)
-  call Abend()
-end if
+call mma_allocate(CMO,N2SUM,label='CMO')
+call dDAFILE(Lu_TraOne,2,CMO,N2SUM,IDISK)
 
 ! Loop over irreps and compute natural orbitals
 
-IOCC = LW(90)
-ICMO = LW(87)
+call mma_allocate(OCC,NSUM,label='OCC')
+call mma_allocate(CMO2,nbMax**2,label='CMO2')
+call mma_allocate(DSYM,nbMax**2,label='DSYM')
+call mma_allocate(CAO,nbMax**2,label='CAO')
+IOCC = 1
+ICMO = 1
 do M=1,NSYM
   ! set occupation number of orbitals prefrozen in MOTRA
-  call DCOPY_(NBAS(M),[Zero],0,H(IOCC),1)
+  call DCOPY_(NBAS(M),[Zero],0,OCC(IOCC),1)
   ! skip orbitals prefrozen in MOTRA
-  call DCOPY_(NPFRO(M),[Two],0,H(IOCC),1)
-  call NATORB_CPF(H(LW(62)),H(ICMO+NBAS(M)*NPFRO(M)),H(LW(88)),H(LW(89)),H(LW(89)),H(IOCC+NPFRO(M)),M)
-  call DCOPY_(NORB(M)*NBAS(M),H(LW(89)),1,H(ICMO+NBAS(M)*NPFRO(M)),1)
+  call DCOPY_(NPFRO(M),[Two],0,OCC(IOCC),1)
+  call NATORB_CPF(FC,CMO(ICMO+NBAS(M)*NPFRO(M)),CMO2,DSYM,CAO,OCC(IOCC+NPFRO(M)),M)
+  call DCOPY_(NORB(M)*NBAS(M),CAO,1,CMO(ICMO+NBAS(M)*NPFRO(M)),1)
   ICMO = ICMO+NBAS(M)**2
   IOCC = IOCC+NBAS(M)
 end do
+call mma_deallocate(CMO2)
+call mma_deallocate(DSYM)
+call mma_deallocate(CAO)
 
-LW91A = LW(91)
-LW91B = LW91A+n2Sum
-if (LW91B+n2Tri-1 > Lic) then
-  write(u6,*) ' Not enough core in NATCT'
-  call ErrTra()
-  call Abend()
-end if
-call RelEne(ErelMV,ErelDC,nSym,nBas,H(LW(87)),H(LW(90)),H(LW91A),H(LW91B))
+call mma_allocate(D,n2Sum,label='D')
+call mma_allocate(OP,n2Tri,label='OP')
+call RelEne(ErelMV,ErelDC,nSym,nBas,CMO,OCC,D,OP)
+call mma_deallocate(D)
+call mma_deallocate(OP)
 
 EREL = ERELMV+ERELDC
 write(u6,'(/,5X,A)') 'FIRST ORDER RELATIVISTIC CORRECTIONS'
@@ -83,7 +82,7 @@ if (ISDCI == 1) then
 else
   write(u6,'(5X,A,F17.8)') 'TOTAL REL. ENERGY    ',ETOT+Erel
 end if
-call dPRWF(H)
+call PRWF_CPF(ICASE,JSY,INDX,C)
 if (iCPF == 1) then
   Header = ' CPF natural orbitals'
 else if (iSDCI == 1) then
@@ -93,18 +92,20 @@ else if (iNCPF == 1) then
 else
   Header = ' MCPF natural orbitals'
 end if
-call Primo(Header,.true.,.false.,1.0e-4_wp,dum,nSym,nBas,nBas,BName,Dummy,H(LW(90)),H(LW(87)),-1)
+call Primo(Header,.true.,.false.,1.0e-4_wp,dum,nSym,nBas,nBas,BName,Dummy,OCC,CMO,-1)
 
 ! Read the overlap matrix in ao basis
 iiRC = -1
 iOpt = 6
-call RdOne(iiRC,iOpt,'MLTPL  0',1,H(LW(91)),iDum)
+call mma_allocate(S,n2Tri,label='S')
+call RdOne(iiRC,iOpt,'MLTPL  0',1,S,iDum)
 if (iiRC /= 0) then
   write(u6,*) 'Natct: Error reading overlap matrix!'
   call Abend()
 end if
-call Charge(nSym,nBas,BName,H(LW(87)),H(LW(90)),H(LW(91)),2,.true.,.true.)
-call Prpt_old(nSym,nBas,nSum,n2Sum,H(LW(87)),H(LW(90)))
+call Charge(nSym,nBas,BName,CMO,OCC,S,2,.true.,.true.)
+call Prpt_old(nSym,nBas,nSum,n2Sum,CMO,OCC)
+call mma_deallocate(S)
 
 if (iCPF == 1) then
   Header = '* CPF NO COEFS'
@@ -115,24 +116,10 @@ else if (iNCPF == 1) then
 else
   Header = '* MCPF NO COEFS'
 end if
-call WrVec('CPFORB',Lu_CPFORB,'CO',nSym,nBas,nBas,H(LW(87)),H(LW(90)),Dummy,iDummy,Header)
+call WrVec('CPFORB',Lu_CPFORB,'CO',nSym,nBas,nBas,CMO,OCC,Dummy,iDummy,Header)
+call mma_deallocate(CMO)
+call mma_deallocate(OCC)
 
 return
-
-! This is to allow type punning without an explicit interface
-contains
-
-subroutine dPRWF(H)
-
-  real(kind=wp), target :: H(*)
-  integer(kind=iwp), pointer :: iH1(:), iH2(:), iH3(:)
-
-  call c_f_pointer(c_loc(H(LW(1))),iH1,[1])
-  call c_f_pointer(c_loc(H(LW(2))),iH2,[1])
-  call c_f_pointer(c_loc(H(LW(3))),iH3,[1])
-  call PRWF_CPF(iH1,iH2,iH3,H(LW(26)))
-  nullify(iH1,iH2,iH3)
-
-end subroutine dPRWF
 
 end subroutine NATCT

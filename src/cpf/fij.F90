@@ -15,8 +15,8 @@
 !pgi$g opt=1
 subroutine FIJ(ICASE,JSY,INDX,C,S,FC,A,B,FK,DBK,ENP,EPP)
 
-use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
-use cpf_global, only: IDENS, IRC, IREF0, IROW, ITER, IV0, LSYM, Lu_25, Lu_CIGuga, MUL, NNS, NORBT, NVIR
+use cpf_global, only: IDENS, IRC, IREF0, IROW, ITER, IV0, LSYM, Lu_25, Lu_CIGuga, NNS, NORBT, NVIR
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp, r8
 
 implicit none
@@ -108,26 +108,12 @@ if ((IDENS == 1) .or. (ITER /= 1)) then
   end do
 end if
 !if (IDENS == 1) write(u6,876) (FC(I),I=1,NOB2)
-call dAI_CPF(C)
+call AI_CPF(JSY,INDX,C,S,FC,C,A,B,FK,DBK,ENP,EPP,0)
 if (ITER == 1) return
 call AB(ICASE,JSY,INDX,C,S,FC,A,B,FK,ENP)
 
 return
 
 !876 format(1X,'FIJ',5F12.6)
-
-! This is to allow type punning without an explicit interface
-contains
-
-subroutine dAI_CPF(C)
-
-  real(kind=wp), target :: C(*)
-  integer(kind=iwp), pointer :: iC(:)
-
-  call c_f_pointer(c_loc(C(1)),iC,[1])
-  call AI_CPF(JSY,INDX,C,S,FC,C,iC,A,B,FK,DBK,ENP,EPP,0)
-  nullify(iC)
-
-end subroutine dAI_CPF
 
 end subroutine FIJ

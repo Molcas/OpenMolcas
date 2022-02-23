@@ -14,7 +14,8 @@
 
 subroutine ABCD(JSY,INDX,ISAB,C,S,ACBDS,ACBDT,BUFIN)
 
-use cpf_global, only: IPASS, IRC, IROW, JJS, KBUFF1, LN, LSYM, Lu_TiABCD, MUL, NDIAG, NSM, NSYM, NSYS, NVIRT, SQ2
+use cpf_global, only: IPASS, IRC, IROW, JJS, KBUFF1, LN, LSYM, Lu_TiABCD, NDIAG, NSM, NSYM, NSYS, NVIRT, SQ2
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp, r8
 
 implicit none
@@ -26,7 +27,6 @@ real(kind=wp) :: TERM
 real(kind=r8), external :: DDOT_
 
 IAD16 = 0
-KBUFF1 = 2*9600
 INSIN = KBUFF1
 INUM = IRC(4)-IRC(3)
 call PSQ2(C,S,MUL,INDX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)

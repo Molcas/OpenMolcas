@@ -17,8 +17,9 @@ subroutine SORTA_CPF(BUFOUT,INDOUT,ICAD,IBUFL,TIBUF,ISAB,BUFBI,INDBI,BIAC,BICA,N
 ! FOR FIXED B,I ALL A,C
 ! FIRST CHAIN FOR IJKL
 
-use cpf_global, only: IADABCI, ICH, IFIRST, IPRINT, IROW, KBUF, KBUFF1, LASTAD, LN, Lu_CiGUGA, Lu_TiABCI, Lu_TiABIJ, Lu_TraInt, &
-                      MADR, MUL, NNS, NORB, NSM, NSYM, NTIBUF, NVIRT
+use cpf_global, only: IADABCI, ICH, IFIRST, IPRINT, IROW, KBUF, KBUFF1, LASTAD, LN, Lu_CIGuga, Lu_TiABCI, Lu_TiABIJ, Lu_TraInt, &
+                      MADR, NNS, NORB, NSM, NSYM, NTIBUF, NVIRT
+use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6, RtoI
 

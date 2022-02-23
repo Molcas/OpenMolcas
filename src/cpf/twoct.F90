@@ -12,96 +12,44 @@
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-subroutine TWOCT(H)
+subroutine TWOCT(C,S,W,THET,ENP,EPP,ABIJ,AIBJ,AJBI,BUFAB,A,B,F,FSEC,FIJKL,BUFIJ,BMN,IBMN,AC1,AC2,BUFAC)
 
-use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
-use cpf_global, only: ICPF, IFIRST, INCPF, IRC, ITER, ISDCI, LW
+use cpf_global, only: ICPF, IFIRST, ILIM, INCPF, INDX, IRC, ISAB, ITER, ISDCI, JSY
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: H(*)
-integer(kind=iwp) :: ILIM
+real(kind=wp) :: C(*), S(*), W(*), THET(*), ENP(*), EPP(*), ABIJ(*), AIBJ(*), AJBI(*), BUFAB(*), A(*), B(*), F(*), FSEC(*), &
+                 FIJKL(*), BUFIJ(*), BMN(*), AC1(*), AC2(*), BUFAC(*)
+integer(kind=iwp) :: IBMN(*)
 
-call TWOCT_INTERNAL(H)
-
-! This is to allow type punning without an explicit interface
-contains
-
-subroutine TWOCT_INTERNAL(H)
-
-  real(kind=wp), target :: H(*)
-  integer(kind=iwp), pointer :: iH2(:), iH3(:), iH4(:), iH39(:), iH47(:), iH51(:)
-
-  ILIM = 4
-  if (IFIRST /= 0) ILIM = 2
-  if ((ISDCI /= 0) .or. (ICPF /= 0) .or. (INCPF /= 0)) then
-    ! CPF, ACPF AND SDCI
-    if (ITER /= 1) then
-      call c_f_pointer(c_loc(H(LW(2))),iH2,[1])
-      call DIAGC_CPF(iH2,H(LW(26)),H(LW(27)))
-      nullify(iH2)
-      if (IFIRST == 0) then
-        call c_f_pointer(c_loc(H(LW(2))),iH2,[1])
-        call c_f_pointer(c_loc(H(LW(3))),iH3,[1])
-        call c_f_pointer(c_loc(H(LW(51))),iH51,[1])
-        call ABCI(iH2,iH3,H(LW(26)),H(LW(27)),H(LW(50)),iH51,H(LW(52)),H(LW(53)),H(LW(54)))
-        nullify(iH2,iH3,iH51)
-      end if
-      call c_f_pointer(c_loc(H(LW(2))),iH2,[1])
-      call c_f_pointer(c_loc(H(LW(3))),iH3,[1])
-      call c_f_pointer(c_loc(H(LW(47))),iH47,[1])
-      call IJKL_CPF(iH2,iH3,H(LW(26)),H(LW(27)),H(LW(46)),H(LW(47)),iH47,H(LW(31)),H(LW(32)))
-      nullify(iH2,iH3,iH47)
-      if (IFIRST == 0) then
-        call c_f_pointer(c_loc(H(LW(2))),iH2,[1])
-        call c_f_pointer(c_loc(H(LW(3))),iH3,[1])
-        call c_f_pointer(c_loc(H(LW(4))),iH4,[1])
-        call ABCD(iH2,iH3,iH4,H(LW(26)),H(LW(27)),H(LW(57)),H(LW(58)),H(LW(59)))
-        nullify(iH2,iH3,iH4)
-      end if
+if ((ISDCI /= 0) .or. (ICPF /= 0) .or. (INCPF /= 0)) then
+  ! CPF, ACPF AND SDCI
+  if (ITER /= 1) then
+    call DIAGC_CPF(JSY,C,S)
+    if (IFIRST == 0) then
+      call ABCI(JSY,INDX,C,S,BMN,IBMN,AC1,AC2,BUFAC)
     end if
-    call c_f_pointer(c_loc(H(LW(2))),iH2,[1])
-    call c_f_pointer(c_loc(H(LW(3))),iH3,[1])
-    call c_f_pointer(c_loc(H(LW(39))),iH39,[1])
-    call FAIBJ_CPF(iH2,iH3,H(LW(26)),H(LW(27)),H(LW(36)),H(LW(37)),H(LW(38)),H(LW(39)),iH39,H(LW(40)),H(LW(41)),H(LW(42)), &
-                   H(LW(43)),H(LW(31)),H(LW(32)))
-    nullify(iH2,iH3,iH39)
-  else
-    ! MCPF
-    if (ITER /= 1) then
-      call c_f_pointer(c_loc(H(LW(2))),iH2,[1])
-      call MDIAGC(iH2,H(LW(26)),H(LW(27)),H(LW(28)),H(LW(29)),H(LW(31)),IRC(ILIM))
-      nullify(iH2)
-      if (IFIRST == 0) then
-        call c_f_pointer(c_loc(H(LW(2))),iH2,[1])
-        call c_f_pointer(c_loc(H(LW(3))),iH3,[1])
-        call c_f_pointer(c_loc(H(LW(51))),iH51,[1])
-        call MABCI(iH2,iH3,H(LW(26)),H(LW(27)),H(LW(50)),iH51,H(LW(52)),H(LW(53)),H(LW(54)),H(LW(28)),H(LW(29)),H(LW(31)),IRC(ILIM))
-        nullify(iH2,iH3,iH51)
-      end if
-      call c_f_pointer(c_loc(H(LW(2))),iH2,[1])
-      call c_f_pointer(c_loc(H(LW(3))),iH3,[1])
-      call c_f_pointer(c_loc(H(LW(47))),iH47,[1])
-      call MIJKL(iH2,iH3,H(LW(26)),H(LW(27)),H(LW(46)),H(LW(47)),iH47,H(LW(28)),H(LW(29)),H(LW(31)),H(LW(32)),IRC(ILIM))
-      nullify(iH2,iH3,iH47)
-      if (IFIRST == 0) then
-        call c_f_pointer(c_loc(H(LW(2))),iH2,[1])
-        call c_f_pointer(c_loc(H(LW(3))),iH3,[1])
-        call c_f_pointer(c_loc(H(LW(4))),iH4,[1])
-        call MABCD(iH2,iH3,iH4,H(LW(26)),H(LW(27)),H(LW(57)),H(LW(58)),H(LW(59)),H(LW(28)),H(LW(29)),H(LW(31)),IRC(ILIM))
-        nullify(iH2,iH3,iH4)
-      end if
+    call IJKL_CPF(JSY,INDX,C,S,FIJKL,BUFIJ,ENP,EPP)
+    if (IFIRST == 0) then
+      call ABCD(JSY,INDX,ISAB,C,S,AC1,AC2,BUFAC)
     end if
-    call c_f_pointer(c_loc(H(LW(2))),iH2,[1])
-    call c_f_pointer(c_loc(H(LW(3))),iH3,[1])
-    call c_f_pointer(c_loc(H(LW(39))),iH39,[1])
-    call MFAIBJ(iH2,iH3,H(LW(26)),H(LW(27)),H(LW(36)),H(LW(37)),H(LW(38)),H(LW(39)),iH39,H(LW(40)),H(LW(41)),H(LW(42)),H(LW(43)), &
-                H(LW(28)),H(LW(29)),H(LW(31)),H(LW(32)),IRC(ILIM))
-    nullify(iH2,iH3,iH39)
   end if
+  call FAIBJ_CPF(JSY,INDX,C,S,ABIJ,AIBJ,AJBI,BUFAB,A,B,F,FSEC,ENP,EPP)
+else
+  ! MCPF
+  if (ITER /= 1) then
+    call MDIAGC(JSY,C,S,W,THET,ENP,IRC(ILIM))
+    if (IFIRST == 0) then
+      call MABCI(JSY,INDX,C,S,BMN,IBMN,AC1,AC2,BUFAC,W,THET,ENP,IRC(ILIM))
+    end if
+    call MIJKL(JSY,INDX,C,S,FIJKL,BUFIJ,W,THET,ENP,EPP,IRC(ILIM))
+    if (IFIRST == 0) then
+      call MABCD(JSY,INDX,ISAB,C,S,AC1,AC2,BUFAC,W,THET,ENP,IRC(ILIM))
+    end if
+  end if
+  call MFAIBJ(JSY,INDX,C,S,ABIJ,AIBJ,AJBI,BUFAB,A,B,F,FSEC,W,THET,ENP,EPP,IRC(ILIM))
+end if
 
-  return
-
-end subroutine TWOCT_INTERNAL
+return
 
 end subroutine TWOCT

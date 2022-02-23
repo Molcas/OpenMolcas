@@ -12,48 +12,29 @@
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-subroutine DENSCT_CPF(H,LIC0)
+subroutine DENSCT_CPF(C,S,W,THET,TPQ,ENP,EPP,ICASE_,FC,BUFIN,A,B,FK,DBK,TEMP)
 
-use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
-use cpf_global, only: LW
+use cpf_global, only: ICASE, INDX, JSY
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: H(LIC0)
-integer(kind=iwp) :: LIC0
-real(kind=wp) :: A
+integer(kind=iwp) :: ICASE_(*)
+real(kind=wp) :: C(*), S(*), W(*), THET(*), TPQ(*), ENP(*), EPP(*), FC(*), BUFIN(*), A(*), B(*), FK(*), DBK(*), TEMP(*)
+real(kind=wp) :: AA
 
-call DENSCT_INTERNAL(H)
+call DENS_CPF(C,FC,ICASE,AA)
 
-! This is to allow type punning without an explicit interface
-contains
+! MULTIPLY C BY MP
 
-subroutine DENSCT_INTERNAL(H)
+call NPSET(JSY,INDX,C,TPQ,ENP,TEMP,S,W,EPP,ICASE_)
 
-  real(kind=wp), target :: H(*)
-  integer(kind=iwp), pointer :: iH1(:), iH2(:), iH3(:), iH34(:)
+call ONECT(C,S,W,THET,ENP,EPP,FC,BUFIN,A,B,FK,DBK)
+if (AA > One) then
+  write(u6,*) 'DENSCT_CPF Error: AA>1.0 (See code.)'
+end if
+call NATCT(C,FC)
 
-  call c_f_pointer(c_loc(H(LW(1))),iH1,[1])
-  call DENS_CPF(H(LW(26)),H(LW(62)),iH1,A)
-  nullify(iH1)
-
-  ! MULTIPLY C BY MP
-
-  call c_f_pointer(c_loc(H(LW(2))),iH2,[1])
-  call c_f_pointer(c_loc(H(LW(3))),iH3,[1])
-  call c_f_pointer(c_loc(H(LW(34))),iH34,[1])
-  call NPSET(iH2,iH3,H(LW(26)),H(LW(30)),H(LW(31)),H(LW(72)),H(LW(27)),H(LW(28)),H(LW(32)),iH34)
-  nullify(iH2,iH3,iH34)
-
-  call ONECT(H)
-  if (A > One) then
-    write(u6,*) 'DENSCT_CPF Error: A>1.0 (See code.)'
-  end if
-  call NATCT(H,LIC0)
-
-  return
-
-end subroutine DENSCT_INTERNAL
+return
 
 end subroutine DENSCT_CPF

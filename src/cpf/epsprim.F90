@@ -14,7 +14,8 @@
 
 subroutine EPSPRIM(JSY,INDX,C,S,EPP)
 
-use cpf_global, only: IPRINT, IRC, LSYM, MUL, NNS, NVIR
+use cpf_global, only: IPRINT, IRC, LSYM, NNS, NVIR
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none

@@ -14,20 +14,19 @@
 
 subroutine IIJJ_CPF(ICASE,JSY,HDIAG,FC,FIJ,FJI)
 
-use cpf_global, only: IFIRST, IRC, IROW, LN, LSYM, Lu_27, MUL, NSM, NSYS, NVIRT
+use cpf_global, only: ILIM, IRC, IROW, LN, LSYM, Lu_27, NSM, NSYS, NVIRT
+use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: ICASE(*), JSY(*)
 real(kind=wp) :: HDIAG(*), FC(*), FIJ(*), FJI(*)
-integer(kind=iwp) :: I, IA, IAD27, IAV, IB, IBV, II, IJ, ILIM, IND, IOC(55), IR, IRL, J, JOJ, NA, NA1, NA2, NB, NB1, NB2, NSA, NSS
+integer(kind=iwp) :: I, IA, IAD27, IAV, IB, IBV, II, IJ, IND, IOC(55), IR, IRL, J, JOJ, NA, NA1, NA2, NB, NB1, NB2, NSA, NSS
 real(kind=wp) :: SUM1, SUM2, TERM
 integer(kind=iwp), external :: ICUNP, JSUNP_CPF
 
 IAD27 = 0
-ILIM = 4
-if (IFIRST /= 0) ILIM = 2
 IRL = IRC(ILIM)
 
 do IR=1,IRL

@@ -14,7 +14,8 @@
 
 subroutine CUPDATE(JSY,INDX,C,S,AP,BST,T2,ENP)
 
-use cpf_global, only: IAD25S, IADDP, IPRINT, IRC, IREF0, ITPUL, LSYM, Lu_25, Lu_30, Lu_CI, MUL, NCONF, NNS, NVIR, WLEV
+use cpf_global, only: IAD25S, IADDP, IPRINT, IRC, IREF0, ITPUL, LSYM, Lu_25, Lu_30, Lu_CI, NCONF, NNS, NVIR, WLEV
+use Symmetry_Info, only: Mul
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6, r8
 

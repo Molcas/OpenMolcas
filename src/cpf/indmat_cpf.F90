@@ -14,13 +14,13 @@
 
 subroutine INDMAT_CPF(JSY,INDX,ISAB,ISMAX,JREFX)
 
-use cpf_global, only: IFIRST, IPRINT, IRC, IREF0, ISC, JJS, JSC, LN, LSYM, MUL, NDIAG, NNS, NSM, NSYM, NSYS, NVIR, NVIRT
+use cpf_global, only: IFIRST, ILIM, IPRINT, IRC, IREF0, ISC, JJS, JSC, LN, LSYM, NDIAG, NNS, NSM, NSYM, NSYS, NVIR, NVIRT
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: JSY(*), INDX(*), ISAB(*), ISMAX, JREFX(*)
-integer(kind=iwp) :: I, ICOUS(8), II, IIN, ILIM, IN0, IN2, IND, IR, IR1, IR2, IX1, IX2, IX3, IX4, JCONF, JJM, JSCI, NA, NB, NSAB, &
-                     NSS
+integer(kind=iwp) :: I, ICOUS(8), II, IIN, IN0, IN2, IND, IR, IR1, IR2, IX1, IX2, IX3, IX4, JCONF, JJM, JSCI, NA, NB, NSAB, NSS
 integer(kind=iwp), external :: JSUNP_CPF
 
 ! DETERMINE REFERENCE STATE
@@ -30,8 +30,6 @@ do IR=1,JCONF
 end do
 if (IPRINT > 5) write(u6,999) IREF0,(JREFX(IR),IR=1,JCONF)
 
-ILIM = 4
-if (IFIRST /= 0) ILIM = 2
 NSYS(1) = 0
 do I=2,NSYM
   NSYS(I) = NSYS(I-1)+NVIR(I-1)

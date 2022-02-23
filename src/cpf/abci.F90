@@ -14,7 +14,8 @@
 
 subroutine ABCI(JSY,INDX,C,S,BMN,IBMN,BIAC,BICA,BUFIN)
 
-use cpf_global, only: IADABCI, IRC, KBUFF1, LN, LSYM, Lu_CIGuga, Lu_TiABCI, MUL, NDIAG, NNS, NSM, NSYS, NVIRT, SQ2
+use cpf_global, only: IADABCI, IRC, KBUFF1, LN, LSYM, Lu_CIGuga, Lu_TiABCI, NDIAG, NNS, NSM, NSYS, NVIRT, SQ2
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp, r8
 
 implicit none

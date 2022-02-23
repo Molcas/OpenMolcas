@@ -12,65 +12,30 @@
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-subroutine ONECT(H)
+subroutine ONECT(C,S,W,THET,ENP,EPP,FC,BUFIN,A,B,FK,DBK)
 
-use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
-use cpf_global, only: ICPF, IDENS, IFIRST, INCPF, IRC, ISDCI, LW
-use Definitions, only: wp, iwp
+use cpf_global, only: ICASE, ICPF, IDENS, ILIM, INCPF, INDX, IRC, ISDCI, JSY
+use Definitions, only: wp
 
 implicit none
-real(kind=wp) H(*)
-integer(kind=iwp) :: ILIM
+real(kind=wp) :: C(*), S(*), W(*), THET(*), ENP(*), EPP(*), FC(*), BUFIN(*), A(*), B(*), FK(*), DBK(*)
 
-call ONECT_INTERNAL(H)
-
-! This is to allow type punning without an explicit interface
-contains
-
-subroutine ONECT_INTERNAL(H)
-
-  real(kind=wp), target :: H(*)
-  integer(kind=iwp), pointer :: iH1(:), iH2(:), iH3(:), iH63(:)
-
-  ILIM = 4
-  if (IFIRST /= 0) ILIM = 2
-  if ((ICPF /= 0) .or. (ISDCI /= 0) .or. (INCPF /= 0)) then
-    ! CPF AND SDCI
-    if (IDENS /= 1) then
-      ! (AI/JK) INTEGRALS
-      call c_f_pointer(c_loc(H(LW(2))),iH2,[1])
-      call c_f_pointer(c_loc(H(LW(3))),iH3,[1])
-      call c_f_pointer(c_loc(H(LW(63))),iH63,[1])
-      call AI_CPF(iH2,iH3,H(LW(26)),H(LW(27)),H(LW(62)),H(LW(63)),iH63,H(LW(64)),H(LW(65)),H(LW(66)),H(LW(67)),H(LW(31)), &
-                  H(LW(32)),1)
-      nullify(iH2,iH3,iH63)
-    end if
-    call c_f_pointer(c_loc(H(LW(1))),iH1,[1])
-    call c_f_pointer(c_loc(H(LW(2))),iH2,[1])
-    call c_f_pointer(c_loc(H(LW(3))),iH3,[1])
-    call FIJ(iH1,iH2,iH3,H(LW(26)),H(LW(27)),H(LW(62)),H(LW(64)),H(LW(65)),H(LW(66)),H(LW(67)),H(LW(31)),H(LW(32)))
-    nullify(iH1,iH2,iH3)
-  else
-    ! MCPF
-    if (IDENS /= 1) then
-      ! (AI/JK) INTEGRALS
-      call c_f_pointer(c_loc(H(LW(2))),iH2,[1])
-      call c_f_pointer(c_loc(H(LW(3))),iH3,[1])
-      call c_f_pointer(c_loc(H(LW(63))),iH63,[1])
-      call MAI(iH2,iH3,H(LW(26)),H(LW(27)),H(LW(62)),H(LW(63)),iH63,H(LW(64)),H(LW(65)),H(LW(66)),H(LW(67)),H(LW(28)),H(LW(29)), &
-               H(LW(31)),H(LW(32)),IRC(ILIM),1)
-      nullify(iH2,iH3,iH63)
-    end if
-    call c_f_pointer(c_loc(H(LW(1))),iH1,[1])
-    call c_f_pointer(c_loc(H(LW(2))),iH2,[1])
-    call c_f_pointer(c_loc(H(LW(3))),iH3,[1])
-    call MFIJ(iH1,iH2,iH3,H(LW(26)),H(LW(27)),H(LW(62)),H(LW(64)),H(LW(65)),H(LW(66)),H(LW(67)),H(LW(28)),H(LW(29)),H(LW(31)), &
-              H(LW(32)),IRC(ILIM))
-    nullify(iH1,iH2,iH3)
+if ((ICPF /= 0) .or. (ISDCI /= 0) .or. (INCPF /= 0)) then
+  ! CPF AND SDCI
+  if (IDENS /= 1) then
+    ! (AI/JK) INTEGRALS
+    call AI_CPF(JSY,INDX,C,S,FC,BUFIN,A,B,FK,DBK,ENP,EPP,1)
   end if
+  call FIJ(ICASE,JSY,INDX,C,S,FC,A,B,FK,DBK,ENP,EPP)
+else
+  ! MCPF
+  if (IDENS /= 1) then
+    ! (AI/JK) INTEGRALS
+    call MAI(JSY,INDX,C,S,FC,BUFIN,A,B,FK,DBK,W,THET,ENP,EPP,IRC(ILIM),1)
+  end if
+  call MFIJ(ICASE,JSY,INDX,C,S,FC,A,B,FK,DBK,W,THET,ENP,EPP,IRC(ILIM))
+end if
 
-  return
-
-end subroutine ONECT_INTERNAL
+return
 
 end subroutine ONECT

@@ -14,7 +14,7 @@
 
 subroutine NEXT(P,DPS,CN)
 
-use cpf_global, only: IADC, IADDP, IPRINT, ITPUL, Lu_CI, NCONF
+use cpf_global, only: IADDP, IPRINT, ITPUL, Lu_CI, NCONF
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -37,8 +37,6 @@ do I=1,ITM
   call VSMA(DPS,1,CTOT,P,1,P,1,NCONF)
 end do
 if (IPRINT >= 15) write(u6,19) (P(I),I=1,NCONF)
-
-IADC(ITPUL+2) = IAD
 
 return
 

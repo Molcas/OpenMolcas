@@ -14,13 +14,14 @@
 
 subroutine SORT_CPF(BUFOUT,INDOUT,ICAD,IBUFL,FC,FIJ,FJI,TIBUF)
 
-use cpf_global, only: IAD25S, ICH, IPRINT, IROW, ITOC17, LASTAD, LBUF, LN, Lu_25, Lu_TiABIJ, Lu_TraInt, Lu_TraOne, MADR, MUL, N, &
-                      NORB, NORBT, NSM, NSYM, NSYS, NTIBUF, NVIR, NVIRT, POTNUC
+use cpf_global, only: IAD25S, ICH, IPRINT, IROW, ITOC17, LASTAD, LBUF, LN, Lu_25, Lu_TiABIJ, Lu_TraInt, Lu_TraOne, MADR, N, NORB, &
+                      NORBT, NSM, NSYM, NSYS, NTIBUF, NVIR, NVIRT, POTNUC
+use Symmetry_Info, only: Mul
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6, RtoI
 
 implicit none
-real(kind=wp) :: BUFOUT(*), FC(*), FIJ(*), FJI(*), TIBUF(*)
+real(kind=wp) :: BUFOUT(*), FC(*), FIJ(*), FJI(*), TIBUF(NTIBUF)
 integer(kind=iwp) :: INDOUT(*), ICAD(*), IBUFL(*)
 #include "tratoc.fh"
 integer(kind=iwp) :: I, IAD50, IADD17, IADD25, IBUF, ICP, ICPP, ICQ, ID, IDISK, IDIV, IEXP, II, IIJ, IIN, IJ, IJT, INAV, IND, &

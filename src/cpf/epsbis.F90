@@ -14,7 +14,8 @@
 
 subroutine EPSBIS(JSY,INDX,C,W,EPB)
 
-use cpf_global, only: ICPF, INCPF, IPRINT, IRC, ISDCI, LSYM, MUL, NNS, NVIR
+use cpf_global, only: ICPF, INCPF, IPRINT, IRC, ISDCI, LSYM, NNS, NVIR
+use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none

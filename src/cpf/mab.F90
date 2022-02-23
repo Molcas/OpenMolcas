@@ -14,7 +14,8 @@
 
 subroutine MAB(ICASE,JSY,INDX,C,S,FC,A,B,F,W,THET,ENP,NII)
 
-use cpf_global, only: IDENS, IFIRST, IPRINT, IRC, IREF0, IROW, JSC, LN, LSYM, MUL, NDIAG, NORBT, NSYM, NSYS, NVIR, NVIRT, SQ2
+use cpf_global, only: IDENS, IFIRST, IPRINT, IRC, IREF0, IROW, JSC, LN, LSYM, NDIAG, NORBT, NSYM, NSYS, NVIR, NVIRT, SQ2
+use Symmetry_Info, only: Mul
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6, r8
 

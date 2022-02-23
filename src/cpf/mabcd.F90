@@ -14,7 +14,8 @@
 
 subroutine MABCD(JSY,INDX,ISAB,C,S,ACBDS,ACBDT,BUFIN,W,THET,ENP,NII)
 
-use cpf_global, only: IPASS, IRC, IROW, JJS, KBUFF1, LN, LSYM, Lu_TiABCD, MUL, NDIAG, NSM, NSYM, NSYS, NVIRT, SQ2
+use cpf_global, only: IPASS, IRC, IROW, JJS, KBUFF1, LN, LSYM, Lu_TiABCD, NDIAG, NSM, NSYM, NSYS, NVIRT, SQ2
+use Symmetry_Info, only: Mul
 use Constants, only: One, Two, Half
 use Definitions, only: wp, iwp, r8
 
@@ -29,7 +30,6 @@ real(kind=r8), external :: DDOT_
 INUM = IRC(4)-IRC(3)
 call MPSQ2(C,S,W,MUL,INDX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
 IAD16 = 0
-KBUFF1 = 2*9600
 INSIN = KBUFF1
 NVT = IROW(NVIRT+1)
 NOV = (NVT-1)/IPASS+1

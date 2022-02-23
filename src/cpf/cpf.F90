@@ -33,18 +33,17 @@ subroutine CPF(IRETURN)
 ! MODIFIED TO MODERN FORTRAN BY I. FDEZ. GALVAN 2022                   *
 !***********************************************************************
 
-use cpf_global, only: Lu_25, Lu_27, Lu_30, Lu_CI, Lu_CIGuga, Lu_CPFORB, Lu_TiABCD, Lu_TiABCI, Lu_TiABIJ, Lu_TraInt, Lu_TraOne
+use cpf_global, only: ICASE, INDX, ISAB, JSY, Lu_25, Lu_27, Lu_30, Lu_CI, Lu_CIGuga, Lu_CPFORB, Lu_TiABCD, Lu_TiABCI, Lu_TiABIJ, &
+                      Lu_TraInt, Lu_TraOne
+use stdalloc, only: mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: IRETURN
-#include "WrkSpc.fh"
-integer(kind=iwp) :: iMemOff, MemOff, MEMORY
-integer(kind=iwp), external :: ip_of_iWork_d
+integer(kind=iwp) :: MEMORY
 
-call GetMem('WrkSpc','Max ','Real',MemOff,MEMORY)
+call mma_maxdble(MEMORY)
 MEMORY = int(MEMORY*0.8_wp)
-call GetMem('WrkSpc','Allo','Real',MemOff,MEMORY)
 
 ! Open files
 
@@ -73,12 +72,14 @@ call DANAME(Lu_30,'FT30F001')
 
 ! Body
 
-iMemOff = ip_of_iWork_d(Work(MemOff))
-call SDCI_CPF(Work(MemOff),iWork(iMemOff),MEMORY)
+call SDCI_CPF(MEMORY)
 
 ! Deallocate the workspace
 
-call GetMem('WrkSpc','Free','Real',MemOff,MEMORY)
+call mma_deallocate(ICASE)
+call mma_deallocate(JSY)
+call mma_deallocate(INDX)
+call mma_deallocate(ISAB)
 
 !                                                                      *
 !***********************************************************************

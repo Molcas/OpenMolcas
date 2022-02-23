@@ -12,21 +12,17 @@
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-subroutine ALLOC_CPF(ISMAX,LPERMA)
+subroutine ALLOC_CPF()
 
-use cpf_global, only: ICPF, IFIRST, INCPF, IPRINT, IRC, IROW, ISDCI, JSC, KBUFF1, LBUF, LIC, LN, LW, MAXIT, MUL, NBAS, NNS, NORBT, &
-                      NSYM, NVIR
+use cpf_global, only: IFIRST, ILIM, IPASS, IRC, IROW, JBUF, JMAX, KBUF, KBUFF1, LBUF, LIC, LN, MADR, MAX11, MX1, MX2, NNS, NORBT, &
+                      NOV, NOV1, NSYM, NTIBUF, NTMAX, NVIR, NVIRT, NVMAX, NVT5
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp, u6, RtoI
 
 implicit none
-integer(kind=iwp) :: ISMAX, LPERMA
 #include "cop.fh"
-integer(kind=iwp) :: I, IJKL, ILIM, IPF, IPOF(9), ISTOP, J, JMAX, LCIN, LIM, LIM1, LPERMB, MX1, MX2, NBMAX, NIJ, NOB2, NTMAX, &
-                     NTOT, NVMAX
+integer(kind=iwp) :: I, IPF, IPOF(9), ISTOP, J, JBUF1, KBUF1, LBUF1, LICX, LICXX, LPERMX, LSTO3, LSTO4, NOB2, NOT2, NOVT, NVT
 
-ILIM = 4
-if (IFIRST /= 0) ILIM = 2
-!PAM96 write(u6,50)
 ISTOP = 0
 MX1 = 0
 MX2 = 0
@@ -40,210 +36,106 @@ do I=1,NSYM
     if (IPF > MX2) MX2 = IPF
   end do
 end do
-!PAM97 call ALSO(LW,IROW,LIC,NORBT,NVIRT,LN,ISTOP,IFIRST,MADR,LPERMA,LBUF,KBUF,JBUF,IPASS,IRC(1),ISMAX,KBUFF1)
-call ALSO(ISTOP,LPERMA,IRC(1),ISMAX)
-! VECTORS PERMANENTLY IN CORE DURING CI ITERATIONS
-! CI-VECTOR
-! C
-LW(26) = LPERMA
-! S (SIGMA)
-LW(27) = LW(26)+JSC(ILIM)
-! W
-LW(28) = LW(27)+JSC(ILIM)
-! ITHE (TETA)
-LW(29) = LW(28)+JSC(ILIM)
-if ((ICPF == 1) .or. (ISDCI == 1) .or. (INCPF == 1)) LW(29) = LW(28)
-! TPQ (ONE ROW)
-LW(30) = LW(29)+IRC(ILIM)*IRC(ILIM)
-if ((ICPF == 1) .or. (ISDCI == 1) .or. (INCPF == 1)) LW(30) = LW(29)
-! ENP (NP)
-LW(31) = LW(30)+IRC(ILIM)
-! EPP (EPRIME)
-LW(32) = LW(31)+IRC(ILIM)
-! BST (STORED BIJ MATRIX)
-LW(33) = LW(32)+IRC(ILIM)
-! ADDRESSES NOT USED
-LW(34) = LW(33)+(MAXIT+1)**2
-LW(35) = LW(34)
-LPERMB = LW(35)
-! DYNAMICAL ALLOCATION FOR AIBJ
-! MATRIX ABIJ
-LW(36) = LPERMB
-! MATRIX AIBJ
-LW(37) = LW(36)+MX1
-! MATRIX AJBI
-LW(38) = LW(37)+MX1
-! BUFIN , IBUFIN
-LW(39) = LW(38)+MX1
-! A
-!RL LW(40) = LW(39)+2*LBUF+2
-!PAM96 LW(40) = LW(39)+LBUF+LBUF/2+2
-LW(40) = LW(39)+((RTOI+1)*LBUF+2+(RTOI-1))/RTOI
-! B
-LW(41) = LW(40)+MX2
-! F
-LW(42) = LW(41)+MX2
-! FSEC
-LW(43) = LW(42)+MX1
-! ADDRESSES NOT USED
-LW(44) = LW(43)+MX1
-LW(45) = LW(44)
-LIM = LW(45)
-if (LIM > LIC) then
-  ISTOP = 1
-  write(u6,*) 'ALLOC: Too much storage needed for AIBJ.'
-  write(u6,'(1X,A,2I10)') 'LIM,LIC:',LIM,LIC
+
+! DYNAMICAL ALLOCATION FOR SORTING
+NVT = IROW(NVIRT+1)
+! BUFFER FOR INTEGRALS
+LPERMX = NTIBUF
+LICX = LIC-LPERMX
+! DYNAMICAL ALLOCATION FOR SORTING AIBJ
+NOB2 = IROW(NORBT+1)
+NOT2 = IROW(LN+1)
+NOV = 3*NOT2
+LSTO3 = LICX-2*NOV-3*NOB2
+! LBUF1: Nr of available reals per bin
+LBUF1 = LSTO3/NOV
+!PAM96 LBUF = (LBUF/2)*2
+!PAM96 ! *** FPS ***
+!PAM96 !LBUF = (LBUF1-2)/2
+! LBUF: Nr of items per bin
+LBUF = (RTOI*LBUF1-2)/(RTOI+1)
+if (LBUF > 998) LBUF = 998
+LBUF = ((LBUF+2)/RTOI)*RTOI-2
+!PAM96 write(u6,150) NOV,MADR,LBUF
+if (LBUF < 20) then
+  ISTOP = 3
+  write(u6,*) 'ALLOC_CPF: Impossibly small buffers, too many bins,'
+  write(u6,*) 'for sorting AIBJ. Program will have to stop.'
 end if
-! DYNAMICAL ALLOCATION FOR IJKL
-! FIJKL
-LW(46) = LPERMB
-NIJ = IROW(LN+1)
-IJKL = (NIJ*(NIJ+1))/2
-! BUFIN , IBUFIN
-LW(47) = LW(46)+IJKL
-! ADDRESSES NOT USED
-LW(48) = LW(47)+KBUFF1+2
-LW(49) = LW(48)
-LIM = LW(49)
-if (LIM > LIC) then
-  ISTOP = 1
-  write(u6,*) 'ALLOC: Too much storage needed for IJKL.'
-  write(u6,'(1X,A,2I10)') 'LIM,LIC:',LIM,LIC
+! MAXIMUM LENGTH OF HDIAG
+MAX11 = max(NVT,IRC(1))
+if (MAX11 < IRC(1)) MAX11 = IRC(1)
+NOV1 = NOV
+! DYNAMICAL ALLOCATION FOR SORTING ABCD
+JBUF = 1
+NOVT = 0
+if (IFIRST == 0) then
+  IPASS = 1
+  do
+    NVT5 = (NVT-1)/IPASS+1
+    LICXX = LICX-KBUFF1
+    LSTO4 = LICXX-2*NVT5
+    !RL JBUF1 = LSTO4/NVT5
+    ! JBUF1: Nr of available reals per bin
+    JBUF1 = LSTO4/NVT5-1
+    !PAM96 JBUF = 2*(JBUF1-1)/3
+    !PAM96 JBUF = (JBUF/2)*2
+    !PAM96 ! *** FPS ***
+    !PAM96 !RL JBUF = (JBUF1-2)/2
+    ! JBUF: Nr of items per bin
+    JBUF = (RTOI*JBUF1-2)/(RTOI+1)
+    if (JBUF > 800) exit
+    IPASS = IPASS+1
+    if (IPASS > 5) exit
+  end do
+  if (JBUF > 998) JBUF = 998
+  NOVT = NOV+NVT
+  JBUF = ((JBUF+2)/RTOI)*RTOI-2
+  !PAM96 write(u6,150) NOVT,MADR,JBUF
+  !PAM96 write(u6,160) IPASS
+  if (JBUF < 20) then
+    ISTOP = 3
+    write(u6,*) 'ALLOC_CPF: Impossibly small buffers, too many bins,'
+    write(u6,*) 'for sorting ABCD. Program will have to stop.'
+  end if
+  ! DYNAMICAL ALLOCATION FOR SORTING ABCI
+  NOV = LN*NVIRT+1
+else
+  NVT5 = 0
+  NOV = 1
 end if
-! DYNAMICAL ALLOCATION FOR ABCI
-! BMN
-LW(50) = LPERMB
-! IBMN
+LSTO4 = LICX-2*NOV
+! KBUF1: Nr of available reals per bin
+KBUF1 = LSTO4/NOV
+!PAM96 KBUF = 2*(KBUF1-1)/3
+!PAM96 KBUF = (KBUF/2)*2
+!PAM96 ! *** FPS ***
+!PAM96 !RL KBUF = (KBUF1-2)/2
+! KBUF: Nr of items per bin
+KBUF = (RTOI*KBUF1-2)/(RTOI+1)
+if (KBUF > 998) KBUF = 998
+NOVT = NOVT+NOV
+KBUF = ((KBUF+2)/RTOI)*RTOI-2
+!PAM96 write(u6,150) NOVT,MADR,KBUF
+if (KBUF < 20) then
+  ISTOP = 3
+  write(u6,*) 'ALLOC_CPF: Impossibly small buffers, too many bins,'
+  write(u6,*) 'for sorting ABCI. Program will have to stop.'
+end if
+if (NOVT >= MADR) then
+  ISTOP = 2
+  write(u6,*) 'ALLOC_CPF: Too much storage needed.'
+  write(u6,'(1X,A,2I10)') 'NOVT,MADR:',NOVT,MADR
+end if
+
 JMAX = IAD10(1)
 if (IFIRST /= 0) JMAX = 0
-LW(51) = LW(50)+JMAX
-! BIAC
-LW(52) = LW(51)+JMAX
-! BICA
-LW(53) = LW(52)+ISMAX
-! BUFIN
-LW(54) = LW(53)+ISMAX
-! ADDRESSES NOT USED
-LW(55) = LW(54)+KBUFF1
-LW(56) = LW(55)
-LIM = LW(56)
-if (LIM > LIC) then
-  ISTOP = 1
-  write(u6,*) 'ALLOC: Too much storage needed for ABCI.'
-  write(u6,'(1X,A,2I10)') 'LIM,LIC:',LIM,LIC
-end if
-! DYNAMICAL ALLOCATION FOR ABCD
-! ACBDS
-LW(57) = LPERMB
-! ACBDT
-LW(58) = LW(57)+ISMAX
-! BUFIN
-LW(59) = LW(58)+ISMAX
-! ADDRESSES NOT USED
-LW(60) = LW(59)+KBUFF1
-LW(61) = LW(60)
-LIM = LW(61)
-if (LIM > LIC) then
-  ISTOP = 1
-  write(u6,*) 'ALLOC: Too much storage needed for ABCD.'
-  write(u6,'(1X,A,2I10)') 'LIM,LIC:',LIM,LIC
-end if
-! DYNAMICAL ALLOCATION FOR FIJ, AI AND AB
-! FC
-LW(62) = LPERMB
-NOB2 = IROW(NORBT+1)
-! BUFIN , IBUFIN
-LW(63) = LW(62)+NOB2
-! A
-!RL LW(64) = LW(63)+2*LBUF+2
-!PAM96 LW(64) = LW(63)+LBUF+LBUF/2+2
-LW(64) = LW(63)+((RTOI+1)*LBUF+2+(RTOI-1))/RTOI
-! B
-LW(65) = LW(64)+MX2
-! FK IN AI AND F IN AB
-LW(66) = LW(65)+MX2
-! DBK
-LW(67) = LW(66)+NVMAX
-LIM = LW(67)+NVMAX
-LIM1 = LW(66)+MX1
-if (LIM < LIM1) LIM = LIM1
-! ADDRESSES NOT USED
-LW(68) = LIM
-LW(69) = LW(68)
-LW(70) = LW(69)
-LW(71) = LW(70)
-LIM = LW(71)
-if (LIM > LIC) then
-  ISTOP = 1
-  write(u6,*) 'ALLOC: Too much storage needed for FIJ,AI,AB'
-  write(u6,'(1X,A,2I10)') 'LIM,LIC:',LIM,LIC
-end if
-! DYNAMICAL ALLOCATION FOR NPSET
-! TEMP
-LW(72) = LPERMB
-! ADDRESSES NOT USED
-LW(73) = LW(72)+IRC(ILIM)
-LW(74) = LW(73)
-LIM = LW(74)
-!PAM96 write(u6,358) LIM
-! DYNAMICAL ALLOCATION FOR CPFCTL
-! EPB (EPBIS)
-LW(75) = LPERMB
-! AP (APPRIME)
-LW(76) = LW(75)+IRC(ILIM)
-! BIJ
-LW(77) = LW(76)+IRC(ILIM)
-! CN
-LW(78) = LW(77)+(MAXIT+1)**2
-! TEMP1
-LW(79) = LW(78)+MAXIT+1
 NTMAX = 0
 do I=1,NSYM
   if (NVIR(I) > NTMAX) NTMAX = NVIR(I)
   if (NNS(I) > NTMAX) NTMAX = NNS(I)
 end do
 if (IRC(ILIM) > NTMAX) NTMAX = IRC(ILIM)
-! TEMP2
-LW(80) = LW(79)+NTMAX
-LIM = LW(80)+NTMAX
-if (LIM > LIC) then
-  ISTOP = 1
-  write(u6,*) 'ALLOC: Too much storage needed for CPFCTL'
-  write(u6,'(1X,A,2I10)') 'LIM,LIC:',LIM,LIC
-end if
-! NATURAL ORBITALS
-! DENSITY MATRIX AT LPERMB , D
-! MOLECULAR ORBITALS ALL SYMMETRIES , CM
-LW(87) = LPERMB+NOB2
-LCIN = 0
-NBMAX = 0
-do I=1,NSYM
-  NBMAX = max(NBMAX,NBAS(I))
-  LCIN = LCIN+NBAS(I)*NBAS(I)
-end do
-! NATURAL ORBITALS ONE SYMMETRY , CMO
-LW(88) = LW(87)+LCIN
-! DENSITY MATRIX FOR ONE SYMMETRY , DSYM
-! MOLECULAR ORBITAL IN AO-BASIS for one symmetry, CAO
-LW(89) = LW(88)+NBMAX*NBMAX
-! OCCUPATION NUMBERS FOR ALL POSSIBLE ORBITALS
-NTOT = 0
-do I=1,NSYM
-  NTOT = NTOT+NBAS(I)
-end do
-LW(90) = LW(89)+NBMAX*NBMAX
-! OVERLAP MATRIX IN CHARGE
-LW(91) = LW(90)+NTOT
-! ADDRESSES NOT USED
-LW(92) = LW(91)
-LW(93) = LW(92)
-LIM = LW(93)
-!PAM96 write(u6,349) LIM
-if (IPRINT >= 2) then
-  ! LW(94), LW(95) AND LW(96) USED IN SORTING ABCD
-  write(u6,450)
-  write(u6,451) (LW(I),I=1,96)
-end if
 if (ISTOP /= 0) then
   write(u6,*) 'ALLOC: Too little memory available.'
   write(u6,*) 'Program stops here.'
@@ -253,10 +145,8 @@ end if
 
 return
 
-!PAM96 50 format(/,6X,'DYNAMICAL CORE STORAGE INFORMATION',/)
-!PAM96 349 format(6X,'STORAGE FOR DENS',I15)
-!PAM96 358 format(6X,'STORAGE FOR NPSET',I14)
-450 format(//,6X,'DYNAMICAL STORAGE ADDRESSES LW:',/)
-451 format(6X,5I10)
+!PAM96 150 format(6X,'NUMBER OF CHAINS ON DRUM',I7,/,6X,'PRESENT LIMIT',I18,/,6X,'BUFFERT FOR SORTING',I13,/,6X,'PRESENT LIMIT', &
+!PAM96            16X,'20')
+!PAM96 160 format(6X,'NUMBER OF PASSES',I15)
 
 end subroutine ALLOC_CPF

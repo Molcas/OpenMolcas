@@ -12,14 +12,14 @@
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-subroutine DENS_CPF(C,D,ICASE,A)
+subroutine DENS_CPF(C,D,ICASE,AA)
 
 use cpf_global, only: IREF0, LN, NCONF, NORBT
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-real(kind=wp) :: C(*), D(*), A
+real(kind=wp) :: C(*), D(*), AA
 integer(kind=iwp) :: ICASE(*)
 integer(kind=iwp) :: I, II, II1, ILIM, JOJ
 real(kind=wp) :: EMA
@@ -29,10 +29,10 @@ real(kind=r8), external :: DDOT_
 ILIM = NORBT*(NORBT+1)/2
 call SETZ(D,ILIM)
 C(IREF0) = Zero
-A = DDOT_(NCONF,C,1,C,1)
-write(u6,20) A
+AA = DDOT_(NCONF,C,1,C,1)
+write(u6,20) AA
 C(IREF0) = One
-EMA = One-A
+EMA = One-AA
 II1 = (IREF0-1)*LN
 do I=1,LN
   JOJ = ICUNP(ICASE,II1+I)

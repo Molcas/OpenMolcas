@@ -14,7 +14,8 @@
 
 subroutine NPSET(JSY,INDX,C,TPQ,ENP,T,S,W,EPP,ICASE)
 
-use cpf_global, only: IADDP, ICPF, IDENS, INCPF, IPRINT, IRC, ISDCI, ITPUL, JSC, LSYM, Lu_CI, MUL, NCONF, NNS, NVIR
+use cpf_global, only: IADDP, ICPF, IDENS, INCPF, IPRINT, IRC, ISDCI, ITPUL, JSC, LSYM, Lu_CI, NCONF, NNS, NVIR
+use Symmetry_Info, only: Mul
 use Constants, only: One
 use Definitions, only: wp, iwp, u6, r8
 

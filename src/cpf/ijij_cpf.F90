@@ -14,8 +14,8 @@
 
 subroutine IJIJ_CPF(JSY,HDIAG,FJI)
 
-use cpf_global, only: IAD25S, IRC, IREF0, IROW, IV0, IV1, LN, LSYM, Lu_25, Lu_27, Lu_CIGuga, MUL, NNS, NSM, NSYS, NVIR, NVIRT, &
-                      POTNUC
+use cpf_global, only: IAD25S, IRC, IREF0, IROW, IV0, IV1, LN, LSYM, Lu_25, Lu_27, Lu_CIGuga, NNS, NSM, NSYS, NVIR, NVIRT, POTNUC
+use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 

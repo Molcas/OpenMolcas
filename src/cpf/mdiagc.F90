@@ -14,7 +14,8 @@
 
 subroutine MDIAGC(JSY,C,S,W,THET,ENP,NII)
 
-use cpf_global, only: IAD25S, IFIRST, IRC, LN, LSYM, Lu_25, MUL, NSM, NSYS, NVIRT
+use cpf_global, only: IAD25S, ILIM, IRC, LN, LSYM, Lu_25, NSM, NSYS, NVIRT
+use Symmetry_Info, only: Mul
 use Constants, only: One, Half, Two
 use Definitions, only: wp, iwp
 
@@ -22,7 +23,7 @@ implicit none
 integer(kind=iwp) :: JSY(*), NII
 real(kind=wp) :: C(*), S(*), W(*), THET(NII,NII), ENP(*)
 #include "cop.fh"
-integer(kind=iwp) :: IADD25, IIC, ILIM, IND, INDA, IRL, NA, NA1, NA2, NB, NB1, NB2, NSA, NSS
+integer(kind=iwp) :: IADD25, IIC, IND, INDA, IRL, NA, NA1, NA2, NB, NB1, NB2, NSA, NSS
 real(kind=wp) :: ENPQ, FACS, FACW
 integer(kind=iwp), external :: JSUNP_CPF
 
@@ -30,8 +31,6 @@ IADD25 = IAD25S
 call dDAFILE(Lu_25,2,COP,nCOP,IADD25)
 IIC = 0
 IND = 0
-ILIM = 4
-if (IFIRST /= 0) ILIM = 2
 IRL = IRC(ILIM)
 do INDA=1,IRL
   NSS = MUL(JSUNP_CPF(JSY,INDA),LSYM)
