@@ -40,7 +40,7 @@
 * the following purposes:                                              *
 * IniLst(LList,incore)                                                 *
 *  -> initialize list                                                  *
-* PutVec(vec,lvec,LUnit,iterat,NoAllo,opcode,LList)                    *
+* PutVec(vec,lvec,iterat,opcode,LList)                                 *
 *  -> store vector on list, ev. move the tailnode vector on disk       *
 * GetVec(LUnit,iterat,LList,inode,vec,lvec)                            *
 *  -> fetch vector from list, which corresponds to iterat              *
@@ -109,7 +109,7 @@
 *----------------------------------------------------------------------*
 
 
-      SubRoutine PutVec(vec,lvec,LUnit,iterat,NoAllo,opcode,iLList)
+      SubRoutine PutVec(vec,lvec,iterat,opcode,iLList)
 *     NoAllo is the amount of memory (in DWords) one wants to keep
 *     for other purposes.
 *     opcode is a 4 character string:
@@ -191,13 +191,6 @@ C     Integer iDskPt,len
 
 *
       Return
-
-#ifdef _WARNING_WORKAROUND_
-      If (.False.) Then
-         Call Unused_integer(LUnit)
-         Call Unused_integer(NoAllo)
-      End If
-#endif
       End
 *----------------------------------------------------------------------*
 

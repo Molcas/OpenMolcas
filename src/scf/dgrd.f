@@ -35,7 +35,7 @@
       Call iVPtr(LuGrd,Scr,nOV*nD,inode)
       Call DaXpY_(nOV*nD,-One,Work(jpgrd),1,Scr,1)
       Call DScal_(nOV*nD,-One,Scr,1)
-      Call PutVec(Scr,nOV*nD,LudGd,iter-1,MemRsv,'NOOP',LLdGrd)
+      Call PutVec(Scr,nOV*nD,iter-1,'NOOP',LLdGrd)
       Call mma_deallocate(Scr)
       Return
       End

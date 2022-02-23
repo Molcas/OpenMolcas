@@ -48,11 +48,13 @@
       real*8 ddot_
       INTEGER mk,old_mk,mink,maxk,ig,info,nTmp,iter,maxiter
       INTEGER i,j,ii,jj
-      INTEGER ipTmp,ipDum
+      INTEGER ipDum
       INTEGER ipDiag,ipTVec,ipTAV,ipTRes
       LOGICAL Last,Augmented,Reduced
       external ddot_
       PARAMETER (Thr=1.0D-6, maxiter=300, Thr2=1.0D-16, Thr3=1.0D-16)
+      Real*8, Allocatable :: TmpVec(:)
+
 *
 #include "stdalloc.fh"
 #include "real.fh"
@@ -151,14 +153,14 @@
 *      The rest is set to zero, just in case
 *
       nTmp=0
-      CALL Allocate_Work(ipTmp,n)
+      Call mma_allocate(TmpVec,n,Label='TmpVec')
       DO i=1,k
-        call dcopy_(n,Vec(1,i),1,Work(ipTmp),1)
-        CALL Add_Vector(n,nTmp,Sub,Work(ipTmp),Thr3)
+        call dcopy_(n,Vec(1,i),1,TmpVec,1)
+        CALL Add_Vector(n,nTmp,Sub,TmpVec,Thr3)
       END DO
 *
       ii=0
-      CALL DZero(Work(ipTmp),n)
+      TmpVec(:)=Zero
 *
       DO WHILE ((nTmp .LT. mk) .AND. (ii .LT. n))
          ii=ii+1
@@ -174,15 +176,15 @@
            Aux=HDiag(jj)
          End If
          If (Aux.lt.1.0D10.and.Aux.gt.-0.10D0) Then
-            Work(ipTmp+jj-1)=One
-            CALL Add_Vector(n,nTmp,Sub,Work(ipTmp),Thr3)
-            Work(ipTmp+jj-1)=Zero
+            TmpVec(jj)=One
+            CALL Add_Vector(n,nTmp,Sub,TmpVec,Thr3)
+            TmpVec(jj)=Zero
          End If
       END DO
 *
 *     ig will be a global counter to loop across all n base vectors
       ig=ii
-      CALL Free_Work(ipTmp)
+      Call mma_deallocate(TmpVec)
       CALL DZero(Sub(1,mk+1),(maxk-mk)*n)
 
 *---- Iterative procedure starts here
@@ -277,10 +279,10 @@
           call dsyev_('V','L',mk,EVec,maxk,EVal,
      &                          Work(ipDum),-1,info)
           nTmp=INT(Work(ipDum))
-          CALL Allocate_Work(ipTmp,nTmp)
+          Call mma_allocate(TmpVec,nTmp,Label='TmpVec')
           call dsyev_('V','L',mk,EVec,maxk,EVal,
-     &                          Work(ipTmp),nTmp,info)
-          CALL Free_Work(ipTmp)
+     &                          TmpVec,nTmp,info)
+          Call mma_deallocate(TmpVec)
           CALL JacOrd2(EVal,EVec,mk,maxk)
           call dcopy_(k,EVal,1,Eig,1)
 #ifdef _DEBUGPRINT_
@@ -400,14 +402,14 @@
 #ifdef _DEBUGPRINT_
           WRITE(6,'(2X,A,1X,I5)') 'Reducing search space to',mink
 #endif
-          CALL Allocate_Work(ipTmp,mink*n)
+          Call mma_allocate(TmpVec,mink*n,Label='TmpVec')
           CALL DGeMM_('N','N',
      &                n,mink,mk,
      &                One,Sub,n,
      &                    EVec,maxk,
-     &                Zero,Work(ipTmp),n)
-          call dcopy_(mink*n,Work(ipTmp),1,Sub,1)
-          CALL Free_Work(ipTmp)
+     &                Zero,TmpVec,n)
+          call dcopy_(mink*n,TmpVec,1,Sub,1)
+          Call mma_deallocate(TmpVec)
 
 *----     To make sure Sub' is orthonormal, add the vectors one by one
 *
@@ -451,7 +453,7 @@
 *          computed from r and the eigenpair
 *          (different possible variants)
 *
-          CALL Allocate_Work(ipTmp,n)
+          Call mma_allocate(TmpVec,n,Label='TmpVec')
           Conv=Zero
 *
           jj=0
@@ -493,9 +495,9 @@
 *            scale
              DO j=0,n-1
                 If (Work(ipDiag+j).lt.1.0D02) Then
-                   Work(ipTmp+j)=Work(ipTRes+j)*Work(ipDiag+j)
+                   TmpVec(1+j)=Work(ipTRes+j)*Work(ipDiag+j)
                 Else
-                   Work(ipTmp+j)=Zero
+                   TmpVec(1+j)=Zero
                 End If
              END DO
 *
@@ -505,7 +507,7 @@
                    Alpha=Alpha+Work(ipDiag+j)*Work(ipTVec+j)**2
                 End If
              END DO
-             Alpha=DDot_(n,Work(ipTVec),1,Work(ipTmp),1)/Alpha
+             Alpha=DDot_(n,Work(ipTVec),1,TmpVec,1)/Alpha
 *            subtract
              DO j=0,n-1
                 If (Work(ipDiag+j).lt.1.0D02) Then
@@ -514,11 +516,11 @@
                    Work(ipTVec+j)=Zero
                 End If
              END DO
-             call daxpy_(n,-Alpha,Work(ipTVec),1,Work(ipTmp),1)
+             call daxpy_(n,-Alpha,Work(ipTVec),1,TmpVec,1)
 *
              IF (mk+jj .LE. n-1) THEN
                 jj=mk+jj
-                CALL Add_Vector(n,jj,Sub,Work(ipTmp),Thr3)
+                CALL Add_Vector(n,jj,Sub,TmpVec,Thr3)
                 jj=jj-mk
              END IF
           END DO
@@ -555,7 +557,7 @@
                WRITE(6,'(A)') 'Process stagnated'
 #endif
                IF (mk .LT. maxk) THEN
-                  CALL DZero(Work(ipTmp),n)
+                  TmpVec(:n)=Zero
                   i=0
 *
                   DO WHILE ((jj .LT. 1) .AND. (i .LT. n))
@@ -573,10 +575,10 @@
                        Aux=HDiag(ii)
                      End If
                      If (Aux.lt.1.0D20  .and. Aux.gt.-0.10D0) Then
-                        Work(ipTmp+ii-1)=One
+                        TmpVec(ii)=One
                         jj=mk+jj
-                        CALL Add_Vector(n,jj,Sub,Work(ipTmp),Thr3)
-                        Work(ipTmp+ii-1)=Zero
+                        CALL Add_Vector(n,jj,Sub,TmpVec,Thr3)
+                        TmpVec(ii)=Zero
                         jj=jj-mk
                      End If
 *
@@ -599,7 +601,7 @@
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
-          CALL Free_Work(ipTmp)
+          Call mma_deallocate(TmpVec)
           Reduced=.FALSE.
 *                                                                      *
 ************************************************************************

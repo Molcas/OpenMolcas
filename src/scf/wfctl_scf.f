@@ -571,7 +571,7 @@
 *           X(n+1) = X(n) -H(-1)grd'(X(n))
 *
             Call Daxpy_(nOV*nD,-One,Disp,1,Xnp1,1)
-            Call PutVec(Xnp1,nOV*nD,Lux,iter+1,MemRsv,'NOOP',LLx)
+            Call PutVec(Xnp1,nOV*nD,iter+1,'NOOP',LLx)
 *
 *           get address of actual X(n) in corresponding LList
 *
@@ -583,7 +583,7 @@
 *
 *           store dX(n) vector from Disp to LList
 *
-            Call PutVec(Disp,nOV*nD,LuDel,iter,MemRsv,'NOOP',LLDelt)
+            Call PutVec(Disp,nOV*nD,iter,'NOOP',LLDelt)
 *
 *           compute Norm of dX(n)
 *
@@ -671,7 +671,7 @@
 *
 *           store dX(n) vector from Disp to LList
 *
-            Call PutVec(Disp,nOV*nD,LuDel,iter,MemRsv,'NOOP',LLDelt)
+            Call PutVec(Disp,nOV*nD,iter,'NOOP',LLDelt)
 #ifdef _DEBUGPRINT_
             Write (6,*) 'LuDel,LLDelt:',LuDel,LLDelt
             Call RecPrt('Wfctl: dX(n)',' ',Disp,1,nOV*nD)

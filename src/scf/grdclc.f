@@ -138,7 +138,7 @@
 *
 *------- Write Gradient to linked list
 *
-         Call PutVec(GrdOV,nD*nOV,LuGrd,iDT+iter0,MemRsv,'OVWR',LLGrad)
+         Call PutVec(GrdOV,nD*nOV,iDT+iter0,'OVWR',LLGrad)
 *
 #ifdef _DEBUGPRINT_
          Write (6,*) 'GrdClc: Put Gradient iteration:',iDT+iter0

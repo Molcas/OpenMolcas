@@ -214,7 +214,7 @@
 *     and store it on appropriate linked list
 *
       leny=LLLen(LLy)
-      Call PutVec(SOScr,lvec,Luy,iter-1,NoAllo,'NOOP',LLy)
+      Call PutVec(SOScr,lvec,iter-1,'NOOP',LLy)
       If (leny.eq.LLLen(LLy)) Then
 *        already there, so we don't have to recalculate later
          updy=.False.

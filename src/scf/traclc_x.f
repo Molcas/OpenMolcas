@@ -56,7 +56,7 @@
          Call mma_allocate(Xn,nOV,nD,Label='Xn')
          Call FZero(Xn,nOV*nD)
 *        and store it on appropriate LList
-         Call PutVec(Xn,nOV*nD,Lux,iter,MemRsv,'NOOP',LLx)
+         Call PutVec(Xn,nOV*nD,iter,'NOOP',LLx)
 *define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
          Write (6,*) 'TraClc_x: Initiate X(n), iter=',iter
