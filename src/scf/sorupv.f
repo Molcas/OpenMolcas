@@ -259,7 +259,7 @@
 *           here we have to reload dGrd(n-1) from llist, but this
 *           for sure is a memory hit, since it was put there last
 *
-            ipdgd=LstPtr(Lu2,iter-1,LL2)
+            ipdgd=LstPtr(iter-1,LL2)
 *
             S(5)=ddot_(lvec,SODel,1,Work(ipdgd),1)
             S(6)=ddot_(lvec,SOScr,1,Work(ipdgd),1)
@@ -314,7 +314,7 @@
 *           -> we operate directly on the memory cells of the LList,
 *           where y(n-1) resides.
 *
-            ipynm1=LstPtr(Luy,iter-1,LLy)
+            ipynm1=LstPtr(iter-1,LLy)
             Call daxpy_(lvec, T(3),SODel,1,Work(ipynm1),1)
             Call daxpy_(lvec,-T(4),SOScr,1,Work(ipynm1),1)
          End If
@@ -324,9 +324,9 @@
 *     (5): reload y(n-1), delta(n-1) & dGrd(n-1) from linked list.
 *     these all are memory hits, of course
 *
-      ipynm1=LstPtr(Luy,iter-1,LLy)
-      ipdel =LstPtr(Lu1,iter-1,LL1)
-      ipdgd =LstPtr(Lu2,iter-1,LL2)
+      ipynm1=LstPtr(iter-1,LLy)
+      ipdel =LstPtr(iter-1,LL1)
+      ipdgd =LstPtr(iter-1,LL2)
 #ifdef _DEBUGPRINT_
       Call RecPrt('y(n-1)',' ',Work(ipynm1),1,lVec)
       If (Mode.eq.'DISP') Then

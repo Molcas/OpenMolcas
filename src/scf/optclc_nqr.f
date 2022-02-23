@@ -29,8 +29,8 @@
 *
 *     get last gradient grad(n) from LList
 *
-      Call GetVec(LuGrd,Ind(kOptim),LLGrad,inode,Grd1,nOV*nD)
-      Call GetVec(Lux,  Ind(kOptim),LLx,   inode,Xnp1,nOV*nD)
+      Call GetVec(Ind(kOptim),LLGrad,inode,Grd1,nOV*nD)
+      Call GetVec(Ind(kOptim),LLx,   inode,Xnp1,nOV*nD)
 *
       Do iD = 1, nD
          Call DSCAL_(nOV,CInter(kOptim,iD),Grd1(1,iD),1)

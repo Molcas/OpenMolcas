@@ -575,7 +575,7 @@
 *
 *           get address of actual X(n) in corresponding LList
 *
-            jpXn=LstPtr(Lux,iter,LLx)
+            jpXn=LstPtr(iter,LLx)
 *
 *           and compute actual displacement dX(n)=X(n+1)-X(n)
 *
@@ -657,7 +657,7 @@
 *
 *           get last gradient grad(n) from LList
 *
-            Call GetVec(LuGrd,iter,LLGrad,inode,Grd1,nOV*nD)
+            Call GetVec(iter,LLGrad,inode,Grd1,nOV*nD)
 #ifdef _DEBUGPRINT_
             Call RecPrt('Wfctl: g(n)',' ',Grd1,1,nOV*nD)
 #endif

@@ -42,7 +42,7 @@
 *  -> initialize list                                                  *
 * PutVec(vec,lvec,iterat,opcode,LList)                                 *
 *  -> store vector on list, ev. move the tailnode vector on disk       *
-* GetVec(LUnit,iterat,LList,inode,vec,lvec)                            *
+* GetVec(iterat,LList,inode,vec,lvec)                                  *
 *  -> fetch vector from list, which corresponds to iterat              *
 * GetNod(iterat,LList,inode)                                           *
 *  -> does not read out vector, just returns address of node in inode  *
@@ -55,7 +55,7 @@
 *     if InCore or not. If the result is ivptr1, the vector was read   *
 *     from disk. ivptr1 has to be allocated before (same vector length *
 *     as stored in inode).                                             *
-* Integer LstPtr(LUnit,iterat,LList)                                   *
+* Integer LstPtr(iterat,LList)                                         *
 *  -> uses GetNod and InfNod to get the pointer to the vector, which   *
 *     corresponds to iterat. The pointer is the return value of the    *
 *     function. If the vector is not InCore, the function terminates   *
@@ -125,7 +125,7 @@
       Implicit Real*8 (a-h,o-z)
 *
 *     declaration subroutine parameters
-      Integer lvec,LUnit,iterat,iLList,NoAllo,iroot,lislen
+      Integer lvec,iterat,iLList,iroot,lislen
       Real*8 vec(lvec)
       Character opcode*4
 *
@@ -195,7 +195,7 @@ C     Integer iDskPt,len
 *----------------------------------------------------------------------*
 
 
-      SubRoutine GetVec(LUnit,iterat,iLList,inode,vec,lvec)
+      SubRoutine GetVec(iterat,iLList,inode,vec,lvec)
 *     searches linked list for node corresponding to iterat, starting
 *     from iroot=iWork(LList+1).
 *     inode points to the node found after searching.
@@ -210,15 +210,11 @@ C     Integer iDskPt,len
       Implicit Real*8 (a-h,o-z)
 *
 *     declaration subroutine parameters
-      Integer lvec,LUnit,iterat,iLList,inode
+      Integer lvec,iterat,iLList,inode
       Real*8 vec(lvec)
-*
-*     declaration local variables
-c      Integer iDskPt
 *
 #include "real.fh"
 #include "SysDef.fh"
-*
 *
         inode=nLList(iLList,1)
 
@@ -242,9 +238,6 @@ c      Integer iDskPt
         inode=0
       End If
 *
-#ifdef _WARNING_WORKAROUND_
-      If (.False.) Call Unused_integer(LUnit)
-#endif
       End
 *----------------------------------------------------------------------*
 
@@ -386,7 +379,7 @@ c      Integer iDskPt
 *----------------------------------------------------------------------*
 
 
-      Integer Function LstPtr(LUnit,iterat,iLList)
+      Integer Function LstPtr(iterat,iLList)
 *     uses GetNod and InfNod to obtain the pointer to the vector, which
 *     corresponds to iterat. The pointer is the return value of the
 *     function. If the vector is not InCore, the function terminates
@@ -396,7 +389,7 @@ c      Integer iDskPt
       Implicit Real*8 (a-h,o-z)
 *
 *     declaration subroutine parameters
-      Integer LUnit,iterat,iLList
+      Integer iterat,iLList
 *
 *     declaration local variables
       Integer inode,idum,ivptr
@@ -419,10 +412,6 @@ c      Integer iDskPt
         Write (6,*) 'inode=',inode
         Call Abend()
       End If
-
-#ifdef _WARNING_WORKAROUND_
-      If (.False.) Call Unused_integer(LUnit)
-#endif
       End
 *----------------------------------------------------------------------*
 

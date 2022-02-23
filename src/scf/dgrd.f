@@ -26,7 +26,7 @@
       Integer, External :: LstPtr
       nD=iUHF+1
       Call mma_allocate(Scr,nOV,nD,Label='Scr')
-      jpgrd=LstPtr(LuGrd,iter,LLGrad)
+      jpgrd=LstPtr(iter,LLGrad)
       Call GetNod(iter-1,LLGrad,inode)
       If (inode.eq.0) Then
          Write (6,*) 'inode.eq.0'

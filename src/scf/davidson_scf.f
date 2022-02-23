@@ -48,17 +48,16 @@
       real*8 ddot_
       INTEGER mk,old_mk,mink,maxk,ig,info,nTmp,iter,maxiter
       INTEGER i,j,ii,jj
-      INTEGER ipTVec,ipTAV,ipTRes
       LOGICAL Last,Augmented,Reduced
       external ddot_
       PARAMETER (Thr=1.0D-6, maxiter=300, Thr2=1.0D-16, Thr3=1.0D-16)
-      Real*8, Allocatable :: TmpVec(:), Diag(:)
+      Real*8, Allocatable :: TmpVec(:), Diag(:), TVec(:), TAV(:),
+     &                       TRes(:)
       Real*8 Dum
 
 *
 #include "stdalloc.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 *define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
@@ -197,9 +196,9 @@
       old_mk=0
       iter=0
       Call mma_allocate(Diag,n,Label='Diag')
-      CALL Allocate_Work(ipTVec,n)
-      CALL Allocate_Work(ipTAV,n)
-      CALL Allocate_Work(ipTRes,n)
+      Call mma_allocate(TVec,n,Label='TVec')
+      Call mma_allocate(TAV ,n,Label='TAV ')
+      Call mma_allocate(TRes,n,Label='TRes')
       DO WHILE (.NOT. Last)
         iter=iter+1
         IF (iter .GT. 1) call dcopy_(k,Eig,1,Eig_old,1)
@@ -460,15 +459,15 @@
 *            Vector in full space: Sub*Vec(i)
              Call dGeMV_('N',n,mk,One,Sub,n,
      &                               EVec(1+i*maxk),1,
-     &                           Zero,Work(ipTVec),1)
+     &                           Zero,TVec,1)
 *            Product of matrix and vector: Ab*Vec(i)
              Call dGeMV_('N',n,mk,One,Ab,n,
      &                               EVec(1+i*maxk),1,
-     &                           Zero,Work(ipTAV),1)
+     &                           Zero,TAV,1)
 *            Residual: (A-Val(i))*Vec(i) = Ab*Vec(i) - Val(i)*Sub*Vec(i)
-             call dcopy_(n,Work(ipTAV),1,Work(ipTRes),1)
-             call daxpy_(n,-EVal(1+i),Work(ipTVec),1,Work(ipTRes),1)
-             Conv=MAX(Conv,DDot_(n,Work(ipTRes),1,Work(ipTRes),1))
+             call dcopy_(n,TAV,1,TRes,1)
+             call daxpy_(n,-EVal(1+i),TVec,1,TRes,1)
+             Conv=MAX(Conv,DDot_(n,TRes,1,TRes,1))
 
 *----        Scale vector, orthonormalize, and add to subspace
 *
@@ -494,7 +493,7 @@
 *            scale
              DO j=0,n-1
                 If (Diag(1+j).lt.1.0D02) Then
-                   TmpVec(1+j)=Work(ipTRes+j)*Diag(1+j)
+                   TmpVec(1+j)=TRes(1+j)*Diag(1+j)
                 Else
                    TmpVec(1+j)=Zero
                 End If
@@ -503,19 +502,19 @@
              Alpha=Zero
              DO j=0,n-1
                 If (Diag(1+j).lt.1.0D02) Then
-                   Alpha=Alpha+Diag(1+j)*Work(ipTVec+j)**2
+                   Alpha=Alpha+Diag(1+j)*TVec(1+j)**2
                 End If
              END DO
-             Alpha=DDot_(n,Work(ipTVec),1,TmpVec,1)/Alpha
+             Alpha=DDot_(n,TVec,1,TmpVec,1)/Alpha
 *            subtract
              DO j=0,n-1
                 If (Diag(1+j).lt.1.0D02) Then
-                   Work(ipTVec+j)=Work(ipTVec+j)*Diag(1+j)
+                   TVec(1+j)=TVec(1+j)*Diag(1+j)
                 Else
-                   Work(ipTVec+j)=Zero
+                   TVec(1+j)=Zero
                 End If
              END DO
-             call daxpy_(n,-Alpha,Work(ipTVec),1,TmpVec,1)
+             call daxpy_(n,-Alpha,TVec,1,TmpVec,1)
 *
              IF (mk+jj .LE. n-1) THEN
                 jj=mk+jj
@@ -612,9 +611,9 @@
       END DO
 *
       Call mma_deallocate(Diag)
-      CALL Free_Work(ipTVec)
-      CALL Free_Work(ipTAV)
-      CALL Free_Work(ipTRes)
+      Call mma_deallocate(TVec)
+      Call mma_deallocate(TAV )
+      Call mma_deallocate(TRes)
       Call mma_deallocate(Index_D)
 
 !---- Store the current lowest k eigenvectors (in the full space)
