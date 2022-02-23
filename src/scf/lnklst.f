@@ -135,6 +135,7 @@ C     Integer iDskPt,len
 *
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "SysDef.fh"
 *
       If (Debug_LnkLst) Then
@@ -168,11 +169,9 @@ C     Integer iDskPt,len
         End If
       End If
 *     check if there is still enough memory to store vec
-      Call GetMem('LVec ','Max','Real',iPtr1,MaxMem)
-cvv Enough memory
-*       let's allocate some memory
-        Call GetMem('LVec ','Allo','Real',iPtr1,lvec)
-*      End If
+      Call mma_maxDBLE(MaxMem)
+*     let's allocate some memory
+      Call GetMem('LVec ','Allo','Real',iPtr1,lvec)
 *     allocate new node
       lLList=lLList+1
       iPtr2=lLList
@@ -489,7 +488,6 @@ c      Integer iDskPt
         lDskPt=0
         iDskPt=lDskPt
         Call iDaFile(LUnit,1,nLList(iLList,0),NodSiz,iDskPt)
-*       Call GetMem('CNOD ','Free','Inte',LList,NodSiz)
         Return
       End If
  10   Continue
@@ -529,10 +527,8 @@ c      Integer iDskPt
         iPtr1=iroot
         iroot=nLList(iroot,0)
         Call iDaFile(LUnit,1,nLList(iPtr1,0),NodSiz,iDskPt)
-*       Call GetMem('LNode','Free','Inte',iPtr1,NodSiz)
         GoTo 200
       End If
-*     Call GetMem('CNOD ','Free','Inte',LList,NodSiz)
 *
       End
 *----------------------------------------------------------------------*
@@ -544,6 +540,7 @@ c      Integer iDskPt
       Integer iLList,LUnit,lDskPt,NoAllo
 *
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "SysDef.fh"
 *
 * load listhead...
@@ -589,7 +586,7 @@ c      Integer iDskPt
       Write (6,*) 'Let''s restore...'
 * now we have restored the list, let's fetch some vectors
       incore=nLList(iLList,3)
-      Call GetMem('LVec ','Max','Real',iPtr1,MaxMem)
+      Call mma_maxDBLE(MaxMem)
       lvec=nLList(iroot,3)
       iPtr2=iroot
  200  If ((incore.gt.0).AND.(MaxMem-NoAllo.ge.lvec).AND.(iPtr2.gt.0))
@@ -603,7 +600,7 @@ c      Integer iDskPt
         iPtr2=nLList(iPtr2,0)
         incore=incore-1
 
-        Call GetMem('LVec ','Max','Real',iPtr1,MaxMem)
+        Call mma_maxDBLE(MaxMem)
         Go To 200
       End If
       If (iPtr2.gt.0) nLList(iLList,3)=nLList(iLList,3)-incore
