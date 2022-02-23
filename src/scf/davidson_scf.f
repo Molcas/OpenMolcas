@@ -52,7 +52,7 @@
       PARAMETER (Thr=1.0D-6, maxiter=300, Thr2=1.0D-16, Thr3=1.0D-16)
       Real*8, Allocatable :: TmpVec(:), Diag(:), TVec(:), TAV(:),
      &                       TRes(:)
-      Real*8 Dum
+      Real*8 :: Dum=0.0D0
 
 *
 #include "stdalloc.fh"
