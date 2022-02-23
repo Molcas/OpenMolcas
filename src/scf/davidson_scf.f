@@ -48,7 +48,7 @@
       real*8 ddot_
       INTEGER mk,old_mk,mink,maxk,ig,info,nTmp,iter,maxiter
       INTEGER i,j,ii,jj
-      INTEGER ipDiag,ipTVec,ipTAV,ipTRes
+      INTEGER ipTVec,ipTAV,ipTRes
       LOGICAL Last,Augmented,Reduced
       external ddot_
       PARAMETER (Thr=1.0D-6, maxiter=300, Thr2=1.0D-16, Thr3=1.0D-16)
