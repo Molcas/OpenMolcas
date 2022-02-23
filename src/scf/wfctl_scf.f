@@ -89,6 +89,7 @@
       Use, Intrinsic :: iso_c_binding, only: c_ptr
 #endif
       Use Interfaces_SCF, Only: TraClc_i
+      use LnkLst, only: SCF_V
       Implicit Real*8 (a-h,o-z)
       External Seconds
       Real*8 Seconds
@@ -101,7 +102,6 @@
 #include "mxdm.fh"
 #include "infscf.fh"
 #include "infso.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "file.fh"
 #include "llists.fh"
@@ -579,7 +579,7 @@
 *
 *           and compute actual displacement dX(n)=X(n+1)-X(n)
 *
-            Call DZAXPY(nOV*nD,-One,Work(jpXn),1,Xnp1,1,Disp,1)
+            Call DZAXPY(nOV*nD,-One,SCF_V(jpXn)%A,1,Xnp1,1,Disp,1)
 *
 *           store dX(n) vector from Disp to LList
 *

@@ -64,6 +64,7 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use LnkLst, only: SCF_V
       Implicit Real*8 (a-h,o-z)
 #include "file.fh"
 #include "llists.fh"
@@ -72,7 +73,6 @@
 #include "infscf.fh"
 *     only tentatively this inc file
 #include "infso.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 *
 *     declaration subroutine parameters
@@ -261,8 +261,8 @@
 *
             ipdgd=LstPtr(iter-1,LL2)
 *
-            S(5)=ddot_(lvec,SODel,1,Work(ipdgd),1)
-            S(6)=ddot_(lvec,SOScr,1,Work(ipdgd),1)
+            S(5)=ddot_(lvec,SODel,1,SCF_V(ipdgd)%A,1)
+            S(6)=ddot_(lvec,SOScr,1,SCF_V(ipdgd)%A,1)
          Else
             S(5)=Zero
             S(6)=Zero
@@ -315,8 +315,8 @@
 *           where y(n-1) resides.
 *
             ipynm1=LstPtr(iter-1,LLy)
-            Call daxpy_(lvec, T(3),SODel,1,Work(ipynm1),1)
-            Call daxpy_(lvec,-T(4),SOScr,1,Work(ipynm1),1)
+            Call daxpy_(lvec, T(3),SODel,1,SCF_V(ipynm1)%A,1)
+            Call daxpy_(lvec,-T(4),SOScr,1,SCF_V(ipynm1)%A,1)
          End If
 *
       End Do
@@ -328,28 +328,28 @@
       ipdel =LstPtr(iter-1,LL1)
       ipdgd =LstPtr(iter-1,LL2)
 #ifdef _DEBUGPRINT_
-      Call RecPrt('y(n-1)',' ',Work(ipynm1),1,lVec)
+      Call RecPrt('y(n-1)',' ',SCF_V(ipynm1)%A,1,lVec)
       If (Mode.eq.'DISP') Then
-         Call RecPrt('dX(n-1)',' ',Work(ipdel),1,lVec)
-         Call RecPrt('dg(n-1)',' ',Work(ipdgd),1,lVec)
+         Call RecPrt('dX(n-1)',' ',SCF_V(ipdel)%A,1,lVec)
+         Call RecPrt('dg(n-1)',' ',SCF_V(ipdgd)%A,1,lVec)
       Else
-         Call RecPrt('dg(n-1)',' ',Work(ipdel),1,lVec)
-         Call RecPrt('dX(n-1)',' ',Work(ipdgd),1,lVec)
+         Call RecPrt('dg(n-1)',' ',SCF_V(ipdel)%A,1,lVec)
+         Call RecPrt('dX(n-1)',' ',SCF_V(ipdgd)%A,1,lVec)
       End If
 #endif
 *
 *     calculate diverse dot products...
 *
-      S(1)=ddot_(lvec,Work(ipdel),1,Work(ipdgd),1)
+      S(1)=ddot_(lvec,SCF_V(ipdel)%A,1,SCF_V(ipdgd)%A,1)
       If (Abs(S(1)).lt.Thr) Then
          S(1)=Zero
          !S(1)=One/Thr
       Else
          S(1)=One/S(1)
       End If
-      S(2)=ddot_(lvec,Work(ipdgd),1,Work(ipynm1),1)
-      S(3)=ddot_(lvec,Work(ipdel),1,V,1)
-      S(4)=ddot_(lvec,Work(ipynm1),1,V,1)
+      S(2)=ddot_(lvec,SCF_V(ipdgd)%A,1,SCF_V(ipynm1)%A,1)
+      S(3)=ddot_(lvec,SCF_V(ipdel)%A,1,V,1)
+      S(4)=ddot_(lvec,SCF_V(ipynm1)%A,1,V,1)
 #ifdef _DEBUGPRINT_
       Write (6,*) '(S(i),i=1,4)=',(S(i),i=1,4)
 #endif
@@ -380,8 +380,8 @@
 #ifdef _DEBUGPRINT_
       Write (6,*) '(T(i),i=1,2)=',(T(i),i=1,2)
 #endif
-      Call daxpy_(lvec, T(1),Work(ipdel),1,W,1)
-      Call daxpy_(lvec,-T(2),Work(ipynm1),1,W,1)
+      Call daxpy_(lvec, T(1),SCF_V(ipdel)%A,1,W,1)
+      Call daxpy_(lvec,-T(2),SCF_V(ipynm1)%A,1,W,1)
 #ifdef _DEBUGPRINT_
       Call RecPrt('The final W array',' ',W,1,lVec)
 #endif

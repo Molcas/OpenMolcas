@@ -174,9 +174,8 @@ C     Integer iDskPt,len
       lLList=lLList+1
       iPtr2=lLList
       Call mma_allocate(SCF_V(iPtr2)%A,lVec,Label='LVec')
-      iPtr1=ip_of_Work(SCF_V(iPtr2)%A(1))
       nLList(iPtr2,0)=iroot
-      nLList(iPtr2,1)=iPtr1
+      nLList(iPtr2,1)=iPtr2
       nLList(iPtr2,2)=0
       nLList(iPtr2,3)=lvec
       nLList(iPtr2,4)=iterat
@@ -370,8 +369,7 @@ C     Integer iDskPt,len
         Call InfNod(inode,idum,idum,ivptr2,idum)
         vPtr1(1:nvptr1)=SCF_V(inode)%A(1:nvptr1)
       Else
-        Call GetVec(LUnit,nLList(inode,4),inode,inode,
-     &              vptr1,nLList(inode,3))
+        Call GetVec(nLList(inode,4),inode,inode,vptr1,nLList(inode,3))
       End If
 *
       Return
@@ -570,9 +568,8 @@ C     Integer iDskPt,len
      &  Then
         lDskPt=nLList(iPtr2,1)
         Call mma_Allocate(SCF_V(iPtr2)%A,lvec,Label='LVec')
-        iPtr1=ip_of_Work(SCF_V(iPtr2)%A(1))
         Call dDaFile(LUnit,2,SCF_V(iPtr2)%A,lvec,lDskPt)
-        nLList(iPtr2,1)=iPtr1
+        nLList(iPtr2,1)=iPtr2
         nLList(iPtr2,2)=0
         nLList(iPtr2,5)=1
         iPtr2=nLList(iPtr2,0)
