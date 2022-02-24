@@ -553,8 +553,8 @@ C
         End Do
         jStLag    = jState
       Else
-        VECROT(1) = 1.0D+00
-        jStLag    = 1
+        VECROT(jState) = 1.0D+00
+        jStLag    = jState
       End If
 C
       End Subroutine GradPrep
