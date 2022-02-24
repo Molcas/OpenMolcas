@@ -49,7 +49,6 @@
 #include "real.fh"
 #include "mxdm.fh"
 #include "infscf.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "rctfld.fh"
 #include "file.fh"
@@ -75,6 +74,7 @@
       Real*8, Allocatable, Target:: Temp(:,:)
       Real*8, Dimension(:,:), Allocatable, Target:: Aux
       Real*8, Dimension(:,:), Pointer:: pTwoHam
+      Real*8, Allocatable :: tVxc(:)
       Dimension Dummy(1),Dumm0(1),Dumm1(1)
 #include "SysDef.fh"
 *
@@ -167,9 +167,11 @@
 *        potential is neither linear nor bi-linear.
 *
          If (KSDFT.ne.'SCF') Then
-            Call Get_dExcdRa(ipVxc,nVxc)
-            Call DCopy_(nVxc,Work(ipVxc),1,Vxc(1,1,iPsLst),1)
-            Call Free_Work(ipVxc)
+            nVxc=Size(Vxc,1)*Size(Vxc,2)
+            Call mma_allocate(tVxc,nVxc,Label='tVxc')
+            Call Get_dExcdRa_x(tVxc,nVxc)
+            Call DCopy_(nVxc,tVxc,1,Vxc(1,1,iPsLst),1)
+            Call mma_deallocate(tVxc)
          Else
             Call FZero(Vxc(1,1,iPsLst),nBT*nD)
          End If
@@ -177,9 +179,11 @@
          If (Do_OFemb) Then
             Call Get_NameRun(NamRfil) ! save the old RUNFILE name
             Call NameRun('AUXRFIL')   ! switch the RUNFILE name
-            Call Get_dExcdRa(ipVemb,nVemb)
-            Call DaXpY_(nDT*nD,One,Work(ipVemb),1,Vxc(1,1,iPsLst),1)
-            Call Free_Work(ipVemb)
+            nVxc=Size(Vxc,1)*Size(Vxc,2)
+            Call mma_allocate(tVxc,nVxc,Label='tVxc')
+            Call Get_dExcdRa_x(tVxc,nVxc)
+            Call DaXpY_(nDT*nD,One,tVxc,1,Vxc(1,1,iPsLst),1)
+            Call mma_deallocate(tVxc)
             Call NameRun(NamRfil)   ! switch back RUNFILE name
          End If
 #ifdef _DEBUGPRINT_
