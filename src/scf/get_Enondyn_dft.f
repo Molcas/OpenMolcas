@@ -24,11 +24,15 @@
       Call mma_allocate(D_DS ,nBT,2,Label='D_DS ')
       D_DS(:,:)=Zero
 *
+      Call RecPrt('GE_dft CMO(:,1)',' ',CMO(:,1),1,SIZE(CMO,1))
+      Call RecPrt('GE_dft CMO(:,2)',' ',CMO(:,2),1,SIZE(CMO,1))
       iOff=1
       jOff=1
-      Call RecPrt('CMO(:,1)',' ',CMO(:,1),1,SIZE(CMO,1))
-      Call RecPrt('CMO(:,2)',' ',CMO(:,2),1,SIZE(CMO,2))
       Do iSym=1,nSym
+         Write (6,*) 'iSym,nSym=',iSym,nSym
+         Write (6,*) 'nBas(iSym),nOrb(iSym)=',nBas(iSym),nOrb(iSym)
+         Write (6,*) 'nOcc(iSym,1),nOcc(iSym,2)=',
+     &                nOcc(iSym,1),nOcc(iSym,2)
          Call DGEMM_tri('N','T',nBas(iSym),nBas(iSym),nOcc(iSym,1),
      &                    1.0d0,CMO(iOff,1),nBas(iSym),
      &                          CMO(iOff,1),nBas(iSym),

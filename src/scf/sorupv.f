@@ -97,7 +97,6 @@
       Inverse_H=.False.
       Lu1=-1
       LL1=-1
-      Lu2=-1
       LL2=-1
 *
 *     This section will control the mode
@@ -109,7 +108,6 @@
          Inverse_H=.True.
          Lu1=LuDel
          LL1=LLDelt
-         Lu2=LudGd
          LL2=LLdGrd
 *
       Else If (Mode.eq.'GRAD') Then
@@ -119,7 +117,6 @@
          Inverse_H=.False.
          Lu1=LudGd
          LL1=LLdGrd
-         Lu2=LuDel
          LL2=LLDelt
 *
       End If
