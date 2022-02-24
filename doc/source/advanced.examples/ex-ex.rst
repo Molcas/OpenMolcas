@@ -2149,7 +2149,7 @@ deal with another set of problems. For instance, the known 3d double-shell
 effect: two sets of d orbitals (3d and 4d) must be included in the
 reference space in order to obtain accurate results :cite:`Roos:96b` in
 molecules containing metal atoms of the first transition row with many
-d-electrons (:math:`\ce{Fe}`\--:math:`\ce{Zn}`). This
+d-electrons (:math:`\ce{Fe}`\--\ :math:`\ce{Zn}`). This
 is a severe limitation when more ligands are included together with the
 metal atom. Illustrations of such problems are the calculation of the
 cyanide and carbonyl transition metal compounds :cite:`Roos:96b,Pierloot:93a`

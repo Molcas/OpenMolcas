@@ -41,6 +41,7 @@
 #endif
       use Fock_util_global, only: Deco, DensityCheck, Estimate, Update
 *
+      use SpinAV, only: Do_SpinAV
       Implicit Real*8 (a-h,o-z)
       External Allocdisk
       Integer Allocdisk
@@ -74,7 +75,6 @@
 #include "choauf.fh"
 
 #include "addcorr.fh"
-#include "spave.fh"
 
 *
 *     copy input from standard input to a local scratch file
@@ -117,7 +117,6 @@
       MxConstr=0
       klockan=1
       Do_Addc=.false.
-      Do_SpinAV=.false.
       iTer2run=2
 * KSDFT exch. and corr. scaling factors
       CoefX = 1.0D0

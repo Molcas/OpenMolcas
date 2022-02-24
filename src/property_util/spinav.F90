@@ -7,21 +7,8 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
-!                                                                      *
-! Copyright (C) 2021, Roland Lindh                                     *
 !***********************************************************************
-Module OFembed
-Private
-Public:: Do_OFemb, KEonly, OFE_first, OFE_KSDFT, ThrFThaw, Xsigma, dFMD, FMaux
-Public::Rep_EN,Func_AB,Func_A,Func_B,Energy_NAD,V_Nuc_AB,V_Nuc_BA,V_emb
-Public::Do_Core, NDSD
-
-Logical::  Do_OFemb=.False., KEonly=.False., OFE_first=.True.
-Logical::  Do_Core=.False.
-Character(LEN=16)::  OFE_KSDFT=''
-Real*8, Allocatable:: NDSD(:,:)
-Real*8:: ThrFThaw=0.0D0, Xsigma=1.0d4, dFMD=0.0D0
-Real*8, Allocatable:: FMaux(:)
-Real*8::Rep_EN,Func_AB,Func_A,Func_B,Energy_NAD,V_Nuc_AB,V_Nuc_BA,V_emb
-
-End Module OFembed
+Module SpinAV
+Real*8, Allocatable :: DSc(:)
+Logical :: Do_SpinAV=.FALSE.
+End Module SpinAV

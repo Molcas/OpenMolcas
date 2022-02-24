@@ -11,7 +11,7 @@
 ! Copyright (C) Francesco Aquilante                                    *
 !***********************************************************************
 
-subroutine CHO_SUM(rc,nSym,nBas,iUHF,DoExchange,FLT,FSQ)
+subroutine CHO_SUM(rc,nSym,nBas,nD,DoExchange,FLT,FSQ)
 !****************************************************************
 !  Author : F. Aquilante
 !
@@ -30,17 +30,13 @@ use Definitions, only: u6
 
 implicit none
 integer(kind=iwp), intent(out) :: rc
-integer(kind=iwp), intent(in) :: nSym, nBas(8), iUHF
+integer(kind=iwp), intent(in) :: nSym, nBas(8), nD
 logical(kind=iwp), intent(in) :: DoExchange(*)
 type(DSBA_Type), intent(inout) :: FLT(*), FSQ(*)
 integer(kind=iwp) :: IB, IJB, ISYM, JB, NB, nDen
 
 !*************************************************
-if (iUHF == 1) then
-  nDen = 3
-else
-  nDen = 1
-end if
+nDen=nD*(nD+1)/2
 
 ! Accumulate the contributions and Square the final matrix
 ! FLT is in lower triangular storage

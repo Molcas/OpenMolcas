@@ -50,6 +50,7 @@
 #ifndef POINTER_REMAP
       Use, Intrinsic :: ISO_C_BINDING
 #endif
+      use SpinAV
       Implicit Real*8 (a-h,o-z)
 *
       Real*8, Target:: CMO(nCMO), Occ(*), Dlt(*)
@@ -58,8 +59,6 @@
       Logical alpha_density
 *
 #include "real.fh"
-#include "WrkSpc.fh"
-#include "spave.fh"
 
 *
 *---- Statement function for triangular storage
@@ -142,16 +141,16 @@
 *
             pDlt => Dlt(iOffD:iOffD+lth-1)
 *
-            ipDScc=ip_DSc+lOff
+            ipDScc=1+lOff
             Do j=1,nBas(iSym)
                Do i=1,j-1
                   ji=j*(j-1)/2+i
                   iDSc=ipDScc-1+nBas(iSym)*(j-1)+i
-                  pDlt(ji)=pDlt(ji)+xsign*2.0d0*Work(iDSc)
+                  pDlt(ji)=pDlt(ji)+xsign*2.0d0*DSc(iDSc)
                End Do
                jj=j*(j+1)/2
                iDSc=ipDScc-1+nBas(iSym)*(j-1)+j
-               pDlt(jj)=pDlt(jj)+xsign*Work(iDSc)
+               pDlt(jj)=pDlt(jj)+xsign*DSc(iDSc)
             End Do
             iOff=iOff+lth
             lOff=lOff+nBas(iSym)**2

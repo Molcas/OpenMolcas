@@ -390,8 +390,9 @@
   INTEGER, EXTERNAL     :: AixRm
   INTEGER               :: Length
   CHARACTER(LEN=1023)   :: realname_plt, realname_dat, realname_png, realname_eps, gnuplot_CMD
-  INTEGER               :: iErr
+  INTEGER               :: iErr, iSeed = 0
   INTEGER, EXTERNAL     :: IsFreeUnit
+  REAL*8, EXTERNAL      :: Random_Molcas
 
   color(  1)="#ffffff"; color(  2)="#000000"; color(  3)="#a0a0a0"; color(  4)="#ff0000"; color(  5)="#00c000"
   color(  6)="#0080ff"; color(  7)="#c000ff"; color(  8)="#00eeee"; color(  9)="#c04000"; color( 10)="#c8c800"
@@ -416,6 +417,8 @@
   color(101)="#000000"; color(102)="#1a1a1a"; color(103)="#333333"; color(104)="#4d4d4d"; color(105)="#666666"
   color(106)="#7f7f7f"; color(107)="#999999"; color(108)="#b3b3b3"; color(109)="#cccccc"; color(110)="#e5e5e5"
   color(111)="#ffffff"
+
+  IF (iSeed == 0) CALL GetSeed(iSeed)
 
   dbg=.false.
   iErr=0
@@ -635,8 +638,8 @@
      WRITE (LuPlt,'(A)') '# actual plotting'
      DO iTempMagn=1,nTempMagn
        ik=iTempMagn+1
-       Call RANDOM_NUMBER(r)
-       ic=INT(111.0_wp*r)
+       r=Random_Molcas(iSeed)
+       ic=FLOOR(SIZE(color)*r)+LBOUND(color,1)
        IF((iTempMagn.eq.1).AND.(nTempMagn.gt.1)) THEN
          WRITE (LuPlt,'(A,i0,A,F7.3,A)') 'plot "'//trim(realname_dat)//'" using 1:',ik,&
                ' with lines lt 1  lw  8 lc rgb "'//color(ic)//'"  title "Calc. M at T=',TempMagn(iTempMagn),'K.", \'
@@ -684,8 +687,8 @@
      WRITE (LuPlt,'(A)') '# actual plotting'
      DO iTempMagn=1,nTempMagn
        ik=iTempMagn+1
-       Call RANDOM_NUMBER(r)
-       ic=INT(110.0_wp*r)
+       r=Random_Molcas(iSeed)
+       ic=FLOOR(SIZE(color)*r)+LBOUND(color,1)
        IF((iTempMagn.eq.1).AND.(nTempMagn.gt.1)) THEN
          WRITE (LuPlt,'(A,i0,A,F7.3,A)') 'plot "'//trim(realname_dat)//'" using 1:',ik,&
                ' with lines lt 1  lw  8 lc rgb "'//color(ic)//'"  title "Calc. M at T=',TempMagn(iTempMagn),'K.", \'

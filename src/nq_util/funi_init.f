@@ -40,9 +40,9 @@
       Grid_Type=Moving_Grid
       Rotational_Invariance= On
       NQ_Direct=Off
-*     NQ_Direct=On
-      Packing=On
-C     Packing=Off
+!     NQ_Direct=On
+!     Packing=On
+      Packing=Off
 *
 *     Bit 1: set Lobatto, not set Gauss and Gauss-Legendre
 *     Bit 2: set scan the whole atomic grid, not set use subset

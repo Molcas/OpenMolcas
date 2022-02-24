@@ -10,8 +10,8 @@
 *                                                                      *
 * Copyright (C) 2010, Thomas Bondo Pedersen                            *
 ************************************************************************
-      Subroutine ChoSCF_Drv(iUHF,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
-     &                FLT,FLT_ab,nFLT,ExFac,FSQ,FSQ_ab,nOcc,nOcc_ab)
+      Subroutine ChoSCF_Drv(nBSQT,nD,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
+     &                FLT,FLT_ab,nFLT,ExFac,FSQ,nOcc,nOcc_ab)
 C
 C     Thomas Bondo Pedersen, September 2010.
 C
@@ -20,12 +20,12 @@ C     ChoSCF_Drv_) in case of Cholesky or full DF. A new driver routine
 C     is called in case of local DF (LDF).
 C
       Implicit None
-      Integer iUHF, nSym, nFLT
+      Integer nBSQT, nD, nSym, nFLT
       Integer nBas(nSym), nOcc(nSym), nOcc_ab(nSym)
       Real*8  DSQ(*), DLT(*)
       Real*8  DSQ_ab(*), DLT_ab(*)
       Real*8  FLT(*), FLT_ab(*)
-      Real*8  FSQ(*), FSQ_ab(*)
+      Real*8  FSQ(nBSQT,nD)
       Real*8  ExFac
 
       Logical DoLDF
@@ -33,12 +33,12 @@ C
 ************************************************************************
 *                                                                      *
       Interface
-      SUBROUTINE CHOSCF_DRV_Internal(iUHF,nSym,nBas,W_DSQ,W_DLT,
+      SUBROUTINE CHOSCF_DRV_Internal(nD,nSym,nBas,W_DSQ,W_DLT,
      &                               W_DSQ_ab,W_DLT_ab,W_FLT,
      &                               W_FLT_ab,nFLT,ExFac,
      &                               W_FSQ,W_FSQ_ab,
      &                               nOcc,nOcc_ab)
-      Integer iUHF, nSym
+      Integer nD, nSym
       Integer nBas(nSym)
       Real*8 W_FLT(*),W_FLT_ab(*)
       Real*8 W_FSQ(*),W_FSQ_ab(*)
@@ -55,18 +55,18 @@ C
 
       Call DecideOnLocalDF(DoLDF)
       If (DoLDF) Then
-         Call LDFSCF_Drv(iUHF,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
-     &                FLT,FLT_ab,nFLT,ExFac,FSQ,FSQ_ab,nOcc,nOcc_ab)
+         Call LDFSCF_Drv(nD,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
+     &                FLT,FLT_ab,nFLT,ExFac,nOcc,nOcc_ab)
       Else
-         Call ChoSCF_Drv_Internal(iUHF,nSym,nBas,DSQ,DLT,
+         Call ChoSCF_Drv_Internal(nD,nSym,nBas,DSQ,DLT,
      &                            DSQ_ab,DLT_ab,FLT,
      &                            FLT_ab,nFLT,ExFac,
-     &                            FSQ,FSQ_ab,
+     &                            FSQ(:,1),FSQ(:,2),
      &                            nOcc,nOcc_ab)
       End If
 
       End
-      SUBROUTINE CHOSCF_DRV_Internal(iUHF,nSym,nBas,W_DSQ,W_DLT,
+      SUBROUTINE CHOSCF_DRV_Internal(nD,nSym,nBas,W_DSQ,W_DLT,
      &                               W_DSQ_ab,W_DLT_ab,W_FLT,
      &                               W_FLT_ab,nFLT,ExFac,
      &                               W_FSQ,W_FSQ_ab,
@@ -76,10 +76,11 @@ C
       Use Fock_util_global, only: Deco, Lunit
       use Data_Structures, only: Allocate_DT, Deallocate_DT
       use Data_Structures, only: DSBA_Type, Integer_Pointer
+      use SpinAV, only: Do_SpinAV
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
-      Integer iUHF, nSym
+      Integer nD, nSym
       Integer nBas(nSym), MinMem(nSym),rc
       Parameter (MaxDs = 3)
       Logical DoCoulomb(MaxDs),DoExchange(MaxDs)
@@ -95,7 +96,6 @@ C
 
 #include "choscf.fh"
 #include "choauf.fh"
-#include "spave.fh"
 
       Type (Integer_Pointer) :: pNocc(3)
 
@@ -109,13 +109,12 @@ C  **************************************************
 C  **************************************************
 
       rc=0
-
       Lunit(:) = -1
 *                                                                      *
 ************************************************************************
 ************************************************************************
 *                                                                      *
-      IF(iUHF.eq.0) THEN
+      IF(nD==1) THEN
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -193,7 +192,7 @@ C  **************************************************
 
       ENDIF
 
-      Call CHOSCF_MEM(nSym,nBas,iUHF,DoExchange,pNocc,ALGO,REORD,
+      Call CHOSCF_MEM(nSym,nBas,nD,DoExchange,pNocc,ALGO,REORD,
      &                MinMem,loff1)
 *                                                                      *
 ************************************************************************
@@ -315,7 +314,7 @@ C  **************************************************
 
       If (ALGO.lt.3.and.ExFac.ne.0.0d0) Then
 
-         CALL CHO_SUM(rc,nSym,nBas,iUHF,DoExchange,FLT,FSQ)
+         CALL CHO_SUM(rc,nSym,nBas,nD,DoExchange,FLT,FSQ)
 
       EndIf
 C----------------------------------------------------
@@ -473,7 +472,7 @@ C Compute the total density Dalpha + Dbeta
 
       ENDIF
 
-      Call CHOSCF_MEM(nSym,nBas,iUHF,DoExchange,pNocc,
+      Call CHOSCF_MEM(nSym,nBas,nD,DoExchange,pNocc,
      &                ALGO,REORD,MinMem,loff1)
 
 
@@ -599,7 +598,7 @@ C --- To get the Fbeta in LT storage ----
 
 C --- Accumulates Coulomb and Exchange contributions
       If (ALGO.lt.3.and.ExFac.ne.0.0d0) then
-         CALL CHO_SUM(rc,nSym,nBas,iUHF,DoExchange,FLT,FSQ)
+         CALL CHO_SUM(rc,nSym,nBas,nD,DoExchange,FLT,FSQ)
       Endif
 
 C----------------------------------------------------

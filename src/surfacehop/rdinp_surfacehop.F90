@@ -12,7 +12,7 @@
 subroutine rdinp_surfacehop()
 
 use Tully_variables, only: tullyL, DECO, decoherence, NSUBSTEPS, Ethreshold, RandThreshold, fixedrandL, FixedRand, InitSeed, &
-                           iseedL, tullySubVerb
+                           iseedL, tullySubVerb, rassi_ovlp, Run_rassi
 #ifdef _HDF5_
 use Surfacehop_globals, only: lH5Restart, File_H5Res
 #endif
@@ -99,6 +99,9 @@ read_input: do
       call Get_I1(1,maxHop)
       call Put_iScalar('MaxHopsTully',maxHop)
       !write(u6,*) 'MaxHops set to ', maxHop
+    case ('NORA')
+      rassi_ovlp = .false.
+      Run_rassi = .false.
     case ('H5RE')
 #     ifdef _HDF5_
       lH5Restart = .true.

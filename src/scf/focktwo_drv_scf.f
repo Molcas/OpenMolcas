@@ -10,25 +10,29 @@
 ************************************************************************
       Subroutine FockTwo_Drv_scf(nSym,nBas,nAux,Keep,
      &                       DLT,DSQ,FLT,nFLT,
-     &                       ExFac,nBSQT,nBMX,iUHF,DLT_ab,
-     &                       DSQ_ab,FLT_ab,nOcc,nOcc_ab,iDummy_run)
+     &                       ExFac,nBSQT,nBMX,nD,
+     &                       FLT_ab,nOcc,lOcc,iDummy_run)
       use OFembed, only: Do_OFemb,OFE_first,FMaux
       use OFembed, only: Rep_EN
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
+      Integer nD
       Integer nSym,nBas(8), nAux(8), Keep(8)
-      Integer nOcc(nSym),nOcc_ab(nSym)
+      Integer nOcc(lOcc,nD)
       Logical DoCholesky,GenInt,DoLDF
-      Real*8 DLT(*),DSQ(*),FLT(nFLT)
-      Real*8 DLT_ab(*),DSQ_ab(*),FLT_ab(*)
+      Real*8 FLT(nFLT)
+      Real*8 FLT_ab(*)
+      Real*8 DLT(nFLT,nD)
+      Real*8 DSQ(nBSQT,nD)
       Character*50 CFmt
 
 #include "choscf.fh"
 #include "chotime.fh"
+      Real*8, Allocatable :: FSQ(:,:)
+      Real*8, Allocatable :: W1(:), W2(:)
+      Real*8, Allocatable :: tFLT(:,:)
 *
-
       GenInt=.false.
       DoCholesky=.false.
       if(ALGO.eq.0) GenInt=.true. !use GenInt to regenerate integrals
@@ -43,46 +47,32 @@ c      exFac=0.d0
 c      write(6,*)'ExFac= ',ExFac
 *
       If (Do_OFemb) Then ! Coul. potential from subsys B
-         nFM=1
-         If (iUHF.eq.1) nFM=2
          If (OFE_first) Call mma_allocate(FMaux,nFlt,Label='FMaux')
-         Call Coul_DMB(OFE_first,nFM,Rep_EN,FMaux,DLT,DLT_ab,nFlt)
+         Call Coul_DMB(OFE_first,nD,Rep_EN,FMaux,DLT(:,1),DLT(:,nD),
+     &                 nFlt)
          OFE_first=.false.
       End If
 *
-      Call GetMem('LWFSQ','Allo','Real',LWFSQ,NBSQT)
-C zeroing the elements
-      call dcopy_(NBSQT,[Zero],0,Work(LWFSQ),1)
+      Call mma_allocate(FSQ,nBSQT,nD,Label='FSQ')
+      FSQ(:,:)=Zero
 
-      if((.not.DoCholesky).or.(GenInt)) then
-      Call GetMem('LW2','Allo','Real',LW2,NBMX*NBMX)
+      if ((.not.DoCholesky).or.(GenInt)) then
+         Call mma_Allocate(W2,NBMX*NBMX,Label='W2')
       end if
 *
 * nFlt is the total dimension of the LT fock matrix
-      Call Getmem('tempFLT','Allo','Real',ipTemp,nFlt)
-      Call FZero(Work(ipTemp),nFlt)
-*
-      IF(iUHF.eq.1) THEN
-        Call GetMem('LWFSQ_ab','Allo','Real',LWFSQ_ab,NBSQT)
-        call dcopy_(NBSQT,[Zero],0,Work(LWFSQ_ab),1)
-        Call Getmem('FLT_ab','Allo','Real',ipTemp_ab,nFlt)
-        Call FZero(Work(ipTemp_ab),nFlt)
-*
-        if((.not.DoCholesky).or.(GenInt)) then
-          Call GetMem('LW2_ab','Allo','Real',LW2_ab,NBMX*NBMX)
-        endif
-*
-      ENDIF
+      Call mma_allocate(tFLT,nFLT,nD,Label='tFLT')
+      tFLT(:,:)=Zero
 *
 *
-      Call GetMem('LW1','MAX','Real',LW1,LBUF)
+      Call mma_maxDBLE(LBUF)
 *
 * Standard building of the Fock matrix from Two-el integrals
 *
       Call CWTIME(TotCPU1,TotWALL1)
 
       IF (.not.DoCholesky) THEN
-         Call GetMem('LW1','Allo','Real',LW1,LBUF)
+         Call mma_allocate(W1,LBUF,Label='W1')
 *
        If (LBUF.LT.NBMX**2) Then
          WRITE(6,*)'FockTwo_Drv_SCF Error: Too little memory remains'
@@ -94,22 +84,10 @@ C zeroing the elements
          Call  ABEND()
        End If
 *
-       If (iUHF.eq.1) Then
-
-         Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
-     &             DLT,DSQ,Work(ipTemp),nFlt,
-     &             Work(LWFSQ),LBUF,Work(LW1),Work(LW2),ExFac,iUHF,
-     &             DLT_ab,DSQ_ab,Work(ipTemp_ab),Work(LWFSQ_ab))
-
-       Else  ! RHF calculation
-
-         Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
-     &             DLT,DSQ,Work(ipTemp),nFlt,
-     &             Work(LWFSQ),LBUF,Work(LW1),Work(LW2),ExFac,iUHF,
-     &             Work(ip_Dummy),Work(ip_Dummy),Work(ip_Dummy),
-     &             Work(ip_Dummy))
-
-       EndIf
+       Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
+     &                  DLT(:,1),DSQ(:,1),tFLT,nFlt,
+     &                  FSQ,LBUF,W1,W2,ExFac,nD,nBSQT,
+     &                  DLT(:,nD),DSQ(:,nD))
 
       ENDIF
 *
@@ -117,7 +95,7 @@ C zeroing the elements
 *
       IF ((DoCholesky).and.(GenInt)) THEN ! save some space for GenInt
          LBUF = MAX(LBUF-LBUF/10,0)
-         Call GetMem('LW1','Allo','Real',LW1,LBUF)
+         Call mma_allocate(W1,LBUF,Label='W1')
 *
        If (LBUF.LT.NBMX**2) Then
          WRITE(6,*)' FockTwo_Drv Error: Too little memory remains for'
@@ -129,22 +107,10 @@ C zeroing the elements
          Call  ABEND()
        End If
 *
-       If (iUHF.eq.1) Then
-
-         Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
-     &             DLT,DSQ,Work(ipTemp),nFlt,
-     &             Work(LWFSQ),LBUF,Work(LW1),Work(LW2),ExFac,iUHF,
-     &             DLT_ab,DSQ_ab,Work(ipTemp_ab),Work(LWFSQ_ab))
-
-       Else  ! RHF calculation
-
-         Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
-     &             DLT,DSQ,Work(ipTemp),nFlt,
-     &             Work(LWFSQ),LBUF,Work(LW1),Work(LW2),ExFac,iUHF,
-     &             Work(ip_Dummy),Work(ip_Dummy),Work(ip_Dummy),
-     &             Work(ip_Dummy))
-
-       EndIf
+       Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
+     &                  DLT(:,1),DSQ(:,1),tFLT,nFlt,
+     &                  FSQ,LBUF,W1,W2,ExFac,nD,nBSQT,
+     &                  DLT(:,nD),DSQ(:,nD))
 
       ENDIF
 *
@@ -183,48 +149,31 @@ C zeroing the elements
 
       IF (DoCholesky .and. .not.GenInt.and.iDummy_run.eq.0) THEN
 *
-        If (iUHF.eq.1) Then
-
-           CALL CHOscf_drv(iUHF,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
-     &                 Work(ipTemp),Work(ipTemp_ab),nFLT,ExFac,
-     &                 Work(LWFSQ),Work(LWFSQ_ab),nOcc,nOcc_ab)
-        Else
-*
-           CALL CHOscf_drv(iUHF,nSym,nBas,DSQ,DLT,
-     &                 Work(ip_Dummy),Work(ip_Dummy),
-     &                 Work(ipTemp),Work(ip_Dummy),nFLT,ExFac,
-     &                 Work(LWFSQ),Work(ip_Dummy),nOcc,iWork(ip_iDummy))
-        EndIf
+         CALL CHOscf_drv(nBSQT,nD,nSym,nBas,DSQ(:,1),DLT(:,1),
+     &                   DSQ(:,nD),DLT(:,nD),
+     &                   tFLT(:,1),tFLT(:,nD),nFLT,ExFac,
+     &                   FSQ,nOcc(:,1),nOcc(:,nD))
 
       ENDIF
 *
-      Call DaXpY_(nFlt,One,Work(ipTemp),1,FLT,1)
-      if(iUHF.eq.1) then
-        Call DaXpY_(nFlt,One,Work(ipTemp_ab),1,FLT_ab,1)
+      Call DaXpY_(nFlt,One,tFLT(:,1),1,FLT,1)
+      if(nD==2) then
+        Call DaXpY_(nFlt,One,tFLT(:,2),1,FLT_ab,1)
       endif
 *
-      Call GetMem('tempFLT','Free','Real',ipTemp,nFlt)
-      if(iUHF.eq.1) then
-       Call GetMem('FLT_ab','Free','Real',ipTemp_ab,nFlt)
-      endif
+      Call mma_deallocate(tFLT)
 *
       If (Do_OFemb) Then ! add FM from subsystem B
         Call DaXpY_(nFlt,One,FMaux,1,FLT,1)
-        If (iUHF.eq.1) Call DaXpY_(nFlt,One,FMaux,1,FLT_ab,1)
+        If (nD==2) Call DaXpY_(nFlt,One,FMaux,1,FLT_ab,1)
       EndIf
 *
       IF ((.not.DoCholesky).or.(GenInt)) THEN
-      Call GetMem('LW1','Free','Real',LW1,LBUF)
-      Call GetMem('LW2','Free','Real',LW2,NBMX*NBMX)
+          Call mma_deallocate(W1)
+          Call mma_deallocate(W2)
       END IF
 
-      Call GetMem('LWFSQ','Free','Real',LWFSQ,NBSQT)
-      if(iUHF.eq.1) then
-         IF ((.not.DoCholesky).or.(GenInt)) THEN
-            Call GetMem('LW2_ab','Free','Real',LW2_ab,NBMX*NBMX)
-         END IF
-       Call GetMem('LWFSQ_ab','Free','Real',LWFSQ_ab,NBSQT)
-      endif
+      Call mma_deallocate(FSQ)
 *
       Return
       End
