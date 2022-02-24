@@ -298,8 +298,6 @@
 *
       iOff=1
       lOff=0
-      Call RecPrt('CMO(:,1)',' ',CMO(:,1),1,SIZE(CMO,1))
-      Call RecPrt('CMO(:,2)',' ',CMO(:,2),1,SIZE(CMO,1))
       Do iSym=1,nSym
          ipDaa=1+nBD(iSym)
          mAdCMOO=iOff+nBas(iSym)*nIF(iSym)
@@ -347,11 +345,6 @@
          Call WarningMessage(2,'Start6. Non-zero rc in Cho_X_init.')
          Call Abend
       endif
-      Call RecPrt('Start6: DSc(:)=',' ',DSc(:),1,SIZE(DSc))
-      Call RecPrt('Start6: Da(:,1)=',' ',Da(:,1),1,SIZE(Da,1))
-      Call RecPrt('Start6: Da(:,2)=',' ',Da(:,2),1,SIZE(Da,1))
-
-
 *----------------------------------------------------------------------*
       Call Get_Fmat_nondyn(Da(:,1),Da(:,2),nBT,.false.)
 *----------------------------------------------------------------------*
@@ -500,9 +493,6 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
 *
 #include "dcscf.fh"
 *
-
-      If (nBB==784) Call Recprt('GFn: Dma',' ',Dma(:),1,nBDT)
-      If (nBB==784) Call Recprt('GFn: Dmb',' ',Dmb(:),1,nBDT)
       nDMat=2
       Do i=1,nSym
          nForb(i,1)=0
@@ -528,8 +518,6 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
       Call mma_allocate(Dm,nBB,2,Label='Dm')
       Call UnFold(Dma,nBDT,Dm(:,1),nBB,nSym,nBas)
       Call UnFold(Dmb,nBDT,Dm(:,2),nBB,nSym,nBas)
-      If (nBB==784) Call Recprt('GFn: Dm(:,1)',' ',Dm(:,1),28,28)
-      If (nBB==784) Call Recprt('GFn: Dm(:,2)',' ',Dm(:,2),28,28)
 *
       If (Do_SpinAV) Then
          If (.not.DECO) Then
@@ -539,9 +527,6 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
          EndIf
          Call daxpy_(NBB,-1.0d0,DSc,1,Dm(:,1),1)
          Call daxpy_(NBB, 1.0d0,DSc,1,Dm(:,2),1)
-         If (nBB==784) Call Recprt('Dsc',' ',DSc,28,28)
-         If (nBB==784) Call Recprt('Dm(:,1)',' ',Dm(:,1),28,28)
-         If (nBB==784) Call Recprt('Dm(:,2)',' ',Dm(:,2),28,28)
       EndIf
 *
       iOff=0
@@ -549,7 +534,6 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
          ipDai=1+iOff
          Call CD_InCore(Dm(ipDai,1),nBas(i),Porb(1)%SB(i)%A2,nBas(i),
      &                  nIorb(i,1),1.0d-12,irc)
-            Call RecPrt('Dm',' ',Dm(ipDai,1),nBas(i),nBas(i))
          If (irc.ne.0) Then
             write(6,*) ' Alpha density. Sym= ',i,'   rc= ',irc
             Call RecPrt('Dm',' ',Dm(ipDai,1),nBas(i),nBas(i))

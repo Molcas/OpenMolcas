@@ -24,23 +24,17 @@
       Call mma_allocate(D_DS ,nBT,2,Label='D_DS ')
       D_DS(:,:)=Zero
 *
-      Call RecPrt('GE_dft CMO(:,1)',' ',CMO(:,1),1,SIZE(CMO,1))
-      Call RecPrt('GE_dft CMO(:,2)',' ',CMO(:,2),1,SIZE(CMO,1))
       iOff=1
       jOff=1
       Do iSym=1,nSym
-         Write (6,*) 'iSym,nSym=',iSym,nSym
-         Write (6,*) 'nBas(iSym),nOrb(iSym)=',nBas(iSym),nOrb(iSym)
-         Write (6,*) 'nOcc(iSym,1),nOcc(iSym,2)=',
-     &                nOcc(iSym,1),nOcc(iSym,2)
          Call DGEMM_tri('N','T',nBas(iSym),nBas(iSym),nOcc(iSym,1),
      &                    1.0d0,CMO(iOff,1),nBas(iSym),
      &                          CMO(iOff,1),nBas(iSym),
-     &                    0.0d0,D_DS(:jOff,1),nBas(iSym))
+     &                    0.0d0,D_DS(jOff:,1),nBas(iSym))
          Call DGEMM_tri('N','T',nBas(iSym),nBas(iSym),nOcc(iSym,2),
      &                    1.0d0,CMO(iOff,2),nBas(iSym),
      &                          CMO(iOff,2),nBas(iSym),
-     &                    0.0d0,D_DS(:jOff,2),nBas(iSym))
+     &                    0.0d0,D_DS(jOff:,2),nBas(iSym))
          Do j=1,nBas(iSym)
             Do i=1,j-1
                ji=j*(j-1)/2+i
