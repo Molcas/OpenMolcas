@@ -21,7 +21,6 @@
 #include "real.fh"
 #include "mxdm.fh"
 #include "infscf.fh"
-#include "WrkSpc.fh"
 *
       nD = iUHF + 1
 *                                                                      *

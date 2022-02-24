@@ -101,7 +101,6 @@
       Implicit Real*8 (a-h,o-z)
 
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "debug.fh"
       Real*8  Grad(nGrad)
       Logical Do_MO,Do_TwoEl,Do_Grad
