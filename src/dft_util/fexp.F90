@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2010, Francesco Aquilante                              *
 !***********************************************************************
-      Real*8 Function Fexp(rho,drho)
+
+real*8 function Fexp(rho,drho)
 !***********************************************************************
 !***********************************************************************
 !**                                                                  ***
@@ -22,54 +23,32 @@
 !**                                                                  ***
 !***********************************************************************
 !***********************************************************************
-      Implicit Real*8 (a-h,o-z)
-      Real*8 lambda, rho, drho(3)
+
+implicit real*8(a-h,o-z)
+real*8 lambda, rho, drho(3)
 #include "real.fh"
-      Parameter ( One3 = One/Three )
-      Parameter ( sBmin = 0.3d0 )
-      Parameter ( sBmax = 0.9d0 )
-      Parameter ( rBmin = 0.7d0 )
-      Parameter ( lambda= 5.0d2 )
+parameter(One3=One/Three)
+parameter(sBmin=0.3d0)
+parameter(sBmax=0.9d0)
+parameter(rBmin=0.7d0)
+parameter(lambda=5.0d2)
 
+rhoinv = One/rho
+rhoinv13 = rhoinv**One3
+fact = Two*(Three*Pi**2)**One3
+factinv = One/fact
+xnorm = drho(1)**2+drho(2)**2+drho(3)**2
+xnorm_ = sqrt(xnorm)
+sB = factinv*rhoinv*rhoinv13*xnorm_
 
-      rhoinv= One/rho
-      rhoinv13= rhoinv**One3
-      fact= Two*(Three*Pi**2)**One3
-      factinv= One/fact
-      xnorm = drho(1)**2 + drho(2)**2 + drho(3)**2
-      xnorm_= sqrt(xnorm)
-      sB = factinv*rhoinv*rhoinv13*xnorm_
+es_sBmin = exp(lambda*(sBmin-sB))
+es_sBmax = exp(lambda*(sBmax-sB))
+er_rBmin = exp(lambda*(rBmin-rho))
 
-      es_sBmin = exp(lambda*(sBmin-sB))
-      es_sBmax = exp(lambda*(sBmax-sB))
-      er_rBmin = exp(lambda*(rBmin-rho))
+eis_sBmin = One/(es_sBmin+One)
+eis_sBmax = One/(es_sBmax+One)
+eir_rBmin = One/(er_rBmin+One)
 
-      eis_sBmin= One/(es_sBmin+One)
-      eis_sBmax= One/(es_sBmax+One)
-      eir_rBmin= One/(er_rBmin+One)
+Fexp = eis_sBmin*(One-eis_sBmax)*eir_rBmin
 
-      Fexp = eis_sBmin*(One-eis_sBmax)*eir_rBmin
-
-      End
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Real*8 Function Vt_lim(rho,drho,ddrho)
-
-      Implicit Real*8 (a-h,o-z)
-      Real*8 rho, drho(3), ddrho
-#include "real.fh"
-      Parameter ( One8 = One/Eight )
-      Parameter ( One4 = One/Four  )
-
-
-      rhoinv= One/rho
-      rhoinv2= rhoinv**Two
-      xnorm = drho(1)**2 + drho(2)**2 + drho(3)**2
-
-      Vt_lim = One8*xnorm*rhoinv2 - One4*ddrho*rhoinv
-
-      End
-!                                                                      *
-!***********************************************************************
-!                                                                      *
+end function Fexp

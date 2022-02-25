@@ -10,109 +10,108 @@
 !                                                                      *
 ! Copyright (C) 2022, Roland Lindh                                     *
 !***********************************************************************
-Subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD,DFTFOCK)
+
+subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD,DFTFOCK)
 
 use libxc_parameters
 use xc_f03_lib_m
 use Functionals, only: Get_Funcs
 use OFembed, only: KEOnly, dFMD, Do_Core
-use libxc,   only: Only_exc
+use libxc, only: Only_exc
 use nq_Grid, only: l_casdft
 use nq_pdft, only: lft
 use Definitions, only: LibxcInt
 use nq_Info
-Implicit None
+
+implicit none
 #include "real.fh"
 #include "ksdft.fh"
-Character*(*) KSDFA
-Logical Do_Grad
-Integer :: i, j, nGrad, nh1, nD
-Real*8 :: Func, Grad(nGrad)
-Logical Do_MO, Do_TwoEl
-Real*8 :: D_DS(nh1,nD), F_DFT(nh1,nD)
-Character*4 DFTFOCK
+character*(*) KSDFA
+logical Do_Grad
+integer :: i, j, nGrad, nh1, nD
+real*8 :: Func, Grad(nGrad)
+logical Do_MO, Do_TwoEl
+real*8 :: D_DS(nh1,nD), F_DFT(nh1,nD)
+character*4 DFTFOCK
 logical :: LDTF, NDSD
 character(LEN=80) :: FLabel
 type(xc_f03_func_t) :: func_
 type(xc_f03_func_info_t) :: info_
-
 abstract interface
-   Subroutine DFT_FUNCTIONAL(mGrid,nD)
-      Integer mGrid, nD
-   end subroutine
+  subroutine DFT_FUNCTIONAL(mGrid,nD)
+    integer mGrid, nD
+  end subroutine
 end interface
-
 !***********************************************************************
-!     Define external functions not defined in LibXC. These are either
-!     accessed through the procedure pointer sub or External_sub.
-
+! Define external functions not defined in LibXC. These are either
+! accessed through the procedure pointer sub or External_sub.
 procedure(DFT_FUNCTIONAL) :: Overlap, NucAtt, ndsd_ts
 !***********************************************************************
 procedure(DFT_FUNCTIONAL), pointer :: sub => null()
-!     Sometime we need an external routine which covers something which
-!     Libxc doesn't support.
+! Sometime we need an external routine which covers something which
+! Libxc doesn't support.
 procedure(DFT_FUNCTIONAL), pointer :: External_sub => null()
+
 !                                                                      *
 !***********************************************************************
 ! Global variable for MCPDFT functionals                               *
-FLabel=KSDFA ! The user could be passing an explicit string! Hence, the local copy.
+FLabel = KSDFA ! The user could be passing an explicit string! Hence, the local copy.
 
-!
-!     Set some flags and clean up the label to be just the label of the
-!     underlaying DFT functional.
-!
-l_casdft = FLabel(1:2).eq.'T:' .or. FLabel(1:3).eq.'FT:'
+! Set some flags and clean up the label to be just the label of the
+! underlaying DFT functional.
 
-lft      = FLabel(1:3).eq.'FT:'
+l_casdft = (FLabel(1:2) == 'T:') .or. (FLabel(1:3) == 'FT:')
 
-If (l_casdft) Then
-   FLabel=FLabel(Index(FLabel,'T:')+2:)
-   Do_MO=.true.
-   Do_TwoEl=.true.
-   If (.NOT.Do_PDFTPOT .and. .Not.DO_Grad) Only_exc=.True.
-End If
+lft = FLabel(1:3) == 'FT:'
 
-If (FLabel(1:5)=='LDTF/')Then
-   LDTF=.true.
-   FLabel=FLabel(6:)
-Else
-   LDTF=.false.
-End If
-If (FLabel(1:5)=='NDSD/')Then
-   NDSD=.true.
-   FLabel=FLabel(6:)
-Else
-   NDSD=.false.
-End If
+if (l_casdft) then
+  FLabel = FLabel(index(FLabel,'T:')+2:)
+  Do_MO = .true.
+  Do_TwoEl = .true.
+  if ((.not. Do_PDFTPOT) .and. (.not. DO_Grad)) Only_exc = .true.
+end if
+
+if (FLabel(1:5) == 'LDTF/') then
+  LDTF = .true.
+  FLabel = FLabel(6:)
+else
+  LDTF = .false.
+end if
+if (FLabel(1:5) == 'NDSD/') then
+  NDSD = .true.
+  FLabel = FLabel(6:)
+else
+  NDSD = .false.
+end if
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-!      Default is to use the libxc interface
-!      Coefficient for the individual contibutions are defaulted to 1.0D0
+! Default is to use the libxc interface
+! Coefficient for the individual contibutions are defaulted to 1.0
 
 Sub => libxc_functionals     ! Default
-Coeffs(:)=1.0D0              ! Default
+Coeffs(:) = 1.0d0            ! Default
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-    Select Case(FLabel)
+select case (FLabel)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Overlap                                                          *
-!                                                                      *
-      Case('Overlap')
-         Functional_type=LDA_type
-         Sub => Overlap
+! Overlap
+
+  case ('Overlap')
+    Functional_type = LDA_type
+    Sub => Overlap
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     NucAtt                                                           *
-!                                                                      *
-      Case('NucAtt')
-         Functional_type=LDA_type
-         Sub => NucAtt
+! NucAtt
+
+  case ('NucAtt')
+    Functional_type = LDA_type
+    Sub => NucAtt
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -121,113 +120,112 @@ Coeffs(:)=1.0D0              ! Default
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!      Kinetic only  (Thomas-Fermi)                                    *
-!                                                                      *
-       Case('TF_only')
-         Functional_type=LDA_type
+! Kinetic only (Thomas-Fermi)
 
-         nFuncs=1
-         func_id(1:nFuncs)=[XC_LDA_K_TF]
+  case ('TF_only')
+    Functional_type = LDA_type
+
+    nFuncs = 1
+    func_id(1:nFuncs) = [XC_LDA_K_TF]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!      HUNTER  (von Weizsacker KE, no calc of potential)               *
-!                                                                      *
-       Case('HUNTER')
-         Functional_type=GGA_type
+!  HUNTER (von Weizsacker KE, no calc of potential)
 
-         nFuncs=1
-         func_id(1:nFuncs)=[XC_GGA_K_TFVW]
-         Only_exc=.True.
+  case ('HUNTER')
+    Functional_type = GGA_type
+
+    nFuncs = 1
+    func_id(1:nFuncs) = [XC_GGA_K_TFVW]
+    Only_exc = .true.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-       Case default
-         Call Get_Funcs(FLabel)
+  case default
+    call Get_Funcs(FLabel)
 
-       End Select
+end select
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-       If (Functional_type/=LDA_type.and.Functional_type/=GGA_type.and.l_CasDFT) Then
-          Write (6,*) ' MC-PDFT combined with invalid functional class'
-          Call Abend()
-       End If
+if ((Functional_type /= LDA_type) .and. (Functional_type /= GGA_type) .and. l_CasDFT) then
+  write(6,*) ' MC-PDFT combined with invalid functional class'
+  call Abend()
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (Do_Core) Then
-         ! Keep only correlation
-         Do i=1,nFuncs
-            Call xc_f03_func_init(func_,func_id(i),0_LibxcInt)
-            info_ = xc_f03_func_get_info(func_)
-            If (xc_f03_func_info_get_kind(info_) == XC_CORRELATION) Then
-               Coeffs(i) = Coeffs(i)*dFMD
-            Else
-               Coeffs(i) = Zero
-            End If
-            Call xc_f03_func_end(func_)
-         End Do
-      Else If (LDTF) Then
-         ! Add TF kinetic with same coeff as exchange
-         ! and optionally kill everything else
-         Do i=1,nFuncs
-            Call xc_f03_func_init(func_,func_id(i),0_LibxcInt)
-            info_ = xc_f03_func_get_info(func_)
-            If (xc_f03_func_info_get_kind(info_) == XC_EXCHANGE) Then
-               If (nFuncs == nFuncs_max) Then
-                  Write (6,*) ' Too many functionals for LDTF'
-                  Call Abend()
-               End If
-               func_id(nFuncs+1) = XC_LDA_K_TF
-               Coeffs(nFuncs+1) = Coeffs(i)
-               nFuncs = nFuncs+1
-            End If
-            If (KEOnly) Coeffs(i) = Zero
-            Call xc_f03_func_end(func_)
-         End Do
-      Else If (NDSD) Then
-         ! Add ndsd_ts, and optionally kill everything else
-         If (KEOnly) Then
-            Coeffs(:) = Zero
-            Sub => ndsd_ts
-         Else
-            Only_exc=.True.
-            External_Sub => ndsd_ts
-         End If
-      End If
-      ! Reduce list
-      j = 0
-      Do i=1,nFuncs
-        If (Coeffs(i) == Zero) Cycle
-        j = j+1
-        If (j == i) Cycle
-        Coeffs(j) = Coeffs(i)
-        func_id(j) = func_id(i)
-      End Do
-      nFuncs = j
+if (Do_Core) then
+  ! Keep only correlation
+  do i=1,nFuncs
+    call xc_f03_func_init(func_,func_id(i),0_LibxcInt)
+    info_ = xc_f03_func_get_info(func_)
+    if (xc_f03_func_info_get_kind(info_) == XC_CORRELATION) then
+      Coeffs(i) = Coeffs(i)*dFMD
+    else
+      Coeffs(i) = Zero
+    end if
+    call xc_f03_func_end(func_)
+  end do
+else if (LDTF) then
+  ! Add TF kinetic with same coeff as exchange
+  ! and optionally kill everything else
+  do i=1,nFuncs
+    call xc_f03_func_init(func_,func_id(i),0_LibxcInt)
+    info_ = xc_f03_func_get_info(func_)
+    if (xc_f03_func_info_get_kind(info_) == XC_EXCHANGE) then
+      if (nFuncs == nFuncs_max) then
+        write(6,*) ' Too many functionals for LDTF'
+        call Abend()
+      end if
+      func_id(nFuncs+1) = XC_LDA_K_TF
+      Coeffs(nFuncs+1) = Coeffs(i)
+      nFuncs = nFuncs+1
+    end if
+    if (KEOnly) Coeffs(i) = Zero
+    call xc_f03_func_end(func_)
+  end do
+else if (NDSD) then
+  ! Add ndsd_ts, and optionally kill everything else
+  if (KEOnly) then
+    Coeffs(:) = Zero
+    Sub => ndsd_ts
+  else
+    Only_exc = .true.
+    External_Sub => ndsd_ts
+  end if
+end if
+! Reduce list
+j = 0
+do i=1,nFuncs
+  if (Coeffs(i) == Zero) cycle
+  j = j+1
+  if (j == i) cycle
+  Coeffs(j) = Coeffs(i)
+  func_id(j) = func_id(i)
+end do
+nFuncs = j
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Now let's do some integration!
-!     If the libxc interface is used do the proper initialization and closure.
+! Now let's do some integration!
+! If the libxc interface is used do the proper initialization and closure.
 
-      If (Associated(Sub,libxc_functionals)) Call Initiate_libxc_functionals(nD)
+if (associated(Sub,libxc_functionals)) call Initiate_libxc_functionals(nD)
 
-      Call DrvNQ(Sub,F_DFT,nD,Func,D_DS,nh1,nD,                         &
-     &           Do_Grad,Grad,nGrad,Do_MO,Do_TwoEl,DFTFOCK)
+call DrvNQ(Sub,F_DFT,nD,Func,D_DS,nh1,nD,Do_Grad,Grad,nGrad,Do_MO,Do_TwoEl,DFTFOCK)
 
-      If (Associated(Sub,libxc_functionals)) Call Remove_libxc_functionals()
+if (associated(Sub,libxc_functionals)) call Remove_libxc_functionals()
 
-      If (Associated(External_Sub)) Call DrvNQ(External_Sub,F_DFT,nD,Func,D_DS,nh1,nD,         &
-     &           Do_Grad,Grad,nGrad,Do_MO,Do_TwoEl,DFTFOCK)
+if (associated(External_Sub)) call DrvNQ(External_Sub,F_DFT,nD,Func,D_DS,nh1,nD,Do_Grad,Grad,nGrad,Do_MO,Do_TwoEl,DFTFOCK)
 
-      Sub          => Null()
-      External_Sub => Null()
-      Only_exc=.False.
-      LDTF=.False.
-      NDSD=.False.
+Sub => null()
+External_Sub => null()
+Only_exc = .false.
+LDTF = .false.
+NDSD = .false.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      End Subroutine Driver
+
+end subroutine Driver

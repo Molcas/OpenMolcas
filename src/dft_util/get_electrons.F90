@@ -7,12 +7,21 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2010,2012,2017, Francesco Aquilante                    *
+!               2015,2017, Alexander Zech                              *
 !***********************************************************************
 
-module KSDFT_Info
+subroutine Get_electrons(xnElect)
 
-character(len=80) :: KSDFA
-real*8 :: funcaa = 0.0d0, funcbb = 0.0d0, funccc = 0.0d0
-integer :: LuMC, LuMT
+use nq_Info
 
-end module KSDFT_Info
+implicit real*8(a-h,o-z)
+real*8 xnElect
+#include "real.fh"
+
+xnElect = Dens_I
+
+return
+
+end subroutine Get_electrons

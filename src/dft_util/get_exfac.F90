@@ -8,69 +8,68 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Function Get_ExFac(KSDFT)
+
+function Get_ExFac(KSDFT)
 !***********************************************************************
-!     Return the factor which determines how much "exact exchange" that*
-!     should be included.                                              *
+! Return the factor which determines how much "exact exchange" that    *
+! should be included.                                                  *
 !***********************************************************************
-      Use Functionals, Only: Get_Func_ExFac
-      Implicit Real*8 (a-h,o-z)
+
+use Functionals, only: Get_Func_ExFac
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
-      Real*8 Get_ExFac
-      Character*(*) KSDFT
-      Character(LEN=80)  cTmp
+real*8 Get_ExFac
+character*(*) KSDFT
+character(len=80) cTmp
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Write functional to run file.
-!
-      If (KSDFT.ne.'Overlap') Then
-         cTmp=KSDFT
-         Call Put_cArray('DFT functional',cTmp,80)
-      End If
+! Write functional to run file.
+
+if (KSDFT /= 'Overlap') then
+  cTmp = KSDFT
+  call Put_cArray('DFT functional',cTmp,80)
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (KSDFT(1:2).eq.'T:' .or. KSDFT(1:3).eq.'FT:') Then
-         Get_ExFac=Zero
-         Return
-      End If
+if ((KSDFT(1:2) == 'T:') .or. (KSDFT(1:3) == 'FT:')) then
+  Get_ExFac = Zero
+  return
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     We bring in only cases where it is different from zero.
-      Select Case(KSDFT)
+! We bring in only cases where it is different from zero.
+select case (KSDFT)
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  case ('CASDFT')
+    Get_ExFac = One
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  case ('SCF')
+    Get_ExFac = One
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  case ('CS')
+    Get_ExFac = One
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  case default
+    Get_ExFac = Get_Func_ExFac(KSDFT)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     CASDFT                                                           *
-!                                                                      *
-      Case ('CASDFT')
-         Get_ExFac=One
+end select
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     SCF                                                              *
-!                                                                      *
-      Case ('SCF')
-         Get_ExFac=One
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     CS                                                               *
-!                                                                      *
-      Case ('CS')
-         Get_ExFac=One
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Case Default
-         Get_ExFac = Get_Func_ExFac(KSDFT)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      End Select
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      End
+
+end function Get_ExFac

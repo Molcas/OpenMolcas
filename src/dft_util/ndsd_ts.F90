@@ -8,7 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine NDSD_Ts(mGrid,nDmat)
+
+subroutine NDSD_Ts(mGrid,nDmat)
 !***********************************************************************
 !                                                                      *
 ! Object:  compute Func for Thomas-Fermi KE functional                 *
@@ -22,91 +23,95 @@
 !                density, gradient and laplacian.                      *
 !                                                                      *
 !***********************************************************************
-      use nq_Grid, only: Rho, GradRho, Lapl
-      use nq_Grid, only: vRho
-      use nq_Grid, only: F_xc
-      Implicit Real*8 (A-H,O-Z)
+
+use nq_Grid, only: Rho, GradRho, Lapl
+use nq_Grid, only: vRho
+use nq_Grid, only: F_xc
+
+implicit real*8(A-H,O-Z)
 #include "real.fh"
-      Real*8 Fexp, Vt_lim
-      External Fexp, Vt_lim
-      Real*8 wGradRho(1:3)
-      Real*8, Parameter:: T_X=1.0D-20
-      Real*8, Parameter:: Coeff=1.0D0
+real*8 Fexp, Vt_lim
+external Fexp, Vt_lim
+real*8 wGradRho(1:3)
+real*8, parameter :: T_X = 1.0D-20
+real*8, parameter :: Coeff = 1.0d0
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      vRho(:,:)=Zero
-      Two3=Two/Three
-      Five3=Five/Three
-      Cf=(Three/Ten)*(three*Pi**Two)**Two3
-      Rho_min=T_X*1.0D-2
+vRho(:,:) = Zero
+Two3 = Two/Three
+Five3 = Five/Three
+Cf = (Three/Ten)*(three*Pi**Two)**Two3
+Rho_min = T_X*1.0D-2
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!---- Compute value of energy and integrand on the grid
+! Compute value of energy and integrand on the grid
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (nDmat.eq.1) Then
-         Do iGrid = 1, mGrid
-            d_sys=Two*Rho(1,iGrid)
-            If (d_sys.lt.T_X) Go To 100
-!
-!------- Kinetic energy contributions
-!
-            functional = Cf*d_sys**Five3
-            F_xc(iGrid)=F_xc(iGrid)+Coeff*functional
-!
-!------- Contributions to the potential
-!
-            Do k=1,3
-               wGradRho(k)=Two*GradRho(k,iGrid)
-            End Do
-            wLaplRho=Two*Lapl(1,iGrid)
-!
-            dfunc_NDSD = Fexp(d_sys,wGradRho(1))* Vt_lim(d_sys,wGradRho(1),wLaplRho)
-            vRho(1,iGrid) = vRho(1,iGrid)+ Coeff*dfunc_NDSD
-!
- 100        Continue
-!
-         End Do
-!
-      ElseIf (nDmat.eq.2) Then
+if (nDmat == 1) then
+  do iGrid=1,mGrid
+    d_sys = Two*Rho(1,iGrid)
+    if (d_sys < T_X) Go To 100
 
-         Cf = Cf*(Two**Two3)
+    ! Kinetic energy contributions
 
-         Do iGrid = 1, mGrid
-            da_sys =Max(Rho_Min,Rho(1,iGrid))
-            db_sys =Max(Rho_Min,Rho(2,iGrid))
-            DTot=da_sys+db_sys
-            If (DTot.lt.T_X) Go To 200
-!
-!------- Kinetic energy contributions
-!
-            functional=Cf*(da_sys**Five3+db_sys**Five3)
-            F_xc(iGrid)=F_xc(iGrid)+Coeff*functional
-!
-!------- Contributions to the potential
-!
-            Do k=1,3
-               wGradRho(k)=Rho(k,iGrid)+Rho(k+3,iGrid)
-            End Do
-            wLaplRho=Lapl(1,iGrid)+Lapl(2,iGrid)
-!
-            dfunc_NDSD_alpha = Fexp(DTot,wGradRho(1))* Vt_lim(DTot,wGradRho(1),wLaplRho)
-            dfunc_NDSD_beta  = dfunc_NDSD_alpha
-!
-            vRho(1,iGrid) = vRho(1,iGrid)+ Coeff*dfunc_NDSD_alpha
-            vRho(2,iGrid) = vRho(2,iGrid)+ Coeff*dfunc_NDSD_beta
-!
- 200        Continue
-!
-         End Do
+    functional = Cf*d_sys**Five3
+    F_xc(iGrid) = F_xc(iGrid)+Coeff*functional
 
-      Else
-         write(6,*) 'In NDSD_Ts: invalid # of densities. nDmat=  ',nDmat
-         Call Abend()
-      End If
-!
-      Return
-      End
+    ! Contributions to the potential
+
+    do k=1,3
+      wGradRho(k) = Two*GradRho(k,iGrid)
+    end do
+    wLaplRho = Two*Lapl(1,iGrid)
+
+    dfunc_NDSD = Fexp(d_sys,wGradRho(1))*Vt_lim(d_sys,wGradRho(1),wLaplRho)
+    vRho(1,iGrid) = vRho(1,iGrid)+Coeff*dfunc_NDSD
+
+100 continue
+
+  end do
+
+else if (nDmat == 2) then
+
+  Cf = Cf*(Two**Two3)
+
+  do iGrid=1,mGrid
+    da_sys = max(Rho_Min,Rho(1,iGrid))
+    db_sys = max(Rho_Min,Rho(2,iGrid))
+    DTot = da_sys+db_sys
+    if (DTot < T_X) Go To 200
+
+    ! Kinetic energy contributions
+
+    functional = Cf*(da_sys**Five3+db_sys**Five3)
+    F_xc(iGrid) = F_xc(iGrid)+Coeff*functional
+
+    ! Contributions to the potential
+
+    do k=1,3
+      wGradRho(k) = Rho(k,iGrid)+Rho(k+3,iGrid)
+    end do
+    wLaplRho = Lapl(1,iGrid)+Lapl(2,iGrid)
+
+    dfunc_NDSD_alpha = Fexp(DTot,wGradRho(1))*Vt_lim(DTot,wGradRho(1),wLaplRho)
+    dfunc_NDSD_beta = dfunc_NDSD_alpha
+
+    vRho(1,iGrid) = vRho(1,iGrid)+Coeff*dfunc_NDSD_alpha
+    vRho(2,iGrid) = vRho(2,iGrid)+Coeff*dfunc_NDSD_beta
+
+200 continue
+
+  end do
+
+else
+  write(6,*) 'In NDSD_Ts: invalid # of densities. nDmat=  ',nDmat
+  call Abend()
+end if
+
+return
+
+end subroutine NDSD_Ts

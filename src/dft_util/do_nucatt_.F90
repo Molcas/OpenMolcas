@@ -11,7 +11,7 @@
 ! Copyright (C) 2000, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine Overlap(mGrid,iSpin)
+subroutine Do_NucAtt_(mGrid,iSpin,Grid,RA,ZA,mCenter)
 !***********************************************************************
 !      Author:Roland Lindh, Department of Chemical Physics, University *
 !             of Lund, SWEDEN. November 2000                           *
@@ -22,14 +22,13 @@ use nq_Grid, only: Rho, vRho
 
 implicit real*8(A-H,O-Z)
 #include "real.fh"
-real*8, parameter :: T_x = 1.0D-20
+real*8 Grid(3,mGrid), RA(3,mCenter), ZA(mCenter)
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 
 vRho(:,:) = Zero
-Rho_Min = T_X*1.0D-2
 if (iSpin == 1) then
   ! iSpin=1
   !                                                                    *
@@ -39,15 +38,20 @@ if (iSpin == 1) then
 
     d_alpha = Rho(1,iGrid)
     DTot = Two*d_alpha
-    if (DTot < T_X) Go To 199
 
-    ! Accumulate contributions to the integrated density
+    ! Accumulate contributions to the nuclear attraction energy
 
-    F_xc(iGrid) = F_xc(iGrid)+Dtot
+    Attr = Zero
+    do i=1,mCenter
+      x = Grid(1,iGrid)-RA(1,i)
+      y = Grid(2,iGrid)-RA(2,i)
+      z = Grid(3,iGrid)-RA(3,i)
+      Fact = ZA(i)/sqrt(x**2+y**2+z**2)
+      Attr = Attr+Fact
+    end do
+    F_xc(iGrid) = F_xc(iGrid)-Attr*DTot
 
-    vRho(1,iGrid) = One
-
-199 continue
+    vRho(1,iGrid) = -Attr
 
   end do
   !                                                                    *
@@ -60,19 +64,24 @@ else
   !                                                                    *
   do iGrid=1,mGrid
 
-    d_alpha = max(Rho_min,Rho(1,iGrid))
-    d_beta = max(Rho_min,Rho(2,iGrid))
+    d_alpha = Rho(1,iGrid)
+    d_beta = Rho(2,iGrid)
     DTot = d_alpha+d_beta
-    if (DTot < T_X) Go To 299
 
-    ! Accumulate contributions to the integrated density
+    ! Accumulate contributions to the nuclear attraction energy
 
-    F_xc(iGrid) = F_xc(iGrid)+Dtot
+    Attr = Zero
+    do i=1,mCenter
+      x = Grid(1,iGrid)-RA(1,i)
+      y = Grid(2,iGrid)-RA(2,i)
+      z = Grid(3,iGrid)-RA(3,i)
+      Fact = ZA(i)/sqrt(x**2+y**2+z**2)
+      Attr = Attr+Fact
+    end do
+    F_xc(iGrid) = F_xc(iGrid)-Attr*DTot
 
-    vRho(1,iGrid) = One
-    vRho(2,iGrid) = One
-
-299 continue
+    vRho(1,iGrid) = -Attr
+    vRho(2,iGrid) = -Attr
 
   end do
   !                                                                    *
@@ -85,4 +94,4 @@ end if
 
 return
 
-end subroutine Overlap
+end subroutine Do_NucAtt_

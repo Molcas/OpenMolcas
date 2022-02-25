@@ -10,137 +10,54 @@
 !                                                                      *
 ! Copyright (C) 2000, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine NucAtt(mGrid,iSpin)
+
+subroutine NucAtt(mGrid,iSpin)
 !***********************************************************************
 !      Author:Roland Lindh, Department of Chemical Physics, University *
 !             of Lund, SWEDEN. November 2000                           *
 !***********************************************************************
-      use nq_Grid, only: Grid
-      use nq_Info
-      Implicit Real*8 (A-H,O-Z)
+
+use nq_Grid, only: Grid
+use nq_Info
+
+implicit real*8(A-H,O-Z)
 #include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"
 #include "debug.fh"
 #include "nsd.fh"
 #include "setup.fh"
-      Real*8, Allocatable:: RA(:,:), ZA(:), Eff(:)
-      Integer, Allocatable:: nStab(:)
-!
-      Call Get_nAtoms_All(mCenter)
-      Call mma_allocate(RA,3,mCenter,Label='RA')
-      Call Get_Coord_All(RA,mCenter)
-!
-      Call mma_allocate(ZA,mCenter,Label='ZA')
-      Call Get_iScalar('Unique atoms',nCenter)
-!
-      Call mma_allocate(nStab,nCenter,Label='nStab')
-      Call Get_iArray('nStab',nStab,nCenter)
-      Call mma_allocate(Eff,nCenter,Label='Eff')
-      Call Get_dArray('Effective Nuclear Charge',Eff,nCenter)
-      Call Get_iScalar('nSym',nSym)
-!
-      iOff = 1
-      Do i = 1, nCenter
-         n=nSym/nStab(i)
-         call dcopy_(n,[Eff(i)],0,ZA(iOff),1)
-         iOff = iOff + n
-      End Do
-!
-      Call mma_deallocate(Eff)
-      Call mma_deallocate(nStab)
-!
-      Call Do_NucAtt_(mGrid,                                            &
-     &                iSpin,                                            &
-     &                Grid,                                             &
-     &                RA,ZA,mCenter)
-!
-      Call mma_deallocate(ZA)
-      Call mma_deallocate(RA)
-!
-      Return
-      End
-      Subroutine Do_NucAtt_(mGrid,iSpin,Grid,RA,ZA,mCenter)
-!***********************************************************************
-!      Author:Roland Lindh, Department of Chemical Physics, University *
-!             of Lund, SWEDEN. November 2000                           *
-!***********************************************************************
-      use nq_Grid, only: F_xc
-      use nq_Grid, only: Rho, vRho
-      Implicit Real*8 (A-H,O-Z)
-#include "real.fh"
-      Real*8 Grid(3,mGrid),RA(3,mCenter),ZA(mCenter)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     iSpin=1
-!
-      vRho(:,:)=Zero
-      If (iSpin.eq.1) Then
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Do iGrid = 1, mGrid
-!
-         d_alpha=Rho(1,iGrid)
-         DTot=Two*d_alpha
-!
-!------- Accumulate contributions to the nuclear attraction energy
-!
-         Attr=Zero
-         Do i = 1, mCenter
-            x=Grid(1,iGrid)-RA(1,i)
-            y=Grid(2,iGrid)-RA(2,i)
-            z=Grid(3,iGrid)-RA(3,i)
-            Fact=ZA(i)/Sqrt(x**2+y**2+z**2)
-            Attr=Attr+Fact
-         End Do
-         F_xc(iGrid)=F_xc(iGrid)-Attr*DTot
-!
-         vRho(1,iGrid)=-Attr
-!
-      End Do
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     iSpin=/=1
-!
-      Else
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Do iGrid = 1, mGrid
-!
-         d_alpha=Rho(1,iGrid)
-         d_beta =Rho(2,iGrid)
-         DTot=d_alpha+d_beta
-!
-!------- Accumulate contributions to the nuclear attraction energy
-!
-         Attr=Zero
-         Do i = 1, mCenter
-            x=Grid(1,iGrid)-RA(1,i)
-            y=Grid(2,iGrid)-RA(2,i)
-            z=Grid(3,iGrid)-RA(3,i)
-            Fact=ZA(i)/Sqrt(x**2+y**2+z**2)
-            Attr=Attr+Fact
-         End Do
-         F_xc(iGrid)=F_xc(iGrid)-Attr*DTot
-!
-         vRho(1,iGrid)=-Attr
-         vRho(2,iGrid)=-Attr
-!
-      End Do
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!
-      Return
-      End
+real*8, allocatable :: RA(:,:), ZA(:), Eff(:)
+integer, allocatable :: nStab(:)
+
+call Get_nAtoms_All(mCenter)
+call mma_allocate(RA,3,mCenter,Label='RA')
+call Get_Coord_All(RA,mCenter)
+
+call mma_allocate(ZA,mCenter,Label='ZA')
+call Get_iScalar('Unique atoms',nCenter)
+
+call mma_allocate(nStab,nCenter,Label='nStab')
+call Get_iArray('nStab',nStab,nCenter)
+call mma_allocate(Eff,nCenter,Label='Eff')
+call Get_dArray('Effective Nuclear Charge',Eff,nCenter)
+call Get_iScalar('nSym',nSym)
+
+iOff = 1
+do i=1,nCenter
+  n = nSym/nStab(i)
+  call dcopy_(n,[Eff(i)],0,ZA(iOff),1)
+  iOff = iOff+n
+end do
+
+call mma_deallocate(Eff)
+call mma_deallocate(nStab)
+
+call Do_NucAtt_(mGrid,iSpin,Grid,RA,ZA,mCenter)
+
+call mma_deallocate(ZA)
+call mma_deallocate(RA)
+
+return
+
+end subroutine NucAtt

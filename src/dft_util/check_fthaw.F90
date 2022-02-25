@@ -8,95 +8,87 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine check_Fthaw(iRC)
 
-      use OFembed, only: ThrFThaw
-      Implicit Real*8 (a-h,o-z)
+subroutine check_Fthaw(iRC)
+
+use OFembed, only: ThrFThaw
+
+implicit real*8(a-h,o-z)
 #include "warnings.h"
-      Character*16 NamRfil
-      Logical ok
-      Real*8 Ene(1000,4)
-!
-      If (ThrFThaw.le.0.0d0) Return
-!
-      Call f_inquire('AUXRFIL',ok)
-      If ( .not.ok ) Return
-!
-      Call Get_NameRun(NamRfil)
-      Call NameRun('AUXRFIL')
-      Call Get_dScalar('Last energy',EneB)
-      Call NameRun(NamRfil)
-      Call Get_dScalar('Last energy',EneA)
-!
-      iSeed=7
-      Lu=IsFreeUnit(iSeed)
-      Call f_inquire('FRETHAW',ok)
-      If ( .not.ok ) Then
-         call molcas_open(Lu,'FRETHAW')
-!        open(Lu,file='FRETHAW')
-         write(Lu,'(I4,2F18.10)') 1, EneA, EneB
-         Go To 99
-      Else
-         call molcas_open(Lu,'FRETHAW')
-!        open(Lu,file='FRETHAW',status='old')
-      EndIf
-!
-      read(Lu,'(I4,2F18.10)') iter0, Ene(1,1), Ene(1,3)
-      If (iter0.eq.1000) Then
-         write(6,*) ' Error! check_Fthaw: maxIter reached! '
-         Call Abend
-      EndIf
-      Do i=2,iter0
-         read(Lu,'(I4,4F18.10)') iter, Ene(i,1), Ene(i,2), Ene(i,3),    &
-     &                                 Ene(i,4)
-      End Do
-!
-      iter=iter0+1
-      DEneA=EneA-Ene(iter0,1)
-      DEneB=EneB-Ene(iter0,3)
-!
-      Rewind Lu
-      write(Lu,'(I4,2F18.10)') iter, Ene(1,1), Ene(1,3)
-      Do i=2,iter0
-         write(Lu,'(I4,4F18.10)') iter, Ene(i,1), Ene(i,2), Ene(i,3),   &
-     &                                  Ene(i,4)
-      End Do
-      write(Lu,'(I4,4F18.10)') iter, EneA, DEneA, EneB, DEneB
-!
-      write(6,*)
-      write(6,*) '**************************************************'// &
-     &           '*****************************'
-      write(6,*) '*************** Energy Statistics for Freeze-n-Thaw'//&
-     &           ' ***************************'
-      write(6,*) '**************************************************'// &
-     &           '*****************************'
-      write(6,*) '         Energy_A       Delta(Energy_A)      '//      &
-     &           'Energy_B       Delta(Energy_B)'
-      write(6,'(I3,1X,F18.10,18X,F18.10)') 1, Ene(1,1), Ene(1,3)
-      Do i=2,iter0
-         write(6,'(I3,1X,4F18.10)') i, Ene(i,1), Ene(i,2), Ene(i,3),    &
-     &                                Ene(i,4)
-      End Do
-      write(6,'(I3,1X,4F18.10)') iter, EneA, DEneA, EneB, DEneB
-      write(6,*) '**************************************************'// &
-     &           '*****************************'
-!
-      If ( abs(DEneA).lt.ThrFThaw .and.                                 &
-     &     abs(DEneB).lt.ThrFThaw ) Then
-         write(6,'(A,E9.2,A)')' Convergence reached ! (Thr = ',ThrFThaw,&
-     &                        ')'
-         write(6,*)
-         iRC=_RC_ALL_IS_WELL_
-         Close(Lu,status='delete')
-         Return
-      Else
-         write(6,'(A,E9.2,A)')' Convergence NOT reached yet ! (Thr = ', &
-     &                        ThrFThaw,')'
-         write(6,*)
-      EndIf
-!
-99    Continue
-      Close(Lu,status='keep')
-!
-      Return
-      End
+character*16 NamRfil
+logical ok
+real*8 Ene(1000,4)
+
+if (ThrFThaw <= 0.0d0) return
+
+call f_inquire('AUXRFIL',ok)
+if (.not. ok) return
+
+call Get_NameRun(NamRfil)
+call NameRun('AUXRFIL')
+call Get_dScalar('Last energy',EneB)
+call NameRun(NamRfil)
+call Get_dScalar('Last energy',EneA)
+
+iSeed = 7
+Lu = IsFreeUnit(iSeed)
+call f_inquire('FRETHAW',ok)
+if (.not. ok) then
+  call molcas_open(Lu,'FRETHAW')
+  !open(Lu,file='FRETHAW')
+  write(Lu,'(I4,2F18.10)') 1,EneA,EneB
+  Go To 99
+else
+  call molcas_open(Lu,'FRETHAW')
+  !open(Lu,file='FRETHAW',status='old')
+end if
+
+read(Lu,'(I4,2F18.10)') iter0,Ene(1,1),Ene(1,3)
+if (iter0 == 1000) then
+  write(6,*) ' Error! check_Fthaw: maxIter reached! '
+  call Abend()
+end if
+do i=2,iter0
+  read(Lu,'(I4,4F18.10)') iter,Ene(i,1),Ene(i,2),Ene(i,3),Ene(i,4)
+end do
+
+iter = iter0+1
+DEneA = EneA-Ene(iter0,1)
+DEneB = EneB-Ene(iter0,3)
+
+rewind Lu
+write(Lu,'(I4,2F18.10)') iter,Ene(1,1),Ene(1,3)
+do i=2,iter0
+  write(Lu,'(I4,4F18.10)') iter,Ene(i,1),Ene(i,2),Ene(i,3),Ene(i,4)
+end do
+write(Lu,'(I4,4F18.10)') iter,EneA,DEneA,EneB,DEneB
+
+write(6,*)
+write(6,*) '*******************************************************************************'
+write(6,*) '*************** Energy Statistics for Freeze-n-Thaw ***************************'
+write(6,*) '*******************************************************************************'
+write(6,*) '         Energy_A       Delta(Energy_A)      Energy_B       Delta(Energy_B)'
+write(6,'(I3,1X,F18.10,18X,F18.10)') 1,Ene(1,1),Ene(1,3)
+do i=2,iter0
+  write(6,'(I3,1X,4F18.10)') i,Ene(i,1),Ene(i,2),Ene(i,3),Ene(i,4)
+end do
+write(6,'(I3,1X,4F18.10)') iter,EneA,DEneA,EneB,DEneB
+write(6,*) '*******************************************************************************'
+
+if ((abs(DEneA) < ThrFThaw) .and. (abs(DEneB) < ThrFThaw)) then
+  write(6,'(A,E9.2,A)') ' Convergence reached ! (Thr = ',ThrFThaw,')'
+  write(6,*)
+  iRC = _RC_ALL_IS_WELL_
+  close(Lu,status='delete')
+  return
+else
+  write(6,'(A,E9.2,A)') ' Convergence NOT reached yet ! (Thr = ',ThrFThaw,')'
+  write(6,*)
+end if
+
+99 continue
+close(Lu,status='keep')
+
+return
+
+end subroutine check_Fthaw

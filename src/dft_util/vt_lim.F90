@@ -7,12 +7,22 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2010, Francesco Aquilante                              *
 !***********************************************************************
 
-module KSDFT_Info
+real*8 function Vt_lim(rho,drho,ddrho)
 
-character(len=80) :: KSDFA
-real*8 :: funcaa = 0.0d0, funcbb = 0.0d0, funccc = 0.0d0
-integer :: LuMC, LuMT
+implicit real*8(a-h,o-z)
+real*8 rho, drho(3), ddrho
+#include "real.fh"
+parameter(One8=One/Eight)
+parameter(One4=One/Four)
 
-end module KSDFT_Info
+rhoinv = One/rho
+rhoinv2 = rhoinv**Two
+xnorm = drho(1)**2+drho(2)**2+drho(3)**2
+
+Vt_lim = One8*xnorm*rhoinv2-One4*ddrho*rhoinv
+
+end function Vt_lim

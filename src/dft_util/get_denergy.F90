@@ -9,10 +9,21 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-module KSDFT_Info
+subroutine Get_dEnergy(Energy)
 
-character(len=80) :: KSDFA
-real*8 :: funcaa = 0.0d0, funcbb = 0.0d0, funccc = 0.0d0
-integer :: LuMC, LuMT
+implicit real*8(a-h,o-z)
+real*8 Energy
+logical Found_EAV
 
-end module KSDFT_Info
+Found_EAV = .false.
+call Qpg_dScalar('Average energy',Found_EAV)
+
+if (Found_EAV) then
+  call Get_dScalar('Average energy',Energy)
+else
+  call Get_dScalar('Last energy',Energy)
+end if
+
+return
+
+end subroutine Get_dEnergy
