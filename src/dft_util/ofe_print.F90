@@ -11,16 +11,17 @@
 
 subroutine OFE_print(Energy_A)
 
-use OFembed, only: dFMD
-use OFembed, only: Rep_EN, Func_AB, Func_A, Func_B, Energy_NAD, V_Nuc_AB, V_Nuc_BA, V_emb
+use OFembed, only: dFMD, Energy_NAD, Func_A, Func_AB, Func_B, Rep_EN, V_emb, V_Nuc_AB, V_Nuc_BA
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
+real(kind=wp), intent(in) :: Energy_A
 #include "Molcas.fh"
-real*8 ReCharge(MxAtom)
-character*16 NamRfil
-character*10 Fmt
-integer Cho_X_GetTol
-external Cho_X_GetTol
+integer(kind=iwp) :: iTol, nAtoms, nSym
+real(kind=wp) :: Ec_A, Energy_B, ReCharge(MxAtom), ZRE_nad !IFG
+character(len=16) :: NamRfil
+integer(kind=iwp), external :: Cho_X_GetTol
 
 call Get_iScalar('nSym',nSym)
 call Get_iScalar('Unique atoms',nAtoms)
@@ -31,7 +32,7 @@ call NameRun('AUXRFIL')
 call PotNuc_nad(nSym,nAtoms,ReCharge,ZRE_nad)
 
 call Get_dEnergy(Energy_B)
-if (dFMD > 0.0) call Get_dScalar('KSDFT energy',Ec_A)
+if (dFMD > Zero) call Get_dScalar('KSDFT energy',Ec_A)
 
 call NameRun(NamRfil)
 
@@ -41,33 +42,34 @@ call Add_Info('V_NUC',[V_Nuc_AB],1,iTol)
 call Add_Info('E_NAD',[Energy_NAD],1,iTol)
 call Add_Info('RP_EN',[Rep_EN],1,iTol)
 
-Fmt = '(A,F19.10)'
-write(6,*)
-write(6,*) '     -----------------------------------------------'
-write(6,*) '      Orbital-Free Embedding Calculation : Results  '
-write(6,*) '     -----------------------------------------------'
-write(6,Fmt) '        DFT energy  (A)    : ',Func_A
-write(6,Fmt) '        DFT energy  (B)    : ',Func_B
-write(6,Fmt) '        DFT energy (A+B)   : ',Func_AB
-write(6,*)
-write(6,Fmt) '        Nonelectr. Vemb    : ',V_emb ! for <A|Vq|A>
-write(6,*)
-write(6,Fmt) '        Energy (A)         : ',Energy_A
-write(6,Fmt) '        Energy (B)         : ',Energy_B
-write(6,Fmt) '        DFT energy (NAD)   : ',Energy_NAD
-write(6,Fmt) '        Vnuc(B)*rhoA       : ',V_Nuc_AB
-write(6,Fmt) '        Vnuc(A)*rhoB       : ',V_Nuc_BA
-write(6,Fmt) '        Electr. repulsion  : ',Rep_EN
-write(6,*) '     -----------------------------------------------'
-write(6,Fmt) '       Nuclear rep. (A--B) : ',ZRE_nad
-write(6,Fmt) '       Energy (A+B)        : ',Energy_B+Energy_A+Energy_NAD+V_Nuc_AB+V_Nuc_BA+Rep_EN+ZRE_nad
-if (dFMD > 0.0) write(6,Fmt) '       SCF restoring Ec(A) : ',Ec_A
-write(6,*) '     -----------------------------------------------'
-write(6,*)
-write(6,*)
+write(u6,*)
+write(u6,*) '     -----------------------------------------------'
+write(u6,*) '      Orbital-Free Embedding Calculation : Results  '
+write(u6,*) '     -----------------------------------------------'
+write(u6,100) '        DFT energy  (A)    : ',Func_A
+write(u6,100) '        DFT energy  (B)    : ',Func_B
+write(u6,100) '        DFT energy (A+B)   : ',Func_AB
+write(u6,*)
+write(u6,100) '        Nonelectr. Vemb    : ',V_emb ! for <A|Vq|A>
+write(u6,*)
+write(u6,100) '        Energy (A)         : ',Energy_A
+write(u6,100) '        Energy (B)         : ',Energy_B
+write(u6,100) '        DFT energy (NAD)   : ',Energy_NAD
+write(u6,100) '        Vnuc(B)*rhoA       : ',V_Nuc_AB
+write(u6,100) '        Vnuc(A)*rhoB       : ',V_Nuc_BA
+write(u6,100) '        Electr. repulsion  : ',Rep_EN
+write(u6,*) '     -----------------------------------------------'
+write(u6,100) '       Nuclear rep. (A--B) : ',ZRE_nad
+write(u6,100) '       Energy (A+B)        : ',Energy_B+Energy_A+Energy_NAD+V_Nuc_AB+V_Nuc_BA+Rep_EN+ZRE_nad
+if (dFMD > Zero) write(u6,100) '       SCF restoring Ec(A) : ',Ec_A
+write(u6,*) '     -----------------------------------------------'
+write(u6,*)
+write(u6,*)
 
 call Put_dScalar('NAD dft energy',Energy_NAD)
 
 return
+
+100 format(A,F19.10)
 
 end subroutine OFE_print

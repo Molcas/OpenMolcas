@@ -11,8 +11,16 @@
 
 module KSDFT_Info
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+private
+
+integer(kind=iwp) :: LuMC, LuMT
+real(kind=wp) :: funcaa = Zero, funcbb = Zero, funccc = Zero
 character(len=80) :: KSDFA
-real*8 :: funcaa = 0.0d0, funcbb = 0.0d0, funccc = 0.0d0
-integer :: LuMC, LuMT
+
+public :: funcaa, funcbb, funccc, KSDFA, LuMC, LuMT
 
 end module KSDFT_Info

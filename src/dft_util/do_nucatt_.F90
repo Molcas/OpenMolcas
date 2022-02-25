@@ -17,12 +17,15 @@ subroutine Do_NucAtt_(mGrid,iSpin,Grid,RA,ZA,mCenter)
 !             of Lund, SWEDEN. November 2000                           *
 !***********************************************************************
 
-use nq_Grid, only: F_xc
-use nq_Grid, only: Rho, vRho
+use nq_Grid, only: F_xc, Rho, vRho
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-real*8 Grid(3,mGrid), RA(3,mCenter), ZA(mCenter)
+implicit none
+integer(kind=iwp), intent(in) :: mGrid, iSpin, mCenter
+real(kind=wp), intent(in) :: Grid(3,mGrid), RA(3,mCenter), ZA(mCenter)
+integer(kind=iwp) :: i, iGrid
+real(kind=wp) :: Attr, d_alpha, d_beta, DTot, Fact, x, y, z
 
 !                                                                      *
 !***********************************************************************

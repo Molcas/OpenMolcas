@@ -40,29 +40,30 @@ subroutine DrvEMB(h1,D,RepNuc,nh1,KSDFT,ExFac,Do_Grad,Grad,nGrad,D1I,D1A,nD1,DFT
 !***********************************************************************
 !***********************************************************************
 
-use OFembed, only: OFE_first, Xsigma, dFMD, NDSD
-use OFembed, only: Func_AB, Func_A, Func_B, Energy_NAD, V_Nuc_AB, V_Nuc_BA, V_emb
+use OFembed, only: dFMD, Energy_NAD, Func_A, Func_AB, Func_B, NDSD, OFE_first, V_emb, V_Nuc_AB, V_Nuc_BA, Xsigma
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, u6, r8
 
-implicit real*8(a-h,o-z)
-external LSDA_emb
-#include "real.fh"
-#include "stdalloc.fh"
+implicit none
+integer(kind=iwp), intent(in) :: nh1, nGrad, nD1
+real(kind=wp), intent(in) :: h1(nh1), D(nh1,2), RepNuc, ExFac, D1I(nD1), D1A(nD1)
+character(len=*), intent(inout) :: KSDFT
+logical(kind=iwp), intent(in) :: Do_Grad
+real(kind=wp), intent(inout) :: Grad(nGrad)
+character(len=4), intent(in) :: DFTFOCK
 #include "debug.fh"
-real*8 h1(nh1), D(nh1,2), Grad(nGrad)
-real*8 D1I(nD1), D1A(nD1)
-logical Do_Grad
-character*(*) KSDFT
-character*4 DFTFOCK
-character*16 NamRfil
-real*8 Vxc_ref(2)
-!real*8 Func_A_TF, Func_B_TF, Func_AB_TF, TF_NAD
-real*8 Func_A_TF, Func_B_TF
-logical is_rhoA_on_file
-real*8 Xlambda
-external Xlambda
-real*8, allocatable :: D_DS(:,:), F_DFT(:,:), Fcorr(:,:), TmpA(:)
+integer(kind=iwp) :: i, iSpin, j, kSpin, nD, nFckDim
+real(kind=wp) :: d_Alpha, d_Beta, DSpn, DTot, Ec_A, Fact, Fact_, Fakt_, Func_A_TF, Func_B_TF, tmp, xElAB, Vxc_ref(2)
+logical(kind=iwp) :: is_rhoA_on_file
+character(len=16) :: NamRfil
+real(kind=wp), allocatable :: D_DS(:,:), F_DFT(:,:), Fcorr(:,:), TmpA(:)
+real(kind=wp), external :: Xlambda
+real(kind=r8), external :: dDot_
 #ifdef _NOT_USED_
-real*8, allocatable :: Vemb(:), D1ao_x(:)
+integer(kind=iwp) :: nDens
+real(kind=wp) :: Func_AB_TF, TF_NAD, V_emb_x, V_emb_x_ref, Xint_Ts_A, Xint_Ts_AB, Xint_Ts_NAD, Xnorm, Ynorm
+real(kind=wp), allocatable :: D1ao_x(:), D1ao_y(:), Vemb(:)
 #endif
 
 Debug = .false.
@@ -89,17 +90,17 @@ if (.not. OFE_first) then
   ! Subtract V_nuc_B
   call daxpy_(nh1,-One,TmpA,1,Vemb,1)
   ! Calculate nonelectr. V_emb with current Density
-  Ynorm = dDot_(nh1,WD1ao_y,1,D1ao_y,1)
+  Ynorm = dDot_(nh1,D1ao_y,1,D1ao_y,1)
   V_emb_x = dDot_(nh1,Vemb,1,D1ao_y,1)
-  write(6,'(A,F19.10,4X,A,F10.5)') 'Nonelectr. Vemb w. current density: ',V_emb_x,'Y_Norm = ',Ynorm
+  write(u6,'(A,F19.10,4X,A,F10.5)') 'Nonelectr. Vemb w. current density: ',V_emb_x,'Y_Norm = ',Ynorm
   call mma_deallocate(D1ao_y)
   ! Get rho_A_ref
   call NameRun('PRERFIL')
   call mma_allocate(D1ao_x,nDens,Label='D1ao_x')
-  call get_dArray('D1ao',ipD1ao_x,nDens)
+  call get_dArray('D1ao',D1ao_x,nDens)
   Xnorm = dDot_(nh1,D1ao_x,1,D1ao_x,1)
-  V_emb_x_ref = dDot_(nh1,Vemb,1,pD1ao_x,1)
-  write(6,'(A,F19.10,4X,A,F10.5)') 'Nonelectr. Vemb w.    ref. density: ',V_emb_x_ref,'X_Norm = ',Xnorm
+  V_emb_x_ref = dDot_(nh1,Vemb,1,D1ao_x,1)
+  write(u6,'(A,F19.10,4X,A,F10.5)') 'Nonelectr. Vemb w.    ref. density: ',V_emb_x_ref,'X_Norm = ',Xnorm
   call VEMB_Exc_states(Vemb,nh1,KSDFT,Func_B)
   call mma_deallocate(TmpA)
   call mma_deallocate(D1ao_x)
@@ -163,7 +164,7 @@ end if
 !if (OFE_first) then
 !---AZECH 10/2015
 ! kinetic part of E_xct, Subsys B
-Func_B_TF = 0.0d0
+Func_B_TF = Zero
 call wrap_DrvNQ('TF_only',F_DFT(:,1:nFckDim),nFckDim,Func_B_TF,D_DS(:,1:nFckDim),nh1,nFckDim,Do_Grad,Grad,nGrad,DFTFOCK)
 
 if (OFE_first) then
@@ -171,7 +172,7 @@ if (OFE_first) then
   call wrap_DrvNQ(KSDFT,F_DFT(:,1:nFckDim),nFckDim,Func_B,D_DS(:,1:nFckDim),nh1,nFckDim,Do_Grad,Grad,nGrad,DFTFOCK)
 
   if (KSDFT(1:4) == 'NDSD') then
-    call mma_Allocate(NDSD,nh1,nFckDim,Label='NDSD')
+    call mma_allocate(NDSD,nh1,nFckDim,Label='NDSD')
     NDSD(1:nh1,1:nFckDim) = F_DFT(1:nh1,1:nFckDim)
     KSDFT(1:4) = 'LDTF' !set to Thomas-Fermi for subsequent calls
   end if
@@ -232,9 +233,9 @@ call wrap_DrvNQ(KSDFT,F_DFT(:,3:nFckDim+2),nFckDim,Func_A,D_DS(:,3:nFckDim+2),nh
 
 ! Fraction of correlation potential from A (cases: HF or Trunc. CI)
 
-if (dFMD > 0.0d0) then
+if (dFMD > Zero) then
 
-  call mma_Allocate(Fcorr,nh1,nFckDim,Label='Fcorr')
+  call mma_allocate(Fcorr,nh1,nFckDim,Label='Fcorr')
 
   call cwrap_DrvNQ(KSDFT,F_DFT(:,3:nFckDim+2),nFckDim,Ec_A,D_DS(:,3:nFckDim+2),nh1,nFckDim,Do_Grad,Grad,nGrad,DFTFOCK, &
                    Fcorr(:,1:nFckDim))
@@ -258,25 +259,25 @@ end if
 ! kinetic part of E_xct, Subsys A+B
 ! temporarily turned off to clean output
 if (.false.) then
-  Func_AB_TF = 0.0d0
+  Func_AB_TF = Zero
   call wrap_DrvNQ('TF_only',F_DFT(:,1:nFckDim),nFckDim,Func_AB_TF,D_DS(:,1:nFckDim),nh1,nFckDim,Do_Grad,Grad,nGrad,DFTFOCK)
   TF_NAD = Func_AB_TF-Func_A_TF-Func_B_TF
-  write(6,*) 'kinetic part of E_xc,T (Thomas-Fermi ONLY)'
-  write(6,'(A,F19.10)') 'Ts(A+B): ',Func_AB_TF
-  write(6,'(A,F19.10)') 'Ts(A):   ',Func_A_TF
-  write(6,'(A,F19.10)') 'Ts(B):   ',Func_B_TF
-  write(6,'(A,F19.10)') '-------------------'
-  write(6,'(A,F19.10)') 'Ts_NAD:  ',TF_NAD
+  write(u6,*) 'kinetic part of E_xc,T (Thomas-Fermi ONLY)'
+  write(u6,'(A,F19.10)') 'Ts(A+B): ',Func_AB_TF
+  write(u6,'(A,F19.10)') 'Ts(A):   ',Func_A_TF
+  write(u6,'(A,F19.10)') 'Ts(B):   ',Func_B_TF
+  write(u6,'(A,F19.10)') '-------------------'
+  write(u6,'(A,F19.10)') 'Ts_NAD:  ',TF_NAD
   ! calculate v_T, Subsys A+B
   Xint_Ts_AB = dDot_(nh1,F_DFT(:,1),1,D_DS(:,3),1)
   Xint_Ts_NAD = Xint_Ts_AB-Xint_Ts_A
   ! scale by 2 because wrapper only handles spin-densities
   Xint_Ts_NAD = Two*Xint_Ts_NAD
-  write(6,*) 'integrated v_Ts_NAD (Thomas-Fermi) with rhoA current'
-  write(6,'(A,F19.10)') 'Ts(A+B)_integral: ',Xint_Ts_AB
-  write(6,'(A,F19.10)') 'Ts(A)_integral:   ',Xint_Ts_A
-  write(6,'(A,F19.10)') '-------------------'
-  write(6,'(A,F19.10)') 'Ts_NAD_integral:  ',Xint_Ts_NAD
+  write(u6,*) 'integrated v_Ts_NAD (Thomas-Fermi) with rhoA current'
+  write(u6,'(A,F19.10)') 'Ts(A+B)_integral: ',Xint_Ts_AB
+  write(u6,'(A,F19.10)') 'Ts(A)_integral:   ',Xint_Ts_A
+  write(u6,'(A,F19.10)') '-------------------'
+  write(u6,'(A,F19.10)') 'Ts_NAD_integral:  ',Xint_Ts_NAD
 end if
 #endif
 
@@ -287,18 +288,18 @@ Energy_NAD = Func_AB-Func_A-Func_B
 !---AZECH 10/2015
 ! exchange-correlation part of E_xct, Subsys A+B
 ! temporarily turned off to clean output
-!write(6,*) 'E_xc_NAD (determined with Thomas-Fermi)'
+!write(u6,*) 'E_xc_NAD (determined with Thomas-Fermi)'
 !Func_xc_NAD = Energy_NAD-TF_NAD
-!write(6,'(A,F19.10)') 'E_xc_NAD: ',Func_xc_NAD
+!write(u6,'(A,F19.10)') 'E_xc_NAD: ',Func_xc_NAD
 
-if (dFMD > 0.0d0) then
+if (dFMD > Zero) then
   call Get_electrons(xElAB)
-  Fakt_ = -1.0d0*Xlambda(abs(Energy_NAD)/xElAB,Xsigma)
+  Fakt_ = -Xlambda(abs(Energy_NAD)/xElAB,Xsigma)
   call daxpy_(nh1*nFckDim,Fakt_,Fcorr(:,1:nFckDim),1,F_DFT(:,3:nFckDim+2),1)
   call mma_deallocate(Fcorr)
-#ifdef _DEBUGPRINT_
-  write(6,*) ' lambda(E_nad) = ',dFMD*Fakt_
-#endif
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' lambda(E_nad) = ',dFMD*Fakt_
+# endif
 end if
 
 !                                                                      *
@@ -351,11 +352,11 @@ if ((iSpin == 1) .and. (kSpin /= 1)) then
 end if
 
 do i=1,nFckDim
-  call daxpy_(nh1,1.0d0,TmpA,1,F_DFT(:,i),1)
+  call daxpy_(nh1,One,TmpA,1,F_DFT(:,i),1)
   Vxc_ref(i) = Fact*dDot_(nh1,F_DFT(:,i),1,D_DS(:,i+2),1)
 end do
 
-if (dFMD > 0.0d0) call Put_dScalar('KSDFT energy',Ec_A)
+if (dFMD > Zero) call Put_dScalar('KSDFT energy',Ec_A)
 call Put_dArray('Vxc_ref ',Vxc_ref,2)
 
 call Put_dArray('dExcdRa',F_DFT(:,1:nFckDim),nh1*nFckDim)
@@ -372,14 +373,14 @@ call mma_deallocate(TmpA)
 #ifdef _DEBUGPRINT_
 if (nFckDim == 1) then
   do i=1,nh1
-    write(6,'(i4,f22.16)') i,F_DFT(i,1)
+    write(u6,'(i4,f22.16)') i,F_DFT(i,1)
   end do
 else
   do i=1,nh1
-    write(6,'(i4,3f22.16)') i,F_DFT(i,1),F_DFT(i,2),(F_DFT(i,1)+F_DFT(i,2))/2.0d0
+    write(u6,'(i4,3f22.16)') i,F_DFT(i,1),F_DFT(i,2),Half*(F_DFT(i,1)+F_DFT(i,2))
   end do
 end if
-write(6,'(a,f22.16)') ' NAD DFT Energy :',Energy_NAD
+write(u6,'(a,f22.16)') ' NAD DFT Energy :',Energy_NAD
 #endif
 
 call mma_deallocate(F_DFT)

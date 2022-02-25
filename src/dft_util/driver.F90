@@ -13,44 +13,45 @@
 
 subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD,DFTFOCK)
 
-use libxc_parameters
-use xc_f03_lib_m
+use libxc_parameters, only: Coeffs, func_id, initiate_libxc_functionals, libxc_functionals, nFuncs, nFuncs_max, &
+                            remove_libxc_functionals
+use xc_f03_lib_m, only: XC_CORRELATION, XC_EXCHANGE, xc_f03_func_end, xc_f03_func_get_info, xc_f03_func_info_get_kind, &
+                        xc_f03_func_init, xc_f03_func_t, xc_f03_func_info_t, XC_GGA_K_TFVW, XC_LDA_K_TF
 use Functionals, only: Get_Funcs
-use OFembed, only: KEOnly, dFMD, Do_Core
+use OFembed, only: dFMD, Do_Core, KEOnly
 use libxc, only: Only_exc
 use nq_Grid, only: l_casdft
 use nq_pdft, only: lft
-use Definitions, only: LibxcInt
-use nq_Info
+use nq_Info, only: Functional_type, GGA_Type, LDA_Type
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6, LibxcInt
 
 implicit none
-#include "real.fh"
+character(len=*), intent(in) :: KSDFA
+logical(kind=iwp), intent(in) :: Do_Grad
+integer(kind=iwp), intent(in) :: nGrad, nh1, nD
+real(kind=wp), intent(inout) :: Func, Grad(nGrad), F_DFT(nh1,nD)
+logical(kind=iwp), intent(inout) :: Do_MO, Do_TwoEl
+real(kind=wp), intent(in) :: D_DS(nh1,nD)
+character(len=4), intent(in) :: DFTFOCK
 #include "ksdft.fh"
-character*(*) KSDFA
-logical Do_Grad
-integer :: i, j, nGrad, nh1, nD
-real*8 :: Func, Grad(nGrad)
-logical Do_MO, Do_TwoEl
-real*8 :: D_DS(nh1,nD), F_DFT(nh1,nD)
-character*4 DFTFOCK
-logical :: LDTF, NDSD
-character(LEN=80) :: FLabel
+integer(kind=iwp) :: i, j
+logical(kind=iwp) :: LDTF, NDSD
+character(len=80) :: FLabel
 type(xc_f03_func_t) :: func_
 type(xc_f03_func_info_t) :: info_
-abstract interface
-  subroutine DFT_FUNCTIONAL(mGrid,nD)
-    integer mGrid, nD
-  end subroutine
-end interface
 !***********************************************************************
 ! Define external functions not defined in LibXC. These are either
-! accessed through the procedure pointer sub or External_sub.
+! accessed through the procedure pointer Sub or External_sub.
+abstract interface
+  subroutine DFT_FUNCTIONAL(mGrid,nD)
+    import :: iwp
+    integer(kind=iwp) :: mGrid, nD
+  end subroutine
+end interface
 procedure(DFT_FUNCTIONAL) :: Overlap, NucAtt, ndsd_ts
+procedure(DFT_FUNCTIONAL), pointer :: Sub, External_sub
 !***********************************************************************
-procedure(DFT_FUNCTIONAL), pointer :: sub => null()
-! Sometime we need an external routine which covers something which
-! Libxc doesn't support.
-procedure(DFT_FUNCTIONAL), pointer :: External_sub => null()
 
 !                                                                      *
 !***********************************************************************
@@ -91,7 +92,8 @@ end if
 ! Coefficient for the individual contibutions are defaulted to 1.0
 
 Sub => libxc_functionals     ! Default
-Coeffs(:) = 1.0d0            ! Default
+External_Sub => null()       ! Default
+Coeffs(:) = One              ! Default
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -149,7 +151,7 @@ end select
 !***********************************************************************
 !                                                                      *
 if ((Functional_type /= LDA_type) .and. (Functional_type /= GGA_type) .and. l_CasDFT) then
-  write(6,*) ' MC-PDFT combined with invalid functional class'
+  write(u6,*) ' MC-PDFT combined with invalid functional class'
   call Abend()
 end if
 !                                                                      *
@@ -175,7 +177,7 @@ else if (LDTF) then
     info_ = xc_f03_func_get_info(func_)
     if (xc_f03_func_info_get_kind(info_) == XC_EXCHANGE) then
       if (nFuncs == nFuncs_max) then
-        write(6,*) ' Too many functionals for LDTF'
+        write(u6,*) ' Too many functionals for LDTF'
         call Abend()
       end if
       func_id(nFuncs+1) = XC_LDA_K_TF
@@ -219,8 +221,6 @@ if (associated(Sub,libxc_functionals)) call Remove_libxc_functionals()
 
 if (associated(External_Sub)) call DrvNQ(External_Sub,F_DFT,nD,Func,D_DS,nh1,nD,Do_Grad,Grad,nGrad,Do_MO,Do_TwoEl,DFTFOCK)
 
-Sub => null()
-External_Sub => null()
 Only_exc = .false.
 LDTF = .false.
 NDSD = .false.

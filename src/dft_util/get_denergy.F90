@@ -11,9 +11,11 @@
 
 subroutine Get_dEnergy(Energy)
 
-implicit real*8(a-h,o-z)
-real*8 Energy
-logical Found_EAV
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp), intent(out) :: Energy
+logical(kind=iwp) :: Found_EAV
 
 Found_EAV = .false.
 call Qpg_dScalar('Average energy',Found_EAV)

@@ -18,17 +18,14 @@ subroutine NucAtt(mGrid,iSpin)
 !***********************************************************************
 
 use nq_Grid, only: Grid
-use nq_Info
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "stdalloc.fh"
-#include "print.fh"
-#include "debug.fh"
-#include "nsd.fh"
-#include "setup.fh"
-real*8, allocatable :: RA(:,:), ZA(:), Eff(:)
-integer, allocatable :: nStab(:)
+implicit none
+integer(kind=iwp) :: mGrid, iSpin
+integer(kind=iwp) :: i, iOff, mCenter, n, nCenter, nSym
+integer(kind=iwp), allocatable :: nStab(:)
+real(kind=wp), allocatable :: Eff(:), RA(:,:), ZA(:)
 
 call Get_nAtoms_All(mCenter)
 call mma_allocate(RA,3,mCenter,Label='RA')

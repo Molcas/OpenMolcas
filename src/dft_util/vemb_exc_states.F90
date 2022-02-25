@@ -14,23 +14,26 @@
 
 subroutine VEMB_Exc_states(Vemb,nVemb,xKSDFT,Func_Bx)
 
-implicit real*8(a-h,o-z)
-real*8 Vemb(nVemb)
-real*8 Func_Bx
-character*(*) xKSDFT
-character*16 MyNamRfil
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Half
+use Definitions, only: wp, iwp, u6, r8
+
+implicit none
+integer(kind=iwp), intent(in) :: nVemb
+real(kind=wp), intent(inout) :: Vemb(nVemb)
+character(len=*), intent(in) :: xKSDFT
+real(kind=wp), intent(in) :: Func_Bx
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "gas.fh"
-#include "ciinfo.fh"
-#include "rctfld.fh"
-#include "stdalloc.fh"
-#include "SysDef.fh"
-real*8, allocatable :: D1ao_b(:), F_DFT(:)
-real*8, allocatable :: xxCMO(:), xxOCCN(:), DState(:)
-real*8 :: Dummy(1) = [0.0d0]
-integer :: nDummy = 1
+integer(kind=iwp) :: IAD12, KROOT, nDummy
+real(kind=wp) :: DFT_NAD, Dummy(1), Func_A, Func_AB, Vemb_Xstate
+character(len=16) :: MyNamRfil
+real(kind=wp), allocatable :: D1ao_b(:), DState(:), F_DFT(:), xxCMO(:), xxOCCN(:)
+real(kind=r8), external :: ddot_
+
+nDummy = 1
+Dummy(1) = Zero
 
 IAD12 = IADR15(12)
 
@@ -49,33 +52,33 @@ do KROOT=1,LROOTS
   end if
   ! Get GS and excited state densities:
   ! Fill allocated mem with zeroes.
-  DSTATE(:) = 0.0d0
+  DSTATE(:) = Zero
 
   call DONE_RASSCF(xxCMO,xxOCCN,DState) ! computes D=CnC'
   ! Nonelectr. Vemb with GS and excited state density
   Vemb_Xstate = ddot_(nVemb,Vemb,1,DState,1)
-  !write(6,*) 'Kroot, Vemb_K ',KROOT,Vemb_Xstate
-  write(6,'(A,F19.10,3X,A,I3)') 'Nonelectr. Vemb w. rhoA_emb =',Vemb_Xstate,'root = ',KROOT
+  !write(u6,*) 'Kroot, Vemb_K ',KROOT,Vemb_Xstate
+  write(u6,'(A,F19.10,3X,A,I3)') 'Nonelectr. Vemb w. rhoA_emb =',Vemb_Xstate,'root = ',KROOT
   ! E_xc,T[rhoA]
-  Func_A = 0.0d0
-  F_DFT(:) = 0.0d0
-  call dscal_(nVemb,0.5d0,DState,1)
+  Func_A = Zero
+  F_DFT(:) = Zero
+  call dscal_(nVemb,Half,DState,1)
   call wrap_DrvNQ(xKSDFT,F_DFT,1,Func_A,DState,nVemb,1,.false.,Dummy,nDummy,'SCF ')
-  !write(6,*) 'Kroot, Func_A ',KROOT,Func_A
+  !write(u6,*) 'Kroot, Func_A ',KROOT,Func_A
   ! E_xc,T[rhoA+rhoB]
   call Get_NameRun(MyNamRfil) ! save current Runfile name
   call NameRun('AUXRFIL') ! switch RUNFILE name
   call Get_D1ao(D1ao_b,nVemb)
-  call daxpy_(nVemb,0.5d0,D1ao_b,1,DState,1)
+  call daxpy_(nVemb,Half,D1ao_b,1,DState,1)
 
-  Func_AB = 0.0d0
-  F_DFT(:) = 0.0d0
+  Func_AB = Zero
+  F_DFT(:) = Zero
   call wrap_DrvNQ(xKSDFT,F_DFT,1,Func_AB,DState,nVemb,1,.false.,Dummy,nDummy,'SCF ')
-  !write(6,*) 'Kroot, Func_AB',KROOT,Func_AB
-  !write(6,*) 'Kroot, Func_Bx',KROOT,Func_Bx
+  !write(u6,*) 'Kroot, Func_AB',KROOT,Func_AB
+  !write(u6,*) 'Kroot, Func_Bx',KROOT,Func_Bx
   ! Calculate DFT NAD for all densities:
   DFT_NAD = Func_AB-Func_A-Func_Bx
-  write(6,'(A,F19.10,3X,A,I3)') 'DFT energy (NAD) =           ',DFT_NAD,'root = ',KROOT
+  write(u6,'(A,F19.10,3X,A,I3)') 'DFT energy (NAD) =           ',DFT_NAD,'root = ',KROOT
   call NameRun(MyNamRfil) ! go back to MyNamRfil
 end do
 call mma_deallocate(D1ao_b)

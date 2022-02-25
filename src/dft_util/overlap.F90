@@ -17,19 +17,22 @@ subroutine Overlap(mGrid,iSpin)
 !             of Lund, SWEDEN. November 2000                           *
 !***********************************************************************
 
-use nq_Grid, only: F_xc
-use nq_Grid, only: Rho, vRho
+use nq_Grid, only: F_xc, Rho, vRho
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-real*8, parameter :: T_x = 1.0D-20
+implicit none
+integer(kind=iwp), intent(in) :: mGrid, iSpin
+integer(kind=iwp) :: iGrid
+real(kind=wp) :: d_alpha, d_beta, DTot, Rho_Min
+real(kind=wp), parameter :: T_x = 1.0e-20_wp
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 
 vRho(:,:) = Zero
-Rho_Min = T_X*1.0D-2
+Rho_Min = T_X*1.0e-2_wp
 if (iSpin == 1) then
   ! iSpin=1
   !                                                                    *

@@ -14,21 +14,28 @@
 subroutine DrvDFT(h1,TwoHam,D,RepNuc,nh1,First,Dff,lRF,KSDFT,ExFac,Do_Grad,Grad,nGrad,iSpin,D1I,D1A,nD1,DFTFOCK)
 
 use KSDFT_Info, only: KSDFA, funcaa, funcbb, funccc
-use nq_Info
+use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I, Dens_t1, Dens_t2, Energy_integrated, Grad_I, mBas, mIrrep, nFro, &
+                   nIsh, Tau_I
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, r8
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
+implicit none
+integer(kind=iwp), intent(in) :: nh1, nGrad, iSpin, nD1
+real(kind=wp), intent(inout) :: h1(nh1), Grad(nGrad)
+real(kind=wp), intent(in) :: TwoHam(nh1), D(nh1,2), RepNuc, D1I(nD1), D1A(nD1)
+logical(kind=iwp), intent(in) :: First, Dff, lRF, Do_Grad
+character(len=*), intent(in) :: KSDFT
+real(kind=wp), intent(out) :: ExFac
+character(len=4), intent(in) :: DFTFOCK
 #include "debug.fh"
-#include "pamint.fh"
 #include "ksdft.fh"
-real*8 h1(nh1), TwoHam(nh1), D(nh1,2), Grad(nGrad), Vxc_ref(2)
-real*8 D1I(nD1), D1A(nD1)
-logical First, Dff, lRF, Do_Grad
-logical Do_MO, Do_TwoEl
-character*(*) KSDFT
-character*4 DFTFOCK
-real*8, allocatable :: D_DS(:,:), F_DFT(:,:)
+integer(kind=iwp) :: i, nD, nFckDim
+real(kind=wp) :: d_Alpha, d_Beta, DSpn, DTot, Fact, Func, Vxc_ref(2)
+logical(kind=iwp) :: Do_MO, Do_TwoEl
+real(kind=wp), allocatable :: D_DS(:,:), F_DFT(:,:)
+real(kind=wp), external :: Get_ExFac
+real(kind=r8), external :: DDot_
 
 !                                                                      *
 !***********************************************************************
@@ -155,16 +162,16 @@ else
   call Poke_dScalar('KSDFT energy',Energy_integrated)
   call Put_dScalar('CASDFT energy',Energy_integrated)
   call Put_dExcdRa(F_DFT,nFckDim*nh1)
-  !write(6,'(a,f22.16)') ' Energy in drvdft ',Energy_integrated
+  !write(u6,'(a,f22.16)') ' Energy in drvdft ',Energy_integrated
 # ifdef _DEBUGPRINT_
-  write(6,'(a,f22.16)') ' Energy ',Energy_integrated
+  write(u6,'(a,f22.16)') ' Energy ',Energy_integrated
   if (nFckDim == 1) then
     do i=1,nh1
-      write(6,'(i4,f22.16)') i,F_DFT(i,1)
+      write(u6,'(i4,f22.16)') i,F_DFT(i,1)
     end do
   else
     do i=1,nh1
-      write(6,'(i4,3f22.16)') i,F_DFT(i,1),F_DFT(i,2),F_DFT(i,1)+F_DFT(i,2)/2.0d0
+      write(u6,'(i4,3f22.16)') i,F_DFT(i,1),F_DFT(i,2),Half*(F_DFT(i,1)+F_DFT(i,2))
     end do
   end if
 # endif

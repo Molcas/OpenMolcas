@@ -11,7 +11,7 @@
 ! Copyright (C) 2010, Francesco Aquilante                              *
 !***********************************************************************
 
-real*8 function Fexp(rho,drho)
+function Fexp(rho,drho)
 !***********************************************************************
 !***********************************************************************
 !**                                                                  ***
@@ -24,14 +24,14 @@ real*8 function Fexp(rho,drho)
 !***********************************************************************
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-real*8 lambda, rho, drho(3)
-#include "real.fh"
-parameter(One3=One/Three)
-parameter(sBmin=0.3d0)
-parameter(sBmax=0.9d0)
-parameter(rBmin=0.7d0)
-parameter(lambda=5.0d2)
+use Constants, only: One, Three, Two, Pi
+use Definitions, only: wp
+
+implicit none
+real(kind=wp) :: Fexp
+real(kind=wp), intent(in) :: rho, drho(3)
+real(kind=wp) :: eir_rBmin, eis_sBmax, eis_sBmin, er_rBmin, es_sBmax, es_sBmin, fact, factinv, rhoinv, rhoinv13, sB, xnorm, xnorm_
+real(kind=wp), parameter :: lambda = 5.0e2_wp, One3 = One/Three, rBmin = 0.7_wp, sBmin = 0.3_wp, sBmax = 0.9_wp
 
 rhoinv = One/rho
 rhoinv13 = rhoinv**One3

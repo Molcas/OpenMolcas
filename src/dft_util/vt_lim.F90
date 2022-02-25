@@ -11,18 +11,21 @@
 ! Copyright (C) 2010, Francesco Aquilante                              *
 !***********************************************************************
 
-real*8 function Vt_lim(rho,drho,ddrho)
+function Vt_lim(rho,drho,ddrho)
 
-implicit real*8(a-h,o-z)
-real*8 rho, drho(3), ddrho
-#include "real.fh"
-parameter(One8=One/Eight)
-parameter(One4=One/Four)
+use Constants, only: One, Two, Eight, Quart
+use Definitions, only: wp
+
+implicit none
+real(kind=wp) :: Vt_lim
+real(kind=wp), intent(in) :: rho, drho(3), ddrho
+real(kind=wp) :: rhoinv, rhoinv2, xnorm
+real(kind=wp), parameter :: One8 = One/Eight
 
 rhoinv = One/rho
 rhoinv2 = rhoinv**Two
 xnorm = drho(1)**2+drho(2)**2+drho(3)**2
 
-Vt_lim = One8*xnorm*rhoinv2-One4*ddrho*rhoinv
+Vt_lim = One8*xnorm*rhoinv2-Quart*ddrho*rhoinv
 
 end function Vt_lim

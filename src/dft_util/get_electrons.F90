@@ -14,11 +14,11 @@
 
 subroutine Get_electrons(xnElect)
 
-use nq_Info
+use nq_Info, only: Dens_I
+use Definitions, only: wp
 
-implicit real*8(a-h,o-z)
-real*8 xnElect
-#include "real.fh"
+implicit none
+real(kind=wp), intent(out) :: xnElect
 
 xnElect = Dens_I
 

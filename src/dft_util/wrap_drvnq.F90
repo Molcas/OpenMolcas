@@ -14,18 +14,20 @@
 
 subroutine Wrap_DrvNQ(KSDFT,F_DFT,nFckDim,Func,D_DS,nh1,nD_DS,Do_Grad,Grad,nGrad,DFTFOCK)
 
-use nq_Info
+use nq_Info, only: Dens_I, Grad_I, mBas, mIrrep, nAsh, nFro, nIsh, Tau_I
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-character*(*) KSDFT
-integer nh1, nFckDim, nD_DS
-real*8 F_DFT(nh1,nFckDim), D_DS(nh1,nD_DS), Func
-logical Do_Grad
-real*8 Grad(nGrad)
-character*4 DFTFOCK
-#include "real.fh"
-#include "debug.fh"
-logical Do_MO, Do_TwoEl, F_nAsh
+implicit none
+character(len=*), intent(in) :: KSDFT
+integer(kind=iwp), intent(in) :: nFckDim, nh1, nD_DS, nGrad
+real(kind=wp), intent(inout) :: F_DFT(nh1,nFckDim), Grad(nGrad)
+real(kind=wp), intent(out) :: Func
+real(kind=wp), intent(in) :: D_DS(nh1,nD_DS)
+logical(kind=iwp), intent(in) :: Do_Grad
+character(len=4), intent(in) :: DFTFOCK
+integer(kind=iwp) :: nOrbA
+logical(kind=iwp) :: Do_MO, Do_TwoEl, F_nAsh
 
 !                                                                      *
 !***********************************************************************

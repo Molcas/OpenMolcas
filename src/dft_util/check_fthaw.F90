@@ -12,14 +12,19 @@
 subroutine check_Fthaw(iRC)
 
 use OFembed, only: ThrFThaw
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp), intent(inout) :: iRC
 #include "warnings.h"
-character*16 NamRfil
-logical ok
-real*8 Ene(1000,4)
+integer(kind=iwp) :: i, iSeed, iter, iter0, Lu
+real(kind=wp) :: DEneA, DEneB, Ene(1000,4), EneA, EneB !IFG
+logical(kind=iwp) :: ok
+character(len=16) :: NamRfil
+integer(kind=iwp), external :: IsFreeUnit
 
-if (ThrFThaw <= 0.0d0) return
+if (ThrFThaw <= Zero) return
 
 call f_inquire('AUXRFIL',ok)
 if (.not. ok) return
@@ -45,7 +50,7 @@ end if
 
 read(Lu,'(I4,2F18.10)') iter0,Ene(1,1),Ene(1,3)
 if (iter0 == 1000) then
-  write(6,*) ' Error! check_Fthaw: maxIter reached! '
+  write(u6,*) ' Error! check_Fthaw: maxIter reached! '
   call Abend()
 end if
 do i=2,iter0
@@ -63,27 +68,27 @@ do i=2,iter0
 end do
 write(Lu,'(I4,4F18.10)') iter,EneA,DEneA,EneB,DEneB
 
-write(6,*)
-write(6,*) '*******************************************************************************'
-write(6,*) '*************** Energy Statistics for Freeze-n-Thaw ***************************'
-write(6,*) '*******************************************************************************'
-write(6,*) '         Energy_A       Delta(Energy_A)      Energy_B       Delta(Energy_B)'
-write(6,'(I3,1X,F18.10,18X,F18.10)') 1,Ene(1,1),Ene(1,3)
+write(u6,*)
+write(u6,*) '*******************************************************************************'
+write(u6,*) '*************** Energy Statistics for Freeze-n-Thaw ***************************'
+write(u6,*) '*******************************************************************************'
+write(u6,*) '         Energy_A       Delta(Energy_A)      Energy_B       Delta(Energy_B)'
+write(u6,'(I3,1X,F18.10,18X,F18.10)') 1,Ene(1,1),Ene(1,3)
 do i=2,iter0
-  write(6,'(I3,1X,4F18.10)') i,Ene(i,1),Ene(i,2),Ene(i,3),Ene(i,4)
+  write(u6,'(I3,1X,4F18.10)') i,Ene(i,1),Ene(i,2),Ene(i,3),Ene(i,4)
 end do
-write(6,'(I3,1X,4F18.10)') iter,EneA,DEneA,EneB,DEneB
-write(6,*) '*******************************************************************************'
+write(u6,'(I3,1X,4F18.10)') iter,EneA,DEneA,EneB,DEneB
+write(u6,*) '*******************************************************************************'
 
 if ((abs(DEneA) < ThrFThaw) .and. (abs(DEneB) < ThrFThaw)) then
-  write(6,'(A,E9.2,A)') ' Convergence reached ! (Thr = ',ThrFThaw,')'
-  write(6,*)
+  write(u6,'(A,E9.2,A)') ' Convergence reached ! (Thr = ',ThrFThaw,')'
+  write(u6,*)
   iRC = _RC_ALL_IS_WELL_
   close(Lu,status='delete')
   return
 else
-  write(6,'(A,E9.2,A)') ' Convergence NOT reached yet ! (Thr = ',ThrFThaw,')'
-  write(6,*)
+  write(u6,'(A,E9.2,A)') ' Convergence NOT reached yet ! (Thr = ',ThrFThaw,')'
+  write(u6,*)
 end if
 
 99 continue

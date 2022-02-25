@@ -12,15 +12,19 @@
 !               2015,2017, Alexander Zech                              *
 !***********************************************************************
 
-real*8 function Xlambda(omega,sigma)
+function Xlambda(omega,sigma)
 
-implicit real*8(a-h,o-z)
-real*8 omega, sigma
+use Constants, only: One
+use Definitions, only: wp
 
-if (sigma*omega > 42d0) then
-  Xlambda = 1.0d0
+implicit none
+real(kind=wp) :: Xlambda
+real(kind=wp), intent(in) :: omega, sigma
+
+if (sigma*omega > 42.0_wp) then
+  Xlambda = One
 else
-  Xlambda = 1.0d0-exp(-sigma*omega)
+  Xlambda = One-exp(-sigma*omega)
 end if
 
 end function Xlambda

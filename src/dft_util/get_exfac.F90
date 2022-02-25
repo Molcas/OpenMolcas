@@ -16,12 +16,13 @@ function Get_ExFac(KSDFT)
 !***********************************************************************
 
 use Functionals, only: Get_Func_ExFac
+use Constants, only: Zero, One
+use Definitions, only: wp
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 Get_ExFac
-character*(*) KSDFT
-character(len=80) cTmp
+implicit none
+real(kind=wp) :: Get_ExFac
+character(len=*), intent(in) :: KSDFT
+character(len=80) :: cTmp
 
 !                                                                      *
 !***********************************************************************

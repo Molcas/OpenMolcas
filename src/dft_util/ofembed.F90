@@ -13,17 +13,19 @@
 
 module OFembed
 
-private
-public :: Do_OFemb, KEonly, OFE_first, OFE_KSDFT, ThrFThaw, Xsigma, dFMD, FMaux
-public :: Rep_EN, Func_AB, Func_A, Func_B, Energy_NAD, V_Nuc_AB, V_Nuc_BA, V_emb
-public :: Do_Core, NDSD
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-logical :: Do_OFemb = .false., KEonly = .false., OFE_first = .true.
-logical :: Do_Core = .false.
+implicit none
+private
+
+logical(kind=iwp) :: Do_Core = .false., Do_OFemb = .false., KEonly = .false., OFE_first = .true.
 character(len=80) :: OFE_KSDFT = ''
-real*8, allocatable :: NDSD(:,:)
-real*8 :: ThrFThaw = 0.0d0, Xsigma = 1.0d4, dFMD = 0.0d0
-real*8, allocatable :: FMaux(:)
-real*8 :: Rep_EN, Func_AB, Func_A, Func_B, Energy_NAD, V_Nuc_AB, V_Nuc_BA, V_emb
+real(kind=wp) :: dFMD = Zero, Energy_NAD, Func_A, Func_AB, Func_B, Rep_EN, ThrFThaw = Zero, V_emb, V_Nuc_AB, V_Nuc_BA, &
+                 Xsigma = 1.0e4_wp
+real(kind=wp), allocatable :: FMaux(:), NDSD(:,:)
+
+public :: dFMD, Do_Core, Do_OFemb, Energy_NAD, FMaux, Func_A, Func_AB, Func_B, KEonly, NDSD, OFE_first, OFE_KSDFT, Rep_EN, &
+          ThrFThaw, V_emb, V_Nuc_AB, V_Nuc_BA, Xsigma
 
 end module OFembed

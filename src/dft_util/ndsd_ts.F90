@@ -24,26 +24,24 @@ subroutine NDSD_Ts(mGrid,nDmat)
 !                                                                      *
 !***********************************************************************
 
-use nq_Grid, only: Rho, GradRho, Lapl
-use nq_Grid, only: vRho
-use nq_Grid, only: F_xc
+use nq_Grid, only: F_xc, GradRho, Lapl, Rho, vRho
+use Constants, only: Zero, One, Two, Three, Five, Ten, Pi
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-real*8 Fexp, Vt_lim
-external Fexp, Vt_lim
-real*8 wGradRho(1:3)
-real*8, parameter :: T_X = 1.0D-20
-real*8, parameter :: Coeff = 1.0d0
+implicit none
+integer(kind=iwp), intent(in) :: mGrid, nDmat
+integer(kind=iwp) :: iGrid, k
+real(kind=wp) :: Cf, d_sys, da_sys, db_sys, dfunc_NDSD, dfunc_NDSD_alpha, dfunc_NDSD_beta, DTot, functional, Rho_min, &
+                 wGradRho(1:3), wLaplRho
+real(kind=wp), parameter :: Coeff = One, Five3 = Five/Three, T_X = 1.0e-20_wp, Two3 = Two/Three
+real(kind=wp), external :: Fexp, Vt_lim
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 vRho(:,:) = Zero
-Two3 = Two/Three
-Five3 = Five/Three
 Cf = (Three/Ten)*(three*Pi**Two)**Two3
-Rho_min = T_X*1.0D-2
+Rho_min = T_X*1.0e-2_wp
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -108,7 +106,7 @@ else if (nDmat == 2) then
   end do
 
 else
-  write(6,*) 'In NDSD_Ts: invalid # of densities. nDmat=  ',nDmat
+  write(u6,*) 'In NDSD_Ts: invalid # of densities. nDmat=  ',nDmat
   call Abend()
 end if
 
