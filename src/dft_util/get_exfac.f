@@ -18,7 +18,7 @@
 #include "real.fh"
       Real*8 Get_ExFac
       Character*(*) KSDFT
-      Character*16  cTmp
+      Character(LEN=80)  cTmp
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -26,7 +26,7 @@
 *
       If (KSDFT.ne.'Overlap') Then
          cTmp=KSDFT
-         Call Put_cArray('DFT functional',cTmp,16)
+         Call Put_cArray('DFT functional',cTmp,LEN(cTmp))
       End If
 *                                                                      *
 ************************************************************************
