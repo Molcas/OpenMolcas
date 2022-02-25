@@ -1,47 +1,47 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2010,2012,2017, Francesco Aquilante                    *
-*               2015,2017, Alexander Zech                              *
-************************************************************************
-      Subroutine DrvEMB(h1,D,RepNuc,nh1,
-     &                  KSDFT,ExFac,Do_Grad,Grad,nGrad,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2010,2012,2017, Francesco Aquilante                    *
+!               2015,2017, Alexander Zech                              *
+!***********************************************************************
+      Subroutine DrvEMB(h1,D,RepNuc,nh1,                                &
+     &                  KSDFT,ExFac,Do_Grad,Grad,nGrad,                 &
      &                  D1I,D1A,nD1,DFTFOCK)
-************************************************************************
-************************************************************************
-*** Orbital-Free Embedding calculation                               ***
-***                                                                  ***
-*** Method:                                                          ***
-***     T. A. Wesolowski, A. Warshel, J. Phys. Chem. 97 (1993) 8050. ***
-***                                                                  ***
-*** NDSD potential:                                                  ***
-***     J.-M. Garcia Lastra, J. W. Kaminski, T. A. Wesolowski,       ***
-***                               J. Chem. Phys.  129 (2008) 074107. ***
-***                                                                  ***
-*** Embedding multi-determinantal wfs:                               ***
-***     T. A. Wesolowski, Phys. Rev.A. 77 (2008) 012504.             ***
-***                                                                  ***
-***                                                                  ***
-*** Embedding Hartree-Fock wf:                                       ***
-***     F. Aquilante, T. A. Wesolowski                               ***
-***                       J. Chem. Phys. 135 (2011) 084120.          ***
-***                                                                  ***
-***                                                                  ***
-*** Author: F. Aquilante, Geneva July 2010                           ***
-***                                                                  ***
-***                       (last update: Feb 2012)                    ***
-***                                                                  ***
-************************************************************************
-************************************************************************
+!***********************************************************************
+!***********************************************************************
+!** Orbital-Free Embedding calculation                               ***
+!**                                                                  ***
+!** Method:                                                          ***
+!**     T. A. Wesolowski, A. Warshel, J. Phys. Chem. 97 (1993) 8050. ***
+!**                                                                  ***
+!** NDSD potential:                                                  ***
+!**     J.-M. Garcia Lastra, J. W. Kaminski, T. A. Wesolowski,       ***
+!**                               J. Chem. Phys.  129 (2008) 074107. ***
+!**                                                                  ***
+!** Embedding multi-determinantal wfs:                               ***
+!**     T. A. Wesolowski, Phys. Rev.A. 77 (2008) 012504.             ***
+!**                                                                  ***
+!**                                                                  ***
+!** Embedding Hartree-Fock wf:                                       ***
+!**     F. Aquilante, T. A. Wesolowski                               ***
+!**                       J. Chem. Phys. 135 (2011) 084120.          ***
+!**                                                                  ***
+!**                                                                  ***
+!** Author: F. Aquilante, Geneva July 2010                           ***
+!**                                                                  ***
+!**                       (last update: Feb 2012)                    ***
+!**                                                                  ***
+!***********************************************************************
+!***********************************************************************
       use OFembed, only: OFE_first, Xsigma, dFMD, NDSD
-      use OFembed, only: Func_AB,Func_A,Func_B,Energy_NAD,
+      use OFembed, only: Func_AB,Func_A,Func_B,Energy_NAD,              &
      &                   V_Nuc_AB,V_Nuc_BA,V_emb
       Implicit Real*8 (a-h,o-z)
       External LSDA_emb
@@ -55,31 +55,31 @@
       Character*4 DFTFOCK
       Character*16 NamRfil
       Real*8 Vxc_ref(2)
-*
-*     Real*8 Func_A_TF, Func_B_TF, Func_AB_TF, TF_NAD
+!
+!     Real*8 Func_A_TF, Func_B_TF, Func_AB_TF, TF_NAD
       Real*8 Func_A_TF, Func_B_TF
       Logical is_rhoA_on_file
       Real*8 Xlambda
       External Xlambda
-*
+!
       Real*8, Allocatable:: D_DS(:,:), F_DFT(:,:), Fcorr(:,:), TmpA(:)
 #ifdef _NOT_USED_
       Real*8, Allocatable:: Vemb(:), D1ao_x(:)
 #endif
-*
+!
       Debug=.False.
       is_rhoA_on_file = .False.
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Call Setup_iSD()
       If (Do_Grad) Call FZero(Grad,nGrad)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 #ifdef _NOT_USED_
-*     --- Section to calculate Nonelectr. V_emb with current density
-*     Temporarily turned off (clean output)
+!     --- Section to calculate Nonelectr. V_emb with current density
+!     Temporarily turned off (clean output)
        If (.not.OFE_first) then
           Call mma_allocate(D1ao_y,nh1)
           Call Get_NameRun(NamRfil) ! save the old RUNFILE name
@@ -88,23 +88,23 @@
           Call Get_dArray('dExcdRa', Vemb, nh1)
           Call mma_allocate(TmpA,nh1,Label='TmpA')
           Call Get_dArray('Nuc Potential',TmpA,nh1)
-*    Substract V_nuc_B
+!    Substract V_nuc_B
           Call daxpy_(nh1,-One,TmpA,1,Vemb,1)
-*    Calculate nonelectr. V_emb with current Density
+!    Calculate nonelectr. V_emb with current Density
           Ynorm=dDot_(nh1,WD1ao_y,1,D1ao_y,1)
           V_emb_x=dDot_(nh1,Vemb,1,D1ao_y,1)
-          Write (6,'(A,F19.10,4X,A,F10.5)')
-     &          'Nonelectr. Vemb w. current density: ', V_emb_x,
+          Write (6,'(A,F19.10,4X,A,F10.5)')                             &
+     &          'Nonelectr. Vemb w. current density: ', V_emb_x,        &
      &          'Y_Norm = ', Ynorm
           Call mma_deallocate(D1ao_y)
-*    Get rho_A_ref
+!    Get rho_A_ref
           Call NameRun('PRERFIL')
           Call mma_allocate(D1ao_x,nDens,Label='D1ao_x')
           Call get_dArray('D1ao',ipD1ao_x,nDens)
           Xnorm=dDot_(nh1,D1ao_x,1,D1ao_x,1)
           V_emb_x_ref=dDot_(nh1,Vemb,1,pD1ao_x,1)
-          Write (6,'(A,F19.10,4X,A,F10.5)')
-     &          'Nonelectr. Vemb w.    ref. density: ', V_emb_x_ref,
+          Write (6,'(A,F19.10,4X,A,F10.5)')                             &
+     &          'Nonelectr. Vemb w.    ref. density: ', V_emb_x_ref,    &
      &          'X_Norm = ', Xnorm
           Call VEMB_Exc_states(Vemb,nh1,KSDFT,Func_B)
           Call mma_deallocate(TmpA)
@@ -112,44 +112,44 @@
           Call mma_dealloacte(Vemb)
           Call NameRun(NamRfil)     ! switch back to RUNFILE
       End If
-*     --- Section End
+!     --- Section End
 #endif
       Call f_Inquire('PRERFIL',is_rhoA_on_file) ! rho_A from file
       If (is_rhoA_on_file .and. .not.OFE_first) Return ! Vemb on disk
 
 
 
-************************************************************************
-*                                                                      *
-*     Setup of density matrices for subsys B (environment)             *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     Setup of density matrices for subsys B (environment)             *
+!                                                                      *
+!***********************************************************************
       Call Get_NameRun(NamRfil) ! save the old RUNFILE name
       Call NameRun('AUXRFIL')   ! switch RUNFILE name
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       nD=4
       Call mma_allocate(F_DFT,nh1,nD,Label='F_DFT')
       Call mma_allocate(D_DS,nh1,nD,Label='D_DS')
       Vxc_ref(1)=Zero
       Vxc_ref(2)=Zero
-*
-*---- Get the density matrix of the environment (rho_B)
-*
+!
+!---- Get the density matrix of the environment (rho_B)
+!
       Call Get_iScalar('Multiplicity',kSpin)
       Call Get_D1ao(D_DS(:,1),nh1)
-*     Call RecPrt('D1ao',' ',D_DS(:,1),nh1,1)
-*
-*---- Get the spin density matrix of the environment
-*
+!     Call RecPrt('D1ao',' ',D_DS(:,1),nh1,1)
+!
+!---- Get the spin density matrix of the environment
+!
       If (kSpin.ne.1) Then
          Call Get_D1Sao(D_DS(:,2),nh1)
-*        Call RecPrt('D1Sao',' ',D_DS(:,2),nh1,1)
+!        Call RecPrt('D1Sao',' ',D_DS(:,2),nh1,1)
       End If
-*
-*---- Compute alpha and beta density matrices of the environment
-*
+!
+!---- Compute alpha and beta density matrices of the environment
+!
       nFckDim=2
       If (kSpin.eq.1) Then
          call dscal_(nh1,Half,D_DS(:,1),1)
@@ -164,24 +164,24 @@
             D_DS(i,1)=d_Alpha
             D_DS(i,2)=d_Beta
          End Do
-*      Call RecPrt('Da',' ',D_DS(:,1),nh1,1)
-*      Call RecPrt('Db',' ',D_DS(:,2),nh1,1)
+!      Call RecPrt('Da',' ',D_DS(:,1),nh1,1)
+!      Call RecPrt('Db',' ',D_DS(:,2),nh1,1)
       End If
-*
-*      If (OFE_first) Then
-*---AZECH 10/2015
-*   kinetic part of E_xct, Subsys B
+!
+!      If (OFE_first) Then
+!---AZECH 10/2015
+!   kinetic part of E_xct, Subsys B
       Func_B_TF = 0.0d0
-      Call wrap_DrvNQ('TF_only',F_DFT(:,1:nFckDim),nFckDim,Func_B_TF,
-     &                   D_DS(:,1:nFckDim),nh1,nFckDim,
-     &                   Do_Grad,
+      Call wrap_DrvNQ('TF_only',F_DFT(:,1:nFckDim),nFckDim,Func_B_TF,   &
+     &                   D_DS(:,1:nFckDim),nh1,nFckDim,                 &
+     &                   Do_Grad,                                       &
      &                   Grad,nGrad,DFTFOCK)
-*---
+!---
       If (OFE_first) Then
 
-         Call wrap_DrvNQ(KSDFT,F_DFT(:,1:nFckDim),nFckDim,Func_B,
-     &                   D_DS(:,1:nFckDim),nh1,nFckDim,
-     &                   Do_Grad,
+         Call wrap_DrvNQ(KSDFT,F_DFT(:,1:nFckDim),nFckDim,Func_B,       &
+     &                   D_DS(:,1:nFckDim),nh1,nFckDim,                 &
+     &                   Do_Grad,                                       &
      &                   Grad,nGrad,DFTFOCK)
 
          If (KSDFT(1:4).eq.'NDSD') Then
@@ -191,36 +191,36 @@
          EndIf
 
       EndIf
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Setup of density matrices for subsys A                           *
-*                                                                      *
-************************************************************************
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Setup of density matrices for subsys A                           *
+!                                                                      *
+!***********************************************************************
       Call NameRun(NamRfil)    ! switch back RUNFILE name
-*
+!
       If (is_rhoA_on_file) Call NameRun('PRERFIL')
-*---- Get the density matrix for rho_A
-*
+!---- Get the density matrix for rho_A
+!
       Call Get_D1ao(D_DS(:,3),nh1)
-*     Call RecPrt('D1ao',' ',D_DS(:,3),nh1,1)
-*
+!     Call RecPrt('D1ao',' ',D_DS(:,3),nh1,1)
+!
       Call Get_iScalar('Multiplicity',iSpin)
       If (iSpin.eq.1 .and. kSpin.ne.1 .and. OFE_first) Then
-         Call WarningMessage(0,
-     &     ' Non-singlet environment perturbation on singlet state!'//
+         Call WarningMessage(0,                                         &
+     &     ' Non-singlet environment perturbation on singlet state!'//  &
      &     '  Spin-components of the OFE potential will be averaged. ' )
       EndIf
-*
-*---- Get the spin density matrix of A
-*
+!
+!---- Get the spin density matrix of A
+!
       If (iSpin.ne.1) Then
          Call Get_D1Sao(D_DS(:,4),nh1)
-*        Call RecPrt('D1Sao',' ',D_DS(:,4),nh1,1)
+!        Call RecPrt('D1Sao',' ',D_DS(:,4),nh1,1)
       End If
-*
-*---- Compute alpha and beta density matrices of subsystem A
-*
+!
+!---- Compute alpha and beta density matrices of subsystem A
+!
       nFckDim=2
       If (iSpin.eq.1) Then
          call dscal_(nh1,Half,D_DS(:,3),1)
@@ -235,40 +235,40 @@
             D_DS(i,3)=d_Alpha
             D_DS(i,4)=d_Beta
          End Do
-*      Call RecPrt('Da',' ',D_DS(:,3),nh1,1)
-*      Call RecPrt('Db',' ',D_DS(:,4),nh1,1)
+!      Call RecPrt('Da',' ',D_DS(:,3),nh1,1)
+!      Call RecPrt('Db',' ',D_DS(:,4),nh1,1)
       End If
-*
-*---AZECH 10/2015
-*   kinetic part of E_xct, Subsys A
-      Call wrap_DrvNQ('TF_only',F_DFT(:,3:nFckDim+2),nFckDim,Func_A_TF,
-     &                D_DS(:,3:nFckDim+2),nh1,nFckDim,
-     &                Do_Grad,
+!
+!---AZECH 10/2015
+!   kinetic part of E_xct, Subsys A
+      Call wrap_DrvNQ('TF_only',F_DFT(:,3:nFckDim+2),nFckDim,Func_A_TF, &
+     &                D_DS(:,3:nFckDim+2),nh1,nFckDim,                  &
+     &                Do_Grad,                                          &
      &                Grad,nGrad,DFTFOCK)
-*---
-      Call wrap_DrvNQ(KSDFT,F_DFT(:,3:nFckDim+2),nFckDim,Func_A,
-     &                D_DS(:,3:nFckDim+2),nh1,nFckDim,
-     &                Do_Grad,
+!---
+      Call wrap_DrvNQ(KSDFT,F_DFT(:,3:nFckDim+2),nFckDim,Func_A,        &
+     &                D_DS(:,3:nFckDim+2),nh1,nFckDim,                  &
+     &                Do_Grad,                                          &
      &                Grad,nGrad,DFTFOCK)
-*
-*  Fraction of correlation potential from A (cases: HF or Trunc. CI)
-*
+!
+!  Fraction of correlation potential from A (cases: HF or Trunc. CI)
+!
       If (dFMD.gt.0.0d0) Then
-*
+!
          Call mma_Allocate(Fcorr,nh1,nFckDim,Label='Fcorr')
-*
-         Call cwrap_DrvNQ(KSDFT,F_DFT(:,3:nFckDim+2),nFckDim,Ec_A,
-     &                    D_DS(:,3:nFckDim+2),nh1,nFckDim,
-     &                    Do_Grad,
+!
+         Call cwrap_DrvNQ(KSDFT,F_DFT(:,3:nFckDim+2),nFckDim,Ec_A,      &
+     &                    D_DS(:,3:nFckDim+2),nh1,nFckDim,              &
+     &                    Do_Grad,                                      &
      &                    Grad,nGrad,DFTFOCK,Fcorr(:,1:nFckDim))
       End If
-*
-*
-************************************************************************
-*                                                                      *
-*     Calculation on the supermolecule                                 *
-*                                                                      *
-************************************************************************
+!
+!
+!***********************************************************************
+!                                                                      *
+!     Calculation on the supermolecule                                 *
+!                                                                      *
+!***********************************************************************
       nFckDim=2
       If (iSpin.eq.1 .and. kSpin.eq.1) Then
          nFckDim=1
@@ -278,14 +278,14 @@
          Call daxpy_(nh1,One,D_DS(:,4),1,D_DS(:,2),1)
       EndIf
 #ifdef _NOT_USED_
-*---AZECH 10/2015
-*   kinetic part of E_xct, Subsys A+B
-*   temporarily turned off to clean output
+!---AZECH 10/2015
+!   kinetic part of E_xct, Subsys A+B
+!   temporarily turned off to clean output
       If (.False.) Then
        Func_AB_TF = 0.0d0
-       Call wrap_DrvNQ('TF_only',F_DFT(:,1:nFckDim),nFckDim,Func_AB_TF,
-     &                D_DS(:,1:nFckDim),nh1,nFckDim,
-     &                Do_Grad,
+       Call wrap_DrvNQ('TF_only',F_DFT(:,1:nFckDim),nFckDim,Func_AB_TF, &
+     &                D_DS(:,1:nFckDim),nh1,nFckDim,                    &
+     &                Do_Grad,                                          &
      &                Grad,nGrad,DFTFOCK)
        TF_NAD = Func_AB_TF - Func_A_TF - Func_B_TF
        Write(6,*) 'kinetic part of E_xc,T (Thomas-Fermi ONLY)'
@@ -294,10 +294,10 @@
        Write(6,'(A,F19.10)') 'Ts(B):   ', Func_B_TF
        Write(6,'(A,F19.10)') '-------------------'
        Write(6,'(A,F19.10)') 'Ts_NAD:  ', TF_NAD
-*   calculate v_T, Subsys A+B
+!   calculate v_T, Subsys A+B
        Xint_Ts_AB=dDot_(nh1,F_DFT(:,1),1,D_DS(:,3),1)
        Xint_Ts_NAD = Xint_Ts_AB - Xint_Ts_A
-*     scale by 2 because wrapper only handles spin-densities
+!     scale by 2 because wrapper only handles spin-densities
        Xint_Ts_NAD = Two*Xint_Ts_NAD
        Write(6,*) 'integrated v_Ts_NAD (Thomas-Fermi) with rhoA current'
        Write(6,'(A,F19.10)') 'Ts(A+B)_integral: ', Xint_Ts_AB
@@ -306,25 +306,25 @@
        Write(6,'(A,F19.10)') 'Ts_NAD_integral:  ', Xint_Ts_NAD
       EndIf
 #endif
-*---
-      Call wrap_DrvNQ(KSDFT,F_DFT(:,1:nFckDim),nFckDim,Func_AB,
-     &                D_DS(:,1:nFckDim),nh1,nFckDim,
-     &                Do_Grad,
+!---
+      Call wrap_DrvNQ(KSDFT,F_DFT(:,1:nFckDim),nFckDim,Func_AB,         &
+     &                D_DS(:,1:nFckDim),nh1,nFckDim,                    &
+     &                Do_Grad,                                          &
      &                Grad,nGrad,DFTFOCK)
 
       Energy_NAD = Func_AB - Func_A - Func_B
-*
-*---AZECH 10/2015
-*   exchange-correlation part of E_xct, Subsys A+B
-*   temporarily turned off to clean output
-c      Write(6,*) 'E_xc_NAD (determined with Thomas-Fermi)'
-c      Func_xc_NAD = Energy_NAD - TF_NAD
-c      Write(6,'(A,F19.10)') 'E_xc_NAD: ', Func_xc_NAD
-*---
+!
+!---AZECH 10/2015
+!   exchange-correlation part of E_xct, Subsys A+B
+!   temporarily turned off to clean output
+!      Write(6,*) 'E_xc_NAD (determined with Thomas-Fermi)'
+!      Func_xc_NAD = Energy_NAD - TF_NAD
+!      Write(6,'(A,F19.10)') 'E_xc_NAD: ', Func_xc_NAD
+!---
       If (dFMD.gt.0.0d0) Then
          Call Get_electrons(xElAB)
          Fakt_ = -1.0d0*Xlambda(abs(Energy_NAD)/xElAB,Xsigma)
-         Call daxpy_(nh1*nFckDim,Fakt_,Fcorr(:,1:nFckDim),1,
+         Call daxpy_(nh1*nFckDim,Fakt_,Fcorr(:,1:nFckDim),1,            &
      &                                 F_DFT(:,3:nFckDim+2),1)
          Call mma_deallocate(Fcorr)
 #ifdef _DEBUGPRINT_
@@ -332,15 +332,15 @@ c      Write(6,'(A,F19.10)') 'E_xc_NAD: ', Func_xc_NAD
 #endif
       EndIf
 
-*                                                                      *
-************************************************************************
-*                                                                      *
-*  Non Additive (NAD) potential: F(AB)-F(A)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!  Non Additive (NAD) potential: F(AB)-F(A)
       Do i=1,nFckDim
          Call daxpy_(nh1,-One,F_DFT(:,2+i),1,F_DFT(:,i),1)
       End Do
-*
-*  NDSD potential for T_nad: add the (B)-dependent term
+!
+!  NDSD potential for T_nad: add the (B)-dependent term
       If (Allocated(NDSD)) Then
          j=1
          Do i=1,nFckDim
@@ -348,30 +348,30 @@ c      Write(6,'(A,F19.10)') 'E_xc_NAD: ', Func_xc_NAD
             If (kSpin.ne.1) j=j+1
          End Do
       End If
-*
-*     Add the Nuc Attr potential (from subsystem B) and then
-*     put out the DFT Fock matrices from the (NAD) embedding potential
-*     on the runfile (AUXRFIL). Note that the classical Coulomb
-*     interaction potential from subsystem B is computed in the std
-*     Fock matrix builders
-*
+!
+!     Add the Nuc Attr potential (from subsystem B) and then
+!     put out the DFT Fock matrices from the (NAD) embedding potential
+!     on the runfile (AUXRFIL). Note that the classical Coulomb
+!     interaction potential from subsystem B is computed in the std
+!     Fock matrix builders
+!
       Call NameRun('AUXRFIL')   ! switch RUNFILE name
-*
+!
       Call mma_allocate(TmpA,nh1,Label='TmpA')
       Call Get_dArray('Nuc Potential',TmpA,nh1)
-*
+!
       Fact = Two ! because Dmat has been scaled by half
       If (kSpin.ne.1) Fact=One
       Fact_=Fact
-*
+!
       V_emb=Fact*dDot_(nh1,F_DFT(:,1),1,D_DS(:,3),1)
       V_Nuc_AB=Fact*dDot_(nh1,TmpA,1,D_DS(:,3),1)
       If (kSpin.ne.1) Then
          V_emb=V_emb+Fact*dDot_(nh1,F_DFT(:,2),1,D_DS(:,4),1)
          V_Nuc_AB=V_Nuc_AB+Fact*dDot_(nh1,TmpA,1,D_DS(:,4),1)
       EndIf
-*
-*  Averaging the spin-components of F(AB) iff non-spol(A)//spol(B)
+!
+!  Averaging the spin-components of F(AB) iff non-spol(A)//spol(B)
       If (iSpin.eq.1 .and. kSpin.ne.1) Then
          Do i=1,nh1
             tmp=Half*(F_DFT(i,1)+F_DFT(i,2))
@@ -380,28 +380,28 @@ c      Write(6,'(A,F19.10)') 'E_xc_NAD: ', Func_xc_NAD
          nFckDim=1  ! reset stuff as if A+B had been spin compensated
          Fact=Two
       EndIf
-*
+!
       Do i=1,nFckDim
          Call daxpy_(nh1,1.0d0,TmpA,1,F_DFT(:,i),1)
          Vxc_ref(i)=Fact*dDot_(nh1,F_DFT(:,i),1,D_DS(:,i+2),1)
       End Do
-*
+!
       If(dFMD.gt.0.0d0) Call Put_dScalar('KSDFT energy',Ec_A)
       Call Put_dArray('Vxc_ref ',Vxc_ref,2)
-*
+!
       Call Put_dArray('dExcdRa',F_DFT(:,1:nFckDim),nh1*nFckDim)
       Call NameRun(NamRfil)   ! switch back RUNFILE name
 
       Call Get_dArray('Nuc Potential',TmpA,nh1)
-      V_Nuc_BA= Fact_*( dDot_(nh1,TmpA,1,D_DS(:,1),1)
+      V_Nuc_BA= Fact_*( dDot_(nh1,TmpA,1,D_DS(:,1),1)                   &
      &                 -dDot_(nh1,TmpA,1,D_DS(:,3),1))
       If (kSpin.ne.1) Then
-         V_Nuc_BA=V_Nuc_BA+Fact_*( dDot_(nh1,TmpA,1,D_DS(:,2),1)
+         V_Nuc_BA=V_Nuc_BA+Fact_*( dDot_(nh1,TmpA,1,D_DS(:,2),1)        &
      &                            -dDot_(nh1,TmpA,1,D_DS(:,4),1) )
       EndIf
-*
+!
       Call mma_deallocate(TmpA)
-*
+!
 #ifdef _DEBUGPRINT_
       If (nFckDim.eq.1) Then
          Do i=1,nh1
@@ -409,19 +409,19 @@ c      Write(6,'(A,F19.10)') 'E_xc_NAD: ', Func_xc_NAD
          End Do
       Else
          Do i=1,nh1
-           Write(6,'(i4,3f22.16)') i,F_DFT(i,1),
-     &                               F_DFT(i,2),
+           Write(6,'(i4,3f22.16)') i,F_DFT(i,1),                        &
+     &                               F_DFT(i,2),                        &
      &     (F_DFT(i,1)+F_DFT(i,2))/2.0d0
          End Do
       End If
       Write(6,'(a,f22.16)') ' NAD DFT Energy :',Energy_NAD
 #endif
-*
+!
       Call mma_deallocate(F_DFT)
       Call mma_deallocate(D_DS)
       Call Free_iSD()
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(H1)
          Call Unused_real_array(D)
@@ -431,14 +431,14 @@ c Avoid unused argument warnings
          Call Unused_real_array(D1A)
       End If
       End
-************************************************************************
-*                                                                      *
-************************************************************************
-*                                                                      *
-************************************************************************
-      Subroutine Wrap_DrvNQ(KSDFT,F_DFT,nFckDim,Func,
-     &                      D_DS,nh1,nD_DS,
-     &                      Do_Grad,
+!***********************************************************************
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!***********************************************************************
+      Subroutine Wrap_DrvNQ(KSDFT,F_DFT,nFckDim,Func,                   &
+     &                      D_DS,nh1,nD_DS,                             &
+     &                      Do_Grad,                                    &
      &                      Grad,nGrad,DFTFOCK)
       use nq_Info
       Implicit Real*8 (a-h,o-z)
@@ -451,18 +451,18 @@ c Avoid unused argument warnings
 #include "real.fh"
 #include "debug.fh"
       Logical  Do_MO,Do_TwoEl,F_nAsh
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     DFT functionals, compute integrals over the potential
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     DFT functionals, compute integrals over the potential
+!
       Func            =Zero
       Dens_I          =Zero
       Grad_I          =Zero
       Tau_I           =Zero
       Do_MO           =.False.
       Do_TwoEl        =.False.
-*
+!
       Call Get_iScalar('nSym',mIrrep)
       Call Get_iArray('nBas',mBas(0),mIrrep)
       Call Get_iArray('nFro',nFro(0),mIrrep)
@@ -473,22 +473,22 @@ c Avoid unused argument warnings
       Else
          Call Get_iArray('nAsh',nAsh(0),mIrrep)
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Call Driver(KSDFT,Do_Grad,Func,Grad,nGrad,
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+      Call Driver(KSDFT,Do_Grad,Func,Grad,nGrad,                        &
      &            Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nFckDim,DFTFOCK)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Return
       End
-************************************************************************
-*                                                                      *
-************************************************************************
-      Subroutine cWrap_DrvNQ(KSDFT,F_DFT,nFckDim,Func,
-     &                       D_DS,nh1,nD_DS,
-     &                       Do_Grad,
+!***********************************************************************
+!                                                                      *
+!***********************************************************************
+      Subroutine cWrap_DrvNQ(KSDFT,F_DFT,nFckDim,Func,                  &
+     &                       D_DS,nh1,nD_DS,                            &
+     &                       Do_Grad,                                   &
      &                       Grad,nGrad,DFTFOCK,F_corr)
       use OFembed, only: Do_Core
       use nq_Info
@@ -503,16 +503,16 @@ c Avoid unused argument warnings
 #include "real.fh"
 #include "debug.fh"
       Logical  Do_MO,Do_TwoEl,F_nAsh
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Func            =Zero
       Dens_I          =Zero
       Grad_I          =Zero
       Tau_I           =Zero
       Do_MO           =.False.
       Do_TwoEl        =.False.
-*
+!
       Call Get_iScalar('nSym',mIrrep)
       Call Get_iArray('nBas',mBas(0),mIrrep)
       Call Get_iArray('nFro',nFro(0),mIrrep)
@@ -523,26 +523,26 @@ c Avoid unused argument warnings
       Else
          Call Get_iArray('nAsh',nAsh(0),mIrrep)
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Do_Core=.True.
-      Call Driver(KSDFT,Do_Grad,Func,Grad,nGrad,
+      Call Driver(KSDFT,Do_Grad,Func,Grad,nGrad,                        &
      &            Do_MO,Do_TwoEl,D_DS,F_corr,nh1,nFckDim,DFTFOCK)
       Do_Core=.False.
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_real_array(F_DFT)
       End
-************************************************************************
-*                                                                      *
-************************************************************************
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!***********************************************************************
       Real*8 Function Xlambda(omega,sigma)
       Implicit Real*8 (a-h,o-z)
       Real*8 omega, sigma
@@ -554,9 +554,9 @@ c Avoid unused argument warnings
       EndIf
 
       End
-************************************************************************
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!***********************************************************************
       Subroutine Get_electrons(xnElect)
       use nq_Info
       Implicit Real*8 (a-h,o-z)
@@ -567,9 +567,9 @@ c Avoid unused argument warnings
 
       Return
       End
-************************************************************************
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!***********************************************************************
       Subroutine VEMB_Exc_states(Vemb,nVemb,xKSDFT,Func_Bx)
       Implicit Real*8 (a-h,o-z)
       Real*8 Vemb(nVemb)
@@ -599,48 +599,48 @@ c Avoid unused argument warnings
       Call mma_allocate(D1ao_b,nVemb,Label='D1ao_b')
 
       DO KROOT=1,LROOTS
-*
-* Read natural orbitals
+!
+! Read natural orbitals
         If ( NAC.GT.0 ) then
           CALL DDAFILE(JOBIPH,2,xxCMO,NTOT2,IAD12)
           CALL DDAFILE(JOBIPH,2,xxOCCN,NTOT,IAD12)
         End If
-* Get GS and excited state densities:
-* Fill allocated mem with zeroes.
+! Get GS and excited state densities:
+! Fill allocated mem with zeroes.
         DSTATE(:)=0.0D0
 
         Call DONE_RASSCF(xxCMO,xxOCCN,DState) ! computes D=CnC'
-* Nonelectr. Vemb with GS and excited state density
+! Nonelectr. Vemb with GS and excited state density
         Vemb_Xstate=ddot_(nVemb,Vemb,1,DState,1)
-*        Write(6,*) 'Kroot, Vemb_K ', KROOT, Vemb_Xstate
-        Write(6,'(A,F19.10,3X,A,I3)') 'Nonelectr. Vemb w. rhoA_emb =',
+!        Write(6,*) 'Kroot, Vemb_K ', KROOT, Vemb_Xstate
+        Write(6,'(A,F19.10,3X,A,I3)') 'Nonelectr. Vemb w. rhoA_emb =',  &
      &        Vemb_Xstate,'root = ', KROOT
-* E_xc,T[rhoA]
+! E_xc,T[rhoA]
         Func_A=0.0d0
         F_DFT(:)=0.0D0
         Call dscal_(nVemb,0.5d0,DState,1)
-        Call wrap_DrvNQ(xKSDFT,F_DFT,1,Func_A,
-     &                  DState,nVemb,1,
-     &                  .false.,
+        Call wrap_DrvNQ(xKSDFT,F_DFT,1,Func_A,                          &
+     &                  DState,nVemb,1,                                 &
+     &                  .false.,                                        &
      &                  Dummy,nDummy,'SCF ')
-*        Write(6,*) 'Kroot, Func_A ', KROOT, Func_A
-* E_xc,T[rhoA+rhoB]
+!        Write(6,*) 'Kroot, Func_A ', KROOT, Func_A
+! E_xc,T[rhoA+rhoB]
         Call Get_NameRun(MyNamRfil) ! save current Runfile name
         Call NameRun('AUXRFIL')   ! switch RUNFILE name
         Call Get_D1ao(D1ao_b,nVemb)
         Call daxpy_(nVemb,0.5d0,D1ao_b,1,DState,1)
-*
+!
         Func_AB=0.0d0
         F_DFT(:)=0.0D0
-        Call wrap_DrvNQ(xKSDFT,F_DFT,1,Func_AB,
-     &                  DState,nVemb,1,
-     &                  .false.,
+        Call wrap_DrvNQ(xKSDFT,F_DFT,1,Func_AB,                         &
+     &                  DState,nVemb,1,                                 &
+     &                  .false.,                                        &
      &                  Dummy,nDummy,'SCF ')
-*        Write(6,*) 'Kroot, Func_AB', KROOT, Func_AB
-*        Write(6,*) 'Kroot, Func_Bx', KROOT, Func_Bx
-* Calculate DFT NAD for all densities:
+!        Write(6,*) 'Kroot, Func_AB', KROOT, Func_AB
+!        Write(6,*) 'Kroot, Func_Bx', KROOT, Func_Bx
+! Calculate DFT NAD for all densities:
         DFT_NAD = Func_AB - Func_A - Func_Bx
-        Write(6,'(A,F19.10,3X,A,I3)') 'DFT energy (NAD) =           ',
+        Write(6,'(A,F19.10,3X,A,I3)') 'DFT energy (NAD) =           ',  &
      &        DFT_NAD, 'root = ', KROOT
         Call NameRun(MyNamRfil) ! go back to MyNamRfil
       End Do

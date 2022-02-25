@@ -1,27 +1,27 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2010, Francesco Aquilante                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2010, Francesco Aquilante                              *
+!***********************************************************************
       Real*8 Function Fexp(rho,drho)
-************************************************************************
-************************************************************************
-***                                                                  ***
-*** Switching function of the NDSD potential:                        ***
-***     J.-M. Garcia Lastra, J. W. Kaminski, T. A. Wesolowski,       ***
-***                               J. Chem. Phys.  129 (2008) 074107. ***
-***                                                                  ***
-*** Author: F. Aquilante, Geneva July 2010                           ***
-***                                                                  ***
-************************************************************************
-************************************************************************
+!***********************************************************************
+!***********************************************************************
+!**                                                                  ***
+!** Switching function of the NDSD potential:                        ***
+!**     J.-M. Garcia Lastra, J. W. Kaminski, T. A. Wesolowski,       ***
+!**                               J. Chem. Phys.  129 (2008) 074107. ***
+!**                                                                  ***
+!** Author: F. Aquilante, Geneva July 2010                           ***
+!**                                                                  ***
+!***********************************************************************
+!***********************************************************************
       Implicit Real*8 (a-h,o-z)
       Real*8 lambda, rho, drho(3)
 #include "real.fh"
@@ -51,9 +51,9 @@
       Fexp = eis_sBmin*(One-eis_sBmax)*eir_rBmin
 
       End
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Real*8 Function Vt_lim(rho,drho,ddrho)
 
       Implicit Real*8 (a-h,o-z)
@@ -70,6 +70,6 @@
       Vt_lim = One8*xnorm*rhoinv2 - One4*ddrho*rhoinv
 
       End
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
