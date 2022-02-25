@@ -27,7 +27,7 @@ integer(kind=iwp), external :: ICUNP
 real(kind=r8), external :: DDOT_
 
 ILIM = NORBT*(NORBT+1)/2
-call SETZ(D,ILIM)
+D(1:ILIM) = Zero
 C(IREF0) = Zero
 AA = DDOT_(NCONF,C,1,C,1)
 write(u6,20) AA

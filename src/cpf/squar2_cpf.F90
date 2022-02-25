@@ -19,11 +19,10 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: N
 real(kind=wp) :: A(N,N)
-integer(kind=iwp) :: I, NI
+integer(kind=iwp) :: I
 
-do I=1,N
-  NI = N-I+1
-  call DCOPY_(NI,A(I,I),1,A(I,I),N)
+do I=1,N-1
+  A(I,I+1:N) = A(I+1:N,I)
 end do
 
 return

@@ -17,7 +17,7 @@ subroutine MFIJ(ICASE,JSY,INDX,C,S,FC,A,B,FK,DBK,W,THET,ENP,EPP,NII)
 
 use cpf_global, only: IDENS, IRC, IREF0, IROW, ITER, IV0, LSYM, Lu_25, Lu_CIGuga, NNS, NORBT, NVIR
 use Symmetry_Info, only: Mul
-use Constants, only: One, Two, Half
+use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, r8
 
 implicit none
@@ -35,7 +35,7 @@ NOB2 = IROW(NORBT+1)
 ICHK = 0
 if (IDENS /= 1) then
   NOB2 = IROW(NORBT+1)
-  call SETZ(FC,NOB2)
+  FC(1:NOB2) = Zero
   IADD25 = 0
   call dDAFILE(Lu_25,2,FC,NOB2,IADD25)
 end if
@@ -101,10 +101,10 @@ if ((IDENS == 1) .or. (ITER /= 1)) then
               FACW = FACS*(Two-THET(INDA,INDB))/ENPQ
               FACWA = FACW*ENP(INDA)-FACS
               FACWB = FACW*ENP(INDB)-FACS
-              call DAXPY_(INUM,COPI*FACS,C(NB+1),1,S(NA+1),1)
-              call DAXPY_(INUM,COPI*FACS,C(NA+1),1,S(NB+1),1)
-            call DAXPY_(INUM,COPI*FACWA,C(NB+1),1,W(NA+1),1)
-              call DAXPY_(INUM,COPI*FACWB,C(NA+1),1,W(NB+1),1)
+              S(NA+1:NA+INUM) = S(NA+1:NA+INUM)+COPI*FACS*C(NB+1:NB+INUM)
+              S(NB+1:NB+INUM) = S(NB+1:NB+INUM)+COPI*FACS*C(NA+1:NA+INUM)
+              W(NA+1:NA+INUM) = W(NA+1:NA+INUM)+COPI*FACWA*C(NB+1:NB+INUM)
+              W(NB+1:NB+INUM) = W(NB+1:NB+INUM)+COPI*FACWB*C(NA+1:NA+INUM)
             else
               TERM = DDOT_(INUM,C(NA+1),1,C(NB+1),1)
               ENPQ = (One-THET(INDA,INDB)*Half)*(ENP(INDA)+ENP(INDB)-One)+THET(INDA,INDB)*Half

@@ -86,21 +86,21 @@ subroutine AI_CPF_INTERNAL(BUFIN)
             if (IDENS /= 1) then
               if (INDA == IREF0) then
                 COPI = COP(II)/sqrt(ENP(INDB))
-                call DAXPY_(INK,COPI,FK,1,S(INNY),1)
+                S(INNY:INNY+INK-1) = S(INNY:INNY+INK-1)+COPI*FK(1:INK)
                 if (ITER /= 1) then
                   TERM = DDOT_(INK,FK,1,C(INNY),1)
                   EPP(INDB) = EPP(INDB)+COPI*TERM
                 end if
               else
                 COPI = COP(II)*C(INDA)
-                call DAXPY_(INK,COPI,FK,1,S(INNY),1)
+                S(INNY:INNY+INK-1) = S(INNY:INNY+INK-1)+COPI*FK(1:INK)
                 TERM = DDOT_(INK,FK,1,C(INNY),1)
                 S(INDA) = S(INDA)+COP(II)*TERM
               end if
             else
               if (INDA == IREF0) COPI = C(INDA)*COP(II)/ENP(INDB)
               if (INDA /= IREF0) COPI = C(INDA)*COP(II)/(sqrt(ENP(INDA))*sqrt(ENP(INDB)))
-              call DAXPY_(INK,COPI,C(INNY),1,FK,1)
+              FK(1:INK) = FK(1:INK)+COPI*C(INNY:INNY+INK-1)
               !write(u6,654) NK,NSK,INDB
               !write(u6,653) (FK(I),I=1,INK)
             end if
@@ -118,14 +118,13 @@ subroutine AI_CPF_INTERNAL(BUFIN)
             call IPO_CPF(IPOB,NVIR,MUL,NSYM,NYL,IFT)
             NVM = NVIR(MYL)
             if (IDENS /= 1) then
-              call SETZ(DBK,INK)
-              call DAXPY_(INK,COP(II),FK,1,DBK,1)
+              DBK(1:INK) = COP(II)*FK(1:INK)
               if (NYL == 1) then
                 if (IFT == 0) call SQUAR_CPF(C(INNY+IPOB(MYL)),A,NVM)
                 if (IFT == 1) call SQUARM_CPF(C(INNY+IPOB(MYL)),A,NVM)
-                call SETZ(B,NVM)
+                B(1:NVM) = Zero
                 call FMMM(DBK,A,B,1,NVM,INK)
-                call DAXPY_(NVM,One,B,1,S(INMY),1)
+                S(INMY:INMY+NVM-1) = S(INMY:INMY+NVM-1)+B(1:NVM)
                 SGN = One
                 if (IFT == 1) SGN = -One
                 IOUT = INNY+IPOB(MYL)-1
@@ -141,24 +140,25 @@ subroutine AI_CPF_INTERNAL(BUFIN)
                 end do
               else
                 NKM = INK*NVM
-                call SETZ(B,NVM)
+                B(1:NVM) = Zero
                 if (NSK <= MYL) then
-                  if (IFT == 1) call VNEG_CPF(DBK,1,DBK,1,INK)
-                  call FMMM(DBK,C(INNY+IPOB(MYL)),B,1,NVM,INK)
-                  call DAXPY_(NVM,One,B,1,S(INMY),1)
-                  call SETZ(B,NKM)
+                  if (IFT == 1) DBK(1:INK) = -DBK(1:INK)
+                  I = INNY+IPOB(MYL)
+                  call FMMM(DBK,C(I),B,1,NVM,INK)
+                  S(INMY:INMY+NVM-1) = S(INMY:INMY+NVM-1)+B(1:NVM)
+                  B(1:NKM) = Zero
                   call FMMM(DBK,C(INMY),B,INK,NVM,1)
-                  call DAXPY_(NKM,One,B,1,S(INNY+IPOB(MYL)),1)
                 else
-                  call FMMM(C(INNY+IPOB(NSK)),DBK,B,NVM,1,INK)
-                  call DAXPY_(NVM,One,B,1,S(INMY),1)
-                  call SETZ(B,NKM)
+                  I = INNY+IPOB(NSK)
+                  call FMMM(C(I),DBK,B,NVM,1,INK)
+                  S(INMY:INMY+NVM-1) = S(INMY:INMY+NVM-1)+B(1:NVM)
+                  B(1:NKM) = Zero
                   call FMMM(C(INMY),DBK,B,NVM,INK,1)
-                  call DAXPY_(NKM,One,B,1,S(INNY+IPOB(NSK)),1)
                 end if
+                S(I:I+NKM-1) = S(I:I+NKM-1)+B(1:NKM)
               end if
             else
-              call SETZ(B,INK)
+              B(1:INK) = Zero
               COPI = COP(II)/(sqrt(ENP(INDA))*sqrt(ENP(INDB)))
               !write(u6,652) IFT,NYL,NSK,MYL,INDA,INDB
               if (NYL /= 1) then

@@ -112,10 +112,10 @@ subroutine MIJKL_INTERNAL(BUFIN)
             NS1L = MUL(NS1,LSYM)
             INUM = NVIR(NS1L)
             if (IVL >= 2) INUM = NNS(NS1L)
-            call DAXPY_(INUM,COPI*FACS,C(NB+1),1,S(NA+1),1)
-            call DAXPY_(INUM,COPI*FACS,C(NA+1),1,S(NB+1),1)
-            call DAXPY_(INUM,COPI*FACWA,C(NB+1),1,W(NA+1),1)
-            call DAXPY_(INUM,COPI*FACWB,C(NA+1),1,W(NB+1),1)
+            S(NA+1:NA+INUM) = S(NA+1:NA+INUM)+COPI*FACS*C(NB+1:NB+INUM)
+            S(NB+1:NB+INUM) = S(NB+1:NB+INUM)+COPI*FACS*C(NA+1:NA+INUM)
+            W(NA+1:NA+INUM) = W(NA+1:NA+INUM)+COPI*FACWA*C(NB+1:NB+INUM)
+            W(NB+1:NB+INUM) = W(NB+1:NB+INUM)+COPI*FACWB*C(NA+1:NA+INUM)
           end if
         else
           ICHK = 1

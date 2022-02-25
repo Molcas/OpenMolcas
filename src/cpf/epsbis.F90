@@ -16,6 +16,7 @@ subroutine EPSBIS(JSY,INDX,C,W,EPB)
 
 use cpf_global, only: ICPF, INCPF, IPRINT, IRC, ISDCI, LSYM, NNS, NVIR
 use Symmetry_Info, only: Mul
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
@@ -25,7 +26,7 @@ integer(kind=iwp) :: I, IIN, INUM, IP, IST, NS1, NSIL
 integer(kind=iwp), external :: JSUNP_CPF
 real(kind=r8), external :: DDOT_
 
-call SETZ(EPB,IRC(4))
+EPB(1:IRC(4)) = Zero
 if ((ICPF == 1) .or. (ISDCI == 1) .or. (INCPF == 1)) return
 
 ! VALENCE

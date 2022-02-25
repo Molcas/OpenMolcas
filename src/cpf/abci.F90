@@ -102,10 +102,10 @@ do
       ICCB = INDX(INDB)+1
       if (ITYP == 3) then
         TERM = DDOT_(INS,C(ICCB),1,BIAC,1)
-        call DAXPY_(INS,COPL,BIAC,1,S(ICCB),1)
+        S(ICCB:ICCB+INS-1) = S(ICCB:ICCB+INS-1)+COPL*BIAC(1:INS)
       else
         TERM = DDOT_(INS,C(ICCB),1,BICA,1)
-        call DAXPY_(INS,COPL,BICA,1,S(ICCB),1)
+        S(ICCB:ICCB+INS-1) = S(ICCB:ICCB+INS-1)+COPL*BICA(1:INS)
       end if
       S(MA) = S(MA)+BMN(IT)*TERM
     end do

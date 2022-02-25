@@ -16,7 +16,7 @@ subroutine NPSET(JSY,INDX,C,TPQ,ENP,T,S,W,EPP,ICASE)
 
 use cpf_global, only: IADDP, ICPF, IDENS, INCPF, IPRINT, IRC, ISDCI, ITPUL, JSC, LSYM, Lu_CI, NCONF, NNS, NVIR
 use Symmetry_Info, only: Mul
-use Constants, only: One
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
@@ -119,9 +119,9 @@ end do
 if (IPRINT >= 15) write(u6,13) (C(I),I=1,NCONF)
 if (IDENS == 1) return
 
-call SETZ(EPP,IRC(4))
-call SETZ(S,JSC(4))
-if ((ICPF /= 1) .and. (ISDCI /= 1) .and. (INCPF /= 1)) call SETZ(W,JSC(4))
+EPP(1:IRC(4)) = Zero
+S(1:JSC(4)) = Zero
+if ((ICPF /= 1) .and. (ISDCI /= 1) .and. (INCPF /= 1)) W(1:JSC(4)) = Zero
 
 return
 

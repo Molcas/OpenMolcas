@@ -112,33 +112,30 @@ do
               !if (IFT == 1) call SQUARN_CPF(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
               if (IFT == 1) call SQUARM_CPF(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
               NAA = NVIR(IASYM)*NVIR(IASYM)
-              call SETZ(B,NAA)
+              B(1:NAA) = Zero
               call FMMM(F(IPOF(IASYM)+1),A,B,NVIR(IASYM),NVIR(IASYM),NVIR(IASYM))
-              call SETZ(A,NAA)
-              call DAXPY_(NAA,FACS,B,1,A,1)
+              A(1:NAA) = FACS*B(1:NAA)
               if (IFT /= 1) then
                 call SIADD_CPF(A,S(INMY+IPOA(IASYM)),NVIR(IASYM))
-                call SETZ(A,NAA)
-                call DAXPY_(NAA,FACW,B,1,A,1)
+                A(1:NAA) = FACW*B(1:NAA)
                 call SIADD_CPF(A,W(INMY+IPOA(IASYM)),NVIR(IASYM))
               else
                 call TRADD_CPF(A,S(INMY+IPOA(IASYM)),NVIR(IASYM))
-                call SETZ(A,NAA)
-                call DAXPY_(NAA,FACW,B,1,A,1)
+                A(1:NAA) = FACW*B(1:NAA)
                 call TRADD_CPF(A,W(INMY+IPOA(IASYM)),NVIR(IASYM))
               end if
             else
               NAC = NVIR(IASYM)*NVIR(ICSYM)
-              call SETZ(A,NAC)
+              A(1:NAC) = Zero
               if (IASYM <= ICSYM) then
-                call FMMM(F(IPOF(IASYM)+1),C(INMY+IPOA(ICSYM)),A,NVIR(IASYM),NVIR(ICSYM),NVIR(IASYM))
-                call DAXPY_(NAC,FACS,A,1,S(INMY+IPOA(ICSYM)),1)
-                call DAXPY_(NAC,FACW,A,1,W(INMY+IPOA(ICSYM)),1)
+                I = INMY+IPOA(ICSYM)
+                call FMMM(F(IPOF(IASYM)+1),C(I),A,NVIR(IASYM),NVIR(ICSYM),NVIR(IASYM))
               else
-                call FMMM(C(INMY+IPOA(IASYM)),F(IPOF(IASYM)+1),A,NVIR(ICSYM),NVIR(IASYM),NVIR(IASYM))
-                call DAXPY_(NAC,FACS,A,1,S(INMY+IPOA(IASYM)),1)
-                call DAXPY_(NAC,FACW,A,1,W(INMY+IPOA(IASYM)),1)
+                I = INMY+IPOA(IASYM)
+                call FMMM(C(I),F(IPOF(IASYM)+1),A,NVIR(ICSYM),NVIR(IASYM),NVIR(IASYM))
               end if
+              S(I:I+NAC-1) = S(I:I+NAC-1)+FACS*A(1:NAC)
+              W(I:I+NAC-1) = W(I:I+NAC-1)+FACW*A(1:NAC)
             end if
           else
             if (MYL == 1) then
@@ -147,7 +144,7 @@ do
             else if (IASYM <= ICSYM) then
               NAC = NVIR(IASYM)*NVIR(ICSYM)
               if (IFT == 0) call DCOPY_(NAC,C(INMY+IPOA(ICSYM)),1,A,1)
-              if (IFT == 1) call VNEG_CPF(C(INMY+IPOA(ICSYM)),1,A,1,NAC)
+              if (IFT == 1) call VNEG_CPF(NAC,C(INMY+IPOA(ICSYM)),1,A,1)
             else
               call MTRANS_CPF(C(INMY+IPOA(IASYM)),A,NVIR(IASYM),NVIR(ICSYM))
             end if
@@ -177,10 +174,10 @@ do
         ! DOUBLET-DOUBLET INTERACTIONS
         if (NVIR(MYL) == 0) cycle
         if (IDENS /= 1) then
-          call SETZ(A,NVIR(MYL))
+          A(1:NVIR(MYL)) = Zero
           call FMMM(F(IPOF(MYL)+1),C(INMY),A,NVIR(MYL),1,NVIR(MYL))
-          call DAXPY_(NVIR(MYL),FACS,A,1,S(INMY),1)
-          call DAXPY_(NVIR(MYL),FACW,A,1,W(INMY),1)
+          S(INMY:INMY+NVIR(MYL)-1) = S(INMY:INMY+NVIR(MYL)-1)+FACS*A(1:NVIR(MYL))
+          W(INMY:INMY+NVIR(MYL)-1) = W(INMY:INMY+NVIR(MYL)-1)+FACW*A(1:NVIR(MYL))
           cycle
         else
           call FMUL2_CPF(C(INMY),C(INMY),A,NVIR(MYL),NVIR(MYL),1)

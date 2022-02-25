@@ -53,9 +53,9 @@ IOCC = 1
 ICMO = 1
 do M=1,NSYM
   ! set occupation number of orbitals prefrozen in MOTRA
-  call DCOPY_(NBAS(M),[Zero],0,OCC(IOCC),1)
+  OCC(IOCC:IOCC+NBAS(M)-1) = Zero
   ! skip orbitals prefrozen in MOTRA
-  call DCOPY_(NPFRO(M),[Two],0,OCC(IOCC),1)
+  OCC(IOCC:IOCC+NPFRO(M)-1) = Two
   call NATORB_CPF(FC,CMO(ICMO+NBAS(M)*NPFRO(M)),CMO2,DSYM,CAO,OCC(IOCC+NPFRO(M)),M)
   call DCOPY_(NORB(M)*NBAS(M),CAO,1,CMO(ICMO+NBAS(M)*NPFRO(M)),1)
   ICMO = ICMO+NBAS(M)**2

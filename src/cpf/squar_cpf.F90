@@ -24,8 +24,8 @@ integer(kind=iwp) :: I, IIN
 
 IIN = 1
 do I=1,N
-  call DCOPY_(I,A(IIN),1,B(I,1),N)
-  call DCOPY_(I,A(IIN),1,B(1,I),1)
+  B(I,1:I-1) = A(IIN:IIN+I-2)
+  B(1:I,I) = A(IIN:IIN+I-1)
   IIN = IIN+I
 end do
 

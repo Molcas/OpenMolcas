@@ -17,6 +17,7 @@ subroutine FIJ(ICASE,JSY,INDX,C,S,FC,A,B,FK,DBK,ENP,EPP)
 
 use cpf_global, only: IDENS, IRC, IREF0, IROW, ITER, IV0, LSYM, Lu_25, Lu_CIGuga, NNS, NORBT, NVIR
 use Symmetry_Info, only: Mul
+use Constants, only: Zero
 use Definitions, only: wp, iwp, r8
 
 implicit none
@@ -34,7 +35,7 @@ NOB2 = IROW(NORBT+1)
 ICHK = 0
 if (IDENS /= 1) then
   NOB2 = IROW(NORBT+1)
-  call SETZ(FC,NOB2)
+  FC(1:NOB2) = Zero
   IADD25 = 0
   call dDAFILE(Lu_25,2,FC,NOB2,IADD25)
 end if
@@ -87,8 +88,8 @@ if ((IDENS == 1) .or. (ITER /= 1)) then
             INUM = NVIR(NS1L)
             if (IVL >= 2) INUM = NNS(NS1L)
             if (IDENS /= 1) then
-              call DAXPY_(INUM,COPI,C(NB+1),1,S(NA+1),1)
-              call DAXPY_(INUM,COPI,C(NA+1),1,S(NB+1),1)
+              S(NA+1:NA+INUM) = S(NA+1:NA+INUM)+COPI*C(NB+1:NB+INUM)
+              S(NB+1:NB+INUM) = S(NB+1:NB+INUM)+COPI*C(NA+1:NA+INUM)
             else
               TERM = DDOT_(INUM,C(NA+1),1,C(NB+1),1)
               FC(IK) = FC(IK)+COP(IIN)*TERM/(sqrt(ENP(INDA))*sqrt(ENP(INDB)))

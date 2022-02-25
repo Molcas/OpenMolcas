@@ -12,7 +12,7 @@
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-subroutine VNEG_CPF(A,IA,B,IB,IAB)
+subroutine VNEG_CPF(IAB,A,IA,B,IB)
 
 use Definitions, only: wp, iwp
 

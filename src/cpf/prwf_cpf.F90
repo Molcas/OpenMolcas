@@ -16,7 +16,6 @@ subroutine PRWF_CPF(ICASE,JSY,INDX,C)
 
 use cpf_global, only: CTRSH, ILIM, IRC, IREF0, ISDCI, JSC, LN, LSYM, NCONF, NSM, NSYS, NVIRT, SQ2
 use Symmetry_Info, only: Mul
-use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -24,14 +23,17 @@ integer(kind=iwp) :: ICASE(*), INDX(*), JSY(*)
 real(kind=wp) :: C(*)
 integer(kind=iwp) :: I, II, II1, IIN, IJ, ILSYM(57), IOC(57), IORB(57), ISP(57), IX1, J, J1, J2, JCONF, JJ, JMIN, JOJ, JVIR, NA, &
                      NB, NSI, NSJ
-real(kind=wp) :: CI, THRC
+real(kind=wp) :: CI, CNRM, THRC
 integer(kind=iwp), external :: ICUNP, JSUNP_CPF
 real(kind=wp), external :: DNRM2_
 
 NA = 0 ! dummy initialized
 NB = 0 ! dummy initialized
 NCONF = JSC(ILIM)
-if (ISDCI == 1) call DSCAL_(NCONF,One/DNRM2_(NCONF,C,1),C,1)
+if (ISDCI == 1) then
+  CNRM = DNRM2_(NCONF,C,1)
+  C(1:NCONF) = C(1:NCONF)/CNRM
+end if
 JCONF = JSC(1)
 THRC = CTRSH
 write(u6,5) THRC

@@ -82,7 +82,7 @@ EMY = POTNUC
 NOB2 = IROW(NORBT+1)
 IADD17 = ITOC17(2)
 call dDAFILE(Lu_TraOne,2,FIJ,NORBTT,IADD17)
-call DCOPY_(NOB2,[Zero],0,FC,1)
+FC(1:NOB2) = Zero
 IBUF = 0
 KORBI = 0
 do ISYM=1,NSYM
@@ -108,8 +108,8 @@ do ISYM=1,NSYM
   end do
   KORBI = KORBI+NORB(ISYM)
 end do
-call DCOPY_(NOB2,[Zero],0,FIJ,1)
-call DCOPY_(NOB2,[Zero],0,FJI,1)
+FIJ(1:NOB2) = Zero
+FJI(1:NOB2) = Zero
 if (IPRINT >= 20) then
   call TRIPRT('FC IN SORT BEFORE TWOEL',' ',FC,NORBT)
   write(u6,'(A,F20.8)') ' EMY:',EMY

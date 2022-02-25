@@ -87,14 +87,14 @@ do ISTEP=1,IPASS
           do INDA=IST1,IFIN1
             TERM = DDOT_(INS,C(INDX(INDA)+1),1,ACBDS,1)
             S(INDX(INDA)+ISAC) = S(INDX(INDA)+ISAC)+TERM
-            call DAXPY_(INS,C(INDX(INDA)+ISAC),ACBDS,1,S(INDX(INDA)+1),1)
+            S(INDX(INDA)+1:INDX(INDA)+INS) = S(INDX(INDA)+1:INDX(INDA)+INS)+C(INDX(INDA)+ISAC)*ACBDS(1:INS)
           end do
         end if
         if ((INPT == 0) .or. (NA == NC)) cycle
         do INDA=IST2,IFIN2
           TERM = DDOT_(INS,C(INDX(INDA)+1),1,ACBDT,1)
           S(INDX(INDA)+ISAC) = S(INDX(INDA)+ISAC)+TERM
-          call DAXPY_(INS,C(INDX(INDA)+ISAC),ACBDT,1,S(INDX(INDA)+1),1)
+          S(INDX(INDA)+1:INDX(INDA)+INS) = S(INDX(INDA)+1:INDX(INDA)+INS)+C(INDX(INDA)+ISAC)*ACBDT(1:INS)
         end do
       end do
     end do
