@@ -185,8 +185,11 @@ def test_standard(lines, kind, size, computed=False, choice=None):
       return None
     n = int(size)
     if (computed):
-      n *= first_int(lines[l])
-      l += 1
+      try:
+        n *= int(first_word(lines[l])) # should not accept environment variables for number of lines
+        l += 1
+      except ValueError:
+        return None
     l += n
     if (l >= len(lines)):
       return None
@@ -215,7 +218,7 @@ def test_standard(lines, kind, size, computed=False, choice=None):
         return None
       for part in fortran_split(lines[l]):
         try:
-          i = fortran_int(part)
+          i = int(part) # should not accept environment variables for number of lines
           ints += 1
           if ((gv.lookup.get(gv.current_name) is None) and (ints == 1)):
             gv.lookup[gv.current_name] = i
@@ -274,7 +277,7 @@ def test_standard(lines, kind, size, computed=False, choice=None):
           if (off == 0):
             i = fortran_float(part)
           else:
-            i = fortran_int(part)
+            i = int(part) # should not accept environment variables for number of lines
           nums += 1
         except:
           return None
