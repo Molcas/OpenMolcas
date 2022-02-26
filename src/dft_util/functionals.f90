@@ -265,7 +265,7 @@ function get_func(xcLabel,test)
   end if
 
   get_func = xc_f03_functional_get_number(xcLabel)
-  if ((get_func < 0) .and. (.not. test)) then
+  if ((get_func < 0) .and. (.not. do_test)) then
     call WarningMessage(2,' Find_Functional: Undefined functional in Libxc!')
     write(u6,*) '         Functional=',trim(xcLabel)
     call Quit_OnUserError()
