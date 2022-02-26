@@ -26,7 +26,7 @@
 *
       If (KSDFT.ne.'Overlap') Then
          cTmp=KSDFT
-         Call Put_cArray('DFT functional',cTmp,LEN(cTmp))
+         Call Put_cArray('DFT functional',cTmp,80)
       End If
 *                                                                      *
 ************************************************************************

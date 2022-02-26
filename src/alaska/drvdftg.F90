@@ -77,7 +77,7 @@ end do
 
 !call Get_iOption(iDFT)
 
-call Get_cArray('DFT functional',KSDFT,LEN(KSDFT))
+call Get_cArray('DFT functional',KSDFT,80)
 l_casdft = (KSDFT(1:2) == 'T:') .or. (KSDFT(1:3) == 'FT:')
 
 if (l_casdft) then

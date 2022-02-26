@@ -97,7 +97,6 @@
          Call SysAbendMsg('get_cArray','Data not defined: ',Label)
       End If
       If(Reclen(item).ne.nData) Then
-         Write (6,*) Reclen(item),nData
          Call SysAbendMsg('get_cArray','Data of wrong length: ',Label)
       End If
       Call cRdRun(RecLab(item),Data,nData)

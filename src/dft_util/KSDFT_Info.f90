@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Module KSDFT_Info
-Character(LEN=16) KSDFA
+Character(LEN=80) KSDFA
 Real*8 :: funcaa=0.0D0, funcbb=0.0D0 ,funccc=0.0D0
 Integer :: LuMC,LuMT
 End Module KSDFT_Info

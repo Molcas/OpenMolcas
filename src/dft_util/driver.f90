@@ -32,7 +32,7 @@ Logical Do_MO, Do_TwoEl
 Real*8 :: D_DS(nh1,nD), F_DFT(nh1,nD)
 Character*4 DFTFOCK
 logical :: LDTF, NDSD
-character(LEN=12) :: FLabel
+character(LEN=80) :: FLabel
 type(xc_f03_func_t) :: func_
 type(xc_f03_func_info_t) :: info_
 

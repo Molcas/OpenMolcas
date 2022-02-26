@@ -1102,7 +1102,7 @@ c      End If
       Line=Get_Ln(LuSpool)
       Call UpCase(Line)
       Line = adjustl(Line)
-      ADDC_KSDFT=Line(1:LEN(ADDC_KSDFT))
+      ADDC_KSDFT=Line(1:80)
       GoTo 1000
 *
 *>>>>>>>>>>>>> SAVE << Spin-Averaged wavelets (CONStraint) <

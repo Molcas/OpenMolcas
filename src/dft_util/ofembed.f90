@@ -18,7 +18,7 @@ Public::Do_Core, NDSD
 
 Logical::  Do_OFemb=.False., KEonly=.False., OFE_first=.True.
 Logical::  Do_Core=.False.
-Character(LEN=16)::  OFE_KSDFT=''
+Character(LEN=80)::  OFE_KSDFT=''
 Real*8, Allocatable:: NDSD(:,:)
 Real*8:: ThrFThaw=0.0D0, Xsigma=1.0d4, dFMD=0.0D0
 Real*8, Allocatable:: FMaux(:)

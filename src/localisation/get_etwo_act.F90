@@ -41,7 +41,7 @@ nBB = 0
 do i=1,nSym
   nBB = nBB+nBas(i)**2
 end do
-!call Get_cArray('DFT functional',KSDFT,LEN(KSDFT))
+!call Get_cArray('DFT functional',KSDFT,80)
 !ExFac = Get_ExFac(KSDFT)
 !FactXI = ExFac
 FactXI = One  ! always HF energy
