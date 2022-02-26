@@ -28,8 +28,9 @@ integer(kind=iwp) :: Def_Functional_Type = Other_Type, Def_nFuncs = 0
 integer(kind=LibxcInt) :: Def_func_id(nFuncs_max) = -1_LibxcInt
 real(kind=wp) :: Def_Coeffs(nFuncs_max) = Zero, Def_ExFac = Zero
 character(len=80) :: Def_Label = ''
+character(len=*), parameter :: Custom_File = 'CUSTFUNC', Custom_Func = '-999_CUSTOM_FUNCTIONAL'
 
-public :: Get_Func_ExFac, Get_Funcs, Init_Funcs, Print_Info
+public :: Custom_File, Custom_Func, Get_Func_ExFac, Get_Funcs, Init_Funcs, Print_Info
 
 contains
 
@@ -130,70 +131,87 @@ subroutine Find_Functional(Label)
   Def_ExFac = Zero
   Def_nFuncs = 0
 
-  Lu = IsFreeUnit(11)
-  call molcas_open(Lu,'FUNCDATA')
+  ! First test if this is already a Libxc functional
+  Def_func_id(1) = get_func(Label,test=.true.)
+  if (Def_func_id(1) >= 0) then
 
-  ! First find the line that starts with the keyword name
-  do
-    read(Lu,'(A)',iostat=istatus) Line
-    if (istatus /= 0) then
-      call WarningMessage(2,' Find_Functional: Undefined functional type!')
-      write(u6,*) '         Functional=',trim(Label)
-      call Quit_OnUserError()
-    end if
-    Line = adjustl(Line)
-    if ((Line == '') .or. (Line(1:1) == '#')) cycle
-    read(Line,*) Word1,Word2
-    if (to_upper(Word1) == Label) exit
-  end do
+    Def_nFuncs = 1
+    Def_Coeffs(1) = One
+    Labels(1) = Label
 
-  ! Once found, read the second word
-  read(Word2,*,iostat=istatus) nComp
-  if (istatus == 0) then
-    ! If it's a number, read the component functionals and factors
-    if (Def_nFuncs > nFuncs_max) then
-      call WarningMessage(2,' Find_Functional: Too many components!')
-      write(u6,*) '         nFuncs=',Def_nFuncs
-      call Quit_OnUserError()
+  else
+
+    ! If not, we have to read the database file, or the custom functional file
+    Lu = IsFreeUnit(11)
+    if (Label == Custom_Func) then
+      call molcas_open(Lu,Custom_File)
+    else
+      call molcas_open(Lu,'FUNCDATA')
     end if
-    i = 0
-    do while (i < nComp)
+
+    ! Find the line that starts with the keyword name
+    do
       read(Lu,'(A)',iostat=istatus) Line
       if (istatus /= 0) then
-        call WarningMessage(2,' Find_Functional: Error in functional definition!')
+        call WarningMessage(2,' Find_Functional: Undefined functional type!')
         write(u6,*) '         Functional=',trim(Label)
         call Quit_OnUserError()
       end if
       Line = adjustl(Line)
       if ((Line == '') .or. (Line(1:1) == '#')) cycle
-      i = i+1
-      read(Line,*,iostat=istatus) Coeff,Word2
-      if (istatus /= 0) then
-        call WarningMessage(2,' Find_Functional: Error in functional definition!')
-        write(u6,*) '         Functional=',trim(Label)
+      read(Line,*) Word1,Word2
+      if (to_upper(Word1) == Label) exit
+    end do
+
+    ! Once found, read the second word
+    read(Word2,*,iostat=istatus) nComp
+    if (istatus == 0) then
+      ! If it's a number, read the component functionals and factors
+      if (Def_nFuncs > nFuncs_max) then
+        call WarningMessage(2,' Find_Functional: Too many components!')
+        write(u6,*) '         nFuncs=',Def_nFuncs
         call Quit_OnUserError()
       end if
-      ! HF_X means exact exchange
-      if (to_upper(Word2) == 'HF_X') then
-        Def_ExFac = Def_ExFac+Coeff
-      else
-        Def_nFuncs = Def_nFuncs+1
-        Def_Coeffs(Def_nFuncs) = Coeff
-        Def_func_id(Def_nFuncs) = get_func(Word2)
-        Labels(Def_nFuncs) = Word2
-      end if
-    end do
-  else
-    ! Otherwise, this is just an alias for a Libxc functional
-    Def_nFuncs = 1
-    Def_Coeffs(1) = One
-    Def_func_id(1) = get_func(Word2)
-    Labels(1) = Word2
+      i = 0
+      do while (i < nComp)
+        read(Lu,'(A)',iostat=istatus) Line
+        if (istatus /= 0) then
+          call WarningMessage(2,' Find_Functional: Error in functional definition!')
+          write(u6,*) '         Functional=',trim(Label)
+          call Quit_OnUserError()
+        end if
+        Line = adjustl(Line)
+        if ((Line == '') .or. (Line(1:1) == '#')) cycle
+        i = i+1
+        read(Line,*,iostat=istatus) Coeff,Word2
+        if (istatus /= 0) then
+          call WarningMessage(2,' Find_Functional: Error in functional definition!')
+          write(u6,*) '         Functional=',trim(Label)
+          call Quit_OnUserError()
+        end if
+        ! HF_X means exact exchange
+        if (to_upper(Word2) == 'HF_X') then
+          Def_ExFac = Def_ExFac+Coeff
+        else
+          Def_nFuncs = Def_nFuncs+1
+          Def_Coeffs(Def_nFuncs) = Coeff
+          Def_func_id(Def_nFuncs) = get_func(Word2)
+          Labels(Def_nFuncs) = Word2
+        end if
+      end do
+    else
+      ! Otherwise, this is just an alias for a Libxc functional
+      Def_nFuncs = 1
+      Def_Coeffs(1) = One
+      Def_func_id(1) = get_func(Word2)
+      Labels(1) = Word2
+    end if
+
+    close(Lu)
+
   end if
 
-  close(Lu)
-
-  ! Now the file is read, process the functional(s)
+  ! Now process the functional(s)
 
   do i=1,Def_nFuncs
     call xc_f03_func_init(func(i),Def_func_id(i),0_LibxcInt)
@@ -230,16 +248,24 @@ subroutine Find_Functional(Label)
 
 end subroutine Find_Functional
 
-function get_func(xcLabel)
+function get_func(xcLabel,test)
 
   use xc_f03_lib_m, only: xc_f03_functional_get_number
   use Definitions, only: u6
 
   integer(kind=LibxcInt) :: get_func
   character(len=*), intent(in) :: xcLabel
+  logical(kind=iwp), intent(in), optional :: test
+  logical(kind=iwp) :: do_test
+
+  if (present(test)) then
+    do_test = test
+  else
+    do_test = .false.
+  end if
 
   get_func = xc_f03_functional_get_number(xcLabel)
-  if (get_func < 0) then
+  if ((get_func < 0) .and. (.not. test)) then
     call WarningMessage(2,' Find_Functional: Undefined functional in Libxc!')
     write(u6,*) '         Functional=',trim(xcLabel)
     call Quit_OnUserError()

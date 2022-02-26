@@ -35,6 +35,7 @@
 ************************************************************************
       use OccSets
       use OFembed
+      use Functionals, only: Custom_File, Custom_Func
       use IOBuf, only: lDaRec,nSect!,DiskMx_MByte
 #ifdef _HDF5_
       use mh5, only: mh5_is_hdf5, mh5_open_file_r
@@ -1026,6 +1027,19 @@ c      End If
       Call UpCase(Line)
       Line = adjustl(Line)
       KSDFT=Line(1:80)
+      nFunc = 0
+      Read(Line,*,iostat=istatus) nFunc
+      If ((istatus == 0) .and. (nFunc > 0)) Then
+        KSDFT = Custom_Func
+        LuCF = IsFreeUnit(10)
+        Call molcas_open(LuCF,Custom_File)
+        Write(LuCF,*) Trim(KSDFT),nFunc
+        Do i=1,nFunc
+          Line=Get_Ln(LuSpool)
+          Write(LuCF,*) Trim(Line)
+        End Do
+        Close(LuCF)
+      End If
       GoTo 1000
 *
 *>>>>>>>>>>>>> DFCF <<<< Factors to scale exch. and corr. <<
