@@ -19,8 +19,9 @@ use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-integer(kind=iwp) :: JSY(*), INDX(*)
-real(kind=wp) :: C(*), S(*), EPP(*)
+integer(kind=iwp), intent(in) :: JSY(*), INDX(*)
+real(kind=wp), intent(in) :: C(*), S(*)
+real(kind=wp), intent(inout) :: EPP(*)
 integer(kind=iwp) :: I, IIN, INUM, IP, IST, NS1, NSIL
 real(kind=wp) :: T
 integer(kind=iwp), external :: JSUNP_CPF

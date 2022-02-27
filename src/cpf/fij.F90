@@ -12,17 +12,19 @@
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-!pgi$g opt=1
 subroutine FIJ(ICASE,JSY,INDX,C,S,FC,A,B,FK,DBK,ENP,EPP)
 
 use cpf_global, only: IDENS, IRC, IREF0, IROW, ITER, IV0, LSYM, Lu_25, Lu_CIGuga, NNS, NORBT, NVIR
 use Symmetry_Info, only: Mul
-use Constants, only: Zero
 use Definitions, only: wp, iwp, r8
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ICASE(*), JSY(*), INDX(*)
-real(kind=wp) :: C(*), S(*), FC(*), A(*), B(*), FK(*), DBK(*), ENP(*), EPP(*)
+integer(kind=iwp), intent(in) :: ICASE(*), JSY(*), INDX(*)
+real(kind=wp), intent(inout) :: C(*), S(*), FC(*), FK(*), EPP(*)
+real(kind=wp), intent(_OUT_) :: A(*), B(*), DBK(*)
+real(kind=wp), intent(in) :: ENP(*)
 #include "cop.fh"
 integer(kind=iwp) :: IADD25, IC1, IC2, ICHK, IIN, IK, ILEN, IND, INDA, INDB, INDI, INUM, IVL, NA, NB, NI, NK, NOB2, NS1, NS1L
 real(kind=wp) :: COPI, TERM
@@ -35,7 +37,6 @@ NOB2 = IROW(NORBT+1)
 ICHK = 0
 if (IDENS /= 1) then
   NOB2 = IROW(NORBT+1)
-  FC(1:NOB2) = Zero
   IADD25 = 0
   call dDAFILE(Lu_25,2,FC,NOB2,IADD25)
 end if
@@ -110,8 +111,7 @@ if ((IDENS == 1) .or. (ITER /= 1)) then
 end if
 !if (IDENS == 1) write(u6,876) (FC(I),I=1,NOB2)
 call AI_CPF(JSY,INDX,C,S,FC,C,A,B,FK,DBK,ENP,EPP,0)
-if (ITER == 1) return
-call AB(ICASE,JSY,INDX,C,S,FC,A,B,FK,ENP)
+if (ITER /= 1) call AB(ICASE,JSY,INDX,C,S,FC,A,B,FK,ENP)
 
 return
 

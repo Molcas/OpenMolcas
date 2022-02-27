@@ -12,7 +12,6 @@
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-!pgi$g opt=1
 subroutine MABCI(JSY,INDX,C,S,BMN,IBMN,BIAC,BICA,BUFIN,W,THET,ENP,NII)
 
 use cpf_global, only: IADABCI, IRC, KBUFF1, LN, LSYM, Lu_CIGuga, Lu_TiABCI, NDIAG, NNS, NSM, NSYS, NVIRT, SQ2
@@ -20,9 +19,14 @@ use Symmetry_Info, only: Mul
 use Constants, only: One, Two, Half
 use Definitions, only: wp, iwp, r8
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: JSY(*), INDX(*), IBMN(*), NII
-real(kind=wp) :: C(*), S(*), BMN(*), BIAC(*), BICA(*), BUFIN(*), W(*), THET(NII,NII), ENP(*)
+integer(kind=iwp), intent(in) :: JSY(*), INDX(*), NII
+real(kind=wp), intent(_OUT_) :: C(*), S(*), W(*)
+real(kind=wp), intent(inout) :: BMN(*), BIAC(*), BICA(*), BUFIN(*)
+integer(kind=iwp), intent(_OUT_) :: IBMN(*)
+real(kind=wp), intent(in) :: THET(NII,NII), ENP(*)
 #include "cop.fh"
 integer(kind=iwp) :: I, IAD15, ICCB, ICHK, ICP1, ICP2, IIN, ILEN, ILOOP, IND, INDA, INDB, INS, INSIN, INUM, IOUT, IT, ITYP, LB, &
                      MA, NB, NI, NSAVE, NSIB, NSLB

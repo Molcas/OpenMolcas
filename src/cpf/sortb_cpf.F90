@@ -21,9 +21,12 @@ use Symmetry_Info, only: Mul
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6, RtoI
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: BUFOUT(*), TIBUF(NTIBUF), ACBDS(*), ACBDT(*), BUFACBD(*)
-integer(kind=iwp) :: INDOUT(*), ICAD(*), IBUFL(*), ISAB(*)
+real(kind=wp), intent(_OUT_) :: BUFOUT(*), TIBUF(NTIBUF), ACBDS(*), ACBDT(*), BUFACBD(*)
+integer(kind=iwp), intent(_OUT_) :: INDOUT(*), ICAD(*), IBUFL(*)
+integer(kind=iwp), intent(in) :: ISAB(*)
 #include "tratoc.fh"
 integer(kind=iwp) :: I, IAC, IACMAX, IACMIN, IAD16, IAD50, IADR, IBDS, ICP, ICPP, ICQ, ID, IDISK, IDIV, IFIN1, IFIN2, ILOOP, IN1, &
                      INND, INPS, INPT, INS, INSOUT, IOUT, IREC, IST1, IST2, ISTEP, ISYM, ITAIL, ITURN, JBUF0, JBUF1, JBUF2, JDISK, &
@@ -203,10 +206,8 @@ do ISTEP=1,IPASS
         NDMAX = NSYS(NSM(LN+NC)+1)
         if (NDMAX > NA) NDMAX = NA
         INS = ISAB(IN1+NDMAX)
-        do I=1,INS
-          ACBDS(I) = Zero
-          ACBDT(I) = Zero
-        end do
+        ACBDS(1:INS) = Zero
+        ACBDT(1:INS) = Zero
         IADR = LASTAD(NOVST+IAC)
         do
           call iDAFILE(Lu_TiABIJ,2,INDOUT,JBUF2,IADR)

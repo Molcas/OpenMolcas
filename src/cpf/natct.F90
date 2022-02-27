@@ -21,7 +21,8 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: C(*), FC(*)
+real(kind=wp), intent(inout) :: C(*)
+real(kind=wp), intent(in) :: FC(*)
 integer(kind=iwp) :: ICMO, IDISK, iDum, iDummy(7,8), iiRC, IOCC, iOpt, iSYM, M, N2SUM, n2Tri, nbMax, NSUM
 real(kind=wp) :: dum, Dummy(1), EREL, ErelDC, ErelMV
 character(len=72) :: Header

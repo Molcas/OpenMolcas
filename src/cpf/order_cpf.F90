@@ -17,12 +17,11 @@ subroutine ORDER_CPF(C,D,N)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: N
-real(kind=wp) :: C(*), D(*)
+integer(kind=iwp), intent(in) :: N
+real(kind=wp), intent(inout) :: C(*), D(*)
 integer(kind=iwp) :: I, I1, IIN, IOUT, J, K, N1
 real(kind=wp) :: CT, DT
 
-if (N == 1) return
 N1 = N-1
 do I=1,N1
   I1 = I+1

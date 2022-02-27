@@ -20,8 +20,9 @@ use Constants, only: One, Half, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: JSY(*), NII
-real(kind=wp) :: C(*), S(*), W(*), THET(NII,NII), ENP(*)
+integer(kind=iwp), intent(in) :: JSY(*), NII
+real(kind=wp), intent(in) :: C(*), THET(NII,NII), ENP(*)
+real(kind=wp), intent(inout) :: S(*), W(*)
 #include "cop.fh"
 integer(kind=iwp) :: IADD25, IIC, IND, INDA, IRL, NA, NA1, NA2, NB, NB1, NB2, NSA, NSS
 real(kind=wp) :: ENPQ, FACS, FACW

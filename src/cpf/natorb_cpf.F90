@@ -18,9 +18,12 @@ use cpf_global, only: ICH, IPRINT, IROW, NASH, NBAS, NFRO, NISH, NORB, NVIR
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: D(*), CM(*), CMO(*), DSYM(*), CAO(*), OCC(*)
-integer(kind=iwp) :: M
+real(kind=wp), intent(in) :: D(*), CM(*)
+real(kind=wp), intent(_OUT_) :: CMO(*), DSYM(*), CAO(*), OCC(*)
+integer(kind=iwp), intent(in) :: M
 integer(kind=iwp) :: I, II, IJ, IJ0, ILAS, IP, ISTA, J, JP, kp, M1, NBM, NBP, NFR, NI, NIJ, NJ, NORBM, NORBM2
 real(kind=wp) :: TERM
 
@@ -38,9 +41,7 @@ NFR = NFRO(M)
 NORBM = NFR+NISH(M)+NASH(M)+NVIR(M)
 if (NORBM == 0) return
 NORBM2 = IROW(NORBM+1)
-do I=1,NORBM2
-  DSYM(I) = Zero
-end do
+DSYM(1:NORBM2) = Zero
 II = 0
 do I=1,NFR
   II = II+I
@@ -62,16 +63,14 @@ do I=1,NORBM
 end do
 ! DIAGONALIZE
 call JACSCF(DSYM,CMO,OCC,NORBM,-1,1.0e-11_wp)
-do I=1,NORBM
-  OCC(I) = -OCC(I)
-end do
+OCC(1:NORBM) = -OCC(1:NORBM)
 call ORDER_CPF(CMO,OCC,NORBM)
 if (IPRINT >= 15) write(u6,30)
 ILAS = 0
+OCC(1:NORBM) = -OCC(1:NORBM)
 do I=1,NORBM
   ISTA = ILAS+1
   ILAS = ILAS+NORBM
-  OCC(I) = -OCC(I)
   if (IPRINT >= 15) write(u6,40) I,OCC(I),(CMO(J),J=ISTA,ILAS)
 end do
 ! TRANSFORM TO AO-BASIS

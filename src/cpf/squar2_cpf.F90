@@ -17,8 +17,8 @@ subroutine SQUAR2_CPF(A,N)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: N
-real(kind=wp) :: A(N,N)
+integer(kind=iwp), intent(in) :: N
+real(kind=wp), intent(inout) :: A(N,N)
 integer(kind=iwp) :: I
 
 do I=1,N-1

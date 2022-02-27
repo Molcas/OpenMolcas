@@ -12,7 +12,6 @@
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-!pgi$g opt=1
 subroutine IJKL_CPF(JSY,INDX,C,S,FIJKL,BUFIN,ENP,EPP)
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
@@ -21,9 +20,13 @@ use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp, RtoI
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: JSY(*), INDX(*)
-real(kind=wp) :: C(*), S(*), FIJKL(*), BUFIN(*), ENP(*), EPP(*)
+integer(kind=iwp), intent(in) :: JSY(*), INDX(*)
+real(kind=wp), intent(in) :: C(*), ENP(*)
+real(kind=wp), intent(inout) :: S(*), EPP(*)
+real(kind=wp), intent(_OUT_) :: FIJKL(*), BUFIN(*)
 #include "cop.fh"
 integer(kind=iwp) :: IADR, IC1, IC2, ICHK, ILEN, IND, INDA, INDB, INDI, INUM, IP, IVL, JP, KKBUF0, KKBUF1, KKBUF2, KP, LENGTH, LP, &
                      NA, NB, NIJ, NIJKL, NKL, NS1, NS1L
@@ -37,9 +40,9 @@ contains
 
 subroutine IJKL_CPF_INTERNAL(BUFIN)
 
-  real(kind=wp), target :: BUFIN(*)
+  real(kind=wp), target, intent(_OUT_) :: BUFIN(*)
   integer(kind=iwp), pointer :: IBUFIN(:)
-  integer(kind=iwp) :: I, IIN
+  integer(kind=iwp) :: IIN
 
   call c_f_pointer(c_loc(BUFIN),iBUFIN,[1])
 
@@ -48,9 +51,7 @@ subroutine IJKL_CPF_INTERNAL(BUFIN)
   ICHK = 0
   NIJ = IROW(LN+1)
   NIJKL = NIJ*(NIJ+1)/2
-  do I=1,NIJKL
-    FIJKL(I) = Zero
-  end do
+  FIJKL(1:NIJKL) = Zero
   KKBUF0 = (RTOI*(KBUFF1+2)-2)/(RTOI+1)
   KKBUF1 = RTOI*KKBUF0+KKBUF0+1
   KKBUF2 = KKBUF1+1

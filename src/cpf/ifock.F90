@@ -17,9 +17,12 @@ subroutine IFOCK(FC,NI,NJ,NK,FINI,II)
 use Constants, only: Two
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: FC(*), FINI
-integer(kind=iwp) :: NI, NJ, NK, II
+real(kind=wp), intent(_OUT_) :: FC(*)
+integer(kind=iwp), intent(in) :: NI, NJ, NK, II
+real(kind=wp), intent(in) :: FINI
 integer(kind=iwp) :: JKPOS
 
 if (NI > 0) return

@@ -17,7 +17,8 @@ subroutine COUNT_CPF(NINTGR,NSYM,NORB,MUL)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: NINTGR, NSYM, NORB(*), MUL(8,8)
+integer(kind=iwp), intent(out) :: NINTGR
+integer(kind=iwp), intent(in) :: NSYM, NORB(*), MUL(8,8)
 integer(kind=iwp) :: NOP, NOQ, NOR, NORBP, NOS, NSP, NSPQ, NSPQR, NSQ, NSR, NSS, NSSM, NT, NTM, NU, NUMAX, NUMIN, NV, NX, NXM
 
 ! COUNT TWO-ELECTRON INTEGRALS

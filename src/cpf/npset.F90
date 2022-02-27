@@ -19,9 +19,12 @@ use Symmetry_Info, only: Mul
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: JSY(*), INDX(*), ICASE(*)
-real(kind=wp) :: C(*), TPQ(*), ENP(*), T(*), S(*), W(*), EPP(*)
+integer(kind=iwp), intent(in) :: JSY(*), INDX(*), ICASE(*)
+real(kind=wp), intent(inout) :: C(*), ENP(*)
+real(kind=wp), intent(_OUT_) :: TPQ(*), T(*), S(*), W(*), EPP(*)
 integer(kind=iwp) :: I, IAD, IIN, IND, INUM, IP, IQ, IST, NS1, NSIL
 real(kind=wp) :: EMPI
 integer(kind=iwp), external :: JSUNP_CPF
@@ -39,9 +42,7 @@ if (IDENS /= 1) then
   ! VALENCE
 
   IQ = IRC(1)
-  do I=1,IQ
-    T(I) = C(I)*C(I)
-  end do
+  T(1:IQ) = C(1:IQ)**2
 
   ! SINGLES
 
@@ -72,8 +73,7 @@ if (IDENS /= 1) then
   IP = IRC(4)
   do I=1,IP
     call TPQSET(ICASE,TPQ,I)
-    ENP(I) = DDOT_(IP,TPQ,1,T,1)
-    ENP(I) = ENP(I)+One
+    ENP(I) = DDOT_(IP,TPQ,1,T,1)+One
   end do
   IP = IRC(4)
   if (IPRINT > 5) write(u6,12) (ENP(I),I=1,IP)
@@ -84,8 +84,11 @@ end if
 
 IQ = IRC(1)
 do I=1,IQ
-  if (IDENS == 0) EMPI = One/sqrt(ENP(I))
-  if (IDENS == 1) EMPI = sqrt(ENP(I))
+  if (IDENS == 0) then
+    EMPI = One/sqrt(ENP(I))
+  else
+    EMPI = sqrt(ENP(I))
+  end if
   C(I) = C(I)*EMPI
 end do
 
@@ -98,9 +101,12 @@ do I=1,IQ
   NSIL = MUL(NS1,LSYM)
   INUM = NVIR(NSIL)
   IST = INDX(IIN+I)+1
-  if (IDENS == 0) EMPI = One/sqrt(ENP(IIN+I))
-  if (IDENS == 1) EMPI = sqrt(ENP(IIN+I))
-  call VSMUL(C(IST),1,EMPI,C(IST),1,INUM)
+  if (IDENS == 0) then
+    EMPI = One/sqrt(ENP(IIN+I))
+  else
+    EMPI = sqrt(ENP(IIN+I))
+  end if
+  C(IST:IST+INUM-1) = EMPI*C(IST:IST+INUM-1)
 end do
 
 ! DOUBLES
@@ -112,16 +118,20 @@ do I=1,IQ
   NSIL = MUL(NS1,LSYM)
   INUM = NNS(NSIL)
   IST = INDX(IIN+I)+1
-  if (IDENS == 0) EMPI = One/sqrt(ENP(IIN+I))
-  if (IDENS == 1) EMPI = sqrt(ENP(IIN+I))
-  call VSMUL(C(IST),1,EMPI,C(IST),1,INUM)
+  if (IDENS == 0) then
+    EMPI = One/sqrt(ENP(IIN+I))
+  else
+    EMPI = sqrt(ENP(IIN+I))
+  end if
+  C(IST:IST+INUM-1) = EMPI*C(IST:IST+INUM-1)
 end do
 if (IPRINT >= 15) write(u6,13) (C(I),I=1,NCONF)
-if (IDENS == 1) return
 
-EPP(1:IRC(4)) = Zero
-S(1:JSC(4)) = Zero
-if ((ICPF /= 1) .and. (ISDCI /= 1) .and. (INCPF /= 1)) W(1:JSC(4)) = Zero
+if (IDENS /= 1) then
+  EPP(1:IRC(4)) = Zero
+  S(1:JSC(4)) = Zero
+  if ((ICPF /= 1) .and. (ISDCI /= 1) .and. (INCPF /= 1)) W(1:JSC(4)) = Zero
+end if
 
 return
 

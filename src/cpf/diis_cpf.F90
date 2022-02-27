@@ -18,9 +18,13 @@ use cpf_global, only: IADDP, IDIIS, IPRINT, ITPUL, Lu_CI, NCONF
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: MIT, ITP
-real(kind=wp) :: DPI(*), DPJ(*), BST(MIT,MIT), BIJ(ITP,ITP), CN(*)
+integer(kind=iwp), intent(in) :: MIT, ITP
+real(kind=wp), intent(inout) :: DPI(*), BST(MIT,MIT)
+real(kind=wp), intent(_OUT_) :: DPJ(*), CN(*)
+real(kind=wp), intent(inout) :: BIJ(ITP,ITP)
 integer(kind=iwp) :: I, IAD, ITM, J
 real(kind=wp) :: T, WHS(50)
 real(kind=r8), external :: DDOT_
@@ -28,11 +32,7 @@ real(kind=r8), external :: DDOT_
 if (ITPUL /= 1) then
 
   ITM = ITPUL-1
-  do I=1,ITM
-    do J=1,ITM
-      BIJ(J,I) = BST(J,I)
-    end do
-  end do
+  BIJ(1:ITM,1:ITM) = BST(1:ITM,1:ITM)
   do I=1,ITPUL
     BIJ(ITP,I) = -One
     BIJ(I,ITP) = -One
@@ -74,7 +74,7 @@ if (IDIIS /= 1) then
   end do
   if (IPRINT >= 15) write(u6,14) (DPI(I),I=1,NCONF)
 else
-  call DECOMP(ITP,BIJ,BIJ)
+  call DECOMP(ITP,BIJ)
   do I=1,ITPUL
     WHS(I) = Zero
   end do

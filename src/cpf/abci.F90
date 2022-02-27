@@ -18,9 +18,13 @@ use cpf_global, only: IADABCI, IRC, KBUFF1, LN, LSYM, Lu_CIGuga, Lu_TiABCI, NDIA
 use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp, r8
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: JSY(*), INDX(*), IBMN(*)
-real(kind=wp) :: C(*), S(*), BMN(*), BIAC(*), BICA(*), BUFIN(*)
+integer(kind=iwp), intent(in) :: JSY(*), INDX(*)
+real(kind=wp), intent(inout) :: C(*), S(*)
+real(kind=wp), intent(_OUT_) :: BMN(*), BIAC(*), BICA(*), BUFIN(*)
+integer(kind=iwp), intent(_OUT_) :: IBMN(*)
 #include "cop.fh"
 integer(kind=iwp) :: I, IAD15, ICCB, ICHK, ICP1, ICP2, IIN, ILEN, ILOOP, IND, INDA, INDB, INS, INSIN, INUM, IOUT, IT, ITYP, LB, &
                      MA, NB, NI, NSAVE, NSIB, NSLB

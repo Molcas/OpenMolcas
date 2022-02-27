@@ -12,21 +12,23 @@
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-subroutine APPRIM(EPP,EPB,TPQ,AP,ENP,T1,T2,ICASE)
+subroutine APPRIM(EPP,EPB,TPQ,AP,ENP,T2,ICASE)
 
 use cpf_global, only: IPRINT, IRC
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: EPP(*), EPB(*), TPQ(*), AP(*), ENP(*), T1(*), T2(*)
-integer(kind=iwp) :: ICASE(*)
+real(kind=wp), intent(in) :: EPP(*), EPB(*), ENP(*)
+real(kind=wp), intent(_OUT_) ::  TPQ(*), AP(*), T2(*)
+integer(kind=iwp), intent(in) :: ICASE(*)
 integer(kind=iwp) :: I, IP
 
 IP = IRC(4)
 do I=1,IP
   call TPQSET(ICASE,TPQ,I)
-  call VAM(EPP,1,EPB,1,TPQ,1,T1,1,IP)
-  call VDIV(ENP,1,T1,1,T2,1,IP)
+  T2(1:IP) = (EPP(1:IP)+EPB(1:IP))*TPQ(1:IP)/ENP(1:IP)
   call VECSUM_CPFMCPF(T2,AP(I),IP)
   AP(I) = AP(I)*ENP(I)
 end do

@@ -17,14 +17,13 @@ subroutine START_CPF(C,NCONF,IREF0)
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
-implicit none
-real(kind=wp) :: C(*)
-integer(kind=iwp) :: NCONF, IREF0
-integer(kind=iwp) :: I
+#include "intent.fh"
 
-do I=1,NCONF
-  C(I) = Zero
-end do
+implicit none
+real(kind=wp), intent(_OUT_) :: C(*)
+integer(kind=iwp), intent(in) :: NCONF, IREF0
+
+C(1:NCONF) = Zero
 C(IREF0) = One
 
 return

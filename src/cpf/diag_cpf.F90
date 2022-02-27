@@ -16,9 +16,12 @@ subroutine DIAG_CPF(ICASE,JSY,HDIAG,FC,FIJ,FJI)
 
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ICASE(*), JSY(*)
-real(kind=wp) :: HDIAG(*), FC(*), FIJ(*), FJI(*)
+integer(kind=iwp), intent(in) :: ICASE(*), JSY(*)
+real(kind=wp), intent(_OUT_) :: HDIAG(*)
+real(kind=wp), intent(in) :: FC(*), FIJ(*), FJI(*)
 
 call IIJJ_CPF(ICASE,JSY,HDIAG,FC,FIJ,FJI)
 call IJIJ_CPF(JSY,HDIAG,FJI)

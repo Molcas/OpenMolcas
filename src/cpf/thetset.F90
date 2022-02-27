@@ -20,8 +20,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ICASE(*), NII
-real(kind=wp) :: THE(NII,NII)
+integer(kind=iwp), intent(in) :: ICASE(*), NII
+real(kind=wp), intent(out) :: THE(NII,NII)
 integer(kind=iwp) :: I, II, II1, IINT, IIOR, IJ, IK, IL, IOCR(100), IP, IQ, JJ, JOJ, NI, NJ
 integer(kind=iwp), external :: ICUNP
 
@@ -35,17 +35,7 @@ end do
 if (IPRINT > 5) write(u6,888) IREF0,(IOCR(I),I=1,LN)
 
 IINT = IRC(4)
-do IP=1,IINT
-  do IQ=1,IINT
-    THE(IQ,IP) = One
-  end do
-end do
-
-do IP=1,IINT
-  do IQ=1,IINT
-    THE(IQ,IP) = Zero
-  end do
-end do
+THE(1:IINT,1:IINT) = Zero
 do IP=1,IINT
   II = 0
   IJ = 0

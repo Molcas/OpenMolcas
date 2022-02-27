@@ -18,9 +18,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NROW, NCOL, N
-real(kind=wp) :: A(NROW,N), B(NCOL,N), C(NROW,NCOL)
-integer(kind=iwp) :: I, J, J1, K
+integer(kind=iwp), intent(in) :: NROW, NCOL, N
+real(kind=wp), intent(in) :: A(NROW,N), B(NCOL,N)
+real(kind=wp), intent(out) :: C(NROW,NCOL)
+integer(kind=iwp) :: J, J1, K
 real(kind=wp) :: CJ(200), FAC
 
 if (nRow > 200) then
@@ -32,23 +33,15 @@ if (nRow > 200) then
 end if
 
 do J=1,NCOL
-  do I=1,NROW
-    CJ(I) = Zero
-  end do
+  CJ(1:NROW) = Zero
   if (J /= NCOL) then
     J1 = J+1
     do K=1,N
       FAC = B(J,K)
-      if (FAC /= Zero) then
-        do I=J1,NROW
-          CJ(I) = CJ(I)+FAC*A(I,K)
-        end do
-      end if
+      if (FAC /= Zero) CJ(J1:NROW) = CJ(J1:NROW)+FAC*A(J1:NROW,K)
     end do
   end if
-  do I=1,NROW
-    C(I,J) = CJ(I)
-  end do
+  C(:,J) = CJ(1:NROW)
 end do
 
 return

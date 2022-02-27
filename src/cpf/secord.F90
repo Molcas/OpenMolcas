@@ -16,9 +16,12 @@ subroutine SECORD(A,B,C,FAC,NAL,NBL,NSIJ,IFT)
 
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: A(*), B(*), C(*), FAC
-integer(kind=iwp) :: NAL, NBL, NSIJ, IFT
+real(kind=wp), intent(in) :: A(*), B(*), FAC
+real(kind=wp), intent(_OUT_) :: C(*)
+integer(kind=iwp), intent(in) :: NAL, NBL, NSIJ, IFT
 integer(kind=iwp) :: IAB, NA, NA1, NAA, NB, NBB
 
 IAB = 0

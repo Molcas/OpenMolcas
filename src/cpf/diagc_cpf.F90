@@ -19,8 +19,9 @@ use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: JSY(*)
-real(kind=wp) :: C(*), S(*)
+integer(kind=iwp), intent(in) :: JSY(*)
+real(kind=wp), intent(in) :: C(*)
+real(kind=wp), intent(inout) :: S(*)
 #include "cop.fh"
 integer(kind=iwp) :: IADD25, IIC, IND, INDA, IRL, NA, NA1, NA2, NB, NB1, NB2, NSA, NSS
 integer(kind=iwp), external :: JSUNP_CPF

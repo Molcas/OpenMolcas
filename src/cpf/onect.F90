@@ -17,8 +17,12 @@ subroutine ONECT(C,S,W,THET,ENP,EPP,FC,BUFIN,A,B,FK,DBK)
 use cpf_global, only: ICASE, ICPF, IDENS, ILIM, INCPF, INDX, IRC, ISDCI, JSY
 use Definitions, only: wp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: C(*), S(*), W(*), THET(*), ENP(*), EPP(*), FC(*), BUFIN(*), A(*), B(*), FK(*), DBK(*)
+real(kind=wp), intent(inout) :: C(*), S(*), W(*), EPP(*), FC(*), FK(*)
+real(kind=wp), intent(in) :: THET(*), ENP(*)
+real(kind=wp), intent(_OUT_) :: BUFIN(*), A(*), B(*), DBK(*)
 
 if ((ICPF /= 0) .or. (ISDCI /= 0) .or. (INCPF /= 0)) then
   ! CPF AND SDCI

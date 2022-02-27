@@ -19,8 +19,8 @@ use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ICASE(*), INDX(*), JSY(*)
-real(kind=wp) :: C(*)
+integer(kind=iwp), intent(in) :: ICASE(*), INDX(*), JSY(*)
+real(kind=wp), intent(inout) :: C(*)
 integer(kind=iwp) :: I, II, II1, IIN, IJ, ILSYM(57), IOC(57), IORB(57), ISP(57), IX1, J, J1, J2, JCONF, JJ, JMIN, JOJ, JVIR, NA, &
                      NB, NSI, NSJ
 real(kind=wp) :: CI, CNRM, THRC

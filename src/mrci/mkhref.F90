@@ -9,7 +9,6 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-!pgi$g opt=1
 subroutine MKHREF(HREF,FC,FIJKL,JREFX)
 
 use mrci_global, only: IAD25S, INDSRT, IRC, IROW, IVVER, LASTAD, LN, Lu_25, Lu_70, LUSYMB, NBTRI, NCVAL, NREF, NSRTMX, POTNUC, &

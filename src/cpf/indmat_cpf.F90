@@ -18,8 +18,11 @@ use cpf_global, only: IFIRST, ILIM, IPRINT, IRC, IREF0, ISC, JJS, JSC, LN, LSYM,
 use Symmetry_Info, only: Mul
 use Definitions, only: iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: JSY(*), INDX(*), ISAB(*), ISMAX, JREFX(*)
+integer(kind=iwp), intent(in) :: JSY(*), JREFX(*)
+integer(kind=iwp), intent(_OUT_) :: INDX(*), ISAB(*), ISMAX
 integer(kind=iwp) :: I, ICOUS(8), II, IIN, IN0, IN2, IND, IR, IR1, IR2, IX1, IX2, IX3, IX4, JCONF, JJM, JSCI, NA, NB, NSAB, NSS
 integer(kind=iwp), external :: JSUNP_CPF
 

@@ -12,17 +12,20 @@
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-!pgi$g opt=1
 subroutine MFIJ(ICASE,JSY,INDX,C,S,FC,A,B,FK,DBK,W,THET,ENP,EPP,NII)
 
 use cpf_global, only: IDENS, IRC, IREF0, IROW, ITER, IV0, LSYM, Lu_25, Lu_CIGuga, NNS, NORBT, NVIR
 use Symmetry_Info, only: Mul
-use Constants, only: Zero, One, Two, Half
+use Constants, only: One, Two, Half
 use Definitions, only: wp, iwp, r8
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ICASE(*), JSY(*), INDX(*), NII
-real(kind=wp) :: C(*), S(*), FC(*), A(*), B(*), FK(*), DBK(*), W(*), THET(NII,NII), ENP(*), EPP(*)
+integer(kind=iwp), intent(in) :: ICASE(*), JSY(*), INDX(*), NII
+real(kind=wp), intent(inout) :: C(*), S(*), FC(*), FK(*), W(*), EPP(*)
+real(kind=wp), intent(_OUT_) :: A(*), B(*), DBK(*)
+real(kind=wp), intent(in) :: THET(NII,NII), ENP(*)
 #include "cop.fh"
 integer(kind=iwp) :: IADD25, IC1, IC2, ICHK, IIN, IK, ILEN, IND, INDA, INDB, INDI, INUM, IVL, NA, NB, NI, NK, NOB2, NS1, NS1L
 real(kind=wp) :: COPI, ENPQ, FACS, FACW, FACWA, FACWB, TERM
@@ -35,7 +38,6 @@ NOB2 = IROW(NORBT+1)
 ICHK = 0
 if (IDENS /= 1) then
   NOB2 = IROW(NORBT+1)
-  FC(1:NOB2) = Zero
   IADD25 = 0
   call dDAFILE(Lu_25,2,FC,NOB2,IADD25)
 end if

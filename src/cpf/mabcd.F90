@@ -19,9 +19,12 @@ use Symmetry_Info, only: Mul
 use Constants, only: One, Two, Half
 use Definitions, only: wp, iwp, r8
 
-implicit none
-integer(kind=iwp) :: JSY(*), INDX(*), ISAB(*), NII
-real(kind=wp) :: C(*), S(*), ACBDS(*), ACBDT(*), BUFIN(*), W(*), THET(NII,NII), ENP(*)
+#include "intent.fh"
+
+integer(kind=iwp), intent(in) :: JSY(*), INDX(*), ISAB(*), NII
+real(kind=wp), intent(inout) :: C(*), S(*), W(*)
+real(kind=wp), intent(_OUT_) :: ACBDS(*), ACBDT(*), BUFIN(*)
+real(kind=wp), intent(in) :: THET(NII,NII), ENP(*)
 integer(kind=iwp) :: I, IAC, IACMAX, IACMIN, IAD16, IFIN1, IFIN2, ILOOP, IN1, INDA, INPS, INPT, INS, INSIN, INUM, ISAC, IST1, &
                      IST2, ISTEP, ISYM, ITAIL, NA, NC, NDMAX, NOV, NSAC, NSACL, NVT
 real(kind=wp) :: ENPQ, FACS, FACW, TERM

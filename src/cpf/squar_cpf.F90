@@ -12,14 +12,14 @@
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-!pgi$g opt=1
 subroutine SQUAR_CPF(A,B,N)
 
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: N
-real(kind=wp) :: A(*), B(N,N)
+integer(kind=iwp), intent(in) :: N
+real(kind=wp), intent(in) :: A(*)
+real(kind=wp), intent(out) :: B(N,N)
 integer(kind=iwp) :: I, IIN
 
 IIN = 1

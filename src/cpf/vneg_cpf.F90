@@ -16,9 +16,12 @@ subroutine VNEG_CPF(IAB,A,IA,B,IB)
 
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: IA, IB, IAB
-real(kind=wp) :: A(*), B(*)
+integer(kind=iwp), intent(in) :: IAB, IA, IB
+real(kind=wp), intent(in) :: A(*)
+real(kind=wp), intent(_OUT_) :: B(*)
 integer(kind=iwp) :: I
 
 do I=0,IAB-1

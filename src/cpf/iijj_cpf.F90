@@ -19,9 +19,12 @@ use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ICASE(*), JSY(*)
-real(kind=wp) :: HDIAG(*), FC(*), FIJ(*), FJI(*)
+integer(kind=iwp), intent(in) :: ICASE(*), JSY(*)
+real(kind=wp), intent(_OUT_) :: HDIAG(*)
+real(kind=wp), intent(in) :: FC(*), FIJ(*), FJI(*)
 integer(kind=iwp) :: I, IA, IAD27, IAV, IB, IBV, II, IJ, IND, IOC(55), IR, IRL, J, JOJ, NA, NA1, NA2, NB, NB1, NB2, NSA, NSS
 real(kind=wp) :: SUM1, SUM2, TERM
 integer(kind=iwp), external :: ICUNP, JSUNP_CPF

@@ -18,9 +18,13 @@ use cpf_global, only: IREF0, LN, NCONF, NORBT
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: C(*), D(*), AA
-integer(kind=iwp) :: ICASE(*)
+real(kind=wp), intent(inout) :: C(*)
+real(kind=wp), intent(_OUT_) :: D(*)
+integer(kind=iwp), intent(in) :: ICASE(*)
+real(kind=wp), intent(out) :: AA
 integer(kind=iwp) :: I, II, II1, ILIM, JOJ
 real(kind=wp) :: EMA
 integer(kind=iwp), external :: ICUNP

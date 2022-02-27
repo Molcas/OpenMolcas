@@ -12,16 +12,19 @@
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-subroutine CUPDATE(JSY,INDX,C,S,AP,BST,T2,ENP)
+subroutine CUPDATE(JSY,INDX,C,S,AP,BST,ENP)
 
 use cpf_global, only: IAD25S, IADDP, IPRINT, IRC, IREF0, ITPUL, LSYM, Lu_25, Lu_30, Lu_CI, NCONF, NNS, NVIR, WLEV
 use Symmetry_Info, only: Mul
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6, r8
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: JSY(*), INDX(*)
-real(kind=wp) :: C(*), S(*), AP(*), BST(*), T2(*), ENP(*)
+integer(kind=iwp), intent(in) :: JSY(*), INDX(*)
+real(kind=wp), intent(inout) :: C(*), S(*), BST(*)
+real(kind=wp), intent(in) :: AP(*), ENP(*)
 #include "cop.fh"
 integer(kind=iwp) :: I, IAD, III, IIN, INUM, IP, IST, JJJ, NS1, NSIL
 real(kind=wp) :: A, APW, EMP, W
@@ -44,7 +47,7 @@ do I=1,IP
   NSIL = MUL(NS1,LSYM)
   INUM = NVIR(NSIL)
   IST = INDX(IIN+I)+1
-  call VSMSB(C(IST),1,AP(IIN+I),S(IST),1,C(IST),1,INUM)
+  C(IST:IST+INUM-1) = C(IST:IST+INUM-1)*AP(IIN+I)-S(IST:IST+INUM-1)
 end do
 
 ! DOUBLES
@@ -55,7 +58,7 @@ do I=1,IP
   NSIL = MUL(NS1,LSYM)
   INUM = NNS(NSIL)
   IST = INDX(IIN+I)+1
-  call VSMSB(C(IST),1,AP(IIN+I),S(IST),1,C(IST),1,INUM)
+  C(IST:IST+INUM-1) = C(IST:IST+INUM-1)*AP(IIN+I)-S(IST:IST+INUM-1)
 end do
 
 ! WRITE GRADIENT ONTO DISK, UNIT=30
@@ -73,8 +76,7 @@ end do
 IP = IRC(1)
 do I=1,IP
   APW = W-AP(I)
-  T2(I) = S(I)+APW
-  C(I) = C(I)/T2(I)
+  C(I) = C(I)/(S(I)+APW)
   EMP = sqrt(ENP(I))
   C(I) = C(I)*EMP
   if (I == IREF0) C(I) = Zero
@@ -89,10 +91,9 @@ do I=1,IP
   INUM = NVIR(NSIL)
   IST = INDX(IIN+I)+1
   APW = W-AP(IIN+I)
-  call VSADD(S(IST),1,APW,T2,1,INUM)
-  call VDIV(T2,1,C(IST),1,C(IST),1,INUM)
+  C(IST:IST+INUM-1) = C(IST:IST+INUM-1)/(S(IST:IST+INUM-1)+APW)
   EMP = sqrt(ENP(IIN+I))
-  call VSMUL(C(IST),1,EMP,C(IST),1,INUM)
+  C(IST:IST+INUM-1) = EMP*C(IST:IST+INUM-1)
 end do
 
 ! DOUBLES
@@ -104,10 +105,9 @@ do I=1,IP
   INUM = NNS(NSIL)
   IST = INDX(IIN+I)+1
   APW = W-AP(IIN+I)
-  call VSADD(S(IST),1,APW,T2,1,INUM)
-  call VDIV(T2,1,C(IST),1,C(IST),1,INUM)
+  C(IST:IST+INUM-1) = C(IST:IST+INUM-1)/(S(IST:IST+INUM-1)+APW)
   EMP = sqrt(ENP(IIN+I))
-  call VSMUL(C(IST),1,EMP,C(IST),1,INUM)
+  C(IST:IST+INUM-1) = EMP*C(IST:IST+INUM-1)
 end do
 
 IAD = IADDP(ITPUL+1)

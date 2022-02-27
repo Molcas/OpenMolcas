@@ -12,16 +12,20 @@
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-subroutine CPFCTL(C,S,W,TPQ,ENP,EPP,BST,EPB,AP,BIJ,CN,TEMP1,TEMP2)
+subroutine CPFCTL(C,S,W,TPQ,ENP,EPP,BST,EPB,AP,BIJ,CN,TEMP)
 
 use cpf_global, only: DETOT, ETHRE, ETOT, ICASE, ICONV, ICPF, IDIIS, INCPF, INDX, IPRINT, IRC, ISDCI, ITER, ITPUL, JSY, MAXIT, &
                       MAXITP, NTMAX, POTNUC
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: C(*), S(*), W(*), TPQ(*), ENP(*), EPP(*), BST((MAXIT+1)**2), EPB(*), AP(*), BIJ((MAXIT+1)**2), CN(MAXIT+1), &
-                 TEMP1(NTMAX), TEMP2(NTMAX)
+real(kind=wp), intent(inout) :: C(*), S(*), EPP(*), BST((MAXIT+1)**2)
+real(kind=wp), intent(in) :: W(*), ENP(*)
+real(kind=wp), intent(_OUT_) :: TPQ(*), EPB(*), AP(*)
+real(kind=wp), intent(out) :: BIJ((MAXIT+1)**2), CN(MAXIT+1), TEMP(NTMAX)
 integer(kind=iwp) :: I, IP, ITP
 real(kind=wp) :: C0, DECORR, DELE, EENP, ENER, ETOTT
 
@@ -41,8 +45,8 @@ if ((ICONV == 0) .and. (ITER /= MAXIT)) then
   ! If more iterations should be done.
   IDIIS = 0
   if (ITPUL == MAXITP) IDIIS = 1
-  call APPRIM(EPP,EPB,TPQ,AP,ENP,TEMP1,TEMP2,ICASE)
-  call CUPDATE(JSY,INDX,C,S,AP,BST,TEMP2,ENP)
+  call APPRIM(EPP,EPB,TPQ,AP,ENP,TEMP,ICASE)
+  call CUPDATE(JSY,INDX,C,S,AP,BST,ENP)
   ITP = ITPUL+1
   call DIIS_CPF(C,S,BST,MAXIT,BIJ,ITP,CN)
 else

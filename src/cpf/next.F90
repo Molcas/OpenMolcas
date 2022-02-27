@@ -18,8 +18,11 @@ use cpf_global, only: IADDP, IPRINT, ITPUL, Lu_CI, NCONF
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: P(*), DPS(*), CN(*)
+real(kind=wp), intent(_OUT_) :: P(*), DPS(*)
+real(kind=wp), intent(in) :: CN(*)
 integer(kind=iwp) :: I, IAD, IIN, ITM, J
 real(kind=wp) :: CTOT
 
@@ -34,7 +37,7 @@ do I=1,ITM
   end do
   IAD = IADDP(I+1)
   call dDAFILE(Lu_CI,2,DPS,NCONF,IAD)
-  call VSMA(DPS,1,CTOT,P,1,P,1,NCONF)
+  P(1:NCONF) = P(1:NCONF)+CTOT*DPS(1:NCONF)
 end do
 if (IPRINT >= 15) write(u6,19) (P(I),I=1,NCONF)
 

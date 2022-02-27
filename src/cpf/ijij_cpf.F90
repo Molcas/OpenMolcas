@@ -19,9 +19,12 @@ use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: JSY(*)
-real(kind=wp) :: HDIAG(*), FJI(*)
+integer(kind=iwp), intent(in) :: JSY(*)
+real(kind=wp), intent(_OUT_) :: HDIAG(*)
+real(kind=wp), intent(in) :: FJI(*)
 #include "cop.fh"
 integer(kind=iwp) :: IAD27, IADD25, ICHK, ICOUP, ICOUPS, IFS, II, IIJ, IIJ1, IIJ2, IJJ, INB, IND, INDI, INS, IOUT, ITYP, IVL, &
                      IVSAVE, J, JJ, KK, LENGTH, NA, NA1, NA2, NB, NB1, NB2, NSA, NSS

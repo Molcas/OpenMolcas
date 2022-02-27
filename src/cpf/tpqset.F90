@@ -18,9 +18,11 @@ use cpf_global, only: INCPF, IPRINT, IRC, IREF0, ISDCI, LN, LWSP, N
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ICASE(*), IP
-real(kind=wp) :: TPQ(*)
+integer(kind=iwp), intent(in) :: ICASE(*), IP
+real(kind=wp), intent(_OUT_) :: TPQ(*)
 integer(kind=iwp) :: I, II, II1, IINT, IIOR, IJ, IK, IL, IOCR(100), IQ, JJ, JOJ, NI, NJ
 real(kind=wp) :: DIK, DIL, DJK, DJL
 integer(kind=iwp), external :: ICUNP
@@ -75,8 +77,7 @@ do IQ=1,IINT
   TPQ(IQ) = (DIK+DIL)/(Two*NI)+(DJK+DJL)/(Two*NJ)
   if (IQ == IREF0) TPQ(IQ) = Zero
 end do
-if (IPRINT < 15) return
-if (IPRINT > 5) write(u6,11) (TPQ(IQ),IQ=1,IINT)
+if (IPRINT > 15) write(u6,11) (TPQ(IQ),IQ=1,IINT)
 
 return
 

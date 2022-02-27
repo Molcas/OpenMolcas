@@ -19,9 +19,12 @@ use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6, r8
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: JSY(*), INDX(*)
-real(kind=wp) :: C(*), W(*), EPB(*)
+integer(kind=iwp), intent(in) :: JSY(*), INDX(*)
+real(kind=wp), intent(in) :: C(*), W(*)
+real(kind=wp), intent(_OUT_) :: EPB(*)
 integer(kind=iwp) :: I, IIN, INUM, IP, IST, NS1, NSIL
 integer(kind=iwp), external :: JSUNP_CPF
 real(kind=r8), external :: DDOT_

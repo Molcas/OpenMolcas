@@ -39,7 +39,7 @@ use stdalloc, only: mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: IRETURN
+integer(kind=iwp), intent(out) :: IRETURN
 integer(kind=iwp) :: MEMORY
 
 call mma_maxdble(MEMORY)

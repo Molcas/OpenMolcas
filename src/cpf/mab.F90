@@ -19,9 +19,13 @@ use Symmetry_Info, only: Mul
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6, r8
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ICASE(*), JSY(*), INDX(*), NII
-real(kind=wp) :: C(*), S(*), FC(*), A(*), B(*), F(*), W(*), THET(NII,NII), ENP(*)
+integer(kind=iwp), intent(in) :: ICASE(*), JSY(*), INDX(*), NII
+real(kind=wp), intent(inout) :: C(*), S(*), FC(*), W(*)
+real(kind=wp), intent(_OUT_) :: A(*), B(*), F(*)
+real(kind=wp), intent(in) :: THET(NII,NII), ENP(*)
 integer(kind=iwp) :: I, IAB, IASYM, ICSYM, IFT, II1, IIA, IIC, IIN, IJ, INDA, INMY, INN, INUM, IOC(55), IPOA(9), IPF, IPOF(9), &
                      ITAIL, ITURN, JOJ, LNA, LNC, MYL, MYSYM, NA, NA1, NA2, NAA, NAB, NAC, NB, NCLIM, NOB2, NVIRA, NVIRC
 real(kind=wp) :: COPI, ENPQ, FACS, FACW, RSUM, TR, TSUM
@@ -112,7 +116,6 @@ do
               !if (IFT == 1) call SQUARN_CPF(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
               if (IFT == 1) call SQUARM_CPF(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
               NAA = NVIR(IASYM)*NVIR(IASYM)
-              B(1:NAA) = Zero
               call FMMM(F(IPOF(IASYM)+1),A,B,NVIR(IASYM),NVIR(IASYM),NVIR(IASYM))
               A(1:NAA) = FACS*B(1:NAA)
               if (IFT /= 1) then
@@ -126,7 +129,6 @@ do
               end if
             else
               NAC = NVIR(IASYM)*NVIR(ICSYM)
-              A(1:NAC) = Zero
               if (IASYM <= ICSYM) then
                 I = INMY+IPOA(ICSYM)
                 call FMMM(F(IPOF(IASYM)+1),C(I),A,NVIR(IASYM),NVIR(ICSYM),NVIR(IASYM))
@@ -152,7 +154,7 @@ do
             IPF = IPOF(IASYM)+1
             ENPQ = (One-THET(INDA,INDA)*Half)*(ENP(INDA)+ENP(INDA)-One)+THET(INDA,INDA)*Half
             COPI = One/ENPQ
-            call VSMA(B,1,COPI,F(IPF),1,F(IPF),1,IAB)
+            F(IPF:IPF+IAB-1) = F(IPF:IPF+IAB-1)+COPI*B(1:IAB)
             NVIRA = NVIR(IASYM)
             NVIRC = NVIR(ICSYM)
             INN = 1
@@ -174,7 +176,6 @@ do
         ! DOUBLET-DOUBLET INTERACTIONS
         if (NVIR(MYL) == 0) cycle
         if (IDENS /= 1) then
-          A(1:NVIR(MYL)) = Zero
           call FMMM(F(IPOF(MYL)+1),C(INMY),A,NVIR(MYL),1,NVIR(MYL))
           S(INMY:INMY+NVIR(MYL)-1) = S(INMY:INMY+NVIR(MYL)-1)+FACS*A(1:NVIR(MYL))
           W(INMY:INMY+NVIR(MYL)-1) = W(INMY:INMY+NVIR(MYL)-1)+FACW*A(1:NVIR(MYL))
@@ -185,7 +186,7 @@ do
           IIN = IPOF(MYL+1)-IPOF(MYL)
           ENPQ = (One-THET(INDA,INDA)*Half)*(ENP(INDA)+ENP(INDA)-One)+THET(INDA,INDA)*Half
           COPI = One/ENPQ
-          call VSMA(A,1,COPI,F(IPF),1,F(IPF),1,IIN)
+          F(IPF:IPF+IIN-1) = F(IPF:IPF+IIN-1)+COPI*A(1:IIN)
           NVIRA = NVIR(MYL)
           LNA = LN+NSYS(MYL)
           IIA = IROW(LNA+1)

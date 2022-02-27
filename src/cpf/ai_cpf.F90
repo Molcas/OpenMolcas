@@ -23,9 +23,13 @@ use Symmetry_Info, only: Mul
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, r8, RtoI
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: JSY(*), INDX(*), KTYP
-real(kind=wp) :: C(*), S(*), FC(*), BUFIN(*), A(*), B(*), FK(*), DBK(*), ENP(*), EPP(*)
+integer(kind=iwp), intent(in) :: JSY(*), INDX(*), KTYP
+real(kind=wp), intent(inout) :: C(*), S(*), FK(*), EPP(*)
+real(kind=wp), intent(_OUT_) :: FC(*), BUFIN(*), A(*), B(*), DBK(*)
+real(kind=wp), intent(in) :: ENP(*)
 #include "cop.fh"
 integer(kind=iwp) :: IADR, ICHK, ICP1, ICP2, IFT, IJ, IJOLD, ILEN, IND, INDA, INDB, INDI, INK, INMY, INNY, INUM, IOUT, IPOB(9), &
                      ITURN, ITYP, LBUF0, LBUF1, LBUF2, LENGTH, MYL, MYSYM, NA1, NA2, NAK, NI, NJ, NK, NKM, NOB2, NOT2, NOTT, &
@@ -42,9 +46,9 @@ contains
 
 subroutine AI_CPF_INTERNAL(BUFIN)
 
-  real(kind=wp), target :: BUFIN(*)
+  real(kind=wp), target, intent(_OUT_) :: BUFIN(*)
   integer(kind=iwp), pointer :: IBUFIN(:)
-  integer(kind=iwp) :: I, II, INN, J, NA
+  integer(kind=iwp) :: I, II, J, NA
 
   call c_f_pointer(c_loc(BUFIN),iBUFIN,[1])
 
@@ -122,7 +126,6 @@ subroutine AI_CPF_INTERNAL(BUFIN)
               if (NYL == 1) then
                 if (IFT == 0) call SQUAR_CPF(C(INNY+IPOB(MYL)),A,NVM)
                 if (IFT == 1) call SQUARM_CPF(C(INNY+IPOB(MYL)),A,NVM)
-                B(1:NVM) = Zero
                 call FMMM(DBK,A,B,1,NVM,INK)
                 S(INMY:INMY+NVM-1) = S(INMY:INMY+NVM-1)+B(1:NVM)
                 SGN = One
@@ -140,25 +143,21 @@ subroutine AI_CPF_INTERNAL(BUFIN)
                 end do
               else
                 NKM = INK*NVM
-                B(1:NVM) = Zero
                 if (NSK <= MYL) then
                   if (IFT == 1) DBK(1:INK) = -DBK(1:INK)
                   I = INNY+IPOB(MYL)
                   call FMMM(DBK,C(I),B,1,NVM,INK)
                   S(INMY:INMY+NVM-1) = S(INMY:INMY+NVM-1)+B(1:NVM)
-                  B(1:NKM) = Zero
                   call FMMM(DBK,C(INMY),B,INK,NVM,1)
                 else
                   I = INNY+IPOB(NSK)
                   call FMMM(C(I),DBK,B,NVM,1,INK)
                   S(INMY:INMY+NVM-1) = S(INMY:INMY+NVM-1)+B(1:NVM)
-                  B(1:NKM) = Zero
                   call FMMM(C(INMY),DBK,B,NVM,INK,1)
                 end if
                 S(I:I+NKM-1) = S(I:I+NKM-1)+B(1:NKM)
               end if
             else
-              B(1:INK) = Zero
               COPI = COP(II)/(sqrt(ENP(INDA))*sqrt(ENP(INDB)))
               !write(u6,652) IFT,NYL,NSK,MYL,INDA,INDB
               if (NYL /= 1) then
@@ -173,7 +172,7 @@ subroutine AI_CPF_INTERNAL(BUFIN)
                 if (IFT == 1) call SQUARN_CPF(C(INNY+IPOB(MYL)),A,NVM)
                 call FMMM(C(INMY),A,B,1,INK,NVM)
               end if
-              call VSMA(B,1,COPI,FK,1,FK,1,INK)
+              FK(1:INK) = FK(1:INK)+COPI*B(1:INK)
               !write(u6,651) (FK(I),I=1,INK)
             end if
           end if
@@ -203,9 +202,7 @@ subroutine AI_CPF_INTERNAL(BUFIN)
               if (IJ /= IJOLD) then
                 IJOLD = IJ
                 IADR = LASTAD(NOVST+NOTT+IJ)
-                do INN=1,NOB2
-                  FC(INN) = Zero
-                end do
+                FC(1:NOB2) = Zero
                 do
                   call iDAFILE(Lu_TiABIJ,2,IBUFIN,LBUF2,IADR)
                   LENGTH = IBUFIN(LBUF1)

@@ -20,11 +20,11 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6, RtoI
 
 implicit none
-integer(kind=iwp) :: MEMORY
+integer(kind=iwp), intent(in) :: MEMORY
 integer(kind=iwp), allocatable :: IBMN(:), ICASE_(:)
 real(kind=wp), allocatable :: A(:), ABIJ(:), AC1(:), AC2(:), AIBJ(:), AJBI(:), AP(:), B(:), BIJ(:), BMN(:), BST(:), BUFAC(:), &
                               BUFIJ(:), BUFIN(:), C(:), CN(:), DBK(:), ENP(:), EPB(:), EPP(:), F(:), FC(:), FIJKL(:), FK(:), &
-                              FSEC(:), S(:), TEMP(:), TEMP1(:), TEMP2(:), THET(:), TPQ(:), W(:)
+                              FSEC(:), S(:), TEMP(:), TEMP2(:), THET(:), TPQ(:), W(:)
 
 LIC = MEMORY
 IPRINT = 5
@@ -73,13 +73,12 @@ call mma_allocate(EPB,IRC(ILIM),label='EPB')
 call mma_allocate(AP,IRC(ILIM),label='AP')
 call mma_allocate(BIJ,(MAXIT+1)**2,label='BIJ')
 call mma_allocate(CN,MAXIT+1,label='CN')
-call mma_allocate(TEMP1,NTMAX,label='TEMP1')
 call mma_allocate(TEMP2,NTMAX,label='TEMP2')
 do
   call NPSET(JSY,INDX,C,TPQ,ENP,TEMP,S,W,EPP,ICASE)
   call TWOCT(C,S,W,THET,ENP,EPP,ABIJ,AIBJ,AJBI,BUFIN,A,B,F,FSEC,FIJKL,BUFIJ,BMN,IBMN,AC1,AC2,BUFAC)
   call ONECT(C,S,W,THET,ENP,EPP,FC,BUFIN,A,B,FK,DBK)
-  call CPFCTL(C,S,W,TPQ,ENP,EPP,BST,EPB,AP,BIJ,CN,TEMP1,TEMP2)
+  call CPFCTL(C,S,W,TPQ,ENP,EPP,BST,EPB,AP,BIJ,CN,TEMP2)
   ITER = ITER+1
   ITPUL = ITPUL+1
   if ((ITER > MAXIT) .or. (ICONV == 1)) exit
@@ -101,7 +100,6 @@ call mma_deallocate(EPB)
 call mma_deallocate(AP)
 call mma_deallocate(BIJ)
 call mma_deallocate(CN)
-call mma_deallocate(TEMP1)
 call mma_deallocate(TEMP2)
 ! FIRST ORDER DENSITY MATRIX
 IDENS = 1

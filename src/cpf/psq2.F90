@@ -17,8 +17,9 @@ subroutine PSQ2(C,S,MUL,INDX,JSY,NDIAG,INUM,IRC3,LSYM,NVIRT,SQ2)
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: C(*), S(*), SQ2
-integer(kind=iwp) :: MUL(8,8), INDX(*), JSY(*), NDIAG(*), INUM, IRC3, LSYM, NVIRT
+real(kind=wp), intent(inout) :: C(*), S(*)
+integer(kind=iwp) , intent(in):: MUL(8,8), INDX(*), JSY(*), NDIAG(*), INUM, IRC3, LSYM, NVIRT
+real(kind=wp), intent(in) :: SQ2
 integer(kind=iwp) :: I, II1, MA, NA, NS1, NS1L
 integer(kind=iwp), external :: JSUNP_CPF
 

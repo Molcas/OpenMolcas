@@ -17,8 +17,9 @@ subroutine TRADD_CPF(A,B,N)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: N
-real(kind=wp) :: A(N,N), B(*)
+integer(kind=iwp), intent(in) :: N
+real(kind=wp), intent(in) :: A(N,N)
+real(kind=wp), intent(inout) :: B(*)
 integer(kind=iwp) :: I, IIN, J
 
 IIN = 0

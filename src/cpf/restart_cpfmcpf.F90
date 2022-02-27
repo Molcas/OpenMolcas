@@ -17,9 +17,11 @@ subroutine RESTART_CPFMCPF(C,NCONF)
 use cpf_global, only: Lu_CI
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NCONF
-real(kind=wp) :: C(*)
+integer(kind=iwp), intent(in) :: NCONF
+real(kind=wp), intent(_OUT_) :: C(*)
 integer(kind=iwp) :: IAD
 
 IAD = 0

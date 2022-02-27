@@ -17,7 +17,7 @@ subroutine SING(IWHY)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: IWHY
+integer(kind=iwp), intent(in) :: IWHY
 
 select case (IWHY)
   case default !(1)

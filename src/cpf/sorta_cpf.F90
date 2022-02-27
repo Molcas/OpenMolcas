@@ -23,9 +23,12 @@ use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6, RtoI
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: BUFOUT(*), TIBUF(NTIBUF), BUFBI(*), BIAC(*), BICA(*)
-integer(kind=iwp) :: INDOUT(*), ICAD(*), IBUFL(*), ISAB(*), INDBI(*), NINTGR
+real(kind=wp), intent(_OUT_) :: BUFOUT(*), TIBUF(NTIBUF), BUFBI(*), BIAC(*), BICA(*)
+integer(kind=iwp), intent(_OUT_) :: INDOUT(*), ICAD(*), IBUFL(*), INDBI(*), NINTGR
+integer(kind=iwp), intent(in) :: ISAB(*)
 #include "cop.fh"
 #include "tratoc.fh"
 integer(kind=iwp) :: I, IACS, IAD15, IAD50, IADR, IBUFIJ, ICHK, ICP, ICPP, ICQ, ID, IDISK, IDIV, IIJ, IIN, IJ, IJKL, ILEN, ILOOP, &
@@ -297,10 +300,8 @@ do
   do NB=1,NVIRT
     NSIB = MUL(NSM(LN+NB),NSM(NI))
     INS = NNS(NSIB)
-    do I=1,INS
-      BIAC(I) = Zero
-      BICA(I) = Zero
-    end do
+    BIAC(1:INS) = Zero
+    BICA(1:INS) = Zero
     NIB = NIB+1
     IADR = LASTAD(NIB)
     do
@@ -337,8 +338,7 @@ do
   if (ILEN < 0) exit
 end do
 ! EMPTY LAST BUFFER
-if (INSOUT == 0) return
-call dDAFILE(Lu_TiABCI,1,BUFBI,KBUFF1,IAD15)
+if (INSOUT /= 0) call dDAFILE(Lu_TiABCI,1,BUFBI,KBUFF1,IAD15)
 
 return
 

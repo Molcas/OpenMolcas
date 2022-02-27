@@ -18,7 +18,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: JSUNP_CPF
-integer(kind=iwp) :: INTSYM(*), L
+integer(kind=iwp), intent(in) :: INTSYM(*), L
 integer(kind=iwp) :: INTW, IPOW
 
 INTW = INTSYM((L+9)/10)

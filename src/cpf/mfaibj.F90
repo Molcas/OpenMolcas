@@ -20,9 +20,13 @@ use Symmetry_Info, only: Mul
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, r8, RtoI
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: JSY(*), INDX(*), NII
-real(kind=wp) :: C(*), S(*), ABIJ(*), AIBJ(*), AJBI(*), BUFIN(*), A(*), B(*), F(*), FSEC(*), W(*), THET(NII,NII), ENP(*), EPP(*)
+integer(kind=iwp), intent(in) :: JSY(*), INDX(*), NII
+real(kind=wp), intent(inout) :: C(*), S(*), ABIJ(*), AIBJ(*), AJBI(*), FSEC(*), W(*), EPP(*)
+real(kind=wp), intent(_OUT_) :: BUFIN(*), A(*), B(*), F(*)
+real(kind=wp), intent(in) :: THET(NII,NII), ENP(*)
 #include "cop.fh"
 integer(kind=iwp) :: IAB, IADR, IBSYM, ICHK, ICOUP, ICOUP1, ICSYM, IFAB, IFT, IFTA, IFTB, IIN, IJ1, ILEN, ILIM, IND, INDA, INDB, &
                      INDI, INMY, INNY, INS, INUM, IPF, IPF1, IPOA(9), IPOB(9), IPOF(9), ISTAR, ITURN, ITYP, JTURN, LBUF0, LBUF1, &
@@ -39,7 +43,7 @@ contains
 
 subroutine MFAIBJ_INTERNAL(BUFIN)
 
-  real(kind=wp), target :: BUFIN(*)
+  real(kind=wp), target, intent(_OUT_) :: BUFIN(*)
   integer(kind=iwp), pointer :: IBUFIN(:)
   integer(kind=iwp) :: IASYM, II
 
@@ -159,12 +163,10 @@ subroutine MFAIBJ_INTERNAL(BUFIN)
               IPF = IPOF(MYL)
               F(1:IIN) = CPL*AIBJ(IPF+1:IPF+IIN)+CPLA*ABIJ(IPF+1:IPF+IIN)
               if (INDA == INDB) call DCOPY_(NVIR(MYL),[Zero],0,F,NVIR(MYL)+1)
-              A(1:NVIR(NYL)) = Zero
               call FMMM(C(INMY),F,A,1,NVIR(NYL),NVIR(MYL))
               S(INNY:INNY+NVIR(NYL)-1) = S(INNY:INNY+NVIR(NYL)-1)+FACS*A(1:NVIR(NYL))
               W(INNY:INNY+NVIR(NYL)-1) = W(INNY:INNY+NVIR(NYL)-1)+FACWB*A(1:NVIR(NYL))
               if (INDA /= INDB) then
-                A(1:NVIR(MYL)) = Zero
                 call FMMM(F,C(INNY),A,NVIR(MYL),1,NVIR(NYL))
                 S(INMY:INMY+NVIR(MYL)-1) = S(INMY:INMY+NVIR(MYL)-1)+FACS*A(1:NVIR(MYL))
                 W(INMY:INMY+NVIR(MYL)-1) = W(INMY:INMY+NVIR(MYL)-1)+FACWA*A(1:NVIR(MYL))
@@ -188,14 +190,12 @@ subroutine MFAIBJ_INTERNAL(BUFIN)
                   IPF = IPOF(IASYM)
                   F(1:IAB) = CPL*AIBJ(IPF+1:IPF+IAB)+CPLA*ABIJ(IPF+1:IPF+IAB)
                   if (INDA == INDB) call DCOPY_(NVIR(IASYM),[Zero],0,F,NVIR(IASYM)+1)
-                  A(1:NBC) = Zero
                   call FMMM(C(INMY+IPOA(IASYM)),F,A,NVIR(ICSYM),NVIR(IBSYM),NVIR(IASYM))
                   S(INNY+IPOB(IBSYM):INNY+IPOB(IBSYM)+NBC-1) = S(INNY+IPOB(IBSYM):INNY+IPOB(IBSYM)+NBC-1)+FACS*A(1:NBC)
                   W(INNY+IPOB(IBSYM):INNY+IPOB(IBSYM)+NBC-1) = W(INNY+IPOB(IBSYM):INNY+IPOB(IBSYM)+NBC-1)+FACWB*A(1:NBC)
                   if (INDA /= INDB) then
                     IPF = IPOF(IBSYM)
                     F(1:IAB) = CPL*AJBI(IPF+1:IPF+IAB)+CPLA*ABIJ(IPF+1:IPF+IAB)
-                    A(1:NAC) = Zero
                     call FMMM(C(INNY+IPOB(IBSYM)),F,A,NVIR(ICSYM),NVIR(IASYM),NVIR(IBSYM))
                     S(INMY+IPOA(IASYM):INMY+IPOA(IASYM)+NAC-1) = S(INMY+IPOA(IASYM):INMY+IPOA(IASYM)+NAC-1)+FACS*A(1:NAC)
                     W(INMY+IPOA(IASYM):INMY+IPOA(IASYM)+NAC-1) = W(INMY+IPOA(IASYM):INMY+IPOA(IASYM)+NAC-1)+FACWA*A(1:NAC)
@@ -205,7 +205,6 @@ subroutine MFAIBJ_INTERNAL(BUFIN)
                   IPF = IPOF(IBSYM)
                   F(1:IAB) = CPL*AJBI(IPF+1:IPF+IAB)+CPLA*ABIJ(IPF+1:IPF+IAB)
                   call MTRANS_CPF(C(INMY+IPOA(IASYM)),A,NVIR(IASYM),NVIR(ICSYM))
-                  B(1:NBC) = Zero
                   call FMMM(F,A,B,NVIR(IBSYM),NVIR(ICSYM),NVIR(IASYM))
                   if (NYL == 1) then
                     A(1:NBC) = FACS*B(1:NBC)
@@ -231,7 +230,6 @@ subroutine MFAIBJ_INTERNAL(BUFIN)
                     call MTRANS_CPF(C(INNY+IPOB(ICSYM)),A,NVIR(ICSYM),NVIR(IBSYM))
                     if (IFTB == 1) A(1:NBC) = -A(1:NBC)
                   end if
-                  B(1:NAC) = Zero
                   call FMMM(A,F,B,NVIR(ICSYM),NVIR(IASYM),NVIR(IBSYM))
                   S(INMY+IPOA(IASYM):INMY+IPOA(IASYM)+NAC-1) = S(INMY+IPOA(IASYM):INMY+IPOA(IASYM)+NAC-1)+FACS*B(1:NAC)
                   W(INMY+IPOA(IASYM):INMY+IPOA(IASYM)+NAC-1) = W(INMY+IPOA(IASYM):INMY+IPOA(IASYM)+NAC-1)+FACWA*B(1:NAC)
@@ -248,12 +246,10 @@ subroutine MFAIBJ_INTERNAL(BUFIN)
                     call MTRANS_CPF(C(INMY+IPOA(ICSYM)),A,NVIR(ICSYM),NVIR(IASYM))
                     if (IFTA == 1) A(1:NAC) = -A(1:NAC)
                   end if
-                  B(1:NBC) = Zero
                   call FMMM(A,F,B,NVIR(ICSYM),NVIR(IBSYM),NVIR(IASYM))
                   S(INNY+IPOB(IBSYM):INNY+IPOB(IBSYM)+NBC-1) = S(INNY+IPOB(IBSYM):INNY+IPOB(IBSYM)+NBC-1)+FACS*B(1:NBC)
                   W(INNY+IPOB(IBSYM):INNY+IPOB(IBSYM)+NBC-1) = W(INNY+IPOB(IBSYM):INNY+IPOB(IBSYM)+NBC-1)+FACWB*B(1:NBC)
                   call MTRANS_CPF(C(INNY+IPOB(IBSYM)),A,NVIR(IBSYM),NVIR(ICSYM))
-                  B(1:NAC) = Zero
                   call FMMM(F,A,B,NVIR(IASYM),NVIR(ICSYM),NVIR(IBSYM))
                   if (MYL == 1) then
                     A(1:NAC) = FACS*B(1:NAC)
@@ -285,7 +281,6 @@ subroutine MFAIBJ_INTERNAL(BUFIN)
                     if (IFTA == 0) call DCOPY_(NAC,C(INMY+IPOA(ICSYM)),1,A,1)
                     if (IFTA == 1) call VNEG_CPF(NAC,C(INMY+IPOA(ICSYM)),1,A,1)
                   end if
-                  B(1:NBC) = Zero
                   call FMMM(F,A,B,NVIR(IBSYM),NVIR(ICSYM),NVIR(IASYM))
                   if (NYL == 1) then
                     A(1:NBC) = FACS*B(1:NBC)
@@ -315,7 +310,6 @@ subroutine MFAIBJ_INTERNAL(BUFIN)
                       if (IFTB == 0) call DCOPY_(NBC,C(INNY+IPOB(ICSYM)),1,A,1)
                       if (IFTB == 1) call VNEG_CPF(NBC,C(INNY+IPOB(ICSYM)),1,A,1)
                     end if
-                    B(1:NAC) = Zero
                     call FMMM(F,A,B,NVIR(IASYM),NVIR(ICSYM),NVIR(IBSYM))
                     if (MYL == 1) then
                       A(1:NAC) = FACS*B(1:NAC)

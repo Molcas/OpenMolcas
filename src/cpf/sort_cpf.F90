@@ -20,9 +20,11 @@ use Symmetry_Info, only: Mul
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6, RtoI
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: BUFOUT(*), FC(*), FIJ(*), FJI(*), TIBUF(NTIBUF)
-integer(kind=iwp) :: INDOUT(*), ICAD(*), IBUFL(*)
+real(kind=wp), intent(_OUT_) :: BUFOUT(*), FC(*), FIJ(*), FJI(*), TIBUF(NTIBUF)
+integer(kind=iwp), intent(_OUT_) :: INDOUT(*), ICAD(*), IBUFL(*)
 #include "tratoc.fh"
 integer(kind=iwp) :: I, IAD50, IADD17, IADD25, IBUF, ICP, ICPP, ICQ, ID, IDISK, IDIV, IEXP, II, IIJ, IIN, IJ, IJT, INAV, IND, &
                      IORBI, IOUT, IPOF(65), IREC, ISYM, IVEC(20), J, JDISK, JK, JNAV, JORBI, KORBI, LBUF0, LBUF1, LBUF2, M1, M2, &

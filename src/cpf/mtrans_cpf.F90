@@ -17,8 +17,9 @@ subroutine MTRANS_CPF(A,B,N,M)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: N, M
-real(kind=wp) :: A(M,N), B(N,M)
+integer(kind=iwp), intent(in) :: N, M
+real(kind=wp), intent(in) :: A(M,N)
+real(kind=wp), intent(out) :: B(N,M)
 integer(kind=iwp) :: I, J
 
 do I=1,N
