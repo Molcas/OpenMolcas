@@ -15,6 +15,7 @@
 subroutine FIJ_CPF(ICASE,JSY,INDX,C,S,FC,A,B,FK,DBK,ENP,EPP)
 
 use cpf_global, only: IDENS, IRC, IREF0, IROW, ITER, IV0, LSYM, Lu_25, Lu_CIGuga, NNS, NORBT, NVIR
+use guga_util_global, only: COP, IAD10, ICOP1, nCOP
 use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp, r8
 
@@ -25,8 +26,8 @@ integer(kind=iwp), intent(in) :: ICASE(*), JSY(*), INDX(*)
 real(kind=wp), intent(inout) :: C(*), S(*), FC(*), FK(*), EPP(*)
 real(kind=wp), intent(_OUT_) :: A(*), B(*), DBK(*)
 real(kind=wp), intent(in) :: ENP(*)
-#include "cop.fh"
-integer(kind=iwp) :: IADD25, IC1, IC2, ICHK, IIN, IK, ILEN, IND, INDA, INDB, INDI, INUM, IVL, NA, NB, NI, NK, NOB2, NS1, NS1L
+integer(kind=iwp) :: IADD10, IADD25, IC1, IC2, ICHK, IIN, IK, ILEN, IND, INDA, INDB, INDI, INUM, IVL, NA, NB, NI, NK, NOB2, NS1, &
+                     NS1L
 real(kind=wp) :: COPI, TERM
 integer(kind=iwp), external :: JSUNP
 real(kind=r8), external :: DDOT_

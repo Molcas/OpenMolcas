@@ -12,6 +12,7 @@
 subroutine IJIJ(INTSYM,HDIAG,FIJIJ)
 
 use mrci_global, only: IAD25S, IDVER, IRC, IROW, IVVER, LN, LSYM, Lu_25, Lu_27, LUSYMB, NSM, NVIR, NVIRT, NVPAIR, NVIRP, POTNUC
+use guga_util_global, only: COP, IAD10, ICOP1, nCOP
 use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -22,11 +23,9 @@ implicit none
 integer(kind=iwp), intent(in) :: INTSYM(*)
 real(kind=wp), intent(_OUT_) :: HDIAG(*)
 real(kind=wp), intent(in) :: FIJIJ(*)
-#include "cop.fh"
-real(kind=wp) :: HCOUT(nCOP)
-integer(kind=iwp) :: IAD27, IADD25, ICHK, ICOUP, ICOUPS, IFS, II, IIJ, IIJ1, IIJ2, IJJ, INB, IND, INDI, INS, IOUT, IREF0, ITYP, &
-                     IVL, IVSAVE, J, JJ, KK, LENGTH, NA, NA1, NA2, NB, NB1, NB2, NSA, NSS
-real(kind=wp) :: TERM
+integer(kind=iwp) :: IAD27, IADD10, IADD25, ICHK, ICOUP, ICOUPS, IFS, II, IIJ, IIJ1, IIJ2, IJJ, INB, IND, INDI, INS, IOUT, IREF0, &
+                     ITYP, IVL, IVSAVE, J, JJ, KK, LENGTH, NA, NA1, NA2, NB, NB1, NB2, NSA, NSS
+real(kind=wp) :: HCOUT(nCOP), TERM
 integer(kind=iwp), external :: JSUNP
 
 !------

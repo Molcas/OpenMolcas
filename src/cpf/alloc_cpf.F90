@@ -16,11 +16,11 @@ subroutine ALLOC_CPF()
 
 use cpf_global, only: IFIRST, ILIM, IPASS, IRC, IROW, JBUF, JMAX, KBUF, KBUFF1, LBUF, LIC, LN, MADR, MAX11, MX1, MX2, NNS, NORBT, &
                       NOV, NOV1, NSYM, NTIBUF, NTMAX, NVIR, NVIRT, NVMAX, NVT5
+use guga_util_global, only: IAD10
 use Symmetry_Info, only: Mul
 use Definitions, only: iwp, u6, RtoI
 
 implicit none
-#include "cop.fh"
 integer(kind=iwp) :: I, IPF, IPOF(9), ISTOP, J, JBUF1, KBUF1, LBUF1, LICX, LICXX, LPERMX, LSTO3, LSTO4, NOB2, NOT2, NOVT, NVT
 
 ISTOP = 0

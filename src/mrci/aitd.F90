@@ -12,6 +12,7 @@
 subroutine AITD(INTSYM,INDX,C1,C2,TDMO,A,FAK,FKA)
 
 use mrci_global, only: IRC, LN, LSYM, LUSYMB, NBAST, NSM, NSYM, NVIR, NVIRP, SQ2, SQ2INV
+use guga_util_global, only: COP, IAD10, ICOP1, nCOP
 use Symmetry_Info, only: Mul
 use Constants, only: One
 use Definitions, only: wp, iwp
@@ -22,9 +23,8 @@ implicit none
 integer(kind=iwp), intent(in) :: INTSYM(*), INDX(*)
 real(kind=wp), intent(inout) :: C1(*), C2(*), TDMO(NBAST,NBAST), FAK(*), FKA(*)
 real(kind=wp), intent(_OUT_) :: A(*)
-#include "cop.fh"
-integer(kind=iwp) :: ICHK, ICP1, ICP2, IFT, II, IJOLD, ILEN, IND, INDA, INDB, INK, INMY, INNY, IPOB(9), ITYP, MYL, MYSYM, NA, NA1, &
-                     NA2, NK, NSK, NVM, NYL, NYSYM
+integer(kind=iwp) :: IADD10, ICHK, ICP1, ICP2, IFT, II, IJOLD, ILEN, IND, INDA, INDB, INK, INMY, INNY, IPOB(9), ITYP, MYL, MYSYM, &
+                     NA, NA1, NA2, NK, NSK, NVM, NYL, NYSYM
 real(kind=wp) :: COPI
 integer(kind=iwp), external :: JSUNP
 

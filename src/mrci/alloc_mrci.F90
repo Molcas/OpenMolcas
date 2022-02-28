@@ -13,10 +13,10 @@ subroutine ALLOC_MRCI()
 
 use mrci_global, only: IFIRST, IPASS, IROW, ISMAX, JSC, KBUFF1, LN, MBUF, MEMWRK, MXVEC, NBITM1, NBITM2, NBITM3, NBMN, NCHN1, &
                        NCHN2, NCHN3, NREF, NRROOT, NSECT, NSYM, NVIR, NVIRT, NVMAX, NVSQ
+use guga_util_global, only: IAD10
 use Definitions, only: wp, iwp, RtoI
 
 implicit none
-#include "cop.fh"
 #include "warnings.h"
 integer(kind=iwp) :: I, ILIM, MBUF1, MBUF2, MEMB, MEMX, NARR, NBSIZ1, NBSIZ2, NBSIZ3, NBUFBI, NHREF, NIJ, NIJKL, NOT2, NOVLY1, &
                      NPER, NPLEN, NVT

@@ -12,6 +12,7 @@
 subroutine FIJD(INTSYM,INDX,C,DMO,JREFX,AREF)
 
 use mrci_global, only: ENP, ICPF, IRC, IROW, IVVER, LSYM, LUSYMB, NVIR, NVPAIR
+use guga_util_global, only: COP, IAD10, ICOP1, nCOP
 use Symmetry_Info, only: Mul
 use Constants, only: One
 use Definitions, only: wp, iwp, r8
@@ -20,8 +21,7 @@ implicit none
 integer(kind=iwp), intent(in) :: INTSYM(*), INDX(*), JREFX(*)
 real(kind=wp), intent(in) :: C(*), AREF(*)
 real(kind=wp), intent(inout) :: DMO(*)
-#include "cop.fh"
-integer(kind=iwp) :: IC1, IC2, ICHK, IIN, IK, ILEN, IND, INDA, INDB, INDI, INUM, IRC1, IRC2, IVL, NA, NB, NI, NK, NS1, NS1L
+integer(kind=iwp) :: IADD10, IC1, IC2, ICHK, IIN, IK, ILEN, IND, INDA, INDB, INDI, INUM, IRC1, IRC2, IVL, NA, NB, NI, NK, NS1, NS1L
 real(kind=wp) :: ENPINV, TERM
 integer(kind=iwp), external :: JSUNP
 real(kind=r8), external :: DDOT_

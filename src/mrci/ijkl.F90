@@ -12,6 +12,7 @@
 subroutine IJKL(INTSYM,INDX,C,S,FIJKL)
 
 use mrci_global, only: INDSRT, IRC, IROW, LASTAD, Lu_70, LUSYMB, LN, LSYM, NSRTMX, NVIR, NVPAIR, VALSRT
+use guga_util_global, only: COP, IAD10, ICOP1, nCOP
 use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -23,9 +24,8 @@ integer(kind=iwp), intent(in) :: INTSYM(*), INDX(*)
 real(kind=wp), intent(in) :: C(*)
 real(kind=wp), intent(inout) :: S(*)
 real(kind=wp), intent(_OUT_) :: FIJKL(*)
-#include "cop.fh"
-integer(kind=iwp) :: i, IADR, IC1, IC2, ICHK, IIN, ILEN, IND, INDA, INDB, INDI, INUM, IP, IVL, JP, KP, LENGTH, LP, NA, NB, NIJ, &
-                     NIJKL, NKL, NS1, NS1L
+integer(kind=iwp) :: i, IADD10, IADR, IC1, IC2, ICHK, IIN, ILEN, IND, INDA, INDB, INDI, INUM, IP, IVL, JP, KP, LENGTH, LP, NA, NB, &
+                     NIJ, NIJKL, NKL, NS1, NS1L
 real(kind=wp) :: COPI, FINI
 integer(kind=iwp), external :: JSUNP
 

@@ -12,6 +12,7 @@
 subroutine AID(INTSYM,INDX,C,DMO,A,B,FK)
 
 use mrci_global, only: ENP, IRC, IREST, IROW, ITER, LN, LSYM, LUSYMB, NSM, NSYM, NVIR, NVIRP, SQ2, SQ2INV
+use guga_util_global, only: COP, IAD10, ICOP1, nCOP
 use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -22,9 +23,8 @@ implicit none
 integer(kind=iwp), intent(in) :: INTSYM(*), INDX(*)
 real(kind=wp), intent(inout) :: C(*), DMO(*), FK(*)
 real(kind=wp), intent(_OUT_) :: A(*), B(*)
-#include "cop.fh"
-integer(kind=iwp) :: ICHK, ICP1, ICP2, IFT, II, IJOLD, ILEN, IND, INDA, INDB, INK, INMY, INNY, IPOB(9), ITYP, MYL, MYSYM, NA, NA1, &
-                     NA2, NAK, NK, NSK, NVM, NYL, NYSYM
+integer(kind=iwp) :: IADD10, ICHK, ICP1, ICP2, IFT, II, IJOLD, ILEN, IND, INDA, INDB, INK, INMY, INNY, IPOB(9), ITYP, MYL, MYSYM, &
+                     NA, NA1, NA2, NAK, NK, NSK, NVM, NYL, NYSYM
 real(kind=wp) :: COPI
 integer(kind=iwp), external :: JSUNP
 

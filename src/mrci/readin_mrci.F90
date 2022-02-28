@@ -16,20 +16,19 @@ use mrci_global, only: BNAME, CISEL, CSEL, CSPCK, CTRSH, ENP, ETHRE, GFAC, ICH, 
                        MEMPRM, MEMTOT, MEMWRK, MXREF, MXVEC, NASH, NBAS, NBAST, NBMAX, NBTRI, NCMO, NCSHT, NCSPCK, NCOMP, NCVAL, &
                        NDEL, NDMO, NELEC, NFMO, NFRO, NISH, NORB, NORBT, NREF, NRROOT, NSEL, NSM, NSYM, NVIR, NVIRP, NVIRT, &
                        POTNUC, SSEL, SQNLIM, THRORB
+use guga_util_global, only: IAD10, nIOCR
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Two
 use Definitions, only: wp, iwp, u5, u6
 
 implicit none
 #include "Molcas.fh"
-#include "cop.fh"
-#include "niocr.fh"
 #include "warnings.h"
-integer(kind=iwp) :: I, iCmd, IDISK, IGFAC, IIN, ILIM, INTNUM, IO, IOM, iOpt, IORBS, IR, iRef, ISC(4), istatus, ISUM, ISYM, IT, &
-                     IU, IV, IVA, IX1, IX2, IX3, IX4, IY1, IY2, IY3, IY4, J, jCmd, jEnd, JJ, jStart, LN1, LN2, LV, MXVC, NAMSIZ, &
-                     NASHI, NASHT, NBASI, NC, NCSH(8), NCSHI, NDELI, NDELT, NDMOI, NDMOT, NFMOI, NFMOT, NFROI, NFROT, NINTSY, &
-                     nIRC, NISHI, NISHT, NIWLK, nJJS, NORBI, NOTOT(8), NREFWR, NRF, NRLN1, nTit, NVAL(8), NVALI, NVALT, NVIRI, &
-                     NVT, NVT2
+integer(kind=iwp) :: I, IADD10, iCmd, IDISK, IGFAC, IIN, ILIM, INTNUM, IO, IOM, iOpt, IORBS, IR, iRef, ISC(4), istatus, ISUM, &
+                     ISYM, IT, IU, IV, IVA, IX1, IX2, IX3, IX4, IY1, IY2, IY3, IY4, J, jCmd, jEnd, JJ, jStart, LN1, LN2, LV, MXVC, &
+                     NAMSIZ, NASHI, NASHT, NBASI, NC, NCSH(8), NCSHI, NDELI, NDELT, NDMOI, NDMOT, NFMOI, NFMOT, NFROI, NFROT, &
+                     NINTSY, nIRC, NISHI, NISHT, NIWLK, nJJS, NORBI, NOTOT(8), NREFWR, NRF, NRLN1, nTit, NVAL(8), NVALI, NVALT, &
+                     NVIRI, NVT, NVT2
 real(kind=wp) :: SPIN
 logical(kind=iwp) :: Skip
 character(len=88) :: ModLine

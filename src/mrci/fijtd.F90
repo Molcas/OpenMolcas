@@ -12,6 +12,7 @@
 subroutine FIJTD(INTSYM,INDX,C1,C2,TDMO)
 
 use mrci_global, only: IRC, IVVER, LSYM, LUSYMB, NBAST, NVIR, NVPAIR
+use guga_util_global, only: COP, IAD10, ICOP1, nCOP
 use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp, r8
 
@@ -19,8 +20,7 @@ implicit none
 integer(kind=iwp), intent(in) :: INTSYM(*), INDX(*)
 real(kind=wp), intent(in) :: C1(*), C2(*)
 real(kind=wp), intent(inout) :: TDMO(NBAST,NBAST)
-#include "cop.fh"
-integer(kind=iwp) :: IC1, IC2, ICHK, IIN, ILEN, IND, INDA, INDB, INDI, INUM, IVL, NA, NB, NI, NK, NS1, NS1L
+integer(kind=iwp) :: IADD10, IC1, IC2, ICHK, IIN, ILEN, IND, INDA, INDB, INDI, INUM, IVL, NA, NB, NI, NK, NS1, NS1L
 real(kind=wp) :: TERM
 integer(kind=iwp), external :: JSUNP
 real(kind=r8), external :: DDOT_

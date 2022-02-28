@@ -15,6 +15,7 @@
 subroutine CUPDATE(JSY,INDX,C,S,AP,BST,ENP)
 
 use cpf_global, only: IAD25S, IADDP, IPRINT, IRC, IREF0, ITPUL, LSYM, Lu_25, Lu_30, Lu_CI, NCONF, NNS, NVIR, WLEV
+use guga_util_global, only: nCOP
 use Symmetry_Info, only: Mul
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6, r8
@@ -25,7 +26,6 @@ implicit none
 integer(kind=iwp), intent(in) :: JSY(*), INDX(*)
 real(kind=wp), intent(inout) :: C(*), S(*), BST(*)
 real(kind=wp), intent(in) :: AP(*), ENP(*)
-#include "cop.fh"
 integer(kind=iwp) :: I, IAD, III, IIN, INUM, IP, IST, JJJ, NS1, NSIL
 real(kind=wp) :: A, APW, EMP, W
 integer(kind=iwp), external :: JSUNP

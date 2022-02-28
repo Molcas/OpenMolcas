@@ -16,6 +16,7 @@ subroutine SORTA(BUFS,INDS,ISAB,BUFBI,BIAC,BICA,NINTGR)
 
 use mrci_global, only: IADABCI, ICH, IFIRST, INDSRT, IPRINT, IROW, ISMAX, KBUFF1, LASTAD, Lu_60, Lu_70, LUSYMB, LUTRA, LN, MCHAIN, &
                        NBITM1, NCHN1, NORB, NSM, NSRTMX, NSYM, NTIBUF, NVIRT, NVPAIR, TIBUF, VALSRT
+use guga_util_global, only: COP, IAD10, ICOP1, nCOP
 use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -25,11 +26,10 @@ real(kind=wp), intent(out) :: BUFS(NBITM1,NCHN1), BUFBI(KBUFF1), BIAC(ISMAX), BI
 integer(kind=iwp), intent(out) :: INDS(NBITM1+2,NCHN1), NINTGR
 integer(kind=iwp), intent(in) :: ISAB(*)
 #include "tratoc.fh"
-#include "cop.fh"
 #include "warnings.h"
-integer(kind=iwp) :: I, IACS, IAD15, IAD50, IADR, IBUFIJ, ICHK, IDISK, IIJ, IIN, IJ, IJKL, ILEN, ILOOP, INB, INND, INS, INSB, &
-                     INSOUT, INUMB, IOUT, IPOS, ISRTAD, IST, JDISK, KK, KL, LENGTH, M, NA, NAT, NB, NC, NI, NIB, NJ, NK, NL, NOP, &
-                     NOQ, NOR, NORB0(9), NORBP, NOS, NSAVE, NSIB, NSP, NSPQ, NSPQR, NSQ, NSR, NSRTCN, NSS, NSSM, NT, NTM, NU, &
+integer(kind=iwp) :: I, IACS, IAD15, IAD50, IADD10, IADR, IBUFIJ, ICHK, IDISK, IIJ, IIN, IJ, IJKL, ILEN, ILOOP, INB, INND, INS, &
+                     INSB, INSOUT, INUMB, IOUT, IPOS, ISRTAD, IST, JDISK, KK, KL, LENGTH, M, NA, NAT, NB, NC, NI, NIB, NJ, NK, NL, &
+                     NOP, NOQ, NOR, NORB0(9), NORBP, NOS, NSAVE, NSIB, NSP, NSPQ, NSPQR, NSQ, NSR, NSRTCN, NSS, NSSM, NT, NTM, NU, &
                      NUMAX, NUMIN, NV, NX, NXM
 real(kind=wp) :: FINI
 logical(kind=iwp) :: Skip

@@ -15,8 +15,9 @@
 
 subroutine AIBJ(L0,L1,L2,L3,ITAI)
 
-use guga_global, only: BS3, BS4, COUP, COUP1, IA, IB, ICASE, ICH, ICOUP, ICOUP1, IJ, IOUT, IRC, IVF0, IWAY, IX, J1, J2, JM, JM1, &
-                       JNDX, JRC, LN, Lu_10, MXVERT, NBUF, NMAT
+use guga_global, only: IADD10, BS3, BS4, COUP, COUP1, IA, IB, ICASE, ICH, ICOUP, ICOUP1, IJ, IOUT, IRC, IVF0, IWAY, IX, J1, J2, &
+                       JM, JM1, JNDX, JRC, LN, Lu_10, MXVERT, NBUF, NMAT
+use guga_util_global, only: COP, ICOP1, nCOP
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -25,7 +26,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: L0(*), L1(*), L2(*), L3(*)
 integer(kind=iwp), intent(_OUT_) :: ITAI(*)
-#include "cop.fh"
 integer(kind=iwp) :: I, IABIJ, IC1, IC11, IC2, IC22, ICP1, ICP2, IDIF, IFAB, IFAI, II, IID, IJJ, IJM, IJS, IN_, IN2, IND1, IND2, &
                      IND3, ISTOP, IT1, IT2, ITAIL, ITT1, ITT2, ITURN, ITYP, J, JJ, JJ1, JJD, JND1, JND2, JOJ, JTURN, KM, KM1, &
                      LTYP, NI, NJ, NUMM(7)

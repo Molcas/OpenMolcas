@@ -15,6 +15,7 @@
 subroutine IJIJ_CPF(JSY,HDIAG,FJI)
 
 use cpf_global, only: IAD25S, IRC, IREF0, IROW, IV0, IV1, LN, LSYM, Lu_25, Lu_27, Lu_CIGuga, NNS, NSM, NSYS, NVIR, NVIRT, POTNUC
+use guga_util_global, only: COP, IAD10, ICOP1, nCOP
 use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -25,9 +26,8 @@ implicit none
 integer(kind=iwp), intent(in) :: JSY(*)
 real(kind=wp), intent(_OUT_) :: HDIAG(*)
 real(kind=wp), intent(in) :: FJI(*)
-#include "cop.fh"
-integer(kind=iwp) :: IAD27, IADD25, ICHK, ICOUP, ICOUPS, IFS, II, IIJ, IIJ1, IIJ2, IJJ, INB, IND, INDI, INS, IOUT, ITYP, IVL, &
-                     IVSAVE, J, JJ, KK, LENGTH, NA, NA1, NA2, NB, NB1, NB2, NSA, NSS
+integer(kind=iwp) :: IAD27, IADD10, IADD25, ICHK, ICOUP, ICOUPS, IFS, II, IIJ, IIJ1, IIJ2, IJJ, INB, IND, INDI, INS, IOUT, ITYP, &
+                     IVL, IVSAVE, J, JJ, KK, LENGTH, NA, NA1, NA2, NB, NB1, NB2, NSA, NSS
 real(kind=wp) :: HCOUT(nCOP), TERM
 integer(kind=iwp), external :: JSUNP
 

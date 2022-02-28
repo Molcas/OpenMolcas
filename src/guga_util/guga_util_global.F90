@@ -8,7 +8,19 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      INTEGER nCOP,IADD10,IAD10,ICOP1
-      REAL*8 COP
-      Parameter (nCOP=600)
-      COMMON/COP/IADD10,IAD10(9),COP(nCOP),ICOP1(nCOP+1)
+
+module guga_util_global
+
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+private
+
+integer(kind=iwp), parameter :: nCOP = 600, nIOCR = 20000
+integer(kind=iwp) :: IAD10(9), ICOP1(nCOP+1) = 0
+real(kind=wp) :: COP(nCOP) = Zero
+
+public :: COP, IAD10, ICOP1, nCOP, nIOCR
+
+end module guga_util_global

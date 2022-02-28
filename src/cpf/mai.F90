@@ -19,6 +19,7 @@ subroutine MAI(JSY,INDX,C,S,FC,BUFIN,A,B,FK,DBK,W,THET,ENP,EPP,NII,KTYP)
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use cpf_global, only: IDENS, IRC, IREF0, IROW, ITER, LASTAD, LBUF, LN, LSYM, Lu_CIGuga, Lu_TiABIJ, NDIAG, NORBT, NSM, NSYM, NSYS, &
                       NVIR, NVIRT, SQ2
+use guga_util_global, only: COP, IAD10, ICOP1, nCOP
 use Symmetry_Info, only: Mul
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, r8, RtoI
@@ -30,10 +31,9 @@ integer(kind=iwp), intent(in) :: JSY(*), INDX(*), NII, KTYP
 real(kind=wp), intent(inout) :: C(*), S(*), FK(*), W(*), EPP(*)
 real(kind=wp), intent(_OUT_) :: FC(*), BUFIN(*), A(*), B(*), DBK(*)
 real(kind=wp), intent(in) :: THET(NII,NII), ENP(*)
-#include "cop.fh"
-integer(kind=iwp) :: IADR, ICHK, ICP1, ICP2, IFT, IJ, IJOLD, ILEN, IND, INDA, INDB, INDI, INK, INMY, INNY, INUM, IOUT, IPOB(9), &
-                     ITURN, ITYP, LBUF0, LBUF1, LBUF2, LENGTH, MYL, MYSYM, NA1, NA2, NAK, NI, NJ, NK, NKM, NOB2, NOT2, NOTT, &
-                     NOVST, NSIJ, NSK, NVM, NVT, NYL, NYSYM
+integer(kind=iwp) :: IADD10, IADR, ICHK, ICP1, ICP2, IFT, IJ, IJOLD, ILEN, IND, INDA, INDB, INDI, INK, INMY, INNY, INUM, IOUT, &
+                     IPOB(9), ITURN, ITYP, LBUF0, LBUF1, LBUF2, LENGTH, MYL, MYSYM, NA1, NA2, NAK, NI, NJ, NK, NKM, NOB2, NOT2, &
+                     NOTT, NOVST, NSIJ, NSK, NVM, NVT, NYL, NYSYM
 real(kind=wp) :: COPI, ENPQ, FACS, FACW, FACWA, FACWB, SGN, TERM
 logical(kind=iwp) :: Skip
 integer(kind=iwp), external :: JSUNP

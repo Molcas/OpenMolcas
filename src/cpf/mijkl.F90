@@ -16,6 +16,7 @@ subroutine MIJKL(JSY,INDX,C,S,FIJKL,BUFIN,W,THET,ENP,EPP,NII)
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use cpf_global, only: IRC, IREF0, IROW, ITER, JSC, KBUFF1, LASTAD, LN, LSYM, Lu_CIGuga, Lu_TiABCI, NCONF, NNS, NVIR
+use guga_util_global, only: COP, IAD10, ICOP1, nCOP
 use Symmetry_Info, only: Mul
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, RtoI
@@ -27,9 +28,8 @@ integer(kind=iwp), intent(in) :: JSY(*), INDX(*), NII
 real(kind=wp), intent(in) :: C(*), THET(NII,NII), ENP(*)
 real(kind=wp), intent(inout) :: S(*), W(*), EPP(*)
 real(kind=wp), intent(_OUT_) :: FIJKL(*), BUFIN(*)
-#include "cop.fh"
-integer(kind=iwp) :: IADR, IC1, IC2, ICHK, ILEN, IND, INDA, INDB, INDI, INUM, IP, IVL, JP, KKBUF0, KKBUF1, KKBUF2, KP, LENGTH, LP, &
-                     NA, NB, NIJ, NIJKL, NKL, NS1, NS1L
+integer(kind=iwp) :: IADD10, IADR, IC1, IC2, ICHK, ILEN, IND, INDA, INDB, INDI, INUM, IP, IVL, JP, KKBUF0, KKBUF1, KKBUF2, KP, &
+                     LENGTH, LP, NA, NB, NIJ, NIJKL, NKL, NS1, NS1L
 real(kind=wp) :: COPI, ENPQ, FACS, FACW, FACWA, FACWB, FINI
 integer(kind=iwp), external :: JSUNP
 

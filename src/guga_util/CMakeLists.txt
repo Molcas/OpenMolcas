@@ -12,6 +12,7 @@
 set (sources
      fmmm.F90
      fmul2.F90
+     guga_util_global.F90
      icunp.F90
      jacscf.F90
      jsunp.F90
@@ -26,5 +27,8 @@ set (sources
      vneg.F90
      wr_guga_info.F90
 )
+
+# Source files defining modules that should be available to other *_util directories
+set (modfile_list "")
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

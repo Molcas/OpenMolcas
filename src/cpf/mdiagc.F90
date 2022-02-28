@@ -15,6 +15,7 @@
 subroutine MDIAGC(JSY,C,S,W,THET,ENP,NII)
 
 use cpf_global, only: IAD25S, ILIM, IRC, LN, LSYM, Lu_25, NSM, NSYS, NVIRT
+use guga_util_global, only: COP, nCOP
 use Symmetry_Info, only: Mul
 use Constants, only: One, Half, Two
 use Definitions, only: wp, iwp
@@ -23,7 +24,6 @@ implicit none
 integer(kind=iwp), intent(in) :: JSY(*), NII
 real(kind=wp), intent(in) :: C(*), THET(NII,NII), ENP(*)
 real(kind=wp), intent(inout) :: S(*), W(*)
-#include "cop.fh"
 integer(kind=iwp) :: IADD25, IIC, IND, INDA, IRL, NA, NA1, NA2, NB, NB1, NB2, NSA, NSS
 real(kind=wp) :: ENPQ, FACS, FACW
 integer(kind=iwp), external :: JSUNP

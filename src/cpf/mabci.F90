@@ -15,6 +15,7 @@
 subroutine MABCI(JSY,INDX,C,S,BMN,IBMN,BIAC,BICA,BUFIN,W,THET,ENP,NII)
 
 use cpf_global, only: IADABCI, IRC, KBUFF1, LN, LSYM, Lu_CIGuga, Lu_TiABCI, NDIAG, NNS, NSM, NSYS, NVIRT, SQ2
+use guga_util_global, only: COP, IAD10, ICOP1, nCOP
 use Symmetry_Info, only: Mul
 use Constants, only: One, Two, Half
 use Definitions, only: wp, iwp, r8
@@ -27,9 +28,8 @@ real(kind=wp), intent(_OUT_) :: C(*), S(*), W(*)
 real(kind=wp), intent(inout) :: BMN(*), BIAC(*), BICA(*), BUFIN(*)
 integer(kind=iwp), intent(_OUT_) :: IBMN(*)
 real(kind=wp), intent(in) :: THET(NII,NII), ENP(*)
-#include "cop.fh"
-integer(kind=iwp) :: I, IAD15, ICCB, ICHK, ICP1, ICP2, IIN, ILEN, ILOOP, IND, INDA, INDB, INS, INSIN, INUM, IOUT, IT, ITYP, LB, &
-                     MA, NB, NI, NSAVE, NSIB, NSLB
+integer(kind=iwp) :: I, IAD15, IADD10, ICCB, ICHK, ICP1, ICP2, IIN, ILEN, ILOOP, IND, INDA, INDB, INS, INSIN, INUM, IOUT, IT, &
+                     ITYP, LB, MA, NB, NI, NSAVE, NSIB, NSLB
 real(kind=wp) :: COPL, ENPQ, FACS, FACW, FACWA, FACWB, TERM, XXX
 logical(kind=iwp) :: Skip
 integer(kind=iwp), external :: JSUNP

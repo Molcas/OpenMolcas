@@ -12,6 +12,7 @@
 subroutine FIJ(INTSYM,INDX,C,S,FC,A,B,FK,DBK)
 
 use mrci_global, only: IRC, IREST, IROW, ITER, IVVER, LSYM, Lu_25, LUSYMB, NBTRI, NVIR, NVPAIR
+use guga_util_global, only: COP, IAD10, ICOP1, nCOP
 use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
@@ -21,8 +22,7 @@ implicit none
 integer(kind=iwp), intent(in) :: INTSYM(*), INDX(*)
 real(kind=wp), intent(inout) :: C(*), S(*), FC(*)
 real(kind=wp), intent(_OUT_) :: A(*), B(*), FK(*), DBK(*)
-#include "cop.fh"
-integer(kind=iwp) :: IADD25, IC1, IC2, ICHK, IIN, IK, ILEN, IND, INDA, INDB, INDI, INUM, IVL, NA, NB, NI, NK, NS1, NS1L
+integer(kind=iwp) :: IADD10, IADD25, IC1, IC2, ICHK, IIN, IK, ILEN, IND, INDA, INDB, INDI, INUM, IVL, NA, NB, NI, NK, NS1, NS1L
 real(kind=wp) :: COPI
 integer(kind=iwp), external :: JSUNP
 

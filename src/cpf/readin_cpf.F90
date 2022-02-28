@@ -18,17 +18,16 @@ subroutine ReadIn_CPF()
 use cpf_global, only: BNAME, CTRSH, ETHRE, ETOT, ICASE, ICH, ICONV, ICPF, IFIRST, ILIM, INCPF, INDX, IPRINT, IR1, IRC, IREST, &
                       IROW, ISAB, ISC, ISDCI, ISMAX, ITOC17, IV0, IV1, JJS, JSY, LN, LSYM, Lu_CIGuga, Lu_TraOne, LWSP, MAXIT, &
                       MAXITP, N, NASH, NBAS, NFRO, NISH, NORB, NORBT, NPFRO, NREF, NSM, NSYM, NVIR, NVIRT, POTNUC, WLEV
+use guga_util_global, only: IAD10, nIOCR
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u5, u6
 
 implicit none
 #include "Molcas.fh"
-#include "cop.fh"
-#include "niocr.fh"
 integer(kind=iwp), parameter :: mxTit = 10
-integer(kind=iwp) :: I, iCmd, IDISK, IIN, INTNUM, IOCR(nIOCR), iOpt, IR, iRef, IRJ, istatus, iSym, IT, IU, IV, IVA, IX1, IX2, IX3, &
-                     IX4, IY1, IY2, IY3, IY4, j, jCmd, jEnd, jStart, LN1, LN2, NAMSIZ, NASHI, NASHT, NBAST, NDEL(8), NDELI, NDELT, &
+integer(kind=iwp) :: I, IADD10, iCmd, IDISK, IIN, INTNUM, iOpt, IR, iRef, IRJ, istatus, iSym, IT, IU, IV, IVA, IX1, IX2, IX3, IX4, &
+                     IY1, IY2, IY3, IY4, j, jCmd, jEnd, jStart, LN1, LN2, NAMSIZ, NASHI, NASHT, NBAST, NDEL(8), NDELI, NDELT, &
                      NFREF, NFROI, NFROT, nIRC, NISHI, NISHT, nJJS, NPDEL(8), NPDELT, NPFROT, NRLN1, nTit, NVAL(8), NVALI, NVALT, &
                      NVIR2, NVIRI, NVT, NVT2
 real(kind=wp) :: S
@@ -36,7 +35,7 @@ logical(kind=iwp) :: Skip
 character(len=88) :: ModLine
 character(len=72) :: Line, Title(mxTit)
 character(len=4) :: Command
-integer(kind=iwp), allocatable :: JREFX(:)
+integer(kind=iwp), allocatable :: IOCR(:), JREFX(:)
 character(len=4), parameter :: Cmd(16) = ['TITL','MAXP','LEVS','THRP','PRIN','FROZ','DELE','MAXI','ECON','REST','MCPF','CPF ', &
                                           'SDCI','ACPF','LOW ','END ']
 
@@ -287,6 +286,7 @@ call iDAFILE(Lu_CIGuga,2,IAD10,9,IADD10)
 iOpt = 2
 nJJS = 18
 nIRC = 4
+call mma_allocate(IOCR,nIOCR,label='IOCR')
 call WR_GUGA(Lu_CIGuga,iOpt,IADD10,NFREF,S,N,LN,NSYM,IR1,IRJ,IFIRST,INTNUM,LSYM,NREF,LN1,NRLN1,NASH,NISH,8,IRC,nIRC,JJS,nJJS,NVAL, &
              IOCR,nIOCR)
 if (LN >= MXORB) then
@@ -420,6 +420,7 @@ else
     write(u6,'(6X,A,I3,T25,16I4)') 'Ref nr',IREF,(IOCR(j),j=jStart,jEnd)
   end do
 end if
+call mma_deallocate(IOCR)
 write(u6,*)
 write(u6,'(6X,A)') 'OPTIONS:'
 write(u6,'(6X,A)') '--------'
