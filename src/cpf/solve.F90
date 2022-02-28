@@ -22,8 +22,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NN
-real(kind=wp) , intent(in):: UL(NN,NN), B(*)
-real(kind=wp) , intent(_OUT_):: X(*)
+real(kind=wp), intent(in) :: UL(NN,NN), B(*)
+real(kind=wp), intent(_OUT_) :: X(*)
 integer(kind=iwp) :: I, IBACK, IM1, IP, IP1, J, N, NP1
 real(kind=wp) :: RSUM
 

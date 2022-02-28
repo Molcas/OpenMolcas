@@ -9,4 +9,22 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #***********************************************************************
 
+set (sources
+     fmmm.F90
+     fmul2.F90
+     icunp.F90
+     jacscf.F90
+     jsunp.F90
+     mtrans.F90
+     order.F90
+     siadd.F90
+     squar2.F90
+     squar.F90
+     squarm.F90
+     squarn.F90
+     tradd.F90
+     vneg.F90
+     wr_guga_info.F90
+)
+
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

@@ -21,9 +21,9 @@ use Definitions, only: wp, iwp, u6
 #include "intent.fh"
 
 implicit none
-real(kind=wp) , intent(inout):: C(*), ENP(*), FK(*)
-real(kind=wp) , intent(_OUT_):: S(*), W(*), TPQ(*), EPP(*), FC(*), BUFIN(*), A(*), B(*), DBK(*), TEMP(*)
-real(kind=wp) , intent(in):: THET(*)
+real(kind=wp), intent(inout) :: C(*), ENP(*), FK(*)
+real(kind=wp), intent(_OUT_) :: S(*), W(*), TPQ(*), EPP(*), FC(*), BUFIN(*), A(*), B(*), DBK(*), TEMP(*)
+real(kind=wp), intent(in) :: THET(*)
 integer(kind=iwp), intent(in) :: ICASE_(*)
 real(kind=wp) :: AA
 

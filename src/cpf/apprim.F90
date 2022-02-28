@@ -21,7 +21,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(in) :: EPP(*), EPB(*), ENP(*)
-real(kind=wp), intent(_OUT_) ::  TPQ(*), AP(*), T2(*)
+real(kind=wp), intent(_OUT_) :: TPQ(*), AP(*), T2(*)
 integer(kind=iwp), intent(in) :: ICASE(*)
 integer(kind=iwp) :: I, IP
 

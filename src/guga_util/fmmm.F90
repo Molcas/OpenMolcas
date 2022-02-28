@@ -7,35 +7,35 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
-!                                                                      *
-! Copyright (C) 1986, Per E. M. Siegbahn                               *
-!               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-subroutine PSQ2(C,S,MUL,INDX,JSY,NDIAG,INUM,IRC3,LSYM,NVIRT,SQ2)
+subroutine FMMM(A,B,C,NROW,NCOL,NSUM)
 
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp), intent(inout) :: C(*), S(*)
-integer(kind=iwp), intent(in) :: MUL(8,8), INDX(*), JSY(*), NDIAG(*), INUM, IRC3, LSYM, NVIRT
-real(kind=wp), intent(in) :: SQ2
-integer(kind=iwp) :: I, II1, MA, NA, NS1, NS1L
-integer(kind=iwp), external :: JSUNP
+integer(kind=iwp), intent(in) :: NROW, NCOL, NSUM
+real(kind=wp), intent(in) :: A(NROW,NSUM), B(NSUM,NCOL)
+real(kind=wp), intent(out) :: C(NROW,NCOL)
+integer(kind=iwp) :: I, J, K, KK
+real(kind=wp) :: T
+integer(kind=iwp), parameter :: KS = 48
 
-do I=1,INUM
-  II1 = IRC3+I
-  NS1 = JSUNP(JSY,II1)
-  NS1L = MUL(NS1,LSYM)
-  if (NS1L == 1) then
-    NA = INDX(II1)
-    do MA=1,NVIRT
-      C(NA+NDIAG(MA)) = SQ2*C(NA+NDIAG(MA))
-      S(NA+NDIAG(MA)) = S(NA+NDIAG(MA))/SQ2
+C(:,:) = Zero
+
+do KK=1,NSUM,KS
+  do I=1,NROW
+    do J=1,NCOL
+      T = C(I,J)
+      do K=KK,min(KK+KS-1,NSUM)
+        T = T+B(K,J)*A(I,K)
+      end do
+      C(I,J) = T
     end do
-  end if
+  end do
 end do
 
 return
 
-end subroutine PSQ2
+end subroutine FMMM
