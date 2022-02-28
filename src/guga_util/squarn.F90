@@ -7,27 +7,27 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
-!                                                                      *
-! Copyright (C) 1986, Per E. M. Siegbahn                               *
-!               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-subroutine MTRANS_CPF(A,B,N,M)
+subroutine SQUARN(A,B,N)
 
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: N, M
-real(kind=wp), intent(in) :: A(M,N)
-real(kind=wp), intent(out) :: B(N,M)
-integer(kind=iwp) :: I, J
+real(kind=wp), intent(in) :: A(*)
+integer(kind=iwp), intent(in) :: N
+real(kind=wp), intent(out) :: B(N,N)
+integer(kind=iwp) :: I, IIN
 
-do I=1,N
-  do J=1,M
-    B(I,J) = A(J,I)
-  end do
+IIN = 2
+do I=2,N
+  B(I,1:I-1) = -A(IIN:IIN+I-2)
+  B(1:I-1,I) = A(IIN:IIN+I-2)
+  IIN = IIN+I
 end do
+call DCOPY_(N,[Zero],0,B,N+1)
 
 return
 
-end subroutine MTRANS_CPF
+end subroutine SQUARN

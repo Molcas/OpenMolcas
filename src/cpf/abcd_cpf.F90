@@ -12,7 +12,7 @@
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-subroutine ABCD(JSY,INDX,ISAB,C,S,ACBDS,ACBDT,BUFIN)
+subroutine ABCD_CPF(JSY,INDX,ISAB,C,S,ACBDS,ACBDT,BUFIN)
 
 use cpf_global, only: IPASS, IRC, IROW, JJS, KBUFF1, LN, LSYM, Lu_TiABCD, NDIAG, NSM, NSYM, NSYS, NVIRT, SQ2
 use Symmetry_Info, only: Mul
@@ -107,4 +107,4 @@ call DSQ2(C,S,MUL,INDX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
 
 return
 
-end subroutine ABCD
+end subroutine ABCD_CPF

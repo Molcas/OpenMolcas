@@ -36,7 +36,7 @@ integer(kind=iwp) :: IADR, ICHK, ICP1, ICP2, IFT, IJ, IJOLD, ILEN, IND, INDA, IN
                      NOVST, NSIJ, NSK, NVM, NVT, NYL, NYSYM
 real(kind=wp) :: COPI, SGN, TERM
 logical(kind=iwp) :: Skip
-integer(kind=iwp), external :: JSUNP_CPF
+integer(kind=iwp), external :: JSUNP
 real(kind=r8), external :: DDOT_
 
 call AI_CPF_INTERNAL(BUFIN)
@@ -113,7 +113,7 @@ subroutine AI_CPF_INTERNAL(BUFIN)
             INDB = IRC(ITYP)+ICP2
             INMY = INDX(INDA)+1
             INNY = INDX(INDB)+1
-            MYSYM = JSUNP_CPF(JSY,INDA)
+            MYSYM = JSUNP(JSY,INDA)
             NYSYM = MUL(MYSYM,NSK)
             MYL = MUL(MYSYM,LSYM)
             NYL = MUL(NYSYM,LSYM)
@@ -124,8 +124,8 @@ subroutine AI_CPF_INTERNAL(BUFIN)
             if (IDENS /= 1) then
               DBK(1:INK) = COP(II)*FK(1:INK)
               if (NYL == 1) then
-                if (IFT == 0) call SQUAR_CPF(C(INNY+IPOB(MYL)),A,NVM)
-                if (IFT == 1) call SQUARM_CPF(C(INNY+IPOB(MYL)),A,NVM)
+                if (IFT == 0) call SQUAR(C(INNY+IPOB(MYL)),A,NVM)
+                if (IFT == 1) call SQUARM(C(INNY+IPOB(MYL)),A,NVM)
                 call FMMM(DBK,A,B,1,NVM,INK)
                 S(INMY:INMY+NVM-1) = S(INMY:INMY+NVM-1)+B(1:NVM)
                 SGN = One
@@ -168,8 +168,8 @@ subroutine AI_CPF_INTERNAL(BUFIN)
                   if (IFT == 1) COPI = -COPI
                 end if
               else
-                if (IFT == 0) call SQUAR_CPF(C(INNY+IPOB(MYL)),A,NVM)
-                if (IFT == 1) call SQUARN_CPF(C(INNY+IPOB(MYL)),A,NVM)
+                if (IFT == 0) call SQUAR(C(INNY+IPOB(MYL)),A,NVM)
+                if (IFT == 1) call SQUARN(C(INNY+IPOB(MYL)),A,NVM)
                 call FMMM(C(INMY),A,B,1,INK,NVM)
               end if
               FK(1:INK) = FK(1:INK)+COPI*B(1:INK)

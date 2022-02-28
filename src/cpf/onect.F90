@@ -30,7 +30,7 @@ if ((ICPF /= 0) .or. (ISDCI /= 0) .or. (INCPF /= 0)) then
     ! (AI/JK) INTEGRALS
     call AI_CPF(JSY,INDX,C,S,FC,BUFIN,A,B,FK,DBK,ENP,EPP,1)
   end if
-  call FIJ(ICASE,JSY,INDX,C,S,FC,A,B,FK,DBK,ENP,EPP)
+  call FIJ_CPF(ICASE,JSY,INDX,C,S,FC,A,B,FK,DBK,ENP,EPP)
 else
   ! MCPF
   if (IDENS /= 1) then

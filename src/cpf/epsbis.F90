@@ -26,7 +26,7 @@ integer(kind=iwp), intent(in) :: JSY(*), INDX(*)
 real(kind=wp), intent(in) :: C(*), W(*)
 real(kind=wp), intent(_OUT_) :: EPB(*)
 integer(kind=iwp) :: I, IIN, INUM, IP, IST, NS1, NSIL
-integer(kind=iwp), external :: JSUNP_CPF
+integer(kind=iwp), external :: JSUNP
 real(kind=r8), external :: DDOT_
 
 EPB(1:IRC(4)) = Zero
@@ -45,7 +45,7 @@ IP = IRC(2)-IRC(1)
 IIN = IRC(1)
 do I=1,IP
   !FUE IND = IND+1
-  NS1 = JSUNP_CPF(JSY,IIN+I)
+  NS1 = JSUNP(JSY,IIN+I)
   NSIL = MUL(NS1,LSYM)
   INUM = NVIR(NSIL)
   IST = INDX(IIN+I)+1
@@ -57,7 +57,7 @@ end do
 IP = IRC(4)-IRC(2)
 IIN = IRC(2)
 do I=1,IP
-  NS1 = JSUNP_CPF(JSY,IIN+I)
+  NS1 = JSUNP(JSY,IIN+I)
   NSIL = MUL(NS1,LSYM)
   INUM = NNS(NSIL)
   IST = INDX(IIN+I)+1

@@ -12,7 +12,7 @@
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-subroutine AB(ICASE,JSY,INDX,C,S,FC,A,B,F,ENP)
+subroutine AB_CPF(ICASE,JSY,INDX,C,S,FC,A,B,F,ENP)
 
 use cpf_global, only: IDENS, IFIRST, IPRINT, IRC, IREF0, IROW, LN, LSYM, NDIAG, NORBT, NSYM, NSYS, NVIR, NVIRT, SQ2
 use Symmetry_Info, only: Mul
@@ -29,7 +29,7 @@ real(kind=wp), intent(in) :: ENP(*)
 integer(kind=iwp) :: I, IAB, IASYM, ICSYM, IFT, II1, IIA, IIC, IIN, IJ, INDA, INMY, INN, INUM, IOC(55), IPF, IPOA(9), IPOF(9), &
                      ITAIL, ITURN, JOJ, LNA, LNC, MYL, MYSYM, NA, NA1, NA2, NAA, NAB, NAC, NB, NCLIM, NVIRA, NVIRC
 real(kind=wp) :: COPI, RSUM, TR, TSUM
-integer(kind=iwp), external :: ICUNP, JSUNP_CPF
+integer(kind=iwp), external :: ICUNP, JSUNP
 real(kind=r8), external :: DDOT_
 
 INUM = IRC(4)-IRC(3)
@@ -85,7 +85,7 @@ do
       if ((IDENS == 0) .or. (INDA == IREF0)) cycle
       TSUM = C(INDA)*C(INDA)/(sqrt(ENP(INDA))*sqrt(ENP(INDA)))
     else
-      MYSYM = JSUNP_CPF(JSY,INDA)
+      MYSYM = JSUNP(JSY,INDA)
       MYL = MUL(MYSYM,LSYM)
       INMY = INDX(INDA)+1
       if (INDA <= IRC(2)) then
@@ -96,7 +96,7 @@ do
           S(INMY:INMY+NVIR(MYL)-1) = S(INMY:INMY+NVIR(MYL)-1)+A(1:NVIR(MYL))
           cycle
         end if
-        call FMUL2_CPF(C(INMY),C(INMY),A,NVIR(MYL),NVIR(MYL),1)
+        call FMUL2(C(INMY),C(INMY),A,NVIR(MYL),NVIR(MYL),1)
         IPF = IPOF(MYL)+1
         IIN = IPOF(MYL+1)-IPOF(MYL)
         COPI = One/(sqrt(ENP(INDA))*sqrt(ENP(INDA)))
@@ -126,16 +126,16 @@ do
           if (NVIR(ICSYM) == 0) cycle
           if (IDENS /= 1) then
             if (MYL == 1) then
-              if (IFT == 0) call SQUAR_CPF(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
-              !if (IFT == 1) call SQUARN_CPF(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
-              if (IFT == 1) call SQUARM_CPF(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
+              if (IFT == 0) call SQUAR(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
+              !if (IFT == 1) call SQUARN(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
+              if (IFT == 1) call SQUARM(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
               NAA = NVIR(IASYM)*NVIR(IASYM)
               call FMMM(F(IPOF(IASYM)+1),A,B,NVIR(IASYM),NVIR(IASYM),NVIR(IASYM))
               A(1:NAA) = B(1:NAA)
               if (IFT /= 1) then
-                call SIADD_CPF(A,S(INMY+IPOA(IASYM)),NVIR(IASYM))
+                call SIADD(A,S(INMY+IPOA(IASYM)),NVIR(IASYM))
               else
-                call TRADD_CPF(A,S(INMY+IPOA(IASYM)),NVIR(IASYM))
+                call TRADD(A,S(INMY+IPOA(IASYM)),NVIR(IASYM))
               end if
               A(1:NAA) = Zero
             else
@@ -151,16 +151,16 @@ do
             end if
           else
             if (MYL == 1) then
-              if (IFT == 0) call SQUAR_CPF(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
-              if (IFT == 1) call SQUARM_CPF(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
+              if (IFT == 0) call SQUAR(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
+              if (IFT == 1) call SQUARM(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
             else if (IASYM <= ICSYM) then
               NAC = NVIR(IASYM)*NVIR(ICSYM)
               if (IFT == 0) call DCOPY_(NAC,C(INMY+IPOA(ICSYM)),1,A,1)
-              if (IFT == 1) call VNEG_CPF(NAC,C(INMY+IPOA(ICSYM)),1,A,1)
+              if (IFT == 1) call VNEG(NAC,C(INMY+IPOA(ICSYM)),1,A,1)
             else
-              call MTRANS_CPF(C(INMY+IPOA(IASYM)),A,NVIR(IASYM),NVIR(ICSYM))
+              call MTRANS(C(INMY+IPOA(IASYM)),A,NVIR(IASYM),NVIR(ICSYM))
             end if
-            call FMUL2_CPF(A,A,B,NVIR(IASYM),NVIR(IASYM),NVIR(ICSYM))
+            call FMUL2(A,A,B,NVIR(IASYM),NVIR(IASYM),NVIR(ICSYM))
             IPF = IPOF(IASYM)+1
             COPI = One/(sqrt(ENP(INDA))*sqrt(ENP(INDA)))
             F(IPF:IPF+IAB-1) = F(IPF:IPF+IAB-1)+COPI*B(1:IAB)
@@ -203,4 +203,4 @@ return
 !986 format(1X,'W,AB',5F10.6)
 !987 format(1X,'S,AB',5F10.6)
 
-end subroutine AB
+end subroutine AB_CPF

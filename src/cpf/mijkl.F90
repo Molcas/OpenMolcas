@@ -31,7 +31,7 @@ real(kind=wp), intent(_OUT_) :: FIJKL(*), BUFIN(*)
 integer(kind=iwp) :: IADR, IC1, IC2, ICHK, ILEN, IND, INDA, INDB, INDI, INUM, IP, IVL, JP, KKBUF0, KKBUF1, KKBUF2, KP, LENGTH, LP, &
                      NA, NB, NIJ, NIJKL, NKL, NS1, NS1L
 real(kind=wp) :: COPI, ENPQ, FACS, FACW, FACWA, FACWB, FINI
-integer(kind=iwp), external :: JSUNP_CPF
+integer(kind=iwp), external :: JSUNP
 
 call MIJKL_INTERNAL(BUFIN)
 
@@ -109,7 +109,7 @@ subroutine MIJKL_INTERNAL(BUFIN)
             FACWB = FACW*ENP(INDB)-FACS
             NA = INDX(INDA)
             NB = INDX(INDB)
-            NS1 = JSUNP_CPF(JSY,INDA)
+            NS1 = JSUNP(JSY,INDA)
             NS1L = MUL(NS1,LSYM)
             INUM = NVIR(NS1L)
             if (IVL >= 2) INUM = NNS(NS1L)

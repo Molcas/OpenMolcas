@@ -12,7 +12,7 @@
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-subroutine ABCI(JSY,INDX,C,S,BMN,IBMN,BIAC,BICA,BUFIN)
+subroutine ABCI_CPF(JSY,INDX,C,S,BMN,IBMN,BIAC,BICA,BUFIN)
 
 use cpf_global, only: IADABCI, IRC, KBUFF1, LN, LSYM, Lu_CIGuga, Lu_TiABCI, NDIAG, NNS, NSM, NSYS, NVIRT, SQ2
 use Symmetry_Info, only: Mul
@@ -30,7 +30,7 @@ integer(kind=iwp) :: I, IAD15, ICCB, ICHK, ICP1, ICP2, IIN, ILEN, ILOOP, IND, IN
                      MA, NB, NI, NSAVE, NSIB, NSLB
 real(kind=wp) :: COPL, TERM
 logical(kind=iwp) :: Skip
-integer(kind=iwp), external :: JSUNP_CPF
+integer(kind=iwp), external :: JSUNP
 real(kind=r8), external :: DDOT_
 
 INUM = IRC(4)-IRC(3)
@@ -96,7 +96,7 @@ do
       IND = IBMN(IT)
       ICP1 = ibits(IND,19,13)
       INDA = IRC(1)+ICP1
-      if (JSUNP_CPF(JSY,INDA) /= NSLB) cycle
+      if (JSUNP(JSY,INDA) /= NSLB) cycle
       MA = INDX(INDA)+LB
       ICP2 = ibits(IND,6,13)
       ITYP = ibits(IND,0,6)
@@ -120,4 +120,4 @@ call DSQ2(C,S,MUL,INDX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)
 
 return
 
-end subroutine ABCI
+end subroutine ABCI_CPF

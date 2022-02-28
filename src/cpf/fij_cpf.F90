@@ -12,7 +12,7 @@
 !               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-subroutine FIJ(ICASE,JSY,INDX,C,S,FC,A,B,FK,DBK,ENP,EPP)
+subroutine FIJ_CPF(ICASE,JSY,INDX,C,S,FC,A,B,FK,DBK,ENP,EPP)
 
 use cpf_global, only: IDENS, IRC, IREF0, IROW, ITER, IV0, LSYM, Lu_25, Lu_CIGuga, NNS, NORBT, NVIR
 use Symmetry_Info, only: Mul
@@ -28,7 +28,7 @@ real(kind=wp), intent(in) :: ENP(*)
 #include "cop.fh"
 integer(kind=iwp) :: IADD25, IC1, IC2, ICHK, IIN, IK, ILEN, IND, INDA, INDB, INDI, INUM, IVL, NA, NB, NI, NK, NOB2, NS1, NS1L
 real(kind=wp) :: COPI, TERM
-integer(kind=iwp), external :: JSUNP_CPF
+integer(kind=iwp), external :: JSUNP
 real(kind=r8), external :: DDOT_
 
 IK = 0 ! dummy initialize
@@ -84,7 +84,7 @@ if ((IDENS == 1) .or. (ITER /= 1)) then
             INDB = IRC(IVL)+IC2
             NA = INDX(INDA)
             NB = INDX(INDB)
-            NS1 = JSUNP_CPF(JSY,INDA)
+            NS1 = JSUNP(JSY,INDA)
             NS1L = MUL(NS1,LSYM)
             INUM = NVIR(NS1L)
             if (IVL >= 2) INUM = NNS(NS1L)
@@ -111,10 +111,10 @@ if ((IDENS == 1) .or. (ITER /= 1)) then
 end if
 !if (IDENS == 1) write(u6,876) (FC(I),I=1,NOB2)
 call AI_CPF(JSY,INDX,C,S,FC,C,A,B,FK,DBK,ENP,EPP,0)
-if (ITER /= 1) call AB(ICASE,JSY,INDX,C,S,FC,A,B,FK,ENP)
+if (ITER /= 1) call AB_CPF(ICASE,JSY,INDX,C,S,FC,A,B,FK,ENP)
 
 return
 
 !876 format(1X,'FIJ',5F12.6)
 
-end subroutine FIJ
+end subroutine FIJ_CPF

@@ -24,7 +24,7 @@ real(kind=wp), intent(inout) :: C(*)
 integer(kind=iwp) :: I, II, II1, IIN, IJ, ILSYM(57), IOC(57), IORB(57), ISP(57), IX1, J, J1, J2, JCONF, JJ, JMIN, JOJ, JVIR, NA, &
                      NB, NSI, NSJ
 real(kind=wp) :: CI, CNRM, THRC
-integer(kind=iwp), external :: ICUNP, JSUNP_CPF
+integer(kind=iwp), external :: ICUNP, JSUNP
 real(kind=wp), external :: DNRM2_
 
 NA = 0 ! dummy initialized
@@ -70,7 +70,7 @@ do I=1,NCONF
       end do
     end if
   end if
-  NSJ = MUL(JSUNP_CPF(JSY,JJ),LSYM)
+  NSJ = MUL(JSUNP(JSY,JJ),LSYM)
   JVIR = I-INDX(JJ)
   if (I > JCONF) JVIR = IJ-INDX(JJ)
   II1 = (JJ-1)*LN

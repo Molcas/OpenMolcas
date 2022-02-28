@@ -7,28 +7,27 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
-!                                                                      *
-! Copyright (C) 1986, Per E. M. Siegbahn                               *
-!               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-subroutine SQUAR_CPF(A,B,N)
+subroutine SQUARM(A,B,N)
 
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: N
 real(kind=wp), intent(in) :: A(*)
+integer(kind=iwp), intent(in) :: N
 real(kind=wp), intent(out) :: B(N,N)
 integer(kind=iwp) :: I, IIN
 
-IIN = 1
-do I=1,N
+IIN = 2
+do I=2,N
+  B(1:I-1,I) = -A(IIN:IIN+I-2)
   B(I,1:I-1) = A(IIN:IIN+I-2)
-  B(1:I,I) = A(IIN:IIN+I-1)
   IIN = IIN+I
 end do
+call DCOPY_(N,[Zero],0,B,N+1)
 
 return
 
-end subroutine SQUAR_CPF
+end subroutine SQUARM

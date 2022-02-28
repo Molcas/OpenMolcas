@@ -29,7 +29,7 @@ real(kind=wp), intent(in) :: THET(NII,NII), ENP(*)
 #include "cop.fh"
 integer(kind=iwp) :: IADD25, IC1, IC2, ICHK, IIN, IK, ILEN, IND, INDA, INDB, INDI, INUM, IVL, NA, NB, NI, NK, NOB2, NS1, NS1L
 real(kind=wp) :: COPI, ENPQ, FACS, FACW, FACWA, FACWB, TERM
-integer(kind=iwp), external :: JSUNP_CPF
+integer(kind=iwp), external :: JSUNP
 real(kind=r8), external :: DDOT_
 
 IK = 0 ! dummy initialize
@@ -93,7 +93,7 @@ if ((IDENS == 1) .or. (ITER /= 1)) then
             INDB = IRC(IVL)+IC2
             NA = INDX(INDA)
             NB = INDX(INDB)
-            NS1 = JSUNP_CPF(JSY,INDA)
+            NS1 = JSUNP(JSY,INDA)
             NS1L = MUL(NS1,LSYM)
             INUM = NVIR(NS1L)
             if (IVL >= 2) INUM = NNS(NS1L)

@@ -7,12 +7,9 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
-!                                                                      *
-! Copyright (C) 1986, Per E. M. Siegbahn                               *
-!               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-subroutine FMUL2_CPF(A,B,C,NROW,NCOL,N)
+subroutine FMUL2(A,B,C,NROW,NCOL,N)
 
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -22,11 +19,11 @@ integer(kind=iwp), intent(in) :: NROW, NCOL, N
 real(kind=wp), intent(in) :: A(NROW,N), B(NCOL,N)
 real(kind=wp), intent(out) :: C(NROW,NCOL)
 integer(kind=iwp) :: J, J1, K
-real(kind=wp) :: CJ(200), FAC
+real(kind=wp) :: CJ(1000), FAC
 
-if (nRow > 200) then
+if (NROW > size(CJ)) then
   write(u6,*)
-  write(u6,*) ' *** Error in Subroutine FMUL2_CPF ***'
+  write(u6,*) ' *** Error in Subroutine FMUL2 ***'
   write(u6,*) ' row dimension exceeds local buffer size'
   write(u6,*)
   call Abend()
@@ -46,4 +43,4 @@ end do
 
 return
 
-end subroutine FMUL2_CPF
+end subroutine FMUL2

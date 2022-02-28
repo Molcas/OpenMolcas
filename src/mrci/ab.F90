@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine AB_MRCI(INTSYM,INDX,C,S,FC,A,B,FK)
+subroutine AB(INTSYM,INDX,C,S,FC,A,B,FK)
 
 use mrci_global, only: IFIRST, IRC, IROW, LN, LSYM, NSYM, NVIR, NVIRP, SQ2, SQ2INV
 use Symmetry_Info, only: Mul
@@ -103,4 +103,4 @@ call CSCALE(INDX,INTSYM,S,SQ2)
 
 return
 
-end subroutine AB_MRCI
+end subroutine AB

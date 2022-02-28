@@ -7,24 +7,24 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
-!                                                                      *
-! Copyright (C) 1986, Per E. M. Siegbahn                               *
-!               1986, Margareta R. A. Blomberg                         *
 !***********************************************************************
 
-subroutine SQUAR2_CPF(A,N)
+subroutine VNEG(IAB,A,IA,B,IB)
 
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp), intent(in) :: N
-real(kind=wp), intent(inout) :: A(N,N)
+integer(kind=iwp), intent(in) :: IAB, IA, IB
+real(kind=wp), intent(in) :: A(*)
+real(kind=wp), intent(_OUT_) :: B(*)
 integer(kind=iwp) :: I
 
-do I=1,N-1
-  A(I,I+1:N) = A(I+1:N,I)
+do I=0,IAB-1
+  B(1+I*IB) = -A(1+I*IA)
 end do
 
 return
 
-end subroutine SQUAR2_CPF
+end subroutine VNEG

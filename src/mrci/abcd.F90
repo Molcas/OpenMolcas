@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ABCD_MRCI(INTSYM,indx,ISAB,C,S,ACBDS,ACBDT,BUFIN)
+subroutine ABCD(INTSYM,indx,ISAB,C,S,ACBDS,ACBDT,BUFIN)
 
 use mrci_global, only: IPASS, IRC, IROW, JJS, KBUFF1, LN, LSYM, Lu_80, NSM, NSYM, NVIR, NVIRP, NVIRT, SQ2, SQ2INV
 use Symmetry_Info, only: Mul
@@ -155,4 +155,4 @@ call CSCALE(indx,INTSYM,S,SQ2)
 
 return
 
-end subroutine ABCD_MRCI
+end subroutine ABCD

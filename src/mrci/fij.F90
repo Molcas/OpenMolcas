@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine FIJ_MRCI(INTSYM,INDX,C,S,FC,A,B,FK,DBK)
+subroutine FIJ(INTSYM,INDX,C,S,FC,A,B,FK,DBK)
 
 use mrci_global, only: IRC, IREST, IROW, ITER, IVVER, LSYM, Lu_25, LUSYMB, NBTRI, NVIR, NVPAIR
 use Symmetry_Info, only: Mul
@@ -71,9 +71,9 @@ do
 end do
 if (ITER /= 0) then
   call AI_MRCI(INTSYM,INDX,C,S,FC,A,B,FK,DBK,0)
-  if ((ITER /= 1) .or. (IREST /= 0)) call AB_MRCI(INTSYM,INDX,C,S,FC,A,B,FK)
+  if ((ITER /= 1) .or. (IREST /= 0)) call AB(INTSYM,INDX,C,S,FC,A,B,FK)
 end if
 
 return
 
-end subroutine FIJ_MRCI
+end subroutine FIJ

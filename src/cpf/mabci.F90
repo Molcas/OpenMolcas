@@ -32,7 +32,7 @@ integer(kind=iwp) :: I, IAD15, ICCB, ICHK, ICP1, ICP2, IIN, ILEN, ILOOP, IND, IN
                      MA, NB, NI, NSAVE, NSIB, NSLB
 real(kind=wp) :: COPL, ENPQ, FACS, FACW, FACWA, FACWB, TERM, XXX
 logical(kind=iwp) :: Skip
-integer(kind=iwp), external :: JSUNP_CPF
+integer(kind=iwp), external :: JSUNP
 real(kind=r8), external :: DDOT_
 
 INUM = IRC(4)-IRC(3)
@@ -98,7 +98,7 @@ do
       IND = IBMN(IT)
       ICP1 = ibits(IND,19,13)
       INDA = IRC(1)+ICP1
-      if (JSUNP_CPF(JSY,INDA) /= NSLB) cycle
+      if (JSUNP(JSY,INDA) /= NSLB) cycle
       MA = INDX(INDA)+LB
       ICP2 = ibits(IND,6,13)
       ITYP = ibits(IND,0,6)

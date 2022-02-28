@@ -36,7 +36,7 @@ integer(kind=iwp) :: IADR, ICHK, ICP1, ICP2, IFT, IJ, IJOLD, ILEN, IND, INDA, IN
                      NOVST, NSIJ, NSK, NVM, NVT, NYL, NYSYM
 real(kind=wp) :: COPI, ENPQ, FACS, FACW, FACWA, FACWB, SGN, TERM
 logical(kind=iwp) :: Skip
-integer(kind=iwp), external :: JSUNP_CPF
+integer(kind=iwp), external :: JSUNP
 real(kind=r8), external :: DDOT_
 
 call MAI_INTERNAL(BUFIN)
@@ -121,7 +121,7 @@ subroutine MAI_INTERNAL(BUFIN)
             INDB = IRC(ITYP)+ICP2
             INMY = INDX(INDA)+1
             INNY = INDX(INDB)+1
-            MYSYM = JSUNP_CPF(JSY,INDA)
+            MYSYM = JSUNP(JSY,INDA)
             NYSYM = MUL(MYSYM,NSK)
             MYL = MUL(MYSYM,LSYM)
             NYL = MUL(NYSYM,LSYM)
@@ -137,8 +137,8 @@ subroutine MAI_INTERNAL(BUFIN)
               FACWB = FACW*ENP(INDB)-FACS
               DBK(1:INK) = COP(II)*FK(1:INK)
               if (NYL == 1) then
-                if (IFT == 0) call SQUAR_CPF(C(INNY+IPOB(MYL)),A,NVM)
-                if (IFT == 1) call SQUARM_CPF(C(INNY+IPOB(MYL)),A,NVM)
+                if (IFT == 0) call SQUAR(C(INNY+IPOB(MYL)),A,NVM)
+                if (IFT == 1) call SQUARM(C(INNY+IPOB(MYL)),A,NVM)
                 call FMMM(DBK,A,B,1,NVM,INK)
                 S(INMY:INMY+NVM-1) = S(INMY:INMY+NVM-1)+FACS*B(1:NVM)
                 W(INMY:INMY+NVM-1) = W(INMY:INMY+NVM-1)+FACWA*B(1:NVM)
@@ -182,8 +182,8 @@ subroutine MAI_INTERNAL(BUFIN)
               COPI = COP(II)/ENPQ
               !write(u6,652) IFT,NYL,NSK,MYL,INDA,INDB
               if (NYL == 1) then
-                if (IFT == 0) call SQUAR_CPF(C(INNY+IPOB(MYL)),A,NVM)
-                if (IFT == 1) call SQUARN_CPF(C(INNY+IPOB(MYL)),A,NVM)
+                if (IFT == 0) call SQUAR(C(INNY+IPOB(MYL)),A,NVM)
+                if (IFT == 1) call SQUARN(C(INNY+IPOB(MYL)),A,NVM)
                 call FMMM(C(INMY),A,B,1,INK,NVM)
               else if (NSK <= MYL) then
                 call FMMM(C(INNY+IPOB(MYL)),C(INMY),B,INK,1,NVM)

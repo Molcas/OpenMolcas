@@ -11,10 +11,10 @@
 
 set (sources
      main.F90
-     abcd_mrci.F90
-     abci_mrci.F90
+     abcd.F90
+     abci.F90
      abd.F90
-     ab_mrci.F90
+     ab.F90
      abtd.F90
      aid.F90
      ai_mrci.F90
@@ -34,9 +34,8 @@ set (sources
      faibj5.F90
      faibj.F90
      fijd.F90
-     fij_mrci.F90
+     fij.F90
      fijtd.F90
-     fmul2.F90
      hz.F90
      hzlp1.F90
      hzlp2.F90
@@ -45,7 +44,6 @@ set (sources
      ijkl.F90
      indmat.F90
      ipo.F90
-     jsunp.F90
      loop70.F90
      mkdao.F90
      mkhref.F90
@@ -53,9 +51,7 @@ set (sources
      mqct.F90
      mrci.F90
      mrci_global.F90
-     mtrans.F90
      natorb_mrci.F90
-     order.F90
      pkvec.F90
      pmatel.F90
      propct.F90
@@ -67,18 +63,11 @@ set (sources
      seceq.F90
      secne.F90
      secular.F90
-     siadd.F90
      sigma.F90
      sorta.F90
      sortb.F90
      sort_mrci.F90
-     squar2.F90
-     squar.F90
-     squarm.F90
-     squarn.F90
-     tradd.F90
      upkvec.F90
-     vneg.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/prog_template.cmake)

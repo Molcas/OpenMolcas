@@ -29,7 +29,7 @@ real(kind=wp), intent(in) :: FJI(*)
 integer(kind=iwp) :: IAD27, IADD25, ICHK, ICOUP, ICOUPS, IFS, II, IIJ, IIJ1, IIJ2, IJJ, INB, IND, INDI, INS, IOUT, ITYP, IVL, &
                      IVSAVE, J, JJ, KK, LENGTH, NA, NA1, NA2, NB, NB1, NB2, NSA, NSS
 real(kind=wp) :: HCOUT(nCOP), TERM
-integer(kind=iwp), external :: JSUNP_CPF
+integer(kind=iwp), external :: JSUNP
 
 ICOUP = 0 ! dummy initialize
 IVL = 0 ! dummy initialize
@@ -148,7 +148,7 @@ do
 
       if (IVL /= IV0) then
         JJ = IRC(IVL)+ICOUP
-        NSS = MUL(JSUNP_CPF(JSY,JJ),LSYM)
+        NSS = MUL(JSUNP(JSY,JJ),LSYM)
         if (IVL == 1) INB = NVIR(NSS)
         if (IVL > 1) INB = NNS(NSS)
         if (INB > 0) call dDAFILE(Lu_27,2,HDIAG,INB,IAD27)

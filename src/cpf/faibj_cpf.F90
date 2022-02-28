@@ -33,7 +33,7 @@ integer(kind=iwp) :: IAB, IADR, IBSYM, ICHK, ICOUP, ICOUP1, ICSYM, IFAB, IFT, IF
                      LBUF2, LENGTH, MYL, MYSYM, NAC, NBC, NI, NJ, NOT2, NOVST, NSIJ, NVT, NYL, NYSYM
 real(kind=wp) :: COPI, CPL, CPLA, CPLL, FAC, TERM
 logical(kind=iwp) :: Skip
-integer(kind=iwp), external :: JSUNP_CPF
+integer(kind=iwp), external :: JSUNP
 real(kind=r8), external :: DDOT_
 
 call FAIBJ_CPF_INTERNAL(BUFIN)
@@ -136,7 +136,7 @@ subroutine FAIBJ_CPF_INTERNAL(BUFIN)
               INDA = IRC(1)+ICOUP1
               INDB = IRC(1)+ICOUP
           end select
-          MYSYM = JSUNP_CPF(JSY,INDA)
+          MYSYM = JSUNP(JSY,INDA)
 
           NYSYM = MUL(MYSYM,NSIJ)
           MYL = MUL(MYSYM,LSYM)
@@ -189,18 +189,18 @@ subroutine FAIBJ_CPF_INTERNAL(BUFIN)
                   ! CASE 2 , IASYM > ICSYM AND ICSYM > OR = IBSYM
                   IPF = IPOF(IBSYM)
                   F(1:IAB) = CPL*AJBI(IPF+1:IPF+IAB)+CPLA*ABIJ(IPF+1:IPF+IAB)
-                  call MTRANS_CPF(C(INMY+IPOA(IASYM)),A,NVIR(IASYM),NVIR(ICSYM))
+                  call MTRANS(C(INMY+IPOA(IASYM)),A,NVIR(IASYM),NVIR(ICSYM))
                   call FMMM(F,A,B,NVIR(IBSYM),NVIR(ICSYM),NVIR(IASYM))
                   if (NYL == 1) then
                     A(1:NBC) = B(1:NBC)
                     if (IFTB /= 1) then
-                      call SIADD_CPF(A,S(INNY+IPOB(ICSYM)),NVIR(IBSYM))
+                      call SIADD(A,S(INNY+IPOB(ICSYM)),NVIR(IBSYM))
                       A(1:NBC) = Zero
-                      call SQUAR_CPF(C(INNY+IPOB(IBSYM)),A,NVIR(IBSYM))
+                      call SQUAR(C(INNY+IPOB(IBSYM)),A,NVIR(IBSYM))
                     else
-                      call TRADD_CPF(A,S(INNY+IPOB(ICSYM)),NVIR(IBSYM))
+                      call TRADD(A,S(INNY+IPOB(ICSYM)),NVIR(IBSYM))
                       A(1:NBC) = Zero
-                      call SQUARN_CPF(C(INNY+IPOB(IBSYM)),A,NVIR(IBSYM))
+                      call SQUARN(C(INNY+IPOB(IBSYM)),A,NVIR(IBSYM))
                     end if
                   else
                     if (IFTB /= 1) then
@@ -208,7 +208,7 @@ subroutine FAIBJ_CPF_INTERNAL(BUFIN)
                     else
                       S(INNY+IPOB(ICSYM):INNY+IPOB(ICSYM)+NBC-1) = S(INNY+IPOB(ICSYM):INNY+IPOB(ICSYM)+NBC-1)-B(1:NBC)
                     end if
-                    call MTRANS_CPF(C(INNY+IPOB(ICSYM)),A,NVIR(ICSYM),NVIR(IBSYM))
+                    call MTRANS(C(INNY+IPOB(ICSYM)),A,NVIR(ICSYM),NVIR(IBSYM))
                     if (IFTB == 1) A(1:NBC) = -A(1:NBC)
                   end if
                   call FMMM(A,F,B,NVIR(ICSYM),NVIR(IASYM),NVIR(IBSYM))
@@ -220,22 +220,22 @@ subroutine FAIBJ_CPF_INTERNAL(BUFIN)
                   IPF = IPOF(IASYM)
                   F(1:IAB) = CPL*AIBJ(IPF+1:IPF+IAB)+CPLA*ABIJ(IPF+1:IPF+IAB)
                   if (MYL == 1) then
-                    if (IFTA == 0) call SQUAR_CPF(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
-                    if (IFTA == 1) call SQUARN_CPF(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
+                    if (IFTA == 0) call SQUAR(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
+                    if (IFTA == 1) call SQUARN(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
                   else
-                    call MTRANS_CPF(C(INMY+IPOA(ICSYM)),A,NVIR(ICSYM),NVIR(IASYM))
+                    call MTRANS(C(INMY+IPOA(ICSYM)),A,NVIR(ICSYM),NVIR(IASYM))
                     if (IFTA == 1) A(1:NAC) = -A(1:NAC)
                   end if
                   call FMMM(A,F,B,NVIR(ICSYM),NVIR(IBSYM),NVIR(IASYM))
                   S(INNY+IPOB(IBSYM):INNY+IPOB(IBSYM)+NBC-1) = S(INNY+IPOB(IBSYM):INNY+IPOB(IBSYM)+NBC-1)+B(1:NBC)
-                  call MTRANS_CPF(C(INNY+IPOB(IBSYM)),A,NVIR(IBSYM),NVIR(ICSYM))
+                  call MTRANS(C(INNY+IPOB(IBSYM)),A,NVIR(IBSYM),NVIR(ICSYM))
                   call FMMM(F,A,B,NVIR(IASYM),NVIR(ICSYM),NVIR(IBSYM))
                   if (MYL == 1) then
                     A(1:NAC) = B(1:NAC)
                     if (IFTA /= 1) then
-                      call SIADD_CPF(A,S(INMY+IPOA(IASYM)),NVIR(IASYM))
+                      call SIADD(A,S(INMY+IPOA(IASYM)),NVIR(IASYM))
                     else
-                      call TRADD_CPF(A,S(INMY+IPOA(IASYM)),NVIR(IASYM))
+                      call TRADD(A,S(INMY+IPOA(IASYM)),NVIR(IASYM))
                     end if
                     A(1:NAC) = Zero
                   else if (IFTA /= 1) then
@@ -249,19 +249,19 @@ subroutine FAIBJ_CPF_INTERNAL(BUFIN)
                   F(1:IAB) = CPL*AJBI(IPF+1:IPF+IAB)+CPLA*ABIJ(IPF+1:IPF+IAB)
                   if (INDA == INDB) call DCOPY_(NVIR(IASYM),[Zero],0,F,NVIR(IASYM)+1)
                   if (MYL == 1) then
-                    if (IFTA == 0) call SQUAR_CPF(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
-                    if (IFTA == 1) call SQUARM_CPF(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
+                    if (IFTA == 0) call SQUAR(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
+                    if (IFTA == 1) call SQUARM(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
                   else
                     if (IFTA == 0) call DCOPY_(NAC,C(INMY+IPOA(ICSYM)),1,A,1)
-                    if (IFTA == 1) call VNEG_CPF(NAC,C(INMY+IPOA(ICSYM)),1,A,1)
+                    if (IFTA == 1) call VNEG(NAC,C(INMY+IPOA(ICSYM)),1,A,1)
                   end if
                   call FMMM(F,A,B,NVIR(IBSYM),NVIR(ICSYM),NVIR(IASYM))
                   if (NYL == 1) then
                     A(1:NBC) = B(1:NBC)
                     if (IFTB /= 1) then
-                      call SIADD_CPF(A,S(INNY+IPOB(ICSYM)),NVIR(IBSYM))
+                      call SIADD(A,S(INNY+IPOB(ICSYM)),NVIR(IBSYM))
                     else
-                      call TRADD_CPF(A,S(INNY+IPOB(ICSYM)),NVIR(IBSYM))
+                      call TRADD(A,S(INNY+IPOB(ICSYM)),NVIR(IBSYM))
                     end if
                     A(1:NBC) = Zero
                   else if (IFTB /= 1) then
@@ -273,19 +273,19 @@ subroutine FAIBJ_CPF_INTERNAL(BUFIN)
                     IPF = IPOF(IASYM)
                     F(1:IAB) = CPL*AIBJ(IPF+1:IPF+IAB)+CPLA*ABIJ(IPF+1:IPF+IAB)
                     if (NYL == 1) then
-                      if (IFTB == 0) call SQUAR_CPF(C(INNY+IPOB(IBSYM)),A,NVIR(IBSYM))
-                      if (IFTB == 1) call SQUARM_CPF(C(INNY+IPOB(IBSYM)),A,NVIR(IBSYM))
+                      if (IFTB == 0) call SQUAR(C(INNY+IPOB(IBSYM)),A,NVIR(IBSYM))
+                      if (IFTB == 1) call SQUARM(C(INNY+IPOB(IBSYM)),A,NVIR(IBSYM))
                     else
                       if (IFTB == 0) call DCOPY_(NBC,C(INNY+IPOB(ICSYM)),1,A,1)
-                      if (IFTB == 1) call VNEG_CPF(NBC,C(INNY+IPOB(ICSYM)),1,A,1)
+                      if (IFTB == 1) call VNEG(NBC,C(INNY+IPOB(ICSYM)),1,A,1)
                     end if
                     call FMMM(F,A,B,NVIR(IASYM),NVIR(ICSYM),NVIR(IBSYM))
                     if (MYL == 1) then
                       A(1:NAC) = B(1:NAC)
                       if (IFTA /= 1) then
-                        call SIADD_CPF(A,S(INMY+IPOA(ICSYM)),NVIR(IASYM))
+                        call SIADD(A,S(INMY+IPOA(ICSYM)),NVIR(IASYM))
                       else
-                        call TRADD_CPF(A,S(INMY+IPOA(ICSYM)),NVIR(IASYM))
+                        call TRADD(A,S(INMY+IPOA(ICSYM)),NVIR(IASYM))
                       end if
                       !A(1:NAC) = Zero
                     else if (IFTA /= 1) then
@@ -372,15 +372,15 @@ subroutine FAIBJ_CPF_INTERNAL(BUFIN)
             IPF1 = IPOF(IBSYM)+1
             if (IASYM <= IBSYM) then
               if (NSIJ == 1) then
-                call SQUAR2_CPF(ABIJ(IPF),NVIR(IASYM))
-                if (NI == NJ) call SQUAR2_CPF(AIBJ(IPF),NVIR(IASYM))
-                call MTRANS_CPF(AIBJ(IPF),AJBI(IPF),NVIR(IASYM),NVIR(IBSYM))
+                call SQUAR2(ABIJ(IPF),NVIR(IASYM))
+                if (NI == NJ) call SQUAR2(AIBJ(IPF),NVIR(IASYM))
+                call MTRANS(AIBJ(IPF),AJBI(IPF),NVIR(IASYM),NVIR(IBSYM))
               else
-                call MTRANS_CPF(ABIJ(IPF1),ABIJ(IPF),NVIR(IASYM),NVIR(IBSYM))
-                call MTRANS_CPF(AIBJ(IPF1),AJBI(IPF),NVIR(IASYM),NVIR(IBSYM))
+                call MTRANS(ABIJ(IPF1),ABIJ(IPF),NVIR(IASYM),NVIR(IBSYM))
+                call MTRANS(AIBJ(IPF1),AJBI(IPF),NVIR(IASYM),NVIR(IBSYM))
               end if
             else
-              call MTRANS_CPF(AIBJ(IPF1),AJBI(IPF),NVIR(IASYM),NVIR(IBSYM))
+              call MTRANS(AIBJ(IPF1),AJBI(IPF),NVIR(IASYM),NVIR(IBSYM))
             end if
           end do
         end if

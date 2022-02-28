@@ -27,7 +27,7 @@ real(kind=wp), intent(_OUT_) :: HDIAG(*)
 real(kind=wp), intent(in) :: FC(*), FIJ(*), FJI(*)
 integer(kind=iwp) :: I, IA, IAD27, IAV, IB, IBV, II, IJ, IND, IOC(55), IR, IRL, J, JOJ, NA, NA1, NA2, NB, NB1, NB2, NSA, NSS
 real(kind=wp) :: SUM1, SUM2, TERM
-integer(kind=iwp), external :: ICUNP, JSUNP_CPF
+integer(kind=iwp), external :: ICUNP, JSUNP
 
 IAD27 = 0
 IRL = IRC(ILIM)
@@ -37,7 +37,7 @@ do IR=1,IRL
     JOJ = ICUNP(ICASE,I+LN*(IR-1))
     IOC(I) = (JOJ+1)/2
   end do
-  NSS = MUL(JSUNP_CPF(JSY,IR),LSYM)
+  NSS = MUL(JSUNP(JSY,IR),LSYM)
 
   SUM1 = Zero
   do I=1,LN

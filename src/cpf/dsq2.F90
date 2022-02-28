@@ -21,11 +21,11 @@ real(kind=wp), intent(inout) :: C(*), S(*)
 integer(kind=iwp), intent(in) :: MUL(8,8), INDX(*), JSY(*), NDIAG(*), INUM, IRC3, LSYM, NVIRT
 real(kind=wp), intent(in) :: SQ2
 integer(kind=iwp) :: I, II1, MA, NA, NS1, NS1L
-integer(kind=iwp), external :: JSUNP_CPF
+integer(kind=iwp), external :: JSUNP
 
 do I=1,INUM
   II1 = IRC3+I
-  NS1 = JSUNP_CPF(JSY,II1)
+  NS1 = JSUNP(JSY,II1)
   NS1L = MUL(NS1,LSYM)
   if (NS1L /= 1) cycle
   NA = INDX(II1)
